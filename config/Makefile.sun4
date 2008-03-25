@@ -1,0 +1,12 @@
+# SunOS / CC
+
+# compat=4 is requiered for ganil_tape
+# may be modifier (extern "C" enough ?
+CXX           = CC
+LD            = CC
+
+EXTRA_LDFLAGS = 
+EXTRA_CXXFLAGS= -KPIC
+
+DPDFLAGS_ARCH = 
+SOFLAGS       = -G
