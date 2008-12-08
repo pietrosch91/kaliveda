@@ -1,0 +1,20 @@
+#!/bin/sh
+
+create_dir() { #cree directory dir_name si n'existe pas
+if test -f $* -o -d $*
+then
+   if test ! -d $*
+   then
+     echo "ERREUR ==> $* n'est pas un directory"
+     exit
+   fi
+return 0
+else
+   echo "creation de $*"
+   mkdir $*
+fi
+}
+
+create_dir hp_lib
+create_dir hp_exe
+make -f makefile.unix "VERSION = hp" "CFLAGS=-Ae" "COMPILAT=cc" "LINK=cc" "MAKEEXTENSION=c"
