@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>KaliVeda data analysis framework</title>
+  <link rel="stylesheet" href="css/site.css" type="text/css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<h1>Install cygwin, free Visual C++, ROOT and KaliVeda on Windows XP<br>
+</h1>
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+<img
+ style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;"
+ alt="indra" src="images/indra_camp4_210x188.png"><br>
+<script language="javascript" src="js/nav.js"></script>
+<br>
+<!-- SiteSearch Google -->
+<form method="get" action="http://www.google.com/search"><input
+ name="ie" value="UTF-8" type="hidden"> <input name="oe" value="UTF-8"
+ type="hidden"><input name="q" style="margin-top: 5px;" size="13"
+ maxlength="255" value="" type="text"> <input name="btnG"
+ style="margin-top: 5px;" value="Search site"
+ onclick="send_data(this.form)" type="submit"></form>
+<!-- SiteSearch Google -->
+</div>
+<div class="page">
+<br>
+<span style="font-weight: bold;"></span><br>
+<div class="download">The most difficult part of installing KaliVeda
+under Windows is installing the free C++ compiler "Visual C++" and
+using it to build ROOT from source. These instructions were correct as
+of December 2006.<br>
+<br>
+<h3>1. Install cygwin</h3>
+You need to install the 'unix-like' environment called <a
+ href="http://www.cygwin.com">cygwin</a> in order to build ROOT and
+KaliVeda.<br>
+<br>
+This is reasonably straightforward, but <span
+ style="color: rgb(255, 0, 0);">if your Windows user name is a full
+name including spaces (such as "Marjory Dawes"), this will cause
+problems later on</span>. You should either change your user name to a
+more unix-friendly one if possible (e.g. "mdawes"), or create a new
+Windows user with a unix-like user name and then use the new user's
+account to install and run cygwin, ROOT, etc.<br>
+<br>
+In the <a href="http://www.cygwin.com/setup.exe">cygwin installer</a>,
+make sure that you select tools such as 'xterm', 'make', 'automake',
+'autoconf', 'tar', 'gzip', 'cvs', 'ssh', 'curl' etc. There is no need
+to install 'gcc'.<br>
+<br>
+After installation, open a cygwin terminal and check the result of the
+command "which link". If the result is not "Command not found", but
+rather something like "/usr/bin/link.exe" you should either delete this
+file or rename it. This is the gcc linker which will conflict with the
+Visual C++ linker if it remains visible in the cygwin PATH.<br>
+<br>
+<h3>2. Install Visual C++ free edition</h3>
+OK, this is where the fun really starts! Are you sitting comfortably ?
+Good, then I'll begin...<br>
+<br>
+<span class="postbody">Download and install <span
+ style="font-weight: bold;">MS Visual C++ 2005 Express Edition</span>
+from
+this page:<a
+ href="http://msdn.microsoft.com/vstudio/express/visualc/download"
+ target="_blank" class="postlink">
+http://msdn.microsoft.com/vstudio/express/visualc/download</a>
+<br>
+<br>
+Next, download and install </span><span class="postbody"><span
+ class="postbody"><span style="font-weight: bold;">Microsoft Windows
+Server 2003 R2 Platform SDK</span> from this page:</span></span><span
+ class="postbody"> <a
+ href="http://www.microsoft.com/downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&amp;displaylang=en"
+ target="_blank" class="postlink">http://www.microsoft.com/downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&amp;displaylang=en</a>
+<br>
+Download and execute <span style="font-weight: bold;">PSDK-x86.exe</span>,
+choose "Custom install", and deselect
+everything that looks superfluous, like documentation or AMD/64 bit
+stuff. Basically, you just need to keep the "Core SDK" part.
+<br>
+<br>
+Next install the <span style="font-weight: bold;">Microsoft .NET
+Framework Version 2.0 Redistributable Package (x86)</span> from <a
+ href="http://www.microsoft.com/downloads/details.aspx?FamilyID=0856eacb-4362-4b0d-8edd-aab15c5e04f5&amp;DisplayLang=en"
+ target="_blank" class="postlink">http://www.microsoft.com/downloads/details.aspx?FamilyID=0856eacb-4362-4b0d-8edd-aab15c5e04f5&amp;DisplayLang=en</a>
+<br>
+When you launch the installer it may ask to choose between
+"Repair" and "Remove" an existing installation. Choose
+"Repair".<br>
+<br>
+Finally, download and install <span style="font-weight: bold;">.NET
+Framework 2.0 Software Development Kit (SDK)</span> (x86) from <a
+ href="http://www.microsoft.com/downloads/details.aspx?familyid=FE6F2099-B7B4-4F47-A244-C96D69C35DEC&amp;displaylang=en"
+ target="_blank" class="postlink">http://www.microsoft.com/downloads/details.aspx?familyid=FE6F2099-B7B4-4F47-A244-C96D69C35DEC&amp;displaylang=en</a>
+<br>
+</span><br>
+See! That wasn't so hard, was it ?<br>
+<br>
+Next you have to set up the Windows environment variables. Right-click
+on "My Computer" ("Poste de travail" in French), select "Properties"
+("Propriétés"), select the "Advanced" tab (onglet "Avancé"), click on
+"Environment Variables" ("Variables d'environnement") (see below).<br>
+<br>
+<table
+ style="width: 100%; text-align: left; margin-left: auto; margin-right: auto;"
+ border="0" cellspacing="1" cellpadding="0">
+  <tbody>
+    <tr>
+      <td><img style="width: 419px; height: 479px;"
+ alt="system properties dialogue box"
+ src="http://root.cern.ch/root/Procedure/Procedure%20to%20install%20the%20free%20Microsoft%20Visual%20C_files/image001.gif"><br>
+      </td>
+      <td style="vertical-align: top;"><img
+ style="width: 384px; height: 423px;" alt=""
+ src="http://root.cern.ch/root/Procedure/Procedure%20to%20install%20the%20free%20Microsoft%20Visual%20C_files/image002.gif"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span class="postbody">Modify (or create, if they do not already exist)
+the following "User variables" (i.e. in the upper part of the
+"Environment Variables" list):<br>
+<br>
+<span style="font-weight: bold;">INCLUDE</span> <br>
+C:\Program Files\Microsoft Platform SDK for Windows Server
+2003 R2\Include;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\include;C:\Program Files\Microsoft Visual Studio
+8\VC\include
+<br>
+<br>
+<span style="font-weight: bold;">LIB<br>
+</span>C:\Program Files\Microsoft Platform SDK for Windows Server
+2003 R2\Lib;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\Lib;C:\Program Files\Microsoft Visual Studio
+8\VC\lib<br>
+<br>
+<span style="font-weight: bold;">PATH</span><br>
+C:\Program Files\Microsoft Platform SDK for
+Windows Server 2003 R2\Bin;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\Bin;C:\Program Files\Microsoft Visual Studio
+8\VC\bin;C:\Program Files\Microsoft Visual Studio
+8\Common7\IDE</span><span class="postbody"><br>
+<br>
+</span><span class="postbody"></span>
+<h3>3. Build and install ROOT<br>
+</h3>
+<a href="http://root.cern.ch/twiki/bin/view/ROOT/Download">Download</a>
+the full source tree for whatever version of ROOT you want to use
+(preferably the most recent version), save it somewhere within your
+cygwin zone (i.e. under "c:\cygwin\...") . Open a cygwin terminal and
+decompress the source tree, then move/rename it as you wish, only <span
+ class="postbody"><span class="postbody"><span
+ style="color: rgb(255, 0, 0);">make sure the path doesn't contain any
+spaces!</span></span></span> For the sake of example , in the following
+we will assume that the top-level source directory is "/root" in cygwin
+format, or "C:\cygwin\root" in Windows environment (you can use the
+cygwin command <span style="font-weight: bold;">cygpath</span> in
+order to translate from one world to the other).<br>
+<br>
+<span class="postbody"><span class="postbody">In the Windows
+environment variables (see above), create a ROOTSYS variable, which you
+set to the location where you downloaded ROOT, e.g. for our example:<br>
+<br>
+</span><span class="postbody"><span class="postbody"><span
+ style="font-weight: bold;">
+ROOTSYS</span><br>
+C:\cygwin\root</span><br>
+<br>
+</span></span><span class="postbody">Add to the existing paths:<span
+ style="font-weight: bold;"></span><br>
+<br>
+<span style="font-weight: bold;">LIB<br>
+</span>C:\Program Files\Microsoft Platform SDK for Windows Server
+2003 R2\Lib;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\Lib;C:\Program Files\Microsoft Visual Studio
+8\VC\lib<span style="font-weight: bold; color: rgb(51, 51, 255);">;%ROOTSYS%\lib</span>
+<br>
+<br>
+<span style="font-weight: bold;">PATH</span><br>
+<span style="font-weight: bold; color: rgb(51, 51, 255);">%ROOTSYS%\bin;</span>C:\Program
+Files\Microsoft Platform SDK for
+Windows Server 2003 R2\Bin;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\Bin;C:\Program Files\Microsoft Visual Studio
+8\VC\bin;C:\Program Files\Microsoft Visual Studio
+8\Common7\IDE<span style="color: rgb(51, 51, 255); font-weight: bold;">;%ROOTSYS%\lib</span><br>
+</span><br>
+In your ROOT source directory, type the command:<br>
+<br>
+<span class="postbody"><span style="font-weight: bold;">./configure
+win32gdk --disable-odbc</span><br style="font-weight: bold;">
+<br>
+Then, in the following order:<br>
+<br>
+<span style="font-weight: bold;">make</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">make install</span><br>
+<br>
+which should compile and install everything.<br>
+<br>
+And now the trap: although you built ROOT in a cygwin terminal, you
+cannot execute ROOT from the cygwin command line! Cygwin is necessary
+for 'configure' and 'make', but the compiler used to build everything
+is the Microsoft Visual C++ compiler (called 'cl' or 'cl.exe').
+Therefore, the result is a Windows executable. You can only run ROOT
+from a Windows (DOS) command prompt.<br>
+<br>
+To create a clickable 'ROOT' icon on your desktop:<br>
+</span>
+<div style="margin-left: 40px;"><span class="postbody">right-click on
+the desktop, select "New" ("Nouveau") and then "Link" ("Raccourci")<br>
+enter <span style="font-weight: bold;">%ROOTSYS%\bin\root.exe</span>
+in the dialogue box<br>
+click "OK"<br>
+</span></div>
+Once created, you can right-click on the icon, select "Properties", and
+change things like the icon image, the background/text colour used in
+the command window, size of the window, etc. etc. A very important
+parameter to change is the working directory that will be used when you
+start ROOT. It is in this directory that your personal '.rootrc' and
+'rootlogon.C' will be located. As an example, you could set this
+directory to be your cygwin home directory, e.g.
+'c:\cygwin\home\mdawes' (note the use of Windows path! a cygwin path
+like '/home/mdawes' would not mean a lot here).<br>
+<br>
+<h3>4. Build and install KaliVeda<br>
+</h3>
+Follow the instructions on the <a href="download.html">download</a>
+page to obtain the KaliVeda sources, either by cvs or as a tarball.
+There are no special instructions for building under Windows, except
+concerning the definition of the environment variable KVROOT and the
+associated paths: just as for ROOTSYS, we define KVROOT as a Windows
+environment variable (see above) and then modify the existing paths.
+Make sure there are no spaces in KVROOT, for example:<br>
+<br>
+<span style="font-weight: bold;">KVROOT:</span><br>
+C:\cygwin\home\mdawes\KaliVeda<br>
+<br>
+<span style="font-weight: bold;">INCLUDE:</span><br>
+<span class="postbody">C:\Program Files\Microsoft Platform SDK for
+Windows Server
+2003 R2\Include;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\include;C:\Program Files\Microsoft Visual Studio
+8\VC\include<span style="font-weight: bold; color: rgb(51, 51, 255);">;%KVROOT%\include</span><br>
+</span><br>
+<span style="font-weight: bold;">LIB:</span><br>
+<span class="postbody">C:\Program Files\Microsoft Platform SDK for
+Windows Server
+2003 R2\Lib;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\Lib;C:\Program Files\Microsoft Visual Studio
+8\VC\lib<span style="color: rgb(0, 0, 0);">;%ROOTSYS%\lib</span><span
+ style="font-weight: bold; color: rgb(51, 51, 255);">;%KVROOT%\lib</span><br>
+</span><br>
+<span style="font-weight: bold;">PATH:</span><br>
+<span class="postbody"><span style="color: rgb(0, 0, 0);">%ROOTSYS%\bin;</span>C:\Program
+Files\Microsoft Platform SDK for
+Windows Server 2003 R2\Bin;C:\Program Files\Microsoft Visual Studio
+8\SDK\v2.0\Bin;C:\Program Files\Microsoft Visual Studio
+8\VC\bin;C:\Program Files\Microsoft Visual Studio
+8\Common7\IDE<span style="color: rgb(0, 0, 0);">;%ROOTSYS%\lib</span><span
+ style="font-weight: bold; color: rgb(51, 51, 255);">;%KVROOT%\bin</span><br>
+</span><br>
+Building KaliVeda follows exactly the same procedure as for Linux: just
+type 'make' in the top-level source directory. See the <a
+ href=".Formation/PDF/InstallKaliVeda.pdf">instructions</a> for more
+details.<br>
+<br>
+To configure KaliVeda (data repositories, etc.), you should put your
+'.kvrootrc' file in the same directory where ROOT starts up when you
+click on the desktop icon (see above), e.g. in cygwin terms, put it in
+'/home/mdawes' following the previous example. You can also put a
+'rootlogon.C' in the same directory such as:<br>
+<br>
+<div style="margin-left: 40px;">
+<pre>{<br>gSystem-&gt;Load("libKVMultiDet");<br>new KVDataRepositoryManager;<br>gDataRepositoryManager-&gt;Init();<br>}</pre>
+</div>
+<br>
+so that when you start ROOT by double-clicking on the icon, the
+KaliVeda environment is automatically loaded and initialised.<br>
+<ol>
+</ol>
+</div>
+<p class="copyright">Web design based on www.xmms.org - Hope you don't
+mind! Thankyou! <br>
+</p>
+</div>
+</body>
+</html>

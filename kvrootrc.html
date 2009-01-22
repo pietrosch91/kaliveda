@@ -1,0 +1,384 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>Configuring KaliVeda</title>
+  <link rel="stylesheet" href="css/site.css" type="text/css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<h1>Configuring KaliVeda<br>
+</h1>
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+<img
+ style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;"
+ alt="indra" src="images/indra_camp4_210x188.png"><br>
+<script language="javascript" src="js/nav.js"></script>
+<br>
+<!-- SiteSearch Google -->
+<form method="get" action="http://www.google.com/search"><input
+ name="ie" value="UTF-8" type="hidden"> <input name="oe" value="UTF-8"
+ type="hidden"><input name="q" style="margin-top: 5px;" size="13"
+ maxlength="255" value="" type="text"> <input name="btnG"
+ style="margin-top: 5px;" value="Search site"
+ onclick="send_data(this.form)" type="submit"></form>
+<!-- SiteSearch Google -->
+</div>
+<div class="page">
+<br>
+<h3><a class="mozTocH3" name="mozTocId399064"></a>
+</h3>
+<br>
+<span style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><font
+ style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;"></span></font></span></span>As
+with ROOT, many aspects of the KaliVeda environment are configured
+using resource variables written in text files which are read at
+initialisation time. As with ROOT, this configuration happens at
+several levels:<br>
+<br>
+<table
+ style="background-color: rgb(204, 204, 204); width: 600px; text-align: left; margin-left: auto; margin-right: auto;"
+ border="0" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td
+ style="vertical-align: top; text-align: left; background-color: rgb(255, 255, 255);"><br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(255, 255, 255);"><span
+ style="font-weight: bold;">ROOT</span><br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(255, 255, 255);"><span
+ style="font-weight: bold;">KaliVeda</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(255, 255, 255);">Configuration
+for all users<br>
+      </td>
+      <td
+ style="vertical-align: top; font-family: monospace; background-color: rgb(255, 255, 255);">$ROOTSYS/etc/system.rootrc<br>
+      </td>
+      <td
+ style="vertical-align: top; font-family: monospace; background-color: rgb(255, 255, 255);"><a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(255, 255, 255);">User-specific
+configuration<br>
+      </td>
+      <td
+ style="vertical-align: top; font-family: monospace; background-color: rgb(255, 255, 255);">$HOME/.rootrc<br>
+      </td>
+      <td
+ style="vertical-align: top; font-family: monospace; background-color: rgb(255, 255, 255);">$HOME/.kvrootrc<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(255, 255, 255);">Directory-specific
+configuration<br>
+      </td>
+      <td
+ style="vertical-align: top; font-family: monospace; background-color: rgb(255, 255, 255);">./.rootrc<br>
+      </td>
+      <td
+ style="vertical-align: top; font-family: monospace; background-color: rgb(255, 255, 255);">./.kvrootrc<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+In both cases, the different files are read (if they exist) in the
+order shown in the table, and the last value read for each resource
+takes precedence; thus any user can override the default system
+configuration without affecting other users. You just have to change or
+add the resources you want in your local .kvrootrc file. Below we give
+a list of useful resources. For more information (and the full list),
+look at <a href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>
+(it is full of comments).<br>
+<br>
+<span style="font-weight: bold;">IMPORTANT:</span> The initialisation
+takes place automatically when the first KVBase-derived object is
+created. You can force the initialisation using static method <a
+ href="KVBase.html#KVBase:InitEnvironment">KVBase::InitEnvironment()</a>.
+If the environment is already in place, this will have no effect.<br>
+<br>
+<h2>User-definable configuration</h2>
+<br>
+<ol>
+  <li><a href="#KaliVeda">KaliVeda</a></li>
+  <ol>
+    <li><a href="#Automatic_checking_and_updating_of">Automatic
+checking and updating of source files</a><br>
+    </li>
+  </ol>
+  <li><a href="#Detector_status_etc.">Detector status etc.</a><br>
+  </li>
+  <ol>
+    <li><a href="#Working__non-working_acquisition">Working &amp;
+non-working acquisition parameters</a><br>
+    </li>
+  </ol>
+  <li><a href="#mozTocId406864">Data Repositories</a></li>
+<!--mozToc h3 1 h4 2-->
+  <ol>
+    <li><a href="#mozTocId389421">Default data
+repository</a></li>
+  </ol>
+  <li><a href="#mozTocId39825">Data Analysis Tasks</a>
+    <ol>
+      <li><a href="#mozTocId525940">Change output
+repository for "raw-&gt;recon" &amp; "recon-&gt;ident" tasks</a></li>
+      <li><a href="#mozTocId674258">Change condition used
+to seed new particles in event reconstruction</a></li>
+      <li><a href="#Options_for_compilation_of_user_analysis">Options
+for compilation of user analysis class</a><br>
+      </li>
+    </ol>
+  </li>
+  <li><a href="#mozTocId796898">Batch Systems</a>
+    <ol>
+      <li><a href="#mozTocId954643">Default batch system</a></li>
+      <li><a href="#mozTocId998838">Changing default
+batch job options for different analysis tasks </a></li>
+    </ol>
+  </li>
+  <li><a href="#Detector_Calibration">Detector Calibration</a></li>
+  <ol>
+    <li><a href="#Minimum_Z_for_PHD_correction_in_Silicon">Minimum Z
+for PHD correction in Silicon detectors</a><br>
+    </li>
+  </ol>
+  <li><a href="#mozTocId998161">Particle Identification</a>
+    <ol>
+      <li><a href="#mozTocId142892">Active/inactive identifications</a></li>
+      <li><a href="#mozTocId346532">Identification parameter filenames</a></li>
+      <li><a href="kvrootrc.html#mozTocId520327">Identifying &amp;
+calibrating reconstructed data using new identification and/or
+calibration
+parameters ("Updating" identifications &amp; calibrations)</a></li>
+      <li><a href="#Identifying_reconstructed_data_using_new">Identifying
+reconstructed data using new identification class implementations</a></li>
+    </ol>
+  </li>
+</ol>
+<span style="text-decoration: underline;"></span><br>
+<h3><a name="KaliVeda"></a>KaliVeda</h3>
+<h4><a name="Automatic_checking_and_updating_of"></a>Automatic checking
+and updating of source files</h4>
+You can automatically check for updates every time that you use
+KaliVeda by putting the following line in your .kvrootrc :<br>
+<pre>KaliVeda.AutoUpdateCheck:        yes<br></pre>
+If your sources are from a ".tgz" tarball then you will need to
+configure 'anonymous' access to the CVS repository server for this to
+work : see <a href="download.html">Download</a> page.<br>
+<br>
+<h3><a name="Detector_status_etc."></a>Detector status etc.</h3>
+<h4><a name="Working__non-working_acquisition"></a>Working &amp;
+non-working acquisition parameters</h4>
+By default, all acquisition parameters declared in the <a
+ href="KVDetector.html#KVDetector:SetACQParams">SetACQParams()</a>
+method of each detector class are assumed to be working. The <a
+ href="KVDetector.html#KVDetector:Fired">KVDetector::Fired("all")</a>
+method returns kTRUE if all of the WORKING parameters of the detector
+were fired in the event. To change the status of an acquisition
+parameter:<br>
+<pre>[name of dataset].KVACQParam.[name of parameter].Working:   NO<br></pre>
+For example, the time marker of CsI ring 7 module 14 did not function
+during the 5th campaign, therefore in the global .kvrootrc there is a
+line<br>
+<pre>INDRA_camp5.<a href="KVACQParam.html">KVACQParam</a>.CSI_0714_T.Working:    NO</pre>
+<br>
+<h3><a class="mozTocH3" name="mozTocId406864"></a>Data Repositories</h3>
+No data repositories are defined in the default configuration;
+therefore in order to analyse data the user <span
+ style="font-weight: bold;">must</span> define these in a local
+.kvrootrc file. See the examples in <a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>.
+More information can be found in the <a href="KVDataRepository.html">KVDataRepository</a>
+class documentation.<br>
+<h4><br>
+</h4>
+<h4><a class="mozTocH4" name="mozTocId389421"></a>Default data
+repository</h4>
+If you define more than one repository, the default repository (i.e.
+the one which is active after initialisation of the data repository
+manager) will be either: (i) the last one defined in your
+configuration; (ii) the one called "default"; or (iii) the repository
+whose name is given in the variable<br>
+<pre>DataRepository.Default:    [name of repository]<br></pre>
+<h3><a class="mozTocH3" name="mozTocId39825"></a>Data Analysis Tasks</h3>
+All data analysis tasks are defined in <a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>.
+See <a href="KVDataAnalysisTask.html">KVDataAnalysisTask</a> class
+documentation for details.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId525940"></a>Change output
+repository for "raw-&gt;recon" &amp; "recon-&gt;ident" tasks</h4>
+By default, when data is transformed from one type to the other, the
+new data files are written in the same repository as the original ones.
+This is not possible for remote repositories. Therefore you can give
+e.g. the name of a local repository where you want to write the new
+data:<br>
+<pre>Reconstruction.DataAnalysisTask.OutputRepository:     [name of repository]<br>Identification1.DataAnalysisTask.OutputRepository:     [name of repository]<br></pre>
+for, respectively, "raw-&gt;recon" and "recon-&gt;ident" tasks. These
+variables affect all datasets. If you just want to change the
+repository for a given dataset, use:<br>
+<pre>[name of dataset].Reconstruction.DataAnalysisTask.OutputRepository<br></pre>
+<h4><a class="mozTocH4" name="mozTocId674258"></a>Change condition used
+to seed new particles in event reconstruction</h4>
+When events are reconstructed from raw data ("raw-&gt;recon" analysis
+task), we associate each set of aligned fired detectors with particles,
+beginning from the detector where the particle is assumed to have
+stopped (see <a
+ href="KVReconstructedEvent.html#KVReconstructedEvent:ReconstructEvent">KVReconstructedEvent::ReconstructEvent</a>
+for the
+reconstruction algorithm; particles are seeded in
+<a
+ href="KVReconstructedEvent.html#KVReconstructedEvent:AnalyseTelescopes">KVReconstructedEvent::AnalyseTelescopes</a>).
+<br>
+<br>
+By default, the criterion for a detector to be considered as having
+stopped a particle (and thus to be used to "seed" a new reconstructed
+particle) is that <span style="font-weight: bold;">all</span> of the
+associated acquisition parameters must have fired (for INDRA data this
+condition means that we require the detector to have a time marker). If
+you want to change this condition, add the following to your local
+.kvrootrc:<br>
+<pre>Reconstruction.DataAnalysisTask.ParticleSeedCond:     any<br></pre>
+which means that particles will be seeded from detectors with at least
+one fired acquisition parameter. To change the condition for a
+particular dataset only, use:<br>
+<pre>[name of dataset].Reconstruction.DataAnalysisTask.ParticleSeedCond:     any<br></pre>
+The default value of these variables is <span
+ style="font-family: monospace;">all</span>.<br>
+<br>
+<h4><a name="Options_for_compilation_of_user_analysis"></a>Options for
+compilation of user analysis class</h4>
+When an analysis task requiring a user analysis class is run, the
+user-supplied code is compiled using ACliC. The default is to use the
+command ".L toto.cpp+". This can be changed using the following
+variables:<br>
+<pre>KVDataAnalyser.UserClass.Debug:     [yes/no]<br>KVDataAnalyser.UserClass.Optimise:     [yes/no]<br><span
+ style="font-family: sans-serif;"></span>KVDataAnalyser.UserClass.ForceRecompile:     [yes/no]<br></pre>
+The default value of each variables is <span
+ style="font-family: monospace;">no</span>.<br>
+Debug will compile with extra debugging symbols, i.e. ".L toto.cpp+g"<br>
+Optimise will compile with optimisation i.e. ".L toto.cpp+O"<br>
+ForceRecompile will recompile the class even if source code does not
+change i.e. ".L toto.cpp++".<br>
+ForceRecompile can be used with either Debug or Optimise, however Debug
+and Optimise are mutually exclusive.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId796898"></a>Batch Systems</h3>
+Different batch systems are defined in <a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>.
+See <a href="KVBatchSystem.html">KVBatchSystem</a> class documentation
+for details.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId954643"></a>Default batch system</h4>
+The default batch system is defined by the variable<br>
+<pre>Default.BatchSystem:    [name of batch system]<br></pre>
+<h4><a class="mozTocH4" name="mozTocId998838"></a>Changing default
+batch job options for different analysis tasks<br>
+</h4>
+For each batch system a set of default options is defined to be used
+every time a job is submitted to the system. These can be changed
+globally, using the variables<br>
+<pre>[name of batch system].BatchSystem.DefaultJobOptions:</pre>
+or on a task-by-task basis by setting variables like<br>
+<pre>[name of batch system].BatchSystem.DefaultJobOptions.[name of task]:<br></pre>
+<h3><a name="Detector_Calibration"></a>Detector Calibration</h3>
+<h4><a name="Minimum_Z_for_PHD_correction_in_Silicon"></a>Minimum Z for
+PHD correction in Silicon detectors</h4>
+Correction for pulse-height deficit in silicon detectors (see <a
+ href="KVSilicon.html#KVSilicon:GetCorrectedEnergy">KVSilicon::GetCorrectedEnergy</a>)
+is applied for all Z greater than the value of <br>
+<pre><span style="font-family: monospace;">[dataset].KVSilicon.ZminForPHDCorrection</span>:<br></pre>
+N.B.: to change this value when calibrating reconstructed data (i.e.
+during a "recon-&gt;ident" task) you must use the UpdateCalibrations
+mode (see <a href="#mozTocId520327">below</a>).<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId998161"></a>Particle
+Identification</h3>
+<h4><a class="mozTocH4" name="mozTocId142892"></a>Active/inactive
+identifications</h4>
+Only "active" identification telescopes are initialised &amp; used to
+identify particles. They are defined for each dataset by variables such
+as:<br>
+<pre>INDRA_camp5.ActiveIdentifications:    CSI  SI-CSI  SI150-CSI   CI-SI   CI-CSI<br></pre>
+The name for each type of identification telescope are the same as
+those used to define the different <a href="KVIDTelescope.html">KVIDTelescope</a>
+plugins which are built from different combinations of detectors (see <a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>).<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId346532"></a>Identification
+parameter filenames<br>
+</h4>
+Depending on the dataset and the type of identification, the names of
+the files containing the different identification parameters are given
+by variables such as:<br>
+<pre>INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat<br></pre>
+The name for each type of identification telescope are the same as
+those used to define the different <a href="KVIDTelescope.html">KVIDTelescope</a>
+plugins which are built from different combinations of detectors (see <a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>).<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId520327"></a>Identifying &amp;
+calibrating reconstructed data using new identification and/or
+calibration
+parameters ("Updating" identifications &amp; calibrations)</h4>
+<br>
+When recon/ident data files are created, a <a href="KVINDRA.html">KVINDRA</a>
+object containing all of the currently available identification &amp;
+calibration parameters is written in the file. During subsequent
+analysis of these files (e.g. during recon-&gt;ident transformation) <span
+ style="font-weight: bold;">it is the parameters stored in the file
+which are used.</span><br>
+<br>
+If you want to use different parameters (e.g. because those in the file
+have become obsolete), it is possible by setting one or both of the
+following variables:<br>
+<pre>[name of dataset].[data file type].UpdateIdentifications:    yes<br>[name of dataset].[data file type].UpdateCalibrations:    yes</pre>
+For example, to "update" the identification parameters during analysis
+of 'recon' data from the 5th INDRA campaign, add the following line to
+your .kvrootrc:<br>
+<pre>INDRA_camp5.recon.UpdateIdentifications:   yes</pre>
+In this example, if a "recon-&gt;ident" task is launched, the
+identification parameters stored in the file will be ignored, and new
+identification parameters will be set according to the current values
+of <span style="font-family: monospace;">INDRA_camp5.ActiveIdentifications</span>
+and of the variables giving the names of the identification parameter
+files (see below and in <a href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>).<br>
+<br>
+N.B. the parameters in the file being analysed will not be modified.
+However, if you do e.g. recon-&gt;ident with 'Update' activated, the
+INDRA object in the new 'ident' file will contain the update parameters.<br>
+<br>
+<h4><a name="Identifying_reconstructed_data_using_new"></a>Identifying
+reconstructed data using new identification class implementations</h4>
+If the classes used to implement identifications are changed, or if new
+ones are introduced, then you need to set the following variable:<br>
+<pre>[name of dataset].[data file type].UpdateIDTelescopes:    yes<br></pre>
+This will remove the existing <a href="KVIDTelescope.html">KVIDTelescope</a>-derived
+objects and replace them with the new ones. For example, for 5th
+campaign data, if the class used for ChIoSi identifications changes and
+a new class is introduced for Si75-SiLi identification implementation,
+you should set<br>
+<pre>INDRA_camp5.recon.UpdateIDTelescopes:   yes<br></pre>
+<br>
+<p class="copyright">Web design based on www.xmms.org - Hope you don't
+mind! Thankyou! <br>
+</p>
+</div>
+</body>
+</html>

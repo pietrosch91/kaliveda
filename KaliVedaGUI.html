@@ -1,0 +1,2497 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40" lang="fr">
+<head>
+
+
+  
+  
+  
+  
+  <title>The KaliVedaGUI</title>
+  <link rel="stylesheet" href="css/site.css" type="text/css">
+
+
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+
+
+<body style="" bgcolor="white" lang="FR">
+
+
+<h1>The KaliVedaGUI<br>
+
+
+
+
+</h1>
+
+
+
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+
+
+
+
+<img style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;" alt="indra" src="images/indra_camp4_210x188.png"><br>
+
+
+
+
+<script language="javascript" src="js/nav.js"></script>
+<br>
+
+
+
+
+<!-- SiteSearch Google -->
+<form method="get" action="http://www.google.com/search"><input name="ie" value="UTF-8" type="hidden"> <input name="oe" value="UTF-8" type="hidden"><input name="q" style="margin-top: 5px;" size="13" maxlength="255" value="" type="text"> <input name="btnG" style="margin-top: 5px;" value="Search site" onclick="send_data(this.form)" type="submit"></form>
+
+
+
+
+<!-- SiteSearch Google -->
+</div>
+
+
+
+
+<div class="page">
+<br>
+
+
+
+
+<div class="Section1">
+<div style="text-align: justify;"><span style="" lang="EN-GB">The KaliVedaGUI is a
+graphical interface which launches analysis tasks for INDRA data. It is
+launched by typing&nbsp;<span style="background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"></span></span><span style="" lang="EN-GB"><span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: rgb(51, 51, 255);">KaliVedaGUI</span></span><span style="" lang="EN-GB"><span style="background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"></span>
+in a terminal window. Its use is quite intuitive. We will nevertheless explain
+some features. Here is a snapshot of the interface.<o:p></o:p></span>
+
+
+
+</div>
+
+<p style="text-align: justify;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p style="text-align: center;" align="center"><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
+ o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f"
+ stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="_x0000_i1049" type="#_x0000_t75" style='width:433pt;
+ height:581pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image001.png" v:shapes="_x0000_i1049" height="581" width="433"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB">Here is the list of the treated items:</span>
+</p>
+
+<ol id="mozToc">
+
+<!--mozToc h3 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId197562">Data Repository selection</a></li>
+
+  <li><a href="#mozTocId954655">Data Set (campaign)
+selection</a></li>
+
+  <li><a href="#mozTocId583908">Analysis task selection</a></li>
+
+  <li><a href="#mozTocId911609">System selection</a></li>
+
+  <li><a href="#mozTocId707214">Trigger selection</a></li>
+
+  <li><a href="#mozTocId330904">Runs selection</a></li>
+
+  <li><a href="#mozTocId193013">Choice of the KVSelector</a></li>
+
+  <li><a href="#mozTocId449224">Choice of the KVDataSelector</a></li>
+
+  <li><a href="#mozTocId836588">Choice of the number of
+events to read</a></li>
+
+  <li><a href="#mozTocId670284">Selection of the user
+include paths and the user libraries</a></li>
+
+  <li><a href="#mozTocId145838">Selection of the running mode</a></li>
+
+  <li><a href="#mozTocId367701">Choice of the batch name</a></li>
+
+  <li><a href="#mozTocId109908">Setting the batch
+properties</a></li>
+
+  <li><a href="#mozTocId630922">Running the analysis</a></li>
+
+  <li><a href="#mozTocId851073">Quit the KaliVedaGUI</a></li>
+
+</ol>
+
+<p><span style="" lang="EN-GB"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId197562"></a><span style="" lang="EN-GB">Data Repository selection</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To select a data
+repository, just click on the right hand side down arrow of the
+"Repository" combo box. Then select the data repository in the pull
+down menu.<o:p></o:p></span></p>
+
+<p style="text-align: justify;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]--><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1072" style='position:absolute;
+ margin-left:301.9pt;margin-top:14.15pt;width:133.1pt;height:27pt;z-index:1;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="8735,2884" coordsize="2662,540">
+ <v:oval id="_x0000_s1028" style='position:absolute;left:8735;top:3004;width:249;
+  height:249' o:regroupid="4" filled="f" fillcolor="red" strokecolor="red"
+  strokeweight="2pt"/>
+ <v:line id="_x0000_s1029" style='position:absolute;flip:x' from="8984,3129"
+  to="9625,3129" o:regroupid="4" strokecolor="red" strokeweight="1.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202"
+  path="m0,0l0,21600,21600,21600,21600,0xe">
+  <v:stroke joinstyle="miter"/>
+  <v:path gradientshapeok="t" o:connecttype="rect"/>
+ </v:shapetype><v:shape id="_x0000_s1030" type="#_x0000_t202" style='position:absolute;
+  left:9541;top:2884;width:1856;height:540' o:regroupid="4" filled="f"
+  stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1030'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 0; margin-left: 301px; margin-top: 14px; width: 136px; height: 29px;"><img src="KaliVedaGUI_fichiers/image002.png" v:shapes="_x0000_s1072 _x0000_s1028 _x0000_s1029 _x0000_s1030" height="29" width="136"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1059"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image003.png" v:shapes="_x0000_i1059" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId954655"></a><span style="" lang="EN-GB">Data Set (campaign)
+selection</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To select a data set, just
+click on the right hand side down arrow of the "Data Set" combo box.
+Then select the data set in the pull down menu.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1073" style='position:absolute;
+ margin-left:301.9pt;margin-top:32.15pt;width:133.1pt;height:27pt;z-index:2;
+ mso-position-horizontal-relative:margin;mso-position-vertical-relative:line'
+ coordorigin="8735,2884" coordsize="2662,540">
+ <v:oval id="_x0000_s1074" style='position:absolute;left:8735;top:3004;width:249;
+  height:249' filled="f" fillcolor="red" strokecolor="red" strokeweight="2pt"/>
+ <v:line id="_x0000_s1075" style='position:absolute;flip:x' from="8984,3129"
+  to="9625,3129" strokecolor="red" strokeweight="1.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shape id="_x0000_s1076" type="#_x0000_t202" style='position:absolute;
+  left:9541;top:2884;width:1856;height:540' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1076'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><w:wrap anchorx="margin"/>
+</v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 4; margin-left: 301px; margin-top: 32px; width: 136px; height: 29px;"><img src="KaliVedaGUI_fichiers/image004.png" v:shapes="_x0000_s1073 _x0000_s1074 _x0000_s1075 _x0000_s1076" height="29" width="136"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1063"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image005.png" v:shapes="_x0000_i1063" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId583908"></a><span style="" lang="EN-GB">Analysis task selection</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To select an analysis task,
+just click on the right hand side down arrow of the "Task" combo box.
+Then select the analysis task in the pull down menu. When the
+"recon-&gt;ident" or "ident-&gt;root" tasks are selected,
+the KVSelector text field and the KVDataSelector text field are set
+automatically and cannot be edited.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1077" style='position:absolute;
+ margin-left:301.9pt;margin-top:50.2pt;width:133.1pt;height:27pt;z-index:3;
+ mso-position-horizontal-relative:margin;mso-position-vertical-relative:line'
+ coordorigin="8735,2884" coordsize="2662,540">
+ <v:oval id="_x0000_s1078" style='position:absolute;left:8735;top:3004;width:249;
+  height:249' filled="f" fillcolor="red" strokecolor="red" strokeweight="2pt"/>
+ <v:line id="_x0000_s1079" style='position:absolute;flip:x' from="8984,3129"
+  to="9625,3129" strokecolor="red" strokeweight="1.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shape id="_x0000_s1080" type="#_x0000_t202" style='position:absolute;
+  left:9541;top:2884;width:1856;height:540' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1080'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><w:wrap anchorx="margin"/>
+</v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 8; margin-left: 301px; margin-top: 50px; width: 136px; height: 29px;"><img src="KaliVedaGUI_fichiers/image006.png" v:shapes="_x0000_s1077 _x0000_s1078 _x0000_s1079 _x0000_s1080" height="29" width="136"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1065"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image007.png" v:shapes="_x0000_i1065" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId911609"></a><span style="" lang="EN-GB">System selection</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To select a system, just
+click on the right hand side down arrow of the "System" combo box.
+Then select the system in the pull down menu.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1081" style='position:absolute;
+ margin-left:301.9pt;margin-top:68.2pt;width:133.1pt;height:27pt;z-index:4;
+ mso-position-horizontal-relative:margin;mso-position-vertical-relative:line'
+ coordorigin="8735,2884" coordsize="2662,540">
+ <v:oval id="_x0000_s1082" style='position:absolute;left:8735;top:3004;width:249;
+  height:249' filled="f" fillcolor="red" strokecolor="red" strokeweight="2pt"/>
+ <v:line id="_x0000_s1083" style='position:absolute;flip:x' from="8984,3129"
+  to="9625,3129" strokecolor="red" strokeweight="1.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shape id="_x0000_s1084" type="#_x0000_t202" style='position:absolute;
+  left:9541;top:2884;width:1856;height:540' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1084'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><w:wrap anchorx="margin"/>
+</v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 12; margin-left: 301px; margin-top: 68px; width: 136px; height: 29px;"><img src="KaliVedaGUI_fichiers/image008.png" v:shapes="_x0000_s1081 _x0000_s1082 _x0000_s1083 _x0000_s1084" height="29" width="136"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1067"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image009.png" v:shapes="_x0000_i1067" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId707214"></a><span style="" lang="EN-GB">Trigger selection</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To select a trigger, just
+click on the right hand side down arrow of the "Trigger" combo box.
+Then select the trigger in the pull down menu. If "All" is selected,
+all available runs will be displayed.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1085" style='position:absolute;
+ margin-left:301.9pt;margin-top:86.15pt;width:133.1pt;height:27pt;z-index:5;
+ mso-position-horizontal-relative:margin;mso-position-vertical-relative:line'
+ coordorigin="8735,2884" coordsize="2662,540">
+ <v:oval id="_x0000_s1086" style='position:absolute;left:8735;top:3004;width:249;
+  height:249' filled="f" fillcolor="red" strokecolor="red" strokeweight="2pt"/>
+ <v:line id="_x0000_s1087" style='position:absolute;flip:x' from="8984,3129"
+  to="9625,3129" strokecolor="red" strokeweight="1.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shape id="_x0000_s1088" type="#_x0000_t202" style='position:absolute;
+  left:9541;top:2884;width:1856;height:540' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1088'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><w:wrap anchorx="margin"/>
+</v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 16; margin-left: 301px; margin-top: 86px; width: 136px; height: 29px;"><img src="KaliVedaGUI_fichiers/image010.png" v:shapes="_x0000_s1085 _x0000_s1086 _x0000_s1087 _x0000_s1088" height="29" width="136"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1069"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image011.png" v:shapes="_x0000_i1069" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId330904"></a><span style="" lang="EN-GB">Runs selection</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To select the runs to analyse,
+just click on the runs in the list box. The selected runs will be highlighted.
+You can select more than one run at the same time. You can select/deselect all
+runs by clicking on the "Select All"/"Deselect All" button
+just below the runs list box. The selected run list will appear in the field
+"Selected runs".<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1132" style='position:absolute;
+ margin-left:2pt;margin-top:67.4pt;width:495pt;height:154.6pt;z-index:7;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="240,11388" coordsize="9900,3092">
+ <v:rect id="_x0000_s1094" style='position:absolute;left:240;top:12220;width:6160;
+  height:2260' filled="f" strokecolor="blue" strokeweight="1.75pt"/>
+ <v:line id="_x0000_s1095" style='position:absolute;flip:x' from="6440,11660"
+  to="8060,12640" strokecolor="blue" strokeweight="2pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shape id="_x0000_s1100" type="#_x0000_t202" style='position:absolute;
+  left:7984;top:11388;width:2156;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1100'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>Runs list box<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 24; margin-left: 1px; margin-top: 67px; width: 498px; height: 156px;"><img src="KaliVedaGUI_fichiers/image012.png" v:shapes="_x0000_s1132 _x0000_s1094 _x0000_s1095 _x0000_s1100" height="156" width="498"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1131" style='position:absolute;margin-left:5pt;margin-top:150.35pt;
+ width:619pt;height:27pt;z-index:6;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="300,13047" coordsize="12380,540">
+ <v:line id="_x0000_s1091" style='position:absolute;flip:x' from="6307,13252"
+  to="7408,13312" o:regroupid="5" strokecolor="red" strokeweight="1.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:shape id="_x0000_s1092" type="#_x0000_t202" style='position:absolute;
+  left:7364;top:13047;width:5316;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="5" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1092'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here to select/deselect a run<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><v:rect id="_x0000_s1093" style='position:absolute;left:300;top:13180;
+  width:5940;height:300' filled="f" strokecolor="red" strokeweight="1.5pt"/>
+</v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 20; margin-left: 4px; margin-top: 150px; width: 622px; height: 29px;"><img src="KaliVedaGUI_fichiers/image013.png" v:shapes="_x0000_s1131 _x0000_s1091 _x0000_s1092 _x0000_s1093" height="29" width="622"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1130" style='position:absolute;margin-left:97pt;margin-top:191.45pt;
+ width:497pt;height:65.55pt;z-index:10;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="2140,13869" coordsize="9940,1311">
+ <v:rect id="_x0000_s1109" style='position:absolute;left:2140;top:14800;
+  width:2600;height:380' filled="f" strokecolor="blue" strokeweight="2.75pt"/>
+ <v:shape id="_x0000_s1112" style='position:absolute;left:3400;top:14122;
+  width:4740;height:680' coordsize="4620,820" path="m0,820l0,,4620,0e"
+  filled="f" strokecolor="blue" strokeweight="2.5pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1113" type="#_x0000_t202" style='position:absolute;
+  left:8124;top:13869;width:3956;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1113'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>Selected Runs list<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 34; margin-left: 95px; margin-top: 191px; width: 501px; height: 68px;"><img src="KaliVedaGUI_fichiers/image014.png" v:shapes="_x0000_s1130 _x0000_s1109 _x0000_s1112 _x0000_s1113" height="68" width="501"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1129" style='position:absolute;margin-left:235pt;margin-top:243.05pt;
+ width:407.65pt;height:44.95pt;z-index:9;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="4900,14901" coordsize="8153,899">
+ <v:shape id="_x0000_s1104" style='position:absolute;left:4900;top:14901;
+  width:2780;height:680;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1108" type="#_x0000_t202" style='position:absolute;
+  left:7737;top:15260;width:5316;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1108'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here to deselect all runs<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 31; margin-left: 226px; margin-top: 241px; width: 419px; height: 49px;"><img src="KaliVedaGUI_fichiers/image015.png" v:shapes="_x0000_s1129 _x0000_s1104 _x0000_s1108" height="49" width="419"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1128" style='position:absolute;margin-left:80pt;margin-top:242.05pt;
+ width:562.65pt;height:79.95pt;z-index:8;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="1800,14881" coordsize="11253,1599">
+ <v:shape id="_x0000_s1103" style='position:absolute;left:1800;top:14881;
+  width:5920;height:1320' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1107" type="#_x0000_t202" style='position:absolute;
+  left:7737;top:15940;width:5316;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1107'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here to select all runs<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 28; margin-left: 71px; margin-top: 240px; width: 574px; height: 84px;"><img src="KaliVedaGUI_fichiers/image016.png" v:shapes="_x0000_s1128 _x0000_s1103 _x0000_s1107" height="84" width="574"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1071"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image017.png" v:shapes="_x0000_i1071" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId193013"></a><span style="" lang="EN-GB">Choice of the KVSelector</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">Indicate in the
+"KVSelector" text field the name of the KVSelector you want to use
+for your analysis.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1127" style='position:absolute;
+ margin-left:1pt;margin-top:271pt;width:515.65pt;height:105.1pt;z-index:11;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="220,25220" coordsize="10313,2102">
+ <v:rect id="_x0000_s1114" style='position:absolute;left:220;top:25220;width:2160;
+  height:420' filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1115" style='position:absolute;left:1200;top:25723;
+  width:5920;height:1320;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1116" type="#_x0000_t202" style='position:absolute;
+  left:7137;top:26782;width:3396;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1116'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>KVSelector text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 38; margin-left: -1px; margin-top: 269px; width: 520px; height: 109px;"><img src="KaliVedaGUI_fichiers/image018.png" v:shapes="_x0000_s1127 _x0000_s1114 _x0000_s1115 _x0000_s1116" height="109" width="520"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1073"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image019.png" v:shapes="_x0000_i1073" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId449224"></a><span style="" lang="EN-GB">Choice of the KVDataSelector</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">Indicate in the
+"KVDataSelector" text field the name of the KVDataSelector you want
+to use for your analysis.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1133" style='position:absolute;
+ margin-left:107pt;margin-top:272pt;width:477.65pt;height:104.1pt;z-index:12;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="2340,5440" coordsize="9553,2082">
+ <v:rect id="_x0000_s1117" style='position:absolute;left:2340;top:5440;width:2160;
+  height:420;mso-position-horizontal:absolute;mso-position-vertical:absolute'
+  filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1118" style='position:absolute;left:3440;top:5923;
+  width:3680;height:1320;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1119" type="#_x0000_t202" style='position:absolute;
+  left:7137;top:6982;width:4756;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1119'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>KVDataSelector text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 42; margin-left: 105px; margin-top: 270px; width: 482px; height: 108px;"><img src="KaliVedaGUI_fichiers/image020.png" v:shapes="_x0000_s1133 _x0000_s1117 _x0000_s1118 _x0000_s1119" height="108" width="482"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1075"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image021.png" v:shapes="_x0000_i1075" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId836588"></a><span style="" lang="EN-GB">Choice of the number of
+events to read</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">Indicate in the
+"Number of events to read" text field the number of events to read. 0
+means all events. The number of events can be increased or decreased by using the
+up or down arrows.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1134" style='position:absolute;
+ margin-left:215pt;margin-top:271.05pt;width:398.65pt;height:105.1pt;z-index:13;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="4500,15461" coordsize="7973,2102">
+ <v:rect id="_x0000_s1120" style='position:absolute;left:4500;top:15461;
+  width:2160;height:420;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1121" style='position:absolute;left:5520;top:15964;
+  width:1600;height:1320;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1122" type="#_x0000_t202" style='position:absolute;
+  left:7137;top:17023;width:5336;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1122'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Number of events to read text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 46; margin-left: 213px; margin-top: 269px; width: 403px; height: 109px;"><img src="KaliVedaGUI_fichiers/image022.png" v:shapes="_x0000_s1134 _x0000_s1120 _x0000_s1121 _x0000_s1122" height="109" width="403"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1077"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image023.png" v:shapes="_x0000_i1077" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId670284"></a><span style="" lang="EN-GB">Selection of the user
+include paths and the user libraries</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p><span style="" lang="EN-GB">If needed, user include
+paths and user libraries can be set by clicking on the corresponding buttons.
+These include paths and libraries will be added to the system just before the
+compilation of the KVSelector.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1216" style='position:absolute;
+ margin-left:162pt;margin-top:209pt;width:428.3pt;height:103.4pt;z-index:24'
+ coordorigin="3440,24780" coordsize="8566,2068">
+ <v:rect id="_x0000_s1212" style='position:absolute;left:3440;top:26428;
+  width:3220;height:420;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="11" filled="f" strokecolor="blue"
+  strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1213" style='position:absolute;left:5000;top:25011;
+  width:1840;height:1400;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" o:regroupid="11"
+  path="m0,0l0,1120,5920,1120e" filled="f" strokecolor="blue" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1214" type="#_x0000_t202" style='position:absolute;
+  left:6790;top:24780;width:5216;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="11" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1214'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>Click here to set the User Includes<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 54; margin-left: 160px; margin-top: 209px; width: 432px; height: 105px;"><img src="KaliVedaGUI_fichiers/image024.png" v:shapes="_x0000_s1216 _x0000_s1212 _x0000_s1213 _x0000_s1214" height="105" width="432"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1215" style='position:absolute;margin-left:1pt;margin-top:169.45pt;
+ width:662.65pt;height:142.9pt;z-index:23' coordorigin="220,23989" coordsize="13253,2858">
+ <v:rect id="_x0000_s1208" style='position:absolute;left:220;top:26427;width:3160;
+  height:420;mso-position-horizontal:absolute;mso-position-vertical:absolute'
+  o:regroupid="10" filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1209" style='position:absolute;left:1880;top:24250;
+  width:4960;height:2160;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" o:regroupid="10"
+  path="m0,0l0,1120,5920,1120e" filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1210" type="#_x0000_t202" style='position:absolute;
+  left:6797;top:23989;width:6676;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="10" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1210'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click here to set the User Libraries<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 50; margin-left: -1px; margin-top: 169px; width: 667px; height: 145px;"><img src="KaliVedaGUI_fichiers/image025.png" v:shapes="_x0000_s1215 _x0000_s1208 _x0000_s1209 _x0000_s1210" height="145" width="667"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1088"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image026.png" v:shapes="_x0000_i1088" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB">The user libraries GUI
+manager looks like this:<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape
+ id="_x0000_i1094" type="#_x0000_t75" style='width:264pt;height:146pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image027.png" o:title="UserLibGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image028.png" v:shapes="_x0000_i1094" height="146" width="264"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">To add a library to the
+system, type its full path in the text field en click on the "Add File"
+button. If the text field is empty when the "Add File" button is
+pushed, a file dialog will appear. The list of libraries which will be loaded
+appear in the list box. To remove some on them, just select them by clicking on
+them and click on the "Remove File" button. To remove all the libraries
+from the list, just click on the "Remove All Files" button. Once all
+is set, you have to close this GUI by clicking on the "Done" button. The
+user include paths GUI is almost identical to this GUI.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId145838"></a><span style="" lang="EN-GB">Selection of the running mode</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">Three running modes are
+available:<o:p></o:p></span></p>
+
+<ul style="text-align: justify;">
+
+
+  <li><!--[if !supportLists]--><span style="font-family: Symbol;" lang="EN-GB"></span><span style="" lang="EN-GB"><b>Interactive</b></span><span style="" lang="EN-GB"> : the analysis is processed
+interactively. No more operation can be done until the analysis is completed.<o:p></o:p></span></li>
+
+
+  <li><!--[if !supportLists]--><span style="font-family: Symbol;" lang="EN-GB"></span><span style="" lang="EN-GB"><b>Sequential
+batch</b></span><span style="" lang="EN-GB"> : one
+analysis batch is launched for all the selected runs.<o:p></o:p></span></li>
+
+
+  <li><!--[if !supportLists]--><span style="font-family: Symbol;" lang="EN-GB"><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none;">
+    </span></span><!--[endif]--><span style="" lang="EN-GB"><b>Parallel
+batch</b></span><span style="" lang="EN-GB"> : one
+analysis batch is launched for each selected run.<o:p></o:p></span></li>
+
+
+</ul>
+
+<div style="text-align: justify;">
+
+
+
+
+
+
+
+
+
+<span style="" lang="EN-GB">Select one of these modes
+by clicking on the corresponding radio button.<o:p></o:p></span></div>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1192" style='position:absolute;
+ margin-left:1pt;margin-top:313.05pt;width:678.65pt;height:60pt;z-index:14;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="220,26861" coordsize="13573,1200">
+ <v:rect id="_x0000_s1123" style='position:absolute;left:220;top:26861;width:3180;
+  height:1200' o:regroupid="9" filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1125" type="#_x0000_t202" style='position:absolute;
+  left:7137;top:27143;width:6656;height:780;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="9" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1125'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Click on one of these radio buttons to select a running mode<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><v:line id="_x0000_s1126" style='position:absolute;flip:x' from="3380,27560"
+  to="7020,27560" o:regroupid="9" strokecolor="red" strokeweight="3pt">
+  <v:stroke endarrow="block"/>
+ </v:line></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 58; margin-left: -1px; margin-top: 311px; width: 683px; height: 64px;"><img src="KaliVedaGUI_fichiers/image029.png" v:shapes="_x0000_s1192 _x0000_s1123 _x0000_s1125 _x0000_s1126" height="64" width="683"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1079"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image030.png" v:shapes="_x0000_i1079" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId367701"></a><span style="" lang="EN-GB">Choice of the batch name</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">In case the analysis is
+processed in batch mode, indicate in the "Batch Name" text field the
+batch name. In case the "Parallel Batch" running mode is selected, a
+suffix containing the run number is added at the end of the batch name. If the
+"Auto" check box is checked, the batch name is automatically build
+according to the contain of the "Batch Name Format" text field. The
+syntax of the batch name format is the following:<o:p></o:p></span></p>
+
+
+
+
+
+<ul>
+
+
+  
+
+  <li style="text-align: justify;"><!--[if !supportLists]--><span style="font-family: Symbol;" lang="EN-GB"></span><span style="" lang="EN-GB">The batch name format may contain one of these keywords:<o:p></o:p></span></li>
+
+
+  
+  
+  <ul style="text-align: justify;">
+
+
+    <li><!--[if !supportLists]--><span style="font-family: &quot;Courier New&quot;;" lang="EN-GB"></span><span style="" lang="EN-GB">$Selector<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><i>name
+of the KVSelector</i></span><span style="" lang="EN-GB"><o:p></o:p></span></li>
+
+
+    <li><!--[if !supportLists]--><span style="font-family: &quot;Courier New&quot;;" lang="EN-GB"></span><span style="" lang="EN-GB">$DataSelector<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><i>name
+of the KVDataSelector</i></span><span style="" lang="EN-GB"><o:p></o:p></span></li>
+
+
+    <li><!--[if !supportLists]--><span style="font-family: &quot;Courier New&quot;;" lang="EN-GB"></span><span style="" lang="EN-GB">$System<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><i>short
+system name</i></span><span style="" lang="EN-GB"><o:p></o:p></span></li>
+
+
+    <li><!--[if !supportLists]--><span style="font-family: &quot;Courier New&quot;;" lang="EN-GB"></span><span style="" lang="EN-GB">$Date<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><i>current
+date and time</i></span></li>
+    <li><span style="" lang="EN-GB">$User <i>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user's name</i></span></li>
+    <li><span style="" lang="EN-GB">$UserClass<i> &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;name of the user's class used for the
+analysis (including those not deriving from the KVSelector class)<br>
+      </i></span></li>
+
+
+  
+  
+  </ul>
+
+
+  
+  <li style="text-align: justify;"><!--[if !supportLists]--><span style="font-family: Symbol;" lang="EN-GB"></span><span style="" lang="EN-GB">The keywords
+will be replaced automatically according to the content of the different text
+fields and combo boxes.<o:p></o:p></span></li>
+
+
+  
+
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><span style="" lang="EN-GB">Here are some examples of batch
+name formats and the generated batch name.<o:p></o:p></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><b><u>Example
+1</u></b></span><span style="" lang="EN-GB">: <span style="background: rgb(204, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"><b>$Selector_$DataSelector_$System</b></span><b><o:p></o:p></b></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<table style="border: medium none ; margin-left: 26.35pt; border-collapse: collapse;" border="1" cellpadding="0" cellspacing="0">
+
+
+
+
+ <tbody>
+
+
+
+    <tr>
+
+
+
+
+  <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>KVSelector<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>KVDataSelector<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p style="width: 130px;"><small><span style="" lang="EN-GB"><b><i>System<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none none solid; border-color: -moz-use-text-color -moz-use-text-color windowtext; border-width: medium medium 1pt; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>BatchName<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">MonBoSelector<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small>&nbsp;<span style="" lang="EN-GB"><o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Xe + Sn at 50 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>MonBoSelector__XeSn50</b></span><span style="" lang="EN-GB"><o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">MonBoSelectot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">SelPtot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Xe + Sn at 50 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>MonBoSelector_SelPtot_XeSn50<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">TestDataSelector<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">SelPtot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Ta + Au at 40 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>TestDataSelector_SelPtot_TaAu40<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><b><u>Example
+2</u></b></span><span style="" lang="EN-GB">: <span style="background: rgb(204, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"><b>MyAnalysis$DataSelector_$System</b></span><b><o:p></o:p></b></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<table style="margin-left: 26.35pt; border-collapse: collapse;" border="0" cellpadding="0" cellspacing="0">
+
+
+
+
+ <tbody>
+
+
+
+    <tr>
+
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>KVSelector<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>KVDataSelector<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p style="width: 130px;"><small><span style="" lang="EN-GB"><b><i>System<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+      <td style="border-style: none none solid; border-color: -moz-use-text-color -moz-use-text-color windowtext; border-width: medium medium 1pt; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>BatchName<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+    </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">MonBoSelector<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small>&nbsp;<span style="" lang="EN-GB"><o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p style="width: 130px;"><small><span style="" lang="EN-GB">Xe + Sn at 50 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>MyAnalysis_XeSn50</b></span><span style="" lang="EN-GB"><o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">MonBoSelectot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">SelPtot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Xe + Sn at 50 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>MyAnalysisSelPtot_XeSn50<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">TestDataSelector<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">SelPtot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Ta + Au at 40 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>MyAnalysisSelPtot_TaAu40<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><b><u>Example
+3</u></b></span><span style="" lang="EN-GB">: <span style="background: rgb(204, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"><b>Sel$DataSelector_$System-$Date</b></span><b><o:p></o:p></b></span></p>
+
+
+
+
+
+<p style="margin-left: 35.4pt;"><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<table style="margin-left: 26.35pt; border-collapse: collapse;" border="0" cellpadding="0" cellspacing="0">
+
+
+
+
+ <tbody>
+
+
+
+    <tr>
+
+
+
+
+  <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>KVSelector<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>KVDataSelector<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p style="width: 130px;"><small><span style="" lang="EN-GB"><b><i>System<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none none solid; border-color: -moz-use-text-color -moz-use-text-color windowtext; border-width: medium medium 1pt; padding: 0cm 5.4pt; background: aqua none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b><i>BatchName<o:p></o:p></i></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">MonBoSelector<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small>&nbsp;<span style="" lang="EN-GB"><o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Xe + Sn at 50 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>Sel_XeSn50-2007-02-22-16:17:06<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">MonBoSelectot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">SelPtot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Xe + Sn at 50 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; background: rgb(180, 255, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>SelSelPtot_XeSn50-2007-02-22-16:17:06<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+ <tr>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 115.05pt;" valign="top" width="115"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">TestDataSelector<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 91pt;" valign="top" width="91"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">SelPtot<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border-style: none solid none none; border-color: -moz-use-text-color windowtext -moz-use-text-color -moz-use-text-color; border-width: medium 1pt medium medium; padding: 0cm 5.4pt; width: 121pt;" valign="top" width="121"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB">Ta + Au at 40 A.MeV<o:p></o:p></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+  <td style="border: medium none ; padding: 0cm 5.4pt; width: 220.2pt;" valign="top" width="220"><small>
+  
+      </small>
+      
+      
+      <p><small><span style="" lang="EN-GB"><b>SelSelPtot_TaAu40-2007-02-22-16:17:06<o:p></o:p></b></span></small></p>
+
+
+      <small>
+
+  </small></td>
+
+
+
+
+ </tr>
+
+
+
+
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1149" style='position:absolute;
+ margin-left:164pt;margin-top:358.3pt;width:465.65pt;height:27pt;z-index:15;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="3480,15186" coordsize="9313,540">
+ <v:rect id="_x0000_s1141" style='position:absolute;left:3480;top:15244;
+  width:3180;height:360;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" strokecolor="blue" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1142" type="#_x0000_t202" style='position:absolute;
+  left:7457;top:15186;width:5336;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1142'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>Batch Name Format text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><v:line id="_x0000_s1143" style='position:absolute;flip:x;
+  mso-position-horizontal:absolute;mso-position-vertical:absolute' from="6660,15441"
+  to="7520,15441" strokecolor="blue" strokeweight="2.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 62; margin-left: 162px; margin-top: 358px; width: 470px; height: 29px;"><img src="KaliVedaGUI_fichiers/image031.png" v:shapes="_x0000_s1149 _x0000_s1141 _x0000_s1142 _x0000_s1143" height="29" width="470"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1148" style='position:absolute;margin-left:164pt;margin-top:327.3pt;
+ width:465.65pt;height:27pt;z-index:17;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="3480,14566" coordsize="9313,540">
+ <v:shape id="_x0000_s1139" type="#_x0000_t202" style='position:absolute;
+  left:7457;top:14566;width:5336;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="6" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1139'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Batch Name text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><v:line id="_x0000_s1140" style='position:absolute;flip:x' from="6660,14801"
+  to="7500,14801" strokecolor="red" strokeweight="2.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line><v:rect id="_x0000_s1137" style='position:absolute;left:3480;top:14604;
+  width:3180;height:360;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="6" filled="f" strokecolor="red"
+  strokeweight="2.5pt"/>
+</v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 70; margin-left: 162px; margin-top: 327px; width: 470px; height: 29px;"><img src="KaliVedaGUI_fichiers/image032.png" v:shapes="_x0000_s1148 _x0000_s1139 _x0000_s1140 _x0000_s1137" height="29" width="470"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1147" style='position:absolute;margin-left:234pt;margin-top:281.35pt;
+ width:449.65pt;height:45.95pt;z-index:16;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="4880,13647" coordsize="8993,919">
+ <v:rect id="_x0000_s1144" style='position:absolute;left:4880;top:14306;
+  width:1040;height:260;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" strokecolor="blue" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1145" type="#_x0000_t202" style='position:absolute;
+  left:7457;top:13647;width:6416;height:800;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1145'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>Automatically generated Batch Name <o:p></o:p></b></span></p>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>check button<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape><v:line id="_x0000_s1146" style='position:absolute;flip:x;
+  mso-position-horizontal:absolute;mso-position-vertical:absolute' from="6000,14063"
+  to="7460,14423" strokecolor="blue" strokeweight="2.5pt">
+  <v:stroke endarrow="block"/>
+ </v:line></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 66; margin-left: 232px; margin-top: 281px; width: 454px; height: 48px;"><img src="KaliVedaGUI_fichiers/image033.png" v:shapes="_x0000_s1147 _x0000_s1144 _x0000_s1145 _x0000_s1146" height="48" width="454"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1081"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image034.png" v:shapes="_x0000_i1081" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId109908"></a><span style="" lang="EN-GB">Setting the batch
+properties</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">The batch properties can be
+set by filling the "Batch Memory", the "Batch Disk" and the
+"Batch Time" text fields. No white space should be in between the
+amount and the units for batch memory and the batch disk. The units have to be
+one of the followings: <b>KB</b></span><span style="" lang="EN-GB">, <b>MB</b></span><span style="" lang="EN-GB"> or <b>GB</b></span><span style="" lang="EN-GB">. The batch time can be set by using
+the up and down arrows of the "Batch Time" text field.<o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1175" style='position:absolute;
+ margin-left:2pt;margin-top:273.3pt;width:524.65pt;height:142.9pt;z-index:18;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="240,24466" coordsize="10493,2858">
+ <v:rect id="_x0000_s1155" style='position:absolute;left:240;top:26904;width:2160;
+  height:420;mso-position-horizontal:absolute;mso-position-vertical:absolute'
+  o:regroupid="7" filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1156" style='position:absolute;left:540;top:24727;
+  width:6320;height:2160;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" o:regroupid="7" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1157" type="#_x0000_t202" style='position:absolute;
+  left:6817;top:24466;width:3916;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="7" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1157'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Batch memory text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 74; margin-left: 0px; margin-top: 273px; width: 529px; height: 145px;"><img src="KaliVedaGUI_fichiers/image035.png" v:shapes="_x0000_s1175 _x0000_s1155 _x0000_s1156 _x0000_s1157" height="145" width="529"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1174" style='position:absolute;margin-left:113pt;margin-top:312.85pt;
+ width:413.3pt;height:103.4pt;z-index:20;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="2460,25257" coordsize="8266,2068">
+ <v:rect id="_x0000_s1159" style='position:absolute;left:2460;top:26905;
+  width:2020;height:420;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" strokecolor="blue" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1160" style='position:absolute;left:2740;top:25488;
+  width:4120;height:1400;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="blue" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1163" type="#_x0000_t202" style='position:absolute;
+  left:6810;top:25257;width:3916;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1163'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:blue'><b>Batch disk text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 82; margin-left: 111px; margin-top: 313px; width: 417px; height: 105px;"><img src="KaliVedaGUI_fichiers/image036.png" v:shapes="_x0000_s1174 _x0000_s1159 _x0000_s1160 _x0000_s1163" height="105" width="417"></span><!--[endif]--><!--[if gte vml 1]><v:group
+ id="_x0000_s1173" style='position:absolute;margin-left:217pt;margin-top:349.4pt;
+ width:309.65pt;height:66.8pt;z-index:19;mso-position-horizontal-relative:char;
+ mso-position-vertical-relative:line' coordorigin="4540,25988" coordsize="6193,1336">
+ <v:rect id="_x0000_s1158" style='position:absolute;left:4540;top:26904;
+  width:2140;height:420;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1161" style='position:absolute;left:4760;top:26249;
+  width:2100;height:620;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1162" type="#_x0000_t202" style='position:absolute;
+  left:6817;top:25988;width:3916;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1162'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Batch time text field<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 78; margin-left: 215px; margin-top: 349px; width: 314px; height: 69px;"><img src="KaliVedaGUI_fichiers/image037.png" v:shapes="_x0000_s1173 _x0000_s1158 _x0000_s1161 _x0000_s1162" height="69" width="314"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1083"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image038.png" v:shapes="_x0000_i1083" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId630922"></a><span style="" lang="EN-GB">Running the analysis</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">Clicking on the
+"Procces" button launches the analysis. The ".C" and
+".h" files of the the KVSelector are compiled if they exist. You will
+be warned if the KVSelector is not valid (missing files, it does not inherits
+from a KVSelector or there are compilation errors).<o:p></o:p></span><span style="" lang="EN-GB">&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1176" style='position:absolute;
+ margin-left:1pt;margin-top:308.3pt;width:547.65pt;height:127.9pt;z-index:21;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="220,5766" coordsize="10953,2558">
+ <v:rect id="_x0000_s1164" style='position:absolute;left:220;top:7904;width:3200;
+  height:420;mso-position-horizontal:absolute;mso-position-vertical:absolute'
+  filled="f" strokecolor="red" strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1165" style='position:absolute;left:1900;top:6027;
+  width:5300;height:1860;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1166" type="#_x0000_t202" style='position:absolute;
+  left:7257;top:5766;width:3916;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1166'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Process button<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 86; margin-left: -1px; margin-top: 308px; width: 552px; height: 130px;"><img src="KaliVedaGUI_fichiers/image039.png" v:shapes="_x0000_s1176 _x0000_s1164 _x0000_s1165 _x0000_s1166" height="130" width="552"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1085"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image040.png" v:shapes="_x0000_i1085" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<h3 class="newsTitle"><a class="mozTocH3" name="mozTocId851073"></a><span style="" lang="EN-GB">Quit the KaliVedaGUI</span><span style="font-size: 16pt;" lang="EN-GB"><o:p></o:p></span></h3>
+
+
+
+
+
+<p style="text-align: justify;"><span style="" lang="EN-GB">Clicking on the
+"Quit" button closes the KaliVedaGUI window and terminates the
+application.. <o:p></o:p></span></p>
+
+<div style="text-align: justify;">
+
+
+
+<span style="" lang="EN-GB">&nbsp;<!--[endif]--><o:p></o:p></span></div>
+
+
+
+
+
+<p><!--[if gte vml 1]><v:group id="_x0000_s1181" style='position:absolute;
+ margin-left:162pt;margin-top:307.3pt;width:386.65pt;height:127.95pt;z-index:22;
+ mso-position-horizontal-relative:char;mso-position-vertical-relative:line'
+ coordorigin="3440,15566" coordsize="7733,2559">
+ <v:rect id="_x0000_s1178" style='position:absolute;left:3440;top:17705;
+  width:3200;height:420;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="8" filled="f" strokecolor="red"
+  strokeweight="2.5pt"/>
+ <v:shape id="_x0000_s1179" style='position:absolute;left:5020;top:15828;
+  width:2180;height:1860;flip:y;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' coordsize="5920,1120" o:regroupid="8" path="m0,0l0,1120,5920,1120e"
+  filled="f" strokecolor="red" strokeweight="3.25pt">
+  <v:stroke startarrow="block"/>
+  <v:path arrowok="t"/>
+ </v:shape><v:shape id="_x0000_s1180" type="#_x0000_t202" style='position:absolute;
+  left:7257;top:15566;width:3916;height:540;mso-position-horizontal:absolute;
+  mso-position-vertical:absolute' o:regroupid="8" filled="f" stroked="f">
+  <v:textbox style='mso-next-textbox:#_x0000_s1180'>
+   <![if !mso]>
+   <table cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+     <td><![endif]>
+     <div>
+     <p class=MsoNormal><span style='font-size:14.0pt;font-family:Arial;
+     color:red'><b>Quit button<o:p></o:p></b></span></p>
+     </div>
+     <![if !mso]></td>
+    </tr>
+   </table>
+   <![endif]></v:textbox>
+ </v:shape></v:group><![endif]--><!--[if !vml]--><span style="position: absolute; z-index: 90; margin-left: 160px; margin-top: 307px; width: 391px; height: 130px;"><img src="KaliVedaGUI_fichiers/image041.png" v:shapes="_x0000_s1181 _x0000_s1178 _x0000_s1179 _x0000_s1180" height="130" width="391"></span><!--[endif]--><span style="" lang="EN-GB"><!--[if gte vml 1]><v:shape id="_x0000_i1087"
+ type="#_x0000_t75" style='width:325pt;height:436pt'>
+ <v:imagedata src="KaliVedaGUI_fichiers/image001.png" o:title="KaliVedaGUI"/>
+</v:shape><![endif]--><!--[if !vml]--><img src="KaliVedaGUI_fichiers/image042.png" v:shapes="_x0000_i1087" height="436" width="325"><!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+<p><span style="" lang="EN-GB"><!--[if !supportEmptyParas]-->&nbsp;<!--[endif]--><o:p></o:p></span></p>
+
+
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+</body>
+</html>
