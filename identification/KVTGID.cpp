@@ -1,0 +1,313 @@
+/***************************************************************************
+                          KVTGID.cpp  -  description
+                             -------------------
+    begin                : 5 July 2005
+    copyright            : (C) 2005 by J.D. Frankland
+    email                : frankland@ganil.fr
+
+$Id: KVTGID.cpp,v 1.16 2008/03/06 13:51:40 franklan Exp $
+***************************************************************************/
+#include "KVTGID.h"
+#include "TMath.h"
+#include "Riostream.h"
+#include "TClass.h"
+#include "TString.h"
+#include "KVTGIDFunctions.h"
+#include "TROOT.h"
+
+ClassImp(KVTGID)
+/////////////////////////////////////////////////////////////////////////////////////
+//KVTGID
+//
+//Abstract base class for particle identfication using functionals developed by
+//L. Tassan-Got (IPN Orsay). These functionals are defined in the KVTGIDFunctions
+//namespace, and the functional used by each KVTGID object is defined by
+//giving its name to the constructor. These objects are persistent, i.e. can be
+//retrieved from a ROOT file and used for identification.
+//
+//GetIdentification() method performs an identification. Status code can be retrieved
+//afterwards using GetStatus();
+//
+//A KVIDGrid identification grid can be generated from the functional in order
+//to visualise the corresponding identification lines. (MakeIDGrid)
+//
+//The following methods must be defined by child-classes:
+//
+//      SetIdent() -- determine how to set the identification for each line in the grid
+//      AddLine()  -- define the type of IDLine added to the grid
+//      NewGrid()  -- define the type of IDGrid to generate
+//
+void KVTGID::init()
+{
+   //Default intitialisations
+   fID_min = 1.;
+   fID_max = 100.;
+   fStatus = -1;
+}
+
+//___________________________________________________________________________//
+
+KVTGID::KVTGID():TF1()
+{
+   //Default ctor
+   init();
+}
+
+//___________________________________________________________________________//
+
+KVTGID::KVTGID(const Char_t * name,
+               const Char_t * function, Double_t xmin,
+               Double_t xmax, Int_t npar, Int_t par_x, Int_t par_y)
+:TF1(name, KVTGIDFunctions::tassangot_Z, xmin, xmax, npar)
+{
+   //Create TF1 named "name" using "function", range xmin->xmax and number of
+   //parameters npar.
+   //
+   //The given function name must correspond to one of the functions
+   //defined in the KVTGIDFunctions namespace (without the "KVTGIDFunctions::"
+   //scope, i.e. function="tassangot_Z" is a valid argument for this constructor).
+   //The resulting object can be written to and read back from a ROOT file and the
+   //function pointer will be reinitialised automatically when the object is read back
+   //from the file.
+   //
+   //"type" is a string which can be used to differentiate different 'types' of identifiers
+   //par_x and par_y are the indices of the parameters of the functional which
+   //correspond to the 'X' and 'Y' coordinates of the identification map, respectively.
+   //
+   //NOTE: the function pointer passed to the TF1 constructor is just a dummy to
+   //make sure that the right constructor is called, and that the TF1 is set up correctly.
+   //The actual function used is set using the name given as argument 'function'.
+
+   init();
+
+   //set names of 'X' and 'Y' parameters. these are used by MakeIDGrid.
+   SetParName(par_x, "X");
+   SetParName(par_y, "Y");
+
+   fTGIDFunctionName.Form("KVTGIDFunctions::%s", function);
+   SetFunction((Double_t(*)(Double_t *, Double_t *)) gROOT->
+               ProcessLineFast(fTGIDFunctionName.Data()));
+}
+
+//___________________________________________________________________________//
+
+Double_t KVTGID::GetIdentification(Double_t ID_min, Double_t ID_max,
+                                   Double_t & ID_quality, Double_t * par)
+{
+   //Use the functional with the current parameter values in order to perform
+   //an identification.
+   //The value returned is the estimated identification value.
+   //If the identification is not possible, -1 is returned
+   //(ID_quality=-1 also).
+   //
+   //For status code use GetStatus().
+   //
+   //ID_min and ID_max are the lower & upper limits for the identification.
+   //The functional must change sign between these two limits in order for
+   //the identification to be possible.
+   //ID_quality is the (absolute) value of the functional corresponding to
+   //the estimated identification: it is the distance from the identified
+   //point to the nearest identification line. Ideally it should be zero or
+   //as small as possible.
+   //
+   //Optional argument "par" allows to replace the current parameters.
+
+   if (par)
+      SetParameters(par);
+
+   Double_t ID;
+   ID = ID_quality = -1.;
+   fStatus = kStatus_NotBetween_IDMin_IDMax;
+
+   if (Eval(ID_min) * Eval(ID_max) < 0.) {
+      //if the sign of the identification function changes between ID_min
+      //and ID_max i.e. if the ID_min line is below the point and ID_max above
+      //it this means that the point to identify is in between these two lines
+      ID = GetX(0., ID_min, ID_max);
+      //what is actual value of Tassan-Got formula for this ID ?
+      ID_quality = TMath::Abs(Eval(ID));
+      fStatus = kStatus_OK;
+   }
+
+   return ID;
+}
+
+//___________________________________________________________________________//
+
+KVIDGrid *KVTGID::MakeIDGrid(Double_t xmax, Double_t xmin, Int_t ID_min,
+                             Int_t ID_max, Int_t npoints, Bool_t logscale)
+{
+   //Generate ID grid from the functional using current values of parameters.
+   //
+   //      xmin, xmax - min and max values of 'x' coordinate used in corresponding
+   //                                      identification map
+   //      ID_min, ID_max - min and max 'ID' of lines in grid
+   //      npoints    - number of points in each line
+   //
+   //DEFAULT ARGUMENT VALUES:
+   //=========================
+   //   xmin = 0.
+   // If the grid gets "ugly" for small x, you might try setting xmin = fitted X-pedestal
+   // This is the value of parameter 7 in most cases....
+   //
+   //  ID_min, ID_max = min and max ID of lines on which functional was fitted
+   //  npoints = 100
+   //
+   // if logscale=kTRUE (default is kFALSE) lines are generated with more points at
+   // the beginning of the lines than at the end.
+   //________________________________________________________________
+   //
+   //The methods
+   //       void SetIdent(KVIDLine*, Double_t ID)
+   //      KVIDLine* AddLine()
+   //      KVIDGrid* NewGrid()
+   //must be defined in child classes.
+
+   ID_min = (ID_min ? ID_min : (Int_t) GetIDmin());
+   ID_max = (ID_max ? ID_max : (Int_t) GetIDmax());
+
+   //create new grid
+   KVIDGrid *gri = NewGrid();
+
+   for (Int_t ID = ID_min; ID <= ID_max; ID++) {
+      AddLineToGrid(gri, ID, npoints, xmin, xmax, logscale);
+   }
+
+   return gri;
+}
+
+//_______________________________________________________________________________________//
+
+void KVTGID::AddLineToGrid(KVIDGrid * g, Int_t ID, Int_t npoints,
+                           Double_t xmin, Double_t xmax, Bool_t log_scale)
+{
+   // Add a line to the grid 'g' for identification label 'ID' with 'npoints' points calculated between
+   // X-coordinates xmin and xmax. Points are omitted if the resulting value of the functional is
+   // not a number (TMath::IsNan = kTRUE).
+   //
+   // If log_scale=kTRUE (default is kFALSE), more points are used at the beginning
+   // of the line than at the end, with a logarithmic dependence.
+
+   //add new line to grid
+   KVIDLine *new_line = AddLine(g);
+
+   //set identification label for line
+   SetIdent(new_line, ID);
+
+   //loop over points of line
+   Int_t p_index = 0;
+   Double_t X, dX;
+   Double_t Y = 0.;
+   Double_t logXmin = TMath::Log( TMath::Max(xmin,1.0) );
+   if(log_scale)
+      dX = (TMath::Log(xmax) - logXmin)/( npoints - 1. );
+   else
+      dX = (xmax - xmin) / (Double_t) (npoints - 1);
+
+   for (Int_t i = 0; i < npoints; i++) {
+
+      //set x coordinate of this point
+      if(log_scale)
+         X = TMath::Exp(logXmin + i*dX);
+      else
+         X = xmin + dX * ((Double_t) i);
+
+      //leave value Y as it is. The value of GetIDFunc()->Eval(ID)
+      //is the vertical distance delta_Y from point (X,Y) to the line; therefore the
+      //Y coordinate of the point on the line is Y + delta_Y, whatever the value Y.
+
+      //set values of parameters which correspond to X and Y coordinates in grid
+      SetParameter("X", X);
+      SetParameter("Y", Y);
+
+      Y += Eval((Double_t) ID);
+
+      if (!TMath::IsNaN(Y))
+         new_line->SetPoint(p_index++, X, Y);
+      else
+         Y = 0.;                //reset Y to 0 if it ever becomes NaN
+   }
+}
+
+//_______________________________________________________________________________________//
+
+void KVTGID::Print(Option_t * option) const
+{
+   //Print info on functional and grid
+   cout << Class()->
+       GetName() <<
+       " object for identification using Tassan-Got functional" << endl;
+   cout << "Limits for fit : fID_min = " << GetIDmin() << "  fID_max = " <<
+       GetIDmax() << endl;
+   TF1::Print(option);
+}
+
+//_______________________________________________________________________________________//
+
+Int_t KVTGID::Compare(const TObject * obj) const
+{
+   //Used to sort list of KVTGID in KVTGIDManager
+   //ID obj with smallest IDmax will be first in sorted list
+   Int_t id1 = (Int_t) GetIDmax();
+   if (id1 < 0)
+      return 0;
+   Int_t id2 = (Int_t) static_cast < const KVTGID * >(obj)->GetIDmax();
+   if (id2 < 0)
+      return 0;
+   if (id1 > id2)
+      return 1;
+   if (id1 < id2)
+      return -1;
+   return 0;
+}
+
+//_______________________________________________________________________________________//
+
+const Char_t *KVTGID::GetStatusString() const
+{
+   //Returns explanatory message for value of GetStatus()
+
+   static TString messages[] = {
+      "ok",
+      "point to identify outside of identification range of function"
+   };
+   Int_t status = GetStatus() + 1;
+   if (status--)
+      return messages[status];
+   return Form("no call to GetIdentification() performed yet");
+}
+
+//_______________________________________________________________________________________//
+
+Double_t KVTGID::GetDistanceToLine(Double_t x, Double_t y, Int_t id,
+                                   Double_t * params)
+{
+   //Given a point (x,y) (which could, for example, be a point in a KVIDGrid line which we want to fit)
+   //we give the (vertical) distance to the functional identification line 'id'. If the point is below the line
+   //the distance is positive, if the point is above the line it is negative.
+   //If the parameter array 'params' is not given, we use the current values of the parameters.
+
+   if (params)
+      SetParameters(params);
+   SetParameter("X", x);
+   SetParameter("Y", y);
+   return Eval((Double_t) id);
+}
+
+//______________________________________________________________________________
+void KVTGID::Streamer(TBuffer & R__b)
+{
+   // Stream an object of class KVTGID.
+   // If the name of the KVTGIDFunction has been set (version > 1) then
+   // we use it to reset the function pointer
+
+   if (R__b.IsReading()) {
+      KVTGID::Class()->ReadBuffer(R__b, this);
+      if (fTGIDFunctionName != "") {
+         SetFunction((Double_t(*)(Double_t *, Double_t *)) gROOT->
+                     ProcessLineFast(fTGIDFunctionName.Data()));
+      }
+   } else {
+      KVTGID::Class()->WriteBuffer(R__b, this);
+   }
+}
