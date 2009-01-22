@@ -1,0 +1,89 @@
+#!/bin/csh -f
+#----------------------------------------------------------------------
+#      Kali96 : lancement de kali en BATCH (C-shell)
+#----------------------------------------------------------------------
+####
+set numdeb = ""
+set numfin = ""
+set listrun2 = ""
+#------------------------------------------------------------------
+question1:
+echo "                         ------------------------------  "
+echo "                        |    LECTURE de runs HPSS      | "
+echo "                        |                              | "
+echo "                        |       Programme KALI         | "
+echo "                        |            -oOo-             | "
+echo "                        | 5 mars 2003             V2.0 | "
+echo "                         ------------------------------  "
+echo " "
+#
+echo "Entrez la liste des runs sous la forme : run1 run2 run3 etc..."
+echo " ou bien entrez une serie contigue de runs : run1-run2 ... "
+echo " - q : sortie "
+echo " - v : visualiser ("$nomkdc")"
+echo " "
+echo -n "liste : "
+set listrun1 = "$<"
+#
+#----------------------------------
+# test du premier mot de la liste
+#-----------------------------------
+set word1 =  `echo $listrun1 | awk '{ print $1}'`
+#echo $word1
+switch ( $word1)
+    case [vV]
+       more $nomkdc
+       goto question1
+       breaksw
+     case [qQ]
+       echo " sortie de $0 ... "
+       exit 2
+       breaksw
+     case *[aA-zZ]*
+       echo "erreur dans la liste ....."
+       goto question1
+       breaksw
+     default:
+        breaksw
+endsw
+#-----------------------------------------------------------------
+# on developpe la liste de runs en entree listrun1
+# en listrun2
+#-----------------------------------------------------------------
+foreach num ($listrun1)
+if ( `echo $num | grep "-" ` == "" ) then
+    set listrun2 = "$listrun2 $num"
+else
+    set numdeb = `echo $num | awk -F"-" '{ print $1}'`
+    set numfin = `echo $num | awk -F"-" '{ print $2}'`
+    set numvar = $numdeb
+    while ( $numvar < `expr $numfin + 1 ` )
+          set listrun2 = "$listrun2 $numvar"
+	  set numvar = `expr $numvar + 1 `
+    end
+endif 
+end
+#-----------------------------------------------------------------
+set prefix = ""
+set nomfic = ""
+set numruns = ""
+set nrun = 0
+# 
+####
+setenv INPUT "$listrun2"
+echo " Runs a traiter : " $INPUT
+setenv FOR_PERSO "$VEDAROOT_FOR"
+echo "user files : $FOR_PERSO"
+setenv NOMLIB ""
+echo "Liste Runs    :$listrun1"
+echo "Fortrans      :$FOR_PERSO"
+setenv type_mach "LINUX"
+echo -n "Enter the job name for the batch :  "
+set nomjob = $<
+# default values for CPU, disk and memory
+setenv TIME 400000
+setenv DISK 3GB
+setenv MEMORY 150MB
+# ask user to fine-tune ressource values
+source $KVROOT/bin/SetBatchRessources
+$KVROOT/bin/veda2root_lanceur

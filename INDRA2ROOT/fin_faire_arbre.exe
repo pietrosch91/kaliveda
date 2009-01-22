@@ -1,0 +1,13 @@
+#!/bin/csh -f
+set bscript='batch2root.C'
+rm -f $bscript
+cp $KVROOT/src/indra2root.C ./indra2root.C
+echo '{' >> $bscript
+echo '  gROOT->ProcessLine(".include $KVROOT/include");' >> $bscript
+echo '  gSystem->Load("libKVIndra");' >> $bscript
+echo '	gROOT->ProcessLine(".L indra2root.C+");' >> $bscript
+echo '  faire_arbre_lire("'$DATA_SET'");' >> $bscript
+echo '}' >> $bscript
+cat -v $bscript
+$ROOTSYS/bin/root -b -q $bscript
+exit

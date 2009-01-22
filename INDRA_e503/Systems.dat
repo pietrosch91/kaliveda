@@ -1,0 +1,43 @@
+# Systems.dat file written by KVINDRADB::WriteSystemsFile on Thu Jan 15 10:25:36 2009
++48Ca +40Ca 35 MeV/A
+48 20 40 20 35
+Target: 1 0
+Ca 1
+Runs: 328-350 353-378 425
+
++INDRA SOLO
+Runs: 
+
++48Ca +48Ca 35 MeV/A
+48 20 48 20 35
+Target: 1 0
+48Ca 1.5
+Runs: 379-414 416-447
+
++40Ca +48Ca 35 MeV/A
+40 20 48 20 35
+Target: 1 0
+48Ca 1.5
+Runs: 455-509 580-606
+
++40Ca + Au 35 MeV/A
+40 20 196 79 35
+Target: 1 0
+Au 1.7
+Runs: 454
+
++40Ca +40Ca 35 MeV/A
+40 20 40 20 35
+Target: 1 0
+40Ca 1
+Runs: 511-550 557-579
+
++16O + 197Au 28 MeV/A
+16 8 197 79 28
+Target: 1 0
+197Au 1.7
+Runs: 608-613
+
++Automate INDRA
+Runs: 450-453 617-618
+

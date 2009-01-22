@@ -1,0 +1,151 @@
+#!/bin/csh -f
+#------------ kali : lecture des bandes DST 95 & DST 96  -------------------
+#
+if ( $?QSUB_REQNAME ) then
+    echo "--------------------------------------"
+    echo "    lancement de KALI en BATCH "
+    echo "--------------------------------------"
+else
+    echo "----------------------------------------"
+    echo "   lancement de KALI en INTERACTIF  "
+    echo "----------------------------------------"
+endif
+# write disk and memory ressource requests in log file
+echo '* DISK_REQ:                 '$DISK'                            *'
+echo '* MEM_REQ:         '$MEMORY'                             *'
+#
+#-----> D.Cussol: On identifie le premier programme fortran utilise
+#                 et on le range dans PFOR
+echo "Fortrans	: $FOR_PERSO"
+set word1 =  `echo $FOR_PERSO | awk '{ print $1}'`
+echo "WORD1=$word1"
+set word2 = `echo $word1 | awk -F"/" '{print $NF}'`
+echo "word2=$word2"
+setenv PFOR `echo $word2 | awk -F"." '{ print $1}'`
+echo "PFOR=$PFOR"
+cern_pro
+#---- Variables d'environnement ----------
+setenv VEDA_OUT $DIR_PERSO/
+#------ Compilation ------------------
+echo ' start of compilation and load ' `date`
+if ( $NOMLIB == "" ) then
+  g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -ox$NOMFI `cernlib pawlib mathlib` 
+else
+  g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -L$HOME/lib -l$NOMLIB -ox$NOMFI `cernlib pawlib mathlib` 
+endif
+if ($status != '0') then
+   echo ' Big problem with the compilation '
+   exit 99
+endif
+echo '  end of compilation and load ' `date`
+#---------------------------------------------
+if ( $CAMPAGNE == "4" ) then
+	set nomfic="./$NOMFI"
+	setenv fic_run  "$DIR_PERSO/$NOMFI.run_liste"
+	echo "List of runs for fortran are in : " $fic_run
+	rm -f $fic_run
+	set prefix="dst_"
+else
+	set nomfic="$NOMFI.cart"
+	set prefix="r"
+endif
+#----- fassoc .... -------------------------------
+fassoc $nomfic 2
+#----- boucle sur les numeros de runs en arguments --------------------
+rm -f $nomfic
+#
+setenv WRITE "0"
+if( $CAMPAGNE == "4" ) then
+	echo "$WRITE   Lecture de cartouches DST" >> $nomfic
+else
+	echo "$WRITE Pas d'ecriture de cartouches reduites" >> $nomfic
+endif
+#
+set nrun = 0
+foreach i ($INPUT)
+set run="| $i |"
+set cart=`grep "$run" $nomkdc | awk '{ print  ($4) }' `
+if ( $cart == "" ) then
+   echo "######################################"
+   echo " ATTENTION :le run $i n'existe pas ! "
+   echo "######################################"
+endif
+if ( $cart != "" ) then
+   setenv nom_cart $cart
+   set nrun = `expr  $nrun + 1`
+   if ($CAMPAGNE == "4") then
+   		set nomstage="$prefix$i"
+   else
+   		set nomstage="$prefix$nrun"
+   endif
+   if ( $nrun == "1" ) then
+       set cartini = $nom_cart
+   endif
+   if ( $nom_cart == $cartini ) then
+   
+     set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
+     echo ------------------------------------------------------------------
+     echo " file = $nomstage : run $i  sur  la zone $HPSS_DIR/$cart/dst - fichier run$i.dst"  
+	 if ( $CAMPAGNE == "4" ) then
+	 	echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $nomfic
+   		echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $fic_run
+	 else
+     	echo "$nomstage $i $cart $fich : namefil run cartouche sequence" >> $nomfic
+     endif      
+   endif  
+   
+   if ( $nom_cart != $cartini ) then
+   
+     set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
+     echo " file = $nomstage : run $i  sur  la zone $HPSS_DIR/$cart/dst - fichier run$i.dst"   
+	 if ( $CAMPAGNE == "4" ) then
+	 	echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $nomfic
+   		echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $fic_run
+	 else
+     	echo "$nomstage $i $cart $fich : namefil run cartouche sequence" >> $nomfic
+     endif
+     set cartini = $nom_cart
+      
+   endif   
+endif
+end
+
+echo "Fichier $nomfic :"
+cat $nomfic
+echo " "
+
+echo ------------------------------------------------------------------
+echo 'Creation des lien logiques avec les run HPSS'
+echo $nrun
+if ( $CAMPAGNE == "4" ) then
+	tail -n $nrun $nomfic | awk -F" " '{s=sprintf("ln -s $HPSS_DIR/%s/dst2/run%s.dst %s",$5,$3,$1);print s;system(s);}'
+else
+	tail -n $nrun $nomfic | awk -F" " '{s=sprintf("ln -s $HPSS_DIR/%s/dst/run%s.dst %s",$3,$2,$1);print s;system(s);}'
+endif
+echo ------------------------------------------------------------------
+
+
+if ( $CAMPAGNE == "4" ) then
+	echo "EOF EOF 0" >> $nomfic
+else
+	echo "EOF 0 EOF 0" >> $nomfic
+endif
+if ( $nrun == 0 ) then
+   echo " On trouve  : $nrun run a traiter ! "
+   echo "STOP"
+   exit
+endif
+#------ Running ....---------------------------
+echo ' Execution begins ...' `date`
+time x$NOMFI
+echo ' Execution ends .....' `date`  
+rm x$NOMFI
+#rm $nomfic
+#------> D.Cussol : Instructions de fin de tache (copies de fichiers par exemple)
+ls -l
+rm r[0-9]*
+#---------------------------------------------
+# Transformation of text file to ROOT/KaliVeda file
+source $KVROOT/bin/fin_$PFOR.exe
+exit
+

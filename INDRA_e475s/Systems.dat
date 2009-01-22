@@ -1,0 +1,44 @@
+############################################
+#$Id: Systems.dat,v 1.3 2006/11/17 09:01:40 franklan Exp $
+# +system
+# Abeam Zbeam Atarget Ztarget TargThick Energy
+# "first run" "last run"
+#
+#
+##############################################
+
++78Kr + 40Ca 5.5 A.MeV
+78 36 40 20 1.0 5.5
+Run Range : 2 68
+
++Piedestaux ChIo/Si
+Run Range : 70 70
+Run Range : 354 354
+
++Piedestaux CsI
+Run Range : 71 72
+Run Range : 355 355
+
++Automates
+Run Range : 73 81
+Run Range : 356 367
+
++82Kr + 40Ca 5.5 A.MeV
+82 36 40 20 1.0 5.5
+Run Range : 82 135
+
++75Kr12+ + 40Ca 5.5 A.MeV
+75 36 40 20 1.0 5.5
+Run Range : 136 163
+
++75Kr13+ + 40Ca 5.5 A.MeV
+75 36 40 20 1.0 5.5
+Run Range : 164 321
+Run Range : 330 352
+
++Cosmiques
+Run Range : 322 329
+Run Range : 368 381
+
++Source alpha
+Run Range : 383 407

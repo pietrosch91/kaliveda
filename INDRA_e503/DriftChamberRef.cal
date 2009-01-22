@@ -1,0 +1,18 @@
+//X Reference mm and Position mm (April 2005)
+239.1 8161.0
+232.8 8211.0
+241.3 9024.0 
+235.1 9074.0 
+//Y Reference mm and Position mm Sigma mm
+112.86 8186.0
+108.26 9049.0 
+//Focal Plane Position mm
+8702.5
+//DriftVelocity cm/us old 5.63
+4.84
+//QThresh
+0.0 
+//AngleFocal X Y
+0.0001 0.0001
+//AngleFocal1 X Y
+-80.0001
