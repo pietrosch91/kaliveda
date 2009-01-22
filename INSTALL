@@ -1,0 +1,104 @@
+$Id: INSTALL,v 1.17 2008/03/10 16:12:47 franklan Exp $
+
+How to build and install KaliVeda
+=======================
+
+0. Prerequisites
+--------------------
+It is assumed that you have a correctly installed and fully functioning version of ROOT (http://root.cern.ch).
+Most notably, we assume that the ROOTSYS environment variable is positioned and contains the path to
+the top-level directory of your ROOT installation, and that the ROOTSYS/lib and ROOTSYS/bin directories
+are included in the system search paths for shared libraries and executables, respectively.
+
+
+1. Setting the installation location (KVROOT).
+----------------------------------------------------------
+The environment variable KVROOT must be defined by the user.
+It must contain the full path to the directory in which you wish to install KaliVeda.
+This directory must exist before installation begins.
+KVROOT is needed both during installation, and every time that KaliVeda libraries etc. are used.
+Therfore it is best to define this variable in a script which is automatically executed at login
+(.bash_profile, .cshrc, etc. etc.)
+
+You must also add the following directories to the system-dependent search paths for executables
+and shared libraries (the exact procedure will depend on your operating system):
+
+	add the directory "KVROOT/bin" to "PATH" (or equivalent executable search path)
+	add the directory "KVROOT/lib" to "LD_LIBRARY_PATH" (or equivalent shared library search path)
+
+e.g. on a Linux C-shell system:
+
+	setenv LD_LIBRARY_PATH ${KVROOT}/lib:${LD_LIBRARY_PATH}
+	setenv PATH ${KVROOT}/bin:${PATH}
+	
+1.1 MacOSX
+-----------------
+In addition to the previous shell variables, you also need to define/modify the following:
+
+   DYLD_LIBRARY_PATH :  add $ROOTSYS/lib and $KVROOT/lib
+   MACOSX_DEPLOYMENT_TARGET : set to "10.3"
+	
+2. Building and installing
+-------------------------------
+If you obtained the KaliVeda sources in the form of a compressed archive (tarball or ".tgz"), you must
+first of all type the following command in the top-level directory:
+
+	make unpack
+
+In order to compile all sources, and install all libraries and executables, type the following command in
+the top-level directory of the KaliVeda sources:
+
+	make
+	
+2.1 ROOTSYS is not defined / ROOT installed in e.g. /usr/local/bin
+-----------------------------------------------------------------------------------
+If your installation of ROOT is NOT in a single directory (maybe ROOTSYS is not defined), then you need to
+give the path to the ROOT makefile called "Makefile.arch" in order to build KaliVeda. In normal installations,
+this file is in $ROOTSYS/test.
+For example, if the ROOT executables are installed in /usr/local/bin, and the ROOT libraries in /usr/local/lib/root,
+then Makefile.arch is in /usr/local/share/root/test. You need to type:
+
+   make ROOT_MAKEFILE_PATH=/usr/local/share/root/test
+   
+2.2 Debug build
+--------------------
+If you want to compile KaliVeda with the maximum of debugging information (to use with e.g. gdb), then type:
+
+   make debug=yes
+   
+2.3 Building GANIL acquisition library with Xrootd support
+--------------------------------------------------------------------------
+In order to read raw GANIL acquisition data over the network using Xrootd, type:
+   
+   make MAKE_GANTAPE_XRD=yes
+    	
+3. Installing documentation
+----------------------------------
+If you want to install a local copy of the KaliVeda web site, including the full documentation of all classes,
+type the following command in the top-level directory of the KaliVeda sources:
+
+	make doc
+
+Open the file KVROOT/KaliVedaDoc/KaliVeda.html in a web browser.
+
+	
+4. Configuration
+--------------------
+Many aspects of the KaliVeda environment (such as the location of the data repository you use for data
+reduction and analysis) can be configured by creating and editing the file $HOME/.kvrootrc.
+See the comments & examples in the file $KVROOT/KVFiles/.kvrootrc (do not copy this file in to your
+$HOME directory!), or look on the KaliVeda website for more information.
+	
+
+5. Loading KaliVeda libraries in an interactive ROOT session
+------------------------------------------------------------------------------
+All libraries are installed into the directory "KVROOT/lib". Thus for example, to load the KVMultiDet library,
+type the following instruction (which should be valid for any operating system, assuming that the system-
+dependent search path for shared libraries includes KVROOT/lib; see #1 above):
+
+	gSystem->Load("libKVMultiDet")
+	
+or alternatively you can type (may only work on Linux systems):
+
+	.L $KVROOT/lib/libKVMultiDet.so
+	

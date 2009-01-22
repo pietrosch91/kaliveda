@@ -1,0 +1,330 @@
+# $Id: Makefile.general,v 1.51 2009/01/16 14:54:38 franklan Exp $
+#	MAKEFILE for KaliVeda shared library libKVMultiDet.so
+#
+# NOTE: You must set the environment variable KVROOT before using
+#	this Makefile. KVROOT should contain the full path of the
+#	directory where you want the KaliVeda environment installed.
+#
+#---------------------------------------------------------------------------
+# ***********    DO NOT CHANGE ANYTHING THAT FOLLOWS    ****************** #
+#---------------------------------------------------------------------------
+
+include $(ROOT_MAKEFILE_PATH)/Makefile.arch
+SrcSuf	= cpp
+
+#------------------------------------------------------------------------------
+
+.SUFFIXES: .$(SrcSuf) .$(ObjSuf) .$(DllSuf)
+
+DICT_CXX = $(PROJ_NAME)Dict.cpp
+
+DICT_H = $(DICT_CXX:%.cpp=%.h) 
+
+DICT_OBJ = $(DICT_CXX:%.cpp=%.$(ObjSuf)) 
+
+LINKDEF = $(PROJ_NAME)LinkDef.h
+
+#make list of all .cpp files in all subdirectories
+TEMPSOU := $(patsubst %, %/*.cpp, $(MODULES))
+ALL_SOURCES := $(wildcard $(TEMPSOU))
+#apply wildcard to user's NOT_READY list in case there are '*.cpp' in it
+ALL_NOT_READY := $(wildcard $(NOT_READY))
+#list of all .cpp except the not_ready ones
+SOURCES := $(filter-out $(ALL_NOT_READY),$(ALL_SOURCES))
+	  
+#define "include" paths to find all the *.h files
+KV_INC := $(patsubst %, -I%, $(MODULES))
+KV_INC += $(KV_INC_EXTRAS)
+#make sure previously installed headers are consulted last
+KV_INC += -I$(INSTALL)/include
+
+HEADERS = $(SOURCES:%.cpp=%.h) $(EXTRA_HEADERS)
+
+#apply wildcard to user's NOT_ROOTCINT list in case there are '*.h' in it
+ALL_NOT_ROOTCINT := $(wildcard $(NOT_ROOTCINT))
+#list of all headers to use with rootcint
+ROOTCINT_HEADERS := $(filter-out $(ALL_NOT_ROOTCINT),$(HEADERS))
+	  
+OBJECTS = $(SOURCES:%.cpp=%.$(ObjSuf)) 
+
+PREREQ = $(SOURCES:%.cpp=%.d)
+
+DIST_DIR = lib$(PROJ_NAME)-$(VERSION_NUMBER)
+
+LIB_SO = lib$(PROJ_NAME).$(DllSuf)
+LIBVERSION = lib$(PROJ_NAME).$(VERSION_NUMBER).$(DllSuf)
+
+#system dependent stuff------------------------------------------------------------
+ifeq ($(PLATFORM),win32)
+LIB_LIB      = lib$(PROJ_NAME).lib
+else
+LIB_LIB      = $(LIB_SO)
+endif
+
+ifeq ($(ARCH),macosx)
+LIB_DY = $(LIB_SO:%.$(DllSuf)=%.so)
+LIBDYVERSION = $(LIBVERSION:%.$(DllSuf)=%.so)
+endif
+
+CPOPT = -u
+ifeq ($(ARCH),macosx)
+CPOPT =  
+endif
+
+#-------------------------------------------------------------------------------------------
+
+#CXXFLAGS without optimisation for compilation of dictionaries
+#without this we cannot use NamespaceImp (in e.g. KVTGIDFunctions)
+OPT = -O
+OPT2 = -O2
+TMPFLAGS := $(filter-out $(OPT2),$(CXXFLAGS))
+CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
+
+#debugging/profiling/memchecking on linux machine
+ifeq ($(PLATFORM),linux)
+ifeq ($(debug),yes)
+CXXFLAGS_NOOPT += -g
+CXXFLAGS := $(CXXFLAGS_NOOPT)
+LDFLAGS += -g
+endif
+ifeq ($(memcheck),yes)
+CXXFLAGS_NOOPTS += -g -fno-inline
+CXXFLAGS := $(CXXFLAGS_NOOPT)
+LDFLAGS += -g -fno-inline
+endif
+ifeq ($(profile),yes)
+CXXFLAGS += -g -pg
+LDFLAGS += -g -pg
+endif
+endif
+
+ifeq ($(ARCH),win32)
+#Windows/VC++
+#CXXFLAGS without optimisation
+#to avoid warnings (optimisation not available in standard edition compiler)
+CXXFLAGS := $(CXXFLAGS_NOOPT)
+endif
+
+ALL_CXXFLAGS = $(CXXFLAGS) $(KV_INC)
+ALL_CXXFLAGS_NOOPT = $(CXXFLAGS_NOOPT) $(KV_INC)
+
+#Location of KaliVeda project sources root directory relative to subprojects which 'include' this Makefile
+#Override in project's Makefile if it is not simply a subdirectory of KaliVeda
+KVPROJ_ROOT = ..
+
+.PHONY : all clean install uninstall removemoduledirs
+
+all : .config $(DICT_CXX) $(DICT_OBJ) $(OBJECTS) $(LIB_SO) $(EXTRAS) .copyheads
+
+$(LIB_SO):        $(OBJECTS) $(DICT_OBJ)
+ifeq ($(PLATFORM),macosx)
+# We need to make both the .dylib and the .so
+		@echo "Building SO and DYLIB file"
+		$(LD) $(SOFLAGS) $^ $(OutPutOpt) $@
+ifeq ($(MACOSX_MINOR),4)
+		ln -sf $@ $(subst .$(DllSuf),.so,$@)
+else
+		$(LD) -bundle -undefined $(UNDEFOPT) $(LDFLAGS) $^ \
+                  $(LINK_LIB) $(OutPutOpt) $(subst .$(DllSuf),.so,$@)
+endif
+else
+ifeq ($(PLATFORM),win32)
+		bindexplib lib$(PROJ_NAME) $^ > lib$(PROJ_NAME).def
+		lib -nologo -MACHINE:IX86 $^ -def:lib$(PROJ_NAME).def $(OutPutOpt)$(LIB_LIB)
+		$(LD) $(SOFLAGS) $(LDFLAGS) $^ lib$(PROJ_NAME).exp $(LIBS) $(GLIBS) $(LINK_LIB) $(OutPutOpt)$@
+else
+		$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(GLIBS) $(LINK_LIB) $(OutPutOpt) $@ $(EXPLLINKLIBS)
+endif
+endif
+	@echo "$@ done"
+ifeq ($(ARCH),win32)
+#dynamic path for .dll is PATH for win32vc++
+	-cp $(LIB_SO) $(INSTALL)/bin/
+	-cp $(LIB_LIB) $(INSTALL)/lib/
+else
+	-cp $(LIB_LIB) $(INSTALL)/lib/
+endif
+
+.SUFFIXES: .$(SrcSuf)
+
+###
+
+$(DICT_CXX): $(ROOTCINT_HEADERS) $(LINKDEF)
+	@echo "Generating dictionary $@..."
+	rootcint -v -f $@ -c -p $(KV_INC) $^
+
+$(DICT_OBJ): $(DICT_CXX)
+	@echo "Building dictionary $@..."
+	$(CXX) $(ALL_CXXFLAGS_NOOPT) -c -o $@ $^
+
+clean :
+	-rm -f $(PREREQ) $(OBJECTS) $(DICT_CXX) $(DICT_OBJ) $(DICT_H) lib$(PROJ_NAME)*.*
+	-rm -f .copyheads .config .copysource
+
+.copyheads: $(HEADERS)
+	-cp $? $(INSTALL)/include/
+	-touch .copyheads
+
+indent:
+#this will apply the kernighan & ritchie indent style to all .h and .cpp files
+#as per ROOT coding conventions.
+#WARNING: only use this if your version of 'indent' has been corrected for
+#the bug which made any 'const' method declaration be doubled, like this:
+#MyClass::MyMethod(int args) const const
+	$(foreach cppfile,$(SOURCES),$(shell indent -kr -i3 -nut $(cppfile)))
+	$(foreach hfile,$(HEADERS),$(shell indent -kr -i3 -nut $(hfile)))	
+	
+dist :
+	-mkdir $(DIST_DIR)
+	-rm -f .copyheads .config .copysource
+	-cp $(SOURCES) $(DIST_DIR)/
+	-cp $(HEADERS) $(DIST_DIR)/
+	-cp -r $(MANIP_DIRS) $(DIST_DIR)/
+	-cp $(LINKDEF) $(DIST_DIR)/
+	-cp Makefile $(DIST_DIR)/
+	-cp ChangeLog.html $(DIST_DIR)/
+ifeq ($(PROJ_NAME),KVIndra)
+	-mkdir $(DIST_DIR)/INDRA2ROOT
+	-cp INDRA2ROOT/* $(DIST_DIR)/INDRA2ROOT/
+endif
+	-tar czf $(DIST_DIR).tgz $(DIST_DIR)
+	-mv $(DIST_DIR).tgz ../$(DIST_DIR).tgz
+	-rm -Rf $(DIST_DIR)
+
+install : .copysource
+ifeq ( $(INSTALL),)
+	@echo "KVROOT environment variable doesn't seem to be set."
+	@echo "You must set it in order to install KaliVeda project files"
+	@echo "use 'setenv KVROOT install_path' (shell)"
+	@echo "or  'export KVROOT=install_path' (bash)"
+	@echo "use 'make install' to perform the installation"
+else
+ifneq ($(MANIP_DIRS), )
+	@echo "--------------------------------------------------------------------------------"
+	@echo "MANIP_DIRS = |"$(MANIP_DIRS)"|"
+	@echo "--------------------------------------------------------------------------------"
+	-cp -r $(CPOPT) $(MANIP_DIRS) $(INSTALL)/KVFiles/
+endif
+ifneq ($(PLATFORM),win32)
+	-cp $(LIB_LIB) $(INSTALL)/lib/$(LIBVERSION)
+	-rm -f $(INSTALL)/lib/$(LIB_LIB)
+	ln -s $(INSTALL)/lib/$(LIBVERSION) $(INSTALL)/lib/$(LIB_LIB)
+endif
+ifeq ($(PLATFORM),macosx)
+	 -cp $(LIB_DY) $(INSTALL)/lib/$(LIBDYVERSION)
+	 -rm -f $(INSTALL)/lib/$(LIB_DY)
+	 ln -s $(INSTALL)/lib/$(LIBDYVERSION) $(INSTALL)/lib/$(LIB_DY)
+endif
+  endif
+ifeq ($(PROJ_NAME),KVIndra)
+	$(MAKE) indra2root
+endif
+#this is for HTML doc generation
+	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/include/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(INSTALL)/include/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/src/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(INSTALL)/src/$(subdir)))
+
+.copysource : $(SOURCES)
+	touch .copysource
+ifeq ( $(INSTALL),)
+	@echo "KVROOT environment variable doesn't seem to be set."
+	@echo "You must set it in order to install KaliVeda project files"
+	@echo "use 'setenv KVROOT install_path' (shell)"
+	@echo "or  'export KVROOT=install_path' (bash)"
+	@echo "use 'make install' to perform the installation"
+else
+	-cp $? $(INSTALL)/src/
+endif
+
+removemoduledirs :
+	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/include/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/src/$(subdir)))
+
+uninstall :
+	cd $(INSTALL)/src && rm -f $(SOURCES)
+	-rm -f .copysource
+	cd $(INSTALL)/include && rm -f $(HEADERS)
+	-rm -f .copyheads
+ifeq ($(ARCH),win32)
+	-rm -f $(INSTALL)/bin/$(LIB_SO) 
+	-rm -f $(INSTALL)/lib/$(LIB_LIB) 
+else
+	-rm -f $(INSTALL)/lib/$(LIB_LIB) 
+endif
+ifneq ($(MANIP_DIRS), )
+	cd $(INSTALL)/KVFiles && rm -rf $(MANIP_DIRS)
+endif
+ifneq ($(PLATFORM),win32)
+	-rm -f $(INSTALL)/lib/$(LIB_LIB)
+	-rm -f $(INSTALL)/lib/$(LIBVERSION)
+endif
+ifeq ($(PLATFORM),macosx)
+	 -rm -f $(INSTALL)/lib/$(LIB_DY)
+	 -rm -f $(INSTALL)/lib/$(LIBDYVERSION)
+endif
+
+.config : $(HEADERS) $(LINKDEF) $(SOURCES)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "CONFIGURATION OF MAKEFILE FOR "$(PROJ_NAME)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "SOURCES = "$(SOURCES)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "HEADERS = "$(HEADERS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "OBJECTS = "$(OBJECTS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "MANIP_DIRS = "$(MANIP_DIRS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "KV_INC = "$(KV_INC)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "CXXFLAGS = "$(CXXFLAGS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "CXXFLAGS_NOOPT = "$(CXXFLAGS_NOOPT)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "ALL_CXXFLAGS = "$(ALL_CXXFLAGS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "ALL_CXXFLAGS_NOOPT = "$(ALL_CXXFLAGS_NOOPT)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "LDFLAGS = "$(LDFLAGS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "SOFLAGS = "$(SOFLAGS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "LIBRARY = "$(LIB_SO)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "KVPROJ_ROOT_ABS = "$(KVPROJ_ROOT_ABS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "INSTALL = "$(INSTALL)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "CXX = "$(CXX)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "ARCH = "$(ARCH)
+	@echo "--------------------------------------------------------------------------------"
+	touch .config
+
+logs :
+	$(CVS2CL)/cvs2cl.pl --xml --xml-encoding iso-8859-15 --noxmlns -f ChangeLog.xml
+	xsltproc -o ChangeLog.html $(CVS2CL)/cl2html-ciaglia.xslt ChangeLog.xml
+	-cp ChangeLog.html $(INSTALL)/KaliVedaDoc/$(PROJ_NAME)ChangeLog.html
+
+ifneq ($(ARCH),win32)
+.$(SrcSuf).$(ObjSuf):
+	$(CXX) $(ALL_CXXFLAGS) $(OutPutOpt)$@ -c $<
+        
+%.d : %.cpp
+	@echo Making prerequisite $@; \
+	set -e; rm -f $@; \
+	$(CXX) -MM -MT $(subst .cpp,.$(ObjSuf),$<) $(ALL_CXXFLAGS) $< > $@
+	
+##### Include all the *.o target rules generated by gcc -MM #####
+##### However, if we are cleaning or checking config or making #####
+##### logs, we don't include this file since it may screw up things #####
+ifeq ($(findstring $(MAKECMDGOALS), clean config logs uninstall-indra2root),)
+-include $(PREREQ)
+endif
+else
+#can't do prerequisites on Win32VC++
+#have to define rule for compiling with "/Fo" (output file name) option for Win32VC++
+.$(SrcSuf).$(ObjSuf):
+	$(CXX) $(ALL_CXXFLAGS)  /Fo$@ -c $<
+endif
