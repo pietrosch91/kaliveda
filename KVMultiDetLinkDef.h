@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.129 2009/01/19 14:35:28 ebonnet Exp $
+$Id: KVMultiDetLinkDef.h,v 1.130 2009/01/23 08:26:04 ebonnet Exp $
                               KVMultiDetLinkDef.h
                                description
                              -------------------
@@ -91,7 +91,6 @@ $Id: KVMultiDetLinkDef.h,v 1.129 2009/01/19 14:35:28 ebonnet Exp $
 #pragma link C++ class KVDetectorEvent+;
 #pragma link C++ class KVElasticScatter+;
 #pragma link C++ class KVElasticScatterEvent+;
-#pragma link C++ class KVElasticScatterEvent_e475s+;
 #pragma link C++ class KVEvent+;
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
