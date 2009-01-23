@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIndraLinkDef.h,v 1.91 2009/01/22 15:39:26 franklan Exp $
+$Id: KVIndraLinkDef.h,v 1.92 2009/01/23 08:33:36 ebonnet Exp $
                               kaliveda5LinkDef.h
                                description
                              -------------------
@@ -72,6 +72,7 @@ $Id: KVIndraLinkDef.h,v 1.91 2009/01/22 15:39:26 franklan Exp $
 #pragma link C++ class KVDBPeak;
 #pragma link C++ class KVDBAlphaPeak;
 #pragma link C++ class KVDBElasticPeak;
+#pragma link C++ class KVElasticScatterEvent_e475s+;
 #pragma link C++ class KVINDRADB1;
 #pragma link C++ class KVINDRADB2;
 #pragma link C++ class KVINDRADB4;
