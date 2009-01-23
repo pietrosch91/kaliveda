@@ -1,7 +1,7 @@
 /*
-$Id: KVCVSUpdateChecker.cpp,v 1.2 2008/12/08 14:07:37 franklan Exp $
-$Revision: 1.2 $
-$Date: 2008/12/08 14:07:37 $
+$Id: KVCVSUpdateChecker.cpp,v 1.3 2009/01/23 15:26:06 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/01/23 15:26:06 $
 */
 
 //Created by KVClassFactory on Tue Mar  4 17:49:56 2008
@@ -62,7 +62,7 @@ void KVCVSUpdateChecker::Update(const Char_t* filename)
    
    KVString cmd("cvs -q -z3 update -dP ");
    if( strcmp(filename,"") ) cmd+=filename;
-   cmd+=" >& /dev/null";
+   //cmd+=" >& /dev/null";
    GotoSourceDir();
    /*Int_t retcod = */gSystem->Exec( cmd.Data() );
    GotoWorkingDir();
