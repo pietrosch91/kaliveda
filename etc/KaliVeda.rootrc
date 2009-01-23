@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.77 2009/01/22 15:39:26 franklan Exp $
-#$Revision: 1.77 $
+#$Id: KaliVeda.rootrc,v 1.78 2009/01/23 09:23:23 franklan Exp $
+#$Revision: 1.78 $
 #$Author: franklan $
-#$Date: 2009/01/22 15:39:26 $
+#$Date: 2009/01/23 09:23:23 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -306,7 +306,7 @@ Linux.BatchSystem.DefaultJobOptions:   -b -n &> #JobName#.log &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 #+BatchSystem:     BQS
 #BQS.BatchSystem.Title:   Use CCIN2P3 BQS batch system
-#BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX+LINUX32,hpss,u_xrootd -V -N #JobName#
+#BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_xrootd -V -N #JobName#
 #BQS.BatchSystem.JobSubCmd:   qsub
 #BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
 #BQS.BatchSystem.DefaultJobTime:   4000
