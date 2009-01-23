@@ -1,7 +1,7 @@
 /*
-$Id: KVVGSum.h,v 1.1 2007/11/27 08:05:30 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/11/27 08:05:30 $
+$Id: KVVGSum.h,v 1.2 2009/01/23 15:25:52 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/01/23 15:25:52 $
 */
 
 //Created by KVClassFactory on Thu Nov 16 10:42:38 2006
@@ -33,6 +33,7 @@ class KVVGSum:public KVVarGlobMean
       
 	protected:
 	void init_KVVGSum(void);
+   virtual Double_t getvalue_void(void) const;
 
 	public:
 	KVVGSum(void);			// default constructor
@@ -52,7 +53,6 @@ class KVVGSum:public KVVarGlobMean
 	KVVGSum& operator = (const KVVGSum &a); // operator =
 	
 	virtual void Fill(KVNucleus *c);  	// Filling method
-   Double_t GetValue() const;
 		
    ClassDef(KVVGSum,0)//General global variable for calculating sums of various quantities	
 };

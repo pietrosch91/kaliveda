@@ -53,6 +53,35 @@ class KVVarGlob:public KVBase {
    static void AddFillMethod(KVClassFactory &cf, int type);
    static void AddFillMethodBody(KVClassFactory &cf, KVString& body, int type);
    
+	/*** protected methods to be overridden in child classes ***/
+	
+	virtual Double_t getvalue_void() const
+	{
+		// Redefine this method in child classes to change the behaviour of
+		// KVVarGlob::GetValue(void)
+		
+		AbstractMethod("getvalue_void");
+		return 0;
+	};
+	virtual Double_t getvalue_char(const Char_t* name)
+	{
+		// By default, this method returns the value of the variable "name"
+		// using the name-index table set up with SetNameIndex.
+		// Redefine this method in child classes to change the behaviour of
+		// KVVarGlob::GetValue(const Char_t*)
+		
+   	// on retourne la valeur de la variable "name"
+   	return getvalue_int(GetNameIndex(name));
+	};
+	virtual Double_t getvalue_int(Int_t)
+	{
+		// Redefine this method in child classes to change the behaviour of
+		// KVVarGlob::GetValue(Int_t)
+		
+		AbstractMethod("getvalue_int");
+		return 0;
+	};
+	
  public:
     KVVarGlob(void);            // constructeur par defaut
     KVVarGlob(Char_t * nom);
@@ -89,24 +118,46 @@ class KVVarGlob:public KVBase {
       if( ok ) Fill2(n1,n2);
    };
 
-   virtual Double_t GetValue(void) const { printf("do nothing\n"); return 0.;}
+   Double_t GetValue(void) const
+	{
+   	// On retourne la valeur de la variable.
+		// To override behaviour of this method in child classes,
+		// redefine the protected method getvalue_void()
+		
+		return getvalue_void();
+	};
+   Double_t GetValue(const Char_t * name)
+	{
+   	// on retourne la valeur de la variable "name"
+		// To override behaviour of this method in child classes,
+		// redefine the protected method getvalue_char(const Char_t*)
+		
+		return getvalue_char(name);
+	};
+   Double_t GetValue(Int_t i)
+	{
+   	// on retourne la ieme valeur du tableau
+		// To override behaviour of this method in child classes,
+		// redefine the protected method getvalue_int(Int_t)
+		
+		return getvalue_int(i);
+	};
+   virtual Double_t *GetValuePtr(void)
+	{
+   	// On retourne un tableau de valeurs 
+		AbstractMethod("GetValuePtr");
+		return NULL;
+	};
    // On retourne la valeur de la variable.
-   virtual Double_t operator() (void);
-   // On retourne la valeur de la variable.
-   virtual Double_t *GetValuePtr(void) { printf("do nothing\n"); return NULL;}
-   // On retourne un tableau de valeurs 
-   virtual Double_t GetValue(const Char_t * name);
+   Double_t operator() (void) { return GetValue(); };
    // on retourne la valeur de la variable "name"
-   virtual Double_t operator() (const Char_t * name);
-   // on retourne la valeur de la variable "name"
-   virtual Double_t GetValue(Int_t i){ printf("do nothing\n"); return 0.;}
+   Double_t operator() (const Char_t * name) { return GetValue(name); };
    // on retourne la ieme valeur du tableau
-   virtual Double_t operator() (Int_t i);
-   // on retourne la ieme valeur du tableau
-   virtual TObject *GetObject(void);
+   Double_t operator() (Int_t i) { return GetValue(i); };
    // on retourne un pointeur sur un objet
-   virtual Int_t GetNameIndex(const Char_t * name);
+   virtual TObject *GetObject(void);
    // on retourne l'index associe au nom contenu dans name
+   virtual Int_t GetNameIndex(const Char_t * name);
 
    static void MakeClass(const Char_t * classname, const Char_t * classdesc, int type = kOneBody);
    

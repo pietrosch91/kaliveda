@@ -202,17 +202,16 @@ void KVPtot::Reset(void)
    ptot.SetXYZ(0., 0., 0.);
 }
 
-
 //_________________________________________________________________
-Double_t KVPtot::GetValue(void) const
-{
-   // Retourne la valeur de Pz
 
-   return ptot.Z();
+Double_t KVPtot::getvalue_void() const
+{
+	// Retourne la valeur du Z component of Ptot
+	return ptot.Z();
 }
 
 //_________________________________________________________________
-Double_t KVPtot::GetValue(Int_t i)
+Double_t KVPtot::getvalue_int(Int_t i)
 {
 //
 // Retourne la valeur suivant l'indice
@@ -225,26 +224,19 @@ Double_t KVPtot::GetValue(Int_t i)
 //
    switch (i) {
    case 0:
-      return GetValue();
+      return ptot.Z();
       break;
    case 1:
       return ptot.X();
       break;
    case 2:
-      return ptot.Z();
+      return ptot.Y();
       break;
    default:
       Warning("GetValue(Int_t i)", "Index not valid. Pz returned.");
-      return GetValue();
+      return ptot.Z();
       break;
    }
-}
-
-//_________________________________________________________________
-Double_t KVPtot::GetValue(Char_t * name)
-{
-   // returns a value from a name
-   return KVVarGlob::GetValue(name);
 }
 
 //_________________________________________________________________
@@ -258,7 +250,8 @@ Double_t *KVPtot::GetValuePtr(void)
 //   1        X component of Ptot
 //   2        Y component of Ptot
 //
-//
+// USER MUST DELETE ARRAY AFTER USING !!!
+	
    Double_t *val = new Double_t[3];
    for (Int_t i = 0; i < 3; i++) {
       val[i] = GetValue(i);

@@ -1,7 +1,7 @@
 /*
-$Id: KVCalorimetry.h,v 1.2 2008/04/28 15:25:06 ebonnet Exp $
-$Revision: 1.2 $
-$Date: 2008/04/28 15:25:06 $
+$Id: KVCalorimetry.h,v 1.3 2009/01/23 15:25:52 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/01/23 15:25:52 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 15:01:51 2008
@@ -33,6 +33,8 @@ class KVCalorimetry:public KVVarGlob
 	void 		SetIngValue(KVString ingredient_name,Double_t value){ ingredients[GetNameIndex(ingredient_name.Data())]=value; }
 	void	 	AddIngValue(KVString ingredient_name,Double_t value){ ingredients[GetNameIndex(ingredient_name.Data())]+=value; }
 	
+	virtual Double_t getvalue_int(Int_t);
+	
 	public:
 	
    KVCalorimetry(void);		
@@ -63,8 +65,6 @@ class KVCalorimetry:public KVVarGlob
 	void SetFactorForParticles(Double_t fact)				{ SetParameter("particle_factor",fact); }
 	
 	void Reset(void);	
-	
-	Double_t GetValue(Int_t i);
 	
 	void 	init_KVCalorimetry();
    void 	Fill(KVNucleus*);

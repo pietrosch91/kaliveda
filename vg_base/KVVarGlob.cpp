@@ -188,31 +188,6 @@ KVVarGlob & KVVarGlob::operator =(const KVVarGlob & a)
    return *this;
 }
 
-
-//_________________________________________________________________
-Double_t KVVarGlob::operator() (void) {
-   //
-   // Operateur ()
-   //
-   return GetValue();
-}
-
-//_________________________________________________________________
-Double_t KVVarGlob::operator() (Int_t i) {
-   //
-   // Operateur (Int_t i)
-   //
-   return GetValue(i);
-}
-
-//_________________________________________________________________
-Double_t KVVarGlob::operator() (const Char_t * name) {
-   //
-   // Operateur (const Char_t *name)
-   //
-   return GetValue(name);
-}
-
 //_________________________________________________________________
 TObject *KVVarGlob::GetObject(void)
 {
@@ -363,13 +338,6 @@ Int_t KVVarGlob::GetNameIndex(const Char_t * name)
 
    }
    return index;
-}
-
-//_________________________________________________________________
-Double_t KVVarGlob::GetValue(const Char_t * name)
-{
-   // on retourne la valeur de la variable "name"
-   return GetValue(GetNameIndex(name));
 }
 
 //_________________________________________________________________

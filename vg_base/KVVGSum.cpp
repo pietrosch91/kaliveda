@@ -1,7 +1,7 @@
 /*
-$Id: KVVGSum.cpp,v 1.1 2007/11/27 08:05:30 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/11/27 08:05:30 $
+$Id: KVVGSum.cpp,v 1.2 2009/01/23 15:25:52 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/01/23 15:25:52 $
 */
 
 //Created by KVClassFactory on Thu Nov 16 10:42:38 2006
@@ -204,15 +204,15 @@ void KVVGSum::Init()
 
 //_________________________________________________________________
 
-Double_t KVVGSum::GetValue() const
+Double_t KVVGSum::getvalue_void() const
 {
    //If option "mode" = "mult", return the total number of particles counted
    //If option "mode" = "sum", return the summed property defined by option "method"
    //If option "mode" = "mean", return the mean value of the property defined by option "method"
 
-   Double_t result = KVVarGlobMean::GetValue(); // does all necessary calculation
+   Double_t result = const_cast<KVVGSum*>(this)->getvalue_int(0); // does all necessary calculation
    if( TestBit(kMean) ) return result;
-   else if( TestBit(kMult) ) return const_cast<KVVGSum*>(this)->KVVarGlobMean::GetValue("SumOfWeights");
+   else if( TestBit(kMult) ) return const_cast<KVVGSum*>(this)->getvalue_int(4);
    //default: return sum
-   return const_cast<KVVGSum*>(this)->KVVarGlobMean::GetValue("SumVar");
+   return const_cast<KVVGSum*>(this)->getvalue_int(2);
 }

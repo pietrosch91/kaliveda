@@ -1,7 +1,7 @@
 /*
-$Id: KVFoxH2.h,v 1.1 2007/11/29 11:20:05 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/11/29 11:20:05 $
+$Id: KVFoxH2.h,v 1.2 2009/01/23 15:25:52 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/01/23 15:25:52 $
 */
 
 //Created by KVClassFactory on Tue Nov 27 17:47:49 2007
@@ -25,6 +25,7 @@ class KVFoxH2:public KVVarGlob1
 // Methods
 	protected:
 	void init_KVFoxH2(void);
+	virtual Double_t getvalue_void(void) const; 
 
 	public:
 	KVFoxH2(void);			// default constructor
@@ -44,7 +45,6 @@ class KVFoxH2:public KVVarGlob1
 	KVFoxH2& operator = (const KVFoxH2 &a); // operator =
 	
 	void Fill2(KVNucleus *n1, KVNucleus* n2);  	// Filling method
-	virtual Double_t GetValue() const; 
    		
    ClassDef(KVFoxH2,1)//Event shape global variable : second Fox-Wolfram moment, H(2)
 	

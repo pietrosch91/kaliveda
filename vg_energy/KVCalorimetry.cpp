@@ -1,7 +1,7 @@
 /*
-$Id: KVCalorimetry.cpp,v 1.3 2008/04/28 15:25:06 ebonnet Exp $
-$Revision: 1.3 $
-$Date: 2008/04/28 15:25:06 $
+$Id: KVCalorimetry.cpp,v 1.4 2009/01/23 15:25:52 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/01/23 15:25:52 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 15:01:51 2008
@@ -102,12 +102,12 @@ void KVCalorimetry::Reset(void)
 }		
 
 //_________________________________________________________________
-Double_t KVCalorimetry::GetValue(Int_t i)
+Double_t KVCalorimetry::getvalue_int(Int_t i)
  {
-
-// On retourne la ieme valeur du tableau
-// si i est superieur au nbre de variables definies dans ingredient_list
-// retourne la valeur par defaut (ie 0)
+	// On retourne la ieme valeur du tableau
+	// si i est superieur au nbre de variables definies dans ingredient_list
+	// retourne la valeur par defaut (ie 0)
+	 
 	if (i<nbre_ingredients){
 		Calculate(-1.,-1.);
 		return ingredients[i];

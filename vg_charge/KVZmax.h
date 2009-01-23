@@ -24,6 +24,8 @@ class KVZmax:public KVVarGlob1 {
 // Methodes
  protected:
    void init_KVZmax(void);
+   virtual Double_t getvalue_void(void) const;
+   virtual Double_t getvalue_int(Int_t);
 
  public:
     KVZmax(void);               // constructeur par defaut
@@ -46,17 +48,14 @@ class KVZmax:public KVVarGlob1 {
    virtual void Init(void);     // Remise a zero de la charge et du
    // pointeur.
    virtual TObject *GetObject(void) {
+		// Retourne le pointeur du fragment le plus lourd.
       return (TObject *) GetZmax(1);
-   };                           // Retourne le pointeur du
-   // fragment le plus lourd.
-   KVNucleus *GetZmax(Int_t i);
-   Double_t GetValue(void) const;
-   Double_t GetValue(Int_t i);
-   Double_t GetValue(Char_t* /* name */) {
-      return GetValue();
    };
+	
+   KVNucleus *GetZmax(Int_t i);
+	
    Double_t *GetValuePtr(void);
 
-   ClassDef(KVZmax, 1)          //Rank fragments by charge and return Z or pointer of i_th heaviest fragment
+   ClassDef(KVZmax, 1)//Rank fragments by charge and return Z or pointer of i_th heaviest fragment
 };
 #endif

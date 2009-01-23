@@ -21,6 +21,8 @@ class KVTensP:public KVVarGlob {
    KVTenseur3 * tenseurP;
    TString fLabel;              //particle label for which to calculate tensor
    void init_KVTensP(void);
+   virtual Double_t getvalue_void(void) const;
+   virtual Double_t getvalue_int(Int_t i);
 
  public:
     KVTensP(void);              // constructeur par defaut
@@ -45,14 +47,7 @@ class KVTensP:public KVVarGlob {
    // traitement d'un evenement
    virtual void Fill(KVNucleus * c);    // Remplissage de la variable.
 
-   virtual Double_t GetValue(void) const;       // On retourne la valeur de la
-   // variable.
-   virtual Double_t GetValue(Char_t * name);    // On retourne la valeur de la
-   // variable.
    virtual Double_t *GetValuePtr(void); // On retourne un tableau de 
-   // valeurs 
-   virtual Double_t GetValue(Int_t i);  // on retourne la ieme valeur du
-   // tableau
 
    virtual void SetPartLabel(const Char_t * lab) {
       fLabel = lab;

@@ -31,6 +31,8 @@ class KVVarGlob1:public KVVarGlob {
    };                           // On donne la valeur de la variable
 static void FillMethodBody(KVString& body, int type);
 
+   virtual Double_t getvalue_void(void) const;
+   virtual Double_t getvalue_int(Int_t i); 
 
  public:
    KVVarGlob1(void);            // constructeur par defaut
@@ -52,14 +54,8 @@ static void FillMethodBody(KVString& body, int type);
    // variables Int_ternes
    virtual void Reset(void);    // Remise a zero avant le
 
-   virtual Double_t GetValue(void) const;       // On retourne la valeur de la
-   // variable.
-   virtual Double_t *GetValuePtr(void); // On retourne un tableau de 
-   // valeurs 
-   virtual Double_t GetValue(Int_t i);  // on retourne la ieme valeur du
-   // tableau
-   virtual Double_t GetValue(const Char_t * name);    // on retourne une valeur avec
-   // un nom
+   virtual Double_t *GetValuePtr(void);
+	
    static void MakeClass(const Char_t * classname,
                          const Char_t * classdesc, int type = KVVarGlob::kOneBody);
 

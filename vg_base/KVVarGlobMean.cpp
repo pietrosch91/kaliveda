@@ -257,12 +257,11 @@ void KVVarGlobMean::Reset(void)
 }
 
 //_________________________________________________________________
-Double_t KVVarGlobMean::GetValue(void) const
+Double_t KVVarGlobMean::getvalue_void(void) const
 {
-// On retourne la valeur de la
-// variable.
+	// Returns mean value of variable
    const_cast < KVVarGlobMean * >(this)->CalcVar();
-   return const_cast < KVVarGlobMean * >(this)->GetValue(0);
+   return const_cast < KVVarGlobMean * >(this)->getvalue_int(0);
 }
 
 //_________________________________________________________________
@@ -278,6 +277,7 @@ Double_t *KVVarGlobMean::GetValuePtr(void)
 // 3      Sum of weighted squared var values
 // 4      Sum of weights
 //
+// USER MUST DELETE ARRAY AFTER USING !!!
 
    Double_t *v = new Double_t[7];
    CalcVar();
@@ -292,7 +292,7 @@ Double_t *KVVarGlobMean::GetValuePtr(void)
 }
 
 //_________________________________________________________________
-Double_t KVVarGlobMean::GetValue(Int_t i)
+Double_t KVVarGlobMean::getvalue_int(Int_t i)
 {
 // on retourne la ieme valeur du tableau
 //
@@ -342,13 +342,6 @@ Double_t KVVarGlobMean::GetValue(Int_t i)
       break;
    }
    return rval;
-}
-
-//_________________________________________________________________
-Double_t KVVarGlobMean::GetValue(const Char_t * name)
-{
-   // on retourne la valeur de la variable "name"
-   return KVVarGlob::GetValue(name);
 }
 
 //_________________________________________________________________

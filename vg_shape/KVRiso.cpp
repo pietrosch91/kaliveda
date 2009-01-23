@@ -227,7 +227,7 @@ void KVRiso::CalculateRatio(void)
 }
 
 //_________________________________________________________________
-Double_t KVRiso::GetValue(void) const
+Double_t KVRiso::getvalue_void(void) const
 {
    // Retourne la valeur de Riso
 
@@ -237,7 +237,7 @@ Double_t KVRiso::GetValue(void) const
 }
 
 //_________________________________________________________________
-Double_t KVRiso::GetValue(Int_t i)
+Double_t KVRiso::getvalue_int(Int_t i)
 {
 //
 // Retourne la valeur suivant l'indice
@@ -250,7 +250,7 @@ Double_t KVRiso::GetValue(Int_t i)
 //
    switch (i) {
    case 0:
-      return GetValue();
+      return getvalue_void();
       break;
    case 1:
       return Epar;
@@ -260,16 +260,9 @@ Double_t KVRiso::GetValue(Int_t i)
       break;
    default:
       Warning("GetValue(Int_t i)", "Index not valid. Riso returned.");
-      return GetValue();
+      return getvalue_void();
       break;
    }
-}
-
-//_________________________________________________________________
-Double_t KVRiso::GetValue(Char_t * name)
-{
-   // on retourne la valeur de la variable "name"
-   return GetValue(GetNameIndex(name));
 }
 
 //_________________________________________________________________
@@ -283,7 +276,8 @@ Double_t *KVRiso::GetValuePtr(void)
 //  1       Sum of parallel kinetic energies
 //  2       Sum of transverse kinetic energies
 //
-//
+//  USER MUST DELETE ARRAY AFTER USING !!!
+	
    Double_t *val = new Double_t[3];
    for (Int_t i = 0; i < 3; i++) {
       val[i] = GetValue(i);

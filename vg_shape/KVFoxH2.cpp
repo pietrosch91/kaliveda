@@ -1,7 +1,7 @@
 /*
-$Id: KVFoxH2.cpp,v 1.1 2007/11/29 11:20:05 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/11/29 11:20:05 $
+$Id: KVFoxH2.cpp,v 1.2 2009/01/23 15:25:52 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/01/23 15:25:52 $
 */
 
 //Created by KVClassFactory on Tue Nov 27 17:47:49 2007
@@ -135,7 +135,7 @@ void KVFoxH2::Fill2(KVNucleus *n1, KVNucleus* n2)
     Double_t p1, p2, cos_th_rel;
     
     // check Z of both particles
-    Int_t zmin = GetParameter("Zmin");
+    Int_t zmin = (Int_t)GetParameter("Zmin");
     if( n1->GetZ()<zmin ) return;
     if( n2->GetZ()<zmin ) return;
     
@@ -178,7 +178,7 @@ void KVFoxH2::Reset(void)
 
 
 //_________________________________________________________________
-Double_t KVFoxH2::GetValue() const
+Double_t KVFoxH2::getvalue_void() const
 {
    // Return value of H(2) for the event.
    // NOTE: if the denominator i.e. the sum of all p_i*p_j = 0,

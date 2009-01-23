@@ -24,6 +24,8 @@ class KVPtot:public KVVarGlob {
 // Methodes
  protected:
    void init_KVPtot(void);
+   virtual Double_t getvalue_int(Int_t);
+	virtual Double_t getvalue_void(void) const;
 
  public:
     KVPtot(void);               // constructeur par defaut
@@ -46,15 +48,13 @@ class KVPtot:public KVVarGlob {
    // traitement d'un evenement
    virtual void Fill(KVNucleus * c);    // Remplissage de la variable.
 
-   virtual Double_t GetValue(Int_t i);  // on retourne la ieme valeur du
-   // tableau
-   virtual Double_t GetValue(Char_t * name);    // on retourne la valeur de
-   // la variable "name"
-   virtual Double_t GetValue(void) const;       // On retourne Pz
-
    virtual Double_t *GetValuePtr(void); // On retourne le tableau des valeurs
 
    virtual TVector3 GetTVector3(void) const;    // on retourne le TVector3
+   virtual TObject *GetObject(void)
+	{
+		return &ptot;
+	};
 
     ClassDef(KVPtot, 1)         // Global variable Ptot=Sum(p(i))
 };

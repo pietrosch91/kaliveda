@@ -27,6 +27,9 @@ class KVVarGlobMean:public KVVarGlob1 {
    Double_t max;
    Int_t calc;
 // Methodes
+   virtual Double_t getvalue_void(void) const; 
+   virtual Double_t getvalue_int(Int_t i);
+	
  public:
     Int_t GetCALC(void) const {
       return calc;
@@ -79,15 +82,8 @@ class KVVarGlobMean:public KVVarGlob1 {
    // variables internes
    virtual void Reset(void);    // Remise a zero avant le
 
-   virtual Double_t GetValue(void) const;       // On retourne la valeur de la
-   // variable.
-   virtual Double_t *GetValuePtr(void); // On retourne un tableau de 
-   // valeurs 
-   virtual Double_t GetValue(Int_t i);  // on retourne la ieme valeur du
-   // tableau
-   virtual Double_t GetValue(const Char_t * name);    // on retourne la valeur de
-   // la variable "name"
-
+   virtual Double_t *GetValuePtr(void);
+	
    static void MakeClass(const Char_t * classname, const Char_t * classdesc, int type = KVVarGlob::kOneBody);
 
    ClassDef(KVVarGlobMean, 1)   // Base class for global variables computing mean values

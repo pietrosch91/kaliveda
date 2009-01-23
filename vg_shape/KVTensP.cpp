@@ -250,9 +250,9 @@ void KVTensP::Fill(KVNucleus * c)
 }
 
 //_________________________________________________________________
-Double_t KVTensP::GetValue(void) const
+Double_t KVTensP::getvalue_void(void) const
 {
-// On retourne la valeur de la variable Theta_flot.
+	// On retourne la valeur de la variable Theta_flot.
    return tenseurP->GetThetaFlot();
 }
 
@@ -272,7 +272,8 @@ Double_t *KVTensP::GetValuePtr(void)
 // 6      Coplanarity
 // 7      Directivity
 //
-//
+//  USER MUST DELETE ARRAY AFTER USING !!!
+
    Double_t *v = new Double_t[8];
    v[0] = tenseurP->GetThetaFlot();
    v[1] = tenseurP->GetPhiPlan();
@@ -286,7 +287,7 @@ Double_t *KVTensP::GetValuePtr(void)
 }
 
 //_________________________________________________________________
-Double_t KVTensP::GetValue(Int_t i)
+Double_t KVTensP::getvalue_int(Int_t i)
 {
 // on retourne la ieme valeur du tableau
 //
@@ -350,11 +351,4 @@ void KVTensP::SetTensor(const KVTenseur3 * KVT)
 {
    //copy tenseur values into "this" tenseur
    KVT->Copy(*tenseurP);
-}
-
-//_________________________________________________________________
-Double_t KVTensP::GetValue(Char_t * name)
-{
-   // returns a value from a name
-   return KVVarGlob::GetValue(name);
 }

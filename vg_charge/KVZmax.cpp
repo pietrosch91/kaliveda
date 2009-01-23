@@ -11,13 +11,22 @@
 ClassImp(KVZmax)
 //////////////////////////////////////////////////////////////////////////////////
 //   Global variable returning the charge of the i_th heaviest fragment
-//  and the pointer to the i_th heaviest fragment. The fragments are sorted in
-//  descending order according to their charge (Z(1) > Z(2) > Z(3) > ... > Z(mult)) 
-//  Simple interface "GetValue()" returns Z of 1st heaviest fragment
+//  and the pointer to the i_th heaviest fragment.
+//  
+//  The fragments are sorted in descending order according to their charge
+//  (Z(1) > Z(2) > Z(3) > ... > Z(mult)) .
+//
+//  Simple interface "GetValue()" returns Z of heaviest fragment
 //  and "GetObject" returns pointer to this fragment.
+//
 //  All other fragments accessible via "GetValue(i)" and "GetZmax(i)", i ranging
 //  from 1 to the the total multiplicity. 
-//  (the latter returns a KVNucleus pointer directly).
+//  (the latter method returns a KVNucleus pointer directly).
+//
+//  Also GetValue("Zmax1"), GetValue("Zmax2"), ..., GetValue("Zmax50")
+//  can be used to obtain Z of 50 heaviest nuclei.
+///////////////////////////////////////////////////////////////////////////////////
+
 Int_t KVZmax::nb = 0;
 Int_t KVZmax::nb_crea = 0;
 Int_t KVZmax::nb_dest = 0;
@@ -27,12 +36,15 @@ void KVZmax::init_KVZmax(void)
 {
 //
 // Initialisation des champs de KVZmax
-// Cette methode privee n'est appelee par les createurs
+// Cette methode privee n'est appelee que par les createurs
 //
    nb++;
    nb_crea++;
    heaviest = 0;
    fSorted = kFALSE;
+	//set up list of indices
+	for(register int i=1;i<=50;i++)
+		SetNameIndex( Form("Zmax%d",i), i );
 }
 
 //_________________________________________________________________
@@ -205,25 +217,31 @@ KVNucleus *KVZmax::GetZmax(Int_t i)
 }
 
 //_________________________________________________________________
-Double_t KVZmax::GetValue(Int_t i)
+Double_t KVZmax::getvalue_int(Int_t i)
 {
    //returns the Z of the i_th heaviest fragment
+	// i=1 : Zmax
+	// i=2 : Zmax2
+	// etc.
+	
    if (!GetZmax(i))
       return -1.0;
    return (Double_t) GetZmax(i)->GetZ();
 }
 
 //_________________________________________________________________
-Double_t KVZmax::GetValue(void) const
+Double_t KVZmax::getvalue_void(void) const
 {
    //Returns Z of heaviest fragment
-   return (const_cast < KVZmax * >(this)->GetValue(1));
+   return (const_cast < KVZmax * >(this)->getvalue_int(1));
 }
 
 //_________________________________________________________________
 Double_t *KVZmax::GetValuePtr(void)
 {
    //Return array containing ordered list of Z (all fragments)
+	//
+	//  USER MUST DELETE ARRAY AFTER USING !!!
 
    if (!heaviest)
       return 0;

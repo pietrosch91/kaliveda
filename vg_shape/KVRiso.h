@@ -26,6 +26,8 @@ class KVRiso:public KVVarGlob {
 // Methodes
  protected:
    void init_KVRiso(void);
+   virtual Double_t getvalue_int(Int_t);
+   virtual Double_t getvalue_void(void) const; 
 
  public:
     KVRiso(void);               // constructeur par defaut
@@ -47,12 +49,6 @@ class KVRiso:public KVVarGlob {
    virtual void Reset(void);    // Remise a zero avant le
    // traitement d'un evenement
    virtual void Fill(KVNucleus * c);    // Remplissage de la variable.
-
-   virtual Double_t GetValue(Int_t i);  // on retourne la ieme valeur du
-   // tableau
-   virtual Double_t GetValue(Char_t * name);    // on retourne la valeur de
-   // la variable "name"
-   virtual Double_t GetValue(void) const;       // On retourne la valeur de la
 
    virtual Double_t *GetValuePtr(void); // On retourne la valeur de la
 

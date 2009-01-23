@@ -143,38 +143,30 @@ void KVVarGlob1::Reset(void)
 }
 
 //_________________________________________________________________
-Double_t KVVarGlob1::GetValue(void) const
+Double_t KVVarGlob1::getvalue_void(void) const
 {
-// On retourne la valeur de la
-// variable.
+	// On retourne la valeur de la
+	// variable.
    return var;
 }
 
 //_________________________________________________________________
 Double_t *KVVarGlob1::GetValuePtr(void)
 {
-// On retourne un tableau de 
-// valeurs 
+	// On retourne un tableau de 
+	// valeurs 
    Double_t *v = new Double_t[1];
    *v = var;
    return v;
 }
 
 //_________________________________________________________________
-Double_t KVVarGlob1::GetValue(Int_t i)
+Double_t KVVarGlob1::getvalue_int(Int_t i)
 {
-// on retourne la ieme valeur du
-// tableau
-   return GetValue();
+	// there is only one value, so whatever the value of i,
+	// this method returns the same as getvalue_void
+   return getvalue_void();
 }
-
-//_________________________________________________________________
-Double_t KVVarGlob1::GetValue(const Char_t * name)
-{
-// on retourne la valeur a partir d'un nom
-   return GetValue();
-}
-
 
 //_________________________________________________________________
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
