@@ -1,7 +1,7 @@
 /*
-$Id: KVDataSet.cpp,v 1.38 2009/01/22 15:03:32 franklan Exp $
-$Revision: 1.38 $
-$Date: 2009/01/22 15:03:32 $
+$Id: KVDataSet.cpp,v 1.39 2009/01/27 08:06:56 franklan Exp $
+$Revision: 1.39 $
+$Date: 2009/01/27 08:06:56 $
 $Author: franklan $
 */
 
@@ -375,33 +375,20 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
 KVDataBase *KVDataSet::GetDataBase(Option_t * opt)
 {
    //Returns pointer to database associated with this dataset.
-   //Opens or creates database file if necessary.
+   //Opens, updates or creates database file if necessary
+	//(the database is automatically rebuilt if the source files are
+	//more recent than the last database file).
    //
    //If opt="update":
    // close and delete database if already open
    // regenerate database from source files
-   //Use this option if you modify the files in $KVROOT/KVFiles/name_of_dataset
-   //to force the regeneration of the database
-   //WARNING: as the previous database will be deleted, if it was 'active' then
-   //gDataBase will be 0x0 after calling this method with option "update"
-   //If you want the updated database to still be "active" (i.e. pointed to by gDataBase)
-   //after being updated, you should do the following:
-   //
-   // data_set_pointer->GetDataBase("update")->cd();
+   //Use this option to force the regeneration of the database.
 
    TString _opt(opt);
    _opt.ToUpper();
    if (_opt == "UPDATE") {
-      if (fDataBase) {
-         delete fDataBase;
-         fDataBase = 0;
-      }
-      if (fDBase) {
-         delete fDBase;
-         fDBase = 0;
-      }
       OpenDataBase(_opt.Data());
-   } else if (!fDataBase) {
+   } else {
       OpenDataBase();
    }
    return fDataBase;
@@ -409,8 +396,11 @@ KVDataBase *KVDataSet::GetDataBase(Option_t * opt)
 
 void KVDataSet::OpenDataBase(Option_t * opt)
 {
-   //Open the database for this dataset, or create it if it doesn't exist.
-   //If opt="UPDATE", database is created whether it exists or not.
+   //Open the database for this dataset.
+	//If the database does not exist or is older than the source files
+	//in $KVROOT/KVFiles/[dataset], the database is automatically rebuilt
+	//(see DataBaseNeedUpdate()).
+   //Use opt="UPDATE" to force rebuilding of the database.
    //
    //First, we look in $KVROOT/db/[dataset] to see if the database file exists
    //(if no database file name given, use default name for database file defined in
@@ -428,20 +418,33 @@ void KVDataSet::OpenDataBase(Option_t * opt)
             KVBase::GetKVFilesDir());
       return;
    }
-   //look for database file in dataset subdirectory
-   TString dbfile_fullpath = GetFullPathToDB();
 	//load plugin for database
 	if (!LoadPlugin("KVDataBase", GetName())) {
 		Error("GetDataBase", "Cannot load required plugin library");
 		return;
 	}
-   if ( !strcmp(opt, "UPDATE") || gSystem->AccessPathName(dbfile_fullpath.Data()) ) {
-      //if option="update" or if database file not found, (re)build the database
+	Bool_t is_glob_db =kFALSE;
+   //if option="update" or database out of date or does not exist, (re)build the database
+   if ( !strcmp(opt, "UPDATE") || DataBaseNeedsUpdate() ) {
+		//check if it is the currently active database (gDataBase),
+		//in which case we must 'cd()' to it after rebuilding
+		is_glob_db = (fDataBase == gDataBase);
+      if (fDataBase) {
+         delete fDataBase;
+         fDataBase = 0;
+      }
+      if (fDBase) {
+         delete fDBase;
+         fDBase = 0;
+      }
       fDataBase = KVDataBase::MakeDataBase(GetDBName());
       SaveDataBase(); // this closes the file & deletes the database!		
    }
+   //look for database file in dataset subdirectory
+   TString dbfile_fullpath = GetFullPathToDB();
 	//open database file
    OpenDBFile(dbfile_fullpath.Data());
+	if(fDataBase && is_glob_db) fDataBase->cd();
 }
 
 //___________________________________________________________________________________________________________________
@@ -644,6 +647,7 @@ void KVDataSet::cd()
    //At the same time, the data repository, dataset manager and database associated with
    //this dataset also become the "active" ones (pointed to by the respective global
    //pointers, gDataRepository, gDataBase, etc. etc.)
+	
    gDataSet = this;
    fRepository->cd();
    GetDataBase()->cd();
@@ -1496,4 +1500,20 @@ KVDataAnalysisTask *KVDataSet::GetAnalysisTaskAny(const Char_t* keywords) const
    //check if any dataset-specific parameters need to be changed
    new_task->SetParametersForDataSet( const_cast<KVDataSet*>(this) );
    return new_task; //must be deleted by user
+}
+
+//___________________________________________________________________________
+
+Bool_t KVDataSet::DataBaseNeedsUpdate()
+{
+	// Returns kTRUE if database needs to be regenerated from source files,
+	// i.e. if source files in $KVROOT/KVFiles/"name_of_dataset"
+	// are more recent than DataBase.root
+	
+	TString pwd = gSystem->pwd();
+	gSystem->cd( GetDataSetDir() );
+	TString cmd = "make -q";
+	Int_t ret = gSystem->Exec(cmd.Data());
+	gSystem->cd( pwd.Data() );
+	return (ret!=0);
 }

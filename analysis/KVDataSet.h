@@ -1,8 +1,8 @@
 /*
-$Id: KVDataSet.h,v 1.25 2008/10/09 11:39:25 ebonnet Exp $
-$Revision: 1.25 $
-$Date: 2008/10/09 11:39:25 $
-$Author: ebonnet $
+$Id: KVDataSet.h,v 1.26 2009/01/27 08:06:56 franklan Exp $
+$Revision: 1.26 $
+$Date: 2009/01/27 08:06:56 $
+$Author: franklan $
 */
 
 #ifndef __KVDATASET_H
@@ -187,6 +187,7 @@ class KVDataSet:public KVBase {
    virtual void MakeAnalysisClass(const Char_t* task, const Char_t* classname);
    
    virtual Bool_t OpenDataSetFile(const Char_t* filename, ifstream& file);
+	virtual Bool_t DataBaseNeedsUpdate();
 
    ClassDef(KVDataSet, 2)       //Describes a set of experimental data which may be analysed with KaliVeda
 };

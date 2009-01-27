@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.95 2008/12/17 13:01:26 franklan Exp $
+#$Id: Makefile,v 1.96 2009/01/27 08:06:56 franklan Exp $
 #Makefile for libKVMultiDet.so
 
 PROJ_NAME = KVMultiDet
@@ -8,8 +8,8 @@ MODULES = analysis base calibration daq_cec db detectors events geometry gui ide
 
 EXTRA_HEADERS = base/KVError.h base/KVParameter.h
 
-MANIP_DIRS = data
-MANIP_DIRS += $(shell ls factory/*Template.[c,h]*)
+ETC_DATA = data
+ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVReg*.cpp
