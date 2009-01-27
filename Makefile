@@ -1,12 +1,12 @@
-#$Id: Makefile,v 1.105 2008/03/25 09:18:49 franklan Exp $
+#$Id: Makefile,v 1.106 2009/01/27 08:06:56 franklan Exp $
 #Makefile for libKVIndra.so
 
 PROJ_NAME = KVIndra
 
 MODULES = analysis base calibration daq_cec db detectors events gui identification indra particles
 
+ETC_DATA = $(shell ls factory/*Template.[c,h]*)
 MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_e475s INDRA_e503 INDRA_e494s
-MANIP_DIRS += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVS*.cpp
