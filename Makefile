@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2008/03/25 09:18:49 franklan Exp $
+# $Id: Makefile,v 1.21 2009/01/27 08:06:56 franklan Exp $
 # Author: $Author: franklan $
 #***************************************************************************
 #                        Makefile
@@ -98,7 +98,6 @@ $(GANIL2ROOT): $(OBJGANIL2ROOT) $(LIBROOTGANIL)
 $(LIBROOTGANIL): $(OBJECTS) $(OBJECTSDICT) $(GANILTAPE)/$(LIBFIX)/libgan_tape.so
 	-mkdir -p $(LIB)
 	-cp $(GANILTAPE)/$(LIBFIX)/libgan_tape.so $(INSTALL)/lib/
-#	$(LD) $(SOFLAGS) $(OBJECTS) $(OBJECTSDICT) -L$(INSTALL)/lib -lKVMultiDet -lgan_tape -o $(LIBROOTGANIL)
 	$(LD) $(SOFLAGS) $(OBJECTS) $(OBJECTSDICT) $(LDFLAGS) -o $(LIBROOTGANIL)
 	-cp $(INC)/GT*.H $(INSTALL)/include/
 	-cp $(LIBROOTGANIL) $(INSTALL)/lib/
