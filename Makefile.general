@@ -1,4 +1,4 @@
-# $Id: Makefile.general,v 1.51 2009/01/16 14:54:38 franklan Exp $
+# $Id: Makefile.general,v 1.52 2009/01/27 08:06:56 franklan Exp $
 #	MAKEFILE for KaliVeda shared library libKVMultiDet.so
 #
 # NOTE: You must set the environment variable KVROOT before using
@@ -112,7 +112,12 @@ ALL_CXXFLAGS_NOOPT = $(CXXFLAGS_NOOPT) $(KV_INC)
 #Override in project's Makefile if it is not simply a subdirectory of KaliVeda
 KVPROJ_ROOT = ..
 
-.PHONY : all clean install uninstall removemoduledirs
+MANIP_DATA = 
+ifneq ($(MANIP_DIRS), )
+MANIP_DATA = copymanipdirs
+endif
+
+.PHONY : all clean install uninstall removemoduledirs copymanipdirs
 
 all : .config $(DICT_CXX) $(DICT_OBJ) $(OBJECTS) $(LIB_SO) $(EXTRAS) .copyheads
 
@@ -179,6 +184,7 @@ dist :
 	-rm -f .copyheads .config .copysource
 	-cp $(SOURCES) $(DIST_DIR)/
 	-cp $(HEADERS) $(DIST_DIR)/
+	-cp -r $(ETC_DATA) $(DIST_DIR)/
 	-cp -r $(MANIP_DIRS) $(DIST_DIR)/
 	-cp $(LINKDEF) $(DIST_DIR)/
 	-cp Makefile $(DIST_DIR)/
@@ -191,7 +197,7 @@ endif
 	-mv $(DIST_DIR).tgz ../$(DIST_DIR).tgz
 	-rm -Rf $(DIST_DIR)
 
-install : .copysource
+install : .copysource $(MANIP_DATA)
 ifeq ( $(INSTALL),)
 	@echo "KVROOT environment variable doesn't seem to be set."
 	@echo "You must set it in order to install KaliVeda project files"
@@ -199,11 +205,11 @@ ifeq ( $(INSTALL),)
 	@echo "or  'export KVROOT=install_path' (bash)"
 	@echo "use 'make install' to perform the installation"
 else
-ifneq ($(MANIP_DIRS), )
+ifneq ($(ETC_DATA), )
 	@echo "--------------------------------------------------------------------------------"
-	@echo "MANIP_DIRS = |"$(MANIP_DIRS)"|"
+	@echo "ETC_DATA = |"$(ETC_DATA)"|"
 	@echo "--------------------------------------------------------------------------------"
-	-cp -r $(CPOPT) $(MANIP_DIRS) $(INSTALL)/KVFiles/
+	-cp -r $(CPOPT) $(ETC_DATA) $(INSTALL)/KVFiles/
 endif
 ifneq ($(PLATFORM),win32)
 	-cp $(LIB_LIB) $(INSTALL)/lib/$(LIBVERSION)
@@ -252,6 +258,9 @@ ifeq ($(ARCH),win32)
 else
 	-rm -f $(INSTALL)/lib/$(LIB_LIB) 
 endif
+ifneq ($(ETC_DATA), )
+	cd $(INSTALL)/KVFiles && rm -rf $(ETC_DATA)
+endif
 ifneq ($(MANIP_DIRS), )
 	cd $(INSTALL)/KVFiles && rm -rf $(MANIP_DIRS)
 endif
@@ -264,6 +273,18 @@ ifeq ($(PLATFORM),macosx)
 	 -rm -f $(INSTALL)/lib/$(LIBDYVERSION)
 endif
 
+# recursively copy contents of each directory 'manip_dir' named in variable MANIP_DIRS
+# into corresponding directory in installation, $KVROOT/KVFiles/manip_dir.
+# in each directory, create a mini-Makefile with database file
+# ($KVROOT/db/manip_dir/DataBase.root) as target, and as prerequisites
+# all files in $KVROOT/KVFiles/manip_dir
+copymanipdirs :
+	for manip_dir in $(MANIP_DIRS); do \
+		cp -r $(CP_OPT) $$manip_dir $(INSTALL)/KVFiles/ ; \
+		echo $(INSTALL)"/db/"$$manip_dir"/DataBase.root : "`ls $$manip_dir` > $(INSTALL)/KVFiles/$$manip_dir/Makefile ; \
+		echo "	@echo Database needs update" >> $(INSTALL)/KVFiles/$$manip_dir/Makefile ; \
+	done
+
 .config : $(HEADERS) $(LINKDEF) $(SOURCES)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "CONFIGURATION OF MAKEFILE FOR "$(PROJ_NAME)
@@ -273,6 +294,8 @@ endif
 	@echo "HEADERS = "$(HEADERS)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "OBJECTS = "$(OBJECTS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "ETC_DATA = "$(ETC_DATA)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "MANIP_DIRS = "$(MANIP_DIRS)
 	@echo "--------------------------------------------------------------------------------"

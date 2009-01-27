@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.11 2009/01/19 13:39:45 franklan Exp $
+#$Id: Makefile,v 1.12 2009/01/27 08:06:56 franklan Exp $
 #Makefile for libVAMOS.so
 
 PROJ_NAME = VAMOS
@@ -29,7 +29,4 @@ LINK_LIB += -L$(GANILTAPE_LIB) -lROOTGanilTape -lgan_tape
 ifeq ($(MAKE_GANTAPE_RFIO),yes)
 LINK_LIB += -L/usr/local/lib -lshift
 endif
-#ifeq ($(MAKE_GANTAPE_XRD),yes)
-#LINK_LIB += -L$(ROOTSYS)/lib -lXrdPosix -lXrdSec
-#endif
 endif
