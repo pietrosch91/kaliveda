@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVMultiDetArray.h,v 1.52 2008/12/17 13:01:26 franklan Exp $
+$Id: KVMultiDetArray.h,v 1.53 2009/01/30 15:00:19 ebonnet Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,6 +27,7 @@ $Id: KVMultiDetArray.h,v 1.52 2008/12/17 13:01:26 franklan Exp $
 #include "KVBase.h"
 #include "KVList.h"
 #include "KVLayer.h"
+#include "TGraph.h"
 
 class KVEvent;
 class KVRing;
@@ -160,6 +161,8 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    void RemoveGroup(const Char_t *);
    void ReplaceTelescope(const Char_t * name, KVTelescope * new_kvt);
    void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);
+
+	virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, UInt_t ring_number,UInt_t run_number=-1);
 
    void StartBrowser();
    void CloseBrowser();

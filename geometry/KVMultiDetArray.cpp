@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetArray.cpp,v 1.87 2008/12/17 13:01:26 franklan Exp $
+$Id: KVMultiDetArray.cpp,v 1.88 2009/01/30 15:00:19 ebonnet Exp $
                           kvmultidetarray.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -1102,6 +1102,46 @@ KVList *KVMultiDetArray::GetListOfDetectors() const
    return fDetectors;
 }
 
+//________________________________________________________________________________________
+TGraph *KVMultiDetArray::GetPedestals(const Char_t * det_signal,const Char_t * det_type, UInt_t ring_number,UInt_t
+run_number)
+{
+	
+	//Renvoie sous forme de TGraph (en fonction du numero de module)
+	//les piedestaux du signal (det_signal) asssocies aux detecteurs de type (det_type) 
+	//qui sont presents dans la couronne ring_number pour un numero de run donne (si run_number==-1)
+	//on suppose que gMultiDetArray->SetParameters(xxx) a ete fait en amont
+	//L'utilisateur doit effacer ce TGraph tout seul comme un grand apres usage
+	//Une recherche sur l existence ou non du graph permet d eviter des boucles inutiles
+	//Si l appel est reitere
+	
+	if (run_number!=-1) SetParameters(run_number);
+	
+	KVList* sltype = 0;
+	KVList* slring = 0;
+	TGraph* gr_ped=0;
+	
+	KVString sgraph; sgraph.Form("KVPed_%s_%s_%d_%d",det_signal,det_type,ring_number,GetCurrentRunNumber());
+	if ( ( gr_ped=(TGraph* )gROOT->FindObject(sgraph.Data()) ) ) return gr_ped;
+	
+	if ( (sltype = GetListOfDetectors()->GetSubListWithMethod(det_type,"GetType")) ){
+		KVString sring; sring.Form("%d",ring_number);
+		if ( (slring = sltype->GetSubListWithMethod(sring,"GetRingNumber")) ){
+				gr_ped = new TGraph(); gr_ped->SetName(sgraph.Data());
+				for (Int_t mm=0;mm<slring->GetEntries();mm+=1){
+					gr_ped->SetPoint(gr_ped->GetN(),
+						((KVDetector*)slring->At(mm))->GetModuleNumber(),
+						((KVDetector*)slring->At(mm))->GetPedestal(det_signal));
+			
+				}
+			delete slring;
+			return gr_ped;
+		}
+		delete sltype;
+	}
+	return 0;
+
+}
 //________________________________________________________________________________________
 void KVMultiDetArray::StartBrowser()
 {
