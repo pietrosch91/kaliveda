@@ -1,7 +1,7 @@
 /*
-$Id: KVEventListMaker.cpp,v 1.2 2008/12/17 15:27:25 ebonnet Exp $
-$Revision: 1.2 $
-$Date: 2008/12/17 15:27:25 $
+$Id: KVEventListMaker.cpp,v 1.3 2009/01/30 09:27:06 ebonnet Exp $
+$Revision: 1.3 $
+$Date: 2009/01/30 09:27:06 $
 */
 
 //Created by KVClassFactory on Thu Mar 20 11:58:48 2008
@@ -41,6 +41,7 @@ KVString lname = GetBranchName();
 Int_t  nbre=0;
 lname.Begin(" ");
 while (!lname.End()) {KVString stamp=lname.Next(); nbre+=1;}
+if (nbre==0) return;
 
 Int_t *variable = new Int_t[nbre];
 KVString evtname;
@@ -109,6 +110,7 @@ if ( (tt = (TTree *)file->Get(GetTreeName().Data())) ){
 }
 else printf("%s n existe pas\n",GetTreeName().Data());
 
+delete variable;
 //close the file
 file->Close();
 
