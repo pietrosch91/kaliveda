@@ -1,5 +1,7 @@
-# This file contains VAMOS scalers of the experiment e503. For this experiment the scalers 
+# This file contains VAMOS scalers of the experiment e494s or e503. For this experiment the scalers 
 # of the automatic changing runs were not put at zero at the begining of the run. Therefore it was necessary to correct them.
+# Warning in the begining of e494s experiment, some of the scalers were not connected, in particular FTA scaler.
+# For these runs, we used the total number of events extracted from the feuille de run instead of FTA. Which is a good approximation. 
 #  step 1 : With GRU we generated root files containing the data of scalers blocks (on the average 5 scaler blocks per run ).
 #                The structure of each file is a  tree where the brachs are the scalers.
 # step 2 : With the Class scaler.cpp, we have generated this file containing the corrected scalers. The structure of the file is : 
@@ -11,9 +13,9 @@
 #                    = FC_of_INDRA / FTA_of_VAMOS 
 #                5 - NormScalers : =  totalEvents / neventsLastFirst, it is the normalization factor which was applyed to the difference 
 #                     between scalers of last and first block
-#                6 - DT : the  (%) dead time of the run deduced from the ratio : DT=1-(FAC / (OR of SiVAMOS) )
+#                6 - DT : the  (%) dead time of the run deduced from the ratio : DT=1-(FTA / (OR of SiVAMOS) )
 #                7 - 47 : scaler name    and  the corrected values 
-#           Abdou Chbihi 16 Jan 2009. 
+#           Abdou Chbihi 27 Jan 2009. 
 #
 ScalersOfRunNumber     129
 neventsLastFirst              3655
@@ -488,7 +490,7 @@ U2M40                   1968
 ScalersOfRunNumber     139
 neventsLastFirst              12893
 totalEvents                         12893
-NormVamos                       0
+NormVamos                       1
 NormScalers                      1
 DT                                        0
 SI01                   285
@@ -676,7 +678,7 @@ U2M40                   19534
 ScalersOfRunNumber     143
 neventsLastFirst              85432
 totalEvents                         184519
-NormVamos                       0
+NormVamos                       1
 NormScalers                      2.15983
 DT                                        0
 SI01                   4153
@@ -1054,7 +1056,7 @@ neventsLastFirst              0
 totalEvents                         0
 NormVamos                       183499
 NormScalers                      1
-DT                                        -4.5977
+DT                                        1
 SI01                   24
 SI02                   24
 SI03                   15
@@ -1477,7 +1479,7 @@ neventsLastFirst              0
 totalEvents                         0
 NormVamos                       109.909
 NormScalers                      1
-DT                                        100
+DT                                        0
 SI01                   24
 SI02                   96
 SI03                   117
@@ -1569,7 +1571,7 @@ U2M40                   0
 ScalersOfRunNumber     162
 neventsLastFirst              110388
 totalEvents                         110467
-NormVamos                       0
+NormVamos                       1
 NormScalers                      1.00072
 DT                                        18.2853
 SI01                   1846
@@ -1614,29 +1616,29 @@ U2M39                   34570
 U2M40                   18400
 #
 ScalersOfRunNumber     164
-neventsLastFirst              6279
+neventsLastFirst              529546
 totalEvents                         535438
-NormVamos                       5.72812
-NormScalers                      85.2744
-DT                                        20.8019
-SI01                   169354
-SI02                   973151
-SI03                   852402
-SI04                   1039409
-SI05                   1384003
-SI06                   1769529
-SI07                   1933511
-SI08                   1790762
-SI09                   347152
-SI10                   515142
-SI11                   1009819
-SI12                   1320730
-SI13                   1276643
-SI14                   1280480
-SI15                   924800
-SI16                   1249184
-SI17                   1147026
-SI18                   595556
+NormVamos                       5.8514
+NormScalers                      1.01113
+DT                                        16.3695
+SI01                   1264
+SI02                   6600
+SI03                   6346
+SI04                   7388
+SI05                   9740
+SI06                   12755
+SI07                   14184
+SI08                   13046
+SI09                   2457
+SI10                   3760
+SI11                   7026
+SI12                   9626
+SI13                   9272
+SI14                   9314
+SI15                   7060
+SI16                   8967
+SI17                   8326
+SI18                   4283
 SIE05                   0
 SIE06                   0
 SIE08                   0
@@ -1646,19 +1648,19 @@ U2M24                   0
 SED1                   0
 SED2                   0
 SED3                   0
-FTA                   10250836
-INDRA                   58717995
-CLOCKDT                   193572
-CLOCK                   1468681
+FTA                   78344
+INDRA                   458422
+CLOCKDT                   911
+CLOCK                   10839
 U2M32                   0
-FIL1                   7268960
-FIL2                   7176694
-CSI                   665105921
+FIL1                   55859
+FIL2                   55164
+CSI                   4948247
 CURRENT                   0
-MCP                   11512
-ORSI                   12943290
-U2M39                   3302421
-U2M40                   1741729
+MCP                   0
+ORSI                   93678
+U2M39                   23764
+U2M40                   12601
 #
 ScalersOfRunNumber     166
 neventsLastFirst              282648
@@ -4340,29 +4342,29 @@ U2M39                   98069
 U2M40                   83601
 #
 ScalersOfRunNumber     386
-neventsLastFirst              204
+neventsLastFirst              415
 totalEvents                         320603
-NormVamos                       74.2443
-NormScalers                      1571.58
-DT                                        12.4984
-SI01                   10314301
-SI02                   16300462
-SI03                   34098643
-SI04                   52923068
-SI05                   62291276
-SI06                   56206106
-SI07                   42211156
-SI08                   36036405
-SI09                   20506019
-SI10                   20300141
-SI11                   43138390
-SI12                   71159721
-SI13                   74604632
-SI14                   93843955
-SI15                   109518927
-SI16                   149991913
-SI17                   153595553
-SI18                   109665084
+NormVamos                       69.9436
+NormScalers                      772.537
+DT                                        14.4788
+SI01                   4635
+SI02                   2317
+SI03                   11588
+SI04                   16995
+SI05                   22403
+SI06                   14678
+SI07                   16995
+SI08                   13905
+SI09                   2317
+SI10                   6952
+SI11                   20085
+SI12                   20085
+SI13                   26266
+SI14                   27038
+SI15                   43262
+SI16                   53305
+SI17                   50987
+SI18                   49442
 SIE05                   0
 SIE06                   0
 SIE08                   0
@@ -4372,19 +4374,19 @@ U2M24                   0
 SED1                   0
 SED2                   0
 SED3                   0
-FTA                   1008865348
-INDRA                   -2147483648
-CLOCKDT                   13345885
-CLOCK                   229281435
+FTA                   342234
+INDRA                   23937069
+CLOCKDT                   5407
+CLOCK                   78798
 U2M32                   0
-FIL1                   1003914860
-FIL2                   887892721
-CSI                   -2147483648
+FIL1                   347641
+FIL2                   309014
+CSI                   1600697
 CURRENT                   0
 MCP                   0
-ORSI                   1152968538
-U2M39                   309124155
-U2M40                   263254352
+ORSI                   400174
+U2M39                   101974
+U2M40                   100429
 #
 ScalersOfRunNumber     387
 neventsLastFirst              246465
@@ -7066,29 +7068,29 @@ U2M39                   46090
 U2M40                   193122
 #
 ScalersOfRunNumber     470
-neventsLastFirst              26
+neventsLastFirst              406
 totalEvents                         330949
-NormVamos                       55.9817
-NormScalers                      12728.8
-DT                                        13.1931
-SI01                   97120802
-SI02                   192154080
-SI03                   218413611
-SI04                   353326243
-SI05                   421399907
-SI06                   269812536
-SI07                   122718434
-SI08                   187253489
-SI09                   107876645
-SI10                   52531789
-SI11                   128179093
-SI12                   419541501
-SI13                   370561049
-SI14                   997314811
-SI15                   1222029182
-SI16                   2068520351
-SI17                   -2147483648
-SI18                   1684441308
+NormVamos                       64.0372
+NormScalers                      815.145
+DT                                        9.61539
+SI01                   4890
+SI02                   2445
+SI03                   4890
+SI04                   10596
+SI05                   8966
+SI06                   6521
+SI07                   5706
+SI08                   4890
+SI09                   4075
+SI10                   0
+SI11                   2445
+SI12                   5706
+SI13                   7336
+SI14                   22824
+SI15                   25269
+SI16                   52984
+SI17                   137759
+SI18                   34236
 SIE05                   0
 SIE06                   0
 SIE08                   0
@@ -7098,19 +7100,19 @@ U2M24                   0
 SED1                   0
 SED2                   0
 SED3                   0
-FTA                   -2147483648
-INDRA                   -2147483648
+FTA                   306494
+INDRA                   19627069
 CLOCKDT                   0
 CLOCK                   0
 U2M32                   0
-FIL1                   -2147483648
-FIL2                   -2147483648
-CSI                   -2147483648
+FIL1                   303234
+FIL2                   283670
+CSI                   1378410
 CURRENT                   0
 MCP                   0
-ORSI                   -2147483648
-U2M39                   1767496778
-U2M40                   -2147483648
+ORSI                   339100
+U2M39                   46463
+U2M40                   171995
 #
 ScalersOfRunNumber     471
 neventsLastFirst              324535
