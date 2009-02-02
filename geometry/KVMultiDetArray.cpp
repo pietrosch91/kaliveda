@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetArray.cpp,v 1.88 2009/01/30 15:00:19 ebonnet Exp $
+$Id: KVMultiDetArray.cpp,v 1.89 2009/02/02 15:44:57 ebonnet Exp $
                           kvmultidetarray.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -1103,7 +1103,7 @@ KVList *KVMultiDetArray::GetListOfDetectors() const
 }
 
 //________________________________________________________________________________________
-TGraph *KVMultiDetArray::GetPedestals(const Char_t * det_signal,const Char_t * det_type, UInt_t ring_number,UInt_t
+TGraph *KVMultiDetArray::GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t
 run_number)
 {
 	
@@ -1115,7 +1115,8 @@ run_number)
 	//Une recherche sur l existence ou non du graph permet d eviter des boucles inutiles
 	//Si l appel est reitere
 	
-	if (run_number!=-1) SetParameters(run_number);
+	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber())) 
+		SetParameters(run_number);
 	
 	KVList* sltype = 0;
 	KVList* slring = 0;

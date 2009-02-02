@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVMultiDetArray.h,v 1.53 2009/01/30 15:00:19 ebonnet Exp $
+$Id: KVMultiDetArray.h,v 1.54 2009/02/02 15:44:57 ebonnet Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -162,7 +162,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    void ReplaceTelescope(const Char_t * name, KVTelescope * new_kvt);
    void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);
 
-	virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, UInt_t ring_number,UInt_t run_number=-1);
+	virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
 
    void StartBrowser();
    void CloseBrowser();
