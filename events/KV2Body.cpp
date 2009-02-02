@@ -5,7 +5,7 @@
     copyright            : (C) 2003 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KV2Body.cpp,v 1.3 2009/01/22 13:56:13 ebonnet Exp $
+$Id: KV2Body.cpp,v 1.4 2009/02/02 13:52:29 ebonnet Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -73,14 +73,29 @@ ClassImp(KV2Body)
 //      kin.Print();
 //      kin.Print("lab");//laboratory scattering angles and energies
 //      kin.Print("ruth");//Rutherford scattering angles, energies and cross-sections
+//
+//4. Extracting information on Quasi-Projectile and/or target
+//
+//Several methods are defined and calculate energy/velocity/angle in C or lab frame
+//for projectile (3) and/or target (4)
+//The two arguments are : the angle and the angular range of which nucleus you are interested in 
+//
+//For example : the Double_t GetThetaCMTarget(Double_t ThetaLab,Int_t OfNucleus=3)
+//give the polar angle in the CM of reaction of the target
+//		depending on the polar angle in the lab of the projectile (OfNucleus=3) or of the target (OfNucleus=4)
+//
+//
 //_____________________________________________________________________________________________________________
 void KV2Body::init()
 {
    //Default initialisations
-   TETA3MAX = TETA4MAX = WLT = WCT = WC3 = WC4 = K3 = K4 = 0.;
+   WLT = WCT = WC3 = WC4 = 0.;
    for (int i = 0; i < 5; i++) {
       VC[i] = 0.;
       EC[i] = 0.;
+		K[i] = 0.;  
+   	TETAMAX[i] = 0.;  
+   	TETAMIN[i] = 0.;  
    }
    fEDiss = 0.0;
    fDeleteTarget = kFALSE;
@@ -272,25 +287,29 @@ Double_t KV2Body::GetCMEnergy() const
 }
 
 //_____________________________________________________________________________
-
 Double_t KV2Body::GetMaxAngleLab(Int_t i) const
 {
    //Returns maximum scattering angle in lab for nuclei i=3 (quasiproj)
    //and i=4 (quasitarget)
-   if (i < 3) {
+   if (i < 3 && i> 4 ) {
       Warning("GetMaxAngleLab(Int_t i)",
               "Returns maximum scattering angle in lab for nuclei i=3 (quasiproj) and i=4 (quasitarget)");
       return 0.;
    }
-   switch (i) {
-   case 3:
-      return TETA3MAX;
-      break;
-   case 4:
-      return TETA4MAX;
-      break;
+   return TETAMAX[i];
+}
+
+//_____________________________________________________________________________
+Double_t KV2Body::GetMinAngleLab(Int_t i) const
+{
+   //Returns minimum scattering angle in lab for nuclei i=3 (quasiproj)
+   //and i=4 (quasitarget)
+   if (i < 3 && i> 4 ) {
+      Warning("GetMinAngleLab(Int_t i)",
+              "Returns minimum scattering angle in lab for nuclei i=3 (quasiproj) and i=4 (quasitarget)");
+      return 0.;
    }
-   return 0.;
+   return TETAMIN[i];
 }
 
 //_____________________________________________________________________________
@@ -424,15 +443,15 @@ void KV2Body::CalculateKinematics()
    VC[3] = GetVelocity(AM3, WC3);
    //cm kinetic energy
    EC[3] = WC3 - AM3;
-   K3 = VCM.Mag() / VC[3];
+   K[3] = VCM.Mag() / VC[3];
    Double_t T3MAX = 0.;
-   if (K3 < 1.)
+   if (K[3] < 1.)
       T3MAX = TMath::Pi();
-   if (K3 == 1.)
+   if (K[3] == 1.)
       T3MAX = TMath::PiOver2();
-   if (K3 > 1.)
-      T3MAX = TMath::ATan((1. / TMath::Sqrt(K3 * K3 - 1.)) / GetCMGamma());
-   TETA3MAX = T3MAX * TMath::RadToDeg();
+   if (K[3] > 1.)
+      T3MAX = TMath::ATan((1. / TMath::Sqrt(K[3] * K[3] - 1.)) / GetCMGamma());
+   TETAMAX[3] = T3MAX * TMath::RadToDeg();
 
    if (!GetNucleus(4))
       return;                   //only valid for binary channels
@@ -441,18 +460,20 @@ void KV2Body::CalculateKinematics()
    VC[4] = GetVelocity(AM4, WC4);
    //cm kinetic energy
    EC[4] = WC4 - AM4;
-   K4 = VCM.Mag() / VC[4];
+   K[4] = VCM.Mag() / VC[4];
+	TETAMIN[4] = GetThetaLabTarget(TETAMAX[3]);
 
    Double_t T4MAX = 0.;
-   if (K4 < 1.)
+   if (K[4] < 1.)
       T4MAX = TMath::Pi();
-   if (K4 == 1.)
+   if (K[4] == 1.)
       T4MAX = TMath::PiOver2();
-   if (K4 > 1.)
-      T4MAX = TMath::ATan((1. / TMath::Sqrt(K4 * K4 - 1.)) / GetCMGamma());
-   if (TMath::Abs(GetEDiss()) < 1.E-08 && K4 < 1.)
+   if (K[4] > 1.)
+      T4MAX = TMath::ATan((1. / TMath::Sqrt(K[4] * K[4] - 1.)) / GetCMGamma());
+   if (TMath::Abs(GetEDiss()) < 1.E-08 && K[4] < 1.)
       T4MAX = TMath::PiOver2();
-   TETA4MAX = T4MAX * TMath::RadToDeg();
+   TETAMAX[4] = T4MAX * TMath::RadToDeg();
+	TETAMIN[3] = GetThetaLabTarget(TETAMAX[4]);
 }
 
 //_____________________________________________________________________________
@@ -575,18 +596,18 @@ void KV2Body::Print(Option_t * opt) const
 }
 
 //______________________________________________________________________________________________
-
-Double_t KV2Body::GetELabProj(Double_t ThetaLab_Proj) const
+Double_t KV2Body::GetELabProj(Double_t ThetaLab,Int_t OfNucleus) const
 {
-   //Calculate (quasi)projectile kinetic energy as a function of scattering angle.
+   //Calculate (quasi)projectile kinetic energy as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
 
-   if (ThetaLab_Proj > TETA3MAX) {
+   if (GetThetaLabProj(ThetaLab,OfNucleus) > TETAMAX[3]) {
       Warning("GetELabProj",
-              "Angle %f is greater than max scattering angle (%f)",
-              ThetaLab_Proj, TETA3MAX);
+              "Projectile Angle %f is greater than max scattering angle (%f)",
+              GetThetaLabProj(ThetaLab,OfNucleus), TETAMAX[3]);
       return 0.;
    }
-   Double_t T3CM = GetThetaCMProj(ThetaLab_Proj) * TMath::DegToRad();
+   Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad();
    Double_t WL3 =
        WC3 * GetCMGamma() * (1. +
                              BCM * (GetCMVelocity(3) / KVParticle::C()) *
@@ -594,62 +615,101 @@ Double_t KV2Body::GetELabProj(Double_t ThetaLab_Proj) const
    return (WL3 - GetNucleus(3)->GetMass());
 }
 
-Double_t KV2Body::GetThetaCMProj(Double_t ThetaLab_Proj) const
-{
-   //Calculate CM projectile scattering angle from lab angle
-
-   Double_t T3L = ThetaLab_Proj * TMath::DegToRad();
-   Double_t T3CM = T3L + TMath::ASin(K3 * TMath::Sin(T3L));
-   return T3CM * TMath::RadToDeg();
-}
-
 //______________________________________________________________________________________________
 
-Double_t KV2Body::GetVLabProj(Double_t ThetaLab_Proj) const
+Double_t KV2Body::GetVLabProj(Double_t ThetaLab,Int_t OfNucleus) const
 {
-   //Calculate (quasi)projectile velocity as a function of scattering angle.
-   Double_t etot = GetELabProj(ThetaLab_Proj) + GetNucleus(3)->GetMass();
+   //Calculate (quasi)projectile velocity as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+   Double_t etot = GetELabProj(ThetaLab,OfNucleus) + GetNucleus(3)->GetMass();
    return GetVelocity(GetNucleus(3)->GetMass(), etot);
 }
 
-Double_t KV2Body::GetThetaCMTarget(Double_t ThetaLab_Proj) const
+//______________________________________________________________________________________________
+Double_t KV2Body::GetThetaCMProj(Double_t ThetaLab,Int_t OfNucleus) const
 {
-   //Get quasi-target CM angle as a function of projectile scattering angle
-   Double_t T3CM = GetThetaCMProj(ThetaLab_Proj) * TMath::DegToRad();
-   Double_t T4CM = TMath::Pi() - T3CM;
-   return T4CM * TMath::RadToDeg();
+   //Calculate CM projectile scattering angle as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+	Double_t ThetaL = ThetaLab * TMath::DegToRad();
+	Double_t ThetaCM = ThetaL + TMath::ASin(K[OfNucleus] * TMath::Sin(ThetaL));
+	if (OfNucleus==3)	return ThetaCM*TMath::RadToDeg();
+	else 					return (TMath::Pi() - ThetaCM)*TMath::RadToDeg();
 }
 
-Double_t KV2Body::GetThetaLabTarget(Double_t ThetaLab_Proj) const
+//______________________________________________________________________________________________
+Double_t KV2Body::GetELabTarget(Double_t ThetaLab,Int_t OfNucleus) const
 {
-   //Get quasi-target lab angle as a function of projectile scattering angle
-   Double_t T4CM = GetThetaCMTarget(ThetaLab_Proj) * TMath::DegToRad();
-   Double_t T4L = TMath::ATan(TMath::Sin(T4CM) / (K4 + TMath::Cos(T4CM)));
+   //Calculate (quasi)target kinetic energy as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+
+   if (GetThetaLabProj(ThetaLab,OfNucleus) > TETAMAX[3]) {
+      Warning("GetELabTarg",
+              "Projectile Angle %f is greater than max scattering angle (%f)",
+              GetThetaLabProj(ThetaLab,OfNucleus), TETAMAX[3]);
+      return 0.;
+   }
+   Double_t T4CM = GetThetaCMTarget(ThetaLab,OfNucleus) * TMath::DegToRad();
+   Double_t WL4 =
+       WC4 * GetCMGamma() * (1. +
+                             BCM * (GetCMVelocity(4) / KVParticle::C()) *
+                             TMath::Cos(T4CM));
+   return (WL4 - GetNucleus(4)->GetMass());
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::GetVLabTarget(Double_t ThetaLab,Int_t OfNucleus) const
+{
+   //Calculate (quasi)target velocity as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+   Double_t etot = GetELabTarget(ThetaLab,OfNucleus) + GetNucleus(4)->GetMass();
+   return GetVelocity(GetNucleus(4)->GetMass(), etot);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::GetThetaCMTarget(Double_t ThetaLab,Int_t OfNucleus) const
+{
+   //Get quasi-target CM angle as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+
+	Double_t ThetaL = ThetaLab * TMath::DegToRad();
+	Double_t ThetaCM = ThetaL + TMath::ASin(K[OfNucleus] * TMath::Sin(ThetaL));
+	if (OfNucleus==4)	return ThetaCM*TMath::RadToDeg();
+	else 					return (TMath::Pi() - ThetaCM)*TMath::RadToDeg();
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::GetThetaLabTarget(Double_t ThetaLab,Int_t OfNucleus) const
+{
+   //Get quasi-target lab angle as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+   if (OfNucleus==4) return ThetaLab;
+	Double_t T4CM = GetThetaCMTarget(ThetaLab,OfNucleus) * TMath::DegToRad();
+   Double_t T4L = TMath::ATan(TMath::Sin(T4CM) / (K[4] + TMath::Cos(T4CM)));
    Double_t thlt = TMath::Abs(T4L * TMath::RadToDeg());
    if (thlt > 180.0)
       thlt = 360.0 - thlt;
    return thlt;
 }
 
-Double_t KV2Body::GetELabTarget(Double_t ThetaLab_Proj) const
+//______________________________________________________________________________________________
+Double_t KV2Body::GetThetaLabProj(Double_t ThetaLab,Int_t OfNucleus) const
 {
-   //Calculate (quasi)target kinetic energy as a function of projectile scattering angle.
-
-   Double_t T4CM = GetThetaCMTarget(ThetaLab_Proj) * TMath::DegToRad();
-   Double_t WL4 =
-       WC4 * GetCMGamma() * (1. +
-                             BCM * (GetCMVelocity(4) / KVParticle::C()) *
-                             TMath::Cos(T4CM));
-   Double_t elabt = WL4 - GetNucleus(4)->GetMass();
-   if (elabt < 0.)
-      elabt = 0.0;
-   return elabt;
+   //Get quasi-projectile lab angle as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+   if (OfNucleus==3) return ThetaLab;
+	Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad();
+   Double_t T3L = TMath::ATan(TMath::Sin(T3CM) / (K[3] + TMath::Cos(T3CM)));
+   Double_t thlt = TMath::Abs(T3L * TMath::RadToDeg());
+   if (thlt > 180.0)
+      thlt = 360.0 - thlt;
+   return thlt;
 }
 
-Double_t KV2Body::GetXSecRuthCM(Double_t ThetaLab_Proj) const
+//______________________________________________________________________________________________
+Double_t KV2Body::GetXSecRuthCM(Double_t ThetaLab,Int_t OfNucleus) const
 {
    //Calculate Rutherford cross-section (b/sr) in the CM as a
-   //function of projectile lab scattering angle
+   //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
 
    if (!GetNucleus(2)) {
       Warning("GetXSecRuthCM", "No target defined for reaction");
@@ -658,47 +718,53 @@ Double_t KV2Body::GetXSecRuthCM(Double_t ThetaLab_Proj) const
    Double_t PB =
        1.44 * GetNucleus(1)->GetZ() * GetNucleus(2)->GetZ() /
        GetCMEnergy();
-   Double_t T3CM = GetThetaCMProj(ThetaLab_Proj) * TMath::DegToRad();
-   Double_t D = 1. / (16. * (TMath::Power(TMath::Sin(T3CM / 2.), 4.)));
-   return ((TMath::Power(PB, 2.)) * D / 100.);
+	Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad(); 
+	Double_t D = 1. / (16. * (TMath::Power(TMath::Sin(T3CM / 2.), 4.)));
+   
+	return ((TMath::Power(PB, 2.)) * D / 100.);
 }
 
-Double_t KV2Body::GetXSecRuthLab(Double_t ThetaLab_Proj) const
+//______________________________________________________________________________________________
+Double_t KV2Body::GetXSecRuthLab(Double_t ThetaLab,Int_t OfNucleus) const
 {
    //Calculate Rutherford cross-section (b/sr) in the Lab as a
-   //function of projectile lab scattering angle
+   //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
 
-   Double_t DSIDTB = GetXSecRuthCM(ThetaLab_Proj);
-   Double_t T3L = ThetaLab_Proj * TMath::DegToRad();
-   Double_t T3CM = GetThetaCMProj(ThetaLab_Proj) * TMath::DegToRad();
+   Double_t DSIDTB = GetXSecRuthCM(ThetaLab,OfNucleus);
+   
+	Double_t T3L = GetThetaLabProj(ThetaLab,OfNucleus) * TMath::DegToRad();
+   Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad();
    Double_t RLC = (TMath::Power(TMath::Sin(T3CM), 3.)) /
        ((TMath::Power(TMath::Sin(T3L), 3.)) * GetCMGamma() *
-        (1. + K3 * TMath::Cos(T3CM)));
-   return (DSIDTB * RLC);
+        (1. + K[3] * TMath::Cos(T3CM)));
+   if (DSIDTB * RLC<0) {
+		Warning("GetXSecRuthLab", "negative value for choosen parameters : %lf %d\n",ThetaLab,OfNucleus);
+		return 0;
+	}
+	return (DSIDTB * RLC);
 }
 
-Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,Float_t phi2) const
+//______________________________________________________________________________________________
+Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,Float_t phi2,Int_t OfNucleus) const
 {
    //Calculate Integrated Rutherford cross-section (b/sr) in the Lab using
 	//polar and azimuthal angular range expressed in degree
-	//This angular range is considered to be the scattered projectile one
-	//
-	//If th1 > the maximum scattering angle (GetMaxAngleLab(3==outgoing projectile)) the returned value is 0
-	//If th2 > the maximum scattering angle (GetMaxAngleLab(3==outgoing projectile)) 
-	//we use the maximum scattering angle as a upper limit
+	// if (OfNucleus==3) This angular range is considered to be the scattered projectile one
+	// if (OfNucleus==4) This angular range is considered to be the scattered target one
 	// 
 	//If phi1 ou phi2 ==-1 the azimuthal width is set to 2pi
 	//Else if phi1=phi2 the azimuthal width is set to 1 ie the integral is only on theta
 	//
 	//Integral is computed using the so called trapeze method
-	//using 1000 steps for integrate theta (in degree)
+	//the step of 0.01 degree is taken 
+	//precision of th1 and th2 angle is also set to 0.01 degree
 	//The returned value is in barn
 	
-	Float_t tmax_proj = GetMaxAngleLab(3);
-	Float_t th1_d = th1;	if (th1_d>tmax_proj) return 0;
-	Float_t th2_d = TMath::Min(th2,tmax_proj);
+	if (th2<th1) return 0;
+	Float_t th1_d = Float_t(TMath::Nint(th1*100)/100.);
+	Float_t th2_d = Float_t(TMath::Nint(th2*100)/100.);
 	
-	Int_t nn=1000;
+	Int_t nn=TMath::Nint((th2_d-th1_d)*100.);
 	Double_t dphi=0;
 	//azimuthal width expressed in rad
 	if (phi1==-1 || phi2==-1) dphi=2*TMath::Pi();
@@ -710,11 +776,11 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	Float_t th2_r = th2_d*TMath::DegToRad();
 	
 	Double_t norm = (th2_r-th1_r)/nn;
-	Double_t integ0 = (GetXSecRuthLab(th1_d)*TMath::Sin(th1_r) + GetXSecRuthLab(th2_d)*TMath::Sin(th2_r))/2.;
+	Double_t integ0 = (GetXSecRuthLab(th1_d,OfNucleus)*TMath::Sin(th1_r) + GetXSecRuthLab(th2_d,OfNucleus)*TMath::Sin(th2_r))/2.;
 
 	Double_t interm = 0;
 	for (Int_t kk=1;kk<nn;kk+=1){
-		interm+=GetXSecRuthLab(th1_d+kk*(th2_d-th1_d)/nn)*TMath::Sin((th1_r+kk*(th2_r-th1_r)/nn));
+		interm+=GetXSecRuthLab(th1_d+kk*(th2_d-th1_d)/nn,OfNucleus)*TMath::Sin((th1_r+kk*(th2_r-th1_r)/nn));
 	}
 	
    return norm*(integ0+interm)*dphi;

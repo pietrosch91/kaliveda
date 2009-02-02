@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KV2Body.h,v 1.4 2009/01/22 13:56:13 ebonnet Exp $
+$Id: KV2Body.h,v 1.5 2009/02/02 13:52:29 ebonnet Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -34,12 +34,15 @@ class KV2Body:public TObject {
    Double_t BCM;                //beta of centre of mass
    Double_t WLT;                //total lab energy
    Double_t WCT;                //total cm energy
-   Double_t WC3, WC4, K3, K4;
-   Double_t VC[5];              //cm velocities
+    Double_t WC3, WC4;
+   
+	Double_t VC[5];              //cm velocities
    Double_t EC[5];              //cm energies
-   Double_t TETA3MAX;
-   Double_t TETA4MAX;
-   Bool_t fDeleteTarget;
+   Double_t K[5];						//defined only for nuclei 3 et 4
+   Double_t TETAMAX[5];				//defined only for nuclei 3 et 4
+   Double_t TETAMIN[5];				//defined only for nuclei 3 et 4
+   
+	Bool_t fDeleteTarget;
    Bool_t fDeleteProj;
    Bool_t fDeleteN4;
 
@@ -86,6 +89,7 @@ class KV2Body:public TObject {
    Double_t GetCMEnergy(Int_t i) const;
 
    Double_t GetMaxAngleLab(Int_t i) const;
+   Double_t GetMinAngleLab(Int_t i) const;
 
    TVector3 GetCMVelocity() const;
    Double_t GetCMVelocity(Int_t i) const;
@@ -101,16 +105,20 @@ class KV2Body:public TObject {
       return gamma;
    };
 
-   Double_t GetELabProj(Double_t ThetaLab_Proj) const;
-   Double_t GetVLabProj(Double_t ThetaLab_Proj) const;
-   Double_t GetThetaCMProj(Double_t ThetaLab_Proj) const;
-   Double_t GetThetaLabTarget(Double_t ThetaLab_Proj) const;
-   Double_t GetThetaCMTarget(Double_t ThetaLab_Proj) const;
-   Double_t GetELabTarget(Double_t ThetaLab_Proj) const;
-   Double_t GetXSecRuthLab(Double_t ThetaLab_Proj) const;
-   Double_t GetXSecRuthCM(Double_t ThetaLab_Proj) const;
+   Double_t GetELabProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   Double_t GetVLabProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   Double_t GetThetaLabProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   Double_t GetThetaCMProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   
+	Double_t GetELabTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   Double_t GetVLabTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   Double_t GetThetaLabTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   Double_t GetThetaCMTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
+   
+	Double_t GetXSecRuthLab(Double_t ThetaLab_Proj,Int_t OfNucleus=3) const;
+   Double_t GetXSecRuthCM(Double_t ThetaLab_Proj,Int_t OfNucleus=3) const;
 	
-	Double_t GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1=-1,Float_t phi2=-1) const;
+	Double_t GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1=-1,Float_t phi2=-1,Int_t OfNucleus=3) const;
    
 	void Print(Option_t * opt = "") const;
 
