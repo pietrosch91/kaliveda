@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.11 2007/06/22 09:57:24 franklan Exp $
+#$Id: Makefile,v 1.12 2009/02/06 11:33:20 franklan Exp $
 #Makefile for libKVIndraFNL.so
 
 PROJ_NAME = KVIndraFNL
@@ -14,3 +14,4 @@ LINK_LIB = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
 LINK_LIB = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
+RLIBMAPDEPS += libKVIndra.so libKVMultiDet.so
