@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.106 2009/01/27 08:06:56 franklan Exp $
+#$Id: Makefile,v 1.107 2009/02/06 11:33:20 franklan Exp $
 #Makefile for libKVIndra.so
 
 PROJ_NAME = KVIndra
@@ -25,16 +25,14 @@ LINK_LIB = '$(KVROOT)\lib\libKVMultiDet.lib'
 else
 LINK_LIB = -L$(KVROOT)/lib -lKVMultiDet
 endif
+RLIBMAPDEPS += libKVMultiDet.so
 
 ifeq ($(INDRADLT),yes)
 LINK_LIB += -L$(KVROOT)/lib -lROOTGanilTape
+RLIBMAPDEPS += libROOTGanilTape.so
 ifeq ($(MAKE_GANTAPE_RFIO),yes)
 LINK_LIB += -L/usr/local/lib -lshift
 endif
-#ifeq ($(MAKE_GANTAPE_XRD),yes)
-#LINK_LIB += -L$(ROOTSYS)/lib -lXrdPosix
-# -lXrdSec
-#endif
 endif
 
 indra2root : 
