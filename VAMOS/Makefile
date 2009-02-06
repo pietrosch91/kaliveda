@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.12 2009/01/27 08:06:56 franklan Exp $
+#$Id: Makefile,v 1.13 2009/02/06 11:33:20 franklan Exp $
 #Makefile for libVAMOS.so
 
 PROJ_NAME = VAMOS
@@ -24,8 +24,10 @@ LINK_LIB = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
 LINK_LIB = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
+RLIBMAPDEPS += libKVIndra.so libKVMultiDet.so
 ifeq ($(INDRADLT),yes)
 LINK_LIB += -L$(GANILTAPE_LIB) -lROOTGanilTape -lgan_tape
+RLIBMAPDEPS += libROOTGanilTape.so
 ifeq ($(MAKE_GANTAPE_RFIO),yes)
 LINK_LIB += -L/usr/local/lib -lshift
 endif
