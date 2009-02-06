@@ -1,4 +1,4 @@
-# $Id: Makefile.general,v 1.52 2009/01/27 08:06:56 franklan Exp $
+# $Id: Makefile.general,v 1.53 2009/02/06 11:32:57 franklan Exp $
 #	MAKEFILE for KaliVeda shared library libKVMultiDet.so
 #
 # NOTE: You must set the environment variable KVROOT before using
@@ -53,6 +53,9 @@ DIST_DIR = lib$(PROJ_NAME)-$(VERSION_NUMBER)
 
 LIB_SO = lib$(PROJ_NAME).$(DllSuf)
 LIBVERSION = lib$(PROJ_NAME).$(VERSION_NUMBER).$(DllSuf)
+
+MY_ROOTMAP = lib$(PROJ_NAME).rootmap
+RLIBMAPDEPS := 
 
 #system dependent stuff------------------------------------------------------------
 ifeq ($(PLATFORM),win32)
@@ -117,9 +120,13 @@ ifneq ($(MANIP_DIRS), )
 MANIP_DATA = copymanipdirs
 endif
 
-.PHONY : all clean install uninstall removemoduledirs copymanipdirs
+.PHONY : all clean install uninstall removemoduledirs copymanipdirs rootlibmap
 
-all : .config $(DICT_CXX) $(DICT_OBJ) $(OBJECTS) $(LIB_SO) $(EXTRAS) .copyheads
+all : .config $(DICT_CXX) $(DICT_OBJ) $(OBJECTS) $(LIB_SO) rootlibmap $(EXTRAS) .copyheads
+
+rootlibmap :
+	rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c $(LINKDEF)
+	-cp $(MY_ROOTMAP) $(INSTALL)/lib/
 
 $(LIB_SO):        $(OBJECTS) $(DICT_OBJ)
 ifeq ($(PLATFORM),macosx)
