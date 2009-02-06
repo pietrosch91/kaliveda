@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.96 2009/01/27 08:06:56 franklan Exp $
+#$Id: Makefile,v 1.97 2009/02/06 11:33:20 franklan Exp $
 #Makefile for libKVMultiDet.so
 
 PROJ_NAME = KVMultiDet
@@ -17,9 +17,13 @@ NOT_READY := daq_cec/KVReg*.cpp
 NOT_ROOTCINT := base/KVError.h
 
 include ../Makefile.general
+RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
+libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \
+libPhysics.so libMathCore.so libThread.so libGui.so
 
 #required for use of TGeo* classes in KVMaterial, KVDetector, etc.
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
+RLIBMAPDEPS += libGeom.so
 
 ifeq ($(SITE),CCIN2P3)
 LINK_LIB += -L/usr/local/lib -lshift -L$(ROOTSYS)/lib -lRFIO
