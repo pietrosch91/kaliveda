@@ -1,7 +1,7 @@
 /*
-$Id: KVSilicon_e475s.h,v 1.4 2008/02/21 11:12:00 franklan Exp $
-$Revision: 1.4 $
-$Date: 2008/02/21 11:12:00 $
+$Id: KVSilicon_e475s.h,v 1.5 2009/02/26 15:39:31 ebonnet Exp $
+$Revision: 1.5 $
+$Date: 2009/02/26 15:39:31 $
 */
 
 //Created by KVClassFactory on Wed Sep 19 13:46:35 2007
@@ -43,6 +43,7 @@ class KVSilicon_e475s : public KVSilicon
 
 	Double_t	GetCalibratedEnergy();
 	Double_t	GetEnergy();
+   Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
    virtual Short_t GetCalcACQParam(KVACQParam*) const;
    

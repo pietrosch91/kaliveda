@@ -1,7 +1,7 @@
 /*
-$Id: KVSilicon_e475s.cpp,v 1.7 2008/03/13 17:51:19 ebonnet Exp $
-$Revision: 1.7 $
-$Date: 2008/03/13 17:51:19 $
+$Id: KVSilicon_e475s.cpp,v 1.8 2009/02/26 15:39:31 ebonnet Exp $
+$Revision: 1.8 $
+$Date: 2009/02/26 15:39:31 $
 */
 
 //Created by KVClassFactory on Wed Sep 19 13:46:35 2007
@@ -156,6 +156,15 @@ Double_t  KVSilicon_e475s::GetCalibratedEnergy()
 //------------------------------
 {
    return GetCalibratedValue(TMath::Max(Float_t(0.),GetPG()-GetPedestal("PG")),"PG");
+}
+
+//------------------------------
+Double_t KVSilicon_e475s::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t trn)
+//------------------------------
+{
+   //Do nothing more
+   return GetEnergy();
+	
 }
 
 //------------------------------
