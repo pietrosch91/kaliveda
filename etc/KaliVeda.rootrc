@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.78 2009/01/23 09:23:23 franklan Exp $
-#$Revision: 1.78 $
+#$Id: KaliVeda.rootrc,v 1.79 2009/03/02 16:48:17 franklan Exp $
+#$Revision: 1.79 $
 #$Author: franklan $
-#$Date: 2009/01/23 09:23:23 $
+#$Date: 2009/03/02 16:48:17 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -533,6 +533,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$   KVIDSi150CsI        KVIndra5        "KVIDSi150CsI()"
 +Plugin.KVIDTelescope:    ^SILI-CSI$                               KVIDSiLiCsI            KVIndra         "KVIDSiLiCsI()"
 +Plugin.KVIDTelescope:    ^SI75-SILI$                            KVIDSi75SiLi           KVIndra         "KVIDSi75SiLi()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$                            KVIDSi75SiLi_camp5           KVIndra5         "KVIDSi75SiLi_camp5()"
 +Plugin.KVIDTelescope:     ^CI-SI$                                  KVIDChIoSi              KVIndra         "KVIDChIoSi()"
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$        KVIDChIoSi5              KVIndra5      "KVIDChIoSi5()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
@@ -571,6 +572,9 @@ INDRA_camp5.IdentificationParameterFile.SI150-CSI.CsILightMin:    si150_csi_id_l
 INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat
 INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChIoCsI_Ident.dat
 INDRA_camp5.IdentificationParameterFile.CI-SI:           ChIoSiGrids.dat
+INDRA_camp5.IdentificationParameterFile.SI75-SILI.GG:           Si75GGSiLi.dat
+INDRA_camp5.IdentificationParameterFile.SI75-SILI.PG:           Si75PGSiLi.dat
+INDRA_camp5.IdentificationParameterFile.SI75-SILI.PGZ:           Si75PGSiLi_Z.dat
 ################################################
 INDRA_e475s.IdentificationParameterFile.CI-SI:          IDGridManager_E475s_CI_SI.dat
 INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL.dat
@@ -585,7 +589,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 # Format:
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
-INDRA_camp5.ActiveIdentifications:    CSI  SI-CSI  SI150-CSI   CI-SI   CI-CSI
+INDRA_camp5.ActiveIdentifications:    CSI  SI-CSI  SI150-CSI   CI-SI   CI-CSI SI75-SILI
 INDRA_e475s.ActiveIdentifications:    CI-SI CSI
 
 #=================== Updating calibration/identification parameters contained in data files
