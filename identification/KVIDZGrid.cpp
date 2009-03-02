@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZGrid.cpp,v 1.15 2008/10/13 14:51:32 franklan Exp $
+$Id: KVIDZGrid.cpp,v 1.16 2009/03/02 16:48:17 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -24,7 +24,25 @@ $Id: KVIDZGrid.cpp,v 1.15 2008/10/13 14:51:32 franklan Exp $
 
 ClassImp(KVIDZGrid)
 /////////////////////////////////////////////////////////////////////////////
-//KVIDZGrid
+// BEGIN_HTML <!--
+/* -->
+<h2>KVIDZGrid</h2>
+<h4>Identification grid with lines corresponding to different atomic number (KVIDZLine)</h4>
+<h3>Identification quality codes</h3>
+Values returned by GetICode():
+<ul>
+     <li> KVIDZGrid::kICODE0,                   ok</li>
+   <li>    KVIDZGrid::kICODE7,                  (x,y) is above largest-Z line in grid; Z attributed to point is a minimum value</li>
+  <li>     KVIDZGrid::kICODE8                   no identification: (x,y) out of range covered by grid</li>
+</ul>
+
+<h3>Initialisation</h3>
+The identification algorithm is based on the concept of "natural width" of the identification lines.
+These must be calculated before using the grid, using CalculateLineWidths().
+A good place to implement this is in the Initialise() method of the ID telescope
+which will use this grid for its identifications.
+<!-- */
+// --> END_HTML
 //
 /////////////////////////////////////////////////////////////////////////////
     KVIDZGrid::KVIDZGrid()
@@ -48,6 +66,12 @@ KVIDZGrid::KVIDZGrid(const KVIDZGrid & grid)
 KVIDZGrid::~KVIDZGrid()
 {
    //default dtor.
+      if(Dline) delete [] Dline;
+      if(Dline2) delete [] Dline2;
+      if(ind_list) delete [] ind_list;
+      if(ind_list2) delete [] ind_list2;
+      if(ind_arr) delete [] ind_arr;
+      if(fDistances) delete [] fDistances;
 }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
@@ -69,6 +93,51 @@ void KVIDZGrid::init()
    fZMax = 0;
    fZMaxLine = 0;
    SetType("KVIDZGrid");
+   Dline=0; 
+   Dline2=0;          //!working array used by FindNearestIDLine
+   ind_list=0;       //!working array used by FindNearestIDLine
+   ind_list2=0;       //!working array used by FindNearestIDLine
+   ind_arr=0;   //!working array used by FindNearestIDLine
+   fClosest=0;          //!closest line to last-identified point
+   fDistances=0;      //!distance from point to each of the lines in fLines
+}
+
+//_________________________________________________________________________//
+
+void KVIDZGrid::ClearWorkingArrays()
+{
+   //Initialise working arrays used by FindNearestIDLine
+   //When called for the first time, the arrays are allocated using the total
+   //number of identification lines defined for the grid, plus one
+   
+   Int_t dim = (Int_t)NumberOfIDLines() + 1;
+   
+   //allocate arrays if necessary
+   if ( !Dline ) {
+      Dline = new Double_t[dim];
+      Dline2 = new Double_t[dim];
+      ind_list = new Double_t[dim];
+      ind_list2 = new Double_t[dim];
+      ind_arr = new Int_t[dim];
+      fDistances = new Double_t[dim];
+   }
+   
+   //clear working arrays
+   for (register int i = 0; i < dim; i++) {
+      Dline[i] = 0.0;
+      ind_arr[i] = 0;
+      ind_list[i] = 0.0;
+      Dline2[i] = 0.0;
+      ind_list2[i] = 99;
+      fDistances[i] = 0.0;
+   }
+   Lines.Clear();
+   fLines.Clear();
+   
+   fDistanceClosest = -1.;
+   fNLines = 0;
+   fClosest = 0;
+   fIdxClosest = 0;
 }
 
 //_________________________________________________________________________//
@@ -125,36 +194,36 @@ KVIDZLine *KVIDZGrid::GetZLine(Int_t z, Int_t & index) const
 }
 
 //_______________________________________________________________________________________________//
-
-void KVIDZGrid::Identify(Double_t x, Double_t y,
-                         KVReconstructedNucleus * nuc) const
-{
-   //Set Z of nucleus based on position in grid
-   //Check on viability of identification (IsIdentifiable = kTRUE?)
-   //should be performed separately.
-   //We simply use the Z of the line returned by FindNearestIDLine to call
-   //nuc->SetZ, then distance of point to the two lines above and below in order to
-   //calculate "real Z" i.e. Z with numbers after decimal point
-   //We assume that the 'delta-E' i.e. the y-coordinate is proportional to Z^2 
-
-   Int_t idx_max, idx_min;
-   KVIDZLine *nl =
-       (KVIDZLine *) FindNearestIDLine(x, y, "above", idx_min, idx_max);
-   nuc->SetZ(nl->GetZ());
-   KVIDZLine *zup = (KVIDZLine *) GetLine("ID", idx_max);
-   KVIDZLine *zlow = (KVIDZLine *) GetLine("ID", idx_min);
-   Int_t dummy = 0;
-   Double_t dist_zup = TMath::Abs(zup->DistanceToLine(x, y, dummy));
-   Double_t dist_zlow = TMath::Abs(zlow->DistanceToLine(x, y, dummy));
-   UInt_t zmax = zup->GetZ();
-   UInt_t zmin = zlow->GetZ();
-
-   Double_t Zreal =
-       TMath::Sqrt(((Double_t) zmin * zmin) +
-                   (zmax * zmax - zmin * zmin) * dist_zlow / (dist_zlow +
-                                                              dist_zup));
-   nuc->SetRealZ(Zreal);
-}
+// 
+// void KVIDZGrid::Identify(Double_t x, Double_t y,
+//                          KVReconstructedNucleus * nuc) const
+// {
+//    //Set Z of nucleus based on position in grid
+//    //Check on viability of identification (IsIdentifiable = kTRUE?)
+//    //should be performed separately.
+//    //We simply use the Z of the line returned by FindNearestIDLine to call
+//    //nuc->SetZ, then distance of point to the two lines above and below in order to
+//    //calculate "real Z" i.e. Z with numbers after decimal point
+//    //We assume that the 'delta-E' i.e. the y-coordinate is proportional to Z^2 
+// 
+//    Int_t idx_max, idx_min;
+//    KVIDZLine *nl =
+//        (KVIDZLine *) FindNearestIDLine(x, y, "above", idx_min, idx_max);
+//    nuc->SetZ(nl->GetZ());
+//    KVIDZLine *zup = (KVIDZLine *) GetLine("ID", idx_max);
+//    KVIDZLine *zlow = (KVIDZLine *) GetLine("ID", idx_min);
+//    Int_t dummy = 0;
+//    Double_t dist_zup = TMath::Abs(zup->DistanceToLine(x, y, dummy));
+//    Double_t dist_zlow = TMath::Abs(zlow->DistanceToLine(x, y, dummy));
+//    UInt_t zmax = zup->GetZ();
+//    UInt_t zmin = zlow->GetZ();
+// 
+//    Double_t Zreal =
+//        TMath::Sqrt(((Double_t) zmin * zmin) +
+//                    (zmax * zmax - zmin * zmin) * dist_zlow / (dist_zlow +
+//                                                               dist_zup));
+//    nuc->SetRealZ(Zreal);
+// }
 
 //_______________________________________________________________________________________________//
 
@@ -164,12 +233,19 @@ void KVIDZGrid::CalculateLineWidths()
    //The lines in the grid are first sorted so that they are in order of ascending 'Y'
 	//The points of each line are sorted so that they are in order of increasing 'X'
    //i.e. first line is 1H, last line is the heaviest isotope (highest line).
-   //Then, for a given line (Z,A):
+   //
+   //Then, for a given line :
+   //
+   //   ****  lines with Z & A (KVIDZALine) **** :
    //      - if the next line (above) has the same Z, we use the separation between these two lines corresponding to different isotopes of the same element
    //      - if the next line (above) has a different Z, but the line before (below) has the same Z, we use the separation between the line below and this one
    //      - if neither adjacent line has the same Z, the width is set to 16000 (huge).
-   //In the first two cases, the width of the current line is set to be MIN( 3*D_L, D_R)
-   //where D_L is the separation between the two lines at their extreme left, D_R their separation at extreme right.
+   //
+   //  **** lines with Z only (KVIDZLine) **** :
+   //      - we use the separation between each pair of lines
+   //
+   //In each case we find D_L (the separation between the two lines at their extreme left) and  D_R (their separation at extreme right).
+   //The width of the line is then calculated from these two using the method KVIDZLine::SetAsymWidth (which may be overridden in child classes).
 
    //sort list of lines if not already done
    if (!IsSorted())
@@ -180,6 +256,9 @@ void KVIDZGrid::CalculateLineWidths()
       KVIDZLine *_line = (KVIDZLine *) GetIDLine(i);
 		//sort points in order of increasing 'X'
 		_line->Sort( &TGraph::CompareX );
+      //check type of lines: with Z & A or only Z ?
+      Bool_t ZOnly = !(_line->InheritsFrom("KVIDZALine"));
+
 
       //Z of lines above and below this line - Zxx=-1 if there is no line above or below
       Int_t Zhi =
@@ -189,7 +268,15 @@ void KVIDZGrid::CalculateLineWidths()
       Int_t Zlo = (i > 0 ? ((KVIDZLine *) GetIDLine(i - 1))->GetZ() : -1);
       Int_t Z = _line->GetZ();
 
-      Int_t i_other = (Zhi == Z ? i + 1 : (Zlo == Z ? i - 1 : -1));     // index of line used to calculate width
+      Int_t i_other;
+      if( ZOnly ){
+         i_other = (Zhi > -1 ? i + 1 : (Zlo > -1 ? i - 1 : -1));     // index of line used to calculate width
+      }
+      else
+      {
+         //for Z&A lines, choice depends on Z of lines
+         i_other = (Zhi == Z ? i + 1 : (Zlo == Z ? i - 1 : -1));     // index of line used to calculate width
+      }
 
       //default width of 16000 in case of "orphan" line i.e. Z with only one isotope
       if (i_other < 0) {

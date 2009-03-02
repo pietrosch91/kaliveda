@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by Alexis Mignon
     email                : mignon@ganil.fr
 
-$Id: KVReconstructedNucleus.cpp,v 1.58 2009/01/14 11:48:43 franklan Exp $
+$Id: KVReconstructedNucleus.cpp,v 1.59 2009/03/02 16:48:17 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -352,11 +352,13 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
 
 void KVReconstructedNucleus::Identify()
 {
-   //Try to identify this nucleus by calling the Identify() function of each
-   //ID telescope crossed by it, starting with the telescope where the particle stopped, in order
-   //(however, we only attempt identification in ID telescopes containing the stopping detector).
-   //This continues until a successful identification is achieved or there are no more ID telescopes to try.
-   //The identification code corresponding to the identifying telescope is set as the identification code of the particle.
+   // Try to identify this nucleus by calling the Identify() function of each
+   // ID telescope crossed by it, starting with the telescope where the particle stopped, in order
+   //      -  only attempt identification in ID telescopes containing the stopping detector.
+   //      -  only telescopes which have been correctly initialised for the current run are used,
+   //         i.e. those for which KVIDTelescope::CanIdentify() returns kTRUE.
+   // This continues until a successful identification is achieved or there are no more ID telescopes to try.
+   // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
    TList *idt_list = GetStoppingDetector()->GetTelescopesForIdentification();
 
@@ -366,8 +368,8 @@ void KVReconstructedNucleus::Identify()
          TIter next(idt_list);
 
          while ((idt = (KVIDTelescope *) next())) {
-
-            //cout << idt->GetName() << " : ";
+				
+            if( idt->CanIdentify() ) { // is telescope able to identify for this run ?
 
             if (idt->Identify(this)) {  //Identify()=kTRUE if ID successful
                //cout << " IDENTIFICATION SUCCESSFUL"<<endl;
@@ -393,9 +395,13 @@ void KVReconstructedNucleus::Identify()
                   break;
                //if NSegDet = 0 it's hopeless
                if (!GetNSegDet())
-                  break;
+                     break;
             }
+				 
+            }
+            
          }
+         
       }
 }
 

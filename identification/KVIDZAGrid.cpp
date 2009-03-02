@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.10 2008/10/13 13:52:29 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.11 2009/03/02 16:48:17 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -23,7 +23,30 @@ $Id: KVIDZAGrid.cpp,v 1.10 2008/10/13 13:52:29 franklan Exp $
 
 ClassImp(KVIDZAGrid)
 /////////////////////////////////////////////////////////////////////////////
-//KVIDZAGrid
+// BEGIN_HTML <!--
+/* -->
+<h2>KVIDZAGrid</h2>
+<h4>Identification grid with lines corresponding to different isotopes (KVIDZALine)</h4>
+<h3>Identification quality codes</h3>
+Values returned by GetQualityCode():
+<ul>
+     <li> KVIDZAGrid::kICODE0,                   ok</li>
+  <li>     KVIDZAGrid::kICODE1,                   Z ok, slight ambiguity of A, which could be larger</li>
+  <li>     KVIDZAGrid::kICODE2,                   Z ok, slight ambiguity of A, which could be smaller</li>
+    <li>   KVIDZAGrid::kICODE3,                   Z ok, slight ambiguity of A, which could be larger or smaller</li>
+   <li>    KVIDZAGrid::kICODE4,                   Z ok, but point lies above heaviest isotope (for this Z) for which a line exists in grid</li>
+  <li>     KVIDZAGrid::kICODE5,                   Z ok, but point lies above lightest isotope (for this Z) for which a line exists in grid</li>
+   <li>    KVIDZAGrid::kICODE7,                   (x,y) is above last line in grid; Z attributed to point is a minimum value</li>
+  <li>     KVIDZAGrid::kICODE8,                   no identification: (x,y) out of range covered by grid</li>
+</ul>
+
+<h3>Initialisation</h3>
+The identification algorithm is based on the concept of "natural width" of the identification lines.
+These must be calculated before using the grid, using CalculateLineWidths().
+A good place to implement this is in the Initialise() method of the ID telescope
+which will use this grid for its identifications.
+<!-- */
+// --> END_HTML
 //
 /////////////////////////////////////////////////////////////////////////////
     KVIDZAGrid::KVIDZAGrid()
@@ -35,12 +58,6 @@ ClassImp(KVIDZAGrid)
 KVIDZAGrid::~KVIDZAGrid()
 {
    //default dtor.
-      if(Dline) delete [] Dline;
-      if(Dline2) delete [] Dline2;
-      if(ind_list) delete [] ind_list;
-      if(ind_list2) delete [] ind_list2;
-      if(ind_arr) delete [] ind_arr;
-      if(fDistances) delete [] fDistances;
 }
 
 KVIDZAGrid::KVIDZAGrid(const KVIDZAGrid & grid)
@@ -60,51 +77,6 @@ void KVIDZAGrid::init()
 {
    //initialisation
    SetType("KVIDZAGrid");
-   Dline=0; 
-   Dline2=0;          //!working array used by FindNearestIDLine
-   ind_list=0;       //!working array used by FindNearestIDLine
-   ind_list2=0;       //!working array used by FindNearestIDLine
-   ind_arr=0;   //!working array used by FindNearestIDLine
-   fClosest=0;          //!closest line to last-identified point
-   fDistances=0;      //!distance from point to each of the lines in fLines
-}
-
-//_________________________________________________________________________//
-
-void KVIDZAGrid::ClearWorkingArrays()
-{
-   //Initialise working arrays used by FindNearestIDLine
-   //When called for the first time, the arrays are allocated using the total
-   //number of identification lines defined for the grid, plus one
-   
-   Int_t dim = (Int_t)NumberOfIDLines() + 1;
-   
-   //allocate arrays if necessary
-   if ( !Dline ) {
-      Dline = new Double_t[dim];
-      Dline2 = new Double_t[dim];
-      ind_list = new Double_t[dim];
-      ind_list2 = new Double_t[dim];
-      ind_arr = new Int_t[dim];
-      fDistances = new Double_t[dim];
-   }
-   
-   //clear working arrays
-   for (register int i = 0; i < dim; i++) {
-      Dline[i] = 0.0;
-      ind_arr[i] = 0;
-      ind_list[i] = 0.0;
-      Dline2[i] = 0.0;
-      ind_list2[i] = 99;
-      fDistances[i] = 0.0;
-   }
-   Lines.Clear();
-   fLines.Clear();
-   
-   fDistanceClosest = -1.;
-   fNLines = 0;
-   fClosest = 0;
-   fIdxClosest = 0;
 }
 
 //_________________________________________________________________________//
@@ -154,20 +126,6 @@ KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
       return 0;
    }
    return 0;
-}
-
-//_______________________________________________________________________________________________//
-
-KVIDLine *KVIDZAGrid::FindNearestIDLine(Double_t x, Double_t y,
-                                      const Char_t * position,
-                                      Int_t & idx_min,
-                                      Int_t & idx_max) const
-{
-   //See GetNearestIDLine
-   //This is just a wrapper because of "const" attribute of base class method
-
-   return (const_cast <KVIDZAGrid*>(this)->GetNearestIDLine(x, y, position, idx_min,
-                                                idx_max));
 }
 
 //______________________________________________________________________________________________//
@@ -287,7 +245,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    //Work out kinfi, kinf, ksup and ksups like in IdnCsIOr
    Int_t kinfi, kinf, ksup, ksups;
    kinfi = kinf = ksup = ksups = -1;
-   fIcode = kICODE0;
+   fICode = kICODE0;
    if (GetClosestLine()->WhereAmI(x, y, "above")) {
       //point is above closest line, closest line is "kinf"
       //Info("IdentZA","point is above closest line, closest line is kinf");
@@ -440,7 +398,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                      ix1 = -1;
                   }
                } else {         // ksups == -1, i.e. no 'sups' line
-                  fIcode = kICODE7;     //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
+                  fICode = kICODE7;     //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
                   y2 = y1;
                   ix2 = 1;
                   y1 = -TMath::Min(y1, dt / 2.);
@@ -505,14 +463,14 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                ix1 = -1;
             }
          } else {               // no 'sups' line above closest line
-            fIcode = kICODE7;   //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
+            fICode = kICODE7;   //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
             y2 = y1;
             ix2 = 1;
             y1 = -y1;
             ix1 = -1;
          }
       } else {
-         fIcode = kICODE8;      //  Z indetermine ou (x,y) hors limites
+         fICode = kICODE8;      //  Z indetermine ou (x,y) hors limites
       }
    }
    else if (kinf > -1) {
@@ -523,7 +481,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          k = -1;
          Z = GetZmax();
          A = -1;
-         fIcode = kICODE6;      // au-dessus de la ligne fragment, Z est alors un Zmin
+         fICode = kICODE6;      // au-dessus de la ligne fragment, Z est alors un Zmin
       }
                 /*** Ligne de crete (Z,A line)***/
       else {
@@ -552,26 +510,26 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             ix1 = -1;
             ix2 = 1;
          }
-         fIcode = kICODE7;      // a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
+         fICode = kICODE7;      // a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
       }
    }
         /*****************Aucune ligne n'a ete trouvee*********************************/
    else {
-      fIcode = kICODE8;         // Z indetermine ou (x,y) hors limites
+      fICode = kICODE8;         // Z indetermine ou (x,y) hors limites
    }
         /****************Test des bornes********************************************/
-   if (k > -1 && GetICode() == kICODE0) {
+   if (k > -1 && fICode == kICODE0) {
       if (yy > y2)
-         fIcode = kICODE4;      // Z ok, masse hors limite superieure ou egale a A
+         fICode = kICODE4;      // Z ok, masse hors limite superieure ou egale a A
    }
-   if (k > -1 && (GetICode() == kICODE0 || GetICode() == kICODE7)) {
+   if (k > -1 && (fICode == kICODE0 || fICode == kICODE7)) {
       if (yy < y1)
-         fIcode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
+         fICode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
    }
-   if (GetICode() == kICODE4 || GetICode() == kICODE5)
+   if (fICode == kICODE4 || fICode == kICODE5)
       A = -1;
         /****************Interpolation de la masse: da = f*log(1+b*dy)********************/
-   if (GetICode() == kICODE0 || (GetICode() == kICODE7 && yy <= y2)) {
+   if (fICode == kICODE0 || (fICode == kICODE7 && yy <= y2)) {
       Double_t deltaA = 0.;
       Bool_t i = kFALSE;
       Double_t dt, dist = y1 * y2;
@@ -601,7 +559,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       }
    }
         /***************D'autres masses sont-elles possibles ?*************************/
-   if (GetICode() == kICODE0) {
+   if (fICode == kICODE0) {
       //cout << "icode = 0, ibif = " << ibif << endl;
                 /***Masse superieure***/
       if (ibif == 1 || ibif == 3) {
@@ -615,7 +573,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                 (KVIDZLine *) GetIDLines()->At(idx);
             if (nextline->GetZ() == Z
                 && !nextline->IsBetweenEndPoints(x, y, "x")){
-               fIcode++;        // Z ok, mais les masses superieures a A sont possibles
+               fICode++;        // Z ok, mais les masses superieures a A sont possibles
                //cout <<"//on rajoute 1 a fICode, effectivement on le met = kICODE1" << endl;
             }
          }
@@ -632,7 +590,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                 (KVIDZLine *) GetIDLines()->At(idx);
             if (nextline->GetZ() == Z
                 && !nextline->IsBetweenEndPoints(x, y, "x")){
-               fIcode+=2;
+               fICode+=2;
                //cout << "//on rajoute 2 a fICode, so it can be = kICODE2 or kICODE3" << endl;
             }
          }
@@ -652,7 +610,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
    KVIDLine *nearest = FindNearestIDLine(x, y, "above", i1, i2);
    if (!nearest) {
       //no lines corresponding to point were found
-      const_cast < KVIDZAGrid * >(this)->fIcode = kICODE8;        // Z indetermine ou (x,y) hors limites
+      const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
       return;
    }
    Int_t Z;

@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.h,v 1.44 2008/10/13 13:52:29 franklan Exp $
+$Id: KVIDGrid.h,v 1.45 2009/03/02 16:48:17 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGrid_H
@@ -224,6 +224,13 @@ class KVIDGrid:public KVBase, public TAttLine {
 	virtual TClass* DefaultOKLineClass(){
 		return TClass::GetClass("KVIDLine");
 	};
+   
+   // Return quality code related to previously-attempted identification using grid.
+   // Redefined in child classes.
+   virtual Int_t GetQualityCode() const
+   {
+      return 0;
+   };
    
 	ClassDef(KVIDGrid, 4)        //Base class for 2D identification grids
 };

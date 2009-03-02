@@ -1,7 +1,7 @@
 /*
-$Id: KVGenParList.cpp,v 1.1 2007/10/24 10:29:55 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/10/24 10:29:55 $
+$Id: KVGenParList.cpp,v 1.2 2009/03/02 16:48:17 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/03/02 16:48:17 $
 */
 
 //Created by KVClassFactory on Tue Oct 23 15:21:35 2007
@@ -53,9 +53,9 @@ void KVGenParList::Copy(KVGenParList& obj) const
 const Char_t* KVGenParList::GetStringValue(const Char_t* name)
 {
    // Return string containing value of named parameter
-   // Returns 0 if parameter is not defined.
+   // Returns empty string if parameter is not defined.
    
-   if( !HasParameter(name) ) return 0;
+   if( !HasParameter(name) ) return "";
    return GetParameter(name).Data();
 }
 
