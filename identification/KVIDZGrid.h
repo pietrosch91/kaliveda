@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZGrid.h,v 1.12 2009/03/02 15:43:13 franklan Exp $
+$Id: KVIDZGrid.h,v 1.13 2009/03/02 15:45:10 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDZGrid_H
@@ -16,6 +16,16 @@ $Id: KVIDZGrid.h,v 1.12 2009/03/02 15:43:13 franklan Exp $
 class KVIDZLine;
 
 class KVIDZGrid:public KVIDGrid {
+
+ protected:
+
+   UShort_t fZMax;              //largest Z of lines in grid
+   KVIDZLine*  fZMaxLine;//! line with biggest Z
+
+   void init();
+   void SetZmax(Int_t z) {
+      fZMax = z;
+   };
 
  public:
 
@@ -28,7 +38,21 @@ class KVIDZGrid:public KVIDGrid {
    virtual void Copy(TObject &);
 #endif
 
-   ClassDef(KVIDZGrid, 2)       //Base class for 2D Z identification grids (E - dE method)
+   virtual void Initialize();
+
+   virtual void CalculateLineWidths();
+   Int_t GetZmax() const { return (Int_t)fZMax; };
+   virtual KVIDZLine *GetZLine(Int_t z, Int_t &) const;
+   KVIDZLine *GetZmaxLine() const { return fZMaxLine; };
+
+   virtual void Identify(Double_t x, Double_t y,
+                         KVReconstructedNucleus * nuc) const;
+   void DrawLinesWithWidth();
+	virtual TClass* DefaultIDLineClass(){
+		return TClass::GetClass("KVIDZLine");
+	};
+
+   ClassDef(KVIDZGrid, 1)       //Base class for 2D Z identification grids (E - dE method)
 };
 
 #endif
