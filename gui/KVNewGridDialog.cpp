@@ -1,7 +1,6 @@
 #include "KVNewGridDialog.h"
 #include "Riostream.h"
 #include "KVIDGridManager.h"
-#include "KVIDGrid.h"
 #include "TGFileDialog.h"
 #include "TPad.h"
 #include <TGMsgBox.h>
@@ -29,7 +28,7 @@ Bool_t KVNewGridDialog::choose_mods = kFALSE;
 Double_t KVNewGridDialog::scale_x = 1.00;
 Double_t KVNewGridDialog::scale_y = 1.00;
 Bool_t KVNewGridDialog::choose_scales = kFALSE;
-TString KVNewGridDialog::fGridClass("KVIDZGrid");
+TString KVNewGridDialog::fGridClass("KVIDZAGrid");
 Int_t KVNewGridDialog::fClassIndex = 1;
 Color_t KVNewGridDialog::fColorOfSelectedLines = kCyan;
 
@@ -115,7 +114,7 @@ void KVNewGridDialog::init_interface(const TGWindow * p,
    fSelectedLine = 0;
    fLastSelectedIDLine = fLastSelectedOKLine = -1;
    fLastSelectedLineColor = kBlack;
-   fLineClassName = "KVIDLine";
+   fLineClassName = "KVIDZALine";
    fLineType = kIDRadBut;
    // use hierarchical cleaning
    fMain->SetCleanup(kDeepCleanup);
@@ -128,7 +127,7 @@ void KVNewGridDialog::new_grid_class_list()
    //Add a drop-down menu with different id grid classes. Used for "New grid" dialog.
 
    fHframe = new TGHorizontalFrame(fMain, 100, 20);
-   fClassLabel = new TGLabel(fHframe, "ID grid type :");
+   fClassLabel = new TGLabel(fHframe, "ID graph type :");
 
    fHframe->AddFrame(fClassLabel,
                      new TGLayoutHints(kLHintsCenterY, 5, 5, 2, 2));
@@ -374,15 +373,12 @@ void KVNewGridDialog::layout_grid_editor()
                          new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 5,
                                            2, 2));
    fLineClass = new TGComboBox(fLineButGrp);
-   TString classes[] =
-       { "KVIDLine", "KVIDZLine", "KVIDZALine", "KVIDCsIRLLine" };
-   for (int i = 0; i < 4; i++) {
-      fLineClass->AddEntry(classes[i].Data(), i + 1);
-   }
+   fLineClass->AddEntry( "KVIDZALine" , 1);
+   
    fLineClass->Resize(120, 20);
-   fLineClass->Select(1);
    fLineClass->Connect("Selected(const char*)", "KVNewGridDialog", this,
                        "SetLineClass(const char*)");
+   fLineClass->Select(1);
    fLineButGrp->AddFrame(fLineClass,
                          new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 2,
                                            2, 2));
@@ -485,7 +481,7 @@ void KVNewGridDialog::map_interface(Option_t * dialog_type)
    }
 }
 
-void KVNewGridDialog::set_selected_grid(KVIDGrid * g)
+void KVNewGridDialog::set_selected_grid(KVIDGraph * g)
 {
    //store pointer to selected grid
    fSelectedGrid = g;
@@ -493,7 +489,7 @@ void KVNewGridDialog::set_selected_grid(KVIDGrid * g)
 
 KVNewGridDialog::KVNewGridDialog(const TGWindow * p, const TGWindow * main,
                                  UInt_t w, UInt_t h,
-                                 Option_t * dialog_type, KVIDGrid * g)
+                                 Option_t * dialog_type, KVIDGraph * g)
 {
    //Create dialogue box as child window of 'main'
    //dialog_type can be "New", "Edit" or "Copy"
@@ -552,13 +548,31 @@ void KVNewGridDialog::HandleButtons(Int_t id)
    switch (id) {
 
    case kIDRadBut:
-
+      //user selects line type "ID"
+      //class(es) depend on grid class
       fRadOK->SetState(kButtonUp);
+      fLineClass->RemoveAll();
+      if(fGridClass == "KVIDGCsI"){
+         fLineClass->AddEntry( "KVIDCsIRLLine" , 1);
+         fLineClassName = "KVIDCsIRLLine";
+      }
+      else {
+         fLineClass->AddEntry( "KVIDZALine" , 1);
+         fLineClassName = "KVIDZALine";
+      }
+      fLineClass->Resize(120, 20);
+      fLineClass->Select(1);
       break;
 
    case kOKRadBut:
-
+      //user selects line type "OK"
+      //class is KVIDCutLine
       fRadID->SetState(kButtonUp);
+      fLineClass->RemoveAll();
+      fLineClass->AddEntry( "KVIDCutLine" , 1);   
+      fLineClassName = "KVIDCutLine";
+      fLineClass->Resize(120, 20);
+      fLineClass->Select(1);
       break;
    }
 }
@@ -593,8 +607,12 @@ void KVNewGridDialog::CloseWindow()
 
 void KVNewGridDialog::CreateGrid()
 {
-   TClass *clas = gROOT->GetClass(fGridClass.Data());
-   KVIDGrid *grid = (KVIDGrid *) clas->New();
+   //if grid class is KVIDZGrid, we create a KVIDZAGrid and use SetOnlyZId(kTRUE)
+   TClass *clas = 0;
+   if(fGridClass == "KVIDZGrid") clas = TClass::GetClass("KVIDZAGrid");
+   else clas = TClass::GetClass(fGridClass.Data());
+   KVIDGraph *grid = (KVIDGraph *) clas->New();
+   if(fGridClass == "KVIDZGrid") grid->SetOnlyZId(kTRUE); 
    gIDGridManager->AddGrid(grid);
    DoClose();
 }
@@ -608,14 +626,18 @@ void KVNewGridDialog::ModifyGrid()
 
 void KVNewGridDialog::CopyGrid()
 {
-   KVIDGrid *grid = (KVIDGrid *) fSelectedGrid->IsA()->New();
+	if(!fSelectedGrid){
+		Error("CopyGrid", "No selected grid to copy!");
+		return;
+	}
+   KVIDGraph *grid = (KVIDGraph *) fSelectedGrid->IsA()->New();
    fSelectedGrid->Copy((TObject &) (*grid));
    ReadAndSetSelectedGridProperties(grid);
    gIDGridManager->AddGrid(grid);
    DoClose();
 }
 
-void KVNewGridDialog::ReadAndSetSelectedGridProperties(KVIDGrid * grid)
+void KVNewGridDialog::ReadAndSetSelectedGridProperties(KVIDGraph * grid)
 {
    //Depending on state of check buttons, read and set (or reset, i.e. remove)
    //parameters describing grid characteristics
@@ -772,10 +794,11 @@ void KVNewGridDialog::ReadScales()
 void KVNewGridDialog::NewLine()
 {
    //called when "New" button is pressed
+   cout << "fLineClassName=" <<fLineClassName.Data()<<endl;
    if (fLineType == kIDRadBut)
-      fSelectedGrid->DrawAndAddLine("ID", fLineClassName.Data());
+      fSelectedGrid->DrawAndAdd("ID", fLineClassName.Data());
    else
-      fSelectedGrid->DrawAndAddLine("OK");
+      fSelectedGrid->DrawAndAdd("OK", fLineClassName.Data());
 
 }
 
@@ -783,14 +806,14 @@ void KVNewGridDialog::FillLineLists()
 {
    //fill list boxes with lines from selected grid
 
-   KVIDLine *line = 0;
+   KVIDentifier *line = 0;
    Int_t index = 0;
    //ok lines
-   KVList *oklines = fSelectedGrid->GetLines("ok");
+   KVList *oklines = fSelectedGrid->GetCuts();
    if (oklines->GetSize() > 0) {
 
       TIter nline(oklines);
-      while ((line = (KVIDLine *) nline())) {
+      while ((line = (KVIDentifier *) nline())) {
 
          fOKLines->AddEntry(line->GetName(), index++);
 
@@ -801,11 +824,11 @@ void KVNewGridDialog::FillLineLists()
       fOKLines->Layout();
    }
    index = 0;
-   KVList *idlines = fSelectedGrid->GetLines("id");
+   KVList *idlines = fSelectedGrid->GetIdentifiers();
    if (idlines->GetSize() > 0) {
 
       TIter nline(idlines);
-      while ((line = (KVIDLine *) nline())) {
+      while ((line = (KVIDentifier *) nline())) {
 
          fIDLines->AddEntry(line->GetName(), index++);
 
@@ -823,23 +846,23 @@ void KVNewGridDialog::SetAllLinesNonEditable()
    //is called for all lines. this is called when the Edit dialog is closed, to avoid
    //any lines remaining editable by accident.
 
-   KVIDLine *line = 0;
+   KVIDentifier *line = 0;
    //ok lines
-   KVList *oklines = fSelectedGrid->GetLines("ok");
+   KVList *oklines = fSelectedGrid->GetCuts();
    if (oklines->GetSize() > 0) {
 
       TIter nline(oklines);
-      while ((line = (KVIDLine *) nline())) {
+      while ((line = (KVIDentifier *) nline())) {
 
          line->SetEditable(kFALSE);
 
       }
    }
-   KVList *idlines = fSelectedGrid->GetLines("id");
+   KVList *idlines = fSelectedGrid->GetIdentifiers();
    if (idlines->GetSize() > 0) {
 
       TIter nline(idlines);
-      while ((line = (KVIDLine *) nline())) {
+      while ((line = (KVIDentifier *) nline())) {
 
          line->SetEditable(kFALSE);
 
@@ -887,7 +910,7 @@ void KVNewGridDialog::SelectIDLine(Int_t id)
       fSelectedLine->SetEditable(kFALSE);
    }
    fLastSelectedIDLine = id;
-   fSelectedLine = fSelectedGrid->GetLine("ID", id);
+   fSelectedLine = (KVIDentifier*)fSelectedGrid->GetIdentifiers()->At(id);
    if (!fSelectedLine) {
       cout << "No ID line found with index " << id << endl;
       return;
@@ -914,7 +937,7 @@ void KVNewGridDialog::SelectOKLine(Int_t id)
       fSelectedLine->SetEditable(kFALSE);
    }
    fLastSelectedOKLine = id;
-   fSelectedLine = fSelectedGrid->GetLine("OK", id);
+   fSelectedLine = (KVIDentifier*)fSelectedGrid->GetIdentifiers()->At(id);
    if (!fSelectedLine) {
       cout << "No OK line found with index " << id << endl;
       return;
@@ -962,11 +985,11 @@ void KVNewGridDialog::RemoveSelectedLine()
    if (fLastSelectedIDLine > -1) {
       //remove ID line
       DeselectIDLine();
-      fSelectedGrid->RemoveLine("ID", fSelectedLine);
+      fSelectedGrid->RemoveIdentifier(fSelectedLine);
    } else if (fLastSelectedOKLine > -1) {
       //remove OK line
       DeselectOKLine();
-      fSelectedGrid->RemoveLine("OK", fSelectedLine);
+      fSelectedGrid->RemoveCut(fSelectedLine);
    }
    UpdateLineLists();
    fRemove->SetEnabled(kFALSE);

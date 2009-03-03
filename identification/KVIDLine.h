@@ -5,20 +5,19 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDLine.h,v 1.14 2008/10/13 13:52:29 franklan Exp $
+$Id: KVIDLine.h,v 1.15 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDLine_H
 #define KVIDLine_H
 
-#include "TGraph.h"
 #include "TVector2.h"
 #include "TMath.h"
-#include "TObject.h"
 #include "TH2.h"
-#include "TCutG.h"
+#include "KVIDentifier.h"
 
-class KVIDLine:public TGraph {
+class KVIDLine : public KVIDentifier
+{
 
  public:
 
@@ -27,6 +26,8 @@ class KVIDLine:public TGraph {
 
     virtual ~ KVIDLine();
 
+	virtual void WaitForPrimitive();
+	
    inline Double_t DistanceToLine(Double_t px, Double_t py, Int_t &);
    inline Double_t DistanceToLine(Double_t px, Double_t py, Double_t xp1,
                                   Double_t yp1, Double_t xp2, Double_t yp2,
@@ -35,30 +36,16 @@ class KVIDLine:public TGraph {
    inline Bool_t PosRelToLine(Option_t * opt, Double_t px, Double_t py,
                               Double_t xp1, Double_t yp1, Double_t xp2,
                               Double_t yp2);
-   Int_t Compare(const TObject *) const;
-   virtual void WriteAsciiFile(ofstream &, const Char_t * name_prefix =
-                               "");
-   virtual void ReadAsciiFile(ifstream &);
-   void Print(Option_t * opt = "") const;
 
    inline void GetStartPoint(Double_t & x, Double_t & y) const;
    inline void GetEndPoint(Double_t & x, Double_t & y) const;
    inline Bool_t IsBetweenEndPoints(Double_t x, Double_t y,
                                     const Char_t * axis = "") const;
-   virtual Int_t GetID() const {
-      return 0;
-   };
-   virtual void CopyGraph(TGraph *);
 	
 	static KVIDLine *MakeIDLine(TObject *obj,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE);
 //	static KVIDLine *MakeIDLine(TH2 *obj,TCutG *cut,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE);
-   
-	void Scale(Double_t sx = -1, Double_t sy = -1);
-	void Scale(TF1 *sx, TF1 *sy);
-   virtual void SetZ(Int_t) {};
-   virtual void SetA(Int_t) {};
-
-    ClassDef(KVIDLine, 1)       //Base class for lines/cuts used for particle identification
+      
+    ClassDef(KVIDLine, 2)       //Base class for lines/cuts used for particle identification
 };
 
 //______________________________________________________________________________

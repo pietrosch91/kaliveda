@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.11 2009/03/02 16:48:17 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.12 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -20,6 +20,8 @@ $Id: KVIDZAGrid.cpp,v 1.11 2009/03/02 16:48:17 franklan Exp $
 
 #include "KVIDZAGrid.h"
 #include "KVIDZALine.h"
+#include "KVIDCutLine.h"
+#include "TCanvas.h"
 
 ClassImp(KVIDZAGrid)
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +60,12 @@ which will use this grid for its identifications.
 KVIDZAGrid::~KVIDZAGrid()
 {
    //default dtor.
+      if(Dline) delete [] Dline;
+      if(Dline2) delete [] Dline2;
+      if(ind_list) delete [] ind_list;
+      if(ind_list2) delete [] ind_list2;
+      if(ind_arr) delete [] ind_arr;
+      if(fDistances) delete [] fDistances;
 }
 
 KVIDZAGrid::KVIDZAGrid(const KVIDZAGrid & grid)
@@ -71,12 +79,122 @@ KVIDZAGrid::KVIDZAGrid(const KVIDZAGrid & grid)
 #endif
 }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
+void KVIDZAGrid::Copy(TObject & obj) const
+#else
+void KVIDZAGrid::Copy(TObject & obj)
+#endif
+{
+   //Copy this to 'obj'
+   KVIDGrid::Copy(obj);
+   ((KVIDZAGrid &) obj).SetZmax(const_cast <KVIDZAGrid *>(this)->GetZmax());
+}
+
 //_________________________________________________________________________//
 
 void KVIDZAGrid::init()
 {
    //initialisation
-   SetType("KVIDZAGrid");
+   fZMax = 0;
+   fZMaxLine = 0;
+   Dline=0; 
+   Dline2=0;          //!working array used by FindNearestIDLine
+   ind_list=0;       //!working array used by FindNearestIDLine
+   ind_list2=0;       //!working array used by FindNearestIDLine
+   ind_arr=0;   //!working array used by FindNearestIDLine
+   fClosest=0;          //!closest line to last-identified point
+   fDistances=0;      //!distance from point to each of the lines in fLines
+}
+
+//_________________________________________________________________________//
+
+void KVIDZAGrid::ClearWorkingArrays()
+{
+   //Initialise working arrays used by FindNearestIDLine
+   //When called for the first time, the arrays are allocated using the total
+   //number of identification lines defined for the grid, plus one
+   
+   Int_t dim = (Int_t)GetNumberOfIdentifiers() + 1;
+   
+   //allocate arrays if necessary
+   if ( !Dline ) {
+      Dline = new Double_t[dim];
+      Dline2 = new Double_t[dim];
+      ind_list = new Double_t[dim];
+      ind_list2 = new Double_t[dim];
+      ind_arr = new Int_t[dim];
+      fDistances = new Double_t[dim];
+   }
+   
+   //clear working arrays
+   for (register int i = 0; i < dim; i++) {
+      Dline[i] = 0.0;
+      ind_arr[i] = 0;
+      ind_list[i] = 0.0;
+      Dline2[i] = 0.0;
+      ind_list2[i] = 99;
+      fDistances[i] = 0.0;
+   }
+   Lines.Clear();
+   fLines.Clear();
+   
+   fDistanceClosest = -1.;
+   fNLines = 0;
+   fClosest = 0;
+   fIdxClosest = 0;
+}
+
+//_________________________________________________________________________//
+
+KVIDZALine *KVIDZAGrid::GetZLine(Int_t z, Int_t & index) const
+{
+   //Returns ID line for which GetZ() returns 'z'. index=index of line found in
+   //fIDLines list (-1 if not found).
+   //To increase speed, this is done by dichotomy, rather than by looping over
+   //all the lines in the list.
+
+   index = -1;
+   Int_t nlines = GetNumberOfIdentifiers();
+   UInt_t idx_min = 0;          //minimum index
+   UInt_t idx_max = nlines - 1; // maximum index
+   //as a first guess, we suppose that the lines are numbered sequentially from
+   //Z=1 (index 0) to Z=zmax=nlines (index nlines-1) with no gaps
+   UInt_t idx = ((UInt_t) z - 1 > idx_max ? idx_max : (UInt_t) z - 1);
+
+   while (idx_max > idx_min + 1) {
+
+      KVIDZALine *line = (KVIDZALine *) GetIdentifier(idx);
+      Int_t zline = line->GetZ();
+      //Found it ?
+      if (zline == z) {
+         index = idx;
+         return line;
+      }
+
+
+      if (z > zline) {
+         //increase index
+         idx_min = idx;
+         idx += (Int_t) ((idx_max - idx) / 2 + 0.5);
+      } else {
+         //decrease index
+         idx_max = idx;
+         idx -= (Int_t) ((idx - idx_min) / 2 + 0.5);
+      }
+   }
+   //if one of these two lines has the right Z, return its pointer
+   KVIDZALine *line = (KVIDZALine *) GetIdentifier(idx_min);
+   if (line->GetZ() == z) {
+      index = idx_min;
+      return line;
+   }
+   line = (KVIDZALine *) GetIdentifier(idx_max);
+   if (line->GetZ() == z) {
+      index = idx_max;
+      return line;
+   }
+   //if not, there is no line in the grid with the right Z
+   return 0;
 }
 
 //_________________________________________________________________________//
@@ -84,13 +202,13 @@ void KVIDZAGrid::init()
 KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
 {
    //Returns ID line corresponding to nucleus (Z,A) and its index in fIDLines.
-   //First we use KVIDZGrid::GetLine(z) to find a line with the right Z (in
+   //First we use GetLine(z) to find a line with the right Z (in
    //principal there are several in the grid), then search for the correct
    //isotope among these.
 
    Int_t idx;
    index = -1;
-   KVIDZALine *line = (KVIDZALine *) GetZLine(z, idx);
+   KVIDZALine *line = GetZLine(z, idx);
    //no line with correct Z ?
    if (!line)
       return 0;
@@ -101,8 +219,8 @@ KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
    }
    //increase/decreas index depending on if mass of line is greater than or less than a
    if (a > line->GetA()) {
-      for (int i = idx; i < (int) NumberOfIDLines(); i++) {
-         line = (KVIDZALine *) GetIDLine(i);
+      for (int i = idx; i < (int) GetNumberOfIdentifiers(); i++) {
+         line = (KVIDZALine *) GetIdentifier(i);
          if (line->GetZ() != z)
             return 0;           //no longer correct Z
          if (line->GetA() == a) {
@@ -114,7 +232,7 @@ KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
       return 0;
    } else if (a < line->GetA()) {
       for (int i = idx; i > 0; i--) {
-         line = (KVIDZALine *) GetIDLine(i);
+         line = (KVIDZALine *) GetIdentifier(i);
          if (line->GetZ() != z)
             return 0;           //no longer correct Z
          if (line->GetA() == a) {
@@ -126,6 +244,185 @@ KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
       return 0;
    }
    return 0;
+}
+
+//_______________________________________________________________________________________________//
+
+void KVIDZAGrid::CalculateLineWidths()
+{
+   //Calculate natural "width" of each line in the grid.
+   //The lines in the grid are first sorted so that they are in order of ascending 'Y'
+   //i.e. first line is 1H, last line is the heaviest isotope (highest line).
+   //
+   //Then, for a given line :
+   //
+   //   ****  if the grid is to be used for A & Z identification (default)**** :
+   //      - if the next line (above) has the same Z, we use the separation between these
+   //        two lines corresponding to different isotopes of the same element
+   //      - if the next line (above) has a different Z, but the line before (below) has
+   //        the same Z, we use the separation between the line below and this one
+   //      - if neither adjacent line has the same Z, the width is set to 16000 (huge).
+   //
+   //  **** if the grid is to be used for Z identification (fOnlyZid=kFALSE)**** :
+   //      - we use the separation between each pair of lines
+   //
+   //In each case we find D_L (the separation between the two lines at their extreme left)
+   //and  D_R (their separation at extreme right). The width of the line is then calculated
+   //from these two using the method KVIDZALine::SetAsymWidth (which may be overridden in child
+   //classes).
+
+
+   for (Int_t i = 0; i < (Int_t) GetNumberOfIdentifiers(); i++) {
+
+      KVIDZALine *_line = (KVIDZALine *) GetIdentifier(i);
+
+      //Z of lines above and below this line - Zxx=-1 if there is no line above or below
+      Int_t Zhi =
+          (i <
+           (Int_t) GetNumberOfIdentifiers() -
+           1 ? ((KVIDZALine *) GetIdentifier(i + 1))->GetZ() : -1);
+      Int_t Zlo = (i > 0 ? ((KVIDZALine *) GetIdentifier(i - 1))->GetZ() : -1);
+      Int_t Z = _line->GetZ();
+
+      Int_t i_other;
+      if( OnlyZId() ){
+         i_other = (Zhi > -1 ? i + 1 : (Zlo > -1 ? i - 1 : -1));     // index of line used to calculate width
+      }
+      else
+      {
+         i_other = (Zhi == Z ? i + 1 : (Zlo == Z ? i - 1 : -1));     // index of line used to calculate width
+      }
+
+      //default width of 16000 in case of "orphan" line i.e. Z with only one isotope
+      if (i_other < 0) {
+         _line->SetWidth(16000.);
+         continue;              // skip to next line
+      }
+
+      KVIDZALine *_otherline = (KVIDZALine *) GetIdentifier(i_other);
+
+      //calculate asymptotic distances between lines at left and right.
+      //do this by finding which line's endpoint is between both endpoints of the other line
+      Double_t D_L, D_R;
+
+      //***************    LEFT SIDE    ********************************
+
+      //get coordinates of first point of our line
+      Double_t x1, y1;
+      _line->GetStartPoint(x1, y1);
+      KVIDZALine *_aline, *_bline;
+
+      if (_otherline->IsBetweenEndPoints(x1, y1, "x")) {
+
+         //first point of our line is "inside" the X-coords of the other line:
+         //asymptotic distance LEFT is distance from our line's starting point (x1,Y1) to the other line
+         _aline = _otherline;
+         _bline = _line;
+
+      } else {
+
+         //first point of other line is "inside" the X-coords of the our line:
+         //asymptotic distance LEFT is distance from other line's starting point (x1,Y1) to our line
+         _aline = _line;
+         _bline = _otherline;
+         _otherline->GetStartPoint(x1, y1);
+
+      }
+
+      //calculate D_L
+      Int_t dummy = 0;
+      D_L = _aline->DistanceToLine(x1, y1, dummy);
+
+      //make sure that D_L is positive : if not, we try to calculate other way (inverse line and starting point)
+      if (D_L < 0.) {
+
+         _aline->GetStartPoint(x1, y1);
+         D_L = _bline->DistanceToLine(x1, y1, dummy);
+
+         //still no good ? then print a warning message
+         if (D_L < 0.) {
+            Warning("CalculateLineWidths",
+                    "Cannot get positive asymptotic distance between starting points of the following two lines, in grid %s.\n Will set D_L to zero.",
+                    GetName());
+            _line->Print();
+            _otherline->Print();
+            D_L = 0.;
+         }
+      }
+      //***************   RIGHT SIDE    ********************************
+
+      //get coordinates of last point of our line
+      _line->GetEndPoint(x1, y1);
+
+      if (_otherline->IsBetweenEndPoints(x1, y1, "x")) {
+
+         //last point of our line is "inside" the X-coords of the other line:
+         //asymptotic distance RIGHT is distance from our line's end point (x1,Y1) to the other line
+         _aline = _otherline;
+         _bline = _line;
+
+      } else {
+
+         //last point of other line is "inside" the X-coords of the our line:
+         //asymptotic distance RIGHT is distance from other line's end point (x1,Y1) to our line
+         _aline = _line;
+         _bline = _otherline;
+         _otherline->GetEndPoint(x1, y1);
+
+      }
+
+      //calculate D_R
+      D_R = _aline->DistanceToLine(x1, y1, dummy);
+
+      //make sure that D_R is positive : if not, we try to calculate other way (inverse line and end point)
+      if (D_R < 0.) {
+
+         _aline->GetEndPoint(x1, y1);
+         D_R = _bline->DistanceToLine(x1, y1, dummy);
+
+         //still no good ? then print a warning message
+         if (D_R < 0.) {
+            Warning("CalculateLineWidths",
+                    "Cannot get positive asymptotic distance between end points of the following two lines, in grid %s.\n Will set D_R to zero.",
+                    GetName());
+            _line->Print();
+            _otherline->Print();
+            D_R = 0.;
+         }
+      }
+      //***************  SET NATURAL WIDTH OF LINE   ********************************
+
+      _line->SetAsymWidth(D_L, D_R);
+
+   }
+}
+
+//_______________________________________________________________________________________________//
+
+void KVIDZAGrid::DrawLinesWithWidth()
+{
+   //This method displays the grid as in KVIDGrid::Draw, but
+   //the natural line widths are shown as error bars
+
+   if (!gPad) {
+      new TCanvas("c1", GetName());
+   } else {
+      gPad->SetTitle(GetName());
+   }
+   if (!gPad->GetListOfPrimitives()->GetSize()) {
+      //calculate size of pad necessary to show grid
+      if (GetXmin() == GetXmax())
+         const_cast < KVIDZAGrid * >(this)->FindAxisLimits();
+      gPad->DrawFrame(GetXmin(), GetYmin(), GetXmax(), GetYmax());
+   }
+   TIter nextID( GetIdentifiers() );
+   KVIDZALine* line;
+   while ( (line = (KVIDZALine*)nextID()) ){
+      line->GetLineWithWidth()->Draw("3PL");
+   }
+   {
+      GetCuts()->R__FOR_EACH(KVIDLine, Draw) ("PL");
+   }
 }
 
 //______________________________________________________________________________________________//
@@ -173,7 +470,7 @@ KVIDLine *KVIDZAGrid::GetNearestIDLine(Double_t x, Double_t y,
          Double_t dist = TMath::Abs(line->DistanceToLine(x, y, dummy));
          Dline[idx] = dist;
          Lines.AddAtAndExpand(line, idx);
-         ind_list[idx] = (Double_t) GetIDLines()->IndexOf(line);
+         ind_list[idx] = (Double_t) GetIdentifiers()->IndexOf(line);
          idx++;
       }
    } else {
@@ -185,7 +482,7 @@ KVIDLine *KVIDZAGrid::GetNearestIDLine(Double_t x, Double_t y,
       Double_t dist = TMath::Abs(line->DistanceToLine(x, y, dummy));
       Dline[0] = dist;
       Lines.AddAtAndExpand(line, 0);
-      ind_list[0] = (Double_t) GetIDLines()->IndexOf(line);
+      ind_list[0] = (Double_t) GetIdentifiers()->IndexOf(line);
    }
    if (nlines > 1) {
       //sort in order of increasing distance from point
@@ -222,7 +519,7 @@ KVIDLine *KVIDZAGrid::GetNearestIDLine(Double_t x, Double_t y,
          //cout << "CLOSEST : " ;
       }
       if (idx < 99) {
-         fLines.AddAtAndExpand(GetIDLine(idx), i);
+         fLines.AddAtAndExpand(GetIdentifier(idx), i);
          fDistances[i] = Dline2[ind_arr[i]];
          //cout << i << " : " << fLines[i]->GetName() << "   d= " << fDistances[i] << endl;
       } else {
@@ -267,27 +564,27 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    Int_t Zinfi, Zinf, Zsup, Zsups, Ainfi, Ainf, Asup, Asups;
    Zinfi = Zinf = Zsup = Zsups = Ainfi = Ainf = Asup = Asups = 0;
    if (kinf > -1) {
-         Zinf = ((KVIDZLine *) GetClosestLines(kinf))->GetZ();
+         Zinf = ((KVIDZALine *) GetClosestLines(kinf))->GetZ();
          Ainf = ((KVIDZALine *) GetClosestLines(kinf))->GetA();
-         winf = ((KVIDZLine *) GetClosestLines(kinf))->GetWidth();
+         winf = ((KVIDZALine *) GetClosestLines(kinf))->GetWidth();
          dinf = GetDistanceToLine(kinf);
    }
    if (ksup > -1) {
-         Zsup = ((KVIDZLine *) GetClosestLines(ksup))->GetZ();
+         Zsup = ((KVIDZALine *) GetClosestLines(ksup))->GetZ();
          Asup = ((KVIDZALine *) GetClosestLines(ksup))->GetA();
-         wsup = ((KVIDZLine *) GetClosestLines(ksup))->GetWidth();
+         wsup = ((KVIDZALine *) GetClosestLines(ksup))->GetWidth();
       dsup = GetDistanceToLine(ksup);
    }
    if (kinfi > -1) {
-         Zinfi = ((KVIDZLine *) GetClosestLines(kinfi))->GetZ();
+         Zinfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetZ();
          Ainfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetA();
-         winfi = ((KVIDZLine *) GetClosestLines(kinfi))->GetWidth();
+         winfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetWidth();
       dinfi = GetDistanceToLine(kinfi);
    }
    if (ksups > -1) {
-         Zsups = ((KVIDZLine *) GetClosestLines(ksups))->GetZ();
+         Zsups = ((KVIDZALine *) GetClosestLines(ksups))->GetZ();
          Asups = ((KVIDZALine *) GetClosestLines(ksups))->GetA();
-         wsups = ((KVIDZLine *) GetClosestLines(ksups))->GetWidth();
+         wsups = ((KVIDZALine *) GetClosestLines(ksups))->GetWidth();
       dsups = GetDistanceToLine(ksups);
    }
 /*   cout << "kinfi = " << kinfi << " Zinfi = " << Zinfi << "  Ainfi = " << Ainfi << "  winfi = " << winfi << "  dinfi = " << dinfi << endl;
@@ -567,10 +864,10 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          //If it has the same Z as the closest line, but was excluded from research for closest line
          //because the point lies outside the endpoints, there remains a doubt about the mass:
          //on rajoute 1 a fICode, effectivement on le met = kICODE1
-         Int_t idx = GetIDLines()->IndexOf(GetClosestLine());
-         if (idx > -1 && ++idx < GetIDLines()->GetSize()) {
-            KVIDZLine *nextline =
-                (KVIDZLine *) GetIDLines()->At(idx);
+         Int_t idx = GetIdentifiers()->IndexOf(GetClosestLine());
+         if (idx > -1 && ++idx < GetIdentifiers()->GetSize()) {
+            KVIDZALine *nextline =
+                (KVIDZALine *) GetIdentifiers()->At(idx);
             if (nextline->GetZ() == Z
                 && !nextline->IsBetweenEndPoints(x, y, "x")){
                fICode++;        // Z ok, mais les masses superieures a A sont possibles
@@ -584,10 +881,10 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          //If it has the same Z as the closest line, but was excluded from research for closest line
          //because the point lies outside the endpoints, there remains a doubt about the mass:
          //on rajoute 2 a fICode, so it can be = kICODE2 or kICODE3
-         Int_t idx = GetIDLines()->IndexOf(GetClosestLine());
+         Int_t idx = GetIdentifiers()->IndexOf(GetClosestLine());
          if (idx > -1 && --idx >= 0) {
-            KVIDZLine *nextline =
-                (KVIDZLine *) GetIDLines()->At(idx);
+            KVIDZALine *nextline =
+                (KVIDZALine *) GetIdentifiers()->At(idx);
             if (nextline->GetZ() == Z
                 && !nextline->IsBetweenEndPoints(x, y, "x")){
                fICode+=2;
@@ -600,11 +897,275 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
   // cout << "Z = " << Z << " A = " << A << " icode = " << fIcode << endl;
 }
 
+//_________________________________________________________________________//
+
+void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
+{
+   //Finds Z & 'real Z' for point (x,y) once closest lines to point have been found (see GetNearestIDLine).
+   //This is is based on the algorithm developed by L. Tassan-Got in IdnCsOr, even the same
+   //variable names and comments have been used (as much as possible).
+
+   //Work out kinfi, kinf, ksup and ksups like in IdnCsIOr
+   Int_t kinfi, kinf, ksup, ksups;
+   kinfi = kinf = ksup = ksups = -1;
+   fICode = kICODE0;
+   if (GetClosestLine()->WhereAmI(x, y, "above")) {
+      //point is above closest line, closest line is "kinf"
+      //Info("IdentZA","point is above closest line, closest line is kinf");
+      kinf = GetIndexClosest();
+      ksup = (kinf + 1 < GetNClosestLines()? kinf + 1 : -1);
+   } else {
+      //point is below closest line, closest line is "ksup"
+      //Info("IdentZA","point is below closest line, closest line is ksup");
+      ksup = GetIndexClosest();
+      kinf = TMath::Max(ksup - 1, -1);
+   }
+   kinfi = TMath::Max(kinf - 1, -1);
+   //look for line above ksup, if ksup exists (> -1)
+   if(ksup > -1) ksups = (ksup + 1 < GetNClosestLines()? ksup + 1 : -1);
+   Double_t dinf, dsup, dinfi, dsups;
+   dinf = dsup = dinfi = dsups = 0.;
+   Double_t winf, wsup, winfi, wsups;
+   winf = wsup = winfi = wsups = 0.;
+   Int_t Zinfi, Zinf, Zsup, Zsups;
+   Zinfi = Zinf = Zsup = Zsups = 0;
+   if (kinf > -1) {
+         Zinf = ((KVIDZALine *) GetClosestLines(kinf))->GetZ();
+         winf = ((KVIDZALine *) GetClosestLines(kinf))->GetWidth();
+         dinf = GetDistanceToLine(kinf);
+   }
+   if (ksup > -1) {
+         Zsup = ((KVIDZALine *) GetClosestLines(ksup))->GetZ();
+         wsup = ((KVIDZALine *) GetClosestLines(ksup))->GetWidth();
+      dsup = GetDistanceToLine(ksup);
+   }
+   if (kinfi > -1) {
+         Zinfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetZ();
+         winfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetWidth();
+      dinfi = GetDistanceToLine(kinfi);
+   }
+   if (ksups > -1) {
+         Zsups = ((KVIDZALine *) GetClosestLines(ksups))->GetZ();
+         wsups = ((KVIDZALine *) GetClosestLines(ksups))->GetWidth();
+      dsups = GetDistanceToLine(ksups);
+   }
+/*   cout << "kinfi = " << kinfi << " Zinfi = " << Zinfi << "  Ainfi = " << Ainfi << "  winfi = " << winfi << "  dinfi = " << dinfi << endl;
+   cout << "kinf = " << kinf << " Zinf = " << Zinf << "  Ainf = " << Ainf << "  winf = " << winf << "  dinf = " << dinf << endl;
+   cout << "ksup = " << ksup << " Zsup = " << Zsup << "  Asup = " << Asup << "  wsup = " << wsup << "  dsup = " << dsup << endl;
+   cout << "ksups = " << ksups << " Zsups = " << Zsups << "  Asups = " << Asups << "  wsups = " << wsups << "  dsups = " << dsups << endl;
+ */
+   Int_t ibif = 0;
+   Int_t k = -1;
+   Double_t yy, y1, y2;
+   Int_t ix1, ix2;
+   yy = y1 = y2 = 0;
+   ix1 = ix2 = 0;
+   
+   if (ksup > -1) {         // there is a line above the point
+      if (kinf > -1) {              // there is a line below the point
+               
+                                /*  We found a line above and a line below the point */
+      
+         Double_t dt = dinf + dsup;     //distance between the 2 lines
+         
+            Int_t dZ = Zsup - Zinf;   
+            Double_t dist = dt / (1.0*dZ);    //distance between the 2 lines normalised to difference in Z of lines
+            
+                                /*** Z = Zsup ***/
+            
+            if (dinf > dsup) {  //point is closest to upper line, 'sup' line
+               ibif = 1;
+               k = ksup;
+               yy = -dsup;
+               Z = Zsup;
+               if (ksups > -1) {        // there is a 'sups' line above the 2 which encadrent le point
+                  y2 = dsups - dsup;
+                  
+                     ibif = 0;
+                     y2 /= 2.;
+                     ix2 = Zsups - Zsup;
+                 
+               } else {         // ksups == -1 i.e. no 'sups' line
+                  y2 = wsup;
+                  y2 = 0.5 * TMath::Max(y2, dist);
+                  ix2 = 1;
+               }
+               y1 = -dt / 2.;
+               ix1 = -dZ;
+            }
+                                /*** Z = Zinf ***/
+            else {              //point is closest to lower line, 'inf' line
+               ibif = 2;
+               k = kinf;
+               yy = dinf;
+               Z = Zinf;
+               if (kinfi > -1) {        // there is a 'infi' line below the 2 which encadrent le point
+                  y1 = 0.5 * (dinfi - dinf);
+                  
+                     ibif = 0;
+                     ix1 = Zinfi - Zinf;
+                     y1 = -y1;
+                  
+               } else {         // kinfi = -1 i.e. no 'infi' line
+                  y1 = winf;
+                  y1 = -0.5 * TMath::Max(y1, dist);
+                  ix1 = -1;
+               }
+               y2 = dt / 2.;
+               ix2 = dZ;
+            }
+               
+      }//if(kinf>-1)...*******************************************************
+      
+                                /*  Only a line above the point was found, no line below */
+                                   /* This means the point is below the first Z line of the grid (?) */
+      
+         ibif = 3;
+         k = ksup;
+         yy = -dsup;
+         Z = Zsup;
+         y1 = 0.5 * wsup;
+         if (ksups > -1) {      // there is a 'sups' line above the closest line to the point
+            y2 = dsups - dsup;
+            
+               ibif = 2;
+               ix2 = Zsups - Zsup;
+               Double_t x1 = y2 / ix2 / 2.;
+               y1 = -TMath::Max(y1, x1);
+               ix1 = -1;
+               y2 /= 2.;
+            
+         } else {               // no 'sups' line above closest line
+            
+            y2 = y1;
+            ix2 = 1;
+            y1 = -y1;
+            ix1 = -1;
+         }
+         fICode = kICODE6;      // code for Z extrapolation below first line of grid
+      
+   }  //if(ksup>-1)***************************************************************
+   
+   else if (kinf > -1) {
+
+                                /*  Only a line below the point was found, no line above */
+                                   /* This means the point is above the last Z line of the grid (?) */
+         ibif = 3;
+         k = kinf;
+         Z = Zinf;
+         yy = dinf;
+         y2 = 0.5 * winf;
+         if (kinfi > -1) { // there is a 'infi' line below the closest line to the point
+            y1 = dinfi - dinf;
+               ibif = 1;
+               ix1 = Zinfi - Zinf;
+               Double_t x2 = -y1 / ix1 / 2.;
+               y2 = TMath::Max(y2, x2);
+               ix2 = 1;
+               y1 /= -2.;
+         } else {
+            y1 = -y2;
+            ix1 = -1;
+            ix2 = 1;
+         }
+         fICode = kICODE7;      // code for Z extrapolation above last line of grid
+      
+   }
+        /*no lines found at all*/
+   else {
+      fICode = kICODE8;         // Z indetermine ou (x,y) hors limites
+      Z = -1.0;
+   }
+   
+   
+        /****************Test des bornes********************************************/
+   if (k > -1 && fICode == kICODE0) {
+      if (yy > y2)
+         fICode = kICODE4;      // Z ok, masse hors limite superieure ou egale a A
+   }
+   if (k > -1 && fICode == kICODE0) {
+      if (yy < y1)
+         fICode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
+   }
+   
+   
+        /****************Interpolation to find 'real Z': dz = f*log(1+b*dy)********************/
+   
+   if ( fICode < kICODE8 ) {
+      Double_t deltaZ = 0.;
+      Bool_t i = kFALSE;
+      Double_t dt, dist = y1 * y2;
+      dt = 0.;
+      if (ix2 == -ix1) {        //dZ1 = dZ2
+         dt = -(y1 + y2) / dist;
+         i = kTRUE;
+      } else if (ix2 == -ix1 * 2) {     // dZ2 = 2*dZ1
+         dt = -(y1 + 2. * y2 -
+                TMath::Sqrt(y1 * y1 - 4. * dist)) / dist / 2.;
+         i = kTRUE;
+      } else if (ix1 == -ix2 * 2) {     // dZ1 = 2*dZ2
+         dt = -(y2 + 2. * y1 +
+                TMath::Sqrt(y2 * y2 - 4. * dist)) / dist / 2.;
+         i = kTRUE;
+      }
+      if (i) {
+         dist = dt * y2;
+         if (TMath::Abs(dist) < 0.001) {
+            deltaZ = yy * ix2 / y2 / 2.;
+         } else {
+            deltaZ =
+                ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. +
+                                                              dt * yy);
+         }
+         Z += deltaZ;
+      }
+   }
+        /***************Is there still a doubt about the Z ?*************************/
+   if (fICode == kICODE0) {
+                /***z superieure***/
+      if (ibif == 1 || ibif == 3) {
+         //We look at next line in the complete list of lines, after the closest line.
+         //If it was excluded from research for closest line
+         //because the point lies outside the endpoints, there remains a doubt about the Z:
+         //on rajoute 1 a fICode, effectivement on le met = kICODE1
+         Int_t idx = GetIdentifiers()->IndexOf(GetClosestLine());
+         if (idx > -1 && ++idx < GetIdentifiers()->GetSize()) {
+            KVIDZALine *nextline =
+                (KVIDZALine *) GetIdentifiers()->At(idx);
+            if (!nextline->IsBetweenEndPoints(x, y, "x")){
+               fICode++;        // Z might be bigger than we think
+               //cout <<"//on rajoute 1 a fICode, effectivement on le met = kICODE1" << endl;
+            }
+         }
+      }
+                /***z inferieure***/
+      if (ibif == 2 || ibif == 3) {
+         //We look at line below the closest line in the complete list of lines.
+         //If it was excluded from research for closest line
+         //because the point lies outside the endpoints, there remains a doubt about the Z:
+         //on rajoute 2 a fICode, so it can be = kICODE2 or kICODE3
+         Int_t idx = GetIdentifiers()->IndexOf(GetClosestLine());
+         if (idx > -1 && --idx >= 0) {
+            KVIDZALine *nextline =
+                (KVIDZALine *) GetIdentifiers()->At(idx);
+            if (!nextline->IsBetweenEndPoints(x, y, "x")){
+               fICode+=2;
+               //cout << "//on rajoute 2 a fICode, so it can be = kICODE2 or kICODE3" << endl;
+            }
+         }
+      }
+   }
+   
+  // cout << "Z = " << Z << " A = " << A << " icode = " << fICode << endl;
+}
+
 //_______________________________________________________________________________________________//
 
 void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const
 {
-   //Set Z and A of nucleus based on position in grid
+   // Set identity of nucleus based on position in grid
+   // By default (OnlyZId()=kFALSE) this means identifying the Z & A of the nucleus
+   // If OnlyZId()=kTRUE, only the Z of the nucleus is established
 
    Int_t i1, i2;
    KVIDLine *nearest = FindNearestIDLine(x, y, "above", i1, i2);
@@ -613,25 +1174,42 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
       const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
       return;
    }
-   Int_t Z;
-   Double_t A;
-   const_cast < KVIDZAGrid * >(this)->IdentZA(x, y, Z, A);
-   nuc->SetZ(Z);
-   if (A > -1) {
-      nuc->SetRealA(A);
-      nuc->SetA(TMath::Nint(A));
+   if( OnlyZId() ){
+      Info("Identify", "Z-identification");
+      Double_t Z;
+      const_cast < KVIDZAGrid * >(this)->IdentZ(x, y, Z);
+      if (Z > 0) {
+         nuc->SetZ(TMath::Nint(Z));
+         nuc->SetRealZ(Z);
+      }
+   }
+   else
+   {
+      Info("Identify", "Z & A-identification");
+      Int_t Z; Double_t A;
+      const_cast < KVIDZAGrid * >(this)->IdentZA(x, y, Z, A);
+      nuc->SetZ(Z);
+      if (A > -1) {
+         nuc->SetRealA(A);
+         nuc->SetA(TMath::Nint(A));
+      }
    }
 }
 
 //___________________________________________________________________________________
 
-Bool_t KVIDZAGrid::AcceptIDForTest()
+void KVIDZAGrid::Initialize()
 {
-   //Used by TestIdentification.
-   //The result of the identification may be excluded from the histograms of PID
-   //and PID vs. Eres, depending on e.g. some status code of the identification
-   //algorithm.
-   //We only include particles with Icode < 4 as being "well-identified"
-   return (fIcode<4);
+   // General initialisation method for identification grid.
+   // This method MUST be called once before using the grid for identifications.
+   // The ID lines are sorted.
+   // The natural line widths of all ID lines are calculated.
+   // The line with the largest Z (Zmax line) is found.
+   
+   KVIDGrid::Initialize();
+   // Zmax should be Z of last line in sorted list
+   fZMaxLine = (KVIDZALine *) GetIdentifiers()->Last();
+   if (fZMaxLine) fZMax = fZMaxLine->GetZ();
+	else 				fZMax=0;			// protection au cas ou il n y a aucune ligne de Z
 }
 

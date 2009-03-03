@@ -5,7 +5,7 @@
     copyright            : (C) 2005 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGridManager.cpp,v 1.11 2006/10/19 14:32:43 franklan Exp $
+$Id: KVIDGridManager.cpp,v 1.12 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -60,23 +60,23 @@ void KVIDGridManager::FindGrid(KVIDTelescope * idt)
    //In fact, we loop over all grids in the collection and give their address to the telescope.
    //It is the telescope which decides whether the grid is right or not (KVIDTelescope::SetGrid).
 
-   KVIDGrid *grid;
+   KVIDGraph *grid;
    TIter next(GetGrids());
-   while ((grid = (KVIDGrid *) next())) {
+   while ((grid = (KVIDGraph *) next())) {
       //SetGrid returns true if the grid is accepted by the telescope
       if (idt->SetIDGrid(grid))
          break;
    }
 }
 
-void KVIDGridManager::AddGrid(KVIDGrid * grid)
+void KVIDGridManager::AddGrid(KVIDGraph * grid)
 {
    //Add a grid to the collection
    GetGrids()->Add(grid);
    Modified();                  // emit signal to say something changed
 }
 
-void KVIDGridManager::DeleteGrid(KVIDGrid * grid, Bool_t update)
+void KVIDGridManager::DeleteGrid(KVIDGraph * grid, Bool_t update)
 {
    //Remove grid from manager's list and delete it
    //update flag allows to diable the emission of the 'Modified' signal in case the GUI
@@ -116,13 +116,23 @@ Bool_t KVIDGridManager::ReadAsciiFile(const Char_t * filename)
          //New grid
          //Get name of class by stripping off the '+' at the start of the line
          s.Remove(0, 2);
+         /************ BACKWARDS COMPATIBILITY FIX *************
+           Old grid files may contain obsolete KVIDZGrid class
+           We replace by KVIDZAGrid with SetOnlyZId(kTRUE)
+         */
          //Make new grid using this class
-         TClass *clas = gROOT->GetClass(s.Data());
-         KVIDGrid *grid = (KVIDGrid *) clas->New();
+         KVIDGraph *grid = 0; Bool_t onlyz=kFALSE;
+         if(s=="KVIDZGrid"){
+            s="KVIDZAGrid";
+            onlyz=kTRUE;
+         }
+         TClass *clas = TClass::GetClass(s.Data());
+         grid = (KVIDGraph *) clas->New();
          //add to ID Grid manager
          gIDGridManager->AddGrid(grid);
          //read grid
-         grid->ReadAsciiFile(gridfile);
+         grid->ReadFromAsciiFile(gridfile);
+         if(onlyz) grid->SetOnlyZId(kTRUE);
       }
    }
 
@@ -140,10 +150,10 @@ Bool_t KVIDGridManager::WriteAsciiFile(const Char_t * filename)
    ofstream gridfile(filename);
 
    TIter next(fGrids);
-   KVIDGrid *grid = 0;
-   while ((grid = (KVIDGrid *) next())) {
+   KVIDGraph *grid = 0;
+   while ((grid = (KVIDGraph *) next())) {
 
-      grid->WriteAsciiFile(gridfile);
+      grid->WriteToAsciiFile(gridfile);
 
    }
 
@@ -152,10 +162,10 @@ Bool_t KVIDGridManager::WriteAsciiFile(const Char_t * filename)
    return is_it_ok;
 }
 
-KVIDGrid *KVIDGridManager::GetGrid(const Char_t * name)
+KVIDGraph *KVIDGridManager::GetGrid(const Char_t * name)
 {
    //Return pointer to grid with name "name"
-   return (KVIDGrid *) GetGrids()->FindObjectByName(name);
+   return (KVIDGraph *) GetGrids()->FindObjectByName(name);
 }
 
 void KVIDGridManager::StartViewer() const

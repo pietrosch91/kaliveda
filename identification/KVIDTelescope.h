@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDTelescope.h,v 1.30 2009/03/02 16:48:17 franklan Exp $
+$Id: KVIDTelescope.h,v 1.31 2009/03/03 13:36:00 franklan Exp $
                           KVIDTelescope.h  -  description
                              -------------------
     begin                : Wed Jun 18 2003
@@ -27,7 +27,7 @@ $Id: KVIDTelescope.h,v 1.30 2009/03/02 16:48:17 franklan Exp $
 
 class KVReconstructedNucleus;
 class KVGroup;
-class KVIDGrid;
+class KVIDGraph;
 class KVMultiDetArray;
 
 class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
@@ -124,10 +124,10 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
       return fECode;
    };
 
-   virtual Bool_t SetIDGrid(KVIDGrid *);
-   virtual KVIDGrid *GetIDGrid();
-   virtual KVIDGrid *GetIDGrid(Int_t);
-   virtual KVIDGrid *GetIDGrid(const Char_t*);
+   virtual Bool_t SetIDGrid(KVIDGraph *);
+   virtual KVIDGraph *GetIDGrid();
+   virtual KVIDGraph *GetIDGrid(Int_t);
+   virtual KVIDGraph *GetIDGrid(const Char_t*);
    virtual KVList* GetListOfIDGrids() const { return fIDGrids; };
 
    virtual void RemoveGrids();

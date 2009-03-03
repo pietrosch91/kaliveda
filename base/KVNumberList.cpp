@@ -251,7 +251,7 @@ void KVNumberList::SetList(TString & list)
 
 //____________________________________________________________________________________________//
 
-Bool_t KVNumberList::Contains(Int_t val)
+Bool_t KVNumberList::Contains(Int_t val) const
 {
    //returns kTRUE if the value 'val' is contained in the ranges defined by the number list
    for (register int i = 0; i < fNLimits; i++) {

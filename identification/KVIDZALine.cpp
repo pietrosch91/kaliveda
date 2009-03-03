@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDZALine.cpp,v 1.4 2007/11/27 12:09:03 ebonnet Exp $
+$Id: KVIDZALine.cpp,v 1.5 2009/03/03 13:36:00 franklan Exp $
                           KVIDZALine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -25,18 +25,25 @@ ClassImp(KVIDZALine)
 /////////////////////////////////////////////////////////////////////////////////////////
 //KVIDZALine
 //
-//Base class for identification lines which determine both Z and A for nuclei.
+//Base class for identification ridge lines corresponding to different nuclear species.
+//
 //Each line is named "Z=x A=y" where x is the atomic number of the corresponding element
-//(can be set with SetZ()) and y is the mass number (SetA).
+//(can be set with SetZ()) and y is the mass number (SetA). If only Z is set, the mass number is
+//calculated according to one of the mass formulae defined in KVNucleus class. The default is
+//the default for KVNucleus; you can change it with SetMassFormula.
+//
 //The sorting function Compare() sorts the lines as a function of increasing Z,
 //then increasing A (i.e. p,d,t,3He,4He,6He, etc. etc.)
 /////////////////////////////////////////////////////////////////////////////////////////
-    KVIDZALine::KVIDZALine()
-{
-   //Default ctor
-   //Mass number = 0 (undefined) by default
 
-   SetA(0);
+KVIDZALine::KVIDZALine()
+{
+   // Default ctor
+   // Line width is set to zero
+   // Default identification is set to proton
+
+   SetWidth(0.);
+   fLineWithWidth=0;
 }
 
 KVIDZALine::~KVIDZALine()
@@ -46,126 +53,46 @@ KVIDZALine::~KVIDZALine()
 
 //_____________________________________________________________________________________________
 
-Int_t KVIDZALine::Compare(const TObject * obj) const
-{
-   //Used to sort lists of KVIDZALines.
-   //Sorts the lines as a function of increasing Z, then increasing A
-   //(i.e. p,d,t,3He,4He,6He, etc. etc.)
-
-   //First compare Z : only if Z1=Z2 do we need to compare A
-   Int_t zComp = KVIDZLine::Compare(obj);
-   if (zComp)
-      return zComp;
-
-   int aline1 = GetA();
-   if (aline1 < 0)
-      return 0;
-   int aline2 =
-       const_cast < KVIDZALine * >(static_cast <
-                                   const KVIDZALine * >(obj))->GetA();
-   if (aline2 < 0)
-      return 0;
-   if (aline1 > aline2)
-      return 1;
-   if (aline1 < aline2)
-      return -1;
-   return 0;
-}
-
-//_____________________________________________________________________________________________
-
-Int_t KVIDZALine::GetA() const
-{
-   //Returns A of line. This information is held either in the member variable 'fA' (set by SetA)
-   //or in the name of the line ("Z=x A=y"). 'fA' is checked first, then the name. If the name is
-   //"Z=x A=y", y is returned and fA is set equal to y.
-   //If A not set, returns -1.
-
-   if (fA)
-      return fA;
-   Int_t aline1, zline1;
-   if (sscanf(GetName(), "Z=%d A=%d", &zline1, &aline1) != 2)
-      return -1;
-   const_cast < KVIDZALine * >(this)->SetA(aline1);
-   return aline1;
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDZALine::SetA(Int_t atnum)
-{
-   //Set the A of the line. Automatically updates line's name (SetNameLine).
-
-   fA = atnum;
-   SetNameLine();
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDZALine::SetAandZ(Int_t atnum,Int_t ztnum)
-{
-   //Set the A and Z of the line. Automatically updates line's name (SetNameLine).
-	SetZ(ztnum);
-   SetA(atnum);
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDZALine::SetNameLine()
-{
-   //This will set the name of the line according to the Z & A.
-   //Name will be "Z=x A=y" where x is the Z of the line and y is the A.
-
-   SetName(Form("Z=%d A=%d", GetZ(), GetA()));
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDZALine::WriteAsciiFile(ofstream & file,
+void KVIDZALine::WriteAsciiFile_extras(ofstream & file,
                                 const Char_t * name_prefix)
 {
-   //Write name and coordinates of line in file buffer stream
-   //Optional string name_prefix will be written just in front of the name of the line.
-   //Format is :
-   //
-   //+classname_of_line
-   //name_prefix:name_of_line
-   //Z   A
-   //number_of_points
-   //x1    y1
-   //x2    y2
-   //...
-   //etc. etc.
-   file << '+' << ClassName() << endl;
-   if (name_prefix)
-      file << name_prefix << ":";
-   file << GetName() << endl;
+	// Write Z & A of line
+	
+	KVIDLine::WriteAsciiFile_extras(file,name_prefix);
    file << GetZ() << "\t" << GetA() << endl;
-   file << GetN() << endl;
-   for (Int_t i = 0; i < GetN(); i++) {
-      Double_t x, y;
-      GetPoint(i, x, y);
-      file << x << "   " << y << endl;
-   }
 }
 
 //_____________________________________________________________________________________________
 
-void KVIDZALine::ReadAsciiFile(ifstream & file)
+void KVIDZALine::ReadAsciiFile_extras(ifstream & file)
 {
-   //Read atomic number and coordinates of line in file buffer stream
-   //Format is :
-   //
-   //Z    A
-   //number_of_points
-   //x1    y1
-   //x2    y2
-   //...
-   //etc. etc.
-   Int_t N, Z, A;
+	// Read Z & A of line
+	
+	KVIDLine::ReadAsciiFile_extras(file);
+   Int_t Z, A;
    file >> Z >> A;
    SetZ(Z);
    SetA(A);
+}
+
+//_____________________________________________________________________________________________
+
+void KVIDZALine::ReadAsciiFile_KVIDZLine(ifstream & file)
+{
+   //************ BACKWARDS COMPATIBILITY FIX *************
+   //       special read method for old KVIDZLines
+   //
+   //Read coordinates of line in file buffer stream
+   //Format is :
+   //Z
+   //number_of_points
+   //x1    y1
+   //x2    y2
+   //...
+   //etc. etc.
+   Int_t N, Z;
+   file >> Z;
+   SetZ(Z);
    file >> N;
    for (Int_t i = 0; i < N; i++) {
       Double_t x, y;
@@ -186,4 +113,39 @@ void KVIDZALine::Print(Option_t * opt) const
    cout << "Z=" << GetZ() << " A=" << GetA() << endl;
    if(GetWidth()>0.0) cout << "Natural Line Width : " << GetWidth() << endl;
    TGraph::Print();
+}
+
+//_____________________________________________________________________________________________
+
+TGraphErrors* KVIDZALine::GetLineWithWidth()
+{
+   //Return pointer to TGraphError object which can be used to visualise the natural width
+   //of this identification line.
+   //If line width = 16000, the error bar is set to 0
+   
+   if(!fLineWithWidth){
+      fLineWithWidth = new TGraphErrors(GetN(), GetX(), GetY());
+      fLineWithWidth->SetName( GetName() );
+      fLineWithWidth->SetMarkerStyle(kCircle);
+      fLineWithWidth->SetMarkerSize(0.8);
+      fLineWithWidth->SetLineWidth(2);
+      fLineWithWidth->SetEditable(kFALSE);
+      for(int i=0; i<GetN(); i++){
+         fLineWithWidth->SetPointError(i, 0., (GetWidth() < 16000 ? GetWidth() : 0));
+      }
+   }
+   return fLineWithWidth;
+}
+
+//_____________________________________________________________________________________________
+
+void KVIDZALine::SetAsymWidth(Double_t d_l, Double_t d_r)
+{
+   //Set the natural width of the line depending on its asymptotic separation
+   //a gauche (d_l) and a droite (d_r) from a neighbouring line.
+   //This method is used by KVIDGrid::CalculateLineWidths
+   //
+   //For ordinary Z/(Z,A) lines in a dE-E grid, this is just the minimum of
+   //the two asymptotic distances.
+   SetWidth( TMath::Min( d_l, d_r ) );
 }

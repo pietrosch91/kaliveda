@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDLine.cpp,v 1.18 2007/09/04 14:36:47 ebonnet Exp $
+$Id: KVIDLine.cpp,v 1.19 2009/03/03 13:36:00 franklan Exp $
                           KVIDLine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -22,6 +22,8 @@ $Id: KVIDLine.cpp,v 1.18 2007/09/04 14:36:47 ebonnet Exp $
 #include "TProfile.h"
 #include "TH2.h"
 #include "TCutG.h"
+#include "TPad.h"
+#include "TList.h"
 
 ClassImp(KVIDLine)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -128,16 +130,12 @@ ClassImp(KVIDLine)
     // axis = "" (default) and both x and y lie inside the endpoints of the line x1 < x < x2, y1 < y < y2
     // axis = "x" and x lies inside the endpoints x1 < x < x2
     // axis = "y" and y lies inside the endpoints y1 < y < y2
+/////////////////////////////////////////////////////////////////////////////////////////
+	 
+	 
     KVIDLine::KVIDLine()
 {
    //Default ctor
-   //We set marker size and style for the underlying TGraph, this way a small circle is drawn at
-   //each point in the line
-   //Also SetEditable(kFALSE) is used to stop the line being modified using the mouse.
-   SetMarkerStyle(kCircle);
-   SetMarkerSize(0.8);
-   SetLineWidth(2);
-   SetEditable(kFALSE);
 }
 
 KVIDLine::~KVIDLine()
@@ -145,125 +143,9 @@ KVIDLine::~KVIDLine()
    //Default dtor
 }
 
-KVIDLine::KVIDLine(const TGraph & gr):TGraph(gr)
+KVIDLine::KVIDLine(const TGraph & gr):KVIDentifier(gr)
 {
    //initialize KVIDLine using TGraph copy ctor
-}
-
-//_____________________________________________________________________________________________
-
-Int_t KVIDLine::Compare(const TObject * obj) const
-{
-   //Dummy method used for sorting, can be redefined in more specific implementations.
-   //A priori we don't know how to "order" the identification cuts.
-
-   return 0;
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDLine::WriteAsciiFile(ofstream & file, const Char_t * name_prefix)
-{
-   //Write name and coordinates of line in file buffer stream
-   //Optional string name_prefix will be written just in front of the name of the line.
-   //Format is :
-   //
-   //+classname_of_line
-   //name_prefix:name_of_line
-   //number_of_points
-   //x1    y1
-   //x2    y2
-   //...
-   //etc. etc.
-   file << '+' << ClassName() << endl;
-   if (name_prefix)
-      file << name_prefix << ":";
-   file << GetName() << endl;
-   file << GetN() << endl;
-   for (Int_t i = 0; i < GetN(); i++) {
-      Double_t x, y;
-      GetPoint(i, x, y);
-      file << x << "   " << y << endl;
-   }
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDLine::ReadAsciiFile(ifstream & file)
-{
-   //Read coordinates of line in file buffer stream
-   //Format is :
-   //
-   //number_of_points
-   //x1    y1
-   //x2    y2
-   //...
-   //etc. etc.
-   Int_t N;
-   file >> N;
-   for (Int_t i = 0; i < N; i++) {
-      Double_t x, y;
-      file >> x >> y;
-      SetPoint(i, x, y);
-   }
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDLine::Print(Option_t * opt) const
-{
-   //Print out for line
-   //The optional "opt" string, if given, is printed in parentheses after the line's name
-   //This is used by KVIDGrid in order to show which lines are "ID" lines and which are
-   //"OK" lines (i.e. used to define an identifiable area in a data map).
-   cout << ClassName() << " : " << GetName() << "(" << opt << ")" << endl;
-   TGraph::Print();
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDLine::Scale(Double_t sx, Double_t sy)
-{
-   //Scale the coordinates of every point of the line according to
-   //      X_0 ---> sx*X_0
-   //      Y_0 ---> sy*Y_0
-   //Default argument value '-1' means leave coordinate unchanged
-   if (TMath::Abs(sx) == 1 && TMath::Abs(sy) == 1)
-      return;
-   for (int i = 0; i < fNpoints; i++) {
-      if (sx > 0.)
-         fX[i] *= sx;
-      if (sy > 0.)
-         fY[i] *= sy;
-   }
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDLine::Scale(TF1 *sx, TF1 *sy)
-{
-   //Apply to the coordinates of every point the transformation
-   //      X_0 ---> sx(X_0)
-   //      Y_0 ---> sy(Y_0)
-   if (!sx && !sy) return;	// if the two functions are NULL we leave coordinate unchanged
-   for (Int_t  ii = 0; ii < fNpoints; ii++) {
-      if (sx) fX[ii] = sx->Eval(fX[ii]);	
-      if (sy) fY[ii] = sy->Eval(fY[ii]);
-   }
-}
-
-//_____________________________________________________________________________________________
-
-void KVIDLine::CopyGraph(TGraph * graph)
-{
-   //Copy coordinates of points from the TGraph
-   Double_t x, y;
-   //change number of points
-   Set(graph->GetN());
-   for (int i = 0; i < GetN(); i++) {
-      graph->GetPoint(i, x, y);
-      SetPoint(i, x, y);
-   }
 }
 
 //_____________________________________________________________________________________________
@@ -359,3 +241,20 @@ KVIDLine *KVIDLine::MakeIDLine(TH2 *hh,TCutG *cut,Double_t xdeb,Double_t xfin,Do
 	else return NULL;
 }
 */
+
+//_____________________________________________________________________________________________
+
+void KVIDLine::WaitForPrimitive()
+{
+	// Method used to draw a new identifier in the active pad
+	// Override in child classes so that gPad->WaitPrimitive has correct arguments
+	
+	if(!gPad) return;
+   TGraph *gr = (TGraph *) gPad->WaitPrimitive("Graph", "PolyLine");
+   //copy coordinates of user's line
+   CopyGraph(gr);
+   //remove TGraph and draw the KVIDLine in its place
+   gPad->GetListOfPrimitives()->Remove(gr);
+   delete gr;
+   Draw("PL");
+}

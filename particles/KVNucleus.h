@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.h,v 1.36 2008/12/02 00:27:32 ebonnet Exp $
+$Id: KVNucleus.h,v 1.37 2009/03/03 13:36:00 franklan Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -10,8 +10,6 @@ $Id: KVNucleus.h,v 1.36 2008/12/02 00:27:32 ebonnet Exp $
 
 #ifndef KVNUCLEUS_H
 #define KVNUCLEUS_H
-
-//#define DEFAULT_MASS 0
 
 #define MAX_Z_MASS_TABLE 108
 #define MAX_A_MASS_TABLE 263
@@ -30,7 +28,7 @@ class KVNucleus:public KVParticle {
  private:
    UChar_t fA;                  //nuclear mass number
    UChar_t fZ;                  //nuclear charge number (atomic number)
-   UChar_t fMassFormula;        //! for calculating A from Z
+   UChar_t fMassFormula;        //mass formula for calculating A from Z
    static Double_t fMassExcess[MAX_Z_MASS_TABLE][MAX_A_MASS_TABLE];     //!table of mass excesses in MeV for known nuclei
    static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
    static Char_t fElements[][3];        //!symbols of chemical elements
@@ -54,9 +52,11 @@ class KVNucleus:public KVParticle {
    };
 
    static Double_t kAMU;        //atomic mass unit in MeV
-   static Double_t u();
+   static Double_t u(void);
 
    inline void SetMassFormula(UChar_t mt);
+   inline Int_t GetMassFormula() const { return (Int_t)fMassFormula;};
+   
    void init();
     KVNucleus();
     KVNucleus(const KVNucleus &);
@@ -117,7 +117,7 @@ class KVNucleus:public KVParticle {
 	
 	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergy");
 	
-    ClassDef(KVNucleus, 4)      //Class describing atomic nuclei
+    ClassDef(KVNucleus, 5)      //Class describing atomic nuclei
 };
 
 inline void KVNucleus::SetMassFormula(UChar_t mt)

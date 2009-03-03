@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by Alexis Mignon
     email                : mignon@ganil.fr
 
-$Id: KVReconstructedNucleus.cpp,v 1.59 2009/03/02 16:48:17 franklan Exp $
+$Id: KVReconstructedNucleus.cpp,v 1.60 2009/03/03 13:36:00 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -356,7 +356,7 @@ void KVReconstructedNucleus::Identify()
    // ID telescope crossed by it, starting with the telescope where the particle stopped, in order
    //      -  only attempt identification in ID telescopes containing the stopping detector.
    //      -  only telescopes which have been correctly initialised for the current run are used,
-   //         i.e. those for which KVIDTelescope::CanIdentify() returns kTRUE.
+   //         i.e. those for which KVIDTelescope::IsReadyForID() returns kTRUE.
    // This continues until a successful identification is achieved or there are no more ID telescopes to try.
    // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
@@ -369,7 +369,7 @@ void KVReconstructedNucleus::Identify()
 
          while ((idt = (KVIDTelescope *) next())) {
 				
-            if( idt->CanIdentify() ) { // is telescope able to identify for this run ?
+            if( idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 
             if (idt->Identify(this)) {  //Identify()=kTRUE if ID successful
                //cout << " IDENTIFICATION SUCCESSFUL"<<endl;

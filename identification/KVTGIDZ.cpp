@@ -5,11 +5,11 @@
     copyright            : (C) 2005 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVTGIDZ.cpp,v 1.6 2006/10/19 14:32:43 franklan Exp $
+$Id: KVTGIDZ.cpp,v 1.7 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 #include "KVTGIDZ.h"
-#include "KVIDZGrid.h"
-#include "KVIDZLine.h"
+#include "KVIDZAGrid.h"
+#include "KVIDZALine.h"
 
 ClassImp(KVTGIDZ)
 //____________________________________________________________________________//
@@ -44,22 +44,24 @@ ClassImp(KVTGIDZ)
 
 void KVTGIDZ::SetIdent(KVIDLine * line, Double_t Z)
 {
-   //Set atomic number Z of identification line (KVIDZLine)
-   dynamic_cast < KVIDZLine * >(line)->SetZ((Int_t) Z);
+   //Set atomic number Z of identification line
+   dynamic_cast < KVIDZALine * >(line)->SetZ((Int_t) Z);
 }
 
 //___________________________________________________________________________//
 
 KVIDLine *KVTGIDZ::AddLine(KVIDGrid * g)
 {
-   //Add a new KVIDZLine to the grid
-   return g->AddLine("ID", "KVIDZLine");
+   //Add a new KVIDZALine to the grid
+   return (KVIDLine*)g->Add("ID", "KVIDZALine");
 }
 
 //___________________________________________________________________________//
 
 KVIDGrid *KVTGIDZ::NewGrid()
 {
-   //Create new KVIDZGrid
-   return new KVIDZGrid;
+   //Create new KVIDZAGrid which is only to be used for Z identification
+   KVIDZAGrid*gr = new KVIDZAGrid;
+   gr->SetOnlyZId();
+   return gr;
 }

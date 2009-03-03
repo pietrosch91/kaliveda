@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDTelescope.cpp,v 1.48 2008/02/19 14:53:47 franklan Exp $
+$Id: KVIDTelescope.cpp,v 1.49 2009/03/03 13:36:00 franklan Exp $
 Author : $Author: franklan $
                           KVIDTelescope.cpp  -  description
                              -------------------
@@ -22,6 +22,7 @@ Author : $Author: franklan $
 #include "KVGroup.h"
 #include "KVNucleus.h"
 #include "KVReconstructedNucleus.h"
+#include "KVIDGraph.h"
 #include "KVIDGrid.h"
 #include "Riostream.h"
 #include "TPluginManager.h"
@@ -40,12 +41,12 @@ ClassImp(KVIDTelescope)
 //Although initially conceived in terms of DE-E two-stage telescopes, the identification
 //method can be quite different (see KVIDCsI for example).
 //
-//Visualising Identification (ID) Grids
-//-------------------------------------
+//Visualising Identification (ID) Grids & Maps
+//--------------------------------------------
 //Identification in such 'telescopes' is often associated with a 'grid' or set of
 //graphical cuts permitting to associate the informations measured in the 'telescope'
 //with certain types of particles. For any class derived from KVIDTelescope, the
-//identification grid (KVIDGrid), if one exists, can be obtained and visualised using :
+//identification grid (KVIDGraph), if one exists, can be obtained and visualised using :
 //
 //      idtelescope->GetIDGrid()->Draw();
 //
@@ -345,7 +346,7 @@ Bool_t KVIDTelescope::Identify(KVReconstructedNucleus * nuc)
 
 //____________________________________________________________________________________
 
-Bool_t KVIDTelescope::SetIDGrid(KVIDGrid * grid)
+Bool_t KVIDTelescope::SetIDGrid(KVIDGraph * grid)
 {
    //Add an identification grid to the list of grids used by this telescope.
    //Needs to be redefined in child classes which use KVIDGridManager to handle a large
@@ -360,7 +361,7 @@ Bool_t KVIDTelescope::SetIDGrid(KVIDGrid * grid)
 
 //____________________________________________________________________________________
 
-KVIDGrid *KVIDTelescope::GetIDGrid()
+KVIDGraph *KVIDTelescope::GetIDGrid()
 {
    //Return the first in the list of identification grids used by this telescope
    //(this is for backwards compatibility with ID telescopes which had only one grid).
@@ -369,19 +370,19 @@ KVIDGrid *KVIDTelescope::GetIDGrid()
 
 //____________________________________________________________________________________
 
-KVIDGrid *KVIDTelescope::GetIDGrid(Int_t index)
+KVIDGraph *KVIDTelescope::GetIDGrid(Int_t index)
 {
    //Return pointer to grid using position in list. First grid has index = 1.
-   return (KVIDGrid*)fIDGrids->At(index-1);
+   return (KVIDGraph*)fIDGrids->At(index-1);
 }
 
 //____________________________________________________________________________________
 
-KVIDGrid *KVIDTelescope::GetIDGrid(const Char_t* label)
+KVIDGraph *KVIDTelescope::GetIDGrid(const Char_t* label)
 {
    //Return pointer to grid using "label" to search in list of grids associated
    //to this telescope.
-   return (KVIDGrid*)fIDGrids->FindObjectByLabel(label);
+   return (KVIDGraph*)fIDGrids->FindObjectByLabel(label);
 }
 
 //____________________________________________________________________________________

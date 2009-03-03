@@ -5,7 +5,7 @@
     copyright            : (C) 2005 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVTGIDZA.cpp,v 1.10 2008/03/06 13:51:40 franklan Exp $
+$Id: KVTGIDZA.cpp,v 1.11 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 #include "KVTGIDZA.h"
 #include "KVIDZAGrid.h"
@@ -61,16 +61,16 @@ void KVTGIDZA::SetIdent(KVIDLine * line, Double_t Id)
    Int_t za = (Int_t) Id;
    Int_t z = za / 100;
    Int_t a = za % 100;
-   dynamic_cast < KVIDZALine * >(line)->SetZ(z);
-   dynamic_cast < KVIDZALine * >(line)->SetA(a);
+   line->SetZ(z);
+   line->SetA(a);
 }
 
 //___________________________________________________________________________//
 
 KVIDLine *KVTGIDZA::AddLine(KVIDGrid * g)
 {
-   //Add a new KVIDZLine to the grid
-   return g->AddLine("ID", "KVIDZALine");
+   //Add a new KVIDZALine to the grid
+   return (KVIDLine*)g->Add("ID", "KVIDZALine");
 }
 
 //___________________________________________________________________________//

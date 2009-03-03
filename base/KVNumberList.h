@@ -1,7 +1,7 @@
 /*******************************************************************************
-$Id: KVNumberList.h,v 1.18 2007/12/12 10:50:34 franklan Exp $
-$Revision: 1.18 $
-$Date: 2007/12/12 10:50:34 $
+$Id: KVNumberList.h,v 1.19 2009/03/03 13:36:00 franklan Exp $
+$Revision: 1.19 $
+$Date: 2009/03/03 13:36:00 $
 $Author: franklan $
 *******************************************************************************/
 
@@ -58,7 +58,7 @@ class KVNumberList {
 	
 	void Inter(const KVNumberList& list);
 
-   Bool_t Contains(Int_t val);
+   Bool_t Contains(Int_t val) const;
    Int_t First();
    Int_t Last();
    Int_t At(Int_t index);

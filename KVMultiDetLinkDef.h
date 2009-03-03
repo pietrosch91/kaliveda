@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.130 2009/01/23 08:26:04 ebonnet Exp $
+$Id: KVMultiDetLinkDef.h,v 1.131 2009/03/03 13:36:00 franklan Exp $
                               KVMultiDetLinkDef.h
                                description
                              -------------------
@@ -94,12 +94,17 @@ $Id: KVMultiDetLinkDef.h,v 1.130 2009/01/23 08:26:04 ebonnet Exp $
 #pragma link C++ class KVEvent+;
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
+#pragma link C++ class KVIDentifier+;
+#pragma link C++ class KVIDGraph+;
 #pragma link C++ class KVIDLine+;
-#pragma link C++ class KVIDZLine+;
+#pragma link C++ class KVIDContour+;
+#pragma link C++ class KVIDCutContour+;
+#pragma link C++ class KVIDCutLine+;
+#pragma link C++ class KVIDZAContour+;
 #pragma link C++ class KVIDZALine+;
-#pragma link C++ class KVIDGrid-;
+#pragma link C++ class KVIDMap+;
+#pragma link C++ class KVIDGrid+;
 #pragma link C++ class KVIDGridManager;
-#pragma link C++ class KVIDZGrid+;
 #pragma link C++ class KVIDZAGrid+;
 #pragma link C++ class KVIDTelescope-;
 #pragma link C++ class KVIDSubCodeManager+;

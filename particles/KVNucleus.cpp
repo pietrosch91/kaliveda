@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.cpp,v 1.45 2008/12/02 09:15:17 ebonnet Exp $
+$Id: KVNucleus.cpp,v 1.46 2009/03/03 13:36:00 franklan Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,10 +21,6 @@ $Id: KVNucleus.cpp,v 1.45 2008/12/02 09:15:17 ebonnet Exp $
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
 Double_t KVNucleus::kAMU = 9.31494043e02;
-Double_t KVNucleus::u()
-{
-   return kAMU;
-};
 
 ClassImp(KVNucleus);
 
@@ -215,14 +211,18 @@ void KVNucleus::SetZFromSymbol(const Char_t * sym)
 
 void KVNucleus::init()
 {
-//Default actions for ctor's
+   // Default intialisations
+   // The mass formula is taken from environment
+   // variable KVNucleus.DefaultMassFormula (if not defined, we
+   // use kBetaMass, i.e. the formula for the valley of beta-stability).
+   
    fZ = fA = 0;
    fExx = 0;
-   fMassFormula = gEnv->GetValue("KVINDRAReconNuc.MassFormula",kEALMass);
    if (!fNb_nuc){
       KVBase::InitEnvironment(); // initialise environment i.e. read .kvrootrc
       ReadMassTable();
    }
+   fMassFormula = (Int_t)gEnv->GetValue("KVNucleus.DefaultMassFormula", kBetaMass);
    fNb_nuc++;
    fExx = 0.;
 }
@@ -340,8 +340,7 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
 //Beta (default) - An improved parametrisation of the beta-stability valley,
 //   correct even for heavy nuclei up to 238U. The formula is the result
 //   of a fit to 8 stable nuclear masses from Ne20 up to U238. 
-//   fA = (.2875 + 1.7622 *Z + .013879 * Z  * Z -
-//                                        .000054875 * Z * Z * Z);
+//   fA = (.2875 + 1.7622 *Z + .013879 * Z  * Z - .000054875 * Z * Z * Z);
 //
 //mt = KVNucleus::kEALMass
 //________________________
@@ -351,7 +350,7 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
 //
 //mt = KVNucleus::kEALResMass
 //________________________
-//EALRes - R.J. Charity ---- Amelioration of EAL parametrisation for 
+//EALRes - R.J. Charity ---- improvement of EAL parametrisation for 
 // Heavy Residue (QP for instance) (PRC 58(1998)1073) (eq 7)
 //    fA = (2.045*Z + 3.57E-03 * Z*Z) ;
 //
@@ -398,7 +397,7 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
 //mt = KVNucleus::kVedaMass
 //__________________________
 //Veda - A calculated using the formula
-//      fA = (UInt_t)(1.867*fZ+.016*fZ*fZ-1.07E-4*fZ*fZ*fZ) + 1;
+//      fA = (Int_t)(1.867*fZ+.016*fZ*fZ-1.07E-4*fZ*fZ*fZ) + 1;
 //      This corresponds to the amass.f subroutine of the old INDRA Veda
 //      calibration programme. This formula was supposed to represent
 //      the Z-dependence of isotope masses in the beta-stability valley,
@@ -410,20 +409,19 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
 //   correct even for heavy nuclei up to 238U. The formula is the result
 //   of a fit to 8 stable nuclear masses from Ne20 up to U238. From carbon-12 onwards,
 //   the mass is calculated using
-//   fA = (UInt_t) (.2875 + 1.7622 *Z + .013879 * Z  * Z -
-//                                        .000054875 * Z * Z * Z) + 1;
+//   fA = (Int_t) (.2875 + 1.7622 *Z + .013879 * Z  * Z - .000054875 * Z * Z * Z) + 1;
 //
 //mt = KVNucleus::kEALMass
 //________________________
 //EAL - parametrisation of the Evaporation Attractor Line (residue corridor)
 //    due to R.J. Charity (PRC 58(1998)1073).
-//    fA = (UInt_t)(2.072*Z + 2.32E-03 * Z*Z) + 1; (eq 2)
+//    fA = (Int_t)(2.072*Z + 2.32E-03 * Z*Z) + 1; (eq 2)
 //
 //mt = KVNucleus::kEALResMass
 //________________________
-//EALRes - R.J. Charity ---- Amelioration of EAL parametrisation for 
-// Heavy Residue (QP for instance) (PRC 58(1998)1073) (eq 7)
-//    fA = (2.045*Z + 3.57E-03 * Z*Z) ;
+//EALRes - R.J. Charity ---- improvement of EAL parametrisation for 
+// Heavy Residues (QP for instance) (PRC 58(1998)1073) (eq 7)
+//    fA = (Int_t)(2.045*Z + 3.57E-03 * Z*Z) + 1 ;
 //
 //mt = any other value: A=2*Z
 
@@ -947,3 +945,12 @@ delete ntemp;
 return chart;
 
 }
+
+//_______________________________________________________________________________________
+
+Double_t KVNucleus::u(void)
+{
+   //Atomic mass unit in MeV
+   //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
+   return kAMU;
+};

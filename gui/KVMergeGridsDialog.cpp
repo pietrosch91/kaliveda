@@ -158,7 +158,7 @@ void KVMergeGridsDialog::MergeGrids()
        << " id1_max=" << G1IDmax
        << " id2_min=" << G2IDmin << " id2_max=" << G2IDmax << endl;
    KVIDGrid *m =
-       KVIDGrid::AddGrids(fGrid1, G1IDmin, G1IDmax, fGrid2, G2IDmin,
+       (KVIDGrid*)KVIDGrid::AddGraphs(fGrid1, G1IDmin, G1IDmax, fGrid2, G2IDmin,
                           G2IDmax);
    gIDGridManager->AddGrid(m);
    DoClose();

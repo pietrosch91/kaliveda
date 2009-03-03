@@ -1,7 +1,7 @@
 /*
-$Id: KVNewGridDialog.h,v 1.6 2006/10/19 14:32:43 franklan Exp $
-$Revision: 1.6 $
-$Date: 2006/10/19 14:32:43 $
+$Id: KVNewGridDialog.h,v 1.7 2009/03/03 13:36:00 franklan Exp $
+$Revision: 1.7 $
+$Date: 2009/03/03 13:36:00 $
 $Author: franklan $
 */
 
@@ -13,7 +13,7 @@ $Author: franklan $
 #include "TGListBox.h"
 #include "TGButtonGroup.h"
 #include "TGButton.h"
-#include "KVIDGrid.h"
+#include "KVIDGraph.h"
 #include "RQ_OBJECT.h"
 #include <TGComboBox.h>
 #include <TGLabel.h>
@@ -112,7 +112,7 @@ class KVNewGridDialog {
       NE_SCALE_Y
    };
 
-   KVIDGrid *fSelectedGrid;
+   KVIDGraph *fSelectedGrid;
 
         /**********grid lines lists and buttons******************/
    TGHorizontalFrame *fHFlines;
@@ -131,7 +131,7 @@ class KVNewGridDialog {
    TGListBox *fOKLines;
    TGGroupFrame *fGFID;
    TGListBox *fIDLines;
-   KVIDLine *fSelectedLine;
+   KVIDentifier *fSelectedLine;
    Int_t fLastSelectedIDLine;
    Int_t fLastSelectedOKLine;
    Color_t fLastSelectedLineColor;
@@ -143,7 +143,7 @@ class KVNewGridDialog {
       kOKRadBut
    };
 
-   virtual void set_selected_grid(KVIDGrid * g);
+   virtual void set_selected_grid(KVIDGraph * g);
    virtual void init_interface(const TGWindow * p, const TGWindow * main,
                                UInt_t w, UInt_t h, Option_t * dialog_type);
    virtual void new_grid_class_list();
@@ -158,7 +158,7 @@ class KVNewGridDialog {
       fMain = 0;
    };
    KVNewGridDialog(const TGWindow * p, const TGWindow * main, UInt_t w =
-                   1, UInt_t h = 1, Option_t * type = "New", KVIDGrid * g =
+                   1, UInt_t h = 1, Option_t * type = "New", KVIDGraph * g =
                    0);
    virtual ~ KVNewGridDialog();
 
@@ -189,7 +189,7 @@ class KVNewGridDialog {
    void DeselectOKLine();
    void DeselectIDLine();
    void HandleButtons(Int_t id = -1);
-   virtual void ReadAndSetSelectedGridProperties(KVIDGrid *);
+   virtual void ReadAndSetSelectedGridProperties(KVIDGraph *);
    void SetAllLinesNonEditable();
    void RemoveSelectedLine();
 

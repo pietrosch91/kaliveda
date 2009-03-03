@@ -5,14 +5,14 @@
     copyright            : (C) 2005 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGridManager.h,v 1.9 2006/10/19 14:32:43 franklan Exp $
+$Id: KVIDGridManager.h,v 1.10 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGridManager_H
 #define KVIDGridManager_H
 
 #include "KVList.h"
-#include "KVIDGrid.h"
+#include "KVIDGraph.h"
 #include "KVIDTelescope.h"
 #include "RQ_OBJECT.h"
 
@@ -24,7 +24,7 @@ class KVIDGridManager:public KVBase {
 
  private:
 
-   KVList * fGrids;             //collection of all ID grids handled by manager
+   KVList * fGrids;             //collection of all ID graphs handled by manager
 
  protected:
 
@@ -34,9 +34,9 @@ class KVIDGridManager:public KVBase {
    virtual ~ KVIDGridManager();
 
    void FindGrid(KVIDTelescope *);
-   void AddGrid(KVIDGrid *);
-   void DeleteGrid(KVIDGrid *, Bool_t update = kTRUE);
-   KVIDGrid *GetGrid(const Char_t * name);
+   void AddGrid(KVIDGraph *);
+   void DeleteGrid(KVIDGraph *, Bool_t update = kTRUE);
+   KVIDGraph *GetGrid(const Char_t * name);
 
    KVList *GetGrids() {
       return fGrids;
