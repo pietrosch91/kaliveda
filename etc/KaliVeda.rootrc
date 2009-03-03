@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.79 2009/03/02 16:48:17 franklan Exp $
-#$Revision: 1.79 $
+#$Id: KaliVeda.rootrc,v 1.80 2009/03/03 13:36:00 franklan Exp $
+#$Revision: 1.80 $
 #$Author: franklan $
-#$Date: 2009/03/02 16:48:17 $
+#$Date: 2009/03/03 13:36:00 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -200,7 +200,7 @@ Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 # INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 
 # By default the file containing reconstructed events will be written in the same data repository
-# as the raw data file from which it is created.
+#ï¿½as the raw data file from which it is created.
 # This can be changed by setting the environment variable(s):
 #
 #Reconstruction.DataAnalysisTask.OutputRepository:     [name of repository]
@@ -218,7 +218,7 @@ Identification1.DataAnalysisTask.UserClass:     no
 Identification1.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
 
 # By default the file containing identified events will be written in the same data repository
-# as the recon data file from which it is created.
+#ï¿½as the recon data file from which it is created.
 # This can be changed by setting the environment variable(s):
 #
 #Identification1.DataAnalysisTask.OutputRepository:     [name of repository]
@@ -673,6 +673,15 @@ KVNucleus.MassTable:      $(KVROOT)/KVFiles/data/pace2_2001.data
 # If new versions of files are available, we perform the update and then rebuild
 # (this means forcing the termination of the current application)
 # KaliVeda.AutoUpdateCheck:        yes
+
+# Default mass formula used by KVNucleus to calculate A from Z
+# Possibile values are:
+#   0  = kBetaMass
+#   1  = kVedaMass
+#   2  = kEALMass
+#   3  = kEALResMass
+# (see KVNucleus::GetAFromZ)
+KVNucleus.DefaultMassFormula:       0
 
 #ROOT environment variables
 +ACLiC.IncludePaths:     -I$(KVROOT)/include

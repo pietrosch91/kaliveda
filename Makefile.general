@@ -1,4 +1,4 @@
-# $Id: Makefile.general,v 1.53 2009/02/06 11:32:57 franklan Exp $
+# $Id: Makefile.general,v 1.54 2009/03/03 13:36:00 franklan Exp $
 #	MAKEFILE for KaliVeda shared library libKVMultiDet.so
 #
 # NOTE: You must set the environment variable KVROOT before using
@@ -36,7 +36,7 @@ SOURCES := $(filter-out $(ALL_NOT_READY),$(ALL_SOURCES))
 KV_INC := $(patsubst %, -I%, $(MODULES))
 KV_INC += $(KV_INC_EXTRAS)
 #make sure previously installed headers are consulted last
-KV_INC += -I$(INSTALL)/include
+KV_INC += -I$(KVINSTALLDIR)/include
 
 HEADERS = $(SOURCES:%.cpp=%.h) $(EXTRA_HEADERS)
 
@@ -151,10 +151,10 @@ endif
 	@echo "$@ done"
 ifeq ($(ARCH),win32)
 #dynamic path for .dll is PATH for win32vc++
-	-cp $(LIB_SO) $(INSTALL)/bin/
-	-cp $(LIB_LIB) $(INSTALL)/lib/
+	-cp $(LIB_SO) $(KVINSTALLDIR)/bin/
+	-cp $(LIB_LIB) $(KVINSTALLDIR)/lib/
 else
-	-cp $(LIB_LIB) $(INSTALL)/lib/
+	-cp $(LIB_LIB) $(KVINSTALLDIR)/lib/
 endif
 
 .SUFFIXES: .$(SrcSuf)
@@ -174,7 +174,7 @@ clean :
 	-rm -f .copyheads .config .copysource
 
 .copyheads: $(HEADERS)
-	-cp $? $(INSTALL)/include/
+	-cp $? $(KVINSTALLDIR)/include/
 	-touch .copyheads
 
 indent:
@@ -205,7 +205,7 @@ endif
 	-rm -Rf $(DIST_DIR)
 
 install : .copysource $(MANIP_DATA)
-ifeq ( $(INSTALL),)
+ifeq ( $(KVINSTALLDIR),)
 	@echo "KVROOT environment variable doesn't seem to be set."
 	@echo "You must set it in order to install KaliVeda project files"
 	@echo "use 'setenv KVROOT install_path' (shell)"
@@ -216,68 +216,68 @@ ifneq ($(ETC_DATA), )
 	@echo "--------------------------------------------------------------------------------"
 	@echo "ETC_DATA = |"$(ETC_DATA)"|"
 	@echo "--------------------------------------------------------------------------------"
-	-cp -r $(CPOPT) $(ETC_DATA) $(INSTALL)/KVFiles/
+	-cp -r $(CPOPT) $(ETC_DATA) $(KVINSTALLDIR)/KVFiles/
 endif
 ifneq ($(PLATFORM),win32)
-	-cp $(LIB_LIB) $(INSTALL)/lib/$(LIBVERSION)
-	-rm -f $(INSTALL)/lib/$(LIB_LIB)
-	ln -s $(INSTALL)/lib/$(LIBVERSION) $(INSTALL)/lib/$(LIB_LIB)
+	-cp $(LIB_LIB) $(KVINSTALLDIR)/lib/$(LIBVERSION)
+	-rm -f $(KVINSTALLDIR)/lib/$(LIB_LIB)
+	ln -s $(KVINSTALLDIR)/lib/$(LIBVERSION) $(KVINSTALLDIR)/lib/$(LIB_LIB)
 endif
 ifeq ($(PLATFORM),macosx)
-	 -cp $(LIB_DY) $(INSTALL)/lib/$(LIBDYVERSION)
-	 -rm -f $(INSTALL)/lib/$(LIB_DY)
-	 ln -s $(INSTALL)/lib/$(LIBDYVERSION) $(INSTALL)/lib/$(LIB_DY)
+	 -cp $(LIB_DY) $(KVINSTALLDIR)/lib/$(LIBDYVERSION)
+	 -rm -f $(KVINSTALLDIR)/lib/$(LIB_DY)
+	 ln -s $(KVINSTALLDIR)/lib/$(LIBDYVERSION) $(KVINSTALLDIR)/lib/$(LIB_DY)
 endif
   endif
 ifeq ($(PROJ_NAME),KVIndra)
 	$(MAKE) indra2root
 endif
 #this is for HTML doc generation
-	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/include/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(INSTALL)/include/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/src/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(INSTALL)/src/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/include/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(KVINSTALLDIR)/include/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/src/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell ln -f -s . $(KVINSTALLDIR)/src/$(subdir)))
 
 .copysource : $(SOURCES)
 	touch .copysource
-ifeq ( $(INSTALL),)
+ifeq ( $(KVINSTALLDIR),)
 	@echo "KVROOT environment variable doesn't seem to be set."
 	@echo "You must set it in order to install KaliVeda project files"
 	@echo "use 'setenv KVROOT install_path' (shell)"
 	@echo "or  'export KVROOT=install_path' (bash)"
 	@echo "use 'make install' to perform the installation"
 else
-	-cp $? $(INSTALL)/src/
+	-cp $? $(KVINSTALLDIR)/src/
 endif
 
 removemoduledirs :
-	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/include/$(subdir)))
-	$(foreach subdir,$(MODULES),$(shell rm -f $(INSTALL)/src/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/include/$(subdir)))
+	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/src/$(subdir)))
 
 uninstall :
-	cd $(INSTALL)/src && rm -f $(SOURCES)
+	cd $(KVINSTALLDIR)/src && rm -f $(SOURCES)
 	-rm -f .copysource
-	cd $(INSTALL)/include && rm -f $(HEADERS)
+	cd $(KVINSTALLDIR)/include && rm -f $(HEADERS)
 	-rm -f .copyheads
 ifeq ($(ARCH),win32)
-	-rm -f $(INSTALL)/bin/$(LIB_SO) 
-	-rm -f $(INSTALL)/lib/$(LIB_LIB) 
+	-rm -f $(KVINSTALLDIR)/bin/$(LIB_SO) 
+	-rm -f $(KVINSTALLDIR)/lib/$(LIB_LIB) 
 else
-	-rm -f $(INSTALL)/lib/$(LIB_LIB) 
+	-rm -f $(KVINSTALLDIR)/lib/$(LIB_LIB) 
 endif
 ifneq ($(ETC_DATA), )
 	cd $(INSTALL)/KVFiles && rm -rf $(ETC_DATA)
 endif
 ifneq ($(MANIP_DIRS), )
-	cd $(INSTALL)/KVFiles && rm -rf $(MANIP_DIRS)
+	cd $(KVINSTALLDIR)/KVFiles && rm -rf $(MANIP_DIRS)
 endif
 ifneq ($(PLATFORM),win32)
-	-rm -f $(INSTALL)/lib/$(LIB_LIB)
-	-rm -f $(INSTALL)/lib/$(LIBVERSION)
+	-rm -f $(KVINSTALLDIR)/lib/$(LIB_LIB)
+	-rm -f $(KVINSTALLDIR)/lib/$(LIBVERSION)
 endif
 ifeq ($(PLATFORM),macosx)
-	 -rm -f $(INSTALL)/lib/$(LIB_DY)
-	 -rm -f $(INSTALL)/lib/$(LIBDYVERSION)
+	 -rm -f $(KVINSTALLDIR)/lib/$(LIB_DY)
+	 -rm -f $(KVINSTALLDIR)/lib/$(LIBDYVERSION)
 endif
 
 # recursively copy contents of each directory 'manip_dir' named in variable MANIP_DIRS
@@ -324,7 +324,7 @@ copymanipdirs :
 	@echo "--------------------------------------------------------------------------------"
 	@echo "KVPROJ_ROOT_ABS = "$(KVPROJ_ROOT_ABS)
 	@echo "--------------------------------------------------------------------------------"
-	@echo "INSTALL = "$(INSTALL)
+	@echo "KVINSTALLDIR = "$(KVINSTALLDIR)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "CXX = "$(CXX)
 	@echo "--------------------------------------------------------------------------------"
@@ -335,7 +335,7 @@ copymanipdirs :
 logs :
 	$(CVS2CL)/cvs2cl.pl --xml --xml-encoding iso-8859-15 --noxmlns -f ChangeLog.xml
 	xsltproc -o ChangeLog.html $(CVS2CL)/cl2html-ciaglia.xslt ChangeLog.xml
-	-cp ChangeLog.html $(INSTALL)/KaliVedaDoc/$(PROJ_NAME)ChangeLog.html
+	-cp ChangeLog.html $(KVINSTALLDIR)/KaliVedaDoc/$(PROJ_NAME)ChangeLog.html
 
 ifneq ($(ARCH),win32)
 .$(SrcSuf).$(ObjSuf):

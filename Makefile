@@ -1,6 +1,6 @@
-#$Id: Makefile,v 1.81 2009/01/19 12:04:40 franklan Exp $
-#$Revision: 1.81 $
-#$Date: 2009/01/19 12:04:40 $
+#$Id: Makefile,v 1.82 2009/03/03 13:36:00 franklan Exp $
+#$Revision: 1.82 $
+#$Date: 2009/03/03 13:36:00 $
 #$Author: franklan $
 #
 #General Makefile for the entire KaliVeda project
@@ -48,9 +48,9 @@ export KVPROJ_ROOT_ABS = $(shell pwd)
 
 ifeq ($(ARCH),win32)
 #on windows with cygwin and VC++, KVROOT is in DOS format!!
-export INSTALL = $(shell cygpath -u '$(KVROOT)')
+export KVINSTALLDIR = $(shell cygpath -u '$(KVROOT)')
 else
-export INSTALL = $(KVROOT)
+export KVINSTALLDIR = $(KVROOT)
 endif
 
 #split ROOT version into major, minor and release version numbers
@@ -110,9 +110,9 @@ DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
 
-.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape logs unpack install init analysis FNL html html_ccali byebye distclean
+.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape logs unpack install analysis FNL html html_ccali byebye distclean
 
-all : init $(KV_CONFIG__H) KVVersion.h MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
 
 doc : $(CCALI) byebye
 
@@ -124,10 +124,12 @@ export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
 export CVS2CL = ../cvs2cl
 
-init :
-	-mkdir -p $(INSTALL)/lib
-	-mkdir -p $(INSTALL)/bin
-	-mkdir -p $(INSTALL)/include
+.init :
+	-mkdir -p $(KVINSTALLDIR)/lib
+	-mkdir -p $(KVINSTALLDIR)/bin
+	-mkdir -p $(KVINSTALLDIR)/include
+	cd fitltg-0.1 && ./configure --prefix=$(KVINSTALLDIR)
+	touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
 	@echo '#define KV_VERSION "$(VERSION_NUMBER)-$(KV_BUILD_DATE)"' > KVVersion.h;\
@@ -143,7 +145,7 @@ $(DATE_RECORD_FILE) :
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
 	$(MAKE) -f Makefile.compat
-	-cp $@ $(INSTALL)/include/
+	-cp $@ $(KVINSTALLDIR)/include/
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \
@@ -151,28 +153,31 @@ $(ROOT_VERSION_TAG) :
 	  touch $@; \
 	else :; fi
 
-gan_tape : init
+gan_tape : .init
 	cd GanTape && ./make_linux_i386
 
-ROOTGT : init
+ROOTGT : .init
 	cd ROOTGanilTape && $(MAKE)
+
+ltgfit : .init
+	cd fitltg-0.1 && make && make install
 		
-MultiDet : init
+MultiDet : .init
 	cd KVMultiDet && $(MAKE)
 
-Indra : init
+Indra : .init
 	cd KVIndra && $(MAKE)
 
-Indra5 : init
+Indra5 : .init
 	cd KVIndra5 && $(MAKE)
 
-FNL : init
+FNL : .init
 	cd KVIndraFNL && $(MAKE)
 
-analysis : init
+analysis : .init
 	cd analysis && $(MAKE)
 	
-VAMOS : init
+VAMOS : .init
 	cd VAMOS && $(MAKE)
 
 html :
@@ -191,6 +196,7 @@ clean :
 	-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
 	-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
 	cd KVMultiDet && $(MAKE) clean
+	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
 ifeq ($(INDRADLT),yes)
 	cd ROOTGanilTape && $(MAKE) clean
@@ -203,15 +209,15 @@ endif
 	cd html && $(MAKE) clean
 
 distclean : clean
-	-rm -f $(INSTALL)/KVFiles/*/DataBase.root
+	-rm -f $(KVINSTALLDIR)/KVFiles/*/DataBase.root
 	-rm -f $(HOME)/.KVDataAnalysisGUIrc*
 		
 install :
-	-mkdir -p $(INSTALL)/src
-	-mkdir -p $(INSTALL)/KVFiles
-	-mkdir -p $(INSTALL)/db
-	-mkdir -p $(INSTALL)/examples
-	-mkdir -p $(INSTALL)/tools
+	-mkdir -p $(KVINSTALLDIR)/src
+	-mkdir -p $(KVINSTALLDIR)/KVFiles
+	-mkdir -p $(KVINSTALLDIR)/db
+	-mkdir -p $(KVINSTALLDIR)/examples
+	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
 ifeq ($(INDRADLT),yes)
 	cd ROOTGanilTape && $(MAKE) install
@@ -220,49 +226,49 @@ endif
 	cd KVIndra5 && $(MAKE) install
 	cd KVIndraFNL && $(MAKE) install
 	cd VAMOS && $(MAKE) install
-	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(INSTALL)/tools/
-	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(INSTALL)/examples/
-	-cp etc/KaliVeda.rootrc $(INSTALL)/KVFiles/.kvrootrc
+	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(KVINSTALLDIR)/tools/
+	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
+	-cp etc/KaliVeda.rootrc $(KVINSTALLDIR)/KVFiles/.kvrootrc
 ifeq ($(SITE),CCIN2P3)
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/ccali.available.datasets $(INSTALL)/KVFiles/ccali.available.datasets
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(INSTALL)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.root $(INSTALL)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.raw $(INSTALL)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.root $(INSTALL)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.raw $(INSTALL)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.root $(INSTALL)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.raw $(INSTALL)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.recon $(INSTALL)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.ident $(INSTALL)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.root $(INSTALL)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.raw $(INSTALL)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.recon $(INSTALL)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.ident $(INSTALL)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.root $(INSTALL)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.raw $(INSTALL)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.recon $(INSTALL)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.ident $(INSTALL)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.root $(INSTALL)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.raw $(INSTALL)/KVFiles/INDRA_e503/ccali.available_runs.e503.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.recon $(INSTALL)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.ident $(INSTALL)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.root $(INSTALL)/KVFiles/INDRA_e503/ccali.available_runs.e503.root
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.raw $(INSTALL)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.recon $(INSTALL)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.ident $(INSTALL)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.root $(INSTALL)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/ccali.available.datasets $(KVINSTALLDIR)/KVFiles/ccali.available.datasets
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.root $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.root $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.root $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.recon $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.ident $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.root $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.raw $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.recon $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.ident $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.root $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.root $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.raw $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.recon $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.ident $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.root $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.root $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root
 endif
 	
 uninstall :
-	-rm -rf $(INSTALL)/tools
-	-rm -rf $(INSTALL)/examples
-	-rm -rf $(INSTALL)/KaliVedaDoc
-	-rm -rf $(INSTALL)/db
+	-rm -rf $(KVINSTALLDIR)/tools
+	-rm -rf $(KVINSTALLDIR)/examples
+	-rm -rf $(KVINSTALLDIR)/KaliVedaDoc
+	-rm -rf $(KVINSTALLDIR)/db
 ifeq ($(INDRADLT),yes)
-	-rm -f $(INSTALL)/include/GT*.H
-	-rm -f $(INSTALL)/src/GT*.cpp
-	-rm -f $(INSTALL)/lib/libROOTGanilTape.so
-	-rm -f $(INSTALL)/lib/libgan_tape.a
+	-rm -f $(KVINSTALLDIR)/include/GT*.H
+	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
+	-rm -f $(KVINSTALLDIR)/lib/libROOTGanilTape.so
+	-rm -f $(KVINSTALLDIR)/lib/libgan_tape.a
 endif
 	cd KVMultiDet && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall
@@ -276,9 +282,10 @@ endif
 	cd KVIndra5 && $(MAKE) removemoduledirs
 	cd KVIndraFNL && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
-	-rm -rf $(INSTALL)/KVFiles
+	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
 dist : clean
+	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
 	tar -czf libKVIndra5-$(VERSION_NUMBER).tgz KVIndra5
@@ -288,6 +295,7 @@ dist : clean
 	tar -czf html-$(VERSION_NUMBER).tgz html
 	-mkdir $(KV_DIST)
 	-cp libKV*.tgz $(KV_DIST)/
+	-cp fitltg-0.1/fitltg-0.1.tar.gz $(KV_DIST)/
 	-cp libVAMOS-$(VERSION_NUMBER).tgz $(KV_DIST)/
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
@@ -307,6 +315,7 @@ dist : clean
 	
 unpack :
 	@echo Unpacking compressed archives
+	-tar zxf fitltg-0.1.tar.gz 
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra5-$(VERSION_NUMBER).tgz 
@@ -314,6 +323,7 @@ unpack :
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
 	-tar zxf html-$(VERSION_NUMBER).tgz
+	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
 	-rm libKVIndraFNL-$(VERSION_NUMBER).tgz 
@@ -328,7 +338,7 @@ config :
 	@echo "--------------------------------------------------------------------------------"
 	@echo "KVPROJ_ROOT_ABS = "$(KVPROJ_ROOT_ABS)
 	@echo "--------------------------------------------------------------------------------"
-	@echo "INSTALL = "$(INSTALL)
+	@echo "KVINSTALLDIR = "$(KVINSTALLDIR)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "ROOT_VERSION_CODE = "$(ROOT_VERSION_CODE)
 	@echo "--------------------------------------------------------------------------------"
@@ -350,6 +360,6 @@ logs :
 	xsltproc -o ChangeLog.html cvs2cl/cl2html-ciaglia.xslt ChangeLog.xml
 	-cp ChangeLog.html $(KVPROJ_ROOT_ABS)/html/
 	cd html && ./stripchangelog ChangeLog.html $(NEW_TAG) KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
-	-cp $(KVPROJ_ROOT_ABS)/html/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html $(INSTALL)/KaliVedaDoc/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
+	-cp $(KVPROJ_ROOT_ABS)/html/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html $(KVINSTALLDIR)/KaliVedaDoc/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
 	-rm -f $(KVPROJ_ROOT_ABS)/html/ChangeLog.html
 	-rm -f $(KVPROJ_ROOT_ABS)/html/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
