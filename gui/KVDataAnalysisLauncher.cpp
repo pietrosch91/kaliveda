@@ -2281,10 +2281,10 @@ void KVDataAnalysisLauncher::UpdateListOfSelectedRuns()
 	// Called when the selected runs in TGListView lvRuns change.
 	// We update the KVNumberList listOfRuns according to the current selection
 	listOfRuns.Clear();
-	TList* novolist = lvRuns->GetSelectedItems();
+	TList* novolist = lvRuns->GetSelectedObjects();
 	if( novolist->GetEntries() > 0 ){
-		TIter nxt(novolist); TObjString* s=0;
-		while( (s=(TObjString*)nxt()) ) listOfRuns.Add( s->String().Data() );
+		TIter nxt(novolist); KVDBRun* s=0;
+		while( (s=(KVDBRun*)nxt()) ) listOfRuns.Add( s->GetNumber() );
 	}
 	delete novolist;
    SetResource("RunsList",listOfRuns.AsString());
