@@ -1,6 +1,6 @@
-#$Id: Makefile,v 1.24 2009/03/03 13:36:00 franklan Exp $
-#$Revision: 1.24 $
-#$Date: 2009/03/03 13:36:00 $
+#$Id: Makefile,v 1.25 2009/03/03 14:27:15 franklan Exp $
+#$Revision: 1.25 $
+#$Date: 2009/03/03 14:27:15 $
 #$Author: franklan $
 #
 #Makefile for KaliVeda web site/documentation
@@ -34,7 +34,10 @@ endif
 #ganil libraries for reading raw data only build on linux systems
 ifeq ($(PLATFORM),linux)
 export INDRADLT = yes
-LINK_LIBS +=  -lVAMOS -lROOTGanilTape -lgan_tape
+ifneq ($(WITH_VAMOS),no)
+LINK_LIBS +=  -lVAMOS
+endif
+LINK_LIBS +=  -lROOTGanilTape -lgan_tape
 CXXFLAGS += -I$(GANILTAPE_INC)
 else
 export INDRADLT = no
@@ -101,6 +104,7 @@ install_html: $(MAKEHTML)
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp tools/* $(KVROOT)/KaliVedaDoc/tools/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
+	-rm -f $(KVROOT)/KaliVedaDoc/index.html
 	-ln -s $(KVROOT)/KaliVedaDoc/about.html $(KVROOT)/KaliVedaDoc/index.html
 	
 logs :
