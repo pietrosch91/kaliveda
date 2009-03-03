@@ -11,7 +11,7 @@
 /* Modified by Frank Winklmeier to add the full Posix file system definition. */
 /******************************************************************************/
   
-//           $Id: XrdPosix.hh,v 1.3 2008/10/09 14:20:56 franklan Exp $
+//           $Id: XrdPosix.hh,v 1.4 2009/03/03 14:27:15 franklan Exp $
 
 // The following defines substitute our names for the common system names. We
 // would have liked to use wrappers but each platform uses a different mechanism
@@ -44,7 +44,7 @@
 /* Modified by Frank Winklmeier to add the full Posix file system definition. */
 /******************************************************************************/
   
-//           $Id: XrdPosix.hh,v 1.3 2008/10/09 14:20:56 franklan Exp $
+//           $Id: XrdPosix.hh,v 1.4 2009/03/03 14:27:15 franklan Exp $
 
 // These OS-Compatible (not C++) externs are included by XrdPosix.hh to
 // complete the macro definitions contained therein.
@@ -109,7 +109,7 @@ struct statvfs;
 /* Modified by Frank Winklmeier to add the full Posix file system definition. */
 /******************************************************************************/
   
-//           $Id: XrdPosix.hh,v 1.3 2008/10/09 14:20:56 franklan Exp $
+//           $Id: XrdPosix.hh,v 1.4 2009/03/03 14:27:15 franklan Exp $
 
 // Solaris does not have a statfs64 structure. So all interfaces use statfs.
 //
