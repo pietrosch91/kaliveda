@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.h,v 1.2 2009/03/03 13:36:00 franklan Exp $
-$Revision: 1.2 $
-$Date: 2009/03/03 13:36:00 $
+$Id: KVIDentifier.h,v 1.3 2009/03/03 14:27:15 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/03/03 14:27:15 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -22,6 +22,10 @@ class KVIDentifier : public TCutG
 	protected:
 	KVIDGraph 	*fParent;	//parent identification map or grid
    KVNucleus 	fIon;    	//ion/nucleus corresponding to this identifier
+	
+	Int_t fZ;//! dummy variables used by context menu dialog boxes
+	Int_t fA;//! dummy variables used by context menu dialog boxes
+	Int_t fMassFormula; //*OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
 	
 	// Does nothing. Can be overridden in child classes in order to write any
 	// extra information in between the name of the object and the number of points.
@@ -53,10 +57,10 @@ class KVIDentifier : public TCutG
    virtual Int_t GetID() const {return 0;};
    virtual Int_t GetA() const{ return fIon.GetA();};
    virtual Int_t GetZ() const{ return fIon.GetZ();};
-   virtual void SetZ(Int_t atnum){ fIon.SetZ(atnum); SetNameFromNucleus(); }; // *MENU*
-   virtual void SetA(Int_t atnum){ fIon.SetA(atnum); SetNameFromNucleus(); };  // *MENU*
-   virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU*
-   virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); SetNameFromNucleus(); };   // *MENU* 
+   virtual void SetZ(Int_t atnum){ fIon.SetZ(atnum); SetNameFromNucleus(); }; // *MENU={Hierarchy="SetNucleus.../Z"}*
+   virtual void SetA(Int_t atnum){ fIon.SetA(atnum); SetNameFromNucleus(); };  // *MENU={Hierarchy="SetNucleus.../A"}*
+   virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU={Hierarchy="SetNucleus.../A and Z"}*
+   virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); SetNameFromNucleus(); };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}* 
    virtual Int_t GetMassFormula()const { return fIon.GetMassFormula(); }
 	
    virtual Bool_t TestPoint(Double_t x, Double_t y)
@@ -78,6 +82,8 @@ class KVIDentifier : public TCutG
 	
 	virtual void WaitForPrimitive();
 	
+	virtual void ExtendLine(Option_t*,Double_t);  // *MENU*
+	
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TGraph.h, to stop these methods appearing in the ID line context menus
    virtual void      SetMaximum(Double_t maximum=-1111){TGraph::SetMaximum(maximum);}; 
@@ -94,7 +100,7 @@ class KVIDentifier : public TCutG
    virtual void     SetName(const char *name){TGraph::SetName(name);}; 
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TObject.h, to stop these methods appearing in the ID line context menus
-   virtual void        Delete(Option_t *option=""){TGraph::Delete(option);}; 
+   //virtual void        Delete(Option_t *option=""){TGraph::Delete(option);}; 
    virtual void        DrawClass() const {TGraph::DrawClass();};
    virtual TObject    *DrawClone(Option_t *option="") const {return TGraph::DrawClone(option);};
    virtual void        Dump() const {TGraph::Dump();}; 

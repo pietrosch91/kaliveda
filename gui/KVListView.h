@@ -1,7 +1,7 @@
 /*
-$Id: KVListView.h,v 1.1 2008/04/10 15:43:45 franklan Exp $
-$Revision: 1.1 $
-$Date: 2008/04/10 15:43:45 $
+$Id: KVListView.h,v 1.2 2009/03/03 14:27:15 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/03/03 14:27:15 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 11:51:38 2008
@@ -54,6 +54,19 @@ class KVListView : public TGListView
 						{((KVLVContainer*)GetContainer())->ActivateItemWithColumnData(colname, data, activate);};
 				void  	ActivateItemWithColumnData(const Char_t* colname, Double_t data, Bool_t activate=kTRUE)
 						{((KVLVContainer*)GetContainer())->ActivateItemWithColumnData(colname, data, activate);};
+	TObject* GetLastSelectedObject() const
+	{ return ((KVLVContainer*)GetContainer())->GetLastSelectedObject(); };
+	TGLVEntry* GetLastSelectedItem() const
+	{ return ((KVLVContainer*)GetContainer())->GetLastSelectedItem(); };
+	TList* GetSelectedItems() const
+	{ return ((KVLVContainer*)GetContainer())->GetSelectedItems(); };
+	TList* GetSelectedObjects() const
+	{ return ((KVLVContainer*)GetContainer())->GetSelectedObjects(); };
+	TList* GetUserItems()
+	{
+		// return list of all objects (selected or unselected) in list view
+		return ((KVLVContainer*)GetContainer())->GetUserItems();
+	};
 
    ClassDef(KVListView,0)//Slightly modified TGListView
 };

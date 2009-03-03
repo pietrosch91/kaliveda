@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.h,v 1.2 2008/04/17 13:39:08 franklan Exp $
-$Revision: 1.2 $
-$Date: 2008/04/17 13:39:08 $
+$Id: KVLVContainer.h,v 1.3 2009/03/03 14:27:15 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/03/03 14:27:15 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -14,6 +14,7 @@ $Date: 2008/04/17 13:39:08 $
 #include "TString.h"
 #include "TMethodCall.h"
 #include "TClass.h"
+#include "TTimer.h"
 #include "Riostream.h"
 #include "KVDatime.h"
 #include "TContextMenu.h"
@@ -72,8 +73,10 @@ class KVLVContainer : public TGLVContainer
 {
 
 	friend class KVLVFrameElement;
+	friend class KVLVEntry;
 	
 	Bool_t 		fIsResized;		// used to resize columns exactly once
+	Bool_t 		fSort;
 	
 	protected:
 	
@@ -83,13 +86,15 @@ class KVLVContainer : public TGLVContainer
 	Int_t 				*fSortDir;		// direction of sorting for each column
 	Int_t 				fNcols;			// number of data columns
 	TContextMenu		*fContextMenu; //! used to display popup context menu for items
+	TList 				*fUserItems;	// list of currently displayed items, used by Refresh()
 	
-	virtual void FillList(const TList*);
+	virtual void FillList(const TList* = 0);
 	void DeleteColData();
 	void default_init();
 	
    public:
-   KVLVContainer(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1,
+			
+	KVLVContainer(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1,
                    UInt_t options = kSunkenFrame,
                    Pixel_t back = GetDefaultFrameBackground());
    KVLVContainer(TGCanvas *p, UInt_t options = kSunkenFrame,
@@ -98,7 +103,8 @@ class KVLVContainer : public TGLVContainer
 	
 				void  	AddFrame 		(TGFrame *f, TGLayoutHints *l=0);
 				void  	Sort				(int column);
-	virtual  void  	Display			(const TList*);
+	virtual  void  	Display			(const TList* = 0);
+	virtual  void  	Refresh			();
 	virtual  void  	SetDataColumns (Int_t ncols);
 	virtual  void  	SetDataColumn	(Int_t index, TClass *cl, const Char_t* name, const Char_t* method="");
 	virtual	KVLVColumnData*		GetDataColumn	(Int_t index) const
@@ -115,6 +121,29 @@ class KVLVContainer : public TGLVContainer
 				void  	ActivateItemWithColumnData(const Char_t* colname, Double_t data, Bool_t activate=kTRUE);
 
 				void		OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t);
+				void		HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t);
+				
+	TObject* GetLastSelectedObject() const
+	{
+		// Returns object corresponding to last clicked item in list
+		return GetLastSelectedItem() ? (TObject*)GetLastSelectedItem()->GetUserData() : 0;
+	};
+	TGLVEntry* GetLastSelectedItem() const
+	{
+		// Returns last clicked item in list
+		return fLastActive;
+	};
+	TList* GetSelectedItems();
+	TList* GetSelectedObjects();
+	TList* GetUserItems()
+	{
+		// return list of all objects in list (regardless of selection)
+		return fUserItems;
+	};
+	Bool_t IsBeingSorted() const
+	{
+		return fSort;
+	};
 				
    ClassDef(KVLVContainer,0)//List view container class
 };

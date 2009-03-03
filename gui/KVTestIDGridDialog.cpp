@@ -1,7 +1,6 @@
 #include "KVTestIDGridDialog.h"
 #include "Riostream.h"
 #include "KVIDGridManager.h"
-#include "KVIDGrid.h"
 #include "TGFileDialog.h"
 #include "TPad.h"
 #include <TGMsgBox.h>
@@ -31,9 +30,9 @@ ClassImp(KVTestIDGridDialog)
 ////////////////////////////////////////////////////////////////
     KVTestIDGridDialog::KVTestIDGridDialog(const TGWindow * p,
                                            const TGWindow * main, UInt_t w,
-                                           UInt_t h, KVIDGrid * g)
+                                           UInt_t h, KVIDGraph * g)
 {
-   //Dialog box for calculating new grid
+   //Dialog box for testing identification grid
    fMain = new TGTransientFrame(p, main, w, h);
    fMain->Connect("CloseWindow()", "KVTestIDGridDialog", this,
                   "DoClose()");

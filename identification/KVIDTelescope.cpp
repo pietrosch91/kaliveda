@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDTelescope.cpp,v 1.49 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDTelescope.cpp,v 1.50 2009/03/03 14:27:15 franklan Exp $
 Author : $Author: franklan $
                           KVIDTelescope.cpp  -  description
                              -------------------
@@ -544,8 +544,6 @@ void KVIDTelescope::Streamer(TBuffer &R__b)
          fIDGrids->Clear();
          if(fIDGrid){
             fIDGrids->Add(fIDGrid);
-            //also have to add grid to ID grid manager, if not already in list
-            if(!gIDGridManager->GetGrid(fIDGrid->GetName())) gIDGridManager->AddGrid(fIDGrid);
          }
          R__b.CheckByteCount(R__s, R__c, KVIDTelescope::IsA());
       }
@@ -775,4 +773,22 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    nuc->SetEnergy(einc);
    //set angles from the dimensions of the telescope in which particle detected
    nuc->GetAnglesFromTelescope();
+}
+
+//_____________________________________________________________________________________________________//
+
+const Char_t* KVIDTelescope::GetDefaultIDGridClass()
+{
+	// Returns name of default ID grid class for this ID telescope.
+	// This is defined in a .kvrootrc configuration file by one of the following:
+	// KVIDTelescope.DefaultGrid:
+	// KVIDTelescope.DefaultGrid.[type]:
+	// where [type] is the type of this identification telescope (which is given
+	// by the character string returned by method GetLabel()... sorry :( )
+	// If no default grid is defined for the specific type of this telescope,
+	// the default defined by KVIDTelescope.DefaultGrid is used.
+	
+	TString general = gEnv->GetValue("KVIDTelescope.DefaultGrid", "KVIDGraph");
+	TString specific; specific.Form("KVIDTelescope.DefaultGrid.%s", GetLabel());
+	return gEnv->GetValue(specific.Data(), general.Data());
 }

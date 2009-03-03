@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.h,v 1.46 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDGrid.h,v 1.47 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGrid_H
@@ -24,8 +24,6 @@ $Id: KVIDGrid.h,v 1.46 2009/03/03 13:36:00 franklan Exp $
 class KVIDGrid : public KVIDGraph {
 
  protected:
-
-   UChar_t fMassFormula;       //!mass formula used for calculating identification lines from energy losses
 
    void init();
 	void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, ifstream& gridfile);
@@ -47,8 +45,6 @@ class KVIDGrid : public KVIDGraph {
    void Initialize();
    void Identify(Double_t /*x*/, Double_t /*y*/, KVReconstructedNucleus * /*nuc*/) const
 	{AbstractMethod("Identify");};   
-   Bool_t IsIdentifiable(Double_t /*x*/, Double_t /*y*/) const
-	{AbstractMethod("IsIdentifiable"); return kTRUE;};
 
    virtual void MakeELossGrid(UInt_t, Bool_t = kFALSE , Double_t =
                               -1.0, Int_t = 20) {
@@ -57,14 +53,6 @@ class KVIDGrid : public KVIDGraph {
    virtual void NewGridDialog(const TGWindow * p, const TGWindow * main,
                               UInt_t w = 1, UInt_t h = 1, Option_t * type =
                               "New");
-
-   // Set mass formula used for calculating masses of nuclei when calculating
-   // Z-identification lines for ID grids. See KVNucleus::GetAFromZ
-   virtual void SetMassFormula(UChar_t mf){ fMassFormula = mf; };
-   
-   // Returns mass formula used for calculating masses of nuclei when calculating
-   // Z-identification lines for ID grids. See KVNucleus::GetAFromZ
-   virtual UChar_t GetMassFormula(){ return fMassFormula; };
    
 	/*
 	static KVIDGrid *MakeIDGrid(TH2 *hh,TList*lCutG,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
@@ -91,6 +79,9 @@ class KVIDGrid : public KVIDGraph {
 		return TClass::GetClass("KVIDLine");
 	};
       
+	
+	void FitPanel(); // *MENU*
+   
 	ClassDef(KVIDGrid, 5)        //Base class for 2D identification grids
 };
 

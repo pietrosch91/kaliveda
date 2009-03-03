@@ -3,7 +3,7 @@
 #include "TGListBox.h"
 #include "TGButtonGroup.h"
 #include "TGButton.h"
-#include "KVIDGrid.h"
+#include "KVIDGraph.h"
 #include "RQ_OBJECT.h"
 #include <TGComboBox.h>
 #include <TGLabel.h>
@@ -63,7 +63,7 @@ class KVTestIDGridDialog {
    TGTextButton *fTestButton;
    TGTextButton *fCloseButton;
 
-   KVIDGrid *fSelectedGrid;
+   KVIDGraph *fSelectedGrid;
 
    static TString fNameData;
    static TString fNameZreal;
@@ -80,7 +80,7 @@ class KVTestIDGridDialog {
 
  public:
     KVTestIDGridDialog(const TGWindow * p = 0, const TGWindow * main =
-                       0, UInt_t w = 1, UInt_t h = 1, KVIDGrid * g = 0);
+                       0, UInt_t w = 1, UInt_t h = 1, KVIDGraph * g = 0);
     virtual ~ KVTestIDGridDialog();
 
    void DoClose();

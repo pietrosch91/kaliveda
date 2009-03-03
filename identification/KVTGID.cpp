@@ -5,9 +5,11 @@
     copyright            : (C) 2005 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVTGID.cpp,v 1.16 2008/03/06 13:51:40 franklan Exp $
+$Id: KVTGID.cpp,v 1.17 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 #include "KVTGID.h"
+#include "KVTGIDGrid.h"
+#include "KVTGIDZA.h"
 #include "TMath.h"
 #include "Riostream.h"
 #include "TClass.h"
@@ -43,6 +45,20 @@ void KVTGID::init()
    fID_min = 1.;
    fID_max = 100.;
    fStatus = -1;
+	fLambda=-1;
+	fMu=-1;
+	fG=-1;
+	fPdx=-1;
+	fPdy=-1;
+	fAlpha=-1;
+	fBeta=-1;
+	fNu=-1;
+	fXi=-1;
+	fEta=-1;
+	fType = 0;
+	fLight=0;
+	fZorA=0;
+	fMassFormula=KVNucleus::kEALMass;
 }
 
 //___________________________________________________________________________//
@@ -70,7 +86,6 @@ KVTGID::KVTGID(const Char_t * name,
    //function pointer will be reinitialised automatically when the object is read back
    //from the file.
    //
-   //"type" is a string which can be used to differentiate different 'types' of identifiers
    //par_x and par_y are the indices of the parameters of the functional which
    //correspond to the 'X' and 'Y' coordinates of the identification map, respectively.
    //
@@ -167,7 +182,7 @@ KVIDGrid *KVTGID::MakeIDGrid(Double_t xmax, Double_t xmin, Int_t ID_min,
    ID_max = (ID_max ? ID_max : (Int_t) GetIDmax());
 
    //create new grid
-   KVIDGrid *gri = NewGrid();
+   KVTGIDGrid *gri = new KVTGIDGrid(this);
 
    for (Int_t ID = ID_min; ID <= ID_max; ID++) {
       AddLineToGrid(gri, ID, npoints, xmin, xmax, logscale);
@@ -193,6 +208,8 @@ void KVTGID::AddLineToGrid(KVIDGrid * g, Int_t ID, Int_t npoints,
 
    //set identification label for line
    SetIdent(new_line, ID);
+   //set mass formula for line
+	new_line->SetMassFormula(fMassFormula);
 
    //loop over points of line
    Int_t p_index = 0;
@@ -295,6 +312,7 @@ Double_t KVTGID::GetDistanceToLine(Double_t x, Double_t y, Int_t id,
 }
 
 //______________________________________________________________________________
+
 void KVTGID::Streamer(TBuffer & R__b)
 {
    // Stream an object of class KVTGID.
@@ -310,4 +328,202 @@ void KVTGID::Streamer(TBuffer & R__b)
    } else {
       KVTGID::Class()->WriteBuffer(R__b, this);
    }
+}
+
+//______________________________________________________________________________
+
+KVTGID* KVTGID::MakeTGID(const Char_t* name, Int_t type, Int_t light, Int_t ZorA, Int_t mass)
+{
+	// Static function used to create TGID objects
+	//
+	// type   ----->   type of functional
+	//  *  type : =0->basic functional       <>0->extended functional	
+	//  *      * For the basic formula :
+	//  *        yy = ((g*E)**(mu+1)+lambda**(mu+1)*Z**2*A**mu)**(1/(mu+1))-g*E + pdy
+	//  *      * For the extended formula :      
+	//  *        yy = ((g*E)**(mu+nu+1)+(lambda*Z**alpha*A**beta)**(mu+nu+1)+
+	//  *                 xi*A**mu*(g*E)**nu)**(1/(mu+mu+1))-g*E + pdy
+	//
+	// light  ----->   treatment of CsI total light output
+	//  * light  :  =0->no non-linear light response    <>0->non-linear light response included
+	//  *      *  If ih=0  no non-linear light response : E=xx-pdx
+	//  *      *  If ih<>0 non-linear light response included :
+	//  *          E = sqrt(h**2+2*rho*h*(1+log(1+h/rho)))
+	//  *         rho=eta*Z**2*A    and   h=xx-pdx
+	//
+	// ZorA   ----->   functional used to find Z or A
+	//  *    ZorA :  =0->A    <>0->Z
+	
+	Int_t npar=6+GetNumberOfLTGParameters(type,light);
+	KVTGID* _tgid_ = 0;
+	if(ZorA){
+		_tgid_ = new KVTGIDZ(name, npar, type, light, mass);
+	}
+	else {
+		_tgid_ = new KVTGIDZA(name, npar, type, light);
+	}
+	npar=6;
+	_tgid_->fLambda = npar++;
+	if(type){
+		_tgid_->fAlpha = npar++;
+		_tgid_->fBeta = npar++;
+		_tgid_->fMu = npar++;
+		_tgid_->fNu = npar++;
+		_tgid_->fXi = npar++;
+	}
+	else
+	{
+		_tgid_->fMu = npar++;
+	}
+	_tgid_->fG = npar++;
+	_tgid_->fPdx = npar++;
+	_tgid_->fPdy = npar++;
+	if(light) _tgid_->fEta = npar++;
+	return _tgid_;
+}
+
+//___________________________________________________________________________________________
+
+void KVTGID::SetLTGParameters(Double_t *par)
+{
+	// 'par' is an array containing the LTG functional parameters,
+	// whose number and order depends on fType & fLight:
+	//
+	// fType=0, fLight=0:            Double_t par[5];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = mu
+	//  par[2] = g
+	//  par[3] = pdx
+	//  par[4] = pdy
+	//
+	// fType=0, fLight<>0:            Double_t par[6];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = mu
+	//  par[2] = g
+	//  par[3] = pdx
+	//  par[4] = pdy
+	//  par[5] = eta
+	//
+	// fType<>0, fLight=0:            Double_t par[9];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = alpha
+	//  par[2] = beta
+	//  par[3] = mu
+	//  par[4] = nu
+	//  par[5] = xi
+	//  par[6] = g
+	//  par[7] = pdx
+	//  par[8] = pdy
+	//
+	// fType<>0, fLight<>0:            Double_t par[10];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = alpha
+	//  par[2] = beta
+	//  par[3] = mu
+	//  par[4] = nu
+	//  par[5] = xi
+	//  par[6] = g
+	//  par[7] = pdx
+	//  par[8] = pdy
+	//  par[9] = eta
+
+	Int_t npar = GetNumberOfLTGParameters(fType,fLight);
+	for(Int_t ipar=0; ipar<npar; ipar++){
+		SetParameter(6+ipar, par[ipar]);
+	}
+}
+
+
+//___________________________________________________________________________________________
+
+void KVTGID::SetLTGParameters(Float_t *par)
+{
+	// 'par' is an array containing the LTG functional parameters,
+	// whose number and order depends on fType & fLight:
+	//
+	// fType=0, fLight=0:            Double_t par[5];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = mu
+	//  par[2] = g
+	//  par[3] = pdx
+	//  par[4] = pdy
+	//
+	// fType=0, fLight<>0:            Double_t par[6];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = mu
+	//  par[2] = g
+	//  par[3] = pdx
+	//  par[4] = pdy
+	//  par[5] = eta
+	//
+	// fType<>0, fLight=0:            Double_t par[9];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = alpha
+	//  par[2] = beta
+	//  par[3] = mu
+	//  par[4] = nu
+	//  par[5] = xi
+	//  par[6] = g
+	//  par[7] = pdx
+	//  par[8] = pdy
+	//
+	// fType<>0, fLight<>0:            Double_t par[10];
+	// ==================
+	//  par[0] = lambda
+	//  par[1] = alpha
+	//  par[2] = beta
+	//  par[3] = mu
+	//  par[4] = nu
+	//  par[5] = xi
+	//  par[6] = g
+	//  par[7] = pdx
+	//  par[8] = pdy
+	//  par[9] = eta
+
+	Int_t npar = GetNumberOfLTGParameters(fType,fLight);
+	for(Int_t ipar=0; ipar<npar; ipar++){
+		SetParameter(6+ipar, (Double_t)par[ipar]);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Int_t KVTGID::GetNumberOfLTGParameters(Int_t type, Int_t light)
+{
+	// Static function returning number of parameters used by Tassan-Got functional.
+	// Depends on type of functional (type) and whether non-linear light response
+	// is calculated or not (light).
+	// According to the (type, light) combination the numbers and orders
+	// of parameters are :
+	// 	   type=0  light=0   5 parameters: lambda, mu, g, pdx, pdy
+	// 	   type=0  light<>0  6 parameters: lambda, mu, g, pdx, pdy, eta
+	// 	   type<>0 light=0   9 parameters: lambda, alpha, beta, mu, nu, 
+	// 	   									xi, g, pdx, pdy
+	// 	   type<>0 light<>0 10 parameters: lambda, alpha, beta, mu, nu, 
+	// 	   									xi, g, pdx, pdy, eta}
+	
+	return type ? (light ? 10 : 9) : (light ?  6 : 5);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void KVTGID::SetLTGParameterNames()
+{
+	if(fLambda>-1) SetParName(fLambda,"#lambda");
+	if(fAlpha>-1) SetParName(fAlpha,"#alpha");
+	if(fBeta>-1) SetParName(fBeta,"#beta");
+	if(fMu>-1) SetParName(fMu,"#mu");
+	if(fNu>-1) SetParName(fNu,"#nu");
+	if(fXi>-1) SetParName(fXi,"#xi");
+	if(fG>-1) SetParName(fG,"g");
+	if(fPdx>-1) SetParName(fPdx,"pdx");
+	if(fPdy>-1) SetParName(fPdy,"pdy");
+	if(fEta>-1) SetParName(fEta,"#eta");
 }

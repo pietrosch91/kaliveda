@@ -160,6 +160,8 @@ void KVMergeGridsDialog::MergeGrids()
    KVIDGrid *m =
        (KVIDGrid*)KVIDGrid::AddGraphs(fGrid1, G1IDmin, G1IDmax, fGrid2, G2IDmin,
                           G2IDmax);
-   gIDGridManager->AddGrid(m);
+	TString newname;
+	newname.Form("Merge of %s and %s", fGrid1->GetName(), fGrid2->GetName());
+	m->SetName(newname);
    DoClose();
 }

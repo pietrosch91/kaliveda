@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDTelescope.h,v 1.31 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDTelescope.h,v 1.32 2009/03/03 14:27:15 franklan Exp $
                           KVIDTelescope.h  -  description
                              -------------------
     begin                : Wed Jun 18 2003
@@ -163,6 +163,8 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
       return TestBit(kReadyForID);
    };
 
+	const Char_t* GetDefaultIDGridClass();
+	
    ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
 };
 

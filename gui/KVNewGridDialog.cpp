@@ -613,7 +613,6 @@ void KVNewGridDialog::CreateGrid()
    else clas = TClass::GetClass(fGridClass.Data());
    KVIDGraph *grid = (KVIDGraph *) clas->New();
    if(fGridClass == "KVIDZGrid") grid->SetOnlyZId(kTRUE); 
-   gIDGridManager->AddGrid(grid);
    DoClose();
 }
 
@@ -633,7 +632,6 @@ void KVNewGridDialog::CopyGrid()
    KVIDGraph *grid = (KVIDGraph *) fSelectedGrid->IsA()->New();
    fSelectedGrid->Copy((TObject &) (*grid));
    ReadAndSetSelectedGridProperties(grid);
-   gIDGridManager->AddGrid(grid);
    DoClose();
 }
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-$Id: KVList.cpp,v 1.28 2009/01/15 17:04:23 ebonnet Exp $
+$Id: KVList.cpp,v 1.29 2009/03/03 14:27:15 franklan Exp $
                           kvlist.cpp  -  description
                              -------------------
     begin                : Sat May 18 2002
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
  ***************************************************************************/
-
+ 
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -31,18 +31,46 @@ $Id: KVList.cpp,v 1.28 2009/01/15 17:04:23 ebonnet Exp $
 
 #include "Riostream.h"
 
-ClassImp(KVList);
-//_______________________________________________________________________________
-// KVList :  Wrapper for a Tlist, but owns its objects.
-//
-//   Adds a few functionalities such as FindObjectByType/Label(), and also
-//  wraps basic method FindObject(name) with FindObjectByName(name) which
-//  returns a KVBase* pointer instead of a TObject*.
-//
-//  WARNING: By default, a KVList owns the objects to which it points,
-//  and will delete them when the list is deleted.
-//      Use KVList(kFALSE) constructor to have a list which does not own its objects.
-//
+ClassImp(KVList)
+
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVList</h2>
+<h4>Modified TList class</h4>
+<h3>Object ownership</h3>
+The KVList owns it objects by default: any objects placed in a KVList
+will be deleted when the KVList is deleted, goes out of scope, or if
+methods Clear() or Delete() are called. To avoid this, either use the
+argument to the constructor:<br>
+<pre>KVList list_not_owner(kFALSE);//list does not own its objects<br></pre>
+or use the SetOwner() method to change the ownership.<br>
+<h3>Signals &amp; slots: monitoring list modification</h3>
+If SendModifiedSignals(kTRUE)�is called, then every time an object is added to or removed from the list, it will emit
+the signal "Modified()". This can be used to monitor any changes to the
+state of the list.<br>
+<h3>FindObjectBy...</h3>
+In addition to the standard TList::FindObject(const Char_t* name) and
+TList::FindObject(TObject*) methods, KVList adds methods to find
+objects based on several different properties, such as type, label,
+number, or class. Note that type, label and number are only defined for
+objects derived from KVBase; if the list contains a mixture of TObject-
+and KVBase-derived objects, the TObject-derived objects will be ignored
+if type, label or number are used to search.<br>
+Finally, the very general FindObjectWithMethod method can search for an
+object using any valid method.<br>
+<h3>Sublists</h3>
+The GetSubListWith... methods allow to generate new lists containing a
+subset of the objects in the main list, according to their name, label,
+type, etc. These sublists do not own their objects (they are supposed
+to be owned by the main list), and must be deleted by the user in order
+to avoid memory leaks.<br>
+<h3>Execute</h3>
+The Execute methods can be used to execute a given method with the same
+arguments for every object in the list.<br>
+<!-- */
+// --> END_HTML
+////////////////////////////////////////////////////////////////////////////////
 
 
 //_______________________________________________________________________________
@@ -52,6 +80,7 @@ KVList::KVList(Bool_t owner)
    //they will be deleted if Clear() or Delete() are used, or if the list is
    //deleted itself.
    SetOwner(owner);
+	ResetBit(kSignals);
 }
 
 //_______________________________________________________________________________
@@ -65,6 +94,7 @@ KVList::KVList(const KVList & obj)
 {
    //copy ctor
    SetOwner(kTRUE);
+	ResetBit(kSignals);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    obj.Copy(*this);
 #else
@@ -101,7 +131,7 @@ KVList *KVList::GetSubListWithClass(const Char_t* class_name)
 	//  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
 	
 	if (class_name) {
-      return GetSubListWithClass(gROOT->GetClass(class_name));
+      return GetSubListWithClass(TClass::GetClass(class_name));
    }
 	else return NULL;
 }
@@ -126,31 +156,30 @@ KVList *KVList::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method
 		TObjLink *lnk = FirstLink();
       while (lnk) {
 		//cout << "lnk->GetObject()->IsA() = " << lnk->GetObject()->IsA()->GetName() << endl;
-	      TMethodCall *mt = new TMethodCall();
-         mt->InitWithPrototype(lnk->GetObject()->IsA(),Form("%s",method),"");
-			if (mt->IsValid()) {
+	      TMethodCall mt;
+         mt.InitWithPrototype(lnk->GetObject()->IsA(), MTH.Data(),"");
+			if (mt.IsValid()) {
 			//cout << "it is valid" << endl;
-				if (mt->ReturnType()==TMethodCall::kString){
+				if (mt.ReturnType()==TMethodCall::kString){
 					Char_t *ret; 
 					mt->Execute(lnk->GetObject(),"",&ret);
 					KVString sret; sret.Form("%s",ret);
 					if (!sretvalue.Contains("*")) {if (sret==sretvalue) sublist->Add(lnk->GetObject());}
 					else { if (sret.Match(sretvalue)) sublist->Add(lnk->GetObject()); }
 				}
-				else if (mt->ReturnType()==TMethodCall::kLong){
+				else if (mt.ReturnType()==TMethodCall::kLong){
 					Long_t ret;
 					mt->Execute(lnk->GetObject(),"",ret);
 					if (ret==sretvalue.Atoi()) sublist->Add(lnk->GetObject());
 				}
-				else if (mt->ReturnType()==TMethodCall::kDouble){
+				else if (mt.ReturnType()==TMethodCall::kDouble){
 					Double_t ret;
 					mt->Execute(lnk->GetObject(),"",ret);
 					if (ret==sretvalue.Atof()) sublist->Add(lnk->GetObject());
 				}
-				else cout << "this type is not supported " << mt->ReturnType() << endl;
+				else cout << "this type is not supported " << mt.ReturnType() << endl;
 			}
 			lnk = lnk->Next();
-         delete mt;
 	   }
    }	
 	return sublist;
@@ -196,7 +225,8 @@ KVList* KVList::MakeListFromFile(TFile *file)
 	//The file can be closed after this method, objects stored in the
 	//list still remains valid
 	//if file=NULL, the current directory is considered
-	//User has to delete KVList pointer after use
+	//
+	//  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
 	
 	KVList *ll = new KVList(kFALSE);
 
@@ -225,6 +255,11 @@ KVList* KVList::MakeListFromFile(TFile *file)
 //_______________________________________________________________________________
 KVList* KVList::MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method)
 {
+	//Static method create a list containing all objects whose "method" returns "retvalue" in a file
+	//WARNING list has to be empty with KVList::Clear() method before closing file
+	//if file=NULL, the current directory is considered
+	//
+	//  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
 	
 	KVList* l1 = MakeListFromFile(file);
 	KVList* l2 = l1->GetSubListWithMethod(retvalue,method);
@@ -236,6 +271,12 @@ KVList* KVList::MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,co
 //_______________________________________________________________________________
 KVList *KVList::MakeListFromFileWithClass(TFile *file,const TClass* _class)
 {
+	//Static method create a list containing all objects of given class in a file
+	//WARNING list has to be empty with KVList::Clear() method before closing file
+	//if file=NULL, the current directory is considered
+	//
+	//  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+	
 	KVList* l1 = MakeListFromFile(file);
 	KVList* l2 = l1->GetSubListWithClass(_class);
 	l1->Clear(); delete l1;
@@ -245,6 +286,12 @@ KVList *KVList::MakeListFromFileWithClass(TFile *file,const TClass* _class)
 //_______________________________________________________________________________
 KVList *KVList::MakeListFromFileWithClass(TFile *file,const Char_t* class_name)
 {
+	//Static method create a list containing all objects of given class in a file
+	//WARNING list has to be empty with KVList::Clear() method before closing file
+	//if file=NULL, the current directory is considered
+	//
+	//  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+	
 	KVList* l1 = MakeListFromFile(file);
    KVList* l2 = l1->GetSubListWithClass(class_name);
    l1->Clear(); delete l1;
@@ -254,67 +301,59 @@ KVList *KVList::MakeListFromFileWithClass(TFile *file,const Char_t* class_name)
 //_______________________________________________________________________________
 TObject *KVList::FindObjectWithMethod(const Char_t* retvalue,const Char_t* method)
 {
+	// Find the first object in the list for which the given method returns the given return value:
+	//   e.g. if method = "GetName" and retvalue = "john", we return the
+	//   first object in this list for which GetName() returns "john".
+	//
+   // For each object of the list, the existence of the given method is checked using TMethodCall::IsValid()
+	// if the method is valid and the return value is equal to the input one (retvalue) object is returned
+	// return type supported are those defined in TMethodCall::ReturnType()
 	
 	if (retvalue && method) {
+		KVString RV(retvalue); KVString MTH(method);
+		Bool_t wildcard = RV.Contains("*");
       TObjLink *lnk = FirstLink();
       while (lnk) {
-			TMethodCall *mt = new TMethodCall();
-         mt->InitWithPrototype(lnk->GetObject()->IsA(),Form("%s",method),"");
-			if (mt->IsValid()) {
-				if (mt->ReturnType()==TMethodCall::kString){
+			TMethodCall mt;
+         mt.InitWithPrototype(lnk->GetObject()->IsA(), MTH.Data(),"");
+			if (mt.IsValid()) {
+				if (mt.ReturnType()==TMethodCall::kString){
 					Char_t *ret; 
-					mt->Execute(lnk->GetObject(),"",&ret);
-					if (!TString(retvalue).Contains("*")) {if (!strcmp(ret,retvalue)) { delete mt; return lnk->GetObject(); } }
-					else { if (KVString(ret).Match(retvalue)) { delete mt; return lnk->GetObject(); } }
+					mt.Execute(lnk->GetObject(),"",&ret);
+					if (!wildcard) {if (RV==ret) { return lnk->GetObject(); } }
+					else { if (KVString(ret).Match(RV)) { return lnk->GetObject(); } }
 				}
-				else if (mt->ReturnType()==TMethodCall::kLong){
+				else if (mt.ReturnType()==TMethodCall::kLong){
 					Long_t ret;
-					mt->Execute(lnk->GetObject(),"",ret);
-					if (ret==TString(retvalue).Atoi()) { delete mt; return lnk->GetObject(); }
+					mt.Execute(lnk->GetObject(),"",ret);
+					if (ret==RV.Atoi()) { return lnk->GetObject(); }
 				}
-				else if (mt->ReturnType()==TMethodCall::kDouble){
+				else if (mt.ReturnType()==TMethodCall::kDouble){
 					Double_t ret;
-					mt->Execute(lnk->GetObject(),"",ret);
-					if (ret==TString(retvalue).Atof()) { delete mt; return lnk->GetObject(); }
+					mt.Execute(lnk->GetObject(),"",ret);
+					if (ret==RV.Atof()) { return lnk->GetObject(); }
 				}
-				else cout << "this type is not supported " << mt->ReturnType() << endl;
+				else cout << "this type is not supported " << mt.ReturnType() << endl;
 			}
 			lnk = lnk->Next();
-         delete mt;
 	   }
    }	
 	return 0;
 	
 }
 
-//_______________________________________________________________________________
-KVBase *KVList::FindObjectByName(const Char_t * type)
-{
-//Look for object with name "name" in list
-   return (KVBase *) TList::FindObject(type);
-}
-
 //_____________________________________________________________________________
-KVBase *KVList::FindObjectByType(const Char_t * type)
+TObject *KVList::FindObjectByType(const Char_t * type)
 {
-   // Find an object in this list using its type (KVBase::GetType).
+   // Find an object in this list using its type (i.e. return value of GetType()).
    // Requires a sequential scan till the object has been found.
    // Returns 0 if object with specified type is not found.
    
-   if (type) {
-      TObjLink *lnk = FirstLink();
-      while (lnk) {
-         KVBase *obj = (KVBase *) lnk->GetObject();
-         if (!strcmp(type, obj->GetType()))
-            return obj;
-         lnk = lnk->Next();
-      }
-   }
-   return 0;
+	return FindObjectWithMethod(type,"GetType");
 }
 
 //_____________________________________________________________________________
-KVBase *KVList::FindObjectByClass(const Char_t * class_name)
+TObject *KVList::FindObjectByClass(const Char_t * class_name)
 {
    // Find an object in this list using its class name (TObject::ClassName()).
    // The first object in the list with the correct class is returned.
@@ -322,14 +361,14 @@ KVBase *KVList::FindObjectByClass(const Char_t * class_name)
    // Returns 0 if object with specified class is not found.
    
    if (class_name) {
-      TClass* _class = gROOT->GetClass(class_name);
+      TClass* _class = TClass::GetClass(class_name);
       return FindObjectByClass(_class);
    }
    return 0;
 }
 
 //_____________________________________________________________________________
-KVBase *KVList::FindObjectByClass(const TClass* _class)
+TObject *KVList::FindObjectByClass(const TClass* _class)
 {
    // Find an object in this list using its class (TObject::IsA()).
    // The first object in the list with the correct class is returned.
@@ -341,7 +380,7 @@ KVBase *KVList::FindObjectByClass(const TClass* _class)
       while (lnk) {
          TObject *obj = (TObject *) lnk->GetObject();
          if ( _class == obj->IsA() ){
-            return (KVBase*)obj;
+            return obj;
          }
          lnk = lnk->Next();
       }
@@ -350,72 +389,34 @@ KVBase *KVList::FindObjectByClass(const TClass* _class)
 }
 
 //_______________________________________________________________________________
-KVBase *KVList::FindObjectByLabel(const Char_t * label)
+TObject *KVList::FindObjectByLabel(const Char_t * label)
 {
-   // Find an object in this list using its label (KVBase::GetLabel).
+   // Find an object in this list using its label (return value of GetLabel).
    // Requires a sequential scan till the object has been found.
    // Returns 0 if object with specified label is not found.
-   
-   if (label) {
-      TObjLink *lnk = FirstLink();
-      while (lnk) {
-         KVBase *obj = (KVBase *) lnk->GetObject();
-         if (!strcmp(label, obj->GetLabel()))
-            return obj;
-         lnk = lnk->Next();
-      }
-   }
-   return 0;
+
+	return FindObjectWithMethod(label,"GetLabel");   
 }
 
 //_______________________________________________________________________________
-KVBase *KVList::FindObject(UInt_t num)
+TObject *KVList::FindObjectByNumber(Int_t num)
 {
-   //Find an object in this list using its number (value of GetNumber()).
+   //Find an object in this list using its number (value returned by GetNumber()).
 
-   TObjLink *lnk = FirstLink();
-   while (lnk) {
-      KVBase *obj = (KVBase *) lnk->GetObject();
-      if (obj->GetNumber() == num)
-         return obj;
-      lnk = lnk->Next();
-   }
-   return 0;
+	return FindObjectWithMethod(Form("%d",num), "GetNumber");   
 }
 
 //_______________________________________________________________________________
-KVBase *KVList::FindObject(const Char_t * name, const Char_t * type)
+TObject *KVList::FindObjectWithNameAndType(const Char_t * name, const Char_t * type)
 {
    // Find an object in this list using its type and name. Requires a sequential
-// scan till the object has been found. Returns 0 if object with specified
-// name & type is not found.
+	// scan till the object has been found. Returns 0 if object with specified
+	// name & type is not found.
 
-   if (type && name) {
-      TObjLink *lnk = FirstLink();
-      while (lnk) {
-         KVBase *obj = (KVBase *) lnk->GetObject();
-         if (!strcmp(type, obj->GetType())
-             && !strcmp(name, obj->GetName()))
-            return obj;
-         lnk = lnk->Next();
-      }
-   }
-   return 0;
-}
-
-void KVList::Print(Option_t * opt) const
-{
-   //Print description of all objects in list
-
-   TIter next(this);
-   TObject *obj;
-   while ((obj = next())) {
-#ifdef KV_DEBUG
-      if (!obj)
-         Error("Print", "Object does not exist: %l", (Long_t) obj);
-#endif
-      obj->Print(opt);
-   }
+	KVList* l1 = GetSubListWithType(type);
+   TObject* ob = l1->FindObject(name);
+   delete l1;
+	return ob;
 }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
@@ -443,9 +444,10 @@ void KVList::Copy(TObject & obj)
 
 void KVList::Execute(const char *method, const char *params, Int_t * error)
 {
-   //Redefinition of TObject::Execute method.
+   //Redefinition of TObject::Execute(const char *, const char *, Int_t *) method.
    //TObject::Execute is called for each object in the list in order, meaning that for each
    //object the method "method" is executed with arguments "params".
+	
    TIter next(this);
    TObject *obj;
    while ((obj = next())) {
@@ -453,9 +455,19 @@ void KVList::Execute(const char *method, const char *params, Int_t * error)
    }
 }
 
-KVBase *KVList::FindObject(KVBase * obj)
+//_______________________________________________________________________________
+
+void KVList::Execute(TMethod * method, TObjArray * params, Int_t * error)
 {
-   return (KVBase *) TList::FindObject(obj);
+   //Redefinition of TObject::Execute(TMethod *, TObjArray *, Int_t *) method.
+   //TObject::Execute is called for each object in the list in order, meaning that for each
+   //object the method "method" is executed with arguments "params".
+	
+   TIter next(this);
+   TObject *obj;
+   while ((obj = next())) {
+      obj->Execute(method, params, error);
+   }
 }
 
 //_______________________________________________________________________________

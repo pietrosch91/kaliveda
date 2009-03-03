@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetArray.cpp,v 1.89 2009/02/02 15:44:57 ebonnet Exp $
+$Id: KVMultiDetArray.cpp,v 1.90 2009/03/03 14:27:15 franklan Exp $
                           kvmultidetarray.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -1834,6 +1834,42 @@ TList* KVMultiDetArray::GetStatusOfIDTelescopes()
    return fStatusIDTelescopes;
 }
 
+//_________________________________________________________________________________
+
+KVList* KVMultiDetArray::GetIDTelescopeTypes()
+{
+   // Create, fill and return pointer to a list of TObjString containing the name of each type
+   // of ID telescope in the array.
+   //
+   // Delete the KVList after use (it owns the TObjString objects)
+   
+	KVList *type_list = new KVList;
+   if( !fIDTelescopes || !fIDTelescopes->GetEntries() ) return type_list;
+   TIter next(fIDTelescopes);
+   KVIDTelescope* idt = 0;
+   while( (idt = (KVIDTelescope*)next()) ){
+      if( !type_list->FindObject( idt->GetLabel() ) ){
+			type_list->Add( new TObjString( idt->GetLabel() ) );
+      }
+   }
+   return type_list;
+}
+
+//_________________________________________________________________________________
+
+KVList* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
+{
+   // Create, fill and return pointer to a list of KVIDTelescopes with
+	// the given type in the array.
+   // WARNING! - check pointer is not zero (we return NULL if ID telescopes
+	// list is not defined or empty)
+	//
+   // Delete the KVList after use (it does not own the KVIDTelescopes).
+	
+   if( !fIDTelescopes || !fIDTelescopes->GetEntries() ) return NULL;
+	return fIDTelescopes->GetSubListWithLabel( type );
+}
+   
 //_________________________________________________________________________________
 
 TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()

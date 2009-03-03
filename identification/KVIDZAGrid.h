@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.h,v 1.11 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDZAGrid.h,v 1.12 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDZAGrid_H
@@ -85,7 +85,8 @@ class KVIDZAGrid:public KVIDGrid {
    virtual void Copy(TObject &);
 #endif
 
-   virtual void Initialize();
+   virtual void Initialize();//*MENU*
+   void DrawLinesWithWidth();// *MENU={Hierarchy="View.../DrawLinesWithWidth"}*
 
    virtual void CalculateLineWidths();
    Int_t GetZmax() const { return (Int_t)fZMax; };
@@ -98,8 +99,6 @@ class KVIDZAGrid:public KVIDGrid {
 		return TClass::GetClass("KVIDZALine");
 	};
    virtual void IdentZ(Double_t x, Double_t y, Double_t & Z);
-   void DrawLinesWithWidth();
-
    Int_t GetQualityCode() const 
    {
       // Return quality code for previously-attempted identification

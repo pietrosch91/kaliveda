@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.131 2009/03/03 13:36:00 franklan Exp $
+$Id: KVMultiDetLinkDef.h,v 1.132 2009/03/03 14:27:15 franklan Exp $
                               KVMultiDetLinkDef.h
                                description
                              -------------------
@@ -108,6 +108,7 @@ $Id: KVMultiDetLinkDef.h,v 1.131 2009/03/03 13:36:00 franklan Exp $
 #pragma link C++ class KVIDZAGrid+;
 #pragma link C++ class KVIDTelescope-;
 #pragma link C++ class KVIDSubCodeManager+;
+#pragma link C++ class KVVirtualIDFitter+;
 #pragma link C++ class KVLayer-;
 #pragma link C++ class KVLayerBrowser;
 #pragma link C++ class KVLinCal+;
@@ -146,6 +147,8 @@ $Id: KVMultiDetLinkDef.h,v 1.131 2009/03/03 13:36:00 franklan Exp $
 #pragma link C++ class KVTGIDZ+;
 #pragma link C++ class KVTGIDZA+;
 #pragma link C++ class KVTGIDManager+;
+#pragma link C++ class KVTGIDFitter+;
+#pragma link C++ class KVTGIDGrid+;
 #pragma link C++ class KVTarget+;
 #pragma link C++ class KVTelescope-;
 #pragma link C++ class KVTestEvent+;
@@ -157,7 +160,9 @@ $Id: KVMultiDetLinkDef.h,v 1.131 2009/03/03 13:36:00 franklan Exp $
 #pragma link C++ class KVNewGridDialog+;
 #pragma link C++ class KVTestIDGridDialog+;
 #pragma link C++ class KVCalculateChIoSiGridDialog+;
+#pragma link C++ class KVIDGUITelescopeChooserDialog+;
 #pragma link C++ class KVIDGridManagerGUI+;
+#pragma link C++ class KVDropDownDialog+;
 #pragma link C++ class KVInputDialog+;
 #pragma link C++ class KVTextEntry+;
 #pragma link C++ class KVUpDater;

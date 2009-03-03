@@ -1,6 +1,6 @@
 #include "TGFrame.h"
 #include "TGMenu.h"
-#include "TGListBox.h"
+#include "KVListView.h"
 #include "TGButtonGroup.h"
 #include "TGButton.h"
 #include "KVIDGrid.h"
@@ -10,6 +10,7 @@
 #include <TGNumberEntry.h>
 #include <TGTextEntry.h>
 #include <TGProgressBar.h>
+#include "TGTab.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KVIDGridManagerGUI
@@ -22,39 +23,35 @@ class KVIDGridManagerGUI:public TGMainFrame {
    TGPopupMenu *fMenuFile;
    TGPopupMenu *fMenuHelp;
    enum {
-      M_FILE_NEW,
-      M_FILE_OPEN,
-      M_FILE_SAVE,
-      M_FILE_SAVEAS,
-      M_FILE_CLOSE,
-      M_FILE_REFRESH,
-      M_FILE_CLEAR,
-      M_FILE_EXIT,
-      M_HELP_ABOUT,
+		M_GRIDS_NEW,
+		M_GRIDS_READ,
+		M_GRIDS_SAVE_SEL,
+		M_GRIDS_SAVE_TAB,
+		M_GRIDS_SAVE_ALL,
+		M_GRIDS_DEL_SEL,
+		M_GRIDS_DEL_TAB,
+		M_GRIDS_DEL_ALL,
       ID_LIST_BOX
    };
    TGLayoutHints *fMenuBarItemLayout;
    TGLayoutHints *fMenuBarHelpLayout;
    TGMenuBar *fMenuBar;
    TGHorizontalFrame *fHframe;
-   TGVButtonGroup *fButtonsFrame;
-   TGListBox *fIDGridList;
-   TGTextButton *fNewGrid;
-   TGTextButton *fDrawGrid;
-   TGTextButton *fUnDrawGrid;
-   TGTextButton *fClearGrid;
-   TGTextButton *fCopyGrid;
-   TGTextButton *fMergeGrids;
-   TGTextButton *fCalculateGrid;
-   TGTextButton *fModifyGrid;
-   TGTextButton *fFitGrid;
-   TGTextButton *fTestGrid;
-   TGTextButton *fDeleteGrid;
+	TGTab *fGridListTabs;//tabs with lists of grids
+	KVListView *fIDGridList;//list of grids in current tab
    Int_t fFirstGrid;
    Int_t fLastGrid;
-   KVIDGrid *fSelectedGrid;
+   KVIDGraph *fSelectedGrid;
    TString fFileName;
    TList *fSelectedEntries;
+	
+	TList* GetAllGridsInTab()
+	{
+		// list of all grids (selected or not) in current tab
+		if(fIDGridList) return fIDGridList->GetUserItems();
+		return 0;
+	};
+	void ReadGraphMimeTypes();
 
  public:
 
@@ -63,32 +60,24 @@ class KVIDGridManagerGUI:public TGMainFrame {
 
    void CloseWindow();
 
-   void DisableGridButtons();
-   void EnableGridButtons();
+   void HandleGridsMenu(Int_t id);
 
-   void HandleFileMenu(Int_t id);
-
-   void FillListOfGrids();
-   void ClearListOfGrids();
+   void CreateAndFillTabs();
+   void UpdateTabs();
+   void RemoveEmptyTabs();
+	void TabSelect(Int_t);
    void UpdateListOfGrids();
 
    void SelectionChanged();
    Int_t GetNSelected();
 
-   void DrawGrid();
-   void UnDrawGrid();
    void NewGrid();
    void MergeGrids();
-   void ModifyGrid();
-   void FitGrid() {
-   };
    void ClearGrid();
-   void CalculateGrid();
-   void CopyGrid();
-   void TestGrid();
-   void DeleteGrid();
+   void DeleteGrids();
+   void DeleteAllGridsInTab();
 
-   void SaveAs();
+   void SaveAs(const TList* /*selected*/ = 0);
 
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
 };

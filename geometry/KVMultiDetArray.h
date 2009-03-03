@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVMultiDetArray.h,v 1.54 2009/02/02 15:44:57 ebonnet Exp $
+$Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -139,11 +139,11 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    };
    KVLayer *GetLayer(const Char_t * name) const {
       //find layer with name
-      return (KVLayer *) fLayers->FindObjectByName(name);
+      return (KVLayer *) fLayers->FindObject(name);
    }
    KVLayer *GetLayer(UInt_t num) const {
       //find layer with number
-      return (KVLayer *) fLayers->FindObject(num);
+      return (KVLayer *) fLayers->FindObjectByNumber(num);
    }
    KVRing *GetRing(const Char_t * layer, const Char_t * ring_name) const;
    KVRing *GetRing(const Char_t * layer, UInt_t ring_number) const;
@@ -173,7 +173,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
       return fACQParams;
    };
    KVACQParam *GetACQParam(const Char_t * name) {
-      return (KVACQParam *) fACQParams->FindObjectByName(name);
+      return (KVACQParam *) fACQParams->FindObject(name);
    };
 
    KVDetectorEvent *DetectEvent(KVEvent * event);
@@ -185,6 +185,8 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    KVList *GetListOfIDTelescopes() const {
       return fIDTelescopes;
    };
+	KVList* GetIDTelescopeTypes();
+	KVList* GetIDTelescopesWithType(const Char_t* type);
 
    virtual void SetTarget(const Char_t * material,
                           const Float_t thickness);

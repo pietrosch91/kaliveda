@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVLayer.h,v 1.18 2006/11/03 08:01:32 franklan Exp $
+$Id: KVLayer.h,v 1.19 2009/03/03 14:27:15 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -80,10 +80,10 @@ class KVLayer:public KVBase {
 
    KVRing *GetRing(const Char_t * name) const {
       //Find ring in layer with name
-      return (KVRing *) fRings->FindObjectByName(name);
+      return (KVRing *) fRings->FindObject(name);
    };
    KVRing *GetRing(UInt_t num) const {
-      return (KVRing *) fRings->FindObject(num);
+      return (KVRing *) fRings->FindObjectByNumber(num);
    };
    void RemoveRing(const Char_t *);
    void RemoveRing(UInt_t);

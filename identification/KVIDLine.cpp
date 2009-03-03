@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDLine.cpp,v 1.19 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDLine.cpp,v 1.20 2009/03/03 14:27:15 franklan Exp $
                           KVIDLine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -24,6 +24,7 @@ $Id: KVIDLine.cpp,v 1.19 2009/03/03 13:36:00 franklan Exp $
 #include "TCutG.h"
 #include "TPad.h"
 #include "TList.h"
+#include "TROOT.h"
 
 ClassImp(KVIDLine)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -258,3 +259,231 @@ void KVIDLine::WaitForPrimitive()
    delete gr;
    Draw("PL");
 }
+
+//______________________________________________________________________________
+void KVIDLine::ExecuteEvent(Int_t event, Int_t px, Int_t py)
+{
+	// We override the TGraph::ExecuteEvent which contains a TCutG-specific part
+	// making sure that the first and last point are the same. This is a copy
+	// of that method with the "if(InheritsFrom("TCutG"))" part commented out.
+	//
+   // Execute action corresponding to one event.
+   //
+   //  This member function is called when a graph is clicked with the locator
+   //
+   //  If Left button clicked on one of the line end points, this point
+   //     follows the cursor until button is released.
+   //
+   //  if Middle button clicked, the line is moved parallel to itself
+   //     until the button is released.
+
+   Int_t i, d;
+   Double_t xmin, xmax, ymin, ymax, dx, dy, dxr, dyr;
+   const Int_t kMaxDiff = 10;
+   static Bool_t middle, badcase;
+   static Int_t ipoint, pxp, pyp;
+   static Int_t px1,px2,py1,py2;
+   static Int_t pxold, pyold, px1old, py1old, px2old, py2old;
+   static Int_t dpx, dpy;
+   static Int_t *x=0, *y=0;
+
+   if (!IsEditable()) {gPad->SetCursor(kHand); return;}
+   if (!gPad->IsEditable()) return;
+
+   switch (event) {
+
+   case kButton1Down:
+      badcase = kFALSE;
+      gVirtualX->SetLineColor(-1);
+      TAttLine::Modify();  //Change line attributes only if necessary
+      px1 = gPad->XtoAbsPixel(gPad->GetX1());
+      py1 = gPad->YtoAbsPixel(gPad->GetY1());
+      px2 = gPad->XtoAbsPixel(gPad->GetX2());
+      py2 = gPad->YtoAbsPixel(gPad->GetY2());
+      ipoint = -1;
+
+
+      if (x || y) break;
+      x = new Int_t[fNpoints+1];
+      y = new Int_t[fNpoints+1];
+      for (i=0;i<fNpoints;i++) {
+         pxp = gPad->XtoAbsPixel(gPad->XtoPad(fX[i]));
+         pyp = gPad->YtoAbsPixel(gPad->YtoPad(fY[i]));
+         if (pxp < -kMaxPixel || pxp >= kMaxPixel ||
+             pyp < -kMaxPixel || pyp >= kMaxPixel) {
+            badcase = kTRUE;
+            continue;
+         }
+         gVirtualX->DrawLine(pxp-4, pyp-4, pxp+4,  pyp-4);
+         gVirtualX->DrawLine(pxp+4, pyp-4, pxp+4,  pyp+4);
+         gVirtualX->DrawLine(pxp+4, pyp+4, pxp-4,  pyp+4);
+         gVirtualX->DrawLine(pxp-4, pyp+4, pxp-4,  pyp-4);
+         x[i] = pxp;
+         y[i] = pyp;
+         d   = TMath::Abs(pxp-px) + TMath::Abs(pyp-py);
+         if (d < kMaxDiff) ipoint =i;
+      }
+      dpx = 0;
+      dpy = 0;
+      pxold = px;
+      pyold = py;
+      if (ipoint < 0) return;
+      if (ipoint == 0) {
+         px1old = 0;
+         py1old = 0;
+         px2old = gPad->XtoAbsPixel(fX[1]);
+         py2old = gPad->YtoAbsPixel(fY[1]);
+      } else if (ipoint == fNpoints-1) {
+         px1old = gPad->XtoAbsPixel(gPad->XtoPad(fX[fNpoints-2]));
+         py1old = gPad->YtoAbsPixel(gPad->YtoPad(fY[fNpoints-2]));
+         px2old = 0;
+         py2old = 0;
+      } else {
+         px1old = gPad->XtoAbsPixel(gPad->XtoPad(fX[ipoint-1]));
+         py1old = gPad->YtoAbsPixel(gPad->YtoPad(fY[ipoint-1]));
+         px2old = gPad->XtoAbsPixel(gPad->XtoPad(fX[ipoint+1]));
+         py2old = gPad->YtoAbsPixel(gPad->YtoPad(fY[ipoint+1]));
+      }
+      pxold = gPad->XtoAbsPixel(gPad->XtoPad(fX[ipoint]));
+      pyold = gPad->YtoAbsPixel(gPad->YtoPad(fY[ipoint]));
+
+      break;
+
+
+   case kMouseMotion:
+
+      middle = kTRUE;
+      for (i=0;i<fNpoints;i++) {
+         pxp = gPad->XtoAbsPixel(gPad->XtoPad(fX[i]));
+         pyp = gPad->YtoAbsPixel(gPad->YtoPad(fY[i]));
+         d   = TMath::Abs(pxp-px) + TMath::Abs(pyp-py);
+         if (d < kMaxDiff) middle = kFALSE;
+      }
+
+
+   // check if point is close to an axis
+      if (middle) gPad->SetCursor(kMove);
+      else gPad->SetCursor(kHand);
+      break;
+
+   case kButton1Motion:
+      if (middle) {
+         for(i=0;i<fNpoints-1;i++) {
+            gVirtualX->DrawLine(x[i]+dpx, y[i]+dpy, x[i+1]+dpx, y[i+1]+dpy);
+            pxp = x[i]+dpx;
+            pyp = y[i]+dpy;
+            if (pxp < -kMaxPixel || pxp >= kMaxPixel ||
+                pyp < -kMaxPixel || pyp >= kMaxPixel) continue;
+            gVirtualX->DrawLine(pxp-4, pyp-4, pxp+4,  pyp-4);
+            gVirtualX->DrawLine(pxp+4, pyp-4, pxp+4,  pyp+4);
+            gVirtualX->DrawLine(pxp+4, pyp+4, pxp-4,  pyp+4);
+            gVirtualX->DrawLine(pxp-4, pyp+4, pxp-4,  pyp-4);
+         }
+         pxp = x[fNpoints-1]+dpx;
+         pyp = y[fNpoints-1]+dpy;
+         gVirtualX->DrawLine(pxp-4, pyp-4, pxp+4,  pyp-4);
+         gVirtualX->DrawLine(pxp+4, pyp-4, pxp+4,  pyp+4);
+         gVirtualX->DrawLine(pxp+4, pyp+4, pxp-4,  pyp+4);
+         gVirtualX->DrawLine(pxp-4, pyp+4, pxp-4,  pyp-4);
+         dpx += px - pxold;
+         dpy += py - pyold;
+         pxold = px;
+         pyold = py;
+         for(i=0;i<fNpoints-1;i++) {
+            gVirtualX->DrawLine(x[i]+dpx, y[i]+dpy, x[i+1]+dpx, y[i+1]+dpy);
+            pxp = x[i]+dpx;
+            pyp = y[i]+dpy;
+            if (pxp < -kMaxPixel || pxp >= kMaxPixel ||
+                pyp < -kMaxPixel || pyp >= kMaxPixel) continue;
+            gVirtualX->DrawLine(pxp-4, pyp-4, pxp+4,  pyp-4);
+            gVirtualX->DrawLine(pxp+4, pyp-4, pxp+4,  pyp+4);
+            gVirtualX->DrawLine(pxp+4, pyp+4, pxp-4,  pyp+4);
+            gVirtualX->DrawLine(pxp-4, pyp+4, pxp-4,  pyp-4);
+         }
+         pxp = x[fNpoints-1]+dpx;
+         pyp = y[fNpoints-1]+dpy;
+         gVirtualX->DrawLine(pxp-4, pyp-4, pxp+4,  pyp-4);
+         gVirtualX->DrawLine(pxp+4, pyp-4, pxp+4,  pyp+4);
+         gVirtualX->DrawLine(pxp+4, pyp+4, pxp-4,  pyp+4);
+         gVirtualX->DrawLine(pxp-4, pyp+4, pxp-4,  pyp-4);
+      } else {
+         if (px1old) gVirtualX->DrawLine(px1old, py1old, pxold,  pyold);
+         if (px2old) gVirtualX->DrawLine(pxold,  pyold,  px2old, py2old);
+         gVirtualX->DrawLine(pxold-4, pyold-4, pxold+4,  pyold-4);
+         gVirtualX->DrawLine(pxold+4, pyold-4, pxold+4,  pyold+4);
+         gVirtualX->DrawLine(pxold+4, pyold+4, pxold-4,  pyold+4);
+         gVirtualX->DrawLine(pxold-4, pyold+4, pxold-4,  pyold-4);
+         pxold = px;
+         pxold = TMath::Max(pxold, px1);
+         pxold = TMath::Min(pxold, px2);
+         pyold = py;
+         pyold = TMath::Max(pyold, py2);
+         pyold = TMath::Min(pyold, py1);
+         if (px1old) gVirtualX->DrawLine(px1old, py1old, pxold,  pyold);
+         if (px2old) gVirtualX->DrawLine(pxold,  pyold,  px2old, py2old);
+         gVirtualX->DrawLine(pxold-4, pyold-4, pxold+4,  pyold-4);
+         gVirtualX->DrawLine(pxold+4, pyold-4, pxold+4,  pyold+4);
+         gVirtualX->DrawLine(pxold+4, pyold+4, pxold-4,  pyold+4);
+         gVirtualX->DrawLine(pxold-4, pyold+4, pxold-4,  pyold-4);
+      }
+      break;
+
+   case kButton1Up:
+
+      if (gROOT->IsEscaped()) {
+         gROOT->SetEscape(kFALSE);
+         delete [] x; x = 0;
+         delete [] y; y = 0;
+         break;
+      }
+
+   // Compute x,y range
+      xmin = gPad->GetUxmin();
+      xmax = gPad->GetUxmax();
+      ymin = gPad->GetUymin();
+      ymax = gPad->GetUymax();
+      dx   = xmax-xmin;
+      dy   = ymax-ymin;
+      dxr  = dx/(1 - gPad->GetLeftMargin() - gPad->GetRightMargin());
+      dyr  = dy/(1 - gPad->GetBottomMargin() - gPad->GetTopMargin());
+
+      if (fHistogram) {
+         // Range() could change the size of the pad pixmap and therefore should
+         // be called before the other paint routines
+         gPad->Range(xmin - dxr*gPad->GetLeftMargin(),
+                      ymin - dyr*gPad->GetBottomMargin(),
+                      xmax + dxr*gPad->GetRightMargin(),
+                      ymax + dyr*gPad->GetTopMargin());
+         gPad->RangeAxis(xmin, ymin, xmax, ymax);
+      }
+      if (middle) {
+         for(i=0;i<fNpoints;i++) {
+            if (badcase) continue;  //do not update if big zoom and points moved
+            if (x) fX[i] = gPad->PadtoX(gPad->AbsPixeltoX(x[i]+dpx));
+            if (y) fY[i] = gPad->PadtoY(gPad->AbsPixeltoY(y[i]+dpy));
+         }
+      } else {
+         fX[ipoint] = gPad->PadtoX(gPad->AbsPixeltoX(pxold));
+         fY[ipoint] = gPad->PadtoY(gPad->AbsPixeltoY(pyold));
+//          if (InheritsFrom("TCutG")) {
+//             //make sure first and last point are the same
+//             if (ipoint == 0) {
+//                fX[fNpoints-1] = fX[0];
+//                fY[fNpoints-1] = fY[0];
+//             }
+//             if (ipoint == fNpoints-1) {
+//                fX[0] = fX[fNpoints-1];
+//                fY[0] = fY[fNpoints-1];
+//             }
+//          }
+      }
+      badcase = kFALSE;
+      delete [] x; x = 0;
+      delete [] y; y = 0;
+      gPad->Modified(kTRUE);
+      gVirtualX->SetLineColor(-1);
+
+   }
+
+}
+

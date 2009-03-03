@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVDetector.h,v 1.69 2009/01/06 14:45:26 franklan Exp $
+$Id: KVDetector.h,v 1.70 2009/03/03 14:27:15 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -320,7 +320,7 @@ inline KVCalibrator *KVDetector::GetCalibrator(const Char_t * name,
                                                const Char_t * type) const
 {
    if (fCalibrators)
-      return (KVCalibrator *) fCalibrators->FindObject(name, type);
+      return (KVCalibrator *) fCalibrators->FindObjectWithNameAndType(name, type);
    return 0;
 }
 

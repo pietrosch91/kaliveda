@@ -1,5 +1,5 @@
 /***************************************************************************************
-$Id: KVTGIDFunctions.h,v 1.5 2008/02/06 11:21:30 franklan Exp $
+$Id: KVTGIDFunctions.h,v 1.6 2009/03/03 14:27:15 franklan Exp $
 								KVTGIDFunctions.h
 								
 			Contains Tassan-Got functionals for mass and charge
@@ -14,6 +14,7 @@ $Id: KVTGIDFunctions.h,v 1.5 2008/02/06 11:21:30 franklan Exp $
 #endif
 
 namespace KVTGIDFunctions {
+	Double_t fede(Double_t * x, Double_t * par);
    Double_t chiosi_Z(Double_t * x, Double_t * par);
    Double_t tassangot_Z(Double_t * x, Double_t * par);
    Double_t pichon_Z(Double_t * x, Double_t * par);

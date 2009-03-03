@@ -1,7 +1,7 @@
 /*
-$Id: KVLVEntry.h,v 1.1 2008/04/10 15:43:45 franklan Exp $
-$Revision: 1.1 $
-$Date: 2008/04/10 15:43:45 $
+$Id: KVLVEntry.h,v 1.2 2009/03/03 14:27:15 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/03/03 14:27:15 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:55:03 2008
@@ -16,11 +16,20 @@ $Date: 2008/04/10 15:43:45 $
 class KVLVEntry : public TGLVEntry
 {
 
+	protected:
+			
+	static Pixel_t fgBGColor;// current background color for items
+	static Pixel_t fgGreyPixel;// light grey color used to distinguish adjacent list items
+	Pixel_t fBGColor;// background color of this item
+	
    public:
    KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 			UInt_t ncols, KVLVColumnData **coldata);
    virtual ~KVLVEntry(){};
-
+	
+	virtual void Refresh();
+	virtual void	DrawCopy(Handle_t id, Int_t x, Int_t y);
+	
    ClassDef(KVLVEntry,0)//List view item class
 };
 

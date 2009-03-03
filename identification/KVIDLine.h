@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDLine.h,v 1.15 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDLine.h,v 1.16 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDLine_H
@@ -27,6 +27,7 @@ class KVIDLine : public KVIDentifier
     virtual ~ KVIDLine();
 
 	virtual void WaitForPrimitive();
+	virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
 	
    inline Double_t DistanceToLine(Double_t px, Double_t py, Int_t &);
    inline Double_t DistanceToLine(Double_t px, Double_t py, Double_t xp1,

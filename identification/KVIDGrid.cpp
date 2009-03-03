@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.cpp,v 1.53 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDGrid.cpp,v 1.54 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -30,10 +30,12 @@ $Id: KVIDGrid.cpp,v 1.53 2009/03/03 13:36:00 franklan Exp $
 #include "KVParameter.h"
 #include "KVNewGridDialog.h"
 #include "TClass.h"
+#include "TContextMenu.h"
 #include "TSystem.h"
 #include "TF1.h"
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
+#include "KVTGIDFitter.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //KVIDGrid
@@ -96,7 +98,6 @@ KVIDGrid::KVIDGrid()
 void KVIDGrid::init()
 {
    //Initialisations, used by constructors
-	fMassFormula = KVNucleus::kEALMass;
 }
 
 //________________________________________________________________________________
@@ -112,7 +113,7 @@ KVIDLine *KVIDGrid::NewLine(const Char_t * idline_class)
    // Create a new line compatible with this grid.
 	//
 	// If idline_class = "id" or "ID":
-	//§      create default identification line object for this grid
+	//ï¿½      create default identification line object for this grid
 	//
 	// If idline_class = "ok" or "OK":
 	//       create default 'OK' line object for this grid
@@ -209,8 +210,8 @@ KVIDLine *KVIDGrid::FindNearestIDLine(Double_t x, Double_t y,
    //it is essential to call the Initialise() method of the grid before using it (this will sort the lines).
    //
    //For example:
-   //      Suppose we have lines of Z identification (KVIDZLine) in a map with x=E and y=dE.
-   //The KVIDZline::Compare() function sorts lines in order of increasing Z, i.e. in terms of increasing
+   //      Suppose we have lines of Z identification (KVIDZALine) in a map with x=E and y=dE.
+   //The KVIDZALine::Compare() function sorts lines in order of increasing Z, i.e. in terms of increasing
    //dE, or from bottom to top when looking at the (E,dE) map. Thus the "position" string to use is
    //"above" : if the point (E,dE) is "above" the line currently tested, the algorithm will choose a line
    //which is "higher up" i.e. has a larger Z, or in fact, has a larger index in the list of ID lines. The indices
@@ -226,7 +227,7 @@ KVIDLine *KVIDGrid::FindNearestIDLine(Double_t x, Double_t y,
 
    while (idx_max > idx_min + 1) {
 
-      KVIDLine *line = (KVIDLine*)GetIdentifier(idx);
+      KVIDLine *line = (KVIDLine*)GetIdentifierAt(idx);
       Bool_t point_above_line = line->WhereAmI(x, y, position);
 
       if (point_above_line) {
@@ -241,8 +242,8 @@ KVIDLine *KVIDGrid::FindNearestIDLine(Double_t x, Double_t y,
    }
    //calculate distance of point to the two lines above and below
    //and return pointer of the closest one
-   KVIDLine *upper = (KVIDLine*)GetIdentifier(idx_max);
-   KVIDLine *lower = (KVIDLine*)GetIdentifier(idx_min);
+   KVIDLine *upper = (KVIDLine*)GetIdentifierAt(idx_max);
+   KVIDLine *lower = (KVIDLine*)GetIdentifierAt(idx_min);
    Int_t dummy = 0;
    return (TMath::Abs(upper->DistanceToLine(x, y, dummy)) >
            TMath::Abs(lower->DistanceToLine(x, y, dummy)) ? lower : upper);
@@ -293,4 +294,19 @@ void KVIDGrid::Initialize()
    
    SortIdentifiers();
    CalculateLineWidths();
+}
+
+//___________________________________________________________________________________
+
+void KVIDGrid::FitPanel()
+{
+	// GUI method, use default ID fitter object in order to fit this ID grid.
+	
+	KVVirtualIDFitter * fitter = KVVirtualIDFitter::GetDefaultFitter();
+	fitter->SetGrid(this);
+	fitter->SetPad(fPad);
+	TMethod * m = fitter->IsA()->GetMethodAny("FitPanel");
+	TContextMenu * cm = new TContextMenu("KVIDGrid::FitPanel", "Context menu for KVIDGrid::FitPanel");
+	cm->Action(fitter,m);
+	delete cm;
 }

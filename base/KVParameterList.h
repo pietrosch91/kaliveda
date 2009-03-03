@@ -94,7 +94,7 @@ template < class T > void KVParameterList <
    //Remove the named parameter from the parameter list
    KVParameter < T > *par = 0;
    //does parameter exist ?
-   par = (KVParameter < T > *)fParameters->FindObjectByName(name);
+   par = (KVParameter < T > *)fParameters->FindObject(name);
    if (par) {
       fParameters->Remove(par);
       delete par;
@@ -110,7 +110,7 @@ template < class T > const T & KVParameterList <
    //Use HasParameter() before to check parameter exists: if not, this will crash
 
    KVParameter < T > *par =
-       (KVParameter < T > *)fParameters->FindObjectByName(name);
+       (KVParameter < T > *)fParameters->FindObject(name);
    if (!par) {
       cout << "FatalError in <KVParameterList::GetParameter> : ";
       cout << "No parameter " << name <<
@@ -131,7 +131,7 @@ template < class T > Bool_t KVParameterList <
    //Returns kTRUE if named parameter has been defined.
 
    KVParameter < T > *par =
-       (KVParameter < T > *)fParameters->FindObjectByName(name);
+       (KVParameter < T > *)fParameters->FindObject(name);
    return (Bool_t) (par != 0);
 }
 

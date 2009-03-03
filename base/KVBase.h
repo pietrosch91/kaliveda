@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVBase.h,v 1.40 2008/03/04 16:43:13 franklan Exp $
+$Id: KVBase.h,v 1.41 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVBASE_H
@@ -87,6 +87,7 @@ class KVBase:public TNamed {
    static TPluginHandler *LoadPlugin(const Char_t * base,
                                      const Char_t * uri = "0");
    static const Char_t* GetPluginURI(const Char_t* base, const Char_t* plugin);
+	static const Char_t* GetListOfPlugins(const Char_t* base);
    static void OpenTempFile(TString & base, ofstream & fp);     /* open temp file with basename 'base' */
    static void GetTempFileName(TString & base);
 

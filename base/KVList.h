@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVList.h,v 1.21 2009/01/20 15:15:54 franklan Exp $
+$Id: KVList.h,v 1.22 2009/03/03 14:27:15 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,38 +26,70 @@ $Id: KVList.h,v 1.21 2009/01/20 15:15:54 franklan Exp $
 #include "TList.h"
 #include "TFile.h"
 #include "KVConfig.h"
+#include <RQ_OBJECT.h>
+#include "Riostream.h"
 
 class KVBase;
 
 class KVList:public TList {
- public:
-   KVList(Bool_t owner = kTRUE);
+	
+	RQ_OBJECT("KVList")
+			
+	enum {
+		kSignals = BIT(14) // bit flag for sending 'Modified()' signal on changes
+	};
+			
+	protected:
+			
+	virtual void Changed()
+	{
+		// Overrides TSeqCollection::Changed() which is called by all Add/Remove
+		// methods of the list. We make it emit the "Modified()" signal, if
+		// the kSignals bit has been set using SendModifiedSignals(kTRUE).
+		TSeqCollection::Changed();
+		if(TestBit(kSignals)) Modified();
+	};
+	public:
+   
+	virtual void Modified()
+	{
+		Emit("Modified()");
+	};  // *SIGNAL*
+
+	KVList(Bool_t owner = kTRUE);
    KVList(const KVList &);
-    virtual ~ KVList();
+   virtual ~ KVList();
+	
+	virtual void SendModifiedSignals(Bool_t yes = kTRUE){
+		//yes=kTRUE: turns on signals-and-slots mechanism, list will
+		//           emit 'Modified()' signal every time a change
+		//           occurs (objects added or removed).
+		//yes=kFALSE: turns off signals-and-slots mechanism
+		//
+		//By default, the 'Modified()' signal is NOT enabled.
+		SetBit(kSignals,yes);
+	};
+	virtual Bool_t IsSendingModifiedSignals(){
+		//returns kTRUE if 'Modified()' signal is active
+		//(see SendModifiedSignals).
+		return TestBit(kSignals);
+	};
 
    virtual TObject *FindObjectAny(const Char_t *att, const Char_t *keys, Bool_t contains_all=kFALSE, Bool_t case_sensitive=kTRUE) const;
    
-   virtual KVBase *FindObjectByName(const Char_t *);
-   virtual KVBase *FindObjectByType(const Char_t *);
-   virtual KVBase *FindObjectByClass(const Char_t *);
-   virtual KVBase *FindObjectByClass(const TClass *);
-   virtual KVBase *FindObjectByLabel(const Char_t *);
-   virtual KVBase *FindObject(UInt_t num);
-   virtual KVBase *FindObject(KVBase * obj);
-   virtual KVBase *FindObject(const Char_t * name, const Char_t * type);
-   virtual TObject *FindObject(const char *name) const {
-      return TList::FindObject(name);
-   };
-   virtual TObject *FindObject(const TObject * name) const {
-      return TList::FindObject(name);
-   };
-
+   virtual TObject *FindObjectByName(const Char_t *name) { return FindObject(name);};
+   virtual TObject *FindObjectByType(const Char_t *);
+   TObject *FindObjectByClass(const Char_t *);
+   TObject *FindObjectByClass(const TClass *);
+   virtual TObject *FindObjectByLabel(const Char_t *);
+   virtual TObject *FindObjectByNumber(Int_t num);
+   virtual TObject *FindObjectWithNameAndType(const Char_t * name, const Char_t * type);
 	virtual TObject *FindObjectWithMethod(const Char_t* retvalue,const Char_t* method);
    
 	virtual KVList *GetSubListWithMethod(const Char_t* retvalue,const Char_t* method);
 	
-	virtual KVList *GetSubListWithClass(const TClass* _class);
-	virtual KVList *GetSubListWithClass(const Char_t* class_name);
+	KVList *GetSubListWithClass(const TClass* _class);
+	KVList *GetSubListWithClass(const Char_t* class_name);
 	
 	virtual KVList *GetSubListWithName(const Char_t* retvalue);
 	virtual KVList *GetSubListWithLabel(const Char_t* retvalue);
@@ -98,7 +130,7 @@ class KVList:public TList {
    virtual Int_t GetEntries() const { return GetSize(); };
 #endif
    
-   ClassDef(KVList, 1)          // KV wrapper for ROOT TList classes
+   ClassDef(KVList, 2)          // KV wrapper for ROOT TList classes
 };
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,11,2)

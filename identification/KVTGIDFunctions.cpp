@@ -1,4 +1,4 @@
-//$Id: KVTGIDFunctions.cpp,v 1.13 2008/02/08 13:13:34 franklan Exp $
+//$Id: KVTGIDFunctions.cpp,v 1.14 2009/03/03 14:27:15 franklan Exp $
 
 #include "KVTGIDFunctions.h"
 #include "KVNucleus.h"
@@ -44,7 +44,7 @@ NamespaceImp(KVTGIDFunctions)
 //       par[2] : beta (0.5: 0.2 - 1)
 //       par[3] : mu (1: 0.2 - 1.5)
 //       par[4] : nu (1: 0.1 - 4)
-//       par[5] : zeta (?? squiggly epsilon thingy ??) (>0)
+//       par[5] : xi (>0)
 //       par[6] : g
 //       par[7] : pedestal of x-coordinate
 //       par[8] : pedestal of y-coordinate
@@ -68,6 +68,181 @@ NamespaceImp(KVTGIDFunctions)
 //       par[10] : Pawlowski correction
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Double_t KVTGIDFunctions::fede(Double_t * x, Double_t * par)
+{
+	// General Tassan-Got functional used with KVTGIDFitter
+	// It gives Y as a function of X and Z or A (depending on parameters).
+	//
+	// par[0] = ixt   ----->   type of functional
+	//  *  ixt  :  =0->basic functional       <>0->extended functional
+	//  *      * For the basic formula :
+	//  *        yy = ((g*E)**(mu+1)+lambda**(mu+1)*Z**2*A**mu)**(1/(mu+1))-g*E + pdy
+	//  *      * For the extended formula :      
+	//  *        yy = ((g*E)**(mu+nu+1)+(lambda*Z**alpha*A**beta)**(mu+nu+1)+
+	//  *                 xi*A**mu*(g*E)**nu)**(1/(mu+mu+1))-g*E + pdy
+	//
+	// par[1] = ih    ----->    treatment of CsI total light output
+	//  *   ih  :  =0->no non-linear light response    <>0->non-linear light response included
+	//  *      *  If ih=0  no non-linear light response : E=xx-pdx
+	//  *      *  If ih<>0 non-linear light response included :
+	//  *          E = sqrt(h**2+2*rho*h*(1+log(1+h/rho)))
+	//  *         rho=eta*Z**2*A    and   h=xx-pdx
+	//
+	// par[2] = ZorA  ----->    whether x[0]=Z or x[0]=A
+	//  *    ZorA :  =0->x[0]=A    <>0->x[0]=Z
+	//  *        *  If ZorA=1, we calculate A using the mass formula indicated
+	//  *           by the value of MassForm=par[3]
+	//  *        *  If ZorA=0, Z is given by the value of par[3]
+	//
+	// par[3] = mass formula or Z
+	//  *  If ZorA=1, par[3] = mass formula, for values see KVNucleus::GetAFromZ
+	//  *  If ZorA=0, par[3] = Z
+	//
+	// par[4] = X coordinate
+	// par[5] = Y coordinate
+	//
+	// The number & order of remaining parameters depend on ixt and ih.
+	//  *    ixt=0  ih=0   5 parameters: lambda, mu, g, pdx, pdy
+	//  *    ixt=0  ih<>0  6 parameters: lambda, mu, g, pdx, pdy, eta
+	//  *    ixt<>0 ih=0   9 parameters: lambda, alpha, beta, mu, nu, 
+	//  *                               xi, g, pdx, pdy
+	//  *    ixt<>0 ih<>0 10 parameters: lambda, alpha, beta, mu, nu, 
+	//  *                               xi, g, pdx, pdy, eta
+	//
+	// Therefore:
+	//
+	// ixt=0, ih=0:            Double_t par[11];
+	// ============
+	//  par[6] = lambda
+	//  par[7] = mu
+	//  par[8] = g
+	//  par[9] = pdx
+	//  par[10] = pdy
+	//
+	// ixt=0, ih<>0:            Double_t par[12];
+	// ============
+	//  par[6] = lambda
+	//  par[7] = mu
+	//  par[8] = g
+	//  par[9] = pdx
+	//  par[10] = pdy
+	//  par[11] = eta
+	//
+	// ixt<>0, ih=0:            Double_t par[15];
+	// ============
+	//  par[6] = lambda
+	//  par[7] = alpha
+	//  par[8] = beta
+	//  par[9] = mu
+	//  par[10] = nu
+	//  par[11] = xi
+	//  par[12] = g
+	//  par[13] = pdx
+	//  par[14] = pdy
+	//
+	// ixt<>0, ih<>0:            Double_t par[16];
+	// ============
+	//  par[6] = lambda
+	//  par[7] = alpha
+	//  par[8] = beta
+	//  par[9] = mu
+	//  par[10] = nu
+	//  par[11] = xi
+	//  par[12] = g
+	//  par[13] = pdx
+	//  par[14] = pdy
+	//  par[15] = eta
+	
+	Int_t ixt, ih, ZorA;
+	ixt  = (Int_t)par[0];
+	ih   = (Int_t)par[1];
+	ZorA = (Int_t)par[2];
+	
+   Double_t A, Z;
+	if(ZorA==0){
+		// A given as function argument, Z is parameter
+		A = x[0]; Z = par[3];
+	}
+	else if(ZorA==1){
+		// Z given as function argument, calculate A
+		Z = x[0]; A = KVNucleus::GetRealAFromZ(Z, (Int_t)par[3]);
+	}
+	
+	Double_t E, pdx, pdy, eta, lambda, mu, g, yy;
+	eta = 0.;
+	lambda = par[6];
+	if(ixt){
+		//extended formula
+		pdx = par[13]; pdy = par[14]; mu = par[9]; g= par[12];
+		Double_t alpha = par[7];
+		Double_t beta = par[8];
+		Double_t nu = par[10];
+		Double_t xi = par[11];
+		Double_t gamma = mu + nu + 1.;
+		if(ih){
+			eta = par[15];
+			//calculate energy from total light
+			Double_t h = par[4] - pdx;
+   		if(h > 0){
+   			Double_t rho = eta * Z * Z * A;
+      		if(rho > 0){
+         		E = TMath::Sqrt(h*h + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
+      		}
+      		else
+         		E = h;
+   		}
+   		else
+			{
+      		E = 0;
+			}
+		}
+		else
+		{
+			E = par[4] - pdx;
+		}
+		Double_t gE = g*E;
+		//yy = ((g*E)**(mu+nu+1)+(lambda*Z**alpha*A**beta)**(mu+nu+1)+
+		//      xi*Z**2*A**mu*(g*E)**nu)**(1/(mu+nu+1))-g*E + pdy
+		yy = TMath::Power(gE,gamma)
+				+ TMath::Power( (lambda*TMath::Power(Z,alpha)*TMath::Power(A,beta)), gamma)
+				+ xi*Z*Z*TMath::Power(A,mu)*TMath::Power(gE,nu);
+		yy = TMath::Power(yy, 1./gamma) - gE + pdy;
+	}
+	else
+	{
+		//"standard" formula
+		mu = par[7]; g = par[8];
+		pdx = par[9]; pdy = par[10];
+		Double_t muplus = mu + 1.;
+		if(ih){
+			eta = par[11];
+			//calculate energy from total light
+			Double_t h = par[4] - pdx;
+   		if(h > 0){
+   			Double_t rho = eta * Z * Z * A;
+      		if(rho > 0){
+         		E = TMath::Sqrt(h*h + 2 * rho * h * (1 + TMath::Log(1 + h / rho)));
+      		}
+      		else
+         		E = h;
+   		}
+   		else
+			{
+      		E = 0;
+			}
+		}
+		else
+		{
+			E = par[4] - pdx;
+		}
+		Double_t gE = g*E;
+		//yy = ((g*E)**(mu+1)+lambda**(mu+1)*Z**2*A**mu)**(1/(mu+1))-g*E + pdy
+		yy = TMath::Power(gE,muplus) + TMath::Power(lambda,muplus)*Z*Z*TMath::Power(A,mu);
+		yy = TMath::Power(yy,1./muplus) - gE + pdy;
+	}
+	return yy - par[5];
+}
 
 Double_t KVTGIDFunctions::chiosi_Z(Double_t * x, Double_t * par)
 {
@@ -176,6 +351,7 @@ Double_t KVTGIDFunctions::pichon_Z(Double_t * x, Double_t * par)
    //       par[6] : g
    //       par[7] : pedestal of x-coordinate
    //       par[8] : pedestal of y-coordinate
+   //       par[9] : eta
    //par[10] measured total light output of CsI - X coord
    //par[11] measured ChIo/Si PG or GG channel - Y coord
 

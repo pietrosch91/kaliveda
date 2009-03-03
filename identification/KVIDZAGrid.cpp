@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.12 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.13 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -163,7 +163,7 @@ KVIDZALine *KVIDZAGrid::GetZLine(Int_t z, Int_t & index) const
 
    while (idx_max > idx_min + 1) {
 
-      KVIDZALine *line = (KVIDZALine *) GetIdentifier(idx);
+      KVIDZALine *line = (KVIDZALine *) GetIdentifierAt(idx);
       Int_t zline = line->GetZ();
       //Found it ?
       if (zline == z) {
@@ -183,12 +183,12 @@ KVIDZALine *KVIDZAGrid::GetZLine(Int_t z, Int_t & index) const
       }
    }
    //if one of these two lines has the right Z, return its pointer
-   KVIDZALine *line = (KVIDZALine *) GetIdentifier(idx_min);
+   KVIDZALine *line = (KVIDZALine *) GetIdentifierAt(idx_min);
    if (line->GetZ() == z) {
       index = idx_min;
       return line;
    }
-   line = (KVIDZALine *) GetIdentifier(idx_max);
+   line = (KVIDZALine *) GetIdentifierAt(idx_max);
    if (line->GetZ() == z) {
       index = idx_max;
       return line;
@@ -220,7 +220,7 @@ KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
    //increase/decreas index depending on if mass of line is greater than or less than a
    if (a > line->GetA()) {
       for (int i = idx; i < (int) GetNumberOfIdentifiers(); i++) {
-         line = (KVIDZALine *) GetIdentifier(i);
+         line = (KVIDZALine *) GetIdentifierAt(i);
          if (line->GetZ() != z)
             return 0;           //no longer correct Z
          if (line->GetA() == a) {
@@ -232,7 +232,7 @@ KVIDZALine *KVIDZAGrid::GetZALine(Int_t z, Int_t a, Int_t & index) const
       return 0;
    } else if (a < line->GetA()) {
       for (int i = idx; i > 0; i--) {
-         line = (KVIDZALine *) GetIdentifier(i);
+         line = (KVIDZALine *) GetIdentifierAt(i);
          if (line->GetZ() != z)
             return 0;           //no longer correct Z
          if (line->GetA() == a) {
@@ -274,14 +274,14 @@ void KVIDZAGrid::CalculateLineWidths()
 
    for (Int_t i = 0; i < (Int_t) GetNumberOfIdentifiers(); i++) {
 
-      KVIDZALine *_line = (KVIDZALine *) GetIdentifier(i);
+      KVIDZALine *_line = (KVIDZALine *) GetIdentifierAt(i);
 
       //Z of lines above and below this line - Zxx=-1 if there is no line above or below
       Int_t Zhi =
           (i <
            (Int_t) GetNumberOfIdentifiers() -
-           1 ? ((KVIDZALine *) GetIdentifier(i + 1))->GetZ() : -1);
-      Int_t Zlo = (i > 0 ? ((KVIDZALine *) GetIdentifier(i - 1))->GetZ() : -1);
+           1 ? ((KVIDZALine *) GetIdentifierAt(i + 1))->GetZ() : -1);
+      Int_t Zlo = (i > 0 ? ((KVIDZALine *) GetIdentifierAt(i - 1))->GetZ() : -1);
       Int_t Z = _line->GetZ();
 
       Int_t i_other;
@@ -299,7 +299,7 @@ void KVIDZAGrid::CalculateLineWidths()
          continue;              // skip to next line
       }
 
-      KVIDZALine *_otherline = (KVIDZALine *) GetIdentifier(i_other);
+      KVIDZALine *_otherline = (KVIDZALine *) GetIdentifierAt(i_other);
 
       //calculate asymptotic distances between lines at left and right.
       //do this by finding which line's endpoint is between both endpoints of the other line
@@ -405,8 +405,9 @@ void KVIDZAGrid::DrawLinesWithWidth()
    //the natural line widths are shown as error bars
 
    if (!gPad) {
-      new TCanvas("c1", GetName());
+      fPad = new TCanvas("c1", GetName());
    } else {
+		fPad = (TPad*)gPad;
       gPad->SetTitle(GetName());
    }
    if (!gPad->GetListOfPrimitives()->GetSize()) {
@@ -519,7 +520,7 @@ KVIDLine *KVIDZAGrid::GetNearestIDLine(Double_t x, Double_t y,
          //cout << "CLOSEST : " ;
       }
       if (idx < 99) {
-         fLines.AddAtAndExpand(GetIdentifier(idx), i);
+         fLines.AddAtAndExpand(GetIdentifierAt(idx), i);
          fDistances[i] = Dline2[ind_arr[i]];
          //cout << i << " : " << fLines[i]->GetName() << "   d= " << fDistances[i] << endl;
       } else {
@@ -1175,7 +1176,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
       return;
    }
    if( OnlyZId() ){
-      Info("Identify", "Z-identification");
+      //Info("Identify", "Z-identification");
       Double_t Z;
       const_cast < KVIDZAGrid * >(this)->IdentZ(x, y, Z);
       if (Z > 0) {
@@ -1185,7 +1186,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
    }
    else
    {
-      Info("Identify", "Z & A-identification");
+      //Info("Identify", "Z & A-identification");
       Int_t Z; Double_t A;
       const_cast < KVIDZAGrid * >(this)->IdentZA(x, y, Z, A);
       nuc->SetZ(Z);

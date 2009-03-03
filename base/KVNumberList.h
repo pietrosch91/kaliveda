@@ -1,7 +1,7 @@
 /*******************************************************************************
-$Id: KVNumberList.h,v 1.19 2009/03/03 13:36:00 franklan Exp $
-$Revision: 1.19 $
-$Date: 2009/03/03 13:36:00 $
+$Id: KVNumberList.h,v 1.20 2009/03/03 14:27:15 franklan Exp $
+$Revision: 1.20 $
+$Date: 2009/03/03 14:27:15 $
 $Author: franklan $
 *******************************************************************************/
 
@@ -82,6 +82,9 @@ class KVNumberList {
    void PrintLimits();
    
    KVNumberList & operator=(const KVNumberList &);
+	
+	   // Type conversion
+   operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }
 
    ClassDef(KVNumberList, 1)    //Strings used to represent a set of ranges of values
 };

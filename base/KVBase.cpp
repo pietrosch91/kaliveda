@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVBase.cpp,v 1.54 2009/01/16 14:55:20 franklan Exp $
+$Id: KVBase.cpp,v 1.55 2009/03/03 14:27:15 franklan Exp $
                           kvbase.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -35,43 +35,89 @@ $Id: KVBase.cpp,v 1.54 2009/01/16 14:55:20 franklan Exp $
 #include "KVConfig.h"
 
 ClassImp(KVBase)
-//////////////////////////////////////////////////////////////////////////////////
-//          *****       Base class for all KaliVeda objects.      ******
-//
-// All objects in the KaliVeda environment inherit from KVBase,
-// which itself inherits from the ROOT class of named objects, TNamed.
-// The fTitle member of TNamed is used to hold the "type" of the object,
-// vias SetType (=SetTitle) and GetType(=GetTitle).
-// We also have a "label" via SetLabel and GetLabel.
-//
-// The total number of KVBase (and derived) objects in existence can be obtained
-// from GetNumberOfObjects().
-// The first KVBase object created will:
-//  - check that the KVROOT environment variable has been set
-//  - reset the gRandom random number sequence using a clock-based seed (i.e. sequences do not repeat).
-//
-//Global string pointers gKVRootDir, gKVBinDir and gKVFilesDir hold full paths to $KVROOT, $KVROOT/bin
-//and $KVROOT/KVFiles directories, respectively.
-//
-//A global "file search" function is also defined in this file (it is used by SearchKVFile()):
-//
-//Bool_t SearchFile(const Char_t* name, TString& fullpath, int ndirs, ...)
-//{
-//      Search for file in an arbitrary number of locations, return kTRUE if file found and put full path to file in 'fullpath"
-//
-//      'name' is a filename (not an absolute pathname) i.e. "toto.dat"
-//      'fullpath" will contain the full path to the file if it is found (if file not found, fullpath="")
-//      'ndirs" is the number of directories to search in
-//      the remaining arguments are the names of 'ndirs' paths to search in, i.e.
-//
-//              SearchFile("toto.dat", fullpath, 2, gSystem->pwd(), gSystem->HomeDirectory());
-//
-//      means: search for a file 'toto.dat' in current working directory, then user's home directory.
-//
-//              SearchFile("toto.dat", fullpath, 3, gKVFilesDir, gKVRootDir, gRootDir);
-//
-//      means: search for a file 'toto.dat' in $KVROOT/KVFiles, in $KVROOT, and finally in $ROOTSYS
-//}
+
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVBase</h2>
+<h4>Base class for KaliVeda framework</h4>
+This is the base class for many classes in the KaliVeda framework. Each
+KVBase object has<br>
+<ul>
+<li>a name - Get/SetName()</li>
+<li>a type - Get/SetType()</li>
+<li>a number - Get/SetNumber()</li>
+<li>a label - Get/SetLabel()<br>
+</li>
+</ul>
+This class also provides a number of general utilities, often as static
+(stand-alone) methods.<br>
+<h3>KaliVeda build/installation information</h3>
+The static methods<br>
+<pre>KVBase::GetKVSourceDir()<br>KVBase::GetKVBuildDate()<br>KVBase::GetKVBuildUser()<br></pre>
+give info on the sources, when and where they were built, and by whom.<br>
+The static methods<br>
+<pre>KVBase::GetKVVersion()<br>KVBase::GetKVRoot()<br>KVBase::GetKVRootDir()<br>KVBase::GetKVBinDir()<br>KVBase::GetKVFilesDir()<br></pre>
+give info on the version of KaliVeda, the environment variable $KVROOT,
+and the paths to the installation directories.<br>
+<h3>Initialisation</h3>
+The entire KaliVeda framework is initialised by the static method<br>
+<pre>KVBase::InitEnvironment()<br></pre>
+<h3>Finding/opening files</h3>
+Static methods for easily locating and/or opening files within the
+KaliVeda installation tree (under $KVROOT) are given:<br>
+<pre>KVBase::SearchKVFile(...)<br>KVBase::SearchAndOpenKVFile(...)<br></pre>
+Note that in the second case, two methods exist: one for reading, the
+other for writing the (ascii) files. A global function for searching
+files is also defined:<br>
+<pre>Bool_t SearchFile(const Char_t* name, TString&amp; fullpath, int ndirs, ...)<br></pre>
+This will search for a
+file in an arbitrary number of locations, return kTRUE if file is found
+and put full path to file in 'fullpath':<br>
+<ul>
+<li> 'name' is a filename (not an absolute pathname) i.e. "toto.dat"</li>
+<li> 'fullpath' will contain the full path to the
+file if it is found (if file not found, fullpath="")</li>
+<li> 'ndirs' is the number of directories to
+search in<br>
+</li>
+</ul>
+The remaining arguments are the names of 'ndirs' paths to search in,
+i.e.<br>
+<pre>SearchFile("toto.dat", fullpath, 2, gSystem-&gt;pwd(), gSystem-&gt;HomeDirectory());</pre>
+means: search for a file 'toto.dat' in current working directory, then
+user's home directory.<br>
+<pre>SearchFile("toto.dat", fullpath, 3, KVBase::GetKVFilesDir(), KVBase::GetKVRootDir(), gRootDir);</pre>
+means: search for a file 'toto.dat' in $KVROOT/KVFiles, in $KVROOT, and
+finally in $ROOTSYS.<br>
+<h3>Finding class source files</h3>
+Source files for a class can be found using static method<br>
+<pre>KVBase::FindClassSourceFiles(...)<br></pre>
+It will look for appropriately-named files corresponding to the header
+&amp; implementation file of a class, testing several popular suffixes
+in each case.<br>
+<h3>Finding executables</h3>
+To find an executable in the current user's 'PATH' (or elsewhere), use
+static method<br>
+<pre>KVBase::FindExecutable(...)<br></pre>
+<h3>Temporary files</h3>
+The static methods<br>
+<pre>KVBase::GetTempFileName(...)<br>KVBase::OpenTempFile(...)<br></pre>
+can generate and handle uniquely-named temporary (ascii) files.<br>
+<h3>Backing-up files</h3>
+The static method<br>
+<pre>KVBase::BackupFileWithDate(...)<br></pre>
+can be used to create a dated backup of an existing file before it is
+replaced with a new version.<br>
+<h3>Handling plugins</h3>
+As plugins are extensively used in the KaliVeda framework, a few
+utilities for handling them are defined. They are static methods<br>
+<pre>KVBase::LoadPlugin(...)<br>KVBase::GetPluginURI(...)<br></pre>
+<!-- */
+// --> END_HTML
+////////////////////////////////////////////////////////////////////////////////
+
+
 UInt_t KVBase::fNbObj = 0;
 
 TString KVBase::KVRootDir = "";
@@ -132,6 +178,8 @@ void KVBase::InitEnvironment()
    if (!fEnvIsInit) {//test if environment already initialised
    
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
+      ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
+				GetKVVersion(), GetKVBuildDate());
       KVRootDir = gSystem->Getenv("KVROOT");
       TString tmp;
       AssignAndDelete(tmp,
@@ -768,5 +816,54 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
       }
    }
    tmp = "";
+   return tmp;
+}
+ 
+//__________________________________________________________________________________________________________________
+
+const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
+{
+   // Return whitespace-separated list of all plugin classes defined for
+	// the given base class.
+   //
+   // Most of the code is copied from TPluginManager::LoadHandlersFromEnv
+   
+   TIter next(gEnv->GetTable());
+   TEnvRec *er;
+   static TString tmp;
+	tmp = "";
+   while ((er = (TEnvRec*) next())) {
+      const char *s;
+      if ((s = strstr(er->GetName(), "Plugin."))) {
+         // use s, i.e. skip possible OS and application prefix to Plugin.
+         // so that GetValue() takes properly care of returning the value
+         // for the specified OS and/or application
+         const char *val = gEnv->GetValue(s, (const char*)0);
+         if (val) {
+            Int_t cnt = 0;
+            s += 7;
+            //is it the right base class ?
+            if( strcmp(s , base) ) continue;//skip to next env var if not right base
+            
+            char *v = StrDup(val);
+            while (1) {
+               TString regexp = strtok(!cnt ? v : 0, "; ");
+               if (regexp.IsNull()) break;
+               TString clss   = strtok(0, "; ");
+               if (clss.IsNull()) break;
+               TString plugin = strtok(0, "; ");
+               if (plugin.IsNull()) break;
+               TString ctor = strtok(0, ";\"");
+               if (!ctor.Contains("("))
+                  ctor = strtok(0, ";\"");
+					tmp += clss; tmp += " ";
+               cnt++;
+            }
+            delete [] v;
+         }
+      }
+   }
+	//remove final trailing whitespace
+	tmp.Remove(TString::kTrailing,' ');
    return tmp;
 }

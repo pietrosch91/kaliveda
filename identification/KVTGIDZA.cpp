@@ -5,7 +5,7 @@
     copyright            : (C) 2005 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVTGIDZA.cpp,v 1.11 2009/03/03 13:36:00 franklan Exp $
+$Id: KVTGIDZA.cpp,v 1.12 2009/03/03 14:27:15 franklan Exp $
 ***************************************************************************/
 #include "KVTGIDZA.h"
 #include "KVIDZAGrid.h"
@@ -31,7 +31,7 @@ ClassImp(KVTGIDZA)
 //In order to use MakeIDGrid() for this class, the user must set the name of
 //the parameter in the identification functional which corresponds to the
 //atomic number Z i.e. using
-//      KVTGID::SetParName(i,"Z")
+//      SetParName(i,"Z")
 //with i=the relevant parameter index.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,22 @@ ClassImp(KVTGIDZA)
    //using a KVTGIDFunctions namespace function (e.g. "tassangot_A"),
    //for 'x' values from xmin to xmax, npar parameters, and defining
    //the parameter indices corresponding to 'x' and 'y' coordinates.
+}
+
+//___________________________________________________________________________//
+
+KVTGIDZA::KVTGIDZA(const Char_t * name, Int_t npar, Int_t type, Int_t light)
+	:KVTGIDZ(name, npar, type, light, -1)
+{
+   // Create A identification with given "name", using the generalised
+	// Tassan-Got functional KVTGIDFunctions::fede.
+	// npar = total number of parameters
+	// type = functional type (0: standard, 1:extended)
+	// light = with (1) or without (0) CsI light-energy dependence
+	
+	fZorA=0;
+	SetParameter(2,fZorA);
+	SetParName(3,"Z");
 }
 
 //___________________________________________________________________________//
@@ -73,14 +89,6 @@ KVIDLine *KVTGIDZA::AddLine(KVIDGrid * g)
    return (KVIDLine*)g->Add("ID", "KVIDZALine");
 }
 
-//___________________________________________________________________________//
-
-KVIDGrid *KVTGIDZA::NewGrid()
-{
-   //Create new KVIDZAGrid
-   return new KVIDZAGrid;
-}
-
 //_______________________________________________________________________________________//
 
 void KVTGIDZA::AddLineToGrid(KVIDGrid * g, Int_t Z, Int_t npoints,
@@ -96,7 +104,7 @@ void KVTGIDZA::AddLineToGrid(KVIDGrid * g, Int_t Z, Int_t npoints,
    //Before using this method the user must have set the name of
    //the parameter in the identification functional which corresponds to the
    //atomic number Z i.e. using
-   //      KVTGID::SetParName(i,"Z")
+   //      SetParName(i,"Z")
    //with i=the relevant parameter index.
    //
    // If log_scale=kTRUE (default is kFALSE), more points are used at the beginning
@@ -105,16 +113,28 @@ void KVTGIDZA::AddLineToGrid(KVIDGrid * g, Int_t Z, Int_t npoints,
    //A & Z identification
    //on va faire: p,d,t,3He,4He,6He,6Li,7Li,8Li,7Be,9Be, etc.
    static Int_t Ziso[] =
-       { 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7,
-      8, 8, 8, 8
+       { 1, 1, 1, 
+		 	2, 2, 2, 
+			3, 3, 3, 
+			4, 4, 4, 
+			5, 5, 5, 
+			6, 6, 6, 
+			7, 7, 7,
+			8, 8, 8
    };
    static Int_t Aiso[] =
-       { 1, 2, 3, 3, 4, 6, 6, 7, 8, 7, 9, 10, 10, 11, 12, 11, 12, 13, 14,
-      13, 14, 15, 15, 16, 17, 18
+       { 1, 2, 3, 
+			3, 4, 6, 
+			6, 7, 8, 
+			7, 9, 10, 
+			10, 11, 12, 
+			12, 13, 14,
+			14, 15, 16, 
+			15, 16, 17
    };
-   static Int_t nisotopes = 26; //number of isotopes in arrays
-   static Int_t Zindex_start[] = { -1, 0, 3, 6, 9, 12, 15, 19, 22 };    //index of first isotope for each Z
-   static Int_t Zindex_stop[] = { -1, 2, 5, 8, 11, 14, 18, 21, 25 };    //index of last isotope for each Z
+   static Int_t nisotopes = 24; //number of isotopes in arrays
+   static Int_t Zindex_start[] = { -1, 0, 3, 6, 9, 12, 15, 18, 21 };    //index of first isotope for each Z
+   static Int_t Zindex_stop[] = { -1, 2, 5, 8, 11, 14, 17, 20, 23 };    //index of last isotope for each Z
 
    if (Z <= Ziso[nisotopes - 1]) {
       //Z is included in table of isotopes
@@ -165,10 +185,10 @@ void KVTGIDZA::AddLineToGrid(KVIDGrid * g, Int_t Z, Int_t npoints,
       }
    } else {
       //Z is bigger than largest Z for which we have isotopes
-      //we add one line for this Z with EAL mass
+      //we add one line for this Z using mass formula
 
       //get mass for nucleus
-      Int_t A = KVNucleus::GetAFromZ(Z, KVNucleus::kEALMass);
+      Int_t A = KVNucleus::GetAFromZ(Z, fMassFormula);
       //add new line to grid
       KVIDLine *new_line = AddLine(g);
       //set identification label for line

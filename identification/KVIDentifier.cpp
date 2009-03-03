@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.cpp,v 1.2 2009/03/03 13:36:00 franklan Exp $
-$Revision: 1.2 $
-$Date: 2009/03/03 13:36:00 $
+$Id: KVIDentifier.cpp,v 1.3 2009/03/03 14:27:15 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/03/03 14:27:15 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -266,4 +266,16 @@ void KVIDentifier::WaitForPrimitive()
    gPad->GetListOfPrimitives()->Remove(gr);
    delete gr;
    Draw("PL");
+}
+	
+//_____________________________________________________________________________________________
+
+void KVIDentifier::ExtendLine(Option_t* Direction, Double_t Limit)
+{
+	// Right-clicking an identifier and selecting this method from the context
+	// menu allows to add a straight-line segment at the end or the beginning
+	// of the line (whichever is closest to the mouse).
+	//
+	//  Direction = "H", "h", "hori", "HORI" etc. - add horizontal segment
+	//  Direction = "v", "V", "vert", "VERT" etc. - add vertical segment
 }

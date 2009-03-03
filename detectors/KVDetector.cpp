@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVDetector.cpp,v 1.86 2009/01/06 14:45:26 franklan Exp $
+$Id: KVDetector.cpp,v 1.87 2009/03/03 14:27:15 franklan Exp $
                           kvdetector.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -556,7 +556,7 @@ KVACQParam *KVDetector::GetACQParam(const Char_t * type)
    name = GetName();
    name.Append("_");
    name.Append(type);
-   return ((KVACQParam *) fACQParams->FindObject(name, type));
+   return ((KVACQParam *) fACQParams->FindObjectWithNameAndType(name, type));
 }
 
 //__________________________________________________________________________________
@@ -834,6 +834,7 @@ void KVDetector::GetAlignedIDTelescopes(KVList * list)
    //If list=0 then we store pointers to the ALREADY EXISTING ID telescopes
    //in fIDTelAlign. (first clear fIDTelAlign)
 
+		
    TList *aligned = GetGroup()->GetAlignedDetectors(this);      //delete after use
 
    Bool_t list_zero = kFALSE;
@@ -881,7 +882,8 @@ void KVDetector::GetAlignedIDTelescopes(KVList * list)
          }
       }
       //destroy the superfluous copy telescopes we just created
-      delete list;
+      //delete list;
+      list->Delete(); delete list;
    }
 }
 
