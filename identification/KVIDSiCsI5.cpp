@@ -327,8 +327,9 @@ Bool_t KVIDSiCsI5::SetIdentificationParameters(const KVMultiDetArray* MDA)
             }
             sscanf(aline.Data(), "%s", type);
 
-            if (!strcmp(type, "PG2"))
+            if (!strcmp(type, "PG2")){
                idt->SetHasPG2();
+				}
 
             aline.ReadLine(datfile);
             sscanf(aline.Data(), "ZMIN=%d  ZMAX=%d", &zmin, &zmax);

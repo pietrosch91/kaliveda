@@ -26,7 +26,7 @@ class KVMultiDetArray;
 class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
    enum {
-      kHasPG2 = BIT(0)
+      kHasPG2 = BIT(17)
    };
    Int_t fWhichGrid;            //!internal IdentifyZ status code, tells us which Z grid was last used
 
