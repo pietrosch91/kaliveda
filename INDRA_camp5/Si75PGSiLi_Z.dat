@@ -3,14 +3,11 @@
 # This file can be read using KVIDZGrid::ReadAsciiFile
 # 
 ++KVIDZGrid
-<PARAMETER> Ring min=10
-<PARAMETER> Ring max=10
-<PARAMETER> Mod min=2
-<PARAMETER> Mod max=2
-<PARAMETER> ID Type=SI75-SILI
-<PARAMETER> Grid Type=PGZ
-<PARAMETER> First run=6000
-<PARAMETER> Last run=8900
+<VARX> SILI_PG
+<VARY> SI75_PG
+<PARAMETER> IDTelescopes=SI75_SILI_1002
+<PARAMETER> Grid Type=PG
+<PARAMETER> Runlist=6000-8900
 +KVIDZLine
 ID:Z=8
 8

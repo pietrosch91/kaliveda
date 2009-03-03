@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.cpp,v 1.2 2009/03/02 16:48:17 franklan Exp $
-$Revision: 1.2 $
-$Date: 2009/03/02 16:48:17 $
+$Id: KVIDSi75SiLi_camp5.cpp,v 1.3 2009/03/03 13:36:00 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/03/03 13:36:00 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -125,15 +125,8 @@ Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGrid *grid)
    
    //check identification type
    if( strcmp(grid->GetParameters()->GetStringValue("ID Type"), "SI75-SILI") ) return kFALSE;
-   
-   //get ring and module numbers from detectors
-   Int_t ring = GetDetector(1)->GetRingNumber();
-   if (ring < grid->GetParameters()->GetIntValue("Ring min")
-       || ring > grid->GetParameters()->GetIntValue("Ring max"))
-      return kFALSE;
-   Int_t mod = GetDetector(1)->GetModuleNumber();
-   if (mod < grid->GetParameters()->GetIntValue("Mod min")
-       || mod > grid->GetParameters()->GetIntValue("Mod max"))
+
+	if( !grid->HandlesIDTelescope(this) )   
       return kFALSE;
    
    //get run number from INDRA, if it exists (should do!), otherwise accept
@@ -146,16 +139,13 @@ Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGrid *grid)
    
    //the grid is accepted
    fIDGrids->Add(grid);
-   
-   //set grid label : GG, PG or PGZ
-   grid->SetLabel( grid->GetParameters()->GetStringValue("Grid Type") );
-   
+      
    return kFALSE; // make gIDGridManager keep searching!
 }
 
 //___________________________________________________________________________________________
 
-void KVIDSi75SiLi_camp5::Initialise()
+void KVIDSi75SiLi_camp5::Initialize()
 {
    // Initialize telescope for current run.
    // Pointers to grids for run are set, and if there is at least 1 (GG) grid,
@@ -163,12 +153,14 @@ void KVIDSi75SiLi_camp5::Initialise()
    // "Natural" line widths are calculated for KVIDZAGrids.
    
    fGGgrid = (KVIDZAGrid*)GetIDGrid("GG");
-   if( fGGgrid ) fGGgrid->CalculateLineWidths();
+   if( fGGgrid ){
+      SetBit(kReadyForID);
+      fGGgrid->Initialize();
+   }
    fPGgrid = (KVIDZAGrid*)GetIDGrid("PG");
-   if( fPGgrid ) fPGgrid->CalculateLineWidths();
-   fPGZgrid = (KVIDZGrid*)GetIDGrid("PGZ");
-   if( fPGZgrid ) fPGZgrid->CalculateLineWidths();
-   fCanIdentify = (fGGgrid!=0);
+   if( fPGgrid ) fPGgrid->Initialize();
+   fPGZgrid = (KVIDZAGrid*)GetIDGrid("PGZ");
+   if( fPGZgrid ) fPGZgrid->Initialize();
 }
 
 //___________________________________________________________________________________________
