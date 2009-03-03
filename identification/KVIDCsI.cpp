@@ -32,7 +32,7 @@ ClassImp(KVIDCsI)
 //Identification in CsI R-L matrices of INDRA
 //
 //Identification subcodes are written in bits 0-3 of KVIDSubCodeManager
-//(see KVINDRACodes). They correspond to the values of KVIDGCsI::GetICode()
+//(see KVINDRACodes). They correspond to the values of KVIDGCsI::GetQualityCode()
 //(see KVIDGCsI class description).
     KVIDCsI::KVIDCsI()
 {
@@ -85,22 +85,22 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
       CsIGrid->Identify(csil, csir, irnuc);
 
       //set subcode in particle
-      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), CsIGrid->GetICode());
+      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), CsIGrid->GetQualityCode());
 
       //ID totally unsuccessful if ICode=8
-      if (CsIGrid->GetICode() == KVIDGCsI::kICODE8)
+      if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE8)
          return kFALSE;
 
       //ID should be attempted in preceding telescope if ICode=6 or 7
-      if (CsIGrid->GetICode() == KVIDGCsI::kICODE6
-          || CsIGrid->GetICode() == KVIDGCsI::kICODE7)
+      if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE6
+          || CsIGrid->GetQualityCode() == KVIDGCsI::kICODE7)
          return kFALSE;
 
       // set general ID code
       irnuc->SetIDCode( kIDCode2 );
       
       // general ID code for gammas
-      if (CsIGrid->GetICode() == KVIDGCsI::kICODE10)
+      if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE10)
          irnuc->SetIDCode(kIDCode0);
       
       return kTRUE;
@@ -160,20 +160,14 @@ Bool_t KVIDCsI::SetIDGrid(KVIDGrid * grid)
 
    if (!grid->InheritsFrom("KVIDGCsI"))
       return kFALSE;
-   //get ring and module numbers from CsI
-   Int_t ring = GetDetector(1)->GetRingNumber();
-   if (ring < grid->GetParameters()->GetIntValue("Ring min")
-       || ring > grid->GetParameters()->GetIntValue("Ring max"))
+	
+	if(!grid->HandlesIDTelescope(this))
       return kFALSE;
-   Int_t mod = GetDetector(1)->GetModuleNumber();
-   if (mod < grid->GetParameters()->GetIntValue("Mod min")
-       || mod > grid->GetParameters()->GetIntValue("Mod max"))
-      return kFALSE;
+	
    //get run number from INDRA, if it exists (should do!), otherwise accept
    if (gIndra) {
       Int_t run = gIndra->GetCurrentRunNumber();
-      if (grid->GetParameters()->GetIntValue("First run") > run
-          || grid->GetParameters()->GetIntValue("Last run") < run)
+      if (!grid->GetRuns().Contains(run))
          return kFALSE;
    }
    //the grid is accepted

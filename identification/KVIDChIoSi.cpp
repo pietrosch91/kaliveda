@@ -61,37 +61,23 @@ KVIDChIoSi::~KVIDChIoSi()
 Bool_t KVIDChIoSi::SetIDGrid(KVIDGrid * grid)
 {
    // Accept this IDgrid if it is valid for this telescope
-   // By setting one of the options
-   //
-   // (for a given dataset)             [dataset].KVIDChIoSi.IgnorePunchThrough:   yes
-   // (for all ChIo-Si telescopes)  KVIDChIoSi.IgnorePunchThrough:   yes
-   //
-   // any punch-through lines in the grids used by these telescopes
-   // will be ignored. Particles below the punch-through line will be
-   // identified with a subcode 'identification below punch-through"
 
    if (!grid->InheritsFrom("KVIDGChIoSi"))
       return kFALSE;
-   KVIDGChIoSi *Grid = (KVIDGChIoSi *) grid;
-   //get ring and module numbers from silicon
-   Int_t ring = GetDetector(2)->GetRingNumber();
-   if (!Grid->GetRingList().Contains(ring))
-      return kFALSE;
-   Int_t mod = GetDetector(2)->GetModuleNumber();
-   if (!Grid->GetModuleList().Contains(mod))
-      return kFALSE;
+   
+	KVIDGChIoSi *Grid = (KVIDGChIoSi *) grid;
+	
+	if(!grid->HandlesIDTelescope(this)) return kFALSE;
+	
    //get run number from INDRA, if it exists (should do!), otherwise accept
    if (gIndra) {
       Int_t run = (Int_t) gIndra->GetCurrentRunNumber();
-      if (!Grid->GetRunList().Contains(run))
+      if (!Grid->GetRuns().Contains(run))
          return kFALSE;
    }
    //the grid is accepted -> Add it to the list
    fIDGrids->Add(grid);
    
-   if( gDataSet ){
-      Grid->SetIgnorePunchThrough(gDataSet->GetDataSetEnv( "KVIDChIoSi.IgnorePunchThrough", kFALSE ));
-   }
    return kTRUE;
 }
 
@@ -109,11 +95,11 @@ Bool_t KVIDChIoSi::Identify(KVReconstructedNucleus * nuc)
          ChIoSiGrid->Identify(GetIDMapX(), GetIDMapY(), irnuc);
       //set subcode from grid status
       SetIDSubCode(((KVINDRAReconNuc *) nuc)->GetCodes().GetSubCodes(),
-                      ChIoSiGrid->GetStatus());
+                      ChIoSiGrid->GetQualityCode());
       ((KVINDRAReconNuc *) nuc)->GetCodes().SetIsotopeResolve(kFALSE);
       ((KVINDRAReconNuc *) nuc)->SetRealA(0);
       
-      if(ChIoSiGrid->GetStatus()==kID_BelowPunchThrough){
+      if(ChIoSiGrid->GetQualityCode()==kID_BelowPunchThrough){
          //point to ID was below punch-through line (bruit)
          return kFALSE;
       }
@@ -122,19 +108,19 @@ Bool_t KVIDChIoSi::Identify(KVReconstructedNucleus * nuc)
       ((KVINDRAReconNuc *) nuc)->SetIDCode( kIDCode4 );
       //if point lies above Zmax line, we give Zmax as Z of particle (real Z is >= Zmax)
       //general ID code = kIDCode5 (Zmin)
-      if(ChIoSiGrid->GetStatus()==kID_ZgtZmax){
+      if(ChIoSiGrid->GetQualityCode()==kID_ZgtZmax){
          ((KVINDRAReconNuc *) nuc)->SetZ( ChIoSiGrid->GetZmax() );
          ((KVINDRAReconNuc *) nuc)->SetIDCode( kIDCode5 );
       }
       //Identified particles with subcode kID_LeftOfBragg are given
       //general ID code kIDCode5 (Zmin).
-      if(ChIoSiGrid->GetStatus()==kID_LeftOfBragg){
+      if(ChIoSiGrid->GetQualityCode()==kID_LeftOfBragg){
          ((KVINDRAReconNuc *) nuc)->SetIDCode( kIDCode5 );
       }      
       //unidentifiable particles with subcode kID_BelowSeuilSi are given
       //general ID code kIDCode5 (Zmin) and we estimate Zmin from energy
       //loss in ChIo
-      if(ChIoSiGrid->GetStatus()==kID_BelowSeuilSi){
+      if(ChIoSiGrid->GetQualityCode()==kID_BelowSeuilSi){
          ((KVINDRAReconNuc *) nuc)->SetIDCode( kIDCode5 );
          ((KVINDRAReconNuc *) nuc)->SetZ( GetDetector(1)->FindZmin() );
       }      

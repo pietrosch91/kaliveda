@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGCsI.h,v 1.16 2008/10/13 13:52:29 franklan Exp $
+$Id: KVIDGCsI.h,v 1.17 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGCsI_H
@@ -23,6 +23,7 @@ class KVIDGCsI:public KVIDZAGrid {
    KVIDLine *GetNearestIDLine(Double_t x, Double_t y,
                               const Char_t * position, Int_t & idx_min,
                               Int_t & idx_max);
+	virtual void BackwardsCompatibilityFix();
 
  public:
 
@@ -61,7 +62,7 @@ class KVIDGCsI:public KVIDZAGrid {
    virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
 
    KVIDZALine *GetZALine(Int_t z, Int_t a, Int_t &) const;
-   KVIDZLine *GetZLine(Int_t z, Int_t &) const;
+   KVIDZALine *GetZLine(Int_t z, Int_t &) const;
 
    void IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A);
    virtual void Initialize();

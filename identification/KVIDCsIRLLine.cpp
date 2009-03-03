@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDCsIRLLine.cpp,v 1.5 2007/07/23 16:46:32 franklan Exp $
+$Id: KVIDCsIRLLine.cpp,v 1.6 2009/03/03 13:36:00 franklan Exp $
                           KVIDCsIRLLine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -28,7 +28,8 @@ ClassImp(KVIDCsIRLLine)
 //(in order of increasing R):
 //p, d, t, 3He, 4He, 6He, *** 8Be ***, 6Li, 7Li, 8Li, 9Li, 7Be, 9Be, ...
 /////////////////////////////////////////////////////////////////////////////////////////
-    KVIDCsIRLLine::KVIDCsIRLLine()
+
+KVIDCsIRLLine::KVIDCsIRLLine()
 {
    //Default ctor
 }
@@ -48,8 +49,8 @@ Int_t KVIDCsIRLLine::Compare(const TObject * obj) const
 
    int zline1 = GetZ();
    int zline2 =
-       const_cast < KVIDZLine * >(static_cast <
-                                  const KVIDZLine * >(obj))->GetZ();
+       const_cast < KVIDZALine * >(static_cast <
+                                  const KVIDZALine * >(obj))->GetZ();
    int aline1 = GetA();
    int aline2 =
        const_cast < KVIDCsIRLLine * >(static_cast <
@@ -73,20 +74,7 @@ Int_t KVIDCsIRLLine::Compare(const TObject * obj) const
          return 1;
    }
    //standard sorting when neither line is 8be
-   //First compare Z : only if Z1=Z2 do we need to compare A
-   Int_t zComp = KVIDZLine::Compare(obj);
-   if (zComp)
-      return zComp;
-
-   if (aline1 < 0)
-      return 0;
-   if (aline2 < 0)
-      return 0;
-   if (aline1 > aline2)
-      return 1;
-   if (aline1 < aline2)
-      return -1;
-   return 0;
+   return KVIDZALine::Compare(obj);
 }
 
 //_____________________________________________________________________________________________

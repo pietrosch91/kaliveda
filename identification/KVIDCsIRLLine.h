@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDCsIRLLine.h,v 1.5 2007/07/23 16:46:32 franklan Exp $
+$Id: KVIDCsIRLLine.h,v 1.6 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDCsIRLLine_H
@@ -15,6 +15,11 @@ $Id: KVIDCsIRLLine.h,v 1.5 2007/07/23 16:46:32 franklan Exp $
 
 class KVIDCsIRLLine:public KVIDZALine {
 
+
+protected:
+      
+   virtual void SetAsymWidth(Double_t d_l, Double_t d_r);
+
  public:
 
     KVIDCsIRLLine();
@@ -22,7 +27,6 @@ class KVIDCsIRLLine:public KVIDZALine {
    Int_t Compare(const TObject *) const;
 
    void Print(Option_t * opt = "") const;
-   virtual void SetAsymWidth(Double_t d_l, Double_t d_r);
 
    ClassDef(KVIDCsIRLLine, 3)   //Base class for CsI R-L identification lines
 };

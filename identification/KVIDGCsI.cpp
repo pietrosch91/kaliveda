@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGCsI.cpp,v 1.23 2007/12/10 11:41:09 franklan Exp $
+$Id: KVIDGCsI.cpp,v 1.24 2009/03/03 13:36:00 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -18,9 +18,10 @@ $Id: KVIDGCsI.cpp,v 1.23 2007/12/10 11:41:09 franklan Exp $
  ***************************************************************************/
 
 #include "KVIDGCsI.h"
-#include "KVIDLine.h"
+#include "KVIDCutLine.h"
 #include "KVIDCsIRLLine.h"
 #include "KVINDRAReconNuc.h"
+#include "KVINDRA.h"
 
 ClassImp(KVIDGCsI)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ ClassImp(KVIDGCsI)
 //The identification procedure is supposed to be identical to that of the FORTRAN algorithm IdnCsOr
 //developed by Laurent Tassan-Got and used by the INDRA collaboration since 1993.
 //
-//The status codes returned by GetICode() are the same as IdnCsOr, with the addition of kICODE10
+//The status codes returned by GetQualityCode() are the same as IdnCsOr, with the addition of kICODE10
 //for identification of gammas:
 //
 // KVIDGCsI::kICODE0  ok
@@ -48,7 +49,6 @@ ClassImp(KVIDGCsI)
     KVIDGCsI::KVIDGCsI()
 {
    //Default constructor
-   SetType("CsI R-L Grid");
    IMFLine = 0;
    GammaLine = 0;
 }
@@ -106,23 +106,23 @@ void KVIDGCsI::ReadOrsayIDFile(const Char_t * filename, int cou, int mod)
             if (z > 0 && CreateIt) {
                //identification line
                KVIDCsIRLLine *line =
-                   (KVIDCsIRLLine *) NewLine("KVIDCsIRLLine");
+                   (KVIDCsIRLLine *) New("KVIDCsIRLLine");
                line->SetZ(z);
                line->SetA(a);
                line->Set(npoints);
-               AddIDLine(line);
+               AddIdentifier(line);
             } else if (CreateIt) {
                //IMF line - always last (?)
-               KVIDLine *line = NewLine();
+               KVIDLine *line = (KVIDLine *)New("KVIDCutLine");
                line->SetName("IMF_line");
                line->Set(npoints);
-               AddOKLine(line);
+               AddCut(line);
             }
          }
          if (CreateIt) {
             //read coordinates of lines in the order they were created.
             //ID lines first, IMF_line is last.
-            TIter nextID(GetIDLines());
+            TIter nextID(GetIdentifiers());
             KVIDLine *line;
             while ((line = (KVIDLine *) nextID())) {
                //read in points
@@ -133,7 +133,7 @@ void KVIDGCsI::ReadOrsayIDFile(const Char_t * filename, int cou, int mod)
                }
             }
             //last of all, IMF_line
-            line = GetOKLine("IMF_line");
+            line = (KVIDLine*)GetCut("IMF_line");
             //read in points
             for (int i = 0; i < line->GetN(); i++) {
                Double_t x, y;
@@ -179,10 +179,10 @@ void KVIDGCsI::ReadOrsayGammaFile(const Char_t * filename, int cou,
          id_file >> npoints;
          if (CreateIt) {
             //found gamma line
-            KVIDLine *line = NewLine();
+            KVIDLine *line = (KVIDLine*)New("KVIDCutLine");
             line->SetName("gamma_line");
             line->Set(npoints);
-            AddOKLine(line);
+            AddCut(line);
             //read in points
             for (int i = 0; i < npoints; i++) {
                Double_t x, y;
@@ -266,7 +266,7 @@ KVIDLine *KVIDGCsI::GetNearestIDLine(Double_t x, Double_t y,
          Double_t dist = TMath::Abs(line->DistanceToLine(x, y, dummy));
          Dline[idx] = dist;
          Lines[idx] = line;
-         ind_list[idx] = (Double_t) GetIDLines()->IndexOf(line);
+         ind_list[idx] = (Double_t) GetIdentifiers()->IndexOf(line);
          if (ind_list[idx] < 0)
             ind_list[idx] = 98; //IMF line
          idx++;
@@ -280,7 +280,7 @@ KVIDLine *KVIDGCsI::GetNearestIDLine(Double_t x, Double_t y,
       Double_t dist = TMath::Abs(line->DistanceToLine(x, y, dummy));
       Dline[0] = dist;
       Lines[0] = line;
-      ind_list[0] = (Double_t) GetIDLines()->IndexOf(line);
+      ind_list[0] = (Double_t) GetIdentifiers()->IndexOf(line);
       if (ind_list[0] < 0)
          ind_list[0] = 98;      //IMF line
    }
@@ -319,7 +319,7 @@ KVIDLine *KVIDGCsI::GetNearestIDLine(Double_t x, Double_t y,
   //       cout << "CLOSEST : " ;
       }
       if (idx < 98) {
-         fLines[i] = GetIDLine(idx);
+         fLines[i] = (KVIDLine*)GetIdentifiers()->At(idx);
          fDistances[i] = Dline2[ind_arr[i]];
    //      cout << i << " : " << fLines[i]->GetName() << "   d= " << fDistances[i] << endl;
       } else if (idx == 98) {
@@ -345,7 +345,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
 
    if (!IsIdentifiable(x, y)) {
       //point below gamma line
-      const_cast < KVIDGCsI * >(this)->fIcode = kICODE10;
+      const_cast < KVIDGCsI * >(this)->fICode = kICODE10;
       nuc->SetZ(0);
       return;
    }
@@ -353,7 +353,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
    KVIDLine *nearest = FindNearestIDLine(x, y, "above", i1, i2);
    if (!nearest) {
       //no lines corresponding to point were found
-      const_cast < KVIDGCsI * >(this)->fIcode = kICODE8;        // Z indetermine ou (x,y) hors limites
+      const_cast < KVIDGCsI * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
       return;
    }
    Int_t Z;
@@ -370,19 +370,19 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
 
 //_________________________________________________________________________//
 
-KVIDZLine *KVIDGCsI::GetZLine(Int_t z, Int_t & index) const
+KVIDZALine *KVIDGCsI::GetZLine(Int_t z, Int_t & index) const
 {
    //Returns first ID line in sorted list for which GetZ() returns 'z'.
    //index=index of line found in fIDLines list (-1 if not found).
-   //This is done by looping over all the lines in the list, not by dichotomy as in base class KVIDZGrid,
+   //This is done by looping over all the lines in the list, not by dichotomy as in base class KVIDZAGrid,
    //because of the 8Be line being in between 6He and 6Li.
 
    index = 0;
-   Int_t nlines = NumberOfIDLines();
-   while ((dynamic_cast < KVIDZLine * >(GetIDLine(index))->GetZ() != z)
+   Int_t nlines = GetNumberOfIdentifiers();
+   while ((dynamic_cast < KVIDZALine * >(GetIdentifiers()->At(index))->GetZ() != z)
           && (index < (nlines - 1)))
       index++;
-   KVIDZLine *line = dynamic_cast < KVIDZLine * >(GetIDLine(index));
+   KVIDZALine *line = dynamic_cast < KVIDZALine * >(GetIdentifiers()->At(index));
    if (line->GetZ() != z) {
       index = -1;
       return 0;
@@ -399,11 +399,11 @@ KVIDZALine *KVIDGCsI::GetZALine(Int_t z, Int_t a, Int_t & index) const
    //because of the 8Be line being in between 6He and 6Li.
 
    index = 0;
-   Int_t nlines = NumberOfIDLines();
-   KVIDZALine *line = dynamic_cast < KVIDZALine * >(GetIDLine(index));
+   Int_t nlines = GetNumberOfIdentifiers();
+   KVIDZALine *line = dynamic_cast < KVIDZALine * >(GetIdentifiers()->At(index));
    while ((line->GetZ() != z || line->GetA() != a)
           && (index < (nlines - 1))) {
-      line = dynamic_cast < KVIDZALine * >(GetIDLine(++index));
+      line = dynamic_cast < KVIDZALine * >(GetIdentifiers()->At(++index));
    }
    if (line->GetZ() != z || line->GetA() != a) {
       index = -1;
@@ -423,7 +423,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    //Work out kinfi, kinf, ksup and ksups like in IdnCsIOr
    Int_t kinfi, kinf, ksup, ksups;
    kinfi = kinf = ksup = ksups = -1;
-   fIcode = kICODE0;
+   fICode = kICODE0;
    if (GetClosestLine()->WhereAmI(x, y, "above")) {
       //point is above closest line, closest line is "kinf"
       //Info("IdentZA","point is above closest line, closest line is kinf");
@@ -446,7 +446,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    Zinfi = Zinf = Zsup = Zsups = Ainfi = Ainf = Asup = Asups = 0;
    if (kinf > -1) {
       if (GetClosestLines(kinf) != IMFLine) {
-         Zinf = ((KVIDZLine *) GetClosestLines(kinf))->GetZ();
+         Zinf = ((KVIDZALine *) GetClosestLines(kinf))->GetZ();
          Ainf = ((KVIDZALine *) GetClosestLines(kinf))->GetA();
          winf = ((KVIDCsIRLLine *) GetClosestLines(kinf))->GetWidth();
       } else {
@@ -458,7 +458,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    }
    if (ksup > -1) {
       if (GetClosestLines(ksup) != IMFLine) {
-         Zsup = ((KVIDZLine *) GetClosestLines(ksup))->GetZ();
+         Zsup = ((KVIDZALine *) GetClosestLines(ksup))->GetZ();
          Asup = ((KVIDZALine *) GetClosestLines(ksup))->GetA();
          wsup = ((KVIDCsIRLLine *) GetClosestLines(ksup))->GetWidth();
       } else {
@@ -470,7 +470,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    }
    if (kinfi > -1) {
       if (GetClosestLines(kinfi) != IMFLine) {
-         Zinfi = ((KVIDZLine *) GetClosestLines(kinfi))->GetZ();
+         Zinfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetZ();
          Ainfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetA();
          winfi = ((KVIDCsIRLLine *) GetClosestLines(kinfi))->GetWidth();
       } else {
@@ -482,7 +482,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    }
    if (ksups > -1) {
       if (GetClosestLines(ksups) != IMFLine) {
-         Zsups = ((KVIDZLine *) GetClosestLines(ksups))->GetZ();
+         Zsups = ((KVIDZALine *) GetClosestLines(ksups))->GetZ();
          Asups = ((KVIDZALine *) GetClosestLines(ksups))->GetA();
          wsups = ((KVIDCsIRLLine *) GetClosestLines(ksups))->GetWidth();
       } else {
@@ -600,7 +600,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                      ix1 = -1;
                   }
                } else {         // ksups == -1, i.e. no 'sups' line
-                  fIcode = kICODE7;     //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
+                  fICode = kICODE7;     //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
                   y2 = y1;
                   ix2 = 1;
                   y1 = -TMath::Min(y1, dt / 2.);
@@ -665,14 +665,14 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                ix1 = -1;
             }
          } else {               // no 'sups' line above closest line
-            fIcode = kICODE7;   //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
+            fICode = kICODE7;   //a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
             y2 = y1;
             ix2 = 1;
             y1 = -y1;
             ix1 = -1;
          }
       } else {
-         fIcode = kICODE8;      //  Z indetermine ou (x,y) hors limites
+         fICode = kICODE8;      //  Z indetermine ou (x,y) hors limites
       }
    }
    else if (kinf > -1) {
@@ -683,7 +683,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          k = -1;
          Z = GetZmax();
          A = -1;
-         fIcode = kICODE6;      // au-dessus de la ligne fragment, Z est alors un Zmin
+         fICode = kICODE6;      // au-dessus de la ligne fragment, Z est alors un Zmin
       }
                 /*** Ligne de crete (Z,A line)***/
       else {
@@ -712,26 +712,26 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             ix1 = -1;
             ix2 = 1;
          }
-         fIcode = kICODE7;      // a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
+         fICode = kICODE7;      // a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
       }
    }
         /*****************Aucune ligne n'a ete trouvee*********************************/
    else {
-      fIcode = kICODE8;         // Z indetermine ou (x,y) hors limites
+      fICode = kICODE8;         // Z indetermine ou (x,y) hors limites
    }
         /****************Test des bornes********************************************/
-   if (k > -1 && GetICode() == kICODE0) {
+   if (k > -1 && fICode == kICODE0) {
       if (yy > y2)
-         fIcode = kICODE4;      // Z ok, masse hors limite superieure ou egale a A
+         fICode = kICODE4;      // Z ok, masse hors limite superieure ou egale a A
    }
-   if (k > -1 && (GetICode() == kICODE0 || GetICode() == kICODE7)) {
+   if (k > -1 && (fICode == kICODE0 || fICode == kICODE7)) {
       if (yy < y1)
-         fIcode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
+         fICode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
    }
-   if (GetICode() == kICODE4 || GetICode() == kICODE5)
+   if (fICode == kICODE4 || fICode == kICODE5)
       A = -1;
         /****************Interpolation de la masse: da = f*log(1+b*dy)********************/
-   if (GetICode() == kICODE0 || (GetICode() == kICODE7 && yy <= y2)) {
+   if (fICode == kICODE0 || (fICode == kICODE7 && yy <= y2)) {
       Double_t deltaA = 0.;
       Bool_t i = kFALSE;
       Double_t dt, dist = y1 * y2;
@@ -761,7 +761,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       }
    }
         /***************D'autres masses sont-elles possibles ?*************************/
-   if (GetICode() == kICODE0) {
+   if (fICode == kICODE0) {
       //cout << "icode = 0, ibif = " << ibif << endl;
                 /***Masse superieure***/
       if (ibif == 1 || ibif == 3) {
@@ -769,13 +769,13 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          //If it has the same Z as the closest line, but was excluded from research for closest line
          //because the point lies outside the endpoints, there remains a doubt about the mass:
          //on rajoute 1 a fICode, effectivement on le met = kICODE1
-         Int_t idx = GetIDLines()->IndexOf(GetClosestLine());
-         if (idx > -1 && ++idx < GetIDLines()->GetSize()) {
+         Int_t idx = GetIdentifiers()->IndexOf(GetClosestLine());
+         if (idx > -1 && ++idx < GetNumberOfIdentifiers()) {
             KVIDCsIRLLine *nextline =
-                (KVIDCsIRLLine *) GetIDLines()->At(idx);
+                (KVIDCsIRLLine *) GetIdentifiers()->At(idx);
             if (nextline->GetZ() == Z
                 && !nextline->IsBetweenEndPoints(x, y, "x")){
-               fIcode++;        // Z ok, mais les masses superieures a A sont possibles
+               fICode++;        // Z ok, mais les masses superieures a A sont possibles
                //cout <<"//on rajoute 1 a fICode, effectivement on le met = kICODE1" << endl;
             }
          }
@@ -786,20 +786,20 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          //If it has the same Z as the closest line, but was excluded from research for closest line
          //because the point lies outside the endpoints, there remains a doubt about the mass:
          //on rajoute 2 a fICode, so it can be = kICODE2 or kICODE3
-         Int_t idx = GetIDLines()->IndexOf(GetClosestLine());
+         Int_t idx = GetIdentifiers()->IndexOf(GetClosestLine());
          if (idx > -1 && --idx >= 0) {
             KVIDCsIRLLine *nextline =
-                (KVIDCsIRLLine *) GetIDLines()->At(idx);
+                (KVIDCsIRLLine *) GetIdentifiers()->At(idx);
             if (nextline->GetZ() == Z
                 && !nextline->IsBetweenEndPoints(x, y, "x")){
-               fIcode+=2;
+               fICode+=2;
                //cout << "//on rajoute 2 a fICode, so it can be = kICODE2 or kICODE3" << endl;
             }
          }
       }
    }
    
-   //cout << "Z = " << Z << " A = " << A << " icode = " << fIcode << endl;
+   //cout << "Z = " << Z << " A = " << A << " icode = " << fICode << endl;
 }
 
 //___________________________________________________________________________________
@@ -814,6 +814,41 @@ void KVIDGCsI::Initialize()
    // IMF & Gamma line pointers are initialised
    
    KVIDZAGrid::Initialize();
-   GammaLine = GetOKLine("gamma_line");
-   IMFLine = GetOKLine("IMF_line");
+   GammaLine = (KVIDLine*)GetCut("gamma_line");
+   IMFLine = (KVIDLine*)GetCut("IMF_line");
+}
+
+//___________________________________________________________________________________
+
+void KVIDGCsI::BackwardsCompatibilityFix()
+{
+	// Called after reading a grid from an ascii file.
+	// Tries to convert information written by an old version of the class:
+	//
+	//<PARAMETER> Ring min=...  ----> <PARAMETER> IDTelescopes=...
+	//<PARAMETER> Ring max=...
+	//<PARAMETER> Mod min=...
+	//<PARAMETER> Mod max=...
+	
+	KVIDZAGrid::BackwardsCompatibilityFix();
+	if( fPar->HasParameter("IDTelescopes") ) return;
+	if( fPar->HasParameter("Ring min") && gIndra ){
+		for(int r=fPar->GetIntValue("Ring min"); r<=fPar->GetIntValue("Ring max"); r++){
+			for(int m=fPar->GetIntValue("Mod min"); m<=fPar->GetIntValue("Mod max"); m++){
+				KVIDTelescope* id = gIndra->GetIDTelescope( Form("CSI_R_L_%02d%02d", r, m) );
+				if(id) AddIDTelescope(id);
+			}
+		}
+		WriteParameterListOfIDTelescopes();
+		fPar->RemoveParameter("Ring min");
+		fPar->RemoveParameter("Ring max");
+		fPar->RemoveParameter("Mod min");
+		fPar->RemoveParameter("Mod max");
+	}
+   GammaLine = (KVIDLine*)GetCut("gamma_line");
+   IMFLine = (KVIDLine*)GetCut("IMF_line");
+	if(GammaLine) ((KVIDCutLine*)GammaLine)->SetAcceptedDirection("above");
+	if(IMFLine) ((KVIDCutLine*)IMFLine)->SetAcceptedDirection("below");
+	SetVarY("CSI-R");
+	SetVarX("CSI-L");
 }

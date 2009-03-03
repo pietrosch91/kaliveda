@@ -1,7 +1,7 @@
 /*
-$Id: KVNewGridRRMDialog.cpp,v 1.4 2007/10/24 10:32:45 franklan Exp $
-$Revision: 1.4 $
-$Date: 2007/10/24 10:32:45 $
+$Id: KVNewGridRRMDialog.cpp,v 1.5 2009/03/03 13:36:00 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/03 13:36:00 $
 $Author: franklan $
 */
 
@@ -19,7 +19,7 @@ KVNewGridRRMDialog::KVNewGridRRMDialog():KVNewGridDialog()
 KVNewGridRRMDialog::KVNewGridRRMDialog(const TGWindow * p,
                                        const TGWindow * main, UInt_t w,
                                        UInt_t h, Option_t * dialog_type,
-                                       KVIDGrid * g)
+                                       KVIDGraph * g)
 :KVNewGridDialog()
 {
    //Dialog box for grid derived from KVINDRARRMValidator (with lists of runs, rings and modules).
@@ -55,7 +55,7 @@ KVNewGridRRMDialog::KVNewGridRRMDialog(const TGWindow * p,
    map_interface(dialog_type);
 }
 
-void KVNewGridRRMDialog::set_selected_grid(KVIDGrid * g)
+void KVNewGridRRMDialog::set_selected_grid(KVIDGraph * g)
 {
    //Make sure selected grid is of right type i.e. inherits from KVINDRARRMValidator, otherwise return with error message
    fSelectedGrid = g;
@@ -235,7 +235,7 @@ void KVNewGridRRMDialog::ReadMods()
    fModListString = fModList->GetText();
 }
 
-void KVNewGridRRMDialog::ReadAndSetSelectedGridProperties(KVIDGrid * grid)
+void KVNewGridRRMDialog::ReadAndSetSelectedGridProperties(KVIDGraph * grid)
 {
    KVINDRARRMValidator *RRMGrid =
        dynamic_cast < KVINDRARRMValidator * >(grid);
