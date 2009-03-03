@@ -151,7 +151,7 @@ KVACQParam *KVBIC::GetACQParam(const Char_t * type)
    }
    TString name;
    name.Form("CI_16%02d_%s", GetTelescopeNumber(), type);
-   return ((KVACQParam *) fACQParams->FindObject(name, type));
+   return ((KVACQParam *) fACQParams->FindObjectWithNameAndType(name, type));
 }
 
 //__________________________________________________________________________________
