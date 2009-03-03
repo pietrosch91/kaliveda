@@ -1,7 +1,7 @@
-#$Id: Makefile,v 1.112 2009/01/20 14:39:14 cussol Exp $
-#$Revision: 1.112 $
-#$Date: 2009/01/20 14:39:14 $
-#$Author: cussol $
+#$Id: Makefile,v 1.113 2009/03/03 13:36:00 franklan Exp $
+#$Revision: 1.113 $
+#$Date: 2009/03/03 13:36:00 $
+#$Author: franklan $
 #
 #Makefile for KaliVeda analysis tools
 
@@ -20,7 +20,7 @@ endif
 
 KV_INC = 
 
-CXXFLAGS += -I$(INSTALL)/include $(KV_INC)
+CXXFLAGS += -I$(KVINSTALLDIR)/include $(KV_INC)
 
 
 LIBKVINDRA = -L$(KVROOT)/lib -lKVIndra
@@ -164,7 +164,7 @@ $(KVGUI): $(KVGUIO)
 	
 install:
 	-chmod +x $(SCRIPTS)
-	-cp $(CPYOPT) $(SCRIPTS) $(INSTALL)/bin/
+	-cp $(CPYOPT) $(SCRIPTS) $(KVINSTALLDIR)/bin/
 
 clean:
 	-rm -f *.$(ObjSuf)
@@ -181,7 +181,7 @@ ifeq ($(ARCH),macosx)
 endif
 
 uninstall:
-	$(foreach scrip,$(SCRIPTS),$(shell rm -f $(INSTALL)/bin/$(scrip)))
+	$(foreach scrip,$(SCRIPTS),$(shell rm -f $(KVINSTALLDIR)/bin/$(scrip)))
 
 config :
 	@echo "--------------------------------------------------------------------------------"
