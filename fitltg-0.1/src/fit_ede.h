@@ -160,10 +160,7 @@ extern "C" {
 #endif
 extern int globede_c(int npts,const float *zd,const float *ad,const float *xd,
 		     const float *yd,int ixt,int ih,float *par,int *istate);
-extern int fitede_c(int npts,const float *zd,const float *ad,const float *xd,
-		    const float *yd,int ixt,int ih,const float *sc,
-		    const float *bl,const float *bu,float *par,int *istate) ;
-extern float fede_c(float Z,float A,float E) ;
+extern float fede(float z, float a, float xxx);
 #ifdef __cplusplus
 }
 #endif

@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.80 2009/03/03 13:36:00 franklan Exp $
-#$Revision: 1.80 $
+#$Id: KaliVeda.rootrc,v 1.81 2009/03/03 14:27:15 franklan Exp $
+#$Revision: 1.81 $
 #$Author: franklan $
-#$Date: 2009/03/03 13:36:00 $
+#$Date: 2009/03/03 14:27:15 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -200,7 +200,7 @@ Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 # INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 
 # By default the file containing reconstructed events will be written in the same data repository
-#�as the raw data file from which it is created.
+# as the raw data file from which it is created.
 # This can be changed by setting the environment variable(s):
 #
 #Reconstruction.DataAnalysisTask.OutputRepository:     [name of repository]
@@ -218,7 +218,7 @@ Identification1.DataAnalysisTask.UserClass:     no
 Identification1.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
 
 # By default the file containing identified events will be written in the same data repository
-#�as the recon data file from which it is created.
+# as the recon data file from which it is created.
 # This can be changed by setting the environment variable(s):
 #
 #Identification1.DataAnalysisTask.OutputRepository:     [name of repository]
@@ -692,3 +692,57 @@ Root.Html.LastUpdate:       $Id:
 Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
 +Plugin.TSystem:      ^rfio:    KVRFIOSystem   KVMultiDet    "KVRFIOSystem()"
 
+# Classes for fitting identification grids
+# To change the default fitter class, change the value of the following variable:
+KVVirtualIDFitter.DefaultFitter:   KVTGIDFitter
+# and add your class to the list of KVVirtualIDFitter plugins:
+Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDet "KVTGIDFitter()"
+
+# Default identification grid classes for ID telescopes
+# Used by KVIDGridManagerGUI when creating new grids
+#
+# KVIDTelescope.DefaultGrid is used for all telescopes which do not define an alternative
+KVIDTelescope.DefaultGrid:              KVIDZAGrid
+# The following are specific grids for specific telescopes
+KVIDTelescope.DefaultGrid.CSI:          KVIDGCsI
+KVIDTelescope.DefaultGrid.CI-SI:        KVIDGChIoSi
+KVIDTelescope.DefaultGrid.CI-SI75:      KVIDGChIoSi
+KVIDTelescope.DefaultGrid.BIC-SIB:      KVIDGChIoSi
+
+# Default identification/cut classes for different ID graphs
+# Used by KVIDGridManagerGUI when creating new grids
+#
+KVIDZAGrid.CutClass:  KVIDCutLine
++KVIDZAGrid.CutClass:  KVIDCutContour
+KVIDZAGrid.DefaultCutClass:  KVIDCutLine
+KVIDZAGrid.IDClass:  KVIDZALine
+KVIDGCsI.CutClass:  KVIDCutLine
++KVIDGCsI.CutClass:  KVIDCutContour
+KVIDGCsI.DefaultCutClass:  KVIDCutLine
+KVIDGCsI.IDClass:  KVIDCsIRLLine
+KVIDGChIoSi.CutClass:  KVIDCutLine
++KVIDGChIoSi.CutClass:  KVIDCutContour
+KVIDGChIoSi.DefaultCutClass:  KVIDCutLine
+KVIDGChIoSi.IDClass:  KVIDZALine
+
+# Plugins for identification graphs/grids
+# User can extend identification possibilities by adding plugins to list
+# Syntax:
+# Plugin.KVIDGraph:    name_of_class    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDet   "KVIDZAGrid()"
+#+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDet   "KVIDZAMap()"
++Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVIndra      "KVIDGCsI()"
++Plugin.KVIDGraph:   KVIDGChIoSi   KVIDGChIoSi   KVIndra      "KVIDGChIoSi()"
+
+# Mime-types for KVIDGridManagerGUI
+# These define the icons associated with different grids displayed in the KVListView list of grids.
+IDGridManagerGUI.MimeTypes:   KVIDMap
+IDGridManagerGUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
++IDGridManagerGUI.MimeTypes:   KVIDZAGrid
+IDGridManagerGUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
++IDGridManagerGUI.MimeTypes:   KVIDGCsI
+IDGridManagerGUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
++IDGridManagerGUI.MimeTypes:   KVIDGChIoSi
+IDGridManagerGUI.MimeTypes.KVIDGChIoSi.Icon:   draw_t.xpm
++IDGridManagerGUI.MimeTypes:   KVTGIDGrid
+IDGridManagerGUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm

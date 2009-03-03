@@ -1,6 +1,6 @@
-#$Id: Makefile,v 1.82 2009/03/03 13:36:00 franklan Exp $
-#$Revision: 1.82 $
-#$Date: 2009/03/03 13:36:00 $
+#$Id: Makefile,v 1.83 2009/03/03 14:27:15 franklan Exp $
+#$Revision: 1.83 $
+#$Date: 2009/03/03 14:27:15 $
 #$Author: franklan $
 #
 #General Makefile for the entire KaliVeda project
@@ -94,6 +94,10 @@ RGTAPE =
 INDRAVAMOS = VAMOS
 endif
 
+ifeq ($(WITH_VAMOS),no)
+INDRAVAMOS = 
+endif
+
 #need to make tarball & install on website, if at CC-IN2P3
 ifeq ($(SITE),CCIN2P3)
 CCALI = dist html_ccali
@@ -112,7 +116,7 @@ export KV_CONFIG__H = KVConfig.h
 
 .PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape logs unpack install analysis FNL html html_ccali byebye distclean
 
-all : .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
 
 doc : $(CCALI) byebye
 
@@ -123,6 +127,9 @@ export GANILTAPE_LIB = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/lib
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
 export CVS2CL = ../cvs2cl
+
+fitltg-0.1/configure:
+	cd fitltg-0.1 && autoreconf -ivf
 
 .init :
 	-mkdir -p $(KVINSTALLDIR)/lib
@@ -195,6 +202,7 @@ cleangantape :
 clean :
 	-rm -f $(KVPROJ_ROOT_ABS)/KVVersion.h
 	-rm -f $(KVPROJ_ROOT_ABS)/KVConfig.h
+	-rm -f .init
 	cd KVMultiDet && $(MAKE) clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean

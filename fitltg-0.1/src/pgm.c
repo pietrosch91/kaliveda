@@ -22,12 +22,14 @@ float geta(float Z,int ityp) ;
 
 int main(void)
 {
+	printf("sizeof(double)=%d\n",sizeof(double));
+	
   int i, iz, ia, np, npts ;
   float aa, xx, yy ;
   FILE *fd ;
   
       /* Ouverture fichier de donnees */
-  fd = fopen("ChioSi_new.dat","r") ;
+  fd = fopen("testdata/ChioSi_new.dat","r") ;
   if (fd == NULL)
   {
     printf("Fichier de data introuvable\n") ;
@@ -76,7 +78,7 @@ int main(void)
     /* Calcul et affichage valeur de la fonctionnelle pour chque point */
   for (i=0 ; i<npts ; i++)
     printf(" %3d  %3d   %6.1f   %6.1f   %6.1f\n",(int)(zd[i]+0.5),
-           (int)(ad[i]+0.5),xd[i],yd[i],fede_c(zd[i],ad[i],xd[i])) ;
+           (int)(ad[i]+0.5),xd[i],yd[i],fede(zd[i],ad[i],xd[i])) ;
   return 0 ;
 }
 

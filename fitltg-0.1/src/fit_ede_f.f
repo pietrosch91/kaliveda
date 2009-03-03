@@ -423,347 +423,6 @@ c                 Fit with extended functional
       return
       end
 c
-c                    ******************
-c                    *  Specific fit  *
-c                    ******************
-c
-      subroutine fitede(npts,zd,ad,xd,yd,ixt,ih,sc,bl,bu,par,istate,irc)
-      implicit     none
-      integer      npts, ixt, ih, irc
-      integer      istate(*)
-      real         zd(*), ad(*), xd(*), yd(*)
-      real         sc(*), bl(*), bu(*), par(*)
-c
-      integer      MXNN
-      parameter    (MXNN=10)
-      real*8       bl8(MXNN), bu8(MXNN), x(MXNN), g(MXNN), dx(MXNN)
-      real*8       h(MXNN*(MXNN+1)/2), w(MXNN*(MXNN+2)+1)
-      real*8       f
-      integer      iw(MXNN*2)
-c
-      integer      idz, ida, idx, idy
-      real*4       xyza(2)
-      common /ededata/ xyza, idz, ida, idx, idy
-c
-      integer      jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       sig
-      common /para001/ sig, jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       scl(MXNN)
-      common /para002/ scl
-      integer      i, ibound, iout, iprint, itest
-      integer      liw, lw, mxcall
-      external     mini8chi, monit
-c
-      iout = 6
-      jxt = ixt
-      jh = ih
-c         On garde les adresses des donnees referencees par rapport a xyza */
-      call get_index_var(zd,xyza,4,idz)
-      call get_index_var(ad,xyza,4,ida)
-      call get_index_var(xd,xyza,4,idx)
-      call get_index_var(yd,xyza,4,idy)
-      irc = -3
-      if (idz.eq.0 .or. ida.eq.0 .or. idx.eq.0 .or. idy.eq.0) return
-      idz = idz-1
-      ida = ida-1
-      idx = idx-1
-      idy = idy-1
-c      write(6,'(4(a,i12,2x))') 'idz=',idz,'id=',ida,'idx=',idx,
-c     &  'idy=',idy
-c      do i=1,npts
-c        write(6,'(4(2x,f6.1))') xyza(idz+i),xyza(ida+i),xyza(idx+i),
-c     &    xyza(idy+i)
-c      enddo
-c      
-      mpts = npts
-      liw = MXNN*2
-      lw = MXNN*(MXNN+1)+1
-c   itest=0  -> on minimise        itest=1 -> on teste les derivees
-      itest = 0
-c
-      mm = 5
-      if (ixt.ne.0) mm = 9
-      ipdy = mm
-      ipdx = mm-1
-      ig = mm-2
-      if (ih.ne.0) mm = mm+1
-      irc = 11
-      do i = 1,mm
-        if (bl(i).gt.par(i) .or. bu(i).lt.par(i)) return
-        scl(i) = sc(i)
-        x(i) = par(i)
-        bl8(i) = bl(i)
-        bu8(i) = bu(i)
-      enddo
-      if (sc(1).eq.0.) then
-        do i = 1,mm
-          scl(i) = abs(par(i))
-        enddo
-      endif
-      do i = 1,mm
-        x(i) = x(i)/scl(i)
-        bl8(i) = bl8(i)/scl(i)
-        bu8(i) = bu8(i)/scl(i)
-        if (bl8(i).gt.x(i)) bl8(i) = x(i)
-        if (bu8(i).lt.x(i)) bu8(i) = x(i)
-      enddo
-      sig = npts
-      sig = dsqrt(sig)
-c                   Test des derivees
-      if (itest.gt.0) then
-        do i = 1,mm
-          dx(i) = 0.0000001
-        enddo
-        call mini8drv(mm,mini8chi,x,dx,g,h,iw,liw,w,lw,iout)
-        do i = 1,mm
-          istate(i) = 0
-        enddo
-        irc = 0
-        f = 0.
-c                   Minimisation
-      else
-        mxcall = mm*50
-        ibound = 1
-        iprint = 1
-        do i = 1,mm
-          dx(i) = 0.2
-        enddo
-        call mini8(mm,mini8chi,monit,iprint,mxcall,1.d-5,
-     &    ibound,bl8,bu8,dx,x,f,g,h,istate,iw,liw,w,lw,irc)
-      endif
-      do i = 1,mm
-        x(i) = x(i)*scl(i)
-        par(i) = x(i)
-        g(i) = g(i)/scl(i)
-        scl(i) = x(i)
-      enddo
-      call ini_f
-      write(6,100) irc,f
-      write(6,101) (x(i),i=1,mm)
-      write(6,102) (g(i),i=1,mm)
-      write(6,103) (istate(i),i=1,mm)
-      if (ixt.eq.0) then
-        write(6,'('' lambda,mu,g ='',2f10.5,f12.6)')(x(i),i=1,3)
-        write(6,'(2(a,f8.1,4x))') 'pdx =',x(4),'pdy =',x(5)
-      else
-        write(6,'('' lambda,alpha,beta ='',f10.5,2f10.5)')(x(i),i=1,3)
-        write(6,'('' mu,nu ='',2f10.5)') (x(i),i=4,5)
-        write(6,'('' xi ='',e14.6)') x(6)
-        write(6,'('' g  ='',f12.6)') x(7)
-        write(6,'(2(a,f8.1,4x))') 'pdx =',x(8),'pdy =',x(9)
-      endif
-      if (ih.ne.0) write(6,'('' eta ='',5f12.6)') x(mm)
-  100 format(' +++++++  irc =',i3,5x,'f =',e12.4,'  +++++++++++++')
-  101 format(('     X =',5e14.6))
-  102 format(('     g =',5e14.4))
-  103 format(('   ist =',5i14))
-      end
-c
-c     **************************************************
-c     * Calculation of the functional and its gradient *
-c     *             at each data point                 *
-c     **************************************************
-c
-      subroutine miniuser(ip, x, ecart, grd, iwf)
-      implicit  none
-      integer    ip, iwf
-      real*8      ecart, grd(*)
-      real*8      x(*)
-c
-      integer      idz, ida, idx, idy
-      real*4       xyza(2)
-      common /ededata/ xyza, idz, ida, idx, idy
-c
-      save         rmn, rmn1, rmns1, g, eta
-      real*8       rmn, rmn1, rmns1, g, eta
-      real*8       z, a, alg, zlg, z2a, z2amu, zal ,zalm, rho, xx, yy
-      integer      MXNN
-      parameter    (MXNN=10)
-      save         xt
-      real*8       xt(MXNN)
-      integer      jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       sig
-      common /para001/ sig, jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       scl(MXNN)
-      common /para002/ scl
-      integer     i
-      real*8      xxc, re, rea, enu, penu, bra, rac, vv, vv0, v1, rle
-      real*8      sg, hh, hl, hlg, hl1
-c
-c
-      iwf = -1
-      if (ip.gt.mpts) return
-      if (ip.eq.1) then
-        do i = 1,mm
-          xt(i) = x(i)*scl(i)
-        enddo
-        if (jxt.ne.0) then
-          rmn = xt(4)+xt(5)
-          g = xt(7)
-        else
-          rmn = xt(2)
-          g = xt(3)
-        endif
-        rmn1 = rmn+1.
-        rmns1 = 1./rmn1
-        eta = 0.
-        if (jh.ne.0) eta = xt(mm)
-      endif
-      iwf = 0
-c
-      z = xyza(idz+ip)
-      a = xyza(ida+ip)
-      xx = xyza(idx+ip)
-      yy = xyza(idy+ip)
-      
-      zal = 0.
-      zlg = 0.
-      if (jxt.ne.0) then
-        zlg = log(z)
-        alg = log(a)
-        zal = z**xt(2)*a**xt(3)*xt(1)
-        zalm = zal**rmn1
-        z2amu = z**2*a**xt(4)
-      else
-        alg = log(xt(1)*a)
-        z2amu = z**2*a**rmn
-        zalm = xt(1)**rmn1*z2amu
-      endif
-      z2a = z*z*a
-      rho = eta*z2a
-c
-      xxc = xx-xt(ipdx)
-      hh = xxc
-      hl1 = 0.
-      hlg = 0.
-      hl = 0.
-      if (jh.ne.0) then
-        hl = hh/rho
-        hlg = log(1.+hl)
-        hl1 = 1./(1.+hl)
-        xxc = dsqrt(hh*hh+2.*hh*rho*(1.+hlg))
-      endif
-      re = g*xxc
-      rle = log(re)
-      rea = re**rmn1
-      penu = 0.
-      if (jxt.ne.0) then
-        enu = re**xt(5)
-        penu = xt(6)*z2amu*enu
-      endif
-      bra = rea+zalm+penu
-      rac = bra**rmns1
-      ecart = rac-re+xt(ipdy)-yy
-      vv0 = rac/bra
-      vv = vv0*zalm
-      grd(1) = vv/xt(1)
-      v1 = 0.
-      if (jxt.ne.0) then
-        grd(2) = vv*zlg
-        grd(3) = vv*alg
-        v1 = xt(5)*rmns1*penu
-      endif
-      vv = rac/bra/re*(rea+v1)-1.
-      grd(ig) = vv*xxc
-      vv = vv*g/xxc*hh
-      if (jh.ne.0) then
-        grd(mm) = vv*(hl1+hlg)*z*z*a
-        vv = vv*(1.+hl1+(1.+hlg)/hl)
-      endif
-      grd(ipdx) = -vv
-      vv0 = vv0*rmns1
-      if (jxt.ne.0) then
-        grd(6) = vv0*z2amu*enu
-        v1 = rea*rle+zalm*log(zal)-bra*log(bra)*rmns1
-        grd(4) = vv0*(v1+penu*alg)
-        grd(5) = vv0*(v1+penu*rle)
-      else
-        v1 = rea*rle+zalm*log(a*xt(1))-bra*log(bra)*rmns1
-        grd(2) = vv0*v1
-      endif
-      grd(ipdy) = 1.
-      sg = sig*dsqrt(yy)
-      ecart = ecart/sg
-      do i = 1,mm
-        grd(i) = grd(i)*scl(i)/sg
-      enddo
-      iwf = 1
-      return
-      end
-c
-c                    ***************************
-c                    *  Initialization of fede *
-c                    ***************************
-c
-      subroutine ini_f
-      implicit   none
-      integer      MXNN
-      parameter    (MXNN=10)
-      integer      jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       sig
-      common /para001/ sig, jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       scl(MXNN)
-      common /para002/ scl
-      real*8       rmn, rmn1, rmns1, g, eta
-      common /para003/ rmn, rmn1, rmns1, g, eta
-
-      if (jxt.ne.0) then
-        rmn = scl(4)+scl(5)
-        g = scl(7)
-        scl(2) = scl(2)*(rmn+1.)
-        scl(3) = scl(3)*(rmn+1.)
-      else
-        rmn = scl(2)
-        g = scl(3)
-      endif
-      rmn1 = rmn+1.
-      rmns1 = 1./rmn1
-      scl(1) = scl(1)**rmn1
-      eta = 0.
-      if (jh.ne.0) eta = scl(mm)
-      return
-      end
-c
-c                    *************************************
-c                    *  DE value given by the functional *
-c                    *************************************
-c
-      function fede(z,a,xxx)
-      implicit none
-      real        z, a, xxx, fede
-c
-      integer      MXNN
-      parameter    (MXNN=10)
-      integer      jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       sig
-      common /para001/ sig, jxt, jh, mm, ipdx, ipdy, ig, mpts
-      real*8       scl(MXNN)
-      common /para002/ scl
-      real*8       rmn, rmn1, rmns1, g, eta
-      common /para003/ rmn, rmn1, rmns1, g, eta
-      real*8       xx, hh, hlg, rho, re, vv, zalm, z2amu
-
-      xx = xxx-scl(ipdx)
-      if (jh.ne.0) then
-        rho = eta*z*z*a
-        hh = xx
-        hlg = log(1.+hh/rho)
-        xx = dsqrt(hh*hh+2.*hh*rho*(1.+hlg))
-      endif
-      re = g*xx
-      if (jxt.ne.0) then
-        z2amu = z*z*a**scl(4)
-        zalm = scl(1)*z**scl(2)*a**scl(3)
-        vv = scl(6)*z2amu*re**scl(5)
-      else
-        z2amu = z*z*a**scl(2)
-        zalm = scl(1)*z2amu
-        vv = 0.
-      endif
-      fede = (re**rmn1+zalm+vv)**rmns1-re+scl(ipdy)
-      return
-      end
-c
 c                    **************************
 c                    *  Print monitor routine *
 c                    **************************
@@ -1235,12 +894,11 @@ c                2 -> nombre d'iterations >= mxcall
 c               10 -> liw ou lw trop petits
 c               11 -> incoherence dans les bornes : bu < bl ou x < bl ou x > bu
 c
-      subroutine mini8(n,funct,monit,iprint,mxcall,tolg,
+      subroutine mini8(n,iprint,mxcall,tolg,
      &  ibound,bl,bu,dx,x,f,g,h,istate,iw,liw,w,lw,ifail)
       implicit none
       integer     n, iprint, mxcall, lw, liw, ifail, ibound
       integer     iw(liw), istate(n)
-      external    funct, monit
       real*8      tolg, f, bl(n), bu(n), dx(n), x(n), g(n)
       real*8      h(*), w(lw)
 
@@ -1294,7 +952,7 @@ c              ***   Boucle sur les iterations ***
         nit = nit+1
         i = 1
 c               *  Appel fonction utilisateur *
-        call funct(i,n,x,f,g,h,iw,liw,w,lw)
+        call mini8chi(i,n,x,f,g,h,iw,liw,w,lw)
         if (i.lt.0) then
           ifail = -1
           return
@@ -1921,17 +1579,14 @@ c   n   : [I]   nombre de variables, si n<0 la valeur absolue sera consideree
 c               et seul le gradient sera verifie
 c   x   : [R*8] tableau des variables                                n valeurs
 c   dx  : [R*8] tableau des differences finies sur variables         n valeurs
-c  funct: [E]   fonction utilisateur retournant la valeur de la fonction, son
-c               gradient et derivees secondes. (meme interface que pour mini8)
 c  iout : [I]   unite logique d'impression (6 pour la sortie standard)
 c TABLEAUX DE TRAVAIL : 
 c   g   : [R*8] tableau du gradient               n valeurs
 c   h   : [R*8] tableau de la matrice hessienne : n*(n+1)/2 valeurs
 c  iw,liw,w,lw : valeurs transmises a mini8, il faut lw >= n*(n+1)+1
 C
-      subroutine mini8drv(n,funct,x,dx,g,h,iw,liw,w,lw,iout)
+      subroutine mini8drv(n,x,dx,g,h,iw,liw,w,lw,iout)
       implicit    none
-      external    funct
       integer     n, liw, lw, iout
       integer     iw(liw)
       real*8      x(n), dx(n), g(n), h(*), w(lw)
@@ -1952,15 +1607,15 @@ c
         return
       endif
       ifl = 1
-      call funct(ifl,nn,x,f,g,h,iw,liw,w,lw)
+      call mini8chi(ifl,nn,x,f,g,h,iw,liw,w,lw)
       ifl = 0
       do i = 1,nn
         ddx = dx(i)
         ddx2 = ddx*2.
         x(i) = x(i)-ddx
-        call funct(ifl,nn,x,fm,w,w(nn*2+1),iw,liw,w,lw)
+        call mini8chi(ifl,nn,x,fm,w,w(nn*2+1),iw,liw,w,lw)
         x(i) = x(i)+ddx2
-        call funct(ifl,nn,x,fp,w(nn+1),w(nn*2+1),iw,liw,w,lw)
+        call mini8chi(ifl,nn,x,fp,w(nn+1),w(nn*2+1),iw,liw,w,lw)
         x(i) = x(i)-ddx
         df = (fp-fm)/ddx2
         ddf = 1.e20
