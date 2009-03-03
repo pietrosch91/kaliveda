@@ -1,6 +1,6 @@
-#$Id: Makefile,v 1.23 2008/12/05 12:50:15 franklan Exp $
-#$Revision: 1.23 $
-#$Date: 2008/12/05 12:50:15 $
+#$Id: Makefile,v 1.24 2009/03/03 13:36:00 franklan Exp $
+#$Revision: 1.24 $
+#$Date: 2009/03/03 13:36:00 $
 #$Author: franklan $
 #
 #Makefile for KaliVeda web site/documentation
@@ -13,7 +13,7 @@
 
 include $(ROOT_MAKEFILE_PATH)/Makefile.arch
 
-CXXFLAGS += -I$(INSTALL)/include 
+CXXFLAGS += -I$(KVINSTALLDIR)/include 
 
 ifeq ($(debug),yes)
 CXXFLAGS += -g
