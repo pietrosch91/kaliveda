@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.h,v 1.37 2009/03/03 13:36:00 franklan Exp $
+$Id: KVNucleus.h,v 1.38 2009/03/06 08:59:18 franklan Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -95,7 +95,6 @@ class KVNucleus:public KVParticle {
    Double_t GetAsurZ() const {return Double_t(GetA())/GetZ(); };
    Double_t GetNsurZ() const {return Double_t(GetN())/GetZ(); };
 	Double_t GetChargeAsymetry() const { return Double_t(GetA()-GetZ())/GetZ(); }
-	UChar_t GetMassFormula() const { return fMassFormula; }
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
    Double_t GetMassExcess(Int_t z = -1, Int_t a = -1);

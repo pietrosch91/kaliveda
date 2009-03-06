@@ -1,7 +1,7 @@
 /*
-$Id: KVDP2toIDGridConvertor.cpp,v 1.1 2008/10/13 14:25:08 franklan Exp $
-$Revision: 1.1 $
-$Date: 2008/10/13 14:25:08 $
+$Id: KVDP2toIDGridConvertor.cpp,v 1.2 2009/03/06 08:59:18 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/03/06 08:59:18 $
 */
 
 //Created by KVClassFactory on Thu Oct  9 17:21:55 2008
@@ -128,12 +128,12 @@ void KVDP2toIDGridConvertor::ReadFile(const Char_t* filename)
                line->SetZ(z);
                line->SetA(a);
                line->Set(npoints);
-               grid->AddLine("id", line);
+               grid->Add("id", line);
             } else {
                //"ok" line
                KVIDLine *line = (KVIDLine*)grid->NewLine("ok");
                line->Set(npoints);
-               grid->AddLine("ok", line);
+               grid->Add("ok", line);
             }
          }
 			ReadLineCoords(grid, datfile);
@@ -150,9 +150,9 @@ void KVDP2toIDGridConvertor::ReadLineCoords(KVIDGrid* grid, ifstream &datfile)
 	// Read coordinates of lines in the order they were created.
 	// We assume that the 'ID' lines are first, then the 'OK' lines
 	
-	 TIter nextID(grid->GetLines("id"));
-	 KVIDLine *line;
-	 while ((line = (KVIDLine *) nextID())) {
+	 TIter nextID(grid->GetIdentifiers());
+	 KVIDentifier *line;
+	 while ((line = (KVIDentifier *) nextID())) {
 		 //read in points
 		 for (int i = 0; i < line->GetN(); i++) {
 			 Double_t x, y;
@@ -160,8 +160,8 @@ void KVDP2toIDGridConvertor::ReadLineCoords(KVIDGrid* grid, ifstream &datfile)
 			 line->SetPoint(i, x, y);
 		 }
 	 }
-	 TIter nextOK(grid->GetLines("ok"));
-	 while ((line = (KVIDLine *) nextOK())) {
+	 TIter nextOK(grid->GetCuts());
+	 while ((line = (KVIDentifier *) nextOK())) {
 		 //read in points
 		 for (int i = 0; i < line->GetN(); i++) {
 			 Double_t x, y;

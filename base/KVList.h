@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVList.h,v 1.22 2009/03/03 14:27:15 franklan Exp $
+$Id: KVList.h,v 1.23 2009/03/06 08:59:18 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -103,9 +103,7 @@ class KVList:public TList {
 	virtual void Execute(const char *method, const char *params,
                         Int_t * error = 0);
    virtual void Execute(TMethod * method, TObjArray * params,
-                        Int_t * error = 0) {
-      TObject::Execute(method, params, error);
-   };
+                        Int_t * error = 0);
 
    virtual void Print(Option_t * opt = "") const;
 #ifdef __WITH_NEW_TCOLLECTION_PRINT

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.98 2009/03/03 14:27:15 franklan Exp $
+#$Id: Makefile,v 1.99 2009/03/06 08:59:18 franklan Exp $
 #Makefile for libKVMultiDet.so
 
 PROJ_NAME = KVMultiDet
@@ -26,7 +26,7 @@ LINK_LIB += -L$(ROOTSYS)/lib -lGeom
 RLIBMAPDEPS += libGeom.so
 
 ifneq ($(ARCH),win32)
-LINK_LIB = -L$(KVROOT)/lib -lfitltg
+LINK_LIB += -L$(KVROOT)/lib -lfitltg
 endif
 
 ifeq ($(SITE),CCIN2P3)

@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVList.cpp,v 1.29 2009/03/03 14:27:15 franklan Exp $
+$Id: KVList.cpp,v 1.30 2009/03/06 08:59:18 franklan Exp $
                           kvlist.cpp  -  description
                              -------------------
     begin                : Sat May 18 2002
@@ -156,28 +156,28 @@ KVList *KVList::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method
 		TObjLink *lnk = FirstLink();
       while (lnk) {
 		//cout << "lnk->GetObject()->IsA() = " << lnk->GetObject()->IsA()->GetName() << endl;
-	      TMethodCall mt;
-         mt.InitWithPrototype(lnk->GetObject()->IsA(), MTH.Data(),"");
-			if (mt.IsValid()) {
+	      TMethodCall *mt = new TMethodCall();
+         mt->InitWithPrototype(lnk->GetObject()->IsA(),Form("%s",method),"");
+			if (mt->IsValid()) {
 			//cout << "it is valid" << endl;
-				if (mt.ReturnType()==TMethodCall::kString){
+				if (mt->ReturnType()==TMethodCall::kString){
 					Char_t *ret; 
 					mt->Execute(lnk->GetObject(),"",&ret);
 					KVString sret; sret.Form("%s",ret);
 					if (!sretvalue.Contains("*")) {if (sret==sretvalue) sublist->Add(lnk->GetObject());}
 					else { if (sret.Match(sretvalue)) sublist->Add(lnk->GetObject()); }
 				}
-				else if (mt.ReturnType()==TMethodCall::kLong){
+				else if (mt->ReturnType()==TMethodCall::kLong){
 					Long_t ret;
 					mt->Execute(lnk->GetObject(),"",ret);
 					if (ret==sretvalue.Atoi()) sublist->Add(lnk->GetObject());
 				}
-				else if (mt.ReturnType()==TMethodCall::kDouble){
+				else if (mt->ReturnType()==TMethodCall::kDouble){
 					Double_t ret;
 					mt->Execute(lnk->GetObject(),"",ret);
 					if (ret==sretvalue.Atof()) sublist->Add(lnk->GetObject());
 				}
-				else cout << "this type is not supported " << mt.ReturnType() << endl;
+				else cout << "this type is not supported " << mt->ReturnType() << endl;
 			}
 			lnk = lnk->Next();
 	   }
@@ -419,6 +419,21 @@ TObject *KVList::FindObjectWithNameAndType(const Char_t * name, const Char_t * t
 	return ob;
 }
 
+void KVList::Print(Option_t * opt) const
+{
+   //Print description of all objects in list
+
+   TIter next(this);
+   TObject *obj;
+   while ((obj = next())) {
+#ifdef KV_DEBUG
+      if (!obj)
+         Error("Print", "Object does not exist: %l", (Long_t) obj);
+#endif
+      obj->Print(opt);
+   }
+}
+
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
 void KVList::Copy(TObject & obj) const
 #else
@@ -426,17 +441,21 @@ void KVList::Copy(TObject & obj)
 #endif
 {
    //Copy this to obj.
-   //As KVList owns its objects, new clones of all objects in list are made
+   //If the KVList owns its objects, new clones of all objects in list are made
 
    TList::Copy(obj);            //in fact this calls TObject::Copy, no Copy method defined for collection classes
    KVList & copy = (KVList &) obj;
    //delete any pre-existing objects in copy list
    copy.Delete();
+	copy.SetOwner(IsOwner());
    //clone list members
    TObject *b;
    TIter next(this);
    while ((b = next())) {
-      copy.Add(b->Clone());
+		if(IsOwner())
+      	copy.Add(b->Clone());
+		else
+			copy.Add(b);
    }
 }
 

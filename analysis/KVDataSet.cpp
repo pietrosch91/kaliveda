@@ -1,7 +1,7 @@
 /*
-$Id: KVDataSet.cpp,v 1.39 2009/01/27 08:06:56 franklan Exp $
-$Revision: 1.39 $
-$Date: 2009/01/27 08:06:56 $
+$Id: KVDataSet.cpp,v 1.40 2009/03/06 08:59:18 franklan Exp $
+$Revision: 1.40 $
+$Date: 2009/03/06 08:59:18 $
 $Author: franklan $
 */
 
@@ -352,6 +352,8 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    //Write the database to disk.
 	//Note that after writing, the database is DELETED
 
+	Info("WriteDBFile","called...");
+	
    TDirectory *work_dir = gDirectory;   //keep pointer to current directory
    if (fDBase) {
       delete fDBase;
@@ -367,7 +369,9 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
 	fDataBase->WriteObjects( fDBase ); //write any associated objects
    delete fDBase;               //close file
    fDBase = 0;
+	Info("WriteDBFile","now delete dBase...");
 	delete fDataBase;         //delete database
+	Info("WriteDBFile","dBase deleted...");
 	fDataBase = 0;
    work_dir->cd();              //back to initial working directory
 }
