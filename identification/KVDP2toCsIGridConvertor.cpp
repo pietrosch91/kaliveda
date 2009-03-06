@@ -1,7 +1,7 @@
 /*
-$Id: KVDP2toCsIGridConvertor.cpp,v 1.1 2008/10/13 14:25:08 franklan Exp $
-$Revision: 1.1 $
-$Date: 2008/10/13 14:25:08 $
+$Id: KVDP2toCsIGridConvertor.cpp,v 1.2 2009/03/06 08:59:18 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/03/06 08:59:18 $
 */
 
 //Created by KVClassFactory on Thu Oct  9 17:23:14 2008
@@ -46,10 +46,10 @@ void KVDP2toCsIGridConvertor::Convert(const Char_t* id_and_imf_file, const Char_
 	ReadFile(id_and_imf_file);
 	// set name of all IMF lines
 	TIter nextGrid( fGrids );
-	KVIDGrid* grid; KVIDLine* line;
+	KVIDGrid* grid; KVIDentifier* line;
 	while( (grid = (KVIDGrid*)nextGrid()) ){ 
-		TIter nextOK(grid->GetLines("ok"));
-		while ((line = (KVIDLine *) nextOK())) {
+		TIter nextOK(grid->GetCuts());
+		while ((line = (KVIDentifier *) nextOK())) {
 			line->SetName("IMF_line");
 		}
 	}
@@ -107,7 +107,7 @@ void KVDP2toCsIGridConvertor::ReadGammaFile(const Char_t* gammafile)
             line = grid->NewLine("ok");
             line->SetName("gamma_line");
             line->Set(npoints);
-            grid->AddLine("ok", line);
+            grid->Add("ok", line);
          }
          //read in points
          for (int i = 0; i < npoints; i++) {
