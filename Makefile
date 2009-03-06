@@ -1,6 +1,6 @@
-#$Id: Makefile,v 1.83 2009/03/03 14:27:15 franklan Exp $
-#$Revision: 1.83 $
-#$Date: 2009/03/03 14:27:15 $
+#$Id: Makefile,v 1.84 2009/03/06 08:59:18 franklan Exp $
+#$Revision: 1.84 $
+#$Date: 2009/03/06 08:59:18 $
 #$Author: franklan $
 #
 #General Makefile for the entire KaliVeda project
@@ -128,7 +128,7 @@ export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
 export CVS2CL = ../cvs2cl
 
-fitltg-0.1/configure:
+fitltg-0.1/configure: fitltg-0.1/configure.ac 
 	cd fitltg-0.1 && autoreconf -ivf
 
 .init :
