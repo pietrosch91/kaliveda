@@ -1,7 +1,7 @@
 /*
-$Id: KVDataSet.cpp,v 1.40 2009/03/06 08:59:18 franklan Exp $
-$Revision: 1.40 $
-$Date: 2009/03/06 08:59:18 $
+$Id: KVDataSet.cpp,v 1.41 2009/03/11 14:22:41 franklan Exp $
+$Revision: 1.41 $
+$Date: 2009/03/11 14:22:41 $
 $Author: franklan $
 */
 
@@ -350,10 +350,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
 {
    //PRIVATE METHOD
    //Write the database to disk.
-	//Note that after writing, the database is DELETED
 
-	Info("WriteDBFile","called...");
-	
    TDirectory *work_dir = gDirectory;   //keep pointer to current directory
    if (fDBase) {
       delete fDBase;
@@ -367,12 +364,6 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    fDBase->cd();                //set as current directory (maybe not necessary)
    fDataBase->Write(GetDBName());    //write database to file with given name
 	fDataBase->WriteObjects( fDBase ); //write any associated objects
-   delete fDBase;               //close file
-   fDBase = 0;
-	Info("WriteDBFile","now delete dBase...");
-	delete fDataBase;         //delete database
-	Info("WriteDBFile","dBase deleted...");
-	fDataBase = 0;
    work_dir->cd();              //back to initial working directory
 }
 
@@ -415,23 +406,12 @@ void KVDataSet::OpenDataBase(Option_t * opt)
    //The name of the dataset must correspond to the name of one of the Plugin.KVDataBase
    //plugins defined in the $KVROOT/KVFiles/.kvrootrc configuration file
 
-   TString dbfile = GetDBFileName();
-   if (dbfile == "") {
-      Error("OpenDataBase",
-            "Default name for database file DataSet.DatabaseFile is not set.\nSee file %s/.kvrootrc\n",
-            KVBase::GetKVFilesDir());
-      return;
-   }
-	//load plugin for database
-	if (!LoadPlugin("KVDataBase", GetName())) {
-		Error("GetDataBase", "Cannot load required plugin library");
-		return;
-	}
 	Bool_t is_glob_db =kFALSE;
    //if option="update" or database out of date or does not exist, (re)build the database
-   if ( !strcmp(opt, "UPDATE") || DataBaseNeedsUpdate() ) {
+   if ( (!strcmp(opt, "UPDATE")) || DataBaseNeedsUpdate() ) {
 		//check if it is the currently active database (gDataBase),
 		//in which case we must 'cd()' to it after rebuilding
+		Info("OpenDataBase", "Updating database file");
 		is_glob_db = (fDataBase == gDataBase);
       if (fDataBase) {
          delete fDataBase;
@@ -442,13 +422,23 @@ void KVDataSet::OpenDataBase(Option_t * opt)
          fDBase = 0;
       }
       fDataBase = KVDataBase::MakeDataBase(GetDBName());
-      SaveDataBase(); // this closes the file & deletes the database!		
+      SaveDataBase();		
+		if(fDataBase && is_glob_db) fDataBase->cd();
    }
-   //look for database file in dataset subdirectory
-   TString dbfile_fullpath = GetFullPathToDB();
-	//open database file
-   OpenDBFile(dbfile_fullpath.Data());
-	if(fDataBase && is_glob_db) fDataBase->cd();
+	else if( !fDataBase ){
+		// if database is not in memory at this point, we need to
+		// open the database file and read in the database
+		
+		//load plugin for database
+		if (!LoadPlugin("KVDataBase", GetName())) {
+			Error("GetDataBase", "Cannot load required plugin library");
+			return;
+		}
+   	//look for database file in dataset subdirectory
+   	TString dbfile_fullpath = GetFullPathToDB();
+		//open database file
+   	OpenDBFile(dbfile_fullpath.Data());
+	}
 }
 
 //___________________________________________________________________________________________________________________
