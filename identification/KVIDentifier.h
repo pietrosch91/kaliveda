@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.h,v 1.3 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVIDentifier.h,v 1.4 2009/03/11 14:20:49 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/11 14:20:49 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -59,8 +59,8 @@ class KVIDentifier : public TCutG
    virtual Int_t GetZ() const{ return fIon.GetZ();};
    virtual void SetZ(Int_t atnum){ fIon.SetZ(atnum); SetNameFromNucleus(); }; // *MENU={Hierarchy="SetNucleus.../Z"}*
    virtual void SetA(Int_t atnum){ fIon.SetA(atnum); SetNameFromNucleus(); };  // *MENU={Hierarchy="SetNucleus.../A"}*
-   virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU={Hierarchy="SetNucleus.../A and Z"}*
-   virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); SetNameFromNucleus(); };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}* 
+   virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU={Hierarchy="SetNucleus.../A and Z"}* *ARGS={atnum=>fA,ztnum=>fZ}
+   virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus(); };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}* 
    virtual Int_t GetMassFormula()const { return fIon.GetMassFormula(); }
 	
    virtual Bool_t TestPoint(Double_t x, Double_t y)
