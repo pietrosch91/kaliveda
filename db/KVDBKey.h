@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVDBKey.h,v 1.21 2009/03/03 14:27:15 franklan Exp $
+$Id: KVDBKey.h,v 1.22 2009/03/11 14:19:50 franklan Exp $
                           KVDataBase.h  -  description
                              -------------------
     begin                : jeu fév 6 2003
@@ -68,7 +68,7 @@ class KVDBKey:public KVBase {
 
 KVDBRecord *KVDBKey::GetLink(const Char_t * link) const
 {
-   return (KVDBRecord *) fLinks->FindObject(link);
+   return (KVDBRecord *) fLinks->FindObjectByName(link);
 }
 
 KVDBRecord *KVDBKey::GetParent()
