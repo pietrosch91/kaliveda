@@ -338,6 +338,9 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
 	fRunList->SetDataColumn(7, "Comments", "", kTextLeft);
 	fRunList->SetDataColumn(8, "Logbook", "", kTextLeft);
 	fRunList->ActivateSortButtons();
+	// disable context menu & Browse functions
+	fRunList->AllowBrowse(kFALSE);
+	fRunList->AllowContextMenu(kFALSE);
 
    fRunList->Connect("SelectionChanged()", "KVINDRARunSheetGUI", this,
                      "SelectionChanged()");
