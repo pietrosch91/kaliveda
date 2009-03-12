@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVDBRun.cpp,v 1.13 2009/03/12 10:52:16 franklan Exp $
+$Id: KVDBRun.cpp,v 1.14 2009/03/12 14:01:02 franklan Exp $
                           KVDBRun.cpp  -  description
                              -------------------
     begin                : jeu fév 13 2003
@@ -32,6 +32,7 @@ ClassImp(KVDBRun);
 KVDBRun::KVDBRun():fDatime()
 {
    //default ctor
+	fBlockSignals=kFALSE;
 }
 
 //____________________________________________________________________________
@@ -41,6 +42,7 @@ KVDBRun::KVDBRun(Int_t number, const Char_t * title):fDatime()
 
    SetNumber(number);
    SetTitle(title);
+	fBlockSignals=kFALSE;
 }
 
 //____________________________________________________________________________

@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVDBRun.h,v 1.14 2009/03/12 10:52:16 franklan Exp $
+$Id: KVDBRun.h,v 1.15 2009/03/12 14:01:02 franklan Exp $
                           KVDBRun.h  -  description
                              -------------------
     begin                : jeu fév 13 2003
@@ -35,6 +35,7 @@ $Id: KVDBRun.h,v 1.14 2009/03/12 10:52:16 franklan Exp $
 class KVDBRun:public KVDBRecord {
 
    RQ_OBJECT("KVDBRun")
+	Bool_t fBlockSignals;//!
 
 protected:
 
@@ -48,7 +49,13 @@ protected:
   	void Modified() // *SIGNAL*
 	{
 		// Signal sent out when run properties change (used by GUI)
-		Emit("Modified()");
+		if(!fBlockSignals) Emit("Modified()");
+	};
+	void BlockSignals(Bool_t yes=kTRUE)
+	{
+		// if yes=kTRUE, block 'Modified()' signal
+		// if yes=kFALSE, allow 'Modified()' signal
+		fBlockSignals = yes;
 	};
 
        //Returns kTRUE if a parameter with the given name (either integer, floating point or string) has been set.

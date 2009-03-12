@@ -1,7 +1,7 @@
 /*
-$Id: KVAvailableRunsFile.cpp,v 1.17 2008/02/08 08:19:59 franklan Exp $
-$Revision: 1.17 $
-$Date: 2008/02/08 08:19:59 $
+$Id: KVAvailableRunsFile.cpp,v 1.18 2009/03/12 14:01:02 franklan Exp $
+$Revision: 1.18 $
+$Date: 2009/03/12 14:01:02 $
 */
 
 //Created by KVClassFactory on Fri May  5 10:46:40 2006
@@ -440,8 +440,16 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
          if (!sys_list)
             sys_list = new TList;
          if (sys) {
+				
 
-            a_run->SetDatime(fDatime);
+				/* Block Modified() signal being emitted by KVDBRun object
+				   when we set its 'datime'. This is to avoid seg fault with
+					KVDataAnalysisGUI, when we are changing system/display,
+					and the KVLVEntry to which this signal was previously connected
+					no longer exists */
+            a_run->BlockSignals(kTRUE);
+				a_run->SetDatime(fDatime);
+				a_run->BlockSignals(kFALSE);
 
             if (!sys_list->Contains(sys)) {
                //new system
@@ -457,7 +465,16 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
          if (noSystems || (systol == sys)) {   //run belongs to same system
             if (!sys_list)
                sys_list = new TList;
-            if(noSystems && a_run) a_run->SetDatime(fDatime);
+            if(noSystems && a_run){
+					/* Block Modified() signal being emitted by KVDBRun object
+				   when we set its 'datime'. This is to avoid seg fault with
+					KVDataAnalysisGUI, when we are changing system/display,
+					and the KVLVEntry to which this signal was previously connected
+					no longer exists */
+            	a_run->BlockSignals(kTRUE);
+					a_run->SetDatime(fDatime);
+					a_run->BlockSignals(kFALSE);
+				}
             if(a_run) sys_list->Add(a_run);
          }
       }
