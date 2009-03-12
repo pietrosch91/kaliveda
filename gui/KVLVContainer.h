@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.h,v 1.4 2009/03/12 10:50:06 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/12 10:50:06 $
+$Id: KVLVContainer.h,v 1.5 2009/03/12 13:58:30 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/12 13:58:30 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -78,6 +78,9 @@ class KVLVContainer : public TGLVContainer
 	Bool_t 		fIsResized;		// used to resize columns exactly once
 	Bool_t 		fSort;
 
+	Bool_t		fAllowContextMenu;	// can objects' context menu be opened with right-click ?
+	Bool_t		fAllowBrowse;			// can objects' Browse() method be executed by double-clicking ?
+	
 	protected:
 
 	KVLVColumnData 	**fColData;		// description of column data
@@ -145,6 +148,16 @@ class KVLVContainer : public TGLVContainer
 	Bool_t IsBeingSorted() const
 	{
 		return fSort;
+	};
+	void AllowContextMenu(Bool_t on=kTRUE)
+	{
+		// Call with on=kFALSE to disable objects' context menus opening with mouse right-click
+		fAllowContextMenu=on;
+	};
+	void AllowBrowse(Bool_t on=kTRUE)
+	{
+		// Call with on=kFALSE to disable objects' Browse() method being called with mouse double-click
+		fAllowBrowse=on;
 	};
 
    ClassDef(KVLVContainer,0)//List view container class

@@ -1,7 +1,7 @@
 /*
-$Id: KVListView.h,v 1.3 2009/03/12 10:51:08 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/12 10:51:08 $
+$Id: KVListView.h,v 1.4 2009/03/12 13:58:30 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/12 13:58:30 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 11:51:38 2008
@@ -89,6 +89,16 @@ class KVListView : public TGListView
 	    // return last object in currently displayed list
 	    return ((KVLVContainer*)GetContainer())->GetLastInList();
     };
+	void AllowBrowse(Bool_t on=kTRUE)
+	{
+		// Call with on=kFALSE to disable objects' Browse() method being called with mouse double-click
+		((KVLVContainer*)GetContainer())->AllowBrowse(on);
+   };
+	void AllowContextMenu(Bool_t on=kTRUE)
+	{
+		// Call with on=kFALSE to disable objects' context menus opening with mouse right-click
+		((KVLVContainer*)GetContainer())->AllowContextMenu(on);
+   };
 
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
