@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.81 2009/03/03 14:27:15 franklan Exp $
-#$Revision: 1.81 $
+#$Id: KaliVeda.rootrc,v 1.82 2009/03/12 13:59:40 franklan Exp $
+#$Revision: 1.82 $
 #$Author: franklan $
-#$Date: 2009/03/03 14:27:15 $
+#$Date: 2009/03/12 13:59:40 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -734,15 +734,22 @@ Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDet   "KVIDZAGrid()"
 +Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVIndra      "KVIDGCsI()"
 +Plugin.KVIDGraph:   KVIDGChIoSi   KVIDGChIoSi   KVIndra      "KVIDGChIoSi()"
 
+# Mime-types for GUI
+# These define the icons associated with different objects displayed in KVListView widgets.
+KaliVeda.GUI.MimeTypes:   KVIDMap
+KaliVeda.GUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDZAGrid
+KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDGCsI
+KaliVeda.GUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDGChIoSi
+KaliVeda.GUI.MimeTypes.KVIDGChIoSi.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVTGIDGrid
+KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
++KaliVeda.GUI.MimeTypes:   KVDBRun
+KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
++KaliVeda.GUI.MimeTypes:   KVINDRADBRun
+KaliVeda.GUI.MimeTypes.KVINDRADBRun.Icon:   tree_t.xpm
+
 # Mime-types for KVIDGridManagerGUI
 # These define the icons associated with different grids displayed in the KVListView list of grids.
-IDGridManagerGUI.MimeTypes:   KVIDMap
-IDGridManagerGUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
-+IDGridManagerGUI.MimeTypes:   KVIDZAGrid
-IDGridManagerGUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
-+IDGridManagerGUI.MimeTypes:   KVIDGCsI
-IDGridManagerGUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
-+IDGridManagerGUI.MimeTypes:   KVIDGChIoSi
-IDGridManagerGUI.MimeTypes.KVIDGChIoSi.Icon:   draw_t.xpm
-+IDGridManagerGUI.MimeTypes:   KVTGIDGrid
-IDGridManagerGUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
