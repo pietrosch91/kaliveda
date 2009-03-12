@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVBase.h,v 1.41 2009/03/03 14:27:15 franklan Exp $
+$Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVBASE_H
@@ -35,6 +35,7 @@ class KVBase:public TNamed {
    static Bool_t fEnvIsInit;//! set when environment is initialised
    
    void init();
+	static void ReadGUIMimeTypes();
 
  public:
    static void InitEnvironment();

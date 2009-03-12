@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVBase.cpp,v 1.55 2009/03/03 14:27:15 franklan Exp $
+$Id: KVBase.cpp,v 1.56 2009/03/12 13:59:40 franklan Exp $
                           kvbase.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -33,6 +33,8 @@ $Id: KVBase.cpp,v 1.55 2009/03/03 14:27:15 franklan Exp $
 #include "TError.h"
 #include "KVCVSUpdateChecker.h"
 #include "KVConfig.h"
+#include "TGMimeTypes.h"
+#include "TGClient.h"
 
 ClassImp(KVBase)
 
@@ -200,9 +202,12 @@ void KVBase::InitEnvironment()
          gEnv->ReadFile(tmp.Data(), kEnvUser);
          tmp = "./.kvrootrc";
          gEnv->ReadFile(tmp.Data(), kEnvLocal);
-
+			
+			// load plugin handlers
          gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
          
+			// load mime types/icon definitions
+			ReadGUIMimeTypes();
       }
       
       // update check - do not perform if ROOT is running in batch mode
@@ -866,4 +871,35 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
 	//remove final trailing whitespace
 	tmp.Remove(TString::kTrailing,' ');
    return tmp;
+}
+
+//__________________________________________________________________________________________________________________
+
+void KVBase::ReadGUIMimeTypes()
+{
+	// Add to standard ROOT mime types some new ones defined in .kvrootrc
+	// for icons associated with graphs, runs, etc. by lines such as:
+	//
+	//  KaliVeda.GUI.MimeTypes :   KVIDMap
+	//  KaliVeda.GUI.MimeTypes.KVIDMap.Icon :   rootdb_t.xpm
+	//  +KaliVeda.GUI.MimeTypes :   KVIDZAGrid
+	//  KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon :   draw_t.xpm
+	//
+	// etc.
+	
+	KVString mimetypes = gEnv->GetValue("KaliVeda.GUI.MimeTypes","");
+	if(mimetypes!=""){
+		
+		mimetypes.Begin(" ");
+		while( !mimetypes.End() ){
+			
+			KVString classname = mimetypes.Next(kTRUE);
+			KVString icon = gEnv->GetValue( Form("KaliVeda.GUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
+			KVString type = classname; type.ToLower();
+			
+			gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]",type.Data()),
+					classname.Data(), icon.Data(), icon.Data(), "");
+			
+		}
+	}
 }

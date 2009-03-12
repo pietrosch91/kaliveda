@@ -18,7 +18,6 @@
 #include <KVIDGUITelescopeChooserDialog.h>
 #include <KVDropDownDialog.h>
 #include "TEnv.h"
-#include "TGMimeTypes.h"
 
 ClassImp(KVIDGridManagerGUI)
 //////////////////////////////////////////////////////////
@@ -286,11 +285,6 @@ KVIDGridManagerGUI::KVIDGridManagerGUI():TGMainFrame(gClient->GetRoot(), 500,
    fSelectedGrid = 0;
    fSelectedEntries = 0;
 	
-	//add new mime-types for id-graphs
-	if( !gClient->GetMimeTypeList()->GetIcon("KVIDMap",kFALSE) ){
-		ReadGraphMimeTypes();
-	}
-
    //any change of ID grid manager causes UpdateListOfGrids to be called
    gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this,
                            "UpdateListOfGrids()");
@@ -812,29 +806,3 @@ void KVIDGridManagerGUI::RemoveEmptyTabs()
 	fGridListTabs->Layout();
 }
 
-void KVIDGridManagerGUI::ReadGraphMimeTypes()
-{
-	// Add to standard ROOT mime types some new ones defined in .kvrootrc
-	// for icons associated with graphs etc. by lines such as:
-	//
-	//  IDGridManagerGUI.MimeTypes :   KVIDMap
-	//  IDGridManagerGUI.MimeTypes.KVIDMap.Icon :   rootdb_t.xpm
-	//  +IDGridManagerGUI.MimeTypes :   KVIDZAGrid
-	//  IDGridManagerGUI.MimeTypes.KVIDZAGrid.Icon :   draw_t.xpm
-	//
-	// etc.
-	
-	KVString mimetypes = gEnv->GetValue("IDGridManagerGUI.MimeTypes","");
-	if(mimetypes!=""){
-		
-		mimetypes.Begin(" ");
-		while( !mimetypes.End() ){
-			
-			KVString classname = mimetypes.Next(kTRUE);
-			KVString icon = gEnv->GetValue( Form("IDGridManagerGUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
-			
-			gClient->GetMimeTypeList()->AddType("[kaliveda/idgraph]", classname.Data(), icon.Data(), icon.Data(), "");
-			
-		}
-	}
-}

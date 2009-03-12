@@ -51,7 +51,6 @@ class KVIDGridManagerGUI:public TGMainFrame {
 		if(fIDGridList) return fIDGridList->GetUserItems();
 		return 0;
 	};
-	void ReadGraphMimeTypes();
 
  public:
 
