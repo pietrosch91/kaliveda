@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVDBRun.cpp,v 1.12 2008/12/08 14:07:37 franklan Exp $
+$Id: KVDBRun.cpp,v 1.13 2009/03/12 10:52:16 franklan Exp $
                           KVDBRun.cpp  -  description
                              -------------------
     begin                : jeu fév 13 2003
@@ -50,8 +50,9 @@ void KVDBRun::SetNumber(Int_t number)
    //Set run number. Also changes name of object to "Run xxx".
    KVDBRecord::SetNumber(number);
    SetName(Form("Run %d", number));
+   Modified();
 }
-   
+
 //____________________________________________________________________________
 
 KVDBRun::~KVDBRun()
@@ -86,7 +87,7 @@ void KVDBRun::Print(Option_t * option) const
 void KVDBRun::WriteRunListLine(ostream & outstr, Char_t delim) const
 {
    //Write informations on run in format used for runlists, i.e. a line of fields separated by the
-   //separator character '|' (the 'delim' argument is obsolete and is not used) 
+   //separator character '|' (the 'delim' argument is obsolete and is not used)
 
    TString _delim = " | ";
    KVString s;
@@ -122,7 +123,7 @@ void KVDBRun::ReadRunListLine(const KVString& line)
 {
    //Set run characteristics by reading informations in 'line' (assumed to have been written
    //by WriteRunListLine).
-   
+
    //Break line into fields using delimiter '|'
    TObjArray* fields = line.Tokenize('|');
    if(fields->GetEntries()<1){
@@ -130,7 +131,7 @@ void KVDBRun::ReadRunListLine(const KVString& line)
       delete fields;
       return;
    }
-   
+
    //first field is run number
    KVString kvs = ((TObjString*)fields->At(0))->String().Remove(TString::kBoth,' ');
    if(kvs.IsDigit()){
@@ -140,12 +141,12 @@ void KVDBRun::ReadRunListLine(const KVString& line)
       delete fields;
       return;
    }
-   
+
  //  cout << GetName() << endl;
-   
+
    //loop over other fields
    for(int i = 1; i < fields->GetEntries(); i++){
-      
+
       //each field is of the form "parameter=value"
       KVString kvs = ((TObjString*)fields->At(i))->String().Remove(TString::kBoth,' ');
       TObjArray* toks = kvs.Tokenize('=');
@@ -175,7 +176,7 @@ void KVDBRun::ReadRunListLine(const KVString& line)
       }
       delete toks;
    }
-   
+
    delete fields;
 }
 
@@ -193,11 +194,12 @@ void KVDBRun::UnsetSystem()
    //If this run has previously been associated with a system in the database,
    //this will remove the association. The run will also be removed from the system's
    //list of associated runs.
-   
+
    if (GetSystem()) {
       GetSystem()->RemoveRun(this);
    }
    SetTitle("Experimental run");
+   Modified();
 }
 
 KVDBSystem *KVDBRun::GetSystem() const
@@ -227,5 +229,6 @@ void KVDBRun::SetSystem(KVDBSystem * system)
       //set title of run = name of system
       SetTitle(system->GetName());
    }
+   Modified();
 }
 

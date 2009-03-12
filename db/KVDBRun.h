@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVDBRun.h,v 1.13 2009/01/15 16:10:43 franklan Exp $
+$Id: KVDBRun.h,v 1.14 2009/03/12 10:52:16 franklan Exp $
                           KVDBRun.h  -  description
                              -------------------
     begin                : jeu fév 13 2003
@@ -23,6 +23,7 @@ $Id: KVDBRun.h,v 1.13 2009/01/15 16:10:43 franklan Exp $
 #include "KVString.h"
 #include "TDatime.h"
 #include "KVParameterList.h"
+#include <RQ_OBJECT.h>
 
 #define KV__GET_INT(__param) return (fIntPar.HasParameter(__param) ? fIntPar.GetParameter(__param) : 0);
 #define KV__GET_DBL(__param) return (fFloatPar.HasParameter(__param) ? fFloatPar.GetParameter(__param) : 0);
@@ -33,6 +34,8 @@ $Id: KVDBRun.h,v 1.13 2009/01/15 16:10:43 franklan Exp $
 
 class KVDBRun:public KVDBRecord {
 
+   RQ_OBJECT("KVDBRun")
+
 protected:
 
        KVParameterList<Int_t> fIntPar;//list of scalers for run
@@ -42,7 +45,12 @@ protected:
 
  public:
 
-    
+  	void Modified() // *SIGNAL*
+	{
+		// Signal sent out when run properties change (used by GUI)
+		Emit("Modified()");
+	};
+
        //Returns kTRUE if a parameter with the given name (either integer, floating point or string) has been set.
        //For string parameters, if the parameter exists we also check if the string is empty (unless check_whitespace=kFALSE)
        Bool_t Has(const Char_t* param, Bool_t check_whitespace=kTRUE) const {
@@ -51,7 +59,7 @@ protected:
          }
          return (fIntPar.HasParameter(param)||fFloatPar.HasParameter(param)||fStringPar.HasParameter(param));
        };
- 
+
     KVDBRun();
     KVDBRun(Int_t number, const Char_t * title);
     virtual ~ KVDBRun();
@@ -64,6 +72,7 @@ protected:
 	};
    void SetDatime(TDatime & dat) {
       dat.Copy(fDatime);
+      Modified();
    };
 
    KVDBSystem *GetSystem() const;
@@ -71,29 +80,29 @@ protected:
 	{
 		return (GetSystem() ? GetSystem()->GetName() : "");
 	};
-   
-   Int_t GetEvents() const { return GetScaler("Events"); };   
+
+   Int_t GetEvents() const { return GetScaler("Events"); };
    Double_t GetTime() const { return Get("Length (min.)"); };
    Double_t GetSize() const { return Get("Size (MB)"); };
-   
+
    const Char_t *GetComments() const { return GetString("Comments"); };
    const Char_t *GetStartDate() const { return GetString("Start Date"); };
    const Char_t *GetDate() const {
       return GetStartDate();
    };
    const Char_t *GetEndDate() const { return GetString("End Date"); };
-   
+
    //Return target used for this run (actually target of KVDBSystem associated to run)
    KVTarget *GetTarget() const
 {
    return (GetSystem()? GetSystem()->GetTarget() : 0);
 };
 
-   void SetEvents(Int_t evt_number){ SetScaler("Events", evt_number); };
-   void SetTime(Double_t time){ Set("Length (min.)",time); };
-   void SetSize(Double_t s){ Set("Size (MB)",s); };
-   void SetComments(const KVString& comments){ Set("Comments",comments); };
-   void SetStartDate(const KVString& date){ Set("Start Date",date); };
+   void SetEvents(Int_t evt_number){ SetScaler("Events", evt_number);  };
+   void SetTime(Double_t time){ Set("Length (min.)",time);  };
+   void SetSize(Double_t s){ Set("Size (MB)",s);  };
+   void SetComments(const KVString& comments){ Set("Comments",comments);  };
+   void SetStartDate(const KVString& date){ Set("Start Date",date);  };
    void SetDate(const KVString& d) {
       SetStartDate(d);
    };
@@ -103,7 +112,7 @@ protected:
    virtual void UnsetSystem();
 
    virtual void SetNumber(Int_t n);
-   
+
    virtual void Print(Option_t * option = "") const;
 
    virtual void WriteRunListLine(ostream &, Char_t delim = '|') const;
@@ -114,6 +123,7 @@ protected:
    virtual void SetScaler(const Char_t*name, Int_t val)
    {
       KV__SET_INT(name,val)
+       Modified();
    };
    //Get value of scaler with the given name for this run
    virtual Int_t GetScaler(const Char_t*name) const
@@ -124,6 +134,7 @@ protected:
    void Set(const Char_t*param, Double_t val)
    {
       KV__SET_DBL(param,val)
+       Modified();
    };
    //Get numerical (non-scaler) characteristic of run
    Double_t Get(const Char_t*param) const
@@ -134,13 +145,14 @@ protected:
    void Set(const Char_t*param, const KVString& val)
    {
       KV__SET_STR(param,val)
+       Modified();
    };
    //Get characteristic of run
    const Char_t* GetString(const Char_t*param) const
    {
       KV__GET_STR(param)
    };
-   
+
    ClassDef(KVDBRun, 10)         //Base class for an experiment run
 };
 #endif
