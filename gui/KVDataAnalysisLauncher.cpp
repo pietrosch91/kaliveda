@@ -525,14 +525,18 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  
 // Frame pour la liste des runs
  TGCompositeFrame *cfRuns=new TGCompositeFrame(this,1600,350,kVerticalFrame);
-	lvRuns = new KVListView(KVDBRun::Class(), cfRuns, 500, 250);
-	lvRuns->SetDataColumns(4);
+	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, 500, 250);
+	lvRuns->SetDataColumns(5);
 	lvRuns->SetDataColumn(0, "Run", "GetNumber");
-	lvRuns->SetDataColumn(1, "Events", "", kTextRight);
-	lvRuns->SetDataColumn(2, "Date", "GetDatime");
-	lvRuns->GetDataColumn(2)->SetIsDateTime();
-	lvRuns->SetDataColumn(3, "Comments", "", kTextLeft);
+	lvRuns->SetDataColumn(1, "Trigger", "GetTriggerString");
+	lvRuns->SetDataColumn(2, "Events", "", kTextRight);
+	lvRuns->SetDataColumn(3, "File written", "GetDatime");
+	lvRuns->GetDataColumn(3)->SetIsDateTime();
+	lvRuns->SetDataColumn(4, "Comments", "", kTextLeft);
 	lvRuns->ActivateSortButtons();
+	// disable context menu & Browse functions
+	lvRuns->AllowBrowse(kFALSE);
+	lvRuns->AllowContextMenu(kFALSE);
 	lvRuns->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "UpdateListOfSelectedRuns()");
 	cfRuns->AddFrame(lvRuns, eXeY);
 
