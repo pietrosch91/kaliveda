@@ -1,7 +1,7 @@
 /*
-$Id: KVListView.h,v 1.2 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.2 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVListView.h,v 1.3 2009/03/12 10:51:08 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/03/12 10:51:08 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 11:51:38 2008
@@ -33,20 +33,24 @@ class KVListView : public TGListView
 	{
 		return ((KVLVContainer*)GetContainer())->GetDataColumn(index);
 	};
-	
+
 	virtual void Display(const TList *l) { ((KVLVContainer*)GetContainer())->Display(l); };
+	virtual void Sort(Int_t column)
+	{
+	    // Sort list according to data in given column (=0, 1, ...)
+	    ((KVLVContainer*)GetContainer())->Sort(column);
+	};
 	virtual void SelectAll() { ((KVLVContainer*)GetContainer())->SelectAll(); };
 	virtual void UnSelectAll() { ((KVLVContainer*)GetContainer())->UnSelectAll(); };
 	virtual void RemoveAll() { ((KVLVContainer*)GetContainer())->RemoveAll(); };
-	virtual TList* GetSelectedItems() { return ((KVLVContainer*)GetContainer())->GetSelectedItems(); };
 	virtual Int_t GetColumnNumber(const Char_t* colname);
 		 TGLVEntry*  	FindItemWithData(void *userData) { return ((KVLVContainer*)GetContainer())->FindItemWithData(userData);};
 				void  	ActivateItemWithData(void *userData, Bool_t activate=kTRUE) {((KVLVContainer*)GetContainer())->ActivateItemWithData(userData,activate);};
-		 TGLVEntry*  	FindItemWithColumnData(const Char_t* colname, const Char_t* data) 
+		 TGLVEntry*  	FindItemWithColumnData(const Char_t* colname, const Char_t* data)
 				 { return ((KVLVContainer*)GetContainer())->FindItemWithColumnData(colname, data);};
-		 TGLVEntry*  	FindItemWithColumnData(const Char_t* colname, Long_t data) 
+		 TGLVEntry*  	FindItemWithColumnData(const Char_t* colname, Long_t data)
 				 { return ((KVLVContainer*)GetContainer())->FindItemWithColumnData(colname, data);};
-		 TGLVEntry*  	FindItemWithColumnData(const Char_t* colname, Double_t data) 
+		 TGLVEntry*  	FindItemWithColumnData(const Char_t* colname, Double_t data)
 				 { return ((KVLVContainer*)GetContainer())->FindItemWithColumnData(colname, data);};
 				void  	ActivateItemWithColumnData(const Char_t* colname, const Char_t* data, Bool_t activate=kTRUE)
 						{((KVLVContainer*)GetContainer())->ActivateItemWithColumnData(colname, data, activate);};
@@ -59,14 +63,32 @@ class KVListView : public TGListView
 	TGLVEntry* GetLastSelectedItem() const
 	{ return ((KVLVContainer*)GetContainer())->GetLastSelectedItem(); };
 	TList* GetSelectedItems() const
-	{ return ((KVLVContainer*)GetContainer())->GetSelectedItems(); };
+	{
+	    // list of selected KVLVEntry objects
+	    // DELETE AFTER USE !!!
+	    return ((KVLVContainer*)GetContainer())->GetSelectedItems();
+    };
 	TList* GetSelectedObjects() const
-	{ return ((KVLVContainer*)GetContainer())->GetSelectedObjects(); };
+	{
+	    // list of selected objects (derived from TObject)
+	    // DELETE AFTER USE !!!
+	    return ((KVLVContainer*)GetContainer())->GetSelectedObjects();
+    };
 	TList* GetUserItems()
 	{
 		// return list of all objects (selected or unselected) in list view
 		return ((KVLVContainer*)GetContainer())->GetUserItems();
 	};
+	TObject* GetFirstInList() const
+	{
+	    // return first object in currently displayed list
+	    return ((KVLVContainer*)GetContainer())->GetFirstInList();
+    };
+	TObject* GetLastInList() const
+	{
+	    // return last object in currently displayed list
+	    return ((KVLVContainer*)GetContainer())->GetLastInList();
+    };
 
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
