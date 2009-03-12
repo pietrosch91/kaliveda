@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.cpp,v 1.4 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVLVContainer.cpp,v 1.5 2009/03/12 10:50:06 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/12 10:50:06 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -17,7 +17,7 @@ $Date: 2009/03/03 14:27:15 $
 class KVLVFrameElement : public TGFrameElement {
 	public:
 	KVLVContainer *fContainer; // object container
-	
+
 	Bool_t IsSortable() const { return kTRUE; }
 	Int_t  Compare(const TObject* obj) const;
 };
@@ -25,7 +25,7 @@ class KVLVFrameElement : public TGFrameElement {
 Int_t KVLVFrameElement::Compare(const TObject* obj) const
 {
 	// Method responsible for sorting the objects in the GUI list
-	
+
 	KVLVEntry *f1 = (KVLVEntry *) fFrame;
    KVLVEntry *f2 = (KVLVEntry *) ((TGFrameElement *) obj)->fFrame;
 	TObject* r1 = (TObject*)f1->GetUserData();
@@ -36,7 +36,7 @@ Int_t KVLVFrameElement::Compare(const TObject* obj) const
 //____________________________________________________________________________//
 
 ClassImp(KVLVColumnData)
-	
+
 void KVLVColumnData::GetData(TObject* obj, Long_t &i)
 {
 	fMethCall->Execute(obj,"",i);
@@ -49,7 +49,7 @@ void KVLVColumnData::GetData(TObject* obj,Double_t &i)
 
 void KVLVColumnData::GetData(TObject* obj,TString &i)
 {
-	Char_t *cret; 
+	Char_t *cret;
 	fMethCall->Execute(obj,"",&cret);
 	i.Form("%s",cret);
 }
@@ -62,26 +62,26 @@ void KVLVColumnData::GetData(TObject* obj,KVDatime &i)
 		case kDatimeRef:
 			((TDatime*)lret)->Copy(i);
 			break;
-			
+
 		case kDatimeInt:
 			i.Set((UInt_t)lret);
-	}	
+	}
 }
 
 const Char_t* KVLVColumnData::GetDataString(TObject* obj)
 {
 	//  Format string with column data for object
-	
+
 	result = "";
 	Long_t lret;
 	Double_t dret;
 	KVDatime dtret;
 	switch(fRetType){
-		
+
 		case TMethodCall::kString :
 			GetData(obj,result);
 			break;
-			
+
 		case TMethodCall::kLong :
 	   	GetData(obj,lret);
 	   	result.Form("%ld", lret);
@@ -91,13 +91,13 @@ const Char_t* KVLVColumnData::GetDataString(TObject* obj)
 	   	GetData(obj,dret);
 	   	result.Form("%f", dret);
 			break;
-			
+
 		case kDatimeRef:
 		case kDatimeInt:
 			GetData(obj,dtret);
 			result.Form("%s", dtret.String(fFmt));
 			break;
-			
+
 		default:
 			cout << "Error in <KVLVColumnData::GetData> : this type is not supported "
 	   		<< fMethCall->ReturnType() << endl;
@@ -120,7 +120,7 @@ void KVLVColumnData::SetIsDateTime(KVDatime::EKVDateFormat fmt, Bool_t with_refe
 	//      given to the constructor must return either
 	//        a reference/pointer to TDatime/KVDatime :                      with_reference=kTRUE (default)
 	//        a UInt_t/time_t value (such as returned by TDatime::Convert) : with_reference=kFALSE
-	
+
 	fFmt = fmt;
 	if( with_reference ){
 		fRetType = kDatimeRef;
@@ -171,13 +171,13 @@ Int_t KVLVColumnData::Compare(TObject* ob1, TObject* ob2)
 	//  for floats:    return 1 if ob1->data < ob2->data etc.
 	//  for strings:   alphabetical sorting using TString::CompareTo
 	//  for dates:     chronological order (earliest first)
-	
+
 	switch(fRetType){
-		
+
 		case TMethodCall::kString :
 			return Compare_string(ob1,ob2);
 			break;
-			
+
 		case TMethodCall::kLong :
 	   	return Compare_long(ob1,ob2);
 			break;
@@ -185,12 +185,12 @@ Int_t KVLVColumnData::Compare(TObject* ob1, TObject* ob2)
 		case TMethodCall::kDouble :
 	   	return Compare_double(ob1,ob2);
 			break;
-			
+
 		case kDatimeRef:
 		case kDatimeInt:
 			return Compare_date(ob1,ob2);
 			break;
-			
+
 		default:
 			cout << "Error in <KVLVColumnData::Compare> : this type is not supported "
 	   		<< fMethCall->ReturnType() << endl;
@@ -240,7 +240,7 @@ void KVLVContainer::default_init()
 	if(fListView) Associate(fListView);
 	fContextMenu = new TContextMenu("KVListViewContextMenu");
 	Connect("Clicked(TGFrame*,Int_t,Int_t,Int_t)",
-			"KVLVContainer", this, "OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t)"); 
+			"KVLVContainer", this, "OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t)");
 	Connect("DoubleClicked(TGFrame*,Int_t,Int_t,Int_t)",
 			"KVLVContainer", this, "HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t)");
 	fUserItems = new TList;
@@ -274,7 +274,7 @@ void KVLVContainer::DeleteColData()
 void KVLVContainer::Sort(int column)
 {
    // Sort objects in container according to contents of given column.
-	
+
    fSortData = fColData[column];
 	fSortType = fSortDir[column];
 	fSort = kTRUE;
@@ -285,7 +285,7 @@ void KVLVContainer::Sort(int column)
 
    TGCanvas *canvas = (TGCanvas *) this->GetParent()->GetParent();
    canvas->Layout();
-	
+
 	fSort = kFALSE;
 }
 
@@ -310,7 +310,7 @@ void KVLVContainer::AddFrame(TGFrame *f, TGLayoutHints *l)
 void KVLVContainer::Display(const TList* list_of_objects)
 {
    // Display the list of objects in the container.
-	
+
    RemoveAll();
    FillList(list_of_objects);
 	if(!fIsResized){
@@ -329,7 +329,7 @@ void KVLVContainer::Refresh()
 {
    // Redisplay the list of objects in the container.
    // This can be used to refresh the contents of the window.
-	
+
 	Display();
 }
 
@@ -339,17 +339,17 @@ void KVLVContainer::FillList(const TList* l)
 {
 	// Fill list from list
 	// Pointers to objects are stored in internal list fUserItems for Refresh()
-	
+
 	if(l) fUserItems->Clear();
 
 	if(l && !l->GetSize()) return;
-	
+
 	TList* theList = (TList*)(l ? l : fUserItems);
 	TIter nxt(theList);
 	TObject* obj = 0;
 	while( (obj = nxt()) ){
 		if(l) fUserItems->Add(obj);
-		KVLVEntry* ent = 
+		KVLVEntry* ent =
 				new KVLVEntry(obj, this, fNcols, fColData);
 		AddItem( ent );
 	}
@@ -529,7 +529,7 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
 	// Open context menu when user right-clicks an object in the list.
 	// In case the selected action modifies the object's properties,
 	// we refresh the display
-	
+
 	if(but == kButton3){
 		TGLVEntry *el = (TGLVEntry*)f;
 		TObject *ob = (TObject*)el->GetUserData();
@@ -547,7 +547,7 @@ void KVLVContainer::HandleDoubleClick(TGFrame* f,Int_t but,Int_t x,Int_t y)
 	// Perform 'default' action when user double-left-clicks an object in the list.
 	// This calls the Browse(TBrowser*) method of the object (defined for TObject,
 	// overridden in child classes).
-	
+
 	if(but == kButton1){
 		TGLVEntry *el = (TGLVEntry*)f;
 		TObject *ob = (TObject*)el->GetUserData();
@@ -557,11 +557,43 @@ void KVLVContainer::HandleDoubleClick(TGFrame* f,Int_t but,Int_t x,Int_t y)
 
 //______________________________________________________________________________
 
+TObject* KVLVContainer::GetFirstInList()
+{
+    // Returns first object in currently displayed list
+
+    TGFrameElement* f = (TGFrameElement*)fList->First();
+    if(f){
+        KVLVEntry* l = (KVLVEntry*)f->fFrame;
+        if(l){
+            return (TObject*)l->GetUserData();
+        }
+    }
+    return 0;
+}
+
+//______________________________________________________________________________
+
+TObject* KVLVContainer::GetLastInList()
+{
+    // Returns last object in currently displayed list
+
+    TGFrameElement* f = (TGFrameElement*)fList->Last();
+    if(f){
+        KVLVEntry* l = (KVLVEntry*)f->fFrame;
+        if(l){
+            return (TObject*)l->GetUserData();
+        }
+    }
+    return 0;
+}
+
+//______________________________________________________________________________
+
 TList* KVLVContainer::GetSelectedItems()
 {
 	// Create and fill list with all currently selected items (KVLVEntry objects)
 	// USER MUST DELETE TLIST AFTER USE!!!
-	
+
    TGFrameElement *el;
    TIter next(fList);
    TList *ret = new TList();
@@ -581,7 +613,7 @@ TList* KVLVContainer::GetSelectedObjects()
 {
 	// Create and fill list with all currently selected objects (derived from TObject)
 	// USER MUST DELETE TLIST AFTER USE!!!
-	
+
    TGFrameElement *el;
    TIter next(fList);
    TList *ret = new TList();

@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.h,v 1.3 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVLVContainer.h,v 1.4 2009/03/12 10:50:06 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/12 10:50:06 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -19,11 +19,11 @@ $Date: 2009/03/03 14:27:15 $
 #include "KVDatime.h"
 #include "TContextMenu.h"
 
-class KVLVColumnData 
+class KVLVColumnData
 {
 	// Utility class describing the data used to fill each
 	// column of the list view container
-			
+
 	TString			fName; 		// name used on button at top of column
 	TString			fMethod; 	// method used to retrieve data from objects
 	TMethodCall 	*fMethCall; // method call object
@@ -32,7 +32,7 @@ class KVLVColumnData
 	Bool_t			fDate;		// kTRUE if column contains TDatime date & time info
 	KVDatime::EKVDateFormat  fFmt; 		// format for presenting date & time
 	Bool_t			fIsKVDatime;	// kTRUE if date & time is in KVDatime object, TDatime if not
-	
+
 	enum {
 		kDatimeRef = TMethodCall::kNone+1,
 		kDatimeInt
@@ -41,7 +41,7 @@ class KVLVColumnData
 	Int_t Compare_string(TObject* o1, TObject *o2);
 	Int_t Compare_long(TObject* o1, TObject *o2);
 	Int_t Compare_double(TObject* o1, TObject *o2);
-		
+
 	public:
 	KVLVColumnData(TClass* cl, const Char_t* name, const Char_t* method="")
 			: fName(name), fMethod(method), result(""), fDate(kFALSE), fFmt(KVDatime::kCTIME), fIsKVDatime(kFALSE)
@@ -65,7 +65,7 @@ class KVLVColumnData
 	void GetData(TObject*,TString&);
 	void GetData(TObject*,KVDatime&);
 	Int_t Compare(TObject* ob1, TObject* ob2);
-	
+
 	ClassDef(KVLVColumnData,0)//column data handler
 };
 
@@ -74,33 +74,33 @@ class KVLVContainer : public TGLVContainer
 
 	friend class KVLVFrameElement;
 	friend class KVLVEntry;
-	
+
 	Bool_t 		fIsResized;		// used to resize columns exactly once
 	Bool_t 		fSort;
-	
+
 	protected:
-	
+
 	KVLVColumnData 	**fColData;		// description of column data
 	Int_t 				fSortType;		// current sorting mode of contents (ascending or descending)
 	KVLVColumnData		*fSortData;		// name of column (i.e. type of data) currently used to sort objects
 	Int_t 				*fSortDir;		// direction of sorting for each column
 	Int_t 				fNcols;			// number of data columns
-	TContextMenu		*fContextMenu; //! used to display popup context menu for items
+	TContextMenu		*fContextMenu; // used to display popup context menu for items
 	TList 				*fUserItems;	// list of currently displayed items, used by Refresh()
-	
+
 	virtual void FillList(const TList* = 0);
 	void DeleteColData();
 	void default_init();
-	
+
    public:
-			
+
 	KVLVContainer(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1,
                    UInt_t options = kSunkenFrame,
                    Pixel_t back = GetDefaultFrameBackground());
    KVLVContainer(TGCanvas *p, UInt_t options = kSunkenFrame,
                    Pixel_t back = GetDefaultFrameBackground());
    virtual ~KVLVContainer();
-	
+
 				void  	AddFrame 		(TGFrame *f, TGLayoutHints *l=0);
 				void  	Sort				(int column);
 	virtual  void  	Display			(const TList* = 0);
@@ -122,7 +122,7 @@ class KVLVContainer : public TGLVContainer
 
 				void		OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t);
 				void		HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t);
-				
+
 	TObject* GetLastSelectedObject() const
 	{
 		// Returns object corresponding to last clicked item in list
@@ -133,6 +133,8 @@ class KVLVContainer : public TGLVContainer
 		// Returns last clicked item in list
 		return fLastActive;
 	};
+	TObject* GetFirstInList();
+	TObject* GetLastInList();
 	TList* GetSelectedItems();
 	TList* GetSelectedObjects();
 	TList* GetUserItems()
@@ -144,7 +146,7 @@ class KVLVContainer : public TGLVContainer
 	{
 		return fSort;
 	};
-				
+
    ClassDef(KVLVContainer,0)//List view container class
 };
 
