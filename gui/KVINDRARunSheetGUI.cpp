@@ -141,15 +141,15 @@ properties.<!-- */
 KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
             300)
 {
- 
+
    GUIenv=new TEnv(".KVDataBaseGUIrc");
- 
+
    fFirstRun = 0;
    fLastRun = -1;
    fSelectedRun = 0;
    fSelectedEntries = 0;
    fButList = new TList;
-   
+
    //create new manager GUI
 
    //Label with name of run sheet directory
@@ -161,7 +161,7 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
    fHframe->AddFrame(tb,
                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2,
                                        2, 2));
-   
+
    fDirLabel = new TGLabel(fHframe, "./");
    fHframe->AddFrame(fDirLabel,
                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 10,
@@ -173,14 +173,14 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
    fHframe->AddFrame(tb,
                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 2,
                                        2, 2));
-   
+
    fReader.SetFileFormat( GUIenv->GetValue("KVDataBaseGUI.FileFormat", "RUN_%04d.TXT") );
-         
+
    if (strcmp(fReader.GetFileFormat(), "")) {
       fFormLabel = new TGLabel(fHframe, fReader.GetFileFormat());
    } else
       fFormLabel = new TGLabel(fHframe, "************");
-   
+
 //      fFormLabel->SetTextColor( (TColor*)gROOT->GetListOfColors()->FindObject("green") );
    fHframe->AddFrame(fFormLabel,
                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 50,
@@ -221,7 +221,7 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
    gClient->GetColorByName("#00ff00",green);
    gClient->GetColorByName("#00ffff",cyan);
    gClient->GetColorByName("#ffff00",yellow);
-         
+
    fHframe = new TGHorizontalFrame(this, 10, 10);
    //2 vertical frames for buttons
    TGVerticalFrame *vf = new TGVerticalFrame(fHframe, 10, 10);
@@ -231,20 +231,20 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
    fChangeDataSet->Connect("Clicked()", "KVINDRARunSheetGUI", this,
                     "ChangeDataSet()");
    fButList->Add(fChangeDataSet);
-   
+
    fUpdate = new TGTextButton(fButtonsFrame, "Read runsheets");
    fUpdate->SetToolTipText("Read all runsheets in directory, adding informations to database");
    fUpdate->Connect("Clicked()", "KVINDRARunSheetGUI", this,
                     "UpdateList()");
    fUpdate->ChangeBackground(green);
    fButList->Add(fUpdate);
-   
+
    fSaveDB = new TGTextButton(fButtonsFrame, "Save");
    fSaveDB->
        SetToolTipText("Save all informations in database");
    fSaveDB->Connect("Clicked()", "KVINDRARunSheetGUI", this, "SaveAll()");
    fButList->Add(fSaveDB);
-   
+
    fQuit = new TGTextButton(fButtonsFrame, "Quit");
    fQuit->
        SetToolTipText("Exit the application");
@@ -322,7 +322,7 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
 
    //disable all buttons
    DisableButtons();
-	
+
 	//list view for runs
 	fRunList = new KVListView(KVINDRADBRun::Class(), fHframe, 350, 250);
 	fRunList->SetDataColumns(9);
@@ -338,10 +338,10 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
 	fRunList->SetDataColumn(7, "Comments", "", kTextLeft);
 	fRunList->SetDataColumn(8, "Logbook", "", kTextLeft);
 	fRunList->ActivateSortButtons();
-	
+
    fRunList->Connect("SelectionChanged()", "KVINDRARunSheetGUI", this,
                      "SelectionChanged()");
- 
+
    fHframe->AddFrame(fRunList,
                      new TGLayoutHints(kLHintsLeft | kLHintsTop |
                                        kLHintsExpandX | kLHintsExpandY, 30,
@@ -376,12 +376,12 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
    }
    //initialise list of runs
    UpdateListOfRuns();
-   
+
    //set directory for runsheets
-   fReader.SetRunSheetDir( 
-         GUIenv->GetValue( Form("KVDataBaseGUI.RunSheetDir.%s", gDataSet->GetName()), "./") 
+   fReader.SetRunSheetDir(
+         GUIenv->GetValue( Form("KVDataBaseGUI.RunSheetDir.%s", gDataSet->GetName()), "./")
          );
-   fDirLabel->SetText(fReader.GetRunSheetDir());        
+   fDirLabel->SetText(fReader.GetRunSheetDir());
 }
 
 void KVINDRARunSheetGUI::ChangeDataSet()
@@ -391,10 +391,10 @@ void KVINDRARunSheetGUI::ChangeDataSet()
       GUIenv->SetValue( "KVDataBaseGUI.DataSet", gDataSet->GetName() );
       GUIenv->SaveLevel(kEnvUser);
    //set directory for runsheets
-   fReader.SetRunSheetDir( 
-         GUIenv->GetValue( Form("KVDataBaseGUI.RunSheetDir.%s", gDataSet->GetName()), "./") 
+   fReader.SetRunSheetDir(
+         GUIenv->GetValue( Form("KVDataBaseGUI.RunSheetDir.%s", gDataSet->GetName()), "./")
          );
-   fDirLabel->SetText(fReader.GetRunSheetDir());        
+   fDirLabel->SetText(fReader.GetRunSheetDir());
    //initialise list of runs
    UpdateListOfRuns();
 }
@@ -403,7 +403,7 @@ KVINDRARunSheetGUI::~KVINDRARunSheetGUI()
 {
    //close window
    UnmapWindow();
-   fSelectedEntries = 0;
+   if(fSelectedEntries) delete fSelectedEntries;
    delete fButList;
    fButList = 0;
    if(GUIenv) delete GUIenv;
@@ -463,7 +463,7 @@ void KVINDRARunSheetGUI::SetRunSheetDir()
       dir = fi.fIniDir;
       cout << "directory = " << dir.Data() << endl;
       fReader.SetRunSheetDir(dir.Data());
-      GUIenv->SetValue( 
+      GUIenv->SetValue(
             Form("KVDataBaseGUI.RunSheetDir.%s", gDataSet->GetName()),
             dir.Data() );
       GUIenv->SaveLevel(kEnvUser);
@@ -476,11 +476,22 @@ void KVINDRARunSheetGUI::SetRunSheetDir()
 
 void KVINDRARunSheetGUI::FillListOfRuns()
 {
-   //if gINDRADB exists, we use it to fill the list box with each run in the database
+   // if gINDRADB exists, we use it to fill the list box with each run in the database,
+   // sorted according to increasing run number
 
    if (gIndraDB && gIndraDB->GetRuns() && gIndraDB->GetRuns()->GetSize()) {
 
-		fRunList->Display(gIndraDB->GetRuns());		
+		fRunList->Display(gIndraDB->GetRuns());
+		// sort runs
+		fRunList->Sort(0);
+		fFirstRun = ((KVINDRADBRun*)fRunList->GetFirstInList())->GetNumber();
+		fLastRun = ((KVINDRADBRun*)fRunList->GetLastInList())->GetNumber();
+		if(fFirstRun > fLastRun){
+		    // sorting was in reverse order
+            fRunList->Sort(0);
+            fFirstRun = ((KVINDRADBRun*)fRunList->GetFirstInList())->GetNumber();
+            fLastRun = ((KVINDRADBRun*)fRunList->GetLastInList())->GetNumber();
+		}
    }
 }
 
@@ -527,17 +538,14 @@ void KVINDRARunSheetGUI::SelectionChanged()
 {
    //called any time the selection of runs changes
    //each time, we update:
-   //fSelectedEntries : the list of all selected entries
+   //fSelectedEntries : the list of all selected runs (KVINDRADBRun objects)
    //GetNSelected() : the number of selected entries
    //fSelectedRun : the last selected run (=the only run selected if GetNSelected==1)
    //The buttons' state is modified according to the number of selected runs
 
-	fSelectedEntries = fRunList->GetSelectedItems();
-   fSelectedRun = 0;
-	if( GetNSelected() ) {
-		// approximate "last clicked" object by "last in list" : although this is false !!
-		fSelectedRun = gIndraDB->GetRun(((TObjString*)fSelectedEntries->Last())->String().Atoi());
-	}
+   if(fSelectedEntries) delete fSelectedEntries;
+   fSelectedEntries = fRunList->GetSelectedObjects();
+   fSelectedRun = (KVINDRADBRun*)fRunList->GetLastSelectedObject();
    DisableButtons();
    EnableButtons();
 }
@@ -570,8 +578,8 @@ void KVINDRARunSheetGUI::SetRunComment()
       else if (GetNSelected() > 1) {
          //multiselection
          TIter next(fSelectedEntries);
-			TObjString* s;
-			while( (s = (TObjString*)next()) ) gIndraDB->GetRun(s->String().Atoi())->SetComments(fInputString.Data());
+			KVINDRADBRun* run;
+			while( (run = (KVINDRADBRun*)next()) ) run->SetComments(fInputString.Data());
       }
    }
 }
@@ -590,8 +598,8 @@ void KVINDRARunSheetGUI::SetRunCahier()
       else if (GetNSelected() > 1) {
          //multiselection
          TIter next(fSelectedEntries);
-			TObjString* s;
-			while( (s = (TObjString*)next()) ) gIndraDB->GetRun(s->String().Atoi())->SetCahier(fInputString.Data());
+			KVINDRADBRun* run;
+			while( (run = (KVINDRADBRun*)next()) ) run->SetCahier(fInputString.Data());
       }
    }
 }
@@ -612,8 +620,8 @@ void KVINDRARunSheetGUI::SetRunTrigger()
       else if (GetNSelected() > 1) {
          //multiselection
          TIter next(fSelectedEntries);
-			TObjString* s;
-			while( (s = (TObjString*)next()) ) gIndraDB->GetRun(s->String().Atoi())->SetTrigger(trig);
+         KVINDRADBRun* run;
+			while( (run = (KVINDRADBRun*)next()) ) run->SetTrigger(trig);
       }
    }
 }
@@ -657,8 +665,8 @@ void KVINDRARunSheetGUI::SetSystem()
    else if (GetNSelected() > 1) {
       //multiselection
       TIter next(fSelectedEntries);
-			TObjString* s;
-			while( (s = (TObjString*)next()) ) runlist.Add( s->String().Atoi() );
+			KVINDRADBRun* run;
+			while( (run = (KVINDRADBRun*)next()) ) runlist.Add( run->GetNumber() );
    }
    new KVDBSystemDialog(gClient->GetRoot(), this, run_system, runlist,10, 10);
 }
@@ -676,10 +684,9 @@ void KVINDRARunSheetGUI::UnsetSystem()
    else if (GetNSelected() > 1) {
       //multiselection
       TIter next(fSelectedEntries);
-		TObjString* s;
-		while( (s = (TObjString*)next()) ) {
-         KVINDRADBRun *run =gIndraDB->GetRun(s->String().Atoi());
-         if (run && run->GetSystem()){
+		KVINDRADBRun* run;
+		while( (run = (KVINDRADBRun*)next()) ) {
+         if (run->GetSystem()){
             cout << "Unsetting system (" << run->GetSystem()->GetName() << " for run " << run->GetNumber() << endl;
             run->UnsetSystem();
          }
