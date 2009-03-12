@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAUpDater_e475s.cpp,v 1.3 2007/11/21 11:22:59 franklan Exp $
-$Revision: 1.3 $
-$Date: 2007/11/21 11:22:59 $
+$Id: KVINDRAUpDater_e475s.cpp,v 1.4 2009/03/12 14:15:09 ebonnet Exp $
+$Revision: 1.4 $
+$Date: 2009/03/12 14:15:09 $
 */
 
 //Created by KVClassFactory on Tue Sep 18 12:14:51 2007
@@ -62,15 +62,15 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 		if (gIndra->GetDetector(str.Data())){
 		   kvc = gIndra->GetDetector(str.Data())->GetCalibrator(kvps->GetTitle());
          if (!kvc) {
-            if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s")) {
+				if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s")) {
 					((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
             	kvc = ((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
-					kvc->SetStatus(kTRUE); 
+					if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
          	}
 				else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s")){
 					((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
 					kvc = ((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
-					kvc->SetStatus(kTRUE); 
+					if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
 				}
 				else {
 					Warning("SetCalibParameters(KVDBRun*)",
@@ -79,10 +79,13 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 				}
 			}
 			else {
-				 if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s"))
-				 	((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->ChangeCalibParameters(kvps);	
-				 if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s"))
-					((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->ChangeCalibParameters(kvps);	
+				 if (kvps->GetParameter(1)>0) {
+				 	kvc->SetStatus(kTRUE); 
+				 	if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s"))
+				 		((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->ChangeCalibParameters(kvps);	
+				 	if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s"))
+						((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->ChangeCalibParameters(kvps);	
+				}
 			}
 		}                         //detector found
    }                            //boucle sur les parameters
