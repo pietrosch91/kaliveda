@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDZALine.cpp,v 1.6 2009/03/13 13:04:11 franklan Exp $
+$Id: KVIDZALine.cpp,v 1.7 2009/03/13 15:30:45 franklan Exp $
                           KVIDZALine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -159,11 +159,8 @@ void KVIDZALine::Streamer(TBuffer &R__b)
    if (R__b.IsReading()) {
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
 		if (R__v < 2){
-      	//KVIDZLine::Streamer(R__b);
 			R__b.ReadVersion(&R__s, &R__c);// read version of KVIDZLine
       	KVIDLine::Streamer(R__b);
-      	//R__b.ReadVersion(&R__s, &R__c);// read version of KVIDLine
-			//TGraph::Streamer(R__b);
 			UShort_t z;
       	R__b >> z;
       	R__b >> fWidth;
@@ -204,8 +201,6 @@ void KVIDZLine::Streamer(TBuffer &R__b)
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
 		if (R__v!=2) { Warning("Streamer", "Reading KVIDZLine with version=%d", R__v); }
       KVIDLine::Streamer(R__b);
-      //R__b.ReadVersion(&R__s, &R__c);// read version of KVIDLine
-		//TGraph::Streamer(R__b);
 		UShort_t z;
       R__b >> z;
       R__b >> fWidth;
