@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.82 2009/03/12 13:59:40 franklan Exp $
-#$Revision: 1.82 $
+#$Id: KaliVeda.rootrc,v 1.83 2009/03/13 15:38:21 franklan Exp $
+#$Revision: 1.83 $
 #$Author: franklan $
-#$Date: 2009/03/12 13:59:40 $
+#$Date: 2009/03/13 15:38:21 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -306,7 +306,7 @@ Linux.BatchSystem.DefaultJobOptions:   -b -n &> #JobName#.log &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 #+BatchSystem:     BQS
 #BQS.BatchSystem.Title:   Use CCIN2P3 BQS batch system
-#BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_xrootd -V -N #JobName#
+#BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_hpss_indra,u_xrootd -V -N #JobName#
 #BQS.BatchSystem.JobSubCmd:   qsub
 #BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
 #BQS.BatchSystem.DefaultJobTime:   4000
@@ -750,6 +750,3 @@ KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
 KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVINDRADBRun
 KaliVeda.GUI.MimeTypes.KVINDRADBRun.Icon:   tree_t.xpm
-
-# Mime-types for KVIDGridManagerGUI
-# These define the icons associated with different grids displayed in the KVListView list of grids.
