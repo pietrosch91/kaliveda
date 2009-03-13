@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.cpp,v 1.54 2009/03/03 14:27:15 franklan Exp $
+$Id: KVIDGrid.cpp,v 1.55 2009/03/13 15:31:10 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -309,4 +309,50 @@ void KVIDGrid::FitPanel()
 	TContextMenu * cm = new TContextMenu("KVIDGrid::FitPanel", "Context menu for KVIDGrid::FitPanel");
 	cm->Action(fitter,m);
 	delete cm;
+}
+
+//___________________________________________________________________________________
+
+void KVIDGrid::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDGrid.
+	// 
+   // For backwards compatibility, we transform the fParameters KVList of parameters
+   // that was used in versions < 4 into the new KVGenParList format
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v <5){
+			KVList *fParameters = 0;
+			KVBase base_obj;
+			base_obj.Streamer(R__b);
+			SetName(base_obj.GetName());
+			SetTitle(base_obj.GetName());
+      	TAttLine::Streamer(R__b);
+			TQObjSender monQObject;
+      	monQObject.Streamer(R__b);
+      	fIdentifiers->Streamer(R__b);
+      	fCuts->Streamer(R__b);
+      	R__b >> fXmin;
+      	R__b >> fYmin;
+      	R__b >> fParameters;
+      	fPar->Streamer(R__b);			
+      	if(fParameters){
+         	//translate old parameter list
+         	TIter next_param(fParameters);
+         	KVParameter < Double_t > *par = 0;
+         	while ((par = (KVParameter < Double_t > *)next_param())) {
+            	fPar->SetValue( par->GetName(), par->GetVal() );
+         	}
+         	delete fParameters; fParameters = 0;
+      	}
+		}
+		else
+		{
+			KVIDGrid::Class()->ReadBuffer(R__b,this);
+		}
+   } else {
+      KVIDGrid::Class()->WriteBuffer(R__b,this);
+   }
 }

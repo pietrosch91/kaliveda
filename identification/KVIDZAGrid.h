@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.h,v 1.12 2009/03/03 14:27:15 franklan Exp $
+$Id: KVIDZAGrid.h,v 1.13 2009/03/13 15:31:10 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDZAGrid_H
@@ -140,4 +140,12 @@ class KVIDZAGrid:public KVIDGrid {
     ClassDef(KVIDZAGrid, 2)     //Base class for 2D Z & A identification grids
 };
 
+class KVIDZGrid : public KVIDZAGrid
+{
+	public:
+	KVIDZGrid(){};
+	virtual ~KVIDZGrid(){};
+	
+	ClassDef(KVIDZGrid,2)//FOR BACKWARDS COMPATIBILITY ONLY. OBSOLETE.
+};
 #endif

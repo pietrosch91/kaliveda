@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.13 2009/03/03 14:27:15 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.14 2009/03/13 15:31:10 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -1214,3 +1214,53 @@ void KVIDZAGrid::Initialize()
 	else 				fZMax=0;			// protection au cas ou il n y a aucune ligne de Z
 }
 
+
+//______________________________________________________________________________
+
+void KVIDZAGrid::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDZAGrid.
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v < 2) {
+      	R__v = R__b.ReadVersion(&R__s, &R__c);// read version of KVIDZGrid
+			if (R__v != 1){
+				Warning("Streamer", "Reading KVIDZGrid with version=%d", R__v);
+			}
+      	KVIDGrid::Streamer(R__b);
+      	R__b >> fZMax;			
+		}
+		else
+		{
+      	R__b.ReadClassBuffer(KVIDZAGrid::Class(),this);
+		}
+   } else {
+      R__b.WriteClassBuffer(KVIDZAGrid::Class(),this);
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+ClassImp(KVIDZGrid)
+		
+//////////////////////////////////////////////////
+// This class is for backwards compatibility only
+// and must not be used.
+//////////////////////////////////////////////////
+
+void KVIDZGrid::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDZGrid.
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v != 1){
+			Warning("Streamer", "Reading KVIDZGrid with version=%d", R__v);
+		}
+      KVIDGrid::Streamer(R__b);
+      R__b >> fZMax;
+   }
+}

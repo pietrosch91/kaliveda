@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.133 2009/03/13 13:04:11 franklan Exp $
+$Id: KVMultiDetLinkDef.h,v 1.134 2009/03/13 15:31:10 franklan Exp $
                               KVMultiDetLinkDef.h
                                description
                              -------------------
@@ -104,9 +104,10 @@ $Id: KVMultiDetLinkDef.h,v 1.133 2009/03/13 13:04:11 franklan Exp $
 #pragma link C++ class KVIDZALine-;
 #pragma link C++ class KVIDZLine-;
 #pragma link C++ class KVIDMap+;
-#pragma link C++ class KVIDGrid+;
+#pragma link C++ class KVIDGrid-;
 #pragma link C++ class KVIDGridManager;
-#pragma link C++ class KVIDZAGrid+;
+#pragma link C++ class KVIDZAGrid-;
+#pragma link C++ class KVIDZGrid-;
 #pragma link C++ class KVIDTelescope-;
 #pragma link C++ class KVIDSubCodeManager+;
 #pragma link C++ class KVVirtualIDFitter+;
