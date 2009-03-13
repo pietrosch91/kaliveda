@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDLine.cpp,v 1.20 2009/03/03 14:27:15 franklan Exp $
+$Id: KVIDLine.cpp,v 1.21 2009/03/13 13:04:11 franklan Exp $
                           KVIDLine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -487,3 +487,23 @@ void KVIDLine::ExecuteEvent(Int_t event, Int_t px, Int_t py)
 
 }
 
+
+void KVIDLine::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDLine
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v < 2){
+			TGraph::Streamer(R__b);
+		}
+		else
+		{
+      	R__b.ReadClassBuffer(KVIDLine::Class(),this);
+		}
+	}
+	else {
+      R__b.WriteClassBuffer(KVIDLine::Class(),this);
+	}
+}

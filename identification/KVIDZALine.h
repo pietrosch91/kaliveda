@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZALine.h,v 1.5 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDZALine.h,v 1.6 2009/03/13 13:04:11 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDZALine_H
@@ -78,5 +78,15 @@ inline Int_t KVIDZALine::Compare(const TObject * obj) const
       return -1;
    return 0;
 }
+
+class KVIDZLine : public KVIDZALine
+{
+	
+	public:
+	KVIDZLine();
+	virtual ~KVIDZLine(){};
+	
+	ClassDef(KVIDZLine,3)//FOR BACKWARDS COMPATIBILITY ONLY. OBSOLETE.
+};
 
 #endif

@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDZALine.cpp,v 1.5 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDZALine.cpp,v 1.6 2009/03/13 13:04:11 franklan Exp $
                           KVIDZALine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -148,4 +148,67 @@ void KVIDZALine::SetAsymWidth(Double_t d_l, Double_t d_r)
    //For ordinary Z/(Z,A) lines in a dE-E grid, this is just the minimum of
    //the two asymptotic distances.
    SetWidth( TMath::Min( d_l, d_r ) );
+}
+
+//______________________________________________________________________________
+void KVIDZALine::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDZALine.
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v < 2){
+      	//KVIDZLine::Streamer(R__b);
+			R__b.ReadVersion(&R__s, &R__c);// read version of KVIDZLine
+      	KVIDLine::Streamer(R__b);
+      	//R__b.ReadVersion(&R__s, &R__c);// read version of KVIDLine
+			//TGraph::Streamer(R__b);
+			UShort_t z;
+      	R__b >> z;
+      	R__b >> fWidth;
+			SetZ(z);
+			UShort_t a;
+      	R__b >> a;
+			SetA(a);
+		}
+		else
+		{
+      	R__b.ReadClassBuffer(KVIDZALine::Class(),this);
+		}
+   } else {
+      R__b.WriteClassBuffer(KVIDZALine::Class(),this);
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+ClassImp(KVIDZLine)
+		
+//////////////////////////////////////////////////
+// This class is for backwards compatibility only
+// and must not be used.
+//////////////////////////////////////////////////
+
+KVIDZLine::KVIDZLine()
+{
+	// This class is for backwards compatibility only
+}
+
+void KVIDZLine::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDZLine
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v!=2) { Warning("Streamer", "Reading KVIDZLine with version=%d", R__v); }
+      KVIDLine::Streamer(R__b);
+      //R__b.ReadVersion(&R__s, &R__c);// read version of KVIDLine
+		//TGraph::Streamer(R__b);
+		UShort_t z;
+      R__b >> z;
+      R__b >> fWidth;
+		SetZ(z);
+   }
 }
