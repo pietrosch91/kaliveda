@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.cpp,v 1.56 2009/03/13 16:51:08 ebonnet Exp $
+$Id: KVIDGrid.cpp,v 1.57 2009/03/13 16:58:47 ebonnet Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -36,6 +36,7 @@ $Id: KVIDGrid.cpp,v 1.56 2009/03/13 16:51:08 ebonnet Exp $
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
 #include "KVTGIDFitter.h"
+#include "KVSilicon.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //KVIDGrid
