@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGChIoSi.cpp,v 1.32 2009/03/03 13:36:00 franklan Exp $
-$Revision: 1.32 $
-$Date: 2009/03/03 13:36:00 $
+$Id: KVIDGChIoSi.cpp,v 1.33 2009/03/13 15:31:10 franklan Exp $
+$Revision: 1.33 $
+$Date: 2009/03/13 15:31:10 $
 $Author: franklan $
 */
 
@@ -371,3 +371,39 @@ void KVIDGChIoSi::BackwardsCompatibilityFix()
 	SetVarX("SI-E/PG/GG");
 	SetOnlyZId();
 }
+
+//______________________________________________________________________________
+
+void KVIDGChIoSi::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVIDGChIoSi.
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+		if (R__v < 6) {
+      	R__v = R__b.ReadVersion(&R__s, &R__c);// read version of KVIDZGrid
+			if (R__v != 1){
+				Warning("Streamer", "Reading KVIDZGrid with version=%d", R__v);
+			}
+      	KVIDGrid::Streamer(R__b);
+      	R__b >> fZMax;
+      	KVINDRARRMValidator rrm;
+			rrm.Streamer(R__b);
+      	fPattern.Streamer(R__b);
+      	R__b >> fBragg;
+      	R__b >> fPunch;
+      	R__b >> fSeuil;
+      	R__b >> fEmaxSi;
+			Bool_t fIgnorePunchThrough;
+      	R__b >> fIgnorePunchThrough;
+		}
+		else
+		{
+      	KVIDGChIoSi::Class()->ReadBuffer(R__b,this);
+		}
+   } else {
+      KVIDGChIoSi::Class()->WriteBuffer(R__b,this);
+   }
+}
+

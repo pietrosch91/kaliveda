@@ -1,11 +1,11 @@
 /***************************************************************************
-$Id: KVIndraLinkDef.h,v 1.92 2009/01/23 08:33:36 ebonnet Exp $
+$Id: KVIndraLinkDef.h,v 1.93 2009/03/13 15:31:10 franklan Exp $
                               kaliveda5LinkDef.h
                                description
                              -------------------
                        Auteur   :  Alexis Mignon + J.D. Frankland
                        email    :  mignon@ganil.fr
-                       Cr� le  :  21/05/2002
+                       Cree le  :  21/05/2002
  ***************************************************************************/
 
 #ifdef __CINT__
@@ -95,7 +95,7 @@ $Id: KVIndraLinkDef.h,v 1.92 2009/01/23 08:33:36 ebonnet Exp $
 #pragma link C++ class KVIDChIoCsI+;
 #pragma link C++ class KVIDCsIRLLine+;
 #pragma link C++ class KVIDGCsI+;
-#pragma link C++ class KVIDGChIoSi+;
+#pragma link C++ class KVIDGChIoSi-;
 #pragma link C++ class KVNewGridRRMDialog;
 #pragma link C++ class KVSelector+;
 #pragma link C++ class KVFortranAnalysis+;
