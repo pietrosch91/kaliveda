@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.cpp,v 1.4 2009/03/17 09:37:51 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/17 09:37:51 $
+$Id: KVIDGraph.cpp,v 1.5 2009/03/17 14:16:04 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/17 14:16:04 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -69,6 +69,7 @@ void KVIDGraph::init()
    fOnlyZId = kFALSE;
 	fPad = 0;
 	SetName("");
+	SetEditable(kFALSE);
 	if(gIDGridManager) gIDGridManager->AddGrid(this);
 }
 
