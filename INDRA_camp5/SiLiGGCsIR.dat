@@ -3,10 +3,11 @@
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=10
-<PARAMETER> Ring max=10
-<PARAMETER> Mod min=2
-<PARAMETER> Mod max=2
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1002
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -58,10 +59,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=11
-<PARAMETER> Ring max=11
-<PARAMETER> Mod min=2
-<PARAMETER> Mod max=2
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1102
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -114,10 +116,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=12
-<PARAMETER> Ring max=12
-<PARAMETER> Mod min=2
-<PARAMETER> Mod max=2
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1202
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -168,10 +171,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=13
-<PARAMETER> Ring max=13
-<PARAMETER> Mod min=4
-<PARAMETER> Mod max=4
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1304
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -214,10 +218,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=14
-<PARAMETER> Ring max=14
-<PARAMETER> Mod min=3
-<PARAMETER> Mod max=3
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1403
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -266,10 +271,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=15
-<PARAMETER> Ring max=15
-<PARAMETER> Mod min=3
-<PARAMETER> Mod max=3
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1503
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -315,10 +321,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=16
-<PARAMETER> Ring max=16
-<PARAMETER> Mod min=2
-<PARAMETER> Mod max=2
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1602
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
@@ -363,10 +370,11 @@ ID:Z=1 A=3
 # This file can be read using KVIDZAGrid::ReadAsciiFile
 # 
 ++KVIDZAGrid
-<PARAMETER> Ring min=17
-<PARAMETER> Ring max=17
-<PARAMETER> Mod min=2
-<PARAMETER> Mod max=2
+<VARX> CSI_R
+<VARY> SILI_GG
+<PARAMETER> IDTelescopes=SILI_CSI_1702
+<PARAMETER> Grid Type=GG
+<PARAMETER> Runlist=6000-8900
 +KVIDZALine
 ID:Z=1 A=1
 1	1
