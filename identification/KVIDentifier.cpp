@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.cpp,v 1.3 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVIDentifier.cpp,v 1.4 2009/03/17 14:16:47 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/17 14:16:47 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -270,7 +270,7 @@ void KVIDentifier::WaitForPrimitive()
 	
 //_____________________________________________________________________________________________
 
-void KVIDentifier::ExtendLine(Option_t* Direction, Double_t Limit)
+void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
 {
 	// Right-clicking an identifier and selecting this method from the context
 	// menu allows to add a straight-line segment at the end or the beginning

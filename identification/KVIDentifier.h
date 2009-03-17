@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.h,v 1.4 2009/03/11 14:20:49 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/11 14:20:49 $
+$Id: KVIDentifier.h,v 1.5 2009/03/17 14:16:47 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/17 14:16:47 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -82,7 +82,7 @@ class KVIDentifier : public TCutG
 	
 	virtual void WaitForPrimitive();
 	
-	virtual void ExtendLine(Option_t*,Double_t);  // *MENU*
+	virtual void ExtendLine(Double_t, Option_t* Direction="HORI");  // *MENU*
 	
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TGraph.h, to stop these methods appearing in the ID line context menus
@@ -110,6 +110,9 @@ class KVIDentifier : public TCutG
    virtual void        SetLineAttributes() {TGraph::SetLineAttributes();};
    virtual void        SetFillAttributes() {TGraph::SetFillAttributes();};
    virtual void        SetMarkerAttributes(){TGraph::SetMarkerAttributes();};
+	
+	virtual Int_t         InsertPoint(){ if(GetEditable()){ return TCutG::InsertPoint(); } else {return -2;} }; // *MENU*
+	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU*
 	
    ClassDef(KVIDentifier,1)//Base class for graphical cuts used in particle identification
 };
