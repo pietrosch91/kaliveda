@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.cpp,v 1.3 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVIDGraph.cpp,v 1.4 2009/03/17 09:37:51 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/17 09:37:51 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -1289,4 +1289,18 @@ void KVIDGraph::TestGrid()
 {
    //test the identification with this grid
    new KVTestIDGridDialog(gClient->GetRoot(), gClient->GetRoot(), 10, 10, this);
+}
+
+//___________________________________________________________________________________
+
+void KVIDGraph::SetEditable(Bool_t editable)
+{
+	// Toggles 'editable' status of all lines/contours in graph
+	TCutG::SetEditable(editable);
+   if (GetNumberOfIdentifiers() > 0) {
+      fIdentifiers->R__FOR_EACH(KVIDentifier, SetEditable) (editable);
+	}
+   if (GetNumberOfCuts() > 0) {
+      fCuts->R__FOR_EACH(KVIDentifier, SetEditable) (editable);
+	}	
 }

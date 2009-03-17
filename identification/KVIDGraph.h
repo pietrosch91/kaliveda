@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.h,v 1.3 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVIDGraph.h,v 1.4 2009/03/17 09:37:51 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/17 09:37:51 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -104,6 +104,7 @@ class KVIDGraph : public TCutG
    void SetYScaleFactor(Double_t = 0);//  *MENU={Hierarchy="Scale.../Y Scale Factor"}*
 	virtual void NewCut();// *MENU={Hierarchy="AddLine.../NewCut"}*
 	virtual void NewIdentifier();// *MENU={Hierarchy="AddLine.../NewIdentifier"}*
+   virtual void          SetEditable(Bool_t editable=kTRUE); // *TOGGLE* *GETTER=GetEditable
 	
    void Draw(Option_t * opt = ""); //  *MENU={Hierarchy="View.../Draw"}*
    void UnDraw(); //  *MENU={Hierarchy="View.../UnDraw"}*
