@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.14 2009/03/13 15:31:10 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.15 2009/03/17 14:15:40 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -344,8 +344,8 @@ void KVIDZAGrid::CalculateLineWidths()
             Warning("CalculateLineWidths",
                     "Cannot get positive asymptotic distance between starting points of the following two lines, in grid %s.\n Will set D_L to zero.",
                     GetName());
-            _line->Print();
-            _otherline->Print();
+            cout << "LINE 1: " << _line->GetName() << endl;
+            cout << "LINE 2: " << _otherline->GetName() << endl;
             D_L = 0.;
          }
       }
@@ -385,8 +385,8 @@ void KVIDZAGrid::CalculateLineWidths()
             Warning("CalculateLineWidths",
                     "Cannot get positive asymptotic distance between end points of the following two lines, in grid %s.\n Will set D_R to zero.",
                     GetName());
-            _line->Print();
-            _otherline->Print();
+            cout << "LINE 1: " << _line->GetName() << endl;
+            cout << "LINE 2: " << _otherline->GetName() << endl;
             D_R = 0.;
          }
       }
