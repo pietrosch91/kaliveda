@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.cpp,v 1.3 2009/03/03 13:36:00 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 13:36:00 $
+$Id: KVIDSi75SiLi_camp5.cpp,v 1.4 2009/03/17 08:52:27 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/17 08:52:27 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -115,7 +115,7 @@ Bool_t KVIDSi75SiLi_camp5::SetIdentificationParameters(const KVMultiDetArray* MD
 
 //___________________________________________________________________________________________//
 
-Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGrid *grid)
+Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGraph *grid)
 {
    // Called by KVIDGridManager::FindGrid in order to set grids for telescope.
    // We check ring & module number, "ID Type" (='SI75-SILI'), and run number.
@@ -132,9 +132,7 @@ Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGrid *grid)
    //get run number from INDRA, if it exists (should do!), otherwise accept
    if (gIndra) {
       Int_t run = gIndra->GetCurrentRunNumber();
-      if (grid->GetParameters()->GetIntValue("First run") > run
-          || grid->GetParameters()->GetIntValue("Last run") < run)
-         return kFALSE;
+      if (!grid->GetRuns().Contains(run)) return kFALSE;
    }
    
    //the grid is accepted

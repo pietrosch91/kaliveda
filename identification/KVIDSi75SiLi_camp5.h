@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.h,v 1.3 2009/03/03 13:36:00 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/03/03 13:36:00 $
+$Id: KVIDSi75SiLi_camp5.h,v 1.4 2009/03/17 08:52:27 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/03/17 08:52:27 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -25,7 +25,7 @@ class KVIDSi75SiLi_camp5 : public KVIDSi75SiLi
    virtual ~KVIDSi75SiLi_camp5();
 
    virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
-   virtual Bool_t SetIDGrid(KVIDGrid *);
+   virtual Bool_t SetIDGrid(KVIDGraph *);
 
    virtual void Initialize(void);
    Bool_t Identify(KVReconstructedNucleus * nuc);
