@@ -35,7 +35,7 @@ class KVIDCsI:public KVIDTelescope {
    virtual Bool_t Identify(KVReconstructedNucleus *);
 //   virtual void Calibrate(KVReconstructedNucleus *);
 
-   Bool_t SetIDGrid(KVIDGrid *);
+   Bool_t SetIDGrid(KVIDGraph *);
 
    Double_t GetIDMapX(Option_t * opt = "");
    Double_t GetIDMapY(Option_t * opt = "");

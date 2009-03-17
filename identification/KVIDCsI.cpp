@@ -152,14 +152,10 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
 
 //____________________________________________________________________________________
 
-Bool_t KVIDCsI::SetIDGrid(KVIDGrid * grid)
+Bool_t KVIDCsI::SetIDGrid(KVIDGraph * grid)
 {
    //Set the identification grid used by this telescope.
-   //We test that the grid inherits from KVIDGCsI
    //Default here is to return kFALSE.
-
-   if (!grid->InheritsFrom("KVIDGCsI"))
-      return kFALSE;
 	
 	if(!grid->HandlesIDTelescope(this))
       return kFALSE;

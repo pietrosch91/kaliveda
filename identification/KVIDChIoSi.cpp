@@ -58,12 +58,9 @@ KVIDChIoSi::~KVIDChIoSi()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi::SetIDGrid(KVIDGrid * grid)
+Bool_t KVIDChIoSi::SetIDGrid(KVIDGraph * grid)
 {
    // Accept this IDgrid if it is valid for this telescope
-
-   if (!grid->InheritsFrom("KVIDGChIoSi"))
-      return kFALSE;
    
 	KVIDGChIoSi *Grid = (KVIDGChIoSi *) grid;
 	
