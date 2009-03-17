@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.h,v 1.48 2009/03/13 16:51:08 ebonnet Exp $
+$Id: KVIDGrid.h,v 1.49 2009/03/17 08:49:08 ebonnet Exp $
 ***************************************************************************/
 
 #ifndef KVIDGrid_H
@@ -46,7 +46,6 @@ class KVIDGrid : public KVIDGraph {
    void Identify(Double_t /*x*/, Double_t /*y*/, KVReconstructedNucleus * /*nuc*/) const
 	{AbstractMethod("Identify");};   
 
-   virtual void SimulateGrid(const Char_t* strz="1-90", Bool_t thickness_factor=1.5, Double_t deltaMasse=0, Bool_t PHD_param=kFALSE, Int_t npoints=20);//  *MENU={Hierarchy="Test.../MakeELossGrid"}*
 	virtual void MakeELossGrid(UInt_t Zmax, Bool_t withPHD=kFALSE,
                                 Double_t ChIo_press=-1, Int_t npoints=20){};
 
