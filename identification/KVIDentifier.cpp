@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.cpp,v 1.4 2009/03/17 14:16:47 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/17 14:16:47 $
+$Id: KVIDentifier.cpp,v 1.5 2009/03/18 08:48:50 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/18 08:48:50 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -278,4 +278,35 @@ void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
 	//
 	//  Direction = "H", "h", "hori", "HORI" etc. - add horizontal segment
 	//  Direction = "v", "V", "vert", "VERT" etc. - add vertical segment
+      
+	// find closest point
+   Int_t px = gPad->GetEventX(); // mouse position
+   Int_t py = gPad->GetEventY(); // mouse position
+   Int_t dpx = px - gPad->XtoAbsPixel(gPad->XtoPad(fX[0])); // first point
+   Int_t dpy = py - gPad->YtoAbsPixel(gPad->XtoPad(fY[0])); // first point
+	Int_t dist_1 = dpx*dpx+dpy*dpy;
+   dpx = px - gPad->XtoAbsPixel(gPad->XtoPad(fX[fNpoints-1])); // last point
+   dpy = py - gPad->YtoAbsPixel(gPad->XtoPad(fY[fNpoints-1])); // last point
+	Int_t dist_N = dpx*dpx+dpy*dpy;
+   Int_t ipoint = (dist_N < dist_1 ? fNpoints-1 : 0);
+		
+	// coordinates of new point
+	TString opt(Direction); opt.ToUpper();
+	Double_t newX = fX[ipoint];
+   Double_t newY = fY[ipoint];
+	if(opt.BeginsWith("H")) newX = Limit;
+	else if(opt.BeginsWith("V")) newY = Limit;
+	
+	// add point
+	Int_t iend = (ipoint>0 ? fNpoints : 0);	
+   Double_t **ps = ExpandAndCopy(fNpoints + 1, iend);
+   CopyAndRelease(ps, ipoint, fNpoints++, ipoint + 1);
+
+   // To avoid redefenitions in descendant classes
+   FillZero(iend, iend + 1);
+
+	if(ipoint>0) ipoint=fNpoints-1;
+   fX[ipoint] = newX;
+   fY[ipoint] = newY;
+   gPad->Modified();
 }
