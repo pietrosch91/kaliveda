@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.cpp,v 1.5 2009/03/18 08:48:50 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/03/18 08:48:50 $
+$Id: KVIDentifier.cpp,v 1.6 2009/03/18 08:52:22 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/03/18 08:52:22 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -279,6 +279,8 @@ void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
 	//  Direction = "H", "h", "hori", "HORI" etc. - add horizontal segment
 	//  Direction = "v", "V", "vert", "VERT" etc. - add vertical segment
       
+	if(!GetEditable()) return;
+	
 	// find closest point
    Int_t px = gPad->GetEventX(); // mouse position
    Int_t py = gPad->GetEventY(); // mouse position
