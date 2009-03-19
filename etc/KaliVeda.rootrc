@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.84 2009/03/17 08:51:57 franklan Exp $
-#$Revision: 1.84 $
+#$Id: KaliVeda.rootrc,v 1.85 2009/03/19 14:26:13 franklan Exp $
+#$Revision: 1.85 $
 #$Author: franklan $
-#$Date: 2009/03/17 08:51:57 $
+#$Date: 2009/03/19 14:26:13 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -197,7 +197,10 @@ Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 # kTRUE if the detector has at least one fired acquisition parameter, of any type), either
 # change the previous value (this will affect ALL datasets), or, to change behaviour for a
 # specific dataset, use a variable such as the following:
-# INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
+INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
+INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
+# (For these two datasets, there are many runs for which no 'marqueuer de temps' is present,
+# due to a bad configuration of the trigger) 
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
