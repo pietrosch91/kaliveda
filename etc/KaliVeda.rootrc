@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.85 2009/03/19 14:26:13 franklan Exp $
-#$Revision: 1.85 $
+#$Id: KaliVeda.rootrc,v 1.86 2009/03/20 14:00:37 franklan Exp $
+#$Revision: 1.86 $
 #$Author: franklan $
-#$Date: 2009/03/19 14:26:13 $
+#$Date: 2009/03/20 14:00:37 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -425,6 +425,7 @@ KVINDRAPulserDataTree.GenePinDir:   gene_pins
 # Dataset-specific parameter files
 INDRA_camp5.INDRADB.Gains:    Gains5.dat
 INDRA_camp5.INDRADB.ElectronicCalibration:    ChVolt5.dat
+INDRA_camp5.INDRADB.ElectronicCalibration.Etalons:   coef_canauxTOmev_etalons_camp5.dat
 INDRA_camp5.INDRADB.Pedestals:      Pedestals5.dat
 INDRA_camp5.INDRADB.CalibCsI.Z=1:       calib_CsI_Z1.dat
 INDRA_camp5.INDRADB.CalibCsI.Z>1:       calib_CsI_Z2.dat
