@@ -1,7 +1,7 @@
 +KVCalibrator
 <LIST> Type=Channel->MeV
 <LIST> Signal=SIPG
-++<LIST> Runs=2 4-68 82-136-164-274 276-295 297-321 330-352
+++<LIST> Runs=2 4-68 82-274 276-295 297-321 330-352
 <LIST> Rings=2
 <LIST> Modules=1
 <PARAMETER> Function=[0]*x:0.144768
