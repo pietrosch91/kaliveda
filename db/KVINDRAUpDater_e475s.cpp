@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAUpDater_e475s.cpp,v 1.4 2009/03/12 14:15:09 ebonnet Exp $
-$Revision: 1.4 $
-$Date: 2009/03/12 14:15:09 $
+$Id: KVINDRAUpDater_e475s.cpp,v 1.5 2009/03/23 11:30:54 ebonnet Exp $
+$Revision: 1.5 $
+$Date: 2009/03/23 11:30:54 $
 */
 
 //Created by KVClassFactory on Tue Sep 18 12:14:51 2007
@@ -60,34 +60,38 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
    while ((kvps = (KVDBParameterSet *) next_ps())) {    // boucle sur les parametres
       str = kvps->GetName();
 		if (gIndra->GetDetector(str.Data())){
-		   kvc = gIndra->GetDetector(str.Data())->GetCalibrator(kvps->GetTitle());
-         if (!kvc) {
-				if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s")) {
-					((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
-            	kvc = ((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
-					if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
-         	}
-				else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s")){
-					((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
-					kvc = ((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
-					if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
-				}
-				else {
-					Warning("SetCalibParameters(KVDBRun*)",
-                    "Calibrator %s %s not found ! ",
-                    kvps->GetName(), kvps->GetTitle());
-				}
+		   
+			if ( kvc = gIndra->GetDetector(str.Data())->GetCalibrator(kvps->GetTitle()) ) {
+				gIndra->GetDetector(str.Data())->RemoveCalibrators();
+				//delete kvc;
+         }
+			/*
+			if ( gIndra->GetDetector(str.Data())->GetListOfCalibrators() ){
+				printf("le detecteur %s a encore une liste de calibrateurs ...\n",str.Data());
+				gIndra->GetDetector(str.Data())->GetListOfCalibrators()->Print();
+			}
+			*/
+			/*
+			if ( gIndra->GetDetector(str.Data())->GetListOfCalibrators() ) {
+				gIndra->GetDetector(str.Data())->RemoveCalibrators();
+			}
+			*/
+			if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s")) {
+				((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
+           	kvc = ((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
+				if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
+         }
+			else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s")){
+				((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
+				kvc = ((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
+				if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
 			}
 			else {
-				 if (kvps->GetParameter(1)>0) {
-				 	kvc->SetStatus(kTRUE); 
-				 	if (gIndra->GetDetector(str.Data())->InheritsFrom("KVSilicon_e475s"))
-				 		((KVSilicon_e475s *)gIndra->GetDetector(str.Data()))->ChangeCalibParameters(kvps);	
-				 	if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s"))
-						((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->ChangeCalibParameters(kvps);	
-				}
+				Warning("SetCalibParameters(KVDBRun*)",
+         		"Calibrator %s %s not found ! ",
+            	kvps->GetName(), kvps->GetTitle());
 			}
-		}                         //detector found
-   }                            //boucle sur les parameters
+		}	                      //detector found
+   }     	                     //boucle sur les parameters
 
 }
