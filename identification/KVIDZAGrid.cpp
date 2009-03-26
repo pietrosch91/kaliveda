@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.15 2009/03/17 14:15:40 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.16 2009/03/26 16:32:24 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -342,8 +342,8 @@ void KVIDZAGrid::CalculateLineWidths()
          //still no good ? then print a warning message
          if (D_L < 0.) {
             Warning("CalculateLineWidths",
-                    "Cannot get positive asymptotic distance between starting points of the following two lines, in grid %s.\n Will set D_L to zero.",
-                    GetName());
+                    "In grid %s (%s vs. %s, runs %s).\nCannot get positive asymptotic distance between starting points of the following two lines.\n Will set D_L to zero.",
+                    GetName(), GetVarY(), GetVarX(), GetRunList());
             cout << "LINE 1: " << _line->GetName() << endl;
             cout << "LINE 2: " << _otherline->GetName() << endl;
             D_L = 0.;
@@ -383,8 +383,8 @@ void KVIDZAGrid::CalculateLineWidths()
          //still no good ? then print a warning message
          if (D_R < 0.) {
             Warning("CalculateLineWidths",
-                    "Cannot get positive asymptotic distance between end points of the following two lines, in grid %s.\n Will set D_R to zero.",
-                    GetName());
+                    "In grid %s (%s vs. %s, runs %s).\nCannot get positive asymptotic distance between end points of the following two lines.\n Will set D_R to zero.",
+                    GetName(), GetVarY(), GetVarX(), GetRunList());
             cout << "LINE 1: " << _line->GetName() << endl;
             cout << "LINE 2: " << _otherline->GetName() << endl;
             D_R = 0.;
