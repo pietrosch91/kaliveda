@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAPulserDataTree.cpp,v 1.5 2009/01/22 15:38:29 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/01/22 15:38:29 $
+$Id: KVINDRAPulserDataTree.cpp,v 1.6 2009/03/26 16:33:01 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/03/26 16:33:01 $
 */
 
 //Created by KVClassFactory on Wed Jan 21 11:56:26 2009
@@ -9,7 +9,6 @@ $Date: 2009/01/22 15:38:29 $
 
 #include "KVINDRAPulserDataTree.h"
 #include "TSystem.h"
-#include "TString.h"
 #include "KVDataSet.h"
 #include "KVINDRA.h"
 
@@ -88,6 +87,8 @@ KVINDRAPulserDataTree::KVINDRAPulserDataTree()
 	fVal = 0;
 	fIndex = 0;
 	fRunlist = 0;
+	fGeneTGZ = kFALSE;
+	fPinTGZ = kFALSE;
 }
 
 KVINDRAPulserDataTree::~KVINDRAPulserDataTree()
@@ -114,6 +115,9 @@ void KVINDRAPulserDataTree::Build()
 	// $KVROOT/KVFiles/name_of_dataset/gene_pins.tgz
 	//
 	// and if found, uncompress them ('tar -zxf').
+	// 	[[ N.B. in this case the extracted directories will be deleted after reading,
+	// 	[[ ensuring that if new archives are supplied,
+	// 	[[ we always use the latest versions of files.
 	//
 	// The default names of these directories are defined in .kvrootrc by:
 	//
@@ -166,6 +170,7 @@ void KVINDRAPulserDataTree::Build()
 	}
 	CreateTree();
 	ReadData();
+	DeleteDirectories();
 }
 	
 void KVINDRAPulserDataTree::CheckDirectories()
@@ -191,11 +196,28 @@ void KVINDRAPulserDataTree::CheckDirectories()
 	//
 	// dataset_name.KVINDRAPulserDataTree.GeneDetDir:   dataset_specific_value
 	
-	fHaveGeneData = CheckDirectory("GeneDetDir");
-	fHavePinData = CheckDirectory("GenePinDir");
+	fHaveGeneData = CheckDirectory("GeneDetDir", fPathGeneDataDir, fGeneTGZ);
+	fHavePinData = CheckDirectory("GenePinDir", fPathPinDataDir, fPinTGZ);
 }
 
-Bool_t KVINDRAPulserDataTree::CheckDirectory(const Char_t* dirvar)
+void KVINDRAPulserDataTree::DeleteDirectories()
+{
+	// Delete from disk either or both of the directories found by CheckDirectories(),
+	// if they were extracted from a '.tgz' archive.
+	// This is so that, if the '.tgz' is updated, the new files will be extracted the
+	// next time that the tree is created.
+	
+	if(fGeneTGZ){
+		if( gSystem->Unlink( fPathGeneDataDir.Data() ) != 0 )
+			Warning("DeleteDirectories", "Cannot remove directory %s from disk. Files will not be updated if new .tgz archive is used.");
+	}
+	if(fPinTGZ){
+		if( gSystem->Unlink( fPathPinDataDir.Data() ) != 0 )
+			Warning("DeleteDirectories", "Cannot remove directory %s from disk. Files will not be updated if new .tgz archive is used.");
+	}
+}
+
+Bool_t KVINDRAPulserDataTree::CheckDirectory(const Char_t* dirvar, KVString &fullpath, Bool_t &archive)
 {
 	// We look for the directory defined by the .kvrootrc environment variable
 	// 
@@ -211,9 +233,13 @@ Bool_t KVINDRAPulserDataTree::CheckDirectory(const Char_t* dirvar)
 	//
 	// $KVROOT/KVFiles/name_of_dataset/[KVINDRAPulserDataTree.[dirvar]].tgz
 	//
-	// and if found, uncompress it (with 'tar -zxf').
+	// and if found, uncompress it (with 'tar -zxf'). In this case, the 'archive'
+	// argument will be set to kTRUE (otherwise, archive=kFALSE).
+	//
+	// Full path to directory returned in 'fullpath'.
 	
-	TString fullpath, search, datasetenv;
+	TString search, datasetenv;
+	archive = kFALSE;
 	datasetenv.Form("KVINDRAPulserDataTree.%s", dirvar);
 	search = gDataSet->GetDataSetEnv(datasetenv.Data(), "");
 	if( search=="" ){
@@ -233,10 +259,14 @@ Bool_t KVINDRAPulserDataTree::CheckDirectory(const Char_t* dirvar)
 			Info("CheckDirectories", "Opening archive file %s", fullpath.Data());
 			if( gSystem->Exec( cmd.Data() ) ){
 				Error("CheckDirectories", "Problem executing %s", cmd.Data());
+				fullpath = "";
 			}
 			else
 			{
 				ok = kTRUE;
+				// strip '.tgz' to leave just full path to directory
+				fullpath.Remove(fullpath.Length()-4);
+				archive = kTRUE;
 			}
 			gSystem->cd( pwd.Data() );
 		}
