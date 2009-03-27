@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAPulserDataTree.h,v 1.4 2009/03/26 16:33:01 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/26 16:33:01 $
+$Id: KVINDRAPulserDataTree.h,v 1.5 2009/03/27 16:42:58 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/27 16:42:58 $
 */
 
 //Created by KVClassFactory on Wed Jan 21 11:56:26 2009
@@ -33,9 +33,10 @@ class KVINDRAPulserDataTree : public KVBase
 	THashTable *fIndex;//!associate name of branch to index in fVal
 	TList* fRunlist;//!list of runs given by database
 
-	Bool_t CheckDirectory(const Char_t*, KVString&);
+	Bool_t CheckDirectory(const Char_t*, KVString&, Bool_t&);
 	void CheckDirectories();
 	void DeleteDirectories();
+	void DeleteDirectory(const Char_t*);
 	void CreateTree();
 	void ReadData();
 	void ReadData(Int_t);

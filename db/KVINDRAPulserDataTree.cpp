@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAPulserDataTree.cpp,v 1.6 2009/03/26 16:33:01 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/03/26 16:33:01 $
+$Id: KVINDRAPulserDataTree.cpp,v 1.7 2009/03/27 16:42:58 franklan Exp $
+$Revision: 1.7 $
+$Date: 2009/03/27 16:42:58 $
 */
 
 //Created by KVClassFactory on Wed Jan 21 11:56:26 2009
@@ -9,6 +9,7 @@ $Date: 2009/03/26 16:33:01 $
 
 #include "KVINDRAPulserDataTree.h"
 #include "TSystem.h"
+#include "TSystemDirectory.h"
 #include "KVDataSet.h"
 #include "KVINDRA.h"
 
@@ -207,14 +208,41 @@ void KVINDRAPulserDataTree::DeleteDirectories()
 	// This is so that, if the '.tgz' is updated, the new files will be extracted the
 	// next time that the tree is created.
 	
-	if(fGeneTGZ){
-		if( gSystem->Unlink( fPathGeneDataDir.Data() ) != 0 )
-			Warning("DeleteDirectories", "Cannot remove directory %s from disk. Files will not be updated if new .tgz archive is used.");
+	if(fGeneTGZ) DeleteDirectory(fPathGeneDataDir.Data());
+	if(fPinTGZ)  DeleteDirectory(fPathPinDataDir.Data());
+}
+
+void KVINDRAPulserDataTree::DeleteDirectory(const Char_t* fpath)
+{
+	// Delete all files in directory 'fpath', then delete the directory itself.
+	// This is to get round the fact that gSystem->Unlink(dirname) does not work if the
+	// directory contains any files.
+	
+	Info("DeleteDirectory","Deleting %s", fpath);
+	TString pwd = gSystem->WorkingDirectory();//keep working directory
+	TSystemDirectory dir("dir",fpath);
+	// get list of files (and directories)
+	TList *files = dir.GetListOfFiles();
+	TIter nxtFile(files);
+	TSystemFile* fil=0;
+	// delete all files (and directories)
+	while((fil=(TSystemFile*)nxtFile())){
+		if(fil->IsDirectory()){
+			// recursively remove subdirectories if necessary
+			if(strcmp(fil->GetName(),"..") && strcmp(fil->GetName(),".")){
+				DeleteDirectory(fil->GetTitle());
+			}
+		}
+		else
+			fil->Delete();
 	}
-	if(fPinTGZ){
-		if( gSystem->Unlink( fPathPinDataDir.Data() ) != 0 )
-			Warning("DeleteDirectories", "Cannot remove directory %s from disk. Files will not be updated if new .tgz archive is used.");
-	}
+	delete files;
+	gSystem->cd(pwd.Data());//change back to working directory after hidden 'cd' in GetListOfFiles
+	// delete directory
+	if(gSystem->Unlink( fpath )==0)
+		Info("DeleteDirectory", "Directory %s deleted", fpath);
+	else
+		Info("DeleteDirectory", "Cannot delete directory %s", fpath);
 }
 
 Bool_t KVINDRAPulserDataTree::CheckDirectory(const Char_t* dirvar, KVString &fullpath, Bool_t &archive)
