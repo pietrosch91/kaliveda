@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.86 2009/03/20 14:00:37 franklan Exp $
-#$Revision: 1.86 $
+#$Id: KaliVeda.rootrc,v 1.87 2009/03/27 15:59:07 franklan Exp $
+#$Revision: 1.87 $
 #$Author: franklan $
-#$Date: 2009/03/20 14:00:37 $
+#$Date: 2009/03/27 15:59:07 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -695,6 +695,7 @@ KVNucleus.DefaultMassFormula:       0
 +Unix.*.Root.Html.SourceDir: :.:$(KVROOT)/src:$(KVROOT)/include
 Root.Html.OutputDir:        $(KVROOT)/KaliVedaDoc
 Root.Html.Author:      //Author:
+Root.Html.Header:      header.html
 Root.Html.LastUpdate:       $Id:
 Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
 +Plugin.TSystem:      ^rfio:    KVRFIOSystem   KVMultiDet    "KVRFIOSystem()"
