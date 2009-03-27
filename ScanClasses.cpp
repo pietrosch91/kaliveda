@@ -1,7 +1,7 @@
 /*
-$Id: ScanClasses.cpp,v 1.5 2009/03/27 15:58:21 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/03/27 15:58:21 $
+$Id: ScanClasses.cpp,v 1.6 2009/03/27 16:43:40 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/03/27 16:43:40 $
 */
 
 //Created by KVClassFactory on Mon Jun 25 18:25:35 2007
@@ -293,7 +293,6 @@ void ScanExamples::FillListOfClasses()
 	TString pwd = gSystem->WorkingDirectory();//keep work dir
    TSystemDirectory ex_dir("ex_dir", "examples");
    TList *file_list = ex_dir.GetListOfFiles();
-	gSystem->cd(pwd.Data());//change back to work dir after implicit 'cd' of GetListOfFiles...
    
    TIter next_file(file_list);
    TNamed* filename;
@@ -324,6 +323,7 @@ void ScanExamples::FillListOfClasses()
    }
    
    delete file_list;
+	gSystem->cd(pwd.Data());//change back to work dir after implicit 'cd' of GetListOfFiles...
 }
 
 void ScanExamples::AnalyseClasses()
