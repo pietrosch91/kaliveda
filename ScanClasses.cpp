@@ -1,7 +1,7 @@
 /*
-$Id: ScanClasses.cpp,v 1.4 2009/01/06 14:45:26 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/01/06 14:45:26 $
+$Id: ScanClasses.cpp,v 1.5 2009/03/27 15:58:21 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/03/27 15:58:21 $
 */
 
 //Created by KVClassFactory on Mon Jun 25 18:25:35 2007
@@ -15,6 +15,7 @@ $Date: 2009/01/06 14:45:26 $
 #include <TObjString.h>
 #include "KVBase.h"
 #include "TSystemDirectory.h"
+#include "TSystem.h"
 
 //ClassImp(ScanClasses)
 
@@ -289,8 +290,10 @@ void ScanExamples::FillListOfClasses()
    //We scan the "examples" directory and compile every class in it
    //We identify the classes from their ".h" file
    
+	TString pwd = gSystem->WorkingDirectory();//keep work dir
    TSystemDirectory ex_dir("ex_dir", "examples");
    TList *file_list = ex_dir.GetListOfFiles();
+	gSystem->cd(pwd.Data());//change back to work dir after implicit 'cd' of GetListOfFiles...
    
    TIter next_file(file_list);
    TNamed* filename;
