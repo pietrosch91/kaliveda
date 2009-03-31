@@ -1,4 +1,4 @@
-# $Id: Makefile.general,v 1.55 2009/03/06 08:59:18 franklan Exp $
+# $Id: Makefile.general,v 1.56 2009/03/31 13:41:03 franklan Exp $
 #	MAKEFILE for KaliVeda shared library libKVMultiDet.so
 #
 # NOTE: You must set the environment variable KVROOT before using
@@ -287,7 +287,7 @@ endif
 # all files in $KVROOT/KVFiles/manip_dir
 copymanipdirs :
 	for manip_dir in $(MANIP_DIRS); do \
-		cp -r $(CP_OPT) $$manip_dir $(KVINSTALLDIR)/KVFiles/ ; \
+		cp -r $(CPOPT) $$manip_dir $(KVINSTALLDIR)/KVFiles/ ; \
 		echo $(KVINSTALLDIR)"/db/"$$manip_dir"/DataBase.root : "`ls $$manip_dir` > $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 		echo "	@echo Database needs update" >> $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 	done
