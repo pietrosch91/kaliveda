@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.16 2009/03/26 16:32:24 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.17 2009/03/31 14:46:00 ebonnet Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -902,7 +902,10 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
 
 void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
 {
-   //Finds Z & 'real Z' for point (x,y) once closest lines to point have been found (see GetNearestIDLine).
+   /*
+	printf("rentre dans void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)\n");
+	*/
+	//Finds Z & 'real Z' for point (x,y) once closest lines to point have been found (see GetNearestIDLine).
    //This is is based on the algorithm developed by L. Tassan-Got in IdnCsOr, even the same
    //variable names and comments have been used (as much as possible).
 
@@ -963,93 +966,90 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
    ix1 = ix2 = 0;
    
    if (ksup > -1) {         // there is a line above the point
-      if (kinf > -1) {              // there is a line below the point
+		if (kinf > -1) {              // there is a line below the point
                
-                                /*  We found a line above and a line below the point */
+			//printf("------------>/*  We found a line above and a line below the point */\n");
       
-         Double_t dt = dinf + dsup;     //distance between the 2 lines
-         
-            Int_t dZ = Zsup - Zinf;   
-            Double_t dist = dt / (1.0*dZ);    //distance between the 2 lines normalised to difference in Z of lines
+			Double_t dt = dinf + dsup;     //distance between the 2 lines
+			Int_t dZ = Zsup - Zinf;   
+			Double_t dist = dt / (1.0*dZ);    //distance between the 2 lines normalised to difference in Z of lines
             
                                 /*** Z = Zsup ***/
-            
-            if (dinf > dsup) {  //point is closest to upper line, 'sup' line
-               ibif = 1;
-               k = ksup;
-               yy = -dsup;
-               Z = Zsup;
-               if (ksups > -1) {        // there is a 'sups' line above the 2 which encadrent le point
-                  y2 = dsups - dsup;
+			if (dinf > dsup) {  //point is closest to upper line, 'sup' line
+				ibif = 1;
+				k = ksup;
+				yy = -dsup;
+				Z = Zsup;
+				if (ksups > -1) {        // there is a 'sups' line above the 2 which encadrent le point
+					y2 = dsups - dsup;
                   
-                     ibif = 0;
-                     y2 /= 2.;
-                     ix2 = Zsups - Zsup;
-                 
-               } else {         // ksups == -1 i.e. no 'sups' line
-                  y2 = wsup;
-                  y2 = 0.5 * TMath::Max(y2, dist);
-                  ix2 = 1;
-               }
-               y1 = -dt / 2.;
-               ix1 = -dZ;
-            }
+					ibif = 0;
+					y2 /= 2.;
+					ix2 = Zsups - Zsup;
+				} 
+				else {         // ksups == -1 i.e. no 'sups' line
+					y2 = wsup;
+					y2 = 0.5 * TMath::Max(y2, dist);
+					ix2 = 1;
+				}
+				y1 = -dt / 2.;
+				ix1 = -dZ;
+			}
                                 /*** Z = Zinf ***/
-            else {              //point is closest to lower line, 'inf' line
-               ibif = 2;
-               k = kinf;
-               yy = dinf;
-               Z = Zinf;
-               if (kinfi > -1) {        // there is a 'infi' line below the 2 which encadrent le point
-                  y1 = 0.5 * (dinfi - dinf);
+			else {              //point is closest to lower line, 'inf' line
+				ibif = 2;
+				k = kinf;
+				yy = dinf;
+				Z = Zinf;
+				if (kinfi > -1) {        // there is a 'infi' line below the 2 which encadrent le point
+					y1 = 0.5 * (dinfi - dinf);
+					
+					ibif = 0;
+					ix1 = Zinfi - Zinf;
+					y1 = -y1;
                   
-                     ibif = 0;
-                     ix1 = Zinfi - Zinf;
-                     y1 = -y1;
-                  
-               } else {         // kinfi = -1 i.e. no 'infi' line
-                  y1 = winf;
-                  y1 = -0.5 * TMath::Max(y1, dist);
-                  ix1 = -1;
-               }
-               y2 = dt / 2.;
-               ix2 = dZ;
-            }
+				} 
+				else {         // kinfi = -1 i.e. no 'infi' line
+					y1 = winf;
+					y1 = -0.5 * TMath::Max(y1, dist);
+					ix1 = -1;
+				}
+				y2 = dt / 2.;
+				ix2 = dZ;
+			}
                
       }//if(kinf>-1)...*******************************************************
-      
-                                /*  Only a line above the point was found, no line below */
-                                   /* This means the point is below the first Z line of the grid (?) */
-      
-         ibif = 3;
-         k = ksup;
-         yy = -dsup;
-         Z = Zsup;
-         y1 = 0.5 * wsup;
-         if (ksups > -1) {      // there is a 'sups' line above the closest line to the point
-            y2 = dsups - dsup;
-            
-               ibif = 2;
-               ix2 = Zsups - Zsup;
-               Double_t x1 = y2 / ix2 / 2.;
-               y1 = -TMath::Max(y1, x1);
-               ix1 = -1;
-               y2 /= 2.;
-            
-         } else {               // no 'sups' line above closest line
-            
-            y2 = y1;
-            ix2 = 1;
-            y1 = -y1;
-            ix1 = -1;
-         }
-         fICode = kICODE6;      // code for Z extrapolation below first line of grid
-      
+      else {
+			//printf("------------>/*  Only a line above the point was found, no line below */\n");
+      	                             /* This means the point is below the first Z line of the grid (?) */
+      	ibif = 3;
+			k = ksup;
+			yy = -dsup;
+			Z = Zsup;
+			y1 = 0.5 * wsup;
+			if (ksups > -1) {      // there is a 'sups' line above the closest line to the point
+				y2 = dsups - dsup;
+				
+				ibif = 2;
+				ix2 = Zsups - Zsup;
+				Double_t x1 = y2 / ix2 / 2.;
+				y1 = -TMath::Max(y1, x1);
+				ix1 = -1;
+				y2 /= 2.;
+      	      
+			} 
+			else {               // no 'sups' line above closest line
+      		y2 = y1;
+      		ix2 = 1;
+      		y1 = -y1;
+      		ix1 = -1;
+      	}
+      	fICode = kICODE6;      // code for Z extrapolation below first line of grid
+      }
    }  //if(ksup>-1)***************************************************************
-   
    else if (kinf > -1) {
 
-                                /*  Only a line below the point was found, no line above */
+			//printf("------------>/*  Only a line below the point was found, no line above */\n");
                                    /* This means the point is above the last Z line of the grid (?) */
          ibif = 3;
          k = kinf;
@@ -1156,7 +1156,11 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
          }
       }
    }
-   
+	
+	/*
+	printf("Sort de KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)\n");
+	printf("fICode=%d Z=%lf\n",Int_t(fICode),Z);
+   */
   // cout << "Z = " << Z << " A = " << A << " icode = " << fICode << endl;
 }
 
@@ -1173,7 +1177,8 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
    if (!nearest) {
       //no lines corresponding to point were found
       const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
-      return;
+      printf("pas de nearest dans KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const\n");
+		return;
    }
    if( OnlyZId() ){
       //Info("Identify", "Z-identification");
