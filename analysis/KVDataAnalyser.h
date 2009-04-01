@@ -1,7 +1,7 @@
 /*
-$Id: KVDataAnalyser.h,v 1.17 2009/01/14 16:15:46 franklan Exp $
-$Revision: 1.17 $
-$Date: 2009/01/14 16:15:46 $
+$Id: KVDataAnalyser.h,v 1.18 2009/04/01 09:28:34 franklan Exp $
+$Revision: 1.18 $
+$Date: 2009/04/01 09:28:34 $
 $Author: franklan $
 */
 
@@ -125,7 +125,7 @@ class KVDataAnalyser : public TObject {
       nbEventToRead = nb;
    }
 
-   virtual const Long64_t GetNbEventToRead(void) {
+   virtual Long64_t GetNbEventToRead(void) {
       return nbEventToRead;
    }
 
