@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.cpp,v 1.5 2009/03/17 14:16:04 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/03/17 14:16:04 $
+$Id: KVIDGraph.cpp,v 1.6 2009/04/01 09:33:36 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/01 09:33:36 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -71,6 +71,7 @@ void KVIDGraph::init()
 	SetName("");
 	SetEditable(kFALSE);
 	if(gIDGridManager) gIDGridManager->AddGrid(this);
+	fMassFormula = -1;
 }
 
 //________________________________________________________________________________
@@ -1207,15 +1208,20 @@ else return temoin;
 
 //___________________________________________________________________________________
 
-Int_t KVIDGraph::GetMassFormula() const
+Int_t KVIDGraph::GetMassFormula()
 {
 	// Returns mass formula used to calculate A from Z of all identifiers in graph.
 	// In fact, we return the mass formula of the first identifier in the list...
 	
-	if(GetNumberOfIdentifiers())
-		return ((KVIDentifier*)fIdentifiers->First())->GetMassFormula();
-	else
-		return -1;
+	if(fMassFormula<0){
+		KVIDentifier* line=0;
+		if( (line=GetIdentifierAt(0)) ){
+			fMassFormula = line->GetMassFormula();
+		}
+		else
+			return 0;
+	}
+	return fMassFormula;
 }
 
 //___________________________________________________________________________________
@@ -1224,6 +1230,8 @@ void KVIDGraph::SetMassFormula(Int_t mass)
 {
 	// Set mass formula for all identifiers if graph has OnlyZId()=kTRUE.
 	// This will change the mass (A) of each identifier.
+	
+	fMassFormula = mass;
 	if(OnlyZId()){
    	if (GetNumberOfIdentifiers() > 0) {
       	fIdentifiers->R__FOR_EACH(KVIDentifier, SetMassFormula) (mass);

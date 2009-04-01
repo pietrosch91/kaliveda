@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.h,v 1.4 2009/03/17 09:37:51 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/17 09:37:51 $
+$Id: KVIDGraph.h,v 1.5 2009/04/01 09:33:36 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/04/01 09:33:36 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -42,6 +42,7 @@ class KVIDGraph : public TCutG
 	TList 			fTelescopes;		//ID telescopes for which grid is valid
 	TString			fDyName; 			//!dynamically generated name
    TString  		fPattern;			//pattern of filenames used to write or read grid
+	Int_t fMassFormula;//! *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
 	
    void Scale(Double_t sx = -1, Double_t sy = -1);
    virtual void ReadFromAsciiFile(ifstream & gridfile);
@@ -98,7 +99,7 @@ class KVIDGraph : public TCutG
    // (fOnlyZid = kFALSE). Note that setting fOnlyZid=kTRUE changes the way line
    // widths are calculated (see KVIDGrid::CalculateLineWidths)
    void SetOnlyZId(Bool_t yes=kTRUE) { fOnlyZId = yes; Modified(); };//  *TOGGLE={Hierarchy="Set.../Z identification only"}*
-	void SetMassFormula(Int_t);// *MENU={Hierarchy="Set.../Mass Formula"}*
+	void SetMassFormula(Int_t);// *SUBMENU={Hierarchy="Set.../Mass Formula"}*
    void WriteAsciiFile(const Char_t * filename);// *MENU*
    void SetXScaleFactor(Double_t = 0); //  *MENU={Hierarchy="Scale.../X Scale Factor"}*
    void SetYScaleFactor(Double_t = 0);//  *MENU={Hierarchy="Scale.../Y Scale Factor"}*
@@ -291,7 +292,7 @@ class KVIDGraph : public TCutG
 		KVIDTelescope* id = (KVIDTelescope*)fTelescopes.First();
 		return (id ? id->GetLabel() : "");
 	};
-	Int_t GetMassFormula() const;
+	Int_t GetMassFormula();
 	void ResetPad();
 	void ClearPad(TVirtualPad*);
 	
