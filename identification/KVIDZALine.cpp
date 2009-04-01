@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDZALine.cpp,v 1.7 2009/03/13 15:30:45 franklan Exp $
+$Id: KVIDZALine.cpp,v 1.8 2009/04/01 09:34:47 franklan Exp $
                           KVIDZALine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -126,9 +126,12 @@ TGraphErrors* KVIDZALine::GetLineWithWidth()
    if(!fLineWithWidth){
       fLineWithWidth = new TGraphErrors(GetN(), GetX(), GetY());
       fLineWithWidth->SetName( GetName() );
-      fLineWithWidth->SetMarkerStyle(kCircle);
-      fLineWithWidth->SetMarkerSize(0.8);
-      fLineWithWidth->SetLineWidth(2);
+   	fLineWithWidth->SetFillColor(2);
+   	fLineWithWidth->SetFillStyle(3001);
+   	fLineWithWidth->SetLineStyle(2);
+   	fLineWithWidth->SetLineWidth(2);
+   	fLineWithWidth->SetMarkerStyle(4);
+   	fLineWithWidth->SetMarkerSize(0.8);
       fLineWithWidth->SetEditable(kFALSE);
       for(int i=0; i<GetN(); i++){
          fLineWithWidth->SetPointError(i, 0., (GetWidth() < 16000 ? GetWidth() : 0));
@@ -141,13 +144,14 @@ TGraphErrors* KVIDZALine::GetLineWithWidth()
 
 void KVIDZALine::SetAsymWidth(Double_t d_l, Double_t d_r)
 {
-   //Set the natural width of the line depending on its asymptotic separation
-   //a gauche (d_l) and a droite (d_r) from a neighbouring line.
-   //This method is used by KVIDGrid::CalculateLineWidths
+   // Set the natural width of the line depending on its asymptotic separation
+   // a gauche (d_l) and a droite (d_r) from a neighbouring line.
+   // This method is used by KVIDGrid::CalculateLineWidths
    //
-   //For ordinary Z/(Z,A) lines in a dE-E grid, this is just the minimum of
-   //the two asymptotic distances.
-   SetWidth( TMath::Min( d_l, d_r ) );
+   // For ordinary Z/(Z,A) lines in a dE-E grid, this is just the average of
+   // the two asymptotic distances.
+	
+   SetWidth( (d_l+d_r)/2. );
 }
 
 //______________________________________________________________________________
