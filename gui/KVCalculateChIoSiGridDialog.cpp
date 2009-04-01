@@ -277,7 +277,7 @@ void KVCalculateChIoSiGridDialog::CalculateGrid()
    cout << "Calculate grid with zmax=" << zmax_grid << " ChIo press=" <<
        chio_press << " PHD param=" << phd_param << " npoints=" << npoints
        << endl;
-   fSelectedGrid->MakeELossGrid(zmax_grid, set_phd, chio_press, npoints);
+   //fSelectedGrid->MakeELossGrid(zmax_grid, set_phd, chio_press, npoints);
    fSelectedGrid->Draw();
    //update all canvases
    TSeqCollection *Clist = gROOT->GetListOfCanvases();
