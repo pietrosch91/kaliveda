@@ -15,6 +15,7 @@
 #pragma link C++ class KVINDRADB5;
 #pragma link C++ class KVIDSi150CsI+;
 #pragma link C++ class KVIDChIoSi5+;
+#pragma link C++ class KVIDChIoCsI_camp5+;
 #pragma link C++ class KVIDChIoCsI5+;
 #pragma link C++ class KVIDSiCsI5+;
 #pragma link C++ class KVIDSi75SiLi_camp5+;
