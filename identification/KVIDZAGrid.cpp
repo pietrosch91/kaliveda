@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.17 2009/03/31 14:46:00 ebonnet Exp $
+$Id: KVIDZAGrid.cpp,v 1.18 2009/04/01 09:38:10 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -263,7 +263,7 @@ void KVIDZAGrid::CalculateLineWidths()
    //        the same Z, we use the separation between the line below and this one
    //      - if neither adjacent line has the same Z, the width is set to 16000 (huge).
    //
-   //  **** if the grid is to be used for Z identification (fOnlyZid=kFALSE)**** :
+   //  **** if the grid is to be used for Z identification (fOnlyZid=kTRUE)**** :
    //      - we use the separation between each pair of lines
    //
    //In each case we find D_L (the separation between the two lines at their extreme left)
@@ -272,10 +272,13 @@ void KVIDZAGrid::CalculateLineWidths()
    //classes).
 
 
+   Info("CalculateLineWidths",
+         "For grid %s (%s vs. %s, runs %s).", GetName(), GetVarY(), GetVarX(), GetRunList());
+			
    for (Int_t i = 0; i < (Int_t) GetNumberOfIdentifiers(); i++) {
 
       KVIDZALine *_line = (KVIDZALine *) GetIdentifierAt(i);
-
+		
       //Z of lines above and below this line - Zxx=-1 if there is no line above or below
       Int_t Zhi =
           (i <
@@ -284,17 +287,29 @@ void KVIDZAGrid::CalculateLineWidths()
       Int_t Zlo = (i > 0 ? ((KVIDZALine *) GetIdentifierAt(i - 1))->GetZ() : -1);
       Int_t Z = _line->GetZ();
 
-      Int_t i_other;
-      if( OnlyZId() ){
-         i_other = (Zhi > -1 ? i + 1 : (Zlo > -1 ? i - 1 : -1));     // index of line used to calculate width
+		// find line for comparison.
+		// if we are dealing with a grid with several isotopes for each Z, the priority
+		// is to calculate isotopic line widths using lines with same Z, different A.
+		// if the grid is 'OnlyZId' it should have only one line per Z, so we calculate
+		// widths by comparing neighbouring Z.
+		// if the grid is not 'OnlyZId', it may still have some lines with just one isotope
+		// per Z, in this case we calculate a width based on the separation from the
+		// neighbouring Z, as if it were 'OnlyZId'.
+      Int_t i_other;// index of line used to calculate width
+      if( OnlyZId() ){ //grid is 'OnlyZId':calculate widths by comparing neighbouring Z.
+         i_other = (Zhi > -1 ? i + 1 : (Zlo > -1 ? i - 1 : -1));
       }
       else
-      {
-         i_other = (Zhi == Z ? i + 1 : (Zlo == Z ? i - 1 : -1));     // index of line used to calculate width
+      { //grid with several isotopes for each Z:calculate isotopic widths using lines with same Z, different A
+         i_other = (Zhi == Z ? i + 1 : (Zlo == Z ? i - 1 : -1));
       }
+		if(!OnlyZId() && i_other<0){ //grid is not 'OnlyZId' but only one isotope for this Z
+         i_other = (Zhi > -1 ? i + 1 : (Zlo > -1 ? i - 1 : -1));
+		}
 
-      //default width of 16000 in case of "orphan" line i.e. Z with only one isotope
+      //default width of 16000 in case of "orphan" line 
       if (i_other < 0) {
+			Info("CalculateLineWidths", "No line found for comparison with %s. Width set to 16000", _line->GetName());
          _line->SetWidth(16000.);
          continue;              // skip to next line
       }
@@ -335,18 +350,15 @@ void KVIDZAGrid::CalculateLineWidths()
 
       //make sure that D_L is positive : if not, we try to calculate other way (inverse line and starting point)
       if (D_L < 0.) {
+			
+			Double_t oldD_L = D_L;
 
          _aline->GetStartPoint(x1, y1);
          D_L = _bline->DistanceToLine(x1, y1, dummy);
 
-         //still no good ? then print a warning message
+         //still no good ? then we keep the smallest absolute value
          if (D_L < 0.) {
-            Warning("CalculateLineWidths",
-                    "In grid %s (%s vs. %s, runs %s).\nCannot get positive asymptotic distance between starting points of the following two lines.\n Will set D_L to zero.",
-                    GetName(), GetVarY(), GetVarX(), GetRunList());
-            cout << "LINE 1: " << _line->GetName() << endl;
-            cout << "LINE 2: " << _otherline->GetName() << endl;
-            D_L = 0.;
+				D_L = TMath::Abs( TMath::Max(D_L, oldD_L) );
          }
       }
       //***************   RIGHT SIDE    ********************************
@@ -376,24 +388,23 @@ void KVIDZAGrid::CalculateLineWidths()
 
       //make sure that D_R is positive : if not, we try to calculate other way (inverse line and end point)
       if (D_R < 0.) {
+			
+			Double_t oldD_R = D_R;
 
          _aline->GetEndPoint(x1, y1);
          D_R = _bline->DistanceToLine(x1, y1, dummy);
 
-         //still no good ? then print a warning message
+         //still no good ? then we keep the smallest absolute value
          if (D_R < 0.) {
-            Warning("CalculateLineWidths",
-                    "In grid %s (%s vs. %s, runs %s).\nCannot get positive asymptotic distance between end points of the following two lines.\n Will set D_R to zero.",
-                    GetName(), GetVarY(), GetVarX(), GetRunList());
-            cout << "LINE 1: " << _line->GetName() << endl;
-            cout << "LINE 2: " << _otherline->GetName() << endl;
-            D_R = 0.;
+				D_R = TMath::Abs( TMath::Max(D_R, oldD_R) );
          }
       }
       //***************  SET NATURAL WIDTH OF LINE   ********************************
 
       _line->SetAsymWidth(D_L, D_R);
-
+		
+		
+		Info("CalculateLineWidths", "...width for line %s set to : %f (D_L=%f,D_R=%f)", _line->GetName(), _line->GetWidth(), D_L, D_R);
    }
 }
 
@@ -405,9 +416,8 @@ void KVIDZAGrid::DrawLinesWithWidth()
    //the natural line widths are shown as error bars
 
    if (!gPad) {
-      fPad = new TCanvas("c1", GetName());
+      new TCanvas("c1", GetName());
    } else {
-		fPad = (TPad*)gPad;
       gPad->SetTitle(GetName());
    }
    if (!gPad->GetListOfPrimitives()->GetSize()) {
@@ -424,6 +434,8 @@ void KVIDZAGrid::DrawLinesWithWidth()
    {
       GetCuts()->R__FOR_EACH(KVIDLine, Draw) ("PL");
    }
+   gPad->Modified();
+	gPad->Update();
 }
 
 //______________________________________________________________________________________________//
@@ -1244,6 +1256,143 @@ void KVIDZAGrid::Streamer(TBuffer &R__b)
    } else {
       R__b.WriteClassBuffer(KVIDZAGrid::Class(),this);
    }
+}
+
+//______________________________________________________________________________
+
+void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucleon, Int_t npoints)
+{
+	// Generate dE-Eres grid for associated ID telescope.
+	// 1 line per Z is generated, using mass formula set for grid.
+	
+   Double_t x_scale = GetXScaleFactor();
+   Double_t y_scale = GetYScaleFactor();
+   //clear old lines from grid (and scaling parameters)
+   Clear();
+	KVIDTelescope* tel = ((KVIDTelescope*)fTelescopes.At(0));
+	if(!tel) {
+      Error("MakeEDeltaEZGrid",
+            "No identification telescope associated to this grid");
+      return;
+   }
+   KVDetector *dEDet = tel->GetDetector(1);
+   KVDetector *ErDet = tel->GetDetector(2);
+   if (!ErDet) {
+      Error("MakeEDeltaEZGrid",
+            "This identification telescope only has one member !");
+      return;
+   }
+
+   //loop over Z
+   KVNucleus part;
+   //set mass formula used for calculating A from Z
+   part.SetMassFormula(GetMassFormula());
+
+   Info("MakeEDeltaEZGrid",
+        "Calculating grid: dE detector = %s, E detector = %s",
+        dEDet->GetName(), ErDet->GetName());
+      
+	for(Int_t z=Zmin; z<=Zmax; z++){
+		
+		part.SetZ(z);
+
+      //loop over energy
+      //first find :
+      //      ****E1 = energy at which particle passes dE and starts to enter Eres****
+      //      E2 = energy at which particle passes Eres
+      //then perform npoints calculations between these two energies and use these
+      //to construct a KVIDZLine
+
+      Double_t E1, E2;
+      //find E1
+      //go from 0.1 MeV to dE->GetBraggE(part.GetZ(),part.GetA()))
+      Double_t E1min = 0.1, E1max = dEDet->GetBraggE(part.GetZ(),part.GetA());
+      E1 = (E1min + E1max) / 2.;
+
+      while ((E1max - E1min) > 0.1) {
+
+         part.SetEnergy(E1);
+         ErDet->Clear();
+         dEDet->DetectParticle(&part);
+         ErDet->DetectParticle(&part);
+         if (ErDet->GetEnergy() > .1) {
+            //particle got through - decrease energy
+            E1max = E1;
+            E1 = (E1max + E1min) / 2.;
+         } else {
+            //particle stopped - increase energy
+            E1min = E1;
+            E1 = (E1max + E1min) / 2.;
+         }
+      }
+
+      //find E2
+      //go from E1 MeV to Emax_per_nucleon*A MeV
+      Double_t E2min = E1, E2max = Emax_per_nucleon*part.GetA();
+      E2 = (E2min + E2max) / 2.;
+
+      while ((E2max - E2min > 0.1)) {
+
+         part.SetEnergy(E2);
+         dEDet->DetectParticle(&part);
+         ErDet->DetectParticle(&part);
+         if (part.GetEnergy() > .1) {
+            //particle got through - decrease energy
+            E2max = E2;
+            E2 = (E2max + E2min) / 2.;
+         } else {
+            //particle stopped - increase energy
+            E2min = E2;
+            E2 = (E2max + E2min) / 2.;
+         }
+      }
+      
+		// check we are within limits of validity of energy loss tables
+		if( E2 > dEDet->GetEmaxVedaloss(z)*part.GetA() ){
+			Warning("MakeEDeltaEZGrid",
+					"Emax=%f MeV for Z=%d : beyond validity of range tables. Will use max limit=%f MeV",
+					E2, z, dEDet->GetEmaxVedaloss(z)*part.GetA());
+			E2 = dEDet->GetEmaxVedaloss(z)*part.GetA();
+		}
+
+      KVIDentifier *line = NewLine("ID");
+		Add("ID", line);
+      line->SetZ(z);
+		line->SetMassFormula(part.GetMassFormula());
+		
+      Double_t logE1 = TMath::Log(E1);
+      Double_t logE2 = TMath::Log(E2);
+      Double_t dLog = (logE2 - logE1) / (npoints - 1.);
+
+		Int_t npoints_added = 0;
+		
+      for (int i = 0; npoints_added < npoints; i++) {
+
+         Double_t E = TMath::Exp(logE1 + i * dLog);
+			if(E>E2) break;
+
+			Double_t Eres = 0.0;
+			Int_t counter=0;
+         while (Eres < 0.1 && counter<20) {
+				counter++;
+         	dEDet->Clear();
+         	ErDet->Clear();
+            part.SetEnergy(E);
+            dEDet->DetectParticle(&part);
+            ErDet->DetectParticle(&part);
+            Eres = ErDet->GetEnergy();
+            E += 0.1;
+         }
+						
+			line->SetPoint(npoints_added, ErDet->GetEnergy(), dEDet->GetEnergy());
+			npoints_added++;
+      }
+   }
+   //if this grid has scaling factors, we need to apply them to the result
+   if (x_scale != 1)
+      SetXScaleFactor(x_scale);
+   if (y_scale != 1)
+      SetYScaleFactor(y_scale);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

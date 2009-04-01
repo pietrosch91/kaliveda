@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.h,v 1.13 2009/03/13 15:31:10 franklan Exp $
+$Id: KVIDZAGrid.h,v 1.14 2009/04/01 09:38:10 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDZAGrid_H
@@ -136,6 +136,9 @@ class KVIDZAGrid:public KVIDGrid {
    inline UChar_t GetIndexClosest() const {
       return fIdxClosest;
    };
+	
+	virtual void MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax,
+			Double_t Emax_per_nucleon=100., Int_t npoints=20);//*MENU*
    
     ClassDef(KVIDZAGrid, 2)     //Base class for 2D Z & A identification grids
 };
