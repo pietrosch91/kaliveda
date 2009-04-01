@@ -1,6 +1,6 @@
 /***************************************************************************
-$Id: KVIDTelescope.cpp,v 1.50 2009/03/03 14:27:15 franklan Exp $
-Author : $Author: franklan $
+$Id: KVIDTelescope.cpp,v 1.51 2009/04/01 15:58:09 ebonnet Exp $
+Author : $Author: ebonnet $
                           KVIDTelescope.cpp  -  description
                              -------------------
     begin                : Wed Jun 18 2003
@@ -27,9 +27,11 @@ Author : $Author: franklan $
 #include "Riostream.h"
 #include "TPluginManager.h"
 #include "KVMultiDetArray.h"
-#include "TROOT.h"
 #include "KVDataSet.h"
 #include "KVIDGridManager.h"
+#include "KVIDZALine.h"
+#include "TMath.h"
+#include "TClass.h"
 
 ClassImp(KVIDTelescope)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -791,4 +793,151 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
 	TString general = gEnv->GetValue("KVIDTelescope.DefaultGrid", "KVIDGraph");
 	TString specific; specific.Form("KVIDTelescope.DefaultGrid.%s", GetLabel());
 	return gEnv->GetValue(specific.Data(), general.Data());
+}
+
+//_____________________________________________________________________________________________________//
+
+KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints)
+{
+	
+	if (GetSize()<=1) return 0;
+	
+	KVNumberList nlz(Zrange);
+	
+	TClass* cl = new TClass(GetDefaultIDGridClass());
+	KVIDGrid* idgrid = (KVIDGrid* )cl->New();
+	delete cl;
+	
+	idgrid->AddIDTelescope(this);
+	idgrid->SetOnlyZId((deltaMasse!=0));
+
+	KVDetector* det_de = GetDetector(1);	if (!det_de)		return 0;
+	KVDetector* det_eres = GetDetector(2);	if (!det_eres) 	return 0;
+	
+	KVNucleus part;
+	Info("SimulateGrid",
+        "Calculating dE-E grid: dE detector = %s, E detector = %s",
+        det_de->GetName(), det_eres->GetName());
+
+	KVIDLine *B_line = (KVIDLine *)idgrid->Add("OK", "KVIDCutLine");
+   Int_t npoi_bragg = 0;
+	B_line->SetName("Bragg_line");
+
+   nlz.Begin(); while (!nlz.End()){
+		Int_t zzz = nlz.Next();
+		part.SetZ(zzz);
+		Int_t aref = part.GetAWithMaxBindingEnergy(zzz);
+		printf("%d\n",zzz);
+		for (Int_t aaa=aref-deltaMasse; aaa<=aref+deltaMasse; aaa+=1){
+      	part.SetA(aaa);
+			printf("+ %d %d %d\n",aaa,aref,part.IsKnown());
+			if (part.IsKnown()){
+				
+				//loop over energy
+      		//first find :
+      		//      ****E1 = energy at which particle passes ChIo and starts to enter Si****
+      		//      E2 = energy at which particle passes Si
+      		//then perform npoints calculations between these two energies and use these
+      		//to construct a KVIDZLine
+
+      		Double_t E1, E2;
+      		//find E1
+      		//go from 0.1 MeV to chio->GetBraggE(part.GetZ(),part.GetA()))
+      		Double_t E1min = 0.1, E1max = det_de->GetBraggE(zzz,aaa);
+      		E1 = (E1min + E1max) / 2.;
+
+				while ((E1max - E1min) > 0.1) {
+					//printf("1ere iteration %lf>0.1\n",E1max - E1min);
+         		part.SetEnergy(E1);
+         		det_de->Clear();
+					det_eres->Clear();
+
+         		det_de->DetectParticle(&part);
+         		det_eres->DetectParticle(&part);
+         		if (det_eres->GetEnergy() > .1) {
+            		//particle got through - decrease energy
+            		E1max = E1;
+            		E1 = (E1max + E1min) / 2.;
+         		} else {
+            		//particle stopped - increase energy
+            		E1min = E1;
+            		E1 = (E1max + E1min) / 2.;
+         		}
+      		}
+
+      		//add point to Bragg line
+      		Double_t dE_B = det_de->GetBraggDE(zzz, aaa);
+      		Double_t E_B = det_de->GetBraggE(zzz, aaa);
+      		Double_t Eres_B = det_de->GetERes(zzz, aaa, E_B);
+      		B_line->SetPoint(npoi_bragg++, Eres_B, dE_B);
+
+      		//find E2
+      		//go from E1 MeV to 6000 MeV
+      		Double_t E2min = E1, E2max = 6000;
+      		E2 = (E2min + E2max) / 2.;
+
+      		while ((E2max - E2min > 0.1)) {
+					//printf("2ere iteration %lf>0.1\n",E2max - E2min);
+         		part.SetEnergy(E2);
+         		det_de->Clear();
+					det_eres->Clear();
+         		
+					det_de->DetectParticle(&part);
+         		det_eres->DetectParticle(&part);
+         		if (part.GetEnergy() > .1) {
+            		//particle got through - decrease energy
+            		E2max = E2;
+            		E2 = (E2max + E2min) / 2.;
+         		} else {
+            		//particle stopped - increase energy
+            		E2min = E2;
+            		E2 = (E2max + E2min) / 2.;
+         		}
+      		}
+      
+      		cout << "Z=" << zzz << " E1 = " << E1 << " E2 = " << E2 << endl;
+      		KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
+      		if (TMath::Even(zzz)) line->SetLineColor(4);
+				line->SetZ(zzz);
+				line->SetA(aaa);
+
+      		Double_t logE1 = TMath::Log(E1);
+      		Double_t logE2 = TMath::Log(E2);
+      		Double_t dLog = (logE2 - logE1) / (npoints - 1.);
+
+      		for (Int_t i = 0; i < npoints; i++) {
+//                      Double_t E = E1 + i*(E2-E1)/(npoints-1.);
+         		Double_t E = TMath::Exp(logE1 + i * dLog);
+//					printf("points %d sur %d - %lf\n",i,npoints,E);
+
+         		Double_t Eres = 0.;
+         		Int_t niter=0;
+					while (Eres < 0.1 && niter<=20) {
+            		det_de->Clear();
+            		det_eres->Clear();
+            
+						part.SetEnergy(E);
+            		
+						det_de->DetectParticle(&part);
+            		det_eres->DetectParticle(&part);
+            
+						Eres = det_eres->GetEnergy();
+            		E += 0.1;
+         		
+						//printf("3eme iteration %lf<0.1 - %lf\n",Eres,E);
+						niter+=1;
+					}
+         		if (!(niter>20)){
+         			Double_t dE = det_de->GetEnergy();
+         			//PHD correction
+						line->SetPoint(i, Eres, dE);
+      			}
+				}
+				//printf("sort de boucle points");
+			}
+		}		
+   }
+	
+	return idgrid;
+	
 }

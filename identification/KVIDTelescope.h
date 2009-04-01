@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDTelescope.h,v 1.32 2009/03/03 14:27:15 franklan Exp $
+$Id: KVIDTelescope.h,v 1.33 2009/04/01 15:58:10 ebonnet Exp $
                           KVIDTelescope.h  -  description
                              -------------------
     begin                : Wed Jun 18 2003
@@ -28,6 +28,7 @@ $Id: KVIDTelescope.h,v 1.32 2009/03/03 14:27:15 franklan Exp $
 class KVReconstructedNucleus;
 class KVGroup;
 class KVIDGraph;
+class KVIDGrid;
 class KVMultiDetArray;
 
 class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
@@ -164,8 +165,9 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
    };
 
 	const Char_t* GetDefaultIDGridClass();
-	
-   ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
+	KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints);
+   
+	ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
 };
 
 #endif
