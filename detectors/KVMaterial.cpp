@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMaterial.cpp,v 1.54 2008/12/17 13:01:26 franklan Exp $
+$Id: KVMaterial.cpp,v 1.55 2009/04/01 09:28:02 franklan Exp $
                           kvmaterial.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -600,11 +600,11 @@ Double_t EResSaclay(Double_t * x, Double_t * par)
 
    //check incident energy is valid
    //incident energy less than minimum valid energy - residual energy=0 (particle stops)
-   if (x[0] < par[16])
-      return 0.0;
+   //if (x[0] < par[16])
+   //   return 0.0;
    //incident energy greater than maximum valid energy - residual E = incident E
-   if (x[0] > par[17])
-      return x[0];
+   //if (x[0] > par[17])
+   //   return x[0];
 
    // set up polynomial
    Double_t x1 = TMath::Log(0.1);
