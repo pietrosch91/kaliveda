@@ -295,7 +295,7 @@ void KVTrieurLin::SetXmin(Double_t x)
 }
 
 //_____________________________________________________
-const Double_t KVTrieurLin::GetXmin(void)
+Double_t KVTrieurLin::GetXmin(void)
 {
 //
 // On retourne la vaelur de xmin
@@ -313,7 +313,7 @@ void KVTrieurLin::SetXmax(Double_t x)
 }
 
 //_____________________________________________________
-const Double_t KVTrieurLin::GetXmax(void)
+Double_t KVTrieurLin::GetXmax(void)
 {
 //
 // On retourne la vaelur de xmin

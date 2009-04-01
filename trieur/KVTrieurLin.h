@@ -59,8 +59,8 @@ class KVTrieurLin:public KVTrieur {
    virtual void SetXmin(Double_t x);
    virtual void SetXmax(Double_t x);
    virtual const Char_t *GetNomVar(void);
-   virtual const Double_t GetXmin(void);
-   virtual const Double_t GetXmax(void);
+   virtual Double_t GetXmin(void);
+   virtual Double_t GetXmax(void);
 
     ClassDef(KVTrieurLin, 1)    // Class for linear sorting
 };
