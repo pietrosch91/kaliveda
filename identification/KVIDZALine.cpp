@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDZALine.cpp,v 1.8 2009/04/01 09:34:47 franklan Exp $
+$Id: KVIDZALine.cpp,v 1.9 2009/04/01 13:52:32 franklan Exp $
                           KVIDZALine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -123,19 +123,20 @@ TGraphErrors* KVIDZALine::GetLineWithWidth()
    //of this identification line.
    //If line width = 16000, the error bar is set to 0
    
-   if(!fLineWithWidth){
-      fLineWithWidth = new TGraphErrors(GetN(), GetX(), GetY());
-      fLineWithWidth->SetName( GetName() );
-   	fLineWithWidth->SetFillColor(2);
-   	fLineWithWidth->SetFillStyle(3001);
-   	fLineWithWidth->SetLineStyle(2);
-   	fLineWithWidth->SetLineWidth(2);
-   	fLineWithWidth->SetMarkerStyle(4);
-   	fLineWithWidth->SetMarkerSize(0.8);
-      fLineWithWidth->SetEditable(kFALSE);
-      for(int i=0; i<GetN(); i++){
-         fLineWithWidth->SetPointError(i, 0., (GetWidth() < 16000 ? GetWidth() : 0));
-      }
+   if(fLineWithWidth){
+		delete fLineWithWidth;
+	}
+   fLineWithWidth = new TGraphErrors(GetN(), GetX(), GetY());
+   fLineWithWidth->SetName( GetName() );
+   fLineWithWidth->SetFillColor(2);
+   fLineWithWidth->SetFillStyle(3001);
+   fLineWithWidth->SetLineStyle(2);
+   fLineWithWidth->SetLineWidth(2);
+   fLineWithWidth->SetMarkerStyle(4);
+   fLineWithWidth->SetMarkerSize(0.8);
+   fLineWithWidth->SetEditable(kFALSE);
+   for(int i=0; i<GetN(); i++){
+      fLineWithWidth->SetPointError(i, 0., 0.5*(GetWidth() < 16000 ? GetWidth() : 0));
    }
    return fLineWithWidth;
 }
