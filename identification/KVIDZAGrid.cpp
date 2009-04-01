@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.18 2009/04/01 09:38:10 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.19 2009/04/01 13:55:14 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -577,30 +577,35 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    Int_t Zinfi, Zinf, Zsup, Zsups, Ainfi, Ainf, Asup, Asups;
    Zinfi = Zinf = Zsup = Zsups = Ainfi = Ainf = Asup = Asups = 0;
    if (kinf > -1) {
-         Zinf = ((KVIDZALine *) GetClosestLines(kinf))->GetZ();
-         Ainf = ((KVIDZALine *) GetClosestLines(kinf))->GetA();
-         winf = ((KVIDZALine *) GetClosestLines(kinf))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(kinf);
+         Zinf = idl->GetZ();
+         Ainf = idl->GetA();
+         winf = idl->GetWidth();
          dinf = GetDistanceToLine(kinf);
    }
    if (ksup > -1) {
-         Zsup = ((KVIDZALine *) GetClosestLines(ksup))->GetZ();
-         Asup = ((KVIDZALine *) GetClosestLines(ksup))->GetA();
-         wsup = ((KVIDZALine *) GetClosestLines(ksup))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(ksup);
+         Zsup = idl->GetZ();
+         Asup = idl->GetA();
+         wsup = idl->GetWidth();
       dsup = GetDistanceToLine(ksup);
    }
    if (kinfi > -1) {
-         Zinfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetZ();
-         Ainfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetA();
-         winfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(kinfi);
+         Zinfi = idl->GetZ();
+         Ainfi = idl->GetA();
+         winfi = idl->GetWidth();
       dinfi = GetDistanceToLine(kinfi);
    }
    if (ksups > -1) {
-         Zsups = ((KVIDZALine *) GetClosestLines(ksups))->GetZ();
-         Asups = ((KVIDZALine *) GetClosestLines(ksups))->GetA();
-         wsups = ((KVIDZALine *) GetClosestLines(ksups))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(ksups);
+         Zsups = idl->GetZ();
+         Asups = idl->GetA();
+         wsups = idl->GetWidth();
       dsups = GetDistanceToLine(ksups);
    }
-/*   cout << "kinfi = " << kinfi << " Zinfi = " << Zinfi << "  Ainfi = " << Ainfi << "  winfi = " << winfi << "  dinfi = " << dinfi << endl;
+	
+/*    cout << "kinfi = " << kinfi << " Zinfi = " << Zinfi << "  Ainfi = " << Ainfi << "  winfi = " << winfi << "  dinfi = " << dinfi << endl;
    cout << "kinf = " << kinf << " Zinf = " << Zinf << "  Ainf = " << Ainf << "  winf = " << winf << "  dinf = " << dinf << endl;
    cout << "ksup = " << ksup << " Zsup = " << Zsup << "  Asup = " << Asup << "  wsup = " << wsup << "  dsup = " << dsup << endl;
    cout << "ksups = " << ksups << " Zsups = " << Zsups << "  Asups = " << Asups << "  wsups = " << wsups << "  dsups = " << dsups << endl;
@@ -633,8 +638,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                      y2 /= 2.;
                      ix2 = Asups - Asup;
                   } else {
-                     if (Zsups > 0)
-                        y2 /= 2.;       // 'sups' line is not IMF line
+                     y2 /= 2.;
                      Double_t x2 = wsup;
                      x2 = 0.5 * TMath::Max(x2, dist);
                      y2 = TMath::Min(y2, x2);
@@ -677,10 +681,6 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
          }
          else {
                //cout << "         /****************Z differents**************/ " << endl;
-            if (Zsup == -1) {   //'sup' is the IMF line
-               dt *= 2.;
-               dsup = dt - dinf;
-            }
                                 /*** Z = Zsup ***/
             ibif = 3;
             if (dinf > dsup) {  // closest to upper 'sup' line
@@ -700,8 +700,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                      ix1 = -1;
                      y2 /= 2.;
                   } else {
-                     if (Zsups > 0)
-                        y2 /= 2.;       // 'sups" is not IMF line
+                     y2 /= 2.; 
                      y2 = TMath::Min(y1, y2);
                      ix2 = 1;
                      y1 = -TMath::Min(y1, dt / 2.);
@@ -747,7 +746,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             }
          }
       }//if(kinf>-1)...
-      else if (Zsup > 0) {      // 'sup' is not IMF line
+      else if (Zsup > 0) {      
                //cout<<" /****************** Seule une ligne superieure a ete trouvee *********************/" << endl;
          ibif = 3;
          k = ksup;
@@ -765,8 +764,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                ix1 = -1;
                y2 /= 2.;
             } else {
-               if (Zsups > 0)
-                  y2 /= 2.;     // 'sups' is not IMF line
+               y2 /= 2.;
                y2 = TMath::Min(y1, y2);
                ix2 = 1;
                y1 = -y1;
@@ -784,17 +782,9 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       }
    }
    else if (kinf > -1) {
+		
         //cout <<"/****************** Seule une ligne inferieure a ete trouvee ***********************/" << endl;
-                /*** Sep. fragment ***/
-      if (Zinf == -1) {         // 'inf' is IMF line
-         //point is above IMF line. Z = Z of last line in grid + 1, A = -1
-         k = -1;
-         Z = GetZmax();
-         A = -1;
-         fICode = kICODE6;      // au-dessus de la ligne fragment, Z est alors un Zmin
-      }
-                /*** Ligne de crete (Z,A line)***/
-      else {
+
          ibif = 3;
          k = kinf;
          Z = Zinf;
@@ -820,8 +810,11 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             ix1 = -1;
             ix2 = 1;
          }
-         fICode = kICODE7;      // a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
-      }
+			if( yy <= y2 )
+				fICode = kICODE0; // we are within the 'natural width' of the last line
+			else
+         	fICode = kICODE7; // we are too far from last line to extrapolate correctly
+      
    }
         /*****************Aucune ligne n'a ete trouvee*********************************/
    else {
@@ -839,7 +832,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    if (fICode == kICODE4 || fICode == kICODE5)
       A = -1;
         /****************Interpolation de la masse: da = f*log(1+b*dy)********************/
-   if (fICode == kICODE0 || (fICode == kICODE7 && yy <= y2)) {
+   if (fICode == kICODE0) {
       Double_t deltaA = 0.;
       Bool_t i = kFALSE;
       Double_t dt, dist = y1 * y2;
@@ -907,7 +900,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       }
    }
    
-  // cout << "Z = " << Z << " A = " << A << " icode = " << fIcode << endl;
+   //cout << "Z = " << Z << " A = " << A << " icode = " << fICode << endl;
 }
 
 //_________________________________________________________________________//
@@ -1189,7 +1182,6 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
    if (!nearest) {
       //no lines corresponding to point were found
       const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
-      printf("pas de nearest dans KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const\n");
 		return;
    }
    if( OnlyZId() ){
