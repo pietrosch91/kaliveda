@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.cpp,v 1.58 2009/03/17 08:49:08 ebonnet Exp $
+$Id: KVIDGrid.cpp,v 1.59 2009/04/01 09:33:53 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -38,48 +38,54 @@ $Id: KVIDGrid.cpp,v 1.58 2009/03/17 08:49:08 ebonnet Exp $
 #include "KVTGIDFitter.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//KVIDGrid
-//
-//Abstract base class for 2D identification grids in e.g. (dE,E) maps.
-//Such a grid is supposed to be made up of two parts:
-//      - a set of lines for the identification i.e. indicating the position of the
-//        loci of points corresponding to a given nucleus
-//      - a set of lines used to indicate the area of the map in which identification
-//        is possible (or conversely, the limits beyond which identification is
-//        not possible).
-//
-//Specific implementations of such identification grids must define the following
-//methods :
-//
-//      Bool_t IsIdentifiable(Double_t x, Double_t y) const
-//
-//      - returns either kTRUE or kFALSE for each point (x,y) of the identification
-//        map depending on whether such a point can lead to a successful identification
-//        or not
-//
-//      void    Identify        (Double_t x, Double_t y, KVNucleus *nuc) const
-//
-//      - attribute an identification to the KVNucleus for a given point (x,y) in the map.
-//        This is most often based on the result of FindNearestIDLine(), which is a general
-//      algorithm for finding the ID line which is the closest to a given point.
-//
-// Make sure to call the Initialise() method of the grid once before using it.
-//
-//Get/SetParameter methods
-//You can associate any number of parameters with the grid (KVParameter<Double_t> objects)
-//A parameter associates a name and a value. These parameters are used to name the grid.
-//
-//Grid scaling factors
-//Get/SetX/YScaleFactor methods can be used to apply global linear scaling factor to grids
-//in one or both dimensions. i.e. if we have a grid pointer
-//
-//      KVIDGrid* g;//pointer to a grid
-//      g->SetXScaleFactor(1.2);//we apply a 20% scaling factor to the X-coordinates
-//      g->Draw(); // X-coordinates of all points in lines are 1.2*original value
-//
-//To remove the scaling factor, call SetX/YScaleFactor() or SetX/YScaleFactor(0).
-//Note that this scaling is taken into account also in IsIdentifiable and Identify methods
-//
+// BEGIN_HTML <!--
+/* -->
+<h2>KVIDGrid</h2>
+Abstract base class for 2D identification grids in e.g. (dE,E) maps.
+Such a grid is supposed to be made up of two parts:
+<ul>
+<li>a set of lines for the identification i.e. indicating the position of the
+       loci of points corresponding to a given nucleus</li>
+<li>a set of lines used to indicate the area of the map in which identification
+       is possible (or conversely, the limits beyond which identification is
+       not possible).</li>
+</ul>
+<br>
+Specific implementations of such identification grids must define the following
+methods :
+
+     <h4>Bool_t IsIdentifiable(Double_t x, Double_t y) const</h4>
+
+     - returns either kTRUE or kFALSE for each point (x,y) of the identification
+       map depending on whether such a point can lead to a successful identification
+       or not
+
+     <h4>void    Identify        (Double_t x, Double_t y, KVNucleus *nuc) const</h4>
+
+     - attribute an identification to the KVNucleus for a given point (x,y) in the map.
+       This is most often based on the result of FindNearestIDLine(), which is a general
+     algorithm for finding the ID line which is the closest to a given point.
+<br>
+Make sure to call the Initialize() method of the grid once before using it.
+
+<h3>Get/SetParameter methods</h3>
+You can associate any number of parameters with the grid (KVParameter<Double_t> objects)
+A parameter associates a name and a value. These parameters are used to name the grid.
+
+<h3>Grid scaling factors</h3>
+Get/SetX/YScaleFactor methods can be used to apply global linear scaling factor to grids
+in one or both dimensions. i.e. if we have a grid pointer
+
+<code>     
+     KVIDGrid* g;//pointer to a grid
+     g->SetXScaleFactor(1.2);//we apply a 20% scaling factor to the X-coordinates
+     g->Draw(); // X-coordinates of all points in lines are 1.2*original value
+</code>
+
+To remove the scaling factor, call SetX/YScaleFactor() or SetX/YScaleFactor(0).
+Note that this scaling is taken into account also in IsIdentifiable and Identify methods
+<!-- */
+// --> END_HTML
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -270,17 +276,6 @@ TList *KVIDGrid::GetIDLinesEmbracingPoint(const Char_t * direction,
       }
    }
    return tmp;
-}
-
-//___________________________________________________________________________________
-
-void KVIDGrid::NewGridDialog(const TGWindow * p, const TGWindow * main,
-                             UInt_t w, UInt_t h, Option_t * type)
-{
-   //create and return pointer to dialog box used by KVIDGridManagerGUI to create, modify, and
-   //copy grids. by default this is a KVNewGridDialog object, but derived classes of KVIDGrid may
-   //require a derived dialog box.
-   new KVNewGridDialog(p, main, w, h, type, this);
 }
 
 //___________________________________________________________________________________

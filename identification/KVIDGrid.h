@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.h,v 1.49 2009/03/17 08:49:08 ebonnet Exp $
+$Id: KVIDGrid.h,v 1.50 2009/04/01 09:33:53 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGrid_H
@@ -46,13 +46,6 @@ class KVIDGrid : public KVIDGraph {
    void Identify(Double_t /*x*/, Double_t /*y*/, KVReconstructedNucleus * /*nuc*/) const
 	{AbstractMethod("Identify");};   
 
-	virtual void MakeELossGrid(UInt_t Zmax, Bool_t withPHD=kFALSE,
-                                Double_t ChIo_press=-1, Int_t npoints=20){};
-
-   virtual void NewGridDialog(const TGWindow * p, const TGWindow * main,
-                              UInt_t w = 1, UInt_t h = 1, Option_t * type =
-                              "New");
-   
 	/*
 	static KVIDGrid *MakeIDGrid(TH2 *hh,TList*lCutG,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
 		KVIDGrid *idgrid = new KVIDGrid();
