@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.87 2009/03/27 15:59:07 franklan Exp $
-#$Revision: 1.87 $
+#$Id: KaliVeda.rootrc,v 1.88 2009/04/01 09:30:41 franklan Exp $
+#$Revision: 1.88 $
 #$Author: franklan $
-#$Date: 2009/03/27 15:59:07 $
+#$Date: 2009/04/01 09:30:41 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -544,7 +544,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
 +Plugin.KVIDTelescope:     ^CI-SI75$                              KVIDChIoSi75          KVIndra         "KVIDChIoSi75()"
 +Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
-+Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI5         KVIndra5         "KVIDChIoCsI5()"
++Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra5         "KVIDChIoCsI_camp5()"
 +Plugin.KVIDTelescope:      ^BIC-SIB$                            KVIDBlocking            KVIndraFNL     "KVIDBlocking()"
 
 # COHERENCE TOLERANCE PARAMETER
@@ -575,7 +575,7 @@ INDRA_camp5.IdentificationParameterFile.SI150-CSI:    si150_csi_id_params.dat
 INDRA_camp5.IdentificationParameterFile.SI150-CSI.SIPGLimits:    Si150PGLimits.dat
 INDRA_camp5.IdentificationParameterFile.SI150-CSI.CsILightMin:    si150_csi_id_lum_min_iso.dat
 INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat
-INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChIoCsI_Ident.dat
+INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChioCsI_C10-12_PGZmin_GGZmax_Gaz1-2.dat
 INDRA_camp5.IdentificationParameterFile.CI-SI:           ChIoSiGrids.dat
 INDRA_camp5.IdentificationParameterFile.SI75-SILI.GG:           Si75GGSiLi.dat
 INDRA_camp5.IdentificationParameterFile.SI75-SILI.PG:           Si75PGSiLi.dat
