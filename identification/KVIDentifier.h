@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.h,v 1.5 2009/03/17 14:16:47 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/03/17 14:16:47 $
+$Id: KVIDentifier.h,v 1.6 2009/04/01 09:32:02 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/01 09:32:02 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -25,7 +25,7 @@ class KVIDentifier : public TCutG
 	
 	Int_t fZ;//! dummy variables used by context menu dialog boxes
 	Int_t fA;//! dummy variables used by context menu dialog boxes
-	Int_t fMassFormula; //*OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
+	Int_t fMassFormula; //! *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
 	
 	// Does nothing. Can be overridden in child classes in order to write any
 	// extra information in between the name of the object and the number of points.
