@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.cpp,v 1.47 2009/04/02 08:09:04 ebonnet Exp $
+$Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -767,7 +767,7 @@ Double_t KVNucleus::GetAMeV()
 KVNumberList KVNucleus::GetKnownARange(Int_t zz){
 
 if (zz==-1) zz=GetZ();	
-KVNumberList nla; nla.SetMinMax(zz,3*zz);
+KVNumberList nla; nla.SetMinMax(zz,4*zz);
 KVNumberList nlb;
 nla.Begin();
 while (!nla.End()){
@@ -789,8 +789,8 @@ Double_t emax=0;
 Int_t amax=0;
 while (!nla.End()){
 	Int_t aa = nla.Next();
-	if (GetBindingEnergy(zz,aa)/aa>emax) {
-		emax = GetBindingEnergy(zz,aa)/aa;
+	if (GetBindingEnergyPerNucleon(zz,aa)>emax) {
+		emax = GetBindingEnergyPerNucleon(zz,aa);
 		amax = aa;
 	}
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.h,v 1.39 2009/04/02 08:09:04 ebonnet Exp $
+$Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -105,7 +105,7 @@ class KVNucleus:public KVParticle {
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1);
    
 	KVNumberList GetKnownARange(Int_t z=-1);
-	Int_t GetAWithMaxBindingEnergy(Int_t zz);
+	Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
 	
 	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
 		
