@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.cpp,v 1.46 2009/03/03 13:36:00 franklan Exp $
+$Id: KVNucleus.cpp,v 1.47 2009/04/02 08:09:04 ebonnet Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,6 +18,8 @@ $Id: KVNucleus.cpp,v 1.46 2009/03/03 13:36:00 franklan Exp $
 #include "KVParticleCondition.h"
 #include "Riostream.h"
 #include "TMethodCall.h"
+#include "KVNumberList.h"
+
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
 Double_t KVNucleus::kAMU = 9.31494043e02;
@@ -728,6 +730,20 @@ Double_t KVNucleus::GetBindingEnergy(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
+Double_t KVNucleus::GetBindingEnergyPerNucleon(Int_t z, Int_t a)
+{
+//Returns binding energy in MeV/A for this nucleus.
+
+   if (z == -1)
+      z = GetZ();
+   if (a == -1)
+      a = GetA();
+	
+	if (a==0) return 0;
+   return GetBindingEnergy(z,a)/a;
+}
+//________________________________________________________________________________________
+
 Double_t KVNucleus::GetEnergyPerNucleon()
 {
    //
@@ -746,6 +762,41 @@ Double_t KVNucleus::GetAMeV()
    return GetEnergyPerNucleon();
 }
 
+//________________________________________________________________________________________
+
+KVNumberList KVNucleus::GetKnownARange(Int_t zz){
+
+if (zz==-1) zz=GetZ();	
+KVNumberList nla; nla.SetMinMax(zz,3*zz);
+KVNumberList nlb;
+nla.Begin();
+while (!nla.End()){
+	Int_t aa = nla.Next();
+	if (IsKnown(zz,aa)) nlb.Add(aa);
+}
+return nlb;
+
+}
+
+//________________________________________________________________________________________
+
+Int_t KVNucleus::GetAWithMaxBindingEnergy(Int_t zz){
+
+if (zz==-1) zz=GetZ();	
+KVNumberList nla = GetKnownARange(zz);
+nla.Begin();
+Double_t emax=0;
+Int_t amax=0;
+while (!nla.End()){
+	Int_t aa = nla.Next();
+	if (GetBindingEnergy(zz,aa)/aa>emax) {
+		emax = GetBindingEnergy(zz,aa)/aa;
+		amax = aa;
+	}
+}
+return amax;
+
+}
 //___________________________________________________________________________//
 
 void KVNucleus::AddGroup_Withcondition(const Char_t* groupname,KVParticleCondition* pc)

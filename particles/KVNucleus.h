@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVNucleus.h,v 1.38 2009/03/06 08:59:18 franklan Exp $
+$Id: KVNucleus.h,v 1.39 2009/04/02 08:09:04 ebonnet Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +23,10 @@ $Id: KVNucleus.h,v 1.38 2009/03/06 08:59:18 franklan Exp $
 #include "KVString.h"
 #include "KVDataSet.h"
 
+class KVNumberList;
+
 class KVNucleus:public KVParticle {
+
 
  private:
    UChar_t fA;                  //nuclear mass number
@@ -99,7 +102,12 @@ class KVNucleus:public KVParticle {
    Double_t GetAMeV();
    Double_t GetMassExcess(Int_t z = -1, Int_t a = -1);
    Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1);
-   static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
+   Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1);
+   
+	KVNumberList GetKnownARange(Int_t z=-1);
+	Int_t GetAWithMaxBindingEnergy(Int_t zz);
+	
+	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
 		
    Bool_t IsKnown(int z = -1, int a = -1);
 
@@ -114,7 +122,7 @@ class KVNucleus:public KVParticle {
     KVNucleus & operator+=(const KVNucleus & rhs);
     KVNucleus & operator-=(const KVNucleus & rhs);
 	
-	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergy");
+	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
 	
     ClassDef(KVNucleus, 5)      //Class describing atomic nuclei
 };
