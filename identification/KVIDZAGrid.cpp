@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.21 2009/04/02 13:43:21 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.22 2009/04/02 14:52:26 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -293,8 +293,8 @@ void KVIDZAGrid::CalculateLineWidths()
    //classes).
 
 
-   Info("CalculateLineWidths",
-         "For grid %s (%s vs. %s, runs %s).", GetName(), GetVarY(), GetVarX(), GetRunList());
+//    Info("CalculateLineWidths",
+//          "For grid %s (%s vs. %s, runs %s).", GetName(), GetVarY(), GetVarX(), GetRunList());
 			
    for (Int_t i = 0; i < (Int_t) GetNumberOfIdentifiers(); i++) {
 
@@ -330,7 +330,7 @@ void KVIDZAGrid::CalculateLineWidths()
 
       //default width of 16000 in case of "orphan" line 
       if (i_other < 0) {
-			Info("CalculateLineWidths", "No line found for comparison with %s. Width set to 16000", _line->GetName());
+			//Info("CalculateLineWidths", "No line found for comparison with %s. Width set to 16000", _line->GetName());
          _line->SetWidth(16000.);
          continue;              // skip to next line
       }
@@ -425,7 +425,7 @@ void KVIDZAGrid::CalculateLineWidths()
       _line->SetAsymWidth(D_L, D_R);
 		
 		
-		Info("CalculateLineWidths", "...width for line %s set to : %f (D_L=%f,D_R=%f)", _line->GetName(), _line->GetWidth(), D_L, D_R);
+		//Info("CalculateLineWidths", "...width for line %s set to : %f (D_L=%f,D_R=%f)", _line->GetName(), _line->GetWidth(), D_L, D_R);
    }
 }
 
