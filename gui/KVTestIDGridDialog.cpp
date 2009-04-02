@@ -297,8 +297,6 @@ void KVTestIDGridDialog::TestGrid()
    fProgressBar->Reset();
    fSelectedGrid->Connect("Increment(Float_t)", "TGHProgressBar",
                           fProgressBar, "SetPosition(Float_t)");
-   // perform initialisation of grid (sort lines, calculate line widths etc.)
-   fSelectedGrid->Initialize();
 #ifdef __WITHOUT_TGBUTTON_SETENABLED
 #define SetEnabled(flag) \
    SetState( flag ? kButtonUp : kButtonDisabled )
