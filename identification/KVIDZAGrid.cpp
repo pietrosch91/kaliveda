@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.20 2009/04/02 13:11:46 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.21 2009/04/02 13:43:21 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -798,6 +798,12 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             y1 = -y1;
             ix1 = -1;
          }
+			if( yy >= y1 )
+				fICode = kICODE0; // we are within the 'natural width' of the last line
+			else {
+         	fICode = kICODE6; // we are too far from first line to extrapolate correctly
+				Z = Zsup-1; // give Z below first line of grid, but this is an upper limit
+			}
       } else {
          fICode = kICODE8;      //  Z indetermine ou (x,y) hors limites
       }
@@ -1077,7 +1083,7 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
 			if( yy >= y1 )
 				fICode = kICODE0; // we are within the 'natural width' of the last line
 			else {
-         	fICode = kICODE6; // we are too far from last line to extrapolate correctly
+         	fICode = kICODE6; // we are too far from first line to extrapolate correctly
 				Z = Zsup-1; // give Z below first line of grid, but this is an upper limit
 			}
       }
