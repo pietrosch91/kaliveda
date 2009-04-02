@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.cpp,v 1.6 2009/04/01 09:33:36 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/04/01 09:33:36 $
+$Id: KVIDGraph.cpp,v 1.7 2009/04/02 10:24:19 ebonnet Exp $
+$Revision: 1.7 $
+$Date: 2009/04/02 10:24:19 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -961,16 +961,15 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* hname)
 		printf(" KVIDGraph::TestIdentificationWithTree l histo %s n existe pas\n",hname);	
 		return;
 	}
-	data->SetDirectory(0);
+	
 	TH2F* idmap = 0;
 	if ( (idmap = (TH2F* )gROOT->FindObject("idcode_map") )){
 		delete idmap;
 	}
 	idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
-	idmap->SetDirectory(0);
-
+	
    KVReconstructedNucleus *nuc = new KVReconstructedNucleus;
-	gROOT->cd();
+	
 	TTree* tid = 0;
 	if ( (tid = (TTree* )gROOT->FindObject("tree_idresults")) ) {
 		printf(" KVIDGraph::TestIdentificationWithTree effacemenent de l arbre existant\n");
