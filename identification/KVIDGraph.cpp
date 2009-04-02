@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.cpp,v 1.7 2009/04/02 10:24:19 ebonnet Exp $
-$Revision: 1.7 $
-$Date: 2009/04/02 10:24:19 $
+$Id: KVIDGraph.cpp,v 1.8 2009/04/02 13:11:07 franklan Exp $
+$Revision: 1.8 $
+$Date: 2009/04/02 13:11:07 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -789,6 +789,8 @@ void KVIDGraph::Scale(Double_t sx, Double_t sy)
 void KVIDGraph::NewCut()
 {
 	// GUI method called from context menu to draw a new cut and add it to graph.
+	// A dialog box with drop-down list pops up for the user to choose the class of the
+	// new cut, unless only one choice is possible, in which case it is used automatically.
 	// For each KVIDGraph-derived class, the list of possible cut classes and the
 	// default class are define in .kvrootrc by the variables:
 	//
@@ -803,14 +805,17 @@ void KVIDGraph::NewCut()
 	resname.Form("%s.DefaultCutClass", ClassName());
 	TString cut_default = gEnv->GetValue(resname.Data(),"");
 	TString cut_class; Bool_t okpressed;
-	if(cut_default=="") cut_default=cut_choices;
-	new KVDropDownDialog(gClient->GetRoot(),
+	if(cut_choices.Contains(" ")){
+		new KVDropDownDialog(gClient->GetRoot(),
 			"Choose class of new cut :",
 			cut_choices.Data(),
 			cut_default.Data(),
 			&cut_class,
 			&okpressed);
-	if(!okpressed) return;
+		if(!okpressed) return;
+	}
+	else
+		cut_class=cut_choices;
 	DrawAndAdd("CUT",cut_class.Data());
 }
 
@@ -819,6 +824,8 @@ void KVIDGraph::NewCut()
 void KVIDGraph::NewIdentifier()
 {
 	// GUI method called from context menu to draw a new identifier and add it to graph.
+	// A dialog box with drop-down list pops up for the user to choose the class of the
+	// new identifier, unless only one choice is possible, in which case it is used automatically.
 	// For each KVIDGraph-derived class, the list of possible identifier classes and the
 	// default class are define in .kvrootrc by the variables:
 	//
@@ -826,20 +833,24 @@ void KVIDGraph::NewIdentifier()
 	// +[class_name].IDClass:  [id class 2]
 	// + ...
 	// [class_name].DefaultIDClass:  [id class]
+	
 	TString resname;
 	resname.Form("%s.IDClass", ClassName());
 	TString cut_choices = gEnv->GetValue(resname.Data(),"");
 	resname.Form("%s.DefaultIDClass", ClassName());
 	TString cut_default = gEnv->GetValue(resname.Data(),"");
 	TString cut_class; Bool_t okpressed;
-	if(cut_default=="") cut_default=cut_choices;
-	new KVDropDownDialog(gClient->GetRoot(),
+	if(cut_choices.Contains(" ")){
+		new KVDropDownDialog(gClient->GetRoot(),
 			"Choose class of new identifier :",
 			cut_choices.Data(),
 			cut_default.Data(),
 			&cut_class,
 			&okpressed);
-	if(!okpressed) return;
+		if(!okpressed) return;
+	}
+	else
+		cut_class=cut_choices;
 	DrawAndAdd("ID",cut_class.Data());
 }
 
@@ -888,6 +899,9 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
    //The 'identification" we represent is the result of the KVReconstructedNucleus::GetPID() method.
    //For particles identified in Z only, this is the "real Z".
    //For particles with A & Z identification, this is Z + 0.2*(A - 2*Z)
+
+	//Initialize the grid: calculate line widths etc.
+	Initialize();
 
    KVReconstructedNucleus *nuc = new KVReconstructedNucleus;
 
@@ -944,7 +958,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
 
 //___________________________________________________________________________________
 
-void KVIDGraph::TestIdentificationWithTree(const Char_t* hname)
+void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
 {
    //This method allows to test the identification capabilities of the grid using data in a TH2F.
    //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
@@ -956,9 +970,13 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* hname)
    //The 'identification" we represent is the result of the KVReconstructedNucleus::GetPID() method.
    //For particles identified in Z only, this is the "real Z".
    //For particles with A & Z identification, this is Z + 0.2*(A - 2*Z)
-   TH2F* data = (TH2F* )gROOT->FindObject(hname);
+	
+	//Initialize the grid: calculate line widths etc.
+	Initialize();
+
+   TH2F* data = (TH2F* )gROOT->FindObject(name_of_data_histo);
 	if (!data) {
-		printf(" KVIDGraph::TestIdentificationWithTree l histo %s n existe pas\n",hname);	
+		printf(" KVIDGraph::TestIdentificationWithTree l histo %s n existe pas\n",name_of_data_histo);	
 		return;
 	}
 	

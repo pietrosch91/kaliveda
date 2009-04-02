@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.h,v 1.5 2009/04/01 09:33:36 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/04/01 09:33:36 $
+$Id: KVIDGraph.h,v 1.6 2009/04/02 13:11:07 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/02 13:11:07 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -98,7 +98,7 @@ class KVIDGraph : public TCutG
    // (no isotopic information). Default is to identify both Z & A
    // (fOnlyZid = kFALSE). Note that setting fOnlyZid=kTRUE changes the way line
    // widths are calculated (see KVIDGrid::CalculateLineWidths)
-   void SetOnlyZId(Bool_t yes=kTRUE) { fOnlyZId = yes; Modified(); };//  *TOGGLE={Hierarchy="Set.../Z identification only"}*
+   void SetOnlyZId(Bool_t yes=kTRUE) { fOnlyZId = yes; Modified(); };//  *TOGGLE={Hierarchy="Z identification only"}*
 	void SetMassFormula(Int_t);// *SUBMENU={Hierarchy="Set.../Mass Formula"}*
    void WriteAsciiFile(const Char_t * filename);// *MENU*
    void SetXScaleFactor(Double_t = 0); //  *MENU={Hierarchy="Scale.../X Scale Factor"}*
@@ -130,7 +130,7 @@ class KVIDGraph : public TCutG
 	};// *MENU={Hierarchy="View.../SetLineWidth"}*
 	
 	void TestGrid(); // *MENU={Hierarchy="Test.../TestGrid"}*
-   void TestIdentificationWithTree(const Char_t* hname); //  *MENU={Hierarchy="Test.../TestIdentificationWithTree"}*
+   void TestIdentificationWithTree(const Char_t* name_of_data_histo); //  *MENU={Hierarchy="Test.../TestIdentificationWithTree"}*
 	
    Double_t GetXScaleFactor();
    Double_t GetYScaleFactor();
