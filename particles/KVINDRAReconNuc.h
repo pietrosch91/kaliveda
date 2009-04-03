@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVINDRAReconNuc.h,v 1.38 2008/01/21 12:42:33 franklan Exp $
+$Id: KVINDRAReconNuc.h,v 1.39 2009/04/03 14:28:37 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -93,7 +93,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
 
-   ClassDef(KVINDRAReconNuc, 6) //Nucleus identified by INDRA array
+   ClassDef(KVINDRAReconNuc, 7) //Nucleus identified by INDRA array
 };
 
 //____________________________________________________________________________________________//

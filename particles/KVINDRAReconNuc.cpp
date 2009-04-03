@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVINDRAReconNuc.cpp,v 1.60 2008/12/02 09:15:17 ebonnet Exp $
+$Id: KVINDRAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
                           kvdetectedparticle.cpp  -  description
                              -------------------
     begin                : Thu Oct 10 2002
@@ -78,9 +78,13 @@ ClassImp(KVINDRAReconNuc);
 //
 //       part.GetCodes().GetVedaIDCode()  [ = 0, 1, 2, etc.]
 //
-//Information on whether the particle's mass was measured or calculated from Z :
+//Information on whether the particle's mass was measured :
 //
-//       part.GetCodes().GetIsotopeResolve()  [ = kTRUE or kFALSE]
+//       part.IsAMeasured()  [ = kTRUE or kFALSE]
+//
+//Information on whether the particle's charge was measured :
+//
+//       part.IsZMeasured()  [ = kTRUE or kFALSE]
 //
 //You can also access the information stored in KVINDRACodes on the status codes returned
 //by the different identification telescopes used to identify the particle:
@@ -155,6 +159,15 @@ void KVINDRAReconNuc::Streamer(TBuffer & R__b)
          SetRealZ(RealZ);
          SetRealA(RealA);
       }
+      if (R__v < 7) {
+			// before version 7 (and before version 11 of KVReconstructedNucleus),
+			// the kZMeasured and kAMeasured bits were not used.
+			// for data written previous to this, we :
+			//   SetZMeasured(kTRUE) for particles with IsIdentified()=kTRUE
+			//   SetAMeasured(kTRUE) for particles with fCodes.GetIsotopeResolve()=kTRUE
+			SetZMeasured(IsIdentified());
+			SetAMeasured(fCodes.GetIsotopeResolve());
+		}
       R__b.CheckByteCount(R__s, R__c, KVINDRAReconNuc::IsA());
    } else {
       KVINDRAReconNuc::Class()->WriteBuffer(R__b, this);
