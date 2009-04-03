@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSiLiCsI_camp5.h,v 1.1 2009/03/17 08:51:57 franklan Exp $
-$Revision: 1.1 $
-$Date: 2009/03/17 08:51:57 $
+$Id: KVIDSiLiCsI_camp5.h,v 1.2 2009/04/03 14:40:45 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/04/03 14:40:45 $
 */
 
 //Created by KVClassFactory on Mon Mar 16 09:50:33 2009
@@ -23,7 +23,6 @@ class KVIDSiLiCsI_camp5 : public KVIDSiLiCsI
    KVIDSiLiCsI_camp5();
    virtual ~KVIDSiLiCsI_camp5();
 
-   virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
    virtual Bool_t SetIDGrid(KVIDGraph*);
 
    virtual void Initialize(void);

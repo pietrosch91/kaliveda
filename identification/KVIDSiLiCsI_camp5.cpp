@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSiLiCsI_camp5.cpp,v 1.1 2009/03/17 08:51:57 franklan Exp $
-$Revision: 1.1 $
-$Date: 2009/03/17 08:51:57 $
+$Id: KVIDSiLiCsI_camp5.cpp,v 1.2 2009/04/03 14:40:45 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/04/03 14:40:45 $
 */
 
 //Created by KVClassFactory on Mon Mar 16 09:50:33 2009
@@ -33,74 +33,15 @@ KVIDSiLiCsI_camp5::~KVIDSiLiCsI_camp5()
    // Destructor
 }
 
-Bool_t KVIDSiLiCsI_camp5::SetIdentificationParameters(const KVMultiDetArray* MDA)
-{
-   // Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
-   // kind (label) in the multidetector array. Therefore this method need only be called once, and not
-   // called for each telescope. The kind/label (returned by GetLabel) of the telescope corresponds
-   // to the URI used to find the plugin class in $KVROOT/KVFiles/.kvrootrc.
-   //
-   // Parameters are read from the files with names given by the environment variables:
-   // INDRA_camp5.IdentificationParameterFile.SILI-CSI.GG:       [filename]
-   // INDRA_camp5.IdentificationParameterFile.SILI-CSI.PG:       [filename]
-
-      
-   // ****************************** GRAND GAIN ********************************//
-   TString filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s.GG",GetLabel()) );
-   if( filename == "" ){
-      Warning("SetIdentificationParameters",
-            "No filename defined for GG Z/A grids. Should be given by %s.IdentificationParameterFile.%s.GG",
-            gDataSet->GetName(), GetLabel());
-      return kFALSE;
-   }
-   TString path;
-   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-      Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
-      return kFALSE;
-   }
-   
-   //read grids from file
-   Info("SetIdentificationParameters", "Reading GG Z/A grids from file : %s", path.Data());
-   gIDGridManager->ReadAsciiFile(path.Data());
-   
-   // ****************************** PETIT GAIN ********************************//
-   filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s.PG",GetLabel()) );
-   if( filename == "" ){
-      Warning("SetIdentificationParameters",
-            "No filename defined for PG Z/A grids. Should be given by %s.IdentificationParameterFile.%s.PG",
-            gDataSet->GetName(), GetLabel());
-      return kFALSE;
-   }
-   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-      Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
-      return kFALSE;
-   }
-   
-   //read grids from file
-   Info("SetIdentificationParameters", "Reading PG Z/A grids from file : %s", path.Data());
-   gIDGridManager->ReadAsciiFile(path.Data());
-   
-   return kTRUE;
-}
-
-
 //___________________________________________________________________________________________//
 
 Bool_t KVIDSiLiCsI_camp5::SetIDGrid(KVIDGraph *grid)
 {
    // Called by KVIDGridManager::FindGrid in order to set grids for telescope.
-   // We check ring & module number, "ID Type" (='SILI-CSI'), and run number.
    // NB. if this method returns kTRUE, KVIDGridManager::FindGrid stops searching
    // for grids for this telescope. Therefore, we never return kTRUE as there can be
    // several grids for each telescope.
    
-   //check identification type
-   if( strcmp(grid->GetParameters()->GetStringValue("ID Type"), "SILI-CSI") ) return kFALSE;
-
 	if( !grid->HandlesIDTelescope(this) )   
       return kFALSE;
    
