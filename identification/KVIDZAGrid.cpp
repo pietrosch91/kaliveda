@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.22 2009/04/02 14:52:26 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.23 2009/04/03 14:31:46 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -577,6 +577,8 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    Int_t kinfi, kinf, ksup, ksups;
    kinfi = kinf = ksup = ksups = -1;
    fICode = kICODE0;
+	Z=-1;
+	A=-1;
    if (GetClosestLine()->WhereAmI(x, y, "above")) {
       //point is above closest line, closest line is "kinf"
       //Info("IdentZA","point is above closest line, closest line is kinf");
@@ -934,17 +936,16 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
 
 void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
 {
-   /*
-	printf("rentre dans void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)\n");
-	*/
-	//Finds Z & 'real Z' for point (x,y) once closest lines to point have been found (see GetNearestIDLine).
-   //This is is based on the algorithm developed by L. Tassan-Got in IdnCsOr, even the same
-   //variable names and comments have been used (as much as possible).
+	// Finds Z & 'real Z' for point (x,y) once closest lines to point have been found (see GetNearestIDLine).
+   // This is is based on the algorithm developed by L. Tassan-Got in IdnCsOr, even the same
+   // variable names and comments have been used (as much as possible).
 
    //Work out kinfi, kinf, ksup and ksups like in IdnCsIOr
    Int_t kinfi, kinf, ksup, ksups;
    kinfi = kinf = ksup = ksups = -1;
    fICode = kICODE0;
+	Z = -1;
+   
    if (GetClosestLine()->WhereAmI(x, y, "above")) {
       //point is above closest line, closest line is "kinf"
       //Info("IdentZA","point is above closest line, closest line is kinf");
@@ -1000,7 +1001,7 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
    Int_t ix1, ix2;
    yy = y1 = y2 = 0;
    ix1 = ix2 = 0;
-   
+	
    if (ksup > -1) {         // there is a line above the point
 		if (kinf > -1) {              // there is a line below the point
                
@@ -1121,7 +1122,6 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
         /*no lines found at all*/
    else {
       fICode = kICODE8;         // Z indetermine ou (x,y) hors limites
-      Z = -1.0;
    }
    
    
@@ -1203,21 +1203,44 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
       }
    }
 	
-	/*
-	printf("Sort de KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)\n");
-	printf("fICode=%d Z=%lf\n",Int_t(fICode),Z);
-   */
 }
 
 //_______________________________________________________________________________________________//
 
 void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const
 {
-   // Set identity of nucleus based on position in grid
-   // By default (OnlyZId()=kFALSE) this means identifying the Z & A of the nucleus
-   // If OnlyZId()=kTRUE, only the Z of the nucleus is established
+   // Set identity of nucleus based on position in grid.
+   //
+	// By default (OnlyZId()=kFALSE) this means identifying the Z & A of the nucleus.
+	// In this case, we consider that the nucleus' Z & A have been correctly measured
+	// if the 'quality code' returned by IdentZA() is < kICODE4:
+	//   we set nuc->IsZMeasured() to kTRUE if fICode<kICODE4
+	//   we set nuc->IsAMeasured() to kTRUE if fICode<kICODE4
+	//
+   // If OnlyZId()=kTRUE, only the Z of the nucleus is established.
+	// In this case, we consider that the nucleus' Z has been correctly measured
+	// if the 'quality code' returned by IdentZ() is < kICODE4, thus:
+	//   we set nuc->IsZMeasured() to kTRUE if fICode<kICODE4
+	//
+	// Special treatments :
+	//
+	// ======Helium isotopes======
+	// there are no 5He, but continuous distribution between 4He and 6He
+	// means that Nint(A) can give mass 5. we put A=4 if RealA<5, and
+	// A=6 if RealA>=5
+	//
+	// ======Beryllium isotopes======
+	// there are no 8Be, but continuous distribution between 7He and 9He
+	// means that Nint(A) can give mass 8. we put A=7 if RealA<8, and
+	// A=9 if RealA>=8
+	//
+	//
 
    Int_t i1, i2;
+	
+	nuc->SetZMeasured(kFALSE);
+	nuc->SetAMeasured(kFALSE);
+	
    KVIDLine *nearest = FindNearestIDLine(x, y, "above", i1, i2);
    if (!nearest) {
       //no lines corresponding to point were found
@@ -1225,23 +1248,50 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
 		return;
    }
    if( OnlyZId() ){
-      //Info("Identify", "Z-identification");
       Double_t Z;
       const_cast < KVIDZAGrid * >(this)->IdentZ(x, y, Z);
-      if (Z > 0) {
-         nuc->SetZ(TMath::Nint(Z));
-         nuc->SetRealZ(Z);
-      }
+		if(fICode<kICODE4 || fICode==kICODE7){
+			nuc->SetZMeasured();
+		}
+		else
+		{
+			Z=0;
+		}
+      nuc->SetRealA(0);
+      nuc->SetZ(TMath::Nint(Z));
+      nuc->SetRealZ(Z);
    }
    else
    {
-      //Info("Identify", "Z & A-identification");
       Int_t Z; Double_t A;
       const_cast < KVIDZAGrid * >(this)->IdentZA(x, y, Z, A);
+		if(fICode<kICODE4 || fICode==kICODE7){
+			nuc->SetZMeasured();
+		}
+		else
+		{
+			Z=0;
+		}
+      nuc->SetRealA(0);
+      nuc->SetRealZ(Z);
       nuc->SetZ(Z);
-      if (A > -1) {
+      if (fICode<kICODE4) {
+			nuc->SetAMeasured();
          nuc->SetRealA(A);
          nuc->SetA(TMath::Nint(A));
+			// special treatments:
+			// there are no 5He, but continuous distribution between 4He and 3He
+			// means that Nint(A) can give mass 5. we put A=4 if RealA<5, and
+			// A=6 if RealA>=5
+			if( nuc->GetZ()==2 && nuc->GetA()==5 ){
+				nuc->SetA( A<5 ? 4 : 6 );
+			}
+			// there are no 8Be, but continuous distribution between 7He and 9He
+			// means that Nint(A) can give mass 8. we put A=7 if RealA<8, and
+			// A=9 if RealA>=8
+			if( nuc->GetZ()==4 && nuc->GetA()==8 ){
+				nuc->SetA( A<8 ? 7 : 9 );
+			}
       }
    }
 }
