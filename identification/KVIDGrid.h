@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.h,v 1.50 2009/04/01 09:33:53 franklan Exp $
+$Id: KVIDGrid.h,v 1.51 2009/04/03 14:30:27 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGrid_H
@@ -43,8 +43,6 @@ class KVIDGrid : public KVIDGraph {
                                        Int_t & idx_max) const;
 
    void Initialize();
-   void Identify(Double_t /*x*/, Double_t /*y*/, KVReconstructedNucleus * /*nuc*/) const
-	{AbstractMethod("Identify");};   
 
 	/*
 	static KVIDGrid *MakeIDGrid(TH2 *hh,TList*lCutG,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
@@ -54,14 +52,14 @@ class KVIDGrid : public KVIDGraph {
 	}
 	*/
 	
-	static KVIDGrid *MakeIDGrid(TList*lObject, Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
+/* 	static KVIDGrid *MakeIDGrid(TList*lObject, Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
 		// Create an KVIDGrid using a list of objects which are converting in KVIDLine with the static method KVIDLine::MakeIDLine
 		// See reference in the KVIDLine doc for the rules of parameters
 		KVIDGrid *idgrid = new KVIDGrid();
 		for (Int_t nn=0;nn<lObject->GetEntries();nn+=1) idgrid->Add("ID",KVIDLine::MakeIDLine(lObject->At(nn),xdeb,xfin,np,save));
 		return idgrid;
 	}
-	
+ */	
    virtual void CalculateLineWidths(){};
 	
 	virtual TClass* DefaultIDLineClass(){
