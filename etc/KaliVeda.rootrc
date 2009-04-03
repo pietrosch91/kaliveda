@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.89 2009/04/03 14:33:12 franklan Exp $
-#$Revision: 1.89 $
+#$Id: KaliVeda.rootrc,v 1.90 2009/04/03 14:39:30 franklan Exp $
+#$Revision: 1.90 $
 #$Author: franklan $
-#$Date: 2009/04/03 14:33:12 $
+#$Date: 2009/04/03 14:39:30 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -578,8 +578,7 @@ INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat
 INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChioCsI_C10-12_PGZmin_GGZmax_Gaz1-2.dat
 INDRA_camp5.IdentificationParameterFile.CI-SI:           ChIoSiGrids.dat
 INDRA_camp5.IdentificationParameterFile.SI75-SILI:           Si75SiLiGrids.dat
-INDRA_camp5.IdentificationParameterFile.SILI-CSI.GG:           SiLiGGCsIR.dat
-INDRA_camp5.IdentificationParameterFile.SILI-CSI.PG:           SiLiPGCsIR.dat
+INDRA_camp5.IdentificationParameterFile.SILI-CSI:           SiLiCsIGrids.dat
 ################################################
 INDRA_e475s.IdentificationParameterFile.CI-SI:          IDGridManager_E475s_CI_SI.dat
 INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL.dat
