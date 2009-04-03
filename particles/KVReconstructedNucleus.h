@@ -52,7 +52,9 @@ class KVReconstructedNucleus:public KVNucleus {
    enum {
       kIsIdentified = BIT(18),  //flag set when identification of particle is complete
       kIsCalibrated = BIT(19),   //flag set when energy calibration of particle is complete
-      kCoherency = BIT(20)   //particle created and/or identified by analysis of energy losses of other particles
+      kCoherency = BIT(20),   //particle created and/or identified by analysis of energy losses of other particles
+      kZMeasured = BIT(21),   //the Z attributed to this nucleus was measured
+      kAMeasured = BIT(22)   //the A attributed to this nucleus was measured
    };
 
    Int_t fNSegDet;              //!number of segmented/independent detectors hit by particle
@@ -206,8 +208,33 @@ class KVReconstructedNucleus:public KVNucleus {
       // Return calculated energy loss in target of reconstructed nucleus (in MeV)
       return fTargetEnergyLoss;
    };
+	
+	virtual void SetZMeasured(Bool_t yes=kTRUE)
+	{
+		// Call with yes=kTRUE for reconstructed nuclei whose
+		// atomic number, Z, was measured, not calculated
+		SetBit(kZMeasured,yes);
+	};
+	virtual void SetAMeasured(Bool_t yes=kTRUE)
+	{
+		// Call with yes=kTRUE for reconstructed nuclei whose
+		// mass number, A, was measured, not calculated
+		SetBit(kAMeasured,yes);
+	};
+	virtual Bool_t IsZMeasured()
+	{
+		// Returns kTRUE for reconstructed nuclei whose
+		// atomic number, Z, was measured, not calculated
+		return TestBit(kZMeasured);
+	};
+	virtual Bool_t IsAMeasured()
+	{
+		// Returns kTRUE for reconstructed nuclei whose
+		// mass number, A, was measured, not calculated
+		return TestBit(kAMeasured);
+	};
 
-   ClassDef(KVReconstructedNucleus, 10)  //Nucleus detected by multidetector array
+   ClassDef(KVReconstructedNucleus, 11)  //Nucleus detected by multidetector array
 };
 
 inline Int_t KVReconstructedNucleus::GetNSegDet() const
