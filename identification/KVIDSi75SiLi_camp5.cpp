@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.cpp,v 1.4 2009/03/17 08:52:27 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/17 08:52:27 $
+$Id: KVIDSi75SiLi_camp5.cpp,v 1.5 2009/04/03 14:33:36 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/04/03 14:33:36 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -39,93 +39,14 @@ KVIDSi75SiLi_camp5::~KVIDSi75SiLi_camp5()
 
 //___________________________________________________________________________________________//
 
-Bool_t KVIDSi75SiLi_camp5::SetIdentificationParameters(const KVMultiDetArray* MDA)
-{
-   // Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
-   // kind (label) in the multidetector array. Therefore this method need only be called once, and not
-   // called for each telescope. The kind/label (returned by GetLabel) of the telescope corresponds
-   // to the URI used to find the plugin class in $KVROOT/KVFiles/.kvrootrc.
-   //
-   // Parameters are read from the files with names given by the environment variables:
-   // INDRA_camp5.IdentificationParameterFile.SI75-SILI.GG:       [filename]
-   // INDRA_camp5.IdentificationParameterFile.SI75-SILI.PG:       [filename]
-   // INDRA_camp5.IdentificationParameterFile.SI75-SILI.PGZ:       [filename]
-
-      
-   // ****************************** GRAND GAIN ********************************//
-   TString filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s.GG",GetLabel()) );
-   if( filename == "" ){
-      Warning("SetIdentificationParameters",
-            "No filename defined for GG Z/A grids. Should be given by %s.IdentificationParameterFile.%s.GG",
-            gDataSet->GetName(), GetLabel());
-      return kFALSE;
-   }
-   TString path;
-   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-      Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
-      return kFALSE;
-   }
-   
-   //read grids from file
-   Info("SetIdentificationParameters", "Reading GG Z/A grids from file : %s", path.Data());
-   gIDGridManager->ReadAsciiFile(path.Data());
-   
-   // ****************************** PETIT GAIN ********************************//
-   filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s.PG",GetLabel()) );
-   if( filename == "" ){
-      Warning("SetIdentificationParameters",
-            "No filename defined for PG Z/A grids. Should be given by %s.IdentificationParameterFile.%s.PG",
-            gDataSet->GetName(), GetLabel());
-      return kFALSE;
-   }
-   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-      Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
-      return kFALSE;
-   }
-   
-   //read grids from file
-   Info("SetIdentificationParameters", "Reading PG Z/A grids from file : %s", path.Data());
-   gIDGridManager->ReadAsciiFile(path.Data());
-   
-   // ****************************** PETIT GAIN  Z-ONLY ********************************//
-   filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s.PGZ",GetLabel()) );
-   if( filename == "" ){
-      Warning("SetIdentificationParameters",
-            "No filename defined for PG Z grids. Should be given by %s.IdentificationParameterFile.%s.PGZ",
-            gDataSet->GetName(), GetLabel());
-      return kFALSE;
-   }
-   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-      Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
-      return kFALSE;
-   }
-   
-   //read grids from file
-   Info("SetIdentificationParameters", "Reading PG Z grids from file : %s", path.Data());
-   gIDGridManager->ReadAsciiFile(path.Data());
-   
-   return kTRUE;
-}
-
-//___________________________________________________________________________________________//
-
 Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGraph *grid)
 {
    // Called by KVIDGridManager::FindGrid in order to set grids for telescope.
-   // We check ring & module number, "ID Type" (='SI75-SILI'), and run number.
+   // 
    // NB. if this method returns kTRUE, KVIDGridManager::FindGrid stops searching
    // for grids for this telescope. Therefore, we never return kTRUE as there can be
    // several grids for each telescope.
    
-   //check identification type
-   if( strcmp(grid->GetParameters()->GetStringValue("ID Type"), "SI75-SILI") ) return kFALSE;
-
 	if( !grid->HandlesIDTelescope(this) )   
       return kFALSE;
    
@@ -137,6 +58,11 @@ Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGraph *grid)
    
    //the grid is accepted
    fIDGrids->Add(grid);
+	if( !strcmp(grid->GetVarY(),"SI75_GG") ) fGGgrid = (KVIDZAGrid*)grid;
+	else if( !strcmp(grid->GetVarY(),"SI75_PG") ){
+		if( grid->OnlyZId() ) fPGZgrid = (KVIDZAGrid*)grid;
+		else fPGgrid = (KVIDZAGrid*)grid;
+	}
       
    return kFALSE; // make gIDGridManager keep searching!
 }
@@ -146,19 +72,17 @@ Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGraph *grid)
 void KVIDSi75SiLi_camp5::Initialize()
 {
    // Initialize telescope for current run.
-   // Pointers to grids for run are set, and if there is at least 1 (GG) grid,
-   // we set fCanIdentify = kTRUE
-   // "Natural" line widths are calculated for KVIDZAGrids.
+   // If there is at least 1 (GG) grid, we set fCanIdentify = kTRUE
+   // "Natural" line widths are calculated for grids.
    
-   fGGgrid = (KVIDZAGrid*)GetIDGrid("GG");
    if( fGGgrid ){
       SetBit(kReadyForID);
       fGGgrid->Initialize();
+   	if( fPGgrid ) fPGgrid->Initialize();
+   	if( fPGZgrid ) fPGZgrid->Initialize();
    }
-   fPGgrid = (KVIDZAGrid*)GetIDGrid("PG");
-   if( fPGgrid ) fPGgrid->Initialize();
-   fPGZgrid = (KVIDZAGrid*)GetIDGrid("PGZ");
-   if( fPGZgrid ) fPGZgrid->Initialize();
+	else
+		ResetBit(kReadyForID);
 }
 
 //___________________________________________________________________________________________
@@ -182,7 +106,7 @@ Double_t KVIDSi75SiLi_camp5::GetIDMapY(Option_t * opt)
 
 Bool_t KVIDSi75SiLi_camp5::Identify(KVReconstructedNucleus * nuc)
 {
-   //Particle identification and code setting using identification grids
+   //Particle identification and code setting using identification grids.
 
       KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
       
@@ -194,50 +118,50 @@ Bool_t KVIDSi75SiLi_camp5::Identify(KVReconstructedNucleus * nuc)
       KVIDGrid* theIdentifyingGrid = 0;
       
       fGGgrid->Identify(sili, si75, irnuc);
-      
-      if( fGGgrid->GetQualityCode() > 5 && fPGgrid ){ // any code > 5 means we have to try PG grid (if there is one)
+      theIdentifyingGrid =(KVIDGrid*)fGGgrid;
+		      
+      if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
          
          // try Z & A identification in Si75(PG)-SiLi(PG) map
          si75 = GetIDMapY("PG");
-         fPGgrid->Identify(si75, sili, irnuc);
+         fPGgrid->Identify(sili, si75, irnuc);
+         theIdentifyingGrid = (KVIDGrid*)fPGgrid;
          
-         if( fPGgrid->GetQualityCode() > 5 && fPGZgrid ){ // any code > 5 means we have to try PGZ grid (if there is one)
+         if( fPGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGZgrid ){ //we have to try PGZ grid (if there is one)
             
-            // try Z identification in Si75(PG)-SiLi(PG) map
-            if( fPGZgrid->IsIdentifiable(sili,si75) ){
-               
-               fPGZgrid->Identify(sili,si75,irnuc);
-               theIdentifyingGrid = (KVIDGrid*)fPGZgrid;
-               
-            } else {
-               
-               // complete and utter failure
-               //set subcode 8 in particle
-               SetIDSubCode(irnuc->GetCodes().GetSubCodes(), KVIDZAGrid::kICODE8);
-            }
+            fPGZgrid->Identify(sili,si75,irnuc);
+         	theIdentifyingGrid = (KVIDGrid*)fPGZgrid;
          }
-         else
-         {
-            theIdentifyingGrid = (KVIDGrid*)fPGgrid;
-         }
-      }
-      else
-      {
-         theIdentifyingGrid =(KVIDGrid*)fGGgrid;
       }
 
       //set subcode in particle
       SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
-
-      //ID totally unsuccessful if ICode=8
-      if (theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8)
-         return kFALSE;
-
-      //ID should be attempted in preceding telescope if ICode=6 or 7
-      if (theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE6
-          || theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7)
-         return kFALSE;
-
+		
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
+			// only if the final quality code is kICODE8 do we consider that it is
+			// worthwhile looking elsewhere. In all other cases, the particle has been
+			// "identified", even if we still don't know its Z and/or A (in this case
+			// we consider that we have established that they are unknowable).
+			return kFALSE;
+		}
+		
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
+			// if the final quality code is kICODE7 (above last line in grid) then the estimated 
+			// Z is only a minimum value (Zmin)
+			irnuc->SetIDCode( kIDCode5 );
+			return kTRUE;
+		}
+			
+		if(theIdentifyingGrid->GetQualityCode() > KVIDZAGrid::kICODE3 &&
+				theIdentifyingGrid->GetQualityCode() < KVIDZAGrid::kICODE7){
+			// if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
+			// corresponds to a point which is inbetween the lines, i.e. noise
+			irnuc->SetIDCode( kIDCode10 );
+			return kTRUE;
+		}
+		
+		// set general ID code Si75-SiLi
+      irnuc->SetIDCode( kIDCode3 );
       return kTRUE;
 }
 
