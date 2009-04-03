@@ -76,8 +76,6 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
 {
    //Particle identification and code setting using identification grid KVIDGCsI* fGrid.
 
-   if (CsIGrid) {
-
       //perform identification
       KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
       Double_t csir = GetIDMapY();
@@ -104,11 +102,7 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
          irnuc->SetIDCode(kIDCode0);
       
       return kTRUE;
-   }
-   //no grid for module
-   SetIDSubCode(((KVINDRAReconNuc *) nuc)->GetCodes().GetSubCodes(),
-                KVIDGCsI::kICODE9);
-   return kFALSE;
+
 }
 
 // //________________________________________________________________________________________//
