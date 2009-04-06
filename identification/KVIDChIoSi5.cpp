@@ -1,7 +1,7 @@
 /*
-$Id: KVIDChIoSi5.cpp,v 1.1 2007/12/10 13:02:13 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/12/10 13:02:13 $
+$Id: KVIDChIoSi5.cpp,v 1.2 2009/04/06 15:20:28 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/04/06 15:20:28 $
 */
 
 //Created by KVClassFactory on Mon Dec 10 12:58:26 2007
@@ -35,12 +35,12 @@ KVIDChIoSi5::~KVIDChIoSi5()
 Double_t KVIDChIoSi5::GetIDMapX(Option_t *)
 {
    //X coordinate for 5th campaign ChIo-Si identification is KVSilicon::GetEnergy
-   return GetDetector(2)->GetEnergy();
+   return fsi->GetEnergy();
 }
 
 Double_t KVIDChIoSi5::GetIDMapY(Option_t *)
 {
    //Y coordinate for 5th campaign ChIo-Si identification is KVChIo::GetEnergy
-   return GetDetector(1)->GetEnergy();
+   return fchio->GetEnergy();
 }
 
