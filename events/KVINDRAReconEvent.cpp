@@ -128,7 +128,7 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
    //We loop over the newly-read particles in order to set their
    //IsOK() status by comparison with the event's code mask
    //
-   //We "correct" the GetIsotopeResolve flag in cases where particles are wrongly labelled
+   //We "correct" the KVReconstructedNucleus::IsAMeasured() flag in cases where particles are wrongly labelled
    //as having measured masses (e.g. 1st campaign Si-CsI identifications).
    //If GetRealA() - GetA() == 0 then the particle's mass was not measured
    //(for CsI R-L identified-particles, no such 'correction' is applied).
@@ -163,9 +163,9 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
             par->SetIsOK();
          else
             par->SetIsOK(kFALSE);
-         if(par->GetCodes().GetIsotopeResolve() && !par->GetCodes().TestIDCode( kIDCode_CsI )){
+         if(par->IsAMeasured() && !par->GetCodes().TestIDCode( kIDCode_CsI )){
             //check realA != A
-            if( (par->GetRealA()-par->GetA()) == 0 ) par->GetCodes().SetIsotopeResolve(kFALSE);
+            if( (par->GetRealA()-par->GetA()) == 0 ) par->SetAMeasured(kFALSE);
          }
          if (R__v < 4) {
             if (HasMeanAngles())
@@ -382,15 +382,14 @@ void KVINDRAReconEvent::ChangeFragmentMasses(UChar_t mass_formula)
    //
    //Only particles with 'acceptable' ID & E codes stopping in (or passing through)
    //a CsI detector are affected; particles whose mass was measured
-   //(GetCodes().GetIsotopeResolve()==kTRUE) are not affected by the change of
-   //mass formula.
-   //
+   //(i.e. having KVReconstructedNucleus::IsAMeasured()==kTRUE)
+	//are not affected by the change of mass formula.
    
    ResetGetNextParticle();
    KVINDRAReconNuc* frag;
    while( (frag = (KVINDRAReconNuc*)GetNextParticle("ok")) ){
       
-      if( !frag->GetCodes().GetIsotopeResolve() ){
+      if( !frag->IsAMeasured() ){
          
          Float_t oldA = (Float_t)frag->GetA();
          frag->SetMassFormula(mass_formula);
