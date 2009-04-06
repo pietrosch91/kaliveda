@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.cpp,v 1.5 2009/04/03 14:33:36 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/04/03 14:33:36 $
+$Id: KVIDSi75SiLi_camp5.cpp,v 1.6 2009/04/06 09:28:37 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/06 09:28:37 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -72,7 +72,7 @@ Bool_t KVIDSi75SiLi_camp5::SetIDGrid(KVIDGraph *grid)
 void KVIDSi75SiLi_camp5::Initialize()
 {
    // Initialize telescope for current run.
-   // If there is at least 1 (GG) grid, we set fCanIdentify = kTRUE
+   // If there is at least 1 (GG) grid, we set IsReadyForID = kTRUE
    // "Natural" line widths are calculated for grids.
    
    if( fGGgrid ){
