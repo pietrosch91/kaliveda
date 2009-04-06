@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSiLiCsI_camp5.cpp,v 1.3 2009/04/06 09:28:58 franklan Exp $
-$Revision: 1.3 $
-$Date: 2009/04/06 09:28:58 $
+$Id: KVIDSiLiCsI_camp5.cpp,v 1.4 2009/04/06 15:23:58 franklan Exp $
+$Revision: 1.4 $
+$Date: 2009/04/06 15:23:58 $
 */
 
 //Created by KVClassFactory on Mon Mar 16 09:50:33 2009
@@ -28,6 +28,7 @@ KVIDSiLiCsI_camp5::KVIDSiLiCsI_camp5()
    // Default constructor
 	fGGgrid=0;
 	fPGgrid=0;
+	fSiLi = fCsI = 0;
 }
 
 KVIDSiLiCsI_camp5::~KVIDSiLiCsI_camp5()
@@ -70,6 +71,8 @@ void KVIDSiLiCsI_camp5::Initialize()
    // Pointers to grids for run are set, and if there is at least 1 (GG) grid,
    // we set IsReadyForID = kTRUE
    
+	fSiLi = GetDetector(1);
+	fCsI = GetDetector(2);
    if( fGGgrid ){
       SetBit(kReadyForID);
       fGGgrid->Initialize();
@@ -84,7 +87,7 @@ void KVIDSiLiCsI_camp5::Initialize()
 Double_t KVIDSiLiCsI_camp5::GetIDMapX(Option_t * opt)
 {
    //X-coordinate for SiLi-CsI identification map is raw "R" coder value for CsI detector
-   return (Double_t) GetDetector(2)->GetACQData("R");
+   return (Double_t) fCsI->GetACQData("R");
 }
 
 //____________________________________________________________________________________
@@ -93,7 +96,7 @@ Double_t KVIDSiLiCsI_camp5::GetIDMapY(Option_t * opt)
 {
    //Y-coordinate for SiLi-CsI identification map is raw "GG" or "PG" coder value,
    //depending on 'opt' string.
-   return (Double_t) GetDetector(1)->GetACQData(opt);
+   return (Double_t) fSiLi->GetACQData(opt);
 }
 
 //________________________________________________________________________________________//
