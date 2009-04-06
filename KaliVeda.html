@@ -29,8 +29,37 @@
 </div>
 <div class="page">
 <br>
+<h3 class="newsTitle">Release v1.6.1-rc1 <span
+ style="color: rgb(102, 102, 102);">(10/4/2009)</span></h3>
+Release notes:<br>
+<ul>
+  <li><span style="font-weight: bold;">KVINDRACodes::GetIsotopeResolve()
+is no longer a public method (and will soon disappear completely).</span>
+In order to know if a nucleus' mass was measured (rather than
+calculated from Z), use new method <a
+ href="KVReconstructedNucleus.html#KVReconstructedNucleus:IsAMeasured">KVReconstructedNucleus::IsAMeasured()</a>.
+    <span style="color: rgb(255, 0, 0);">Please replace the following
+code in your analysis classes:</span></li>
+</ul>
+<div style="margin-left: 80px;">
+<pre>KVINDRAReconNuc* nuc = GetNextParticle();<br>if( <span
+ style="color: rgb(255, 0, 0);">nuc-&gt;GetCodes().GetIsotopeResolve()</span> ){ <span
+ style="color: rgb(255, 0, 0);">// OBSOLETE - will not compile</span><br></pre>
+</div>
+<div style="margin-left: 40px;">by the following:<br>
+<div style="margin-left: 40px;">
+<pre>if( <span style="color: rgb(0, 0, 255);">nuc-&gt;IsAMeasured()</span> ){ // the mass of the nucleus is known, i.e. measured<br></pre>
+</div>
+</div>
+<div style="margin-left: 40px;">Another new method, <a
+ href="KVReconstructedNucleus.html#KVReconstructedNucleus:IsZMeasured">KVReconstructedNucleus::IsZMeasured()</a>,
+returns kTRUE when the Z of the nucleus is known, i.e. not deduced from
+A (e.g. when particles are identified solely from time-of-flight &amp;
+energy measurement).<br>
+</div>
+<br>
 <h3 class="newsTitle">Release v1.6.0-rc3 <span
- style="color: rgb(102, 102, 102);">(22/1/2009)</span></h3>
+ style="color: rgb(102, 102, 102);">(23/1/2009)</span></h3>
 Changes since v1.6.0-rc1:<br>
 <ul>
   <li>Tested with gcc versions upto 4.3.2 and ROOT v5.22/00
