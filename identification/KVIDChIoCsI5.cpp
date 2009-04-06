@@ -94,7 +94,7 @@ Bool_t KVIDChIoCsI5::Identify(KVReconstructedNucleus * part)
    part->SetZ(iz);
    ((KVINDRAReconNuc *) part)->SetRealZ((Float_t) Z);
    //need to remove isotope resolve flag and real A set by CsI
-   ((KVINDRAReconNuc *) part)->GetCodes().SetIsotopeResolve(kFALSE);
+   ((KVINDRAReconNuc *) part)->SetAMeasured(kFALSE);
    ((KVINDRAReconNuc *) part)->SetRealA(0);
    // set general ID code
    ((KVINDRAReconNuc *) part)->SetIDCode( kIDCode4 );
