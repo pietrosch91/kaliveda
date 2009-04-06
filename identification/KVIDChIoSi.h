@@ -23,7 +23,14 @@
 
 class KVIDChIoSi:public KVIDTelescope {
 
+protected:
+		
    KVIDGChIoSi* ChIoSiGrid;//!
+	KVDetector *fchio;//!
+	KVDetector *fsi;//!
+	Double_t fsipgped;//!
+	Double_t fchiopgped;//!
+	
    
  public:
 
