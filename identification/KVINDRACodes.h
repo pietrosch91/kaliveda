@@ -1,4 +1,4 @@
-//$Id: KVINDRACodes.h,v 1.3 2008/02/14 10:30:18 franklan Exp $
+//$Id: KVINDRACodes.h,v 1.4 2009/04/06 15:05:55 franklan Exp $
 //Author: $Author: franklan $
 
 #ifndef __KVINDRACODES__
@@ -9,7 +9,12 @@
 #include "KVIDSubCodeManager.h"
 
 class KVINDRACodes:public KVINDRACodeMask {
+
+friend class KVINDRAReconNuc;
+
  private:
+   void SetIsotopeResolve(Bool_t stat = kTRUE);
+   Bool_t GetIsotopeResolve();
 
    static Char_t fCodeGenIdent[14][120];
    static Char_t fCodeGenCalib[8][120];
@@ -32,8 +37,6 @@ class KVINDRACodes:public KVINDRACodeMask {
    };
    const Char_t *GetIDStatus();
    const Char_t *GetEStatus();
-   void SetIsotopeResolve(Bool_t stat = kTRUE);
-   Bool_t GetIsotopeResolve();
 
    static UShort_t VedaIDCodeToBitmask(UChar_t veda_id_code);
    static UChar_t VedaECodeToBitmask(UChar_t veda_e_code);
