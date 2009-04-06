@@ -15,6 +15,7 @@ var links = new Array (
   "ClassCategories",
   "appli",
   "KaliVedaWiki",
+  "KaliVedaForum",
   "KaliVedaBugs"
  );
 
@@ -30,6 +31,7 @@ var links_text = new Array (
   "Class Reference",
   "Commands & GUI",
   "Wiki",
+  "Forum",
   "Report a Bug"
  );
 
@@ -45,6 +47,7 @@ var links_url = new Array (
   "ClassCategories.html",
   "appli.html",
   "http://indra.in2p3.fr/KaliVedaWiki",
+  "http://indra.in2p3.fr/KaliVedaForum",
   "http://indra.in2p3.fr/KaliVedaBugs"
  );
 
