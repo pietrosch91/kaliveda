@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGCsI.cpp,v 1.24 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDGCsI.cpp,v 1.25 2009/04/06 15:09:29 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -46,7 +46,9 @@ ClassImp(KVIDGCsI)
 // KVIDGCsI::kICODE8  Z indetermine ou (x,y) hors limites
 // KVIDGCsI::kICODE9  pas de lignes pour ce module
 // KVIDGCsI::kICODE10 gamma
-    KVIDGCsI::KVIDGCsI()
+   
+	
+KVIDGCsI::KVIDGCsI()
 {
    //Default constructor
    IMFLine = 0;
@@ -68,137 +70,6 @@ KVIDGCsI::KVIDGCsI(const KVIDGCsI & grid)
 KVIDGCsI::~KVIDGCsI()
 {
    //Dtor.
-}
-
-void KVIDGCsI::ReadOrsayIDFile(const Char_t * filename, int cou, int mod)
-{
-   //Reads IPNO-format file containing identification lines for one module and sets up grid
-   //First clears out old lines, name of grid etc.
-
-   //reset grid
-   Clear();
-   ifstream id_file(filename);
-   if (!id_file.good()) {
-      Error("ReadOrsay", "Can't open file");
-      return;
-   }
-   TString s;
-
-   while (id_file.good()) {
-
-      s.ReadLine(id_file);
-      if (!s.BeginsWith('#')) { //'#' sign signals comments
-         int ring, modu, frun, lrun, totpoints;
-         if (sscanf(s.Data(), "%d %d %d %d", &ring, &modu, &frun, &lrun) !=
-             4) {
-            Error("ReadOrsay", "Problem reading file");
-            return;
-         };
-         Bool_t CreateIt = (ring == cou && modu == mod);
-         int nlines;
-         id_file >> nlines;
-         totpoints = 0;
-         //read Z,A and number of points in each line
-         for (int i = 0; i < nlines; i++) {
-            int z, a, npoints;
-            id_file >> z >> a >> npoints;
-            totpoints += 2 * npoints;
-            if (z > 0 && CreateIt) {
-               //identification line
-               KVIDCsIRLLine *line =
-                   (KVIDCsIRLLine *) New("KVIDCsIRLLine");
-               line->SetZ(z);
-               line->SetA(a);
-               line->Set(npoints);
-               AddIdentifier(line);
-            } else if (CreateIt) {
-               //IMF line - always last (?)
-               KVIDLine *line = (KVIDLine *)New("KVIDCutLine");
-               line->SetName("IMF_line");
-               line->Set(npoints);
-               AddCut(line);
-            }
-         }
-         if (CreateIt) {
-            //read coordinates of lines in the order they were created.
-            //ID lines first, IMF_line is last.
-            TIter nextID(GetIdentifiers());
-            KVIDLine *line;
-            while ((line = (KVIDLine *) nextID())) {
-               //read in points
-               for (int i = 0; i < line->GetN(); i++) {
-                  Double_t x, y;
-                  id_file >> x >> y;
-                  line->SetPoint(i, x, y);
-               }
-            }
-            //last of all, IMF_line
-            line = (KVIDLine*)GetCut("IMF_line");
-            //read in points
-            for (int i = 0; i < line->GetN(); i++) {
-               Double_t x, y;
-               id_file >> x >> y;
-               line->SetPoint(i, x, y);
-            }
-            //OK we've got what we wanted
-            return;
-         } else {
-            for (int i = 0; i < totpoints; i++) {
-               Double_t x;
-               id_file >> x;
-            }
-         }
-      }
-   }
-}
-
-void KVIDGCsI::ReadOrsayGammaFile(const Char_t * filename, int cou,
-                                  int mod)
-{
-   //Reads IPNO-format file containing gamma cuts for one module and adds to grid
-
-   ifstream id_file(filename);
-   if (!id_file.good()) {
-      Error("ReadOrsay", "Can't open file");
-      return;
-   }
-   TString s;
-
-   while (id_file.good()) {
-
-      s.ReadLine(id_file);
-      if (!s.BeginsWith('#')) { //'#' sign signals comments
-         int ring, modu, frun, lrun;
-         if (sscanf(s.Data(), "%d %d %d %d", &ring, &modu, &frun, &lrun) !=
-             4) {
-            Error("ReadOrsayGamma", "Problem reading file");
-            return;
-         };
-         Bool_t CreateIt = (ring == cou && modu == mod);
-         int npoints;
-         id_file >> npoints;
-         if (CreateIt) {
-            //found gamma line
-            KVIDLine *line = (KVIDLine*)New("KVIDCutLine");
-            line->SetName("gamma_line");
-            line->Set(npoints);
-            AddCut(line);
-            //read in points
-            for (int i = 0; i < npoints; i++) {
-               Double_t x, y;
-               id_file >> x >> y;
-               line->SetPoint(i, x, y);
-            }
-            //OK we've got what we wanted
-            return;
-         } else {
-            for (int i = 0; i < npoints * 2; i++) {
-               Double_t x;
-               id_file >> x;
-            }
-         }
-      }
-   }
 }
 
 //______________________________________________________________________________________________________//
@@ -343,6 +214,9 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
    //Set Z and A of nucleus based on position in R-L grid
    //The identification of gammas (kICODE10) and charged particles is performed
 
+   nuc->SetZMeasured(kFALSE);
+   nuc->SetAMeasured(kFALSE);
+		
    if (!IsIdentifiable(x, y)) {
       //point below gamma line
       const_cast < KVIDGCsI * >(this)->fICode = kICODE10;
@@ -360,12 +234,12 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
    Double_t A;
    const_cast < KVIDGCsI * >(this)->IdentZA(x, y, Z, A);
    nuc->SetZ(Z);
+   nuc->SetZMeasured(kTRUE);
    if (A > -1) {
-      ((KVINDRAReconNuc *) nuc)->SetRealA(A);
-      ((KVINDRAReconNuc *) nuc)->GetCodes().SetIsotopeResolve();
+      nuc->SetRealA(A);
+      nuc->SetAMeasured(kTRUE);
       nuc->SetA(TMath::Nint(A));
-   } else
-      ((KVINDRAReconNuc *) nuc)->GetCodes().SetIsotopeResolve(kFALSE);
+   }
 }
 
 //_________________________________________________________________________//
@@ -445,10 +319,11 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
    Int_t Zinfi, Zinf, Zsup, Zsups, Ainfi, Ainf, Asup, Asups;
    Zinfi = Zinf = Zsup = Zsups = Ainfi = Ainf = Asup = Asups = 0;
    if (kinf > -1) {
-      if (GetClosestLines(kinf) != IMFLine) {
-         Zinf = ((KVIDZALine *) GetClosestLines(kinf))->GetZ();
-         Ainf = ((KVIDZALine *) GetClosestLines(kinf))->GetA();
-         winf = ((KVIDCsIRLLine *) GetClosestLines(kinf))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(kinf);
+      if (idl != IMFLine) {
+         Zinf = idl->GetZ();
+         Ainf = idl->GetA();
+         winf = idl->GetWidth();
       } else {
          Zinf = -1;
          Ainf = -1;
@@ -457,10 +332,11 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       dinf = GetDistanceToLine(kinf);
    }
    if (ksup > -1) {
-      if (GetClosestLines(ksup) != IMFLine) {
-         Zsup = ((KVIDZALine *) GetClosestLines(ksup))->GetZ();
-         Asup = ((KVIDZALine *) GetClosestLines(ksup))->GetA();
-         wsup = ((KVIDCsIRLLine *) GetClosestLines(ksup))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(ksup);
+      if (idl != IMFLine) {
+         Zsup = idl->GetZ();
+         Asup = idl->GetA();
+         wsup = idl->GetWidth();
       } else {
          Zsup = -1;
          Asup = -1;
@@ -469,10 +345,11 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       dsup = GetDistanceToLine(ksup);
    }
    if (kinfi > -1) {
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(kinfi);
       if (GetClosestLines(kinfi) != IMFLine) {
-         Zinfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetZ();
-         Ainfi = ((KVIDZALine *) GetClosestLines(kinfi))->GetA();
-         winfi = ((KVIDCsIRLLine *) GetClosestLines(kinfi))->GetWidth();
+         Zinfi = idl->GetZ();
+         Ainfi = idl->GetA();
+         winfi = idl->GetWidth();
       } else {
          Zinfi = -1;
          Ainfi = -1;
@@ -481,10 +358,11 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
       dinfi = GetDistanceToLine(kinfi);
    }
    if (ksups > -1) {
-      if (GetClosestLines(ksups) != IMFLine) {
-         Zsups = ((KVIDZALine *) GetClosestLines(ksups))->GetZ();
-         Asups = ((KVIDZALine *) GetClosestLines(ksups))->GetA();
-         wsups = ((KVIDCsIRLLine *) GetClosestLines(ksups))->GetWidth();
+		KVIDZALine* idl = (KVIDZALine *) GetClosestLines(ksups);
+      if (idl != IMFLine) {
+         Zsups = idl->GetZ();
+         Asups = idl->GetA();
+         wsups = idl->GetWidth();
       } else {
          Zsups = -1;
          Asups = -1;

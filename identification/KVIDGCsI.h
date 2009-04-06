@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGCsI.h,v 1.17 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDGCsI.h,v 1.18 2009/04/06 15:09:29 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGCsI_H
@@ -44,9 +44,6 @@ class KVIDGCsI:public KVIDZAGrid {
     KVIDGCsI();
     KVIDGCsI(const KVIDGCsI &);
     virtual ~ KVIDGCsI();
-
-   void ReadOrsayIDFile(const Char_t * filename, int cou, int mod);
-   void ReadOrsayGammaFile(const Char_t * filename, int cou, int mod);
 
    inline KVIDLine *GetGammaLine() const {
       return GammaLine;
