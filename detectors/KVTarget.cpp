@@ -5,7 +5,7 @@
     copyright            : (C) 2003 by Alexis Mignon
     email                : mignon@ganil.fr
     
-$Id: KVTarget.cpp,v 1.31 2008/12/11 16:39:47 ebonnet Exp $
+$Id: KVTarget.cpp,v 1.32 2009/04/06 11:54:54 franklan Exp $
  ***************************************************************************/
 #include "KVTarget.h"
 #include "KVEvent.h"
@@ -815,7 +815,7 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus * kvp, TVector3*)
    // of the target, taking into account the particle's direction of motion and an arbitrary
    // orientation of the target.
    //
-   // The' 'TVector3*' argument is not used.
+   // The 'TVector3*' argument is not used.
    //
    // If IsIncoming()=kFALSE & IsOutgoing()=kFALSE, we assume the particle passed through the whole of the target.
    // If IsIncoming()=kTRUE, assume current energy is energy on reaching interaction point;

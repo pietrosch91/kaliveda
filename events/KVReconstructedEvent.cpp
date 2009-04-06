@@ -22,6 +22,8 @@
 #include "KVReconstructedNucleus.h"
 #include "KVTelescope.h"
 #include "KVDetector.h"
+#include "KVTarget.h"
+#include "KVMultiDetArray.h"
 
 ClassImp(KVReconstructedEvent);
 
@@ -316,8 +318,20 @@ void KVReconstructedEvent::IdentifyEvent()
 
 void KVReconstructedEvent::CalibrateEvent()
 {
-   //Set energies of identified particles: call Calibrate() method of each uncalibrated particle (IsCalibrated=kFALSE)
+   // Calculate and set energies of all identified particles in event.
+	//
+	// This will call the KVReconstructedNucleus::Calibrate() method of each
+	// uncalibrated particle (those for which KVReconstructedNucleus::IsCalibrated()
+	// returns kFALSE).
+	//
+	// In order to make sure that target energy loss corrections are correctly
+	// calculated, we first set the state of the target in the current multidetector
 
+	KVTarget* t = gMultiDetArray->GetTarget();
+	if(t){
+		t->SetIncoming(kFALSE); t->SetOutgoing(kTRUE);
+	}
+	
    KVReconstructedNucleus *d;
 
    while ((d = GetNextParticle())) {

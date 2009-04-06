@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetArray.cpp,v 1.90 2009/03/03 14:27:15 franklan Exp $
+$Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
                           kvmultidetarray.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -1963,8 +1963,17 @@ Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* 
    // for the reconstructed charged particle 'ion', assuming that the current
    // energy and momentum of this particle correspond to its state on
    // leaving the target.
+	//
+	// WARNING: for this correction to work, the target must be in the right 'state':
+	//
+	//      gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
+	//      gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
+	//
+	// (see KVTarget::GetParticleEIncFromERes).
+	//
    // The returned value is the energy lost in the target in MeV.
    // The energy/momentum of 'ion' are not affected.
+	
    if(fTarget&&ion) return (fTarget->GetParticleEIncFromERes(ion) - ion->GetEnergy());
    return 0;
 }
