@@ -24,6 +24,7 @@
 class KVIDCsI:public KVIDTelescope {
 
    KVIDGCsI* CsIGrid;//! telescope's grid
+	KVDetector* fCsI;//!
 
  public:
 

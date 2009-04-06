@@ -41,6 +41,7 @@ ClassImp(KVIDCsI)
    fECode = kECode1;
    SetSubCodeManager(4, 3);
    CsIGrid = 0;
+	fCsI = 0;
 }
 
 KVIDCsI::~KVIDCsI()
@@ -105,45 +106,6 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
 
 }
 
-// //________________________________________________________________________________________//
-// 
-// void KVIDCsI::Calibrate(KVReconstructedNucleus * nuc)
-// {
-//    //KVIDCsI only has one detector member, so KVIDTelescope method has to be modified
-//    //This sets particle energy, calibration code, and angles based on telescope position
-//    //and dimensions.
-// 
-//    //no calibrations - nothing to do
-//    if (!GetDetector(1)->IsCalibrated())
-//       return;
-// 
-//    UInt_t z = nuc->GetZ();
-//    UInt_t a = nuc->GetA();
-// 
-//    //we assume that the particle stops in the CsI
-//    Double_t einc = GetDetector(1)->GetCorrectedEnergy(z, a);
-// 
-//    //Now we have to work our way up the list of detectors from which the particle was
-//    //reconstructed
-//    int ndets = nuc->GetNumDet();
-//    int idet = 1;                //next detector after delta-e member of IDTelescope (stopping detector = 0)
-//    while (idet < ndets) {
-//       KVDetector *det = nuc->GetDetector(idet);
-//       //calculate energy of particle before detector from energy after detector
-//       einc = det->GetIncidentEnergyFromERes(z, a, einc);
-//       //calculate energy loss of particle in detector
-//       Double_t eloss = det->GetDeltaE(z, a, einc);
-//       //update calculated energy losses of particle and detector
-//       nuc->SetElossCalc(det, eloss);
-//       idet++;
-//    }
-//    //einc is now the energy of the particle before crossing the first detector
-//    nuc->SetEnergy(einc);
-//    nuc->SetECode(GetECode());
-//    nuc->SetIsCalibrated();
-//    nuc->GetAnglesFromTelescope();
-// }
-
 //____________________________________________________________________________________
 
 Bool_t KVIDCsI::SetIDGrid(KVIDGraph * grid)
@@ -170,7 +132,7 @@ Bool_t KVIDCsI::SetIDGrid(KVIDGraph * grid)
 Double_t KVIDCsI::GetIDMapX(Option_t * opt)
 {
    //X-coordinate for CsI identification map is raw "L" coder value
-   return (Double_t) GetDetector(1)->GetACQData("L");
+   return (Double_t) fCsI->GetACQData("L");
 }
 
 //____________________________________________________________________________________
@@ -178,7 +140,7 @@ Double_t KVIDCsI::GetIDMapX(Option_t * opt)
 Double_t KVIDCsI::GetIDMapY(Option_t * opt)
 {
    //Y-coordinate for CsI identification map is raw "R" coder value
-   return (Double_t) GetDetector(1)->GetACQData("R");
+   return (Double_t) fCsI->GetACQData("R");
 }
 
 //____________________________________________________________________________________
@@ -216,6 +178,7 @@ void KVIDCsI::Initialize()
    // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
    
    CsIGrid = (KVIDGCsI *) GetIDGrid();
+	fCsI = GetDetector(1);
    if( CsIGrid ) {
       CsIGrid->Initialize();
       SetBit(kReadyForID);
