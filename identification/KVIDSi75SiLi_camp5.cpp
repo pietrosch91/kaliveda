@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.cpp,v 1.6 2009/04/06 09:28:37 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/04/06 09:28:37 $
+$Id: KVIDSi75SiLi_camp5.cpp,v 1.7 2009/04/06 15:22:02 franklan Exp $
+$Revision: 1.7 $
+$Date: 2009/04/06 15:22:02 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -30,6 +30,7 @@ KVIDSi75SiLi_camp5::KVIDSi75SiLi_camp5()
    fGGgrid = 0;
    fPGgrid = 0;
    fPGZgrid = 0;
+	fSiLi=fSi75=0;
 }
 
 KVIDSi75SiLi_camp5::~KVIDSi75SiLi_camp5()
@@ -75,6 +76,8 @@ void KVIDSi75SiLi_camp5::Initialize()
    // If there is at least 1 (GG) grid, we set IsReadyForID = kTRUE
    // "Natural" line widths are calculated for grids.
    
+	fSiLi=GetDetector(2);
+	fSi75=GetDetector(1);
    if( fGGgrid ){
       SetBit(kReadyForID);
       fGGgrid->Initialize();
@@ -90,16 +93,16 @@ void KVIDSi75SiLi_camp5::Initialize()
 Double_t KVIDSi75SiLi_camp5::GetIDMapX(Option_t * opt)
 {
    //X-coordinate for Si75-SiLi identification map is raw "PG" coder value for SiLi detector
-   return (Double_t) GetDetector(2)->GetACQData("PG");
+   return (Double_t)fSiLi->GetACQData("PG");
 }
 
 //____________________________________________________________________________________
 
 Double_t KVIDSi75SiLi_camp5::GetIDMapY(Option_t * opt)
 {
-   //Y-coordinate for Si75-SiLi identification map is raw "GG" or "PG" coder value,
+   //Y-coordinate for Si75-SiLi identification map is raw "GG" or "PG" coder value of Si75,
    //depending on 'opt' string.
-   return (Double_t) GetDetector(1)->GetACQData(opt);
+   return (Double_t)fSi75->GetACQData(opt);
 }
 
 //________________________________________________________________________________________//

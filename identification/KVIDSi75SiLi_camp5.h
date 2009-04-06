@@ -1,7 +1,7 @@
 /*
-$Id: KVIDSi75SiLi_camp5.h,v 1.5 2009/04/03 14:33:36 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/04/03 14:33:36 $
+$Id: KVIDSi75SiLi_camp5.h,v 1.6 2009/04/06 15:22:02 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/06 15:22:02 $
 */
 
 //Created by KVClassFactory on Mon Oct 29 16:45:49 2007
@@ -18,6 +18,8 @@ class KVIDSi75SiLi_camp5 : public KVIDSi75SiLi
    KVIDZAGrid* fGGgrid;//! grid used for Si75(GG)-SiLi(PG) charge & mass identification
    KVIDZAGrid* fPGgrid;//! grid used for Si75(PG)-SiLi(PG) charge & mass identification
    KVIDZAGrid* fPGZgrid;//! grid used for Si75(PG)-SiLi(PG) charge identification
+	KVDetector* fSi75;//!
+	KVDetector* fSiLi;//!
    
    public:
 
