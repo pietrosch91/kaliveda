@@ -1,7 +1,7 @@
 /*
-$Id: KVIDChIoCsI_camp5.h,v 1.1 2009/04/01 09:30:41 franklan Exp $
-$Revision: 1.1 $
-$Date: 2009/04/01 09:30:41 $
+$Id: KVIDChIoCsI_camp5.h,v 1.2 2009/04/06 15:21:31 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/04/06 15:21:31 $
 */
 
 //Created by KVClassFactory on Mon Mar 30 16:44:34 2009
@@ -12,12 +12,18 @@ $Date: 2009/04/01 09:30:41 $
 
 #include "KVIDChIoCsI.h"
 #include "KVIDZAGrid.h"
+#include "KVChIo.h"
+#include "KVCsI.h"
 
 class KVIDChIoCsI_camp5 : public KVIDChIoCsI
 {
 
    KVIDZAGrid* fGGgrid;//! grid used for ChIo(GG)-CsI(R) charge identification
    KVIDZAGrid* fPGgrid;//! grid used for ChIo(PG)-CsI(R) charge identification
+	KVChIo* fChIo;//!the chio
+	KVCsI* fCsI;//!the csi
+	Double_t fCsIRPedestal;//!CsI Rapide pedestal for current run
+	Double_t fCsILPedestal;//!CsI Lente pedestal for current run
 	
    public:
    KVIDChIoCsI_camp5();
@@ -25,6 +31,9 @@ class KVIDChIoCsI_camp5 : public KVIDChIoCsI
 
    virtual Bool_t SetIDGrid(KVIDGraph*);
    virtual void Initialize(void);
+   virtual Double_t GetIDMapX(Option_t * opt = "");
+   virtual Double_t GetIDMapY(Option_t * opt = "");
+   Bool_t Identify(KVReconstructedNucleus * nuc);
 
    ClassDef(KVIDChIoCsI_camp5,1)//ChIo-CsI id with grids for INDRA_camp5
 };
