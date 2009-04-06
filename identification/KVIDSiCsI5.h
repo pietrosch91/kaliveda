@@ -20,11 +20,20 @@
 
 #include "KVIDSiCsI.h"
 #include "KVTGIDManager.h"
+#include "KVSilicon.h"
+#include "KVCsI.h"
 
 class KVMultiDetArray;
 
 class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
+	KVSilicon* fSi;//!the silicon
+	KVCsI* fCsI;//!the csi
+	Double_t fCsIRPedestal;//!CsI Rapide pedestal for current run
+	Double_t fCsILPedestal;//!CsI Lente pedestal for current run
+	Double_t fSiPGPedestal;//!Silicon PG pedestal for current run
+	Double_t fSiGGPedestal;//!Silicon GG pedestal for current run
+	Double_t fSiGain;//!Silicon ampli gain for current run
    enum {
       kHasPG2 = BIT(17)
    };
@@ -54,6 +63,8 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
     KVIDSiCsI5() {
       fWhichGrid = -1;
+		fSi = 0;
+		fCsI = 0;
    };
    virtual ~ KVIDSiCsI5() {
    };

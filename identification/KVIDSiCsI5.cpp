@@ -133,11 +133,14 @@ Bool_t KVIDSiCsI5::Identify(KVReconstructedNucleus * part)
    Int_t iz = -1;
 
    Double_t Z = IdentifyZ(funLTG_Z);
+	KVINDRAReconNuc* irnuc = (KVINDRAReconNuc*)part;
+	
+	irnuc->SetAMeasured(kFALSE);
+	irnuc->SetZMeasured(kFALSE);
 
    //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
    Int_t Zstatus = (GetStatus() + 3 * fWhichGrid);
-   SetIDSubCode(((KVINDRAReconNuc *) part)->GetCodes().GetSubCodes(),
-                Zstatus);
+   SetIDSubCode(irnuc->GetCodes().GetSubCodes(),Zstatus);
 
    if (GetStatus() != KVTGIDManager::kStatus_OK)
       return kFALSE;            // no ID
@@ -153,35 +156,35 @@ Bool_t KVIDSiCsI5::Identify(KVReconstructedNucleus * part)
       {
          //only Z identified
          part->SetZ(iz);
-         ((KVINDRAReconNuc *) part)->SetRealZ((Float_t) Z);
+         irnuc->SetRealZ((Float_t) Z);
          //subcode says "Z ok but A failed because..."
-         SetIDSubCode(((KVINDRAReconNuc *) part)->GetCodes().GetSubCodes(),
+         SetIDSubCode(irnuc->GetCodes().GetSubCodes(),
                       (k_OutOfIDRange_PG2 + GetStatus()));
-         //need to remove isotope resolve flag and real A set by CsI
-         ((KVINDRAReconNuc *) part)->GetCodes().SetIsotopeResolve(kFALSE);
-         ((KVINDRAReconNuc *) part)->SetRealA(0);
-      } else                    //both Z and A successful ?
+			irnuc->SetZMeasured(kTRUE);
+         irnuc->SetRealA(0);
+      }
+		else                    //both Z and A successful ?
       {
          ia = TMath::Nint(mass);
          part->SetZ(iz);
          part->SetA(ia);
          //full A and Z identification
-         ((KVINDRAReconNuc *) part)->SetRealZ((Float_t) Z);
-         ((KVINDRAReconNuc *) part)->SetRealA((Float_t) mass);
-         ((KVINDRAReconNuc *) part)->GetCodes().SetIsotopeResolve();
+         irnuc->SetRealZ((Float_t) Z);
+         irnuc->SetRealA((Float_t) mass);
+         irnuc->SetAMeasured(kTRUE);
+			irnuc->SetZMeasured(kTRUE);
       }
    } else {
       //only Z identified
       //ID subcode remains 'Zstatus'
       part->SetZ(iz);
-      ((KVINDRAReconNuc *) part)->SetRealZ((Float_t) Z);
-      //need to remove isotope resolve flag and real A set by CsI
-      ((KVINDRAReconNuc *) part)->GetCodes().SetIsotopeResolve(kFALSE);
-      ((KVINDRAReconNuc *) part)->SetRealA(0);
+      irnuc->SetRealZ((Float_t) Z);
+		irnuc->SetZMeasured(kTRUE);
+      irnuc->SetRealA(0);
    }
 
    // set general ID code
-   ((KVINDRAReconNuc *) part)->SetIDCode( kIDCode3 );
+   irnuc->SetIDCode( kIDCode3 );
    return kTRUE;
 }
 
@@ -210,16 +213,34 @@ Double_t KVIDSiCsI5::GetIDMapX(Option_t * opt)
    //raw data without pedestal correction (because identification maps were drawn without
    //correcting).
    //'opt' has no effect.
-   Double_t rapide =
-       (Double_t) (((KVCsI *) GetDetector(2))->GetR() +
-                   GetDetector(2)->GetPedestal("R"));
-   Double_t lente =
-       (Double_t) (((KVCsI *) GetDetector(2))->GetL() +
-                   GetDetector(2)->GetPedestal("L"));
-   Double_t h =
-       (Double_t) ((KVCsI *) GetDetector(2))->GetLumiereTotale(rapide,
-                                                               lente);
+	
+   Double_t rapide = (Double_t)fCsI->GetR() + fCsIRPedestal;
+   Double_t lente = (Double_t)fCsI->GetL() + fCsILPedestal;
+   Double_t h = (Double_t)fCsI->GetLumiereTotale(rapide,lente);
    return h;
+}
+
+//____________________________________________________________________________________
+
+void KVIDSiCsI5::Initialize()
+{   
+   // Initialisation of telescope before identification.
+   // This method MUST be called once before any identification is attempted.
+   // IsReadyForID() will return kTRUE if KVTGID objects are associated
+   // to this telescope for the current run.
+   
+	fSi = (KVSilicon*)GetDetector(1);
+	fSiPGPedestal = fSi->GetPedestal("PG");
+	fSiGGPedestal = fSi->GetPedestal("GG");
+	fSiGain = fSi->GetGain();
+	fCsI = (KVCsI*)GetDetector(2);
+	fCsIRPedestal = fCsI->GetPedestal("R");
+	fCsILPedestal = fCsI->GetPedestal("L");
+   if( GetListOfIDFunctions().GetEntries() ){
+      SetBit(kReadyForID);
+   }
+   else
+      ResetBit(kReadyForID);
 }
 
 //__________________________________________________________________________//
@@ -232,17 +253,17 @@ Double_t KVIDSiCsI5::GetIDMapY(Option_t * opt)
    //We include a "correction" for the gain of the Silicon amplifier:
    //this was set to 1.0 during the runs for which the identification grids were drawn;
    //when it increases to 1.41 we simply scale the data down by the same factor.
-   Double_t si;
+	
+   Double_t si, si_ped;
    if (!strcmp(opt, "GG")) {
-      si = (Double_t) ((KVSilicon *) GetDetector(1))->GetGG();
+      si = (Double_t)fSi->GetGG();
+		si_ped = fSiGGPedestal;
    } else {
-      si = (Double_t) ((KVSilicon *) GetDetector(1))->GetPG();
+      si = (Double_t)fSi->GetPG();
+		si_ped = fSiPGPedestal;
    }
    //gain "correction"
-   if (GetDetector(1)->GetGain() > 1.1)
-      si = (si -
-            GetDetector(1)->GetPedestal(opt)) / GetDetector(1)->GetGain() +
-          GetDetector(1)->GetPedestal(opt);
+   if (fSiGain > 1.1) si = (si - si_ped) / fSiGain + si_ped;
    return si;
 }
 
@@ -394,20 +415,4 @@ void KVIDSiCsI5::RemoveIdentificationParameters()
    RemoveAllTGID();
    SetHasMassID(kFALSE);
    SetHasPG2(kFALSE);
-}
-
-//____________________________________________________________________________________
-
-void KVIDSiCsI5::Initialize()
-{   
-   // Initialisation of telescope before identification.
-   // This method MUST be called once before any identification is attempted.
-   // IsReadyForID() will return kTRUE if KVTGID objects are associated
-   // to this telescope for the current run.
-   
-   if( GetListOfIDFunctions().GetEntries() ){
-      SetBit(kReadyForID);
-   }
-   else
-      ResetBit(kReadyForID);
 }
