@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGChIoSi.h,v 1.23 2009/03/03 13:36:00 franklan Exp $
+$Id: KVIDGChIoSi.h,v 1.24 2009/04/06 15:10:09 franklan Exp $
 ***************************************************************************/
 
 #ifndef KVIDGChIoSi_H
@@ -15,8 +15,6 @@ $Id: KVIDGChIoSi.h,v 1.23 2009/03/03 13:36:00 franklan Exp $
 #include "TString.h"
 
 class KVIDGChIoSi : public KVIDZAGrid {
-
-friend class KVIDGridManager;
 
  private:
 
@@ -58,19 +56,12 @@ friend class KVIDGridManager;
    };
 
    virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
-   void MakeELossGrid(UInt_t Zmax, Bool_t PHD_param =
-                      kFALSE, Double_t chio_press = -1.0, Int_t npoints = 20);
-
    Int_t GetQualityCode() const {
    	// Return quality code related to previously-attempted identification using grid.
       return fStatus;
    };
 
    virtual void Initialize();
-
-	virtual void NewGridDialog(const TGWindow * p, const TGWindow * main,
-                              UInt_t w = 1, UInt_t h = 1, Option_t * type =
-                              "New");
 
    ClassDef(KVIDGChIoSi, 6)     //ChIo-Si dE-E Z-identification grid
 };
