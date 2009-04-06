@@ -131,6 +131,8 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
    Int_t ia = -1;
    Int_t iz = -1;
    KVINDRAReconNuc* INDpart = (KVINDRAReconNuc *) part;
+	part->SetZMeasured(kFALSE);
+	part->SetAMeasured(kFALSE);
 
    Double_t Z = IdentifyZ(funLTG_Z);
 
@@ -145,6 +147,7 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
    }
    
    SetIDSubCode(INDpart->GetCodes().GetSubCodes(), fWhichGrid);//=0 (GG) or 1 (PG)
+	part->SetZMeasured(kTRUE);
 
    iz = TMath::Nint(Z);
 
@@ -166,8 +169,6 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
             //only Z identified
             part->SetZ(iz);
             INDpart->SetRealZ((Float_t) Z);
-            //need to remove isotope resolve flag and real A set by CsI
-            INDpart->GetCodes().SetIsotopeResolve(kFALSE);
             INDpart->SetRealA(0);
          }
          //check isotope in mass table
@@ -177,8 +178,6 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
             //only Z identified
             part->SetZ(iz);
             INDpart->SetRealZ((Float_t) Z);
-            //need to remove isotope resolve flag and real A set by CsI
-            INDpart->GetCodes().SetIsotopeResolve(kFALSE);
             INDpart->SetRealA(0);
          }
          else
@@ -188,7 +187,7 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
             part->SetA(ia);
             INDpart->SetRealZ((Float_t) Z);
             INDpart->SetRealA((Float_t) mass);
-            INDpart->GetCodes().SetIsotopeResolve();
+				part->SetAMeasured(kTRUE);
          }
       } else {                  // A identification failed
                                     //only Z identified
@@ -196,16 +195,12 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
          INDpart->SetRealZ((Float_t) Z);
          //subcode says "Z ok but A failed because..."
          SetIDSubCode(INDpart->GetCodes().GetSubCodes(), kZOK + GetStatus() - kStatus_noTGID);
-         //need to remove isotope resolve flag and real A set by CsI
-         INDpart->GetCodes().SetIsotopeResolve(kFALSE);
          INDpart->SetRealA(0);
       }
    } else {
       //only Z identified
       part->SetZ(iz);
       INDpart->SetRealZ((Float_t) Z);
-      //need to remove isotope resolve flag and real A set by CsI
-      INDpart->GetCodes().SetIsotopeResolve(kFALSE);
       INDpart->SetRealA(0);
       //subcode says "Z ok, but larger than max Z for which we have isotopic identification"
       SetIDSubCode(INDpart->GetCodes().GetSubCodes(), kZOK);
@@ -222,9 +217,9 @@ Bool_t KVIDSi150CsI::Identify(KVReconstructedNucleus * part)
    if( GetIDMapY("PG") > fMaxSiPG ){
       // Z is a minimum value. No isotopic identification.
       part->SetZ(iz);
-      INDpart->GetCodes().SetIsotopeResolve(kFALSE);
       INDpart->SetRealA(0);
       SetIDSubCode(INDpart->GetCodes().GetSubCodes(), kZmin_coder);
+		part->SetAMeasured(kFALSE);
       // set general ID code
       INDpart->SetIDCode( kIDCode5 );
    }
