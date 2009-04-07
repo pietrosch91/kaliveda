@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.90 2009/04/03 14:39:30 franklan Exp $
-#$Revision: 1.90 $
-#$Author: franklan $
-#$Date: 2009/04/03 14:39:30 $
+#$Id: KaliVeda.rootrc,v 1.91 2009/04/07 15:00:24 ebonnet Exp $
+#$Revision: 1.91 $
+#$Author: ebonnet $
+#$Date: 2009/04/07 15:00:24 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -580,8 +580,10 @@ INDRA_camp5.IdentificationParameterFile.CI-SI:           ChIoSiGrids.dat
 INDRA_camp5.IdentificationParameterFile.SI75-SILI:           Si75SiLiGrids.dat
 INDRA_camp5.IdentificationParameterFile.SILI-CSI:           SiLiCsIGrids.dat
 ################################################
-INDRA_e475s.IdentificationParameterFile.CI-SI:          IDGridManager_E475s_CI_SI.dat
+INDRA_e475s.IdentificationParameterFile.CI-SI:        IDGridManager_E475s_CI_SI.dat
 INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL.dat
+INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
+INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
 
 # non-functioning acqusition parameters
@@ -594,7 +596,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
 INDRA_camp5.ActiveIdentifications:    CSI  SI-CSI  SI150-CSI   CI-SI   CI-CSI SI75-SILI SILI-CSI
-INDRA_e475s.ActiveIdentifications:    CI-SI CSI
+INDRA_e475s.ActiveIdentifications:    CI-SI CSI SI-CSI CI-CSI
 
 #=================== Updating calibration/identification parameters contained in data files
 # When recon/ident data files are created, a KVINDRA object containing all of the
