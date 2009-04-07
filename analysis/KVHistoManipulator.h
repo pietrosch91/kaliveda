@@ -1,7 +1,7 @@
 /*
-$Id: KVHistoManipulator.h,v 1.7 2009/01/14 15:36:19 ebonnet Exp $
-$Revision: 1.7 $
-$Date: 2009/01/14 15:36:19 $
+$Id: KVHistoManipulator.h,v 1.8 2009/04/07 14:54:15 ebonnet Exp $
+$Revision: 1.8 $
+$Date: 2009/04/07 14:54:15 $
 */
 
 //Created by KVClassFactory on Thu Oct 18 11:48:18 2007
@@ -29,14 +29,8 @@ class KVHistoManipulator
 		
 	}
 
-	KVHistoManipulator(void){ 
-		//Default constructor
-		init();
-	}
-	
-	virtual ~KVHistoManipulator(void){ 
-		//Default destructor;
-	}
+	KVHistoManipulator();
+	virtual ~KVHistoManipulator(void);
 	
    Int_t CutStatBin(TH1 *hh,Int_t stat_min=-1,Int_t stat_max=-1);
 	
@@ -77,5 +71,8 @@ class KVHistoManipulator
 	
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };
+
+//................  global variable
+R__EXTERN KVHistoManipulator *gHistoManipulator;
 
 #endif

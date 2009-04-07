@@ -1,7 +1,7 @@
 /*
-$Id: KVHistoManipulator.cpp,v 1.8 2009/01/14 15:36:19 ebonnet Exp $
-$Revision: 1.8 $
-$Date: 2009/01/14 15:36:19 $
+$Id: KVHistoManipulator.cpp,v 1.9 2009/04/07 14:54:15 ebonnet Exp $
+$Revision: 1.9 $
+$Date: 2009/04/07 14:54:15 $
 */
 
 //Created by KVClassFactory on Thu Oct 18 11:48:18 2007
@@ -41,6 +41,21 @@ ClassImp(KVHistoManipulator)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+KVHistoManipulator *gHistoManipulator;
+
+KVHistoManipulator::KVHistoManipulator(void){ 
+	//Default constructor
+	init();
+	gHistoManipulator = this;
+}
+
+
+KVHistoManipulator::~KVHistoManipulator()
+{
+   if (gHistoManipulator == this)
+      gHistoManipulator = 0;
+
+}
 
 //###############################################################################################################"
 //-------------------------------------------------
