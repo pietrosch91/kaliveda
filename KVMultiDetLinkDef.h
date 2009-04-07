@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.134 2009/03/13 15:31:10 franklan Exp $
+$Id: KVMultiDetLinkDef.h,v 1.135 2009/04/07 12:04:11 franklan Exp $
                               KVMultiDetLinkDef.h
                                description
                              -------------------
@@ -190,6 +190,7 @@ $Id: KVMultiDetLinkDef.h,v 1.134 2009/03/13 15:31:10 franklan Exp $
 #pragma link C++ class KVRiso;
 #pragma link C++ class KVFoxH2;
 #pragma link C++ class KVZbound;
+#pragma link C++ class KVZBoundMean;
 #pragma link C++ class KVMultIMF;
 #pragma link C++ class KVMultLeg;
 #pragma link C++ class KVZtotAv;
