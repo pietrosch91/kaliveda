@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIndraLinkDef.h,v 1.93 2009/03/13 15:31:10 franklan Exp $
+$Id: KVIndraLinkDef.h,v 1.94 2009/04/09 09:26:04 ebonnet Exp $
                               kaliveda5LinkDef.h
                                description
                              -------------------
@@ -51,6 +51,7 @@ $Id: KVIndraLinkDef.h,v 1.93 2009/03/13 15:31:10 franklan Exp $
 #pragma link C++ class KVChIo-;
 #pragma link C++ class KVChIo_e475s-;
 #pragma link C++ class KVCsI-;
+#pragma link C++ class KVCsI_e475s-;
 #pragma link C++ class KVPhoswich+;
 #pragma link C++ class KVChannelVolt+;
 #pragma link C++ class KVChannelEnergyBrho+;
