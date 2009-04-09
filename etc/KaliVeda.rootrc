@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.92 2009/04/09 09:22:54 ebonnet Exp $
-#$Revision: 1.92 $
+#$Id: KaliVeda.rootrc,v 1.93 2009/04/09 10:30:33 ebonnet Exp $
+#$Revision: 1.93 $
 #$Author: ebonnet $
-#$Date: 2009/04/09 09:22:54 $
+#$Date: 2009/04/09 10:30:33 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -643,7 +643,7 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 +Plugin.KVDetector:	INDRA_e475s.CI                                      KVChIo_e475s                  KVIndra          "KVChIo_e475s(Float_t,Float_t)"
 #+Plugin.KVDetector:   BIC                                      KVBIC                  KVIndraFNL          "KVBIC()"
 +Plugin.KVDetector: CSI             KVCsI       KVIndra  "KVCsI(Float_t)"
-+Plugin.KVDetector: INDRA_e475s.CsI KVCsI_e475s KVIndra  "KVCsI_e475s(Float_t)"
++Plugin.KVDetector: INDRA_e475s.CSI KVCsI_e475s KVIndra  "KVCsI_e475s(Float_t)"
 
 # Environment variables for the Data Selectors. They define the filename and
 # the directory of the file where the TEventList are stored. The default 
