@@ -1,7 +1,7 @@
 /*
-$Id: KVSilicon_e475s.h,v 1.5 2009/02/26 15:39:31 ebonnet Exp $
-$Revision: 1.5 $
-$Date: 2009/02/26 15:39:31 $
+$Id: KVSilicon_e475s.h,v 1.6 2009/04/09 09:25:14 ebonnet Exp $
+$Revision: 1.6 $
+$Date: 2009/04/09 09:25:14 $
 */
 
 //Created by KVClassFactory on Wed Sep 19 13:46:35 2007
@@ -30,7 +30,7 @@ class KVSilicon_e475s : public KVSilicon
 	KVSilicon_e475s(Float_t thick);
    virtual ~KVSilicon_e475s(){};
 	
-	void SetCalibrators();
+	void SetCalibrators(){};
 	void SetCalibrator(KVDBParameterSet *kvdbps);
 	void ChangeCalibParameters(KVDBParameterSet *kvdbps);
 
@@ -43,9 +43,10 @@ class KVSilicon_e475s : public KVSilicon
 
 	Double_t	GetCalibratedEnergy();
 	Double_t	GetEnergy();
-   Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
+   
+	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
-   virtual Short_t GetCalcACQParam(KVACQParam*) const;
+	Short_t GetCalcACQParam(KVACQParam*) const;
    
 	ClassDef(KVSilicon_e475s,1)//derivation of KVSilicon class for E475s experiment
 

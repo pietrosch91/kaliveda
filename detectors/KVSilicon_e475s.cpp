@@ -1,7 +1,7 @@
 /*
-$Id: KVSilicon_e475s.cpp,v 1.8 2009/02/26 15:39:31 ebonnet Exp $
-$Revision: 1.8 $
-$Date: 2009/02/26 15:39:31 $
+$Id: KVSilicon_e475s.cpp,v 1.9 2009/04/09 09:25:14 ebonnet Exp $
+$Revision: 1.9 $
+$Date: 2009/04/09 09:25:14 $
 */
 
 //Created by KVClassFactory on Wed Sep 19 13:46:35 2007
@@ -43,11 +43,10 @@ KVSilicon_e475s::KVSilicon_e475s()
 //------------------------------
 {
    //Default constructor
-   //This ctor (which in turn calls the KVDetector default ctor) must exist in
+   //This ctor (which in turn calls the KVSilicon default ctor) must exist in
    //order for Cloning of detectors to work (as used in KVTelescope::AddDetector).
-   //Do not replace this ctor by giving default arguments to KVSilicon(Float_t).
-   //
-   init();
+   //Do not replace this ctor by giving default arguments to KVSilicon_e475s(Float_t).
+    init();
 }
 
 //------------------------------
@@ -55,34 +54,10 @@ KVSilicon_e475s::KVSilicon_e475s(Float_t thick):KVSilicon(thick)
 //------------------------------
 {
    //Default constructor
-   //This ctor (which in turn calls the KVDetector default ctor) must exist in
-   //order for Cloning of detectors to work (as used in KVTelescope::AddDetector).
-   //Do not replace this ctor by giving default arguments to KVSilicon(Float_t).
-   //
-   SetType("SI");
+    SetType("SI");
    init();
 }
 
-//------------------------------
-void KVSilicon_e475s::SetCalibrators()
-//------------------------------
-{
-   //Set up calibrators for this detector. Call once name has been set.
-   /*
-	KVLinCal* c=new KVLinCal(this);
-	c->SetChannelParameter("PG");
-	c->WithPedestalCorrection(kTRUE);
-	if(!AddCalibrator(c)) delete c;
-   
-	c=new KVLinCal(this);
-	c->SetChannelParameter("GG");
-	c->WithPedestalCorrection(kTRUE);
-	if(!AddCalibrator(c)) delete c;
-	
-	fChEnergyPG = (KVLinCal *) GetCalibrator("Linear calibration PG");
-	fChEnergyGG = (KVLinCal *) GetCalibrator("Linear calibration GG");
-	*/
-}
 //------------------------------
 void KVSilicon_e475s::SetCalibrator(KVDBParameterSet *kvdbps)
 //------------------------------
