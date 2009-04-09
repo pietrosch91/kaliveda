@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVCsI.h,v 1.25 2009/01/21 10:04:59 franklan Exp $
+$Id: KVCsI.h,v 1.26 2009/04/09 09:25:43 ebonnet Exp $
                           kvcsi.h  -  description
                              -------------------
     begin                : Fri Oct 4 2002
@@ -49,6 +49,9 @@ class KVCsI:public KVDetector {
                       -1.0, Double_t lente = -1.0);
 
    enum { kLumiere, kTau };
+ 
+ protected:
+	void init();
 
  public:
     KVCsI();

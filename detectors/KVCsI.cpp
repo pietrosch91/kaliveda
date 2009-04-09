@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVCsI.cpp,v 1.37 2009/01/21 10:04:59 franklan Exp $
+$Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
                           kvcsi.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -38,6 +38,18 @@ ClassImp(KVCsI);
 
 //_______________________________________________________________________________________
 
+void KVCsI::init()
+{
+   //initialise non-persistent pointers
+   fSegment = 2;
+   fLumiereTotale = 0.0;
+   fLumTotStatus = NOT_CALCULATED;
+   fCal = fCalZ1 = 0;
+	fPinLaser = 0;
+}
+
+//______________________________________________________
+
 KVCsI::KVCsI()
 {
    //Default ctor
@@ -45,11 +57,7 @@ KVCsI::KVCsI()
    //order for Cloning of detectors to work (as used in KVTelescope::AddDetector).
    //Do not replace this ctor by giving a default value for the argument of KVCsI(Float_t).
    //
-   fSegment = 2;
-   fLumiereTotale = 0.0;
-   fLumTotStatus = NOT_CALCULATED;
-   fCal = fCalZ1 = 0;
-	fPinLaser = 0;
+   init();
 }
 
 //______________________________________________________________________________
@@ -59,12 +67,8 @@ KVCsI::KVCsI(Float_t thick):KVDetector("CsI", thick)
    //Set type of detector to "CSI"
    //By default 'thick'=0
 
-   fSegment = 2;
-   fLumTotStatus = NOT_CALCULATED;
-   fLumiereTotale = 0.0;
    SetType("CSI");
-   fCal = fCalZ1 = 0;
-	fPinLaser = 0;
+   init();
 }
 
 //____________________________________________________________________________________________
