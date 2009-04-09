@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAUpDater_e475s.cpp,v 1.5 2009/03/23 11:30:54 ebonnet Exp $
-$Revision: 1.5 $
-$Date: 2009/03/23 11:30:54 $
+$Id: KVINDRAUpDater_e475s.cpp,v 1.6 2009/04/09 09:23:20 ebonnet Exp $
+$Revision: 1.6 $
+$Date: 2009/04/09 09:23:20 $
 */
 
 //Created by KVClassFactory on Tue Sep 18 12:14:51 2007
@@ -15,6 +15,7 @@ $Date: 2009/03/23 11:30:54 $
 #include "KVINDRA.h"
 #include "KVSilicon_e475s.h"
 #include "KVChIo_e475s.h"
+#include "KVCsI_e475s.h"
 
 #include "TList.h"
 #include "TString.h"
@@ -61,7 +62,7 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
       str = kvps->GetName();
 		if (gIndra->GetDetector(str.Data())){
 		   
-			if ( kvc = gIndra->GetDetector(str.Data())->GetCalibrator(kvps->GetTitle()) ) {
+			if ( (kvc = gIndra->GetDetector(str.Data())->GetCalibrator(kvps->GetTitle())) ) {
 				gIndra->GetDetector(str.Data())->RemoveCalibrators();
 				//delete kvc;
          }
@@ -84,6 +85,11 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 			else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVChIo_e475s")){
 				((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
 				kvc = ((KVChIo_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
+				if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
+			}
+			else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVCsI_e475s")){
+				((KVCsI_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
+				kvc = ((KVCsI_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
 				if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
 			}
 			else {

@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRADB_e475s.cpp,v 1.5 2009/01/15 10:14:07 ebonnet Exp $
-$Revision: 1.5 $
-$Date: 2009/01/15 10:14:07 $
+$Id: KVINDRADB_e475s.cpp,v 1.6 2009/04/09 09:23:20 ebonnet Exp $
+$Revision: 1.6 $
+$Date: 2009/04/09 09:23:20 $
 */
 
 //Created by KVClassFactory on Tue Sep 18 11:17:53 2007
@@ -126,35 +126,46 @@ void KVINDRADB_e475s::ReadCalibFile(ifstream &fin,TString dettype,TString detgai
    TString sline;
    TString calib_type,calib_signal,calib_runs,calib_ring,calib_mods;
 	TObjArray *toks=NULL;
+	TObjArray *tokspara=NULL;
 	while (fin.good()) {         //reading the file
       sline.ReadLine(fin);
       while (sline.BeginsWith("+KVCalibrator")){
 			sline.ReadLine(fin);
 			while (sline.BeginsWith("<LIST> Type=")){
-				sline.ReplaceAll("<LIST> Type=",""); calib_type = sline; //cout << calib_type << endl;
+				sline.ReplaceAll("<LIST> Type=",""); calib_type = sline;	cout << calib_type << endl;
 				sline.ReadLine(fin);
 				while (sline.BeginsWith("<LIST> Signal=")) { 
-					sline.ReplaceAll("<LIST> Signal=",""); calib_signal = sline; //cout << calib_signal << endl; 
+					sline.ReplaceAll("<LIST> Signal=",""); calib_signal = sline;	cout << calib_signal << endl; 
 					if (calib_signal!=dettype+detgain) Error("ReadCalibFile()", "Erreur de synchro ...");
 					sline.ReadLine(fin);
 					while (sline.BeginsWith("++<LIST> Runs=")){
-						sline.ReplaceAll("++<LIST> Runs=",""); 	calib_runs = sline; //cout << calib_runs << endl;
+						sline.ReplaceAll("++<LIST> Runs=",""); 	calib_runs = sline;	cout << calib_runs << endl;
 						sline.ReadLine(fin);
 						list_record->RemoveAll();
 						while (sline.BeginsWith("<LIST> Rings=")){
-							sline.ReplaceAll("<LIST> Rings=",""); 	calib_ring = sline; //cout << calib_ring << endl;
+							sline.ReplaceAll("<LIST> Rings=",""); 	calib_ring = sline;	cout << calib_ring << endl;
 							sline.ReadLine(fin);
 							while ( sline.BeginsWith("<LIST> Modules=") || sline.BeginsWith("<PARAMETER> Function=")){
 								if (sline.BeginsWith("<LIST> Modules=")) {
-									sline.ReplaceAll("<LIST> Modules=","");	calib_mods = sline; //cout << calib_mods << endl;
+									sline.ReplaceAll("<LIST> Modules=","");	calib_mods = sline;	cout << calib_mods << endl;
 									//sprintf(detname,"%s_%02d%02d_%s",dettype.Data(),calib_ring.Atoi(),calib_mods.Atoi(),detgain.Data());
 									sprintf(detname,"%s_%02d%02d",dettype.Data(),calib_ring.Atoi(),calib_mods.Atoi());
 								}
 								else {
-									sline.ReplaceAll("<PARAMETER> Function=","");
+									sline.ReplaceAll("<PARAMETER> Function=","");	cout << sline << endl;
 									toks = sline.Tokenize(":");
 									TF1 ff(Form("f%s",detname),((TObjString*)(*toks)[0])->GetString().Data());
-									for (Int_t pp=0;pp<ff.GetNpar();pp+=1) ff.SetParameter(pp,((TObjString*)(*toks)[pp+1])->GetString().Atof());
+									
+									TString sparaline = ((TObjString*)(*toks)[1])->GetString();
+									delete toks;
+									
+									tokspara = sparaline.Tokenize(" ");
+									if (tokspara->GetEntries()!=ff.GetNpar()) cout << tokspara->GetEntries() << " " << ff.GetNpar() << endl;
+									for (Int_t pp=0;pp<ff.GetNpar();pp+=1){
+										ff.SetParameter(pp,((TObjString*)(*tokspara)[pp])->GetString().Atof());
+										printf("%d %lf\n",pp,ff.GetParameter(pp));
+									}
+									delete tokspara;
 									
 									parset = new KVDBParameterSet(detname,Form("%s(%s)",calib_type.Data(),detgain.Data()),ff.GetNpar()+3);
 									parset->SetParamName(0,ff.GetExpFormula().Data());
@@ -167,7 +178,7 @@ void KVINDRADB_e475s::ReadCalibFile(ifstream &fin,TString dettype,TString detgai
 									
 									fCalibrations->AddRecord(parset);
 									list_record->Add(parset);
-									delete toks;
+									
 								}
 								sline.ReadLine(fin);	
 							}
