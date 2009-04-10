@@ -502,14 +502,10 @@ void KVINDRARunSheetGUI::ClearListOfRuns()
 {
    //remove all entries from grid list box
 
-   if (fFirstRun <= fLastRun) {
-//       fRunList->RemoveEntries(fFirstRun, fLastRun);
-//       fRunList->Layout();
 		fRunList->RemoveAll();
       fFirstRun = 0;
       fLastRun = -1;
       fSelectedRun = 0;
-   }
 }
 
 void KVINDRARunSheetGUI::UpdateListOfRuns()
@@ -565,7 +561,9 @@ void KVINDRARunSheetGUI::SaveAll()
    //the database
    gIndraDB->Save("Systems");
    gIndraDB->Save("Runlist");
-   gDataSet->GetDataBase("update")->cd();
+	ClearListOfRuns();
+   gDataSet->GetDataBase("update");
+	UpdateListOfRuns();
 }
 
 void KVINDRARunSheetGUI::SetRunComment()
@@ -738,7 +736,7 @@ ClassImp(KVIRSGChooseDataSetDialog)
    fComboBox->Connect("Selected(Int_t)", "KVIRSGChooseDataSetDialog", this,
                       "SetDataSet(Int_t)");
    fComboBox->Resize(208, 22);
-   fComboBox->Select(-1);
+   fComboBox->Select(0);
    fDataSetIndex = -1;
    fMain->AddFrame(fComboBox,
                    new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 2, 2,
@@ -791,7 +789,7 @@ void KVIRSGChooseDataSetDialog::CloseWindow()
 void KVIRSGChooseDataSetDialog::YouPressedOK()
 {
    //Called when OK button is pressed
-   gDataSetManager->GetDataSet(fDataSetIndex)->cd();
+   if(fDataSetIndex>-1) gDataSetManager->GetDataSet(fDataSetIndex)->cd();
    DoClose();
 }
 #ifdef __WITHOUT_TGBUTTON_SETENABLED
