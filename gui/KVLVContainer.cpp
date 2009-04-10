@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.cpp,v 1.6 2009/03/12 13:58:30 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/03/12 13:58:30 $
+$Id: KVLVContainer.cpp,v 1.7 2009/04/10 13:48:07 franklan Exp $
+$Revision: 1.7 $
+$Date: 2009/04/10 13:48:07 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -251,6 +251,7 @@ void KVLVContainer::default_init()
 	
 	fAllowContextMenu = kTRUE;
 	fAllowBrowse = kTRUE;
+	fKeepUserItems = kFALSE;
 }
 
 KVLVContainer::~KVLVContainer()
@@ -318,7 +319,11 @@ void KVLVContainer::Display(const TList* list_of_objects)
 {
    // Display the list of objects in the container.
 
-   RemoveAll();
+	/* remove all items from display, but keep list in memory */
+   fKeepUserItems = kTRUE;
+	RemoveAll();
+	fKeepUserItems = kFALSE;
+	
    FillList(list_of_objects);
 	if(!fIsResized){
 		GetListView()->ResizeColumns();
@@ -338,6 +343,17 @@ void KVLVContainer::Refresh()
    // This can be used to refresh the contents of the window.
 
 	Display();
+}
+
+//______________________________________________________________________________
+
+void KVLVContainer::RemoveAll()
+{
+	// When the graphical list is emptied we need to empty the list
+	// of user objects also.
+	
+	if( !fKeepUserItems ) fUserItems->Clear();
+	TGLVContainer::RemoveAll();
 }
 
 //______________________________________________________________________________

@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.h,v 1.5 2009/03/12 13:58:30 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/03/12 13:58:30 $
+$Id: KVLVContainer.h,v 1.6 2009/04/10 13:48:07 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/10 13:48:07 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -81,6 +81,7 @@ class KVLVContainer : public TGLVContainer
 	Bool_t		fAllowContextMenu;	// can objects' context menu be opened with right-click ?
 	Bool_t		fAllowBrowse;			// can objects' Browse() method be executed by double-clicking ?
 	
+	Bool_t      fKeepUserItems;      // internal use only, do not clear list of user items in RemoveAll()
 	protected:
 
 	KVLVColumnData 	**fColData;		// description of column data
@@ -159,6 +160,7 @@ class KVLVContainer : public TGLVContainer
 		// Call with on=kFALSE to disable objects' Browse() method being called with mouse double-click
 		fAllowBrowse=on;
 	};
+	virtual void RemoveAll();
 
    ClassDef(KVLVContainer,0)//List view container class
 };
