@@ -1,4 +1,4 @@
-# Systems.dat file written by KVINDRADB::WriteSystemsFile on Thu Jan 15 10:25:36 2009
+# Systems.dat file written by KVINDRADB_e503::WriteSystemsFile on Fri Apr 10 11:03:20 2009
 +48Ca +40Ca 35 MeV/A
 48 20 40 20 35
 Target: 1 0
@@ -40,4 +40,25 @@ Runs: 608-613
 
 +Automate INDRA
 Runs: 450-453 617-618
+
++Vamos Calibration
+Runs: 45-46 48-50 101-103
+
++40Ar + 197Au 35 MeV/A
+40 18 197 79 35
+Target: 1 0
+Au 0.1
+Runs: 104-137
+
++40Ar + 48Ti 35 MeV/A
+40 18 48 22 35
+Target: 1 0
+Ti 0.97
+Runs: 138 140-167
+
++Piedestal Drift Vamos
+Runs: 26
+
++Source alpha
+Runs: 
 
