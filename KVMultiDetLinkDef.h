@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.135 2009/04/07 12:04:11 franklan Exp $
+$Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
                               KVMultiDetLinkDef.h
                                description
                              -------------------
@@ -21,6 +21,7 @@ $Id: KVMultiDetLinkDef.h,v 1.135 2009/04/07 12:04:11 franklan Exp $
 #pragma link C++ global gDataRepository;
 #pragma link C++ global gDataRepositoryManager;
 #pragma link C++ global gDataSet;
+#pragma link C++ global gHistoManipulator;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
 #pragma link C++ nestedclass;
