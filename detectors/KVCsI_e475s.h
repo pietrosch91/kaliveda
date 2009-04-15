@@ -1,7 +1,7 @@
 /*
-$Id: KVCsI_e475s.h,v 1.2 2009/04/15 09:49:19 ebonnet Exp $
-$Revision: 1.2 $
-$Date: 2009/04/15 09:49:19 $
+$Id: KVCsI_e475s.h,v 1.3 2009/04/15 11:39:11 ebonnet Exp $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:39:11 $
 */
 
 //Created by KVClassFactory on Thu Apr  9 09:22:46 2009
@@ -13,6 +13,7 @@ $Date: 2009/04/15 09:49:19 $
 #include "KVCsI.h"
 #include "KVFunctionCal.h"
 #include "KVDBParameterSet.h"
+#include "KVString.h"
 
 class KVCsI_e475s : public KVCsI
 {
@@ -65,21 +66,26 @@ Bool_t KVCsI_e475s::Fired(Option_t * opt)
    //and have a value greater than their pedestal value
    //
    //See KVACQParam::Fired()
-
+	
+	Option_t * optbis = "Pall";
+	
    int touched = 0;
    int working = 0;
    Bool_t ok = kFALSE;
    Char_t opt2[] = "";
-   if(opt[0]=='P'){
-      opt++;
+   if(optbis[0]=='P'){
+      optbis++;
       opt2[0]='P';
    }
-
+	
+	KVString stpar;
    if (fACQParams) {
       TIter next(fACQParams);
       KVACQParam *par;
       while ((par = (KVACQParam *) next())) {
-         if ( strcmp(par->GetName(),"T") ){
+         stpar.Form("%s",par->GetName());
+			if ( !stpar.EndsWith("_T") ){
+				//cout << stpar << endl;
 				if (par->IsWorking()) {
          	   working++;
          	   if(par->Fired(opt2)){
@@ -90,7 +96,8 @@ Bool_t KVCsI_e475s::Fired(Option_t * opt)
 			}	
       }
 
-      if (!strcmp(opt, "all")) {
+      if (!strcmp(optbis, "all")) {
+			//cout << touched << " " << working << endl;
          return (touched == working);
       } else {
          return ok;
