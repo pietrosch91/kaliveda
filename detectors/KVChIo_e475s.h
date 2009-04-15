@@ -1,7 +1,7 @@
 /*
-$Id: KVChIo_e475s.h,v 1.5 2008/02/21 11:12:00 franklan Exp $
-$Revision: 1.5 $
-$Date: 2008/02/21 11:12:00 $
+$Id: KVChIo_e475s.h,v 1.6 2009/04/15 09:49:19 ebonnet Exp $
+$Revision: 1.6 $
+$Date: 2009/04/15 09:49:19 $
 */
 
 //Created by KVClassFactory on Thu Sep 20 09:46:32 2007
@@ -41,8 +41,59 @@ class KVChIo_e475s : public KVChIo
 	Double_t	GetCalibratedEnergy();
 	virtual Double_t	GetEnergy();
    virtual Short_t GetCalcACQParam(KVACQParam*) const;
-
-   ClassDef(KVChIo_e475s,1)//derivation of KVChIo class for E475s experiment
+	inline virtual Bool_t Fired(Option_t * opt = "any");
+   
+	ClassDef(KVChIo_e475s,1)//derivation of KVChIo class for E475s experiment
 };
+
+Bool_t KVChIo_e475s::Fired(Option_t * opt)
+{
+   //Les Marqueurs de temps ne rentrent pas en compte dans l'analyse
+	//
+	//opt="any" (default):
+   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
+   //opt="all" :
+   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
+   //opt="Pany" :
+   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //opt="Pall" :
+   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //
+   //See KVACQParam::Fired()
+
+   int touched = 0;
+   int working = 0;
+   Bool_t ok = kFALSE;
+   Char_t opt2[] = "";
+   if(opt[0]=='P'){
+      opt++;
+      opt2[0]='P';
+   }
+
+   if (fACQParams) {
+      TIter next(fACQParams);
+      KVACQParam *par;
+      while ((par = (KVACQParam *) next())) {
+         if ( strcmp(par->GetName(),"T") ){
+				if (par->IsWorking()) {
+         	   working++;
+         	   if(par->Fired(opt2)){
+         	      ok = kTRUE;
+         	      touched++;
+         	   }
+         	}
+			}	
+      }
+
+      if (!strcmp(opt, "all")) {
+         return (touched == working);
+      } else {
+         return ok;
+      }
+   }
+   return kFALSE;
+}
 
 #endif

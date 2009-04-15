@@ -1,7 +1,7 @@
 /*
-$Id: KVSilicon_e475s.h,v 1.6 2009/04/09 09:25:14 ebonnet Exp $
-$Revision: 1.6 $
-$Date: 2009/04/09 09:25:14 $
+$Id: KVSilicon_e475s.h,v 1.7 2009/04/15 09:49:19 ebonnet Exp $
+$Revision: 1.7 $
+$Date: 2009/04/15 09:49:19 $
 */
 
 //Created by KVClassFactory on Wed Sep 19 13:46:35 2007
@@ -47,9 +47,61 @@ class KVSilicon_e475s : public KVSilicon
 	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
 	Short_t GetCalcACQParam(KVACQParam*) const;
+	inline virtual Bool_t Fired(Option_t * opt = "any");
+   
    
 	ClassDef(KVSilicon_e475s,1)//derivation of KVSilicon class for E475s experiment
 
 };
+
+Bool_t KVSilicon_e475s::Fired(Option_t * opt)
+{
+   //Les Marqueurs de temps ne rentrent pas en compte dans l'analyse
+	//
+	//opt="any" (default):
+   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
+   //opt="all" :
+   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
+   //opt="Pany" :
+   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //opt="Pall" :
+   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //
+   //See KVACQParam::Fired()
+
+   int touched = 0;
+   int working = 0;
+   Bool_t ok = kFALSE;
+   Char_t opt2[] = "";
+   if(opt[0]=='P'){
+      opt++;
+      opt2[0]='P';
+   }
+
+   if (fACQParams) {
+      TIter next(fACQParams);
+      KVACQParam *par;
+      while ((par = (KVACQParam *) next())) {
+         if ( strcmp(par->GetName(),"T") ){
+				if (par->IsWorking()) {
+         	   working++;
+         	   if(par->Fired(opt2)){
+         	      ok = kTRUE;
+         	      touched++;
+         	   }
+         	}
+			}	
+      }
+
+      if (!strcmp(opt, "all")) {
+         return (touched == working);
+      } else {
+         return ok;
+      }
+   }
+   return kFALSE;
+}
 
 #endif

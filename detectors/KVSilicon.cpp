@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVSilicon.cpp,v 1.54 2008/02/21 10:14:38 franklan Exp $
+$Id: KVSilicon.cpp,v 1.55 2009/04/15 09:49:19 ebonnet Exp $
                           kvsilicon.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -131,6 +131,8 @@ KVChIo *KVSilicon::GetChIo() const
    return (fChIo ? fChIo : const_cast<KVSilicon*>(this)->FindChIo());
 }
 
+//____________________________________________________________________________________________
+
 KVChIo *KVSilicon::FindChIo()
 {
    //PRIVATE METHOD
@@ -164,6 +166,8 @@ void KVSilicon::SetACQParams()
    AddACQParam("T");
 
 }
+
+//____________________________________________________________________________________________
 
 void KVSilicon::SetCalibrators()
 {
@@ -234,6 +238,8 @@ Double_t KVSilicon::GetPHD(Double_t Einc, UInt_t Z)
    fPHD->SetZ(Z);
    return fPHD->Compute(Einc);
 }
+
+//____________________________________________________________________________________________
 
 Double_t KVSilicon::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t trn)
 {

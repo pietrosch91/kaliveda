@@ -1,7 +1,7 @@
 /*
-$Id: KVCsI_e475s.cpp,v 1.1 2009/04/09 09:24:43 ebonnet Exp $
-$Revision: 1.1 $
-$Date: 2009/04/09 09:24:43 $
+$Id: KVCsI_e475s.cpp,v 1.2 2009/04/15 09:49:19 ebonnet Exp $
+$Revision: 1.2 $
+$Date: 2009/04/15 09:49:19 $
 */
 
 //Created by KVClassFactory on Thu Apr  9 09:22:46 2009
@@ -183,7 +183,8 @@ void KVCsI_e475s::Streamer(TBuffer &R__b)
    if (R__b.IsReading()) {
       KVCsI_e475s::Class()->ReadBuffer(R__b, this);
       fcalibLT  =  (KVFunctionCal *)GetCalibrator("Channel->MeV(LT)");
-   } else {
+   	//printf("")
+	} else {
       KVCsI_e475s::Class()->WriteBuffer(R__b, this);
    }
 }
