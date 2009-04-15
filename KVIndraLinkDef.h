@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIndraLinkDef.h,v 1.94 2009/04/09 09:26:04 ebonnet Exp $
+$Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
                               kaliveda5LinkDef.h
                                description
                              -------------------
@@ -84,11 +84,13 @@ $Id: KVIndraLinkDef.h,v 1.94 2009/04/09 09:26:04 ebonnet Exp $
 #pragma link C++ class KVINDRAUpDater;
 #pragma link C++ class KVINDRAUpDater_e475s+;
 #pragma link C++ class KVIDSiCsI+;
+#pragma link C++ class KVIDSiCsI_e475s+;
 #pragma link C++ class KVIDSiLiCsI+;
 #pragma link C++ class KVIDSi75SiLi+;
 #pragma link C++ class KVIDChIoSi+;
 #pragma link C++ class KVIDChIoSi75+;
 #pragma link C++ class KVIDChIoSi_e475s+;
+#pragma link C++ class KVIDChIoCsI_e475s+;
 #pragma link C++ class KVIDCsI_e475s+;
 #pragma link C++ class KVIDCsI+;
 
