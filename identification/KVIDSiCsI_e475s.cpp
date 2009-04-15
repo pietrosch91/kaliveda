@@ -1,13 +1,16 @@
 /*
-$Id: KVIDSiCsI_e475s.cpp,v 1.1 2009/04/15 09:44:19 ebonnet Exp $
-$Revision: 1.1 $
-$Date: 2009/04/15 09:44:19 $
+$Id: KVIDSiCsI_e475s.cpp,v 1.2 2009/04/15 11:45:14 ebonnet Exp $
+$Revision: 1.2 $
+$Date: 2009/04/15 11:45:14 $
 */
 
 //Created by KVClassFactory on Wed Apr 15 11:41:21 2009
 //Author: eric bonnet,,,
 
 #include "KVIDSiCsI_e475s.h"
+#include "KVINDRA.h"
+#include "KVReconstructedNucleus.h"
+#include "KVINDRAReconNuc.h"
 
 ClassImp(KVIDSiCsI_e475s)
 
