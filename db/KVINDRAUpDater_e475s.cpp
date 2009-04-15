@@ -1,7 +1,7 @@
 /*
-$Id: KVINDRAUpDater_e475s.cpp,v 1.6 2009/04/09 09:23:20 ebonnet Exp $
-$Revision: 1.6 $
-$Date: 2009/04/09 09:23:20 $
+$Id: KVINDRAUpDater_e475s.cpp,v 1.7 2009/04/15 09:52:45 ebonnet Exp $
+$Revision: 1.7 $
+$Date: 2009/04/15 09:52:45 $
 */
 
 //Created by KVClassFactory on Tue Sep 18 12:14:51 2007
@@ -90,7 +90,7 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 			else if (gIndra->GetDetector(str.Data())->InheritsFrom("KVCsI_e475s")){
 				((KVCsI_e475s *)gIndra->GetDetector(str.Data()))->SetCalibrator(kvps);
 				kvc = ((KVCsI_e475s *)gIndra->GetDetector(str.Data()))->GetCalibrator(kvps->GetTitle());
-				if (kvps->GetParameter(1)>0) kvc->SetStatus(kTRUE); 
+				if (kvps->GetParameter(1)!=0) kvc->SetStatus(kTRUE); 
 			}
 			else {
 				Warning("SetCalibParameters(KVDBRun*)",
