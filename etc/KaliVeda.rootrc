@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.93 2009/04/09 10:30:33 ebonnet Exp $
-#$Revision: 1.93 $
+#$Id: KaliVeda.rootrc,v 1.94 2009/04/17 08:41:05 ebonnet Exp $
+#$Revision: 1.94 $
 #$Author: ebonnet $
-#$Date: 2009/04/09 10:30:33 $
+#$Date: 2009/04/17 08:41:05 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -199,8 +199,9 @@ Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 # specific dataset, use a variable such as the following:
 INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
-# (For these two datasets, there are many runs for which no 'marqueuer de temps' is present,
+# (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
 # due to a bad configuration of the trigger) 
+INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
@@ -546,6 +547,8 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
 +Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra5         "KVIDChIoCsI_camp5()"
 +Plugin.KVIDTelescope:      ^BIC-SIB$                            KVIDBlocking            KVIndraFNL     "KVIDBlocking()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
 
 # COHERENCE TOLERANCE PARAMETER
 # In KVIDTelescope::CalculateParticleEnergy, we compare the calculated and measured energy losses
@@ -596,7 +599,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
 INDRA_camp5.ActiveIdentifications:    CSI  SI-CSI  SI150-CSI   CI-SI   CI-CSI SI75-SILI SILI-CSI
-INDRA_e475s.ActiveIdentifications:    CI-SI CSI SI-CSI CI-CSI
+INDRA_e475s.ActiveIdentifications:    CI-CSI
 
 #=================== Updating calibration/identification parameters contained in data files
 # When recon/ident data files are created, a KVINDRA object containing all of the
