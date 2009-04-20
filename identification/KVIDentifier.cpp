@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.cpp,v 1.7 2009/04/20 10:01:58 ebonnet Exp $
-$Revision: 1.7 $
-$Date: 2009/04/20 10:01:58 $
+$Id: KVIDentifier.cpp,v 1.8 2009/04/20 12:16:50 ebonnet Exp $
+$Revision: 1.8 $
+$Date: 2009/04/20 12:16:50 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -334,6 +334,10 @@ void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t 
 	}
 	idbis->Scale(sx,sy);
 	this->GetParent()->AddIdentifier(idbis);
+	
+	this->GetParent()->UnDraw();
+	this->GetParent()->Draw();
+	
 	
 	delete cl;
 }
