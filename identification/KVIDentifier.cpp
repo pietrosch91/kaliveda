@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.cpp,v 1.6 2009/03/18 08:52:22 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/03/18 08:52:22 $
+$Id: KVIDentifier.cpp,v 1.7 2009/04/20 10:01:58 ebonnet Exp $
+$Revision: 1.7 $
+$Date: 2009/04/20 10:01:58 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -11,6 +11,7 @@ $Date: 2009/03/18 08:52:22 $
 #include "KVIDGraph.h"
 #include "TF1.h"
 #include "TPad.h"
+#include "TClass.h"
 
 ClassImp(KVIDentifier)
 
@@ -311,4 +312,28 @@ void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
    fX[ipoint] = newX;
    fY[ipoint] = newY;
    gPad->Modified();
+}
+
+void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t sx){
+	// Create a new line from the selected one 
+	// with a new Z and A (optional)
+	// this new line is scale from the selected one with a vertical sy 
+	// and horizontal sx (optional) factor
+	// you need to undraw and draw the grid to see its implementation
+
+	TClass* cl = new TClass(this->IsA()->GetName());
+	KVIDentifier* idbis = (KVIDentifier* )cl->New();
+	Double_t xx,yy;
+	for (Int_t nn=0;nn<this->GetN();nn+=1){
+		this->GetPoint(nn,xx,yy);
+		idbis->SetPoint(nn,xx,yy);
+	}
+	
+	idbis->SetZ(newzt); if (newar!=-1){
+		idbis->SetA(newar);
+	}
+	idbis->Scale(sx,sy);
+	this->GetParent()->AddIdentifier(idbis);
+	
+	delete cl;
 }

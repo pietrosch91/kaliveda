@@ -1,7 +1,7 @@
 /*
-$Id: KVIDentifier.h,v 1.6 2009/04/01 09:32:02 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/04/01 09:32:02 $
+$Id: KVIDentifier.h,v 1.7 2009/04/20 10:01:58 ebonnet Exp $
+$Revision: 1.7 $
+$Date: 2009/04/20 10:01:58 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 14:25:38 2008
@@ -57,7 +57,7 @@ class KVIDentifier : public TCutG
    virtual Int_t GetID() const {return 0;};
    virtual Int_t GetA() const{ return fIon.GetA();};
    virtual Int_t GetZ() const{ return fIon.GetZ();};
-   virtual void SetZ(Int_t atnum){ fIon.SetZ(atnum); SetNameFromNucleus(); }; // *MENU={Hierarchy="SetNucleus.../Z"}*
+   virtual void SetZ(Int_t ztnum){ fIon.SetZ(ztnum); SetNameFromNucleus(); }; // *MENU={Hierarchy="SetNucleus.../Z"}*
    virtual void SetA(Int_t atnum){ fIon.SetA(atnum); SetNameFromNucleus(); };  // *MENU={Hierarchy="SetNucleus.../A"}*
    virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU={Hierarchy="SetNucleus.../A and Z"}* *ARGS={atnum=>fA,ztnum=>fZ}
    virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus(); };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}* 
@@ -103,7 +103,8 @@ class KVIDentifier : public TCutG
    //virtual void        Delete(Option_t *option=""){TGraph::Delete(option);}; 
    virtual void        DrawClass() const {TGraph::DrawClass();};
    virtual TObject    *DrawClone(Option_t *option="") const {return TGraph::DrawClone(option);};
-   virtual void        Dump() const {TGraph::Dump();}; 
+   virtual void        CloneScaleStore(Int_t newzt,Double_t sy,Int_t newat=-1,Double_t sx=-1);  // *MENU*
+	virtual void        Dump() const {TGraph::Dump();}; 
    virtual void        Inspect() const {TGraph::Inspect();};
    virtual void        SaveAs(const char *filename="",Option_t *option="") const {TGraph::SaveAs(filename,option);};
    virtual void        SetDrawOption(Option_t *option="") {TGraph::SetDrawOption(option);};
