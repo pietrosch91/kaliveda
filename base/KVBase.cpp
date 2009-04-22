@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVBase.cpp,v 1.56 2009/03/12 13:59:40 franklan Exp $
+$Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
                           kvbase.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -206,8 +206,8 @@ void KVBase::InitEnvironment()
 			// load plugin handlers
          gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
          
-			// load mime types/icon definitions
-			ReadGUIMimeTypes();
+			// load mime types/icon definitions when not in batch (i.e. GUI-less) mode
+			if(!gROOT->IsBatch()) ReadGUIMimeTypes();
       }
       
       // update check - do not perform if ROOT is running in batch mode
@@ -897,7 +897,7 @@ void KVBase::ReadGUIMimeTypes()
 			KVString icon = gEnv->GetValue( Form("KaliVeda.GUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
 			KVString type = classname; type.ToLower();
 			
-			gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]",type.Data()),
+			if(gClient) gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]",type.Data()),
 					classname.Data(), icon.Data(), icon.Data(), "");
 			
 		}
