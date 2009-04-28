@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.cpp,v 1.8 2009/04/02 13:11:07 franklan Exp $
-$Revision: 1.8 $
-$Date: 2009/04/02 13:11:07 $
+$Id: KVIDGraph.cpp,v 1.9 2009/04/28 09:07:47 franklan Exp $
+$Revision: 1.9 $
+$Date: 2009/04/28 09:07:47 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -284,12 +284,8 @@ void KVIDGraph::WriteParameterListOfIDTelescopes()
 	// Fill parameter "IDTelescopes" with list of names of telescopes associated
 	// with this grid, ready to write in ascii file
 	
-	KVString tel_list;
 	fPar->SetValue("IDTelescopes", "");
-	TIter next(&fTelescopes);
-	TObject* id = next();
-	if(id) tel_list = id->GetName();
-	while ( (id = next()) ) tel_list += Form(",%s", id->GetName());
+	KVString tel_list = GetNamesOfIDTelescopes();
 	fPar->SetValue("IDTelescopes",tel_list);
 }
 
@@ -1329,4 +1325,19 @@ void KVIDGraph::SetEditable(Bool_t editable)
    if (GetNumberOfCuts() > 0) {
       fCuts->R__FOR_EACH(KVIDentifier, SetEditable) (editable);
 	}	
+}
+
+//___________________________________________________________________________________
+
+const Char_t* KVIDGraph::GetNamesOfIDTelescopes()
+{
+	// Returns a comma-separated list of the names of all ID telescopes for which
+	// this grid is valid.
+	
+	static TString tel_list;
+	TIter next(&fTelescopes);
+	TObject* id = next();
+	if(id) tel_list = id->GetName();
+	while ( (id = next()) ) tel_list += Form(",%s", id->GetName());
+	return tel_list.Data();
 }

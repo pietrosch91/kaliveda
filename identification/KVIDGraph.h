@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGraph.h,v 1.6 2009/04/02 13:11:07 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/04/02 13:11:07 $
+$Id: KVIDGraph.h,v 1.7 2009/04/28 09:07:47 franklan Exp $
+$Revision: 1.7 $
+$Date: 2009/04/28 09:07:47 $
 */
 
 //Created by KVClassFactory on Mon Apr 14 13:42:47 2008
@@ -295,6 +295,8 @@ class KVIDGraph : public TCutG
 	Int_t GetMassFormula();
 	void ResetPad();
 	void ClearPad(TVirtualPad*);
+	
+	const Char_t* GetNamesOfIDTelescopes();
 	
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TGraph.h, to stop these methods appearing in the ID line context menus
