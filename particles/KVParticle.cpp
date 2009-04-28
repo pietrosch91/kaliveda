@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVParticle.cpp,v 1.49 2008/12/17 11:23:55 ebonnet Exp $
+$Id: KVParticle.cpp,v 1.50 2009/04/28 08:59:05 franklan Exp $
                           kvparticle.cpp  -  description
                              -------------------
     begin                : Sun May 19 2002
@@ -162,6 +162,7 @@ KVParticle::~KVParticle()
 {
    //dtor
    Clear();
+   if (fBoosted) delete fBoosted;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,8 +290,9 @@ void KVParticle::Clear(Option_t * opt)
 	SetGroupNames("");
 	SetFrameName("");
    if (fBoosted) {
-      delete fBoosted;
-      fBoosted = 0;
+		fBoosted->Clear();
+      //delete fBoosted;
+      //fBoosted = 0;
    }
 }
 
@@ -592,9 +594,10 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
    if ( (tmp == this) && (strcmp(frame,"")) ) {
 		tmp = (KVParticle* )this->IsA()->New();
 		tmp->SetFrameName(frame);
+		tmp->SetBit(kCanDelete);
 		fBoosted->Add(tmp);
    }
-   //copy mass & lab momentum of particle
+   //copy all information on particle
    this->Copy(*tmp);
    //transform to boosted frame
    (*tmp) *= rot.Inverse();
