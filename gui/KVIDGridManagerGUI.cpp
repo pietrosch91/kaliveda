@@ -675,15 +675,18 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
 		TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
 		cf->ChangeOptions(kVerticalFrame);
 		fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-			fIDGridList->SetDataColumns(8);
+			fIDGridList->SetDataColumns(10);
 			fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
 			fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
 			fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-			fIDGridList->SetDataColumn(3, "RunList", "", kTextLeft);
-			fIDGridList->SetDataColumn(4, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-			fIDGridList->SetDataColumn(5, "# Cuts", "GetNumberOfCuts", kTextRight);
-			fIDGridList->SetDataColumn(6, "X scaling", "GetXScaleFactor", kTextRight);
-			fIDGridList->SetDataColumn(7, "Y scaling", "GetYScaleFactor", kTextRight);
+			fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+			fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+			fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+			fIDGridList->GetDataColumn(5)->SetIsBoolean();
+			fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+			fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+			fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+			fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
 		fIDGridList->ActivateSortButtons();	
    	fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                         "SelectionChanged()");
@@ -700,7 +703,7 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
 void KVIDGridManagerGUI::TabSelect(Int_t tab)
 {
 	//called when a new tab is selected
-	cout << "TabSelect("<<tab<<")"<<endl;
+
 	TGCompositeFrame *cf = fGridListTabs->GetCurrentContainer();
 	if(!cf) return;//there are no tabs
 	TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
@@ -713,29 +716,29 @@ void KVIDGridManagerGUI::UpdateTabs()
 	// create a tab for each type of ID telescope
    // put a list box for ID grid names on each tab
 	
-	cout << "UpdateTabs called" << endl;
 	KVString labels("[unknown]");
 	if(gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
-	cout << "labels = " << labels.Data() << endl;
 	//add any missing labels, update existing ones
 	labels.Begin(",");
 	while( ! labels.End() ){
 		KVString lab = labels.Next();
 		
 		if( !fGridListTabs->GetTabContainer(lab.Data()) ){// new tab
-			cout << "making new tab : " <<lab.Data()<<endl;
 			TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
 			cf->ChangeOptions(kVerticalFrame);
 			fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-			fIDGridList->SetDataColumns(8);
+			fIDGridList->SetDataColumns(10);
 			fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
 			fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
 			fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-			fIDGridList->SetDataColumn(3, "RunList", "", kTextLeft);
-			fIDGridList->SetDataColumn(4, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-			fIDGridList->SetDataColumn(5, "# Cuts", "GetNumberOfCuts", kTextRight);
-			fIDGridList->SetDataColumn(6, "XScaleFactor", "", kTextRight);
-			fIDGridList->SetDataColumn(7, "YScaleFactor", "", kTextRight);
+			fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+			fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+			fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+			fIDGridList->GetDataColumn(5)->SetIsBoolean();
+			fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+			fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+			fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+			fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
 			fIDGridList->ActivateSortButtons();	
    		fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
                         "SelectionChanged()");
@@ -750,7 +753,6 @@ void KVIDGridManagerGUI::UpdateTabs()
 			fGridListTabs->SetTab(fGridListTabs->GetNumberOfTabs()-1,kTRUE);
 		}
 		else {//existing tab
-			cout << "adding to tab : " <<lab.Data()<<endl;
 			TGCompositeFrame*cf = fGridListTabs->GetTabContainer(lab.Data());
 			if(!cf){
 				cout << "cf = 0x0 : label="<<lab.Data()<<" tab name="<<
@@ -776,7 +778,6 @@ void KVIDGridManagerGUI::RemoveEmptyTabs()
 {
 	// Recursively remove any empty tabs
 	
-	cout << "RemoveEmptyTabs()" << endl;
 	Int_t ntabs = fGridListTabs->GetNumberOfTabs();
 	Bool_t recursive = kFALSE;
 	for(Int_t itab=0; itab<ntabs; itab++){
@@ -789,7 +790,6 @@ void KVIDGridManagerGUI::RemoveEmptyTabs()
 		delete grids;
 		if(!ngrids){
 			//empty tab! remove it!
-			cout << "Removing tab : " << lab.Data() << endl;
 			//delete the KVListView
 			TGCompositeFrame*cf =fGridListTabs->GetTabContainer(itab);
 			TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
