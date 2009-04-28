@@ -212,9 +212,8 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
    //calculate momenta of particles in reaction cm frame
    if (fCurrentRun->GetSystem()) {
 
-      GetEvent()->SetFrame("CM",
-                           fCurrentRun->GetSystem()->GetKinematics()->
-                           GetCMVelocity());
+       GetEvent()->SetFrame("CM",
+                            fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
 
    }
 
