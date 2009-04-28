@@ -1,7 +1,7 @@
 /*
-$Id: KVListView.cpp,v 1.5 2009/03/12 10:51:08 franklan Exp $
-$Revision: 1.5 $
-$Date: 2009/03/12 10:51:08 $
+$Id: KVListView.cpp,v 1.6 2009/04/28 09:11:29 franklan Exp $
+$Revision: 1.6 $
+$Date: 2009/04/28 09:11:29 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 11:51:38 2008
@@ -75,6 +75,7 @@ KVListView::KVListView(TClass* obj_class, const TGWindow *p, UInt_t w, UInt_t h,
 	SetContainer( new KVLVContainer(this, kHorizontalFrame, fgWhitePixel) );
 	SetViewMode(kLVDetails);
 	SetIncrements(1,19);
+	fMaxColumnSize = 100;
 }
 
 Bool_t KVListView::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
@@ -123,7 +124,7 @@ void 	KVListView::SetDataColumn	(Int_t index, const Char_t* name, const Char_t* 
 	// Define column with index = 0, 1, ...
 	// name = name of column (shown in column header button)
 	// method = method to call to fill column with data (by default, "Getname")
-	// mode = text alignment for data in column (kTextLeft, kTextCenter, kTextRight)
+	// mode = text alignment for data in column (kTextCenterX [default], kTextLeft, kTextRight)
 	// column header name is always center aligned
 	SetHeader(name, kTextCenterX, mode, index);
 	((KVLVContainer*)GetContainer())->SetDataColumn(index, fObjClass, name, method);
@@ -140,4 +141,37 @@ Int_t KVListView::GetColumnNumber(const Char_t* colname)
 		}
 	}
    return -1;
+}
+
+//______________________________________________________________________________
+
+void KVListView::SetDefaultColumnWidth(TGVFileSplitter* splitter)
+{
+   // Set default column width of the columns headers.
+	// Limit column size to fMaxColumnSize at most
+
+   TGLVContainer *container = (TGLVContainer *) fVport->GetContainer();
+
+   if (!container) {
+      Error("SetDefaultColumnWidth", "no listview container set yet");
+      return;
+   }
+   container->ClearViewPort();
+
+   for (int i = 0; i < fNColumns; ++i) {
+      if ( fSplitHeader[i] == splitter ) {
+         TString dt = fColHeader[i]->GetString();
+         UInt_t bsize = gVirtualX->TextWidth(fColHeader[i]->GetFontStruct(),
+                                             dt.Data(), dt.Length());
+         UInt_t w = TMath::Max(fColHeader[i]->GetDefaultWidth(), bsize + 20);
+         if (i == 0) w = TMath::Max(fMaxSize.fWidth + 10, w);
+         if (i > 0)  {
+				w = TMath::Max(container->GetMaxSubnameWidth(i) + 40, (Int_t)w);
+				printf("w=%ud\n",w);
+				w = TMath::Min(w, fMaxColumnSize);
+			}
+         fColHeader[i]->Resize(w, fColHeader[i]->GetHeight());
+         Layout();
+      }
+   }
 }

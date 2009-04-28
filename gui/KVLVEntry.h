@@ -1,7 +1,7 @@
 /*
-$Id: KVLVEntry.h,v 1.2 2009/03/03 14:27:15 franklan Exp $
-$Revision: 1.2 $
-$Date: 2009/03/03 14:27:15 $
+$Id: KVLVEntry.h,v 1.3 2009/04/28 09:11:29 franklan Exp $
+$Revision: 1.3 $
+$Date: 2009/04/28 09:11:29 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:55:03 2008
@@ -22,10 +22,14 @@ class KVLVEntry : public TGLVEntry
 	static Pixel_t fgGreyPixel;// light grey color used to distinguish adjacent list items
 	Pixel_t fBGColor;// background color of this item
 	
+	Bool_t *fBoolean;//'IsBoolean' attribute of each column
+	
    public:
    KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 			UInt_t ncols, KVLVColumnData **coldata);
-   virtual ~KVLVEntry(){};
+   virtual ~KVLVEntry(){
+		delete [] fBoolean;
+	};
 	
 	virtual void Refresh();
 	virtual void	DrawCopy(Handle_t id, Int_t x, Int_t y);

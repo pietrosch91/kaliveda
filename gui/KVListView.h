@@ -1,7 +1,7 @@
 /*
-$Id: KVListView.h,v 1.4 2009/03/12 13:58:30 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/03/12 13:58:30 $
+$Id: KVListView.h,v 1.5 2009/04/28 09:11:29 franklan Exp $
+$Revision: 1.5 $
+$Date: 2009/04/28 09:11:29 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 11:51:38 2008
@@ -15,8 +15,10 @@ $Date: 2009/03/12 13:58:30 $
 
 class KVListView : public TGListView
 {
+	protected:
 	int 		nselected;		//number of selected items
 	TClass 	*fObjClass; 	//class of objects in list
+	UInt_t fMaxColumnSize;//maximum width of columns
 
    public:
    KVListView(TClass* obj_class, const TGWindow *p, UInt_t w, UInt_t h,
@@ -26,6 +28,7 @@ class KVListView : public TGListView
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 	virtual void 	ActivateSortButtons();
+	virtual void SetMaxColumnSize(UInt_t width) { fMaxColumnSize=width; };
    virtual void   SetDataColumns(Int_t ncolumns);
 	virtual void 	SetDataColumn	(Int_t index, const Char_t* name, const Char_t* method="",
 			Int_t mode = kTextCenterX);
@@ -99,7 +102,7 @@ class KVListView : public TGListView
 		// Call with on=kFALSE to disable objects' context menus opening with mouse right-click
 		((KVLVContainer*)GetContainer())->AllowContextMenu(on);
    };
-
+	virtual void	SetDefaultColumnWidth(TGVFileSplitter* splitter);
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
 

@@ -1,7 +1,7 @@
 /*
-$Id: KVLVContainer.h,v 1.6 2009/04/10 13:48:07 franklan Exp $
-$Revision: 1.6 $
-$Date: 2009/04/10 13:48:07 $
+$Id: KVLVContainer.h,v 1.7 2009/04/28 09:11:29 franklan Exp $
+$Revision: 1.7 $
+$Date: 2009/04/28 09:11:29 $
 */
 
 //Created by KVClassFactory on Wed Apr  9 13:54:31 2008
@@ -32,6 +32,7 @@ class KVLVColumnData
 	Bool_t			fDate;		// kTRUE if column contains TDatime date & time info
 	KVDatime::EKVDateFormat  fFmt; 		// format for presenting date & time
 	Bool_t			fIsKVDatime;	// kTRUE if date & time is in KVDatime object, TDatime if not
+	Bool_t			fIsBoolean;	// kTRUE if column data is a boolean (i.e. 1 or 0, kTRUE or kFALSE)
 
 	enum {
 		kDatimeRef = TMethodCall::kNone+1,
@@ -44,7 +45,7 @@ class KVLVColumnData
 
 	public:
 	KVLVColumnData(TClass* cl, const Char_t* name, const Char_t* method="")
-			: fName(name), fMethod(method), result(""), fDate(kFALSE), fFmt(KVDatime::kCTIME), fIsKVDatime(kFALSE)
+			: fName(name), fMethod(method), result(""), fDate(kFALSE), fFmt(KVDatime::kCTIME), fIsKVDatime(kFALSE), fIsBoolean(kFALSE)
 	{
 		if(fMethod=="") fMethod.Form("Get%s", name);
 		fMethCall = new TMethodCall(cl, fMethod.Data(), "");
@@ -59,6 +60,8 @@ class KVLVColumnData
 		delete fMethCall;
 	};
 	virtual void SetIsDateTime(KVDatime::EKVDateFormat fmt=KVDatime::kCTIME, Bool_t with_reference=kTRUE);
+	virtual void SetIsBoolean(Bool_t isit = kTRUE){ fIsBoolean=isit; };
+	virtual Bool_t IsBoolean() const { return fIsBoolean; };
 	const Char_t* GetDataString(TObject*);
 	void GetData(TObject*,Long_t&);
 	void GetData(TObject*,Double_t&);
