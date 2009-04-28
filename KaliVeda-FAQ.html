@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="css/faq.css" type="text/css">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta content="J.D. Frankland, GANIL (France)" name="author">
-	<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="images/favicon.ico"
+ type="image/x-icon">
 </head>
 <body>
 <h1>Tutorials</h1>
@@ -1207,7 +1208,7 @@ dependencies. The subprojects dependencies are as follows:<br>
 </p>
 <table
  style="width: 70%; text-align: left; margin-left: auto; margin-right: auto;"
- border="0" cellspacing="2" cellpadding="2">
+ border="0" cellpadding="2" cellspacing="2">
   <tbody>
     <tr>
       <td style="vertical-align: top;">KVMultiDet<br>
@@ -1279,7 +1280,7 @@ categories:<br>
 </p>
 <table
  style="width: 60%; text-align: left; margin-left: auto; margin-right: auto;"
- border="0" cellspacing="0" cellpadding="2">
+ border="0" cellpadding="2" cellspacing="0">
   <tbody>
     <tr>
       <td
@@ -1456,6 +1457,14 @@ your analyses without reinstalling KaliVeda or anything so barbaric !<br>
 methods to generate skeleton .cpp and .h files, then modify the
 appropriate methods.<br>
 </p>
+<p style="margin-left: 200px;"><span
+ style="color: rgb(255, 0, 0); font-weight: bold;">WARNING!!! </span>Your
+global variable will only be compiled and loaded during the execution
+of your analysis, not when your analysis class is compiled. You cannot
+put a <code>#include "MyVarGlob.h"</code> directive in your analysis
+class, neither can you explicitly use objects or pointers of your class
+in your analysis: the analysis class will not compile! <br>
+</p>
 <p>In order to be able to use your new class, you must create/modify
 two configuration files:<br>
 </p>
@@ -1467,7 +1476,7 @@ global variables in it. In this case, you should add the following line
 to your .rootrc file:<br>
 </p>
 <div class="code">+Unix.*.ROOT.MacroPath:&nbsp;&nbsp;
-:$(HOME)/myVarGlobs</div>
+$(HOME)/myVarGlobs:</div>
 <p><span style="font-weight: bold;">(2) $HOME/.kvrootrc</span><br>
 Each global variable that you wish to add must be declared as a
 'plugin' in your .kvrootrc file. For a global variable 'MyNewVarGlob',
@@ -1476,10 +1485,12 @@ add the following line:<br>
 <div class="code">+Plugin.KVVarGlob:&nbsp; MyNewVarGlob&nbsp;
 MyNewVarGlob&nbsp;
 MyNewVarGlob.cpp+&nbsp; "MyNewVarGlob()"</div>
-<p>To use your global variable in an analysis, simply add it to the
+<p>To use your global variable in an analysis class derived from <a
+ href="KVSelector.html">KVSelector</a>, simply add it to the
 list of global variables using<br>
 </p>
-<div class="code"><a href="KVSelector.html#KVSelector:AddGV">AddGV</a>(
+<div class="code">KVVarGlob* myvarglob = <a
+ href="KVSelector.html#KVSelector:AddGV">AddGV</a>(
 "MyNewVarGlob", "myvar" );
 </div>
 <p>in the InitAnalysis() method of your analysis class.<br>
