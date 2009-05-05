@@ -1,7 +1,7 @@
 /*
-$Id: KVIDGChIoSi.cpp,v 1.34 2009/04/06 15:10:09 franklan Exp $
-$Revision: 1.34 $
-$Date: 2009/04/06 15:10:09 $
+$Id: KVIDGChIoSi.cpp,v 1.35 2009/05/05 15:57:52 franklan Exp $
+$Revision: 1.35 $
+$Date: 2009/05/05 15:57:52 $
 $Author: franklan $
 */
 
@@ -206,7 +206,7 @@ void KVIDGChIoSi::Streamer(TBuffer &R__b)
 		}
 		else
 		{
-      	KVIDGChIoSi::Class()->ReadBuffer(R__b,this);
+      	KVIDGChIoSi::Class()->ReadBuffer(R__b,this,R__v,R__s,R__c);
 		}
    } else {
       KVIDGChIoSi::Class()->WriteBuffer(R__b,this);
