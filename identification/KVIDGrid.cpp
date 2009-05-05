@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDGrid.cpp,v 1.59 2009/04/01 09:33:53 franklan Exp $
+$Id: KVIDGrid.cpp,v 1.60 2009/05/05 15:57:52 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -345,7 +345,7 @@ void KVIDGrid::Streamer(TBuffer &R__b)
 		}
 		else
 		{
-			KVIDGrid::Class()->ReadBuffer(R__b,this);
+			KVIDGrid::Class()->ReadBuffer(R__b,this,R__v,R__s,R__c);
 		}
    } else {
       KVIDGrid::Class()->WriteBuffer(R__b,this);

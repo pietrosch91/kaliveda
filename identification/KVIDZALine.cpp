@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDZALine.cpp,v 1.9 2009/04/01 13:52:32 franklan Exp $
+$Id: KVIDZALine.cpp,v 1.10 2009/05/05 15:57:52 franklan Exp $
                           KVIDZALine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -176,7 +176,7 @@ void KVIDZALine::Streamer(TBuffer &R__b)
 		}
 		else
 		{
-      	R__b.ReadClassBuffer(KVIDZALine::Class(),this);
+      	R__b.ReadClassBuffer(KVIDZALine::Class(),this,R__v,R__s,R__c);
 		}
    } else {
       R__b.WriteClassBuffer(KVIDZALine::Class(),this);

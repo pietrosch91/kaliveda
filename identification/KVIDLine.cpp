@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVIDLine.cpp,v 1.21 2009/03/13 13:04:11 franklan Exp $
+$Id: KVIDLine.cpp,v 1.22 2009/05/05 15:57:52 franklan Exp $
                           KVIDLine.cpp  -  description
                              -------------------
     begin                : Nov 10 2004
@@ -500,7 +500,7 @@ void KVIDLine::Streamer(TBuffer &R__b)
 		}
 		else
 		{
-      	R__b.ReadClassBuffer(KVIDLine::Class(),this);
+      	R__b.ReadClassBuffer(KVIDLine::Class(),this,R__v,R__s,R__c);
 		}
 	}
 	else {

@@ -5,7 +5,7 @@
     copyright            : (C) 2004 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVIDZAGrid.cpp,v 1.23 2009/04/03 14:31:46 franklan Exp $
+$Id: KVIDZAGrid.cpp,v 1.24 2009/05/05 15:57:52 franklan Exp $
 ***************************************************************************/
 
 /***************************************************************************
@@ -1333,7 +1333,7 @@ void KVIDZAGrid::Streamer(TBuffer &R__b)
 		}
 		else
 		{
-      	R__b.ReadClassBuffer(KVIDZAGrid::Class(),this);
+      	R__b.ReadClassBuffer(KVIDZAGrid::Class(),this, R__v, R__s, R__c);
 		}
    } else {
       R__b.WriteClassBuffer(KVIDZAGrid::Class(),this);
