@@ -1,6 +1,6 @@
 /***************************************************************************
-$Id: KVIDTelescope.cpp,v 1.51 2009/04/01 15:58:09 ebonnet Exp $
-Author : $Author: ebonnet $
+$Id: KVIDTelescope.cpp,v 1.52 2009/05/05 15:54:04 franklan Exp $
+Author : $Author: franklan $
                           KVIDTelescope.cpp  -  description
                              -------------------
     begin                : Wed Jun 18 2003
@@ -551,10 +551,10 @@ void KVIDTelescope::Streamer(TBuffer &R__b)
       }
       else
       {
-         KVIDTelescope::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
+         R__b.ReadClassBuffer(KVIDTelescope::Class(), this, R__v, R__s, R__c);
       }
    } else {
-      KVIDTelescope::Class()->WriteBuffer(R__b, this);
+      R__b.WriteClassBuffer(KVIDTelescope::Class(), this);
    }
 }
 
