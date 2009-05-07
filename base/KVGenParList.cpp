@@ -1,7 +1,7 @@
 /*
-$Id: KVGenParList.cpp,v 1.2 2009/03/02 16:48:17 franklan Exp $
-$Revision: 1.2 $
-$Date: 2009/03/02 16:48:17 $
+$Id: KVGenParList.cpp,v 1.3 2009/05/07 12:21:33 ebonnet Exp $
+$Revision: 1.3 $
+$Date: 2009/05/07 12:21:33 $
 */
 
 //Created by KVClassFactory on Tue Oct 23 15:21:35 2007
@@ -137,5 +137,29 @@ void KVGenParList::SetValue(const Char_t* name, Double_t val)
    
    KVString tmp;
    tmp.Form("%g", val); // write value in temporary string
+   SetParameter(name, tmp);
+}
+
+//______________________________________________________________________________
+
+void KVGenParList::IncrementValue(const Char_t* name, Int_t val)
+{
+   // Increment parameter value
+   // New parameter is created if "name" does not exist.
+   
+   KVString tmp;
+   tmp.Form("%d", val+GetIntValue(name)); // write value in temporary string
+   SetParameter(name, tmp);
+}
+
+//______________________________________________________________________________
+
+void KVGenParList::IncrementValue(const Char_t* name, Double_t val)
+{
+   // Increment parameter value
+   // New parameter is created if "name" does not exist.
+   
+   KVString tmp;
+   tmp.Form("%g", val+GetDoubleValue(name)); // write value in temporary string
    SetParameter(name, tmp);
 }

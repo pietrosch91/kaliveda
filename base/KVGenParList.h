@@ -1,7 +1,7 @@
 /*
-$Id: KVGenParList.h,v 1.1 2007/10/24 10:29:55 franklan Exp $
-$Revision: 1.1 $
-$Date: 2007/10/24 10:29:55 $
+$Id: KVGenParList.h,v 1.2 2009/05/07 12:21:33 ebonnet Exp $
+$Revision: 1.2 $
+$Date: 2009/05/07 12:21:33 $
 */
 
 //Created by KVClassFactory on Tue Oct 23 15:21:35 2007
@@ -31,6 +31,9 @@ class KVGenParList : public KVParameterList<KVString>
    void SetValue(const Char_t* name, KVString& val);
    void SetValue(const Char_t* name, Int_t val);
    void SetValue(const Char_t* name, Double_t val);
+   
+	void IncrementValue(const Char_t* name, Int_t val);
+   void IncrementValue(const Char_t* name, Double_t val);
    
    ClassDef(KVGenParList,1)//A list of named parameters which can be either strings, doubles or integers
 };
