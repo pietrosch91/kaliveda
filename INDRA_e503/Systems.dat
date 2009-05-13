@@ -1,9 +1,9 @@
-# Systems.dat file written by KVINDRADB_e503::WriteSystemsFile on Fri Apr 10 11:03:20 2009
+# Systems.dat file written by KVINDRADB_e503::WriteSystemsFile on Thu May  7 16:10:37 2009
 +48Ca +40Ca 35 MeV/A
 48 20 40 20 35
 Target: 1 0
 Ca 1
-Runs: 328-350 353-378 425
+Runs: 322-350 353-378 425
 
 +INDRA SOLO
 Runs: 
@@ -60,5 +60,17 @@ Runs: 138 140-167
 Runs: 26
 
 +Source alpha
-Runs: 
+Runs: 216-306
+
++cosmic
+Runs: 210
+
++gene
+Runs: 211-215 307-310
+
++48Ca + Ca 60 MeV/A
+48 20 40 20 60
+Target: 1 0
+Ca 0.1
+Runs: 311-314 316-321
 
