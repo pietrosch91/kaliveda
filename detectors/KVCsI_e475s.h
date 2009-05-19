@@ -1,7 +1,7 @@
 /*
-$Id: KVCsI_e475s.h,v 1.3 2009/04/15 11:39:11 ebonnet Exp $
-$Revision: 1.3 $
-$Date: 2009/04/15 11:39:11 $
+$Id: KVCsI_e475s.h,v 1.4 2009/05/19 15:39:53 ebonnet Exp $
+$Revision: 1.4 $
+$Date: 2009/05/19 15:39:53 $
 */
 
 //Created by KVClassFactory on Thu Apr  9 09:22:46 2009
@@ -14,6 +14,7 @@ $Date: 2009/04/15 11:39:11 $
 #include "KVFunctionCal.h"
 #include "KVDBParameterSet.h"
 #include "KVString.h"
+#include "KVDataSet.h"
 
 class KVCsI_e475s : public KVCsI
 {
@@ -52,8 +53,7 @@ class KVCsI_e475s : public KVCsI
 
 Bool_t KVCsI_e475s::Fired(Option_t * opt)
 {
-   //Les Marqueurs de temps ne rentrent pas en compte dans l'analyse
-	//
+   
 	//opt="any" (default):
    //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
    //opt="all" :
@@ -67,43 +67,37 @@ Bool_t KVCsI_e475s::Fired(Option_t * opt)
    //
    //See KVACQParam::Fired()
 	
-	Option_t * optbis = "Pall";
-	
-   int touched = 0;
-   int working = 0;
+	KVString inst; inst.Form("Reconstruction.DataAnalysisTask.ACQParameterList.%s",GetType());
+	KVString lpar = gDataSet->GetDataSetEnv(inst);
+   
+	Int_t touched = 0;
+   Int_t working = 0;
    Bool_t ok = kFALSE;
    Char_t opt2[] = "";
-   if(optbis[0]=='P'){
-      optbis++;
+   if(opt[0]=='P'){
+      opt++;
       opt2[0]='P';
    }
 	
-	KVString stpar;
-   if (fACQParams) {
-      TIter next(fACQParams);
-      KVACQParam *par;
-      while ((par = (KVACQParam *) next())) {
-         stpar.Form("%s",par->GetName());
-			if ( !stpar.EndsWith("_T") ){
-				//cout << stpar << endl;
-				if (par->IsWorking()) {
-         	   working++;
-         	   if(par->Fired(opt2)){
-         	      ok = kTRUE;
-         	      touched++;
-         	   }
-         	}
-			}	
-      }
-
-      if (!strcmp(optbis, "all")) {
-			//cout << touched << " " << working << endl;
-         return (touched == working);
-      } else {
-         return ok;
-      }
-   }
-   return kFALSE;
+	lpar.Begin(",");
+	KVACQParam *par=0;
+	while (!lpar.End()){
+		
+		par = GetACQParam(lpar.Next());
+		if (par && par->IsWorking()){
+			working++;
+		   if(par->Fired(opt2)){
+		      ok = kTRUE;
+		      touched++;
+			}
+		}
+		
+	}
+	
+	if (!strcmp(opt, "all")) 	return (touched == working);
+	else 								return ok;
+	
+	return kFALSE;
 }
 
 #endif
