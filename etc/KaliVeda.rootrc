@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.94 2009/04/17 08:41:05 ebonnet Exp $
-#$Revision: 1.94 $
+#$Id: KaliVeda.rootrc,v 1.95 2009/05/19 15:41:08 ebonnet Exp $
+#$Revision: 1.95 $
 #$Author: ebonnet $
-#$Date: 2009/04/17 08:41:05 $
+#$Date: 2009/05/19 15:41:08 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -201,7 +201,21 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 # (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
 # due to a bad configuration of the trigger) 
+
 INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
+
+Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG,T
+Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG,T
+Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG,T
+Reconstruction.DataAnalysisTask.ACQParameterList.SI75: PG,GG,T
+Reconstruction.DataAnalysisTask.ACQParameterList.CSI: R,L,T
+
+INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG
+INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG
+INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG
+INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SI75: PG,GG
+INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.CSI: R,L
+
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
@@ -435,8 +449,6 @@ INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
 INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
 INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
 INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
-#INDRA_e475s.INDRADB.CalibChIo:     E475s_calibration_file_CIPG.dat
-#INDRA_e475s.INDRADB.CalibSI:     E475s_calibration_file_SIPG.dat
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 
 # Default headers for runlist columns
@@ -599,7 +611,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
 INDRA_camp5.ActiveIdentifications:    CSI  SI-CSI  SI150-CSI   CI-SI   CI-CSI SI75-SILI SILI-CSI
-INDRA_e475s.ActiveIdentifications:    CI-CSI
+INDRA_e475s.ActiveIdentifications:    CI-CSI SI-CSI CSI CI-SI
 
 #=================== Updating calibration/identification parameters contained in data files
 # When recon/ident data files are created, a KVINDRA object containing all of the
