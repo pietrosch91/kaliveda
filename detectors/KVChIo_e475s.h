@@ -1,7 +1,7 @@
 /*
-$Id: KVChIo_e475s.h,v 1.8 2009/05/22 14:44:18 ebonnet Exp $
-$Revision: 1.8 $
-$Date: 2009/05/22 14:44:18 $
+$Id: KVChIo_e475s.h,v 1.9 2009/05/22 14:54:47 ebonnet Exp $
+$Revision: 1.9 $
+$Date: 2009/05/22 14:54:47 $
 */
 
 //Created by KVClassFactory on Thu Sep 20 09:46:32 2007
@@ -42,8 +42,7 @@ class KVChIo_e475s : public KVChIo
 	Double_t	GetCalibratedEnergy();
 	virtual Double_t	GetEnergy();
    virtual Short_t GetCalcACQParam(KVACQParam*) const;
-	inline virtual Bool_t Fired(Option_t * opt = "any");
-   
+
 	ClassDef(KVChIo_e475s,1)//derivation of KVChIo class for E475s experiment
 };
 

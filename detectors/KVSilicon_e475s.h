@@ -1,7 +1,7 @@
 /*
-$Id: KVSilicon_e475s.h,v 1.9 2009/05/22 14:44:18 ebonnet Exp $
-$Revision: 1.9 $
-$Date: 2009/05/22 14:44:18 $
+$Id: KVSilicon_e475s.h,v 1.10 2009/05/22 14:54:47 ebonnet Exp $
+$Revision: 1.10 $
+$Date: 2009/05/22 14:54:47 $
 */
 
 //Created by KVClassFactory on Wed Sep 19 13:46:35 2007
@@ -49,9 +49,7 @@ class KVSilicon_e475s : public KVSilicon
 	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
 	Short_t GetCalcACQParam(KVACQParam*) const;
-	inline virtual Bool_t Fired(Option_t * opt = "any");
-   
-   
+
 	ClassDef(KVSilicon_e475s,1)//derivation of KVSilicon class for E475s experiment
 
 };

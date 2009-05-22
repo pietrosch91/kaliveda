@@ -1,7 +1,7 @@
 /*
-$Id: KVCsI_e475s.h,v 1.5 2009/05/22 14:44:18 ebonnet Exp $
-$Revision: 1.5 $
-$Date: 2009/05/22 14:44:18 $
+$Id: KVCsI_e475s.h,v 1.6 2009/05/22 14:54:47 ebonnet Exp $
+$Revision: 1.6 $
+$Date: 2009/05/22 14:54:47 $
 */
 
 //Created by KVClassFactory on Thu Apr  9 09:22:46 2009
@@ -46,8 +46,7 @@ class KVCsI_e475s : public KVCsI
 	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
    Short_t GetCalcACQParam(KVACQParam*) const;
-	inline virtual Bool_t Fired(Option_t * opt = "any");
-   
+
 	ClassDef(KVCsI_e475s,1)//derivation of KVCsI class for E475s experiment
 };
 
