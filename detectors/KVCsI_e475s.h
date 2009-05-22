@@ -1,7 +1,7 @@
 /*
-$Id: KVCsI_e475s.h,v 1.4 2009/05/19 15:39:53 ebonnet Exp $
-$Revision: 1.4 $
-$Date: 2009/05/19 15:39:53 $
+$Id: KVCsI_e475s.h,v 1.5 2009/05/22 14:44:18 ebonnet Exp $
+$Revision: 1.5 $
+$Date: 2009/05/22 14:44:18 $
 */
 
 //Created by KVClassFactory on Thu Apr  9 09:22:46 2009
@@ -51,53 +51,5 @@ class KVCsI_e475s : public KVCsI
 	ClassDef(KVCsI_e475s,1)//derivation of KVCsI class for E475s experiment
 };
 
-Bool_t KVCsI_e475s::Fired(Option_t * opt)
-{
-   
-	//opt="any" (default):
-   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
-   //opt="all" :
-   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
-   //opt="Pany" :
-   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
-   //and have a value greater than their pedestal value
-   //opt="Pall" :
-   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
-   //and have a value greater than their pedestal value
-   //
-   //See KVACQParam::Fired()
-	
-	KVString inst; inst.Form("Reconstruction.DataAnalysisTask.ACQParameterList.%s",GetType());
-	KVString lpar = gDataSet->GetDataSetEnv(inst);
-   
-	Int_t touched = 0;
-   Int_t working = 0;
-   Bool_t ok = kFALSE;
-   Char_t opt2[] = "";
-   if(opt[0]=='P'){
-      opt++;
-      opt2[0]='P';
-   }
-	
-	lpar.Begin(",");
-	KVACQParam *par=0;
-	while (!lpar.End()){
-		
-		par = GetACQParam(lpar.Next());
-		if (par && par->IsWorking()){
-			working++;
-		   if(par->Fired(opt2)){
-		      ok = kTRUE;
-		      touched++;
-			}
-		}
-		
-	}
-	
-	if (!strcmp(opt, "all")) 	return (touched == working);
-	else 								return ok;
-	
-	return kFALSE;
-}
 
 #endif
