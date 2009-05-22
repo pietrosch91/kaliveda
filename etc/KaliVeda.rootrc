@@ -1,7 +1,7 @@
-#$Id: KaliVeda.rootrc,v 1.95 2009/05/19 15:41:08 ebonnet Exp $
-#$Revision: 1.95 $
+#$Id: KaliVeda.rootrc,v 1.96 2009/05/22 14:46:15 ebonnet Exp $
+#$Revision: 1.96 $
 #$Author: ebonnet $
-#$Date: 2009/05/19 15:41:08 $
+#$Date: 2009/05/22 14:46:15 $
 
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
@@ -204,6 +204,10 @@ INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 
 INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
 
+# The following variable controls the parameter list which are concerned 
+# for the reconstruction of the particles using raw data
+# In the detector in which the particle stops, 
+# By default for INDRA data, all acquisition parameters (3) are concerned:
 Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG,T
 Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG,T
 Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG,T
