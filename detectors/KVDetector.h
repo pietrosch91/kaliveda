@@ -5,7 +5,7 @@
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVDetector.h,v 1.70 2009/03/03 14:27:15 franklan Exp $
+$Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -369,36 +369,45 @@ Bool_t KVDetector::Fired(Option_t * opt)
    //and have a value greater than their pedestal value
    //
    //See KVACQParam::Fired()
-
-   int touched = 0;
-   int working = 0;
+	
+	//This parameter list is defined in the .kvrootrc
+	//with the option [DataSet].Reconstruction.DataAnalysisTask.ACQParameterList.[Type of Detector] 
+	//By default the three parameters are concerned
+	//Reconstruction.DataAnalysisTask.ACQParameterList.CSI	-> R,L,T
+	//Reconstruction.DataAnalysisTask.ACQParameterList.SI	-> PG,GG,T
+	//Reconstruction.DataAnalysisTask.ACQParameterList.CI	-> PG,GG,T
+	
+	KVString inst; inst.Form("Reconstruction.DataAnalysisTask.ACQParameterList.%s",GetType());
+	KVString lpar = gDataSet->GetDataSetEnv(inst);
+   
+	Int_t touched = 0;
+   Int_t working = 0;
    Bool_t ok = kFALSE;
    Char_t opt2[] = "";
    if(opt[0]=='P'){
       opt++;
       opt2[0]='P';
-   } 
-
-   if (fACQParams) {
-      TIter next(fACQParams);
-      KVACQParam *par;
-      while ((par = (KVACQParam *) next())) {
-         if (par->IsWorking()) {
-            working++;
-            if(par->Fired(opt2)){
-               ok = kTRUE;
-               touched++;
-            }
-         }
-      }
-
-      if (!strcmp(opt, "all")) {
-         return (touched == working);
-      } else {
-         return ok;
-      }
    }
-   return kFALSE;
+	
+	lpar.Begin(",");
+	KVACQParam *par=0;
+	while (!lpar.End()){
+		
+		par = GetACQParam(lpar.Next());
+		if (par && par->IsWorking()){
+			working++;
+		   if(par->Fired(opt2)){
+		      ok = kTRUE;
+		      touched++;
+			}
+		}
+		
+	}
+	
+	if (!strcmp(opt, "all")) 	return (touched == working);
+	else 								return ok;
+	
+	return kFALSE;
 }
 
 #endif
