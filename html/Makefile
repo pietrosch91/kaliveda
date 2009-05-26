@@ -69,7 +69,7 @@ MAKEHTML  = make_html_doc$(ExeSuf)
 SCANCLASSESS = ScanClasses.cpp
 SCANCLASSESO = ScanClasses.$(ObjSuf)
 
-.PHONY : clean logs
+.PHONY : clean
 
 clean:
 	-rm -f $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML)
@@ -106,7 +106,3 @@ install_html: $(MAKEHTML)
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
 	-rm -f $(KVROOT)/KaliVedaDoc/index.html
 	-ln -s $(KVROOT)/KaliVedaDoc/about.html $(KVROOT)/KaliVedaDoc/index.html
-	
-logs :
-	$(CVS2CL)/cvs2cl.pl --xml --xml-encoding iso-8859-15 --noxmlns -f ChangeLog.xml
-	xsltproc -o ChangeLog.html $(CVS2CL)/cl2html-ciaglia.xslt ChangeLog.xml
