@@ -195,7 +195,6 @@ dist :
 	-cp -r $(MANIP_DIRS) $(DIST_DIR)/
 	-cp $(LINKDEF) $(DIST_DIR)/
 	-cp Makefile $(DIST_DIR)/
-	-cp ChangeLog.html $(DIST_DIR)/
 ifeq ($(PROJ_NAME),KVIndra)
 	-mkdir $(DIST_DIR)/INDRA2ROOT
 	-cp INDRA2ROOT/* $(DIST_DIR)/INDRA2ROOT/
@@ -332,10 +331,6 @@ copymanipdirs :
 	@echo "--------------------------------------------------------------------------------"
 	touch .config
 
-logs :
-	$(CVS2CL)/cvs2cl.pl --xml --xml-encoding iso-8859-15 --noxmlns -f ChangeLog.xml
-	xsltproc -o ChangeLog.html $(CVS2CL)/cl2html-ciaglia.xslt ChangeLog.xml
-	-cp ChangeLog.html $(KVINSTALLDIR)/KaliVedaDoc/$(PROJ_NAME)ChangeLog.html
 
 ifneq ($(ARCH),win32)
 .$(SrcSuf).$(ObjSuf):

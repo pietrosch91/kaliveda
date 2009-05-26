@@ -105,16 +105,12 @@ else
 CCALI = html
 endif
 
-#for logs
-OLD_TAG = init
-NEW_TAG = HEAD
-
 export KV_BUILD_DATE = $(shell date +%F)
 DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
 
-.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape logs unpack install analysis FNL html html_ccali byebye distclean
+.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
 
 all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
 
@@ -126,7 +122,6 @@ export GANILTAPE_LIB = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/lib
 
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
-export CVS2CL = ../cvs2cl
 
 fitltg-0.1/configure: fitltg-0.1/configure.ac 
 	cd fitltg-0.1 && autoreconf -ivf
@@ -361,13 +356,3 @@ byebye :
 	@echo ''
 	@echo 'NORMAL SUCCESSFUL COMPLETION OF MAKEFILE'
 	@echo ''	
-
-
-logs :
-	cvs2cl/cvs2cl.pl --delta $(OLD_TAG):$(NEW_TAG) --xml --xml-encoding iso-8859-15 --noxmlns -f ChangeLog.xml
-	xsltproc -o ChangeLog.html cvs2cl/cl2html-ciaglia.xslt ChangeLog.xml
-	-cp ChangeLog.html $(KVPROJ_ROOT_ABS)/html/
-	cd html && ./stripchangelog ChangeLog.html $(NEW_TAG) KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
-	-cp $(KVPROJ_ROOT_ABS)/html/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html $(KVINSTALLDIR)/KaliVedaDoc/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
-	-rm -f $(KVPROJ_ROOT_ABS)/html/ChangeLog.html
-	-rm -f $(KVPROJ_ROOT_ABS)/html/KaliVedaChangeLog_$(OLD_TAG)_$(NEW_TAG).html
