@@ -1,0 +1,106 @@
+/***************************************************************************
+$Id: KVPhoswich.cpp,v 1.14 2007/01/04 16:38:50 franklan Exp $
+                          kvphoswich.cpp  -  description
+                             -------------------
+    begin                : Thu May 16 2002
+    copyright            : (C) 2002 by J.D. Frankland
+    email                : frankland@ganil.fr
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+#include "Riostream.h"
+#include "KVPhoswich.h"
+#include "KVACQParam.h"
+#include "KVINDRA.h"
+
+ClassImp(KVPhoswich);
+
+//_______________________________________________________________________________________
+//KVPhoswich
+//
+//A Phoswich detector in the INDRA array (campagnes 1-3).
+//Built from two layers of plastic, with thicknesses 0.05cm (NE102) and 25cm (NE115).
+//Name of detector is PHOS_Telescope-number.
+//
+//Type of detector: "PHOS"
+
+//______________________________________________________________________________
+KVPhoswich::KVPhoswich()
+{
+   //Default ctor
+
+   SetSegment(2);
+}
+
+//______________________________________________________________________________
+KVPhoswich::KVPhoswich(Float_t thick_102, Float_t thick_115):KVDetector("NE102",
+           thick_102)
+{
+   //Build phoswich telescope from two layers of plastic - (NE102) and (NE115).
+   //"thick_102" is thickness of NE102 - 0.05cm for standard INDRA phoswich
+   //"thick_115" is thickness of NE115 - 25cm for standard INDRA phoswich
+   //Both layers are "active" - this requires redefinition of GetEnergy etc. methods
+   //Type of detector is "PHOS"
+
+   KVMaterial *ne115 = new KVMaterial("NE102", thick_115);
+   AddAbsorber(ne115);
+
+   SetSegment(2);
+   SetType("PHOS");
+}
+
+//____________________________________________________________________________________________
+
+KVPhoswich::~KVPhoswich()
+{
+   //If gIndra exists, remove from list of phoswich
+//    if (gIndra) {
+//       gIndra->GetListOfPhoswich()->Remove(this);
+//    }
+}
+
+
+//___________________________________________________________________________________
+Double_t KVPhoswich::GetEnergy()
+{
+   //Override KVDetector::GetEnergy to return total energy lost in both layers
+
+   return (GetAbsorber(0)->GetEnergyLoss() +
+           GetAbsorber(1)->GetEnergyLoss());
+}
+
+//_____________________________________________________________________________________
+void KVPhoswich::SetEnergy(Double_t e)
+{
+   //Set energy lost in both layers
+
+   GetAbsorber(0)->SetEnergyLoss(e / 2.);
+   GetAbsorber(1)->SetEnergyLoss(e / 2.);
+}
+
+//_______________________________________________________________________________________
+const Char_t *KVPhoswich::GetArrayName()
+{
+   //Overrides KVDetector method.
+   //Gives name of phoswich as PHOS_01, PHOS_02, etc.
+
+   fFName.Form("PHOS_%02d", GetTelescopeNumber());
+   return fFName.Data();
+}
+
+void KVPhoswich::SetACQParams()
+{
+   //Set acquisition parameters for this phoswich.
+   //Do not call before detector's name has been set.
+
+   AddACQParam("R");
+   AddACQParam("L");
+   AddACQParam("T");
+}

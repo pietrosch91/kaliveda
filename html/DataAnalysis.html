@@ -1,0 +1,994 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="fr">
+<head>
+  <title>KaliVeda data analysis framework</title>
+  <link rel="stylesheet" href="css/site.css" type="text/css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<h1>Data analysis with KaliVeda<br>
+</h1>
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+<img
+ style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;"
+ alt="indra" src="images/indra_camp4_210x188.png"><br>
+<script language="javascript" src="js/nav.js"></script>
+<br>
+<!-- SiteSearch Google -->
+<form method="get" action="http://www.google.com/search"><input
+ name="ie" value="UTF-8" type="hidden"> <input name="oe" value="UTF-8"
+ type="hidden"><input name="q" style="margin-top: 5px;" size="13"
+ maxlength="255" value="" type="text"> <input name="btnG"
+ style="margin-top: 5px;" value="Search site"
+ onclick="send_data(this.form)" type="submit"></form>
+<!-- SiteSearch Google -->
+</div>
+<div class="page">
+<br>
+This page gives an introduction to analysing data within
+the KaliVeda environment. We will
+explain how experimental data
+is organised and managed by KaliVeda. Then we will see how to write
+functions that
+can be used to analyse either raw or reconstructed data.&nbsp; We
+show how to perform analysis jobs using the <span
+ style="font-weight: bold;">KaliVeda</span>
+command. Then we will see how to access
+the different data files from different experimental data sets. In the
+case of raw data, we show how to 'dump' acquisition data and perform
+event-by-event reconstruction 'by hand'. For reconstructed/calibrated
+data we show how to read directly the tree of reconstructed events
+contained in the run file.<br>
+<br>
+<ol>
+  <li><a href="#analysis_with_KaliVeda">Performing
+data analysis with KaliVeda</a></li>
+  <li><a href="#Running_data_analysis_GUI">Performing
+data analysis with KaliVedaGUI</a></li>
+  <li><a href="#Writing_data_analysis_class">Writing
+a data
+analysis class</a></li>
+  <li><a href="#Writing_dataselector_data">Writing a data selector class</a>&nbsp;<small
+ style="color: rgb(255, 0, 0);"><span
+ style="font-style: italic; font-weight: bold;"></span></small></li>
+  <li><a href="#Datasets_dataset_manager_data_">Datasets,
+dataset
+manager, etc. etc.: the big picture</a></li>
+  <li><a href="#Accessing_and_opening_data_files_from">Accessing
+and
+opening data files from different datasets</a></li>
+  <li><a href="#Managing_data_repositories">Managing data repositories</a><small
+ style="color: rgb(255, 0, 0);"><span
+ style="font-style: italic; font-weight: bold;"></span></small></li>
+  <li><a href="#Transferring_data_between_repositories">Transferring
+data between repositories</a><br>
+  </li>
+</ol>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="analysis_with_KaliVeda"></a>Performing
+data analysis with KaliVeda</h3>
+To run a data analysis task, type the command<br>
+<pre style="margin-left: 40px;">KaliVeda<br></pre>
+in a shell terminal. By default, data in your default repository is
+analysed. To change the default repository, use the "repository="
+argument with the name of the repository you want to use:<br>
+<pre style="margin-left: 40px;">KaliVeda repository=ccali<br></pre>
+You will then be guided through text menus to choose: dataset, analysis
+task, system, run(s), the name of your analysis class (if necessary),
+the number of events to read, whether to run the task in batch mode or
+interactive...<br>
+<br>
+<h4>Choosing the dataset<br>
+</h4>
+<div style="margin-left: 40px;"><span style="font-family: monospace;"><br>
+<span style="color: rgb(0, 204, 204);">***********************************************************</span></span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+*</span><br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+W E L C O M
+E&nbsp;&nbsp;&nbsp;&nbsp; to&nbsp;&nbsp;&nbsp;&nbsp; K A L I V E D
+A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+*</span><br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Version:&nbsp;&nbsp;&nbsp;
+1.5.7-rc1-2007-07-01
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+*</span><br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+For help, see the Web site
+:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+*</span><br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+http://indra.in2p3.fr/KaliVedaDoc &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; *</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+*</span><br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">***********************************************************</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Available
+datasets :</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<br style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1. 1st INDRA campaign (1993)</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2. 2nd INDRA campaign (1994)</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3. 4th INDRA campaign
+(1998/9)</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4. 5th INDRA campaign (2001)</span><br style="color: rgb(0, 204, 204);">
+<br style="color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Your
+choice (1-4) [q - quit] :</span><br>
+</div>
+<br>
+Enter the number corresponding to the dataset
+you would like to analyse, or 'q' to abandon your analysis.<br>
+<br>
+<h4>Choosing the analysis task<br>
+</h4>
+<br>
+<div style="margin-left: 40px; font-family: monospace;"><span
+ style="color: rgb(0, 204, 204);">Available data
+analysis tasks :</span><br style="color: rgb(0, 204, 204);">
+<br style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1. Event reconstruction from raw data (raw-&gt;recon)</span><br
+ style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2. Identification of reconstructed events (recon-&gt;ident)</span><br
+ style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3. Final identification and coherency checks (ident-&gt;root)</span><br
+ style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4. Analysis of raw data</span><br style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5. Analysis of reconstructed events (recon)</span><br
+ style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6. Analysis of gene data (recon)</span><br
+ style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7. Analysis of partially identified &amp; calibrated reconstructed
+events (ident)</span><br style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8. Analysis of fully calibrated data (root)</span><br
+ style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">&nbsp;</span><br
+ style="color: rgb(0, 204, 204);">
+<br style="color: rgb(0, 204, 204);">
+<span style="color: rgb(0, 204, 204);">Your choice (1-8) [d - change
+dataset | q - quit] :</span><br>
+</div>
+<br>
+Enter the number corresponding to the task you want to perform, or 'd'
+to choose a different dataset, 'q' to quit.<br>
+<br>
+<h4>Choosing the system</h4>
+<br>
+<br>
+<div
+ style="margin-left: 40px; font-family: monospace; color: rgb(0, 204, 204);">Available
+systems :<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Automate
+ChIo/Si&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(2&nbsp;&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. 124Xe + Au 6.93
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (13&nbsp;
+runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. 124Xe + 112Sn 32
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (314 runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. 124Xe + 124Sn 32
+Mev/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (104 runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. 124Xe + 112Sn 45
+Mev/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (312 runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6. 136Xe + 124Sn 45
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (206 runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7. 136Xe + 124Sn 32
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (319 runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8. 136Xe + 112Sn 32
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (117 runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 9. 136Xe + 197Au 32
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (24&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 10. 136Xe + 124Sn 45
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (88&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 11. 136Xe + 112Sn 45
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (36&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12. 136Xe + 112Sn 45
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (81&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 13. 129Xe + natSn 20
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (70&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 14. 129Xe + natSn 12
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (27&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15. 129Xe + natSn 15
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (64&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16. 129Xe + 27Al 18
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(7&nbsp;&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 17. 129Xe + natSn 8
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (27&nbsp;
+runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18. 129Xe + natSn 25
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (31&nbsp; runs)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 19. 208Pb + 124Sn 28.77
+MeV/A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (3&nbsp;&nbsp; runs)<br>
+&nbsp;<br>
+Your choice (1-19) [t - change task | d - change dataset | q - quit] :</div>
+<br>
+Enter the number corresponding to the system you want to analyse, 't'
+to choose a different analysis task, 'd' to choose another dataset, or
+'q' to quit. If no systems have been defined for the dataset, this step
+is skipped.<br>
+<br>
+<h4>Choosing the runs</h4>
+<br>
+&nbsp; <span style="font-family: monospace; color: rgb(0, 204, 204);">Chosen
+system :</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">________________________________________________________</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">System :
+129Xe + natSn 8 MeV/A</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Runs :
+8036-8092</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Zbeam : 54</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Abeam : 129</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Ebeam : 8 A.MeV</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Ztarget : 50</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Atarget : 119</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Target Thickness : 0.33 mg/cm2</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">________________________________________________________</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;
+Available runs:</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;---&gt;
+Trigger M&gt;1</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;
+8068&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( 463700
+events)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [File written: Tue
+Jun 12 20:43:08 2007]</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;
+8069&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (1484082
+events)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [File written: Tue
+Nov 21 19:36:18 2006]</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;
+8070&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (1157841
+events)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [File written: Tue
+Jun 12 23:54:53 2007]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+plantage acquisition</span><br>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Enter
+list of runs [a - all | s - change system | t - change task | d -
+change dataset | q - quit] : </span>
+<br>
+<br>
+All of the available runs for the chosen system are listed. Enter the
+number(s) of the run(s) you want to analyse, or'a' to select all runs.
+Acceptable runlist formats are: "1-10" &nbsp; "1 2 3-4 5 6-10" &nbsp;
+"1,2-5,6
+7-9, 10" etc. etc.<br>
+<br>
+<h4>User analysis class</h4>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Chosen
+runs : 8072-8084</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Give the
+name of the analysis class derived from ********* :</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<br>
+If the analysis task requires the user to supply her own analysis
+class, you will be asked to give <span style="font-weight: bold;">the
+name of your class</span>.
+Note that a reminder of the correct base class for the analysis task is
+printed. After you give the name of your class, it will be compiled (if
+all goes well).<br>
+<br>
+<h4>Number of events</h4>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Give the
+number of events to read [&lt;RET&gt;=all]:</span><br>
+<br>
+Enter the number of events to be analysed, or hit the 'Return' key to
+analyse all events.<br>
+<br>
+<h4>Choose Running/Batch Mode</h4>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Run in
+Interactive or Batch mode (I or B) ? : </span><br>
+<br>
+Type 'i' or 'I' to run your analysis task straight away ("interactive"
+mode).<br>
+If you choose "batch" mode, a list of available batch systems will be
+presented:<br>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Choose
+the batch system to use :</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1. Execute task in an X-terminal window</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2. Execute task in background with output stored in log file</span><br
+ style="font-family: monospace; color: rgb(0, 204, 204);">
+<span style="font-family: monospace; color: rgb(0, 204, 204);">(enter a
+number) :</span><br>
+<br>
+Enter the number corresponding to your chosen batch system.<br>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Single
+or Multi-job mode (S or M) ? :</span><br>
+<br>
+In "Single job" mode, one batch job will be submitted for the analysis
+of all selected data. Type 's'.<br>
+In "Multi-job" mode, one batch job will be submitted for analysis of <span
+ style="font-weight: bold;">each run</span> of the selected data. Type
+'m'.<br>
+<br>
+<h4>Choose Job Name (batch only)<br>
+</h4>
+<br>
+<span style="font-family: monospace; color: rgb(0, 204, 204);">Please
+enter the job name :</span><br>
+<br>
+In batch mode, you will be asked for a job name. You can use for this
+special symbols which automatically adjust to the properties of your
+job:<br>
+<br>
+<div style="margin-left: 40px;">$System = name of system analysed<br>
+$Date = date &amp; time of job<br>
+$User = user name<br>
+$UserClass = name of user analysis class<br>
+$Selector = name of user analysis class (only for analysis of
+reconstructed/calibrated INDRA data)<br>
+$DataSelector = name of user's data selector class (only for analysis
+of reconstructed/calibrated INDRA data)</div>
+<br>
+In "Multi-job" mode, the job name you give will have the run number of
+the job appended to it, in the form "_R1234".<br>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="Running_data_analysis_GUI"></a>Performing
+data analysis with KaliVedaGUI</h3>
+To run a data analysis task by using the Graphical User Interface
+KaliVedaGUI, just type in a terminal window:<br>
+<pre style="margin-left: 40px;">KaliVedaGUI<br></pre>
+The following window should appear on your screen.<br>
+<br>
+<div style="text-align: center;"><img
+ style="width: 433px; height: 555px;" alt="" title="KaliVedaGUI"
+ src="file:///space/indra/franklan/dev/KaliVeda_trunk/html/KaliVedaGUI_fichiers/image001.png"><br>
+</div>
+<br>
+see the <a href="KaliVedaGUI.html">KaliVedaGUI
+documentation</a> to
+have a brief description of the interface.<br>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="Writing_data_analysis_class"></a>Writing
+data analysis classes<br>
+</h3>
+<br>
+To analyse data requires the user to provide a class. In order to
+generate a "skeleton" for your analysis class (moreover which inherits
+from the correct class for the analysis task, dataset &amp; data type
+you want to analyse), use the following method:<br>
+<span style="font-family: monospace;"></span><br
+ style="font-family: monospace;">
+<div style="margin-left: 40px;">
+<span style="font-family: monospace;">gDataSet-&gt;MakeAnalysisClass("task_keywords",
+"my_class_name")</span><br style="font-family: monospace;">
+</div>
+<br>
+where of course we assume that you previously chose the dataset you
+want to analyse. The task keywords are any words found in the title of
+the analysis task you want to perform:<br>
+<br>
+<span style="color: rgb(0, 204, 204); font-family: monospace;">Available
+data
+analysis tasks :</span><br
+ style="color: rgb(0, 204, 204); font-family: monospace;">
+<br style="color: rgb(0, 204, 204); font-family: monospace;">
+<span style="color: rgb(0, 204, 204); font-family: monospace;"></span><span
+ style="color: rgb(0, 204, 204); font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4. Analysis of raw data</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+----&gt;&nbsp; keyword : "raw"<br
+ style="color: rgb(0, 204, 204); font-family: monospace;">
+<span style="color: rgb(0, 204, 204); font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5. Analysis of reconstructed events (recon)</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-----&gt; keyword : "recon"<br
+ style="color: rgb(0, 204, 204); font-family: monospace;">
+<span style="color: rgb(0, 204, 204); font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6. Analysis of gene data (recon)</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+------&gt; keyword :&nbsp; "gene"<br
+ style="color: rgb(0, 204, 204); font-family: monospace;">
+<span style="color: rgb(0, 204, 204); font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7. Analysis of partially identified &amp; calibrated reconstructed
+events (ident)&nbsp;&nbsp;&nbsp; </span>----&gt; keywords :
+"partially", "ident"<br
+ style="color: rgb(0, 204, 204); font-family: monospace;">
+<span style="color: rgb(0, 204, 204); font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8. Analysis of fully calibrated data (root)</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-----&gt; keywords : "fully", "root"<br
+ style="color: rgb(0, 204, 204); font-family: monospace;">
+<span style="color: rgb(0, 204, 204); font-family: monospace;"></span><br>
+Whatever the base class of your new analysis class, the same 5 methods
+need to be implemented, they are
+already declared in the skeleton class:<br>
+<pre>	void 	InitAnalysis()<br><br>		Called once at the beginning of the analysis.<br>		Can be used to define histograms, TTrees, etc.<br>		Also the place to define the list of global variables to be used.<br><br>	void 	InitRun();<br><br>		Called at the beginning of each new run.<br>		Define code masks for "good" particles here.<br><br>	Bool_t 	Analysis();<br><br>		The analysis of the event.<br>		Return value: kTRUE normally, kFALSE skips to the next run (?)<br><br>	void 	EndRun();<br><br>		Called at the end of each run.<br><br>	void 	EndAnalysis();<br><br>		Called at the end of the analysis.<br>		Write histograms, TTrees to TFiles, etc.</pre>
+Several examples of analysis classes of different types can be found <a
+ href="Examples.html">here</a>.<br>
+<br>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="Writing_dataselector_data"></a>Writing a
+data selector class</h3>
+<div style="text-align: justify;">When a selected subset of
+reconstructed data is analysed many times, there is no need
+to waste time reading and rejecting data which do not belong to it:
+this can be done once and for all thanks to the <a
+ href="KVDataSelector.html">KVDataSelector</a>
+class. There are two
+ways of using KVDataSelector.<br>
+</div>
+<ol style="text-align: justify;">
+  <ol>
+    <li>The data selection in question has already been applied to at
+least one run: in this
+case, you should have a ROOT file containing the event numbers of
+the selected data (in <a
+ href="http://root.cern.ch/root/html/TEventList.html">TEventList</a>
+objects). By default the name of this file is&nbsp;<span
+ style="font-weight: bold;">ListOfDataSelector.root</span>
+and it should be in your working directory. You can set the name and
+the directory of this file by adding/modifying the following lines in
+your .kvrootrc file:<br>
+      <br>
+      <span style="font-family: monospace;">DataSelector.fileName:
+ListOfDataSelector.root</span><br style="font-family: monospace;">
+      <span style="font-family: monospace;">DataSelector.directory:
+$(PWD)</span><br style="font-family: monospace;">
+      <br>
+If you do not know or are not sure of the name of the selection, you
+can open this file in an interactive ROOT session and browse its
+contents:</li>
+  </ol>
+</ol>
+<div style="margin-left: 80px;">&nbsp;<img
+ style="width: 700px; height: 523px;" alt=""
+ src="file:///space/indra/franklan/dev/KaliVeda_trunk/html/images/browser_with_data_selectors.png"><br>
+</div>
+<div style="margin-left: 40px;"><br>
+</div>
+<div style="margin-left: 80px;">If you analyse runs for which the
+selection has not previously been performed, it will be applied to the
+new data and the <span style="font-weight: bold;">ListOfDataSelector.root</span>
+file will be automatically updated. <br>
+</div>
+<ol style="text-align: justify;">
+  <ol start="2">
+    <li>The data selection you want to apply does not already exist. In
+that case, you have to write your own <a href="KVDataSelector.html">KVDataSelector</a>
+class. To do this, type the following in a ROOT interactive session:<span
+ style="font-family: monospace;"><br>
+      <br>
+(gSystem-&gt;Load("libKVIndra");
+//if not already loaded)</span><span style="font-family: monospace;"><br>
+KVDataSelector::MakeClass("MySelectorClass","My Data Selector");
+//give name of new data selector class</span><br>
+      <br>
+Then you only have to fill in the 2 following methods in the file
+"MySelectorClass.cpp":<br>
+      <br>
+      <span style="font-family: monospace;">void Init(void)</span><br
+ style="font-family: monospace;">
+      <div style="margin-left: 40px; font-family: monospace;">called
+when you create the KVDataSelector. You can define here all the
+necessary boundaries and/or add KVVarGlob global variables neccessary
+for the data
+selection.<br>
+      <br>
+      </div>
+      <span style="font-family: monospace;">Bool_t
+SelectCurrentEntry(void)</span><br style="font-family: monospace;">
+      <div style="margin-left: 40px; font-family: monospace;">called
+for each entry of the current tree. It returns kTRUE if the data
+fulfill the selection conditions and kFALSE otherwise.<br>
+      <br>
+      </div>
+In these two methods, you can get a pointer to the KVSelector which
+uses your KVDataSelector by a call to the GetKVSelector() method.
+Before submitting a long batch job for the weekend, it is worthwhile
+trying to compile your analysis class and data selector in an
+interactive ROOT session. When you run the analysis, the source files
+are compiled and the missing TEventList corresponding to this
+KVDataSelector are generated and saved in the file defined
+by the DataSelector.fileName and DataSelector.directory variables in
+your .kvrootrc file (see above).<br>
+      <br>
+During the debugging process, you will probably modify the source files
+several times. In order to keep the consistency between the source
+files and the event lists, you have to erase the previously generated
+TEventList objects by hand. Assuming you want to erase the TEventLists
+for the KVDataSelector
+class SelPtot present in the file ListOfDataSelector.root, you should
+type the following commands in an interactive
+ROOT session:<br>
+      <br>
+      <div style="margin-left: 40px; font-family: monospace;">root[0]
+TFile *f=new TFile("ListOfDataSelector.root","update")<br>
+root[1] f-&gt;Delete("SelPtot*;*")<br>
+root[2] f-&gt;Close()<br>
+      </div>
+      <br>
+      <br>
+&nbsp;
+Here are some examples of KVDataSelector classes : <a
+ href="SelMult.html">SelMult</a>, <a href="SelZtot.html">SelZtot</a>, <a
+ href="SelZVtot.html">SelZVtot</a>, <a href="SelPtot.html">SelPtot</a>
+and <a href="SelComplete.html">SelComplete</a>.
+      <div style="font-family: monospace;"><span
+ style="font-family: sans;"></span></div>
+    </li>
+  </ol>
+</ol>
+<div style="text-align: justify;">To use a KVDataSelector in an
+analysis, just type the name of the KVDataSelector class you want to
+use to select data when it is requested. Here is an example when you
+want to use the KVDataSelector class SelPtot for your data selection:<br>
+</div>
+<div style="margin-left: 40px;">
+<div style="text-align: justify;"><br>
+</div>
+<span style="font-family: monospace;">...<br>
+Name of analysis class (provide name.C and name.h) : TestDataSelector</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Data Selector (&lt;RET&gt;=none)
+: <span style="font-weight: bold;">SelPtot</span></span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Number of events to read in total
+(&lt;RET&gt;=all events) :<br>
+...</span><br style="font-family: monospace;">
+</div>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="Datasets_dataset_manager_data_"></a>Datasets,
+dataset manager, data repositories,
+databases,
+multidetector arrays, data analysis tasks: how it all fits together<br>
+</h3>
+<h4>Datasets<br>
+</h4>
+The way experimental data (and data analysis) is organised in the
+KaliVeda framework is based on the idea of <span
+ style="font-weight: bold;">datasets</span>:<span
+ style="font-style: italic;"> </span>a dataset associates <br>
+<ul>
+  <li>a set of experimental data files</li>
+  <li>a class which describes the experimental set-up used to obtain
+the data</li>
+  <li>a database containing information on the experimental runs,
+detector calibration parameters, etc.</li>
+</ul>
+See <a href="KVDataSet.html">KVDataSet</a> class documentation for a
+fuller explanation.<br>
+<br>
+<br>
+<h4><a name="data_repo_man"></a>Data repositories<br>
+</h4>
+In order to know which datasets are available for analysis, the user
+must define one or more <span style="font-weight: bold;">data
+repositories</span> to which she has access. A data repository contains
+the experimental run files associated with different datasets. It may
+be situated on the user's machine (in which case we talk about a
+"local" data repository), or on a distant machine accessible via a
+local network or the internet ("remote" data repository). Data may be
+analysed in the same way whether it is "local" or "remote". If the user
+defines more than one repository, she may also transfer data from one
+repository to another.<br>
+<br>
+Data repositories can be defined in the user's <span
+ style="font-family: monospace;">$HOME/.kvrootrc</span> file. Example
+configurations can be found in the file <a
+ href="examples/KaliVeda.rootrc.html"><span
+ style="font-family: monospace;">$KVROOT/KVFiles/.kvrootrc</span></a>.
+Do
+not copy the entire contents of this file, just copy and paste the
+lines which you need into your <span style="font-family: monospace;">$HOME/.kvrootrc</span>
+file. See <a href="KVDataRepository.html">KVDataRepository</a> for
+details of configuration.<br>
+&nbsp;<br>
+When the data repositories have been configured, the following lines
+are sufficient to initialise KaliVeda for data analysis (it could be a
+good idea to put them in a rootlogon.C file):<br>
+<div style="margin-left: 40px;">
+<pre>gSystem-&gt;Load("libKVMultiDet") //load basic KaliVeda library<br>new <a
+ href="KVDataRepositoryManager.html">KVDataRepositoryManager</a>;<br>gDataRepositoryManager-&gt;Init(); //initialise the data repository manager<br></pre>
+</div>
+The <span style="font-family: monospace;">gDataRepository</span>
+global pointer gives access to the current or default data repository.
+To change data repository (if more than one are defined), use
+<br>
+<div style="margin-left: 40px;">
+<pre>gDataRepositoryManager-&gt;GetRepository("name_of_repository")-&gt;cd()<br></pre>
+</div>
+<br>
+<br>
+<h4>Dataset manager<br>
+</h4>
+Each data repository has a <span style="font-weight: bold;">dataset
+manager</span> which allows the user to access data from different
+datasets contained in the repository. The dataset manager of any
+repository can be accessed using <a
+ href="KVDataRepository.html#KVDataRepsoitory:GetDataSetManager"><span
+ style="font-family: monospace;">KVDataRepository::GetDataSetManager()</span></a>.
+The dataset manager for the currently active repository (<span
+ style="font-family: monospace;">gDataRepository</span>) is pointed to
+by the global pointer <span style="font-family: monospace;">gDataSetManager</span>.<br>
+<br>
+The available datasets are those for which: <br>
+<div style="margin-left: 40px;">(i) data files are present in the
+repository<br>
+(ii) the user belongs to the user group defined for a dataset with
+restricted access (see <a href="KVDataSet.html"><span
+ style="font-family: monospace;">KVDataSet</span></a>)<br>
+</div>
+<pre style="margin-left: 40px;">root [3] gDataSetManager-&gt;Print() <br>Dataset name=INDRA_camp1 (1st INDRA campaign (1993))&nbsp; [UNAVAILABLE]<br>Dataset name=INDRA_camp2 (2nd INDRA campaign (1994))&nbsp; [ AVAILABLE: root ]<br>Dataset name=INDRA_camp4 (4th INDRA campaign (1998/9))&nbsp; [UNAVAILABLE]<br>Dataset name=INDRA_camp5 (5th INDRA campaign (2001))&nbsp; [ AVAILABLE: raw root ]<br>Dataset name=INDRA_e416a (Experiment E416a (2005))&nbsp; [ AVAILABLE: raw ]<br>Dataset name=INDRA_e475s (E475S: Isospin dependence of the emission of complex fragments)&nbsp; [ AVAILABLE: raw ]</pre>
+<a href="KVDataSetManager.html#KVDataSetManager:Print"><span
+ style="font-family: monospace;">KVDataSetManager::Print</span></a>
+displays a list of all defined datasets with the name and title of
+each, followed by the availability of the associated data in the
+repository. Although, by definition, no data analysis is possible for
+unavailable datasets, you can still access e.g. the database for any
+dataset:<br>
+<br>
+<pre style="margin-left: 40px;">root [8] ((KVINDRADB*)gDataSetManager-&gt;GetDataSet("INDRA_camp1")-&gt;GetDataBase())-&gt;GetRun(616)-&gt;Print()<br>___________________________________________________<br>Run 616  (129Xe + natSn 25 MeV/A)<br>Tape 408<br>System : 129Xe + natSn 25 MeV/A<br>Target : natSn<br>Trigger : M&gt;=4<br>===========ECHELLES===========<br>Events = 361592<br>Faraday1 = 4345<br>Buffers = 8731<br>Gene direct = 307216<br>Gene MRQ = 62484<br>Gene TM = 65058<br>Temps mort (%) = 26.58<br>___________________________________________________<br></pre>
+Any dataset can be made 'active' or 'current' by using the
+KVDataSet::cd() method:<br>
+<pre style="margin-left: 40px;">gDataSetManager-&gt;GetDataSet("INDRA_camp1")-&gt;cd()<br></pre>
+The dataset is then accessible through a global
+pointer:
+<br>
+<div style="margin-left: 40px;">
+<pre><a href="KVDataSet.html">KVDataSet</a>* gDataSet; //global pointer to currently active dataset<br></pre>
+</div>
+The database of the dataset is then also accessible through a global
+pointer:<br>
+<div style="margin-left: 40px;">
+<pre><a href="KVDataBase.html">KVDataBase</a>* gDataBase; //global pointer to current dataset's database<br><a
+ href="KVINDRADB.html">KVIndraDB</a>* gIndraDB; //global pointer to current dataset's database (INDRA only)<br></pre>
+</div>
+<div style="margin-left: 40px;">
+</div>
+If information on the experimental configuration (i.e. the
+multidetector array) is needed, then the object representing the
+correct configuration for the current dataset can be accessed using two
+global pointers, one of
+which is specific to INDRA data:<br>
+<pre style="margin-left: 40px;"><a href="KVMultiDetArray.html">KVMultiDetArray</a>* gMultiDetArray; //global pointer to current experimental configuration<br><a
+ href="KVINDRA.html">KVINDRA</a>* gIndra; //global pointer to current experimental configuration (INDRA only)<br></pre>
+However, building the multidetector object is not automatic, unlike
+opening the database. These pointers may be null.&nbsp; In this case,
+the multidetector array object can be built using:<br>
+<div style="margin-left: 40px;">
+<pre>gDataSet-&gt;BuildMultiDetector(); //create and build multidetector for current dataset<br></pre>
+</div>
+<br>
+<table style="text-align: left; width: 600px;" border="1"
+ cellpadding="3" cellspacing="1">
+  <caption align="bottom"><span style="font-weight: bold;">Table 1</span>:
+accessing different objects in different ways depending on whether or
+not they are 'active'. The global pointers in italics are only
+applicable to INDRA datasets.<br>
+  </caption><tbody>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">"toto"
+is not Active</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">"toto"
+is Active</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">data repository "toto"<br>
+      </td>
+      <td style="vertical-align: top;">gDataRepositoryManager-&gt;GetRepository("toto")<br>
+      </td>
+      <td style="vertical-align: top;">gDataRepository<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">dataset manager for "toto"<br>
+      </td>
+      <td style="vertical-align: top;">toto-&gt;GetDataSetManager()<br>
+      </td>
+      <td style="vertical-align: top;">gDataRepository-&gt;GetDataSetManager()<br>
+gDataSetManager<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">any dataset "toto" in repository
+"tata"<br>
+      </td>
+      <td style="vertical-align: top;">tata-&gt;GetDataSetManager()-&gt;GetDataSet("toto")<br>
+      </td>
+      <td style="vertical-align: top;">gDataSet<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">available dataset "toto" in
+repository "tata"<br>
+      </td>
+      <td style="vertical-align: top;">tata-&gt;GetDataSetManager()-&gt;GetAvailableDataSet(i)<br>
+with i=index of "toto" in list of available datasets<br>
+(see KVDataSetManager::Print)<br>
+      </td>
+      <td style="vertical-align: top;">gDataSet<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">database for dataset "toto"<br>
+      </td>
+      <td style="vertical-align: top;">toto-&gt;GetDataBase()<br>
+      </td>
+      <td style="vertical-align: top;">gDataBase<br>
+      <span style="font-style: italic;">gIndraDB</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">multidetector for dataset "toto"<br>
+      </td>
+      <td style="vertical-align: top;">toto-&gt;BuildMultiDetector()<br>
+      </td>
+      <td style="vertical-align: top;">gMultiDetArray<br>
+      <span style="font-style: italic;">gIndra</span><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="Accessing_and_opening_data_files_from"></a>Accessing
+and opening data files from different
+experimental
+campaigns</h3>
+Once a dataset has been chosen and made active, using the method<br>
+<pre style="margin-left: 40px;">gDataSetManager-&gt;GetDataSet("name_of_dataset")-&gt;cd()<br></pre>
+accessing and manipulating
+the different files associated with it becomes simple and, most
+importantly, completely independent of whether the user is accessing a
+local or a remote data repository.<br>
+<br>
+To know if a given type of data is available for the dataset:<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;HasIdent(); //does dataset have "ident" data files ?<br></pre>
+To know if a given runfile is available, use the following method:<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;<a
+ href="KVDataSet.html#KVDataSet:CheckRunfileAvailable">CheckRunfileAvailable</a>("recon", 6030); //check run 6030 (reconstructed data)<br></pre>
+In order to open a runfile
+associated with the dataset, use the method:<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;<a
+ href="KVDataSet.html#KVDataSet:OpenRunfile">OpenRunfile</a>("type_of_data", run_number);</pre>
+<div style="text-align: left;">with type_of_data = "raw", "recon",
+"ident" or "root". <span style="font-weight: bold;">This method
+returns a TObject* base pointer to the
+opened file</span>. In order to manipulate the file, you must <span
+ style="font-style: italic;">cast</span> this pointer depending on the
+actual class of the object created by the method. The class depends on
+the type of data and the dataset to which it belongs, and is defined in
+<a style="font-family: monospace;" href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>:<br>
+<pre style="margin-left: 40px;"># Default base classes for reading runfiles of different types<br>DataSet.RunFileClass.raw:    <a
+ href="KVRawDataReader.html">KVRawDataReader</a><br>DataSet.RunFileClass.recon:    <a
+ href="http://root.cern.ch/root/html/TFile.html">TFile</a><br>DataSet.RunFileClass.ident:    <a
+ href="http://root.cern.ch/root/html/TFile.html">TFile</a><br>DataSet.RunFileClass.root:    <a
+ href="http://root.cern.ch/root/html/TFile.html">TFile</a><br></pre>
+</div>
+Plugins can then be defined for each type for each dataset, as in this
+example:<br>
+<pre style="margin-left: 40px;">Plugin.<a href="KVRawDataReader.html">KVRawDataReader</a>:    raw.INDRA_e494s    <a
+ href="KVIVRawDataReader.html">KVIVRawDataReader</a>     VAMOS    <span
+ class="string">"KVIVRawDataReader()"</span><br>+Plugin.<a
+ href="KVRawDataReader.html">KVRawDataReader</a>:    raw.INDRA_e503    <a
+ href="KVIVRawDataReader.html">KVIVRawDataReader</a>     VAMOS    <span
+ class="string">"KVIVRawDataReader()"</span><br>+Plugin.<a
+ href="KVRawDataReader.html">KVRawDataReader</a>:    raw.INDRA*    <a
+ href="KVINDRARawDataReader.html">KVINDRARawDataReader</a>     KVIndra    <span
+ class="string">"KVINDRARawDataReader()"</span><br></pre>
+This means that for all INDRA datasets except "INDRA_e494s" and
+"INDRA_e503", for which a specific class is defined, raw data is read
+with an object of class <a href="KVINDRARawDataReader.html">KVINDRARawDataReader</a>.<br>
+<br>
+<br>
+<br>
+<br>
+<h3 class="newsTitle"><a name="Managing_data_repositories"></a>Managing
+data repositories</h3>
+<br>
+Much of the management of data repositories is automatically handled by
+KaliVeda: e.g. when you transfer data from one repository to another,
+or when you create new data files by reconstruction or identification
+of raw data, etc. However, some situations require human intervention
+(e.g. when something goes wrong), and luckily KaliVeda provides tools
+to deal with this. First, you need to know a little about how the
+repositories are managed.<br>
+<br>
+For each type of data ('raw', 'recon', 'ident', 'root') there is one
+file for each run, whose name is derived from a basic format defined in
+<a style="font-family: monospace;" href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>
+:<br>
+<br>
+<pre style="margin-left: 40px;"># Default formats for runfile names (run number is used to replace integer format)<br>DataSet.RunFileName.raw:&nbsp;&nbsp;&nbsp; run%d.raw<br>DataSet.RunFileName.recon:&nbsp;&nbsp;&nbsp; run%d.recon.root<br>DataSet.RunFileName.ident:&nbsp;&nbsp;&nbsp; run%d.ident.root<br>DataSet.RunFileName.root:&nbsp;&nbsp;&nbsp; run%d.root<br><br># Dataset-specific formats for runfile names (run number is used to replace integer format)<br>INDRA_e475s.DataSet.RunFileName.raw:&nbsp;&nbsp;&nbsp; run_%d.dat%*<br>INDRA_e416a.DataSet.RunFileName.raw:&nbsp;&nbsp;&nbsp; Run%d%*</pre>
+and to which the date and time of creation of the file is appended (in
+the case of 'recon', 'ident' and 'root' files), giving a typical set of
+files in the repository as in this example:<br>
+<pre style="margin-left: 40px;">.../campagne5/recon:<br>run6953.recon.root.2006-10-03_00:22:26<br>run6922.recon.root.2006-10-03_00:22:33<br>run8086.recon.root.2006-11-21_19:11:27<br>run7790.recon.root.2006-11-29_10:14:25<br>run8805.recon.root.2006-12-05_16:37:39</pre>
+<span style="font-weight: bold; color: rgb(255, 0, 0);">DO NOT MODIFY
+THE REPOSITORY DIRECTORIES OR DELETE/COPY FILES BY HAND !!!</span><br>
+<br>
+In order to be able to check what files are available etc. without
+having to analyse the contents of the directories each time (which, in
+the case of e.g. RFIO for the CC-IN2P3 HPSS, can take a long time),
+KaliVeda maintains a certain number of text files containing the lists
+of available files for each dataset in the directories <span
+ style="font-family: monospace;">$KVROOT/KVFiles/[name of dataset]</span>,
+as shown here for an example:<br>
+<pre style="margin-left: 40px;">$KVROOT/KVFiles/INDRA_camp5:<br>total 218K<br>-rw-r--r--&nbsp;&nbsp;&nbsp; 1 franklan indra&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 40K Jan&nbsp; 5 09:40 available_runs.campagne5.ident<br>-rw-r--r--&nbsp;&nbsp;&nbsp; 1 franklan indra&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 102K Jan&nbsp; 5 09:40 available_runs.campagne5.raw<br>-rw-r--r--&nbsp;&nbsp;&nbsp; 1 franklan indra&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 30K Jan&nbsp; 5 09:40 available_runs.campagne5.recon<br>-rw-r--r--&nbsp;&nbsp;&nbsp; 1 franklan indra&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 42K Jan&nbsp; 5 09:40 available_runs.campagne5.root</pre>
+Each file contains, for a given dataset and data type, a list of the
+available run numbers, the date and time that the file was copied into
+the repository, and the name of the file, e.g.:<br>
+<pre style="margin-left: 40px;">$KVROOT/KVFiles/INDRA_camp5/available_runs.campagne5.recon:<br>6953|2006-10-03 00:48:42|run6953.recon.root.2006-10-03_00:22:26<br>6922|2006-10-03 00:49:00|run6922.recon.root.2006-10-03_00:22:33<br>8086|2006-11-21 19:52:11|run8086.recon.root.2006-11-21_19:11:27<br>7790|2006-11-29 11:29:54|run7790.recon.root.2006-11-29_10:14:25<br>8805|2006-12-05 16:59:49|run8805.recon.root.2006-12-05_16:37:39</pre>
+<span style="font-weight: bold; color: rgb(255, 0, 0);">DO NOT MODIFY
+IN ANY WAY THESE FILES BY HAND !!!</span><br>
+<br>
+The available runs files are managed by the class <a
+ href="KVAvailableRunsFile.html">KVAvailableRunsFile</a>, which is used
+by KVDataSet to manage all of the available data for each dataset. You
+should use the methods provided by KVDataSet in order to manage the
+data files associated with each dataset, as in the following examples:<br>
+<br>
+<br>
+<h4>1. Updating the available runs files</h4>
+Normally, the lists of available runs are automatically kept up to date
+by KaliVeda. However, in case of problems, you can update the lists "by
+hand". For any given dataset, the method<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;<a
+ href="KVDataSet.html#KVDataSet:UpdateAvailableRuns">UpdateAvailableRuns</a>("ident")<br></pre>
+will update the list of available runs for the given data type.<br>
+<br>
+A stand-alone command, <span style="font-family: monospace;">update_runlist</span>,
+is also provided, which you can use at the command prompt :<br>
+<br>
+<pre style="margin-left: 40px;">[franklan@ganp671 ~]$ update_runlist<br>Executable for updating available runlists for different KaliVeda datasets<br>Usage:</pre>
+<pre style="margin-left: 40px;">&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; update_runlist [data repository name] [dataset name] [data type] [run number]</pre>
+<pre style="margin-left: 40px;">&nbsp;<br>If [run number] is not given, all runs are checked.</pre>
+For example, the command<br>
+<pre style="margin-left: 40px;">[user@ccali ~]$ update_runlist ccali INDRA_e475s recon</pre>
+if executed on CC-IN2P3 machines, will update the list of all 'recon'
+runs present on HPSS for the 'INDRA_e475s' dataset.<br>
+<br>
+<br>
+<h4>2. Deleting a file from the repository</h4>
+Individual runfiles can be deleted using<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;<a
+ href="KVDataSet.html#KVDataSet:DeleteRunfile">DeleteRunfile</a>("recon", 100)</pre>
+By default, confirmation is asked for before the file is deleted. This
+method automatically updates the relevant available runs file.<br>
+<br>
+<br>
+<h4>3. Keeping the repository clean: checking for multiple runfiles</h4>
+Normally, only one file is present for each data type of each run in
+the repository. KaliVeda does not handle multiple versions of the same
+runfile. When a new version of a given run of a given type is added to
+the repository, the previous version of the file is automatically
+deleted. However, sometimes this mechanism can break down, and there
+can be several versions of the same runfile in the repository. You can
+check the 'health' of the repository using:<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;<a
+ href="KVDataSet.html#KVDataSet:CheckMultiRunfiles">CheckMultiRunfiles</a>("recon")</pre>
+This method checks all runs for a given datatype and makes sure that
+only one version exists for each run. If not, it prints a report on the
+runfiles which occur multiple times, with the associated date and file
+name:<br>
+<pre style="margin-left: 40px;">root [7] gDataSet-&gt;CheckMultiRunfiles("recon")<br>Runs which appear more than once: 388 394 397 400 1009 1133<br><br>Run 388 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run388.recon.root.2006-12-21_11:09:45&nbsp;&nbsp; 2006-12-21 11:10:45<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run388.recon.root.2006-12-21_13:34:29&nbsp;&nbsp; 2006-12-21 13:35:36<br>Run 394 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run394.recon.root.2006-12-21_11:05:38&nbsp;&nbsp; 2006-12-21 11:10:37<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run394.recon.root.2006-12-21_13:29:11&nbsp;&nbsp; 2006-12-21 13:35:30<br>Run 397 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run397.recon.root.2006-12-21_11:09:40&nbsp;&nbsp; 2006-12-21 11:12:34<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run397.recon.root.2006-12-21_13:30:35&nbsp;&nbsp; 2006-12-21 13:34:56<br>Run 400 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run400.recon.root.2006-12-21_11:05:24&nbsp;&nbsp; 2006-12-21 11:09:16<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run400.recon.root.2006-12-21_14:01:19&nbsp;&nbsp; 2006-12-21 14:05:45<br>Run 1009 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run1009.recon.root.2006-12-21_10:53:39&nbsp; 2006-12-21 10:56:27<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run1009.recon.root.2006-12-21_13:29:01&nbsp; 2006-12-21 13:31:57<br>Run 1133 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run1133.recon.root.2006-12-21_10:44:36&nbsp; 2006-12-21 10:44:44<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run1133.recon.root.2006-12-21_13:48:53&nbsp; 2006-12-21 13:51:13</pre>
+If multiple runfiles are found, you can use the method<br>
+<pre style="margin-left: 40px;">gDataSet-&gt;<a
+ href="KVDataSet.html#KVDataSet:CleanMultiRunfiles">CleanMultiRunfiles</a>("recon")</pre>
+in order to delete all but the most recent version of each run:<br>
+<pre style="margin-left: 40px;">root [1] gDataSet-&gt;CleanMultiRunfiles("recon")<br>Runs which appear more than once: 388 394 397 400 1009 1133 <br><br>Run 388 : 2 files &gt;&gt;&gt;&gt;&gt;&gt;<br>DELETE :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run388.recon.root.2006-12-21_11:09:45&nbsp;&nbsp; 2006-12-21 11:10:45<br>Deleting file from repository: run388.recon.root.2006-12-21_11:09:45<br>Are you sure you want to delete this file permanently ? (y/n)</pre>
+Confirmation is asked before deleting each file.<br>
+<br>
+N.B.: for KaliVeda versions before v1.5.6, if multiple runfiles were
+present, the first one found would always be opened for analysis etc.,
+i.e. the earliest version. This meant that users could regenerate new
+versions of incorrect runfiles and then find themselves always
+analysing the same incorrect old version. In v1.5.6, we check that the
+runfile is unique before opening, and if not a warning message is
+printed:<br>
+<pre style="margin-left: 40px;">Warning in &lt;KVAvailableRunsFile::GetRunInfo&gt;:<br>Multiple versions of this runfile exist in the repository.<br>Infos for most recent file will be returned.<br>Warning in &lt;KVAvailableRunsFile::GetRunInfo&gt;:<br>You should clean the repository using KVDataSet::CleanMultiRunfiles.</pre>
+and the most recent version of the file is used.<br>
+<pre style="margin-left: 40px;"><br><br></pre>
+<h3 class="newsTitle"><a name="Transferring_data_between_repositories"></a>Transferring
+data between repositories</h3>
+<br>
+If you have configured more than one data repository in your <span
+ style="font-family: monospace;">$HOME/.kvrootrc</span> file, you can
+transfer data from one repository to another using the following
+command:<br>
+<pre style="margin-left: 40px;"><a href="KVDataTransfer.html">KVDataTransfer</a>::NewTransfer("name_source_rep", "name_target_rep")-&gt;Run()<br></pre>
+where the arguments are the names of the source and target
+repositories. The same menus as for running analysis tasks are used to
+invite the user to choose a dataset (among those which are available in
+the source repository), a system, and then a list of runs to transfer.<br>
+<br>
+Using this facility, you can create a local data repository containing
+copies of the files stored on some remote machine from
+scratch, as any required directories in the target repository are
+created as and when they are needed.<br>
+<br>
+N.B. when transferring data from/to CC-IN2P3 via bbftp, if your local
+username is not the same as the one you use on CC-IN2P3, you must
+uncomment and modify the following line in your data repository
+configuration:<br>
+<pre style="margin-left: 40px;">#ccali.DataRepository.FileTransfer.user:</pre>
+Remove the '#' at the beginning of the line, and add your CC-IN2P3
+username after the ':', e.g.<br>
+<pre style="margin-left: 40px;">ccali.DataRepository.FileTransfer.user: einstein</pre>
+<br>
+<br>
+<div style="text-align: left;"><br>
+<p class="copyright">Web design based on www.xmms.org - Hope you don't
+mind! Thankyou! <br>
+</p>
+</div>
+</div>
+</body>
+</html>

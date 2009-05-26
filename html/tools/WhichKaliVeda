@@ -1,0 +1,19 @@
+#!/bin/csh -f
+#Prints out KaliVeda version and associated environment variables
+set vers_file=$HOME/.kalivedaversion
+if ( -e $vers_file ) then
+	set version=`cat $vers_file | awk '{ print $1 }'`
+   if ( $version == "standard" ) then
+      echo "Using standard KaliVeda version"
+   else if ( $version != "" ) then
+      echo "Using KaliVeda version $version"
+   endif
+else
+   echo "Version information for KaliVeda is unknown"
+   exit
+endif
+echo "KVROOT = $KVROOT"
+echo "PATH = $PATH"
+echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
+exit
+

@@ -1,0 +1,8 @@
+# Alpha / G++
+
+CXX           = g++
+LD            = g++
+
+EXTRA_CXXFLAGS= -fPIC
+DPDFLAGS_ARCH = -I/usr/local/include/g++-3
+SOFLAGS       = -Wl,-expect_unresolved,* -shared

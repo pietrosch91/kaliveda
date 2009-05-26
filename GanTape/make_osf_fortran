@@ -1,0 +1,20 @@
+#!/bin/sh
+
+create_dir() { #cree directory dir_name si n'existe pas
+if test -f $* -o -d $*
+then
+   if test ! -d $*
+   then
+     echo "ERREUR ==> $* n'est pas un directory"
+     exit
+   fi
+return 0
+else
+   echo "creation de $*"
+   mkdir $*
+fi
+}
+
+create_dir osf_lib
+create_dir osf_exe
+make -f makefile.unix "VERSION = osf" "COMPILAT=cc" "COMPFOR=f77" "LINK=cc" "LD_FOR=-lfor" "CFLAGS=-DUSERFORTRAN" "MAKEEXTENSION=for"

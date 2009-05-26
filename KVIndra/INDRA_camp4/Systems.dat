@@ -1,0 +1,164 @@
+############################################
+#$Id: Systems.dat,v 1.1 2006/03/20 01:04:51 franklan Exp $
+# +system
+# Abeam Zbeam Atarget Ztarget TargThick Energy
+# Run Range : "first run" "last run"
+#
+#informations extracted from "ho.dat" file (J. Lukasik)
+##############################################
+
++197Au + 197Au 50 MeV/A
+197 79 197 79 2 50
+Run Range : 4023 4042
+
++197Au + 197Au 15 MeV/A
+197 79 197 79 2 15
+Run Range : 4045 4047
+
++197Au + 197Au 100 MeV/A
+197 79 197 79 2 100
+Run Range : 4049 4057
+Run Range : 4067 4083
+Run Range : 4095 4177
+
++197Au + 197Au 80 MeV/A
+197 79 197 79 2 80
+Run Range : 4179 4213
+
++197Au + 197Au 60 MeV/A
+197 79 197 79 2 60
+Run Range : 4214 4254
+Run Range : 4257 4260
+
++197Au + 197Au 40 MeV/A
+197 79 197 79 2 40
+Run Range : 4261 4282
+Run Range : 4286 4297
+
++197Au + 197Au 150 MeV/A
+197 79 197 79 2 150
+Run Range : 4299 4356
+
++12C + 197Au 30 MeV/A
+12 6 197 79 2 30
+Run Range : 4058 4061
+Run Range : 4093 4094
+
++12C + 197Au 300 MeV/A
+12 6 197 79 2.8 300
+Run Range : 5030 5036
+Run Range : 5115 5146
+Run Range : 5148 5151
+Run Range : 5225 5242
+
++12C + 197Au 1000 MeV/A
+12 6 197 79 2.8 1000
+Run Range : 5044 5048
+Run Range : 5363 5403
+Run Range : 5406 5436
+
++12C + 197Au 600 MeV/A
+12 6 197 79 2.8 600
+Run Range : 5049 5059
+Run Range : 5067 5070
+Run Range : 5244 5286
+Run Range : 5290 5312
+
++12C + 197Au 95 MeV/A
+12 6 197 79 2.8 95
+Run Range : 5082 5097
+Run Range : 5100 5111
+
++12C + 197Au 1000 MeV/A
+12 6 197 79 10.1 1000
+Run Range : 5346 5350
+Run Range : 5352 5356
+
++12C + 197Au 1800 MeV/A
+12 6 197 79 2.8 1800
+Run Range : 5439 5444
+Run Range : 5456 5460
+Run Range : 5476 5480
+
++12C + 197Au 1000 MeV/A
+12 6 197 79 0.98 1000
+Run Range : 5462 5472
+
++197Au + 58Ni 100 MeV/A
+197 79 58 28 0.85 100
+Run Range : 4357 4360
+Run Range : 4362 4391
+
++129Xe + 124Sn 150 MeV/A
+129 54 124 50 1.2 150
+Run Range : 4500 4502
+Run Range : 4690 4712
+
++129Xe + 124Sn 100 MeV/A
+129 54 124 50 1.2 100
+Run Range : 4503 4563
+
++129Xe + 124Sn 80 MeV/A
+129 54 124 50 1.2 80
+Run Range : 4564 4594
+
++129Xe + 124Sn 65 MeV/A
+129 54 124 50 1.2 65
+Run Range : 4595 4624
+
++129Xe + natSn 50 MeV/A
+129 54 119 50 1.05 50
+Run Range : 4625 4636
+
++129Xe + 112Sn 100 MeV/A
+129 54 112 50 1.2 100
+Run Range : 4645 4689
+
++124Xe + 112Sn 100 MeV/A
+124 54 112 50 1.2 100
+Run Range : 4720 4759
+
++124Xe + 124Sn 100 MeV/A
+124 54 124 50 1.2 100
+Run Range : 4763 4808
+
++124Xe + 197Au 20 MeV/A
+124 54 197 79 2 20
+Run Range : 4809 4810
+
++124Xe + 124Sn 150 MeV/A
+124 54 124 50 1.2 150
+Run Range : 4811 4831
+
++124Xe + 124Sn 250 MeV/A
+124 54 124 50 1.2 250
+Run Range : 4832 4846
+
++12C + 112Sn 95 MeV/A
+12 6 112 50 1.2 95
+Run Range : 5075 5080
+
++12C + 112Sn 300 MeV/A
+12 6 112 50 1.2 300
+Run Range : 5152 5189
+
++12C + 124Sn 300 MeV/A
+12 6 124 50 1 300
+Run Range : 5190 5223
+
++12C + 112Sn 600 MeV/A
+12 6 112 50 1.2 600
+Run Range : 5316 5331
+
++12C + 124Sn 600 MeV/A
+12 6 124 50 1.2 600
+Run Range : 5332 5345
+
++12C + 112Sn 1000 MeV/A
+12 6 112 50 1.2 1000
+Run Range : 5445 5452
+
++12C + 238U 1000 MeV/A
+12 6 238 92 0.1 1000
+Run Range : 5481 5499
+

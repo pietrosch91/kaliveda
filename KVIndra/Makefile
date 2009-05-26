@@ -1,0 +1,60 @@
+#$Id: Makefile,v 1.108 2009/03/03 13:36:00 franklan Exp $
+#Makefile for libKVIndra.so
+
+PROJ_NAME = KVIndra
+
+MODULES = analysis base calibration daq_cec db detectors events gui identification indra particles
+
+ETC_DATA = $(shell ls factory/*Template.[c,h]*)
+MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_e475s INDRA_e503 INDRA_e494s
+
+#list of sources that are not yet ready to be compiled
+NOT_READY := daq_cec/KVS*.cpp
+ifeq ($(INDRADLT),no)
+NOT_READY += analysis/KVINDRARawDataReader.cpp analysis/KVINDRARawDataAnalyser.cpp analysis/KVINDRARawDataReconstructor.cpp analysis/KVINDRARawIdent.cpp 
+endif
+
+ifeq ($(INDRADLT),yes)
+KV_INC_EXTRAS := -I$(GANTAPE_INC) -I$(GANILTAPE_INC) -DINDRADLT
+endif
+
+include ../Makefile.general 
+
+ifeq ($(ARCH),win32)
+LINK_LIB = '$(KVROOT)\lib\libKVMultiDet.lib'
+else
+LINK_LIB = -L$(KVROOT)/lib -lKVMultiDet
+endif
+RLIBMAPDEPS += libKVMultiDet.so
+
+ifeq ($(INDRADLT),yes)
+LINK_LIB += -L$(KVROOT)/lib -lROOTGanilTape
+RLIBMAPDEPS += libROOTGanilTape.so
+ifeq ($(MAKE_GANTAPE_RFIO),yes)
+LINK_LIB += -L/usr/local/lib -lshift
+endif
+endif
+
+indra2root : 
+	-cp INDRA2ROOT/indra2root.C $(KVINSTALLDIR)/src/
+	-cp INDRA2ROOT/veda2root $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/veda2root_kali $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/veda2root_kali96 $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/veda2root_lanceur $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
+	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
+	-cp INDRA2ROOT/faire_arbre.f $(KVINSTALLDIR)/src/
+	-cp INDRA2ROOT/faire_arbre_c2.f $(KVINSTALLDIR)/src/
+
+uninstall-indra2root : 
+	-rm -f $(KVINSTALLDIR)/src/indra2root.C
+	-rm -f $(KVINSTALLDIR)/bin/veda2root
+	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali 
+	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali96
+	-rm -f $(KVINSTALLDIR)/bin/veda2root_lanceur 
+	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre.exe 
+	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
+	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
+	-rm -f $(KVINSTALLDIR)/src/faire_arbre.f 
+	-rm -f $(KVINSTALLDIR)/src/faire_arbre_c2.f 

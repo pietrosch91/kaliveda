@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>The KaliVeda build system</title>
+  <link rel="stylesheet" href="css/site.css" type="text/css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+<h1>The KaliVeda build system<br>
+</h1>
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+<img
+ style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;"
+ alt="indra" src="images/indra_camp4_210x188.png"><br>
+<script language="javascript" src="js/nav.js"></script>
+<br>
+<!-- SiteSearch Google -->
+<form method="get" action="http://www.google.com/search"><input
+ name="ie" value="UTF-8" type="hidden"> <input name="oe" value="UTF-8"
+ type="hidden"><input name="q" style="margin-top: 5px;" size="13"
+ maxlength="255" value="" type="text"> <input name="btnG"
+ style="margin-top: 5px;" value="Search site"
+ onclick="send_data(this.form)" type="submit"></form>
+<!-- SiteSearch Google -->
+</div>
+<div class="page">
+<br>
+This is a detailed explanation of the different targets and options
+which can be used with the main KaliVeda Makefile. For instructions on
+how to install KaliVeda, look <a
+ href="http://indra.in2p3.fr/KaliVedaDoc/.Formation/PDF/InstallKaliVeda.pdf">here</a>.<br>
+<br>
+<br>
+<h3>
+</h3>
+<h3 class="newsTitle">Makefile targets</h3>
+<br>
+<span style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><font
+ style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make</span></font><br>
+</span></span><span style="font-family: helvetica,arial,sans-serif;">Build
+all libraries and applications and install them in the location given
+by environment variable $KVROOT. No need for 'make install' afterwards.
+Several options can be given to control the build:<br>
+<br>
+</span>
+<div style="margin-left: 80px;"><span
+ style="font-family: helvetica,arial,sans-serif;"><font size="+1"><span
+ style="font-weight: bold; font-family: helvetica,arial,sans-serif;">make
+</span><span
+ style="font-style: italic; font-weight: bold; font-family: helvetica,arial,sans-serif;">[option1]
+[option2] [option3]</span><span
+ style="font-weight: bold; font-family: helvetica,arial,sans-serif;">
+...</span></font></span><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+</span><br>
+<span style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;">
+<span style="font-weight: bold;">[option] debug=yes</span></span><br>
+</span><span style="font-family: helvetica,arial,sans-serif;">
+Will compile all sources with no optimisation and extra debugging
+information for the GNU
+debugger, "gdb</span>"<span style="font-weight: bold;"><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+</span><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+<span style="font-weight: bold;"></span></span></span></span><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;">[option] memcheck=yes</span></span><br>
+</span></span></span><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-family: helvetica,arial,sans-serif;">
+Will compile all sources with no optimisation, no inlines and extra
+debugging information for use with "valgrind" memory-leak checking tool</span></span><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;"><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+</span><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+<span style="font-weight: bold;"></span></span></span></span></span></span><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;">[option] ROOT_MAKEFILE_PATH=[path]</span></span><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+Required if ROOTSYS is not defined e.g. when ROOT is installed in
+standard system directories such as /usr/local/bin,
+/usr/local/lib/root, etc. In this case we cannot find the ROOT Makefile
+which sets compiler options for different machine architectures,
+$ROOTSYS/test/Makefile.arch.</span><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+Give the full path of the directory containing this file on your
+system, e.g.</span><br>
+<span style="font-family: helvetica,arial,sans-serif;">
+</span></div>
+<div style="text-align: left; margin-left: 120px;"><span
+ style="color: rgb(0, 0, 0); font-family: monospace;">make
+ROOT_MAKEFILE_PATH=/usr/local/share/root/test</span><br>
+</div>
+<div style="margin-left: 40px;">
+<div style="margin-left: 40px;"><br>
+<span style="font-weight: bold;">[option] MAKE_GANTAPE_XRD=yes</span><br>
+Will build GANIL acquisition library libgan_tape.so with Xrootd support
+enabled. This makes it possible to read raw data files via an Xrootd
+server.<br>
+<br>
+<span style="font-weight: bold;">[option] MAKE_GANTAPE_RFIO=yes</span><br>
+Will build GANIL acquisition library libgan_tape.so with RFIO support
+enabled. This
+makes it possible to read raw data files via an RFIO server.<span
+ style="font-family: helvetica,arial,sans-serif;"></span><br>
+</div>
+<span style="font-family: helvetica,arial,sans-serif;"></span></div>
+<span style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><br>
+<font style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;"></span></font></span></span><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><font
+ style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make unpack</span></font><br>
+</span></span></span></span><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-family: helvetica,arial,sans-serif;">
+Required when building from sources acquired as a '.tgz' distribution.
+The subdirectories in the main source directory are also in '.tgz'
+files. This command unpacks them ready for the build process, e.g. to
+build and install from a '.tgz', do<br>
+</span></span>
+<div
+ style="color: rgb(0, 0, 0); text-align: left; margin-left: 40px; font-family: monospace;">make
+unpack<br>
+</div>
+<div style="color: rgb(0, 0, 0); text-align: left; margin-left: 40px;"><span
+ style="font-family: monospace;">make</span><br>
+<span style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-family: helvetica,arial,sans-serif;"></span></span></div>
+<span
+ style="font-family: helvetica,arial,sans-serif; color: rgb(0, 0, 0);"><span
+ style="font-family: helvetica,arial,sans-serif;">
+</span></span><span style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><span
+ style="font-weight: bold;"><span
+ style="font-family: helvetica,arial,sans-serif;"><br>
+<font style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;"></span></font></span></span></span></span><font
+ style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make doc</span></font><br>
+After building the libraries &amp; applications, you can generate the
+full HTML documentation (actually a local copy of this website) using
+this target. The home page will be located at
+$KVROOT/KaliVedaDoc/KaliVeda.html<br>
+<br>
+<div
+ style="text-align: left; font-family: helvetica,arial,sans-serif; font-weight: bold;"><font
+ size="+1">make dist<br>
+</font></div>
+Cleans the source tree, then bundles together the sources to create a
+'.tgz' distribution file.<br>
+<br>
+<font style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make clean</span></font><br>
+Clears the source tree of all files resulting from any previous build.
+Needed in order to recompile the whole project from scratch, in case of
+problems with a previous build. Can also be useful if previously
+compiled sources are updated using CVS.<br>
+<br>
+<font style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make distclean</span></font><br>
+As 'make clean', but also removes files which can cause problems
+between different versions of KaliVeda (such as the
+$KVROOT/KVFiles/*/DataBase.root files, and ~/.KVDataAnalysisGUIrc).<br>
+<br>
+<font style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make uninstall</span></font><br>
+Will remove all trace of KaliVeda libraries, applications, files &amp;
+directories from the $KVROOT directory. Does not remove the directory
+itself (good news if you set KVROOT to $HOME!)<br>
+<br>
+<font style="font-weight: bold;" size="+1"><span
+ style="font-family: helvetica,arial,sans-serif;">make logs
+OLD_TAG=[cvs tag 1] NEW_TAG=[cvs tag 2]</span></font><br>
+Generates a change log in HTML format detailing all commits between two
+CVS tags. The resulting file is automatically written in the
+documentation directory, with the full path:<br>
+<div style="margin-left: 40px;"><br>
+<span style="font-family: monospace;">$KVROOT/KaliVedaDoc/KaliVedaChangeLog_[cvs
+tag 1]_[cvs tag 2].html</span><br>
+</div>
+<div class="download"><br>
+<ol>
+</ol>
+</div>
+<p class="copyright">Web design based on www.xmms.org - Hope you don't
+mind! Thankyou! <br>
+</p>
+</div>
+</body>
+</html>

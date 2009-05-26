@@ -1,0 +1,343 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass amsbook
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize a4paper
+\paperpackage widemarginsa4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Title
+
+The KaliVeda User's Guide
+\layout Author
+
+John Frankland
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+maketitle
+\end_inset 
+
+
+\layout Title
+\added_space_top vfill 
+
+\begin_inset LatexCommand \tableofcontents{}
+
+\end_inset 
+
+
+\layout Part
+
+Data Reduction and Analysis with KaliVeda: Understanding datasets, databases
+ and analysis tasks
+\layout Standard
+
+Data from an experiment or experimental campaign
+\layout Chapter
+
+Datasets and the Data Set Manager
+\begin_inset LatexCommand \label{cha:Datasets-and-the}
+
+\end_inset 
+
+
+\layout Standard
+
+A dataset is experimental data from an experiment or campaign of experiments
+ which can be described by a single experimental configuration i.e.
+ the same detectors in the same geometry, although not necessarily with
+ the same calibration parameters.
+ A dataset associates three elements:
+\layout Itemize
+
+a description of the detector geometry i.e.
+ a 
+\family typewriter 
+KVMultiDetArray
+\family default 
+ object
+\layout Itemize
+
+a database of calibration parameters and other information on different
+ runs etc., i.e.
+ a 
+\family typewriter 
+KVDataBase
+\family default 
+ object
+\layout Itemize
+
+a set of data files for each run of the experiment or campaign containing
+ either raw data from the acquisition system, or reconstructed and calibrated
+ data obtained by previous treatment of raw data with KaliVeda.
+\layout Standard
+
+Many different datasets can be handled by a data set manager, which is an
+ instance of the 
+\family typewriter 
+KVDataSetManager
+\family default 
+ class.
+ This class is the 
+\emph on 
+chef d'orchestre
+\emph default 
+ when performing data analysis with KaliVeda.
+ Without it, data analysis is simply impossible.
+ With it, a lot of complicated data management issues become completely
+ transparent to the user.
+ In order to set up and use the data set manager, type the following in
+ an interactive session:
+\layout LyX-Code
+
+gSystem->Load(
+\begin_inset Quotes eld
+\end_inset 
+
+libKVMultiDet
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\layout LyX-Code
+
+new KVDataSetManager
+\layout LyX-Code
+
+gDataSetManager->Init()
+\layout Standard
+
+The global pointer 
+\family typewriter 
+\series bold 
+gDataSetManager
+\family default 
+\series default 
+ can then be used to access the data set manager.
+\layout Section
+
+List of all datasets
+\layout Standard
+
+The different datasets are listed in a file whose name is given by the following
+ line in the 
+\emph on 
+$KVROOT/KVFiles/.kvrootrc
+\emph default 
+ configuration file:
+\layout LyX-Code
+
+DataSet.List:    manip.list
+\layout Standard
+
+Unless an absolute pathname is given, this file is expected to be found
+ in the 
+\emph on 
+$KVROOT/KVFiles
+\emph default 
+ directory
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+It is located using KVBase::SearchAndOpenKVFile, which will look first in
+ KVFiles, then in the user's home directory, and finally in the current
+ directory.
+\end_inset 
+
+.
+ This file is used to initialise the data set manager with the list of all
+ known datasets.
+ It is read when 
+\family typewriter 
+gDataSetManager->Init()
+\family default 
+ is called.
+ It contains a line describing each dataset containing three fields separated
+ by commas, as in this example: 
+\layout LyX-Code
+
+INDRA_camp1,1st INDRA campaign (1993),campagne1
+\layout Standard
+
+The first field is a name for the dataset; the second is a title used to
+ represent the dataset; and the third is the subdirectory of the main data
+ repository used to store the dataset's data files (see Chapter 
+\begin_inset LatexCommand \ref{cha:Data-repositories}
+
+\end_inset 
+
+).
+\layout Section
+
+Experimental configuration for each dataset
+\layout Standard
+
+The detector geometry associated with the dataset is determined by a plugin
+ (class derived from 
+\family typewriter 
+KVMultiDetArray
+\family default 
+) with the same name as the dataset, as for example:
+\layout LyX-Code
+
+Plugin.KVMultiDetArray: INDRA_camp1 KVINDRA KVIndra "KVINDRA()"
+\layout Standard
+
+In this example, it can be seen that the 
+\family typewriter 
+KVINDRA
+\family default 
+ class is used to describe the multidetector array geometry for the 
+\begin_inset Quotes eld
+\end_inset 
+
+INDRA_camp1
+\begin_inset Quotes erd
+\end_inset 
+
+ dataset, and that this class is part of the libKVIndra shared library (see
+ documentation on 
+\family typewriter 
+TEnv
+\family default 
+ class for more information on the syntax of plugin declarations).
+\layout Chapter
+
+Data repositories
+\begin_inset LatexCommand \label{cha:Data-repositories}
+
+\end_inset 
+
+
+\layout Standard
+
+The data files for each run of each dataset are organised into a directory
+ structure called the data repository.
+ Depending on the specific configuration of KaliVeda chosen in the 
+\emph on 
+$KVROOT/KVFiles/.kvrootrc
+\emph default 
+ file, the data repository may be on a locally-mounted filesystem on the
+ user's machine, or on a remote site accessed through an xrootd server (for
+ example).
+ Whatever the case may be, once the data set manager has been initialised
+ (see Chapter 
+\begin_inset LatexCommand \ref{cha:Datasets-and-the}
+
+\end_inset 
+
+) the data repository is always accessible via the global pointer 
+\family typewriter 
+\series bold 
+gDataRepository
+\family default 
+\series default 
+ to an instance of the 
+\family typewriter 
+KVDataRepository
+\family default 
+ class.
+\layout Section
+
+Repository Structure
+\layout Standard
+
+Any data repository is structured in the same way, with a subdirectory for
+ each dataset, which in turn is divided into subdirectories to hold data
+ files corresponding to raw data, reconstructed data, partially identified
+ and calibrated data, and fully calibrated physical data files.
+ 
+\layout Standard
+
+The directories which may be present in the dataset subdirectory are as
+ follows:
+\layout Itemize
+
+raw - raw data files which come from some data acquisition system.
+ These files may or not be in the ROOT format.
+\layout Itemize
+
+recon - ROOT trees of KaliVeda-format events reconstructed from the raw
+ data.
+ The generation of these files from the raw data files is the first step
+ in the complete calibration of data, and in principle once this step has
+ been performed there is no longer any need to go back to the raw data files.
+\layout Itemize
+
+ident - ROOT trees of KaliVeda-format events for which identification and
+ calibration has been performed for all particles, excluding coherency analysis.
+\layout Itemize
+
+root - fully-calibrated physical run files containing ROOT trees of KaliVeda-for
+mat events.
+\layout Standard
+
+The presence or absence of these subdirectories decides which data analysis
+ tasks are available for the user to perform.
+ The choice of this structure is closely related to the process of transforming,
+ step by step, raw data into fully calibrated physical run files.
+\layout Section
+
+Configuration of Data Repository
+\layout Standard
+
+The user's data repository is entirely configured using the 
+\emph on 
+$KVROOT/KVFiles/.kvrootrc
+\emph default 
+ file.
+ In the case of a local filesystem repository, the only line necessary is
+ probably:
+\layout LyX-Code
+
+DataRepository.LocalRootDir:    $(HOME)/Data
+\layout Standard
+
+This defines the top-level (or root) directory for the repository on a local
+ filesystem.
+ By default, we assume a 
+\emph on 
+Data
+\emph default 
+ directory in the user's home directory.
+ The other configuration options concern mainly remote file access.
+\layout Chapter
+
+Data analysis
+\layout Section
+
+Data analysis tasks
+\layout Section
+
+Data analysers
+\layout Section
+
+User analysis classes
+\the_end

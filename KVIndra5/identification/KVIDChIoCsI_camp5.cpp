@@ -1,0 +1,174 @@
+/*
+$Id: KVIDChIoCsI_camp5.cpp,v 1.2 2009/04/06 15:21:31 franklan Exp $
+$Revision: 1.2 $
+$Date: 2009/04/06 15:21:31 $
+*/
+
+//Created by KVClassFactory on Mon Mar 30 16:44:34 2009
+//Author: John Frankland,,,
+
+#include "KVIDChIoCsI_camp5.h"
+#include "KVINDRA.h"
+#include "KVINDRAReconNuc.h"
+
+ClassImp(KVIDChIoCsI_camp5)
+
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVIDChIoCsI_camp5</h2>
+<h4>ChIo-CsI id with grids for INDRA_camp5</h4>
+<!-- */
+// --> END_HTML
+////////////////////////////////////////////////////////////////////////////////
+
+KVIDChIoCsI_camp5::KVIDChIoCsI_camp5()
+{
+   // Default constructor
+	
+	fGGgrid = fPGgrid = 0;
+	fChIo=0;
+	fCsI=0;
+}
+
+KVIDChIoCsI_camp5::~KVIDChIoCsI_camp5()
+{
+   // Destructor
+}
+
+//___________________________________________________________________________________________//
+
+Bool_t KVIDChIoCsI_camp5::SetIDGrid(KVIDGraph *grid)
+{
+   // Called by KVIDGridManager::FindGrid in order to set grids for telescope.
+   // We check the grid handles this ID telescope and is OK for current run number.
+   // NB. if this method returns kTRUE, KVIDGridManager::FindGrid stops searching
+   // for grids for this telescope. Therefore, we never return kTRUE as there can be
+   // several grids for each telescope.
+   
+	if( !grid->HandlesIDTelescope(this) )   
+      return kFALSE;
+   
+   //get run number from INDRA, if it exists (should do!), otherwise accept
+   if (gIndra) {
+      Int_t run = gIndra->GetCurrentRunNumber();
+      if (!grid->GetRuns().Contains(run)) return kFALSE;
+   }
+   
+   //the grid is accepted
+   fIDGrids->Add(grid);
+	
+	if( !strcmp(grid->GetVarY(),"CHIO-GG") ) fGGgrid = (KVIDZAGrid*)grid;
+	else if( !strcmp(grid->GetVarY(),"CHIO-PG") ) fPGgrid = (KVIDZAGrid*)grid;
+      
+   return kFALSE; // make gIDGridManager keep searching!
+}
+
+//___________________________________________________________________________________________
+
+void KVIDChIoCsI_camp5::Initialize()
+{
+   // Initialize telescope for current run.
+   // If there is at least 1 grid, we set fCanIdentify = kTRUE
+   // "Natural" line widths are calculated for KVIDZAGrids.
+   
+	fChIo = (KVChIo *) GetDetector(1);
+	fCsI = (KVCsI *) GetDetector(2);
+	fCsIRPedestal = fCsI->GetPedestal("R");
+	fCsILPedestal = fCsI->GetPedestal("L");
+   if( fGGgrid ){
+      SetBit(kReadyForID);
+      fGGgrid->Initialize();
+   	if( fPGgrid ) fPGgrid->Initialize();
+   }
+   else ResetBit(kReadyForID);
+}
+
+
+Double_t KVIDChIoCsI_camp5::GetIDMapX(Option_t * opt)
+{
+   //Calculates current X coordinate for identification.
+   //It is the CsI detector's total light output calculated from current values of 'R' and 'L'
+   //raw data without pedestal correction (because identification maps were drawn without
+   //correcting).
+   //'opt' has no effect.
+   Double_t rapide = (Double_t)fCsI->GetR() + fCsIRPedestal;
+   Double_t lente = (Double_t)fCsI->GetL() + fCsILPedestal;
+   Double_t h = (Double_t)fCsI->GetLumiereTotale(rapide,lente);
+   return h;
+}
+
+//__________________________________________________________________________//
+
+Double_t KVIDChIoCsI_camp5::GetIDMapY(Option_t * opt)
+{
+   //Calculates current Y coordinate for identification.
+   //It is the ionisation chamber's current grand gain (if opt="GG") or petit gain (opt != "GG")
+   //coder data, without pedestal correction.
+   Double_t si;
+   if (!strcmp(opt, "GG")) {
+      si = (Double_t)fChIo->GetGG();
+   } else {
+      si = (Double_t)fChIo->GetPG();
+   }
+   return si;
+}
+
+//________________________________________________________________________________________//
+
+Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
+{
+   //Particle identification and code setting using identification grids.
+
+      KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
+      
+      //perform identification in ChIo(GG) - CsI(H) map
+      
+      Double_t cigg = GetIDMapY("GG");
+      Double_t lumtot = GetIDMapX();
+      
+      KVIDGrid* theIdentifyingGrid = 0;
+      
+      fGGgrid->Identify(lumtot, cigg, irnuc);
+      theIdentifyingGrid =(KVIDGrid*)fGGgrid;
+		      
+      if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
+         
+         // try Z & A identification in ChIo(PG)-CsI(H) map
+         Double_t cipg = GetIDMapY("PG");
+         fPGgrid->Identify(lumtot, cipg, irnuc);
+         theIdentifyingGrid = (KVIDGrid*)fPGgrid;
+		}
+
+      //set subcode in particle
+      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
+		
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
+			// only if the final quality code is kICODE8 do we consider that it is
+			// worthwhile looking elsewhere. In all other cases, the particle has been
+			// "identified", even if we still don't know its Z and/or A (in this case
+			// we consider that we have established that they are unknowable).
+			return kFALSE;
+		}
+		
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
+			// if the final quality code is kICODE7 (above last line in grid) then the estimated 
+			// Z is only a minimum value (Zmin)
+			irnuc->SetIDCode( kIDCode5 );
+			return kTRUE;
+		}
+			
+		if(theIdentifyingGrid->GetQualityCode() > KVIDZAGrid::kICODE3 &&
+				theIdentifyingGrid->GetQualityCode() < KVIDZAGrid::kICODE7){
+			// if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
+			// corresponds to a point which is inbetween the lines, i.e. noise
+			irnuc->SetIDCode( kIDCode10 );
+			return kTRUE;
+		}
+		
+		// set general ID code ChIo-CsI
+      irnuc->SetIDCode( kIDCode4 );
+      return kTRUE;
+}
+
+

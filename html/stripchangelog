@@ -1,0 +1,34 @@
+#!/bin/csh -f
+#$Id: stripchangelog,v 1.5 2006/10/27 10:28:50 franklan Exp $
+#############################################################################################
+# stripchangelog
+#
+# usage :  stripchangelog [changelog.html] [name] [output.html]
+#
+# Take CVS change log file, extract just the 'body', and insert it in a new file 'output'
+# with headers and footers
+#############################################################################################
+set input=$1
+set header="changelog_header.html"
+set menu="changelog_menu.html"
+set footer="changelog_footer.html"
+set libname=$2
+set output=$3
+#extract body of change log
+sed -n '/<body>/,/<\/body>/p' $input > tmp.html
+#count number of lines
+set nlines=`sed -n '$=' tmp.html`
+set nlines=`expr $nlines - 1`
+#extract all but 1st and last lines
+head -n$nlines tmp.html > tmp2.html
+set nlines=`expr $nlines - 1`
+tail -n$nlines tmp2.html > tmp3.html
+#sandwich
+cat $header > $output
+echo '<h1>'$libname' Change logs</h1>' >> $output
+echo '<div class="logs">' >> $output
+cat $menu tmp3.html $footer >> $output
+rm -f tmp.html
+rm -f tmp2.html
+rm -f tmp3.html
+exit

@@ -1,0 +1,9 @@
+# Linux / G++
+
+CXX           = g++
+LD            = g++
+
+EXTRA_LDFLAGS = 
+EXTRA_CXXFLAGS= 
+DPDFLAGS_ARCH = 
+SOFLAGS       = -Wl -shared

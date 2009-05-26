@@ -1,0 +1,117 @@
+Release notes for ROOTGanilTape Development Release 0.0.4
+--------------------------------------------------------
+
+What is ROOTGanilTape ?
+-----------------------
+
+ROOTGanilTape is a ROOT/C++ wrapper around ganil_tape libs (see 
+ftp://ftp.ganil.fr/pub/acq/) that helps to read and analyse data on
+tapes and files at GANIL format using the ROOT toolkit.
+Usage should be very end-user oriented, keeped efficient and simple.
+
+
+Where can one found it ?
+-------------------
+
+There are a few chances you'll find it here:
+http://ganp188.in2p3.fr/garp/soft/ROOTGanilTape/
+But I wouldnt bet on it.
+If you cant find it, drop me a mail: patois@ganil.fr
+
+
+License
+-------
+
+This software is released under the GENERAL PUBLIC LICENCE version 2
+or above. See file LICENSE for details.
+
+
+Software Requirements
+---------------------
+
+- For now it has only been tested on i386-Linux/g++ (and partially on
+  Alpha/g++ and SunOS/CC5.0), may works without too much changes on 
+  any UNIX flavor where ROOT is supported.
+
+- ganil_tape (ftp://ftp.ganil.fr/pub/acq/) installed.
+  See GANILTAPE variable in Makefile and set it appropriatly
+
+- ROOT (http://root.cern.ch) installed ($ROOTSYS must be defined).
+
+- GNUmake or a GNU compatible 'make'. Some proprietary make command
+  doesnt recognise the ':=' operator.
+
+- makedepend, for dependancies checks (it is found in XFree
+  dev. packages). If you dont have it, comment the line 'include
+  dependancies.make' in Makefile and go without it.
+
+- a C++ compiler (The one used to compile ROOT).
+
+
+Documentation to read
+---------------------
+
+Documentation is at http://ganp188.in2p3.fr/garp/soft/ROOTGanilTape/
+API autodocumentation can be created by typing:
+$ make html
+
+HTML doc will then reside in ./html or ./htmldoc (a ROOT bug ?).
+
+
+Building ROOTGanilTape
+----------------------
+
+- Check that the env variable $HOSTTYPE is defined and is either
+  linux-i586 or alpha. Otherwise, you must create a
+  config/Makefile.$HOSTTYPE file. Inspire yourself from the existing
+  one. I suggest you to just do a copy of Makefile.linux-i586 to
+  Makefile.$HOSTTYPE, in many cases this should be enough.
+
+- Have a look in the Makefile, check in particular that GANILTAPE path 
+  is correct. Also looks at the INSTALL path.
+
+- Then do:
+  $ make
+
+- You'll need to install the libs at proper location for the programm
+  to work:
+  $ make install
+
+- Then you can create the autodocumentation:
+  $ make html
+
+
+Usage
+-----
+
+See the Example program, and adapt it to your needs.
+
+
+KNOWN BUGS
+----------
+
+- A bug in ganil_tape (under linux i386) prevent the EOF to be
+  acknowledged  when reading a tape (on file it's OK). This bug could
+  be a bug in libc, but I dont know for sure. I may implement an hugly
+  workaround, or better, smash the bug.
+
+- This is a very preliminary release. There are too much potential
+  bugs, unexpected behaviors and limitations that I could event list
+  them all.
+
+
+Planned evolution
+-----------------
+
+- Correcting bugs.
+- Maybe automatic histogramm filling from data.
+- Maybe FORTRAN/CERNLIB interface.
+- Better cross-plateform behavior.
+- Better Makefile
+- A 'ganiltape'-like tool (handling tape copy)
+
+Contact
+-------
+
+Yannick Patois <patois@ganil.fr>
+
