@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVINDRADB5.cpp,v 1.41 2009/01/22 13:57:54 franklan Exp $
+$Id: KVINDRADB5.cpp,v 1.45 2009/04/07 07:45:04 franklan Exp $
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -253,9 +253,7 @@ void KVINDRADB5::ReadChannelVolt()
       if (fin.eof()) {          //fin du fichier
          LinkListToRunRanges(par_list, rr_number, run_ranges);
          par_list->Clear();
-         delete par_list;
-         fin.close();
-         return;
+         break;
       }
       if (sline.BeginsWith("Run Range :")) {    // Run Range found
          if (!prev_rr) {        // new run ranges set
@@ -268,8 +266,6 @@ void KVINDRADB5::ReadChannelVolt()
             Warning("ReadChannelVolt()",
                     "Bad format in line :\n%s\nUnable to read run range values",
                     sline.Data());
-            cout << "sscanf=" << sscanf(sline.Data(), "Run Range : %u %u",
-                                        &frun, &lrun) << endl;
          } else {
             prev_rr = kTRUE;
             run_ranges[rr_number][0] = frun;
@@ -319,6 +315,71 @@ void KVINDRADB5::ReadChannelVolt()
    }                            //reading the file
    delete par_list;
    fin.close();
+	
+	/********** ETALONS ***************/
+	
+   ifstream fin2;
+   if (!OpenCalibFile("ElectronicCalibration.Etalons", fin2)) {
+      Error("ReadChannelVolt()", "Could not open file %s",
+            GetCalibFileName("ElectronicCalibration.Etalons"));
+      return;
+   }
+   Info("ReadChannelVolt()",
+        "Reading electronic calibration for Si75 and SiLi...");
+   frun = lrun = 0;
+   rr_number = 0;
+   prev_rr = kFALSE;     // was the last line a run range indication ?
+	par_list = new TList;
+	
+   while (fin2.good()) {         //reading the file
+      sline.ReadLine(fin2);
+      if (fin2.eof()) {          //fin du fichier
+         LinkListToRunRanges(par_list, rr_number, run_ranges);
+         par_list->Clear();
+         delete par_list;
+         fin2.close();
+         return;
+      }
+      if (sline.BeginsWith("Run Range :")) {    // Run Range found
+         if (!prev_rr) {        // new run ranges set
+            if (par_list->GetSize() > 0)
+               LinkListToRunRanges(par_list, rr_number, run_ranges);
+            par_list->Clear();
+            rr_number = 0;
+         }
+         if (sscanf(sline.Data(), "Run Range : %u %u", &frun, &lrun) != 2) {
+            Warning("ReadChannelVolt()",
+                    "Bad format in line :\n%s\nUnable to read run range values",
+                    sline.Data());
+         } else {
+            prev_rr = kTRUE;
+            run_ranges[rr_number][0] = frun;
+            run_ranges[rr_number][1] = lrun;
+            rr_number++;
+            if (rr_number == MAX_NUM_RUN_RANGES) {
+               Error("ReadChannelVolt", "Too many run ranges (>%d)",
+                     rr_number);
+               rr_number--;
+            }
+         }
+      }                         //Run Range found
+      else if (sline.Sizeof() > 1 && !sline.BeginsWith("#")) {  //non void nor comment line
+         if (sscanf(sline.Data(), "%s %f %f %f",
+                    det_name, &a0, &a1, &a2) != 4) {
+            Warning("ReadChannelVolt()",
+                    "Bad format in line :\n%s\nUnable to read",
+                    sline.Data());
+         } else {               //parameters correctly read
+            strcpy(cal_type, "Channel-Volt PG");
+            parset = new KVDBParameterSet(det_name, cal_type, 3);
+            parset->SetParameters(a0, a1, a2);
+            prev_rr = kFALSE;
+            fChanVolt->AddRecord(parset);
+            par_list->Add(parset);
+         }                      //parameters correctly read
+      }                         //non void nor comment line
+   }                            //reading the file
+   delete par_list;
 }
 
 //__________________________________________________________________________________
