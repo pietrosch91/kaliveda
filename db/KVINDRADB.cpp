@@ -1,5 +1,5 @@
 /***************************************************************************
-$Id: KVINDRADB.cpp,v 1.35 2009/01/22 13:56:42 franklan Exp $
+$Id: KVINDRADB.cpp,v 1.37 2009/03/11 14:18:18 franklan Exp $
                           kvINDRADB.cpp  -  description
                              -------------------
     begin                : 9/12 2003
