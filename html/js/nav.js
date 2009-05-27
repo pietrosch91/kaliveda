@@ -14,7 +14,6 @@ var links = new Array (
   "KaliVeda-FAQ",
   "ClassCategories",
   "appli",
-  "KaliVedaWiki",
   "KaliVedaForum",
   "KaliVedaBugs"
  );
@@ -30,7 +29,6 @@ var links_text = new Array (
   "Tutorials",
   "Class Reference",
   "Commands & GUI",
-  "Wiki",
   "Forum",
   "Report a Bug"
  );
@@ -38,7 +36,7 @@ var links_text = new Array (
 var links_url = new Array (
   "about.html",
   "KaliVeda.html",
-  "download.html",
+  "about.html#download",
   "build.html",
   "kvrootrc.html",
   "DataAnalysis.html",
@@ -46,9 +44,8 @@ var links_url = new Array (
   "KaliVeda-FAQ.html",
   "ClassCategories.html",
   "appli.html",
-  "http://indra.in2p3.fr/KaliVedaWiki",
   "http://indra.in2p3.fr/KaliVedaForum",
-  "http://indra.in2p3.fr/KaliVedaBugs"
+  "https://bugs.launchpad.net/kaliveda/+filebug"
  );
 
 var loc=String(this.location);

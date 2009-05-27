@@ -94,11 +94,7 @@ install_html: $(MAKEHTML)
 	./$(MAKEHTML)
 	-cp ClassCategories.html $(KVROOT)/KaliVedaDoc/
 	-cp examples/Examples.html $(KVROOT)/KaliVedaDoc/
-#replace date and version in download.html	
-	cat download.html | sed "s/KV_VERSION/${VERSION_NUMBER}-${KV_BUILD_DATE}/g" > tmp.html
-	cat tmp.html | sed "s/KV_DATE/${KV_BUILD_DATE}/g" > Download.html
 	-cp *.html $(KVROOT)/KaliVedaDoc/
-	-cp Download.html $(KVROOT)/KaliVedaDoc/download.html
 	-cp css/* $(KVROOT)/KaliVedaDoc/css/
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
