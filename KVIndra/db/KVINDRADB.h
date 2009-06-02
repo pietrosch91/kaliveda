@@ -53,6 +53,7 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    KVDBTable *fChIoPressures;   //-> table of chio pressures
    KVDBTable *fGains;           //(optional) table of detector gains, in case they change from run to run
    KVDBTable *fTapes;           //-> table of data tapes
+   KVDBTable *fCsILumCorr;      //-> table of CsI gain corrections for total light output
 
 	KVINDRAPulserDataTree *fPulserData;  //! mean values of pulsers for all detectors & runs
 	
@@ -65,6 +66,7 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    virtual void ReadSystemList();
    virtual void ReadGainList();
    virtual void ReadChIoPressures();
+	virtual void ReadCsITotalLightGainCorrections();
 
    //calibration peaks database
    Bool_t OpenCalibrationPeakFile();

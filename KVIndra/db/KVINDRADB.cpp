@@ -61,7 +61,7 @@ void KVINDRADB::init()
    fSystems = AddTable("Systems", "List of available systems");
    fChIoPressures = AddTable("ChIo Pressures", "Pressures of ChIo");
    fTapes = AddTable("Tapes", "List of data storage tapes");
-
+	fCsILumCorr = AddTable("CsIGainCorr", "CsI gain corrections for total light output");
    fGains = 0;
 	
 	fPulserData = 0;
@@ -1161,4 +1161,10 @@ void KVINDRADB::ReadObjects(TFile *file)
 	// Read associated objects (i.e. KVINDRAPulserDataTree's TTree) from file
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
 	fPulserData->ReadTree(file);
+}
+
+//____________________________________________________________________________
+
+void KVINDRADB::ReadCsITotalLightGainCorrections()
+{
 }
