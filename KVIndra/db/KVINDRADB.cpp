@@ -1,5 +1,4 @@
 /***************************************************************************
-$Id: KVINDRADB.cpp,v 1.37 2009/03/11 14:18:18 franklan Exp $
                           kvINDRADB.cpp  -  description
                              -------------------
     begin                : 9/12 2003
@@ -1167,4 +1166,9 @@ void KVINDRADB::ReadObjects(TFile *file)
 
 void KVINDRADB::ReadCsITotalLightGainCorrections()
 {
+	// Looks for directory
+	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir]
+	// where [lumcorrdir] is defined in .kvrootrc by variable
+	//    [dataset name].INDRADB.CsILumCorr:   [lumcorrdir]
+	//
 }
