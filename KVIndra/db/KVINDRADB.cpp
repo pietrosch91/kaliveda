@@ -905,10 +905,10 @@ const Char_t *KVINDRADB::GetDBEnv(const Char_t * type) const
    //then "INDRADB.type" if no dataset-specific value is found.
 
    if (!gDataSetManager)
-      return 0;
+      return "";
    KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
-      return 0;
+      return "";
    return ds->GetDataSetEnv(Form("INDRADB.%s", type));
 }
 
@@ -952,6 +952,8 @@ void KVINDRADB::Build()
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
 	fPulserData->SetRunList( GetRuns() );
 	fPulserData->Build();
+	
+	ReadCsITotalLightGainCorrections();
 }
 
 
@@ -1166,9 +1168,96 @@ void KVINDRADB::ReadObjects(TFile *file)
 
 void KVINDRADB::ReadCsITotalLightGainCorrections()
 {
+	// Read in gain corrections for CsI total light output.
 	// Looks for directory
 	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir]
-	// where [lumcorrdir] is defined in .kvrootrc by variable
+	// where [lumcorrdir] is defined in .kvrootrc by one of the two variables
+	//    INDRADB.CsILumCorr:   [lumcorrdir]
 	//    [dataset name].INDRADB.CsILumCorr:   [lumcorrdir]
+	// the latter value takes precedence for a given dataset over the former, generic, value.
 	//
+	// If the directory is not found we look for a compressed archive file
+	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir].tgz
+	//
+	// The files in the directory containing the corrections for each run have
+	// names with the format given by
+	//    INDRADB.CsILumCorr.FileName:   [format]
+	//    [dataset name].INDRADB.CsILumCorr.FileName:   [format]
+	// the latter value takes precedence for a given dataset over the former, generic, value.
+	// The [format] should include a placeholder for the run number, e.g.
+	//    INDRADB.CsILumCorr.FileName:   run%04d.cor
+	//    INDRADB.CsILumCorr.FileName:   Run%d.corrLum
+	// etc. etc.
+	//
+	// The contents of each file should be in the following format:
+	//    CSI_0221_R    1.00669
+	//    CSI_0321_R    1.01828
+	//    CSI_0322_R    1.00977
+	// i.e. 
+	//   name_of_detector   correction
+	//Any other lines are ignored.
+	
+	
+	// get name of directory for this dataset from .kvrootrc
+	TString search;
+	search = GetDBEnv("CsILumCorr");
+	if( search=="" ){
+		Error("ReadCsITotalLightGainCorrections", "INDRADB.CsILumCorr is not defined. Check .kvrootrc files.");
+	}
+	
+	KVTarArchive gain_cor(search.Data(), GetDataSetDir());
+	if(!gain_cor.IsOK()){
+		Info("ReadCsITotalLightGainCorrections","No corrections found");
+		return;
+	}
+	
+	TString filefmt;
+	filefmt = GetDBEnv("CsILumCorr.FileName");
+	if( filefmt=="" ){
+		Error("ReadCsITotalLightGainCorrections", "INDRADB.CsILumCorr.FileName is not defined. Check .kvrootrc files.");
+	}
+	
+	// boucle sur tous les runs
+	TIter next_run(GetRuns());
+	KVINDRADBRun* run=0;
+	while( (run=(KVINDRADBRun*)next_run()) ){
+		
+		Int_t run_num = run->GetNumber();
+		TString filepath; filepath.Form(filefmt.Data(),run_num);
+		filepath.Prepend("/");
+		filepath.Prepend(search.Data());
+		ifstream filereader;
+		if( KVBase::SearchAndOpenKVFile(filepath, filereader, fDataSet.Data()) ){
+			
+			Info("ReadCsITotalLightGainCorrections",
+					"Reading run %d", run_num);
+			
+			KVString line;
+			line.ReadLine(filereader);
+			while( filereader.good() ){				
+				
+				line.Begin(" "); if(line.End()) {line.ReadLine(filereader);continue;}
+				KVString det_name = line.Next(kTRUE);
+				if(!det_name.BeginsWith("CSI_")){line.ReadLine(filereader);continue;}
+				if(line.End()){line.ReadLine(filereader);continue;}
+				Double_t correction = line.Next(kTRUE).Atof();
+				
+				KVDBParameterSet* cps = new KVDBParameterSet(det_name.Data(),
+						"CsI Total Light Gain Correction", 1);
+				
+				cps->Print();
+				
+				cps->SetParameters(correction);
+				fCsILumCorr->AddRecord(cps);
+				cps->AddLink("Runs",run);
+				line.ReadLine(filereader);
+			}
+			filereader.close();
+		}
+		else{
+			Warning("ReadCsITotalLightGainCorrections","Run %d: no correction", run_num);
+		}
+		
+	}
+	
 }

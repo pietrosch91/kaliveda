@@ -112,9 +112,11 @@ void KVINDRADB5::Build()
    ReadCalibCsI();
    ReadPedestalList();
 	// read all available mean pulser data and store in tree
-	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
-	fPulserData->SetRunList( GetRuns() );
-	fPulserData->Build();
+// 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
+// 	fPulserData->SetRunList( GetRuns() );
+// 	fPulserData->Build();
+	
+	ReadCsITotalLightGainCorrections();
 }
 
 //____________________________________________________________________________
