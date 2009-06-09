@@ -1,0 +1,26 @@
+#!/bin/csh -f
+#----------------------------------------------------------------------
+#$Id: SetBatchRessources,v 1.4 2006/11/07 14:11:35 franklan Exp $
+#      SetBatchRessources : ask user to choose limits for
+#      CPU time, scratch disk and memory for BQS job.
+#	It is assumed that default values are affected for each
+#     before calling SetBatchRessources.
+#     These values are TIME, DISK and MEMORY
+#----------------------------------------------------------------------
+echo -n "Enter max CPU time per job (ss/mn:ss/hh:mn:ss) [$TIME] : "
+set time = $<
+if ( $time != "" ) then
+setenv TIME $time
+endif
+#
+echo -n "Enter max scratch disk per job (xKB/xMB/xGB) [$DISK] : "
+set diks = $<
+if ( $diks != "" ) then
+setenv DISK $diks
+endif
+#
+echo -n "Enter max memory per job (xKB/xMB/xGB) [$MEMORY] : "
+set mems = $<
+if ( $mems != "" ) then
+setenv MEMORY $mems
+endif

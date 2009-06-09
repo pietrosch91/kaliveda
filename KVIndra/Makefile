@@ -41,6 +41,7 @@ indra2root :
 	-cp INDRA2ROOT/veda2root_kali $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/veda2root_kali96 $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/veda2root_lanceur $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/SetBatchRessources $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
 	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
@@ -53,6 +54,7 @@ uninstall-indra2root :
 	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali 
 	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali96
 	-rm -f $(KVINSTALLDIR)/bin/veda2root_lanceur 
+	-rm -f $(KVINSTALLDIR)/bin/SetBatchRessources
 	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre.exe 
 	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
 	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
