@@ -99,13 +99,13 @@ KVClassFactory::KVClassFactory(const Char_t * classname,
    //      if templateFile="" (default), we expect base_class!="", and template files with names base_classTemplate.h and base_classTemplate.cpp
    //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
    //      the dummy classname "base_classTemplate" will be replaced everywhere by 'classname'
-   //      
+   //
    //      if templateFile="/absolute/path/classTemplate" we use classTemplate.h & classTemplate.cpp in the given directory.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
    //
    //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $KVROOT/KVFiles, $HOME or $PWD directories.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
-   
+
    SetClassName(classname);
    SetClassDesc(classdesc);
    SetBaseClass(base_class);
@@ -125,7 +125,7 @@ void KVClassFactory::SetTemplate(Bool_t temp, const Char_t* templateFile)
    //      and template files with names base_classTemplate.h and base_classTemplate.cpp
    //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
    //      the dummy classname "base_classTemplate" will be replaced everywhere by 'classname'
-   //      
+   //
    //      if templateFile="/absolute/path/classTemplate" we use classTemplate.h & classTemplate.cpp in the given directory.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
    //
@@ -134,7 +134,7 @@ void KVClassFactory::SetTemplate(Bool_t temp, const Char_t* templateFile)
 
    fWithTemplate = temp;
    fTemplateBase = templateFile;
-   if(temp){      
+   if(temp){
       //if we want to use template files for the new class,
       //we have to make sure they exist;
       if (!CheckTemplateFiles(GetBaseClass(), templateFile)) {
@@ -251,7 +251,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
       	file << "public " << fBaseClass.Data();
    }
    file << "\n{" << endl;
-   
+
    // private methods
    KVList* priv = fMethods.GetSubListWithMethod("private", "GetAccess");
    if( priv->GetEntries() ){
@@ -264,7 +264,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
       }
    }
    delete priv;
-   
+
    // protected methods
    KVList* prot = fMethods.GetSubListWithMethod("protected", "GetAccess");
    if( prot->GetEntries() ){
@@ -277,7 +277,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
       }
    }
    delete prot;
-   
+
    //public methods
    file << "\n   public:" << endl;
    //default ctor
@@ -292,10 +292,10 @@ void KVClassFactory::WriteClassDec(ofstream & file)
          file << "   " << line.Data() << endl;
       }
 	}
-	delete ctor;	
+	delete ctor;
 	// default dtor
    file << "   virtual ~" << fClassName.Data() << "();\n" << endl;
-   
+
    // protected methods
    KVList* pub = fMethods.GetSubListWithMethod("public", "GetAccess");
    if( pub->GetEntries() ){
@@ -309,7 +309,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
       }
    }
    delete pub;
-   
+
    file << "\n   ClassDef(" << fClassName.Data() << ",1)//";
    file << fClassDesc.Data() << endl;
    file << "};\n\n#endif" << endl;      //don't forget to close the preprocessor #if !!!
@@ -325,7 +325,6 @@ void KVClassFactory::WriteClassImp()
 
    file_cpp.open( GetImpFileName() );
 
-   WriteCVSTags(file_cpp);
    WriteWhoWhen(file_cpp);
 
    file_cpp << "#include \"" << fClassName.Data() << ".h\"" << endl;
@@ -363,11 +362,11 @@ void KVClassFactory::WriteClassImp()
       }
 	}
 	delete ctor;
-		
+
    file_cpp << fClassName.Data() << "::~" << fClassName.
        Data() << "()" << endl;
    file_cpp << "{\n   // Destructor\n}\n" << endl;
-   
+
    //write implementations of added methods
    if( fMethods.GetSize() ){
       KVString line;
@@ -380,7 +379,7 @@ void KVClassFactory::WriteClassImp()
 			}
       }
    }
-   
+
    file_cpp.close();
 
    cout << "<KVClassFactory::WriteClassImp> : File " << GetImpFileName() << " generated." << endl;
@@ -395,7 +394,6 @@ void KVClassFactory::WriteClassHeader()
 
    file_h.open( GetHeaderFileName() );
 
-   WriteCVSTags(file_h);
    WriteWhoWhen(file_h);
    WritePreProc(file_h);
    WriteClassDec(file_h);
@@ -424,7 +422,7 @@ void KVClassFactory::MakeClass(const Char_t * classname,
    //      if templateFile="" (default), we expect base_class!="", and template files with names base_classTemplate.h and base_classTemplate.cpp
    //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
    //      the dummy classname "base_classTemplate" will be replaced everywhere by 'classname'
-   //      
+   //
    //      if templateFile="/absolute/path/classTemplate" we use classTemplate.h & classTemplate.cpp in the given directory.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
    //
@@ -435,31 +433,31 @@ void KVClassFactory::MakeClass(const Char_t * classname,
    //      KVClassFactory::MakeClass("MyClass", "A brand new class", "TObject")
    //
    //will generate the following MyClass.h and MyClass.cpp files:
-//MyClass.h ======================================>>>>  
+//MyClass.h ======================================>>>>
 // /*
 // $Id        (<--------- CVS tags)
 // $Revision
 // $Date
 // */
-// 
+//
 // //Created by KVClassFactory on Fri Mar 24 23:52:54 2006    (<-------creation date)
 // //Author: John Frankland    (<----- full name of user who calls MakeClass method)
-// 
+//
 // #ifndef __MYCLASS_H
 // #define __MYCLASS_H
-// 
+//
 // #include <TObject.h>    (<----- header file for parent class, if necessary)
-// 
-// class MyClass : public TObject 
+//
+// class MyClass : public TObject
 // {
 //      public:
-// 
+//
 //      MyClass();
 //      virtual ~MyClass();
-// 
+//
 //      ClassDef(MyClass,1)//A brand new class    (<------- class description)
 // };
-// 
+//
 // #endif
 //<<<<<<<===========================================
 //
@@ -469,23 +467,23 @@ void KVClassFactory::MakeClass(const Char_t * classname,
 // $Revision
 // $Date
 // */
-// 
+//
 // //Created by KVClassFactory on Fri Mar 24 23:52:54 2006
 // //Author: John Frankland   (<----- full name of user who calls MakeClass method)
-// 
+//
 // #include "MyClass.h"
-// 
+//
 // ClassImp(MyClass)
-// 
+//
 // ////////////////////////////////////////////////////////////////////////////////
 // // A brand new class    (<------- class description)
 // ////////////////////////////////////////////////////////////////////////////////
-// 
+//
 // MyClass::MyClass()
 // {
 //      //Default constructor
 // }
-// 
+//
 // MyClass::~MyClass()
 // {
 //      //Destructor
@@ -503,7 +501,7 @@ void KVClassFactory::GenerateCode()
       Warning("GenerateCode", "Object is zombie. No code will be generated.");
       return;
    }
-   
+
    if (fWithTemplate) {
       WriteClassWithTemplateHeader();
       WriteClassWithTemplateImp();
@@ -536,13 +534,13 @@ Ssiz_t KVClassFactory::FindNextUncommentedLine(TString& file, Ssiz_t beg)
    // An uncommented line is a line outside of a "/* ... */" block
    // containing non-whitespace material before any '/*' or '//'.
    // If no uncommented line is found we return -1.
-   
+
    Ssiz_t pos = beg;
    Ssiz_t beg_cur_line = beg;
    Bool_t nonWS = kFALSE;
-   
+
    while( pos < file.Length() ){
-      
+
       if( file(pos) == ' ' || file(pos) == '\t' ){
          // skip whitespace & tab
          pos++;
@@ -555,7 +553,7 @@ Ssiz_t KVClassFactory::FindNextUncommentedLine(TString& file, Ssiz_t beg)
          beg_cur_line = pos;
       }
       else if( file(pos) == '/' ){
-         
+
          if( file(pos+1) == '*' ){
             // beginning of comment block
             // was there non-whitespace stuff before this ?
@@ -603,12 +601,11 @@ void KVClassFactory::WriteClassWithTemplateHeader()
 {
    //Writes the header file for a class using a template file.
    //The ClassDef line in the template file will be replaced with one corresponding to the new class.
-   
+
    ofstream file_h;
 
    file_h.open( GetHeaderFileName() );
 
-   WriteCVSTags(file_h);
    WriteWhoWhen(file_h);
    WritePreProc(file_h);
 
@@ -626,7 +623,7 @@ void KVClassFactory::WriteClassWithTemplateHeader()
    TString headFile;
    headFile.ReadFile(file_h_template);
    file_h_template.close();
-   
+
    //find ClassDef
    Ssiz_t class_ind;
    if ((class_ind = headFile.Index("ClassDef")) > -1) {
@@ -657,7 +654,7 @@ void KVClassFactory::WriteClassWithTemplateHeader()
          part_add += "\n";
       }
    }
-   
+
       //stick all parts together
       headFile = part1 + part_add + part2 + part3;
    }
@@ -680,7 +677,6 @@ void KVClassFactory::WriteClassWithTemplateImp()
 
    file_cpp.open( GetImpFileName() );
 
-   WriteCVSTags(file_cpp);
    WriteWhoWhen(file_cpp);
 
    file_cpp << "#include \"" << fClassName.Data() << ".h\"" << endl;
@@ -741,7 +737,7 @@ void KVClassFactory::WriteClassWithTemplateImp()
 Bool_t KVClassFactory::CheckTemplateFiles(const Char_t * base_class,
                                           const Char_t * templateFile)
 {
-   //Check that we have the necessary template files to generate the new class. 
+   //Check that we have the necessary template files to generate the new class.
    //
    //      if templateFile="" (default), we expect base_class!="", and template files with names base_classTemplate.h and base_classTemplate.cpp
    //      must be present in either $KVROOT/KVFiles, $HOME or $PWD directories.
@@ -785,7 +781,7 @@ void KVClassFactory::AddMethod(const KVClassMethod& kvcm)
 {
    //A new KVClassMethod object will be created and added to the class,
    //copying the informations held in kvcm
-   
+
    KVClassMethod* meth = new KVClassMethod(kvcm);
    fMethods.Add( meth );
 }
@@ -804,7 +800,7 @@ KVClassMethod* KVClassFactory::AddMethod(const Char_t* name, const Char_t* retur
 	// pointer to the new KVClassMethod object and use KVClassMethod::AddArgument(),
 	// KVClassMethod::SetMethodBody() in order to define arguments, method body, etc.
 	// instead of using the AddMethodArgument, AddMethodBody methods
-   
+
    KVClassMethod* meth = new KVClassMethod;
    fMethods.Add( meth );
    meth->SetName(name);
@@ -822,12 +818,12 @@ KVClassMethod* KVClassFactory::AddConstructor(const Char_t* argument_type,
       const Char_t* argument_name, const Char_t* default_value, const Char_t* access)
 {
    // Add a constructor with arguments to the class (by default, a default constructor is always defined).
-   // 
+   //
    // Optional argument 'access' determines access type (public, protected or private)    [default: "public"]
 	//
 	// If more than one argument is needed, user should keep the returned pointer
 	// to the new KVClassMethod object and use KVClassMethod::AddArgument() in order to add further arguments.
-   
+
    KVClassMethod* meth = new KVClassMethod;
    fMethods.Add( meth );
 	// use type of first argument as name of ctor method
@@ -848,7 +844,7 @@ void KVClassFactory::AddMethodArgument(const Char_t* method_name, const Char_t* 
    //User must give type of argument.
    //Optional argument argument_name gives name of argument (will be used in implementation declaration).
    //Optional argument default_value gives default value.
-   
+
    KVClassMethod* meth = (KVClassMethod*)fMethods.FindObjectByName(method_name);
    if( !meth ){
       Error("AddMethodArgument",
@@ -863,7 +859,7 @@ void KVClassFactory::AddMethodArgument(const Char_t* method_name, const Char_t* 
 void KVClassFactory::AddMethodBody(const Char_t* method_name, KVString &body)
 {
    //Set the body of the code for method 'method_name' added to the class using AddMethod.
-   
+
    KVClassMethod* meth = (KVClassMethod*)fMethods.FindObjectByName(method_name);
    if( !meth ){
       Error("AddMethodBody",
@@ -914,7 +910,7 @@ void KVClassFactory::Print(Option_t*) const
    cout << "---------> Implementation Includes" << endl;
    fImpInc.Print();
 }
-   
+
 
 ClassImp(KVClassMethod)
 /////////////////////////////////////////////////////////////////////////////////////
@@ -923,7 +919,7 @@ ClassImp(KVClassMethod)
 void KVClassMethod::WriteDeclaration(KVString&decl)
 {
    //Write declaration in the KVString object
-   
+
    if(fVirtual) decl = "virtual ";
    else decl = "";
 	if(!IsConstructor()){
@@ -949,7 +945,7 @@ void KVClassMethod::WriteDeclaration(KVString&decl)
 void KVClassMethod::WriteImplementation(KVString&decl)
 {
    //Write skeleton implementation in the KVString object
-   
+
    decl = GetReturnType();
 	if(!IsConstructor()){
    	decl += " ";
@@ -1014,9 +1010,9 @@ void KVClassMethod::Copy(TObject & obj)
 }
 
 //__________________________________________________________________________________
-void KVClassMethod::Print(Option_t* opt) const 
+void KVClassMethod::Print(Option_t* opt) const
 {
-   // print the KVClass method 
+   // print the KVClass method
    cout << "KVClassMethod object -----> " << GetName() << endl;
    fFields.Print();
    cout << "This method is " << GetAccess() << endl;
