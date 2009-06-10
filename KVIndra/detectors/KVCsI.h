@@ -46,6 +46,9 @@ class KVCsI:public KVDetector {
 	Char_t  fPinLaser;//number of pin laser used to control stability of crystal
 	Double_t fGainCorrection;//gain correction for total light output. by default equal to 1.0.
 
+	KVACQParam* fACQ_R;//'Rapide' acquisition parameter
+	KVACQParam* fACQ_L;//'Lente' acquisition parameter
+
    Double_t Calculate(UShort_t mode, Double_t rapide =
                       -1.0, Double_t lente = -1.0);
 
@@ -62,10 +65,10 @@ class KVCsI:public KVDetector {
    KVChIo *GetChIo() const;
 
    Float_t GetR() {
-      return GetACQData("R");
+      return fACQ_R->GetData();
    }
    Float_t GetL() {
-      return GetACQData("L");
+      return fACQ_L->GetData();
    }
    UShort_t GetMT() {
       return GetACQParam("T")->GetCoderData();

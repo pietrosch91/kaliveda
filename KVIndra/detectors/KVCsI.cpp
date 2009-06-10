@@ -47,6 +47,8 @@ void KVCsI::init()
    fCal = fCalZ1 = 0;
    fPinLaser = 0;
    fGainCorrection = 1;
+   fACQ_R = 0;
+   fACQ_L = 0;
 }
 
 //______________________________________________________
@@ -115,10 +117,21 @@ Double_t KVCsI::GetCorrectedLumiereTotale(Double_t rapide, Double_t lente)
 {
    // Returns total light output corrected for gain variations, if known (see KVINDRADB::ReadCsITotalLightGainCorrections
    // for how corrections are read into database, format of correction files, etc.).
-   // This is GetLumiereTotale(rapide,lente) * fGainCorrection.
-   // For more details, see GetLumiereTotale.
+   // Correction is calculated using
+   //      rap_corr = (rapide-piedR) * fGainCorrection + piedR
+   //      len_corr = (lente-piedL) * fGainCorrection + piedL
+   //      lum_corr = GetLumiereTotale( rap_corr, len_corr )
+   // For more details on arguments, etc., see GetLumiereTotale.
 
-   return GetLumiereTotale(rapide,lente)*fGainCorrection;
+   Double_t rap_corr;
+   Double_t len_corr;
+   rap_corr = (rapide < 0 ? GetR() : rapide);
+   len_corr = (lente < 0 ? GetL() : lente);
+   Double_t piedR = fACQ_R->GetPedestal();
+   Double_t piedL = fACQ_L->GetPedestal();
+   rap_corr = (rap_corr - piedR)*fGainCorrection + piedR;
+   len_corr = (len_corr - piedL)*fGainCorrection + piedL;
+   return GetLumiereTotale(rap_corr,len_corr);
 }
 
 //______________________________________________________________________________________________
@@ -146,6 +159,7 @@ Double_t KVCsI::Calculate(UShort_t mode, Double_t rapide, Double_t lente)
    //is zero and fLumTotStatus should give information on the problem (GetStatusLumiere).
 
    UInt_t ring = GetRingNumber();
+   UInt_t module = GetModuleNumber();
 
    //pedestal-corrected fast and slow components from raw data
    Double_t rap_corr;
@@ -158,8 +172,8 @@ Double_t KVCsI::Calculate(UShort_t mode, Double_t rapide, Double_t lente)
       fLumiereTotale = 0.0;
       return fLumiereTotale;
    }
-   rap_corr -= GetPedestal("R");
-   len_corr -= GetPedestal("L");
+   rap_corr -= fACQ_R->GetPedestal();
+   len_corr -= fACQ_L->GetPedestal();
 
    if (rap_corr < 0 || len_corr < 0) {
       fLumTotStatus = NEGATIVE_PEDESTAL_CORRECTED_VALUE;
@@ -187,9 +201,9 @@ Double_t KVCsI::Calculate(UShort_t mode, Double_t rapide, Double_t lente)
    Double_t tau = 20.;
    if (ring >= 11 && ring <= 16)
       tau = 60.;
-   if (ring == 16 && GetModuleNumber() == 5)
+   if (ring == 16 && module == 5)
       tau = 20.;
-   if (ring == 5 && GetModuleNumber() == 11)
+   if (ring == 5 && module == 11)
       tau = 60.;
 /****************************************************************************/
    Double_t tau0 = 390.;
@@ -327,10 +341,13 @@ void KVCsI::SetACQParams()
 {
    //Set acquisition parameters for this CsI.
    //Do not call before detector's name has been set.
+   //Initialises member pointers fACQ_R & fACQ_L for (fast) direct access.
 
    AddACQParam("R");
    AddACQParam("L");
    AddACQParam("T");
+   fACQ_R = GetACQParam("R");
+   fACQ_L = GetACQParam("L");
 }
 
 void KVCsI::SetCalibrators()
