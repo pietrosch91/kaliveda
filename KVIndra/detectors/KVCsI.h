@@ -42,14 +42,15 @@ class KVCsI:public KVDetector {
 
    KVLightEnergyCsI* fCalZ1; //! light-energy calibration for Z=1
    KVLightEnergyCsI* fCal; //! light-energy calibration for Z>1
-	
+
 	Char_t  fPinLaser;//number of pin laser used to control stability of crystal
-   
+	Double_t fGainCorrection;//gain correction for total light output. by default equal to 1.0.
+
    Double_t Calculate(UShort_t mode, Double_t rapide =
                       -1.0, Double_t lente = -1.0);
 
    enum { kLumiere, kTau };
- 
+
  protected:
 	void init();
 
@@ -72,6 +73,8 @@ class KVCsI:public KVDetector {
 
    Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
                              -1.0);
+   Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+                             -1.0);
    Double_t GetTauZero(Double_t rapide = -1.0, Double_t lente = -1.0);
    void SetLumiereTotale(Double_t lum) {
       fLumiereTotale = lum;
@@ -91,12 +94,10 @@ class KVCsI:public KVDetector {
 	Int_t GetPinLaser()
 	{
 		// Returns number of Pin Laser used to control stability of CsI detector.
-		
-		if(!fPinLaser) gIndra->SetPinLasersForCsI(); //if correspondance not set, do it now
 		return (Int_t)fPinLaser;
 	};
-	
-   ClassDef(KVCsI, 3)           // The CsI(Tl) detectors of the INDRA array
+
+   ClassDef(KVCsI, 4)           // The CsI(Tl) detectors of the INDRA array
 };
 
 #endif

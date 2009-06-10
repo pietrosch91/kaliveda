@@ -45,7 +45,8 @@ void KVCsI::init()
    fLumiereTotale = 0.0;
    fLumTotStatus = NOT_CALCULATED;
    fCal = fCalZ1 = 0;
-	fPinLaser = 0;
+   fPinLaser = 0;
+   fGainCorrection = 1;
 }
 
 //______________________________________________________
@@ -100,12 +101,24 @@ KVChIo *KVCsI::GetChIo() const
 
 Double_t KVCsI::GetLumiereTotale(Double_t rapide, Double_t lente)
 {
-   //Returns calculated total light output for a CsI detector from its pedestal-
-   //corrected measured fast and slow components.
-   //If no arguments are given, the detector's own ACQData parameters ("R" and "L")
-   //are used, with pedestal subtraction.
+   // Returns calculated total light output for a CsI detector from its pedestal-
+   // corrected measured fast and slow components.
+   // If no arguments are given, the detector's own ACQData parameters ("R" and "L")
+   // are used, with pedestal subtraction.
 
    return Calculate(kLumiere, rapide, lente);
+}
+
+//______________________________________________________________________________________________
+
+Double_t KVCsI::GetCorrectedLumiereTotale(Double_t rapide, Double_t lente)
+{
+   // Returns total light output corrected for gain variations, if known (see KVINDRADB::ReadCsITotalLightGainCorrections
+   // for how corrections are read into database, format of correction files, etc.).
+   // This is GetLumiereTotale(rapide,lente) * fGainCorrection.
+   // For more details, see GetLumiereTotale.
+
+   return GetLumiereTotale(rapide,lente)*fGainCorrection;
 }
 
 //______________________________________________________________________________________________
@@ -155,7 +168,7 @@ Double_t KVCsI::Calculate(UShort_t mode, Double_t rapide, Double_t lente)
    Double_t p0 = 400;
    Double_t p1 = 900;
    Double_t eps = 1.e-4;
-/* Cette variable n'est pas utilisee, et ne figure pas dans e.g. le fortran de la 4eme campagne 
+/* Cette variable n'est pas utilisee, et ne figure pas dans e.g. le fortran de la 4eme campagne
  Float_t pre=0.4318;
 */
    Double_t c1 = 1.5;
@@ -164,7 +177,7 @@ Double_t KVCsI::Calculate(UShort_t mode, Double_t rapide, Double_t lente)
    Double_t x2;
    Double_t x3;
    Double_t bx;
-/****************************************************************************	
+/****************************************************************************
 * Definition of PM rise-time constant tau
 * Comment based on a note from Bernard Borderie:
 *   rings 11-16 use PM bases with a different component, thus tau is 60 nsec
@@ -363,10 +376,10 @@ Double_t KVCsI::GetCorrectedEnergy(UInt_t Z, UInt_t A, Double_t lum, Bool_t tran
    //not valid).
 
    KVLightEnergyCsI* calib = 0;
-   
+
    if( Z==1 && fCalZ1 ) calib = fCalZ1;
    else calib = fCal;
-   
+
    if( calib && calib->GetStatus() ){
       if (lum < 0.) {
          //light not given - calculate from R and L components
@@ -375,7 +388,7 @@ Double_t KVCsI::GetCorrectedEnergy(UInt_t Z, UInt_t A, Double_t lum, Bool_t tran
          //light given as argument - force "OK" status for light
          fLumTotStatus = NO_GAIN_CORRECTION;
       }
-         
+
       //check light calculation status
       if (LightIsGood()) {
          calib->SetZ(Z);
@@ -397,10 +410,10 @@ Double_t KVCsI::GetLightFromEnergy(UInt_t Z, UInt_t A, Double_t E)
    //Returns -1 in case of problems (no calibration available)
 
    KVLightEnergyCsI* calib = 0;
-   
+
    if( Z==1 && fCalZ1 ) calib = fCalZ1;
    else calib = fCal;
-   
+
    if( calib && calib->GetStatus() ){
       E = (E < 0. ? GetEnergy() : E);
       calib->SetZ(Z);
