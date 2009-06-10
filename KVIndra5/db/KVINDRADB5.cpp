@@ -28,21 +28,21 @@ ClassImp(KVINDRADB5)
 //   Base de donnee pour la 5e campagne INDRA.
 //   Cette base contiendra la liste:
 //         - des runs (unique)
-//         - des DLT  (unique) 
+//         - des DLT  (unique)
 //         - des systemes (unique)
 //         - des pressions des chios
 //         - des parametres de calibration Canal-Volts
 //         - des parametres de calibration Volt-Energies des ChIo & Si
 //         - des parametres de calibration du defaut d'ionisation des Si
-//         - des pics de calibration alpha pour le premier pic thoron 
-//         - des pics de calibration alpha pour le deuxieme pic thoron 
-//         - des pics de calibration elastique 7 MeV/A 
+//         - des pics de calibration alpha pour le premier pic thoron
+//         - des pics de calibration alpha pour le deuxieme pic thoron
+//         - des pics de calibration elastique 7 MeV/A
 //         - des pics de calibration elastique 20 MeV/A
-//         
-//   
+//
+//
 //    la mention (unique) signifie que 2 enregistrements ne peuvent avoir
 //    le meme nom
-//    Ce ne peut etre le cas des parametres de calibration puisque plusieurs 
+//    Ce ne peut etre le cas des parametres de calibration puisque plusieurs
 //    peuvent exister pour un meme detecteur et que les parametres portent le nom
 //    du detecteur correspondant
 //
@@ -112,10 +112,10 @@ void KVINDRADB5::Build()
    ReadCalibCsI();
    ReadPedestalList();
 	// read all available mean pulser data and store in tree
-// 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
-// 	fPulserData->SetRunList( GetRuns() );
-// 	fPulserData->Build();
-	
+ 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
+ 	fPulserData->SetRunList( GetRuns() );
+ 	fPulserData->Build();
+
 	ReadCsITotalLightGainCorrections();
 }
 
@@ -149,7 +149,7 @@ void KVINDRADB5::GoodRunLine()
 		CREATE IT.
 	*********************************************/
    KVDBTape *tape = 0;
-   //tape number 
+   //tape number
    Int_t tape_n = csv_line->GetIntField("Tape");
    //already exists ?
    tape = GetTape(tape_n);
@@ -317,9 +317,9 @@ void KVINDRADB5::ReadChannelVolt()
    }                            //reading the file
    delete par_list;
    fin.close();
-	
+
 	/********** ETALONS ***************/
-	
+
    ifstream fin2;
    if (!OpenCalibFile("ElectronicCalibration.Etalons", fin2)) {
       Error("ReadChannelVolt()", "Could not open file %s",
@@ -332,7 +332,7 @@ void KVINDRADB5::ReadChannelVolt()
    rr_number = 0;
    prev_rr = kFALSE;     // was the last line a run range indication ?
 	par_list = new TList;
-	
+
    while (fin2.good()) {         //reading the file
       sline.ReadLine(fin2);
       if (fin2.eof()) {          //fin du fichier
@@ -619,7 +619,7 @@ void KVINDRADB5::ReadCalibCsI()
    //Read CsI Light-Energy calibrations for Z=1 and Z>1
    //The parameter filenames are taken from the environment variables
    //        INDRA_camp5.INDRADB.CalibCsI.Z=1
-   //        INDRA_camp5.INDRADB.CalibCsI.Z>1  
+   //        INDRA_camp5.INDRADB.CalibCsI.Z>1
    //These calibrations are valid for all runs
    ReadLightEnergyCsI("Z=1", fLitEnerCsIZ1);
    ReadLightEnergyCsI("Z>1", fLitEnerCsI);
