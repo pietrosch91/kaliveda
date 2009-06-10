@@ -1,5 +1,4 @@
 /***************************************************************************
-$Id: KVINDRADB.cpp,v 1.37 2009/03/11 14:18:18 franklan Exp $
                           kvINDRADB.cpp  -  description
                              -------------------
     begin                : 9/12 2003
@@ -63,7 +62,7 @@ void KVINDRADB::init()
    fTapes = AddTable("Tapes", "List of data storage tapes");
 	fCsILumCorr = AddTable("CsIGainCorr", "CsI gain corrections for total light output");
    fGains = 0;
-	
+
 	fPulserData = 0;
 }
 
@@ -194,13 +193,13 @@ void KVINDRADB::ReadSystemList()
 
    TString line;
    KVDBSystem* sys;
-   
+
    char next_char = fin.peek();
    while( next_char!='+' && fin.good() ){
       line.ReadLine(fin, kFALSE);
       next_char = fin.peek();
    }
-   
+
    while( fin.good() && !fin.eof() && next_char=='+' ){
       sys = new KVDBSystem("NEW SYSTEM");
       AddSystem(sys);
@@ -302,7 +301,7 @@ KVList *KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector * detector,
 
             KVDetector *pic_det =
                 //the chio's in the file are written with the
-                //ring,module of the Si/CsI in coinc    
+                //ring,module of the Si/CsI in coinc
                 sign > ChIo_T ? gIndra->GetDetectorByType(cour, modu, sign)
                 : gIndra->GetChIoOf(gIndra->
                                     GetDetectorByType(cour, modu, CsI_R));
@@ -569,7 +568,7 @@ void KVINDRADB::ReadChIoPressures()
    UInt_t frun = 0, lrun = 0;
    UInt_t run_ranges[MAX_NUM_RUN_RANGES][2];
    UInt_t rr_number = 0;
-   Bool_t prev_rr = kFALSE;     //was the previous line a run range indication ? 
+   Bool_t prev_rr = kFALSE;     //was the previous line a run range indication ?
    Bool_t read_pressure = kFALSE; // have we read any pressures recently ?
 
    KVDBChIoPressures *parset=0;
@@ -577,25 +576,25 @@ void KVINDRADB::ReadChIoPressures()
 
          //any ChIo not in list is assumed absent (pressure = 0)
          Float_t pressure[5] = { 0, 0, 0, 0, 0 };
-         
+
    while (fin.good()) {         // parcours du fichier
 
       sline.ReadLine(fin);
       if (sline.BeginsWith("Run Range :")) {    // run range found
          if (!prev_rr) {        // New set of run ranges to read
-            
+
             //have we just finished reading some pressures ?
             if (read_pressure){
                parset = new KVDBChIoPressures(pressure);
                GetTable("ChIo Pressures")->AddRecord(parset);
-               par_list->Add(parset);               
+               par_list->Add(parset);
                LinkListToRunRanges(par_list, rr_number, run_ranges);
                par_list->Clear();
                for(register int zz=0;zz<5;zz++) pressure[zz]=0.;
                read_pressure=kFALSE;
             }
             rr_number = 0;
-            
+
          }
          if (sscanf(sline.Data(), "Run Range : %u %u", &frun, &lrun) != 2) {
             Warning("ReadChIoPressures()",
@@ -618,7 +617,7 @@ void KVINDRADB::ReadChIoPressures()
             if (read_pressure){
                parset = new KVDBChIoPressures(pressure);
                GetTable("ChIo Pressures")->AddRecord(parset);
-               par_list->Add(parset);               
+               par_list->Add(parset);
                LinkListToRunRanges(par_list, rr_number, run_ranges);
                par_list->Clear();
                for(register int zz=0;zz<5;zz++) pressure[zz]=0.;
@@ -626,9 +625,9 @@ void KVINDRADB::ReadChIoPressures()
             }
       }
       if (sline.BeginsWith("ChIos")) {  //line with chio pressure data
-         
+
          prev_rr = kFALSE;
-               
+
          //take off 'ChIos' and any leading whitespace
          sline.Remove(0, 5); sline.Strip(TString::kLeading);
          //split up ChIo ring numbers and pressure
@@ -636,9 +635,9 @@ void KVINDRADB::ReadChIoPressures()
          TString chio = ((TObjString*)(*toks)[0])->String();
          KVString press = ((TObjString*)(*toks)[1])->String();
          delete toks;
-         
+
          read_pressure=kTRUE;
-         
+
          if( chio == "2_3" ) pressure[0] = press.Atof();
          else if( chio == "4_5" ) pressure[1] = press.Atof();
          else if( chio == "6_7" ) pressure[2] = press.Atof();
@@ -846,7 +845,7 @@ void KVINDRADB::WriteSystemsFile() const
    //The actual name of the file is given by the value of the environment variable
    //[dataset_name].INDRADB.Systems (if it exists), otherwise the value of
    //INDRADB.Systems is used. The file is written in the
-   //$KVROOT/[dataset_directory] directory.   
+   //$KVROOT/[dataset_directory] directory.
 
    ofstream sysfile;
    KVBase::SearchAndOpenKVFile(GetDBEnv("Systems"), sysfile, fDataSet.Data());
@@ -873,7 +872,7 @@ void KVINDRADB::Save(const Char_t* what)
    if( !strcmp(what, "Systems") ) WriteSystemsFile();
    else if( !strcmp(what, "Runlist") ) WriteRunListFile();
 }
-      
+
 //__________________________________________________________________________________________________________________
 
 Bool_t KVINDRADB::OpenCalibFile(const Char_t * type, ifstream & fs) const
@@ -892,7 +891,7 @@ Bool_t KVINDRADB::OpenCalibFile(const Char_t * type, ifstream & fs) const
    //
    //INDRA_camp5.INDRADB.Pedestals:      Pedestals5.dat
    //
-   //where 'INDRA_camp5' is the name of the dataset in question. 
+   //where 'INDRA_camp5' is the name of the dataset in question.
    //GetDBEnv() always returns the correct filename for the currently active dataset.
 
    return KVBase::SearchAndOpenKVFile(GetDBEnv(type), fs, fDataSet.Data());
@@ -906,10 +905,10 @@ const Char_t *KVINDRADB::GetDBEnv(const Char_t * type) const
    //then "INDRADB.type" if no dataset-specific value is found.
 
    if (!gDataSetManager)
-      return 0;
+      return "";
    KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
-      return 0;
+      return "";
    return ds->GetDataSetEnv(Form("INDRADB.%s", type));
 }
 
@@ -948,11 +947,13 @@ void KVINDRADB::Build()
 
    ReadSystemList();
    ReadChIoPressures();
-	
+
 	// read all available mean pulser data and store in tree
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
 	fPulserData->SetRunList( GetRuns() );
 	fPulserData->Build();
+
+	ReadCsITotalLightGainCorrections();
 }
 
 
@@ -972,10 +973,10 @@ void KVINDRADB::ReadNewRunList()
 
    KVString line;
    KVINDRADBRun* run;
-         
+
    while( fin.good() && !fin.eof() ){
       line.ReadLine( fin );
-      
+
       if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
          run = new KVINDRADBRun;
          run->ReadRunListLine( line );
@@ -1167,4 +1168,94 @@ void KVINDRADB::ReadObjects(TFile *file)
 
 void KVINDRADB::ReadCsITotalLightGainCorrections()
 {
+	// Read in gain corrections for CsI total light output.
+	// Looks for directory
+	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir]
+	// where [lumcorrdir] is defined in .kvrootrc by one of the two variables
+	//    INDRADB.CsILumCorr:   [lumcorrdir]
+	//    [dataset name].INDRADB.CsILumCorr:   [lumcorrdir]
+	// the latter value takes precedence for a given dataset over the former, generic, value.
+	//
+	// If the directory is not found we look for a compressed archive file
+	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir].tgz
+	//
+	// The files in the directory containing the corrections for each run have
+	// names with the format given by
+	//    INDRADB.CsILumCorr.FileName:   [format]
+	//    [dataset name].INDRADB.CsILumCorr.FileName:   [format]
+	// the latter value takes precedence for a given dataset over the former, generic, value.
+	// The [format] should include a placeholder for the run number, e.g.
+	//    INDRADB.CsILumCorr.FileName:   run%04d.cor
+	//    INDRADB.CsILumCorr.FileName:   Run%d.corrLum
+	// etc. etc.
+	//
+	// The contents of each file should be in the following format:
+	//    CSI_0221_R    1.00669
+	//    CSI_0321_R    1.01828
+	//    CSI_0322_R    1.00977
+	// i.e.
+	//   name_of_detector   correction
+	//Any other lines are ignored.
+
+
+	// get name of directory for this dataset from .kvrootrc
+	TString search;
+	search = GetDBEnv("CsILumCorr");
+	if( search=="" ){
+		Error("ReadCsITotalLightGainCorrections", "INDRADB.CsILumCorr is not defined. Check .kvrootrc files.");
+	}
+
+	KVTarArchive gain_cor(search.Data(), GetDataSetDir());
+	if(!gain_cor.IsOK()){
+		Info("ReadCsITotalLightGainCorrections","No corrections found");
+		return;
+	}
+
+	TString filefmt;
+	filefmt = GetDBEnv("CsILumCorr.FileName");
+	if( filefmt=="" ){
+		Error("ReadCsITotalLightGainCorrections", "INDRADB.CsILumCorr.FileName is not defined. Check .kvrootrc files.");
+	}
+
+	// boucle sur tous les runs
+	TIter next_run(GetRuns());
+	KVINDRADBRun* run=0;
+	while( (run=(KVINDRADBRun*)next_run()) ){
+
+		Int_t run_num = run->GetNumber();
+		TString filepath; filepath.Form(filefmt.Data(),run_num);
+		filepath.Prepend("/");
+		filepath.Prepend(search.Data());
+		ifstream filereader;
+		if( KVBase::SearchAndOpenKVFile(filepath, filereader, fDataSet.Data()) ){
+
+			Info("ReadCsITotalLightGainCorrections",
+					"Reading run %d", run_num);
+
+			KVString line;
+			line.ReadLine(filereader);
+			while( filereader.good() ){
+
+				line.Begin(" "); if(line.End()) {line.ReadLine(filereader);continue;}
+				KVString det_name = line.Next(kTRUE);
+				if(!det_name.BeginsWith("CSI_")){line.ReadLine(filereader);continue;}
+				if(line.End()){line.ReadLine(filereader);continue;}
+				Double_t correction = line.Next(kTRUE).Atof();
+
+				KVDBParameterSet* cps = new KVDBParameterSet(det_name.Data(),
+						"CsI Total Light Gain Correction", 1);
+
+				cps->SetParameters(correction);
+				fCsILumCorr->AddRecord(cps);
+				cps->AddLink("Runs",run);
+				line.ReadLine(filereader);
+			}
+			filereader.close();
+		}
+		else{
+			Warning("ReadCsITotalLightGainCorrections","Run %d: no correction", run_num);
+		}
+
+	}
+
 }

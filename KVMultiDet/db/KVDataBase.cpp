@@ -21,6 +21,7 @@ $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
 #include "TROOT.h"
 #include "Riostream.h"
 #include "KVDataBaseBrowser.h"
+#include "KVDataSetManager.h"
 #include "TPluginManager.h"
 
 KVDataBase *gDataBase;
@@ -317,3 +318,24 @@ void KVDataBase::ReadObjects(TFile*)
 	
 	AbstractMethod("ReadObjects");
 }
+
+//__________________________________________________________________________________________________________________
+
+const Char_t *KVDataBase::GetDataSetDir() const
+{
+   // Returns full path to directory associated to the
+	// dataset associated with this database, i.e. the full path to
+	//
+	//    $KVROOT/KVFiles/[dataset name]
+	//
+	// Use this when building the database instead of gDataSet->GetDataSetDir,
+	// as gDataSet will not yet be positioned correctly.
+
+   if (!gDataSetManager)
+      return "";
+   KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
+   if (!ds)
+      return "";
+   return ds->GetDataSetDir();
+}
+

@@ -62,6 +62,8 @@ class KVDataBase:public TFolder {
 	
 	virtual void WriteObjects(TFile*);
 	virtual void ReadObjects(TFile*);
+	
+	const Char_t* GetDataSetDir() const;
 
     ClassDef(KVDataBase, 1)     // Base Class for a database of parameters
 };

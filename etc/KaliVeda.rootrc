@@ -434,6 +434,9 @@ INDRADB.ChIoSiVoltMeVCalib:     CalibMeVVoltChIoSi.dat
 # Default names for files containing CsI calibrations for each dataset.
 INDRADB.CalibCsI.Z=1:            CsICalibZ1.dat
 INDRADB.CalibCsI.Z>1:            CsICalibZ2.dat
+# Stability corrections for gain of CsI total light output
+INDRADB.CsILumCorr:          corrLum
+INDRADB.CsILumCorr.FileName:    run%d.corrLum
 # Run - gain correspondence for detectors
 INDRADB.Gains:    Gains.dat
 # VAMOS scalers for INDRA-VAMOS experiments
@@ -697,14 +700,6 @@ KVNucleus.MassTable:      $(KVROOT)/KVFiles/data/pace2_2001.data
 # parametrisation set to KVNucleus::kEALMass (2) 
 # KVINDRAReconNuc.MassFormula:        0
 # INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
-
-# Automatic checking for available updates of current sources.
-# You need to have configured access to the KaliVeda CVS repository (either anonymously or with login)
-# for this to work. Setting this variable to "yes" means that every time that KVBase::InitEnvironment
-# is called, we check the source tree corresponding to the current build against the repository.
-# If new versions of files are available, we perform the update and then rebuild
-# (this means forcing the termination of the current application)
-# KaliVeda.AutoUpdateCheck:        yes
 
 # Default mass formula used by KVNucleus to calculate A from Z
 # Possibile values are:
