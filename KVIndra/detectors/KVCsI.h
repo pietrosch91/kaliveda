@@ -96,6 +96,14 @@ class KVCsI:public KVDetector {
 		// Returns number of Pin Laser used to control stability of CsI detector.
 		return (Int_t)fPinLaser;
 	};
+	void SetTotalLightGainCorrection(Double_t c)
+	{
+	    fGainCorrection = c;
+	};
+	Double_t GetTotalLightGainCorrection() const
+	{
+	    return fGainCorrection;
+	};
 
    ClassDef(KVCsI, 4)           // The CsI(Tl) detectors of the INDRA array
 };

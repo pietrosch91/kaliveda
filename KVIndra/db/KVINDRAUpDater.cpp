@@ -16,6 +16,7 @@ $Author: franklan $
 #include "KVChIo.h"
 #include "KVBase.h"
 #include "KVSilicon.h"
+#include "KVCsI.h"
 
 ClassImp(KVINDRAUpDater)
 //////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ void KVINDRAUpDater::SetCalibrationParameters(UInt_t run)
    //      set calibration parameters for the run
    //      set pedestals for the run
    //      set PHD parameters of silicon detectors for run
-   
+
    cout << "Setting calibration parameters of INDRA array for run " << run << ":" <<
        endl;
    KVDBRun *kvrun = gIndraDB->GetRun(run);
@@ -100,7 +101,7 @@ void KVINDRAUpDater::SetIdentificationParameters(UInt_t run)
    // Set identification parameters for this run.
    // Will call gMultiDetArray->InitializeIDTelescopes() in order to initialize
    // identifications & set status IsReadyForID() of each ID telescope for run.
-   
+
    cout << "Setting identification parameters of INDRA array for run " << run << ":" <<
        endl;
    KVDBRun *kvrun = gIndraDB->GetRun(run);
@@ -184,7 +185,7 @@ void KVINDRAUpDater::SetIDGrids()
    //Global ID Grid Manager gIDGridManager and global multidetector array gMultiDetArray
    //are used to set identification grids for the array
    //Any previously set ID grids are first removed from each identification telescope
-   
+
    cout << "--> Setting Identification Grids" << endl;
    TIter next_idt(gMultiDetArray->GetListOfIDTelescopes());
    KVIDTelescope *idt;
@@ -308,7 +309,7 @@ void KVINDRAUpDater::SetVoltEnergyChIoSiParameters(KVDBRun * kvrun)
 
    TString str;
 
-   // Setting Channel-Volts calibration parameters 
+   // Setting Channel-Volts calibration parameters
    while ((kvps = (KVDBParameterSet *) next_ps())) {    // boucle sur les parametres
       kvd = gIndra->GetDetector(kvps->GetName());
       if (!kvd)
@@ -337,6 +338,7 @@ void KVINDRAUpDater::SetCalibParameters(KVDBRun * run)
    SetChVoltParameters(run);
    SetVoltEnergyChIoSiParameters(run);
    SetLitEnergyCsIParameters(run);
+   SetCsIGainCorrectionParameters(run);
 }
 
 //____________________________________________________________________________________
@@ -348,6 +350,52 @@ void KVINDRAUpDater::SetPedestals(KVDBRun * kvrun)
    SetChIoSiPedestals(kvrun);
    SetCsIPedestals(kvrun);
 
+}
+
+//______________________________________________________________________________
+
+void KVINDRAUpDater::SetCsIGainCorrectionParameters(KVDBRun * kvrun)
+{
+    // Sets KVCsI::fGainCorrection data member, used by KVCsI::GetCorrectedLumiereTotale
+    // to return the total light output corrected by a run-dependent factor.
+    // We set all detectors' correction to 1, then set the corrections defined for this
+    // run, if any.
+
+    TIter next_csi(gIndra->GetListOfCsI());
+    KVCsI* csi;
+    while( (csi = (KVCsI*)next_csi()) ){
+        csi->SetTotalLightGainCorrection(1.0);
+    }
+
+    KVRList *param_list = kvrun->GetLinks("CsIGainCorr");
+    if (!param_list){
+      return;
+   }
+   if (!param_list->GetSize()){
+      return;
+   }
+
+   TIter next_ps(param_list);
+   KVDBParameterSet *dbps;
+   while( (dbps = (KVDBParameterSet*)next_ps()) ){
+
+       csi = (KVCsI*)gIndra->GetDetector( dbps->GetName() );
+       if( !csi ){
+           // the name of the parameter set should be the name of the detector;
+           // however, it may be the name of an acquisition parameter associated with
+           // the detector!
+           KVACQParam *a = gIndra->GetACQParam( dbps->GetName() );
+           if( a ) csi = (KVCsI*)a->GetDetector();
+           // still no good ?
+           if( !csi ){
+               Warning("SetCsIGainCorrectionParameters",
+               "Cannot find detector associated with %s", dbps->GetName());
+               continue;
+           }
+       }
+       csi->SetTotalLightGainCorrection( dbps->GetParameter() );
+       Info("SetCsIGainCorrectionParameters", "%s gain correction = %f", csi->GetName(), csi->GetTotalLightGainCorrection());
+   }
 }
 
 //______________________________________________________________________________
@@ -392,7 +440,7 @@ void KVINDRAUpDater::SetLitEnergyCsIParameters(KVDBRun * kvrun)
          }
       }                         //detector found
    }                            //boucle sur les parameters
-   
+
    // Setting Light- Energy CsI calibration parameters for Z>1
    param_list = kvrun->GetLinks("Light-Energy CsI Z>1");
 
@@ -589,12 +637,12 @@ void KVINDRAUpDater::SetPHDs(KVDBRun * kvrun)
    //is set, then the corresponding file (which must be in $KVROOT/KVFiles/name_of_dataset)
    //is read and used to set the (Moulton) pulse-height defect parameters of all silicon
    //detectors.
-      
+
    TString phdfile = gIndraDB->GetDBEnv("PHD");
-   
+
    if( phdfile != "" ){
       cout << "--> Setting Si pulse height defect parameters (Moulton)" << endl;
-      
+
       //get full path to file
       TString path;
       if( KVBase::SearchKVFile( phdfile.Data(), path, gDataSet->GetName() ) ){
