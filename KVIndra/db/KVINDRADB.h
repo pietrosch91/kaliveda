@@ -53,9 +53,14 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    KVDBTable *fGains;           //(optional) table of detector gains, in case they change from run to run
    KVDBTable *fTapes;           //-> table of data tapes
    KVDBTable *fCsILumCorr;      //-> table of CsI gain corrections for total light output
+   KVDBTable *fPedestals;       //-> table of pedestal files
+   KVDBTable *fChanVolt;        //-> ChIo/Si channel-volt calibration parameters
+   KVDBTable *fVoltMeVChIoSi;   //-> ChIo/Si volt-energy calibration
+   KVDBTable *fLitEnerCsI;      //->CsI light-energy calibration for Z>1
+   KVDBTable *fLitEnerCsIZ1;      //->CsI light-energy calibration for Z=1
 
 	KVINDRAPulserDataTree *fPulserData;  //! mean values of pulsers for all detectors & runs
-	
+
    virtual void LinkListToRunRanges(TList * list, UInt_t rr_number,
                                     UInt_t run_ranges[][2]);
    virtual void LinkRecordToRunRanges(KVDBRecord * rec, UInt_t rr_number,
@@ -66,6 +71,11 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    virtual void ReadGainList();
    virtual void ReadChIoPressures();
 	virtual void ReadCsITotalLightGainCorrections();
+   virtual void ReadChannelVolt();
+   virtual void ReadVoltEnergyChIoSi();
+   virtual void ReadLightEnergyCsI(const Char_t*,KVDBTable*);
+   virtual void ReadCalibCsI();
+   virtual void ReadPedestalList();
 
    //calibration peaks database
    Bool_t OpenCalibrationPeakFile();
@@ -139,10 +149,10 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    inline virtual void cd();
 	virtual void WriteObjects(TFile*);
 	virtual void ReadObjects(TFile*);
-	
+
 	KVINDRAPulserDataTree* GetPulserData() { return fPulserData; };
 
-   ClassDef(KVINDRADB, 3)       //DataBase of parameters for an INDRA campaign
+   ClassDef(KVINDRADB, 4)       //DataBase of parameters for an INDRA campaign
 };
 
 //........ global variable

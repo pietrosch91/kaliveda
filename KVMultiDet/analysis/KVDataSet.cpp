@@ -327,7 +327,15 @@ const Char_t* KVDataSet::GetFullPathToDB()
 
 void KVDataSet::SaveDataBase()
 {
-   //Write the database to disk
+   // Write the database to disk (ROOT file).
+   // It will be written in the directory
+   //   $KVROOT/db/[dataset name]
+   // If the directory does not exist, it will be created.
+   //
+   // # Default name of database file containing informations on runs, systems, calibration parameters etc.
+   // DataSet.DatabaseFile:        DataBase.root
+   // # Default name of database object in file
+   // DataSet.DatabaseName:        DataBase
 
    TString dbfile_fullpath = GetFullPathToDB();
    TString tmp = gSystem->DirName( dbfile_fullpath.Data() );
@@ -335,9 +343,19 @@ void KVDataSet::SaveDataBase()
    if( gSystem->AccessPathName( tmp.Data() ) ){
       //make directory db/[dataset]
       if( gSystem->mkdir( tmp.Data() )==-1 ){
-         Error("SaveDataBase", "Cannot create directory %s required to save database",
-               tmp.Data());
-         return;
+          //is $KVROOT/db missing ?
+          TString tmp2 = gSystem->DirName(tmp.Data());
+          if( gSystem->mkdir(tmp2.Data())==-1){
+            Error("SaveDataBase", "Cannot create directory %s required to save database",
+               tmp2.Data());
+            return;
+          }
+          //try again
+          if( gSystem->mkdir( tmp.Data() )==-1 ){
+              Error("SaveDataBase", "Cannot create directory %s required to save database",
+              tmp.Data());
+              return;
+          }
       }
    }
 
@@ -359,7 +377,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    if (!fDataBase) {
       Error("WriteDBFile", "Database has not been built");
 		return;
-   } 
+   }
    fDBase = new TFile(full_path_to_dbfile, "recreate");
    fDBase->cd();                //set as current directory (maybe not necessary)
    fDataBase->Write(GetDBName());    //write database to file with given name
@@ -422,13 +440,13 @@ void KVDataSet::OpenDataBase(Option_t * opt)
          fDBase = 0;
       }
       fDataBase = KVDataBase::MakeDataBase(GetDBName());
-      SaveDataBase();		
+      SaveDataBase();
 		if(fDataBase && is_glob_db) fDataBase->cd();
    }
 	else if( !fDataBase ){
 		// if database is not in memory at this point, we need to
 		// open the database file and read in the database
-		
+
 		//load plugin for database
 		if (!LoadPlugin("KVDataBase", GetName())) {
 			Error("GetDataBase", "Cannot load required plugin library");
@@ -641,7 +659,7 @@ void KVDataSet::cd()
    //At the same time, the data repository, dataset manager and database associated with
    //this dataset also become the "active" ones (pointed to by the respective global
    //pointers, gDataRepository, gDataBase, etc. etc.)
-	
+
    gDataSet = this;
    fRepository->cd();
    GetDataBase()->cd();
@@ -1503,7 +1521,7 @@ Bool_t KVDataSet::DataBaseNeedsUpdate()
 	// Returns kTRUE if database needs to be regenerated from source files,
 	// i.e. if source files in $KVROOT/KVFiles/"name_of_dataset"
 	// are more recent than DataBase.root
-	
+
 	TString pwd = gSystem->pwd();
 	gSystem->cd( GetDataSetDir() );
 	TString cmd = "make -q";
