@@ -146,11 +146,12 @@ $(DATE_RECORD_FILE) :
 	else :; fi
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
+	@echo 'Updating KVConfig.h'
 	$(MAKE) -f Makefile.compat
-	-cp $@ $(KVINSTALLDIR)/include/
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \
+	  echo 'Updating ROOT_VERSION_TAG'; \
 	  rm -f .root_v*; \
 	  touch $@; \
 	else :; fi
