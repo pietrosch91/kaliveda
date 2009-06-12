@@ -190,14 +190,13 @@ Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
 # with "option" = "all" or "any".
 #
-# In addition with this 2 option, it is possible that the test include the pedestal value
+# In addition with these 2 options, it is possible that the test include the pedestal value
 # using the "P" letter in front of "all" or "any"
 # Exemple : the "Pall" option means that all of the associated acquisition parameters must be
 # fired ABOVE the pedestal value.
 #
 # By default for INDRA data, "option" = "all", which means that all of the associated
-# acquisition parameters must be fired (including the marqueur de temps) in order for
-# a particle to be reconstructed from the detector:
+# acquisition parameters must be fired in order for a particle to be reconstructed from the detector:
 Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 # To change this condition to the less strict "any" (meaning that KVDetector::Fired() returns
 # kTRUE if the detector has at least one fired acquisition parameter, of any type), either
@@ -207,24 +206,27 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 # (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
 # due to a bad configuration of the trigger)
-
 INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
+# You can "fine-tune" what is meant by "all" acquisition parameters using the following
+# variables. For each detector type, give a comma-separated list of the acquisition
+# parameter types to be taken into account in the KVDetector::Fired method.
+# Only those parameters which appear in the list will be considered:
+#  then "all" means => all parameters in the list
+#  and  "any" means => any of the parameters in the list
+# These lists are read during construction of multidetector arrays (KVMultiDetArray::Build),
+# the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
+# of the array.
+KVDetector.Fired.ACQParameterList.CI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
+KVDetector.Fired.ACQParameterList.CSI: R,L,T
 
-# The following variable controls the parameter list which are concerned
-# for the reconstruction of the particles using raw data
-# In the detector in which the particle stops,
-# By default for INDRA data, all acquisition parameters (3) are concerned:
-Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.SI75: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.CSI: R,L,T
-
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SI75: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.CSI: R,L
+INDRA_e475s.KVDetector.Fired.ACQParameterList.CI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
 
 
 # By default the file containing reconstructed events will be written in the same data repository

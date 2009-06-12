@@ -42,6 +42,7 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #include "KVRList.h"
 #include "KVNucleus.h"
 #include "KVACQParam.h"
+#include "Binary_t.h"
 
 class KVDetectorBrowser;
 class KVModule;
@@ -98,7 +99,9 @@ Double_t *par_res;//!array of params for eres function
 
 	Double_t fTotThickness; //! used to store value calculated by GetTotalThicknessInCM
 	Double_t fDepthInTelescope; //! used to store depth of detector in parent telescope
-	
+
+	Binary8_t  fFiredMask;//bitmask used by Fired to determine which parameters to take into account
+
  public:
     KVDetector();
     KVDetector(const Char_t * type, const Float_t thick = 0.0);
@@ -121,7 +124,7 @@ Double_t *par_res;//!array of params for eres function
    };
    KVMaterial *GetActiveLayer() const;
    KVMaterial *GetAbsorber(Char_t i) const;
-	
+
 	Double_t GetTotalThicknessInCM()
 	{
 		// Calculate and return the total thickness of ALL absorbers making up the detector,
@@ -216,13 +219,13 @@ Double_t *par_res;//!array of params for eres function
    {
       return fParticles;
    };
-   
+
    // Return the number of particles hitting this detector in an event
    Int_t GetNHits() const
    {
       return (fParticles ? fParticles->GetSize() : 0);
    };
-   
+
    inline UShort_t GetSegment() const;
    inline void SetSegment(UShort_t s);
    Bool_t IsAnalysed() {
@@ -232,6 +235,7 @@ Double_t *par_res;//!array of params for eres function
       SetBit(kIsAnalysed, b);
    };
    inline virtual Bool_t Fired(Option_t * opt = "any");
+   inline virtual Bool_t FiredP(Option_t * opt = "any");
 
    virtual void SetACQParams();
    virtual void SetCalibrators();
@@ -264,7 +268,7 @@ Double_t *par_res;//!array of params for eres function
       // of thecalibration of the detector.
       return 0;
    };
-   
+
    void SetReanalyse(Bool_t flag=kTRUE)
    {
       //Used in particle reconstruction.
@@ -305,15 +309,18 @@ Double_t *par_res;//!array of params for eres function
 
    virtual void SetEResParams(Int_t Z, Int_t A);
    virtual void SetELossParams(Int_t Z, Int_t A);
-	
+
 	static KVDetector *MakeDetector(const Char_t * name, Float_t thick);
    const TVector3& GetNormal();
-	
+
 	virtual TGeoVolume* GetGeoVolume();
 	virtual void AddToGeometry();
 	virtual void GetVerticesInOwnFrame(TVector3 */*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
-   
-	ClassDef(KVDetector, 6)      //Base class for the description of detectors in multidetector arrays
+
+	virtual void SetFiredBitmask();
+	Binary8_t GetFiredBitmask() const { return fFiredMask; };
+
+	ClassDef(KVDetector, 7)      //Base class for the description of detectors in multidetector arrays
 };
 
 inline KVCalibrator *KVDetector::GetCalibrator(const Char_t * name,
@@ -358,56 +365,66 @@ inline Float_t KVDetector::GetGain() const
 Bool_t KVDetector::Fired(Option_t * opt)
 {
    //opt="any" (default):
-   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
+   //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
    //opt="all" :
-   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
+   //Returns true if ALL* of the working acquisition parameters associated with the detector were fired in an event
    //opt="Pany" :
-   //Returns true if ANY of the working acquisition parameters associated with the detector were fired in an event
+   //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
    //and have a value greater than their pedestal value
    //opt="Pall" :
-   //Returns true if ALL of the working acquisition parameters associated with the detector were fired in an event
+   //Returns true if ALL* of the working acquisition parameters associated with the detector were fired in an event
    //and have a value greater than their pedestal value
    //
-   //See KVACQParam::Fired()
-	
-	//This parameter list is defined in the .kvrootrc
-	//with the option [DataSet].Reconstruction.DataAnalysisTask.ACQParameterList.[Type of Detector] 
-	//By default the three parameters are concerned
-	//Reconstruction.DataAnalysisTask.ACQParameterList.CSI	-> R,L,T
-	//Reconstruction.DataAnalysisTask.ACQParameterList.SI	-> PG,GG,T
-	//Reconstruction.DataAnalysisTask.ACQParameterList.CI	-> PG,GG,T
-	
-	KVString inst; inst.Form("Reconstruction.DataAnalysisTask.ACQParameterList.%s",GetType());
-	KVString lpar = gDataSet->GetDataSetEnv(inst);
-   
-	Int_t touched = 0;
-   Int_t working = 0;
-   Bool_t ok = kFALSE;
-   Char_t opt2[] = "";
-   if(opt[0]=='P'){
-      opt++;
-      opt2[0]='P';
-   }
-	
-	lpar.Begin(",");
-	KVACQParam *par=0;
-	while (!lpar.End()){
-		
-		par = GetACQParam(lpar.Next());
-		if (par && par->IsWorking()){
-			working++;
-		   if(par->Fired(opt2)){
-		      ok = kTRUE;
-		      touched++;
-			}
-		}
-		
+   // *the actual parameters taken into account can be fine tuned using environment variables such as
+   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   // See KVDetector::SetFiredBitmask() for more details.
+
+   if(opt[0]=='P') return FiredP(opt+1);
+
+	Binary8_t event; // bitmask for event
+	TIter next(fACQParams);
+	KVACQParam* par; Int_t id = 0;
+	while( (par = (KVACQParam*)next()) ){
+	    if( par->Fired() ) event.SetBit(id);
+	    else event.ResetBit(id);
+	    id++;
 	}
-	
-	if (!strcmp(opt, "all")) 	return (touched == working);
-	else 								return ok;
-	
-	return kFALSE;
+	Binary8_t ok = fFiredMask&event;
+	// "all" considered parameters fired if ok == mask
+	// "any" considered parameters fired if ok != 0
+	if (!strcmp(opt, "all")) 	return (ok == fFiredMask);
+	Binary8_t zero="0";
+	return (ok != zero);
+}
+//_________________________________________________________________________________
+
+Bool_t KVDetector::FiredP(Option_t * opt)
+{
+   //opt="any" :
+   //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //opt="all" :
+   //Returns true if ALL* of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //
+   // *the actual parameters taken into account can be fine tuned using environment variables such as
+   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   // See KVDetector::SetFiredBitmask() for more details.
+
+	Binary8_t event; // bitmask for event
+	TIter next(fACQParams);
+	KVACQParam* par; Int_t id = 0;
+	while( (par = (KVACQParam*)next()) ){
+	    if( par->Fired("P") ) event.SetBit(id);
+	    else event.ResetBit(id);
+	    id++;
+	}
+	Binary8_t ok = fFiredMask&event;
+	// "all" considered parameters fired if ok == mask
+	// "any" considered parameters fired if ok != 0
+	if (!strcmp(opt, "all")) 	return (ok == fFiredMask);
+	Binary8_t zero = "0";
+	return (ok != zero);
 }
 
 #endif

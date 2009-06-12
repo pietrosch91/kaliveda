@@ -85,7 +85,7 @@ ClassImp(KVDetector)
 //      alpha.GetEnergy();                      //residual energy of particle
 //      det.Clear();                            //reset detector ready for a new detection
 //
-//WARNING: KVMaterial methods not explicitely redefined here act only on the 
+//WARNING: KVMaterial methods not explicitely redefined here act only on the
 //active absorber in the detector. It is the case for e.g. KVMaterial::GetIncidentEnergy
 //which does not take into account any absorbers placed in front of the active layer.
 void KVDetector::init()
@@ -114,6 +114,7 @@ void KVDetector::init()
    par_loss = par_res = 0;
 	fTotThickness = 0.;
 	fDepthInTelescope = 0.;
+	fFiredMask.Set("0");
 }
 
 KVDetector::KVDetector()
@@ -320,10 +321,10 @@ Double_t KVDetector::GetParticleEIncFromERes(KVNucleus * kvp, TVector3 * norm)
       KVMaterial *abs;
       TIter next(fAbsorbers, kIterBackward); //work through list backwards
       while ((abs = (KVMaterial *) next())) {
-         
+
          //calculate energy of particle before current absorber
             Einc = abs->GetParticleEIncFromERes(clone_part, norm);
-            
+
             //set new energy of particle
             clone_part->SetKE(Einc);
       }
@@ -564,7 +565,7 @@ Float_t KVDetector::GetACQData(const Char_t * type)
 {
    //Access acquisition data value associated to parameter of given type
    //Returns value as a floating-point number which is the raw channel number read from the coder
-   //plus a random number in the range [-0.5,+0.5]. 
+   //plus a random number in the range [-0.5,+0.5].
    //If the detector has no DAQ parameter of the given type, or if the raw channel number = 0,
    //the value returned is -1.
 
@@ -663,7 +664,7 @@ void KVDetector::AddAbsorber(KVMaterial * mat)
 
 void KVDetector::SetActiveLayer(KVMaterial * mat)
 {
-   //Set reference to the "active" layer in the detector, 
+   //Set reference to the "active" layer in the detector,
    //i.e. the one in which energy losses are measured
    //By default the active layer is the last layer added
 
@@ -834,7 +835,7 @@ void KVDetector::GetAlignedIDTelescopes(KVList * list)
    //If list=0 then we store pointers to the ALREADY EXISTING ID telescopes
    //in fIDTelAlign. (first clear fIDTelAlign)
 
-		
+
    TList *aligned = GetGroup()->GetAlignedDetectors(this);      //delete after use
 
    Bool_t list_zero = kFALSE;
@@ -972,7 +973,7 @@ UInt_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
    difference = 0.;
 
    while (zmax > zmin + 1) {
-      
+
       particle.SetZ(z);
 
       difference = GetBraggDE(z,particle.GetA()) - ELOSS;
@@ -1080,7 +1081,7 @@ void KVDetector::SetELossParams(Int_t Z, Int_t A)
       if (!ELoss)
          ELoss = new TF1(name_eloss.Data(), ELossActive, 0.1, 5000., npar_loss);
    }
-         
+
    //loop over layers to fill parameter arrays
    TIter next_abs(fAbsorbers); int i=0; KVMaterial*abs;
    while( (abs = (KVMaterial*)next_abs()) ){
@@ -1118,7 +1119,7 @@ void KVDetector::SetEResParams(Int_t Z, Int_t A)
          ERes =
              new TF1(name_eres.Data(), EResDet, 0.1, 5000., npar_res);
    }
-      
+
    //loop over layers to fill parameter arrays
    TIter next_abs(fAbsorbers); int i=0; KVMaterial*abs;
    while( (abs = (KVMaterial*)next_abs()) ){
@@ -1139,15 +1140,15 @@ KVDetector *KVDetector::MakeDetector(const Char_t * name, Float_t thickness)
    //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
 	//[name_of_dataset].detector_type or detector_type
 	//first we check if there is a special plugin for the DataSet
-	//if not we take the default one 
+	//if not we take the default one
    //
    //'thickness' is passed as argument to the constructor for the detector plugin
-	
+
 	//check and load plugin library
    TPluginHandler *ph=NULL;
    KVString nom(name);
-	if ( !nom.Contains(".") && !(ph = LoadPlugin("KVDetector",name)) ) return 0; 
-	if ( nom.Contains(".") ) {	
+	if ( !nom.Contains(".") && !(ph = LoadPlugin("KVDetector",name)) ) return 0;
+	if ( nom.Contains(".") ) {
 		TObjArray *toks = nom.Tokenize("."); Int_t nt = toks->GetEntries();
 		if ( nt==2 ) {
 			if ( !(ph = LoadPlugin("KVDetector",name)) ){
@@ -1160,7 +1161,7 @@ KVDetector *KVDetector::MakeDetector(const Char_t * name, Float_t thickness)
       }
       delete toks;
 	}
-	
+
 	//execute constructor/macro for detector
 	return (KVDetector *) ph->ExecPlugin(1, thickness);
 }
@@ -1176,11 +1177,11 @@ const TVector3& KVDetector::GetNormal()
    // the KVTelescope used to position the detector in a multidetector array.
    // If this detector does not belong to a KVTelescope it will have no defined orientation
    // and this method returns (0,0,1)
-   
+
    fNormToMat.SetMagThetaPhi(1, GetTheta()*TMath::DegToRad(), GetPhi()*TMath::DegToRad());
    return fNormToMat;
 }
-	
+
 //____________________________________________________________________________________
 
 void KVDetector::GetVerticesInOwnFrame(TVector3 *corners, Double_t depth, Double_t layer_thickness)
@@ -1194,10 +1195,10 @@ void KVDetector::GetVerticesInOwnFrame(TVector3 *corners, Double_t depth, Double
 	//
 	// Positioning information is taken from the KVTelescope to which this detector
 	// belongs; if this is not the case, nothing will be done.
-	
-	// relative distance to back of detector 
+
+	// relative distance to back of detector
 	Double_t dist_to_back = depth + layer_thickness;
-	
+
 	// get coordinates
 	fTelescope->GetCornerCoordinatesInOwnFrame(corners, depth);
 	fTelescope->GetCornerCoordinatesInOwnFrame(&corners[4], dist_to_back);
@@ -1211,7 +1212,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
 	// geometry managed by gGeoManager.
 	// Positioning information is taken from the KVTelescope to which this detector
 	// belongs; if this is not the case, nothing will be done.
-	// 
+	//
 	// Making the volume requires:
 	//    - to construct a 'mother' volume (TGeoArb8) defined by the (theta-min/max, phi-min/max)
 	//      and the total thickness of the detector (all layers)
@@ -1222,26 +1223,26 @@ TGeoVolume* KVDetector::GetGeoVolume()
 	// If the detector is composed of a single absorber, we do not create a superfluous "mother" volume.
 	//
 	// gGeoManager must point to current instance of geometry manager.
-	
+
 	if(!fTelescope) return NULL;
-	
+
 	if(!gGeoManager) return NULL;
-	
+
 	if(fTotThickness == 0) GetTotalThicknessInCM(); // calculate sum of absorber thicknesses in centimetres
 	// get from telescope info on relative depth of detector i.e. depth inside telescope
-	if(fDepthInTelescope == 0) 
+	if(fDepthInTelescope == 0)
 		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
-	
+
 	TVector3 coords[8];
 	Double_t vertices[16];
 	Double_t tot_thick_det = fTotThickness;
-	TGeoMedium *med; 
+	TGeoMedium *med;
 	TGeoVolume *mother_vol = 0;
-	
+
 	Bool_t multi_layer = fAbsorbers->GetSize()>1;
-	
+
 	if( multi_layer ){
-		/**** BUILD MOTHER VOLUME : big Vacuum-filled box to put all absorbers in ****/	
+		/**** BUILD MOTHER VOLUME : big Vacuum-filled box to put all absorbers in ****/
 		GetVerticesInOwnFrame(coords, fDepthInTelescope, tot_thick_det);
 		for(register int i=0;i<8;i++){
 			vertices[2*i] = coords[i].X();
@@ -1251,7 +1252,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
 		med = GetGeoMedium("Vacuum");
 		mother_vol = gGeoManager->MakeArb8(GetName(), med, dz, vertices);
 	}
-	
+
 	/**** BUILD & ADD ABSORBER VOLUMES ****/
 	TIter next(fAbsorbers); KVMaterial *abs; Double_t depth_in_det = 0.; Int_t no_abs=1;
 	while( (abs = (KVMaterial*)next()) ){
@@ -1264,7 +1265,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
 			vertices[2*i+1] = coords[i].Y();
 		}
 		Double_t dz = thick/2.;
-		TGeoVolume *vol = 
+		TGeoVolume *vol =
 				gGeoManager->MakeArb8( Form("%s_%d_%s", GetName(), no_abs, abs->GetType()), med, dz, vertices);
 		vol->SetLineColor( med->GetMaterial()->GetDefaultColor() );
 		if( multi_layer ){
@@ -1283,7 +1284,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
 
 	return mother_vol;
 }
-	
+
 //____________________________________________________________________________________
 
 void KVDetector::AddToGeometry()
@@ -1301,14 +1302,14 @@ void KVDetector::AddToGeometry()
 	//    - to position 'mother' inside the top-level geometry
 	//
 	// gGeoManager must point to current instance of geometry manager.
-	
+
 	if(!fTelescope) return;
-	
+
 	if(!gGeoManager) return;
-	
+
 	// get volume for detector
 	TGeoVolume* vol = GetGeoVolume();
-	
+
 	// rotate detector to orientation corresponding to (theta,phi)
 	KVTelescope* tl=GetTelescope();
 	Double_t theta = tl->GetTheta(); Double_t phi = tl->GetPhi();
@@ -1319,11 +1320,47 @@ void KVDetector::AddToGeometry()
 	Double_t dist = tl->GetDistance()/10. + fDepthInTelescope + fTotThickness/2.;
 	// translate detector to correct distance from target (note: reference is CENTRE of detector)
 	Double_t trans_z = dist;
-	
+
 	TGeoTranslation tran(0,0,trans_z);
 	TGeoHMatrix h = rot2 * tran * rot1;
 	TGeoHMatrix *ph = new TGeoHMatrix(h);
-	
+
 	// add detector volume to geometry
 	gGeoManager->GetTopVolume()->AddNode(vol, 1, ph);
+}
+
+void KVDetector::SetFiredBitmask()
+{
+   // Set bitmask used to determine which acquisition parameters are
+   // taken into account by KVDetector::Fired based on the environment variables
+   //          [dataset].KVACQParam.[par name].Working:    NO
+   //          [dataset].KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
+   // The first allows to define certain acquisition parameters as not functioning;
+   // they will not be taken into account.
+   // The second allows to "fine-tune" what is meant by "all" or "any" acquisition parameters
+   // (i.e. when using Fired("all"), Fired("any"), Fired("Pall", etc.).
+   // For each detector type, give a comma-separated list of the acquisition
+   // parameter types to be taken into account in the KVDetector::Fired method.
+   // Only those parameters which appear in the list will be considered:
+   //  then "all" means => all parameters in the list
+   //  and  "any" means => any of the parameters in the list
+   // These lists are read during construction of multidetector arrays (KVMultiDetArray::Build),
+   // the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
+   // of the array.
+   // Bits are set/reset in the order of the acquisition parameter list of the detector.
+
+	KVString inst; inst.Form("KVDetector.Fired.ACQParameterList.%s",GetType());
+	KVString lpar = gDataSet->GetDataSetEnv(inst);
+	TObjArray *toks = lpar.Tokenize(",");
+	TIter next(fACQParams);
+	KVACQParam* par; Int_t id = 0;
+	while( (par = (KVACQParam*)next()) ){
+	    if( !par->IsWorking() ) fFiredMask.ResetBit(id); // ignore non-working parameters
+	    else{
+	        if( toks->FindObject( par->GetType() ) ) fFiredMask.SetBit(id);
+	        else fFiredMask.ResetBit(id);
+	    }
+	    id++;
+	}
+	delete toks;
 }

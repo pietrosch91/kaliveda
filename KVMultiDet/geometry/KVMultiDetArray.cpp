@@ -86,7 +86,7 @@ ClassImp(KVMultiDetArray)
 //</ul>
 //End_Html
 //In order to initialise the geometry of a KVMultiDetArray object, call the Build() method.
-// 
+//
 //The current multidetector array can be accessed through the gMultiDetArray global pointer.
 //
 //Begin_Html
@@ -177,7 +177,7 @@ void KVMultiDetArray::init()
    //initalise ID grid manager
    if (!gIDGridManager)
       new KVIDGridManager;
-   
+
    fStatusIDTelescopes = 0;
    fCalibStatusDets = 0;
 }
@@ -258,7 +258,7 @@ KVMultiDetArray::~KVMultiDetArray()
    }
    fGroups = 0;
 
-   //clear list of acquisition parameters  
+   //clear list of acquisition parameters
    if (fACQParams && fACQParams->TestBit(kNotDeleted)) {
       fACQParams->Clear();
       while (gROOT->GetListOfCleanups()->Remove(fACQParams));
@@ -293,7 +293,7 @@ KVMultiDetArray::~KVMultiDetArray()
    }
    if (gMultiDetArray == this)
       gMultiDetArray = 0;
-   
+
    if(fStatusIDTelescopes){
       fStatusIDTelescopes->Delete();
       delete fStatusIDTelescopes;
@@ -326,7 +326,7 @@ void KVMultiDetArray::Build()
    SetACQParams();
 
    SetCalibrators();
-   
+
    SetIdentifications();
 
    //set flag to say Build() was called
@@ -438,7 +438,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
          }
       }
    }
-   
+
    //if no telescope found, try single-stage telescope
    idt = 0;
    //look for ID telescopes with only one of the two detectors
@@ -525,7 +525,7 @@ void KVMultiDetArray::set_up_single_stage_telescope(KVDetector * det, KVList * i
       idtels->Add(idt);
    }
 }
-      
+
 //_______________________________________________________________________________________
 void KVMultiDetArray::AddLayer()
 {
@@ -682,7 +682,7 @@ void KVMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
       kvg->Add(kt2);
       kvg->Sort();              // sort telescopes in list
       kvg->SetDimensions(kt1, kt2);     // set group dimensions from telescopes
-      //add to list 
+      //add to list
       fGroups->Add(kvg);
    } else if ((kvg = (kt1->GetGroup())) && !kt2->GetGroup()) {  // case b) - kt1 is already in a group
 #ifdef KV_DEBUG
@@ -800,7 +800,7 @@ void KVMultiDetArray::Print(Option_t * opt) const
 
 KVDetectorEvent *KVMultiDetArray::DetectEvent(KVEvent * event)
 {
-   //Simulate detection of event by multidetector array. 
+   //Simulate detection of event by multidetector array.
    //
    //For each particle in the event we calculate first its energy loss in the target (if the target has been defined, see KVMultiDetArray::SetTarget).
    //By default these energy losses are calculated from a point half-way along the beam-direction through the target (taking into account the orientation
@@ -939,7 +939,7 @@ KVTelescope *KVMultiDetArray::GetTelescope(const Char_t * name) const
    KVTelescope *k3;
    while ((k1 = (KVLayer *) nextL())) { // loop over layers
       TIter nextR(k1->GetRings());
-      while ((k2 = (KVRing *) nextR())) {       // loop over rings                                                                                                                                                                                                          
+      while ((k2 = (KVRing *) nextR())) {       // loop over rings
          TIter nextT(k2->GetTelescopes());
          while ((k3 = (KVTelescope *) nextT())) {
             if (!strcmp(k3->GetName(), name))
@@ -1106,25 +1106,25 @@ KVList *KVMultiDetArray::GetListOfDetectors() const
 TGraph *KVMultiDetArray::GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t
 run_number)
 {
-	
+
 	//Renvoie sous forme de TGraph (en fonction du numero de module)
-	//les piedestaux du signal (det_signal) asssocies aux detecteurs de type (det_type) 
+	//les piedestaux du signal (det_signal) asssocies aux detecteurs de type (det_type)
 	//qui sont presents dans la couronne ring_number pour un numero de run donne (si run_number==-1)
 	//on suppose que gMultiDetArray->SetParameters(xxx) a ete fait en amont
 	//L'utilisateur doit effacer ce TGraph tout seul comme un grand apres usage
 	//Une recherche sur l existence ou non du graph permet d eviter des boucles inutiles
 	//Si l appel est reitere
-	
-	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber())) 
+
+	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber()))
 		SetParameters(run_number);
-	
+
 	KVList* sltype = 0;
 	KVList* slring = 0;
 	TGraph* gr_ped=0;
-	
+
 	KVString sgraph; sgraph.Form("KVPed_%s_%s_%d_%d",det_signal,det_type,ring_number,GetCurrentRunNumber());
 	if ( ( gr_ped=(TGraph* )gROOT->FindObject(sgraph.Data()) ) ) return gr_ped;
-	
+
 	if ( (sltype = GetListOfDetectors()->GetSubListWithMethod(det_type,"GetType")) ){
 		KVString sring; sring.Form("%d",ring_number);
 		if ( (slring = sltype->GetSubListWithMethod(sring,"GetRingNumber")) ){
@@ -1133,7 +1133,7 @@ run_number)
 					gr_ped->SetPoint(gr_ped->GetN(),
 						((KVDetector*)slring->At(mm))->GetModuleNumber(),
 						((KVDetector*)slring->At(mm))->GetPedestal(det_signal));
-			
+
 				}
 			delete slring;
 			return gr_ped;
@@ -1217,9 +1217,20 @@ void KVMultiDetArray::AddACQParam(KVACQParam * par)
 
 void KVMultiDetArray::SetACQParams()
 {
-   // Set up acquisition parameters in all detectors of the array
-   // Any detectors whose parameters are already setup will just be read
-   // (otherwise UpdateArray will keep on adding ACQParams...)
+   // Set up acquisition parameters in all detectors of the array.
+   // Here we loop over all detectors of the array and call each detector's SetACQParams() method,
+   // if it has not already been done (i.e. if the detector has no associated parameters).
+   // Each specific implementation of a KVDetector class should redefine the KVDetector::SetACQParams()
+   // method in order to give the detector in question the necessary acquisition parameters (KVACQParam objects).
+   //
+   // The list of acquisition parameters of each detector is then used to
+   //   1) add to fACQParams list of all acquisition parameters of the array
+   //   2) set as "not working" the acquisition parameters for which environment variables such as
+   //        [dataset name].KVACQParam.[acq par name].Working:    NO
+   //       are set in a .kvrootrc file.
+   //   3) set bitmask for each detector used to determine which acquisition parameters are
+   //       taken into account by KVDetector::Fired based on the environment variables
+   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
 
    if (fACQParams) {
       fACQParams->Clear();
@@ -1228,18 +1239,23 @@ void KVMultiDetArray::SetACQParams()
    TIter next(GetListOfDetectors());
    KVDetector *det;
    while ((det = (KVDetector *) next())) {
-      if (!det->GetACQParamList()) {
-         //set up acqparams in detector
+       TList *l = det->GetACQParamList();
+      if (!l) {
+          //detector has no acq params
+          //set up acqparams in detector
          det->SetACQParams();
+         l = det->GetACQParamList();
       }
       //loop over acqparams and add them to fACQParams list, checking
       //their status (working or not working ?)
-      TIter next_par(det->GetACQParamList());
+      TIter next_par(l);
       KVACQParam *par;
       while ((par = (KVACQParam *) next_par())) {
          AddACQParam(par);
          par->SetWorking( gDataSet->GetDataSetEnv( Form("KVACQParam.%s.Working", par->GetName()), kTRUE ) );
       }
+      // set bitmask
+      det->SetFiredBitmask();
    }
 }
 
@@ -1647,7 +1663,7 @@ void KVMultiDetArray::SetIdentifications()
    //
    //Note that, in general, the parameters of the identifications for a given run are not
    //set until SetParameters or SetRunIdentificationParameters is called.
-   
+
    TString id_labels = gDataSet->GetDataSetEnv("ActiveIdentifications");
    if(id_labels=="") {
       Info("SetIdentifications", "No active identifications");
@@ -1658,7 +1674,7 @@ void KVMultiDetArray::SetIdentifications()
    TIter next_lab(toks); TObjString *lab;
    //loop over labels/identification 'types'
    while( (lab = (TObjString*)next_lab()) ){
-      
+
       //get first telescope in list with right label
       KVIDTelescope* idt = (KVIDTelescope*)GetListOfIDTelescopes()->FindObjectByLabel( lab->String().Data() );
       //set ID parameters for all telescopes of this 'type'
@@ -1667,7 +1683,7 @@ void KVMultiDetArray::SetIdentifications()
          if( idt->SetIdentificationParameters( this ) )
             Info("SetIdentifications", "OK");
       }
-      
+
    }
    delete toks;
 }
@@ -1682,10 +1698,10 @@ void KVMultiDetArray::UpdateIdentifications()
    //We remove/destroy the existing identification parameters and replace them with the current versions.
    //In order to set the parameters of the new identifications for a given run,
    //SetParameters or SetRunIdentificationParameters must be called after this method.
-   
+
    //remove existing identification objects/parameters
    fIDTelescopes->R__FOR_EACH(KVIDTelescope, RemoveIdentificationParameters) ();
-   
+
    //reset identifications
    SetIdentifications();
 }
@@ -1700,7 +1716,7 @@ void KVMultiDetArray::UpdateIDTelescopes()
    //are now available.
    //In order to set the parameters of the new identifications for a given run,
    //SetParameters or SetRunIdentificationParameters must be called after this method.
-   
+
    //destroy old ID telescopes
    fIDTelescopes->Delete();
    //now read list of groups and create list of ID telescopes
@@ -1719,15 +1735,15 @@ void KVMultiDetArray::InitializeIDTelescopes()
 {
    // Calls Initialize() method of each identification telescope (see KVIDTelescope
    // and derived classes). This is essential before identification of particles is attempted.
-   
+
    fIDTelescopes->R__FOR_EACH(KVIDTelescope, Initialize) ();
 }
 
 //_________________________________________________________________________________
 
-Double_t KVMultiDetArray::GetTotalSolidAngle(void) { 
+Double_t KVMultiDetArray::GetTotalSolidAngle(void) {
 		// compute & return the total solid angle (msr) of the array
-		// it is the sum of solid angles of all existing KVGroups 
+		// it is the sum of solid angles of all existing KVGroups
       Double_t ftotal_solid_angle=0.0;
 	   KVGroup *grp;
       TIter ngrp(fGroups);
@@ -1743,12 +1759,12 @@ void KVMultiDetArray::PrintStatusOfIDTelescopes()
 {
    // Print full status report on ID telescopes in array, using informations stored in
    // fStatusIDTelescopes (see GetStatusOfIDTelescopes).
-   
+
    if( !GetCurrentRunNumber() ){
       Info("PrintStatusOfIDTelescopes", "Cannot know status without knowing RUN NUMBER");
       return;
    }
-   
+
    cout << endl << "-----STATUS OF IDENTIFICATION TELESCOPES FOR RUN "
          << GetCurrentRunNumber() << "------" << endl << endl;
    //get list of active telescopes
@@ -1759,14 +1775,14 @@ void KVMultiDetArray::PrintStatusOfIDTelescopes()
    }
    //split list of labels
    TObjArray *toks = id_labels.Tokenize(' ');
-   
+
    //update status infos
    GetStatusOfIDTelescopes();
-      
+
    TIter next_type( fStatusIDTelescopes );
    TList* id_type_list = 0;
    while( (id_type_list = (TList*)next_type()) ){
-      
+
       cout << " *** " << id_type_list->GetName() << " Identifications -------------------" << endl;
       if( !toks->FindObject( id_type_list->GetName() ) ){
          cout << "      [NOT ACTIVE]" << endl;
@@ -1790,7 +1806,7 @@ void KVMultiDetArray::PrintStatusOfIDTelescopes()
          print_list->ls();
       }
       cout << endl;
-      
+
    }
    delete toks;
 }
@@ -1805,7 +1821,7 @@ TList* KVMultiDetArray::GetStatusOfIDTelescopes()
    // a list "NOT OK" with the others.
    //
    // The returned TList object must not be deleted (it belongs to the KVMultiDetArray).
-   
+
    if(!fStatusIDTelescopes){
       fStatusIDTelescopes = new TList; fStatusIDTelescopes->SetOwner(kTRUE);
    }
@@ -1817,7 +1833,7 @@ TList* KVMultiDetArray::GetStatusOfIDTelescopes()
    TIter next(fIDTelescopes);
    KVIDTelescope* idt = 0;
    while( (idt = (KVIDTelescope*)next()) ){
-      
+
       TString id_type = idt->GetLabel();
       TList* id_type_list = (TList*)fStatusIDTelescopes->FindObject( id_type.Data() );
       if( !id_type_list ){
@@ -1842,7 +1858,7 @@ KVList* KVMultiDetArray::GetIDTelescopeTypes()
    // of ID telescope in the array.
    //
    // Delete the KVList after use (it owns the TObjString objects)
-   
+
 	KVList *type_list = new KVList;
    if( !fIDTelescopes || !fIDTelescopes->GetEntries() ) return type_list;
    TIter next(fIDTelescopes);
@@ -1865,11 +1881,11 @@ KVList* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
 	// list is not defined or empty)
 	//
    // Delete the KVList after use (it does not own the KVIDTelescopes).
-	
+
    if( !fIDTelescopes || !fIDTelescopes->GetEntries() ) return NULL;
 	return fIDTelescopes->GetSubListWithLabel( type );
 }
-   
+
 //_________________________________________________________________________________
 
 TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
@@ -1880,7 +1896,7 @@ TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
    // a list "NOT OK" with the others.
    //
    // The returned TList object must not be deleted (it belongs to the KVMultiDetArray).
-   
+
    if(!fCalibStatusDets){
       fCalibStatusDets = new TList; fCalibStatusDets->SetOwner(kTRUE);
    }
@@ -1892,7 +1908,7 @@ TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
    TIter next(fDetectors);
    KVDetector* det = 0;
    while( (det = (KVDetector*)next()) ){
-      
+
       TString type = det->GetType();
       TList* type_list = (TList*)fCalibStatusDets->FindObject( type.Data() );
       if( !type_list ){
@@ -1915,22 +1931,22 @@ void KVMultiDetArray::PrintCalibStatusOfDetectors()
 {
    // Print full status report on calibration of detectors in array, using informations stored in
    // fCalibStatusDets (see GetCalibrationStatusOfDetectors).
-   
+
    if( !GetCurrentRunNumber() ){
       Info("PrintCalibStatusOfDetectors", "Cannot know status without knowing RUN NUMBER");
       return;
    }
-   
+
    cout << endl << "-----------STATUS OF CALIBRATIONS FOR RUN "
          << GetCurrentRunNumber() << "------------" << endl << endl;
-   
+
    //update status infos
    GetCalibrationStatusOfDetectors();
-      
+
    TIter next_type( fCalibStatusDets );
    TList* id_type_list = 0;
    while( (id_type_list = (TList*)next_type()) ){
-      
+
       cout << " *** " << id_type_list->GetName() << " Detectors -------------------" << endl;
       TList* ok_list = (TList*)id_type_list->FindObject("OK");
       TList* notok_list = (TList*)id_type_list->FindObject("NOT OK");
@@ -1951,7 +1967,7 @@ void KVMultiDetArray::PrintCalibStatusOfDetectors()
          print_list->ls();
       }
       cout << endl;
-      
+
    }
 }
 
@@ -1973,7 +1989,7 @@ Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* 
 	//
    // The returned value is the energy lost in the target in MeV.
    // The energy/momentum of 'ion' are not affected.
-	
+
    if(fTarget&&ion) return (fTarget->GetParticleEIncFromERes(ion) - ion->GetEnergy());
    return 0;
 }
@@ -1998,9 +2014,9 @@ TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_
 	// into which all the detectors of the array are placed. This should be big enough so that all detectors
 	// fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
 	// going from -500cm to +500cm on each axis).
-	
+
 	if(!IsBuilt()) return NULL;
-	
+
  	TGeoManager *geom = new TGeoManager(GetName(), GetTitle());
  	TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0,0,0);
 	TGeoMedium*Vacuum = new TGeoMedium("Vacuum",1, matVacuum);
