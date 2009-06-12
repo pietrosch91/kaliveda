@@ -303,9 +303,7 @@ dist : clean
 	-cp libVAMOS-$(VERSION_NUMBER).tgz $(KV_DIST)/
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
-	-cp -r CVS $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
-	-cp -r cvs2cl $(KV_DIST)/
 	-cp -r ROOTGanilTape $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
 	-cp Makefile* $(KV_DIST)/
