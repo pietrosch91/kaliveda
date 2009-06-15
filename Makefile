@@ -98,13 +98,6 @@ ifeq ($(WITH_VAMOS),no)
 INDRAVAMOS = 
 endif
 
-#need to make tarball & install on website, if at CC-IN2P3
-ifeq ($(SITE),CCIN2P3)
-CCALI = dist html_ccali
-else
-CCALI = html
-endif
-
 export KV_BUILD_DATE = $(shell date +%F)
 DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
@@ -114,7 +107,7 @@ export KV_CONFIG__H = KVConfig.h
 
 all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
 
-doc : $(CCALI) byebye
+doc : html byebye
 
 export GANILTAPE_INC = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/include
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
@@ -186,11 +179,6 @@ VAMOS : .init
 html :
 	cd html && $(MAKE) install_html debug=$(debug)
 		
-html_ccali :
-	cd html && $(MAKE) install_html
-	-rm -f $(KVROOT)/KaliVedaDoc/*.tgz
-	-cp $(KV_DIST).tgz $(KVROOT)/KaliVedaDoc/$(KV_DIST).tgz
-
 cleangantape :
 	cd ROOTGanilTape && $(MAKE) clean
 	cd GanTape && rm -rf i386-linux_*
