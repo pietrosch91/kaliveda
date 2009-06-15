@@ -67,8 +67,7 @@ void KVDetectorEvent::Clear(Option_t * opt)
 {
    //Reset the list of hit groups.
 
-   if (fHitGroups)
-      fHitGroups->Clear();
+	fHitGroups->Clear();
    fSimEvent = 0;
 }
 

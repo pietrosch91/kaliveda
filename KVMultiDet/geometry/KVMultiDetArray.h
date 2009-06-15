@@ -26,6 +26,7 @@ $Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
 
 #include "KVBase.h"
 #include "KVList.h"
+#include "THashList.h"
 #include "KVLayer.h"
 #include "TGraph.h"
 
@@ -62,7 +63,7 @@ class KVMultiDetArray:public KVBase {
       kIDParamsSet = BIT(18),    //flag set when SetRunIdentificationParameters called
       kCalParamsSet = BIT(19)    //flag set when SetRunCalibrationParameters called
    };
-      
+
    TList* fStatusIDTelescopes;//! used by GetStatusIDTelescopes
    TList* fCalibStatusDets;//! used by GetStatusIDTelescopes
 
@@ -75,9 +76,9 @@ class KVMultiDetArray:public KVBase {
    KVList *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
    KVList *fTelescopes;         //-> list of telescope prototypes used to construct array
    KVList *fGroups;             //->list of groups of telescopes in array
-   KVList *fIDTelescopes;       //->deltaE-E telescopes in groups
-   KVList *fDetectors;          //->list of references to all detectors in array
-   KVList *fACQParams;          //references to data acquisition parameters associated to detectors
+   TList *fIDTelescopes;       //->deltaE-E telescopes in groups
+   TList *fDetectors;          //->list of references to all detectors in array
+   TList *fACQParams;          //references to data acquisition parameters associated to detectors
 
    KV2Body *fScatter;           //!for elastic scattering kinematics
 
@@ -133,7 +134,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    KVList *GetDetectorTypes() {
       return fDetectorTypes;
    };
-   KVList *GetListOfDetectors() const;
+   TList *GetListOfDetectors() const;
    KVList *GetLayers() const {
       return fLayers;
    };
@@ -169,7 +170,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    const KVMultiDetBrowser *GetBrowser();
 
    void AddACQParam(KVACQParam *);
-   KVList *GetACQParams() {
+   TList *GetACQParams() {
       return fACQParams;
    };
    KVACQParam *GetACQParam(const Char_t * name) {
@@ -177,12 +178,12 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    };
 
    KVDetectorEvent *DetectEvent(KVEvent * event);
-   KVDetectorEvent *GetDetectorEvent();
+   void GetDetectorEvent(KVDetectorEvent*);
    Bool_t DetectParticle(KVNucleus * part);
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
    KVIDTelescope *GetIDTelescope(const Char_t * name) const;
-   KVList *GetListOfIDTelescopes() const {
+   TList *GetListOfIDTelescopes() const {
       return fIDTelescopes;
    };
 	KVList* GetIDTelescopeTypes();
@@ -198,7 +199,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    };
 
    virtual Double_t GetTargetEnergyLossCorrection(KVReconstructedNucleus*);
-   
+
    Bool_t IsRemoving() {
       return TestBit(kIsRemoving);
    }
@@ -235,14 +236,14 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    virtual void UpdateIDTelescopes();
    virtual void UpdateIdentifications();
    virtual void UpdateCalibrators();
-   
+
 	virtual Double_t GetTotalSolidAngle(void);
 
-	virtual Double_t GetSolidAngleByLayerAndRing(const Char_t* layer,UInt_t ring_number) { 
+	virtual Double_t GetSolidAngleByLayerAndRing(const Char_t* layer,UInt_t ring_number) {
 		// return the solid angle (msr) for a given KVRing conditioned by the chosen KVLayer
-		return GetRing(layer,ring_number)->GetSolidAngle(); 
+		return GetRing(layer,ring_number)->GetSolidAngle();
 	}
-	virtual Double_t GetSolidAngleByLayer(const Char_t* layer) { 
+	virtual Double_t GetSolidAngleByLayer(const Char_t* layer) {
 		// return the solid angle (msr) of all the KVRing conditioned by the chosen KVLayer
 		Double_t sol_ang=0;
 		KVRing *cou; TIter nxtcou(GetLayer(layer)->GetRings()); while ((cou = (KVRing *) nxtcou())) sol_ang+=cou->GetSolidAngle();
@@ -252,10 +253,10 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    TList* GetCalibrationStatusOfDetectors();
    void PrintStatusOfIDTelescopes();
    void PrintCalibStatusOfDetectors();
-	
+
 	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
-	
-   ClassDef(KVMultiDetArray, 5) //Base class for describing multidetector arrays.
+
+   ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };
 
 //................  global variable
