@@ -51,8 +51,8 @@
 #ccali.DataRepository.XRDServer:      ccxrdsn012:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
-#ccali.DataRepository.XRDTunnel.port:          10000       
-#ccali.DataRepository.XRDTunnel.user:       
+#ccali.DataRepository.XRDTunnel.port:          10000
+#ccali.DataRepository.XRDTunnel.user:
 #ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
 #ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
 #ccali.DataRepository.FileTransfer.type:    bbftp
@@ -77,8 +77,8 @@
 #ccali.DataRepository.XRDServer:      ccxrdsn012:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
-#ccali.DataRepository.XRDTunnel.port:          10000       
-#ccali.DataRepository.XRDTunnel.user:       
+#ccali.DataRepository.XRDTunnel.port:          10000
+#ccali.DataRepository.XRDTunnel.user:
 #ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
 #ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
 #ccali.DataRepository.FileTransfer.type:    bbftp
@@ -190,14 +190,13 @@ Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
 # with "option" = "all" or "any".
 #
-# In addition with this 2 option, it is possible that the test include the pedestal value
+# In addition with these 2 options, it is possible that the test include the pedestal value
 # using the "P" letter in front of "all" or "any"
-# Exemple : the "Pall" option means that all of the associated acquisition parameters must be 
+# Exemple : the "Pall" option means that all of the associated acquisition parameters must be
 # fired ABOVE the pedestal value.
 #
 # By default for INDRA data, "option" = "all", which means that all of the associated
-# acquisition parameters must be fired (including the marqueur de temps) in order for
-# a particle to be reconstructed from the detector:
+# acquisition parameters must be fired in order for a particle to be reconstructed from the detector:
 Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 # To change this condition to the less strict "any" (meaning that KVDetector::Fired() returns
 # kTRUE if the detector has at least one fired acquisition parameter, of any type), either
@@ -206,25 +205,28 @@ Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
 INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 # (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
-# due to a bad configuration of the trigger) 
-
+# due to a bad configuration of the trigger)
 INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
+# You can "fine-tune" what is meant by "all" acquisition parameters using the following
+# variables. For each detector type, give a comma-separated list of the acquisition
+# parameter types to be taken into account in the KVDetector::Fired method.
+# Only those parameters which appear in the list will be considered:
+#  then "all" means => all parameters in the list
+#  and  "any" means => any of the parameters in the list
+# These lists are read during construction of multidetector arrays (KVMultiDetArray::Build),
+# the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
+# of the array.
+KVDetector.Fired.ACQParameterList.CI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
+KVDetector.Fired.ACQParameterList.CSI: R,L,T
 
-# The following variable controls the parameter list which are concerned 
-# for the reconstruction of the particles using raw data
-# In the detector in which the particle stops, 
-# By default for INDRA data, all acquisition parameters (3) are concerned:
-Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.SI75: PG,GG,T
-Reconstruction.DataAnalysisTask.ACQParameterList.CSI: R,L,T
-
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.CI: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SI: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SILI: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.SI75: PG,GG
-INDRA_e475s.Reconstruction.DataAnalysisTask.ACQParameterList.CSI: R,L
+INDRA_e475s.KVDetector.Fired.ACQParameterList.CI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
 
 
 # By default the file containing reconstructed events will be written in the same data repository
@@ -319,7 +321,7 @@ KVDataAnalyser.UserClass.Optimise:     no
 #                                                        FORCE RECOMPILE
 # Set this resource to "yes" or "true" to force recompilation of user analysis classes every time that
 # an analysis is processed. Default is to only compile if the source code is more recent than the last
-# compiled version i.e. ACliC compilation with ".L toto.cpp+". 
+# compiled version i.e. ACliC compilation with ".L toto.cpp+".
 KVDataAnalyser.UserClass.ForceRecompile:     no
 
 # Batch systems
@@ -411,7 +413,7 @@ e416a.Users:        eindra
 +e416a.Users:       nalpas
 +e416a.Users:       dayras
 +e416a.Users:       tassan
-+e416a.Users:       cschmitt 
++e416a.Users:       cschmitt
 
 # Default values for names of files used to construct INDRA databases
 # Default name for file describing systems for each dataset.
@@ -434,6 +436,9 @@ INDRADB.ChIoSiVoltMeVCalib:     CalibMeVVoltChIoSi.dat
 # Default names for files containing CsI calibrations for each dataset.
 INDRADB.CalibCsI.Z=1:            CsICalibZ1.dat
 INDRADB.CalibCsI.Z>1:            CsICalibZ2.dat
+# Stability corrections for gain of CsI total light output
+INDRADB.CsILumCorr:          corrLum
+INDRADB.CsILumCorr.FileName:    run%d.corrLum
 # Run - gain correspondence for detectors
 INDRADB.Gains:    Gains.dat
 # VAMOS scalers for INDRA-VAMOS experiments
@@ -441,7 +446,7 @@ INDRADB.VamosScaler:    scalersVamos.dat
 
 # Default filename containing correspondance between CsI detector and PinLaser
 INDRADB.CsIPinCorr:          CsI_PILA.dat
-	
+
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
 # Default dataset subdirectory containing files with pin diode & laser data for each run
@@ -511,7 +516,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
-# By default, this is assumed to be in file $KVROOT/KVFiles/name_of_dataset/DataBase.root
+# By default, this is assumed to be in file $KVROOT/db/name_of_dataset/[value of DataSet.DatabaseFile]
 # If this file is not found, the database has to be rebuilt from the various parameter files in the
 # directory, using the class indicated here.
 # There must be an entry here for each dataset
@@ -520,7 +525,6 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_camp2    KVINDRADB2     KVIndra    "KVINDRADB2(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_camp4    KVINDRADB4     KVIndra    "KVINDRADB4(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_camp5    KVINDRADB5     KVIndra5    "KVINDRADB5(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e416a    KVINDRADB_e416a     KVIndraFNL    "KVINDRADB_e416a(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e475s    KVINDRADB_e475s     KVIndra    "KVINDRADB_e475s(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
@@ -586,7 +590,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 
 
 #======================= Identification parameter files for different datasets
-# Format is 
+# Format is
 #
 # [dataset name].IdentificationParameterFile.[identification telescope label]:      [filename]
 #
@@ -671,8 +675,8 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 +Plugin.KVDetector: INDRA_e475s.CSI KVCsI_e475s KVIndra  "KVCsI_e475s(Float_t)"
 
 # Environment variables for the Data Selectors. They define the filename and
-# the directory of the file where the TEventList are stored. The default 
-# directory is the working directory and the default filename is 
+# the directory of the file where the TEventList are stored. The default
+# directory is the working directory and the default filename is
 # "ListOfDataSelector.root".
 #
 #DataSelector.fileName: ListOfDataSelector.root
@@ -694,17 +698,9 @@ KVNucleus.MassTable:      $(KVROOT)/KVFiles/data/pace2_2001.data
 # if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula
 # the chosen mass formula is only available for KVINDRAReconNuc for this dataset
 # in the source codes KVINDRAReconNuc has KVINDRAReconNuc and KVNucleus has default
-# parametrisation set to KVNucleus::kEALMass (2) 
+# parametrisation set to KVNucleus::kEALMass (2)
 # KVINDRAReconNuc.MassFormula:        0
 # INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
-
-# Automatic checking for available updates of current sources.
-# You need to have configured access to the KaliVeda CVS repository (either anonymously or with login)
-# for this to work. Setting this variable to "yes" means that every time that KVBase::InitEnvironment
-# is called, we check the source tree corresponding to the current build against the repository.
-# If new versions of files are available, we perform the update and then rebuild
-# (this means forcing the termination of the current application)
-# KaliVeda.AutoUpdateCheck:        yes
 
 # Default mass formula used by KVNucleus to calculate A from Z
 # Possibile values are:

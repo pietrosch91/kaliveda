@@ -170,3 +170,4 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \<= $(ROOT_v5_20_00)),1)
 endif
 endif
 	@echo '#endif' >> $@
+	-cp $@ $(KVINSTALLDIR)/include/

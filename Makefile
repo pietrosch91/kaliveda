@@ -146,11 +146,12 @@ $(DATE_RECORD_FILE) :
 	else :; fi
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
+	@echo 'Updating KVConfig.h'
 	$(MAKE) -f Makefile.compat
-	-cp $@ $(KVINSTALLDIR)/include/
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \
+	  echo 'Updating ROOT_VERSION_TAG'; \
 	  rm -f .root_v*; \
 	  touch $@; \
 	else :; fi
@@ -302,9 +303,7 @@ dist : clean
 	-cp libVAMOS-$(VERSION_NUMBER).tgz $(KV_DIST)/
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
-	-cp -r CVS $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
-	-cp -r cvs2cl $(KV_DIST)/
 	-cp -r ROOTGanilTape $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
 	-cp Makefile* $(KV_DIST)/

@@ -1,219 +1,282 @@
-############################################
-#$Id: Systems.dat,v 1.4 2008/01/14 15:37:20 franklan Exp $
-# +system
-# Abeam Zbeam Atarget Ztarget TargThick Energy
-# "first run" "last run"
-#
-#
-##############################################
-
+# Systems.dat file written by KVINDRADB5::WriteSystemsFile on Thu Jun 11 11:24:49 2009
 +Piedestaux
-Run Range : 8840 8840
+Runs: 8840
 
 +Piedestaux ChIo/Si
-Run Range : 6001 6001
-Run Range : 6772 6772
-Run Range : 7645 7645
-Run Range : 8190 8190
-Run Range : 8841 8841
+Runs: 6772 7645 8190 8841
 
 +Automate ChIo/Si
-Run Range : 8451 8452
-Run Range : 8192 8192
-Run Range : 6004 6004
-Run Range : 6005 6005
+Runs: 6004-6005 8192 8451-8452
 
 +Piedestaux CsI
-Run Range : 6002 6003
-Run Range : 6773 6773
-Run Range : 7646 7646
-Run Range : 8191 8191
-Run Range : 8450 8450
-Run Range : 8842 8842
+Runs: 6773 7646 8191 8450 8842
 
 +Thoron
-Run Range : 6759 6771
-Run Range : 8440 8449
+Runs: 6759-6771 8440-8449
 
 +124Xe + Au 6.93 MeV/A
-124 54 197 79 0.1 6.93
-Run Range : 6006 6018
+124 54 197 79 6.93
+Target: 1 0
+197Au 0.1
+Runs: 6006-6018
 
 +124Xe + 112Sn 32 MeV/A
-124 54 112 50 0.33 32.0
-Run Range : 6019 6341
+124 54 112 50 32
+Target: 1 0
+112Sn 0.33
+Runs: 6019-6064 6066-6205 6214-6341
 
 +124Xe + 124Sn 32 Mev/A
-124 54 124 50 0.33 32.0
-Run Range : 6342 6445
+124 54 124 50 32
+Target: 1 0
+124Sn 0.33
+Runs: 6342-6445
 
 +124Xe + 112Sn 45 Mev/A
-124 54 112 50 0.33 45.0
-Run Range : 6446 6758
+124 54 112 50 45
+Target: 1 0
+112Sn 0.33
+Runs: 6446-6758
 
 +136Xe + 124Sn 45 MeV/A
-136 54 124 50 0.33 45.0
-Run Range : 6774 6979
-Run Range : 7440 7527
+136 54 124 50 45
+Target: 1 0
+124Sn 0.33
+Runs: 6774-6979 7440-7527
 
 +136Xe + 124Sn 32 MeV/A
-136 54 124 50 0.33 32.0
-Run Range : 6980 7298
+136 54 124 50 32
+Target: 1 0
+124Sn 0.33
+Runs: 6980-7298
 
 +136Xe + 112Sn 32 MeV/A
-136 54 112 50 0.33 32.0
-Run Range : 7299 7415
+136 54 112 50 32
+Target: 1 0
+112Sn 0.33
+Runs: 7299-7415
 
 +136Xe + 197Au 32 MeV/A
-136 54 197 79 0.39 32.0
-Run Range : 7416 7439
+136 54 197 79 32
+Target: 1 0
+197Au 0.39
+Runs: 7416-7439
 
 +136Xe + 112Sn 45 MeV/A
-136 54 112 50 0.33 45.0
-Run Range : 7528 7644
+136 54 112 50 45
+Target: 1 0
+112Sn 0.33
+Runs: 7528-7644
 
 +129Xe + natSn 20 MeV/A
-129 54 119 50 0.33 20.0
-Run Range : 7647 7718
+129 54 119 50 20
+Target: 1 0
+119Sn 0.33
+Runs: 7647-7718
 
 +129Xe + natSn 12 MeV/A
-129 54 119 50 0.33 12.0
-Run Range : 7719 7788
+129 54 119 50 12
+Target: 1 0
+119Sn 0.33
+Runs: 7719-7788
 
 +129Xe + natSn 15 MeV/A
-129 54 119 50 0.33 15.0
-Run Range : 7789 7853
+129 54 119 50 15
+Target: 1 0
+119Sn 0.33
+Runs: 7789-7853
 
 +129Xe + 197Au 15 MeV/A
-129 54 197 79 0.1 15.0
-Run Range : 7854 7927
+129 54 197 79 15
+Target: 1 0
+197Au 0.1
+Runs: 7854-7927
 
 +129Xe + natSn 18 MeV/A
-129 54 119 50 0.33 18.0
-Run Range : 7928 7999
+129 54 119 50 18
+Target: 1 0
+119Sn 0.33
+Runs: 7928-7999
 
 +129Xe + 27Al 18 MeV/A
-129 54 27 13 0.216 18.0
-Run Range : 8000 8012
+129 54 27 13 18
+Target: 1 0
+27Al 0.216
+Runs: 8000-8012
 
 +129Xe + 197Au 18 MeV/A
-129 54 197 79 0.39 18.0
-Run Range : 8013 8035
+129 54 197 79 18
+Target: 1 0
+197Au 0.39
+Runs: 8013-8035
 
 +129Xe + natSn 8 MeV/A
-129 54 119 50 0.33 8.0
-Run Range : 8036 8092
+129 54 119 50 8
+Target: 1 0
+119Sn 0.33
+Runs: 8036-8092
 
 +129Xe + 58Ni 8 MeV/A
-129 54 58 28 0.242 8.0
-Run Range : 8093 8119
+129 54 58 28 8
+Target: 1 0
+58Ni 0.242
+Runs: 8093-8119
 
 +129Xe + natSn 27 MeV/A
-129 54 119 50 0.33 27.0
-Run Range : 8120 8174
+129 54 119 50 27
+Target: 1 0
+119Sn 0.33
+Runs: 8120-8174
 
 +129Xe + 197Au 27 MeV/A
-129 54 197 79 0.1 27.0
-Run Range : 8175 8189
+129 54 197 79 27
+Target: 1 0
+197Au 0.1
+Runs: 8175-8189
 
 +129Xe + natSn 29 MeV/A
-129 54 119 50 0.33 29.0
-Run Range : 8193 8253
+129 54 119 50 29
+Target: 1 0
+119Sn 0.33
+Runs: 8193-8253
 
 +129Xe + natSn 25 MeV/A
-129 54 119 50 0.33 25.0
-Run Range : 8254 8286
+129 54 119 50 25
+Target: 1 0
+119Sn 0.33
+Runs: 8254-8286
 
 +129Xe + natSn 35 MeV/A
-129 54 119 50 0.33 35.0
-Run Range : 8287 8360
+129 54 119 50 35
+Target: 1 0
+119Sn 0.33
+Runs: 8287-8360
 
 +129Xe + 197Au 35 MeV/A
-129 54 197 79 0.1 35.0
-Run Range : 8361 8439
+129 54 197 79 35
+Target: 1 0
+197Au 0.1
+Runs: 8361-8439
 
 +Brho=2.13497 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8453 8456
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8453-8456
 
 +Brho=2.13497 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8457 8471
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8457-8471
 
 +Brho=0.5863 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8472 8488
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8472-8488
 
 +Brho=0.5863 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8489 8499
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8489-8499
 
 +Brho=1.2313 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8500 8506
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8500-8506
 
 +Brho=1.2313 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8507 8519
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8507-8519
 
 +Brho=1.8391 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8520 8531
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8520-8531
 
 +Brho=1.8391 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8532 8542
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8532-8542
 
 +Brho=0.7708 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8543 8558
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8543-8558
 
 +Brho=0.7708 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8559 8576
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8559-8576
 
 +Brho=0.7708 Tm (C+Ta)
-12 6 12 6 20.0 95.0
-Target : 2 30.0
-C 20.0
+12 6 12 6 95
+Target: 2 30
+C 20
 Ta 8.3
-Run Range : 8577 8581
+Runs: 8577-8581
 
 +Brho=1.482 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8582 8587
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8582-8587
 
 +Brho=0.66970 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8588 8613
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8588-8613
 
 +Brho=0.66970 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8614 8633
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8614-8633
 
 +Brho=0.66970 Tm (C+Ta)
-12 6 12 6 20.0 95.0
-Target : 2 30.0
-C 20.0
+12 6 12 6 95
+Target: 2 30
+C 20
 Ta 8.3
-Run Range : 8634 8641
+Runs: 8634-8641
 
 +Brho=0.9236 Tm (Ta)
-12 6 181 73 8.3 95.0
-Run Range : 8642 8656
+12 6 181 73 95
+Target: 1 0
+181Ta 8.3
+Runs: 8642-8656
 
 +Brho=0.9236 Tm (C)
-12 6 12 6 20.0 95.0
-Run Range : 8657 8671
+12 6 12 6 95
+Target: 1 0
+12C 20
+Runs: 8657-8671
 
 +208Pb + 58Ni 28.77 MeV/A
-208 82 58 28 0.242 28.77
-Run Range : 8672 8750
+208 82 58 28 28.77
+Target: 1 0
+58Ni 0.242
+Runs: 8672-8750
 
 +208Pb + 197Au 28.77 MeV/A
-208 82 197 79 0.1 28.77
-Run Range : 8751 8799
+208 82 197 79 28.77
+Target: 1 0
+197Au 0.1
+Runs: 8751-8799
 
 +208Pb + 124Sn 28.77 MeV/A
-208 82 124 50 0.33 28.77
-Run Range : 8800 8839
+208 82 124 50 28.77
+Target: 1 0
+124Sn 0.33
+Runs: 8800-8839
+

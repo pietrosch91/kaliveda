@@ -35,6 +35,7 @@ class KVINDRAUpDater:public KVUpDater {
 
    virtual void SetChVoltParameters(KVDBRun *);
    virtual void SetLitEnergyCsIParameters(KVDBRun *);
+   virtual void SetCsIGainCorrectionParameters(KVDBRun *);
    virtual void SetVoltEnergyChIoSiParameters(KVDBRun *);
    virtual void SetPHDs(KVDBRun *);
    virtual void SetChIoSiPedestals(KVDBRun *);

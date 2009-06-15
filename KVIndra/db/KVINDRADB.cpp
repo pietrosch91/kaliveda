@@ -1,5 +1,4 @@
 /***************************************************************************
-$Id: KVINDRADB.cpp,v 1.37 2009/03/11 14:18:18 franklan Exp $
                           kvINDRADB.cpp  -  description
                              -------------------
     begin                : 9/12 2003
@@ -31,6 +30,7 @@ $Id: KVINDRADB.cpp,v 1.37 2009/03/11 14:18:18 franklan Exp $
 #include "TEnv.h"
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
+#include "KVCsI.h"
 
 KVINDRADB *gIndraDB;
 
@@ -62,8 +62,22 @@ void KVINDRADB::init()
    fChIoPressures = AddTable("ChIo Pressures", "Pressures of ChIo");
    fTapes = AddTable("Tapes", "List of data storage tapes");
 	fCsILumCorr = AddTable("CsIGainCorr", "CsI gain corrections for total light output");
-   fGains = 0;
-	
+    fPedestals = AddTable("Pedestals", "List of pedestal files");
+       fChanVolt =
+       AddTable("Channel-Volt",
+                "Calibration parameters for Channel-Volts conversion");
+   fVoltMeVChIoSi =
+       AddTable("Volt-Energy ChIo-Si",
+                "Calibration parameters for ChIo-Si Volts-Energy conversion");
+   fLitEnerCsIZ1 =
+       AddTable("Light-Energy CsI Z=1",
+                "Calibration parameters for CsI detectors");
+   fLitEnerCsI =
+       AddTable("Light-Energy CsI Z>1",
+                "Calibration parameters for CsI detectors");
+
+  fGains = 0;
+
 	fPulserData = 0;
 }
 
@@ -194,13 +208,13 @@ void KVINDRADB::ReadSystemList()
 
    TString line;
    KVDBSystem* sys;
-   
+
    char next_char = fin.peek();
    while( next_char!='+' && fin.good() ){
       line.ReadLine(fin, kFALSE);
       next_char = fin.peek();
    }
-   
+
    while( fin.good() && !fin.eof() && next_char=='+' ){
       sys = new KVDBSystem("NEW SYSTEM");
       AddSystem(sys);
@@ -302,7 +316,7 @@ KVList *KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector * detector,
 
             KVDetector *pic_det =
                 //the chio's in the file are written with the
-                //ring,module of the Si/CsI in coinc    
+                //ring,module of the Si/CsI in coinc
                 sign > ChIo_T ? gIndra->GetDetectorByType(cour, modu, sign)
                 : gIndra->GetChIoOf(gIndra->
                                     GetDetectorByType(cour, modu, CsI_R));
@@ -569,7 +583,7 @@ void KVINDRADB::ReadChIoPressures()
    UInt_t frun = 0, lrun = 0;
    UInt_t run_ranges[MAX_NUM_RUN_RANGES][2];
    UInt_t rr_number = 0;
-   Bool_t prev_rr = kFALSE;     //was the previous line a run range indication ? 
+   Bool_t prev_rr = kFALSE;     //was the previous line a run range indication ?
    Bool_t read_pressure = kFALSE; // have we read any pressures recently ?
 
    KVDBChIoPressures *parset=0;
@@ -577,25 +591,25 @@ void KVINDRADB::ReadChIoPressures()
 
          //any ChIo not in list is assumed absent (pressure = 0)
          Float_t pressure[5] = { 0, 0, 0, 0, 0 };
-         
+
    while (fin.good()) {         // parcours du fichier
 
       sline.ReadLine(fin);
       if (sline.BeginsWith("Run Range :")) {    // run range found
          if (!prev_rr) {        // New set of run ranges to read
-            
+
             //have we just finished reading some pressures ?
             if (read_pressure){
                parset = new KVDBChIoPressures(pressure);
                GetTable("ChIo Pressures")->AddRecord(parset);
-               par_list->Add(parset);               
+               par_list->Add(parset);
                LinkListToRunRanges(par_list, rr_number, run_ranges);
                par_list->Clear();
                for(register int zz=0;zz<5;zz++) pressure[zz]=0.;
                read_pressure=kFALSE;
             }
             rr_number = 0;
-            
+
          }
          if (sscanf(sline.Data(), "Run Range : %u %u", &frun, &lrun) != 2) {
             Warning("ReadChIoPressures()",
@@ -618,7 +632,7 @@ void KVINDRADB::ReadChIoPressures()
             if (read_pressure){
                parset = new KVDBChIoPressures(pressure);
                GetTable("ChIo Pressures")->AddRecord(parset);
-               par_list->Add(parset);               
+               par_list->Add(parset);
                LinkListToRunRanges(par_list, rr_number, run_ranges);
                par_list->Clear();
                for(register int zz=0;zz<5;zz++) pressure[zz]=0.;
@@ -626,9 +640,9 @@ void KVINDRADB::ReadChIoPressures()
             }
       }
       if (sline.BeginsWith("ChIos")) {  //line with chio pressure data
-         
+
          prev_rr = kFALSE;
-               
+
          //take off 'ChIos' and any leading whitespace
          sline.Remove(0, 5); sline.Strip(TString::kLeading);
          //split up ChIo ring numbers and pressure
@@ -636,9 +650,9 @@ void KVINDRADB::ReadChIoPressures()
          TString chio = ((TObjString*)(*toks)[0])->String();
          KVString press = ((TObjString*)(*toks)[1])->String();
          delete toks;
-         
+
          read_pressure=kTRUE;
-         
+
          if( chio == "2_3" ) pressure[0] = press.Atof();
          else if( chio == "4_5" ) pressure[1] = press.Atof();
          else if( chio == "6_7" ) pressure[2] = press.Atof();
@@ -846,7 +860,7 @@ void KVINDRADB::WriteSystemsFile() const
    //The actual name of the file is given by the value of the environment variable
    //[dataset_name].INDRADB.Systems (if it exists), otherwise the value of
    //INDRADB.Systems is used. The file is written in the
-   //$KVROOT/[dataset_directory] directory.   
+   //$KVROOT/[dataset_directory] directory.
 
    ofstream sysfile;
    KVBase::SearchAndOpenKVFile(GetDBEnv("Systems"), sysfile, fDataSet.Data());
@@ -873,7 +887,7 @@ void KVINDRADB::Save(const Char_t* what)
    if( !strcmp(what, "Systems") ) WriteSystemsFile();
    else if( !strcmp(what, "Runlist") ) WriteRunListFile();
 }
-      
+
 //__________________________________________________________________________________________________________________
 
 Bool_t KVINDRADB::OpenCalibFile(const Char_t * type, ifstream & fs) const
@@ -892,7 +906,7 @@ Bool_t KVINDRADB::OpenCalibFile(const Char_t * type, ifstream & fs) const
    //
    //INDRA_camp5.INDRADB.Pedestals:      Pedestals5.dat
    //
-   //where 'INDRA_camp5' is the name of the dataset in question. 
+   //where 'INDRA_camp5' is the name of the dataset in question.
    //GetDBEnv() always returns the correct filename for the currently active dataset.
 
    return KVBase::SearchAndOpenKVFile(GetDBEnv(type), fs, fDataSet.Data());
@@ -906,10 +920,10 @@ const Char_t *KVINDRADB::GetDBEnv(const Char_t * type) const
    //then "INDRADB.type" if no dataset-specific value is found.
 
    if (!gDataSetManager)
-      return 0;
+      return "";
    KVDataSet *ds = gDataSetManager->GetDataSet(fDataSet.Data());
    if (!ds)
-      return 0;
+      return "";
    return ds->GetDataSetEnv(Form("INDRADB.%s", type));
 }
 
@@ -948,11 +962,18 @@ void KVINDRADB::Build()
 
    ReadSystemList();
    ReadChIoPressures();
-	
+   ReadGainList();
+   ReadChannelVolt();
+   ReadVoltEnergyChIoSi();
+   ReadCalibCsI();
+   ReadPedestalList();
+
 	// read all available mean pulser data and store in tree
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
 	fPulserData->SetRunList( GetRuns() );
 	fPulserData->Build();
+
+	ReadCsITotalLightGainCorrections();
 }
 
 
@@ -972,10 +993,10 @@ void KVINDRADB::ReadNewRunList()
 
    KVString line;
    KVINDRADBRun* run;
-         
+
    while( fin.good() && !fin.eof() ){
       line.ReadLine( fin );
-      
+
       if( line.Length()>1 && !line.BeginsWith("#") && !line.BeginsWith("Version") ){
          run = new KVINDRADBRun;
          run->ReadRunListLine( line );
@@ -1167,4 +1188,493 @@ void KVINDRADB::ReadObjects(TFile *file)
 
 void KVINDRADB::ReadCsITotalLightGainCorrections()
 {
+	// Read in gain corrections for CsI total light output.
+	// Looks for directory
+	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir]
+	// where [lumcorrdir] is defined in .kvrootrc by one of the two variables
+	//    INDRADB.CsILumCorr:   [lumcorrdir]
+	//    [dataset name].INDRADB.CsILumCorr:   [lumcorrdir]
+	// the latter value takes precedence for a given dataset over the former, generic, value.
+	//
+	// If the directory is not found we look for a compressed archive file
+	//    $KVROOT/KVFiles/[dataset name]/[lumcorrdir].tgz
+	//
+	// The files in the directory containing the corrections for each run have
+	// names with the format given by
+	//    INDRADB.CsILumCorr.FileName:   [format]
+	//    [dataset name].INDRADB.CsILumCorr.FileName:   [format]
+	// the latter value takes precedence for a given dataset over the former, generic, value.
+	// The [format] should include a placeholder for the run number, e.g.
+	//    INDRADB.CsILumCorr.FileName:   run%04d.cor
+	//    INDRADB.CsILumCorr.FileName:   Run%d.corrLum
+	// etc. etc.
+	//
+	// The contents of each file should be in the following format:
+	//    CSI_0221_R    1.00669
+	//    CSI_0321_R    1.01828
+	//    CSI_0322_R    1.00977
+	// i.e.
+	//   name_of_detector   correction
+	//Any other lines are ignored.
+
+
+	// get name of directory for this dataset from .kvrootrc
+	TString search;
+	search = GetDBEnv("CsILumCorr");
+	if( search=="" ){
+		Error("ReadCsITotalLightGainCorrections", "INDRADB.CsILumCorr is not defined. Check .kvrootrc files.");
+	}
+
+	KVTarArchive gain_cor(search.Data(), GetDataSetDir());
+	if(!gain_cor.IsOK()){
+		Info("ReadCsITotalLightGainCorrections","No corrections found");
+		return;
+	}
+
+	TString filefmt;
+	filefmt = GetDBEnv("CsILumCorr.FileName");
+	if( filefmt=="" ){
+		Error("ReadCsITotalLightGainCorrections", "INDRADB.CsILumCorr.FileName is not defined. Check .kvrootrc files.");
+	}
+
+	// boucle sur tous les runs
+	TIter next_run(GetRuns());
+	KVINDRADBRun* run=0;
+	while( (run=(KVINDRADBRun*)next_run()) ){
+
+		Int_t run_num = run->GetNumber();
+		TString filepath; filepath.Form(filefmt.Data(),run_num);
+		filepath.Prepend("/");
+		filepath.Prepend(search.Data());
+		ifstream filereader;
+		if( KVBase::SearchAndOpenKVFile(filepath, filereader, fDataSet.Data()) ){
+
+			Info("ReadCsITotalLightGainCorrections",
+					"Reading run %d", run_num);
+
+			KVString line;
+			line.ReadLine(filereader);
+			while( filereader.good() ){
+
+				line.Begin(" "); if(line.End()) {line.ReadLine(filereader);continue;}
+				KVString det_name = line.Next(kTRUE);
+				if(!det_name.BeginsWith("CSI_")){line.ReadLine(filereader);continue;}
+				if(line.End()){line.ReadLine(filereader);continue;}
+				Double_t correction = line.Next(kTRUE).Atof();
+
+				KVDBParameterSet* cps = new KVDBParameterSet(det_name.Data(),
+						"CsI Total Light Gain Correction", 1);
+
+				cps->SetParameters(correction);
+				fCsILumCorr->AddRecord(cps);
+				cps->AddLink("Runs",run);
+				line.ReadLine(filereader);
+			}
+			filereader.close();
+		}
+		else{
+			Warning("ReadCsITotalLightGainCorrections","Run %d: no correction", run_num);
+		}
+
+	}
+
 }
+
+//________________________________________________________________________________
+void KVINDRADB::ReadChannelVolt()
+{
+   //Read Channel-Volt calibrations for ChIo and Si detectors (including Etalons).
+   //The parameter filenames are taken from the environment variables
+   //        [dataset name].INDRADB.ElectronicCalibration:     [chio & si detectors]
+   //        [dataset name].INDRADB.ElectronicCalibration.Etalons:   [etalons]
+
+   ifstream fin;
+   if (!OpenCalibFile("ElectronicCalibration", fin)) {
+      Error("ReadChannelVolt()", "Could not open file %s",
+            GetCalibFileName("ElectronicCalibration"));
+      return;
+   }
+   Info("ReadChannelVolt()",
+        "Reading electronic calibration for ChIo and Si...");
+
+   TString sline;
+
+   UInt_t frun = 0, lrun = 0;
+   UInt_t run_ranges[MAX_NUM_RUN_RANGES][2];
+   UInt_t rr_number = 0;
+   Bool_t prev_rr = kFALSE;     // was the last line a run range indication ?
+
+   UInt_t cour, modu, sign;
+   Float_t a0, a1, a2, dum1, dum2;
+
+   Char_t det_name[80];
+   Char_t cal_type[80];
+   KVDBParameterSet *parset;
+   TList *par_list = new TList();
+
+
+   while (fin.good()) {         //reading the file
+      sline.ReadLine(fin);
+      if (fin.eof()) {          //fin du fichier
+         LinkListToRunRanges(par_list, rr_number, run_ranges);
+         par_list->Clear();
+         break;
+      }
+      if (sline.BeginsWith("Run Range :")) {    // Run Range found
+         if (!prev_rr) {        // new run ranges set
+            if (par_list->GetSize() > 0)
+               LinkListToRunRanges(par_list, rr_number, run_ranges);
+            par_list->Clear();
+            rr_number = 0;
+         }
+         if (sscanf(sline.Data(), "Run Range : %u %u", &frun, &lrun) != 2) {
+            Warning("ReadChannelVolt()",
+                    "Bad format in line :\n%s\nUnable to read run range values",
+                    sline.Data());
+         } else {
+            prev_rr = kTRUE;
+            run_ranges[rr_number][0] = frun;
+            run_ranges[rr_number][1] = lrun;
+            rr_number++;
+            if (rr_number == MAX_NUM_RUN_RANGES) {
+               Error("ReadChannelVolt", "Too many run ranges (>%d)",
+                     rr_number);
+               rr_number--;
+            }
+         }
+      }                         //Run Range found
+      else if (sline.Sizeof() > 1 && !sline.BeginsWith("#")) {  //non void nor comment line
+         if (sscanf(sline.Data(), "%u %u %u %f %f %f %f %f",
+                    &cour, &modu, &sign, &a0, &a1, &a2, &dum1,
+                    &dum2) != 8) {
+            Warning("ReadChannelVolt()",
+                    "Bad format in line :\n%s\nUnable to read",
+                    sline.Data());
+         } else {               //parameters correctly read
+            // naming detector
+            switch (sign) {
+            case ChIo_GG:
+               sprintf(det_name, "CI_%02u%02u_GG", cour, modu);
+               strcpy(cal_type, "Channel-Volt GG");
+               break;
+            case ChIo_PG:
+               sprintf(det_name, "CI_%02u%02u_PG", cour, modu);
+               strcpy(cal_type, "Channel-Volt PG");
+               break;
+            case Si_GG:
+               sprintf(det_name, "SI_%02u%02u_GG", cour, modu);
+               strcpy(cal_type, "Channel-Volt GG");
+               break;
+            case Si_PG:
+               sprintf(det_name, "SI_%02u%02u_PG", cour, modu);
+               strcpy(cal_type, "Channel-Volt PG");
+               break;
+            }
+            parset = new KVDBParameterSet(det_name, cal_type, 5);
+            parset->SetParameters(a0, a1, a2, dum1, dum2);
+            prev_rr = kFALSE;
+            fChanVolt->AddRecord(parset);
+            par_list->Add(parset);
+         }                      //parameters correctly read
+      }                         //non void nor comment line
+   }                            //reading the file
+   delete par_list;
+   fin.close();
+
+	/********** ETALONS ***************/
+
+   ifstream fin2;
+   if (!OpenCalibFile("ElectronicCalibration.Etalons", fin2)) {
+      Error("ReadChannelVolt()", "Could not open file %s",
+            GetCalibFileName("ElectronicCalibration.Etalons"));
+      return;
+   }
+   Info("ReadChannelVolt()",
+        "Reading electronic calibration for Si75 and SiLi...");
+   frun = lrun = 0;
+   rr_number = 0;
+   prev_rr = kFALSE;     // was the last line a run range indication ?
+	par_list = new TList;
+
+   while (fin2.good()) {         //reading the file
+      sline.ReadLine(fin2);
+      if (fin2.eof()) {          //fin du fichier
+         LinkListToRunRanges(par_list, rr_number, run_ranges);
+         par_list->Clear();
+         delete par_list;
+         fin2.close();
+         return;
+      }
+      if (sline.BeginsWith("Run Range :")) {    // Run Range found
+         if (!prev_rr) {        // new run ranges set
+            if (par_list->GetSize() > 0)
+               LinkListToRunRanges(par_list, rr_number, run_ranges);
+            par_list->Clear();
+            rr_number = 0;
+         }
+         if (sscanf(sline.Data(), "Run Range : %u %u", &frun, &lrun) != 2) {
+            Warning("ReadChannelVolt()",
+                    "Bad format in line :\n%s\nUnable to read run range values",
+                    sline.Data());
+         } else {
+            prev_rr = kTRUE;
+            run_ranges[rr_number][0] = frun;
+            run_ranges[rr_number][1] = lrun;
+            rr_number++;
+            if (rr_number == MAX_NUM_RUN_RANGES) {
+               Error("ReadChannelVolt", "Too many run ranges (>%d)",
+                     rr_number);
+               rr_number--;
+            }
+         }
+      }                         //Run Range found
+      else if (sline.Sizeof() > 1 && !sline.BeginsWith("#")) {  //non void nor comment line
+         if (sscanf(sline.Data(), "%s %f %f %f",
+                    det_name, &a0, &a1, &a2) != 4) {
+            Warning("ReadChannelVolt()",
+                    "Bad format in line :\n%s\nUnable to read",
+                    sline.Data());
+         } else {               //parameters correctly read
+            strcpy(cal_type, "Channel-Volt PG");
+            parset = new KVDBParameterSet(det_name, cal_type, 3);
+            parset->SetParameters(a0, a1, a2);
+            prev_rr = kFALSE;
+            fChanVolt->AddRecord(parset);
+            par_list->Add(parset);
+         }                      //parameters correctly read
+      }                         //non void nor comment line
+   }                            //reading the file
+   delete par_list;
+}
+
+//__________________________________________________________________________________
+
+void KVINDRADB::ReadVoltEnergyChIoSi()
+{
+   //Read Volt-Energy(MeV) calibrations for ChIo and Si detectors.
+   //The parameter filename is taken from the environment variable
+   //        [dataset name].INDRADB.ChIoSiVoltMeVCalib:
+
+   ifstream fin;
+   if (!OpenCalibFile("ChIoSiVoltMeVCalib", fin)) {
+      Error("ReadVoltEnergyChIoSi()", "Could not open file %s",
+            GetCalibFileName("ChIoSiVoltMevCalib"));
+      return;
+   }
+   Info("ReadVoltEnergyChIoSi()",
+        "Reading ChIo/Si calibration parameters...");
+
+   TString sline;
+
+   UInt_t frun = 0, lrun = 0;
+   UInt_t run_ranges[MAX_NUM_RUN_RANGES][2];
+   UInt_t rr_number = 0;
+   Bool_t prev_rr = kFALSE;     // was the last line a run range indication ?
+
+   Char_t det_name[80];
+   KVDBParameterSet *parset;
+   TList *par_list = new TList();
+
+   Float_t a0, a1, chi;         // calibration parameters
+
+   while (fin.good()) {         //reading the file
+      sline.ReadLine(fin);
+      if (fin.eof()) {          //fin du fichier
+         LinkListToRunRanges(par_list, rr_number, run_ranges);
+         par_list->Clear();
+         delete par_list;
+         fin.close();
+         return;
+      }
+      if (sline.BeginsWith("Run Range :")) {    // Run Range found
+         if (!prev_rr) {        // new run ranges set
+            if (par_list->GetSize() > 0)
+               LinkListToRunRanges(par_list, rr_number, run_ranges);
+            par_list->Clear();
+            rr_number = 0;
+         }
+         if (sscanf(sline.Data(), "Run Range : %u %u", &frun, &lrun) != 2) {
+            Warning("ReadVoltEnergyAlpha()",
+                    "Bad format in line :\n%s\nUnable to read run range values",
+                    sline.Data());
+         } else {
+            prev_rr = kTRUE;
+            run_ranges[rr_number][0] = frun;
+            run_ranges[rr_number][1] = lrun;
+            rr_number++;
+            if (rr_number == MAX_NUM_RUN_RANGES) {
+               Error("ReadVoltEnergyAlpha", "Too many run ranges (>%d)",
+                     rr_number);
+               rr_number--;
+            }
+         }
+      }                         //Run Range found
+      if (sline.BeginsWith("SI") || sline.BeginsWith("CI")) {   //data line
+         if (sscanf(sline.Data(), "%7s %f %f %f", det_name, &a0, &a1, &chi)
+             != 4) {
+            Warning("ReadVoltEnergyAlpha()",
+                    "Bad format in line :\n%s\nUnable to read parameters",
+                    sline.Data());
+         } else {               //parameters correctly read
+            parset = new KVDBParameterSet(det_name, "Volt-Energy", 3);
+            parset->SetParameters(a0, a1, chi);
+            prev_rr = kFALSE;
+            fVoltMeVChIoSi->AddRecord(parset);
+            par_list->Add(parset);
+         }                      //parameters correctly read
+      }                         //data line
+   }                            //reading the file
+   delete par_list;
+   fin.close();
+}
+
+//__________________________________________________________________________
+
+void KVINDRADB::ReadPedestalList()
+{
+   //Read the names of pedestal files to use for each run range, found
+   //in file with name defined by the environment variable:
+   //   [dataset name].INDRADB.Pedestals:    ...
+
+   ifstream fin;
+   if (!OpenCalibFile("Pedestals", fin)) {
+      Error("ReadPedestalList()", "Could not open file %s",
+            GetCalibFileName("Pedestals"));
+      return;
+   }
+   Info("ReadPedestalList()", "Reading pedestal file list...");
+
+   KVString line;
+   Char_t filename_chio[80], filename_csi[80];
+   UInt_t runlist[1][2];
+
+   while (fin.good()) {         //lecture du fichier
+
+      // lecture des informations
+      line.ReadLine(fin);
+
+      //recherche une balise '+'
+      if (line.BeginsWith('+')) {       //balise trouvee
+
+         line.Remove(0, 1);
+
+         if (sscanf
+             (line.Data(), "Run Range : %u %u", &runlist[0][0],
+              &runlist[0][1]) != 2) {
+            Warning("ReadPedestalList()", "Format problem in line \n%s",
+                    line.Data());
+         }
+
+         line.ReadLine(fin);
+
+         sscanf(line.Data(), "%s", filename_chio);
+
+         line.ReadLine(fin);
+
+         sscanf(line.Data(), "%s", filename_csi);
+
+         TList RRList;
+         KVDBRecord *dummy = 0;
+         dummy =
+             new KVDBRecord(filename_chio, "ChIo/Si/Etalons pedestals");
+         dummy->AddKey("Runs", "Runs for which to use this pedestal file");
+         fPedestals->AddRecord(dummy);
+         RRList.Add(dummy);
+         dummy = new KVDBRecord(filename_csi, "CsI pedestals");
+         dummy->AddKey("Runs", "Runs for which to use this pedestal file");
+         fPedestals->AddRecord(dummy);
+         RRList.Add(dummy);
+         LinkListToRunRanges(&RRList, 1, runlist);
+      }                         // balise trouvee
+   }                            // lecture du fichier
+   fin.close();
+   cout << "Pedestals Read" << endl;
+}
+
+
+void KVINDRADB::ReadCalibCsI()
+{
+   //Read CsI Light-Energy calibrations for Z=1 and Z>1
+   //The parameter filenames are taken from the environment variables
+   //        [dataset name].INDRADB.CalibCsI.Z=1
+   //        [dataset name].INDRADB.CalibCsI.Z>1
+   //These calibrations are valid for all runs
+   ReadLightEnergyCsI("Z=1", fLitEnerCsIZ1);
+   ReadLightEnergyCsI("Z>1", fLitEnerCsI);
+}
+//_____________________________________________________________________________
+
+void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
+{
+   //Read CsI Light-Energy calibrations for Z=1 (zrange="Z=1") or Z>1 (zrange="Z>1")
+   //and add them to the KVDBTable whose pointer is given as 2nd argument.
+   //These calibrations are valid for all runs
+
+    ifstream fin;
+   TString filename; filename.Form("CalibCsI.%s", zrange);
+   if (!OpenCalibFile( filename.Data() , fin)) {
+      Error("ReadLightEnergyCsI()", "Could not open file %s",
+            GetCalibFileName( filename.Data() ));
+      return;
+   }
+   Info("ReadLightEnergyCsI()",
+        "Reading Light-Energy CsI calibration parameters (%s)...", zrange);
+
+  //need description of INDRA geometry
+   if (!gIndra) {
+      KVMultiDetArray::MakeMultiDetector(fDataSet.Data());
+   }
+   //gIndra exists, but has it been built ?
+   if (!gIndra->IsBuilt())
+      gIndra->Build();
+
+   TString sline;
+
+   KVDBParameterSet *parset;
+   TList *par_list = new TList();
+
+   Float_t a2, a1, a3, chi2;    // calibration parameters
+   Int_t ring, mod, npoints;
+
+   while (fin.good()) {         //reading the file
+      sline.ReadLine(fin);
+      if (fin.good()) {
+         if (!sline.BeginsWith("#")) {  //skip comments
+            if (sscanf
+                (sline.Data(), "%d %d %f %f %f %f %d", &ring, &mod, &a1,
+                 &a2, &a3, &chi2, &npoints) != 7) {
+               Warning("ReadLightEnergyCsI()",
+                       "Bad format in line :\n%s\nUnable to read parameters",
+                       sline.Data());
+               return;
+            } else {            //parameters correctly read
+               KVCsI *csi =
+                   (KVCsI *) gIndra->GetDetectorByType(ring, mod, CsI_R);
+               if (!csi) {
+                  Warning("ReadLightEnergyCsI()", "Cant find CsI %d.%d",
+                          ring, mod);
+                  return;
+               }
+               parset =
+                   new KVDBParameterSet(csi->GetName(), Form("Light-Energy CsI %s", zrange),
+                                        3);
+               parset->SetParameters(a1, a2, a3);
+               table->AddRecord(parset);
+               par_list->Add(parset);
+            }                   //parameters correctly read
+         }                      //data line
+      }                         //if(fin.good
+   }                            //reading the file
+   fin.close();
+
+   //these calibrators are valid for all runs
+   UInt_t nranges, r_ranges[MAX_NUM_RUN_RANGES][2];
+   nranges = 1;
+   r_ranges[0][0] = kFirstRun;
+   r_ranges[0][1] = kLastRun;
+   LinkListToRunRanges(par_list, nranges, r_ranges);
+   par_list->Clear();
+   delete par_list;
+}
+
+//_____________________________________________________________________________

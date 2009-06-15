@@ -1218,9 +1218,20 @@ void KVMultiDetArray::AddACQParam(KVACQParam * par)
 
 void KVMultiDetArray::SetACQParams()
 {
-   // Set up acquisition parameters in all detectors of the array
-   // Any detectors whose parameters are already setup will just be read
-   // (otherwise UpdateArray will keep on adding ACQParams...)
+   // Set up acquisition parameters in all detectors of the array.
+   // Here we loop over all detectors of the array and call each detector's SetACQParams() method,
+   // if it has not already been done (i.e. if the detector has no associated parameters).
+   // Each specific implementation of a KVDetector class should redefine the KVDetector::SetACQParams()
+   // method in order to give the detector in question the necessary acquisition parameters (KVACQParam objects).
+   //
+   // The list of acquisition parameters of each detector is then used to
+   //   1) add to fACQParams list of all acquisition parameters of the array
+   //   2) set as "not working" the acquisition parameters for which environment variables such as
+   //        [dataset name].KVACQParam.[acq par name].Working:    NO
+   //       are set in a .kvrootrc file.
+   //   3) set bitmask for each detector used to determine which acquisition parameters are
+   //       taken into account by KVDetector::Fired based on the environment variables
+   //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
 
    if (fACQParams) {
       fACQParams->Clear();
@@ -1229,18 +1240,23 @@ void KVMultiDetArray::SetACQParams()
    TIter next(GetListOfDetectors());
    KVDetector *det;
    while ((det = (KVDetector *) next())) {
-      if (!det->GetACQParamList()) {
-         //set up acqparams in detector
+       TList *l = det->GetACQParamList();
+      if (!l) {
+          //detector has no acq params
+          //set up acqparams in detector
          det->SetACQParams();
+         l = det->GetACQParamList();
       }
       //loop over acqparams and add them to fACQParams list, checking
       //their status (working or not working ?)
-      TIter next_par(det->GetACQParamList());
+      TIter next_par(l);
       KVACQParam *par;
       while ((par = (KVACQParam *) next_par())) {
          AddACQParam(par);
          par->SetWorking( gDataSet->GetDataSetEnv( Form("KVACQParam.%s.Working", par->GetName()), kTRUE ) );
       }
+      // set bitmask
+      det->SetFiredBitmask();
    }
 }
 

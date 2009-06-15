@@ -15,28 +15,23 @@ $Date: 2009/03/27 16:42:58 $
 #include "THashTable.h"
 #include "Riostream.h"
 #include "KVString.h"
+#include "KVTarArchive.h"
+
 class TFile;
 
 class KVINDRAPulserDataTree : public KVBase
 {
 	protected:
 	TTree* fArb;//!tree containing pulser data
-	Bool_t fHaveGeneData;//!true if gene data directory found
-	Bool_t fHavePinData;//!true if pin data directory found
-	KVString fPathGeneDataDir;//!full path to gene data directory
-	KVString fPathPinDataDir;//!full path to pin data directory
-	Bool_t fGeneTGZ;//!set to kTRUE if gene data is extracted from '.tgz' archive
-	Bool_t fPinTGZ;//!set to kTRUE if pin data is extracted from '.tgz' archive
+	KVTarArchive *fGeneDir;//directory/archive containing gene data
+	KVTarArchive *fPinDir;//directory/archive containing pin data
 	Int_t fRun;//!run number used to build tree
 	Float_t* fVal;//!array of floats used to fill tree
 	Int_t fTab_siz;//!size of array
 	THashTable *fIndex;//!associate name of branch to index in fVal
 	TList* fRunlist;//!list of runs given by database
 
-	Bool_t CheckDirectory(const Char_t*, KVString&, Bool_t&);
-	void CheckDirectories();
-	void DeleteDirectories();
-	void DeleteDirectory(const Char_t*);
+	const Char_t* GetDirectoryName(const Char_t*);
 	void CreateTree();
 	void ReadData();
 	void ReadData(Int_t);

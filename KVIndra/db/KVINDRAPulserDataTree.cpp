@@ -8,8 +8,6 @@ $Date: 2009/03/27 16:42:58 $
 //Author: franklan
 
 #include "KVINDRAPulserDataTree.h"
-#include "TSystem.h"
-#include "TSystemDirectory.h"
 #include "KVDataSet.h"
 #include "KVINDRA.h"
 
@@ -88,8 +86,6 @@ KVINDRAPulserDataTree::KVINDRAPulserDataTree()
 	fVal = 0;
 	fIndex = 0;
 	fRunlist = 0;
-	fGeneTGZ = kFALSE;
-	fPinTGZ = kFALSE;
 }
 
 KVINDRAPulserDataTree::~KVINDRAPulserDataTree()
@@ -164,147 +160,34 @@ void KVINDRAPulserDataTree::Build()
 	// We create a TTree with 1 branch for each detector acquisition parameter.
 	// For PILA and SI_PIN parameters, we create a 'gene' and a 'laser' branch for each.
 	
-	CheckDirectories();
-	if(!fHaveGeneData && !fHavePinData){
+	fGeneDir = new KVTarArchive( GetDirectoryName("GeneDetDir"), gDataSet->GetDataSetDir() );
+	fPinDir = new KVTarArchive( GetDirectoryName("GenePinDir"), gDataSet->GetDataSetDir() );
+	if(!fGeneDir->IsOK() && !fPinDir->IsOK()){
 		Info("Build", "No data available to build pulser data tree");
 		return;
 	}
 	CreateTree();
 	ReadData();
-	DeleteDirectories();
+	delete fGeneDir;
+	delete fPinDir;
 }
 	
-void KVINDRAPulserDataTree::CheckDirectories()
+const Char_t* KVINDRAPulserDataTree::GetDirectoryName(const Char_t* dirvar)
 {
-	// We look for the following two directories:
-	//
-	// $KVROOT/KVFiles/name_of_dataset/gene_detecteurs
-	// $KVROOT/KVFiles/name_of_dataset/gene_pins
-	//
-	// If not found, we look for the following compressed archives:
-	//
-	// $KVROOT/KVFiles/name_of_dataset/gene_detecteurs.tgz
-	// $KVROOT/KVFiles/name_of_dataset/gene_pins.tgz
-	//
-	// and if found, uncompress them ('tar -zxf').
-	//
-	// The default names of these directories are defined in .kvrootrc by:
-	//
-	// KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
-	// KVINDRAPulserDataTree.GenePinDir:   gene_pins
-	//
-	// Dataset-dependent alternatives can be defined using:
-	//
-	// dataset_name.KVINDRAPulserDataTree.GeneDetDir:   dataset_specific_value
-	
-	fHaveGeneData = CheckDirectory("GeneDetDir", fPathGeneDataDir, fGeneTGZ);
-	fHavePinData = CheckDirectory("GenePinDir", fPathPinDataDir, fPinTGZ);
-}
-
-void KVINDRAPulserDataTree::DeleteDirectories()
-{
-	// Delete from disk either or both of the directories found by CheckDirectories(),
-	// if they were extracted from a '.tgz' archive.
-	// This is so that, if the '.tgz' is updated, the new files will be extracted the
-	// next time that the tree is created.
-	
-	if(fGeneTGZ) DeleteDirectory(fPathGeneDataDir.Data());
-	if(fPinTGZ)  DeleteDirectory(fPathPinDataDir.Data());
-}
-
-void KVINDRAPulserDataTree::DeleteDirectory(const Char_t* fpath)
-{
-	// Delete all files in directory 'fpath', then delete the directory itself.
-	// This is to get round the fact that gSystem->Unlink(dirname) does not work if the
-	// directory contains any files.
-	
-	Info("DeleteDirectory","Deleting %s", fpath);
-	TString pwd = gSystem->WorkingDirectory();//keep working directory
-	TSystemDirectory dir("dir",fpath);
-	// get list of files (and directories)
-	TList *files = dir.GetListOfFiles();
-	TIter nxtFile(files);
-	TSystemFile* fil=0;
-	// delete all files (and directories)
-	while((fil=(TSystemFile*)nxtFile())){
-		if(fil->IsDirectory()){
-			// recursively remove subdirectories if necessary
-			if(strcmp(fil->GetName(),"..") && strcmp(fil->GetName(),".")){
-				DeleteDirectory(fil->GetTitle());
-			}
-		}
-		else
-			fil->Delete();
-	}
-	delete files;
-	gSystem->cd(pwd.Data());//change back to working directory after hidden 'cd' in GetListOfFiles
-	// delete directory
-	if(gSystem->Unlink( fpath )==0)
-		Info("DeleteDirectory", "Directory %s deleted", fpath);
-	else
-		Info("DeleteDirectory", "Cannot delete directory %s", fpath);
-}
-
-Bool_t KVINDRAPulserDataTree::CheckDirectory(const Char_t* dirvar, KVString &fullpath, Bool_t &archive)
-{
-	// We look for the directory defined by the .kvrootrc environment variable
+	// Returns the name of the directory defined by the .kvrootrc environment variable
 	// 
 	// KVINDRAPulserDataTree.[dirvar]
 	// OR
 	// dataset_name.KVINDRAPulserDataTree.[dirvar]:
-	//
-	// in the dataset directory
-	//
-	// $KVROOT/KVFiles/name_of_dataset
-	//
-	// If not found, we look for the following compressed archive:
-	//
-	// $KVROOT/KVFiles/name_of_dataset/[KVINDRAPulserDataTree.[dirvar]].tgz
-	//
-	// and if found, uncompress it (with 'tar -zxf'). In this case, the 'archive'
-	// argument will be set to kTRUE (otherwise, archive=kFALSE).
-	//
-	// Full path to directory returned in 'fullpath'.
 	
 	TString search, datasetenv;
-	archive = kFALSE;
 	datasetenv.Form("KVINDRAPulserDataTree.%s", dirvar);
 	search = gDataSet->GetDataSetEnv(datasetenv.Data(), "");
 	if( search=="" ){
-		Error("CheckDirectories", "%s is not defined for dataset %s. Check .kvrootrc files.",
+		Error("GetDirectoryName", "%s is not defined for dataset %s. Check .kvrootrc files.",
 				datasetenv.Data(), gDataSet->GetName());
-		return kFALSE;
 	}
-	Bool_t ok = kFALSE;
-	if( !SearchKVFile( search, fullpath, gDataSet->GetName() ) ){
-		// directory not found; look for .tgz
-		search += ".tgz";
-		if( SearchKVFile( search, fullpath, gDataSet->GetName() ) ){
-			// uncompress in directory where tgz is found
-			TString pwd = gSystem->pwd();
-			gSystem->cd( gSystem->DirName(fullpath) );
-			TString cmd; cmd.Form("tar -zxf %s", gSystem->BaseName(fullpath));
-			Info("CheckDirectories", "Opening archive file %s", fullpath.Data());
-			if( gSystem->Exec( cmd.Data() ) ){
-				Error("CheckDirectories", "Problem executing %s", cmd.Data());
-				fullpath = "";
-			}
-			else
-			{
-				ok = kTRUE;
-				// strip '.tgz' to leave just full path to directory
-				fullpath.Remove(fullpath.Length()-4);
-				archive = kTRUE;
-			}
-			gSystem->cd( pwd.Data() );
-		}
-	}
-	else
-	{
-		ok = kTRUE;
-		Info("CheckDirectories", "Found directory %s", fullpath.Data());
-	}
-	return ok;
+	return search.Data();
 }
 
 void KVINDRAPulserDataTree::CreateTree()
@@ -385,12 +268,12 @@ void KVINDRAPulserDataTree::ReadData(Int_t run)
 	// Read data for one run, fill tree
 	
 	fRun = run;
-	if(fHaveGeneData){
+	if(fGeneDir->IsOK()){
 		ifstream f;
 		if( OpenGeneData(run,f) ) ReadFile(f);
 		else Warning("ReadData","Missing file : run%d.gene", run);
 	}
-	if(fHavePinData){
+	if(fPinDir->IsOK()){
 		ifstream f;
 		if( OpenPinData(run,f) ) ReadFile(f);
 		else Warning("ReadData","Missing file : run%d.[gene][laser]pin", run);

@@ -153,6 +153,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVTGIDFitter+;
 #pragma link C++ class KVTGIDGrid+;
 #pragma link C++ class KVTarget+;
+#pragma link C++ class KVTarArchive+;
 #pragma link C++ class KVTelescope-;
 #pragma link C++ class KVTestEvent+;
 #pragma link C++ class KVWidget;
