@@ -22,6 +22,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ global gDataRepositoryManager;
 #pragma link C++ global gDataSet;
 #pragma link C++ global gHistoManipulator;
+#pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
 #pragma link C++ nestedclass;
@@ -64,6 +65,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVCalibrator-;//customised streamer
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
+#pragma link C++ class KVCollection+;
 #pragma link C++ class KVDetector-;
 #pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBase;
