@@ -156,6 +156,7 @@ void KVBase::init()
    fNumber = 0;
    fNbObj++;
    fSLabel = "";
+   SetBit( kIsKaliVedaObject );
 }
 
 void KVBase::InitEnvironment()
@@ -167,7 +168,7 @@ void KVBase::InitEnvironment()
    // (data repositories, datasets, etc. etc.)
    // Resets the gRandom random number sequence using a clock-based seed
    // (i.e. random sequences do not repeat).
-   // 
+   //
    // If automatic update checking is enabled (KaliVeda.AutoUpdateCheck:   yes),
    // we perform the check here. If updates are found, we download them and
    // then rebuild the sources. This will force the current application to terminate.
@@ -178,7 +179,7 @@ void KVBase::InitEnvironment()
    // the environment has been initialised, you can call this method.
 
    if (!fEnvIsInit) {//test if environment already initialised
-   
+
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
       ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
 				GetKVVersion(), GetKVBuildDate());
@@ -202,14 +203,14 @@ void KVBase::InitEnvironment()
          gEnv->ReadFile(tmp.Data(), kEnvUser);
          tmp = "./.kvrootrc";
          gEnv->ReadFile(tmp.Data(), kEnvLocal);
-			
+
 			// load plugin handlers
          gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
-         
+
 			// load mime types/icon definitions when not in batch (i.e. GUI-less) mode
 			if(!gROOT->IsBatch()) ReadGUIMimeTypes();
       }
-      
+
       // update check - do not perform if ROOT is running in batch mode
       if(!gROOT->IsBatch() && gEnv->GetValue("KaliVeda.AutoUpdateCheck", kFALSE)){
          KVCVSUpdateChecker upchk;
@@ -225,10 +226,10 @@ void KVBase::InitEnvironment()
 				//answ.ReadLine(cin);
          }
       }
-      
+
       //generate new seed from system clock
       gRandom->SetSeed(0);
-      
+
       // initialisation has been performed
       fEnvIsInit = kTRUE;
    }
@@ -338,6 +339,8 @@ void KVBase::Streamer(TBuffer & R__b)
 {
    //Backwards compatible streamer for KVBase objects
    //Needed to handle 'fLabel' char array in class version 1
+   //Objects written with version < 3 did not have kIsKaliVedaObject bit set,
+   //we set it here when reading object.
 
    if (R__b.IsReading()) {
       UInt_t R__s, R__c;
@@ -345,6 +348,7 @@ void KVBase::Streamer(TBuffer & R__b)
       if (R__v > 1) {
          //AUTOMATIC STREAMER EVOLUTION FOR CLASS VERSION > 1
          KVBase::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
+         if(R__v<3) SetBit(kIsKaliVedaObject);
          return;
       }
       //OLD STREAMER FOR CLASS VERSION 1
@@ -358,6 +362,7 @@ void KVBase::Streamer(TBuffer & R__b)
          fSLabel = Label;
          delete[]Label;
       }
+      SetBit(kIsKaliVedaObject);
       R__b.CheckByteCount(R__s, R__c, KVBase::IsA());
    } else {
       KVBase::Class()->WriteBuffer(R__b, this);
@@ -507,7 +512,7 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const C
    } else {
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(GetKVFilesDir(), name));
-   }     
+   }
    //Backup file if necessary
    BackupFileWithDate( fullpath.Data() );
    //put lock on file if required
@@ -526,7 +531,7 @@ void KVBase::BackupFileWithDate(const Char_t * path)
    //Example:
    //   KVBase::BackupFileWithDate("$(HOME)/toto.txt")
    //The file toto.txt will be renamed toto.txt.2007-05-02_16:22:37
-   
+
    //does the file exist ?
    KVString fullpath=path;
    gSystem->ExpandPathName(fullpath);
@@ -540,7 +545,7 @@ void KVBase::BackupFileWithDate(const Char_t * path)
          gSystem->Rename(fullpath.Data(), backup.Data());
          printf("Info in <KVBase::BackupFileWithDate(const Char_t *)> : Existing file %s renamed %s\n",
             fullpath.Data(), backup.Data());
-      }       
+      }
    }
 }
 
@@ -735,12 +740,12 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    decl_alt.SetParameter("%s.h", i);
    decl_alt.SetParameter("%s.hh", i);
    decl_alt.SetParameter("%s.H", i);
-   
+
    TString _dir_name = dir_name; gSystem->ExpandPathName(_dir_name);
    TSystemDirectory dir("LocDir", _dir_name.Data());
    TList *lf = dir.GetListOfFiles();
    Bool_t ok_imp, ok_dec; ok_imp = ok_dec = kFALSE;
-   
+
    //look for implementation file
    for(i=0; i<impl_alt.GetNPar(); i++){
       if(lf->FindObject(Form( impl_alt.GetParameter(i)->GetName(), class_name ) )){
@@ -758,7 +763,7 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    delete lf;
    return (ok_imp && ok_dec);
 }
- 
+
 //__________________________________________________________________________________________________________________
 
 const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
@@ -774,7 +779,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
    //then calling KVBase::GetPluginURI("KVIDTelescope", "KVIDPhoswich") will return "PHOS".
    //
    //Most of the code is copied from TPluginManager::LoadHandlersFromEnv
-   
+
    TIter next(gEnv->GetTable());
    TEnvRec *er;
    static TString tmp;
@@ -791,7 +796,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
             s += 7;
             //is it the right base class ?
             if( strcmp(s , base) ) continue;//skip to next env var if not right base
-            
+
             char *v = StrDup(val);
             while (1) {
                TString regexp = strtok(!cnt ? v : 0, "; ");
@@ -813,7 +818,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
                   tmp = regexp;
                   delete [] v;
                   return tmp.Data();
-               } 
+               }
                cnt++;
             }
             delete [] v;
@@ -823,7 +828,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
    tmp = "";
    return tmp;
 }
- 
+
 //__________________________________________________________________________________________________________________
 
 const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
@@ -832,7 +837,7 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
 	// the given base class.
    //
    // Most of the code is copied from TPluginManager::LoadHandlersFromEnv
-   
+
    TIter next(gEnv->GetTable());
    TEnvRec *er;
    static TString tmp;
@@ -849,7 +854,7 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
             s += 7;
             //is it the right base class ?
             if( strcmp(s , base) ) continue;//skip to next env var if not right base
-            
+
             char *v = StrDup(val);
             while (1) {
                TString regexp = strtok(!cnt ? v : 0, "; ");
@@ -886,20 +891,20 @@ void KVBase::ReadGUIMimeTypes()
 	//  KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon :   draw_t.xpm
 	//
 	// etc.
-	
+
 	KVString mimetypes = gEnv->GetValue("KaliVeda.GUI.MimeTypes","");
 	if(mimetypes!=""){
-		
+
 		mimetypes.Begin(" ");
 		while( !mimetypes.End() ){
-			
+
 			KVString classname = mimetypes.Next(kTRUE);
 			KVString icon = gEnv->GetValue( Form("KaliVeda.GUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
 			KVString type = classname; type.ToLower();
-			
+
 			if(gClient) gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]",type.Data()),
 					classname.Data(), icon.Data(), icon.Data(), "");
-			
+
 		}
 	}
 }
