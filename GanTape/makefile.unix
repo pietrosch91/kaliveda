@@ -223,4 +223,4 @@ $(LIBDIR)fonc_spectra.o : $(SRCDIR)fonc_spectra.c \
 				$(INCDIR)def_spectre.h 
 	$(CC) $(DEBUG) $(SRCDIR)fonc_spectra.c
 
-include makefile.unix.$(MAKEEXTENSION)
+#include makefile.unix.$(MAKEEXTENSION)
