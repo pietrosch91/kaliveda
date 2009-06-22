@@ -13,6 +13,7 @@
 #pragma link off all functions;
 #pragma link C++ class KVINDRA5+;
 #pragma link C++ class KVINDRADB5;
+#pragma link C++ class KVIDSi150CsI_camp5+;
 #pragma link C++ class KVIDSi150CsI+;
 #pragma link C++ class KVIDChIoSi5+;
 #pragma link C++ class KVIDChIoCsI_camp5+;
