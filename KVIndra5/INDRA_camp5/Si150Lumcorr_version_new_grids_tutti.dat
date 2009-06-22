@@ -3,8 +3,8 @@
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0807
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -893,8 +893,8 @@ ID:Z=7 A=16
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0808
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -1779,8 +1779,8 @@ ID:Z=18 A=37
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0817
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -2596,8 +2596,8 @@ ID:Z=18 A=37
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0818
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -3411,8 +3411,8 @@ ID:Z=17 A=35
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0823
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -3839,8 +3839,8 @@ ID:Z=3 A=8
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0824
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -4186,8 +4186,8 @@ ID:Z=4 A=10
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0703
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -4940,8 +4940,8 @@ ID:Z=8 A=18
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0704
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -5733,8 +5733,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0713
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -6540,8 +6540,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0714
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -7335,8 +7335,8 @@ ID:Z=8 A=18
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0603
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -8214,8 +8214,8 @@ ID:Z=18 A=37
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0604
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -9056,8 +9056,8 @@ ID:Z=18 A=37
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0613
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -9928,8 +9928,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0614
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -10819,8 +10819,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0907
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -11381,8 +11381,8 @@ ID:Z=2 A=3
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0908
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -12005,8 +12005,8 @@ ID:Z=15 A=31
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0917
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -12530,8 +12530,8 @@ ID:Z=12 A=24
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0918
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -12880,8 +12880,8 @@ ID:Z=3 A=7
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0923
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -13283,8 +13283,8 @@ ID:Z=10 A=20
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0924
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -13747,8 +13747,8 @@ ID:Z=12 A=24
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0409
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -14617,8 +14617,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0410
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -15454,8 +15454,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0221
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -16286,8 +16286,8 @@ ID:Z=19 A=39
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0321
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -16916,8 +16916,8 @@ ID:Z=6 A=14
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0322
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
@@ -17646,8 +17646,8 @@ ID:Z=5 A=12
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> Runlist=6000-8999
 <PARAMETER> IDTelescopes=SI_CSI_0509
 +KVIDZALine
@@ -18225,8 +18225,8 @@ ID:Z=18 A=36
 # This file can be read using KVIDZAGrid::ReadFromAsciiFile
 # 
 ++KVIDZAGrid
-<VARX> 
-<VARY> 
+<VARX> CSI-LUMCORR 
+<VARY> SIPG 
 <PARAMETER> IDTelescopes=SI_CSI_0510
 <PARAMETER> Runlist=6000-8999
 +KVIDZALine
