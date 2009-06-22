@@ -207,6 +207,7 @@ INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 # (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
 # due to a bad configuration of the trigger)
 INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
+
 # You can "fine-tune" what is meant by "all" acquisition parameters using the following
 # variables. For each detector type, give a comma-separated list of the acquisition
 # parameter types to be taken into account in the KVDetector::Fired method.
@@ -227,7 +228,6 @@ INDRA_e475s.KVDetector.Fired.ACQParameterList.SI: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
-
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
@@ -561,7 +561,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CSI$        KVIDCsI_e475s              KVIndra      "KVIDCsI_e475s()"
 +Plugin.KVIDTelescope:    ^SI-CSI$                                KVIDSiCsI              KVIndra           "KVIDSiCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_camp5.SI-CSI$        KVIDSiCsI5              KVIndra5      "KVIDSiCsI5()"
-+Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$   KVIDSi150CsI        KVIndra5        "KVIDSi150CsI()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$   KVIDSi150CsI_camp5        KVIndra5        "KVIDSi150CsI_camp5()"
 +Plugin.KVIDTelescope:    ^SILI-CSI$                               KVIDSiLiCsI            KVIndra         "KVIDSiLiCsI()"
 +Plugin.KVIDTelescope:    ^SI75-SILI$                            KVIDSi75SiLi           KVIndra         "KVIDSi75SiLi()"
 +Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$                            KVIDSi75SiLi_camp5           KVIndra5         "KVIDSi75SiLi_camp5()"
@@ -600,9 +600,8 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 #
 ################################################
 INDRA_camp5.IdentificationParameterFile.CSI:        CsIGrids.dat
-INDRA_camp5.IdentificationParameterFile.SI150-CSI:    si150_csi_id_params.dat
+INDRA_camp5.IdentificationParameterFile.SI150-CSI:    Si150Lumcorr_version_new_grids_tutti.dat
 INDRA_camp5.IdentificationParameterFile.SI150-CSI.SIPGLimits:    Si150PGLimits.dat
-INDRA_camp5.IdentificationParameterFile.SI150-CSI.CsILightMin:    si150_csi_id_lum_min_iso.dat
 INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat
 INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChioCsI_C10-12_PGZmin_GGZmax_Gaz1-2.dat
 INDRA_camp5.IdentificationParameterFile.CI-SI:           ChIoSiGrids.dat
