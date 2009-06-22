@@ -8,11 +8,22 @@
 
 class KVIDChIoSi75_camp5 : public KVIDChIoSi75
 {
+    KVIDZAGrid *fGGgrid;//!
+    KVIDZAGrid *fPGgrid;//!
+    KVDetector *fChIo;//!
+    KVDetector *fSi;//!
 
    public:
    KVIDChIoSi75_camp5();
    virtual ~KVIDChIoSi75_camp5();
 
+   virtual Bool_t SetIDGrid(KVIDGraph*);
+
+   virtual void Initialize(void);
+   Bool_t Identify(KVReconstructedNucleus * nuc);
+
+   virtual Double_t GetIDMapX(Option_t * opt = "");
+   virtual Double_t GetIDMapY(Option_t * opt = "");
 
    ClassDef(KVIDChIoSi75_camp5,1)//ChIo-Si(75) identification for INDRA 5th campaign data
 };
