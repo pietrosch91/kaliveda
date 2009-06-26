@@ -23,8 +23,6 @@ private:
     KVIDLine *fPunch;            //punch-through line
     KVIDLine *fSeuil;            //seuil silicium line
     KVIDLine *fEmaxSi;           //saturation codeur silicon
-    Bool_t is_bragg;//!
-    Bool_t is_punch;//!
 
     void init();
     void BackwardsCompatibilityFix();

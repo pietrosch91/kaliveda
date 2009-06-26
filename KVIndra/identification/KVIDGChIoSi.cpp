@@ -40,12 +40,19 @@ ClassImp(KVIDGChIoSi)
 // KVIDZAGrid::kICODE6,                   (x,y) is below first line in grid
 // KVIDZAGrid::kICODE7,                   (x,y) is above last line in grid
 // KVIDZAGrid::kICODE8,                   no identification: (x,y) out of range covered by grid
-// KVIDGChIoSi::k_BelowPunchThrough   "point to identify below punch-through line (bruit)",
+// KVIDGChIoSi::k_BelowPunchThrough   "warning: point below punch-through line",
 // KVIDGChIoSi::k_BelowSeuilSi      "point to identify left of Si threshold line (bruit/arret ChIo?)",
 // KVIDGChIoSi::k_LeftOfBragg       "point to identify below Bragg curve. Z given is a Zmin",
 // KVIDGChIoSi::k_RightOfEmaxSi         "point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable",
 //
-// Correctly-identified particles have quality codes < KVIDZAGrid::kICODE4.
+// Correctly-identified particles with no ambiguity have quality codes < KVIDZAGrid::kICODE4.
+// Particles with quality code KVIDGChIoSi::k_BelowPunchThrough are also in principle correctly identified,
+// but we give a warning that the point is below the line 'Punch_through' delimiting the region in which the
+// identification lines can be mixed with particles punching through the silicon if no additional condition
+// is placed on e.g. the CsI detector behind the silicon not firing.
+// Particles with quality code KVIDGChIoSi::k_LeftOfBragg are below the Bragg curve and the Z attributed
+// is a minimum value.
+// Particles with code KVIDZAGrid::kICODE7 are (far) above the last line of the grid, their Z is also a minimum.
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 KVIDGChIoSi::KVIDGChIoSi()
 {
@@ -110,18 +117,6 @@ Bool_t KVIDGChIoSi::IsIdentifiable(Double_t x, Double_t y) const
             const_cast < KVIDGChIoSi * >(this)->fICode = k_RightOfEmaxSi;
             return kFALSE;
         };
-    }
-    //particles below (left of) Bragg line are identified, but their Z is a Zmin
-    const_cast < KVIDGChIoSi * >(this)->is_bragg=kFALSE;
-    if (fBragg)
-    {
-        const_cast < KVIDGChIoSi * >(this)->is_bragg = fBragg->WhereAmI(x, y, "left");
-    }
-    //particles below punch through line are identified (if possible) with a warning code
-    const_cast < KVIDGChIoSi * >(this)->is_punch = kFALSE;
-    if (fPunch)
-    {
-        const_cast < KVIDGChIoSi * >(this)->is_punch = fPunch->WhereAmI(x, y, "below");
     }
     return can_id;
 }
@@ -234,11 +229,27 @@ void KVIDGChIoSi::Streamer(TBuffer &R__b)
 
 void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const
 {
-    // Changes KVIDZAGrid::Identify quality code if particle is left of 'Bragg_line'
-    // if KVIDZAGrid::Identify quality code is not good (>= KVIDZAGrid::kICODE4) and point is
-    // below 'Punch_through' line, we change quality code.
+   // After identification of the particle, we adjust the quality code
+	// (if the particle was well-identified by KVIDZAGrid::Identify, i.e. with
+	// fICode<KVIDZAGrid::kICODE4) if:
+	//    the particle is below the 'Bragg_line' => quality code KVIDGChIoSi::k_LeftOfBragg
+	//           in this case the Z given is a minimum value
+	//    the particle is below the 'Punch_through' line
+	//          => quality code KVIDGChIoSi::k_BelowPunchThrough, but the particle
+	//            is in principle well identified, if a condition has been applied
+	//            to make sure that the detector behind the silicon (i.e. CsI) did not
+	//            fire.
 
     KVIDZAGrid::Identify(x,y,nuc);
-    if (is_bragg) const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;
-    if (fICode>KVIDZAGrid::kICODE3 && is_punch) const_cast<KVIDGChIoSi*>(this)->fICode = k_BelowPunchThrough;
+	 // check Bragg & punch through for well identified particles
+    if(fICode<KVIDZAGrid::kICODE4)
+	 {
+		 //identified particles below (left of) Bragg line : Z is a Zmin
+    	 if (fBragg && fBragg->WhereAmI(x, y, "left"))
+			  const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;
+    	 //if a particle is well-identified (i.e. not too far from the identification lines)
+	 	 //but it lies below the 'Punch_through' line, we give it a warning code
+    	 if (fPunch && fPunch->WhereAmI(x, y, "below"))
+			  const_cast<KVIDGChIoSi*>(this)->fICode = k_BelowPunchThrough;
+	 }
 }
