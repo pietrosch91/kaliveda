@@ -55,7 +55,7 @@ class KVDataRepository:public TNamed {
 
    virtual int             Chmod(const char *file, UInt_t mode);
    virtual void PrepareXRDTunnel();
-   
+
    TSeqCollection  *fHelpers;          //List of helper classes for alternative file/directory access
  public:
    virtual int  CopyFile(const char *f, const char *t, Bool_t overwrite=kFALSE);
@@ -159,18 +159,18 @@ class KVDataRepository:public TNamed {
 //........ global variable
 R__EXTERN KVDataRepository *gDataRepository;
 
-#ifdef __CCIN2P3_RFIO
-#include "TRFIOFile.h"
-class KVRFIOSystem : public TRFIOSystem
+#ifdef __CCIN2P3_SRB
+#include "TUnixSystem.h"
+class KVSRBSystem : public TUnixSystem
 {
 public:
-   KVRFIOSystem():TRFIOSystem(){ };
-   virtual ~KVRFIOSystem() { };
+   KVSRBSystem():TUnixSystem(){ };
+   virtual ~KVSRBSystem() { };
 
    Int_t       Unlink(const char *path);
    int             Chmod(const char *file, UInt_t mode);
 
-   ClassDef(KVRFIOSystem,0) // TRFIOSystem with fully-functioning Unlink and Chmod methods
+   ClassDef(KVSRBSystem,0) // Dummy operating system plugin to handle SRB file requests
 };
 #endif
 #endif

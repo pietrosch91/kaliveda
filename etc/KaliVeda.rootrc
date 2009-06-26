@@ -92,16 +92,14 @@
 #Configuration used for KaliVeda on ccali.in2p3.fr machines (don't try this at home)
 #
 #DataRepository: ccali
-#ccali.DataRepository.RootDir:       cchpssindra:/hpss/in2p3.fr/group/indra
-#ccali.DataRepository.AccessProtocol:      rfio
+#ccali.DataRepository.RootDir:       /indra
+#ccali.DataRepository.AccessProtocol:      srb
 #ccali.DataRepository.CacheAvailable:          yes
 #ccali.DataRepository.MaxCacheTime:          86400
 #ccali.DataRepository.ReadProtocol:     root
 #ccali.DataRepository.CanWrite: NO
 #ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
-#ccali.DataRepository.RFIOServer:      cchpssindra
-#ccali.DataRepository.RFIORootDir:       /hpss/in2p3.fr/group/indra
 #
 #####################Case 5
 #Adding a personal repository on HPSS at CCIN2P3
@@ -721,6 +719,7 @@ Root.Html.Header:      header.html
 Root.Html.LastUpdate:       $Id:
 Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
 +Plugin.TSystem:      ^rfio:    KVRFIOSystem   KVMultiDet    "KVRFIOSystem()"
++Plugin.TSystem:      ^srb:    KVSRBSystem   KVMultiDet    "KVSRBSystem()"
 
 # Classes for fitting identification grids
 # To change the default fitter class, change the value of the following variable:

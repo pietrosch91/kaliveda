@@ -172,9 +172,6 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVUpDater;
 #pragma link C++ class KVHistoManipulator;
 #pragma link C++ class KVEventListMaker;
-#ifdef __CCIN2P3_RFIO
-#pragma link C++ class KVRFIOSystem+;
-#endif
 #pragma link C++ class KVVarGlob;
 #pragma link C++ class KVVarGlob1;
 #pragma link C++ class KVVarGlobMean;
@@ -212,4 +209,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVRelativeVelocity;
 #pragma link C++ class KVUpdateChecker;
 #pragma link C++ class KVCVSUpdateChecker;
+#ifdef __CCIN2P3_SRB
+#pragma link C++ class KVSRBSystem+;
+#endif
 #endif
