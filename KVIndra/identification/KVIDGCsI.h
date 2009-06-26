@@ -14,18 +14,20 @@ $Id: KVIDGCsI.h,v 1.18 2009/04/06 15:09:29 franklan Exp $
 #include "KVIDZAGrid.h"
 #include "KVIDCsIRLLine.h"
 
-class KVIDGCsI:public KVIDZAGrid {
+class KVIDGCsI:public KVIDZAGrid
+{
 
-   KVIDLine* IMFLine;//!
-   KVIDLine* GammaLine;//!
+    KVIDLine* IMFLine;//!
+    KVIDLine* GammaLine;//!
 
- protected:
-   KVIDLine *GetNearestIDLine(Double_t x, Double_t y,
-                              const Char_t * position, Int_t & idx_min,
-                              Int_t & idx_max);
-	virtual void BackwardsCompatibilityFix();
+protected:
+    KVIDLine *GetNearestIDLine(Double_t x, Double_t y,
+                               const Char_t * position, Int_t & idx_min,
+                               Int_t & idx_max);
+    virtual void BackwardsCompatibilityFix();
+    virtual Bool_t FindFourEmbracingLines(Double_t x, Double_t y, const Char_t* position);
 
- public:
+public:
 
 //    enum {
 //       kICODE0,                  // ok
@@ -45,27 +47,30 @@ class KVIDGCsI:public KVIDZAGrid {
     KVIDGCsI(const KVIDGCsI &);
     virtual ~ KVIDGCsI();
 
-   inline KVIDLine *GetGammaLine() const {
-      return GammaLine;
-   };
-   inline KVIDLine *GetIMFLine() const {
-      return IMFLine;
-   };
+    inline KVIDLine *GetGammaLine() const
+    {
+        return GammaLine;
+    };
+    inline KVIDLine *GetIMFLine() const
+    {
+        return IMFLine;
+    };
 
 
-   virtual void Identify(Double_t x, Double_t y,
-                         KVReconstructedNucleus * nuc) const;
+    virtual void Identify(Double_t x, Double_t y,
+                          KVReconstructedNucleus * nuc) const;
 
-   virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
+    virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
 
-   KVIDZALine *GetZALine(Int_t z, Int_t a, Int_t &) const;
-   KVIDZALine *GetZLine(Int_t z, Int_t &) const;
+    KVIDZALine *GetZALine(Int_t z, Int_t a, Int_t &) const;
+    KVIDZALine *GetZLine(Int_t z, Int_t &) const;
 
-   void IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A);
-   virtual void Initialize();
-	virtual TClass* DefaultIDLineClass(){
-		return TClass::GetClass("KVIDCsIRLLine");
-	};
+    void IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A);
+    virtual void Initialize();
+    virtual TClass* DefaultIDLineClass()
+    {
+        return TClass::GetClass("KVIDCsIRLLine");
+    };
 
     ClassDef(KVIDGCsI, 2)       //CsI Rapide-Lente grid & identification
 };
