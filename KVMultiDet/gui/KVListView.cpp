@@ -167,7 +167,7 @@ void KVListView::SetDefaultColumnWidth(TGVFileSplitter* splitter)
          if (i == 0) w = TMath::Max(fMaxSize.fWidth + 10, w);
          if (i > 0)  {
 				w = TMath::Max(container->GetMaxSubnameWidth(i) + 40, (Int_t)w);
-				printf("w=%ud\n",w);
+				//printf("w=%ud\n",w);
 				w = TMath::Min(w, fMaxColumnSize);
 			}
          fColHeader[i]->Resize(w, fColHeader[i]->GetHeight());
