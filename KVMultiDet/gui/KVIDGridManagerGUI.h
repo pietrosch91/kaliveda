@@ -31,6 +31,7 @@ class KVIDGridManagerGUI:public TGMainFrame {
 		M_GRIDS_DEL_SEL,
 		M_GRIDS_DEL_TAB,
 		M_GRIDS_DEL_ALL,
+		M_GRIDS_RUNLIST,
       ID_LIST_BOX
    };
    TGLayoutHints *fMenuBarItemLayout;
@@ -44,7 +45,7 @@ class KVIDGridManagerGUI:public TGMainFrame {
    KVIDGraph *fSelectedGrid;
    TString fFileName;
    TList *fSelectedEntries;
-	
+
 	TList* GetAllGridsInTab()
 	{
 		// list of all grids (selected or not) in current tab
