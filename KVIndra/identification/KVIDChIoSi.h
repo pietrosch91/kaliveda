@@ -24,25 +24,15 @@
 class KVIDChIoSi:public KVIDTelescope {
 
 protected:
-		
+
    KVIDGChIoSi* ChIoSiGrid;//!
 	KVDetector *fchio;//!
 	KVDetector *fsi;//!
 	Double_t fsipgped;//!
 	Double_t fchiopgped;//!
-	
-   
- public:
 
-   enum {
-      kID_OK,                              //normal successful identification
-      kID_BelowPunchThrough,  //point to ID was below punch-through line (bruit)
-      kID_BelowSeuilSi,               //point to ID was left of "Seuil Si" line (bruit/arret ChIo?)
-      kID_LeftOfBragg,              //point to ID is between 'Seuil Si' and 'Bragg': Z given is a Zmin.
-      kID_RightOfEmaxSi,          //point to ID has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable.
-      kID_ZgtZmax,                 //point to ID is higher (in ChIo) than line with biggest Z. Z given is a Zmin.
-      kID_nogrid                     //no grid for identification
-   };
+
+ public:
 
     KVIDChIoSi();
     virtual ~ KVIDChIoSi();
@@ -54,7 +44,7 @@ protected:
    Double_t GetIDMapY(Option_t * opt = "");
 
    virtual void Initialize();
-   
+
    const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
 
     ClassDef(KVIDChIoSi, 1)     //INDRA identification using ChIo-Si matrices
