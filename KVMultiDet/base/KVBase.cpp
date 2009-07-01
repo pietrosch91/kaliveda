@@ -52,6 +52,12 @@ KVBase object has<br>
 <li>a label - Get/SetLabel()<br>
 </li>
 </ul>
+When objects are accessed through a TObject/TNamed base pointer, it is possible
+to test whether an object is derived from KVBase, using the bit KVBase::kIsKaliVedaObject:
+<code>
+TObject* ob = (address of some object)
+if( ob->TestBit( KVBase::kIsKaliVedaObject ) ){
+</code>
 This class also provides a number of general utilities, often as static
 (stand-alone) methods.<br>
 <h3>KaliVeda build/installation information</h3>
