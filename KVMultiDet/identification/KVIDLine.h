@@ -23,12 +23,13 @@ class KVIDLine : public KVIDentifier
 
    KVIDLine();
    KVIDLine(const TGraph & gr);
+   KVIDLine(const KVIDLine &);
 
     virtual ~ KVIDLine();
 
 	virtual void WaitForPrimitive();
 	virtual void ExecuteEvent(Int_t event, Int_t px, Int_t py);
-	
+
    inline Double_t DistanceToLine(Double_t px, Double_t py, Int_t &);
    inline Double_t DistanceToLine(Double_t px, Double_t py, Double_t xp1,
                                   Double_t yp1, Double_t xp2, Double_t yp2,
@@ -42,10 +43,10 @@ class KVIDLine : public KVIDentifier
    inline void GetEndPoint(Double_t & x, Double_t & y) const;
    inline Bool_t IsBetweenEndPoints(Double_t x, Double_t y,
                                     const Char_t * axis = "") const;
-	
+
 	static KVIDLine *MakeIDLine(TObject *obj,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE);
 //	static KVIDLine *MakeIDLine(TH2 *obj,TCutG *cut,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE);
-      
+
     ClassDef(KVIDLine, 2)       //Base class for lines/cuts used for particle identification
 };
 
@@ -189,7 +190,7 @@ inline Bool_t KVIDLine::PosRelToLine(Option_t * opt, Double_t px,
    //Point is above line if 0<phi<180
    //Point is below line if 180<phi<360
    //The option string is "left", "right", "above" or "below", and the result is either kTRUE or kFALSE
-   //depending on the relative position of the point and the line. 
+   //depending on the relative position of the point and the line.
    //E.g. in the diagram shown above, PosRelToLine("below", ...) would give kTRUE - the point is
    //below the line.
 

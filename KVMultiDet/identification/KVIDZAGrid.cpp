@@ -1519,6 +1519,54 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
         SetYScaleFactor(y_scale);
 }
 
+KVIDGraph* KVIDZAGrid::MakeSubsetGraph(TList* lines, TClass* graph_class)
+{
+    // Create a new graph/grid using the subset of lines of this grid contained in TList 'lines'.
+    // By default the new graph/grid will be of the same class as this one, unless graph_class !=0,
+    // in which case it must contain the address of a TClass object representing a class which
+    // derives from KVIDGraph.
+    // A clone of each line will be made and added to the new graph, which will have the same
+    // name and be associated with the same ID telescopes as this one.
+
+    if(!graph_class) graph_class = IsA();
+    if(!graph_class->InheritsFrom("KVIDGraph")){
+        Error("MakeSubsetGraph", "Called with graph class %s, does not derive from KVIDGraph",
+        graph_class->GetName());
+        return 0;
+    }
+    KVIDGraph* new_graph = (KVIDGraph*)graph_class->New();
+    new_graph->AddIDTelescopes(&fTelescopes);
+    new_graph->SetOnlyZId( OnlyZId() );
+    // loop over lines in list, make clones and add to graph
+    TIter next(lines); KVIDentifier* id;
+    while( (id = (KVIDentifier*)next()) ){
+        KVIDentifier *idd = (KVIDentifier*)id->IsA()->New();
+        id->Copy(*idd);
+        new_graph->AddIdentifier( idd );
+    }
+    return new_graph;
+}
+
+KVIDGraph* KVIDZAGrid::MakeSubsetGraph(Int_t Zmin, Int_t Zmax, const Char_t* graph_class)
+{
+    // Create a new graph/grid using the subset of lines of this grid with Zmin <= Z <= Zmax.
+    // By default the new graph/grid will be of the same class as this one, unless graph_class !="",
+    // in which case it must contain the name of a class which derives from KVIDGraph.
+    // A clone of each line will be made and added to the new graph, which will have the same
+    // name and be associated with the same ID telescopes as this one.
+
+    TList *lines = new TList; // subset of lines to clone
+    TIter next(fIdentifiers); KVIDentifier* l;
+    while( (l = (KVIDentifier*)next()) ){
+        if(l->GetZ()>=Zmin && l->GetZ()<=Zmax) lines->Add(l);
+    }
+    TClass* cl=0;
+    if(strcmp(graph_class,"")) cl = TClass::GetClass(graph_class);
+    KVIDGraph* gr = MakeSubsetGraph(lines, cl);
+    delete lines;
+    return gr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ClassImp(KVIDZGrid)

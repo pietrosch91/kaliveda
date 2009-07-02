@@ -131,6 +131,9 @@ public:
     virtual void MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax,
                                   Double_t Emax_per_nucleon=100., Int_t npoints=20);//*MENU*
 
+    KVIDGraph* MakeSubsetGraph(Int_t Zmin, Int_t Zmax, const Char_t* /*graph_class*/="");//*MENU*
+    KVIDGraph* MakeSubsetGraph(TList*, TClass* /*graph_class*/=0);
+
     ClassDef(KVIDZAGrid, 2)     //Base class for 2D Z & A identification grids
 };
 
