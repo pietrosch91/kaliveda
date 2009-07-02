@@ -79,7 +79,7 @@ void KVIDGridManager::FindGrid(KVIDTelescope * idt)
 void KVIDGridManager::AddGrid(KVIDGraph * grid)
 {
    // Add a grid to the collection. It will be deleted by the manager.
-	
+
 	grid->SetBit(kMustCleanup);
    fGrids->Add(grid);
 }
@@ -89,7 +89,7 @@ void KVIDGridManager::DeleteGrid(KVIDGraph * grid, Bool_t update)
    //Remove grid from manager's list and delete it
    //update flag allows to disable the emission of the 'Modified' signal in case the GUI
    //is deleting a list of grids - in this case we don't want to update until the end
-	
+
 	if(!update) fGrids->Disconnect("Modified()", this, "Modified()");
    fGrids->Remove(grid);
 	grid->ResetBit(kMustCleanup);
@@ -100,7 +100,7 @@ void KVIDGridManager::DeleteGrid(KVIDGraph * grid, Bool_t update)
 void KVIDGridManager::Clear(Option_t * opt)
 {
    //Delete all grids and empty list, ready to start anew
-	
+
 	fGrids->Disconnect("Modified()", this, "Modified()");
   {fGrids->R__FOR_EACH(KVIDGraph,ResetBit)(kMustCleanup);}
    fGrids->Delete();
@@ -191,12 +191,12 @@ void KVIDGridManager::StartViewer() const
    //Opens GUI for managing grids
    new KVIDGridManagerGUI;
 }
-	
+
 void KVIDGridManager::GetListOfIDTelescopeLabels(KVString& list)
 {
 	// Replace contents of KVString with a comma-separated list of all
 	// different labels of ID telescopes associated with current list of ID grids.
-	
+
 	list="";
    TIter next(fGrids);
    KVIDGraph *grid = 0;KVString lab;
@@ -205,4 +205,13 @@ void KVIDGridManager::GetListOfIDTelescopeLabels(KVString& list)
 		if(!list.Contains(lab)) list.Append(lab);
    }
 	list.Remove(TString::kTrailing,',');
+}
+
+void KVIDGridManager::Initialize(Option_t* opt)
+{
+    // Initialize all grids in ID grid manager's list, i.e. we call the Initialize() method
+    // of every grid/graph.
+    TIter next(fGrids);
+    KVIDGraph* gr = 0;
+    while( (gr = (KVIDGraph*)next()) ) gr->Initialize();
 }

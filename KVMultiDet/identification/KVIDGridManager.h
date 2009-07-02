@@ -23,13 +23,13 @@ class KVIDGridManager:public KVBase {
    RQ_OBJECT("KVIDGridManager")
 
 	friend class KVIDGraph;
-	
+
  private:
 
    KVList * fGrids;             //collection of all ID graphs handled by manager
 
  protected:
-		 
+
    void AddGrid(KVIDGraph *);
 
  public:
@@ -67,11 +67,12 @@ class KVIDGridManager:public KVBase {
 		// Returns list of ID grids associated to ID telescopes of type 'label'
 		// (note: 'type' is actually value of KVIDTelescope::GetLabel)
 		// DELETE LIST AFTER USE !!!
-		
+
 		return fGrids->GetSubListWithMethod(label, "GetIDTelescopeLabel");
 	};
 	void GetListOfIDTelescopeLabels(KVString&);
-	
+	void Initialize(Option_t* /*opt*/="");
+
    ClassDef(KVIDGridManager, 0) //Handles a collection of identification grids
 };
 
