@@ -18,7 +18,7 @@ ClassImp(KVIDSi150CsI_camp5)
 KVIDSi150CsI_camp5::KVIDSi150CsI_camp5()
 {
    // Default constructor
-   fGrid=0;
+   fZGrid=fZAGrid=0;
    fSi=0;
    fCsI=0;
 }
@@ -31,6 +31,7 @@ KVIDSi150CsI_camp5::~KVIDSi150CsI_camp5()
 Bool_t KVIDSi150CsI_camp5::SetIDGrid(KVIDGraph *grid)
 {
    // Called by KVIDGridManager::FindGrid in order to set grids for telescope.
+   // There should be 2: one with full isotopic identification, one with just Z identification.
 
 	if( !grid->HandlesIDTelescope(this) )
       return kFALSE;
@@ -43,7 +44,8 @@ Bool_t KVIDSi150CsI_camp5::SetIDGrid(KVIDGraph *grid)
 
    //the grid is accepted
    fIDGrids->Add(grid);
-   fGrid = (KVIDZAGrid*)grid;
+   if(grid->OnlyZId()) fZGrid = (KVIDZAGrid*)grid;
+   else fZAGrid = (KVIDZAGrid*)grid;
 
    return kFALSE; // make gIDGridManager keep searching!
 }
@@ -59,9 +61,10 @@ void KVIDSi150CsI_camp5::Initialize()
 	fSi=(KVSilicon*)GetDetector(1);
 	fSIPG = fSi->GetACQParam("PG");
 	fCsI=(KVCsI*)GetDetector(2);
-   if( fGrid ){
+   if( fZAGrid ){
       SetBit(kReadyForID);
-      fGrid->Initialize();
+      fZAGrid->Initialize();
+      if(fZGrid) fZGrid->Initialize();
    }
 	else
 		ResetBit(kReadyForID);
@@ -87,16 +90,25 @@ Double_t KVIDSi150CsI_camp5::GetIDMapY(Option_t * opt)
 
 Bool_t KVIDSi150CsI_camp5::Identify(KVReconstructedNucleus * nuc)
 {
-   //Particle identification and code setting using identification grid
+    //Particle identification and code setting using identification grids
 
       KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
+      KVIDGrid* theIdentifyingGrid = 0;
 
-      //perform identification in Si150(PG)-CsI map
-      fGrid->Identify(GetIDMapX(), GetIDMapY(), irnuc);
-      //set subcode in particle
-      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), fGrid->GetQualityCode());
+      // try full isotopic identification
+      fZAGrid->Identify(GetIDMapX(), GetIDMapY(), irnuc);
+      theIdentifyingGrid = fZAGrid;
 
-		if(fGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
+      if(fZAGrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fZGrid){
+
+          // particle is above Z&A grid: try Z only ID
+          fZGrid->Identify(GetIDMapX(), GetIDMapY(), irnuc);
+          theIdentifyingGrid = fZGrid;
+      }
+
+      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
+
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
 			// only if the final quality code is kICODE8 do we consider that it is
 			// worthwhile looking elsewhere. In all other cases, the particle has been
 			// "identified", even if we still don't know its Z and/or A (in this case
@@ -104,15 +116,15 @@ Bool_t KVIDSi150CsI_camp5::Identify(KVReconstructedNucleus * nuc)
 			return kFALSE;
 		}
 
-		if(fGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE7 (above last line in grid) then the estimated
 			// Z is only a minimum value (Zmin)
 			irnuc->SetIDCode( kIDCode5 );
 			return kTRUE;
 		}
 
-		if(fGrid->GetQualityCode() > KVIDZAGrid::kICODE3 &&
-				fGrid->GetQualityCode() < KVIDZAGrid::kICODE7){
+		if(theIdentifyingGrid->GetQualityCode() > KVIDZAGrid::kICODE3 &&
+				theIdentifyingGrid->GetQualityCode() < KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
 			// corresponds to a point which is inbetween the lines, i.e. noise
 			irnuc->SetIDCode( kIDCode10 );

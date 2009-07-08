@@ -11,7 +11,8 @@
 
 class KVIDSi150CsI_camp5 : public KVIDSiCsI
 {
-    KVIDZAGrid* fGrid;//! identification grid
+    KVIDZAGrid* fZAGrid;//! identification grid with isotopes (small Z)
+    KVIDZAGrid* fZGrid;//! identification grid with 1 line per Z (large Z)
     KVSilicon* fSi;//! silicon detector
     KVACQParam* fSIPG;//! silicon detector PG acquisition parameter
     KVCsI* fCsI;//! csi detector
