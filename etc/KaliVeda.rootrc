@@ -601,7 +601,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 #
 ################################################
 INDRA_camp5.IdentificationParameterFile.CSI:        CsIGrids.dat
-INDRA_camp5.IdentificationParameterFile.SI150-CSI:    Si150Lumcorr_version_new_grids_tutti.dat
+INDRA_camp5.IdentificationParameterFile.SI150-CSI:    Si150CsIGrids.dat
 INDRA_camp5.IdentificationParameterFile.SI150-CSI.SIPGLimits:    Si150PGLimits.dat
 INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat
 INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChioCsI_C10-12_PGZmin_GGZmax_Gaz1-2.dat
