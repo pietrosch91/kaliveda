@@ -19,8 +19,10 @@ class KVIDGraph;
 
 class KVIDentifier : public TCutG
 {
+    friend class KVIDGraph;
+
 	protected:
-	KVIDGraph 	*fParent;	//parent identification map or grid
+	KVIDGraph 	*fParent;	//!parent identification map or grid
    KVNucleus 	fIon;    	//ion/nucleus corresponding to this identifier
 
 	Int_t fZ;//! dummy variables used by context menu dialog boxes

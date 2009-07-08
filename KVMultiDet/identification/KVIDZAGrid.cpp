@@ -1537,11 +1537,16 @@ KVIDGraph* KVIDZAGrid::MakeSubsetGraph(TList* lines, TClass* graph_class)
     KVIDGraph* new_graph = (KVIDGraph*)graph_class->New();
     new_graph->AddIDTelescopes(&fTelescopes);
     new_graph->SetOnlyZId( OnlyZId() );
+    new_graph->SetRuns( GetRuns() );
+    new_graph->SetVarX( GetVarX() );
+    new_graph->SetVarY( GetVarY() );
+    if( OnlyZId() ){ new_graph->SetMassFormula( GetMassFormula() ); }
     // loop over lines in list, make clones and add to graph
     TIter next(lines); KVIDentifier* id;
     while( (id = (KVIDentifier*)next()) ){
-        KVIDentifier *idd = (KVIDentifier*)id->IsA()->New();
-        id->Copy(*idd);
+        KVIDentifier *idd = (KVIDentifier*)id->Clone();
+        //id->Copy(*idd);
+        //idd->ResetBit(kCanDelete);
         new_graph->AddIdentifier( idd );
     }
     return new_graph;
@@ -1563,6 +1568,7 @@ KVIDGraph* KVIDZAGrid::MakeSubsetGraph(Int_t Zmin, Int_t Zmax, const Char_t* gra
     TClass* cl=0;
     if(strcmp(graph_class,"")) cl = TClass::GetClass(graph_class);
     KVIDGraph* gr = MakeSubsetGraph(lines, cl);
+    lines->Clear();
     delete lines;
     return gr;
 }

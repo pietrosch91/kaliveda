@@ -96,7 +96,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVIDentifier+;
-#pragma link C++ class KVIDGraph+;
+#pragma link C++ class KVIDGraph-;
 #pragma link C++ class KVIDLine-;
 #pragma link C++ class KVIDContour+;
 #pragma link C++ class KVIDCutContour+;
