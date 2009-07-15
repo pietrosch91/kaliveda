@@ -379,7 +379,11 @@ ClassImp(KVDataAnalysisLauncher)
 //__________________________________________
 KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t h):TGMainFrame(p,w,h)
 {
-   // Createur
+   // Main window width and height can be set using .kvrootrc variables:
+	//     KaliVedaGUI.MainGUIWidth:       800
+	//     KaliVedaGUI.MainGUIHeight:       600
+   // Maximum column width of runlist can be set using:
+	//     KaliVedaGUI.MaxColWidth:       500
  
 	entryMax=-1;
    //Initialisation of resource file
@@ -421,11 +425,14 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
                                        kLHintsExpandX,
 				       1,1,1,1);
 
-// Creation des 3 frames dans la fenetre
- TGCompositeFrame *cfSelect=new TGCompositeFrame(this,1600,350,kVerticalFrame);
+	fMainGuiWidth = gEnv->GetValue("KaliVedaGUI.MainGUIWidth", 400);
+	fMainGuiHeight = gEnv->GetValue("KaliVedaGUI.MainGUIHeight", 600);
+
+	// Creation des 3 frames dans la fenetre
+ TGCompositeFrame *cfSelect=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
  
  Int_t justMode=kTextBottom|kTextRight;
- TGCompositeFrame *cf=new TGCompositeFrame(cfSelect,1600,350,kHorizontalFrame);
+ TGCompositeFrame *cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Repository
  TGLabel *lab=new TGLabel(cf,"Repository");
  lab->Resize(150,20);
@@ -442,7 +449,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(cbRepository,eX);
  cfSelect->AddFrame(cf,eX);
  
- cf=new TGCompositeFrame(cfSelect,1600,350,kHorizontalFrame);
+ cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Data Set
  lab=new TGLabel(cf,"Data Set");
  lab->Resize(150,20);
@@ -460,7 +467,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(cbDataSet,eX);
  cfSelect->AddFrame(cf,eX);
 
- cf=new TGCompositeFrame(cfSelect,1600,350,kHorizontalFrame);
+ cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Task
  lab=new TGLabel(cf,"Task");
  lab->SetTextJustify(justMode);
@@ -478,7 +485,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(cbTask,eX);
  cfSelect->AddFrame(cf,eX);
 
- cf=new TGCompositeFrame(cfSelect,1600,350,kHorizontalFrame);
+ cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du systeme
  lab=new TGLabel(cf,"System");
  lab->SetTextJustify(justMode);
@@ -500,7 +507,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(cbSystem,eX);
  cfSelect->AddFrame(cf,eX);
 
- cf=new TGCompositeFrame(cfSelect,1600,350,kHorizontalFrame);
+ cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Trigger
  lab=new TGLabel(cf,"Trigger");
  lab->SetTextJustify(justMode);
@@ -524,9 +531,11 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
                                     10,10,1,1));
  
 // Frame pour la liste des runs
- TGCompositeFrame *cfRuns=new TGCompositeFrame(this,1600,350,kVerticalFrame);
+ TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
 	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, 500, 250);
 	lvRuns->SetDataColumns(5);
+	cout << "KaliVedaGUI.MaxColWidth="<<gEnv->GetValue("KaliVedaGUI.MaxColWidth",200)<<endl;
+	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
 	lvRuns->SetDataColumn(0, "Run", "GetNumber");
 	lvRuns->SetDataColumn(1, "Trigger", "GetTriggerString");
 	lvRuns->SetDataColumn(2, "Events", "", kTextRight);
@@ -541,7 +550,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 	cfRuns->AddFrame(lvRuns, eXeY);
 
 // Boutons de selection
- TGCompositeFrame *cfSelAll=new TGCompositeFrame(cfRuns,1600,20,kHorizontalFrame);
+ TGCompositeFrame *cfSelAll=new TGCompositeFrame(cfRuns,fMainGuiWidth,20,kHorizontalFrame);
  TGTextButton *bout=new TGTextButton(cfSelAll,"Select All");
  bout->SetToolTipText("Select all runs for the analysis.",TTDELAY);
  bout->Connect("Clicked()",
@@ -573,8 +582,8 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  this->AddFrame(cfRuns,eXeY);
   
 // UserClass and DataSelector et nombre d'evenements
- cfAnalysis=new TGCompositeFrame(this,1600,20,kVerticalFrame);
- cf=new TGCompositeFrame(cfAnalysis,1600,20,kHorizontalFrame);
+ cfAnalysis=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
+ cf=new TGCompositeFrame(cfAnalysis,fMainGuiWidth,20,kHorizontalFrame);
 // Label for User Class name
  fUserClassLabel=new TGLabel(cf,"User Class");
  cf->AddFrame(fUserClassLabel,eX); 
@@ -587,7 +596,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  
  cfAnalysis->AddFrame(cf,eX);
  
- cf=new TGCompositeFrame(cfAnalysis,1600,20,kHorizontalFrame);
+ cf=new TGCompositeFrame(cfAnalysis,fMainGuiWidth,20,kHorizontalFrame);
  //teSelector=new TGTextEntry(cf,"");
  //teSelector->Resize(233,20);
  //teSelector->SetToolTipText("Enter the user analysis class name",TTDELAY);
@@ -623,7 +632,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 
  this->AddFrame(cfAnalysis,eX);
 
- cf=new TGCompositeFrame(this,1600,20,kHorizontalFrame);
+ cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
  // Frame for the user's libraries
  bout=new TGTextButton(cf,"User's libraries",B_Libs);
  bout->Connect("Clicked()",
@@ -641,7 +650,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 
  this->AddFrame(cf,eX);
  
- cf=new TGCompositeFrame(this,1600,20,kHorizontalFrame);
+ cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
  // Radio buttons for the running mode
  TString tit="Running Mode";
  TGVButtonGroup *gb=new TGVButtonGroup(cf,tit);
@@ -657,8 +666,8 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(gb,eXcY);
 
  justMode=kTextCenterY|kTextLeft;
- TGCompositeFrame *cf2=new TGCompositeFrame(cf,1600,20,kVerticalFrame);
- TGCompositeFrame *cf3=new TGCompositeFrame(cf2,1600,20,kHorizontalFrame);
+ TGCompositeFrame *cf2=new TGCompositeFrame(cf,fMainGuiWidth,20,kVerticalFrame);
+ TGCompositeFrame *cf3=new TGCompositeFrame(cf2,fMainGuiWidth,20,kHorizontalFrame);
  lab=new TGLabel(cf3," Batch Name ");
  lab->SetTextJustify(justMode);
  cf3->AddFrame(lab,eX); 
@@ -692,8 +701,8 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  //we do not display the corresponding widgets
 if( gBatchSystemManager->GetDefaultBatchSystem()->IsA()->GetMethodAllAny("SetJobTime") ){
    withBatchParams = kTRUE;
- TGCompositeFrame *cfBatchPar=new TGCompositeFrame(this,1600,20,kVerticalFrame);
- cf=new TGCompositeFrame(cfBatchPar,1600,20,kHorizontalFrame);
+ TGCompositeFrame *cfBatchPar=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
+ cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
  fBatchMemLab=new TGLabel(cf,"Batch Memory");
  cf->AddFrame(fBatchMemLab,eX); 
  fBatchDiskLab=new TGLabel(cf,"Batch Disk");
@@ -701,7 +710,7 @@ if( gBatchSystemManager->GetDefaultBatchSystem()->IsA()->GetMethodAllAny("SetJob
  fBatchTimeLab=new TGLabel(cf,"Batch Time");
  cf->AddFrame(fBatchTimeLab,eX);
  cfBatchPar->AddFrame(cf,eX); 
- cf=new TGCompositeFrame(cfBatchPar,1600,20,kHorizontalFrame);
+ cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
  teBatchMemory=new TGTextEntry(cf,"256MB");
  teBatchMemory->SetToolTipText("Enter max memory per job (xKB/xMB/xGB)",TTDELAY);
  teBatchMemory->SetAlignment(kTextRight);
@@ -739,7 +748,7 @@ else
 #ifdef KVDAL_DEBUG 
  cout << "Creation Process/Quit" << endl;
 #endif
- TGCompositeFrame *cfProcess=new TGCompositeFrame(this,1600,20,kHorizontalFrame);
+ TGCompositeFrame *cfProcess=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
 // Bouton de process
  bout=new TGTextButton(cfProcess,"&Process",B_Process);
  bout->SetToolTipText("Run the analysis.",TTDELAY);
@@ -763,6 +772,7 @@ else
  SetIconName(Form("KaliVeda Analysis Launcher on %s",gSystem->HostName()));
 
  MapWindow();
+ SetWMSize(fMainGuiWidth,fMainGuiHeight);
  
  SetRepositoryList();
  ia=0;

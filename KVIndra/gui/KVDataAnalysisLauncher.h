@@ -171,9 +171,12 @@ protected:
    const Char_t* GetUserClass();
    void DisableUserClassList();
    void EnableUserClassList();
+	
+	UInt_t fMainGuiWidth;//width of main window in pixels
+	UInt_t fMainGuiHeight;//heigth of main window in pixels 
    
 public:
-	KVDataAnalysisLauncher(const TGWindow *p=0,UInt_t w=2000,UInt_t h=400);
+	KVDataAnalysisLauncher(const TGWindow *p=0,UInt_t w=200,UInt_t h=400);
 	~KVDataAnalysisLauncher();
 	virtual Bool_t ProcessMessage(Long_t msg, Long_t par1, Long_t par2); 
 	
