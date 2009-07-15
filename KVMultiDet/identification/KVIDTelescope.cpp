@@ -348,17 +348,10 @@ Bool_t KVIDTelescope::Identify(KVReconstructedNucleus * nuc)
 
 //____________________________________________________________________________________
 
-Bool_t KVIDTelescope::SetIDGrid(KVIDGraph * grid)
+void KVIDTelescope::SetIDGrid(KVIDGraph * grid)
 {
    //Add an identification grid to the list of grids used by this telescope.
-   //Needs to be redefined in child classes which use KVIDGridManager to handle a large
-   //collection of identification grids.
-   //This method is used by KVIDGridManager::FindGrid to attribute correct grids to different
-   //KVIDTelescopes. When the right grid is given to the right telescope, this method
-   //returns kTRUE and the grid is added to the telescope's list of grids.
-   //Default here is to return kFALSE.
-
-   return kFALSE;
+   fIDGrids->Add(grid);
 }
 
 //____________________________________________________________________________________
@@ -477,7 +470,7 @@ void KVIDTelescope::SetLabelFromURI(const Char_t* uri)
 {
    //PRIVATE METHOD
    //Sets label of telescope based on URI of plugin describing child class for this telescope
-      
+
    TString _uri(uri);
    if(_uri.BeginsWith( gDataSet->GetName() )) _uri.Remove(0, strlen(gDataSet->GetName())+1);
    SetLabel(_uri.Data());
@@ -497,7 +490,7 @@ Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray* MDA)
    //
    // which is assumed to contain identification grids. The file will be read in by gIDGridManager
    // and the grids added to its list.
-   
+
    TString filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s",GetLabel()) );
    if( filename == "" ){
       Warning("SetIdentificationParameters",
@@ -572,15 +565,15 @@ void KVIDTelescope::RemoveIdentificationParameters()
    //This default method takes the list of grids associated to the telescope,
    //and for each one: 1) checks if it is still in the gIDGridManager's list
    //2) if yes, delete the grid and remove it from gIDGridManager
-   
+
    TIter next_grid( fIDGrids );
    KVIDGrid* grid;
    while( (grid = (KVIDGrid*)next_grid()) ){
-      
+
       if ( gIDGridManager->GetGrids()->FindObject( grid ) ){//this only works if KVIDTelescope uses TObject:IsEqual method (i.e. compares pointers)
-         
+
          gIDGridManager->DeleteGrid( grid );
-         
+
       }
    }
    //clear list of grids
@@ -601,35 +594,35 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    //                         These energy losses are corrected for (Z,A)-dependent effects
    //                          such as pulse-heigth defect in silicon detectors, losses in
    //                          windows of gas detectors, etc.
-   // 
+   //
    // Whenever possible, the energy loss for fired detectors which are uncalibrated
    // or not functioning is calculated. In this case the status returned by GetCalibStatus()
    // will be KVIDTelescope::kCalibStatus_Calculated.
    // If none of the detectors is calibrated, the particle's energy cannot be calculated &
    // the status will be KVIDTelescope::kCalibStatus_NoCalibrations.
    // Otherwise, the status code will be KVIDTelescope::kCalibStatus_OK.
-   
+
    //status code
    fCalibStatus = kCalibStatus_NoCalibrations;
-   
+
    UInt_t z = nuc->GetZ();
    //uncharged particles
    if(z==0) return;
-   
+
    KVDetector* d1 = GetDetector(1);
    KVDetector* d2 = (fDetectors->GetSize()>1 ? GetDetector(2) : 0);
    Bool_t d1_cal = d1->IsCalibrated();
    Bool_t d2_cal = (d2 ? d2->IsCalibrated() : kFALSE);
-   
+
    //no calibrations
    if (!d1_cal && !d2)
       return;
    if((d1&&d2) && !d1_cal && !d2_cal)
-      return; 
+      return;
 
    //status code
    fCalibStatus = kCalibStatus_OK;
-   
+
    UInt_t a = nuc->GetA();
 
    // particles stopped in first member of telescope
@@ -642,13 +635,13 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
          nuc->GetAnglesFromTelescope();
       }
       return;
-   } 
-   
+   }
+
    Double_t e1, e2, einc;
    e1 = e2 = einc = 0.0;
-   
+
    if (!d1_cal) {//1st detector not calibrated - calculate from residual energy in 2nd detector
-      
+
       //second detector must exist and have all acquisition parameters fired with above-pedestal value
       if(d2 && d2->Fired("Pall")) e2 = d2->GetCorrectedEnergy(z, a, -1, kFALSE);//N.B.: transmission=kFALSE because particle stop in d2
       if( e2 <= 0.0 ){
@@ -669,13 +662,13 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
          fCalibStatus = kCalibStatus_Calculated;
       }
    } else {//1st detector is calibrated too: get corrected energy loss
-      
+
       e1 = d1->GetCorrectedEnergy(z, a);
-      
+
    }
-   
+
    if (d2 && !d2_cal) {//2nd detector not calibrated - calculate from energy loss in 1st detector
-      
+
       e1 = d1->GetCorrectedEnergy(z, a);
       if( e1 <= 0.0 ){
          // zero energy loss in 1st detector ? can't do anything...
@@ -691,20 +684,20 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
          e2 = d2->GetCorrectedEnergy(z,a);
          //status code
          fCalibStatus = kCalibStatus_Calculated;
-      } 
+      }
    }
    else if(d2){//2nd detector is calibrated too: get corrected energy loss
-      
+
       e2 = d2->GetCorrectedEnergy(z, a, -1, kFALSE);//N.B.: transmission=kFALSE because particle assumed to stop in d2
-      
+
    }
-   
+
    //incident energy of particle (before 1st member of telescope)
    einc = e1 + e2;
-   
+
    Double_t coherence_tolerance = gEnv->GetValue("KVIDTelescope.CoherencyTolerance", 1.05);
    if(coherence_tolerance < 1) coherence_tolerance += 1.00;
-   
+
    //Now we have to work our way up the list of detectors from which the particle was
    //reconstructed. For each fired & calibrated detector which is only associated with
    //one particle in the events, we add the corrected measured energy loss
@@ -716,7 +709,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
       //look at detectors not in this id telescope
       int idet = GetSize();//next detector after delta-e member of IDTelescope (stopping detector = 0)
       while (idet < ndets) {
-         
+
          KVDetector *det = nuc->GetDetector(idet);
          if( det->Fired() && det->IsCalibrated() && det->GetNHits() == 1 ){
             Double_t dE = det->GetEnergy();
@@ -789,7 +782,7 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
 	// by the character string returned by method GetLabel()... sorry :( )
 	// If no default grid is defined for the specific type of this telescope,
 	// the default defined by KVIDTelescope.DefaultGrid is used.
-	
+
 	TString general = gEnv->GetValue("KVIDTelescope.DefaultGrid", "KVIDGraph");
 	TString specific; specific.Form("KVIDTelescope.DefaultGrid.%s", GetLabel());
 	return gEnv->GetValue(specific.Data(), general.Data());
@@ -799,21 +792,21 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
 
 KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints)
 {
-	
+
 	if (GetSize()<=1) return 0;
-	
+
 	KVNumberList nlz(Zrange);
-	
+
 	TClass* cl = new TClass(GetDefaultIDGridClass());
 	KVIDGrid* idgrid = (KVIDGrid* )cl->New();
 	delete cl;
-	
+
 	idgrid->AddIDTelescope(this);
 	idgrid->SetOnlyZId((deltaMasse!=0));
 
 	KVDetector* det_de = GetDetector(1);	if (!det_de)		return 0;
 	KVDetector* det_eres = GetDetector(2);	if (!det_eres) 	return 0;
-	
+
 	KVNucleus part;
 	Info("SimulateGrid",
         "Calculating dE-E grid: dE detector = %s, E detector = %s",
@@ -832,7 +825,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
       	part.SetA(aaa);
 			printf("+ %d %d %d\n",aaa,aref,part.IsKnown());
 			if (part.IsKnown()){
-				
+
 				//loop over energy
       		//first find :
       		//      ****E1 = energy at which particle passes ChIo and starts to enter Si****
@@ -881,7 +874,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
          		part.SetEnergy(E2);
          		det_de->Clear();
 					det_eres->Clear();
-         		
+
 					det_de->DetectParticle(&part);
          		det_eres->DetectParticle(&part);
          		if (part.GetEnergy() > .1) {
@@ -894,7 +887,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
             		E2 = (E2max + E2min) / 2.;
          		}
       		}
-      
+
       		cout << "Z=" << zzz << " E1 = " << E1 << " E2 = " << E2 << endl;
       		KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
       		if (TMath::Even(zzz)) line->SetLineColor(4);
@@ -915,15 +908,15 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 					while (Eres < 0.1 && niter<=20) {
             		det_de->Clear();
             		det_eres->Clear();
-            
+
 						part.SetEnergy(E);
-            		
+
 						det_de->DetectParticle(&part);
             		det_eres->DetectParticle(&part);
-            
+
 						Eres = det_eres->GetEnergy();
             		E += 0.1;
-         		
+
 						//printf("3eme iteration %lf<0.1 - %lf\n",Eres,E);
 						niter+=1;
 					}
@@ -935,9 +928,9 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 				}
 				//printf("sort de boucle points");
 			}
-		}		
+		}
    }
-	
+
 	return idgrid;
-	
+
 }

@@ -20,20 +20,18 @@ class KVIDSi75SiLi_camp5 : public KVIDSi75SiLi
    KVIDZAGrid* fPGZgrid;//! grid used for Si75(PG)-SiLi(PG) charge identification
 	KVDetector* fSi75;//!
 	KVDetector* fSiLi;//!
-   
+
    public:
 
    KVIDSi75SiLi_camp5();
    virtual ~KVIDSi75SiLi_camp5();
 
-   virtual Bool_t SetIDGrid(KVIDGraph *);
-
    virtual void Initialize(void);
    Bool_t Identify(KVReconstructedNucleus * nuc);
-   
+
    virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");
-   
+
    ClassDef(KVIDSi75SiLi_camp5,1)//Identification in Si75-SiLi telescopes for INDRA_camp5 dataset
 };
 

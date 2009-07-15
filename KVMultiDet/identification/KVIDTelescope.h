@@ -45,12 +45,12 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
       kReadyForID = BIT(16)         //set if telescope is ready and able for identification. set in Initialize()
    };
    Int_t fCalibStatus;//!temporary variable holding status code for last call to Calibrate(KVReconstructedNucleus*)
-   
+
    void SetLabelFromURI(const Char_t* uri);
 
  public:
-      
-       // status of particle calibration after Calibrate(KVReconstructedNucleus*) is called 
+
+       // status of particle calibration after Calibrate(KVReconstructedNucleus*) is called
    enum {
       kCalibStatus_OK,                    // fine, OK, all detectors calculated and functioning properly
       kCalibStatus_Calculated,        // one or more detectors not calibrated/functioning, energy loss calculated
@@ -93,23 +93,23 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
    virtual TGraph *MakeIDLine(KVNucleus * nuc, Float_t Emin, Float_t Emax,
                               Float_t Estep = 0.0);
 
+   virtual void Initialize(void) {
    // Default initialisation for ID telescopes. kReadyForID is set to kFALSE.
    // To implement identification, make a class derived from KVIDTelescope
    // and set kReadyForID to kTRUE in Initialize() method of derived class.
-   virtual void Initialize(void) {
       ResetBit(kReadyForID);
    };
-   
+
    virtual Bool_t Identify(KVReconstructedNucleus *);
-   
+
    virtual void CalculateParticleEnergy(KVReconstructedNucleus * nuc);
+   virtual Int_t GetCalibStatus() const
+   {
    // When called just after CalculateParticleEnergy(KVReconstructedNucleus*)
    // this method returns a status code which is one of
    //   KVIDTelescope::kCalibStatus_OK,            : fine, OK, all detectors calculated and functioning properly
    //   KVIDTelescope::kCalibStatus_Calculated,    : one or more detectors not calibrated/functioning, energy loss calculated
    //   KVIDTelescope::kCalibStatus_NoCalibrations : no calibrations available for any detectors
-   virtual Int_t GetCalibStatus() const
-   {
       return fCalibStatus;
    };
 
@@ -125,7 +125,7 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
       return fECode;
    };
 
-   virtual Bool_t SetIDGrid(KVIDGraph *);
+   void SetIDGrid(KVIDGraph *);
    virtual KVIDGraph *GetIDGrid();
    virtual KVIDGraph *GetIDGrid(Int_t);
    virtual KVIDGraph *GetIDGrid(const Char_t*);
@@ -139,7 +139,7 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
    void SetHasMassID(Bool_t yes=kTRUE) {
       SetBit(kMassID,yes);
    };
-   
+
    // Returns kTRUE if this telescope is capable of identifying particles' mass (A)
    // as well as their charge (Z).
    Bool_t HasMassID() const {
@@ -153,10 +153,10 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
    };
 
    static KVIDTelescope *MakeIDTelescope(const Char_t * name);
-   
+
    virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
    virtual void RemoveIdentificationParameters();
-   
+
    // Returns kTRUE if telescope has been correctly initialised for identification.
    // Test after Initialize() method has been called.
    virtual Bool_t IsReadyForID()
@@ -166,7 +166,7 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
 	const Char_t* GetDefaultIDGridClass();
 	KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints);
-   
+
 	ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
 };
 

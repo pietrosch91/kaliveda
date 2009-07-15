@@ -20,7 +20,6 @@ class KVIDSi150CsI_camp5 : public KVIDSiCsI
    public:
    KVIDSi150CsI_camp5();
    virtual ~KVIDSi150CsI_camp5();
-   virtual Bool_t SetIDGrid(KVIDGraph *);
 
    virtual void Initialize(void);
    Bool_t Identify(KVReconstructedNucleus * nuc);

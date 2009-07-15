@@ -17,8 +17,6 @@ class KVIDChIoSi75_camp5 : public KVIDChIoSi75
    KVIDChIoSi75_camp5();
    virtual ~KVIDChIoSi75_camp5();
 
-   virtual Bool_t SetIDGrid(KVIDGraph*);
-
    virtual void Initialize(void);
    Bool_t Identify(KVReconstructedNucleus * nuc);
 

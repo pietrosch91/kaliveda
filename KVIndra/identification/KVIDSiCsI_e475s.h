@@ -21,19 +21,17 @@ class KVIDSiCsI_e475s : public KVIDSiCsI
 
 	private:
 	KVIDZAGrid*	fidgrid;//!
-   
+
    public:
    KVIDSiCsI_e475s();
    virtual ~KVIDSiCsI_e475s();
 
-	virtual Bool_t	SetIDGrid(KVIDGraph*);
-  	
 	virtual void Initialize(void);
-   
+
 	virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");
 	virtual Bool_t Identify(KVReconstructedNucleus * nuc);
-	
+
 	virtual void CalculateParticleEnergy(KVReconstructedNucleus * nuc);
 
    ClassDef(KVIDSiCsI_e475s,1)//derivation of KVIDSiCsI class for E475s experiment

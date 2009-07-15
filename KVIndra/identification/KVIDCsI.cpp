@@ -97,34 +97,13 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
 
       // set general ID code
       irnuc->SetIDCode( kIDCode2 );
-      
+
       // general ID code for gammas
       if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE10)
          irnuc->SetIDCode(kIDCode0);
-      
+
       return kTRUE;
 
-}
-
-//____________________________________________________________________________________
-
-Bool_t KVIDCsI::SetIDGrid(KVIDGraph * grid)
-{
-   //Set the identification grid used by this telescope.
-   //Default here is to return kFALSE.
-	
-	if(!grid->HandlesIDTelescope(this))
-      return kFALSE;
-	
-   //get run number from INDRA, if it exists (should do!), otherwise accept
-   if (gIndra) {
-      Int_t run = gIndra->GetCurrentRunNumber();
-      if (!grid->GetRuns().Contains(run))
-         return kFALSE;
-   }
-   //the grid is accepted
-   fIDGrids->Add(grid);
-   return kTRUE;
 }
 
 //____________________________________________________________________________________
@@ -176,7 +155,7 @@ void KVIDCsI::Initialize()
    // This method MUST be called once before any identification is attempted.
    // Initialisation of grid is performed here.
    // IsReadyForID() will return kTRUE if a grid is associated to this telescope for the current run.
-   
+
    CsIGrid = (KVIDGCsI *) GetIDGrid();
 	fCsI = GetDetector(1);
    if( CsIGrid ) {

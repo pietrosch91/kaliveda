@@ -37,7 +37,6 @@ class KVIDGridManager:public KVBase {
    KVIDGridManager();
    virtual ~ KVIDGridManager();
 
-   void FindGrid(KVIDTelescope *);
    void DeleteGrid(KVIDGraph *, Bool_t update = kTRUE);
    KVIDGraph *GetGrid(const Char_t * name);
 
@@ -72,6 +71,8 @@ class KVIDGridManager:public KVBase {
 	};
 	void GetListOfIDTelescopeLabels(KVString&);
 	void Initialize(Option_t* /*opt*/="");
+
+	void SetGridsInTelescopes(UInt_t run);
 
    ClassDef(KVIDGridManager, 0) //Handles a collection of identification grids
 };

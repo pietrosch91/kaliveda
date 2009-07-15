@@ -48,29 +48,6 @@ KVIDChIoSi::~KVIDChIoSi()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi::SetIDGrid(KVIDGraph * grid)
-{
-    // Accept this IDgrid if it is valid for this telescope
-    // In case there are several grids for each telescope (GG, PG, etc.),
-    // we do not return kTRUE as soon as 1 grid is found for this telescope.
-
-    if (!grid->HandlesIDTelescope(this)) return kFALSE;
-
-    //get run number from INDRA, if it exists (should do!), otherwise accept
-    if (gIndra)
-    {
-        Int_t run = (Int_t) gIndra->GetCurrentRunNumber();
-        if (!grid->GetRuns().Contains(run))
-            return kFALSE;
-    }
-    //the grid is accepted -> Add it to the list
-    fIDGrids->Add(grid);
-
-    return kFALSE;
-}
-
-//________________________________________________________________________________________//
-
 Bool_t KVIDChIoSi::Identify(KVReconstructedNucleus * nuc)
 {
     //Particle identification and code setting using identification grid KVIDGChIoSi

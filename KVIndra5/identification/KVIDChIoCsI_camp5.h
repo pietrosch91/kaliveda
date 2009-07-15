@@ -24,12 +24,11 @@ class KVIDChIoCsI_camp5 : public KVIDChIoCsI
 	KVCsI* fCsI;//!the csi
 	Double_t fCsIRPedestal;//!CsI Rapide pedestal for current run
 	Double_t fCsILPedestal;//!CsI Lente pedestal for current run
-	
+
    public:
    KVIDChIoCsI_camp5();
    virtual ~KVIDChIoCsI_camp5();
 
-   virtual Bool_t SetIDGrid(KVIDGraph*);
    virtual void Initialize(void);
    virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");

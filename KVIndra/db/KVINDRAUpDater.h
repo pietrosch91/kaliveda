@@ -31,7 +31,7 @@ class KVINDRAUpDater:public KVUpDater {
    virtual void SetCalibParameters(KVDBRun *);
    virtual void SetChIoPressures(KVDBRun *);
    virtual void SetPedestals(KVDBRun *);
-   virtual void SetIDGrids();
+   virtual void SetIDGrids(UInt_t);
 
    virtual void SetChVoltParameters(KVDBRun *);
    virtual void SetLitEnergyCsIParameters(KVDBRun *);

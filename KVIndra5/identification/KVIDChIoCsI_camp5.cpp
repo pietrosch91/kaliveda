@@ -25,7 +25,7 @@ ClassImp(KVIDChIoCsI_camp5)
 KVIDChIoCsI_camp5::KVIDChIoCsI_camp5()
 {
    // Default constructor
-	
+
 	fGGgrid = fPGgrid = 0;
 	fChIo=0;
 	fCsI=0;
@@ -36,34 +36,6 @@ KVIDChIoCsI_camp5::~KVIDChIoCsI_camp5()
    // Destructor
 }
 
-//___________________________________________________________________________________________//
-
-Bool_t KVIDChIoCsI_camp5::SetIDGrid(KVIDGraph *grid)
-{
-   // Called by KVIDGridManager::FindGrid in order to set grids for telescope.
-   // We check the grid handles this ID telescope and is OK for current run number.
-   // NB. if this method returns kTRUE, KVIDGridManager::FindGrid stops searching
-   // for grids for this telescope. Therefore, we never return kTRUE as there can be
-   // several grids for each telescope.
-   
-	if( !grid->HandlesIDTelescope(this) )   
-      return kFALSE;
-   
-   //get run number from INDRA, if it exists (should do!), otherwise accept
-   if (gIndra) {
-      Int_t run = gIndra->GetCurrentRunNumber();
-      if (!grid->GetRuns().Contains(run)) return kFALSE;
-   }
-   
-   //the grid is accepted
-   fIDGrids->Add(grid);
-	
-	if( !strcmp(grid->GetVarY(),"CHIO-GG") ) fGGgrid = (KVIDZAGrid*)grid;
-	else if( !strcmp(grid->GetVarY(),"CHIO-PG") ) fPGgrid = (KVIDZAGrid*)grid;
-      
-   return kFALSE; // make gIDGridManager keep searching!
-}
-
 //___________________________________________________________________________________________
 
 void KVIDChIoCsI_camp5::Initialize()
@@ -71,15 +43,21 @@ void KVIDChIoCsI_camp5::Initialize()
    // Initialize telescope for current run.
    // If there is at least 1 grid, we set fCanIdentify = kTRUE
    // "Natural" line widths are calculated for KVIDZAGrids.
-   
+
 	fChIo = (KVChIo *) GetDetector(1);
 	fCsI = (KVCsI *) GetDetector(2);
 	fCsIRPedestal = fCsI->GetPedestal("R");
 	fCsILPedestal = fCsI->GetPedestal("L");
+	fGGgrid = fPGgrid = 0;
+	TIter next( GetListOfIDGrids() ); KVIDGraph*grid;
+	while( (grid = (KVIDGraph*)next()) ){
+	    if( !strcmp(grid->GetVarY(),"CHIO-GG") ) fGGgrid = (KVIDZAGrid*)grid;
+        else if( !strcmp(grid->GetVarY(),"CHIO-PG") ) fPGgrid = (KVIDZAGrid*)grid;
+	}
    if( fGGgrid ){
       SetBit(kReadyForID);
       fGGgrid->Initialize();
-   	if( fPGgrid ) fPGgrid->Initialize();
+   	  if( fPGgrid ) fPGgrid->Initialize();
    }
    else ResetBit(kReadyForID);
 }
@@ -121,19 +99,19 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
    //Particle identification and code setting using identification grids.
 
       KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
-      
+
       //perform identification in ChIo(GG) - CsI(H) map
-      
+
       Double_t cigg = GetIDMapY("GG");
       Double_t lumtot = GetIDMapX();
-      
+
       KVIDGrid* theIdentifyingGrid = 0;
-      
+
       fGGgrid->Identify(lumtot, cigg, irnuc);
       theIdentifyingGrid =(KVIDGrid*)fGGgrid;
-		      
+
       if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
-         
+
          // try Z & A identification in ChIo(PG)-CsI(H) map
          Double_t cipg = GetIDMapY("PG");
          fPGgrid->Identify(lumtot, cipg, irnuc);
@@ -142,7 +120,7 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
 
       //set subcode in particle
       SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
-		
+
 		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
 			// only if the final quality code is kICODE8 do we consider that it is
 			// worthwhile looking elsewhere. In all other cases, the particle has been
@@ -150,14 +128,14 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
 			// we consider that we have established that they are unknowable).
 			return kFALSE;
 		}
-		
+
 		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
-			// if the final quality code is kICODE7 (above last line in grid) then the estimated 
+			// if the final quality code is kICODE7 (above last line in grid) then the estimated
 			// Z is only a minimum value (Zmin)
 			irnuc->SetIDCode( kIDCode5 );
 			return kTRUE;
 		}
-			
+
 		if(theIdentifyingGrid->GetQualityCode() > KVIDZAGrid::kICODE3 &&
 				theIdentifyingGrid->GetQualityCode() < KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
@@ -165,7 +143,7 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
 			irnuc->SetIDCode( kIDCode10 );
 			return kTRUE;
 		}
-		
+
 		// set general ID code ChIo-CsI
       irnuc->SetIDCode( kIDCode4 );
       return kTRUE;
