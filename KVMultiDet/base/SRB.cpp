@@ -3,6 +3,11 @@
 
 #include "SRB.h"
 #include "TSystem.h"
+#include "TList.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+#include "TROOT.h"
+#include "Riostream.h"
 
 ClassImp(SRB)
 
@@ -84,12 +89,13 @@ Int_t SRB::Sinit()
 	return execCommand();
 }
 
-TString SRB::Sls(const Char_t* directory)
+TString SRB::Sls(const Char_t* directory, Option_t* opt)
 {
-	// returns listing of current directory (default) or given directory
+	// returns listing of current directory (default) or given directory.
+	// options are same as for Sls command.
 	// returns empty string if directory is unknown.
 	
-	buildCommand("Sls",directory);
+	buildCommand("Sls",directory,opt);
 	return pipeCommand();
 }
 
@@ -109,8 +115,86 @@ TString SRB::SgetD(const Char_t* file, Option_t* opt)
 	return pipeCommand();
 }
 
+Int_t SRB::Sput(const Char_t* source, const Char_t* target, Option_t* opt)
+{
+	// put a new file into SRB space. options as for Sput command.
+	
+	TString args; args.Form("%s %s",source,target);
+	buildCommand("Sput",args.Data(),opt);
+	return execCommand();
+}
+
 Int_t SRB::Sexit()
 {
 	buildCommand("Sexit");
 	return execCommand();
+}
+
+TList *SRB::GetListing(const Char_t* directory)
+{
+	// Create and fill TList with names of all files & containers in current directory
+	// (default) or in given directory. TList is filled with SRBFile_t objects
+	// which belong to the list, list must be deleted after use.
+	
+	Sls(directory,"-l");
+	if(fout==""){
+		Error("GetListing", "Unknown directory %s", directory);
+		return 0;
+	}
+	
+	TObjArray *toks = fout.Tokenize("\n");
+	TList* list=new TList;
+	list->SetOwner(kTRUE);
+	list->SetName(((TObjString*)(*toks)[0])->String().Remove(TString::kBoth,' ').Data());
+	for(int i=1; i<toks->GetEntries(); i++){
+		TString tmp = ((TObjString*)(*toks)[i])->String().Remove(TString::kBoth,' ');
+		SRBFile_t *f = new SRBFile_t;
+		if(tmp.BeginsWith("C-/")){ // container
+			f->SetName(gSystem->BaseName(tmp.Data()));
+			f->SetIsContainer();
+		}
+		else {
+			// files have lines such as
+   		//   nief        0 Lyon                    230663725 2008-12-19-15.21   run788.root.2006-10-30_08:03:15
+			TObjArray *fstats = tmp.Tokenize(" ");
+			f->SetName(((TObjString*)(*fstats)[5])->String().Remove(TString::kBoth,' ').Data());
+			f->SetSize((UInt_t)((TObjString*)(*fstats)[3])->String().Remove(TString::kBoth,' ').Atoi());
+			KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth,' ').Data(), KVDatime::kSRB);
+			f->SetModTime(mt);
+			delete fstats;
+		}
+		list->Add(f);
+	}
+	delete toks;
+	return list;
+}
+	
+Bool_t SRB::DirectoryContains(const Char_t* name, const Char_t* directory)
+{
+	// Returns true if the current directory (default) or the given directory
+	// contains a file or a container with given name.
+	
+	TList *ls = GetListing(directory);
+	Bool_t ok = ls->FindObject(name);
+	delete ls;
+	return ok;
+}
+
+ClassImp(SRBFile_t)
+		
+/////////////////////////////////////////////
+// SRBFile_t
+//
+// Describes SRB file/container attributes
+/////////////////////////////////////////////
+		
+void SRBFile_t::ls(Option_t */*opt*/) const
+{
+   // List SRB file/container attributes
+
+   TROOT::IndentLevel();
+	if(IsContainer())
+		cout << GetName() << "/" << endl;
+   else
+		cout << GetName() << "\t" << GetSize() << "\t" << GetModTime().AsString() << endl;
 }

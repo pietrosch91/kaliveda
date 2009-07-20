@@ -92,10 +92,9 @@
 #Configuration used for KaliVeda on ccali.in2p3.fr machines (don't try this at home)
 #
 #DataRepository: ccali
+#ccali.DataRepository.Type: remote
 #ccali.DataRepository.RootDir:       /indra
 #ccali.DataRepository.AccessProtocol:      srb
-#ccali.DataRepository.CacheAvailable:          yes
-#ccali.DataRepository.MaxCacheTime:          86400
 #ccali.DataRepository.ReadProtocol:     root
 #ccali.DataRepository.CanWrite: NO
 #ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
