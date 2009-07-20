@@ -66,3 +66,67 @@ Bool_t SRBDataRepository::CheckSubdirExists(const Char_t * dir,
 	}
    return fSRB.DirectoryContains(dirname.Data(),path.Data());
 }
+
+//___________________________________________________________________________
+
+void SRBDataRepository::CopyFileFromRepository(const Char_t * datasetdir,
+                                              const Char_t * datatype,
+                                              const Char_t * filename,
+                                              const Char_t * destination)
+{
+   //Copy file [datasetdir]/[datatype]/[filename] from the repository to [destination]
+   //We check if the file to copy exists.
+
+   if (CheckFileStatus(datasetdir, datatype, filename)) {
+      TString path, tmp;
+      AssignAndDelete(path,
+                      gSystem->ConcatFileName(fAccessroot.Data(),
+                                              datasetdir));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+      AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
+      //copy file
+      fSRB.Sget( path.Data(), destination, "-v -M" );
+   }
+}
+
+//___________________________________________________________________________
+
+void SRBDataRepository::CopyFileToRepository(const Char_t * source,
+                                            const Char_t * datasetdir,
+                                            const Char_t * datatype,
+                                            const Char_t * filename)
+{
+   // Copy file [source] to [datasetdir]/[datatype]/[filename] in the repository
+
+   TString path, tmp;
+   AssignAndDelete(path,
+                   gSystem->ConcatFileName(fAccessroot.Data(),
+                                           datasetdir));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
+   
+   //copy file
+   fSRB.Sput(source,path.Data(),"-v -M");
+}
+
+//___________________________________________________________________________
+
+Bool_t SRBDataRepository::CheckFileStatus(const Char_t * datasetdir,
+                                         const Char_t * datatype,
+                                         const Char_t * runfile)
+{
+   //Checks if the run file of given type is physically present in dataset subdirectory,
+   //i.e. (schematically), if
+   //
+   //      /root_of_data_repository/[datasetdir]/[datatype]/[runfile]
+   //
+   //exists. If it does, the returned value is kTRUE (=1).
+
+   TString path, tmp;
+   AssignAndDelete(tmp,
+                   gSystem->ConcatFileName(fAccessroot.Data(),
+                                           datasetdir));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), datatype));
+   return fSRB.DirectoryContains(runfile,path.Data());
+}
+

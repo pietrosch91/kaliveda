@@ -124,6 +124,15 @@ Int_t SRB::Sput(const Char_t* source, const Char_t* target, Option_t* opt)
 	return execCommand();
 }
 
+Int_t SRB::Sget(const Char_t* source, const Char_t* target, Option_t* opt)
+{
+	// copy a file from SRB space. options as for Sget command.
+	
+	TString args; args.Form("%s %s",source,target);
+	buildCommand("Sget",args.Data(),opt);
+	return execCommand();
+}
+
 Int_t SRB::Sexit()
 {
 	buildCommand("Sexit");

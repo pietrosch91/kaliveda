@@ -19,6 +19,17 @@ class SRBDataRepository : public KVDataRepository
                                        const Char_t * datatype = "");
    virtual Bool_t CheckSubdirExists(const Char_t * dir,
                                     const Char_t * subdir = 0);
+   virtual void CopyFileFromRepository(const Char_t * datasetdir,
+                                       const Char_t * datatype,
+                                       const Char_t * filename,
+                                       const Char_t * destination);
+   virtual void CopyFileToRepository(const Char_t * source,
+                                     const Char_t * datasetdir,
+                                     const Char_t * datatype,
+                                     const Char_t * filename);
+   virtual Bool_t CheckFileStatus(const Char_t * datasetdir,
+                                  const Char_t * datatype,
+                                  const Char_t * runfile);
 	
    ClassDef(SRBDataRepository,1)//Remote data repository using SRB
 };

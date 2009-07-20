@@ -798,12 +798,6 @@ int KVDataRepository::CopyFile(const char *f, const char *t, Bool_t overwrite)
    // Copy a file. If overwrite is true and file already exists the
    // file will be overwritten. Returns 0 when successful, -1 in case
    // of failure, -2 in case the file already exists and overwrite was false.
-   //
-   //HIDEOUS FIX:
-   //Following the withdrawal/restriction of 'rfio' API for HPSS file access at CCIN2P3,
-   //if either the source or the target file path uses the 'rfio' protocol, we perform a
-   //   gSystem->Exec("rfcp [source] [target]")
-   //I am not proud
 
    if (!gSystem->AccessPathName(t) && !overwrite)
       return -2;
@@ -813,16 +807,7 @@ int KVDataRepository::CopyFile(const char *f, const char *t, Bool_t overwrite)
    
    TUrl path(f,kTRUE);
    TUrl path2(t,kTRUE);
-   
-   if( !strcmp(path.GetProtocol(), "rfio") || !strcmp(path2.GetProtocol(), "rfio") ){
-      //use shell command 'rfcp' instead of API
-      TString source = path.GetFile(); TString target = path2.GetFile();
-      TString cmd;
-      cmd.Form("rfcp %s %s", source.Data(), target.Data());
-      Info("CopyFile", "Executing : %s", cmd.Data());
-      return gSystem->Exec(cmd.Data());
-   }
-   
+      
    path.SetOptions("filetype=raw");
    TFile* from = TFile::Open(path.GetUrl(),"READ");
    if (!from || from->IsZombie()){
