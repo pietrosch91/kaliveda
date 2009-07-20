@@ -79,7 +79,7 @@ TString SRB::pipeCommand()
 			fout+="\n";
 		fout+=line;
 	}
-	Int_t r=gSystem->ClosePipe(pipe);
+	/*Int_t r=*/gSystem->ClosePipe(pipe);
 	return fout;
 }
 
@@ -130,11 +130,12 @@ Int_t SRB::Sexit()
 	return execCommand();
 }
 
-TList *SRB::GetListing(const Char_t* directory)
+TList *SRB::GetFullListing(const Char_t* directory)
 {
-	// Create and fill TList with names of all files & containers in current directory
-	// (default) or in given directory. TList is filled with SRBFile_t objects
-	// which belong to the list, list must be deleted after use.
+	// Create and fill TList with info (name, size, modification date)
+	// on all files & containers in current directory
+	// (default) or in given directory.
+	// TList is filled with SRBFile_t objects which belong to the list, list must be deleted after use.
 	
 	Sls(directory,"-l");
 	if(fout==""){
@@ -162,6 +163,38 @@ TList *SRB::GetListing(const Char_t* directory)
 			KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth,' ').Data(), KVDatime::kSRB);
 			f->SetModTime(mt);
 			delete fstats;
+		}
+		list->Add(f);
+	}
+	delete toks;
+	return list;
+}
+	
+TList *SRB::GetListing(const Char_t* directory)
+{
+	// Create and fill TList with just the names of files & containers in current directory
+	// (default) or in given directory.
+	// TList is filled with SRBFile_t objects which belong to the list, list must be deleted after use.
+	
+	Sls(directory);
+	if(fout==""){
+		Error("GetListing", "Unknown directory %s", directory);
+		return 0;
+	}
+	
+	TObjArray *toks = fout.Tokenize("\n");
+	TList* list=new TList;
+	list->SetOwner(kTRUE);
+	list->SetName(((TObjString*)(*toks)[0])->String().Remove(TString::kBoth,' ').Data());
+	for(int i=1; i<toks->GetEntries(); i++){
+		TString tmp = ((TObjString*)(*toks)[i])->String().Remove(TString::kBoth,' ');
+		SRBFile_t *f = new SRBFile_t;
+		if(tmp.BeginsWith("C-/")){ // container
+			f->SetName(gSystem->BaseName(tmp.Data()));
+			f->SetIsContainer();
+		}
+		else {
+			f->SetName(tmp.Data());
 		}
 		list->Add(f);
 	}

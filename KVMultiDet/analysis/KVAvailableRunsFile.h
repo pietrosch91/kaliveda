@@ -42,6 +42,7 @@ class KVAvailableRunsFile:public KVBase {
  public:
 
    KVAvailableRunsFile();
+   KVAvailableRunsFile(const Char_t * type);
    KVAvailableRunsFile(const Char_t * type, KVDataSet * parent);
    virtual ~ KVAvailableRunsFile();
 
@@ -62,6 +63,7 @@ class KVAvailableRunsFile:public KVBase {
    virtual void Remove(Int_t run, const Char_t * filename = "");
    virtual void Add(Int_t run, const Char_t * filename);
    virtual KVDataSet *GetDataSet() const;
+   virtual void SetDataSet(KVDataSet*);
 
    KVNumberList CheckMultiRunfiles();
 

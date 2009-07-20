@@ -49,6 +49,16 @@ KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type,
    runlist_lock.SetSleeptime( 1 ); // try lock every second
 }
 
+KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type):KVBase(type)
+{
+   //Constructor with name of datatype ("raw", "recon", "ident", "root")
+   fDataSet = 0;
+   //runlist lockfile
+   runlist_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
+   runlist_lock.SetSuspend( 5 ); // suspension after timeout
+   runlist_lock.SetSleeptime( 1 ); // try lock every second
+}
+
 KVAvailableRunsFile::KVAvailableRunsFile()
 {
    //Default ctor
@@ -148,23 +158,23 @@ void KVAvailableRunsFile::Update()
 
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
-   KVList *dir_list =
+   TList *dir_list =
        repository->GetDirectoryListing(datapath_subdir, GetDataType());
    if (!dir_list)
       return;
 
    TIter next(dir_list);
-   TObjString *objs;
+   KVBase *objs;
    //progress bar
    Int_t ntot = dir_list->GetSize();
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
    KVDBTable *run_table = fDataSet->GetDataBase()->GetTable("Runs");
-   while ((objs = (TObjString *) next())) {     // loop over all entries in directory
+   while ((objs = (KVBase *) next())) {     // loop over all entries in directory
 
       Int_t run_num;
       //is this the correct name of a run in the repository ?
-      if ((run_num = IsRunFileName(objs->String().Data()))) {
+      if ((run_num = IsRunFileName(objs->GetName()))) {
 
          KVDBRun *run = (KVDBRun *) run_table->GetRecord(run_num);
          if (run) {
@@ -172,12 +182,12 @@ void KVAvailableRunsFile::Update()
             //get file modification date
             if (repository->
                 GetFileInfo(datapath_subdir, GetDataType(),
-                            objs->String().Data(), fs)) {
+                            objs->GetName(), fs)) {
                //runfile exists in repository
                //write in temporary runlist file '[run number]|[date of modification]|[name of file]
                TDatime modt(fs.fMtime);
                tmp_file << run->GetNumber() << '|' << modt.
-                   AsSQLString() << '|' << objs->String().Data() << endl;
+                   AsSQLString() << '|' << objs->GetName() << endl;
             }
          }
       }
@@ -689,6 +699,15 @@ KVDataSet *KVAvailableRunsFile::GetDataSet() const
 {
    //Dataset to which this file belongs
    return fDataSet;
+}
+
+
+//__________________________________________________________________________________________________________________
+
+void KVAvailableRunsFile::SetDataSet(KVDataSet* d)
+{
+   // Set dataset to which this file belongs
+   fDataSet = d;
 }
 
 //__________________________________________________________________________________________________________________

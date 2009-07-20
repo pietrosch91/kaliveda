@@ -44,7 +44,7 @@ class KVRemoteDataRepository:public KVDataRepository {
                                      const Char_t * filename);
    virtual void MakeSubdirectory(const Char_t * datasetdir,
                                  const Char_t * datatype = "");
-   virtual KVList *GetDirectoryListing(const Char_t * datasetdir,
+   virtual TList *GetDirectoryListing(const Char_t * datasetdir,
                                        const Char_t * datatype = "");
    virtual void DeleteFile(const Char_t * datasetdir,
                            const Char_t * datatype,

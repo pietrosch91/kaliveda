@@ -533,7 +533,7 @@ void KVDataRepository::MakeSubdirectory(const Char_t * datasetdir,
 
 //___________________________________________________________________________
 
-KVList *KVDataRepository::GetDirectoryListing(const Char_t * datasetdir,
+TList *KVDataRepository::GetDirectoryListing(const Char_t * datasetdir,
                                               const Char_t * datatype)
 {
    //Use the access protocol defined by DataRepository.AccessProtocol (=local by default)
@@ -542,9 +542,9 @@ KVList *KVDataRepository::GetDirectoryListing(const Char_t * datasetdir,
    //      /root_of_data_repository/[datasetdir]/[datatype]
    //      /root_of_data_repository/[datasetdir]                    (if datatype="", default value)
    //
-   //and fill a KVList with one TObjString object for each entry in the directory,
+   //and fill a TList with one KVBase object for each entry in the directory,
    //excluding "." and ".."
-   //User must delete the KVList after use (list will delete its members)
+   //User must delete the TList after use (list will delete its members)
 
    TString path, tmp;
    AssignAndDelete(path,
@@ -561,14 +561,18 @@ KVList *KVDataRepository::GetDirectoryListing(const Char_t * datasetdir,
             path.Data());
       return 0;
    }
-   KVList *dirlist = new KVList;
+	
+   TList *dirlist = new TList;
+	dirlist->SetOwner(kTRUE);
+	
    TObjString *direntry = new TObjString(gSystem->GetDirEntry(dirp));
    while (direntry->GetString() != "") {        //loop over all entries in directory
       if (direntry->GetString() == "." || direntry->GetString() == "..") {
          //skip "." and ".."
          delete direntry;
       } else {
-         dirlist->Add(direntry);
+         dirlist->Add(new KVBase(direntry->GetString().Data()));
+			delete direntry;
       }
       //get next entry
       direntry = new TObjString(gSystem->GetDirEntry(dirp));
@@ -959,6 +963,41 @@ void KVDataRepository::PrepareXRDTunnel()
    fXRDtunRetry = (Int_t)gEnv->GetValue(Form("%s.DataRepository.XRDTunnel.retry", GetName()), 30);
    //now change xrootd server/port to use for pathnames
    fXrootdserver.Form("localhost:%d", fXRDtunPort);
+}
+
+//______________________________________________________________________________________________//
+
+KVDataRepository *KVDataRepository::NewRepository(const Char_t* type)
+{
+	// Create new instance of class derived from KVDataRepository.
+	// Actual class of object depends on 'type' which is used to select one of the
+	// Plugin.KVDataRepository's defined in .kvrootrc.
+	
+   //check and load plugin library
+   TPluginHandler *ph=KVBase::LoadPlugin("KVDataRepository", type);
+   if (!ph)
+      return new KVDataRepository();
+
+   //execute constructor/macro for plugin
+   return ((KVDataRepository *) ph->ExecPlugin(0));
+}
+
+//______________________________________________________________________________________________//
+
+KVAvailableRunsFile *KVDataRepository::NewAvailableRunsFile(const Char_t* data_type)
+{
+	// Create new instance of class derived from KVAvailableRunsFile.
+	// Actual class of object depends on the type of the repository,
+	// which is used to select one of the
+	// Plugin.KVDataAvailableRunsFile's defined in .kvrootrc.
+	
+   //check and load plugin library
+   TPluginHandler *ph=KVBase::LoadPlugin("KVAvailableRunsFile", GetType());
+   if (!ph)
+      return new KVAvailableRunsFile(data_type);
+
+   //execute constructor/macro for plugin
+   return ((KVAvailableRunsFile *) ph->ExecPlugin(1, data_type));
 }
 
 #ifdef __CCIN2P3_RFIO

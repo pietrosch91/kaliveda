@@ -68,7 +68,7 @@ class KVDataSet:public KVBase {
    
  public:
 
-    virtual KVAvailableRunsFile * GetAvailableRunsFile(const Char_t *
+    KVAvailableRunsFile * GetAvailableRunsFile(const Char_t *
                                                        type);
 
     KVDataSet();

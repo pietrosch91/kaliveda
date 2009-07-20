@@ -12,7 +12,7 @@ ETC_DATA = data
 ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVReg*.cpp analysis/SRBDataRepository.cpp analysis/SRBAvailableRunsFile.cpp
+NOT_READY := daq_cec/KVReg*.cpp
 
 NOT_ROOTCINT := base/KVError.h
 

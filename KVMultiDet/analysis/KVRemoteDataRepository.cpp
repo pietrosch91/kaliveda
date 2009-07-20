@@ -171,7 +171,7 @@ void KVRemoteDataRepository::MakeSubdirectory(const Char_t * datasetdir,
 
 //___________________________________________________________________________
 
-KVList *KVRemoteDataRepository::GetDirectoryListing(const Char_t *
+TList *KVRemoteDataRepository::GetDirectoryListing(const Char_t *
                                                     datasetdir,
                                                     const Char_t *
                                                     datatype)

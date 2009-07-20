@@ -92,9 +92,8 @@
 #Configuration used for KaliVeda on ccali.in2p3.fr machines (don't try this at home)
 #
 #DataRepository: ccali
-#ccali.DataRepository.Type: remote
+#ccali.DataRepository.Type: srb
 #ccali.DataRepository.RootDir:       /indra
-#ccali.DataRepository.AccessProtocol:      srb
 #ccali.DataRepository.ReadProtocol:     root
 #ccali.DataRepository.CanWrite: NO
 #ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
@@ -127,6 +126,16 @@
 #
 ####################################################################################################################
 #
+# Plugins for KVDataRepository
+Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
++Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
++Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
+#
+# Plugins for KVAvailableRunsFile
+Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*)"
++Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*)"
++Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*)"
+
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
 # Default name of database object in file

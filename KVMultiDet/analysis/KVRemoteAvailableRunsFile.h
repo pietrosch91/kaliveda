@@ -25,6 +25,7 @@ class KVRemoteAvailableRunsFile:public KVAvailableRunsFile {
  public:
 
     KVRemoteAvailableRunsFile();
+    KVRemoteAvailableRunsFile(const Char_t * type);
     KVRemoteAvailableRunsFile(const Char_t * type, KVDataSet * ds);
     virtual ~ KVRemoteAvailableRunsFile();
 

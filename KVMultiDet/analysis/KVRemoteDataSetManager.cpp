@@ -8,11 +8,11 @@ $Date: 2007/09/20 11:30:17 $
 //Author: John Frankland
 
 #include "KVRemoteDataSetManager.h"
-#include "KVRemoteDataSet.h"
 #include "KVDataRepository.h"
 #include "TError.h"
 #include "TObjString.h"
 #include "TObjArray.h"
+#include "TEnv.h"
 
 ClassImp(KVRemoteDataSetManager)
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,14 +26,6 @@ ClassImp(KVRemoteDataSetManager)
 KVRemoteDataSetManager::~KVRemoteDataSetManager()
 {
    //Destructor
-}
-
-//__________________________________________________________________________________________________________________
-
-KVDataSet *KVRemoteDataSetManager::NewDataSet()
-{
-   //Creates and returns pointer to new remote data set object
-   return (new KVRemoteDataSet);
 }
 
 Bool_t KVRemoteDataSetManager::OpenAvailableDatasetsFile()
