@@ -106,6 +106,7 @@ void SRBDataRepository::CopyFileToRepository(const Char_t * source,
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
    
    //copy file
+	Info("CopyFileToRepository","Sput -v -M %s %s",source,path.Data());
    fSRB.Sput(source,path.Data(),"-v -M");
 }
 
@@ -130,3 +131,59 @@ Bool_t SRBDataRepository::CheckFileStatus(const Char_t * datasetdir,
    return fSRB.DirectoryContains(runfile,path.Data());
 }
 
+//___________________________________________________________________________
+
+void SRBDataRepository::MakeSubdirectory(const Char_t * datasetdir,
+                                        const Char_t * datatype)
+{
+	// Overrides KVDataRepository method.
+   TString path, tmp;
+   AssignAndDelete(tmp,
+                   gSystem->ConcatFileName(fAccessroot.Data(),
+                                           datasetdir));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), datatype));
+	fSRB.Smkdir(path.Data());
+}
+
+//___________________________________________________________________________
+
+void SRBDataRepository::DeleteFile(const Char_t * datasetdir,
+                                  const Char_t * datatype,
+                                  const Char_t * filename, Bool_t confirm)
+{
+   //Delete repository file [datasetdir]/[datatype]/[filename]
+   //
+   //By default (confirm=kTRUE) we ask for confirmation before deleting.
+   //Set confirm=kFALSE to delete without confirmation (DANGER!!!)
+
+   TString path, tmp;
+   AssignAndDelete(path,
+                   gSystem->ConcatFileName(fAccessroot.Data(),
+                                           datasetdir));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
+   TString cmd;
+   cout << "Deleting file from repository: " << filename << endl;
+   if (confirm) {
+      cout <<
+          "Are you sure you want to delete this file permanently ? (y/n)"
+          << endl;
+      TString answer;
+      cin >> answer;
+      answer.ToUpper();
+      if (!answer.BeginsWith("Y")) {
+         cout << "File not deleted" << endl;
+         return;
+      }
+   }
+   fSRB.Srm(path.Data(),"-f");
+}
+
+//___________________________________________________________________________
+
+int SRBDataRepository::Chmod(const char *file, UInt_t mode)
+{
+	// Overrides KVDataRepository method.
+	// Not used with SRB (???) - Method does nothing.
+	return 0;
+}

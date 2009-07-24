@@ -51,6 +51,8 @@ class SRB : public KVBase
 	Int_t Sput(const Char_t* source, const Char_t* target=".", Option_t* opt="");
 	Int_t Sget(const Char_t* source, const Char_t* target=".", Option_t* opt="");
 	TString SgetD(const Char_t* file, Option_t* opt="");
+	Int_t Srm(const Char_t* path, Option_t* opt="");
+	Int_t Smkdir(const Char_t* path, Option_t* opt="");
 	
 	TList* GetFullListing(const Char_t* directory="");
 	TList* GetListing(const Char_t* directory="");

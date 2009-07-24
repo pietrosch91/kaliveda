@@ -133,6 +133,24 @@ Int_t SRB::Sget(const Char_t* source, const Char_t* target, Option_t* opt)
 	return execCommand();
 }
 
+Int_t SRB::Srm(const Char_t* path, Option_t* opt)
+{
+	// Delete a file. options as for Srm command.
+	// WARNING: THIS WILL DELETE THE PHYSICAL FILE,
+	// not just the catalogue entry!!!
+	
+	buildCommand("Srm",path,opt);
+	return execCommand();
+}
+
+Int_t SRB::Smkdir(const Char_t* path, Option_t* opt)
+{
+	// Create new directory in SRB space
+	
+	buildCommand("Smkdir",path,opt);
+	return execCommand();
+}
+
 Int_t SRB::Sexit()
 {
 	buildCommand("Sexit");
