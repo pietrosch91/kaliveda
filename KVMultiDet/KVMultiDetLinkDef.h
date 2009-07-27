@@ -127,6 +127,10 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
 #pragma link C++ class KVNucleus+;
+#pragma link C++ class KVMassTable+;
+#pragma link C++ class PACE2MassTable+;
+#pragma link C++ class PACE2Map::value+;
+#pragma link C++ class PACE2Map::key+;
 #pragma link C++ class KVNumberList+;
 #pragma link C++ class KVParticle+;
 #pragma link C++ class KVParticleCondition+;

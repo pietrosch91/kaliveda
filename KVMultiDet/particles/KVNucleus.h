@@ -11,9 +11,6 @@ $Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
 #ifndef KVNUCLEUS_H
 #define KVNUCLEUS_H
 
-#define MAX_Z_MASS_TABLE 108
-#define MAX_A_MASS_TABLE 263
-
 #include "TVector3.h"
 #include "TEnv.h"
 #include "KVParticle.h"
@@ -22,6 +19,7 @@ $Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
 #include "TH2F.h"
 #include "KVString.h"
 #include "KVDataSet.h"
+#include "KVMassTable.h"
 
 class KVNumberList;
 
@@ -32,10 +30,10 @@ class KVNucleus:public KVParticle {
    UChar_t fA;                  //nuclear mass number
    UChar_t fZ;                  //nuclear charge number (atomic number)
    UChar_t fMassFormula;        //mass formula for calculating A from Z
-   static Double_t fMassExcess[MAX_Z_MASS_TABLE][MAX_A_MASS_TABLE];     //!table of mass excesses in MeV for known nuclei
+	static KVMassTable* fMassTable;//! the mass table
    static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
    static Char_t fElements[][3];        //!symbols of chemical elements
-   void ReadMassTable();
+   void InitMassTable();
    Double_t fExx;               //excitation energy in MeV
 
    enum {

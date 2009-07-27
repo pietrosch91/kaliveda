@@ -691,8 +691,10 @@ KVSilicon.ZminForPHDCorrection:        10
 # File containing range tables for calculation of energy losses in KVMaterial
 KVMaterial.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
 
-# Mass table used by KVNucleus
-KVNucleus.MassTable:      $(KVROOT)/KVFiles/data/pace2_2001.data
+# Mass tables used by KVNucleus
+KVNucleus.MassTable:      PACE2MassTable
+Plugin.KVMassTable:   PACE2MassTable    PACE2MassTable    KVMultiDet   "PACE2MassTable()"
+PACE2MassTable.DataFile:    pace2_2009.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
 # this plugin is used for KVNucleus also if no DataSet is specified
