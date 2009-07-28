@@ -6,6 +6,7 @@
 #include "KVDataRepository.h"
 #include "KVDataSet.h"
 #include "KVDataRepositoryManager.h"
+#include "KVINDRADataAnalyser.h"
 
 ClassImp(KVReconIdent)
 
@@ -90,6 +91,7 @@ void KVReconIdent::EndRun(void)
 
    fIdentFile->cd();
    gIndra->Write("INDRA");      //write INDRA to file
+	((KVINDRADataAnalyser* )gDataAnalyser)->WriteBatchInfo(fIdentTree);
    fIdentTree->Write();         //write tree to file
    if(GetRawData()) GetRawData()->Write("RawData"); //copy raw data tree to file (if it exists)
    GetGeneData()->Write("GeneData"); //copy pulser & laser (gene) tree to file

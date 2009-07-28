@@ -93,7 +93,7 @@ void KVINDRARawIdent::InitRun ()
       tree->Branch("EventNumber", &fEventNumber, "EventNumber/I");
 		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 64000, 0)->SetAutoDelete(kFALSE);
       
-      if( FileHasUnknownParameters() ){
+		if( FileHasUnknownParameters() ){
          
          //we add a leaf for each unknown data parameter
          TIter next_unknown( fRunFile->GetUnknownParameters() );
@@ -198,6 +198,7 @@ void KVINDRARawIdent::EndRun ()
             << nb_recon << " ***" << endl<< endl;
 		file->cd();
 		gIndra->Write("INDRA");//write INDRA to file
+		((KVINDRADataAnalyser* )gDataAnalyser)->WriteBatchInfo(tree);
 		tree->Write();//write tree to file
       rawtree->Write();
       genetree->Write();
