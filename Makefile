@@ -1,8 +1,3 @@
-#$Id: Makefile,v 1.84 2009/03/06 08:59:18 franklan Exp $
-#$Revision: 1.84 $
-#$Date: 2009/03/06 08:59:18 $
-#$Author: franklan $
-#
 #General Makefile for the entire KaliVeda project
 
 ###########################################

@@ -30,6 +30,5 @@ LINK_LIB += -L$(KVROOT)/lib -lfitltg
 endif
 
 ifeq ($(SITE),CCIN2P3)
-LINK_LIB += -L/usr/local/lib -lshift -L$(ROOTSYS)/lib -lRFIO
-KV_INC += -D__CCIN2P3_RFIO
+KV_INC += -D__CCIN2P3_SRB
 endif

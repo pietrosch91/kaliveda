@@ -92,16 +92,12 @@
 #Configuration used for KaliVeda on ccali.in2p3.fr machines (don't try this at home)
 #
 #DataRepository: ccali
-#ccali.DataRepository.RootDir:       cchpssindra:/hpss/in2p3.fr/group/indra
-#ccali.DataRepository.AccessProtocol:      rfio
-#ccali.DataRepository.CacheAvailable:          yes
-#ccali.DataRepository.MaxCacheTime:          86400
+#ccali.DataRepository.Type: srb
+#ccali.DataRepository.RootDir:       /indra
 #ccali.DataRepository.ReadProtocol:     root
 #ccali.DataRepository.CanWrite: NO
 #ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
-#ccali.DataRepository.RFIOServer:      cchpssindra
-#ccali.DataRepository.RFIORootDir:       /hpss/in2p3.fr/group/indra
 #
 #####################Case 5
 #Adding a personal repository on HPSS at CCIN2P3
@@ -130,6 +126,16 @@
 #
 ####################################################################################################################
 #
+# Plugins for KVDataRepository
+Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
++Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
++Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
+#
+# Plugins for KVAvailableRunsFile
+Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*)"
++Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*)"
++Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*)"
+
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
 # Default name of database object in file
@@ -334,13 +340,13 @@ Xterm.BatchSystem.JobScript: "$KVROOT/bin/KaliVedaAnalysis -b -n"&
 Linux.BatchSystem.Title:    Execute task in background with output stored in log file
 Linux.BatchSystem.DefaultJobOptions:   -b -n &> #JobName#.log &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
-#+BatchSystem:     BQS
+#+BatchSystem:  	BQS
 #BQS.BatchSystem.Title:   Use CCIN2P3 BQS batch system
 #BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_hpss_indra,u_xrootd -V -N #JobName#
 #BQS.BatchSystem.JobSubCmd:   qsub
 #BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
 #BQS.BatchSystem.DefaultJobTime:   4000
-#BQS.BatchSystem.DefaultJobMemory:   256MB
+#BQS.BatchSystem.DefaultJobMemory:	256MB
 #BQS.BatchSystem.DefaultJobDisk:   100MB
 #Default batch system
 Default.BatchSystem:   Xterm

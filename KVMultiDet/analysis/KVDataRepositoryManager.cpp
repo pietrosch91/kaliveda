@@ -8,10 +8,10 @@ $Date: 2007/11/20 16:46:21 $
 //Author: John Frankland
 
 #include "KVDataRepositoryManager.h"
+#include "KVDataRepository.h"
 #include "KVDataSetManager.h"
 #include "TEnv.h"
 #include "KVBase.h"
-#include "KVRemoteDataRepository.h"
 #include "Riostream.h"
 #include "TString.h"
 #include "TObjString.h"
@@ -110,12 +110,9 @@ void KVDataRepositoryManager::Init()
       rep_type.ToLower();
 
       //create new repository
-      if (rep_type == "remote") {
-         new_rep = new KVRemoteDataRepository;
-      } else {
-         new_rep = new KVDataRepository;
-      }
+		new_rep = KVDataRepository::NewRepository(rep_type.Data());
       new_rep->SetName(rep_name.Data());
+      new_rep->SetType(rep_type.Data());
       if(new_rep->Init()) {
          fRepositories.Add(new_rep);
          last_defined = new_rep;    //keep pointer to last defined repository
