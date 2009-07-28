@@ -13,6 +13,7 @@ $Date: 2007/05/31 09:59:22 $
 #include "KVDataAnalyser.h"
 #include "KVNumberList.h"
 #include "KVString.h"
+#include "TTree.h"
 
 class KVINDRADataAnalyser:public KVDataAnalyser {
 
@@ -24,7 +25,8 @@ class KVINDRADataAnalyser:public KVDataAnalyser {
 
    KVINDRADataAnalyser();
    virtual ~ KVINDRADataAnalyser();
-
+	void WriteBatchInfo(TTree* );
+	
    ClassDef(KVINDRADataAnalyser, 0) //For analysing INDRA data
 };
 
