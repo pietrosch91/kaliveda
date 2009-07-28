@@ -33,7 +33,10 @@ PACE2MassTable::~PACE2MassTable()
 {
    // Destructor
 	if(theTable) delete theTable;
-	if(nucMap) delete nucMap;
+	if(nucMap) {
+		nucMap->DeleteAll();
+		delete nucMap;
+	}
 }
 
 void PACE2MassTable::Initialize()
@@ -58,7 +61,8 @@ void PACE2MassTable::Initialize()
 		// read file once to see how many nuclei are in it
 		// and set up TMap
 		nucMap = new TMap(50,2);
-		nucMap->SetOwnerKeyValue();
+		// Retire car pb de compatibilite avec root 5.17 (au moins)
+		//nucMap->SetOwnerKeyValue();
 		
 		Int_t ntot=0; KVString Sline;
 		while(tabfile.good()){
