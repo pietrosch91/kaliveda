@@ -156,7 +156,7 @@ Bool_t KVIDGridManager::ReadAsciiFile(const Char_t * filename)
    return is_it_ok;
 }
 
-Int_t KVIDGridManager::WriteAsciiFile(const Char_t * filename, const TList *selection)
+Int_t KVIDGridManager::WriteAsciiFile(const Char_t * filename, const TCollection *selection)
 {
    // Write grids in file 'filename'.
 	// If selection=0 (default), write all grids.
@@ -165,7 +165,7 @@ Int_t KVIDGridManager::WriteAsciiFile(const Char_t * filename, const TList *sele
 
    ofstream gridfile(filename);
 
-	const TList *list_of_grids = (selection ? selection : fGrids);
+	const TCollection *list_of_grids = (selection ? selection : fGrids);
    TIter next(list_of_grids);
    KVIDGraph *grid = 0; Int_t n_saved=0;
    while ((grid = (KVIDGraph *) next())) {

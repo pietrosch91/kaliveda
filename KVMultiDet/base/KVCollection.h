@@ -4,23 +4,22 @@
 #ifndef __KVCOLLECTION_H
 #define __KVCOLLECTION_H
 
-#include "TCollection.h"
+#include "TSeqCollection.h"
 #include <RQ_OBJECT.h>
+#include "TFile.h"
 
-class KVCollection : public TCollection
+class KVCollection : public TSeqCollection
 {
     RQ_OBJECT("KVList")
 
     enum
     {
-        kSignals = BIT(14) // bit flag for sending 'Modified()' signal on changes
+        kSignals = BIT(14), // bit flag for sending 'Modified()' signal on changes
+        kCleanup = BIT(15) // set when objects in list are in ROOT cleanup list
     };
 
-    KVCollection(const KVCollection &) : TCollection() {};    //private and not-implemented, collections
-    void operator=(const KVCollection &){}; //are too complex to be automatically copied
-
 protected:
-    TCollection* fCollection;//Pointer to embedded ROOT collection
+    TSeqCollection* fCollection;//Pointer to embedded ROOT collection
 
     virtual void Changed()
     {
@@ -31,11 +30,15 @@ protected:
         if (TestBit(kSignals)) Modified();
     };
     virtual void	PrintCollectionHeader(Option_t* option) const;
+    virtual KVCollection* NewCollectionLikeThisOne() const;
+	 virtual void SetCollection(const Char_t*);
 
 public:
     KVCollection();
+    KVCollection(const KVCollection &);
     KVCollection(const Char_t* collection_classname);
     virtual ~KVCollection();
+    virtual void Copy(TObject & obj) const;
 
     virtual void Modified()
     {
@@ -51,14 +54,53 @@ public:
         // By default, the 'Modified()' signal is NOT enabled.
         SetBit(kSignals,yes);
     };
-    virtual Bool_t IsSendingModifiedSignals()
+    virtual Bool_t IsSendingModifiedSignals() const
     {
         // returns kTRUE if 'Modified()' signal is active
         // (see SendModifiedSignals).
         return TestBit(kSignals);
     };
 
-    virtual TObject*	At(Int_t idx) const;
+    virtual TObject*	At(Int_t idx) const
+    {
+        return fCollection->At(idx);
+    };
+    virtual void      AddFirst(TObject *obj)
+    {
+        fCollection->AddFirst(obj);
+    };
+    virtual void      AddLast(TObject *obj)
+    {
+        fCollection->AddLast(obj);
+    };
+    virtual void      AddAt(TObject *obj, Int_t idx)
+    {
+        fCollection->AddAt(obj,idx);
+    };
+    virtual void      AddAfter(const TObject *after, TObject *obj)
+    {
+        fCollection->AddAfter(after,obj);
+    };
+    virtual void      AddBefore(const TObject *before, TObject *obj)
+    {
+        fCollection->AddBefore(before,obj);
+    };
+    virtual TObject  *Before(const TObject *obj) const
+    {
+        return fCollection->Before(obj);
+    };
+    virtual TObject  *After(const TObject *obj) const
+    {
+        return fCollection->After(obj);
+    };
+    virtual TObject  *First() const
+    {
+        return fCollection->First();
+    };
+    virtual TObject  *Last() const
+    {
+        return fCollection->Last();
+    };
     virtual void       Add(TObject *obj);
     virtual void       Clear(Option_t *option="");
     virtual void       Delete(Option_t *option="");
@@ -69,11 +111,30 @@ public:
     {
         return fCollection->GetSize();
     };
-
+    virtual void SetOwner(Bool_t enable=kTRUE)
+    {
+        fCollection->SetOwner(enable);
+    };
+    virtual Bool_t IsOwner() const
+    {
+        return fCollection->IsOwner();
+    };
     const Char_t* CollectionClassName() const
     {
         // Return classname of embedded collection object
         return fCollection->ClassName();
+    };
+    virtual void SetCleanup(Bool_t enable=kTRUE)
+    {
+        // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
+        // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
+        SetBit(kCleanup,enable);
+    };
+    virtual Bool_t IsCleanup() const
+    {
+        // Returns kTRUE if the ROOT cleanup mechanism is used to ensure that any objects in the list
+        // which get deleted elsewhere are removed from this list
+        return TestBit(kCleanup);
     };
 
     virtual TObject *FindObjectByName(const Char_t *name) const
@@ -87,8 +148,60 @@ public:
     virtual TObject *FindObjectByNumber(UInt_t num) const;
     virtual TObject *FindObjectWithNameAndType(const Char_t * name, const Char_t * type) const;
     virtual TObject *FindObjectWithMethod(const Char_t* retvalue,const Char_t* method) const;
+    virtual TObject *FindObjectAny(const Char_t *att, const Char_t *keys, Bool_t contains_all=kFALSE, Bool_t case_sensitive=kTRUE) const;
+
+#ifdef __WITHOUT_TCOLLECTION_GETENTRIES
+    //we add the GetEntries method added to TCollection from ROOT v4.03/04 onwards
+    virtual Int_t GetEntries() const
+    {
+        return GetSize();
+    };
+#endif
+    virtual void Execute(const char *method, const char *params,
+                         Int_t * error = 0);
+    virtual void Execute(TMethod * method, TObjArray * params,
+                         Int_t * error = 0);
+    virtual KVCollection *GetSubListWithMethod(const Char_t* retvalue,const Char_t* method);
+
+    KVCollection *GetSubListWithClass(const TClass* _class);
+    KVCollection *GetSubListWithClass(const Char_t* class_name);
+
+    virtual KVCollection *GetSubListWithName(const Char_t* retvalue);
+    virtual KVCollection *GetSubListWithLabel(const Char_t* retvalue);
+    virtual KVCollection *GetSubListWithType(const Char_t* retvalue);
+
+    static KVCollection* MakeListFromFile(TFile *file);
+    static KVCollection* MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method);
+    static KVCollection* MakeListFromFileWithClass(TFile *file,const TClass* _class);
+    static KVCollection* MakeListFromFileWithClass(TFile *file,const Char_t* class_name);
+
+    virtual Bool_t IsSortable() const
+    {
+        return fCollection->IsSortable();
+    };
+    virtual Bool_t IsSorted() const
+    {
+        return fCollection->IsSorted();
+    };
+    void Sort(){};
 
     ClassDef(KVCollection,1)//KaliVeda extensions to ROOT collections
 };
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,11,2)
+
+//---- R__FOR_EACH macro -----------------------------------------------------------
+
+// Macro to loop over all elements of a list of type "type" while executing
+// procedure "proc" on each element
+
+#define R__FOR_EACH(type,proc) \
+    SetCurrentCollection(); \
+    TIter _NAME3_(nxt_,type,proc)(TCollection::GetCurrentCollection()); \
+    type *_NAME3_(obj_,type,proc); \
+    while ((_NAME3_(obj_,type,proc) = (type*) _NAME3_(nxt_,type,proc)())) \
+       _NAME3_(obj_,type,proc)->proc
+
+#endif
 
 #endif
