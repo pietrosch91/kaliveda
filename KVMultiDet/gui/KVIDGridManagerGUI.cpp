@@ -618,8 +618,8 @@ void KVIDGridManagerGUI::NewGrid()
 void KVIDGridManagerGUI::MergeGrids()
 {
    //merge 2 grids
-   KVIDGraph *g1 = (KVIDGraph *) fSelectedEntries->At(1);
-   KVIDGraph *g2 = (KVIDGraph *) fSelectedEntries->First();
+   //KVIDGraph *g1 = (KVIDGraph *) fSelectedEntries->At(1);
+   //KVIDGraph *g2 = (KVIDGraph *) fSelectedEntries->First();
    //new KVMergeGridsDialog(g1, g2, gClient->GetRoot(), this, 10, 10);
 }
 

@@ -536,7 +536,7 @@ Bool_t KVIDSi150CsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
       Error("SetIdentificationParameters", "TEnv::ReadFile != 0, cannot read %s file", filename.Data());
    }
    // get list of all similar telescopes
-   KVList* si150csi = MDA->GetListOfIDTelescopes()->GetSubListWithLabel( GetLabel() );
+   KVCollection* si150csi = MDA->GetListOfIDTelescopes()->GetSubListWithLabel( GetLabel() );
    TIter next(si150csi); KVIDSi150CsI* tt=0;
    while( (tt = (KVIDSi150CsI*)next()) ){
       if( sipglimits.Defined( Form("SIPG_Max.%s", tt->GetName()) ) ){

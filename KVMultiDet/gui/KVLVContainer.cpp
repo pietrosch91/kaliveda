@@ -353,7 +353,7 @@ void KVLVContainer::AddFrame(TGFrame *f, TGLayoutHints *l)
 
 //______________________________________________________________________________
 
-void KVLVContainer::Display(const TList* list_of_objects)
+void KVLVContainer::Display(const TCollection* list_of_objects)
 {
    // Display the list of objects in the container.
 
@@ -396,7 +396,7 @@ void KVLVContainer::RemoveAll()
 
 //______________________________________________________________________________
 
-void KVLVContainer::FillList(const TList* l)
+void KVLVContainer::FillList(const TCollection* l)
 {
 	// Fill list from list
 	// Pointers to objects are stored in internal list fUserItems for Refresh()
@@ -405,7 +405,7 @@ void KVLVContainer::FillList(const TList* l)
 
 	if(l && !l->GetSize()) return;
 
-	TList* theList = (TList*)(l ? l : fUserItems);
+	TCollection* theList = (TCollection*)(l ? l : fUserItems);
 	TIter nxt(theList);
 	TObject* obj = 0;
 	while( (obj = nxt()) ){

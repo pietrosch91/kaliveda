@@ -1118,8 +1118,8 @@ run_number)
 	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber()))
 		SetParameters(run_number);
 
-	KVList* sltype = 0;
-	KVList* slring = 0;
+	KVCollection* sltype = 0;
+	KVCollection* slring = 0;
 	TGraph* gr_ped=0;
 
 	KVString sgraph; sgraph.Form("KVPed_%s_%s_%d_%d",det_signal,det_type,ring_number,GetCurrentRunNumber());
@@ -1239,7 +1239,7 @@ void KVMultiDetArray::SetACQParams()
    TIter next(GetListOfDetectors());
    KVDetector *det;
    while ((det = (KVDetector *) next())) {
-       TList *l = det->GetACQParamList();
+       KVCollection *l = det->GetACQParamList();
       if (!l) {
           //detector has no acq params
           //set up acqparams in detector
@@ -1873,7 +1873,7 @@ KVList* KVMultiDetArray::GetIDTelescopeTypes()
 
 //_________________________________________________________________________________
 
-KVList* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
+KVCollection* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
 {
    // Create, fill and return pointer to a list of KVIDTelescopes with
 	// the given type in the array.

@@ -37,7 +37,7 @@ class KVListView : public TGListView
 		return ((KVLVContainer*)GetContainer())->GetDataColumn(index);
 	};
 
-	virtual void Display(const TList *l) { ((KVLVContainer*)GetContainer())->Display(l); };
+	virtual void Display(const TCollection *l) { ((KVLVContainer*)GetContainer())->Display(l); };
 	virtual void Sort(Int_t column)
 	{
 	    // Sort list according to data in given column (=0, 1, ...)

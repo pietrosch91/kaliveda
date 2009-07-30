@@ -118,27 +118,18 @@ KVGVList::~KVGVList(void)
 //_________________________________________________________________
 void KVGVList::Init(void)
 {
-// methode d'initialisation des
-// variables Internes
-   TObjLink *lnk = FirstLink();
-   while (lnk) {
-      KVVarGlob *vg = (KVVarGlob *) lnk->GetObject();
-      vg->Init();
-      lnk = lnk->Next();
-   }
+	// methode d'initialisation des
+	// variables Internes
+	
+	this->R__FOR_EACH(KVVarGlob,Init)();
 }
 
 //_________________________________________________________________
 void KVGVList::Reset(void)
 {
-// Remise a zero avant le
-// traitement d'un evenement
-   TObjLink *lnk = FirstLink();
-   while (lnk) {
-      KVVarGlob *vg = (KVVarGlob *) lnk->GetObject();
-      vg->Reset();
-      lnk = lnk->Next();
-   }
+	// Remise a zero avant le
+	// traitement d'un evenement
+	this->R__FOR_EACH(KVVarGlob,Reset)();
 }
 
 //_________________________________________________________________
@@ -147,12 +138,8 @@ void KVGVList::Fill(KVNucleus * c)
    // Calls Fill(KVNucleus*) method of all one-body variables in the list
    // for all KVNucleus satisfying the KVParticleCondition given to
    // SetSelection (if no selection given, all nuclei are used).
-   TObjLink *lnk = fVG1.FirstLink();
-   while (lnk) {
-      KVVarGlob *vg = (KVVarGlob *) lnk->GetObject();
-      vg->FillWithCondition(c);
-      lnk = lnk->Next();
-   }
+   
+	fVG1.R__FOR_EACH(KVVarGlob,FillWithCondition)(c);
 }
 
 
@@ -162,12 +149,8 @@ void KVGVList::Fill2(KVNucleus * c1, KVNucleus* c2)
    // Calls Fill(KVNucleus*,KVNucleus*) method of all two-body variables in the list
    // for all pairs of KVNucleus (c1,c2) satisfying the KVParticleCondition given to
    // SetSelection (if no selection given, all nuclei are used).
-   TObjLink *lnk = fVG2.FirstLink();
-   while (lnk) {
-      KVVarGlob *vg = (KVVarGlob *) lnk->GetObject();
-      vg->Fill2WithCondition(c1,c2);
-      lnk = lnk->Next();
-   }
+	
+	fVG2.R__FOR_EACH(KVVarGlob,Fill2WithCondition)(c1,c2);
 }
 
 //_________________________________________________________________
@@ -187,7 +170,7 @@ KVVarGlob *KVGVList::GetGV(const Char_t * nom)
 {
    //Return pointer to global variable in list with name 'nom'
 
-   return (KVVarGlob *) FindObjectByName(nom);
+   return (KVVarGlob *) FindObject(nom);
 }
 
 //_________________________________________________________________
@@ -204,24 +187,7 @@ void KVGVList::Add(TObject* obj)
       else if( vg->IsNBody() ) fVGN.Add( vg );
    }
    // add object to main list
-   TList::Add(obj);
-}
-
-//_________________________________________________________________
-void KVGVList::Add(TObject* obj, Option_t* opt)
-{
-   // Overrides TList::Add(TObject*,Option_t*) so that global variable pointers
-   // are sorted between the 3 lists used for 1-body, 2-body & N-body variables.
-   
-   if( obj->InheritsFrom("KVVarGlob") ){
-      // put global variable pointer in appropriate list
-      KVVarGlob* vg = (KVVarGlob*)obj;
-      if( vg->IsOneBody() ) fVG1.Add( vg );
-      else if( vg->IsTwoBody() ) fVG2.Add( vg );
-      else if( vg->IsNBody() ) fVGN.Add( vg );
-   }
-   // add object to main list
-   TList::Add(obj,opt);
+   KVList::Add(obj);
 }
 
 //_________________________________________________________________
@@ -253,13 +219,8 @@ TObject** KVGVList::GetGVRef(const Char_t* name)
    //
    // This will create a leaf for each global variable in the list.
 
-   TObjLink *lnk = FirstLink();
-
-   while (lnk) {
-      TObject *ob = lnk->GetObject();
-      if (!strcmp(ob->GetName(), name)) return lnk->GetObjectRef();
-      lnk = lnk->Next();
-   }
+	TObject* obj = FindObject(name);
+	if(obj) return GetObjectRef(obj);
    return 0;
 }
 
@@ -274,15 +235,10 @@ void KVGVList::MakeBranches(TTree* tree)
    if(!tree) return;
    if(fNbBranch>=MAX_CAP_BRANCHES) return;
    
-   TObjLink *lnk = FirstLink();
-
-   while (lnk && fNbBranch<MAX_CAP_BRANCHES) {
-      
-      TObject *ob = lnk->GetObject();
+	TIter next(this); TObject*ob;
+   while ((ob = next()) && fNbBranch<MAX_CAP_BRANCHES) {
       
       tree->Branch( ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
-      
-      lnk = lnk->Next();
       
    }
 }
@@ -299,16 +255,11 @@ void KVGVList::FillBranches()
    
    if( !fNbBranch ) return; // MakeBranches has not been called
    
-   TObjLink *lnk = FirstLink();
    int i=0;
-
-   while (lnk && i<MAX_CAP_BRANCHES) {
-      
-      KVVarGlob *ob = (KVVarGlob*)lnk->GetObject();
-      
-      fBranchVar[ i++ ] = ob->GetValue();
-      
-      lnk = lnk->Next();
-      
+	TIter next(this); KVVarGlob*ob;
+   while ((ob = (KVVarGlob*)next()) && fNbBranch<MAX_CAP_BRANCHES) {
+            
+      fBranchVar[ i++ ] = ob->GetValue();      
+		
    }
 }
