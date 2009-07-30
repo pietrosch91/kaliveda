@@ -39,12 +39,12 @@ KVIDGridManager::KVIDGridManager()
 {
   //Default constructor
   //Initialise global pointer gIDGridManager
-  //Create list for ID grids; add to ROOT cleanups
+  //Create list for ID grids
   gIDGridManager = this;
   fGrids = new KVList;
   fGrids->SendModifiedSignals(kTRUE);
   fGrids->Connect("Modified()", "KVIDGridManager", this, "Modified()");
-  gROOT->GetListOfCleanups()->Add(fGrids);
+  fGrids->SetCleanup();
 }
 
 KVIDGridManager::~KVIDGridManager()
@@ -55,8 +55,6 @@ KVIDGridManager::~KVIDGridManager()
   if (gIDGridManager == this)
     gIDGridManager = 0;
   fGrids->Disconnect("Modified()", this, "Modified()");
-  gROOT->GetListOfCleanups()->Remove(fGrids);
-  {fGrids->R__FOR_EACH(KVIDGraph,ResetBit)(kMustCleanup);}
   fGrids->Delete();
   delete fGrids;
 }
@@ -80,7 +78,6 @@ void KVIDGridManager::AddGrid(KVIDGraph * grid)
 {
    // Add a grid to the collection. It will be deleted by the manager.
 	
-	grid->SetBit(kMustCleanup);
    fGrids->Add(grid);
 }
 
@@ -92,7 +89,6 @@ void KVIDGridManager::DeleteGrid(KVIDGraph * grid, Bool_t update)
 	
 	if(!update) fGrids->Disconnect("Modified()", this, "Modified()");
    fGrids->Remove(grid);
-	grid->ResetBit(kMustCleanup);
    delete grid;
 	if(!update) fGrids->Connect("Modified()", "KVIDGridManager", this, "Modified()");
 }
@@ -102,7 +98,6 @@ void KVIDGridManager::Clear(Option_t * opt)
    //Delete all grids and empty list, ready to start anew
 	
 	fGrids->Disconnect("Modified()", this, "Modified()");
-  {fGrids->R__FOR_EACH(KVIDGraph,ResetBit)(kMustCleanup);}
    fGrids->Delete();
    Modified();                  // emit signal to say something changed
 	fGrids->Connect("Modified()", "KVIDGridManager", this, "Modified()");
