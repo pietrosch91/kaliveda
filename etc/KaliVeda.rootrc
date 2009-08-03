@@ -1,8 +1,3 @@
-#$Id: KaliVeda.rootrc,v 1.97 2009/05/22 15:05:15 ebonnet Exp $
-#$Revision: 1.97 $
-#$Author: ebonnet $
-#$Date: 2009/05/22 15:05:15 $
-
 # Default environment configuration file for KaliVeda
 # To change the default configuration, put your own values in a .kvrootrc file in your
 # $HOME or working directory.
@@ -87,42 +82,6 @@
 #
 #---------Definition of default data repository
 #DataRepository.Default:  myrepo
-#
-#####################Case 4
-#Configuration used for KaliVeda on ccali.in2p3.fr machines (don't try this at home)
-#
-#DataRepository: ccali
-#ccali.DataRepository.Type: srb
-#ccali.DataRepository.RootDir:       /indra
-#ccali.DataRepository.ReadProtocol:     root
-#ccali.DataRepository.CanWrite: NO
-#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
-#ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
-#
-#####################Case 5
-#Adding a personal repository on HPSS at CCIN2P3
-#Put something like this in your $HOME/.kvrootrc (don't forget the
-#'+' in front of the first 'DataRepository' line - this means you are
-#adding a repository to the already defined repositories, not replacing
-#them, i.e. you want to keep the definition of 'ccali' which is in
-#$KVROOT/KVFiles/.kvrootrc).
-#
-#+DataRepository: myhpssrep
-#myhpssrep.DataRepository.RootDir:       cchpssindra:/hpss/in2p3.fr/home/m/myname/myrepository
-#myhpssrep.DataRepository.AccessProtocol:      rfio
-#myhpssrep.DataRepository.CacheAvailable:          yes
-#myhpssrep.DataRepository.MaxCacheTime:          86400
-#myhpssrep.DataRepository.ReadProtocol:     root
-#myhpssrep.DataRepository.CanWrite: NO
-#myhpssrep.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
-#myhpssrep.DataRepository.XRDRootDir:       /hpss/in2p3.fr/home/m/myname/myrepository
-#myhpssrep.DataRepository.RFIOServer:      cchpssindra
-#myhpssrep.DataRepository.RFIORootDir:       /hpss/in2p3.fr/home/m/myname/myrepository
-#
-#In order to e.g. perform a "recon->ident" on 'recon' data in the main
-#'ccali' repository, but storing the new 'ident' runs in your personal
-#HPSS repository:
-#Identification1.DataAnalysisTask.OutputRepository:   myhpssrep
 #
 ####################################################################################################################
 #
@@ -340,20 +299,10 @@ Xterm.BatchSystem.JobScript: "$KVROOT/bin/KaliVedaAnalysis -b -n"&
 Linux.BatchSystem.Title:    Execute task in background with output stored in log file
 Linux.BatchSystem.DefaultJobOptions:   -b -n &> #JobName#.log &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
-#+BatchSystem:  	BQS
-#BQS.BatchSystem.Title:   Use CCIN2P3 BQS batch system
-#BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_hpss_indra,u_xrootd -V -N #JobName#
-#BQS.BatchSystem.JobSubCmd:   qsub
-#BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
-#BQS.BatchSystem.DefaultJobTime:   4000
-#BQS.BatchSystem.DefaultJobMemory:	256MB
-#BQS.BatchSystem.DefaultJobDisk:   100MB
-#Default batch system
-Default.BatchSystem:   Xterm
 #Plugins for batch systems
 Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
 +Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDet    "KVLinuxBatch(const Char_t*)"
-#+Plugin.KVBatchSystem:    BQS    KV_CCIN2P3_BQS     KVMultiDet    "KV_CCIN2P3_BQS(const Char_t*)"
++Plugin.KVBatchSystem:    BQS    KV_CCIN2P3_BQS     KVMultiDet    "KV_CCIN2P3_BQS(const Char_t*)"
 
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments

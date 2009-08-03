@@ -1,0 +1,20 @@
+# Specific environment configuration file for KaliVeda on CCIN2P3 machines
+
+DataRepository: ccali
+ccali.DataRepository.Type: srb
+ccali.DataRepository.RootDir:       /indra
+ccali.DataRepository.ReadProtocol:     root
+ccali.DataRepository.CanWrite: NO
+ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
+
++BatchSystem:    BQS
+BQS.BatchSystem.Title:   Use CCIN2P3 BQS batch system
+BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_hpss_indra,u_xrootd -V -N #JobName#
+BQS.BatchSystem.JobSubCmd:   qsub
+BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
+BQS.BatchSystem.DefaultJobTime:   4000
+BQS.BatchSystem.DefaultJobMemory:  256MB
+BQS.BatchSystem.DefaultJobDisk:   100MB
+
+Default.BatchSystem:   BQS
