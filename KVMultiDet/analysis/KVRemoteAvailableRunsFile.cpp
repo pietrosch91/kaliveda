@@ -34,6 +34,14 @@ KVRemoteAvailableRunsFile::KVRemoteAvailableRunsFile(const Char_t *
    init();
 }
 
+KVRemoteAvailableRunsFile::KVRemoteAvailableRunsFile(const Char_t *
+                                                     type):KVAvailableRunsFile
+    (type)
+{
+   //Constructor with name of datatype ("raw", "recon", "ident", "root")
+   init();
+}
+
 KVRemoteAvailableRunsFile::~KVRemoteAvailableRunsFile()
 {
    //Destructor

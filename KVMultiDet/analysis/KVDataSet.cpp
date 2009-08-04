@@ -251,7 +251,8 @@ KVAvailableRunsFile *KVDataSet::GetAvailableRunsFile(const Char_t * type)
    KVAvailableRunsFile *avrf =
        (KVAvailableRunsFile *) fAvailableRuns.FindObjectByName(type);
    if (!avrf) {
-      avrf = new KVAvailableRunsFile(type, this);
+      avrf = fRepository->NewAvailableRunsFile(type);
+		avrf->SetDataSet(this);
       fAvailableRuns.Add(avrf);
    }
    return avrf;
@@ -1374,6 +1375,9 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
    TString fname = GetFullPathToRunfile(type, run);
    if (fname == "") return 0; //file not found
 
+	// check connection to repository (e.g. SSH tunnel) in case of remote repository
+   if(!fRepository->IsConnected()) return 0;
+	
    //get base class for dataset & type
    KVString base_class = GetDataSetEnv( Form("DataSet.RunFileClass.%s", type) );
 

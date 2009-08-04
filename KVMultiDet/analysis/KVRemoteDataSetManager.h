@@ -16,7 +16,6 @@ $Date: 2007/09/20 11:30:17 $
 class KVRemoteDataSetManager:public KVDataSetManager {
 
  protected:
-    virtual KVDataSet * NewDataSet();
    Bool_t OpenAvailableDatasetsFile();
    TString fCurl;               //full path to executable used to copy files
 

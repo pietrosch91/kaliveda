@@ -77,7 +77,6 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVDataTransferBBFTP+;
 #pragma link C++ class KVDP2toIDGridConvertor+;
 #pragma link C++ class KVRemoteDataRepository+;
-#pragma link C++ class KVRemoteDataSet+;
 #pragma link C++ class KVRemoteDataSetManager+;
 #pragma link C++ class KVDataRepositoryManager+;
 #pragma link C++ class KVDataSetManager+;
@@ -216,4 +215,8 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVRelativeVelocity;
 #pragma link C++ class KVUpdateChecker;
 #pragma link C++ class KVCVSUpdateChecker;
+#pragma link C++ class SRB+;
+#pragma link C++ class SRBFile_t+;
+#pragma link C++ class SRBDataRepository+;
+#pragma link C++ class SRBAvailableRunsFile+;
 #endif

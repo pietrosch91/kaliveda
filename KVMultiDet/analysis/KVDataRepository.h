@@ -10,16 +10,17 @@ $Date: 2007/12/11 12:45:47 $
 #ifndef __KVDATAREPOSITORY_H
 #define __KVDATAREPOSITORY_H
 
-#include "TNamed.h"
+#include "KVBase.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "KVAvailableRunsFile.h"
 
 class KVList;
 class TFile;
 class KVDataSet;
 class KVDataSetManager;
 
-class KVDataRepository:public TNamed {
+class KVDataRepository:public KVBase {
 
  protected:
 
@@ -102,7 +103,7 @@ class KVDataRepository:public TNamed {
    {
       return fCanWrite;
    }
-   virtual KVList *GetDirectoryListing(const Char_t * datasetdir,
+   virtual TList *GetDirectoryListing(const Char_t * datasetdir,
                                        const Char_t * datatype = "");
 
    virtual void CopyFileFromRepository(const Char_t * datasetdir,
@@ -152,6 +153,8 @@ class KVDataRepository:public TNamed {
    virtual KVDataSetManager *GetDataSetManager() const;
 
    void cd();
+   static KVDataRepository *NewRepository(const Char_t* type);
+	KVAvailableRunsFile *NewAvailableRunsFile(const Char_t* data_type);
 
     ClassDef(KVDataRepository, 0)       //Base class handling files in data repository
 };

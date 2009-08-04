@@ -53,9 +53,15 @@ KVDatime::KVDatime(const Char_t * DateString, EKVDateFormat f)
    //Decodes GANIL acquisition (INDRA) run-sheet format date into a TDatime
    //Format of date string is:
    //      29-SEP-2005 09:42:17.00
+	//
    //if f = KVDatime::kSQL:
    //Decodes SQL format date into a TDatime (i.e. same format as returned
    //by TDatime::AsSQLString(): "2007-05-02 14:52:18")
+   //
+	//if f = KVDatime::kSRB:
+   //Decodes SRB format date into a TDatime
+   //Format of date string is: 
+	//         2008-12-19-15.21
    
    init();
    switch(f){
@@ -64,6 +70,9 @@ KVDatime::KVDatime(const Char_t * DateString, EKVDateFormat f)
          break;
       case kSQL:
          SetSQLDate(DateString);
+         break;
+      case kSRB:
+         SetSRBDate(DateString);
          break;
       default:
             Error(KV__ERROR(KVDatime), "Unknown date format");
@@ -87,6 +96,19 @@ void KVDatime::SetSQLDate(const Char_t * DateString)
    Int_t Y,M,D,h,m,s;
    sscanf(DateString, "%4d-%02d-%02d %02d:%02d:%02d",
          &Y,&M,&D,&h,&m,&s);
+   Set(Y,M,D,h,m,s);
+}
+
+void KVDatime::SetSRBDate(const Char_t * DateString)
+{
+   //Decodes SRB format date into a TDatime
+   //Format of date string is: 
+	//         2008-12-19-15.21
+	
+   Int_t Y,M,D,h,m,s;
+   sscanf(DateString, "%4d-%02d-%02d-%02d.%02d",
+         &Y,&M,&D,&h,&m);
+	s=0;
    Set(Y,M,D,h,m,s);
 }
 

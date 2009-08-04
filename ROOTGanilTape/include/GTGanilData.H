@@ -1,5 +1,3 @@
-// $Id: GTGanilData.H,v 1.10 2007/09/17 12:33:27 franklan Exp $
-// Author: $Author: franklan $
 /***************************************************************************
 //                        GTGanilData.H  -  Main Header to ROOTGAnilTape
 //                             -------------------
@@ -27,7 +25,7 @@
 
 #ifndef GT_GTGanilData_H
 #define GT_GTGanilData_H
-#include <limits.h>
+#include <limits>
 // ROOT hearders
 #include <TFile.h>
 #include <TString.h>
