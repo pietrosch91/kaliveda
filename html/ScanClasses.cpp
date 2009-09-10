@@ -105,6 +105,7 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("detectors", "Absorbers, Targets & Detectors"));
 	fClassTitles->Add( new KVBase("geometry", "Multidetector Geometry"));
 	fClassTitles->Add( new KVBase("indra", "INDRA Multidetector Array"));
+	fClassTitles->Add( new KVBase("data_management", "Data Storage & Retrieval"));
 	fClassTitles->Add( new KVBase("analysis", "Data Analysis"));
 	fClassTitles->Add( new KVBase("db", "Database Classes"));
 	fClassTitles->Add( new KVBase("identification", "Charged Particle Identification"));
