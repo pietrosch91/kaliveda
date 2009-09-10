@@ -2,6 +2,8 @@
 #include "KVNumberList.h"
 #include "KVParameterList.h"
 #include "Riostream.h"
+#include "TSystemDirectory.h"
+#include "TSystemFile.h"
 
 /*
 analyse_logs [fmt] [files]
@@ -18,17 +20,24 @@ int main(int argc, char** argv)
 {
 	if(argc<2){
 		cout << "\t\tAnalysis of BQS batch log files" << endl << endl;
-		cout << "\tanalyse_logs [fmt] [files]" << endl << endl;
+		cout << "\tanalyse_logs [jobname]" << endl << endl;
 		cout << "\targuments are:" << endl;
-		cout << "\t\t[fmt] format of jobname allowing to extract run number" << endl;
-		cout << "\t\t      e.g. \"PbAu29MeV_R%d\" for jobs with names \"PbAu29MeV_R8213\" etc." << endl;
-		cout << "\t\t[files]	list of BQS log files to be read and analysed" << endl << endl;
-		cout << "\tExample:" << endl;
-		cout << "\t\tanalyse_logs \"run%d\" run*.o*" << endl;
+		cout << "\t\t[jobname] common root of name of all jobs to analyse" << endl;
+		cout << "\t\t      e.g. \"PbAu29MeV\" for jobs with names like \"PbAu29MeV_R8213\" etc." << endl;
+		cout << "\t\t      The programme will attempt to read all files with names like" << endl;
+		cout << "\t\t          PbAu29MeV_R8213.o5647093" << endl;
+		cout << "\t\t          PbAu29MeV_R8214.o5647094" << endl;
+		cout << "\t\t      etc. in the current directory" << endl;		
 		return 0;
 	}
 	KVLogReader log_reader;
-	log_reader.SetNameFormat( argv[1] );
+	
+	// take root of job name and add suffix "_R"
+	KVString nameForm(argv[1]);
+	nameForm+="_R";
+	KVString nameFormLR=nameForm+"%d";//format for KVLogReader	
+	log_reader.SetNameFormat( nameFormLR.Data() );
+	
 	//number lists for listing runs according to status: OK, out of time, killed, seg fault
 	KVNumberList ok, oot, kill, seg;
 	//max and min CPU, SCRATCH, VIRTUAL STORAGE for OK jobs
@@ -58,11 +67,23 @@ int main(int argc, char** argv)
    CPUreq_kill=MEMreq_kill=SCRreq_kill=0;
 	Double_t CPUreq_incomp, MEMreq_incomp, SCRreq_incomp;
    CPUreq_incomp=MEMreq_incomp=SCRreq_incomp=0;
-	//loop over files
-   
-	for(int nfile=2; nfile<argc; nfile++){
+	
+	//loop over files in current directory
+	TSystemDirectory thisDir(".",".");
+	TList* fileList=thisDir.GetListOfFiles();
+	TIter nextFile(fileList);
+	int nfile=0;
+	TSystemFile* aFile=0;
+	while( (aFile = (TSystemFile*)nextFile()) ){
 		
-		log_reader.ReadFile( argv[nfile] );
+		// look for files with names like [nameForm]1234.o6579780
+		KVString fileName = aFile->GetName();
+		if( !fileName.BeginsWith(nameForm.Data()) ) continue;
+		if( !fileName.Contains(".o") ) continue;
+   				
+		nfile++;
+		
+		log_reader.ReadFile( fileName.Data() );
 		
 		Int_t run = log_reader.GetRunNumber();
 		if( log_reader.JobOK() ){
@@ -201,7 +222,7 @@ int main(int argc, char** argv)
 	}
 	
 	cout << "BQS log analysis==============>" << endl;
-	cout << "Analysed " << (argc-2) << " jobs" << endl;
+	cout << "Analysed " << nfile << " jobs" << endl;
 	cout << endl;
 	cout << "      ";
 	cout << ok.GetNValues() << " jobs were OK \n\n" << ok.GetList() << endl;
