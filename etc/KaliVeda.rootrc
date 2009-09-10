@@ -91,9 +91,9 @@ Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataR
 +Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
 #
 # Plugins for KVAvailableRunsFile
-Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*)"
-+Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*)"
-+Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*)"
+Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
@@ -302,7 +302,6 @@ Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 #Plugins for batch systems
 Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
 +Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDet    "KVLinuxBatch(const Char_t*)"
-+Plugin.KVBatchSystem:    BQS    KV_CCIN2P3_BQS     KVMultiDet    "KV_CCIN2P3_BQS(const Char_t*)"
 
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments
