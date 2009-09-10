@@ -3,7 +3,7 @@
 
 PROJ_NAME = KVMultiDet
 
-MODULES = analysis base calibration daq_cec db detectors events geometry gui identification particles \
+MODULES = analysis base calibration daq_cec data_management db detectors events geometry gui identification idmaps idtelescopes particles \
 	vg_base vg_charge vg_energy vg_multiplicity vg_shape vg_momentum trieur
 
 EXTRA_HEADERS = base/KVError.h base/KVParameter.h
