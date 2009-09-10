@@ -29,8 +29,8 @@ SRBAvailableRunsFile::SRBAvailableRunsFile()
    // Default constructor
 }
 
-SRBAvailableRunsFile::SRBAvailableRunsFile(const Char_t* type)
-		: KVAvailableRunsFile(type)
+SRBAvailableRunsFile::SRBAvailableRunsFile(const Char_t* type, KVDataSet* ds)
+		: KVAvailableRunsFile(type,ds)
 {
    // Constructor with data-type
 }
@@ -103,14 +103,14 @@ void SRBAvailableRunsFile::Update()
    //use "lockfile" to make sure nobody else tries to write available_runs file
    //while we are copying it
    if(!runlist_lock.Lock(runlist.Data())) return;
-   
+
    gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
-   
+
    //remove lockfile
    runlist_lock.Release();
-   
+
    //delete temp file
    gSystem->Unlink(tmp_file_path);
 }

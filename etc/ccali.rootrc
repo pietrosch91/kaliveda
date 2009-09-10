@@ -16,5 +16,6 @@ BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
 BQS.BatchSystem.DefaultJobTime:   4000
 BQS.BatchSystem.DefaultJobMemory:  256MB
 BQS.BatchSystem.DefaultJobDisk:   100MB
++Plugin.KVBatchSystem:    BQS    KV_CCIN2P3_BQS     KVMultiDet    "KV_CCIN2P3_BQS(const Char_t*)"
 
 Default.BatchSystem:   BQS

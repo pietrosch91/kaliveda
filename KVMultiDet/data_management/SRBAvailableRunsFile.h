@@ -11,7 +11,7 @@ class SRBAvailableRunsFile : public KVAvailableRunsFile
 
    public:
    SRBAvailableRunsFile();
-   SRBAvailableRunsFile(const Char_t*);
+   SRBAvailableRunsFile(const Char_t*, KVDataSet*);
    virtual ~SRBAvailableRunsFile();
 
    virtual void Update();

@@ -25,7 +25,7 @@
 
 #ifndef GT_GTGanilData_H
 #define GT_GTGanilData_H
-#include <limits>
+#include <limits.h>
 // ROOT hearders
 #include <TFile.h>
 #include <TString.h>

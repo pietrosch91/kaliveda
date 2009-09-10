@@ -52,6 +52,7 @@ KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type,
 KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type):KVBase(type)
 {
    //Constructor with name of datatype ("raw", "recon", "ident", "root")
+   //Dataset must be set straight away with SetDataSet(KVDataSet*)
    fDataSet = 0;
    //runlist lockfile
    runlist_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
@@ -81,9 +82,14 @@ const Char_t *KVAvailableRunsFile::GetFileName()
 {
    // Filename of text file containing information on available runs
    // i.e. [repository].available_runs.[dataset subdir].[type of data]
-   
+
    static TString filename;
-   filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDatapathSubdir(),
+   if(!fDataSet){
+       Error("GetFileName", "Dataset has not been set for this file.");
+       filename = "";
+   }
+   else
+    filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDatapathSubdir(),
                  GetName());
    return filename.Data();
 }
@@ -210,14 +216,14 @@ void KVAvailableRunsFile::Update()
    //use "lockfile" to make sure nobody else tries to write available_runs file
    //while we are copying it
    if(!runlist_lock.Lock(runlist.Data())) return;
-   
+
    gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
-   
+
    //remove lockfile
    runlist_lock.Release();
-   
+
    //delete temp file
    gSystem->Unlink(tmp_file_path);
 }
@@ -378,13 +384,13 @@ const Char_t *KVAvailableRunsFile::GetFileName(Int_t run)
 {
    //Read from available runs list the name of the file used for this run
    //If run is not available, filename will be empty
-   
+
    static TString fname;
    static TDatime dtime;
    if(GetRunInfo(run, dtime, fname)){
       return fname.Data();
    }
-   
+
    fname = "";
    return fname.Data();
 }
@@ -426,13 +432,13 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 
      TObjArray *toks = fLine.Tokenize('|');    // split into fields
      if(toks->GetSize()){
-        
+
       KVString kvs(((TObjString *) toks->At(0))->GetString());
-      
+
    if(kvs.IsDigit()){
-      
+
       good_lines++;
-      
+
       fRunNumber = kvs.Atoi();
 
       if (!systol) {
@@ -450,7 +456,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
          if (!sys_list)
             sys_list = new TList;
          if (sys) {
-				
+
 
 				/* Block Modified() signal being emitted by KVDBRun object
 				   when we set its 'datime'. This is to avoid seg fault with
@@ -574,7 +580,7 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t * filename)
    }
 
    CloseAvailableRunsFile();
-   
+
    //close temp file
    tmp_file.close();
 
@@ -585,7 +591,7 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t * filename)
                                            GetFileName()));
    //lock runsfile
    if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
-   
+
    gSystem->CopyFile(tmp_file_path, fRunlist_path, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(fRunlist_path.Data(), CHMODE(6,6,4));
@@ -619,9 +625,9 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
       tmp_file << line.Data() << endl;
       line.ReadLine(fRunlist);
    }
-   
+
    CloseAvailableRunsFile();
-   
+
    //add entry for run
    FileStat_t fs;
    //get file modification date
@@ -677,7 +683,7 @@ Bool_t KVAvailableRunsFile::OpenAvailableRunsFile()
          return kFALSE;
       }
    }
-      
+
    return kTRUE;
 }
 

@@ -56,8 +56,8 @@ ccali.DataRepository.ReadProtocol:     root
 ccali.DataRepository.XRDServer:      ccxrdsn012:1999
 ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
-ccali.DataRepository.XRDTunnel.port:          10000       
-ccali.DataRepository.XRDTunnel.user:       
+ccali.DataRepository.XRDTunnel.port:          10000
+ccali.DataRepository.XRDTunnel.user:
 ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
 ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
 ccali.DataRepository.FileTransfer.type:    bbftp
@@ -251,7 +251,7 @@ KVDataRepository::~KVDataRepository()
    if (fDSM)
       delete fDSM;
    fDSM = 0;
-   
+
    if (fHelpers) {
       fHelpers->Delete();
       SafeDelete(fHelpers);
@@ -372,7 +372,7 @@ const Char_t *KVDataRepository::GetFullPathToOpenFile(KVDataSet * dataset,
    //If this is the case, an error message will be printed and an empty string returned.
 
    static TString path;
-   
+
    TString read_proto = GetReadProtocol(dataset->GetName(), datatype);
    if( read_proto == "none" ) {
       Error("GetFullPathToOpenFile", "Datatype \"%s\" can not be read from the repository \"%s\"",
@@ -499,7 +499,7 @@ void KVDataRepository::CopyFileToRepository(const Char_t * source,
                                            datasetdir));
    AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
-   
+
    //copy file
    CopyFile( source, path.Data() );
    //change file access permissions to 664
@@ -561,10 +561,10 @@ TList *KVDataRepository::GetDirectoryListing(const Char_t * datasetdir,
             path.Data());
       return 0;
    }
-	
+
    TList *dirlist = new TList;
 	dirlist->SetOwner(kTRUE);
-	
+
    TObjString *direntry = new TObjString(gSystem->GetDirEntry(dirp));
    while (direntry->GetString() != "") {        //loop over all entries in directory
       if (direntry->GetString() == "." || direntry->GetString() == "..") {
@@ -783,9 +783,9 @@ TSystem *KVDataRepository::FindHelper(const char *path, void *dirptr)
 int KVDataRepository::Chmod(const char *file, UInt_t mode)
 {
    //Used to change file access permissions in the repository
-   
+
    //do we need a special helper for this filesystem ?
-   TSystem* helper = FindHelper(file);   
+   TSystem* helper = FindHelper(file);
    return (helper ? helper->Chmod(file, mode) : gSystem->Chmod(file, mode));
 }
 
@@ -804,10 +804,10 @@ int KVDataRepository::CopyFile(const char *f, const char *t, Bool_t overwrite)
 
    //save current directory
    TDirectory* dir_sav = gDirectory;
-   
+
    TUrl path(f,kTRUE);
    TUrl path2(t,kTRUE);
-      
+
    path.SetOptions("filetype=raw");
    TFile* from = TFile::Open(path.GetUrl(),"READ");
    if (!from || from->IsZombie()){
@@ -833,17 +833,17 @@ int KVDataRepository::CopyFile(const char *f, const char *t, Bool_t overwrite)
    Long64_t filesize = from->GetSize();
    if( filesize >0 && filesize<1024*1024 ) bufsize=1024;
    char* buf = new char[bufsize];
-   
+
    int ret = 0;
    Long64_t bytes_read, bytes_wrote, bytes_left, last_bytes_read, last_bytes_wrote;
    bytes_read = bytes_wrote = bytes_left = last_bytes_read = last_bytes_wrote = 0;
-   
+
 //   printf("Filesize=%lld Buffersize=%d\n",filesize,bufsize);
-   
+
 //   int op = 1;
-   
+
    while (bufsize && !ret && !from->ReadBuffer(buf, bufsize)) {
-      
+
       bytes_read = from->GetBytesRead() - last_bytes_read;
       last_bytes_read = from->GetBytesRead();
       ret = (int)to->WriteBuffer(buf, bytes_read);
@@ -854,7 +854,7 @@ int KVDataRepository::CopyFile(const char *f, const char *t, Bool_t overwrite)
       //adjust buffer size
       bytes_left = filesize - last_bytes_read;
       if(bytes_left < bufsize) bufsize = (int)bytes_left;
-      
+
 //       printf("----------------------------------%d-----------------------------------\n",op++);
 //       printf("bytes_read=%lld last_bytes_read=%lld total_bytes_read=%lld\n",
 //             bytes_read, last_bytes_read, from->GetBytesRead());
@@ -871,14 +871,14 @@ int KVDataRepository::CopyFile(const char *f, const char *t, Bool_t overwrite)
 //             bytes_wrote, last_bytes_wrote, to->GetBytesWritten());
 //       printf("bytes_left=%lld bufsize=%d\n",
 //             bytes_left, bufsize);
-      
+
    delete from;
    delete to;
    delete [] buf;
 
    //reset working directory
    dir_sav->cd();
-   
+
    return ret;
 }
 
@@ -915,9 +915,9 @@ void KVDataRepository::PrepareXRDTunnel()
    //configuration includes the following lines (or similar):
    //
    // #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
-   // #ccali.DataRepository.XRDTunnel.port:          10000       
+   // #ccali.DataRepository.XRDTunnel.port:          10000
    // #ccali.DataRepository.XRDTunnel.retry:         5
-   // #ccali.DataRepository.XRDTunnel.user:       
+   // #ccali.DataRepository.XRDTunnel.user:
    //
    //In this case we need to replace the real name & port of the xrootd server:
    //
@@ -929,7 +929,7 @@ void KVDataRepository::PrepareXRDTunnel()
    //
    //which will be used for path names in e.g. GetFullPathToOpenFile.
    //The tunnel is not created here; it should be opened when needed by calling IsConnected()
-   
+
    fXRDtunHost = gEnv->GetValue(Form("%s.DataRepository.XRDTunnel.host", GetName()), "");
    if(fXRDtunHost==""){
       Error("PrepareXRDTunnel", "Give host through which to tunnel : %s.DataRepository.XRDTunnel.host",
@@ -957,7 +957,7 @@ KVDataRepository *KVDataRepository::NewRepository(const Char_t* type)
 	// Create new instance of class derived from KVDataRepository.
 	// Actual class of object depends on 'type' which is used to select one of the
 	// Plugin.KVDataRepository's defined in .kvrootrc.
-	
+
    //check and load plugin library
    TPluginHandler *ph=KVBase::LoadPlugin("KVDataRepository", type);
    if (!ph)
@@ -969,40 +969,40 @@ KVDataRepository *KVDataRepository::NewRepository(const Char_t* type)
 
 //______________________________________________________________________________________________//
 
-KVAvailableRunsFile *KVDataRepository::NewAvailableRunsFile(const Char_t* data_type)
+KVAvailableRunsFile *KVDataRepository::NewAvailableRunsFile(const Char_t* data_type, KVDataSet* ds)
 {
 	// Create new instance of class derived from KVAvailableRunsFile.
 	// Actual class of object depends on the type of the repository,
 	// which is used to select one of the
 	// Plugin.KVDataAvailableRunsFile's defined in .kvrootrc.
-	
+
    //check and load plugin library
    TPluginHandler *ph=KVBase::LoadPlugin("KVAvailableRunsFile", GetType());
    if (!ph)
-      return new KVAvailableRunsFile(data_type);
+      return new KVAvailableRunsFile(data_type,ds);
 
    //execute constructor/macro for plugin
-   return ((KVAvailableRunsFile *) ph->ExecPlugin(1, data_type));
+   return ((KVAvailableRunsFile *) ph->ExecPlugin(2, data_type, ds));
 }
 
 #ifdef __CCIN2P3_RFIO
 //______________________________________________________________________________________________//
 
 ClassImp(KVRFIOSystem)
-      
+
 ///////////////////////////////////////////////////////////////////////
 //This class corrects a bug in TRFIOSystem::Unlink
 //and adds a fully-functioning Chmod method and
 //CopyFile which can handle either or both of source
 //and target file being accessed via rfiod (the other is
 //assumed to be on the local filesystem).
-      
+
 extern "C" {
    FILE*   rfio_fopen(const char *path, const char* mode);
    int     rfio_fclose(FILE* s);
    int     rfio_fread(void * buffer, size_t size, size_t count, FILE * stream);
    int     rfio_fwrite( const void * buffer, size_t size, size_t count, FILE * stream );
-   int     rfio_feof(FILE * stream); 
+   int     rfio_feof(FILE * stream);
    int     rfio_stat(const char *path, struct stat *statbuf);
    int     rfio_rmdir (const char *path);
    int     rfio_unlink(const char *path);
@@ -1016,7 +1016,7 @@ Int_t KVRFIOSystem::Unlink(const char *path)
    // Unlink, i.e. remove, a file or directory. Returns 0 when succesfull,
    // -1 in case of failure.
 
-   TUrl url(path);   
+   TUrl url(path);
    struct stat finfo;
    if (rfio_stat(url.GetFile(), &finfo) < 0)
       return -1;
@@ -1033,7 +1033,7 @@ int KVRFIOSystem::Chmod(const char *file, UInt_t mode)
 {
    // Set the file permission bits. Returns -1 in case or error, 0 otherwise.
 
-   TUrl url(file);   
+   TUrl url(file);
    return rfio_chmod(url.GetFile(), mode);
 }
 

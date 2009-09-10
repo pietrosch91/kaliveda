@@ -56,7 +56,7 @@ class KVDataRepository:public KVBase {
 
    virtual int             Chmod(const char *file, UInt_t mode);
    virtual void PrepareXRDTunnel();
-   
+
    TSeqCollection  *fHelpers;          //List of helper classes for alternative file/directory access
  public:
    virtual int  CopyFile(const char *f, const char *t, Bool_t overwrite=kFALSE);
@@ -154,7 +154,7 @@ class KVDataRepository:public KVBase {
 
    void cd();
    static KVDataRepository *NewRepository(const Char_t* type);
-	KVAvailableRunsFile *NewAvailableRunsFile(const Char_t* data_type);
+	KVAvailableRunsFile *NewAvailableRunsFile(const Char_t*, KVDataSet*);
 
     ClassDef(KVDataRepository, 0)       //Base class handling files in data repository
 };
