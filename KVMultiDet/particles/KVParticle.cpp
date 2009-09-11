@@ -702,6 +702,7 @@ void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
 	//Specially usefull if the new frame is used in KVVarGlob derived classes
 	KVParticle *tmp = (KVParticle* )this->IsA()->New();
+	tmp->SetBit(kCanDelete);
 	tmp->SetFrameName(newframe);
 	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
 	GetListOfFrames()->Add(tmp);
@@ -717,6 +718,7 @@ void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
 	//Specially usefull if the new frame is used in KVVarGlob derived classes
 	KVParticle *tmp = (KVParticle* )this->IsA()->New();
+	tmp->SetBit(kCanDelete);
 	tmp->SetFrameName(newframe);
 	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
 	GetListOfFrames()->Add(tmp);
@@ -734,6 +736,7 @@ void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
 	//Specially usefull if the new frame is used in KVVarGlob derived classes
 	KVParticle *tmp = (KVParticle* )this->IsA()->New();
+	tmp->SetBit(kCanDelete);
 	tmp->SetFrameName(newframe);
 	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
 	GetListOfFrames()->Add(tmp);
@@ -751,6 +754,7 @@ void KVParticle::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 	//without the chain : particle->GetFrame("oldframe")->GetFrame("newframe");
 	//Specially usefull if the new frame is used in KVVarGlob derived classes
 	KVParticle *tmp = (KVParticle* )this->IsA()->New();
+	tmp->SetBit(kCanDelete);
 	tmp->SetFrameName(newframe);
 	GetFrame(oldframe)->GetFrame(newframe)->Copy(*tmp);
 	GetListOfFrames()->Add(tmp);
