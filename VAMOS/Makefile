@@ -3,9 +3,11 @@
 
 PROJ_NAME = VAMOS
 
-MODULES = daq_cec analysis base identification detectors
+MODULES = daq_cec analysis base identification detectors geometry
 
 EXTRA_HEADERS = analysis/Defines.h
+
+MANIP_DIRS = VAMOS_e503
 
 NOT_ROOTCINT := analysis/Defines.h
 

@@ -145,6 +145,14 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 
++DataSet:    VAMOS_e503
+VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
+VAMOS_e503.DataSet.RepositoryDir:   e503
+VAMOS_e503.DataSet.RunFileName.raw:    run_%d.dat%*
+VAMOS_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+VAMOS_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+VAMOS_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
+
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
@@ -325,6 +333,7 @@ Plugin.KVDataAnalyser:    INDRA                  KVINDRADataAnalyser          KV
 # Plugins for VAMOS calibration
 Plugin.Analysisv:   INDRA_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogFile*)"
 +Plugin.Analysisv:   INDRA_e494s     Analysisv_e494s   VAMOS   "Analysisv_e494s(LogFile*)"
++Plugin.Analysisv:   VAMOS_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogFile*)"
 
 # Plugins for data transfer between repositories
 # Used by KVDataTransfer::NewTransfer
@@ -349,6 +358,7 @@ DataSet.RunFileClass.root:    TFile
 # Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVRawDataReader:    raw.INDRA_e494s    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA_e503    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
++Plugin.KVRawDataReader:    raw.VAMOS_e503    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA*    KVINDRARawDataReader     KVIndra    "KVINDRARawDataReader()"
 
 #Define groups of users for restricting access to certain datasets
@@ -398,6 +408,8 @@ INDRADB.CsILumCorr.FileName:    run%d.corrLum
 INDRADB.Gains:    Gains.dat
 # VAMOS scalers for INDRA-VAMOS experiments
 INDRADB.VamosScaler:    scalersVamos.dat
+# VAMOS Brho & angle for INDRA-VAMOS experiments
+INDRADB.VamosBrhoAngle:    Vamos_run_brho_angle.dat
 
 # Default filename containing correspondance between CsI detector and PinLaser
 INDRADB.CsIPinCorr:          CsI_PILA.dat
@@ -468,6 +480,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e475s    KVINDRAe475s     KVIndra    "KVINDRAe475s()"
 +Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
++Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -483,6 +496,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    INDRA_e416a    KVINDRADB_e416a     KVIndraFNL    "KVINDRADB_e416a(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e475s    KVINDRADB_e475s     KVIndra    "KVINDRADB_e475s(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 
@@ -493,6 +507,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndraFNL    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
++Plugin.KVUpDater:    VAMOS_e503    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
@@ -531,6 +546,8 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:      ^BIC-SIB$                            KVIDBlocking            KVIndraFNL     "KVIDBlocking()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
+# ===> Plugin pour FocalPlanVamos
++Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
 
 # COHERENCE TOLERANCE PARAMETER
 # In KVIDTelescope::CalculateParticleEnergy, we compare the calculated and measured energy losses
@@ -570,6 +587,8 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
+# pour FocalPlanVamos 
+VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
 
 # non-functioning acqusition parameters
 INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
@@ -582,6 +601,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CI-CSI SI-CSI CSI CI-SI
+VAMOS_e503.ActiveIdentifications:    SI-CSI
 
 #=================== Updating calibration/identification parameters contained in data files
 # When recon/ident data files are created, a KVINDRA object containing all of the
@@ -629,6 +649,8 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 #+Plugin.KVDetector:   BIC                                      KVBIC                  KVIndraFNL          "KVBIC()"
 +Plugin.KVDetector: CSI             KVCsI       KVIndra  "KVCsI(Float_t)"
 +Plugin.KVDetector: INDRA_e475s.CSI KVCsI_e475s KVIndra  "KVCsI_e475s(Float_t)"
++Plugin.KVDetector:    VAMOS_e503.CSI             KVCsIVamos     VAMOS     "KVCsIVamos(Float_t)"
++Plugin.KVDetector:    VAMOS_e503.SI             KVSiliconVamos     VAMOS     "KVSiliconVamos(Float_t)"
 
 # Environment variables for the Data Selectors. They define the filename and
 # the directory of the file where the TEventList are stored. The default
