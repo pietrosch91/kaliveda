@@ -36,3 +36,8 @@ endif
 ifeq ($(SITE),CCIN2P3)
 KV_INC += -D__CCIN2P3_SRB
 endif
+
+ifeq ($(INDRADLT),yes)
+LINK_LIB += -L$(KVROOT)/lib -lROOTGanilTape
+RLIBMAPDEPS += libROOTGanilTape.so
+endif
