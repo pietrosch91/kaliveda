@@ -229,7 +229,7 @@ void KVFocalPlanVamos::SetNamesDetectors()
 			   det->SetName(name);
 			   det->SetThickness(thick_si[ksib-1]);
 		   }
-cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<<", thick= "<<det->GetThickness()<<endl;
+//cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<<", thick= "<<det->GetThickness()<<endl;
 
 }
 	   if(det->IsType("CSI")){
@@ -239,7 +239,7 @@ cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<
 		   UInt_t ringnum = det->GetRingNumber();
 		   UInt_t modnum = det->GetModuleNumber();
 		   kcsi++;
-cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<<endl;
+//cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<<endl;
 }
 	   }
    
