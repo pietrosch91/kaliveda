@@ -136,6 +136,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVPosition+;
 #pragma link C++ class KVPulseHeightDefect+;
 #pragma link C++ class KVRawDataReader+;
+#pragma link C++ class KVGANILDataReader+;
 #pragma link C++ class KVReconstructedNucleus-;//customised streamer
 #pragma link C++ class KVReconstructedEvent-;//customised streamer
 //#pragma link C++ class KVRegister+;

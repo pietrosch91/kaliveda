@@ -358,7 +358,7 @@ DataSet.RunFileClass.root:    TFile
 # Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVRawDataReader:    raw.INDRA_e494s    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA_e503    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
-+Plugin.KVRawDataReader:    raw.VAMOS_e503    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
++Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA*    KVINDRARawDataReader     KVIndra    "KVINDRARawDataReader()"
 
 #Define groups of users for restricting access to certain datasets

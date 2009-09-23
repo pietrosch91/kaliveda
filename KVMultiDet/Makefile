@@ -16,6 +16,10 @@ NOT_READY := daq_cec/KVReg*.cpp
 
 NOT_ROOTCINT := base/KVError.h
 
+ifeq ($(INDRADLT),yes)
+KV_INC_EXTRAS := -I$(GANTAPE_INC) -I$(GANILTAPE_INC) -DINDRADLT
+endif
+
 include ../Makefile.general
 RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
 libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \

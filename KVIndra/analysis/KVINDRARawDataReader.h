@@ -23,42 +23,26 @@ $Id: KVINDRARawDataReader.h,v 1.5 2008/10/17 10:58:07 franklan Exp $
 #include "KVACQParam.h"
 #include "KVINDRATriggerInfo.h"
 #include "KVList.h"
-#include "KVRawDataReader.h"
+#include "KVGANILDataReader.h"
 
-class GTGanilData;
+class KVINDRARawDataReader:public KVGANILDataReader, public KVINDRATriggerInfo {
 
-class KVINDRARawDataReader:public KVRawDataReader, public KVINDRATriggerInfo {
-
-protected:
-   GTGanilData* fGanilData;//object used to read GANIL acquisition file
-   
+protected:   
    KVACQParam *fSTAT_EVE_PAR;   // STAT_EVE parameter read from raw data
    KVACQParam *fR_DEC_PAR;      // R_DEC parameter read from raw data
    KVACQParam *fVXCONFIG_PAR;   // VXCONFIG parameter read from raw data
 
-   void ConnectRawDataParameters();
    void ConnectArrayDataParameters();
 
-   KVList *fExtParams;//->list of unknown (i.e. non-INDRA) data parameters
-	KVList *fParameters;//->list of all data parameters contained in file
-   
-   virtual GTGanilData* NewGanTapeInterface();
-   virtual KVACQParam* CheckACQParam(const Char_t*);
-   
  public:
     KVINDRARawDataReader() {
       init();
    };
    KVINDRARawDataReader(const Char_t *);
-   void OpenFile(const Char_t *);
    virtual ~ KVINDRARawDataReader();
    void init();
    Bool_t GetNextEvent();
    Bool_t IsINDRAEvent();
-   virtual GTGanilData* GetGanTapeInterface();
-   
-   const KVList* GetUnknownParameters() const { return fExtParams; };
-   const KVList* GetRawDataParameters() const { return fParameters; };
    
    static KVINDRARawDataReader* Open(const Char_t* filename, Option_t* opt = "");
    

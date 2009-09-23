@@ -100,7 +100,7 @@ export KV_CONFIG__H = KVConfig.h
 
 .PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
 
 doc : html byebye
 
