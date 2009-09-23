@@ -502,12 +502,11 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
-# There must be an entry here for each dataset
+# If there is no entry here for a dataset, an object of the default KVUpDater class will be used.
 # Syntax:
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndraFNL    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
-+Plugin.KVUpDater:    VAMOS_e503    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
