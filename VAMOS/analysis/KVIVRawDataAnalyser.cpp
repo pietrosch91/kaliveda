@@ -39,7 +39,7 @@ KVIVRawDataAnalyser::~KVIVRawDataAnalyser()
 
 void KVIVRawDataAnalyser::postInitRun()	
 {
-   	fRunFile->GetGanTapeInterface()->SetUserTree( fBidonTree );
+   	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( fBidonTree );
 }
 
 //_______________________________________________________________________//

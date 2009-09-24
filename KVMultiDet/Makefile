@@ -14,7 +14,7 @@ ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVReg*.cpp
 ifeq ($(ROOTGANILTAPE),no)
-NOT_READY += analysis/KVGANILDataReader.cpp
+NOT_READY += analysis/KVGANILDataReader.cpp analysis/KVRawDataAnalyser.cpp
 endif
 
 NOT_ROOTCINT := base/KVError.h

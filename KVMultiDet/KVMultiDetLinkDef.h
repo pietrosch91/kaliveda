@@ -1,12 +1,3 @@
-/***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
-                              KVMultiDetLinkDef.h
-                               description
-                             -------------------
-                       Auteur   :  Alexis Mignon + J.D. Frankland
-                       email    :  mignon@ganil.fr
- ***************************************************************************/
-
 #ifdef __CINT__
 #include "RVersion.h"
 #pragma link off all globals;
@@ -138,6 +129,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVRawDataReader+;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVGANILDataReader+;
+#pragma link C++ class KVRawDataAnalyser+;
 #endif
 #pragma link C++ class KVReconstructedNucleus-;//customised streamer
 #pragma link C++ class KVReconstructedEvent-;//customised streamer

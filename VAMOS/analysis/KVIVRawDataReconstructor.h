@@ -21,7 +21,7 @@ class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
    virtual ~KVIVRawDataReconstructor();
    virtual void postInitRun()
 	{
-   	fRunFile->GetGanTapeInterface()->SetUserTree( tree );
+   	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( tree );
 	};
    virtual Bool_t Analysis();
 

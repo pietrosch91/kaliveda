@@ -160,7 +160,7 @@ Bool_t KVINDRARawIdent::Analysis ()
 	
    if( IsINDRAEvent() ){
       
-      if( fRunFile->IsPhysics() ){
+      if( ((KVINDRARawDataReader*)fRunFile)->IsPhysics() ){
          
          recev->ReconstructEvent( fDetEv );
          recev->SetNumber( fEventNumber );
@@ -198,7 +198,7 @@ void KVINDRARawIdent::EndRun ()
             << nb_recon << " ***" << endl<< endl;
 		file->cd();
 		gIndra->Write("INDRA");//write INDRA to file
-		((KVINDRADataAnalyser* )gDataAnalyser)->WriteBatchInfo(tree);
+		gDataAnalyser->WriteBatchInfo(tree);
 		tree->Write();//write tree to file
       rawtree->Write();
       genetree->Write();

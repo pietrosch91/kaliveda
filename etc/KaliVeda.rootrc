@@ -104,30 +104,36 @@ DataSet.DatabaseName:        DataBase
 DataSet:     INDRA_camp1
 INDRA_camp1.DataSet.Title:    1st INDRA campaign (1993)
 INDRA_camp1.DataSet.RepositoryDir:   campagne1
+INDRA_camp1.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_camp2
 INDRA_camp2.DataSet.Title:    2nd INDRA campaign (1994)
 INDRA_camp2.DataSet.RepositoryDir:   campagne2
+INDRA_camp2.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
+INDRA_camp4.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
 INDRA_camp5.DataSet.RepositoryDir:   campagne5
+INDRA_camp5.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_e416a
 INDRA_e416a.DataSet.Title:    Fission lifetimes of SHE (E416a) (2005)
 INDRA_e416a.DataSet.RepositoryDir:   e416a
 INDRA_e416a.DataSet.UserGroup:   e416a
 INDRA_e416a.DataSet.RunFileName.raw:    Run%d%*
+INDRA_e416a.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_e475s
 INDRA_e475s.DataSet.Title:    Isospin dependence of the emission of complex fragments (E475S) (2006)
 INDRA_e475s.DataSet.RepositoryDir:   e475s
 INDRA_e475s.DataSet.RunFileName.raw:    run_%d.dat%*
 #INDRA_e475s.Identification1.DataAnalysisTask.UserClass.Base:     ReconIdent_e475s/TSelector
+RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_e503
 INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
@@ -251,7 +257,7 @@ RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
 RawAnalysis.DataAnalysisTask.Prereq:     raw
 RawAnalysis.DataAnalysisTask.Analyser:     UserClass
 RawAnalysis.DataAnalysisTask.UserClass:     yes
-RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
 
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
@@ -317,7 +323,7 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(con
 
 # Plugins for data analysis
 # KVDataAnalyser can be tuned for different datasets/environments
-Plugin.KVDataAnalyser:    INDRA                  KVINDRADataAnalyser          KVIndra "KVINDRADataAnalyser()"
+Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDet "KVRawDataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRARawDataAnalyser   KVINDRARawDataAnalyser       KVIndra "KVINDRARawDataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRAReconData         KVINDRAReconDataAnalyser     KVIndra "KVINDRAReconDataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRARawDataRecon      KVINDRARawDataReconstructor  KVIndra "KVINDRARawDataReconstructor()"
