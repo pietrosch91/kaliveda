@@ -149,9 +149,9 @@ INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
 VAMOS_e503.DataSet.RepositoryDir:   e503
 VAMOS_e503.DataSet.RunFileName.raw:    run_%d.dat%*
-VAMOS_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
-VAMOS_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
-VAMOS_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
+#VAMOS_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+#VAMOS_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+#VAMOS_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction

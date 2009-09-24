@@ -80,11 +80,11 @@ export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
+export ROOTGANILTAPE = yes
 RGTAPE = gan_tape ROOTGT
 INDRAVAMOS = VAMOS
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
 RGTAPE =
 INDRAVAMOS = VAMOS
 endif
@@ -185,7 +185,7 @@ clean :
 	cd KVMultiDet && $(MAKE) clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
-ifeq ($(INDRADLT),yes)
+ifeq ($(ROOTGANILTAPE),yes)
 	cd ROOTGanilTape && $(MAKE) clean
 	cd GanTape && rm -rf i386-linux_*
 endif
@@ -206,7 +206,7 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/examples
 	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
-ifeq ($(INDRADLT),yes)
+ifeq ($(ROOTGANILTAPE),yes)
 	cd ROOTGanilTape && $(MAKE) install
 endif
 	cd KVIndra && $(MAKE) install
@@ -253,7 +253,7 @@ uninstall :
 	-rm -rf $(KVINSTALLDIR)/examples
 	-rm -rf $(KVINSTALLDIR)/KaliVedaDoc
 	-rm -rf $(KVINSTALLDIR)/db
-ifeq ($(INDRADLT),yes)
+ifeq ($(ROOTGANILTAPE),yes)
 	-rm -f $(KVINSTALLDIR)/include/GT*.H
 	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
 	-rm -f $(KVINSTALLDIR)/lib/libROOTGanilTape.so

@@ -33,14 +33,14 @@ endif
 
 #ganil libraries for reading raw data only build on linux systems
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
+export ROOTGANILTAPE = yes
 ifneq ($(WITH_VAMOS),no)
 LINK_LIBS +=  -lVAMOS
 endif
 LINK_LIBS +=  -lROOTGanilTape -lgan_tape
 CXXFLAGS += -I$(GANILTAPE_INC)
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
 endif
 
 ifeq ($(MAKE_GANTAPE_XRD),yes)

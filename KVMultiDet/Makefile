@@ -13,11 +13,14 @@ ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVReg*.cpp
+ifeq ($(ROOTGANILTAPE),no)
+NOT_READY += analysis/KVGANILDataReader.cpp
+endif
 
 NOT_ROOTCINT := base/KVError.h
 
-ifeq ($(INDRADLT),yes)
-KV_INC_EXTRAS := -I$(GANTAPE_INC) -I$(GANILTAPE_INC) -DINDRADLT
+ifeq ($(ROOTGANILTAPE),yes)
+KV_INC_EXTRAS := -I$(GANTAPE_INC) -I$(GANILTAPE_INC) -DROOTGANILTAPE
 endif
 
 include ../Makefile.general
@@ -37,7 +40,7 @@ ifeq ($(SITE),CCIN2P3)
 KV_INC += -D__CCIN2P3_SRB
 endif
 
-ifeq ($(INDRADLT),yes)
+ifeq ($(ROOTGANILTAPE),yes)
 LINK_LIB += -L$(KVROOT)/lib -lROOTGanilTape
 RLIBMAPDEPS += libROOTGanilTape.so
 endif
