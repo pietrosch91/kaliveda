@@ -202,6 +202,9 @@ INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
 
+VAMOS_e503.KVDetector.Fired.ACQParameterList.SI: E
+VAMOS_e503.KVDetector.Fired.ACQParameterList.CSI: E
+
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
 # This can be changed by setting the environment variable(s):

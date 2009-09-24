@@ -74,9 +74,9 @@ class KVCsI:public KVDetector {
       return GetACQParam("T")->GetCoderData();
    }
 
-   Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+   virtual Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
                              -1.0);
-   Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+   virtual Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =
                              -1.0);
    Double_t GetTauZero(Double_t rapide = -1.0, Double_t lente = -1.0);
    void SetLumiereTotale(Double_t lum) {

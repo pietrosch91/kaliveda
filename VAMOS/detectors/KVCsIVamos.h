@@ -23,6 +23,16 @@ class KVCsIVamos : public KVCsI
    const Char_t *GetName() const;
    void SetACQParams();
    KVACQParam* GetACQPar() { return fPar; };
+   virtual Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+                             -1.0)
+   {
+      return fPar->GetData();
+   };
+   virtual Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =
+                             -1.0)
+   {
+      return fPar->GetData();
+   };
 
 
    ClassDef(KVCsIVamos,1)//KVCsI for Vamos

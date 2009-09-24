@@ -50,6 +50,7 @@ void KVCsIVamos::SetACQParams()
    // creer parametre d'acquisition avec meme nom que le detecteur
    KVACQParam *par = new KVACQParam( GetName() );
    par->SetDetector(this);
+   par->SetType("E");
    fACQParams->Add(par);
    fPar = par;
 }
