@@ -87,7 +87,7 @@ Int_t npar_res;//!number of params for eres function
 Double_t *par_loss;//!array of params for eloss function
 Double_t *par_res;//!array of params for eres function
 
-    TString fFName;             //!dynamically generated full name of detector
+   TString fFName;              //!dynamically generated full name of detector
    KVList *fModules;            //references to connected electronic modules (not implemented yet)
    KVList *fCalibrators;        //list of associated calibrator objects
    KVList *fACQParams;          //list of raw data parameters read from coders
@@ -124,6 +124,7 @@ Double_t *par_res;//!array of params for eres function
    };
    KVMaterial *GetActiveLayer() const;
    KVMaterial *GetAbsorber(Char_t i) const;
+   virtual const Char_t *GetArrayName();
 
 	Double_t GetTotalThicknessInCM()
 	{
@@ -138,8 +139,6 @@ Double_t *par_res;//!array of params for eres function
 		return fTotThickness;
 	};
 
-   const Char_t *GetName() const;
-   virtual const Char_t *GetArrayName();
    const Char_t *GetMaterialName() const {
       if (GetActiveLayer())
          return GetActiveLayer()->GetName();
@@ -173,14 +172,14 @@ Double_t *par_res;//!array of params for eres function
                                        -1., Bool_t transmission=kTRUE);
    virtual UInt_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
 
-   virtual void AddACQParam(const Char_t * type);
-   virtual KVACQParam *GetACQParam(const Char_t * type);
+   void AddACQParam(KVACQParam*);
+   virtual KVACQParam *GetACQParam(const Char_t*/*name*/);
    KVList *GetACQParamList() {
       return fACQParams;
    };
-   Float_t GetACQData(const Char_t * type);
-   Float_t GetPedestal(const Char_t * type);
-   void SetPedestal(const Char_t * type, Float_t ped);
+   virtual Float_t GetACQData(const Char_t*/*name*/);
+   virtual Float_t GetPedestal(const Char_t*/*name*/);
+   virtual void SetPedestal(const Char_t*/*name*/, Float_t);
 
    virtual UInt_t GetRingNumber() const;
    virtual UInt_t GetTelescopeNumber() const;
