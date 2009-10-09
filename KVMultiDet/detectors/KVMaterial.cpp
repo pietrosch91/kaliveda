@@ -1108,3 +1108,30 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 	return gmed;
 }
 
+
+//______________________________________________________________________________
+
+void KVMaterial::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVMaterial.
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.ReadClassBuffer(KVMaterial::Class(),this,R__v,R__s,R__c);
+      if (R__v < 5){
+			// correct densities of solids written with class version < 5
+			// this is to fix launchpad bug#446163
+			// it affects materials with fUnits = kMICRONS or kCM
+			// if the density we read is less than that we find
+			// for a new instanciation of the same type of material,
+			// we use the current value.
+			if(fUnits==kMICRONS || fUnits==kCM){
+				KVMaterial tmp(GetType());
+				if(GetDensity() < tmp.GetDensity()) SetDensity(tmp.GetDensity());
+			}
+		}
+   } else {
+      R__b.WriteClassBuffer(KVMaterial::Class(),this);
+   }
+}

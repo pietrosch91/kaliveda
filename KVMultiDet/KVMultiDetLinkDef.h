@@ -121,7 +121,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;
-#pragma link C++ class KVMaterial+;
+#pragma link C++ class KVMaterial-;
 #pragma link C++ class KVModule+;
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
