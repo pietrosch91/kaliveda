@@ -94,11 +94,10 @@ install_html: $(MAKEHTML)
 	./$(MAKEHTML)
 	-cp ClassCategories.html $(KVROOT)/KaliVedaDoc/
 	-cp examples/Examples.html $(KVROOT)/KaliVedaDoc/
+	-rm -f $(KVROOT)/KaliVedaDoc/index.html
 	-cp *.html $(KVROOT)/KaliVedaDoc/
 	-cp css/* $(KVROOT)/KaliVedaDoc/css/
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp tools/* $(KVROOT)/KaliVedaDoc/tools/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
-	-rm -f $(KVROOT)/KaliVedaDoc/index.html
-	-ln -s $(KVROOT)/KaliVedaDoc/about.html $(KVROOT)/KaliVedaDoc/index.html

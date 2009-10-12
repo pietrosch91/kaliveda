@@ -4,8 +4,7 @@
 // qiksearch@rediffmail.com
 
 var links = new Array (
-  "about",
-  "KaliVeda",
+  "index",
   "download",
   "build",
   "kvrootrc",
@@ -14,13 +13,13 @@ var links = new Array (
   "KaliVeda-FAQ",
   "ClassCategories",
   "appli",
+  "launchpad",
   "KaliVedaForum",
   "KaliVedaBugs"
  );
 
 var links_text = new Array (
   "Home",
-  "News",
   "Download",
   "Build options",
   "Configuration",
@@ -29,14 +28,14 @@ var links_text = new Array (
   "Tutorials",
   "Class Reference",
   "Commands & GUI",
+  "Launchpad",
   "Forum",
   "Report a Bug"
  );
 
 var links_url = new Array (
-  "about.html",
-  "KaliVeda.html",
-  "about.html#download",
+  "index.html",
+  "index.html#download",
   "build.html",
   "kvrootrc.html",
   "DataAnalysis.html",
@@ -44,6 +43,7 @@ var links_url = new Array (
   "KaliVeda-FAQ.html",
   "ClassCategories.html",
   "appli.html",
+  "https://launchpad.net/kaliveda",
   "http://indra.in2p3.fr/KaliVedaForum",
   "https://bugs.launchpad.net/kaliveda/+filebug"
  );
