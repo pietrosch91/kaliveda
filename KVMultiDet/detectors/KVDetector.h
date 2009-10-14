@@ -245,7 +245,7 @@ Double_t *par_res;//!array of params for eres function
    KVList *GetIDTelescopes();
    KVList *GetAlignedIDTelescopes();
    TList *GetTelescopesForIdentification();
-   void GetAlignedIDTelescopes(KVList * list);
+   void GetAlignedIDTelescopes(TList * list);
 
    Bool_t Reanalyse() const {
       return fReanalyse;

@@ -103,8 +103,8 @@ class KVMultiDetArray:public KVBase {
    virtual void MakeListOfDetectors();
    void SetACQParams();
    void SetCalibrators();
-void set_up_telescope(KVDetector * de, KVDetector * e, KVList * idtels, KVIDTelescope *idt, TString& uri);
-void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelescope *idt, TString& uri);
+void set_up_telescope(KVDetector * de, KVDetector * e, TList * idtels, KVIDTelescope *idt, TString& uri);
+void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelescope *idt, TString& uri);
 
  public:
    KVMultiDetArray();
@@ -118,7 +118,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    void AddLayer();
    void AddLayer(KVLayer * kvl);
 
-   virtual void GetIDTelescopes(KVDetector *, KVDetector *, KVList *);
+   virtual void GetIDTelescopes(KVDetector *, KVDetector *, TList *);
 
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * opt = "") const;
@@ -163,7 +163,7 @@ void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelesc
    void ReplaceTelescope(const Char_t * name, KVTelescope * new_kvt);
    void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);
 
-	virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
+	//virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
 
    void StartBrowser();
    void CloseBrowser();

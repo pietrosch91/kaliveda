@@ -827,7 +827,7 @@ KVList *KVDetector::GetAlignedIDTelescopes()
 
 //___________________________________________________________________________//
 
-void KVDetector::GetAlignedIDTelescopes(KVList * list)
+void KVDetector::GetAlignedIDTelescopes(TList * list)
 {
    //Create and add to list all ID telescopes made of this detector
    //and the aligned detectors placed in front of it.
