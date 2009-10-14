@@ -25,8 +25,8 @@
 
 #ifndef GT_GTGanilData_H
 #define GT_GTGanilData_H
-#include <limits.h>
 // ROOT hearders
+#include "Rtypes.h"
 #include <TFile.h>
 #include <TString.h>
 #include <TTree.h>
@@ -82,7 +82,7 @@ public:
   void            Connect            (const Int_t index    ,UShort_t **p) const;
   Bool_t          Connect            (const TString parName,UShort_t **p) const;
   bool            Next               (void            );
-  void            MakeTree           (const TString filename="", UInt_t nEvents=UINT_MAX);
+  void            MakeTree           (const TString filename="", UInt_t nEvents=kMaxUInt);
   inline bool     IsScalerBuffer     (void            ) const{return(fIsScalerBuffer);};
   const UShort_t* GetBrutScalerBuffer(void            ) const;
   Int_t           GetStatus          (void            ) const {return(fStatus);}

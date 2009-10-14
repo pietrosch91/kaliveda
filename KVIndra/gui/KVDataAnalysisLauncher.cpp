@@ -534,7 +534,6 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
 	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, 500, 250);
 	lvRuns->SetDataColumns(5);
-	cout << "KaliVedaGUI.MaxColWidth="<<gEnv->GetValue("KaliVedaGUI.MaxColWidth",200)<<endl;
 	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
 	lvRuns->SetDataColumn(0, "Run", "GetNumber");
 	lvRuns->SetDataColumn(1, "Trigger", "GetTriggerString");
