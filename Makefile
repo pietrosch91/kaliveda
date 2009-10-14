@@ -340,3 +340,13 @@ byebye :
 	@echo ''
 	@echo 'NORMAL SUCCESSFUL COMPLETION OF MAKEFILE'
 	@echo ''	
+
+# the following copied from GSL build
+# neat way to set up symbolic links from current build directory
+# to all the header files in other subdirectories of main project
+#header_links :
+#	HEADERLIST="../gsl*.h ../*/gsl*.h"; \
+#	for h in $HEADERLIST; do \
+#	  BASENAME=`basename $h`; \
+#	  test -r $BASENAME || ln -s $h $BASENAME; \
+#	done
