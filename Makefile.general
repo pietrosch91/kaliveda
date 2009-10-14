@@ -287,7 +287,7 @@ endif
 copymanipdirs :
 	for manip_dir in $(MANIP_DIRS); do \
 		cp -r $(CPOPT) $$manip_dir $(KVINSTALLDIR)/KVFiles/ ; \
-		echo $(KVINSTALLDIR)"/db/"$$manip_dir"/DataBase.root : "`ls $$manip_dir` > $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
+		echo '$$''(KVROOT)/db/'$$manip_dir"/DataBase.root : "`ls $$manip_dir` > $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 		echo "	@echo Database needs update" >> $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 	done
 
