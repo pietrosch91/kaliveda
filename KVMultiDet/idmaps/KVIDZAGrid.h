@@ -143,6 +143,6 @@ public:
     KVIDZGrid(){};
     virtual ~KVIDZGrid(){};
 
-    ClassDef(KVIDZGrid,2)//FOR BACKWARDS COMPATIBILITY ONLY. OBSOLETE.
+    ClassDef(KVIDZGrid,3)//FOR BACKWARDS COMPATIBILITY ONLY. OBSOLETE.
 };
 #endif

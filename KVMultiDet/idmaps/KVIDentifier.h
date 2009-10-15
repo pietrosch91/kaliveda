@@ -118,7 +118,7 @@ class KVIDentifier : public TCutG
 	virtual Int_t         InsertPoint(){ if(GetEditable()){ return TCutG::InsertPoint(); } else {return -2;} }; // *MENU*
 	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU*
 
-   ClassDef(KVIDentifier,1)//Base class for graphical cuts used in particle identification
+   ClassDef(KVIDentifier,2)//Base class for graphical cuts used in particle identification
 };
 
 #endif
