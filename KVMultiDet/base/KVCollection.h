@@ -31,7 +31,7 @@ protected:
     };
     virtual void	PrintCollectionHeader(Option_t* option) const;
     virtual KVCollection* NewCollectionLikeThisOne() const;
-	 virtual void SetCollection(const Char_t*);
+    virtual void SetCollection(const Char_t*);
 
 public:
     KVCollection();

@@ -79,18 +79,18 @@ KVCollection::KVCollection(const KVCollection& col)
 KVCollection::KVCollection(const Char_t* collection_classname)
 {
     // Create new extended collection of class "collection_classname".
-    // Must be the name of a class derived from TCollection.
+    // Must be the name of a class derived from TSeqCollection.
 
     fCollection=0;
-	 SetCollection(collection_classname);
-	 if(!fCollection) MakeZombie();
+    SetCollection(collection_classname);
+    if (!fCollection) MakeZombie();
     ResetBit(kSignals);
 }
 
 void KVCollection::SetCollection(const Char_t* class_name)
 {
-	 // Create TSeqCollection-derived object of class 'class_name'
-	 // and set as the embedded collection fCollection.
+    // Create TSeqCollection-derived object of class 'class_name'
+    // and set as the embedded collection fCollection.
     TClass* cl = TClass::GetClass(class_name);
     if (!cl)
     {
@@ -101,7 +101,7 @@ void KVCollection::SetCollection(const Char_t* class_name)
     if (!cl->InheritsFrom("TSeqCollection"))
     {
         Error("SetCollection(const Char_t*)",
-				  "Called for class %s which does not inherit from TSeqCollection",
+              "Called for class %s which does not inherit from TSeqCollection",
               class_name);
         return;
     }
@@ -111,10 +111,10 @@ void KVCollection::SetCollection(const Char_t* class_name)
 KVCollection::~KVCollection()
 {
     // Destructor
-	// If the cleanup mechanism is in use, we first remove the list from
-	// the list of cleanups
-			  
-	if(IsCleanup()) gROOT->GetListOfCleanups()->Remove(fCollection);
+    // If the cleanup mechanism is in use, we first remove the list from
+    // the list of cleanups
+
+    if (IsCleanup()) gROOT->GetListOfCleanups()->Remove(fCollection);
     SafeDelete(fCollection);
 }
 
@@ -142,29 +142,29 @@ void KVCollection::Copy(TObject & obj) const
     copy.SendModifiedSignals(IsSendingModifiedSignals());
 
     //copy or clone list members
-    TObject *b;
-    TIter next(fCollection);
-    while ((b = next()))
-    {
-        if (IsOwner())
-            copy.Add(b->Clone());
-        else
-            copy.Add(b);
-    }
+   TObject *b;
+   TIter next(fCollection);
+   while ((b = next()))
+   {
+       if (IsOwner())
+           copy.Add(b->Clone());
+       else
+           copy.Add(b);
+   }
 }
 
 KVCollection* KVCollection::NewCollectionLikeThisOne() const
 {
     // PROTECTED method
     // Creates and returns pointer to a new (empty) KVCollection
-	 // (or derived class) with the same characteristics
+    // (or derived class) with the same characteristics
     // as this one :
     //   - class of embedded collection
     //   - collection is owner of objects ?
     //   - objects are in cleanup list ?
 
     KVCollection *newCol = (KVCollection*)IsA()->New();
-	 if(!newCol->fCollection) newCol->SetCollection(fCollection->ClassName());
+    if (!newCol->fCollection) newCol->SetCollection(fCollection->ClassName());
     newCol->SetOwner( IsOwner() );
     newCol->SetCleanup( IsCleanup() );
     return newCol;
@@ -173,10 +173,10 @@ KVCollection* KVCollection::NewCollectionLikeThisOne() const
 void KVCollection::Add(TObject *obj)
 {
     // Add an object to the list.
-	// If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
-	// of the object before adding it to the list.
-	
-	if(IsCleanup()) obj->SetBit(kMustCleanup);
+    // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+    // of the object before adding it to the list.
+
+    if (IsCleanup()) obj->SetBit(kMustCleanup);
     fCollection->Add(obj);
     Changed();
 }
@@ -184,13 +184,14 @@ void KVCollection::Add(TObject *obj)
 void KVCollection::Clear(Option_t *option)
 {
     // Clear the list of objects.
-	// If the cleanup mechanism is in use, and the objects belong to the list
-	// (i.e. Clear() will in fact delete all the objects) we first reset the
-	// TObject::kMustCleanup bit of all objects to prevent recursive deletes.
-	
-	if(IsCleanup() && IsOwner()){
-		fCollection->R__FOR_EACH(TObject,ResetBit)(kMustCleanup);
-	}
+    // If the cleanup mechanism is in use, and the objects belong to the list
+    // (i.e. Clear() will in fact delete all the objects) we first reset the
+    // TObject::kMustCleanup bit of all objects to prevent recursive deletes.
+
+    if (IsCleanup() && IsOwner())
+    {
+        fCollection->R__FOR_EACH(TObject,ResetBit)(kMustCleanup);
+    }
     fCollection->Clear(option);
     Changed();
 }
@@ -198,13 +199,14 @@ void KVCollection::Clear(Option_t *option)
 void KVCollection::Delete(Option_t *option)
 {
     // Delete all heap-based objects in the list.
-	// If the cleanup mechanism is in use, and the objects belong to the list
-	// (i.e. Clear() will in fact delete all the objects) we first reset the
-	// TObject::kMustCleanup bit of all objects to prevent recursive deletes.
-	
-	if(IsCleanup() && IsOwner()){
-		fCollection->R__FOR_EACH(TObject,ResetBit)(kMustCleanup);
-	}
+    // If the cleanup mechanism is in use, and the objects belong to the list
+    // (i.e. Clear() will in fact delete all the objects) we first reset the
+    // TObject::kMustCleanup bit of all objects to prevent recursive deletes.
+
+    if (IsCleanup() && IsOwner())
+    {
+        fCollection->R__FOR_EACH(TObject,ResetBit)(kMustCleanup);
+    }
     fCollection->Delete(option);
     Changed();
 }
@@ -735,16 +737,37 @@ KVCollection *KVCollection::MakeListFromFileWithClass(TFile *file,const Char_t* 
 //_______________________________________________________________________________
 
 void KVCollection::SetCleanup(Bool_t enable)
+{
+    // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
+    // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
+    SetBit(kCleanup,enable);
+    if (enable)
     {
-        // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
-        // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
-        SetBit(kCleanup,enable);
-		  if(enable){
-			  gROOT->GetListOfCleanups()->Add(fCollection);
-			  fCollection->R__FOR_EACH(TObject,SetBit)(kMustCleanup);
-		  }
-		  else
-		  {
-			  gROOT->GetListOfCleanups()->Remove(fCollection);
-		  }
+        gROOT->GetListOfCleanups()->Add(fCollection);
+        fCollection->R__FOR_EACH(TObject,SetBit)(kMustCleanup);
     }
+    else
+    {
+        gROOT->GetListOfCleanups()->Remove(fCollection);
+    }
+}
+//______________________________________________________________________________
+void KVCollection::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVCollection.
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c); if (R__v) { }
+      TSeqCollection::Streamer(R__b);
+      fQObject.Streamer(R__b);
+      R__b >> fCollection;
+      R__b.CheckByteCount(R__s, R__c, KVCollection::IsA());
+   } else {
+      R__c = R__b.WriteVersion(KVCollection::IsA(), kTRUE);
+      TSeqCollection::Streamer(R__b);
+      fQObject.Streamer(R__b);
+      R__b << fCollection;
+      R__b.SetByteCount(R__c, kTRUE);
+   }
+}

@@ -65,7 +65,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVCalibrator-;//customised streamer
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
-#pragma link C++ class KVCollection+;
+#pragma link C++ class KVCollection-;
 #pragma link C++ class KVDetector-;
 #pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBase;
