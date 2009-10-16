@@ -57,6 +57,7 @@ class SRB : public KVBase
 	TList* GetFullListing(const Char_t* directory="");
 	TList* GetListing(const Char_t* directory="");
 	Bool_t DirectoryContains(const Char_t* name, const Char_t* directory="");
+	Bool_t GetPathInfo(const Char_t* path, SRBFile_t& fs);
 	
    ClassDef(SRB,1)//Interface to SRB commands
 };

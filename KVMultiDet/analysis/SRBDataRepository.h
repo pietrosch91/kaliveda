@@ -38,6 +38,9 @@ class SRBDataRepository : public KVDataRepository
                            const Char_t * datatype,
                            const Char_t * filename, Bool_t confirm =
                            kTRUE);
+   virtual Bool_t GetFileInfo(const Char_t * datasetdir,
+                              const Char_t * datatype,
+                              const Char_t * runfile, FileStat_t & fs);
 	
    ClassDef(SRBDataRepository,1)//Remote data repository using SRB
 };

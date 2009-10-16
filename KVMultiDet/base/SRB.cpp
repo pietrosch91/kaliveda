@@ -196,6 +196,34 @@ TList *SRB::GetFullListing(const Char_t* directory)
 	delete toks;
 	return list;
 }
+
+Bool_t SRB::GetPathInfo(const Char_t* path, SRBFile_t& fs)
+{
+	// Returns kTRUE if 'path' exists (file or directory, absolute or relative pathname).
+	// If so, SRBFile_t object will be filled with information on file/container
+	
+	TString filename = gSystem->BaseName(path);
+	TString dirname = gSystem->DirName(path);
+	if(DirectoryContains(filename.Data(),dirname.Data())){
+		Sls(path,"-l");
+		fout.Remove(TString::kBoth,' ');
+		fs.SetName(filename.Data());
+		if(fout.BeginsWith("C-/")){ // container
+			fs.SetIsContainer();
+		}
+		else {
+			// files have lines such as
+   		//   nief        0 Lyon                    230663725 2008-12-19-15.21   run788.root.2006-10-30_08:03:15
+			TObjArray *fstats = fout.Tokenize(" ");
+			fs.SetSize((UInt_t)((TObjString*)(*fstats)[3])->String().Remove(TString::kBoth,' ').Atoi());
+			KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth,' ').Data(), KVDatime::kSRB);
+			fs.SetModTime(mt);
+			delete fstats;
+		}
+		return kTRUE;
+	}
+	return kFALSE;
+}
 	
 TList *SRB::GetListing(const Char_t* directory)
 {

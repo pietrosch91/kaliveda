@@ -187,3 +187,40 @@ int SRBDataRepository::Chmod(const char *file, UInt_t mode)
 	// Not used with SRB (???) - Method does nothing.
 	return 0;
 }
+//___________________________________________________________________________
+
+Bool_t SRBDataRepository::GetFileInfo(const Char_t * datasetdir,
+                                     const Char_t * datatype,
+                                     const Char_t * runfile,
+                                     FileStat_t & fs)
+{
+   //Checks if the run file of given type is physically present in dataset subdirectory,
+   //i.e. (schematically), if
+   //
+   //      /root_of_data_repository/[datasetdir]/[datatype]/[runfile]
+   //
+   //exists. If it does, the returned value is kTRUE (=1), in which case the FileStat_t object
+   //contains information about the file:
+	// WARNING:
+	//   only  fs.fSize and fs.fMtime are used
+	// in addition, the modification time corresponds to the last time that
+	// the MCAT/SRB declaration of the file was changed, not the last physical
+	// modification of the file, i.e. it will be the date at which the file
+	// was imported into the SRB catalogue, the file may be much older.
+	
+   TString path, tmp;
+   AssignAndDelete(path,
+                   gSystem->ConcatFileName(fAccessroot.Data(),
+                                           datasetdir));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
+	
+	SRBFile_t srbfile;
+	if(fSRB.GetPathInfo(path.Data(), srbfile)){
+		fs.fSize = srbfile.GetSize();
+		fs.fMtime = srbfile.GetModTime().Convert();
+		return kTRUE;
+	}
+   return kFALSE;
+}
+
