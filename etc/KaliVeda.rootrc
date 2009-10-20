@@ -126,13 +126,13 @@ INDRA_e416a.DataSet.RunFileName.raw:    Run%d%*
 +DataSet:    INDRA_e475s
 INDRA_e475s.DataSet.Title:    Isospin dependence of the emission of complex fragments (E475S) (2006)
 INDRA_e475s.DataSet.RepositoryDir:   e475s
-INDRA_e475s.DataSet.RunFileName.raw:    run_%d.dat%*
+INDRA_e475s.DataSet.RunFileName.raw:    run_%04d.dat%*
 #INDRA_e475s.Identification1.DataAnalysisTask.UserClass.Base:     ReconIdent_e475s/TSelector
 
 +DataSet:    INDRA_e503
 INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
 INDRA_e503.DataSet.RepositoryDir:   e503
-INDRA_e503.DataSet.RunFileName.raw:    run_%d.dat%*
+INDRA_e503.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
@@ -140,7 +140,7 @@ INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
 INDRA_e494s.DataSet.RepositoryDir:   e494s
-INDRA_e494s.DataSet.RunFileName.raw:    run_%d.dat%*
+INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
