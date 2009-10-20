@@ -17,6 +17,7 @@ $Date: 2008/02/07 09:25:39 $
 #include "TString.h"
 #include "KVNumberList.h"
 #include "KVLockfile.h"
+#include "KVDatime.h"
 
 class KVDBSystem;
 class KVDataSet;
@@ -50,6 +51,7 @@ class KVAvailableRunsFile:public KVBase {
       return GetName();
    }
    virtual Int_t IsRunFileName(const Char_t * filename);
+	virtual Bool_t ExtractDateFromFileName(const Char_t* name, KVDatime& date);
    virtual void Update();
    virtual Bool_t CheckAvailable(Int_t run);
    virtual Int_t Count(Int_t run);
