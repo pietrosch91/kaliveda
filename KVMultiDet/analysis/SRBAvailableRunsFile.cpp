@@ -80,8 +80,13 @@ void SRBAvailableRunsFile::Update()
          KVDBRun *run = (KVDBRun *) run_table->GetRecord(run_num);
          if (run) {
                //runfile exists in repository
+					//check in case it is possible to extract a date from the name of the file
+					//the file may be much older than its SRB modtime (=date of SRB import)
+					KVDatime filedate;
+					if(!ExtractDateFromFileName(objs->GetName(), filedate))
+						filedate=objs->GetModTime();
                //write in temporary runlist file '[run number]|[date of modification]|[name of file]
-               tmp_file << run->GetNumber() << '|' << objs->GetModTime().AsSQLString() << '|' << objs->GetName() << endl;
+               tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
          }
       }
 
