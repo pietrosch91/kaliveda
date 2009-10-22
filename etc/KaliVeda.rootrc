@@ -649,6 +649,7 @@ KVMaterial.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
 KVNucleus.MassTable:      PACE2MassTable
 Plugin.KVMassTable:   PACE2MassTable    PACE2MassTable    KVMultiDet   "PACE2MassTable()"
 PACE2MassTable.DataFile:    pace2_2009.data
+# PACE2MassTable.DataFile:    audi_wapstra_2003.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
 # this plugin is used for KVNucleus also if no DataSet is specified
