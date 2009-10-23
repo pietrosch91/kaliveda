@@ -36,7 +36,8 @@ class KVHistoManipulator
 	
 	Int_t Apply_TCutG(TH2 *hh,TCutG *cut,TString mode="in");
 	
-	TH1* 	ScaleHisto(TH1* hh,TF1* fx,TF1* fy=NULL,Int_t nx=-1,Int_t ny=-1,Double_t xmin=-1.,Double_t xmax=-1.,Double_t ymin=-1.,Double_t ymax=-1.);
+	TH1* 	ScaleHisto(TH1* hh,TF1* fx,TF1* fy=NULL,Int_t nx=-1,Int_t ny=-1,
+			Double_t xmin=-1.,Double_t xmax=-1.,Double_t ymin=-1.,Double_t ymax=-1.,Option_t* norm="");
 	TGraph* ScaleGraph(TGraph *hh,TF1*fx,TF1*fy);
 	
 	TH1* 	CentreeReduite(TH1* hh,Int_t nx=-1,Int_t ny=-1,Double_t xmin=-1.,Double_t xmax=-1.,Double_t ymin=-1.,Double_t ymax=-1.);
@@ -46,7 +47,7 @@ class KVHistoManipulator
 	TH2* 	RenormaliseHisto(TH2 *hh,Int_t bmin=-1,Int_t bmax=-1,TString axis="X",Double_t valref=1);
 	TH2* 	RenormaliseHisto(TH2 *hh,Double_t valmin,Double_t valmax,TString axis="X",Double_t valref=1);
 	
-	TH1*	CumulatedHisto(TH1* hh,TString direction="C",Int_t bmin=-1,Int_t bmax=-1);
+	TH1*	CumulatedHisto(TH1* hh,TString direction="C",Int_t bmin=-1,Int_t bmax=-1,Option_t* norm="surf");
 	TH1* 	GetDerivative(TH1* hh,Int_t order);
 	
 	TGraphErrors* GetMomentEvolution(TH2 *hh,TString momentx,TString momenty,TString axis="Y");
@@ -68,6 +69,10 @@ class KVHistoManipulator
 	void DefineTitle(TGraph* ob,TString xtit,TString ytit);
 	void DefineTitle(TF1* ob,TString xtit,TString ytit);
 	
+	Double_t GetX(TH1* ob, Double_t val, Double_t eps=1.e-07, Int_t nmax=50);
+	TF1* RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params, Double_t eps=1.e-07);
+	TH1* MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+			Option_t* opt="", Double_t eps=1.e-07);
 	
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };

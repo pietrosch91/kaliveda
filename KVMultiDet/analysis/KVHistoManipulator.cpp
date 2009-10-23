@@ -28,6 +28,8 @@ $Date: 2009/04/07 14:54:15 $
 #include "KVNumberList.h"
 #include "KVList.h"
 
+#include "TSpline.h"
+
 
 ClassImp(KVHistoManipulator)
 
@@ -140,7 +142,7 @@ Int_t KVHistoManipulator::Apply_TCutG(TH2* hh,TCutG *cut,TString mode){
 
 //###############################################################################################################
 //-------------------------------------------------
-TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Double_t xmin,Double_t xmax,Double_t ymin,Double_t ymax){
+TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Double_t xmin,Double_t xmax,Double_t ymin,Double_t ymax,Option_t* norm){
 //-------------------------------------------------
 	// Applique les transformations correspondantes aux fonctions (TF1 *) donnees en argument
 	// et donne en sortie l histogramme transforme celui ci a pour nom "nom_de_histo_input"_scaled
@@ -155,10 +157,22 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 	// si nx=-1, ceux ci sont recalcules automatiquement nx = nx_initial, xmin = fx(xmin), xmax = fx(xmax)
 	// si nx!=-1, xmin et xmax doivent etre aussi specifies
 	// il en est de meme pour l'axe y
+	//
+	// OPTION: norm
+	//  norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
+	//  norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
+	//                   contents taking into account the bin width (i.e. TH1::Integral("width")) is the same.
+	//
+	// NOTE for 1D histos:
+	// If the binning of the scaled histogram is imposed by the user (nx!=-1), then in order
+	// to achieve a continuous scaled distribution we have to randomize X within each bin.
+	// This will only work if the bin contents of 'hh' are integer numbers, i.e. unnormalised raw data histogram.
 
 	TRandom3 *alea = new TRandom3();	//generateur de nbre aleatoire
+	Bool_t width = !strcmp(norm,"width");
 	TH1 *gg = NULL;
 	Double_t abs;
+	Bool_t fixed_bins = (nx!=-1);
 	if (fx){
 		if (nx==-1){
 			nx = hh->GetNbinsX();
@@ -198,6 +212,20 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 	if (hh->InheritsFrom("TH2")) 	gg->SetBins(nx,xmin,xmax,ny,ymin,ymax);
 	else 									gg->SetBins(nx,xmin,xmax);
 
+	// if option norm="width', take account of change of X bin width between original and scaled histograms
+	Double_t Xbin_width_corr = 1.0, Ybin_width_corr = 1.0;
+	if(width){
+		Double_t orig_Xbin_width = (hh->GetXaxis()->GetXmax()-hh->GetXaxis()->GetXmin())/hh->GetNbinsX();
+		Double_t new_Xbin_width = (gg->GetXaxis()->GetXmax()-gg->GetXaxis()->GetXmin())/gg->GetNbinsX();
+		Xbin_width_corr = orig_Xbin_width/new_Xbin_width;
+		if (hh->InheritsFrom("TH2")){
+			// Take account of change of X bin width between original and scaled histograms
+			Double_t orig_Ybin_width = (hh->GetYaxis()->GetXmax()-hh->GetYaxis()->GetXmin())/hh->GetNbinsY();
+			Double_t new_Ybin_width = (gg->GetYaxis()->GetXmax()-gg->GetYaxis()->GetXmin())/gg->GetNbinsY();
+			Ybin_width_corr = orig_Ybin_width/new_Ybin_width;
+		}
+	}
+	
 	for (Int_t xx=1;xx<=hh->GetNbinsX();xx+=1){
 		Double_t bmin = hh->GetXaxis()->GetBinLowEdge(xx);
 		Double_t bmax = hh->GetXaxis()->GetBinUpEdge(xx);
@@ -212,16 +240,32 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 					abs  = alea->Uniform(bmin,bmax); if (abs==bmax) abs=bmin; 
 					Double_t resy = abs;
 					if (fy) resy = fy->Eval(abs);
-					gg->SetBinContent(gg->GetXaxis()->FindBin(resx),gg->GetYaxis()->FindBin(resy),hh->GetBinContent(xx,yy));
+					gg->SetBinContent(gg->GetXaxis()->FindBin(resx),
+							gg->GetYaxis()->FindBin(resy),
+							hh->GetBinContent(xx,yy)*Xbin_width_corr*Ybin_width_corr);
 					//gg->SetBinError(gg->GetXaxis()->FindBin(resx),gg->GetYaxis()->FindBin(resy),hh->GetBinError(xx,yy));
 				}
 			}
 		}
-		else { 
-			Double_t resy = hh->GetBinContent(xx);
-			if (fy) resy = fy->Eval(resy);
-			gg->SetBinContent(gg->GetXaxis()->FindBin(resx),resy); 
-			//gg->SetBinError(gg->GetXaxis()->FindBin(resx),hh->GetBinError(xx));
+		else {
+			// 1-D histogram
+			if(fixed_bins){
+				// histogram binning imposed by user. we need to randomise inside bins of original histogram
+				// otherwise scaled histogram will be discontinuously filled.
+				Int_t nmax = (Int_t)hh->GetBinContent(xx);
+				for(register int i=0;i<nmax;i++){
+					abs  = alea->Uniform(bmin,bmax);
+					Double_t resx = fx->Eval(abs);
+					gg->Fill(resx,Xbin_width_corr);
+				}
+			}
+			else
+			{
+				// range and binning calculated from function.
+				Double_t resy = hh->GetBinContent(xx);
+				if (fy) resy = fy->Eval(resy);
+				gg->SetBinContent(gg->GetXaxis()->FindBin(resx),resy*Xbin_width_corr); 
+			}
 		}
 	}
 
@@ -402,48 +446,48 @@ TH2* KVHistoManipulator::RenormaliseHisto(TH2 *hh,Double_t valmin,Double_t valma
 
 //###############################################################################################################
 //-------------------------------------------------
-TH1* 	KVHistoManipulator::CumulatedHisto(TH1* hh,TString direction,Int_t bmin,Int_t bmax){
+TH1* 	KVHistoManipulator::CumulatedHisto(TH1* hh,TString direction,Int_t bmin,Int_t bmax, Option_t* norm){
 //-------------------------------------------------
-	// Cumule le contenu de l histo hh et retourne l histo correspondant
-	// SetBinContent(nx) = GetBinContent(1)+GetBinContent(2)+ ... + GetBinContent(nx)
-	// et donne en sortie l histogramme transforme celui ci a pour nom "nom_de_histo_input"_cumulated
+	// Cumule le contenu de l histo hh entre bin bmin et bmax et retourne l histo correspondant
+	// Si direction="C" (default):
+	// SetBinContent(n) = GetBinContent(bmin)+GetBinContent(bmin+1)+ ... + GetBinContent(n)
+	// Si direction="D":
+	// SetBinContent(n) = GetBinContent(bmax)+GetBinContent(bmax-1)+ ... + GetBinContent(n)
+	// 
+	// Donne en sortie l histogramme transforme celui ci a pour nom "nom_de_histo_input"_cumulated
 	//
 	// IMPORTANT l'histo d'entree n'est pas modifie 
 	//
 	// si bmin=-1, bmin=1
 	// si bmax=-1, bmax=GetNbinsX()
 	// les contenus hors de l intervalle [bmin,bmax] sont remis a zero
-	// l'integral de l histo cumule est egale a 1
+	//
+	// Avec norm = "surf" (default) l'integral de l histo cumule est egale a 1
+	// Avec norm = "max" le contenu de l'histogram est renormalise de facon a ce que le maximum soit 1
 	
 	if (!hh) { cout << "pointeur histogramme nul" << endl; return NULL; }
+	if(direction!="C"&&direction!="D"){
+		cout << "l option TString direction doit etre C ou D" << endl; return NULL;
+	}
 	if (TString(hh->ClassName()).Contains("TH1")){
 		if (bmin==-1) bmin=1;
 		if (bmax==-1) bmax=hh->GetNbinsX();
 		TString hname; hname.Form("%s_cumulated",hh->GetName());
 		TH1* clone = (TH1 *)hh->Clone(hname.Data()); clone->Reset();
-		Double_t integ=0,integ2=0;
-		if (direction=="C") { 
-			for (Int_t nx=bmin;nx<=bmax;nx+=1){
-				integ+=hh->GetBinContent(nx);	
-				clone->SetBinContent(nx,integ);
-				integ2+=clone->GetBinContent(nx);	
-			}
+		// get array of cumulated bins
+		Double_t* integral = hh->GetIntegral();
+		for (Int_t nx=bmin;nx<=bmax;nx+=1){	
+			if (direction=="C") clone->SetBinContent(nx, integral[nx]);
+			else if(direction=="D") clone->SetBinContent(nx, 1.0-integral[nx]);
 		}
-		else if (direction=="D") { 
-			for (Int_t nx=bmax;nx>=bmin;nx-=1){
-				integ+=hh->GetBinContent(nx);	
-				clone->SetBinContent(nx,integ);
-				integ2+=clone->GetBinContent(nx);	
-			}
-		}	
-		else {
-			cout << "l option TString direction doit etre C ou D" << endl; return NULL;
+		// normalisation
+		if(!strcmp(norm,"surf")){
+			Double_t sw = clone->GetSumOfWeights();
+			if(sw>0) clone->Scale(1./sw);
 		}
-		if (integ2>0){
-			for (Int_t nx=bmin;nx<=bmax;nx+=1){
-				Double_t stat = clone->GetBinContent(nx);
-				clone->SetBinContent(nx,stat/integ2);
-			}
+		else if(!strcmp(norm,"max")){
+			Double_t max = clone->GetMaximum();
+			if(max>0) clone->Scale(1./max);
 		}
 		return clone;
 	}
@@ -853,4 +897,156 @@ void KVHistoManipulator::DefineTitle(TF1* ob,TString xtit,TString ytit){
 	ob->GetXaxis()->SetTitle(xtit);
 	ob->GetYaxis()->SetTitle(ytit);
 	
+}
+//###############################################################################################################"
+//-------------------------------------------------
+Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nmax)
+{
+	// Return value of abscissa X for which the interpolated value
+	// of the histogram contents is equal to the given value, val.
+	// We use the false position method (which should always converge...)
+	// eps is required precision, i.e. convergence condition is that no further change
+	// in result greater than eps is found.
+	// nmax = maximum number of iterations
+	// A solution is searched for X between the limits Xmin and Xmax of the X axis of the histo.
+	
+	TSpline5* spline = new TSpline5(ob);
+	Double_t Xmax = ob->GetXaxis()->GetXmax();
+	Double_t Xmin = ob->GetXaxis()->GetXmin();
+
+	 Int_t n,side=0;
+    Double_t r,fr,fs,s,ft,t;
+	 s = Xmin; t = Xmax;
+	 fs = spline->Eval(s) - val;
+	 ft = spline->Eval(t) - val;
+ 
+    for (n = 1; n <= nmax; n++)
+    {
+        r = (fs*t - ft*s) / (fs - ft);
+        if (fabs(t-s) < eps*fabs(t+s)) break;
+        fr = spline->Eval(r) - val;
+ 
+        if (fr * ft > 0)
+        {
+          t = r; ft = fr;
+          if (side==-1) fs /= 2;
+          side = -1;
+        }
+        else if (fs * fr > 0)
+        {
+          s = r;  fs = fr;
+          if (side==+1) ft /= 2;
+          side = +1;
+        }
+        else break;
+    }
+	 delete spline;
+    return r;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+TF1* KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params, Double_t eps)
+{
+	// Find the polynomial transformation of the X-axis of 1-D histogram hist1
+	// so that the distribution ressembles that of histogram hist2.
+	// Returns a TF1 which can be used to rescale hist1 (hist1 and hist2 are not modified).
+	// User's responsibility to delete the TF1.
+	// After fitting, the array params is filled with:
+	// params[0] = a0
+	// params[1] = a1
+	// ...
+	// params[degree] = an
+	// params[degree+1] = Chisquare/NDF = Chisquare (NDF is always equal to 1)
+	// Therefore params MUST BE at least of dimension (degree+2)
+	//
+	// METHOD
+	// ======
+	// 'hist1' contains the distribution P1 of variable X1
+	// 'hist2' contains the distribution P2 of variable X2
+	// Supposing that we can write X2=f_n(X1), with f_n(x)=a0 + a1*x + a2*x^2 + ... + an*x^n,
+	// what are the parameters of the polynomial for which P1(f_n(X1))=P2(X2) ?
+	//
+	// Consider the cumulative distributions, C1(X1) and C2(X2).
+	// For degree=1 we compare the 3 X1 & X2 values for which C1=C2=0.1, 0.5, 0.9
+	// For degree=2 we compare the 4 X1 & X2 values for which C1=C2=0.1, 0.366..., 0.633..., 0.9
+	// etc. etc.
+	// In each case we fit the (degree+2) couples (X1,X2) with f_n
+	
+	register int i;
+	Info("RescaleX","Calculating transformation of histo %s using reference histo %s",
+			hist1->GetName(), hist2->GetName());
+	// get cumulated histos
+	TH1* cum1 = CumulatedHisto(hist1,"C",-1,-1,"max");
+	TH1* cum2 = CumulatedHisto(hist2,"C",-1,-1,"max");
+	// calculate comparison points
+	Int_t npoints = degree+2;
+	Double_t *quantiles = new Double_t[npoints];
+	Double_t delta_q = 8.0/(10.0*(npoints-1));
+	for(i=0;i<npoints;i++) quantiles[i]=0.1+i*delta_q;
+	// get X1 and X2 values corresponding to quantiles
+	Double_t *X1 = new Double_t[npoints];
+	Double_t *X2 = new Double_t[npoints];
+	for(i=0;i<npoints;i++){
+		X1[i]=GetX(cum1, quantiles[i], eps);
+		X2[i]=GetX(cum2, quantiles[i], eps);
+	}
+	for(i=0;i<npoints;i++){
+		printf("i=%d  quantile=%f  X1=%f  X2=%f\n",
+				i, quantiles[i], X1[i], X2[i]);
+	}
+	// fill TGraph with points to fit
+	TGraph* fitgraph=new TGraph(npoints,X1,X2);
+	TString func_name = Form("pol%d",degree);
+	if(fitgraph->Fit(func_name.Data(),"0")!=0){
+		Error("RescaleX","Fitting with the polynomial of degree %d failed to converge",
+				degree);
+	}
+	TF1* fonc = new TF1(*(fitgraph->GetFunction(func_name.Data())));
+	fonc->SetParent(0);
+	fonc->SetName(Form("RescaleX-%s",func_name.Data()));
+	for(i=0;i<degree+1;i++){
+		params[i] = fonc->GetParameter(i);
+	}
+	Double_t chisquare = fonc->GetChisquare();
+	params[degree+1] = chisquare;
+	
+// 	TH1* scaled = ScaleHisto(hist1,fitgraph->GetFunction(func_name.Data()),NULL,
+// 			hist2->GetNbinsX(),-1,hist2->GetXaxis()->GetXmin(),hist2->GetXaxis()->GetXmax());
+	delete fitgraph;
+	delete [] quantiles;
+	delete [] X1;
+	delete [] X2;
+	
+	return fonc;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+		Option_t* opt, Double_t eps)
+{
+	// Uses RescaleX() to find transformation of hist1 abscissa so that its distribution
+	// resembles that of hist2, then generates a new rescaled version of hist1 using the
+	// transformation.
+	//
+	// OPTIONS
+	// =======
+	//  opt = "norm" : rescaled histogram normalised to have same integral as hist2
+	//  opt = "bins" : rescaled histogram will have same number of bins & same limits as hist2
+	//  opt = "normbins" |
+	//  opt = "binsnorm" |--> rescaled histogram can be superposed and added to hist2
+	//
+	// For meaning of other arguments, see RescaleX.
+	
+	TF1* scalefunc = RescaleX(hist1,hist2,degree,params,eps);
+	TString options(opt);
+	options.ToUpper();
+	Bool_t norm = options.Contains("NORM");
+	Bool_t bins = options.Contains("BINS");
+	Int_t nx = (bins ? hist2->GetNbinsX():-1);
+	Double_t xmin = (bins ? hist2->GetXaxis()->GetXmin():-1);
+	Double_t xmax = (bins ? hist2->GetXaxis()->GetXmax():-1);
+	TH1* scalehisto = ScaleHisto(hist1, scalefunc, 0, nx, -1, xmin, xmax, -1.0, -1.0, "width");
+	if(norm) scalehisto->Scale(hist2->Integral("width")/scalehisto->Integral("width"));
+	delete scalefunc;
+	return scalehisto;
 }
