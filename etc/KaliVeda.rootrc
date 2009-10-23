@@ -580,7 +580,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
-INDRA_e475s.ActiveIdentifications:    CI-CSI SI-CSI CSI CI-SI
+INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 
 #=================== Updating calibration/identification parameters contained in data files
 # When recon/ident data files are created, a KVINDRA object containing all of the
