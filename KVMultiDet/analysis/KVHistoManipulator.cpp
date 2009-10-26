@@ -973,13 +973,121 @@ TF1* KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t
 	// In each case we fit the (degree+2) couples (X1,X2) with f_n
 	
 	register int i;
-	Info("RescaleX","Calculating transformation of histo %s using reference histo %s",
-			hist1->GetName(), hist2->GetName());
+	// calculate comparison points
+	Int_t npoints = degree+2;
+	TString func_name = Form("pol%d",degree);
+	TF1* fonc = new TF1("f", func_name.Data());
+	fonc->SetName(Form("RescaleX-%s",func_name.Data()));
+	RescaleX(hist1, hist2, fonc, npoints, eps);
+	for(i=0;i<degree+1;i++){
+		params[i] = fonc->GetParameter(i);
+	}
+	Double_t chisquare = fonc->GetChisquare();
+	if(fonc->GetNDF()>0.0) chisquare/=fonc->GetNDF();
+	params[degree+1] = chisquare;
+		
+	return fonc;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+		Option_t* opt, Double_t eps)
+{
+	// Uses RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params, Double_t eps)
+	// to find a polynomial transformation of 'hist1' abscissa so that its
+	// distribution resembles that of 'hist2', then generates a new rescaled version of 'hist1'.
+	//
+	// degree = degree of polynomial to use
+	// params = array of dimension [degree+2], after rescaling it will contain
+	//          the values of fitted parameters of polynomial, plus the Chi2/NDF of the fit:
+	// 	params[0] = a0
+	// 	params[1] = a1
+	// 	...
+	// 	params[degree] = an
+	// 	params[degree+1] = Chisquare/NDF = Chisquare (NDF is always equal to 1)
+	//
+	// eps = relative precision used to find comparison points of histos (default = 1.e-07)
+	//
+	// OPTIONS
+	// =======
+	//  opt = "norm" : rescaled histogram normalised to have same integral as hist2
+	//  opt = "bins" : rescaled histogram will have same number of bins & same limits as hist2
+	//  opt = "normbins" |
+	//  opt = "binsnorm" |--> rescaled histogram can be superposed and added to hist2
+	//
+	// EXAMPLE OF USE
+	// ==============
+	// In the following example, we fill two histograms with different numbers of random
+	// values drawn from two Gaussian distributions with different centroids and widths.
+	// We also add to each histogram a 'pedestal' peak which is unrelated to the 'physical'
+	// distributions (note that this does not affect the rescaling unless the number of counts
+	// in the 'pedestal' is significant compared to the counts in the 'physical' part).
+	// Then we generate a rescaled version of the second histogram and superimpose it on
+	// the plot with the two initial distributions.
+	//
+	// void example()
+	// {
+	// 	TH1F* h1 = new TH1F("h1","gaussian",4096,-.5,4095.5);
+	// 	TF1 g1("g1","gaus(0)",0,4100);
+	// 	g1.SetParameters(1,1095,233);
+	// 	h1->FillRandom("g1",56130);
+	// 	h1->SetBinContent(85,179);
+	// 	TH1F* h2 = new TH1F("h2","gaussian",4096,-.5,4095.5);
+	// 	g1.SetParameters(1,1673,487);
+	// 	h2->FillRandom("g1",21370);
+	// 	h2->SetBinContent(78,179);
+	// 	KVHistoManipulator HM;
+	// 	Double_t params[3];
+	// 	h1->Draw();
+	// 	h2->Draw("same");
+	// 	TH1* sc3 = HM.MakeHistoRescaleX(h1,h2,1,params,"binsnorm");
+	// 	sc3->SetLineColor(kGreen);
+	// 	sc3->Draw("same");
+	// }	
+	
+	TF1* scalefunc = RescaleX(hist1,hist2,degree,params,eps);
+	TString options(opt);
+	options.ToUpper();
+	Bool_t norm = options.Contains("NORM");
+	Bool_t bins = options.Contains("BINS");
+	Int_t nx = (bins ? hist2->GetNbinsX():-1);
+	Double_t xmin = (bins ? hist2->GetXaxis()->GetXmin():-1);
+	Double_t xmax = (bins ? hist2->GetXaxis()->GetXmax():-1);
+	TH1* scalehisto = ScaleHisto(hist1, scalefunc, 0, nx, -1, xmin, xmax, -1.0, -1.0, "width");
+	if(norm) scalehisto->Scale(hist2->Integral("width")/scalehisto->Integral("width"));
+	delete scalefunc;
+	return scalehisto;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+void KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints, Double_t eps)
+{
+	// Find the transformation of the X-axis of 1-D histogram hist1
+	// so that the distribution ressembles that of histogram hist2.
+	// The user provides a function f(x) (TF1* scale_func) which is supposed to
+	// transform the abscissa X1 of 'hist1' in such a way that P1(f(X1)) = P2(X2).
+	// We fit 'npoints' comparison points (see below), npoints>=2.
+	//
+	// METHOD
+	// ======
+	// 'hist1' contains the distribution P1 of variable X1
+	// 'hist2' contains the distribution P2 of variable X2
+	// Supposing that we can write X2=f(X1), we compare the abscissa of different
+	// points of the two cumulative distributions, C1(X1) and C2(X2).
+	// For npoints=2 we compare the 2 X1 & X2 values for which C1=C2=0.1, 0.9
+	// For npoints=3 we compare the 3 X1 & X2 values for which C1=C2=0.1, 0.5, 0.9
+	// For npoints=4 we compare the 4 X1 & X2 values for which C1=C2=0.1, 0.366..., 0.633..., 0.9
+	// etc. etc.
+	// In each case we fit the 'npoints' couples (X1,X2) with the TF1 pointed to by 'scale_func'
+	
+	register int i;
+	npoints = TMath::Max(2,npoints);
+	Info("RescaleX","Calculating transformation of histo %s using reference histo %s, %d points of comparison",
+			hist1->GetName(), hist2->GetName(), npoints);
 	// get cumulated histos
 	TH1* cum1 = CumulatedHisto(hist1,"C",-1,-1,"max");
 	TH1* cum2 = CumulatedHisto(hist2,"C",-1,-1,"max");
 	// calculate comparison points
-	Int_t npoints = degree+2;
 	Double_t *quantiles = new Double_t[npoints];
 	Double_t delta_q = 8.0/(10.0*(npoints-1));
 	for(i=0;i<npoints;i++) quantiles[i]=0.1+i*delta_q;
@@ -996,37 +1104,31 @@ TF1* KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t
 	}
 	// fill TGraph with points to fit
 	TGraph* fitgraph=new TGraph(npoints,X1,X2);
-	TString func_name = Form("pol%d",degree);
-	if(fitgraph->Fit(func_name.Data(),"0")!=0){
-		Error("RescaleX","Fitting with the polynomial of degree %d failed to converge",
-				degree);
+	if(fitgraph->Fit(scale_func,"0N")!=0){
+		Error("RescaleX","Fitting with function %s failed to converge",
+				scale_func->GetName());
 	}
-	TF1* fonc = new TF1(*(fitgraph->GetFunction(func_name.Data())));
-	fonc->SetParent(0);
-	fonc->SetName(Form("RescaleX-%s",func_name.Data()));
-	for(i=0;i<degree+1;i++){
-		params[i] = fonc->GetParameter(i);
-	}
-	Double_t chisquare = fonc->GetChisquare();
-	params[degree+1] = chisquare;
-	
-// 	TH1* scaled = ScaleHisto(hist1,fitgraph->GetFunction(func_name.Data()),NULL,
-// 			hist2->GetNbinsX(),-1,hist2->GetXaxis()->GetXmin(),hist2->GetXaxis()->GetXmax());
+	delete cum1;
+	delete cum2;
 	delete fitgraph;
 	delete [] quantiles;
 	delete [] X1;
 	delete [] X2;
-	
-	return fonc;
 }
 //###############################################################################################################"
 //-------------------------------------------------
-TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints,
 		Option_t* opt, Double_t eps)
 {
-	// Uses RescaleX() to find transformation of hist1 abscissa so that its distribution
-	// resembles that of hist2, then generates a new rescaled version of hist1 using the
-	// transformation.
+	// Uses RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints, Double_t eps)
+	// to transform 'hist1' abscissa using TF1 'scale_func' so that its
+	// distribution resembles that of 'hist2', then generates a new rescaled version of 'hist1'.
+	//
+	// npoints = number of points of comparison between the two histograms.
+	//           Make sure this is sufficient for the TF1 used in the transformation.
+	//           i.e. for a polynomial of degree 1 (a+bx), 2 points are enough,
+	//           3 will give a meaningful Chi^2 value.
+	// eps = relative precision used to find comparison points of histos (default = 1.e-07)
 	//
 	// OPTIONS
 	// =======
@@ -1034,10 +1136,8 @@ TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree,
 	//  opt = "bins" : rescaled histogram will have same number of bins & same limits as hist2
 	//  opt = "normbins" |
 	//  opt = "binsnorm" |--> rescaled histogram can be superposed and added to hist2
-	//
-	// For meaning of other arguments, see RescaleX.
 	
-	TF1* scalefunc = RescaleX(hist1,hist2,degree,params,eps);
+	RescaleX(hist1,hist2,scale_func,npoints,eps);
 	TString options(opt);
 	options.ToUpper();
 	Bool_t norm = options.Contains("NORM");
@@ -1045,8 +1145,7 @@ TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree,
 	Int_t nx = (bins ? hist2->GetNbinsX():-1);
 	Double_t xmin = (bins ? hist2->GetXaxis()->GetXmin():-1);
 	Double_t xmax = (bins ? hist2->GetXaxis()->GetXmax():-1);
-	TH1* scalehisto = ScaleHisto(hist1, scalefunc, 0, nx, -1, xmin, xmax, -1.0, -1.0, "width");
+	TH1* scalehisto = ScaleHisto(hist1, scale_func, 0, nx, -1, xmin, xmax, -1.0, -1.0, "width");
 	if(norm) scalehisto->Scale(hist2->Integral("width")/scalehisto->Integral("width"));
-	delete scalefunc;
 	return scalehisto;
 }

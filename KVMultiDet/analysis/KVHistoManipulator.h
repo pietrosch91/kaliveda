@@ -71,7 +71,10 @@ class KVHistoManipulator
 	
 	Double_t GetX(TH1* ob, Double_t val, Double_t eps=1.e-07, Int_t nmax=50);
 	TF1* RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params, Double_t eps=1.e-07);
+	void RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints=2, Double_t eps=1.e-07);
 	TH1* MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+			Option_t* opt="", Double_t eps=1.e-07);
+	TH1* MakeHistoRescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints=2,
 			Option_t* opt="", Double_t eps=1.e-07);
 	
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
