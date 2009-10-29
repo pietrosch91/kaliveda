@@ -21,8 +21,13 @@ $Date: 2009/04/07 14:54:15 $
 #include "TGraphErrors.h"
 #include "TMath.h"
 
+class TCanvas;
+
 class KVHistoManipulator
 {
+	Bool_t kVisDebug;// = kTRUE for visual debugging
+	TCanvas* fVDCanvas;//! used for visual debugging
+	
    public:
 	
 	void init(void){
@@ -31,6 +36,9 @@ class KVHistoManipulator
 
 	KVHistoManipulator();
 	virtual ~KVHistoManipulator(void);
+	
+	void SetVisDebug(Bool_t on=kTRUE) { kVisDebug=on; };
+	Bool_t IsVisDebug() const { return kVisDebug; };
 	
    Int_t CutStatBin(TH1 *hh,Int_t stat_min=-1,Int_t stat_max=-1);
 	
@@ -48,6 +56,7 @@ class KVHistoManipulator
 	TH2* 	RenormaliseHisto(TH2 *hh,Double_t valmin,Double_t valmax,TString axis="X",Double_t valref=1);
 	
 	TH1*	CumulatedHisto(TH1* hh,TString direction="C",Int_t bmin=-1,Int_t bmax=-1,Option_t* norm="surf");
+	TH1*  CumulatedHisto(TH1* hh, Double_t xmin, Double_t xmax, TString direction="C", Option_t* norm="surf");
 	TH1* 	GetDerivative(TH1* hh,Int_t order);
 	
 	TGraphErrors* GetMomentEvolution(TH2 *hh,TString momentx,TString momenty,TString axis="Y");
@@ -70,12 +79,21 @@ class KVHistoManipulator
 	void DefineTitle(TF1* ob,TString xtit,TString ytit);
 	
 	Double_t GetX(TH1* ob, Double_t val, Double_t eps=1.e-07, Int_t nmax=50);
-	TF1* RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params, Double_t eps=1.e-07);
-	void RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints=2, Double_t eps=1.e-07);
+	TF1* RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+			Int_t npoints=-1, const Char_t* direction="C",
+			Double_t xmin=-1, Double_t xmax=-1, Double_t qmin=0.05, Double_t qmax=0.95,
+			Double_t eps=1.e-07);
+	void RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints=2,
+			const Char_t* direction="C", Double_t xmin=-1, Double_t xmax=-1, Double_t qmin=0.05, Double_t qmax=0.95,
+			Double_t eps=1.e-07);
 	TH1* MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
-			Option_t* opt="", Double_t eps=1.e-07);
+			Option_t* opt="", Int_t npoints=-1, const Char_t* direction="C",
+			Double_t xmin=-1, Double_t xmax=-1, Double_t qmin=0.05, Double_t qmax=0.95,
+			Double_t eps=1.e-07);
 	TH1* MakeHistoRescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints=2,
-			Option_t* opt="", Double_t eps=1.e-07);
+			Option_t* opt="", const Char_t* direction="C",
+			Double_t xmin=-1, Double_t xmax=-1, Double_t qmin=0.05, Double_t qmax=0.95,
+			Double_t eps=1.e-07);
 	
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };
