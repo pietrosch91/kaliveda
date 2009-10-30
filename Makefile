@@ -122,7 +122,7 @@ fitltg-0.1/configure: fitltg-0.1/configure.ac
 	touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
-	@echo '#define KV_VERSION "$(VERSION_NUMBER)-$(KV_BUILD_DATE)"' > KVVersion.h;\
+	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > KVVersion.h;\
 	echo '#define KV_BUILD_DATE "$(KV_BUILD_DATE)"' >> KVVersion.h;\
 	echo '#define KV_BUILD_USER "$(USER)"' >> KVVersion.h;\
 	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> KVVersion.h

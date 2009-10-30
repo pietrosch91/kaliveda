@@ -3,7 +3,7 @@
 
 PROJ_NAME = KVIndra5
 
-MODULES = calibration db identification indra
+MODULES = calibration db idtelescopes indra
 
 MANIP_DIRS = INDRA_camp5
 

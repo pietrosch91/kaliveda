@@ -3,7 +3,7 @@
 
 PROJ_NAME = KVIndraFNL
 
-MODULES = detectors indra identification calibration db
+MODULES = detectors indra idtelescopes calibration db
 
 MANIP_DIRS = INDRA_e416a
 

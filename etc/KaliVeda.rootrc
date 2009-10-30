@@ -671,11 +671,8 @@ KVNucleus.DefaultMassFormula:       0
 
 #ROOT environment variables
 +ACLiC.IncludePaths:     -I$(KVROOT)/include
-+Unix.*.Root.Html.SourceDir: :.:$(KVROOT)/src:$(KVROOT)/include
-Root.Html.OutputDir:        $(KVROOT)/KaliVedaDoc
 Root.Html.Author:      //Author:
 Root.Html.Header:      header.html
-Root.Html.LastUpdate:       $Id:
 Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
 +Plugin.TSystem:      ^rfio:    KVRFIOSystem   KVMultiDet    "KVRFIOSystem()"
 

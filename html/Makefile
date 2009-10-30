@@ -86,18 +86,23 @@ $(SCANCLASSESO): $(SCANCLASSESS)
 
 install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc
+	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)
 	-mkdir -p $(KVROOT)/KaliVedaDoc/images
+	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images
 	-mkdir -p $(KVROOT)/KaliVedaDoc/css
 	-mkdir -p $(KVROOT)/KaliVedaDoc/js
 	-mkdir -p $(KVROOT)/KaliVedaDoc/tools
 	-mkdir -p $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers
 	./$(MAKEHTML)
-	-cp ClassCategories.html $(KVROOT)/KaliVedaDoc/
-	-cp examples/Examples.html $(KVROOT)/KaliVedaDoc/
-	-rm -f $(KVROOT)/KaliVedaDoc/index.html
+	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
+	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/
+	-ln -s $(VERSION_NUMBER)/src $(KVROOT)/KaliVedaDoc/src
+	-ln -s $(VERSION_NUMBER)/examples $(KVROOT)/KaliVedaDoc/examples
 	-cp *.html $(KVROOT)/KaliVedaDoc/
 	-cp css/* $(KVROOT)/KaliVedaDoc/css/
+	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
+	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp tools/* $(KVROOT)/KaliVedaDoc/tools/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/

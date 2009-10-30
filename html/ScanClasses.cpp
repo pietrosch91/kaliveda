@@ -105,10 +105,12 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("detectors", "Absorbers, Targets & Detectors"));
 	fClassTitles->Add( new KVBase("geometry", "Multidetector Geometry"));
 	fClassTitles->Add( new KVBase("indra", "INDRA Multidetector Array"));
-	fClassTitles->Add( new KVBase("data_management", "Data Storage & Retrieval"));
+	fClassTitles->Add( new KVBase("data_management", "Data Management"));
 	fClassTitles->Add( new KVBase("analysis", "Data Analysis"));
 	fClassTitles->Add( new KVBase("db", "Database Classes"));
-	fClassTitles->Add( new KVBase("identification", "Charged Particle Identification"));
+	fClassTitles->Add( new KVBase("idtelescopes", "Charged Particle Identification Telescopes"));
+	fClassTitles->Add( new KVBase("idmaps", "Identification Maps & Grids"));
+	fClassTitles->Add( new KVBase("identification", "Tools for Particle Identification"));
 	fClassTitles->Add( new KVBase("calibration", "Detector Calibration"));
 	fClassTitles->Add( new KVBase("daq_cec", "Data acquisition & Detector Command and Control"));
 	fClassTitles->Add( new KVBase("vg_base", "Global Variables: Base Classes"));
@@ -117,7 +119,7 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("vg_multiplicity", "Global Variables: Multiplicities"));
 	fClassTitles->Add( new KVBase("vg_shape", "Global Variables: Event Shape"));
 	fClassTitles->Add( new KVBase("vg_charge", "Global Variables: Partitions"));
-	fClassTitles->Add( new KVBase("trieur", "Event Selection"));
+	fClassTitles->Add( new KVBase("trieur", "Event Sorting"));
 	fClassTitles->Add( new KVBase("gui", "Graphical User Interfaces"));
 }
 
@@ -137,7 +139,8 @@ void ScanClasses::FillListOfClasses()
       //add entry with name of each KaliVeda class in table
       TObjString* tos=new TObjString(gClassTable->Next());
       TString cl_name = tos->String();
-		if( cl_name.BeginsWith("KV") || cl_name.BeginsWith("Binary") || cl_name.BeginsWith("Hexa") ){
+		if( cl_name.BeginsWith("KV") || cl_name.BeginsWith("Binary") || cl_name.BeginsWith("Hexa") 
+				|| cl_name.BeginsWith("GT") || cl_name.BeginsWith("SRB") || cl_name.BeginsWith("PACE2") ){
          cnames->Add(tos);
       }
       else
@@ -250,12 +253,16 @@ void ScanClasses::WritePage()
 		list_file << "<a name=\"_" << class_title->GetName() <<"\">";
 		list_file << class_title->GetTitle();
 		
-		list_file << " </a><it>(" << list->GetSize() << " classes)</it>:</h3><ul>" << endl;
+		list_file << " </a><it>(" << list->GetSize() << " class";
+		if(list->GetSize()>1) list_file << "es";
+		list_file << ")</it>:</h3><ul>" << endl;
 	
 		TIter next_class(list); TClass* cl;
 		while( (cl = (TClass*)next_class()) ){
 			
-			list_file << "<li><tt><a href=\"" << HTMLFileName(cl->GetName()) << "\">";
+			// class doc files are in subdirectory starting with version name
+			// i.e. in $KVROOT/KaliVedaDoc/1.7.4/
+			list_file << "<li><tt><a href=\"" << HTMLFileName(Form("%s/%s", KVBase::GetKVVersion(), cl->GetName())) << "\">";
 			
 			list_file << HTMLSafeLink(cl->GetName()) << "</a>";
 			
