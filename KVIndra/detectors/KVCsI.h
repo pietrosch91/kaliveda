@@ -26,7 +26,7 @@ $Id: KVCsI.h,v 1.26 2009/04/09 09:25:43 ebonnet Exp $
 #define NEGATIVE_PEDESTAL_CORRECTED_VALUE 15
 #define CALCULATION_NOT_CONVERGED 12
 
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 #include "KVACQParam.h"
 #include "KVINDRA.h"
 
@@ -34,7 +34,7 @@ class KVChIo;
 class KVTelescope;
 class KVLightEnergyCsI;
 
-class KVCsI:public KVDetector {
+class KVCsI:public KVINDRADetector {
 
    Double_t fLumiereTotale;     //total light output calculated from R and L components
    UInt_t fLumTotStatus;        //status of light calculation

@@ -57,16 +57,16 @@ const Char_t *KVSiB::GetArrayName()
 void KVSiB::SetACQParams()
 {
    //Set up data acquisition parameters for this blocking silicon
-   AddACQParam("P1");
-   AddACQParam("P2");
-   AddACQParam("P3");
-   AddACQParam("P4");
-   AddACQParam("E");
-   AddACQParam("P1_GG");
-   AddACQParam("P2_GG");
-   AddACQParam("P3_GG");
-   AddACQParam("P4_GG");
-   AddACQParam("E_GG");
+   AddACQParamType("P1");
+   AddACQParamType("P2");
+   AddACQParamType("P3");
+   AddACQParamType("P4");
+   AddACQParamType("E");
+   AddACQParamType("P1_GG");
+   AddACQParamType("P2_GG");
+   AddACQParamType("P3_GG");
+   AddACQParamType("P4_GG");
+   AddACQParamType("E_GG");
 }
 
 //____________________________________________________________________________
