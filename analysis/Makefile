@@ -74,11 +74,17 @@ ANALOGS = analyse_logs.cxx
 ANALOGO = analyse_logs.$(ObjSuf)
 ANALOG  = analyse_logs$(ExeSuf)
 ANALOG_LIBS = $(LIBKVMULTIDET)
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+ANALOG_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
+endif
 
 KVDTANS = kvdatanalyser.cxx
 KVDTANO = kvdatanalyser.$(ObjSuf)
 KVDTAN  = kvdatanalyser$(ExeSuf)
 KVDTAN_LIBS = $(LIBKVMULTIDET)
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+KVDTAN_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
+endif
 
 KVRSRDS = runsheetreader.cpp
 KVRSRDO = runsheetreader.$(ObjSuf)
@@ -92,6 +98,9 @@ KVANALS = KaliVedaAnalysis.cpp
 KVANALO = KaliVedaAnalysis.$(ObjSuf)
 KVANAL  = KaliVedaAnalysis$(ExeSuf)
 KVANAL_LIBS = $(LIBKVMULTIDET)
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+KVANAL_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
+endif
 
 KVGUIS = KaliVedaGUI.cpp
 KVGUIO = KaliVedaGUI.$(ObjSuf)
@@ -105,6 +114,9 @@ UPDRLTS = update_runlist.cxx
 UPDRLTO = update_runlist.$(ObjSuf)
 UPDRLT  = update_runlist$(ExeSuf)
 UPDRLT_LIBS = $(LIBKVMULTIDET)
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+UPDRLT_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
+endif
 
 SCRIPTS = $(UPDRLT) $(KVDTAN) $(ANALOG) $(KVRSRD) $(KVANAL) $(KVGUI) KVA KaliVeda
 
