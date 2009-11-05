@@ -28,6 +28,10 @@ $Date: 2009/04/07 14:54:15 $
 #include "KVNumberList.h"
 #include "KVList.h"
 
+#include "TSpline.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+
 
 ClassImp(KVHistoManipulator)
 
@@ -47,6 +51,7 @@ KVHistoManipulator::KVHistoManipulator(void){
 	//Default constructor
 	init();
 	gHistoManipulator = this;
+	fVDCanvas = 0;
 }
 
 
@@ -54,7 +59,6 @@ KVHistoManipulator::~KVHistoManipulator()
 {
    if (gHistoManipulator == this)
       gHistoManipulator = 0;
-
 }
 
 //###############################################################################################################"
@@ -140,7 +144,7 @@ Int_t KVHistoManipulator::Apply_TCutG(TH2* hh,TCutG *cut,TString mode){
 
 //###############################################################################################################
 //-------------------------------------------------
-TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Double_t xmin,Double_t xmax,Double_t ymin,Double_t ymax){
+TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Double_t xmin,Double_t xmax,Double_t ymin,Double_t ymax,Option_t* norm){
 //-------------------------------------------------
 	// Applique les transformations correspondantes aux fonctions (TF1 *) donnees en argument
 	// et donne en sortie l histogramme transforme celui ci a pour nom "nom_de_histo_input"_scaled
@@ -155,10 +159,22 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 	// si nx=-1, ceux ci sont recalcules automatiquement nx = nx_initial, xmin = fx(xmin), xmax = fx(xmax)
 	// si nx!=-1, xmin et xmax doivent etre aussi specifies
 	// il en est de meme pour l'axe y
+	//
+	// OPTION: norm
+	//  norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
+	//  norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
+	//                   contents taking into account the bin width (i.e. TH1::Integral("width")) is the same.
+	//
+	// NOTE for 1D histos:
+	// If the binning of the scaled histogram is imposed by the user (nx!=-1), then in order
+	// to achieve a continuous scaled distribution we have to randomize X within each bin.
+	// This will only work if the bin contents of 'hh' are integer numbers, i.e. unnormalised raw data histogram.
 
 	TRandom3 *alea = new TRandom3();	//generateur de nbre aleatoire
+	Bool_t width = !strcmp(norm,"width");
 	TH1 *gg = NULL;
 	Double_t abs;
+	Bool_t fixed_bins = (nx!=-1);
 	if (fx){
 		if (nx==-1){
 			nx = hh->GetNbinsX();
@@ -198,6 +214,20 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 	if (hh->InheritsFrom("TH2")) 	gg->SetBins(nx,xmin,xmax,ny,ymin,ymax);
 	else 									gg->SetBins(nx,xmin,xmax);
 
+	// if option norm="width', take account of change of X bin width between original and scaled histograms
+	Double_t Xbin_width_corr = 1.0, Ybin_width_corr = 1.0;
+	if(width){
+		Double_t orig_Xbin_width = (hh->GetXaxis()->GetXmax()-hh->GetXaxis()->GetXmin())/hh->GetNbinsX();
+		Double_t new_Xbin_width = (gg->GetXaxis()->GetXmax()-gg->GetXaxis()->GetXmin())/gg->GetNbinsX();
+		Xbin_width_corr = orig_Xbin_width/new_Xbin_width;
+		if (hh->InheritsFrom("TH2")){
+			// Take account of change of X bin width between original and scaled histograms
+			Double_t orig_Ybin_width = (hh->GetYaxis()->GetXmax()-hh->GetYaxis()->GetXmin())/hh->GetNbinsY();
+			Double_t new_Ybin_width = (gg->GetYaxis()->GetXmax()-gg->GetYaxis()->GetXmin())/gg->GetNbinsY();
+			Ybin_width_corr = orig_Ybin_width/new_Ybin_width;
+		}
+	}
+	
 	for (Int_t xx=1;xx<=hh->GetNbinsX();xx+=1){
 		Double_t bmin = hh->GetXaxis()->GetBinLowEdge(xx);
 		Double_t bmax = hh->GetXaxis()->GetBinUpEdge(xx);
@@ -212,16 +242,32 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 					abs  = alea->Uniform(bmin,bmax); if (abs==bmax) abs=bmin; 
 					Double_t resy = abs;
 					if (fy) resy = fy->Eval(abs);
-					gg->SetBinContent(gg->GetXaxis()->FindBin(resx),gg->GetYaxis()->FindBin(resy),hh->GetBinContent(xx,yy));
+					gg->SetBinContent(gg->GetXaxis()->FindBin(resx),
+							gg->GetYaxis()->FindBin(resy),
+							hh->GetBinContent(xx,yy)*Xbin_width_corr*Ybin_width_corr);
 					//gg->SetBinError(gg->GetXaxis()->FindBin(resx),gg->GetYaxis()->FindBin(resy),hh->GetBinError(xx,yy));
 				}
 			}
 		}
-		else { 
-			Double_t resy = hh->GetBinContent(xx);
-			if (fy) resy = fy->Eval(resy);
-			gg->SetBinContent(gg->GetXaxis()->FindBin(resx),resy); 
-			//gg->SetBinError(gg->GetXaxis()->FindBin(resx),hh->GetBinError(xx));
+		else {
+			// 1-D histogram
+			if(fixed_bins){
+				// histogram binning imposed by user. we need to randomise inside bins of original histogram
+				// otherwise scaled histogram will be discontinuously filled.
+				Int_t nmax = (Int_t)hh->GetBinContent(xx);
+				for(register int i=0;i<nmax;i++){
+					abs  = alea->Uniform(bmin,bmax);
+					Double_t resx = fx->Eval(abs);
+					gg->Fill(resx,Xbin_width_corr);
+				}
+			}
+			else
+			{
+				// range and binning calculated from function.
+				Double_t resy = hh->GetBinContent(xx);
+				if (fy) resy = fy->Eval(resy);
+				gg->SetBinContent(gg->GetXaxis()->FindBin(resx),resy*Xbin_width_corr); 
+			}
 		}
 	}
 
@@ -402,48 +448,64 @@ TH2* KVHistoManipulator::RenormaliseHisto(TH2 *hh,Double_t valmin,Double_t valma
 
 //###############################################################################################################
 //-------------------------------------------------
-TH1* 	KVHistoManipulator::CumulatedHisto(TH1* hh,TString direction,Int_t bmin,Int_t bmax){
+TH1* 	KVHistoManipulator::CumulatedHisto(TH1* hh,TString direction,Int_t bmin,Int_t bmax, Option_t* norm){
 //-------------------------------------------------
-	// Cumule le contenu de l histo hh et retourne l histo correspondant
-	// SetBinContent(nx) = GetBinContent(1)+GetBinContent(2)+ ... + GetBinContent(nx)
-	// et donne en sortie l histogramme transforme celui ci a pour nom "nom_de_histo_input"_cumulated
+	// Cumule le contenu de l histo hh entre bin bmin et bmax et retourne l histo correspondant
+	// Si direction="C" (default):
+	// SetBinContent(n) = GetBinContent(bmin)+GetBinContent(bmin+1)+ ... + GetBinContent(n)
+	// Si direction="D":
+	// SetBinContent(n) = GetBinContent(bmax)+GetBinContent(bmax-1)+ ... + GetBinContent(n)
+	// 
+	// Donne en sortie l histogramme transforme celui ci a pour nom "nom_de_histo_input"_cumulated
 	//
 	// IMPORTANT l'histo d'entree n'est pas modifie 
 	//
 	// si bmin=-1, bmin=1
 	// si bmax=-1, bmax=GetNbinsX()
-	// les contenus hors de l intervalle [bmin,bmax] sont remis a zero
-	// l'integral de l histo cumule est egale a 1
+	//
+	// Avec norm = "surf" (default) l'integral de l histo cumule est egale a 1
+	// Avec norm = "max" le contenu de l'histogram est renormalise de facon a ce que le maximum soit 1
 	
 	if (!hh) { cout << "pointeur histogramme nul" << endl; return NULL; }
+	direction.ToUpper();
+	if(direction!="C"&&direction!="D"){
+		cout << "l option TString direction doit etre C ou D" << endl; return NULL;
+	}
 	if (TString(hh->ClassName()).Contains("TH1")){
-		if (bmin==-1) bmin=1;
-		if (bmax==-1) bmax=hh->GetNbinsX();
+		if (bmin<1) bmin=1;
+		if (bmax<1) bmax=hh->GetNbinsX();
 		TString hname; hname.Form("%s_cumulated",hh->GetName());
 		TH1* clone = (TH1 *)hh->Clone(hname.Data()); clone->Reset();
-		Double_t integ=0,integ2=0;
-		if (direction=="C") { 
-			for (Int_t nx=bmin;nx<=bmax;nx+=1){
-				integ+=hh->GetBinContent(nx);	
-				clone->SetBinContent(nx,integ);
-				integ2+=clone->GetBinContent(nx);	
+		// get array of cumulated bins
+		Double_t* integral = hh->GetIntegral();
+		if(direction=="C"){
+			/* "standard" cumulative histogram, from bin 'bmin' to bin 'bmax' */
+			Double_t offset = integral[bmin-1], rescale = 1.0;
+			if(bmax<hh->GetNbinsX() && integral[bmax]>offset) rescale = 1./(integral[bmax]-offset);
+			for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1){
+				if(nx>=bmin&&nx<=bmax) clone->SetBinContent(nx, rescale*(integral[nx]-offset));
+				else if(nx>bmax) clone->SetBinContent(nx, 1.0);
+				else if(nx<bmin) clone->SetBinContent(nx, 0.0);
 			}
 		}
-		else if (direction=="D") { 
-			for (Int_t nx=bmax;nx>=bmin;nx-=1){
-				integ+=hh->GetBinContent(nx);	
-				clone->SetBinContent(nx,integ);
-				integ2+=clone->GetBinContent(nx);	
-			}
-		}	
 		else {
-			cout << "l option TString direction doit etre C ou D" << endl; return NULL;
-		}
-		if (integ2>0){
-			for (Int_t nx=bmin;nx<=bmax;nx+=1){
-				Double_t stat = clone->GetBinContent(nx);
-				clone->SetBinContent(nx,stat/integ2);
+			/* "reverse" cumulative histogram, from bin 'bmax' to bin 'bmin' */
+			Double_t offset = integral[bmax], rescale = 1.0;
+			if(integral[bmin-1]<offset) rescale = 1./(offset-integral[bmin-1]);
+			for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1){
+				if(nx>=bmin&&nx<=bmax) clone->SetBinContent(nx, rescale*(offset-integral[nx-1]));
+				else if(nx>bmax) clone->SetBinContent(nx, 0.0);
+				else if(nx<bmin) clone->SetBinContent(nx, 1.0);
 			}
+		}
+		// normalisation
+		if(!strcmp(norm,"surf")){
+			Double_t sw = clone->GetSumOfWeights();
+			if(sw>0) clone->Scale(1./sw);
+		}
+		else if(!strcmp(norm,"max")){
+			Double_t max = clone->GetMaximum();
+			if(max>0) clone->Scale(1./max);
 		}
 		return clone;
 	}
@@ -853,4 +915,343 @@ void KVHistoManipulator::DefineTitle(TF1* ob,TString xtit,TString ytit){
 	ob->GetXaxis()->SetTitle(xtit);
 	ob->GetYaxis()->SetTitle(ytit);
 	
+}
+//###############################################################################################################"
+//-------------------------------------------------
+Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nmax)
+{
+	// Return value of abscissa X for which the interpolated value
+	// of the histogram contents is equal to the given value, val.
+	// We use the false position method (which should always converge...)
+	// eps is required precision, i.e. convergence condition is that no further change
+	// in result greater than eps is found.
+	// nmax = maximum number of iterations
+	// A solution is searched for X between the limits Xmin and Xmax of the X axis of the histo.
+	
+	TSpline5* spline = new TSpline5(ob);
+	Double_t Xmax = ob->GetXaxis()->GetXmax();
+	Double_t Xmin = ob->GetXaxis()->GetXmin();
+
+	 Int_t n,side=0;
+    Double_t r,fr,fs,s,ft,t;
+	 s = Xmin; t = Xmax;
+	 fs = spline->Eval(s) - val;
+	 ft = spline->Eval(t) - val;
+ 
+    for (n = 1; n <= nmax; n++)
+    {
+        r = (fs*t - ft*s) / (fs - ft);
+        if (fabs(t-s) < eps*fabs(t+s)) break;
+        fr = spline->Eval(r) - val;
+ 
+        if (fr * ft > 0)
+        {
+          t = r; ft = fr;
+          if (side==-1) fs /= 2;
+          side = -1;
+        }
+        else if (fs * fr > 0)
+        {
+          s = r;  fs = fr;
+          if (side==+1) ft /= 2;
+          side = +1;
+        }
+        else break;
+    }
+	 delete spline;
+    return r;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+TF1* KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+		Int_t npoints, const Char_t* direction, Double_t xmin, Double_t xmax, Double_t qmin, Double_t qmax, Double_t eps)
+{
+	// Find the polynomial transformation of the X-axis of 1-D histogram hist1
+	// so that the distribution ressembles that of histogram hist2.
+	// Returns a TF1 which can be used to rescale hist1 (hist1 and hist2 are not modified).
+	// User's responsibility to delete the TF1.
+	// After fitting, the array params is filled with:
+	// params[0] = a0
+	// params[1] = a1
+	// ...
+	// params[degree] = an
+	// params[degree+1] = Chisquare/NDF
+	// Therefore params MUST BE at least of dimension (degree+2)
+	//
+	// npoints : by default (npoints=-1), we use npoints=degree+2 values of comparison
+	//           of the two cumulative distributions (see below).
+	//           more comparison points can be used by setting npoints>=degree+2.
+	// direction : by default ("C") we use the cumulative histogram summed from low x to high x.
+	//            if direction="D", we use the cumulative histogram summed from high x to low x.
+	// xmin, xmax : range of values of abscissa used to build cumulative histograms. default
+	//             (xmin=xmax=-1) include all values.
+	// qmin, qmax : minimum & maximum values of cumulative histograms used for the
+	//              comparison (see below). by default qmin=0.05, qmax=0.95.
+	//
+	// METHOD
+	// ======
+	// 'hist1' contains the distribution P1 of variable X1
+	// 'hist2' contains the distribution P2 of variable X2
+	// Supposing that we can write X2=f_n(X1), with f_n(x)=a0 + a1*x + a2*x^2 + ... + an*x^n,
+	// what are the parameters of the polynomial for which P1(f_n(X1))=P2(X2) ?
+	//
+	// Consider the cumulative distributions, C1(X1) and C2(X2).
+	// For npoints=2 we compare the 2 X1 & X2 values for which C1=C2=qmin, qmax
+	// For npoints=3 we compare the 3 X1 & X2 values for which C1=C2=qmin, qmin+(qmax-qmin)/2, qmax
+	// For npoints=4 we compare the 4 X1 & X2 values for which C1=C2=qmin, qmin+(qmax-qmin)/3, qmin+2*(qmax-qmin)/3, qmax
+	// etc. etc.
+	// In each case we fit the npoints couples (X1,X2) with f_n
+	
+	register int i;
+	// calculate comparison points
+	npoints = TMath::Max(npoints,degree+2);
+	TString func_name = Form("pol%d",degree);
+	TF1* fonc = new TF1("f", func_name.Data());
+	fonc->SetName(Form("RescaleX-%s",func_name.Data()));
+	RescaleX(hist1, hist2, fonc, npoints, direction, xmin, xmax, qmin, qmax, eps);
+	for(i=0;i<degree+1;i++){
+		params[i] = fonc->GetParameter(i);
+	}
+	Double_t chisquare = fonc->GetChisquare();
+	if(fonc->GetNDF()>0.0) chisquare/=fonc->GetNDF();
+	params[degree+1] = chisquare;
+		
+	return fonc;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params,
+		Option_t* opt, Int_t npoints, const Char_t* direction, Double_t xmin, Double_t xmax, Double_t qmin, Double_t qmax,
+		Double_t eps)
+{
+	// Uses RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t* params, Double_t eps)
+	// to find a polynomial transformation of 'hist1' abscissa so that its
+	// distribution resembles that of 'hist2', then generates a new rescaled version of 'hist1'.
+	//
+	// degree = degree of polynomial to use
+	// params = array of dimension [degree+2], after rescaling it will contain
+	//          the values of fitted parameters of polynomial, plus the Chi2/NDF of the fit:
+	// 	params[0] = a0
+	// 	params[1] = a1
+	// 	...
+	// 	params[degree] = an
+	// 	params[degree+1] = Chisquare/NDF = Chisquare (NDF is always equal to 1)
+	//
+	// npoints : by default (npoints=-1), we use npoints=degree+2 values of comparison
+	//           of the two cumulative distributions (see method RescaleX).
+	//           more comparison points can be used by setting npoints>=degree+2.
+	//
+	// direction : by default ("C") we use the cumulative histogram summed from low x to high x.
+	//            if direction="D", we use the cumulative histogram summed from high x to low x.
+	// xmin, xmax : range of values of abscissa used to build cumulative histograms. default
+	//             (xmin=xmax=-1) include all values.
+	// qmin, qmax : minimum & maximum values of cumulative histograms used for the
+	//              comparison (see method RescaleX). by default qmin=0.05, qmax=0.95.
+	//
+	// eps = relative precision used to find comparison points of histos (default = 1.e-07)
+	//
+	// OPTIONS
+	// =======
+	//  opt = "norm" : rescaled histogram normalised to have same integral as hist2
+	//  opt = "bins" : rescaled histogram will have same number of bins & same limits as hist2
+	//  opt = "normbins" |
+	//  opt = "binsnorm" |--> rescaled histogram can be superposed and added to hist2
+	//
+	// EXAMPLE OF USE
+	// ==============
+	// In the following example, we fill two histograms with different numbers of random
+	// values drawn from two Gaussian distributions with different centroids and widths.
+	// We also add to each histogram a 'pedestal' peak which is unrelated to the 'physical'
+	// distributions (note that this does not affect the rescaling unless the number of counts
+	// in the 'pedestal' is significant compared to the counts in the 'physical' part).
+	// Then we generate a rescaled version of the second histogram and superimpose it on
+	// the plot with the two initial distributions.
+	//
+	// void example()
+	// {
+	// 	TH1F* h1 = new TH1F("h1","gaussian",4096,-.5,4095.5);
+	// 	TF1 g1("g1","gaus(0)",0,4100);
+	// 	g1.SetParameters(1,1095,233);
+	// 	h1->FillRandom("g1",56130);
+	// 	h1->SetBinContent(85,179);
+	// 	TH1F* h2 = new TH1F("h2","gaussian",4096,-.5,4095.5);
+	// 	g1.SetParameters(1,1673,487);
+	// 	h2->FillRandom("g1",21370);
+	// 	h2->SetBinContent(78,179);
+	// 	KVHistoManipulator HM;
+	// 	Double_t params[3];
+	// 	h1->Draw();
+	// 	h2->Draw("same");
+	// 	TH1* sc3 = HM.MakeHistoRescaleX(h1,h2,1,params,"binsnorm");
+	// 	sc3->SetLineColor(kGreen);
+	// 	sc3->Draw("same");
+	// }	
+	
+	TF1* scalefunc = RescaleX(hist1,hist2,degree,params,npoints,direction,xmin,xmax,qmin,qmax,eps);
+	TString options(opt);
+	options.ToUpper();
+	Bool_t norm = options.Contains("NORM");
+	Bool_t bins = options.Contains("BINS");
+	Int_t nx = (bins ? hist2->GetNbinsX():-1);
+	Double_t nxmin = (bins ? hist2->GetXaxis()->GetXmin():-1);
+	Double_t nxmax = (bins ? hist2->GetXaxis()->GetXmax():-1);
+	TH1* scalehisto = ScaleHisto(hist1, scalefunc, 0, nx, -1, nxmin, nxmax, -1.0, -1.0, "width");
+	if(norm) scalehisto->Scale(hist2->Integral("width")/scalehisto->Integral("width"));
+	if(kVisDebug){
+		fVDCanvas->cd(4);
+		scalehisto->DrawCopy()->SetLineColor(kRed);
+		hist2->DrawCopy("same")->SetLineColor(kBlack);
+		gPad->SetLogy(kTRUE);
+		gPad->Modified();gPad->Update();
+	}
+	delete scalefunc;
+	return scalehisto;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+void KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints,
+		const Char_t* direction, Double_t xmin, Double_t xmax, Double_t qmin, Double_t qmax, Double_t eps)
+{
+	// Find the transformation of the X-axis of 1-D histogram hist1
+	// so that the distribution ressembles that of histogram hist2.
+	// The user provides a function f(x) (TF1* scale_func) which is supposed to
+	// transform the abscissa X1 of 'hist1' in such a way that P1(f(X1)) = P2(X2).
+	// We fit 'npoints' comparison points (see below), npoints>=2.
+	//
+	// direction : by default ("C") we use the cumulative histogram summed from low x to high x.
+	//            if direction="D", we use the cumulative histogram summed from high x to low x.
+	// xmin, xmax : range of values of abscissa used to build cumulative histograms. default
+	//             (xmin=xmax=-1) include all values.
+	// qmin, qmax : minimum & maximum values of cumulative histograms used for the
+	//              comparison (see below). by default qmin=0.05, qmax=0.95.
+	// METHOD
+	// ======
+	// 'hist1' contains the distribution P1 of variable X1
+	// 'hist2' contains the distribution P2 of variable X2
+	// Supposing that we can write X2=f(X1), we compare the abscissa of different
+	// points of the two cumulative distributions, C1(X1) and C2(X2).
+	// For npoints=2 we compare the 2 X1 & X2 values for which C1=C2=qmin, qmax
+	// For npoints=3 we compare the 3 X1 & X2 values for which C1=C2=qmin, qmin+(qmax-qmin)/2, qmax
+	// For npoints=4 we compare the 4 X1 & X2 values for which C1=C2=qmin, qmin+(qmax-qmin)/3, qmin+2*(qmax-qmin)/3, qmax
+	// etc. etc.
+	// In each case we fit the 'npoints' couples (X1,X2) with the TF1 pointed to by 'scale_func'
+	
+	if(kVisDebug){
+		if(!fVDCanvas) fVDCanvas = new TCanvas("VDCanvas","KVHistoManipulator::RescaleX");
+		gStyle->SetOptStat("");
+		fVDCanvas->Clear();
+		fVDCanvas->Divide(2,2);
+		fVDCanvas->cd(1);
+		hist1->DrawCopy()->SetLineColor(kBlue);
+		hist2->DrawCopy("same")->SetLineColor(kBlack);
+		gPad->SetLogy(kTRUE);
+		gPad->Modified();gPad->Update();
+	}
+	register int i;
+	npoints = TMath::Max(2,npoints);
+	Info("RescaleX","Calculating transformation of histo %s using reference histo %s, %d points of comparison",
+			hist1->GetName(), hist2->GetName(), npoints);
+	TH1 *cum1 = 0;
+	TH1 *cum2 = 0;
+	if(xmin>-1 && xmax>-1){
+		cum1 = CumulatedHisto(hist1,xmin,xmax,direction,"max");
+		cum2 = CumulatedHisto(hist2,xmin,xmax,direction,"max");
+	}
+	else
+	{
+		cum1 = CumulatedHisto(hist1,direction,-1,-1,"max");
+		cum2 = CumulatedHisto(hist2,direction,-1,-1,"max");
+	}
+	if(kVisDebug){
+		fVDCanvas->cd(2);
+		cum1->DrawCopy()->SetLineColor(kBlue);
+		cum2->DrawCopy("same")->SetLineColor(kBlack);
+		gPad->Modified();gPad->Update();
+	}
+	// calculate comparison points
+	Double_t *quantiles = new Double_t[npoints];
+	Double_t delta_q = (qmax-qmin)/(1.0*(npoints-1));
+	for(i=0;i<npoints;i++) quantiles[i]=qmin+i*delta_q;
+	// get X1 and X2 values corresponding to quantiles
+	Double_t *X1 = new Double_t[npoints];
+	Double_t *X2 = new Double_t[npoints];
+	for(i=0;i<npoints;i++){
+		X1[i]=GetX(cum1, quantiles[i], eps);
+		X2[i]=GetX(cum2, quantiles[i], eps);
+	}
+	for(i=0;i<npoints;i++){
+		printf("COMPARISON: i=%d  quantile=%f  X1=%f  X2=%f\n",
+				i, quantiles[i], X1[i], X2[i]);
+	}
+	// fill TGraph with points to fit
+	TGraph* fitgraph=new TGraph(npoints,X1,X2);
+	TString fitoptions="0N";
+	if(kVisDebug) fitoptions="";
+	if(fitgraph->Fit(scale_func,fitoptions.Data())!=0){
+		Error("RescaleX","Fitting with function %s failed to converge",
+				scale_func->GetName());
+	}
+	if(kVisDebug){
+		fVDCanvas->cd(3);
+		fitgraph->SetMarkerStyle(20);
+		gStyle->SetOptStat(1011);
+		fitgraph->DrawClone("ap");
+		gPad->Modified();gPad->Update();
+	}
+	delete cum1;
+	delete cum2;
+	delete fitgraph;
+	delete [] quantiles;
+	delete [] X1;
+	delete [] X2;
+}
+//###############################################################################################################"
+//-------------------------------------------------
+TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints,
+		Option_t* opt, const Char_t* direction, Double_t xmin, Double_t xmax, Double_t qmin, Double_t qmax, Double_t eps)
+{
+	// Uses RescaleX(TH1* hist1, TH1* hist2, TF1* scale_func, Int_t npoints, Double_t eps)
+	// to transform 'hist1' abscissa using TF1 'scale_func' so that its
+	// distribution resembles that of 'hist2', then generates a new rescaled version of 'hist1'.
+	//
+	// npoints = number of points of comparison between the two histograms.
+	//           Make sure this is sufficient for the TF1 used in the transformation.
+	//           i.e. for a polynomial of degree 1 (a+bx), 2 points are enough,
+	//           3 will give a meaningful Chi^2 value.
+	// direction : by default ("C") we use the cumulative histogram summed from low x to high x.
+	//            if direction="D", we use the cumulative histogram summed from high x to low x.
+	// xmin, xmax : range of values of abscissa used to build cumulative histograms. default
+	//             (xmin=xmax=-1) include all values.
+	// qmin, qmax : minimum & maximum values of cumulative histograms used for the
+	//              comparison (see method RescaleX). by default qmin=0.05, qmax=0.95.
+	// eps = relative precision used to find comparison points of histos (default = 1.e-07)
+	//
+	// OPTIONS
+	// =======
+	//  opt = "norm" : rescaled histogram normalised to have same integral as hist2
+	//  opt = "bins" : rescaled histogram will have same number of bins & same limits as hist2
+	//  opt = "normbins" |
+	//  opt = "binsnorm" |--> rescaled histogram can be superposed and added to hist2
+	
+	RescaleX(hist1,hist2,scale_func,npoints,direction,xmin,xmax,qmin,qmax,eps);
+	TString options(opt);
+	options.ToUpper();
+	Bool_t norm = options.Contains("NORM");
+	Bool_t bins = options.Contains("BINS");
+	Int_t nx = (bins ? hist2->GetNbinsX():-1);
+	Double_t nxmin = (bins ? hist2->GetXaxis()->GetXmin():-1);
+	Double_t nxmax = (bins ? hist2->GetXaxis()->GetXmax():-1);
+	TH1* scalehisto = ScaleHisto(hist1, scale_func, 0, nx, -1, nxmin, nxmax, -1.0, -1.0, "width");
+	if(norm) scalehisto->Scale(hist2->Integral("width")/scalehisto->Integral("width"));
+	return scalehisto;
+}
+//-------------------------------------------------
+TH1* KVHistoManipulator::CumulatedHisto(TH1* hh, Double_t xmin, Double_t xmax, TString direction, Option_t* norm)
+{
+	// Cumule le contenu de l histo hh entre xmin et xmax et retourne l histo correspondant
+	// Voir CumulatedHisto(TH1* ,TString ,Int_t ,Int_t , Option_t*).
+	Int_t bmin = hh->FindBin(xmin);
+	Int_t bmax = hh->FindBin(xmax);
+	if(bmax>hh->GetNbinsX()) bmax = hh->GetNbinsX();
+	return CumulatedHisto(hh,direction,bmin,bmax,norm);
 }

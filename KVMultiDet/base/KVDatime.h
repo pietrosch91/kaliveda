@@ -54,6 +54,10 @@ class KVDatime:public TDatime {
    void SetSRBDate(const Char_t* SRBDateString);
 	
 	const Char_t* String(EKVDateFormat fmt = kCTIME);
+	
+	static Bool_t IsSQLFormat(const Char_t* date);
+	static Bool_t IsGANACQFormat(const Char_t* date);
+	static Bool_t IsSRBFormat(const Char_t* date);
 
    ClassDef(KVDatime, 0)       //Extension of TDatime class
 };

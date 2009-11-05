@@ -117,15 +117,18 @@ void KVDatime::SetGanacqDate(const Char_t * GanacqDateString)
    //Decodes GANIL acquisition (INDRA) run-sheet format date into a TDatime
    //Format of date string is:
    //      29-SEP-2005 09:42:17.00
+   //  or  29-SEP-2005 09:42:17
+   //  or  29-SEP-05 09:42:17.00
+   //  or  29-SEP-05 09:42:17
    //
 	//If format is not respected, we set to current time & date
 	
    KVString tmp(GanacqDateString);
    TObjArray *toks = tmp.Tokenize("-:. ");
-	if( toks->GetEntries() != 7 ) {
-   	// if format is correct, there should be 7 elements in toks
+	if( toks->GetEntries() < 6 || toks->GetEntries() > 7 ) {
+   	// if format is correct, there should be 6 or 7 elements in toks
 		delete toks;
-		Error("SetGanacqDate", "Format is incorrect: %s (should be like \"29-SEP-2005 09:42:17.00\")",
+		Error("SetGanacqDate", "Format is incorrect: %s (should be like \"29-SEP-2005 09:42:17.00\" or \"29-SEP-05 09:42:17\")",
 				GanacqDateString);
 		Set();
 		return;
@@ -137,6 +140,13 @@ void KVDatime::SetGanacqDate(const Char_t * GanacqDateString)
    if (mm)
       month = fmonths->IndexOf(mm) + 1;
    KV__TOBJSTRING_TO_INT(toks,2,year)
+	// year may be written in shortened form: 97 instead of 1997
+	if(year<100){
+		Warning("SetGanacqDate",
+				"Ambiguous value for year: %d. Assuming this means: %d",
+				year, (year<82?year+2000:year+1900));
+		(year<82?year+=2000:year+=1900);
+	}
    KV__TOBJSTRING_TO_INT(toks,3,hour)
    KV__TOBJSTRING_TO_INT(toks,4,min)
    KV__TOBJSTRING_TO_INT(toks,5,sec)
@@ -174,4 +184,42 @@ const Char_t* KVDatime::String(EKVDateFormat fmt)
 			fStr = "";
 	}
 	return fStr.Data();
+}
+
+Bool_t KVDatime::IsGANACQFormat(const Char_t* date)
+{
+	// Static method, returns kTRUE if 'date' is in format of GANIL acquisition
+	// e.g. 29-SEP-2005 09:42:17.00
+	
+   KVString tmp(date);
+   TObjArray *toks = tmp.Tokenize("-:. ");
+	if( toks->GetEntries() < 6 || toks->GetEntries() > 7 ) {
+   	// if format is correct, there should be 6 or 7 elements in toks
+		delete toks;
+		return kFALSE;
+	}
+	delete toks;
+	return kTRUE;
+}
+
+Bool_t KVDatime::IsSQLFormat(const Char_t* date)
+{
+	// Static method, returns kTRUE if 'date' is in SQL format
+	// e.g. 2007-05-02 14:52:18
+	
+   Int_t Y,M,D,h,m,s;
+   if(sscanf(date, "%4d-%02d-%02d %02d:%02d:%02d",
+         &Y,&M,&D,&h,&m,&s)!=6) return kFALSE;
+	return kTRUE;
+}
+
+Bool_t KVDatime::IsSRBFormat(const Char_t* date)
+{
+	// Static method, returns kTRUE if 'date' is in SRB format
+	// e.g. 2008-12-19-15.21
+	
+   Int_t Y,M,D,h,m;
+   if(sscanf(date, "%4d-%02d-%02d-%02d.%02d",
+         &Y,&M,&D,&h,&m)!=5) return kFALSE;
+	return kTRUE;
 }
