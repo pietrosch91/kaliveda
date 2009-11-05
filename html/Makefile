@@ -37,8 +37,6 @@ export ROOTGANILTAPE = yes
 ifneq ($(WITH_VAMOS),no)
 LINK_LIBS +=  -lVAMOS
 endif
-LINK_LIBS +=  -lROOTGanilTape -lgan_tape
-CXXFLAGS += -I$(GANILTAPE_INC)
 else
 export ROOTGANILTAPE = no
 endif

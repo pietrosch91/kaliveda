@@ -28,8 +28,6 @@ LINK_LIB = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
 RLIBMAPDEPS += libKVIndra.so libKVMultiDet.so
 ifeq ($(ROOTGANILTAPE),yes)
-LINK_LIB += -L$(GANILTAPE_LIB) -lROOTGanilTape -lgan_tape
-RLIBMAPDEPS += libROOTGanilTape.so
 ifeq ($(MAKE_GANTAPE_RFIO),yes)
 LINK_LIB += -L/usr/local/lib -lshift
 endif
