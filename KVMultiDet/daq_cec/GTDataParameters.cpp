@@ -36,7 +36,7 @@
 // ganil_tape lib headers
 #include <GEN_TYPE.H>
 #include "gan_acq_buf.h"
-#include "GTDataParameters.H"
+#include "GTDataParameters.h"
 #include "TList.h"
 
 ClassImp(GTDataParameters);

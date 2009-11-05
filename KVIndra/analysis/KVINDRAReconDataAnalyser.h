@@ -10,15 +10,17 @@ $Date: 2007/05/31 09:59:22 $
 #ifndef __KVINDRAReconDataAnalyser_H
 #define __KVINDRAReconDataAnalyser_H
 
-#include "KVINDRADataAnalyser.h"
+#include "KVDataAnalyser.h"
 
-class KVINDRAReconDataAnalyser:public KVINDRADataAnalyser {
+class KVINDRAReconDataAnalyser:public KVDataAnalyser {
 
  protected:
    KVString fDataSelector;//name of KVDataSelector to use
    KVString fDataSelectorImp;//name of KVDataSelector implementation file (if it exists)
    KVString fDataSelectorDec;//name of KVDataSelector header file (if it exists)
 
+   virtual KVNumberList PrintAvailableRuns(KVString & datatype);
+	
  public:
 
    KVINDRAReconDataAnalyser();

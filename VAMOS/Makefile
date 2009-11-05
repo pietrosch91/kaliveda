@@ -3,17 +3,19 @@
 
 PROJ_NAME = VAMOS
 
-MODULES = daq_cec analysis base identification detectors
+MODULES = daq_cec analysis base identification detectors geometry
 
 EXTRA_HEADERS = analysis/Defines.h
 
+MANIP_DIRS = VAMOS_e503
+
 NOT_ROOTCINT := analysis/Defines.h
 
-ifeq ($(INDRADLT),yes)
-KV_INC_EXTRAS := -DINDRADLT -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
+ifeq ($(ROOTGANILTAPE),yes)
+KV_INC_EXTRAS := -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
 endif
 
-ifeq ($(INDRADLT),no)
+ifeq ($(ROOTGANILTAPE),no)
 NOT_READY := daq_cec/*.cpp analysis/KVIVRawDataReader.cpp analysis/KVIVRawDataReconstructor.cpp analysis/KVIVRawDataAnalyser.cpp
 endif
 
@@ -25,7 +27,7 @@ else
 LINK_LIB = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
 RLIBMAPDEPS += libKVIndra.so libKVMultiDet.so
-ifeq ($(INDRADLT),yes)
+ifeq ($(ROOTGANILTAPE),yes)
 LINK_LIB += -L$(GANILTAPE_LIB) -lROOTGanilTape -lgan_tape
 RLIBMAPDEPS += libROOTGanilTape.so
 ifeq ($(MAKE_GANTAPE_RFIO),yes)

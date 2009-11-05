@@ -10,12 +10,12 @@ MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_e475s INDRA_e503 INDRA_e4
 
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVS*.cpp
-ifeq ($(INDRADLT),no)
+ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += analysis/KVINDRARawDataReader.cpp analysis/KVINDRARawDataAnalyser.cpp analysis/KVINDRARawDataReconstructor.cpp analysis/KVINDRARawIdent.cpp 
 endif
 
-ifeq ($(INDRADLT),yes)
-KV_INC_EXTRAS := -I$(GANTAPE_INC) -I$(GANILTAPE_INC) -DINDRADLT
+ifeq ($(ROOTGANILTAPE),yes)
+KV_INC_EXTRAS := -I$(GANTAPE_INC) -DROOTGANILTAPE
 endif
 
 include ../Makefile.general 
@@ -27,9 +27,7 @@ LINK_LIB = -L$(KVROOT)/lib -lKVMultiDet
 endif
 RLIBMAPDEPS += libKVMultiDet.so
 
-ifeq ($(INDRADLT),yes)
-LINK_LIB += -L$(KVROOT)/lib -lROOTGanilTape
-RLIBMAPDEPS += libROOTGanilTape.so
+ifeq ($(ROOTGANILTAPE),yes)
 ifeq ($(MAKE_GANTAPE_RFIO),yes)
 LINK_LIB += -L/usr/local/lib -lshift
 endif

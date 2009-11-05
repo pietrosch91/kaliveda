@@ -24,6 +24,7 @@ $Author: franklan $
 #include "TSystemDirectory.h"
 #include "TROOT.h"
 #include "TClass.h"
+#include "THashList.h"
 
 ClassImp(KVDataAnalyser)
 //////////////////////////////////////////////////
@@ -1467,4 +1468,56 @@ void KVDataAnalyser::CopyAnalysisResultsToLaunchDirectory()
       	}
 		}
    }
+}
+
+//_________________________________________________________________
+
+void KVDataAnalyser::WriteBatchInfo(TTree* tt)
+{
+	// Store lots of useful information about the current version of KaliVeda,
+	// ROOT, etc. etc. in a TEnv object which will be added to the TTree's
+	// list of user infos (TTree::GetUserInfo).
+
+tt->GetUserInfo()->Add(new TEnv());		
+TEnv* kvenv = (TEnv* )tt->GetUserInfo()->FindObject("TEnv");
+		
+//----
+THashList* hh = gEnv->GetTable();
+KVString tamp;
+for (Int_t kk=0;kk<hh->GetEntries();kk+=1){
+	tamp.Form("%s",hh->At(kk)->GetName());
+	if (tamp.BeginsWith("Plugin.")){}
+	else kvenv->SetValue(hh->At(kk)->GetName(),((TEnvRec* )hh->At(kk))->GetValue(),kEnvUser);
+}
+		
+kvenv->SetValue("KVBase::GetKVRoot()",KVBase::GetKVRoot(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVVersion()",KVBase::GetKVVersion(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVBuildDate()",KVBase::GetKVBuildDate(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVBuildUser()",KVBase::GetKVBuildUser(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVSourceDir()",KVBase::GetKVSourceDir(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVRootDir()",KVBase::GetKVRootDir(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVBinDir()",KVBase::GetKVBinDir(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVFilesDir()",KVBase::GetKVFilesDir(),kEnvUser);
+
+kvenv->SetValue("gROOT->GetVersion()",gROOT->GetVersion(),kEnvUser);
+
+kvenv->SetValue("gSystem->GetBuildArch()",gSystem->GetBuildArch(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildCompiler()",gSystem->GetBuildCompiler(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildCompilerVersion()",gSystem->GetBuildCompilerVersion(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildNode()",gSystem->GetBuildNode(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildDir()",gSystem->GetBuildDir(),kEnvUser);
+
+kvenv->SetValue("gSystem->GetUserInfo()->fUser",gSystem->GetUserInfo()->fUser,kEnvUser);
+kvenv->SetValue("gSystem->HostName()",gSystem->HostName(),kEnvUser);
+		
+if ( fBatchEnv ){
+	THashList* hh = fBatchEnv->GetTable();
+	for (Int_t kk=0;kk<hh->GetEntries();kk+=1){
+		tamp.Form("%s",hh->At(kk)->GetName());
+		if ( !strcmp(kvenv->GetValue(hh->At(kk)->GetName(),"rien"),"rien") )
+			kvenv->SetValue(hh->At(kk)->GetName(),((TEnvRec* )hh->At(kk))->GetValue(),kEnvUser);
+	}
+}
+
+
 }

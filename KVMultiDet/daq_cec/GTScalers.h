@@ -1,6 +1,6 @@
-// $Id: GTOneScaler.cpp,v 1.2 2007/09/17 12:33:27 franklan Exp $
+// $Id: GTScalers.H,v 1.2 2007/09/17 12:33:27 franklan Exp $
 // Author: $Author: franklan $
-/***************************************************************************
+//-*************************************************************************
 //                        GTGanilData.cpp  -  Main Header to ROOTGAnilTape
 //                             -------------------
 //    begin                : Thu Jun 14 2001
@@ -10,7 +10,7 @@
 //
 // Part of ROOTGanilTape 
 //
-// GTOneScaler
+// GTScalers
 //
 // Scaler class for scaler events.
 //
@@ -26,36 +26,35 @@
 // CVS Log:
 // ---------------------------------------------------------------------------
 
+#ifndef GT_GTScalers_H
+#define GT_GTScalers_H
+
+#include <TObject.h>
+#include "GTOneScaler.h"
+
+#ifndef __GanAcqBuf_H
 //extern "C"
-//{
-#include <GEN_TYPE.H>
-#include <gan_acq_buf.h>
+//{// This might be written better
+typedef struct SCALE {int bidon;} scale;
 //}
-#include "GTOneScaler.H"
+#endif
 
-ClassImp(GTOneScaler);
-
-//______________________________________________________________________________
-GTOneScaler::GTOneScaler(void)
+class GTScalers : public TObject
 {
-  // Default constructor. dont do anything
-}
+public:
+  GTScalers       (void    );
+  ~GTScalers      (void    );
+  void Fill       (scale *s);       // Vocabulary: Set or Fill ?
+  void DumpScalers(void    );
+
+  const GTOneScaler* GetScalerPtr (Int_t index) const;
+  Int_t              GetNbChannel (void       ) const {return fNbChannel;}
+
+protected:
+  Int_t fNbChannel;          // Number of individual scales
+  GTOneScaler *fScalerArray; // [fNbChannel] Array of scalers
+  ClassDef(GTScalers,1)      // Scaler events class
+};
 
 
-//______________________________________________________________________________
-GTOneScaler::GTOneScaler(scale_struct *s)
-{
-  Set(s);
-}
-
-//______________________________________________________________________________
-void GTOneScaler::Set(scale_struct *s)
-{
-  fLabel  =s->Label;
-  fStatus =s->Status;
-  fCount  =s->Count;
-  fFreq   =s->Freq;
-  fTics   =s->Tics;
-  for (int i=0;i<3;i++) fReserve[i]=s->Reserve[i];
-}
-
+#endif

@@ -11,6 +11,7 @@ $Date: 2007/06/08 15:49:10 $
 #define __KVRAWDATAREADER_H
 
 #include "TNamed.h"
+#include "KVList.h"
 
 class KVRawDataReader : public TNamed
 {
@@ -19,6 +20,10 @@ class KVRawDataReader : public TNamed
    KVRawDataReader();
    virtual ~KVRawDataReader();
 
+   const KVList* GetUnknownParameters() const { return 0; };
+   const KVList* GetRawDataParameters() const { return 0; };
+   virtual Bool_t GetNextEvent()=0;
+	
    ClassDef(KVRawDataReader,0)//Base class for reading raw data
 };
 

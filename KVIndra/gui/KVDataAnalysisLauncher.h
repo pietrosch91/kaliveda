@@ -20,7 +20,7 @@
 #include "TApplication.h"
 
 #include "KVNumberList.h"
-#include "KVINDRADataAnalyser.h"
+#include "KVDataAnalyser.h"
 #include "KVListView.h"
 #include "KVConfig.h"
 

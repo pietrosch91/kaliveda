@@ -46,7 +46,7 @@ extern "C"
   } scale;
 }
 
-#include "GTGanilData.H"
+#include "GTGanilData.h"
 
 bool AutoswBuf,Swbufon; 
 Int_t BufSize;

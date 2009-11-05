@@ -25,15 +25,15 @@
 
 #ifndef GT_GTGanilData_H
 #define GT_GTGanilData_H
-// ROOT hearders
+// ROOT headers
 #include "Rtypes.h"
 #include <TFile.h>
 #include <TString.h>
 #include <TTree.h>
 #include <TNtuple.h>
 
-#include "GTDataParameters.H"
-#include "GTScalers.H"
+#include "GTDataParameters.h"
+#include "GTScalers.h"
 
 //extern "C"
 //{

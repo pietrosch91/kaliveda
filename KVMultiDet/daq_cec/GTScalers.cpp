@@ -51,7 +51,7 @@
 //}
 
 #include <TMath.h>
-#include "GTScalers.H"
+#include "GTScalers.h"
 
 
 ClassImp(GTScalers);

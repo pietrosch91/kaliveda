@@ -114,30 +114,30 @@ void KVINDRAUpDater::SetIdentificationParameters(UInt_t run)
 }
 
 //_______________________________________________________________//
-
-void KVINDRAUpDater::SetTarget(KVDBRun * kvrun)
-{
-    //Set target used during this run
-    //If no target is found in the database, the existing target (if there is one)
-    //will be removed, and INDRA will have no target defined.
-
-    cout << "--> Setting Target:" << endl;
-
-    //remove existing target
-    gIndra->SetTarget(0);
-    if (!kvrun->GetSystem() || !kvrun->GetSystem()->GetTarget())
-    {
-        cout << "      No target defined for run." << endl;
-        return;
-    }
-
-    gIndra->SetTarget((KVTarget *) kvrun->GetSystem()->GetTarget());
-
-    cout << "      " << gIndra->GetTarget()->
-    GetName() << " Total Thickness: " << gIndra->GetTarget()->
-    GetTotalThickness()
-    << " mg/cm2" << endl;
-}
+// 
+// void KVINDRAUpDater::SetTarget(KVDBRun * kvrun)
+// {
+//     //Set target used during this run
+//     //If no target is found in the database, the existing target (if there is one)
+//     //will be removed, and INDRA will have no target defined.
+// 
+//     cout << "--> Setting Target:" << endl;
+// 
+//     //remove existing target
+//     gIndra->SetTarget(0);
+//     if (!kvrun->GetSystem() || !kvrun->GetSystem()->GetTarget())
+//     {
+//         cout << "      No target defined for run." << endl;
+//         return;
+//     }
+// 
+//     gIndra->SetTarget((KVTarget *) kvrun->GetSystem()->GetTarget());
+// 
+//     cout << "      " << gIndra->GetTarget()->
+//     GetName() << " Total Thickness: " << gIndra->GetTarget()->
+//     GetTotalThickness()
+//     << " mg/cm2" << endl;
+// }
 
 //_______________________________________________________________//
 
@@ -182,22 +182,22 @@ void KVINDRAUpDater::SetGains(KVDBRun * kvrun)
 }
 
 //________________________________________________________________________________________________
-
-void KVINDRAUpDater::SetIDGrids(UInt_t run)
-{
-    // Use global ID grid manager gIDGridManager to set identification grids for all
-    // ID telescopes for this run. First, any previously set grids are removed.
-    // Then all grids for current run are set in the associated ID telescopes.
-
-    cout << "--> Setting Identification Grids" << endl;
-    TIter next_idt(gMultiDetArray->GetListOfIDTelescopes());
-    KVIDTelescope *idt;
-    while ((idt = (KVIDTelescope *) next_idt()))
-    {
-        idt->RemoveGrids();
-    }
-    gIDGridManager->SetGridsInTelescopes(run);
-}
+// 
+// void KVINDRAUpDater::SetIDGrids(UInt_t run)
+// {
+//     // Use global ID grid manager gIDGridManager to set identification grids for all
+//     // ID telescopes for this run. First, any previously set grids are removed.
+//     // Then all grids for current run are set in the associated ID telescopes.
+// 
+//     cout << "--> Setting Identification Grids" << endl;
+//     TIter next_idt(gMultiDetArray->GetListOfIDTelescopes());
+//     KVIDTelescope *idt;
+//     while ((idt = (KVIDTelescope *) next_idt()))
+//     {
+//         idt->RemoveGrids();
+//     }
+//     gIDGridManager->SetGridsInTelescopes(run);
+// }
 
 //_____________________________________________________________________________
 

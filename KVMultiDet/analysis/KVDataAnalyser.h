@@ -9,6 +9,7 @@ $Author: franklan $
 #define __KVDATAANALYSER_H
 
 #include "TObject.h"
+#include "TTree.h"
 #include "KVList.h"
 #include "KVBatchSystem.h"
 #include "KVString.h"
@@ -169,6 +170,8 @@ class KVDataAnalyser : public TObject {
 	virtual void preEndAnalysis() {};
 	virtual void postEndAnalysis() {};
 
+	virtual void WriteBatchInfo(TTree*);
+	
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };
 

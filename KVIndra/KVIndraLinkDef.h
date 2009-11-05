@@ -28,7 +28,8 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVINDRAe503+;
 #pragma link C++ class KVINDRACodes+;
 #pragma link C++ class KVINDRACodeMask+;
-#ifdef INDRADLT
+#pragma link C++ class KVINDRADetector+;
+#ifdef ROOTGANILTAPE
 #pragma link C++ class KVINDRARawDataReader;
 #pragma link C++ class KVINDRARawDataAnalyser;
 #pragma link C++ class KVINDRARawDataReconstructor;
@@ -64,7 +65,6 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVVoltEnergy+;
 #pragma link C++ class KVDBParameterSet-;//customized streamer
 #pragma link C++ class KVINDRADBRun;
-#pragma link C++ class KVINDRADataAnalyser;
 #pragma link C++ class KVINDRAReconDataAnalyser;
 #pragma link C++ class KVINDRAGeneDataSelector;
 #pragma link C++ class KVINDRAGeneDataAnalyser;

@@ -80,11 +80,11 @@ export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
-RGTAPE = gan_tape ROOTGT
+export ROOTGANILTAPE = yes
+RGTAPE = gan_tape
 INDRAVAMOS = VAMOS
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
 RGTAPE =
 INDRAVAMOS = VAMOS
 endif
@@ -98,15 +98,15 @@ DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
 
-.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
+.PHONY : MultiDet Indra gan_tape VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
 
 doc : html byebye
 
-export GANILTAPE_INC = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/include
+#export GANILTAPE_INC = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/include
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
-export GANILTAPE_LIB = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/lib
+#export GANILTAPE_LIB = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/lib
 
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
@@ -146,9 +146,10 @@ $(ROOT_VERSION_TAG) :
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386
+	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
-ROOTGT : .init
-	cd ROOTGanilTape && $(MAKE)
+#ROOTGT : .init
+#	cd ROOTGanilTape && $(MAKE)
 
 ltgfit : .init
 	cd fitltg-0.1 && make && make install
@@ -175,7 +176,7 @@ html :
 	cd html && $(MAKE) install_html debug=$(debug)
 		
 cleangantape :
-	cd ROOTGanilTape && $(MAKE) clean
+#	cd ROOTGanilTape && $(MAKE) clean
 	cd GanTape && rm -rf i386-linux_*
 	
 clean :
@@ -185,8 +186,8 @@ clean :
 	cd KVMultiDet && $(MAKE) clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
-ifeq ($(INDRADLT),yes)
-	cd ROOTGanilTape && $(MAKE) clean
+ifeq ($(ROOTGANILTAPE),yes)
+#	cd ROOTGanilTape && $(MAKE) clean
 	cd GanTape && rm -rf i386-linux_*
 endif
 	cd KVIndra5 && $(MAKE) clean
@@ -206,9 +207,9 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/examples
 	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
-ifeq ($(INDRADLT),yes)
-	cd ROOTGanilTape && $(MAKE) install
-endif
+#ifeq ($(ROOTGANILTAPE),yes)
+#	cd ROOTGanilTape && $(MAKE) install
+#endif
 	cd KVIndra && $(MAKE) install
 	cd KVIndra5 && $(MAKE) install
 	cd KVIndraFNL && $(MAKE) install
@@ -253,10 +254,10 @@ uninstall :
 	-rm -rf $(KVINSTALLDIR)/examples
 	-rm -rf $(KVINSTALLDIR)/KaliVedaDoc
 	-rm -rf $(KVINSTALLDIR)/db
-ifeq ($(INDRADLT),yes)
-	-rm -f $(KVINSTALLDIR)/include/GT*.H
-	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
-	-rm -f $(KVINSTALLDIR)/lib/libROOTGanilTape.so
+ifeq ($(ROOTGANILTAPE),yes)
+#	-rm -f $(KVINSTALLDIR)/include/GT*.H
+#	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
+#	-rm -f $(KVINSTALLDIR)/lib/libROOTGanilTape.so
 	-rm -f $(KVINSTALLDIR)/lib/libgan_tape.a
 endif
 	cd KVMultiDet && $(MAKE) uninstall
@@ -289,7 +290,7 @@ dist : clean
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
-	-cp -r ROOTGanilTape $(KV_DIST)/
+#	-cp -r ROOTGanilTape $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
 	-cp Makefile* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/

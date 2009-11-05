@@ -46,7 +46,7 @@ Bool_t KVINDRAReconDataAnalyser::CheckTaskVariables()
 {
    // Checks the task variables 
    
-   if(!KVINDRADataAnalyser::CheckTaskVariables()) return kFALSE;
+   if(!KVDataAnalyser::CheckTaskVariables()) return kFALSE;
    
    if (fDataSelector == "none") {
       ChooseKVDataSelector();
@@ -143,7 +143,7 @@ void KVINDRAReconDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t s
    //If save=kTRUE (default), write the information in a file whose name is given by ".jobname"
    //where 'jobname' is the name of the job as given to the batch system.
    
-   KVINDRADataAnalyser::WriteBatchEnvFile(jobname, kFALSE);
+   KVDataAnalyser::WriteBatchEnvFile(jobname, kFALSE);
    if(fDataSelector!="none"&&fDataSelector!=""){
       fBatchEnv->SetValue("KVDataSelector", fDataSelector.Data());
       if( fDataSelectorImp!="" ) fBatchEnv->SetValue("KVDataSelectorImp", fDataSelectorImp.Data());
@@ -217,3 +217,48 @@ const Char_t* KVINDRAReconDataAnalyser::ExpandAutoBatchName(const Char_t* format
    return tmp.Data();
 }
 
+KVNumberList KVINDRAReconDataAnalyser::PrintAvailableRuns(KVString & datatype)
+{
+   //Prints list of available runs, sorted according to multiplicity
+   //trigger, for selected dataset, data type/analysis task, and system
+   //Returns list containing all run numbers
+
+   KVNumberList all_runs=
+       fDataSet->GetRunList(datatype.Data(), fSystem);
+   KVINDRADBRun *dbrun;
+   
+   //first read list and find what triggers are available
+   int triggers[10], n_trigs = 0;
+   all_runs.Begin();
+   while ( !all_runs.End() ) {
+      dbrun = (KVINDRADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+      if (!KVBase::
+          ArrContainsValue(n_trigs, triggers, dbrun->GetTrigger())) {
+         triggers[n_trigs++] = dbrun->GetTrigger();
+      }
+   }
+   //sort triggers in ascending order
+   int ord_trig[10];
+   TMath::Sort(n_trigs, triggers, ord_trig, kFALSE);
+
+   int trig = 0;
+   while (trig < n_trigs) {
+      cout << " ---> Trigger M>" << triggers[ord_trig[trig]] << endl;
+      all_runs.Begin();
+      while ( !all_runs.End() ) {
+         dbrun = (KVINDRADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+         if (dbrun->GetTrigger() == triggers[ord_trig[trig]]) {
+            cout << "    " << Form("%4d", dbrun->GetNumber());
+            cout << Form("\t(%7d events)", dbrun->GetEvents());
+            cout << "\t[File written: " << dbrun->GetDatime().
+                AsString() << "]";
+            if (dbrun->GetComments())
+               cout << "\t" << dbrun->GetComments();
+            cout << endl;
+         }
+      }
+      trig++;
+      cout << endl;
+   }
+   return all_runs;
+}

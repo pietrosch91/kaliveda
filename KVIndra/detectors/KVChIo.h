@@ -19,17 +19,17 @@ $Id: KVChIo.h,v 1.32 2008/02/21 10:14:38 franklan Exp $
 #ifndef KVCHIO_H
 #define KVCHIO_H
 
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 #include "KVACQParam.h"
 #include "KVChannelVolt.h"
 #include "KVVoltEnergy.h"
 
 class KVDBParameterSet;
 
-class KVChIo:public KVDetector {
+class KVChIo:public KVINDRADetector {
 
  protected:
-       
+
    Float_t fPGtoGG_0;           //conversion factor = offset
    Float_t fPGtoGG_1;           //conversion factor = slope
    KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
@@ -37,7 +37,7 @@ class KVChIo:public KVDetector {
    KVVoltEnergy* fVoltE;//!volt-energy conversion
 
    void init();
-   
+
  public:
 
     KVChIo();
@@ -98,7 +98,7 @@ inline Bool_t KVChIo::IsCalibrated() const
          Bool_t ok_pg = (fChVoltPG!=0) ? fChVoltPG->GetStatus() : 0;
          return (ok_gg || ok_pg);
       }
-   
+
    return kFALSE;
 }
 
