@@ -1001,7 +1001,8 @@ TF1* KVHistoManipulator::RescaleX(TH1* hist1, TH1* hist2, Int_t degree, Double_t
 	// For npoints=4 we compare the 4 X1 & X2 values for which C1=C2=qmin, qmin+(qmax-qmin)/3, qmin+2*(qmax-qmin)/3, qmax
 	// etc. etc.
 	// In each case we fit the npoints couples (X1,X2) with f_n
-	
+	//
+			
 	register int i;
 	// calculate comparison points
 	npoints = TMath::Max(npoints,degree+2);
@@ -1058,34 +1059,38 @@ TH1* KVHistoManipulator::MakeHistoRescaleX(TH1* hist1, TH1* hist2, Int_t degree,
 	//  opt = "binsnorm" |--> rescaled histogram can be superposed and added to hist2
 	//
 	// EXAMPLE OF USE
-	// ==============
+	// =======================
 	// In the following example, we fill two histograms with different numbers of random
 	// values drawn from two Gaussian distributions with different centroids and widths.
 	// We also add to each histogram a 'pedestal' peak which is unrelated to the 'physical'
-	// distributions (note that this does not affect the rescaling unless the number of counts
-	// in the 'pedestal' is significant compared to the counts in the 'physical' part).
-	// Then we generate a rescaled version of the second histogram and superimpose it on
-	// the plot with the two initial distributions.
-	//
-	// void example()
-	// {
-	// 	TH1F* h1 = new TH1F("h1","gaussian",4096,-.5,4095.5);
-	// 	TF1 g1("g1","gaus(0)",0,4100);
-	// 	g1.SetParameters(1,1095,233);
-	// 	h1->FillRandom("g1",56130);
-	// 	h1->SetBinContent(85,179);
-	// 	TH1F* h2 = new TH1F("h2","gaussian",4096,-.5,4095.5);
-	// 	g1.SetParameters(1,1673,487);
-	// 	h2->FillRandom("g1",21370);
-	// 	h2->SetBinContent(78,179);
-	// 	KVHistoManipulator HM;
-	// 	Double_t params[3];
-	// 	h1->Draw();
-	// 	h2->Draw("same");
-	// 	TH1* sc3 = HM.MakeHistoRescaleX(h1,h2,1,params,"binsnorm");
-	// 	sc3->SetLineColor(kGreen);
-	// 	sc3->Draw("same");
-	// }	
+	// distributions, and significant enough so that it does not permit a correct scaling of
+	// the physical part of the distribution.
+	// 
+    // We can overcome the problem of the 'pedestal' by
+	 // using the 'inverse cumulated distribution' and excluding the channels
+	 // where the pedestals are present. The correct scaling of the physical
+	 // distributions is recovered, as shown below:
+/*
+BEGIN_MACRO(source)
+{
+TH1F* h10 = new TH1F("h10","gaussian",4096,-.5,4095.5);
+TF1 g10("g10","gaus(0)",0,4100);
+g10.SetParameters(1,1095,233);
+h10->FillRandom("g10",56130);
+h10->SetBinContent(85,13425);
+TH1F* h20 = new TH1F("h20","gaussian",4096,-.5,4095.5);
+g10.SetParameters(1,1673,487);
+h20->FillRandom("g10",21370);
+h20->SetBinContent(78,17900);
+KVHistoManipulator HM2;
+HM2.SetVisDebug();   // turn on visual debugging -> create canvas showing rescaling procedure
+Double_t params0[10];
+// make rescaling using inverse cumulative distribution, limit to x=[100,4095]
+TH1* sc30 =HM2.MakeHistoRescaleX(h10,h20,1,params0,"binsnorm",5,"D",100,4095);
+return gROOT->GetListOfCanvases()->FindObject("VDCanvas");
+}
+END_MACRO
+*/
 	
 	TF1* scalefunc = RescaleX(hist1,hist2,degree,params,npoints,direction,xmin,xmax,qmin,qmax,eps);
 	TString options(opt);

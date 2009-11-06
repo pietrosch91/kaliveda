@@ -37,7 +37,18 @@ class KVHistoManipulator
 	KVHistoManipulator();
 	virtual ~KVHistoManipulator(void);
 	
-	void SetVisDebug(Bool_t on=kTRUE) { kVisDebug=on; };
+	void SetVisDebug(Bool_t on=kTRUE)
+	{ 
+		// Turn on/off 'VisualDebugging' for RescaleX methods.
+		// After calling SetVisDebug(kTRUE), whenever the rescaling procedure
+		// is executed, a TCanvas is drawn showing 4 pads, which show:
+		//  (1) the two histograms to be rescaled
+		//  (2) the cumulative distributions of the two histograms
+		//  (3) the fit to the comparison points of the two cumulative distributions
+		//  (4) a comparison of the resulting rescaled histograms
+		// See MakeHistoRescaleX for an example.
+		kVisDebug=on;
+	};
 	Bool_t IsVisDebug() const { return kVisDebug; };
 	
    Int_t CutStatBin(TH1 *hh,Int_t stat_min=-1,Int_t stat_max=-1);
