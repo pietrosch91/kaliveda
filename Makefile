@@ -98,9 +98,9 @@ DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
 
-.PHONY : MultiDet Indra gan_tape VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
+.PHONY : MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) FNL install analysis byebye
 
 doc : html byebye
 
@@ -146,8 +146,6 @@ gan_tape : .init
 	cd GanTape && ./make_linux_i386
 	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
-#ROOTGT : .init
-
 ltgfit : .init
 	cd fitltg-0.1 && make && make install
 		
@@ -156,9 +154,6 @@ MultiDet : .init
 
 Indra : .init
 	cd KVIndra && $(MAKE)
-
-Indra5 : .init
-	cd KVIndra5 && $(MAKE)
 
 FNL : .init
 	cd KVIndraFNL && $(MAKE)
@@ -185,7 +180,6 @@ clean :
 ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
-	cd KVIndra5 && $(MAKE) clean
 	cd KVIndraFNL && $(MAKE) clean
 	cd VAMOS && $(MAKE) clean
 	cd analysis && $(MAKE) clean
@@ -205,7 +199,6 @@ install :
 #ifeq ($(ROOTGANILTAPE),yes)
 #endif
 	cd KVIndra && $(MAKE) install
-	cd KVIndra5 && $(MAKE) install
 	cd KVIndraFNL && $(MAKE) install
 	cd VAMOS && $(MAKE) install
 	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(KVINSTALLDIR)/tools/
@@ -255,14 +248,12 @@ ifeq ($(ROOTGANILTAPE),yes)
 endif
 	cd KVMultiDet && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall
-	cd KVIndra5 && $(MAKE) uninstall
 	cd KVIndraFNL && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall-indra2root
 	cd VAMOS && $(MAKE) uninstall
 	cd analysis && $(MAKE) uninstall
 	cd KVMultiDet && $(MAKE) removemoduledirs
 	cd KVIndra && $(MAKE) removemoduledirs
-	cd KVIndra5 && $(MAKE) removemoduledirs
 	cd KVIndraFNL && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
@@ -271,7 +262,6 @@ dist : clean
 	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
-	tar -czf libKVIndra5-$(VERSION_NUMBER).tgz KVIndra5
 	tar -czf libKVIndraFNL-$(VERSION_NUMBER).tgz KVIndraFNL
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
@@ -298,7 +288,6 @@ unpack :
 	-tar zxf fitltg-0.1.tar.gz 
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
-	-tar zxf libKVIndra5-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndraFNL-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
@@ -326,7 +315,6 @@ config :
 indent :
 	cd KVMultiDet && $(MAKE) indent
 	cd KVIndra && $(MAKE) indent
-	cd KVIndra5 && $(MAKE) indent
 	cd KVIndraFNL && $(MAKE) indent
 	
 byebye :
