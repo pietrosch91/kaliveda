@@ -26,9 +26,9 @@ include $(KVPROJ_ROOT_ABS)/Makefile.compat
 CXXFLAGS += $(KV_INC)
 
 ifeq ($(ARCH),win32)
-LINK_LIBS = '$(KVROOT)\lib\libKVIndraFNL.lib' '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
+LINK_LIBS = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
-LINK_LIBS = -L$(KVROOT)/lib -lKVIndraFNL -lKVIndra -lKVMultiDet
+LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
 
 #ganil libraries for reading raw data only build on linux systems

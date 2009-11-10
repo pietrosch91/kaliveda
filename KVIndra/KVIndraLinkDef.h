@@ -116,4 +116,12 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVIDSiCsI5+;
 #pragma link C++ class KVIDSi75SiLi_camp5+;
 #pragma link C++ class KVIDSiLiCsI_camp5+;
+#pragma link C++ class KVINDRAFNL+;
+#pragma link C++ class KVBIC-;
+#pragma link C++ class KVSiB-;
+#pragma link C++ class KVTelBlocking+;
+#pragma link C++ class KVIDBlocking+;
+#pragma link C++ class KVDB_BIC_Pressures+;
+#pragma link C++ class KVINDRADB_e416a;
+#pragma link C++ class KVINDRAUpDater_e416a+;
 #endif
