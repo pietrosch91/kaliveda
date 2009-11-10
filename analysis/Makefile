@@ -27,9 +27,9 @@ LIBKVINDRA = -L$(KVROOT)/lib -lKVIndra
 LIBKVMULTIDET = -L$(KVROOT)/lib -lKVMultiDet
 
 ifeq ($(ARCH),win32)
-LINK_LIBS = '$(KVROOT)\lib\libKVIndra5.lib' '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
+LINK_LIBS = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
-LINK_LIBS = -L$(KVROOT)/lib -lKVIndra5 -lKVIndra -lKVMultiDet
+LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
 
 ifeq ($(ARCH),macosx)

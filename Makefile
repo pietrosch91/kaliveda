@@ -296,7 +296,6 @@ unpack :
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
 	-rm libKVIndraFNL-$(VERSION_NUMBER).tgz 
-	-rm libKVIndra5-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
 	-rm html-$(VERSION_NUMBER).tgz
