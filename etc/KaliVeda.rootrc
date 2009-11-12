@@ -418,6 +418,7 @@ INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
 INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
 INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
 INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
+INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 
 # Default headers for runlist columns
@@ -564,9 +565,9 @@ INDRA_camp5.IdentificationParameterFile.CI-SI75:           ChioSi75Grids.dat
 INDRA_camp5.IdentificationParameterFile.SI75-SILI:           Si75SiLiGrids.dat
 INDRA_camp5.IdentificationParameterFile.SILI-CSI:           SiLiCsIGrids.dat
 ################################################
-INDRA_e475s.IdentificationParameterFile.CI-SI:        IDGridManager_E475s_CI_SI.dat
+INDRA_e475s.IdentificationParameterFile.CI-SI:        IDGridManager_E475s_MeV_CI_SI.dat
 INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL.dat
-INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
+INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_OnlyZid_SansContours_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
 
