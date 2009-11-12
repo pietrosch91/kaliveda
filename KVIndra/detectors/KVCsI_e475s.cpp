@@ -122,7 +122,7 @@ Bool_t  KVCsI_e475s::IsCalibrated() const
 Bool_t  KVCsI_e475s::IsCalibratedBySignal(TString signal) const
 //------------------------------
 {
-   return ( GetCalibratorBySignal(signal) && GetCalibratorBySignal(signal)->GetStatus() );
+   return ( GetCalibratorBySignal(signal) );
 	
 }
 
@@ -147,11 +147,10 @@ Double_t KVCsI_e475s::GetEnergy()
 //------------------------------
 {
    Double_t ELoss = KVDetector::GetEnergy();
-   if( ELoss > 0 ) return KVDetector::GetEnergy();
-   ELoss = GetCalibratedEnergy();
-   if( ELoss < 0 ) ELoss = 0;
+   if( ELoss > 0 ) 	return KVDetector::GetEnergy();
+  	else					ELoss = 0;
    SetEnergy(ELoss);
-   return ELoss;
+  	return ELoss;
 }
 
 //______________________________________________________________________________

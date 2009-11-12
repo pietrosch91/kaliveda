@@ -33,11 +33,13 @@ KVIDChIoSi_e475s::~KVIDChIoSi_e475s()
 Double_t KVIDChIoSi_e475s::GetIDMapX(Option_t *)
 {
    //X coordinate for ChIo-Si identification is silicon pedestal-corrected 'PG' channel
-   return GetDetector(2)->GetACQData("PG") - GetDetector(2)->GetPedestal("PG");
+   //return GetDetector(2)->GetACQData("PG") - GetDetector(2)->GetPedestal("PG");
+	return GetDetector(2)->GetEnergy();
 }
 
 Double_t KVIDChIoSi_e475s::GetIDMapY(Option_t *)
 {
    //Y coordinate for ChIo-Si identification is chio pedestal-corrected 'PG' channel
-   return  GetDetector(1)->GetACQData("PG") - GetDetector(1)->GetPedestal("PG");
+   //return  GetDetector(1)->GetACQData("PG") - GetDetector(1)->GetPedestal("PG");
+	return GetDetector(1)->GetEnergy();
 }

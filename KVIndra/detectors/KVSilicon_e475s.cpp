@@ -122,7 +122,7 @@ Bool_t  KVSilicon_e475s::IsCalibrated() const
 Bool_t  KVSilicon_e475s::IsCalibratedBySignal(TString signal) const
 //------------------------------
 {
-   return ( GetCalibratorBySignal(signal) && GetCalibratorBySignal(signal)->GetStatus() );
+   return ( GetCalibratorBySignal(signal) );
 	
 }
 
