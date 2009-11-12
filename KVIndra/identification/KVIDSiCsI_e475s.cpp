@@ -180,37 +180,6 @@ void KVIDSiCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
             {
                 Einc += det->GetCorrectedEnergy(nuc->GetZ(),nuc->GetA());
             }
-            else
-            {
-                /*
-                	// Uncalibrated/unfired/multihit detector. Calculate energy loss.
-                //calculate energy of particle before detector from energy after detector
-                e1 = det->GetDeltaEFromERes(z,a,einc);
-                if( e1< 0.0 ) e1 = 0.0;
-                if( det->GetNHits() > 1 ){
-                   //Info("CalculateParticleEnergy",
-                     //    "Detector %s was hit by %d particles. Calculated energy loss for particle %f MeV",
-                     //    det->GetName(), det->GetNHits(), e1);
-                   if( det->Fired() && det->IsCalibrated() )
-                      det->SetECalc( e1 );// subtract particle contribution from total measured energy loss in detector
-                   else {
-                      det->SetEnergyLoss(e1 + det->GetEnergy());// sum up calculated energy losses in uncalibrated detector
-                   }
-                   //status code
-                   fCalibStatus = kCalibStatus_Multihit;
-                }
-                else if( !det->Fired() || !det->IsCalibrated() ){
-                   //Info("CalculateParticleEnergy",
-                     //    "Detector %s uncalibrated/not fired. Calculated energy loss for particle %f MeV",
-                     //    det->GetName(), e1);
-                   det->SetEnergyLoss(e1);
-                   //status code
-                   fCalibStatus = kCalibStatus_Calculated;
-                }
-                e1 = det->GetCorrectedEnergy(z,a,e1);
-                einc += e1;
-                	*/
-            }
             idet++;
         }
     }
