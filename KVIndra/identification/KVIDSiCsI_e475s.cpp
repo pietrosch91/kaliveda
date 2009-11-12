@@ -11,6 +11,7 @@ $Date: 2009/04/15 11:45:14 $
 #include "KVINDRA.h"
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"
+#include "KVCsI_e475s.h"
 
 ClassImp(KVIDSiCsI_e475s)
 
@@ -60,7 +61,7 @@ void KVIDSiCsI_e475s::Initialize(void)
 Double_t KVIDSiCsI_e475s::GetIDMapX(Option_t * opt)
 {
 
-    return GetDetector(2)->GetEnergy();
+    return ((KVCsI_e475s* )GetDetector(2))->GetCalibratedEnergy();
 }
 //________________________________________________________________________________________//
 
