@@ -65,7 +65,13 @@ void KVINDRAUpDater_e475s::SetCalibrationParameters(UInt_t run){
     KVCalibrator *kvc;
     while ((kvd = (KVDetector *) next()))
     {
-        if (kvd->GetListOfCalibrators())
+      if (kvd->InheritsFrom("KVSiLi") || kvd->InheritsFrom("KVSi75")){
+		 	if (kvd->GetListOfCalibrators())
+			kvd->RemoveCalibrators();
+		 	kvd->SetCalibrators();
+		  }
+		 else {
+		  if (kvd->GetListOfCalibrators())
         {
             kvd->RemoveCalibrators();
 				TIter lacq(kvd->GetACQParamList());
@@ -74,7 +80,8 @@ void KVINDRAUpDater_e475s::SetCalibrationParameters(UInt_t run){
 					acq->SetPedestal(0);
 				}
 		  }
-    }
+    	}
+	 }
     SetCalibParameters(kvrun);
     SetPedestals(kvrun);
 
