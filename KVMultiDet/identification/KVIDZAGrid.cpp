@@ -1256,7 +1256,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
 
     nuc->SetZMeasured(kFALSE);
     nuc->SetAMeasured(kFALSE);
-
+	 KVIDentifier* id = 0;
     if ( !const_cast<KVIDZAGrid*>(this)->FindFourEmbracingLines(x,y,"above") )
     {
         //no lines corresponding to point were found
@@ -1278,6 +1278,8 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
         nuc->SetRealA(0);
         nuc->SetZ(TMath::Nint(Z));
         nuc->SetRealZ(Z);
+		  if ( (id = this->GetIdentifier(nuc->GetZ(),0)) )
+				nuc->SetA(id->GetA());
     }
     else
     {
