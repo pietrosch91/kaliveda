@@ -123,7 +123,12 @@ Double_t *par_res;//!array of params for eres function
       SetBit(kActiveSet);
    };
    KVMaterial *GetActiveLayer() const;
-   KVMaterial *GetAbsorber(Char_t i) const;
+   KVMaterial *GetAbsorber(Int_t i) const;
+   KVMaterial *GetAbsorber(const Char_t*) const;
+   KVList* GetListOfAbsorbers() const
+   {
+   	return fAbsorbers;
+	};
    virtual const Char_t *GetArrayName();
 
 	Double_t GetTotalThicknessInCM()

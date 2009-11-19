@@ -677,7 +677,13 @@ void KVDetector::SetTelescope(KVTelescope * kvt)
    fTelescope = kvt;
 }
 
-KVMaterial *KVDetector::GetAbsorber(Char_t i) const
+KVMaterial *KVDetector::GetAbsorber(const Char_t* name) const
+{
+   // Return absorber with given name
+   return (KVMaterial*)(fAbsorbers ? fAbsorbers->FindObject(name) : 0);
+}
+
+KVMaterial *KVDetector::GetAbsorber(Int_t i) const
 {
    //Returns pointer to the i-th absorber in the detector (i=0 first absorber, i=1 second, etc.)
 
