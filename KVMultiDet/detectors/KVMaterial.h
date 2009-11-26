@@ -152,7 +152,7 @@ class KVMaterial:public KVBase {
    virtual void Clear(Option_t * opt = "");
 
    const Char_t *GetThicknessUnits() const;
-   UInt_t GetUnits() const;
+   virtual UInt_t GetUnits() const;
    void SetUnits(UInt_t);
 
    Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =

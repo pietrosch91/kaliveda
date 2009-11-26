@@ -994,7 +994,7 @@ const Char_t *KVMaterial::GetThicknessUnits() const
    if (GetActiveLayer())
       return GetActiveLayer()->GetThicknessUnits();
    if (fUnits < 10)
-      return kUnits[fUnits];
+      return kUnits[GetUnits()];
    else
       return "(undefined)";
 }
