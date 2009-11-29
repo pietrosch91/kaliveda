@@ -952,7 +952,8 @@ UInt_t KVTarget::GetUnits() const
    //    KVMaterial::kMBAR, KVMaterial::kMGCM2, KVMaterial::kTORR,
    //    KVMaterial::kMICRON, KVMaterial::kCM.
 
-   if (GetLayer(1)) return GetLayer(1)->GetUnits();
+   KVMaterial * lay = const_cast<KVTarget*>(this)->GetLayerByIndex(1);
+   if (lay) return lay->GetUnits();
    return 10; // no layers - undefined
 }
 

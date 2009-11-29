@@ -1340,3 +1340,46 @@ void KVDetector::SetFiredBitmask()
 	}
 	delete toks;
 }
+
+	void printvec(TVector3& v)
+	{
+		cout << "(" << v.X() << "," << v.Y() << "," << v.Z() << ")";
+	};
+
+Double_t KVDetector::GetEntranceWindowSurfaceArea()
+{
+	// Return surface area of first layer of detector in mm2.
+	
+	if(!fTelescope) return 0;
+	
+	if(fDepthInTelescope == 0)
+		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
+
+	TVector3 coords[4];
+		
+	fTelescope->GetCornerCoordinates(coords,fDepthInTelescope);
+	cout << "DETECTOR COORDINATES (in cm):" <<endl;
+	cout << "=================================" << endl;
+	cout << " A : "; printvec(coords[0]); cout << endl;
+	cout << " B : "; printvec(coords[1]); cout << endl;
+	cout << " C : "; printvec(coords[2]); cout << endl;
+	cout << " D : "; printvec(coords[3]); cout << endl;
+	
+	cout << "DETECTOR DIMENSIONS (in mm):" << endl;
+	cout << "================================" << endl;
+	Double_t c = 10*(coords[0]-coords[1]).Mag();
+	Double_t b = 10*(coords[1]-coords[2]).Mag();
+	Double_t d = 10*(coords[2]-coords[3]).Mag();
+	Double_t a = 10*(coords[0]-coords[3]).Mag();
+	cout << " AB = " << c << endl;
+	cout << " BC = " << b << endl;
+	cout << " CD = " << d << endl;
+	cout << " AD = " << a << endl;
+	
+	cout << "DETECTOR SURFACE AREA = ";
+	Double_t surf = pow((a+b),2.0)*(a-b+2.0*c)*(b-a+2.0*c);
+	surf = sqrt(surf)/4.0;
+	cout << surf << " mm2" << endl;
+	
+	return surf;
+}

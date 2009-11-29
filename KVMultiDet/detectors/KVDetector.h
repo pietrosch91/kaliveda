@@ -320,7 +320,8 @@ Double_t *par_res;//!array of params for eres function
 	virtual TGeoVolume* GetGeoVolume();
 	virtual void AddToGeometry();
 	virtual void GetVerticesInOwnFrame(TVector3 */*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
-
+	virtual Double_t GetEntranceWindowSurfaceArea();
+	
 	virtual void SetFiredBitmask();
 	Binary8_t GetFiredBitmask() const { return fFiredMask; };
 
