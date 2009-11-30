@@ -1,14 +1,14 @@
 #ifndef KVLIST_H
 #define KVLIST_H
 
-#include "KVCollection.h"
+#include "KVSeqCollection.h"
 
-class KVList:public KVCollection
+class KVList:public KVSeqCollection
 {
 
 public:
 
-    KVList(Bool_t owner = kTRUE) : KVCollection("TList")
+    KVList(Bool_t owner = kTRUE) : KVSeqCollection("TList")
     {
         // Default ctor.
         // By default, a KVList owns its objects.
@@ -16,6 +16,6 @@ public:
     };
     virtual ~ KVList(){};
 
-    ClassDef(KVList, 3)  // KV wrapper for ROOT TList classes
+    ClassDef(KVList, 3)//Extended version of ROOT TList
 };
 #endif

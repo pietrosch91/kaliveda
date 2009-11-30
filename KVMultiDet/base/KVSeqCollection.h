@@ -1,14 +1,15 @@
 //Created by KVClassFactory on Fri Jun 19 18:51:28 2009
 //Author: John Frankland,,,
 
-#ifndef __KVCOLLECTION_H
-#define __KVCOLLECTION_H
+#ifndef __KVSEQCOLLECTION_H
+#define __KVSEQCOLLECTION_H
 
 #include "TSeqCollection.h"
 #include <RQ_OBJECT.h>
 #include "TFile.h"
+#include "KVConfig.h"
 
-class KVCollection : public TSeqCollection
+class KVSeqCollection : public TSeqCollection
 {
     RQ_OBJECT("KVList")
 
@@ -30,14 +31,14 @@ protected:
         if (TestBit(kSignals)) Modified();
     };
     virtual void	PrintCollectionHeader(Option_t* option) const;
-    virtual KVCollection* NewCollectionLikeThisOne() const;
+    virtual KVSeqCollection* NewCollectionLikeThisOne() const;
     virtual void SetCollection(const Char_t*);
 
 public:
-    KVCollection();
-    KVCollection(const KVCollection &);
-    KVCollection(const Char_t* collection_classname);
-    virtual ~KVCollection();
+    KVSeqCollection();
+    KVSeqCollection(const KVSeqCollection &);
+    KVSeqCollection(const Char_t* collection_classname);
+    virtual ~KVSeqCollection();
     virtual void Copy(TObject & obj) const;
 
     virtual void Modified()
@@ -156,19 +157,19 @@ public:
                          Int_t * error = 0);
     virtual void Execute(TMethod * method, TObjArray * params,
                          Int_t * error = 0);
-    virtual KVCollection *GetSubListWithMethod(const Char_t* retvalue,const Char_t* method);
+    virtual KVSeqCollection *GetSubListWithMethod(const Char_t* retvalue,const Char_t* method);
 
-    KVCollection *GetSubListWithClass(const TClass* _class);
-    KVCollection *GetSubListWithClass(const Char_t* class_name);
+    KVSeqCollection *GetSubListWithClass(const TClass* _class);
+    KVSeqCollection *GetSubListWithClass(const Char_t* class_name);
 
-    virtual KVCollection *GetSubListWithName(const Char_t* retvalue);
-    virtual KVCollection *GetSubListWithLabel(const Char_t* retvalue);
-    virtual KVCollection *GetSubListWithType(const Char_t* retvalue);
+    virtual KVSeqCollection *GetSubListWithName(const Char_t* retvalue);
+    virtual KVSeqCollection *GetSubListWithLabel(const Char_t* retvalue);
+    virtual KVSeqCollection *GetSubListWithType(const Char_t* retvalue);
 
-    static KVCollection* MakeListFromFile(TFile *file);
-    static KVCollection* MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method);
-    static KVCollection* MakeListFromFileWithClass(TFile *file,const TClass* _class);
-    static KVCollection* MakeListFromFileWithClass(TFile *file,const Char_t* class_name);
+    static KVSeqCollection* MakeListFromFile(TFile *file);
+    static KVSeqCollection* MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method);
+    static KVSeqCollection* MakeListFromFileWithClass(TFile *file,const TClass* _class);
+    static KVSeqCollection* MakeListFromFileWithClass(TFile *file,const Char_t* class_name);
 
     virtual Bool_t IsSortable() const
     {
@@ -180,7 +181,7 @@ public:
     };
     void Sort(){};
 
-    ClassDef(KVCollection,1)//KaliVeda extensions to ROOT collections
+    ClassDef(KVSeqCollection,1)//KaliVeda extensions to ROOT collections
 };
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,11,2)

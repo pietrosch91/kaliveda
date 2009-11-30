@@ -1,7 +1,7 @@
 //Created by KVClassFactory on Fri Jun 19 18:51:28 2009
 //Author: John Frankland,,,
 
-#include "KVCollection.h"
+#include "KVSeqCollection.h"
 #include "TClass.h"
 #include "TROOT.h"
 #include "KVBase.h"
@@ -9,12 +9,12 @@
 #include "Riostream.h"
 #include "TKey.h"
 
-ClassImp(KVCollection)
+ClassImp(KVSeqCollection)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVCollection</h2>
+<h2>KVSeqCollection</h2>
 <h4>KaliVeda extensions to ROOT collections</h4>
 This class adds functionalities such as
 <ul>
@@ -25,7 +25,7 @@ etc. to the standard ROOT collection classes. The actual collection is embedded 
 referenced through a TSeqCollection base pointer. The class of the embedded object for any given
 instance is passed as an argument to the constructor:
 <code>
-KVCollection* my_coll = new KVCollection("THashList");
+KVSeqCollection* my_coll = new KVSeqCollection("THashList");
 </code>
 Any collection class derived from TSeqCollection is valid: this means all ordered collections, for which the order in which
 objects are added is preserved. These lists can also be sorted.<br>
@@ -38,7 +38,7 @@ the signal "Modified()". This can be used to monitor any changes to the
 state of the list.<br>
 <h3>FindObjectBy...</h3>
 In addition to the standard TList::FindObject(const Char_t* name) and
-TList::FindObject(TObject*) methods, KVCollection adds methods to find
+TList::FindObject(TObject*) methods, KVSeqCollection adds methods to find
 objects based on several different properties, such as type, label,
 number, or class. Note that type, label and number are only defined for
 objects derived from KVBase; if the list contains a mixture of TObject-
@@ -59,24 +59,24 @@ arguments for every object in the list.<br>
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVCollection::KVCollection()
+KVSeqCollection::KVSeqCollection()
 {
     // Default constructor
     fCollection=0;
     ResetBit(kSignals);
 }
 
-KVCollection::KVCollection(const KVCollection& col)
+KVSeqCollection::KVSeqCollection(const KVSeqCollection& col)
         : TSeqCollection()
 {
     // Copy constructor
-    // See KVCollection::Copy
+    // See KVSeqCollection::Copy
 
     fCollection=col.NewCollectionLikeThisOne();
     col.Copy(*this);
 }
 
-KVCollection::KVCollection(const Char_t* collection_classname)
+KVSeqCollection::KVSeqCollection(const Char_t* collection_classname)
 {
     // Create new extended collection of class "collection_classname".
     // Must be the name of a class derived from TSeqCollection.
@@ -87,7 +87,7 @@ KVCollection::KVCollection(const Char_t* collection_classname)
     ResetBit(kSignals);
 }
 
-void KVCollection::SetCollection(const Char_t* class_name)
+void KVSeqCollection::SetCollection(const Char_t* class_name)
 {
     // Create TSeqCollection-derived object of class 'class_name'
     // and set as the embedded collection fCollection.
@@ -108,7 +108,7 @@ void KVCollection::SetCollection(const Char_t* class_name)
     fCollection = (TSeqCollection*)cl->New();
 }
 
-KVCollection::~KVCollection()
+KVSeqCollection::~KVSeqCollection()
 {
     // Destructor
     // If the cleanup mechanism is in use, we first remove the list from
@@ -118,7 +118,7 @@ KVCollection::~KVCollection()
     SafeDelete(fCollection);
 }
 
-void KVCollection::Copy(TObject & obj) const
+void KVSeqCollection::Copy(TObject & obj) const
 {
     // Copy a list of objects.
     // If this list owns its objects, we make new Clones of all objects in the list
@@ -128,7 +128,7 @@ void KVCollection::Copy(TObject & obj) const
     // If this list sends Modified() signal, the copy will do too.
 
     TSeqCollection::Copy(obj);            //in fact this calls TObject::Copy, no Copy method defined for collection classes
-    KVCollection & copy = (KVCollection&) obj;
+    KVSeqCollection & copy = (KVSeqCollection&) obj;
 
     //clear any pre-existing objects in copy list
     if (copy.IsOwner()) copy.Delete();
@@ -153,24 +153,24 @@ void KVCollection::Copy(TObject & obj) const
    }
 }
 
-KVCollection* KVCollection::NewCollectionLikeThisOne() const
+KVSeqCollection* KVSeqCollection::NewCollectionLikeThisOne() const
 {
     // PROTECTED method
-    // Creates and returns pointer to a new (empty) KVCollection
+    // Creates and returns pointer to a new (empty) KVSeqCollection
     // (or derived class) with the same characteristics
     // as this one :
     //   - class of embedded collection
     //   - collection is owner of objects ?
     //   - objects are in cleanup list ?
 
-    KVCollection *newCol = (KVCollection*)IsA()->New();
+    KVSeqCollection *newCol = (KVSeqCollection*)IsA()->New();
     if (!newCol->fCollection) newCol->SetCollection(fCollection->ClassName());
     newCol->SetOwner( IsOwner() );
     newCol->SetCleanup( IsCleanup() );
     return newCol;
 }
 
-void KVCollection::Add(TObject *obj)
+void KVSeqCollection::Add(TObject *obj)
 {
     // Add an object to the list.
     // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
@@ -181,7 +181,7 @@ void KVCollection::Add(TObject *obj)
     Changed();
 }
 
-void KVCollection::Clear(Option_t *option)
+void KVSeqCollection::Clear(Option_t *option)
 {
     // Clear the list of objects.
     // If the cleanup mechanism is in use, and the objects belong to the list
@@ -196,7 +196,7 @@ void KVCollection::Clear(Option_t *option)
     Changed();
 }
 
-void KVCollection::Delete(Option_t *option)
+void KVSeqCollection::Delete(Option_t *option)
 {
     // Delete all heap-based objects in the list.
     // If the cleanup mechanism is in use, and the objects belong to the list
@@ -211,26 +211,26 @@ void KVCollection::Delete(Option_t *option)
     Changed();
 }
 
-TObject** KVCollection::GetObjectRef(const TObject *obj) const
+TObject** KVSeqCollection::GetObjectRef(const TObject *obj) const
 {
     // Return reference to object.
     return fCollection->GetObjectRef(obj);
 }
 
-TIterator* KVCollection::MakeIterator(Bool_t dir) const
+TIterator* KVSeqCollection::MakeIterator(Bool_t dir) const
 {
     // Make and return iterator for the list.
     return fCollection->MakeIterator(dir);
 }
 
-TObject* KVCollection::Remove(TObject *obj)
+TObject* KVSeqCollection::Remove(TObject *obj)
 {
     // Remove object from list.
     return fCollection->Remove(obj);
     Changed();
 }
 
-void	KVCollection::PrintCollectionHeader(Option_t* option) const
+void	KVSeqCollection::PrintCollectionHeader(Option_t* option) const
 {
     // Overrides TCollection::PrintCollectionHeader to show the class name of the embedded list
     TROOT::IndentLevel();
@@ -238,7 +238,7 @@ void	KVCollection::PrintCollectionHeader(Option_t* option) const
            fCollection->ClassName(), GetSize());
 }
 
-TObject* KVCollection::FindObjectByType(const Char_t* type) const
+TObject* KVSeqCollection::FindObjectByType(const Char_t* type) const
 {
     // Will return object with given type (value of KVBase::GetType() method).
     // Objects in list which do not inherit KVBase do not have GetType() method,
@@ -257,7 +257,7 @@ TObject* KVCollection::FindObjectByType(const Char_t* type) const
     return 0;
 }
 
-TObject* KVCollection::FindObjectByClass(const TClass* cl) const
+TObject* KVSeqCollection::FindObjectByClass(const TClass* cl) const
 {
     // Return (first) object in embedded list with given class.
 
@@ -270,14 +270,14 @@ TObject* KVCollection::FindObjectByClass(const TClass* cl) const
     return 0;
 }
 
-TObject* KVCollection::FindObjectByClass(const Char_t* cl) const
+TObject* KVSeqCollection::FindObjectByClass(const Char_t* cl) const
 {
     // Return (first) object in embedded list with given class.
 
     return FindObjectByClass( TClass::GetClass(cl) );
 }
 
-TObject* KVCollection::FindObjectByLabel(const Char_t* label) const
+TObject* KVSeqCollection::FindObjectByLabel(const Char_t* label) const
 {
     // Will return object with given label (value of KVBase::GetLabel() method).
     // Objects in list which do not inherit KVBase do not have GetLabel() method,
@@ -296,7 +296,7 @@ TObject* KVCollection::FindObjectByLabel(const Char_t* label) const
 }
 
 
-TObject* KVCollection::FindObjectByNumber(UInt_t num) const
+TObject* KVSeqCollection::FindObjectByNumber(UInt_t num) const
 {
     // Will return object with given number (value of KVBase::GetNumber() method).
     // Objects in list which do not inherit KVBase do not have GetNumber() method,
@@ -314,7 +314,7 @@ TObject* KVCollection::FindObjectByNumber(UInt_t num) const
     return 0;
 }
 
-TObject *KVCollection::FindObjectWithNameAndType(const Char_t * name, const Char_t * type) const
+TObject *KVSeqCollection::FindObjectWithNameAndType(const Char_t * name, const Char_t * type) const
 {
     // Return object with specified name AND type (value of KVBase::GetType() method).
     // Objects in list which do not inherit KVBase do not have GetType() method,
@@ -333,7 +333,7 @@ TObject *KVCollection::FindObjectWithNameAndType(const Char_t * name, const Char
 }
 
 //_______________________________________________________________________________
-TObject *KVCollection::FindObjectWithMethod(const Char_t* retvalue,const Char_t* method) const
+TObject *KVSeqCollection::FindObjectWithMethod(const Char_t* retvalue,const Char_t* method) const
 {
     // Find the first object in the list for which the given method returns the given return value:
     //   e.g. if method = "GetName" and retvalue = "john", we return the
@@ -401,7 +401,7 @@ TObject *KVCollection::FindObjectWithMethod(const Char_t* retvalue,const Char_t*
 
 }
 
-void KVCollection::Execute(const char *method, const char *params, Int_t * error)
+void KVSeqCollection::Execute(const char *method, const char *params, Int_t * error)
 {
     //Redefinition of TObject::Execute(const char *, const char *, Int_t *) method.
     //TObject::Execute is called for each object in the embedded list in order, meaning that for each
@@ -417,7 +417,7 @@ void KVCollection::Execute(const char *method, const char *params, Int_t * error
 
 //_______________________________________________________________________________
 
-void KVCollection::Execute(TMethod * method, TObjArray * params, Int_t * error)
+void KVSeqCollection::Execute(TMethod * method, TObjArray * params, Int_t * error)
 {
     //Redefinition of TObject::Execute(TMethod *, TObjArray *, Int_t *) method.
     //TObject::Execute is called for each object in the embedded list in order, meaning that for each
@@ -433,7 +433,7 @@ void KVCollection::Execute(TMethod * method, TObjArray * params, Int_t * error)
 
 //_______________________________________________________________________________
 
-TObject* KVCollection::FindObjectAny(const Char_t *att, const Char_t *keys, Bool_t contains_all, Bool_t case_sensitive) const
+TObject* KVSeqCollection::FindObjectAny(const Char_t *att, const Char_t *keys, Bool_t contains_all, Bool_t case_sensitive) const
 {
     //Find an object in the list, if one of its characteristics 'att' contains any or all of
     //the keywords contained in the string 'keys'
@@ -517,15 +517,15 @@ TObject* KVCollection::FindObjectAny(const Char_t *att, const Char_t *keys, Bool
     return 0;
 }
 
-KVCollection *KVCollection::GetSubListWithClass(const TClass* _class)
+KVSeqCollection *KVSeqCollection::GetSubListWithClass(const TClass* _class)
 {
     // Create and fill a (sub)list with objects in this list of the given class.
     // This new list will be of the same kind as this one.
     // The objects in the sublist do not belong to the sublist.
     //
-    //  *** WARNING *** : DELETE the KVCollection returned by this method after using it !!!
+    //  *** WARNING *** : DELETE the KVSeqCollection returned by this method after using it !!!
 
-    KVCollection *sublist = NewCollectionLikeThisOne();
+    KVSeqCollection *sublist = NewCollectionLikeThisOne();
     sublist->SetOwner(kFALSE);
     if (_class)
     {
@@ -540,7 +540,7 @@ KVCollection *KVCollection::GetSubListWithClass(const TClass* _class)
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::GetSubListWithClass(const Char_t* class_name)
+KVSeqCollection *KVSeqCollection::GetSubListWithClass(const Char_t* class_name)
 {
     // Create and fill a (sub)list with objects in this list of the given class.
     // This new list will be of the same kind as this one.
@@ -556,7 +556,7 @@ KVCollection *KVCollection::GetSubListWithClass(const Char_t* class_name)
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method)
+KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method)
 {
     // Create and fill a (sub)list with objects in this list for which the
     // given method returns the given return value:
@@ -571,7 +571,7 @@ KVCollection *KVCollection::GetSubListWithMethod(const Char_t* retvalue,const Ch
     // if the method is valid and the return value is equal to the input one (retvalue) object is added to the subKVList
     // return type supported are those defined in TMethodCall::ReturnType()
 
-    KVCollection* sublist = NewCollectionLikeThisOne();
+    KVSeqCollection* sublist = NewCollectionLikeThisOne();
     sublist->SetOwner(kFALSE);
     if (retvalue && method)
     {
@@ -621,7 +621,7 @@ KVCollection *KVCollection::GetSubListWithMethod(const Char_t* retvalue,const Ch
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::GetSubListWithName(const Char_t* retvalue)
+KVSeqCollection *KVSeqCollection::GetSubListWithName(const Char_t* retvalue)
 {
     // Create and fill a (sub)list with all objects in this list whose name
     // (i.e. string returned by GetName()) is "retvalue"
@@ -634,7 +634,7 @@ KVCollection *KVCollection::GetSubListWithName(const Char_t* retvalue)
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::GetSubListWithLabel(const Char_t* retvalue)
+KVSeqCollection *KVSeqCollection::GetSubListWithLabel(const Char_t* retvalue)
 {
     // Create and fill a (sub)list with all objects in this list whose label
     // (i.e. string returned by GetLabel()) is "retvalue"
@@ -647,7 +647,7 @@ KVCollection *KVCollection::GetSubListWithLabel(const Char_t* retvalue)
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::GetSubListWithType(const Char_t* retvalue)
+KVSeqCollection *KVSeqCollection::GetSubListWithType(const Char_t* retvalue)
 {
     // Create and fill a (sub)list with all objects in this list whose type
     // (i.e. string returned by GetType()) is "retvalue"
@@ -659,16 +659,16 @@ KVCollection *KVCollection::GetSubListWithType(const Char_t* retvalue)
     return GetSubListWithMethod(retvalue,"GetType");
 }
 
-KVCollection* KVCollection::MakeListFromFile(TFile *file)
+KVSeqCollection* KVSeqCollection::MakeListFromFile(TFile *file)
 {
     //Static method create a list containing all objects contain of a file
     //The file can be closed after this method, objects stored in the
     //list still remains valid
     //if file=NULL, the current directory is considered
     //
-    //  *** WARNING *** : DELETE the KVCollection returned by this method after using it !!!
+    //  *** WARNING *** : DELETE the KVSeqCollection returned by this method after using it !!!
 
-    KVCollection *ll = new KVCollection("TList");
+    KVSeqCollection *ll = new KVSeqCollection("TList");
     ll->SetOwner(kFALSE);
 
     TKey* key=0;
@@ -687,23 +687,23 @@ KVCollection* KVCollection::MakeListFromFile(TFile *file)
 }
 
 //_______________________________________________________________________________
-KVCollection* KVCollection::MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method)
+KVSeqCollection* KVSeqCollection::MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method)
 {
     //Static method create a list containing all objects whose "method" returns "retvalue" in a file
-    //WARNING list has to be empty with KVCollection::Clear() method before closing file
+    //WARNING list has to be empty with KVSeqCollection::Clear() method before closing file
     //if file=NULL, the current directory is considered
     //
     //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
 
-    KVCollection* l1 = MakeListFromFile(file);
-    KVCollection* l2 = l1->GetSubListWithMethod(retvalue,method);
+    KVSeqCollection* l1 = MakeListFromFile(file);
+    KVSeqCollection* l2 = l1->GetSubListWithMethod(retvalue,method);
     l1->Clear();
     delete l1;
     return l2;
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::MakeListFromFileWithClass(TFile *file,const TClass* _class)
+KVSeqCollection *KVSeqCollection::MakeListFromFileWithClass(TFile *file,const TClass* _class)
 {
     //Static method create a list containing all objects of given class in a file
     //WARNING list has to be empty with KVList::Clear() method before closing file
@@ -711,15 +711,15 @@ KVCollection *KVCollection::MakeListFromFileWithClass(TFile *file,const TClass* 
     //
     //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
 
-    KVCollection* l1 = MakeListFromFile(file);
-    KVCollection* l2 = l1->GetSubListWithClass(_class);
+    KVSeqCollection* l1 = MakeListFromFile(file);
+    KVSeqCollection* l2 = l1->GetSubListWithClass(_class);
     l1->Clear();
     delete l1;
     return l2;
 }
 
 //_______________________________________________________________________________
-KVCollection *KVCollection::MakeListFromFileWithClass(TFile *file,const Char_t* class_name)
+KVSeqCollection *KVSeqCollection::MakeListFromFileWithClass(TFile *file,const Char_t* class_name)
 {
     //Static method create a list containing all objects of given class in a file
     //WARNING list has to be empty with KVList::Clear() method before closing file
@@ -727,8 +727,8 @@ KVCollection *KVCollection::MakeListFromFileWithClass(TFile *file,const Char_t* 
     //
     //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
 
-    KVCollection* l1 = MakeListFromFile(file);
-    KVCollection* l2 = l1->GetSubListWithClass(class_name);
+    KVSeqCollection* l1 = MakeListFromFile(file);
+    KVSeqCollection* l2 = l1->GetSubListWithClass(class_name);
     l1->Clear();
     delete l1;
     return l2;
@@ -736,7 +736,7 @@ KVCollection *KVCollection::MakeListFromFileWithClass(TFile *file,const Char_t* 
 
 //_______________________________________________________________________________
 
-void KVCollection::SetCleanup(Bool_t enable)
+void KVSeqCollection::SetCleanup(Bool_t enable)
 {
     // To use the ROOT cleanup mechanism to ensure that any objects in the list which get
     // deleted elsewhere are removed from this list, call SetCleanup(kTRUE)
@@ -752,9 +752,9 @@ void KVCollection::SetCleanup(Bool_t enable)
     }
 }
 //______________________________________________________________________________
-void KVCollection::Streamer(TBuffer &R__b)
+void KVSeqCollection::Streamer(TBuffer &R__b)
 {
-   // Stream an object of class KVCollection.
+   // Stream an object of class KVSeqCollection.
 
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
@@ -762,9 +762,9 @@ void KVCollection::Streamer(TBuffer &R__b)
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
       R__b >> fCollection;
-      R__b.CheckByteCount(R__s, R__c, KVCollection::IsA());
+      R__b.CheckByteCount(R__s, R__c, KVSeqCollection::IsA());
    } else {
-      R__c = R__b.WriteVersion(KVCollection::IsA(), kTRUE);
+      R__c = R__b.WriteVersion(KVSeqCollection::IsA(), kTRUE);
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
       R__b << fCollection;
