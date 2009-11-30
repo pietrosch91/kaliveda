@@ -1217,6 +1217,8 @@ void KVINDRADB::ReadCsITotalLightGainCorrections()
 	//   name_of_detector   correction
 	//Any other lines are ignored.
 
+			Info("ReadCsITotalLightGainCorrections",
+					"Reading corrections...");
 
 	// get name of directory for this dataset from .kvrootrc
 	TString search;
@@ -1248,9 +1250,6 @@ void KVINDRADB::ReadCsITotalLightGainCorrections()
 		filepath.Prepend(search.Data());
 		ifstream filereader;
 		if( KVBase::SearchAndOpenKVFile(filepath, filereader, fDataSet.Data()) ){
-
-			Info("ReadCsITotalLightGainCorrections",
-					"Reading run %d", run_num);
 
 			KVString line;
 			line.ReadLine(filereader);

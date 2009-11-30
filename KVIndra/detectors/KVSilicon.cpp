@@ -33,12 +33,12 @@ $Id: KVSilicon.cpp,v 1.55 2009/04/15 09:49:19 ebonnet Exp $
 #define MAX_CANAL_GG 4000
 
 ClassImp(KVSilicon)
-      
+
 //////////////////////////////////////////////////////////////////
 //KVSilicon
 //
 //Used to describe Silicon detectors of the INDRA array.
-//In order to create a detector, use the KVSilicon::KVSilicon(Float_t thick) 
+//In order to create a detector, use the KVSilicon::KVSilicon(Float_t thick)
 //constructor with "thick" the thickness in microns.
 //
 //Type of detector : "SI"
@@ -50,7 +50,7 @@ void KVSilicon::init()
    fChVoltGG=0;
    fChVoltPG=0;
    fVoltE=0;
-   fPHD=0;   
+   fPHD=0;
    fZminPHD=10;
    fSegment = 1;
    fPGtoGG_0 = 0;
@@ -70,7 +70,7 @@ KVSilicon::KVSilicon()
 }
 
 //______________________________________________________________________________
-KVSilicon::KVSilicon(Float_t thick):KVDetector("Si", thick)
+KVSilicon::KVSilicon(Float_t thick):KVINDRADetector("Si", thick)
 {
    // constructor for silicon detector
 	//Type of detector: "SI"
@@ -101,7 +101,7 @@ Int_t KVSilicon::GetCanalPGFromVolts(Float_t volts)
       //correct for pedestal drift
       chan = chan + (Int_t) (GetPedestal("PG") - fChVoltPG->Invert(0));
       return chan;
-   
+
 }
 
 //____________________________________________________________________________________________
@@ -161,9 +161,9 @@ void KVSilicon::SetACQParams()
    //Setup acquistion parameters for this Silicon.
    //Do not call before ChIo name has been set.
 
-   AddACQParam("GG");
-   AddACQParam("PG");
-   AddACQParam("T");
+   AddACQParamType("GG");
+   AddACQParamType("PG");
+   AddACQParamType("T");
 
 }
 
@@ -273,7 +273,7 @@ Double_t KVSilicon::GetCalibratedEnergy()
 
    if (IsCalibrated() && Fired("Pany"))
       return (fVoltE->Compute( GetVolts() ));
-   return 0;      
+   return 0;
 }
 
 //____________________________________________________________________________________________
@@ -317,11 +317,11 @@ Double_t KVSilicon::GetVoltsFromCanalGG(Double_t chan)
          chan = GetGG();
       }
       if (chan < -0.5)
-         return 0.;          //GG parameter absent 
+         return 0.;          //GG parameter absent
       //correct for pedestal drift
       chan = chan - (Double_t) GetPedestal("GG") + fChVoltGG->Invert(0);
       return (fChVoltGG->Compute(chan));
-   
+
 }
 
 //____________________________________________________________________________________________
@@ -340,7 +340,7 @@ Double_t KVSilicon::GetVolts()
       else if (fChVoltGG && fChVoltGG->GetStatus()) {
          return GetVoltsFromCanalGG(GetGGfromPG());
       }
-      
+
    return 0;
 }
 
@@ -353,7 +353,7 @@ Double_t KVSilicon::GetVoltsFromEnergy(Double_t e)
    if (fVoltE->GetStatus()){
       return (fVoltE->Invert( e ));
    }
-   return 0;      
+   return 0;
 }
 
 //____________________________________________________________________________________________
@@ -401,7 +401,7 @@ void KVSilicon::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1
 {
    //Sets parameters of Moulton formula used to calculate PHD for particles
    //stopping in this detector. The parameters are as in the following:
-   // 
+   //
    // log_10(PHD) = b(Z) + a(Z)*log_10(E)
    //
    //  with  a(Z) = a_1*(Z**2/1000) + a_2
@@ -409,7 +409,7 @@ void KVSilicon::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1
    //            E = incident energy of particle
    //
    //See class KVPulseHeightDefect
-   
+
    if(fPHD){
       fPHD->SetParameters(a_1, a_2, b_1, b_2, (Double_t)fZminPHD);
       fPHD->SetStatus(kTRUE);
@@ -424,12 +424,12 @@ void KVSilicon::SetELossParams(Int_t Z, Int_t A)
    //We redefine the KVDetector::SetELossParams method in order to include the
    //pulse height defect (if defined) for the silicon detector in the calculation of
    //the energy loss in the active (silicon) layer.
-   
+
    //PHD not defined ? ignore
    if(!fPHD || !fPHD->GetStatus()){
       KVDetector::SetELossParams(Z,A);
       return;
-   } 
+   }
 
    //do we need to set up the ELoss function ?
    //only if it has never been done for PHD before
@@ -447,7 +447,7 @@ void KVSilicon::SetELossParams(Int_t Z, Int_t A)
       if (!ELoss)
          ELoss = new TF1("ELoss_SiPHD", ELossSiPHD, 0.1, 5000., npar_loss);
    }
-         
+
    //fill parameter array
   ((KVMaterial*)fAbsorbers->At(0))->GetELossParams(Z, A, par_loss);
   par_loss[19] = Z;
@@ -482,7 +482,7 @@ Short_t KVSilicon::GetCalcACQParam(KVACQParam* ACQ) const
    // after subtraction of calculated energy losses corresponding to each identified
    // particle crossing this detector.
    // Returns -1 if fEcalc = 0 or if detector is not calibrated
-   
+
    if(!IsCalibrated() || GetECalc()==0) return -1;
    Double_t volts = const_cast<KVSilicon*>(this)->GetVoltsFromEnergy( GetECalc() );
    if(ACQ->IsType("PG")) return (Short_t)const_cast<KVSilicon*>(this)->GetCanalPGFromVolts(volts);
@@ -498,7 +498,7 @@ ClassImp(KVSi75)
 //(actually an 80 micron thick silicon detector)
 //Type of detector: "SI75"
 //Array naming convention: "SI75_RR" with RR=ring number
-      
+
 KVSi75::KVSi75():KVSilicon()
 {
    //Default ctor

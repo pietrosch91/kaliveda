@@ -149,6 +149,7 @@ class KVTarget:public KVMaterial {
 #else
    virtual void Copy(TObject & obj);
 #endif
+   virtual UInt_t GetUnits() const;
 
    Double_t GetAtomsPerCM2() const;
 

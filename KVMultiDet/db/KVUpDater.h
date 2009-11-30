@@ -10,6 +10,7 @@ $Author: franklan $
 
 #include "TObject.h"
 #include "TString.h"
+#include "KVDBRun.h"
 
 class KVUpDater {
 
@@ -20,9 +21,12 @@ class KVUpDater {
    KVUpDater();
    virtual ~ KVUpDater();
 
-   virtual void SetParameters(UInt_t )=0;
-   virtual void SetIdentificationParameters(UInt_t )=0;
-   virtual void SetCalibrationParameters(UInt_t )=0;
+   virtual void SetParameters(UInt_t );
+   virtual void SetIdentificationParameters(UInt_t) ;
+   virtual void SetCalibrationParameters(UInt_t );
+   virtual void SetTarget(KVDBRun *);
+   virtual void SetIDGrids(UInt_t);
+   virtual void SetCalibParameters(KVDBRun *);
 
    static KVUpDater *MakeUpDater(const Char_t * uri);
 

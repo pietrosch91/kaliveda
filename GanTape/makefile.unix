@@ -60,10 +60,6 @@ DEBUG = -g
 # *************************************************************************** 
 #Definition de la racine du projet
 RACINE = ./
-#definition du prefixe pour repertoires lib et exe
-# A changer en fonction de HP, SUN, OSF
-#VERSION = osf
-#VERSION est fourni en 'macro' a make.
 
 LIBDIR = $(RACINE)$(VERSION)_lib/
 EXEDIR = $(RACINE)$(VERSION)_exe/
@@ -92,10 +88,6 @@ CC_OPTS += -fPIC
 # Sur certaines SUN, il est preferable d'utiliser gcc ( pb de compilation )
 CC = $(COMPILAT) $(CFLAGS) $(CC_OPTS) -o $@
 LD = $(LINK) -o $@
-#FOR = /opt/absoft/bin/f77 $(FFLAGS) -c -I$(INCDIR) -o $@
-#FOR = f77 $(FFLAGS) -c -I$(INCDIR) -o $@
-#FOR = /usr/bin/f77 $(FFLAGS) -c -I$(INCDIR) -o $@
-FOR = $(COMPFOR) $(FFLAGS) -c -I$(INCDIR) -o $@
 
 LIBOBJETS = $(LIBDIR)gan_tape_erreur.o \
 	$(LIBDIR)gan_tape_alloc.o \
@@ -112,13 +104,6 @@ LIBOBJETS = $(LIBDIR)gan_tape_erreur.o \
 	$(LIBDIR)fonc_spectra.o 
 
 
-MES_OBJETS = 	$(LIBDIR)acq_mt_mes_fonctions.o \
-		$(LIBDIR)acq_mt_mes_fonctions_f.o \
-	        $(LIBDIR)mon_traitement.o
-
-
-OBJETS =  $(MES_OBJETS) $(LIB_GANTAPE)
-
 all :  	$(LIB_GANTAPE)
 
 #
@@ -128,7 +113,6 @@ all :  	$(LIB_GANTAPE)
 #
 #=====================================================================
 $(LIB_GANTAPE) : $(LIBOBJETS)
-#	$(AR) -ru $(LIB_GANTAPE) $(LIBOBJETS) 
 	g++ -shared $^ $(EXTRA_LIBS) -o $@
 
 $(LIBDIR)gan_tape_erreur.o : $(SRCDIR)gan_tape_erreur.c \
@@ -222,5 +206,3 @@ $(LIBDIR)fonc_spectra.o : $(SRCDIR)fonc_spectra.c \
 				$(INCDIR)gan_acq_swap_buf.h \
 				$(INCDIR)def_spectre.h 
 	$(CC) $(DEBUG) $(SRCDIR)fonc_spectra.c
-
-#include makefile.unix.$(MAKEEXTENSION)

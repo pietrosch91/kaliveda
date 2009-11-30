@@ -64,7 +64,7 @@ KVChIo::KVChIo()
 }
 
 //______________________________________________________________________________
-KVChIo::KVChIo(Float_t pressure, Float_t thick):KVDetector("Myl", 2.5)
+KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5)
 {
    //Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' mm of C3F8.
    //By default 'thick'=50mm
@@ -107,7 +107,7 @@ Int_t KVChIo::GetCanalPGFromVolts(Float_t volts)
       //correct for pedestal drift
       chan = chan + (Int_t) (GetPedestal("PG") - fChVoltPG->Invert(0));
       return chan;
-   
+
 }
 
 //____________________________________________________________________________________________
@@ -136,9 +136,9 @@ void KVChIo::SetACQParams()
    //Setup acquistion parameters for this ChIo.
    //Do not call before ChIo name has been set.
 
-   AddACQParam("GG");
-   AddACQParam("PG");
-   AddACQParam("T");
+   AddACQParamType("GG");
+   AddACQParamType("PG");
+   AddACQParamType("T");
 
 }
 
@@ -227,7 +227,7 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
       //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
       emylar *= (de_measured/egas);
    }
-   
+
    return emylar;
 }
 
@@ -267,7 +267,7 @@ Double_t KVChIo::GetCalibratedEnergy()
    if (IsCalibrated() && Fired("Pany")){
       return (fVoltE->Compute( GetVolts() ));
    }
-   return 0;      
+   return 0;
 }
 
 //_______________________________________________________________________________
@@ -279,7 +279,7 @@ Double_t KVChIo::GetVoltsFromEnergy(Double_t e)
    if (fVoltE->GetStatus()){
       return (fVoltE->Invert( e ));
    }
-   return 0;      
+   return 0;
 }
 
 //____________________________________________________________________________________________
@@ -323,11 +323,11 @@ Double_t KVChIo::GetVoltsFromCanalGG(Double_t chan)
          chan = GetGG();
       }
       if (chan < -0.5)
-         return 0.;          //GG parameter absent 
+         return 0.;          //GG parameter absent
       //correct for pedestal drift
       chan = chan - (Double_t) GetPedestal("GG") + fChVoltGG->Invert(0);
       return (fChVoltGG->Compute(chan));
-   
+
 }
 
 Double_t KVChIo::GetVolts()
@@ -344,7 +344,7 @@ Double_t KVChIo::GetVolts()
       else if (fChVoltGG && fChVoltGG->GetStatus()) {
          return GetVoltsFromCanalGG(GetGGfromPG());
       }
-      
+
    return 0;
 }
 
@@ -396,7 +396,7 @@ Short_t KVChIo::GetCalcACQParam(KVACQParam* ACQ) const
    // after subtraction of calculated energy losses corresponding to each identified
    // particle crossing this detector.
    // Returns -1 if fEcalc = 0 or if detector is not calibrated
-   
+
    if(!IsCalibrated() || GetECalc()==0) return -1;
    Double_t volts = const_cast<KVChIo*>(this)->GetVoltsFromEnergy( GetECalc() );
    if(ACQ->IsType("PG")) return (Short_t)const_cast<KVChIo*>(this)->GetCanalPGFromVolts(volts);

@@ -1,12 +1,3 @@
-/***************************************************************************
-$Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
-                              KVMultiDetLinkDef.h
-                               description
-                             -------------------
-                       Auteur   :  Alexis Mignon + J.D. Frankland
-                       email    :  mignon@ganil.fr
- ***************************************************************************/
-
 #ifdef __CINT__
 #include "RVersion.h"
 #pragma link off all globals;
@@ -79,7 +70,6 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVDataTransferBBFTP+;
 #pragma link C++ class KVDP2toIDGridConvertor+;
 #pragma link C++ class KVRemoteDataRepository+;
-#pragma link C++ class KVRemoteDataSet+;
 #pragma link C++ class KVRemoteDataSetManager+;
 #pragma link C++ class KVDataRepositoryManager+;
 #pragma link C++ class KVDataSetManager+;
@@ -98,7 +88,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVIDentifier+;
-#pragma link C++ class KVIDGraph+;
+#pragma link C++ class KVIDGraph-;
 #pragma link C++ class KVIDLine-;
 #pragma link C++ class KVIDContour+;
 #pragma link C++ class KVIDCutContour+;
@@ -124,17 +114,29 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;
-#pragma link C++ class KVMaterial+;
+#pragma link C++ class KVMaterial-;
 #pragma link C++ class KVModule+;
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
 #pragma link C++ class KVNucleus+;
+#pragma link C++ class KVMassTable+;
+#pragma link C++ class PACE2MassTable+;
+#pragma link C++ class PACE2Map::value+;
+#pragma link C++ class PACE2Map::key+;
 #pragma link C++ class KVNumberList+;
 #pragma link C++ class KVParticle+;
 #pragma link C++ class KVParticleCondition+;
 #pragma link C++ class KVPosition+;
 #pragma link C++ class KVPulseHeightDefect+;
 #pragma link C++ class KVRawDataReader+;
+#ifdef ROOTGANILTAPE
+#pragma link C++ class GTOneScaler+;
+#pragma link C++ class GTScalers+;
+#pragma link C++ class GTDataParameters+;
+#pragma link C++ class GTGanilData+;
+#pragma link C++ class KVGANILDataReader+;
+#pragma link C++ class KVRawDataAnalyser+;
+#endif
 #pragma link C++ class KVReconstructedNucleus-;//customised streamer
 #pragma link C++ class KVReconstructedEvent-;//customised streamer
 //#pragma link C++ class KVRegister+;
@@ -214,4 +216,8 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVRelativeVelocity;
 #pragma link C++ class KVUpdateChecker;
 #pragma link C++ class KVCVSUpdateChecker;
+#pragma link C++ class SRB+;
+#pragma link C++ class SRBFile_t+;
+#pragma link C++ class SRBDataRepository+;
+#pragma link C++ class SRBAvailableRunsFile+;
 #endif

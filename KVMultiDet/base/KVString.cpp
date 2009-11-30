@@ -287,6 +287,10 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
    //HANDLED FORMAT DESCRIPTORS
    //
    //      %d   -  simple integer descriptor
+   //      %3d   -  simple integer descriptor with length - only integers of correct length accepted
+	//               (leading characters may be white space, i.e. '  4' for 4 written with '%3d')
+   //      %03d   -  simple integer descriptor with length + zero padding - only integers of correct length accepted
+	//               (leading characters may be zeroes, i.e. '004' for 4 written with '%03d')
    //      %*   -  just garbage, no argument required, it is not read. we ignore the rest of the string
    //                      and the rest of the format. this is not counted as a field to be read. i.e. Sscanf("%*")
    //                      gives 0 for any string, not because it doesn't match, but because there is nothing to read.
@@ -298,20 +302,109 @@ Int_t KVString::Sscanf(const Char_t * fmt, ...)
    Int_t read_items = 0;
    Int_t fmt_index = 0;
    const char *cp = Data();
+	Int_t int_format_length_descriptor = 0;
+	Bool_t zero_padding = kFALSE;
 
    while (fmt[fmt_index] != '\0') {
 
       if (fmt[fmt_index] == '%') {
          //handle format descriptor
          fmt_index++;
+         if (fmt[fmt_index] >= '0' && fmt[fmt_index] <= '9') {
+				// case of %nd or %0nd with n=some integer
+				zero_padding = (fmt[fmt_index]=='0');
+				if(zero_padding) fmt_index++;
+				// stick together all figures until 'd' (or some other non-number) is found
+				KVString length_of_number="";
+				while( fmt[fmt_index] >= '0' && fmt[fmt_index] <= '9'){
+					length_of_number+=fmt[fmt_index++];
+				}
+				int_format_length_descriptor = length_of_number.Atoi();
+			}
          if (fmt[fmt_index] == 'd') {
             //read an integer
             KVString dummy;
-            while (cp[str_index] >= '0' && cp[str_index] <= '9')
-               dummy += cp[str_index++];
-            *(va_arg(args, int *)) = dummy.Atoi();
-            fmt_index++;
-            read_items++;
+				if(int_format_length_descriptor){
+					if(zero_padding){
+						// fixed length integer with leading zeroes
+						// i.e. for %03d, '3' will be represented by '003'
+						// we must read int_format_length_descriptor consecutive integers
+						Int_t figures_read=0;
+            		while (cp[str_index] >= '0' && cp[str_index] <= '9'){
+               		dummy += cp[str_index++];
+							figures_read++;
+						}
+						if(figures_read!=int_format_length_descriptor){
+							// number is not correct length, string is not good
+            			va_end(args);
+            			return 0;
+						}
+						else
+						{
+							// good
+            			*(va_arg(args, int *)) = dummy.Atoi();
+            			fmt_index++;
+            			read_items++;
+						}
+					}
+					else
+					{
+						// fixed length integer with white-space padding
+						// i.e. for %3d, '3' will be represented by '  3'
+						// we must read int_format_length_descriptor consecutive characters
+						// which are either white-space or numbers, at least the last one must
+						// be a number, and once we start reading numbers we cannot have any more
+						// white space
+						Bool_t no_more_whitespace = kFALSE;
+						while(int_format_length_descriptor){
+							if(cp[str_index]=='\0'){
+								// tried to read past end of string - no good
+            				va_end(args);
+            				return 0;
+							}
+							if((cp[str_index]!=' ')&&(cp[str_index]<'0'||cp[str_index]>'9')){
+								// read a non-whitespace non-number - no good
+            				va_end(args);
+            				return 0;
+							}
+							if((cp[str_index]==' ')&&no_more_whitespace){
+								// read a whitespace after starting to read numbers - no good
+            				va_end(args);
+            				return 0;
+							}
+							if(cp[str_index]!=' '){
+								no_more_whitespace=kTRUE;
+								dummy+=cp[str_index];
+							}
+							str_index++;
+							int_format_length_descriptor--;
+						}
+						// check we read at least one number
+						if(!no_more_whitespace){
+            			va_end(args);
+            			return 0;
+						}
+						// check that next character in string is not a number
+						if(cp[str_index+1]!='\0'&&(cp[str_index+1]<'0'||cp[str_index+1]>'9')){
+            			va_end(args);
+            			return 0;
+						}
+						// good
+            		*(va_arg(args, int *)) = dummy.Atoi();
+            		fmt_index++;
+            		read_items++;
+						
+					}
+				}
+				else
+				{
+					// any length of integer i.e. '%d'
+            	while (cp[str_index] >= '0' && cp[str_index] <= '9')
+               	dummy += cp[str_index++];
+            	*(va_arg(args, int *)) = dummy.Atoi();
+            	fmt_index++;
+            	read_items++;
+				}
          } else if (fmt[fmt_index] == '*') {
             //rest of string is garbage
             va_end(args);

@@ -24,14 +24,14 @@ class KVINDRAUpDater:public KVUpDater {
    virtual void SetIdentificationParameters(UInt_t );
    virtual void SetCalibrationParameters(UInt_t );
 
-   virtual void SetTarget(KVDBRun *);
+   //virtual void SetTarget(KVDBRun *);
    virtual void SetTrigger(KVDBRun *);
    virtual void SetGains(KVDBRun *);
 
    virtual void SetCalibParameters(KVDBRun *);
    virtual void SetChIoPressures(KVDBRun *);
    virtual void SetPedestals(KVDBRun *);
-   virtual void SetIDGrids();
+   //virtual void SetIDGrids(UInt_t);
 
    virtual void SetChVoltParameters(KVDBRun *);
    virtual void SetLitEnergyCsIParameters(KVDBRun *);

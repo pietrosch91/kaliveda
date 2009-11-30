@@ -8,6 +8,7 @@ $Date: 2008/10/17 10:58:07 $
 //Author: franklan
 
 #include "KVINDRARawDataReconstructor.h"
+#include "KVDataAnalyser.h"
 #include "KVINDRA.h"
 #include "KVDataSet.h"
 #include "KVINDRADB.h"
@@ -155,7 +156,7 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 	
    if( IsINDRAEvent() ){
       
-      if( fRunFile->IsPhysics() ){
+      if( ((KVINDRARawDataReader*)fRunFile)->IsPhysics() ){
          
          recev->ReconstructEvent( fDetEv );
          recev->SetNumber( fEventNumber );
@@ -189,6 +190,7 @@ void KVINDRARawDataReconstructor::EndRun()
             << nb_recon << " ***" << endl<< endl;
 		file->cd();
 		gIndra->Write("INDRA");//write INDRA to file
+		gDataAnalyser->WriteBatchInfo(tree);
 		tree->Write();//write tree to file
       rawtree->Write();
       genetree->Write();

@@ -18,13 +18,6 @@ fi
 create_dir i386-linux_lib
 create_dir i386-linux_exe
 
-if test -f /usr/lib/libg2c.a
-then
-    make -f makefile.unix "VERSION = i386-linux" "COMPILAT=g++" "COMPFOR=g77"  "LINK=gcc" "LD_FOR=-lg2c" "FFLAGS=-fno-second-underscore" "MAKEEXTENSION=c"
-else
-    echo gcc version 4
-    make -f makefile.unix "VERSION = i386-linux" "COMPILAT=g++" "COMPFOR=gcc"  "LINK=gcc" "LD_FOR=/usr/lib/libgfortran.so.0" "FFLAGS=-fno-second-underscore" "MAKEEXTENSION=c"
-
-fi
+make -f makefile.unix "VERSION = i386-linux" "COMPILAT=g++" "LINK=gcc"
 
 

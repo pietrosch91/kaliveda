@@ -28,7 +28,8 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVINDRAe503+;
 #pragma link C++ class KVINDRACodes+;
 #pragma link C++ class KVINDRACodeMask+;
-#ifdef INDRADLT
+#pragma link C++ class KVINDRADetector+;
+#ifdef ROOTGANILTAPE
 #pragma link C++ class KVINDRARawDataReader;
 #pragma link C++ class KVINDRARawDataAnalyser;
 #pragma link C++ class KVINDRARawDataReconstructor;
@@ -64,7 +65,6 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVVoltEnergy+;
 #pragma link C++ class KVDBParameterSet-;//customized streamer
 #pragma link C++ class KVINDRADBRun;
-#pragma link C++ class KVINDRADataAnalyser;
 #pragma link C++ class KVINDRAReconDataAnalyser;
 #pragma link C++ class KVINDRAGeneDataSelector;
 #pragma link C++ class KVINDRAGeneDataAnalyser;
@@ -106,4 +106,22 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVReconIdent+;
 #pragma link C++ class KVReconIdent_e475s+;
 #pragma link C++ class KVIdentRoot+;
+#pragma link C++ class KVINDRA5+;
+#pragma link C++ class KVIDSi150CsI_camp5+;
+#pragma link C++ class KVIDSi150CsI+;
+#pragma link C++ class KVIDChIoSi5+;
+#pragma link C++ class KVIDChIoSi75_camp5+;
+#pragma link C++ class KVIDChIoCsI_camp5+;
+#pragma link C++ class KVIDChIoCsI5+;
+#pragma link C++ class KVIDSiCsI5+;
+#pragma link C++ class KVIDSi75SiLi_camp5+;
+#pragma link C++ class KVIDSiLiCsI_camp5+;
+#pragma link C++ class KVINDRAFNL+;
+#pragma link C++ class KVBIC-;
+#pragma link C++ class KVSiB-;
+#pragma link C++ class KVTelBlocking+;
+#pragma link C++ class KVIDBlocking+;
+#pragma link C++ class KVDB_BIC_Pressures+;
+#pragma link C++ class KVINDRADB_e416a;
+#pragma link C++ class KVINDRAUpDater_e416a+;
 #endif

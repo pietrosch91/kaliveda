@@ -1068,7 +1068,11 @@ void KVMultiDetArray::RemoveLayer(const Char_t * name)
 //________________________________________________________________________________________
 void KVMultiDetArray::MakeListOfDetectors()
 {
-   //set up list of all detectors in array
+   // Set up list of all detectors in array
+	// This method is called after array geometry has been defined.
+	// We set the name of each detector by calling its KVDetector::GetArrayName()
+	// method (or overrides in child classes), as the name may depend on the
+	// position in the final array geometry.
 
    fDetectors->Clear();
 
@@ -1087,6 +1091,7 @@ void KVMultiDetArray::MakeListOfDetectors()
                if (k4->InheritsFrom("KVDetector"))
                   k4->SetBit(kMustCleanup);     // cleanup
                fDetectors->Add(k4);
+					k4->SetName( k4->GetArrayName() );//set name of detector
             }
          }
       }

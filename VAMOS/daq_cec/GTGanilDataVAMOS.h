@@ -10,7 +10,7 @@ $Date: 2007/06/08 15:49:10 $
 #ifndef __GTGANILDATAVAMOS_H
 #define __GTGANILDATAVAMOS_H
 
-#include "GTGanilData.H"
+#include "GTGanilData.h"
 #include "Parameters.h"
 
 class GTGanilDataVAMOS : public GTGanilData
