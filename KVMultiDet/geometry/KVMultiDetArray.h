@@ -187,7 +187,7 @@ void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelesco
       return fIDTelescopes;
    };
 	KVList* GetIDTelescopeTypes();
-	KVList* GetIDTelescopesWithType(const Char_t* type);
+	KVSeqCollection* GetIDTelescopesWithType(const Char_t* type);
 
    virtual void SetTarget(const Char_t * material,
                           const Float_t thickness);

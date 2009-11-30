@@ -64,7 +64,7 @@ KVCsI::KVCsI()
 }
 
 //______________________________________________________________________________
-KVCsI::KVCsI(Float_t thick):KVDetector("CsI", thick)
+KVCsI::KVCsI(Float_t thick):KVINDRADetector("CsI", thick)
 {
    //Make a CsI detector "thick" cm long
    //Set type of detector to "CSI"
@@ -343,9 +343,9 @@ void KVCsI::SetACQParams()
    //Do not call before detector's name has been set.
    //Initialises member pointers fACQ_R & fACQ_L for (fast) direct access.
 
-   AddACQParam("R");
-   AddACQParam("L");
-   AddACQParam("T");
+   AddACQParamType("R");
+   AddACQParamType("L");
+   AddACQParamType("T");
    fACQ_R = GetACQParam("R");
    fACQ_L = GetACQParam("L");
 }

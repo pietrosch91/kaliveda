@@ -1,8 +1,3 @@
-#$Id: Makefile,v 1.84 2009/03/06 08:59:18 franklan Exp $
-#$Revision: 1.84 $
-#$Date: 2009/03/06 08:59:18 $
-#$Author: franklan $
-#
 #General Makefile for the entire KaliVeda project
 
 ###########################################
@@ -85,11 +80,11 @@ export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
-RGTAPE = gan_tape ROOTGT
+export ROOTGANILTAPE = yes
+RGTAPE = gan_tape
 INDRAVAMOS = VAMOS
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
 RGTAPE =
 INDRAVAMOS = VAMOS
 endif
@@ -98,27 +93,18 @@ ifeq ($(WITH_VAMOS),no)
 INDRAVAMOS = 
 endif
 
-#need to make tarball & install on website, if at CC-IN2P3
-ifeq ($(SITE),CCIN2P3)
-CCALI = dist html_ccali
-else
-CCALI = html
-endif
-
 export KV_BUILD_DATE = $(shell date +%F)
 DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
 
-.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
+.PHONY : MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
 
-doc : $(CCALI) byebye
+doc : html byebye
 
-export GANILTAPE_INC = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/include
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
-export GANILTAPE_LIB = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/lib
 
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
@@ -134,7 +120,7 @@ fitltg-0.1/configure: fitltg-0.1/configure.ac
 	touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
-	@echo '#define KV_VERSION "$(VERSION_NUMBER)-$(KV_BUILD_DATE)"' > KVVersion.h;\
+	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > KVVersion.h;\
 	echo '#define KV_BUILD_DATE "$(KV_BUILD_DATE)"' >> KVVersion.h;\
 	echo '#define KV_BUILD_USER "$(USER)"' >> KVVersion.h;\
 	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> KVVersion.h
@@ -158,9 +144,7 @@ $(ROOT_VERSION_TAG) :
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386
-
-ROOTGT : .init
-	cd ROOTGanilTape && $(MAKE)
+	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
 ltgfit : .init
 	cd fitltg-0.1 && make && make install
@@ -171,12 +155,6 @@ MultiDet : .init
 Indra : .init
 	cd KVIndra && $(MAKE)
 
-Indra5 : .init
-	cd KVIndra5 && $(MAKE)
-
-FNL : .init
-	cd KVIndraFNL && $(MAKE)
-
 analysis : .init
 	cd analysis && $(MAKE)
 	
@@ -186,13 +164,7 @@ VAMOS : .init
 html :
 	cd html && $(MAKE) install_html debug=$(debug)
 		
-html_ccali :
-	cd html && $(MAKE) install_html
-	-rm -f $(KVROOT)/KaliVedaDoc/*.tgz
-	-cp $(KV_DIST).tgz $(KVROOT)/KaliVedaDoc/$(KV_DIST).tgz
-
 cleangantape :
-	cd ROOTGanilTape && $(MAKE) clean
 	cd GanTape && rm -rf i386-linux_*
 	
 clean :
@@ -202,12 +174,9 @@ clean :
 	cd KVMultiDet && $(MAKE) clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
-ifeq ($(INDRADLT),yes)
-	cd ROOTGanilTape && $(MAKE) clean
+ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
-	cd KVIndra5 && $(MAKE) clean
-	cd KVIndraFNL && $(MAKE) clean
 	cd VAMOS && $(MAKE) clean
 	cd analysis && $(MAKE) clean
 	cd html && $(MAKE) clean
@@ -223,16 +192,12 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/examples
 	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
-ifeq ($(INDRADLT),yes)
-	cd ROOTGanilTape && $(MAKE) install
-endif
+#ifeq ($(ROOTGANILTAPE),yes)
+#endif
 	cd KVIndra && $(MAKE) install
-	cd KVIndra5 && $(MAKE) install
-	cd KVIndraFNL && $(MAKE) install
 	cd VAMOS && $(MAKE) install
 	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(KVINSTALLDIR)/tools/
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
-	-cp etc/KaliVeda.rootrc $(KVINSTALLDIR)/KVFiles/.kvrootrc
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/ccali.available.datasets $(KVINSTALLDIR)/KVFiles/ccali.available.datasets
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
@@ -261,6 +226,9 @@ ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.root $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root
+	-cat etc/KaliVeda.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+else
+	-cat etc/KaliVeda.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 endif
 	
 uninstall :
@@ -268,23 +236,18 @@ uninstall :
 	-rm -rf $(KVINSTALLDIR)/examples
 	-rm -rf $(KVINSTALLDIR)/KaliVedaDoc
 	-rm -rf $(KVINSTALLDIR)/db
-ifeq ($(INDRADLT),yes)
-	-rm -f $(KVINSTALLDIR)/include/GT*.H
-	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
-	-rm -f $(KVINSTALLDIR)/lib/libROOTGanilTape.so
+ifeq ($(ROOTGANILTAPE),yes)
+#	-rm -f $(KVINSTALLDIR)/include/GT*.H
+#	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
 	-rm -f $(KVINSTALLDIR)/lib/libgan_tape.a
 endif
 	cd KVMultiDet && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall
-	cd KVIndra5 && $(MAKE) uninstall
-	cd KVIndraFNL && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall-indra2root
 	cd VAMOS && $(MAKE) uninstall
 	cd analysis && $(MAKE) uninstall
 	cd KVMultiDet && $(MAKE) removemoduledirs
 	cd KVIndra && $(MAKE) removemoduledirs
-	cd KVIndra5 && $(MAKE) removemoduledirs
-	cd KVIndraFNL && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
@@ -292,8 +255,6 @@ dist : clean
 	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
-	tar -czf libKVIndra5-$(VERSION_NUMBER).tgz KVIndra5
-	tar -czf libKVIndraFNL-$(VERSION_NUMBER).tgz KVIndraFNL
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
 	tar -czf html-$(VERSION_NUMBER).tgz html
@@ -304,7 +265,6 @@ dist : clean
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
-	-cp -r ROOTGanilTape $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
 	-cp Makefile* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/
@@ -320,16 +280,12 @@ unpack :
 	-tar zxf fitltg-0.1.tar.gz 
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
-	-tar zxf libKVIndra5-$(VERSION_NUMBER).tgz 
-	-tar zxf libKVIndraFNL-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
 	-tar zxf html-$(VERSION_NUMBER).tgz
 	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
-	-rm libKVIndraFNL-$(VERSION_NUMBER).tgz 
-	-rm libKVIndra5-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
 	-rm html-$(VERSION_NUMBER).tgz
@@ -348,10 +304,18 @@ config :
 indent :
 	cd KVMultiDet && $(MAKE) indent
 	cd KVIndra && $(MAKE) indent
-	cd KVIndra5 && $(MAKE) indent
-	cd KVIndraFNL && $(MAKE) indent
 	
 byebye :
 	@echo ''
 	@echo 'NORMAL SUCCESSFUL COMPLETION OF MAKEFILE'
 	@echo ''	
+
+# the following copied from GSL build
+# neat way to set up symbolic links from current build directory
+# to all the header files in other subdirectories of main project
+#header_links :
+#	HEADERLIST="../gsl*.h ../*/gsl*.h"; \
+#	for h in $HEADERLIST; do \
+#	  BASENAME=`basename $h`; \
+#	  test -r $BASENAME || ln -s $h $BASENAME; \
+#	done

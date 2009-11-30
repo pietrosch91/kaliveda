@@ -1066,7 +1066,11 @@ void KVMultiDetArray::RemoveLayer(const Char_t * name)
 //________________________________________________________________________________________
 void KVMultiDetArray::MakeListOfDetectors()
 {
-   //set up list of all detectors in array
+   // Set up list of all detectors in array
+	// This method is called after array geometry has been defined.
+	// We set the name of each detector by calling its KVDetector::GetArrayName()
+	// method (or overrides in child classes), as the name may depend on the
+	// position in the final array geometry.
 
    fDetectors->Clear();
 
@@ -1085,6 +1089,7 @@ void KVMultiDetArray::MakeListOfDetectors()
                if (k4->InheritsFrom("KVDetector"))
                   k4->SetBit(kMustCleanup);     // cleanup
                fDetectors->Add(k4);
+					k4->SetName( k4->GetArrayName() );//set name of detector
             }
          }
       }
@@ -1101,46 +1106,46 @@ TList *KVMultiDetArray::GetListOfDetectors() const
 }
 
 //________________________________________________________________________________________
-//TGraph *KVMultiDetArray::GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t
-//run_number)
-//{
-//
-//	//Renvoie sous forme de TGraph (en fonction du numero de module)
-//	//les piedestaux du signal (det_signal) asssocies aux detecteurs de type (det_type)
-//	//qui sont presents dans la couronne ring_number pour un numero de run donne (si run_number==-1)
-//	//on suppose que gMultiDetArray->SetParameters(xxx) a ete fait en amont
-//	//L'utilisateur doit effacer ce TGraph tout seul comme un grand apres usage
-//	//Une recherche sur l existence ou non du graph permet d eviter des boucles inutiles
-//	//Si l appel est reitere
-//
-//	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber()))
-//		SetParameters(run_number);
-//
-//	KVList* sltype = 0;
-//	KVList* slring = 0;
-//	TGraph* gr_ped=0;
-//
-//	KVString sgraph; sgraph.Form("KVPed_%s_%s_%d_%d",det_signal,det_type,ring_number,GetCurrentRunNumber());
-//	if ( ( gr_ped=(TGraph* )gROOT->FindObject(sgraph.Data()) ) ) return gr_ped;
-//
-//	if ( (sltype = GetListOfDetectors()->GetSubListWithMethod(det_type,"GetType")) ){
-//		KVString sring; sring.Form("%d",ring_number);
-//		if ( (slring = sltype->GetSubListWithMethod(sring,"GetRingNumber")) ){
-//				gr_ped = new TGraph(); gr_ped->SetName(sgraph.Data());
-//				for (Int_t mm=0;mm<slring->GetEntries();mm+=1){
-//					gr_ped->SetPoint(gr_ped->GetN(),
-//						((KVDetector*)slring->At(mm))->GetModuleNumber(),
-//						((KVDetector*)slring->At(mm))->GetPedestal(det_signal));
-//
-//				}
-//			delete slring;
-//			return gr_ped;
-//		}
-//		delete sltype;
-//	}
-//	return 0;
-//
-//}
+TGraph *KVMultiDetArray::GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t
+run_number)
+{
+
+	//Renvoie sous forme de TGraph (en fonction du numero de module)
+	//les piedestaux du signal (det_signal) asssocies aux detecteurs de type (det_type)
+	//qui sont presents dans la couronne ring_number pour un numero de run donne (si run_number==-1)
+	//on suppose que gMultiDetArray->SetParameters(xxx) a ete fait en amont
+	//L'utilisateur doit effacer ce TGraph tout seul comme un grand apres usage
+	//Une recherche sur l existence ou non du graph permet d eviter des boucles inutiles
+	//Si l appel est reitere
+
+	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber()))
+		SetParameters(run_number);
+
+	KVSeqCollection* sltype = 0;
+	KVSeqCollection* slring = 0;
+	TGraph* gr_ped=0;
+
+	KVString sgraph; sgraph.Form("KVPed_%s_%s_%d_%d",det_signal,det_type,ring_number,GetCurrentRunNumber());
+	if ( ( gr_ped=(TGraph* )gROOT->FindObject(sgraph.Data()) ) ) return gr_ped;
+
+	if ( (sltype = GetListOfDetectors()->GetSubListWithMethod(det_type,"GetType")) ){
+		KVString sring; sring.Form("%d",ring_number);
+		if ( (slring = sltype->GetSubListWithMethod(sring,"GetRingNumber")) ){
+				gr_ped = new TGraph(); gr_ped->SetName(sgraph.Data());
+				for (Int_t mm=0;mm<slring->GetEntries();mm+=1){
+					gr_ped->SetPoint(gr_ped->GetN(),
+						((KVDetector*)slring->At(mm))->GetModuleNumber(),
+						((KVDetector*)slring->At(mm))->GetPedestal(det_signal));
+
+				}
+			delete slring;
+			return gr_ped;
+		}
+		delete sltype;
+	}
+	return 0;
+
+}
 //________________________________________________________________________________________
 void KVMultiDetArray::StartBrowser()
 {
@@ -1237,7 +1242,7 @@ void KVMultiDetArray::SetACQParams()
    TIter next(GetListOfDetectors());
    KVDetector *det;
    while ((det = (KVDetector *) next())) {
-       TList *l = det->GetACQParamList();
+       KVSeqCollection *l = det->GetACQParamList();
       if (!l) {
           //detector has no acq params
           //set up acqparams in detector
@@ -1660,28 +1665,28 @@ void KVMultiDetArray::SetIdentifications()
    //Note that, in general, the parameters of the identifications for a given run are not
    //set until SetParameters or SetRunIdentificationParameters is called.
 
-//   TString id_labels = gDataSet->GetDataSetEnv("ActiveIdentifications");
-//   if(id_labels=="") {
-//      Info("SetIdentifications", "No active identifications");
-//      return;
-//   }
-//   //split list of labels
-//   TObjArray *toks = id_labels.Tokenize(' ');
-//   TIter next_lab(toks); TObjString *lab;
-//   //loop over labels/identification 'types'
-//   while( (lab = (TObjString*)next_lab()) ){
-//
-//      //get first telescope in list with right label
-//      KVIDTelescope* idt = (KVIDTelescope*)GetListOfIDTelescopes()->FindObjectByLabel( lab->String().Data() );
-//      //set ID parameters for all telescopes of this 'type'
-//      if(idt) {
-//         Info("SetIdentifications", "Initialising %s identifications...", idt->GetLabel());
-//         if( idt->SetIdentificationParameters( this ) )
-//            Info("SetIdentifications", "OK");
-//      }
-//
-//   }
-//   delete toks;
+   TString id_labels = gDataSet->GetDataSetEnv("ActiveIdentifications");
+   if(id_labels=="") {
+      Info("SetIdentifications", "No active identifications");
+      return;
+   }
+   //split list of labels
+   TObjArray *toks = id_labels.Tokenize(' ');
+   TIter next_lab(toks); TObjString *lab;
+   //loop over labels/identification 'types'
+   while( (lab = (TObjString*)next_lab()) ){
+
+      //get first telescope in list with right label
+      KVIDTelescope* idt = (KVIDTelescope*)GetListOfIDTelescopes()->FindObjectByLabel( lab->String().Data() );
+      //set ID parameters for all telescopes of this 'type'
+      if(idt) {
+         Info("SetIdentifications", "Initialising %s identifications...", idt->GetLabel());
+         if( idt->SetIdentificationParameters( this ) )
+            Info("SetIdentifications", "OK");
+      }
+
+   }
+   delete toks;
 }
 
 //_________________________________________________________________________________
@@ -1869,7 +1874,7 @@ KVList* KVMultiDetArray::GetIDTelescopeTypes()
 
 //_________________________________________________________________________________
 
-KVList* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
+KVSeqCollection* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
 {
    // Create, fill and return pointer to a list of KVIDTelescopes with
 	// the given type in the array.
@@ -1879,8 +1884,7 @@ KVList* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
    // Delete the KVList after use (it does not own the KVIDTelescopes).
 
    if( !fIDTelescopes || !fIDTelescopes->GetEntries() ) return NULL;
-	//return fIDTelescopes->GetSubListWithLabel( type );
-	return 0x0;
+	return fIDTelescopes->GetSubListWithLabel( type );
 }
 
 //_________________________________________________________________________________

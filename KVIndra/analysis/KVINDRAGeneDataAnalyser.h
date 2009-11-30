@@ -10,10 +10,13 @@ $Date: 2007/06/06 10:13:17 $
 #ifndef __KVINDRAGENEDATAANALYSER_H
 #define __KVINDRAGENEDATAANALYSER_H
 
-#include "KVINDRADataAnalyser.h"
+#include "KVDataAnalyser.h"
 
-class KVINDRAGeneDataAnalyser : public KVINDRADataAnalyser
+class KVINDRAGeneDataAnalyser : public KVDataAnalyser
 {
+	protected:
+   virtual KVNumberList PrintAvailableRuns(KVString & datatype);
+	
    public:
 
    KVINDRAGeneDataAnalyser();

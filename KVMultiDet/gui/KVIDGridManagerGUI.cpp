@@ -18,6 +18,7 @@
 #include <KVIDGUITelescopeChooserDialog.h>
 #include <KVDropDownDialog.h>
 #include "TEnv.h"
+#include "KVInputDialog.h"
 
 ClassImp(KVIDGridManagerGUI)
 //////////////////////////////////////////////////////////
@@ -278,531 +279,591 @@ ClassImp(KVIDGridManagerGUI)
 // --> END_HTML
 //////////////////////////////////////////////////////////
 KVIDGridManagerGUI::KVIDGridManagerGUI():TGMainFrame(gClient->GetRoot(), 500,
-            300)
+                300)
 {
-   fFirstGrid = 0;
-   fLastGrid = -1;
-   fSelectedGrid = 0;
-   fSelectedEntries = 0;
-	
-   //any change of ID grid manager causes UpdateListOfGrids to be called
-   gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this,
-                           "UpdateListOfGrids()");
+    fFirstGrid = 0;
+    fLastGrid = -1;
+    fSelectedGrid = 0;
+    fSelectedEntries = 0;
 
-   //create new manager GUI
+    //any change of ID grid manager causes UpdateListOfGrids to be called
+    gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this,
+                            "UpdateListOfGrids()");
 
-        /**************** GRIDS popup menu *****************/
-   fMenuFile = new TGPopupMenu(gClient->GetRoot());
-   fMenuFile->AddEntry("&New grid...", M_GRIDS_NEW);
-   fMenuFile->AddSeparator();
-   fMenuFile->AddEntry("&Read grids...", M_GRIDS_READ);
-	
-	/* cascading "Save grids" menu... */
-	TGPopupMenu * sgm = new TGPopupMenu(gClient->GetRoot());
-	sgm->AddEntry("...selection", M_GRIDS_SAVE_SEL);
-	sgm->AddEntry("...in tab", M_GRIDS_SAVE_TAB);
-	sgm->AddEntry("...all", M_GRIDS_SAVE_ALL);
-   fMenuFile->AddPopup("Save grids", sgm);
-	
-   fMenuFile->AddSeparator();
-	
-	/* cascading "Delete grids" menu... */
-	sgm = new TGPopupMenu(gClient->GetRoot());
-	sgm->AddEntry("...selection", M_GRIDS_DEL_SEL);
-	sgm->AddEntry("...in tab", M_GRIDS_DEL_TAB);
-	sgm->AddEntry("...all", M_GRIDS_DEL_ALL);
-   fMenuFile->AddPopup("Delete grids", sgm);
-	
-   fMenuFile->Connect("Activated(Int_t)", "KVIDGridManagerGUI", this,
-                      "HandleGridsMenu(Int_t)");
-        /**************** HELP popup menu *****************/
+    //create new manager GUI
+
+    /**************** GRIDS popup menu *****************/
+    fMenuFile = new TGPopupMenu(gClient->GetRoot());
+    fMenuFile->AddEntry("&New grid...", M_GRIDS_NEW);
+    fMenuFile->AddSeparator();
+    fMenuFile->AddEntry("&Read grids...", M_GRIDS_READ);
+
+    /* cascading "Set..." menu... */
+    TGPopupMenu * sgm = new TGPopupMenu(gClient->GetRoot());
+    sgm->AddEntry("List of Runs", M_GRIDS_RUNLIST);
+//	sgm->AddEntry("...in tab", M_GRIDS_DEL_TAB);
+//	sgm->AddEntry("...all", M_GRIDS_DEL_ALL);
+    fMenuFile->AddPopup("Set...", sgm);
+    /* cascading "Save grids" menu... */
+    sgm = new TGPopupMenu(gClient->GetRoot());
+    sgm->AddEntry("...selection", M_GRIDS_SAVE_SEL);
+    sgm->AddEntry("...in tab", M_GRIDS_SAVE_TAB);
+    sgm->AddEntry("...all", M_GRIDS_SAVE_ALL);
+    fMenuFile->AddPopup("Save grids", sgm);
+
+    fMenuFile->AddSeparator();
+    /* cascading "Delete grids" menu... */
+    sgm = new TGPopupMenu(gClient->GetRoot());
+    sgm->AddEntry("...selection", M_GRIDS_DEL_SEL);
+    sgm->AddEntry("...in tab", M_GRIDS_DEL_TAB);
+    sgm->AddEntry("...all", M_GRIDS_DEL_ALL);
+    fMenuFile->AddPopup("Delete grids", sgm);
+
+    fMenuFile->Connect("Activated(Int_t)", "KVIDGridManagerGUI", this,
+                       "HandleGridsMenu(Int_t)");
+    /**************** HELP popup menu *****************/
 //   fMenuHelp = new TGPopupMenu(gClient->GetRoot());
 //   fMenuHelp->AddEntry("About...", M_HELP_ABOUT);
-        /******************MENUBAR*********************/
-   fMenuBarItemLayout =
-       new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+    /******************MENUBAR*********************/
+    fMenuBarItemLayout =
+        new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 //   fMenuBarHelpLayout = new TGLayoutHints(kLHintsTop | kLHintsRight);
-   fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);
-   fMenuBar->AddPopup("&Grids", fMenuFile, fMenuBarItemLayout);
+    fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);
+    fMenuBar->AddPopup("&Grids...", fMenuFile, fMenuBarItemLayout);
 //   fMenuBar->AddPopup("&Help", fMenuHelp, fMenuBarHelpLayout);
 
-   //add to main window
-   AddFrame(fMenuBar,
-            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0,
-                              0, 1, 1));
+    //add to main window
+    AddFrame(fMenuBar,
+             new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0,
+                               0, 1, 1));
 
-   fHframe = new TGHorizontalFrame(this, 10, 10);
+    fHframe = new TGHorizontalFrame(this, 10, 10);
 
-	// Tabs for lists of grids. Each tab holds list of grids for a given
-	// type of ID telescope.
-	fGridListTabs = new TGTab(fHframe, 600, 400);
-	fGridListTabs->Connect("Selected(Int_t)","KVIDGridManagerGUI",this,"TabSelect(Int_t)");
-	fIDGridList = 0;
-   //initialise tabs with lists of grids
-   CreateAndFillTabs();
+    // Tabs for lists of grids. Each tab holds list of grids for a given
+    // type of ID telescope.
+    fGridListTabs = new TGTab(fHframe, 600, 400);
+    fGridListTabs->Connect("Selected(Int_t)","KVIDGridManagerGUI",this,"TabSelect(Int_t)");
+    fIDGridList = 0;
+    //initialise tabs with lists of grids
+    CreateAndFillTabs();
 
-   fHframe->AddFrame(fGridListTabs,
-                     new TGLayoutHints(kLHintsLeft | kLHintsTop |
-                                       kLHintsExpandX | kLHintsExpandY, 30,
-                                       10, 10, 10));
+    fHframe->AddFrame(fGridListTabs,
+                      new TGLayoutHints(kLHintsLeft | kLHintsTop |
+                                        kLHintsExpandX | kLHintsExpandY, 30,
+                                        10, 10, 10));
 
-   AddFrame(fHframe,
-            new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0,
-                              0));
+    AddFrame(fHframe,
+             new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0,
+                               0));
 
-   SetWindowName("ID Grid Manager");
+    SetWindowName("ID Grid Manager");
 
-   //layout & draw window
-   MapSubwindows();
-   Resize(GetDefaultSize());
-   MapWindow();
-   SetWMSize(750, 500);
-	// first tab is visible, but TabSelect(0) is not called automatically
-	TabSelect(0);
+    //layout & draw window
+    MapSubwindows();
+    Resize(GetDefaultSize());
+    MapWindow();
+    SetWMSize(750, 500);
+    // first tab is visible, but TabSelect(0) is not called automatically
+    TabSelect(0);
 }
 
 KVIDGridManagerGUI::~KVIDGridManagerGUI()
 {
-   //close window
-   UnmapWindow();
-   gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
-   if(fSelectedEntries) delete fSelectedEntries;
-   fSelectedEntries = 0;
+    //close window
+    UnmapWindow();
+    gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
+    if (fSelectedEntries) delete fSelectedEntries;
+    fSelectedEntries = 0;
 }
 
 void KVIDGridManagerGUI::CloseWindow()
 {
-   //close viewer
-   DeleteWindow();
+    //close viewer
+    DeleteWindow();
 }
 
 
 void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
 {
-   //Receive signals emitted by items selected in Grids menu
-   switch (id) {
+    //Receive signals emitted by items selected in Grids menu
+    switch (id)
+    {
 
-   case M_GRIDS_NEW:
+    case M_GRIDS_NEW:
 
-      cout << "Add new grid" << endl;
-		NewGrid();
-      break;
+        cout << "Add new grid" << endl;
+        NewGrid();
+        break;
 
-   case M_GRIDS_READ:
-      {
-         static TString dir(".");
-         const char *filetypes[] = {
+    case M_GRIDS_READ:
+    {
+        static TString dir(".");
+        const char *filetypes[] =
+        {
             "ID Grid files", "*.dat",
             "All files", "*",
             0, 0
-         };
-         TGFileInfo fi;
-         fi.fFileTypes = filetypes;
-         fi.fIniDir = StrDup(dir);
-         //printf("fIniDir = %s\n", fi.fIniDir);
-         new TGFileDialog(gClient->GetRoot(), this, kFDOpen, &fi);
-         if (fi.fFilename) {
-            if (gIDGridManager->ReadAsciiFile(fi.fFilename)) {
-               //read file ok no problem. update list of grids.
-               //UpdateListOfGrids();
-               //set filename for Save
-               fFileName = fi.fFilename;
-            } else {
-               new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                            Form("Could not read file %s", fi.fFilename),
-                            0, kMBOk);
+        };
+        TGFileInfo fi;
+        fi.fFileTypes = filetypes;
+        fi.fIniDir = StrDup(dir);
+        //printf("fIniDir = %s\n", fi.fIniDir);
+        new TGFileDialog(gClient->GetRoot(), this, kFDOpen, &fi);
+        if (fi.fFilename)
+        {
+            if (gIDGridManager->ReadAsciiFile(fi.fFilename))
+            {
+                //read file ok no problem. update list of grids.
+                //UpdateListOfGrids();
+                //set filename for Save
+                fFileName = fi.fFilename;
             }
-         }
-         dir = fi.fIniDir;
-      }
-      break;
+            else
+            {
+                new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                             Form("Could not read file %s", fi.fFilename),
+                             0, kMBOk);
+            }
+        }
+        dir = fi.fIniDir;
+    }
+    break;
 
-   case M_GRIDS_SAVE_SEL:
-		// save current selection of grids in file
-		SaveAs(fSelectedEntries);
-		break;
-		
-   case M_GRIDS_SAVE_TAB:
-		// save all grids in current tab in file
-		SaveAs(GetAllGridsInTab());
-		break;
-		
-   case M_GRIDS_SAVE_ALL:
+    case M_GRIDS_SAVE_SEL:
+        // save current selection of grids in file
+        SaveAs(fSelectedEntries);
+        break;
 
-      //save all grids in file - ask user to confirm or change filename/path
-      SaveAs();
-      break;
+    case M_GRIDS_SAVE_TAB:
+        // save all grids in current tab in file
+        SaveAs(GetAllGridsInTab());
+        break;
 
-   case M_GRIDS_DEL_SEL:
-      //warning message and confirmation
-      {
-         Int_t ret_val;
-         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                      "This will delete the selected grids. Are you sure ?",
-                      kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-         if (ret_val & kMBOk) {
+    case M_GRIDS_SAVE_ALL:
+
+        //save all grids in file - ask user to confirm or change filename/path
+        SaveAs();
+        break;
+
+    case M_GRIDS_DEL_SEL:
+        //warning message and confirmation
+    {
+        Int_t ret_val;
+        new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                     "This will delete the selected grids. Are you sure ?",
+                     kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+        if (ret_val & kMBOk)
+        {
             DeleteGrids();
-         }
-      }
-      break;
-   case M_GRIDS_DEL_TAB:
-      //warning message and confirmation
-      {
-         Int_t ret_val;
-         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                      "This will delete all grids in the current tab. Are you sure ?",
-                      kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-         if (ret_val & kMBOk) {
+        }
+    }
+    break;
+    case M_GRIDS_DEL_TAB:
+        //warning message and confirmation
+    {
+        Int_t ret_val;
+        new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                     "This will delete all grids in the current tab. Are you sure ?",
+                     kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+        if (ret_val & kMBOk)
+        {
             DeleteAllGridsInTab();
-         }
-      }
-      break;
-   case M_GRIDS_DEL_ALL:
+        }
+    }
+    break;
+    case M_GRIDS_DEL_ALL:
 
-      //warning message and confirmation
-      {
-         Int_t ret_val;
-         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                      "This will delete all grids. Are you sure ?",
-                      kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-         if (ret_val & kMBOk) {
+        //warning message and confirmation
+    {
+        Int_t ret_val;
+        new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                     "This will delete all grids. Are you sure ?",
+                     kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+        if (ret_val & kMBOk)
+        {
             gIDGridManager->Clear();
             //UpdateListOfGrids();
             ///reset filename to avoid hitting Save and overwriting previous file
             //with an empty file !!
             fFileName = "";
-         }
-      }
-      break;
+        }
+    }
+    break;
 
-   default:
+    case M_GRIDS_RUNLIST:
+        // set runlist for all selected grids in tab
+    {
+        if (!fSelectedGrid) break; // must have selected at least one grid
+        TString runs = fSelectedGrid->GetRunList(); // fill dialog box with current runlist of selected grid
+        Bool_t ok_pressed = kFALSE;
+        new KVInputDialog(this, "Enter list of runs for grid(s):", &runs, &ok_pressed,
+                          "Example: 1-10, 13, 22-657");
+        if (!ok_pressed) break; // user pressed 'cancel' or otherwise closed the dialog
+        TIter next(fSelectedEntries);
+        KVIDGraph* entry;
+        while ((entry = (KVIDGraph *) next()))
+        {
+            entry->SetRunList(runs.Data());
+        }
+    }
+    break;
 
-      break;
-   }
+    default:
+
+        break;
+    }
 }
 
 void KVIDGridManagerGUI::UpdateListOfGrids()
 {
-   //remove all existing entries, then fill list from gIDGridManager
-   //we update the current pad, in case the displayed grid no longer exists
-   //grid buttons are disabled, as any selected grid is deselected
-	
- 	printf("UpdateListOfGrids called\n");
-	UpdateTabs();	
-   //update all canvases
-   TSeqCollection *Clist = gROOT->GetListOfCanvases();
-   if (Clist->GetSize() > 0) {
-      Clist->R__FOR_EACH(TCanvas, Modified) ();
-      Clist->R__FOR_EACH(TCanvas, Update) ();
-   }
+    //remove all existing entries, then fill list from gIDGridManager
+    //we update the current pad, in case the displayed grid no longer exists
+    //grid buttons are disabled, as any selected grid is deselected
+
+    printf("UpdateListOfGrids called\n");
+    UpdateTabs();
+    //update all canvases
+    TSeqCollection *Clist = gROOT->GetListOfCanvases();
+    if (Clist->GetSize() > 0)
+    {
+        Clist->R__FOR_EACH(TCanvas, Modified) ();
+        Clist->R__FOR_EACH(TCanvas, Update) ();
+    }
 }
 
 void KVIDGridManagerGUI::SelectionChanged()
 {
-   //called any time the selection of grids changes
-   //each time, we update:
-   //fSelectedEntries : the list of all selected entries
-   //GetNSelected() : the number of selected entries
-   //fSelectedGrid : the last selected grid (=the only grid selected if GeTNSelected==1)
-   //The grid buttons' state is modified according to the number of selected grids
+    //called any time the selection of grids changes
+    //each time, we update:
+    //fSelectedEntries : the list of all selected entries
+    //GetNSelected() : the number of selected entries
+    //fSelectedGrid : the last selected grid (=the only grid selected if GeTNSelected==1)
+    //The grid buttons' state is modified according to the number of selected grids
 
-   //get number of selected items
-   if (fSelectedEntries)
-      delete fSelectedEntries;
-   fSelectedEntries = fIDGridList->GetSelectedObjects();
-   fSelectedGrid = (KVIDGraph*)fIDGridList->GetLastSelectedObject();
+    //get number of selected items
+    if (fSelectedEntries)
+        delete fSelectedEntries;
+    fSelectedEntries = fIDGridList->GetSelectedObjects();
+    fSelectedGrid = (KVIDGraph*)fIDGridList->GetLastSelectedObject();
 }
 
 Int_t KVIDGridManagerGUI::GetNSelected()
 {
-   //returns current number of selected items in grid list
-   return (fSelectedEntries ? fSelectedEntries->GetSize() : 0);
+    //returns current number of selected items in grid list
+    return (fSelectedEntries ? fSelectedEntries->GetSize() : 0);
 }
 
 void KVIDGridManagerGUI::DeleteGrids()
 {
-   //delete the current selected grid, or all currently selected grids if there are more than one
+    //delete the current selected grid, or all currently selected grids if there are more than one
 
-	if(fSelectedEntries){
-		cout << "DeleteGrids(): selected entries are " << endl;
-		fSelectedEntries->ls();
-	}
-	cout << "GetNSelected() = " << GetNSelected() << endl;
-   if (GetNSelected() == 1)
-      gIDGridManager->DeleteGrid(fSelectedGrid);
-   else if (GetNSelected() > 1) {
-      //multiselection
-      TIter next(fSelectedEntries, kIterBackward); KVIDGraph* entry;
-      while ((entry = (KVIDGraph *) next())) {
+    if (fSelectedEntries)
+    {
+        cout << "DeleteGrids(): selected entries are " << endl;
+        fSelectedEntries->ls();
+    }
+    cout << "GetNSelected() = " << GetNSelected() << endl;
+    if (GetNSelected() == 1)
+        gIDGridManager->DeleteGrid(fSelectedGrid);
+    else if (GetNSelected() > 1)
+    {
+        //multiselection
+        TIter next(fSelectedEntries, kIterBackward);
+        KVIDGraph* entry;
+        while ((entry = (KVIDGraph *) next()))
+        {
             gIDGridManager->DeleteGrid(entry, kFALSE);   //no update
-      }
-   }
-	delete fSelectedEntries; fSelectedEntries = 0; fSelectedGrid = 0;
-   UpdateListOfGrids();
+        }
+    }
+    delete fSelectedEntries;
+    fSelectedEntries = 0;
+    fSelectedGrid = 0;
+    UpdateListOfGrids();
 }
 
 void KVIDGridManagerGUI::DeleteAllGridsInTab()
 {
-   //delete the all grids in currently selected tab
+    //delete the all grids in currently selected tab
 
-   TIter next(GetAllGridsInTab(), kIterBackward); KVIDGraph* entry;
-   while ((entry = (KVIDGraph *) next())) {
-		gIDGridManager->DeleteGrid(entry, kFALSE);   //no update
-	}
-	if(fSelectedEntries) delete fSelectedEntries;
-	fSelectedEntries = 0; fSelectedGrid = 0;
-   UpdateListOfGrids();
+    TIter next(GetAllGridsInTab(), kIterBackward);
+    KVIDGraph* entry;
+    while ((entry = (KVIDGraph *) next()))
+    {
+        gIDGridManager->DeleteGrid(entry, kFALSE);   //no update
+    }
+    if (fSelectedEntries) delete fSelectedEntries;
+    fSelectedEntries = 0;
+    fSelectedGrid = 0;
+    UpdateListOfGrids();
 }
 
 void KVIDGridManagerGUI::ClearGrid()
 {
-   //deletes all lines in currently selected grid(s)
+    //deletes all lines in currently selected grid(s)
 
-   if (GetNSelected() == 1)
-      fSelectedGrid->Clear();
-   else if (GetNSelected() > 1) {
-      //multiselection
-      TIter next(fSelectedEntries);
-      KVIDGraph *grid;
-      while ((grid = (KVIDGraph *) next())) {
-         grid->Clear();
-      }
-   }
-   //update all canvases
-   TSeqCollection *Clist = gROOT->GetListOfCanvases();
-   if (Clist->GetSize() > 0) {
-      Clist->R__FOR_EACH(TCanvas, Modified) ();
-      Clist->R__FOR_EACH(TCanvas, Update) ();
-   }
+    if (GetNSelected() == 1)
+        fSelectedGrid->Clear();
+    else if (GetNSelected() > 1)
+    {
+        //multiselection
+        TIter next(fSelectedEntries);
+        KVIDGraph *grid;
+        while ((grid = (KVIDGraph *) next()))
+        {
+            grid->Clear();
+        }
+    }
+    //update all canvases
+    TSeqCollection *Clist = gROOT->GetListOfCanvases();
+    if (Clist->GetSize() > 0)
+    {
+        Clist->R__FOR_EACH(TCanvas, Modified) ();
+        Clist->R__FOR_EACH(TCanvas, Update) ();
+    }
 }
 
 void KVIDGridManagerGUI::NewGrid()
 {
-   // Create a new identification grid.
-	// First we ask the user to select the identification telescope(s)
-	// for which this grid will be used.
-	// For a given type of ID telescope, several types of grid may be
-	// applicable. If so, we ask the user to choose one.
-	
-	TList * telescopes = new TList;
-	Bool_t cancel;
-   new KVIDGUITelescopeChooserDialog(gMultiDetArray, telescopes, &cancel,
-			gClient->GetRoot(), this);
-	if(cancel || !telescopes->At(0)){
-		Info("NewGrid","No ID telescopes chosen. Grid creation cancelled.");
-		return;
-	}
-	// get default ID grid class of first ID telescope
-	TString default_class = ((KVIDTelescope*)telescopes->At(0))->GetDefaultIDGridClass();
-	// get list of possible choices of grid class = list of all plugin classes
-	// defined for KVIDGraph
-	TString choice = KVBase::GetListOfPlugins("KVIDGraph");
-	// open dialog to choose ID grid class
-	Bool_t ok_pressed = kFALSE;
-	TString id_grid_class;
-	new KVDropDownDialog(this, "Choose class for new grid:",
-			choice.Data(), default_class.Data(), &id_grid_class, &ok_pressed);
-	if(!ok_pressed){
-		Info("NewGrid","No ID grid class chosen. Grid creation cancelled.");
-		return;
-	}
-	cout << "Make grid with class " << id_grid_class.Data() << endl;
-   gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
-	KVIDGraph *new_gr = KVIDGraph::MakeIDGraph(id_grid_class.Data());
-	new_gr->AddIDTelescopes(telescopes);
-	UpdateTabs();
-   gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this, "UpdateListOfGrids()");
-	delete telescopes;
+    // Create a new identification grid.
+    // First we ask the user to select the identification telescope(s)
+    // for which this grid will be used.
+    // For a given type of ID telescope, several types of grid may be
+    // applicable. If so, we ask the user to choose one.
+
+    TList * telescopes = new TList;
+    Bool_t cancel;
+    new KVIDGUITelescopeChooserDialog(gMultiDetArray, telescopes, &cancel,
+                                      gClient->GetRoot(), this);
+    if (cancel || !telescopes->At(0))
+    {
+        Info("NewGrid","No ID telescopes chosen. Grid creation cancelled.");
+        return;
+    }
+    // get default ID grid class of first ID telescope
+    TString default_class = ((KVIDTelescope*)telescopes->At(0))->GetDefaultIDGridClass();
+    // get list of possible choices of grid class = list of all plugin classes
+    // defined for KVIDGraph
+    TString choice = KVBase::GetListOfPlugins("KVIDGraph");
+    // open dialog to choose ID grid class
+    Bool_t ok_pressed = kFALSE;
+    TString id_grid_class;
+    new KVDropDownDialog(this, "Choose class for new grid:",
+                         choice.Data(), default_class.Data(), &id_grid_class, &ok_pressed);
+    if (!ok_pressed)
+    {
+        Info("NewGrid","No ID grid class chosen. Grid creation cancelled.");
+        return;
+    }
+    cout << "Make grid with class " << id_grid_class.Data() << endl;
+    gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
+    KVIDGraph *new_gr = KVIDGraph::MakeIDGraph(id_grid_class.Data());
+    new_gr->AddIDTelescopes(telescopes);
+    UpdateTabs();
+    gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this, "UpdateListOfGrids()");
+    delete telescopes;
 }
 
 void KVIDGridManagerGUI::MergeGrids()
 {
-   //merge 2 grids
-   KVIDGraph *g1 = (KVIDGraph *) fSelectedEntries->At(1);
-   KVIDGraph *g2 = (KVIDGraph *) fSelectedEntries->First();
-   //new KVMergeGridsDialog(g1, g2, gClient->GetRoot(), this, 10, 10);
+    //merge 2 grids
+    //KVIDGraph *g1 = (KVIDGraph *) fSelectedEntries->At(1);
+    //KVIDGraph *g2 = (KVIDGraph *) fSelectedEntries->First();
+    //new KVMergeGridsDialog(g1, g2, gClient->GetRoot(), this, 10, 10);
 }
 
 void KVIDGridManagerGUI::SaveAs(const TList *selection)
 {
-   // Opens dialog to choose filename in which to save grids.
-	// If selection=0 (default), all grids are saved
-	// If selection!=0 only grids in list are saved
-	
-   static TString dir(".");
-   const char *filetypes[] = {
-      "ID Grid files", "*.dat",
-      "All files", "*",
-      0, 0
-   };
-   TGFileInfo fi;
-   fi.fFileTypes = filetypes;
-   fi.fIniDir = StrDup(dir);
-   new TGFileDialog(gClient->GetRoot(), this, kFDSave, &fi);
-   if (fi.fFilename) {
-      //if no ".xxx" ending given, we add ".dat"
-      TString filenam(fi.fFilename);
-      if (!filenam.Contains('.'))
-         filenam += ".dat";
-		Int_t n_saved=gIDGridManager->WriteAsciiFile(filenam.Data(),selection);
-      if (n_saved) {
-         //wrote file no problem
-         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                      Form("Saved %d grids in %s", n_saved, filenam.Data()), 0, kMBOk);
-         //set file name for Save
-         fFileName = filenam;
-      } else {
-         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                      Form("Could not write file %s", filenam.Data()), 0,
-                      kMBOk);
-      }
-   }
-   dir = fi.fIniDir;
+    // Opens dialog to choose filename in which to save grids.
+    // If selection=0 (default), all grids are saved
+    // If selection!=0 only grids in list are saved
+
+    static TString dir(".");
+    const char *filetypes[] =
+    {
+        "ID Grid files", "*.dat",
+        "All files", "*",
+        0, 0
+    };
+    TGFileInfo fi;
+    fi.fFileTypes = filetypes;
+    fi.fIniDir = StrDup(dir);
+    new TGFileDialog(gClient->GetRoot(), this, kFDSave, &fi);
+    if (fi.fFilename)
+    {
+        //if no ".xxx" ending given, we add ".dat"
+        TString filenam(fi.fFilename);
+        if (!filenam.Contains('.'))
+            filenam += ".dat";
+        Int_t n_saved=gIDGridManager->WriteAsciiFile(filenam.Data(),selection);
+        if (n_saved)
+        {
+            //wrote file no problem
+            new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                         Form("Saved %d grids in %s", n_saved, filenam.Data()), 0, kMBOk);
+            //set file name for Save
+            fFileName = filenam;
+        }
+        else
+        {
+            new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                         Form("Could not write file %s", filenam.Data()), 0,
+                         kMBOk);
+        }
+    }
+    dir = fi.fIniDir;
 }
 
 void KVIDGridManagerGUI::CreateAndFillTabs()
 {
-	// create a tab for each type of ID telescope
-   // put a list box for ID grid names on each tab
-	
-	KVString labels("[unknown]");
-	if(gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
-	
-	//loop over labels
-	labels.Begin(",");
-	while( ! labels.End() ){
-		KVString lab = labels.Next();
-		TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
-		cf->ChangeOptions(kVerticalFrame);
-		fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-			fIDGridList->SetDataColumns(10);
-			fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
-			fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
-			fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-			fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
-			fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
-			fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
-			fIDGridList->GetDataColumn(5)->SetIsBoolean();
-			fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-			fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
-			fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
-			fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
-		fIDGridList->ActivateSortButtons();	
-   	fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
-                        "SelectionChanged()");
-		cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
-                                       kLHintsExpandX | kLHintsExpandY, 30,
-                                       10, 10, 10));
-		KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
-		fIDGridList->Display(grids);
-		delete grids;
-	}
-	
+    // create a tab for each type of ID telescope
+    // put a list box for ID grid names on each tab
+
+    KVString labels("[unknown]");
+    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
+
+    //loop over labels
+    labels.Begin(",");
+    while ( ! labels.End() )
+    {
+        KVString lab = labels.Next();
+        TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
+        cf->ChangeOptions(kVerticalFrame);
+        fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
+        fIDGridList->SetDataColumns(10);
+        fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
+        fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
+        fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
+        fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+        fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+        fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+        fIDGridList->GetDataColumn(5)->SetIsBoolean();
+        fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+        fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+        fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+        fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
+        fIDGridList->ActivateSortButtons();
+        fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+                             "SelectionChanged()");
+        cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
+                     kLHintsExpandX | kLHintsExpandY, 30,
+                     10, 10, 10));
+        KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
+        fIDGridList->Display(grids);
+        delete grids;
+    }
+
 }
 
 void KVIDGridManagerGUI::TabSelect(Int_t tab)
 {
-	//called when a new tab is selected
+    //called when a new tab is selected
 
-	TGCompositeFrame *cf = fGridListTabs->GetCurrentContainer();
-	if(!cf) return;//there are no tabs
-	TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
- 	fIDGridList = (KVListView*)el->fFrame;
- 	fIDGridList->SelectionChanged();
+    TGCompositeFrame *cf = fGridListTabs->GetCurrentContainer();
+    if (!cf) return;//there are no tabs
+    TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
+    fIDGridList = (KVListView*)el->fFrame;
+    fIDGridList->SelectionChanged();
 }
 
 void KVIDGridManagerGUI::UpdateTabs()
 {
-	// create a tab for each type of ID telescope
-   // put a list box for ID grid names on each tab
-	
-	KVString labels("[unknown]");
-	if(gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
-	//add any missing labels, update existing ones
-	labels.Begin(",");
-	while( ! labels.End() ){
-		KVString lab = labels.Next();
-		
-		if( !fGridListTabs->GetTabContainer(lab.Data()) ){// new tab
-			TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
-			cf->ChangeOptions(kVerticalFrame);
-			fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
-			fIDGridList->SetDataColumns(10);
-			fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
-			fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
-			fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
-			fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
-			fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
-			fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
-			fIDGridList->GetDataColumn(5)->SetIsBoolean();
-			fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
-			fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
-			fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
-			fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
-			fIDGridList->ActivateSortButtons();	
-   		fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
-                        "SelectionChanged()");
-			cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
-                                       kLHintsExpandX | kLHintsExpandY, 30,
-                                       10, 10, 10));
-			KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
-			fIDGridList->Display(grids);
-			delete grids;
-			fGridListTabs->MapSubwindows();
-			fGridListTabs->Layout();
-			fGridListTabs->SetTab(fGridListTabs->GetNumberOfTabs()-1,kTRUE);
-		}
-		else {//existing tab
-			TGCompositeFrame*cf = fGridListTabs->GetTabContainer(lab.Data());
-			if(!cf){
-				cout << "cf = 0x0 : label="<<lab.Data()<<" tab name="<<
-						fGridListTabs->GetTabTab(lab.Data())->GetText()->GetString()<<endl;
-			}
-			else{
-			TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
- 			fIDGridList = (KVListView*)el->fFrame;
-			KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
-			fIDGridList->Display(grids);
-			delete grids;
-			}
-		}
-	}
-	//now check that none of the remaining tabs are empty & should be removed
-	RemoveEmptyTabs();
-	//make sure we are on the right tab
-	Int_t ntabs = fGridListTabs->GetCurrent();
-	TabSelect(ntabs);
+    // create a tab for each type of ID telescope
+    // put a list box for ID grid names on each tab
+
+    KVString labels("[unknown]");
+    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
+    //add any missing labels, update existing ones
+    labels.Begin(",");
+    while ( ! labels.End() )
+    {
+        KVString lab = labels.Next();
+
+        if ( !fGridListTabs->GetTabContainer(lab.Data()) ) // new tab
+        {
+            TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
+            cf->ChangeOptions(kVerticalFrame);
+            fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
+            fIDGridList->SetDataColumns(10);
+            fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
+            fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
+            fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
+            fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+            fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+            fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+            fIDGridList->GetDataColumn(5)->SetIsBoolean();
+            fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+            fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+            fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+            fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
+            fIDGridList->ActivateSortButtons();
+            fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+                                 "SelectionChanged()");
+            cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
+                         kLHintsExpandX | kLHintsExpandY, 30,
+                         10, 10, 10));
+            KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
+            fIDGridList->Display(grids);
+            delete grids;
+            fGridListTabs->MapSubwindows();
+            fGridListTabs->Layout();
+            fGridListTabs->SetTab(fGridListTabs->GetNumberOfTabs()-1,kTRUE);
+        }
+        else  //existing tab
+        {
+            TGCompositeFrame*cf = fGridListTabs->GetTabContainer(lab.Data());
+            if (!cf)
+            {
+                cout << "cf = 0x0 : label="<<lab.Data()<<" tab name="<<
+                fGridListTabs->GetTabTab(lab.Data())->GetText()->GetString()<<endl;
+            }
+            else
+            {
+                TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
+                fIDGridList = (KVListView*)el->fFrame;
+                KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
+                fIDGridList->Display(grids);
+                delete grids;
+            }
+        }
+    }
+    //now check that none of the remaining tabs are empty & should be removed
+    RemoveEmptyTabs();
+    //make sure we are on the right tab
+    Int_t ntabs = fGridListTabs->GetCurrent();
+    TabSelect(ntabs);
 }
 
 void KVIDGridManagerGUI::RemoveEmptyTabs()
 {
-	// Recursively remove any empty tabs
-	
-	Int_t ntabs = fGridListTabs->GetNumberOfTabs();
-	Bool_t recursive = kFALSE;
-	for(Int_t itab=0; itab<ntabs; itab++){
-		
-		//get name of tab
-		KVString lab = fGridListTabs->GetTabTab(itab)->GetString();
-		//get grids for this tab (if any)
-		KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
-		Int_t ngrids = grids->GetEntries();
-		delete grids;
-		if(!ngrids){
-			//empty tab! remove it!
-			//delete the KVListView
-			TGCompositeFrame*cf =fGridListTabs->GetTabContainer(itab);
-			TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
-			KVListView* lv = (KVListView*)el->fFrame;
-			delete lv;
-			//remove tab
-			fGridListTabs->RemoveTab(itab,kFALSE);
-			recursive = kTRUE; // call recursively
-			break;//stop loop - tab numbers have changed
-		}
-	}
-	if(recursive) RemoveEmptyTabs();
-	fGridListTabs->MapSubwindows();
-	fGridListTabs->Layout();
+    // Recursively remove any empty tabs
+
+    Int_t ntabs = fGridListTabs->GetNumberOfTabs();
+    Bool_t recursive = kFALSE;
+    for (Int_t itab=0; itab<ntabs; itab++)
+    {
+
+        //get name of tab
+        KVString lab = fGridListTabs->GetTabTab(itab)->GetString();
+        //get grids for this tab (if any)
+        KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
+        Int_t ngrids = grids->GetEntries();
+        delete grids;
+        if (!ngrids)
+        {
+            //empty tab! remove it!
+            //delete the KVListView
+            TGCompositeFrame*cf =fGridListTabs->GetTabContainer(itab);
+            TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
+            KVListView* lv = (KVListView*)el->fFrame;
+            delete lv;
+            //remove tab
+            fGridListTabs->RemoveTab(itab,kFALSE);
+            recursive = kTRUE; // call recursively
+            break;//stop loop - tab numbers have changed
+        }
+    }
+    if (recursive) RemoveEmptyTabs();
+    fGridListTabs->MapSubwindows();
+    fGridListTabs->Layout();
 }
 

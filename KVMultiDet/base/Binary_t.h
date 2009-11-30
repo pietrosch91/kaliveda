@@ -32,7 +32,7 @@ template < class T > class Binary_t {
    T Value() const;
    const Char_t *String(UChar_t nbits = 0);
 
-   T Max() const;
+   Long64_t Max() const;
 
    void SetBit(UChar_t);
    void SetBit(UChar_t, T);
@@ -497,10 +497,10 @@ template < class T > T Binary_t < T >::Subvalue(UChar_t firstbit,
    return (tmp.Value());
 }
 
-template < class T > T Binary_t < T >::Max() const
+template < class T > Long64_t Binary_t < T >::Max() const
 {
    //Returns maximum value that can be stored in number, i.e. when all bits = 1
-   return pow(2, fNBits)-1;
+   return (Long64_t)pow(2, fNBits)-1;
 }
 
 //_____________________________________________________________________________//

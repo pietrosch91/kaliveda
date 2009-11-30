@@ -940,3 +940,20 @@ Double_t KVTarget::GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres)
    return GetParticleEIncFromERes(&dummy);
 }
 
+//___________________________________________________________________________________
+
+UInt_t KVTarget::GetUnits() const
+{
+   // Returns units for 'thickness' of target.
+   // We actually only look at the 1st layer of the target, and assume all layers have
+   // the same units.
+   // If you want, you can examine individual layers with GetLayer(i)->GetUnits().
+   // Returned value can be one of:
+   //    KVMaterial::kMBAR, KVMaterial::kMGCM2, KVMaterial::kTORR,
+   //    KVMaterial::kMICRON, KVMaterial::kCM.
+
+   KVMaterial * lay = const_cast<KVTarget*>(this)->GetLayerByIndex(1);
+   if (lay) return lay->GetUnits();
+   return 10; // no layers - undefined
+}
+

@@ -416,6 +416,26 @@ void KVDetector::Print(Option_t * opt) const
    }
 }
 
+
+//___________________________________________________________________________________
+
+const Char_t *KVDetector::GetArrayName()
+{
+   // This method is called by KVMultiDetArray::MakeListOfDetectors
+	// after the array geometry has been defined (i.e. all detectors have
+	// been placed in the array). The string returned by this method
+	// is used to set the name of the detector.
+	//
+	// Override this method in child classes in order to define a naming
+	// convention for specific detectors of the array.
+	//
+	// By default we return an empty string.
+
+   fFName = "";
+   return fFName.Data();
+}
+
+
 //___________________________________________________________________________________
 Double_t KVDetector::GetEnergy()
 {
@@ -435,32 +455,6 @@ void KVDetector::SetEnergy(Double_t e)
    if (GetActiveLayer())
       GetActiveLayer()->SetEnergyLoss(e);
    KVMaterial::SetEnergyLoss(e);
-}
-
-//____________________________________________________________________________________
-const Char_t *KVDetector::GetName() const
-{
-   //Name of detector given in the form Det_Ring-number_Telescope-number
-   //Modified to be compatible with GANIL acquisition parameters 17/11/02
-   //i.e. CI_0213, SI_0911, CSI_1705
-   //
-   //The root of the name is the detector type
-   //
-   //Just a wrapper for GetArrayName, in order to allow polymorphism for 'const' method
-   return ((KVDetector *) this)->GetArrayName();
-}
-
-const Char_t *KVDetector::GetArrayName()
-{
-   //Name of detector given in the form Det_Ring-number_Telescope-number
-   //Modified to be compatible with GANIL acquisition parameters 17/11/02
-   //i.e. CI_0213, SI_0911, CSI_1705
-   //
-   //The root of the name is the detector type
-   fFName =
-       Form("%s_%02d%02d", GetType(), GetRingNumber(),
-            GetTelescopeNumber());
-   return fFName.Data();
 }
 
 //_____________________________________________________________________________________
@@ -525,81 +519,57 @@ void KVDetector::CloseBrowser()
 }
 
 //_______________________________________________________________________________
-void KVDetector::AddACQParam(const Char_t * type)
+void KVDetector::AddACQParam(KVACQParam* par)
 {
-   //Add an acquisition parameter of given type to this detector
+   // Add given acquisition parameter to this detector.
 
    if (!fACQParams) {
       fACQParams = new KVList();
    }
-   KVACQParam *par = new KVACQParam();
-   TString name;
-   name = this->GetName();
-   name.Append("_");
-   name.Append(type);
-   par->SetName(name);
    par->SetDetector(this);
-   par->SetType(type);
    fACQParams->Add(par);
 }
 
 //________________________________________________________________________________
-KVACQParam *KVDetector::GetACQParam(const Char_t * type)
+KVACQParam *KVDetector::GetACQParam(const Char_t *name)
 {
-   //Access acquisition parameter of given type
-   //
+   // Look for acquisition parameter with given name in list
+	// of parameters associated with this detector.
+	
    if (!fACQParams) {
-      // Warning("GetACQParam",
-      // "No acquisition parameters set for %s",GetName());
       return 0;
    }
-   TString name;
-   name = GetName();
-   name.Append("_");
-   name.Append(type);
-   return ((KVACQParam *) fACQParams->FindObjectWithNameAndType(name, type));
+   return ((KVACQParam *) fACQParams->FindObject(name));
 }
 
 //__________________________________________________________________________________
-Float_t KVDetector::GetACQData(const Char_t * type)
+Float_t KVDetector::GetACQData(const Char_t * name)
 {
-   //Access acquisition data value associated to parameter of given type
-   //Returns value as a floating-point number which is the raw channel number read from the coder
-   //plus a random number in the range [-0.5,+0.5].
-   //If the detector has no DAQ parameter of the given type, or if the raw channel number = 0,
-   //the value returned is -1.
+   // Access acquisition data value associated to parameter with given name.
+   // Returns value as a floating-point number which is the raw channel number
+	// read from the coder plus a random number in the range [-0.5,+0.5].
+   // If the detector has no DAQ parameter of the given type,
+	// or if the raw channel number = 0, the value returned is -1.
 
-   KVACQParam *par = GetACQParam(type);
-   if (par) {
-      return par->GetData();
-   } else {
-      // Warning("GetACQData", "Acquisition parameter type %s not found for %s",
-      //          type,GetName());
-      return -1.;
-   }
+   KVACQParam *par = GetACQParam(name);
+   return (par ? par->GetData() :  -1.);
 }
 
 //__________________________________________________________________________________
-Float_t KVDetector::GetPedestal(const Char_t * type)
+Float_t KVDetector::GetPedestal(const Char_t *name)
 {
-   //Access pedestal value associated to parameter of given type
-   //
+   // Access pedestal value associated to parameter with given name.
 
-   KVACQParam *par = GetACQParam(type);
-   if (par) {
-      return par->GetPedestal();
-   } else {
-      return 0;
-   }
+   KVACQParam *par = GetACQParam(name);
+   return (par ? par->GetPedestal() : 0);
 }
 
 //__________________________________________________________________________________
-void KVDetector::SetPedestal(const Char_t * type, Float_t ped)
+void KVDetector::SetPedestal(const Char_t *name, Float_t ped)
 {
-   //Set value of pedestal associated to parameter of given type
-   //
+   // Set value of pedestal associated to parameter with given name.
 
-   KVACQParam *par = GetACQParam(type);
+   KVACQParam *par = GetACQParam(name);
    if (par) {
       par->SetPedestal(ped);
    }
@@ -707,7 +677,13 @@ void KVDetector::SetTelescope(KVTelescope * kvt)
    fTelescope = kvt;
 }
 
-KVMaterial *KVDetector::GetAbsorber(Char_t i) const
+KVMaterial *KVDetector::GetAbsorber(const Char_t* name) const
+{
+   // Return absorber with given name
+   return (KVMaterial*)(fAbsorbers ? fAbsorbers->FindObject(name) : 0);
+}
+
+KVMaterial *KVDetector::GetAbsorber(Int_t i) const
 {
    //Returns pointer to the i-th absorber in the detector (i=0 first absorber, i=1 second, etc.)
 
@@ -1363,4 +1339,47 @@ void KVDetector::SetFiredBitmask()
 	    id++;
 	}
 	delete toks;
+}
+
+	void printvec(TVector3& v)
+	{
+		cout << "(" << v.X() << "," << v.Y() << "," << v.Z() << ")";
+	};
+
+Double_t KVDetector::GetEntranceWindowSurfaceArea()
+{
+	// Return surface area of first layer of detector in mm2.
+	
+	if(!fTelescope) return 0;
+	
+	if(fDepthInTelescope == 0)
+		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
+
+	TVector3 coords[4];
+		
+	fTelescope->GetCornerCoordinates(coords,fDepthInTelescope);
+	cout << "DETECTOR COORDINATES (in cm):" <<endl;
+	cout << "=================================" << endl;
+	cout << " A : "; printvec(coords[0]); cout << endl;
+	cout << " B : "; printvec(coords[1]); cout << endl;
+	cout << " C : "; printvec(coords[2]); cout << endl;
+	cout << " D : "; printvec(coords[3]); cout << endl;
+	
+	cout << "DETECTOR DIMENSIONS (in mm):" << endl;
+	cout << "================================" << endl;
+	Double_t c = 10*(coords[0]-coords[1]).Mag();
+	Double_t b = 10*(coords[1]-coords[2]).Mag();
+	Double_t d = 10*(coords[2]-coords[3]).Mag();
+	Double_t a = 10*(coords[0]-coords[3]).Mag();
+	cout << " AB = " << c << endl;
+	cout << " BC = " << b << endl;
+	cout << " CD = " << d << endl;
+	cout << " AD = " << a << endl;
+	
+	cout << "DETECTOR SURFACE AREA = ";
+	Double_t surf = pow((a+b),2.0)*(a-b+2.0*c)*(b-a+2.0*c);
+	surf = sqrt(surf)/4.0;
+	cout << surf << " mm2" << endl;
+	
+	return surf;
 }

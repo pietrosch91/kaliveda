@@ -253,7 +253,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
    file << "\n{" << endl;
 
    // private methods
-   KVList* priv = fMethods.GetSubListWithMethod("private", "GetAccess");
+   KVList* priv = (KVList*)fMethods.GetSubListWithMethod("private", "GetAccess");
    if( priv->GetEntries() ){
       file << "   private:" << endl;
       KVString line;
@@ -266,7 +266,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
    delete priv;
 
    // protected methods
-   KVList* prot = fMethods.GetSubListWithMethod("protected", "GetAccess");
+   KVList* prot = (KVList*)fMethods.GetSubListWithMethod("protected", "GetAccess");
    if( prot->GetEntries() ){
       file << "\n   protected:" << endl;
       KVString line;
@@ -283,7 +283,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
    //default ctor
    file << "   " << fClassName.Data() << "();" << endl;
 	//any other ctors ?
-   KVList* ctor = fMethods.GetSubListWithMethod("1", "IsConstructor");
+   KVList* ctor = (KVList*)fMethods.GetSubListWithMethod("1", "IsConstructor");
 	if( ctor->GetEntries() ){
       KVString line;
       TIter next( ctor ); KVClassMethod* meth;
@@ -297,7 +297,7 @@ void KVClassFactory::WriteClassDec(ofstream & file)
    file << "   virtual ~" << fClassName.Data() << "();\n" << endl;
 
    // protected methods
-   KVList* pub = fMethods.GetSubListWithMethod("public", "GetAccess");
+   KVList* pub = (KVList*)fMethods.GetSubListWithMethod("public", "GetAccess");
    if( pub->GetEntries() ){
       KVString line;
       TIter next( pub ); KVClassMethod* meth;
@@ -351,7 +351,7 @@ void KVClassFactory::WriteClassImp()
        Data() << "()" << endl;
    file_cpp << "{\n   // Default constructor\n}\n" << endl;
 	// any other ctors ?
-   KVList* ctor = fMethods.GetSubListWithMethod("1", "IsConstructor");
+   KVList* ctor = (KVList*)fMethods.GetSubListWithMethod("1", "IsConstructor");
 	if( ctor->GetEntries() ){
       KVString line;
       TIter next( ctor ); KVClassMethod* meth;

@@ -26,21 +26,19 @@ include $(KVPROJ_ROOT_ABS)/Makefile.compat
 CXXFLAGS += $(KV_INC)
 
 ifeq ($(ARCH),win32)
-LINK_LIBS = '$(KVROOT)\lib\libKVIndraFNL.lib' '$(KVROOT)\lib\libKVIndra5.lib' '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
+LINK_LIBS = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
-LINK_LIBS = -L$(KVROOT)/lib -lKVIndraFNL -lKVIndra5 -lKVIndra -lKVMultiDet
+LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
 
 #ganil libraries for reading raw data only build on linux systems
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
+export ROOTGANILTAPE = yes
 ifneq ($(WITH_VAMOS),no)
 LINK_LIBS +=  -lVAMOS
 endif
-LINK_LIBS +=  -lROOTGanilTape -lgan_tape
-CXXFLAGS += -I$(GANILTAPE_INC)
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
 endif
 
 ifeq ($(MAKE_GANTAPE_XRD),yes)
@@ -86,19 +84,23 @@ $(SCANCLASSESO): $(SCANCLASSESS)
 
 install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc
+	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)
 	-mkdir -p $(KVROOT)/KaliVedaDoc/images
+	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images
 	-mkdir -p $(KVROOT)/KaliVedaDoc/css
 	-mkdir -p $(KVROOT)/KaliVedaDoc/js
 	-mkdir -p $(KVROOT)/KaliVedaDoc/tools
 	-mkdir -p $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers
 	./$(MAKEHTML)
-	-cp ClassCategories.html $(KVROOT)/KaliVedaDoc/
-	-cp examples/Examples.html $(KVROOT)/KaliVedaDoc/
+	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
+	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/
+	-ln -s $(VERSION_NUMBER)/src $(KVROOT)/KaliVedaDoc/src
+	-ln -s $(VERSION_NUMBER)/examples $(KVROOT)/KaliVedaDoc/examples
 	-cp *.html $(KVROOT)/KaliVedaDoc/
 	-cp css/* $(KVROOT)/KaliVedaDoc/css/
+	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
+	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp tools/* $(KVROOT)/KaliVedaDoc/tools/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
-	-rm -f $(KVROOT)/KaliVedaDoc/index.html
-	-ln -s $(KVROOT)/KaliVedaDoc/about.html $(KVROOT)/KaliVedaDoc/index.html

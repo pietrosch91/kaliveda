@@ -1,4 +1,0 @@
-The script ReadScalers.C should be run in the same directory as where "scaler.root" reside.
-Dont forget tha you ned also to start ROOT in the same directory as where the current rootlogon.C reside as
-it has to load the libROOTGanilTape.so library (see the rootlogon.C script).
-

@@ -9,7 +9,7 @@ $Date: 2009/01/14 15:59:49 $
 
 #include "KVIVRawDataAnalyser.h"
 #include "KVClassFactory.h"
-#include "GTGanilData.H"
+#include "GTGanilData.h"
 
 ClassImp(KVIVRawDataAnalyser)
 
@@ -39,7 +39,7 @@ KVIVRawDataAnalyser::~KVIVRawDataAnalyser()
 
 void KVIVRawDataAnalyser::postInitRun()	
 {
-   	fRunFile->GetGanTapeInterface()->SetUserTree( fBidonTree );
+   	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( fBidonTree );
 }
 
 //_______________________________________________________________________//

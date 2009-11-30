@@ -153,7 +153,7 @@ Int_t KVDBSystem::Compare(const TObject * obj) const
        dynamic_cast < KVDBSystem * >(const_cast < TObject * >(obj));
    if (!other_sys)
       return 0;
-   TList *other_runs;
+   KVList *other_runs;
    if (!(other_runs = other_sys->GetRuns()))
       return 0;
    Int_t first = ((KVDBRecord *) fRunlist->At(0))->GetNumber();

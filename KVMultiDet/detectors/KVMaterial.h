@@ -112,6 +112,11 @@ class KVMaterial:public KVBase {
    Double_t GetMass() const;
    Double_t GetZ() const;
    Double_t GetDensity() const;
+   void SetDensity(Double_t d)
+	{
+		// Set density of material. Units are g/cm**3
+		fDens = d;
+	}
    Float_t GetEmaxVedaloss(UInt_t Z) const {
       if (GetActiveLayer())
          return GetActiveLayer()->GetEmaxVedaloss(Z);
@@ -147,7 +152,7 @@ class KVMaterial:public KVBase {
    virtual void Clear(Option_t * opt = "");
 
    const Char_t *GetThicknessUnits() const;
-   UInt_t GetUnits() const;
+   virtual UInt_t GetUnits() const;
    void SetUnits(UInt_t);
 
    Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
@@ -181,7 +186,7 @@ class KVMaterial:public KVBase {
 	
 	virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/="");
    
-   ClassDef(KVMaterial, 4)      //Interface to VEDALOSS description of slowing-down of ions in absorbers
+   ClassDef(KVMaterial, 5)      //Interface to VEDALOSS description of slowing-down of ions in absorbers
 };
 
 #endif

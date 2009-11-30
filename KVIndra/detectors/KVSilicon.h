@@ -19,7 +19,7 @@ $Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
 #ifndef KVSILICON_H
 #define KVSILICON_H
 
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 #include "TF1.h"
 #include "KVACQParam.h"
 #include "KVChannelVolt.h"
@@ -31,24 +31,24 @@ class KVDBParameterSet;
 
 Double_t ELossSiPHD(Double_t * x, Double_t * par);
 
-class KVSilicon:public KVDetector {
+class KVSilicon:public KVINDRADetector {
 
  protected:
-         
+
    Float_t fPGtoGG_0;           //conversion factor = offset
    Float_t fPGtoGG_1;           //conversion factor = slope
 
    KVChIo* fChIo;//!pointer to INDRA ionisation chamber associated to this detector
    KVChIo* FindChIo();
-  
+
    KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
    KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
    KVVoltEnergy* fVoltE;//!volt-energy conversion
    KVPulseHeightDefect* fPHD;//!pulse height defect
    Int_t fZminPHD;//PHD correction applied to energy for Z>fZminPHD
-    
+
    void init();
-   
+
  public:
 
     KVSilicon();
@@ -94,13 +94,13 @@ class KVSilicon:public KVDetector {
    virtual void SetELossParams(Int_t Z, Int_t A);
 
    inline Bool_t IsCalibrated() const;
-   
+
    virtual void SetMoultonPHDParameters(Double_t a1, Double_t a2, Double_t b1, Double_t b2);
 
    void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
    Int_t GetZminPHD() { return fZminPHD; };
    virtual Short_t GetCalcACQParam(KVACQParam*) const;
-   
+
    ClassDef(KVSilicon, 6)       //INDRA Silicon detectors with associated electronics and power supply
 };
 
@@ -117,7 +117,7 @@ inline Bool_t KVSilicon::IsCalibrated() const
          Bool_t ok_pg = (fChVoltPG!=0) ? fChVoltPG->GetStatus() : 0;
          return (ok_gg || ok_pg);
       }
-   
+
    return kFALSE;
 }
 

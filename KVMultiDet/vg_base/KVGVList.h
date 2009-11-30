@@ -55,7 +55,6 @@ class KVGVList:public KVList {
       return (KVVarGlob*)FindObjectByClass(class_name);
    };
    virtual void      Add(TObject *obj) ;
-   virtual void      Add(TObject *obj, Option_t* opt) ;
    
    // returns kTRUE if list contains 1-body variables
    Bool_t Has1BodyVariables() { return (fVG1.GetEntries()>0);};

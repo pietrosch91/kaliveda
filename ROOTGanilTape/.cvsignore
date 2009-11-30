@@ -1,8 +1,0 @@
-dependancies.make
-html
-lib
-bin
-so_locations
-htmldoc
-*.root
-
