@@ -44,7 +44,7 @@ void KVINDRARawDataAnalyser::ProcessRun()
 	//
 	// For further customisation, the pre/post-methods are called just before and just after
 	// each of these methods (preInitRun(), postAnalysis(), etc. etc.)
-   
+
    //Open data file
 	KVString dlt_file = gDataSet->GetFullPathToRunfile("raw", fRunNumber);
    fRunFile = (KVINDRARawDataReader*)gDataSet->OpenRunfile( "raw", fRunNumber );
@@ -60,9 +60,9 @@ void KVINDRARawDataAnalyser::ProcessRun()
 		cout << " *** WARNING *** run number read from file = " << newrun << endl;
 		fRunNumber = newrun;
 	}
-   
+
 	fEventNumber=0;//event number
-   
+
    Long64_t nevents = GetNbEventToRead();
 	if(nevents<=0){
 		nevents=1000000000;
@@ -70,54 +70,56 @@ void KVINDRARawDataAnalyser::ProcessRun()
 	} else {
 		cout << endl << "Reading " << nevents << " events from file " << dlt_file.Data() << endl;
 	}
-	
+
 	cout << "Starting analysis of run " << fRunNumber << " on : ";
 	TDatime now;
 	cout <<  now.AsString() << endl << endl;
-   
+
 	preInitRun();
    //call user's beginning of run
    InitRun();
 	postInitRun();
-   
+
    Int_t INDRA_events = 0; Int_t gene_events = 0; Int_t other_events = 0;
-   
-   fDetEv = 0;
-   
+
+   fDetEv = new KVDetectorEvent;
+
    //loop over events in file
 	while( fRunFile->GetNextEvent() && nevents--)
 	{
       fEventNumber++;
-      
+
       if( ((KVINDRARawDataReader*)fRunFile)->IsINDRAEvent() ){
-        	
+
          INDRA_events++;
-         
+
          if( ((KVINDRARawDataReader*)fRunFile)->IsGene() ) gene_events++;
-        
+
 		   //set trigger info for event
 		   fTrig->SetSTAT_EVE( ((KVINDRARawDataReader*)fRunFile)->GetSTAT_EVE() );
 		   fTrig->SetR_DEC( ((KVINDRARawDataReader*)fRunFile)->GetR_DEC() );
 		   fTrig->SetCONFIG( ((KVINDRARawDataReader*)fRunFile)->GetCONFIG() );
-			
+
          //reconstruct hit groups
-		   fDetEv = gIndra->GetDetectorEvent();
+		   gIndra->GetDetectorEvent(fDetEv);
+
       } else {
          //count non-INDRA events
          other_events++;
       }
-      
+
 		preAnalysis();
       //call user's analysis. stop if returns kFALSE.
       if(!Analysis()) break;
 		postAnalysis();
-      
-      if(fDetEv) {delete fDetEv; fDetEv = 0;}
-      gIndra->Clear();
-      
+
+      fDetEv->Clear();
+
 		if(!((fEventNumber)%10000)) cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
-   }    
-    
+   }
+
+    delete fDetEv;
+
 	cout << endl << "Finished reading " << fEventNumber << " events from file " << dlt_file.Data() << endl;
    cout << " +++ INDRA events : " << INDRA_events << endl;
    cout << " +++ INDRA gene events : " << gene_events << endl;
@@ -125,12 +127,12 @@ void KVINDRARawDataAnalyser::ProcessRun()
 	cout << "Ending analysis of run " << fRunNumber << " on : ";
 	TDatime now2;
 	cout <<  now2.AsString() << endl << endl;
-	
+
 	preEndRun();
 	//call user's end of run function
 	EndRun();
 	postEndRun();
-   
+
    delete fRunFile;
 }
 
@@ -146,26 +148,26 @@ void KVINDRARawDataAnalyser::SubmitTask()
 	//   preEndAnalysis()
 	//   postEndAnalysis()
 	// which are executed respectively just before and just after the methods.
-   
+
    if(gDataSet != fDataSet) fDataSet->cd();
    gDataSet->BuildMultiDetector();
-   
+
 	preInitAnalysis();
    //call user's initialisation
    InitAnalysis();
 	postInitAnalysis();
-   
+
    fTrig = new KVINDRATriggerInfo;
-   
+
    //loop over runs
    GetRunList().Begin();
    while( !GetRunList().End() ){
       fRunNumber = GetRunList().Next();
       ProcessRun();
    }
-   
+
    delete fTrig; fTrig = 0;
-   
+
 	preEndAnalysis();
    //call user's end of analysis
    EndAnalysis();
@@ -177,7 +179,7 @@ void KVINDRARawDataAnalyser::SubmitTask()
 void KVINDRARawDataAnalyser::Make(const Char_t * kvsname)
 {
    //Automatic generation of derived class for raw data analysis
-   
+
    KVClassFactory cf(kvsname, "User raw data analysis class", "KVINDRARawDataAnalyser");
    cf.AddMethod("InitAnalysis", "void");
    cf.AddMethod("InitRun", "void");
@@ -194,8 +196,8 @@ void KVINDRARawDataAnalyser::Make(const Char_t * kvsname)
    cf.AddMethodBody("InitRun", body);
    //Analysis
    body = "   //Analysis method called for each event\n";
-   body+= "   //  Long64_t fEventNumber contains current event number\n"; 
-   body+= "   //  KVINDRATriggerInfo* fTrig contains informations on INDRA trigger for event\n"; 
+   body+= "   //  Long64_t fEventNumber contains current event number\n";
+   body+= "   //  KVINDRATriggerInfo* fTrig contains informations on INDRA trigger for event\n";
    body+= "   //  KVDetectorEvent* fDetEv gives list of hit groups for current event\n";
    body+= "   //  Processing will stop if this method returns kFALSE\n";
    body+= "   return kTRUE;";
@@ -218,7 +220,7 @@ KVNumberList KVINDRARawDataAnalyser::PrintAvailableRuns(KVString & datatype)
    KVNumberList all_runs=
        fDataSet->GetRunList(datatype.Data(), fSystem);
    KVINDRADBRun *dbrun;
-   
+
    //first read list and find what triggers are available
    int triggers[10], n_trigs = 0;
    all_runs.Begin();

@@ -56,7 +56,7 @@ void KVDetectorEvent::init()
 //____________________________________________________________________________
 KVDetectorEvent::~KVDetectorEvent()
 {
-
+    Clear();
    delete fHitGroups;
    fHitGroups = 0;
    fSimEvent = 0;
@@ -65,10 +65,13 @@ KVDetectorEvent::~KVDetectorEvent()
 //____________________________________________________________________________
 void KVDetectorEvent::Clear(Option_t * opt)
 {
-   //Reset the list of hit groups.
+    // Reset the list of hit groups, ready for analysis of a new event.
+    // Each 'hit' group is cleared (energy losses in detectors set to zero,
+    // etc.).
 
+    fHitGroups->R__FOR_EACH(KVGroup,Reset) ();
 	fHitGroups->Clear();
-   fSimEvent = 0;
+    fSimEvent = 0;
 }
 
 //____________________________________________________________________________

@@ -109,7 +109,7 @@ class KVGroup:public KVPosition {
    void RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope =
                         kFALSE, Bool_t kDeleteEmptyGroup = kTRUE);
 
-   void GetIDTelescopes(TList *);
+   void GetIDTelescopes(TCollection *);
 
    Bool_t IsRemoving() {
       return TestBit(kIsRemoving);

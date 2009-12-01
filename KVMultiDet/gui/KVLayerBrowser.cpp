@@ -1,13 +1,13 @@
 //$Id: KVLayerBrowser.cpp,v 1.4 2006/10/19 14:32:43 franklan Exp $
 #include "KVLayerBrowser.h"
 #include "KVLayer.h"
-#include "KVList.h"
+#include "KVSeqCollection.h"
 
 ClassImp(KVLayerBrowser)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Layer browser
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    KVLayerBrowser::KVLayerBrowser(KVList * layers, const TGWindow * p,
+    KVLayerBrowser::KVLayerBrowser(KVSeqCollection * layers, const TGWindow * p,
                                    UInt_t w, UInt_t h)
 :TGTab(p, w, h)
 {
@@ -42,7 +42,7 @@ void KVLayerBrowser::LayoutLayer(KVLayer * layer)
 
    tf = AddTab(layer->GetName());       // new tab with name of layer
 
-   // display ringbrowser i.e. tabs for rings                                                                                                                                                                                                                   
+   // display ringbrowser i.e. tabs for rings
    KVRingBrowser *fRB = new KVRingBrowser(layer->GetRings(), tf, 800, 500);
    AddRingBrowser(fRB);         // add to list of ring browsers
    fTGL =
@@ -60,7 +60,7 @@ void KVLayerBrowser::LayoutLayer(KVLayer * layer)
    widg = new KVBrowserWidget(layer, ADD_RING);
    // add to list of widgets
    AddToWidgetList(widg);
-   // create button using this widget's ID                                                                                                                                                                                                                      
+   // create button using this widget's ID
    fTB1 = new TGTextButton(fF1, "&Add Ring", widg->GetID());
    fTB1->Associate(this);
    widg->SetWidget(fTB1);

@@ -106,7 +106,7 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj){
 	}
 	else if (obj->InheritsFrom("KVMultiDetArray")){
 		KVMultiDetArray* pos_obj=(KVMultiDetArray* )obj;
-		KVList* ll = pos_obj->GetGroups();
+		KVSeqCollection* ll = pos_obj->GetGroups();
 		KVGroup* gr=0;
 		Double_t tmin2=180,tmax2=0;
 		Double_t pmin2=360,pmax2=0;

@@ -592,7 +592,7 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
 
 //_________________________________________________________________________________
 
-void KVGroup::GetIDTelescopes(TList * tel_list)
+void KVGroup::GetIDTelescopes(TCollection * tel_list)
 {
    //Identify all the ways of identifying particles possible from the detectors
    //in the group, create the appropriate KVIDTelescope objects and add them to

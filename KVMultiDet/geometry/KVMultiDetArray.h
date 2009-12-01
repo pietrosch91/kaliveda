@@ -25,8 +25,7 @@ $Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
 #define KVMDA_REPL_DET_NOT_FOUND "Detector %s not found among array detectors"
 
 #include "KVBase.h"
-#include "KVList.h"
-#include "THashList.h"
+#include "KVSeqCollection.h"
 #include "KVLayer.h"
 #include "TGraph.h"
 
@@ -72,13 +71,13 @@ class KVMultiDetArray:public KVBase {
    UInt_t fGr;                  //! used to number groups
    KVMultiDetBrowser *fBrowser; //! graphical visualisation and configuration tool
 
-   KVList *fLayers;             //-> list of layers in array sorted by layer number
-   KVList *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
-   KVList *fTelescopes;         //-> list of telescope prototypes used to construct array
-   KVList *fGroups;             //->list of groups of telescopes in array
-   TList *fIDTelescopes;       //->deltaE-E telescopes in groups
-   TList *fDetectors;          //->list of references to all detectors in array
-   TList *fACQParams;          //references to data acquisition parameters associated to detectors
+   KVSeqCollection *fLayers;             //-> list of layers in array sorted by layer number
+   KVSeqCollection *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
+   KVSeqCollection *fTelescopes;         //-> list of telescope prototypes used to construct array
+   KVSeqCollection *fGroups;             //->list of groups of telescopes in array
+   KVSeqCollection *fIDTelescopes;       //->deltaE-E telescopes in groups
+   KVSeqCollection *fDetectors;          //->list of references to all detectors in array
+   KVSeqCollection *fACQParams;          //references to data acquisition parameters associated to detectors
 
    KV2Body *fScatter;           //!for elastic scattering kinematics
 
@@ -103,8 +102,8 @@ class KVMultiDetArray:public KVBase {
    virtual void MakeListOfDetectors();
    void SetACQParams();
    void SetCalibrators();
-void set_up_telescope(KVDetector * de, KVDetector * e, TList * idtels, KVIDTelescope *idt, TString& uri);
-void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelescope *idt, TString& uri);
+void set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri);
+void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri);
 
  public:
    KVMultiDetArray();
@@ -118,7 +117,7 @@ void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelesco
    void AddLayer();
    void AddLayer(KVLayer * kvl);
 
-   virtual void GetIDTelescopes(KVDetector *, KVDetector *, TList *);
+   virtual void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * opt = "") const;
@@ -127,15 +126,15 @@ void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelesco
    virtual KVDetector *GetDetector(const Char_t * name) const;
    KVGroup *GetGroup(Float_t theta, Float_t phi);
    KVGroup *GetGroup(const Char_t *);
-   KVList *GetGroups() const {
+   KVSeqCollection *GetGroups() const {
       return fGroups;
    }
    TList *GetTelescopes(Float_t theta, Float_t phi);
-   KVList *GetDetectorTypes() {
+   KVSeqCollection *GetDetectorTypes() {
       return fDetectorTypes;
    };
-   TList *GetListOfDetectors() const;
-   KVList *GetLayers() const {
+   KVSeqCollection *GetListOfDetectors() const;
+   KVSeqCollection *GetLayers() const {
       return fLayers;
    };
    KVLayer *GetLayer(const Char_t * name) const {
@@ -163,14 +162,14 @@ void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelesco
    void ReplaceTelescope(const Char_t * name, KVTelescope * new_kvt);
    void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);
 
-	//virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
+   virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
 
    void StartBrowser();
    void CloseBrowser();
    const KVMultiDetBrowser *GetBrowser();
 
    void AddACQParam(KVACQParam *);
-   TList *GetACQParams() {
+   KVSeqCollection *GetACQParams() {
       return fACQParams;
    };
    KVACQParam *GetACQParam(const Char_t * name) {
@@ -183,7 +182,7 @@ void set_up_single_stage_telescope(KVDetector * det, TList * idtels, KVIDTelesco
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
    KVIDTelescope *GetIDTelescope(const Char_t * name) const;
-   TList *GetListOfIDTelescopes() const {
+   KVSeqCollection *GetListOfIDTelescopes() const {
       return fIDTelescopes;
    };
 	KVList* GetIDTelescopeTypes();
