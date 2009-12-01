@@ -1450,7 +1450,8 @@ void KVDataAnalyser::CopyAnalysisResultsToLaunchDirectory()
       if( !fWorkDirInit->FindObject( file->GetName() ) ){
          TString fname; fname.Form("%s",file->GetName());
 			//ajout d une condition pour eviter le transfert des file*.so generes par les KVParticleCondition
-			if ( !(fname.BeginsWith("file") && fname.EndsWith(".so")) ){
+			//et aussi les .d generes par les KVParticleCondition
+			if ( !(fname.BeginsWith("file") && (fname.EndsWith(".so") || fname.EndsWith(".d"))) ){
 				TString path_src, path_trg;
          	AssignAndDelete(path_trg, gSystem->ConcatFileName(launchDir.Data(), file->GetName()));
          	AssignAndDelete(path_src, gSystem->ConcatFileName(gSystem->WorkingDirectory(),
