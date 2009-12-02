@@ -56,7 +56,7 @@ ClassImp(KVINDRA)
 <!-- */
 // --> END_HTML
 ///////////////////////////////////////////////////////////////////////////////////////
-		
+
 //Use this static array to translate EBaseIndra_type
 //signal type to a string giving the signal type
 Char_t KVINDRA::SignalTypes[][3] = {
@@ -75,15 +75,15 @@ KVINDRA::KVINDRA()
 {
    //Default constructor
    //Set up lists of ChIo, Si, CsI, Phoswich
-   fChIo = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fChIo);
-   fSi = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fSi);
-   fCsI = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fCsI);
+   fChIo = new KVHashList();
+   fChIo->SetCleanup(kTRUE);
+   fSi = new KVHashList();
+   fSi->SetCleanup(kTRUE);
+   fCsI = new KVHashList();
+   fCsI->SetCleanup(kTRUE);
    fChIoLayer = 0;
-   fPhoswich = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fPhoswich);
+   fPhoswich = new KVHashList();
+   fPhoswich->SetCleanup(kTRUE);
    fTrigger = 0;
    gIndra = this;
    fPHDSet=kFALSE;
@@ -97,25 +97,21 @@ KVINDRA::~KVINDRA()
 
    if (fChIo && fChIo->TestBit(kNotDeleted)) {
       fChIo->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fChIo));
       delete fChIo;
    }
    fChIo = 0;
    if (fSi && fSi->TestBit(kNotDeleted)) {
       fSi->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fSi));
       delete fSi;
    }
    fSi = 0;
    if (fCsI && fCsI->TestBit(kNotDeleted)) {
       fCsI->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fCsI));
       delete fCsI;
    }
    fCsI = 0;
    if (fPhoswich && fPhoswich->TestBit(kNotDeleted)) {
       fPhoswich->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fPhoswich));
       delete fPhoswich;
    }
    fPhoswich = 0;
@@ -133,15 +129,15 @@ void KVINDRA::MakeListOfDetectorTypes()
 	//kvsi->SetThickness(300.0);
 	kvsi->SetLabel("SI300");
 	fDetectorTypes->Add(kvsi);
-	
+
 	// Etalons - Si 80um
   	kvsi = new KVSi75(80);
    fDetectorTypes->Add(kvsi);
-   
+
 	// Etalons - Si(Li) 2mm
    kvsi = new KVSiLi(2000);
    fDetectorTypes->Add(kvsi);
-   
+
 	// Phoswich detectors
    KVPhoswich *kvph = new KVPhoswich(0.05, 25.0);
    kvph->SetLabel("PHOS");
@@ -174,11 +170,11 @@ void KVINDRA::MakeListOfDetectorTypes()
 	KVCsI *kvcsi = NULL;
 	for (Int_t ii=0;ii<7;ii+=1){
 		kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",gDataSet->GetName()), thick_csi[ii]);
-		//kvcsi->SetThickness(thick_csi[ii]);		
+		//kvcsi->SetThickness(thick_csi[ii]);
 		kvcsi->SetLabel(Form("CSI%1.0f",thick_csi[ii]*10));
 		fDetectorTypes->Add(kvcsi);
 	}
-/*	
+/*
    KVCsI *kvcsi = new KVCsI(13.8);
    kvcsi->SetLabel("CSI138");
    fDetectorTypes->Add(kvcsi);
@@ -222,7 +218,7 @@ void KVINDRA::PrototypeTelescopes()
 
 // create prototypes for all telescopes needed to build INDRA
 
-   // Phoswich 
+   // Phoswich
 #ifdef KV_DEBUG
    Info("PrototypeTelescopes", "Phoswich - begin");
 #endif
@@ -948,7 +944,7 @@ void KVINDRA::Build()
 {
    //Overrides KVMultiDetArray::Build in order to set the name of the detector.
    //We also add the acquisition parameters which are not associated to a detector:
-   // 
+   //
    // PILA_01_PG
    // PILA_01_GG
    // PILA_02_PG
@@ -997,7 +993,7 @@ void KVINDRA::Build()
    AddACQParam(new KVACQParam("SI_PIN1_GG"));
    AddACQParam(new KVACQParam("SI_PIN2_PG"));
    AddACQParam(new KVACQParam("SI_PIN2_GG"));
-	
+
 	SetPinLasersForCsI();
 }
 
@@ -1121,7 +1117,7 @@ KVChIo *KVINDRA::GetChIoOf(const Char_t * detname)
       kvd = GetDetector(detname);
       return GetChIoOf(kvd);
    } else {
-      //cout<<"KVChIo* GetChIoOf(const Char_t* detname) const : Senseless in this context."<<endl;     
+      //cout<<"KVChIo* GetChIoOf(const Char_t* detname) const : Senseless in this context."<<endl;
    }
    return 0;
 }
@@ -1145,28 +1141,6 @@ void KVINDRA::SetTrigger(UChar_t trig)
    //Events with multipicity >= trig are OK.
    //
    fTrigger = trig;
-}
-
-//_____________________________________________________________________________________
-
-KVDetector *KVINDRA::GetDetector(const Char_t * name) const
-{
-   //Optimisation of KVMultiDetArray method, using lists of different types
-   //of INDRA detectors.
-
-   TString nom(name);
-   if (nom.BeginsWith("CSI")) {
-      return (KVDetector *) GetListOfCsI()->FindObjectByName(name);
-   } else if (nom.BeginsWith("SI")) {
-      return (KVDetector *) GetListOfSi()->FindObjectByName(name);
-   } else if (nom.BeginsWith("CI")) {
-      return (KVDetector *) GetListOfChIo()->FindObjectByName(name);
-   } else if (nom.BeginsWith("PHOS")) {
-      return (KVDetector *) GetListOfPhoswich()->FindObjectByName(name);
-   } else {
-      return (KVDetector *) GetListOfDetectors()->FindObjectByName(name);
-   }
-   return 0;
 }
 
 KVDetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) const
@@ -1235,7 +1209,7 @@ KVDetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) cons
 //_______________________________________________________________________________________
 
 void KVINDRA::GetIDTelescopes(KVDetector * de, KVDetector * e,
-                              KVList * idtels)
+                              TCollection * idtels)
 {
    //Override KVMultiDetArray method for special case of "etalon" modules:
    //we need to add ChIo-CsI identification telescope by hand
@@ -1279,10 +1253,10 @@ void KVINDRA::SetPinLasersForCsI()
 	//
 	// This file should be in the directory corresponding to the current dataset,
 	// i.e. in $KVROOT/KVFiles/name_of_dataset
-	
+
 	ifstream pila_file;
 	if( gDataSet->OpenDataSetFile( gDataSet->GetDataSetEnv("INDRADB.CsIPinCorr",""), pila_file ) ){
-		
+
 		Info("SetPinLasersForCsI", "Setting correspondance CsI-PinLaser using file %s.",
 				gDataSet->GetDataSetEnv("INDRADB.CsIPinCorr",""));
 		// read file, set correspondance

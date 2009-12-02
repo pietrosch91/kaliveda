@@ -213,7 +213,7 @@ void KVINDRAUpDater::SetChIoPressures(KVDBRun * kvrun)
     KVChIo *kvd;
     KVDBChIoPressures *kvps;
     TIter next_ps(param_list);
-    KVList *chios = gIndra->GetListOfChIo();
+    KVSeqCollection *chios = gIndra->GetListOfChIo();
     if (!chios)
     {
         Error("SetChIoPressures",

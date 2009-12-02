@@ -22,6 +22,7 @@ $Id: KVINDRA.h,v 1.43 2009/01/21 10:05:51 franklan Exp $
 
 #include "KVMultiDetArray.h"
 #include "KVList.h"
+#include "KVHashList.h"
 #include "KVACQParam.h"
 #include "KVINDRADB.h"
 #include "KVINDRADBRun.h"
@@ -70,15 +71,15 @@ class KVINDRA:public KVMultiDetArray {
 
 
  protected:
-    KVList * fChIo;             //->List Of ChIo of INDRA
-   KVList *fSi;                 //->List of Si detectors of INDRA
-   KVList *fCsI;                //->List of CsI detectors of INDRA
-   KVList *fPhoswich;           //->List of NE102/NE115 detectors of INDRA
+    KVHashList * fChIo;             //->List Of ChIo of INDRA
+   KVHashList *fSi;                 //->List of Si detectors of INDRA
+   KVHashList *fCsI;                //->List of CsI detectors of INDRA
+   KVHashList *fPhoswich;           //->List of NE102/NE115 detectors of INDRA
 
    KVLayer *fChIoLayer;         //Reference to ChIo layer of INDRA
 
    Bool_t fPHDSet;//set to kTRUE if pulse height defect parameters are set
-   
+
    virtual void MakeListOfDetectorTypes();
    virtual void MakeListOfDetectors();
    virtual void PrototypeTelescopes();
@@ -94,19 +95,19 @@ class KVINDRA:public KVMultiDetArray {
    virtual Bool_t ArePHDSet() const { return fPHDSet; };
    virtual void PHDSet(Bool_t yes=kTRUE) { fPHDSet=yes; };
 
-   virtual void GetIDTelescopes(KVDetector *, KVDetector *, KVList *);
+   virtual void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 
    KVLayer *GetChIoLayer();
-   inline KVList *GetListOfChIo() const {
+   inline KVHashList *GetListOfChIo() const {
       return fChIo;
    };
-   inline KVList *GetListOfSi() const {
+   inline KVHashList *GetListOfSi() const {
       return fSi;
    };
-   inline KVList *GetListOfCsI() const {
+   inline KVHashList *GetListOfCsI() const {
       return fCsI;
    };
-   inline KVList *GetListOfPhoswich() const {
+   inline KVHashList *GetListOfPhoswich() const {
       return fPhoswich;
    };
 
@@ -116,7 +117,6 @@ class KVINDRA:public KVMultiDetArray {
    virtual void cd(Option_t * option = "");
    virtual KVDetector *GetDetectorByType(UInt_t cou, UInt_t mod,
                                          UInt_t type) const;
-   virtual KVDetector *GetDetector(const Char_t * name) const;
 
    void SetTrigger(UChar_t trig);
    // Methodes pour interroger la base de donnees
@@ -124,7 +124,7 @@ class KVINDRA:public KVMultiDetArray {
    inline Int_t GetTrigger() const;
    inline KVDBSystem *GetSystem() const;
    inline void ShowSystem() const;
-	
+
 	void SetPinLasersForCsI();
 
     ClassDef(KVINDRA, 4)        //class describing the materials and detectors etc. to build an INDRA multidetector array
