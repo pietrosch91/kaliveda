@@ -1195,7 +1195,7 @@ void KVMultiDetArray::AddACQParam(KVACQParam * par)
    //automatically removed from the fACQParams list by ROOT.
 
    if (!fACQParams) {
-      fACQParams = new KVList;
+      fACQParams = new KVHashList;
       fACQParams->SetOwner(kFALSE);
       fACQParams->SetCleanup(kTRUE);
    }
