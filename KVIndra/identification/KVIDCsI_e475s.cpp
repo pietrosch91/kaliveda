@@ -40,25 +40,20 @@ void KVIDCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
 	//status code
    fCalibStatus = kCalibStatus_NoCalibrations;
 
-   if ( !(((KVINDRAReconNuc *) nuc)->GetCodes().GetIDCode()==kIDCode2) ) return;
-
    UInt_t z = nuc->GetZ();
    //uncharged particles
    if(z==0) { return; }
-
-   //telescope csi rl -> un seul detecteur
-   //KVDetector* d1 = GetDetector(1);
 	
 	// In e475s experiment no calibrations available for csi
    KVList* ll = nuc->GetIDTelescopes();
 	// si il n y a ri1 avant le csi return pas de calibration possible
-	if (ll->GetEntries()==1) {
-		return;
-	}
+	if (ll->GetEntries()==1) return;
+	
 	KVIDTelescope* idtel = 0;
 	//Appel au telescope precedent pour realiser la reconstruction en energie
 	if ( (idtel = (KVIDTelescope* )nuc->GetIDTelescopes()->At(1)) ){
 		idtel->CalculateParticleEnergy(nuc);
+		fCalibStatus = idtel->GetCalibStatus();
 	}
 	
 	return;
