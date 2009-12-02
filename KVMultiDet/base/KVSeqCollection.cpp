@@ -23,15 +23,23 @@ This class adds functionalities such as
 <li>GetSublistWithType</li>
 etc. to the standard ROOT collection classes. The actual collection is embedded and
 referenced through a TSeqCollection base pointer. The class of the embedded object for any given
-instance is passed as an argument to the constructor:
+instance is passed as an argument to the constructor:<br>
 <code>
 KVSeqCollection* my_coll = new KVSeqCollection("THashList");
-</code>
+</code><br>
 Any collection class derived from TSeqCollection is valid: this means all ordered collections, for which the order in which
 objects are added is preserved. These lists can also be sorted.<br>
 Any object derived from TObject can be stored in the collection, but only objects
 derived from KVBase can be sought using their 'type', 'label', or 'number' attributes
-(these characteristics are not defined for TObject).
+(these characteristics are not defined for TObject). Note that we can test the 'KVBase'-ness of any object through a
+TObject* base pointer using the 'KaliVeda' bit, KVBase::kIsKaliVedaObject:<br>
+<code>
+TObject *obj = <address of some object>
+if( obj->TestBit( KVBase::kIsKaliVedaObject ) ){
+   // object derives from KVBase
+}
+</code>
+<br>
 <h3>Signals &amp; slots: monitoring list modification</h3>
 If SendModifiedSignals(kTRUE) is called, then every time an object is added to or removed from the list, it will emit
 the signal "Modified()". This can be used to monitor any changes to the

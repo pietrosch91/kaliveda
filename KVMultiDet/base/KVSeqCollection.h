@@ -133,6 +133,14 @@ public:
         return TestBit(kCleanup);
     };
 
+    virtual TObject* FindObject(const char* name) const
+    {
+       return fCollection->FindObject(name);
+    };
+    virtual TObject* FindObject(const TObject* obj) const
+    {
+       return fCollection->FindObject(obj);
+    };
     virtual TObject *FindObjectByName(const Char_t *name) const
     {
         return fCollection->FindObject(name);
