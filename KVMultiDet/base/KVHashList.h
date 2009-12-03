@@ -12,12 +12,12 @@ class KVHashList : public KVSeqCollection
    public:
    KVHashList(Int_t capacity = TCollection::kInitHashTableCapacity, Int_t rehash = 2);
    virtual ~KVHashList();
-   
+
    Float_t AverageCollisions() const;
-   void Rehash(Int_t newCapacity);
+   void Rehash(Int_t newCapacity = 0);
    TList     *GetListForObject(const char *name) const;
    TList     *GetListForObject(const TObject *obj) const;
-   
+
    ClassDef(KVHashList,1) //Extended version of ROOT THashList
 };
 

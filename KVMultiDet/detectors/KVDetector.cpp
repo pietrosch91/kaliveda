@@ -449,21 +449,9 @@ void KVDetector::SetEnergy(Double_t e)
 }
 
 //_____________________________________________________________________________________
-UInt_t KVDetector::GetRingNumber() const
-{
-//
-//The ring number of the detector's telescope.
-//
-   return (GetTelescope()? GetTelescope()->GetRingNumber() : 0);
-}
-
-//_____________________________________________________________________________________
 UInt_t KVDetector::GetTelescopeNumber() const
 {
-//
-//The telescope (or module) number of the detector's
-//telescope in its ring.
-//
+    //The number of the detector's telescope in its ring.
    return (GetTelescope()? GetTelescope()->GetNumber() : 0);
 }
 

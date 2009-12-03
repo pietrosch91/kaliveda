@@ -192,16 +192,17 @@ void KVFocalPlanVamos::BuildGeometry()
 
 void KVFocalPlanVamos::SetGroupsAndIDTelescopes()
 {
-   //Overrides KVMDA method to add INDRA-specific numbering of ChIo according to
-   //smallest ring,module of csi behind the cell
+   // set correct names for detectors instead of incorrect ring-
+   // and module-based names a la INDRA
 
    SetNamesDetectors();
    KVMultiDetArray::SetGroupsAndIDTelescopes();
-//   SetNamesDetectors();
 }
 
 void KVFocalPlanVamos::SetNamesDetectors()
 {
+   // set correct names for detectors instead of incorrect ring-
+   // and module-based names a la INDRA
 	
    Float_t thick_si[18]={522.,530.,531.,532.,533.,533.,534.,535.,531.,535.,524.,531.,529.,524.,533.,537.,519.,530.};
    UInt_t numcsi[81]={1,13,25,41,57,69,2,14,26,42,58,70,3,15,27,43,59,71,4,16,28,44,60,72,5,
@@ -213,34 +214,28 @@ void KVFocalPlanVamos::SetNamesDetectors()
    UInt_t ksih = 0;
    UInt_t ksib = 19;
    UInt_t kcsi = 0;
-  while(det = (KVDetector *) next_det()){
+  	while((det = (KVDetector *) next_det())){
 	   if(det->IsType("SI")){
 		   Char_t name[50];
-		   UInt_t ringnum = det->GetRingNumber();
-		   UInt_t modnum = det->GetModuleNumber();
-		   if(modnum==1){
+		   UInt_t modnum = det->GetTelescope()->GetNumber();
+		   if(modnum==1) {
 		           ksih++;
 			   sprintf(name,"SIE_%02d",ksih);
 			   det->SetName(name);
 			   det->SetThickness(thick_si[ksih-1]);
-		   }else if(modnum==2){
+		   } else if(modnum==2) {
 		           ksib-=1;
 			   sprintf(name,"SIE_%02d",ksib);
 			   det->SetName(name);
 			   det->SetThickness(thick_si[ksib-1]);
 		   }
-//cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<<", thick= "<<det->GetThickness()<<endl;
-
-}
+	}
 	   if(det->IsType("CSI")){
 		   Char_t name[50];
 		   sprintf(name,"CSI%02d",numcsi[kcsi]);
 			   det->SetName(name);
-		   UInt_t ringnum = det->GetRingNumber();
-		   UInt_t modnum = det->GetModuleNumber();
 		   kcsi++;
-//cout<<"name = "<<det->GetName()<<", ringnum = "<<ringnum<<", module = "<<modnum<<endl;
-}
+	}
 	   }
    
 #ifdef KV_DEBUG

@@ -46,9 +46,9 @@ void KVIDCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    //uncharged particles
    if(z==0) { return; }
    //telescope csi rl -> un seul detecteur
-   KVDetector* d1 = GetDetector(1);
+   KVINDRADetector* d1 = (KVINDRADetector*)GetDetector(1);
 	//pas d implementation pour les couronnes au dessus de 9
-	if (GetDetector(1)->GetRingNumber()>9) { return; }
+	if (d1->GetRingNumber()>9) { return; }
 
 	Bool_t d1_cal = d1->IsCalibrated();
    if (d1_cal){
@@ -64,7 +64,7 @@ void KVIDCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
 		return;
 	}
 	
-	KVString telname; telname.Form("*_SI_%02d%02d",GetDetector(1)->GetRingNumber(),GetDetector(1)->GetModuleNumber());
+	KVString telname; telname.Form("*_SI_%02d%02d",d1->GetRingNumber(),d1->GetModuleNumber());
 	//Recherche du telescope "CI_SI"
 	KVIDTelescope* idbefore = (KVIDTelescope* )ll->FindObjectWithMethod(telname,"GetName");
 	if (!idbefore) {

@@ -8,7 +8,7 @@ $Date: 2007/06/29 10:46:46 $
 //Author: franklan
 
 #include "GetGeneMean.h"
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 #include "KVACQParam.h"
 #include "KVBatchSystem.h"
 #include "Riostream.h"
@@ -90,8 +90,8 @@ Bool_t GetGeneMean::Analysis ()
    //KVINDRATriggerInfo* TriggerInfo holds info on INDRA trigger for current event
    
    //loop over fired detectors
-   TIter next_det( gIndra->GetListOfDetectors() ); KVDetector* det=0;
-   while( (det = (KVDetector*)next_det()) ){
+   TIter next_det( gIndra->GetListOfDetectors() ); KVINDRADetector* det=0;
+   while( (det = (KVINDRADetector*)next_det()) ){
       
       TString det_type = det->GetType(); // = "CI", "SI", "CSI", "SI75" or "SILI"
       
@@ -172,8 +172,8 @@ void GetGeneMean::EndRun ()
    ofstream geneRun;
    geneRun.open( output.Data() );
    //loop over detectors
-   TIter next_det( gIndra->GetListOfDetectors() ); KVDetector* det=0;
-   while( (det = (KVDetector*)next_det()) ){
+   TIter next_det( gIndra->GetListOfDetectors() ); KVINDRADetector* det=0;
+   while( (det = (KVINDRADetector*)next_det()) ){
       
       TString det_type = det->GetType(); // = "CI", "SI", "CSI", "SI75" or "SILI"
                

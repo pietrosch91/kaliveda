@@ -186,11 +186,7 @@ Double_t *par_res;//!array of params for eres function
    virtual Float_t GetPedestal(const Char_t*/*name*/);
    virtual void SetPedestal(const Char_t*/*name*/, Float_t);
 
-   virtual UInt_t GetRingNumber() const;
    virtual UInt_t GetTelescopeNumber() const;
-   virtual UInt_t GetModuleNumber() const {
-      return GetTelescopeNumber();
-   };
 
    Bool_t AddCalibrator(KVCalibrator * cal);
    KVCalibrator *GetCalibrator(const Char_t * name,

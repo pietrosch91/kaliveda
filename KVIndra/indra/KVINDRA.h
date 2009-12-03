@@ -126,8 +126,10 @@ class KVINDRA:public KVMultiDetArray {
    inline void ShowSystem() const;
 
 	void SetPinLasersForCsI();
+   virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
 
-    ClassDef(KVINDRA, 4)        //class describing the materials and detectors etc. to build an INDRA multidetector array
+
+    ClassDef(KVINDRA, 5)        //class describing the materials and detectors etc. to build an INDRA multidetector array
 };
 
 //................  global variable

@@ -34,7 +34,7 @@ const Char_t *KVINDRADetector::GetArrayName()
 	
    fFName =
        Form("%s_%02d%02d", GetType(), GetRingNumber(),
-            GetTelescopeNumber());
+            GetModuleNumber());
    return fFName.Data();
 }
 
