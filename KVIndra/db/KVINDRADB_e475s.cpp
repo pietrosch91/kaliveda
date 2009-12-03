@@ -178,7 +178,13 @@ void KVINDRADB_e475s::ReadCalibFile(ifstream &fin,TString dettype,TString detgai
       while (sline.BeginsWith("+KVCalibrator")){
 			sline.ReadLine(fin);
 			while (sline.BeginsWith("<LIST> Type=")){
-				sline.ReplaceAll("<LIST> Type=",""); calib_type = sline;	cout << calib_type << endl;
+				sline.ReplaceAll("<LIST> Type=",""); 
+				if (sline.Contains("(")){
+					toks = sline.Tokenize("(");
+					sline = ((TObjString* )toks->At(0))->GetString();
+					delete toks;
+				}
+				calib_type = sline;
 				sline.ReadLine(fin);
 				while (sline.BeginsWith("<LIST> Signal=")) { 
 					sline.ReplaceAll("<LIST> Signal=",""); calib_signal = sline;	cout << calib_signal << endl; 
