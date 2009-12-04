@@ -178,17 +178,6 @@ KVSeqCollection* KVSeqCollection::NewCollectionLikeThisOne() const
     return newCol;
 }
 
-void KVSeqCollection::Add(TObject *obj)
-{
-    // Add an object to the list.
-    // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
-    // of the object before adding it to the list.
-
-    if (IsCleanup()) obj->SetBit(kMustCleanup);
-    fCollection->Add(obj);
-    Changed();
-}
-
 void KVSeqCollection::Clear(Option_t *option)
 {
     // Clear the list of objects.

@@ -790,7 +790,7 @@ void KVMultiDetArray::Print(Option_t * opt) const
 
 //__________________________________________________________________________________
 
-KVDetectorEvent *KVMultiDetArray::DetectEvent(KVEvent * event)
+void KVMultiDetArray::DetectEvent(KVEvent * event)
 {
    //Simulate detection of event by multidetector array.
    //
@@ -800,19 +800,6 @@ KVDetectorEvent *KVMultiDetArray::DetectEvent(KVEvent * event)
    //
    //If the particle escapes the target then we look for the group in the array that it will hit. If there is one, then the detection of this particle by the
    //different members of the group is simulated. The detectors concerned have their fEloss members set to the energy lost by the particle when it crosses them.
-   //
-   //The method returns a KVDetectorEvent i.e.  a list of all groups hit by particles in the event. Just as with experimental data (see GetDetectorEvent())
-   //this is the first step to event reconstruction.
-   //The next step in "filtering" the simulated event is to use a KVReconstructedEvent (or derived object):
-   //    KVReconstructedEvent::ReconstructEvent(KVDetectorEvent*) will rebuild particles by associating the different energy losses
-   //    KVReconstructedEvent::IdentifyEvent() will attempt to identify them
-   //etc. etc.
-
-   //create new KVDetectorEvent
-   KVDetectorEvent *tmp = new KVDetectorEvent();
-
-   //temporary pointer to simulated event
-   tmp->SetSimEvent(event);
 
    if (fTarget) {
       //simulate passage through target material
@@ -838,13 +825,10 @@ KVDetectorEvent *KVMultiDetArray::DetectEvent(KVEvent * event)
          if (part->GetEnergy() > 0) {
             grp_tch->DetectParticle(part);
 
-            //add group to list of hit groups
-            tmp->AddGroup(grp_tch);
          }
       }
    }
 
-   return tmp;
 }
 
 //__________________________________________________________________________________

@@ -28,6 +28,7 @@ protected:
         // We make it emit the "Modified()" signal, if
         // the kSignals bit has been set using SendModifiedSignals(kTRUE).
 
+        TSeqCollection::Changed();
         if (TestBit(kSignals)) Modified();
     };
     virtual void	PrintCollectionHeader(Option_t* option) const;
@@ -68,23 +69,53 @@ public:
     };
     virtual void      AddFirst(TObject *obj)
     {
-        fCollection->AddFirst(obj);
+       // Add an object to the list.
+       // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+       // of the object before adding it to the list.
+
+       if (IsCleanup()) obj->SetBit(kMustCleanup);
+       fCollection->AddFirst(obj);
+       Changed();
     };
     virtual void      AddLast(TObject *obj)
     {
-        fCollection->AddLast(obj);
+       // Add an object to the list.
+       // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+       // of the object before adding it to the list.
+
+       if (IsCleanup()) obj->SetBit(kMustCleanup);
+       fCollection->AddLast(obj);
+       Changed();
     };
     virtual void      AddAt(TObject *obj, Int_t idx)
     {
-        fCollection->AddAt(obj,idx);
+       // Add an object to the list.
+       // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+       // of the object before adding it to the list.
+
+       if (IsCleanup()) obj->SetBit(kMustCleanup);
+       fCollection->AddAt(obj,idx);
+       Changed();
     };
     virtual void      AddAfter(const TObject *after, TObject *obj)
     {
-        fCollection->AddAfter(after,obj);
+       // Add an object to the list.
+       // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+       // of the object before adding it to the list.
+
+       if (IsCleanup()) obj->SetBit(kMustCleanup);
+       fCollection->AddAfter(after,obj);
+       Changed();
     };
     virtual void      AddBefore(const TObject *before, TObject *obj)
     {
-        fCollection->AddBefore(before,obj);
+       // Add an object to the list.
+       // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+       // of the object before adding it to the list.
+
+       if (IsCleanup()) obj->SetBit(kMustCleanup);
+       fCollection->AddBefore(before,obj);
+       Changed();
     };
     virtual TObject  *Before(const TObject *obj) const
     {
@@ -102,7 +133,16 @@ public:
     {
         return fCollection->Last();
     };
-    virtual void       Add(TObject *obj);
+    virtual void       Add(TObject *obj)
+    {
+       // Add an object to the list.
+       // If the cleanup mechanism is in use, we set the TObject::kMustCleanup bit
+       // of the object before adding it to the list.
+
+       if (IsCleanup()) obj->SetBit(kMustCleanup);
+       fCollection->Add(obj);
+       Changed();
+    };
     virtual void       Clear(Option_t *option="");
     virtual void       Delete(Option_t *option="");
     virtual TObject  **GetObjectRef(const TObject *obj) const;

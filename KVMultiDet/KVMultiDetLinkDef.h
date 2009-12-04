@@ -88,6 +88,7 @@
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVHashList+;
+#pragma link C++ class KVUniqueNameList+;
 #pragma link C++ class KVIDentifier+;
 #pragma link C++ class KVIDGraph-;
 #pragma link C++ class KVIDLine-;

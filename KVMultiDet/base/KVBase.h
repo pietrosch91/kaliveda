@@ -66,7 +66,7 @@ class KVBase:public TNamed {
    virtual void List() {
    };
    static const Char_t *GetKVRoot();
-   void SetNumber(UInt_t num) {
+   virtual void SetNumber(UInt_t num) {
       fNumber = num;
    };
    UInt_t GetNumber() const {

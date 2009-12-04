@@ -57,6 +57,11 @@ class KVGroup:public KVPosition {
 #else
    void Copy(TObject & obj);
 #endif
+   virtual void SetNumber(UInt_t num) {
+      // Setting number for group also sets name to "Group_n"
+      SetName( Form("Group_%ud", num) );
+      KVBase::SetNumber(num);
+   };
    void Add(KVTelescope *);
    Bool_t Contains(KVTelescope *) const;
    void Reset();

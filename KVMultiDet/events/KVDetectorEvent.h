@@ -21,7 +21,7 @@ $Id: KVDetectorEvent.h,v 1.8 2006/10/19 14:32:43 franklan Exp $
 #define KVDETECTOREVENT_H
 
 #include "KVBase.h"
-#include "KVRList.h"
+#include "KVUniqueNameList.h"
 #include "KVEvent.h"
 #include "KVGroup.h"
 
@@ -29,56 +29,33 @@ class KVDetectorEvent:public KVBase {
 
  private:
 
-   KVRList * fHitGroups;        //->TRefArray of groups hit by particles in the event
-   KVEvent *fSimEvent;          //! points to simulated event in case of filtering
+   KVUniqueNameList * fHitGroups;        //->TRefArray of groups hit by particles in the event
 
  public:
 
     KVDetectorEvent();
     virtual ~ KVDetectorEvent();
    virtual void init();
-   inline void AddGroup(KVGroup * grp);
+   void AddGroup(KVGroup * grp)
+   {
+      fHitGroups->Add(grp);
+   };
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * t = "") const;
-   KVRList *GetGroups() {
+   KVUniqueNameList *GetGroups() {
       return fHitGroups;
    };
-   inline Bool_t ContainsGroup(KVGroup * grp);
+   Bool_t ContainsGroup(KVGroup * grp)
+   {
+      return (fHitGroups->FindObject(grp->GetName())!=0);
+   };
    virtual UInt_t GetMult() const {
       if (fHitGroups)
          return fHitGroups->GetSize();
       else
          return 0;
    };
-
-   void SetSimEvent(KVEvent * e) {
-      fSimEvent = e;
-   }
-   KVEvent *GetSimEvent() {
-      return fSimEvent;
-   }
-
-   ClassDef(KVDetectorEvent, 1) //Events detected by multidetector arrays
+   
+   ClassDef(KVDetectorEvent, 2) // List of hit groups in a multidetector array
 };
-
-//____________________________________________________________________________
-
-inline void KVDetectorEvent::AddGroup(KVGroup * grp)
-{
-   //add a group to the event structure
-   //automatically check that the group is not already part of the event
-
-   if (!ContainsGroup(grp))
-      fHitGroups->Add(grp);
-}
-
-//_______________________________________________________________________________
-
-inline Bool_t KVDetectorEvent::ContainsGroup(KVGroup * grp)
-{
-   //returns kTRUE if group is already a member of detected event
-
-   return (fHitGroups ? (fHitGroups->IndexOf(grp) >= 0) : kFALSE);
-}
-
 #endif
