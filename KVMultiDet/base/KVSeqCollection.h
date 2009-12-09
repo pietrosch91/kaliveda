@@ -148,6 +148,7 @@ public:
     virtual TObject  **GetObjectRef(const TObject *obj) const;
     virtual TIterator *MakeIterator(Bool_t dir = kIterForward) const;
     virtual TObject   *Remove(TObject *obj);
+    virtual void RecursiveRemove(TObject *obj);
     virtual Int_t GetSize() const
     {
         return fCollection->GetSize();

@@ -122,7 +122,10 @@ KVSeqCollection::~KVSeqCollection()
     // If the cleanup mechanism is in use, we first remove the list from
     // the list of cleanups
 
-    if (IsCleanup()) gROOT->GetListOfCleanups()->Remove(fCollection);
+    if (IsCleanup()){
+    	while (gROOT->GetListOfCleanups()->Remove(this))
+    		;
+    }
     SafeDelete(fCollection);
 }
 
@@ -223,8 +226,30 @@ TIterator* KVSeqCollection::MakeIterator(Bool_t dir) const
 TObject* KVSeqCollection::Remove(TObject *obj)
 {
     // Remove object from list.
-    return fCollection->Remove(obj);
-    Changed();
+    
+    TObject *result = fCollection->Remove(obj);
+    if(result) Changed();
+    return result;
+}
+
+void KVSeqCollection::RecursiveRemove(TObject *obj)
+{
+   // Remove object from this collection and recursively remove the object
+   // from all other objects (and collections).
+
+   if (!obj) return;
+
+   // Scan list and remove obj in the list itself
+   while (Remove(obj))
+      ;
+
+   // Scan again the list and invoke RecursiveRemove for all objects
+   TIter next(fCollection);
+   TObject *object;
+
+   while ((object = next())) {
+      if (object->TestBit(kNotDeleted)) object->RecursiveRemove(obj);
+   }
 }
 
 void	KVSeqCollection::PrintCollectionHeader(Option_t* option) const
@@ -740,12 +765,12 @@ void KVSeqCollection::SetCleanup(Bool_t enable)
     SetBit(kCleanup,enable);
     if (enable)
     {
-        gROOT->GetListOfCleanups()->Add(fCollection);
+        gROOT->GetListOfCleanups()->Add(this);
         fCollection->R__FOR_EACH(TObject,SetBit)(kMustCleanup);
     }
     else
     {
-        gROOT->GetListOfCleanups()->Remove(fCollection);
+        gROOT->GetListOfCleanups()->Remove(this);
     }
 }
 //______________________________________________________________________________
