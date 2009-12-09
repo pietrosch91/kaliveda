@@ -7,7 +7,7 @@
 #include "KVRawDataReader.h"
 #include "KVBase.h"
 #include "KVACQParam.h"
-#include "KVList.h"
+#include "KVHashList.h"
 
 class GTGanilData;
 
@@ -19,8 +19,8 @@ class KVGANILDataReader : public KVRawDataReader
    virtual void ConnectRawDataParameters();
    virtual void ConnectArrayDataParameters();
 
-   KVList *fExtParams;//->list of unknown data parameters (not defined in KVMultiDetArray object)
-	KVList *fParameters;//->list of all data parameters contained in file
+   KVHashList *fExtParams;//->list of unknown data parameters (not defined in KVMultiDetArray object)
+   KVHashList *fParameters;//->list of all data parameters contained in file
    
    virtual GTGanilData* NewGanTapeInterface();
    virtual KVACQParam* CheckACQParam(const Char_t*);   
@@ -35,8 +35,8 @@ class KVGANILDataReader : public KVRawDataReader
    virtual Bool_t GetNextEvent();
    virtual GTGanilData* GetGanTapeInterface();
    
-   const KVList* GetUnknownParameters() const { return fExtParams; };
-   const KVList* GetRawDataParameters() const { return fParameters; };
+   const TCollection* GetUnknownParameters() const { return fExtParams; };
+   const TCollection* GetRawDataParameters() const { return fParameters; };
    
    static KVGANILDataReader* Open(const Char_t* filename, Option_t* opt = "");   
 

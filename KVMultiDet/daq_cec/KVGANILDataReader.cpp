@@ -49,8 +49,10 @@ void KVGANILDataReader::init()
 {
    //default initialisations
    
-   fExtParams = new KVList;
-	fParameters = new KVList;
+   fExtParams = new KVHashList;
+   fExtParams->SetOwner(kTRUE);
+   fParameters = new KVHashList;
+   fParameters->SetOwner(kTRUE);
    fGanilData = 0;
 }
 
@@ -160,10 +162,11 @@ KVACQParam* KVGANILDataReader::CheckACQParam( const Char_t* par_name )
 {
    //Check the named acquisition parameter.
    //We look for a corresponding parameter in the list of acq params belonging to
-   //the current KVMultiDetArray.
+   //the current KVMultiDetArray (if one exists).
    //If none is found, we create a new acq param which is added to the list of "unknown parameters"
+   
    KVACQParam *par;
-   if( !(par = gMultiDetArray->GetACQParam( par_name )) ){
+   if( !gMultiDetArray || !(par = gMultiDetArray->GetACQParam( par_name )) ){
       //create new unknown parameter
       par = new KVACQParam;
       par->SetName( par_name );
