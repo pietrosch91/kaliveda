@@ -33,7 +33,7 @@ class KVPhoswich:public KVINDRADetector {
    void SetEnergy(Double_t e);
    void SetACQParams();
 
-    ClassDef(KVPhoswich, 1)     //Phoswich telescopes of the INDRA array
+    ClassDef(KVPhoswich, 2)     //Phoswich telescopes of the INDRA array
 };
 
 #endif
