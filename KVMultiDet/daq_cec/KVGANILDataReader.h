@@ -35,9 +35,17 @@ class KVGANILDataReader : public KVRawDataReader
    virtual Bool_t GetNextEvent();
    virtual GTGanilData* GetGanTapeInterface();
    
-   const TCollection* GetUnknownParameters() const { return fExtParams; };
-   const TCollection* GetRawDataParameters() const { return fParameters; };
+   const KVSeqCollection* GetUnknownParameters() const { return fExtParams; };
+   const KVSeqCollection* GetRawDataParameters() const { return fParameters; };
    
+  KVSeqCollection* KVGANILDataReader::GetFiredDataParameters()
+ {
+    // Returns list of fired data parameters in event last read by call to GetNextEvent().
+    // DELETE this list after use !!
+    
+    return fParameters->GetSubListWithMethod("1", "Fired");
+ };
+    
    static KVGANILDataReader* Open(const Char_t* filename, Option_t* opt = "");   
 
    ClassDef(KVGANILDataReader,0)//Reads GANIL acquisition files
