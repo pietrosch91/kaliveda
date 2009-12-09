@@ -37,14 +37,13 @@ class KVGANILDataReader : public KVRawDataReader
    
    const KVSeqCollection* GetUnknownParameters() const { return fExtParams; };
    const KVSeqCollection* GetRawDataParameters() const { return fParameters; };
-   
-  KVSeqCollection* KVGANILDataReader::GetFiredDataParameters()
- {
-    // Returns list of fired data parameters in event last read by call to GetNextEvent().
-    // DELETE this list after use !!
-    
-    return fParameters->GetSubListWithMethod("1", "Fired");
- };
+
+	KVSeqCollection* GetFiredDataParameters()
+	{
+		// Returns list of fired data parameters in event last read by call to GetNextEvent().
+		// DELETE this list after use !!
+		return fParameters->GetSubListWithMethod("1", "Fired");
+	};
     
    static KVGANILDataReader* Open(const Char_t* filename, Option_t* opt = "");   
 
