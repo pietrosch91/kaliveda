@@ -25,14 +25,16 @@ KVGANILDataReader::KVGANILDataReader(const Char_t * file)
    //By default, Scaler buffers are ignored.
    //If file cannot be opened, this object will be made a zombie. Do not use.
    //To test if file is open, use IsOpen().
+   //The basename of the file (excluding any path) can be obtained using GetName()
+   //The full pathname of the file can be obtained using GetTitle()
    //
-   //The dataset corresponding to the data to be read must be known i.e. gDataSet must be defined and point
-   //to the correct dataset. This will allow to build the necessary multidetector object if it has not already
+   //If the dataset corresponding to the data to be read is known i.e. if gDataSet has been defined and points
+   //to the correct dataset, this will allow to build the necessary multidetector object if it has not already
    //been done, and to set the calibration parameters etc. as a function of the run number.
-   //If the dataset has not been defined, this object will be made a zombie. Do not use.
-   //
-   //The multidetector array is initialised according to the current run number (call to KVMultiDetArray::SetParameters).
-   //The acquisition parameters are linked to the corresponding detectors of the array via the KVACQParam class.
+	//
+   //If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
+	//then a list of KVACQParam objects will be generated and connected ready for reading the data.
+	//This list can be obtained with method GetRawDataParameters().
 
    init();
    OpenFile(file);
@@ -42,15 +44,19 @@ KVGANILDataReader::~KVGANILDataReader()
 {
    // Destructor
    if(fGanilData) { delete fGanilData; fGanilData=0; }
-   delete fExtParams;
+   if(fExtParams){
+		fExtParams->Delete();
+		delete fExtParams;
+	}
+	fParameters->Delete();
+	delete fParameters;
 }
 
 void KVGANILDataReader::init()
 {
    //default initialisations
    
-   fExtParams = new KVHashList;
-   fExtParams->SetOwner(kTRUE);
+   fExtParams = 0;
    fParameters = new KVHashList;
    fParameters->SetOwner(kTRUE);
    fGanilData = 0;
@@ -65,13 +71,13 @@ void KVGANILDataReader::OpenFile(const Char_t * file)
    //The basename of the file (excluding any path) can be obtained using GetName()
    //The full pathname of the file can be obtained using GetTitle()
    //
-   //The dataset corresponding to the data to be read must be known i.e. gDataSet must be defined and point
-   //to the correct dataset. This will allow to build the necessary multidetector object if it has not already
+   //If the dataset corresponding to the data to be read is known i.e. if gDataSet has been defined and points
+   //to the correct dataset, this will allow to build the necessary multidetector object if it has not already
    //been done, and to set the calibration parameters etc. as a function of the run number.
-   //If the dataset has not been defined, this object will be made a zombie. Do not use.
-   //
-   //The multidetector array is initialised according to the current run number (call to KVMultiDetArray::SetParameters).
-   //The acquisition parameters are linked to the corresponding detectors of the array via the KVACQParam class.
+	//
+   //If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
+	//then a list of KVACQParam objects will be generated and connected ready for reading the data.
+	//This list can be obtained with method GetRawDataParameters().
 
    if(fGanilData){ delete fGanilData; fGanilData=0; }
    
@@ -110,11 +116,13 @@ void KVGANILDataReader::OpenFile(const Char_t * file)
    }
    
    ConnectRawDataParameters();
-   if (!gMultiDetArray) {
+   if (gDataSet && !gMultiDetArray) {
       gDataSet->BuildMultiDetector();
    }
-   gMultiDetArray->SetParameters( fGanilData->GetRunNumber() );
-   ConnectArrayDataParameters();
+   if(gMultiDetArray){
+		gMultiDetArray->SetParameters( fGanilData->GetRunNumber() );
+   	ConnectArrayDataParameters();
+	}
 }
 
 //__________________________________________________________________________
@@ -170,6 +178,10 @@ KVACQParam* KVGANILDataReader::CheckACQParam( const Char_t* par_name )
       //create new unknown parameter
       par = new KVACQParam;
       par->SetName( par_name );
+		if(!fExtParams){
+			fExtParams=new KVHashList;
+			fExtParams->SetOwner(kTRUE);
+		}
       fExtParams->Add( par );
    }
    return par;

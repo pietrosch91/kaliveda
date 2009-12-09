@@ -19,7 +19,7 @@ class KVGANILDataReader : public KVRawDataReader
    virtual void ConnectRawDataParameters();
    virtual void ConnectArrayDataParameters();
 
-   KVHashList *fExtParams;//->list of unknown data parameters (not defined in KVMultiDetArray object)
+   KVHashList *fExtParams;//list of unknown data parameters (not defined in KVMultiDetArray object)
    KVHashList *fParameters;//->list of all data parameters contained in file
    
    virtual GTGanilData* NewGanTapeInterface();
