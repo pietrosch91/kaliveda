@@ -87,6 +87,7 @@ KVINDRA::KVINDRA()
    fTrigger = 0;
    gIndra = this;
    fPHDSet=kFALSE;
+   fSelecteur=0;
 }
 
 //_________________________________________________________________________________
@@ -115,6 +116,7 @@ KVINDRA::~KVINDRA()
       delete fPhoswich;
    }
    fPhoswich = 0;
+   if(fSelecteur) delete fSelecteur;
    gIndra = 0;
 }
 
@@ -152,19 +154,6 @@ void KVINDRA::MakeListOfDetectorTypes()
 		kvch->SetLabel(Form("CHIO%1.0f",press_chio[ii]));
 		fDetectorTypes->Add(kvch);
 	}
-/*
-   KVChIo *kvch = new KVChIo(50.0);
-   kvch->SetLabel("CHIO50");
-   fDetectorTypes->Add(kvch);
-
-   kvch = new KVChIo(30.0);
-   kvch->SetLabel("CHIO30");
-   fDetectorTypes->Add(kvch);
-
-   kvch = new KVChIo(20.0);
-   kvch->SetLabel("CHIO20");
-   fDetectorTypes->Add(kvch);
-*/
    // CsI scintillators
 	Float_t thick_csi[7]={13.80,9.70,9.0,7.60,6.0,5.0,4.80};
 	KVCsI *kvcsi = NULL;
@@ -174,38 +163,6 @@ void KVINDRA::MakeListOfDetectorTypes()
 		kvcsi->SetLabel(Form("CSI%1.0f",thick_csi[ii]*10));
 		fDetectorTypes->Add(kvcsi);
 	}
-/*
-   KVCsI *kvcsi = new KVCsI(13.8);
-   kvcsi->SetLabel("CSI138");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(9.7);
-   kvcsi->SetLabel("CSI97");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(9.0);
-   kvcsi->SetLabel("CSI90");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(7.6);
-   kvcsi->SetLabel("CSI76");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(4.8);
-   kvcsi->SetLabel("CSI48");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(6.0);
-   kvcsi->SetLabel("CSI60");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(5.0);
-   kvcsi->SetLabel("CSI50");
-   fDetectorTypes->Add(kvcsi);
-*/
-#ifdef KV_DEBUG
-   Info("MakeListOfDetectorTypes", "Success");
-#endif
 }
 
 //_________________________________________________________________________________
@@ -632,21 +589,15 @@ void KVINDRA::PrototypeTelescopes()
 //_________________________________________________________________________________
 void KVINDRA::BuildGeometry()
 {
-
    // Construction of 1st campaign INDRA detector array. All
-
    // subsequent realisations derive from this class and make
-
    // modifications to this basic structure
+   
+   KVLayer *kvl = new KVLayer;    //Build ionisation chamber layer
 
-
-
-   //Build ionisation chamber layer
-
-   //Pressures correspond to Xe+Sn
+   //Pressures correspond to Xe+Sn (should be replaced when SetParameters()
+   //is called with values read from database corresponding to dataset)
    //1st Layer - Ionisation chamber
-
-   KVLayer *kvl = new KVLayer;
 
    kvl->
        AddRing(new
@@ -942,9 +893,25 @@ void KVINDRA::BuildGeometry()
 
 void KVINDRA::Build()
 {
-   //Overrides KVMultiDetArray::Build in order to set the name of the detector.
-   //We also add the acquisition parameters which are not associated to a detector:
+   // Overrides KVMultiDetArray::Build in order to set the name of the detector.
+   // Correspondance between CsI detectors and pin lasers is set up if known.
+
+   KVMultiDetArray::Build();
+
+   SetName("INDRA");
+   SetTitle("1st & 2nd campaign INDRA multidetector");
+   
+   SetPinLasersForCsI();
+}
+
+void KVINDRA::SetArrayACQParams()
+{
+   // Overrides KVMultiDetArray::SetArrayACQParams() in order to
+   // add the following acquisition parameters which are not associated to a detector:
    //
+   // STAT_EVE
+   // R_DEC
+   // CONFIG
    // PILA_01_PG
    // PILA_01_GG
    // PILA_02_PG
@@ -966,13 +933,20 @@ void KVINDRA::Build()
    // SI_PIN2_PG
    // SI_PIN2_GG
    //
-   // Correspondance between CsI detectors and pin lasers is set up if known.
-
-   KVMultiDetArray::Build();
-
-   SetName("INDRA");
-   SetTitle("1st & 2nd campaign INDRA multidetector");
-
+   // We also create and initialize the KVINDRATriggerInfo object (fSelecteur) used to read
+   // the status of the DAQ trigger event by event (access through GetTriggerInfo()).
+   
+   KVACQParam* ste = new KVACQParam("STAT_EVE");
+   AddACQParam(ste);
+   KVACQParam* dec = new KVACQParam("R_DEC");
+   AddACQParam(dec);
+   KVACQParam* conf = new KVACQParam("CONFIG");
+   AddACQParam(conf);
+   fSelecteur = new KVINDRATriggerInfo;
+   fSelecteur->SetSTAT_EVE_PAR(ste);
+   fSelecteur->SetR_DEC_PAR(dec);
+   fSelecteur->SetVXCONFIG_PAR(conf);
+   
    AddACQParam(new KVACQParam("PILA_01_PG"));
    AddACQParam(new KVACQParam("PILA_01_GG"));
    AddACQParam(new KVACQParam("PILA_02_PG"));
@@ -993,8 +967,6 @@ void KVINDRA::Build()
    AddACQParam(new KVACQParam("SI_PIN1_GG"));
    AddACQParam(new KVACQParam("SI_PIN2_PG"));
    AddACQParam(new KVACQParam("SI_PIN2_GG"));
-
-	SetPinLasersForCsI();
 }
 
 //_________________________________________________________________________________________
@@ -1323,5 +1295,18 @@ run_number)
 	}
 	return 0;
 
+}
+
+//_____________________________________________________________________________
+
+void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params )
+{
+   // Overrides KVMultiDetArray::GetDetectorEvent.
+   // If the list of fired acquisition parameters is given (meaning we are reading raw data)
+   // then we check that what we have read is in fact an INDRA event
+   // (see KVINDRATriggerInfo::IsINDRAEvent()) : if not, we do not try to find the hit groups.
+   
+   if( fired_params && !GetTriggerInfo()->IsINDRAEvent() ) return;
+   KVMultiDetArray::GetDetectorEvent(detev,fired_params);
 }
 

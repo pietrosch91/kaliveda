@@ -11,7 +11,7 @@ MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_camp5 INDRA_e475s INDRA_e
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVS*.cpp
 ifeq ($(ROOTGANILTAPE),no)
-NOT_READY += analysis/KVINDRARawDataReader.cpp analysis/KVINDRARawDataAnalyser.cpp analysis/KVINDRARawDataReconstructor.cpp analysis/KVINDRARawIdent.cpp 
+NOT_READY += analysis/KVINDRARawDataAnalyser.cpp analysis/KVINDRARawDataReconstructor.cpp analysis/KVINDRARawIdent.cpp 
 endif
 
 ifeq ($(ROOTGANILTAPE),yes)

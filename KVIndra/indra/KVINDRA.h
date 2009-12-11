@@ -29,6 +29,7 @@ $Id: KVINDRA.h,v 1.43 2009/01/21 10:05:51 franklan Exp $
 #include "KVDBSystem.h"
 #include "KVUpDater.h"
 #include "KVDataSetManager.h"
+#include "KVINDRATriggerInfo.h"
 
 class KVLayer;
 class KVNucleus;
@@ -79,6 +80,8 @@ class KVINDRA:public KVMultiDetArray {
    KVLayer *fChIoLayer;         //Reference to ChIo layer of INDRA
 
    Bool_t fPHDSet;//set to kTRUE if pulse height defect parameters are set
+   
+   KVINDRATriggerInfo* fSelecteur;//infos from DAQ trigger (le Selecteur)
 
    virtual void MakeListOfDetectorTypes();
    virtual void MakeListOfDetectors();
@@ -128,8 +131,12 @@ class KVINDRA:public KVMultiDetArray {
 	void SetPinLasersForCsI();
    virtual TGraph *GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t run_number=-1);
 
+   void SetArrayACQParams();
+   virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
+   
+   KVINDRATriggerInfo* GetTriggerInfo() { return fSelecteur; };
 
-    ClassDef(KVINDRA, 5)        //class describing the materials and detectors etc. to build an INDRA multidetector array
+    ClassDef(KVINDRA, 6)        //class describing the materials and detectors etc. to build an INDRA multidetector array
 };
 
 //................  global variable

@@ -8,6 +8,7 @@ $Date: 2009/01/14 15:59:11 $
 //Author: John Frankland
 
 #include "KVIVRawDataReconstructor.h"
+#include "KVINDRA.h"
 
 ClassImp(KVIVRawDataReconstructor)
 
@@ -37,7 +38,7 @@ Bool_t KVIVRawDataReconstructor::Analysis()
    //Non-INDRA (i.e. VAMOS seul) events are treated here, i.e. we call tree->Fill()
    //INDRA events are treated by calling KVINDRARawDataReconstructor::Analysis()
    
-   if( !IsINDRAEvent() ){
+   if( !gIndra->GetTriggerInfo()->IsINDRAEvent() ){
       tree->Fill();
       return kTRUE;
    }

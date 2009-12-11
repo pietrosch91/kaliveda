@@ -81,13 +81,15 @@ void KVRawDataAnalyser::ProcessRun()
       fEventNumber++;
 
       //reconstruct hit groups
-        gMultiDetArray->GetDetectorEvent(fDetEv);
+      KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
+      gMultiDetArray->GetDetectorEvent(fDetEv, fired);
 
 		preAnalysis();
       //call user's analysis. stop if returns kFALSE.
       if(!Analysis()) break;
 		postAnalysis();
-
+     
+       delete fired;
        fDetEv->Clear();
 
 		if(!((fEventNumber)%10000)) cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
@@ -95,10 +97,10 @@ void KVRawDataAnalyser::ProcessRun()
 
     delete fDetEv;
 
-	cout << endl << "Finished reading " << fEventNumber << " events from file " << raw_file.Data() << endl << endl;
 	cout << "Ending analysis of run " << fRunNumber << " on : ";
 	TDatime now2;
 	cout <<  now2.AsString() << endl << endl;
+	cout << endl << "Finished reading " << fEventNumber << " events from file " << raw_file.Data() << endl << endl;
 
 	preEndRun();
 	//call user's end of run function
@@ -162,12 +164,12 @@ void KVRawDataAnalyser::Make(const Char_t * kvsname)
    cf.AddMethodBody("InitAnalysis", body);
    //initrun
    body = "   //Initialisation performed at beginning of each run\n";
-   body+= "   //  Int_t fRunNumber contains current run number";
+   body+= "   //  GetRunNumber() returns current run number";
    cf.AddMethodBody("InitRun", body);
    //Analysis
    body = "   //Analysis method called for each event\n";
-   body+= "   //  Long64_t fEventNumber contains current event number\n";
-   body+= "   //  KVDetectorEvent* fDetEv gives list of hit groups for current event\n";
+   body+= "   //  GetEventNumber() returns current event number\n";
+   body+= "   //  GetDetectorEvent() gives pointer to list of hit groups (KVDetectorEvent) for current event\n";
    body+= "   //  Processing will stop if this method returns kFALSE\n";
    body+= "   return kTRUE;";
    cf.AddMethodBody("Analysis", body);

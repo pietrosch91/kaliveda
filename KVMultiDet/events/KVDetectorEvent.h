@@ -29,7 +29,7 @@ class KVDetectorEvent:public KVBase {
 
  private:
 
-   KVUniqueNameList * fHitGroups;        //->TRefArray of groups hit by particles in the event
+   KVUniqueNameList * fHitGroups;        //->list of groups hit by particles in the event
 
  public:
 
@@ -50,10 +50,7 @@ class KVDetectorEvent:public KVBase {
       return (fHitGroups->FindObject(grp->GetName())!=0);
    };
    virtual UInt_t GetMult() const {
-      if (fHitGroups)
          return fHitGroups->GetSize();
-      else
-         return 0;
    };
    
    ClassDef(KVDetectorEvent, 2) // List of hit groups in a multidetector array

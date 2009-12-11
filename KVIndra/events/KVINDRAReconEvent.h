@@ -22,7 +22,6 @@ $Id: KVINDRAReconEvent.h,v 1.38 2008/01/21 12:44:05 franklan Exp $
 #include "KVReconstructedEvent.h"
 #include "KVMultiDetArray.h"
 #include "KVINDRACodes.h"
-#include "KVINDRATriggerInfo.h"
 
 class KVDetectorEvent;
 class KVGroup;
@@ -39,7 +38,6 @@ class KVINDRAReconEvent:public KVReconstructedEvent {
          fCodeMask = new KVINDRACodeMask;
       return fCodeMask;
    };
-   KVINDRATriggerInfo fTrigger; //info on state of trigger during event
 
  public:
 
@@ -69,14 +67,10 @@ class KVINDRAReconEvent:public KVReconstructedEvent {
 
    virtual Bool_t IsOK();
 
-   inline KVINDRATriggerInfo & EventTrigger() {
-      return fTrigger;
-   };
-
    void IdentifyEvent();
    void ChangeFragmentMasses(UChar_t mass_formula);
    
-   ClassDef(KVINDRAReconEvent, 5)       //Event reconstructed from energy losses in INDRA array
+   ClassDef(KVINDRAReconEvent, 6)       //Event reconstructed from energy losses in INDRA array
 };
 
 #endif

@@ -30,6 +30,8 @@ class KVRawDataAnalyser : public KVDataAnalyser
    virtual void EndAnalysis()=0;
 
    const KVDetectorEvent* GetDetectorEvent() const { return fDetEv; };
+   Int_t GetRunNumber() const { return fRunNumber; };
+   Long64_t GetEventNumber() const { return fEventNumber; };
    
    virtual Bool_t FileHasUnknownParameters() const { return (fRunFile->GetUnknownParameters()->GetSize()>0); };
    virtual void SubmitTask();

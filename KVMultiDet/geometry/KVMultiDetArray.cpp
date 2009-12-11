@@ -1152,9 +1152,14 @@ void KVMultiDetArray::AddACQParam(KVACQParam * par)
 
 void KVMultiDetArray::SetACQParams()
 {
-   // Set up acquisition parameters in all detectors of the array.
-   // Here we loop over all detectors of the array and call each detector's SetACQParams() method,
-   // if it has not already been done (i.e. if the detector has no associated parameters).
+   // Set up acquisition parameters in all detectors of the array + any acquisition parameters which are not
+   // directly related to a detector.
+   //
+   // Override the method SetArrayACQParams() in order to add any acquisition parameters not directly
+   // related to a detector.
+   //
+   // For the detector acquisition parameters, we loop over all detectors of the array and call each detector's
+   // SetACQParams() method, if it has not already been done (i.e. if the detector has no associated parameters).
    // Each specific implementation of a KVDetector class should redefine the KVDetector::SetACQParams()
    // method in order to give the detector in question the necessary acquisition parameters (KVACQParam objects).
    //
@@ -1171,6 +1176,8 @@ void KVMultiDetArray::SetACQParams()
       fACQParams->Clear();
    }
 
+   SetArrayACQParams();
+   
    TIter next(GetListOfDetectors());
    KVDetector *det;
    while ((det = (KVDetector *) next())) {
@@ -1192,6 +1199,15 @@ void KVMultiDetArray::SetACQParams()
       // set bitmask
       det->SetFiredBitmask();
    }
+}
+
+//_________________________________________________________________________________
+
+void KVMultiDetArray::SetArrayACQParams()
+{
+   // Method called by SetACQParams() in order to define any acquisition parameters which are not
+   // directly related to any detectors of the array.
+   // This implementation does nothing: override it in derived classes if needed.
 }
 
 //_________________________________________________________________________________
@@ -1226,25 +1242,50 @@ void KVMultiDetArray::UpdateCalibrators()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev)
+void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params)
 {
     // First step in event reconstruction based on current status of detectors in array.
-    // Fill the given KVDetectorEvent with the list of all groups which were 'hit',
+    // Fills the given KVDetectorEvent with the list of all groups which have fired.
     // i.e. loop over all groups of the array and test whether KVGroup::Fired() returns true or false.
-    // We add each hit group to the list.
-    // The KVDetectorEvent can then be used by KVReconstructedEvent::ReconstructEvent
+    //
+    // If the list of fired acquisition parameters 'fired_params' is given, then we use this list
+    // to find, first, the associated fired detectors, then, the associated groups. This is possible when
+    // reading raw data using an object derived from KVRawDataReader:
+    //
+    //     KVRawDataReader *run = ... ; // base pointer to object used to read data
+    //     if( run->GetNextEvent() )  // read an event and test that all is well
+    //      {
+    //           KVSeqCollection* fired = run->GetFiredDataParameters(); // get fired acquisition parameters
+    //           gMultiDetArray->GetDetectorEvent(detev, fired); // build list of fired groups
+    //           delete fired;   // user must delete list after use
+    //       }
+    //
+    // The KVDetectorEvent object can then be used by KVReconstructedEvent::ReconstructEvent
     // in order to generate a list of particles (KVReconstructedNucleus).
+    //
+    // Call method detev->Clear() before reading another event in order to reset all of the hit groups
+    // (including all detectors etc.) and emptying the list.
 
-   //loop over groups
-   TIter next_grp(fGroups);
-   KVGroup *grp;
-   while ((grp = (KVGroup *) next_grp())) {
-
-      if (grp->Fired()) {
-
-         //add new group to list of hit groups
-         detev->AddGroup(grp);
-
+   if(fired_params){
+      // list of fired acquisition parameters given
+      TIter next_par(fired_params);
+      KVACQParam* par = 0; KVDetector* det = 0; KVGroup* grp = 0;
+      while( (par = (KVACQParam*)next_par()) ){
+         if( (det = par->GetDetector()) ){
+            if( (grp = det->GetGroup()) ) detev->AddGroup(grp);
+         }
+      }
+   }
+   else
+   {
+      //loop over groups
+      TIter next_grp(fGroups);
+      KVGroup *grp;
+      while ((grp = (KVGroup *) next_grp())) {
+         if (grp->Fired()) {
+            //add new group to list of hit groups
+            detev->AddGroup(grp);
+         }
       }
    }
 }

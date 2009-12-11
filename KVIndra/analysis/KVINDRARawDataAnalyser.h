@@ -5,10 +5,7 @@
 #define __KVINDRARAWDATAANALYSER_H
 
 #include "KVRawDataAnalyser.h"
-#include "KVINDRATriggerInfo.h"
-#include "KVINDRARawDataReader.h"
 #include "KVDetectorEvent.h"
-#include "KVINDRAReconEvent.h"
 #include "KVDataSet.h"
 
 class KVINDRARawDataAnalyser : public KVRawDataAnalyser
@@ -16,27 +13,24 @@ class KVINDRARawDataAnalyser : public KVRawDataAnalyser
    friend class KVDataSet;
    
    protected:
-         
-   KVINDRATriggerInfo* fTrig;//INDRA trigger for current event
+   Int_t INDRA_events;
+   Int_t gene_events;
+   Int_t other_events;
+   
    virtual KVNumberList PrintAvailableRuns(KVString & datatype);
-   
-   virtual void ProcessRun();
-   
+      
    public:
 
    KVINDRARawDataAnalyser();
    virtual ~KVINDRARawDataAnalyser();
    
-   Bool_t IsINDRAEvent() const {
-		return ((KVINDRARawDataReader*)fRunFile)->IsINDRAEvent();
-	};
-   const KVINDRATriggerInfo* GetINDRATrigger() const { return fTrig; };
-   const KVDetectorEvent* GetINDRADetectorEvent() const { return fDetEv; };
+   void postInitRun();
+   void preAnalysis();
+   void preEndRun();
    
-   virtual void SubmitTask();
-   static void Make(const Char_t * kvsname = "MyOwnRawDataAnalyser");   
+   static void Make(const Char_t * kvsname = "MyOwnINDRARawDataAnalyser");   
    
-   ClassDef(KVINDRARawDataAnalyser,1)//Analysis of raw INDRA data
+   ClassDef(KVINDRARawDataAnalyser,2)//Analysis of raw INDRA data
 };
 
 #endif

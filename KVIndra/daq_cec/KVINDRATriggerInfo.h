@@ -33,12 +33,9 @@ class KVINDRATriggerInfo {
    Binary16_t fSTAT_EVE;        // value of register STAT_EVE for event
    Binary16_t fR_DEC;           // value of register R_DEC for event
    Binary16_t fVXCONFIG;        // value of register VXCONFIG for event
-
- protected:
-
-    inline void SetSTAT_EVE(KVACQParam *);      //used by KVINDRADLT
-   inline void SetR_DEC(KVACQParam *);  //used by KVINDRADLT
-   inline void SetVXCONFIG(KVACQParam *);       //used by KVINDRADLT
+   KVACQParam *fSTAT_EVE_PAR;   // STAT_EVE parameter read from raw data
+   KVACQParam *fR_DEC_PAR;      // R_DEC parameter read from raw data
+   KVACQParam *fVXCONFIG_PAR;   // VXCONFIG parameter read from raw data
 
  public:
 
@@ -46,13 +43,17 @@ class KVINDRATriggerInfo {
     virtual ~ KVINDRATriggerInfo() {
    };
 
+   void SetSTAT_EVE_PAR(KVACQParam *p){ fSTAT_EVE_PAR = p; };     
+   void SetR_DEC_PAR(KVACQParam *p){ fR_DEC_PAR = p; };
+   void SetVXCONFIG_PAR(KVACQParam *p){ fVXCONFIG_PAR = p; };
+   
    inline void SetSTAT_EVE(Binary16_t);
    inline void SetR_DEC(Binary16_t);
    inline void SetCONFIG(Binary16_t);
 
-   inline Binary16_t GetSTAT_EVE() const;
-   inline Binary16_t GetR_DEC() const;
-   inline Binary16_t GetCONFIG() const;
+   inline Binary16_t GetSTAT_EVE();
+   inline Binary16_t GetR_DEC();
+   inline Binary16_t GetCONFIG();
 
    inline Bool_t IsPhysics() {
       return (PHY_EVT() && !MRQ());
@@ -75,64 +76,58 @@ class KVINDRATriggerInfo {
    inline Bool_t IsTest() {
       return GEN_TST();
    };
+   virtual Bool_t IsINDRAEvent()
+   {
+      //Valid INDRA events have the acquisition parameter STAT_EVE present i.e. not equal to -1.
+      //Test this after reading a DAQ event to know if a valid INDRA event has been read.
+      return fSTAT_EVE_PAR->Fired();
+   };
 
    void Print(Option_t * opt = "");
 
-   ClassDef(KVINDRATriggerInfo, 2)      //Information on INDRA event from DAQ trigger
+   ClassDef(KVINDRATriggerInfo, 3)      //Information on INDRA event from DAQ trigger
 };
 
 //_________ inline methodes _______________
 
-inline Binary16_t KVINDRATriggerInfo::GetSTAT_EVE() const
+inline Binary16_t KVINDRATriggerInfo::GetSTAT_EVE()
 {
    //Returns value of STAT_EVE read from raw data
-
+   fSTAT_EVE = fSTAT_EVE_PAR->GetCoderData();
    return fSTAT_EVE;
 }
-inline Binary16_t KVINDRATriggerInfo::GetR_DEC() const
+inline Binary16_t KVINDRATriggerInfo::GetR_DEC()
 {
    //Returns value of R_DEC read from raw data
-
+   fR_DEC = fR_DEC_PAR->GetCoderData();
    return fR_DEC;
 }
-inline Binary16_t KVINDRATriggerInfo::GetCONFIG() const
+inline Binary16_t KVINDRATriggerInfo::GetCONFIG()
 {
    //Returns value of CONFIG read from raw data
-
+   fVXCONFIG = fVXCONFIG_PAR->GetCoderData();
    return fVXCONFIG;
 }
 
 inline Bool_t KVINDRATriggerInfo::PHY_EVT()
 {
-   return fSTAT_EVE.TestBit(BIT_PHY_EVT);
+   return GetSTAT_EVE().TestBit(BIT_PHY_EVT);
 }
 inline Bool_t KVINDRATriggerInfo::MRQ()
 {
-   return fSTAT_EVE.TestBit(BIT_MRQ);
+   return GetSTAT_EVE().TestBit(BIT_MRQ);
 }
 inline Bool_t KVINDRATriggerInfo::GEN_ELEC()
 {
-   return fSTAT_EVE.TestBit(BIT_GEN_ELEC);
+   return GetSTAT_EVE().TestBit(BIT_GEN_ELEC);
 }
 inline Bool_t KVINDRATriggerInfo::GEN_TST()
 {
-   return fSTAT_EVE.TestBit(BIT_GEN_TST);
+   return GetSTAT_EVE().TestBit(BIT_GEN_TST);
 }
 inline Bool_t KVINDRATriggerInfo::GEN_LAS()
 {
-   return fSTAT_EVE.TestBit(BIT_GEN_LAS);
-}
-inline void KVINDRATriggerInfo::SetSTAT_EVE(KVACQParam * p)
-{
-   fSTAT_EVE = p->GetCoderData();
-}
-inline void KVINDRATriggerInfo::SetR_DEC(KVACQParam * p)
-{
-   fR_DEC = p->GetCoderData();
-}
-inline void KVINDRATriggerInfo::SetVXCONFIG(KVACQParam * p)
-{
-   fVXCONFIG = p->GetCoderData();
+   return GetSTAT_EVE().TestBit(BIT_GEN_LAS);
 }
 inline void KVINDRATriggerInfo::SetSTAT_EVE(Binary16_t b)
 {

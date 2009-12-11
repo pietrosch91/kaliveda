@@ -10,10 +10,10 @@ $Date: 2007/06/08 15:49:10 $
 #ifndef __KVRAWDATAREADER_H
 #define __KVRAWDATAREADER_H
 
-#include "TNamed.h"
+#include "KVBase.h"
 #include "KVSeqCollection.h"
 
-class KVRawDataReader : public TNamed
+class KVRawDataReader : public KVBase
 {
    public:
 

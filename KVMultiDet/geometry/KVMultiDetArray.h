@@ -173,9 +173,10 @@ void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDT
    KVACQParam *GetACQParam(const Char_t * name) {
       return (KVACQParam *) fACQParams->FindObject(name);
    };
+   virtual void SetArrayACQParams();
 
    void DetectEvent(KVEvent * event);
-   void GetDetectorEvent(KVDetectorEvent*);
+   virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
    Bool_t DetectParticle(KVNucleus * part);
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 

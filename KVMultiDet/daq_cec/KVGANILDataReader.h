@@ -17,10 +17,9 @@ class KVGANILDataReader : public KVRawDataReader
    GTGanilData* fGanilData;//object used to read GANIL acquisition file
    
    virtual void ConnectRawDataParameters();
-   virtual void ConnectArrayDataParameters();
 
-   KVHashList *fExtParams;//list of unknown data parameters (not defined in KVMultiDetArray object)
-   KVHashList *fParameters;//->list of all data parameters contained in file
+   KVHashList *fParameters;//list of all data parameters contained in file
+   KVHashList *fExtParams;//list of data parameters in file not defined by gMultiDetArray
    
    virtual GTGanilData* NewGanTapeInterface();
    virtual KVACQParam* CheckACQParam(const Char_t*);   

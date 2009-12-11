@@ -68,7 +68,7 @@ void KVINDRAReconEvent::init()
 
 
 KVINDRAReconEvent::KVINDRAReconEvent(Int_t mult, const char *classname)
-:KVReconstructedEvent(mult, classname), fTrigger()
+:KVReconstructedEvent(mult, classname)
 {
    init();
    CustomStreamer();            //because KVINDRAReconNuc has a customised streamer
@@ -145,14 +145,9 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
       } else {
          KVReconstructedEvent::Streamer(R__b);
       }
-      if (R__v > 4)
+      if (R__v > 4 && R__v< 6){
+         KVINDRATriggerInfo fTrigger;
          fTrigger.Streamer(R__b);
-      else {
-         //for data written before KVINDRATriggerInfo member was added, we will set up
-         //the trigger info with typical values for a physical event with standard INDRA
-         fTrigger.SetSTAT_EVE("1111111111011000");
-         fTrigger.SetR_DEC("1111111000000001");
-         fTrigger.SetCONFIG("1100000000000001");
       }
       R__b.CheckByteCount(R__s, R__c, KVINDRAReconEvent::IsA());
       //check codes (&& if R__v<4 set angles)
@@ -179,10 +174,7 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
          }
       }
    } else {
-      R__c = R__b.WriteVersion(KVINDRAReconEvent::IsA(), kTRUE);
-      KVReconstructedEvent::Streamer(R__b);
-      fTrigger.Streamer(R__b);
-      R__b.SetByteCount(R__c, kTRUE);
+      KVINDRAReconEvent::Class()->WriteBuffer(R__b,this);
    }
 }
 
