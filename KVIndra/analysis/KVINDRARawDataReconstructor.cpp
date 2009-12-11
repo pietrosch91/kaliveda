@@ -103,6 +103,7 @@ void KVINDRARawDataReconstructor::InitRun()
       
       //leaves for reconstructed events
 		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 64000, 0)->SetAutoDelete(kFALSE);
+		gIndra->ConnectBranches(tree);
       
       Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
             
@@ -164,7 +165,6 @@ void KVINDRARawDataReconstructor::EndRun()
       cout << endl << " *** Number of reconstructed INDRA events : "
             << nb_recon << " ***" << endl<< endl;
 		file->cd();
-		gIndra->Write("INDRA");//write INDRA to file
 		gDataAnalyser->WriteBatchInfo(tree);
 		tree->Write();//write tree to file
       rawtree->Write();

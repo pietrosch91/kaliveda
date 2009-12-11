@@ -72,24 +72,6 @@ KVINDRAReconEvent::KVINDRAReconEvent(Int_t mult, const char *classname)
 {
    init();
    CustomStreamer();            //because KVINDRAReconNuc has a customised streamer
-   //if this event is being read from a file/tree we may not yet have
-   //a valid INDRA object. must get the one in the file.
-   if (!gIndra && gFile) {
-      gIndra = (KVINDRA *) gFile->Get("INDRA");
-   }
-   //if there is no file available, we need to build INDRA
-   //If an active dataset is defined (gDataSet) we create the corresponding detector
-   if (!gIndra) {
-      if (gDataSet){
-         gDataSet->BuildMultiDetector(); Info("KVINDRAReconEvent","gDataSet used to build INDRA");
-      }
-      else {
-         Warning("KVINDRAReconEvent",
-                 "Building first campaign INDRA detector (default).\nIf you want a different detector you should create it before using KVINDRAReconEvent.");
-         KVINDRA *tmp = new KVINDRA;
-         tmp->Build();
-      }
-   }
 }
 
 KVINDRAReconEvent::~KVINDRAReconEvent()
