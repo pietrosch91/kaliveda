@@ -13,6 +13,7 @@ $Date: 2008/11/12 16:15:49 $
 #include "KVINDRADB.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataRepository.h"
+#include "RVersion.h"
 
 ClassImp(KVINDRARawIdent)
 
@@ -165,7 +166,14 @@ Bool_t KVINDRARawIdent::Analysis ()
    // RawData a 'friend' TTree and keep everything in synch.
    tree->Fill();
    recev->Clear();
-   
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,2)	
+	// After 10000 events we try to optimise the TTree buffers
+	if(GetEventNumber()==10000){
+		tree->OptimizeBaskets(10000000,1.1,"d");
+	}
+#endif
+	
    return kTRUE;
 }
 

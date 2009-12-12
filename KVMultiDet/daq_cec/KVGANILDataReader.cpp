@@ -58,7 +58,7 @@ KVGANILDataReader::~KVGANILDataReader()
    // Destructor
    if(fGanilData) { delete fGanilData; fGanilData=0; }
    if(fExtParams){
-		fExtParams->Delete();
+		fExtParams->Delete("slow");
 		delete fExtParams;
    }
    fParameters->Clear();
