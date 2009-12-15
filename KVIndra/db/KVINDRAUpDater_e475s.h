@@ -20,7 +20,12 @@ class KVINDRAUpDater_e475s : public KVINDRAUpDater
    KVINDRAUpDater_e475s();
    virtual ~KVINDRAUpDater_e475s();
 	
+	
+	void SetCalibrationParameters(UInt_t );
 	void SetCalibParameters(KVDBRun * run);
+	
+	void SetPedestals(KVDBRun *);
+	
 	
    ClassDef(KVINDRAUpDater_e475s,1)//Sets run parameters for INDRA_e475s dataset
 };

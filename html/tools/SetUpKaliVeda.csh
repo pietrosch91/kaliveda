@@ -107,7 +107,7 @@ endif
 #
 #                   get gcc version
 #
-set gccver=`gcc -v |& awk '/(gcc version)/ {print $3}'`
+set gccver=`gcc -v |& awk '/(version)/ {print $3}'`
 #
 #                   get root version
 #

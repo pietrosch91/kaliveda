@@ -22,13 +22,17 @@ class KVFunctionCal : public KVCalibrator
    
 	TF1*			fcalibfunction;//calibration function
    Bool_t      fPedCorr;		//true if pedestal correction is required
+	protected:
+	
+	void SetParametersWithFunction();
 	
 	public:
 	
-	KVFunctionCal(){ fcalibfunction=0; };
+	KVFunctionCal(){ init(); };
    KVFunctionCal(TF1 *ff);
 	KVFunctionCal(KVDetector * kvd,TF1 *ff);
 	KVFunctionCal(KVDBParameterSet *kvdbps);
+	void init();
 	
 	virtual ~KVFunctionCal(){ 
 		if (fcalibfunction) delete fcalibfunction;
@@ -38,6 +42,7 @@ class KVFunctionCal : public KVCalibrator
 	void 	ChangeCalibParameters(KVDBParameterSet *kvdbps);
    void 	SetConversionType(TString from,TString to,TString signal);
    void 	WithPedestalCorrection(Bool_t yes) { fPedCorr = yes; }; 
+	TF1*  GetFunction() { return fcalibfunction; }
 	
 	virtual Double_t Compute(Double_t) const;
    virtual Double_t Invert(Double_t e);

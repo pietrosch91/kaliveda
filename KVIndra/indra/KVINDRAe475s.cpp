@@ -12,9 +12,6 @@ $Date: 2008/12/17 13:01:26 $
 #include "KVCsI.h"
 #include "KVIDGridManager.h"
 
-#define CHIO_SI_PIEDS "piedestaux_chiosi.dat"
-#define CSI_PIEDS "piedestaux_csi.dat"
-
 ClassImp(KVINDRAe475s)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -120,12 +117,4 @@ void KVINDRAe475s::Build()
    SetName("INDRA");
    SetTitle("INDRA detector, E475S configuration");
 
-   //set pedestals
-   Info("Build", "Setting pedestals for ChIo/Si detectors");
-   TString fullpath;
-   SearchKVFile(CHIO_SI_PIEDS, fullpath, fDataSet.Data());
-   SetPedestals(fullpath.Data());
-   Info("Build", "Setting pedestals for CsI detectors");
-   SearchKVFile(CSI_PIEDS, fullpath, fDataSet.Data());
-   SetPedestals(fullpath.Data());
 }

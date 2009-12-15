@@ -26,44 +26,72 @@ ClassImp(KVFunctionCal)
 
 
 //------------------------------
-KVFunctionCal::KVFunctionCal(TF1 *ff):KVCalibrator(1)
+KVFunctionCal::KVFunctionCal(TF1 *ff):KVCalibrator(ff->GetNpar())
 //------------------------------
 {
    // Constructor of KVCalibrator in used
 	// Initialisation of the calibration function fcalibfunction
-	fPedCorr=kTRUE;
+	init();
 	fcalibfunction=ff;
+	SetParametersWithFunction();
 	
 }
 
 //------------------------------
-KVFunctionCal::KVFunctionCal(KVDetector * kvd,TF1 *ff):KVCalibrator(1)
+KVFunctionCal::KVFunctionCal(KVDetector * kvd,TF1 *ff):KVCalibrator(ff->GetNpar())
 //------------------------------
 {
    // Constructor of KVCalibrator in used
 	// Initialisation of the calibration function fcalibfunction
 	// and link with the KVDetector is done
-	fPedCorr=kTRUE;
-   SetDetector(kvd);
+	init();
+	SetDetector(kvd);
    fcalibfunction=ff;
+	SetParametersWithFunction();
 
 }
 
 //------------------------------
-KVFunctionCal::KVFunctionCal(KVDBParameterSet* kvdbps):KVCalibrator(1)
+void KVFunctionCal::init()
+//------------------------------
+{
+	fcalibfunction = 0;
+	fPedCorr=kTRUE;
+	fReady=kTRUE;
+}
+
+//------------------------------
+void KVFunctionCal::SetParametersWithFunction()
+//------------------------------
+{
+	//Copy parameters of the fcalibfunction in the KVCalibrator::fPar fields
+	for (UShort_t pp = 0; pp<fcalibfunction->GetNpar(); pp+=1) {
+		fPar[pp] = fcalibfunction->GetParameter(pp);
+	}
+
+}
+
+
+//------------------------------
+KVFunctionCal::KVFunctionCal(KVDBParameterSet* kvdbps):KVCalibrator()
 //------------------------------
 {
    // Specific constructor using a KVDBParameterSet*
 	// From where all information on the calibration function, the detector and type of signal
 	// are specified (for more details see KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun))
-	fPedCorr=kTRUE;
-   fcalibfunction=new TF1(kvdbps->GetName(),kvdbps->GetParamName(0));
+	init();
+	
+	fcalibfunction=new TF1(kvdbps->GetName(),kvdbps->GetParamName(0));
 	for (Int_t pp=0;pp<fcalibfunction->GetNpar();pp+=1) {
 		fcalibfunction->SetParameter(pp,kvdbps->GetParameter(pp+1));
 	}
 	fcalibfunction->SetRange(kvdbps->GetParameter(kvdbps->GetParamIndex("xmin")),kvdbps->GetParameter(kvdbps->GetParamIndex("xmax")));
+	
 	SetType(kvdbps->GetTitle());
 	SetDetector(gMultiDetArray->GetDetector(kvdbps->GetName()));
+	
+	SetNumberParams(fcalibfunction->GetNpar());
+	SetParametersWithFunction();
 
 }
 

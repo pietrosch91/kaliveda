@@ -436,6 +436,7 @@ INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
 INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
 INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
 INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
+INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 
 # Default headers for runlist columns
