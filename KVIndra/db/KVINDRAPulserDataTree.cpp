@@ -159,7 +159,7 @@ void KVINDRAPulserDataTree::Build()
 	//
 	// We create a TTree with 1 branch for each detector acquisition parameter.
 	// For PILA and SI_PIN parameters, we create a 'gene' and a 'laser' branch for each.
-	
+
 	fGeneDir = new KVTarArchive( GetDirectoryName("GeneDetDir"), gDataSet->GetDataSetDir() );
 	fPinDir = new KVTarArchive( GetDirectoryName("GenePinDir"), gDataSet->GetDataSetDir() );
 	if(!fGeneDir->IsOK() && !fPinDir->IsOK()){
@@ -171,15 +171,15 @@ void KVINDRAPulserDataTree::Build()
 	delete fGeneDir;
 	delete fPinDir;
 }
-	
+
 const Char_t* KVINDRAPulserDataTree::GetDirectoryName(const Char_t* dirvar)
 {
 	// Returns the name of the directory defined by the .kvrootrc environment variable
-	// 
+	//
 	// KVINDRAPulserDataTree.[dirvar]
 	// OR
 	// dataset_name.KVINDRAPulserDataTree.[dirvar]:
-	
+
 	TString search, datasetenv;
 	datasetenv.Form("KVINDRAPulserDataTree.%s", dirvar);
 	search = gDataSet->GetDataSetEnv(datasetenv.Data(), "");
@@ -198,31 +198,31 @@ void KVINDRAPulserDataTree::CreateTree()
 	//   2 branches for each 'PILA_...' or 'SI_PIN...' parameter, suffixed with '_laser' and '_gene'
 	//
 	// NB if multidetector has not been built, it will be built by this method
-	
+
 	fArb = new TTree("PulserData", "Created by KVINDRAPulserDataTree");
 	fArb->SetDirectory(0);
-	
+
 	fArb->Branch("Run", &fRun, "Run/I");
-	
+
 	if(!gIndra) gDataSet->BuildMultiDetector();
-	
-	KVList *acq_pars = gIndra->GetACQParams();
-	
+
+	KVSeqCollection *acq_pars = gIndra->GetACQParams();
+
 	fTab_siz = acq_pars->GetEntries() + 20;
 	fVal = new Float_t[fTab_siz];
 	fIndex = new THashTable(20,5);
 	fIndex->SetOwner(kTRUE);
-	
+
 	TIter nxtACQ(acq_pars);
 	KVACQParam *ap = 0;
 	Int_t ap_num = 0;
 	KVBase *iob;
 	while( (ap = (KVACQParam*)nxtACQ()) ){
-		
+
 		TString ap_name( ap->GetName() );
 		TString ap_type( ap->GetType() );
 		if(ap_name.BeginsWith("PILA") || ap_name.BeginsWith("SI_PIN")){
-			ap_name += "_laser";			
+			ap_name += "_laser";
 			iob = new KVBase(ap_name.Data()); iob->SetNumber(ap_num); fIndex->Add(iob);
 			fArb->Branch(ap_name.Data(), &fVal[ap_num++] , Form("%s/F", ap_name.Data()));
 			ap_name.Form("%s%s", ap->GetName(),"_gene");
@@ -239,7 +239,7 @@ void KVINDRAPulserDataTree::CreateTree()
 					fTab_siz);
 			return;
 		}
-		
+
 	}
 	//keep number of used 'slots' in array
 	fTab_siz = ap_num;
@@ -248,7 +248,7 @@ void KVINDRAPulserDataTree::CreateTree()
 void KVINDRAPulserDataTree::ReadFile(ifstream& fin)
 {
 	// Read data in one file
-	
+
 	KVString line;
 	line.ReadLine(fin);
 	while( fin.good() ){
@@ -266,7 +266,7 @@ void KVINDRAPulserDataTree::ReadFile(ifstream& fin)
 void KVINDRAPulserDataTree::ReadData(Int_t run)
 {
 	// Read data for one run, fill tree
-	
+
 	fRun = run;
 	if(fGeneDir->IsOK()){
 		ifstream f;
@@ -286,7 +286,7 @@ Bool_t KVINDRAPulserDataTree::OpenGeneData(Int_t run, ifstream &f)
 	// Open gene data for one run
 	// We look for file 'runXXXX.gene' in the directory given by
 	// environment variable KVINDRAPulserDataTree.GeneDetDir.
-	
+
 	TString fname; fname.Form("/run%d.gene", run);
 	fname.Prepend(gDataSet->GetDataSetEnv("KVINDRAPulserDataTree.GeneDetDir",""));
 	return gDataSet->OpenDataSetFile(fname.Data(),f);
@@ -301,7 +301,7 @@ Bool_t KVINDRAPulserDataTree::OpenPinData(Int_t run, ifstream &f)
 	// 	runXXXX.genepin
 	// OR	runXXXX.laserpin
 	// OR	runXXXX.genelaserpin
-	
+
 	TString fname;
 	fname.Form("/run%d.genepin", run);
 	TString pindir(gDataSet->GetDataSetEnv("KVINDRAPulserDataTree.GenePinDir",""));
@@ -318,7 +318,7 @@ Bool_t KVINDRAPulserDataTree::OpenPinData(Int_t run, ifstream &f)
 void KVINDRAPulserDataTree::ReadData()
 {
 	// Read data for every run in dataset
-	
+
 	if( !fRunlist ) {
 		Error("ReadData", "Must set list of runs first using SetRunList(TList*)");
 		return;
@@ -337,7 +337,7 @@ void KVINDRAPulserDataTree::ReadData()
 void KVINDRAPulserDataTree::ReadTree(TFile *file)
 {
 	// Read pulser data tree from file
-	
+
 	fArb = (TTree*)file->Get("PulserData");
 	if(fArb){
 		//disable all branches except Run number
@@ -350,14 +350,14 @@ void KVINDRAPulserDataTree::WriteTree(TFile *file)
 {
 	// Write pulser data tree in file
 	// We build and index based on the Run number and store it in the tree.
-	
+
 	if(fArb){
 		fArb->SetDirectory(file);
 		fArb->BuildIndex("Run");
 		fArb->Write();
 	}
 }
-	
+
 Float_t KVINDRAPulserDataTree::GetMean(const Char_t* param, Int_t run)
 {
 	// Return mean value of pulser/laser for given parameter and run.
@@ -368,9 +368,9 @@ Float_t KVINDRAPulserDataTree::GetMean(const Char_t* param, Int_t run)
 	// e.g. PILA_05_PG_laser, SI_PIN1_PG_gene
 	//
 	// Returns -1.0 if no data available for this parameter/run.
-	
+
 	if( !fArb ) return -1.0;
-	
+
 	//find corresponding branch
 	TBranch *br = fArb->GetBranch(param);
 	if( !br ){
@@ -388,10 +388,10 @@ Float_t KVINDRAPulserDataTree::GetMean(const Char_t* param, Int_t run)
 	if( bytes < 0 ){
 		//unknown run number
 		Error("GetMean", "Unknown run %d", run);
-		return -1.0;		
+		return -1.0;
 	}
 	//disable branch
 	fArb->SetBranchStatus(param, 0);
-	
+
 	return value;
 }

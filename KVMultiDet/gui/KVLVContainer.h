@@ -95,7 +95,7 @@ class KVLVContainer : public TGLVContainer
 	TContextMenu		*fContextMenu; // used to display popup context menu for items
 	TList 				*fUserItems;	// list of currently displayed items, used by Refresh()
 
-	virtual void FillList(const TList* = 0);
+	virtual void FillList(const TCollection* = 0);
 	void DeleteColData();
 	void default_init();
 
@@ -110,7 +110,7 @@ class KVLVContainer : public TGLVContainer
 
 				void  	AddFrame 		(TGFrame *f, TGLayoutHints *l=0);
 				void  	Sort				(int column);
-	virtual  void  	Display			(const TList* = 0);
+	virtual  void  	Display			(const TCollection* = 0);
 	virtual  void  	Refresh			();
 	virtual  void  	SetDataColumns (Int_t ncols);
 	virtual  void  	SetDataColumn	(Int_t index, TClass *cl, const Char_t* name, const Char_t* method="");

@@ -242,7 +242,7 @@ KVIDentifier* KVIDGraph::GetIdentifier(Int_t Z, Int_t A) const
 
 	KVIDentifier* id=0;
 	if(!OnlyZId()){
-		KVList *isotopes= fIdentifiers->GetSubListWithMethod( Form("%d",Z), "GetZ" );
+		KVSeqCollection *isotopes= fIdentifiers->GetSubListWithMethod( Form("%d",Z), "GetZ" );
 		TIter next(isotopes);
 		while( (id=(KVIDentifier*)next()) ) if(id->GetA()==A) break;
 		delete isotopes;

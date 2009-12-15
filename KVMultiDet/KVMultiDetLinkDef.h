@@ -13,6 +13,7 @@
 #pragma link C++ global gDataRepositoryManager;
 #pragma link C++ global gDataSet;
 #pragma link C++ global gHistoManipulator;
+#pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
 #pragma link C++ nestedclass;
@@ -55,6 +56,7 @@
 #pragma link C++ class KVCalibrator-;//customised streamer
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
+#pragma link C++ class KVSeqCollection-;
 #pragma link C++ class KVDetector-;
 #pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBase;
@@ -85,6 +87,8 @@
 #pragma link C++ class KVEvent+;
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
+#pragma link C++ class KVHashList+;
+#pragma link C++ class KVUniqueNameList+;
 #pragma link C++ class KVIDentifier+;
 #pragma link C++ class KVIDGraph-;
 #pragma link C++ class KVIDLine-;

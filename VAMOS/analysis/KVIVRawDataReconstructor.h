@@ -12,6 +12,7 @@ $Date: 2009/01/14 15:59:11 $
 
 #include "KVINDRARawDataReconstructor.h"
 #include "GTGanilData.h"
+#include "KVGANILDataReader.h"
 
 class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
 {

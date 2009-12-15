@@ -38,7 +38,7 @@ $Id: KVLayerBrowser.h,v 1.4 2006/11/03 08:01:32 franklan Exp $
 #include "KVBrowserWidget.h"
 #include "KVRingBrowser.h"
 
-class KVList;
+class KVSeqCollection;
 class KVLayer;
 
 class KVLayerBrowser:public TGTab {
@@ -53,7 +53,7 @@ class KVLayerBrowser:public TGTab {
 
  public:
 
-    KVLayerBrowser(KVList * layers, const TGWindow * p, UInt_t w,
+    KVLayerBrowser(KVSeqCollection * layers, const TGWindow * p, UInt_t w,
                    UInt_t h);
     virtual ~ KVLayerBrowser();
    virtual void CloseWindow();

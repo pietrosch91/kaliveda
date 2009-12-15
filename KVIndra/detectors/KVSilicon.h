@@ -101,7 +101,7 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetZminPHD() { return fZminPHD; };
    virtual Short_t GetCalcACQParam(KVACQParam*) const;
 
-   ClassDef(KVSilicon, 6)       //INDRA Silicon detectors with associated electronics and power supply
+   ClassDef(KVSilicon, 7)       //INDRA Silicon detectors with associated electronics and power supply
 };
 
 //____________________________________________________________________________________________

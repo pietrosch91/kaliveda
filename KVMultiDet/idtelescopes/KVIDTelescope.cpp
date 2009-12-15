@@ -106,10 +106,11 @@ void KVIDTelescope::init()
 {
    //default init
    fDetectors = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fDetectors);
+   fDetectors->SetCleanup(kTRUE);
    fGroup = 0;
    fIDCode = 0;                 //default
    fIDGrids = new KVList(kFALSE);
+   fIDGrids->SetCleanup(kTRUE);
 }
 
 KVIDTelescope::~KVIDTelescope()
@@ -117,7 +118,6 @@ KVIDTelescope::~KVIDTelescope()
    //delete this ID telescope
    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
       fDetectors->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fDetectors));
       delete fDetectors;
    }
    fDetectors = 0;
@@ -133,7 +133,6 @@ void KVIDTelescope::AddDetector(KVDetector * d)
    //The first detector added is the "DeltaE" member, the second the "Eresidual" member.
 
    if (d) {
-      d->SetBit(kMustCleanup);
       fDetectors->Add(d);
       d->AddIDTelescope(this);
    } else {
@@ -231,10 +230,9 @@ UInt_t KVIDTelescope::GetDetectorRank(KVDetector * kvd)
 
 KVDetector *KVIDTelescope::GetDetector(const Char_t * name) const
 {
-   //
-   //Return a pointer to the detector in the telescope with the name "name".
-   //
-   KVDetector *tmp = (KVDetector *) fDetectors->FindObjectByName(name);
+   // Return a pointer to the detector in the telescope with the name "name".
+
+   KVDetector *tmp = (KVDetector *) fDetectors->FindObject(name);
    if (!tmp)
       Warning("GetDetector(const Char_t *name)",
               "Detector %s not found in telescope %s", name, GetName());

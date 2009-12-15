@@ -56,7 +56,7 @@ ClassImp(KVINDRA)
 <!-- */
 // --> END_HTML
 ///////////////////////////////////////////////////////////////////////////////////////
-		
+
 //Use this static array to translate EBaseIndra_type
 //signal type to a string giving the signal type
 Char_t KVINDRA::SignalTypes[][3] = {
@@ -75,18 +75,19 @@ KVINDRA::KVINDRA()
 {
    //Default constructor
    //Set up lists of ChIo, Si, CsI, Phoswich
-   fChIo = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fChIo);
-   fSi = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fSi);
-   fCsI = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fCsI);
+   fChIo = new KVHashList();
+   fChIo->SetCleanup(kTRUE);
+   fSi = new KVHashList();
+   fSi->SetCleanup(kTRUE);
+   fCsI = new KVHashList();
+   fCsI->SetCleanup(kTRUE);
    fChIoLayer = 0;
-   fPhoswich = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fPhoswich);
+   fPhoswich = new KVHashList();
+   fPhoswich->SetCleanup(kTRUE);
    fTrigger = 0;
    gIndra = this;
    fPHDSet=kFALSE;
+   fSelecteur=0;
 }
 
 //_________________________________________________________________________________
@@ -97,28 +98,25 @@ KVINDRA::~KVINDRA()
 
    if (fChIo && fChIo->TestBit(kNotDeleted)) {
       fChIo->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fChIo));
       delete fChIo;
    }
    fChIo = 0;
    if (fSi && fSi->TestBit(kNotDeleted)) {
       fSi->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fSi));
       delete fSi;
    }
    fSi = 0;
    if (fCsI && fCsI->TestBit(kNotDeleted)) {
       fCsI->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fCsI));
       delete fCsI;
    }
    fCsI = 0;
    if (fPhoswich && fPhoswich->TestBit(kNotDeleted)) {
       fPhoswich->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fPhoswich));
       delete fPhoswich;
    }
    fPhoswich = 0;
+   if(fSelecteur) delete fSelecteur;
    gIndra = 0;
 }
 
@@ -133,15 +131,15 @@ void KVINDRA::MakeListOfDetectorTypes()
 	//kvsi->SetThickness(300.0);
 	kvsi->SetLabel("SI300");
 	fDetectorTypes->Add(kvsi);
-	
+
 	// Etalons - Si 80um
   	kvsi = new KVSi75(80);
    fDetectorTypes->Add(kvsi);
-   
+
 	// Etalons - Si(Li) 2mm
    kvsi = new KVSiLi(2000);
    fDetectorTypes->Add(kvsi);
-   
+
 	// Phoswich detectors
    KVPhoswich *kvph = new KVPhoswich(0.05, 25.0);
    kvph->SetLabel("PHOS");
@@ -156,60 +154,15 @@ void KVINDRA::MakeListOfDetectorTypes()
 		kvch->SetLabel(Form("CHIO%1.0f",press_chio[ii]));
 		fDetectorTypes->Add(kvch);
 	}
-/*
-   KVChIo *kvch = new KVChIo(50.0);
-   kvch->SetLabel("CHIO50");
-   fDetectorTypes->Add(kvch);
-
-   kvch = new KVChIo(30.0);
-   kvch->SetLabel("CHIO30");
-   fDetectorTypes->Add(kvch);
-
-   kvch = new KVChIo(20.0);
-   kvch->SetLabel("CHIO20");
-   fDetectorTypes->Add(kvch);
-*/
    // CsI scintillators
 	Float_t thick_csi[7]={13.80,9.70,9.0,7.60,6.0,5.0,4.80};
 	KVCsI *kvcsi = NULL;
 	for (Int_t ii=0;ii<7;ii+=1){
 		kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",gDataSet->GetName()), thick_csi[ii]);
-		//kvcsi->SetThickness(thick_csi[ii]);		
+		//kvcsi->SetThickness(thick_csi[ii]);
 		kvcsi->SetLabel(Form("CSI%1.0f",thick_csi[ii]*10));
 		fDetectorTypes->Add(kvcsi);
 	}
-/*	
-   KVCsI *kvcsi = new KVCsI(13.8);
-   kvcsi->SetLabel("CSI138");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(9.7);
-   kvcsi->SetLabel("CSI97");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(9.0);
-   kvcsi->SetLabel("CSI90");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(7.6);
-   kvcsi->SetLabel("CSI76");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(4.8);
-   kvcsi->SetLabel("CSI48");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(6.0);
-   kvcsi->SetLabel("CSI60");
-   fDetectorTypes->Add(kvcsi);
-
-   kvcsi = new KVCsI(5.0);
-   kvcsi->SetLabel("CSI50");
-   fDetectorTypes->Add(kvcsi);
-*/
-#ifdef KV_DEBUG
-   Info("MakeListOfDetectorTypes", "Success");
-#endif
 }
 
 //_________________________________________________________________________________
@@ -222,7 +175,7 @@ void KVINDRA::PrototypeTelescopes()
 
 // create prototypes for all telescopes needed to build INDRA
 
-   // Phoswich 
+   // Phoswich
 #ifdef KV_DEBUG
    Info("PrototypeTelescopes", "Phoswich - begin");
 #endif
@@ -636,21 +589,15 @@ void KVINDRA::PrototypeTelescopes()
 //_________________________________________________________________________________
 void KVINDRA::BuildGeometry()
 {
-
    // Construction of 1st campaign INDRA detector array. All
-
    // subsequent realisations derive from this class and make
-
    // modifications to this basic structure
+   
+   KVLayer *kvl = new KVLayer;    //Build ionisation chamber layer
 
-
-
-   //Build ionisation chamber layer
-
-   //Pressures correspond to Xe+Sn
+   //Pressures correspond to Xe+Sn (should be replaced when SetParameters()
+   //is called with values read from database corresponding to dataset)
    //1st Layer - Ionisation chamber
-
-   KVLayer *kvl = new KVLayer;
 
    kvl->
        AddRing(new
@@ -946,9 +893,25 @@ void KVINDRA::BuildGeometry()
 
 void KVINDRA::Build()
 {
-   //Overrides KVMultiDetArray::Build in order to set the name of the detector.
-   //We also add the acquisition parameters which are not associated to a detector:
-   // 
+   // Overrides KVMultiDetArray::Build in order to set the name of the detector.
+   // Correspondance between CsI detectors and pin lasers is set up if known.
+
+   KVMultiDetArray::Build();
+
+   SetName("INDRA");
+   SetTitle("1st & 2nd campaign INDRA multidetector");
+   
+   SetPinLasersForCsI();
+}
+
+void KVINDRA::SetArrayACQParams()
+{
+   // Overrides KVMultiDetArray::SetArrayACQParams() in order to
+   // add the following acquisition parameters which are not associated to a detector:
+   //
+   // STAT_EVE
+   // R_DEC
+   // CONFIG
    // PILA_01_PG
    // PILA_01_GG
    // PILA_02_PG
@@ -970,13 +933,20 @@ void KVINDRA::Build()
    // SI_PIN2_PG
    // SI_PIN2_GG
    //
-   // Correspondance between CsI detectors and pin lasers is set up if known.
-
-   KVMultiDetArray::Build();
-
-   SetName("INDRA");
-   SetTitle("1st & 2nd campaign INDRA multidetector");
-
+   // We also create and initialize the KVINDRATriggerInfo object (fSelecteur) used to read
+   // the status of the DAQ trigger event by event (access through GetTriggerInfo()).
+   
+   KVACQParam* ste = new KVACQParam("STAT_EVE");
+   AddACQParam(ste);
+   KVACQParam* dec = new KVACQParam("R_DEC");
+   AddACQParam(dec);
+   KVACQParam* conf = new KVACQParam("CONFIG");
+   AddACQParam(conf);
+   fSelecteur = new KVINDRATriggerInfo;
+   fSelecteur->SetSTAT_EVE_PAR(ste);
+   fSelecteur->SetR_DEC_PAR(dec);
+   fSelecteur->SetVXCONFIG_PAR(conf);
+   
    AddACQParam(new KVACQParam("PILA_01_PG"));
    AddACQParam(new KVACQParam("PILA_01_GG"));
    AddACQParam(new KVACQParam("PILA_02_PG"));
@@ -997,8 +967,6 @@ void KVINDRA::Build()
    AddACQParam(new KVACQParam("SI_PIN1_GG"));
    AddACQParam(new KVACQParam("SI_PIN2_PG"));
    AddACQParam(new KVACQParam("SI_PIN2_GG"));
-	
-	SetPinLasersForCsI();
 }
 
 //_________________________________________________________________________________________
@@ -1066,11 +1034,11 @@ void KVINDRA::SetNamesChIo()
 
          chio->SetNumber(tmin); // set module number
          robj->SetNumber(rmin); // set ring number
+         chio->GetDetector(1)->SetName( chio->GetDetector(1)->GetArrayName() );
       }
    }
-#ifdef KV_DEBUG
-   Info("SetNamesChIo", "Success");
-#endif
+   // need to rehash detector list - names of chios have changed
+   ((KVHashList*)fDetectors)->Rehash();
 }
 
 //_________________________________________________________________________________________
@@ -1121,7 +1089,7 @@ KVChIo *KVINDRA::GetChIoOf(const Char_t * detname)
       kvd = GetDetector(detname);
       return GetChIoOf(kvd);
    } else {
-      //cout<<"KVChIo* GetChIoOf(const Char_t* detname) const : Senseless in this context."<<endl;     
+      //cout<<"KVChIo* GetChIoOf(const Char_t* detname) const : Senseless in this context."<<endl;
    }
    return 0;
 }
@@ -1145,28 +1113,6 @@ void KVINDRA::SetTrigger(UChar_t trig)
    //Events with multipicity >= trig are OK.
    //
    fTrigger = trig;
-}
-
-//_____________________________________________________________________________________
-
-KVDetector *KVINDRA::GetDetector(const Char_t * name) const
-{
-   //Optimisation of KVMultiDetArray method, using lists of different types
-   //of INDRA detectors.
-
-   TString nom(name);
-   if (nom.BeginsWith("CSI")) {
-      return (KVDetector *) GetListOfCsI()->FindObjectByName(name);
-   } else if (nom.BeginsWith("SI")) {
-      return (KVDetector *) GetListOfSi()->FindObjectByName(name);
-   } else if (nom.BeginsWith("CI")) {
-      return (KVDetector *) GetListOfChIo()->FindObjectByName(name);
-   } else if (nom.BeginsWith("PHOS")) {
-      return (KVDetector *) GetListOfPhoswich()->FindObjectByName(name);
-   } else {
-      return (KVDetector *) GetListOfDetectors()->FindObjectByName(name);
-   }
-   return 0;
 }
 
 KVDetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) const
@@ -1235,7 +1181,7 @@ KVDetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) cons
 //_______________________________________________________________________________________
 
 void KVINDRA::GetIDTelescopes(KVDetector * de, KVDetector * e,
-                              KVList * idtels)
+                              TCollection * idtels)
 {
    //Override KVMultiDetArray method for special case of "etalon" modules:
    //we need to add ChIo-CsI identification telescope by hand
@@ -1279,10 +1225,10 @@ void KVINDRA::SetPinLasersForCsI()
 	//
 	// This file should be in the directory corresponding to the current dataset,
 	// i.e. in $KVROOT/KVFiles/name_of_dataset
-	
+
 	ifstream pila_file;
 	if( gDataSet->OpenDataSetFile( gDataSet->GetDataSetEnv("INDRADB.CsIPinCorr",""), pila_file ) ){
-		
+
 		Info("SetPinLasersForCsI", "Setting correspondance CsI-PinLaser using file %s.",
 				gDataSet->GetDataSetEnv("INDRADB.CsIPinCorr",""));
 		// read file, set correspondance
@@ -1308,3 +1254,59 @@ void KVINDRA::SetPinLasersForCsI()
 				gDataSet->GetDataSetEnv("CsIPinCorr",""));
 	}
 }
+
+//________________________________________________________________________________________
+TGraph *KVINDRA::GetPedestals(const Char_t * det_signal,const Char_t * det_type, Int_t ring_number,Int_t
+run_number)
+{
+
+	//Renvoie sous forme de TGraph (en fonction du numero de module)
+	//les piedestaux du signal (det_signal) asssocies aux detecteurs de type (det_type)
+	//qui sont presents dans la couronne ring_number pour un numero de run donne (si run_number==-1)
+	//on suppose que gIndra->SetParameters(xxx) a ete fait en amont
+	//L'utilisateur doit effacer ce TGraph tout seul comme un grand apres usage
+	//Une recherche sur l existence ou non du graph permet d eviter des boucles inutiles
+	//Si l appel est reitere
+
+	if (run_number!=-1 || run_number!=Int_t(GetCurrentRunNumber()))
+		SetParameters(run_number);
+
+	KVSeqCollection* sltype = 0;
+	KVSeqCollection* slring = 0;
+	TGraph* gr_ped=0;
+
+	KVString sgraph; sgraph.Form("KVPed_%s_%s_%d_%d",det_signal,det_type,ring_number,GetCurrentRunNumber());
+	if ( ( gr_ped=(TGraph* )gROOT->FindObject(sgraph.Data()) ) ) return gr_ped;
+
+	if ( (sltype = GetListOfDetectors()->GetSubListWithMethod(det_type,"GetType")) ){
+		KVString sring; sring.Form("%d",ring_number);
+		if ( (slring = sltype->GetSubListWithMethod(sring,"GetRingNumber")) ){
+				gr_ped = new TGraph(); gr_ped->SetName(sgraph.Data());
+				for (Int_t mm=0;mm<slring->GetEntries();mm+=1){
+					gr_ped->SetPoint(gr_ped->GetN(),
+						((KVINDRADetector*)slring->At(mm))->GetModuleNumber(),
+						((KVDetector*)slring->At(mm))->GetPedestal(det_signal));
+
+				}
+			delete slring;
+			return gr_ped;
+		}
+		delete sltype;
+	}
+	return 0;
+
+}
+
+//_____________________________________________________________________________
+
+void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params )
+{
+   // Overrides KVMultiDetArray::GetDetectorEvent.
+   // If the list of fired acquisition parameters is given (meaning we are reading raw data)
+   // then we check that what we have read is in fact an INDRA event
+   // (see KVINDRATriggerInfo::IsINDRAEvent()) : if not, we do not try to find the hit groups.
+   
+   if( fired_params && !GetTriggerInfo()->IsINDRAEvent() ) return;
+   KVMultiDetArray::GetDetectorEvent(detev,fired_params);
+}
+

@@ -108,7 +108,7 @@ class KVCsI:public KVINDRADetector {
 	    return fGainCorrection;
 	};
 
-   ClassDef(KVCsI, 4)           // The CsI(Tl) detectors of the INDRA array
+   ClassDef(KVCsI, 5)           // The CsI(Tl) detectors of the INDRA array
 };
 
 #endif

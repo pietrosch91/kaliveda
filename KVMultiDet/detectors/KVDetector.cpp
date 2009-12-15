@@ -103,9 +103,9 @@ void KVDetector::init()
    fActiveLayer = 0;
    fTelescope = 0;
    fIDTelescopes = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fIDTelescopes);
+   fIDTelescopes->SetCleanup(kTRUE);
    fIDTelAlign = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fIDTelAlign);
+   fIDTelAlign->SetCleanup(kTRUE);
    fIDTele4Ident=0;
    fReanalyse = kFALSE;
    fECalc = 0.0;
@@ -178,10 +178,10 @@ void KVDetector::Streamer(TBuffer & R__b)
       KVDetector::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
       if (R__v < 6) {
          {
-            fIDTelescopes->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
+            fIDTelescopes->SetCleanup(kTRUE);
          }
          {
-            fIDTelAlign->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
+            fIDTelAlign->SetCleanup(kTRUE);
          }
       }
    } else {
@@ -195,7 +195,6 @@ KVDetector::~KVDetector()
    if (fIDTelescopes && fIDTelescopes->TestBit(kNotDeleted)) {
       //all ID telescopes to which this detector belonged now cease to exist.
       fIDTelescopes->Delete();
-      while (gROOT->GetListOfCleanups()->Remove(fIDTelescopes));
       delete fIDTelescopes;
    }
    fIDTelescopes = 0;
@@ -211,7 +210,6 @@ KVDetector::~KVDetector()
    fActiveLayer = -1;
    if (fIDTelAlign && fIDTelAlign->TestBit(kNotDeleted)) {
       fIDTelAlign->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fIDTelAlign));
       delete fIDTelAlign;
    }
    fIDTelAlign = 0;
@@ -237,7 +235,7 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
 {
    //Calculate the energy loss of a charged particle traversing the detector,
    //the particle is slowed down, it is added to the list of all particles hitting the
-   //detector, and the detector's time marker is set to 110 (for filtering simulations).
+   //detector.
    //Do nothing if particle has zero (or -ve) energy.
    //
    //If the optional argument 'norm' is given, it is supposed to be a vector
@@ -256,13 +254,6 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    while ((abs = (KVMaterial *) next())
           && kvp->GetKE() > KVDETECTOR_MINIMUM_E) {
       abs->DetectParticle(kvp, norm);
-   }
-
-   //set detector's time marker ACQ Param (for filtering & reconstruction)
-   if (fACQParams) {
-      KVACQParam *mt = GetACQParam("T");
-      if (mt)
-         mt->SetData(110);
    }
 }
 
@@ -458,21 +449,9 @@ void KVDetector::SetEnergy(Double_t e)
 }
 
 //_____________________________________________________________________________________
-UInt_t KVDetector::GetRingNumber() const
-{
-//
-//The ring number of the detector's telescope.
-//
-   return (GetTelescope()? GetTelescope()->GetRingNumber() : 0);
-}
-
-//_____________________________________________________________________________________
 UInt_t KVDetector::GetTelescopeNumber() const
 {
-//
-//The telescope (or module) number of the detector's
-//telescope in its ring.
-//
+    //The number of the detector's telescope in its ring.
    return (GetTelescope()? GetTelescope()->GetNumber() : 0);
 }
 
@@ -535,7 +514,7 @@ KVACQParam *KVDetector::GetACQParam(const Char_t *name)
 {
    // Look for acquisition parameter with given name in list
 	// of parameters associated with this detector.
-	
+
    if (!fACQParams) {
       return 0;
    }
@@ -762,8 +741,6 @@ Float_t KVDetector::GetPhi() const
 void KVDetector::AddIDTelescope(KVIDTelescope * idt)
 {
    //Add ID telescope to list of telescopes to which detector belongs
-
-   idt->SetBit(kMustCleanup);
    fIDTelescopes->Add(idt);
 }
 
@@ -803,7 +780,7 @@ KVList *KVDetector::GetAlignedIDTelescopes()
 
 //___________________________________________________________________________//
 
-void KVDetector::GetAlignedIDTelescopes(KVList * list)
+void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 {
    //Create and add to list all ID telescopes made of this detector
    //and the aligned detectors placed in front of it.
@@ -854,12 +831,10 @@ void KVDetector::GetAlignedIDTelescopes(KVList * list)
          KVIDTelescope *trash =
              gMultiDetArray->GetIDTelescope(tel->GetName());
          if (trash) {
-            trash->SetBit(kMustCleanup);
             fIDTelAlign->Add(trash);
          }
       }
       //destroy the superfluous copy telescopes we just created
-      //delete list;
       list->Delete(); delete list;
    }
 }
@@ -1349,14 +1324,14 @@ void KVDetector::SetFiredBitmask()
 Double_t KVDetector::GetEntranceWindowSurfaceArea()
 {
 	// Return surface area of first layer of detector in mm2.
-	
+
 	if(!fTelescope) return 0;
-	
+
 	if(fDepthInTelescope == 0)
 		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
 
 	TVector3 coords[4];
-		
+
 	fTelescope->GetCornerCoordinates(coords,fDepthInTelescope);
 	cout << "DETECTOR COORDINATES (in cm):" <<endl;
 	cout << "=================================" << endl;
@@ -1364,7 +1339,7 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 	cout << " B : "; printvec(coords[1]); cout << endl;
 	cout << " C : "; printvec(coords[2]); cout << endl;
 	cout << " D : "; printvec(coords[3]); cout << endl;
-	
+
 	cout << "DETECTOR DIMENSIONS (in mm):" << endl;
 	cout << "================================" << endl;
 	Double_t c = 10*(coords[0]-coords[1]).Mag();
@@ -1375,11 +1350,11 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 	cout << " BC = " << b << endl;
 	cout << " CD = " << d << endl;
 	cout << " AD = " << a << endl;
-	
+
 	cout << "DETECTOR SURFACE AREA = ";
 	Double_t surf = pow((a+b),2.0)*(a-b+2.0*c)*(b-a+2.0*c);
 	surf = sqrt(surf)/4.0;
 	cout << surf << " mm2" << endl;
-	
+
 	return surf;
 }

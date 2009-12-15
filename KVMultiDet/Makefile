@@ -43,4 +43,8 @@ endif
 ifeq ($(ROOTGANILTAPE),yes)
 LINK_LIB += -L$(KVROOT)/lib -lgan_tape
 RLIBMAPDEPS += libgan_tape.so
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+KV_INC += -DCCIN2P3_XRD
+RLIBMAPDEPS += libXrdPosix.so
+endif
 endif

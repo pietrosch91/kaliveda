@@ -32,11 +32,12 @@ ClassImp(KVDetectorEvent);
 //The list of "hit" groups is filled by KVMultiDetArray::GetDetectorEvent().
 //
 //GetGroups() returns a pointer to the list of hit groups.
-//      To loop over all hit groups, do something like this:
+//      To loop over all hit groups in a KVDetectorEvent* kde, do something like this:
 //               KVGroup *g;
-//               for (int i = 0; i < GetMult(); i++) { // GetMult() gives the number of hit groups in the event
-//                       g = (KVGroup *)fHitGroups->At(i);
-//                      etc. etc.
+//               TIter next( kde->GetGroups() );
+//               while( (g = (KVGroup*)next()) ){
+//                  ...
+//               }
 //
 //ContainsGroup(KVGroup* grp) returns kTRUE if 'grp' points to a KVGroup belonging to the list of hit groups
 //i.e. if ContainsGroup() is equal to kTRUE, then the group was hit in the event.
@@ -49,27 +50,23 @@ KVDetectorEvent::KVDetectorEvent()
 void KVDetectorEvent::init()
 {
    //Default initialisation
-   fHitGroups = new KVRList;
-   fSimEvent = 0;
+   fHitGroups = new KVUniqueNameList;
 }
 
-//____________________________________________________________________________
 KVDetectorEvent::~KVDetectorEvent()
 {
-
-   delete fHitGroups;
-   fHitGroups = 0;
-   fSimEvent = 0;
+    Clear();
+    delete fHitGroups;
+    fHitGroups = 0;
 }
 
-//____________________________________________________________________________
 void KVDetectorEvent::Clear(Option_t * opt)
 {
-   //Reset the list of hit groups.
+    // Reset the list of hit groups, ready for analysis of a new event.
+    // Each 'hit' group is cleared (energy losses in detectors set to zero, etc.).
 
-   if (fHitGroups)
-      fHitGroups->Clear();
-   fSimEvent = 0;
+    fHitGroups->R__FOR_EACH(KVGroup,Reset) ();
+    fHitGroups->Clear();
 }
 
 //____________________________________________________________________________

@@ -9,6 +9,7 @@ $Date: 2009/01/14 15:59:49 $
 
 #include "KVIVRawDataAnalyser.h"
 #include "KVClassFactory.h"
+#include "KVGANILDataReader.h"
 #include "GTGanilData.h"
 
 ClassImp(KVIVRawDataAnalyser)

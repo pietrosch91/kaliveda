@@ -186,11 +186,7 @@ Double_t *par_res;//!array of params for eres function
    virtual Float_t GetPedestal(const Char_t*/*name*/);
    virtual void SetPedestal(const Char_t*/*name*/, Float_t);
 
-   virtual UInt_t GetRingNumber() const;
    virtual UInt_t GetTelescopeNumber() const;
-   virtual UInt_t GetModuleNumber() const {
-      return GetTelescopeNumber();
-   };
 
    Bool_t AddCalibrator(KVCalibrator * cal);
    KVCalibrator *GetCalibrator(const Char_t * name,
@@ -249,7 +245,7 @@ Double_t *par_res;//!array of params for eres function
    KVList *GetIDTelescopes();
    KVList *GetAlignedIDTelescopes();
    TList *GetTelescopesForIdentification();
-   void GetAlignedIDTelescopes(KVList * list);
+   void GetAlignedIDTelescopes(TCollection * list);
 
    Bool_t Reanalyse() const {
       return fReanalyse;
@@ -321,7 +317,7 @@ Double_t *par_res;//!array of params for eres function
 	virtual void AddToGeometry();
 	virtual void GetVerticesInOwnFrame(TVector3 */*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
 	virtual Double_t GetEntranceWindowSurfaceArea();
-	
+
 	virtual void SetFiredBitmask();
 	Binary8_t GetFiredBitmask() const { return fFiredMask; };
 

@@ -5,6 +5,7 @@
 #define __KVINDRADETECTOR_H
 
 #include "KVDetector.h"
+#include "KVTelescope.h"
 
 class KVINDRADetector : public KVDetector
 {
@@ -18,6 +19,12 @@ public:
     };
 
     const Char_t *GetArrayName();
+   virtual UInt_t GetRingNumber() const {
+   	return (GetTelescope() ? GetTelescope()->GetRingNumber() : 0);
+   	};
+   virtual UInt_t GetModuleNumber() const {
+      return GetTelescopeNumber();
+   };
 
     virtual void AddACQParamType(const Char_t * type);
     virtual KVACQParam *GetACQParam(const Char_t*/*type*/);

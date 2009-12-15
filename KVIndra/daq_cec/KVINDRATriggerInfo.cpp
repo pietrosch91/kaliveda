@@ -23,7 +23,7 @@ ClassImp(KVINDRATriggerInfo)
 //Utility class, holds values of the STAT_EVE, R_DEC and CONFIG parameters
 //in raw INDRA data which represent the status of the Selecteur for an event.
 //
-//When reading raw data with KVINDRADLT, the values of the three parameters
+//When reading raw data, the values of the three parameters
 //are filled from the data event by event.
 //For calibrated data, this information is accessible by using
 //      KVINDRAReconEvent::EventTrigger()
@@ -41,6 +41,7 @@ ClassImp(KVINDRATriggerInfo)
    fSTAT_EVE.SetNBits(6);
    fR_DEC.SetNBits(9);
    fVXCONFIG.SetNBits(14);
+   fSTAT_EVE_PAR = fR_DEC_PAR = fVXCONFIG_PAR = 0;
 };
 
 void KVINDRATriggerInfo::Print(Option_t * opt)

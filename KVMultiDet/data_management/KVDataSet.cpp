@@ -225,10 +225,10 @@ KVDataSet::~KVDataSet()
       delete fDBase;
       fDBase = 0;
    }
-   if (fDataBase) {
-      delete fDataBase;
-      fDataBase = 0;
-   }
+//    if (fDataBase) {
+//       delete fDataBase;
+//       fDataBase = 0;
+//    }
    fTasks.Delete();
 }
 

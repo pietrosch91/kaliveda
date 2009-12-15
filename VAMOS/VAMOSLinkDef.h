@@ -11,7 +11,6 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class ParameterName+;
 #pragma link C++ class Parameters+;
 #pragma link C++ class GTGanilDataVAMOS+;
-#pragma link C++ class KVIVRawDataReader+;
 #pragma link C++ class KVIVRawDataAnalyser+;
 #pragma link C++ class KVIVRawDataReconstructor+;
 #endif

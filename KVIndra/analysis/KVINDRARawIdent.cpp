@@ -80,35 +80,7 @@ void KVINDRARawIdent::InitRun ()
 		file = OutputDataset->NewRunfile("ident", fRunNumber);
       
 		cout << "Writing \"ident\" events in ROOT file " << file->GetName() << endl;
-      
-      //tree for reconstructed events
-		tree = new TTree("ReconstructedEvents", Form("%s : %s : ident events created from raw data",
-			 	gIndraDB->GetRun(fRunNumber)->GetName(),
-            gIndraDB->GetRun(fRunNumber)->GetTitle())
-            );
-		tree->SetAutoSave(30000000);
-      
-      //leaves for reconstructed events
-      tree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
-      tree->Branch("EventNumber", &fEventNumber, "EventNumber/I");
-		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 64000, 0)->SetAutoDelete(kFALSE);
-      
-		if( FileHasUnknownParameters() ){
-         
-         //we add a leaf for each unknown data parameter
-         TIter next_unknown( fRunFile->GetUnknownParameters() );
-         KVACQParam* acqpar;
-         while( (acqpar = (KVACQParam*)next_unknown()) ){
-            tree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
-         }         
-      }
-      
-      Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
-      if( FileHasUnknownParameters() ){
-         Info("InitRun", "Reconstructed data tree contains %d unknown (non-INDRA) parameters", 
-               (fRunFile->GetUnknownParameters()->GetSize()));
-      }
-      
+
       //tree for raw data
 		rawtree = new TTree("RawData", Form("%s : %s : raw data",
 			 	gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle()));
@@ -123,6 +95,18 @@ void KVINDRARawIdent::InitRun ()
       Info("InitRun", "Created raw data tree (%s : %s) for %d parameters",
             rawtree->GetName(), rawtree->GetTitle(), rawtree->GetNbranches());
       
+      //tree for reconstructed events
+		tree = new TTree("ReconstructedEvents", Form("%s : %s : ident events created from raw data",
+			 	gIndraDB->GetRun(fRunNumber)->GetName(),
+            gIndraDB->GetRun(fRunNumber)->GetTitle())
+            );
+		tree->SetAutoSave(30000000);
+      
+      //leaves for reconstructed events
+		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 64000, 0)->SetAutoDelete(kFALSE);
+            
+      Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
+            
       //tree for gene data
 		genetree = new TTree("GeneData", Form("%s : %s : gene data",
 			 	gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle()));
@@ -130,7 +114,7 @@ void KVINDRARawIdent::InitRun ()
       //we add to the 'gene tree' a branch for every acquisition parameter of the detector
       genetree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
       genetree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
-      genetree->Branch( "TriggerInfo", "KVINDRATriggerInfo", &fTrig, 32000, 0 );
+     
       TIter next_acqpar( gIndra->GetACQParams() );
       while( (acqpar = (KVACQParam*)next_acqpar()) ){
          genetree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
@@ -158,23 +142,15 @@ Bool_t KVINDRARawIdent::Analysis ()
    
 	rawtree->Fill();
 	
-   if( IsINDRAEvent() ){
+   if( gIndra->GetTriggerInfo()->IsINDRAEvent() ){
       
-      if( ((KVINDRARawDataReader*)fRunFile)->IsPhysics() ){
-         
-         recev->ReconstructEvent( fDetEv );
-         recev->SetNumber( fEventNumber );
+      if(gIndra->GetTriggerInfo()->IsPhysics() ){        
+         recev->ReconstructEvent( (KVDetectorEvent*)GetDetectorEvent() );
+         recev->SetNumber( GetEventNumber() );
          if (recev->GetMult() > 0) {
             recev->IdentifyEvent();
             recev->CalibrateEvent();
          }
-         //set trigger info in event
-		   recev->EventTrigger().SetSTAT_EVE( fTrig->GetSTAT_EVE() );
-		   recev->EventTrigger().SetR_DEC( fTrig->GetR_DEC() );
-		   recev->EventTrigger().SetCONFIG( fTrig->GetCONFIG() );
-         
-         tree->Fill();
-         recev->Clear();
          nb_recon++;
       }
       else
@@ -182,9 +158,12 @@ Bool_t KVINDRARawIdent::Analysis ()
          genetree->Fill();
       }
    }
-   else if( FileHasUnknownParameters() ){
-      tree->Fill();
-   }
+        
+   // ReconstructedEvents tree must be filled for every event, even ones where
+   // no event has been reconstructed. This is so that when reading back we can make
+   // RawData a 'friend' TTree and keep everything in synch.
+   tree->Fill();
+   recev->Clear();
    
    return kTRUE;
 }
