@@ -185,29 +185,26 @@ void KVSeqCollection::Clear(Option_t *option)
 {
     // Clear the list of objects.
     // If the cleanup mechanism is in use, and the objects belong to the list
-    // (i.e. Clear() will in fact delete all the objects) we first reset the
-    // TObject::kMustCleanup bit of all objects to prevent recursive deletes.
+    // (i.e. Clear() will in fact delete all the objects) we first remove this list
+    // from the list of cleanups in order to avoid recursive deletes
 
-    if (IsCleanup() && IsOwner())
-    {
-        fCollection->R__FOR_EACH(TObject,ResetBit)(kMustCleanup);
-    }
+   Bool_t cleaner=(IsCleanup() && IsOwner());
+   if(cleaner) SetCleanup(kFALSE);
     fCollection->Clear(option);
+   if(cleaner) SetCleanup();
     Changed();
 }
 
 void KVSeqCollection::Delete(Option_t *option)
 {
     // Delete all heap-based objects in the list.
-    // If the cleanup mechanism is in use, and the objects belong to the list
-    // (i.e. Clear() will in fact delete all the objects) we first reset the
-    // TObject::kMustCleanup bit of all objects to prevent recursive deletes.
+    // If the cleanup mechanism is in use we first remove this list
+    // from the list of cleanups in order to avoid recursive deletes
 
-    if (IsCleanup() && IsOwner())
-    {
-        fCollection->R__FOR_EACH(TObject,ResetBit)(kMustCleanup);
-    }
+    Bool_t cleaner=IsCleanup();
+   if(cleaner) SetCleanup(kFALSE);
     fCollection->Delete(option);
+   if(cleaner) SetCleanup();
     Changed();
 }
 
