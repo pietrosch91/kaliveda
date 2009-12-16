@@ -30,7 +30,8 @@
 #define GT_GTScalers_H
 
 #include <TObject.h>
-#include "GTOneScaler.h"
+#include <TObjArray.h>
+class GTOneScaler;
 
 #ifndef __GanAcqBuf_H
 //extern "C"
@@ -52,8 +53,8 @@ public:
 
 protected:
   Int_t fNbChannel;          // Number of individual scales
-  GTOneScaler *fScalerArray; // [fNbChannel] Array of scalers
-  ClassDef(GTScalers,1)      // Scaler events class
+  TObjArray fScalerArray; // Array of scalers
+  ClassDef(GTScalers,2)      // Scaler events class
 };
 
 

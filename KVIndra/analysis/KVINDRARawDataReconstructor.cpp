@@ -27,6 +27,7 @@ ClassImp(KVINDRARawDataReconstructor)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVINDRARawDataReconstructor::KVINDRARawDataReconstructor()
+   : taskname("Reconstruction"), datatype("recon")
 {
    //Default constructor
    file = 0;
@@ -73,12 +74,13 @@ void KVINDRARawDataReconstructor::InitRun()
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
+         gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository",taskname.Data()),
+            gDataRepository->GetName()),
          gDataSet->GetName() );
       
-		file = OutputDataset->NewRunfile("recon", fRunNumber);
+		file = OutputDataset->NewRunfile(datatype.Data(), fRunNumber);
       
-		cout << "Writing \"recon\" events in ROOT file " << file->GetName() << endl;
+		cout << "Writing \"" << datatype.Data() << "\" events in ROOT file " << file->GetName() << endl;
       
       //tree for raw data
 		rawtree = new TTree("RawData", Form("%s : %s : raw data",
@@ -93,13 +95,25 @@ void KVINDRARawDataReconstructor::InitRun()
       }
       Info("InitRun", "Created raw data tree (%s : %s) for %d parameters",
             rawtree->GetName(), rawtree->GetTitle(), rawtree->GetNbranches());
+      // autosave every 30MB
+		rawtree->SetAutoSave(30000000);
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+      // flush baskets every 1000 events
+		rawtree->SetAutoFlush(1000);
+#endif
             
       //tree for reconstructed events
-		tree = new TTree("ReconstructedEvents", Form("%s : %s : recon events created from raw data",
+		tree = new TTree("ReconstructedEvents", Form("%s : %s : %s events created from raw data",
 			 	gIndraDB->GetRun(fRunNumber)->GetName(),
-            gIndraDB->GetRun(fRunNumber)->GetTitle())
+            gIndraDB->GetRun(fRunNumber)->GetTitle(),
+            datatype.Data())
             );
+      // autosave every 30MB
 		tree->SetAutoSave(30000000);
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+      // flush baskets every 1000 events
+		tree->SetAutoFlush(1000);
+#endif
       
       //leaves for reconstructed events
 		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 64000, 0)->SetAutoDelete(kFALSE);
@@ -117,6 +131,12 @@ void KVINDRARawDataReconstructor::InitRun()
       while( (acqpar = (KVACQParam*)next_acqpar()) ){
          genetree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
       }
+      // autosave every 30MB
+		genetree->SetAutoSave(30000000);
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+      // flush baskets every 1000 events
+		genetree->SetAutoFlush(1000);
+#endif
       
       Info("InitRun", "Created pulser/laser data tree (%s : %s) for %d parameters",
             genetree->GetName(), genetree->GetTitle(), genetree->GetNbranches());
@@ -142,6 +162,7 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
          recev->ReconstructEvent( (KVDetectorEvent*)GetDetectorEvent() );
          recev->SetNumber( GetEventNumber() );		         
          nb_recon++;
+         ExtraProcessing();
       }
       else
       {
@@ -173,8 +194,9 @@ void KVINDRARawDataReconstructor::EndRun()
       // get dataset to which we must associate new run
       KVDataSet* OutputDataset =
          gDataRepositoryManager->GetDataSet(
-            gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
+            gDataSet->GetDataSetEnv(Form("%s.DataAnalysisTask.OutputRepository",taskname.Data()),
+               gDataRepository->GetName()),
             gDataSet->GetName() );
 		//add new file to repository
-		OutputDataset->CommitRunfile("recon", fRunNumber, file);
+		OutputDataset->CommitRunfile(datatype.Data(), fRunNumber, file);
 }

@@ -4,7 +4,6 @@
 *    begin                : Thu Jun 14 2001
 *    copyright            : (C) 2001 by Garp
 *    email                : patois@ganil.fr
-* $Id: GTGanilData.cpp,v 1.15 2008/03/25 09:18:49 franklan Exp $
 ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -51,7 +50,7 @@ extern "C"
 bool AutoswBuf,Swbufon; 
 Int_t BufSize;
 
-ClassImp(GTGanilData);
+ClassImp(GTGanilData)
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -323,7 +322,7 @@ bool GTGanilData::Next(void)
     case kAutoWriteScaler: {
       //      cout <<"kAutoWriteScaler: not implemented!"<<endl;
       fScaler->Fill((scale*)&(fBuffer->les_donnees.cas.scale));
-      fScaler->Dump();
+      fScaler->DumpScalers();
       fScalerTree->Fill();
       return(Next());}
       break;
@@ -558,7 +557,7 @@ void GTGanilData::SetScalerBuffersManagement(const ScalerWhat_t sc )
   if (fWhatScaler==kAutoWriteScaler) {
     fScalerFile = new TFile("scaler.root","recreate"); // Temporary hard coded name
     fScalerTree = new TTree("AutoScalers","Automatic filled scalers");
-    fScalerTree->Branch("scalers","GTScalers",&fScaler);
+    fScalerTree->Branch("scalers",fScaler,8000,99);
   }
 }
 

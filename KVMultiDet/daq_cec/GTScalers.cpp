@@ -1,20 +1,9 @@
-// $Id: GTScalers.cpp,v 1.2 2007/09/17 12:33:27 franklan Exp $
-// Author: $Author: franklan $
 /***************************************************************************
 //                        GTGanilData.cpp  -  Main Header to ROOTGAnilTape
 //                             -------------------
 //    begin                : Thu Jun 14 2001
 //    copyright            : (C) 2001 by Garp
 //    email                : patois@ganil.fr
-//////////////////////////////////////////////////////////////////////////
-//
-// Part of ROOTGanilTape 
-//
-// GTScalers
-//
-// Scaler class for scaler events.
-//
-//////////////////////////////////////////////////////////////////////////
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -23,13 +12,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-// CVS Log:
-// ---------------------------------------------------------------------------
 
 #include "Riostream.h"
-
-//extern "C"
-//{
 #include <GEN_TYPE.H>
 #include <gan_acq_buf.h>
 
@@ -52,46 +36,49 @@
 
 #include <TMath.h>
 #include "GTScalers.h"
+#include "GTOneScaler.h"
 
+ClassImp(GTScalers)
 
-ClassImp(GTScalers);
+//////////////////////////////////////////////////////////////////////////
+//
+// Part of ROOTGanilTape 
+//
+// GTScalers
+//
+// Scaler class for scaler events.
+//
+//////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
 GTScalers::GTScalers(void)
+   : fScalerArray(100)
 {
-  fNbChannel=-1; // Initialisation Marker
-  fScalerArray=NULL;  
+  fNbChannel=-1; // Initialisation Marker  
+  fScalerArray.SetOwner(kTRUE);
 }
 
 //______________________________________________________________________________
 GTScalers::~GTScalers(void)
 {
-  // Delete 
-  delete[] fScalerArray;
 }
 
 
 //______________________________________________________________________________
 void GTScalers::Fill(scale *s)
 {
-  cout<<"GOT A SCALER EVENT !!!"<<endl;
-
-  cout <<s->Length<<endl;
-  cout <<s->Nb_channel<<endl; // This is number of actual scalers
-  cout <<s->Acq_status<<endl;
+//  cout <<s->Length<<endl;
+//  cout <<s->Nb_channel<<endl; // This is number of actual scalers
+//  cout <<s->Acq_status<<endl;
   
-  if (fNbChannel==-1) {// First filling
     fNbChannel   = s->Nb_channel;
-    fScalerArray = new GTOneScaler[fNbChannel];
-  } 
-  else if (fNbChannel!=s->Nb_channel) {
-    cout <<"Dont know how to deal with variable number of scalers!"<<endl;
-    cout <<fNbChannel<<" versus "<<s->Nb_channel<<endl;
-    return;
-  }
+    fScalerArray.Expand( fNbChannel );
  
-  for (Int_t i=0;i<fNbChannel;i++)
-    fScalerArray[i].Set(&(s->jbus_scale.UnScale[i]));
+  for (Int_t i=0;i<fNbChannel;i++){
+      GTOneScaler* scal = new GTOneScaler;
+      scal->Set(&(s->jbus_scale.UnScale[i]));
+      fScalerArray.AddAt(scal,i);
+   }
 }
 
 //______________________________________________________________________________
@@ -102,8 +89,7 @@ void GTScalers::DumpScalers(void)
   cout <<"Dumping "<<fNbChannel<<" scalers"<<endl;
   for (Int_t i=0;i<fNbChannel;i++)
   {
-    cout <<"--------- "<<i<<" -------------"<<endl;
-    fScalerArray[i].Dump();
+    fScalerArray[i]->ls();
   }
 }
 
@@ -111,10 +97,5 @@ void GTScalers::DumpScalers(void)
 const GTOneScaler* GTScalers::GetScalerPtr (Int_t index) const
 {
   // Return a constant pointer to the Scaler Index
-  if (index<0||index>=fNbChannel) {
-    cout << "Scaler index out of range. Got: "<<index
-	 <<" Limits are: ["<<0<<","<<fNbChannel-1<<"]"<<endl;
-    return(NULL);
-  }
-  return(&(fScalerArray[index]));
+  return((GTOneScaler*)fScalerArray[index]);
 }

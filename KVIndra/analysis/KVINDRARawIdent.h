@@ -10,34 +10,19 @@ $Date: 2008/11/12 16:15:49 $
 #ifndef __KVINDRARAWIDENT_H
 #define __KVINDRARAWIDENT_H
 
-#include "KVINDRARawDataAnalyser.h"
-#include "KVINDRAReconEvent.h"
-#include "TFile.h"
-#include "TTree.h"
+#include "KVINDRARawDataReconstructor.h"
 
-class KVINDRARawIdent : public KVINDRARawDataAnalyser
+class KVINDRARawIdent : public KVINDRARawDataReconstructor
 {
 
-   protected:
-         
-   TFile* file;
-   TTree* tree;
-   TTree* genetree;
-   TTree* rawtree;
-   KVINDRAReconEvent* recev;
-   Int_t nb_recon;//number of reconstructed INDRA events
-   
    public:
    KVINDRARawIdent();
-   virtual ~KVINDRARawIdent();
+   virtual ~KVINDRARawIdent(){};
 
-   void InitAnalysis () ;
    void InitRun () ;
-   Bool_t Analysis () ;
-   void EndRun () ;
-   void EndAnalysis () ;
+   virtual void ExtraProcessing();
 
-   ClassDef(KVINDRARawIdent,2)//User raw data analysis class
+   ClassDef(KVINDRARawIdent,3)//User raw data analysis class
 };
 
 #endif

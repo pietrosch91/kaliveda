@@ -57,12 +57,12 @@ KVGANILDataReader::~KVGANILDataReader()
 {
    // Destructor
    if(fGanilData) { delete fGanilData; fGanilData=0; }
+   fParameters->Clear();
+   delete fParameters;
    if(fExtParams){
 		fExtParams->Delete();
 		delete fExtParams;
    }
-   fParameters->Clear();
-   delete fParameters;
 }
 
 void KVGANILDataReader::init()

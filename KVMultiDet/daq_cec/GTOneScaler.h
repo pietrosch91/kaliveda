@@ -47,6 +47,8 @@ public:
   void Set   (scale_struct *s);
 
   UInt_t GetCount(void) const {return(fCount);}
+  
+  void ls(Option_t* opt="") const;
 
 protected:
   UInt_t fLabel;      // Comment here

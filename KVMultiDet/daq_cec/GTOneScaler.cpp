@@ -1,11 +1,25 @@
-// $Id: GTOneScaler.cpp,v 1.2 2007/09/17 12:33:27 franklan Exp $
-// Author: $Author: franklan $
 /***************************************************************************
 //                        GTGanilData.cpp  -  Main Header to ROOTGAnilTape
 //                             -------------------
 //    begin                : Thu Jun 14 2001
 //    copyright            : (C) 2001 by Garp
 //    email                : patois@ganil.fr
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+#include <GEN_TYPE.H>
+#include <gan_acq_buf.h>
+#include "GTOneScaler.h"
+#include <TROOT.h>
+#include <Riostream.h>
+
+ClassImp(GTOneScaler)
+
 //////////////////////////////////////////////////////////////////////////
 //
 // Part of ROOTGanilTape 
@@ -15,25 +29,6 @@
 // Scaler class for scaler events.
 //
 //////////////////////////////////////////////////////////////////////////
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-// CVS Log:
-// ---------------------------------------------------------------------------
-
-//extern "C"
-//{
-#include <GEN_TYPE.H>
-#include <gan_acq_buf.h>
-//}
-#include "GTOneScaler.h"
-
-ClassImp(GTOneScaler);
 
 //______________________________________________________________________________
 GTOneScaler::GTOneScaler(void)
@@ -58,4 +53,13 @@ void GTOneScaler::Set(scale_struct *s)
   fTics   =s->Tics;
   for (int i=0;i<3;i++) fReserve[i]=s->Reserve[i];
 }
+
+//______________________________________________________________________________
+
+void GTOneScaler::ls(Option_t* opt) const
+{
+   TROOT::IndentLevel();
+   cout << "SCALER: fLabel="<<fLabel<<" fStatus="<<fStatus<<" fCount="<<fCount<<" fFreq="<<fFreq<<endl;
+}
+//______________________________________________________________________________
 
