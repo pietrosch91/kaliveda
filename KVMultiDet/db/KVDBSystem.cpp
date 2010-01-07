@@ -296,8 +296,8 @@ void KVDBSystem::Load(istream &f)
    }
    //set target if not already done (old versions)
    if(!fTarget && target_thickness>0 && fZtarget>0){
-      KVNucleus n(fZtarget);
-      fTarget = new KVTarget(Form("%d%s", fAtarget, n.GetSymbol()), target_thickness);
+      KVNucleus n(fZtarget,fAtarget);
+      fTarget = new KVTarget(n.GetSymbol(), target_thickness);
       fTarget->Print();
    }
 }

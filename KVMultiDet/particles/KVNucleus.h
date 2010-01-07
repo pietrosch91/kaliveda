@@ -81,7 +81,7 @@ class KVNucleus:public KVParticle {
     virtual ~ KVNucleus();
    static Int_t GetAFromZ(Double_t, Char_t mt);
    static Double_t GetRealAFromZ(Double_t, Char_t mt);
-   const Char_t *GetSymbol() const;
+   const Char_t *GetSymbol(Option_t* opt="") const;
 
    static Int_t GetZFromSymbol(const Char_t *);
    void SetZFromSymbol(const Char_t *);

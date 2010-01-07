@@ -1370,12 +1370,10 @@ const Char_t* KVDataAnalyser::SystemBatchName()
    tmp ="";
    if(fSystem->GetKinematics()){
       if(fSystem->GetKinematics()->GetNucleus(1)){
-         tmp=Form("%d%s",fSystem->GetKinematics()->GetNucleus(1)->GetA(),
-               fSystem->GetKinematics()->GetNucleus(1)->GetSymbol());
+         tmp=fSystem->GetKinematics()->GetNucleus(1)->GetSymbol();
       }
       if(fSystem->GetKinematics()->GetNucleus(2)){
-         tmp+=Form("%d%s",fSystem->GetKinematics()->GetNucleus(2)->GetA(),
-               fSystem->GetKinematics()->GetNucleus(2)->GetSymbol());
+         tmp+=fSystem->GetKinematics()->GetNucleus(2)->GetSymbol();
       }
       if(fSystem->GetEbeam()>0){
          tmp+=TMath::Nint(fSystem->GetEbeam());

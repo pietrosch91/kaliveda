@@ -387,9 +387,9 @@ void KVElasticScatterEvent::Print(){
 	printf("#####################\n");
 	printf("## KVElasticScatterEvent::Print() ##\n");
 	printf("# Diffusion elastique traitee :\n");
-	printf("# %d%s+%d%s@%1.1lf MeV/A\n",
-		GetNucleus("PROJ","START")->GetA(),GetNucleus("PROJ","START")->GetSymbol(),
-		GetNucleus("TARG","START")->GetA(),GetNucleus("TARG","START")->GetSymbol(),
+	printf("# %s+%s@%1.1lf MeV/A\n",
+		GetNucleus("PROJ","START")->GetSymbol(),
+		GetNucleus("TARG","START")->GetSymbol(),
 		GetNucleus("PROJ","START")->GetKE()/GetNucleus("PROJ","START")->GetA()
 	);
 	printf("# Propagation dans une cible de:\n");

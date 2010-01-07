@@ -387,7 +387,7 @@ void KVDBSystemDialog::UpdateProjectileProperties()
       fCheckButton1376->SetState(kButtonDown);EnableProjectileProperties(kTRUE);
    } 
    //update projectile symbol
-   fTextEntry1490->SetText(proj.GetSymbol());
+   fTextEntry1490->SetText(proj.GetSymbol("EL"));
    //update projectile Z
    fNumberEntry1493->SetNumber(proj.GetZ());
    //update projectile A
@@ -474,7 +474,7 @@ void KVDBSystemDialog::ProjectileZChanged(Long_t)
    
    Int_t Z = (Int_t)fNumberEntry1493->GetIntNumber();
    KVNucleus r(Z);
-   fTextEntry1490->SetText(r.GetSymbol());
+   fTextEntry1490->SetText(r.GetSymbol("EL"));
    Int_t A = r.GetA();
    fNumberEntry1499->SetNumber(A);
    if(fSystem){

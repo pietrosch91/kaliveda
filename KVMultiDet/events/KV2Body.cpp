@@ -490,20 +490,20 @@ Double_t KV2Body::GetCMEnergy(Int_t i) const
 
 void KV2Body::Print(Option_t * opt) const
 {
-   //Print out characteristics of reaction
+   // Print out characteristics of reaction.
+   //
+   // If a two-body exit channel has been defined, you can use the following options:
+   //    opt = "ruth" :  list Rutherford scattering cross-sections as a function of angle in laboratory frame
+   //    opt = "lab"  :  list energies and angles in laboratory frame
 
-   cout << " ***** REACTION    " << GetNucleus(1)->
-       GetA() << GetNucleus(1)->GetSymbol();
+   cout << " ***** REACTION    " << GetNucleus(1)->GetSymbol();
    if (GetNucleus(2))
-      cout << "  +  " << GetNucleus(2)->GetA() << GetNucleus(2)->
-          GetSymbol();
+      cout << "  +  " << GetNucleus(2)->GetSymbol();
    if (GetNucleus(3)) {
-      cout << " --->   " <<
-          GetNucleus(3)->GetA() << GetNucleus(3)->GetSymbol();
+      cout << " --->   " << GetNucleus(3)->GetSymbol();
    }
    if (GetNucleus(4))
-      cout << "  +  " << GetNucleus(4)->GetA() << GetNucleus(4)->
-          GetSymbol();
+      cout << "  +  " << GetNucleus(4)->GetSymbol();
    cout << "    ******" << endl;
 
    cout << "  E.LAB = " << GetNucleus(1)->GetEnergy() << " MEV";

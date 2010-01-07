@@ -140,18 +140,26 @@ Char_t KVNucleus::fElements[][3] = {
    "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt"
 };
 
-const Char_t *KVNucleus::GetSymbol() const
+const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
 {
-   //Returns symbol of element corresponding to this nucleus
+   // Returns symbol of isotope corresponding to this nucleus,
+   // i.e. "238U", "12C", "3He" etc.
+   // Neutrons are represented by "n".
+   // Isotopes of hydrogen are represented by "p", "d", "t".
+   // In order to have just the symbol of the chemical element
+   // (e.g. "Pt", "Zn", "Fe"), call with opt="EL".
 
 	static TString name;
    Int_t a = GetA();
    Int_t z = GetZ();
+   Bool_t Mpfx = strcmp(opt,"EL");// kTRUE if mass prefix required
    if (z == 0) {
 		if( a==1 ) 
 			name = "n";
-		else
-			name.Form("%dn",a);
+		else{
+			if(Mpfx) name.Form("%dn",a);
+         else name = "n";
+      }
    }
 	else if(z == 1) {
 		if( a<4 ) {
@@ -159,11 +167,13 @@ const Char_t *KVNucleus::GetSymbol() const
 		}
 		else
 		{
-			name.Form("%dH",a);
+         if(Mpfx) name.Form("%dH",a);
+         else name = "H";
 		}
 	}
 	else if (GetZ() <= MAXZ_ELEMENT_SYMBOL) {
-		name.Form("%d%s",a,fElements[z+2]);
+		if(Mpfx) name.Form("%d%s",a,fElements[z+2]);
+      else name = fElements[z+2];
    }
 	else
 		name="";
