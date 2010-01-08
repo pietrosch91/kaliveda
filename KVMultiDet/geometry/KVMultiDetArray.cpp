@@ -187,37 +187,55 @@ void KVMultiDetArray::init()
 void KVMultiDetArray::Streamer(TBuffer & R__b)
 {
    // Custom Streamer
-   //For versions <3, we need to set the kMustCleanup bit of every detector, group, ID telescope,
-   //ACQparam and layer so that garbage collection functions
-   //Otherwise, this is a standard automatic streamer.
 
    if (R__b.IsReading()) {
       UInt_t R__s, R__c;
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVMultiDetArray::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-      if (R__v < 3) {
-         {
-            fIDTelescopes->SetCleanup(kTRUE);
-         }
-         {
-            fGroups->SetCleanup(kTRUE);
-         }
-         {
+      if(R__v < 6){
+         // reading version where all list member pointers were KVList*
+         // and indeed all lists were KVLists
+         /* Class Version 5 Streamer START */
+         KVBase::Streamer(R__b);
+         R__b >> fTarget;
+         R__b >> fLayers;
+         R__b >> fDetectorTypes;
+         R__b >> fTelescopes;
+         R__b >> fGroups;
+         KVList *l = new KVList;
+         //R__b >> fIDTelescopes;
+         R__b >> l;
+         fIDTelescopes->AddAll(l);
+         l->SetOwner(kFALSE);
+         l->Clear();
+         //R__b >> fDetectors;
+         R__b >> l;
+         fDetectors->AddAll(l);
+         l->SetOwner(kFALSE);
+         l->Clear();
+         //R__b >> fACQParams;
+         delete l;
+         l=0;
+         R__b >> l;
+         if(l){
+            fACQParams = new KVHashList;
+            fACQParams->SetOwner(kFALSE);
             fACQParams->SetCleanup(kTRUE);
+            fACQParams->AddAll(l);
+            l->SetOwner(kFALSE);
+            l->Clear();
+            delete l;
          }
-         {
-            fDetectors->SetCleanup(kTRUE);
-         }
-         {
-            fLayers->SetCleanup(kTRUE);
+         R__b >> fCurrentRun;        
+         /* Class Version 5 Streamer END */
+         if (R__v < 5) {
+            //set kIDParamsSet and kIDCalParamsSet if kParamsSet=1
+            if(TestBit(kParamsSet)){
+               SetBit(kIDParamsSet); SetBit(kCalParamsSet);
+            }
          }
       }
-      if (R__v < 5) {
-         //set kIDParamsSet and kIDCalParamsSet if kParamsSet=1
-         if(TestBit(kParamsSet)){
-            SetBit(kIDParamsSet); SetBit(kCalParamsSet);
-         }
-      }
+      else
+         KVMultiDetArray::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
    } else {
       KVMultiDetArray::Class()->WriteBuffer(R__b, this);
    }
