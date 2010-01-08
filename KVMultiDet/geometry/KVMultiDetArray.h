@@ -254,7 +254,7 @@ void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDT
 
 	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
 
-   ClassDef(KVMultiDetArray, 7) //Base class for describing multidetector arrays.
+   ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };
 
 //................  global variable
