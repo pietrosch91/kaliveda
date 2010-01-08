@@ -109,7 +109,7 @@
 #pragma link C++ class KVLayer-;
 #pragma link C++ class KVLayerBrowser;
 #pragma link C++ class KVLinCal+;
-#pragma link C++ class KVList+;
+#pragma link C++ class KVList-;
 #pragma link C++ class KVListView;
 #pragma link C++ class KVLockfile+;
 #pragma link C++ class KVLogReader+;
