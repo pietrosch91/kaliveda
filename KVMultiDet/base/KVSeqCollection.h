@@ -15,8 +15,8 @@ class KVSeqCollection : public TSeqCollection
 
     enum
     {
-        kSignals = BIT(14), // bit flag for sending 'Modified()' signal on changes
-        kCleanup = BIT(15) // set when objects in list are in ROOT cleanup list
+        kSignals = BIT(15), // bit flag for sending 'Modified()' signal on changes
+        kCleanup = BIT(16) // set when objects in list are in ROOT cleanup list
     };
 
 protected:
