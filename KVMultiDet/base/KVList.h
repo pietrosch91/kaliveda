@@ -36,7 +36,7 @@ class KVList:public TList {
 	RQ_OBJECT("KVList")
 			
 	enum {
-		kSignals = BIT(14) // bit flag for sending 'Modified()' signal on changes
+		kSignals = BIT(15) // bit flag for sending 'Modified()' signal on changes
 	};
 			
 	protected:
