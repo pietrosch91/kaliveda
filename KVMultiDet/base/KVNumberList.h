@@ -80,8 +80,10 @@ class KVNumberList {
    Int_t GetNValues();
 
    void PrintLimits();
+   Bool_t IsFull();
+	KVNumberList GetComplementaryList();
    
-   KVNumberList & operator=(const KVNumberList &);
+	KVNumberList & operator=(const KVNumberList &);
 	
 	   // Type conversion
    operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }

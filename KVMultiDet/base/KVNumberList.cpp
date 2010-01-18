@@ -687,3 +687,26 @@ const Char_t *KVNumberList::AsString(Int_t maxlen)
 
 //____________________________________________________________________________________________//
 
+Bool_t KVNumberList::IsFull()
+{
+	//Return kTRUE if the list is in fact a continuous list of number
+	// ie "123-126" or "1,2,3,4" etc ...
+	
+	Int_t total = Last()-First()+1;
+	return (total == GetNValues());	
+}
+	
+//____________________________________________________________________________________________//
+
+KVNumberList KVNumberList::GetComplementaryList()
+{
+	//Return the complementary of the list
+	// ie for "123-127 129" it will be returned "128"
+	
+	KVNumberList nl("");
+	if (IsFull()) return nl;
+	nl.SetMinMax(this->First(),this->Last());
+	nl.Remove(*this);
+	return nl;
+
+}
