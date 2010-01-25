@@ -101,6 +101,7 @@ void KV2Body::init()
    fDeleteTarget = kFALSE;
    fDeleteProj = kFALSE;
    fDeleteN4 = kFALSE;
+   fKoxReactionXSec = 0;
 }
 
 KV2Body::KV2Body():fNuclei(4, 1)
@@ -164,6 +165,7 @@ KV2Body::~KV2Body()
    if (fDeleteProj)
       delete GetNucleus(1);
    fNuclei.Clear();
+   if(fKoxReactionXSec) delete fKoxReactionXSec;
 }
 
 //_____________________________________________________________________________
@@ -403,10 +405,12 @@ void KV2Body::CalculateKinematics()
    //If no exit-channel nuclei are defined, only kinematical properties of entrance channel
    //are calculated.
 
+   KVNucleus* Nuc1 = GetNucleus(1);
+   KVNucleus* Nuc2 = GetNucleus(2);
    //total energy (T + m) of entrance channel
-   WLT = GetNucleus(1)->E() + (GetNucleus(2) ? GetNucleus(2)->E() : 0.);
+   WLT = Nuc1->E() + (Nuc2 ? Nuc2->E() : 0.);
    //velocity of CM
-   VCM = GetNucleus(1)->GetMomentum() * (KVParticle::C() / WLT);
+   VCM = Nuc1->GetMomentum() * (KVParticle::C() / WLT);
    //beta of CM
    BCM = VCM.Mag() / KVParticle::C();
    //total energy in CM
@@ -416,20 +420,20 @@ void KV2Body::CalculateKinematics()
 
    //total energy proj in CM
    Double_t WC1 =
-       ((GetNucleus(1)->GetMass() -
-         (GetNucleus(2) ? GetNucleus(2)->GetMass() : 0.))
-        * (GetNucleus(1)->GetMass() +
-           (GetNucleus(2) ? GetNucleus(2)->GetMass() : 0.)) / (2. * WCT)) +
+       ((Nuc1->GetMass() -
+         (Nuc2 ? Nuc2->GetMass() : 0.))
+        * (Nuc1->GetMass() +
+           (Nuc2 ? Nuc2->GetMass() : 0.)) / (2. * WCT)) +
        WCT / 2.;
    //kinetic energy proj in CM
-   EC[1] = WC1 - GetNucleus(1)->GetMass();
+   EC[1] = WC1 - Nuc1->GetMass();
    //tot E target in CM
    Double_t WC2 = WCT - WC1;
    //kinetic energy targ in CM
-   EC[2] = (GetNucleus(2) ? WC2 - GetNucleus(2)->GetMass() : 0.);
-   VC[1] = GetVelocity(GetNucleus(1)->GetMass(), WC1);
+   EC[2] = (Nuc2 ? WC2 - Nuc2->GetMass() : 0.);
+   VC[1] = GetVelocity(Nuc1->GetMass(), WC1);
    VC[2] =
-       (GetNucleus(2) ? GetVelocity(GetNucleus(2)->GetMass(), WC2) : 0.);
+       (Nuc2 ? GetVelocity(Nuc2->GetMass(), WC2) : 0.);
 
    //no exit channel defined - stop here
    if (!GetNucleus(3))
@@ -785,3 +789,81 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	
    return norm*(integ0+interm)*dphi;
 }
+
+//__________________________________________________________________________________________________
+
+Double_t KV2Body::BassIntBarrier()
+{
+   // calculate Bass interaction barrier B_int
+   // r0 = 1.07 fm
+   
+   const Double_t r0 = 1.07;
+   const Double_t e2 = 1.44;
+   Double_t A1third = pow(GetNucleus(1)->GetA(),1./3.);
+   Double_t A2third = pow(GetNucleus(2)->GetA(),1./3.);
+   Double_t R12 = r0 * (A1third + A2third);
+   
+   Double_t Bint = GetNucleus(1)->GetZ()*GetNucleus(2)->GetZ()*e2 / (R12 + 2.7)
+         - 2.9 * A1third * A2third / (A1third + A2third);
+   
+   return Bint;
+}
+
+//__________________________________________________________________________________________________
+
+Double_t KV2Body::KoxReactionXSec(Double_t* eproj, Double_t*)
+{
+   // calculate Kox reaction X-section (in barns) for a given lab energy of projectile (in MeV/nucleon)
+   // 
+   // r0 = 1.05 fm
+   // c = 0.6 @ 30MeV/A, 1.4 @ 83 MeV/A => linear interpolation:
+   //   c = 0.8/53*eproj + 0.6 - 30*0.8/53
+   // uses Bass interaction barrier Bint in the (1 - B/Ecm) term
+      
+   const Double_t r0 = 1.05;
+   const Double_t a = 1.9;
+   const Double_t c0 = 0.8/53.;
+   const Double_t c1 = 0.6 - 30*c0;
+   
+   KVNucleus* proj = GetNucleus(1);
+   proj->SetEnergy(eproj[0]*proj->GetA());
+   CalculateKinematics();
+   Double_t ECM = GetCMEnergy();
+
+   //printf("C.M. energy = %f\n", ECM);
+   Double_t Bint = BassIntBarrier();
+   //printf("Barrier = %f\n", Bint);
+   Double_t EFac = 1 - Bint/ECM;
+   //printf("1 - Bint/Ecm = %f\n", EFac);
+   Double_t c = TMath::Max(0., c0*eproj[0] + c1);
+   //printf("Kox c-factor = %f\n", c);
+   Double_t A1third = pow(proj->GetA(),1./3.);
+   Double_t A2third = pow(GetNucleus(2)->GetA(),1./3.);
+   
+   Double_t Xsec = TMath::Pi()*pow(r0,2)*
+         pow(( A1third + A2third + a*A1third*A2third/(A1third + A2third) - c ), 2) *
+         EFac;
+   
+   return Xsec/100.;
+}
+
+//__________________________________________________________________________________________________
+
+TF1* KV2Body::GetKoxReactionXSecFunc()
+{
+   // Return pointer to TF1 with Kox reaction X-section in barns as a
+   // function of projectile lab energy (in Mev/nucleon) for this reaction.
+   // By default the range of the function is [20,100] MeV/nucleon.
+   // Change with TF1::SetRange.
+   
+   if(!fKoxReactionXSec){
+      TString name = GetNucleus(1)->GetSymbol();
+      name+= " + ";
+      name += GetNucleus(2)->GetSymbol();
+      fKoxReactionXSec = new TF1( name.Data(),
+         this, &KV2Body::KoxReactionXSec, 20, 100, 0, "KV2Body", "KoxReactionXSec");
+      fKoxReactionXSec->SetNpx(1000);
+   }
+   return fKoxReactionXSec;
+}
+

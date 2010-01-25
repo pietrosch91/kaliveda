@@ -259,6 +259,7 @@ TH1* KVHistoManipulator::ScaleHisto(TH1 *hh,TF1*fx,TF1*fy,Int_t nx,Int_t ny,Doub
 					abs  = alea->Uniform(bmin,bmax);
 					Double_t resx = fx->Eval(abs);
 					gg->Fill(resx,Xbin_width_corr);
+               //cout << resx << "  " << Xbin_width_corr << endl;
 				}
 			}
 			else

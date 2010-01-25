@@ -24,6 +24,7 @@ $Id: KV2Body.h,v 1.5 2009/02/02 13:52:29 ebonnet Exp $
 #include "TObjArray.h"
 #include "TVector3.h"
 #include "KVNucleus.h"
+#include "TF1.h"
 
 class KV2Body:public TObject {
 
@@ -45,6 +46,8 @@ class KV2Body:public TObject {
 	Bool_t fDeleteTarget;
    Bool_t fDeleteProj;
    Bool_t fDeleteN4;
+   
+   TF1* fKoxReactionXSec;   // function Kox reaction cross-section [barns] vs. E/A projectile
 
    void Set4thNucleus();
 
@@ -121,6 +124,10 @@ class KV2Body:public TObject {
 	Double_t GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1=-1,Float_t phi2=-1,Int_t OfNucleus=3) const;
    
 	void Print(Option_t * opt = "") const;
+	
+	Double_t BassIntBarrier();
+	Double_t KoxReactionXSec(Double_t*,Double_t*);
+	TF1* GetKoxReactionXSecFunc();
 
    ClassDef(KV2Body, 0)         //Relativistic binary kinematical calculation
 };

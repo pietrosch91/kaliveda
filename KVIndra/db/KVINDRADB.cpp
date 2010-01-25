@@ -672,7 +672,7 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run, Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
    //Returns calculated cross-section [mb] per event for the run in question.
-   //See KVDBRun::GetEventCrossSection()
+   //See KVINDRADBRun::GetEventCrossSection()
    if (!GetRun(run))
       return 0;
    return GetRun(run)->GetEventCrossSection(Q_apres_cible, Coul_par_top);
@@ -684,7 +684,7 @@ Double_t KVINDRADB::GetTotalCrossSection(Int_t run, Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
    //Returns calculated total measured cross-section [mb] for the run in question.
-   //See KVDBRun::GetTotalCrossSection()
+   //See KVINDRADBRun::GetTotalCrossSection()
    if (!GetRun(run))
       return 0;
    return GetRun(run)->GetTotalCrossSection(Q_apres_cible, Coul_par_top);
@@ -696,31 +696,34 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
                                          Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
-   //Returns calculated average cross-section [mb] per event for the runs in question.
-   //Based on sect_effic.f by M.F. Rivet.
-   //For each run we calculate the temps mort-corrected total number of incident ions, these are then summed
-   //and the cross-section is calculated using this overall number of incident beam particles.
-   //It is assumed that all runs correspond to the same reaction, with the same beam & target characteristics and multiplicity trigger.
-   //The target thickness etc. are taken from the first run.
+   // Returns calculated average cross-section [mb] per event for the runs in question, using average dead time.
+   // This is only strictly correct if the dead time is the same for each run in the list: if it varies widely from
+   // run to run then one should use the cross-section for each event and the number of measured events for
+   // each run separately in order to calculate the total cross-section.
+   // It is assumed that all runs correspond to the same reaction, with the same beam & target characteristics and multiplicity trigger.
+   // The target thickness etc. are taken from the first run.
+   
    KVTarget *targ = GetRun(run1)->GetTarget();
    if (!targ) {
       Error("GetEventCrossSection", "No target for run %d", run1);
       return 0;
    }
    Double_t sum_xsec = 0;
+   Double_t avg_ded_tim = 0;
+   int nruns = 0;
    for (register int run = run1; run <= run2; run++) {
 
       if (!GetRun(run))
          continue;              //skip non-existent runs
       sum_xsec +=
           GetRun(run)->GetNIncidentIons(Q_apres_cible,
-                                        Coul_par_top) * (1. -
-                                                         GetRun(run)->
-                                                         GetTempsMort());
-
+                                        Coul_par_top);
+       avg_ded_tim +=  GetRun(run)->GetTempsMort();
+         nruns++;
    }
-   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei * (1 - temps mort)))
-   return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec));
+   if(nruns) avg_ded_tim/=(1.0*nruns);
+   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei) * (1 - <TM>))
+   return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec * (1. - avg_ded_tim)));
 }
 
 //__________________________________________________________________________________________________________________
@@ -730,7 +733,7 @@ Double_t KVINDRADB::GetTotalCrossSection(Int_t run1, Int_t run2,
                                          Double_t Coul_par_top) const
 {
    //Returns calculated total measured cross-section [mb] for the runs in question.
-   //This is GetEventCrossSection(run1,run2) * SUM( events )
+   //This is SUM (GetEventCrossSection(run1,run2) * SUM( events )
    //where SUM(events) is the total number of events measured in all the runs
    Int_t sum = 0;
    for (register int run = run1; run <= run2; run++) {
