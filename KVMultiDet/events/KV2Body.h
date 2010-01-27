@@ -48,6 +48,7 @@ class KV2Body:public TObject {
    Bool_t fDeleteN4;
    
    TF1* fKoxReactionXSec;   // function Kox reaction cross-section [barns] vs. E/A projectile
+   TF1* fEqbmChargeState;   // function equilibrium charge state of projectile vs. E/A projectile
 
    void Set4thNucleus();
 
@@ -128,6 +129,9 @@ class KV2Body:public TObject {
 	Double_t BassIntBarrier();
 	Double_t KoxReactionXSec(Double_t*,Double_t*);
 	TF1* GetKoxReactionXSecFunc();
+	
+	Double_t EqbmChargeState(Double_t *t,Double_t*);
+	TF1* GetEqbmChargeStateFunc();
 
    ClassDef(KV2Body, 0)         //Relativistic binary kinematical calculation
 };

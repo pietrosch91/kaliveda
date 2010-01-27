@@ -102,6 +102,7 @@ void KV2Body::init()
    fDeleteProj = kFALSE;
    fDeleteN4 = kFALSE;
    fKoxReactionXSec = 0;
+   fEqbmChargeState = 0;
 }
 
 KV2Body::KV2Body():fNuclei(4, 1)
@@ -166,6 +167,7 @@ KV2Body::~KV2Body()
       delete GetNucleus(1);
    fNuclei.Clear();
    if(fKoxReactionXSec) delete fKoxReactionXSec;
+   if(fEqbmChargeState) delete fEqbmChargeState;
 }
 
 //_____________________________________________________________________________
@@ -825,7 +827,7 @@ Double_t KV2Body::KoxReactionXSec(Double_t* eproj, Double_t*)
    const Double_t c0 = 0.8/53.;
    const Double_t c1 = 0.6 - 30*c0;
    
-   KVNucleus* proj = GetNucleus(1);
+   KVNucleus* proj = (KVNucleus*)fNuclei[1];
    proj->SetEnergy(eproj[0]*proj->GetA());
    CalculateKinematics();
    Double_t ECM = GetCMEnergy();
@@ -838,7 +840,7 @@ Double_t KV2Body::KoxReactionXSec(Double_t* eproj, Double_t*)
    Double_t c = TMath::Max(0., c0*eproj[0] + c1);
    //printf("Kox c-factor = %f\n", c);
    Double_t A1third = pow(proj->GetA(),1./3.);
-   Double_t A2third = pow(GetNucleus(2)->GetA(),1./3.);
+   Double_t A2third = pow(((KVNucleus*)fNuclei[2])->GetA(),1./3.);
    
    Double_t Xsec = TMath::Pi()*pow(r0,2)*
          pow(( A1third + A2third + a*A1third*A2third/(A1third + A2third) - c ), 2) *
@@ -865,5 +867,79 @@ TF1* KV2Body::GetKoxReactionXSecFunc()
       fKoxReactionXSec->SetNpx(1000);
    }
    return fKoxReactionXSec;
+}
+
+//__________________________________________________________________________________________________
+
+Double_t KV2Body::EqbmChargeState(Double_t *t,Double_t*)
+{
+   // Calculate the mean charge state of the projectile after passage through the target,
+   // assuming that the equilibrium charge state distribution is achieved*.
+   // t[0] = energy of projectile after the target (in MeV/nucleon)
+   //
+   // We use the empirical parameterization of Leon et al., At. Dat. and Nucl. Dat. Tab. 69, 217 (1998)
+   // developed for heavy ions in the GANIL energy range (it represents a fit to data measured using
+   // GANIL beams).
+   //
+   // *N.B. Concerning equilibrium charge state distributions, it is not easy to know whether, for a given
+   // combination of projectile, projectile energy, target, and target thickness, the equilibrium
+   // distribution is reached or not. Here are some comments from the paper cited above which
+   // may give some guidelines:
+   //
+   // "The energies available at the GANIL accelerator range from 24 to 95 MeV/u. Within this energy range,
+   //  the equilibrium charge state is reached only for fairly thick targets (~1 mg/cm2 for C foils)."
+   //
+   // "Mean Charge State as a Function of the Target Thickness
+   // A typical example of the variation of the mean charge as a function of the foil thickness is shown ... It is seen
+   // that the mean charge initially increases due to the ionization process. Then, the equilibrium state is reached at
+   // a certain thickness, the so-called equilibrium thickness, due to the equilibration of electron loss and
+   // capture processes. Finally, for foils thicker than the equilibrium thickness, the mean charge decreases due to the
+   // slowing down of the ions in matter leading to higher capture cross sections."
+   //
+   // It should be noted that, according to the data published in this and other papers, the equilibrium thickness
+   // decreases with increasing atomic number of the target, and increases with increasing energy of the projectile.
+   
+   KVNucleus* proj = (KVNucleus*)fNuclei[1];
+   Double_t Zp = proj->GetZ();
+   proj->SetEnergy(t[0]*proj->GetA());
+   Double_t beta = proj->Beta();
+   Double_t vp = beta*KVParticle::C();
+   Double_t Zt = ((KVNucleus*)fNuclei[2])->GetZ();
+   
+   Double_t q = Zp * (1. - TMath::Exp( -83.275*beta/pow(Zp, 0.477)) );
+   
+   // correction for target Z
+   Double_t g = 0.929 + 0.269*TMath::Exp(-0.16*Zt) + (0.022 - 0.249*TMath::Exp(-0.322*Zt))*vp/pow(Zp, 0.477);
+   q *= g;
+   
+   if(Zp > 54)
+   {
+     // f(Zp) - correction for projectiles with Z>54
+      Double_t f = 1. - TMath::Exp( -12.905 + 0.2124*Zp - 0.00122*pow(Zp,2) );
+      q *= f;
+   }
+   
+   return q;
+}
+
+//__________________________________________________________________________________________________
+
+TF1* KV2Body::GetEqbmChargeStateFunc()
+{
+   // Return pointer to TF1 giving mean charge state of the projectile after passage through the target,
+   // assuming that the equilibrium charge state distribution is achieved, as a function of projectile
+   // energy after the target (in MeV/nucleon).
+   // By default the range of the function is [20,100] MeV/nucleon.
+   // Change with TF1::SetRange.
+   
+   if(!fEqbmChargeState){
+      TString name = GetNucleus(1)->GetSymbol();
+      name+= " + ";
+      name += GetNucleus(2)->GetSymbol();
+      fEqbmChargeState = new TF1( name.Data(),
+         this, &KV2Body::EqbmChargeState, 20, 100, 0, "KV2Body", "EqbmChargeState");
+      fEqbmChargeState->SetNpx(1000);
+   }
+   return fEqbmChargeState;
 }
 
