@@ -177,6 +177,7 @@
 #pragma link C++ class KVTextEntry+;
 #pragma link C++ class KVUpDater;
 #pragma link C++ class KVHistoManipulator;
+#pragma link C++ class KVImpactParameter;
 #pragma link C++ class KVEventListMaker;
 #ifdef __CCIN2P3_RFIO
 #pragma link C++ class KVRFIOSystem+;
