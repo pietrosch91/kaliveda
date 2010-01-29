@@ -55,6 +55,7 @@ KVImpactParameter::KVImpactParameter(TH1* data, Option_t* evol)
    fEvol = evol;
    fIPScale = 0;
    fObsTransform = 0;
+   Bmax= 1.0;
 }
 
 KVImpactParameter::~KVImpactParameter()
@@ -77,29 +78,24 @@ End_Latex
    */
    // npoints = number of points for which to calculate the impact parameter.
    // The greater the number of points, the more accurate the results.
-   // Default value is 100.
+   // Default value is 100. Maximum value is number of bins in histogram of observable, fData.
    // bmax = 1.0 by default (reduced impact parameter scale).
    // Any other value for bmax will scale all the reduced impact parameters
    // (i.e. to give an absolute impact parameter in fm).
    
+   Bmax = bmax;
    TH1*cumul = HM.CumulatedHisto(fData, fEvol.Data() ,-1,-1,"max");
    Int_t nbins = cumul->GetNbinsX();
-   Int_t first_bin = 2;
-   //find last bin with something in it
+   Int_t first_bin = 1;
    Int_t last_bin = nbins;
-   for(;last_bin>0;last_bin--){
-      if(cumul->GetBinContent(last_bin)>0) break;
-   }
-   
+   npoints = TMath::Min(nbins,npoints);
    fIPScale = new TGraph(npoints);
    Double_t delta_bin = 1.*(last_bin-first_bin)/(npoints-1.);
-   
    Int_t bin;
    for(int i=0;i<npoints;i++){
       bin = first_bin + i*delta_bin;
       Double_t et12 = cumul->GetBinCenter(bin);
       Double_t b = bmax * sqrt(cumul->GetBinContent(bin));
-      
       fIPScale->SetPoint(i,et12,b);
    }
    delete cumul;
@@ -118,19 +114,18 @@ Double_t KVImpactParameter::BTransform(Double_t *x, Double_t *)
    return fIPScale->Eval(*x);
 }
 
-TH1* KVImpactParameter::GetIPDistribution(TH1* obs, Int_t nbinx, Double_t xmin, Double_t xmax, Option_t* norm)
+TH1* KVImpactParameter::GetIPDistribution(TH1* obs, Int_t nbinx, Option_t* norm)
 {
    // Transform the distribution of the observable contained in the histogram 'obs'
    // into a distribution of the impact parameter.
    // User's responsibility to delete histo.
    //
    // nbinx = number of bins in I.P. histo (default = 100)
-   // xmin, xmax = limits of I.P. axis (default= 0, 1)
 	//  norm = "" (default) : no adjustment is made for the change in bin width due to the transformation
 	//  norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
 	//                   contents taking into account the bin width (i.e. TH1::Integral("width")) is the same.
    
-   return HM.ScaleHisto(obs, fObsTransform, 0, nbinx, -1, xmin, xmax, -1, -1, norm);
+   return HM.ScaleHisto(obs, fObsTransform, 0, nbinx, -1, 0., Bmax, -1, -1, norm);
 }
 
 TGraph* KVImpactParameter::GetIPEvolution(TH2* obscor, TString moment, TString axis)

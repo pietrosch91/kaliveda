@@ -17,6 +17,7 @@ class KVImpactParameter : public KVBase
    TGraph* fIPScale; // derived relation between observable and impact-parameter
    TF1 *fObsTransform; // function for transforming observable into impact parameter
    KVHistoManipulator HM;
+   Double_t Bmax; // maximum of ip scale: =1 for reduced ip, !=1 for absolute (fm) scale.
    
    public:
    KVImpactParameter(TH1*, Option_t* evol = "D");
@@ -36,7 +37,7 @@ class KVImpactParameter : public KVBase
       // Calculate value of reduced impact parameter for given value of the observable.
       return fObsTransform->Eval(obs);
    };
-   TH1* GetIPDistribution(TH1* obs, Int_t nbinx=100, Double_t xmin=0, Double_t xmax=1, Option_t* norm="");
+   TH1* GetIPDistribution(TH1* obs, Int_t nbinx=100, Option_t* norm="");
    TGraph* GetIPEvolution(TH2* obscor, TString moment, TString axis="Y");
 
    ClassDef(KVImpactParameter,1)//Impact parameter analysis tools
