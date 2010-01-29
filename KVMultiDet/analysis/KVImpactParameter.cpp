@@ -125,6 +125,10 @@ TH1* KVImpactParameter::GetIPDistribution(TH1* obs, Int_t nbinx, Option_t* norm)
 	//  norm = "width" : bin contents are adjusted for width change, so that the integral of the histogram
 	//                   contents taking into account the bin width (i.e. TH1::Integral("width")) is the same.
    
+   if(!fObsTransform){
+      Error("GetIPDistribution", "Call MakeScale first to calculate correspondance observable<->i.p.");
+      return 0;
+   }
    return HM.ScaleHisto(obs, fObsTransform, 0, nbinx, -1, 0., Bmax, -1, -1, norm);
 }
 
@@ -138,6 +142,10 @@ TGraph* KVImpactParameter::GetIPEvolution(TH2* obscor, TString moment, TString a
    // If the impact parameter observable is on the Y-axis of obscor, use axis="X"
    // (by default axis="Y", i.e. we assume that the I.P. observable is on the x axis).
    
+   if(!fObsTransform){
+      Error("GetIPEvolution", "Call MakeScale first to calculate correspondance observable<->i.p.");
+      return 0;
+   }
    TGraphErrors *gre = HM.GetMomentEvolution(obscor,moment,"",axis);
    TGraph* gr = HM.ScaleGraph(gre, fObsTransform, 0);
    delete gre;
