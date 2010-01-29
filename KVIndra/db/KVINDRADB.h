@@ -136,6 +136,7 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    Double_t GetTotalCrossSection(const Char_t * system, Int_t Mult_trigger,
                                  Double_t Q_apres_cible,
                                  Double_t Coul_par_top = 1.e-10) const;
+   Double_t GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top = 1.e-10);
 
    void WriteRunListFile() const;
    void ReadNewRunList();

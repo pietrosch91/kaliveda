@@ -699,8 +699,9 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
    // Returns calculated average cross-section [mb] per event for the runs in question, using average dead time.
    // This is only strictly correct if the dead time is the same for each run in the list: if it varies widely from
    // run to run then one should use the cross-section for each event and the number of measured events for
-   // each run separately in order to calculate the total cross-section.
-   // It is assumed that all runs correspond to the same reaction, with the same beam & target characteristics and multiplicity trigger.
+   // each run separately in order to calculate the total cross-section (i.e. use GetTotalCrossSection(TH1*)).
+   // It is assumed that all runs correspond to the same reaction,
+   // with the same beam & target characteristics and multiplicity trigger.
    // The target thickness etc. are taken from the first run.
    
    KVTarget *targ = GetRun(run1)->GetTarget();
@@ -826,6 +827,34 @@ Double_t KVINDRADB::GetTotalCrossSection(const Char_t * system_name,
 }
 
 //__________________________________________________________________________________________________________________
+
+Double_t KVINDRADB::GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top)
+{
+   // Calculate the cross-section [mb] for a given selection of events in several runs,
+   // given by the TH1, which is a distribution of run numbers (i.e. a histogram filled with
+   // the number of selected events for each run, the run number is on the x-axis of the histogram).
+   // This calculation is exact, even if the dead time is very different from run to run
+   // (on the contrary to using GetEventCrossSection(Int_t run1, Int_t run2) and multiplying
+   // by the total number of selected events in the runs).
+   
+   Info("GetTotalCrossSection", "Calculating cross-section for q=%f", Q_apres_cible);
+   Double_t xsec = 0, ninc = 0;
+   KVTarget *targ = 0;
+   for(int i = 1; i<=events_histo->GetNbinsX(); i++){
+      Double_t events = events_histo->GetBinContent(i);
+      if(events==0) continue;
+      int run_num = events_histo->GetBinCenter(i);
+      KVINDRADBRun* run = GetRun(run_num);
+      if(!targ) targ = run->GetTarget();
+      ninc +=
+          run->GetNIncidentIons(Q_apres_cible,
+                                Coul_par_top);
+      xsec += events/(1. - run->GetTempsMort());
+      cout << "Run#" << run_num << "   Events : " << events
+         << "   Dead time : " << run->GetTempsMort() << endl;
+   }
+   return (1.e27 / (ninc * targ->GetAtomsPerCM2())) * xsec;
+}
 
 void KVINDRADB::WriteRunListFile() const
 {
