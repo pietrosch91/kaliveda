@@ -130,6 +130,10 @@ class KV2Body:public TObject {
 	Double_t KoxReactionXSec(Double_t*,Double_t*);
 	TF1* GetKoxReactionXSecFunc();
 	
+	Double_t GetSphereDureReactionXSec(Double_t r0=1.05);
+	Double_t GetBmaxFromReactionXSec(Double_t ReacXsec);
+	Double_t GetIntegratedXsec(Double_t b1,Double_t b2);
+	
 	Double_t EqbmChargeState(Double_t *t,Double_t*);
 	TF1* GetEqbmChargeStateFunc();
 

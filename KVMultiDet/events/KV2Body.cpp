@@ -851,6 +851,46 @@ Double_t KV2Body::KoxReactionXSec(Double_t* eproj, Double_t*)
 
 //__________________________________________________________________________________________________
 
+Double_t KV2Body::GetSphereDureReactionXSec(Double_t r0)
+{
+   // calculate Reaction Cross Section with the "Sphere Dure"
+   // approximation
+      
+   Double_t A1third = pow(((KVNucleus*)fNuclei[1])->GetA(),1./3.);
+   Double_t A2third = pow(((KVNucleus*)fNuclei[2])->GetA(),1./3.);
+   
+   Double_t Xsec = TMath::Pi()*pow(r0,2)*
+         pow( A1third + A2third , 2);
+   
+   return Xsec/100.;
+}
+
+//__________________________________________________________________________________________________
+
+Double_t KV2Body::GetBmaxFromReactionXSec(Double_t ReacXsec){
+	
+	// Deduce the maximum impact parameter (in fm) from a given reaction cross section (in barn)
+	// in the approximation Xsec = \int(0,bmax) 2Pi b db
+	
+	return 10*TMath::Sqrt( ReacXsec/TMath::Pi() );
+
+}
+
+
+
+//__________________________________________________________________________________________________
+
+Double_t KV2Body::GetIntegratedXsec(Double_t b1,Double_t b2){
+	
+	// Integrate the cross section between two impact parameter (in fm)
+	// and give the result in barn
+	
+	return TMath::Pi()*(TMath::Power(b2,2.)-TMath::Power(b1,2.))/100;
+	
+}
+
+//__________________________________________________________________________________________________
+
 TF1* KV2Body::GetKoxReactionXSecFunc()
 {
    // Return pointer to TF1 with Kox reaction X-section in barns as a
