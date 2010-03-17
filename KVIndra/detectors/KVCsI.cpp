@@ -379,9 +379,20 @@ void KVCsI::Streamer(TBuffer &R__b)
       if( !fCal )  fCal = (KVLightEnergyCsI *) GetCalibrator("Light-Energy CsI");
       if( R__v < 4 ){
          // backwards compatibility: persistent member pointers to acquisition
-         // parameters introduced in class version 4 (10 june 2009)
-         fACQ_R = GetACQParam("R");
-         fACQ_L = GetACQParam("L");
+         // parameters fACQ_R & fACQ_L introduced in class version 4 (10 june 2009)
+			// As the detector name is not always available at this point
+			// (KVDetector::GetName generates dynamically the name from the
+			// module & ring numbers, no persistent name stored in TNamed::fName)
+			// we have to loop over the list of acquisition parameters (if it exists)
+			// and look for parameters which end with "R" or "L"
+			if(fACQParams){
+				TIter next(fACQParams); KVACQParam* par=0;
+				while( (par = (KVACQParam*)next()) ){
+					TString name(par->GetName());
+					if(name.EndsWith("R")) fACQ_R = par;
+					else if(name.EndsWith("L")) fACQ_L = par;
+				}
+			}
       }
    } else {
       KVCsI::Class()->WriteBuffer(R__b, this);
