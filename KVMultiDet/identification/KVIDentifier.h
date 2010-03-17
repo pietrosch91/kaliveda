@@ -13,6 +13,7 @@ $Date: 2009/04/20 10:01:58 $
 #include "Riostream.h"
 #include "TCutG.h"
 #include "KVNucleus.h"
+#include "RVersion.h"
 
 class TF1;
 class KVIDGraph;
@@ -94,10 +95,17 @@ class KVIDentifier : public TCutG
    virtual void      SetTitle(const char *title="") {TGraph::SetTitle(title);};
    virtual void      FitPanel() { TGraph::FitPanel(); };
    virtual void      DrawPanel() { TGraph::DrawPanel(); };
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+   virtual TFitResultPtr Fit(const char *formula ,Option_t *option="" ,Option_t *goption="", Axis_t xmin=0, Axis_t xmax=0)
+   { return TGraph::Fit(formula,option,goption,xmin,xmax);};
+   virtual TFitResultPtr Fit(TF1 *f1 ,Option_t *option="" ,Option_t *goption="", Axis_t xmin=0, Axis_t xmax=0)
+   { return TGraph::Fit(f1,option,goption,xmin,xmax);};
+#else
    virtual Int_t     Fit(const char *formula ,Option_t *option="" ,Option_t *goption="", Axis_t xmin=0, Axis_t xmax=0)
    { return TGraph::Fit(formula,option,goption,xmin,xmax);};
    virtual Int_t     Fit(TF1 *f1 ,Option_t *option="" ,Option_t *goption="", Axis_t xmin=0, Axis_t xmax=0)
    { return TGraph::Fit(f1,option,goption,xmin,xmax);};
+#endif
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TNamed.h, to stop these methods appearing in the ID line context menus
    virtual void     SetName(const char *name){TGraph::SetName(name);};
