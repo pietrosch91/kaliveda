@@ -353,7 +353,7 @@ void KVCsI::SetACQParams()
 void KVCsI::SetCalibrators()
 {
    //Set up calibrators for this detector. Call once name has been set.
-//  Two KVLightEnergyCsI calibrators are used, one for Z=1, the other for Z>1
+   //Two KVLightEnergyCsI calibrators are used, one for Z=1, the other for Z>1
    fCalZ1 = new KVLightEnergyCsI(this);
    fCalZ1->SetType("Light-Energy CsI Z=1");
    AddCalibrator(fCalZ1);
@@ -370,11 +370,30 @@ void KVCsI::Streamer(TBuffer &R__b)
    // We set the pointers to the calibrator objects
 
    if (R__b.IsReading()) {
-      KVCsI::Class()->ReadBuffer(R__b, this);
+      UInt_t R__s, R__c;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      KVCsI::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
       fCalZ1 = (KVLightEnergyCsI *) GetCalibrator("Light-Energy CsI Z=1");
       fCal = (KVLightEnergyCsI *) GetCalibrator("Light-Energy CsI Z>1");
       // backwards compatibility for CsI with only one calibrator
       if( !fCal )  fCal = (KVLightEnergyCsI *) GetCalibrator("Light-Energy CsI");
+      if( R__v < 4 ){
+         // backwards compatibility: persistent member pointers to acquisition
+         // parameters fACQ_R & fACQ_L introduced in class version 4 (10 june 2009)
+			// As the detector name is not always available at this point
+			// (KVDetector::GetName generates dynamically the name from the
+			// module & ring numbers, no persistent name stored in TNamed::fName)
+			// we have to loop over the list of acquisition parameters (if it exists)
+			// and look for parameters which end with "R" or "L"
+			if(fACQParams){
+				TIter next(fACQParams); KVACQParam* par=0;
+				while( (par = (KVACQParam*)next()) ){
+					TString name(par->GetName());
+					if(name.EndsWith("R")) fACQ_R = par;
+					else if(name.EndsWith("L")) fACQ_L = par;
+				}
+			}
+      }
    } else {
       KVCsI::Class()->WriteBuffer(R__b, this);
    }

@@ -934,7 +934,7 @@ Double_t KVHistoManipulator::GetX(TH1* ob, Double_t val, Double_t eps, Int_t nma
 	Double_t Xmin = ob->GetXaxis()->GetXmin();
 
 	 Int_t n,side=0;
-    Double_t r,fr,fs,s,ft,t;
+    Double_t r=0,fr,fs,s,ft,t;
 	 s = Xmin; t = Xmax;
 	 fs = spline->Eval(s) - val;
 	 ft = spline->Eval(t) - val;
