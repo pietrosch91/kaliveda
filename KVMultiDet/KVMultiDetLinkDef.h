@@ -158,6 +158,7 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVWidget;
 #pragma link C++ class KVWidgetList;
 #pragma link C++ class KV2Body+;
+#pragma link C++ class KVBreakUp;
 #pragma link C++ class KVString+;
 #pragma link C++ class KVMergeGridsDialog+;
 #pragma link C++ class KVNewGridDialog+;
