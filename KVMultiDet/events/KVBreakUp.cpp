@@ -22,8 +22,10 @@ under different conditions and/or wau of break up
 
 
 void KVBreakUp::init(void) {
-		
+	
+	size_max=500;
 	//Condition initiale de la cassure Ztot,Mtot,Zlim
+	Ztotal=0;
 	bound = 0;
 	SetConditions(0,0,0);
 	
@@ -31,37 +33,55 @@ void KVBreakUp::init(void) {
 	alea = 0;
 	RedefineTRandom("TRandom3");
 	
-	KVBreakUpMethod="BreakUsingChain";
-	SetKVBreakUpMethod(KVBreakUpMethod);
+	BreakUpMethod="BreakUsingChain";
+	SetBreakUpMethod(BreakUpMethod);
 	
 	nraffine=0;
-
+	
+	lobjects=0;	
+	
 	lhisto=0;	
 	DefineHistos();
-		
+	
+	parman=0;
 	tt=0;
+	iterations_total = 0;
+	tstart = tstop = tellapsed = 0;
 }
 
 void KVBreakUp::DefineHistos(){
 	
 	lhisto = new KVList();
 	//histogramme de control
-	hzz = new TH1F("hzz","distri z",200,-0.5,199.5);   		lhisto->Add(hzz);
-	hzt = new TH1F("hzt","h ztotal",200,-0.5,199.5);   		lhisto->Add(hzt);
-	hmt = new TH1F("hmt","h mtotal",200,-0.5,199.5);   		lhisto->Add(hmt);
-	hite = new TProfile("hite","nbre iterations",200,-0.5,199.5);lhisto->Add(hite);
-	hess = new TProfile("hess","nbre essais",200,-0.5,199.5);lhisto->Add(hess);
-	
+	hzz = new TH1F("KVBreakUp_hzz","distri z",200,-0.5,199.5);   				lhisto->Add(hzz);
+	hzt = new TH1F("KVBreakUp_hzt","h ztotal",200,-0.5,199.5);   				lhisto->Add(hzt);
+	hmt = new TH1F("KVBreakUp_hmt","h mtotal",200,-0.5,199.5);   				lhisto->Add(hmt);
 }
 	
-void KVBreakUp::DefineTree(){
+void KVBreakUp::StoreEntriesInTree(){
 	
-	tt = new TTree("KVBreakUp_tree","tree");
+	if (!tt){
+		tt = new TTree("KVBreakUp_tree","tree");
+		if (!lobjects) lobjects = new KVList(); 
+		lobjects->Add(tt);
 	
-	tt->Branch("zt",&Ztotal,"zt/I");
-	tt->Branch("mt",&Mtotal,"mt/I");
+		tt->Branch("zt",&Ztotal,"zt/I");
+		tt->Branch("mt",&Mtotal,"mt/I");
 	
-	tt->Branch("tabz",size,"tabz[mt]/I");
+		tt->Branch("tabz",size,"tabz[mt]/I");
+		SetBit(kFillTree,kTRUE);
+	}
+
+}
+
+void KVBreakUp::StorePartition(Bool_t choix){
+	SetBit(kStorePartitions,choix);
+	if ( !GetTree() ) StoreEntriesInTree();
+	if ( !GetManager() ){
+		parman = new KVPartitionManager();
+		if (!lobjects) lobjects = new KVList(); 
+		lobjects->Add(parman);
+	}
 }
 
 
@@ -88,7 +108,6 @@ Int_t KVBreakUp::BreakUsingChain(void){
 			bound[bb]=0;
 		}
 	}
-	hite->Fill(nbre_nuc,mtire);
 	
 	//La cassure a reussie
 	//on recupere les tailles additionelles
@@ -112,9 +131,63 @@ Int_t KVBreakUp::BreakUsingChain(void){
 	bound[val[0]]=1;
 	zc += size[0];
 	
-	delete val;
+	delete [] val;
 	//cout << zc << " " << Ztotal << endl;
 	if (zc==Ztotal && mtot_corr==Mtotal) return 1;
+	else return 0;
+	
+}
+
+Int_t KVBreakUp::BreakUsingLine(void){
+
+	//Conditions de depart
+	//Mtotal clusters de taille minimale Zmin
+	for (Int_t mm=0;mm<Mtotal;mm+=1) { size[mm]=Zmin-1; }
+	//On initilise la taille a Zmin-1
+	//Le tirage aleatoire se fait 
+	//sur la taille restante Ztotal_corr
+	Int_t Ztotal_corr = Ztotal-(Zmin-1)*Mtotal;
+	
+	nl="";
+	Int_t bb=0;
+	Int_t mtire=0;
+	while (mtire<Mtotal-1){
+		//Tirage uniform d'entier entre 0 et Ztotal_corr - 1 
+		bb = TMath::Nint(alea->Uniform(1,(Ztotal_corr-1)-0.5));
+		//test si ce lien a deja ete casse
+		if (bound[bb]==1){
+			//cout << "bb="<<bb << endl;
+			nl.Add(bb);
+			mtire+=1;
+			bound[bb]=0;
+		}
+	}
+
+	//cout << "mtire="<<mtire << endl;
+	//
+	nl.Add(0);
+	nl.Add(Ztotal_corr);
+	//cout << "nl="<<nl.AsString() << endl;;
+	//La cassure a reussie
+	//on recupere les tailles additionelles
+	Int_t mtot_corr=0;
+	Int_t* val = nl.GetArray(mtot_corr);
+	//cout << "mtot_corr="<<mtot_corr << endl;
+	Int_t zc=0;
+	//boucle sur les liens casses
+	Int_t taille=0;
+	for (Int_t ii=1;ii<mtot_corr;ii+=1){
+		taille = val[ii]-val[ii-1];
+		//cout << "ii="<< ii <<" taille="<<taille<<endl;
+		size[ii-1] += taille;	//mise a jour des tailles des clusters
+		hzz->Fill(size[ii-1]);
+		bound[val[ii]]=1;	//Reset du lien pour le prochain tirage
+		zc += size[ii-1];	//incrementation de la taille totale de controle
+	}
+	
+	delete [] val;
+	//cout << "zc="<<zc << " " << Ztotal << endl;
+	if (zc==Ztotal && mtot_corr-1==Mtotal) return 1;
 	else return 0;
 	
 }
@@ -143,7 +216,7 @@ Int_t KVBreakUp::BreakUsingIndividual(void){
 		zc += surplus[mm];
 	}	
 	//Test effets spurieux pasage reel -> entier
-	//Redistribution eventuelle de charge manquante
+	//Redistribution eventuelle de charge manquante ou en exces
 	if (zc!=Ztotal_corr){
 		Int_t diff = Ztotal_corr-zc;
 		nraffine+=1;
@@ -201,9 +274,7 @@ Int_t KVBreakUp::BreakUsingPile(void){
 		bb = TMath::Nint(alea->Uniform(0,(Mtotal)-0.5));
 		size[bb]+=1;
 	}
-	
-	hite->Fill(nbre_nuc,nbre_nuc);
-	
+		
 	Int_t mc=0,zc=0;
 	for (Int_t mm=0;mm<Mtotal;mm+=1){
 		Int_t taille = size[mm];
@@ -219,14 +290,15 @@ Int_t KVBreakUp::BreakUsingPile(void){
 
 void KVBreakUp::TreatePartition(){
 
-	OrdonneCharge();
-	if (tt) tt->Fill();
+	//OrdonneCharge();
+	if (TestBit(kFillTree)) tt->Fill();
 	hmt->Fill(Mtotal);
 	hzt->Fill(Ztotal);
 
 }
 	
 
+/*
 void KVBreakUp::OrdonneCharge(){
 
 	//On ordonne le tableau de charge par ordre decroissant
@@ -236,32 +308,76 @@ void KVBreakUp::OrdonneCharge(){
 	for (Int_t nn=0;nn<Mtotal;nn+=1) size[nn] = tampon[nn];
 
 }	
-	
+*/	
 	
 void KVBreakUp::BreakNtimes(Int_t times){
 
 	
+	Start();
+	
 	TMethodCall meth;
-   meth.InitWithPrototype(this->IsA(), KVBreakUpMethod.Data(),"");
+   meth.InitWithPrototype(this->IsA(), BreakUpMethod.Data(),"");
 	Long_t ret;
 	if (meth.IsValid() && meth.ReturnType()==TMethodCall::kLong) {
 		for (Int_t nn=0;nn<times;nn+=1){
-			if ( nn%1000 == 0 ) printf("%d partitions generees sur %d\n",nn,times);
+			if ( nn%10000 == 0 ) Info("BreakNtimes","%d partitions generees sur %d",nn,times);
 			meth.Execute(this,"",ret);
 			if (ret==1)
 				TreatePartition();
 			else {
-				cout << KVBreakUpMethod << " retourne " << ret << endl; 
-			}	
+				Info("BreakNtimes","%s retourne %d",BreakUpMethod.Data(),ret);
+				nn-=1;
+			}
 		}
+	}
+	Info("BreakNtimes","Tirage termine");
+	iterations_total+=times;	
+	
+	Stop();
+	Info("BreakNtimes","Temps ecoule en secondes : %d",GetDeltaTime());
+
+	if (TestBit(kStorePartitions)){
+		TransfertFromTree();
 	}
 
 }	
+	
+void KVBreakUp::TransfertFromTree(void){	
+	
+	Start();
+	
+	Info("TransfertFromTree","Transfert des partitions");
+	KVString snom;
+	if (TestBit(kStorePartitions)){
+		for (Int_t nn=0;nn<tt->GetEntries();nn+=1){
+			//if ( nn%10000 == 0 ) Info("TransfertFromTree","%d entrees traites",nn);
+			tt->GetEntry(nn);
+			
+			partition = new KVPartition(GetZtot());
+			partition->Fill(size,Mtotal);
+			
+			if ( !(parman->TestPartition(partition)) )
+				delete partition;
+			
+		}
+		
+		parman->ReduceSubLists();
+		
+		ResetTree();
+	}
+	
+	Stop();
+	Info("TransfertFromTree","Temps ecoule en secondes : %d",GetDeltaTime());
+
+}	
+
 
 void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin){
 
+	Start();
+	
 	TMethodCall meth;
-   meth.InitWithPrototype(this->IsA(), KVBreakUpMethod.Data(),"");
+   meth.InitWithPrototype(this->IsA(), BreakUpMethod.Data(),"");
 	Long_t ret;
 	TRandom3* gaus = new TRandom3();
 	if (meth.IsValid() && meth.ReturnType()==TMethodCall::kLong) {
@@ -277,7 +393,7 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Zto
 				if (ret==1)
 					TreatePartition();
 				else {
-					//cout << KVBreakUpMethod << " retourne " << ret << endl; 
+					//cout << BreakUpMethod << " retourne " << ret << endl; 
 				}	
 			}
 			else {
@@ -286,10 +402,21 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Zto
 		}
 	}
 	delete gaus;
+	iterations_total+=times;
+	
+	Stop();
+	Info("BreakNtimesOnGaussian","Temps ecoule en secondes : %d",GetDeltaTime());
+
+	if (TestBit(kStorePartitions)){
+		TransfertFromTree();
+	}
+	
 }		
 
 void KVBreakUp::BreakNtimesFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin){
 
+	Start();
+	
 	TH2F* h2 = hh_zt_VS_mt;
 	if (!h2) return;
 	Int_t zt,mt;
@@ -315,15 +442,24 @@ void KVBreakUp::BreakNtimesFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin){
 				}
 			}
 		}
+	
+	iterations_total+=stat_par;
+
+	Stop();
+	Info("BreakNtimesFromHisto","Temps ecoule en secondes : %d",GetDeltaTime());
+
+	if (TestBit(kStorePartitions)){
+		TransfertFromTree();
+	}
 
 }		
 
 void KVBreakUp::DrawPanel(){
 		
 	TCanvas* c1 = 0;
-	if ( !(c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("KVBreakUp_Control")) ){
+	if ( !(c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("BreakUp_Control")) ){
 		
-		c1 = new TCanvas("KVBreakUp_Control","Control",0,0,900,900);
+		c1 = new TCanvas("BreakUp_Control","Control",0,0,900,900);
 		c1->Divide(2,2,0.001,0.001,10);
 		c1->cd(1);	if (hzz->GetEntries()>0)	gPad->SetLogy(1); hzz->Draw();
 		c1->cd(2);	if (hzt->GetEntries()>0)	gPad->SetLogy(1); hzt->Draw();
@@ -332,17 +468,18 @@ void KVBreakUp::DrawPanel(){
 	}
 }
 
-void KVBreakUp::ResetHistos(){
-		
-	lhisto->Execute("Reset","");
+void KVBreakUp::ResetHistos(){ lhisto->Execute("Reset",""); }
 
-}
+void KVBreakUp::ResetTree(){ GetTree()->Reset();}
+
+void KVBreakUp::ResetManager(){ GetManager()->Reset(); }
+
 
 void KVBreakUp::SaveHistos(KVString filename,KVString suff,Bool_t update){
 
 	if (filename=="") filename="KVBreakUp_Ouput.root";
 	if (suff=="")	
-		suff.Form("Zt%d_Mt%d_Zm%d_%s",GetZtot(),GetMtot(),GetZmin(),GetKVBreakUpMethod().Data());
+		suff.Form("Zt%d_Mt%d_Zm%d_%s",GetZtot(),GetMtot(),GetZmin(),GetBreakUpMethod().Data());
 	TFile* file = 0;
 	if (update) file = new TFile(filename.Data(),"update");
 	else 			file = new TFile(filename.Data(),"recreate");
@@ -357,7 +494,9 @@ void KVBreakUp::SaveHistos(KVString filename,KVString suff,Bool_t update){
 }
 
 void KVBreakUp::SaveTree(KVString filename,KVString suff,Bool_t update){
-
+	
+	if (!TestBit(kFillTree)) return;
+	
 	TFile* file = 0;
 	if (update) file = new TFile(filename.Data(),"update");
 	else 			file = new TFile(filename.Data(),"recreate");
