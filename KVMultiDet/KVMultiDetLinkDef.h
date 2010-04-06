@@ -204,6 +204,8 @@ $Id: KVMultiDetLinkDef.h,v 1.136 2009/04/15 11:44:53 ebonnet Exp $
 #pragma link C++ class KVZmax;
 #pragma link C++ class KVPtot;
 #pragma link C++ class KVZVtot;
+#pragma link C++ class KVPartition+;
+#pragma link C++ class KVPartitionManager+;
 #pragma link C++ class KVGVList;
 #pragma link C++ class KVTrieur;
 #pragma link C++ class KVTrieurLin;
