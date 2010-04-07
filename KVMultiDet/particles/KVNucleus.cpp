@@ -760,10 +760,12 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
    Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
    Double_t extot = lhs.GetExcitEnergy() + rhs.GetExcitEnergy();
+   Double_t etot = lhs.E() + rhs.E();
    TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
+   TVector3 Vcm = (KVParticle::C()/etot)*ptot;
 
    KVNucleus temp(ztot, atot);  //mass of nucleus includes mass excess
-   temp.SetMomentum(ptot);
+   temp.SetVelocity(Vcm);
    //"excitation energy" of resulting nucleus is given by bilan energetique
    Double_t estar = extot + lhs.E() + rhs.E() - temp.E();
    temp.SetExcitEnergy(estar);
@@ -787,7 +789,7 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
    Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
    TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
 
-   if (zres <= 0 || ares <= 0) {
+   if (zres < 0 || ares < 0) {
       Warning("operator-(const KVNucleus &rhs)",
               "Cannot subtract nuclei, resulting Z=%d A=%d", zres, ares);
       KVNucleus temp;
