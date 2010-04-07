@@ -810,3 +810,11 @@ void KVParticle::SetMomentum(Double_t px, Double_t py, Double_t pz,
       SetVectM(pvec, M());
    }
 }
+
+void KVParticle::SetVelocity(const TVector3& vel)
+{
+   // Set velocity of particle (in cm/ns units)
+   Double_t gamma = 1./kSpeedOfLight/sqrt(1-(vel.Mag2()/pow(kSpeedOfLight,2)));
+   TVector3 p = GetMass()*gamma*vel;
+   SetMomentum(p);
+}

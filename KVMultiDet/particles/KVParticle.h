@@ -104,7 +104,8 @@ class KVParticle:public TLorentzVector {
    void SetKE(Double_t ecin);
    void SetEnergy(Double_t e) {
       SetKE(e);
-   }
+   };
+   void SetVelocity(const TVector3&);
    TVector3 GetMomentum() const {
       return Vect();
    };
