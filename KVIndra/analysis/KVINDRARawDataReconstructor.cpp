@@ -99,7 +99,7 @@ void KVINDRARawDataReconstructor::InitRun()
 		rawtree->SetAutoSave(30000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
       // flush baskets every 1000 events
-		rawtree->SetAutoFlush(1000);
+		//rawtree->SetAutoFlush(1000);
 #endif
             
       //tree for reconstructed events
@@ -112,7 +112,7 @@ void KVINDRARawDataReconstructor::InitRun()
 		tree->SetAutoSave(30000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
       // flush baskets every 1000 events
-		tree->SetAutoFlush(1000);
+		//tree->SetAutoFlush(1000);
 #endif
       
       //leaves for reconstructed events
@@ -135,7 +135,7 @@ void KVINDRARawDataReconstructor::InitRun()
 		genetree->SetAutoSave(30000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
       // flush baskets every 1000 events
-		genetree->SetAutoFlush(1000);
+		//genetree->SetAutoFlush(1000);
 #endif
       
       Info("InitRun", "Created pulser/laser data tree (%s : %s) for %d parameters",
