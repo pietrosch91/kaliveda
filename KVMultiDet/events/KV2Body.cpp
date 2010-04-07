@@ -19,6 +19,8 @@ $Id: KV2Body.cpp,v 1.4 2009/02/02 13:52:29 ebonnet Exp $
 
 #include "KV2Body.h"
 #include "Riostream.h"
+#include "TROOT.h"
+#include "KVTelescope.h"
 
 ClassImp(KV2Body)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -636,6 +638,18 @@ Double_t KV2Body::GetThetaCMProj(Double_t ThetaLab,Int_t OfNucleus) const
 {
    //Calculate CM projectile scattering angle as a function of projectile (OfNucleus=3) 
 	//or target (OfNucleus=4) lab scattering angle
+	
+	Double_t par = OfNucleus;
+	return const_cast<KV2Body*>(this)->ThetaCMProj(&ThetaLab,&par);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::ThetaCMProj(Double_t *x, Double_t* par)
+{
+   //Calculate CM projectile scattering angle as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+	Double_t ThetaLab = x[0];
+	Int_t OfNucleus = (Int_t)par[0];
 	Double_t ThetaL = ThetaLab * TMath::DegToRad();
 	Double_t ThetaCM = ThetaL + TMath::ASin(K[OfNucleus] * TMath::Sin(ThetaL));
 	if (OfNucleus==3)	return ThetaCM*TMath::RadToDeg();
@@ -702,8 +716,20 @@ Double_t KV2Body::GetThetaLabProj(Double_t ThetaLab,Int_t OfNucleus) const
 {
    //Get quasi-projectile lab angle as a function of projectile (OfNucleus=3) 
 	//or target (OfNucleus=4) lab scattering angle
+	
+	Double_t par = OfNucleus;
+	return const_cast<KV2Body*>(this)->ThetaLabProj(&ThetaLab,&par);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::ThetaLabProj(Double_t *x, Double_t *par)
+{
+   //Get quasi-projectile lab angle as a function of projectile (OfNucleus=3) 
+	//or target (OfNucleus=4) lab scattering angle
+	Double_t ThetaLab = x[0];
+	Int_t OfNucleus = (Int_t)par[0];
    if (OfNucleus==3) return ThetaLab;
-	Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad();
+	Double_t T3CM = ThetaCMProj(x,par) * TMath::DegToRad();
    Double_t T3L = TMath::ATan(TMath::Sin(T3CM) / (K[3] + TMath::Cos(T3CM)));
    Double_t thlt = TMath::Abs(T3L * TMath::RadToDeg());
    if (thlt > 180.0)
@@ -717,6 +743,16 @@ Double_t KV2Body::GetXSecRuthCM(Double_t ThetaLab,Int_t OfNucleus) const
    //Calculate Rutherford cross-section (b/sr) in the CM as a
    //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
 
+   Double_t par = OfNucleus;
+   return const_cast<KV2Body*>(this)->XSecRuthCM(&ThetaLab,&par);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::XSecRuthCM(Double_t *x,Double_t *par) 
+{
+   //Calculate Rutherford cross-section (b/sr) in the CM as a
+   //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
+
    if (!GetNucleus(2)) {
       Warning("GetXSecRuthCM", "No target defined for reaction");
       return 0.;
@@ -724,7 +760,7 @@ Double_t KV2Body::GetXSecRuthCM(Double_t ThetaLab,Int_t OfNucleus) const
    Double_t PB =
        1.44 * GetNucleus(1)->GetZ() * GetNucleus(2)->GetZ() /
        GetCMEnergy();
-	Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad(); 
+	Double_t T3CM = ThetaCMProj(x,par) * TMath::DegToRad(); 
 	Double_t D = 1. / (16. * (TMath::Power(TMath::Sin(T3CM / 2.), 4.)));
    
 	return ((TMath::Power(PB, 2.)) * D / 100.);
@@ -736,24 +772,77 @@ Double_t KV2Body::GetXSecRuthLab(Double_t ThetaLab,Int_t OfNucleus) const
    //Calculate Rutherford cross-section (b/sr) in the Lab as a
    //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
 
-   Double_t DSIDTB = GetXSecRuthCM(ThetaLab,OfNucleus);
+   Double_t par = OfNucleus;
+   return const_cast<KV2Body*>(this)->XSecRuthLab(&ThetaLab, &par);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::XSecRuthLab(Double_t *x, Double_t *par)
+{
+   //Calculate Rutherford cross-section (b/sr) in the Lab as a
+   //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
+
+   Double_t DSIDTB = XSecRuthCM(x,par);
    
-	Double_t T3L = GetThetaLabProj(ThetaLab,OfNucleus) * TMath::DegToRad();
-   Double_t T3CM = GetThetaCMProj(ThetaLab,OfNucleus) * TMath::DegToRad();
+	Double_t T3L = ThetaLabProj(x,par) * TMath::DegToRad();
+   Double_t T3CM = ThetaCMProj(x,par) * TMath::DegToRad();
    Double_t RLC = (TMath::Power(TMath::Sin(T3CM), 3.)) /
        ((TMath::Power(TMath::Sin(T3L), 3.)) * GetCMGamma() *
         (1. + K[3] * TMath::Cos(T3CM)));
    if (DSIDTB * RLC<0) {
-		Warning("GetXSecRuthLab", "negative value for choosen parameters : %lf %d\n",ThetaLab,OfNucleus);
+		Warning("GetXSecRuthLab", "negative value for choosen parameters : %lf %d\n",x[0], (Int_t)par[0]);
 		return 0;
 	}
 	return (DSIDTB * RLC);
 }
 
 //______________________________________________________________________________________________
-Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,Float_t phi2,Int_t OfNucleus) const
+Double_t KV2Body::XSecRuthLabInt(Double_t *x, Double_t *par)
 {
-   //Calculate Integrated Rutherford cross-section (b/sr) in the Lab using
+   //Rutherford cross-section (b/sr) function in the Lab as a
+   //function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle x[0]
+   //including 'sin theta' factor needed for integrating over solid angles.
+
+	return XSecRuthLab(x,par) * TMath::Sin(x[0]*TMath::DegToRad());
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::GetIntegratedXSecRuthLab(KVTelescope* tel,Int_t OfNucleus)
+{
+   //Calculate Integrated Rutherford cross-section (barns) in the Lab using
+	//polar and azimuthal angular range of the given KVTelescope.
+	// if (OfNucleus==3) => X-section for scattered projectile
+	// if (OfNucleus==4) => X-section for scattered target
+	// 
+	//The returned value is in barns
+	
+	return GetIntegratedXSecRuthLab(tel->GetThetaMin(),tel->GetThetaMax(),tel->GetPhiMin(),tel->GetPhiMax(),OfNucleus);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::GetIntegratedXSecRuthLab(KVDetector* det,Int_t OfNucleus)
+{
+   //Calculate Integrated Rutherford cross-section (barns) in the Lab using
+	//polar and azimuthal angular range of the given KVDetector. These will be taken
+	//from the parent KVTelescope of the detector.
+	// if (OfNucleus==3) => X-section for scattered projectile
+	// if (OfNucleus==4) => X-section for scattered target
+	// 
+	//The returned value is in barns
+	
+	KVTelescope*tel=det->GetTelescope();
+	if(!det){
+	   Error("GetIntegratedXSecRuthLab(KVDetector*,Int_t)",
+	      "Detector has no parent telescope: it has not been positioned in a multidetector geometry");
+	   return 0;
+	}
+	return GetIntegratedXSecRuthLab(tel,OfNucleus);
+}
+
+//______________________________________________________________________________________________
+Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,Float_t phi2,Int_t OfNucleus)
+{
+   //Calculate Integrated Rutherford cross-section (barns) in the Lab using
 	//polar and azimuthal angular range expressed in degree
 	// if (OfNucleus==3) This angular range is considered to be the scattered projectile one
 	// if (OfNucleus==4) This angular range is considered to be the scattered target one
@@ -761,35 +850,19 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	//If phi1 ou phi2 ==-1 the azimuthal width is set to 2pi
 	//Else if phi1=phi2 the azimuthal width is set to 1 ie the integral is only on theta
 	//
-	//Integral is computed using the so called trapeze method
-	//the step of 0.01 degree is taken 
-	//precision of th1 and th2 angle is also set to 0.01 degree
-	//The returned value is in barn
+	//The returned value is in barns
 	
 	if (th2<th1) return 0;
-	Float_t th1_d = Float_t(TMath::Nint(th1*100)/100.);
-	Float_t th2_d = Float_t(TMath::Nint(th2*100)/100.);
-	
-	Int_t nn=TMath::Nint((th2_d-th1_d)*100.);
 	Double_t dphi=0;
 	//azimuthal width expressed in rad
 	if (phi1==-1 || phi2==-1) dphi=2*TMath::Pi();
 	else if (phi1==phi2) dphi=1;
 	else { dphi = phi2-phi1; dphi*=TMath::DegToRad(); }
-	
-	//polar angle expressed in radian
-	Float_t th1_r = th1_d*TMath::DegToRad();
-	Float_t th2_r = th2_d*TMath::DegToRad();
-	
-	Double_t norm = (th2_r-th1_r)/nn;
-	Double_t integ0 = (GetXSecRuthLab(th1_d,OfNucleus)*TMath::Sin(th1_r) + GetXSecRuthLab(th2_d,OfNucleus)*TMath::Sin(th2_r))/2.;
-
-	Double_t interm = 0;
-	for (Int_t kk=1;kk<nn;kk+=1){
-		interm+=GetXSecRuthLab(th1_d+kk*(th2_d-th1_d)/nn,OfNucleus)*TMath::Sin((th1_r+kk*(th2_r-th1_r)/nn));
-	}
-	
-   return norm*(integ0+interm)*dphi;
+	Double_t theta_min = 1.;
+	Double_t theta_max = 179.;
+	if( th1<theta_min) theta_min = th1;
+	if(th2>theta_max) theta_max=th2;
+	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2)*TMath::DegToRad()*dphi;
 }
 
 //__________________________________________________________________________________________________
@@ -981,5 +1054,68 @@ TF1* KV2Body::GetEqbmChargeStateFunc()
       fEqbmChargeState->SetNpx(1000);
    }
    return fEqbmChargeState;
+}
+//__________________________________________________________________________________________________
+
+TF1* KV2Body::GetXSecRuthLabFunc(Int_t OfNucleus, Double_t theta_min, Double_t theta_max)
+{
+   // Return pointer to TF1 giving Rutherford cross-section (b/sr) in the Lab as a
+   // function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
+   // By default, theta_min = 1 degree & theta_max = 179 degrees
+   
+      TString name = "RuthXSec: ";
+      name+=GetNucleus(1)->GetSymbol();
+      name+= " + ";
+      name += GetNucleus(2)->GetSymbol();
+      name += " ";
+      Double_t elab = GetNucleus(1)->GetEnergy()/GetNucleus(1)->GetA();
+      name += Form("%6.1f AMeV ", elab);
+      if(OfNucleus==3) name+="(projectile)";
+      else name+="(target)";
+      TF1* fXSecRuthLab = (TF1*)gROOT->GetListOfFunctions()->FindObject(name.Data());
+      if(!fXSecRuthLab){
+         fXSecRuthLab = new TF1( name.Data(),
+            this, &KV2Body::XSecRuthLab, theta_min, theta_max, 1, "KV2Body", "XSecRuthLab");
+         fXSecRuthLab->SetParameter(0, OfNucleus);
+         fXSecRuthLab->SetNpx(1000);
+      }
+      fXSecRuthLab->SetRange(theta_min,theta_max);//in case TF1 already exists, but new range is required
+   return fXSecRuthLab;
+}
+//__________________________________________________________________________________________________
+
+TF1* KV2Body::GetXSecRuthLabIntegralFunc(Int_t OfNucleus, Double_t theta_min, Double_t theta_max)
+{
+   // Return pointer to TF1 giving Rutherford cross-section (b/sr) in the Lab as a
+   // function of projectile (OfNucleus=3) or target (OfNucleus=4) lab scattering angle
+   //
+   // This function is equal to sin(theta)*dsigma/domega, i.e. it is the integrand
+   // needed for calculating total cross-sections integrated over solid angle.
+   //
+   // WARNING: when integrating this function using TF1::Integral, the result must
+   // be multiplied by TMath::DegToRad(), because 'x' is in degrees rather than radians,
+   // e.g. the integrated cross-section in barns is given by
+   //
+   //    GetXSecRuthLabIntegralFunc(OfNucleus)->Integral(theta_min, theta_max)*TMath::DegToRad()
+   
+      TString name = "RuthXSecInt: ";
+      name+=GetNucleus(1)->GetSymbol();
+      name+= " + ";
+      name += GetNucleus(2)->GetSymbol();
+      name += " ";
+      Double_t elab = GetNucleus(1)->GetEnergy()/GetNucleus(1)->GetA();
+      name += Form("%6.1f AMeV ", elab);
+      if(OfNucleus==3) name+="(projectile)";
+      else name+="(target)";
+      
+      TF1* fXSecRuthLab = (TF1*)gROOT->GetListOfFunctions()->FindObject(name.Data());
+      if(!fXSecRuthLab){
+         fXSecRuthLab = new TF1( name.Data(),
+            this, &KV2Body::XSecRuthLabInt, theta_min, theta_max, 1, "KV2Body", "XSecRuthLabInt");
+         fXSecRuthLab->SetParameter(0, OfNucleus);
+         fXSecRuthLab->SetNpx(1000);
+      }
+      fXSecRuthLab->SetRange(theta_min,theta_max);//in case TF1 already exists, but new range is required
+   return fXSecRuthLab;
 }
 
