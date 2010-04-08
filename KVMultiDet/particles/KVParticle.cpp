@@ -291,8 +291,8 @@ void KVParticle::Clear(Option_t * opt)
 	SetFrameName("");
    if (fBoosted) {
 		fBoosted->Clear();
-      //delete fBoosted;
-      //fBoosted = 0;
+      delete fBoosted;
+      fBoosted = 0;
    }
 }
 
