@@ -142,6 +142,7 @@ INDRA_e503.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
+INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
@@ -150,11 +151,13 @@ INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
+INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 
 +DataSet:    VAMOS_e503
 VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
 VAMOS_e503.DataSet.RepositoryDir:   e503
 VAMOS_e503.DataSet.RunFileName.raw:    run_%d.dat%*
+VAMOS_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
@@ -334,6 +337,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.TSelector:   INDRAIdentRoot         KVIdentRoot                  KVIndra   "KVIdentRoot()"
 +Plugin.TSelector:   IVReconIdent           KVIVReconIdent               VAMOS     "KVIVReconIdent()"
 #+Plugin.TSelector:   ReconIdent_e475s       KVReconIdent_e475s           KVIndra   "KVReconIdent_e475s()"
++Plugin.TSelector:   IVSelector           KVIVSelector               VAMOS     "KVIVSelector()"
 
 # Plugins for VAMOS calibration
 Plugin.Analysisv:   INDRA_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogFile*)"

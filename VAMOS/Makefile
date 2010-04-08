@@ -8,6 +8,7 @@ MODULES = daq_cec analysis base identification detectors geometry
 EXTRA_HEADERS = analysis/Defines.h
 
 MANIP_DIRS = VAMOS_e503
+ETC_DATA = $(shell ls factory/*Template.[c,h]*)
 
 NOT_ROOTCINT := analysis/Defines.h
 
