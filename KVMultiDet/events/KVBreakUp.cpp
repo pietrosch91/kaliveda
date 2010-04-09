@@ -413,32 +413,39 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Zto
 	
 }		
 
-void KVBreakUp::BreakNtimesFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin){
+void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin){
 
-	Start();
-	
 	TH2F* h2 = hh_zt_VS_mt;
 	if (!h2) return;
+	
+	Start();
+	
+	TMethodCall meth;
+   meth.InitWithPrototype(this->IsA(), BreakUpMethod.Data(),"");
+	Long_t ret;
+	
 	Int_t zt,mt;
 	Int_t stat_tot=Int_t(h2->Integral());
 	Int_t stat_par=0;
 	for (Int_t nx=1; nx<=h2->GetNbinsX(); nx+=1)
-		for (Int_t ny=1; ny<=h2->GetNbinsX(); ny+=1){
+		for (Int_t ny=1; ny<=h2->GetNbinsY(); ny+=1){
 			Int_t stat = TMath::Nint(h2->GetBinContent(nx,ny));
 			if (stat>0){
 				mt = TMath::Nint(h2->GetXaxis()->GetBinCenter(nx));
 				zt = TMath::Nint(h2->GetYaxis()->GetBinCenter(ny));
 				if (mt>0 && zt>0 && zt>=mt*zmin){
+					
 					SetConditions(zt,mt,zmin);
 					for (Int_t nn=0;nn<stat;nn+=1){ 
-						if (BreakUsingChain())
+						meth.Execute(this,"",ret);
+						if (ret==1)
 							TreatePartition();
 						stat_par+=1;
 						if ( stat_par%1000 == 0 ) printf("%d partitions generees sur %d\n",stat_par,stat_tot);
 					}
 				}
 				else {
-					//cout << zt << " " << mt << endl;
+					cout << zt << " " << mt << endl;
 				}
 			}
 		}

@@ -200,7 +200,7 @@ Int_t KVPartition::Compare(const TObject* obj) const {
 
 
 	Int_t sum=1;
-	sum*=CompareValues((KVPartition* )obj);
+	sum*=CompareValeurs((KVPartition* )obj);
 
 	return sum;
 
@@ -229,7 +229,7 @@ Int_t KVPartition::CompareMult(KVPartition* par) const {
 
 }
 
-Int_t KVPartition::CompareValues(KVPartition* par) const {
+Int_t KVPartition::CompareValeurs(KVPartition* par) const {
 
 	if (this->CompareMult(par)==0) return 0;
 	for (Int_t mm=0;mm<this->GetMultDiff();mm+=1)
@@ -261,6 +261,13 @@ void KVPartition::CalculValeursAdditionnelles(){
 	Double_t rms = lgen->GetDoubleValue("RMS");
 	lgen->SetValue("GenAsym",( (GetMoment(0)>1) ? (1./TMath::Sqrt(GetMoment(0)-1.))*(rms/m1) : -1.) );
 	
+	lgen->SetValue("Z1",GetZ1());
+	lgen->SetValue("Z2",GetZ2());
+	lgen->SetValue("Z3",GetZmax(2));
+	
+	lgen->SetValue("Ztot",GetZtot());
+	lgen->SetValue("Mdiff",GetMultDiff());
+	
 }
 
 Int_t  KVPartition::GetZmax(Int_t rang) const {
@@ -279,7 +286,7 @@ Int_t  KVPartition::GetZmin(Int_t rang) const {
 	// - le premier -> 0
 	// - le dernier -> N-1 ou N est la multiplicite
 
-	Int_t inverse = GetMoment(0)-1-rang;
+	Int_t inverse = Int_t(GetMoment(0))-1-rang;
 	return ( (inverse<GetMoment(0)) ? GetValeur(inverse) : -1 );
 
 }

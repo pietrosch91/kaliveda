@@ -8,6 +8,7 @@
 #include "TMath.h"
 #include "TH1F.h"
 #include "TROOT.h"
+#include "TTree.h"
 
 ClassImp(KVPartitionManager)
 
@@ -30,6 +31,7 @@ KVPartitionManager::~KVPartitionManager()
 {
    // Destructor
 	delete listdepassage;
+	lgen.Clear();	
 }
 
 void KVPartitionManager::init(){
@@ -40,6 +42,7 @@ void KVPartitionManager::init(){
 	nombre_diff=0;
 	nombre_total=0;
 	SetName("MainListe");
+	lgen.Clear();
 	
 }
 
@@ -148,7 +151,7 @@ void KVPartitionManager::ReduceWithOne(KVList* sl){
 	KVPartition* par0=0,*par1=0;
 	while (sl->GetEntries()>0){
 		par1 = (KVPartition* )sl->RemoveAt(0);
-		if ( (par0 = (KVPartition* )FindObject(par1->GetName())) ){
+		if ( (par0 = FindPartition(par1->GetName())) ){
 			par0->AddPopulation(par1->GetPopulation());
 			delete par1;
 		}
@@ -163,7 +166,27 @@ void KVPartitionManager::UpdateCompteurs(KVList* current){
 	if (!current) {
 		nombre_diff = GetEntries();
 		nombre_total = 0;
-		for (Int_t nn=0;nn<nombre_diff;nn+=1) nombre_total += ((KVPartition* )At(nn))->GetPopulation();
+		Int_t ztot_min=10000,z_min=10000,mtot_min=10000;
+		Int_t ztot_max=-10000,z_max=-10000,mtot_max=-10000;
+		
+		KVPartition* par = 0;
+		for (Int_t nn=0;nn<nombre_diff;nn+=1) {
+			par = GetPartition(nn);
+			nombre_total += par->GetPopulation();
+			if (par->GetZtot()>ztot_max) 	ztot_max=par->GetZtot();
+			if (par->GetZtot()<ztot_min) 	ztot_min=par->GetZtot();
+			if (par->GetMtot()>mtot_max) 	mtot_max=par->GetMtot();
+			if (par->GetMtot()<mtot_min)	mtot_min=par->GetMtot();
+			if (par->GetZmax()>z_max) 		z_max=par->GetZmax();
+			if (par->GetZmin()<z_min) 		z_min=par->GetZmin();
+		}
+		
+		lgen.SetValue("Ztot_max",ztot_max);
+		lgen.SetValue("Ztot_min",ztot_min);
+		lgen.SetValue("Mtot_max",mtot_max);
+		lgen.SetValue("Mtot_min",mtot_min);
+		lgen.SetValue("Z_max",z_max);
+		lgen.SetValue("Z_min",z_min);
 	}
 	else {
 		Int_t n_diff=0;
@@ -238,6 +261,8 @@ TH1F* KVPartitionManager::GenereHisto(KVString method,Int_t nb,Double_t min,Doub
 
 Int_t* KVPartitionManager::GetIndex(KVString method, Bool_t down){
 
+	if (GetEntries()==0) return 0;
+	
 	TMethodCall meth;
    meth.InitWithPrototype(this->At(0)->IsA(), method.Data(),"");
 	Int_t* idx = new Int_t[GetEntries()];
@@ -294,3 +319,82 @@ Double_t* KVPartitionManager::GetValues_Double(TMethodCall& meth){
 	return val;
 }
 	
+TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t AdditionalValue){
+
+	if (GetEntries()==0) return 0;
+	
+	Int_t mmax = lgen.GetIntValue("Mtot_max");
+	Int_t* val = new Int_t[mmax];
+	Int_t n_val;
+	Int_t pop;
+	
+	TTree* tree = new TTree(tree_name.Data(),"FromKVPartitionManager");
+	tree->Branch("n_val",			&n_val,	"n_val/I");
+	tree->Branch("val",				val,		"val[n_val]/I");
+	if (Compress)
+		tree->Branch("pop",	&pop,		"pop/I");
+	
+	KVPartition* par;
+	
+	KVGenParList* add=0;
+	Double_t* tab_add=0;
+	
+	if (AdditionalValue){
+		par = GetPartition(0);
+		par->CalculValeursAdditionnelles();
+		add = par->GetParametersList();
+		Info("GenereTree","Parametres additionels");
+		add->Print();
+		tab_add = new Double_t[add->GetNPar()];
+	
+		for (Int_t np=0;np<add->GetNPar();np+=1){
+			KVString snom1; snom1.Form("%s",add->GetParameter(np)->GetName());
+			KVString snom2; snom2.Form("%s/D",add->GetParameter(np)->GetName());
+			tree->Branch(snom1.Data(),				&tab_add[np],		snom2.Data());
+		}
+	}
+	
+	for (Int_t kk=0;kk<GetEntries();kk+=1){
+		par = GetPartition(kk);
+		
+		n_val = par->GetMtot();
+		for (Int_t nn=0;nn<n_val;nn+=1)
+			val[nn] = par->GetValeur(nn);
+		
+		pop = par->GetPopulation();
+		
+		if (AdditionalValue){
+			par->CalculValeursAdditionnelles();
+			add = par->GetParametersList();
+			for (Int_t np=0;np<add->GetNPar();np+=1){
+				tab_add[np] = add->GetDoubleValue(add->GetParameter(np)->GetName());
+			}
+		}
+		
+		
+		if (Compress){
+			tree->Fill();
+		}
+		else{
+			for (Int_t pp=0; pp<pop; pp+=1) {
+				tree->Fill();
+			}
+		}
+	}	
+	
+	delete [] val;
+	if (tab_add) delete [] tab_add;
+	
+	return tree;
+
+}
+
+void KVPartitionManager::PrintInfo(){
+
+	Info("PrintInfo","Intervalles des partitions enregistrees");
+	printf(" - Ztot : %d %d\n",lgen.GetIntValue("Ztot_min"),lgen.GetIntValue("Ztot_max"));
+	printf(" - Mtot : %d %d\n",lgen.GetIntValue("Mtot_min"),lgen.GetIntValue("Mtot_max"));
+	printf(" - Z    : %d %d\n",lgen.GetIntValue("Z_min"),lgen.GetIntValue("Z_max"));
+
+
+}

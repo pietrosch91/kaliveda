@@ -65,6 +65,7 @@ class KVPartition : public TObject
 	void Print(Option_t* option = "") const;
 
 	Int_t GetMultDiff(void) const {return nbre_val_diff; }
+	Int_t* GetValeurs() const { return valeurs; }
 	Int_t GetValeur(Int_t rang) const { return valeurs[rang]; }	
 	Int_t GetFrequence(Int_t rang) const { return regle[GetValeur(rang)]; }	
 	Bool_t Contains(Int_t valeur) const { return regle[valeur]>0; }	
@@ -79,8 +80,8 @@ class KVPartition : public TObject
 	Int_t GetZmax(Int_t rang=0) const;
 	Int_t GetZmin(Int_t rang=0) const;
 	
-	Int_t GetZtot() const {return GetMoment(1); }
-	Int_t GetMtot() const {return GetMoment(0); }
+	Double_t GetZtot() const {return GetMoment(1); }
+	Double_t GetMtot() const {return GetMoment(0); }
 	Double_t GetZmean() const {return GetMomentNormalise(1); }
 	Int_t GetZ1() const {return GetZmax(0); }
 	Int_t GetZ2() const {return GetZmax(1); }
@@ -88,10 +89,10 @@ class KVPartition : public TObject
 	KVGenParList* GetParametersList() const { return lgen; }
 	
 	Int_t Compare(const TObject* obj) const;
-	virtual Int_t CompareMoments(KVPartition* par) const;
-	virtual Int_t CompareMult(KVPartition* par) const;
-	virtual Int_t CompareValues(KVPartition* par) const;
-	virtual Int_t CompareName(KVPartition* par) const;
+	Int_t CompareMoments(KVPartition* par) const;
+	Int_t CompareMult(KVPartition* par) const;
+	Int_t CompareValeurs(KVPartition* par) const;
+	Int_t CompareName(KVPartition* par) const;
 	
 	virtual void CalculValeursAdditionnelles();
 	

@@ -153,7 +153,7 @@ class KVBreakUp:public TObject
 	
 	void BreakNtimes(Int_t times=1000);
 	void BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin=1);
-	void BreakNtimesFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin=1);
+	void BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin=1);
 	
 	virtual void DrawPanel();
 	
