@@ -14,6 +14,7 @@ $Id: KVTGID.h,v 1.12 2009/03/03 14:27:15 franklan Exp $
 #include "TF1.h"
 #include "KVIDGrid.h"
 #include "TString.h"
+#include "KVNumberList.h"
 
 class KVTGID:public TF1 {
 
@@ -39,7 +40,9 @@ class KVTGID:public TF1 {
 	Int_t fLight;  			// with (1) or without (0) CsI light-energy dependence
 	Int_t fZorA; 				// used for Z (1) or A (0) identification
 	Int_t fMassFormula;		// mass formula used to calculate A from Z (if Z identification used)
-	
+
+	KVNumberList fRuns;        //list of runs for which fit is valid
+
    virtual void SetIdent(KVIDLine *, Double_t ID) = 0;
    virtual KVIDLine *AddLine(KVIDGrid *) = 0;
 
@@ -57,7 +60,7 @@ class KVTGID:public TF1 {
  {
 	 return fLight;
  };
-  
+
    //status codes for GetIdentification
    enum {
       kStatus_OK,               //normal identification
@@ -109,9 +112,9 @@ class KVTGID:public TF1 {
 
    Double_t GetDistanceToLine(Double_t x, Double_t y, Int_t id,
                               Double_t * params = 0);
-	
+
 	static KVTGID* MakeTGID(const Char_t* name, Int_t type, Int_t light, Int_t ZorA, Int_t mass);
-	
+
 	void SetLambda(Double_t val){
 		if(fLambda>-1) SetParameter(fLambda,val);
 	};
@@ -183,7 +186,22 @@ class KVTGID:public TF1 {
 	static Int_t GetNumberOfLTGParameters(Int_t type, Int_t light);
 	void SetLTGParameterNames();
 
-   ClassDef(KVTGID, 3)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
+    void SetValidRuns(const KVNumberList& r)
+    {
+        fRuns = r;
+    };
+    const KVNumberList& GetValidRuns() const
+    {
+        return fRuns;
+    };
+    Bool_t IsValidForRun(Int_t run) const
+    {
+        // Returns kTRUE if 'run' is contained in list of runs for which fit is valid, fRuns.
+        // If fRuns is empty, returns kTRUE for ALL runs.
+        return (fRuns.IsEmpty() || fRuns.Contains(run));
+    };
+
+   ClassDef(KVTGID, 4)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
 };
 
 #endif
