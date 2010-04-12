@@ -42,6 +42,8 @@ class KVTGID:public TF1 {
 	Int_t fMassFormula;		// mass formula used to calculate A from Z (if Z identification used)
 
 	KVNumberList fRuns;        //list of runs for which fit is valid
+	TString fVarX;             //quantity used for X coordinates
+	TString fVarY;             //quantity used for Y coordinates
 
    virtual void SetIdent(KVIDLine *, Double_t ID) = 0;
    virtual KVIDLine *AddLine(KVIDGrid *) = 0;
@@ -199,6 +201,22 @@ class KVTGID:public TF1 {
         // Returns kTRUE if 'run' is contained in list of runs for which fit is valid, fRuns.
         // If fRuns is empty, returns kTRUE for ALL runs.
         return (fRuns.IsEmpty() || fRuns.Contains(run));
+    };
+    void SetVarX(const Char_t* x)
+    {
+        fVarX = x;
+    };
+    const Char_t* GetVarX() const
+    {
+        return fVarX.Data();
+    };
+    void SetVarY(const Char_t* x)
+    {
+        fVarY = x;
+    };
+    const Char_t* GetVarY() const
+    {
+        return fVarY.Data();
     };
 
    ClassDef(KVTGID, 4)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
