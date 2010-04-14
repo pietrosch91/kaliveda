@@ -1,6 +1,8 @@
 #include "Identificationv.h"
 #include "TMath.h"
 #include <cmath>
+#include "EnergyTree.h"
+
 //Author: Maurycy Rejmund
 ClassImp(Identificationv)
 
@@ -16,7 +18,7 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 ////////////////////////////////////////////////////////////////////////////////
 
 Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
-		  DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD)
+				 DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID)
 {
 #ifdef DEBUG
   cout << "Identificationv::Constructor" << endl;
@@ -32,6 +34,7 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   Dr = Drift;
   Ic = IonCh;
   Si = SiD;
+  CsI=CsID;
 
   for(i=0;i<6;i++)
     Counter[i] = 0;
@@ -39,6 +42,9 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   Init();
 
   Rnd = new Random;
+
+  energytree=new EnergyTree();
+  energytree->Init();
 
 
 #ifdef FOLLOWPEAKS
@@ -267,9 +273,9 @@ void Identificationv::PrintCounters(void)
 
 void Identificationv::Init(void)
 {
-#ifdef DEBUG
+  //#ifdef DEBUG
   cout << "Identificationv::Init" << endl;
-#endif
+  //#endif
   Present = false; 
 
   dE = dE1 = E = T = V = M_Q = M = Z1 = Z2 =  Beta = Q = D = 0;
@@ -287,10 +293,56 @@ void Identificationv::Init(void)
 
 void Identificationv::Calculate(void)
 {
-#ifdef DEBUG
+  //#ifdef DEBUG
   cout << "Identificationv::Calculate" << endl;
-#endif
+  //#endif
+  cout<<"num si="<<Si->Number<<endl;
+  cout<<"num csi="<<CsI->Number<<endl;
 
+  energytree->SetSiliconThickness(Si->Number);
+  //  cout<<"spessore "<<energytree->detsi->GetThickness()<<endl;
+
+  cout<<"I've set the silicon thickness..."<<endl<<flush;
+
+  energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
+  cout<<"a="<<energytree->a<<endl<<flush;
+  cout<<"b="<<energytree->b<<endl<<flush;
+  cout<<"c="<<energytree->c<<endl<<flush;
+  cout<<"alfa="<<energytree->alpha<<endl<<flush;
+  cout<<"ePied="<<energytree->ePied<<endl<<flush;
+
+  cout<<"I've set the energy calibrations for Si and CsI detectors..."<<endl<<flush;
+
+
+  energytree->SetFragmentZ(5);
+  cout<<"eZ="<<energytree->eZ<<endl;
+
+  cout<<"multi si="<<Si->E_RawM<<endl;
+  cout<<"multi csi="<<CsI->E_RawM<<endl;
+
+
+
+  for(Int_t y=0;y<(Si->E_RawM);y++)
+    {
+      cout<<"ch si="<<Si->E_Raw[y]<<endl<<flush;
+      for(Int_t j=0;j<(CsI->E_RawM);j++)
+	{
+	  if(Geometry(Si->Number,CsI->Number)==1)// if csi is behind the si
+	    {
+	      cout<<"QUESTO CSI E' DIETRO AL SI"<<endl<<flush;
+	      cout<<"ch csi="<<CsI->E_Raw[j]<<endl<<flush;
+	      energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
+	      cout<<"E silicio MeV="<<Si->ETotal<<endl;
+	      cout<<"-----"<<endl;
+	      cout<<"E CsI in MeV="<<energytree->sRefECsI<<endl;
+	    }
+	}
+    }
+
+
+
+
+  cout<<"I'm back..."<<endl<<flush;
   if(
      Dr->E[0] > 0 &&
      Dr->E[1] > 0 &&
@@ -388,9 +440,9 @@ void Identificationv::Treat(void)
   Init();
   if(Rec->Present) Counter[1]++;
   Calculate();
-#ifdef DEBUG
+  //#ifdef DEBUG
   Show();
-#endif
+  //#endif
   
 }
 void Identificationv::inAttach(TTree *inT)
@@ -467,9 +519,148 @@ void Identificationv::FillHistograms(void)
 
 void Identificationv::Show(void)
 {
-#ifdef DEBUG
-  cout << "Identificationv::Show" << endl;
-#endif
+ #ifdef DEBUG
+  cout << "Identificationv::Show__prova" << endl;
+ #endif
   cout.setf(ios::showpoint);
  
+}
+
+
+//temporary method to reconstruct VAMOS telescopes
+int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
+{
+  int geom[18][6];
+  geom[0][0]=0;
+  geom[0][1]=1;
+  geom[0][2]=12;
+  geom[0][3]=13;
+  geom[0][4]=24;
+  geom[0][5]=25;
+
+  geom[1][0]=2;
+  geom[1][1]=3;
+  geom[1][2]=14;
+  geom[1][3]=15;
+  geom[1][4]=26;
+  geom[1][5]=27;
+
+  geom[2][0]=4;
+  geom[2][1]=5;
+  geom[2][2]=16;
+  geom[2][3]=17;
+  geom[2][4]=28;
+  geom[2][5]=29;
+
+  geom[3][0]=6;
+  geom[3][1]=7;
+  geom[3][2]=18;
+  geom[3][3]=19;
+  geom[3][4]=30;
+  geom[3][5]=31;
+
+  geom[4][0]=8;
+  geom[4][1]=9;
+  geom[4][2]=20;
+  geom[4][3]=21;
+  geom[4][4]=32;
+  geom[4][5]=33;
+
+  geom[5][0]=10;
+  geom[5][1]=11;
+  geom[5][2]=22;
+  geom[5][3]=23;
+  geom[5][4]=34;
+  geom[5][5]=35;
+
+  geom[6][0]=36;
+  geom[6][1]=37;
+  geom[6][2]=-1;
+  geom[6][3]=-1;
+  geom[6][4]=-1;
+  geom[6][5]=-1;
+
+  geom[7][0]=38;
+  geom[7][1]=39;
+  geom[7][2]=-1;
+  geom[7][3]=-1;
+  geom[7][4]=-1;
+  geom[7][5]=-1;
+
+  geom[8][0]=-1;
+  geom[8][1]=-1;
+  geom[8][2]=-1;
+  geom[8][3]=-1;
+  geom[8][4]=-1;
+  geom[8][5]=-1;
+
+  geom[9][0]=-1;
+  geom[9][1]=-1;
+  geom[9][2]=-1;
+  geom[9][3]=-1;
+  geom[9][4]=-1;
+  geom[9][5]=-1;
+
+  geom[10][0]=54;
+  geom[10][1]=55;
+  geom[10][2]=-1;
+  geom[10][3]=-1;
+  geom[10][4]=-1;
+  geom[10][5]=-1;
+
+  geom[11][0]=52;
+  geom[11][1]=53;
+  geom[11][2]=-1;
+  geom[11][3]=-1;
+  geom[11][4]=-1;
+  geom[11][5]=-1;
+
+  geom[12][0]=50;
+  geom[12][1]=51;
+  geom[12][2]=66;
+  geom[12][3]=67;
+  geom[12][4]=78;
+  geom[12][5]=79;
+
+  geom[13][0]=48;
+  geom[13][1]=49;
+  geom[13][2]=64;
+  geom[13][3]=65;
+  geom[13][4]=76;
+  geom[13][5]=77;
+
+  geom[14][0]=46;
+  geom[14][1]=47;
+  geom[14][2]=62;
+  geom[14][3]=63;
+  geom[14][4]=74;
+  geom[14][5]=75;
+
+  geom[15][0]=44;
+  geom[15][1]=45;
+  geom[15][2]=60;
+  geom[15][3]=61;
+  geom[15][4]=72;
+  geom[15][5]=73;
+
+  geom[16][0]=42;
+  geom[16][1]=43;
+  geom[16][2]=58;
+  geom[16][3]=59;
+  geom[16][4]=70;
+  geom[16][5]=71;
+
+  geom[17][0]=40;
+  geom[17][1]=41;
+  geom[17][2]=57;
+  geom[17][3]=58;
+  geom[17][4]=68;
+  geom[17][5]=69;
+
+
+  for(int i=0;i<6;i++)
+    {
+      if(geom[sinum][i]==csinum)return 1;
+    }
+  return 0;
 }

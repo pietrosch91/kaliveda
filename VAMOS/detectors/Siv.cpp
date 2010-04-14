@@ -1,6 +1,7 @@
  #include "Siv.h"
 #include "KVDataSet.h"
 #include <cmath>
+#include "TRandom3.h"
 
 //Author: Maurycy Rejmund
 ClassImp(Siv)
@@ -21,6 +22,7 @@ Siv::Siv(LogFile *Log)
 #ifdef DEBUG
   cout << "Si::Constructor" << endl;
 #endif
+
   Ready=kFALSE;
   
   char line[255];
@@ -36,11 +38,12 @@ Siv::Siv(LogFile *Log)
   InitRaw();
   Init();
 
-  Rnd = new Random;
-  
+  Rnd = new TRandom3();
+
   ifstream inf;
-  
+
   int tmp=0;
+  //  if(!gDataSet->OpenDataSetFile("Si_calib2.dat",inf))
   if(!gDataSet->OpenDataSetFile("Si.cal",inf))
   {
      cout << "Could not open the calibration file Si.cal !" << endl;
@@ -74,13 +77,20 @@ Siv::Siv(LogFile *Log)
 		}
 	      else
 		{
-		  sscanf(line,"%f %f", TCoef[tmp-42]+0, TCoef[tmp-42]+1);
+		  sscanf(line,"%f %f %f %f %f", TCoef[tmp-42]+0, TCoef[tmp-42]+1, TCoef[tmp-42]+2, TCoef[tmp-42]+3, TCoef[tmp-42]+4);
 		  //		  cout <<  "TC " <<TCoef[tmp-42][0] << " " << TCoef[tmp-42][1]<< endl;
 		  tmp++;		  
 		}
 	    }
 	}
     }
+#ifdef DEBUG
+  for(int h=0;h<21;h++)
+    {
+      cout<<"Ecoef["<<h<<"][0]="<<ECoef[h][0]<<" Ecoef["<<h<<"][1]="<<ECoef[h][1]<<"Ecoef["<<h<<"][2]="<<ECoef[h][2]<<endl<<flush;
+    }
+#endif
+
   inf.close();
   Ready=kTRUE;
 }
@@ -172,15 +182,23 @@ void Siv::Calibrate(void)
     }
   for(i=0;i<E_RawM;i++)
       {
-	Rnd->Next();
+	cout<<"E_Raw["<<i<<"]="<<E_Raw[i]<<endl;
+	//	Rnd->Next();
+	Rnd->SetSeed(clock());
+
 	for(k=0;k<3;k++)
 	  {
-	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
-			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];	    
+// 	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
+// 			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
+	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] +	Rnd->Uniform(0,1),
+			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
+	    //	    cout<<"RANDOM-------------"<<Rnd->Uniform(0,1)<<endl<<flush;
+	    //	    cout<<"ECoeff="<<ECoef[E_Raw_Nr[i]][k]<<endl<<flush;
 	  }
 	if(E[E_Raw_Nr[i]] > 0)
  	  {
 	    ETotal = E[E_Raw_Nr[i]];
+	    //	    cout<<"E Total "<<E[E_Raw_Nr[i]]<<endl;
 	    Number = E_Raw_Nr[i];
 
 	    EM++;

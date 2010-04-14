@@ -5,7 +5,9 @@
 #include"Defines.h"
 #include"LogFile.h"
 #include"Random.h"
+#include"TRandom3.h"
 #include "TTree.h"
+#include "./analysis/KVDataSet.h"
 
 class Siv
 {
@@ -31,7 +33,7 @@ class Siv
   void FillHistograms();
   void PrintCounters(void);
 
-  Random *Rnd;
+  TRandom3 *Rnd;
 
   //energy Raw
   UShort_t E_Raw[21];
@@ -44,7 +46,7 @@ class Siv
   //Calibration coeff
   Float_t ECoef[21][3];
   Float_t TOff[21][2];
-  Float_t TCoef[3][2];
+  Float_t TCoef[3][5]; //for the new time calibration with 4 parameters
 
   //
 

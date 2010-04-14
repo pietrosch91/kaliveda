@@ -139,7 +139,8 @@ Analysisv_e503::Analysisv_e503(LogFile*Log)
       cout << "Coud not allocate memory to hold Reconstruction !" << endl;
       exit(EXIT_FAILURE);
     }
-  Id = new Identificationv(L,RC,Dr,Ic,Si);
+  CsI=new CsIv();
+  Id = new Identificationv(L,RC,Dr,Ic,Si,CsI);
   if(!Id)
     {
       cout << "Coud not allocate memory to hold Identification !" << endl;

@@ -1,6 +1,7 @@
 #ifndef _IDENTIFICATION_CLASS
 #define _IDENTIFICATION_CLASS
 
+
 #include "Rtypes.h"
 #include"Defines.h"
 #include"LogFile.h"
@@ -10,12 +11,15 @@
 #include"IonisationChamberv.h"
 #include"Siv.h"
 #include "TCutG.h"
+#include "EnergyTree.h"
+
+//#include"CsIv.h" 
 
 class Identificationv
 {
  public:
   Identificationv(LogFile *Log, Reconstructionv *Recon,
-		  DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD);
+		  DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID);
   virtual ~Identificationv(void);
   
   LogFile *L;
@@ -23,6 +27,9 @@ class Identificationv
   DriftChamberv   *Dr;
   IonisationChamberv *Ic;
   Siv *Si;
+  CsIv *CsI;
+
+  EnergyTree *energytree;
 
 #ifdef FOLLOWPEAKS
   TCutG *myct[21];
@@ -48,6 +55,8 @@ class Identificationv
   void CreateHistograms();
   void FillHistograms();
   void PrintCounters(void);
+
+  int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
 
   Random *Rnd;
 

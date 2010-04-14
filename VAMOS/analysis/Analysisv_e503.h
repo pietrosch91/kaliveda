@@ -35,6 +35,7 @@ class Analysisv_e503 : public Analysisv
   Identificationv *Id;
   IonisationChamberv *Ic;
   Siv *Si;
+  CsIv *CsI;
 
   UShort_t T_Raw[10];
   

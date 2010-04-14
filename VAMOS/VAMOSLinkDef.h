@@ -29,4 +29,6 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class SeD12v+;
 #pragma link C++ class Siv+;
 #pragma link C++ class Identificationv+;
+#pragma link C++ class EnergyTree+;
+#pragma link C++ class CsIv+;
 #endif
