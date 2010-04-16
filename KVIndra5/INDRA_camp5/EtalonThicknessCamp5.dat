@@ -1,6 +1,6 @@
 #Epaisseurs etalon camp5, determinees a partir des points de rebroussement pris dans la carte
 #ChIo-Si75 pour les Si75 et la carte Si75-SiLi pour les les SiLi.
-#sur 10 runs Xe+Au a 15 AMeV : 7865-7875. Permet de donner les epaisseurs du Si75, SiLi et zone mote SILI.
+#sur 10 runs Xe+Au a 15 AMeV et 18 AMeV : 7865-7875. Permet de donner les epaisseurs du Si75, SiLi et zone mote SILI.
 # La zone morte du SiLi est calculee en supposant qu elle est composee de Silicium. 
 # SiLi et Si75 de la couronne 16 (IND4 et INDRA26) n ont pas marche, pendant une bonne partie de la manip
 # (au moins pour les runs 7865-7875). Ils ont marche pour les runs Brho, ils ont donc une calib en energie mais 
@@ -9,20 +9,20 @@
 SI75_10:                                 89.6
 SI75_11:                                 87.4
 SI75_12:                                 82.5
-SI75_13:                                 76.4
-SI75_14:                                 100
-SI75_15:                                 73.5
+SI75_13:                                 77.6
+SI75_14:                                 96.8
+SI75_15:                                 74.8
 SI75_17:                                 86.7
 SILI_10:                                 2221
 SILI_10.Abs0:                            65.8
 SILI_11:                                 2031
-SILI_11.Abs0:                            80.4
+SILI_11.Abs0:                            86.7
 SILI_12:                                 2237
 SILI_12.Abs0:                            54.6
 SILI_13:                                 2184
-SILI_13.Abs0:                            99.2
+SILI_13.Abs0:                            58.6
 SILI_14:                                 2923
-SILI_14.Abs0:                            85.5
+SILI_14.Abs0:                            51
 SILI_15:                                 2004
 SILI_15.Abs0:                            46.4
 SILI_17:                                 2334
