@@ -169,8 +169,9 @@ void KVDetector::Copy(TObject & obj)
 //______________________________________________________________________________
 void KVDetector::Streamer(TBuffer & R__b)
 {
-   //Customised streamer for backwards compatibility with multidetectors written to file
-   //before use of gROOT->GetListOfCleanups()
+   // Customised streamer for backwards compatibility with multidetectors written to file
+   // before use of gROOT->GetListOfCleanups()
+   // Calls SetFiredBitmask after reading detectors with version < 7
 
    if (R__b.IsReading()) {
       UInt_t R__s, R__c;
@@ -183,6 +184,10 @@ void KVDetector::Streamer(TBuffer & R__b)
          {
             fIDTelAlign->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
          }
+      }
+      if (R__v < 7) {
+         // 'fired' bitmask added in version 7. 
+         SetFiredBitmask();
       }
    } else {
       KVDetector::Class()->WriteBuffer(R__b, this);
@@ -1348,16 +1353,20 @@ void KVDetector::SetFiredBitmask()
    // the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
    // of the array.
    // Bits are set/reset in the order of the acquisition parameter list of the detector.
+   // If no variable [dataset].KVDetector.Fired.ACQParameterList.[type] exists,
+   // we set a bitmask authorizing all acquisition parameters of the detector, e.g.
+   // if the detector has 3 acquisition parameters the bitmask will be "111"
 
 	KVString inst; inst.Form("KVDetector.Fired.ACQParameterList.%s",GetType());
 	KVString lpar = gDataSet->GetDataSetEnv(inst);
 	TObjArray *toks = lpar.Tokenize(",");
 	TIter next(fACQParams);
+	Bool_t no_variable_defined = (toks->GetEntries()==0);
 	KVACQParam* par; Int_t id = 0;
 	while( (par = (KVACQParam*)next()) ){
 	    if( !par->IsWorking() ) fFiredMask.ResetBit(id); // ignore non-working parameters
 	    else{
-	        if( toks->FindObject( par->GetType() ) ) fFiredMask.SetBit(id);
+	        if( no_variable_defined || toks->FindObject( par->GetType() ) ) fFiredMask.SetBit(id);
 	        else fFiredMask.ResetBit(id);
 	    }
 	    id++;

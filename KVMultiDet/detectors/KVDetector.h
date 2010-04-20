@@ -393,8 +393,7 @@ Bool_t KVDetector::Fired(Option_t * opt)
 	// "all" considered parameters fired if ok == mask
 	// "any" considered parameters fired if ok != 0
 	if (!strcmp(opt, "all")) 	return (ok == fFiredMask);
-	Binary8_t zero="0";
-	return (ok != zero);
+	return (ok != "0");
 }
 //_________________________________________________________________________________
 
@@ -423,8 +422,7 @@ Bool_t KVDetector::FiredP(Option_t * opt)
 	// "all" considered parameters fired if ok == mask
 	// "any" considered parameters fired if ok != 0
 	if (!strcmp(opt, "all")) 	return (ok == fFiredMask);
-	Binary8_t zero = "0";
-	return (ok != zero);
+	return (ok != "0");
 }
 
 #endif
