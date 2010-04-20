@@ -90,6 +90,7 @@ template < class T > class Binary_t {
 
    Bool_t operator==(const Binary_t < T > &);
    Bool_t operator!=(const Binary_t < T > &);
+   Bool_t operator!=(const Char_t*);
 
    void Print(Option_t * opt = "") const;
 
@@ -266,6 +267,13 @@ template <class T> Bool_t Binary_t<T>::operator!=(const Binary_t < T > &b2)
 {
     // Test inequality
     return (fVal != b2.fVal);
+}
+
+template <class T> Bool_t Binary_t<T>::operator!=(const Char_t* b2)
+{
+    // Test inequality
+    Binary_t<T> Bb2(b2);
+    return ((*this) != Bb2);
 }
 
 //--------------------------------------------------addition operators
