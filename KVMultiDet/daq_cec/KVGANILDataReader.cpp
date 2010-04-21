@@ -60,7 +60,7 @@ KVGANILDataReader::~KVGANILDataReader()
    fParameters->Clear();
    delete fParameters;
    if(fExtParams){
-		fExtParams->Delete();
+		fExtParams->Delete("slow");
 		delete fExtParams;
    }
 }

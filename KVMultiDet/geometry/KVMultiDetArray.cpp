@@ -2020,3 +2020,19 @@ TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_
 	geom->CloseGeometry();
 	return geom;
 }
+
+//________________________________________________________________________________//
+
+void KVMultiDetArray::ConnectBranches(TTree* arb)
+{
+   // Connect data parameters of array to associated detectors in TTree,
+   // either for reading or writing data.
+   // ConnectArrayBranches(arb) is called for parameters not associated with
+   // any detector, and then KVDetector::ConnectBranches is called for every
+   // detector.
+   
+   ConnectArrayBranches(arb);
+   TIter nxt(fDetectors);
+   KVDetector*det;
+   while( (det = (KVDetector*)nxt()) ) det->ConnectBranches(arb);
+}

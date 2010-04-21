@@ -116,10 +116,6 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
 {
    // Stream an object of class KVReconstructedNucleus.
    //Customized streamer.
-   //When a KVReconstructedNucleus object is read (e.g. from a TTree) it will
-   //automatically update the fELoss data members of the KVDetector objects
-   //associated to the passage of this nucleus through the multidetector array
-   //(pointed to by gMultiDetArray).
    //
    //In version 8 we added flags (using TObject bits, no new member variables)
    //to say if the particle has been identified and/or calibrated.
@@ -157,24 +153,12 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             SetIsCalibrated();
       }
       //use arrays to update detectors in multidetector array
-      //update energy losses (measured and calculated)
-      //& acquisition parameters in array
       if (fNumDet && fNumPar) {
          UInt_t npar = 0;
-         TIter next_det(&fDetectors);KVDetector *det; register int ndet = 0;
+         TIter next_det(&fDetectors);KVDetector *det;
          while( (det = (KVDetector*)next_det()) ){
             
                fNSegDet += det->GetSegment();
-               det->SetEnergy(fEloss[ndet]);
-               if (R__v > 6) det->SetECalc((Double_t)fElossCalc[ndet]);
-               ndet++;
-               if (det->GetACQParamList()) {
-                  TIter next_par(det->GetACQParamList());
-                  KVACQParam *par;
-                  while ((par = (KVACQParam *) next_par())) {
-                     par->SetData(fACQData[npar++]);
-                  }
-               }
                //modify detector's counters depending on particle's identification state
                if (IsIdentified())
                   det->IncrementIdentifiedParticles();

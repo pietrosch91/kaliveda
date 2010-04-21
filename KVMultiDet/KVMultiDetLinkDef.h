@@ -64,6 +64,7 @@
 #pragma link C++ class KVDataSet+;
 #pragma link C++ class KVDataAnalysisTask+;
 #pragma link C++ class KVDataAnalyser+;
+#pragma link C++ class KVDataBranchHandler+;
 #pragma link C++ class KVDataRepository+;
 #pragma link C++ class KVDataTransfer+;
 #pragma link C++ class KVDataTransferSFTP+;
