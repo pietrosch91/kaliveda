@@ -155,11 +155,8 @@ public:
     };
     virtual void SetOwner(Bool_t enable=kTRUE)
     {
+        TSeqCollection::SetOwner(enable);
         fCollection->SetOwner(enable);
-    };
-    virtual Bool_t IsOwner() const
-    {
-        return fCollection->IsOwner();
     };
     const Char_t* CollectionClassName() const
     {
