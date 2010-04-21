@@ -56,8 +56,6 @@ ClassImp(KVReconstructedEvent);
 void KVReconstructedEvent::init()
 {
    //default initialisations
-   SetGeometricFilter(kFALSE);
-   fThreshold = 0.0;
    UseRandomAngles();
    fPartSeedCond = "all";
 }
@@ -85,12 +83,12 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      if (R__v) {
-      }
       Clear();
       KVEvent::Streamer(R__b);
-      R__b >> fThreshold;
-      SetThreshold(fThreshold);
+      if(R__v<2) {
+         Float_t fThreshold;
+         R__b >> fThreshold;
+      }
       R__b.CheckByteCount(R__s, R__c, KVReconstructedEvent::IsA());
       //set angles
       KVReconstructedNucleus *par;
@@ -105,10 +103,7 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
                par->GetGroup()->AnalyseParticles();
       }
    } else {
-      R__c = R__b.WriteVersion(KVReconstructedEvent::IsA(), kTRUE);
-      KVEvent::Streamer(R__b);
-      R__b << fThreshold;
-      R__b.SetByteCount(R__c, kTRUE);
+      R__b.WriteClassBuffer(KVReconstructedEvent::Class(), this);
    }
 }
 

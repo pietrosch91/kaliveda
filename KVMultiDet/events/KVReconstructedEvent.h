@@ -29,16 +29,11 @@ class TList;
 
 class KVReconstructedEvent:public KVEvent {
 
-   Float_t fThreshold;          //seuil en energie (MeV/nuc) pour filtre geometrique
    Bool_t fMeanAngles;          //!kTRUE if particle momenta calculated using mean angles of detectors (default: randomised angles)
    TString fPartSeedCond;   //!condition used in AnalyseTelescopes for seeding new reconstructed particle
 
  public:
-
-   enum {
-      kUseGeomFilt = BIT(14)    //flag for filtering simulations; by default kFALSE, if kTRUE then a simple geometric filtering is implemented
-   };
-
+ 
    void init();
     KVReconstructedEvent(Int_t mult = 50, const char *classname =
                          "KVReconstructedNucleus");
@@ -59,15 +54,6 @@ class KVReconstructedEvent:public KVEvent {
    virtual void IdentifyEvent();
    virtual void CalibrateEvent();
 
-   void SetGeometricFilter(Bool_t onoff);
-   inline Bool_t UseGeoFilt() {
-      return TestBit(kUseGeomFilt);
-   };
-   virtual void GeometricFilter() {
-      Info("GeometricFilter", "Not implemented");
-   };
-   virtual void SetThreshold(Float_t mev_sur_a);
-
    virtual void Print(Option_t * t = "") const;
 
    inline void UseMeanAngles() {
@@ -83,7 +69,7 @@ class KVReconstructedEvent:public KVEvent {
       return !fMeanAngles;
    };
 
-   ClassDef(KVReconstructedEvent, 1)    //Base class for reconstructed experimental multiparticle events
+   ClassDef(KVReconstructedEvent, 2)    //Base class for reconstructed experimental multiparticle events
 };
 
 inline KVReconstructedNucleus *KVReconstructedEvent::
