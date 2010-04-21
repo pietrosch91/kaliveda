@@ -204,11 +204,10 @@ void ReconstructionSeDv::Calculate(void)
       Phi = (Float_t) Phit*-1;
       Path = (Float_t) Patht;
 
-      TVector3 *myVec;
-      myVec = new TVector3(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
-      myVec->RotateY(0.*3.141592654/180.);
-      ThetaL = myVec->Theta();
-      PhiL = myVec->Phi();
+      TVector3 myVec(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
+      myVec.RotateY(0.*3.141592654/180.);
+      ThetaL = myVec.Theta();
+      PhiL = myVec.Phi();
       
       //      cout << Brho << " " << Theta << " " << Phi << endl;
     } 
