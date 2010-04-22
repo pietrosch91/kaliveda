@@ -115,6 +115,21 @@ void KVPartition::Fill(Int_t* tab,Int_t mult){
 
 }
 
+void KVPartition::FillWithConditions(Int_t* tab,Int_t mult,Int_t zmin,Int_t zmax){
+
+	if (!tab) return;
+	Reset();
+	Bool_t select_min = ( (zmin==-1) ? kFALSE : kTRUE);
+	Bool_t select_max = ( (zmax==-1) ? kFALSE : kTRUE);
+	
+	for (Int_t mm=0;mm<mult;mm+=1)
+		if ( ( !select_min || (select_min && tab[mm]>=zmin) ) && ( !select_max || (select_max && tab[mm]<=zmax) ) ) 
+			AddToRegle(tab[mm]);
+	
+	Compute();
+
+}
+
 void KVPartition::Fill(KVNumberList nl){
 
 	Reset();
@@ -165,6 +180,7 @@ void KVPartition::Reset(){
 	nbre_val=0;
 	
 	for (Int_t mm=0;mm<mom_max;mm+=1) moments[mm]=0;
+	ResetPopulation();
 
 }
 

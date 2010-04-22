@@ -40,7 +40,7 @@ class KVPartition : public TObject
       kHastobeComputed = BIT(14)	//Variables has to be recalculated
   	};
 	
-	virtual void init(Int_t valmax=0,Int_t mommax=0);
+	virtual void init(Int_t valmax=100,Int_t mommax=5);
 	
 	KVPartition();
 	KVPartition(Int_t valmax,Int_t mommax=5);
@@ -53,6 +53,7 @@ class KVPartition : public TObject
 	const char* GetTitle() const { KVString stit; stit.Form("%d",GetPopulation()); return stit.Data(); }
 	
 	void Fill(Int_t* tab,Int_t mult);
+	void FillWithConditions(Int_t* tab,Int_t mult,Int_t zmin=-1,Int_t zmax=-1);
 	void Fill(KVNumberList nl);
 	void Fill(KVEvent* evt,Option_t* opt = "");
 
