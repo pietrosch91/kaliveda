@@ -14,6 +14,6 @@ foreach i ($HPSS_RUNS)
    set jobname="$prefix$i"
    setenv INPUT $i
    setenv NOMFI $jobname
-   qsub -eo -l CPUBound,platform=LINUX,T=$TIME,M=$MEMORY,scratch=$DISK,hpss -N $jobname -V $KVROOT/bin/veda2root_kali
+   qsub -eo -l CPUBound,platform=LINUX,T=$TIME,M=$MEMORY,scratch=$DISK,u_hpss_indra,u_sps_indra -N $jobname -V $KVROOT/bin/veda2root_kali
 end 
 exit
