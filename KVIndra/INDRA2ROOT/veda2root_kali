@@ -23,13 +23,15 @@ set word2 = `echo $word1 | awk -F"/" '{print $NF}'`
 echo "word2=$word2"
 setenv PFOR `echo $word2 | awk -F"." '{ print $1}'`
 echo "PFOR=$PFOR"
-cern_pro
+#cern_pro
+
 #---- Variables d'environnement ----------
 setenv VEDA_OUT $DIR_PERSO/
+
 #------ Compilation ------------------
 echo ' start of compilation and load ' `date`
 if ( $NOMLIB == "" ) then
-  g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -ox$NOMFI `cernlib pawlib mathlib` 
+  g77 -v -I$VEDA_FOR -I$VEDA_DATA $FOR_PERSO $VEDA_LIBS -ox$NOMFI `cernlib pawlib mathlib` 
 else
   g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -L$HOME/lib -l$NOMLIB -ox$NOMFI `cernlib pawlib mathlib` 
 endif
@@ -38,6 +40,8 @@ if ($status != '0') then
    exit 99
 endif
 echo '  end of compilation and load ' `date`
+
+
 #---------------------------------------------
 if ( $CAMPAGNE == "4" ) then
 	set nomfic="./$NOMFI"
@@ -49,6 +53,7 @@ else
 	set nomfic="$NOMFI.cart"
 	set prefix="r"
 endif
+
 #----- fassoc .... -------------------------------
 fassoc $nomfic 2
 #----- boucle sur les numeros de runs en arguments --------------------
@@ -63,67 +68,86 @@ endif
 #
 set nrun = 0
 foreach i ($INPUT)
-set run="| $i |"
-set cart=`grep "$run" $nomkdc | awk '{ print  ($4) }' `
-if ( $cart == "" ) then
-   echo "######################################"
-   echo " ATTENTION :le run $i n'existe pas ! "
-   echo "######################################"
-endif
-if ( $cart != "" ) then
-   setenv nom_cart $cart
-   set nrun = `expr  $nrun + 1`
-   if ($CAMPAGNE == "4") then
+	set run="| $i |"
+	set cart=`grep "$run" $nomkdc | awk '{ print  ($4) }' `
+	if ( $cart == "" ) then
+   	echo "######################################"
+   	echo " ATTENTION :le run $i n'existe pas ! "
+   	echo "######################################"
+	endif
+	if ( $cart != "" ) then
+   	setenv nom_cart $cart
+   	set nrun = `expr  $nrun + 1`
+   	if ($CAMPAGNE == "4") then
    		set nomstage="$prefix$i"
-   else
+   	else
    		set nomstage="$prefix$nrun"
-   endif
-   if ( $nrun == "1" ) then
-       set cartini = $nom_cart
-   endif
-   if ( $nom_cart == $cartini ) then
+   	endif
+   	if ( $nrun == "1" ) then
+      	set cartini = $nom_cart
+   	endif
+   	
+		echo "INFO i="$i"nom_cart="$nom_cart" cartini="$cartini
+		
+		if ( $nom_cart == $cartini ) then
+   		set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
+     		echo ------------------------------------------------------------------
+     		echo " file = $nomstage : run $i  sur  la zone $HPSS_DIR/$cart/dst - fichier run$i.dst"  
+	 		if ( $CAMPAGNE == "4" ) then
+	 			echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $nomfic
+   			echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $fic_run
+	 		else
+     			echo "$nomstage $i $cart $fich : namefil run cartouche sequence" >> $nomfic
+     		endif      
+   	endif  
    
-     set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
-     echo ------------------------------------------------------------------
-     echo " file = $nomstage : run $i  sur  la zone $HPSS_DIR/$cart/dst - fichier run$i.dst"  
-	 if ( $CAMPAGNE == "4" ) then
-	 	echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $nomfic
-   		echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $fic_run
-	 else
-     	echo "$nomstage $i $cart $fich : namefil run cartouche sequence" >> $nomfic
-     endif      
-   endif  
-   
-   if ( $nom_cart != $cartini ) then
-   
-     set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
-     echo " file = $nomstage : run $i  sur  la zone $HPSS_DIR/$cart/dst - fichier run$i.dst"   
-	 if ( $CAMPAGNE == "4" ) then
-	 	echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $nomfic
-   		echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $fic_run
-	 else
-     	echo "$nomstage $i $cart $fich : namefil run cartouche sequence" >> $nomfic
-     endif
-     set cartini = $nom_cart
-      
-   endif   
-endif
+   	if ( $nom_cart != $cartini ) then
+   		set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
+     		echo " file = $nomstage : run $i  sur  la zone $HPSS_DIR/$cart/dst - fichier run$i.dst"   
+	 		if ( $CAMPAGNE == "4" ) then
+	 			echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $nomfic
+   			echo "$nomstage   run $i    cartouche $cart   fichier $fich" >> $fic_run
+	 		else
+     			echo "$nomstage $i $cart $fich : namefil run cartouche sequence" >> $nomfic
+     		endif
+     		set cartini = $nom_cart
+   	endif   
+	endif
 end
 
-echo "Fichier $nomfic :"
+echo "Fichier nomfic=$nomfic :"
 cat $nomfic
 echo " "
 
+#echo ------------------------------------------------------------------
+#echo 'Creation des lien logiques avec les run HPSS'
+#echo $nrun
+#if ( $CAMPAGNE == "4" ) then
+#	tail -n $nrun $nomfic | awk -F" " '{s=sprintf("ln -s $HPSS_DIR/%s/dst2/run%s.dst %s",$5,$3,$1);print s;system(s);}'
+#else
+#	tail -n $nrun $nomfic | awk -F" " '{s=sprintf("ln -s $HPSS_DIR/%s/dst/run%s.dst %s",$3,$2,$1);print s;system(s);}'
+#endif
+#echo ------------------------------------------------------------------
+
 echo ------------------------------------------------------------------
-echo 'Creation des lien logiques avec les run HPSS'
-echo $nrun
+echo 'Rapatriement des fichiers de runs via rfcp'
+echo 'nrun='$nrun
 if ( $CAMPAGNE == "4" ) then
-	tail -n $nrun $nomfic | awk -F" " '{s=sprintf("ln -s $HPSS_DIR/%s/dst2/run%s.dst %s",$5,$3,$1);print s;system(s);}'
+  tail -n $nrun $nomfic | awk -F" " '{s=sprintf("rfcp $HPSS_DIR/%s/dst2/run%s.dst %s",$5,$3,$1);print s;system(s);}'
 else
-	tail -n $nrun $nomfic | awk -F" " '{s=sprintf("ln -s $HPSS_DIR/%s/dst/run%s.dst %s",$3,$2,$1);print s;system(s);}'
+  tail -n $nrun $nomfic | awk -F" " '{s=sprintf("rfcp $HPSS_DIR/%s/dst/run%s.dst %s",$3,$2,$1);print s;system(s);}'
 endif
 echo ------------------------------------------------------------------
 
+#echo ------------------------------------------------------------------
+#echo 'Rapatriement des fichiers de runs via srb'
+#echo $nrun
+#if ( $CAMPAGNE == "4" ) then
+#  tail -n $nrun $nomfic | awk -F" " '{s=sprintf("Sget /indra/%s/dst2/run%s.dst %s",$5,$3,$1);print s;system(s);}'
+#else
+#  tail -n $nrun $nomfic | awk -F" " '{s=sprintf("Sget /indra/%s/dst/run%s.dst %s",$3,$2,$1);print s;system(s);}'
+#endif
+#echo ------------------------------------------------------------------
 
 if ( $CAMPAGNE == "4" ) then
 	echo "EOF EOF 0" >> $nomfic
