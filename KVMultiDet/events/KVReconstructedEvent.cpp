@@ -43,7 +43,7 @@ ClassImp(KVReconstructedEvent);
 //              before beginning the iteration.
 //              After the last particle GetNextParticle() returns a null pointer and
 //              resets itself ready for a new iteration over the particle list:
-//              
+//
 //              Example: (supposing "KVReconstructedEvent* event" points to a valid event)
 //              KVReconstructedNucleus* rnuc; event->ResetGetNextParticle();
 //              while( (rnuc = event->GetNextParticle()) ){
@@ -236,7 +236,7 @@ a particle, then we create and fill a new detected particle.
 In the second (or subsequent rounds) round of identification,
 we may need to add particles to the event, which have been "revealed" by the identification &
 recalculation of expected energy losses of other particles in the same group.
-These detectors have their "Reanalyse" flag set but don't belong to any unidentified particles 
+These detectors have their "Reanalyse" flag set but don't belong to any unidentified particles
  */
          if ( (d->Fired( fPartSeedCond.Data() ) && !d->IsAnalysed())
             ||    (d->Reanalyse() && !d->BelongsToUnidentifiedParticle()) ) {
@@ -326,7 +326,7 @@ void KVReconstructedEvent::CalibrateEvent()
 	if(t){
 		t->SetIncoming(kFALSE); t->SetOutgoing(kTRUE);
 	}
-	
+
    KVReconstructedNucleus *d;
 
    while ((d = GetNextParticle())) {
@@ -334,41 +334,10 @@ void KVReconstructedEvent::CalibrateEvent()
       if (d->IsIdentified() && !d->IsCalibrated()){
             d->Calibrate();
       }
-      
+
    }
-   
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void KVReconstructedEvent::SetGeometricFilter(Bool_t onoff)
-{
-   //If onoff=kTRUE then the reconstruction of the (filtered simulated) event
-   //corresponds to a simple geometric filter
-   //
-   //i.e. all particles are discarded which
-   //                      - do not strike any array detectors
-   //       - are not stopped by the array detectors
-   //       - stop in the first stage of array telescopes
-   //       - would be unidentifiable or incorrectly identified due to
-   //         multihits in the same group
-   //
-   //For the remaining particles, their charge is taken to be that of their
-   //corresponding simulated particle, their mass is calculated using the same
-   //prescription as for experimental events (except LCP stopping in CsI detectors
-   //which are assumed to be isotopically identified), their energy is taken as
-   //that of the simulation and their angles are calculated from the position of
-   //the telescope in which they are detected.
-
-   SetBit(kUseGeomFilt, onoff);
-}
-
-//________________________________________________________________________//
-
-void KVReconstructedEvent::SetThreshold(Float_t mev_sur_a)
-{
-   //For use with GeometricFilter:
-   //Allows to set a global detection threshold which will be used for all detectors/particles.
-   //The value is in MeV/nucleon
-   fThreshold = mev_sur_a;
-}

@@ -123,7 +123,6 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
          KVEvent::Streamer(R__b);
          Float_t fThreshold;
          R__b >> fThreshold;
-         SetThreshold(fThreshold);
       } else {
          KVReconstructedEvent::Streamer(R__b);
       }
@@ -358,26 +357,26 @@ void KVINDRAReconEvent::ChangeFragmentMasses(UChar_t mass_formula)
    //a CsI detector are affected; particles whose mass was measured
    //(i.e. having KVReconstructedNucleus::IsAMeasured()==kTRUE)
 	//are not affected by the change of mass formula.
-   
+
    ResetGetNextParticle();
    KVINDRAReconNuc* frag;
    while( (frag = (KVINDRAReconNuc*)GetNextParticle("ok")) ){
-      
+
       if( !frag->IsAMeasured() ){
-         
+
          Float_t oldA = (Float_t)frag->GetA();
          frag->SetMassFormula(mass_formula);
-         
+
          if( frag->GetCsI() ){
             Float_t oldECsI = frag->GetEnergyCsI();
             Float_t oldE = frag->GetEnergy();
             Float_t newECsI = oldECsI*((Float_t)frag->GetA()/oldA);
             frag->GetCsI()->SetEnergy(newECsI);
             frag->SetEnergy(oldE - oldECsI + newECsI);
-         } 
+         }
       }
    }
-   
+
 }
 
 //____________________________________________________________________________

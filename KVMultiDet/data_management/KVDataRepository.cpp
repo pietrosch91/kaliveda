@@ -9,7 +9,6 @@ $Date: 2009/01/16 14:55:20 $
 
 #include "KVDataRepository.h"
 #include "KVDataSetManager.h"
-#include "TEnv.h"
 #include "KVBase.h"
 #include "KVList.h"
 #include "TError.h"
@@ -321,7 +320,7 @@ Bool_t KVDataRepository::GetFileInfo(const Char_t * datasetdir,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
    return !gSystem->GetPathInfo(path.Data(), fs);
 }
@@ -343,7 +342,7 @@ Bool_t KVDataRepository::CheckFileStatus(const Char_t * datasetdir,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
    return !gSystem->AccessPathName(path.Data());
 }
@@ -390,7 +389,7 @@ const Char_t *KVDataRepository::GetFullPathToOpenFile(KVDataSet * dataset,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(read_root.Data(),
                                            datasetdir.Data()));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
    return path.Data();
 }
@@ -415,7 +414,7 @@ const Char_t *KVDataRepository::GetFullPathToTransferFile(KVDataSet *
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fLocalrootdir.Data(),
                                            datasetdir.Data()));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
    return path.Data();
 }
@@ -476,7 +475,7 @@ void KVDataRepository::CopyFileFromRepository(const Char_t * datasetdir,
       AssignAndDelete(path,
                       gSystem->ConcatFileName(fAccessroot.Data(),
                                               datasetdir));
-      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
       AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
       //copy file
       CopyFile( path.Data(), destination );
@@ -497,7 +496,7 @@ void KVDataRepository::CopyFileToRepository(const Char_t * source,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
 
    //copy file
@@ -522,7 +521,7 @@ void KVDataRepository::MakeSubdirectory(const Char_t * datasetdir,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
    if (strcmp(datatype,""))
-      AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), datatype));
+      AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), GetDatatypeSubdir(datatype)));
    else
       path = tmp;
    cout << "Creating new repository directory: " << path.Data() << endl;
@@ -551,7 +550,7 @@ TList *KVDataRepository::GetDirectoryListing(const Char_t * datasetdir,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
    if (datatype) {
-      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
       path = tmp;
    }
    //open directory
@@ -610,7 +609,7 @@ TFile *KVDataRepository::CreateNewFile(KVDataSet * dataset,
       return new TFile(filename, "recreate");
    }
    //create file in local repository - make sure subdirectory exists!
-   if (!CheckSubdirExists(dataset->GetDatapathSubdir(), datatype)) {
+   if (!CheckSubdirExists(dataset->GetDatapathSubdir(), GetDatatypeSubdir(datatype))) {
       //create subdirectory
       MakeSubdirectory(dataset->GetDatapathSubdir(), datatype);
    }
@@ -648,7 +647,7 @@ void KVDataRepository::CommitFile(TFile * file)
       return;
    }
    //create file in local repository - make sure subdirectory exists!
-   if (!CheckSubdirExists(fCommitDataSetDir, fCommitDataType)) {
+   if (!CheckSubdirExists(fCommitDataSetDir, GetDatatypeSubdir(fCommitDataType))) {
       //does dataset directory exist ?
       if (!CheckSubdirExists(fCommitDataSetDir)) {
          //create dataset directory
@@ -686,7 +685,7 @@ void KVDataRepository::DeleteFile(const Char_t * datasetdir,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
    TString cmd;
    cout << "Deleting file from repository: " << filename << endl;

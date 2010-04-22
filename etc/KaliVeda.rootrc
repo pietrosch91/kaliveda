@@ -94,6 +94,12 @@ Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataR
 Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
+#
+# Names used for subdirectories containing data of different types
+KVDataRepository.Subdir.raw:  raw
+KVDataRepository.Subdir.recon:  recon2
+KVDataRepository.Subdir.ident:  ident2
+KVDataRepository.Subdir.root:  root2
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
@@ -618,40 +624,6 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
-
-#=================== Updating calibration/identification parameters contained in data files
-# When recon/ident data files are created, a KVINDRA object containing all of the
-# currently available identification & calibration parameters is written in the file.
-# During subsequent analysis of these files (e.g. during recon->ident transformation)
-# it is the parameters stored in the file which are used.
-# If you want to use different parameters (e.g. because those in the file have become
-# obsolete), it is possible by setting the following variables:
-#
-# [name of dataset].[data file type].UpdateIdentifications:    yes
-# [name of dataset].[data file type].UpdateIDTelescopes:    yes
-# [name of dataset].[data file type].UpdateCalibrations:    yes
-#
-# For example, to update the identification parameters during analysis of 'recon'
-# data from the 5th INDRA campaign, add the following line to your .kvrootrc:
-#
-#INDRA_camp5.recon.UpdateIdentifications:   yes
-#
-# In this example, if a recon->ident task is launched, the identification parameters
-# stored in the file will be ignored, and new identification parameters will be set
-# according to the current values of INDRA_camp5.ActiveIdentifications and the
-# variables giving the names of identification parameter files (see above).
-#
-# N.B. the parameters in the file being analysed will not be modified. However,
-# if you do e.g. recon->ident with 'Update' activated, the INDRA object in the new
-# 'ident' file will contain the update parameters.
-#
-# If different classes are to be used for the implementation of the identifications
-# then set
-#
-# [name of dataset].[data file type].UpdateIDTelescopes:    yes
-#
-# This will remove the existing KVIDTelescope-derived objects and replace them
-# with the new ones.
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"

@@ -217,7 +217,7 @@ void KVDataAnalyser::PrintSplashScreen()
        endl;
       cout << "*                                                         *" <<
        endl;
-      printf( "*             Version:%22s              *\n", KVBase::GetKVVersion());
+      printf( "*                   Version:%10s                    *\n", KVBase::GetKVVersion());
       cout << "*                                                         *" <<
        endl;
       cout << "*              For help, see the Web site :               *" <<

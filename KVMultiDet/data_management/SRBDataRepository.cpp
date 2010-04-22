@@ -40,7 +40,7 @@ TList *SRBDataRepository::GetDirectoryListing(const Char_t * datasetdir,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
    if (datatype) {
-      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
       path = tmp;
    }
 	
@@ -82,7 +82,7 @@ void SRBDataRepository::CopyFileFromRepository(const Char_t * datasetdir,
       AssignAndDelete(path,
                       gSystem->ConcatFileName(fAccessroot.Data(),
                                               datasetdir));
-      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
       AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
       //copy file
       fSRB.Sget( path.Data(), destination, "-v -M" );
@@ -102,7 +102,7 @@ void SRBDataRepository::CopyFileToRepository(const Char_t * source,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
    
    //copy file
@@ -127,7 +127,7 @@ Bool_t SRBDataRepository::CheckFileStatus(const Char_t * datasetdir,
    AssignAndDelete(tmp,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), datatype));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), GetDatatypeSubdir(datatype)));
    return fSRB.DirectoryContains(runfile,path.Data());
 }
 
@@ -141,7 +141,7 @@ void SRBDataRepository::MakeSubdirectory(const Char_t * datasetdir,
    AssignAndDelete(tmp,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), datatype));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), GetDatatypeSubdir(datatype)));
 	fSRB.Smkdir(path.Data());
 }
 
@@ -160,7 +160,7 @@ void SRBDataRepository::DeleteFile(const Char_t * datasetdir,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
    TString cmd;
    cout << "Deleting file from repository: " << filename << endl;
@@ -212,7 +212,7 @@ Bool_t SRBDataRepository::GetFileInfo(const Char_t * datasetdir,
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
                                            datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), datatype));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
 	
 	SRBFile_t srbfile;
