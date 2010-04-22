@@ -382,6 +382,8 @@ TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t 
 		}
 	}	
 	
+	tree->ResetBranchAddresses();
+	
 	delete [] val;
 	if (tab_add) delete [] tab_add;
 	
