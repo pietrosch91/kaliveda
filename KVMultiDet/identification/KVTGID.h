@@ -44,9 +44,16 @@ class KVTGID:public TF1 {
 	KVNumberList fRuns;        //list of runs for which fit is valid
 	TString fVarX;             //quantity used for X coordinates
 	TString fVarY;             //quantity used for Y coordinates
+	KVString fTelescopes;        //list of telescopes for which fit is valid
 
    virtual void SetIdent(KVIDLine *, Double_t ID) = 0;
    virtual KVIDLine *AddLine(KVIDGrid *) = 0;
+
+   void SetStringTelescopes(const Char_t*s)
+   {
+       // Set directly the contents of fTelescopes
+       fTelescopes=s;
+   };
 
  public:
 
@@ -78,6 +85,7 @@ class KVTGID:public TF1 {
            Double_t xmin, Double_t xmax, Int_t npar, Int_t par_x,
            Int_t par_y);
     virtual ~ KVTGID() {
+     Info("~KVTGID","Deleting %s", GetName());
    };
 
    void SetIDmax(Double_t x) {
@@ -218,8 +226,25 @@ class KVTGID:public TF1 {
     {
         return fVarY.Data();
     };
+    void SetIDTelescopes(const TCollection*);
+    void ClearIDTelescopes() { fTelescopes="/"; };
+    void AddIDTelescope(KVIDTelescope*tel)
+    {
+        // Adds tel to list of ID telescopes for which this fit is valid
+        fTelescopes+=tel->GetName();
+        fTelescopes+="/";
+    };
+    Bool_t IsValidForTelescope(KVIDTelescope* tel) const
+    {
+        // return kTRUE if fit is good for this telescope
+        TString id = Form("/%s/",tel->GetName());
+        return fTelescopes.Contains(id);
+    };
+    TCollection* GetIDTelescopes();
+    void WriteToAsciiFile(ofstream &) const;
+    static KVTGID* ReadFromAsciiFile(const Char_t* name, ifstream &);
 
-   ClassDef(KVTGID, 4)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
+   ClassDef(KVTGID, 5)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
 };
 
 #endif
