@@ -31,7 +31,7 @@ if ( $rep == "1" ) then
 	setenv DATA_SET "INDRA_camp1"
 endif
 if ( $rep == "2" ) then
-	setenv VEDA_FOR '/afs/in2p3.fr/home/throng/indra/veda2/for'
+	setenv VEDA_FOR '/afs/in2p3.fr/home/throng/indra/veda2/for2'
 	setenv VEDA_LIBS "$THRONG_DIR/lib/kali_2_linux.o"
 	setenv VEDA_DATA '/afs/in2p3.fr/home/throng/indra/veda2/data/'
 	setenv VEDAROOT_FOR "$KVROOT/src/faire_arbre_c2.f"
@@ -43,9 +43,9 @@ endif
 #endif
 if ( $rep == "4" ) then
 	setenv VEDA_FOR '/afs/in2p3.fr/home/throng/indra/veda4/for/include'
-	setenv VEDA_DATA     '/afs/in2p3.fr/home/throng/indra/veda4/data/'
-	setenv VEDAROOT_FOR "$KVROOT/src/faire_arbre_c4.f"
 	setenv VEDA_LIBS "$THRONG_DIR/lib/veda4/vishnou_sub_linux.o"
+	setenv VEDA_DATA	'/afs/in2p3.fr/home/throng/indra/veda4/data/'
+	setenv VEDAROOT_FOR "$KVROOT/src/faire_arbre_c4.f"
 	setenv nomkdc $THRONG_DIR/any/hpss/vishnouhpss.camp_4_v2
 	setenv DATA_SET "INDRA_camp4"
 endif
