@@ -96,10 +96,10 @@ void KVINDRARawDataReconstructor::InitRun()
       Info("InitRun", "Created raw data tree (%s : %s) for %d parameters",
             rawtree->GetName(), rawtree->GetTitle(), rawtree->GetNbranches());
       // autosave every 30MB
-		rawtree->SetAutoSave(30000000);
+		rawtree->SetAutoSave(5000000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-      // flush baskets every 1000 events
-		//rawtree->SetAutoFlush(1000);
+      // disable autoflush
+		rawtree->SetAutoFlush(5000000000);
 #endif
             
       //tree for reconstructed events
@@ -109,10 +109,10 @@ void KVINDRARawDataReconstructor::InitRun()
             datatype.Data())
             );
       // autosave every 30MB
-		tree->SetAutoSave(30000000);
+		tree->SetAutoSave(5000000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-      // flush baskets every 1000 events
-		//tree->SetAutoFlush(1000);
+      // disable autoflush
+		tree->SetAutoFlush(5000000000);
 #endif
       
       //leaves for reconstructed events
@@ -133,16 +133,18 @@ void KVINDRARawDataReconstructor::InitRun()
          genetree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
       }
       // autosave every 30MB
-		genetree->SetAutoSave(30000000);
+		genetree->SetAutoSave(5000000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-      // flush baskets every 1000 events
-		//genetree->SetAutoFlush(1000);
+      // disable autoflush
+		genetree->SetAutoFlush(5000000000);
 #endif
       
       Info("InitRun", "Created pulser/laser data tree (%s : %s) for %d parameters",
             genetree->GetName(), genetree->GetTitle(), genetree->GetNbranches());
       //initialise number of reconstructed events
       nb_recon = 0;
+		
+		gDebug=1;
 }
 
 //______________________________________________________________________________________//
