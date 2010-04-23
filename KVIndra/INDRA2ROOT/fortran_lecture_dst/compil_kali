@@ -1,0 +1,63 @@
+#!/bin/bash
+
+lcampagne="1 2 4"
+
+for campagne in $lcampagne
+do
+	VEDA_LIB=$THRONG_DIR"/lib/veda$campagne"
+	
+	if [ ! -d $VEDA_LIB ]
+	then 
+		echo "Creation du repertoire $VEDA_LIB"
+		mkdir $VEDA_LIB
+	fi
+	
+	if [ $campagne == 1 ]
+	then
+		echo "1 "$campagne
+		VEDA_INC=$THRONG_DIR"/veda1/for"
+	
+	elif [ $campagne == 2 ]
+	then
+		echo "2 "$campagne
+		VEDA_INC=$THRONG_DIR"/veda2/for2"
+	elif [ $campagne == 4 ]
+	then
+		echo "4 "$campagne
+		VEDA_INC=$THRONG_DIR"/veda4/for/include"
+	else
+		exit
+	fi
+	
+	rep_sup=supp_camp$campagne
+	if [ -d $rep_sup ]
+	then
+		cd $rep_sup
+		echo "$rep_sup existe"
+		lib_sup=libkali_camp"$campagne"_sup.a
+		lpointo=""
+		for sup in *.f
+		do
+			echo $sup
+			g77 -w -I$VEDA_INC $sup -c
+			rac=`basename $sup .f`
+			echo "$rac.o"
+			lpointo="$lpointo $rac.o"
+		done	
+		ar qv $lib_sup $lpointo
+		mv $lib_sup $KVROOT/bin/.
+		ln -sf $KVROOT/bin/$lib_sup $VEDA_LIB
+		rm $lpointo
+		echo $lpointo
+		cd ../
+	else
+		echo "pas de supp_camp"$campagne""
+	fi
+	
+	g77 -w -I$VEDA_INC kali_lecture_dst_camp$campagne.f -c
+	mv kali_lecture_dst_camp$campagne.o $KVROOT/bin/.
+	ln -sf $KVROOT/bin/kali_lecture_dst_camp$campagne.o $VEDA_LIB
+
+done
+
+exit
