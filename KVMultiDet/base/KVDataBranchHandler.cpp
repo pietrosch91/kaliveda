@@ -59,7 +59,7 @@ TBranch* KVDataBranchHandler::CreateBranch()
    // Create new branch in TTree for member variable and return its address.
    
    if(!fAddr) return 0;
-   Info("CreateBranch", "fTree->Branch(\"%s\", %p, \"%s\")", GetName(), fAddr, GetType());
+   //Info("CreateBranch", "fTree->Branch(\"%s\", %p, \"%s\")", GetName(), fAddr, GetType());
    return (fBranch = fTree->Branch(GetName(), fAddr, GetType()));
 }
 
