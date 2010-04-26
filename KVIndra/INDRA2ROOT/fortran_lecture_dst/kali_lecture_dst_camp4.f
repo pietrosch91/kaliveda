@@ -87,13 +87,13 @@ cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete
 ! D.Cussol 08/03/2003: Determination du nom de la zone HPSS
 !                      (a inclure dans VAR_ENVIRONNEMENT ?)
 !=====================================================================
-      call getenvf('HPSS_C4_DST',hpssdir) 
-      i=0
-      long_hpss=0
-      do while (long_hpss.eq.0)
-        i=i+1
-        if(hpssdir(i:i).eq.' ')long_hpss=i-1
-      enddo
+!      call getenvf('HPSS_C4_DST',hpssdir) 
+!      i=0
+!      long_hpss=0
+!      do while (long_hpss.eq.0)
+!        i=i+1
+!        if(hpssdir(i:i).eq.' ')long_hpss=i-1
+!      enddo
 !=====================================================================
 ! D.Cussol 08/03/2003: Fin de l'ajout
 !=====================================================================
@@ -158,13 +158,13 @@ cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete
  ! D.Cussol 08/03/2003: avant d'ouvrir le fichier, on va le copier de
  !                      la zone HPSS sur le repertoire courant
  !=====================================================================
-      	read(filein,'(4x,i4)') norun    ! lecture du numero de run
-      	write(commande,'(a,a,a,i4,a,a)') 'rfcp ',hpssdir(1:long_hpss),
-     &             '/run',norun,
-     &             '.dst ',filein(1:8) 
-      	write(6,*) commande             ! affichage de la commande de copie
-      	call system(commande)           ! execution de la copie
-      	call system('ls -l dst*')       ! pour verifier que le fichier est bien la
+!      	read(filein,'(4x,i4)') norun    ! lecture du numero de run
+!      	write(commande,'(a,a,a,i4,a,a)') 'rfcp ',hpssdir(1:long_hpss),
+!     &             '/run',norun,
+!     &             '.dst ',filein(1:8) 
+!      	write(6,*) commande             ! affichage de la commande de copie
+!      	call system(commande)           ! execution de la copie
+!      	call system('ls -l dst*')       ! pour verifier que le fichier est bien la
  !=====================================================================
  ! D.Cussol 08/03/2003: Fin de l'ajout
  !=====================================================================
