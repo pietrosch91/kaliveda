@@ -31,7 +31,7 @@ setenv VEDA_OUT $DIR_PERSO/
 #------ Compilation ------------------
 echo ' start of compilation and load ' `date`
 if ( $NOMLIB == "" ) then
-  g77 -v -I$VEDA_FOR -I$VEDA_DATA $FOR_PERSO $VEDA_LIBS -ox$NOMFI `cernlib pawlib mathlib` 
+  g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -ox$NOMFI `cernlib pawlib mathlib` 
 else
   g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -L$HOME/lib -l$NOMLIB -ox$NOMFI `cernlib pawlib mathlib` 
 endif
@@ -69,7 +69,9 @@ endif
 set nrun = 0
 foreach i ($INPUT)
 	set run="| $i |"
+	echo "INFO i=$i run=$run nomkdc=$nomkdc"
 	set cart=`grep "$run" $nomkdc | awk '{ print  ($4) }' `
+	echo "INFO cart=$cart"
 	if ( $cart == "" ) then
    	echo "######################################"
    	echo " ATTENTION :le run $i n'existe pas ! "
@@ -87,7 +89,7 @@ foreach i ($INPUT)
       	set cartini = $nom_cart
    	endif
    	
-		echo "INFO i="$i"nom_cart="$nom_cart" cartini="$cartini
+		echo "INFO i=$i nom_cart=$nom_cart cartini=$cartini"
 		
 		if ( $nom_cart == $cartini ) then
    		set fich=`grep "$run" $nomkdc | awk '{ print  ($6) }' `
