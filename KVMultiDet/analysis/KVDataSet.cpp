@@ -979,6 +979,39 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 
 //___________________________________________________________________________
 
+KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type)
+{
+   //Returns list of runs which are present in raw directory but not in "type"
+	//if type is NULL returns empty KVNumberList
+
+	if (!type) return 0;
+	KVString in_type="raw";
+	
+	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),type);
+
+	KVNumberList numb = GetRunList(in_type.Data());
+	KVNumberList lout = GetRunList(type);
+	
+	numb.Remove(lout);
+	TList* ll = GetListOfAvailableSystems(in_type.Data());
+	KVDBSystem* sys=0;
+	KVNumberList nsys;
+	for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
+		sys = (KVDBSystem* )ll->At(nl);
+		sys->GetRunList(nsys);
+		Int_t nombre = nsys.GetNValues();
+		nsys.Inter(numb);
+		
+		if (nsys.GetNValues()>0){
+			Info("------\nGetRunList_StageSelection","KVDBSystem : %s\nGetRunList_StageSelection"," --> %d runs manquants sur %d  : %s",sys->GetName(),nsys.GetNValues(),nombre,nsys.AsString());
+		}
+	}
+	
+	return numb;
+
+}
+//___________________________________________________________________________
+
 void KVDataSet::CommitRunfile(const Char_t * type, Int_t run, TFile * file)
 {
    //Commit a runfile previously created with NewRunfile() to the repository.
