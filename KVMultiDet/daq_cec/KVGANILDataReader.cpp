@@ -137,8 +137,6 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
    //
-   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
-   // this lead to a memory leak
 #endif
 #endif
 
@@ -170,6 +168,8 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
    fUserTree->SetAutoFlush(0);
 #endif
 #endif
