@@ -29,40 +29,37 @@
 #include <acq_mt_fct_ganil.h>
 #include <acq_ebyedat_get_next_event.h>
 #include <gan_tape_get_parametres.h>
-extern "C"
-{
-  typedef struct SCALE
-  {
-    UNSINT32 Length; /* Nb bytes utils suivant ce mot */
-    UNSINT32 Nb_channel; 
-    UNSINT32 Acq_status;
-    UNSINT32 Reserve[2];
-    union JBUS_SCALE
-    {
-      scale_struct UnScale[NB_MAX_CHANNEL];
-      UNSINT16 Info_jbus  [NB_MAX_JBUS];
-    } jbus_scale;
-  } scale;
+extern "C" {
+   typedef struct SCALE {
+      UNSINT32 Length; /* Nb bytes utils suivant ce mot */
+      UNSINT32 Nb_channel;
+      UNSINT32 Acq_status;
+      UNSINT32 Reserve[2];
+      union JBUS_SCALE {
+         scale_struct UnScale[NB_MAX_CHANNEL];
+         UNSINT16 Info_jbus  [NB_MAX_JBUS];
+      } jbus_scale;
+   } scale;
 }
 
 #include "GTGanilData.h"
 
-bool AutoswBuf,Swbufon; 
+bool AutoswBuf, Swbufon;
 Int_t BufSize;
 
-ClassImp(GTGanilData)
+ClassImp ( GTGanilData )
 
 //////////////////////////////////////////////////////////////////////////
 //
-// Part of ROOTGanilTape 
+// Part of ROOTGanilTape
 //
 // GTGanilData
 //
 // Read GANIL formated tapes or files.
 // Usage can be as simple as:
 // GTGanilData myData("filename.dat");
-// 
-// It allow connection of data parameters values by Connect() routines 
+//
+// It allow connection of data parameters values by Connect() routines
 // that can operate with the index or the parameter name.
 //
 // Values of parameters are stored in an array of UShort_t (0 - 65535)

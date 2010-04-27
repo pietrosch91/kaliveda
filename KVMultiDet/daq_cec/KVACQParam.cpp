@@ -51,6 +51,7 @@ void KVACQParam::init()
    fDet = 0;
    fPied = 0.;
    fWorks = kTRUE;
+   fNbBits = 16;
 }
 
 //_________________________________________________________________________
@@ -95,6 +96,7 @@ void KVACQParam::Copy(TObject & obj)
    ((KVACQParam &) obj).SetData(GetCoderData());
    if (GetDetector())
       ((KVACQParam &) obj).SetDetector(GetDetector());
+   ((KVACQParam &) obj).SetNbBits(GetNbBits());
 }
 
 void KVACQParam::Print(Option_t * opt) const

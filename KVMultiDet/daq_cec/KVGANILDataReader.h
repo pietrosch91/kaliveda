@@ -8,21 +8,32 @@
 #include "KVBase.h"
 #include "KVACQParam.h"
 #include "KVHashList.h"
+#include "TTree.h"
 
 class GTGanilData;
+
 
 class KVGANILDataReader : public KVRawDataReader
 {
    protected:  
    GTGanilData* fGanilData;//object used to read GANIL acquisition file
+   TTree* fUserTree;//user TTree to fill with data
+   Int_t NbParFired;
+   UShort_t* ParVal;
+   UInt_t* ParNum;
+   Bool_t make_arrays;
+   Bool_t make_leaves;
    
    virtual void ConnectRawDataParameters();
 
    KVHashList *fParameters;//list of all data parameters contained in file
    KVHashList *fExtParams;//list of data parameters in file not defined by gMultiDetArray
+   KVHashList *fFired;//list of fired parameters in one event
    
    virtual GTGanilData* NewGanTapeInterface();
    virtual KVACQParam* CheckACQParam(const Char_t*);   
+   
+   void FillFiredParameterList();
 
    public:
    KVGANILDataReader() { init(); };
@@ -34,14 +45,14 @@ class KVGANILDataReader : public KVRawDataReader
    virtual Bool_t GetNextEvent();
    virtual GTGanilData* GetGanTapeInterface();
    
+   virtual void SetUserTree(TTree*, Option_t* = "arrays");
+   
    const KVSeqCollection* GetUnknownParameters() const { return fExtParams; };
    const KVSeqCollection* GetRawDataParameters() const { return fParameters; };
 
-	KVSeqCollection* GetFiredDataParameters()
+	KVSeqCollection* GetFiredDataParameters() const
 	{
-		// Returns list of fired data parameters in event last read by call to GetNextEvent().
-		// DELETE this list after use !!
-		return fParameters->GetSubListWithMethod("1", "Fired");
+	   return fFired;
 	};
     
    static KVGANILDataReader* Open(const Char_t* filename, Option_t* opt = "");   

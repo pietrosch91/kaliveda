@@ -8,6 +8,7 @@
 #include "TSystem.h"
 #include "TUrl.h"
 #include "TPluginManager.h"
+#include "RVersion.h"
 
 ClassImp(KVGANILDataReader)
 
@@ -29,6 +30,18 @@ ClassImp(KVGANILDataReader)
 	<br>
    If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
    then a list of KVACQParam objects will be generated and connected ready for reading the data.
+   <br>
+   To fill a TTree with all data in the file, do the following:
+<pre>
+KVGANILDataReader* runfile = new KVGANILDataReader("run1.dat");
+TFile* file = new TFile("run1.root","recreate");
+TTree* T = new TTree("Run1", "Raw data for Run1");
+runfile->SetUserTree(T);
+while( runfile->GetNextEvent() ) ;
+file->Write();
+file->Close();
+</pre>
+See method <a href="#SetUserTree">SetUserTree()</a> for more details.
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +76,9 @@ KVGANILDataReader::~KVGANILDataReader()
 		fExtParams->Delete();
 		delete fExtParams;
    }
+   delete fFired;
+   if(ParVal) delete [] ParVal;
+   if(ParNum) delete [] ParNum;
 }
 
 void KVGANILDataReader::init()
@@ -73,6 +89,100 @@ void KVGANILDataReader::init()
    fParameters = new KVHashList;
    fParameters->SetCleanup(kTRUE);
    fGanilData = 0;
+   fUserTree = 0;
+   fFired = new KVHashList;
+   ParVal = 0;
+   ParNum = 0;
+   make_arrays = make_leaves = kFALSE;
+}
+
+void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
+{
+   // To fill a TTree with the data in the current file, create a TTree:
+   //    TFile* file = new TFile("run1.root","recreate");
+   //    TTree* T = new TTree("Run1", "Raw data for Run1");
+   // and then call this method: SetUserTree(T)
+   // If you read all events of the file, the TTree will be automatically filled
+   // with data :
+   //    while( runfile->GetNextEvent() ) ;
+   //
+   // Two different TTree structures are available, depending on the option string:
+   //
+   //    opt = "arrays": [default]
+   //
+   // The TTree will have the following structure:
+   //
+   //    *Br    0 :NbParFired : NbParFired/I    = number of fired parameters in event
+   //    *............................................................................*
+   //    *Br    1 :ParNum    : ParNum[NbParFired]/i   = array of indices of fired parameters
+   //    *............................................................................*
+   //    *Br    2 :ParVal    : ParVal[NbParFired]/s   = array of values of fired parameters
+   //
+   // This structure is the fastest to fill and produces the smallest file sizes.
+   //
+   //    opt = "leaves":
+   //
+   // The TTree will have a branch/leaf for each parameter. This option is slower and produces
+   // larger files.
+   //
+   // If the option string contains both "arrays" and "leaves", then both structures will be used
+   // (in this case there is a high redundancy, as each parameter is stored twice).
+   //
+   // The full list of parameters is stored in a TObjArray in the list returned by TTree::GetUserInfo().
+   // Each parameter is represented by a TNamed object.
+   // In order to retrieve the name of the parameter with index 674 (e.g. taken from branch ParNum),
+   // do:
+   //     TObjArray* parlist = (TObjArray*) T->GetUserInfo()->FindObject("ParameterList");
+   //     cout << "Par 674 name = " << (*parlist)[674]->GetName() << endl;
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   //
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+#endif
+#endif
+
+   TString option = opt;
+   option.ToUpper();
+   make_arrays = option.Contains("ARRAYS");
+   make_leaves = option.Contains("LEAVES");
+   
+   fUserTree = T;
+   if( make_arrays ){
+      Int_t maxParFired = GetRawDataParameters()->GetEntries();
+      ParVal = new UShort_t[maxParFired];
+      ParNum = new UInt_t[maxParFired];
+      fUserTree->Branch("NbParFired", &NbParFired, "NbParFired/I");
+      fUserTree->Branch("ParNum", ParNum, "ParNum[NbParFired]/i");
+      fUserTree->Branch("ParVal", ParVal, "ParVal[NbParFired]/s");
+   }
+   if( make_leaves ){
+      TIter next_rawpar( GetRawDataParameters() );
+      KVACQParam* acqpar;
+      while( (acqpar = (KVACQParam*)next_rawpar()) ){
+         TString leaf;
+         leaf.Form("%s/S", acqpar->GetName());
+         // for parameters with <=8 bits only use 1 byte for storage
+         if(acqpar->GetNbBits()<=8) leaf += "1";
+         fUserTree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), leaf.Data() );
+      }
+   }
+   
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   fUserTree->SetAutoFlush(0);
+#endif
+#endif
+   
+   // add list of parameter names in fUserTree->GetUserInfos()
+   TObjArray *parlist = new TObjArray(GetRawDataParameters()->GetEntries(),1);
+   parlist->SetName("ParameterList");
+   TIter next(GetRawDataParameters());
+   KVACQParam* par;
+   while( (par = (KVACQParam*)next()) ){
+      parlist->AddAt( new TNamed( par->GetName(), Form("index=%d",par->GetNumber()) ), par->GetNumber() );
+   }
+   fUserTree->GetUserInfo()->Add(parlist);
 }
 
 void KVGANILDataReader::OpenFile(const Char_t * file)
@@ -159,6 +269,8 @@ void KVGANILDataReader::ConnectRawDataParameters()
    while ((daq_par = (GTDataPar*) next())) {//loop over all parameters
       par=CheckACQParam( daq_par->GetName() );
       fGanilData->Connect(par->GetName(), par->ConnectData());
+      par->SetNumber(daq_par->Index());
+      par->SetNbBits(daq_par->Bits());
       fParameters->Add(par);
    }
 }
@@ -190,10 +302,28 @@ KVACQParam* KVGANILDataReader::CheckACQParam( const Char_t* par_name )
 
 Bool_t KVGANILDataReader::GetNextEvent()
 {
-   //Read next event in raw data file.
-   //Returns false if no event found (end of file).
+   // Read next event in raw data file.
+   // Returns false if no event found (end of file).
+   // The list of all fired acquisition parameters is filled, and can be retrieved with
+   // GetFiredDataParameters().
+   // If SetUserTree(TTree*) has been called, the TTree is filled with the values of all
+   // parameters in this event.
 
    Bool_t ok = fGanilData->Next();
+   FillFiredParameterList();
+   if( fUserTree ){
+      if( make_arrays ){
+         NbParFired = fFired->GetEntries();
+         TIter next(fFired); KVACQParam* par;
+         int i=0;
+         while( (par = (KVACQParam*)next()) ){
+            ParVal[i] = par->GetCoderData();
+            ParNum[i] = par->GetNumber();
+            i++;
+         }
+      }
+      fUserTree->Fill();
+   }
    return ok;
 }
 
@@ -235,3 +365,10 @@ GTGanilData* KVGANILDataReader::GetGanTapeInterface()
  
  //____________________________________________________________________________
  
+void KVGANILDataReader::FillFiredParameterList()
+{
+   fFired->Clear();
+   TIter next(fParameters);
+   KVACQParam *par;
+   while( (par = (KVACQParam*)next()) ) if(par->Fired()) fFired->Add(par);
+}

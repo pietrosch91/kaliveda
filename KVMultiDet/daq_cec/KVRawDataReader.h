@@ -23,7 +23,7 @@ class KVRawDataReader : public KVBase
    virtual const KVSeqCollection* GetUnknownParameters() const { return 0; };
    virtual const KVSeqCollection* GetRawDataParameters() const { return 0; };
    virtual Bool_t GetNextEvent()=0;
-   virtual KVSeqCollection* GetFiredDataParameters() = 0;
+   virtual KVSeqCollection* GetFiredDataParameters() const = 0;
 	
    ClassDef(KVRawDataReader,0)//Base class for reading raw data
 };
