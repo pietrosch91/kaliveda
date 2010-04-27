@@ -112,6 +112,7 @@ INDRA_camp2.DataSet.RepositoryDir:   campagne2
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
+INDRA_camp4.DataSet.RunFileName.dst2:    run%d.dst
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
@@ -270,6 +271,11 @@ RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
++DataAnalysisTask:     DSTtoROOT
+DSTtoROOT.DataAnalysisTask.Title:     Analysis of fully calibrated data (dst->root)
+DSTtoROOT.DataAnalysisTask.Prereq:     root
+DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
+
 #-------------------------------- Compiler options for user analysis classes
 #                                                              DEBUGGING
 # Set this resource to "yes" or "true" for user analysis classes to be compiled with ACliC's debug option
@@ -307,6 +313,7 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(con
 # KVDataAnalyser can be tuned for different datasets/environments
 Plugin.KVDataAnalyser:    INDRA                  KVINDRADataAnalyser          KVIndra "KVINDRADataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRARawDataAnalyser   KVINDRARawDataAnalyser       KVIndra "KVINDRARawDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRADstToRootTransfert   KVINDRADstToRootTransfert       KVIndra "KVINDRADstToRootTransfert()"
 +Plugin.KVDataAnalyser:   INDRAReconData         KVINDRAReconDataAnalyser     KVIndra "KVINDRAReconDataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRARawDataRecon      KVINDRARawDataReconstructor  KVIndra "KVINDRARawDataReconstructor()"
 +Plugin.KVDataAnalyser:   INDRAGeneDataAnalyser  KVINDRAGeneDataAnalyser      KVIndra "KVINDRAGeneDataAnalyser()"
@@ -332,6 +339,7 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 
 # Default formats for runfile names (run number is used to replace integer format)
 DataSet.RunFileName.raw:    run%d.raw
+DataSet.RunFileName.dst:    run%d.dst
 DataSet.RunFileName.recon:    run%d.recon.root
 DataSet.RunFileName.ident:    run%d.ident.root
 DataSet.RunFileName.root:    run%d.root
