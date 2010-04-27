@@ -41,18 +41,15 @@
 #
 #DataRepository: ccali
 #ccali.DataRepository.Type: remote
-#ccali.DataRepository.RootDir:       cchpssindra:/hpss/in2p3.fr/group/indra
+#ccali.DataRepository.RootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.ReadProtocol:     root
-#ccali.DataRepository.XRDServer:      ccxrdsn012:1999
+#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
 #ccali.DataRepository.XRDTunnel.port:          10000
 #ccali.DataRepository.XRDTunnel.user:
 #ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
 #ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
-#ccali.DataRepository.FileTransfer.type:    bbftp
-#ccali.DataRepository.FileTransfer.server:    ccbbftp.in2p3.fr
-#ccali.DataRepository.FileTransfer.user:
 #
 ####################Case 3
 #User has data files on his machine or on a locally-mounted disk, and can also
@@ -69,16 +66,13 @@
 #ccali.DataRepository.Type: remote
 #ccali.DataRepository.RootDir:       cchpssindra:/hpss/in2p3.fr/group/indra
 #ccali.DataRepository.ReadProtocol:     root
-#ccali.DataRepository.XRDServer:      ccxrdsn012:1999
+#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
 #ccali.DataRepository.XRDTunnel.port:          10000
 #ccali.DataRepository.XRDTunnel.user:
 #ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
 #ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
-#ccali.DataRepository.FileTransfer.type:    bbftp
-#ccali.DataRepository.FileTransfer.server:    ccbbftp.in2p3.fr
-#ccali.DataRepository.FileTransfer.user:
 #
 #---------Definition of default data repository
 #DataRepository.Default:  myrepo
