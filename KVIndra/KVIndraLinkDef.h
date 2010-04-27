@@ -30,6 +30,7 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVINDRACodeMask+;
 #ifdef INDRADLT
 #pragma link C++ class KVINDRARawDataReader;
+#pragma link C++ class KVINDRADstToRootTransfert;
 #pragma link C++ class KVINDRARawDataAnalyser;
 #pragma link C++ class KVINDRARawDataReconstructor;
 #pragma link C++ class KVINDRARawIdent;
