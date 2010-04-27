@@ -528,13 +528,13 @@ void KVDataSet::CheckAvailable()
       return;
    //check subdirectories
    fSubdirs = "";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), "raw"))
+   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("raw")))
       fSubdirs += "raw,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), "recon"))
+   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("recon")))
       fSubdirs += "recon,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), "ident"))
+   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("ident")))
       fSubdirs += "ident,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), "root"))
+   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("root")))
       fSubdirs += "root";
    //check at least one subdir exists
    SetAvailable(HasRaw() || HasRecon() || HasIdent() || HasPhys());
@@ -1035,8 +1035,9 @@ void KVDataSet::CommitRunfile(const Char_t * type, Int_t run, TFile * file)
       //delete previous version - no confirmation
       fRepository->DeleteFile(GetDatapathSubdir(), type, oldfile.Data(),
                               kFALSE);
-      //remove entry from available runs file
-      GetAvailableRunsFile(type)->Remove(run);
+      //was file deleted ? if so, remove entry from available runs file
+      if(!fRepository->CheckFileStatus(GetDatapathSubdir(), type, oldfile.Data()))
+         GetAvailableRunsFile(type)->Remove(run);
    }
    if (oldfile != newfile) {
       //add entry for new run in available runs file

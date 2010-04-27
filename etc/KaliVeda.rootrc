@@ -88,6 +88,12 @@ Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataR
 Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
+#
+# Names used for subdirectories containing data of different types
+KVDataRepository.Subdir.raw:  raw
+KVDataRepository.Subdir.recon:  recon
+KVDataRepository.Subdir.ident:  ident
+KVDataRepository.Subdir.root:  root
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
