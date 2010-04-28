@@ -41,7 +41,7 @@ while( runfile->GetNextEvent() ) ;
 file->Write();
 file->Close();
 </pre>
-See method <a href="#SetUserTree">SetUserTree()</a> for more details.
+See method <a href="#KVGANILDataReader:SetUserTree">SetUserTree()</a> for more details.
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
