@@ -323,7 +323,7 @@ void KVReconstructedNucleus::SetElossCalc(KVDetector * det, Double_t energy)
     if (index < 0)
         return;                   //detector not in list
     if (!fECalc) fECalc = new TArrayD(GetNumDet());
-    fElossCalc->AddAt(energy,index);
+    fECalc->AddAt(energy,index);
     det->SetECalc(energy);
 }
 
@@ -338,7 +338,7 @@ Double_t KVReconstructedNucleus::GetElossCalc(KVDetector * det) const
     Int_t index = fDetList->IndexOf(det);
     if (index < 0)
         return -1.0;              //detector not in list
-    return (*fElossCalc)[index];
+    return (*fECalc)[index];
 }
 
 //______________________________________________________________________________________________//

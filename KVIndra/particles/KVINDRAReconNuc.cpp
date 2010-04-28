@@ -266,7 +266,7 @@ void KVINDRAReconNuc::EnergyIdentification()
 
    //make a clone of the entire telescope structure through which the particle passed
    KVGroup *grp = new KVGroup;
-   const KVRList *det_list = GetDetectorList();
+   const KVSeqCollection *det_list = GetDetectorList();
    TIter nxt_det(det_list);
    KVDetector *det;
    KVTelescope *kvt, *last_kvt, *new_kvt;
@@ -684,7 +684,7 @@ void KVINDRAReconNuc::Calibrate()
 
    KVReconstructedNucleus::Calibrate();
    KVIDTelescope* idt;
-   if ( (idt = (KVIDTelescope*)fIDTelescope.GetObject()) ){
+   if ( (idt = GetIdentifyingTelescope()) ){
       if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_OK )
          SetECode( kECode1 );
       else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Calculated )

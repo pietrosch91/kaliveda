@@ -45,7 +45,7 @@ void KVIDCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    if(z==0) { return; }
 	
 	// In e475s experiment no calibrations available for csi
-   KVList* ll = nuc->GetIDTelescopes();
+   KVSeqCollection* ll = nuc->GetIDTelescopes();
 	// si il n y a ri1 avant le csi return pas de calibration possible
 	if (ll->GetEntries()==1) return;
 	

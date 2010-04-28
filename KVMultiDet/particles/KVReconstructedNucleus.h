@@ -85,7 +85,7 @@ public:
         if (i>=GetDetectorList()->GetEntries()) return 0;
         return (KVDetector *) GetDetectorList()->At(i);
     };
-    void SetDetector(int i, KVDetector *);
+    //void SetDetector(int i, KVDetector *);
     KVDetector *GetStoppingDetector() const
     {
         // Return pointer to the detector in which this particle stopped
