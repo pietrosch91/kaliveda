@@ -167,8 +167,8 @@ public:
         fIDTelescope=i;
     };
 
-    void SetElossCalc(KVDetector *, Float_t);
-    Float_t GetElossCalc(KVDetector *) const;
+    void SetElossCalc(KVDetector *, Double_t);
+    Double_t GetElossCalc(KVDetector *) const;
 
     virtual void SetIDCode(UShort_t ) {
     };

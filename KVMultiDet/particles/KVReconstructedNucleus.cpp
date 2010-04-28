@@ -20,6 +20,7 @@ $Id: KVReconstructedNucleus.cpp,v 1.60 2009/03/03 13:36:00 franklan Exp $
 #include "Riostream.h"
 #include "KVReconstructedNucleus.h"
 #include "KVTelescope.h"
+#include "KVIDTelescope.h"
 #include "KVGroup.h"
 #include "KVMultiDetArray.h"
 #include "KVACQParam.h"
@@ -125,7 +126,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
         if ( gMultiDetArray ){
             MakeDetectorList();
             if (GetGroup()) GetGroup()->AddHit(this);
-            TIter next_det(&fDetList);
+            TIter next_det(fDetList);
             KVDetector *det;
             while ( (det = (KVDetector*)next_det()) ){
                 fNSegDet += det->GetSegment();
