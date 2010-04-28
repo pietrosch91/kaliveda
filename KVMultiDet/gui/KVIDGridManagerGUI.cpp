@@ -285,6 +285,10 @@ KVIDGridManagerGUI::KVIDGridManagerGUI():TGMainFrame(gClient->GetRoot(), 500,
     fLastGrid = -1;
     fSelectedGrid = 0;
     fSelectedEntries = 0;
+    
+    //to have access to online KaliVeda documentation via context menus
+    //and dialog box "Online Help" buttons
+    gEnv->SetValue("Browser.StartUrl", Form("http://indra.in2p3.fr/KaliVedaDoc/%s/", KVBase::GetKVVersion()));
 
     //any change of ID grid manager causes UpdateListOfGrids to be called
     gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this,
