@@ -184,6 +184,11 @@ Bool_t KVDataRepository::Init()
          fTransferExec="";
       }
    }
+   else if(fTransfertype.Contains("root")){
+      fTransferExec = "root";
+      fTransfertype = "xrd";
+      if( !fXRDtunnel ) fTransferExec = ""; // must have viable SSH tunnel description
+   }
    fTransferserver =
        gEnv->
        GetValue(Form("%s.DataRepository.FileTransfer.server", GetName()),

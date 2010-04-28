@@ -102,6 +102,7 @@ KVDataTransfer *KVDataTransfer::NewTransfer(const Char_t * source_rep,
    //target_rep.DataRepository.FileTransfer.type
    //
    //If either of these = bbftp, we create a KVDataTransferBBFTP object.
+   //If source_rep.DataRepository.FileTransfer.type = xrd, we create a KVDataTransferXRD object.
    //By default (no type given), we use a KVDataTransferSFTP object.
    //In fact, the type of object created is defined in .kvrootrc by the following plugins:
    //
@@ -109,6 +110,7 @@ KVDataTransfer *KVDataTransfer::NewTransfer(const Char_t * source_rep,
    // # Used by KVDataTransfer::NewTransfer
    // Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransferSFTP()"
    // +Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDet   "KVDataTransferBBFTP()"
+   // +Plugin.KVDataTransfer:   xrd    KVDataTransferXRD   KVMultiDet   "KVDataTransferXRD()"
 
    KVDataRepository *SR =
        gDataRepositoryManager->GetRepository(source_rep);
@@ -129,6 +131,9 @@ KVDataTransfer *KVDataTransfer::NewTransfer(const Char_t * source_rep,
    if (!strcmp(SR->GetFileTransferType(), "bbftp")
        || !strcmp(TR->GetFileTransferType(), "bbftp"))
       uri = "bbftp";
+   //if source repository has transfer type 'xrd'...
+   else if (!strcmp(SR->GetFileTransferType(), "xrd"))
+      uri = "xrd";
    TString transfer_exec = SR->GetFileTransferExec();
    if(!strcmp(TR->GetFileTransferType(), "bbftp")) transfer_exec = TR->GetFileTransferExec();
    //if transfer_exec=="" then we cannot perform the transfer
@@ -239,8 +244,8 @@ void KVDataTransfer::TransferRuns()
 
    ExecuteCommand();
 
-   //delete temporary command file
-   gSystem->Unlink(fCmdFile.Data());
+   //delete temporary command file if present
+   if(fCmdFile!="") gSystem->Unlink(fCmdFile.Data());
 
    //update available run list for target repository
    fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName())->

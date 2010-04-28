@@ -68,6 +68,7 @@
 #pragma link C++ class KVDataTransfer+;
 #pragma link C++ class KVDataTransferSFTP+;
 #pragma link C++ class KVDataTransferBBFTP+;
+#pragma link C++ class KVDataTransferXRD+;
 #pragma link C++ class KVDP2toIDGridConvertor+;
 #pragma link C++ class KVRemoteDataRepository+;
 #pragma link C++ class KVRemoteDataSetManager+;
