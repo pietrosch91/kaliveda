@@ -112,7 +112,6 @@ void KVINDRARawDataReconstructor::InitRun()
             gIndraDB->GetRun(fRunNumber)->GetTitle(),
             datatype.Data())
             );
-
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
    // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
@@ -153,7 +152,6 @@ void KVINDRARawDataReconstructor::InitRun()
       //initialise number of reconstructed events
       nb_recon = 0;
 		
-		gDebug=1;
 }
 
 //______________________________________________________________________________________//
