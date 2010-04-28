@@ -21,6 +21,7 @@ This class adds functionalities such as
 <li>FindObjectByType</li>
 <li>FindObjectByLabel</li>
 <li>GetSublistWithType</li>
+</ul>
 etc. to the standard ROOT collection classes. The actual collection is embedded and
 referenced through a TSeqCollection base pointer. The class of the embedded object for any given
 instance is passed as an argument to the constructor:<br>
