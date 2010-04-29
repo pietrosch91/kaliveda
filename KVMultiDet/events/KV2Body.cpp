@@ -291,7 +291,7 @@ Double_t KV2Body::GetMaxAngleLab(Int_t i) const
 {
    //Returns maximum scattering angle in lab for nuclei i=3 (quasiproj)
    //and i=4 (quasitarget)
-   if (i < 3 && i> 4 ) {
+   if (i < 3 || i> 4 ) {
       Warning("GetMaxAngleLab(Int_t i)",
               "Returns maximum scattering angle in lab for nuclei i=3 (quasiproj) and i=4 (quasitarget)");
       return 0.;
@@ -304,7 +304,7 @@ Double_t KV2Body::GetMinAngleLab(Int_t i) const
 {
    //Returns minimum scattering angle in lab for nuclei i=3 (quasiproj)
    //and i=4 (quasitarget)
-   if (i < 3 && i> 4 ) {
+   if (i < 3 || i> 4 ) {
       Warning("GetMinAngleLab(Int_t i)",
               "Returns minimum scattering angle in lab for nuclei i=3 (quasiproj) and i=4 (quasitarget)");
       return 0.;
