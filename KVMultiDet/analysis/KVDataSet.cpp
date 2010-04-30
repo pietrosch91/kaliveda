@@ -469,6 +469,8 @@ void KVDataSet::ls(Option_t * opt) const
       cout << "  [ AVAILABLE: ";
       if (HasRaw())
          cout << "raw ";
+      if (HasDST())
+         cout << "dst ";
       if (HasRecon())
          cout << "recon ";
       if (HasIdent())
@@ -530,6 +532,8 @@ void KVDataSet::CheckAvailable()
    fSubdirs = "";
    if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("raw")))
       fSubdirs += "raw,";
+   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("dst")))
+      fSubdirs += "dst,";
    if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("recon")))
       fSubdirs += "recon,";
    if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("ident")))
@@ -537,7 +541,7 @@ void KVDataSet::CheckAvailable()
    if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("root")))
       fSubdirs += "root";
    //check at least one subdir exists
-   SetAvailable(HasRaw() || HasRecon() || HasIdent() || HasPhys());
+   SetAvailable(HasRaw() || HasDST() || HasRecon() || HasIdent() || HasPhys());
    //check user name against allowed groups
    if (!CheckUserCanAccess()) {
       SetAvailable(kFALSE);

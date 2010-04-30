@@ -91,6 +91,7 @@ Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "K
 #
 # Names used for subdirectories containing data of different types
 KVDataRepository.Subdir.raw:  raw
+KVDataRepository.Subdir.dst:  dst
 KVDataRepository.Subdir.recon:  recon
 KVDataRepository.Subdir.ident:  ident
 KVDataRepository.Subdir.root:  root
@@ -112,7 +113,7 @@ INDRA_camp2.DataSet.RepositoryDir:   campagne2
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
-INDRA_camp4.DataSet.RunFileName.dst2:    run%d.dst
+INDRA_camp4.DataSet.RunFileName.dst:    faux_nom%d.dst
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
@@ -273,7 +274,7 @@ RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataAnalysisTask:     DSTtoROOT
 DSTtoROOT.DataAnalysisTask.Title:     Analysis of fully calibrated data (dst->root)
-DSTtoROOT.DataAnalysisTask.Prereq:     root
+DSTtoROOT.DataAnalysisTask.Prereq:     dst
 DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
 
 #-------------------------------- Compiler options for user analysis classes
