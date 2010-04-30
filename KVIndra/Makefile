@@ -36,29 +36,29 @@ endif
 endif
 
 indra2root : 
-	-cp INDRA2ROOT/indra2root.C $(KVINSTALLDIR)/src/
-	-cp INDRA2ROOT/veda2root $(KVINSTALLDIR)/bin/
+#	-cp INDRA2ROOT/indra2root.C $(KVINSTALLDIR)/src/
+#	-cp INDRA2ROOT/veda2root $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/veda2root_kali $(KVINSTALLDIR)/bin/
-	-cp INDRA2ROOT/veda2root_kali96 $(KVINSTALLDIR)/bin/
-	-cp INDRA2ROOT/veda2root_lanceur $(KVINSTALLDIR)/bin/
-	-cp INDRA2ROOT/SetBatchRessources $(KVINSTALLDIR)/bin/
-	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c1.exe
-	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
-	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
+#	-cp INDRA2ROOT/veda2root_kali96 $(KVINSTALLDIR)/bin/
+#	-cp INDRA2ROOT/veda2root_lanceur $(KVINSTALLDIR)/bin/
+#	-cp INDRA2ROOT/SetBatchRessources $(KVINSTALLDIR)/bin/
+#	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c1.exe
+#	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
+#	-cp INDRA2ROOT/fin_faire_arbre.exe $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
 	-cp INDRA2ROOT/faire_arbre_c1.f $(KVINSTALLDIR)/src/
 	-cp INDRA2ROOT/faire_arbre_c2.f $(KVINSTALLDIR)/src/
 	-cp INDRA2ROOT/faire_arbre_c4.f $(KVINSTALLDIR)/src/
 
 uninstall-indra2root : 
-	-rm -f $(KVINSTALLDIR)/src/indra2root.C
-	-rm -f $(KVINSTALLDIR)/bin/veda2root
+#	-rm -f $(KVINSTALLDIR)/src/indra2root.C
+#	-rm -f $(KVINSTALLDIR)/bin/veda2root
 	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali 
-	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali96
-	-rm -f $(KVINSTALLDIR)/bin/veda2root_lanceur 
-	-rm -f $(KVINSTALLDIR)/bin/SetBatchRessources
-	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c1.exe 
-	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
-	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
+#	-rm -f $(KVINSTALLDIR)/bin/veda2root_kali96
+#	-rm -f $(KVINSTALLDIR)/bin/veda2root_lanceur 
+#	-rm -f $(KVINSTALLDIR)/bin/SetBatchRessources
+#	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c1.exe 
+#	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c2.exe
+#	-rm -f $(KVINSTALLDIR)/bin/fin_faire_arbre_c4.exe
 	-rm -f $(KVINSTALLDIR)/src/faire_arbre_c1.f 
 	-rm -f $(KVINSTALLDIR)/src/faire_arbre_c2.f 
 	-rm -f $(KVINSTALLDIR)/src/faire_arbre_c4.f 
