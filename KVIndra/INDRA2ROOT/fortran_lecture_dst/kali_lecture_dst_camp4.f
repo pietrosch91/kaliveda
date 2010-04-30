@@ -64,55 +64,19 @@ c
 
       call INITC 
       
-c ---- PATH des fichiers data de VEDA ----------------------------------
-      
-   !=====================================================================
-   ! JLCharvet 09/02/04: operating system ?
-   
       linux=.false.  ! AIX by default
       call GETENVF ('SYSTEM',op_system)
       write(*,'(/,'' Operating system = '',a)')op_system
       if(op_system(1:5).eq.'Linux')then
          linux=.true.
       endif
-   !=====================================================================
-      	 
       call VAR_ENVIRONNEMENT  
-      
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
-!=====================================================================
-! D.Cussol 08/03/2003: Determination du nom de la zone HPSS
-!                      (a inclure dans VAR_ENVIRONNEMENT ?)
-!=====================================================================
-!      call getenvf('HPSS_C4_DST',hpssdir) 
-!      i=0
-!      long_hpss=0
-!      do while (long_hpss.eq.0)
-!        i=i+1
-!        if(hpssdir(i:i).eq.' ')long_hpss=i-1
-!      enddo
-!=====================================================================
-! D.Cussol 08/03/2003: Fin de l'ajout
-!=====================================================================
-       
+             
       namefil=nomjob(1:long_job)//'.sortie'
-      namefil=vedaout(1:long_out)//namefil  
+
+      print*,'INFO namefil=',namefil,' iout=',iout
       open (i_out,file=namefil) ! JLC 9/02/04
       
-      
-      lun=1    
-      call GETENVF ('fic_run',fic_run)   ! name of file with runs to read
-      long_fic=0
-      do while (long_fic.eq.0)
-      i=i+1
-      if(fic_run(i:i).eq.' ')long_fic=i-1
-      enddo
-      write(*,*)' fic_run =',fic_run(1:long_fic)
-      open (11,file=fic_run(1:long_fic),status='OLD')
-
       call DATIMH (datj,hj)                                             
       write(6,'(//,'' Date debut : '',a8,''  '',a8)')datj,hj 
       call INI_ASCII                                                    
@@ -132,220 +96,144 @@ cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete
       nblocecr_tot=0
       nevtecr_tot=0 
       nevt_dump=100 ! Nbre d'evts a "DUMPER"   
-                               
-                                                                       
-c --- Boucle sur le nbre de fichiers a lire                             
- 
-      do while (.not.end_of_program)
-      
-         end_of_file=.False.                                            
-         nbloclus=0                                                     
-         nevtlus=0                                                      
-         nb_scaler=0 
-         nkbyta=0                                                       
-         nkbyte=0 
-         end_of_file=.false. 
-         fin_lect_run=.false.  
+
+      lun=1
+		
+		end_of_file=.False.                                            
+      nbloclus=0                                                     
+      nevtlus=0                                                      
+      nb_scaler=0 
+      nkbyta=0                                                       
+      nkbyte=0 
+      end_of_file=.false. 
+      fin_lect_run=.false.  
                    
 c --- Lecture du nom du run a lire
+		filein=nomjob(1:long_job)//'.dst'
+		call OPEN_FILE(filein,lun)
 
-      	read(11,'(a)',end=777)filein(1:8)
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
- !=====================================================================
- ! D.Cussol 08/03/2003: avant d'ouvrir le fichier, on va le copier de
- !                      la zone HPSS sur le repertoire courant
- !=====================================================================
-!      	read(filein,'(4x,i4)') norun    ! lecture du numero de run
-!      	write(commande,'(a,a,a,i4,a,a)') 'rfcp ',hpssdir(1:long_hpss),
-!     &             '/run',norun,
-!     &             '.dst ',filein(1:8) 
-!      	write(6,*) commande             ! affichage de la commande de copie
-!      	call system(commande)           ! execution de la copie
-!      	call system('ls -l dst*')       ! pour verifier que le fichier est bien la
- !=====================================================================
- ! D.Cussol 08/03/2003: Fin de l'ajout
- !=====================================================================
+		end_of_file=.False.                                            
+      
+		if(lun.eq.-100) then
+      	print *,'Probleme a l''ouverture du fichier : ',filein(1:8)
+      	print *,'On passe au fichier suivant...'
+      	end_of_file=.True.
+      endif ! if(ios.ne.0) then
 
-      	goto 778
- 777  	continue
-      	end_of_file=.true.
-      	end_of_program=.true.
-      	goto 779
- 778  	continue
- 
-cjl      print *,'Ouverture du fichier : ',filein(1:8),' sur lun =',lun
-cjl      open (lun,file=filein,access='sequential',
-cjl     &      form='unformatted',status='OLD',recl=16384,
-cjl     &      iostat=ios)
-
-  !=====================================================================
-  ! JLCharvet 09/04/02: open file on HPSS 
-      	call OPEN_FILE (filein,lun)
-      	print *,'Ouverture du fichier : ',filein(1:8),' sur lun =',lun
-  !=====================================================================
-     
-cdjf        if(lun.eq.-100)then
-cdjf              end_of_program=.true.
-cdjf              goto 999
-cdjf         endif
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
- !=====================================================================
- ! D.Cussol 17/07/2003: On teste si l'ouvertue du fichier se passe 
- !                      correctement
- !=====================================================================
-      	if(lun.eq.-100) then
-      		print *,'Probleme a l''ouverture du fichier : ',filein(1:8)
-      		print *,'On passe au fichier suivant...'
-      		end_of_file=.True.
-      	endif ! if(ios.ne.0) then
- !=====================================================================
- ! D.Cussol 17/07/2003: Fin de l'ajout
- !=====================================================================
-
-c --- Boucle sur la lecture des blocs du fichier                        
+		do while(.not.end_of_file)                                        
                                                                         
-      	do while(.not.end_of_file)                                        
-                                                                        
-  !=====================================================================
-  ! JLCharvet 09/04/02: read file on HPSS + swap if os=linux
-				call READ_BUFFER_1 (lun,nbloclus,ibuff,ios)
-cjl           Read(lun,iostat=ios) Ibuff
-cjl	    Nbloclus=Nbloclus+1
+			call READ_BUFFER_1 (lun,nbloclus,ibuff,ios)
+
 	    
 c --- Swap de ibuff (LINUX seulement)
 
-				if(linux)then
-					do i=1,8192
-						ibuf=ibuff(i)   
-						ibuf1=jbyt(ibuf,1,8)                                             
-						ibuf2=jbyt(ibuf,9,8)                                             
-						ibuff(i)=ibuf1*256+ibuf2  ! buffer swappe                                   
-					end do
-				endif  
- !=====================================================================
-	    
-				if(ios.lt.0) then
-					end_of_file=.True.
-c	      end_of_program=.True.
-c - JDF 27092007 - close file with CFCLOS, as in kali_linux.f
-c             close(lun)
-					call CFCLOS (lun,0)
-				else
-            	nbloc_tot=nbloc_tot+1                                       
-            	nkbyta=nkbyta+16384                                         
-					if(ibuff(2).le.127)then   ! en ASCII
-						typebloc='        '
-						do i=1,8
-							char1=CHAR(ibuff(i))
-              			typebloc(i:i)=char1
-              		enddo
-						char_ascii=.true.
-           		else                      ! en EBCDIC   
-           			if(ibuff(1).eq.229)typebloc='VEDADST3'
-						if(ibuff(1).eq.194)typebloc='BLOCDATA'
-            	 	if(ibuff(1).eq.197)typebloc='ETAT_IND'
-            	 	if(ibuff(3).eq.195)typebloc=' SCALER '
-           		endif 
+			if(linux)then
+				do i=1,8192
+					ibuf=ibuff(i)   
+					ibuf1=jbyt(ibuf,1,8)                                             
+					ibuf2=jbyt(ibuf,9,8)                                             
+					ibuff(i)=ibuf1*256+ibuf2  ! buffer swappe                                   
+				end do
+			endif  
+
+			if(ios.lt.0) then
+				end_of_file=.True.
+				call CFCLOS (lun,0)
+			else
+				nbloc_tot=nbloc_tot+1                                       
+				nkbyta=nkbyta+16384                                         
+				if(ibuff(2).le.127)then   ! en ASCII
+					typebloc='        '
+					do i=1,8
+						char1=CHAR(ibuff(i))
+						typebloc(i:i)=char1
+					enddo
+					char_ascii=.true.
+				else                      ! en EBCDIC   
+					if(ibuff(1).eq.229)typebloc='VEDADST3'
+					if(ibuff(1).eq.194)typebloc='BLOCDATA'
+					if(ibuff(1).eq.197)typebloc='ETAT_IND'
+					if(ibuff(3).eq.195)typebloc=' SCALER '
+				endif 
                         
-c           Print *,'Type de bloc :',typebloc(1:8)
-c           Print *,(ibuff(i),i=1,8)
-           
-c --- Aiguillage suivant le type de bloc
- 
-					if(typebloc.eq.'VEDADST3'.or.typebloc.eq.'VEDADST4'.
+				if(typebloc.eq.'VEDADST3'.or.typebloc.eq.'VEDADST4'.
      &      	  or.typebloc.eq.'VEDADST5'.or.typebloc.eq.'VEDADST6'
      &      	 .or.typebloc.eq.'VEDARED1' )then
             
-						if(typebloc.eq.'VEDARED1')then
-            	   	dst_reduite=.true.
-            	   	write(6,104)
-104         	   	format(/,' ** TRAITEMENT des bandes DST <reduite> ** ')
-            		endif
+					if(typebloc.eq.'VEDARED1')then
+						dst_reduite=.true.
+						write(6,104)
+104					format(/,' ** TRAITEMENT des bandes DST <reduite> ** ')
+					endif
  
-c            if(typebloc.eq.'VEDADST3'.or.typebloc.eq.'VEDADST4'
-c     &          .or.typebloc.eq.'VEDADST5')then  
-						call DEC_BLOC_HEAD (ibuff,iversion,irc)
-c            endif 
-                   
-						if(irc.ne.0) then                                           
-							write(6,*) ' Erreur lecture du fichier : ',filein
-							write(6,*) ' Erreur lecture du fichier : ',filein
-							end_of_program=.true.
-							goto 999
-						end if 
-            
-						if(dst_reduite)then
-							write(6,122)new_run,critere
-122           format(/,' criteres de selection (run DST_reduite = ',i5,
-     &              '): ',/,10('-'),/,8x,a70)  
-            		endif
-            
-						print *,' *** RUN = ',numerun
-	            
-						call INI_RUN 
-                                                                        
-					elseif(typebloc.eq.'BLOCDATA') then
+					call DEC_BLOC_HEAD (ibuff,iversion,irc)
 
-						if(iversion.eq.3)then 
-							print *,' 1rst campaign !!! Incompatible version 3 !'
+					if(irc.ne.0) then                                           
+						write(6,*) ' Erreur lecture du fichier : ',filein
+						write(6,*) ' Erreur lecture du fichier : ',filein
+						end_of_program=.true.
+						goto 999
+					end if 
+            
+            	print *,' *** RUN = ',numerun
+	            
+					call INI_RUN 
+                                                                        
+				elseif(typebloc.eq.'BLOCDATA') then
+
+					if(iversion.eq.3)then 
+						print *,' 1rst campaign !!! Incompatible version 3 !'
 		   stop3 
 c                call DEC_BLOC_DST_3  (ibuff)
-               	elseif(iversion.eq.4)then
-	           			print *,' 1rst campaign !!! Incompatible version 4 !'
+					elseif(iversion.eq.4)then
+						print *,' 1rst campaign !!! Incompatible version 4 !'
 		   stop4 
 c                call DEC_BLOC_DST_4  (ibuff)
-               	elseif(iversion.eq.5)then
-	           			print *,' 1rst campaign !!! Incompatible version 5 !'
+					elseif(iversion.eq.5)then
+						print *,' 1rst campaign !!! Incompatible version 5 !'
 		   stop5 
 c                   call DEC_BLOC_DST  (ibuff)
-               	elseif(iversion.eq.6)then
-                 		call DEC_BLOC_DST_6  (ibuff)
-               	else
-							STOP 'BLOCDATA  impossible a lire'
-						endif      
+					elseif(iversion.eq.6)then
+						call DEC_BLOC_DST_6  (ibuff)
+					else
+						STOP 'BLOCDATA  impossible a lire'
+					endif      
                
-               	if(fin_lect_run)then
-                  	end_of_file=.true.
-c                  time_max=.true.
-               	endif   
-               	if(fin_lect_gen)then
-                  	end_of_file=.true.
-                  	time_max=.true.
-               	endif   
+               if(fin_lect_run)then
+						end_of_file=.true.
+               endif   
+            	if(fin_lect_gen)then
+						end_of_file=.true.
+						time_max=.true.
+            	endif   
                
-					elseif(typebloc.eq.' SCALER ') then
-          			nb_echelle_a_imprimer=16
-            		imp_all=1
-            		nb_scaler=nb_scaler+1
-            		write(*,*) ' '
-            		write(*,*) ' DERNIER bloc = bloc Scaler du run'
-            		write(*,*) ' bloc Scaler = ',nbloclus
-            		Call DECODE_SCALER
+				elseif(typebloc.eq.' SCALER ') then
+					nb_echelle_a_imprimer=16
+					imp_all=1
+					nb_scaler=nb_scaler+1
+            	write(*,*) ' '
+            	write(*,*) ' DERNIER bloc = bloc Scaler du run'
+            	write(*,*) ' bloc Scaler = ',nbloclus
+            	Call DECODE_SCALER
      &      (ibuff,echelle,nb_echelle_a_imprimer,Iwt)
-            		call PRINT_SCALER(i_out)
+            	call PRINT_SCALER(i_out)
              
-          		elseif(typebloc.eq.'ETAT_IND') then
+        		elseif(typebloc.eq.'ETAT_IND') then
  
-	     				Print *,'Bloc ETAT INDRA non decode au bloc #',nbloclus
-	     				Irc=0 
-            		if(irc.ne.0) then                                           
-               		write(6,*) ' Erreur a la lecture du bloc ETAT_IND '  
-               		write(6,*) ' Erreur a la lecture du bloc ETAT_IND '      
-            		end if  
-          		else
- 						write(6,25) nbloclus,typebloc
+					Print *,'Bloc ETAT INDRA non decode au bloc #',nbloclus
+	     			Irc=0 
+            	if(irc.ne.0) then                                           
+            		write(6,*) ' Erreur a la lecture du bloc ETAT_IND '  
+            		write(6,*) ' Erreur a la lecture du bloc ETAT_IND '      
+            	end if  
+				else
+					write(6,25) nbloclus,typebloc
 25          format(1x,' Type du bloc #',i6,' : ',a8,' inconnu !')
-            		do i=1,8                                                    
-							itab(i)=ibuff(i)
-            		end do
-            		Print *,(itab(i),i=1,8)
-					end if
+					do i=1,8                                                    
+						itab(i)=ibuff(i)
+					end do
+					Print *,(itab(i),i=1,8)
+				end if
                                                                         
 c --- Pointeur de bloc                                                  
                                                                        
@@ -354,61 +242,31 @@ c --- Pointeur de bloc
                                                                         
          	if(iloop.eq.0.and.nbloclus.ne.1) then 
            		write(6,*) 'Nbloc lus =',Nbloclus,'    Nevt lus =',Nevtlus 
-         	end if
+				end if
       
 			endif  
       
 		end do 
+
  779  continue
 c --- Fin de la lecture, qq rappels...                                  
 
-      if(.not.end_of_program)then  
-      
-        write(6,*) ' '                                              
-        write(6,'(1x,a,/,2x,a)') 'Fin de lecture du fichier DST : ',
-     &                                                    filein(1:8)    
-        write(6,*) 'Nombre de blocs lus       :',nbloclus           
-        write(6,*) 'Nombre de blocs SCALER    :',nb_scaler
-        write(6,*) 'Nombre d''evts lus         :',nevtlus           
-        write(6,*) 'Numero du dernier evt lu  :',num_evt_brut       
-        write(6,*)'-----------------------------------------------'
-                                                                               
-c        write(6,*) ' '                                                  
-c        write(6,'(1x,a,/,a)) ' Fin de lecture fichier : ',filein    
-c        write(6,*) 'Nombre de blocs lus       :',nbloclus               
-c        write(6,*) 'Nombre d''evts lus         :',nevtlus               
-c        write(6,*) ' --------------------------------------------'      
-        if(ecrit_dst)then
-         write(6,*) 'Nombre de blocs ecrits    :',nblocecr              
-         write(6,*) 'Nombre d''evts ecrits      :',nevtecr              
-         write(6,*) ' --------------------------------------------'
-         nblocecr_tot=nblocecr_tot+nblocecr
-         nevtecr_tot=nevtecr_tot+nevtecr                                
-        endif         
-        write(6,*) ' '                                                  
-        call FIN_RUN                                                    
-        write(6,*) ' ' 
-        if(time_max)then
-            write(*,*)' Fin du traitement car Time_max = ',time_max
-            end_of_program=.true.
-        endif 
+		write(6,*) ' '                                              
+      write(6,'(1x,a,/,2x,a)') 'Fin de lecture du fichier DST : ',
+     &																  filein(1:8)    
+      write(6,*) 'Nombre de blocs lus  	  :',nbloclus  			
+      write(6,*) 'Nombre de blocs SCALER    :',nb_scaler
+      write(6,*) 'Nombre d''evts lus			:',nevtlus  			
+      write(6,*) 'Numero du dernier evt lu  :',num_evt_brut 		
+      write(6,*)'-----------------------------------------------'
+      																							  
+      write(6,*) ' ' 																 
+      call FIN_RUN																	 
+      write(6,*) ' ' 
+      if(time_max)then
+      	 write(*,*)' Fin du traitement car Time_max = ',time_max
+      	 end_of_program=.true.
       endif 
-                                                                        
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
-!=====================================================================
-! D.Cussol 08/03/2003: Apres la fermeture du fichier, on va le detruire
-!                      afin de ne pas encombrer la zone scratch
-!=====================================================================
-           write(commande,'(a,a)') 'rm -f ',filein(1:8)
-           write(6,*) commande
-           call system(commande)
-!=====================================================================
-! D.Cussol 08/03/2003: Fin de l'ajout
-!=====================================================================
-      end do                 ! boucle sur les runs                                            
                                                                         
 c --- Fermeture                                                         
                                                                         
@@ -421,15 +279,7 @@ c --- Fermeture
       write(6,*) ' -- Cumul du nb de blocs lus : ',nbloc_tot        
       write(6,*) ' -- Cumul du nb d''evts   lus : ',nevt_tot        
       write(6,*) ' '                                                    
-      if(ecrit_dst)then
-			write(6,*) ' -- Cumul du nb de blocs ecrits : ',nblocecr_tot
-        	write(6,*) ' -- Cumul du nb d''evts  ecrits : ',nevtecr_tot 
-        	write(6,*) ' '                                              
-        	write(6,*) ' -- Cumul du nb de blocs ecrits : ',nblocecr_tot    
-        	write(6,*) ' -- Cumul du nb d''evts  ecrits : ',nevtecr_tot     
-        	write(6,*) ' ' 
-      endif                                                   
-                                                                        
+                                                                         
 200   call CLOSE_HB                                                     
                                                                         
       write(6,*) ' '                                                
@@ -1346,44 +1196,8 @@ c ----------------------------------------------------------------------
          write(*,'(/,'' Chemin des fichiers DATA      = '',a)')
      &                                          vedadata(1:long_data)
       endif
-      
-      call GETENVF ('VEDA_REFE',vedagene)
-      i=0
-      long_gene=0
-      do while (long_gene.eq.0)
-      i=i+1
-      if(vedagene(i:i).eq.' ')long_gene=i-1
-      enddo            
-      if(long_gene.gt.3)then
-         write(*,'('' Chemin des fichiers REFERENCE = '',a)')
-     &                                          vedagene(1:long_gene)
-      endif
-      
-      call GETENVF ('VEDA_PNIA',vedapnia)
-      i=0
-      long_dap=0
-      do while (long_dap.eq.0)
-      i=i+1
-      if(vedapnia(i:i).eq.' ')long_dap=i-1
-      enddo
-      if(long_dap.gt.3)then
-         write(*,'('' Chemin des fichiers DAPNIA    = '',a)')
-     &                                          vedapnia(1:long_dap)
-      endif
-            
-      call GETENVF ('VEDA_OUT',vedaout)
-      i=0
-      long_out=0
-      do while (long_out.eq.0)
-      i=i+1
-      if(vedaout(i:i).eq.' ')long_out=i-1
-      enddo
-      if(long_out.gt.3)then
-         write(*,'('' Chemin des fichiers OUT (HBK) = '',a)')
-     &                                          vedaout(1:long_out)
-      endif
-            
-      call GETENVF ('NOMFI',nomjob)
+
+      call GETENVF ('RUN_PREFIX',nomjob)
       i=0
       long_job=0
       do while (long_job.eq.0)
@@ -1391,7 +1205,7 @@ c ----------------------------------------------------------------------
       if(nomjob(i:i).eq.' ')long_job=i-1
       enddo
       if(long_job.gt.3)then
-         write(*,'('' Nom du Job = Nom des fichiers = '',a)')
+         write(*,'('' Nom du Prefix ='',a)')
      &                                          nomjob(1:long_job)
       endif
       
@@ -1810,7 +1624,7 @@ c -----------------------------------------------------------------------------
       nwrec=4096
       nwtak=nwrec
      
-      call cfopen (lun,0,nwrec,'r',0,filein(1:8),irc)
+      call cfopen (lun,0,nwrec,'r',0,filein,irc)
      
       if(irc.ne.0)then
            print *, ' !!!! Error cfopen : irc = ',irc,' file : ',filein

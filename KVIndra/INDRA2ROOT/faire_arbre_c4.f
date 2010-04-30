@@ -70,8 +70,8 @@ c---------------------------------------------------------------------
 c      include 'anin_1.incl'                                             
 c      include 'anin_3.incl'                                             
 c      include 'simingeo.incl'                                           
-      common /rootwrite/ necrit, nfiles     
-	character*60 filename                               
+      common /rootwrite/ necrit, nfiles , nrustines, nrustines_camp   
+		character*60 filename                               
       integer*4  indice(500)
       integer*4  imult,icans
 
@@ -80,54 +80,81 @@ c      call initevt()
       pi=3.1415927                                                      
       
       if(npart_traite.gt.0) then
-       necrit=necrit+1
-       write(88,*) num_evt_brut
-	 write(88,*) npart_traite
-       do j=1,npart_traite
-        
-        	write(88,*) a(j)
-		write(88,*) z(j)
-		write(88,*) z_indra(j)
-		write(88,*) a_indra(j)
-		write(88,*) ener(j)
-		write(88,*) icou(j)
-		write(88,*) imod(j)
-		write(88,*) code(j)
-		write(88,*) ecode(j)
-		write(88,*) de_mylar(j)
-		write(88,*) de1(j)
-		write(88,*) de2(j)
-		write(88,*) de3(j)
-		write(88,*) de4(j)
-		write(88,*) de5(j)
-		write(88,*) mt(j)
-		icans=0
-	 	do kk=1,15
-                  if(canal(j,kk).ne.0) then
-                    icans=icans+1
-                  endif
-		enddo
-		write(88,*) icans
-	 	do kk=1,15
-                  if(canal(j,kk).ne.0) then
-                    write(88,*) kk,canal(j,kk)
-                  endif
-		enddo
-       enddo    
-c --- open new text file for writing events every 50 000 events
-      if(mod(necrit, 50000).eq.0) then
-		nfiles = nfiles+1
-		close(88)
-		if(nfiles.lt.10) then
-			write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
-		else
-			write(filename,'(a,i2,a)') 'arbre_root_', nfiles, '.txt'
-		endif
-		print *,'Opening file for writing : ', filename
-      	open(unit=88,file=filename,status='new')
-	endif
+      	necrit=necrit+1
+      	write(88,*) num_evt_brut
+			write(88,*) npart_traite
+      	do j=1,npart_traite
+        		write(88,*) a(j)
+        		write(88,*) z(j)
+		  		write(88,*) z_indra(j)
+		  		write(88,*) a_indra(j)
+		  		
+				if (code(j).ge.2.and.code(j).le.11.and.ecode(j).ge.1.and.ecode(j).le.2) then
+					if (z(j).eq.0) then
+						code(j)=15
+						nrustines=nrustines+1
+					endif
+					if ( ener(j).le.0 ) then
+						ener(j)=0
+						ecode(j)=14
+						code(j)=15
+						nrustines=nrustines+1
+					endif
+					if (z(j).ge.1.and.a(j).eq.0) then
+						code(j)=15
+						nrustines=nrustines+1
+					endif
+					if ( icou(j).le.0.or.icou(j).ge.18.or.
+     &					imod(j).le.0.or.icou(j).ge.25 ) then
+	  					code(j)=15
+						nrustines=nrustines+1
+	  				endif
+				endif
+				
+        		write(88,*) ener(j)
+		  		write(88,*) icou(j)
+        		write(88,*) imod(j)
+				write(88,*) code(j)
+		  		write(88,*) ecode(j)
+		  		write(88,*) de_mylar(j)
+		  		write(88,*) de1(j)
+		  		write(88,*) de2(j)
+		  		write(88,*) de3(j)
+		  		write(88,*) de4(j)
+				write(88,*) de5(j)
+				write(88,*) mt(j)
+				
+				do kk=1,4
+	 				write(88,*) code_idf(kk,j)
+      		enddo
+      		
+      		icans=0
+				do kk=1,15
+					if(canal(j,kk).ne.0) then
+	 					icans=icans+1
+      			endif
+      		enddo
+      		write(88,*) icans
+				do kk=1,15
+      			if(canal(j,kk).ne.0) then
+						write(88,*) kk,canal(j,kk)
+      			endif
+				enddo
+			enddo    
+		
+			if(mod(necrit, 200000).eq.0) then
+				nfiles = nfiles+1
+				close(88)
+				if(nfiles.lt.10) then
+					write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
+      		else
+					write(filename,'(a,i2,a)') 'arbre_root_', nfiles, '.txt'
+				endif 																					  
+      		print *,'Opening file for writing : ', filename
+				open(unit=88,file=filename,status='new')
+			endif
 		                                                                        
-      endif !if(imult > 0) then
+		endif !if(imult > 0) then
                                                                         
                                                                         
       return                                                            
@@ -142,22 +169,28 @@ c-------------------------------------------------------------------
       include 'veda_5.incl'                                             
       include 'veda_6.incl'                                             
 c      include 'anin_1.incl'                                             
-      common /rootwrite/ necrit, nfiles
+      common /rootwrite/ necrit, nfiles, nrustines, nrustines_camp
 	  character*60 filename                                 
                                                                         
 c --- Faites ici les initialisations de runs                            
       print *,'Debut du traitement du run ',numerun,'...'               
       	  
 c --- open first text file for writing events
-	nfiles = 1
-	write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
-	print *,'Opening file for writing : ', filename
+		filename='list_of_files'
+		open(unit=89,file=filename,status='new')
+		write(89,*) 'run_number=',numerun
+	   
+		nfiles = 1
+		write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
+		print *,'Opening file for writing : ', filename
       open(unit=88,file=filename,status='new')                                                                        
 c --- write number of run at beginning of text file
-	  write(88,*) numerun
+c	  	write(88,*) numerun
 	  
       necrit=0
-      
+      nrustines=0
+      nrustines_camp=0
+		
       xmnuc=931.5                                                       
       ptot=sqrt((esura+xmnuc)**2-xmnuc**2)*aproj                        
       ztot=zcib+zproj                                                   
@@ -192,21 +225,29 @@ c-------------------------------------------------------------------
       include 'veda_5.incl'                                             
       include 'veda_6.incl'                                             
       common /ttime/ ttot,tmin,tmax                                     
-      common /rootwrite/ necrit , nfiles                                    
+      common /rootwrite/ necrit, nfiles, nrustines, nrustines_camp                             
                                                                         
-      print *,'Fin de traitement du run ',numerun,'...'                 
+		close(88)
+      
+		write(89,*) 'file_number=',nfiles
+		write(89,*) 'read_evts=',nevt
+		write(89,*) 'trigger_rustines=',nrustines 
+		write(89,*) 'write_evts=',necrit
+		write(89,*) 'trigger_rustines_camp=',nrustines_camp 
+		  
+		close(89)  
+		
+		print *,'Fin de traitement du run ',numerun,'...'                 
       print *,'Evenements traites       :',nevt,'/',necrit
-      print *,'Taux d''aceptes           :',necrit*100./nevt                        
+      print *,'Taux d''acceptes           :',necrit*100./nevt                        
       print *,'Temps moyen de traitement:',ttot/float(nevt)             
       print *,'Temps min                :',tmin                         
       print *,'Temps max                :',tmax                         
       print *,'Number of files written :', nfiles                                                       
       print *,' '                                                       
 c write total number of events at end of last file
-	write(88,*) 'TOTAL=',necrit                                                                        
-      close(88)
-	  
-      return                                                            
+	   
+		return                                                            
       end                                                               
 
 c-------------------------------------------------------------------    

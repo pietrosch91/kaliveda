@@ -96,7 +96,7 @@ c - JDF 27092007
       Integer*4  nsito,nsito1,nsico
       integer*4  nblocecr_tot,nevtecr_tot,nevtcor
       logical*1  time_max,linux
-      Character*70  critere
+      Character*70  critere,dst_file
       integer*4     long_critere
       
       Character*6  op_system
@@ -129,37 +129,13 @@ c ---- PATH des fichiers data de VEDA ----------------------------------
          linux=.true.
       endif	 
       call VAR_ENVIRONNEMENT  
-       
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
-!=====================================================================
-! D.Cussol 08/03/2003: Determination du nom de la zone HPSS
-!                      (a inclure dans VAR_ENVIRONNEMENT ?)
-!=====================================================================
-!      call getenvf('HPSS_DIR',hpssdir) 
-!      i=0
-!      long_hpss=0
-!      do while (long_hpss.eq.0)
-!        i=i+1
-!        if(hpssdir(i:i).eq.' ')long_hpss=i-1
-!      enddo
-!=====================================================================
-! D.Cussol 08/03/2003: Fin de l'ajout
-!=====================================================================
 
       namefil=nomjob(1:long_job)//'.sortie'
-      namefil=vedaout(1:long_out)//namefil      
-      open (i_out,file=namefil)
+
+      print*,'INFO namefil=',namefil,' iout=',iout
+		open (i_out,file=namefil)
       iwt=-1
-      if(iwt.gt.0)then
-        namefil=nomjob(1:long_job)//'.head'
-        namefil=vedaout(1:long_out)//namefil      
-        open (iwt,file=namefil)
-      endif	
-     
-     
+
       call DATIMH (datj,hj)                                             
       write(i_out,'(//,'' Date debut : '',a8,''  '',a8)')datj,hj 
       iwf=i_out
@@ -191,12 +167,6 @@ c      call CPUTIME(t1,irc)
 c --- Lecture du drapeau d'ecriture sur cartouche DST                   
                                                                         
       ecrit_dst=.False.                                                 
-      read (2,101)iecrit,critere
-101   format(i1,1x,a70)      
-      if(iecrit.eq.1) then
-          ecrit_dst=.True.  
-          correction_piedestal_SiPG=1.
-      endif    
       
       write(i_out,100)
       write(*,100)
@@ -205,201 +175,127 @@ c --- Lecture du drapeau d'ecriture sur cartouche DST
      &         '      ------------------------------------------      ')
                                                                                                      
 c --- Boucle sur le nbre de fichiers a lire                             
- 
-      do while (.not.end_of_program)
+ 		print*,'INFO end_of_program ', end_of_program
       
-      read (2,*)filein,numruni,cartou,jq
-c - JDF - 27092007      print *,filein(1:15),' ',numruni,' ',cartou(1:6),' ',jq
-      print *,filein(1:15),' ',numruni,' ',cartou(1:9),' ',jq
-           
-      if(filein(1:3).ne.'EOF')then                                                     
-      
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch
- !=====================================================================
- ! D.Cussol 08/03/2003: avant d'ouvrir le fichier, on va le copier de
- !                      la zone HPSS sur le repertoire courant
-!=====================================================================
-!      write(commande,'(a,a,a,a,a,i3,a,a)') 'rfcp ',hpssdir(1:long_hpss),
-!     &             '/',cartou(1:9),'/dst/run',numruni,
-!     &             '.dst ',filein(1:8) 
-!      write(6,*) commande             ! affichage de la commande de copie
-!      call system(commande)           ! execution de la copie
-!      call system('ls -l r*')       ! pour verifier que le fichier est bien la
- !=====================================================================
- ! D.Cussol 08/03/2003: Fin de l'ajout
- !=====================================================================
-      
-         call OPEN_FILE(filein,lun)
+		!do while (.not.end_of_program)
+      	print*,'INFO boucle while ', end_of_program
+	      
+			filein=nomjob(1:long_job)//'.dst'
+			call OPEN_FILE(filein,lun)
 
-cdjf        if(lun.eq.-100)then
-cdjf              end_of_program=.true.
-cdjf              goto 999
-cdjf         endif
- 
-         write(i_out,102)lun,cartou,jq
-         write(*,102)lun,cartou,jq
-c -JDF - 27092007 102      format(/,' --- Lecture : lun = ',i2,' Cart. DST: ',a6,                  
-102      format(/,' --- Lecture : lun = ',i2,' Cart. DST: ',a9,                  
-     &          ' file = ',i2)
-               
-         end_of_file=.False.                                            
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
- !=====================================================================
- ! D.Cussol 17/07/2003: On teste si l'ouvertue du fichier se passe 
- !                      correctement
- !=====================================================================
-      if(lun.eq.-100) then
-      print *,'Probleme a l''ouverture du fichier : ',filein(1:8)
-      print *,'On passe au fichier suivant...'
-      end_of_file=.True.
-      endif 
- !=====================================================================
- ! D.Cussol 17/07/2003: Fin de l'ajout
- !=====================================================================
-         nbloclus=0                                                     
-         nevtlus=0                                                      
-         nb_scaler=0 
-         nkbyta=0                                                       
-         nkbyte=0 
-         
-         if(ecrit_dst)then        
-           read(4,*)cart_dst,iq,new_run,lunw
-           
-           write(i_out,103)lunw,cart_dst,iq,new_run
-           write(*,103)lunw,cart_dst,iq,new_run
-103        format(/,' --- Ecriture: lun = ',i2,' Cart. DST: ',a6,                  
-     &          ' file = ',i2,' New_run = ',i5)
-     
-           write(i_out,121)critere
-121        format(/,' criteres de selection : ',/,10('-'),/,8x,a70)  
-           write(6,121)critere
-           
-           end_of_file=.False.                                            
-           nblocecr=0                                                     
-           nevtecr=0 
-           wpointeur=0   
-         endif                                                    
+			end_of_file=.False.                                            
 
-      else
-      
-         end_of_file=.true.
-         end_of_program=.true.
+			if(lun.eq.-100) then
+				print *,'Probleme a l''ouverture du fichier : ',filein(1:8)
+				print *,'On passe au fichier suivant...'
+				end_of_file=.True.
+			endif 
+
+      	nbloclus=0                                                     
+      	nevtlus=0                                                      
+      	nb_scaler=0 
+      	nkbyta=0                                                       
+      	nkbyte=0 
          
-      endif   
-          
        
-c --- Boucle sur la lecture des blocs du fichier                        VED01240
-                                                                        VED01250
-      ll=0
-      do while(.not.end_of_file)                                        VED01260
-      ll=ll+1
+c --- Boucle sur la lecture des blocs du fichier                        
+                                                                        
+      	ll=0
+      	do while(.not.end_of_file)                                     
+      		ll=ll+1
                                                                        
-c --- Controle du temps restant (batch)                                 VED01280
-                                                                        VED01290
-      call TIMEL(time)                                               
+c --- Controle du temps restant (batch)                                 
+                                                                        
+      		call TIMEL(time)                                            
 
-      if(time.lt.5.) then  ! Temps limite atteint, c'est fini... 
-                                                                        VED01350
-            write(i_out,*)
-            write(i_out,*) '**** Temps limite atteint          ****'    VED01380
-            write(6,*) '**** Temps limite atteint          ****'        VED01400
-            end_of_file=.True.                                          VED01420
-            time_max=.true.
+				if(time.lt.5.) then  ! Temps limite atteint, c'est fini... 
+                                                                        
+            	write(i_out,*)
+            	write(i_out,*) '**** Temps limite atteint  '    			
+            	write(6,*) '**** Temps limite atteint **** '        		
+            	end_of_file=.True.													
+            	time_max=.true.
                                                                        
-      else
+      		else
            
-          call READ_BUFFER (lun,nbloclus,ibuff,istatus)
+				call READ_BUFFER (lun,nbloclus,ibuff,istatus)
 
 
 c --- Swap de ibuff (LINUX seulement)
 
-          if(linux)then
-              do i=1,8192
-              ibuf=ibuff(i)   
-              ibuf1=jbyt(ibuf,1,8)                                             
-              ibuf2=jbyt(ibuf,9,8)                                             
-              ibuff(i)=ibuf1*256+ibuf2  ! buffer swappe                                   
-              end do
-	  endif  
+				if(linux)then
+					do i=1,8192
+						ibuf=ibuff(i)   
+						ibuf1=jbyt(ibuf,1,8)                                             
+						ibuf2=jbyt(ibuf,9,8)                                             
+						ibuff(i)=ibuf1*256+ibuf2  ! buffer swappe                                   
+					end do
+				endif  
 
-	  if(nbloclus.le.5)then
-c	       write(*,'(8i6)')(ibuff(k),k=1,256)
+				if(nbloclus.le.5)then
+c					write(*,'(8i6)')(ibuff(k),k=1,256)
 c              write(*,'(15(1x,z4))')(ibuff(k),k=1,256)
-          endif		 
+				endif		 
 
 
-          if(istatus.eq.-1) then
-             end_of_file=.True.
-             call CFCLOS (lun,0)
+				if(istatus.eq.-1) then
+					end_of_file=.True.
+					call CFCLOS (lun,0)
 	     
-          elseif(istatus.gt.0) then ! pb de lecture du bloc
-	    write(*,'('' On passe au run suivant ! '')')
+				elseif(istatus.gt.0) then ! pb de lecture du bloc
+					write(*,'('' On passe au run suivant ! '')')
 c            nbloc_tot=nbloc_tot+1 ! on passe au bloc suivant
-            end_of_file=.True.
-            call CFCLOS (lun,0)
+					end_of_file=.True.
+					call CFCLOS (lun,0)
 	                                             
-          else    ! istatus=0  Bon bloc
+				else    ! istatus=0  Bon bloc
                                             
-            nbloc_tot=nbloc_tot+1                                          
-            nkbyta=nkbyta+16384                                            
+					nbloc_tot=nbloc_tot+1                                          
+            	nkbyta=nkbyta+16384                                            
 
-            if(ibuff(2).le.127)then   ! en ASCII
-              typebloc='        '
-              do i=1,8
-              char1=CHAR(ibuff(i))
-              typebloc(i:i)=char1
-              enddo
-              char_ascii=.true.
-              
-            else                      ! en EBCDIC   
-           
-             if(ibuff(1).eq.229)typebloc='VEDADST3'
-             if(ibuff(1).eq.194)typebloc='BLOCDATA'
-             if(ibuff(1).eq.197)typebloc='ETAT_IND'
-             if(ibuff(3).eq.195)typebloc=' SCALER '
-             
-            endif 
-                        
+	            if(ibuff(2).le.127)then   ! en ASCII
+						typebloc='        '
+						do i=1,8
+							char1=CHAR(ibuff(i))
+							typebloc(i:i)=char1
+						enddo
+	              	char_ascii=.true.
+	            else                      ! en EBCDIC   
+	           		if(ibuff(1).eq.229)typebloc='VEDADST3'
+						if(ibuff(1).eq.194)typebloc='BLOCDATA'
+						if(ibuff(1).eq.197)typebloc='ETAT_IND'
+						if(ibuff(3).eq.195)typebloc=' SCALER '
+	            endif 
+	                        
 c --- Aiguillage suivant le type de bloc
  
-            if(typebloc.eq.'VEDADST3'.or.typebloc.eq.'VEDADST4'.
-     &        or.typebloc.eq.'VEDADST5'.or.typebloc.eq.'VEDARED1' )then
+            	if(typebloc.eq.'VEDADST3'.or.typebloc.eq.'VEDADST4'.
+     &        	or.typebloc.eq.'VEDADST5'.or.typebloc.eq.'VEDARED1' )then
             
-              if(typebloc.eq.'VEDARED1')then
-               dst_reduite=.true.
-               write(i_out,104)
-104            format(/,' ** TRAITEMENT des bandes DST <reduite> ** ')
-              endif
+              		if(typebloc.eq.'VEDARED1')then
+               		dst_reduite=.true.
+               		write(i_out,104)
+104            		format(/,' ** TRAITEMENT des bandes DST <reduite> ** ')
+						endif
  
-              call DEC_BLOC_HEAD (ibuff,iversion,irc)
+              		call DEC_BLOC_HEAD (ibuff,iversion,irc)
                    
              
-              if(irc.ne.0) then                                           
-               write(i_out,*) ' Erreur lecture du fichier : ',filein
-               write(6,*) ' Erreur lecture du fichier : ',filein
-               end_of_program=.true.
-               goto 999
-              end if 
+              		if(irc.ne.0) then                                           
+							write(i_out,*) ' Erreur lecture du fichier : '
+     &							,filein
+							write(6,*) ' Erreur lecture du fichier : ',filein
+							end_of_program=.true.
+							goto 999
+						end if 
             
-              if(dst_reduite)then
-              write(i_out,122)new_run,critere
-122           format(/,' criteres de selection (run DST_reduite = ',i5,
-     &              '): ',/,10('-'),/,8x,a70)  
-              endif
-            
-                                                                 
-              print *,' *** RUN = ',numerun
+						print *,' *** RUN = ',numerun
 	    
-	      if(new_calib_c1017)then
-	       call INIT_CALIB_C1017 (numerun)
-	      endif  
+	      			if(new_calib_c1017)then
+	       				call INIT_CALIB_C1017 (numerun)
+	      			endif  
 
-              if(.not.dst_reduite)then ! correction seulement en lecture DST physique 
+              		if(.not.dst_reduite)then ! correction seulement en lecture DST physique 
 
 c $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
@@ -408,206 +304,128 @@ c     pour correction de la calibration silicium (voir coresi.f)
 
 c-----> Silicium  : IPN Orsay
  
-      icode=-10
-      call INITSI (iannee,imois,numerun,icode)
-      print *,'Initialisation Calibration Siliciums: icode = ',icode
+      					icode=-10
+      					call INITSI (iannee,imois,numerun,icode)
+      					print *,'Initialisation Calibration Siliciums: icode = ',icode
  
-      if(icode.eq.0)then
+      					if(icode.eq.0)then
           write(iwf,'('' *** Calibration Silicium (Orsay) : OK ***'')')
-      else
+      					else
        write(iwf,'('' *** ATTENTION : Calib. Silicium INOPERANT ***'')')
        write(iwf,'('' date ou run non traite   INITSI... icode = '',
      &        i2)')icode
        write(*,'('' Prob. a l initialisation INITSI... icode = '',
      &        i2)')icode
-       endif
+       					endif
        
 c-----> CsI (fragments) - LPC (couronnes 2-9 en Argon)
  
-      icode=-10
-      call INICALF (numerun,imois,iannee,icode)
+      					icode=-10
+      					call INICALF (numerun,imois,iannee,icode)
       print *,'Initialisation Calibration Csi (fragments)'
  
-      if(icode.eq.0)then
+      					if(icode.eq.0)then
           write(iwf,'('' *** Cali. CsI fragm. cour. 2-9   : OK ***'')')
-      elseif(icode.eq.-1)then
+      					elseif(icode.eq.-1)then
        write(iwf,'('' *** ATTENTION : Calibration CsI fragment  ***'')')
        write(iwf,'('' init. INICALF... icode = '',
      &        i2,'' : Signaux SiPG et GG utilises'')')icode
        write(*,'('' init. INICALF... icode = '',
      &        i2,'' : Signaux SiPG et GG utilises'')')icode
-       else
+       					else
        write(iwf,'('' *** ATTENTION : Cali. CsI frag. INOPERANT ***'')')
        write(iwf,'('' Prob. a l initialisation INICALF.. icode = '',
      &        i2)')icode
        write(*,'('' Prob. a l initialisation INICALF.. icode = '',
      &        i2)')icode
-       endif
+       					endif
        
 c $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-              endif
+						endif
             
-              call INI_RUN 
-              if(ecrit_dst)then
-                call ECRIT_HEADER_REDUITE (i_out,numerun,ibuff) 
-                call WRITE_BUFFER (lunw,nblocecr,ibuff,istatus)
-                correction_piedestal_SiPG=1.
-              endif                                                 
-                                                                        
-            elseif(typebloc.eq.'BLOCDATA') then
-
-               if(iversion.eq.3)then 
-                   call DEC_BLOC_DST_3  (ibuff)
-               elseif(iversion.eq.4)then
-                   call DEC_BLOC_DST_4  (ibuff)
-               elseif(iversion.eq.5)then
-                   call DEC_BLOC_DST  (ibuff)
-               else
-                   STOP 'BLOCDATA  impossible a lire'
-               endif      
-               
-               
-               if(fin_lect_run)then
-                  end_of_file=.true.
-                  time_max=.true.
-               endif   
-               
-           elseif(typebloc.eq.' SCALER ') then
-          
-             if(ecrit_dst.and.wpointeur.gt.8)then !ecriture du dernier BLOC_DATA
-               call WRITE_BUFFER (lunw,nblocecr,wbuffer,istatus)
-             endif    
-                                                          
-             nb_echelle_a_imprimer=16
-             imp_all=1
-             nb_scaler=nb_scaler+1
-             write(*,*) ' '
-             write(*,*) ' DERNIER bloc = bloc Scaler du run'
-             write(*,*) ' bloc Scaler = ',nbloclus
-             Call DECODE_SCALER
+              		call INI_RUN 
+                                                                         
+            	elseif(typebloc.eq.'BLOCDATA') then
+					 	if(iversion.eq.3)then 
+                   	call DEC_BLOC_DST_3  (ibuff)
+               	elseif(iversion.eq.4)then
+                   	call DEC_BLOC_DST_4  (ibuff)
+               	elseif(iversion.eq.5)then
+                   	call DEC_BLOC_DST  (ibuff)
+               	else
+                   	STOP 'BLOCDATA  impossible a lire'
+               	endif      
+               	
+						if(fin_lect_run)then
+                  	end_of_file=.true.
+                  	time_max=.true.
+               	endif   
+               elseif(typebloc.eq.' SCALER ') then
+          			nb_echelle_a_imprimer=16
+             		imp_all=1
+             		nb_scaler=nb_scaler+1
+             		write(*,*) ' '
+             		write(*,*) ' DERNIER bloc = bloc Scaler du run'
+             		write(*,*) ' bloc Scaler = ',nbloclus
+             		Call DECODE_SCALER
      &        (ibuff,echelle,nb_echelle_a_imprimer,Iwt)
-             call PRINT_SCALER(i_out)
-            
-             if(ecrit_dst)then  ! ecriture du BLOC_SCALER
-               call CTOA(tywrbloc(4),8,itab)
-               do l=1,8
-               ibuff(l)=itab(l)
-               enddo
-               call WRITE_BUFFER (lunw,nblocecr,ibuff,istatus)
-             endif                                                 
- 
-           elseif(typebloc.eq.'ETAT_IND') then
- 
-             call DEC_BLOC_ETAT(ibuff,irc)         
- 
-             if(irc.ne.0) then                                           
+             		call PRINT_SCALER(i_out)
+            	elseif(typebloc.eq.'ETAT_IND') then
+ 						call DEC_BLOC_ETAT(ibuff,irc)         
+ 						if(irc.ne.0) then                                           
                write(i_out,*) ' Erreur a la lecture du bloc ETAT_IND '  
                write(6,*) ' Erreur a la lecture du bloc ETAT_IND '      
-             end if  
-                                                    
-             if(ecrit_dst)then
-               call CTOA(tywrbloc(3),8,itab)
-               do l=1,8
-               ibuff(l)=itab(l)
-               enddo
-               call WRITE_BUFFER (lunw,nblocecr,ibuff,istatus) 
-             endif                                             
-  
-           else
+             		end if  
+           		else
  
-            write(6,25) nbloclus,typebloc
-25          format(1x,' Type du bloc #',i6,' : ',a8,' inconnu !')
+            		write(6,25) nbloclus,typebloc
+25          		format(1x,' Type du bloc #',i6,' : ',a8,' inconnu !')
 c            do i=1,8                                                       
 c              itab(i)=ibuff(i)
 c              print *,i,itab(i)
 c            end do
  
-           end if
+           		end if
 	                                                                           
 c --- Pointeur de bloc                                                  
                                                                        
-           iloop=mod(nbloclus,250)                                        
-           iwoop=mod(nblocecr,250) 
+           		iloop=mod(nbloclus,250)                                        
+           		iwoop=mod(nblocecr,250) 
                                                                                  
-           if(iloop.eq.0.and.nbloclus.ne.1) then 
+           		if(iloop.eq.0.and.nbloclus.ne.1) then 
              write(6,'('' ## Blocs lus = '',i5,'' Evts lus = '',i8,
      &               '' Temps restant ='',f10.2,'' sec.'')')
      &                                        nbloclus,nevtlus,time                            
-           end if
-           if(ecrit_dst)then                                                         
-             if(iwoop.eq.0.and.nblocecr.ne.1) then                          
-              write(6,*) ' #### Ecriture bloc #',nblocecr,' ===>',      
-     &              nevtecr,' evts ecr '                   
-             end if  
-           endif 
+           		end if
 	                                                         
-         endif   ! fin du test sur istatus
+				endif   ! fin du test sur istatus
                  
-      endif  
-      end do 
+			endif  
+		
+		end do 
                                                                              
 c --- Fin de la lecture, qq rappels...                                  
 
-      if(.not.end_of_program)then  
-      
-        write(i_out,*) ' '                                                
-        write(i_out,*) 'Fin de lecture du fichier DST : ',filein        
-        write(i_out,*) 'Nombre de blocs lus       :',nbloclus             
-        write(i_out,*) 'Nombre de blocs SCALER    :',nb_scaler
-        write(i_out,*) 'Nombre d''evts lus         :',nevtlus             
-        write(i_out,*) 'Numero du dernier evt lu  :',num_evt_brut         
-        write(i_out,*)'-----------------------------------------------'
-        
-        if(ecrit_dst)then  
-         write(i_out,*) 'Nombre de blocs ecrits    :',nblocecr             
-         write(i_out,*) 'Nombre d''evts ecrits      :',nevtecr             
-         write(i_out,*)'-----------------------------------------------'                                                                 
-         write(8,*)cart_dst,iq,new_run,lunw,nblocecr
-         write(i_out,*) ' '                                                
-         nkbyta=nblocecr*16384
-         nkbyti=int(nkbyta/1024)
-         write(I_out,12) nkbyti                                            
-12       format(1x,'Place occupee par le fichier :',i8,' Ko')              
-        endif 
-                                                                                                                                                 
-        write(6,*) ' '                                                    
-        write(6,*) ' ---- Fin de lecture fichier : ',filein                 
-        write(6,*) 'Nombre de blocs lus       :',nbloclus                 
-        write(6,*) 'Nombre d''evts lus         :',nevtlus                 
-        write(6,*) ' --------------------------------------------'        
-        if(ecrit_dst)then
-         write(6,*) 'Nombre de blocs ecrits    :',nblocecr                 
-         write(6,*) 'Nombre d''evts ecrits      :',nevtecr                 
-         write(6,*) ' --------------------------------------------'
-         nblocecr_tot=nblocecr_tot+nblocecr
-         nevtecr_tot=nevtecr_tot+nevtecr                                             
-        endif         
-        write(6,*) ' '                                                    
-        call FIN_RUN                                                      
-        write(i_out,*) ' ' 
-        if(time_max)end_of_program=.true. 
-      endif 
-                                                                        
-cdjf !====================================================================
-cdjf ! D.Cussol/J.Frankland 27/09/2007
-cdjf ! On revient a l'ancien mode qui consiste a copier les runs dst sur le scratch. on decommente donc
-cdjf ! les lignes commentees par Jean-Luc. Pour ceux a qui ca fait mal a la tete, prenez une aspirine
-!=====================================================================
-! D.Cussol 08/03/2003: Apres la fermeture du fichier, on va le detruire
-!                      afin de ne pas encombrer la zone scratch
-!=====================================================================
-      if(filein(1:3).ne.'EOF')then                                                     
-           write(commande,'(a,a)') 'rm -f ',filein(1:8)
-           write(6,*) commande
-           call system(commande)
-      endif
-!=====================================================================
-! D.Cussol 08/03/2003: Fin de l'ajout
-!=====================================================================
+		write(i_out,*) ' '																
+		write(i_out,*) 'Fin de lecture du fichier DST : ',filein 		 
+		write(i_out,*) 'Nombre de blocs lus 		:',nbloclus 				
+		write(i_out,*) 'Nombre de blocs SCALER 	:',nb_scaler
+		write(i_out,*) 'Nombre d''evts lus  		 :',nevtlus 				
+		write(i_out,*) 'Numero du dernier evt lu  :',num_evt_brut			
+		write(i_out,*)'-----------------------------------------------'
+		
+		write(6,*) ' ' 																	
+		write(6,*) ' ---- Fin de lecture fichier : ',filein					  
+		write(6,*) 'Nombre de blocs lus  	  :',nbloclus  					
+		write(6,*) 'Nombre d''evts lus			:',nevtlus  					
+		write(6,*) ' --------------------------------------------'  		
 
-      end do ! boucle sur les runs
-                                                                        
+		write(6,*) ' ' 																	
+		call FIN_RUN																		
+		write(i_out,*) ' ' 
+		if(time_max)end_of_program=.true. 
+ 
 c --- Fermeture                                                         
                                                                         
 999   write(i_out,*) ' '                                                
@@ -633,37 +451,29 @@ c --- Fermeture
       
       endif 
                                                          
-      if(ecrit_dst)then
-        write(i_out,*) ' -- Cumul du nb de blocs ecrits : ',nblocecr_tot    
-        write(i_out,*) ' -- Cumul du nb d''evts  ecrits : ',nevtecr_tot    
-        write(i_out,*) ' '                                                
-        write(6,*) ' -- Cumul du nb de blocs ecrits : ',nblocecr_tot        
-        write(6,*) ' -- Cumul du nb d''evts  ecrits : ',nevtecr_tot        
-        write(6,*) ' ' 
-      endif                                                   
                                                                         
-200   call CLOSE_HB                                                     VED02480
-                                                                        VED02490
+200   call CLOSE_HB                                                     
+                                                                        
       write(i_out,*) ' '                                                
       write(i_out,*) ' ---- FIN DE LECTURE ----'                        
       call DATIMH (datj,hj)                                             
-      write(i_out,'(//,'' Date fin  : '',a8,''  '',a8)')datj,hj           
+      write(i_out,'(//,'' Date fin  : '',a8,''  '',a8)')datj,hj         
                                                                         
       end                                                               
                                                                         
 c---------------------------------------------------------------------- 
-c --- Routine de decodage des blocs evts   (VEDA  iversion=5)             
+c --- Routine de decodage des blocs evts   (VEDA  iversion=5)           
 c---------------------------------------------------------------------- 
       subroutine DEC_BLOC_DST(ibuff)                                    
                                                                         
-      integer*2 ibuff(8192),code2                                             
+      integer*2 ibuff(8192),code2                                       
       integer*4 ivalz(300),jvalz
-      integer*4 nsito,nsito1,nsico                                        
+      integer*4 nsito,nsito1,nsico                                      
       integer*2 nevt_low,nevt_high
       integer*4 code16,code4(4),ien
       logical   evt_a_lire,prt 
       integer*2 kbyt(2)
-                                                                              
+                                                                        
       Real*4       tab_pw(12),hit_pw(12)
       common /TABPW/tab_pw,hit_pw      
 
@@ -679,58 +489,58 @@ c      Equivalence (ien,kbyt)
       ipt=9                                                             
       evt_a_lire=.True.                                                 
       prt=.False.  
-                                                                        VED03680
-                                                                        VED03690
-c --- Boucle sur le nombre d'evt a decoder dans le bloc                 VED03700
-                                                                        VED03710
-c      nbloc=nbloc+1                                                     VED03720
-      nbuffevt=0                                                        VED03730
+                                                                        
+                                                                        
+c --- Boucle sur le nombre d'evt a decoder dans le bloc                 
+                                                                        
+c      nbloc=nbloc+1                                                    
+      nbuffevt=0                                                        
 c      print *,' nbloc = ',nbloclus
                                                                     
-      if(prt) then                                                      VED03750
-         write(10,*) 'Impression Bloc #',nbloc                          VED03760
+      if(prt) then                                                      
+         write(10,*) 'Impression Bloc #',nbloc                          
          do i=1,8192,8                                               
-         write(10,1) (ibuff(i+k),k=0,7)                                 VED03780
-         end do                                                         VED03790
-1     format(1x,8(i5,1x))                                               VED03800
-      end if                                                            VED03810
-                                                                        VED03820
-      do while(evt_a_lire)                                              VED03830
-                                                                        VED03840
-         ilong=ibuff(ipt)                                               VED03850
-         nkbyte=nkbyte+ilong*2                                          VED03860
-                                                                        VED03870
-c --- Fin de lecture du bloc courant                                    VED03880
-                                                                        VED03890
-         if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 06/02/04                                         VED03900
-c          if(ilong.eq.0) then                                            VED03900
+         write(10,1) (ibuff(i+k),k=0,7)                                 
+         end do                                                         
+1     format(1x,8(i5,1x))                                               
+      end if                                                            
+                                                                        
+      do while(evt_a_lire)                                              
+                                                                        
+         ilong=ibuff(ipt)                                               
+         nkbyte=nkbyte+ilong*2                                          
+                                                                        
+c --- Fin de lecture du bloc courant                                    
+                                                                        
+         if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 06/02/04            
+c          if(ilong.eq.0) then                                          
                                                                        
             evt_a_lire=.False. 
                                                      
-         else                                                           VED03940
-                                                                        VED03950
-c --- Decodage de l'evt NEVTLUS                                         VED03960
-                                                                        VED03970
-            nbuffevt=nbuffevt+1                                         VED03980
-            nevtlus=nevtlus+1                                           VED03990
-            nevt_tot=nevt_tot+1                                         VED04000
-            nevt_low=ibuff(ipt+1)                                       VED04010
-            nevt_high=ibuff(ipt+2)                                      VED04020
-            npart_traite=ibuff(ipt+3)                                   VED04030
-            code_evt=ibuff(ipt+4)                                       VED04040
-            mrejet=ibuff(ipt+5)                                         VED04050
-            iztot=ibuff(ipt+6)                                          VED04060
-            ztot=float(iztot)                                           VED04070
-            mcha=ibuff(ipt+7)                                           VED04080
-                                                                        VED04090
-c --- Reconstitution de NEVT...                                         VED04100
+         else                                                           
+                                                                        
+c --- Decodage de l'evt NEVTLUS                                         
+                                                                        
+            nbuffevt=nbuffevt+1                                         
+            nevtlus=nevtlus+1                                           
+            nevt_tot=nevt_tot+1                                         
+            nevt_low=ibuff(ipt+1)                                       
+            nevt_high=ibuff(ipt+2)                                      
+            npart_traite=ibuff(ipt+3)                                   
+            code_evt=ibuff(ipt+4)                                       
+            mrejet=ibuff(ipt+5)                                         
+            iztot=ibuff(ipt+6)                                          
+            ztot=float(iztot)                                           
+            mcha=ibuff(ipt+7)                                           
+                                                                        
+c --- Reconstitution de NEVT...                                         
  
             iflag=0
-            if(nevt_high.lt.0) iflag=1                                  VED04110
+            if(nevt_high.lt.0) iflag=1                                  
             if(iflag.eq.0) then
-               num_evt_brut=nevt_low*2**16+nevt_high                    VED04120
+               num_evt_brut=nevt_low*2**16+nevt_high                    
             else
-               num_evt_brut=nevt_low*2**16+nevt_high+65536              VED04120
+               num_evt_brut=nevt_low*2**16+nevt_high+65536              
             end if
             nevt=nevt+1
             
@@ -789,10 +599,10 @@ c --- Positionnement du pointeur de lecture
                                                                         
             ipt=ipt+i_entete                                            
                                                                         
-c --- Decodage caracteristiques des particules...                       VED04220
-                                                                        VED04230
-            do i=1,npart_traite                                         VED04240
-                                                                        VED04250
+c --- Decodage caracteristiques des particules...                       
+                                                                        
+            do i=1,npart_traite                                         
+                                                                        
                de1(i)=0.
                de2(i)=0.
                de3(i)=0.
@@ -812,50 +622,50 @@ c --- Decodage caracteristiques des particules...                       VED04220
                canal(i,7)=0
                canal(i,8)=0
  
-               ilongevt=ibuff(ipt)                                      VED04260
-               module=ibuff(ipt+1)                                      VED04270
-               icou(i)=module/100                                       VED04280
-               imod(i)=mod(module,100)                                  VED04290
+               ilongevt=ibuff(ipt)                                      
+               module=ibuff(ipt+1)                                      
+               icou(i)=module/100                                       
+               imod(i)=mod(module,100)                                  
                
-                                                                        VED04300
-c --- Si Gamma ( Code = 0 )                                             VED04310
-                                                                        VED04320
-               if(ilongevt.eq.i_long1) then                             VED04330
-                                                                        VED04340
-                  z(i)=0                                                VED04350
-                  a(i)=0                                                VED04360
-                  z_indra(i)=0.                                         VED04370
-                  a_indra(i)=0.                                         VED04380
+                                                                        
+c --- Si Gamma ( Code = 0 )                                             
+                                                                        
+               if(ilongevt.eq.i_long1) then                             
+                                                                        
+                  z(i)=0                                                
+                  a(i)=0                                                
+                  z_indra(i)=0.                                         
+                  a_indra(i)=0.                                         
  
-                  code_part(i)=11*16  ! code gamma=11 dans IDENLCP      VED04400
-                  code16=code_part(i)                                   VED04660
-                  call DECODE_PART(icou(i),code16,code4)                VED04670
-                  code(i)=code4(1)                                      VED04680
+                  code_part(i)=11*16  ! code gamma=11 dans IDENLCP      
+                  code16=code_part(i)                                   
+                  call DECODE_PART(icou(i),code16,code4)                
+                  code(i)=code4(1)                                      
                   do k=1,4
-                  code_idf(k,i)=code4(k)                                VED04680
+                  code_idf(k,i)=code4(k)                                
                   enddo
  
                   if(icou(i).eq.1)then
-                    de1(i)=ibuff(ipt+2)                                 VED04460
+                    de1(i)=ibuff(ipt+2)                                 
                   else
-                    de3(i)=ibuff(ipt+2)                                 VED04460
+                    de3(i)=ibuff(ipt+2)                                 
                   endif
-                  mt(i)=ibuff(ipt+3)                                    VED04510
-                                                                        VED04540
+                  mt(i)=ibuff(ipt+3)                                    
+                                                                        
               else
  
-                  ib=ibuff(ipt+2)                                       VED04550
-                  z_indra(i)=float(ib)/100.                             VED04600
-                  z(i)=nint(z_indra(i))                                 VED04610
-                  ib=ibuff(ipt+3)                                       VED04550
-                  a_indra(i)=float(ib)/100.                             VED04620
-                  a(i)=nint(a_indra(i))                                 VED04630
-                  code_part(i)=ibuff(ipt+4)                             VED04650
-                  code16=code_part(i)                                   VED04660
-                  call DECODE_PART(icou(i),code16,code4)                VED04670
-                  code(i)=code4(1)                                      VED04680
+                  ib=ibuff(ipt+2)                                       
+                  z_indra(i)=float(ib)/100.                             
+                  z(i)=nint(z_indra(i))                                 
+                  ib=ibuff(ipt+3)                                       
+                  a_indra(i)=float(ib)/100.                             
+                  a(i)=nint(a_indra(i))                                 
+                  code_part(i)=ibuff(ipt+4)                             
+                  code16=code_part(i)                                   
+                  call DECODE_PART(icou(i),code16,code4)                
+                  code(i)=code4(1)                                      
                   do k=1,4
-                  code_idf(k,i)=code4(k)                                VED04680
+                  code_idf(k,i)=code4(k)                                
                   enddo
  
 c --- Correction des cartouches 38KDC creees entre le 19 et 25/6/95 ---
@@ -868,19 +678,19 @@ c     Pb du code=9 trop souvent present, corrige ensuite dans VEDA 3.2
 c -----
                   code_cali(i)=ibuff(ipt+5)
  
-                  code16=code_cali(i)                                   VED06020
-                  code_energie(1,i)=jbyt(code16,1,4)                    VED06030
-                  code_energie(2,i)=jbyt(code16,5,4)                    VED06030
-                  code_energie(3,i)=jbyt(code16,9,4)                    VED06030
-                  code_energie(4,i)=jbyt(code16,13,4)                   VED06030
-                  ecode(i)=code_energie(1,i)                            VED06030
-                                                                        VED06070
+                  code16=code_cali(i)                                   
+                  code_energie(1,i)=jbyt(code16,1,4)                    
+                  code_energie(2,i)=jbyt(code16,5,4)                    
+                  code_energie(3,i)=jbyt(code16,9,4)                    
+                  code_energie(4,i)=jbyt(code16,13,4)                   
+                  ecode(i)=code_energie(1,i)                            
+                                                                        
                   mt(i)=ibuff(ipt+6)
  
-c --- Cas des Phoswichs (couronne = 1)                                  VED04560
-                                                                        VED04570
-                  if(ilongevt.eq.i_long2) then                          VED04580
-                                                                        VED04590
+c --- Cas des Phoswichs (couronne = 1)                                  
+                                                                        
+                  if(ilongevt.eq.i_long2) then                          
+                                                                        
                     kbyt(1)=ibuff(ipt+7)
                     kbyt(2)=ibuff(ipt+8)
 		    ien=kbyt(1)*(2**16)+kbyt(2)
@@ -891,21 +701,21 @@ c		    if(nevt.le.100)then
 c       write(*,'(z4,1x,z4,1x,z8,2x,3i8)')ibuff(ipt+7),ibuff(ipt+8),ien,
 c     &                            ibuff(ipt+7),ibuff(ipt+8),ien
 c                    endif
-                                                                        VED04760
-c --- Cas des couronnes 2 a 9                                           VED04790
-                                                                        VED04800
-                  elseif(ilongevt.eq.i_long3) then                      VED04810
-                                                                        VED04820
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                                                                        VED04590
+                                                                        
+c --- Cas des couronnes 2 a 9                                           
+                                                                        
+                  elseif(ilongevt.eq.i_long3) then                      
+                                                                        
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+9)
                     kbyt(2)=ibuff(ipt+10)
 		    ien=kbyt(1)*(2**16)+kbyt(2)
 		    if(kbyt(2).lt.0)ien=ien+2**16
                     de2(i)=float(ien)
                     de2(i)=de2(i)/10.
-                                                                        VED04760
+                                                                        
                     kbyt(1)=ibuff(ipt+11)
                     kbyt(2)=ibuff(ipt+12)
 		    ien=kbyt(1)*(2**16)+kbyt(2)
@@ -934,13 +744,13 @@ c     du silicium PG (voir coresi.f - MFR,JLC 25/6/97)
                       
                     endif  
                     
-c --- Cas des couronnes 10 a 17  (sans Etalons)                         VED04790
-                                                                        VED05080
-                  elseif(ilongevt.eq.i_long4) then                      VED05090
-                                                                        VED05100
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                                                                        VED04590
+c --- Cas des couronnes 10 a 17  (sans Etalons)                         
+                                                                        
+                  elseif(ilongevt.eq.i_long4) then                      
+                                                                        
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+9)
                     kbyt(2)=ibuff(ipt+10)
 		    ien=kbyt(1)*(2**16)+kbyt(2)
@@ -951,7 +761,7 @@ c --- Cas des couronnes 10 a 17  (sans Etalons)                         VED04790
                     canal(i,1)=ibuff(ipt+11)  !  canal  ChIo GG
                     canal(i,2)=ibuff(ipt+12)  !  canal  ChIo PG
                     canal(i,7)=ibuff(ipt+13)  !  canal  CsI R
-                    canal(i,8)=ibuff(ipt+14)  !  canal  CsI L                    
+                    canal(i,8)=ibuff(ipt+14)  !  canal  CsI L           
                                                                         
 c     --- Correction des ecode(i)=3 --- JLC 20/10/97
 
@@ -976,14 +786,14 @@ c     --- Correction des ecode(i)=3 --- JLC 20/10/97
                        ievt(jbuff(i)+5)=code2 
                      endif  
                     
-c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
-                                                                        VED05080
-                  elseif(ilongevt.eq.i_long5) then                      VED05090
+c --- Cas des couronnes 10 a 17  (avec Etalons)                         
+                                                                        
+                  elseif(ilongevt.eq.i_long5) then                      
  
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                    de4(i)=(ibuff(ipt+9))/10.                           VED04700
-                                                                        VED04590
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                    de4(i)=(ibuff(ipt+9))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+10)
                     kbyt(2)=ibuff(ipt+11)
  		    ien=kbyt(1)*(2**16)+kbyt(2)
@@ -991,7 +801,7 @@ c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
 
                     de5(i)=float(ien)
                     de5(i)=de5(i)/10.
-                                                                        VED04590
+                                                                        
                     kbyt(1)=ibuff(ipt+12)
                     kbyt(2)=ibuff(ipt+13)
  		    ien=kbyt(1)*(2**16)+kbyt(2)
@@ -1028,15 +838,15 @@ c     --- Correction des ecode(i)=3 --- JLC 20/10/97
                        ievt(jbuff(i)+5)=code2 
                      endif  
                     
-                  else                                                  VED05360
-                                                                        VED05370
+                  else                                                  
+                                                                        
                     write(6,*) 'Bloc=',nbloclus,' Evt:',nevt,'bizarre!'
                     write(6,*) 'En effet, ilongevt =',ilongevt,' !?'    
                     write(6,*) 'On passe au bloc suivant !!!?'
                     
                     return   
-                                                                        VED05410
-                  end if                                                VED05420
+                                                                        
+                  end if                                                
  
                   dde1=de1(i)
                   dde2=de2(i)
@@ -1052,11 +862,11 @@ c     --- Correction des ecode(i)=3 --- JLC 20/10/97
  
               endif
  
-              ipt=ipt+abs(ilongevt)                                          
+              ipt=ipt+abs(ilongevt)                                     
  
             end do
                 
-c --- Routine de correction des Identifications Etalons (L. Tassan-Got)                             
+c --- Routine de correction des Identifications Etalons (L. Tassan-Got) 
  
             call PROPNET
  
@@ -1082,10 +892,9 @@ c     A noter: code(i) est en fait inchange
 	      
 c --- Routine utilisateurs pour le traitement evt/evt 
                   
-            copy_event=.false.                                                                        
+            copy_event=.false.                                          
             call TRAITEMENT
             
-            if(ecrit_dst.and.copy_event)call ECRIT_EVT_SELECT 
             if(fin_lect_run)evt_a_lire=.false.
                                                                         
 101         format(1x,5(i6,2x))                                         
@@ -1101,9 +910,9 @@ c --- Routine utilisateurs pour le traitement evt/evt
 c--------------------------------------------------------------------   
 c --- Routine de decodage du bloc Entete du fichier DST               
 c--------------------------------------------------------------------   
-      subroutine DEC_BLOC_HEAD (ibuff,iversion,irc)                      
+      subroutine DEC_BLOC_HEAD (ibuff,iversion,irc)                     
                                                                         
-      integer*2   ibuff(8192),ktab(100)                                           VED02610
+      integer*2   ibuff(8192),ktab(100)                                 
       character*8 day,hour,nom                                          
       character*5 type                                                  
       integer*4  irc,iversion                                           
@@ -1112,38 +921,38 @@ c--------------------------------------------------------------------
       Character*70  critere
       integer*4    new_run,long_critere
       
-      Common /RED1/new_run,long_critere,critere                                               
+      Common /RED1/new_run,long_critere,critere                         
       Common/ASKI/iascii
                                                                         
-      include     'veda_rel.incl'                                       VED02660
+      include     'veda_rel.incl'                                       
       include     'veda_wri.incl'                                       
-      include     'veda_5.incl'                                         VED02670
-                                                                        VED02680
-      ipt=8                                                             VED02690
-      irc=0                                                             VED02700
-                                                                        VED02760
-      numerun=ibuff(ipt+1)                                              VED02870
-      ijour=ibuff(ipt+2)                                                VED02880
-      imois=ibuff(ipt+3)                                                VED02890
-      iannee=ibuff(ipt+4)                                               VED02900
-      zproj=ibuff(ipt+5)                                                VED02910
-      aproj=ibuff(ipt+6)                                                VED02920
-      zcib=ibuff(ipt+7)                                                 VED02930
-      acib=ibuff(ipt+8)                                                 VED02940
-      esura=ibuff(ipt+9)                                                VED02950
-      iversion=ibuff(ipt+10)                                            VED02960
+      include     'veda_5.incl'                                         
+                                                                        
+      ipt=8                                                             
+      irc=0                                                             
+                                                                        
+      numerun=ibuff(ipt+1)                                              
+      ijour=ibuff(ipt+2)                                                
+      imois=ibuff(ipt+3)                                                
+      iannee=ibuff(ipt+4)                                               
+      zproj=ibuff(ipt+5)                                                
+      aproj=ibuff(ipt+6)                                                
+      zcib=ibuff(ipt+7)                                                 
+      acib=ibuff(ipt+8)                                                 
+      esura=ibuff(ipt+9)                                                
+      iversion=ibuff(ipt+10)                                            
       ipt=ipt+10 
               
-      write(i_out,'(/,'' *** Lecture Run numero '',i4)')numerun                 
+      write(i_out,'(/,'' *** Lecture Run numero '',i4)')numerun         
       write(i_out,1) ijour,imois,iannee                                 
 1     format(/,' Date de creation du run : ',i2,'/',i2,'/',i4)
                                                      
       if(char_ascii)then
                                                      
-        do i=1,8                                                          
-          ilettre=ibuff(ipt+i)                                           
+        do i=1,8                                                        
+          ilettre=ibuff(ipt+i)                                          
 c          print *,' DAY : i,ilettre = ',i,ilettre
-          day(i:i)=CHAR(ilettre)                                         
+          day(i:i)=CHAR(ilettre)                                        
         end do
         kjour=(ibuff(ipt+1)-48)*10+ibuff(ipt+2)-48
         kmois=ibuff(ipt+4)*10+ibuff(ipt+5)-528
@@ -1155,14 +964,14 @@ c           print *,' changement de version .....'
            iversion=4
         endif
                       
-        ipt=ipt+8                                                            
-        do i=1,8                                                          
-          ilettre=ibuff(ipt+i)                                           
+        ipt=ipt+8                                                       
+        do i=1,8                                                        
+          ilettre=ibuff(ipt+i)                                          
 c          print *,' HOUR : i,ilettre = ',i,ilettre
-          hour(i:i)=CHAR(ilettre)                                        
+          hour(i:i)=CHAR(ilettre)                                       
         end do
-        write(i_out,4) day,hour                                           
-4       format(' Fichier DST cree le     : ',a8,' a ',a8)                   
+        write(i_out,4) day,hour                                         
+4       format(' Fichier DST cree le     : ',a8,' a ',a8)               
         
       else                                                              
  
@@ -1173,7 +982,7 @@ c          print *,' HOUR : i,ilettre = ',i,ilettre
         ibuff(ipt+l)=iascii(ibuff(ipt+l))
         enddo
         
-        ipt=ipt+8                                                         
+        ipt=ipt+8                                                       
         kheure=(ibuff(ipt+1)-240)*10+ibuff(ipt+2)-240
         kminut=(ibuff(ipt+4)-240)*10+ibuff(ipt+5)-240
         ksecon=(ibuff(ipt+7)-240)*10+ibuff(ipt+8)-240
@@ -1187,27 +996,27 @@ c          print *,' HOUR : i,ilettre = ',i,ilettre
       endif
       
       write(i_out,2) zproj,aproj,esura                                  
-2     format(/,1x,'Projectile ==>  Z=',f4.0,'   A=',f4.0,                 
+2     format(/,1x,'Projectile ==>  Z=',f4.0,'   A=',f4.0,               
      &         '   E/A=',f5.1)                                          
       write(i_out,3) zcib,acib                                          
 3     format(1x,'Cible      ==>  Z=',f4.0,'   A=',f4.0)                 
       
-      ipt=ipt+9                                                         VED03070
-      numbytes=ibuff(ipt)                                               VED03080
-c      do i=1,5                                                          VED03090
-c         idummy=ibuff(ipt+i)                                            VED03100
+      ipt=ipt+9                                                         
+      numbytes=ibuff(ipt)                                               
+c      do i=1,5                                                         
+c         idummy=ibuff(ipt+i)                                           
 c         print *,' TYPE : i,idummy = ',i,idummy
-c         type(i:i)=CHAR(idummy)                                         VED03110
+c         type(i:i)=CHAR(idummy)                                        
 c      end do  
-      type(1:5)='INT*2'                                                          VED03120
-      ipt=ipt+6                                                         VED03130
-      i_entete=ibuff(ipt)                                               VED03140
-      i_long1=ibuff(ipt+1)                                              VED03150
-      i_long2=ibuff(ipt+2)                                              VED03160
-      i_long3=ibuff(ipt+3)                                              VED03170
-      i_long4=ibuff(ipt+4)                                              VED03180
-      i_long5=ibuff(ipt+5)                                              VED03190
-      nkbyte=nkbyte+ipt*2                                               VED03200
+      type(1:5)='INT*2'                                                 
+      ipt=ipt+6                                                         
+      i_entete=ibuff(ipt)                                               
+      i_long1=ibuff(ipt+1)                                              
+      i_long2=ibuff(ipt+2)                                              
+      i_long3=ibuff(ipt+3)                                              
+      i_long4=ibuff(ipt+4)                                              
+      i_long5=ibuff(ipt+5)                                              
+      nkbyte=nkbyte+ipt*2                                               
 
       if(dst_reduite)then
         ipt=ipt+6
@@ -1239,7 +1048,7 @@ c      end do
 c---------------------------------------------------------------------- 
 c --- Routine de decodage des blocs evts   (VEDA Version 4)             
 c---------------------------------------------------------------------- 
-      subroutine DEC_BLOC_DST_4(ibuff)                                    
+      subroutine DEC_BLOC_DST_4(ibuff)                                  
                                                                         
       integer*2 ibuff(8192)                                             
       integer*4 ivalz(300),jvalz                                        
@@ -1247,7 +1056,7 @@ c----------------------------------------------------------------------
       integer*4 code16,code4(4),ien
       logical   evt_a_lire,prt 
       integer*2 kbyt(2)
-                                                                              
+                                                                        
       Real*4       tab_pw(12),hit_pw(12)
       common /TABPW/tab_pw,hit_pw      
 
@@ -1262,57 +1071,57 @@ c----------------------------------------------------------------------
       ipt=9                                                             
       evt_a_lire=.True.                                                 
       prt=.False.  
-                                                                        VED03680
-                                                                        VED03690
-c --- Boucle sur le nombre d'evt a decoder dans le bloc                 VED03700
-                                                                        VED03710
-      nbloc=nbloc+1                                                     VED03720
-      nbuffevt=0                                                        VED03730
-                                                                        VED03740
-      if(prt) then                                                      VED03750
-         write(10,*) 'Impression Bloc #',nbloc                          VED03760
-         do i=1,8192,8                                                  VED03770
-         write(10,1) (ibuff(i+k),k=0,7)                                 VED03780
-         end do                                                         VED03790
-1     format(1x,8(i5,1x))                                               VED03800
-      end if                                                            VED03810
-                                                                        VED03820
-      do while(evt_a_lire)                                              VED03830
-                                                                        VED03840
-         ilong=ibuff(ipt)                                               VED03850
-         nkbyte=nkbyte+ilong*2                                          VED03860
-                                                                        VED03870
-c --- Fin de lecture du bloc courant                                    VED03880
-                                                                        VED03890
-         if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 06/02/04                                         VED03900
-c         if(ilong.eq.0) then                                            VED03900
-                                                                        VED03910
+                                                                        
+                                                                        
+c --- Boucle sur le nombre d'evt a decoder dans le bloc                 
+                                                                        
+      nbloc=nbloc+1                                                     
+      nbuffevt=0                                                        
+                                                                        
+      if(prt) then                                                      
+         write(10,*) 'Impression Bloc #',nbloc                          
+         do i=1,8192,8                                                  
+         write(10,1) (ibuff(i+k),k=0,7)                                 
+         end do                                                         
+1     format(1x,8(i5,1x))                                               
+      end if                                                            
+                                                                        
+      do while(evt_a_lire)                                              
+                                                                        
+         ilong=ibuff(ipt)                                               
+         nkbyte=nkbyte+ilong*2                                          
+                                                                        
+c --- Fin de lecture du bloc courant                                    
+                                                                        
+         if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 06/02/04            
+c         if(ilong.eq.0) then                                           
+                                                                        
             evt_a_lire=.False. 
                                                      
-         else                                                           VED03940
-                                                                        VED03950
-c --- Decodage de l'evt NEVTLUS                                         VED03960
-                                                                        VED03970
-            nbuffevt=nbuffevt+1                                         VED03980
-            nevtlus=nevtlus+1                                           VED03990
-            nevt_tot=nevt_tot+1                                         VED04000
-            nevt_low=ibuff(ipt+1)                                       VED04010
-            nevt_high=ibuff(ipt+2)                                      VED04020
-            npart_traite=ibuff(ipt+3)                                   VED04030
-            code_evt=ibuff(ipt+4)                                       VED04040
-            mrejet=ibuff(ipt+5)                                         VED04050
-            iztot=ibuff(ipt+6)                                          VED04060
-            ztot=float(iztot)                                           VED04070
-            mcha=ibuff(ipt+7)                                           VED04080
-                                                                        VED04090
-c --- Reconstitution de NEVT...                                         VED04100
+         else                                                           
+                                                                        
+c --- Decodage de l'evt NEVTLUS                                         
+                                                                        
+            nbuffevt=nbuffevt+1                                         
+            nevtlus=nevtlus+1                                           
+            nevt_tot=nevt_tot+1                                         
+            nevt_low=ibuff(ipt+1)                                       
+            nevt_high=ibuff(ipt+2)                                      
+            npart_traite=ibuff(ipt+3)                                   
+            code_evt=ibuff(ipt+4)                                       
+            mrejet=ibuff(ipt+5)                                         
+            iztot=ibuff(ipt+6)                                          
+            ztot=float(iztot)                                           
+            mcha=ibuff(ipt+7)                                           
+                                                                        
+c --- Reconstitution de NEVT...                                         
  
             iflag=0
-            if(nevt_high.lt.0) iflag=1                                  VED04110
+            if(nevt_high.lt.0) iflag=1                                  
             if(iflag.eq.0) then
-               num_evt_brut=nevt_low*2**16+nevt_high                    VED04120
+               num_evt_brut=nevt_low*2**16+nevt_high                    
             else
-               num_evt_brut=nevt_low*2**16+nevt_high+65535              VED04120
+               num_evt_brut=nevt_low*2**16+nevt_high+65535              
             end if
             nevt=nevt+1                                                 
             
@@ -1348,10 +1157,10 @@ c --- Positionnement du pointeur de lecture
                                                                         
             ipt=ipt+i_entete                                            
                                                                         
-c --- Decodage caracteristiques des particules...                       VED04220
-                                                                        VED04230
-            do i=1,npart_traite                                         VED04240
-                                                                        VED04250
+c --- Decodage caracteristiques des particules...                       
+                                                                        
+            do i=1,npart_traite                                         
+                                                                        
                de1(i)=0.
                de2(i)=0.
                de3(i)=0.
@@ -1368,50 +1177,50 @@ c --- Decodage caracteristiques des particules...                       VED04220
                canal(i,7)=-1
                canal(i,8)=-1
  
-               ilongevt=ibuff(ipt)                                      VED04260
-               module=ibuff(ipt+1)                                      VED04270
-               icou(i)=module/100                                       VED04280
-               imod(i)=mod(module,100)                                  VED04290
+               ilongevt=ibuff(ipt)                                      
+               module=ibuff(ipt+1)                                      
+               icou(i)=module/100                                       
+               imod(i)=mod(module,100)                                  
                
-                                                                        VED04300
-c --- Si Gamma ( Code = 0 )                                             VED04310
-                                                                        VED04320
-               if(ilongevt.eq.i_long1) then                             VED04330
-                                                                        VED04340
-                  z(i)=0                                                VED04350
-                  a(i)=0                                                VED04360
-                  z_indra(i)=0.                                         VED04370
-                  a_indra(i)=0.                                         VED04380
+                                                                        
+c --- Si Gamma ( Code = 0 )                                             
+                                                                        
+               if(ilongevt.eq.i_long1) then                             
+                                                                        
+                  z(i)=0                                                
+                  a(i)=0                                                
+                  z_indra(i)=0.                                         
+                  a_indra(i)=0.                                         
  
-                  code_part(i)=11*16  ! code gamma=11 dans IDENLCP      VED04400
-                  code16=code_part(i)                                   VED04660
-                  call DECODE_PART(icou(i),code16,code4)                VED04670
-                  code(i)=code4(1)                                      VED04680
+                  code_part(i)=11*16  ! code gamma=11 dans IDENLCP      
+                  code16=code_part(i)                                   
+                  call DECODE_PART(icou(i),code16,code4)                
+                  code(i)=code4(1)                                      
                   do k=1,4
-                  code_idf(k,i)=code4(k)                                VED04680
+                  code_idf(k,i)=code4(k)                                
                   enddo
  
                   if(icou(i).eq.1)then
-                    de1(i)=ibuff(ipt+2)                                 VED04460
+                    de1(i)=ibuff(ipt+2)                                 
                   else
-                    de3(i)=ibuff(ipt+2)                                 VED04460
+                    de3(i)=ibuff(ipt+2)                                 
                   endif
-                  mt(i)=ibuff(ipt+3)                                    VED04510
-                                                                        VED04540
+                  mt(i)=ibuff(ipt+3)                                    
+                                                                        
               else
  
-                  ib=ibuff(ipt+2)                                       VED04550
-                  z_indra(i)=float(ib)/100.                             VED04600
-                  z(i)=nint(z_indra(i))                                 VED04610
-                  ib=ibuff(ipt+3)                                       VED04550
-                  a_indra(i)=float(ib)/100.                             VED04620
-                  a(i)=nint(a_indra(i))                                 VED04630
-                  code_part(i)=ibuff(ipt+4)                             VED04650
-                  code16=code_part(i)                                   VED04660
-                  call DECODE_PART(icou(i),code16,code4)                VED04670
-                  code(i)=code4(1)                                      VED04680
+                  ib=ibuff(ipt+2)                                       
+                  z_indra(i)=float(ib)/100.                             
+                  z(i)=nint(z_indra(i))                                 
+                  ib=ibuff(ipt+3)                                       
+                  a_indra(i)=float(ib)/100.                             
+                  a(i)=nint(a_indra(i))                                 
+                  code_part(i)=ibuff(ipt+4)                             
+                  code16=code_part(i)                                   
+                  call DECODE_PART(icou(i),code16,code4)                
+                  code(i)=code4(1)                                      
                   do k=1,4
-                  code_idf(k,i)=code4(k)                                VED04680
+                  code_idf(k,i)=code4(k)                                
                   enddo
  
 c --- Correction des cartouches 38KDC creees entre le 19 et 25/6/95 ---
@@ -1424,36 +1233,36 @@ c     Pb du code=9 trop souvent present, corrige ensuite dans VEDA 3.2
 c -----
                   code_cali(i)=ibuff(ipt+5)
  
-                  code16=code_cali(i)                                   VED06020
-                  code_energie(1,i)=jbyt(code16,1,4)                    VED06030
-                  code_energie(2,i)=jbyt(code16,5,4)                    VED06030
-                  code_energie(3,i)=jbyt(code16,9,4)                    VED06030
-                  code_energie(4,i)=jbyt(code16,13,4)                   VED06030
-                  ecode(i)=code_energie(1,i)                            VED06030
-                                                                        VED06070
+                  code16=code_cali(i)                                   
+                  code_energie(1,i)=jbyt(code16,1,4)                    
+                  code_energie(2,i)=jbyt(code16,5,4)                    
+                  code_energie(3,i)=jbyt(code16,9,4)                    
+                  code_energie(4,i)=jbyt(code16,13,4)                   
+                  ecode(i)=code_energie(1,i)                            
+                                                                        
                   mt(i)=ibuff(ipt+6)
  
-c --- Cas des Phoswichs (couronne = 1)                                  VED04560
-                                                                        VED04570
-                  if(ilongevt.eq.i_long2) then                          VED04580
-                                                                        VED04590
+c --- Cas des Phoswichs (couronne = 1)                                  
+                                                                        
+                  if(ilongevt.eq.i_long2) then                          
+                                                                        
                     kbyt(1)=ibuff(ipt+7)
                     kbyt(2)=ibuff(ipt+8)
                     de1(i)=float(ien)
                     de1(i)=de1(i)/10.
-                                                                        VED04760
-c --- Cas des couronnes 2 a 9                                           VED04790
-                                                                        VED04800
-                  elseif(ilongevt.eq.i_long3) then                      VED04810
-                                                                        VED04820
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                                                                        VED04590
+                                                                        
+c --- Cas des couronnes 2 a 9                                           
+                                                                        
+                  elseif(ilongevt.eq.i_long3) then                      
+                                                                        
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+9)
                     kbyt(2)=ibuff(ipt+10)
                     de2(i)=float(ien)
                     de2(i)=de2(i)/10.
-                                                                        VED04760
+                                                                        
                     kbyt(1)=ibuff(ipt+11)
                     kbyt(2)=ibuff(ipt+12)
                     de3(i)=float(ien)
@@ -1463,34 +1272,34 @@ c --- Cas des couronnes 2 a 9                                           VED04790
                     canal(i,7)=ibuff(ipt+14)  !  canal  CsI R
                     canal(i,8)=ibuff(ipt+15)  !  canal  CsI L
                     
-c --- Cas des couronnes 10 a 17  (sans Etalons)                         VED04790
-                                                                        VED05080
-                  elseif(ilongevt.eq.i_long4) then                      VED05090
-                                                                        VED05100
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                                                                        VED04590
+c --- Cas des couronnes 10 a 17  (sans Etalons)                         
+                                                                        
+                  elseif(ilongevt.eq.i_long4) then                      
+                                                                        
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+9)
                     kbyt(2)=ibuff(ipt+10)
                     de3(i)=float(ien)
                     de3(i)=de3(i)/10.
                     
                     canal(i,7)=ibuff(ipt+11)  !  canal  CsI R
-                    canal(i,8)=ibuff(ipt+12)  !  canal  CsI L                    
-                                                                        VED05060
-c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
-                                                                        VED05080
-                  elseif(ilongevt.eq.i_long5) then                      VED05090
+                    canal(i,8)=ibuff(ipt+12)  !  canal  CsI L           
+                                                                        
+c --- Cas des couronnes 10 a 17  (avec Etalons)                         
+                                                                        
+                  elseif(ilongevt.eq.i_long5) then                      
  
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                    de4(i)=(ibuff(ipt+9))/10.                           VED04700
-                                                                        VED04590
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                    de4(i)=(ibuff(ipt+9))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+10)
                     kbyt(2)=ibuff(ipt+11)
                     de5(i)=float(ien)
                     de5(i)=de5(i)/10.
-                                                                        VED04590
+                                                                        
                     kbyt(1)=ibuff(ipt+12)
                     kbyt(2)=ibuff(ipt+13)
                     de3(i)=float(ien)
@@ -1498,15 +1307,15 @@ c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
                     
                     canal(i,7)=ibuff(ipt+14)  !  canal  CsI R
                     canal(i,8)=ibuff(ipt+15)  !  canal  CsI L
-                                                                        VED05060
-                  else                                                  VED05360
-                                                                        VED05370
+                                                                        
+                  else                                                  
+                                                                        
                     write(6,*) 'Bloc=',nbloclus,' Evt:',nevt,'bizarre!'
                     write(6,*) 'En effet, ilongevt =',ilongevt,' !?'    
                     write(6,*) 'On passe au bloc suivant !!!?' 
                     return   
-                                                                        VED05410
-                  end if                                                VED05420
+                                                                        
+                  end if                                                
  
                   dde1=de1(i)
                   dde2=de2(i)
@@ -1522,21 +1331,20 @@ c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
  
               endif
  
-              ipt=ipt+abs(ilongevt)                                          
+              ipt=ipt+abs(ilongevt)                                     
  
             end do
 
                 
-c --- Routine de correction des Identifications Etalons (L. Tassan-Got)                             
+c --- Routine de correction des Identifications Etalons (L. Tassan-Got) 
  
             call PROPNET
  
 c --- Routine utilisateurs pour le traitement evt/evt 
                   
-            copy_event=.false.                                                                        
+            copy_event=.false.                                          
             call TRAITEMENT
             
-            if(ecrit_dst.and.copy_event)call ECRIT_EVT_SELECT 
             if(fin_lect_run)evt_a_lire=.false.
                                                                         
 101         format(1x,5(i6,2x))                                         
@@ -1552,7 +1360,7 @@ c --- Routine utilisateurs pour le traitement evt/evt
 c---------------------------------------------------------------------- 
 c --- Routine de decodage des blocs evts   (VEDA Version 3)             
 c---------------------------------------------------------------------- 
-      subroutine DEC_BLOC_DST_3(ibuff)                                    
+      subroutine DEC_BLOC_DST_3(ibuff)                                  
                                                                         
       integer*2 ibuff(8192)                                             
       integer*4 ivalz(300),jvalz                                        
@@ -1560,7 +1368,7 @@ c----------------------------------------------------------------------
       integer*4 code16,code4(4),ien
       logical   evt_a_lire,prt 
       integer*2 kbyt(2)
-                                                                              
+                                                                        
       Real*4       tab_pw(12),hit_pw(12)
       common /TABPW/tab_pw,hit_pw      
 
@@ -1575,57 +1383,57 @@ c----------------------------------------------------------------------
       ipt=9                                                             
       evt_a_lire=.True.                                                 
       prt=.False.  
-                                                                        VED03680
-                                                                        VED03690
-c --- Boucle sur le nombre d'evt a decoder dans le bloc                 VED03700
-                                                                        VED03710
-      nbloc=nbloc+1                                                     VED03720
-      nbuffevt=0                                                        VED03730
-                                                                        VED03740
-      if(prt) then                                                      VED03750
-         write(10,*) 'Impression Bloc #',nbloc                          VED03760
-         do i=1,8192,8                                                  VED03770
-         write(10,1) (ibuff(i+k),k=0,7)                                 VED03780
-         end do                                                         VED03790
-1     format(1x,8(i5,1x))                                               VED03800
-      end if                                                            VED03810
-                                                                        VED03820
-      do while(evt_a_lire)                                              VED03830
-                                                                        VED03840
-         ilong=ibuff(ipt)                                               VED03850
-         nkbyte=nkbyte+ilong*2                                          VED03860
-                                                                        VED03870
-c --- Fin de lecture du bloc courant                                    VED03880
-                                                                        VED03890
-         if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 06/02/04                                         VED03900
-c         if(ilong.eq.0) then                                            VED03900
-                                                                        VED03910
+                                                                        
+                                                                        
+c --- Boucle sur le nombre d'evt a decoder dans le bloc                 
+                                                                        
+      nbloc=nbloc+1                                                     
+      nbuffevt=0                                                        
+                                                                        
+      if(prt) then                                                      
+         write(10,*) 'Impression Bloc #',nbloc                          
+         do i=1,8192,8                                                  
+         write(10,1) (ibuff(i+k),k=0,7)                                 
+         end do                                                         
+1     format(1x,8(i5,1x))                                               
+      end if                                                            
+                                                                        
+      do while(evt_a_lire)                                              
+                                                                        
+         ilong=ibuff(ipt)                                               
+         nkbyte=nkbyte+ilong*2                                          
+                                                                        
+c --- Fin de lecture du bloc courant                                    
+                                                                        
+         if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 06/02/04            0
+c         if(ilong.eq.0) then                                           
+                                                                        
             evt_a_lire=.False. 
                                                      
-         else                                                           VED03940
-                                                                        VED03950
-c --- Decodage de l'evt NEVTLUS                                         VED03960
-                                                                        VED03970
-            nbuffevt=nbuffevt+1                                         VED03980
-            nevtlus=nevtlus+1                                           VED03990
-            nevt_tot=nevt_tot+1                                         VED04000
-            nevt_low=ibuff(ipt+1)                                       VED04010
-            nevt_high=ibuff(ipt+2)                                      VED04020
-            npart_traite=ibuff(ipt+3)                                   VED04030
-            code_evt=ibuff(ipt+4)                                       VED04040
-            mrejet=ibuff(ipt+5)                                         VED04050
-            iztot=ibuff(ipt+6)                                          VED04060
-            ztot=float(iztot)                                           VED04070
-            mcha=ibuff(ipt+7)                                           VED04080
-                                                                        VED04090
-c --- Reconstitution de NEVT...                                         VED04100
+         else                                                           
+                                                                        
+c --- Decodage de l'evt NEVTLUS                                         
+                                                                        
+            nbuffevt=nbuffevt+1                                         
+            nevtlus=nevtlus+1                                           
+            nevt_tot=nevt_tot+1                                         
+            nevt_low=ibuff(ipt+1)                                       
+            nevt_high=ibuff(ipt+2)                                      
+            npart_traite=ibuff(ipt+3)                                   
+            code_evt=ibuff(ipt+4)                                       
+            mrejet=ibuff(ipt+5)                                         
+            iztot=ibuff(ipt+6)                                          
+            ztot=float(iztot)                                           
+            mcha=ibuff(ipt+7)                                           
+                                                                        
+c --- Reconstitution de NEVT...                                         
  
             iflag=0
-            if(nevt_high.lt.0) iflag=1                                  VED04110
+            if(nevt_high.lt.0) iflag=1                                  
             if(iflag.eq.0) then
-               num_evt_brut=nevt_low*2**16+nevt_high                    VED04120
+               num_evt_brut=nevt_low*2**16+nevt_high                    
             else
-               num_evt_brut=nevt_low*2**16+nevt_high+65535              VED04120
+               num_evt_brut=nevt_low*2**16+nevt_high+65535              
             end if
             nevt=nevt+1                                                 
             
@@ -1648,22 +1456,22 @@ c --- Remplissage du buffer d'ecriture "ievt" pour l'evenement
 c               stop 'DEC_BLOC_DST'
                 return
             endif  
-                                                                                                 
+                                                                        
             do k=1,ilong
             ievt(k)=ibuff(ipt+k-1)
             enddo
             do k=ilong+1,wmax
             ievt(k)=0
             enddo   
-                                                                                 
+                                                                        
 c --- Positionnement du pointeur de lecture                             
                                                                         
             ipt=ipt+i_entete                                            
                                                                         
-c --- Decodage caracteristiques des particules...                       VED04220
-                                                                        VED04230
-            do i=1,npart_traite                                         VED04240
-                                                                        VED04250
+c --- Decodage caracteristiques des particules...                       
+                                                                        
+            do i=1,npart_traite                                         
+                                                                        
                de1(i)=0.
                de2(i)=0.
                de3(i)=0.
@@ -1677,50 +1485,50 @@ c --- Decodage caracteristiques des particules...                       VED04220
                code_energie(k,i)=0
                enddo
  
-               ilongevt=ibuff(ipt)                                      VED04260
-               module=ibuff(ipt+1)                                      VED04270
-               icou(i)=module/100                                       VED04280
-               imod(i)=mod(module,100)                                  VED04290
+               ilongevt=ibuff(ipt)                                      
+               module=ibuff(ipt+1)                                      
+               icou(i)=module/100                                       
+               imod(i)=mod(module,100)                                  
                
-                                                                        VED04300
-c --- Si Gamma ( Code = 0 )                                             VED04310
-                                                                        VED04320
-               if(ilongevt.eq.i_long1) then                             VED04330
-                                                                        VED04340
-                  z(i)=0                                                VED04350
-                  a(i)=0                                                VED04360
-                  z_indra(i)=0.                                         VED04370
-                  a_indra(i)=0.                                         VED04380
+                                                                        
+c --- Si Gamma ( Code = 0 )                                             
+                                                                        
+               if(ilongevt.eq.i_long1) then                             
+                                                                        
+                  z(i)=0                                                
+                  a(i)=0                                                
+                  z_indra(i)=0.                                         
+                  a_indra(i)=0.                                         
  
-                  code_part(i)=11*16  ! code gamma=11 dans IDENLCP      VED04400
-                  code16=code_part(i)                                   VED04660
-                  call DECODE_PART(icou(i),code16,code4)                VED04670
-                  code(i)=code4(1)                                      VED04680
+                  code_part(i)=11*16  ! code gamma=11 dans IDENLCP      
+                  code16=code_part(i)                                   
+                  call DECODE_PART(icou(i),code16,code4)                
+                  code(i)=code4(1)                                      
                   do k=1,4
-                  code_idf(k,i)=code4(k)                                VED04680
+                  code_idf(k,i)=code4(k)                                
                   enddo
  
                   if(icou(i).eq.1)then
-                    de1(i)=ibuff(ipt+2)                                 VED04460
+                    de1(i)=ibuff(ipt+2)                                 
                   else
-                    de3(i)=ibuff(ipt+2)                                 VED04460
+                    de3(i)=ibuff(ipt+2)                                 
                   endif
-                  mt(i)=ibuff(ipt+3)                                    VED04510
-                                                                        VED04540
+                  mt(i)=ibuff(ipt+3)                                    
+                                                                        
               else
  
-                  ib=ibuff(ipt+2)                                       VED04550
-                  z_indra(i)=float(ib)/100.                             VED04600
-                  z(i)=nint(z_indra(i))                                 VED04610
-                  ib=ibuff(ipt+3)                                       VED04550
-                  a_indra(i)=float(ib)/100.                             VED04620
-                  a(i)=nint(a_indra(i))                                 VED04630
-                  code_part(i)=ibuff(ipt+4)                             VED04650
-                  code16=code_part(i)                                   VED04660
-                  call DECODE_PART(icou(i),code16,code4)                VED04670
-                  code(i)=code4(1)                                      VED04680
+                  ib=ibuff(ipt+2)                                       
+                  z_indra(i)=float(ib)/100.                             
+                  z(i)=nint(z_indra(i))                                 
+                  ib=ibuff(ipt+3)                                       
+                  a_indra(i)=float(ib)/100.                             
+                  a(i)=nint(a_indra(i))                                 
+                  code_part(i)=ibuff(ipt+4)                             
+                  code16=code_part(i)                                   
+                  call DECODE_PART(icou(i),code16,code4)                
+                  code(i)=code4(1)                                      
                   do k=1,4
-                  code_idf(k,i)=code4(k)                                VED04680
+                  code_idf(k,i)=code4(k)                                
                   enddo
  
 c --- Correction des cartouches 38KDC creees entre le 19 et 25/6/95 ---
@@ -1733,77 +1541,77 @@ c     Pb du code=9 trop souvent present, corrige ensuite dans VEDA 3.2
 c -----
                   code_cali(i)=ibuff(ipt+5)
  
-                  code16=code_cali(i)                                   VED06020
-                  code_energie(1,i)=jbyt(code16,1,4)                    VED06030
-                  code_energie(2,i)=jbyt(code16,5,4)                    VED06030
-                  code_energie(3,i)=jbyt(code16,9,4)                    VED06030
-                  code_energie(4,i)=jbyt(code16,13,4)                   VED06030
-                  ecode(i)=code_energie(1,i)                            VED06030
-                                                                        VED06070
+                  code16=code_cali(i)                                   
+                  code_energie(1,i)=jbyt(code16,1,4)                    
+                  code_energie(2,i)=jbyt(code16,5,4)                    
+                  code_energie(3,i)=jbyt(code16,9,4)                    
+                  code_energie(4,i)=jbyt(code16,13,4)                   
+                  ecode(i)=code_energie(1,i)                            
+                                                                        
                   mt(i)=ibuff(ipt+6)
  
-c --- Cas des Phoswichs (couronne = 1)                                  VED04560
-                                                                        VED04570
-                  if(ilongevt.eq.i_long2) then                          VED04580
-                                                                        VED04590
+c --- Cas des Phoswichs (couronne = 1)                                  
+                                                                        
+                  if(ilongevt.eq.i_long2) then                          
+                                                                        
                     kbyt(1)=ibuff(ipt+7)
                     kbyt(2)=ibuff(ipt+8)
                     de1(i)=float(ien)
                     de1(i)=de1(i)/10.
-                                                                        VED04760
-c --- Cas des couronnes 2 a 9                                           VED04790
-                                                                        VED04800
-                  elseif(ilongevt.eq.i_long3) then                      VED04810
-                                                                        VED04820
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                                                                        VED04590
+                                                                        
+c --- Cas des couronnes 2 a 9                                           
+                                                                        
+                  elseif(ilongevt.eq.i_long3) then                      
+                                                                        
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+9)
                     kbyt(2)=ibuff(ipt+10)
                     de2(i)=float(ien)
                     de2(i)=de2(i)/10.
-                                                                        VED04760
+                                                                        
                     kbyt(1)=ibuff(ipt+11)
                     kbyt(2)=ibuff(ipt+12)
                     de3(i)=float(ien)
                     de3(i)=de3(i)/10.
-                                                                        VED05060
-c --- Cas des couronnes 10 a 17  (sans Etalons)                         VED04790
-                                                                        VED05080
-                  elseif(ilongevt.eq.i_long4) then                      VED05090
-                                                                        VED05100
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                                                                        VED04590
+                                                                        
+c --- Cas des couronnes 10 a 17  (sans Etalons)                         
+                                                                        
+                  elseif(ilongevt.eq.i_long4) then                      
+                                                                        
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+9)
                     kbyt(2)=ibuff(ipt+10)
                     de3(i)=float(ien)
                     de3(i)=de3(i)/10.
-                                                                        VED05060
-c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
-                                                                        VED05080
-                  elseif(ilongevt.eq.i_long5) then                      VED05090
+                                                                        
+c --- Cas des couronnes 10 a 17  (avec Etalons)                         
+                                                                        
+                  elseif(ilongevt.eq.i_long5) then                      
  
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     VED04700
-                    de1(i)=(ibuff(ipt+8))/10.                           VED04700
-                    de4(i)=(ibuff(ipt+9))/10.                           VED04700
-                                                                        VED04590
+                    de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    de1(i)=(ibuff(ipt+8))/10.                           
+                    de4(i)=(ibuff(ipt+9))/10.                           
+                                                                        
                     kbyt(1)=ibuff(ipt+10)
                     kbyt(2)=ibuff(ipt+11)
                     de5(i)=float(ien)
                     de5(i)=de5(i)/10.
-                                                                        VED04590
+                                                                        
                     kbyt(1)=ibuff(ipt+12)
                     kbyt(2)=ibuff(ipt+13)
                     de3(i)=float(ien)
                     de3(i)=de3(i)/10.
-                                                                        VED05060
-                  else                                                  VED05360
-                                                                        VED05370
-                write(i_out,*) 'Evt #',nevt,',Part. non repertoriee :',iVED05380
-                write(i_out,*) 'En effet, Longpart =',ilongevt,' !?'    VED05390
-                                                                        VED05410
-                  end if                                                VED05420
+                                                                        
+                  else                                                  
+                                                                        
+                write(i_out,*) 'Evt #',nevt,',Part. non repertoriee :',i
+                write(i_out,*) 'En effet, Longpart =',ilongevt,' !?'    
+                                                                        
+                  end if                                                
  
                   dde1=de1(i)
                   dde2=de2(i)
@@ -1824,16 +1632,15 @@ c --- Cas des couronnes 10 a 17  (avec Etalons)                         VED04790
             end do
 
                 
-c --- Routine de correction des Identifications Etalons (L. Tassan-Got)                             
+c --- Routine de correction des Identifications Etalons (L. Tassan-Got) 
  
             call PROPNET
  
 c --- Routine utilisateurs pour le traitement evt/evt 
                   
-            copy_event=.false.                                                                        
+            copy_event=.false.                                          
             call TRAITEMENT
             
-            if(ecrit_dst.and.copy_event)call ECRIT_EVT_SELECT 
             if(fin_lect_run)evt_a_lire=.false.
                                                                         
 101         format(1x,5(i6,2x))                                         
@@ -1845,85 +1652,85 @@ c --- Routine utilisateurs pour le traitement evt/evt
       return                                                            
       end                                                               
                                                                         
-c---------------------------------------------------------------------- VED03520
+c---------------------------------------------------------------------- 
                                                                         
-c--------------------------------------------------------------------   VED05590
-c  Routine de travail, dumpe un evt                                     VED05600
-c--------------------------------------------------------------------   VED05610
-      subroutine DUMP_EVT(iout)                                         VED05620
-                                                                        VED05630
-      include 'veda_rel.incl'                                           VED05640
-      include 'veda_6.incl'                                             VED05650
+c--------------------------------------------------------------------   
+c  Routine de travail, dumpe un evt                                     
+c--------------------------------------------------------------------   
+      subroutine DUMP_EVT(iout)                                         
+                                                                        
+      include 'veda_rel.incl'                                           
+      include 'veda_6.incl'                                             
  
       integer*4  ivalz(300)
       common /VEDADUMP/ivalz
  
-      write(iout,3)                                                     VED05670
-      write(iout,2) nevtlus,npart_traite                                VED05680
-      write(iout,4)                                                     VED05690
-      do i=1,npart_traite                                               VED05700
+      write(iout,3)                                                     
+      write(iout,2) nevtlus,npart_traite                                
+      write(iout,4)                                                     
+      do i=1,npart_traite                                               
          write(iout,1) icou(i),imod(i),z_indra(i),a_indra(i),code(i),
      &                 z(i),a(i),code_part(i),(code_idf(k,i),k=1,4)
-      end do                                                            VED05720
-                                                                        VED05730
-      write(iout,3)                                                     VED05740
-      write(iout,*) ' '                                                 VED05750
-                                                                        VED05760
+      end do                                                            
+                                                                        
+      write(iout,3)                                                     
+      write(iout,*) ' '                                                 
+                                                                        
 1     format(1x,i2,':',i2,3x,f6.2,1x,f6.2,1x,i4,2i5,4x,z4,2x,4i5)
-2     format(1x,'Evt numero ',i8,' : ',i4,' particules')                VED05780
-3     format(60('-'))                                                   VED05790
+2     format(1x,'Evt numero ',i8,' : ',i4,' particules')                
+3     format(60('-'))                                                   
 4     format(1x,' Cour       Z     A     Code  Z    A   code_part',
-     &          '         code_idf')                                    VED05810
-      return                                                            VED05820
-      end                                                               VED05830
-                                                                        VED05840
-c---------------------------------------------------------------------- VED05850
-c     Routine de decodeage des codes d'identification 16 bits DST       VED05860
-c                                                                       VED05870
-c  Elle fournit sous forme d'un tableau de 4 entiers*4 les differents   VED05880
-c  codes ORIGINAUX d'identification ainsi que le code general defini    VED05890
-c  dans le fichier VEDA_6 INCL sur le disque INDRA 200 .                VED05900
-c-------------------------------------------------------------------    VED05910
-      Subroutine DECODE_PART (jcou,icode,code4)                         VED05920
-                                                                        VED05930
-      Integer*4   code4(4)                                              VED05940
-      Integer*4   icode,jcou,ik,icodg                                   VED05950
-      integer*2   codganil(0:15),codlpc(0:15)                           VED05960
-                                                                        VED05970
-      data codganil/10,15,12,16,30,35,32,-200,20,22,-200,11,            VED05980
-     &               -99,-999,-200,-111/                                VED05990
-      data codlpc/0,100,1,101,2,102,3,4,-300,-300,-300,-300,-300,       VED06000
-     &               997,998,999/                                       VED06010
-                                                                        VED06020
-      code4(1)=jbyt(icode,1,4)                                          VED06030
-      code4(2)=jbyt(icode,5,4)                                          VED06040
-      code4(3)=jbyt(icode,9,4)                                          VED06050
-      code4(4)=jbyt(icode,13,4)                                         VED06060
-                                                                        VED06070
-      icodg=code4(1)                                                    VED06080
-      if(jcou.eq.1)then                                                 VED06090
-         ik=code4(2)                                                    VED06100
-         if(ik.eq.4)code4(2)=-1                                         VED06110
-                                                                        VED06120
-      elseif (jcou.le.9)then                                            VED06130
-                                                                        VED06140
+     &          '         code_idf')                                    
+      return                                                            
+      end                                                               
+                                                                        
+c---------------------------------------------------------------------- 
+c     Routine de decodeage des codes d'identification 16 bits DST       
+c                                                                       
+c  Elle fournit sous forme d'un tableau de 4 entiers*4 les differents   
+c  codes ORIGINAUX d'identification ainsi que le code general defini    
+c  dans le fichier VEDA_6 INCL sur le disque INDRA 200 .                
+c-------------------------------------------------------------------    
+      Subroutine DECODE_PART (jcou,icode,code4)                         
+                                                                        
+      Integer*4   code4(4)                                              
+      Integer*4   icode,jcou,ik,icodg                                   
+      integer*2   codganil(0:15),codlpc(0:15)                           
+                                                                        
+      data codganil/10,15,12,16,30,35,32,-200,20,22,-200,11,            
+     &               -99,-999,-200,-111/                                
+      data codlpc/0,100,1,101,2,102,3,4,-300,-300,-300,-300,-300,       
+     &               997,998,999/                                       
+                                                                        
+      code4(1)=jbyt(icode,1,4)                                          
+      code4(2)=jbyt(icode,5,4)                                          
+      code4(3)=jbyt(icode,9,4)                                          
+      code4(4)=jbyt(icode,13,4)                                         
+                                                                        
+      icodg=code4(1)                                                    
+      if(jcou.eq.1)then                                                 
+         ik=code4(2)                                                    
+         if(ik.eq.4)code4(2)=-1                                         
+                                                                        
+      elseif (jcou.le.9)then                                            
+                                                                        
          if(icodg.eq.0)then
                        ik=11
                        code4(2)=codganil(ik)
-         endif                                                          VED06150
-         if(icodg.eq.1.or.icodg.eq.2.or.icodg.eq.9.or.icodg.eq.10)then  VED06160
-                           ik=code4(2)                                  VED06150
-                           code4(2)=codganil(ik)                        VED06160
-         elseif(icodg.eq.3)then                                         VED06170
+         endif                                                          
+         if(icodg.eq.1.or.icodg.eq.2.or.icodg.eq.9.or.icodg.eq.10)then  
+                           ik=code4(2)                                  
+                           code4(2)=codganil(ik)                        
+         elseif(icodg.eq.3)then                                         
                        code4(2)=codganil(1)
-                       ik=code4(3)                                      VED06150
-                       code4(3)=codlpc(ik)                              VED06170
+                       ik=code4(3)                                      
+                       code4(3)=codlpc(ik)                              
          endif
-      endif                                                             VED06180
-                                                                        VED06190
-c     write(*,'(2x,i6,2x,z4,4x,4i4)')jcou,icode,(code4(i),i=4,1,-1)     VED06200
-      return                                                            VED06210
-      end                                                               VED06220
+      endif                                                             
+                                                                        
+c     write(*,'(2x,i6,2x,z4,4x,4i4)')jcou,icode,(code4(i),i=4,1,-1)     
+      return                                                            
+      end                                                               
 c---------------------------------------------------------------------  
 
       subroutine ATOC(itab,long,chaine)
@@ -1957,23 +1764,23 @@ c---------------------------------------------------------------------
  
       return
       end
-c----------------------------------------------------------------       VED10910
-c Cette routine realise la conversion Caractere --> Integer*2 en        VED10920
-c code ASCII ( contenu dans le tableau Ich)                             VED10930
-c----------------------------------------------------------------       VED10940
-      subroutine CTOA(chaine,long,ich)                                  VED10950
-                                                                        VED10960
-      character*(*) chaine                                              VED10970
-      integer*4     long,icha                                           VED10980
-      integer*2     ich(*)                                              VED10990
-                                                                        VED11000
-      do i=1,long                                                       VED11010
-         icha=ICHAR(chaine(i:i))                                        VED11020
-         ich(i)=icha                                                    VED11030
-      end do                                                            VED11040
-                                                                        VED11050
-      return                                                            VED11060
-      end                                                               VED11070
+c----------------------------------------------------------------       
+c Cette routine realise la conversion Caractere --> Integer*2 en        
+c code ASCII ( contenu dans le tableau Ich)                             
+c----------------------------------------------------------------       
+      subroutine CTOA(chaine,long,ich)                                  
+                                                                        
+      character*(*) chaine                                              
+      integer*4     long,icha                                           
+      integer*2     ich(*)                                              
+                                                                        
+      do i=1,long                                                       
+         icha=ICHAR(chaine(i:i))                                        
+         ich(i)=icha                                                    
+      end do                                                            
+                                                                        
+      return                                                            
+      end                                                               
       
 c------------------------------------------------------------------
 
@@ -2138,13 +1945,13 @@ c
       return
       end
  
-                                                                        VED02550
-c--------------------------------------------------------------------   VED02560
-c --- Routine de decodage du bloc ETAT d'INDRA                          VED02570
-c--------------------------------------------------------------------   VED02580
-      subroutine DEC_BLOC_ETAT(ibuff,irc)                               VED02590
-                                                                        VED02600
-      integer*2     ibuff(8192)                                         VED02610
+                                                                        
+c--------------------------------------------------------------------   
+c --- Routine de decodage du bloc ETAT d'INDRA                          
+c--------------------------------------------------------------------   
+      subroutine DEC_BLOC_ETAT(ibuff,irc)                               
+                                                                        
+      integer*2     ibuff(8192)                                         
       character*80  message,msg(0:100)
       integer*4     lon_msg,nb_msg,code_msg(0:100)
       integer*2     itab(80)
@@ -2159,7 +1966,7 @@ c --- Initialisation de Module_panne (=0 : tout OK)
       do i=1,17
       do j=1,24
       do k=1,5
-      Module_panne(i,j,k)=0                                             VED02680
+      Module_panne(i,j,k)=0                                             
       enddo
       enddo
       enddo
@@ -2191,12 +1998,6 @@ c --- signification des codes panne
          call ATOC (itab,lon_msg,message)
       else
          call ATOC_EBCDIC (itab,lon_msg,message)
-         if(ecrit_dst)then 
-            call CTOA (message,lon_msg,itab)
-            do j=1,lon_msg
-            ibuff(ipt+j)=itab(j)
-            enddo
-         endif
       endif   
       msg(ii)=message
       ipt=ipt+lon_msg
@@ -2231,7 +2032,7 @@ c ---
 c     do i=1,17
 c     do j=1,24
 c     do k=1,5
-c     ico=Module_panne(i,j,k)                                           VED02680
+c     ico=Module_panne(i,j,k)                                           
 c     if(ico.ne.0)then
 c       print *,' c = ',i,' m = ',j,' Det = ',k,' cod = ',ico,msg(ico)
 c     endif
@@ -2239,9 +2040,9 @@ c     enddo
 c     enddo
 c     enddo
 c ---
-      return                                                            VED02690
-      end                                                               VED02700
-                                                                        VED02760
+      return                                                            
+      end                                                               
+                                                                        
 c ----------------------------------------------------------------------
  
        subroutine WARNING_INDRA (iwf,ierr,msg,lon_msg)
@@ -2272,14 +2073,14 @@ c        write(iwf,20)ierr(1),ierr(2),tipo,ierr(4),msg(1:lon_msg)
        end
  
  
-c-------------------------------------------------------------------     
-                                                                        CON00020
-      Subroutine CORRECT_BACK (nevt,i)                                  CON00030
-                                                                        CON00040
-      integer*4  nevt,i,cod                                             CON00060
-                                                                        CON00070
-      Include 'veda_6.incl'                                             CON00080
-                                                                        CON00160
+c-------------------------------------------------------------------    
+                                                                        
+      Subroutine CORRECT_BACK (nevt,i)                                  
+                                                                        
+      integer*4  nevt,i,cod                                             
+                                                                        
+      Include 'veda_6.incl'                                             
+                                                                        
       cod=code_idf(1,i)
       if(cod.eq.9)then
          if(code_idf(2,i).eq.7)cod=2
@@ -2296,7 +2097,7 @@ c-------------------------------------------------------------------
       return
       end
  
-c -----------------------------------------------------------------------------
+c ----------------------------------------------------------------------
  
       Subroutine READ_BUFFER(lun,nbloc,buffer,istatus)                 
                                                                   
@@ -2322,7 +2123,7 @@ c          stop 'READ_BUFFER'
       return                                                    
       end
                                                                   
-c -----------------------------------------------------------------------------
+c ----------------------------------------------------------------------
  
       Subroutine OPEN_FILE(filein,lun)                 
 
@@ -2342,7 +2143,7 @@ c -----------------------------------------------------------------------------
 
       return
       end
-c -----------------------------------------------------------------------------
+c ----------------------------------------------------------------------
  
       Subroutine WRITE_BUFFER(lun,nbloc,buffer,istatus)                 
                                                                   
@@ -2360,7 +2161,7 @@ c --- ecriture d'un bloc
       return                                                    
       end
                                                                         
-c ----------------------------------------------------------------------------
+c ----------------------------------------------------------------------
 
       Subroutine VAR_ENVIRONNEMENT 
       
@@ -2378,43 +2179,43 @@ c ----------------------------------------------------------------------------
      &                                          vedafil(1:long_path)
       endif
       
-      call GETENVF ('VEDA_REFE',vedafil2)
-      i=0
-      long_path2=0
-      do while (long_path2.eq.0)
-      i=i+1
-      if(vedafil2(i:i).eq.' ')long_path2=i-1
-      enddo            
-      if(long_path2.gt.3)then
-         write(*,'('' Chemin des fichiers REFERENCE = '',a)')
-     &                                          vedafil2(1:long_path2)
-      endif
+!      call GETENVF ('VEDA_REFE',vedafil2)
+!      i=0
+!      long_path2=0
+!      do while (long_path2.eq.0)
+!      i=i+1
+!      if(vedafil2(i:i).eq.' ')long_path2=i-1
+!      enddo            
+!      if(long_path2.gt.3)then
+!         write(*,'('' Chemin des fichiers REFERENCE = '',a)')
+!     &                                          vedafil2(1:long_path2)
+!     endif
       
-      call GETENVF ('VEDA_PNIA',vedapnia)
-      i=0
-      long_dap=0
-      do while (long_dap.eq.0)
-      i=i+1
-      if(vedapnia(i:i).eq.' ')long_dap=i-1
-      enddo
-      if(long_dap.gt.3)then
-         write(*,'('' Chemin des fichiers DAPNIA    = '',a)')
-     &                                          vedapnia(1:long_dap)
-      endif
+!      call GETENVF ('VEDA_PNIA',vedapnia)
+!      i=0
+!      long_dap=0
+!      do while (long_dap.eq.0)
+!      i=i+1
+!      if(vedapnia(i:i).eq.' ')long_dap=i-1
+!      enddo
+!      if(long_dap.gt.3)then
+!         write(*,'('' Chemin des fichiers DAPNIA    = '',a)')
+!     &                                          vedapnia(1:long_dap)
+!     endif
             
-      call GETENVF ('VEDA_OUT',vedaout)
-      i=0
-      long_out=0
-      do while (long_out.eq.0)
-      i=i+1
-      if(vedaout(i:i).eq.' ')long_out=i-1
-      enddo
-      if(long_out.gt.3)then
-         write(*,'('' Chemin des fichiers OUT (HBK) = '',a)')
-     &                                          vedaout(1:long_out)
-      endif
+!      call GETENVF ('VEDA_OUT',vedaout)
+!      i=0
+!      long_out=0
+!      do while (long_out.eq.0)
+!      i=i+1
+!      if(vedaout(i:i).eq.' ')long_out=i-1
+!      enddo
+!      if(long_out.gt.3)then
+!         write(*,'('' Chemin des fichiers OUT (HBK) = '',a)')
+!     &                                          vedaout(1:long_out)
+!      endif
             
-      call GETENVF ('NOMFI',nomjob)
+      call GETENVF ('RUN_PREFIX',nomjob)
       i=0
       long_job=0
       do while (long_job.eq.0)
@@ -2422,17 +2223,18 @@ c ----------------------------------------------------------------------------
       if(nomjob(i:i).eq.' ')long_job=i-1
       enddo
       if(long_job.gt.3)then
-         write(*,'('' Nom du Job = Nom des fichiers = '',a)')
+         write(*,'('' Nom du Prefix ='',a)')
      &                                          nomjob(1:long_job)
       endif
       
-      write(*,*)
+      
+		write(*,*)
             
       return
       end
       
-c ---------------------------------------------------------------------------       
-c -------------------------------------------------------------------------
+c ----------------------------------------------------------------------
+c ----------------------------------------------------------------------
 c
 c   *********************************************************
 c   * ROUTINE DE CORRECTION RELATIVE AUX IDENT. DES ETALONS *
@@ -2447,7 +2249,7 @@ c
 c    Modification du 18/10/95 pour affecter le code=3 (entre les lignes)
 c  aux Z=1 et Z=2 identifies dans des etalons et ayant des masses hors
 c  gamme.
-c -------------------------------------------------------------------------
+c ----------------------------------------------------------------------
 
       subroutine propnet
       implicit  none
@@ -2714,90 +2516,90 @@ c --- Routine ecriture de l'entete du fichier
 c-------------------------------------------------------------------    
       subroutine ECRIT_HEADER_REDUITE (iout,numerun,ibuff)                                    
                                                                         
-      character*8 day,hour,nom                                          VED09470
-      character*5 type                                                  VED09480
-      integer*2   itab(8)                                               VED09490
+      character*8 day,hour,nom                                          
+      character*5 type                                                  
+      integer*2   itab(8)                                               
       integer*2   ibuff(8192),ktab(100)
       integer*4   i_long1,i_long2,i_long3,i_long4,i_long5
       integer*4   iout
       Character*70  critere
       integer*4     new_run,long_critere
       
-      Common /RED1/new_run,long_critere,critere                                               
-                                                                        VED09520
-      include 'veda_5.incl'                                             VED09530
-                                                                        VED09550
-      character*8 typebloc(4)                                           VED09560
-      data typebloc/'VEDARED1','BLOCDATA','ETAT_IND',' SCALER '/        VED09580
-                                                                        VED09590
+      Common /RED1/new_run,long_critere,critere                         				
+                                                                        
+      include 'veda_5.incl'                                             
+                                                                        
+      character*8 typebloc(4)                                           
+      data typebloc/'VEDARED1','BLOCDATA','ETAT_IND',' SCALER '/        
+                                                                        
       iversion=5    ! Numero de version de l'ecriture VEDA (1ere campagne)              
-                                                                        VED09650
-c --- Structure du fichier DST, longueurs des evts...                   VED09660
-                                                                        VED09670
-      i_entete=8    ! Nombre de mots pour entete EVT                    VED09680
-      i_long1=4     ! Nombre de mots pour les Gammas                    VED09690
-      i_long2=9     ! Nombre de mots pour les Phoswichs                 VED09700
-      i_long3=19    ! Nbre de mots pour les Cour. 2 a 9                 VED09710
-      i_long4=15    ! Nbre de mots pour les Cour. 10 a 17 (sans Etalons)VED09720
-      i_long5=18    ! Nbre de mots pour les Cour. 10 a 17 (avec Etalons)VED09730
-                                                                                                                                                VED09780
-c --- Qq messages d'informations                                        VED09790
-                                                                        VED09800
-      write(6,*) ' '                                                    VED09820
+                                                                        
+c --- Structure du fichier DST, longueurs des evts...                   
+                                                                        
+      i_entete=8    ! Nombre de mots pour entete EVT                    
+      i_long1=4     ! Nombre de mots pour les Gammas                    
+      i_long2=9     ! Nombre de mots pour les Phoswichs                 
+      i_long3=19    ! Nbre de mots pour les Cour. 2 a 9                 
+      i_long4=15    ! Nbre de mots pour les Cour. 10 a 17 (sans Etalons)
+      i_long5=18    ! Nbre de mots pour les Cour. 10 a 17 (avec Etalons)
+
+c --- Qq messages d'informations                                        
+                                                                        
+      write(6,*) ' '                                                    
       write(6,*) ' Ecriture Bloc HEADER_REDUITE :'             
-      write(6,*) ' '                                                    VED09840
+      write(6,*) ' '                                                    
 
-      call DATIMH(day,hour)                                             VED09970
-                                                                        VED09980
-      ipt=0                                                             VED09990
+      call DATIMH(day,hour)                                             
+                                                                        
+      ipt=0                                                             
 
-c --- Ecriture du mot d'entete de bloc                                  VED10050
-                                                                        VED10060
-      call CTOA(typebloc(1),8,itab)                                     VED10070
-      do i=1,8                                                          VED10080
-         ibuff(ipt+i)=Itab(i)                                           VED10090
-      end do                                                            VED10100
-      ipt=ipt+8                                                         VED10110
-      ibuff(ipt+1)=numerun                                              VED10120
-      ibuff(ipt+2)=ijour                                                VED10130
-      ibuff(ipt+3)=imois                                                VED10140
-      ibuff(ipt+4)=iannee                                               VED10150
-      ibuff(ipt+5)=nint(zproj)                                          VED10160
-      ibuff(ipt+6)=nint(aproj)                                          VED10170
-      ibuff(ipt+7)=nint(zcib)                                           VED10180
-      ibuff(ipt+8)=nint(acib)                                           VED10190
-      ibuff(ipt+9)=nint(esura)                                          VED10200
-      ibuff(ipt+10)=iversion                                            VED10210
-      ipt=ipt+10                                                        VED10220
-c      call CTOA(day,8,itab)     ! on garde la date de creation DST                                        
-c      do i=1,8                  ! a cause des corrections "propnet"                                        
-c         ibuff(ipt+i)=Itab(i)                                           
-c      end do                                                            
-      ipt=ipt+8                                                         VED10270
-c      call CTOA(hour,8,itab)                                            
-c      do i=1,8                                                          
-c         ibuff(ipt+i)=Itab(i)                                           
-c      end do                                                            
-      ipt=ipt+8                                                         VED10320
-                                                                        VED10330
-c --- taille des blocs enregistres                                      VED10340
-                                                                        VED10350
-      ibuff(ipt+1)=16384                                                VED10360
-                                                                        VED10370
-c --- format des mots                                                   VED10380
-                                                                        VED10390
-      type='INT*2'                                                      VED10400
-      ipt=ipt+1                                                         VED10410
-      call CTOA(type,5,itab)                                            VED10420
-      do i=1,5                                                          VED10430
-         ibuff(ipt+i)=Itab(i)                                           VED10440
-      end do                                                            VED10450
-      ipt=ipt+6                                                         VED10460
-      ibuff(ipt)=i_entete                                               VED10470
-      ibuff(ipt+1)=i_long1                                              VED10480
-      ibuff(ipt+2)=i_long2                                              VED10490
-      ibuff(ipt+3)=i_long3                                              VED10500
-      ibuff(ipt+4)=i_long4                                              VED10510
+c --- Ecriture du mot d'entete de bloc                                  
+                                                                        
+      call CTOA(typebloc(1),8,itab)                                     
+      do i=1,8                                                          
+         ibuff(ipt+i)=Itab(i)                                           
+      end do                                                            
+      ipt=ipt+8                                                         
+      ibuff(ipt+1)=numerun                                              
+      ibuff(ipt+2)=ijour                                                
+      ibuff(ipt+3)=imois                                                
+      ibuff(ipt+4)=iannee                                               
+      ibuff(ipt+5)=nint(zproj)                                          
+      ibuff(ipt+6)=nint(aproj)                                          
+      ibuff(ipt+7)=nint(zcib)                                           
+      ibuff(ipt+8)=nint(acib)                                           
+      ibuff(ipt+9)=nint(esura)                                          
+      ibuff(ipt+10)=iversion                                            
+      ipt=ipt+10                                                        
+c      call CTOA(day,8,itab)     ! on garde la date de creation DST     								
+c      do i=1,8                  ! a cause des corrections "propnet"    								 
+c         ibuff(ipt+i)=Itab(i)                                          
+c      end do                                                           
+      ipt=ipt+8                                                         
+c      call CTOA(hour,8,itab)                                           
+c      do i=1,8                                                         
+c         ibuff(ipt+i)=Itab(i)                                          
+c      end do                                                           
+      ipt=ipt+8                                                         
+                                                                        
+c --- taille des blocs enregistres                                      
+                                                                        
+      ibuff(ipt+1)=16384                                                
+                                                                        
+c --- format des mots                                                   
+                                                                        
+      type='INT*2'                                                      
+      ipt=ipt+1                                                         
+      call CTOA(type,5,itab)                                            
+      do i=1,5                                                          
+         ibuff(ipt+i)=Itab(i)                                           
+      end do                                                            
+      ipt=ipt+6                                                         
+      ibuff(ipt)=i_entete                                               
+      ibuff(ipt+1)=i_long1                                              
+      ibuff(ipt+2)=i_long2                                              
+      ibuff(ipt+3)=i_long3                                              
+      ibuff(ipt+4)=i_long4                                              
       ibuff(ipt+5)=i_long5                                              
       
       ipt=ipt+6 
@@ -2809,30 +2611,30 @@ c --- format des mots                                                   VED10380
       ibuff(ipt+l)=ktab(l)
       enddo
       ipt=ipt+long_critere+1
-                                                                        VED10540
-      do i=ipt,8192                                                     VED10550
-         ibuff(i)=0                                                     VED10560
-      end do                                                            VED10570
-                                                                              
-c      write(6,'(15(1x,z2))')(ibuff(i),i=1,ipt)                                                                     
-                                                                        VED10610
-c --- Ecriture des caracteristiques du run sur fichier #Iout            VED10620
-                                                                        VED10630
-      write(iout,100)                                                   VED10640
-100   format(/,' Ecriture Bloc HEADER sur DST Reduite',/,1x,36('-')) 
-      write(iout,4) numerun,day,hour                                           
-4     format(/,' Run = ',i4,' :  DST_Reduite creee le : ',a8,' a ',a8)                   
                                                                         
-      return                                                                                                                                    VED10850                                                                        
+      do i=ipt,8192                                                     
+         ibuff(i)=0                                                     
+      end do                                                            
+                                                                        
+c      write(6,'(15(1x,z2))')(ibuff(i),i=1,ipt)                         											
+                                                                        
+c --- Ecriture des caracteristiques du run sur fichier #Iout            
+                                                                        
+      write(iout,100)                                                   
+100   format(/,' Ecriture Bloc HEADER sur DST Reduite',/,1x,36('-')) 
+      write(iout,4) numerun,day,hour                                    
+4     format(/,' Run = ',i4,' :  DST_Reduite creee le : ',a8,' a ',a8)  		
+                                                                        
+      return          																								
       end                                                               
                                                                         
 c-------------------------------------------------------------------    
 
-****************************************************************************
+************************************************************************
 c
 c   Correction apportee aux code energie  des Csi couronnes: 10-17
 c
-c   Lors de la generation des DST si  E_csi > E. limite que peut mesurer 
+c   Lors de la generation des DST si  E_csi > E. limite que peut mesurer
 c   le CsI , la routine CSICALOR retourne le code: code_energie (2,i)=7 
 c   Ce code donne ensuite dans VEDA un code general : ecode(i)=3
 c
@@ -2843,7 +2645,7 @@ c   donc refait par cette routine a la lecture des DST.
 c
 c   JLC 8/7/97
 c 
-****************************************************************************
+************************************************************************
 
       subroutine COR_ECSI_LIMIT (icou,imod,iz,ia,e_csi,iret)
       
