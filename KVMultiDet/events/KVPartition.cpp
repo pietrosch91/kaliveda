@@ -286,23 +286,23 @@ void KVPartition::CalculValeursAdditionnelles(){
 	
 }
 
-Int_t  KVPartition::GetZmax(Int_t rang) const {
+Double_t  KVPartition::GetZmax(Int_t rang) const {
 	//Donne le 1er, 2eme ... plus gros de la partition
 	//Attention notation C++ 
 	// - le premier -> 0
 	// - le dernier -> N-1 ou N est la multiplicite
 	
-	return ( (rang<GetMoment(0)) ? GetValeur(rang) : -1 );
+	return ( (rang<GetMoment(0)) ? Double_t(GetValeur(rang)) : -1. );
 
 }
 
-Int_t  KVPartition::GetZmin(Int_t rang) const {
+Double_t  KVPartition::GetZmin(Int_t rang) const {
 	//Donne le 1er, 2eme ... plus petit de la partition
 	//Attention notation C++ 
 	// - le premier -> 0
 	// - le dernier -> N-1 ou N est la multiplicite
 
 	Int_t inverse = Int_t(GetMoment(0))-1-rang;
-	return ( (inverse<GetMoment(0)) ? GetValeur(inverse) : -1 );
+	return ( (inverse<GetMoment(0)) ? Double_t(GetValeur(inverse)) : -1. );
 
 }

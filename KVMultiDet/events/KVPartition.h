@@ -78,14 +78,14 @@ class KVPartition : public TObject
 	Double_t GetMomentNormalise(Int_t ordre) const { return moments[ordre]/GetMoment(0); }	
 	Int_t GetMomentOrdreMax(void) const {return mom_max; }
 	
-	Int_t GetZmax(Int_t rang=0) const;
-	Int_t GetZmin(Int_t rang=0) const;
+	Double_t GetZmax(Int_t rang=0) const;
+	Double_t GetZmin(Int_t rang=0) const;
 	
 	Double_t GetZtot() const {return GetMoment(1); }
 	Double_t GetMtot() const {return GetMoment(0); }
 	Double_t GetZmean() const {return GetMomentNormalise(1); }
-	Int_t GetZ1() const {return GetZmax(0); }
-	Int_t GetZ2() const {return GetZmax(1); }
+	Double_t GetZ1() const {return GetZmax(0); }
+	Double_t GetZ2() const {return GetZmax(1); }
 	
 	KVGenParList* GetParametersList() const { return lgen; }
 	

@@ -166,8 +166,8 @@ void KVPartitionManager::UpdateCompteurs(KVList* current){
 	if (!current) {
 		nombre_diff = GetEntries();
 		nombre_total = 0;
-		Int_t ztot_min=10000,z_min=10000,mtot_min=10000;
-		Int_t ztot_max=-10000,z_max=-10000,mtot_max=-10000;
+		Float_t ztot_min=10000,z_min=10000,mtot_min=10000;
+		Float_t ztot_max=-10000,z_max=-10000,mtot_max=-10000;
 		
 		KVPartition* par = 0;
 		for (Int_t nn=0;nn<nombre_diff;nn+=1) {
@@ -357,7 +357,7 @@ TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t 
 	for (Int_t kk=0;kk<GetEntries();kk+=1){
 		par = GetPartition(kk);
 		
-		n_val = par->GetMtot();
+		n_val = Int_t(par->GetMtot());
 		for (Int_t nn=0;nn<n_val;nn+=1)
 			val[nn] = par->GetValeur(nn);
 		

@@ -99,6 +99,9 @@ class KVDataSet:public KVBase {
    virtual Bool_t HasRaw() const {
       return fSubdirs.Contains("raw");
    };
+   virtual Bool_t HasDST() const {
+      return fSubdirs.Contains("dst");
+   };
    // Returns kTRUE if "recon" data files are stored in the data repository
    virtual Bool_t HasRecon() const {
       return fSubdirs.Contains("recon");
