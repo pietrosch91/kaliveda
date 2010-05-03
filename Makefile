@@ -286,7 +286,7 @@ endif
 	cd VAMOS && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
-dist : clean $(BZR_INFOS)
+dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
