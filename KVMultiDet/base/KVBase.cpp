@@ -27,6 +27,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "KVParameterList.h"
 #include "TSystemDirectory.h"
 #include "../../KVVersion.h"
+#include "../../KVBzrInfo.h"
 #include "TROOT.h"
 #include "TDatime.h"
 #include "THashList.h"
@@ -182,6 +183,8 @@ void KVBase::InitEnvironment()
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
       ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
 				GetKVVersion(), GetKVBuildDate());
+      ::Info("KVBase::InitEnvironment", "(Bzr branch : %s revno : %d (%d) date : %s)",
+      	bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
       KVRootDir = gSystem->Getenv("KVROOT");
       TString tmp;
       AssignAndDelete(tmp,
@@ -640,6 +643,51 @@ const Char_t *KVBase::GetKVSourceDir()
    //Returns top-level directory of source tree used for build
    static TString tmp(KV_SOURCE_DIR);
    return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
+
+const Char_t *KVBase::bzrRevisionId()
+{
+   // Returns Bazaar branch revision-id of sources 
+   static TString tmp(BZR_REVISION_ID);
+   return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
+
+const Char_t *KVBase::bzrRevisionDate()
+{
+   // Returns date of Bazaar branch revision of sources 
+   static TString tmp(BZR_REVISION_DATE);
+   return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
+
+const Char_t *KVBase::bzrBranchNick()
+{
+   // Returns nickname of Bazaar branch of sources 
+   static TString tmp(BZR_BRANCH_NICK);
+   return tmp.Data();
+}
+
+//__________________________________________________________________________________________________________________
+
+Int_t KVBase::bzrIsBranchClean()
+{
+   // Returns 1 if Bazaar branch of sources contained uncommitted
+   // changes at time of building; 0 if all changes had been committed.
+   // WARNING: this doesn't really work (ignore)
+   return BZR_BRANCH_IS_CLEAN;
+}
+
+//__________________________________________________________________________________________________________________
+
+Int_t KVBase::bzrRevisionNumber()
+{
+	// Returns Bazaar branch revision number of sources 
+  	return BZR_REVISION_NUMBER;
 }
 
 //__________________________________________________________________________________________________________________
