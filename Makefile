@@ -155,7 +155,7 @@ $(ROOT_VERSION_TAG) :
 	
 $(BZR_INFOS) : $(BZR_LAST_REVISION)
 	bzr version-info --custom --template="#define BZR_REVISION_ID "\""{revision_id}"\"" \n#define BZR_REVISION_DATE "\""{date}"\"" \n#define BZR_REVISION_NUMBER {revno}\n#define BZR_BRANCH_NICK "\""{branch_nick}"\"" \n#define BZR_BRANCH_IS_CLEAN {clean}\n" \
-		>> $@
+		> $@
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386
