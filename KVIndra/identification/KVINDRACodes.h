@@ -13,7 +13,7 @@ class KVINDRACodes:public KVINDRACodeMask {
 friend class KVINDRAReconNuc;
 
  private:
-//   void SetIsotopeResolve(Bool_t stat = kTRUE);
+	void SetIsotopeResolve(Bool_t stat = kTRUE);
    Bool_t GetIsotopeResolve();
 
    static Char_t fCodeGenIdent[14][120];
@@ -26,7 +26,6 @@ friend class KVINDRAReconNuc;
    KVIDSubCode fIDSubCodes;     //contains all subcodes returned by different identification telescopes
 
  public:
-	void SetIsotopeResolve(Bool_t stat = kTRUE);
    
    enum {
       kIsoRes = BIT(14)         //isotopic resolution achieved i.e. mass was measured
