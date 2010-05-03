@@ -482,7 +482,7 @@ void KVReconstructedNucleus::MakeDetectorList()
     if ( !gMultiDetArray ) return;
     fDetNames.Begin("/");
     while ( !fDetNames.End() ) {
-        KVDetector* det = gMultiDetArray->GetDetector( fDetNames.Next() );
+        KVDetector* det = gMultiDetArray->GetDetector( fDetNames.Next(kTRUE) );
         if ( det ) fDetList->Add(det);
     }
 }
