@@ -986,18 +986,24 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* In_type)
 {
    // Returns list of runs which are present for data type "In_type" (default:raw) but not for "type"
-	// if type is NULL returns empty KVNumberList
+	// if type is NULL or ="" returns empty KVNumberList
 
-	if (!type) return 0;
+   KVNumberList numb; 
+	if (!type || !strlen(type)) return numb;
 	KVString in_type = In_type;
 	
-	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),type);
-
-	KVNumberList numb = GetRunList(in_type.Data());
+	numb = GetRunList(in_type.Data());
 	KVNumberList lout = GetRunList(type);
 	
 	numb.Remove(lout);
 	TList* ll = GetListOfAvailableSystems(in_type.Data());
+	if(!ll || !ll->GetEntries()){
+	   numb.Clear();
+	   return numb;
+	}
+	
+	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),type);
+
 	KVDBSystem* sys=0;
 	KVNumberList nsys;
 	for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
@@ -1007,7 +1013,7 @@ KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Cha
 		nsys.Inter(numb);
 		
 		if (nsys.GetNValues()>0){
-			Info("GetRunList_StageSelection","KVDBSystem : %s\nGetRunList_StageSelection  --> %d runs manquants sur %d  : %s",
+			Info("GetRunList_StageSelection","\nKVDBSystem : %s  --> %d runs manquants sur %d  : %s",
 			              sys->GetName(),nsys.GetNValues(),nombre,nsys.AsString());
 		}
 	}
