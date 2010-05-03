@@ -894,7 +894,7 @@ void KVDataAnalysisLauncher::SetRepositoryList(void)
   Int_t i=0;
   while((o=next()))
    {
-   if(((KVDataRepository *)o)->GetDataSetManager()->GetNavailable())
+   //if(((KVDataRepository *)o)->GetDataSetManager()->GetNavailable())
     cbRepository->AddEntry(o->GetName(),i);
    i++;
    }
