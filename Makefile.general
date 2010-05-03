@@ -35,6 +35,8 @@ SOURCES := $(filter-out $(ALL_NOT_READY),$(ALL_SOURCES))
 #define "include" paths to find all the *.h files
 KV_INC := $(patsubst %, -I%, $(MODULES))
 KV_INC += $(KV_INC_EXTRAS)
+#make sure we look for KVConfig.h in top-level source dir
+KV_INC += -I$(KVPROJ_ROOT_ABS)
 #make sure previously installed headers are consulted last
 KV_INC += -I$(KVINSTALLDIR)/include
 
