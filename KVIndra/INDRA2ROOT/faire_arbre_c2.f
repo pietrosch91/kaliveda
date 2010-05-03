@@ -332,16 +332,16 @@ c-------------------------------------------------------------------
 		print*,'**************************************************'
 		print*,' Rustines Camp2 '
 		
-!		call GETENVF ('VEDA_DATA',vedadata)
-!      i=0
-!      long=0
-!      do while (long.eq.0)
-!      	i=i+1
-!      	if(vedadata(i:i).eq.' ')long=i-1
-!      enddo
-!      
-!		filename=vedadata(1:long)//'bragg_pic.out'
-		filename='bragg_pic.out'	
+	  call GETENVF ('VEDA_DATA',vedadata)
+		i=0
+		long=0
+		do while (long.eq.0)
+		  i=i+1
+		  if(vedadata(i:i).eq.' ')long=i-1
+		enddo
+		
+	  filename=vedadata(1:long)//'bragg_pic.out'
+!		filename='bragg_pic.out'	
 		open(unit=50,file=filename
      &	,status='old')
 	  
