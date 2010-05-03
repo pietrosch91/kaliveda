@@ -163,7 +163,7 @@ class KVDataSet:public KVBase {
    void DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm=kTRUE);
    void DeleteRunfiles(const Char_t * type, KVNumberList lrun="", Bool_t confirm=kTRUE);
    KVNumberList GetRunList_DateSelection(const Char_t * type,TDatime* min=0,TDatime* max=0);
-	KVNumberList GetRunList_StageSelection(const Char_t *type);	
+	KVNumberList GetRunList_StageSelection(const Char_t *type, const Char_t* in="raw");	
    void SetRepository(KVDataRepository *);
    KVDataRepository *GetRepository() const;
 

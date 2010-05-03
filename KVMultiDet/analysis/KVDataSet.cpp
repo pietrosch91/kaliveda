@@ -983,13 +983,13 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 
 //___________________________________________________________________________
 
-KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type)
+KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* In_type)
 {
-   //Returns list of runs which are present in raw directory but not in "type"
-	//if type is NULL returns empty KVNumberList
+   // Returns list of runs which are present for data type "In_type" (default:raw) but not for "type"
+	// if type is NULL returns empty KVNumberList
 
 	if (!type) return 0;
-	KVString in_type="raw";
+	KVString in_type = In_type;
 	
 	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),type);
 
@@ -1007,7 +1007,8 @@ KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type)
 		nsys.Inter(numb);
 		
 		if (nsys.GetNValues()>0){
-			Info("------\nGetRunList_StageSelection","KVDBSystem : %s\nGetRunList_StageSelection"," --> %d runs manquants sur %d  : %s",sys->GetName(),nsys.GetNValues(),nombre,nsys.AsString());
+			Info("GetRunList_StageSelection","KVDBSystem : %s\nGetRunList_StageSelection  --> %d runs manquants sur %d  : %s",
+			              sys->GetName(),nsys.GetNValues(),nombre,nsys.AsString());
 		}
 	}
 	
