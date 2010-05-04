@@ -15,9 +15,11 @@ $Date: 2007/12/11 12:45:47 $
 #include "TSystem.h"
 #include "KVAvailableRunsFile.h"
 #include "TEnv.h"
+#include "KVDataSet.h"
+
 class KVList;
 class TFile;
-class KVDataSet;
+//class KVDataSet;
 class KVDataSetManager;
 
 class KVDataRepository:public KVBase {
@@ -136,8 +138,13 @@ class KVDataRepository:public KVBase {
    const Char_t* GetDatatypeSubdir(const Char_t* type) const
    {
       // returns name to be used for subdirectory corresponding to give data type
-      return gEnv->GetValue( Form("KVDataRepository.Subdir.%s", type), "unknown" );
-   };
+      if (! gDataSet) { return gEnv->GetValue( Form("KVDataRepository.Subdir.%s", type), type ); }
+		else {
+			KVString snom;
+			snom.Form("KVDataRepository.Subdir.%s",type);
+			return gDataSet->GetDataSetEnv( snom.Data(), type );
+		}
+	};
 //returns full path to executable used for remote file transfer
    virtual const Char_t *GetFileTransferExec() const {
       return fTransferExec;

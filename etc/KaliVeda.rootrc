@@ -113,7 +113,7 @@ INDRA_camp2.DataSet.RepositoryDir:   campagne2
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
-INDRA_camp4.DataSet.RunFileName.dst:    faux_nom%d.dst
+INDRA_camp4.KVDataRepository.Subdir.dst:  dst2
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
