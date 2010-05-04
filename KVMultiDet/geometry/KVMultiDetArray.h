@@ -105,6 +105,8 @@ class KVMultiDetArray:public KVBase {
 void set_up_telescope(KVDetector * de, KVDetector * e, KVList * idtels, KVIDTelescope *idt, TString& uri);
 void set_up_single_stage_telescope(KVDetector * det, KVList * idtels, KVIDTelescope *idt, TString& uri);
 
+	virtual void SetDetectorThicknesses();
+
  public:
    KVMultiDetArray();
    virtual ~ KVMultiDetArray();

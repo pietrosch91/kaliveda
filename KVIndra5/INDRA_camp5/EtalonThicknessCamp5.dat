@@ -6,6 +6,7 @@
 # (au moins pour les runs 7865-7875). Ils ont marche pour les runs Brho, ils ont donc une calib en energie mais 
 # leur epaisseur n a pas ete determinee. 
 # A.Chbihi 12/04/2010
+*.Units:  um
 SI75_10:                                 89.6
 SI75_11:                                 87.4
 SI75_12:                                 82.5
@@ -13,17 +14,17 @@ SI75_13:                                 77.6
 SI75_14:                                 96.8
 SI75_15:                                 74.8
 SI75_17:                                 86.7
-SILI_10:                                 2221
-SILI_10.Abs0:                            65.8
-SILI_11:                                 2031
-SILI_11.Abs0:                            86.7
-SILI_12:                                 2237
-SILI_12.Abs0:                            54.6
-SILI_13:                                 2184
-SILI_13.Abs0:                            58.6
-SILI_14:                                 2923
-SILI_14.Abs0:                            51
-SILI_15:                                 2004
+SILI_10.Abs0:                                 2221
+SILI_10.Abs1:                            65.8
+SILI_11.Abs0:                                 2031
+SILI_11.Abs1:                            86.7
+SILI_12.Abs0:                                 2237
+SILI_12.Abs1:                            54.6
+SILI_13.Abs0:                                 2184
+SILI_13.Abs1:                            58.6
+SILI_14.Abs0:                                 2923
+SILI_14.Abs1:                            51
+SILI_15.Abs1:                                 2004
 SILI_15.Abs0:                            46.4
-SILI_17:                                 2334
-SILI_17.Abs0:                            31.4
+SILI_17.Abs0:                                 2334
+SILI_17.Abs1:                            31.4
