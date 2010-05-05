@@ -45,8 +45,8 @@ do
 			lpointo="$lpointo $rac.o"
 		done	
 		ar qv $lib_sup $lpointo
-		mv $lib_sup $KVROOT/bin/.
-		ln -sf $KVROOT/bin/$lib_sup $VEDA_LIB
+		mv $lib_sup $KVROOT/lib/.
+		ln -sf $KVROOT/lib/$lib_sup $VEDA_LIB
 		rm $lpointo
 		echo $lpointo
 		cd ../
@@ -55,8 +55,8 @@ do
 	fi
 	
 	g77 -w -I$VEDA_INC kali_lecture_dst_camp$campagne.f -c
-	mv kali_lecture_dst_camp$campagne.o $KVROOT/bin/.
-	ln -sf $KVROOT/bin/kali_lecture_dst_camp$campagne.o $VEDA_LIB
+	mv kali_lecture_dst_camp$campagne.o $KVROOT/lib/.
+	ln -sf $KVROOT/lib/kali_lecture_dst_camp$campagne.o $VEDA_LIB
 
 done
 
