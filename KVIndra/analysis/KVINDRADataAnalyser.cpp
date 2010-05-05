@@ -113,6 +113,12 @@ kvenv->SetValue("gIndra->GetKVRootDir()",gIndra->GetKVRootDir(),kEnvUser);
 kvenv->SetValue("gIndra->GetKVBinDir()",gIndra->GetKVBinDir(),kEnvUser);
 kvenv->SetValue("gIndra->GetKVFilesDir()",gIndra->GetKVFilesDir(),kEnvUser);
 
+kvenv->SetValue("gIndra->bzrRevisionId()",gIndra->bzrRevisionId(),kEnvUser);
+kvenv->SetValue("gIndra->bzrRevisionDate()",gIndra->bzrRevisionDate(),kEnvUser);
+kvenv->SetValue("gIndra->bzrBranchNick()",gIndra->bzrBranchNick(),kEnvUser);
+kvenv->SetValue("gIndra->bzrRevisionNumber()",gIndra->bzrRevisionNumber());
+kvenv->SetValue("gIndra->bzrIsBranchClean()",gIndra->bzrIsBranchClean());
+
 kvenv->SetValue("gROOT->GetVersion()",gROOT->GetVersion(),kEnvUser);
 
 kvenv->SetValue("gSystem->GetBuildArch()",gSystem->GetBuildArch(),kEnvUser);
