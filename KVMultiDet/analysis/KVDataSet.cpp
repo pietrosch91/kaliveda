@@ -467,16 +467,7 @@ void KVDataSet::ls(Option_t * opt) const
    cout << "Dataset name=" << GetName() << " (" << GetTitle() << ")";
    if (IsAvailable()) {
       cout << "  [ AVAILABLE: ";
-      if (HasRaw())
-         cout << "raw ";
-      if (HasDST())
-         cout << "dst ";
-      if (HasRecon())
-         cout << "recon ";
-      if (HasIdent())
-         cout << "ident ";
-      if (HasPhys())
-         cout << "root ";
+      cout << fDatatypes.Data();
       cout << "]";
    } else
       cout << "  [UNAVAILABLE]";
@@ -504,8 +495,7 @@ void KVDataSet::Print(Option_t * opt) const
       }
       cout << endl;
    } else if (Sopt.Contains("DATA")) {
-      cout << "Available data types: " << fSubdirs.
-          Strip(TString::kTrailing, ',').Data() << endl;
+      cout << "Available data types: " << fDatatypes.Data() << endl;
    } else {
       ls(opt);
    }
@@ -516,8 +506,14 @@ void KVDataSet::CheckAvailable()
    //Check if this data set is physically present and available for analysis.
    //In other words we check if the value of GetDatapathSubdir() is a subdirectory
    //of the given data repository
-   //If so, we proceed to check for the existence of the following subdirectories:
-   //      raw, recon, ident, root
+   //If so, we proceed to check for the existence of any of the datatypes defined in
+   //
+   //KVDataSet.DataTypes:
+   //
+   //by checking for the associated sudirectories defined in the corresponding variables:
+   //
+   //KVDataSet.DataType.Subdir.[type]:
+   // 
    //If none of them exists, the dataset will be reset to 'unavailable'
    //Otherwise the corresponding flags are set.
    //
@@ -525,23 +521,27 @@ void KVDataSet::CheckAvailable()
    //the current user's name (gSystem->GetUserInfo()->fUser) will be used to check if the
    //dataset is available. The user name must appear in the group defined by SetUserGroups.
 
-   SetAvailable(fRepository->CheckSubdirExists(GetDatapathSubdir()));
+   SetAvailable(fRepository->CheckSubdirExists(GetDataPathSubdir()));
    if (!IsAvailable())
       return;
    //check subdirectories
-   fSubdirs = "";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("raw")))
-      fSubdirs += "raw,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("dst")))
-      fSubdirs += "dst,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("recon")))
-      fSubdirs += "recon,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("ident")))
-      fSubdirs += "ident,";
-   if (fRepository->CheckSubdirExists(GetDatapathSubdir(), fRepository->GetDatatypeSubdir("root")))
-      fSubdirs += "root";
-   //check at least one subdir exists
-   SetAvailable(HasRaw() || HasDST() || HasRecon() || HasIdent() || HasPhys());
+   KVString data_types = GetDataSetEnv("KVDataSet.DataTypes", "");
+   if( data_types=="" ){
+   	Warning("CheckAvailable", "No datatypes defined for this dataset: %s\nCheck value of KVDataSet.DataTypes or %s.KVDataSet.DataTypes",
+   		GetName(), GetName());
+   		SetAvailable(kFALSE);
+   }
+   fDatatypes = "";
+   // loop over data types
+   data_types.Begin(" ");
+   while( !data_types.End() ){
+   		KVString type = data_types.Next(kTRUE);
+   		if (fRepository->CheckSubdirExists(GetDataPathSubdir(), GetDataTypeSubdir(type.Data()))){
+   			AddAvailableDataType(type.Data());
+   		}
+   }
+   //check at least one datatype exists
+   SetAvailable( fDatatypes!="" );
    //check user name against allowed groups
    if (!CheckUserCanAccess()) {
       SetAvailable(kFALSE);
@@ -549,28 +549,25 @@ void KVDataSet::CheckAvailable()
    }
 }
 
-void KVDataSet::AddSubdir(const Char_t * subdir)
+void KVDataSet::AddAvailableDataType(const Char_t* type)
 {
-   //Add 'subdir' to the list of available subdirectories for this dataset.
-   //Does nothing if 'subdir' is already in list.
-   if (!fSubdirs.Contains(subdir)) {
-      fSubdirs += subdir;
-      if (strcmp(subdir, "root"))
-         fSubdirs += ",";
-   }
+	if(fDatatypes!="") fDatatypes+=" ";
+	KVString _type = type;
+	_type.Remove(TString::kBoth,' ');//strip whitespace
+	fDatatypes += _type;
 }
 
 void KVDataSet::SetAnalysisTasks(const KVList * task_list)
 {
    //Add to fTasks list any data analysis task in list 'task_list" whose pre-requisite
-   //data subdirectory is present for this dataset. Any dataset-specific "tweaking" of the
+   //datatype is present for this dataset. Any dataset-specific "tweaking" of the
    //task is done here.
 
    fTasks.Delete();
    TIter nxt(task_list);
    KVDataAnalysisTask *dat;
    while ((dat = (KVDataAnalysisTask *) nxt())) {
-      if (HasSubdir(dat->GetPrereq())){
+      if (HasDataType(dat->GetPrereq())){
          //make new copy of default analysis task
          KVDataAnalysisTask* new_task = new KVDataAnalysisTask( *dat );
          //check if any dataset-specific parameters need to be changed
@@ -599,7 +596,7 @@ KVDataAnalysisTask *KVDataSet::GetAnalysisTask(Int_t k) const
 TList *KVDataSet::GetListOfAvailableSystems(const Char_t *datatype, KVDBSystem * systol)
 {
    //Create and fill a list of available systems for this dataset and the given datatype
-   //(="raw", "recon", "ident" or "root").
+   //
    //This uses the database associated to the dataset.
    //USER MUST DELETE THE LIST AFTER USE.
    //
@@ -729,8 +726,7 @@ KVUpDater *KVDataSet::GetUpDater()
 
 TObject *KVDataSet::OpenRunfile(const Char_t * type, Int_t run)
 {
-   //Open file containing data of given "type" ("raw", "recon", "ident", "root")
-   //for given run number of this dataset.
+   //Open file containing data of given datatype for given run number of this dataset.
    //Returns a pointer to the opened file; if the file is not available, we return 0.
    //The user must cast the returned pointer to the correct class, which will
    //depend on the data type and the dataset (see $KVROOT/KVFiles/.kvrootrc)
@@ -743,7 +739,7 @@ TObject *KVDataSet::OpenRunfile(const Char_t * type, Int_t run)
 const Char_t *KVDataSet::GetFullPathToRunfile(const Char_t * type,
                                               Int_t run)
 {
-   //Return full path to file containing data of given "type" ("raw", "recon", "ident", "root") for given run number
+   //Return full path to file containing data of given datatype for given run number
    //of this dataset. NB. only works for available run files, if their is no file in the repository for this run,
    //the returned path will be empty.
    //This path should be used with e.g. TChain::Add.
@@ -759,13 +755,13 @@ const Char_t *KVDataSet::GetFullPathToRunfile(const Char_t * type,
 
 const Char_t *KVDataSet::GetRunfileName(const Char_t * type, Int_t run)
 {
-   //Return name of file containing data of given "type" ("raw", "recon", "ident", "root")
+   //Return name of file containing data of given datatype
    //for given run number of this dataset.
    //NB. only works for available run files, if there is no file in the repository for this run,
    //the returned path will be empty.
 
    //check data type is available
-   if (!HasSubdir(type)) {
+   if (!HasDataType(type)) {
       Error("GetRunfileName",
             "No data of type \"%s\" available for dataset %s", type,
             GetName());
@@ -779,7 +775,7 @@ const Char_t *KVDataSet::GetRunfileName(const Char_t * type, Int_t run)
 
 TDatime KVDataSet::GetRunfileDate(const Char_t * type, Int_t run)
 {
-   //Return date of file containing data of given "type" ("raw", "recon", "ident", "root")
+   //Return date of file containing data of given datatype
    //for given run number of this dataset.
    //NB. only works for available run files, if there is no file in the repository for this run,
    //an error will be printed and the returned data is set to "Sun Jan  1 00:00:00 1995"
@@ -788,7 +784,7 @@ TDatime KVDataSet::GetRunfileDate(const Char_t * type, Int_t run)
    static TDatime date;
    date.Set(1995, 1, 1, 0, 0, 0);
    //check data type is available
-   if (!HasSubdir(type)) {
+   if (!HasDataType(type)) {
       Error("GetRunfileDate",
             "No data of type \"%s\" available for dataset %s", type,
             GetName());
@@ -811,7 +807,7 @@ Bool_t KVDataSet::CheckRunfileAvailable(const Char_t * type, Int_t run)
    //with the given datatype.
 
    //check data type is available
-   if (!HasSubdir(type)) {
+   if (!HasDataType(type)) {
       Error("CheckRunfileAvailable",
             "No data of type \"%s\" available for dataset %s", type,
             GetName());
@@ -824,15 +820,11 @@ Bool_t KVDataSet::CheckRunfileAvailable(const Char_t * type, Int_t run)
 
 const Char_t *KVDataSet::GetBaseFileName(const Char_t * type, Int_t run)
 {
-   //PRIVATE METHOD: Returns base name of data file containing data for the run.
-   //type = "raw", "recon", "ident" or "root"
-   //The filename corresponds to one of the formats defined in $KVROOT/KVFiles/.kvrootrc:
+   //PRIVATE METHOD: Returns base name of data file containing data for the run of given datatype.
+   //The filename corresponds to one of the formats defined in $KVROOT/KVFiles/.kvrootrc
+   //by variables like:
    //
-   //# Default formats for runfile names (run number is used to replace integer format)
-   //DataSet.RunFileName.raw:    run%d.raw
-   //DataSet.RunFileName.recon:    run%d.recon.root
-   //DataSet.RunFileName.ident:    run%d.ident.root
-   //DataSet.RunFileName.root:    run%d.root*
+   //[dataset].DataSet.RunFileName.[type]:    run%d.dat
    //
    //The actual name of the file, if it has already been written in the data repository,
    //is contained in the available_runs.*.* file; if the file has not been written, or it is to
@@ -853,8 +845,9 @@ const Char_t *KVDataSet::GetBaseFileName(const Char_t * type, Int_t run)
 void KVDataSet::UpdateAvailableRuns(const Char_t * type)
 {
    //Update list of available runs for given data 'type'
+
    //check data type is available
-   if (!HasSubdir(type)) {
+   if (!HasDataType(type)) {
       Error("UpdateAvailableRuns",
             "No data of type \"%s\" available for dataset %s", type,
             GetName());
@@ -866,7 +859,7 @@ void KVDataSet::UpdateAvailableRuns(const Char_t * type)
 
 TFile *KVDataSet::NewRunfile(const Char_t * type, Int_t run)
 {
-   //Create a new runfile for the dataset
+   //Create a new runfile for the dataset of given datatype.
    //The name of the new file will be a concatenation of GetBaseFileName(type,run)
    //and the current date and time (TDatime::AsSQLString).
    //Once the file has been filled, use CommitRunfile to submit it to the repository.
@@ -903,9 +896,9 @@ void KVDataSet::DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm)
 		Error("DeleteRunFile","raw files cannot be deleted");
 		return;
 	}
-	fRepository->DeleteFile(GetDatapathSubdir(), type, filename.Data(), confirm);
+	fRepository->DeleteFile(this, type, filename.Data(), confirm);
    //was file deleted ? if so, remove entry from available runs file
-   if(!fRepository->CheckFileStatus(GetDatapathSubdir(), type, filename.Data()))
+   if(!fRepository->CheckFileStatus(this, type, filename.Data()))
       GetAvailableRunsFile(type)->Remove(run);
 }
 
@@ -983,17 +976,17 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 
 //___________________________________________________________________________
 
-KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* In_type)
+KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * other_type, const Char_t* base_type)
 {
-   // Returns list of runs which are present for data type "In_type" (default:raw) but not for "type"
+   // Returns list of runs which are present for data type "base_type" but not for "other_type"
 	// if type is NULL or ="" returns empty KVNumberList
 
    KVNumberList numb; 
-	if (!type || !strlen(type)) return numb;
-	KVString in_type = In_type;
+	if (!other_type || !strlen(other_type)) return numb;
+	KVString in_type = base_type;
 	
 	numb = GetRunList(in_type.Data());
-	KVNumberList lout = GetRunList(type);
+	KVNumberList lout = GetRunList(other_type);
 	
 	numb.Remove(lout);
 	TList* ll = GetListOfAvailableSystems(in_type.Data());
@@ -1002,7 +995,7 @@ KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Cha
 	   return numb;
 	}
 	
-	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),type);
+	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),other_type);
 
 	KVDBSystem* sys=0;
 	KVNumberList nsys;
@@ -1033,7 +1026,7 @@ void KVDataSet::CommitRunfile(const Char_t * type, Int_t run, TFile * file)
    TString newfile = gSystem->BaseName(file->GetName());
 
    fRepository->CommitFile(file);
-   //update list of subdirectories of dataset,
+   //update list of available datatypes of dataset,
    //in case this addition has created a new subdirectory
    CheckAvailable();
    //check if previous version of file exists
@@ -1044,10 +1037,10 @@ void KVDataSet::CommitRunfile(const Char_t * type, Int_t run, TFile * file)
    TString oldfile = GetAvailableRunsFile(type)->GetFileName(run);
    if (oldfile != "" && oldfile != newfile) {
       //delete previous version - no confirmation
-      fRepository->DeleteFile(GetDatapathSubdir(), type, oldfile.Data(),
+      fRepository->DeleteFile(this, type, oldfile.Data(),
                               kFALSE);
       //was file deleted ? if so, remove entry from available runs file
-      if(!fRepository->CheckFileStatus(GetDatapathSubdir(), type, oldfile.Data()))
+      if(!fRepository->CheckFileStatus(this, type, oldfile.Data()))
          GetAvailableRunsFile(type)->Remove(run);
    }
    if (oldfile != newfile) {
@@ -1198,7 +1191,7 @@ void KVDataSet::CleanMultiRunfiles(const Char_t * data_type, Bool_t confirm)
                 Data() << endl;
             if (i != i_most_recent) {
                //delete file from repository forever and ever
-               fRepository->DeleteFile(GetDatapathSubdir(), data_type,
+               fRepository->DeleteFile(this, data_type,
                                        ((TObjString *) filenames.At(i))->
                                        String().Data(), confirm);
                //remove file entry from available runlist
@@ -1339,7 +1332,7 @@ KVNumberList KVDataSet::GetRunList(const Char_t * data_type,
    //If a pointer to a reaction system is given, only runs for the
    //given system will be included in the list.
    KVNumberList list;
-   if (!HasSubdir(data_type)) {
+   if (!HasDataType(data_type)) {
       Error("GetRunList",
             "No data of type %s available. Runlist will be empty.",
             data_type);

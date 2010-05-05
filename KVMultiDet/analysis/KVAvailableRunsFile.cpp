@@ -40,8 +40,7 @@ KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type,
                                              KVDataSet *
                                              parent):KVBase(type)
 {
-   //Constructor with name of datatype ("raw", "recon", "ident", "root") and pointer
-   //to dataset to which this file belongs
+   //Constructor with name of datatype and pointer to dataset to which this file belongs
    fDataSet = parent;
    //runlist lockfile
    runlist_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
@@ -51,7 +50,7 @@ KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type,
 
 KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type):KVBase(type)
 {
-   //Constructor with name of datatype ("raw", "recon", "ident", "root")
+   //Constructor with name of datatype
    //Dataset must be set straight away with SetDataSet(KVDataSet*)
    fDataSet = 0;
    //runlist lockfile
@@ -81,7 +80,7 @@ KVAvailableRunsFile::~KVAvailableRunsFile()
 const Char_t *KVAvailableRunsFile::GetFileName()
 {
    // Filename of text file containing information on available runs
-   // i.e. [repository].available_runs.[dataset subdir].[type of data]
+   // i.e. [repository].available_runs.[dataset subdir].[dattype subdir]
 
    static TString filename;
    if(!fDataSet){
@@ -89,8 +88,8 @@ const Char_t *KVAvailableRunsFile::GetFileName()
        filename = "";
    }
    else
-    filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDatapathSubdir(),
-                 fDataSet->GetRepository()->GetDatatypeSubdir(GetName()));
+    filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDataPathSubdir(),
+                 fDataSet->GetDataTypeSubdir(GetDataType()));
    return filename.Data();
 }
 
@@ -198,13 +197,12 @@ void KVAvailableRunsFile::Update()
    ofstream tmp_file;
    KVBase::OpenTempFile(tmp_file_path, tmp_file);
 
-   TString datapath_subdir = fDataSet->GetDatapathSubdir();
    KVDataRepository *repository = fDataSet->GetRepository();
 
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
    TList *dir_list =
-       repository->GetDirectoryListing(datapath_subdir, GetDataType());
+       repository->GetDirectoryListing(fDataSet, GetDataType());
    if (!dir_list)
       return;
 
@@ -226,7 +224,7 @@ void KVAvailableRunsFile::Update()
             FileStat_t fs;
             //get file modification date
             if (repository->
-                GetFileInfo(datapath_subdir, GetDataType(),
+                GetFileInfo(fDataSet, GetDataType(),
                             objs->GetName(), fs)) {
                //runfile exists in repository
                //write in temporary runlist file '[run number]|[date of modification]|[name of file]
@@ -671,7 +669,7 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
    FileStat_t fs;
    //get file modification date
    if (fDataSet->GetRepository()->
-       GetFileInfo(fDataSet->GetDatapathSubdir(), GetDataType(), filename,
+       GetFileInfo(fDataSet, GetDataType(), filename,
                    fs)) {
       //runfile exists in repository
       //write in temporary runlist file '[run number]|[date of modification]|[name of file]

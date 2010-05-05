@@ -69,8 +69,8 @@ void KVINDRADstToRootTransfert::InitRun()
 	KVString dst_file = gDataSet->GetFullPathToRunfile("dst", fRunNumber);
   	Info("InitRun","dst file %s",dst_file.Data());
 	
-	Info("InitRun","%s %s",gDataSet->GetDatapathSubdir(),gDataSet->GetRunfileName("dst",fRunNumber));
-	gDataRepository->CopyFileFromRepository(gDataSet->GetDatapathSubdir(),"dst",gDataSet->GetRunfileName("dst",fRunNumber),".");
+	Info("InitRun","%s %s",gDataSet->GetDataPathSubdir(),gDataSet->GetRunfileName("dst",fRunNumber));
+	gDataRepository->CopyFileFromRepository(gDataSet,"dst",gDataSet->GetRunfileName("dst",fRunNumber),".");
 	gROOT->ProcessLine(".! ls -lhrt *");
 	
 	Info("InitRun","Starting analysis of run %d",fRunNumber);

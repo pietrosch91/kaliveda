@@ -89,12 +89,29 @@ Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "K
 +Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
+# Different types of data which can be associated with datasets
+KVDataSet.DataTypes: raw dst recon ident root
+#
 # Names used for subdirectories containing data of different types
-KVDataRepository.Subdir.raw:  raw
-KVDataRepository.Subdir.dst:  dst
-KVDataRepository.Subdir.recon:  recon
-KVDataRepository.Subdir.ident:  ident
-KVDataRepository.Subdir.root:  root
+KVDataSet.DataType.Subdir.raw:  raw
+KVDataSet.DataType.Subdir.dst:  dst
+KVDataSet.DataType.Subdir.recon:  recon
+KVDataSet.DataType.Subdir.ident:  ident
+KVDataSet.DataType.Subdir.root:  root
+#
+# Default formats for runfile names (run number is used to replace integer format)
+DataSet.RunFileName.raw:    run%d.raw
+DataSet.RunFileName.dst:    run%d.dst
+DataSet.RunFileName.recon:    run%d.recon.root
+DataSet.RunFileName.ident:    run%d.ident.root
+DataSet.RunFileName.root:    run%d.root
+#
+# Default base classes for reading runfiles of different types
+DataSet.RunFileClass.raw:    KVRawDataReader
+DataSet.RunFileClass.recon:    TFile
+DataSet.RunFileClass.ident:    TFile
+DataSet.RunFileClass.root:    TFile
+
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
@@ -113,7 +130,7 @@ INDRA_camp2.DataSet.RepositoryDir:   campagne2
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
-INDRA_camp4.KVDataRepository.Subdir.dst:  dst2
+INDRA_camp4.KVDataSet.DataType.Subdir.dst:  dst2
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
@@ -273,7 +290,7 @@ RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
 +DataAnalysisTask:     DSTtoROOT
-DSTtoROOT.DataAnalysisTask.Title:     Analysis of fully calibrated data (dst->root)
+DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
 DSTtoROOT.DataAnalysisTask.Prereq:     dst
 DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
 
@@ -337,19 +354,6 @@ Plugin.Analysisv:   INDRA_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogF
 # Used by KVDataTransfer::NewTransfer
 Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransferSFTP()"
 +Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDet   "KVDataTransferBBFTP()"
-
-# Default formats for runfile names (run number is used to replace integer format)
-DataSet.RunFileName.raw:    run%d.raw
-DataSet.RunFileName.dst:    run%d.dst
-DataSet.RunFileName.recon:    run%d.recon.root
-DataSet.RunFileName.ident:    run%d.ident.root
-DataSet.RunFileName.root:    run%d.root
-
-# Default base classes for reading runfiles of different types
-DataSet.RunFileClass.raw:    KVRawDataReader
-DataSet.RunFileClass.recon:    TFile
-DataSet.RunFileClass.ident:    TFile
-DataSet.RunFileClass.root:    TFile
 
 # Plugins for reading raw data
 # There must be an entry here for each dataset

@@ -24,12 +24,12 @@ SRBDataRepository::~SRBDataRepository()
    // Destructor
 }
 
-TList *SRBDataRepository::GetDirectoryListing(const Char_t * datasetdir,
+TList *SRBDataRepository::GetDirectoryListing(KVDataSet* ds,
                                               const Char_t * datatype)
 {
    //Use the SRB catalogue in order to examine the directory
    //
-   //      /root_of_data_repository/[datasetdir]/[datatype]
+   //      /root_of_data_repository/[datasetdir]/[datatypedir]
    //      /root_of_data_repository/[datasetdir]                    (if datatype="", default value)
    //
    //and fill a TList with one SRBFile_t object for each entry in the directory,
@@ -38,9 +38,9 @@ TList *SRBDataRepository::GetDirectoryListing(const Char_t * datasetdir,
    TString path, tmp;
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
-                                           datasetdir));
+                                           ds->GetDataPathSubdir()));
    if (datatype) {
-      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), ds->GetDataTypeSubdir(datatype)));
       path = tmp;
    }
 	
@@ -69,20 +69,20 @@ Bool_t SRBDataRepository::CheckSubdirExists(const Char_t * dir,
 
 //___________________________________________________________________________
 
-void SRBDataRepository::CopyFileFromRepository(const Char_t * datasetdir,
+void SRBDataRepository::CopyFileFromRepository(KVDataSet* ds,
                                               const Char_t * datatype,
                                               const Char_t * filename,
                                               const Char_t * destination)
 {
-   //Copy file [datasetdir]/[datatype]/[filename] from the repository to [destination]
+   //Copy file [datasetdir]/[datatypedir]/[filename] from the repository to [destination]
    //We check if the file to copy exists.
 
-   if (CheckFileStatus(datasetdir, datatype, filename)) {
+   if (CheckFileStatus(ds, datatype, filename)) {
       TString path, tmp;
       AssignAndDelete(path,
                       gSystem->ConcatFileName(fAccessroot.Data(),
-                                              datasetdir));
-      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
+                                              ds->GetDataPathSubdir()));
+      AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), ds->GetDataTypeSubdir(datatype)));
       AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
       //copy file
       fSRB.Sget( path.Data(), destination, "-v -M" );
@@ -92,17 +92,17 @@ void SRBDataRepository::CopyFileFromRepository(const Char_t * datasetdir,
 //___________________________________________________________________________
 
 void SRBDataRepository::CopyFileToRepository(const Char_t * source,
-                                            const Char_t * datasetdir,
+                                            KVDataSet* ds,
                                             const Char_t * datatype,
                                             const Char_t * filename)
 {
-   // Copy file [source] to [datasetdir]/[datatype]/[filename] in the repository
+   // Copy file [source] to [datasetdir]/[datatypedir]/[filename] in the repository
 
    TString path, tmp;
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
-                                           datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
+                                           ds->GetDataPathSubdir()));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), ds->GetDataTypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
    
    //copy file
@@ -112,46 +112,46 @@ void SRBDataRepository::CopyFileToRepository(const Char_t * source,
 
 //___________________________________________________________________________
 
-Bool_t SRBDataRepository::CheckFileStatus(const Char_t * datasetdir,
+Bool_t SRBDataRepository::CheckFileStatus(KVDataSet*ds,
                                          const Char_t * datatype,
                                          const Char_t * runfile)
 {
    //Checks if the run file of given type is physically present in dataset subdirectory,
    //i.e. (schematically), if
    //
-   //      /root_of_data_repository/[datasetdir]/[datatype]/[runfile]
+   //      /root_of_data_repository/[datasetdir]/[datatypedir]/[runfile]
    //
    //exists. If it does, the returned value is kTRUE (=1).
 
    TString path, tmp;
    AssignAndDelete(tmp,
                    gSystem->ConcatFileName(fAccessroot.Data(),
-                                           datasetdir));
-   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), GetDatatypeSubdir(datatype)));
+                                           ds->GetDataPathSubdir()));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), ds->GetDataTypeSubdir(datatype)));
    return fSRB.DirectoryContains(runfile,path.Data());
 }
 
 //___________________________________________________________________________
 
-void SRBDataRepository::MakeSubdirectory(const Char_t * datasetdir,
+void SRBDataRepository::MakeSubdirectory(KVDataSet*ds,
                                         const Char_t * datatype)
 {
 	// Overrides KVDataRepository method.
    TString path, tmp;
    AssignAndDelete(tmp,
                    gSystem->ConcatFileName(fAccessroot.Data(),
-                                           datasetdir));
-   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), GetDatatypeSubdir(datatype)));
+                                           ds->GetDataPathSubdir()));
+   AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), ds->GetDataTypeSubdir(datatype)));
 	fSRB.Smkdir(path.Data());
 }
 
 //___________________________________________________________________________
 
-void SRBDataRepository::DeleteFile(const Char_t * datasetdir,
+void SRBDataRepository::DeleteFile(KVDataSet*ds,
                                   const Char_t * datatype,
                                   const Char_t * filename, Bool_t confirm)
 {
-   //Delete repository file [datasetdir]/[datatype]/[filename]
+   //Delete repository file [datasetdir]/[datatypedir]/[filename]
    //
    //By default (confirm=kTRUE) we ask for confirmation before deleting.
    //Set confirm=kFALSE to delete without confirmation (DANGER!!!)
@@ -159,8 +159,8 @@ void SRBDataRepository::DeleteFile(const Char_t * datasetdir,
    TString path, tmp;
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
-                                           datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
+                                           ds->GetDataPathSubdir()));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), ds->GetDataTypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), filename));
    TString cmd;
    cout << "Deleting file from repository: " << filename << endl;
@@ -189,7 +189,7 @@ int SRBDataRepository::Chmod(const char *file, UInt_t mode)
 }
 //___________________________________________________________________________
 
-Bool_t SRBDataRepository::GetFileInfo(const Char_t * datasetdir,
+Bool_t SRBDataRepository::GetFileInfo(KVDataSet*ds,
                                      const Char_t * datatype,
                                      const Char_t * runfile,
                                      FileStat_t & fs)
@@ -197,7 +197,7 @@ Bool_t SRBDataRepository::GetFileInfo(const Char_t * datasetdir,
    //Checks if the run file of given type is physically present in dataset subdirectory,
    //i.e. (schematically), if
    //
-   //      /root_of_data_repository/[datasetdir]/[datatype]/[runfile]
+   //      /root_of_data_repository/[datasetdir]/[datatypedir]/[runfile]
    //
    //exists. If it does, the returned value is kTRUE (=1), in which case the FileStat_t object
    //contains information about the file:
@@ -211,8 +211,8 @@ Bool_t SRBDataRepository::GetFileInfo(const Char_t * datasetdir,
    TString path, tmp;
    AssignAndDelete(path,
                    gSystem->ConcatFileName(fAccessroot.Data(),
-                                           datasetdir));
-   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), GetDatatypeSubdir(datatype)));
+                                           ds->GetDataPathSubdir()));
+   AssignAndDelete(tmp, gSystem->ConcatFileName(path.Data(), ds->GetDataTypeSubdir(datatype)));
    AssignAndDelete(path, gSystem->ConcatFileName(tmp.Data(), runfile));
 	
 	SRBFile_t srbfile;

@@ -54,13 +54,12 @@ void SRBAvailableRunsFile::Update()
    ofstream tmp_file;
    KVBase::OpenTempFile(tmp_file_path, tmp_file);
 
-   TString datapath_subdir = fDataSet->GetDatapathSubdir();
-   KVDataRepository *repository = fDataSet->GetRepository();
+   KVDataRepository *repository = GetDataSet()->GetRepository();
 
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
    TList *dir_list =
-       repository->GetDirectoryListing(datapath_subdir, GetDataType());
+       repository->GetDirectoryListing(GetDataSet(), GetDataType());
    if (!dir_list)
       return;
 
@@ -70,7 +69,7 @@ void SRBAvailableRunsFile::Update()
    Int_t ntot = dir_list->GetSize();
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
-   KVDBTable *run_table = fDataSet->GetDataBase()->GetTable("Runs");
+   KVDBTable *run_table = GetDataSet()->GetDataBase()->GetTable("Runs");
    while ((objs = (SRBFile_t *) next())) {     // loop over all entries in directory
 
       Int_t run_num;

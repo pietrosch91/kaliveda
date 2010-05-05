@@ -27,26 +27,26 @@ class KVRemoteDataRepository:public KVDataRepository {
    virtual Bool_t IsConnected();
    virtual Bool_t CheckSubdirExists(const Char_t * dir,
                                     const Char_t * subdir = 0);
-   virtual Bool_t GetFileInfo(const Char_t * datasetdir,
+   virtual Bool_t GetFileInfo(KVDataSet* ds,
                               const Char_t * datatype,
                               const Char_t * runfile, FileStat_t & fs);
-   virtual Bool_t CheckFileStatus(const Char_t * datasetdir,
+   virtual Bool_t CheckFileStatus(KVDataSet* ds,
                                   const Char_t * datatype,
                                   const Char_t * runfile);
 
-   virtual void CopyFileFromRepository(const Char_t * datasetdir,
+   virtual void CopyFileFromRepository(KVDataSet* ds,
                                        const Char_t * datatype,
                                        const Char_t * filename,
                                        const Char_t * destination);
    virtual void CopyFileToRepository(const Char_t * source,
-                                     const Char_t * datasetdir,
+                                     KVDataSet* ds,
                                      const Char_t * datatype,
                                      const Char_t * filename);
-   virtual void MakeSubdirectory(const Char_t * datasetdir,
+   virtual void MakeSubdirectory(KVDataSet* ds,
                                  const Char_t * datatype = "");
-   virtual TList *GetDirectoryListing(const Char_t * datasetdir,
+   virtual TList *GetDirectoryListing(KVDataSet* ds,
                                        const Char_t * datatype = "");
-   virtual void DeleteFile(const Char_t * datasetdir,
+   virtual void DeleteFile(KVDataSet* ds,
                            const Char_t * datatype,
                            const Char_t * filename, Bool_t confirm =
                            kTRUE);

@@ -47,13 +47,12 @@ class KVDataRepository:public KVBase {
    TString fTransferuser;
    Bool_t fCanWrite; //kTRUE if new files can be created and written directly in the repository; kFALSE if they have to be written locally then copied to repository
    //used by CreateNewFile and CommitFile
-   TString fCommitDataSetDir;   //!
+   KVDataSet* fCommitDataSet;   //!
    TString fCommitDataType;     //!
    TString fCommitFileName;     //!
    KVDataSetManager *fDSM;      //handles datasets in repository
    void SetFullPath(TString & path, const Char_t * protocol);
-   virtual const Char_t *GetReadProtocol(const Char_t * dataset,
-                                         const Char_t * datatype);
+   virtual const Char_t *GetReadProtocol(const Char_t * dataset, const Char_t * datatype);
    virtual KVDataSetManager *NewDataSetManager();
 
    virtual int             Chmod(const char *file, UInt_t mode);
@@ -72,10 +71,10 @@ class KVDataRepository:public KVBase {
 
    virtual Bool_t CheckSubdirExists(const Char_t * dir,
                                     const Char_t * subdir = 0);
-   virtual Bool_t GetFileInfo(const Char_t * datasetdir,
+   virtual Bool_t GetFileInfo(KVDataSet* dataset,
                               const Char_t * datatype,
                               const Char_t * runfile, FileStat_t & fs);
-   virtual Bool_t CheckFileStatus(const Char_t * datasetdir,
+   virtual Bool_t CheckFileStatus(KVDataSet* dataset,
                                   const Char_t * datatype,
                                   const Char_t * runfile);
 
@@ -105,15 +104,15 @@ class KVDataRepository:public KVBase {
    {
       return fCanWrite;
    }
-   virtual TList *GetDirectoryListing(const Char_t * datasetdir,
+   virtual TList *GetDirectoryListing(KVDataSet* dataset,
                                        const Char_t * datatype = "");
 
-   virtual void CopyFileFromRepository(const Char_t * datasetdir,
+   virtual void CopyFileFromRepository(KVDataSet* dataset,
                                        const Char_t * datatype,
                                        const Char_t * filename,
                                        const Char_t * destination);
    virtual void CopyFileToRepository(const Char_t * source,
-                                     const Char_t * datasetdir,
+                                     KVDataSet* dataset,
                                      const Char_t * datatype,
                                      const Char_t * filename);
 
@@ -122,10 +121,10 @@ class KVDataRepository:public KVBase {
                                 const Char_t * filename);
    virtual void CommitFile(TFile * file);
 
-   virtual void MakeSubdirectory(const Char_t * datasetdir,
+   virtual void MakeSubdirectory(KVDataSet* dataset,
                                  const Char_t * datatype = "");
 
-   virtual void DeleteFile(const Char_t * datasetdir,
+   virtual void DeleteFile(KVDataSet* dataset,
                            const Char_t * datatype,
                            const Char_t * filename, Bool_t confirm =
                            kTRUE);
@@ -135,16 +134,6 @@ class KVDataRepository:public KVBase {
    virtual const Char_t *GetFileTransferType() const {
       return fTransfertype;
    };
-   const Char_t* GetDatatypeSubdir(const Char_t* type) const
-   {
-      // returns name to be used for subdirectory corresponding to give data type
-      if (! gDataSet) { return gEnv->GetValue( Form("KVDataRepository.Subdir.%s", type), type ); }
-		else {
-			KVString snom;
-			snom.Form("KVDataRepository.Subdir.%s",type);
-			return gDataSet->GetDataSetEnv( snom.Data(), type );
-		}
-	};
 //returns full path to executable used for remote file transfer
    virtual const Char_t *GetFileTransferExec() const {
       return fTransferExec;
