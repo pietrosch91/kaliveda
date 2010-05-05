@@ -16,13 +16,15 @@ class KVPartition : public TObject
 	
 	void AddToRegle(Int_t val);
 	void Compute();
-	
+	void ComputeValues();
+	void FillWithRegle(Int_t* regl,Int_t vmax);
+
 	Int_t val_max; 
 	Int_t mom_max;
 	Int_t population;
 	
-	Int_t* regle;			//[val_max]
-	Double_t* moments;	//[mom_max]
+	Int_t* regle;			//[val_max+1]
+	Double_t* moments;	//[mom_max+1]
 	
 	Int_t nbre_val_diff;
 	Int_t nbre_val;
@@ -41,11 +43,15 @@ class KVPartition : public TObject
   	};
 	
 	virtual void init(Int_t valmax=100,Int_t mommax=5);
+	Int_t GetValMax() const {return val_max;}
+	Int_t GetMomMax() const {return mom_max;}
+	
 	
 	KVPartition();
 	KVPartition(Int_t valmax,Int_t mommax=5);
 
    virtual ~KVPartition();
+	void Copy(TObject& obj) const;
 	
 	void SetName(KVString snom) { name=snom; }
 	const char* GetName() const { return name.Data(); }
@@ -56,8 +62,9 @@ class KVPartition : public TObject
 	void FillWithConditions(Int_t* tab,Int_t mult,Int_t zmin=-1,Int_t zmax=-1);
 	void Fill(KVNumberList nl);
 	void Fill(KVEvent* evt,Option_t* opt = "");
-
+	
 	void Reset();
+	void ResetMoments();
 	void ResetPopulation() { population=0; }
 	void AddOne() { AddPopulation(1); }
 	Int_t GetPopulation() const { return population; }
@@ -72,7 +79,7 @@ class KVPartition : public TObject
 	Bool_t Contains(Int_t valeur) const { return regle[valeur]>0; }	
 	
 	Double_t GetMoment(Int_t ordre) const {
-		return ( (ordre<GetMomentOrdreMax()) ? moments[ordre] : -1 );
+		return ( (ordre<=GetMomentOrdreMax()) ? moments[ordre] : -1 );
 	}
 	
 	Double_t GetMomentNormalise(Int_t ordre) const { return moments[ordre]/GetMoment(0); }	
@@ -97,7 +104,10 @@ class KVPartition : public TObject
 	
 	virtual void CalculValeursAdditionnelles();
 	
-   ClassDef(KVPartition,1)//a partition of integer
+	Bool_t RemoveAt(Int_t rang);
+   Bool_t RemoveValue(Int_t value);
+	
+	ClassDef(KVPartition,1)//a partition of integer
 };
 
 #endif

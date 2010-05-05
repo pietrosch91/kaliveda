@@ -23,13 +23,13 @@ ClassImp(KVPartition)
 void KVPartition::init(Int_t valmax,Int_t mommax)
 {
 	
-	val_max=valmax; val_max+=1;
-	mom_max=mommax; mom_max+=1;	
+	val_max=valmax;
+	mom_max=mommax;
 	
 	population=0;
 	
-	regle = new Int_t[val_max];		for (Int_t mm=0; mm<val_max; mm+=1)	regle[mm]=0;
-	moments = new Double_t[mom_max];	for (Int_t mm=0; mm<mom_max; mm+=1)	moments[mm]=0.;
+	regle = new Int_t[val_max+1];			for (Int_t mm=0; mm<=val_max; mm+=1)	regle[mm]=0;
+	moments = new Double_t[mom_max+1];	for (Int_t mm=0; mm<=mom_max; mm+=1)	moments[mm]=0.;
 	
 	nbre_val_diff=0;
 	nbre_val=0;
@@ -67,17 +67,43 @@ KVPartition::~KVPartition()
 	*/
 }
 
+void KVPartition::Copy(TObject & obj) const{
+
+	if  ( ((KVPartition &) obj).GetMomMax()!=GetMomMax() || ((KVPartition &) obj).GetValMax()!=GetValMax() )
+	{
+		delete ((KVPartition &) obj).regle; 
+		delete ((KVPartition &) obj).moments;
+		delete ((KVPartition &) obj).lgen;
+		 
+		((KVPartition &) obj).init(GetValMax(),GetMomMax());
+	}
+	
+	((KVPartition &) obj).FillWithRegle(regle,GetValMax());
+
+}
+
 void KVPartition::Compute(){
 	
 	valeurs = new Int_t[nbre_val];   
 	valeurs_diff = new Int_t[nbre_val_diff]; 
 	
+	ComputeValues();
+	
+	SetBit(kHastobeComputed,kFALSE);
+	
+	AddOne();
+
+}
+
+void KVPartition::ComputeValues(){
+	
+	
 	KVString snom,stamp;
 	Int_t mdiff=0,mtot=0;
-	for (Int_t nn=val_max-1; nn>=0; nn-=1){
+	for (Int_t nn=val_max; nn>=0; nn-=1){
 		if (regle[nn]>0){
 			//Calcul des moments
-			for (Int_t ordre=0;ordre<mom_max;ordre+=1)	
+			for (Int_t ordre=0; ordre<=mom_max; ordre+=1)	
 				moments[ordre] += regle[nn] * TMath::Power(nn,ordre);
 			
 			//Formattage du nom de la partition
@@ -95,11 +121,8 @@ void KVPartition::Compute(){
 			snom+=" ";
 		}
 	}
-	
-	SetBit(kHastobeComputed,kFALSE);
-	
+
 	SetName(snom);
-	AddOne();
 
 }
 
@@ -159,6 +182,18 @@ void KVPartition::Fill(KVEvent* evt,Option_t* opt){
 
 }
 
+void KVPartition::FillWithRegle(Int_t* regl,Int_t vmax){
+
+	Reset();
+	
+	for (Int_t mm=0;mm<=vmax;mm+=1)
+		for (Int_t nb=0;nb<regl[mm];nb+=1)
+			AddToRegle(mm);
+	
+	Compute();
+
+}
+
 void KVPartition::AddToRegle(Int_t val){
 	if (regle[val]==0)
 		nbre_val_diff+=1;
@@ -179,9 +214,14 @@ void KVPartition::Reset(){
 	nbre_val_diff=0;
 	nbre_val=0;
 	
-	for (Int_t mm=0;mm<mom_max;mm+=1) moments[mm]=0;
+	ResetMoments();
 	ResetPopulation();
 
+}
+
+void KVPartition::ResetMoments(){
+	for (Int_t mm=0;mm<=mom_max;mm+=1) 
+		moments[mm]=0;
 }
 
 void KVPartition::Print(Option_t* option) const {
@@ -189,7 +229,7 @@ void KVPartition::Print(Option_t* option) const {
 	if (!strcmp(option,"Moments")) {
 		Info("Print","Moments #Sigma Z^{ordre}");
 		printf("Nombres de moments calcules %d\n",mom_max);
-		for (Int_t mm=0;mm<mom_max;mm+=1){
+		for (Int_t mm=0;mm<=mom_max;mm+=1){
 			printf("Moments d'ordre %d -> %1.0lf\n",mm,moments[mm]);
 		}
 	}
@@ -212,6 +252,7 @@ void KVPartition::Print(Option_t* option) const {
 
 }
 
+
 Int_t KVPartition::Compare(const TObject* obj) const {
 
 
@@ -227,12 +268,12 @@ Int_t KVPartition::CompareMoments(KVPartition* par) const {
 	Double_t val1=0,val2=0;
 	Int_t ordre=0;
 	
-	while ( val1 == val2 && ordre<this->GetMomentOrdreMax() ){
+	while ( val1 == val2 && ordre<=this->GetMomentOrdreMax() ){
 		val1 = par->GetMoment(ordre);
 		val2 = this->GetMoment(ordre);
 		ordre += 1;
 	}
-	if (ordre>=mom_max){
+	if (ordre>mom_max){
 		return 1;
 	}
 	return 0;
@@ -304,5 +345,38 @@ Double_t  KVPartition::GetZmin(Int_t rang) const {
 
 	Int_t inverse = Int_t(GetMoment(0))-1-rang;
 	return ( (inverse<GetMoment(0)) ? Double_t(GetValeur(inverse)) : -1. );
+
+}
+
+Bool_t KVPartition::RemoveAt(Int_t rang) {
+
+	Int_t val = Int_t(GetZmax(rang));
+	if (val==-1) return kFALSE;
+	
+	regle[val]-=1;
+	if (regle[val]==0) {	nbre_val_diff-=1; }
+	nbre_val-=1;
+	
+	ResetMoments();
+	ComputeValues();
+	
+	return kTRUE;
+
+}
+
+Bool_t KVPartition::RemoveValue(Int_t val) {
+
+	if (regle[val]>0){
+		Int_t nval = regle[val];
+		regle[val] = 0;
+		nbre_val -= nval;
+		nbre_val_diff -= 1;
+	}
+	else return kFALSE;
+	
+	ResetMoments();
+	ComputeValues();
+	
+	return kTRUE;
 
 }
