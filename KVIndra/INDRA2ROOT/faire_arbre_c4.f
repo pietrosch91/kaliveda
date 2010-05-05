@@ -142,13 +142,15 @@ c      call initevt()
 				enddo
 			enddo    
 		
-			if(mod(necrit, 200000).eq.0) then
+			if(mod(necrit, 50000).eq.0) then
 				nfiles = nfiles+1
 				close(88)
 				if(nfiles.lt.10) then
 					write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
-      		else
+      		else if (nfiles.lt.100) then
 					write(filename,'(a,i2,a)') 'arbre_root_', nfiles, '.txt'
+     			else 
+					write(filename,'(a,i3,a)') 'arbre_root_', nfiles, '.txt'
 				endif 																					  
       		print *,'Opening file for writing : ', filename
 				open(unit=88,file=filename,status='new')
@@ -168,6 +170,7 @@ c-------------------------------------------------------------------
       include 'veda_rel.incl'                                           
       include 'veda_5.incl'                                             
       include 'veda_6.incl'                                             
+      include 'veda_11.incl'   
 c      include 'anin_1.incl'                                             
       common /rootwrite/ necrit, nfiles, nrustines, nrustines_camp
 	  character*60 filename                                 
@@ -206,6 +209,10 @@ c	  	write(88,*) numerun
       print 20,ptot,vproj,zvtot                                         
       print 30,vcm,ecm
       
+		filename=nomjob(1:long_job)//'.info'
+		open(unit=87,file=filename,status='new')
+		write(87,*) numerun, zproj, aproj, zcib, acib, esura
+		close(87)	
 
       return                                                            
 10    format(1x,'E/A=',f10.2,/,1x,'Projectile :',a3,2(1x,f4.0),/,       
