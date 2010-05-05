@@ -46,7 +46,7 @@ c--------------------------------------------------------------------
       
       character*160 commande ! ajout D.CUSSOL 08/03/2003
       character*80 hpssdir ! ajout D.CUSSOL 08/03/2003
-      
+      common /TestBizarrz/ibizarre  
       Common /RED1/new_run,long_critere,critere                         
       Common /ASKI/iascii
       character*8 tywrbloc(4)                                           
@@ -195,6 +195,9 @@ c                call DEC_BLOC_DST_4  (ibuff)
 c                   call DEC_BLOC_DST  (ibuff)
 					elseif(iversion.eq.6)then
 						call DEC_BLOC_DST_6  (ibuff)
+						
+						if (ibizarre.eq.1) goto 779
+					
 					else
 						STOP 'BLOCDATA  impossible a lire'
 					endif      
@@ -303,6 +306,7 @@ c----------------------------------------------------------------------
                                                                         
       Real*4       tab_pw(12),hit_pw(12)
       common /TABPW/tab_pw,hit_pw      
+      common /TestBizarrz/ibizarre      
 
       include 'veda_rel.incl'                                           
       include 'veda_wri.incl'
@@ -320,7 +324,7 @@ c----------------------------------------------------------------------
       evt_a_lire=.True.                                                 
       prt=.False.  
                                                                         
-                                                                        
+		ibizarre=0                                                             
 c --- Boucle sur le nombre d'evt a decoder dans le bloc                 
                                                                         
       nbloc=nbloc+1                                                     
@@ -334,21 +338,19 @@ c --- Boucle sur le nombre d'evt a decoder dans le bloc
 1     format(1x,8(i5,1x))                                               
       end if                                                            
                                                                         
-      do while(evt_a_lire)                                              
+		do while(evt_a_lire)                                              
 
-        if(ipt.gt.8192)evt_a_lire=.false.   ! on W.Mueller's advice
+			if(ipt.gt.8192)evt_a_lire=.false.   ! on W.Mueller's advice
 
          ilong=ibuff(ipt)                                               
          nkbyte=nkbyte+ilong*2                                          
-         if(dump_eric_2)write(*,*)' DEC_BLOC_DST_6 : ilong =',ilong
+         if(dump_eric_2)	write(*,*)' DEC_BLOC_DST_6 : ilong =',ilong
                                                                         
 c --- Fin de lecture du bloc courant                                    
                                                                         
          if(ilong.eq.0.or.ipt.ge.8192) then   ! JLC 09/02/04                                         
 c         if(ilong.eq.0) then                                            
-                                                                        
-            evt_a_lire=.False. 
-                                                     
+         	evt_a_lire=.False. 
          else                                                           
                                                                         
 c --- Decodage de l'evt NEVTLUS                                         
@@ -367,56 +369,57 @@ c --- Decodage de l'evt NEVTLUS
             npart_new_coherency=ibuff(ipt+26)   ! a verifier
             npart_modif_coherency=ibuff(ipt+27)   ! a verifier
             if(dump_eric_2)then
-              write(*,*)
+					write(*,*)
      &  'Nouveau Apr 20 :: DEC_BLOC_DST_6 : npart_traite =',npart_traite
-              write(*,*)
+              	write(*,*)
      &   ' npart_coherency new,modif=',npart_new_coherency,
      &                                 npart_modif_coherency
-              write(*,*)' header'
-              write(*,'(10i6)')(ibuff(ipt+k),k=0,29)
-              write(*,*)'the events'
-              k=30
-              do i=1,999
-                long2=ibuff(ipt+k)
-                if(long2.lt.4.or.long2.gt.26)stop 'Eric'
-                write(*,*)' Particle : i,long2,k,code=',i,long2,k
+              	write(*,*)' header'
+              	write(*,'(10i6)')(ibuff(ipt+k),k=0,29)
+              	write(*,*)'the events'
+              	k=30
+              	do i=1,999
+						long2=ibuff(ipt+k)
+						if(long2.lt.4.or.long2.gt.26)stop 'Eric'
+						write(*,*)' Particle : i,long2,k,code=',i,long2,k
 c                write(*,'(10i6)')(ibuff(ipt+k+j-1),j=1,long2)
-                k=k+long2
-                if(k.gt.(ilong-2))goto 1467
-              enddo
-1467        continue
-          endif
+						k=k+long2
+						if(k.gt.(ilong-2))goto 1467
+					enddo
+1467        	continue
+				endif
 c --- Reconstitution de NEVT...                                         
  
-            iflag=0
-            if(nevt_high.lt.0) iflag=1                                  
-            if(iflag.eq.0) then
-               num_evt_brut=nevt_low*2**16+nevt_high                    
-            else
-               num_evt_brut=nevt_low*2**16+nevt_high+2**16              
-            end if
-            nevt=nevt+1                                                 
+				iflag=0
+				if(nevt_high.lt.0) iflag=1                                  
+				if(iflag.eq.0) then
+					num_evt_brut=nevt_low*2**16+nevt_high                    
+				else
+					num_evt_brut=nevt_low*2**16+nevt_high+2**16              
+				end if
+				nevt=nevt+1                                                 
             
 c --- Remplissage du buffer d'ecriture "ievt" pour l'evenement 
                           
-            if(ilong.gt.wmax)then
-               print *,' -------------------------------------------'
-               print *,' ATTENTION DANGER ...'
-               print *,' ilong = ',ilong,' > wmax = ',wmax
-             print *,' risque de violation de memoire ! (veda_wri.incl)'
-               print *,' evt = ',nevtlus,' evt brut = ',num_evt_brut
-               print *,' npart_traite, iztot , mcha = ',
+				if(ilong.gt.wmax)then
+				print *,' -------------------------------------------'
+				print *,' ATTENTION DANGER ...'
+       		print *,' ilong = ',ilong,' > wmax = ',wmax
+        		print *,' risque de violation de memoire ! (veda_wri.incl)'
+        		print *,' evt = ',nevtlus,' evt brut = ',num_evt_brut
+        		print *,' npart_traite, iztot , mcha = ',
      &                   npart_traite,iztot,mcha
-               print *,' On se repositionne sur le bloc suivant'
-               print *,' Avant: dump de cet evt: '
-               do k=1,ilong
-               print *,'    k,ibuff = ',k,ibuff(ipt+k-1)
-               enddo
-               print *,' -------------------------------------------'
+       		print *,' On se repositionne sur le bloc suivant'
+         	print *,' Avant: dump de cet evt: '
+      		do k=1,ilong
+     				print *,'    k,ibuff = ',k,ibuff(ipt+k-1)
+     			enddo
+  				print *,' -------------------------------------------'
 
-               stop 'DEC_BLOC_DST 2'
-                return
-            endif  
+ 				stop 'DEC_BLOC_DST 2'
+				return
+            
+				endif  
                                                                         
 c            if(ilong.gt.1200)then
 c               print *,' -------------------------------------------'
@@ -429,288 +432,295 @@ c               print *,' *** Danger s''ils sont trop nombreux ! ***'
 c               print *,' -------------------------------------------'
 c            endif  
 c            write(*,*)' DEC_BLOC_DST_6 : raw_event_number,nevt =',num_evt_brut,nevt
-            do k=1,ilong
-            ievt(k)=ibuff(ipt+k-1)
+				do k=1,ilong
+					ievt(k)=ibuff(ipt+k-1)
 c            if(k.lt.30)write(*,*)' DEC_BLOC_DST_6 : index,ievt =',k,ievt(k)
-            enddo
-            do k=ilong+1,wmax
-            ievt(k)=0
-            enddo   
+				enddo
+				do k=ilong+1,wmax
+					ievt(k)=0
+				enddo   
 c            if(nevt.gt.10)stop' Demande dans DEC_BLOC_DST_6'
                                                                         
 c --- Positionnement du pointeur de lecture                             
 c     l'entete contient la longueur de l'evenement ibuff(ipt)
 c     le premier parametre de GSI correspond a IBUFF(ipt+8)
 c     le dernier parametre de GSI correspond a IBUFF(ipt+i_entete-1)
-            do i=8,i_entete-1
-              entete_gsi(i-7)=ibuff(ipt+i)
-            enddo
-            ipt=ipt+i_entete
+				do i=8,i_entete-1
+					entete_gsi(i-7)=ibuff(ipt+i)
+				enddo
+				ipt=ipt+i_entete
                                                                         
 c --- Decodage caracteristiques des particules...                       
                                                                         
-            do i=1,npart_traite+npart_modif_coherency                                         
+				do i=1,npart_traite+npart_modif_coherency                                         
                                                                         
-               de1(i)=0.
-               de2(i)=0.
-               de3(i)=0.
-               de4(i)=0.
-               de5(i)=0.
-               de_mylar(i)=0.
-               code_cali(i)=0.
-               ener(i)=0.
-               ecode(i)=0
-               do k=1,4
-               code_energie(k,i)=0
-               code_idf(k,i)=0
-               enddo
-               canal(i,1)=0
-               canal(i,2)=0
-               canal(i,4)=0
-               canal(i,5)=0
-               canal(i,7)=0
-               canal(i,8)=0
+					de1(i)=0.
+       			de2(i)=0.
+         		de3(i)=0.
+          		de4(i)=0.
+          		de5(i)=0.
+         		de_mylar(i)=0.
+        			code_cali(i)=0.
+          		ener(i)=0.
+          		ecode(i)=0
+           		do k=1,4
+            		code_energie(k,i)=0
+            		code_idf(k,i)=0
+          		enddo
+          		canal(i,1)=0
+         		canal(i,2)=0
+          		canal(i,4)=0
+          		canal(i,5)=0
+           		canal(i,7)=0
+         		canal(i,8)=0
  
-               ilongevt=ibuff(ipt)                                      
-               module=ibuff(ipt+1)                                      
-               icou(i)=module/100                                       
-               imod(i)=mod(module,100)                                  
+					ilongevt=ibuff(ipt)                                      
+       			module=ibuff(ipt+1)                                      
+        			icou(i)=module/100                                       
+          		imod(i)=mod(module,100)                                  
 
-               a_sec(i) = 0.
-               z_sec(i) = 0.
+          		a_sec(i) = 0.
+          		z_sec(i) = 0.
                                                                         
 c --- Si Gamma ( Code = 0 )                                             
                                                                         
-               if(ilongevt.eq.i_long1) then                             
+    				if(ilongevt.eq.i_long1) then                             
                                                                         
-                  z(i)=0                                                
-                  a(i)=0                                                
-                  z_indra(i)=0.                                         
-                  a_indra(i)=0.                                         
-                  code_part(i)=0 
-                  code16=code_part(i)                                   
-                  call DECODE_PART(icou(i),code16,code4)                
-                  code(i)=code4(1)                                      
-                  do k=1,4
-                  code_idf(k,i)=code4(k)                                
-                  enddo
+       				z(i)=0                                                
+            		a(i)=0                                                
+            		z_indra(i)=0.                                         
+        				a_indra(i)=0.                                         
+             		code_part(i)=0 
+           			code16=code_part(i)                                   
+           			call DECODE_PART(icou(i),code16,code4)                
+             		code(i)=code4(1)                                      
+             		do k=1,4
+            			code_idf(k,i)=code4(k)                                
+             		enddo
  
-                  de3(i)=ibuff(ipt+2)                                 
-                  call mtcombo_unpack(ibuff(ipt+3),mt(i),mtsig(i))
+             		de3(i)=ibuff(ipt+2)                                 
+            		call mtcombo_unpack(ibuff(ipt+3),mt(i),mtsig(i))
                                                                         
-              else
+       			else
  
-                  ib=ibuff(ipt+2)                                       
-                  z_indra(i)=float(ib)/100.                             
-                  z(i)=nint(z_indra(i))                                 
-                  ib=ibuff(ipt+3)                                       
-                  a_indra(i)=float(ib)/100.                             
-                  a(i)=nint(a_indra(i))                                 
-                  code_part(i)=ibuff(ipt+4)                             
-                  code16=code_part(i)                                   
-                  call DECODE_PART(icou(i),code16,code4)                
-                  code(i)=code4(1)
-                  if(dump_eric_2)write(*,*)' particule : num,code=',i,code(i)
-                  do k=1,4
-                    code_idf(k,i)=code4(k)
-                  enddo
+             		ib=ibuff(ipt+2)                                       
+             		z_indra(i)=float(ib)/100.                             
+             		z(i)=nint(z_indra(i))                                 
+            		ib=ibuff(ipt+3)                                       
+             		a_indra(i)=float(ib)/100.                             
+             		a(i)=nint(a_indra(i))                                 
+            		code_part(i)=ibuff(ipt+4)                             
+              		code16=code_part(i)                                   
+            		call DECODE_PART(icou(i),code16,code4)                
+            		code(i)=code4(1)
+            		if(dump_eric_2)write(*,*)' particule : num,code=',i,code(i)
+            		do k=1,4
+             			code_idf(k,i)=code4(k)
+           			enddo
 c   Decodage de zcombo -acombo                
-                  if((icou(i).ge.1.and.icou(i).le.9) .and.
-     +                 (code(i).eq.2.or.code(i).eq.3)) then
-                    call zcombo_unpack(ibuff(ipt+2),r_zpri,r_zsec)
-                    z_indra(i) = r_zpri
-                    z(i)       = nint(z_indra(i))
-                    z_sec(i)   = r_zsec
-                    call acombo_unpack(ibuff(ipt+3),r_apri,r_asec)
-                    a_indra(i) = r_apri
-                    a(i)       = nint(a_indra(i))
-                    a_sec(i)   = r_asec
-                  endif
+						if((icou(i).ge.1.and.icou(i).le.9) .and.
+     +       	(code(i).eq.2.or.code(i).eq.3)) then
+            			call zcombo_unpack(ibuff(ipt+2),r_zpri,r_zsec)
+              			z_indra(i) = r_zpri
+                		z(i)       = nint(z_indra(i))
+               		z_sec(i)   = r_zsec
+              			call acombo_unpack(ibuff(ipt+3),r_apri,r_asec)
+                		a_indra(i) = r_apri
+              			a(i)       = nint(a_indra(i))
+               		a_sec(i)   = r_asec
+            		endif
 
-                  if(icou(i).ge.10.and.icou(i).le.17)then
-                     if(code(i).eq.2.or.code(i).eq.4) then
-                        call zcombo_unpack(ibuff(ipt+2),r_zpri,r_zsec)
-                        z_indra(i) = r_zpri
-                        z(i)       = nint(z_indra(i))
-                        z_sec(i)   = r_zsec
-                     else if (code(i).eq.3) then ! etalon
-                        call zcombo_unpack(ibuff(ipt+2),r_zpri,r_zsec)  
-                        z_indra(i) = r_zpri
-                        z(i)       = nint(z_indra(i))
-                        z_sec(i)   = r_zsec
-                        call acombo_unpack(ibuff(ipt+3),r_apri,r_asec)
-                        a_indra(i) = r_apri
-                        a(i)       = nint(a_indra(i))
-                        a_sec(i)   = r_asec
-                     endif
-                  endif
+             		if(icou(i).ge.10.and.icou(i).le.17)then
+              			if(code(i).eq.2.or.code(i).eq.4) then
+               	   	call zcombo_unpack(ibuff(ipt+2),r_zpri,r_zsec)
+               	    	z_indra(i) = r_zpri
+               	    	z(i)       = nint(z_indra(i))
+               	    	z_sec(i)   = r_zsec
+               	  	else if (code(i).eq.3) then ! etalon
+               	    	call zcombo_unpack(ibuff(ipt+2),r_zpri,r_zsec)  
+               	    	z_indra(i) = r_zpri
+               	   	z(i)       = nint(z_indra(i))
+               	    	z_sec(i)   = r_zsec
+               	    	call acombo_unpack(ibuff(ipt+3),r_apri,r_asec)
+               	   	a_indra(i) = r_apri
+               	     	a(i)       = nint(a_indra(i))
+               	   	a_sec(i)   = r_asec
+               	 	endif
+            		endif
 c -----
-                  code_cali(i)=ibuff(ipt+5)
+						code_cali(i)=ibuff(ipt+5)
                  
-                  code16=code_cali(i)                                   
-                  code_energie(1,i)=jbyt(code16,1,4)                    
-                  code_energie(2,i)=jbyt(code16,5,4)                    
-                  code_energie(3,i)=jbyt(code16,9,4)                    
-                  code_energie(4,i)=jbyt(code16,13,4)                   
-                  ecode(i)=code_energie(1,i)                            
+						code16=code_cali(i)                                   
+						code_energie(1,i)=jbyt(code16,1,4)                    
+						code_energie(2,i)=jbyt(code16,5,4)                    
+						code_energie(3,i)=jbyt(code16,9,4)                    
+						code_energie(4,i)=jbyt(code16,13,4)                   
+						ecode(i)=code_energie(1,i)                            
                                                                         
-                  call mtcombo_unpack(ibuff(ipt+6),mt(i),mtsig(i))
+						call mtcombo_unpack(ibuff(ipt+6),mt(i),mtsig(i))
                                                                          
 c --- Cas des couronnes 1 a 9   Ring 1 as others                               
+               	                                                         
+						if(ilongevt.eq.i_long3) then                      
+               	                                                         
+							de_mylar(i)=(ibuff(ipt+7))/100.                     
+							de1(i)=(ibuff(ipt+8))/10.                           
                                                                         
-                  if(ilongevt.eq.i_long3) then                      
-                                                                        
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     
-                    de1(i)=(ibuff(ipt+8))/10.                           
-                                                                        
- 		    if(.not.linux)then
-		      kbyt(1)=ibuff(ipt+9)
-                      kbyt(2)=ibuff(ipt+10)
-		    else
-		      kbyt(1)=ibuff(ipt+10)
-                      kbyt(2)=ibuff(ipt+9)
-		    endif
+							if(.not.linux)then
+		      				kbyt(1)=ibuff(ipt+9)
+		      				kbyt(2)=ibuff(ipt+10)
+							else
+		      				kbyt(1)=ibuff(ipt+10)
+		      				kbyt(2)=ibuff(ipt+9)
+							endif
 		    
 c		    ien=ibuff(ipt+9)*(2**16)+ibuff(ipt+10)
-                    de2(i)=float(ien)
-                    de2(i)=de2(i)/10.
+		      				de2(i)=float(ien)
+		      				de2(i)=de2(i)/10.
                                                                         
-		    if(.not.linux)then
-                      kbyt(1)=ibuff(ipt+11)
-                      kbyt(2)=ibuff(ipt+12)
-		    else
-		      kbyt(1)=ibuff(ipt+12)
-                      kbyt(2)=ibuff(ipt+11)
-		    endif
+							if(.not.linux)then
+		      				kbyt(1)=ibuff(ipt+11)
+		      				kbyt(2)=ibuff(ipt+12)
+							else
+		      				kbyt(1)=ibuff(ipt+12)
+		      				kbyt(2)=ibuff(ipt+11)
+							endif
 c		    ien=ibuff(ipt+11)*(2**16)+ibuff(ipt+12)
-                    de3(i)=float(ien)
-                    de3(i)=de3(i)/10.
+		      			de3(i)=float(ien)
+		      			de3(i)=de3(i)/10.
                     
-                    canal(i,1)=ibuff(ipt+13)  !  canal  ChIo GG
-                    canal(i,2)=ibuff(ipt+14)  !  canal  ChIo PG
-                    canal(i,4)=ibuff(ipt+15)  !  canal  SI GG
-                    canal(i,5)=ibuff(ipt+16)  !  canal  SI PG
-                    canal(i,7)=ibuff(ipt+17)  !  canal  CsI R
-                    canal(i,8)=ibuff(ipt+18)  !  canal  CsI L
+		      			canal(i,1)=ibuff(ipt+13)  !  canal  ChIo GG
+		      			canal(i,2)=ibuff(ipt+14)  !  canal  ChIo PG
+		      			canal(i,4)=ibuff(ipt+15)  !  canal  SI GG
+		      			canal(i,5)=ibuff(ipt+16)  !  canal  SI PG
+		      			canal(i,7)=ibuff(ipt+17)  !  canal  CsI R
+		      			canal(i,8)=ibuff(ipt+18)  !  canal  CsI L
                     
 c --- Cas des couronnes 10 a 17  (sans Etalons)                         
                                                                         
-                  elseif(ilongevt.eq.i_long4) then                      
+		      		elseif(ilongevt.eq.i_long4) then                      
                                                                         
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     
-                    de1(i)=(ibuff(ipt+8))/10.                           
+		      			de_mylar(i)=(ibuff(ipt+7))/100.                     
+		      			de1(i)=(ibuff(ipt+8))/10.                           
                                                                         
-		    if(.not.linux)then
-                     kbyt(1)=ibuff(ipt+9)
-                     kbyt(2)=ibuff(ipt+10)
-		    else
-		      kbyt(1)=ibuff(ipt+10)
-                      kbyt(2)=ibuff(ipt+9)
-		    endif
+							if(.not.linux)then
+              				kbyt(1)=ibuff(ipt+9)
+                  	   kbyt(2)=ibuff(ipt+10)
+							else
+                  	   kbyt(1)=ibuff(ipt+10)
+                  	   kbyt(2)=ibuff(ipt+9)
+							endif
 c 		    ien=ibuff(ipt+9)*(2**16)+ibuff(ipt+10)
-                    de3(i)=float(ien)
-                    de3(i)=de3(i)/10.
+                  	de3(i)=float(ien)
+              			de3(i)=de3(i)/10.
                     
-                    canal(i,1)=ibuff(ipt+11)  !  canal  ChIo GG
-                    canal(i,2)=ibuff(ipt+12)  !  canal  ChIo PG
-                    canal(i,7)=ibuff(ipt+13)  !  canal  CsI R
-                    canal(i,8)=ibuff(ipt+14)  !  canal  CsI L           
+              			canal(i,1)=ibuff(ipt+11)  !  canal  ChIo GG
+              			canal(i,2)=ibuff(ipt+12)  !  canal  ChIo PG
+              			canal(i,7)=ibuff(ipt+13)  !  canal  CsI R
+              			canal(i,8)=ibuff(ipt+14)  !  canal  CsI L           
                     
 		      
 		                                                          
 c --- Cas des couronnes 10 a 17  (avec Etalons)                         
                                                                         
-                  elseif(ilongevt.eq.i_long5) then                      
+		      		elseif(ilongevt.eq.i_long5) then                      
 c                   write(*,*)' DEC_BLOC_DST_6 : Evt Etalon,nevt =',nevt
                      
-                    de_mylar(i)=(ibuff(ipt+7))/100.                     
-                    de1(i)=(ibuff(ipt+8))/10.                           
-                    de4(i)=(ibuff(ipt+9))/10.                           
+							de_mylar(i)=(ibuff(ipt+7))/100.                     
+                    	de1(i)=(ibuff(ipt+8))/10.                           
+                    	de4(i)=(ibuff(ipt+9))/10.                           
                                                                         
- 		    if(.not.linux)then
-                      kbyt(1)=ibuff(ipt+10)
-                      kbyt(2)=ibuff(ipt+11)
- 		    else
-		      kbyt(1)=ibuff(ipt+11)
-                      kbyt(2)=ibuff(ipt+10)
-		    endif
+                    	if(.not.linux)then
+                    		kbyt(1)=ibuff(ipt+10)
+								kbyt(2)=ibuff(ipt+11)
+                    	else
+								kbyt(1)=ibuff(ipt+11)
+								kbyt(2)=ibuff(ipt+10)
+                    	endif
 c   		    ien=ibuff(ipt+10)*(2**16)+ibuff(ipt+11)
-                    de5(i)=float(ien)
-                    de5(i)=de5(i)/10.
+                    	de5(i)=float(ien)
+                    	de5(i)=de5(i)/10.
                                                                         
- 		    if(.not.linux)then
-                      kbyt(1)=ibuff(ipt+12)
-                      kbyt(2)=ibuff(ipt+13)
- 		    else
-		      kbyt(1)=ibuff(ipt+13)
-                      kbyt(2)=ibuff(ipt+12)
-		    endif
+                    	if(.not.linux)then
+								kbyt(1)=ibuff(ipt+12)
+								kbyt(2)=ibuff(ipt+13)
+                    	else
+								kbyt(1)=ibuff(ipt+13)
+								kbyt(2)=ibuff(ipt+12)
+                    	endif
 c 		    ien=ibuff(ipt+12)*(2**16)+ibuff(ipt+13)
-                    de3(i)=float(ien)
-                    de3(i)=de3(i)/10.
+                    	de3(i)=float(ien)
+                    	de3(i)=de3(i)/10.
                     
-                    canal(i,1)=ibuff(ipt+14)  !  canal  ChIo GG
-                    canal(i,2)=ibuff(ipt+15)  !  canal  ChIo PG
-                    canal(i,7)=ibuff(ipt+16)  !  canal  CsI R
-                    canal(i,8)=ibuff(ipt+17)  !  canal  CsI L
-                    canal(i,10)=ibuff(ipt+18)  !  Canal Si75 GG 
-                    canal(i,11)=ibuff(ipt+19)  !  Canal Si75 PG
-                    canal(i,13)=ibuff(ipt+20)  !  Canal SiLi GG
-                    canal(i,14)=ibuff(ipt+21)  !  Canal SiLi PG
-                    canal(i,3)=ibuff(ipt+22)  !  canal  ChIo temps
-                    canal(i,12)=ibuff(ipt+23)  !  canal  Si75 temps
-                    canal(i,15)=ibuff(ipt+24)  !  canal  SiLi temps
-                    canal(i,9)=ibuff(ipt+25)  !  canal  Csi temps
+                    	canal(i,1)=ibuff(ipt+14)  !  canal  ChIo GG
+                    	canal(i,2)=ibuff(ipt+15)  !  canal  ChIo PG
+                    	canal(i,7)=ibuff(ipt+16)  !  canal  CsI R
+                    	canal(i,8)=ibuff(ipt+17)  !  canal  CsI L
+                    	canal(i,10)=ibuff(ipt+18)  !  Canal Si75 GG 
+                    	canal(i,11)=ibuff(ipt+19)  !  Canal Si75 PG
+                    	canal(i,13)=ibuff(ipt+20)  !  Canal SiLi GG
+                    	canal(i,14)=ibuff(ipt+21)  !  Canal SiLi PG
+                    	canal(i,3)=ibuff(ipt+22)  !  canal  ChIo temps
+                    	canal(i,12)=ibuff(ipt+23)  !  canal  Si75 temps
+                    	canal(i,15)=ibuff(ipt+24)  !  canal  SiLi temps
+                    	canal(i,9)=ibuff(ipt+25)  !  canal  Csi temps
                                                                         
-                  else                                                  
+						else                                                  
                                                                         
-                    write(6,*) 'Bloc=',nbloclus,' Evt:',nevt,'bizarre!'
-                    write(6,*) 'En effet, ilongevt =',ilongevt,' !?'    
-                    write(6,*) 'On passe au bloc suivant !!!?'
-                    
-                    return   
-                                                                        
-                  end if                                                
+                    	write(6,*) 'i_long1=',i_long1
+                    	write(6,*) 'i_long2=',i_long2
+                    	write(6,*) 'i_long3=',i_long3
+                    	write(6,*) 'i_long4=',i_long4
+                    	write(6,*) 'i_long5=',i_long5
+                    	write(6,*) 'Bloc=',nbloclus,' Evt:',nevt,'bizarre!'
+                    	write(6,*) 'En effet, ilongevt =',ilongevt,' !?'	 
+                    	write(6,*) 'On passe au bloc suivant !!!?'
+                    	
+							ibizarre=1
+                    	return
+!							evt_a_lire=.false.
+!							end_of_file=.true.
+               	end if                                                
  
-                  dde1=de1(i)
-                  dde2=de2(i)
-                  dde3=de3(i)
-                  dde4=de4(i)
-                  dde5=de5(i)
-                  if(dde1.lt.0)dde1=0.
-                  if(dde2.lt.0)dde2=0.
-                  if(dde3.lt.0)dde3=0.
-                  if(dde4.lt.0)dde4=0.
-                  if(dde5.lt.0)dde5=0.
-                  ener(i)=(dde1+dde2+dde3+dde4+dde5)+de_mylar(i)
- 
-              endif
- 
-              ipt=ipt+abs(ilongevt)                                     
-
-            if(num_evt_brut.eq.-159)then
-              write(*,*)' npart,ic,im,z,a =',i,icou(i),imod(i),z(i),a(i)
-            endif
-            end do
+		      		dde1=de1(i)
+		      		dde2=de2(i)
+		      		dde3=de3(i)
+		      		dde4=de4(i)
+		      		dde5=de5(i)
+		      		if(dde1.lt.0)dde1=0.
+		      		if(dde2.lt.0)dde2=0.
+		      		if(dde3.lt.0)dde3=0.
+		      		if(dde4.lt.0)dde4=0.
+		      		if(dde5.lt.0)dde5=0.
+		      		ener(i)=(dde1+dde2+dde3+dde4+dde5)+de_mylar(i)
+ 					endif
+ 					
+					ipt=ipt+abs(ilongevt)                                    
+					
+					if(num_evt_brut.eq.-159)then
+						write(*,*)' npart,ic,im,z,a =',i,icou(i),imod(i),z(i),a(i)
+            	endif
+         	end do
 
 		    
 c --- Routine utilisateurs pour le traitement evt/evt 
                   
-            copy_event=.false.    
+         	copy_event=.false.    
                                                   
-            call TRAITEMENT
+         	call TRAITEMENT
             
-            if(fin_lect_run)evt_a_lire=.false.
-            if(fin_lect_gen)evt_a_lire=.false.
+         	if(fin_lect_run)evt_a_lire=.false.
+				if(fin_lect_gen)evt_a_lire=.false.
                                                                         
-101         format(1x,5(i6,2x))                                         
+101			format(1x,5(i6,2x))                                         
                                                                         
-         end if                                                         
+			end if                                                         
                                                                         
-      end do    ! do while on evt_a_lire
+		end do    ! do while on evt_a_lire
                                                                         
-      return                                                            
-      end                                                               
+		return                                                            
+		
+		end                                                               
                                                                         
 
 c--------------------------------------------------------------------   
