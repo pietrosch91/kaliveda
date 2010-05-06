@@ -80,16 +80,9 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
    //Then we set the particles' angles depending on whether mean or random angles
    //are wanted (fMeanAngles = kTRUE or kFALSE)
 
-   UInt_t R__s, R__c;
    if (R__b.IsReading()) {
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
       Clear();
-      KVEvent::Streamer(R__b);
-      if(R__v<2) {
-         Float_t fThreshold;
-         R__b >> fThreshold;
-      }
-      R__b.CheckByteCount(R__s, R__c, KVReconstructedEvent::IsA());
+      R__b.ReadClassBuffer(KVReconstructedEvent::Class(), this);
       //set angles
       KVReconstructedNucleus *par;
       while ((par = GetNextParticle())) {

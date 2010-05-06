@@ -104,8 +104,6 @@ class KVMultiDetArray:public KVBase {
    void SetCalibrators();
 void set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri);
 void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri);
-
-   virtual void ConnectArrayBranches(TTree*){;};
    
  public:
    KVMultiDetArray();
@@ -255,8 +253,6 @@ void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDT
    void PrintCalibStatusOfDetectors();
 
 	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
-
-   virtual void ConnectBranches(TTree*);
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };

@@ -65,10 +65,20 @@ void KVReconstructedNucleus::init()
     fIDTelescope = 0;
     fNSegDet = 0;
     fAnalStatus = 99;
-    fECalc = 0;
     ResetBit(kIsIdentified);
     ResetBit(kIsCalibrated);
     ResetBit(kCoherency);
+   fNumDet = 0;
+   fNumPar = 0;
+   for (register int i = 0; i < MAX_NUM_DET; i++) {
+      fEloss[i] = 0.0;
+   }
+   for (register int i = 0; i < MAX_NUM_DET; i++) {
+      fElossCalc[i] = 0.0;
+   }
+   for (register int i = 0; i < MAX_NUM_PAR; i++) {
+      fACQData[i] = 0;
+   }
 }
 
 KVReconstructedNucleus::KVReconstructedNucleus()
@@ -127,9 +137,19 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             MakeDetectorList();
             if (GetGroup()) GetGroup()->AddHit(this);
             TIter next_det(fDetList);
-            KVDetector *det;
+            KVDetector *det;register int ndet = 0;UInt_t npar=0;
             while ( (det = (KVDetector*)next_det()) ){
                 fNSegDet += det->GetSegment();
+               det->SetEnergy(fEloss[ndet]);
+               det->SetECalc((Double_t)fElossCalc[ndet]);
+               ndet++;
+               if (det->GetACQParamList()) {
+                  TIter next_par(det->GetACQParamList());
+                  KVACQParam *par;
+                  while ((par = (KVACQParam *) next_par())) {
+                     par->SetData(fACQData[npar++]);
+                  }
+               }
                 //modify detector's counters depending on particle's identification state
                 if (IsIdentified())
                     det->IncrementIdentifiedParticles();
@@ -175,6 +195,11 @@ void KVReconstructedNucleus::Copy(TObject & obj)
     SetIdentifyingTelescope(GetIdentifyingTelescope());
     ((KVReconstructedNucleus &) obj).SetRealZ(GetRealZ());
     ((KVReconstructedNucleus &) obj).SetRealA(GetRealA());
+   ((KVReconstructedNucleus &) obj).SetNumDet(GetNumDet());
+   ((KVReconstructedNucleus &) obj).SetNumPar(GetNumPar());
+   ((KVReconstructedNucleus &) obj).SetElossTable(GetElossTable());
+   ((KVReconstructedNucleus &) obj).SetElossCalcTable(GetElossCalcTable());
+   ((KVReconstructedNucleus &) obj).SetACQData(GetACQData());
 }
 
 
@@ -191,15 +216,14 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
         fDetList->Clear();
         delete fDetList;
     };
-    if (fECalc){
-        delete fECalc;
-    };
     init();
 }
 
 void KVReconstructedNucleus::AddDetector(KVDetector * det)
 {
     //Add a detector to the list of those through which the particle passed.
+    //Put reference to detector into fDetectors array, store detector's energy loss value in
+    //fEloss array, increase number of detectors by one.
     //As this is only used in initial particle reconstruction, we add 1 unidentified particle to the detector.
     // Creates KVHashList fDetList in case it does not exist.
 
@@ -209,6 +233,28 @@ void KVReconstructedNucleus::AddDetector(KVDetector * det)
     // store pointer to detector
     if (!fDetList) fDetList = new KVHashList;
     fDetList->Add(det);
+   if (fNumDet == MAX_NUM_DET) {
+      Warning("AddDetector",
+              "Cannot store informations for more than %d detectors for reconstructed nucleus. Detector infos not taken into account",
+              fNumDet);
+   }
+   else {
+   		fEloss[fNumDet++] = det->GetEnergy();
+   		if (det->GetACQParamList()) {
+      		if ((fNumPar + det->GetACQParamList()->GetSize()) > MAX_NUM_PAR) {
+         		Warning("AddDetector",
+                 "Cannot add more than %d DAQ parameters to reconstructed nucleus. Parameters not taken into account",
+                 MAX_NUM_PAR);
+      		}
+      		else{
+      			TIter next_par(det->GetACQParamList());
+      			KVACQParam *par;
+      			while ((par = (KVACQParam *) next_par())) {
+         			fACQData[fNumPar++] = par->GetCoderData();
+      			}
+   			}
+   		}
+   	}
     //add segmentation index of detector to total segmentation index of particle
     fNSegDet += det->GetSegment();
     //add 1 unidentified particle to the detector
@@ -319,11 +365,10 @@ void KVReconstructedNucleus::SetElossCalc(KVDetector * det, Double_t energy)
 
     if (!det)
         return;
-    Int_t index = fDetList->IndexOf(det);
+    Int_t index = GetDetectorList()->IndexOf(det);
     if (index < 0)
         return;                   //detector not in list
-    if (!fECalc) fECalc = new TArrayD(GetNumDet());
-    fECalc->AddAt(energy,index);
+   fElossCalc[index] = energy;
     det->SetECalc(energy);
 }
 
@@ -333,12 +378,10 @@ Double_t KVReconstructedNucleus::GetElossCalc(KVDetector * det) const
 {
     //Get calculated energy loss value for this particle corresponding to given detector
 
-    if (!fECalc)
-        return -1.0;
-    Int_t index = fDetList->IndexOf(det);
+    Int_t index = GetDetectorList()->IndexOf(det);
     if (index < 0)
         return -1.0;              //detector not in list
-    return (*fECalc)[index];
+    return fElossCalc[index];
 }
 
 //______________________________________________________________________________________________//
@@ -468,7 +511,12 @@ void KVReconstructedNucleus::Calibrate()
         SetTargetEnergyLoss( E_targ );
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
-        fDetList->R__FOR_EACH(KVDetector,GetEnergy)();
+		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
+      while( (det = (KVDetector*)nxt()) ){
+         fEloss[ndet] = det->GetEnergy();
+         fElossCalc[ndet] = det->GetECalc();
+         ++ndet;
+      }
     }
 }
 

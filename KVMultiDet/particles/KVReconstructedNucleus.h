@@ -34,6 +34,13 @@ class KVReconstructedNucleus:public KVNucleus {
 
 
 protected:
+#define MAX_NUM_DET 5
+#define MAX_NUM_PAR 15
+   Int_t fNumDet;               //number of detectors particle passed through - Int_t imposed by TStreamerInfo
+   Double_t fEloss[MAX_NUM_DET]; //[5] measured energy losses in each successive detector
+   Double_t fElossCalc[MAX_NUM_DET];//[5] calculated energy losses in each successive detector
+   Int_t fNumPar;               //number of associated acquisition parameters - Int_t imposed by TStreamerInfo
+   UShort_t fACQData[MAX_NUM_PAR];//[15] values of acquisition parameters
 
     KVString fDetNames; // list of names of detectors through which particle passed
     KVHashList* fDetList; //! non-persistent list of pointers to detectors
@@ -53,8 +60,6 @@ protected:
     Float_t fRealZ;              //Z returned by identification routine
     Float_t fRealA;              //A returned by identification routine
     Double_t fTargetEnergyLoss;   //calculated energy lost in target
-
-    TArrayD* fECalc; // calculated energy loss of particle in each detector
 
     virtual void MakeDetectorList();
 
@@ -91,11 +96,52 @@ public:
         // Return pointer to the detector in which this particle stopped
         return GetDetector(0);
     };
-    Int_t GetNumDet() const
-    {
-        // Returns number of detectors through which this particle has passed
-        return GetDetectorList()->GetEntries();
-    };
+   void SetNumDet(UChar_t num) {
+      if (num > MAX_NUM_DET) {
+         Warning("SetNumDet(num)", "num is greater than max allowed (%d)",
+                 MAX_NUM_DET);
+         num = MAX_NUM_DET;
+      }
+      fNumDet = num;
+   };
+   UChar_t GetNumDet() const {
+      return fNumDet;
+   };
+   void SetNumPar(UChar_t num) {
+      if (num > MAX_NUM_PAR) {
+         Warning("SetNumPar(num)", "num is greater than max allowed (%d)",
+                 MAX_NUM_PAR);
+         num = MAX_NUM_PAR;
+      }
+      fNumPar = num;
+   };
+   UChar_t GetNumPar() const {
+      return fNumPar;
+   };
+   void SetACQData(const UShort_t * acqtab) {
+      for (UChar_t i = 0; i < fNumPar; i++) {
+         fACQData[i] = acqtab[i];
+      }
+   };
+   const UShort_t *GetACQData() const {
+      return fACQData;
+   }
+   void SetElossTable(const Double_t * etab) {
+      for (UChar_t i = 0; i < fNumDet; i++) {
+         fEloss[i] = etab[i];
+      }
+   }
+   const Double_t *GetElossTable() const {
+      return fEloss;
+   }
+   void SetElossCalcTable(const Double_t * etab) {
+      for (UChar_t i = 0; i < fNumDet; i++) {
+         fElossCalc[i] = etab[i];
+      }
+   }
+   const Double_t *GetElossCalcTable() const {
+      return fElossCalc;
+   }
 
     Int_t GetNSegDet() const {
         return fNSegDet;
@@ -153,7 +199,7 @@ public:
         //made from the stopping detector and all those aligned in front of it.
         //The first ID telescope in the list is that in which the particle stopped.
 
-        return GetStoppingDetector()->GetAlignedIDTelescopes();
+        return (GetStoppingDetector() ? GetStoppingDetector()->GetAlignedIDTelescopes() : 0);
     };
     virtual void Identify();
     virtual void Calibrate();

@@ -1369,20 +1369,3 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 	return surf;
 }
 
-//___________________________________________________________________________//
-
-void KVDetector::ConnectBranches(TTree* arb, const Char_t* prefix)
-{
-   // Look for branches associated with this detector in the TTree and connect them
-   // to the member variables for reading, or if not found, we create them ready for
-   // writing in a new TTree.
-   // 
-   // We store :
-   //  * energy loss in active layer
-   //  * calculated energy loss after subtraction of contributions from calibrated particles
-   
-   // energy loss in active layer
-   KVDataBranchHandler(arb, this, "fELoss", "D", prefix);
-   // calculated energy loss after subtraction of contributions from calibrated particles
-   KVDataBranchHandler(arb, this, "fECalc", "D", prefix);
-}

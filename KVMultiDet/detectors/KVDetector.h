@@ -322,8 +322,6 @@ Double_t *par_res;//!array of params for eres function
 	virtual void SetFiredBitmask();
 	Binary8_t GetFiredBitmask() const { return fFiredMask; };
 	
-	virtual void ConnectBranches(TTree*,const Char_t*prefix="");
-
 	ClassDef(KVDetector, 7)      //Base class for the description of detectors in multidetector arrays
 };
 
