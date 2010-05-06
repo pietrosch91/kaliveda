@@ -134,11 +134,7 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    // do:
    //     TObjArray* parlist = (TObjArray*) T->GetUserInfo()->FindObject("ParameterList");
    //     cout << "Par 674 name = " << (*parlist)[674]->GetName() << endl;
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
-   //
-#endif
-#endif
+
 
    TString option = opt;
    option.ToUpper();
