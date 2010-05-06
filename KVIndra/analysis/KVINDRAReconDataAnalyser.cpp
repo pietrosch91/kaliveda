@@ -16,6 +16,7 @@ $Date: 2007/11/15 14:59:45 $
 #include "TObjString.h"
 #include "TChain.h"
 #include "KVSelector.h"
+#include "KVAvailableRunsFile.h"
 
 ClassImp(KVINDRAReconDataAnalyser)
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +27,7 @@ KVINDRAReconDataAnalyser::KVINDRAReconDataAnalyser()
 {
    //Default constructor
    fDataSelector="none";
+   theChain=0;
 }
 
 void KVINDRAReconDataAnalyser::Reset()
@@ -33,6 +35,7 @@ void KVINDRAReconDataAnalyser::Reset()
    //Reset task variables
    KVDataAnalyser::Reset();
    fDataSelector="none";
+   theChain=0;
 }
 
 KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
@@ -76,22 +79,15 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    //and positions gDataBase & gIndraDB).
    fDataSet->cd();
    
-   TChain *t = new TChain("ReconstructedEvents");
-   t->SetDirectory(0); // we handle delete
+   theChain = new TChain("ReconstructedEvents");
+   theChain->SetDirectory(0); // we handle delete
    
    fRunList.Begin(); Int_t run;
    while( !fRunList.End() ){
-      
       run = fRunList.Next();
-      cout << "Adding file " << gDataSet->GetFullPathToRunfile(fDataType.
-                                                               Data(),
-                                                               run);
+      cout << "Adding file " << gDataSet->GetFullPathToRunfile(fDataType.Data(),run);
       cout << " to the TChain." << endl;
-      if( !t->Add(gDataSet->GetFullPathToRunfile(fDataType.Data(), run), -1) ){
-         //tree is not called "ReconstructedEvents". this must be an old file. tree is called "tree".
-         t->SetName("tree");
-         t->Add(gDataSet->GetFullPathToRunfile(fDataType.Data(), run), -1);
-      }
+      theChain->Add(gDataSet->GetFullPathToRunfile(fDataType.Data(),run));
    }
    
    TString option("");
@@ -100,27 +96,27 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
    
-   KVSelector *selector = (KVSelector*)GetInstanceOfUserClass();
+   TSelector *selector = (TSelector*)GetInstanceOfUserClass();
    
-   if(!selector || !selector->InheritsFrom("KVSelector"))
+   if(!selector || !selector->InheritsFrom("TSelector"))
     {
-    cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
-    cout << "Process aborted." << endl;
+    	cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
+    	cout << "Process aborted." << endl;
+    	if(selector) {
+    		delete selector;
+    		selector=0;
+    	}
     }
    else
     {
-      //check name of branch with reconstructed INDRA events
-      if( !t->GetBranch("INDRAReconEvent") ){
-         selector->SetINDRAReconEventBranchName("data");
-      }
       if (nbEventToRead) {
-         t->Process(GetUserClass(), option.Data(),nbEventToRead);
+         theChain->Process(GetUserClass(), option.Data(),nbEventToRead);
       } else {
-         t->Process(GetUserClass(), option.Data());
+         theChain->Process(GetUserClass(), option.Data());
       }
     }
    if(selector) delete selector;
-   delete t;
+   delete theChain;
 }
 
 //_________________________________________________________________
@@ -261,4 +257,15 @@ KVNumberList KVINDRAReconDataAnalyser::PrintAvailableRuns(KVString & datatype)
       cout << endl;
    }
    return all_runs;
+}
+
+void KVINDRAReconDataAnalyser::preInitRun()
+{
+	// Called by currently-processed KVSelector when a new file in the TChain is opened.
+	// If gIndra=0x0 we build the multidetector for the current dataset.
+	// We call gIndra->SetParameters for the current run.
+	
+	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
+	if( !gIndra ) gDataSet->BuildMultiDetector();
+	gIndra->SetParameters(run);
 }

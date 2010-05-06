@@ -173,7 +173,7 @@ void KVReconstructedNucleus::Print(Option_t * option) const
 
         for (int i = GetNumDet() - 1; i >= 0; i--) {
             KVDetector *det = GetDetector(i);
-            det->Print("data");
+            if(det) det->Print("data");
         }
 
     }
@@ -361,7 +361,6 @@ void KVReconstructedNucleus::SetElossCalc(KVDetector * det, Double_t energy)
     // Store calculated energy loss value for this particle corresponding to given detector
     // The particle's contribution is subtracted from the detector's calculated energy
     // loss and the detector's "reanalysis" flag is set to true.
-    // If the TArrayD fECalc does not exist, it is created with a size = GetNumDet()
 
     if (!det)
         return;

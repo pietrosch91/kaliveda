@@ -171,6 +171,7 @@ class KVDataAnalyser : public TObject {
 	virtual void postEndAnalysis() {};
 
 	virtual void WriteBatchInfo(TTree*);
+	virtual Int_t GetRunNumberFromFileName(const Char_t*);
 	
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

@@ -112,16 +112,150 @@ ClassImp(KVSelector)
 //
 //More examples can be found in the AnalyseCamp1 analysis class.
 //
-void KVSelector::Begin(TTree * tree)
+
+KVSelector::KVSelector(TTree * tree)
+{
+   //ctor
+   fChain=0;
+   callnotif = 0;
+   gvlist = 0;                  // Global variable list set to nil.
+   //create stopwatch
+   fTimer = new TStopwatch;
+   // event list
+   fEvtList = 0;
+   fTEVLexist = 0;
+   fKVDataSelector = 0;
+   fDataSelector = "";
+   needToSelect = kFALSE;
+   needToCallEndRun = kFALSE;
+   fCurrentRun = 0;
+   fPartCond = 0;
+   fGeneData = 0;
+   fRawData = 0;
+   data = 0;
+   dataselector_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
+   dataselector_lock.SetSuspend( 5 ); // suspension after timeout
+   dataselector_lock.SetSleeptime( 1 ); // try lock every second
+}
+
+KVSelector::~KVSelector()
+{
+   //dtor
+   //delete global variable list if it belongs to us, i.e. if created by a
+   //call to GetGVList
+   if (TestBit(kDeleteGVList)) {
+      delete gvlist;
+      gvlist = 0;
+      ResetBit(kDeleteGVList);
+   }
+   delete fTimer;
+   SafeDelete(fPartCond);
+}
+
+void KVSelector::Init(TTree * tree)
+{
+       if(fChain) return;//Init has already been called
+       
+    if(!tree) return;
+       
+	//   Set branch addresses
+   fChain = tree;
+   fChain->SetMakeClass(1);
+
+   if (fChain->InheritsFrom("TChain"))
+      fTreeOffset = ((TChain *) fChain)->GetTreeOffset();
+   else
+      fTreeOffset = 0;
+
+	data=0;
+   fChain->SetBranchAddress( fBranchName.Data() , &data, &b_data);
+   b_data->SetAutoDelete(kFALSE);
+
+//
+// Builds a TEventList by adding the contents of the lists for each run
+//
+   BuildEventList();
+   if (fKVDataSelector)         // Init of the KVDataSelector if needed
+   {
+      fKVDataSelector->Init();
+   }
+	gDataAnalyser->preInitAnalysis();
+   InitAnalysis();              //user initialisations for analysis
+	gDataAnalyser->postInitAnalysis();
+	
+   if (gvlist) {
+      gvlist->Init();
+   }
+}
+
+Bool_t KVSelector::Notify()
+{
+   // Called when loading a new file.
+   // Get branch pointers.
+
+   cout << "Analyse du fichier " << fChain->GetCurrentFile()->GetName()
+       << " : " << fChain->GetTree()->GetEntries() << endl;
+   NbTreeEntry = (Int_t) fChain->GetTree()->GetEntries();
+   fCurrentTreeNumber = fChain->GetTreeNumber();
+
+   needToCallEndRun = kTRUE;
+
+   Int_t nrun =
+       gDataAnalyser->GetRunNumberFromFileName(fChain->GetCurrentFile()->GetName());
+      fCurrentRun = ((KVINDRADB *) gDataBase)->GetRun(nrun);
+
+   if (fEvtList)
+      needToSelect = !(fTEVLexist[fCurrentTreeNumber]);
+   else
+      needToSelect = kFALSE;
+
+   if (needToSelect) {
+      if (!fKVDataSelector) {
+         LoadDataSelector();
+      }
+      fKVDataSelector->Reset(nrun);
+   }
+
+   cout << endl << " ===================  New Run  =================== " <<
+       endl << endl;
+
+      fCurrentRun->Print();
+      if (fCurrentRun->GetSystem()) {
+         fCurrentRun->GetSystem()->GetKinematics()->Print();
+      }
+
+   cout << endl << " ================================================= " <<
+       endl << endl;
+   
+	// Retrieving the pointer to the raw data tree
+   fRawData = (TTree*) fChain->GetCurrentFile()->Get("RawData");
+	// Retrieving the pointer to the gene tree
+   fGeneData = (TTree*) fChain->GetCurrentFile()->Get("GeneData");
+   if(!fGeneData) {
+      cout << "  --> No pulser & laser data for this run !!!" << endl << endl;
+   } else {
+      cout << "  --> Pulser & laser data tree contains " << fGeneData->GetEntries()
+            << " events" << endl << endl;
+   }
+   
+   if (needToSelect) {
+      cout << " Building new TEventList : " << fKVDataSelector->
+          GetTEventList()->GetName()
+          << endl;
+   }
+
+	gDataAnalyser->preInitRun();
+   InitRun();                   //user initialisations for run
+	gDataAnalyser->postInitRun();
+   return kTRUE;
+}
+
+void KVSelector::Begin(TTree *)
 {
    // Function called before starting the event loop.
    // When running with PROOF Begin() is only called in the client.
-   // Initialize the tree branches.
 
-   if (fChain != tree) {
-      Init(tree);
-   }
-//
+ //
 // Get the option and the name of the DataSelector if needed
 //
    TString option = GetOption();
@@ -132,26 +266,7 @@ void KVSelector::Begin(TTree * tree)
       SetDataSelector();
    }
 
-//
-// Builds a TEventList by adding the contents of the lists for each run
-//
-   BuildEventList();
-
    totentry = 0;
-
-   InitAnalysis();              //user initialisations for analysis
-
-   if (gvlist) {
-      gvlist->Init();
-   }
-
-   if (fKVDataSelector)         // Init of the KVDataSelector if needed
-   {
-      fKVDataSelector->Init();
-   }
-
-   cout << endl << "Beginning processing of TChain :" << endl;
-   fChain->ls();
 
    //start stopwatch, after first resetting it (in case this is not the first time the analysis is run)
    fTimer->Start(kTRUE);
@@ -222,19 +337,23 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    Bool_t ok_anal = kTRUE;
 
+	gDataAnalyser->preAnalysis();
    if (needToSelect) {
       ok_anal = fKVDataSelector->ProcessCurrentEntry(); //Data Selection and user analysis
    } else
       ok_anal = Analysis();     //user analysis
-
+	gDataAnalyser->postAnalysis();
+	
    // Testing whether EndRun() should be called
    if (AtEndOfRun()) {
       TString mes("End of run after ");
       mes += (totentry);
       mes += " events.";
       Info("Process", mes.Data());
-
+	
+	gDataAnalyser->preEndRun();
       EndRun();                 //user routine end of run
+	gDataAnalyser->postEndRun();
       needToCallEndRun = kFALSE;
 
       // save the new Built TEventList
@@ -242,14 +361,6 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
          SaveCurrentDataSelection();
          needToSelect = kFALSE;
       }
-
-      Info("Process", "delete data");
-      delete data;
-      data = 0;
-      Info("Process", "delete gIndra");
-      delete gIndra;            // Absolutely necessary to keep the coherence between
-      gIndra = 0;               // the pointers to the detectors and the TRef's
-      Info("Process", "delete OK");
    }
 
    return ok_anal;
@@ -271,11 +382,9 @@ void KVSelector::Terminate()
                            //includes time actually spent analysing data
 
    if (needToCallEndRun) {
+	gDataAnalyser->preEndRun();
       EndRun();
-      delete data;
-      data = 0;
-      delete gIndra;            // Absolutely necessary to keep the coherence between
-      gIndra = 0;               // the pointers to the detectors and the TRef's
+	gDataAnalyser->postEndRun();
    }
 
    if (needToSelect) {
@@ -300,7 +409,9 @@ void KVSelector::Terminate()
       fEvtList = 0;
    }
 
+	gDataAnalyser->preEndAnalysis();
    EndAnalysis();               //user end of analysis routine
+	gDataAnalyser->postEndAnalysis();
 }
 
 void KVSelector::Make(const Char_t * kvsname)
@@ -552,7 +663,7 @@ void KVSelector::BuildEventList(void)
          fTEVLexist[tn] = kFALSE;
          TString fname(((TNamed *) lof->At(tn))->GetTitle());
          cout << fname.Data() << endl;
-         Int_t nrun = GetRunNumberFromFileName(fname.Data());
+         Int_t nrun = gDataAnalyser->GetRunNumberFromFileName(fname.Data());
          if (nrun) {
             cout << "Numero de run " << nrun << endl;
             cout << "Recherche de " << Form("%s_run%d;1",
@@ -598,7 +709,6 @@ void KVSelector::BuildEventList(void)
          fEvtList = 0;
       }
    }
-
    fChain->SetEventList(fEvtList);
 }
 
@@ -813,17 +923,6 @@ void KVSelector::SaveCurrentDataSelection(void)
 }
 
 //____________________________________________________________________________
-Int_t KVSelector::GetRunNumberFromFileName(const Char_t * fileName)
-{
-   // Get the run number from the current tree file
-   
-   KVAvailableRunsFile *arf;
-   //get type of data being analysed from analyser running the analysis
-   arf = gDataSet->GetAvailableRunsFile( gDataAnalyser->GetDataType().Data() );
-   return arf->IsRunFileName(fileName);
-}
-
-//____________________________________________________________________________
 const Char_t *KVSelector::GetDataSelectorFileName(void)
 {
 //
@@ -900,59 +999,4 @@ void KVSelector::SetParticleConditions(const KVParticleCondition& cond)
    //set name of class to which we cast. this is for optimization to work
    fPartCond->SetParticleClassName("KVINDRAReconNuc");
 }
-
-//____________________________________________________________________________
    
-void KVSelector::CheckIfINDRAUpdateRequired()
-{
-   //  Updating calibration/identification parameters contained in data files.
-   //  When recon/ident data files are created, a KVINDRA object containing all of the
-   //  currently available identification & calibration parameters is written in the file.
-   //  During subsequent analysis of these files (e.g. during recon->ident transformation)
-   //  it is the parameters stored in the file which are used.
-   //  If you want to use different parameters (e.g. because those in the file have become
-   //  obsolete), it is possible by setting the following variables:
-   // 
-   //  [name of dataset].[data file type].UpdateIdentifications:    yes
-   //  [name of dataset].[data file type].UpdateIDTelescopes:    yes
-   //  [name of dataset].[data file type].UpdateCalibrations:    yes
-   // 
-   //  For example, to update the identification parameters during analysis of 'recon'
-   //  data from the 5th INDRA campaign, add the following line in your .kvrootrc:
-   // 
-   //  INDRA_camp5.recon.UpdateIdentifications:   yes
-   // 
-   //  In this example, if a recon->ident task is launched, the identification parameters
-   //  stored in the file will be ignored, and new identification parameters will be set
-   //  according to the current values of INDRA_camp5.ActiveIdentifications and the
-   //  variables giving the names of identification parameter files (see above).
-   // 
-   //  N.B. the parameters in the file being analysed will not be modified. However,
-   //  if you do e.g. recon->ident with 'Update' activated, the INDRA object in the new
-   //  'ident' file will contain the update parameters.
-      
-   Bool_t id_up = gDataSet->GetDataSetEnv( Form("%s.UpdateIdentifications",
-      gDataAnalyser->GetDataType().Data()), kFALSE );
-   Bool_t idtel_up = gDataSet->GetDataSetEnv( Form("%s.UpdateIDTelescopes",
-      gDataAnalyser->GetDataType().Data()), kFALSE );
-   Bool_t cal_up = gDataSet->GetDataSetEnv( Form("%s.UpdateCalibrations",
-      gDataAnalyser->GetDataType().Data()), kFALSE );
-   //update identification telescopes ?
-   if(idtel_up){
-      cout << endl << " +++ UPDATING IDENTIFICATION TELESCOPES OF INDRA +++ "<< endl << endl; 
-      gIndra->UpdateIDTelescopes();
-      gIndra->SetRunIdentificationParameters( fCurrentRun->GetNumber() );
-   }
-   //update identification parameters ?
-   else if(id_up){
-      cout << endl << " +++ UPDATING IDENTIFICATION PARAMETERS OF INDRA +++ "<< endl << endl; 
-      gIndra->UpdateIdentifications();
-      gIndra->SetRunIdentificationParameters( fCurrentRun->GetNumber() );
-   }
-   //update calibrations ?
-   if(cal_up){
-      cout << endl << " +++ UPDATING CALIBRATION PARAMETERS OF INDRA +++ " << endl<< endl; 
-      gIndra->UpdateCalibrators();
-      gIndra->SetRunCalibrationParameters( fCurrentRun->GetNumber() );
-   }
-}

@@ -1520,3 +1520,14 @@ if ( fBatchEnv ){
 
 
 }
+
+Int_t KVDataAnalyser::GetRunNumberFromFileName(const Char_t * fileName)
+{
+   // Get the run number from the filename
+   
+   KVAvailableRunsFile *arf;
+   arf = GetDataSet()->GetAvailableRunsFile( GetDataType().Data() );
+   return arf->IsRunFileName(fileName);
+}
+
+
