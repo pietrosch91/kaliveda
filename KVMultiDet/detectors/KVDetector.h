@@ -51,6 +51,7 @@ class KVCalibrator;
 class KVGroup;
 class KVIDTelescope;
 class TGeoVolume;
+class TTree;
 
 Double_t ELossActive(Double_t * x, Double_t * par);
 Double_t EResDet(Double_t * x, Double_t * par);
@@ -320,7 +321,7 @@ Double_t *par_res;//!array of params for eres function
 
 	virtual void SetFiredBitmask();
 	Binary8_t GetFiredBitmask() const { return fFiredMask; };
-
+	
 	ClassDef(KVDetector, 7)      //Base class for the description of detectors in multidetector arrays
 };
 

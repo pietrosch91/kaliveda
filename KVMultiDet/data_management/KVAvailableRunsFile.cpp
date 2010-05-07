@@ -90,7 +90,7 @@ const Char_t *KVAvailableRunsFile::GetFileName()
    }
    else
     filename.Form("%s.available_runs.%s.%s", fDataSet->GetRepository()->GetName(), fDataSet->GetDatapathSubdir(),
-                 GetName());
+                 fDataSet->GetRepository()->GetDatatypeSubdir(GetName()));
    return filename.Data();
 }
 

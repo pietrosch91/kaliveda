@@ -39,24 +39,31 @@ void KVReconIdent::InitRun(void)
       gDataRepositoryManager->GetDataSet(
          gDataSet->GetDataSetEnv("Identification1.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
          gDataSet->GetName() );
-         
+
    //create new ROOT file for identified events
    fRunNumber = gIndra->GetCurrentRunNumber();
    fIdentFile = OutputDataset->NewRunfile("ident", fRunNumber);
-   
-   KVString tree_title = gIndra->GetCurrentRun()->GetName();
-   if(gIndra->GetSystem()) tree_title += Form(" : %s", gIndra->GetSystem()->GetName());
-   tree_title += " : ident events created from recon data";
-   fIdentTree = new TTree("ReconstructedEvents", tree_title.Data());
-   fIdentTree->SetAutoSave(30000000);
-   fIdentTree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
-   fIdentTree->Branch("EventNumber", &fEventNumber, "EventNumber/I");
-   fIdentTree->Branch("INDRAReconEvent", "KVINDRAReconEvent", GetEventReference(),
-                      64000, 0)->SetAutoDelete(kFALSE);
-   
+
+
+		fIdentTree = new TTree("ReconstructedEvents", Form("%s : %s : ident events created from recon data",
+			 	gIndraDB->GetRun(fRunNumber)->GetName(),
+            gIndraDB->GetRun(fRunNumber)->GetTitle())
+            );
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+   fIdentTree->SetAutoFlush(0);
+#endif
+#endif
+      //leaves for reconstructed events
+		fIdentTree->Branch("INDRAReconEvent", "KVINDRAReconEvent", GetEventReference(), 10000000, 0)->SetAutoDelete(kFALSE);
+
+      Info("InitRun", "Created identified/calibrated data tree %s : %s", fIdentTree->GetName(), fIdentTree->GetTitle());
+
    // initialise identifications
    gIndra->InitializeIDTelescopes();
-   
+
    // print status of identifications
    gIndra->PrintStatusOfIDTelescopes();
    // print status of calibrations
@@ -68,15 +75,13 @@ Bool_t KVReconIdent::Analysis(void)
 {
    //For each event we:
    //     perform primary event identification and calibration and fill tree
-   //Events with zero reconstructed multiplicity are excluded, but no selection is made
-   //based on the results of the identification/calibration
 
    fEventNumber = GetEvent()->GetNumber();
    if (GetEvent()->GetMult() > 0) {
       GetEvent()->IdentifyEvent();
       GetEvent()->CalibrateEvent();
-      fIdentTree->Fill();
    }
+   fIdentTree->Fill();
    return kTRUE;
 }
 
@@ -84,24 +89,27 @@ Bool_t KVReconIdent::Analysis(void)
 void KVReconIdent::EndRun(void)
 {
    //At the end of each run we:
-   //      write the tree and INDRA into the new file
+   //      write the tree into the new file
    //      close the file
    //      copy the file into the required repository (see InitRun)
    //      update the available runlist
 
    fIdentFile->cd();
-   gIndra->Write("INDRA");      //write INDRA to file
+
 	gDataAnalyser->WriteBatchInfo(fIdentTree);
-   fIdentTree->Write();         //write tree to file
-   if(GetRawData()) GetRawData()->Write("RawData"); //copy raw data tree to file (if it exists)
-   GetGeneData()->Write("GeneData"); //copy pulser & laser (gene) tree to file
+
+    GetRawData()->CloneTree(-1,"fast"); //copy raw data tree to file
+    GetGeneData()->CloneTree(-1,"fast"); //copy pulser & laser (gene) tree to file
+
+    fIdentFile->Write();
+
    //add file to repository
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
          gDataSet->GetDataSetEnv("Identification1.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
          gDataSet->GetName() );
-         
+
    OutputDataset->CommitRunfile("ident", gIndra->GetCurrentRunNumber(),
                            fIdentFile);
    fIdentFile = 0;

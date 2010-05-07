@@ -201,31 +201,32 @@ install :
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/ccali.available.datasets $(KVINSTALLDIR)/KVFiles/ccali.available.datasets
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.root $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.root $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.root $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.recon $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.ident $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.root $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.raw $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.recon $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.ident $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.root $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.root $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.raw $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.recon $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.ident $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.root $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.root $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2
 	-cat etc/KaliVeda.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 else
 	-cat etc/KaliVeda.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc

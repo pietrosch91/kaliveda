@@ -99,7 +99,6 @@ ClassImp(KVINDRAReconNuc);
 //     ** from old DSTs, we keep the masses from the Veda programme, corresponding to
 //     ** KVNucleus mass option kVedaMass.
 //IN ALL CASES THE RETURNED VALUE OF GetA() IS POSITIVE
-//Use GetCodes().GetIsotopeResolve() to test whether A is measured or calculated.
 //
 
 void KVINDRAReconNuc::init()
@@ -145,34 +144,6 @@ void KVINDRAReconNuc::Copy(TObject & obj)
    KVReconstructedNucleus::Copy(obj);
 }
 
-void KVINDRAReconNuc::Streamer(TBuffer & R__b)
-{
-   UInt_t R__s, R__c;
-   if (R__b.IsReading()) {
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVReconstructedNucleus::Streamer(R__b);
-      fCodes.Streamer(R__b);
-      Float_t RealZ, RealA;
-      if (R__v < 6) {
-         R__b >> RealZ;
-         R__b >> RealA;
-         SetRealZ(RealZ);
-         SetRealA(RealA);
-      }
-      if (R__v < 7) {
-			// before version 7 (and before version 11 of KVReconstructedNucleus),
-			// the kZMeasured and kAMeasured bits were not used.
-			// for data written previous to this, we :
-			//   SetZMeasured(kTRUE) for particles with IsIdentified()=kTRUE
-			//   SetAMeasured(kTRUE) for particles with fCodes.GetIsotopeResolve()=kTRUE
-			SetZMeasured(IsIdentified());
-			SetAMeasured(fCodes.GetIsotopeResolve());
-		}
-      R__b.CheckByteCount(R__s, R__c, KVINDRAReconNuc::IsA());
-   } else {
-      KVINDRAReconNuc::Class()->WriteBuffer(R__b, this);
-   }
-}
 
 void KVINDRAReconNuc::Print(Option_t * option) const
 {
@@ -266,7 +237,7 @@ void KVINDRAReconNuc::EnergyIdentification()
 
    //make a clone of the entire telescope structure through which the particle passed
    KVGroup *grp = new KVGroup;
-   const KVRList *det_list = GetDetectorList();
+   const KVSeqCollection *det_list = GetDetectorList();
    TIter nxt_det(det_list);
    KVDetector *det;
    KVTelescope *kvt, *last_kvt, *new_kvt;
@@ -684,7 +655,7 @@ void KVINDRAReconNuc::Calibrate()
 
    KVReconstructedNucleus::Calibrate();
    KVIDTelescope* idt;
-   if ( (idt = (KVIDTelescope*)fIDTelescope.GetObject()) ){
+   if ( (idt = GetIdentifyingTelescope()) ){
       if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_OK )
          SetECode( kECode1 );
       else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Calculated )

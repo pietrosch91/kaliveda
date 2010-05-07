@@ -25,11 +25,9 @@
 #include "KVString.h"
 #include "KVLockfile.h"
 #include "KVConfig.h"
+#include "KVDataAnalyser.h"
 
 class KVSelector:public TSelector {
-
-friend class KVDataSet;
-friend class KVINDRAReconDataAnalyser;
 
  protected:
 
@@ -93,7 +91,6 @@ friend class KVINDRAReconDataAnalyser;
  };
  
    void SetINDRAReconEventBranchName(const Char_t* br_name){ fBranchName = br_name; };
-   void CheckIfINDRAUpdateRequired();
    
    KVLockfile dataselector_lock;//for locking user's data selector file
   
@@ -107,7 +104,7 @@ friend class KVINDRAReconDataAnalyser;
    };
 
    Int_t Version() const {
-      return 1;
+      return 2;
    };
    
    void Begin(TTree * tree);
@@ -175,7 +172,6 @@ friend class KVINDRAReconDataAnalyser;
    virtual void LoadDataSelector(void);
    virtual void SaveCurrentDataSelection(void);
 
-   virtual Int_t GetRunNumberFromFileName(const Char_t * fileName);
    virtual const Char_t *GetDataSelectorFileName(void);
 
    virtual void ChangeFragmentMasses(UInt_t mass_formula);
@@ -195,170 +191,4 @@ friend class KVINDRAReconDataAnalyser;
 
 #endif
 
-#ifdef KVSelector_cxx
-KVSelector::KVSelector(TTree * tree)
-{
-   //ctor
-   fChain=0;
-   callnotif = 0;
-   gvlist = 0;                  // Global variable list set to nil.
-   //create stopwatch
-   fTimer = new TStopwatch;
-   // event list
-   fEvtList = 0;
-   fTEVLexist = 0;
-   fKVDataSelector = 0;
-   fDataSelector = "";
-   needToSelect = kFALSE;
-   needToCallEndRun = kFALSE;
-   fCurrentRun = 0;
-   fPartCond = 0;
-   fGeneData = 0;
-   fRawData = 0;
-   data = 0;
-   dataselector_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
-   dataselector_lock.SetSuspend( 5 ); // suspension after timeout
-   dataselector_lock.SetSleeptime( 1 ); // try lock every second
-}
 
-KVSelector::~KVSelector()
-{
-   //dtor
-   //delete global variable list if it belongs to us, i.e. if created by a
-   //call to GetGVList
-   if (TestBit(kDeleteGVList)) {
-      delete gvlist;
-      gvlist = 0;
-      ResetBit(kDeleteGVList);
-   }
-   delete fTimer;
-   SafeDelete(fPartCond);
-}
-
-void KVSelector::Init(TTree * tree)
-{
-            
-   //if data!=0, Init has already been called: nothing more needs to be done
-   if(data){
-      return;
-   }
-            
-   if (tree == 0){
-      return;
-   }
-//   Set branch addresses
-   fChain = tree;
-   fChain->SetMakeClass(1);
-
-   if (fChain->InheritsFrom("TChain"))
-      fTreeOffset = ((TChain *) fChain)->GetTreeOffset();
-   else
-      fTreeOffset = 0;
-
-   gIndra = (KVINDRA *) fChain->GetCurrentFile()->Get("INDRA");
-   fChain->SetBranchAddress( fBranchName.Data() , &data);
-
-// Setting the current run
-   fCurrentRun = gIndra->GetCurrentRun();
-   
-   if (!fCurrentRun) {
-      Int_t nrun =
-          GetRunNumberFromFileName(fChain->GetCurrentFile()->GetName());
-      fCurrentRun = ((KVINDRADB *) gDataBase)->GetRun(nrun);
-   }
-}
-
-Bool_t KVSelector::Notify()
-{
-   // Called when loading a new file.
-   // Get branch pointers.
-
-   b_data = fChain->GetBranch(fBranchName.Data());
-   b_data->SetAutoDelete(kFALSE);
-
-   cout << "Analyse du fichier " << fChain->GetCurrentFile()->GetName()
-       << " : " << fChain->GetTree()->GetEntries() << endl;
-   NbTreeEntry = (Int_t) fChain->GetTree()->GetEntries();
-   fCurrentTreeNumber = fChain->GetTreeNumber();
-
-   needToCallEndRun = kTRUE;
-
-   Int_t nrun =
-       GetRunNumberFromFileName(fChain->GetCurrentFile()->GetName());
-
-   if (fEvtList)
-      needToSelect = !(fTEVLexist[fCurrentTreeNumber]);
-   else
-      needToSelect = kFALSE;
-
-   if (needToSelect) {
-      if (!fKVDataSelector) {
-         LoadDataSelector();
-      }
-      fKVDataSelector->Reset(nrun);
-   }
-   //only call if data=0 i.e. if we have just changed runs, not at the
-   //beginning of the analysis, where we have just performed SetBranchAddress
-   //in Init called by Begin
-   if (!data) {
-      fChain->SetBranchAddress(fBranchName.Data(), &data);
-   }
-
-   cout << endl << " ===================  New Run  =================== " <<
-       endl << endl;
-
-   fCurrentRun = gIndra->GetCurrentRun();
-   if (!fCurrentRun) {
-      fCurrentRun = ((KVINDRADB *) gDataBase)->GetRun(nrun);
-   }
-   if (fCurrentRun) {
-      fCurrentRun->Print();
-      if (fCurrentRun->GetSystem()) {
-         fCurrentRun->GetSystem()->GetKinematics()->Print();
-      }
-   } else {
-      cout << "     Run = " << nrun << endl;
-      cout << " Trigger = " << gIndra->GetTrigger() << endl;
-   }
-
-   cout << endl << " ================================================= " <<
-       endl << endl;
-   
-      //for the second & subsequent files to be analysed, this is where the INDRA object
-      //is read in from the current run file. we check if the user has requested an update of the
-      //identification/calibration parameters.
-      CheckIfINDRAUpdateRequired();
-
-	// Retrieving the pointer to the raw data tree
-   fRawData = (TTree*) fChain->GetCurrentFile()->Get("RawData");
-	// Retrieving the pointer to the gene tree
-   fGeneData = (TTree*) fChain->GetCurrentFile()->Get("GeneData");
-   //old files
-   if(!fGeneData) fGeneData = (TTree*) fChain->GetCurrentFile()->Get("gene");
-   if(!fGeneData) {
-      cout << "  --> No pulser & laser data for this run !!!" << endl << endl;
-   } else {
-      cout << "  --> Pulser & laser data tree contains " << fGeneData->GetEntries()
-            << " events" << endl << endl;
-   }
-   
-   callnotif++;
-
-   if (callnotif > ((TChain *) fChain)->GetNtrees()) {
-      cout << "Appels a Notify trop nombreux ." << endl;
-      return kFALSE;
-   }
-
-   if (needToSelect) {
-      cout << " Building new TEventList : " << fKVDataSelector->
-          GetTEventList()->GetName()
-          << endl;
-   }
-
-   InitRun();                   //user initialisations for run
-
-   return kTRUE;
-}
-
-
-#endif                          // #ifdef KVSelector_cxx

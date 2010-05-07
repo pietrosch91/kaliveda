@@ -1,5 +1,5 @@
 //Created by KVClassFactory on Wed Sep 23 16:07:38 2009
-//Author: Chbihi 
+//Author: Chbihi
 
 #include "KVGANILDataReader.h"
 #include "GTGanilData.h"
@@ -73,7 +73,7 @@ KVGANILDataReader::~KVGANILDataReader()
    fParameters->Clear();
    delete fParameters;
    if(fExtParams){
-		fExtParams->Delete();
+		fExtParams->Delete("slow");
 		delete fExtParams;
    }
    delete fFired;
@@ -84,7 +84,7 @@ KVGANILDataReader::~KVGANILDataReader()
 void KVGANILDataReader::init()
 {
    //default initialisations
-   
+
    fExtParams = 0;
    fParameters = new KVHashList;
    fParameters->SetCleanup(kTRUE);
@@ -140,7 +140,7 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    option.ToUpper();
    make_arrays = option.Contains("ARRAYS");
    make_leaves = option.Contains("LEAVES");
-   
+
    fUserTree = T;
    if( make_arrays ){
       Int_t maxParFired = GetRawDataParameters()->GetEntries();
@@ -161,7 +161,7 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
          fUserTree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), leaf.Data() );
       }
    }
-   
+
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
    // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
@@ -169,7 +169,7 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    fUserTree->SetAutoFlush(0);
 #endif
 #endif
-   
+
    // add list of parameter names in fUserTree->GetUserInfos()
    TObjArray *parlist = new TObjArray(GetRawDataParameters()->GetEntries(),1);
    parlist->SetName("ParameterList");
@@ -198,15 +198,15 @@ void KVGANILDataReader::OpenFile(const Char_t * file)
 	//This list can be obtained with method GetRawDataParameters().
 
    if(fGanilData){ delete fGanilData; fGanilData=0; }
-   
+
    fGanilData = NewGanTapeInterface();
-   
+
    fGanilData->SetFileName(file);
    SetName( gSystem->BaseName(file) );
    SetTitle(file);
-   fGanilData->SetScalerBuffersManagement(GTGanilData::kAutoWriteScaler);
+   fGanilData->SetScalerBuffersManagement(GTGanilData::kSkipScaler);
    fGanilData->Open();
-   
+
    //test whether file has been opened
    if(!fGanilData->IsOpen()){
       //if initial attempt fails, we try to open the file as a 'raw' TFile
@@ -258,7 +258,7 @@ void KVGANILDataReader::ConnectRawDataParameters()
 	//returned by GetUnknownParameters()).
 	//To access the full list of data parameters in the file after this method has been
 	//called (i.e. after the file is opened), use GetRawDataParameters().
-   
+
    TIter next( fGanilData->GetListOfDataParameters() );
    KVACQParam *par;
    GTDataPar* daq_par;
@@ -279,7 +279,7 @@ KVACQParam* KVGANILDataReader::CheckACQParam( const Char_t* par_name )
    //We look for a corresponding parameter in the list of acq params belonging to
    //the current KVMultiDetArray (if one exists).
    //If none is found, we create a new acq param which is added to the list of "unknown parameters"
-   
+
    KVACQParam *par;
    if( !gMultiDetArray || !(par = gMultiDetArray->GetACQParam( par_name )) ){
       //create new unknown parameter
@@ -330,7 +330,7 @@ GTGanilData* KVGANILDataReader::NewGanTapeInterface()
    // Creates and returns new instance of class derived from GTGanilData used to read GANIL acquisition data
    // Actual class is determined by Plugin.GTGanilData in environment files and name of dataset.
    // If no dataset is defined, we use the default GTGanilData object.
-   
+
    //check and load plugin library
    TString dsname = "any";
    if(gDataSet) dsname = gDataSet->GetName();
@@ -358,11 +358,12 @@ GTGanilData* KVGANILDataReader::GetGanTapeInterface()
     //Static method, used by KVDataSet::Open
     return new KVGANILDataReader(filename);
  }
- 
+
  //____________________________________________________________________________
- 
+
 void KVGANILDataReader::FillFiredParameterList()
 {
+    // clears and then fills list fFired with all fired acquisition parameters in event
    fFired->Clear();
    TIter next(fParameters);
    KVACQParam *par;

@@ -59,7 +59,7 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVChannelEnergyChIo+;
 #pragma link C++ class KVLightEnergyCsI+;
 #pragma link C++ class KVFunctionCal+;
-#pragma link C++ class KVINDRAReconNuc-;//custardpie speaker
+#pragma link C++ class KVINDRAReconNuc+;
 #pragma link C++ class KVINDRAReconEvent-;//customized streamer
 #pragma link C++ class KVVoltEnergy+;
 #pragma link C++ class KVDBParameterSet-;//customized streamer

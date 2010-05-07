@@ -36,11 +36,6 @@ ClassImp(KVINDRAReconEvent);
 ///////////////////////////////////////////////////////////////////////////////
 //Event reconstructed from energy losses in INDRA multidetector.
 //By default this contains a TClonesArray of KVINDRAReconNuc objects.
-//You must have a valid KVINDRA-derived object before using a KVINDRAReconEvent,
-//otherwise one will be created (not necessarily the right one).***
-//
-//                ***NOTE: when using a KVSelector-derived analysis class to read data,
-//                      *** this is automatically taken care of.
 //
 //Random vs. mean angles
 //----------------------
@@ -71,25 +66,6 @@ KVINDRAReconEvent::KVINDRAReconEvent(Int_t mult, const char *classname)
 :KVReconstructedEvent(mult, classname)
 {
    init();
-   CustomStreamer();            //because KVINDRAReconNuc has a customised streamer
-   //if this event is being read from a file/tree we may not yet have
-   //a valid INDRA object. must get the one in the file.
-   if (!gIndra && gFile) {
-      gIndra = (KVINDRA *) gFile->Get("INDRA");
-   }
-   //if there is no file available, we need to build INDRA
-   //If an active dataset is defined (gDataSet) we create the corresponding detector
-   if (!gIndra) {
-      if (gDataSet){
-         gDataSet->BuildMultiDetector(); Info("KVINDRAReconEvent","gDataSet used to build INDRA");
-      }
-      else {
-         Warning("KVINDRAReconEvent",
-                 "Building first campaign INDRA detector (default).\nIf you want a different detector you should create it before using KVINDRAReconEvent.");
-         KVINDRA *tmp = new KVINDRA;
-         tmp->Build();
-      }
-   }
 }
 
 KVINDRAReconEvent::~KVINDRAReconEvent()
@@ -127,54 +103,18 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
    //Stream an object of class KVINDRAReconEvent.
    //We loop over the newly-read particles in order to set their
    //IsOK() status by comparison with the event's code mask
-   //
-   //We "correct" the KVReconstructedNucleus::IsAMeasured() flag in cases where particles are wrongly labelled
-   //as having measured masses (e.g. 1st campaign Si-CsI identifications).
-   //If GetRealA() - GetA() == 0 then the particle's mass was not measured
-   //(for CsI R-L identified-particles, no such 'correction' is applied).
 
-   UInt_t R__s, R__c;
    if (R__b.IsReading()) {
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      if (R__v < 4) {
-         Clear();
-         KVEvent::Streamer(R__b);
-         Float_t fThreshold;
-         R__b >> fThreshold;
-         SetThreshold(fThreshold);
-      } else {
-         KVReconstructedEvent::Streamer(R__b);
-      }
-      if (R__v > 4 && R__v< 6){
-         KVINDRATriggerInfo fTrigger;
-         fTrigger.Streamer(R__b);
-      }
-      R__b.CheckByteCount(R__s, R__c, KVINDRAReconEvent::IsA());
-      //check codes (&& if R__v<4 set angles)
-      //'correct' IsotopeResolve flag
+   		R__b.ReadClassBuffer(KVINDRAReconEvent::Class(), this);
       KVINDRAReconNuc *par;
       while ((par = GetNextParticle())) {
          if (CheckCodes(par->GetCodes()))
             par->SetIsOK();
          else
             par->SetIsOK(kFALSE);
-         if(par->IsAMeasured() && !par->GetCodes().TestIDCode( kIDCode_CsI )){
-            //check realA != A
-            if( (par->GetRealA()-par->GetA()) == 0 ) par->SetAMeasured(kFALSE);
-         }
-         if (R__v < 4) {
-            if (HasMeanAngles())
-               par->GetAnglesFromTelescope("mean");
-            else
-               par->GetAnglesFromTelescope("random");
-            //reconstruct fAnalStatus information for KVReconstructedNucleus
-            if (par->GetStatus() == 99)     //AnalStatus has not been set for particles in group
-               if (par->GetGroup())
-                  par->GetGroup()->AnalyseParticles();
-         }
       }
    } else {
-      KVINDRAReconEvent::Class()->WriteBuffer(R__b,this);
+   		R__b.WriteClassBuffer(KVINDRAReconEvent::Class(), this);
    }
 }
 
@@ -376,26 +316,26 @@ void KVINDRAReconEvent::ChangeFragmentMasses(UChar_t mass_formula)
    //a CsI detector are affected; particles whose mass was measured
    //(i.e. having KVReconstructedNucleus::IsAMeasured()==kTRUE)
 	//are not affected by the change of mass formula.
-   
+
    ResetGetNextParticle();
    KVINDRAReconNuc* frag;
    while( (frag = (KVINDRAReconNuc*)GetNextParticle("ok")) ){
-      
+
       if( !frag->IsAMeasured() ){
-         
+
          Float_t oldA = (Float_t)frag->GetA();
          frag->SetMassFormula(mass_formula);
-         
+
          if( frag->GetCsI() ){
             Float_t oldECsI = frag->GetEnergyCsI();
             Float_t oldE = frag->GetEnergy();
             Float_t newECsI = oldECsI*((Float_t)frag->GetA()/oldA);
             frag->GetCsI()->SetEnergy(newECsI);
             frag->SetEnergy(oldE - oldECsI + newECsI);
-         } 
+         }
       }
    }
-   
+
 }
 
 //____________________________________________________________________________

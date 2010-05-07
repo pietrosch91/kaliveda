@@ -88,8 +88,7 @@ void KVRawDataAnalyser::ProcessRun()
       //call user's analysis. stop if returns kFALSE.
       if(!Analysis()) break;
 		postAnalysis();
-     
-       delete fired;
+
        fDetEv->Clear();
 
 		if(!((fEventNumber)%10000)) cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;

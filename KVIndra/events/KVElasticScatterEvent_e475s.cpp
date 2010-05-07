@@ -9,7 +9,7 @@ $Date: 2009/01/23 08:30:05 $
 
 #include "KVElasticScatterEvent_e475s.h"
 #include "KVString.h"
-#include "KVRList.h"
+#include "KVSeqCollection.h"
 #include "KVChIo.h"
 
 ClassImp(KVElasticScatterEvent_e475s)
@@ -128,7 +128,7 @@ void KVElasticScatterEvent_e475s::Process(KVMultiDetArray* mdet){
 		Double_t ekbeforedet = GetNucleus(recnuc->GetName(),"OUT")->GetKE();	//Energie apres la sortie de la cible
 		Double_t ekafterdet = GetNucleus(recnuc->GetName(),"DET")->GetKE();	//Energie apres detection (=0)
 
-		const KVRList* ldet = recnuc->GetDetectorList();	//Liste des detecteurs touches par la particule consideree
+		const KVSeqCollection* ldet = recnuc->GetDetectorList();	//Liste des detecteurs touches par la particule consideree
 		Int_t ndet=ldet->GetEntries();
 		
 		KVDetector* stop_det = recnuc->GetStoppingDetector();

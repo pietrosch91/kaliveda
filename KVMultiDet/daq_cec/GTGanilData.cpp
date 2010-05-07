@@ -99,9 +99,7 @@ void GTGanilData::SetFileName(const TString filename)
 //______________________________________________________________________________
 GTGanilData::~GTGanilData             (void)
 {
-  // Not sure if I have to close file the delete tree or the other way round.
   if (fScalerFile) {fScalerFile->Write();fScalerFile->Close();}
-  //  delete   fScalerTree; // Is it really closed by closing the File ?
   if(fScaler)delete   fScaler;
   if(fDataParameters)delete   fDataParameters;
   if(fDevice)delete   fDevice;

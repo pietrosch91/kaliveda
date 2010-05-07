@@ -11,6 +11,7 @@ $Date: 2007/05/31 09:59:22 $
 #define __KVINDRAReconDataAnalyser_H
 
 #include "KVDataAnalyser.h"
+class TChain;
 
 class KVINDRAReconDataAnalyser:public KVDataAnalyser {
 
@@ -20,6 +21,8 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    KVString fDataSelectorDec;//name of KVDataSelector header file (if it exists)
 
    virtual KVNumberList PrintAvailableRuns(KVString & datatype);
+   
+   TChain* theChain;//chain of TTrees to be analysed
 	
  public:
 
@@ -41,6 +44,8 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    virtual Bool_t ReadBatchEnvFile(const Char_t*);
 
    virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
+   
+   void preInitRun();
    
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };

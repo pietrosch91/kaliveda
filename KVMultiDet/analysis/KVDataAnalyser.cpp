@@ -217,7 +217,7 @@ void KVDataAnalyser::PrintSplashScreen()
        endl;
       cout << "*                                                         *" <<
        endl;
-      printf( "*             Version:%22s              *\n", KVBase::GetKVVersion());
+      printf( "*                   Version:%10s                    *\n", KVBase::GetKVVersion());
       cout << "*                                                         *" <<
        endl;
       cout << "*              For help, see the Web site :               *" <<
@@ -1520,3 +1520,14 @@ if ( fBatchEnv ){
 
 
 }
+
+Int_t KVDataAnalyser::GetRunNumberFromFileName(const Char_t * fileName)
+{
+   // Get the run number from the filename
+   
+   KVAvailableRunsFile *arf;
+   arf = GetDataSet()->GetAvailableRunsFile( GetDataType().Data() );
+   return arf->IsRunFileName(fileName);
+}
+
+

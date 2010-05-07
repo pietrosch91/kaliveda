@@ -14,6 +14,7 @@ $Date: 2008/10/17 10:58:07 $
 #include "KVINDRADB.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataRepository.h"
+#include "RVersion.h"
 
 ClassImp(KVINDRARawDataReconstructor)
 
@@ -95,12 +96,15 @@ void KVINDRARawDataReconstructor::InitRun()
       }
       Info("InitRun", "Created raw data tree (%s : %s) for %d parameters",
             rawtree->GetName(), rawtree->GetTitle(), rawtree->GetNbranches());
-      // autosave every 30MB
-		rawtree->SetAutoSave(30000000);
+
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-      // flush baskets every 1000 events
-		//rawtree->SetAutoFlush(1000);
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+   rawtree->SetAutoFlush(0);
 #endif
+#endif
+
             
       //tree for reconstructed events
 		tree = new TTree("ReconstructedEvents", Form("%s : %s : %s events created from raw data",
@@ -108,15 +112,17 @@ void KVINDRARawDataReconstructor::InitRun()
             gIndraDB->GetRun(fRunNumber)->GetTitle(),
             datatype.Data())
             );
-      // autosave every 30MB
-		tree->SetAutoSave(30000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-      // flush baskets every 1000 events
-		//tree->SetAutoFlush(1000);
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+   tree->SetAutoFlush(0);
 #endif
+#endif
+
       
       //leaves for reconstructed events
-		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 64000, 0)->SetAutoDelete(kFALSE);
+		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
       
       Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
             
@@ -131,17 +137,20 @@ void KVINDRARawDataReconstructor::InitRun()
       while( (acqpar = (KVACQParam*)next_acqpar()) ){
          genetree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
       }
-      // autosave every 30MB
-		genetree->SetAutoSave(30000000);
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
-      // flush baskets every 1000 events
-		//genetree->SetAutoFlush(1000);
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+   genetree->SetAutoFlush(0);
 #endif
+#endif
+
       
       Info("InitRun", "Created pulser/laser data tree (%s : %s) for %d parameters",
             genetree->GetName(), genetree->GetTitle(), genetree->GetNbranches());
       //initialise number of reconstructed events
       nb_recon = 0;
+		
 }
 
 //______________________________________________________________________________________//
@@ -185,7 +194,6 @@ void KVINDRARawDataReconstructor::EndRun()
       cout << endl << " *** Number of reconstructed INDRA events : "
             << nb_recon << " ***" << endl<< endl;
 		file->cd();
-		gIndra->Write("INDRA");//write INDRA to file
 		gDataAnalyser->WriteBatchInfo(tree);
 		tree->Write();//write tree to file
       rawtree->Write();
