@@ -7,6 +7,7 @@
 #include "KVRawDataAnalyser.h"
 #include "KVDetectorEvent.h"
 #include "KVDataSet.h"
+#include "KVGANILDataReader.h"
 
 class KVINDRARawDataAnalyser : public KVRawDataAnalyser
 {
@@ -27,6 +28,11 @@ class KVINDRARawDataAnalyser : public KVRawDataAnalyser
    void postInitRun();
    void preAnalysis();
    void preEndRun();
+   
+   KVGANILDataReader* GetRawDataReader() const
+   {
+   	return (KVGANILDataReader*)fRunFile;
+   };
    
    static void Make(const Char_t * kvsname = "MyOwnINDRARawDataAnalyser");   
    

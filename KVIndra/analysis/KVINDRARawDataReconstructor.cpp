@@ -88,14 +88,11 @@ void KVINDRARawDataReconstructor::InitRun()
 			 	gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle()));
       rawtree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
       rawtree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
-      //we add to the 'raw tree' a branch for every acquisition parameter
-      TIter next_rawpar( fRunFile->GetRawDataParameters() );
-      KVACQParam* acqpar;
-      while( (acqpar = (KVACQParam*)next_rawpar()) ){
-         rawtree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
-      }
-      Info("InitRun", "Created raw data tree (%s : %s) for %d parameters",
-            rawtree->GetName(), rawtree->GetTitle(), rawtree->GetNbranches());
+      
+      TString raw_opt = gDataSet->GetDataSetEnv("KVINDRARawDataReconstructor.RawDataTreeFormat", "arrays");
+      GetRawDataReader()->SetUserTree(rawtree,raw_opt.Data());
+      Info("InitRun", "Created raw data tree (%s : %s). Format: %s",
+            rawtree->GetName(), rawtree->GetTitle(), raw_opt.Data());
 
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
@@ -133,6 +130,7 @@ void KVINDRARawDataReconstructor::InitRun()
       //we add to the 'gene tree' a branch for every acquisition parameter of the detector
       genetree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
       genetree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
+      KVACQParam* acqpar;
       TIter next_acqpar( gIndra->GetACQParams() );
       while( (acqpar = (KVACQParam*)next_acqpar()) ){
          genetree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), Form("%s/S", acqpar->GetName()));
@@ -163,8 +161,6 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 	// then
 	//    *) event reconstruction is performed for 'Physics' events
 	//    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
-	
-	rawtree->Fill();
 	
    if( gIndra->GetTriggerInfo()->IsINDRAEvent() ){
       if( gIndra->GetTriggerInfo()->IsPhysics() ){

@@ -167,6 +167,10 @@ Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (r
 Reconstruction.DataAnalysisTask.Prereq:     raw
 Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
 
+# The following variable can be used to change the format of the "RawData" tree which is created and filled
+# in 'recon' data files. The value is the option given to KVGANILDataReader::SetUserTree.
+KVINDRARawDataReconstructor.RawDataTreeFormat:     arrays
+
 # The following variable controls the way that particles are reconstructed from raw data
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
 # with "option" = "all" or "any".
