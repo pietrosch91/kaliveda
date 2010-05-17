@@ -532,7 +532,7 @@ const Char_t *KVSi75::GetArrayName()
 ClassImp(KVSiLi)
 //_________________________________________
 //Etalon telescope detector Si(Li)
-//(actually a 2mm thick silicon detector)
+//Nominal thickness: 2mm active layer + 40um dead layer (both silicon)
 //Type of detector: "SILI"
 //Array naming convention: "SILI_RR" with RR=ring number
 
@@ -545,7 +545,9 @@ KVSiLi::KVSiLi():KVSilicon()
 KVSiLi::KVSiLi(Float_t thick):KVSilicon(thick)
 {
    //Default ctor
-   //2mm thick silicon detector with type "SILI"
+   // first layer (active) : 2mm silicon (nominal)
+   // second layer (dead) : 40um silicon (nominal)
+   AddAbsorber( new KVMaterial("Si", 40.0) );
    SetType("SILI");
    SetLabel("SILI");
 }

@@ -187,7 +187,7 @@ void KVDetector::Streamer(TBuffer & R__b)
          }
       }
       if (R__v < 7) {
-         // 'fired' bitmask added in version 7. 
+         // 'fired' bitmask added in version 7.
          SetFiredBitmask();
       }
    } else {
@@ -610,8 +610,9 @@ Bool_t KVDetector::IsCalibrated() const
 
 void KVDetector::AddAbsorber(KVMaterial * mat)
 {
-   //Add a layer of absorber material to the detector
-   //By default, the last layer added is set "Active" unless SetActiveLayer has been called
+   // Add a layer of absorber material to the detector
+   // By default, the first layer added is set as the "Active" layer.
+   // Call SetActiveLayer to change this.
    fAbsorbers->Add(mat);
    if (!TestBit(kActiveSet))
       SetActiveLayer((Short_t) (fAbsorbers->GetSize() - 1));
@@ -621,7 +622,7 @@ void KVDetector::SetActiveLayer(KVMaterial * mat)
 {
    //Set reference to the "active" layer in the detector,
    //i.e. the one in which energy losses are measured
-   //By default the active layer is the last layer added
+   //By default the active layer is the first layer added
 
    if( fAbsorbers->IndexOf(mat) > -1 ) SetActiveLayer((Short_t) (fAbsorbers->IndexOf(mat) ));
 }

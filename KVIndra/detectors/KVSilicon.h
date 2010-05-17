@@ -101,7 +101,7 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetZminPHD() { return fZminPHD; };
    virtual Short_t GetCalcACQParam(KVACQParam*) const;
 
-   ClassDef(KVSilicon, 7)       //INDRA Silicon detectors with associated electronics and power supply
+   ClassDef(KVSilicon, 7)       //INDRA forward-rings silicon detector
 };
 
 //____________________________________________________________________________________________
@@ -130,7 +130,7 @@ class KVSi75:public KVSilicon {
    virtual ~ KVSi75();
    const Char_t *GetArrayName();
 
-    ClassDef(KVSi75, 1)         //80um silicon detector for etalon telescopes
+    ClassDef(KVSi75, 1)         //80um silicon detector for INDRA etalon telescopes
 };
 
 class KVSiLi:public KVSilicon {
@@ -141,6 +141,6 @@ class KVSiLi:public KVSilicon {
    virtual ~ KVSiLi();
    const Char_t *GetArrayName();
 
-    ClassDef(KVSiLi, 1)         //2mm Si(Li) detector for etalon telescopes
+    ClassDef(KVSiLi, 2)         //2mm + 40um dead zone Si(Li) detector for INDRA etalon telescopes
 };
 #endif
