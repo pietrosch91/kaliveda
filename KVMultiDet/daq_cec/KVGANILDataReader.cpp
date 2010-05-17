@@ -119,6 +119,29 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    //    *Br    2 :ParVal    : ParVal[NbParFired]/s   = array of values of fired parameters
    //
    // This structure is the fastest to fill and produces the smallest file sizes.
+   // In order to be able to directly access the parameters as if option "leaves" were used
+   // (i.e. one branch/leaf for each parameter), we add two aliases for each parameter to
+   // the tree:
+   //        PARNAME           = value of parameter if present in event
+   //        PARNAME_M      = number of times parameter appears in event
+   // Assuming that each parameter only appears at most once in each event, i.e. PARNAME_M=0 or 1,
+   // then
+   //    root[0] T->Draw("PARNAME", "PARNAME_M")
+   // will histogram the value of PARNAME for each event in which it is present.
+   // (if the selection condition "PARNAME_M" is not used, the histogram will also be filled with a 0
+   // for each event in which PARNAME does not appear).
+   //          N.B. the PARNAME alias is in fact the sum of the values of PARNAME in each event.
+   //          If PARNAME_M>1 in some events, it is not the individual values but their sum which will
+   //          be histogrammed in this case.
+   //
+   // Thus, if the data file has parameters called "PAR_1" and "PAR_2",
+   // the following command will work
+   //
+   //    root[0]  T->Draw("PAR_1:PAR_2", "PAR_1_M&&PAR_2_M", "col")
+   //
+   // even though no branches "PAR_1" or "PAR_2" exist.
+   //
+   //
    //
    //    opt = "leaves":
    //
@@ -171,12 +194,17 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
 #endif
 
    // add list of parameter names in fUserTree->GetUserInfos()
+   // and if option="arrays" add aliases for each parameter & its multiplicity
    TObjArray *parlist = new TObjArray(GetRawDataParameters()->GetEntries(),1);
    parlist->SetName("ParameterList");
    TIter next(GetRawDataParameters());
    KVACQParam* par;
    while( (par = (KVACQParam*)next()) ){
       parlist->AddAt( new TNamed( par->GetName(), Form("index=%d",par->GetNumber()) ), par->GetNumber() );
+      if( make_arrays ){
+          fUserTree->SetAlias( par->GetName(), Form("Sum$((ParNum==%d)*ParVal)", par->GetNumber() ) );
+          fUserTree->SetAlias( Form("%s_M", par->GetName()), Form("Sum$(ParNum==%d)", par->GetNumber() ) );
+      }
    }
    fUserTree->GetUserInfo()->Add(parlist);
 }
