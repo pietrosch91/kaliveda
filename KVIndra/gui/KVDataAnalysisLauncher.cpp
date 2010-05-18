@@ -424,7 +424,10 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX,
 				       1,1,1,1);
-
+ TGLayoutHints *centerX=new TGLayoutHints(kLHintsCenterX|kLHintsTop,
+				       1,1,1,1);
+ TGLayoutHints *LHtopleft=new TGLayoutHints(kLHintsLeft|kLHintsTop,
+				       1,1,1,1);
 	fMainGuiWidth = gEnv->GetValue("KaliVedaGUI.MainGUIWidth", 400);
 	fMainGuiHeight = gEnv->GetValue("KaliVedaGUI.MainGUIHeight", 600);
 
@@ -434,46 +437,46 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  Int_t justMode=kTextBottom|kTextRight;
  TGCompositeFrame *cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Repository
- TGLabel *lab=new TGLabel(cf,"Repository");
+ TGLabel *lab=new TGLabel(cf,"DATA REPOSITORY : ");
  lab->Resize(150,20);
  lab->SetTextJustify(justMode);
  cf->AddFrame(lab); 
 // ComboBox du Repository
  cbRepository=new TGComboBox(cf,CB_DataRepository);
  cbRepository->Select(-1);
- cbRepository->Resize(350,20);
+ cbRepository->Resize(150,20);
  cbRepository->Connect("Selected(char*)",
                        "KVDataAnalysisLauncher",
 		       this,
 		       "SetDataSetList(char*)");
- cf->AddFrame(cbRepository,eX);
- cfSelect->AddFrame(cf,eX);
+ cf->AddFrame(cbRepository,LHtopleft);
+// cfSelect->AddFrame(cf,eX);
  
- cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+// cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Data Set
- lab=new TGLabel(cf,"Data Set");
+ lab=new TGLabel(cf,"DATASET : ");
  lab->Resize(150,20);
  lab->SetTextJustify(justMode);
  cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    10,1,1,1)); 
+                                    20,1,1,1)); 
 // ComboBox du Data Set
  cbDataSet=new TGComboBox(cf,CB_DataSet);
  cbDataSet->Select(-1);
- cbDataSet->Resize(350,20);
+ cbDataSet->Resize(150,20);
  cbDataSet->Connect("Selected(char*)",
                        "KVDataAnalysisLauncher",
 		       this,
 		       "SetTaskList(char*)");
- cf->AddFrame(cbDataSet,eX);
- cfSelect->AddFrame(cf,eX);
+ cf->AddFrame(cbDataSet,LHtopleft);
+ cfSelect->AddFrame(cf,centerX);
 
  cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Task
- lab=new TGLabel(cf,"Task");
+ lab=new TGLabel(cf,"ANALYSIS TASK : ");
  lab->SetTextJustify(justMode);
  lab->Resize(150,20);
  cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    32,1,1,1)); 
+                                    1,1,1,1)); 
 // ComboBox du Task
  cbTask=new TGComboBox(cf,CB_AnalysisTask);
  cbTask->Select(-1);
@@ -482,20 +485,20 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
                        "KVDataAnalysisLauncher",
 		       this,
 		       "SetSystemList(int)");
- cf->AddFrame(cbTask,eX);
- cfSelect->AddFrame(cf,eX);
+ cf->AddFrame(cbTask,LHtopleft);
+ cfSelect->AddFrame(cf,centerX);
 
  cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du systeme
- lab=new TGLabel(cf,"System");
+ lab=new TGLabel(cf,"SYSTEM : ");
  lab->SetTextJustify(justMode);
  lab->Resize(150,20);
  cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    18,1,1,1)); 
+                                    1,1,1,1)); 
 // ComboBox du systeme
  cbSystem=new TGComboBox(cf,CB_System);
  cbSystem->Select(-1);
- cbSystem->Resize(350,20);
+ cbSystem->Resize(250,20);
  cbSystem->Connect("Selected(int)",
                        "KVDataAnalysisLauncher",
 		       this,
@@ -504,26 +507,26 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 //                        "KVDataAnalysisLauncher",
 // 		       this,
 // 		       "SetRunsList(int)");
- cf->AddFrame(cbSystem,eX);
- cfSelect->AddFrame(cf,eX);
+ cf->AddFrame(cbSystem,LHtopleft);
+// cfSelect->AddFrame(cf,eX);
 
- cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+// cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Trigger
- lab=new TGLabel(cf,"Trigger");
+ lab=new TGLabel(cf,"TRIGGER : ");
  lab->SetTextJustify(justMode);
  lab->Resize(150,20);
  cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    18,1,1,1)); 
+                                    20,1,1,1)); 
 // ComboBox du systeme
  cbTrigger=new TGComboBox(cf,CB_Trigger);
  cbTrigger->Select(-1);
- cbTrigger->Resize(350,20);
+ cbTrigger->Resize(100,20);
  cbTrigger->Connect("Selected(int)",
                        "KVDataAnalysisLauncher",
 		       this,
 		       "SetTriggerRunsList(int)");
- cf->AddFrame(cbTrigger,eX);
- cfSelect->AddFrame(cf,eX);
+ cf->AddFrame(cbTrigger,LHtopleft);
+ cfSelect->AddFrame(cf,centerX);
 
 
  this->AddFrame(cfSelect,new TGLayoutHints(kLHintsLeft|kLHintsTop
@@ -532,7 +535,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  
 // Frame pour la liste des runs
  TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
-	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, 500, 250);
+	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, fMainGuiWidth, 250);
 	lvRuns->SetDataColumns(5);
 	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
 	lvRuns->SetDataColumn(0, "Run", "GetNumber");
@@ -546,7 +549,9 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 	lvRuns->AllowBrowse(kFALSE);
 	lvRuns->AllowContextMenu(kFALSE);
 	lvRuns->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "UpdateListOfSelectedRuns()");
-	cfRuns->AddFrame(lvRuns, eXeY);
+	cfRuns->AddFrame(lvRuns, new TGLayoutHints(kLHintsLeft|kLHintsTop|
+                                       kLHintsExpandX|kLHintsExpandY,
+				       10,10,15,15));
 
 // Boutons de selection
  TGCompositeFrame *cfSelAll=new TGCompositeFrame(cfRuns,fMainGuiWidth,20,kHorizontalFrame);
