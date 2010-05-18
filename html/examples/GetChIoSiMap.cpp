@@ -13,6 +13,7 @@ $Date: 2008/01/24 09:53:24 $
 #include "KVSilicon.h"
 #include "KVCsI.h"
 #include "KVChIo.h"
+#include "KVIDTelescope.h"
 
 ClassImp(GetChIoSiMap)
 
