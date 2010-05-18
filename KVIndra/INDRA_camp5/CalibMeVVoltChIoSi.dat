@@ -2,7 +2,7 @@
 #$Id: CalibMeVVoltChIoSi.dat,v 1.3 2008/01/29 16:26:24 franklan Exp $
 #
 #5th Campaign MeV/Volt conversion for Silicon and ChIo detectors.
-#
+#Updated by A. Chbihi, 24/03/2010 : Add in this file the parameters for SI75 and SILI
 #For Silicon detectors:
 #  calibration performed using Brho elastic scattering points for light particles
 #  and fragments (Z<=6--7)
@@ -249,6 +249,22 @@ SI_0921       -0.271494        424.828        0.16202
 SI_0922       -0.926516        436.916        0.332109
 SI_0923       -0.160763        433.83	     0.214947
 SI_0924       0.337238        425.216	     0.565466
+SI75_10        0.0296385        104.933        0.000436927
+SI75_11        -0.00933735        103.249        0.000276148
+SI75_12        0.0507089        99.9574        0.000240196
+SI75_13        -0.0671012        100.851        0.000267761
+SI75_14        0.00574891        102.391        1.
+SI75_15        -0.00227357        100.475        1.
+SI75_16        -0.0709287        97.454        1.
+SI75_17        -0.100646        105.831        0.00171761
+SILI_10        0.515522        95.3408        34.4575
+SILI_11        0.743924        98.0333        33.0012
+SILI_12        0.826509        92.2242        40.5472
+SILI_13        0.445784        97.569        50.2422
+SILI_14        -0.223235        122.911        81.4343
+SILI_15        0.634545        90.0299        98.7121
+SILI_16        0.598115        93.7752        0.0896719
+SILI_17        0.472973        110.445        73.7313
 Run Range : 6980 8842
 CI_0201        0.279909        26.9711        0.304881
 CI_0205        -0.104091        34.8484        0.0525829

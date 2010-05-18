@@ -27,6 +27,7 @@
 #include "KVChIo.h"
 #include "KVString.h"
 #include "KVTarget.h"
+#include "TObjArray.h"
 #include "TEnv.h"
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
@@ -1373,7 +1374,7 @@ void KVINDRADB::ReadChannelVolt()
                rr_number--;
             }
          }
-      }                         //Run Range found
+      }                         //Run Range foundTObjString
       else if (sline.Sizeof() > 1 && !sline.BeginsWith("#")) {  //non void nor comment line
          if (sscanf(sline.Data(), "%u %u %u %f %f %f %f %f",
                     &cour, &modu, &sign, &a0, &a1, &a2, &dum1,
@@ -1426,7 +1427,7 @@ void KVINDRADB::ReadChannelVolt()
    rr_number = 0;
    prev_rr = kFALSE;     // was the last line a run range indication ?
 	par_list = new TList;
-
+   TObjArray* toks=0;
    while (fin2.good()) {         //reading the file
       sline.ReadLine(fin2);
       if (fin2.eof()) {          //fin du fichier
@@ -1466,8 +1467,11 @@ void KVINDRADB::ReadChannelVolt()
                     "Bad format in line :\n%s\nUnable to read",
                     sline.Data());
          } else {               //parameters correctly read
-            strcpy(cal_type, "Channel-Volt PG");
-            parset = new KVDBParameterSet(det_name, cal_type, 3);
+            KVString gain; gain.Form("%s",det_name);
+            toks = gain.Tokenize("_");
+            KVString scal_type; scal_type.Form("Channel-Volt %s",((TObjString*)toks->At(2))->GetString().Data());
+            delete toks;
+            parset = new KVDBParameterSet(det_name, scal_type.Data(), 3);
             parset->SetParameters(a0, a1, a2);
             prev_rr = kFALSE;
             fChanVolt->AddRecord(parset);

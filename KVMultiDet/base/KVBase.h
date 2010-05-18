@@ -105,6 +105,11 @@ class KVBase:public TNamed {
    static const Char_t *GetKVRootDir(void);
    static const Char_t *GetKVBinDir(void);
    static const Char_t *GetKVFilesDir(void);
+   static const Char_t *bzrRevisionId();
+   static const Char_t *bzrRevisionDate();
+   static const Char_t *bzrBranchNick();
+   static Int_t bzrIsBranchClean();
+   static Int_t bzrRevisionNumber();
 
    static Bool_t FindExecutable(TString & exec, const Char_t * path =
                                 "$(PATH)");

@@ -167,6 +167,7 @@
 #pragma link C++ class KVWidget;
 #pragma link C++ class KVWidgetList;
 #pragma link C++ class KV2Body+;
+#pragma link C++ class KVBreakUp;
 #pragma link C++ class KVString+;
 #pragma link C++ class KVMergeGridsDialog+;
 #pragma link C++ class KVNewGridDialog+;
@@ -213,6 +214,8 @@
 #pragma link C++ class KVZmax;
 #pragma link C++ class KVPtot;
 #pragma link C++ class KVZVtot;
+#pragma link C++ class KVPartition+;
+#pragma link C++ class KVPartitionManager+;
 #pragma link C++ class KVGVList;
 #pragma link C++ class KVTrieur;
 #pragma link C++ class KVTrieurLin;

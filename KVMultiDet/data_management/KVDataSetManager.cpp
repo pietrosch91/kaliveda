@@ -157,7 +157,7 @@ Bool_t KVDataSetManager::ReadDataSetList()
          KVDataSet *ds = NewDataSet();
          ds->SetName(manip->GetString().Data());
          ds->SetTitle( gEnv->GetValue( Form("%s.DataSet.Title", manip->GetString().Data()), "Experimental dataset" ) );
-         ds->SetDatapathSubdir( gEnv->GetValue( Form("%s.DataSet.RepositoryDir", manip->GetString().Data()), manip->GetString().Data() ) );
+         ds->SetDataPathSubdir( gEnv->GetValue( Form("%s.DataSet.RepositoryDir", manip->GetString().Data()), manip->GetString().Data() ) );
          ds->SetUserGroups( gEnv->GetValue( Form("%s.DataSet.UserGroup", manip->GetString().Data()), "") );
          ds->SetRepository(fRepository);
          fDataSets.Add(ds);
@@ -274,11 +274,11 @@ void KVDataSetManager::CheckAvailability()
          //This file may be read by KVRemoteDataSetManager::CheckAvailability when this
          //data repository is accessed as a remote data repository from a remote machine.
          //In this case we do not want the identity of the user to influence the contents of the file.
-         //Therefore even for 'unavailable' datasets we write the available subdirectories (if any)
+         //Therefore even for 'unavailable' datasets we write the available datatypes (if any)
          //in the file.
          tmp_file << ds->GetName() << " : ";
          ds->CheckAvailable();
-         tmp_file << ds->GetSubdirs() << endl;
+         tmp_file << ds->GetAvailableDataTypes() << endl;
          if (ds->IsAvailable()) {
             fNavailable++;
          }
@@ -461,7 +461,7 @@ Bool_t KVDataSetManager::ReadAvailableDatasetsFile()
                fNavailable++;
                for (register int i = 1; i < toks->GetEntries(); i++) {
                   //each following entry is a subdirectory name
-                  dataset->AddSubdir(((TObjString *) toks->At(i))->String().
+                  dataset->AddAvailableDataType(((TObjString *) toks->At(i))->String().
                                Data());
                }
             } else {

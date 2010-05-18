@@ -29,7 +29,7 @@ KVRemoteAvailableRunsFile::KVRemoteAvailableRunsFile(const Char_t *
                                                      ds):KVAvailableRunsFile
     (type, ds)
 {
-   //Constructor with name of datatype ("raw", "recon", "ident", "root")
+   //Constructor with name of datatype
    //and pointer to parent dataset
    init();
 }

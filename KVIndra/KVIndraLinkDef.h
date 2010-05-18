@@ -29,6 +29,7 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVINDRACodes+;
 #pragma link C++ class KVINDRACodeMask+;
 #pragma link C++ class KVINDRADetector+;
+#pragma link C++ class KVINDRADstToRootTransfert;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVINDRARawDataAnalyser;
 #pragma link C++ class KVINDRARawDataReconstructor;
@@ -92,7 +93,6 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVIDChIoCsI_e475s+;
 #pragma link C++ class KVIDCsI_e475s+;
 #pragma link C++ class KVIDCsI+;
-
 #pragma link C++ class KVIDPhoswich+;
 #pragma link C++ class KVIDChIoCsI+;
 #pragma link C++ class KVIDCsIRLLine+;

@@ -267,13 +267,13 @@ void KVDataTransfer::CheckTargetRepository()
    if (!fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName())->
        IsAvailable()) {
       //add dataset directory to target repository
-      fTargetRep->MakeSubdirectory(fDataSet->GetDatapathSubdir());
+      fTargetRep->MakeSubdirectory(fDataSet);
       update = kTRUE;
    }
    if (!fTargetRep->GetDataSetManager()->GetDataSet(fDataSet->GetName())->
-       HasSubdir(fDataType.Data())) {
+       HasDataType(fDataType.Data())) {
       //add subdirectory for new data type to dataset directory
-      fTargetRep->MakeSubdirectory(fDataSet->GetDatapathSubdir(),
+      fTargetRep->MakeSubdirectory(fDataSet,
                                    fDataType.Data());
       update = kTRUE;
    }

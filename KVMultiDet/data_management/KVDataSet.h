@@ -35,7 +35,7 @@ class KVDataSet:public KVBase {
 
  protected:
     KVDataRepository * fRepository;     //repository in which dataset is stored
-   TString fSubdirs;            //list of subdirectories containing data for this dataset
+   TString fDatatypes;            //list of types of data which are available for this dataset
    KVList fTasks;                //possible data analysis tasks for this dataset
    TString fCalibDir;           //directory containing database, calibration, identification parameters etc. for dataset
    Bool_t fDBBuild;             //has the database been built by us ?
@@ -65,25 +65,32 @@ class KVDataSet:public KVBase {
    const Char_t *GetDBName() const;
    TObject* Open(const Char_t* type, Int_t run, Option_t* opt="");
    const Char_t* GetFullPathToDB();
-   
+
  public:
 
-    KVAvailableRunsFile * GetAvailableRunsFile(const Char_t *
-                                                       type);
+    KVAvailableRunsFile * GetAvailableRunsFile(const Char_t *type);
 
     KVDataSet();
     virtual ~ KVDataSet();
 
    virtual Bool_t CheckUserCanAccess();
 
-   virtual void SetDatapathSubdir(const Char_t * s) {
+   virtual void SetDataPathSubdir(const Char_t * s) {
       SetLabel(s);
    };
    // Returns name of top-level directory in data repository used to store data files for this dataset
-   virtual const Char_t *GetDatapathSubdir() const {
+   virtual const Char_t *GetDataPathSubdir() const {
       return GetLabel();
    };
-
+   const Char_t* GetDataTypeSubdir(const Char_t* type) const
+   {
+      // returns name to be used for subdirectory corresponding to given data type
+			KVString snom;
+			snom.Form("KVDataSet.DataType.Subdir.%s",type);
+			return GetDataSetEnv( snom.Data(), type );
+	};
+	virtual const Char_t* GetAvailableDataTypes() const { return fDatatypes.Data(); };
+	virtual void AddAvailableDataType(const Char_t*);
    virtual void SetUserGroups(const Char_t * groups) {
       fUserGroups = groups;
    };
@@ -95,25 +102,12 @@ class KVDataSet:public KVBase {
       SetBit(kAvailable, yes);
    };
    virtual void CheckAvailable();
-   // Returns kTRUE if "raw" data files are stored in the data repository
-   virtual Bool_t HasRaw() const {
-      return fSubdirs.Contains("raw");
-   };
-   // Returns kTRUE if "recon" data files are stored in the data repository
-   virtual Bool_t HasRecon() const {
-      return fSubdirs.Contains("recon");
-   };
-   // Returns kTRUE if "ident" data files are stored in the data repository
-   virtual Bool_t HasIdent() const {
-      return fSubdirs.Contains("ident");
-   };
-   // Returns kTRUE if "root" data files are stored in the data repository
-   virtual Bool_t HasPhys() const {
-      return fSubdirs.Contains("root");
-   };
-   // Returns kTRUE if data files of the given type are stored in the data repository
-   virtual Bool_t HasSubdir(const Char_t * sd) {
-      return fSubdirs.Contains(sd);
+
+   virtual Bool_t HasDataType(const Char_t * data_type) {
+   		// Returns kTRUE if data files of the given type are stored in the data repository
+   		KVString _dt = data_type;
+   		_dt.Remove(TString::kBoth,' ');
+      	return fDatatypes.Contains(_dt);
    };
 
    virtual KVMultiDetArray *BuildMultiDetector() const;
@@ -160,14 +154,9 @@ class KVDataSet:public KVBase {
    void DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm=kTRUE);
    void DeleteRunfiles(const Char_t * type, KVNumberList lrun="", Bool_t confirm=kTRUE);
    KVNumberList GetRunList_DateSelection(const Char_t * type,TDatime* min=0,TDatime* max=0);
-	
+	KVNumberList GetRunList_StageSelection(const Char_t *other_type, const Char_t* base_type);
    void SetRepository(KVDataRepository *);
    KVDataRepository *GetRepository() const;
-
-   const Char_t *GetSubdirs() const {
-      return fSubdirs.Data();
-   };
-   void AddSubdir(const Char_t * subdir);
 
    void CheckMultiRunfiles(const Char_t * data_type);
    void CleanMultiRunfiles(const Char_t * data_type, Bool_t confirm=kTRUE);
@@ -183,9 +172,9 @@ class KVDataSet:public KVBase {
 
    KVNumberList GetRunList(const Char_t * data_type,
                            const KVDBSystem * sys = 0);
-   
+
    virtual void MakeAnalysisClass(const Char_t* task, const Char_t* classname);
-   
+
    virtual Bool_t OpenDataSetFile(const Char_t* filename, ifstream& file);
 	virtual Bool_t DataBaseNeedsUpdate();
 

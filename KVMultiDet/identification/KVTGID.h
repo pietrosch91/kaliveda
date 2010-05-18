@@ -14,6 +14,7 @@ $Id: KVTGID.h,v 1.12 2009/03/03 14:27:15 franklan Exp $
 #include "TF1.h"
 #include "KVIDGrid.h"
 #include "TString.h"
+#include "KVNumberList.h"
 
 class KVTGID:public TF1 {
 
@@ -39,9 +40,20 @@ class KVTGID:public TF1 {
 	Int_t fLight;  			// with (1) or without (0) CsI light-energy dependence
 	Int_t fZorA; 				// used for Z (1) or A (0) identification
 	Int_t fMassFormula;		// mass formula used to calculate A from Z (if Z identification used)
-	
+
+	KVNumberList fRuns;        //list of runs for which fit is valid
+	TString fVarX;             //quantity used for X coordinates
+	TString fVarY;             //quantity used for Y coordinates
+	KVString fTelescopes;        //list of telescopes for which fit is valid
+
    virtual void SetIdent(KVIDLine *, Double_t ID) = 0;
    virtual KVIDLine *AddLine(KVIDGrid *) = 0;
+
+   void SetStringTelescopes(const Char_t*s)
+   {
+       // Set directly the contents of fTelescopes
+       fTelescopes=s;
+   };
 
  public:
 
@@ -57,7 +69,7 @@ class KVTGID:public TF1 {
  {
 	 return fLight;
  };
-  
+
    //status codes for GetIdentification
    enum {
       kStatus_OK,               //normal identification
@@ -73,6 +85,7 @@ class KVTGID:public TF1 {
            Double_t xmin, Double_t xmax, Int_t npar, Int_t par_x,
            Int_t par_y);
     virtual ~ KVTGID() {
+     Info("~KVTGID","Deleting %s", GetName());
    };
 
    void SetIDmax(Double_t x) {
@@ -109,9 +122,9 @@ class KVTGID:public TF1 {
 
    Double_t GetDistanceToLine(Double_t x, Double_t y, Int_t id,
                               Double_t * params = 0);
-	
+
 	static KVTGID* MakeTGID(const Char_t* name, Int_t type, Int_t light, Int_t ZorA, Int_t mass);
-	
+
 	void SetLambda(Double_t val){
 		if(fLambda>-1) SetParameter(fLambda,val);
 	};
@@ -183,7 +196,55 @@ class KVTGID:public TF1 {
 	static Int_t GetNumberOfLTGParameters(Int_t type, Int_t light);
 	void SetLTGParameterNames();
 
-   ClassDef(KVTGID, 3)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
+    void SetValidRuns(const KVNumberList& r)
+    {
+        fRuns = r;
+    };
+    const KVNumberList& GetValidRuns() const
+    {
+        return fRuns;
+    };
+    Bool_t IsValidForRun(Int_t run) const
+    {
+        // Returns kTRUE if 'run' is contained in list of runs for which fit is valid, fRuns.
+        // If fRuns is empty, returns kTRUE for ALL runs.
+        return (fRuns.IsEmpty() || fRuns.Contains(run));
+    };
+    void SetVarX(const Char_t* x)
+    {
+        fVarX = x;
+    };
+    const Char_t* GetVarX() const
+    {
+        return fVarX.Data();
+    };
+    void SetVarY(const Char_t* x)
+    {
+        fVarY = x;
+    };
+    const Char_t* GetVarY() const
+    {
+        return fVarY.Data();
+    };
+    void SetIDTelescopes(const TCollection*);
+    void ClearIDTelescopes() { fTelescopes="/"; };
+    void AddIDTelescope(KVIDTelescope*tel)
+    {
+        // Adds tel to list of ID telescopes for which this fit is valid
+        fTelescopes+=tel->GetName();
+        fTelescopes+="/";
+    };
+    Bool_t IsValidForTelescope(KVIDTelescope* tel) const
+    {
+        // return kTRUE if fit is good for this telescope
+        TString id = Form("/%s/",tel->GetName());
+        return fTelescopes.Contains(id);
+    };
+    TCollection* GetIDTelescopes();
+    void WriteToAsciiFile(ofstream &) const;
+    static KVTGID* ReadFromAsciiFile(const Char_t* name, ifstream &);
+
+   ClassDef(KVTGID, 5)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
 };
 
 #endif

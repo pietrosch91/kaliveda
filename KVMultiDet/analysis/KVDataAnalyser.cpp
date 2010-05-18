@@ -1498,6 +1498,12 @@ kvenv->SetValue("KVBase::GetKVRootDir()",KVBase::GetKVRootDir(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVBinDir()",KVBase::GetKVBinDir(),kEnvUser);
 kvenv->SetValue("KVBase::GetKVFilesDir()",KVBase::GetKVFilesDir(),kEnvUser);
 
+kvenv->SetValue("KVBase::bzrRevisionId()",KVBase::bzrRevisionId(),kEnvUser);
+kvenv->SetValue("KVBase::bzrRevisionDate()",KVBase::bzrRevisionDate(),kEnvUser);
+kvenv->SetValue("KVBase::bzrBranchNick()",KVBase::bzrBranchNick(),kEnvUser);
+kvenv->SetValue("KVBase::bzrRevisionNumber()",KVBase::bzrRevisionNumber());
+kvenv->SetValue("KVBase::bzrIsBranchClean()",KVBase::bzrIsBranchClean());
+
 kvenv->SetValue("gROOT->GetVersion()",gROOT->GetVersion(),kEnvUser);
 
 kvenv->SetValue("gSystem->GetBuildArch()",gSystem->GetBuildArch(),kEnvUser);

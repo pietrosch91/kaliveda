@@ -101,10 +101,13 @@ class KVMultiDetArray:public KVBase {
    };
    virtual void MakeListOfDetectors();
    void SetACQParams();
-   void SetCalibrators();
-void set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri);
-void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri);
+
+	void set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri);
+	void set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri);
    
+   virtual void SetCalibrators();
+	virtual void SetDetectorThicknesses();
+
  public:
    KVMultiDetArray();
    virtual ~ KVMultiDetArray();

@@ -123,12 +123,6 @@ ClassImp(KVMultiDetArray)
 //for how each detector names its DAQ parameters).
 //Of course, you can also obtain the DAQ parameters and their associated values directly from the detector: see KVDetector::GetACQParam(const Char_t* type),
 //KVDetector::GetACQParamList(), and KVDetector::GetACQData(const Char_t* type).
-//
-//When raw experimental data is read from e.g. data acquisition tapes, the DAQ parameters of each detector are updated with the values read from
-//the file. E.g. for INDRA this is performed by the KVINDRADLT class. After reading an event, the values of the parameters can be obtained from each detector.
-//The first step to reconstructing an event from the raw experimental data using the KVReconstructedEvent class (or its derivatives) is to obtain the list of groups
-//which were hit in the event. This is contained in a KVDetectorEvent object, a pointer to which is given by GetDetectorEvent(). See KVReconstructedEvent for more
-//details on event reconstruction.
 
 
 KVMultiDetArray *gMultiDetArray;
@@ -299,8 +293,10 @@ void KVMultiDetArray::Build()
 
     SetIdentifications();
 
-    //set flag to say Build() was called
-    SetBit(kIsBuilt);
+   SetDetectorThicknesses();
+
+   //set flag to say Build() was called
+   SetBit(kIsBuilt);
 }
 
 //_______________________________________________________________________________________
@@ -1990,3 +1986,73 @@ TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_
     return geom;
 }
 
+void KVMultiDetArray::SetDetectorThicknesses()
+{
+	// Look for a file in the dataset directory with the name given by .kvrootrc variable:
+	//
+	//    KVMultiDetArray.DetectorThicknesses:
+	// or
+	//    dataset.KVMultiDetArray.DetectorThicknesses:
+	//
+	// and, if it exists, we use it to set the real thicknesses of the detectors.
+	// Any detector which is not in the file will be left with its nominal thickness.
+	//
+	// EXAMPLE FILE:
+	//# default units for thickness of detectors in file
+    //*.Units: um
+    //
+    //# thickness of detector DET01 in default units
+    //DET01: 56.4627
+    //
+    //# DET02 has thickness with different units
+    //DET02.Units: mm
+    //DET02: 2.345
+    //
+    //# DET03 has several layers
+    //DET03.Abs0: 61.34
+    //DET03.Abs1: 205.62
+
+	TString filename = gDataSet->GetDataSetEnv("KVMultiDetArray.DetectorThicknesses", "");
+	if(filename==""){
+		Error("SetDetectorThicknesses", "*.KVMultiDetArray.DetectorThicknesses not defined in .kvrootrc");
+		return;
+	}
+	TString fullpath;
+	if(!SearchKVFile( filename.Data(), fullpath, gDataSet->GetName() ) ){
+		Info("SetDetectorThicknesses", "File %s not found", filename.Data());
+		return;
+	}
+	TEnv thickdat;
+	if(thickdat.ReadFile( fullpath, kEnvUser )!=0){
+	    Error("SetDetectorThicknesses", "Problem opening file %s", fullpath.Data());
+	    return;
+	}
+	Info("SetDetectorThicknesses", "Setting thicknesses of detectors from file %s", filename.Data());
+	TIter next( GetListOfDetectors() );
+	KVDetector* det;
+	while ( (det = (KVDetector*)next()) ){
+	    if( thickdat.Defined(det->GetName()) ){
+	        // simple single layer detector
+	        Double_t thick = thickdat.GetValue( det->GetName(), 0.0 );
+	        det->SetThickness( thick );
+	        Info("SetDetectorThicknesses", "Set thickness of %s to %f", det->GetName(), thick);
+	    }
+	    else {
+            Char_t i=0;
+            TString absname;
+            absname.Form("%s.Abs%d", det->GetName(), (Int_t)i);
+	        if( thickdat.Defined( absname.Data() ) ){
+                // detector with several layers
+                KVMaterial* abs=0;
+                while( (abs = det->GetAbsorber(i)) ){
+                    Double_t thick = thickdat.GetValue( absname.Data(), 0.0 );
+                    abs->SetThickness( thick );
+                    Info("SetDetectorThicknesses", "Set thickness of %s.Abs%d to %f", det->GetName(), (Int_t)i, thick);
+                    i++;
+                    absname.Form("%s.Abs%d", det->GetName(), (Int_t)i);
+                    if( !thickdat.Defined( absname.Data() ) ) break;
+                }
+            }
+	    }
+	}
+}

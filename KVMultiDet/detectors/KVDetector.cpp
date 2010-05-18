@@ -187,7 +187,7 @@ void KVDetector::Streamer(TBuffer & R__b)
          }
       }
       if (R__v < 7) {
-         // 'fired' bitmask added in version 7.
+         // 'fired' bitmask added in version 7. 
          SetFiredBitmask();
       }
    } else {

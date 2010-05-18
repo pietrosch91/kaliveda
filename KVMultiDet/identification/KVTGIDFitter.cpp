@@ -28,7 +28,7 @@ The following is the documentation from Laurent's code.
 						  ******************
 						  *  Automatic fit *
 						  ******************
-						  
+
   globede  : user-friendly routine in which only the data have to be supplied.
 				 The routine estimates good initial values, reasonnable limits,
 				 automatically from the data and manages the whole fit procedure
@@ -44,7 +44,7 @@ The following is the documentation from Laurent's code.
 	ixt  : [I] =0->basic functional  	  <>0->extended functional
 		 * For the basic formula :
 			yy = ((g*E)**(mu+1)+lambda**(mu+1)*Z**2*A**mu)**(1/(mu+1))-g*E + pdy
-		 * For the extended formula : 	  
+		 * For the extended formula :
 			yy = ((g*E)**(mu+nu+1)+(lambda*Z**alpha*A**beta)**(mu+nu+1)+
 						xi*A**mu*(g*E)**nu)**(1/(mu+mu+1))-g*E + pdy
 
@@ -55,13 +55,13 @@ The following is the documentation from Laurent's code.
 	 ih  : [I]  =0->no non-linear light response
 				  <>0->non-linear light response included
  OUTPUT :
-	 par : [R] array of parameters resulting from the fit, according to the 
+	 par : [R] array of parameters resulting from the fit, according to the
 				  ixt, ih combination the numbers and orders of parameters are :
 				  ixt=0  ih=0   5 parameters: lambda, mu, g, pdx, pdy
 				  ixt=0  ih<>0  6 parameters: lambda, mu, g, pdx, pdy, eta
-				  ixt<>0 ih=0   9 parameters: lambda, alpha, beta, mu, nu, 
+				  ixt<>0 ih=0   9 parameters: lambda, alpha, beta, mu, nu,
 													  xi, g, pdx, pdy
-				  ixt<>0 ih<>0 10 parameters: lambda, alpha, beta, mu, nu, 
+				  ixt<>0 ih<>0 10 parameters: lambda, alpha, beta, mu, nu,
 													  xi, g, pdx, pdy, eta
   istate : [I] array of status of parameters
 					  =0 -> free parameter
@@ -69,7 +69,7 @@ The following is the documentation from Laurent's code.
 					  =2 -> parameter constrained by the upper limit
 					  =3 -> constant parameter (bl(i)=bu(i)=par(i))
 	 irc  : [I] return code of the fit :
-				  0 -> convergence reached 
+				  0 -> convergence reached
 				  1 -> convergence reached, but not well marked minimum
 				  2 -> too many iterations, convergence not reached
 				 -1 -> no identification line with at least 2 points
@@ -102,7 +102,6 @@ KVTGIDFitter::~KVTGIDFitter()
 	if(ad) delete [] ad;
 	if(xd) delete [] xd;
 	if(yd) delete [] yd;
-	if(fTGID) delete fTGID;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +110,7 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
 {
 	// Fit the grid using the functional chosen with SetType and SetLight.
 	// Status of fit after this call can be retrieved with GetFitStatus().
-	
+
 	// must inherit from KVIDZAGrid!
 	if( !theGrid->InheritsFrom( KVIDZAGrid::Class() ) ){
 		Error("Fit(KVIDGraph*)",
@@ -127,13 +126,13 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
 	fPar = new Float_t[npar];
 	if(istate) delete [] istate;
 	istate = new Int_t[npar];
-	
+
 	//initialise grid - this should sort lines in order of Z & A
 	theGrid->Initialize();
-	
+
 	//limit points according to abscissa ?
 	Bool_t with_xlimits = (fXmax>fXmin);
-	
+
 	// calculate total number of points to fit
 	Int_t npts = 0;
 	TIter next_id( theGrid->GetIdentifiers() ); KVIDentifier* id;
@@ -145,7 +144,7 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
 			Double_t x,y;
 			for(int i=0; i<id->GetN(); i++){
 				id->GetPoint(i,x,y);
-				if(x>=fXmin && x<=fXmax) ++npts; // only points between [fXmin,fXmax]			
+				if(x>=fXmin && x<=fXmax) ++npts; // only points between [fXmin,fXmax]
 			}
 		}
 	}
@@ -156,7 +155,7 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
 		irc=-2;
 		return;
 	}
-	
+
 	// prepare and fill arrays with Z, A, X & Y
 	if(zd) delete [] zd;
 	if(ad) delete [] ad;
@@ -183,7 +182,7 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
 
 	/*** FIT FONCTIONNELLE ***/
 	irc = globede_c(npts,zd,ad,xd,yd,fType,fLight,fPar,istate);
-	
+
 	//generate TGID corresponding to fit
 	MakeTGID();
 }
@@ -193,7 +192,7 @@ void KVTGIDFitter::Fit(KVIDGraph* theGrid)
 Int_t KVTGIDFitter::GetFitStatus() const
 {
 	// Return status code of last fit.
-	//  0 -> convergence reached 
+	//  0 -> convergence reached
 	//  1 -> convergence reached, but not well marked minimum
 	//  2 -> too many iterations, convergence not reached
 	// -1 -> no identification line with at least 2 points
@@ -205,7 +204,7 @@ Int_t KVTGIDFitter::GetFitStatus() const
 const Char_t* KVTGIDFitter::GetFitStatusString() const
 {
 	// String with meaning of fit status codes (see GetFitStatus)
-	
+
 	static TString message[] = {
 		"addressing problem between Fortran and C",
 		"too few data points",
@@ -234,19 +233,21 @@ Int_t* KVTGIDFitter::GetStatusOfParameters() const
 void KVTGIDFitter::MakeTGID()
 {
 	// Make a KVTGID out of fit result, if fit converged (irc<2)
-	
-	if(fTGID) {delete fTGID; fTGID=0;}
-	
+
 	if(irc<0 || irc>1) return;
 	if(!fGrid) return;
-	
+
 	fTGID = KVTGID::MakeTGID(Form("%s_fit",fGrid->GetName()), fType, fLight, fZorA,
 			fGrid->GetMassFormula());
 	fTGID->SetLTGParameters(fPar);
 	fTGID->SetIDmin( ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetZ() );
 	fTGID->SetIDmax( ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetZ() );
+	fTGID->SetValidRuns( fGrid->GetRuns() );
+	fTGID->SetVarX( fGrid->GetVarX() );
+	fTGID->SetVarY( fGrid->GetVarY() );
+	fTGID->SetIDTelescopes( fGrid->GetIDTelescopes() );
 }
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
@@ -259,7 +260,7 @@ void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
 	//                   resulting from fit. (default: -1, take first and last Z of grid)
 	//  xmin, xmax: only fit points with abscissa between limits [xmin,xmax]
 	//                     (default: use all points regardless of abscissa)
-	
+
 	if(!fGrid){
 		Error("FitPanel", "Set grid to fit with SetGrid(KVIDGraph*)");
 		return;
@@ -276,18 +277,15 @@ void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
 		Error("FitPanel", "Fit failed : %s", GetFitStatusString());
 		return;
 	}
-	
+
 	if(first_Z!=-1) fTGID->SetIDmin(first_Z);
 	if(last_Z!=-1) fTGID->SetIDmax(last_Z);
-	
+
    if (fGrid->GetXmin() == fGrid->GetXmax()) fGrid->FindAxisLimits();
 	KVIDGrid* fitgr = fTGID->MakeIDGrid(fGrid->GetXmax(), fGrid->GetXmin());
-	fitgr->AddIDTelescopes( fGrid->GetIDTelescopes() );
-	fitgr->SetVarX( fGrid->GetVarX() );
-	fitgr->SetVarY( fGrid->GetVarY() );
 	fitgr->SetLineColor( kRed );
 	gIDGridManager->Modified();
-	
+
 	if( fPad ){
 		// draw fitted grid in same pad as original
 		fPad->cd();

@@ -43,7 +43,7 @@
 #ccali.DataRepository.Type: remote
 #ccali.DataRepository.RootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.ReadProtocol:     root
-#ccali.DataRepository.XRDServer:      ccxroot:1999
+#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
 #ccali.DataRepository.XRDTunnel.port:          10000
@@ -67,7 +67,7 @@
 #ccali.DataRepository.Type: remote
 #ccali.DataRepository.RootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.ReadProtocol:     root
-#ccali.DataRepository.XRDServer:      ccxroot:1999
+#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 #ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
 #ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
 #ccali.DataRepository.XRDTunnel.port:          10000
@@ -91,11 +91,28 @@ Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "K
 +Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
+# Different types of data which can be associated with datasets
+KVDataSet.DataTypes: raw dst recon ident root
+#
 # Names used for subdirectories containing data of different types
-KVDataRepository.Subdir.raw:  raw
-KVDataRepository.Subdir.recon:  recon2
-KVDataRepository.Subdir.ident:  ident2
-KVDataRepository.Subdir.root:  root2
+KVDataSet.DataType.Subdir.raw:  raw
+KVDataSet.DataType.Subdir.dst:  dst
+KVDataSet.DataType.Subdir.recon:  recon2
+KVDataSet.DataType.Subdir.ident:  ident2
+KVDataSet.DataType.Subdir.root:  root2
+#
+# Default formats for runfile names (run number is used to replace integer format)
+DataSet.RunFileName.raw:    run%d.raw
+DataSet.RunFileName.dst:    run%d.dst
+DataSet.RunFileName.recon:    run%d.recon.root
+DataSet.RunFileName.ident:    run%d.ident.root
+DataSet.RunFileName.root:    run%d.root
+#
+# Default base classes for reading runfiles of different types
+DataSet.RunFileClass.raw:    KVRawDataReader
+DataSet.RunFileClass.recon:    TFile
+DataSet.RunFileClass.ident:    TFile
+DataSet.RunFileClass.root:    TFile
 
 # Default name of database file containing informations on runs, systems, calibration parameters etc.
 DataSet.DatabaseFile:        DataBase.root
@@ -117,6 +134,7 @@ INDRA_camp2.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyse
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
 INDRA_camp4.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_camp4.KVDataSet.DataType.Subdir.dst:  dst2
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
@@ -293,6 +311,11 @@ RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
++DataAnalysisTask:     DSTtoROOT
+DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
+DSTtoROOT.DataAnalysisTask.Prereq:     dst
+DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
+
 #-------------------------------- Compiler options for user analysis classes
 #                                                              DEBUGGING
 # Set this resource to "yes" or "true" for user analysis classes to be compiled with ACliC's debug option
@@ -330,6 +353,7 @@ Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(con
 # KVDataAnalyser can be tuned for different datasets/environments
 Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDet "KVRawDataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRARawDataAnalyser   KVINDRARawDataAnalyser       KVIndra "KVINDRARawDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRADstToRootTransfert   KVINDRADstToRootTransfert       KVIndra "KVINDRADstToRootTransfert()"
 +Plugin.KVDataAnalyser:   INDRAReconData         KVINDRAReconDataAnalyser     KVIndra "KVINDRAReconDataAnalyser()"
 +Plugin.KVDataAnalyser:   INDRARawDataRecon      KVINDRARawDataReconstructor  KVIndra "KVINDRARawDataReconstructor()"
 +Plugin.KVDataAnalyser:   INDRAGeneDataAnalyser  KVINDRAGeneDataAnalyser      KVIndra "KVINDRAGeneDataAnalyser()"
@@ -355,18 +379,6 @@ Plugin.Analysisv:   INDRA_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogF
 Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransferSFTP()"
 +Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDet   "KVDataTransferBBFTP()"
 +Plugin.KVDataTransfer:   xrd    KVDataTransferXRD   KVMultiDet   "KVDataTransferXRD()"
-
-# Default formats for runfile names (run number is used to replace integer format)
-DataSet.RunFileName.raw:    run%d.raw
-DataSet.RunFileName.recon:    run%d.recon.root
-DataSet.RunFileName.ident:    run%d.ident.root
-DataSet.RunFileName.root:    run%d.root
-
-# Default base classes for reading runfiles of different types
-DataSet.RunFileClass.raw:    KVRawDataReader
-DataSet.RunFileClass.recon:    TFile
-DataSet.RunFileClass.ident:    TFile
-DataSet.RunFileClass.root:    TFile
 
 # Plugins for reading raw data
 # There must be an entry here for each dataset
@@ -650,6 +662,13 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 #DataSelector.directory: $(PWD)
 #
 #
+
+# Default name for TEnv-format file containing real thicknesses of detectors
+# in multidetector arrays defined for datasets.
+# See KVMultiDetArray::SetDetectorThicknesses for file format.
+KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
+# Special names for special datasets:
+INDRA_camp5.KVMultiDetArray.DetectorThicknesses:	EtalonThicknessCamp5.dat
 
 # Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
 KVSilicon.ZminForPHDCorrection:        10

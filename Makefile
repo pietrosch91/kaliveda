@@ -98,9 +98,18 @@ DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
 
+BZR = $(shell which bzr)
+ifneq ($(BZR),)
+BZR_INFOS = KVBzrInfo.h
+BZR_LAST_REVISION = $(shell if [ -f .bzr/branch/last-revision ]; then echo '.bzr/branch/last-revision'; fi)
+else
+BZR_INFOS =
+BZR_LAST_REVISION =
+endif
+
 .PHONY : MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
 
 doc : html byebye
 
@@ -120,10 +129,10 @@ fitltg-0.1/configure: fitltg-0.1/configure.ac
 	touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
-	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > KVVersion.h;\
-	echo '#define KV_BUILD_DATE "$(KV_BUILD_DATE)"' >> KVVersion.h;\
-	echo '#define KV_BUILD_USER "$(USER)"' >> KVVersion.h;\
-	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> KVVersion.h
+	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > $@;\
+	echo '#define KV_BUILD_DATE "$(KV_BUILD_DATE)"' >> $@;\
+	echo '#define KV_BUILD_USER "$(USER)"' >> $@;\
+	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> $@
 
 $(DATE_RECORD_FILE) :
 	@if test ! -f $@; then \
@@ -141,6 +150,10 @@ $(ROOT_VERSION_TAG) :
 	  rm -f .root_v*; \
 	  touch $@; \
 	else :; fi
+	
+$(BZR_INFOS) : $(BZR_LAST_REVISION)
+	bzr version-info --custom --template="#define BZR_REVISION_ID "\""{revision_id}"\"" \n#define BZR_REVISION_DATE "\""{date}"\"" \n#define BZR_REVISION_NUMBER {revno}\n#define BZR_BRANCH_NICK "\""{branch_nick}"\"" \n#define BZR_BRANCH_IS_CLEAN {clean}\n" \
+		> $@
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386
@@ -192,8 +205,6 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/examples
 	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
-#ifeq ($(ROOTGANILTAPE),yes)
-#endif
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
 	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(KVINSTALLDIR)/tools/
@@ -238,8 +249,6 @@ uninstall :
 	-rm -rf $(KVINSTALLDIR)/KaliVedaDoc
 	-rm -rf $(KVINSTALLDIR)/db
 ifeq ($(ROOTGANILTAPE),yes)
-#	-rm -f $(KVINSTALLDIR)/include/GT*.H
-#	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
 	-rm -f $(KVINSTALLDIR)/lib/libgan_tape.a
 endif
 	cd KVMultiDet && $(MAKE) uninstall
@@ -252,7 +261,7 @@ endif
 	cd VAMOS && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
-dist : clean
+dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
@@ -269,6 +278,7 @@ dist : clean
 	-cp -r GanTape $(KV_DIST)/
 	-cp Makefile* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/
+	-cp KVBzrInfo.h $(KV_DIST)/
 	-cp INSTALL $(KV_DIST)/
 	-tar czf $(KV_DIST).tgz $(KV_DIST)
 	-rm -Rf $(KV_DIST)
