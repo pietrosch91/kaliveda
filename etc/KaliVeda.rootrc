@@ -289,10 +289,10 @@ RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
-+DataAnalysisTask:     DSTtoROOT
-DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
-DSTtoROOT.DataAnalysisTask.Prereq:     dst
-DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
+#+DataAnalysisTask:     DSTtoROOT
+#DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
+#DSTtoROOT.DataAnalysisTask.Prereq:     dst
+#DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
 
 #-------------------------------- Compiler options for user analysis classes
 #                                                              DEBUGGING
