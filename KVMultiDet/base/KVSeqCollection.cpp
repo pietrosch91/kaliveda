@@ -235,19 +235,7 @@ void KVSeqCollection::RecursiveRemove(TObject *obj)
    // Remove object from this collection and recursively remove the object
    // from all other objects (and collections).
 
-   if (!obj) return;
-
-   // Scan list and remove obj in the list itself
-   while (Remove(obj))
-      ;
-
-   // Scan again the list and invoke RecursiveRemove for all objects
-   TIter next(fCollection);
-   TObject *object;
-
-   while ((object = next())) {
-      if (object->TestBit(kNotDeleted)) object->RecursiveRemove(obj);
-   }
+	fCollection->RecursiveRemove(obj);
 }
 
 void	KVSeqCollection::PrintCollectionHeader(Option_t* option) const
