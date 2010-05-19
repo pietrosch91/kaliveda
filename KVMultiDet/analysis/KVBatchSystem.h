@@ -11,6 +11,7 @@ $Date: 2008/04/03 07:35:45 $
 #define __KVBATCHSYSTEM_H
 
 #include "KVParameterList.h"
+#include "KVNumberList.h"
 #include "KVString.h"
 #include "KVBase.h"
 
@@ -27,12 +28,13 @@ class KVBatchSystem : public KVBase {
    KVString fJobSubCmd;          //shell command for submitting job
    KVString fJobScript;          //full path of shell script to be executed by batch system
    KVString fDefOpt;             //default options for job submission command
-   Bool_t fMultiJobs;  //set to kTRUE if a job is to be created for each run in the runlist set in fAnalyser
-   Int_t fRunNumber; //run number of current job
+   Bool_t fMultiJobs;  //set to kTRUE if several jobs are to be submitted for the runlist set in fAnalyser
+   Int_t fRunsPerJob; //number of runs per job submitted in multi job mode (default=1)
    KVString fCurrJobName; //name of current job being submitted
+   KVNumberList fCurrJobRunList;//runlist for (multi job mode) job being submitted
 
 	virtual void ChangeDefJobOpt(KVDataAnalyser* da);
-	
+
  public:
 
     KVBatchSystem(const Char_t* name);
@@ -46,12 +48,12 @@ class KVBatchSystem : public KVBase {
       return fJobSubCmd.Data();
    };
    virtual void SubmitTask(KVDataAnalyser* da);
-   virtual void SubmitJob();  
-   virtual void PrintJobs(Option_t* /* opt */ = ""){;};   
-   virtual Bool_t CheckJobParameters();      
+   virtual void SubmitJob();
+   virtual void PrintJobs(Option_t* /* opt */ = ""){;};
+   virtual Bool_t CheckJobParameters();
 
    virtual void Run();
-   
+
    virtual void SetJobScript(const Char_t * path) {
       fJobScript = path;
    };
@@ -63,7 +65,7 @@ class KVBatchSystem : public KVBase {
       return fDefOpt.Data();
    };
 
-   virtual void SetJobName(const Char_t *name); 
+   virtual void SetJobName(const Char_t *name);
    virtual const Char_t *GetJobName();
 
    virtual const Char_t *GetJobSubCmdLine();
@@ -71,19 +73,28 @@ class KVBatchSystem : public KVBase {
    virtual void Clear(Option_t* opt="");
 
    static KVBatchSystem *GetBatchSystem(const Char_t* plugin);
-   
+
    void cd();
 
    virtual void SetMultiJobsMode(Bool_t on=kTRUE) {fMultiJobs=on;};
    virtual Bool_t MultiJobsMode() const { return fMultiJobs; };
-   
+
+   virtual void SetRunsPerJob(Int_t n) {
+       // Set number of runs per job submitted in multi jobs mode (default=1)
+       fRunsPerJob = n;
+   };
+   virtual Int_t GetRunsPerJob() const {
+       // Returns number of runs per job submitted in multi jobs mode
+       return fRunsPerJob;
+   };
+
    virtual void WriteBatchEnvFile(TEnv*);
    virtual void ReadBatchEnvFile(TEnv*);
    virtual void Print(Option_t* /*option*/ = "") const;
-   
+
    virtual void SetAnalyser(KVDataAnalyser* da){ fAnalyser = da; };
-   
-   ClassDef(KVBatchSystem, 1)   //Base class for interface to batch job management system
+
+   ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
 };
 
 //................  global variable
