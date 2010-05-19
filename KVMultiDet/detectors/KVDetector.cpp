@@ -510,6 +510,7 @@ void KVDetector::AddACQParam(KVACQParam* par)
 
    if (!fACQParams) {
       fACQParams = new KVList();
+      fACQParams->SetName(Form("List of acquisition parameters for detector %s", GetName()));
    }
    par->SetDetector(this);
    fACQParams->Add(par);

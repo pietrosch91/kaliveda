@@ -283,9 +283,9 @@ void KVMultiDetArray::Build()
 
     BuildGeometry();
 
-    MakeListOfDetectors();
-
     SetGroupsAndIDTelescopes();
+
+    MakeListOfDetectors();
 
     SetACQParams();
 
@@ -1109,6 +1109,7 @@ void KVMultiDetArray::AddACQParam(KVACQParam * par)
 
     if (!fACQParams) {
         fACQParams = new KVHashList;
+        fACQParams->SetName(Form("List of acquisition parameters for multidetector array %s", GetName()));
         fACQParams->SetOwner(kFALSE);
         fACQParams->SetCleanup(kTRUE);
     }
