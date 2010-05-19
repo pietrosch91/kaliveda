@@ -59,6 +59,7 @@ class KVPartition : public TObject
 	const char* GetTitle() const { KVString stit; stit.Form("%d",GetPopulation()); return stit.Data(); }
 	
 	void Fill(Int_t* tab,Int_t mult);
+	void Fill(Double_t* tab,Int_t mult);
 	void FillWithConditions(Int_t* tab,Int_t mult,Int_t zmin=-1,Int_t zmax=-1);
 	void Fill(KVNumberList nl);
 	void Fill(KVEvent* evt,Option_t* opt = "");
@@ -103,6 +104,8 @@ class KVPartition : public TObject
 	Int_t CompareName(KVPartition* par) const;
 	
 	virtual void CalculValeursAdditionnelles();
+	Double_t GetValeursEnPlus(KVString sname);
+	Double_t GetValeursEnPlus(const char* sname);
 	
 	Bool_t RemoveAt(Int_t rang);
    Bool_t RemoveValue(Int_t value);
