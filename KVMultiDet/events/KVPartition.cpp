@@ -123,6 +123,8 @@ void KVPartition::ComputeValues(){
 	}
 
 	SetName(snom);
+	
+	CalculValeursAdditionnelles();
 
 }
 
@@ -133,6 +135,18 @@ void KVPartition::Fill(Int_t* tab,Int_t mult){
 	
 	for (Int_t mm=0;mm<mult;mm+=1)
 		AddToRegle(tab[mm]);
+	
+	Compute();
+
+}
+
+void KVPartition::Fill(Double_t* tab,Int_t mult){
+
+	if (!tab) return;
+	Reset();
+	
+	for (Int_t mm=0;mm<mult;mm+=1)
+		AddToRegle(TMath::Nint(tab[mm]));
 	
 	Compute();
 
@@ -378,5 +392,17 @@ Bool_t KVPartition::RemoveValue(Int_t val) {
 	ComputeValues();
 	
 	return kTRUE;
+
+}
+
+Double_t KVPartition::GetValeursEnPlus(KVString sname){
+
+	return GetParametersList()->GetDoubleValue(sname.Data());
+
+}
+
+Double_t KVPartition::GetValeursEnPlus(const Char_t* sname){
+
+	return GetParametersList()->GetDoubleValue(sname);
 
 }
