@@ -123,6 +123,8 @@ void KVPartition::ComputeValues(){
 	}
 
 	SetName(snom);
+	
+	CalculValeursAdditionnelles();
 
 }
 
