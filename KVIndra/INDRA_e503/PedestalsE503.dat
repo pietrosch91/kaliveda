@@ -1,0 +1,20 @@
+#$Id: PedestalsE503.dat,v 1.1 2010/05/11 00:00:00 franklan Exp $
+######################################################################
+#PedestalsE503.dat                                                      #
+#                                                                    #
+#Defines which pedestal files should be used for which run.          #
+#In this first version, the pedestal ranges have been chosen by hand  #
+#by Nicolas Le Neindre according to the data                                #
+#                                                                                       #
+######################################################################
++Run Range : 1 433
+pied_chiosi_433.dat
+pied_csi_37-40.dat
+
++Run Range : 434 571
+pied_chiosi_37-40.dat
+pied_csi_37-40.dat
+
++Run Range : 572 800
+pied_chiosi_572.dat
+pied_csi_37-40.dat
