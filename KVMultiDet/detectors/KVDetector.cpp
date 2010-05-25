@@ -337,7 +337,7 @@ void KVDetector::Print(Option_t * opt) const
       KVACQParam *acq;
       while ((acq = (KVACQParam *) next())) {
          cout << acq->GetName() << "=" << (Short_t) acq->
-             GetCoderData();
+             GetCoderData() << "/" << TMath::Nint(acq->GetPedestal());
          if(GetECalc()>0) cout << " (" << GetCalcACQParam(acq) << ")";
          cout << "  ";
       }
@@ -858,11 +858,9 @@ void KVDetector::SetECalc(Double_t epart)
    //in the detector (or from the calculated residual energy loss fECalc if SetECalc
    //has already been called i.e. if Reanalyse() returns kTRUE).
 
-   if(epart>0){
       Double_t eres = (fReanalyse ? fECalc : GetEnergy());
       fECalc = TMath::Max((eres - epart),0.);
       SetReanalyse( fECalc>0 );
-   }
 }
 
 //______________________________________________________________________________//
