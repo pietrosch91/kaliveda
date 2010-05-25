@@ -37,9 +37,7 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #define KVDETECTOR_MINIMUM_E 0.001
 
 #include "KVMaterial.h"
-#include "TRef.h"
 #include "KVList.h"
-#include "KVRList.h"
 #include "KVNucleus.h"
 #include "KVACQParam.h"
 #include "Binary_t.h"
@@ -92,7 +90,7 @@ Double_t *par_res;//!array of params for eres function
    KVList *fModules;            //references to connected electronic modules (not implemented yet)
    KVList *fCalibrators;        //list of associated calibrator objects
    KVList *fACQParams;          //list of raw data parameters read from coders
-   KVRList *fParticles;         //list of particles hitting detector in an event
+   TList *fParticles;         //!list of particles hitting detector in an event
    KVList *fAbsorbers;          //->list of absorbers making up the detector
    UShort_t fSegment;           //used in particle reconstruction
    Float_t fGain;               //gain of amplifier
@@ -211,12 +209,12 @@ Double_t *par_res;//!array of params for eres function
    // Add to the list of particles hitting this detector in an event
    void AddHit(KVNucleus * part)
    {
-      if (!fParticles) fParticles = new KVRList();
+      if (!fParticles) fParticles = new TList();
       fParticles->Add(part);
    };
 
    // Return the list of particles hitting this detector in an event
-   KVRList *GetHits() const
+   TList *GetHits() const
    {
       return fParticles;
    };
@@ -322,7 +320,7 @@ Double_t *par_res;//!array of params for eres function
 	virtual void SetFiredBitmask();
 	Binary8_t GetFiredBitmask() const { return fFiredMask; };
 	
-	ClassDef(KVDetector, 7)      //Base class for the description of detectors in multidetector arrays
+	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
 
 inline KVCalibrator *KVDetector::GetCalibrator(const Char_t * name,

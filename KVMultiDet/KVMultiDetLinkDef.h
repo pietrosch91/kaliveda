@@ -57,7 +57,7 @@
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
 #pragma link C++ class KVSeqCollection-;
-#pragma link C++ class KVDetector-;
+#pragma link C++ class KVDetector+;
 #pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBase;
 #pragma link C++ class KVDataBaseBrowser;

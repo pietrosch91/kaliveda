@@ -167,33 +167,6 @@ void KVDetector::Copy(TObject & obj)
    ((KVDetector &) obj).SetActiveLayer(fActiveLayer);
 }
 
-//______________________________________________________________________________
-void KVDetector::Streamer(TBuffer & R__b)
-{
-   // Customised streamer for backwards compatibility with multidetectors written to file
-   // before use of gROOT->GetListOfCleanups()
-   // Calls SetFiredBitmask after reading detectors with version < 7
-
-   if (R__b.IsReading()) {
-      UInt_t R__s, R__c;
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVDetector::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-      if (R__v < 6) {
-         {
-            fIDTelescopes->SetCleanup(kTRUE);
-         }
-         {
-            fIDTelAlign->SetCleanup(kTRUE);
-         }
-      }
-      if (R__v < 7) {
-         // 'fired' bitmask added in version 7. 
-         SetFiredBitmask();
-      }
-   } else {
-      KVDetector::Class()->WriteBuffer(R__b, this);
-   }
-}
 
 //_______________________________________________________________
 KVDetector::~KVDetector()
@@ -358,14 +331,14 @@ void KVDetector::Print(Option_t * opt) const
       cout << ((KVDetector *) this)->
           GetName() << " -- E=" << ((KVDetector *) this)->
           GetEnergy();
-      if(Reanalyse()) cout << " (" << GetECalc() << ")";
+      if(GetECalc()>0) cout << " (" << GetECalc() << ")";
       cout << "  ";
       TIter next(fACQParams);
       KVACQParam *acq;
       while ((acq = (KVACQParam *) next())) {
          cout << acq->GetName() << "=" << (Short_t) acq->
              GetCoderData();
-         if(Reanalyse()) cout << " (" << GetCalcACQParam(acq) << ")";
+         if(GetECalc()>0) cout << " (" << GetCalcACQParam(acq) << ")";
          cout << "  ";
       }
       if (Reanalyse())cout << " ---> UP FOR REANALYSIS";
@@ -867,7 +840,7 @@ Double_t KVDetector::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t t
 
 void KVDetector::SetECalc(Double_t epart)
 {
-   //Used in particle reconstruction.
+   //Used in particle calibration for coherency checks.
    //If the primary identification of a particle passing through this detector
    //reveals an inconsistency between the measured energy loss and the calculated
    //energy loss of the particle, then this may mean that another particle
@@ -875,7 +848,8 @@ void KVDetector::SetECalc(Double_t epart)
    //In this case the fECalc member should be set to the calculated energy loss
    //in the detector after subtraction of the contributions from already-identified
    //particles.
-   //The "reanalysis" flag is set to true (SetReanalyse(kTRUE)).
+   //
+   //If the difference is > 0 the detector's "reanalysis" flag is set to true (SetReanalyse(kTRUE)).
    //A secondary identification procedure should then be used to identify particles
    //based on the calculated residual energy losses.
    //
@@ -886,8 +860,8 @@ void KVDetector::SetECalc(Double_t epart)
 
    if(epart>0){
       Double_t eres = (fReanalyse ? fECalc : GetEnergy());
-      fECalc = TMath::Max((eres - epart),0.0);
-      SetReanalyse( fECalc>0.0 );
+      fECalc = TMath::Max((eres - epart),0.);
+      SetReanalyse( fECalc>0 );
    }
 }
 
