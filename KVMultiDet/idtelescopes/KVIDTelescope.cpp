@@ -655,6 +655,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
       if( e1< 0.0 ) e1 = 0.0;
       else{
          d1->SetEnergyLoss(e1);
+         nuc->SetElossCalc(d1,e1);
          e1 = d1->GetCorrectedEnergy(z,a);
          //status code
          fCalibStatus = kCalibStatus_Calculated;
@@ -679,6 +680,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
       else{
          e2 = d2->GetDeltaE(z,a,e2);
          d2->SetEnergyLoss(e2);
+         nuc->SetElossCalc(d2,e2);
          e2 = d2->GetCorrectedEnergy(z,a);
          //status code
          fCalibStatus = kCalibStatus_Calculated;
@@ -717,18 +719,9 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
             //significantly larger, there may be a second particle.
             e1 = det->GetDeltaEFromERes(z,a,einc);
             if( e1< 0.0 ) e1 = 0.0;
-            if( dE>coherence_tolerance*e1 ){
-               //cout << det->GetName() << " : Z=" << nuc->GetZ() << " A=" << nuc->GetA() << " : "
-               //      << " measured " << dE << " MeV, calculated " << e1 << " MeV" << endl;
-               det->SetECalc( e1 );
-               dE = det->GetCorrectedEnergy(z,a,e1);
-               //status code
-               fCalibStatus = kCalibStatus_Coherency;
-            }
-            else
-            {
-               dE = det->GetCorrectedEnergy(z,a);
-	         }
+            // set calculated energy loss for this detector & this particle
+            nuc->SetElossCalc(det,e1);
+            dE = det->GetCorrectedEnergy(z,a);
             einc += dE;
          }
          else{
@@ -741,9 +734,14 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
                  //    "Detector %s was hit by %d particles. Calculated energy loss for particle %f MeV",
                  //    det->GetName(), det->GetNHits(), e1);
                if( det->Fired() && det->IsCalibrated() )
-                  det->SetECalc( e1 );// subtract particle contribution from total measured energy loss in detector
+                  nuc->SetElossCalc(det, e1);// subtract particle contribution from total measured energy loss in detector
                else {
                   det->SetEnergyLoss(e1 + det->GetEnergy());// sum up calculated energy losses in uncalibrated detector
+                  nuc->SetElossCalc(det, e1);// set calculated contribution to energy of particle
+                  // fix so that calculated residual energy loss of detector stays 0
+                  // otherwise the previous line will lead to the detector having a spurious residual calculated energy
+                  // after adding the contributions for the det->GetNHits() particles
+                  det->SetECalc( det->GetECalc() );
                }
                //status code
                fCalibStatus = kCalibStatus_Multihit;
@@ -753,6 +751,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
                  //    "Detector %s uncalibrated/not fired. Calculated energy loss for particle %f MeV",
                  //    det->GetName(), e1);
                det->SetEnergyLoss(e1);
+               nuc->SetElossCalc(det, e1);// subtract particle contribution from total measured energy loss in detector
                //status code
                fCalibStatus = kCalibStatus_Calculated;
             }
