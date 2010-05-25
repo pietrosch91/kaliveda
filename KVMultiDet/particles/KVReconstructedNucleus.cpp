@@ -140,6 +140,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             KVDetector *det;register int ndet = 0;UInt_t npar=0;
             while ( (det = (KVDetector*)next_det()) ){
                 fNSegDet += det->GetSegment();
+                det->AddHit(this);
                det->SetEnergy(fEloss[ndet]);
                det->SetECalc((Double_t)fElossCalc[ndet]);
                ndet++;
@@ -175,7 +176,18 @@ void KVReconstructedNucleus::Print(Option_t * option) const
             KVDetector *det = GetDetector(i);
             if(det) det->Print("data");
         }
-
+        if(IsCalibrated()){
+         	cout << endl << " +++ Calculated & measured energy losses for this particle : " << endl;
+        	for (int i = GetNumDet() - 1; i >= 0; i--) {
+            	KVDetector *det = GetDetector(i);
+            	if(det) {
+            		cout << det->GetName() << "    Eloss = " << det->GetEnergy() << " MeV         Calculated = "
+            		<< GetElossCalc(det) << " MeV";
+            		cout << "          (difference = " << det->GetEnergy()-GetElossCalc(det) << " MeV)";
+            		cout << endl;
+            	}
+        	}
+		}
     }
 }
 
@@ -513,7 +525,7 @@ void KVReconstructedNucleus::Calibrate()
 		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
       while( (det = (KVDetector*)nxt()) ){
          fEloss[ndet] = det->GetEnergy();
-         fElossCalc[ndet] = det->GetECalc();
+         //fElossCalc[ndet] = det->GetECalc();
          ++ndet;
       }
     }
