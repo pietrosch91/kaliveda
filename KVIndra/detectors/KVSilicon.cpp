@@ -97,9 +97,7 @@ Int_t KVSilicon::GetCanalPGFromVolts(Float_t volts)
 
       if (!fChVoltPG || !fChVoltPG->GetStatus())
          return -1;
-      Int_t chan = (Int_t) (fChVoltPG->Invert(volts));
-      //correct for pedestal drift
-      chan = chan + (Int_t) (GetPedestal("PG") - fChVoltPG->Invert(0));
+      Int_t chan = TMath::Nint(fChVoltPG->Invert(volts) + GetPedestal("PG") - fChVoltPG->Invert(0));
       return chan;
 
 }
@@ -116,9 +114,7 @@ Int_t KVSilicon::GetCanalGGFromVolts(Float_t volts)
 
       if (!fChVoltGG || !fChVoltGG->GetStatus())
          return -1;
-      Int_t chan = (Int_t) (fChVoltGG->Invert(volts));
-      //correct for pedestal drift
-      chan = chan + (Int_t) (GetPedestal("GG") - fChVoltGG->Invert(0));
+      Int_t chan = TMath::Nint(fChVoltGG->Invert(volts) + GetPedestal("GG") - fChVoltGG->Invert(0));
       return chan;
 }
 
