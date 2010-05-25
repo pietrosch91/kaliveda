@@ -156,11 +156,8 @@ void KVINDRAReconNuc::Print(Option_t * option) const
       cout << " =======> ";
       cout << " Z=" << GetZ() << " A=" << ((KVINDRAReconNuc *) this)->
           GetA();
-      cout << " Zreal=" << GetRealZ();
-      if (const_cast <
-          KVINDRAReconNuc * >(this)->GetCodes().GetIsotopeResolve())
-         cout << " Areal=" << ((KVINDRAReconNuc *) this)->
-             GetRealA();
+      if(((KVINDRAReconNuc *) this)->IsAMeasured()) cout << " Areal=" << ((KVINDRAReconNuc *) this)->GetRealA();
+      else cout << " Zreal=" << GetRealZ();         
       cout << endl << " Identification code = " << ((KVINDRAReconNuc *) this)->
           GetCodes().GetIDStatus() << endl;
    } else {
