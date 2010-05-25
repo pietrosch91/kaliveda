@@ -72,8 +72,14 @@ Bool_t KVIDGCsI::IsIdentifiable(Double_t x, Double_t y) const
 void KVIDGCsI::Identify(Double_t x, Double_t y,
                         KVReconstructedNucleus * nuc) const
 {
-    //Set Z and A of nucleus based on position in R-L grid
-    //The identification of gammas (kICODE10) and charged particles is performed
+    // Set Z and A of nucleus based on position in R-L grid
+    // The identification of gammas (kICODE10) and charged particles is performed
+    // Note:
+    //  for isotopically identified particles, the integer A (KVNucleus::GetA) is the mass assigned to the closest line
+    //  whereas the floating-point A (KVReconstructedNucleus::GetRealA) is calculated by interpolation.
+    //  the integer A is not necessarily = nint(floating-point A): for example, if no 5He line is drawn in the grid
+    //  (which is usually the case), there will be no isotopically-identified particle with GetA()=5, although
+    //  there may be particles with GetRealA() between 4.5 and 5.5
 
     nuc->SetZMeasured(kFALSE);
     nuc->SetAMeasured(kFALSE);
@@ -91,7 +97,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
         const_cast < KVIDGCsI * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
         return;
     }
-    Int_t Z;
+    Int_t Z, a;
     Double_t A;
     const_cast < KVIDGCsI * >(this)->IdentZA(x, y, Z, A);
     nuc->SetZ(Z);
@@ -99,8 +105,9 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
     if (A > -1)
     {
         nuc->SetRealA(A);
+        // set integer mass to A of closest line
+        nuc->SetA( GetIdentifierAt(fIdxClosest)->GetA() );
         nuc->SetAMeasured(kTRUE);
-        nuc->SetA(TMath::Nint(A));
     }
 }
 
@@ -156,10 +163,13 @@ KVIDZALine *KVIDGCsI::GetZALine(Int_t z, Int_t a, Int_t & index) const
 void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
 {
     //Finds Z, A and 'real A' for point (x,y) once closest lines to point have been found.
+    // Double_t A = mass calculated by interpolation
     //This is a line-for-line copy of the latter part of IdnCsOr, even the same
     //variable names and comments have been used (as much as possible).
 
     fICode = kICODE0;
+    A = -1.;
+
 //   if(fIdxClosest==ksups) cout << "*** ";
 //   cout << "ksups = " << ksups << " Zsups = " << Zsups << "  Asups = " << Asups << "  wsups = " << wsups << "  dsups = " << dsups << endl;
 //   if(fIdxClosest==ksup) cout << "*** ";
@@ -455,6 +465,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
     }
     if (fICode == kICODE4 || fICode == kICODE5)
         A = -1;
+            
     /****************Interpolation de la masse: da = f*log(1+b*dy)********************/
     if (fICode == kICODE0 || (fICode == kICODE7 && yy <= y2))
     {
