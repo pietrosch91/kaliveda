@@ -605,7 +605,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
 
    UInt_t z = nuc->GetZ();
    //uncharged particles
-   if(z==0) return;
+   //if(z==0) return;
 
    KVDetector* d1 = GetDetector(1);
    KVDetector* d2 = (fDetectors->GetSize()>1 ? GetDetector(2) : 0);

@@ -517,17 +517,20 @@ void KVReconstructedNucleus::Calibrate()
     //will also be stored.
     if ( idt->GetCalibStatus() != KVIDTelescope::kCalibStatus_NoCalibrations ){
         SetIsCalibrated();
-        //add correction for target energy loss
-        Double_t E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-        SetTargetEnergyLoss( E_targ );
+        //add correction for target energy loss - charged particles only
+        Double_t E_targ = 0.;
+        if(GetZ()) {
+        	E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+        	SetTargetEnergyLoss( E_targ );
+        }
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
 		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
-      while( (det = (KVDetector*)nxt()) ){
-         fEloss[ndet] = det->GetEnergy();
-         //fElossCalc[ndet] = det->GetECalc();
-         ++ndet;
-      }
+        while( (det = (KVDetector*)nxt()) ){
+          fEloss[ndet] = det->GetEnergy();
+          //fElossCalc[ndet] = det->GetECalc();
+          ++ndet;
+        }
     }
 }
 
