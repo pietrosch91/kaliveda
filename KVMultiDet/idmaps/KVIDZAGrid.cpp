@@ -595,6 +595,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
     fICode = kICODE0;
     Z=-1;
     A=-1;
+    Aint=0;
     /*    cout << "kinfi = " << kinfi << " Zinfi = " << Zinfi << "  Ainfi = " << Ainfi << "  winfi = " << winfi << "  dinfi = " << dinfi << endl;
        cout << "kinf = " << kinf << " Zinf = " << Zinf << "  Ainf = " << Ainf << "  winf = " << winf << "  dinf = " << dinf << endl;
        cout << "ksup = " << ksup << " Zsup = " << Zsup << "  Asup = " << Asup << "  wsup = " << wsup << "  dsup = " << dsup << endl;
@@ -625,6 +626,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     k = ksup;
                     yy = -dsup;
                     A = Asup;
+                    Aint = Asup;
                     if (ksups > -1)          // there is a 'sups' line above the 2 which encadrent le point
                     {
                         y2 = dsups - dsup;
@@ -659,6 +661,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     k = kinf;
                     yy = dinf;
                     A = Ainf;
+                    Aint = Ainf;
                     if (kinfi > -1)          // there is a 'infi' line below the 2 which encadrent le point
                     {
                         y1 = 0.5 * (dinfi - dinf);
@@ -697,6 +700,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     yy = -dsup;
                     Z = Zsup;
                     A = Asup;
+                    Aint = Asup;
                     y1 = 0.5 * wsup;
                     if (ksups > -1)          // there is a 'sups' line above the 2 which encadrent the point
                     {
@@ -736,6 +740,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     yy = dinf;
                     Z = Zinf;
                     A = Ainf;
+                    Aint = Ainf;
                     y2 = 0.5 * winf;
                     if (kinfi > -1)          // there is a 'infi' line below the 2 which encadrent the point
                     {
@@ -776,6 +781,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             yy = -dsup;
             Z = Zsup;
             A = Asup;
+            Aint = Asup;
             y1 = 0.5 * wsup;
             if (ksups > -1)        // there is a 'sups' line above the closest line to the point
             {
@@ -828,6 +834,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
         k = kinf;
         Z = Zinf;
         A = Ainf;
+        Aint = Ainf;
         yy = dinf;
         y2 = 0.5 * winf;
         if (kinfi > -1)
@@ -878,7 +885,7 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             fICode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
     }
     if (fICode == kICODE4 || fICode == kICODE5)
-        A = -1;
+      {  A = -1; Aint=0; }
     /****************Interpolation de la masse: da = f*log(1+b*dy)********************/
     if (fICode == kICODE0)
     {
@@ -888,33 +895,56 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
         dt = 0.;
         if (ix2 == -ix1)          //dA1 = dA2
         {
-            dt = -(y1 + y2) / dist;
-            i = kTRUE;
+            if(dist!=0){
+            	dt = -(y1 + y2) / dist;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            		GetName(), Z, Aint, fICode);
         }
         else if (ix2 == -ix1 * 2)       // dA2 = 2*dA1
         {
-            dt = -(y1 + 2. * y2 -
-                   TMath::Sqrt(y1 * y1 - 4. * dist)) / dist / 2.;
-            i = kTRUE;
+        	Double_t tmp = y1 * y1 - 4. * dist;
+        	if(tmp>0 && dist!=0){
+            	dt = -(y1 + 2. * y2 -
+                   TMath::Sqrt(tmp)) / dist / 2.;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            		GetName(), Z, Aint, fICode);
         }
         else if (ix1 == -ix2 * 2)       // dA1 = 2*dA2
         {
-            dt = -(y2 + 2. * y1 +
-                   TMath::Sqrt(y2 * y2 - 4. * dist)) / dist / 2.;
-            i = kTRUE;
+        	Double_t tmp = y2 * y2 - 4. * dist;
+            if(tmp>0 && dist!=0){
+            	dt = -(y2 + 2. * y1 +
+                   TMath::Sqrt(tmp)) / dist / 2.;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            		GetName(), Z, Aint, fICode);
         }
         if (i)
         {
             dist = dt * y2;
             if (TMath::Abs(dist) < 0.001)
             {
-                deltaA = yy * ix2 / y2 / 2.;
+            	if(y2!=0)
+                	deltaA = yy * ix2 / y2 / 2.;
+            	else
+            		Warning("IdentZA","%s : cannot calculate interpolated mass (y2=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            			GetName(), y2, Z, Aint, fICode);
             }
             else
             {
-                deltaA =
-                    ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. +
-                            dt * yy);
+                if(dist>-1. && dt*yy>-1.)
+                	deltaA = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
+            	else
+            		Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f dt*yy=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            			GetName(), dist, dt*yy, Z, Aint, fICode);
             }
             A += deltaA;
         }
@@ -973,6 +1003,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
 
     fICode = kICODE0;
     Z = -1;
+    Aint =0;
+    Zint=0;
     /*   cout << "kinfi = " << kinfi << " Zinfi = " << Zinfi << "  Ainfi = " << Ainfi << "  winfi = " << winfi << "  dinfi = " << dinfi << endl;
        cout << "kinf = " << kinf << " Zinf = " << Zinf << "  Ainf = " << Ainf << "  winf = " << winf << "  dinf = " << dinf << endl;
        cout << "ksup = " << ksup << " Zsup = " << Zsup << "  Asup = " << Asup << "  wsup = " << wsup << "  dsup = " << dsup << endl;
@@ -1003,6 +1035,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
                 k = ksup;
                 yy = -dsup;
                 Z = Zsup;
+                Zint = Zsup;
+                Aint = Asup;
                 if (ksups > -1)          // there is a 'sups' line above the 2 which encadrent le point
                 {
                     y2 = dsups - dsup;
@@ -1027,6 +1061,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
                 k = kinf;
                 yy = dinf;
                 Z = Zinf;
+                Zint = Zinf;
+                Aint = Ainf;
                 if (kinfi > -1)          // there is a 'infi' line below the 2 which encadrent le point
                 {
                     y1 = 0.5 * (dinfi - dinf);
@@ -1055,6 +1091,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
             k = ksup;
             yy = -dsup;
             Z = Zsup;
+            Zint = Zsup;
+            Aint = Asup;
             y1 = 0.5 * wsup;
             if (ksups > -1)        // there is a 'sups' line above the closest line to the point
             {
@@ -1081,6 +1119,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
             {
                 fICode = kICODE6; // we are too far from first line to extrapolate correctly
                 Z = Zsup-1; // give Z below first line of grid, but this is an upper limit
+                Zint = Zsup-1;
+                Aint = 0;
             }
         }
     }  //if(ksup>-1)***************************************************************
@@ -1092,6 +1132,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
         ibif = 3;
         k = kinf;
         Z = Zinf;
+        Zint = Zinf;
+        Aint = Ainf;
         yy = dinf;
         y2 = 0.5 * winf;
         if (kinfi > -1)   // there is a 'infi' line below the closest line to the point
@@ -1116,6 +1158,8 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
         {
             fICode = kICODE7; // we are too far from last line to extrapolate correctly
             Z = Zinf+1; // give Z above last line in grid, it is a lower limit
+            Zint = Zinf+1;
+            Aint = 0;//calculate mass from Z
         }
 
     }
@@ -1137,7 +1181,7 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
         if (yy < y1)
             fICode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
     }
-
+	if(fICode==kICODE4 || fICode==kICODE5) Aint=0;
 
     /****************Interpolation to find 'real Z': dz = f*log(1+b*dy)********************/
 
@@ -1149,33 +1193,56 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
         dt = 0.;
         if (ix2 == -ix1)          //dZ1 = dZ2
         {
-            dt = -(y1 + y2) / dist;
-            i = kTRUE;
+        	if(dist!=0){
+            	dt = -(y1 + y2) / dist;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
+            		GetName(), Zint, fICode);
         }
         else if (ix2 == -ix1 * 2)       // dZ2 = 2*dZ1
         {
-            dt = -(y1 + 2. * y2 -
-                   TMath::Sqrt(y1 * y1 - 4. * dist)) / dist / 2.;
-            i = kTRUE;
+        	Double_t tmp = y1 * y1 - 4. * dist;
+        	if(tmp>0. && dist!=0){
+            	dt = -(y1 + 2. * y2 -
+                   TMath::Sqrt(tmp)) / dist / 2.;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
+            		GetName(), Zint, fICode);
         }
         else if (ix1 == -ix2 * 2)       // dZ1 = 2*dZ2
         {
-            dt = -(y2 + 2. * y1 +
-                   TMath::Sqrt(y2 * y2 - 4. * dist)) / dist / 2.;
-            i = kTRUE;
+        	Double_t tmp = y2 * y2 - 4. * dist;
+        	if(tmp>0. && dist!=0){
+            	dt = -(y2 + 2. * y1 +
+                   TMath::Sqrt(tmp)) / dist / 2.;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
+            		GetName(), Zint, fICode);
         }
         if (i)
         {
             dist = dt * y2;
             if (TMath::Abs(dist) < 0.001)
             {
-                deltaZ = yy * ix2 / y2 / 2.;
+            	if(y2!=0)
+                	deltaZ = yy * ix2 / y2 / 2.;
+            	else
+            		Warning("IdentZ","%s : cannot calculate interpolated charge (y2=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
+            			GetName(), y2, Zint, fICode);
             }
             else
             {
-                deltaZ =
-                    ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. +
-                            dt * yy);
+            	if(dist>-1. && dt*yy>-1.)
+               		deltaZ = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
+            	else
+            		Warning("IdentZ","%s : cannot calculate interpolated charge (dist=%f dt*yy=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
+            			GetName(), dist, dt*yy, Zint, fICode);
             }
             Z += deltaZ;
         }
@@ -1274,9 +1341,13 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
             Z=0;
         }
         nuc->SetRealA(0);
-        nuc->SetZ(TMath::Nint(Z));
+        if(Z>0) nuc->SetZ(Zint);
+        else nuc->SetZ(Z);
         nuc->SetRealZ(Z);
-		nuc->SetA( GetIdentifierAt(fIdxClosest)->GetA() );
+        // Set mass to A of line used to identify particle
+		if(Zint && Aint) {
+			nuc->SetA( Aint );
+    	}
     }
     else
     {
@@ -1294,8 +1365,8 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
         nuc->SetRealA(0);
         nuc->SetRealZ(Z);
         nuc->SetZ(Z);
-        // use A of nearest line for integer mass
-        if( Z ) nuc->SetA( GetIdentifierAt(fIdxClosest)->GetA() );
+        //Set mass to A of line used to identify particle
+        if( Z && Aint ) nuc->SetA( Aint );
         if (fICode<kICODE4)
         {
             nuc->SetAMeasured();

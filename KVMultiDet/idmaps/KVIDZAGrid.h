@@ -43,6 +43,9 @@ protected:
     Double_t winf, wsup, winfi, wsups;//!
     Int_t Zinfi, Zinf, Zsup, Zsups;//!
     Int_t Ainfi, Ainf, Asup, Asups;//!
+    
+    Int_t Aint;//!mass of line used to identify particle
+    Int_t Zint;//!Z of line used to identify particle
 
     virtual Bool_t FindFourEmbracingLines(Double_t x, Double_t y, const Char_t* position);
     void init();
