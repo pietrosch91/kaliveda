@@ -45,7 +45,9 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
 
    virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
    
+   void preInitAnalysis();
    void preInitRun();
+   void postEndAnalysis();
    
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };

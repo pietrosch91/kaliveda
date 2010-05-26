@@ -259,6 +259,18 @@ KVNumberList KVINDRAReconDataAnalyser::PrintAvailableRuns(KVString & datatype)
    return all_runs;
 }
 
+void KVINDRAReconDataAnalyser::preInitAnalysis()
+{
+	// Called by currently-processed KVSelector before user's InitAnalysis() method.
+	// We build the multidetector for the current dataset in case informations on
+	// detector are needed e.g. to define histograms in InitAnalysis().
+	// Note that at this stage we are not analysing a given run, so the parameters
+	// of the array are not set (they will be set in preInitRun()).
+		
+	if( !gIndra ) gDataSet->BuildMultiDetector();
+}
+
+
 void KVINDRAReconDataAnalyser::preInitRun()
 {
 	// Called by currently-processed KVSelector when a new file in the TChain is opened.
@@ -266,6 +278,13 @@ void KVINDRAReconDataAnalyser::preInitRun()
 	// We call gIndra->SetParameters for the current run.
 	
 	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
-	if( !gIndra ) gDataSet->BuildMultiDetector();
 	gIndra->SetParameters(run);
+}
+
+void KVINDRAReconDataAnalyser::postEndAnalysis()
+{
+	// Called by currently-processed KVSelector after user's EndAnalysis() method.
+	// We clean up by deleting gIndra
+	
+	if(gIndra) delete gIndra;
 }
