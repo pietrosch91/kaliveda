@@ -190,7 +190,7 @@ void KVBase::InitEnvironment()
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
       ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
 				GetKVVersion(), GetKVBuildDate());
-      ::Info("KVBase::InitEnvironment", "(Bzr branch : %s revno : %d (%d) date : %s)",
+      ::Info("KVBase::InitEnvironment", "(BZR branch : %s revision#%d (clean=%d) date : %s)",
       	bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
       KVRootDir = gSystem->Getenv("KVROOT");
       TString tmp;
