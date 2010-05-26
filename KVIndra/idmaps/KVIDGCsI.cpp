@@ -34,12 +34,15 @@ KVIDGCsI::KVIDGCsI()
     //Default constructor
     IMFLine = 0;
     GammaLine = 0;
+    fIMFlineadded=kFALSE;
 }
 
-KVIDGCsI::KVIDGCsI(const KVIDGCsI & grid)
+KVIDGCsI::KVIDGCsI(const KVIDGCsI & grid) : KVIDZAGrid()
 {
     //Copy constructor
-    init();
+    IMFLine = 0;
+    GammaLine = 0;
+    fIMFlineadded=kFALSE;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
     grid.Copy(*this);
 #else
@@ -76,6 +79,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
     // The identification of gammas (kICODE10) and charged particles is performed
     // Note:
     //  for isotopically identified particles, the integer A (KVNucleus::GetA) is the mass assigned to the closest line
+    //  [unless the closest line is the IMF line, in which case we use the closest identifier line],
     //  whereas the floating-point A (KVReconstructedNucleus::GetRealA) is calculated by interpolation.
     //  the integer A is not necessarily = nint(floating-point A): for example, if no 5He line is drawn in the grid
     //  (which is usually the case), there will be no isotopically-identified particle with GetA()=5, although
@@ -83,6 +87,13 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
 
     nuc->SetZMeasured(kFALSE);
     nuc->SetAMeasured(kFALSE);
+    
+    // before first use of this method, we add the IMF line to the list of identifiers
+    // which is necessary for IdentZA to work correctly
+    if(!fIMFlineadded){
+    	if(IMFLine) fIdentifiers->AddLast(IMFLine);
+    	const_cast < KVIDGCsI * >(this)->fIMFlineadded=kTRUE;
+    }
 
     if (!IsIdentifiable(x, y))
     {
@@ -97,16 +108,15 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
         const_cast < KVIDGCsI * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
         return;
     }
-    Int_t Z, a;
+    Int_t Z;
     Double_t A;
     const_cast < KVIDGCsI * >(this)->IdentZA(x, y, Z, A);
     nuc->SetZ(Z);
     nuc->SetZMeasured(kTRUE);
-    if (A > -1)
+    if (Aint)
     {
+    	nuc->SetA(Aint);
         nuc->SetRealA(A);
-        // set integer mass to A of closest line
-        nuc->SetA( GetIdentifierAt(fIdxClosest)->GetA() );
         nuc->SetAMeasured(kTRUE);
     }
 }
@@ -169,6 +179,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
 
     fICode = kICODE0;
     A = -1.;
+    Aint = 0;
 
 //   if(fIdxClosest==ksups) cout << "*** ";
 //   cout << "ksups = " << ksups << " Zsups = " << Zsups << "  Asups = " << Asups << "  wsups = " << wsups << "  dsups = " << dsups << endl;
@@ -203,6 +214,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     k = ksup;
                     yy = -dsup;
                     A = Asup;
+                    Aint = Asup;
                     if (ksups > -1)          // there is a 'sups' line above the 2 which encadrent le point
                     {
                         y2 = dsups - dsup;
@@ -238,6 +250,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     k = kinf;
                     yy = dinf;
                     A = Ainf;
+                    Aint = Ainf;
                     if (kinfi > -1)          // there is a 'infi' line below the 2 which encadrent le point
                     {
                         y1 = 0.5 * (dinfi - dinf);
@@ -281,6 +294,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     yy = -dsup;
                     Z = Zsup;
                     A = Asup;
+                    Aint = Asup;
                     y1 = 0.5 * wsup;
                     if (ksups > -1)          // there is a 'sups' line above the 2 which encadrent the point
                     {
@@ -321,6 +335,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                     yy = dinf;
                     Z = Zinf;
                     A = Ainf;
+                    Aint = Ainf;
                     y2 = 0.5 * winf;
                     if (kinfi > -1)          // there is a 'infi' line below the 2 which encadrent the point
                     {
@@ -361,6 +376,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             yy = -dsup;
             Z = Zsup;
             A = Asup;
+            Aint = Asup;
             y1 = 0.5 * wsup;
             if (ksups > -1)        // there is a 'sups' line above the closest line to the point
             {
@@ -404,10 +420,11 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
         /*** Sep. fragment ***/
         if (Zinf == -1)           // 'inf' is IMF line
         {
-            //point is above IMF line. Z = Z of last line in grid + 1, A = -1
+            //point is above IMF line. Z = Z of last line in grid, A = -1
             k = -1;
             Z = GetZmax();
             A = -1;
+            Aint = 0;
             fICode = kICODE6;      // au-dessus de la ligne fragment, Z est alors un Zmin
         }
         /*** Ligne de crete (Z,A line)***/
@@ -417,6 +434,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             k = kinf;
             Z = Zinf;
             A = Ainf;
+            Aint = Ainf;
             yy = dinf;
             y2 = 0.5 * winf;
             if (kinfi > -1)
@@ -464,7 +482,7 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             fICode = kICODE5;      // Z ok, masse hors limite inferieure ou egale a A
     }
     if (fICode == kICODE4 || fICode == kICODE5)
-        A = -1;
+       { A = -1; Aint = 0; }
             
     /****************Interpolation de la masse: da = f*log(1+b*dy)********************/
     if (fICode == kICODE0 || (fICode == kICODE7 && yy <= y2))
@@ -475,33 +493,56 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
         dt = 0.;
         if (ix2 == -ix1)          //dA1 = dA2
         {
-            dt = -(y1 + y2) / dist;
-            i = kTRUE;
+            if(dist!=0) {
+            	dt = -(y1 + y2) / dist;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            		GetName(), dist, Z, Aint, fICode);
         }
         else if (ix2 == -ix1 * 2)       // dA2 = 2*dA1
         {
-            dt = -(y1 + 2. * y2 -
-                   TMath::Sqrt(y1 * y1 - 4. * dist)) / dist / 2.;
-            i = kTRUE;
+        	Double_t tmp = y1 * y1 - 4. * dist;
+        	if(tmp>0. && dist!=0){
+            	dt = -(y1 + 2. * y2 -
+                   TMath::Sqrt(tmp)) / dist / 2.;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZA","%s : cannot calculate interpolated mass (y1*y1-4*dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            		GetName(), tmp, Z, Aint, fICode);
         }
         else if (ix1 == -ix2 * 2)       // dA1 = 2*dA2
         {
-            dt = -(y2 + 2. * y1 +
-                   TMath::Sqrt(y2 * y2 - 4. * dist)) / dist / 2.;
-            i = kTRUE;
+        	Double_t tmp = y2 * y2 - 4. * dist;
+        	if(tmp>0. && dist!=0){
+            	dt = -(y2 + 2. * y1 +
+                   TMath::Sqrt(tmp)) / dist / 2.;
+            	i = kTRUE;
+            }
+            else
+            	Warning("IdentZA","%s : cannot calculate interpolated mass (y2*y2-4*dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            		GetName(), tmp, Z, Aint, fICode);
         }
         if (i)
         {
             dist = dt * y2;
             if (TMath::Abs(dist) < 0.001)
             {
-                deltaA = yy * ix2 / y2 / 2.;
+            	if(y2!=0)
+                	deltaA = yy * ix2 / y2 / 2.;
+            	else
+            		Warning("IdentZA","%s : cannot calculate interpolated mass (y2=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            			GetName(), y2, Z, Aint, fICode);
             }
             else
             {
-                deltaA =
-                    ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. +
-                            dt * yy);
+                if(dist>-1. && dt*yy>-1.)
+                	deltaA = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
+            	else
+            		Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f dt*yy=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
+            			GetName(), dist, dt*yy, Z, Aint, fICode);
             }
             A += deltaA;
         }
@@ -566,21 +607,12 @@ void KVIDGCsI::Initialize()
     // The line with the largest Z (Zmax line) is found.
     // IMF & Gamma line pointers are initialised
 
+	// if grid has already been used for identification, IMF_line will be in identifiers list.
+	TObject* imfline = fIdentifiers->FindObject("IMF_line");
+	if(imfline) fIdentifiers->Remove(imfline); // remove to avoid problems with CalculateLineWidths
     KVIDZAGrid::Initialize();
     GammaLine = (KVIDLine*)GetCut("gamma_line");
     IMFLine = (KVIDLine*)GetCut("IMF_line");
-}
-
-Bool_t KVIDGCsI::FindFourEmbracingLines(Double_t x, Double_t y, const Char_t* position)
-{
-    // Special version of KVIDZAGrid::FindFourEmbracingLines for CsI R-L identification grids.
-    // The IMF line is added to the list of identifiers so that it is included in the search.
-    // We remove it after searching.
-
-    if (IMFLine) fIdentifiers->AddLast(IMFLine);
-    Bool_t ok = KVIDZAGrid::FindFourEmbracingLines(x,y,position);
-    if (IMFLine) fIdentifiers->Remove(IMFLine);
-    return ok;
 }
 
 //___________________________________________________________________________________

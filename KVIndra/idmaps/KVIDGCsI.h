@@ -19,29 +19,15 @@ class KVIDGCsI:public KVIDZAGrid
 
     KVIDLine* IMFLine;//!
     KVIDLine* GammaLine;//!
+    Bool_t fIMFlineadded;//!set to kTRUE once IMF line has been added to list of identifiers
 
 protected:
     KVIDLine *GetNearestIDLine(Double_t x, Double_t y,
                                const Char_t * position, Int_t & idx_min,
                                Int_t & idx_max);
     virtual void BackwardsCompatibilityFix();
-    virtual Bool_t FindFourEmbracingLines(Double_t x, Double_t y, const Char_t* position);
 
 public:
-
-//    enum {
-//       kICODE0,                  // ok
-//       kICODE1,                  // Z ok, mais les masses superieures a A sont possibles
-//       kICODE2,                  // Z ok, mais les masses inferieures a A sont possibles
-//       kICODE3,                  // Z ok, mais les masses superieures ou inferieures a A sont possibles
-//       kICODE4,                  // Z ok, masse hors limite superieure ou egale a A
-//       kICODE5,                  // Z ok, masse hors limite inferieure ou egale a A
-//       kICODE6,                  // au-dessus de la ligne fragment, Z est alors un Zmin
-//       kICODE7,                  // a gauche de la ligne fragment, Z est alors un Zmin et le plus probable
-//       kICODE8,                  // Z indetermine ou (x,y) hors limites
-//       kICODE9,                  // pas de lignes pour ce module
-//       kICODE10                  // gamma
-//    };
 
     KVIDGCsI();
     KVIDGCsI(const KVIDGCsI &);
