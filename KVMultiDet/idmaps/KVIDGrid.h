@@ -39,8 +39,6 @@ public:
     Int_t GetIDLinesEmbracingPoint(const Char_t * direction, Double_t x,
                                    Double_t y, TList&) const;
 
-//   virtual KVIDLine *FindNearestIDLine(Double_t x, Double_t y, const Char_t * position,
-//        Int_t &idx, Int_t & idx_min, Int_t & idx_max, Double_t &dist, Double_t &dist_min, Double_t &dist_max) const;
     virtual KVIDLine *FindNearestIDLineFast(Double_t x, Double_t y, const Char_t * position,
                                             Int_t &idx, Int_t & idx_min, Int_t & idx_max, Double_t &dist, Double_t &dist_min, Double_t &dist_max) const
     {
@@ -117,8 +115,6 @@ public:
         return lower;
     };
 
-//virtual KVIDLine *FindNearestEmbracingIDLine(Double_t x, Double_t y, const Char_t * position, const Char_t* axis,
-//    Int_t &idx, Double_t &dist) const;
     virtual KVIDLine* FindNearestEmbracingIDLine(Double_t x, Double_t y, const Char_t * position, const Char_t* axis,
             Int_t &idx, Int_t & idx_min, Int_t & idx_max, Double_t &dist, Double_t &dist_min, Double_t &dist_max) const
     {
@@ -198,7 +194,6 @@ public:
         return lower;
     };
 
-//KVIDLine* FindNextEmbracingLine(Int_t &index, Int_t inc_index, Double_t x, Double_t y, const Char_t* axis) const;
     KVIDLine* FindNextEmbracingLine(Int_t &index, Int_t inc_index, Double_t x, Double_t y, const Char_t* axis) const
     {
         // Starting from the line with given 'index', we search for the next line in the list of identifiers for which
@@ -229,22 +224,6 @@ public:
 
     void Initialize();
 
-    /*
-    static KVIDGrid *MakeIDGrid(TH2 *hh,TList*lCutG,Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
-    	KVIDGrid *idgrid = new KVIDGrid();
-    	for (Int_t nn=0;nn<lCutG->GetEntries();nn+=1) idgrid->AddLine("ID",KVIDLine::MakeIDLine(hh,(TCutG *)lCutG->At(nn),xdeb,xfin,np,save));
-    	return idgrid;
-    }
-    */
-
-    /* 	static KVIDGrid *MakeIDGrid(TList*lObject, Double_t xdeb=-1.,Double_t xfin=-1.,Double_t np=1.,Bool_t save=kFALSE){
-    		// Create an KVIDGrid using a list of objects which are converting in KVIDLine with the static method KVIDLine::MakeIDLine
-    		// See reference in the KVIDLine doc for the rules of parameters
-    		KVIDGrid *idgrid = new KVIDGrid();
-    		for (Int_t nn=0;nn<lObject->GetEntries();nn+=1) idgrid->Add("ID",KVIDLine::MakeIDLine(lObject->At(nn),xdeb,xfin,np,save));
-    		return idgrid;
-    	}
-     */
     virtual void CalculateLineWidths(){};
 
     virtual TClass* DefaultIDLineClass()
