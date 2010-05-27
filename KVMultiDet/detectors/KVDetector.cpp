@@ -31,7 +31,6 @@ $Id: KVDetector.cpp,v 1.87 2009/03/03 14:27:15 franklan Exp $
 #include "KVDetector.h"
 #include "TPluginManager.h"
 #include "TObjString.h"
-#include "KVDataBranchHandler.h"
                 /*** geometry ***/
 #include "TGeoVolume.h"
 #include "TGeoManager.h"
