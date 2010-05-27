@@ -136,6 +136,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
         if ( gMultiDetArray ){
             MakeDetectorList();
             if (GetGroup()) GetGroup()->AddHit(this);
+            fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
             TIter next_det(fDetList);
             KVDetector *det;register int ndet = 0;UInt_t npar=0;
             while ( (det = (KVDetector*)next_det()) ){
