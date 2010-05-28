@@ -136,11 +136,11 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
         // if the multidetector object exists, update some informations
         // concerning the detectors etc. hit by this particle
         if ( gMultiDetArray ){
-            if (GetGroup()) GetGroup()->AddHit(this);
-            fIDTelescope = 0;
-				if(fIDTelName!="") fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
             if(!fDetList) fDetList=new KVHashList;
             MakeDetectorList();
+            if (GetGroup()) GetGroup()->AddHit(this);
+            fIDTelescope = 0;
+			if(fIDTelName!="") fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
             TIter next_det(fDetList);
             KVDetector *det;register int ndet = 0;UInt_t npar=0;
             while ( (det = (KVDetector*)next_det()) ){
