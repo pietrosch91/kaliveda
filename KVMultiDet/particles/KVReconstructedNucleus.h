@@ -215,7 +215,8 @@ public:
     void SetIdentifyingTelescope(KVIDTelescope *i)
     {
         fIDTelescope=i;
-        fIDTelName = i->GetName();
+        if(i) fIDTelName = i->GetName();
+		  else fIDTelName = "";
     };
 
     void SetElossCalc(KVDetector *, Double_t);

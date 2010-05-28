@@ -61,6 +61,7 @@ void KVReconstructedNucleus::init()
     //default initialisation
     fRealZ = fRealA = 0.;
     fDetNames = "/";
+	 fIDTelName = "";
     fIDTelescope = 0;
     fNSegDet = 0;
     fAnalStatus = 99;
@@ -136,7 +137,8 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
         // concerning the detectors etc. hit by this particle
         if ( gMultiDetArray ){
             if (GetGroup()) GetGroup()->AddHit(this);
-            fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
+            fIDTelescope = 0;
+				if(fIDTelName!="") fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
             if(!fDetList) fDetList=new KVHashList;
             MakeDetectorList();
             TIter next_det(fDetList);
@@ -206,8 +208,8 @@ void KVReconstructedNucleus::Copy(TObject & obj)
     //Copy this to obj
     //
     KVNucleus::Copy(obj);
-    ((KVReconstructedNucleus &) obj).
-    SetIdentifyingTelescope(GetIdentifyingTelescope());
+    ((KVReconstructedNucleus &) obj).SetIdentifyingTelescope(GetIdentifyingTelescope());
+	 ((KVReconstructedNucleus &) obj).fDetNames = fDetNames;
     ((KVReconstructedNucleus &) obj).SetRealZ(GetRealZ());
     ((KVReconstructedNucleus &) obj).SetRealA(GetRealA());
    ((KVReconstructedNucleus &) obj).SetNumDet(GetNumDet());
