@@ -60,7 +60,6 @@ void KVReconstructedNucleus::init()
 {
     //default initialisation
     fRealZ = fRealA = 0.;
-    fDetList = 0;
     fDetNames = "/";
     fIDTelescope = 0;
     fNSegDet = 0;
@@ -81,7 +80,7 @@ void KVReconstructedNucleus::init()
    }
 }
 
-KVReconstructedNucleus::KVReconstructedNucleus()
+KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0)
 {
     //default ctor.
     init();
@@ -89,7 +88,7 @@ KVReconstructedNucleus::KVReconstructedNucleus()
 
 KVReconstructedNucleus::
 KVReconstructedNucleus(const KVReconstructedNucleus &
-                       obj)
+                       obj) : fDetList(0)
 {
     //copy ctor
     init();
@@ -110,6 +109,7 @@ KVReconstructedNucleus::~KVReconstructedNucleus()
     if (fDetList){
         fDetList->Clear();
         delete fDetList;
+        fDetList=0;
     }
     init();
 }
@@ -126,6 +126,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
     //called in order to permit (in KVReconstructedEvent::Streamer) the
     //recalculation of fAnalStatus.
 
+    //Info("Streamer","this=%p fDetList=%p",this, fDetList);
     UInt_t R__s, R__c;
     if (R__b.IsReading()) {
         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
@@ -134,9 +135,10 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
         // if the multidetector object exists, update some informations
         // concerning the detectors etc. hit by this particle
         if ( gMultiDetArray ){
-            MakeDetectorList();
             if (GetGroup()) GetGroup()->AddHit(this);
             fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
+            if(!fDetList) fDetList=new KVHashList;
+            MakeDetectorList();
             TIter next_det(fDetList);
             KVDetector *det;register int ndet = 0;UInt_t npar=0;
             while ( (det = (KVDetector*)next_det()) ){
@@ -227,7 +229,6 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
         GetGroup()->Reset();
     if (fDetList){
         fDetList->Clear();
-        delete fDetList;
     };
     init();
 }
@@ -541,11 +542,12 @@ void KVReconstructedNucleus::MakeDetectorList()
     // the detectors whose names are stored in fDetNames.
     // If gMultiDetArray=0x0, fDetList list will be empty.
 
-    fDetList = new KVHashList;
-    if ( !gMultiDetArray ) return;
-    fDetNames.Begin("/");
-    while ( !fDetNames.End() ) {
-        KVDetector* det = gMultiDetArray->GetDetector( fDetNames.Next(kTRUE) );
-        if ( det ) fDetList->Add(det);
+	fDetList->Clear();
+    if ( gMultiDetArray ){
+    	fDetNames.Begin("/");
+    	while ( !fDetNames.End() ) {
+    	    KVDetector* det = gMultiDetArray->GetDetector( fDetNames.Next(kTRUE) );
+    	    if ( det ) fDetList->Add(det);
+    	} 
     }
 }

@@ -25,10 +25,10 @@
 #include "KVDetector.h"
 #include "KVIDSubCodeManager.h"
 #include "TArrayD.h"
+#include "KVIDTelescope.h"
 
 class KVTelescope;
 class KVGroup;
-class KVIDTelescope;
 
 class KVReconstructedNucleus:public KVNucleus {
 
@@ -77,7 +77,11 @@ public:
     {
         // Return pointer to list of detectors through which particle passed,
         // in reverse order (i.e. first detector in list is the one in which particle stopped).
-        if (!fDetList) const_cast<KVReconstructedNucleus*>(this)->MakeDetectorList();
+        
+        if (!fDetList) {
+        	const_cast<KVReconstructedNucleus*>(this)->fDetList = new KVHashList;
+        	const_cast<KVReconstructedNucleus*>(this)->MakeDetectorList();
+        }
         return fDetList;
     };
     KVDetector *GetDetector(int i) const
