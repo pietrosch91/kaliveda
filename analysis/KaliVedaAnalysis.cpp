@@ -61,5 +61,8 @@ int main(int argc, char *argv[])
    delete myapp;
    delete gDataRepositoryManager;   
 
+	cout << "This is the end of the KaliVedaAnalysis executable." << endl;
+	cout << "The next line is 'return 0'. Which should mean the end." << endl;
+	
    return 0;
 }
