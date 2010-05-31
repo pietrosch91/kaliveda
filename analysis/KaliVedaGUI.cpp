@@ -7,6 +7,7 @@
 #include "Riostream.h"
 #include "KVDataAnalysisLauncher.h"
 #include "KVDataRepositoryManager.h"
+#include <cstdlib>
 
 //#define WITHRINT
 
@@ -23,6 +24,11 @@ gSystem->AddIncludePath("-I$KVROOT/include");
 new KVDataAnalysisLauncher(gClient->GetRoot());
 myapp->SetReturnFromRun(kTRUE);
 myapp->Run();
-if(gDataRepositoryManager) delete gDataRepositoryManager;
+
+// avoid GUI hanging after "Quit" button is pressed
+// the only way to do it is to kill it
+int pid = gSystem->GetPid();
+gSystem->Exec(Form("kill -9 %d",pid));
+	
 return 0;
 }
