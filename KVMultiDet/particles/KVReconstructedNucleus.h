@@ -282,10 +282,10 @@ public:
     virtual Float_t GetPID() const
     {
         //Return particle identification PID for this particle.
-        //If "real A" has been set by identification routine, this is "real Z" + 0.2*("real A"-2*"real Z")
+        //If "real A" has been set by identification routine, this is "real Z" + 0.1*("real A"-2*"real Z")
         //If only Z identification has been performed, it is the "real Z"
         if (GetRealA() > 0)
-            return (GetRealZ() + 0.2 * (GetRealA() - 2. * GetRealZ()));
+            return (GetRealZ() + 0.1 * (GetRealA() - 2. * GetRealZ()));
         return GetRealZ();
     };
     virtual void SetTargetEnergyLoss(Double_t e){
