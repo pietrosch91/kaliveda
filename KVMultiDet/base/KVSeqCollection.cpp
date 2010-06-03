@@ -72,6 +72,8 @@ KVSeqCollection::KVSeqCollection()
 {
     // Default constructor
     fCollection=0;
+    fCollectionHasSortMethod=kFALSE;
+    fCanSortWithArgument=kFALSE;
     ResetBit(kSignals);
 }
 
@@ -81,6 +83,8 @@ KVSeqCollection::KVSeqCollection(const KVSeqCollection& col)
     // Copy constructor
     // See KVSeqCollection::Copy
 
+	fCollectionHasSortMethod=kFALSE;
+    fCanSortWithArgument=kFALSE;
     fCollection=col.NewCollectionLikeThisOne();
     col.Copy(*this);
 }
@@ -91,6 +95,8 @@ KVSeqCollection::KVSeqCollection(const Char_t* collection_classname)
     // Must be the name of a class derived from TSeqCollection.
 
     fCollection=0;
+	fCollectionHasSortMethod=kFALSE;
+    fCanSortWithArgument=kFALSE;
     SetCollection(collection_classname);
     if (!fCollection) MakeZombie();
     ResetBit(kSignals);
@@ -100,6 +106,14 @@ void KVSeqCollection::SetCollection(const Char_t* class_name)
 {
     // Create TSeqCollection-derived object of class 'class_name'
     // and set as the embedded collection fCollection.
+    // The fCollectionHasSortMethod flag is set to kTRUE for the following
+    // classes (and their children):
+    //     TList
+    //     TObjArray
+    //     TOrdCollection
+    //     TRefArray
+    // for which a Sort() method is defined.
+    
     TClass* cl = TClass::GetClass(class_name);
     if (!cl)
     {
@@ -115,6 +129,9 @@ void KVSeqCollection::SetCollection(const Char_t* class_name)
         return;
     }
     fCollection = (TSeqCollection*)cl->New();
+    fCollectionHasSortMethod = fCollection->IsA()->GetMethodAllAny("Sort");
+    fCanSortWithArgument = fCollection->IsA()->GetMethodWithPrototype("Sort","Int_t");
+    // N.B. this returns 'true' both for Sort(Int_t) (e.g. TObjArray) and Sort(Bool_t) (e.g. TList)
 }
 
 KVSeqCollection::~KVSeqCollection()
@@ -153,6 +170,9 @@ void KVSeqCollection::Copy(TObject & obj) const
     //set signal&slot status
     copy.SendModifiedSignals(IsSendingModifiedSignals());
 
+	copy.fCollectionHasSortMethod = fCollectionHasSortMethod;
+	copy.fCanSortWithArgument = fCanSortWithArgument;
+	
     //copy or clone list members
    TObject *b;
    TIter next(fCollection);
@@ -778,4 +798,56 @@ void KVSeqCollection::Streamer(TBuffer &R__b)
       R__b << fCollection;
       R__b.SetByteCount(R__c, kTRUE);
    }
+}
+
+//______________________________________________________________________________
+
+void KVSeqCollection::Sort(Int_t arg)
+{
+	// Call the Sort() method of the embedded collection class with the given value of the argument.
+	// As not all collection classes have a Sort() method or a Sort() method which can accept an
+	// argument, we check that this is not the case and give an error message if not OK.
+	// In this case, if a valid Sort() method without argument is defined, we ignore the argument.
+	// If not, we do nothing.
+	
+	if(fCanSortWithArgument){
+		TMethodCall mt;
+		mt.InitWithPrototype(fCollection->IsA(), "Sort", "Int_t");
+		TString argument;
+		argument.Form("%d", arg);
+		mt.Execute(fCollection, argument.Data());
+	}
+	else
+	{
+		if(fCollectionHasSortMethod){
+			Error("Sort(Int_t)", "Collection class %s does not implement a Sort(Int_t) method. Calling Sort() and ignoring argument value arg=%d.",
+				fCollection->ClassName(), arg);
+			Sort();
+		}
+		else{
+			Error("Sort(Int_t)", "Collection class %s does not implement a Sort(...) method. Ignored.",
+				fCollection->ClassName());
+		}
+	}
+}
+
+//______________________________________________________________________________
+
+void KVSeqCollection::Sort()
+{
+	// Call the Sort() method of the embedded collection class.
+	// As not all collection classes have a Sort() method or a Sort() method which can accept an
+	// argument, we check that this is not the case and give an error message if not OK.
+	// If not, we do nothing.
+	
+	if(fCollectionHasSortMethod){
+		TMethodCall mt;
+		mt.InitWithPrototype(fCollection->IsA(), "Sort", "");
+		mt.Execute(fCollection);
+	}
+	else
+	{
+		Error("Sort()", "Collection class %s does not implement a Sort() method. Ignored.",
+			fCollection->ClassName());
+	}
 }
