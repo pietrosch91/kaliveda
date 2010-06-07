@@ -49,7 +49,7 @@ KVRing::KVRing()
 void KVRing::init()
 {
    fTelescopes = new KVList;
-   gROOT->GetListOfCleanups()->Add(fTelescopes);
+   fTelescopes->SetCleanup();
    fLayer = 0;
    fProto = 0;
    fStep = 1;
@@ -108,25 +108,6 @@ KVRing::KVRing(const UInt_t ring, const Float_t thmin,
    SetType(proto->GetType());
 }
 
-//______________________________________________________________________________
-void KVRing::Streamer(TBuffer & R__b)
-{
-   //Customised streamer for backwards compatibility with multidetectors written to file
-   //before use of gROOT->GetListOfCleanups()
-
-   if (R__b.IsReading()) {
-      UInt_t R__s, R__c;
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVRing::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-      if (R__v < 2) {
-         {
-            fTelescopes->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
-         }
-      }
-   } else {
-      KVRing::Class()->WriteBuffer(R__b, this);
-   }
-}
 
 //_______________________________________________________________________________________
 KVRing::~KVRing()
@@ -136,7 +117,6 @@ KVRing::~KVRing()
 
    if (fTelescopes && fTelescopes->TestBit(kNotDeleted)) {
       fTelescopes->Delete();
-      while (gROOT->GetListOfCleanups()->Remove(fTelescopes));
       delete fTelescopes;
    }
    fTelescopes = 0;
@@ -150,7 +130,6 @@ KVRing::~KVRing()
 void KVRing::AddTelescope(KVTelescope * tele, const int fcon)
 {
 // add detector telescope to current ring
-   tele->SetBit(kMustCleanup);
    fTelescopes->Add(tele);
    if (fcon == KVD_RECPRC_CNXN)
       tele->AddToRing(this, KVD_NORECPRC_CNXN);
@@ -160,7 +139,6 @@ void KVRing::AddTelescope()
 {
 //create and add new detector telescope to current ring
    KVTelescope *tele = new KVTelescope;
-   tele->SetBit(kMustCleanup);
    fTelescopes->Add(tele);
    tele->AddToRing(this, KVD_NORECPRC_CNXN);
 }
@@ -310,7 +288,6 @@ void KVRing::ReplaceTelescope(KVTelescope * oldT, KVTelescope * newT)
    new_tel->SetNumber(number);
    new_tel->SetPolarMinMax(GetThetaMin(), GetThetaMax());
    //put new telescope in place of old one in ring
-   new_tel->SetBit(kMustCleanup);
    fTelescopes->AddAt(new_tel, index);
    new_tel->AddToRing(this, KVD_NORECPRC_CNXN);
 }

@@ -60,8 +60,8 @@ void KVIDGraph::init()
 
    fIdentifiers = new KVList;
    fCuts = new KVList;
-	gROOT->GetListOfCleanups()->Add(fIdentifiers);
-	gROOT->GetListOfCleanups()->Add(fCuts);
+	fIdentifiers->SetCleanup();
+	fCuts->SetCleanup();
    fXmin = fYmin = fXmax = fYmax = 0;
    fPar = new KVGenParList;
    fLastScaleX = 1.0;
@@ -144,12 +144,8 @@ KVIDGraph::~KVIDGraph()
 {
    // Destructor
 
-	gROOT->GetListOfCleanups()->Remove(fIdentifiers);
-	{fIdentifiers->R__FOR_EACH(KVIDentifier,ResetBit)(kMustCleanup);}
 	fIdentifiers->Delete();
 	delete fIdentifiers;
-	gROOT->GetListOfCleanups()->Remove(fCuts);
-	{fCuts->R__FOR_EACH(KVIDentifier,ResetBit)(kMustCleanup);}
 	fCuts->Delete();
 	delete fCuts;
 	delete fPar;
@@ -163,9 +159,7 @@ void KVIDGraph::Clear(Option_t * opt)
    // resets axis limits
    // scaling factors (if any) are removed
 
-	{fIdentifiers->R__FOR_EACH(KVIDentifier,ResetBit)(kMustCleanup);}
    fIdentifiers->Delete();
-	{fCuts->R__FOR_EACH(KVIDentifier,ResetBit)(kMustCleanup);}
    fCuts->Delete();
    fXmin = fYmin = fXmax = fYmax = 0;
    SetXScaleFactor();
@@ -260,7 +254,6 @@ KVIDentifier* KVIDGraph::GetIdentifier(Int_t Z, Int_t A) const
 void KVIDGraph::RemoveIdentifier(KVIDentifier* id)
 {
 	// Remove and destroy identifier
-	id->ResetBit(kMustCleanup);
 	fIdentifiers->Remove(id);
 	delete id;
 	Modified();
@@ -271,7 +264,6 @@ void KVIDGraph::RemoveIdentifier(KVIDentifier* id)
 void KVIDGraph::RemoveCut(KVIDentifier *cut)
 {
 	// Remove and destroy cut
-	cut->ResetBit(kMustCleanup);
 	fCuts->Remove(cut);
 	delete cut;
 	Modified();

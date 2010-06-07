@@ -57,7 +57,7 @@ void KVGroup::init()
    //Default initialisation
 
    fTelescopes = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fTelescopes);
+   fTelescopes->SetCleanup();
    fNumberOfLayers = 0;
    fLayNumMin = 0;
    fLayNumMax = 0;
@@ -90,13 +90,11 @@ KVGroup::~KVGroup()
       while ((tel = (KVTelescope *) next()))
          tel->SetGroup(0);
       fTelescopes->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fTelescopes));
       delete fTelescopes;
    }
    fTelescopes = 0;
    if (fReconstructedNuclei && fReconstructedNuclei->TestBit(kNotDeleted)) {
       fReconstructedNuclei->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fReconstructedNuclei));
       delete fReconstructedNuclei;
       fReconstructedNuclei = 0;
    }
@@ -106,7 +104,6 @@ KVGroup::~KVGroup()
    fReconstructedNuclei = 0;
    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
       fDetectors->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fDetectors));
       delete fDetectors;
       fDetectors = 0;
    }
@@ -118,7 +115,6 @@ void KVGroup::Add(KVTelescope * kvt)
 {
 //Add a telescope to the current group.
    if (kvt) {
-      kvt->SetBit(kMustCleanup);
       fTelescopes->Add(kvt);
       kvt->SetGroup(this);
    } else
@@ -361,6 +357,7 @@ void KVGroup::AddHit(KVReconstructedNucleus * kvd)
 {
    if (!fReconstructedNuclei) {
       fReconstructedNuclei = new KVList(kFALSE);
+      fReconstructedNuclei->SetCleanup();
    }
    fReconstructedNuclei->Add(kvd);
 }
@@ -684,7 +681,7 @@ KVList *KVGroup::GetDetectors()
 
    if (!fDetectors) {
       fDetectors = new KVList(kFALSE);
-      gROOT->GetListOfCleanups()->Add(fDetectors);
+      fDetectors->SetCleanup();
 
       //fill the list
       TIter ntel(fTelescopes);
@@ -693,7 +690,6 @@ KVList *KVGroup::GetDetectors()
          TIter ndet(tel->GetDetectors());
          KVDetector *det;
          while ((det = (KVDetector *) ndet())) {
-            det->SetBit(kMustCleanup);
             fDetectors->Add(det);
          }
       }

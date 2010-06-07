@@ -108,7 +108,7 @@
 #pragma link C++ class KVIDTelescope-;
 #pragma link C++ class KVIDSubCodeManager+;
 #pragma link C++ class KVVirtualIDFitter+;
-#pragma link C++ class KVLayer-;
+#pragma link C++ class KVLayer+;
 #pragma link C++ class KVLayerBrowser;
 #pragma link C++ class KVLinCal+;
 #pragma link C++ class KVList-;
@@ -150,7 +150,7 @@
 //#pragma link C++ class KVRegHexa+;
 //#pragma link C++ class KVRegShared+;
 //#pragma link C++ class KVRBValAttribut+;
-#pragma link C++ class KVRing-;
+#pragma link C++ class KVRing+;
 #pragma link C++ class KVRingBrowser;
 #pragma link C++ class KVRList+;
 #pragma link C++ class KVSortableDatedFile+;
@@ -162,7 +162,7 @@
 #pragma link C++ class KVTGIDGrid+;
 #pragma link C++ class KVTarget+;
 #pragma link C++ class KVTarArchive+;
-#pragma link C++ class KVTelescope-;
+#pragma link C++ class KVTelescope+;
 #pragma link C++ class KVTestEvent+;
 #pragma link C++ class KVWidget;
 #pragma link C++ class KVWidgetList;

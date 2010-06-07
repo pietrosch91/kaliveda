@@ -28,9 +28,9 @@ KVFocalPlanVamos::KVFocalPlanVamos()
    // Default constructor
    
    fSi = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fSi);
+   fSi->SetCleanup();
    fCsI = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fCsI);
+   fCsI->SetCleanup();
    fSiLayer = 0;
 }
 
@@ -39,13 +39,11 @@ KVFocalPlanVamos::~KVFocalPlanVamos()
    // Destructor
    if (fSi && fSi->TestBit(kNotDeleted)) {
       fSi->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fSi));
       delete fSi;
    }
    fSi = 0;
    if (fCsI && fCsI->TestBit(kNotDeleted)) {
       fCsI->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fCsI));
       delete fCsI;
    }
    fCsI = 0;

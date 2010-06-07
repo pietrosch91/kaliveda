@@ -42,32 +42,13 @@ ClassImp(KVTelescope)
    init();
 };
 
-//______________________________________________________________________________
-void KVTelescope::Streamer(TBuffer & R__b)
-{
-   //Customised streamer for backwards compatibility with multidetectors written to file
-   //before use of gROOT->GetListOfCleanups()
-
-   if (R__b.IsReading()) {
-      UInt_t R__s, R__c;
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVTelescope::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-      if (R__v < 2) {
-         {
-            fDetectors->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
-         }
-      }
-   } else {
-      KVTelescope::Class()->WriteBuffer(R__b, this);
-   }
-}
 
 void KVTelescope::init()
 {
    //default initialisation. a KVList is created to hold telescope detectors.
    //the telescope owns its detectors and will delete them when deleted itself.
    fDetectors = new KVList;
-   gROOT->GetListOfCleanups()->Add(fDetectors);
+   fDetectors->SetCleanup();
    fGroup = 0;
    fRing = 0;
    fNdets = 0;
@@ -83,7 +64,6 @@ KVTelescope::~KVTelescope()
 
    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
       fDetectors->Delete();
-      while (gROOT->GetListOfCleanups()->Remove(fDetectors));
       delete fDetectors;
    }
    fDetectors = 0;
@@ -121,7 +101,6 @@ void KVTelescope::AddDetector(KVDetector * d, const int fcon)
          d->Print();
          return;
       }
-      tmp->SetBit(kMustCleanup);
       fDetectors->Add(tmp);
 
       if (fcon == KVD_RECPRC_CNXN)
@@ -141,7 +120,6 @@ void KVTelescope::Add(KVDetector * d, const int fcon)
 //the telescope.
 
    if (d) {
-      d->SetBit(kMustCleanup);
       fDetectors->Add(d);
       if (fcon == KVD_RECPRC_CNXN)
          d->AddToTelescope(this, KVD_NORECPRC_CNXN);

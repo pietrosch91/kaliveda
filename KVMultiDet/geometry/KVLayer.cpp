@@ -43,25 +43,6 @@ ClassImp(KVLayer)
    init();
 }
 
-//______________________________________________________________________________
-void KVLayer::Streamer(TBuffer & R__b)
-{
-   //Customised streamer for backwards compatibility with multidetectors written to file
-   //before use of gROOT->GetListOfCleanups()
-
-   if (R__b.IsReading()) {
-      UInt_t R__s, R__c;
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVLayer::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-      if (R__v < 2) {
-         {
-            fRings->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
-         }
-      }
-   } else {
-      KVLayer::Class()->WriteBuffer(R__b, this);
-   }
-}
 
 //______________________________________________________________________________
 KVLayer::~KVLayer()
@@ -71,7 +52,6 @@ KVLayer::~KVLayer()
    if (fRings && fRings->TestBit(kNotDeleted)) {
 
       fRings->Delete();
-      while (gROOT->GetListOfCleanups()->Remove(fRings));
       delete fRings;
    }
    fRings = 0;
@@ -84,7 +64,7 @@ void KVLayer::init()
 {
    //default initialisation
    fRings = new KVList;
-   gROOT->GetListOfCleanups()->Add(fRings);
+   fRings->SetCleanup();
    fBrowser = 0;
    fArray = 0;
    strcpy(fDyName, "");
@@ -95,7 +75,6 @@ void KVLayer::AddRing(KVRing * kvr, UInt_t fcon)
 
    //Add a previously defined ring to the layer.
 
-   kvr->SetBit(kMustCleanup);
    fRings->Add(kvr);
    if (fcon == KVR_RCPRC_CNXN)
       kvr->AddToLayer(this, KVR_NORCPRC_CNXN);
@@ -107,7 +86,6 @@ KVRing *KVLayer::AddRing()
 //Create and add a new ring to the layer.
 
    KVRing *kvr = new KVRing;
-   kvr->SetBit(kMustCleanup);
    fRings->Add(kvr);
    kvr->AddToLayer(this, KVR_NORCPRC_CNXN);
    return kvr;
