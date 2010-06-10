@@ -863,7 +863,7 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
    Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
    TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
 
-   if (zres <= 0 || ares <= 0) {
+   if (zres < 0 || ares <= 0) {
       Warning("operator-(const KVNucleus &rhs)",
               "Cannot subtract nuclei, resulting Z=%d A=%d", zres, ares);
       KVNucleus temp;
