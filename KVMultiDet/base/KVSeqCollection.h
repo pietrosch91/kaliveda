@@ -21,8 +21,6 @@ class KVSeqCollection : public TSeqCollection
 
 protected:
     TSeqCollection* fCollection;//Pointer to embedded ROOT collection
-    Bool_t fCollectionHasSortMethod;//set to kTRUE if embedded collection has Sort() method
-    Bool_t fCanSortWithArgument;//set to kTRUE if embedded collection Sort() method can take an argument (Int_t or equivalent)
 
     virtual void Changed()
     {
@@ -221,14 +219,17 @@ public:
 
     virtual Bool_t IsSortable() const
     {
-        return fCollectionHasSortMethod;
+        return fCollection->IsSortable();
     };
     virtual Bool_t IsSorted() const
     {
         return fCollection->IsSorted();
     };
-    void Sort();
-    void Sort(Int_t);
+    
+    TSeqCollection* GetCollection() const
+    {
+    	return fCollection;
+    };
 
     ClassDef(KVSeqCollection,1)//KaliVeda extensions to ROOT collections
 };

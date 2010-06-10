@@ -17,6 +17,10 @@ class KVHashList : public KVSeqCollection
    void Rehash(Int_t newCapacity = 0);
    TList     *GetListForObject(const char *name) const;
    TList     *GetListForObject(const TObject *obj) const;
+    void Sort(Bool_t order = kSortAscending)
+    {
+    	((THashList*)fCollection)->Sort(order);
+    };
 
    ClassDef(KVHashList,1) //Extended version of ROOT THashList
 };

@@ -10,6 +10,11 @@ public:
 
     KVList(Bool_t owner = kTRUE);
     virtual ~ KVList();
+    
+    void Sort(Bool_t order = kSortAscending)
+    {
+    	((TList*)fCollection)->Sort(order);
+    };
 
     ClassDef(KVList, 3)//Extended version of ROOT TList
 };

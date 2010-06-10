@@ -24,23 +24,26 @@ This class adds functionalities such as
 </ul>
 etc. to the standard ROOT collection classes. The actual collection is embedded and
 referenced through a TSeqCollection base pointer. The class of the embedded object for any given
-instance is passed as an argument to the constructor:<br>
-<code>
+instance is passed as an argument to the constructor:
+<pre>
+<code class=C++>
 KVSeqCollection* my_coll = new KVSeqCollection("THashList");
-</code><br>
+</code>
+</pre>
 Any collection class derived from TSeqCollection is valid: this means all ordered collections, for which the order in which
-objects are added is preserved. These lists can also be sorted.<br>
+objects are added is preserved. Some of these lists can also be sorted (see below)<br>
 Any object derived from TObject can be stored in the collection, but only objects
 derived from KVBase can be sought using their 'type', 'label', or 'number' attributes
 (these characteristics are not defined for TObject). Note that we can test the 'KVBase'-ness of any object through a
-TObject* base pointer using the 'KaliVeda' bit, KVBase::kIsKaliVedaObject:<br>
-<code>
-TObject *obj = <address of some object>
+TObject* base pointer using the 'KaliVeda' bit, KVBase::kIsKaliVedaObject:
+<pre>
+<code class=C++>
+TObject *obj = [address of some object]
 if( obj->TestBit( KVBase::kIsKaliVedaObject ) ){
-   // object derives from KVBase
+   &frasl;&frasl; object derives from KVBase
 }
 </code>
-<br>
+</pre>
 <h3>Signals &amp; slots: monitoring list modification</h3>
 If SendModifiedSignals(kTRUE) is called, then every time an object is added to or removed from the list, it will emit
 the signal "Modified()". This can be used to monitor any changes to the
@@ -64,6 +67,28 @@ to avoid memory leaks.<br>
 <h3>Execute</h3>
 The Execute methods can be used to execute a given method with the same
 arguments for every object in the list.<br>
+<h3>Sorting lists</h3>
+No 'Sort()' method is defined in base class TSeqCollection, although the TCollection::IsSortable()
+method returns kTRUE by default (and is not overridden in child classes which do not implement
+sorting). Therefore whether or not a KVSeqCollection can be sorted depends on the collection
+class which is being used. We do not define a KVSeqCollection::Sort method. If you want to sort
+a KVSeqCollection and you know that the embedded collection class has a valid Sort method,
+you can do as follows:
+<pre>
+<code class=C++>
+KVSeqCollection* seqlist = new KVSeqCollection("TList");
+seqlist->Add(...);
+...
+((TList*)seqlist->GetCollection())->Sort();
+</code>
+</pre>
+or perhaps more cautiously you should do:
+<pre>
+<code class=C++>
+TList* tlist = dynamic_cast&lt;TList*&gt;(seqlist->GetCollection());
+if(tlist) tlist->Sort();
+</code>
+</pre> 
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +97,6 @@ KVSeqCollection::KVSeqCollection()
 {
     // Default constructor
     fCollection=0;
-    fCollectionHasSortMethod=kFALSE;
-    fCanSortWithArgument=kFALSE;
     ResetBit(kSignals);
 }
 
@@ -83,8 +106,6 @@ KVSeqCollection::KVSeqCollection(const KVSeqCollection& col)
     // Copy constructor
     // See KVSeqCollection::Copy
 
-	fCollectionHasSortMethod=kFALSE;
-    fCanSortWithArgument=kFALSE;
     fCollection=col.NewCollectionLikeThisOne();
     col.Copy(*this);
 }
@@ -95,8 +116,6 @@ KVSeqCollection::KVSeqCollection(const Char_t* collection_classname)
     // Must be the name of a class derived from TSeqCollection.
 
     fCollection=0;
-	fCollectionHasSortMethod=kFALSE;
-    fCanSortWithArgument=kFALSE;
     SetCollection(collection_classname);
     if (!fCollection) MakeZombie();
     ResetBit(kSignals);
@@ -106,14 +125,6 @@ void KVSeqCollection::SetCollection(const Char_t* class_name)
 {
     // Create TSeqCollection-derived object of class 'class_name'
     // and set as the embedded collection fCollection.
-    // The fCollectionHasSortMethod flag is set to kTRUE for the following
-    // classes (and their children):
-    //     TList
-    //     TObjArray
-    //     TOrdCollection
-    //     TRefArray
-    // for which a Sort() method is defined.
-    
     TClass* cl = TClass::GetClass(class_name);
     if (!cl)
     {
@@ -129,9 +140,6 @@ void KVSeqCollection::SetCollection(const Char_t* class_name)
         return;
     }
     fCollection = (TSeqCollection*)cl->New();
-    fCollectionHasSortMethod = fCollection->IsA()->GetMethodAllAny("Sort");
-    fCanSortWithArgument = fCollection->IsA()->GetMethodWithPrototype("Sort","Int_t");
-    // N.B. this returns 'true' both for Sort(Int_t) (e.g. TObjArray) and Sort(Bool_t) (e.g. TList)
 }
 
 KVSeqCollection::~KVSeqCollection()
@@ -170,9 +178,6 @@ void KVSeqCollection::Copy(TObject & obj) const
     //set signal&slot status
     copy.SendModifiedSignals(IsSendingModifiedSignals());
 
-	copy.fCollectionHasSortMethod = fCollectionHasSortMethod;
-	copy.fCanSortWithArgument = fCanSortWithArgument;
-	
     //copy or clone list members
    TObject *b;
    TIter next(fCollection);
@@ -798,56 +803,4 @@ void KVSeqCollection::Streamer(TBuffer &R__b)
       R__b << fCollection;
       R__b.SetByteCount(R__c, kTRUE);
    }
-}
-
-//______________________________________________________________________________
-
-void KVSeqCollection::Sort(Int_t arg)
-{
-	// Call the Sort() method of the embedded collection class with the given value of the argument.
-	// As not all collection classes have a Sort() method or a Sort() method which can accept an
-	// argument, we check that this is not the case and give an error message if not OK.
-	// In this case, if a valid Sort() method without argument is defined, we ignore the argument.
-	// If not, we do nothing.
-	
-	if(fCanSortWithArgument){
-		TMethodCall mt;
-		mt.InitWithPrototype(fCollection->IsA(), "Sort", "Int_t");
-		TString argument;
-		argument.Form("%d", arg);
-		mt.Execute(fCollection, argument.Data());
-	}
-	else
-	{
-		if(fCollectionHasSortMethod){
-			Error("Sort(Int_t)", "Collection class %s does not implement a Sort(Int_t) method. Calling Sort() and ignoring argument value arg=%d.",
-				fCollection->ClassName(), arg);
-			Sort();
-		}
-		else{
-			Error("Sort(Int_t)", "Collection class %s does not implement a Sort(...) method. Ignored.",
-				fCollection->ClassName());
-		}
-	}
-}
-
-//______________________________________________________________________________
-
-void KVSeqCollection::Sort()
-{
-	// Call the Sort() method of the embedded collection class.
-	// As not all collection classes have a Sort() method or a Sort() method which can accept an
-	// argument, we check that this is not the case and give an error message if not OK.
-	// If not, we do nothing.
-	
-	if(fCollectionHasSortMethod){
-		TMethodCall mt;
-		mt.InitWithPrototype(fCollection->IsA(), "Sort", "");
-		mt.Execute(fCollection);
-	}
-	else
-	{
-		Error("Sort()", "Collection class %s does not implement a Sort() method. Ignored.",
-			fCollection->ClassName());
-	}
 }

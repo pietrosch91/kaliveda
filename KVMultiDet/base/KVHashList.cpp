@@ -15,6 +15,9 @@ This collection class uses a THashList for quick look-up of objects based on
 the TString::Hash() value of their name, and adds all the extra functionality
 defined in KVSeqCollection. Automatic rehashing of the list is enabled by default
 (with rehash level = 2), unlike THashList (disabled by default).
+<h3>Sorting the list</h3>
+As THashList::Sort() is defined, we implemented a KVHashList::Sort() method which takes exactly
+the same argument as THashList::Sort().
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
