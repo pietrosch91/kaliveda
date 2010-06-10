@@ -5,6 +5,7 @@
 #define __KVHASHLIST_H
 
 #include "KVSeqCollection.h"
+#include "THashList.h"
 
 class KVHashList : public KVSeqCollection
 {

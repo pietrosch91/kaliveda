@@ -2,6 +2,7 @@
 #define KVLIST_H
 
 #include "KVSeqCollection.h"
+#include "TList.h"
 
 class KVList:public KVSeqCollection
 {
