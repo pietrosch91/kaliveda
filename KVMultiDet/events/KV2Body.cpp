@@ -730,7 +730,7 @@ Double_t KV2Body::ThetaLabProj(Double_t *x, Double_t *par)
 	Int_t OfNucleus = (Int_t)par[0];
    if (OfNucleus==3) return ThetaLab;
 	Double_t T3CM = ThetaCMProj(x,par) * TMath::DegToRad();
-   Double_t T3L = TMath::ATan(TMath::Sin(T3CM) / (K[3] + TMath::Cos(T3CM)));
+   Double_t T3L = TMath::ATan((TMath::Sin(T3CM) / (K[3] + TMath::Cos(T3CM)))* (1.0 / GetCMGamma()) );
    Double_t thlt = TMath::Abs(T3L * TMath::RadToDeg());
    if (thlt > 180.0)
       thlt = 360.0 - thlt;
