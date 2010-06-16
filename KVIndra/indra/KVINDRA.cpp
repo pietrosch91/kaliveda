@@ -127,7 +127,7 @@ void KVINDRA::MakeListOfDetectorTypes()
 //Make list of all detector types needed to build INDRA array
 
    // Silicon detectors
-	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 300.0);
+	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",fDataSet.Data()), 300.0);
 	//kvsi->SetThickness(300.0);
 	kvsi->SetLabel("SI300");
 	fDetectorTypes->Add(kvsi);
@@ -149,7 +149,7 @@ void KVINDRA::MakeListOfDetectorTypes()
 	Float_t press_chio[3]={50.0,30.0,20.0};
 	KVChIo *kvch = NULL;
 	for (Int_t ii=0;ii<3;ii+=1){
-		kvch = (KVChIo* )KVDetector::MakeDetector(Form("%s.CI",gDataSet->GetName()), press_chio[ii]);
+		kvch = (KVChIo* )KVDetector::MakeDetector(Form("%s.CI",fDataSet.Data()), press_chio[ii]);
 		//kvch->SetPressure(press_chio[ii]);
 		kvch->SetLabel(Form("CHIO%1.0f",press_chio[ii]));
 		fDetectorTypes->Add(kvch);
@@ -158,7 +158,7 @@ void KVINDRA::MakeListOfDetectorTypes()
 	Float_t thick_csi[7]={13.80,9.70,9.0,7.60,6.0,5.0,4.80};
 	KVCsI *kvcsi = NULL;
 	for (Int_t ii=0;ii<7;ii+=1){
-		kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",gDataSet->GetName()), thick_csi[ii]);
+		kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",fDataSet.Data()), thick_csi[ii]);
 		//kvcsi->SetThickness(thick_csi[ii]);
 		kvcsi->SetLabel(Form("CSI%1.0f",thick_csi[ii]*10));
 		fDetectorTypes->Add(kvcsi);

@@ -57,7 +57,7 @@ void KVINDRA5::MakeListOfDetectorTypes()
 
    KVINDRA4::MakeListOfDetectorTypes();
 
-	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 150.0);
+	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",fDataSet.Data()), 150.0);
 	//kvsi->SetThickness(150.0);
 	kvsi->SetLabel("SI150");
 	fDetectorTypes->Add(kvsi);
