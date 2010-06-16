@@ -24,7 +24,6 @@ $Id: KVReconstructedNucleus.cpp,v 1.60 2009/03/03 13:36:00 franklan Exp $
 #include "KVGroup.h"
 #include "KVMultiDetArray.h"
 #include "KVACQParam.h"
-#include "KVIdentificationResult.h"
 
 ClassImp(KVReconstructedNucleus);
 
@@ -80,25 +79,24 @@ void KVReconstructedNucleus::init()
    for (register int i = 0; i < MAX_NUM_PAR; i++) {
       fACQData[i] = 0;
    }
+   for (register int i = 0; i < IDRESULTS_DIM; i++) {
+      fIDresults[i].Reset();
+   }
 }
 
-#define IDRESULTS_DIM 5
 
-KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0),
-	fIDresults(IDRESULTS_DIM,1)
+KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0)
 {
     //default ctor.
     init();
-    fIDresults.SetOwner(kTRUE);
 }
 
 KVReconstructedNucleus::
 KVReconstructedNucleus(const KVReconstructedNucleus &
-                       obj) : fDetList(0), fIDresults(IDRESULTS_DIM,1)
+                       obj) : fDetList(0)
 {
     //copy ctor
     init();
-    fIDresults.SetOwner(kTRUE);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
     obj.Copy(*this);
 #else
@@ -243,9 +241,6 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
         delete fDetList;
         fDetList=0;
     };
-    TIter next(&fIDresults);
-    KVIdentificationResult* idr;
-    while( (idr = (KVIdentificationResult*)next()) ) idr->Reset();
     init();
 }
 
@@ -578,14 +573,9 @@ KVIdentificationResult* KVReconstructedNucleus::GetIdentificationResult(Int_t i)
 	// i=1 : identification telescope in which particle stopped
 	// i=2 : identification telescope immediately in front of the first
 	// etc. etc.
-	if(i<=IDRESULTS_DIM){
-		KVIdentificationResult* idr = (KVIdentificationResult*)fIDresults.UncheckedAt(i);
-		if(!idr){
-			idr = new KVIdentificationResult;
-			idr->SetNumber(i);
-			fIDresults.AddAt(idr,i);
-		}
-		return idr;
+	if(i-1< IDRESULTS_DIM){
+		fIDresults[i-1].SetNumber(i);
+		return &fIDresults[i-1];
 	}
 	else return 0;
 }

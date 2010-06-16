@@ -24,12 +24,11 @@
 #include "KVList.h"
 #include "KVDetector.h"
 #include "KVIDSubCodeManager.h"
-#include "TObjArray.h"
 #include "KVIDTelescope.h"
+#include "KVIdentificationResult.h"
 
 class KVTelescope;
 class KVGroup;
-class KVIdentificationResult;
 
 class KVReconstructedNucleus:public KVNucleus {
 
@@ -61,7 +60,8 @@ protected:
     Float_t fRealA;              //A returned by identification routine
     Double_t fTargetEnergyLoss;   //calculated energy lost in target
     
-    TObjArray fIDresults;  //results of every identification attempt made for this nucleus, in order of the ID telescopes used
+#define IDRESULTS_DIM 5
+    KVIdentificationResult fIDresults[IDRESULTS_DIM];//[5] results of every identification attempt made for this nucleus, in order of the ID telescopes used
 	
     virtual void MakeDetectorList();
 
