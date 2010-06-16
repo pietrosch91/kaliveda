@@ -45,6 +45,7 @@ KVDBRecord::KVDBRecord(const Char_t * name,
 //__________________________________________________________________________
 KVDBRecord::~KVDBRecord()
 {
+	gROOT->GetListOfCleanups()->Remove(this);
 }
 
 //___________________________________________________________________________

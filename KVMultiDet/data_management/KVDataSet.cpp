@@ -391,7 +391,7 @@ KVDataBase *KVDataSet::GetDataBase(Option_t * opt)
    //Opens, updates or creates database file if necessary
 	//(the database is automatically rebuilt if the source files are
 	//more recent than the last database file).
-   //
+	//
    //If opt="update":
    // close and delete database if already open
    // regenerate database from source files
@@ -423,7 +423,13 @@ void KVDataSet::OpenDataBase(Option_t * opt)
    //
    //The name of the dataset must correspond to the name of one of the Plugin.KVDataBase
    //plugins defined in the $KVROOT/KVFiles/.kvrootrc configuration file
+	//
+	//WARNING: if the database needs to be (re)built, we set gDataSet to
+	//point to this dataset in case it was not already done,
+	//as in order to (re)build the database it may be necessary for
+	//gDataSet to point to the current dataset.
 
+	Info("OpenDataBase", "called");
 	Bool_t is_glob_db =kFALSE;
    //if option="update" or database out of date or does not exist, (re)build the database
    if ( (!strcmp(opt, "UPDATE")) || DataBaseNeedsUpdate() ) {
@@ -439,8 +445,22 @@ void KVDataSet::OpenDataBase(Option_t * opt)
          delete fDBase;
          fDBase = 0;
       }
+      // make sure gDataSet is set & points to us
+      gDataSet = this;
       fDataBase = KVDataBase::MakeDataBase(GetDBName());
+	Info("OpenDataBase", "saving");
       SaveDataBase();
+		// close the file in case something goes wrong later, leaving us
+		// with an improperly closed TFile
+	Info("OpenDataBase", "closing file");
+		delete fDBase;
+		fDBase=0;
+	Info("OpenDataBase", "deleting database");
+		delete fDataBase;
+		fDataBase=0;
+		// now open database (again) from the file
+	Info("OpenDataBase", "reopening database");
+		OpenDataBase();
 		if(fDataBase && is_glob_db) fDataBase->cd();
    }
 	else if( !fDataBase ){
