@@ -21,6 +21,7 @@ $Date: 2009/04/28 09:07:47 $
 
 class KVReconstructedNucleus;
 class TVirtualPad;
+class KVIdentificationResult;
 
 class KVIDGraph : public TCutG
 {
@@ -74,7 +75,7 @@ class KVIDGraph : public TCutG
 #else
    virtual void Copy(TObject &);
 #endif
-   virtual void Identify(Double_t /*x*/, Double_t /*y*/, KVReconstructedNucleus * /*nuc*/) const = 0;   
+   virtual void Identify(Double_t /*x*/, Double_t /*y*/, KVIdentificationResult*) const = 0;   
    virtual void Initialize()=0; 
    virtual Bool_t IsIdentifiable(Double_t /*x*/, Double_t /*y*/) const;
 

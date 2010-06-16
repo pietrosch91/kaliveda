@@ -71,7 +71,7 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
    virtual Double_t IdentifyZ(Double_t & funLTG);
 
-   virtual Bool_t Identify(KVReconstructedNucleus *);
+   virtual Bool_t Identify(KVIdentificationResult*);
 
    void SetHasPG2(Bool_t yes=kTRUE) {
       SetBit(kHasPG2, yes);

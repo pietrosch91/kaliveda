@@ -25,6 +25,7 @@ $Date: 2009/04/28 09:07:47 $
 #include "TTree.h"
 #include "TROOT.h"
 #include "KVTestIDGridDialog.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDGraph)
 
@@ -891,7 +892,8 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
 	//Initialize the grid: calculate line widths etc.
 	Initialize();
 
-   KVReconstructedNucleus *nuc = new KVReconstructedNucleus;
+   KVIdentificationResult *idr = new KVIdentificationResult;
+   KVReconstructedNucleus nuc;
 
    id_real->Reset();
    id_real_vs_e_res->Reset();
@@ -919,14 +921,15 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
          Int_t kmax = (Int_t) TMath::Min(20., poids);
          Double_t weight = (kmax == 20 ? poids / 20. : 1.);
          for (int k = 0; k < kmax; k++) {
-            nuc->Clear();
+            
             x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
             y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
             if (IsIdentifiable(x, y)) {
-               Identify(x, y, nuc);
+               Identify(x, y, idr);
                if(AcceptIDForTest()){
-                  id_real->Fill(nuc->GetPID(), weight);
-                  id_real_vs_e_res->Fill(x, nuc->GetPID(), weight);
+               	nuc.SetIdentification(idr);
+                  id_real->Fill(nuc.GetPID(), weight);
+                  id_real_vs_e_res->Fill(x, nuc.GetPID(), weight);
                }
 				}
          }
@@ -941,7 +944,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
       }
    }
 
-   delete nuc;
+   delete idr;
 }
 
 //___________________________________________________________________________________
@@ -974,7 +977,8 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
 	}
 	idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
 
-   KVReconstructedNucleus *nuc = new KVReconstructedNucleus;
+   KVIdentificationResult *idr = new KVIdentificationResult;
+   KVReconstructedNucleus nuc;
 
 	TTree* tid = 0;
 	if ( (tid = (TTree* )gROOT->FindObject("tree_idresults")) ) {
@@ -1022,13 +1026,14 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
          //Double_t weight = (kmax == 20 ? poids / 20. : 1.);
 
 			for (int k = 0; k < kmax; k++) {
-            nuc->Clear();
+            
             x = gRandom->Uniform(x0 - .5 * wx, x0 + .5 * wx);
             y = gRandom->Uniform(y0 - .5 * wy, y0 + .5 * wy);
             if (IsIdentifiable(x, y)) {
 					br_isid=1;
-					Identify(x, y, nuc);
-               br_pid=nuc->GetPID();
+					Identify(x, y, idr);
+					nuc.SetIdentification(idr);
+               		br_pid=nuc.GetPID();
 					br_idcode=GetQualityCode();
                idmap->SetBinContent(i,j,br_idcode);
 				}
@@ -1051,7 +1056,7 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
       }
    }
 
-   delete nuc;
+   delete idr;
 }
 
 //___________________________________________________________________________________

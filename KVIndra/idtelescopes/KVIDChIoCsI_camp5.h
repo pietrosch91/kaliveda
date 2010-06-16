@@ -32,7 +32,7 @@ class KVIDChIoCsI_camp5 : public KVIDChIoCsI
    virtual void Initialize(void);
    virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");
-   Bool_t Identify(KVReconstructedNucleus * nuc);
+   Bool_t Identify(KVIdentificationResult*);
 
    ClassDef(KVIDChIoCsI_camp5,1)//ChIo-CsI id with grids for INDRA_camp5
 };

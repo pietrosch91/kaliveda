@@ -22,6 +22,7 @@ $Id: KVIDZAGrid.cpp,v 1.24 2009/05/05 15:57:52 franklan Exp $
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
 #include "TCanvas.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDZAGrid)
 /////////////////////////////////////////////////////////////////////////////
@@ -1292,21 +1293,21 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
 
 //_______________________________________________________________________________________________//
 
-void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const
+void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
 {
-    // Set identity of nucleus based on position in grid.
+    // Fill the KVIdentificationResult object with the results of identification for point (x,y)
+    // corresponding to some physically measured quantities related to a reconstructed nucleus.
     //
     // By default (OnlyZId()=kFALSE) this means identifying the Z & A of the nucleus.
     // In this case, we consider that the nucleus' Z & A have been correctly measured
     // if the 'quality code' returned by IdentZA() is < kICODE4:
-    //   we set nuc->IsZMeasured() to kTRUE if fICode<kICODE4
-    //   we set nuc->IsAMeasured() to kTRUE if fICode<kICODE4
+    //   we set idr->Zident and idr->Aident to kTRUE if fICode<kICODE4
     //
     // If OnlyZId()=kTRUE, only the Z of the nucleus is established.
     // In this case, we consider that the nucleus' Z has been correctly measured
     // if the 'quality code' returned by IdentZ() is < kICODE4, thus:
-    //   we set nuc->IsZMeasured() to kTRUE if fICode<kICODE4
-    // The mass of the particle is set to the mass of the nearest line.
+    //   we set idr->Zident to kTRUE if fICode<kICODE4
+    // The mass idr->A is set to the mass of the nearest line.
     //
     // Real & integer masses for isotopically identified particles
     // ===================================================
@@ -1319,58 +1320,47 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) 
     // between 7.5 and 8.5, but their integer A will be =7 or =9, never 8.
     //
 
-    nuc->SetZMeasured(kFALSE);
-    nuc->SetAMeasured(kFALSE);
-
     if ( !const_cast<KVIDZAGrid*>(this)->FindFourEmbracingLines(x,y,"above") )
     {
         //no lines corresponding to point were found
         const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
+        idr->IDquality = kICODE8;
         return;
     }
     if ( OnlyZId() )
     {
         Double_t Z;
         const_cast < KVIDZAGrid * >(this)->IdentZ(x, y, Z);
+        idr->IDquality = fICode;
         if (fICode<kICODE4 || fICode==kICODE7)
         {
-            nuc->SetZMeasured();
+            idr->Zident = kTRUE;
         }
-        else
+        if (fICode<kICODE4)
         {
-            Z=0;
+            idr->IDOK = kTRUE;
         }
-        nuc->SetRealA(0);
-        if(Z>0) nuc->SetZ(Zint);
-        else nuc->SetZ(Z);
-        nuc->SetRealZ(Z);
-        // Set mass to A of line used to identify particle
-		if(Zint && Aint) {
-			nuc->SetA( Aint );
-    	}
+        idr->Z = Zint;
+        idr->PID = Z;
+		idr->A= Aint;
     }
     else
     {
         Int_t Z;
         Double_t A;
         const_cast < KVIDZAGrid * >(this)->IdentZA(x, y, Z, A);
+        idr->IDquality = fICode;
+        idr->Z = Z;
+        idr->PID = A;
         if (fICode<kICODE4 || fICode==kICODE7)
         {
-            nuc->SetZMeasured();
+            idr->Zident = kTRUE;
         }
-        else
-        {
-            Z=0;
-        }
-        nuc->SetRealA(0);
-        nuc->SetRealZ(Z);
-        nuc->SetZ(Z);
-        //Set mass to A of line used to identify particle
-        if( Z && Aint ) nuc->SetA( Aint );
+        idr->A = Aint;
         if (fICode<kICODE4)
         {
-            nuc->SetAMeasured();
-            nuc->SetRealA(A);
+            idr->Aident = kTRUE;
+            idr->IDOK = kTRUE;
         }
     }
 }

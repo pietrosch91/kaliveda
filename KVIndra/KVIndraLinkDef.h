@@ -107,11 +107,9 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVIdentRoot+;
 #pragma link C++ class KVINDRA5+;
 #pragma link C++ class KVIDSi150CsI_camp5+;
-#pragma link C++ class KVIDSi150CsI+;
 #pragma link C++ class KVIDChIoSi5+;
 #pragma link C++ class KVIDChIoSi75_camp5+;
 #pragma link C++ class KVIDChIoCsI_camp5+;
-#pragma link C++ class KVIDChIoCsI5+;
 #pragma link C++ class KVIDSiCsI5+;
 #pragma link C++ class KVIDSi75SiLi_camp5+;
 #pragma link C++ class KVIDSiLiCsI_camp5+;

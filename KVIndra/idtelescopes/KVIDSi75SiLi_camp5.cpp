@@ -12,6 +12,7 @@ $Date: 2009/04/06 15:22:02 $
 #include "KVIDGridManager.h"
 #include "KVINDRA.h"
 #include "KVINDRAReconNuc.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDSi75SiLi_camp5)
 
@@ -90,20 +91,20 @@ Double_t KVIDSi75SiLi_camp5::GetIDMapY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDSi75SiLi_camp5::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDSi75SiLi_camp5::Identify(KVIdentificationResult *IDR)
 {
     //Particle identification and code setting using identification grids.
 
-    KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
-
     //perform identification in Si75(GG) - SiLi(PG) map
+		IDR->SetIDType( GetType() );
+		IDR->IDattempted = kTRUE;
 
     Double_t si75 = GetIDMapY("GG");
     Double_t sili = GetIDMapX();
 
     KVIDGrid* theIdentifyingGrid = 0;
 
-    fGGgrid->Identify(sili, si75, irnuc);
+    fGGgrid->Identify(sili, si75, IDR);
     theIdentifyingGrid =(KVIDGrid*)fGGgrid;
 
     if ( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ) //we have to try PG grid (if there is one)
@@ -111,19 +112,16 @@ Bool_t KVIDSi75SiLi_camp5::Identify(KVReconstructedNucleus * nuc)
 
         // try Z & A identification in Si75(PG)-SiLi(PG) map
         si75 = GetIDMapY("PG");
-        fPGgrid->Identify(sili, si75, irnuc);
+        fPGgrid->Identify(sili, si75, IDR);
         theIdentifyingGrid = (KVIDGrid*)fPGgrid;
 
         if ( fPGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGZgrid ) //we have to try PGZ grid (if there is one)
         {
 
-            fPGZgrid->Identify(sili,si75,irnuc);
+            fPGZgrid->Identify(sili,si75,IDR);
             theIdentifyingGrid = (KVIDGrid*)fPGZgrid;
         }
     }
-
-    //set subcode in particle
-    SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
 
     if (theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8)
     {
@@ -138,7 +136,7 @@ Bool_t KVIDSi75SiLi_camp5::Identify(KVReconstructedNucleus * nuc)
     {
         // if the final quality code is kICODE7 (above last line in grid) then the estimated
         // Z is only a minimum value (Zmin)
-        irnuc->SetIDCode( kIDCode5 );
+        IDR->IDcode = kIDCode5;
         return kTRUE;
     }
 
@@ -147,12 +145,12 @@ Bool_t KVIDSi75SiLi_camp5::Identify(KVReconstructedNucleus * nuc)
     {
         // if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
         // corresponds to a point which is inbetween the lines, i.e. noise
-        irnuc->SetIDCode( kIDCode10 );
+        IDR->IDcode = kIDCode10;
         return kTRUE;
     }
 
     // set general ID code Si75-SiLi
-    irnuc->SetIDCode( kIDCode3 );
+    IDR->IDcode = kIDCode3;
     return kTRUE;
 }
 

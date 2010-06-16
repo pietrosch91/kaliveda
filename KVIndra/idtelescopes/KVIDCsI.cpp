@@ -24,6 +24,7 @@
 #include "KVIDCsIRLLine.h"
 #include "KVINDRA.h"
 #include "TMath.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDCsI)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,18 +74,17 @@ const Char_t *KVIDCsI::GetArrayName()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR)
 {
    //Particle identification and code setting using identification grid KVIDGCsI* fGrid.
 
+		IDR->SetIDType( GetType() );
+		IDR->IDattempted = kTRUE;
+	
       //perform identification
-      KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
       Double_t csir = GetIDMapY();
       Double_t csil = GetIDMapX();
-      CsIGrid->Identify(csil, csir, irnuc);
-
-      //set subcode in particle
-      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), CsIGrid->GetQualityCode());
+      CsIGrid->Identify(csil, csir, IDR);
 
       //ID totally unsuccessful if ICode=8
       if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE8)
@@ -95,12 +95,14 @@ Bool_t KVIDCsI::Identify(KVReconstructedNucleus * nuc)
           || CsIGrid->GetQualityCode() == KVIDGCsI::kICODE7)
          return kFALSE;
 
+	IDR->IDOK = kTRUE;
+	
       // set general ID code
-      irnuc->SetIDCode( kIDCode2 );
+      IDR->IDcode = kIDCode2;
 
       // general ID code for gammas
       if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE10)
-         irnuc->SetIDCode(kIDCode0);
+         IDR->IDcode = kIDCode0;
 
       return kTRUE;
 

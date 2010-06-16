@@ -30,6 +30,7 @@ class KVGroup;
 class KVIDGraph;
 class KVIDGrid;
 class KVMultiDetArray;
+class KVIdentificationResult;
 
 class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
@@ -100,7 +101,7 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
       ResetBit(kReadyForID);
    };
 
-   virtual Bool_t Identify(KVReconstructedNucleus *);
+   virtual Bool_t Identify(KVIdentificationResult*);
 
    virtual void CalculateParticleEnergy(KVReconstructedNucleus * nuc);
    virtual Int_t GetCalibStatus() const

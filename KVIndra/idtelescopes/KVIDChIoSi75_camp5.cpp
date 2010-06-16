@@ -4,6 +4,7 @@
 #include "KVIDChIoSi75_camp5.h"
 #include "KVINDRA.h"
 #include "KVINDRAReconNuc.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDChIoSi75_camp5)
 
@@ -79,18 +80,18 @@ Double_t KVIDChIoSi75_camp5::GetIDMapY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi75_camp5::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDChIoSi75_camp5::Identify(KVIdentificationResult* IDR)
 {
     //Particle identification and code setting using identification grids.
 
-    KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
-
+		IDR->SetIDType( GetType() );
+		IDR->IDattempted = kTRUE;
     KVIDGrid* theIdentifyingGrid = 0;
 
     if ( fGGgrid )
     {
 
-        fGGgrid->Identify(GetIDMapX("GG"), GetIDMapY("GG"), irnuc);
+        fGGgrid->Identify(GetIDMapX("GG"), GetIDMapY("GG"), IDR);
         theIdentifyingGrid =(KVIDGrid*)fGGgrid;
 
     }
@@ -99,19 +100,16 @@ Bool_t KVIDChIoSi75_camp5::Identify(KVReconstructedNucleus * nuc)
 
         if ( fPGgrid )
         {
-            fPGgrid->Identify(GetIDMapX("PG"), GetIDMapY("PG"), irnuc);
+            fPGgrid->Identify(GetIDMapX("PG"), GetIDMapY("PG"), IDR);
             theIdentifyingGrid = (KVIDGrid*)fPGgrid;
         }
     }
-
-    //set subcode in particle
-    SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
-
+	
     if (theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7)
     {
         // if the final quality code is kICODE7 (above last line in grid) then the estimated
         // Z is only a minimum value (Zmin)
-        irnuc->SetIDCode( kIDCode5 );
+        IDR->IDcode = kIDCode5;
         return kTRUE;
     }
 
@@ -120,12 +118,12 @@ Bool_t KVIDChIoSi75_camp5::Identify(KVReconstructedNucleus * nuc)
     {
         // if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
         // corresponds to a point which is inbetween the lines, i.e. noise
-        irnuc->SetIDCode( kIDCode10 );
+        IDR->IDcode = kIDCode10;
         return kTRUE;
     }
 
     // set general ID code ChIo-Si
-    irnuc->SetIDCode( kIDCode4 );
+    IDR->IDcode = kIDCode4;
     return kTRUE;
 }
 

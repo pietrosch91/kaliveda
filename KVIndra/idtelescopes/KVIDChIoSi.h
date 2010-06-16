@@ -37,7 +37,7 @@ protected:
     KVIDChIoSi();
     virtual ~ KVIDChIoSi();
 
-   virtual Bool_t Identify(KVReconstructedNucleus *);
+   virtual Bool_t Identify(KVIdentificationResult *);
 
    Double_t GetIDMapX(Option_t * opt = "");
    Double_t GetIDMapY(Option_t * opt = "");

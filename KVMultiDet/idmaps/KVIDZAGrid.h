@@ -116,7 +116,7 @@ public:
         return fICode;
     };
 
-    virtual void Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const;
+    virtual void Identify(Double_t x, Double_t y, KVIdentificationResult*) const;
 
     inline KVIDLine *GetClosestLine() const
     {

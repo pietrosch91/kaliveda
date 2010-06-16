@@ -18,7 +18,7 @@ $Date: 2009/01/21 08:04:20 $
 class KVIDSiCsIVamos : public KVIDSiCsI
 {
    
-   KVIDZGrid* fgrid;//! grid used for Si-CsI charge identification of VAmos focal plan
+   KVIDZAGrid* fgrid;//! grid used for Si-CsI charge identification of VAmos focal plan
 	KVSiliconVamos* fSi;//!
 	KVCsIVamos* fCsI;//!
 
@@ -27,7 +27,7 @@ class KVIDSiCsIVamos : public KVIDSiCsI
    virtual ~KVIDSiCsIVamos();
    
    virtual void Initialize(void);
-   Bool_t Identify(KVReconstructedNucleus * nuc);
+   Bool_t Identify(KVIdentificationResult*);
 
    const Char_t * GetName() const;
 	virtual Double_t GetIDMapX(Option_t * opt = "");

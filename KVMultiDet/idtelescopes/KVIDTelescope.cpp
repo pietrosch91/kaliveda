@@ -30,6 +30,7 @@ Author : $Author: franklan $
 #include "KVDataSet.h"
 #include "KVIDGridManager.h"
 #include "KVIDZALine.h"
+#include "KVIdentificationResult.h"
 #include "TMath.h"
 #include "TClass.h"
 
@@ -335,7 +336,7 @@ TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
 
 //____________________________________________________________________________________
 
-Bool_t KVIDTelescope::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDTelescope::Identify(KVIdentificationResult*)
 {
    //Default identification method.
    //Identification of experimental data needs to be implemented in specific

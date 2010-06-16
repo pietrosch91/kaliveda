@@ -10,6 +10,7 @@ $Date: 2009/01/21 08:04:20 $
 #include "KVIDSiCsIVamos.h"
 #include "KVINDRAReconNuc.h"
 #include "KVIDGridManager.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDSiCsIVamos)
 
@@ -45,7 +46,7 @@ void KVIDSiCsIVamos::Initialize()
 	fgrid=0;
 	TIter next(fIDGrids); KVIDGrid*grid=0;
 	while( (grid=(KVIDGrid*)next()) ){
-        if( !strcmp(grid->GetVarY(),"SI") ) fgrid = (KVIDZGrid*)grid;
+        if( !strcmp(grid->GetVarY(),"SI") ) fgrid = (KVIDZAGrid*)grid;
 	}
    if( fgrid ){
       SetBit(kReadyForID);
@@ -76,26 +77,25 @@ Double_t KVIDSiCsIVamos::GetIDMapY(Option_t * opt)
 	return (Double_t) fSi->GetEnergy();
 }
 
-Bool_t KVIDSiCsIVamos::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDSiCsIVamos::Identify(KVIdentificationResult* idr)
 {
    //Particle identification and code setting using identification grids.
 
-      KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
 
       //perform identification in Si - CsI map, in Vamos FP
 
+		idr->SetIDType( GetType() );
+		idr->IDattempted = kTRUE;
+	
       Double_t si = GetIDMapY();
       Double_t csi = GetIDMapX();
 
       KVIDGrid* theIdentifyingGrid = 0;
 
-      fgrid->Identify(csi, si, irnuc);
+      fgrid->Identify(csi, si, idr);
       theIdentifyingGrid =(KVIDGrid*)fgrid;
 
-      //set subcode in particle
-      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
-
-		if(theIdentifyingGrid->GetQualityCode() == KVIDZGrid::kICODE8){
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
 			// only if the final quality code is kICODE8 do we consider that it is
 			// worthwhile looking elsewhere. In all other cases, the particle has been
 			// "identified", even if we still don't know its Z and/or A (in this case
@@ -103,16 +103,16 @@ Bool_t KVIDSiCsIVamos::Identify(KVReconstructedNucleus * nuc)
 			return kFALSE;
 		}
 
-		if(theIdentifyingGrid->GetQualityCode() == KVIDZGrid::kICODE7){
+		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE7 (above last line in grid) then the estimated
 			// Z is only a minimum value (Zmin)
-			irnuc->SetIDCode( kIDCode5 );
+			idr->IDcode = kIDCode5;
 			return kTRUE;
 		}
 
 
 		// set general ID code SiLi-CsI
-      irnuc->SetIDCode( kIDCode3 );
+      idr->IDcode = kIDCode3;
       return kTRUE;
 }
 

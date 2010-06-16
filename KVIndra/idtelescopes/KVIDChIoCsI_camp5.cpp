@@ -10,6 +10,7 @@ $Date: 2009/04/06 15:21:31 $
 #include "KVIDChIoCsI_camp5.h"
 #include "KVINDRA.h"
 #include "KVINDRAReconNuc.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDChIoCsI_camp5)
 
@@ -94,32 +95,30 @@ Double_t KVIDChIoCsI_camp5::GetIDMapY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDChIoCsI_camp5::Identify(KVIdentificationResult* idr)
 {
    //Particle identification and code setting using identification grids.
 
-      KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
-
       //perform identification in ChIo(GG) - CsI(H) map
 
+		idr->SetIDType( GetType() );
+		idr->IDattempted = kTRUE;
+	
       Double_t cigg = GetIDMapY("GG");
       Double_t lumtot = GetIDMapX();
 
       KVIDGrid* theIdentifyingGrid = 0;
 
-      fGGgrid->Identify(lumtot, cigg, irnuc);
+      fGGgrid->Identify(lumtot, cigg, idr);
       theIdentifyingGrid =(KVIDGrid*)fGGgrid;
 
       if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
 
          // try Z & A identification in ChIo(PG)-CsI(H) map
          Double_t cipg = GetIDMapY("PG");
-         fPGgrid->Identify(lumtot, cipg, irnuc);
+         fPGgrid->Identify(lumtot, cipg, idr);
          theIdentifyingGrid = (KVIDGrid*)fPGgrid;
 		}
-
-      //set subcode in particle
-      SetIDSubCode(irnuc->GetCodes().GetSubCodes(), theIdentifyingGrid->GetQualityCode());
 
 		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
 			// only if the final quality code is kICODE8 do we consider that it is
@@ -132,7 +131,7 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
 		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE7 (above last line in grid) then the estimated
 			// Z is only a minimum value (Zmin)
-			irnuc->SetIDCode( kIDCode5 );
+			idr->IDcode = kIDCode5;
 			return kTRUE;
 		}
 
@@ -140,12 +139,12 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVReconstructedNucleus * nuc)
 				theIdentifyingGrid->GetQualityCode() < KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE4, kICODE5 or kICODE6 then this "nucleus"
 			// corresponds to a point which is inbetween the lines, i.e. noise
-			irnuc->SetIDCode( kIDCode10 );
+			idr->IDcode = kIDCode10;
 			return kTRUE;
 		}
 
 		// set general ID code ChIo-CsI
-      irnuc->SetIDCode( kIDCode4 );
+      idr->IDcode = kIDCode4;
       return kTRUE;
 }
 

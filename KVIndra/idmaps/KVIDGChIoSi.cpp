@@ -17,6 +17,7 @@ $Author: franklan $
 #include "KVParameter.h"
 #include "TObjArray.h"
 #include "TROOT.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDGChIoSi)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +228,7 @@ void KVIDGChIoSi::Streamer(TBuffer &R__b)
     }
 }
 
-void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc) const
+void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) const
 {
    // After identification of the particle, we adjust the quality code
 	// (if the particle was well-identified by KVIDZAGrid::Identify, i.e. with
@@ -240,16 +241,20 @@ void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVReconstructedNucleus * nuc)
 	//            to make sure that the detector behind the silicon (i.e. CsI) did not
 	//            fire.
 
-    KVIDZAGrid::Identify(x,y,nuc);
+    KVIDZAGrid::Identify(x,y,idr);
 	 // check Bragg & punch through for well identified particles
     if(fICode<KVIDZAGrid::kICODE4)
 	 {
 		 //identified particles below (left of) Bragg line : Z is a Zmin
-    	 if (fBragg && fBragg->WhereAmI(x, y, "left"))
+    	 if (fBragg && fBragg->WhereAmI(x, y, "left")){
 			  const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;
+			  }
     	 //if a particle is well-identified (i.e. not too far from the identification lines)
 	 	 //but it lies below the 'Punch_through' line, we give it a warning code
-    	 if (fPunch && fPunch->WhereAmI(x, y, "below"))
+    	 if (fPunch && fPunch->WhereAmI(x, y, "below")){
 			  const_cast<KVIDGChIoSi*>(this)->fICode = k_BelowPunchThrough;
+			  idr->SetComment("WARNING: Point to identify falls below punch-through line drawn for grid");
+			  }
+		 idr->IDquality = fICode;
 	 }
 }

@@ -26,6 +26,7 @@
 #include "KVDataSet.h"
 #include "KVTGIDZA.h"
 #include "TObjString.h"
+#include "KVIdentificationResult.h"
 
 
 ClassImp(KVIDSiCsI5)
@@ -114,7 +115,7 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t & funLTG)
 }
 
 //______________________________________________________________________________
-Bool_t KVIDSiCsI5::Identify(KVReconstructedNucleus * part)
+Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
 {
    //Identification of particles using Si(300)-CsI matrices for 5th campaign.
    //First of all, Z identification is attempted with KVIDSiCsI5::IdentZ.
@@ -132,20 +133,20 @@ Bool_t KVIDSiCsI5::Identify(KVReconstructedNucleus * part)
    Int_t ia = -1;
    Int_t iz = -1;
 
-   Double_t Z = IdentifyZ(funLTG_Z);
-	KVINDRAReconNuc* irnuc = (KVINDRAReconNuc*)part;
+ 		IDR->SetIDType( GetType() );
+		IDR->IDattempted = kTRUE;
+  Double_t Z = IdentifyZ(funLTG_Z);
 	
-	irnuc->SetAMeasured(kFALSE);
-	irnuc->SetZMeasured(kFALSE);
-
    //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
    Int_t Zstatus = (GetStatus() + 3 * fWhichGrid);
-   SetIDSubCode(irnuc->GetCodes().GetSubCodes(),Zstatus);
+   IDR->IDquality = Zstatus;
 
    if (GetStatus() != KVTGIDManager::kStatus_OK)
       return kFALSE;            // no ID
 
    iz = TMath::Nint(Z);
+   
+   IDR->IDOK = kTRUE;
 
    //is mass identification a possibility ?
    if (HasMassID() && Zstatus == k_OK_GG) {     //only in GG...  
@@ -155,36 +156,31 @@ Bool_t KVIDSiCsI5::Identify(KVReconstructedNucleus * part)
       if (GetStatus() != KVTGIDManager::kStatus_OK)     //mass ID not good ?
       {
          //only Z identified
-         part->SetZ(iz);
-         irnuc->SetRealZ((Float_t) Z);
+         IDR->Z = iz;
+         IDR->PID = Z;
+         IDR->Zident = kTRUE;
          //subcode says "Z ok but A failed because..."
-         SetIDSubCode(irnuc->GetCodes().GetSubCodes(),
-                      (k_OutOfIDRange_PG2 + GetStatus()));
-			irnuc->SetZMeasured(kTRUE);
-         irnuc->SetRealA(0);
+         IDR->IDquality = k_OutOfIDRange_PG2 + GetStatus();
       }
 		else                    //both Z and A successful ?
       {
          ia = TMath::Nint(mass);
-         part->SetZ(iz);
-         part->SetA(ia);
-         //full A and Z identification
-         irnuc->SetRealZ((Float_t) Z);
-         irnuc->SetRealA((Float_t) mass);
-         irnuc->SetAMeasured(kTRUE);
-			irnuc->SetZMeasured(kTRUE);
+         IDR->Z = iz;
+         IDR->A = ia;
+         IDR->PID = mass;
+         IDR->Zident = kTRUE;
+         IDR->Aident = kTRUE;
       }
    } else {
       //only Z identified
       //ID subcode remains 'Zstatus'
-      part->SetZ(iz);
-      irnuc->SetRealZ((Float_t) Z);
-		irnuc->SetZMeasured(kTRUE);
-      irnuc->SetRealA(0);
+      IDR->Z = iz;
+      IDR->PID = Z;
+      IDR->Zident = kTRUE;
    }
 
    // set general ID code
-   irnuc->SetIDCode( kIDCode3 );
+   IDR->IDcode = kIDCode3;
    return kTRUE;
 }
 

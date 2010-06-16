@@ -3,6 +3,7 @@
 #include "KVIDCsIRLLine.h"
 #include "KVINDRAReconNuc.h"
 #include "KVINDRA.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDGCsI)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +73,7 @@ Bool_t KVIDGCsI::IsIdentifiable(Double_t x, Double_t y) const
 
 //_______________________________________________________________________________________________//
 
-void KVIDGCsI::Identify(Double_t x, Double_t y,
-                        KVReconstructedNucleus * nuc) const
+void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult * idr) const
 {
     // Set Z and A of nucleus based on position in R-L grid
     // The identification of gammas (kICODE10) and charged particles is performed
@@ -84,9 +84,6 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
     //  the integer A is not necessarily = nint(floating-point A): for example, if no 5He line is drawn in the grid
     //  (which is usually the case), there will be no isotopically-identified particle with GetA()=5, although
     //  there may be particles with GetRealA() between 4.5 and 5.5
-
-    nuc->SetZMeasured(kFALSE);
-    nuc->SetAMeasured(kFALSE);
     
     // before first use of this method, we add the IMF line to the list of identifiers
     // which is necessary for IdentZA to work correctly
@@ -99,25 +96,30 @@ void KVIDGCsI::Identify(Double_t x, Double_t y,
     {
         //point below gamma line
         const_cast < KVIDGCsI * >(this)->fICode = kICODE10;
-        nuc->SetZ(0);
+        idr->IDquality = fICode;
+        idr->Z = 0;
+        idr->A = 0;
+        idr->IDOK = kTRUE;
         return;
     }
     if (!const_cast<KVIDGCsI*>(this)->FindFourEmbracingLines(x,y,"above"))
     {
         //no lines corresponding to point were found
         const_cast < KVIDGCsI * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
+        idr->IDquality = fICode;
         return;
     }
     Int_t Z;
     Double_t A;
     const_cast < KVIDGCsI * >(this)->IdentZA(x, y, Z, A);
-    nuc->SetZ(Z);
-    nuc->SetZMeasured(kTRUE);
-    if (Aint)
-    {
-    	nuc->SetA(Aint);
-        nuc->SetRealA(A);
-        nuc->SetAMeasured(kTRUE);
+    idr->Z = Z;
+    idr->A = Aint;
+    idr->PID = A;
+    idr->IDquality = fICode;
+    if(fICode<kICODE6){
+    	idr->IDOK = kTRUE;
+    	idr->Zident = kTRUE;
+    	if(fICode<kICODE4) idr->Aident = kTRUE;
     }
 }
 

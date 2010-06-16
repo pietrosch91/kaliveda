@@ -24,6 +24,7 @@ $Id: KVReconstructedNucleus.cpp,v 1.60 2009/03/03 13:36:00 franklan Exp $
 #include "KVGroup.h"
 #include "KVMultiDetArray.h"
 #include "KVACQParam.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVReconstructedNucleus);
 
@@ -81,18 +82,23 @@ void KVReconstructedNucleus::init()
    }
 }
 
-KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0)
+#define IDRESULTS_DIM 5
+
+KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0),
+	fIDresults(IDRESULTS_DIM,1)
 {
     //default ctor.
     init();
+    fIDresults.SetOwner(kTRUE);
 }
 
 KVReconstructedNucleus::
 KVReconstructedNucleus(const KVReconstructedNucleus &
-                       obj) : fDetList(0)
+                       obj) : fDetList(0), fIDresults(IDRESULTS_DIM,1)
 {
     //copy ctor
     init();
+    fIDresults.SetOwner(kTRUE);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
     obj.Copy(*this);
 #else
@@ -180,6 +186,10 @@ void KVReconstructedNucleus::Print(Option_t * option) const
             KVDetector *det = GetDetector(i);
             if(det) det->Print("data");
         }
+        for(int i = 1; i<= IDRESULTS_DIM; i++){
+        	KVIdentificationResult* idr = const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(i);
+        	if(idr && idr->IDattempted) idr->Print();
+        }
         if(IsCalibrated()){
          	cout << endl << " +++ Calculated & measured energy losses for this particle : " << endl;
         	for (int i = GetNumDet() - 1; i >= 0; i--) {
@@ -233,6 +243,9 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
         delete fDetList;
         fDetList=0;
     };
+    TIter next(&fIDresults);
+    KVIdentificationResult* idr;
+    while( (idr = (KVIdentificationResult*)next()) ) idr->Reset();
     init();
 }
 
@@ -326,25 +339,30 @@ void KVReconstructedNucleus::Identify()
     // This continues until a successful identification is achieved or there are no more ID telescopes to try.
     // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-    TList *idt_list = GetStoppingDetector()->GetTelescopesForIdentification();
+//    TList *idt_list = GetStoppingDetector()->GetTelescopesForIdentification();
+    KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
 
     if (idt_list && idt_list->GetSize() > 0) {
 
         KVIDTelescope *idt;
         TIter next(idt_list);
+        Int_t idnumber = 1;
 
         while ((idt = (KVIDTelescope *) next())) {
 
             if ( idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 
-                if (idt->Identify(this)) {  //Identify()=kTRUE if ID successful
+				KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+				if(!IDR) break;
+				
+				idt->Identify( IDR );
+				
+                if (IDR->IDOK && !IsIdentified()) {  //Identify()=kTRUE if ID successful
                     //cout << " IDENTIFICATION SUCCESSFUL"<<endl;
                     SetIsIdentified();
                     SetIdentifyingTelescope(idt);
-                    break;
-                } else {
-                    //cout << " IDENTIFICATION FAILED"<<endl;
-                    //ID in this telescope has failed
+      				SetIdentification( IDR );
+                } 
                     //We reduce the "segmentation" index by 1.
                     //If this remains >=2, we carry on trying to identify
                     //However, if it falls to 1, then the particle's identifiability depends
@@ -362,7 +380,6 @@ void KVReconstructedNucleus::Identify()
                     //if NSegDet = 0 it's hopeless
                     if (!GetNSegDet())
                         break;
-                }
 
             }
 
@@ -553,4 +570,34 @@ void KVReconstructedNucleus::MakeDetectorList()
     	    if ( det ) fDetList->Add(det);
     	} 
     }
+}
+
+KVIdentificationResult* KVReconstructedNucleus::GetIdentificationResult(Int_t i)
+{
+	// Returns the result of the i-th identification attempted for this nucleus.
+	// i=1 : identification telescope in which particle stopped
+	// i=2 : identification telescope immediately in front of the first
+	// etc. etc.
+	if(i<=IDRESULTS_DIM){
+		KVIdentificationResult* idr = (KVIdentificationResult*)fIDresults.UncheckedAt(i);
+		if(!idr){
+			idr = new KVIdentificationResult;
+			idr->SetNumber(i);
+			fIDresults.AddAt(idr,i);
+		}
+		return idr;
+	}
+	else return 0;
+}
+
+void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)
+{
+	// Set identification of nucleus from informations in identification result object
+               	  SetIDCode( idr->IDcode );
+               	  SetZMeasured( idr->Zident );
+               	  SetAMeasured( idr->Aident );
+               	  SetZ( idr->Z );
+               	  if(idr->A > 0) SetA( idr->A );
+               	  if(idr->Aident) SetRealA( idr->PID );
+               	  else SetRealZ( idr->PID );
 }

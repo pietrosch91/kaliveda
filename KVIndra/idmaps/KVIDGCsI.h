@@ -44,7 +44,7 @@ public:
 
 
     virtual void Identify(Double_t x, Double_t y,
-                          KVReconstructedNucleus * nuc) const;
+                          KVIdentificationResult*) const;
 
     virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
 

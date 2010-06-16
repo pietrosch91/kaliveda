@@ -24,14 +24,14 @@
 #include "KVList.h"
 #include "KVDetector.h"
 #include "KVIDSubCodeManager.h"
-#include "TArrayD.h"
+#include "TObjArray.h"
 #include "KVIDTelescope.h"
 
 class KVTelescope;
 class KVGroup;
+class KVIdentificationResult;
 
 class KVReconstructedNucleus:public KVNucleus {
-
 
 protected:
 #define MAX_NUM_DET 5
@@ -60,7 +60,9 @@ protected:
     Float_t fRealZ;              //Z returned by identification routine
     Float_t fRealA;              //A returned by identification routine
     Double_t fTargetEnergyLoss;   //calculated energy lost in target
-
+    
+    TObjArray fIDresults;  //results of every identification attempt made for this nucleus, in order of the ID telescopes used
+	
     virtual void MakeDetectorList();
 
 public:
@@ -72,6 +74,8 @@ public:
     virtual void Print(Option_t * option = "") const;
     virtual void Clear(Option_t * option = "");
     virtual void Reconstruct(KVDetector * kvd);
+    
+    virtual void SetIdentification(KVIdentificationResult*);
 
     const KVSeqCollection *GetDetectorList() const
     {
@@ -321,8 +325,9 @@ public:
         // mass number, A, was measured, not calculated
         return TestBit(kAMeasured);
     };
-
-    ClassDef(KVReconstructedNucleus, 12)  //Nucleus detected by multidetector array
+	KVIdentificationResult* GetIdentificationResult(Int_t);
+	
+    ClassDef(KVReconstructedNucleus, 13)  //Nucleus detected by multidetector array
 };
 
 #endif

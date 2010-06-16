@@ -20,6 +20,7 @@
 #include "KVINDRAReconNuc.h"
 #include "KVINDRACodes.h"
 #include "KVINDRA.h"
+#include "KVIdentificationResult.h"
 
 ClassImp(KVIDChIoSi)
 /////////////////////////////////////////////////////////////////////////////
@@ -48,43 +49,42 @@ KVIDChIoSi::~KVIDChIoSi()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi::Identify(KVReconstructedNucleus * nuc)
+Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR)
 {
     //Particle identification and code setting using identification grid KVIDGChIoSi
 
+		IDR->SetIDType( GetType() );
+		IDR->IDattempted = kTRUE;
     //identification
     Double_t chio = GetIDMapY();
     Double_t si = GetIDMapX();
 
     if (ChIoSiGrid->IsIdentifiable(si,chio))
-        ChIoSiGrid->Identify(si,chio,nuc);
+        ChIoSiGrid->Identify(si,chio,IDR);
     Int_t quality = ChIoSiGrid->GetQualityCode();
-
-    //set subcode from grid status
-    KVINDRAReconNuc *irnuc = (KVINDRAReconNuc *) nuc;
-    SetIDSubCode(irnuc->GetCodes().GetSubCodes(),quality);
+    IDR->IDquality = quality;
 
     // set general ID code
-    irnuc->SetIDCode( kIDCode4 );
+    IDR->IDcode = kIDCode4;
     //if point lies above Zmax line, we give Zmax as Z of particle (real Z is >= Zmax)
     //general ID code = kIDCode5 (Zmin)
     if (quality==KVIDZAGrid::kICODE7)
     {
-        irnuc->SetIDCode( kIDCode5 );
+        IDR->IDcode = kIDCode5;
     }
     //Identified particles with subcode kID_LeftOfBragg are given
     //general ID code kIDCode5 (Zmin).
     if (quality==KVIDGChIoSi::k_LeftOfBragg)
     {
-        irnuc->SetIDCode( kIDCode5 );
+        IDR->IDcode = kIDCode5;
     }
     //unidentifiable particles with subcode kID_BelowSeuilSi are given
     //general ID code kIDCode5 (Zmin) and we estimate Zmin from energy
     //loss in ChIo
     if (quality==KVIDGChIoSi::k_BelowSeuilSi)
     {
-        irnuc->SetIDCode( kIDCode5 );
-        irnuc->SetZ( fchio->FindZmin() );
+        IDR->IDcode = kIDCode5;
+        IDR->Z = fchio->FindZmin();
     }
 
     return kTRUE;
