@@ -139,8 +139,7 @@ protected:
 	TGNumberEntry *teNbToRead;
 	
 	TGRadioButton *rbInteractive;
-        TGRadioButton *rbSequential;
-        TGRadioButton *rbParallel;
+        TGRadioButton *rbBatch;
 	TGTextEntry   *teBatchName;
 	TGTextEntry   *teBatchNameFormat;
 	TGCheckButton *chIsBatchNameAuto;
@@ -155,7 +154,7 @@ protected:
 	TGNumberEntry *teBatchTime;
 #endif
    TGLabel        *fBatchTimeLab;
-	
+	TGNumberEntry*runsPerJob;
 	TString	       fUserLibraries;
 	TString	       fUserIncludes;
 	
@@ -215,6 +214,9 @@ public:
 	virtual Bool_t IsBatchNameAuto(void)
 	       {return chIsBatchNameAuto->IsDown();}
 	virtual void SetBatchNameAuto(void);
+	virtual void SetRunsPerJobLimits(){
+	 	runsPerJob->SetLimits(TGNumberFormat::kNELLimitMinMax,1.0, (Double_t)listOfRuns.GetNValues());
+	};
 
 	virtual const Char_t *SystemBatchName(void);
 	virtual void SetAutoBatchName(void);

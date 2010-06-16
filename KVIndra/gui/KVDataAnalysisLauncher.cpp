@@ -655,54 +655,66 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  this->AddFrame(cf,eX);
  
  cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+ TGVerticalFrame * RunMode_frame = new TGVerticalFrame(cf, fMainGuiWidth/2.,  100);
  // Radio buttons for the running mode
  TString tit="Running Mode";
- TGVButtonGroup *gb=new TGVButtonGroup(cf,tit);
- rbInteractive=new TGRadioButton(gb,"Interactive");
- rbInteractive->SetToolTipText("Run the analysis in the interactive mode.",TTDELAY);
- rbSequential=new TGRadioButton(gb,"Sequential Batch");
- rbSequential->
-  SetToolTipText("Run the analysis in batch mode (1 batch for all runs).",TTDELAY);
- rbParallel=new TGRadioButton(gb,"Parallel Batch");
- rbParallel->
-  SetToolTipText("Run the analysis in batch mode (1 batch for each run).",TTDELAY);
- gb->Connect("Clicked(int)","KVDataAnalysisLauncher",this,"SetBatch()");
- cf->AddFrame(gb,eXcY);
+ TGHButtonGroup *gb=new TGHButtonGroup(RunMode_frame,tit);
+ rbInteractive=new TGRadioButton(gb,"Now!  ");
+ rbInteractive->SetToolTipText("Run the analysis straight away",TTDELAY);
+ rbBatch=new TGRadioButton(gb,"Batch");
+ rbBatch->
+  SetToolTipText("Submit the analysis as a batch job",TTDELAY);
+ RunMode_frame->AddFrame(gb, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
+ gb->Connect("Clicked(Int_t)", "KVDataAnalysisLauncher", this, "SetBatch()");
+ 
+ TGHorizontalFrame* hf913 = new TGHorizontalFrame(RunMode_frame,600,20);
+ TGLabel* lab586 = new TGLabel(hf913, "Runs per batch job : ");
+ hf913->AddFrame(lab586, new TGLayoutHints(kLHintsTop|kLHintsLeft, 2,15,2,2));
+ runsPerJob=new TGNumberEntry(hf913,1.0, 5, 0, TGNumberFormat::kNESInteger,
+ 	TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMinMax, 1.0, 1.0);
+ runsPerJob->GetNumberEntry()->SetToolTipText("Number of runs to analyse in each batch job",TTDELAY);
+ //teNbToRead->Resize(233,20);
+ hf913->AddFrame(runsPerJob, new TGLayoutHints(kLHintsTop|kLHintsRight, 2,2,2,2));
+ RunMode_frame->AddFrame(hf913, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
+ cf->AddFrame(RunMode_frame, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
 
  justMode=kTextCenterY|kTextLeft;
- TGCompositeFrame *cf2=new TGCompositeFrame(cf,fMainGuiWidth,20,kVerticalFrame);
- TGCompositeFrame *cf3=new TGCompositeFrame(cf2,fMainGuiWidth,20,kHorizontalFrame);
+ TGCompositeFrame *cf2=new TGCompositeFrame(cf,fMainGuiWidth/2.,20,kVerticalFrame);
+ TGCompositeFrame *cf3=new TGCompositeFrame(cf2,fMainGuiWidth/2.,20,kHorizontalFrame);
  lab=new TGLabel(cf3," Batch Name ");
  lab->SetTextJustify(justMode);
- cf3->AddFrame(lab,eX); 
+ cf3->AddFrame(lab, new TGLayoutHints(kLHintsLeft, 2,15,2,2)); 
  chIsBatchNameAuto=new TGCheckButton(cf3," Auto");
  chIsBatchNameAuto->SetTextJustify(justMode);
  chIsBatchNameAuto->
   SetToolTipText("Builds the batch name automatically by using the Batch Name Format.",TTDELAY);
  chIsBatchNameAuto->Connect("Clicked()",
                     "KVDataAnalysisLauncher",this,"SetBatchNameAuto()");
- cf3->AddFrame(chIsBatchNameAuto,eX);
- cf2->AddFrame(cf3,eX); 
+ cf3->AddFrame(chIsBatchNameAuto, new TGLayoutHints(kLHintsLeft, 2,2, 2, 2));
+ cf2->AddFrame(cf3, new TGLayoutHints(kLHintsTop|kLHintsLeft,1,1,1,1)); 
  teBatchName=new TGTextEntry(cf2,"");
  teBatchName->SetToolTipText("Enter batch name.",TTDELAY);
- cf2->AddFrame(teBatchName,eX);
+ cf2->AddFrame(teBatchName, new TGLayoutHints(kLHintsLeft,2,2,2,2));
+ teBatchName->Resize(300,20);
  lab=new TGLabel(cf2," Batch Name Format");
  lab->SetTextJustify(justMode);
- cf2->AddFrame(lab,eX); 
+ cf2->AddFrame(lab, new TGLayoutHints(kLHintsLeft, 2,2,2,2)); 
  teBatchNameFormat=new TGTextEntry(cf2,"");
  teBatchNameFormat->
   SetToolTipText(Form("%s %s",
   	              "Enter batch name format.",
 		      "Examples : $UserClass_$System_$Date or $System_$DataSelector"),
                  TTDELAY);
- cf2->AddFrame(teBatchNameFormat,eX);
- cf->AddFrame(cf2,eXcY);
+ cf2->AddFrame(teBatchNameFormat, new TGLayoutHints(kLHintsLeft,2,2,2,2));
+ teBatchNameFormat->Resize(300,20);
+ cf->AddFrame(cf2, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
 
  this->AddFrame(cf,eX);
  
 // Batch parameters
  //if the default batch system does not have time/memory/disk parameters,
  //we do not display the corresponding widgets
+ teBatchMemory=0;teBatchDisk=0;teBatchTime=0;
 if( gBatchSystemManager->GetDefaultBatchSystem()->IsA()->GetMethodAllAny("SetJobTime") ){
    withBatchParams = kTRUE;
  TGCompositeFrame *cfBatchPar=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
@@ -793,18 +805,10 @@ else
  teBatchName->SetText(tmp.Data());
  
  if(GUIenv->GetValue("KVDataAnalysisLauncher.Batch",kFALSE))
-  {
-#ifdef KVDAL_DEBUG 
-  cout << "ajustement des boutons Par/Seq" << endl;
-#endif
-  if(GUIenv->GetValue("KVDataAnalysisLauncher.SequentialBatch",kTRUE))
-   rbSequential->SetState(kButtonDown);
-  else
-   rbParallel->SetState(kButtonDown);
-  }
+ 	rbBatch->SetState(kButtonDown);
  else
   rbInteractive->SetState(kButtonDown);
-
+  runsPerJob->SetNumber(GUIenv->GetValue("KVDataAnalysisLauncher.RunsPerJob", 1));
  if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE))
   chIsBatchNameAuto->SetState(kButtonDown);
  else
@@ -831,7 +835,7 @@ else
  teBatchNameFormat->Connect("TextChanged(const char*)",
                          "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
  
- SetAutoBatchName();
+ SetBatch();
  
 }
 
@@ -1442,7 +1446,8 @@ else if(strcmp(task->GetUserBaseClass(), "")){
          ((KV_CCIN2P3_BQS*)gBatchSystem)->SetJobDisk(teBatchDisk->GetText());
          ((KV_CCIN2P3_BQS*)gBatchSystem)->SetJobTime((Int_t)teBatchTime->GetIntNumber());
       }
-      gBatchSystem->SetMultiJobsMode(rbParallel->IsOn());
+      gBatchSystem->SetRunsPerJob(runsPerJob->GetNumber());
+      gBatchSystem->SetMultiJobsMode(runsPerJob->GetNumber()<listOfRuns.GetNValues());
       datan->SetBatchSystem(gBatchSystem);
   } 
   else
@@ -1781,9 +1786,34 @@ void KVDataAnalysisLauncher::SetRuns(const Char_t *r)
 //__________________________________________
 void KVDataAnalysisLauncher::SetBatch(void)
 {
-// Set the resource value according to the check box chIsBatch
+	// Set the resource KVDataAnalysisLauncher.Batch according
+	// to whether radio button 'Batch' is down or up
+	// Enable or disable 'runs per job' number entry accordingly.
+	// If enabled, we set the resource KVDataAnalysisLauncher.RunsPerJob
+	// according to the current value.
  GUIenv->SetValue("KVDataAnalysisLauncher.Batch",IsBatch());
- GUIenv->SetValue("KVDataAnalysisLauncher.SequentialBatch",rbSequential->IsDown());
+ if(IsBatch()) {
+ 	runsPerJob->SetState(kTRUE);
+ 	GUIenv->SetValue("KVDataAnalysisLauncher.RunsPerJob", (Int_t)runsPerJob->GetNumber());
+ 	SetBatchNameAuto();
+ 	chIsBatchNameAuto->SetEnabled(kTRUE);
+ 	if(teBatchMemory&&teBatchTime&&teBatchDisk){
+ 		teBatchMemory->SetState(kTRUE);
+ 		teBatchTime->SetState(kTRUE);
+ 		teBatchDisk->SetState(kTRUE);
+ 	}
+ }
+ else {
+ 	runsPerJob->SetState(kFALSE);
+ 	teBatchName->SetState(kFALSE);
+ 	teBatchNameFormat->SetState(kFALSE);
+ 	chIsBatchNameAuto->SetEnabled(kFALSE);
+ 	if(teBatchMemory&&teBatchTime&&teBatchDisk){
+ 		teBatchMemory->SetState(kFALSE);
+ 		teBatchTime->SetState(kFALSE);
+ 		teBatchDisk->SetState(kFALSE);
+ 	}
+ }
  GUIenv->SaveLevel(kEnvUser);
 }
 
@@ -1791,6 +1821,15 @@ void KVDataAnalysisLauncher::SetBatch(void)
 void KVDataAnalysisLauncher::SetBatchNameAuto(void)
 {
 // Set the resource value according to the check box chIsBatch
+ 	if(IsBatchNameAuto()){
+ 		teBatchName->SetState(kFALSE);
+ 		teBatchNameFormat->SetState(kTRUE);
+ 	}
+ 	else
+ 	{
+ 		teBatchName->SetState(kTRUE);
+ 		teBatchNameFormat->SetState(kFALSE);
+ 	}
  GUIenv->SetValue("KVDataAnalysisLauncher.AutoBatchName",IsBatchNameAuto());
  GUIenv->SaveLevel(kEnvUser);
  SetAutoBatchName();
@@ -2298,6 +2337,7 @@ void KVDataAnalysisLauncher::UpdateListOfSelectedRuns()
 {
 	// Called when the selected runs in TGListView lvRuns change.
 	// We update the KVNumberList listOfRuns according to the current selection
+	// we modify the limits of the 'runs per job' widget
 	listOfRuns.Clear();
 	TList* novolist = lvRuns->GetSelectedObjects();
 	if( novolist->GetEntries() > 0 ){
@@ -2308,6 +2348,7 @@ void KVDataAnalysisLauncher::UpdateListOfSelectedRuns()
    SetResource("RunsList",listOfRuns.AsString());
    selectedRuns->SetText(Form(" Selected Runs : %s",listOfRuns.AsString(MAX_LENGTH_SELECTED_RUNS)));
    fClient->NeedRedraw(selectedRuns);
+  SetRunsPerJobLimits();
 }
 
 //__________________________________________
