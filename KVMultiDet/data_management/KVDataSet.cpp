@@ -429,7 +429,6 @@ void KVDataSet::OpenDataBase(Option_t * opt)
 	//as in order to (re)build the database it may be necessary for
 	//gDataSet to point to the current dataset.
 
-	Info("OpenDataBase", "called");
 	Bool_t is_glob_db =kFALSE;
    //if option="update" or database out of date or does not exist, (re)build the database
    if ( (!strcmp(opt, "UPDATE")) || DataBaseNeedsUpdate() ) {
