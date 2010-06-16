@@ -108,7 +108,7 @@ KVReconstructedNucleus::~KVReconstructedNucleus()
         GetGroup()->Reset();
     }
     if (fDetList){
-        fDetList->Clear();
+        //fDetList->Clear();
         delete fDetList;
         fDetList=0;
     }
@@ -127,7 +127,6 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
     //called in order to permit (in KVReconstructedEvent::Streamer) the
     //recalculation of fAnalStatus.
 
-    //Info("Streamer","this=%p fDetList=%p",this, fDetList);
     UInt_t R__s, R__c;
     if (R__b.IsReading()) {
         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
@@ -230,7 +229,9 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
     if (GetGroup())
         GetGroup()->Reset();
     if (fDetList){
-        fDetList->Clear();
+        //fDetList->Clear();
+        delete fDetList;
+        fDetList=0;
     };
     init();
 }
