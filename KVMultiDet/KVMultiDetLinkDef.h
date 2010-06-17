@@ -56,6 +56,7 @@
 #pragma link C++ class KVCalibrator-;//customised streamer
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
+#pragma link C++ class KVClassMonitor+;
 #pragma link C++ class KVSeqCollection-;
 #pragma link C++ class KVDetector+;
 #pragma link C++ class KVDetectorBrowser;
