@@ -31,6 +31,11 @@ class KVIdentificationResult : public KVBase
 	virtual void Reset();
 	void Copy(TObject&) const;
 	void Print(Option_t* opt="") const;
+	KVIdentificationResult& operator=(const KVIdentificationResult& i)
+	{
+		i.Copy(*this);
+		return *this;
+	};
 	
 	void SetIDType(const Char_t* t)
 	{
