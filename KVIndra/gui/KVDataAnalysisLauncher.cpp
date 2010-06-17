@@ -809,11 +809,16 @@ else
  else
   rbInteractive->SetState(kButtonDown);
   runsPerJob->SetNumber(GUIenv->GetValue("KVDataAnalysisLauncher.RunsPerJob", 1));
- if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE))
+ if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE)){
   chIsBatchNameAuto->SetState(kButtonDown);
- else
   chIsBatchNameAuto->SetState(kButtonUp);
-
+ chIsBatchNameAuto->SetState(kButtonDown);
+  }
+ else{
+  chIsBatchNameAuto->SetState(kButtonUp);
+ chIsBatchNameAuto->SetState(kButtonDown);
+  chIsBatchNameAuto->SetState(kButtonUp);
+}
  tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchNameFormat","");
  teBatchNameFormat->SetText(tmp.Data());
  
