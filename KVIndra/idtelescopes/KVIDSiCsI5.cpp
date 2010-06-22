@@ -165,6 +165,41 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
 		else                    //both Z and A successful ?
       {
          ia = TMath::Nint(mass);
+         // fix 8Be
+         if(iz==4 && ia==8) ia = (mass>8.0 ? 9 : 7);
+         // fix 5He
+         if(iz==2 && ia==5) ia = (mass>5.0 ? 6 : 4);
+         // check that mass is not too bizarre
+         KVNucleus tmp(iz,ia);
+         if(!tmp.IsKnown()){
+         	// if ia seems too light, we try with iz-1
+         	// if ia seems too heavy, we try with iz+1
+         	Info("Identify","%s : initial ID Z=%d A=%d funLTG=%g", GetName(), iz, ia, funLTG_A);
+         	Int_t iz2 = (ia < 2*iz ? iz-1 : iz+1);
+         	if(iz2>0){
+         		Double_t old_funLTG_A = funLTG_A;
+      			Double_t new_mass = IdentA(this, funLTG_A, "GG", "GG", iz2);
+      			// is this a better solution ?
+      			if(GetStatus() == KVTGIDManager::kStatus_OK){
+      				Int_t new_ia = TMath::Nint(new_mass);
+      				tmp.SetZ(iz2); tmp.SetA(new_ia);
+         	Info("Identify","%s : new ID Z=%d A=%d funLTG=%g", GetName(), iz2, new_ia, funLTG_A);
+      				if(tmp.IsKnown() && (TMath::Abs(funLTG_A)<TMath::Abs(old_funLTG_A))){
+      					// new nucleus is known and point is closer to line
+      					iz = iz2; ia=new_ia; mass=new_mass;
+         	Info("Identify","%s : accepted new ID", GetName());
+      				}
+      				else
+      				{
+         	Info("Identify","%s : rejected new ID", GetName());
+      				}
+      			}
+      			else
+      			{
+         	Info("Identify","%s : failed to obtain new ID with Z=%d", GetName(), iz2);
+      			}
+         	}
+         }
          IDR->Z = iz;
          IDR->A = ia;
          IDR->PID = mass;
