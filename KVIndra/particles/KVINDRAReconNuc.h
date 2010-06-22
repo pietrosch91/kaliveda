@@ -72,6 +72,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    };
 
    virtual void Identify();
+	virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID, Bool_t &coherent, Bool_t &pileup);
    virtual void Calibrate();
    
    Float_t GetEnergyChIo();
