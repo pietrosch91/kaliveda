@@ -345,19 +345,12 @@ void KVReconstructedNucleus::Identify()
 
         while ((idt = (KVIDTelescope *) next())) {
 
-            if ( idt->IsReadyForID() ) { // is telescope able to identify for this run ?
-
-				KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
-				if(!IDR) break;
+			KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+			
+            if ( IDR && idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 				
 				idt->Identify( IDR );
 				
-                if (IDR->IDOK && !IsIdentified()) {  //Identify()=kTRUE if ID successful
-                    //cout << " IDENTIFICATION SUCCESSFUL"<<endl;
-                    SetIsIdentified();
-                    SetIdentifyingTelescope(idt);
-      				SetIdentification( IDR );
-                } 
                     //We reduce the "segmentation" index by 1.
                     //If this remains >=2, we carry on trying to identify
                     //However, if it falls to 1, then the particle's identifiability depends
@@ -573,7 +566,7 @@ KVIdentificationResult* KVReconstructedNucleus::GetIdentificationResult(Int_t i)
 	// i=1 : identification telescope in which particle stopped
 	// i=2 : identification telescope immediately in front of the first
 	// etc. etc.
-	if(i-1< IDRESULTS_DIM){
+	if(i && ((i-1)< IDRESULTS_DIM)){
 		fIDresults[i-1].SetNumber(i);
 		return &fIDresults[i-1];
 	}
