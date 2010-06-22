@@ -116,10 +116,10 @@ void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult * idr) co
     idr->A = Aint;
     idr->PID = A;
     idr->IDquality = fICode;
-    if(fICode<kICODE6){
+    if(fICode<kICODE4){
     	idr->IDOK = kTRUE;
     	idr->Zident = kTRUE;
-    	if(fICode<kICODE4) idr->Aident = kTRUE;
+    	idr->Aident = kTRUE;
     }
 }
 
