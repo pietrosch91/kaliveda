@@ -86,22 +86,11 @@ Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR)
       Double_t csil = GetIDMapX();
       CsIGrid->Identify(csil, csir, IDR);
 
-      //ID totally unsuccessful if ICode=8
-      if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE8)
-         return kFALSE;
-
-      //ID should be attempted in preceding telescope if ICode=6 or 7
-      if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE6
-          || CsIGrid->GetQualityCode() == KVIDGCsI::kICODE7)
-         return kFALSE;
-
-	IDR->IDOK = kTRUE;
-	
       // set general ID code
       IDR->IDcode = kIDCode2;
 
       // general ID code for gammas
-      if (CsIGrid->GetQualityCode() == KVIDGCsI::kICODE10)
+      if (IDR->IDquality == KVIDGCsI::kICODE10)
          IDR->IDcode = kIDCode0;
 
       return kTRUE;
