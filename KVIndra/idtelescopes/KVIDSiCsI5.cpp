@@ -165,6 +165,8 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
 		else                    //both Z and A successful ?
       {
          ia = TMath::Nint(mass);
+         // fix 16B
+         if(iz==5 && ia==16) ia = (mass>16.0 ? 17 : 15);
          // fix 8Be
          if(iz==4 && ia==8) ia = (mass>8.0 ? 9 : 7);
          // fix 13Be - note that 14Be (T1/2=4.35ms) is not in the PACE2 mass table
