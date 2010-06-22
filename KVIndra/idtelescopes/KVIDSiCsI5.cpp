@@ -167,6 +167,8 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
          ia = TMath::Nint(mass);
          // fix 8Be
          if(iz==4 && ia==8) ia = (mass>8.0 ? 9 : 7);
+         // fix 13Be - note that 14Be (T1/2=4.35ms) is not in the PACE2 mass table
+         if(iz==4 && ia==13) ia = (mass>13.0 ? 14 : 12);
          // fix 5He
          if(iz==2 && ia==5) ia = (mass>5.0 ? 6 : 4);
          // check that mass is not too bizarre
