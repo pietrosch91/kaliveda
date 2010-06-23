@@ -13,6 +13,12 @@ $Date: 2007/11/21 11:22:59 $
 #include "KVBatchSystem.h"
 #include "KVDataSet.h"
 
+#include "Riostream.h"
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+
 ClassImp(KVIVReconIdent)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +49,7 @@ void KVIVReconIdent::InitAnalysis(void)
    else fLogV->Open("Calibration_vamos.log");
    //get VAMOS calibrator for current dataset
    fAnalyseV = Analysisv::NewAnalyser( gDataSet->GetName(), fLogV );
+
 }
 
 //_____________________________________
@@ -56,26 +63,74 @@ void KVIVReconIdent::InitRun(void)
    fAnalyseV->CreateHistograms();
    fAnalyseV->OpenInputTree(fChain->GetTree());
    fAnalyseV->inAttach();
+
+   ifstream in;   
+   Int_t run1, run2;
+   //Float_t  thetavam,brho;
+   //Float_t  brhorun = 0.;
+   //Float_t  thetavamrun = 0.;
+   TString sline;
+  
+   in.open("/sps/indra/ganil/mark/Ident/brho.dat");	//Lecture des valeurs de brho et de thetavamos : 2010-05-25
+   while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %f %f", &run1, &run2, &brho, &thetavam);
+	     if((run1<gIndra->GetCurrentRunNumber() && gIndra->GetCurrentRunNumber()<run2) || gIndra->GetCurrentRunNumber()==run2 || gIndra->GetCurrentRunNumber()==run1)
+	     	{
+		brhorun = double(brho);
+		thetavamrun = double(thetavam);
+		fAnalyseV->SetBrhoRef(brhorun);
+   		fAnalyseV->SetAngleVamos(thetavamrun);
+		}
+		//else file->Log<<"Mauvais numéro de run!!!"<<endl;		
+	   }
+         }
+       }
+   in.close();
+      
+   fLogV->Log<<"-----------"<<endl;
+   fLogV->Log<<"RUN "<<   gIndra->GetCurrentRunNumber()<<endl;
+   fLogV->Log<<"Brho	"<<fAnalyseV->GetBrhoRef()<<endl;
+   fLogV->Log<<"ThetaV	"<<fAnalyseV->GetAngleVamos()<<endl;
+   fLogV->Log<<"-----------"<<endl; 
+   
+ 	event=1;
 }
 
 //_____________________________________
 Bool_t KVIVReconIdent::Analysis(void)
 {
    //Identification of INDRA events and ident/reconstruction of VAMOS data
-
+   
+   //fLogV->Log<<"-----------"<<endl;
+   fLogV->Log<<"ev num vamos="<<event<<endl;
+   //fLogV->Log<<"GetMult		"<<GetEvent()->GetMult()<<endl;
+   //fLogV->Log<<"-----------"<<endl;
+   
    fEventNumber = GetEvent()->GetNumber();
    if (GetEvent()->GetMult() > 0) {
       GetEvent()->IdentifyEvent();
       GetEvent()->CalibrateEvent();
    }
+   
    fAnalyseV->Treat();
+   		
    fIdentTree->Fill();
    fAnalyseV->FillHistograms();
-   return kTRUE;
+   
+	event++;
+    	
+    fLogV->Log<<"___________________________________________"<<endl;
+    fLogV->Log<<"___________________________________________"<<endl;
+      
+       return kTRUE;
 }
 
 //_____________________________________
 void KVIVReconIdent::EndAnalysis(void)
 {
-   delete fLogV;
+	//fLogV->Close();
+   	delete fLogV;
 }

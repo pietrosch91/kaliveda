@@ -13,11 +13,13 @@ $Date: 2007/06/08 15:49:10 $
 #include "KVReconIdent.h"
 
 class Analysisv;
+//class Analysisv_e503;
 class LogFile;
 
 class KVIVReconIdent : public KVReconIdent
 {
    Analysisv* fAnalyseV;//VAMOS calibration
+   //Analysisv_e503* fAnalyseV_e503;
    LogFile* fLogV;//VAMOS calibration log
    
    public:
@@ -29,7 +31,12 @@ class KVIVReconIdent : public KVReconIdent
    void InitRun();
    Bool_t Analysis();
    void EndAnalysis();
-
+   
+   Int_t event;
+   Float_t  thetavam,brho;
+   Double_t  brhorun;
+   Double_t  thetavamrun;
+	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

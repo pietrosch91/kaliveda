@@ -17,15 +17,18 @@ $Date: 2007/06/08 15:49:10 $
 #define DRIFT
 #define IONCHAMBER
 #define SI
+#define CSI
 
 #include"IonisationChamberv.h"
 #include"Siv.h"
+#include"CsIv.h"
 #include"DriftChamberv.h"
 #include"Reconstructionv.h"
 #include"Identificationv.h"
 
-#include "Analysisv.h"
+#include"Analysisv.h"
 
+#include"TTree.h"
 class Analysisv_e503 : public Analysisv
 {
  public:
@@ -37,6 +40,8 @@ class Analysisv_e503 : public Analysisv
   Siv *Si;
   CsIv *CsI;
 
+   TTree* t;
+   
   UShort_t T_Raw[10];
   
   Analysisv_e503(LogFile *Log);
@@ -48,6 +53,14 @@ class Analysisv_e503 : public Analysisv
   void CreateHistograms();
   void FillHistograms();
   
+  void SetBrhoRef(Double_t);
+  void SetAngleVamos(Double_t); 
+  Double_t GetBrhoRef(void);
+  Double_t GetAngleVamos(void);
+    
+  Double_t BB;
+  Double_t ttheta;
+
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 
 };
