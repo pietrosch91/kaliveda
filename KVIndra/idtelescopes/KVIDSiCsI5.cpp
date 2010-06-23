@@ -167,12 +167,18 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
          ia = TMath::Nint(mass);
          // fix 16B
          if(iz==5 && ia==16) ia = (mass>16.0 ? 17 : 15);
+         // fix 9B
+         if(iz==5 && ia==9) ia = (mass>9.0 ? 10 : 8);
          // fix 8Be
          if(iz==4 && ia==8) ia = (mass>8.0 ? 9 : 7);
-         // fix 13Be - note that 14Be (T1/2=4.35ms) is not in the PACE2 mass table
+         // fix 13Be
          if(iz==4 && ia==13) ia = (mass>13.0 ? 14 : 12);
+         // fix 10Li
+         if(iz==3 && ia==10) ia = (mass>10.0 ? 11 : 9);
          // fix 5He
          if(iz==2 && ia==5) ia = (mass>5.0 ? 6 : 4);
+         // fix 7He
+         if(iz==2 && ia==7) ia = (mass>7.0 ? 8 : 6);
          // check that mass is not too bizarre
          KVNucleus tmp(iz,ia);
          if(!tmp.IsKnown()){
@@ -187,20 +193,20 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
       			if(GetStatus() == KVTGIDManager::kStatus_OK){
       				Int_t new_ia = TMath::Nint(new_mass);
       				tmp.SetZ(iz2); tmp.SetA(new_ia);
-         	Info("Identify","%s : new ID Z=%d A=%d funLTG=%g", GetName(), iz2, new_ia, funLTG_A);
+         			Info("Identify","%s : new ID Z=%d A=%d funLTG=%g", GetName(), iz2, new_ia, funLTG_A);
       				if(tmp.IsKnown() && (TMath::Abs(funLTG_A)<TMath::Abs(old_funLTG_A))){
       					// new nucleus is known and point is closer to line
       					iz = iz2; ia=new_ia; mass=new_mass;
-         	Info("Identify","%s : accepted new ID", GetName());
+         				Info("Identify","%s : accepted new ID", GetName());
       				}
       				else
       				{
-         	Info("Identify","%s : rejected new ID", GetName());
+         				Info("Identify","%s : rejected new ID", GetName());
       				}
       			}
       			else
       			{
-         	Info("Identify","%s : failed to obtain new ID with Z=%d", GetName(), iz2);
+         			Info("Identify","%s : failed to obtain new ID with Z=%d", GetName(), iz2);
       			}
          	}
          }
