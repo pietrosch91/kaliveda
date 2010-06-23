@@ -10,10 +10,10 @@
 #include"DriftChamberv.h"
 #include"IonisationChamberv.h"
 #include"Siv.h"
+#include"CsIv.h"
 #include "TCutG.h"
 #include "EnergyTree.h"
 
-//#include"CsIv.h" 
 
 class Identificationv
 {
@@ -42,6 +42,37 @@ class Identificationv
   Float_t MCoef[21][3];
 #endif
   
+  Double_t ZZ;
+  Double_t AA;
+  Int_t DetCsI;
+  Int_t DetSi;
+  Int_t CsIRaw;
+  Int_t SiRaw;
+  Double_t ECsI;
+  Double_t ESi;
+    
+  Float_t dif1[21];	//Z de 3 a 24
+  Float_t dif2[21];
+  Float_t diffsi[21];
+  Float_t diffcsi[21];
+  Float_t diffetot[21];
+  Float_t difflum[21];
+  Float_t diffpro[21];
+  
+  Float_t As[5]; 
+  Float_t ARetreive[5];
+  Float_t CsIsRef[5];
+  Float_t SiRef[5];
+  Float_t ZZZ[5];
+  Float_t diffpro5[5];
+  Float_t diffsi5[5];
+  Float_t difflum5[5];
+
+    
+  Int_t zt;
+
+Double_t brho;
+    
   bool Present; //true if coordinates determined
 
 
@@ -55,6 +86,9 @@ class Identificationv
   void CreateHistograms();
   void FillHistograms();
   void PrintCounters(void);
+  
+  void SetBrho(Double_t);
+  Double_t GetBrho(void);
 
   int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
 
