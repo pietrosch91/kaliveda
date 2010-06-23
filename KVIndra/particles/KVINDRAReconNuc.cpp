@@ -617,9 +617,10 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID, Bool_t &co
 		}
 		// neutrons have no energy loss in Si detector, thus detection of charged
 		// particle in CsI R/L in coincidence with failed Si-CsI identification
+		// and SiGG < 200
 		// => neutron
 		// we include also "successful" Si-CsI id with Z=1 and A=0
-		if(!IDsicsi->IDOK || (IDsicsi->IDOK && IDsicsi->Z==1 && IDsicsi->A==0)){
+		if((!IDsicsi->IDOK && GetSi() && GetSi()->GetGG()<200) || (IDsicsi->IDOK && IDsicsi->Z==1 && IDsicsi->A==0)){
 			theID = *IDcsi;
 			theID.IDOK=kTRUE;
 			theID.Zident=kTRUE;
