@@ -45,7 +45,7 @@ KVTimeEntry::KVTimeEntry(const TGWindow *parent, Double_t val,
    // first remove all things
    UnmapWindow();
    RemoveFrame(fNumericEntry);
-   delete GetLayoutManager();
+   //delete GetLayoutManager();
    
    // Constructs a numeric entry widget.
 
