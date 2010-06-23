@@ -156,8 +156,12 @@ Double_t KVTGIDManager::IdentZ(KVIDTelescope * idt, Double_t & funLTG,
    //we need to lower and raise the limits in Z in order to pass the Eval(Zmin)*Eval(Zmax)<0
    //condition. E.G. for GG, Zmin=1, which means that any points below the Z=1 line are not
    //identified, whereas we should allow Zreal between 0.5 and 1.5 
-   Zmin -= 0.5;
-   Zmax += 0.5;
+   //also when several fits are used for different ranges of Z, often the ranges of validity
+   //of two successive fits do not overlap, i.e. Z=1-5 in GG, then Z=6-20 in PG etc.
+   //in this case somewhere in between Z=5 & Z=6 particles will be left unidentified
+   //as they will neither work in GG nor in PG.
+   Zmin -= 1.;
+   Zmax += 1.;
 
    Zfound = _tgid->GetIdentification(Zmin, Zmax, funLTG);
 
