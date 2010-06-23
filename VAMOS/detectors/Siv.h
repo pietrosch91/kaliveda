@@ -7,7 +7,7 @@
 #include"Random.h"
 #include"TRandom3.h"
 #include "TTree.h"
-#include "./analysis/KVDataSet.h"
+#include "KVDataSet.h"
 
 class Siv
 {
@@ -37,11 +37,17 @@ class Siv
 
   //energy Raw
   UShort_t E_Raw[21];
+    UShort_t SiRaw[21];
+  //Float_t E_Raw[21];
   UShort_t E_Raw_Nr[21];
   Int_t E_RawM;
   UShort_t T_Raw[3];
 
-
+/*
+  Double_t AA;
+  Double_t ZZ;
+  Double_t Err_E;
+*/
 
   //Calibration coeff
   Float_t ECoef[21][3];

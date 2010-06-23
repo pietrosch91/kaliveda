@@ -2,6 +2,8 @@
 //Author: marini
 
 #include "CsIv.h"
+#include <cmath>
+#include "TRandom3.h"
 
 ClassImp(CsIv)
 
@@ -14,8 +16,11 @@ ClassImp(CsIv)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-CsIv::CsIv()
+CsIv::CsIv(LogFile *Log)
 {
+
+	L=Log;
+	
   InitRaw();
   Init();
    // Default constructor
@@ -43,17 +48,17 @@ CsIv::CsIv()
 
 
    //reading the piedestal for CsI
-   //   in2.open("/data/indra/paola/Ident/Param_pied_WCsI.out");
-   in2.open("/home/paola/bazaar.repository/file_calib/Param_pied_WCsI.out");
-   if(in2!=NULL) cout<<"Reading pedestal file..."<<endl;
-   else cout<<"ERROR: CsI pedestal file not found!!"<<endl;
+   in2.open("/sps/indra/ganil/mark/Ident/Param_pied_WCsI.out");
+   //in2.open("$KVROOT/KVFiles/INDRA_e503/Param_pied_WCsI.out");
+   if(in2!=NULL) L->Log<<"Reading CsI pedestal file..."<<endl;
+   else L->Log<<"ERROR: CsI pedestal file not found!!"<<endl;
    while(!in2.eof()){
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("#")){
 	     sscanf(sline.Data(),"%d %f %f %f %f", &num, &dummy1, &dummy2, &dummy3, &pied);
 	     Ped[num-1][0]=pied;	   
-	     	     cout<<"Ped["<<num-1<<"][0]="<<Ped[num-1][0]<<endl<<flush;
+	     	     //L->Log<<"Ped["<<num-1<<"][0]="<<Ped[num-1][0]<<endl<<flush;
 	   }
          }
        }
@@ -69,10 +74,10 @@ CsIv::CsIv()
    ifstream in3;
 
    //reading the CsI calibration parameters
-   //   in3.open("/data/indra/paola/Ident/new.dat");
-   in3.open("/home/paola/bazaar.repository/file_calib/new.dat");
-   if(in3!=NULL) cout<<"Reading CsI calibration parameters..."<<endl;
-   else cout<<"ERROR: CsI calibration file not found!!"<<endl;
+   in3.open("/sps/indra/ganil/mark/Ident/new.dat");
+   //in3.open("$KVROOT/KVFiles/INDRA_e503/new.dat");
+   if(in3!=NULL) L->Log<<"Reading CsI calibration parameters..."<<endl;
+   else L->Log<<"ERROR: CsI calibration file not found!!"<<endl;
      while(!in3.eof()){
        sline.ReadLine(in3);
        if(!in3.eof()){
@@ -81,7 +86,7 @@ CsIv::CsIv()
 	     ECoef[num2-1][0]=a1;
 	     ECoef[num2-1][1]=a2;
 	     ECoef[num2-1][2]=a3;
-	     	     cout<<"num "<<num2-1<<" a1= "<<a1<<"a2= "<<a2<<"a3= "<<a3<<endl; 
+	     	     //L->Log<<"num "<<num2-1<<" a1= "<<a1<<"a2= "<<a2<<"a3= "<<a3<<endl; 
 	   }
        }
      }
@@ -107,6 +112,7 @@ void CsIv::InitRaw(void)
     {
       E_Raw[i] = 0;
       E_Raw_Nr[i] = 0;
+      CsIRaw[i] = 0;
     }
   E_RawM = 0;
 }
@@ -116,46 +122,47 @@ void CsIv::Init()
 {
   cout<<"Init()"<<endl;
 
-  //Initialization of calibrated paramer
+  //Initialization of calibrated parameter
   for(Int_t i=0;i<80;i++)
     {
-      E[i]=-1;
+      //E[i]=-100;
       ENr[i]=-1;
     }
   EM=0;
   ETotal=-1;
-  Number=0;
+  Number=-10;
 }
-
 
 void CsIv::Calibrate(void)
 {
   Int_t i,j,k;
 
   // #ifdef DEBUG
-  cout << "CSI::Calibrate" << endl;
+  //cout << "CSI::Calibrate" << endl;
   // #endif
   
-  //  cout<<"E_RawM "<<E_RawM<<endl;
-
-    
+    //cout<<"E_RawM "<<E_RawM<<endl;
+  
   for(i=0;i<E_RawM;i++)
       {
-	//	cout<<"E_Raw_Nr[i] "<<E_Raw_Nr[i]<<endl;
+	//cout<<"CsI : E_Raw["<<i<<"] = "<<E_Raw[i]<<endl;
+	
+		//cout<<"E_Raw_Nr[i] "<<E_Raw_Nr[i]<<endl;
 	if(E_Raw > 0)
  	  {
-	    //	    cout<<"E_Raw "<<E_Raw[i]<<endl;
+	    //cout<<"E_Raw "<<E_Raw[i]<<endl;
 	    Number = E_Raw_Nr[i];
 	    EM++;
 	  }
       }
+
   
 }
 
 void CsIv::Treat(void)
 {
   //#ifdef DEBUG
-  cout << "CsIv::Treat" << endl;
+  //cout << "CsIv::Treat" << endl;
   //#endif
   
     //  Init();
@@ -191,6 +198,26 @@ void CsIv::outAttach(TTree *outT)
 #endif
 
    outT->Branch("CsIEM",&EM,"CsIEM/I");
-   outT->Branch("CsIE",E,"CsIE[80]/F");
-   outT->Branch("CsIET",&ETotal,"CsIET/F");
+   //outT->Branch("CsIE",E,"CsIE[80]/F");
+   //outT->Branch("CsIET",&ETotal,"CsIET/F");
+
+   //outT->Branch("CSIERaw",&E_Raw[0],"CsIERaw/S");
+   //outT->Branch("CSIERaw",CsIRaw,"CsIERaw[80]/S");
+}
+
+void CsIv::CreateHistograms(void)
+{
+
+#ifdef DEBUG
+  cout << "CsI::CreateHistograms" << endl;
+#endif
+
+}
+void CsIv::FillHistograms(void)
+{
+
+#ifdef DEBUG
+  cout << "CsI::FillHistograms" << endl;
+#endif
+
 }
