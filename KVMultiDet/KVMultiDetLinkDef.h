@@ -40,6 +40,7 @@
 #pragma link C++ class KVParameterList<Double_t>+;
 #pragma link C++ class KVParameterList<TString>+;
 #pragma link C++ class KVParameterList<KVString>+;
+#pragma link C++ class KVRungeKutta+;
 #pragma link C++ class Hexa_t+;
 #pragma link C++ class KVACQParam+;
 #pragma link C++ class KVAvailableRunsFile+;
