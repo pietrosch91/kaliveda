@@ -299,8 +299,8 @@ void Identificationv::Init(void)
     ZZZ[i]=-10.0;
     }
         
-zt = ZZ = AA = CsIRaw = SiRaw = DetSi = DetCsI = -10;
-ESi = ECsI = -10.0;
+zt = ZZ = AA = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
+ESi = ECsI = EEtot = -10.0;
 }
 
 void Identificationv::SetBrho(Double_t bbrho)
@@ -313,6 +313,23 @@ Double_t Identificationv::GetBrho(void)
 return brho;
 }
 
+void Identificationv::Simulation(Int_t ZZZ, Int_t AAA, Double_t E1, Double_t E2)
+{		
+EEtot = E1+E2;
+i=10;
+		
+L->Log<<"-------------Simulation-------------"<<endl;
+energytree->InitIC(int(Si->Number));
+for(EEtot+i;EEtot+i<EEtot+51;i++)
+	{
+	energytree->GetResidualEnergyIC(ZZZ,AAA,EEtot+i);
+	if(abs(E1-energytree->EEsi)<0.5)
+		break;
+	//L->Log<<"Esi = "<<energytree->EEsi<<" "<<"Echio = "<<energytree->Echio<<endl;
+	}
+L->Log<<"Esi = "<<energytree->EEsi<<" "<<"Echio = "<<energytree->Echio<<endl;
+L->Log<<"-------------End simulation-------------"<<endl;
+}
 
 void Identificationv::Calculate(void)
 {
@@ -323,7 +340,6 @@ void Identificationv::Calculate(void)
   
   L->Log<<"num si="<<int(Si->Number)<<endl;
   L->Log<<"num csi="<<int(CsI->Number)<<endl;
-  
 
   energytree->SetSiliconThickness(Si->Number);
   
@@ -346,12 +362,12 @@ void Identificationv::Calculate(void)
 	      //Si->SiRaw[Si->Number] = Si->E_Raw[y];				//Associer le canal au # du détecteur Si
 	      
 	      //L->Log<<"ch csi="<<CsI->E_Raw[j]<<endl<<flush;
-	      /*
+	      
 	      	Double_t min,max;
   		min = max = rap[0];
 		Float_t min2,max2;
   		min2 = max2 = val[0];
-		*/
+		
 		Float_t min3,max3;
   		min3 = max3 = abs(diffsi[0]);
 		Float_t min4,max4;
@@ -359,12 +375,15 @@ void Identificationv::Calculate(void)
 		Float_t min5,max5;
 		min5 = max5 = abs(diffsi[0]*difflum[0]);
 		
+		Float_t mmin,mmax;
+  		mmin = mmax = diffe[0];
+		
 		//energytree->eEnergySi=Si->ETotal;
-/*
+
 	      for(energytree->eZ=3;energytree->eZ<24;energytree->eZ++)
 	      {
 	      energytree->SetFragmentZ(energytree->eZ);
-	      energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j],energytree->eZ);
+	      energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
 		dif1[energytree->eZ-3]=energytree->diff1;
 		dif2[energytree->eZ-3]=energytree->diff2;
 		As[energytree->eZ-3]=energytree->sA;
@@ -375,6 +394,7 @@ void Identificationv::Calculate(void)
 		
 		val[energytree->eZ-3]=abs(dif1[energytree->eZ-3]*dif2[energytree->eZ-3]);
 		rap[energytree->eZ-3]=double(energytree->sA)/double(energytree->eZ);
+		diffe[energytree->eZ-3]=abs((energytree->detsi->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt]))-double(SiRef[zt]+CsIsRef[zt]));
 		
 		if(rap[energytree->eZ-3] < min)
       			min = rap[energytree->eZ-3];
@@ -384,14 +404,19 @@ void Identificationv::Calculate(void)
 		if(val[energytree->eZ-3] < min2)
       			min2 = val[energytree->eZ-3];
     		else
-      			max2 = val[energytree->eZ-3];				
+      			max2 = val[energytree->eZ-3];
+			
+		if(diffe[energytree->eZ-3] < mmin)
+      			mmin = diffe[energytree->eZ-3];
+    		else
+      			mmax = diffe[energytree->eZ-3];					
 	      }
 		
 		//L->Log<<"Min : "<<min<<endl;
 		
   		for(zt=0;zt<21;zt++)				
 		{
-			if(val[zt]==min2 && rap[zt]>1.3 && rap[zt]<2.8 && dif1[zt]>0 && dif2[zt]>0) //&& ARetreive[zt]>1 && ARetreive[zt]<100)	//&& CsIsRef[zt]>1e-8 && CsIsRef[zt]<1e+6) //&& (dif1[zt]>0 || dif2[zt]>0)) //|| val[zt]==min2)	
+			if(rap[zt]==min && rap[zt]>1.3 && rap[zt]<2.8 && ARetreive[zt]>3 && ARetreive[zt]<=50) //&& dif1[zt]>0 && dif2[zt]>0) CsIsRef[zt]>1e-8 && CsIsRef[zt]<1e+6) //&& (dif1[zt]>0 || dif2[zt]>0)) //|| val[zt]==min2)	
 				break;	//rap[zt]==min
 			//else if(val[zt]==min2 && )
 				//break;	
@@ -407,32 +432,47 @@ void Identificationv::Calculate(void)
 				break;
 			}
 		}
-*/
+		L->Log<<"eZ = "<<zt+3<<endl<<flush;
+		L->Log<<"A = "<<ARetreive[zt]<<endl<<flush;
+		L->Log<<"Esi = "<<float(SiRef[zt])<<endl;
+		L->Log<<"Ecsi = "<<CsIsRef[zt]<<endl;
+		//L->Log<<"Canal csi Invert() = "<<energytree->CalculateCanalCsI()<<endl;
+		L->Log<<"E tot = "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
+		L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt])<<endl;
+				
+	        ECsI = double(CsIsRef[zt]);
+		ESi = double(SiRef[zt]);
+		ZZ = zt+3;
+		AA = int(ARetreive[zt]);
+		DetCsI = int(CsI->Number); 
+		DetSi = int(Si->Number);
+		
+		Simulation(ZZ,AA,ESi,ECsI);
+/*
 	for(energytree->eZ=3;energytree->eZ<24;energytree->eZ++)	//Modification : Boucle sur les valeurs des Z : 2010-05-11
   		{ 
 
 		Int_t AAA=2*energytree->eZ;
-		
-		L->Log<<"-------------Cas A=2Z-------------------"<<endl;
-		
+			
 		energytree->sA=AAA;
 		energytree->SetFragmentZ(energytree->eZ);
 		energytree->SetFragmentA(AAA);
-		energytree->ECsIch(CsIRaw);
+		energytree->ECsIch(CsI->E_Raw[j]);
 		energytree->CompleteSimulation(energytree->LightCsI);			//Simulation for the case A=2*Z
 		
 		//energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
 		
-		L->Log<<"eZ = "<<energytree->eZ<<endl<<flush;
-		L->Log<<"A = "<<energytree->sA<<endl<<flush;
-		L->Log<<"Esi = "<<float(energytree->eEnergySi)<<endl;
-		L->Log<<"Ecsi = "<<energytree->RetrieveEnergyCsI()<<endl;
+		//L->Log<<"-------------Cas A=2Z-------------------"<<endl;
+		//L->Log<<"eZ = "<<energytree->eZ<<endl<<flush;
+		//L->Log<<"A = "<<energytree->sA<<endl<<flush;
+		//L->Log<<"Esi = "<<float(energytree->eEnergySi)<<endl;
+		//L->Log<<"Ecsi = "<<energytree->RetrieveEnergyCsI()<<endl;
 		//L->Log<<"Canal csi Invert() = "<<energytree->CalculateCanalCsI()<<endl;
-		L->Log<<"E tot = "<<double(energytree->eEnergySi+energytree->RetrieveEnergyCsI())<<endl;
-		L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	//AAA
-		L->Log<<"Diffsi = "<<energytree->diffsi<<" "<<"Diffcsi = "<<energytree->diffcsi<<" "<<"Diffetot = "<<energytree->diffetot<<" "<<"Difflum = "<<energytree->difflum<<endl;
-		L->Log<<"Diff lum %= "<<(energytree->CanalCsI-energytree->LightCsI)/energytree->LightCsI<<endl;
-		L->Log<<"-------------Fin A=2Z-------------------"<<endl;
+		//L->Log<<"E tot = "<<double(energytree->eEnergySi+energytree->RetrieveEnergyCsI())<<endl;
+		//L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	//AAA
+		//L->Log<<"Diffsi = "<<energytree->diffsi<<" "<<"Diffcsi = "<<energytree->diffcsi<<" "<<"Diffetot = "<<energytree->diffetot<<" "<<"Difflum = "<<energytree->difflum<<endl;
+		//L->Log<<"Diff lum %= "<<((energytree->CanalCsI-energytree->LightCsI)/energytree->LightCsI)*100<<endl;
+		//L->Log<<"-------------Fin A=2Z-------------------"<<endl;
 		
 		
 		diffsi[energytree->eZ-3]=abs(energytree->diffsi);			//Calculate the difference between the calibrate energy and the simulated one
@@ -445,7 +485,7 @@ void Identificationv::Calculate(void)
       			min3 = diffsi[energytree->eZ-3];
     		else
       			max3 = diffsi[energytree->eZ-3];
-		.
+		
 		if(difflum[energytree->eZ-3] < min4)
       			min4 = difflum[energytree->eZ-3];
     		else
@@ -469,14 +509,12 @@ void Identificationv::Calculate(void)
 	Float_t min6,max6;	
 	min6 = max6 = diffpro5[0];
 			
-	for(energytree->eZ=zt;energytree->eZ<zt+5;energytree->eZ++)			//Form the minimum found, isolate a "Z region"
+	for(energytree->eZ=zt;energytree->eZ<zt+5;energytree->eZ++)			//From the minimum found, isolate a "Z region"
 	      {
-	      energytree->SetFragmentZ(energytree->eZ);
-	      energytree->SetFragmentA(energytree->sA);
 	      energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);		//Identification method
 	      
 	        L->Log<<"eZ = "<<energytree->eZ<<endl<<flush;
-		L->Log<<"A = "<<energytree->sA<<endl<<flush;
+		//L->Log<<"A = "<<energytree->sA<<endl<<flush;
 		
 	        diffsi5[energytree->eZ-zt]= abs(energytree->diffsi);
 		difflum5[energytree->eZ-zt]= abs(energytree->difflum);
@@ -492,12 +530,14 @@ void Identificationv::Calculate(void)
       			min6 = diffpro5[energytree->eZ-zt];
     		else
       			max6 = diffpro5[energytree->eZ-zt];
-			
+		
+		L->Log<<"Esi = "<<float(energytree->eEnergySi)<<endl;	
 		L->Log<<"Ecsi interp="<<energytree->sRefECsI<<" A interp="<<energytree->iA<<endl;
 		L->Log<<"E tot = "<<double(energytree->eEnergySi+energytree->RetrieveEnergyCsI())<<endl;
+		//L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	
 		L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	
 		L->Log<<"Diffsi = "<<energytree->diffsi<<" "<<"Diffcsi = "<<energytree->diffcsi<<" "<<"Diffetot = "<<energytree->diffetot<<" "<<"Difflum = "<<energytree->difflum<<endl;
-		L->Log<<"Diff lum %= "<<(energytree->CanalCsI-energytree->LightCsI)/energytree->LightCsI<<endl;
+		L->Log<<"Diff lum %= "<<((energytree->CanalCsI-energytree->LightCsI)/energytree->LightCsI)*100<<endl;
 		//L->Log<<"diffsi = "<<diffsi5[energytree->eZ-zt]<<" "<<"difflum = "<<difflum5[energytree->eZ-zt]<<" "<<"diffpro = "<<diffpro5[energytree->eZ-zt]<<endl;
 		
 	      }
@@ -519,7 +559,7 @@ void Identificationv::Calculate(void)
 		//L->Log<<"Pos min (final):"<<zt+1<<endl;
 		L->Log<<"Z trouvé(final)="<<ZZZ[ztt]<<" A trouvé(final)="<<AA<<endl;
 		L->Log<<"ESi = "<<ESi<<" ECsI = "<<ECsI<<endl;
-		
+*/		
 		/*		
 		if(energytree->eZ==3 && abs(energytree->diff1*energytree->diff2)<40)	//Modification : Condition sur les différentes valeurs de Z : 2010-05-19
 			break;
@@ -567,6 +607,7 @@ void Identificationv::Calculate(void)
 	}
     }
 
+ 	//Simulation(ZZ,AA,ESi,ECsI);
 
   //cout<<"I'm back..."<<endl<<flush;
   L->Log<<"Dr->E[0] : "<<Dr->E[0]<<" "<<"Dr->E[1] : "<<Dr->E[1]<<" "<<"Ic->ETotal : "<<Ic->ETotal<<endl;

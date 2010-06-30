@@ -14,7 +14,6 @@
 #include "TCutG.h"
 #include "EnergyTree.h"
 
-
 class Identificationv
 {
  public:
@@ -42,14 +41,15 @@ class Identificationv
   Float_t MCoef[21][3];
 #endif
   
-  Double_t ZZ;
-  Double_t AA;
+  Int_t ZZ;
+  Int_t AA;
   Int_t DetCsI;
   Int_t DetSi;
   Int_t CsIRaw;
   Int_t SiRaw;
   Double_t ECsI;
   Double_t ESi;
+  Double_t EEtot;
     
   Float_t dif1[21];	//Z de 3 a 24
   Float_t dif2[21];
@@ -59,16 +59,20 @@ class Identificationv
   Float_t difflum[21];
   Float_t diffpro[21];
   
-  Float_t As[5]; 
-  Float_t ARetreive[5];
-  Float_t CsIsRef[5];
-  Float_t SiRef[5];
-  Float_t ZZZ[5];
+  Float_t diffe[21];
+  Float_t rap[21];
+  Float_t val[21];
+  
+  Float_t As[21]; 
+  Float_t ARetreive[21];
+  Float_t CsIsRef[21];
+  Float_t SiRef[21];
+  Float_t ZZZ[21];
   Float_t diffpro5[5];
   Float_t diffsi5[5];
   Float_t difflum5[5];
 
-    
+  Int_t i;  
   Int_t zt;
 
 Double_t brho;
@@ -89,6 +93,7 @@ Double_t brho;
   
   void SetBrho(Double_t);
   Double_t GetBrho(void);
+  void Simulation(Int_t, Int_t, Double_t, Double_t);
 
   int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
 

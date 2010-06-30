@@ -9,6 +9,8 @@
 #include "TEventList.h"
 #include "TROOT.h"
 #include "Siv.h"
+#include "CsIv.h"
+
 
 ClassImp(EnergyTree)
 
@@ -21,7 +23,7 @@ ClassImp(EnergyTree)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-EnergyTree::EnergyTree()
+EnergyTree::EnergyTree(LogFile *Log)
 {
    // Default constructor
   eN=0;
@@ -39,11 +41,22 @@ EnergyTree::EnergyTree()
   esi2=0.;
   ecsi1=0.;
   ecsi2=0.;
+  diff1=0.;
+  diff2=0.;
+  diffsi=0.;
+  diffcsi=0.;
+  diffetot=0.;
+  difflum=0.;
   sA=0;
   iA=0.;
   right=0;
   left=0;
   sRefECsI=0.;
+  Einc=0.;
+  EEsi=0.;
+  Echio=0.;
+  L=Log;
+  
 }
 
 EnergyTree::~EnergyTree()
@@ -66,24 +79,51 @@ Double_t EnergyTree::GetSiliconThickness(Int_t number)
        	return Si_thick[number];	
 }
 
-
-
 //void EnergyTree::InitDetector(Int_t number)
   void EnergyTree::InitDetector()
 {
-  //	Double_t thick=GetSiliconThickness(number);
-// 	detsi=new KVDetector ("Si",thick);	//define a Silicon detector of 500 microm thick
-	detsi=new KVDetector ("Si",500);
+ 	detsi=new KVDetector ("Si",thick);	//define a Silicon detector of 500 microm thick
 	detcsi=new KVDetector ("CsI",1.);	//define a CsI detector of 1 cm thick
 	kvt = new KVTelescope;				
 	kvt->Add(detsi);			// define a telescope composed of a Si(500)+CsI(1cm)  
 	kvt->Add(detcsi);
 	lum=new KVLightEnergyCsI(detcsi);
+	//kvt->Print();
+}
+
+void EnergyTree::InitIC(Int_t number)
+{
+	chio = new KVDetector("Myl",2.5);
+	iso = new KVMaterial("C4H10",300);
+	detsi2=new KVDetector ("Si",thick);	
+	
+	chio->AddAbsorber(iso);
+	chio->AddAbsorber(detsi2);
+	chio->SetActiveLayer(1);
+	chio->SetActiveLayer(2);
+	chio->GetAbsorber(1)->SetPressure(80);
+}
+
+Double_t EnergyTree::GetResidualEnergyIC(Int_t Z, Int_t A, Double_t EEinc)
+{	
+   KVNucleus part2(Z,A);
+   part2.SetEnergy(EEinc);
+   chio->DetectParticle(&part2);
+  
+	EEsi=detsi2->GetEnergy();
+	Echio=iso->GetDeltaE(Z,A,EEinc);
+	Double_t Epunch=part2.GetEnergy();
+//if(Epunch>.1)   cout<<" Einc = "<<EEinc<<"Esi=  "<<Esi<<"  Eresidual = "<<Eresidual<<" Epunch =  "<<Epunch<<endl;
+   part.Clear();
+   detsi2->Clear();
+   iso->Clear();
+   chio->Clear();
+	return Echio;
 }
 
   void EnergyTree::SetSiliconThickness(Int_t number)
 {
-	Double_t thick=GetSiliconThickness(number);
+	thick=GetSiliconThickness(number);
 	detsi->SetThickness(thick);
 }
 //-------------------------------------------------------------------
@@ -91,7 +131,7 @@ Double_t EnergyTree::GetSiliconThickness(Int_t number)
 
 //Set Si calibration parameters
 void EnergyTree::SetCalSi(Float_t p1, Float_t p2, Float_t p3){
-  cout<<"EnergyTree::SetCalSi"<<endl<<flush;
+  //cout<<"EnergyTree::SetCalSi"<<endl<<flush;
   a=p1;
   b=p2;
   c=p3;
@@ -108,107 +148,14 @@ void EnergyTree::SetCalCsI(Float_t a1, Float_t a2, Float_t a3){
  lum=new KVLightEnergyCsI(detcsi);
  lum->SetNumberParams(3);
  lum->SetParameters(a1,a2,a3);
- cout<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
-}
-
-
-//Procedures for to set the detector calibration parameters from files
-// Si_calib.dat (calibration for Si), Param_pied_WCsI.out (piedestal for CsI)
-// and new.dat (calibration for CsI)
-
-void EnergyTree::InitSiCalib(Int_t numsi){
-   Int_t w=0;
-   Int_t i=0;
-   Int_t num=0;
-   Float_t p1=0., p2=0., p3=0., alpha=0.;
-   Char_t name[80];
-   TString sline;
-   ifstream in;
-
-   //reading the Si calibration parameters
-   in.open("Si_calib.dat");
-       while(w==0){
-	 sline.ReadLine(in);
-	 //	 cout<<"i= "<<i<<endl;
-	 if(!in.eof()){
-	   if (sline.BeginsWith("SIE_")){
-	     sscanf(sline.Data(),"%4s %d %f %f %f %f", name, &num, &p1, &p2, &p3, &alpha );
-	     if (num==numsi) w=1;
-	     //	     cout<<"num= "<<num<<endl;
-	   }
-	   i++;
-	 }
-       }
-       //end of reading Si calibration parameters
-
-   in.close();
-
-   //    cout<<"p1= "<<p1<<"p2= "<<p2<<"p3= "<<p3<<"alpha= "<<alpha<<endl;
-   SetCalSi(p1,p2,p3);
-}
-
-void EnergyTree::InitCsIPed(Int_t numcsi){
-   Int_t w=0;
-   Int_t num=0;
-   Float_t pied=0.;
-   Float_t dummy1, dummy2, dummy3;
-   TString sline;
-   ifstream in2;
-
-
-   //reading the piedestal for CsI
-   in2.open("Param_pied_WCsI.out");
-     while(w==0){
-       sline.ReadLine(in2);
-       if(!in2.eof()){
-	   if (!sline.BeginsWith("#")){
-	     sscanf(sline.Data(),"%d %f %f %f %f", &num, &dummy1, &dummy2, &dummy3, &pied);
-	     if (num==numcsi) w=1;}
-         }
-       }
-     //end of reading the piedestal for CsI
-
-   in2.close();
-
-   //    cout<<"piedestal= "<<pied<<endl;
-    SetCsIPed(pied);
-}
-void EnergyTree::InitCsICalib(Int_t numsi,Int_t numcsi){
-   Int_t w=0;
-   Int_t num=0, num2;
-   Float_t a1=0., a2=0., a3=0.;
-   Float_t dummy1, dummy2;
-   TString sline;
-   ifstream in3;
-
-   //reading the CsI calibration parameters
-   in3.open("new.dat");
-     while(w==0){
-       sline.ReadLine(in3);
-       if(!in3.eof()){
-	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
-	     sscanf(sline.Data(),"%d %d %f %f %f %f %f", &num, &num2, &a1, &a2, &a3, &dummy1, &dummy2);
-	     if (num==numsi && num2==numcsi) w=1;}
-	   }
-       }
-     //end of reading the calibration parameters of CsI
-
-     //   cout<<"a1= "<<a1<<"a2= "<<a2<<"a3= "<<a3<<endl; 
-   in3.close();
-
-   SetCalCsI(a1,a2,a3);
+ //cout<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
 }
 
 void EnergyTree::Init(){
-
+   //Si = new Siv(L); 
    InitDetector();
    //   InitDetector(numsi);
-
-//    InitSiCalib(numsi);
-//    InitCsIPed(numcsi);
-//    InitCsICalib(numsi,numcsi);
 }
-
 
 void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
 {
@@ -221,7 +168,7 @@ void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
     }
   if(CsI->E_RawM>0)
     {
-      cout<<" SetCalibration:: csinum="<<csinum<<" ped "<<CsI->Ped[csinum][0]<<endl;
+      //cout<<" SetCalibration:: csinum="<<csinum<<" ped "<<CsI->Ped[csinum][0]<<endl;
       SetCsIPed(CsI->Ped[csinum][0]);
       SetCalCsI(CsI->ECoef[csinum][0],CsI->ECoef[csinum][1],CsI->ECoef[csinum][2]);
     }
@@ -234,8 +181,6 @@ void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
     }
 }
 
-
-
 //fragment Z
 void EnergyTree::SetFragmentZ(Int_t Zin){
   eZ=Zin;
@@ -246,42 +191,70 @@ void EnergyTree::SetFragmentZ(Int_t Zin){
 
 //Complete procedure to get the best estimate of the residual energy
 Double_t EnergyTree::GetResidualEnergyCsI(UShort_t chsi, UShort_t chcsi){
+//Int_t eZ;
+//Zoo=eZ;
   Int_t A;
   A=2*eZ;
   CalculateESi(chsi);
   ECsIch(chcsi);
-  //  if(eZ==14)
-  //  cout<<"-------------Z="<<eZ<<endl; 
-  Bisection(A,chcsi);
+  Bisection(A,short(LightCsI));		//Bisection(A,chcsi);
+  //cout<<"diff1 = "<<diff1<<endl;
+  //cout<<"diff2 = "<<diff2<<endl;
+//cout <<"eZ = "<<eZ<<endl;
+//cout <<"A = "<<RetrieveA()<<endl;  	
   Interpolate();
+  
+  return sRefECsI; 
+}
+
+Double_t EnergyTree::GetResidualEnergyCsI2(UShort_t chsi, UShort_t chcsi, Int_t Zoo){
+//Int_t eZ;
+Zoo=eZ;
+Int_t A;
+A=2*eZ;
+
+  CalculateESi(chsi);
+  ECsIch(chcsi);
+  Bisection(A,short(LightCsI));	//Bisection(Aoo,chcsi);
+  //cout<<"diff1 = "<<diff1<<endl;
+  //cout<<"diff2 = "<<diff2<<endl;
+//cout <<"eZ = "<<eZ<<endl;
+//cout <<"A = "<<RetrieveA()<<endl;  	
+  Interpolate();
+  
   return sRefECsI; 
 }
 
 //Si calibration function
+
 void EnergyTree::CalculateESi(UShort_t chan){
   Double_t fact=1.;
   //  cout<<"eEnergy Si ch="<<chan<<endl;
   eEnergySi = fact*alpha*(a+chan*b+chan*chan*c);
-  //  cout<<"eEnergySi da energytree!="<<eEnergySi<<" a="<<a<<" b="<<b<<" c="<<c<<" alpha="<<alpha<<endl;  
+  //eEnergySi = Si->ETotal;
+  //cout<<"eEnergySi=MeV "<<eEnergySi<<endl;	//" a="<<a<<" b="<<b<<" c="<<c<<" alpha="<<alpha<<endl;  
 }
+
+
 
 //CsI light in channels
 void EnergyTree::ECsIch(UShort_t chan){
-  LightCsI=chan - ePied;
-  cout<<"pedestal csi="<<ePied<<" chan="<<chan<<endl; //paola
-  cout<<"LightCsI="<<LightCsI<<endl;
+  LightCsI=chan - ePied; 
+  //cout<<"pedestal csi="<<ePied<<" chan="<<chan<<endl; //paola
+  //L->Log<<"LightCsI ECsIch() = "<<LightCsI<<endl;
 }
 //set fragment A
 void EnergyTree::SetFragmentA(Int_t Ain){ 
   lum->SetA(Ain);
   sA=Ain;
-  //  cout<<"A="<<sA<<endl; 
+  //cout<<"A="<<sA<<endl; 
 }
 
 //Complete procedure for to get the energy losses from simulation
 void  EnergyTree::CompleteSimulation(UShort_t chan){
   CalculateECsI();
   SimulateEvent();
+  CalculateCanalCsI();
   //  cout<<"Event simulated"<<endl;
 
   GetESi();
@@ -292,29 +265,50 @@ void  EnergyTree::CompleteSimulation(UShort_t chan){
 //CsI calibration function
 void EnergyTree::CalculateECsI(){
       eEnergyCsI=lum->Compute(LightCsI);
-      cout<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl; //paola
+      //L->Log<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl; //paola
+}
+
+void EnergyTree::CalculateCanalCsI(){
+      CanalCsI=lum->Invert(detcsi->GetEnergy());
+      difflum = (CanalCsI-LightCsI);
+      //L->Log<<"Canal csi Invert() = "<<CanalCsI<<endl; //paola
 }
 
 //simulation of particle traversing the detector
 void EnergyTree::SimulateEvent(){
+//Double_t EnergyTree::SimulateEvent(){
   part.SetZ(eZ);
   part.SetA(sA);
-  Double_t Einc=eEnergySi+eEnergyCsI;
-  cout<<"Zsim="<<eZ<<" Asim="<<sA<<" Einc="<<Einc<<endl; //paola
+  Einc=eEnergySi+eEnergyCsI;
+  //L->Log<<"Einc = "<<Einc<<endl;
+  //cout<<"Zsim="<<eZ<<" Asim="<<sA<<" Einc="<<Einc<<endl; //paola
   part.SetEnergy(Einc);
   kvt->DetectParticle(&part);
+  
+  //L->Log<<"Edetsi = "<<detsi->GetEnergy()<<endl;
+  //L->Log<<"Edetcsi = "<<detcsi->GetEnergy()<<endl;
+  
+  diffsi = eEnergySi-detsi->GetEnergy();
+  diffcsi = RetrieveEnergyCsI()-detcsi->GetEnergy();
+  diffetot = detsi->GetIncidentEnergy(eZ,sA,eEnergySi)-(eEnergySi+RetrieveEnergyCsI());
+  
+  //L->Log<<"diff Si = "<<eEnergySi-detsi->GetEnergy()<<endl;
+  //L->Log<<"diff CsI = "<<RetrieveEnergyCsI()-detcsi->GetEnergy()<<endl;
+  //L->Log<<"diff Etot = "<<detsi->GetIncidentEnergy(eZ,sA,eEnergySi)-(eEnergySi+RetrieveEnergyCsI())<<endl;
+  //part.Print();
+  //return part.GetA()*part.GetAMeV();
 }
 //Energy in Si from simulation
 void EnergyTree::GetESi(){
   sEnergySi=detsi->GetEnergy();
-  //  cout<<"sEnergySi= "<<sEnergySi<<endl;
+  //L->Log<<"GetESi:: sEnergySi= "<<sEnergySi<<endl;
   //cout<<"Z= "<<eZ<<endl;
 }
 
 //Energy in CsI from simulation
 void EnergyTree::GetECsI(){
   sEnergyCsI=detcsi->GetEnergy();
-  cout<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
+  //cout<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
 }
 
 // Reset the telescope in order to prepare for the next event
@@ -325,58 +319,62 @@ void EnergyTree::ClearTelescope(){
   kvt->Clear();
 }
 
-void EnergyTree::Bisection(Int_t A, UShort_t chan){
+void EnergyTree::Bisection(Int_t A, UShort_t chan){ 
   Int_t middle, it=0;
-  Double_t diff1, diff2;
+  //L->Log<<"------------"<<endl;
+  //L->Log<<"Valeur de A ; "<<A<<endl;
   if(A-5>0)
   left=A-5.;  //left and right are integer!! A is a double
   else left=1;
   right=A+10.;
-  cout<<"-----------------------------------BISECTION-------------------"<<endl;//paola
+  //L->Log<<"-----------------------------------BISECTION-------------------"<<endl;//paola
 
   //loop: bisection
   while(right-left!=1){
 
-    //    cout<<"-------------------loop bisection------------"<<endl;
+    //L->Log<<"-------------------loop bisection------------"<<endl;
 
     if(TMath::Even(right+left))
       {middle=(left+right)/2;}
     else
       {middle=(left+right+1)/2;}
 
-    //   cout<<"middle="<<middle<<endl; //paola
+       //L->Log<<"middle="<<middle<<endl; //paola
 
     //simulated energies stored for left A
-    cout<<"simulated energies stored for left A"<<endl; //paola
+    //L->Log<<"simulated energies stored for left A"<<endl; //paola
+    //L->Log<<"left : "<<left<<endl;
+
     SetFragmentA(left);
     CompleteSimulation(chan);
     esi1=sEnergySi;
     ecsi1=sEnergyCsI;
-    cout<<"esi1="<<sEnergySi<<" ecsi1="<<sEnergyCsI<<endl; //paola
+    //L->Log<<"esi1="<<sEnergySi<<" ecsi1="<<sEnergyCsI<<endl; //paola
 
     //simulated energies stored for middle A
-    cout<<"simulated energies stored for middle A"<<endl; //paola
+    //cout<<"simulated energies stored for middle A"<<endl; //paola
+    //L->Log<<"middle : "<<middle<<endl;
     SetFragmentA(middle);
     CompleteSimulation(chan);
     esi2=sEnergySi;
     ecsi2=sEnergyCsI;
-    cout<<"esi2="<<sEnergySi<<" ecsi2="<<sEnergyCsI<<endl; //paola
+    //L->Log<<"esi2="<<sEnergySi<<" ecsi2="<<sEnergyCsI<<endl; //paola
 
     
     //difference between the simulated energies in Si and calibrated one
     diff1=eEnergySi-esi1;
     diff2=eEnergySi-esi2;
-    cout<<"diff1="<<diff1<<" diff2="<<diff2<<endl; //paola
+    //L->Log<<"diff1="<<diff1<<" diff2="<<diff2<<endl; //paola
 
     //condition for finding the right interval
     if (diff1*diff2>0)
       {left=middle;}
     else
       {right=middle;}
-    cout<<"left="<<left<<" right="<<right<<endl; //paola
+    //L->Log<<"left="<<left<<" right="<<right<<endl; //paola
 
     it++;
-    cout<<"----------------iteration= "<<it<<endl;
+    //L->Log<<"----------------iteration= "<<it<<endl;
   }    //end of bisection loop
 
   
@@ -392,17 +390,17 @@ void EnergyTree::Bisection(Int_t A, UShort_t chan){
     esi2=sEnergySi;
     ecsi2=sEnergyCsI;
 
-    cout<<"esi1="<<esi1<<" ecsi1="<<ecsi1<<" esi2="<<esi2<<" ecsi2="<<ecsi2<<" esi mis="<<eEnergySi<<endl;
-    cout<<"A left="<<left<<" A right="<<right<<endl;
-    cout<<"----------------------END BISECTION-----------------"<<endl;
-  
+    //L->Log<<"esi1="<<esi1<<" ecsi1="<<ecsi1<<" esi2="<<esi2<<" ecsi2="<<ecsi2<<" esi mis="<<eEnergySi<<endl;
+    //L->Log<<"A left="<<left<<" A right="<<right<<endl;
+    //L->Log<<"----------------------END BISECTION-----------------"<<endl;
+ 
 }
 //interpolation usage for to find the right residual energy and right A, using 
 //the final interval returned by bisection 
 void EnergyTree::Interpolate(){
    sRefECsI= GetInterpolationD(esi1,ecsi1,esi2,ecsi2,eEnergySi);
    iA=GetInterpolationD(esi1,(Double_t)left,esi2,(Double_t)right,eEnergySi);  
-   // cout<<"Ecsi interp="<<sRefECsI<<" A interp="<<iA<<endl; //paolaA
+    //L->Log<<"Ecsi interp="<<sRefECsI<<" A interp="<<iA<<endl; //paolaA
 }
 
 // Interpolation procedure: finding y corresponding to x, under assumption that
@@ -432,6 +430,12 @@ Double_t EnergyTree::RetrieveA(){
 Double_t EnergyTree::RetrieveLight(){
   return LightCsI;
 }
+
+Double_t EnergyTree::RetrieveEnergyCsI(){
+	return eEnergyCsI;
+}
+
+/*
 //----------------------------MAIN----------------------------------//
 void ident(Int_t sinum, Int_t csinum, Int_t term){
   Char_t filename[100]="filename";
@@ -515,7 +519,8 @@ void ident(Int_t sinum, Int_t csinum, Int_t term){
   eTree->Branch("ECsITrue",&point.energy_csi,"ECsITrue/D");
 
   //initialisation of the telescope and its calibration
-  EnergyTree* ident=new EnergyTree();
+  EnergyTree* ident=new EnergyTree(Siv *SiD);
+    Si = SiD;
   ident->Init();
   //name of the gate applied to the channels in Si and CsI
   cout<<"Name of cut: "<<endl;
@@ -570,7 +575,7 @@ void ident(Int_t sinum, Int_t csinum, Int_t term){
 
 	//filling the tree...
 	//calculation of the best estimate of residual energy for known Z
-	point.energy_csi=ident->GetResidualEnergyCsI(sichan,csichan);
+	point.energy_csi=ident->GetResidualEnergyCsI(sichan,csichan,Z);
 
 	//Si energy
 	point.energy_si=ident->RetrieveEnergySi();
@@ -597,3 +602,4 @@ void ident(Int_t sinum, Int_t csinum, Int_t term){
   f->Close();
   in.close();
 }
+*/
