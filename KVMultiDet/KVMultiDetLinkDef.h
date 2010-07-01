@@ -44,6 +44,9 @@
 #pragma link C++ class Hexa_t+;
 #pragma link C++ class KVACQParam+;
 #pragma link C++ class KVAvailableRunsFile+;
+#pragma link C++ class KVNameValueList+;
+#pragma link C++ class KVSimNucleus+;
+#pragma link C++ class KVSimEvent-;
 #pragma link C++ class KVRemoteAvailableRunsFile+;
 #pragma link C++ class KVBase-;//customised streamer
 #pragma link C++ class KVBatchSystem;
