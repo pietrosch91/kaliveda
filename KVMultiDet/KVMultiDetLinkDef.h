@@ -139,6 +139,8 @@
 #pragma link C++ class KVPosition+;
 #pragma link C++ class KVPulseHeightDefect+;
 #pragma link C++ class KVRawDataReader+;
+#pragma link C++ class KVSimReader;
+#pragma link C++ class KVSimReader_HIPSE;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class GTOneScaler+;
 #pragma link C++ class GTScalers+;

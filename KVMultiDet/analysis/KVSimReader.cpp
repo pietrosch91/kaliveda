@@ -23,30 +23,34 @@ KVSimReader::KVSimReader()
 KVSimReader::KVSimReader(KVString filename)
 {
 	init();
+	
 	if (!OpenReadingFile(filename)) return;
+	
 	ReadFile();
+	
 	CloseFile();
 }
 
 KVSimReader::~KVSimReader()
 {
    // Destructor
+	delete nv;
 	
 }
 
 
 void KVSimReader::ReadFile(){
 
+	Info("ReadFile","To be defined in child class");
 	/*
 	evt = new KVSimEvent();
 	if (HasToFill()) DeclareTree();
 	nuc = 0;
-	kSIM_var1 = kSIM_var2 = 0;	
 	nevt=0;
 
 	while (f_in.good()){
 		if (ReadHeader()){
-			for (Int_t nn=0;nn<kSIM_var2;nn+=1)
+			for (Int_t nn=0;nn<nv->GetIntValue("stat"));nn+=1)
 				if (!ReadEvent()) break;
 				else if (HasToFill()) FillTree();
 				else {}
@@ -55,7 +59,7 @@ void KVSimReader::ReadFile(){
 	}
 	
 	if (HasToFill())
-		GetTree()->ResetBranchAddress(GetTree()->GetBranch("GEMINI_evts"));
+		GetTree()->ResetBranchAddress(GetTree()->GetBranch(branch_name.Data()));
 	
 	delete evt;
 
@@ -65,6 +69,7 @@ void KVSimReader::ReadFile(){
 
 Bool_t KVSimReader::ReadHeader(){
 	
+	Info("ReadHeader","To be defined in child class");
 	/*
 	Int_t res = ReadLine(2);
 	switch (res){
@@ -72,9 +77,10 @@ Bool_t KVSimReader::ReadHeader(){
 		Info("ReadHeader","case 0 line est vide"); 
 		return kFALSE; 
 	case 1:
-		kSIM_var1 = GetDoubleReadPar(0);
-		kSIM_var2 = GetDoubleReadPar(1);
-		Info("ReadHeader","case 1 moment angulaire %1.0lf stat %1.0lf",kSIM_var1,kSIM_var2);
+		nv->SetValue("J",GetDoubleReadPar(0));
+		nv->SetValue("stat",GetDoubleReadPar(1));
+		
+		Info("ReadHeader","case 1 moment angulaire %1.0lf stat %1.0lf",nv->GetIntValue("J"),nv->GetIntValue("stat"));
 		delete toks;
 		return kTRUE;
 	default:
@@ -89,6 +95,7 @@ Bool_t KVSimReader::ReadHeader(){
 
 Bool_t KVSimReader::ReadEvent(){
 
+	Info("ReadEvent","To be defined in child class");
 	/*
 	evt->Clear();
 	Int_t mult=0;
@@ -125,6 +132,7 @@ Bool_t KVSimReader::ReadEvent(){
 
 Bool_t KVSimReader::ReadNucleus(){
 
+	Info("ReadNucleus","To be defined in child class");
 	/*
 	Int_t res = ReadLine(5);
 	switch (res){
@@ -134,11 +142,11 @@ Bool_t KVSimReader::ReadNucleus(){
 	
 	case 1:
 		
-		nuc->SetZ(((TObjString*)toks->At(0))->GetString().Atoi());
-		nuc->SetA(((TObjString*)toks->At(1))->GetString().Atoi());
-		nuc->SetKE(((TObjString*)toks->At(2))->GetString().Atof());
-		nuc->SetTheta(((TObjString*)toks->At(3))->GetString().Atof()*TMath::RadToDeg());
-		nuc->SetPhi(((TObjString*)toks->At(4))->GetString().Atof()*TMath::RadToDeg());
+		nuc->SetZ( GetIntReadPar(0) );
+		nuc->SetA( GetIntReadPar(1) );
+		nuc->SetKE( GetDoubleReadPar(2) );
+		nuc->SetTheta( GetDoubleReadPar(3) * TMath::RadToDeg() );
+		nuc->SetPhi( GetDoubleReadPar(4) * TMath::RadToDeg() );
 		
 		delete toks;
 		return kTRUE;
