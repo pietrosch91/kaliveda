@@ -33,6 +33,7 @@ class KVNucleus:public KVParticle {
 	static KVMassTable* fMassTable;//! the mass table
    static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
    static Char_t fElements[][3];        //!symbols of chemical elements
+   TString fSymbolName;        //!
    void InitMassTable();
    Double_t fExx;               //excitation energy in MeV
 

@@ -149,35 +149,35 @@ const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
    // In order to have just the symbol of the chemical element
    // (e.g. "Pt", "Zn", "Fe"), call with opt="EL".
 
-	static TString name;
    Int_t a = GetA();
    Int_t z = GetZ();
+   TString& symname = (TString&)fSymbolName;
    Bool_t Mpfx = strcmp(opt,"EL");// kTRUE if mass prefix required
    if (z == 0) {
 		if( a==1 ) 
-			name = "n";
+			symname = "n";
 		else{
-			if(Mpfx) name.Form("%dn",a);
-         else name = "n";
+			if(Mpfx) symname.Form("%dn",a);
+         else symname = "n";
       }
    }
 	else if(z == 1) {
 		if( a<4 ) {
-			name = fElements[a];
+			symname = fElements[a];
 		}
 		else
 		{
-         if(Mpfx) name.Form("%dH",a);
-         else name = "H";
+         if(Mpfx) symname.Form("%dH",a);
+         else symname = "H";
 		}
 	}
 	else if (GetZ() <= MAXZ_ELEMENT_SYMBOL) {
-		if(Mpfx) name.Form("%d%s",a,fElements[z+2]);
-      else name = fElements[z+2];
+		if(Mpfx) symname.Form("%d%s",a,fElements[z+2]);
+      else symname = fElements[z+2];
    }
 	else
-		name="";
-   return name.Data();
+		symname="";
+   return symname.Data();
 }
 
 void KVNucleus::Set(const Char_t * isotope)
