@@ -35,6 +35,7 @@ KVSimReader::~KVSimReader()
 {
    // Destructor
 	delete nv;
+	delete linked_objects;
 	
 }
 

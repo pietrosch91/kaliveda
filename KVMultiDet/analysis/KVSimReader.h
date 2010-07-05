@@ -14,6 +14,8 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TMath.h"
+#include "KVList.h"
+#include "TObject.h"
 
 
 class KVSimReader : public KVBase
@@ -33,7 +35,10 @@ class KVSimReader : public KVBase
 	
 	//Liste de Variables specifiques a une simulation
 	//
-	KVNameValueList* nv;
+	KVNameValueList* nv; //Liste de variables specifiques a une simulation
+								//permettant de stocker des informations pouvant être reutilisées
+	
+	KVList* linked_objects;//liste d'objets a enregistrer avec l'arbre
 	
 	public:
    
@@ -55,6 +60,7 @@ class KVSimReader : public KVBase
 		branch_name = "Simulated_evts";
 		
 		nv = new KVNameValueList();
+		linked_objects = new KVList(kFALSE);
 		
 	}
 	
@@ -68,8 +74,15 @@ class KVSimReader : public KVBase
 		if (!status)
 			Info("OpenReadingFile","Echec dans l ouverture du fichier %s",filename.Data());
 		
+		AddObjectToBeWrittenWithTree(new TNamed("ascii file read",filename.Data()));
+		
 		return status;
 	
+	}
+	
+	void AddObjectToBeWrittenWithTree(TObject* obj){ 
+		Info("AddObjectToBeWrittenWithTree","Ajout %s",obj->GetName());
+		GetLinkedObjects()->Add(obj);  
 	}
 	
 	virtual void CloseFile(){ f_in.close(); }
@@ -89,9 +102,19 @@ class KVSimReader : public KVBase
 	virtual void SaveTree(KVString filename){
 	
 		TFile* file = new TFile(filename.Data(),"recreate");
+		
+		TList* list = GetTree()->GetUserInfo();
+		Int_t no = GetLinkedObjects()->GetEntries();
+		for (Int_t nn=0;nn<no;nn+=1){
+			list->Add(GetLinkedObjects()->RemoveAt(0));
+		}
 		GetTree()->Write();
 		file->Close();
 	
+	}
+	
+	KVList* GetLinkedObjects(){
+		return linked_objects;
 	}
 	
 	virtual void ReadFile();

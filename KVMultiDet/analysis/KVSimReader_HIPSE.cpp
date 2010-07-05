@@ -2,6 +2,7 @@
 //Author: bonnet
 
 #include "KVSimReader_HIPSE.h"
+#include "KV2Body.h"
 
 ClassImp(KVSimReader_HIPSE)
 
@@ -28,15 +29,11 @@ KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 	CloseFile();
 }
 
-/*
-KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename):KVSimReader(filename)
-{
-   init();
-}
-*/
 KVSimReader_HIPSE::~KVSimReader_HIPSE()
 {
    // Destructor
+	if (ntamp) delete ntamp; ntamp = 0;
+	if (h1) delete h1; h1 = 0;
 }
 
 
@@ -44,6 +41,7 @@ void KVSimReader_HIPSE::ReadFile(){
 
 	evt = new KVSimEvent();
 	nuc = 0;
+	h1 = new TH1F("impact_parameter","distri",200,0,20);
 	
 	if (HasToFill()) DeclareTree();
 	
@@ -53,6 +51,7 @@ void KVSimReader_HIPSE::ReadFile(){
 
 	while (f_in.good()){
 		while (ReadEvent()){
+			h1->Fill(evt->GetParameters()->GetDoubleValue("impact_par"));
 			if (HasToFill()) FillTree();
 		}
 	}	
@@ -61,6 +60,11 @@ void KVSimReader_HIPSE::ReadFile(){
 		GetTree()->ResetBranchAddress(GetTree()->GetBranch("Simulated_evts"));
 	
 	delete evt;
+
+	AddObjectToBeWrittenWithTree(h1);
+	Int_t netot = nv->GetEntries();
+	for (Int_t ne=0; ne<netot; ne+=1)	
+		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
 
 	Info("ReadFile","%d evts lus",nevt);
 	
@@ -76,6 +80,7 @@ Bool_t KVSimReader_HIPSE::ReadHeader(){
 		nv->SetValue("Aproj",GetDoubleReadPar(0));
 		nv->SetValue("Zproj",GetDoubleReadPar(1));
 		delete toks;
+		
 		break;
 	default:
 		delete toks;
@@ -90,6 +95,7 @@ Bool_t KVSimReader_HIPSE::ReadHeader(){
 		nv->SetValue("Atarg",GetDoubleReadPar(0));
 		nv->SetValue("Ztarg",GetDoubleReadPar(1));
 		delete toks;
+		
 		break;
 	default:
 		delete toks;
@@ -102,8 +108,9 @@ Bool_t KVSimReader_HIPSE::ReadHeader(){
 		return kFALSE; 
 	case 1:
 		nv->SetValue("Ebeam",GetDoubleReadPar(0));
-		delete toks;
 		return kTRUE;
+		
+	
 	default:
 		delete toks;
 		return kFALSE;	
@@ -163,12 +170,7 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 		nuc = (KVSimNucleus* )evt->AddParticle();
 		if (!ReadNucleus()) return kFALSE;
 	}
-	
-	/*
-	evt->GetParameters()->Print();
-	evt->Print();
-	*/
-		
+
 	nevt+=1;
 	return kTRUE;
 	
