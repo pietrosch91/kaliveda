@@ -1,0 +1,104 @@
+//Created by KVClassFactory on Tue Jul  6 17:30:28 2010
+//Author: Eric Bonnet
+
+#include "KVSimReader_MMM_asym.h"
+
+ClassImp(KVSimReader_MMM_asym)
+
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVSimReader_MMM_asym</h2>
+<h4>Read ascii file for asymptotic events of the MMM code after deexcitation</h4>
+<!-- */
+// --> END_HTML
+////////////////////////////////////////////////////////////////////////////////
+
+KVSimReader_MMM_asym::KVSimReader_MMM_asym()
+{
+   // Default constructor
+	init();
+}
+
+KVSimReader_MMM_asym::KVSimReader_MMM_asym(KVString filename)
+{
+   init();
+	if (!OpenReadingFile(filename)) return;
+	ReadFile();
+	CloseFile();
+}
+
+
+KVSimReader_MMM_asym::~KVSimReader_MMM_asym()
+{
+   // Destructor
+}
+
+
+void KVSimReader_MMM_asym::ReadFile(){
+
+	evt = new KVSimEvent();
+	nuc = 0;
+	
+	if (HasToFill()) DeclareTree();
+	
+	nevt=0;
+
+	while (f_in.good()){
+		while (ReadEvent()){
+			if (HasToFill()) FillTree();
+		}
+	}	
+	
+	if (HasToFill())
+		GetTree()->ResetBranchAddress(GetTree()->GetBranch("Simulated_evts"));
+	
+	delete evt;
+
+	Info("ReadFile","%d evts lus",nevt);
+	
+}
+
+
+Bool_t KVSimReader_MMM_asym::ReadEvent(){
+
+	evt->Clear();
+	Int_t mult=0,nlus=0,natt=0;
+	
+	Int_t res = ReadLine(2);
+	switch (res){
+	case 0:
+		return kFALSE; 
+	default:
+		nlus = toks->GetEntries();
+		idx = 0;
+		mult = GetIntReadPar(idx++);
+		natt = 5*mult+1;
+		if (natt!=nlus){
+			Info("ReadEvent","Nombre de parametres (%d) different de celui attendu (%d)",nlus,natt);
+			return kFALSE;
+		}
+		for (Int_t mm=0; mm<mult; mm+=1){
+			nuc = (KVSimNucleus* )evt->AddParticle();
+			ReadNucleus();
+		}
+		delete toks;
+		evt->SetNumber(nevt);
+		nevt+=1;
+		return kTRUE;
+	}
+	
+}
+
+Bool_t KVSimReader_MMM_asym::ReadNucleus(){
+
+	nuc->SetA(GetIntReadPar(idx++));
+	nuc->SetZ(GetIntReadPar(idx++));
+	nuc->SetPx(GetDoubleReadPar(idx++));
+	nuc->SetPy(GetDoubleReadPar(idx++));
+	nuc->SetPz(GetDoubleReadPar(idx++));
+	
+	return kTRUE;
+
+}
+
