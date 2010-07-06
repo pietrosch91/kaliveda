@@ -133,6 +133,14 @@ class KVSimReader : public KVBase
 		else { return 2; }
 	}
 	
+	void AddReadLine(KVString pattern=" "){
+	
+		KVString line;
+		line.ReadLine(f_in);
+		toks->AddAll(line.Tokenize(pattern));
+	
+	}
+	
 	Double_t GetDoubleReadPar(Int_t pos){
 		return GetReadPar(pos).Atof();
 	}
