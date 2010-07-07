@@ -1,27 +1,27 @@
 //Created by KVClassFactory on Fri Jul  2 15:16:15 2010
 //Author: bonnet
 
-#include "KVSimReader_HIPSE.h"
+#include "KVSimReader_HIPSE_asym.h"
 #include "KV2Body.h"
 
-ClassImp(KVSimReader_HIPSE)
+ClassImp(KVSimReader_HIPSE_asym)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVSimReader_HIPSE</h2>
-<h4>Reading class of HIPSE generator</h4>
+<h2>KVSimReader_HIPSE_asym</h2>
+<h4>Read ascii file for asymptotic events of the HIPSE code after SIMON deexcitation</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVSimReader_HIPSE::KVSimReader_HIPSE()
+KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym()
 {
    // Default constructor
 	init();
 }
 
-KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
+KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym(KVString filename)
 {
    init();
 	if (!OpenReadingFile(filename)) return;
@@ -29,7 +29,7 @@ KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 	CloseFile();
 }
 
-KVSimReader_HIPSE::~KVSimReader_HIPSE()
+KVSimReader_HIPSE_asym::~KVSimReader_HIPSE_asym()
 {
    // Destructor
 	if (ntamp) delete ntamp; ntamp = 0;
@@ -37,7 +37,7 @@ KVSimReader_HIPSE::~KVSimReader_HIPSE()
 }
 
 
-void KVSimReader_HIPSE::ReadFile(){
+void KVSimReader_HIPSE_asym::ReadFile(){
 
 	evt = new KVSimEvent();
 	nuc = 0;
@@ -70,7 +70,7 @@ void KVSimReader_HIPSE::ReadFile(){
 	
 }
 
-Bool_t KVSimReader_HIPSE::ReadHeader(){
+Bool_t KVSimReader_HIPSE_asym::ReadHeader(){
 	
 	Int_t res = ReadLine(2);
 	switch (res){
@@ -118,7 +118,7 @@ Bool_t KVSimReader_HIPSE::ReadHeader(){
 
 }
 
-Bool_t KVSimReader_HIPSE::ReadEvent(){
+Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 
 	evt->Clear();
 	Int_t mult=0,mtotal=0;
@@ -176,7 +176,7 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 	
 }
 
-Bool_t KVSimReader_HIPSE::ReadNucleus(){
+Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 
 	Int_t res = ReadLine(3);
 	switch (res){

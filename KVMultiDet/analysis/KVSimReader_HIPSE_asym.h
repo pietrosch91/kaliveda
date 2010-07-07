@@ -1,8 +1,8 @@
 //Created by KVClassFactory on Fri Jul  2 15:16:15 2010
 //Author: bonnet
 
-#ifndef __KVSIMREADER_HIPSE_H
-#define __KVSIMREADER_HIPSE_H
+#ifndef __KVSIMREADER_HIPSE_ASYM_H
+#define __KVSIMREADER_HIPSE_ASYM_H
 
 #include "KVSimReader.h"
 #include "KVNameValueList.h"
@@ -10,7 +10,7 @@
 class KVNucleus;
 class TH1F;
 
-class KVSimReader_HIPSE : public KVSimReader
+class KVSimReader_HIPSE_asym : public KVSimReader
 {
 
 	protected:
@@ -18,10 +18,10 @@ class KVSimReader_HIPSE : public KVSimReader
 	TH1F* h1;
 	
 	public:
-   KVSimReader_HIPSE();
-	KVSimReader_HIPSE(KVString filename);
+   KVSimReader_HIPSE_asym();
+	KVSimReader_HIPSE_asym(KVString filename);
 	
-   virtual ~KVSimReader_HIPSE();
+   virtual ~KVSimReader_HIPSE_asym();
 	
 	void init(){
 		tree_name = "HIPSE";
@@ -47,7 +47,7 @@ class KVSimReader_HIPSE : public KVSimReader
 		AddObjectToBeWrittenWithTree(new TNamed("Percentage of N-N collisions",sval.Data()));  
 	}
 	
-	ClassDef(KVSimReader_HIPSE,1)//Reading class of HIPSE generator
+	ClassDef(KVSimReader_HIPSE_asym,1)//Read ascii file for asymptotic events of the HIPSE code after SIMON deexcitation
 
 };
 
