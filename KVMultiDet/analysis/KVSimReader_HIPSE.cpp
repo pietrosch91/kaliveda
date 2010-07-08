@@ -1,27 +1,26 @@
-//Created by KVClassFactory on Fri Jul  2 15:16:15 2010
+//Created by KVClassFactory on Wed Jul  7 12:15:56 2010
 //Author: bonnet
 
-#include "KVSimReader_HIPSE_asym.h"
-#include "KV2Body.h"
+#include "KVSimReader_HIPSE.h"
 
-ClassImp(KVSimReader_HIPSE_asym)
+ClassImp(KVSimReader_HIPSE)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVSimReader_HIPSE_asym</h2>
-<h4>Read ascii file for asymptotic events of the HIPSE code after SIMON deexcitation</h4>
+<h2>KVSimReader_HIPSE</h2>
+<h4>Read ascii file for events of the HIPSE code after clusterization</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym()
+KVSimReader_HIPSE::KVSimReader_HIPSE()
 {
    // Default constructor
 	init();
 }
 
-KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym(KVString filename)
+KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 {
    init();
 	if (!OpenReadingFile(filename)) return;
@@ -29,14 +28,14 @@ KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym(KVString filename)
 	CloseFile();
 }
 
-KVSimReader_HIPSE_asym::~KVSimReader_HIPSE_asym()
+KVSimReader_HIPSE::~KVSimReader_HIPSE()
 {
    // Destructor
 	if (h1) delete h1; h1 = 0;
 }
 
 
-void KVSimReader_HIPSE_asym::ReadFile(){
+void KVSimReader_HIPSE::ReadFile(){
 
 	evt = new KVSimEvent();
 	nuc = 0;
@@ -69,7 +68,7 @@ void KVSimReader_HIPSE_asym::ReadFile(){
 	
 }
 
-Bool_t KVSimReader_HIPSE_asym::ReadHeader(){
+Bool_t KVSimReader_HIPSE::ReadHeader(){
 	
 	Int_t res = ReadLine(2);
 	switch (res){
@@ -117,17 +116,23 @@ Bool_t KVSimReader_HIPSE_asym::ReadHeader(){
 
 }
 
-Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
+Bool_t KVSimReader_HIPSE::ReadEvent(){
 
 	evt->Clear();
 	Int_t mult=0,mtotal=0;
+
+/*---------------------------------------------
+	mul_vrai = multiplicity of charged particles
+	mult     = total multiplicity (i.e. including neutrons)
+//---------------------------------------------      
+*/
 	Int_t res = ReadLine(2);
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		evt->SetNumber(nevt);
-		mult = GetIntReadPar(0);
+		mult = GetIntReadPar(0);	//mul_vrai
 		mtotal = GetIntReadPar(1);
 		evt->GetParameters()->SetValue("mult",mtotal);
 		delete toks;
@@ -136,14 +141,13 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 		delete toks;
 		return kFALSE;	
 	}
-
+	
 /*---------------------------------------------
 	Esa		 = excitation per nucleon
 	vcm		 = center of mass energy
 	Bparstore = impact parameter 
 //---------------------------------------------      	 
 */	
-	
 	res = ReadLine(3);
 	switch (res){
 	case 0:
@@ -158,12 +162,39 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 		delete toks;
 		return kFALSE;	
 	}	
+
+/*---------------------------------------------
+	energetic information 
+	excitat        : total excitation energy
+	xmassav        : Q-value
+	ekinav         : total kinetic energy at freeze-out
+	epotav         : total potential energy at freeze-out 
+	erotav         : total rotational energy at freeze-out	 
+//---------------------------------------------
+*/	
+	res = ReadLine(2);
+	switch (res){
+	case 0:
+		return kFALSE; 
+	case 1:
+		evt->GetParameters()->SetValue("excitat",GetDoubleReadPar(0));
+		evt->GetParameters()->SetValue("xmassav",GetDoubleReadPar(1));
+		delete toks;
+		break;
+	default:
+		delete toks;
+		return kFALSE;	
+	}	
 	
 	res = ReadLine(3);
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
+		
+		evt->GetParameters()->SetValue("ekinav",GetDoubleReadPar(0));
+		evt->GetParameters()->SetValue("epotav",GetDoubleReadPar(1));
+		evt->GetParameters()->SetValue("erotav",GetDoubleReadPar(2));
 		delete toks;
 		break;
 	default:
@@ -182,7 +213,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 	
 }
 
-Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
+Bool_t KVSimReader_HIPSE::ReadNucleus(){
 
 	Int_t res = ReadLine(3);
 	switch (res){
@@ -197,7 +228,6 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		proven = 2 -> QT
 		proven > 2 -> other
 		*/
-		
 		nuc->SetA(GetIntReadPar(0));
 		nuc->SetZ(GetIntReadPar(1));
 		nuc->GetParameters()->SetValue("proven",GetDoubleReadPar(2));
@@ -224,6 +254,50 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		nuc->SetPz(GetDoubleReadPar(0));
 		
 		delete toks;
+		break;
+	
+	default:
+		
+		delete toks;
+		return kFALSE;	
+	}
+
+/*---------------------------------------------------------	  
+	exci(I)  : excitation energy
+	ether(I) : not used 
+	spinx(i),spiny(i),spinz(i) : angular momentum (hbar units)
+//---------------------------------------------
+*/	
+	res = ReadLine(2);
+	switch (res){
+	case 0:
+		Info("ReadNucleus","case 0 line est vide"); 
+		return kFALSE; 
+	
+	case 1:
+		nuc->GetParameters()->SetValue("exci",GetDoubleReadPar(0));
+		nuc->GetParameters()->SetValue("ether",GetDoubleReadPar(1));
+		
+		delete toks;
+		break;
+	
+	default:
+		
+		delete toks;
+		return kFALSE;	
+	}
+	
+	res = ReadLine(3);
+	switch (res){
+	case 0:
+		Info("ReadNucleus","case 0 line est vide"); 
+		return kFALSE; 
+	
+	case 1:
+		//On effectue la meme rotation que les impulsions ... à vérifier
+		nuc->SetAngMom(GetDoubleReadPar(1),GetDoubleReadPar(2),GetDoubleReadPar(0));
+		
+		delete toks;
 		return kTRUE;
 	
 	default:
@@ -231,6 +305,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		delete toks;
 		return kFALSE;	
 	}
+	
 	
 	
 }

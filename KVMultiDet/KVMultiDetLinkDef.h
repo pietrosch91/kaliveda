@@ -140,6 +140,7 @@
 #pragma link C++ class KVPulseHeightDefect+;
 #pragma link C++ class KVRawDataReader+;
 #pragma link C++ class KVSimReader;
+#pragma link C++ class KVSimReader_HIPSE;
 #pragma link C++ class KVSimReader_HIPSE_asym;
 #pragma link C++ class KVSimReader_SMF;
 #pragma link C++ class KVSimReader_SMF_asym;

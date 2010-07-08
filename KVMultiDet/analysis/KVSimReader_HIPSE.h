@@ -1,33 +1,29 @@
-//Created by KVClassFactory on Fri Jul  2 15:16:15 2010
+//Created by KVClassFactory on Wed Jul  7 12:15:56 2010
 //Author: bonnet
 
-#ifndef __KVSIMREADER_HIPSE_ASYM_H
-#define __KVSIMREADER_HIPSE_ASYM_H
+#ifndef __KVSIMREADER_HIPSE_H
+#define __KVSIMREADER_HIPSE_H
 
 #include "KVSimReader.h"
-#include "KVNameValueList.h"
 
-class KVNucleus;
-class TH1F;
-
-class KVSimReader_HIPSE_asym : public KVSimReader
+class KVSimReader_HIPSE : public KVSimReader
 {
 
-	protected:
+  	protected:
 	TH1F* h1;
 	
 	public:
-   KVSimReader_HIPSE_asym();
-	KVSimReader_HIPSE_asym(KVString filename);
+   KVSimReader_HIPSE();
+   KVSimReader_HIPSE(KVString filename);
 	
-   virtual ~KVSimReader_HIPSE_asym();
-	
+	virtual ~KVSimReader_HIPSE();
+
 	void init(){
-		tree_name = "HIPSE_asym";
+		tree_name = "HIPSE";
 		Info("init","%s",branch_name.Data());
 		h1 = 0;
 	}
-
+	
 	virtual void ReadFile();
 	virtual Bool_t ReadHeader();
 	virtual Bool_t ReadEvent();
@@ -45,9 +41,8 @@ class KVSimReader_HIPSE_asym : public KVSimReader
 		KVString sval; sval.Form("%lf",val);
 		AddObjectToBeWrittenWithTree(new TNamed("Percentage of N-N collisions",sval.Data()));  
 	}
-	
-	ClassDef(KVSimReader_HIPSE_asym,1)//Read ascii file for asymptotic events of the HIPSE code after SIMON deexcitation
 
+   ClassDef(KVSimReader_HIPSE,1)//Read ascii file for events of the HIPSE code after clusterization
 };
 
 #endif
