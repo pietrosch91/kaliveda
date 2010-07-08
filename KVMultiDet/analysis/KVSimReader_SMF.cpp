@@ -25,7 +25,7 @@ KVSimReader_SMF::KVSimReader_SMF(KVString filename)
 {
    init();
 	if (!OpenReadingFile(filename)) return;
-	ReadFile();
+	Run();
 	CloseFile();
 }
 
@@ -37,29 +37,15 @@ KVSimReader_SMF::~KVSimReader_SMF()
 
 void KVSimReader_SMF::ReadFile(){
 
-	evt = new KVSimEvent();
-	nuc = 0;
-	
-	if (HasToFill()) DeclareTree();
-	
-	nevt=0;
-
 	while (f_in.good()){
 		if (ReadHeader() && ReadEvent()){
 			if (HasToFill()) FillTree();
 		}
 	}
 	
-	if (HasToFill())
-		GetTree()->ResetBranchAddress(GetTree()->GetBranch("Simulated_evts"));
-	
-	delete evt;
-
 	Int_t netot = nv->GetEntries();
 	for (Int_t ne=0; ne<netot; ne+=1)	
 		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
-	
-	Info("ReadFile","%d evts lus",nevt);
 
 }
 

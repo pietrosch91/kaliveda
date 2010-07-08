@@ -24,7 +24,7 @@ KVSimReader_MMM_asym::KVSimReader_MMM_asym(KVString filename)
 {
    init();
 	if (!OpenReadingFile(filename)) return;
-	ReadFile();
+	Run();
 	CloseFile();
 }
 
@@ -37,25 +37,11 @@ KVSimReader_MMM_asym::~KVSimReader_MMM_asym()
 
 void KVSimReader_MMM_asym::ReadFile(){
 
-	evt = new KVSimEvent();
-	nuc = 0;
-	
-	if (HasToFill()) DeclareTree();
-	
-	nevt=0;
-
 	while (f_in.good()){
 		while (ReadEvent()){
 			if (HasToFill()) FillTree();
 		}
 	}	
-	
-	if (HasToFill())
-		GetTree()->ResetBranchAddress(GetTree()->GetBranch("Simulated_evts"));
-	
-	delete evt;
-
-	Info("ReadFile","%d evts lus",nevt);
 	
 }
 

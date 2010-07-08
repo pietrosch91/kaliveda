@@ -16,6 +16,8 @@
 #include "TMath.h"
 #include "KVList.h"
 #include "TObject.h"
+#include "TDatime.h"
+#include "TStopwatch.h"
 
 
 class KVSimReader : public KVBase
@@ -64,6 +66,21 @@ class KVSimReader : public KVBase
 		
 	}
 	
+	virtual KVString GetDate(){
+		TDatime now;
+		KVString stime;
+		stime.Form("%d_%0.2d_%0.2d_%0.2d:%0.2d:%0.2d",
+			now.GetYear(),
+			now.GetMonth(),
+			now.GetDay(),
+			now.GetHour(),
+			now.GetMinute(),
+			now.GetSecond()
+		);
+		return stime;	
+	
+	}
+	
 	virtual Bool_t OpenReadingFile(KVString filename){
 	
 		file_name = filename;
@@ -99,15 +116,11 @@ class KVSimReader : public KVBase
 	TTree* GetTree() { return tree; }
 	virtual void FillTree(){ GetTree()->Fill(); }
 	virtual Bool_t HasToFill(){ return kmode; }
-	virtual void SaveTree(KVString filename){
+	virtual void SaveTree(KVString filename,Option_t* option = "recreate"){
 	
-		TFile* file = new TFile(filename.Data(),"recreate");
+		Info("SaveTree","Ecriture de l arbre %s dans %s",tree_name.Data(),filename.Data());
+		TFile* file = new TFile(filename.Data(),option);
 		
-		TList* list = GetTree()->GetUserInfo();
-		Int_t no = GetLinkedObjects()->GetEntries();
-		for (Int_t nn=0;nn<no;nn+=1){
-			list->Add(GetLinkedObjects()->RemoveAt(0));
-		}
 		GetTree()->Write();
 		file->Close();
 	
@@ -115,6 +128,40 @@ class KVSimReader : public KVBase
 	
 	KVList* GetLinkedObjects(){
 		return linked_objects;
+	}
+	
+	void Run(){
+	
+		TStopwatch chrono;
+		chrono.Start();
+		
+		evt = new KVSimEvent();
+		if (HasToFill()) DeclareTree();
+		nuc = 0;
+		nevt=0;
+		
+		ReadFile();
+		
+		if (HasToFill())
+			GetTree()->ResetBranchAddress(GetTree()->GetBranch(branch_name.Data()));
+	
+		delete evt;
+		chrono.Stop();
+		
+		Info("Run","%d evts lus en %lf seconds",GetNumberOfEvents(),chrono.RealTime());
+		
+		KVString snevt; snevt.Form("%d",nevt);
+		AddObjectToBeWrittenWithTree(new TNamed("number of events read",snevt.Data()));
+		AddObjectToBeWrittenWithTree(new TNamed("date",GetDate().Data()));
+		
+		TList* list = GetTree()->GetUserInfo();
+		Int_t no = GetLinkedObjects()->GetEntries();
+		for (Int_t nn=0;nn<no;nn+=1){
+			list->Add(GetLinkedObjects()->RemoveAt(0));
+		}
+		
+		Info("Run","To store the tree call SaveTree method ...");
+	
 	}
 	
 	virtual void ReadFile();
@@ -151,8 +198,12 @@ class KVSimReader : public KVBase
 		return ((TObjString*)toks->At(pos))->GetString();
 	}
 	
+	Int_t GetNumberOfEvents(){
+		return nevt;
+	}
 	
-   ClassDef(KVSimReader,1)	//Read/Write output/input files for simulation
+	
+   ClassDef(KVSimReader,1)	//Base class to read output files for simulation and create tree using KVEvent type class
 };
 
 #endif

@@ -2,6 +2,7 @@
 //Author: bonnet
 
 #include "KVSimReader.h"
+#include "TDirectory.h"
 
 ClassImp(KVSimReader)
 
@@ -9,7 +10,7 @@ ClassImp(KVSimReader)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVSimReader</h2>
-<h4>Read/Write output/input files for simulation</h4>
+<h4>Base class to read output files for simulation and create tree using KVEvent type class</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ KVSimReader::KVSimReader(KVString filename)
 	
 	if (!OpenReadingFile(filename)) return;
 	
-	ReadFile();
+	Run();
 	
 	CloseFile();
 }
@@ -36,6 +37,10 @@ KVSimReader::~KVSimReader()
    // Destructor
 	delete nv;
 	delete linked_objects;
+	if (HasToFill()){
+		delete (TTree* )gDirectory->Get(tree_name.Data());
+		tree = 0;
+	}
 	
 }
 
@@ -43,12 +48,8 @@ KVSimReader::~KVSimReader()
 void KVSimReader::ReadFile(){
 
 	Info("ReadFile","To be defined in child class");
+	
 	/*
-	evt = new KVSimEvent();
-	if (HasToFill()) DeclareTree();
-	nuc = 0;
-	nevt=0;
-
 	while (f_in.good()){
 		if (ReadHeader()){
 			for (Int_t nn=0;nn<nv->GetIntValue("stat"));nn+=1)
@@ -59,12 +60,6 @@ void KVSimReader::ReadFile(){
 		
 	}
 	
-	if (HasToFill())
-		GetTree()->ResetBranchAddress(GetTree()->GetBranch(branch_name.Data()));
-	
-	delete evt;
-
-	Info("ReadFile","%d evts lus",nevt);
 	*/
 }
 

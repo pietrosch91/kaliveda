@@ -24,7 +24,7 @@ KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 {
    init();
 	if (!OpenReadingFile(filename)) return;
-	ReadFile();
+	Run();
 	CloseFile();
 }
 
@@ -37,14 +37,8 @@ KVSimReader_HIPSE::~KVSimReader_HIPSE()
 
 void KVSimReader_HIPSE::ReadFile(){
 
-	evt = new KVSimEvent();
-	nuc = 0;
 	h1 = new TH1F("impact_parameter","distri",200,0,20);
 	
-	if (HasToFill()) DeclareTree();
-	
-	nevt=0;
-
 	if (!ReadHeader()) return;
 
 	while (f_in.good()){
@@ -54,18 +48,11 @@ void KVSimReader_HIPSE::ReadFile(){
 		}
 	}	
 	
-	if (HasToFill())
-		GetTree()->ResetBranchAddress(GetTree()->GetBranch("Simulated_evts"));
-	
-	delete evt;
-
 	AddObjectToBeWrittenWithTree(h1);
 	Int_t netot = nv->GetEntries();
 	for (Int_t ne=0; ne<netot; ne+=1)	
 		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
 
-	Info("ReadFile","%d evts lus",nevt);
-	
 }
 
 Bool_t KVSimReader_HIPSE::ReadHeader(){
