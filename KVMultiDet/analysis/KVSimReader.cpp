@@ -37,10 +37,12 @@ KVSimReader::~KVSimReader()
    // Destructor
 	delete nv;
 	delete linked_objects;
+	/*
 	if (HasToFill()){
 		delete (TTree* )gDirectory->Get(tree_name.Data());
 		tree = 0;
 	}
+	*/
 	
 }
 
