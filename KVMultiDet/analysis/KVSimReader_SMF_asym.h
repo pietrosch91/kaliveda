@@ -17,7 +17,7 @@ class KVSimReader_SMF_asym : public KVSimReader
 	KVSimReader_SMF_asym(KVString filename);
 	
 	void init(){
-		tree_name = "SMF_asymptotic";
+		tree_name = "SMF_asym";
 		ndes = 0;
 	}
    
