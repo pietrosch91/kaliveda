@@ -7,6 +7,25 @@
 #include"Random.h"
 #include "TTree.h"
 
+#define ONEOVERSQRTTWO	0.707106781
+
+#define ORDRE_DU_FIT 4
+
+#define Borneminx_SED1 -158
+#define Bornemaxx_SED1 180.
+#define Borneminy_SED1 -46.
+#define Bornemaxy_SED1 51.
+#define Borneminx_SED2 -187.
+#define Bornemaxx_SED2 184.
+#define Borneminy_SED2 -43.0
+#define Bornemaxy_SED2 55.0
+
+#define Borneminx_SED -200.
+#define Bornemaxx_SED 200.
+#define Borneminy_SED -50.
+#define Bornemaxy_SED 50.
+
+
 class SeDv
 {
    Bool_t Ready;
@@ -77,6 +96,9 @@ class SeDv
 
  //Focal position Reference & Position
   Float_t XRef[2]; 
+ //Coefficients de recadrage du SED1
+  Double_t RecadrageX_SED[2][5][5], RecadrageY_SED[2][5][5];
+
   //Focal position
   Float_t X[2]; //Subsequent X
   Float_t XS[2]; //Subsequent XSech

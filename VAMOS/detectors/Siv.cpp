@@ -49,8 +49,8 @@ Siv::Siv(LogFile *Log)
   else
     {
       cout.setf(ios::showpoint);
-      cout << "Reading Si.cal" << endl;
-      L->Log << "Reading Si.cal" << endl;
+      cout << "-> Reading Si.cal" << endl;
+      L->Log << "-> Reading Si.cal" << endl;
       inf.getline(line,len);
       cout << line << endl;
       L->Log << line << endl;
@@ -61,9 +61,17 @@ Siv::Siv(LogFile *Log)
 	    {
 	      if(tmp<21)
 		{
-		  sscanf(line,"%f %f %f %f %f", ECoef[tmp]+0, ECoef[tmp]+1, ECoef[tmp]+2, &tmp1,&tmp2);
-		  for(i=0;i<3;i++)
-		    ECoef[tmp][i] *= tmp1;
+		  sscanf(line,"%f %f %f %f %f %f %f %f", 
+		  	ECoef[tmp]+0, ECoef[tmp]+1, ECoef[tmp]+2, ECoef[tmp]+3, ECoef[tmp]+4, ECoef[tmp]+5, ECoef[tmp]+6, ECoef[tmp]+7);
+
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+		cout << ECoef[tmp][0] <<" " << ECoef[tmp][1] <<" " << ECoef[tmp][2] <<" " 
+		<< ECoef[tmp][3] <<" " << ECoef[tmp][4] <<" " << ECoef[tmp][5] <<" " 
+		<< ECoef[tmp][6] <<" " << ECoef[tmp][7] <<" " << endl;
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+		  
 		  tmp++;
 		}
 	      else if(tmp<42)
@@ -154,53 +162,73 @@ void Siv::Init(void)
 
 void Siv::Calibrate(void)
 {
-  Int_t i,j,k;
+	Int_t i,j,k;
+	double x,a,b,c,d,e,f,g,h;
 
 #ifdef DEBUG
-  cout << "Si::Calibrate" << endl;
+	cout << "Si::Calibrate" << endl;
 #endif
-  
-  for(i=0;i<3;i++)
-    {
-      if(T_Raw[i] > 200)
-	for(j=0;j<2;j++)
-	  {
-	    T[i] = (Float_t) T_Raw[i];
+
+	for(i=0;i<3;i++)
+	{
+		if(T_Raw[i] > 200)
+		for(j=0;j<2;j++)
+		{
+			T[i] = (Float_t) T_Raw[i];
 			
-	    //	cout << i << " " << j << " " <<TCoef[i][j] << endl;
-	  }
-    }
-  for(i=0;i<E_RawM;i++)
-      {
-	Rnd->Next();
-	for(k=0;k<3;k++)
-	  {
-	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
-			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];	    
-	  }
-	if(E[E_Raw_Nr[i]] > 0)
- 	  {
-	    ETotal = E[E_Raw_Nr[i]];
-	    Number = E_Raw_Nr[i];
+//			cout << i << " " << j << " " <<TCoef[i][j] << endl;
+		}
+	}
+/*
+ *	Energy calibration with Fermi functions
+ */
+	for(i=0;i<E_RawM;i++)
+	{
+		Rnd->Next();
+		
+		x = (double)E_Raw[i]+(double)Rnd->Value() ;
+		a = (double)ECoef[E_Raw_Nr[i]][0] ;
+		b = (double)ECoef[E_Raw_Nr[i]][1] ;
+		c = (double)ECoef[E_Raw_Nr[i]][2] ;
+		d = (double)ECoef[E_Raw_Nr[i]][3] ;
+		e = (double)ECoef[E_Raw_Nr[i]][4] ;
+		f = (double)ECoef[E_Raw_Nr[i]][5] ;
+		g = (double)ECoef[E_Raw_Nr[i]][6] ;
+		h = (double)ECoef[E_Raw_Nr[i]][7] ;
+		
+		E[E_Raw_Nr[i]] = (Float_t)( ((a*(1./(exp(b*(x+c))+1.)-1.))+(d+e*x+f*x*x))*(g/h) );		
+		
+		if(E[E_Raw_Nr[i]] > 0)
+		{
+			ETotal = E[E_Raw_Nr[i]];
+			Number = E_Raw_Nr[i]+1;
 
-	    EM++;
-	  }
-      }
+
+			EM++;
+		}
+	}
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+
+			cout << Number << " , "<< ETotal << " , "<< E_RawM << endl;  
+
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
 
   
-  if(EM!=1) 
-    {
-      ETotal = 0.0;
-      Number = 0;
-      for(k=0;k<2;k++)
-	Offset[k] = 0.0;
-    }
+	if(EM!=1) 
+	{
+		ETotal = 0.0;
+		Number = 0;
+		for(k=0;k<2;k++)
+		Offset[k] = 0.0;
+	}
       
-  if(ETotal > 0) 
-    {    
-      Present = true;
-      Counter[1]++;
-    }
+	if(ETotal > 0) 
+	{    
+		Present = true;
+		Counter[1]++;
+	}
   
 }
 
@@ -271,11 +299,20 @@ void Siv::outAttach(TTree *outT)
    outT->Branch("SiE",E,"SiE[21]/F");
    outT->Branch("SiET",&ETotal,"SiET/F");
 
+   outT->Branch("SIE_Raw",E_Raw,"SiE_Raw[21]/s");
+   outT->Branch("SIE_Nr",&Number,"SIE_Nr/s");
+
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+
+			cout << Number << " , "<< ETotal << endl;  
+
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+// STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID STUPID 		 	
+
    outT->Branch("TSi_HF",&T[0],"TSi_HF/F");
    outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");
-
-
 }
 void Siv::CreateHistograms(void)
 {

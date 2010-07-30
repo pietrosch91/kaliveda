@@ -58,25 +58,51 @@ SeDv::SeDv(LogFile *Log, short nr)
     }
   else
     {
-      cout.setf(ios::showpoint);
-      cout << "Reading " << fname << endl;
-      L->Log << "Reading "<< fname << endl;
-      inf1.getline(line,len);
-      cout << line << endl;
-      L->Log << line << endl;
-      for(i=0;i<2;i++)
-	  inf1 >> XRef[i];
-       
-      inf1.getline(line,len);
-      inf1.getline(line,len);
-      cout << line << endl;
-      L->Log << line << endl;
-      inf1 >> QThresh;
-      cout <<QThresh << endl; 
-      L->Log <<QThresh << endl; 
-
-      cout << endl; 
-      L->Log << endl; 
+		cout.setf(ios::showpoint);
+		cout << "Reading " << fname << endl;
+		L->Log << "Reading "<< fname << endl;
+		inf1.getline(line,len);
+		cout << line << endl;
+		L->Log << line << endl;
+		for(i=0;i<2;i++)
+		inf1 >> XRef[i];
+		 
+		for(j=0;j<2;j++) inf1.getline(line,len);
+		cout << line << endl;
+		L->Log << line << endl;
+		inf1 >> QThresh;
+		cout <<QThresh << endl; 
+		L->Log <<QThresh << endl; 
+/*
+ *		Reading X geometric transformation matrix(j*k), first and second iteration(i)
+ */
+		for(i=0;i<2;i++) 
+		{
+		  	for(j=0;j<2;j++) inf1.getline(line,len);
+			cout << line << endl;
+			L->Log << line << endl;
+			for(j=0;j<=ORDRE_DU_FIT;j++) for(k=0;k<=ORDRE_DU_FIT;k++)
+		  	{
+				inf1 >> RecadrageX_SED[i][j][k];
+				cout << RecadrageX_SED[i][j][k]<< " ";  if(k==4) cout << endl; 
+			}
+		}
+/*	
+ *		Reading Y geometric transformation matrix(j*k), first and second iteration(i)
+ */
+		for(i=0;i<2;i++) 
+		{
+		  	for(j=0;j<2;j++) inf1.getline(line,len);
+			cout << line << endl;
+			L->Log << line << endl;
+			for(j=0;j<=ORDRE_DU_FIT;j++) for(k=0;k<=ORDRE_DU_FIT;k++)
+		  	{
+		  		inf1 >> RecadrageY_SED[i][j][k];
+				cout << RecadrageY_SED[i][j][k]<< " ";  if(k==4) cout << endl; 
+		  	}
+		}
+		cout << endl; 
+		L->Log << endl; 
    }
   inf1.close();
 
@@ -345,195 +371,243 @@ void SeDv::Calibrate(void)
 void SeDv::FocalSubseqX(void)
 {
 
-  Int_t i,j,k;
-  Float_t QTmp[128];
-  Float_t QMax;
-  Int_t NMax;
-  Int_t FStrip[128];
-  Int_t StripsWA;
-  bool Neighbours;
-  bool MultiplePeak;
-  Float_t v[6];
-
+	 Int_t i,j,k,m;
+	 Float_t QTmp[128];
+	 Float_t QMax;
+	 Int_t NMax;
+	 Int_t FStrip[128];
+	 Int_t StripsWA;
+	 bool Neighbours;
+	 bool MultiplePeak;
+	 Float_t v[6];
+	 Double_t XYp,stk1,stk0;
 
 #ifdef DEBUG
-  cout << "SeDv::FocalSubseqX" << endl;
+	 cout << "SeDv::FocalSubseqX" << endl;
 #endif
 
-  for(i=0;i<2;i++) //Loop over Chambers
-    {
-
-      for(j=0;j<Mult[i];j++) //loop over Strips
-	QTmp[j]=Q[j][i];
-      for(k=0;k<NStrips;k++)//searching for NStrips Strips
+	for(i=0;i<2;i++) //Loop over Chambers
 	{
-	  QMax=0.0;
-	  NMax=0;
-	  for(j=0;j<Mult[i];j++) //loop over Strips
-	    {
-	      if(QTmp[j] > QMax)
-		{ QMax=QTmp[j]; NMax=j; }
-	    }
-	  QTmp[NMax] = 0.0;
-	  FStrip[k] = NMax;
-	}
+/*
+ *		loop over Strips
+ */
+		for(j=0;j<Mult[i];j++) QTmp[j]=Q[j][i];
+/*
+ *		searching for NStrips Strips
+ */
+		for(k=0;k<NStrips;k++)
+		{
+			QMax=0.0;
+			NMax=0;
+			for(j=0;j<Mult[i];j++) //loop over Strips
+			{
+				if(QTmp[j] > QMax)
+				{ 
+					QMax=QTmp[j]; NMax=j; 
+				}
+	    	}
+			QTmp[NMax] = 0.0;
+			FStrip[k] = NMax;
+		}
 
 #ifdef MULTIPLEPEAK 
-     MultiplePeak = false;
-      for(j=0;j<FStrip[0]-1;j++)
-	if((Q[j][i] > Q[j+1][i]))
-	  if(Q[j][i] >= 0.4*Q[FStrip[0]][i])
-	    {
-	      MultiplePeak = true;
-	      Counter1[i][3]++;
+		MultiplePeak = false;
+		for(j=0;j<FStrip[0]-1;j++) if((Q[j][i] > Q[j+1][i])) if(Q[j][i] >= 0.4*Q[FStrip[0]][i])
+		{
+			MultiplePeak = true;
+			Counter1[i][3]++;
 #ifdef DEBUG
-	      cout << "Multiplepeak: " << i  << " " << N[j][i] << endl;
+			cout << "Multiplepeak: " << i  << " " << N[j][i] << endl;
 #endif
-	      break;
-	    }
-      for(j=FStrip[0];j<Mult[i]-1;j++)
-	if(Q[j][i] < Q[j+1][i])
-	  if(Q[j+1][i] >= 0.4*Q[FStrip[0]][i])
-	    {
-	      MultiplePeak = true;
-	      Counter1[i][3]++;
+			break;
+		}
+		for(j=FStrip[0];j<Mult[i]-1;j++) if(Q[j][i] < Q[j+1][i]) if(Q[j+1][i] >= 0.4*Q[FStrip[0]][i])
+		{
+			MultiplePeak = true;
+			Counter1[i][3]++;
 #ifdef DEBUG
-	      cout << "Multiplepeak1: " << i << " " <<  N[j][i] << endl;
+			cout << "Multiplepeak1: " << i << " " <<  N[j][i] << endl;
 #endif
-	      break;
-	    }
+			break;
+		}
 #endif
-      
-      
-      if(NStrips != 3) 
-	{
-	  cout << "NStrips != 3 but " << NStrips << " Program it first" << endl;
-	  exit(EXIT_FAILURE);
-	}
+        
+		if(NStrips != 3) 
+		{
+			cout << "NStrips != 3 but " << NStrips << " Program it first" << endl;
+			exit(EXIT_FAILURE);
+		}
 
-      Neighbours = false;
+		Neighbours = false;
 
 #ifdef SECHIP
-      if( abs(N[FStrip[0]][i]-N[FStrip[1]][i]) == 1 
-	  &&
-	  abs(N[FStrip[0]][i]-N[FStrip[2]][i]) == 1)
-	Neighbours = true;
+		if( abs(N[FStrip[0]][i]-N[FStrip[1]][i]) == 1 && abs(N[FStrip[0]][i]-N[FStrip[2]][i]) == 1)
+			Neighbours = true;
 #endif
-
 
 #ifdef MULTIPLEPEAK 
-      if(!MultiplePeak)
-	{
-#endif
-	  if(Neighbours)
-	    {
-	      v[0] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[2]][i]);
-	      v[1] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[1]][i]);
-	      v[2] = 0.5*(v[0]+v[1]);
-	      v[3] = logf(v[2]+sqrtf(powf(v[2],2.)-1.0));
-	      v[4] = (v[0] - v[1])/(2.0*sinhf(v[3]));
-	      v[5] = 0.5*logf((1.0+v[4])/(1.0-v[4]));
-	      X[i] =(Float_t) N[FStrip[0]][i] - 
-		(Float_t) (N[FStrip[0]][i]-N[FStrip[1]][i])*
-		v[5]/v[3];
-	      if(i==0)
-		XS[i] = X[i] *= 3.2; //Goes mm
-	      else
-		XS[i] = X[i] = X[i]*3./sqrtf(2.); //Goes mm
-		if (!(X[i]<500. && X[i] > 0.)) XS[i] = X[i] = -500.;
-	      if(X[i] > 0.) Counter1[i][1]++;
-	    }
-	  else // the case of Weighted Average
-	    {
-#ifdef WEIGHTEDAVERAGE
-	      if(Mult[i] > NStrips)
+		if(!MultiplePeak)
 		{
-		  //Looking for entire peak for W.A.
-		  //The Strips are ordered  0-128
-		  //Could be done earlier but ....
-		  StripsWA=0;
-		  for(j=FStrip[0]-1;j>=0;j--)
-		      if(abs(N[j+1][i]-N[j][i]) == 1)
+#endif
+		if(Neighbours)
+		{
+			v[0] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[2]][i]);
+			v[1] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[1]][i]);
+			v[2] = 0.5*(v[0]+v[1]);
+			v[3] = logf(v[2]+sqrtf(powf(v[2],2.)-1.0));
+			v[4] = (v[0] - v[1])/(2.0*sinhf(v[3]));
+			v[5] = 0.5*logf((1.0+v[4])/(1.0-v[4]));
+			X[i] =(Float_t) N[FStrip[0]][i] - (Float_t) (N[FStrip[0]][i]-N[FStrip[1]][i])*
+			v[5]/v[3];
+/*		
+			if(i==0)	XS[i] = X[i] *= 3.2; //Goes mm
+			else	XS[i] = X[i] = X[i]*3./sqrtf(2.); //Goes mm
+			if (!(X[i]<500. && X[i] > 0.)) XS[i] = X[i] = -500.;
+			if(X[i] > 0.) Counter1[i][1]++;
+*/	
+		}
+		else // the case of Weighted Average
+		{
+#ifdef WEIGHTEDAVERAGE
+			if(Mult[i] > NStrips)
 			{
-			  if((Q[j][i] <= Q[j+1][i]))
-			    {
-			      StripsWA++;
-			      FStrip[StripsWA]=j;
-			    }
-			  else
-			    break;
-			}
-		      else
-			break;
-		  
-		  for(j=FStrip[0];j<Mult[i]-1;j++)
-		    if(abs(N[j+1][i]-N[j][i]) == 1)
-		      {
-			if(Q[j][i] >= Q[j+1][i])
-			  {
-			    StripsWA++;
-			    FStrip[StripsWA]=j+1;			  
-			  }
-			else
-			  break;
-		      }
-		    else
-		      break;
-
-		  if(StripsWA >= NStrips)
-		    {
-		      v[0] = v[1] = 0.0;
-		      for(k=0;k<=StripsWA;k++)
-			{		      
-			  v[0] += Q[FStrip[k]][i]* ((Float_t) N[FStrip[k]][i]);
-			  v[1] += Q[FStrip[k]][i];
-			}
+/*
+ *				Looking for entire peak for W.A.
+ *				The Strips are ordered  0-128
+ *				Could be done earlier but ....
+ */
+ 				StripsWA=0;
+				for(j=FStrip[0]-1;j>=0;j--)	
+				if(abs(N[j+1][i]-N[j][i]) == 1)
+				{
+					if((Q[j][i] <= Q[j+1][i]))
+					{
+						StripsWA++;
+						FStrip[StripsWA]=j;
+					}
+					else	break;
+				}
+				else	break;
+			  
+				for(j=FStrip[0];j<Mult[i]-1;j++) 
+				if(abs(N[j+1][i]-N[j][i]) == 1)
+				{
+					if(Q[j][i] >= Q[j+1][i])
+					{
+						StripsWA++;
+						FStrip[StripsWA]=j+1;			  
+					}
+					else	break;
+				}
+				else	break;
+	
+				if(StripsWA >= NStrips)
+				{
+					v[0] = v[1] = 0.0;
+					for(k=0;k<=StripsWA;k++)
+					{		      
+						v[0] += Q[FStrip[k]][i]* ((Float_t) N[FStrip[k]][i]);
+						v[1] += Q[FStrip[k]][i];
+					}
 		  
 #ifdef DEBUG
-		      cout << "SeDv::FocalSubseqX::Weithed Average: " << i << endl;
-		      cout << "StripsWA: " << StripsWA << endl;
-		      for(k=0;k<=StripsWA;k++)
-			cout << "STR: " << N[FStrip[k]][i] << " Q: " << Q[FStrip[k]][i] << endl;
+					cout << "SeDv::FocalSubseqX::Weithed Average: " << i << endl;
+					cout << "StripsWA: " << StripsWA << endl;
+					for(k=0;k<=StripsWA;k++)
+						cout << "STR: " << N[FStrip[k]][i] << " Q: " << Q[FStrip[k]][i] << endl;
 #endif
-		      X[i] = v[0] / v[1];
-		      if(i==0)
-			XWA[i] = X[i] *= 3.2; //Goes mm
-		      else
-			XWA[i] = X[i] = X[i]*3.0/sqrtf(2.); //Goes mm
-		      //			XWA[i] = X[i] = X[i]*3.0; //Goes mm
-		      
-		      if (!(X[i]<500. && X[i] > 0.)) XWA[i] = X[i] = -500.;
-		      if(X[i] > 0.) Counter1[i][2]++;
-		    }		
-		}
+					X[i] = v[0] / v[1];
+/*
+					if(i==0)	XWA[i] = X[i] *= 3.2; //Goes mm
+					else	XWA[i] = X[i] = X[i]*3.0/sqrtf(2.); //Goes mm
+					//		XWA[i] = X[i] = X[i]*3.0; //Goes mm
+			      
+					if (!(X[i]<500. && X[i] > 0.)) XWA[i] = X[i] = -500.;
+					if(X[i] > 0.) Counter1[i][2]++;
+*/
+				}		
+			}
 #endif      
-	    }
+		}
 #ifdef MULTIPLEPEAK 
-	}
+		}
 #endif
-    }
-  if( X[0] > 0.)
-    Counter[7]++;
-  if( X[1] > 0.)
-    Counter[8]++;
+	} //Loop over Chambers
 
+	cout << "Wire uncorrected : "<< X[0]<< " "  << X[1]<<  endl;
 
-  if( X[0] > 0. && X[1] > 0.)
-    {
-      Present = true;
-      for(i=0;i<2;i++)
+/*
+ *	Recadrage. On utilise les fonctions de corrections pour recadrer l'image. Passage en cm on the SeD plane
+ */
+
+	X[0]+=1.; X[1]+=1.; // To have wires starting at 1
+
+	if(X[0]>0 && X[1]>0) for(i=0;i<2;i++)
 	{
-	  X[i] -= (Float_t) XRef[i];
-	  XS[i] -= (Float_t) XRef[i];  
-	  XWA[i] -= (Float_t) XRef[i];  
+//		Correction en X 1
+		stk0 = (Double_t)X[0];
+		stk1 = (Double_t)X[1];
+		X[0] = 0.;
+		for(j=0;j<=ORDRE_DU_FIT;j++) for(k=0;k<=ORDRE_DU_FIT;k++) if(RecadrageX_SED[i][j][k]!=0) 
+		{
+			XYp=1.; 
+			for(m=0;m<j;m++) XYp*=stk0; 
+			for(m=0;m<k;m++) XYp*=stk1;
+			X[0] += (Float_t)(RecadrageX_SED[i][j][k] * XYp);
+		}
+		cout << "Wire corrected x : "<< X[0]<< " "  << X[1]<<  endl;
+//		Correction en Y 1
+		stk0 = (Double_t)X[0];
+		stk1 = (Double_t)X[1];
+		X[1] = 0.;
+		for(j=0;j<=ORDRE_DU_FIT;j++) for(k=0;k<=ORDRE_DU_FIT;k++) if(RecadrageY_SED[i][j][k]!=0) 
+		{
+			XYp=1.; 
+			for(m=0;m<j;m++) XYp*=stk1; 
+			for(m=0;m<k;m++) XYp*=stk0;
+			X[1] += (Float_t)(RecadrageY_SED[i][j][k]* XYp);
+		}
+		cout << "Wire corrected y : "<< X[0]<< " "  << X[1]<<  endl;
 	}
-      Counter[9]++;
-    }
-  else
-    {
-      for(i=0;i<2;i++)
-	X[i] = -500.0;
-    }
+
+//
+//	Passage en mm sur le projection des SeD
+//
+	X[0] *= 10.;
+	X[1] *= 10.*ONEOVERSQRTTWO;
+//
+//	Counters
+//
+	if(Neighbours) 
+	{
+		XS[0]=X[0];	XS[1]=X[1];
+		if ((X[0]<Borneminx_SED || X[0] >Bornemaxx_SED) ||
+			(X[1]<Borneminy_SED || X[1] >Bornemaxy_SED))
+			XS[0] = X[0] = XS[1] = X[1] = -500.;
+		else Counter1[i][1]++;
+	}
+	else
+	{
+#ifdef WEIGHTEDAVERAGE
+		XWA[0]=X[0];	XWA[1]=X[1];
+		if ((X[0]<Borneminx_SED || X[0] >Bornemaxx_SED) ||
+			(X[1]<Borneminy_SED || X[1] >Bornemaxy_SED))
+			XWA[0] = X[0] = XWA[1] = X[1] = -500.;
+		else Counter1[i][2]++;
+#endif
+	}
+	
+	cout << "POSITION CORRECTED : "<< X[0]<< " "  << X[1]<<  endl;
+	if (X[0]>Borneminx_SED && X[0] <Bornemaxx_SED)	Counter[7]++;
+	if (X[1]>Borneminy_SED && X[1] <Bornemaxy_SED)	Counter[8]++;
+	
+	if ((X[0]>Borneminx_SED && X[0] <Bornemaxx_SED)&&
+	    (X[1]>Borneminy_SED && X[1] <Bornemaxy_SED))
+	{
+		Present = true;
+		Counter[9]++;
+	}
+	else for(i=0;i<2;i++) X[i] = -500.0;
 }
 
 void SeDv::Treat(void)

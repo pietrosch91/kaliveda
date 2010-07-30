@@ -42,7 +42,7 @@ class Siv
 
 
   //Calibration coeff
-  Float_t ECoef[21][3];
+  Float_t ECoef[21][8];
   Float_t TOff[21][2];
   Float_t TCoef[3][2];
 
