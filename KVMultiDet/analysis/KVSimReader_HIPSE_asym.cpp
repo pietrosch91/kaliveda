@@ -24,7 +24,7 @@ KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym()
 KVSimReader_HIPSE_asym::KVSimReader_HIPSE_asym(KVString filename)
 {
    init();
-	if (!OpenReadingFile(filename)) return;
+	if (!OpenFileToRead(filename)) return;
 	Run();
 	CloseFile();
 }
@@ -35,93 +35,24 @@ KVSimReader_HIPSE_asym::~KVSimReader_HIPSE_asym()
 	if (h1) delete h1; h1 = 0;
 }
 
-
-void KVSimReader_HIPSE_asym::ReadFile(){
-
-	h1 = new TH1F("impact_parameter","distri",200,0,20);
-	
-	if (!ReadHeader()) return;
-
-	while (f_in.good()){
-		while (ReadEvent()){
-			h1->Fill(evt->GetParameters()->GetDoubleValue("Bparstore"));
-			if (HasToFill()) FillTree();
-		}
-	}	
-	
-	
-	AddObjectToBeWrittenWithTree(h1);
-	Int_t netot = nv->GetEntries();
-	for (Int_t ne=0; ne<netot; ne+=1)	
-		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
-
-}
-
-Bool_t KVSimReader_HIPSE_asym::ReadHeader(){
-	
-	Int_t res = ReadLine(2);
-	switch (res){
-	case 0:
-		return kFALSE; 
-	case 1:
-		nv->SetValue("Aproj",GetDoubleReadPar(0));
-		nv->SetValue("Zproj",GetDoubleReadPar(1));
-		delete toks;
-		
-		break;
-	default:
-		delete toks;
-		return kFALSE;	
-	}
-	
-	res = ReadLine(2);
-	switch (res){
-	case 0:
-		return kFALSE; 
-	case 1:
-		nv->SetValue("Atarg",GetDoubleReadPar(0));
-		nv->SetValue("Ztarg",GetDoubleReadPar(1));
-		delete toks;
-		
-		break;
-	default:
-		delete toks;
-		return kFALSE;	
-	}
-
-	res = ReadLine(1);
-	switch (res){
-	case 0:
-		return kFALSE; 
-	case 1:
-		nv->SetValue("Ebeam",GetDoubleReadPar(0));
-		return kTRUE;
-		
-	
-	default:
-		delete toks;
-		return kFALSE;	
-	}
-
-}
-
 Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 
 	evt->Clear();
 	Int_t mult=0,mtotal=0;
-	Int_t res = ReadLine(2);
+	Int_t res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
+		Info("ReadEvent","case 0 line est vide"); 
 		return kFALSE; 
 	case 1:
 		evt->SetNumber(nevt);
 		mult = GetIntReadPar(0);
 		mtotal = GetIntReadPar(1);
 		evt->GetParameters()->SetValue("mult",mtotal);
-		delete toks;
+		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}
 
@@ -132,7 +63,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 //---------------------------------------------      	 
 */	
 	
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
@@ -140,22 +71,22 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 		evt->GetParameters()->SetValue("Esa",GetDoubleReadPar(0));
 		evt->GetParameters()->SetValue("vcm",GetDoubleReadPar(1));
 		evt->GetParameters()->SetValue("Bparstore",GetDoubleReadPar(2));
-		delete toks;
+		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}	
 	
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
-		delete toks;
+		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}	
 	
@@ -172,7 +103,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 
 Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 
-	Int_t res = ReadLine(3);
+	Int_t res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -190,16 +121,16 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		nuc->SetZ(GetIntReadPar(1));
 		nuc->GetParameters()->SetValue("proven",GetDoubleReadPar(2));
 		
-		delete toks;
+		
 		break;
 
 	default:
 		
-		delete toks;
+		
 		return kFALSE;	
 	}
 
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -211,12 +142,12 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		nuc->SetPy(GetDoubleReadPar(2));
 		nuc->SetPz(GetDoubleReadPar(0));
 		
-		delete toks;
+		
 		return kTRUE;
 	
 	default:
 		
-		delete toks;
+		
 		return kFALSE;	
 	}
 	

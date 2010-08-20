@@ -27,7 +27,7 @@ class KVSimReader_SMF : public KVSimReader
 	
 	void SetTimeBranching(Double_t val){  
 		KVString sval; sval.Form("%lf",val);
-		AddObjectToBeWrittenWithTree(new TNamed("Branching time",sval.Data()));  
+		AddInfo("Branching time",sval.Data());  
 	}
 
 

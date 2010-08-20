@@ -24,7 +24,7 @@ KVSimReader_SMF_asym::KVSimReader_SMF_asym()
 KVSimReader_SMF_asym::KVSimReader_SMF_asym(KVString filename)
 {
    init();
-	if (!OpenReadingFile(filename)) return;
+	if (!OpenFileToRead(filename)) return;
 	Run();
 	CloseFile();
 }
@@ -37,10 +37,11 @@ KVSimReader_SMF_asym::~KVSimReader_SMF_asym()
 
 void KVSimReader_SMF_asym::ReadFile(){
 
-	while (f_in.good()){
+	while (IsOK()){
 		if (ReadHeader()){
 			for (Int_t nd=0; nd<nv->GetIntValue("ndesexcitation"); nd+=1){
 				if (ReadEvent()){
+					if (nevt%1000==0) Info("ReadFile","%d evts lus",nevt);
 					if (HasToFill()) FillTree();
 				}
 			}
@@ -53,36 +54,31 @@ void KVSimReader_SMF_asym::ReadFile(){
 Bool_t KVSimReader_SMF_asym::ReadHeader(){
 
 	KVString snom;
-	Int_t res = ReadLine(1);
+	Int_t res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		snom.Form("%s",GetReadPar(0).Data());
 		snom.ReplaceAll("evt_","");
-		Info("ReadHeader","lecture %d",snom.Atoi());
+		//Info("ReadHeader","lecture %d",snom.Atoi());
 		nv->SetValue("event_number",snom.Atoi());
-		
-		delete toks;
 		
 		break;
 	default:
-		delete toks;
 		return kFALSE;	
 	}
 	
-	res = ReadLine(1);
+	res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		nv->SetValue("ndesexcitation",GetIntReadPar(0));
-		delete toks;
 		ndes = 0;
 		
 		return kTRUE;
 	default:
-		delete toks;
 		return kFALSE;	
 	}
 
@@ -96,18 +92,15 @@ Bool_t KVSimReader_SMF_asym::ReadEvent(){
 	evt->Clear();
 	
 	Int_t mult=0;
-	Int_t res = ReadLine(1);
+	Int_t res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		mult = GetIntReadPar(0);
-		
-		delete toks;
 		break;
 				
 	default:
-		delete toks;
 		return kFALSE;	
 	}
 	
@@ -129,7 +122,7 @@ Bool_t KVSimReader_SMF_asym::ReadEvent(){
 
 Bool_t KVSimReader_SMF_asym::ReadNucleus(){
 	
-	Int_t res = ReadLine(5);
+	Int_t res = ReadLineAndCheck(5," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -144,12 +137,10 @@ Bool_t KVSimReader_SMF_asym::ReadNucleus(){
 		nuc->SetPy(GetDoubleReadPar(3));
 		nuc->SetPz(GetDoubleReadPar(4));
 		
-		delete toks;
 		return kTRUE;
 	
 	default:
 		
-		delete toks;
 		return kFALSE;	
 	}
 

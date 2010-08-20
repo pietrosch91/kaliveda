@@ -23,7 +23,7 @@ KVSimReader_MMM::KVSimReader_MMM()
 KVSimReader_MMM::KVSimReader_MMM(KVString filename)
 {
    init();
-	if (!OpenReadingFile(filename)) return;
+	if (!OpenFileToRead(filename)) return;
 	Run();
 	CloseFile();
 }
@@ -36,8 +36,9 @@ KVSimReader_MMM::~KVSimReader_MMM()
 void KVSimReader_MMM::ReadFile(){
 
 	
-	while (f_in.good()){
+	while (IsOK()){
 		while (ReadEvent()){
+			if (nevt%1000==0) Info("ReadFile","%d evts lus",nevt);
 			if (HasToFill()) FillTree();
 		}
 	}	
@@ -48,19 +49,21 @@ void KVSimReader_MMM::ReadFile(){
 Bool_t KVSimReader_MMM::ReadEvent(){
 
 	evt->Clear();
-	Int_t mult=0,nlus=0,natt=0;
+	Int_t mult=0,natt=0;
 	
-	Int_t res = ReadLine(2);
+	ReadLine(" ");
+	
+	Int_t res = GetNparRead();
 	switch (res){
 	case 0:
+		Info("ReadEvent","case 0 line est vide"); 
 		return kFALSE; 
 	default:
-		nlus = toks->GetEntries();
 		idx = 0;
 		mult = GetIntReadPar(idx++);
 		natt = 6*mult+4+1;
-		if (natt!=nlus){
-			Info("ReadEvent","Nombre de parametres (%d) different de celui attendu (%d)",nlus,natt);
+		if (natt!=res){
+			Info("ReadEvent","Nombre de parametres (%d) different de celui attendu (%d)",res,natt);
 			return kFALSE;
 		}
 		evt->GetParameters()->SetValue("Eth",GetDoubleReadPar(idx++));
@@ -72,7 +75,7 @@ Bool_t KVSimReader_MMM::ReadEvent(){
 			nuc = (KVSimNucleus* )evt->AddParticle();
 			ReadNucleus();
 		}
-		delete toks;
+		
 		evt->SetNumber(nevt);
 		nevt+=1;
 		return kTRUE;

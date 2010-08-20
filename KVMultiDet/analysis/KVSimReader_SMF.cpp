@@ -24,7 +24,7 @@ KVSimReader_SMF::KVSimReader_SMF()
 KVSimReader_SMF::KVSimReader_SMF(KVString filename)
 {
    init();
-	if (!OpenReadingFile(filename)) return;
+	if (!OpenFileToRead(filename)) return;
 	Run();
 	CloseFile();
 }
@@ -37,36 +37,37 @@ KVSimReader_SMF::~KVSimReader_SMF()
 
 void KVSimReader_SMF::ReadFile(){
 
-	while (f_in.good()){
+	while (IsOK()){
 		if (ReadHeader() && ReadEvent()){
+			if (nevt%1000==0) Info("ReadFile","%d evts lus",nevt);
 			if (HasToFill()) FillTree();
 		}
 	}
 	
+	/*
 	Int_t netot = nv->GetEntries();
 	for (Int_t ne=0; ne<netot; ne+=1)	
 		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
-
+	*/
 }
 
 
 Bool_t KVSimReader_SMF::ReadHeader(){
 
 	KVString snom;
-	Int_t res = ReadLine(1);
+	Int_t res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		snom.Form("%s",GetReadPar(0).Data());
 		snom.ReplaceAll("evt_","");
-		Info("ReadHeader","lecture %d",snom.Atoi());
+		//Info("ReadHeader","lecture %d",snom.Atoi());
 		nv->SetValue("event_number",snom.Atoi());
-		delete toks;
 		
 		return kTRUE;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}
 
@@ -79,23 +80,20 @@ Bool_t KVSimReader_SMF::ReadEvent(){
 	evt->Clear();
 	
 	Int_t mult=0;
-	Int_t res = ReadLine(1);
+	Int_t res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		mult = GetIntReadPar(0);
-		
-		delete toks;
 		break;
 				
 	default:
-		delete toks;
 		return kFALSE;	
 	}
 	
 	evt->SetNumber(nv->GetIntValue("event_number"));
-	Info("ReadEvent","       Lecture evt %d -> mult %d",evt->GetNumber(),mult);
+	//Info("ReadEvent","       Lecture evt %d -> mult %d",evt->GetNumber(),mult);
 	for (Int_t mm=0; mm<mult; mm+=1){	
 		nuc = (KVSimNucleus* )evt->AddParticle();
 		if (!ReadNucleus()) return kFALSE;
@@ -111,7 +109,9 @@ Bool_t KVSimReader_SMF::ReadEvent(){
 
 Bool_t KVSimReader_SMF::ReadNucleus(){
 
-	Int_t res = ReadLine(6);
+	ReadLine(" ");
+	Int_t res = GetNparRead();
+	Int_t npar = 0;
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -119,9 +119,10 @@ Bool_t KVSimReader_SMF::ReadNucleus(){
 	
 	default:
 	
-		AddReadLine();
-		if (toks->GetEntries()!=12){
-			Info("ReadNucleus","Nombre de parametres (%d) different de celui attendu(%d)",toks->GetEntries(),12);
+		ReadLineAndAdd(" ");
+		npar = GetNparRead();
+		if (npar!=12){
+			Info("ReadNucleus","Nombre de parametres (%d) different de celui attendu(%d)",npar,12);
 			return kFALSE;	
 		}
 		nuc->SetZ(TMath::Nint(GetDoubleReadPar(1)));
@@ -135,7 +136,7 @@ Bool_t KVSimReader_SMF::ReadNucleus(){
 		nuc->SetPz(GetDoubleReadPar(7));
 		nuc->SetPosition(GetDoubleReadPar(8),GetDoubleReadPar(9),GetDoubleReadPar(10));
 		nuc->GetParameters()->SetValue("avoir",GetDoubleReadPar(11));
-		delete toks;
+		
 		return kTRUE;
 	}
 	

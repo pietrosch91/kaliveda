@@ -19,27 +19,28 @@ class KVSimReader_HIPSE : public KVSimReader
 	virtual ~KVSimReader_HIPSE();
 
 	void init(){
+		Info("init","passe");
 		tree_name = "HIPSE";
 		Info("init","%s",branch_name.Data());
 		h1 = 0;
 	}
 	
-	virtual void ReadFile();
-	virtual Bool_t ReadHeader();
-	virtual Bool_t ReadEvent();
-	virtual Bool_t ReadNucleus();
+	void ReadFile();
+	Bool_t ReadHeader();
+	Bool_t ReadEvent();
+	Bool_t ReadNucleus();
 	
-	void SetPotentialHardness(Double_t val){  
-		KVString sval; sval.Form("%lf",val);
-		AddObjectToBeWrittenWithTree(new TNamed("Hardness of the potential",sval.Data()));  
+	virtual void SetPotentialHardness(Double_t val){  
+		KVString sval; sval.Form("%lf",val);	
+		AddInfo("Hardness of the potential",sval.Data());  
 	}
-	void SetExchangePercentage(Double_t val){  
+	virtual void SetExchangePercentage(Double_t val){  
 		KVString sval; sval.Form("%lf",val);
-		AddObjectToBeWrittenWithTree(new TNamed("Percentage of exchange",sval.Data()));  
+		AddInfo("Percentage of exchange",sval.Data());  
 	}
-	void SetNNCollisionPercentage(Double_t val){  
+	virtual void SetNNCollisionPercentage(Double_t val){  
 		KVString sval; sval.Form("%lf",val);
-		AddObjectToBeWrittenWithTree(new TNamed("Percentage of N-N collisions",sval.Data()));  
+		AddInfo("Percentage of N-N collisions",sval.Data());
 	}
 
    ClassDef(KVSimReader_HIPSE,1)//Read ascii file for events of the HIPSE code after clusterization

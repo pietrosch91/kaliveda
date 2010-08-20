@@ -23,7 +23,7 @@ KVSimReader_HIPSE::KVSimReader_HIPSE()
 KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 {
    init();
-	if (!OpenReadingFile(filename)) return;
+	if (!OpenFileToRead(filename)) return;
 	Run();
 	CloseFile();
 }
@@ -31,73 +31,73 @@ KVSimReader_HIPSE::KVSimReader_HIPSE(KVString filename)
 KVSimReader_HIPSE::~KVSimReader_HIPSE()
 {
    // Destructor
-	if (h1) delete h1; h1 = 0;
+	//if (h1) delete h1; h1 = 0;
+	h1 = 0;
 }
 
 
 void KVSimReader_HIPSE::ReadFile(){
 
-	h1 = new TH1F("impact_parameter","distri",200,0,20);
+	AddObject(new TH1F("impact_parameter","distri",200,0,20));
+	h1 = (TH1F* )GetLinkedObjects()->Last();
 	
 	if (!ReadHeader()) return;
 
-	while (f_in.good()){
+	while (IsOK()){
 		while (ReadEvent()){
+			if (nevt%1000==0) Info("ReadFile","%d evts lus",nevt);
 			h1->Fill(evt->GetParameters()->GetDoubleValue("Bparstore"));
 			if (HasToFill()) FillTree();
 		}
 	}	
 	
-	AddObjectToBeWrittenWithTree(h1);
+	//AddObject(h1);
+	/*
 	Int_t netot = nv->GetEntries();
 	for (Int_t ne=0; ne<netot; ne+=1)	
 		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
-
+	*/
 }
 
 Bool_t KVSimReader_HIPSE::ReadHeader(){
 	
-	Int_t res = ReadLine(2);
+	Int_t res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
-		nv->SetValue("Aproj",GetDoubleReadPar(0));
-		nv->SetValue("Zproj",GetDoubleReadPar(1));
-		delete toks;
-		
+		AddInfo("Aproj",GetReadPar(0).Data());
+		AddInfo("Zproj",GetReadPar(1).Data());
 		break;
 	default:
-		delete toks;
 		return kFALSE;	
 	}
 	
-	res = ReadLine(2);
+	res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
-		nv->SetValue("Atarg",GetDoubleReadPar(0));
-		nv->SetValue("Ztarg",GetDoubleReadPar(1));
-		delete toks;
+		AddInfo("Atarg",GetReadPar(0).Data());
+		AddInfo("Ztarg",GetReadPar(1).Data());
 		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}
 
-	res = ReadLine(1);
+	res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
-		nv->SetValue("Ebeam",GetDoubleReadPar(0));
+		AddInfo("Ebeam",GetReadPar(0).Data());
 		return kTRUE;
 		
 	
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}
 
@@ -113,19 +113,20 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 	mult     = total multiplicity (i.e. including neutrons)
 //---------------------------------------------      
 */
-	Int_t res = ReadLine(2);
+	Int_t res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
+		Info("ReadEvent","case 0 line est vide"); 
 		return kFALSE; 
 	case 1:
 		evt->SetNumber(nevt);
 		mult = GetIntReadPar(0);	//mul_vrai
 		mtotal = GetIntReadPar(1);
 		evt->GetParameters()->SetValue("mult",mtotal);
-		delete toks;
+		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}
 	
@@ -135,7 +136,7 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 	Bparstore = impact parameter 
 //---------------------------------------------      	 
 */	
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
@@ -143,10 +144,10 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 		evt->GetParameters()->SetValue("Esa",GetDoubleReadPar(0));
 		evt->GetParameters()->SetValue("vcm",GetDoubleReadPar(1));
 		evt->GetParameters()->SetValue("Bparstore",GetDoubleReadPar(2));
-		delete toks;
+		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}	
 
@@ -159,21 +160,21 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 	erotav         : total rotational energy at freeze-out	 
 //---------------------------------------------
 */	
-	res = ReadLine(2);
+	res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
 	case 1:
 		evt->GetParameters()->SetValue("excitat",GetDoubleReadPar(0));
 		evt->GetParameters()->SetValue("xmassav",GetDoubleReadPar(1));
-		delete toks;
+		
 		break;
 	default:
-		delete toks;
+		
 		return kFALSE;	
 	}	
 	
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		return kFALSE; 
@@ -182,10 +183,9 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 		evt->GetParameters()->SetValue("ekinav",GetDoubleReadPar(0));
 		evt->GetParameters()->SetValue("epotav",GetDoubleReadPar(1));
 		evt->GetParameters()->SetValue("erotav",GetDoubleReadPar(2));
-		delete toks;
 		break;
+	
 	default:
-		delete toks;
 		return kFALSE;	
 	}	
 	
@@ -202,7 +202,7 @@ Bool_t KVSimReader_HIPSE::ReadEvent(){
 
 Bool_t KVSimReader_HIPSE::ReadNucleus(){
 
-	Int_t res = ReadLine(3);
+	Int_t res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -218,17 +218,13 @@ Bool_t KVSimReader_HIPSE::ReadNucleus(){
 		nuc->SetA(GetIntReadPar(0));
 		nuc->SetZ(GetIntReadPar(1));
 		nuc->GetParameters()->SetValue("proven",GetDoubleReadPar(2));
-		
-		delete toks;
 		break;
 
 	default:
-		
-		delete toks;
 		return kFALSE;	
 	}
 
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -239,13 +235,9 @@ Bool_t KVSimReader_HIPSE::ReadNucleus(){
 		nuc->SetPx(GetDoubleReadPar(1));
 		nuc->SetPy(GetDoubleReadPar(2));
 		nuc->SetPz(GetDoubleReadPar(0));
-		
-		delete toks;
 		break;
 	
 	default:
-		
-		delete toks;
 		return kFALSE;	
 	}
 
@@ -255,7 +247,7 @@ Bool_t KVSimReader_HIPSE::ReadNucleus(){
 	spinx(i),spiny(i),spinz(i) : angular momentum (hbar units)
 //---------------------------------------------
 */	
-	res = ReadLine(2);
+	res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -264,17 +256,13 @@ Bool_t KVSimReader_HIPSE::ReadNucleus(){
 	case 1:
 		nuc->GetParameters()->SetValue("exci",GetDoubleReadPar(0));
 		nuc->GetParameters()->SetValue("ether",GetDoubleReadPar(1));
-		
-		delete toks;
 		break;
 	
 	default:
-		
-		delete toks;
 		return kFALSE;	
 	}
 	
-	res = ReadLine(3);
+	res = ReadLineAndCheck(3," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -283,13 +271,9 @@ Bool_t KVSimReader_HIPSE::ReadNucleus(){
 	case 1:
 		//On effectue la meme rotation que les impulsions ... à vérifier
 		nuc->SetAngMom(GetDoubleReadPar(1),GetDoubleReadPar(2),GetDoubleReadPar(0));
-		
-		delete toks;
 		return kTRUE;
 	
 	default:
-		
-		delete toks;
 		return kFALSE;	
 	}
 	
