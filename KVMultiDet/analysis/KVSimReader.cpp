@@ -25,7 +25,7 @@ KVSimReader::KVSimReader(KVString filename)
 {
 	init();
 	
-	if (!OpenReadingFile(filename)) return;
+	if (!OpenFileToRead(filename)) return;
 	
 	Run();
 	
@@ -35,14 +35,15 @@ KVSimReader::KVSimReader(KVString filename)
 KVSimReader::~KVSimReader()
 {
    // Destructor
+	Info("~KVSimReader","clear de nv");
+	nv->Clear();
+	Info("~KVSimReader","delete de nv");
 	delete nv;
+	
+	Info("~KVSimReader","delete de linked_objects");
 	delete linked_objects;
-	/*
-	if (HasToFill()){
-		delete (TTree* )gDirectory->Get(tree_name.Data());
-		tree = 0;
-	}
-	*/
+	Info("~KVSimReader","delete de linked_info");
+	delete linked_info;
 	
 }
 
@@ -69,7 +70,7 @@ Bool_t KVSimReader::ReadHeader(){
 	
 	Info("ReadHeader","To be defined in child class");
 	/*
-	Int_t res = ReadLine(2);
+	Int_t res = ReadLineAndCheck(2," ");
 	switch (res){
 	case 0:
 		Info("ReadHeader","case 0 line est vide"); 
@@ -79,12 +80,10 @@ Bool_t KVSimReader::ReadHeader(){
 		nv->SetValue("stat",GetDoubleReadPar(1));
 		
 		Info("ReadHeader","case 1 moment angulaire %1.0lf stat %1.0lf",nv->GetIntValue("J"),nv->GetIntValue("stat"));
-		delete toks;
 		return kTRUE;
 	default:
 		Info("ReadHeader","case 2 nombre de par lus %d differents de celui attendu %d",toks->GetEntries(),2); 
 		//Info("ReadHeader","line %s",line.Data()); 
-		delete toks;
 		return kFALSE;	
 	}
 	*/
@@ -97,7 +96,7 @@ Bool_t KVSimReader::ReadEvent(){
 	/*
 	evt->Clear();
 	Int_t mult=0;
-	Int_t res = ReadLine(1);
+	Int_t res = ReadLineAndCheck(1," ");
 	switch (res){
 	case 0:
 		Info("ReadEvent","case 0 line est vide"); 
@@ -107,7 +106,6 @@ Bool_t KVSimReader::ReadEvent(){
 		evt->SetNumber(nevt);
 		mult = GetIntReadPar(0);
 		evt->GetParameters()->SetValue("ll",kSIM_var1);
-		delete toks;
 		
 		for (Int_t mm=0; mm<mult; mm+=1){	
 			nuc = (KVSimNucleus* )evt->AddParticle();
@@ -120,7 +118,6 @@ Bool_t KVSimReader::ReadEvent(){
 	default:
 		Info("ReadEvent","case 2 nombre de par lus %d differents de celui attendu %d",toks->GetEntries(),1); 
 		//Info("ReadHeader","line %s",line.Data()); 
-		delete toks;
 		return kFALSE;	
 	}
 	*/
@@ -132,7 +129,7 @@ Bool_t KVSimReader::ReadNucleus(){
 
 	Info("ReadNucleus","To be defined in child class");
 	/*
-	Int_t res = ReadLine(5);
+	Int_t res = ReadLineAndCheck(5," ");
 	switch (res){
 	case 0:
 		Info("ReadNucleus","case 0 line est vide"); 
@@ -146,14 +143,12 @@ Bool_t KVSimReader::ReadNucleus(){
 		nuc->SetTheta( GetDoubleReadPar(3) * TMath::RadToDeg() );
 		nuc->SetPhi( GetDoubleReadPar(4) * TMath::RadToDeg() );
 		
-		delete toks;
 		return kTRUE;
 	
 	default:
 		
 		Info("ReadNucleus","case 2 nombre de par lus %d differents de celui attendu %d",toks->GetEntries(),5); 
 		//Info("ReadHeader","line %s",line.Data()); 
-		delete toks;
 		return kFALSE;	
 	}
 	*/
@@ -164,12 +159,6 @@ Bool_t KVSimReader::ReadNucleus(){
 /*
 
 fichier correspondant au format de lecture:
-des classes 
-	
-virtual void ReadFile();
-virtual Bool_t ReadHeader();
-virtual Bool_t ReadEvent();
-virtual Bool_t ReadNucleus();
 
 0 2
 10
