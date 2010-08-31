@@ -147,6 +147,7 @@
 #pragma link C++ class KVSimReader_SMF_asym;
 #pragma link C++ class KVSimReader_MMM;
 #pragma link C++ class KVSimReader_MMM_asym;
+#pragma link C++ class KVValues;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class GTOneScaler+;
 #pragma link C++ class GTScalers+;
