@@ -478,7 +478,7 @@ void KV2Body::CalculateKinematics()
       T4MAX = TMath::PiOver2();
    if (K[4] > 1.)
       T4MAX = TMath::ATan((1. / TMath::Sqrt(K[4] * K[4] - 1.)) / GetCMGamma());
-   if (TMath::Abs(GetEDiss()) < 1.E-08 && K[4] < 1.)
+   if (TMath::Abs(GetQReaction()) < 1.E-08 && K[4] < 1.)
       T4MAX = TMath::PiOver2();
    TETAMAX[4] = T4MAX * TMath::RadToDeg();
 	TETAMIN[3] = GetThetaLabTarget(TETAMAX[4]);
