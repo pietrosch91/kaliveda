@@ -17,6 +17,7 @@ ClassImp(KVNameValueList)
 KVNameValueList::KVNameValueList()
 {
    // Default constructor
+	//Info("KVNameValueList()","rentre");
 	SetOwner(kTRUE);
 }
 

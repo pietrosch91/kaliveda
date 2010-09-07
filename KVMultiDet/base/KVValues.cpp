@@ -94,14 +94,14 @@ ClassImp(KVValues)
 		for (Int_t ff=min; ff<max; ff+=1){
 			nl = (KVNumberList* )kpar_add->At(ff);
 			fm = (TFormula* )kform_add->At(ff);
-			Info("ComputeAdditionalValues","%d | %d %d %d | %s",ff,min,max,kval_add,nl->GetList());
+			//Info("ComputeAdditionalValues","%d | %d %d %d | %s",ff,min,max,kval_add,nl->GetList());
 			nl->Begin();
 			while (!nl->End()){
 				Int_t nn = nl->Next();
-				Info("ComputeAdditionalValues","%d values[]=%lf",nn,values[nn]);
+				//Info("ComputeAdditionalValues","%d values[]=%lf",nn,values[nn]);
 				fm->SetParameter(nn,values[nn]);
 			}
-			Info("ComputeAdditionalValues","Eval %lf",fm->Eval(0));
+			//Info("ComputeAdditionalValues","Eval %lf",fm->Eval(0));
 			values[kval_tot-kval_add+ff] = fm->Eval(0);
 		}
 	}

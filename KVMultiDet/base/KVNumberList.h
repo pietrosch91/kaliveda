@@ -96,7 +96,8 @@ class KVNumberList : public TObjString {
    Bool_t IsEmpty() const {
       return (fNValues == 0);
    };
-   void Clear();
+   
+	void Clear(Option_t* = "");
    Int_t GetNValues();
 
    void PrintLimits();

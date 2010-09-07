@@ -109,7 +109,7 @@ class KVValues : public KVNameValueList
 		return ((TFormula* )kform_add->At(new_idx))->GetExpFormula();
 	}
 	
-	void Print(void) {
+	void	Print(Option_t* option = "") const {
 		Info("Print","%s : %d values computed",GetName(),kval_tot);
 		for (Int_t nn=0; nn<kval_tot; nn+=1){
 			printf("- %d %s %lf\n",nn,GetNameAt(nn),GetValue(nn));

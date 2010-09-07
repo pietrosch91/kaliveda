@@ -14,7 +14,7 @@
 class KVFileReader : public KVBase
 {
 	protected:
-	TObjArray* toks;
+	TObjArray* toks;//->
 	KVString reading_line,file_name;
 	Int_t nline;
 	Bool_t status;
@@ -25,7 +25,7 @@ class KVFileReader : public KVBase
 	KVFileReader();
    virtual ~KVFileReader();
 	virtual void init(){
-		Info("init","rentre");
+		//Info("init","rentre");
 		reading_line="";
 		nline=0;
 		toks = new TObjArray();
