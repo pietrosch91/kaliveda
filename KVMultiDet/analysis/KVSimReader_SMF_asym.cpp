@@ -39,7 +39,7 @@ void KVSimReader_SMF_asym::ReadFile(){
 
 	while (IsOK()){
 		if (ReadHeader()){
-			for (Int_t nd=0; nd<nv->GetIntValue("ndesexcitation"); nd+=1){
+			for (Int_t nd=0; nd<nv->GetIntValue("ndes"); nd+=1){
 				if (ReadEvent()){
 					if (nevt%1000==0) Info("ReadFile","%d evts lus",nevt);
 					if (HasToFill()) FillTree();
@@ -74,7 +74,7 @@ Bool_t KVSimReader_SMF_asym::ReadHeader(){
 	case 0:
 		return kFALSE; 
 	case 1:
-		nv->SetValue("ndesexcitation",GetIntReadPar(0));
+		nv->SetValue("ndes",GetIntReadPar(0));
 		ndes = 0;
 		
 		return kTRUE;

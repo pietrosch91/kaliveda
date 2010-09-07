@@ -51,7 +51,7 @@ class KVSimReader : public KVFileReader
    virtual ~KVSimReader();
 	
 	void init(){
-		Info("init","rentre");
+		//Info("init","rentre");
 		
 		kmode=kTRUE;
 		tree = 0;
@@ -102,7 +102,7 @@ class KVSimReader : public KVFileReader
 	virtual Bool_t HasToFill(){ return kmode; }
 	virtual void SaveTree(){
 		
-		Info("SaveTree","Ecriture de l arbre");
+		//Info("SaveTree","Ecriture de l arbre");
 
 		WriteObjects();
 		WriteInfo();
@@ -113,7 +113,7 @@ class KVSimReader : public KVFileReader
 		CleanAll();
 		
 		file->Close();
-		Info("SaveTree","Fin de Routine");
+		//Info("SaveTree","Fin de Routine");
 	
 	}
 	
@@ -137,14 +137,14 @@ class KVSimReader : public KVFileReader
 		delete evt;
 		chrono.Stop();
 		
-		Info("Run","%d evts lus en %lf seconds",GetNumberOfEvents(),chrono.RealTime());
+		//Info("Run","%d evts lus en %lf seconds",GetNumberOfEvents(),chrono.RealTime());
 		
 		KVString snevt; snevt.Form("%d",nevt);
 		AddInfo("number of events read",snevt.Data());
 		AddInfo("date",GetDate().Data());
 		AddInfo("user",gSystem->GetUserInfo()->fUser.Data());
 		
-		Info("Run","To store the tree call SaveTree method ...");
+		//Info("Run","To store the tree call SaveTree method ...");
 	
 	}
 	
@@ -178,7 +178,7 @@ class KVSimReader : public KVFileReader
 		return linked_info;
 	}
 	void AddInfo(const Char_t* name, const Char_t* val){
-		Info("AddInfo","Ajout %s %s",name,val);
+		//Info("AddInfo","Ajout %s %s",name,val);
 		GetSimuInfo()->SetValue(name,val); 
 	}
 	void AddInfo(TNamed* named){

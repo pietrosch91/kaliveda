@@ -35,14 +35,14 @@ KVSimReader::KVSimReader(KVString filename)
 KVSimReader::~KVSimReader()
 {
    // Destructor
-	Info("~KVSimReader","clear de nv");
+	//Info("~KVSimReader","clear de nv");
 	nv->Clear();
-	Info("~KVSimReader","delete de nv");
+	//Info("~KVSimReader","delete de nv");
 	delete nv;
 	
-	Info("~KVSimReader","delete de linked_objects");
+	//Info("~KVSimReader","delete de linked_objects");
 	delete linked_objects;
-	Info("~KVSimReader","delete de linked_info");
+	//Info("~KVSimReader","delete de linked_info");
 	delete linked_info;
 	
 }
