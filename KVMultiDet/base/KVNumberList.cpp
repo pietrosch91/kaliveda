@@ -126,7 +126,7 @@ void KVNumberList::ParseList()
 
 //____________________________________________________________________________________________//
 
-void KVNumberList::Clear()
+void KVNumberList::Clear(Option_t*)
 {
    //Empty number list, reset it to initial state.
    fNLimits = 0;
