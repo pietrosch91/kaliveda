@@ -6,8 +6,8 @@
 ClassImp(KVImpactParameter)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/*
+BEGIN_HTML
 <h2>KVImpactParameter</h2>
 <h4>Impact parameter analysis tools</h4>
 Use a histogram containing the distribution of some observable strongly-correlated with
@@ -22,11 +22,11 @@ ip.MakeScale(npoints, bmax);
 <br>
 The <a href="#KVImpactParameter:MakeScale">MakeScale</a> method calculates the relationship between the observable and the
 impact parameter, using
-End_Html
-Begin_Latex
-\hat{b}=\sqrt{\frac{\intop_{x=X}^{\infty}Y(x)\, dx}{\intop_{0}^{\infty}Y(x)\, dx}}
-End_Latex
-Begin_Html
+END_HTML
+BEGIN_LATEX
+#hat{b}^{2}=#frac{#int_{x=X}^{#infty}Y(x) dx}{#int_{0}^{#infty}Y(x) dx}
+END_LATEX
+BEGIN_HTML
 To obtain the impact parameter distribution for some selection of events,
 you need the distribution of the observable for the selection, TH1* obs_sel,
 and then use:<br>
@@ -39,8 +39,8 @@ the bidimensional plot of the quantity as a function of the observable, and then
 TGraph* ip_evol = ip.GetIPEvolution(obscor, "GetMean");
 </pre>
 e.g. to have the mean value of the quantity as a function of impact parameter.
-<!-- */
-// --> END_HTML
+END_HTML
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 KVImpactParameter::KVImpactParameter(TH1* data, Option_t* evol)
@@ -71,11 +71,11 @@ void KVImpactParameter::MakeScale(Int_t npoints, Double_t bmax)
    // whose distribution is contained in the histogram fData.
    // For a given value X of the observable x, the reduced impact parameter
    // b_hat is calculated from the distribution of x, Y(x), using the following formula:
-   /*
-Begin_Latex
-\hat{b}=\sqrt{\frac{\intop_{x=X}^{\infty}Y(x)\, dx}{\intop_{0}^{\infty}Y(x)\, dx}}
-End_Latex
-   */
+	/*
+BEGIN_LATEX
+#hat{b}^{2}=#frac{#int_{x=X}^{#infty}Y(x) dx}{#int_{0}^{#infty}Y(x) dx}
+END_LATEX
+	*/
    // npoints = number of points for which to calculate the impact parameter.
    // The greater the number of points, the more accurate the results.
    // Default value is 100. Maximum value is number of bins in histogram of observable, fData.
