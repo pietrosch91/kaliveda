@@ -37,14 +37,12 @@
 #                   read arguments
 #
 #if ROOT has not been installed, we cannot do anything - exit!
-if ( $?ROOTSYS == 0 ) then
-   echo 'ROOT is not installed on this machine. You cannot use KaliVeda.'
+which root-config >& /dev/null
+set rootconf=$status
+if ( $rootconf != 0 ) then
+   echo 'Cannot find root-config script. You cannot use KaliVeda.'
    exit
 endif
-if ( !( -e $ROOTSYS/bin/root-config ) ) then
-   echo 'ROOT is not installed on this machine. You cannot use KaliVeda.'
-   exit
-endif 
 set version=""
 set prefix=""
 set need_to_update=0
@@ -107,7 +105,7 @@ endif
 #
 #                   get gcc version
 #
-set gccver=`gcc -v |& awk '/(version)/ {print $3}'`
+set gccver=`gcc -v |& awk '/(gcc version)/ {print $3}'`
 #
 #                   get root version
 #
