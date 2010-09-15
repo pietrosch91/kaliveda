@@ -18,7 +18,7 @@ ClassImp(KVFoxH2)
 We use the following formula:
 END_HTML
 BEGIN_LATEX
-H_{2} = #frac{#sum_{i,j} |#font[22]{p}_{i}| |#font[22]{p}_{j}| (3cos^{2}#theta_{rel} - 1)}{2#sum_{i,j}|#font[22]{p}_{i}| |#font[22]{p}_{j}|}
+H_{2} = \frac{\sum_{i,j} |p_{i}| |p_{j}| (3cos^{2}\theta_{rel} - 1) }{2\sum_{i,j} |p_{i}||p_{j}|}
 END_LATEX
 BEGIN_HTML
 to calculate H(2) for particles with Z >= Zmin (set with SetZmin(); default Zmin=1).
