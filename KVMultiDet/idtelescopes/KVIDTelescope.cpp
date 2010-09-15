@@ -932,3 +932,10 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 	return idgrid;
 
 }
+
+//_________________________________________________________________________________________
+
+Double_t KVIDTelescope::GetMeanDEFromID(Int_t Z, Int_t A, Double_t x, Option_t*opt)
+{
+	// TO BE IMPLEMENTED
+}

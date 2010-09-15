@@ -167,6 +167,8 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
 	const Char_t* GetDefaultIDGridClass();
 	KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints);
+	
+	virtual Double_t GetMeanDEFromID(Int_t Z, Int_t A, Double_t x, Option_t*opt = "");
 
 	ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
 };
