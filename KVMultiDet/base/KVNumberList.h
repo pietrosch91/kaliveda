@@ -56,7 +56,7 @@ class KVNumberList : public TObjString {
     KVNumberList(const Char_t *);
     virtual ~ KVNumberList();
 	
-	void SetString(const char *s) { Warning("KVNumberList::SetString","method with no effect"); }
+	void SetString(const char * /*s*/) { Warning("KVNumberList::SetString","method with no effect"); }
 	TString GetString()  const { Warning("KVNumberList::GetString","method with no effect"); return ""; }
 	
    void SetList(TString &);
