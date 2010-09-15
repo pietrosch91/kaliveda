@@ -32,10 +32,20 @@ class KVImpactParameter : public KVBase
       return fIPScale;
    };
    Double_t BTransform(Double_t* , Double_t*);
+   TF1* GetTransFunc() const
+   {
+    // return pointer to function giving b for any value of observable
+    return fObsTransform;
+   };
    Double_t GetImpactParameter(Double_t obs)
    {
       // Calculate value of reduced impact parameter for given value of the observable.
       return fObsTransform->Eval(obs);
+   };
+   Double_t GetObservable(Double_t b)
+   {
+      // Calculate value of observable corresponding to given value of impact parameter.
+      return fObsTransform->GetX(b);
    };
    TH1* GetIPDistribution(TH1* obs, Int_t nbinx=100, Option_t* norm="");
    TGraph* GetIPEvolution(TH2* obscor, TString moment, TString axis="Y");

@@ -16,27 +16,32 @@ impact parameter distributions, and to calculate the evolution of other quantiti
 of the impact parameter.<br>
 To use, start with a pointer to a 1-D histogram of the observable, TH1* data:<br>
 <pre>
+<code>
 KVImpactParameter ip(data);
 ip.MakeScale(npoints, bmax);
+</code>
 </pre>
-<br>
 The <a href="#KVImpactParameter:MakeScale">MakeScale</a> method calculates the relationship between the observable and the
 impact parameter, using
 END_HTML
 BEGIN_LATEX
-#hat{b}^{2}=#frac{#int_{x=X}^{#infty}Y(x) dx}{#int_{0}^{#infty}Y(x) dx}
+\hat{b}^{2} = \int^{\infty}_{x=X} Y(x) dx #divide  \int_{0}^{\infty} Y(x) dx
 END_LATEX
 BEGIN_HTML
 To obtain the impact parameter distribution for some selection of events,
 you need the distribution of the observable for the selection, TH1* obs_sel,
 and then use:<br>
 <pre>
+<code>
 TH1* ip_dist_sel = ip.GetIPDistribution(obs_sel);
+</code>
 </pre>
 To obtain the impact-parameter evolution of some quantity, take a TH2* obscor, containing
 the bidimensional plot of the quantity as a function of the observable, and then use<br>
 <pre>
+<code>
 TGraph* ip_evol = ip.GetIPEvolution(obscor, "GetMean");
+<code>
 </pre>
 e.g. to have the mean value of the quantity as a function of impact parameter.
 END_HTML
@@ -73,7 +78,7 @@ void KVImpactParameter::MakeScale(Int_t npoints, Double_t bmax)
    // b_hat is calculated from the distribution of x, Y(x), using the following formula:
 	/*
 BEGIN_LATEX
-#hat{b}^{2}=#frac{#int_{x=X}^{#infty}Y(x) dx}{#int_{0}^{#infty}Y(x) dx}
+\hat{b}^{2} = \int^{\infty}_{x=X} Y(x) dx #divide  \int_{0}^{\infty} Y(x) dx
 END_LATEX
 	*/
    // npoints = number of points for which to calculate the impact parameter.
@@ -101,7 +106,7 @@ END_LATEX
    delete cumul;
    
    fObsTransform = new TF1("fObsTransform", this, &KVImpactParameter::BTransform,
-         0, 1, 0, "KVImpactParameter", "BTransform");
+         fData->GetXaxis()->GetXmin(), fData->GetXaxis()->GetXmax(), 0, "KVImpactParameter", "BTransform");
 }
 
 Double_t KVImpactParameter::BTransform(Double_t *x, Double_t *)
