@@ -304,7 +304,14 @@ TGraph* KVHistoManipulator::ScaleGraph(TGraph *hh,TF1*fx,TF1*fy){
 		Double_t yy2 = yy1; if (fy) yy2 = fy->Eval(yy1);
 		gg->SetPoint(nn,xx2,yy2);
 		if (gg->InheritsFrom("TGraphErrors")) {
-			((TGraphErrors* )gg)->SetPointError(nn,((TGraphErrors* )hh)->GetErrorX(nn),((TGraphErrors* )hh)->GetErrorY(nn));
+		    // transformation of errors
+		    // if f = f(x) the error on f, e_f, for a given error on x, e_x, is
+		    //    e_f  =  abs(df/dx) * e_x
+		    Double_t e_x = ((TGraphErrors* )hh)->GetErrorX(nn);
+		    Double_t e_y = ((TGraphErrors* )hh)->GetErrorY(nn);
+		    if(fx) e_x = TMath::Abs(fx->Derivative(xx1))*e_x;
+		    if(fy) e_y = TMath::Abs(fy->Derivative(yy1))*e_y;
+			((TGraphErrors* )gg)->SetPointError(nn,e_x,e_y);
 		}
 	}	
 
