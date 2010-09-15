@@ -582,6 +582,16 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
 
 //____________________________________________________________________________________________
 
+Bool_t KVINDRAReconNuc::CoherencyChIoSiCsI(KVIdentificationResult theID)
+{
+   		// we check that the ChIo contribution is sane:
+   		// if no other particles hit this group, the Z given by the ChIoSi
+   		// must be <= the Z found from Si-CsI or CsI-RL identification
+   		// (we cannot trust the punch-through lines in the grids).
+}
+
+//____________________________________________________________________________________________
+
 Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID, Bool_t &coherent, Bool_t &pileup)
 {
 	// Called by Identify() for particles stopping in CsI detectors on rings 1-9,
@@ -616,11 +626,11 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID, Bool_t &co
 			return kTRUE;
 		}
 		// neutrons have no energy loss in Si detector, thus detection of charged
-		// particle in CsI R/L in coincidence with failed Si-CsI identification
-		// and SiGG < 200
+		// particle (Z=1,2) in CsI R/L in coincidence with failed Si-CsI identification
+		// and SiGG < 150 (roughly arbitrary value)
 		// => neutron
 		// we include also "successful" Si-CsI id with Z=1 and A=0
-		if((!IDsicsi->IDOK && GetSi() && GetSi()->GetGG()<200) || (IDsicsi->IDOK && IDsicsi->Z==1 && IDsicsi->A==0)){
+		if((!IDsicsi->IDOK && GetSi() && GetSi()->GetGG()<150 && IDcsi->Z<3) || (IDsicsi->IDOK && IDsicsi->Z==1 && IDsicsi->A==0)){
 			theID = *IDcsi;
 			theID.IDOK=kTRUE;
 			theID.Zident=kTRUE;
@@ -793,6 +803,12 @@ void KVINDRAReconNuc::Identify()
    		Bool_t coherent = kFALSE;
    		Bool_t pileup = kFALSE;
    		ok = CoherencySiCsI(partID, coherent, pileup);
+   		// if Si-CsI and CsI-RL are coherent and no pileup is apparent,
+   		// we check that the ChIo contribution is sane:
+   		// if no other particles hit this group, the Z given by the ChIoSi
+   		// must be <= the Z found from Si-CsI or CsI-RL identification
+   		// (we cannot trust the punch-through lines in the grids).
+   		if(coherent && !pileup) fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
     }
    else
    {
