@@ -34,7 +34,10 @@ class KVCsI;
 class KVINDRAReconNuc:public KVReconstructedNucleus {
 
    KVINDRACodes fCodes;         //VEDA6-style calibration and identification codes
-
+   Bool_t fCoherent;//!coherency of CsI & Si-CsI identifications
+   Bool_t fPileup;//!apparent pileup in Si, revealed by inconsistency between CsI & Si-CsI identifications
+   Bool_t fUseFullChIoEnergyForCalib;    //!decided by coherency analysis
+   
  public:
 
     KVINDRAReconNuc();
@@ -72,7 +75,9 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    };
 
    virtual void Identify();
-	virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID, Bool_t &coherent, Bool_t &pileup);
+	virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID);
+	virtual Bool_t CoherencyChIoSiCsI(KVIdentificationResult);
+	virtual void CalibrateRings1To10();
    virtual void Calibrate();
    
    Float_t GetEnergyChIo();
