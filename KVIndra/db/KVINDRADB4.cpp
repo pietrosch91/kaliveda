@@ -59,7 +59,7 @@ void KVINDRADB4::Build()
    KVBase::SearchKVFile(GetCalibFileName("Runlist"), runlist_fullpath,
                         fDataSet);
    SetRLCommentChar('#');
-   SetRLSeparatorChar('\t');
+   SetRLSeparatorChar('|');
    GetLineReader()->SetFieldKeys(3, "RUN", "BEAM", "TARGET");
    GetLineReader()->SetRunKeys(2, "RUN", "EVENTS");
    kFirstRun = 999999;
