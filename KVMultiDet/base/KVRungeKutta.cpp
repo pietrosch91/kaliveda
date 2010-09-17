@@ -11,7 +11,32 @@ ClassImp(KVRungeKutta)
 /* -->
 <h2>KVRungeKutta</h2>
 <h4>Adaptive step-size 4th order Runge-Kutta ODE integrator from Numerical Recipes</h4>
-
+To use, implement a class which inherits from KVRungeKutta and which has AT LEAST
+the following methods:<br>
+<pre>
+<code>
+MyClass::MyClass(Int_t N) : KVRungeKutta(N)
+</code>
+</pre>
+i.e. a constructor which has at least one argument, the number of ODE to be integrated,
+which is passed to the <code>KVRungeKutta(Int_t, Double_t, Double_t)</code> constructor
+(this number is stored in the member variable Int_t KVRungeKutta::nvar).
+In this case the default values of precision and minimum step size will be used.
+<pre>
+<code>
+void MyClass::CalcDerivs(Double_t X, Double_t* Y, Double_t* DYDX)
+</code>
+</pre>
+This method must calculate and store the values of the derivatives DYDX[nvar]
+given the value of X and of the Y[nvar] independent variables.<br>
+Then, after filling an array ystart[nvar] with the initial values of the independent variables,
+perform the integration from x1 to x2 like this:<br>
+<pre>
+<code>
+MyClass RKex(10); // integrate 10 0DE's
+RKex.Integrate(ystart, x1, x2, 0.01); // example initial step-size guess
+</code>
+</pre>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,13 +111,12 @@ KVRungeKutta::~KVRungeKutta()
 
 void KVRungeKutta::Integrate(Double_t *ystart, Double_t x1, Double_t x2, Double_t h1)
 {
-   // Runge-Kutta driver with adaptive stepsize control. Integrate starting values ystart[1..nvar]
-   // from x1 to x2 with accuracy eps.
-   // h1 should be set as a guessed first stepsize, hmin as the minimum allowed stepsize (can be zero). On
-   // output nok and nbad are the number of good and bad (but retried and fixed) steps taken, and
-   // ystart is replaced by values at the end of the integration interval. derivs is the user-supplied
-   // routine for calculating the right-hand side derivative, while rkqs is the name of the stepper
-   // routine to be used.
+   // Runge-Kutta driver with adaptive stepsize control.
+   // Integrate nvar starting values ystart[0,...,nvar-1] from x1 to x2 with accuracy eps.
+   // h1 should be set as a guessed first stepsize.
+   // after call, GetNGoodSteps() and GetNBadSteps() give the number of good
+   // and bad (but retried and fixed) steps taken,
+   // and ystart values are replaced by values at the end of the integration interval. 
 
    x = x1;
    Double_t h = TMath::Sign ( h1, x2 - x1 );

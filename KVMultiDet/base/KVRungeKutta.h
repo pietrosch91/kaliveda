@@ -46,7 +46,10 @@ class KVRungeKutta : public KVBase
 
 	virtual void Integrate(Double_t *ystart, Double_t x1, Double_t x2, Double_t h1);
 
-	virtual void CalcDerivs(Double_t /*X*/ , Double_t* /*Y*/, Double_t* /*DY/DX*/) = 0;
+    // This method must be implemented in child classes in order to fill the
+    // array DYDX[nvar] with the calculated values of the derivatives given
+    // the value of X and the values of Y[nvar]
+	virtual void CalcDerivs(Double_t X, Double_t* Y, Double_t* DYDX) = 0;
 	
 	Int_t GetNGoodSteps() const
 	{
