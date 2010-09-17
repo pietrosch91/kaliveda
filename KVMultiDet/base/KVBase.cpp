@@ -32,7 +32,6 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TDatime.h"
 #include "THashList.h"
 #include "TError.h"
-#include "KVCVSUpdateChecker.h"
 #include "KVConfig.h"
 #include "TGMimeTypes.h"
 #include "TGClient.h"
@@ -176,10 +175,6 @@ void KVBase::InitEnvironment()
    // Resets the gRandom random number sequence using a clock-based seed
    // (i.e. random sequences do not repeat).
    //
-   // If automatic update checking is enabled (KaliVeda.AutoUpdateCheck:   yes),
-   // we perform the check here. If updates are found, we download them and
-   // then rebuild the sources. This will force the current application to terminate.
-   //
    // Normally, the first object created which inherits from KVBase will
    // perform this initialisation; if you need to set up the environment before
    // creating a KVBase object, or if you just want to be absolutely sure that
@@ -218,22 +213,6 @@ void KVBase::InitEnvironment()
 
 			// load mime types/icon definitions when not in batch (i.e. GUI-less) mode
 			if(!gROOT->IsBatch()) ReadGUIMimeTypes();
-      }
-
-      // update check - do not perform if ROOT is running in batch mode
-      if(!gROOT->IsBatch() && gEnv->GetValue("KaliVeda.AutoUpdateCheck", kFALSE)){
-         KVCVSUpdateChecker upchk;
-         upchk.SetSourceDir( GetKVSourceDir() );
-         if( upchk.NeedsUpdate() ){
-            ::Info("KVBase::InitEnvironment",
-                  "A more recent version of KaliVeda is available");
-            cout << "Download updates (y/n) ? ";
-            KVString answ; answ.ReadLine(cin);
-				cout << endl;
-            if(answ=="y") upchk.Update();
-            //cout << "Build and install (y/n) ? ";
-				//answ.ReadLine(cin);
-         }
       }
 
       //generate new seed from system clock
