@@ -7,7 +7,7 @@
 class KVIdentificationResult : public KVBase
 {
 	public:
-	Bool_t IDattempted;  // general quality of identification, =kTRUE if acceptable identification made
+	Bool_t IDattempted;  // =kTRUE if identification was attempted
 	Bool_t IDOK;  // general quality of identification, =kTRUE if acceptable identification made
 	Int_t IDcode; // a general identification code for this type of identification
 	Bool_t Zident;  // =kTRUE if Z of particle established

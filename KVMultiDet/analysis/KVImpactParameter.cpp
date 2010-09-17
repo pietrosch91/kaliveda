@@ -12,7 +12,7 @@ BEGIN_HTML
 <h4>Impact parameter analysis tools</h4>
 Use a histogram containing the distribution of some observable strongly-correlated with
 the impact parameter in order to transform distributions of said observable into
-impact parameter distributions, and to calculate the evolution of other quantities as a function
+impact parameter distributions (using the method of C. Cavata <I>et al.</I>, <I>Phys. Rev.</I> <B>C42</B>, 1760 (1990)), and to calculate the evolution of other quantities as a function
 of the impact parameter.<br>
 To use, start with a pointer to a 1-D histogram of the observable, TH1* data:<br>
 <pre>
