@@ -19,21 +19,27 @@ class KVPartition : public TObject
 	void ComputeValues();
 	void FillWithRegle(Int_t* regl,Int_t vmax);
 
-	Int_t val_max; 
+	Int_t val_max;
 	Int_t mom_max;
 	Int_t population;
 	
 	Int_t* regle;			//[val_max+1]
 	Double_t* moments;	//[mom_max+1]
 	
+	//nbre d'entiers differents dans la partition
 	Int_t nbre_val_diff;
+	//nbre d'entiers dans la partition
 	Int_t nbre_val;
 	
-	Int_t* valeurs;			//[nbre_val]
+	//Stockage des valeurs de la partition par ordre decroissant
+	//	tableau valeurs (tous les entiers de la partition)
+	Int_t* valeurs;			//[nbre_val] 
+	//	tableau valeurs_diff (tous les entiers differents de la partition)
 	Int_t* valeurs_diff;		//[nbre_val_diff]
 	
 	KVString name;
-   
+   // list de valeurs additionelles pouvant etre definies et calculees
+	// dans la methode CalculValeursAdditionnelles des classes filles
 	KVGenParList* lgen;	//->
 	
 	public:
@@ -45,7 +51,6 @@ class KVPartition : public TObject
 	virtual void init(Int_t valmax=100,Int_t mommax=5);
 	Int_t GetValMax() const {return val_max;}
 	Int_t GetMomMax() const {return mom_max;}
-	
 	
 	KVPartition();
 	KVPartition(Int_t valmax,Int_t mommax=5);
@@ -72,17 +77,26 @@ class KVPartition : public TObject
 	void AddPopulation(Int_t pop) { population+=pop; }
 	
 	void Print(Option_t* option = "") const;
-
+	
+	//Methodes donnant aux valeurs uniques de la partition
 	Int_t GetMultDiff(void) const {return nbre_val_diff; }
+	Int_t* GetValeursDiff() const { return valeurs_diff; } 
+	Int_t GetValeurDiff(Int_t rang) const { return valeurs_diff[rang]; }	
+	
+	//Methodes donnant accès à toutes les valeus de la partition avec la notion d'occurence/frequence
+	//en utilisant le rang ou la valeur
+	Int_t GetMult(void) const {return nbre_val; }
 	Int_t* GetValeurs() const { return valeurs; }
 	Int_t GetValeur(Int_t rang) const { return valeurs[rang]; }	
-	Int_t GetFrequence(Int_t rang) const { return regle[GetValeur(rang)]; }	
-	Bool_t Contains(Int_t valeur) const { return regle[valeur]>0; }	
+	Int_t GetFrequenceAt(Int_t rang) const { return regle[GetValeur(rang)]; }
 	
+	Int_t GetFrequenceOf(Int_t valeur) const { return regle[valeur]; }	
+	Bool_t Contains(Int_t valeur) const { return (GetFrequenceOf(valeur)>0); }	
+	
+	//Methodes donnant acces aux variables calculees de la partition
 	Double_t GetMoment(Int_t ordre) const {
 		return ( (ordre<=GetMomentOrdreMax()) ? moments[ordre] : -1 );
 	}
-	
 	Double_t GetMomentNormalise(Int_t ordre) const { return moments[ordre]/GetMoment(0); }	
 	Int_t GetMomentOrdreMax(void) const {return mom_max; }
 	
@@ -95,14 +109,13 @@ class KVPartition : public TObject
 	Double_t GetZ1() const {return GetZmax(0); }
 	Double_t GetZ2() const {return GetZmax(1); }
 	
-	KVGenParList* GetParametersList() const { return lgen; }
-	
 	Int_t Compare(const TObject* obj) const;
 	Int_t CompareMoments(KVPartition* par) const;
 	Int_t CompareMult(KVPartition* par) const;
 	Int_t CompareValeurs(KVPartition* par) const;
 	Int_t CompareName(KVPartition* par) const;
 	
+	KVGenParList* GetParametersList() const { return lgen; }
 	virtual void CalculValeursAdditionnelles();
 	Double_t GetValeursEnPlus(KVString sname);
 	Double_t GetValeursEnPlus(const char* sname);
@@ -110,7 +123,7 @@ class KVPartition : public TObject
 	Bool_t RemoveAt(Int_t rang);
    Bool_t RemoveValue(Int_t value);
 	
-	ClassDef(KVPartition,1)//a partition of integer
+	ClassDef(KVPartition,1)//Permet de gerer des partitions de nombres entiers et le calcul de grandeurs associees
 };
 
 #endif

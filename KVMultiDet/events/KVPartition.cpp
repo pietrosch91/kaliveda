@@ -15,7 +15,66 @@ ClassImp(KVPartition)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVPartition</h2>
-<h4>a partition of integer</h4>
+<h4>Permet de gerer des partitions de nombres entiers et le calcul de grandeurs associees</h4>
+Cette trouve une application dans la gestion de partition de charges {Z_{i}}i=1,M
+Elle a deux parametres d'entree qui sont accessibles par le constructeur
+Il s'agit de la taille maximale du systeme a partitionner (val_max) et/ou de la taille du plus gros cluster
+et l'ordre supérireure des moments (mommax) qui seront calcules automatiquement KVPartition::Compute()
+M 0 = \sigma Occ(Z_{i})*Z_{i}^{0}
+M 1 = \sigma Occ(Z_{i})*Z_{i}^{1}
+M 2 = \sigma Occ(Z_{i})*Z_{i}^{2}
+...
+...
+M mom_max = \sigma Occ(Z_{i})*Z_{i}^{mom_max}
+où Occ(Z_{i}) est l'occurence de la charge/nombre entier Z_{i}
+Les methodes type Fill...(...) permettent de remplir et de classer la partition dans le meme temps
+A chaque appel de ces methodes les contenus de la classe sont reinititialises et recalcules
+
+KVPartition* par = new KVPartition(100,3)
+
+par->Fill("12 13 46 20 89");
+par->Print("Moments")
+Info in <KVPartition::Print>: Moments #Sigma Z^{ordre}
+Nombres de moments calcules 3
+Moments d'ordre 0 -> 5
+Moments d'ordre 1 -> 180
+Moments d'ordre 2 -> 10750
+Moments d'ordre 3 -> 814230
+
+par->Print("Partition");
+Info in <KVPartition::Print>: Partitions
+Multiplicite 5
+Nombre de charges differentes 5
+89 46 20 13 12
+
+Int_t tab[12]={1,1,3,46,59,2,2,4,4,4,56,78};
+par->Fill(tab,12);
+par->Print("Moments");
+Info in <KVPartition::Print>: Moments #Sigma Z^{ordre}
+Nombres de moments calcules 3
+Moments d'ordre 0 -> 12
+Moments d'ordre 1 -> 260
+Moments d'ordre 2 -> 14884
+Moments d'ordre 3 -> 953120
+
+par->Print("Partition");
+Info in <KVPartition::Print>: Partitions
+Multiplicite 12
+Nombre de charges differentes 8
+78 59 56 46 4(3) 3 2(2) 1(2)
+
+Des methodes type Compare...(...) permettent de comparer une partition a une autre en utilisant differents
+ingredients
+
+Les methodes type Remove..(..) permettent de retirer des valeurs et de recalculer les grandeurs a partir
+des restantes
+
+Des grandeurs calculables a partir des moments peuvent etre definies dans la methode
+KVPartition::CalculValeursAdditionnelles() en la derivant dans une classe fille
+Ces grandeurs additionnelles sont stockées dans une KVGenParList
+pour y acceder on peut utiliser les methodes GetValeursEnPlus(...)
+
+
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +159,7 @@ void KVPartition::ComputeValues(){
 	
 	KVString snom,stamp;
 	Int_t mdiff=0,mtot=0;
+	//Boucle sur les valeurs de 0 a val_max
 	for (Int_t nn=val_max; nn>=0; nn-=1){
 		if (regle[nn]>0){
 			//Calcul des moments
@@ -114,6 +174,7 @@ void KVPartition::ComputeValues(){
 			}
 			
 			//Enregistrement des valeurs
+			//dans les deux tableaux 
 			valeurs_diff[mdiff++]=nn;
 			for (Int_t mm=0;mm<regle[nn];mm+=1){
 				valeurs[mtot++]=nn;
@@ -252,9 +313,9 @@ void KVPartition::Print(Option_t* option) const {
 		printf("Multiplicite %1.0lf\n",moments[0]);
 		printf("Nombre de charges differentes %d\n",nbre_val_diff);
 		for (Int_t mm=0;mm<nbre_val_diff;mm+=1){
-			printf("%d",valeurs[mm]);
-			if (regle[valeurs[mm]]>1)
-				printf("(%d)",regle[valeurs[mm]]);
+			printf("%d",valeurs_diff[mm]);
+			if (regle[valeurs_diff[mm]]>1)
+				printf("(%d)",regle[valeurs_diff[mm]]);
 			printf(" ");	
 		}
 		printf("\n");
@@ -269,67 +330,69 @@ void KVPartition::Print(Option_t* option) const {
 
 Int_t KVPartition::Compare(const TObject* obj) const {
 
-
-	Int_t sum=1;
-	sum*=CompareValeurs((KVPartition* )obj);
-
-	return sum;
+	return CompareName( (KVPartition* )obj );
 
 }
 
 Int_t KVPartition::CompareMoments(KVPartition* par) const {
-
-	Double_t val1=0,val2=0;
-	Int_t ordre=0;
-	
-	while ( val1 == val2 && ordre<=this->GetMomentOrdreMax() ){
-		val1 = par->GetMoment(ordre);
-		val2 = this->GetMoment(ordre);
-		ordre += 1;
+	//renvoie 1 si les moments sont identiques 0 sinon
+	//Attention la comparaison ne s'eefectue que jusqu'a l'ordre max defini
+	//pour les deux partitions
+	Int_t ordremax = TMath::Min(par->GetMomentOrdreMax(),this->GetMomentOrdreMax());
+	for (Int_t ord=0; ord<=ordremax; ord+=1){
+		if (par->GetMoment(ord) != this->GetMoment(ord)) 
+			return 0;
 	}
-	if (ordre>mom_max){
-		return 1;
-	}
-	return 0;
+	return 1;
 
 }
 
 Int_t KVPartition::CompareMult(KVPartition* par) const {
 
-	return Int_t(par->GetMultDiff()==this->GetMultDiff());
+	//renvoie 1 si toutes les multiplicites sont identiques 0 sinon
+	return Int_t(par->GetMult()==this->GetMult() && par->GetMultDiff()==this->GetMultDiff());
 
 }
 
 Int_t KVPartition::CompareValeurs(KVPartition* par) const {
 
+	//renvoie 1 si toutes les valeurs sont identiques 0 sinon
 	if (this->CompareMult(par)==0) return 0;
-	for (Int_t mm=0;mm<this->GetMultDiff();mm+=1)
-		if ( this->GetValeur(mm) != par->GetValeur(mm) || 
-		this->GetFrequence(mm) != par->GetFrequence(mm) )
-		return 0;	
-	
+	for (Int_t mm=0; mm<this->GetMultDiff(); mm+=1){
+		Int_t m1=this->GetValeurDiff(mm);
+		Int_t m2=par->GetValeurDiff(mm);
+		if ( (m1 != m2) || (this->GetFrequenceOf(m1) != par->GetFrequenceOf(m2)) ){
+			return 0;	
+		}
+	}
 	return 1;
 }
 
 Int_t KVPartition::CompareName(KVPartition* par) const {
 
+	//renvoie 1 si nom identique 0 sinon
 	if ( !strcmp(this->GetName(),par->GetName()) ) return 1;
 	else return 0;
 	
 }
 
 void KVPartition::CalculValeursAdditionnelles(){
-
+	//Exemple de valeurs additionnelles
+	//qui peuvent etre calculees en plus
+	//cette routine peut etre redefinie dans les classes filles
 	Double_t m1 = GetMomentNormalise(1); 
 	Double_t m2 = GetMomentNormalise(2); 
 	Double_t m3 = GetMomentNormalise(3); 
 	Double_t m4 = GetMomentNormalise(4); 
 	
 	lgen->SetValue("Mean",m1);
-	lgen->SetValue("RMS",TMath::Sqrt( m2 - TMath::Power(m1,2.) ) );
-	lgen->SetValue("Skewness",m3 - 3*m1*m2 +2*TMath::Power(m1,3.) );
-	lgen->SetValue("Kurtosis",m4 - 4*m1*m3 +6*TMath::Power(m1,2.)*m2 -3*TMath::Power(m1,4.) );
+	lgen->SetValue("RMS",TMath::Sqrt( m2 - TMath::Power(m1,2.) ) ); //Same as TH1::GetRMS()
 	Double_t rms = lgen->GetDoubleValue("RMS");
+	//Same as TH1::GetSkewness()
+	lgen->SetValue("Skewness",(m3 - 3*m1*m2 +2*TMath::Power(m1,3.))/TMath::Power(rms,3.) );
+	//Same as TH1::GetKurtosis()+3
+	lgen->SetValue("Kurtosis",(m4 - 4*m1*m3 +6*TMath::Power(m1,2.)*m2 -3*TMath::Power(m1,4.))/TMath::Power(rms,4.) );
+	
 	lgen->SetValue("GenAsym",( (GetMoment(0)>1) ? (1./TMath::Sqrt(GetMoment(0)-1.))*(rms/m1) : -1.) );
 	
 	lgen->SetValue("Z1",GetZ1());
@@ -364,6 +427,7 @@ Double_t  KVPartition::GetZmin(Int_t rang) const {
 
 Bool_t KVPartition::RemoveAt(Int_t rang) {
 
+	//return kTRUE if the indicated rank is occupied
 	Int_t val = Int_t(GetZmax(rang));
 	if (val==-1) return kFALSE;
 	
@@ -380,6 +444,7 @@ Bool_t KVPartition::RemoveAt(Int_t rang) {
 
 Bool_t KVPartition::RemoveValue(Int_t val) {
 
+	//return kTRUE if the indicated value belong to the partition
 	if (regle[val]>0){
 		Int_t nval = regle[val];
 		regle[val] = 0;
