@@ -139,7 +139,7 @@ class KVBreakUp:public TObject
 	}
 	KVString GetBreakUpMethod(void) const {return BreakUpMethod;}
 	
-	void StorePartition(Bool_t choix=kTRUE);
+	void StorePartitions(Bool_t choix=kTRUE);
 	
 	Int_t BreakUsingChain();
 	Int_t BreakUsingPile();

@@ -10,14 +10,48 @@
 ClassImp(KVBreakUp)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/* 
+BEGIN_HTML
 <h2>KVBreakUp</h2>
-<h4>Partitioning of an integer in a given number of interger
-under different conditions and/or wau of break up
+<h4>Partitioning (KVPartition) of an integer in a given number of intenger
+under different conditions and/or way of break up
 </h4>
-<!-- */
-// --> END_HTML
+END_HTML
+Initialisation :
+- Méthode SetConditions(Int_t zt,Int_t mt,Int_t zmin=1), définie la taille totale de la partition,
+le nombre de fragments et la taille minimale de la partition
+- Méthode DefineBreakUpMethod(KVString bup_method=""), permet de definir la facon de casser la taille initiale
+Sont implémentées : 
+		BreakUsingChain (defaut) -> On casse aléatoirement les liens entre charge
+		BreakUsingLine				-> On casse aléatoirement les liens entre charge + "effets de bords"
+		BreakUsingIndividual		-> On tire aleatoirement une taille puis les autres tailles seront tirées a partir de la charge restante
+		BreakUsingPile				-> On distribue 1 par un 1 les charges entre les fragments
+		etc...
+Normalement toutes ces methodes garantissent à chaque tirage, les conditions imposées par SetConditions
+- Méthode RedefineTRandom(KVString TRandom_Method), permet de redefinir la classe de tirage aleatoire voir TRandom et classes filles, la classe
+par default est TRandom3
+- Méthode StorePartitions(Bool_t), permet de dire si l'on veut enregistrer les partitions dans un arbre KVBreakUp::GetTree() et qu'elles 
+soient gérées par un KVPartitionManager (KVBreakUp::GetManager())
+Exemple d'utilisation : 
+void test{
+
+KVBreakUp* bu = new KVBreakUp();
+bu->SetConditions(80,6,5);
+bu->StorePartitions();
+bu->BreakNtimes(10000);
+bu->GetManager()->TransfertToMainList();
+
+bu->BreakNtimesOnGaussian(10000,80, 5, 6, 1, 5);
+bu->GetManager()->TransfertToMainList();
+
+bu->GetTree()->GetListOfBranches()->ls();
+bu->GetHistos()->ls();
+
+bu->DrawPanel();
+
+}
+
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -74,7 +108,7 @@ void KVBreakUp::StoreEntriesInTree(){
 
 }
 
-void KVBreakUp::StorePartition(Bool_t choix){
+void KVBreakUp::StorePartitions(Bool_t choix){
 	SetBit(kStorePartitions,choix);
 	if ( !GetTree() ) StoreEntriesInTree();
 	if ( !GetManager() ){

@@ -12,57 +12,54 @@
 ClassImp(KVPartition)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/*
+BEGIN_HTML
 <h2>KVPartition</h2>
 <h4>Permet de gerer des partitions de nombres entiers et le calcul de grandeurs associees</h4>
-Cette trouve une application dans la gestion de partition de charges {Z_{i}}i=1,M
+END_HTML
+Cette classe trouve une application dans la gestion de partition de charges 
+BEGIN_LATEX
+{Z_{i},i=1,M_{tot}}
+END_LATEX
 Elle a deux parametres d'entree qui sont accessibles par le constructeur
-Il s'agit de la taille maximale du systeme a partitionner (val_max) et/ou de la taille du plus gros cluster
-et l'ordre supérireure des moments (mommax) qui seront calcules automatiquement KVPartition::Compute()
-M 0 = \sigma Occ(Z_{i})*Z_{i}^{0}
-M 1 = \sigma Occ(Z_{i})*Z_{i}^{1}
-M 2 = \sigma Occ(Z_{i})*Z_{i}^{2}
-...
-...
-M mom_max = \sigma Occ(Z_{i})*Z_{i}^{mom_max}
-où Occ(Z_{i}) est l'occurence de la charge/nombre entier Z_{i}
+Il s'agit de :
+- la taille maximale du systeme a partitionner (val_max) et/ou de la taille du plus gros cluster
+- l'ordre supérireure des moments (mommax) qui seront calcules automatiquement KVPartition::Compute()
+BEGIN_LATEX
+Moment d'ordre n : M_{n} = \Sigma_{i=1,Mtot} P( Z_{i} ) * Z_{i}^{ n}
+END_LATEX
+
 Les methodes type Fill...(...) permettent de remplir et de classer la partition dans le meme temps
 A chaque appel de ces methodes les contenus de la classe sont reinititialises et recalcules
 
-KVPartition* par = new KVPartition(100,3)
+Voici un petit exemple pour remplir une KVPartition de deux facons
 
+BEGIN_HTML
+<pre>
+<code>
+void test()
+{
+Int_t* taInt_t* tab=0;
+
+KVPartition* par = new KVPartition(100,3);
 par->Fill("12 13 46 20 89");
-par->Print("Moments")
-Info in <KVPartition::Print>: Moments #Sigma Z^{ordre}
-Nombres de moments calcules 3
-Moments d'ordre 0 -> 5
-Moments d'ordre 1 -> 180
-Moments d'ordre 2 -> 10750
-Moments d'ordre 3 -> 814230
-
-par->Print("Partition");
-Info in <KVPartition::Print>: Partitions
-Multiplicite 5
-Nombre de charges differentes 5
-89 46 20 13 12
-
-Int_t tab[12]={1,1,3,46,59,2,2,4,4,4,56,78};
-par->Fill(tab,12);
 par->Print("Moments");
-Info in <KVPartition::Print>: Moments #Sigma Z^{ordre}
-Nombres de moments calcules 3
-Moments d'ordre 0 -> 12
-Moments d'ordre 1 -> 260
-Moments d'ordre 2 -> 14884
-Moments d'ordre 3 -> 953120
-
 par->Print("Partition");
-Info in <KVPartition::Print>: Partitions
-Multiplicite 12
-Nombre de charges differentes 8
-78 59 56 46 4(3) 3 2(2) 1(2)
 
+tab = new Int_t[12];
+for (Int_t nn=0;nn<12;nn+=1){
+	tab[nn] = TMath::Nint(gRandom->Uniform(0.9,20.1));
+}
+	par->Fill(tab,12);
+	par->Print("Moments");
+	par->Print("Partition");
+
+delete [] tab;
+delete par;
+}
+</code>
+</pre>
+END_HTML
 Des methodes type Compare...(...) permettent de comparer une partition a une autre en utilisant differents
 ingredients
 
@@ -73,10 +70,7 @@ Des grandeurs calculables a partir des moments peuvent etre definies dans la met
 KVPartition::CalculValeursAdditionnelles() en la derivant dans une classe fille
 Ces grandeurs additionnelles sont stockées dans une KVGenParList
 pour y acceder on peut utiliser les methodes GetValeursEnPlus(...)
-
-
-<!-- */
-// --> END_HTML
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVPartition::init(Int_t valmax,Int_t mommax)

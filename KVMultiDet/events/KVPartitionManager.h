@@ -55,7 +55,7 @@ class KVPartitionManager : public KVList
 	TH1F* GenereHisto(KVString method,Int_t nb,Double_t min,Double_t max);
 	TTree* GenereTree(KVString tree_name,Bool_t Compress=kTRUE,Bool_t AdditionalValues=kTRUE);
 	
-   ClassDef(KVPartitionManager,1)//Count, Store and Sort partitions
+   ClassDef(KVPartitionManager,1)//Permet d'enregistrer, de classer et compter des partitions d'entiers via la classe KVPartition
 };
 
 #endif

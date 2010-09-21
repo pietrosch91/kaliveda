@@ -13,12 +13,91 @@
 ClassImp(KVPartitionManager)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/*
+BEGIN_HTML
 <h2>KVPartitionManager</h2>
-<h4>Count, Store and Sort partitions</h4>
-<!-- */
-// --> END_HTML
+<h4>Permet d'enregistrer, de classer et compter des partitions d'entiers via la classe KVPartition</h4>
+END_HTML
+Classe heritant de KVList, elle est decomposee en sous listes afin de rendre le traitement d'un grand nombre de partitions
+plus rapides "diviser pour mieux regner" http://fr.wikipedia.org/wiki/Diviser_pour_régner_(informatique)
+Le nombre de partitions par sous liste est donné par le champs Nmax (valeur par defaut 200)
+
+Le remplissage s'effectue par la methode TestPartition(KVPartition* par), si "par", la partition en question
+existe deja dans la liste la population de la partition existante KVPartition::GetPopulation() est incrémenté
+sinon on enregistre la partition "par" dans la liste
+
+Apres un certain nombre de remplissage, on appelle la methode KVPartitionManager::ReduceSubLists()
+qui compare les partitions d'une sous liste par rapport a l'autre, et qui reduit progressivement 
+le nombre d'objet KVPartition en jouant sur la population
+
+On peut ensuite réeffectuer une phase de remplissage et ensuite reduire etc ...
+Lorsque toutes les partitions a etudier sont là, on appelle la methode KVPartitionManager::TransfertToMainList()
+qui va migrer l'ensemble des partitions enregistrées dans les sous listes reduites vers la liste principale "this"
+
+A partir de là on peut : 
+
+- creer des histos via TH1F* KVPartitionManager::GenereHisto(KVString method,Int_t nb,Double_t min,Double_t max), ou "method" est une methode 
+de KVPartition, ex KVPartition::GetZ1(), KVPartition::GetMtot(), etc ..., cette methode ne marche que pour les methodes de KVPartition
+ne possedant pas d'argument ou un avec une valeur par defaut
+- trier les partitions suivant egalement des methodes de KVPartition, de manière croissante down=kFALSE ou decroissante (down=kTRUE)
+Int_t* KVPartitionManager::GetIndex(KVString method, Bool_t down)
+- creer  un arbre via la méthode TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t AdditionalValue)
+où :
+	- "Compress" indique si on enregistre la partition avec sa population, on si on enregistre "population" fois la partition 
+	- "AdditionalValue" indique si on enregistre egalement les valeurs additionnionelles definies dans la methode KVPartition::CalculValeursAdditionnelles ou non
+
+Un exemple de remplissage et de gestion de KVPartitionManager est donné dans la classe KVBreakUp	
+
+Ci dessous une petite routine de remplissage et de visualisation de partitions determinees aleatoirement
+BEGIN_HTML
+<pre>
+<code>
+void Test(){
+
+KVPartitionManager* mg = new KVPartitionManager(); 
+Int_t *tab; 
+KVPartition* par = 0;
+for (Int_t pp=1; pp<=10000; pp+=1){ 
+	
+	par = new KVPartition(120,4); 
+	Int_t mm = TMath::Nint(gRandom->Uniform(0.9,10.1));
+	
+	tab = new Int_t[mm];	 
+	for (Int_t nn=0; nn<mm; nn+=1){
+		tab[nn] = TMath::Nint(gRandom->Uniform(0.9,60.1));
+	}
+	par->Fill(tab,mm);
+	if (!mg->TestPartition(par)) delete par; 
+	delete [] tab;
+
+}
+
+mg->ReduceSubLists(); 	//Reduction
+mg->TransfertToMainList(); //Transfert
+mg->PrintInfo();
+
+TH1F* h1 = mg->GenereHisto("GetZ1",70,0.5,70.5); 
+h1->SetLineColor(4);
+h1->Draw();
+ 
+TH1F* h2 = mg->GenereHisto("GetZ2",70,0.5,70.5); 
+h2->SetLineColor(2);
+h2->Draw("same");
+
+TTree* tt = mg->GenereTree("test",kTRUE,kTRUE);
+tt->GetListOfBranches()->ls();
+tt->SetLineColor(4);
+tt->SetMarkerStyle(24);
+tt->Draw("Z1","pop","same,P");
+tt->SetMarkerStyle(21);
+tt->Draw("Z1","","same,P");
+
+}
+
+</code>
+</pre>
+END_HTML
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 KVPartitionManager::KVPartitionManager()
@@ -256,8 +335,6 @@ TH1F* KVPartitionManager::GenereHisto(KVString method,Int_t nb,Double_t min,Doub
 	return h1;
 
 }
-
-
 
 Int_t* KVPartitionManager::GetIndex(KVString method, Bool_t down){
 
