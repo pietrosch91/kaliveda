@@ -232,6 +232,8 @@
 #pragma link C++ class KVPartition+;
 #pragma link C++ class KVPartitionFromLeaf+;
 #pragma link C++ class KVPartitionManager+;
+#pragma link C++ class KVCouple+;
+#pragma link C++ class KVPartitionGenerator+;
 #pragma link C++ class KVGVList;
 #pragma link C++ class KVTrieur;
 #pragma link C++ class KVTrieurLin;
