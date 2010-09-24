@@ -9,6 +9,7 @@
 #include "TH1F.h"
 #include "TROOT.h"
 #include "TTree.h"
+#include "KVNameValueList.h"
 
 ClassImp(KVPartitionManager)
 
@@ -109,7 +110,19 @@ KVPartitionManager::KVPartitionManager()
 KVPartitionManager::~KVPartitionManager()
 {
    // Destructor
+	while (this->GetEntries()>0)
+		delete this->RemoveAt(0);
+	
+	KVList* kl = 0;	
+	while (listdepassage->GetEntries()>0){
+		kl = (KVList* )listdepassage->RemoveAt(0);
+		while (kl->GetEntries()>0){
+			delete kl->RemoveAt(0);
+		}
+		delete kl;
+	}
 	delete listdepassage;
+	
 	lgen.Clear();	
 }
 
@@ -413,7 +426,7 @@ TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t 
 	
 	KVPartition* par;
 	
-	KVGenParList* add=0;
+	KVNameValueList* add=0;
 	Double_t* tab_add=0;
 	
 	if (AdditionalValue){
@@ -422,11 +435,11 @@ TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t 
 		add = par->GetParametersList();
 		Info("GenereTree","Parametres additionels");
 		add->Print();
-		tab_add = new Double_t[add->GetNPar()];
+		tab_add = new Double_t[add->GetNpar()];
 	
-		for (Int_t np=0;np<add->GetNPar();np+=1){
-			KVString snom1; snom1.Form("%s",add->GetParameter(np)->GetName());
-			KVString snom2; snom2.Form("%s/D",add->GetParameter(np)->GetName());
+		for (Int_t np=0;np<add->GetNpar();np+=1){
+			KVString snom1; snom1.Form("%s",add->GetNameAt(np));
+			KVString snom2; snom2.Form("%s/D",add->GetNameAt(np));
 			tree->Branch(snom1.Data(),				&tab_add[np],		snom2.Data());
 		}
 	}
@@ -443,8 +456,8 @@ TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t 
 		if (AdditionalValue){
 			par->CalculValeursAdditionnelles();
 			add = par->GetParametersList();
-			for (Int_t np=0;np<add->GetNPar();np+=1){
-				tab_add[np] = add->GetDoubleValue(add->GetParameter(np)->GetName());
+			for (Int_t np=0;np<add->GetNpar();np+=1){
+				tab_add[np] = add->GetDoubleValue(add->GetNameAt(np));
 			}
 		}
 		

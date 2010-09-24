@@ -7,7 +7,7 @@
 
 class KVNumberList;
 class KVEvent;
-class KVGenParList;
+class KVNameValueList;
 
 class KVPartition : public TObject
 {
@@ -40,7 +40,7 @@ class KVPartition : public TObject
 	KVString name;
    // list de valeurs additionelles pouvant etre definies et calculees
 	// dans la methode CalculValeursAdditionnelles des classes filles
-	KVGenParList* lgen;	//->
+	KVNameValueList* lgen;	//->
 	
 	public:
   	
@@ -115,7 +115,7 @@ class KVPartition : public TObject
 	Int_t CompareValeurs(KVPartition* par) const;
 	Int_t CompareName(KVPartition* par) const;
 	
-	KVGenParList* GetParametersList() const { return lgen; }
+	KVNameValueList* GetParametersList() const { return lgen; }
 	virtual void CalculValeursAdditionnelles();
 	Double_t GetValeursEnPlus(KVString sname);
 	Double_t GetValeursEnPlus(const char* sname);

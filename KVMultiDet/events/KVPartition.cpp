@@ -7,7 +7,7 @@
 #include "KVNumberList.h"
 #include "KVEvent.h"
 #include "KVNucleus.h"
-#include "KVGenParList.h"
+#include "KVNameValueList.h"
 
 ClassImp(KVPartition)
 
@@ -92,7 +92,8 @@ void KVPartition::init(Int_t valmax,Int_t mommax)
 	
 	//SetBit(kCanDelete,kTRUE);
 	
-	lgen = new KVGenParList();
+	lgen = new KVNameValueList();
+	SetName("");
 }
 
 KVPartition::KVPartition(Int_t valmax,Int_t mommax)
@@ -110,14 +111,13 @@ KVPartition::KVPartition()
 KVPartition::~KVPartition()
 {
    // Destructor
+	Info("~KVPartition()","Je suis dans le destructeur");
+	Reset();
+	
 	delete [] regle;		regle=0;
 	delete [] moments;	moments=0;
 	delete lgen; 			lgen=0;
-	/*
-	val_max=0;
-	mul_max=0;
-	mom_max=0;
-	*/
+
 }
 
 void KVPartition::Copy(TObject & obj) const{
@@ -285,6 +285,7 @@ void KVPartition::Reset(){
 	
 	ResetMoments();
 	ResetPopulation();
+	SetName("");
 
 }
 
@@ -371,6 +372,7 @@ Int_t KVPartition::CompareName(KVPartition* par) const {
 }
 
 void KVPartition::CalculValeursAdditionnelles(){
+	
 	//Exemple de valeurs additionnelles
 	//qui peuvent etre calculees en plus
 	//cette routine peut etre redefinie dans les classes filles
