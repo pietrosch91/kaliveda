@@ -111,7 +111,7 @@ KVPartition::KVPartition()
 KVPartition::~KVPartition()
 {
    // Destructor
-	Info("~KVPartition()","Je suis dans le destructeur");
+	//Info("~KVPartition()","Je suis dans le destructeur");
 	Reset();
 	
 	delete [] regle;		regle=0;

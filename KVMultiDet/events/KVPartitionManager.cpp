@@ -110,20 +110,13 @@ KVPartitionManager::KVPartitionManager()
 KVPartitionManager::~KVPartitionManager()
 {
    // Destructor
+
+	Reset();
+
 	while (this->GetEntries()>0)
 		delete this->RemoveAt(0);
 	
-	KVList* kl = 0;	
-	while (listdepassage->GetEntries()>0){
-		kl = (KVList* )listdepassage->RemoveAt(0);
-		while (kl->GetEntries()>0){
-			delete kl->RemoveAt(0);
-		}
-		delete kl;
-	}
-	delete listdepassage;
 	
-	lgen.Clear();	
 }
 
 void KVPartitionManager::init(){

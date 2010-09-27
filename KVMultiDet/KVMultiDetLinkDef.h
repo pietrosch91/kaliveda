@@ -230,6 +230,7 @@
 #pragma link C++ class KVPtot;
 #pragma link C++ class KVZVtot;
 #pragma link C++ class KVPartition+;
+#pragma link C++ class KVIntegerList-;
 #pragma link C++ class KVPartitionFromLeaf+;
 #pragma link C++ class KVPartitionManager+;
 #pragma link C++ class KVCouple+;
