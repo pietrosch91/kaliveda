@@ -8,6 +8,7 @@
 class KVNumberList;
 class KVEvent;
 class KVNameValueList;
+class TArrayI;
 
 class KVPartition : public TObject
 {
@@ -64,6 +65,7 @@ class KVPartition : public TObject
 	const char* GetTitle() const { KVString stit; stit.Form("%d",GetPopulation()); return stit.Data(); }
 	
 	void Fill(Int_t* tab,Int_t mult);
+	void Fill(TArrayI* arr);
 	void Fill(Double_t* tab,Int_t mult);
 	void FillWithConditions(Int_t* tab,Int_t mult,Int_t zmin=-1,Int_t zmax=-1);
 	void Fill(KVNumberList nl);

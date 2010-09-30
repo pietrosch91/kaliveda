@@ -4,43 +4,58 @@
 #ifndef __KVPartitionGenerator_H
 #define __KVPartitionGenerator_H
 #include "KVString.h"
+#include "KVPartitionManager.h"
 
-class KVPartition;
-class TFile;
 class TTree;
+class TFile;
+class KVNumberList;
+class TList;
+class TEventList;
 
-class KVPartitionGenerator
+class KVPartitionGenerator : public KVPartitionManager
 {
 
    public:
    KVPartitionGenerator();
    void SetConditions(Int_t Zfrag,Int_t Mfrag,Int_t Zinf);
 	
-	KVPartition* par;
-	TFile* file;
-	TTree* tt;
-	
+	Int_t ndim;
 	Int_t mshift;
 	Int_t zshift;
 	Bool_t to_be_checked;
 	
 	Int_t mtot,ztot;
-	Int_t* tabz;	//[mtot]
+	Int_t* tabz;	//[ndim]
 	
 	Int_t kzf,kmf,kzm;
 	Int_t* kcurrent;
 	
+	TFile* file;
+	TTree* tree;
+	TList* levt;
+	TEventList* evt;
+	
+	UInt_t npar;
+	UInt_t npar_zf_mf;
+	
+	KVNumberList* nl_zf;
+	KVNumberList* nl_mf;
+	KVNumberList* nl_zm;
+	
 	virtual ~KVPartitionGenerator();
 	
-	void DefineTree(KVString file_name);
+	void Process();
 	
-	void Process(KVString file_name="test.root");
+	void Break_Using_Zf_Zinf_Criterion(Int_t Zfrag,Int_t Zinf);
+	void Break_Using_Zf_Zmax_Zinf_Criterion(Int_t Zfrag,Int_t Zmax,Int_t Zinf);
+   void Break_Using_Mf_Zmax_Zinf_Criterion(Int_t Mfrag,Int_t Zmax,Int_t Zinf);
+	void Break_Using_Zf_Mf_Zinf_Criterion(Int_t Zfrag,Int_t Mfrag,Int_t Zinf);
 	
-	void Test_Zf_Zinf(Int_t Zfrag,Int_t Zinf);
-	void Test_Zf_Zmax_Zinf(Int_t Zfrag,Int_t Zmax,Int_t Zinf);
-   void Test_Mf_Zmax_Zinf(Int_t Mfrag,Int_t Zmax,Int_t Zinf);
-	void Test_Zf_Mf_Zinf(Int_t Zfrag,Int_t Mfrag,Int_t Zinf);
+	void TreatePartition();
+	void SaveAndCloseFile();
+	void WriteInfo();
 	
+	void PreparTree(const Char_t* filename,const Char_t* treename,Int_t Ndim=1000,Option_t* option="recreate");
 	ClassDef(KVPartitionGenerator,1)//Calcul numeriquement toutes les partitions d'un couple Zfrag/Mfrag donne
 };
 

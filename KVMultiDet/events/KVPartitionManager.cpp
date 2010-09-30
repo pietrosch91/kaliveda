@@ -3,13 +3,15 @@
 
 #include "KVPartitionManager.h"
 #include "KVString.h"
-#include "KVPartition.h"
+#include "KVIntegerList.h"
 #include "TMethodCall.h"
 #include "TMath.h"
 #include "TH1F.h"
 #include "TROOT.h"
 #include "TTree.h"
 #include "KVNameValueList.h"
+#include "TStopwatch.h"
+#include "TArrayI.h"
 
 ClassImp(KVPartitionManager)
 
@@ -17,19 +19,19 @@ ClassImp(KVPartitionManager)
 /*
 BEGIN_HTML
 <h2>KVPartitionManager</h2>
-<h4>Permet d'enregistrer, de classer et compter des partitions d'entiers via la classe KVPartition</h4>
+<h4>Permet d'enregistrer, de classer et compter des partitions d'entiers via la classe KVIntegerList</h4>
 END_HTML
 Classe heritant de KVList, elle est decomposee en sous listes afin de rendre le traitement d'un grand nombre de partitions
 plus rapides "diviser pour mieux regner" http://fr.wikipedia.org/wiki/Diviser_pour_régner_(informatique)
 Le nombre de partitions par sous liste est donné par le champs Nmax (valeur par defaut 200)
 
-Le remplissage s'effectue par la methode TestPartition(KVPartition* par), si "par", la partition en question
-existe deja dans la liste la population de la partition existante KVPartition::GetPopulation() est incrémenté
+Le remplissage s'effectue par la methode TestPartition(KVIntegerList* par), si "par", la partition en question
+existe deja dans la liste la population de la partition existante KVIntegerList::GetPopulation() est incrémenté
 sinon on enregistre la partition "par" dans la liste
 
 Apres un certain nombre de remplissage, on appelle la methode KVPartitionManager::ReduceSubLists()
 qui compare les partitions d'une sous liste par rapport a l'autre, et qui reduit progressivement 
-le nombre d'objet KVPartition en jouant sur la population
+le nombre d'objet KVIntegerList en jouant sur la population
 
 On peut ensuite réeffectuer une phase de remplissage et ensuite reduire etc ...
 Lorsque toutes les partitions a etudier sont là, on appelle la methode KVPartitionManager::TransfertToMainList()
@@ -38,14 +40,14 @@ qui va migrer l'ensemble des partitions enregistrées dans les sous listes reduit
 A partir de là on peut : 
 
 - creer des histos via TH1F* KVPartitionManager::GenereHisto(KVString method,Int_t nb,Double_t min,Double_t max), ou "method" est une methode 
-de KVPartition, ex KVPartition::GetZ1(), KVPartition::GetMtot(), etc ..., cette methode ne marche que pour les methodes de KVPartition
+de KVIntegerList, ex KVIntegerList::GetZ1(), KVIntegerList::GetMtot(), etc ..., cette methode ne marche que pour les methodes de KVIntegerList
 ne possedant pas d'argument ou un avec une valeur par defaut
-- trier les partitions suivant egalement des methodes de KVPartition, de manière croissante down=kFALSE ou decroissante (down=kTRUE)
+- trier les partitions suivant egalement des methodes de KVIntegerList, de manière croissante down=kFALSE ou decroissante (down=kTRUE)
 Int_t* KVPartitionManager::GetIndex(KVString method, Bool_t down)
 - creer  un arbre via la méthode TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t AdditionalValue)
 où :
 	- "Compress" indique si on enregistre la partition avec sa population, on si on enregistre "population" fois la partition 
-	- "AdditionalValue" indique si on enregistre egalement les valeurs additionnionelles definies dans la methode KVPartition::CalculValeursAdditionnelles ou non
+	- "AdditionalValue" indique si on enregistre egalement les valeurs additionnionelles definies dans la methode KVIntegerList::CalculValeursAdditionnelles ou non
 
 Un exemple de remplissage et de gestion de KVPartitionManager est donné dans la classe KVBreakUp	
 
@@ -57,10 +59,10 @@ void Test(){
 
 KVPartitionManager* mg = new KVPartitionManager(); 
 Int_t *tab; 
-KVPartition* par = 0;
+KVIntegerList* par = 0;
 for (Int_t pp=1; pp<=10000; pp+=1){ 
 	
-	par = new KVPartition(120,4); 
+	par = new KVIntegerList(120,4); 
 	Int_t mm = TMath::Nint(gRandom->Uniform(0.9,10.1));
 	
 	tab = new Int_t[mm];	 
@@ -107,6 +109,13 @@ KVPartitionManager::KVPartitionManager()
 	init();
 }
 
+KVPartitionManager::KVPartitionManager(KVString option)
+{
+   // Default constructor
+	init();
+	SetFillingMode(option);
+}
+
 KVPartitionManager::~KVPartitionManager()
 {
    // Destructor
@@ -128,6 +137,25 @@ void KVPartitionManager::init(){
 	nombre_total=0;
 	SetName("MainListe");
 	lgen.Clear();
+	kcheck=kTRUE;
+	
+}
+
+void KVPartitionManager::Reset(){
+
+	KVList* li = GetIntermediate();
+	Int_t tot = li->GetEntries();
+	for (Int_t ii=0; ii<tot; ii+=1) {
+		KVList* sl = (KVList* )li->RemoveAt(0);	
+		Int_t toti = sl->GetEntries();
+		for (Int_t jj=0;jj<toti; jj+=1)
+			delete (KVIntegerList* )sl->RemoveAt(0);
+		delete sl;
+	}
+	
+	Clear();
+	CreationSousListe();
+	UpdateCompteurs();
 	
 }
 
@@ -140,12 +168,13 @@ void KVPartitionManager::CreationSousListe(){
 	
 }
 
-Bool_t KVPartitionManager::TestPartition(KVPartition* par){
+Bool_t KVPartitionManager::TestPartition(KVIntegerList* par){
 
-	Bool_t IsNew=kFALSE;
 	KVList* sl = (KVList* )GetIntermediate()->Last();
-	KVPartition* pp = 0;
-	if ( !(pp = (KVPartition* )sl->FindObject(par->GetName())) ){
+	Bool_t IsNew = kFALSE;
+	
+	KVIntegerList* pp = 0;
+	if ( !(pp = (KVIntegerList* )sl->FindObject(par->GetName())) ){
 		sl->Add(par);
 		IsNew=kTRUE;
 		if (sl->GetEntries()==Nmax){
@@ -158,32 +187,51 @@ Bool_t KVPartitionManager::TestPartition(KVPartition* par){
 
 }
 
+Bool_t KVPartitionManager::FillPartition(KVIntegerList* par){
+
+	
+	Add(par);
+	return kTRUE;
+
+}
+
+
+Bool_t KVPartitionManager::Fill(KVIntegerList* par){
+
+	if (kcheck) return TestPartition(par);
+	else 			return FillPartition(par);
+
+}
+
 void KVPartitionManager::ReduceSubLists(){
 
+	TStopwatch st; st.Start();
+	
 	KVList* ll = GetIntermediate();
 	Info("ReduceSubLists","nbre de sous listes : %d",ll->GetEntries());
 
 	KVList *sl0,*sl1;
 	Int_t passage=2;
 	Int_t nsl = ll->GetEntries();
-	
+	Int_t entries;
 	while (nsl>1){
 		
 		Int_t pas =1;
 		for (Int_t nn=0;nn<ll->GetEntries();nn+=pas){
 			
 			sl0  = (KVList* )ll->At(nn);
+			entries = sl0->GetEntries();
 			
 			if (nn+1<ll->GetEntries()){
 				sl1  = (KVList* )ll->At(nn+1);
 				if (!sl1) Info("ReduceSubLists","pas de liste sl1 a la position %d",nn+1);
 			
-				KVPartition* par0=0,*par1=0;
+				KVIntegerList* par0=0,*par1=0;
 				while (sl1->GetEntries()>0){
 			
-					par1 = (KVPartition* )sl1->RemoveAt(0);
+					par1 = (KVIntegerList* )sl1->RemoveAt(0);
 			
-					if ( (par0 = (KVPartition* )sl0->FindObject(par1->GetName())) ){
+					if ( (par0 = (KVIntegerList* )sl0->FindObject(par1->GetName())) ){
 						par0->AddPopulation(par1->GetPopulation());
 						delete par1;
 					}
@@ -203,7 +251,8 @@ void KVPartitionManager::ReduceSubLists(){
 	}
 		
 	UpdateCompteurs((KVList* )ll->At(0));
-
+	st.Stop();
+	Info("ReduceSubLists","Temps de traitement %lf",st.RealTime());
 }
 
 void KVPartitionManager::TransfertToMainList(){
@@ -233,9 +282,9 @@ void KVPartitionManager::TransfertToMainList(){
 
 void KVPartitionManager::ReduceWithOne(KVList* sl){
 
-	KVPartition* par0=0,*par1=0;
+	KVIntegerList* par0=0,*par1=0;
 	while (sl->GetEntries()>0){
-		par1 = (KVPartition* )sl->RemoveAt(0);
+		par1 = (KVIntegerList* )sl->RemoveAt(0);
 		if ( (par0 = FindPartition(par1->GetName())) ){
 			par0->AddPopulation(par1->GetPopulation());
 			delete par1;
@@ -248,13 +297,14 @@ void KVPartitionManager::ReduceWithOne(KVList* sl){
 
 void KVPartitionManager::UpdateCompteurs(KVList* current){
 	
+	/*
 	if (!current) {
 		nombre_diff = GetEntries();
 		nombre_total = 0;
 		Float_t ztot_min=10000,z_min=10000,mtot_min=10000;
 		Float_t ztot_max=-10000,z_max=-10000,mtot_max=-10000;
 		
-		KVPartition* par = 0;
+		KVIntegerList* par = 0;
 		for (Int_t nn=0;nn<nombre_diff;nn+=1) {
 			par = GetPartition(nn);
 			nombre_total += par->GetPopulation();
@@ -277,7 +327,36 @@ void KVPartitionManager::UpdateCompteurs(KVList* current){
 		Int_t n_diff=0;
 		Int_t n_total=0;	
 		n_diff = current->GetEntries();
-		for (Int_t nn=0;nn<n_diff;nn+=1) n_total += ((KVPartition* )current->At(nn))->GetPopulation();
+		for (Int_t nn=0;nn<n_diff;nn+=1) n_total += ((KVIntegerList* )current->At(nn))->GetPopulation();
+	
+		Info("UpdateCompteurs","%s %d partitions enregistrees dont %d differentes",
+			current->GetName(),n_total,n_diff);
+	}
+	*/
+	if (!current) {
+		nombre_diff = GetEntries();
+		nombre_total = 0;
+		Float_t mtot_min=10000;
+		Float_t mtot_max=-10000;
+		
+		KVIntegerList* par = 0;
+		for (Int_t nn=0;nn<nombre_diff;nn+=1) {
+			if (nn%5000==0)
+				Info("UpdateCompteurs","%d partitions traitees",nn);
+			par = GetPartition(nn);
+			nombre_total += par->GetPopulation();
+			if (par->GetNbre()>mtot_max) 	mtot_max=par->GetNbre();
+			if (par->GetNbre()<mtot_min)	mtot_min=par->GetNbre();
+		}
+		
+		lgen.SetValue("Mtot_max",mtot_max);
+		lgen.SetValue("Mtot_min",mtot_min);
+	}
+	else {
+		Int_t n_diff=0;
+		Int_t n_total=0;	
+		n_diff = current->GetEntries();
+		for (Int_t nn=0;nn<n_diff;nn+=1) n_total += ((KVIntegerList* )current->At(nn))->GetPopulation();
 	
 		Info("UpdateCompteurs","%s %d partitions enregistrees dont %d differentes",
 			current->GetName(),n_total,n_diff);
@@ -285,25 +364,9 @@ void KVPartitionManager::UpdateCompteurs(KVList* current){
 
 }
 
-void KVPartitionManager::Reset(){
-
-	KVList* li = GetIntermediate();
-	Int_t tot = li->GetEntries();
-	for (Int_t ii=0; ii<tot; ii+=1) {
-		KVList* sl = (KVList* )li->RemoveAt(0);	
-		Int_t toti = sl->GetEntries();
-		for (Int_t jj=0;jj<toti; jj+=1)
-			delete (KVPartition* )sl->RemoveAt(0);
-		delete sl;
-	}
-	
-	Clear();
-	CreationSousListe();
-	UpdateCompteurs();
-	
-}
 
 
+/*
 TH1F* KVPartitionManager::GenereHisto(KVString method,Int_t nb,Double_t min,Double_t max){
 
 	if (GetEntries()==0) return 0;
@@ -341,7 +404,8 @@ TH1F* KVPartitionManager::GenereHisto(KVString method,Int_t nb,Double_t min,Doub
 	return h1;
 
 }
-
+*/
+/*
 Int_t* KVPartitionManager::GetIndex(KVString method, Bool_t down){
 
 	if (GetEntries()==0) return 0;
@@ -401,85 +465,61 @@ Double_t* KVPartitionManager::GetValues_Double(TMethodCall& meth){
 	}
 	return val;
 }
+*/	
+TTree* KVPartitionManager::GenereTree(KVString treename,Bool_t Compress){	//,Bool_t AdditionalValue){
 	
-TTree* KVPartitionManager::GenereTree(KVString tree_name,Bool_t Compress,Bool_t AdditionalValue){
-
+	//UpdateCompteurs();
+	
 	if (GetEntries()==0) return 0;
 	
 	Int_t mmax = lgen.GetIntValue("Mtot_max");
-	Int_t* val = new Int_t[mmax];
-	Int_t n_val;
+	Info("GenereTree","Multiplicity max entregistree %d",mmax);
+	Int_t* tabz = new Int_t[1000];
+	Int_t mtot;
 	Int_t pop;
+	Info("GenereTree","Nbre de partitions entregistrees %d",GetEntries());
 	
-	TTree* tree = new TTree(tree_name.Data(),"FromKVPartitionManager");
-	tree->Branch("n_val",			&n_val,	"n_val/I");
-	tree->Branch("val",				val,		"val[n_val]/I");
+	TTree* tree = new TTree(treename.Data(),"FromKVPartitionManager");
+	tree->Branch("mtot",			&mtot,	"mtot/I");
+	tree->Branch("tabz",			tabz,		"tabz[mtot]/I");
 	if (Compress)
 		tree->Branch("pop",	&pop,		"pop/I");
 	
-	KVPartition* par;
-	
-	KVNameValueList* add=0;
-	Double_t* tab_add=0;
-	
-	if (AdditionalValue){
-		par = GetPartition(0);
-		par->CalculValeursAdditionnelles();
-		add = par->GetParametersList();
-		Info("GenereTree","Parametres additionels");
-		add->Print();
-		tab_add = new Double_t[add->GetNpar()];
-	
-		for (Int_t np=0;np<add->GetNpar();np+=1){
-			KVString snom1; snom1.Form("%s",add->GetNameAt(np));
-			KVString snom2; snom2.Form("%s/D",add->GetNameAt(np));
-			tree->Branch(snom1.Data(),				&tab_add[np],		snom2.Data());
-		}
-	}
-	
+	KVIntegerList* par;
+	TArrayI* table = 0;
 	for (Int_t kk=0;kk<GetEntries();kk+=1){
 		par = GetPartition(kk);
-		
-		n_val = Int_t(par->GetMtot());
-		for (Int_t nn=0;nn<n_val;nn+=1)
-			val[nn] = par->GetValeur(nn);
-		
+		table = par->GetTableOfValues();
+		mtot = par->GetNbre();
+		if (kk%5000==0)
+			Info("GenereTree","%d partitions traitees",kk);
 		pop = par->GetPopulation();
+		for (Int_t mm=0;mm<mtot;mm+=1)
+			tabz[mm] = table->At(mm);
 		
-		if (AdditionalValue){
-			par->CalculValeursAdditionnelles();
-			add = par->GetParametersList();
-			for (Int_t np=0;np<add->GetNpar();np+=1){
-				tab_add[np] = add->GetDoubleValue(add->GetNameAt(np));
-			}
-		}
-		
-		
-		if (Compress){
-			tree->Fill();
-		}
+		if (Compress){ tree->Fill(); }
 		else{
-			for (Int_t pp=0; pp<pop; pp+=1) {
-				tree->Fill();
-			}
+			for (Int_t pp=0; pp<pop; pp+=1)  tree->Fill();
 		}
-	}	
+		par->Reduce();
+		//delete [] table;	
+	}
 	
 	tree->ResetBranchAddresses();
-	
-	delete [] val;
-	if (tab_add) delete [] tab_add;
-	
+	delete [] tabz;
 	return tree;
 
 }
 
+void KVPartitionManager::SaveAsTree(KVString filename,KVString treename,Bool_t Compress,Option_t* option){
+	TFile* file = new TFile(filename.Data(),option);
+	GenereTree(treename)->Write();
+	file->Close();
+}
+	
 void KVPartitionManager::PrintInfo(){
 
-	Info("PrintInfo","Intervalles des partitions enregistrees");
-	printf(" - Ztot : %d %d\n",lgen.GetIntValue("Ztot_min"),lgen.GetIntValue("Ztot_max"));
+	Info("PrintInfo","Intervalles en multiplicite des partitions enregistrees");
 	printf(" - Mtot : %d %d\n",lgen.GetIntValue("Mtot_min"),lgen.GetIntValue("Mtot_max"));
-	printf(" - Z    : %d %d\n",lgen.GetIntValue("Z_min"),lgen.GetIntValue("Z_max"));
-
-
+	
 }

@@ -8,6 +8,8 @@
 #include "KVEvent.h"
 #include "KVNucleus.h"
 #include "KVNameValueList.h"
+#include "KVIntegerList.h"
+#include "TArrayI.h"
 
 ClassImp(KVPartition)
 
@@ -190,6 +192,18 @@ void KVPartition::Fill(Int_t* tab,Int_t mult){
 	
 	for (Int_t mm=0;mm<mult;mm+=1)
 		AddToRegle(tab[mm]);
+	
+	Compute();
+
+}
+
+void KVPartition::Fill(TArrayI* arr){
+
+	if (!arr) return;
+	Reset();
+	Int_t mult = arr->GetSize();
+	for (Int_t mm=0;mm<mult;mm+=1)
+		AddToRegle(arr->At(mm));
 	
 	Compute();
 

@@ -4,13 +4,12 @@
 #include "KVPartitionGenerator.h"
 #include "TMath.h"
 #include "KVCouple.h"
-#include "Riostream.h"
-#include "KVPartition.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TNamed.h"
-#include "TSystem.h"
-#include "TROOT.h"
+#include "KVNumberList.h"
+#include "TEventList.h"
+#include "TList.h"
 
 ClassImp(KVPartitionGenerator)
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,43 +35,99 @@ All these methods call the Process() method which use the KVCouple class to iter
 KVPartitionGenerator::KVPartitionGenerator()
 {
    // Default constructor
-	kcurrent = 0;
+	ndim = 0;
 	tabz = 0;
+	ztot = 0;
+	mtot = 0;
+	
+	
+	kcurrent = 0;
 	kzf = 0;
 	kmf = 0;
 	kzm = 0;
 	mshift=0;
 	zshift=0;
 	to_be_checked=kFALSE;
-
+	
+	npar=0;
+	
+	file=0;
+	tree=0;
+	levt=0;
+	evt=0;
+	
+	nl_zf=0;
+	nl_mf=0;
+	nl_zm=0;
 }
 
 KVPartitionGenerator::~KVPartitionGenerator()
 {
    // Destructor
 	if (kcurrent) {delete [] kcurrent; kcurrent = 0;}
+	if (tabz) {delete [] tabz; tabz = 0;}
+	
+	
+	if (nl_zf) delete nl_zf;
+	if (nl_mf) delete nl_mf;
+	if (nl_zm) delete nl_zm;
 
 }
 
-void KVPartitionGenerator::Test_Zf_Zinf(Int_t Zfrag,Int_t Zinf){
+void KVPartitionGenerator::PreparTree(const Char_t* filename,const Char_t* treename,Int_t Ndim,Option_t* option){
+
+	KVString snom;
+
+	SaveAndCloseFile();
+	
+	if (nl_zf) nl_zf->Clear(); else nl_zf = new KVNumberList();
+	if (nl_mf) nl_mf->Clear(); else nl_mf = new KVNumberList();
+	if (nl_zm) nl_zm->Clear(); else nl_zm = new KVNumberList();
+	
+	if (filename) file = new TFile(filename,option);
+	else {
+		snom.Form("From_%s.root",this->Class_Name());
+		file = new TFile(snom.Data(),option);
+	}
+	
+	snom.Form("From_%s",this->Class_Name());
+	if (treename) tree = new TTree(treename,snom.Data());
+	else tree = new TTree("tree",snom.Data());
+	
+	if (tabz) delete [] tabz;
+	ndim = Ndim;
+	tabz = new Int_t[ndim];
+
+	tree->Branch("ztot",			&ztot,	"ztot/I");
+	tree->Branch("mtot",			&mtot,	"mtot/I");
+	tree->Branch("tabz",			tabz,		"tabz[mtot]/I");
+	
+	
+	levt = new TList(); snom.Form("TEventListFor_%s",tree->GetName());
+	levt->SetName(snom.Data());
+	levt->SetOwner(kTRUE);
+	
+	npar = 0;
+
+}
+
+void KVPartitionGenerator::Break_Using_Zf_Zinf_Criterion(Int_t Zfrag,Int_t Zinf){
 
 	Int_t mfmin = 1;
 	Int_t mfmax = Zfrag/Zinf;
 
 	for (Int_t Mfrag=mfmin;Mfrag<=mfmax;Mfrag+=1){
 		SetConditions(Zfrag,Mfrag,Zinf);
-		Process("test_Zf_Zinf.root");
+		Process();
 	}
-	file->Close();
 
 }
 
-void KVPartitionGenerator::Test_Zf_Zmax_Zinf(Int_t Zfrag,Int_t Zmax,Int_t Zinf){
+void KVPartitionGenerator::Break_Using_Zf_Zmax_Zinf_Criterion(Int_t Zfrag,Int_t Zmax,Int_t Zinf){
 
 	if (Zfrag==Zmax){	
 		SetConditions(Zfrag,1,Zinf);
-		Process("test_Zf_Zmax_Zinf.root");
-		file->Close();
+		Process();
 	}
 	else if (Zfrag-Zmax>=Zinf){
 		
@@ -115,9 +170,8 @@ void KVPartitionGenerator::Test_Zf_Zmax_Zinf(Int_t Zfrag,Int_t Zmax,Int_t Zinf){
 			zshift=Zmax;
 			to_be_checked=kTRUE;
 			SetConditions(Zfrag-zshift,Mfrag-mshift,Zinf);
-			Process("test_Test_Zf_Zmax_Zinf.root");
+			Process();
 		}
-		file->Close();
 		
 	}
 	else {
@@ -125,7 +179,7 @@ void KVPartitionGenerator::Test_Zf_Zmax_Zinf(Int_t Zfrag,Int_t Zmax,Int_t Zinf){
 	}
 }
 
-void KVPartitionGenerator::Test_Mf_Zmax_Zinf(Int_t Mfrag,Int_t Zmax,Int_t Zinf){
+void KVPartitionGenerator::Break_Using_Mf_Zmax_Zinf_Criterion(Int_t Mfrag,Int_t Zmax,Int_t Zinf){
 
 	
 	Int_t zfmin = Zmax+(Mfrag-1)*Zinf; 
@@ -136,17 +190,15 @@ void KVPartitionGenerator::Test_Mf_Zmax_Zinf(Int_t Mfrag,Int_t Zmax,Int_t Zinf){
 		zshift=Zmax;
 		to_be_checked=kTRUE;
 		SetConditions(Zfrag-zshift,Mfrag-mshift,Zinf);
-		Process("test_Mf_Zmax_Zinf.root");
+		Process();
 	}
-	file->Close();
 	
 }
 
-void KVPartitionGenerator::Test_Zf_Mf_Zinf(Int_t Zfrag,Int_t Mfrag,Int_t Zinf){
+void KVPartitionGenerator::Break_Using_Zf_Mf_Zinf_Criterion(Int_t Zfrag,Int_t Mfrag,Int_t Zinf){
 
 	SetConditions(Zfrag,Mfrag,Zinf);
-	Process("test_Zf_Mf_Zinf.root");
-	file->Close();
+	Process();
 	
 }
 
@@ -160,58 +212,49 @@ void KVPartitionGenerator::SetConditions(Int_t Zfrag,Int_t Mfrag,Int_t Zinf){
 	kcurrent = new Int_t[kmf]; for (Int_t mm=0;mm<kmf;mm+=1) kcurrent[mm]=0;
 	
 	mtot = kmf+mshift;
+	if (mtot>ndim){
+		Warning("SetConditions","la multiplicité %d est superieure a la val max du tableau (%d)",mtot,ndim);
+	
+	}
 	ztot = kzf+zshift;
 	
-	if (tabz) delete tabz;
-	tabz = new Int_t[mtot];		for (Int_t mm=0;mm<mtot;mm+=1) tabz[mm]=0;
 	if (mshift) tabz[0] = zshift;
 	
-
-}
-
-
-void KVPartitionGenerator::DefineTree(KVString file_name){
-
+	npar_zf_mf = 0;
+	
+	nl_zf->Add(ztot);
+	nl_mf->Add(mtot);
+	nl_zm->Add(kzm);
 	
 	KVString snom;
-	if ( !(file = gROOT->GetFile(file_name.Data())) ){
-		file = new TFile(file_name.Data(),"recreate");
-	}
-	
-	snom.Form("tree_Zfra%d_Mfra%d_Zinf%d",kzf+zshift,kmf+mshift,kzm);
-	tt = new TTree(snom.Data(),"From KVPartitionGenerator");
-	
-	tt->Branch("mtot",&mtot,"mtot/I");
-	tt->Branch("ztot",&ztot,"ztot/I");
-	tt->Branch("tabz",tabz,"tabz[mtot]/I");
-	
-	/*
-	KVString stit;
-	stit.Form("%d",kzf);	tt->GetUserInfo()->Add(new TNamed("zf",stit.Data())); 
-	stit.Form("%d",kmf);	tt->GetUserInfo()->Add(new TNamed("mf",stit.Data())); 
-	stit.Form("%d",kzm);	tt->GetUserInfo()->Add(new TNamed("zmin",stit.Data())); 
-	*/
+	snom.Form("ztot_%d_mtot_%d_zinf_%d",ztot,mtot,Zinf);
+	levt->Add( new TEventList(snom.Data(),tree->GetName()) );
+	evt = (TEventList* )levt->Last();
+}
+
+void KVPartitionGenerator::TreatePartition(){
+		
+	npar_zf_mf += 1; 
+
+	tree->Fill();
+	evt->Enter(npar);
+	npar+=1;
 
 }
 
 
-void KVPartitionGenerator::Process(KVString file_name){
+void KVPartitionGenerator::Process(void){
 
-	DefineTree(file_name);
 
 	if (kmf==1){
 		tabz[0+mshift] = kzf;
-		tt->Fill();
-		file->cd();
-		tt->Write();
+		TreatePartition();
 		
 		return;
 	}
 	
-	//printf("---\n---\n---\n");
 	Int_t zutilise = (kmf*kzm);   
   	Int_t zdispo = kzf-zutilise;
-	//printf("zutilise:%d zdispo:%d\n",zutilise,zdispo);
 	
 	Int_t nb_cassure = kmf-1;
 	KVCouple* coup[nb_cassure];
@@ -228,7 +271,6 @@ void KVPartitionGenerator::Process(KVString file_name){
 	for (nc=0;nc<nb_cassure;nc+=1){
 		
 		if (!coup[nc]) {
-			//printf("Creation du couple %d\n",nc);
 			coup[nc] = new KVCouple(zdispo,zsup,kmf-nc);
 			
 			ncouple[nc] = coup[nc]->GetNbreCouples();
@@ -236,7 +278,6 @@ void KVPartitionGenerator::Process(KVString file_name){
 		}
 		if (niter[nc]<ncouple[nc]){
 			
-			//printf("%d %d %d - %d %d - %d %d\n",nc,zdispo,zsup,niter[nc],ncouple[nc],coup[nc]->GetZ2(niter[nc]),coup[nc]->GetZ1(niter[nc]));
 			zdispo = coup[nc]->GetZ2(niter[nc]);
 			zsup = coup[nc]->GetZ1(niter[nc]);
 			kcurrent[nc] = coup[nc]->GetZ1(niter[nc]);
@@ -245,9 +286,6 @@ void KVPartitionGenerator::Process(KVString file_name){
 		}
 	}
 	
-	//for (Int_t time=0;time<2000;time+=1){
-	UInt_t npar = 0;
-	//const long long npar2 = 0;
 	Bool_t finish = kFALSE;
 	while (!finish){
 		
@@ -256,20 +294,17 @@ void KVPartitionGenerator::Process(KVString file_name){
 			
 			kcurrent[nc] = coup[nc]->GetZ1(niter[nc]);
 			kcurrent[nc+1] = coup[nc]->GetZ2(niter[nc]);
-			//transfert des charges
 			
 			for (Int_t ii=0;ii<kmf;ii+=1)
 				tabz[ii+mshift] = kcurrent[ii]+kzm;
 			
 			if (to_be_checked) { 
 				if (tabz[0]>=tabz[mshift])	{
-					npar += 1; 
-					tt->Fill(); 
+					TreatePartition();
 				}
 			}
 			else {
-				npar += 1;
-				tt->Fill();
+				TreatePartition();
 			}
 			
 			niter[nc]+=1;
@@ -277,20 +312,15 @@ void KVPartitionGenerator::Process(KVString file_name){
 		delete coup[nc]; coup[nc]=0;
 	
 		Int_t previous = nc-1;
-		//printf("entree while : previous:%d iterations:%d ncouples:%d\n",previous,niter[previous],ncouple[previous]);
 		while ( niter[previous] == (ncouple[previous]-1) && previous>=0 ){
 			
 			delete coup[previous]; coup[previous]=0;
 			previous -= 1;
 			
-			//printf("boucle while : previous:%d iterations:%d ncouples:%d\n",previous,niter[previous],ncouple[previous]);
 			if (previous<0) break;
 		}	
+		
 		if (previous<0) { 
-			//printf("sortie break : %d previous=%d nb_cassure=%d\n",0,previous,nb_cassure); 
-			file->cd();
-			tt->Write();
-			//file->Close();
 			finish=kTRUE; 
 		}
 		else {
@@ -299,36 +329,56 @@ void KVPartitionGenerator::Process(KVString file_name){
 			zsup = coup[previous]->GetZ1(niter[previous]);
 	
 			kcurrent[previous] = coup[previous]->GetZ1(niter[previous]);
-			//kcurrent[nc+1] = coup[nc-remonte]->GetZ2(niter[nc-remonte]);
-	
-			//printf("boucle entre %d %d\n",previous+1,nb_cassure);
+			
 			for (Int_t ncbis=previous+1; ncbis<nb_cassure; ncbis+=1){	
 				if (!coup[ncbis]) {
-					//printf("Creation du couple %d\n",ncbis);
 					coup[ncbis] = new KVCouple(zdispo,zsup,kmf-ncbis);
+					
 					ncouple[ncbis] = coup[ncbis]->GetNbreCouples();
 					niter[ncbis] = 0;
 				}
-				else {
-					//printf("le couple %d existe deja\n",ncbis);
-				}
+				else { }
 				if (niter[ncbis]<ncouple[ncbis]){
 			
-					//printf("%d %d %d - %d %d - %d %d\n",ncbis,zdispo,zsup,niter[ncbis],ncouple[ncbis],coup[ncbis]->GetZ2(niter[ncbis]),coup[ncbis]->GetZ1(niter[ncbis]));
 					zdispo = coup[ncbis]->GetZ2(niter[ncbis]);
 					zsup = coup[ncbis]->GetZ1(niter[ncbis]);
 					kcurrent[ncbis] = coup[ncbis]->GetZ1(niter[ncbis]);
 					kcurrent[ncbis+1] = coup[ncbis]->GetZ2(niter[ncbis]);
-					//printf("partition : "); for (Int_t nn=0;nn<kmf;nn+=1) printf("%d ",kcurrent[nn]+kzm); printf("\n");
-		
 				}
 			}		
 		}														  
 	}
 	
-	printf("zfrag:%d en mfrag:%d avec zlim:%d donne %d combinaisons\n",kzf,kmf,kzm,npar);
+	Info("Process","zfrag:%d en mfrag:%d avec zlim:%d donne %d combinaisons (total %d)",kzf,kmf,kzm,npar_zf_mf,npar);
 	
 
+}
+
+void KVPartitionGenerator::WriteInfo(){
+
+	tree->GetUserInfo()->Add(new TNamed("Ztot Range",nl_zf->AsString()));
+	tree->GetUserInfo()->Add(new TNamed("Mtot Range",nl_mf->AsString()));
+	tree->GetUserInfo()->Add(new TNamed("Zinf Range",nl_zm->AsString()));
 	
-	
+}
+
+void KVPartitionGenerator::SaveAndCloseFile(){
+
+	if (file && file->IsOpen()) {
+		file->cd();
+		if (tree && file->IsWritable()) {
+			Info("SaveAndCloseFile","Ecriture du fichier %s avec l'arbre %s (%d entrees)",file->GetName(),tree->GetName(),tree->GetEntries());
+			tree->Write();
+			levt->Write(0,1);
+		}
+		Info("SaveAndCloseFile","Fermeture de %s",file->GetName());
+		file->Close();
+		
+	}
+	/*
+	if (levt){
+		levt->Clear();
+		levt->Delete();
+	}
+	*/
 }

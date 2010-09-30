@@ -76,9 +76,10 @@ void KVIntegerList::init()
 
 	fPop = 0;
 	fRegle = 0;
+	fValues = 0;
 	fLimiteRegle = 0;
 	fMult = 0;
-
+	fLength = 0;
 }
 
 KVIntegerList::KVIntegerList()
@@ -92,6 +93,7 @@ KVIntegerList::~KVIntegerList()
    // Destructor
 	
 	EraseRegle();
+	EraseValues();
 	init();
 
 }
@@ -127,7 +129,8 @@ while (!st.End()){
 }
 
 void KVIntegerList::Update(){
-		
+	
+	//Info("update","update");	
 	KVString snom="",stamp="";
 	fMult=0;	
 	for (Int_t ii = fLimiteRegle; ii>=0; ii-=1){
@@ -145,6 +148,9 @@ void KVIntegerList::Update(){
 	}
 	if (snom!="") snom.Remove(snom.Length()-1);	
 	SetName(snom.Data());
+	//SetTableOfValues();
+	fLength = snom.Length();
+	
 	SetBit(kHastobeComputed,kFALSE);
 		
 }
@@ -211,10 +217,13 @@ Bool_t KVIntegerList::Remove(Int_t val){
 
 KVPartition* KVIntegerList::CreateKVPartition(Int_t mom_max){
 	KVPartition* par = new KVPartition(fLimiteRegle,mom_max);
-	Int_t* tabz = GetTableOfValues();
-	par->Fill(tabz,fMult);
-	delete tabz;
+	par->Fill(GetTableOfValues());
 	return par;
+}
+	
+TNamed* KVIntegerList::CreateTNamed(){
+	TNamed* nm = new TNamed(GetName(),Form("%d",GetPopulation()));
+	return nm;
 }
 	
 void KVIntegerList::Streamer(TBuffer &R__b)
@@ -229,15 +238,21 @@ void KVIntegerList::Streamer(TBuffer &R__b)
 	}
 }
 
-Int_t* KVIntegerList::GetTableOfValues(){  
+TArrayI* KVIntegerList::GetTableOfValues(){  
 		
-	Int_t* tabz = new Int_t[GetMultiplicity()];
+	return fValues;		
+
+}
+
+void KVIntegerList::SetTableOfValues(){  
+	
+	//Info("SetTableOfValues","zeze");	
+	if (fValues) delete fValues;
+	fValues = new TArrayI(GetNbre());
 	Int_t mm=0;
 	for (Int_t ii = fLimiteRegle; ii>=0; ii-=1){
 		Int_t contenu = fRegle->At(ii);
 		for (Int_t cc=0;cc<contenu;cc+=1)
-			tabz[mm++]=ii;
+			fValues->AddAt(ii,mm++);
 	}
-	return tabz;		
-
 }

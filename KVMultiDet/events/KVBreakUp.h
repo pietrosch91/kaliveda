@@ -103,6 +103,7 @@ class KVBreakUp:public TObject
 		
 		lobjects->Clear();
 		delete lobjects;
+		//if (TestBit(kStorePartitions)) delete parman;
 			
 	}
 	

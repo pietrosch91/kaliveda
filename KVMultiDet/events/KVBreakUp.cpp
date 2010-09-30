@@ -390,8 +390,8 @@ void KVBreakUp::TransfertFromTree(void){
 			partition = new KVPartition(GetZtot());
 			partition->Fill(size,Mtotal);
 			
-			if ( !(parman->TestPartition(partition)) )
-				delete partition;
+	//		if ( !(parman->Fill(()partition)) )
+	//			delete partition;
 			
 		}
 		
