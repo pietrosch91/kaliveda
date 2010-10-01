@@ -2,6 +2,7 @@
 //Author: John Frankland,,,,
 
 #include "KVPartitionFunction.h"
+#include "TMath.h"
 
 ClassImp(KVPartitionFunction)
 
@@ -37,6 +38,7 @@ Double_t PartSum(Int_t A, Int_t Z) returns the total number of partitions summed
 KVPartitionFunction::KVPartitionFunction()
 {
    // Default constructor
+   init();
 }
 
 KVPartitionFunction::~KVPartitionFunction()
@@ -84,15 +86,44 @@ Double_t KVPartitionFunction::PartSum(int A)
     return p;
 }
 
+void KVPartitionFunction::init()
+{
+    // We use arrays to store & reuse the intermediate values calculated by
+    // calc_sneppen_Nclass and calc_sneppen_Np in order to reduce the number
+    // of recursive function calls.
+    // Without this, it becomes impossible (very very very long) to calculate
+    // for A>20. However, these arrays occupy a lot of memory.... :-(
+    
+    for(int i=0;i<SNEPPENMAXTAB;i++){
+    for(int j=0;j<SNEPPENMAXTAB/2;j++){
+    for(int k=0;k<SNEPPENMAXTAB;k++){
+    Np[i][j][k]=1234567890;
+    for(int l=0;l<SNEPPENMAXTAB;l++){
+        Nclass[i][j][k][l]=1234567890;
+        Nclass[i][j+SNEPPENMAXTAB/2][k][l]=1234567890;
+       }
+       }
+       }
+       }
+       maxvalueNp = -1;
+       maxvalueNclass = -1;
+       NvalsNp = 0;
+       NvalsNcl = 0;
+}
+
 Double_t KVPartitionFunction::sneppen_Nclass(int A, int Z, int M, int B)
 {
     if(A>0&&Z>=0&&M>0&&B>=0){
-            Double_t snc;// = Nclass[A][Z][M][B];
-            //if(snc==-1){
+            Double_t snc = Nclass[A][Z][M][B];
+            if(snc==1234567890){
                 snc = calc_sneppen_Nclass(A,Z,M,B);
-                //Nclass[A][Z][M][B]=(int)snc;
-                //cout << "+++ Nclass["<<A<<"]["<<Z<<"]["<<M<<"]["<<B<<"]="<<Nclass[A][Z][M][B]<< endl;
-            //}
+                if(snc>kMaxUInt){
+                    Warning("sneppen_Nclass","cannot store intermediate values in table, value too large");
+                }
+                Nclass[A][Z][M][B]=(UInt_t)snc;
+                maxvalueNclass = TMath::Max(snc,maxvalueNclass);
+                NvalsNcl+=1;
+            }
             return snc;
     }
     return 0;
@@ -102,12 +133,15 @@ Double_t KVPartitionFunction::sneppen_Np(int A, int Z, int M)
 {
     if(A>0&&Z>=0&&M>0){
         if(Z>A-Z) Z=A-Z; // symmetry
-            Double_t snc;// = Np[A][Z][M];
-            //if(snc==-1){
+            Double_t snc = Np[A][Z][M];
+            if(snc==1234567890){
                 snc = calc_sneppen_Np(A,Z,M);
-                //Np[A][Z][M]=(int)snc;
-                //cout << "+++ Np["<<A<<"]["<<Z<<"]["<<M<<"]="<<Np[A][Z][M]<< endl;
-            //}
+                if(snc>kMaxUInt){
+                    Warning("sneppen_Np","cannot store intermediate values in table, value too large");
+                }
+                Np[A][Z][M]=(Int_t)snc;
+                maxvalueNp = TMath::Max(snc,maxvalueNp);
+            }
             return snc;
     }
     return 0;
@@ -181,7 +215,15 @@ Double_t KVPartitionFunction::PartFunc(int A, int Z, int M)
     // into M fragments, using the method given by K. Sneppen
     // in Nucl. Phys. A470, 213 (1987), Eqs. (4)-(6).
     
-    return calc_sneppen_Np(A, Z, M);
+    if(A>=SNEPPENMAXTAB || Z>=SNEPPENMAXTAB || M >= SNEPPENMAXTAB)
+    {
+        Warning("PartFunc(A,Z,M)", "A, Z, and M must be less than %d", SNEPPENMAXTAB);
+        return 0.0;
+    }
+    Double_t p = sneppen_Np(A, Z, M);
+    /*Info("PartFunc(A,Z,M)", "p=%f array use=%f max value=%f\n",
+            p, NvalsNcl/pow(SNEPPENMAXTAB,4),GetMaxValueNclass());*/
+    return p;
 }
 
 Double_t KVPartitionFunction::PartSum(int A, int Z)
@@ -190,7 +232,24 @@ Double_t KVPartitionFunction::PartSum(int A, int Z)
     // summed over all multiplicities, using the method given by K. Sneppen
     // in Nucl. Phys. A470, 213 (1987), Eqs. (4)-(6).
 
+    if(A>=SNEPPENMAXTAB || Z>=SNEPPENMAXTAB)
+    {
+        Warning("PartFunc(A,Z,M)", "A and Z must be less than %d", SNEPPENMAXTAB);
+        return 0.0;
+    }
     Double_t p=0;
     for(int m=1; m<=A;m++) p+=sneppen_Np(A,Z,m);
+    /*Info("PartSum(A,Z)", "p=%f array use=%f max value=%f\n",
+            p, NvalsNcl/pow(SNEPPENMAXTAB,4),GetMaxValueNclass());*/
     return p;
 }
+/*Double_t KVPartitionFunction::MeanNA(int A0, int A)
+{
+    // Calculate the mean number of clusters of size A when a system of size A0
+    // fragments in all possible ways with equal probability
+}
+
+    Double_t MeanNA(int A0, int Z0, int A);
+    Double_t MeanNZ(int A0, int Z0, int Z);
+    Double_t MeanNAZ(int A0, int Z0, int A, int Z);
+*/
