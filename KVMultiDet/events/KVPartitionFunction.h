@@ -4,13 +4,13 @@
 #ifndef __KVPARTITIONFUNCTION_H
 #define __KVPARTITIONFUNCTION_H
 
-#include "TObject.h"
+#include "TNamed.h"
+#include "TString.h"
+#include "THashTable.h"
 
 class KVPartitionFunction : public TObject
 {
-   #define SNEPPENMAXTAB 100
-    UInt_t Nclass[SNEPPENMAXTAB][SNEPPENMAXTAB][SNEPPENMAXTAB][SNEPPENMAXTAB];
-    UInt_t Np[SNEPPENMAXTAB][SNEPPENMAXTAB/2][SNEPPENMAXTAB];
+    THashTable fTable;
     
     Double_t maxvalueNp;
     Double_t maxvalueNclass;
@@ -21,7 +21,30 @@ class KVPartitionFunction : public TObject
     Double_t sneppen_Np(int A, int Z, int M);
     Double_t calc_sneppen_Nclass(int A, int Z, int M, int B);
     Double_t calc_sneppen_Np(int A, int Z, int M);
-    void init();
+    
+const Char_t* name_value(Int_t A, Int_t Z, Int_t M, Int_t B=-1)
+{
+    if(B>-1) return Form("A%dZ%dM%dB%d", A, Z, M, B);
+    return Form("A%dZ%dM%d", A, Z, M);
+}
+
+void store_value(Double_t val, Int_t A, Int_t Z, Int_t M, Int_t B=-1)
+{
+    TString name = name_value(A,Z,M,B);
+    TNamed* o = new TNamed(name.Data(), "");
+    o->SetTitle( Form("%f",val) );
+    fTable.Add(o);
+}
+
+Double_t get_value(Int_t A, Int_t Z, Int_t M, Int_t B=-1)
+{
+    TString name = name_value(A,Z,M,B);
+    TNamed* o = (TNamed*)fTable.FindObject( name.Data() );
+    if(!o) return -1.;
+    Double_t val;
+    sscanf(o->GetTitle(), "%lf", &val);
+    return val;
+}
     
    public:
    KVPartitionFunction();
