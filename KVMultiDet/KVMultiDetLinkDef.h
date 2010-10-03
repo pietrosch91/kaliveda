@@ -125,6 +125,8 @@
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;
 #pragma link C++ class KVMaterial-;
+#pragma link C++ class KVMemoryChunk+;
+#pragma link C++ class KVMemoryPool+;
 #pragma link C++ class KVModule+;
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
