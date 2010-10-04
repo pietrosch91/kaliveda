@@ -24,6 +24,7 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
 Double_t KVNucleus::kAMU = 9.31494043e02;
+Double_t KVNucleus::kMe = 0.510988;
 
 ClassImp(KVNucleus);
 
@@ -930,3 +931,22 @@ Double_t KVNucleus::u(void)
    //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
    return kAMU;
 };
+
+//_______________________________________________________________________________________
+
+Double_t KVNucleus::DeduceEincFromBrho(Double_t Brho,Int_t ChargeState){
+	//Retourne l'energie cintétique totale (MeV) du noyau pour
+	//une valeur de Brho et d'etat de charge (Si 0-> Etat de charge=Z)
+	Double_t C_mparns = KVNucleus::C()*10;
+   
+	if (ChargeState == 0) ChargeState = GetZ();
+   
+	Double_t X = Brho*C_mparns*ChargeState;
+	
+	Double_t MassIon = GetMass() - ChargeState*KVNucleus::kMe;
+   
+	Double_t Result = TMath::Sqrt(MassIon*MassIon + X*X) - MassIon;
+   
+	return Result;
+
+}

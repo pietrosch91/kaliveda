@@ -54,6 +54,7 @@ class KVNucleus:public KVParticle {
    };
 
    static Double_t kAMU;        //atomic mass unit in MeV
+   static Double_t kMe;        //electron mass in MeV/c2
    static Double_t u(void);
 
    inline void SetMassFormula(UChar_t mt);
@@ -122,6 +123,7 @@ class KVNucleus:public KVParticle {
     KVNucleus & operator-=(const KVNucleus & rhs);
 	
 	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
+	Double_t DeduceEincFromBrho(Double_t Brho,Int_t ChargeState=0);
 	
     ClassDef(KVNucleus, 5)      //Class describing atomic nuclei
 };
