@@ -11,12 +11,15 @@ class KVMemoryPool
     KVMemoryChunk* fFirst;//first chunk in pool
     KVMemoryChunk* fLast;//first chunk in pool
     KVMemoryChunk* fLastChunkUsed;
+    size_t fChunkSize;//size of chunks in bytes
     
    public:
    KVMemoryPool(int nchunks, size_t bytes);
    virtual ~KVMemoryPool();
    
    void *GetMemory(size_t bytes);
+   
+   void Print();
 
    ClassDef(KVMemoryPool,0)//Memory pool
 };

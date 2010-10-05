@@ -25,26 +25,47 @@ KVMemoryPool::KVMemoryPool(int nchunks, size_t bytes)
        fLast = chunk;
    }
    fLastChunkUsed = fFirst;
+   fChunkSize = bytes;
 }
  
 void *KVMemoryPool::GetMemory(size_t bytes)
 {
     // return pointer to memory of size 'bytes'
-    void* p = fLastChunkUsed->GetMemory(bytes);
-    if( !p ){
+    void* p = 0;
+    if(fLastChunkUsed) p=fLastChunkUsed->GetMemory(bytes);
+    if( !p && fLastChunkUsed ){
+    	// search for next available chunk which can provide memory
         fLastChunkUsed = fLastChunkUsed->Next();
         while(fLastChunkUsed && !p) p = fLastChunkUsed->GetMemory(bytes);
     }
     if( !p ){
-       KVMemoryChunk * chunk = new KVMemoryChunk(bytes);
-       if(!fFirst) fFirst=chunk;
-       if(fLastChunkUsed) fLastChunkUsed->SetNext( chunk );
-       fLastChunkUsed = chunk;
+    	// add new chunk to pool
+    	KVMemoryChunk * chunk = new KVMemoryChunk( fChunkSize );
+    	fLast->SetNext(chunk);
+    	fLast=chunk;
+    	fLastChunkUsed = chunk;
+    	p=fLastChunkUsed->GetMemory(bytes);
     }
+    return p;
 }
 
 KVMemoryPool::~KVMemoryPool()
 {
    // Destructor
+   KVMemoryChunk* p=fFirst;
+   KVMemoryChunk* next=p;
+   while(p){
+   		next = p->Next();
+   		delete p;
+   		p=next;
+   }
 }
 
+void KVMemoryPool::Print()
+{
+   KVMemoryChunk* p=fFirst;
+   while(p){
+   		p->Print();
+   		p = p->Next();
+   }
+}
