@@ -50,7 +50,6 @@ KVDBTable::KVDBTable(const Char_t * name, const Char_t * type,
 KVDBTable::~KVDBTable()
 {
 	gROOT->GetListOfCleanups()->Remove(this);
-	Info("~KVDBTable", "%s", GetName());
 }
 
 //___________________________________________________________________
