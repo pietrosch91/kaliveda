@@ -4,23 +4,26 @@
 #ifndef __KVMEMORYCHUNK_H
 #define __KVMEMORYCHUNK_H
 #include "Rtypes.h"
+#include <cstdio>
 
 class KVMemoryChunk
 {
     char* fMemory;//pointer to start of chunk
-    Size_t fSize;//size of chunk in bytes
-    Size_t fUsed;//memory used in bytes
+    size_t fSize;//size of chunk in bytes
+    size_t fUsed;//memory used in bytes
     KVMemoryChunk* fNext;//next chunk of memory
     
    public:
    KVMemoryChunk();
-   KVMemoryChunk(Size_t);
+   KVMemoryChunk(size_t);
    virtual ~KVMemoryChunk();
    
-   void* GetMemory(Size_t);
+   void* GetMemory(size_t);
    
    void SetNext(KVMemoryChunk* n) { fNext = n; };
    KVMemoryChunk* Next() const { return fNext; };
+   
+   void Print();
 
    ClassDef(KVMemoryChunk,0)//Memory chunk in pool
 };

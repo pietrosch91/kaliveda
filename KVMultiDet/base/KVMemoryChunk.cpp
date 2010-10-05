@@ -21,7 +21,7 @@ KVMemoryChunk::KVMemoryChunk()
     // Default constructor
 }
 
-KVMemoryChunk::KVMemoryChunk(Size_t bytes) : fNext(0)
+KVMemoryChunk::KVMemoryChunk(size_t bytes) : fNext(0)
 {
     // Allocate new chunk of size 'bytes'
     fMemory = (char*) malloc ( bytes );
@@ -36,16 +36,21 @@ KVMemoryChunk::~KVMemoryChunk()
    fMemory=0;
 }
    
-void* KVMemoryChunk::GetMemory(Size_t bytes)
+void* KVMemoryChunk::GetMemory(size_t bytes)
 {
     // Return pointer to block of memory of size 'bytes'
     // If no block of this size is available, returns 0 (test it!!)
     
-    if(fUsed+bytes < fSize){
-        void *p = (void*)(fMemory + (unsigned int)fUsed);
+    if(fUsed+bytes <= fSize){
+        void *p = (void*)(fMemory + fUsed);
         fUsed+=bytes;
         return p;
     }
     return NULL;
 }
+   void KVMemoryChunk::Print()
+   {
+   	  printf("KVMemoryChunk: %d bytes  (%d used)  chunk add: %p\n",
+   	  	fSize, fUsed, fMemory);
+   };
 
