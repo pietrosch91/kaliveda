@@ -70,8 +70,16 @@ void KVIVReconIdent::InitRun(void)
    //Float_t  brhorun = 0.;
    //Float_t  thetavamrun = 0.;
    TString sline;
-  
-   in.open("/sps/indra/ganil/mark/Ident/brho.dat");	//Lecture des valeurs de brho et de thetavamos : 2010-05-25
+     
+      //reading brho and thetavamos values
+   if(!gDataSet->OpenDataSetFile("brho.dat",in))
+  {
+     fLogV->Log << "Could not open brho.dat file !!!" << endl;
+     return;
+  }
+  else 
+  {
+   fLogV->Log << "Reading brho.dat!!!" <<endl;
    while(!in.eof()){
        sline.ReadLine(in);
        if(!in.eof()){
@@ -88,6 +96,7 @@ void KVIVReconIdent::InitRun(void)
 	   }
          }
        }
+     }
    in.close();
       
    fLogV->Log<<"-----------"<<endl;
