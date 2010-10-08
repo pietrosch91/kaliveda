@@ -1,5 +1,6 @@
 //Created by KVClassFactory on Tue Aug 11 16:38:54 2009
 //Author: marini
+//2010-10-04 : Files CsI.cal and CsI.pied have been modified to take account the right distances between detectors
 
 #include "CsIv.h"
 #include <cmath>
@@ -46,24 +47,25 @@ CsIv::CsIv(LogFile *Log)
    TString sline;
    ifstream in2;
 
-
-   //reading the piedestal for CsI
-   in2.open("/sps/indra/ganil/mark/Ident/Param_pied_WCsI.out");
-   //in2.open("$KVROOT/KVFiles/INDRA_e503/Param_pied_WCsI.out");
-   if(in2!=NULL) L->Log<<"Reading CsI pedestal file..."<<endl;
-   else L->Log<<"ERROR: CsI pedestal file not found!!"<<endl;
+   //reading the piedestal for CsI from P.Wigg work - 2010-10-04
+   if(!gDataSet->OpenDataSetFile("CsI.pied",in2))
+  {	
+     cout << "Could not open the calibration file CsI.pied !!!" << endl;
+     return;
+  }
+  else 
+  {
+   cout<< "Reading CsI.pied" <<endl;
    while(!in2.eof()){
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("#")){
 	     sscanf(sline.Data(),"%d %f %f %f %f", &num, &dummy1, &dummy2, &dummy3, &pied);
-	     Ped[num-1][0]=pied;	   
-	     	     //L->Log<<"Ped["<<num-1<<"][0]="<<Ped[num-1][0]<<endl<<flush;
-	   }
-         }
-       }
-     //end of reading the piedestal for CsI
-
+	     Ped[num-1][0]=pied;
+	     	   }
+         	}
+       	}
+}
    in2.close();
 
    //    cout<<"piedestal= "<<pied<<endl;
@@ -73,12 +75,16 @@ CsIv::CsIv(LogFile *Log)
    Float_t a1=0., a2=0., a3=0.;
    ifstream in3;
 
-   //reading the CsI calibration parameters
-   in3.open("/sps/indra/ganil/mark/Ident/new.dat");
-   //in3.open("$KVROOT/KVFiles/INDRA_e503/new.dat");
-   if(in3!=NULL) L->Log<<"Reading CsI calibration parameters..."<<endl;
-   else L->Log<<"ERROR: CsI calibration file not found!!"<<endl;
-     while(!in3.eof()){
+   //reading the CsI calibration parameters from P.Wigg work - 2010-10-04
+   if(!gDataSet->OpenDataSetFile("CsI.cal",in3))
+  {
+     cout << "Could not open the calibration file CsI.cal !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	cout<< "Reading CsI.cal" <<endl;
+	while(!in3.eof()){
        sline.ReadLine(in3);
        if(!in3.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
@@ -86,17 +92,13 @@ CsIv::CsIv(LogFile *Log)
 	     ECoef[num2-1][0]=a1;
 	     ECoef[num2-1][1]=a2;
 	     ECoef[num2-1][2]=a3;
-	     	     //L->Log<<"num "<<num2-1<<" a1= "<<a1<<"a2= "<<a2<<"a3= "<<a3<<endl; 
-	   }
-       }
-     }
-     //end of reading the calibration parameters of CsI
-     
-     in3.close();
+	     	   }
+       		}
+     	}
+  }
+  in3.close();
 
- 
-}
-
+} 
 
 CsIv::~CsIv()
 {
