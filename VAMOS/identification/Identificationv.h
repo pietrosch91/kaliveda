@@ -40,6 +40,11 @@ class Identificationv
   Float_t M_QCoef[21][3];
   Float_t MCoef[21][3];
 #endif
+
+  UShort_t TFil1;
+  UShort_t TFil2;
+  UShort_t EFil1;
+  UShort_t EFil2;
   
   Int_t ZZ;
   Int_t AA;

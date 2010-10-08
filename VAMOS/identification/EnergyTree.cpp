@@ -11,6 +11,8 @@
 #include "Siv.h"
 #include "CsIv.h"
 
+#include <stdio.h>
+
 
 ClassImp(EnergyTree)
 
@@ -68,18 +70,18 @@ EnergyTree::~EnergyTree()
 // return the thickness in microm of this Silicon number of the VAMOS wall-Si 
 Double_t EnergyTree::GetSiliconThickness(Int_t number)
 {
-	Double_t Si_thick[18] =
-
-{522.,530.,531.,532.,533.,533.,534.,535.,531.,535.,524.,531.,529.,524.,533.,537.,519.,530.};
+    Double_t si_thick[18] =
+        {522., 530., 531., 532., 533., 533., 534., 535., 531.,
+                535., 524., 531., 529., 524., 533., 537., 519., 530.};
 
 	if (number>18 || number<0){
-	  cout<<"No thickness for this detector"<<endl;
-	  return 0;
+	    cout<<"No thickness for this detector"<<endl;
+	    return 0;
 	}
-       	return Si_thick[number];	
+
+    return si_thick[number];	
 }
 
-//void EnergyTree::InitDetector(Int_t number)
   void EnergyTree::InitDetector()
 {
  	detsi=new KVDetector ("Si",thick);	//define a Silicon detector of 500 microm thick
@@ -87,44 +89,128 @@ Double_t EnergyTree::GetSiliconThickness(Int_t number)
 	kvt = new KVTelescope;				
 	kvt->Add(detsi);			// define a telescope composed of a Si(500)+CsI(1cm)  
 	kvt->Add(detcsi);
-	lum=new KVLightEnergyCsI(detcsi);
+	//lum=new KVLightEnergyCsI(detcsi);
 	//kvt->Print();
 }
 
-void EnergyTree::InitIC(Int_t number)
+void EnergyTree::InitIcSi(Int_t number) // Ionisation Chamber to Silicon Telescope
 {
-	chio = new KVDetector("Myl",2.5);
-	iso = new KVMaterial("C4H10",300);
-	detsi2=new KVDetector ("Si",thick);	
-	
-	chio->AddAbsorber(iso);
-	chio->AddAbsorber(detsi2);
-	chio->SetActiveLayer(1);
-	chio->SetActiveLayer(2);
-	chio->GetAbsorber(1)->SetPressure(80);
+
+   /********************************************************************************
+    TELESCOPE LAYOUT: Using custom built classes IonisationChamber and PlaneAbsorber 
+    to take into account the more detailed characteristics of the IC and KVMaterials. 
+    The IC now has the correct 'dead' and 'active' regions implemented as well 
+    as the entrance and exit windows.
+
+    beam >>  | IoCh | C4H10 (Gap) | Si Detector |
+
+    ********************************************************************************/
+
+    ioCh = new IonisationChamber();  
+    gap = new PlaneAbsorber();
+    si = new PlaneAbsorber();
+
+    Double_t si_thick[19] = 
+        {0., 522., 530., 531., 532., 533., 533., 534., 535., 531., 
+                535., 524., 531., 529., 524., 533., 537., 519., 530.};
+
+    // Remember 'gap' and 'si' are of class 'PlaneAbsorber'
+    // see header files for list of functions that can be called
+
+    gap->SetThickness(12.78,"NORM");
+    gap->SetMaterial("C4H10");
+    gap->SetPressure(40.);
+
+    si->SetThickness(si_thick[number],"NORM");
+    si->SetMaterial("Si");
+    si->SetActive();
+
+    // Build the Telescope 
+    // Need to use the 'GetDetector()' method as they are not
+    // of type KVDetector
+
+    kvt_icsi = new KVTelescope();
+    kvt_icsi->Add(ioCh->GetDetector());
+    kvt_icsi->Add(gap->GetDetector());  // In-active so no 'detected' energy
+    kvt_icsi->Add(si->GetDetector());
+
 }
 
-Double_t EnergyTree::GetResidualEnergyIC(Int_t Z, Int_t A, Double_t EEinc)
+Double_t EnergyTree::GetResidualEnergyIc(Int_t Z, Int_t A, Double_t EEinc)
 {	
-   KVNucleus part2(Z,A);
-   part2.SetEnergy(EEinc);
-   chio->DetectParticle(&part2);
+    KVNucleus nucleus(Z,A);
+    nucleus.SetEnergy(EEinc);
+    kvt_icsi->DetectParticle(&nucleus);
+
+    // Remember:
+    // si is of type 'PlaneAbsorber'
+    // ioCh is of type 'IonisationChamber'
+    // see header files for list of functions that can be called
+
+	EEsi = si->GetEnergy();
+	Echio = ioCh->GetEnergy();
+
+	Double_t Epunch = nucleus.GetEnergy();
+
+    //if(Epunch > .1) printf("Einc: %4.2f ESi: %4.2f EIoCh: %4.2f EPunch %4.2f\n", EEinc, EEsi, Echio, Epunch);
+
+    nucleus.Clear();
+    kvt_icsi->Clear();
   
-	EEsi=detsi2->GetEnergy();
-	Echio=iso->GetDeltaE(Z,A,EEinc);
-	Double_t Epunch=part2.GetEnergy();
-//if(Epunch>.1)   cout<<" Einc = "<<EEinc<<"Esi=  "<<Esi<<"  Eresidual = "<<Eresidual<<" Epunch =  "<<Epunch<<endl;
-   part.Clear();
-   detsi2->Clear();
-   iso->Clear();
-   chio->Clear();
 	return Echio;
 }
+
+void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
+{
+
+   /********************************************************************************
+    TELESCOPE LAYOUT: Using custom built classes IonisationChamber and PlaneAbsorber 
+
+    beam >>  | Silicon | C4H10 (Gap) | CsI 
+
+    ********************************************************************************/
+
+    si = new PlaneAbsorber();
+    gap = new PlaneAbsorber();
+    csi = new PlaneAbsorber();
+
+    Double_t si_thick[19] =
+        {0., 522., 530., 531., 532., 533., 533., 534., 535., 531.,
+                535., 524., 531., 529., 524., 533., 537., 519., 530.};
+
+    // Remember they are of class 'PlaneAbsorber'
+    // see header files for list of methods that can be called
+
+    si->SetThickness(si_thick[number],"NORM");
+    si->SetMaterial("Si");
+    si->SetActive();
+
+    gap->SetThickness(136.5,"NORM");
+    gap->SetMaterial("C4H10");
+    gap->SetPressure(40.);
+
+    csi->SetThickness(1.,"NORM");
+    csi->SetMaterial("CsI");
+    csi->SetActive();
+
+    // Build the Telescope 
+    // Need to use the 'GetDetector()' method as they are not
+    // of type KVDetector
+
+    kvt_sicsi = new KVTelescope();
+    kvt_sicsi->Add(si->GetDetector());
+    kvt_sicsi->Add(gap->GetDetector());  // In-active so no 'detected' energy
+    kvt_sicsi->Add(csi->GetDetector());
+    lum=new KVLightEnergyCsI(csi->GetDetector());
+
+}
+
 
   void EnergyTree::SetSiliconThickness(Int_t number)
 {
 	thick=GetSiliconThickness(number);
-	detsi->SetThickness(thick);
+	InitSiCsI(number);
+	//detsi->SetThickness(thick);
 }
 //-------------------------------------------------------------------
 
@@ -145,17 +231,18 @@ void EnergyTree::SetCsIPed(Float_t pied){
 
 //CsI calibration parameters and the piedestal
 void EnergyTree::SetCalCsI(Float_t a1, Float_t a2, Float_t a3){
- lum=new KVLightEnergyCsI(detcsi);
+ lum=new KVLightEnergyCsI(csi->GetDetector());
  lum->SetNumberParams(3);
  lum->SetParameters(a1,a2,a3);
  //cout<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
 }
 
+/*   
 void EnergyTree::Init(){
-   //Si = new Siv(L); 
-   InitDetector();
-   //   InitDetector(numsi);
+L->Log<<"EnergyTree::Init() "<<endl;	
+   //InitDetector();
 }
+*/
 
 void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
 {
@@ -175,7 +262,7 @@ void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
   else
     {
       ePied=0.0;
-      lum=new KVLightEnergyCsI(detcsi);
+      lum=new KVLightEnergyCsI(csi->GetDetector());
       lum->SetNumberParams(3);
       lum->SetParameters(0.,0.,0.);
     }
@@ -269,7 +356,7 @@ void EnergyTree::CalculateECsI(){
 }
 
 void EnergyTree::CalculateCanalCsI(){
-      CanalCsI=lum->Invert(detcsi->GetEnergy());
+      CanalCsI=lum->Invert(csi->GetEnergy());
       difflum = (CanalCsI-LightCsI);
       //L->Log<<"Canal csi Invert() = "<<CanalCsI<<endl; //paola
 }
@@ -283,14 +370,14 @@ void EnergyTree::SimulateEvent(){
   //L->Log<<"Einc = "<<Einc<<endl;
   //cout<<"Zsim="<<eZ<<" Asim="<<sA<<" Einc="<<Einc<<endl; //paola
   part.SetEnergy(Einc);
-  kvt->DetectParticle(&part);
+  kvt_sicsi->DetectParticle(&part);	//Change the telescope to tqke account the gap between the two detectors
   
   //L->Log<<"Edetsi = "<<detsi->GetEnergy()<<endl;
   //L->Log<<"Edetcsi = "<<detcsi->GetEnergy()<<endl;
   
-  diffsi = eEnergySi-detsi->GetEnergy();
-  diffcsi = RetrieveEnergyCsI()-detcsi->GetEnergy();
-  diffetot = detsi->GetIncidentEnergy(eZ,sA,eEnergySi)-(eEnergySi+RetrieveEnergyCsI());
+  diffsi = eEnergySi-si->GetEnergy();
+  diffcsi = RetrieveEnergyCsI()-csi->GetEnergy();
+  //diffetot = si->GetIncidentEnergy(eZ,sA,eEnergySi)-(eEnergySi+RetrieveEnergyCsI());
   
   //L->Log<<"diff Si = "<<eEnergySi-detsi->GetEnergy()<<endl;
   //L->Log<<"diff CsI = "<<RetrieveEnergyCsI()-detcsi->GetEnergy()<<endl;
@@ -300,23 +387,23 @@ void EnergyTree::SimulateEvent(){
 }
 //Energy in Si from simulation
 void EnergyTree::GetESi(){
-  sEnergySi=detsi->GetEnergy();
+  sEnergySi=si->GetEnergy();
   //L->Log<<"GetESi:: sEnergySi= "<<sEnergySi<<endl;
   //cout<<"Z= "<<eZ<<endl;
 }
 
 //Energy in CsI from simulation
 void EnergyTree::GetECsI(){
-  sEnergyCsI=detcsi->GetEnergy();
+  sEnergyCsI=csi->GetEnergy();
   //cout<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
 }
 
 // Reset the telescope in order to prepare for the next event
 void EnergyTree::ClearTelescope(){
   part.Clear();
-  detsi->Clear();
-  detcsi->Clear();
-  kvt->Clear();
+  si->Clear();		
+  csi->Clear();
+  kvt_sicsi->Clear();	
 }
 
 void EnergyTree::Bisection(Int_t A, UShort_t chan){ 

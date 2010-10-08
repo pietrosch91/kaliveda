@@ -46,7 +46,7 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   Rnd = new Random;
 
   energytree=new EnergyTree(L);
-  energytree->Init();
+  //energytree->Init();
 
 #ifdef FOLLOWPEAKS
 
@@ -319,10 +319,10 @@ EEtot = E1+E2;
 i=10;
 		
 L->Log<<"-------------Simulation-------------"<<endl;
-energytree->InitIC(int(Si->Number));
+energytree->InitIcSi(int(Si->Number));
 for(EEtot+i;EEtot+i<EEtot+51;i++)
 	{
-	energytree->GetResidualEnergyIC(ZZZ,AAA,EEtot+i);
+	energytree->GetResidualEnergyIc(ZZZ,AAA,EEtot+i);
 	if(abs(E1-energytree->EEsi)<0.5)
 		break;
 	//L->Log<<"Esi = "<<energytree->EEsi<<" "<<"Echio = "<<energytree->Echio<<endl;
@@ -340,13 +340,13 @@ void Identificationv::Calculate(void)
   
   L->Log<<"num si="<<int(Si->Number)<<endl;
   L->Log<<"num csi="<<int(CsI->Number)<<endl;
-
+  
   energytree->SetSiliconThickness(Si->Number);
   
   L->Log<<"Thick : "<<energytree->thick<<" "<<"Det. Nb. : "<<Si->Number<<endl;
   
   energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
-
+ 
   for(Int_t y=0;y< Si->E_RawM ;y++)	 
     {
       //L->Log<<"ch si="<<Si->E_Raw[y]<<endl<<flush;
@@ -394,7 +394,7 @@ void Identificationv::Calculate(void)
 		
 		val[energytree->eZ-3]=abs(dif1[energytree->eZ-3]*dif2[energytree->eZ-3]);
 		rap[energytree->eZ-3]=double(energytree->sA)/double(energytree->eZ);
-		diffe[energytree->eZ-3]=abs((energytree->detsi->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt]))-double(SiRef[zt]+CsIsRef[zt]));
+		//diffe[energytree->eZ-3]=abs((energytree->detsi->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt]))-double(SiRef[zt]+CsIsRef[zt]));
 		
 		if(rap[energytree->eZ-3] < min)
       			min = rap[energytree->eZ-3];
@@ -405,11 +405,12 @@ void Identificationv::Calculate(void)
       			min2 = val[energytree->eZ-3];
     		else
       			max2 = val[energytree->eZ-3];
-			
+		/*	
 		if(diffe[energytree->eZ-3] < mmin)
       			mmin = diffe[energytree->eZ-3];
     		else
-      			mmax = diffe[energytree->eZ-3];					
+      			mmax = diffe[energytree->eZ-3];	
+		*/				
 	      }
 		
 		//L->Log<<"Min : "<<min<<endl;
@@ -438,16 +439,17 @@ void Identificationv::Calculate(void)
 		L->Log<<"Ecsi = "<<CsIsRef[zt]<<endl;
 		//L->Log<<"Canal csi Invert() = "<<energytree->CalculateCanalCsI()<<endl;
 		L->Log<<"E tot = "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
-		L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt])<<endl;
+		//L->Log<<"Getincidentenergy = "<<energytree->si->GetDetector()->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt])<<endl;
 				
 	        ECsI = double(CsIsRef[zt]);
 		ESi = double(SiRef[zt]);
 		ZZ = zt+3;
 		AA = int(ARetreive[zt]);
+		//cout<<"ZZ = "<<ZZ<<"	"<<"AA = "<<AA<<endl;
 		DetCsI = int(CsI->Number); 
 		DetSi = int(Si->Number);
 		
-		Simulation(ZZ,AA,ESi,ECsI);
+		//Simulation(ZZ,AA,ESi,ECsI);
 /*
 	for(energytree->eZ=3;energytree->eZ<24;energytree->eZ++)	//Modification : Boucle sur les valeurs des Z : 2010-05-11
   		{ 
@@ -609,6 +611,16 @@ void Identificationv::Calculate(void)
 
  	//Simulation(ZZ,AA,ESi,ECsI);
 
+/*
+if(Dr->Present){
+L->Log<<"Dr est présent!!"<<endl;
+}
+else{
+L->Log<<"Dr n'est pas présent!!"<<endl;
+}
+*/
+
+
   //cout<<"I'm back..."<<endl<<flush;
   L->Log<<"Dr->E[0] : "<<Dr->E[0]<<" "<<"Dr->E[1] : "<<Dr->E[1]<<" "<<"Ic->ETotal : "<<Ic->ETotal<<endl;
   if(
@@ -640,20 +652,23 @@ void Identificationv::Calculate(void)
     }
 */
 
-T = Si->T[0]+12.69;
+
+
+
+T = Si->T[0];		//Call the time T_Si-HF
 
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
-      D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/
-	cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);
+      D = 943.8;	//Distance between silicon and the target in cm	
+      // D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);
       //            cout << Rec->Path << " " << (Dr->Yf)/10. << " " <<
       //      	Rec->Phi/1000.*180/3.1415 << " " << D << endl;
-      V = D/T;
-      V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));
+      V = D/T;		//Velocity given in cm/ns
+      //V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));
       Beta =V/29.9792; 
       Gamma = 1./sqrt(1.-TMath::Power(Beta,2.));
-      L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
-      L->Log<<"Beta = "<<Beta<<endl;
+      //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
+      L->Log<<"V = "<<V<<" Beta = "<<Beta<<endl;
     }
 
   if(Beta>0 && Rec->Brho>0&&Gamma>1.&&Si->Present)
@@ -725,7 +740,6 @@ void Identificationv::Treat(void)
 }
 void Identificationv::inAttach(TTree *inT)
 {
-
 #ifdef DEBUG
   cout << "Identificationv::inAttach " << endl;
 #endif
@@ -751,8 +765,8 @@ void Identificationv::outAttach(TTree *outT)
 #ifdef DEBUG
   cout << "Attaching Identificationv variables" << endl;
 #endif
-	outT->Branch("iA",&AA,"iA/D");
-   	outT->Branch("ZZ",&ZZ,"ZZ/D");
+	outT->Branch("A",&AA,"A/I");
+   	outT->Branch("Z",&ZZ,"Z/I");
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
 	outT->Branch("ESi",&ESi,"ESi/D");
