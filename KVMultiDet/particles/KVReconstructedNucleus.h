@@ -325,7 +325,42 @@ public:
         // mass number, A, was measured, not calculated
         return TestBit(kAMeasured);
     };
-	KVIdentificationResult* GetIdentificationResult(Int_t);
+KVIdentificationResult* GetIdentificationResult(Int_t i)
+{
+	// Returns the result of the i-th identification attempted for this nucleus.
+	// i=1 : identification telescope in which particle stopped
+	// i=2 : identification telescope immediately in front of the first
+	// etc. etc.
+	if(i && ((i-1)< IDRESULTS_DIM)){
+		fIDresults[i-1].SetNumber(i);
+		return &fIDresults[i-1];
+	}
+	else return 0;
+};
+
+KVIdentificationResult* GetIdentificationResult(const Char_t* idtype)
+{
+	// Return pointer to result of attempted identification of given type.
+	// This type is the type of the KVIdentificationTelescope which was used
+	// (i.e. the string returned by KVIdentificationTelescope::GetType()).
+	// Returns NULL if no identification of given type found.
+	
+	for(int i=0; i<IDRESULTS_DIM; i++){
+	    if(!strcmp(fIDresults[i].GetIDType(),idtype)){
+		    fIDresults[i].SetNumber(i+1);
+	        return &fIDresults[i];
+	    }
+	}
+	return 0;
+};
+
+KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
+{
+	// Return pointer to result of identification attempted with a
+	// KVIdentificationTelescope of the given type.
+	// Returns NULL if no identification of given type found.
+	return GetIdentificationResult(idt->GetType());
+};
 	
     ClassDef(KVReconstructedNucleus, 13)  //Nucleus detected by multidetector array
 };

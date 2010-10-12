@@ -560,19 +560,6 @@ void KVReconstructedNucleus::MakeDetectorList()
     }
 }
 
-KVIdentificationResult* KVReconstructedNucleus::GetIdentificationResult(Int_t i)
-{
-	// Returns the result of the i-th identification attempted for this nucleus.
-	// i=1 : identification telescope in which particle stopped
-	// i=2 : identification telescope immediately in front of the first
-	// etc. etc.
-	if(i && ((i-1)< IDRESULTS_DIM)){
-		fIDresults[i-1].SetNumber(i);
-		return &fIDresults[i-1];
-	}
-	else return 0;
-}
-
 void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)
 {
 	// Set identification of nucleus from informations in identification result object
