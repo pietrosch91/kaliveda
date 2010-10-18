@@ -45,7 +45,7 @@ ClassImp(KVIDSiCsI5)
 //corresponding to the lines drawn by hand used for the fit.
 //Z identification is considered possible between max(Zmin-0.5, 0.5) and min(Zmax+0.5, 100.5)
 //(Zmax is taken equal to 100 when using the highest Z grid of the telescope (i.e. either
-//PG1 or PG2). 
+//PG1 or PG2).
 //In addition certain telescopes have both Z and A identification for the SiGG grid.
 //In this case KVIDSiCsI5::HasMassID=kTRUE.
 //
@@ -88,7 +88,7 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t & funLTG)
       Z = IdentZ(this, funLTG, "GG", "GG");
       fWhichGrid = k_GG;
    }
-      
+
    if (Z < 0.) {
 
       Z = IdentZ(this, funLTG, "PG1", "PG");
@@ -136,7 +136,7 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
  		IDR->SetIDType( GetType() );
 		IDR->IDattempted = kTRUE;
   Double_t Z = IdentifyZ(funLTG_Z);
-	
+
    //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
    Int_t Zstatus = (GetStatus() + 3 * fWhichGrid);
    IDR->IDquality = Zstatus;
@@ -145,11 +145,11 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
       return kFALSE;            // no ID
 
    iz = TMath::Nint(Z);
-   
+
    IDR->IDOK = kTRUE;
 
    //is mass identification a possibility ?
-   if (HasMassID() && Zstatus == k_OK_GG) {     //only in GG...  
+   if (HasMassID() && Zstatus == k_OK_GG) {     //only in GG...
 
       mass = IdentA(this, funLTG_A, "GG", "GG", iz);
 
@@ -254,7 +254,7 @@ Double_t KVIDSiCsI5::GetIDMapX(Option_t * opt)
    //raw data without pedestal correction (because identification maps were drawn without
    //correcting).
    //'opt' has no effect.
-	
+
    Double_t rapide = (Double_t)fCsI->GetR() + fCsIRPedestal;
    Double_t lente = (Double_t)fCsI->GetL() + fCsILPedestal;
    Double_t h = (Double_t)fCsI->GetLumiereTotale(rapide,lente);
@@ -264,12 +264,12 @@ Double_t KVIDSiCsI5::GetIDMapX(Option_t * opt)
 //____________________________________________________________________________________
 
 void KVIDSiCsI5::Initialize()
-{   
+{
    // Initialisation of telescope before identification.
    // This method MUST be called once before any identification is attempted.
    // IsReadyForID() will return kTRUE if KVTGID objects are associated
    // to this telescope for the current run.
-   
+
 	fSi = (KVSilicon*)GetDetector(1);
 	fSiPGPedestal = fSi->GetPedestal("PG");
 	fSiGGPedestal = fSi->GetPedestal("GG");
@@ -294,7 +294,7 @@ Double_t KVIDSiCsI5::GetIDMapY(Option_t * opt)
    //We include a "correction" for the gain of the Silicon amplifier:
    //this was set to 1.0 during the runs for which the identification grids were drawn;
    //when it increases to 1.41 we simply scale the data down by the same factor.
-	
+
    Double_t si, si_ped;
    if (!strcmp(opt, "GG")) {
       si = (Double_t)fSi->GetGG();
@@ -346,7 +346,7 @@ Bool_t KVIDSiCsI5::SetIdentificationParameters(const KVMultiDetArray* MDA)
    //to the URI used to find the plugin class in $KVROOT/KVFiles/.kvrootrc.
 //Parameters are read from the file with name given by the environment variable
 //INDRA_camp5.IdentificationParameterFile.SI-CSI:       [filename]
-   
+
    TString filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s",GetLabel()) );
    if( filename == "" ){
       Warning("SetIdentificationParameters",
@@ -456,4 +456,54 @@ void KVIDSiCsI5::RemoveIdentificationParameters()
    RemoveAllTGID();
    SetHasMassID(kFALSE);
    SetHasPG2(kFALSE);
+}
+
+Double_t KVIDSiCsI5::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
+{
+	// Returns the Y-axis value in the 2D identification map containing isotope (Z,A)
+	// corresponding to the current X-axis value given by GetIDMapX.
+	// If no mass information is available, just give Z.
+	//
+	// This method overrides KVIDTelescope::GetMeanDEFromID, as here we have
+	// to handle the LTG fits used for identification. This means scanning the TGID objects associated with
+	// this telescope until we find one with the right Z range, and then calculating
+	// the Y-coordinate for the current X-coordinate value.
+	//
+	// Status is same as for KVIDTelescope::GetMeanDEFromID.
+
+    status = kMeanDE_OK;
+    if(!HasMassID()){
+        // mass identification not possible for telescope - ignore A
+        A=-1;
+    }
+    // loop over TGID objects
+    TIter next( &GetListOfIDFunctions() );
+    KVTGID* tgid;
+    while( (tgid=(KVTGID*)next()) ){
+        if(Z>=tgid->GetIDmin() && Z<=tgid->GetIDmax()){
+            if(A>0 && tgid->GetZorA()){
+                // this is a Z-only identification object & we require isotopic resolution
+                continue;
+            }
+            if(A>0 && !tgid->GetZorA()){
+                // get position on isotopic line (Z,A)
+                Double_t y=0;
+                tgid->SetParameter("Z", Z);
+                y = tgid->GetDistanceToLine( GetIDMapX(), y, A );
+                return y;
+            }
+            if(A==-1 && !tgid->GetZorA()){
+                // this is an A-identifying object, but we only care about Z
+                continue;
+            }
+            if(A<0 && tgid->GetZorA()){
+                // get position on Z line
+                Double_t y=0;
+                y = tgid->GetDistanceToLine( GetIDMapX(), y, Z );
+                return y;
+            }
+        }
+    }
+    status = kMeanDE_NoIdentifier;
+    return -1.0;
 }

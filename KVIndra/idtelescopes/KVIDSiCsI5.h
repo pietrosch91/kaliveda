@@ -58,7 +58,7 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
       kZOK_AnoTGID,             //Z id OK, mass ID attempted but no KVTGIDZA found
       kZOK_AOutOfIDRange,       //Z id OK, mass ID attempted but point to identify outside of identification range of KVTGIDZA
       kZOK_A_ZtooSmall,         //Z id ok, mass ID attempted but Z passed to IdentA too small (<1)
-      kZOK_A_ZtooLarge,         //Z id ok, mass ID attempted but Z passed to IdentA larger than max Z defined by KVTGIDZA              
+      kZOK_A_ZtooLarge,         //Z id ok, mass ID attempted but Z passed to IdentA larger than max Z defined by KVTGIDZA
    };
 
     KVIDSiCsI5() {
@@ -90,6 +90,7 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
    virtual void RemoveIdentificationParameters();
 
    virtual void Initialize();
+   virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1);
 
    ClassDef(KVIDSiCsI5, 2)      //5th campaign INDRA identification using Si-CsI matrices
 };
