@@ -96,6 +96,7 @@
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVHashList+;
 #pragma link C++ class KVUniqueNameList+;
+#pragma link C++ class KVPartitionList+;
 #pragma link C++ class KVIdentificationResult+;
 #pragma link C++ class KVIDentifier+;
 #pragma link C++ class KVIDGraph-;
@@ -235,7 +236,6 @@
 #pragma link C++ class KVIntegerList-;
 #pragma link C++ class KVPartitionFromLeaf+;
 #pragma link C++ class KVPartitionFunction+;
-#pragma link C++ class KVPartitionManager+;
 #pragma link C++ class KVCouple+;
 #pragma link C++ class KVPartitionGenerator+;
 #pragma link C++ class KVGVList;
