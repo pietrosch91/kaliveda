@@ -7,7 +7,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TNamed.h"
-#include "KVNumberList.h"
+#include "KVIntegerList.h"
 #include "TEventList.h"
 #include "TList.h"
 
@@ -53,12 +53,17 @@ KVPartitionGenerator::KVPartitionGenerator()
 	
 	file=0;
 	tree=0;
+	
 	levt=0;
+	levt_collect=0;
+	levt_z1=0;
+	
 	evt=0;
 	
 	nl_zf=0;
 	nl_mf=0;
 	nl_zm=0;
+	nl_z1=0;
 }
 
 KVPartitionGenerator::~KVPartitionGenerator()
@@ -71,6 +76,7 @@ KVPartitionGenerator::~KVPartitionGenerator()
 	if (nl_zf) delete nl_zf;
 	if (nl_mf) delete nl_mf;
 	if (nl_zm) delete nl_zm;
+	if (nl_z1) delete nl_z1;
 
 }
 
@@ -80,9 +86,10 @@ void KVPartitionGenerator::PreparTree(const Char_t* filename,const Char_t* treen
 
 	SaveAndCloseFile();
 	
-	if (nl_zf) nl_zf->Clear(); else nl_zf = new KVNumberList();
-	if (nl_mf) nl_mf->Clear(); else nl_mf = new KVNumberList();
-	if (nl_zm) nl_zm->Clear(); else nl_zm = new KVNumberList();
+	if (nl_zf) nl_zf->Clear(); else nl_zf = new KVIntegerList();
+	if (nl_mf) nl_mf->Clear(); else nl_mf = new KVIntegerList();
+	if (nl_zm) nl_zm->Clear(); else nl_zm = new KVIntegerList();
+	if (nl_z1) nl_z1->Clear(); else nl_z1 = new KVIntegerList();
 	
 	if (filename) file = new TFile(filename,option);
 	else {
@@ -108,6 +115,12 @@ void KVPartitionGenerator::PreparTree(const Char_t* filename,const Char_t* treen
 	levt->SetOwner(kTRUE);
 	
 	npar = 0;
+	
+	levt_collect = new TList();
+	levt_z1 = new TList();
+	
+	bsup = -100;
+	binf = Ndim;
 
 }
 
@@ -230,6 +243,27 @@ void KVPartitionGenerator::SetConditions(Int_t Zfrag,Int_t Mfrag,Int_t Zinf){
 	snom.Form("ztot_%d_mtot_%d_zinf_%d",ztot,mtot,Zinf);
 	levt->Add( new TEventList(snom.Data(),tree->GetName()) );
 	evt = (TEventList* )levt->Last();
+	
+	Int_t entries = levt_z1->GetEntries();
+	TEventList* e1=0;
+	for (Int_t nn=0;nn<entries;nn+=1){
+		e1 = (TEventList* )levt_z1->RemoveAt(0);
+		if (e1->GetN()>0){
+			levt_collect->Add(e1);
+			/*
+			if (nn>bsup) bsup=nn;
+			if (nn<binf) binf=nn;
+			*/
+		}
+		else {
+			delete e1;	
+		}
+	}
+	
+	for (Int_t ii=0;ii<=ztot;ii+=1){
+		snom.Form("ztot_%d_mtot_%d_zmax_%d_zinf_%d",ztot,mtot,ii,Zinf);
+		levt_z1->Add(new TEventList(snom.Data(),tree->GetName()));
+	}
 }
 
 void KVPartitionGenerator::TreatePartition(){
@@ -238,6 +272,8 @@ void KVPartitionGenerator::TreatePartition(){
 
 	tree->Fill();
 	evt->Enter(npar);
+	((TEventList* )levt_z1->At(tabz[0]))->Enter(npar);
+	
 	npar+=1;
 
 }
@@ -356,9 +392,23 @@ void KVPartitionGenerator::Process(void){
 
 void KVPartitionGenerator::WriteInfo(){
 
-	tree->GetUserInfo()->Add(new TNamed("Ztot Range",nl_zf->AsString()));
-	tree->GetUserInfo()->Add(new TNamed("Mtot Range",nl_mf->AsString()));
-	tree->GetUserInfo()->Add(new TNamed("Zinf Range",nl_zm->AsString()));
+	tree->GetUserInfo()->Add(new TNamed("Ztot Range",nl_zf->GetName()));
+	tree->GetUserInfo()->Add(new TNamed("Mtot Range",nl_mf->GetName()));
+	tree->GetUserInfo()->Add(new TNamed("Zinf Range",nl_zm->GetName()));
+	
+	TEventList* e1=0;
+	Int_t entries = levt_z1->GetEntries();
+	for (Int_t nn=0;nn<entries;nn+=1){
+		e1 = (TEventList* )levt_z1->RemoveAt(0);
+		if (e1->GetN()>0){
+			levt_collect->Add(e1);
+		}
+		else {
+			delete e1;	
+		}
+	}
+	//nl_z1->SetMinMax(nl_zm->First(),nl_zf->Last());
+	tree->GetUserInfo()->Add(new TNamed("Zmax Range",nl_z1->GetName()));
 	
 }
 
@@ -368,17 +418,11 @@ void KVPartitionGenerator::SaveAndCloseFile(){
 		file->cd();
 		if (tree && file->IsWritable()) {
 			Info("SaveAndCloseFile","Ecriture du fichier %s avec l'arbre %s (%d entrees)",file->GetName(),tree->GetName(),tree->GetEntries());
-			tree->Write();
-			levt->Write(0,1);
+			
+			file->Write();
 		}
 		Info("SaveAndCloseFile","Fermeture de %s",file->GetName());
 		file->Close();
 		
 	}
-	/*
-	if (levt){
-		levt->Clear();
-		levt->Delete();
-	}
-	*/
 }

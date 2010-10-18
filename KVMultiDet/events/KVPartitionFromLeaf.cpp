@@ -27,7 +27,7 @@ par->ConnectToLeaf(tree->GetLeaf("tabz"));
 - Methode KVPartitionFromLeaf::SetZminZmax permet de definir des limites inf ou sup des tailles des fragments lors du remplissage de la partition, à definir
 avant d'utiliser la methode Update();
 
-- Méthode KVPartitionFromLeaf::Update(Long64_t entry), jour le role de remplissage de la partition et aussi du calcul des valeurs associées
+- Méthode KVPartitionFromLeaf::ReadEntry(Long64_t entry), jour le role de remplissage de la partition et aussi du calcul des valeurs associées
 On peut incrementer les entrees de l'arbre en meme temps ou non (defaut)
 Exemple:
 for (Int_t ii=0;ii<tt->GetEntries();ii+=1){
@@ -70,15 +70,12 @@ void KVPartitionFromLeaf::ConnectToLeaf(TLeaf* lf){
 	linked_leaf=lf;
 	Int_t cmax;
 	(lf->GetLeafCount() ? cmax = lf->GetLeafCount()->GetMaximum() : cmax = lf->GetNdata() );
-	if (cmax>GetValMax())
-		Warning("ConnectToLeaf","La dimension max du tableau %d est plus grande que KVPartition::GetValMax()",cmax,GetValMax());
-	
 
 }
 
-void KVPartitionFromLeaf::Update(Long64_t entry){
+void KVPartitionFromLeaf::ReadEntry(Long64_t entry){
 	
-	Reset();
+	Clear();
 	if (entry!=-1) linked_leaf->GetBranch()->GetEntry(entry);
 	
 	Int_t mult;
@@ -86,10 +83,11 @@ void KVPartitionFromLeaf::Update(Long64_t entry){
 	
 	for (Int_t mm=0;mm<mult;mm+=1){
 		Int_t val = TMath::Nint(linked_leaf->GetValue(mm));
-		if ( ( !select_min || (select_min && val>=zmin) ) && ( !select_max || (select_max && val<=zmax) ) ) 
-			AddToRegle(val);
+		if ( ( !select_min || (select_min && val>=zmin) ) && ( !select_max || (select_max && val<=zmax) ) ) {
+			Add(val);
+		}
 	}
-	Compute();
+	CheckForUpdate();
 	
 }
 

@@ -4,15 +4,14 @@
 #ifndef __KVPartitionGenerator_H
 #define __KVPartitionGenerator_H
 #include "KVString.h"
-#include "KVPartitionManager.h"
 
 class TTree;
 class TFile;
-class KVNumberList;
 class TList;
 class TEventList;
+class KVIntegerList;
 
-class KVPartitionGenerator : public KVPartitionManager
+class KVPartitionGenerator
 {
 
    public:
@@ -34,13 +33,19 @@ class KVPartitionGenerator : public KVPartitionManager
 	TTree* tree;
 	TList* levt;
 	TEventList* evt;
+	TList* levt_collect;
+	TList* levt_z1;
 	
+	Int_t bsup;
+	Int_t binf;
+
 	UInt_t npar;
 	UInt_t npar_zf_mf;
 	
-	KVNumberList* nl_zf;
-	KVNumberList* nl_mf;
-	KVNumberList* nl_zm;
+	KVIntegerList* nl_zf;
+	KVIntegerList* nl_mf;
+	KVIntegerList* nl_zm;
+	KVIntegerList* nl_z1;
 	
 	virtual ~KVPartitionGenerator();
 	

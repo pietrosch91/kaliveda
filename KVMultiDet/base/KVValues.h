@@ -30,7 +30,6 @@ class KVValues : public KVNameValueList
 	Int_t kordre_mom_max;//ordre maximum pour le calcul des moments (argument du constructeur)
 	
 	Double_t* values;	//[knbre_val_max]  tableau ou sont stockees les valeurs
-   
 	
 	Bool_t kToBeRecalculated;
 	
@@ -53,74 +52,29 @@ class KVValues : public KVNameValueList
 	
 	public:
 	
-	KVValues(){}
+	KVValues();
+	KVValues(const Char_t* name,Int_t ordre_max=3,Int_t nbre_max=20);
+	virtual ~KVValues();
 	
-	KVValues(const Char_t* name,Int_t ordre_max=3,Int_t nbre_max=20){
-		knbre_val_max = nbre_max;		//nbre max de valeurs stockables 
-		kordre_mom_max = ordre_max;	//ordre max des moments calcules a chaque iteration
-		SetName(name);						//nom correspondant aux valeurs calculees
-		
-		init_val_base();
-		init_val_add();
-	}
+	void Reset();
+	void Clear(Option_t* option = "");
+	void Print(Option_t* option = "");
 	
-	void Reset(){
-		init_val();
-		kToBeRecalculated=kTRUE;
-	}
+	void FillVar(Double_t val);
+	void FillVar(Double_t val,Double_t weight);
 	
-	void	Clear(Option_t* option = "");
-	virtual ~KVValues(){
-		Clear();
-		delete [] values; values=0;
-		kval_tot = kval_base = kdeb = 0;
-	}
+	Int_t GetOrdreMax();
+	Int_t GetShift();
+	
+	Double_t GetValue(Int_t idx);
+	
+	Double_t GetValue(const Char_t* name);
+	Int_t GetValuePosition(const Char_t* name);
+	
+	TString GetValueExpression(const Char_t* name);
+	TString GetValueExpression(Int_t idx);
 
-	void FillVar(Double_t val){ FillVar(val,1.); }
-
-	void FillVar(Double_t val,Double_t weight){
-		if (val<values[0]) values[0] = val;	//GetIntValue("MIN")=0
-		if (val>values[1]) values[1] = val;	//GetIntValue("MAX")=1
-		for (Int_t nn=0;nn<=kordre_mom_max;nn+=1) values[nn+kdeb] += weight*TMath::Power(val,Double_t(nn));
-		kToBeRecalculated = kTRUE;
-	
-	}
-	
-	Double_t GetValue(Int_t idx) {
-		ComputeAdditionalValues();
-		kToBeRecalculated = kFALSE;
-		return values[idx];
-	}
-	
-	Double_t GetValue(const Char_t* name) { return GetValue(GetValuePosition(name)); }
-	Int_t GetValuePosition(const Char_t* name) { return GetIntValue(name); }
-	
-	TString GetValueExpression(const Char_t* name) {
-		Int_t idx = GetValuePosition(name);
-		return GetValueExpression(idx);
-	}
-	
-	TString GetValueExpression(Int_t idx) {
-		Int_t new_idx = idx-kval_base;
-		if (new_idx<0){
-			Warning("GetValueExpression","Cette methode n'est implementee que pour les valeurs additionelles idx > %d",kval_base);
-			return "";
-		}
-		return ((TFormula* )kform_add->At(new_idx))->GetExpFormula();
-	}
-	
-	void	Print(Option_t* option = "") {
-		Info("Print","%s : %d values computed",GetName(),kval_tot);
-		for (Int_t nn=0; nn<kval_tot; nn+=1){
-			printf("- %d %s %lf\n",nn,GetNameAt(nn),GetValue(nn));
-		}
-	}
-
-	Int_t GetNValues(KVString opt="base"){
-		if (opt=="base") 		return kval_base;
-		else if (opt=="add")	return kval_add;
-		else { return GetNpar(); }
-	}
+	Int_t GetNValues(KVString opt="base");
 	
 	void DefineAdditionalValue(KVString name,KVString expr);
 	

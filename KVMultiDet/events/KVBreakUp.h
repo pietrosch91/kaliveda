@@ -14,46 +14,28 @@
 #include "TTree.h"
 #include "TH2F.h"
 #include "TProfile.h"
-#include "KVPartition.h"
-#include "KVPartitionManager.h"
+#include "KVIntegerList.h"
+#include "KVPartitionList.h"
 #include "TDatime.h"
 #include <cstdlib>
+#include "Riostream.h"
 
 
 class KVBreakUp:public TObject
 {
+	
 	protected:
 	
 	enum {
       kStorePartitions = BIT(14),	//Variables has to be recalculated
-      kFillTree = BIT(15)			//Variables has to be recalculated
-  	};
+   };
 	
-	void Reset_ForNextTime();
+	virtual void init(void);
+	void SetZtot(Int_t zt);
+	void SetMtot(Int_t mt);
+	void SetZmin(Int_t zlim);
+	void SetBreakUpMethod(KVString bup_method);
 	
-	void SetZtot(Int_t zt) {
-		if (zt!=Ztotal){
-			Ztotal=zt; 
-			if (bound) delete bound;	bound = new Int_t[Ztotal];
-			for (Int_t nn=0;nn<Ztotal;nn+=1) bound[nn]=1;
-			nbre_nuc = Ztotal-Mtotal*Zmin;
-		}
-	}
-	
-	void SetMtot(Int_t mt) { 
-		if (mt>size_max) {
-			Warning("SetMtot","%d -> La multiplicite max (%d) est depassee",mt,size_max);
-			exit(EXIT_FAILURE);
-		}
-		Mtotal=mt; 
-		nbre_nuc = Ztotal-Mtotal*Zmin;
-	}
-	
-	void SetZmin(Int_t zlim) { Zmin=zlim; nbre_nuc = Ztotal-Mtotal*Zmin;}
-	void SetBreakUpMethod(KVString bup_method) { 
-		BreakUpMethod=bup_method;
-	}
-
 	Int_t Ztotal;
 	Int_t Mtotal;
 	Int_t Zmin;
@@ -63,82 +45,38 @@ class KVBreakUp:public TObject
 	
 	KVNumberList nl;
 	Int_t nbre_nuc;
-
 	Int_t size_max;
 	Int_t size[500];
-
-	Int_t iterations_total;
-	
+	Int_t niter_tot;
 	Int_t tstart,tstop,tellapsed;
 
-	TTree* tt;
-	KVPartitionManager* parman;
-	
-	public:
-
-	Int_t nraffine;
-
-	KVPartition* partition;
-
+	KVPartitionList* parman;
 	TH1F* hzz;
 	TH1F* hzt;
 	TH1F* hmt;
 	
 	KVList* lobjects;
 	KVList* lhisto;
+	KVIntegerList* partition;
+
+	public:
+
+	Int_t nraffine;
 	
-	virtual void init(void);
 	virtual void DefineHistos();
-	virtual void StoreEntriesInTree();
 	
-	KVBreakUp() { init(); }
+	KVBreakUp();
+	virtual ~KVBreakUp();
+	void Clear(Option_t* = "");
 	
-   virtual ~KVBreakUp(){
+	void RedefineTRandom(KVString TRandom_Method);
+	void SetConditions(Int_t zt,Int_t mt,Int_t zmin=1);
+	void DefineBreakUpMethod(KVString bup_method="");
 	
-		delete alea;
-		delete lhisto;
-		TCanvas* c1 = 0;
-		if ( (c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("BreakUp_Control")) ) delete c1;
-		if (bound) delete [] bound;
-		
-		lobjects->Clear();
-		delete lobjects;
-		//if (TestBit(kStorePartitions)) delete parman;
-			
-	}
-	
-	void RedefineTRandom(KVString TRandom_Method){
-	
-		if (alea) delete alea;
-		TClass *cl = new TClass(TRandom_Method.Data());
-		alea = (TRandom* )cl->New();
-		delete cl;
-	}
-	
-	void SetConditions(Int_t zt,Int_t mt,Int_t zmin=1){
-		SetZtot(zt);
-		SetMtot(mt);
-		SetZmin(zmin);
-	}
-	
-	Int_t GetZtot(void) const {return Ztotal;}
-	Int_t GetMtot(void) const {return Mtotal;}
-	Int_t GetZmin(void) const {return Zmin;}
-	
-	void DefineBreakUpMethod(KVString bup_method=""){
-		if (bup_method==""){
-			Info("DefineBreakUpMethod", "Available methods are");
-			cout << "BreakUsingChain" << endl;
-			cout << "BreakUsingPile" << endl;
-			cout << "BreakUsingIndividual" << endl;
-			cout << "BreakUsingLine" << endl;
-			cout << "Make your choice" << endl;
-		}
-		else {
-			SetBreakUpMethod(bup_method);
-		}
-	}
-	KVString GetBreakUpMethod(void) const {return BreakUpMethod;}
+	Int_t GetZtot(void) const;
+	Int_t GetMtot(void) const;
+	Int_t GetZmin(void) const;
+	KVString GetBreakUpMethod(void) const;
 	
 	void StorePartitions(Bool_t choix=kTRUE);
 	
@@ -147,53 +85,28 @@ class KVBreakUp:public TObject
 	Int_t BreakUsingIndividual();
 	Int_t BreakUsingLine();
 		
-//	virtual void OrdonneCharge();
 	virtual void TreatePartition();
-	void TransfertFromTree(void);
-	
-	
+
 	void BreakNtimes(Int_t times=1000);
 	void BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin=1);
 	void BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin=1);
 	
 	virtual void DrawPanel();
 	
-	Int_t TotalIterations(void) { return iterations_total; }
-	
-	KVList* GetHistos() {return lhisto;}
-	KVList* GetObjects() {return lobjects; }
-	
+	Int_t TotalIterations(void);
+	KVList* GetHistos();
+	KVList* GetObjects();
+	KVPartitionList* GetManager();
+	virtual void ResetTotalIterations();
 	virtual void ResetHistos();
-	virtual void ResetTree();
-	void ResetManager();
-	KVPartitionManager* GetManager() {return parman;}
-	TTree* GetTree() {return tt;}
 	
-	virtual void ResetTotalIterations() {iterations_total=0;}
-	
-	virtual void SaveHistos(KVString filename="",KVString suff="",Bool_t update=kTRUE);
-	virtual void SaveTree(KVString filename,KVString suff,Bool_t update=kTRUE);
+	virtual void SaveHistos(KVString filename="",KVString suff="",Option_t* option="recreate");
    
-	void	Print(Option_t* option = "") const {
-		Info("Print","Configuration for the break up");
-		printf(" Ztot=%d - Mtot=%d - Zmin=%d\n",GetZtot(),GetMtot(),GetZmin());
-		printf(" Charge to be distributed %d - Biggest possible charge %d\n",nbre_nuc,Zmin+nbre_nuc);
-		printf(" Methode de cassage aleatoire %s\n",GetBreakUpMethod().Data());
-		alea->Print();
-		printf(" Partition are stored via KVPartitionManager : %d\n",Int_t(TestBit(kStorePartitions)));
-		printf("------------------------------------------------------");
-	}
+	void	Print(Option_t* option = "") const;
 	
-	void Start(){
-		TDatime time;
-		tstart = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
-	}
-	void Stop(){
-		TDatime time;
-		tstop = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
-		tellapsed = tstop-tstart;
-	}
-	Int_t GetDeltaTime() { return tellapsed; }
+	void Start();
+	void Stop();
+	Int_t GetDeltaTime();
 	
 	
 	ClassDef(KVBreakUp,1)//Partitioning of nuclei

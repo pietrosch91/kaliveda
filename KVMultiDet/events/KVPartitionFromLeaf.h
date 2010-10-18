@@ -20,7 +20,7 @@ class KVPartitionFromLeaf : public KVPartition
    virtual ~KVPartitionFromLeaf();
 
 	void ConnectToLeaf(TLeaf* lf);
-	void Update(Long64_t entry=-1);
+	void ReadEntry(Long64_t entry=-1);
 	
 	void SetZmin(Int_t val);
 	void SetZmax(Int_t val);

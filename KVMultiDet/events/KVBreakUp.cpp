@@ -3,7 +3,6 @@
 
 #include "KVBreakUp.h"
 #include "TMath.h"
-#include "Riostream.h"
 #include "TMethodCall.h"
 #include "TRandom3.h"
 
@@ -30,8 +29,6 @@ Sont implémentées :
 Normalement toutes ces methodes garantissent à chaque tirage, les conditions imposées par SetConditions
 - Méthode RedefineTRandom(KVString TRandom_Method), permet de redefinir la classe de tirage aleatoire voir TRandom et classes filles, la classe
 par default est TRandom3
-- Méthode StorePartitions(Bool_t), permet de dire si l'on veut enregistrer les partitions dans un arbre KVBreakUp::GetTree() et qu'elles 
-soient gérées par un KVPartitionManager (KVBreakUp::GetManager())
 Exemple d'utilisation : 
 void test{
 
@@ -55,7 +52,8 @@ bu->DrawPanel();
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void KVBreakUp::init(void) {
+void KVBreakUp::init(void)
+{
 	
 	size_max=500;
 	//Condition initiale de la cassure Ztot,Mtot,Zlim
@@ -78,47 +76,175 @@ void KVBreakUp::init(void) {
 	DefineHistos();
 	
 	parman=0;
-	tt=0;
-	iterations_total = 0;
+	niter_tot = 0;
 	tstart = tstop = tellapsed = 0;
+	
+	StorePartitions();
 }
 
+//_______________________________________________________
+KVBreakUp::KVBreakUp()
+{ 
+
+	init();
+
+}
+	
+//_______________________________________________________
+KVBreakUp::~KVBreakUp(){
+	
+	delete alea;
+	delete lhisto;
+	TCanvas* c1 = 0;
+	if ( (c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("BreakUp_Control")) ) delete c1;
+	if (bound) delete [] bound;
+		
+	lobjects->Clear();
+	delete lobjects;
+			
+}
+//_______________________________________________________
+void KVBreakUp::Clear(Option_t* opt){
+
+	GetManager()->Clear(opt);
+	ResetHistos();
+	niter_tot = 0;
+
+}
+
+//_______________________________________________________
 void KVBreakUp::DefineHistos(){
 	
 	lhisto = new KVList();
 	//histogramme de control
-	hzz = new TH1F("KVBreakUp_hzz","distri z",200,-0.5,199.5);   				lhisto->Add(hzz);
-	hzt = new TH1F("KVBreakUp_hzt","h ztotal",200,-0.5,199.5);   				lhisto->Add(hzt);
-	hmt = new TH1F("KVBreakUp_hmt","h mtotal",200,-0.5,199.5);   				lhisto->Add(hmt);
+	hzz = new TH1F("KVBreakUp_hzz","distri z",200,-0.5,199.5);	lhisto->Add(hzz);
+	hzt = new TH1F("KVBreakUp_hzt","h ztotal",200,-0.5,199.5);	lhisto->Add(hzt);
+	hmt = new TH1F("KVBreakUp_hmt","h mtotal",200,-0.5,199.5);	lhisto->Add(hmt);
 }
 	
-void KVBreakUp::StoreEntriesInTree(){
+//_______________________________________________________
+void KVBreakUp::SetZtot(Int_t zt) 
+{
+	//Protected method	
+	if (zt!=Ztotal){
+		Ztotal=zt; 
+		if (bound) delete bound;	bound = new Int_t[Ztotal];
+		for (Int_t nn=0;nn<Ztotal;nn+=1) bound[nn]=1;
+		nbre_nuc = Ztotal-Mtotal*Zmin;
+	}
+}
 	
-	if (!tt){
-		tt = new TTree("KVBreakUp_tree","tree");
-		if (!lobjects) lobjects = new KVList(); 
-		lobjects->Add(tt);
+//_______________________________________________________
+void KVBreakUp::SetMtot(Int_t mt)
+{ 
+	//Protected method	
+	if (mt>size_max) {
+		Warning("SetMtot","%d -> La multiplicite max (%d) est depassee",mt,size_max);
+		exit(EXIT_FAILURE);
+	}
+	Mtotal=mt; 
+	nbre_nuc = Ztotal-Mtotal*Zmin;
+}
 	
-		tt->Branch("zt",&Ztotal,"zt/I");
-		tt->Branch("mt",&Mtotal,"mt/I");
+//_______________________________________________________
+void KVBreakUp::SetZmin(Int_t zlim)
+{
+
+	//Protected method	
+	Zmin=zlim; 
+	nbre_nuc = Ztotal-Mtotal*Zmin;
+
+}
+
+//_______________________________________________________
+void KVBreakUp::SetBreakUpMethod(KVString bup_method)
+{
 	
-		tt->Branch("tabz",size,"tabz[mt]/I");
-		SetBit(kFillTree,kTRUE);
+	//Protected method	
+	BreakUpMethod=bup_method;
+
+}
+
+//_______________________________________________________
+void KVBreakUp::RedefineTRandom(KVString TRandom_Method)
+{
+	if (alea) delete alea;
+	TClass *cl = new TClass(TRandom_Method.Data());
+	alea = (TRandom* )cl->New();
+	delete cl;
+}
+	
+//_______________________________________________________
+void KVBreakUp::SetConditions(Int_t zt,Int_t mt,Int_t zmin)
+{
+	SetZtot(zt);
+	SetMtot(mt);
+	SetZmin(zmin);
+}
+
+//_______________________________________________________
+void KVBreakUp::DefineBreakUpMethod(KVString bup_method)
+{
+	
+	if (bup_method==""){
+		Info("DefineBreakUpMethod", "Available methods are");
+		cout << "BreakUsingChain" << endl;
+		cout << "BreakUsingPile" << endl;
+		cout << "BreakUsingIndividual" << endl;
+		cout << "BreakUsingLine" << endl;
+		cout << "Make your choice" << endl;
+	}
+	else {
+		SetBreakUpMethod(bup_method);
 	}
 
 }
 
+//_______________________________________________________
+Int_t KVBreakUp::GetZtot(void) const
+{
+
+	return Ztotal;
+
+}
+
+//_______________________________________________________
+Int_t KVBreakUp::GetMtot(void) const
+{
+
+	return Mtotal;
+
+}
+
+//_______________________________________________________
+Int_t KVBreakUp::GetZmin(void) const
+{
+
+	return Zmin;
+	
+}
+
+//_______________________________________________________
+KVString KVBreakUp::GetBreakUpMethod(void) const
+{
+
+	return BreakUpMethod;
+
+}
+
+//_______________________________________________________
 void KVBreakUp::StorePartitions(Bool_t choix){
+	
 	SetBit(kStorePartitions,choix);
-	if ( !GetTree() ) StoreEntriesInTree();
+	
 	if ( !GetManager() ){
-		parman = new KVPartitionManager();
+		parman = new KVPartitionList();
 		if (!lobjects) lobjects = new KVList(); 
 		lobjects->Add(parman);
 	}
 }
 
-
+//_______________________________________________________
 Int_t KVBreakUp::BreakUsingChain(void){
 
 	//Conditions de depart
@@ -172,7 +298,9 @@ Int_t KVBreakUp::BreakUsingChain(void){
 	
 }
 
-Int_t KVBreakUp::BreakUsingLine(void){
+//_______________________________________________________
+Int_t KVBreakUp::BreakUsingLine(void)
+{
 
 	//Conditions de depart
 	//Mtotal clusters de taille minimale Zmin
@@ -226,7 +354,9 @@ Int_t KVBreakUp::BreakUsingLine(void){
 	
 }
 
-Int_t KVBreakUp::BreakUsingIndividual(void){
+//_______________________________________________________
+Int_t KVBreakUp::BreakUsingIndividual(void)
+{
 
 	//Conditions de depart
 	// Mtotal clusters de taille minimale Zmin
@@ -283,20 +413,9 @@ Int_t KVBreakUp::BreakUsingIndividual(void){
 	
 }
 
-void KVBreakUp::Reset_ForNextTime(){
-	//routine ne servant pas actuellement
-	nl.Begin();
-	while (!nl.End()){
-		Int_t tag = nl.Next();
-		for (Int_t mm=tag;mm<tag+Zmin;mm+=1){
-		Int_t pos = mm%(Ztotal);
-			bound[pos]=1;
-		}
-	}
-	nl="";
-}
-
-Int_t KVBreakUp::BreakUsingPile(void){
+//_______________________________________________________
+Int_t KVBreakUp::BreakUsingPile(void)
+{
 
 	
 	Int_t bb=0;
@@ -322,29 +441,23 @@ Int_t KVBreakUp::BreakUsingPile(void){
 
 }
 
-void KVBreakUp::TreatePartition(){
+//_______________________________________________________
+void KVBreakUp::TreatePartition()
+{
 
-	//OrdonneCharge();
-	if (TestBit(kFillTree)) tt->Fill();
 	hmt->Fill(Mtotal);
 	hzt->Fill(Ztotal);
+	
+	partition = new KVIntegerList();
+	partition->Fill(size,Mtotal);
+			
+	if (parman->Fill(partition)) delete partition;
 
 }
 	
-
-/*
-void KVBreakUp::OrdonneCharge(){
-
-	//On ordonne le tableau de charge par ordre decroissant
-	Int_t index[Mtotal],tampon[Mtotal];
-	TMath::Sort(Mtotal,size,index);
-	for (Int_t nn=0;nn<Mtotal;nn+=1) tampon[nn] = size[index[nn]];
-	for (Int_t nn=0;nn<Mtotal;nn+=1) size[nn] = tampon[nn];
-
-}	
-*/	
-	
-void KVBreakUp::BreakNtimes(Int_t times){
+//_______________________________________________________
+void KVBreakUp::BreakNtimes(Int_t times)
+{
 
 	
 	Start();
@@ -365,48 +478,16 @@ void KVBreakUp::BreakNtimes(Int_t times){
 		}
 	}
 	Info("BreakNtimes","Tirage termine");
-	iterations_total+=times;	
+	niter_tot+=times;	
 	
 	Stop();
 	Info("BreakNtimes","Temps ecoule en secondes : %d",GetDeltaTime());
 
-	if (TestBit(kStorePartitions)){
-		TransfertFromTree();
-	}
-
-}	
-	
-void KVBreakUp::TransfertFromTree(void){	
-	
-	Start();
-	
-	Info("TransfertFromTree","Transfert des partitions");
-	KVString snom;
-	if (TestBit(kStorePartitions)){
-		for (Int_t nn=0;nn<tt->GetEntries();nn+=1){
-			//if ( nn%10000 == 0 ) Info("TransfertFromTree","%d entrees traites",nn);
-			tt->GetEntry(nn);
-			
-			partition = new KVPartition(GetZtot());
-			partition->Fill(size,Mtotal);
-			
-	//		if ( !(parman->Fill(()partition)) )
-	//			delete partition;
-			
-		}
-		
-		parman->ReduceSubLists();
-		
-		ResetTree();
-	}
-	
-	Stop();
-	Info("TransfertFromTree","Temps ecoule en secondes : %d",GetDeltaTime());
-
 }	
 
-
-void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin){
+//_______________________________________________________
+void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin)
+{
 
 	Start();
 	
@@ -436,18 +517,16 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Zto
 		}
 	}
 	delete gaus;
-	iterations_total+=times;
+	niter_tot+=times;
 	
 	Stop();
 	Info("BreakNtimesOnGaussian","Temps ecoule en secondes : %d",GetDeltaTime());
 
-	if (TestBit(kStorePartitions)){
-		TransfertFromTree();
-	}
-	
-}		
+}
 
-void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin){
+//_______________________________________________________
+void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin)
+{
 
 	TH2F* h2 = hh_zt_VS_mt;
 	if (!h2) return;
@@ -484,18 +563,63 @@ void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin){
 			}
 		}
 	
-	iterations_total+=stat_par;
+	niter_tot+=stat_par;
 
 	Stop();
 	Info("BreakNtimesFromHisto","Temps ecoule en secondes : %d",GetDeltaTime());
 
-	if (TestBit(kStorePartitions)){
-		TransfertFromTree();
-	}
-
 }		
 
-void KVBreakUp::DrawPanel(){
+//_______________________________________________________
+Int_t KVBreakUp::TotalIterations(void)
+{
+
+	return niter_tot;
+
+}
+
+//_______________________________________________________
+KVList* KVBreakUp::GetHistos()
+{
+
+	return lhisto;
+	
+}
+
+//_______________________________________________________
+KVList* KVBreakUp::GetObjects()
+{
+
+	return lobjects;
+	
+}
+	
+//_______________________________________________________
+KVPartitionList* KVBreakUp::GetManager()
+{
+	
+	return parman;
+
+}
+
+//_______________________________________________________
+void KVBreakUp::ResetTotalIterations()
+{
+
+	niter_tot=0;
+	
+}
+
+//_______________________________________________________
+void KVBreakUp::ResetHistos(){
+
+	lhisto->Execute("Reset","");
+	
+}
+
+//_______________________________________________________
+void KVBreakUp::DrawPanel()
+{
 		
 	TCanvas* c1 = 0;
 	if ( !(c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("BreakUp_Control")) ){
@@ -509,22 +633,14 @@ void KVBreakUp::DrawPanel(){
 	}
 }
 
-void KVBreakUp::ResetHistos(){ lhisto->Execute("Reset",""); }
-
-void KVBreakUp::ResetTree(){ GetTree()->Reset();}
-
-void KVBreakUp::ResetManager(){ GetManager()->Reset(); }
-
-
-void KVBreakUp::SaveHistos(KVString filename,KVString suff,Bool_t update){
+//_______________________________________________________
+void KVBreakUp::SaveHistos(KVString filename,KVString suff,Option_t* option){
 
 	if (filename=="") filename="KVBreakUp_Ouput.root";
 	if (suff=="")	
 		suff.Form("Zt%d_Mt%d_Zm%d_%s",GetZtot(),GetMtot(),GetZmin(),GetBreakUpMethod().Data());
-	TFile* file = 0;
-	if (update) file = new TFile(filename.Data(),"update");
-	else 			file = new TFile(filename.Data(),"recreate");
-	
+	TFile* file = new TFile(filename.Data(),option);
+
 	KVString snom;
 	for (Int_t nn=0;nn<lhisto->GetEntries();nn+=1){
 		snom.Form("%s_%s",lhisto->At(nn)->GetName(),suff.Data());
@@ -534,18 +650,40 @@ void KVBreakUp::SaveHistos(KVString filename,KVString suff,Bool_t update){
 
 }
 
-void KVBreakUp::SaveTree(KVString filename,KVString suff,Bool_t update){
+//_______________________________________________________
+void KVBreakUp::Print(Option_t* option) const
+{
+	Info("Print","Configuration for the break up");
+	printf(" Ztot=%d - Mtot=%d - Zmin=%d\n",GetZtot(),GetMtot(),GetZmin());
+	printf(" Charge to be distributed %d - Biggest possible charge %d\n",nbre_nuc,Zmin+nbre_nuc);
+	printf(" Methode de cassage aleatoire %s\n",GetBreakUpMethod().Data());
+	alea->Print();
+	printf(" Partition are stored via KVPartitionList : %d\n",Int_t(TestBit(kStorePartitions)));
+	printf("------------------------------------------------------");
+}
 	
-	if (!TestBit(kFillTree)) return;
-	
-	TFile* file = 0;
-	if (update) file = new TFile(filename.Data(),"update");
-	else 			file = new TFile(filename.Data(),"recreate");
-	
-	KVString snom;
-	snom.Form("%s_%s",tt->GetName(),suff.Data());
-	tt->Write(snom.Data());
-	
-	file->Close();
+//_______________________________________________________
+void KVBreakUp::Start()
+{
+
+	TDatime time;
+	tstart = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
+
+}
+
+//_______________________________________________________
+void KVBreakUp::Stop()
+{
+	TDatime time;
+	tstop = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
+	tellapsed = tstop-tstart;
+
+}
+
+//_______________________________________________________
+Int_t KVBreakUp::GetDeltaTime()
+{
+
+	return tellapsed;
 
 }
