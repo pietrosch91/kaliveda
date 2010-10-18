@@ -935,7 +935,48 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 
 //_________________________________________________________________________________________
 
-Double_t KVIDTelescope::GetMeanDEFromID(Int_t Z, Int_t A, Double_t x, Option_t*opt)
+Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
 {
-	// TO BE IMPLEMENTED
+	// Returns the Y-axis value in the 2D identification map containing isotope (Z,A)
+	// corresponding to the current X-axis value given by GetIDMapX.
+	// If no mass information is available, just give Z.
+	//
+	// In this (default) implementation this means scanning the ID grids associated with
+	// this telescope until we find and identification line Z or (Z,A), and then interpolating
+	// the Y-coordinate for the current X-coordinate value.
+	//
+	// Status variable can take one of following values:
+	//
+    //  KVIDTelescope::kMeanDE_OK                    all OK
+    //   KVIDTelescope::kMeanDE_XtooSmall      X-coordinate is smaller than smallest X-coordinate of ID line
+    //   KVIDTelescope::kMeanDE_XtooLarge     X-coordinate is larger than largest X-coordinate of ID line
+    //   KVIDTelescope::kMeanDE_NoIdentifie    No identifier found for Z or (Z,A)
+
+    status = kMeanDE_OK;
+	// loop over grids
+	TIter next(fIDGrids);
+	KVIDGrid* grid;
+	KVIDLine *idline=0;
+	while( (grid = (KVIDGrid*)next()))
+	{
+	    idline = (KVIDLine*)grid->GetIdentifier(Z,A);
+	    if(idline) break;
+	}
+	if(!idline) {
+	    status = kMeanDE_NoIdentifier;
+	    return -1.;
+	}
+	Double_t x,x1,y1,x2,y2;
+	x = GetIDMapX();
+	idline->GetEndPoint(x2,y2);
+	if(x>x2){
+        status = kMeanDE_XtooLarge;
+        return -1;
+	}
+	idline->GetStartPoint(x1,y1);
+	if(x<x1){
+        status = kMeanDE_XtooSmall;
+        return -1.;
+	}
+	return idline->Eval(x);
 }

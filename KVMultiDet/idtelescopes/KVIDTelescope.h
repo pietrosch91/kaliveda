@@ -167,8 +167,15 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
 	const Char_t* GetDefaultIDGridClass();
 	KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints);
-	
-	virtual Double_t GetMeanDEFromID(Int_t Z, Int_t A, Double_t x, Option_t*opt = "");
+
+    // status codes for GetMeanDEFromID
+    enum{
+        kMeanDE_OK,       // all OK
+        kMeanDE_XtooSmall,  // X-coordinate is smaller than smallest X-coordinate of ID line
+        kMeanDE_XtooLarge,   // X-coordinate is larger than largest X-coordinate of ID line
+        kMeanDE_NoIdentifier   // No identifier found for Z or (Z,A)
+    };
+	virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1);
 
 	ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
 };
