@@ -117,8 +117,8 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		proven > 2 -> other
 		*/
 		
-		nuc->SetA(GetIntReadPar(0));
 		nuc->SetZ(GetIntReadPar(1));
+		nuc->SetA(GetIntReadPar(0));
 		nuc->GetParameters()->SetValue("proven",GetDoubleReadPar(2));
 		
 		

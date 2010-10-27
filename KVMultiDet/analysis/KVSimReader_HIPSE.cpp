@@ -215,8 +215,8 @@ Bool_t KVSimReader_HIPSE::ReadNucleus(){
 		proven = 2 -> QT
 		proven > 2 -> other
 		*/
-		nuc->SetA(GetIntReadPar(0));
 		nuc->SetZ(GetIntReadPar(1));
+		nuc->SetA(GetIntReadPar(0));
 		nuc->GetParameters()->SetValue("proven",GetDoubleReadPar(2));
 		break;
 

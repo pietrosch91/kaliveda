@@ -81,8 +81,9 @@ Bool_t KVSimReader_MMM_asym::ReadEvent(){
 
 Bool_t KVSimReader_MMM_asym::ReadNucleus(){
 
-	nuc->SetA(GetIntReadPar(idx++));
+	Int_t aa = GetIntReadPar(idx++);
 	nuc->SetZ(GetIntReadPar(idx++));
+	nuc->SetA(aa);
 	nuc->SetPx(GetDoubleReadPar(idx++));
 	nuc->SetPy(GetDoubleReadPar(idx++));
 	nuc->SetPz(GetDoubleReadPar(idx++));
