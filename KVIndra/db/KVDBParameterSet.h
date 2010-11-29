@@ -39,7 +39,7 @@ class KVDBParameterSet:public KVDBRecord {
 	virtual Int_t GetParamIndex(TString name) const;
    virtual Char_t **GetParamNames() const;
    virtual Char_t *GetParamName(UShort_t i = 0) const;
-   virtual KVRList *GetRuns() const;
+   virtual KVHashList *GetRuns() const;
    virtual void SetParameter(UShort_t i, Double_t val);
    virtual void SetParameter(Double_t val);
    virtual void SetParameter(TString name, Double_t val);
@@ -50,45 +50,5 @@ class KVDBParameterSet:public KVDBRecord {
 
     ClassDef(KVDBParameterSet, 1)       // Set of parameters for calibration
 };
-
-inline Int_t KVDBParameterSet::GetParamNumber() const
-{
-   return fParamNumber;
-}
-
-inline Double_t *KVDBParameterSet::GetParameters() const
-{
-   return fParameters;
-}
-
-inline Double_t KVDBParameterSet::GetParameter(UShort_t i) const
-{
-   return fParameters[i];
-}
-
-inline Char_t **KVDBParameterSet::GetParamNames() const
-{
-   return fParamNames;
-}
-
-inline Char_t *KVDBParameterSet::GetParamName(UShort_t i) const
-{
-   return fParamNames[i];
-}
-
-inline KVRList *KVDBParameterSet::GetRuns() const
-{
-   return GetKey("Runs")->GetLinks();
-}
-inline void KVDBParameterSet::SetParameter(UShort_t i, Double_t val)
-{
-   fParameters[i] = val;
-}
-
-inline void KVDBParameterSet::SetParameter(Double_t val)
-{
-   fParameters[0] = val;
-}
-
 
 #endif

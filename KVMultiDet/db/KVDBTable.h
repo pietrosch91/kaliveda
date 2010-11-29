@@ -36,9 +36,9 @@ class KVDBTable:public TFolder {
              "", Bool_t unique = kFALSE);
     virtual ~ KVDBTable();
 
-   inline virtual KVDBRecord *GetRecord(const Char_t * rec_name) const;
+   virtual KVDBRecord *GetRecord(const Char_t * rec_name) const;
    virtual KVDBRecord *GetRecord(Int_t n) const;
-   inline virtual TList *GetRecords() const;
+   virtual TList *GetRecords() const;
    virtual Bool_t AddRecord(KVDBRecord * add);
    virtual void RemoveRecord(KVDBRecord * add);
    virtual void ls(Option_t * option = "*") const;
@@ -52,16 +52,6 @@ class KVDBTable:public TFolder {
    
     ClassDef(KVDBTable, 2)      //Table object for database
 };
-
-KVDBRecord *KVDBTable::GetRecord(const Char_t * rec) const
-{
-   return (KVDBRecord *) FindObject(rec);
-}
-
-TList *KVDBTable::GetRecords() const
-{
-   return (TList *) GetListOfFolders();
-}
 
 
 #endif

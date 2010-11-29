@@ -207,3 +207,45 @@ void KVDBParameterSet::Print(Option_t * option) const
    }
    cout << endl << "<<<<<<<<<<" << endl;
 }
+
+
+Int_t KVDBParameterSet::GetParamNumber() const
+{
+   return fParamNumber;
+}
+
+Double_t *KVDBParameterSet::GetParameters() const
+{
+   return fParameters;
+}
+
+Double_t KVDBParameterSet::GetParameter(UShort_t i) const
+{
+   return fParameters[i];
+}
+
+Char_t **KVDBParameterSet::GetParamNames() const
+{
+   return fParamNames;
+}
+
+Char_t *KVDBParameterSet::GetParamName(UShort_t i) const
+{
+   return fParamNames[i];
+}
+
+KVHashList *KVDBParameterSet::GetRuns() const
+{
+   return GetKey("Runs")->GetLinks();
+}
+void KVDBParameterSet::SetParameter(UShort_t i, Double_t val)
+{
+   fParameters[i] = val;
+}
+
+void KVDBParameterSet::SetParameter(Double_t val)
+{
+   fParameters[0] = val;
+}
+
+

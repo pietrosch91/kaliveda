@@ -418,7 +418,7 @@ KVList *KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector * detector,
                //Set gain associated with peak.
                //This is the gain of the detector during the first run used to trace the peak.
                KVDBRun *kvrun = (KVDBRun *) GetRun(first);
-               KVRList *param_list = kvrun->GetLinks("Gains");
+               KVHashList *param_list = kvrun->GetLinks("Gains");
                if (!param_list) {
                   //no gains defined - everybody has gain=1
                   peak->SetGain(1.00);

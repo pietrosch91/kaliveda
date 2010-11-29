@@ -34,7 +34,6 @@ class KVDBSystem:public KVDBRecord {
 
    KVTarget *fTarget;           //-> physical target used for experiment run
 
-   KVList *fRunlist;             //!used to store pointer to sorted list of runs
    Int_t fRuns;                 //!temporary variable used to stock number of associated runs
 
  protected:
@@ -44,7 +43,7 @@ class KVDBSystem:public KVDBRecord {
    UInt_t fAtarget;             // Mass of the target nucleus
    Float_t fEbeam;              // Energy of the beam in MeV/nucleon
 
-   KVList *_GetRuns();
+   KVHashList *_GetRuns();
 
    KVDBTable* GetRunsTable();
    
@@ -87,7 +86,7 @@ class KVDBSystem:public KVDBRecord {
    void SetBeam(UInt_t z, UInt_t a, Float_t energy);
 
    //Returns a sorted list of all the runs associated with this system
-   KVList *GetRuns() const {
+   KVHashList *GetRuns() const {
       return const_cast <KVDBSystem * >(this)->_GetRuns();
    };
 

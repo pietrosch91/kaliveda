@@ -43,7 +43,7 @@ void KVINDRAUpDater_e416a::SetChIoPressures(KVDBRun * kvrun)
    KVINDRAUpDater::SetChIoPressures(kvrun);
    
    //set BIC pressures
-   KVRList *param_list = kvrun->GetLinks("BIC Pressures");
+   KVHashList *param_list = kvrun->GetLinks("BIC Pressures");
    if (!param_list) {
       return;
    }

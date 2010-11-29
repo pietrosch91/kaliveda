@@ -21,7 +21,6 @@ $Id: KVDBRecord.h,v 1.19 2007/05/31 09:59:22 franklan Exp $
 
 #include "TFolder.h"
 #include "TList.h"
-#include "TRef.h"
 #include "KVDBTable.h"
 #include "KVDBKey.h"
 
@@ -38,8 +37,8 @@ class KVDBRecord:public TFolder {
     KVDBRecord(const Char_t * name, const Char_t * title = "");
     virtual ~ KVDBRecord();
 
-   inline virtual KVDBKey *GetKey(const Char_t * key) const;
-   inline virtual TList *GetKeys() const;
+   virtual KVDBKey *GetKey(const Char_t * key) const;
+   virtual TList *GetKeys() const;
    virtual Bool_t AddLink(const Char_t * key_name, KVDBRecord * rec,
                           Bool_t linkback = kTRUE);
    virtual void RemoveLink(const Char_t * key_name, KVDBRecord * rec,
@@ -49,7 +48,7 @@ class KVDBRecord:public TFolder {
                            Bool_t check = kTRUE);
    virtual KVDBRecord *GetLink(const Char_t * key,
                                const Char_t * link) const;
-   virtual KVRList *GetLinks(const Char_t * key) const;
+   virtual KVHashList *GetLinks(const Char_t * key) const;
    virtual void RemoveAllLinks(const Char_t * key);
    virtual KVDBTable *GetTable() const;
    virtual void SetTable(const KVDBTable * table);
@@ -65,19 +64,5 @@ class KVDBRecord:public TFolder {
 
    ClassDef(KVDBRecord, 3)      //Base Class for a record
 };
-
-//_____________________________________________________________________________//
-
-KVDBKey *KVDBRecord::GetKey(const Char_t * key) const
-{
-   TString knom(key);
-   knom.Prepend("Key:");
-   return (KVDBKey *) FindObject(knom.Data());
-}
-
-TList *KVDBRecord::GetKeys() const
-{
-   return (TList *) GetListOfFolders();
-}
 
 #endif

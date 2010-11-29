@@ -19,7 +19,7 @@ $Id: KVDBKey.h,v 1.22 2009/03/11 14:19:50 franklan Exp $
 #define __KVDBKEY_H
 
 #include "KVBase.h"
-#include "KVRList.h"
+#include "KVHashList.h"
 #include "TRef.h"
 
 class KVDBRecord;
@@ -31,8 +31,8 @@ class KVDBKey:public KVBase {
 
    Bool_t fIsUnique;            // Can the list contains more than 1 object the same name
    Bool_t fSingle;              // Can the list contain more than 1 object in the list
-   TRef fRecord;                //direct pointer to parent record
-   KVRList *fLinks;             //->list of cross-referenced records
+   KVDBRecord* fRecord;            //direct pointer to parent record
+   KVHashList *fLinks;             //->list of cross-referenced records
 
    virtual void AddLink(KVDBRecord * rec);
 
@@ -49,58 +49,20 @@ class KVDBKey:public KVBase {
    virtual void Unlink(KVDBRecord * rec, Bool_t linkback = kTRUE);
    virtual void UnlinkAll();
    
-   inline virtual KVDBRecord *GetLink(const Char_t * link) const;
+   virtual KVDBRecord *GetLink(const Char_t * link) const;
 
    //return the list of cross-referenced objects
-   virtual KVRList *GetLinks() const {
+   virtual KVHashList *GetLinks() const {
       return fLinks;
    };
-   inline virtual KVDBRecord *GetParent();
-   inline virtual KVDBRecord *GetRecord();
-   inline virtual void SetParent(KVDBRecord * parent);
-   inline virtual void SetRecord(KVDBRecord * parent);
-   inline virtual void SetUniqueStatus(Bool_t unique);
-   inline virtual void SetSingleStatus(Bool_t single);
+   virtual KVDBRecord *GetParent();
+   virtual KVDBRecord *GetRecord();
+   virtual void SetParent(KVDBRecord * parent);
+   virtual void SetRecord(KVDBRecord * parent);
+   virtual void SetUniqueStatus(Bool_t unique);
+   virtual void SetSingleStatus(Bool_t single);
 
     ClassDef(KVDBKey, 1)        // Key in a Record
 };
-//___________________________________________________________________________//
-
-KVDBRecord *KVDBKey::GetLink(const Char_t * link) const
-{
-   return (KVDBRecord *) fLinks->FindObjectByName(link);
-}
-
-KVDBRecord *KVDBKey::GetParent()
-{
-   return (KVDBRecord *) fRecord.GetObject();
-}
-
-void KVDBKey::SetParent(KVDBRecord * parent)
-{
-   fRecord = (TObject *) parent;
-}
-
-void KVDBKey::SetRecord(KVDBRecord * parent)
-{
-   SetParent(parent);
-}
-
-
-KVDBRecord *KVDBKey::GetRecord()
-{
-   return GetParent();
-}
-
-void KVDBKey::SetUniqueStatus(Bool_t unique)
-{
-   fIsUnique = unique;
-}
-
-void KVDBKey::SetSingleStatus(Bool_t single)
-{
-   fSingle = single;
-}
-
 
 #endif

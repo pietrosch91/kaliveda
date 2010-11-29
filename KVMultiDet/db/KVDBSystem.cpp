@@ -50,7 +50,6 @@ KVDBSystem::KVDBSystem()
    fEbeam = 0.;
    fCinema = 0;
    fTarget = 0;
-   fRunlist = 0;
    fRuns = 0;
 }
 
@@ -64,7 +63,6 @@ KVDBSystem::KVDBSystem(const Char_t * name):KVDBRecord(name,
    fTarget = 0;
    KVDBKey *dbk = AddKey("Runs", "List of Runs");
    dbk->SetUniqueStatus(kTRUE);
-   fRunlist = 0;
    fRuns = 0;
 }
 
@@ -77,8 +75,6 @@ KVDBSystem::~KVDBSystem()
       fCinema = 0;
    }
    delete fTarget;
-   if (fRunlist)
-      delete fRunlist;
 }
 
 //___________________________________________________________________________
@@ -153,29 +149,22 @@ Int_t KVDBSystem::Compare(const TObject * obj) const
        dynamic_cast < KVDBSystem * >(const_cast < TObject * >(obj));
    if (!other_sys)
       return 0;
-   KVList *other_runs;
+   KVSeqCollection *other_runs;
    if (!(other_runs = other_sys->GetRuns()))
       return 0;
-   Int_t first = ((KVDBRecord *) fRunlist->At(0))->GetNumber();
+   Int_t first = ((KVDBRecord *) GetRuns()->At(0))->GetNumber();
    Int_t other_first = ((KVDBRecord *) other_runs->At(0))->GetNumber();
    return (first == other_first ? 0 : (other_first > first ? -1 : 1));
 }
 
 //_____________________________________________________________________________
 
-KVList *KVDBSystem::_GetRuns()
+KVHashList *KVDBSystem::_GetRuns()
 {
-   //"translate" the KVRList returned by GetLinks into a standard
-   //TList which can then be sorted (Sort() is not implemented for TRefArray).
-   KVRList *_rlist = GetLinks("Runs");
-   TIter nxt(_rlist);
-   KVDBRun *db;
-   SafeDelete(fRunlist);
-   fRunlist = new KVList(kFALSE);        //will be deleted with object
-   while ((db = (KVDBRun *) nxt()))
-      fRunlist->Add(db);
-   fRunlist->Sort();
-   return fRunlist;
+   // sort runlist
+   
+   GetLinks("Runs")->Sort();
+   return GetLinks("Runs");
 }
 
 //___________________________________________________________________________
