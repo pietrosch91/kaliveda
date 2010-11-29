@@ -447,19 +447,7 @@ void KVDataSet::OpenDataBase(Option_t * opt)
       // make sure gDataSet is set & points to us
       gDataSet = this;
       fDataBase = KVDataBase::MakeDataBase(GetDBName());
-	Info("OpenDataBase", "saving");
       SaveDataBase();
-		// close the file in case something goes wrong later, leaving us
-		// with an improperly closed TFile
-	Info("OpenDataBase", "closing file");
-		delete fDBase;
-		fDBase=0;
-	Info("OpenDataBase", "deleting database");
-		delete fDataBase;
-		fDataBase=0;
-		// now open database (again) from the file
-	Info("OpenDataBase", "reopening database");
-		OpenDataBase();
 		if(fDataBase && is_glob_db) fDataBase->cd();
    }
 	else if( !fDataBase ){
@@ -1581,8 +1569,40 @@ Bool_t KVDataSet::DataBaseNeedsUpdate()
 	// Returns kTRUE if database needs to be regenerated from source files,
 	// i.e. if source files in $KVROOT/KVFiles/"name_of_dataset"
 	// are more recent than DataBase.root
+	// In case no directory exists in $KVROOT/KVFiles/ (dataset added 'on the fly')
+	// we create the directory and fill it with dummy files (Makefile, Runlist.csv, Systems.dat)
 
 	TString pwd = gSystem->pwd();
+	
+	TString path="";
+	if(!SearchKVFile(GetDataSetDir(), path)){
+		// dataset directory doesn't exist - create it
+		Info("DataBaseNeedsUpdate", "%s: Creating new dataset directory %s",
+			GetName(), GetDataSetDir());
+		if(gSystem->mkdir(GetDataSetDir())){
+			// problem creating directory
+			Error("DataBaseNeedsUpdate",
+			 "%s: Dataset directory %s does not exist and cannot be created ?",
+			 GetName(), GetDataSetDir());
+			return kFALSE;
+		}
+		// create dummy files
+		SearchKVFile(GetDataSetDir(), path); // get full path
+		path += "/";
+		TString filename = path + "Makefile";
+		ofstream of1(filename.Data());
+		of1 << "$(KVROOT)/db/" << GetName() << "/DataBase.root : Runlist.csv Systems.dat" << endl;
+		of1 << "\t@echo Database needs update" << endl;
+		of1.close();
+		filename = path + "Runlist.csv";
+		ofstream of2(filename.Data());
+		of2 << "# Automatically generated dummy Runlist.csv file" << endl;
+		of2.close(); 
+		filename = path + "Systems.dat";
+		ofstream of3(filename.Data());
+		of3 << "# Automatically generated dummy Systems.dat file" << endl;
+		of3.close(); 
+	}
 	gSystem->cd( GetDataSetDir() );
 	TString cmd = "make -q";
 	Int_t ret = gSystem->Exec(cmd.Data());
