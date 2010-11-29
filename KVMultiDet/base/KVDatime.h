@@ -49,6 +49,7 @@ class KVDatime:public TDatime {
    virtual ~ KVDatime();
 
    void SetGanacqDate(const Char_t * GanacqDateString);
+   void SetGanacq2010Date(const Char_t * GanacqDateString);
    const Char_t *AsGanacqDateString() const;
    void SetSQLDate(const Char_t* SQLDateString);
    void SetSRBDate(const Char_t* SRBDateString);
@@ -57,6 +58,7 @@ class KVDatime:public TDatime {
 	
 	static Bool_t IsSQLFormat(const Char_t* date);
 	static Bool_t IsGANACQFormat(const Char_t* date);
+	static Bool_t IsGANACQ2010Format(const Char_t* date);
 	static Bool_t IsSRBFormat(const Char_t* date);
 
    ClassDef(KVDatime, 0)       //Extension of TDatime class
