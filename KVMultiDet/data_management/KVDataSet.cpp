@@ -303,8 +303,7 @@ void KVDataSet::OpenDBFile(const Char_t * full_path_to_dbfile)
 			fDataBase->ReadObjects( fDBase ); // read any associated objects
 		}
       work_dir->cd();           //back to initial working directory
-      //delete fDBase; fDBase=0; do not close database file -
-      //we need the TProcessID object in the file for references/links to work
+      fDBase->Close(); // close database file
    }
 }
 
@@ -381,7 +380,9 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    fDBase = new TFile(full_path_to_dbfile, "recreate");
    fDBase->cd();                //set as current directory (maybe not necessary)
    fDataBase->Write(GetDBName());    //write database to file with given name
-	fDataBase->WriteObjects( fDBase ); //write any associated objects
+   fDataBase->WriteObjects( fDBase ); //write any associated objects
+   fDBase->Write();        // write file header etc.
+   fDBase->Close();         // close file
    work_dir->cd();              //back to initial working directory
 }
 
@@ -564,7 +565,7 @@ void KVDataSet::AddAvailableDataType(const Char_t* type)
 	fDatatypes += _type;
 }
 
-void KVDataSet::SetAnalysisTasks(const KVList * task_list)
+void KVDataSet::SetAnalysisTasks(const KVSeqCollection * task_list)
 {
    //Add to fTasks list any data analysis task in list 'task_list" whose pre-requisite
    //datatype is present for this dataset. Any dataset-specific "tweaking" of the

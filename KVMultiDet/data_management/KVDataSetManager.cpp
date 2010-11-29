@@ -60,6 +60,8 @@ KVDataSetManager::KVDataSetManager()
    fCacheAvailable = kFALSE;
    fMaxCacheTime = 0;
    fCacheFileName = "";
+   fDataSets.SetOwner();
+   fTasks.SetOwner();
 }
 
 KVDataSetManager::~KVDataSetManager()

@@ -118,7 +118,7 @@ class KVDataSet:public KVBase {
    virtual void ls(Option_t * opt = "") const;
    virtual void Print(Option_t * opt = "") const;
 
-   virtual void SetAnalysisTasks(const KVList *);
+   virtual void SetAnalysisTasks(const KVSeqCollection *);
    virtual KVDataAnalysisTask *GetAnalysisTask(Int_t) const;
    virtual KVDataAnalysisTask *GetAnalysisTask(const Char_t* keywords) const;
    virtual KVDataAnalysisTask *GetAnalysisTaskAny(const Char_t* keywords) const;

@@ -8,7 +8,7 @@ $Author: franklan $
 #ifndef __KVDATASETMAN_H
 #define __KVDATASETMAN_H
 
-#include "KVList.h"
+#include "KVUniqueNameList.h"
 #include "KVParameterList.h"
 
 class KVDataSet;
@@ -21,8 +21,8 @@ class KVDataSetManager {
    
  protected:
    ifstream fDatasets;          //for reading cached repository available datasets file
-   KVList fDataSets;            //list of datasets handled by manager
-   KVList fTasks;               //list of all known analysis tasks
+   KVUniqueNameList fDataSets;            //list of datasets handled by manager
+   KVUniqueNameList fTasks;               //list of all known analysis tasks
    Int_t fNavailable;           //number of available datasets
    Int_t *fIndex;               //array of indices of available datasets
     KVParameterList < TString > fUserGroups;    //list of user groups
@@ -34,7 +34,7 @@ class KVDataSetManager {
    virtual KVDataSet *NewDataSet();
    KVDataRepository *fRepository;       //the repository for which data sets are handled
 
-   const KVList* GetAnalysisTaskList() const { return &fTasks; };
+   const KVSeqCollection* GetAnalysisTaskList() const { return &fTasks; };
    virtual Bool_t OpenAvailableDatasetsFile();
    virtual Bool_t ReadAvailableDatasetsFile();
    Bool_t fCacheAvailable;//kTRUE if caching is activated for parent repository
