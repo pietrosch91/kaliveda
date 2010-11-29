@@ -375,7 +375,16 @@ KVINDRARunSheetGUI::KVINDRARunSheetGUI():TGMainFrame(gClient->GetRoot(), 500,
       GUIenv->SetValue( "KVDataBaseGUI.DataSet", gDataSet->GetName() );
       GUIenv->SaveLevel(kEnvUser);
    } else {
-      gDataSetManager->GetDataSet(dataset.Data())->cd();
+   		// check dataset exists
+   	  KVDataSet* ds = gDataSetManager->GetDataSet(dataset.Data());
+      if(ds) ds->cd();
+      else
+      {
+      	//open dataset dialog box - user must choose dataset
+      	new KVIRSGChooseDataSetDialog(gClient->GetRoot(), this, 10, 10);
+      	GUIenv->SetValue( "KVDataBaseGUI.DataSet", gDataSet->GetName() );
+      	GUIenv->SaveLevel(kEnvUser);
+      }
    }
    //initialise list of runs
    UpdateListOfRuns();
@@ -544,7 +553,9 @@ void KVINDRARunSheetGUI::SelectionChanged()
 
    if(fSelectedEntries) delete fSelectedEntries;
    fSelectedEntries = fRunList->GetSelectedObjects();
-   fSelectedRun = (KVINDRADBRun*)fRunList->GetLastSelectedObject();
+   if(fSelectedEntries->GetEntries()) 
+   		fSelectedRun = (KVINDRADBRun*)fRunList->GetLastSelectedObject();
+   else fSelectedRun=0;
    DisableButtons();
    EnableButtons();
 }
