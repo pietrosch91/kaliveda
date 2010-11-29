@@ -178,6 +178,10 @@ Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const Char_t* name, KVDatime
 			date.SetGanacqDate(fullname.Data());
 			return kTRUE;
 		}
+		else if(KVDatime::IsGANACQ2010Format(fullname.Data())){
+			date.SetGanacq2010Date(fullname.Data());
+			return kTRUE;
+		}
 	}
 	return kFALSE;
 }
