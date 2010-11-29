@@ -536,14 +536,15 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 // Frame pour la liste des runs
  TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
 	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, fMainGuiWidth, 250);
-	lvRuns->SetDataColumns(5);
+	lvRuns->SetDataColumns(6);
 	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
 	lvRuns->SetDataColumn(0, "Run", "GetNumber");
-	lvRuns->SetDataColumn(1, "Trigger", "GetTriggerString");
-	lvRuns->SetDataColumn(2, "Events", "", kTextRight);
-	lvRuns->SetDataColumn(3, "File written", "GetDatime");
-	lvRuns->GetDataColumn(3)->SetIsDateTime();
-	lvRuns->SetDataColumn(4, "Comments", "", kTextLeft);
+	lvRuns->SetDataColumn(1, "System", "GetSystemName");
+	lvRuns->SetDataColumn(2, "Trigger", "GetTriggerString");
+	lvRuns->SetDataColumn(3, "Events", "", kTextRight);
+	lvRuns->SetDataColumn(4, "File written", "GetDatime");
+	lvRuns->GetDataColumn(4)->SetIsDateTime();
+	lvRuns->SetDataColumn(5, "Comments", "", kTextLeft);
 	lvRuns->ActivateSortButtons();
 	// disable context menu & Browse functions
 	lvRuns->AllowBrowse(kFALSE);
