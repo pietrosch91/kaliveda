@@ -504,6 +504,8 @@ void KVINDRARunSheetGUI::FillListOfRuns()
             fFirstRun = ((KVINDRADBRun*)fRunList->GetFirstInList())->GetNumber();
             fLastRun = ((KVINDRADBRun*)fRunList->GetLastInList())->GetNumber();
 		}
+		TIter next(gIndraDB->GetRuns());
+		KVDBRun* run;
    }
 }
 
@@ -515,6 +517,10 @@ void KVINDRARunSheetGUI::ClearListOfRuns()
       fFirstRun = 0;
       fLastRun = -1;
       fSelectedRun = 0;
+   if(fSelectedEntries) {
+   	delete fSelectedEntries;
+   	fSelectedEntries=0;
+   }
 }
 
 void KVINDRARunSheetGUI::UpdateListOfRuns()
@@ -538,8 +544,10 @@ void KVINDRARunSheetGUI::UpdateList()
    cout << "Read " << read << " runsheets" << endl;
    cout << "fReader.IsMakeTree()="<< fReader.IsMakeTree()<< endl;
    gDataBase->Save("Runlist");
-   UpdateListOfRuns();
+   ClearListOfRuns();
    gDataSet->UpdateAvailableRuns("raw");
+   FillListOfRuns();
+   SelectionChanged();
 }
 
 void KVINDRARunSheetGUI::SelectionChanged()
@@ -551,7 +559,10 @@ void KVINDRARunSheetGUI::SelectionChanged()
    //fSelectedRun : the last selected run (=the only run selected if GetNSelected==1)
    //The buttons' state is modified according to the number of selected runs
 
-   if(fSelectedEntries) delete fSelectedEntries;
+   if(fSelectedEntries) {
+   	delete fSelectedEntries;
+   	fSelectedEntries=0;
+   }
    fSelectedEntries = fRunList->GetSelectedObjects();
    if(fSelectedEntries->GetEntries()) 
    		fSelectedRun = (KVINDRADBRun*)fRunList->GetLastSelectedObject();
@@ -633,7 +644,8 @@ void KVINDRARunSheetGUI::SetRunTrigger()
          //multiselection
          TIter next(fSelectedEntries);
          KVINDRADBRun* run;
-			while( (run = (KVINDRADBRun*)next()) ) run->SetTrigger(trig);
+			while( (run = (KVINDRADBRun*)next()) ) {run->BlockSignals(); run->SetTrigger(trig); run->BlockSignals(0); }
+		UpdateListOfRuns();
       }
    }
 }
