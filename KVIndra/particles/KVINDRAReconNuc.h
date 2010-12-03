@@ -55,7 +55,6 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 #endif
    virtual void Clear(Option_t * t = "");
    void Print(Option_t * option = "") const;
-   void EnergyIdentification();
    inline UShort_t GetTimeMarker() const {
       return (GetStoppingDetector()?
               (GetStoppingDetector()->
