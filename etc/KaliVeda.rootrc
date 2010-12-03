@@ -179,6 +179,11 @@ VAMOS_e503.DataSet.RepositoryDir:   e503
 VAMOS_e503.DataSet.RunFileName.raw:    run_%d.dat%*
 VAMOS_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 
++DataSet:   t10_02
+t10_02.DataSet.Title:    Test INDRA T10_02 (Nov.-Dec. 2010)
+t10_02.DataSet.RepositoryDir:   t10_02
+t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
+
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
@@ -387,6 +392,7 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 Plugin.KVRawDataReader:    raw.INDRA_e494s    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA_e503    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
 +Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
++Plugin.KVRawDataReader:    raw.T10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 
 # Plugins for KVGANILDataReader/GTGanilData class
@@ -519,6 +525,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
++Plugin.KVMultiDetArray:    T10_02    KVINDRA4     KVIndra    "KVINDRA4()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -537,6 +544,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    T10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
@@ -546,6 +554,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
++Plugin.KVUpDater:    T10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
