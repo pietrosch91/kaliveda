@@ -6,7 +6,7 @@ PROJ_NAME = KVIndra
 MODULES = analysis base calibration daq_cec db detectors events gui identification idtelescopes idmaps indra particles
 
 ETC_DATA = $(shell ls factory/*Template.[c,h]*)
-MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_camp5 INDRA_e475s INDRA_e503 INDRA_e494s
+MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_camp5 INDRA_e475s INDRA_e503 INDRA_e494s t10_02
 
 #list of sources that are not yet ready to be compiled
 NOT_READY := daq_cec/KVS*.cpp
