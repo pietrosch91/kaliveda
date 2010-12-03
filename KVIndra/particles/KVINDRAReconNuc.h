@@ -34,9 +34,12 @@ class KVCsI;
 class KVINDRAReconNuc:public KVReconstructedNucleus {
 
    KVINDRACodes fCodes;         //VEDA6-style calibration and identification codes
-   Bool_t fCoherent;//!coherency of CsI & Si-CsI identifications
-   Bool_t fPileup;//!apparent pileup in Si, revealed by inconsistency between CsI & Si-CsI identifications
-   Bool_t fUseFullChIoEnergyForCalib;    //!decided by coherency analysis
+   Bool_t fCoherent;//coherency of CsI & Si-CsI identifications
+   Bool_t fPileup;//apparent pileup in Si, revealed by inconsistency between CsI & Si-CsI identifications
+   Bool_t fUseFullChIoEnergyForCalib;//decided by coherency analysis
+	Float_t fECsI;//csi contribution to energy
+	Float_t fESi;//si contribution to energy
+	Float_t fEChIo;//chio contribution to energy
    
  public:
 
@@ -99,7 +102,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
 
-   ClassDef(KVINDRAReconNuc, 7) //Nucleus identified by INDRA array
+   ClassDef(KVINDRAReconNuc, 8) //Nucleus identified by INDRA array
 };
 
 //____________________________________________________________________________________________//

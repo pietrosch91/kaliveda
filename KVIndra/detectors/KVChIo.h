@@ -80,7 +80,7 @@ class KVChIo:public KVINDRADetector {
    Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas = -1.0, Bool_t transmission=kTRUE);
 
    inline Bool_t IsCalibrated() const;
-   virtual Short_t GetCalcACQParam(KVACQParam*) const;
+   virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
 
    ClassDef(KVChIo, 4)          //The ionisation chamber detectors (ChIo) of the INDRA array
 };

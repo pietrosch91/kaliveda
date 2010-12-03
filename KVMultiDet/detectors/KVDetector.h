@@ -66,9 +66,6 @@ class KVDetector:public KVMaterial {
    KVList *fIDTelAlign;         //->list of ID telescopes made of this detector and all aligned detectors placed in front of it
    TList *fIDTele4Ident;  //!list of ID telescopes used for particle ID
 
-   Bool_t fReanalyse;           //!     flag indicating that this detector should be reanalysed for particle reconstruction
-   Double_t fECalc;             //! calculated energy loss used in reanalysis (after subtraction of other particles' contributions)
-
    enum {
       kIsAnalysed = BIT(14),    //for reconstruction of particles
       kActiveSet = BIT(15),     //internal - flag set true when SetActiveLayer called
@@ -246,45 +243,6 @@ Double_t *par_res;//!array of params for eres function
    TList *GetTelescopesForIdentification();
    void GetAlignedIDTelescopes(TCollection * list);
 
-   Bool_t Reanalyse() const {
-      return fReanalyse;
-   };
-   void SetECalc(Double_t);
-   Double_t GetECalc() const
-   {
-      //Returns calculated energy loss in detector after subtraction of the
-      //contributions from already-identified particles (see KVDetector::SetReanalyse)
-      return fECalc;
-   };
-   virtual Short_t GetCalcACQParam(KVACQParam*) const
-   {
-      // Calculates & returns value of given acquisition parameter corresponding to the
-      // current value of fEcalc, i.e. the calculated residual energy loss in the detector
-      // after subtraction of calculated energy losses corresponding to each identified
-      // particle crossing this detector.
-      //
-      // This needs to be implemented in child classes. Basically it requires inversion
-      // of thecalibration of the detector.
-      return 0;
-   };
-
-   void SetReanalyse(Bool_t flag=kTRUE)
-   {
-      //Used in particle reconstruction.
-      //If the primary identification of a particle passing through this detector
-      //reveals an inconsistency between the measured energy loss and the calculated
-      //energy loss of the particle, then this may mean that another particle
-      //also passed through or stopped in this detector.
-      //In this case the fECalc member should be set to the calculated energy loss
-      //in the detector after subtraction of the contributions from already-identified
-      //particles (see KVDetector::SetECalc).
-      //The "reanalysis" flag is set to true by calling SetECalc (SetReanalyse(kTRUE)).
-      //A secondary identification procedure should then be used to identify particles
-      //based on the calculated residual energy losses.
-
-      fReanalyse = flag;
-   };
-
    inline void IncrementUnidentifiedParticles(Int_t n = 1) {
       fUnidentP += n;
       fUnidentP = (fUnidentP > 0) * fUnidentP;
@@ -319,6 +277,16 @@ Double_t *par_res;//!array of params for eres function
 
 	virtual void SetFiredBitmask();
 	Binary8_t GetFiredBitmask() const { return fFiredMask; };
+   virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const
+	{
+   	// Calculates & returns value of given acquisition parameter corresponding to
+   	// given calculated energy loss in the detector
+   	// Returns -1 if detector is not calibrated
+		//
+		// This method should be redefined in child classes i.e. for specific
+		// detector implementations: this version just returns -1.
+		return -1;
+	};
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };

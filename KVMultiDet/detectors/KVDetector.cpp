@@ -107,8 +107,6 @@ void KVDetector::init()
    fIDTelAlign = new KVList(kFALSE);
    fIDTelAlign->SetCleanup(kTRUE);
    fIDTele4Ident=0;
-   fReanalyse = kFALSE;
-   fECalc = 0.0;
    fIdentP = fUnidentP = 0;
    npar_loss = npar_res = 0;
    par_loss = par_res = 0;
@@ -330,20 +328,17 @@ void KVDetector::Print(Option_t * opt) const
       cout << ((KVDetector *) this)->
           GetName() << " -- E=" << ((KVDetector *) this)->
           GetEnergy();
-      if(GetECalc()>0) cout << " (" << GetECalc() << ")";
       cout << "  ";
       TIter next(fACQParams);
       KVACQParam *acq;
       while ((acq = (KVACQParam *) next())) {
          cout << acq->GetName() << "=" << (Short_t) acq->
              GetCoderData() << "/" << TMath::Nint(acq->GetPedestal());
-         if(GetECalc()>0) cout << " (" << GetCalcACQParam(acq) << ")";
          cout << "  ";
       }
-      if (Reanalyse())cout << " ---> UP FOR REANALYSIS";
-      cout << endl;
       if (BelongsToUnidentifiedParticle())
-         cout << "(Belongs to an unidentified particle)" << endl;
+         cout << "(Belongs to an unidentified particle)";
+		cout << endl;
    } else if (!strcmp(opt, "all")) {
       //Give full details of detector
       //
@@ -540,11 +535,9 @@ void KVDetector::Clear(Option_t * opt)
    //Set energy loss(es) etc. to zero
 
    SetAnalysed(kFALSE);
-   SetReanalyse(kFALSE);
    fIdentP = fUnidentP = 0;
    ResetBit(kIdentifiedParticle);
    ResetBit(kUnidentifiedParticle);
-   fECalc = 0.0;
    if (fACQParams) {
       TIter next(fACQParams);
       KVACQParam *par;
@@ -833,33 +826,6 @@ Double_t KVDetector::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t t
    if (e > 0.)
       return e;
    return GetEnergy();
-}
-
-//______________________________________________________________________________//
-
-void KVDetector::SetECalc(Double_t epart)
-{
-   //Used in particle calibration for coherency checks.
-   //If the primary identification of a particle passing through this detector
-   //reveals an inconsistency between the measured energy loss and the calculated
-   //energy loss of the particle, then this may mean that another particle
-   //also passed through or stopped in this detector.
-   //In this case the fECalc member should be set to the calculated energy loss
-   //in the detector after subtraction of the contributions from already-identified
-   //particles.
-   //
-   //If the difference is > 0 the detector's "reanalysis" flag is set to true (SetReanalyse(kTRUE)).
-   //A secondary identification procedure should then be used to identify particles
-   //based on the calculated residual energy losses.
-   //
-   //"epart" is the calculated energy loss of an identified particle in the active layer
-   //of this detector. This contribution is subtracted from the measured energy loss
-   //in the detector (or from the calculated residual energy loss fECalc if SetECalc
-   //has already been called i.e. if Reanalyse() returns kTRUE).
-
-      Double_t eres = (fReanalyse ? fECalc : GetEnergy());
-      fECalc = TMath::Max((eres - epart),0.);
-      SetReanalyse( fECalc>0 );
 }
 
 //______________________________________________________________________________//

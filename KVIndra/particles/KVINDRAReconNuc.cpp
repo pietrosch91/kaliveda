@@ -106,6 +106,10 @@ void KVINDRAReconNuc::init()
 	//default initialisations
 	if (gDataSet)
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVINDRAReconNuc.MassFormula",Double_t(kEALMass))));
+	fCoherent=kTRUE;
+	fPileup=kFALSE;
+	fUseFullChIoEnergyForCalib=kTRUE;
+	fECsI=fESi=fEChIo=0.;
 }
 
 KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
@@ -149,6 +153,18 @@ void KVINDRAReconNuc::Print(Option_t * option) const
 {
 
    KVReconstructedNucleus::Print(option);
+	if(GetRingNumber()<10){
+		cout << "  -- RESULTS OF COHERENCY TESTS (RINGS 1-9) -- " << endl;
+		if(fCoherent) cout << "    CsI-R/L & Si-CsI identifications COHERENT" << endl;
+		else cout << "    CsI-R/L & Si-CsI identifications NOT COHERENT" << endl;
+		if(fPileup)   cout << "    Si energy loss indicates PILEUP" << endl;
+		else cout << "    Si energy loss indicates single particle" << endl;
+		if(GetRingNumber()>1){
+			if(fUseFullChIoEnergyForCalib)   cout << "    ChIo-Si identification indicates single particle" << endl;
+			else cout << "    ChIo-Si identification indicates MULTIPLE CHIO CONTRIBUTIONS" << endl;
+		}
+		cout << endl;
+	}
 
    cout << "KVINDRAReconNuc: fRing=" << GetRingNumber() << " fModule=" <<
        GetModuleNumber() << endl;
@@ -175,7 +191,12 @@ void KVINDRAReconNuc::Print(Option_t * option) const
    }
    if (IsCalibrated()) {
       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
-      cout << " Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
+		if(GetRingNumber()<10){
+			if(GetRingNumber()>1) {cout << "    EChIo = " << TMath::Abs(fEChIo) << " MeV"; if(fEChIo<0) cout << " (calculated)"; cout << endl;}
+			cout << "    ESi = " << TMath::Abs(fESi) << " MeV"; if(fESi<0) cout << " (calculated)"; cout << endl;
+			cout << "    ECsI = " << TMath::Abs(fECsI) << " MeV"; if(fECsI<0) cout << " (calculated)"; cout << endl;
+		}
+      cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
       cout << " Calibration code = " << ((KVINDRAReconNuc *) this)->
           GetCodes().GetEStatus() << endl;
    } else {
@@ -223,214 +244,6 @@ void KVINDRAReconNuc::Print(Option_t * option) const
    cout <<
        "-------------------------------------------------------------------------------"
        << endl;
-}
-
-
-//______________________________________________________________________________
-
-void KVINDRAReconNuc::EnergyIdentification()
-{
-
-
-   //make a clone of the entire telescope structure through which the particle passed
-   KVGroup *grp = new KVGroup;
-   const KVSeqCollection *det_list = GetDetectorList();
-   TIter nxt_det(det_list);
-   KVDetector *det;
-   KVTelescope *kvt, *last_kvt, *new_kvt;
-   last_kvt = 0;
-
-   while ((det = (KVDetector *) nxt_det())) {   //loop over hit detectors
-      kvt = det->GetTelescope();        //get associated telescope
-      if (kvt != last_kvt) {    //if telescope not already in group
-         new_kvt = (KVTelescope *) kvt->Clone();        //clone the telescope
-         //copy angular position of telescope (needed for detecting particles)
-         new_kvt->SetPolarMinMax(kvt->GetThetaMin(), kvt->GetThetaMax());
-         new_kvt->SetAzimuthalMinMax(kvt->GetPhiMin(), kvt->GetPhiMax());
-         grp->Add(new_kvt);     //add to group
-         last_kvt = kvt;
-      }
-   }
-   grp->Sort();                 //put telescopes in right order for detection of particles
-
-   //measured energy losses
-   KVDetector *fEres_det = (KVDetector *) det_list->At(0);
-   KVDetector *fdE_det = (KVDetector *) det_list->At(1);
-   Float_t fEres = fEres_det->GetEnergy();
-   Float_t fdE = fdE_det->GetEnergy();
-
-   //find equivalent eres,de detectors in cloned telescopes
-   KVDetector *eres_guess = grp->GetDetector(fEres_det->GetName());
-   KVDetector *de_guess = grp->GetDetector(fdE_det->GetName());
-
-   //minimum incident energy of particle is sum of E_res + dE
-   Float_t Emin = fEres + fdE;
-   // if chio-si/csi then the missing energy is the losses in the two mylar windows
-   // if si-csi then the missing energy is the losses in the chio + the two mylar windows
-   // empirically, the mylar energy loss is < the energy lost in the chio
-   // so estimate that Emax = Emin + 2*energy lost in chio
-   // N.B. if phoswich or si-csi (ring 1) then there is no chio and no missing energy !!!
-   Float_t Emax;
-   if (gIndra->GetChIoOf(fEres_det->GetName())) {
-      Emax =
-          Emin +
-          2.0 * (gIndra->GetChIoOf(fEres_det->GetName())->GetEnergy());
-   } else {
-      Emax = Emin;
-   }
-
-   //scan nuclei from proton to ...
-   UInt_t Zmin = 1;
-   UInt_t Zmax = 90;
-
-   KVNucleus nuc;               //test particle
-
-   Float_t Ebest = 0.0;
-   UInt_t Zbest = 0;
-   //error used to determine best solution
-   Float_t chi2min = -1.;
-   Float_t chi2;
-
-   // first scan: Z=1,2,3,4,5,6,7,8,9,10,15,...,85,90  Einc = Emin to Emax in 10 steps
-   Float_t Einc = Emin;
-   Float_t dE = (Emax - Emin) / 10.;
-   while (Einc <= Emax) {
-      for (UInt_t Z = Zmin; Z <= 9; Z++) {
-
-         //set up incident particle with given energy and Z
-         nuc.Clear();
-         nuc.SetZ(Z);           //given A of valley of stability
-         //the particle is given the incident energy and a randomly directed
-         //momentum within the angular range of the telescope in which it stopped
-         nuc.SetRandomMomentum(Einc,
-                               fEres_det->GetTelescope()->GetThetaMin(),
-                               fEres_det->GetTelescope()->GetThetaMax(),
-                               fEres_det->GetTelescope()->GetPhiMin(),
-                               fEres_det->GetTelescope()->GetPhiMax(),
-                               "random");
-
-         //simulate detection in telescopes of group
-         grp->DetectParticle(&nuc);
-
-         //calculate difference between simulated and detected energy losses
-         chi2 = pow((eres_guess->GetEnergy() - fEres), 2) +
-             pow((de_guess->GetEnergy() - fdE), 2);
-
-         chi2 = TMath::Sqrt(chi2);
-
-         if (chi2 < chi2min || chi2min < 0) {   //look for smallest chi2 solution
-            chi2min = chi2;
-            Zbest = Z;
-            Ebest = Einc;
-         }
-         grp->Reset();          //reset energy losses
-      }
-      for (UInt_t Z = 10; Z <= Zmax; Z += 5) {
-
-         //set up incident particle with given energy and Z
-         nuc.Clear();
-         nuc.SetZ(Z);           //given A of valley of stability
-         //the particle is given the incident energy and a randomly directed
-         //momentum within the angular range of the telescope in which it stopped
-         nuc.SetRandomMomentum(Einc,
-                               fEres_det->GetTelescope()->GetThetaMin(),
-                               fEres_det->GetTelescope()->GetThetaMax(),
-                               fEres_det->GetTelescope()->GetPhiMin(),
-                               fEres_det->GetTelescope()->GetPhiMax(),
-                               "random");
-
-         //simulate detection in telescopes of group
-         grp->DetectParticle(&nuc);
-
-         //calculate difference between simulated and detected energy losses
-         chi2 = pow((eres_guess->GetEnergy() - fEres), 2) +
-             pow((de_guess->GetEnergy() - fdE), 2);
-
-         chi2 = TMath::Sqrt(chi2);
-
-         if (chi2 < chi2min || chi2min < 0) {   //look for smallest chi2 solution
-            chi2min = chi2;
-            Zbest = Z;
-            Ebest = Einc;
-         }
-         grp->Reset();          //reset energy losses
-      }
-      Einc += dE;               //10 steps for first scan
-   }
-
-   //second scan
-
-   if (Zbest > 4)
-      Zmin = Zbest - 4;
-   else
-      Zmin = 1;
-   Zmax = ((Zbest + 4) > 92) ? 92 : Zbest + 4;
-
-   Ebest = 0.0;
-   Zbest = 0;
-   UInt_t Abest = 0;
-   //error used to determine best solution
-   chi2min = -1.;
-   //define histogram for checking identification
-
-   Einc = Emin;
-   while (Einc <= Emax) {
-      for (UInt_t Z = Zmin; Z <= Zmax; Z++) {
-         UInt_t Amin = nuc.GetAFromZ((UInt_t) Z, nuc.GetMassFormula());
-         if (Amin < 4)
-            Amin = 1;
-         UInt_t Amax = Amin + 6;
-         for (UInt_t A = Amin; A <= Amax; A++) {
-            if (A >= Z) {
-               //set up incident particle with given energy and Z
-               nuc.Clear();
-               nuc.SetZ(Z);
-               nuc.SetA(A);
-               //the particle is given the incident energy and a randomly directed
-               //momentum within the angular range of the telescope in which it stopped
-               nuc.SetRandomMomentum(Einc,
-                                     fEres_det->GetTelescope()->
-                                     GetThetaMin(),
-                                     fEres_det->GetTelescope()->
-                                     GetThetaMax(),
-                                     fEres_det->GetTelescope()->
-                                     GetPhiMin(),
-                                     fEres_det->GetTelescope()->
-                                     GetPhiMax(), "random");
-
-               //simulate detection in telescopes of group
-               grp->DetectParticle(&nuc);
-
-               //calculate difference between simulated and detected energy losses
-               chi2 = pow((eres_guess->GetEnergy() - fEres), 2) +
-                   pow((de_guess->GetEnergy() - fdE), 2);
-
-               chi2 = TMath::Sqrt(chi2);
-
-               if (chi2 < chi2min || chi2min < 0) {     //look for smallest chi2 solution
-                  chi2min = chi2;
-                  Zbest = Z;
-                  Abest = A;
-                  Ebest = Einc;
-               }
-
-               grp->Reset();    //reset energy losses
-            }
-         }
-      }
-      Einc += dE;               //10 steps for second scan
-   }
-
-   //store result
-   SetZ(Zbest);
-   SetA(Abest);
-   SetKE(Ebest);
-   //delete cloned telescopes in test group (group doesn't own telescopes)
-   grp->GetTelescopes()->Delete();
-   //delete group
-   delete grp;
-   cout << "Energy Identification : Z=" << Zbest << " A=" << Abest << " E="
-       << Ebest << endl;
 }
 
 //________________________________________________________________________________________
@@ -800,15 +613,15 @@ void KVINDRAReconNuc::Identify()
    // identification algorithms:
    //
    //IDENTIFIED PARTICLES
-         //Identified particles with ID code = 2 with subcodes 4 & 5
-         //(masse hors limite superieure/inferieure) are relabelled
-         //with kIDCode10 (identification entre les lignes CsI)
-         //
-  // UNIDENTIFIED PARTICLES
-  //Unidentified particles receive the general ID code for non-identified particles (kIDCode14)
-         //EXCEPT if their identification in CsI R-L gave subcodes 6 or 7
-         //(Zmin) then they are relabelled "Identified" with IDcode = 9 (ident. incomplete dans CsI ou Phoswich (Z.min))
-         //Their "identifying" telescope is set to the CsI ID telescope
+   //Identified particles with ID code = 2 with subcodes 4 & 5
+   //(masse hors limite superieure/inferieure) are relabelled
+   //with kIDCode10 (identification entre les lignes CsI)
+   //
+   //UNIDENTIFIED PARTICLES
+   //Unidentified particles receive the general ID code for non-identified particles (kIDCode14)
+   //EXCEPT if their identification in CsI R-L gave subcodes 6 or 7
+   //(Zmin) then they are relabelled "Identified" with IDcode = 9 (ident. incomplete dans CsI ou Phoswich (Z.min))
+   //Their "identifying" telescope is set to the CsI ID telescope
    
    KVReconstructedNucleus::Identify();
    
@@ -816,8 +629,9 @@ void KVINDRAReconNuc::Identify()
    Bool_t ok = kFALSE;
    
    // INDRA coherency treatment
-   if(StoppedInCsI() && GetRingNumber()<10)
+   if(GetRingNumber()<10)
    {
+		if(StoppedInCsI()){
    		// particles stopping in CsI detectors on rings 1-9
    		// check coherency of CsI-R/L and Si-CsI identifications
    		ok = CoherencySiCsI(partID);
@@ -827,6 +641,23 @@ void KVINDRAReconNuc::Identify()
    		// must be <= the Z found from Si-CsI or CsI-RL identification
    		// (we cannot trust the punch-through lines in the grids).
    		if(fCoherent && !fPileup) fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
+		}
+		else
+		{
+			// particle stopped in Si (=> ChIo-Si) or ChIo (=> Zmin)
+   		Int_t id_no = 1;
+   		KVIdentificationResult *pid = GetIdentificationResult(id_no);
+   		while( pid && pid->IDattempted ){
+   			if( pid->IDOK ){
+   				ok = kTRUE;
+   				partID = *pid;
+   				break;
+   			}
+   			++id_no;
+   			pid = GetIdentificationResult(id_no);
+   		}
+			
+		}
     }
    else
    {
@@ -951,7 +782,11 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     //    kECode1 = everything OK
     //    kECode2 = small warning, for example if energy loss in a detector is calculated
     //    kECode15 = bad, calibration is no good
+	// The contributions from ChIo, Si, and CsI are stored in member variables fEChIo, fESi, fECsI
+	// If the contribution is calculated rather than measured, it is stored as a negative value
     
+		fECsI=fESi=fEChIo=0;
+		
     if(GetCodes().TestIDCode(kIDCode_Gamma)){
         // no calibration for gammas
         SetECode(kECode0);
@@ -962,27 +797,26 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     if(GetCodes().TestIDCode(kIDCode_Neutron)){
         // use energy of CsI calculated using the Z & A of the CsI identification
         // to calculate the energy deposited by the neutron
-        SetEnergy( GetCsI()->GetCorrectedEnergy( IDcsi->Z, IDcsi->A, -1., kFALSE ) );
+		 fECsI = GetCsI()->GetCorrectedEnergy( IDcsi->Z, IDcsi->A, -1., kFALSE );
+        SetEnergy( fECsI );
         SetECode(kECode2); // not a real energy measure
         return;
     }
     
     SetECode(kECode1);
     
-    Double_t Ecsi, Esi, Echio;
-    Ecsi=Esi=Echio=0;
     if(GetCsI()){
         /* CSI ENERGY CALIBRATION */
         if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){
             // Beryllium-8 = 2 alpha particles of same energy
             // We halve the total light output of the CsI to calculate the energy of 1 alpha
             Double_t half_light = GetCsI()->GetLumiereTotale()*0.5;
-            Ecsi = 2.*GetCsI()->GetCorrectedEnergy(2,4,half_light,kFALSE);
+            fECsI = 2.*GetCsI()->GetCorrectedEnergy(2,4,half_light,kFALSE);
             SetECode(kECode2);
         }
         else
-            Ecsi = GetCsI()->GetCorrectedEnergy(GetZ(), GetA(), -1., kFALSE);
-        if(Ecsi<=0){
+            fECsI = GetCsI()->GetCorrectedEnergy(GetZ(), GetA(), -1., kFALSE);
+        if(fECsI<=0){
             SetECode(kECode15);// bad - no CsI energy
             return;
         }
@@ -995,17 +829,18 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
             // all is apparently well
-            Esi = GetSi()->GetCorrectedEnergy(GetZ(),GetA());
+            fESi = GetSi()->GetCorrectedEnergy(GetZ(),GetA());
+         	if(fESi<=0) {
+            	SetECode(kECode15);// bad - no Si energy
+            	return;
+         	}
         }
         else
         {
-            Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),Ecsi);
-            Esi = GetSi()->GetCorrectedEnergy(GetZ(),GetA(),e0);
+            Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),fECsI);
+				// calculated energy: negative
+            fESi = -GetSi()->GetCorrectedEnergy(GetZ(),GetA(),e0);
             SetECode(kECode2);
-        }
-        if(Esi<=0) {
-            SetECode(kECode15);// bad - no Si energy
-            return;
         }
     }
     if(GetChIo()){
@@ -1013,13 +848,15 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     // if fUseFullChIoEnergyForCalib = kFALSE, we have to estimate the ChIo energy for this particle
         if(fUseFullChIoEnergyForCalib && GetChIo()->IsCalibrated()){
             // all is apparently well
-            Echio = GetChIo()->GetCorrectedEnergy(GetZ(),GetA());
+            fEChIo = GetChIo()->GetCorrectedEnergy(GetZ(),GetA());
         }
         else
         {
-            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),Ecsi+Esi);
-            Echio = GetChIo()->GetCorrectedEnergy(GetZ(),GetA(),e0);
+            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),fECsI+fESi);
+				// calculated energy: negative
+            fEChIo = -GetChIo()->GetCorrectedEnergy(GetZ(),GetA(),e0);
             SetECode(kECode2);
         }
     }
+	 SetEnergy( fECsI + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
 }

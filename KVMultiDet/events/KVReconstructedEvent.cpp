@@ -204,13 +204,6 @@ Bool_t KVReconstructedEvent::AnalyseTelescopes(TList * kvtl)
    //by default we ask that ALL coder values be non-zero here i.e. data and time-marker.
    //This can be changed by calling SetPartSeedCond("any"): in this case,
    //particles will be reconstructed starting from detectors with at least 1 fired parameter.
-   //
-   //In the case of geometric filtering a simulation, we reconstruct a particle
-   //if the detector has been touched by a particle in the simulation
-   //(d->GetHits()). If only one particle hit the detector, it is set as
-   //the corresponding simulated particle of the new reconstructed particle.
-   //If more than one hit occurred in the detector, no simulated particle
-   //correspondance is set.
 
    KVTelescope *t;
    TIter nxt_tel(kvtl);
@@ -225,14 +218,8 @@ Bool_t KVReconstructedEvent::AnalyseTelescopes(TList * kvtl)
  If detector has fired,
 making sure fired detector hasn't already been used to reconstruct
 a particle, then we create and fill a new detected particle.
-
-In the second (or subsequent rounds) round of identification,
-we may need to add particles to the event, which have been "revealed" by the identification &
-recalculation of expected energy losses of other particles in the same group.
-These detectors have their "Reanalyse" flag set but don't belong to any unidentified particles
  */
-         if ( (d->Fired( fPartSeedCond.Data() ) && !d->IsAnalysed())
-            ||    (d->Reanalyse() && !d->BelongsToUnidentifiedParticle()) ) {
+         if ( (d->Fired( fPartSeedCond.Data() ) && !d->IsAnalysed()) ) {
 
             KVReconstructedNucleus *kvdp = AddParticle();
             //add all active detector layers in front of this one
@@ -241,7 +228,6 @@ These detectors have their "Reanalyse" flag set but don't belong to any unidenti
 
             //set detector state so it will not be used again
             d->SetAnalysed(kTRUE);
-            d->SetReanalyse(kFALSE);
          }
       }
       nxt_tel.Reset();

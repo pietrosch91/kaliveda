@@ -156,16 +156,14 @@ Double_t KVSilicon_e475s::GetEnergy()
 
 //______________________________________________________________________________
 
-Short_t KVSilicon_e475s::GetCalcACQParam(KVACQParam* ACQ) const
+Short_t KVSilicon_e475s::GetCalcACQParam(KVACQParam* ACQ, Double_t ECalc) const
 {
-   // Calculates & returns value of given acquisition parameter corresponding to the
-   // current value of fEcalc, i.e. the calculated residual energy loss in the detector
-   // after subtraction of calculated energy losses corresponding to each identified
-   // particle crossing this detector.
-   // Returns -1 if fEcalc = 0 or if detector is not calibrated
+   // Calculates & returns value of given acquisition parameter corresponding to
+   // given calculated energy loss in the detector
+   // Returns -1 if detector is not calibrated
    
-   if(!IsCalibratedBySignal(ACQ->GetType()) || GetECalc()==0) return -1;
-   Double_t orig = const_cast<KVSilicon_e475s*>(this)->GetOriginalValue((Float_t)GetECalc(), ACQ->GetType())
+   if(!IsCalibratedBySignal(ACQ->GetType())) return -1;
+   Double_t orig = const_cast<KVSilicon_e475s*>(this)->GetOriginalValue((Float_t)ECalc, ACQ->GetType())
          + const_cast<KVSilicon_e475s*>(this)->GetPedestal(ACQ->GetType());
    return (Short_t)orig;
 }

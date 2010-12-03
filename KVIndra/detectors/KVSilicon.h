@@ -99,7 +99,7 @@ class KVSilicon:public KVINDRADetector {
 
    void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
    Int_t GetZminPHD() { return fZminPHD; };
-   virtual Short_t GetCalcACQParam(KVACQParam*) const;
+   virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
 
    ClassDef(KVSilicon, 7)       //INDRA forward-rings silicon detector
 };

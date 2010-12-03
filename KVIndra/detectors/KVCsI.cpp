@@ -322,16 +322,11 @@ void KVCsI::Print(Option_t * option) const
       KVACQParam *acq;
       while ((acq = (KVACQParam *) next())) {
          cout << acq->GetName() << "=" << (Short_t) acq->
-             GetCoderData() << "  ";
+             GetCoderData() << "/" << TMath::Nint(acq->GetPedestal())<< "  ";
       }
-      cout << endl;
-      if (Reanalyse())
-         cout << " ---> UP FOR REANALYSIS : ECalc = " << GetECalc() <<
-             endl;
-      if (BelongsToIdentifiedParticle())
-         cout << "(Belongs to an identified particle)" << endl;
       if (BelongsToUnidentifiedParticle())
-         cout << "(Belongs to an unidentified particle)" << endl;
+         cout << "(Belongs to an unidentified particle)";
+		cout << endl;
    } else {
       KVDetector::Print(option);
    }

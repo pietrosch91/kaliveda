@@ -471,16 +471,14 @@ Double_t ELossSiPHD(Double_t * x, Double_t * par)
 
 //______________________________________________________________________________
 
-Short_t KVSilicon::GetCalcACQParam(KVACQParam* ACQ) const
+Short_t KVSilicon::GetCalcACQParam(KVACQParam* ACQ,Double_t ECalc) const
 {
-   // Calculates & returns value of given acquisition parameter corresponding to the
-   // current value of fEcalc, i.e. the calculated residual energy loss in the detector
-   // after subtraction of calculated energy losses corresponding to each identified
-   // particle crossing this detector.
-   // Returns -1 if fEcalc = 0 or if detector is not calibrated
+   // Calculates & returns value of given acquisition parameter corresponding to
+   // given calculated energy loss in the detector
+   // Returns -1 if detector is not calibrated
 
-   if(!IsCalibrated() || GetECalc()==0) return -1;
-   Double_t volts = const_cast<KVSilicon*>(this)->GetVoltsFromEnergy( GetECalc() );
+   if(!IsCalibrated()) return -1;
+   Double_t volts = const_cast<KVSilicon*>(this)->GetVoltsFromEnergy( ECalc );
    if(ACQ->IsType("PG")) return (Short_t)const_cast<KVSilicon*>(this)->GetCanalPGFromVolts(volts);
    else if(ACQ->IsType("GG")) return (Short_t)const_cast<KVSilicon*>(this)->GetCanalGGFromVolts(volts);
    return -1;

@@ -37,7 +37,6 @@ protected:
 #define MAX_NUM_PAR 15
    Int_t fNumDet;               //number of detectors particle passed through - Int_t imposed by TStreamerInfo
    Double_t fEloss[MAX_NUM_DET]; //[5] measured energy losses in each successive detector
-   Double_t fElossCalc[MAX_NUM_DET];//[5] calculated energy losses in each successive detector
    Int_t fNumPar;               //number of associated acquisition parameters - Int_t imposed by TStreamerInfo
    UShort_t fACQData[MAX_NUM_PAR];//[15] values of acquisition parameters
 
@@ -142,14 +141,6 @@ public:
    const Double_t *GetElossTable() const {
       return fEloss;
    }
-   void SetElossCalcTable(const Double_t * etab) {
-      for (UChar_t i = 0; i < fNumDet; i++) {
-         fElossCalc[i] = etab[i];
-      }
-   }
-   const Double_t *GetElossCalcTable() const {
-      return fElossCalc;
-   }
 
     Int_t GetNSegDet() const {
         return fNSegDet;
@@ -222,9 +213,6 @@ public:
         if(i) fIDTelName = i->GetName();
 		  else fIDTelName = "";
     };
-
-    void SetElossCalc(KVDetector *, Double_t);
-    Double_t GetElossCalc(KVDetector *) const;
 
     virtual void SetIDCode(UShort_t ) {
     };
@@ -362,7 +350,7 @@ KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
 	return GetIdentificationResult(idt->GetType());
 };
 	
-    ClassDef(KVReconstructedNucleus, 13)  //Nucleus detected by multidetector array
+    ClassDef(KVReconstructedNucleus, 14)  //Nucleus detected by multidetector array
 };
 
 #endif

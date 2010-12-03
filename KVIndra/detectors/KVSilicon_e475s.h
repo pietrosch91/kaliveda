@@ -48,7 +48,7 @@ class KVSilicon_e475s : public KVSilicon
    
 	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
-	Short_t GetCalcACQParam(KVACQParam*) const;
+	Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
 
 	ClassDef(KVSilicon_e475s,1)//derivation of KVSilicon class for E475s experiment
 

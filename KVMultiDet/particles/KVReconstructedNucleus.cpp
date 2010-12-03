@@ -73,9 +73,6 @@ void KVReconstructedNucleus::init()
    for (register int i = 0; i < MAX_NUM_DET; i++) {
       fEloss[i] = 0.0;
    }
-   for (register int i = 0; i < MAX_NUM_DET; i++) {
-      fElossCalc[i] = 0.0;
-   }
    for (register int i = 0; i < MAX_NUM_PAR; i++) {
       fACQData[i] = 0;
    }
@@ -150,7 +147,6 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
                 fNSegDet += det->GetSegment();
                 det->AddHit(this);
                det->SetEnergy(fEloss[ndet]);
-               det->SetECalc((Double_t)fElossCalc[ndet]);
                ndet++;
                if (det->GetACQParamList()) {
                   TIter next_par(det->GetACQParamList());
@@ -188,18 +184,6 @@ void KVReconstructedNucleus::Print(Option_t * option) const
         	KVIdentificationResult* idr = const_cast<KVReconstructedNucleus*>(this)->GetIdentificationResult(i);
         	if(idr && idr->IDattempted) idr->Print();
         }
-        if(IsCalibrated()){
-         	cout << endl << " +++ Calculated & measured energy losses for this particle : " << endl;
-        	for (int i = GetNumDet() - 1; i >= 0; i--) {
-            	KVDetector *det = GetDetector(i);
-            	if(det) {
-            		cout << det->GetName() << "    Eloss = " << det->GetEnergy() << " MeV         Calculated = "
-            		<< GetElossCalc(det) << " MeV";
-            		cout << "          (difference = " << det->GetEnergy()-GetElossCalc(det) << " MeV)";
-            		cout << endl;
-            	}
-        	}
-		}
     }
 }
 
@@ -222,7 +206,6 @@ void KVReconstructedNucleus::Copy(TObject & obj)
    ((KVReconstructedNucleus &) obj).SetNumDet(GetNumDet());
    ((KVReconstructedNucleus &) obj).SetNumPar(GetNumPar());
    ((KVReconstructedNucleus &) obj).SetElossTable(GetElossTable());
-   ((KVReconstructedNucleus &) obj).SetElossCalcTable(GetElossCalcTable());
    ((KVReconstructedNucleus &) obj).SetACQData(GetACQData());
 }
 
@@ -378,35 +361,6 @@ void KVReconstructedNucleus::Identify()
 
 //______________________________________________________________________________________________//
 
-void KVReconstructedNucleus::SetElossCalc(KVDetector * det, Double_t energy)
-{
-    // Store calculated energy loss value for this particle corresponding to given detector
-    // The particle's contribution is subtracted from the detector's calculated energy
-    // loss and the detector's "reanalysis" flag is set to true.
-
-    if (!det)
-        return;
-    Int_t index = GetDetectorList()->IndexOf(det);
-    if (index < 0)
-        return;                   //detector not in list
-   fElossCalc[index] = energy;
-    det->SetECalc(energy);
-}
-
-//______________________________________________________________________________________________//
-
-Double_t KVReconstructedNucleus::GetElossCalc(KVDetector * det) const
-{
-    //Get calculated energy loss value for this particle corresponding to given detector
-
-    Int_t index = GetDetectorList()->IndexOf(det);
-    if (index < 0)
-        return -1.0;              //detector not in list
-    return fElossCalc[index];
-}
-
-//______________________________________________________________________________________________//
-
 void KVReconstructedNucleus::GetAnglesFromTelescope(Option_t * opt)
 {
     //Calculate angles theta and phi for reconstructed nucleus based
@@ -538,7 +492,6 @@ void KVReconstructedNucleus::Calibrate()
 		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
         while( (det = (KVDetector*)nxt()) ){
           fEloss[ndet] = det->GetEnergy();
-          //fElossCalc[ndet] = det->GetECalc();
           ++ndet;
         }
     }
