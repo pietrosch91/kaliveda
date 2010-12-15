@@ -1,12 +1,12 @@
-# Systems.dat file written by KVINDRADB::WriteSystemsFile on Thu Dec  2 19:05:06 2010
+# Systems.dat file written by KVINDRADB::WriteSystemsFile on Tue Dec  7 10:55:16 2010
 +Source alpha
-Runs: 8-14 20-53 415-449 453-485
+Runs: 8-14 20-53 415-449 453-485 519-614
 
 +Piedestaux
-Runs: 2 54-56 231-233 357-358
+Runs: 2 54-56 231-233 357-358 645-646
 
 +Automates
-Runs: 3-7 15-19 450-452
+Runs: 3-7 15-19 450-452 627-644
 
 +129Xe + 112Sn 50 MeV/A
 129 54 112 50 50
@@ -28,4 +28,10 @@ Runs: 359-414
 Target: 1 0
 Au 0.2
 Runs: 486-518
+
++129Xe + 27Al 7.6 MeV/A
+129 54 27 13 7.6
+Target: 1 0
+27Al 0.216
+Runs: 615-626
 
