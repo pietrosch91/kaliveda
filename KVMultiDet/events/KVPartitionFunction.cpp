@@ -213,12 +213,26 @@ Double_t KVPartitionFunction::MeanNA(int A0, int A)
     Int_t imax = (Int_t)(1.*A0/(1.*A));
     for(int i=1; i<=imax; i++){
         Int_t A1 = A0-i*A;
-        if(A1==0)
-            NA+=1.;
-        else if(A1>0)
-            NA+=PartSum(A1);
+		if(A1>0) NA+=PartSum(A1);
     }
     NA /= PartSum(A0);
+    return NA;
+}
+
+Double_t KVPartitionFunction::MeanNA_M(int A0, int A, int M)
+{
+    // Calculate the mean number of clusters of size A when a system of size A0
+    // breaks up into M fragments, each partition having equal probability
+    // Using Eqs. (2b) & (3) of K. Sneppen Nucl. Phys. A470, 213 (1987)
+    
+    Double_t NA=0;
+    Int_t imax = (Int_t)(1.*A0/(1.*A));
+    imax = TMath::Min(imax, M-1);
+    for(int i=1; i<=imax; i++){
+        Int_t A1 = A0-i*A;
+        if(A1>0)NA+=PartFunc(A1, M-i);
+    }
+    NA /= PartFunc(A0,M);
     return NA;
 }
 /*
