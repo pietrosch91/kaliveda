@@ -58,8 +58,8 @@ Double_t get_value(Int_t A, Int_t Z, Int_t M, Int_t B=-1)
     Double_t GetMaxValueNp() const { return maxvalueNp; };
     Double_t GetMaxValueNclass() const { return maxvalueNclass; };
     
-    /*Double_t MeanNA(int A0, int A);
-    Double_t MeanNA(int A0, int Z0, int A);
+    Double_t MeanNA(int A0, int A);
+   /* Double_t MeanNA(int A0, int Z0, int A);
     Double_t MeanNZ(int A0, int Z0, int Z);
     Double_t MeanNAZ(int A0, int Z0, int A, int Z);
 */

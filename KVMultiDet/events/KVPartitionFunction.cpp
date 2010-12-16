@@ -202,12 +202,26 @@ Double_t KVPartitionFunction::PartSum(int A, int Z)
             p, NvalsNcl/pow(SNEPPENMAXTAB,4),GetMaxValueNclass());*/
     return p;
 }
-/*Double_t KVPartitionFunction::MeanNA(int A0, int A)
+
+Double_t KVPartitionFunction::MeanNA(int A0, int A)
 {
     // Calculate the mean number of clusters of size A when a system of size A0
     // fragments in all possible ways with equal probability
+    // Using Eq. (3) of K. Sneppen Nucl. Phys. A470, 213 (1987)
+    
+    Double_t NA=0;
+    Int_t imax = (Int_t)(1.*A0/(1.*A));
+    for(int i=1; i<=imax; i++){
+        Int_t A1 = A0-i*A;
+        if(A1==0)
+            NA+=1.;
+        else if(A1>0)
+            NA+=PartSum(A1);
+    }
+    NA /= PartSum(A0);
+    return NA;
 }
-
+/*
     Double_t MeanNA(int A0, int Z0, int A);
     Double_t MeanNZ(int A0, int Z0, int Z);
     Double_t MeanNAZ(int A0, int Z0, int A, int Z);
