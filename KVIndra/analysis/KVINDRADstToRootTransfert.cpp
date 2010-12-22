@@ -24,6 +24,7 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataSetManager.h"
 #include "KVDataRepository.h"
+#include "KVBatchSystem.h"
 
 typedef KVDetector* (KVINDRADstToRootTransfert::*FNMETHOD) ( int,int );
 
@@ -51,6 +52,12 @@ KVINDRADstToRootTransfert::~KVINDRADstToRootTransfert()
 void KVINDRADstToRootTransfert::InitRun()
 {
 	Info("InitRun","ds InitRun");
+	if (gBatchSystem){
+		//gBatchSystem->Print();
+		req_time = gBatchSystem->BQS_Request("cpu_limit");
+		req_mem = gBatchSystem->BQS_Request("req_mem");
+		req_scratch = gBatchSystem->BQS_Request("req_scratch");
+	}
 	
 	KVString dst_file = gDataSet->GetFullPathToRunfile("dst", fRunNumber);
   	Info("InitRun","dst file %s",dst_file.Data());
@@ -65,6 +72,15 @@ void KVINDRADstToRootTransfert::InitRun()
 	Info("InitRun","Debut lecture DST %s",now1.AsString());
 	DefineSHELLVariables();
 	ReadDST();
+	
+	if (gBatchSystem){
+		Info("InitRun","Bilan ressource apres ReadDST");
+		Info("InitRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
+		Info("InitRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
+		Info("InitRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
+	}
+
+	
 	TDatime now2;
 	Info("InitRun","Fin lecture DST %s",now2.AsString());
 	
@@ -167,6 +183,14 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		Info("ProcessRun","After translation, they will have Veda ID code=2 (like 1st campaign)");
 	}
 	
+	if (gBatchSystem){
+		Info("ProcessRun","Bilan ressource avant lecture des %d fichiers ascii",nfiles);
+		Info("ProcessRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
+		Info("ProcessRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
+		Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
+	}
+
+	
 	KVString inst;
 	for (Int_t nf=1;nf<=nfiles;nf+=1){
 		
@@ -178,12 +202,22 @@ void KVINDRADstToRootTransfert::ProcessRun()
 			evt->Clear();
 			
 			if(events_read%10000 == 0 && events_read > 0){
+				if (gBatchSystem)
+					Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
 				cout << events_read << "th event read... " << endl;
 			}
 		}
 		f_data.close();
 		
 		inst.Form(".! rm arbre_root_%d.txt",nf);
+		
+		if (gBatchSystem){
+			Info("ProcessRun","Bilan ressource apres lecture du fichier numero %d/%d",nf,nfiles);
+			Info("ProcessRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
+			Info("ProcessRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
+			Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
+		}
+		
 		gROOT->ProcessLine(inst.Data());
 	}
 

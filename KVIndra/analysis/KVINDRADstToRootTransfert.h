@@ -14,6 +14,7 @@ $Date: 2007/05/31 09:59:22 $
 #include "KVNumberList.h"
 #include "KVDataSet.h"
 #include "KVDataAnalyser.h"
+#include "TString.h"
 
 class KVINDRAReconEvent;
 class KVIDTelescope;
@@ -47,6 +48,9 @@ class KVINDRADstToRootTransfert : public KVDataAnalyser
 
 	Int_t fRunNumber;//run number of current file
    Int_t fCampNumber;
+	
+	TString req_time,req_mem,req_scratch;
+	TString cur_time,cur_mem,cur_scratch;
 	
 	void SetCampagneNumber(){
 		fCampNumber=-1;
