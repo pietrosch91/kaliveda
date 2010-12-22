@@ -265,3 +265,30 @@ void KV_CCIN2P3_BQS::ChangeDefJobOpt(KVDataAnalyser* da)
 	}	
 }
 
+//_______________________________________________________________________________//
+TString KV_CCIN2P3_BQS::BQS_Request(KVString value,KVString jobname)
+{
+	//Permet d interroger un job vis la commande BQS qselect
+	//sur differentes grandeurs (qselect -list -v)
+	/*
+	//Ici les commandes les plus utiles actuellement
+	//
+	bastacputime	//temps ecoule depuis le start
+	cpu_limit	//temps max
+	cpurate		//temps CPU
+	
+	req_scratch             requested scratch size (MB)
+	cur_scratch             current scratch size (MB)
+	max_scratch             max scratch size (MB)
+	
+	req_mem                 requested memory size (MB)
+	cur_mem                 current memory size (MB)
+	max_mem                 max memory size (MB)
+	*/
+	
+	if ( jobname == "" )
+		jobname.Form("%s",GetJobName());
+	KVString inst; inst.Form("qselect -N %s %s",jobname.Data(),value.Data());
+	return gSystem->GetFromPipe(inst.Data());
+	
+}

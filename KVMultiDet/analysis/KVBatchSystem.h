@@ -93,8 +93,14 @@ class KVBatchSystem : public KVBase {
    virtual void Print(Option_t* /*option*/ = "") const;
 
    virtual void SetAnalyser(KVDataAnalyser* da){ fAnalyser = da; };
-
-   ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
+	
+	virtual TString BQS_Request(KVString value,KVString jobname=""){
+		
+		Warning("BQS_Request","Only define for KV_CCIN2P3_BQS sub class");
+		return "";
+	}
+   
+	ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
 };
 
 //................  global variable

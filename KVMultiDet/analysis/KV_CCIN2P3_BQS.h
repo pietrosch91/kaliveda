@@ -52,6 +52,8 @@ class KV_CCIN2P3_BQS:public KVBatchSystem {
    virtual void ReadBatchEnvFile(TEnv*);
    virtual void Print(Option_t* /*option*/ = "") const;
    
+	TString BQS_Request(KVString value,KVString jobname="");
+	
    ClassDef(KV_CCIN2P3_BQS, 1)  //Interface to CCIN2P3 batch job management system
 };
 
