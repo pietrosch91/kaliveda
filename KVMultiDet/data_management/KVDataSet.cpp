@@ -984,42 +984,52 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 
 //___________________________________________________________________________
 
-KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * other_type, const Char_t* base_type)
+KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type)
 {
    // Returns list of runs which are present for data type "base_type" but not for "other_type"
+	//On travaille que sur des systemes deja au moins en partie convertis
+	// de ref_type en type
 	// if type is NULL or ="" returns empty KVNumberList
 
-   KVNumberList numb; 
-	if (!other_type || !strlen(other_type)) return numb;
-	KVString in_type = base_type;
+	KVNumberList manquant;
+	//if (!type || !strlen(type)) return numb;
+	//KVString in_type = base_type;
 	
-	numb = GetRunList(in_type.Data());
-	KVNumberList lout = GetRunList(other_type);
+	//numb = GetRunList(ref_type);
+	//KVNumberList lout = GetRunList(type);
 	
-	numb.Remove(lout);
-	TList* ll = GetListOfAvailableSystems(in_type.Data());
+	//numb.Remove(lout);
+	TList* ll = GetListOfAvailableSystems(type);
 	if(!ll || !ll->GetEntries()){
-	   numb.Clear();
-	   return numb;
+	   //numb.Clear();
+	   return manquant;
 	}
 	
-	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",in_type.Data(),other_type);
+	Info("GetRunList_StageSelection","Liste des runs presents dans \"%s\" mais absent dans \"%s\"",ref_type,type);
 
 	KVDBSystem* sys=0;
+	KVNumberList nsys_ref;
 	KVNumberList nsys;
-	for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
-		sys = (KVDBSystem* )ll->At(nl);
-		sys->GetRunList(nsys);
-		Int_t nombre = nsys.GetNValues();
-		nsys.Inter(numb);
+	
+	for (Int_t nl=0; nl<ll->GetEntries(); nl+=1){
 		
-		if (nsys.GetNValues()>0){
-			Info("GetRunList_StageSelection","\nKVDBSystem : %s  --> %d runs manquants sur %d  : %s",
-			              sys->GetName(),nsys.GetNValues(),nombre,nsys.AsString());
-		}
+		sys = (KVDBSystem* )ll->At(nl);
+		nsys = gDataSet->GetRunList(type,sys);
+		nsys_ref = gDataSet->GetRunList(ref_type,sys);
+		Int_t nref = nsys_ref.GetNValues();
+		
+		nsys_ref.Remove(nsys);
+		
+		Info("GetRunList_StageSelection","\nKVDBSystem : %s --> %d runs manquants sur %d : %s",
+			sys->GetName(),
+			nsys_ref.GetNValues(),
+			nref,
+			nsys_ref.AsString()
+		);
+		manquant.Add(nsys_ref);
 	}
 	
-	return numb;
+	return manquant;
 
 }
 //___________________________________________________________________________
