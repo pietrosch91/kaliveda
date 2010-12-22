@@ -55,8 +55,8 @@
 | 4067 | 19-JUN-98 23:47:19 | 197Au | 197Au | 100 | M>=3 | Phys | 460008 |  Target: Au 2mg/cm2; Run: 25000 blocs; p167 |
 | 4068 | 20-JUN-98 03:29:57 | 197Au | 197Au | 100 | M>=3 | Phys | 450804 |  HV CsI: p169 |
 | 4069 | 20-JUN-98 05:28:04 | 197Au | 197Au | 100 | M>=3 | Phys | 414028 |
-| 4070 | 20-JUN-98 07:04:14 | 197Au | 197Au | 100 | M>=3 | Phys | 34991 |
-| 4071 | 20-JUN-98 07:22:37 | 197Au | 197Au | 100 | M>=3 | Phys | 38217 |
+| 4070 | 20-JUN-98 07:04:14 | 197Au | 197Au | 100 | M>=3 | Phys | 34991 | Distri VarGlob differentes des autres runs
+| 4071 | 20-JUN-98 07:22:37 | 197Au | 197Au | 100 | M>=3 | Phys | 38217 | Distri VarGlob differentes des autres runs
 | 4072 | 20-JUN-98 07:57:27 | 197Au | 197Au | 100 | M>=3 | Phys | 453057 |
 | 4073 | 20-JUN-98 09:36:15 | 197Au | 197Au | 100 | M>=3 | Phys | 24261 |
 | 4074 | 20-JUN-98 10:54:57 |  |  |   |  | Pedestal | 7218 |  Pedestal CsI |
@@ -344,26 +344,26 @@
 | 4354 | 05-JUL-98 09:16:19 | 197Au | none | 150 | M>=1 | Phys | 1585948 |  cible trou phi=15mm  (Intensite reduite) |
 | 4355 | 05-JUL-98 09:58:51 | 197Au | none | 150 | M>=5 | Phys | 39219 |  cible trou phi=15mm (Intensite nominale) |
 | 4356 | 05-JUL-98 10:44:33 | 197Au | 197Au | 150 | M>=5 | Phys | 323952 |  Au 150 MeV/A+Au 2mg/cm2 (Intensite baissee) |
-| 4357 | 05-JUL-98 13:50:18 | 197Au | 58Ni | 100 | M>=3 | Phys | 535972 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4358 | 05-JUL-98 15:17:19 | 197Au | 58Ni | 100 | M>=3 | Phys | 535586 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4359 | 05-JUL-98 16:33:31 | 197Au | 58Ni | 100 | M>=3 | Phys | 540741 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4360 | 05-JUL-98 17:46:03 | 197Au | 58Ni | 100 | M>=3 | Phys | 522441 |  Au 100 MeV/A +Ni  x....mg/cm2 |
+| 4357 | 05-JUL-98 13:50:18 | 197Au | 58Ni | 100 | M>=3 | Phys | 535972 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4358 | 05-JUL-98 15:17:19 | 197Au | 58Ni | 100 | M>=3 | Phys | 535586 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4359 | 05-JUL-98 16:33:31 | 197Au | 58Ni | 100 | M>=3 | Phys | 540741 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4360 | 05-JUL-98 17:46:03 | 197Au | 58Ni | 100 | M>=3 | Phys | 522441 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
 | 4361 | 05-JUL-98 19:09:11 | 197Au | none | 100 | M>=3 | Phys | 81647 |  cible trou phi=10mm |
-| 4362 | 05-JUL-98 19:54:19 | 197Au | 58Ni | 100 | M>=3 | Phys | 458422 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4363 | 05-JUL-98 21:15:18 | 197Au | 58Ni | 100 | M>=3 | Phys | 274482 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4364 | 05-JUL-98 22:03:00 | 197Au | 58Ni | 100 | M>=3 | Phys | 544067 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4365 | 05-JUL-98 23:16:27 | 197Au | 58Ni | 100 | M>=3 | Phys | 544468 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4366 | 06-JUL-98 00:18:25 | 197Au | 58Ni | 100 | M>=3 | Phys | 140805 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4367 | 06-JUL-98 00:39:45 | 197Au | 58Ni | 100 | M>=5 | Phys | 163831 |  Au 100 MeV/A +Ni  x....mg/cm2 |
+| 4362 | 05-JUL-98 19:54:19 | 197Au | 58Ni | 100 | M>=3 | Phys | 458422 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4363 | 05-JUL-98 21:15:18 | 197Au | 58Ni | 100 | M>=3 | Phys | 274482 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4364 | 05-JUL-98 22:03:00 | 197Au | 58Ni | 100 | M>=3 | Phys | 544067 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4365 | 05-JUL-98 23:16:27 | 197Au | 58Ni | 100 | M>=3 | Phys | 544468 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4366 | 06-JUL-98 00:18:25 | 197Au | 58Ni | 100 | M>=3 | Phys | 140805 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4367 | 06-JUL-98 00:39:45 | 197Au | 58Ni | 100 | M>=5 | Phys | 163831 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
 | 4368 | 06-JUL-98 03:30:21 |  |  |   | M>=1 | Cosmics | 1502915 |  run sans faisceau |
 | 4369 | 06-JUL-98 05:04:25 |  |  |   | M>=1 | Cosmics | 110506 |  run sans faisceau (sauf en fin) |
-| 4370 | 06-JUL-98 05:26:07 | 197Au | 58Ni | 100 | M>=5 | Phys | 213612 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4371 | 06-JUL-98 06:08:08 | 197Au | 58Ni | 100 | M>=5 | Phys | 57894 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4372 | 06-JUL-98 06:38:11 | 197Au | 58Ni | 100 | M>=5 | Phys | 297581 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4373 | 06-JUL-98 07:45:51 | 197Au | 58Ni | 100 | M>=5 | Phys | 237239 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4374 | 06-JUL-98 08:21:03 | 197Au | 58Ni | 100 | M>=5 | Phys | 290775 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4375 | 06-JUL-98 09:05:03 | 197Au | 58Ni | 100 | M>=5 | Phys | 268951 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4376 | 06-JUL-98 09:50:12 | 197Au | 58Ni | 100 | M>=5 | Phys | 477316 |  Au 100 MeV/A +Ni  x....mg/cm2 |
+| 4370 | 06-JUL-98 05:26:07 | 197Au | 58Ni | 100 | M>=5 | Phys | 213612 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4371 | 06-JUL-98 06:08:08 | 197Au | 58Ni | 100 | M>=5 | Phys | 57894 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4372 | 06-JUL-98 06:38:11 | 197Au | 58Ni | 100 | M>=5 | Phys | 297581 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4373 | 06-JUL-98 07:45:51 | 197Au | 58Ni | 100 | M>=5 | Phys | 237239 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4374 | 06-JUL-98 08:21:03 | 197Au | 58Ni | 100 | M>=5 | Phys | 290775 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4375 | 06-JUL-98 09:05:03 | 197Au | 58Ni | 100 | M>=5 | Phys | 268951 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4376 | 06-JUL-98 09:50:12 | 197Au | 58Ni | 100 | M>=5 | Phys | 477316 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
 | 4377 | 06-JUL-98 10:41:14 |  |  |   |  | Cosmics | 130582 |  Arret faisceau |
 | 4378 | 06-JUL-98 12:28:15 |  |  |   |  | Pedestal | 39882 |  piedestaux / Silicium |
 | 4379 | 06-JUL-98 13:04:40 |  |  |   |  | Pedestal | 6703 |  piedestaux / CsI |
@@ -377,8 +377,8 @@
 | 4387 | 06-JUL-98 20:48:24 |  |  |   |  | Cf | 1769026 |  Source Cf ring 13-17 |
 | 4388 | 06-JUL-98 21:27:22 |  |  |   |  | Cf | 1769086 |  Source Cf ring 13-17 |
 | 4389 | 06-JUL-98 22:06:24 |  |  |   |  | Cf | 955717 |  Source Cf ring 13-17 |
-| 4390 | 07-JUL-98 00:21:12 | 197Au | 58Ni | 100 | M>=5 | Phys | 281056 |  Au 100 MeV/A +Ni  x....mg/cm2 |
-| 4391 | 07-JUL-98 03:35:48 | 197Au | 58Ni | 100 | M>=5 | Phys | 225112 |  Au 100 MeV/A +Ni  x....mg/cm2 |
+| 4390 | 07-JUL-98 00:21:12 | 197Au | 58Ni | 100 | M>=5 | Phys | 281056 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
+| 4391 | 07-JUL-98 03:35:48 | 197Au | 58Ni | 100 | M>=5 | Phys | 225112 |  Au 100 MeV/A +Ni  0.8mg/cm2 |
 | 4392 | 07-JUL-98 07:33:08 |  |  |   |  | Unknown | 378776 |
 | 4393 | 07-JUL-98 12:31:32 |  |  |   |  | Unknown | 830959 |
 | 4394 | 07-JUL-98 12:55:59 |  |  |   |  | Unknown | 752323 |
