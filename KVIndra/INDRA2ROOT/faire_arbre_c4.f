@@ -142,15 +142,17 @@ c      call initevt()
 				enddo
 			enddo    
 		
-			if(mod(necrit, 50000).eq.0) then
+			if(mod(necrit, 10000).eq.0) then
 				nfiles = nfiles+1
 				close(88)
 				if(nfiles.lt.10) then
 					write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
       		else if (nfiles.lt.100) then
 					write(filename,'(a,i2,a)') 'arbre_root_', nfiles, '.txt'
-     			else 
+      		else if (nfiles.lt.1000) then
 					write(filename,'(a,i3,a)') 'arbre_root_', nfiles, '.txt'
+     			else 
+					write(filename,'(a,i4,a)') 'arbre_root_', nfiles, '.txt'
 				endif 																					  
       		print *,'Opening file for writing : ', filename
 				open(unit=88,file=filename,status='new')
