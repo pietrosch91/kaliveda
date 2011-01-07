@@ -208,7 +208,12 @@ Double_t KVPartitionFunction::MeanNA(int A0, int A)
     // Calculate the mean number of clusters of size A when a system of size A0
     // fragments in all possible ways with equal probability
     // Using Eq. (3) of K. Sneppen Nucl. Phys. A470, 213 (1987)
+    //
+    // Correction for A=A0:
+    //    there is always exactly 1 partition of M=1 composed of one fragment with A=A0
+    //    the mean multiplicity of A=A0 is therefore 1/PartSum(A0)
     
+    if(A==A0) return 1./PartSum(A0);
     Double_t NA=0;
     Int_t imax = (Int_t)(1.*A0/(1.*A));
     for(int i=1; i<=imax; i++){
@@ -224,7 +229,33 @@ Double_t KVPartitionFunction::MeanNA_M(int A0, int A, int M)
     // Calculate the mean number of clusters of size A when a system of size A0
     // breaks up into M fragments, each partition having equal probability
     // Using Eqs. (2b) & (3) of K. Sneppen Nucl. Phys. A470, 213 (1987)
+    //
+    // Correction for M=1:
+    //     if A==A0, mean multiplicity is 1; otherwise 0.
+    // Correction for M=2 and even values of A0:
+    //    when an odd-A0 splits into M=2, there are PartFunc(A0,M) partitions
+    //    in which each A between 1 and A0-1 occurs once only, therefore
+    //    the mean multiplicity for any A is 1/PartFunc(A0,M)
+    //    when an even-A0 splits into M=2, one of the PartFunc(A0,M) partitions
+    //    is the symmetric split (A0/2, A0/2). Therefore the mean multiplicity
+    //    of A=A0/2 is twice that of the other A, i.e. 2/PartFunc(A0,M)
+    // Correction for M=A0:
+    //    in this case only one partition exists, made of M=A0 monomers A=1
+    //    therefore mean multiplicity of A=1 is M, for all other A it is 0.
     
+    if(M==1){
+        if(A==A0) return 1.;
+        else return 0.;
+    }
+    if(M==2){
+        if(!(A0%2) && A==A0/2) return 2./PartFunc(A0,M);
+        else if(A>=1 && A<A0) return 1./PartFunc(A0,M);
+        else return 0.;
+    }
+    if(M==A0){
+        if(A==1) return M;
+        else return 0.;
+    }
     Double_t NA=0;
     Int_t imax = (Int_t)(1.*A0/(1.*A));
     imax = TMath::Min(imax, M-1);
@@ -237,6 +268,42 @@ Double_t KVPartitionFunction::MeanNA_M(int A0, int A, int M)
 }
 /*
     Double_t MeanNA(int A0, int Z0, int A);
-    Double_t MeanNZ(int A0, int Z0, int Z);
-    Double_t MeanNAZ(int A0, int Z0, int A, int Z);
-*/
+    Double_t MeanNZ(int A0, int Z0, int Z);*/
+
+Double_t KVPartitionFunction::MeanNAZ(int A0, int Z0, int A, int Z)
+{
+    // Calculate the mean number of clusters of mass A and charge Z
+    // when a two-component system (A0,Z0) fragments in all possible ways with equal probability
+    // Using Eq. (7) of K. Sneppen Nucl. Phys. A470, 213 (1987)
+    
+    Double_t NAZ=0;
+    Int_t imax = (Int_t)(1.*A0/(1.*A));
+    for(int i=1; i<=imax; i++){
+        Int_t A1 = A0-i*A; Int_t Z1 = Z0-i*Z;
+		if(A1>0) NAZ+=PartSum(A1,Z1);
+    }
+    NAZ /= PartSum(A0,Z0);
+    return NAZ;    
+}
+
+Double_t KVPartitionFunction::MeanNA(int A0, int Z0, int A)
+{
+    // Calculate the mean number of clusters of mass A
+    // when a two-component system (A0,Z0) fragments in all possible ways with equal probability
+    // This is just the sum of MeanNAZ(A0,Z0,A,Z) with 0<=Z<= min(A,Z0)
+    
+    Double_t NA=0;
+    for(Int_t Z=0; Z<=TMath::Min(A,Z0); Z++) NA += MeanNAZ(A0,Z0,A,Z);
+    return NA;    
+}
+
+Double_t KVPartitionFunction::MeanNZ(int A0, int Z0, int Z)
+{
+    // Calculate the mean number of clusters of charge Z
+    // when a two-component system (A0,Z0) fragments in all possible ways with equal probability
+    // This is just the sum of MeanNAZ(A0,Z0,A,Z) with Z<=A<=(Z+A0-Z0)
+    
+    Double_t NZ=0;
+    for(Int_t A=Z; A<=(Z+A0-Z0); A++) NZ += MeanNAZ(A0,Z0,A,Z);
+    return NZ;    
+}
