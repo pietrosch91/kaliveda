@@ -112,14 +112,35 @@ ClassImp(KVSelector)
 //
 //More examples can be found in the AnalyseCamp1 analysis class.
 //
+//Manage histograms
+//======================
+//Few methods are defined to make easier the management
+//of histograms
+//Redefine the method CreateHistos() and create the histograms
+//like this
+//lhisto->Add(new TH1F(...));
+//lhisto->Add(new TH2F(...));
+//lhisto->Add(new TProfile(...));
+//All histograms are stored in the KVHashList "lhisto"
+//
+//The method FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
+//allows to fill any histogram declared as shown above
+//you only need to give the histogram name followed by the arguments you use normally in the Fill method
+//of TH1::Fill() and derivated
+//
+//Finally, to write the list of histograms in a file
+//Just call the WriteHistoToFile method indicating the name of the file
+//
 
 KVSelector::KVSelector(TTree * tree)
 {
    //ctor
    fChain=0;
    callnotif = 0;
-   gvlist = 0;                  // Global variable list set to nil.
-   //create stopwatch
+   gvlist = 0;                  // Global variable list set to nul.
+   lhisto = new KVHashList(); lhisto->SetOwner(kTRUE);
+  	ltree = new KVHashList(); ltree->SetOwner(kTRUE);
+	//create stopwatch
    fTimer = new TStopwatch;
    // event list
    fEvtList = 0;
@@ -150,6 +171,7 @@ KVSelector::~KVSelector()
    }
    delete fTimer;
    SafeDelete(fPartCond);
+	delete lhisto;
 }
 
 void KVSelector::Init(TTree * tree)
@@ -999,4 +1021,194 @@ void KVSelector::SetParticleConditions(const KVParticleCondition& cond)
    //set name of class to which we cast. this is for optimization to work
    fPartCond->SetParticleClassName("KVINDRAReconNuc");
 }
+  
+//____________________________________________________________________________
    
+KVHashList* KVSelector::GetHistoList()
+{
+
+	return lhisto; 
+	
+}
+ 
+//____________________________________________________________________________
+
+TH1* KVSelector::GetHisto(const Char_t* histo_name) {
+
+	return (TH1* )lhisto->FindObject(histo_name);
+
+}
+   
+//____________________________________________________________________________
+   
+void KVSelector::FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
+{
+	
+	//Find in the list, if there is an histogram named "sname"
+	//If not print an error message
+	//If yes redirect to the right method according to its closest mother class
+	//to fill it
+	TH1* h1=0;
+	if ( (h1 = GetHisto(sname.Data())) ){
+		if ( h1->InheritsFrom("TH3") )
+			FillTH3((TH3* )h1,one,two,three,four);
+		else if ( h1->InheritsFrom("TProfile2D") )
+			FillTProfile2D((TProfile2D* )h1,one,two,three,four);
+		else if ( h1->InheritsFrom("TH2") )
+			FillTH2((TH2* )h1,one,two,three);
+		else if ( h1->InheritsFrom("TProfile") )
+			FillTProfile((TProfile* )h1,one,two,three);
+		else if ( h1->InheritsFrom("TH1") )
+			FillTH1(h1,one,two);
+		else 
+			Warning("FillHisto","%s -> Classe non prevue ...",lhisto->FindObject(sname.Data())->ClassName());
+	}
+	else { 
+		Warning("FillHisto","%s introuvable",sname.Data());
+	}
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::FillTH1(TH1* h1,Double_t one,Double_t two)
+{
+
+	h1->Fill(one,two);
+	
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTProfile(TProfile* h1,Double_t one,Double_t two,Double_t three)
+{
+	
+	h1->Fill(one,two,three);
+
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTH2(TH2* h2,Double_t one,Double_t two,Double_t three)
+{
+
+	h2->Fill(one,two,three);
+
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTProfile2D(TProfile2D* h2,Double_t one,Double_t two,Double_t three,Double_t four)
+{
+	
+	h2->Fill(one,two,three,four);
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTH3(TH3* h3,Double_t one,Double_t two,Double_t three,Double_t four)
+{
+	
+	h3->Fill(one,two,three,four);
+}
+	
+	
+//____________________________________________________________________________
+   
+void KVSelector::CreateHistos()
+{
+
+	Warning("CreateHistos","To be redefined child class");
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::WriteHistoToFile(KVString filename,Option_t* option)
+{
+
+	//If no filename is specified, assume that the current directory is writable
+	if (filename == ""){
+		GetHistoList()->Write();
+	}
+	else {
+		TFile* file=0;
+		//if filename correspond to an already opened file, write in it
+		//if not open/create it, depending on the option ("recreate" by default)
+		//and write in it
+		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) )
+			file = new TFile(filename.Data(),option);
+		file->cd();
+		GetHistoList()->Write();
+		file->Close();	
+	}
+
+}
+
+//____________________________________________________________________________
+   
+KVHashList* KVSelector::GetTreeList()
+{
+
+	return ltree; 
+	
+}
+ 
+//____________________________________________________________________________
+
+TTree* KVSelector::GetTree(const Char_t* tree_name) {
+
+	return (TTree* )ltree->FindObject(tree_name);
+
+}
+//____________________________________________________________________________
+   
+void KVSelector::CreateTrees()
+{
+
+	Warning("CreateTrees","To be redefined child class");
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::FillTree(KVString sname)
+{
+	
+	if (sname==""){
+		ltree->Execute("Fill","");
+	}
+	else {
+		TTree* tt=0;
+		if ( (tt = GetTree(sname.Data())) ){
+			tt->Fill();
+		}
+		else { 
+			Warning("FillTree","%s introuvable",sname.Data());
+		}
+	}
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::WriteTreeToFile(KVString filename,Option_t* option)
+{
+
+	//If no filename is specified, assume that the current directory is writable
+	if (filename == ""){
+		GetTreeList()->Write();
+	}
+	else {
+		TFile* file=0;
+		//if filename correspond to an already opened file, write in it
+		//if not open/create it, depending on the option ("recreate" by default)
+		//and write in it
+		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) )
+			file = new TFile(filename.Data(),option);
+		file->cd();
+		GetTreeList()->Write();
+		file->Close();	
+	}
+
+}

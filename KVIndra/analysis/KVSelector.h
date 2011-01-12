@@ -26,6 +26,13 @@
 #include "KVLockfile.h"
 #include "KVConfig.h"
 #include "KVDataAnalyser.h"
+#include "KVHashList.h"
+
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
+#include "TProfile2D.h"
+#include "TProfile.h"
 
 class KVSelector:public TSelector {
 
@@ -47,8 +54,10 @@ class KVSelector:public TSelector {
 
 //List of global variables
    KVGVList *gvlist;            //!
-
-   TStopwatch *fTimer;          //!used to time analysis
+	KVHashList* lhisto;				//->!
+ 	KVHashList* ltree;				//->!
+  
+	TStopwatch *fTimer;          //!used to time analysis
 
 #ifdef __WITHOUT_TSELECTOR_LONG64_T
    Int_t fTreeEntry;            //!this is the current TTree entry number, i.e. the argument passed to TSelector::Process(Long64_t entry)
@@ -93,7 +102,13 @@ class KVSelector:public TSelector {
    void SetINDRAReconEventBranchName(const Char_t* br_name){ fBranchName = br_name; };
    
    KVLockfile dataselector_lock;//for locking user's data selector file
-  
+ 	
+	void FillTH1(TH1* h1,Double_t one,Double_t two);
+	void FillTProfile(TProfile* h1,Double_t one,Double_t two,Double_t three);
+	void FillTH2(TH2* h2,Double_t one,Double_t two,Double_t three);
+	void FillTProfile2D(TProfile2D* h2,Double_t one,Double_t two,Double_t three,Double_t four);
+	void FillTH3(TH3* h3,Double_t one,Double_t two,Double_t three,Double_t four);
+ 
  public:
 
     KVSelector(TTree * tree = 0);
@@ -185,8 +200,23 @@ class KVSelector:public TSelector {
    TTree* GetRawData() { return fRawData; };
    
    static void Make(const Char_t * kvsname = "MyOwnKVSelector");
-
-   ClassDef(KVSelector, 0);     //Analysis class for TChains of KVINDRAReconEvents
+	
+	virtual void CreateHistos();
+	virtual void CreateTrees();
+   
+	void FillHisto(KVString sname,Double_t one,Double_t two=1,Double_t three=1,Double_t four=1);
+	void FillTree(KVString sname="");
+	
+	KVHashList* GetHistoList();
+	KVHashList* GetTreeList();
+	
+	TH1* GetHisto(const Char_t* name);
+	TTree* GetTree(const Char_t* name);
+	
+	virtual void WriteHistoToFile(KVString filename="FileFromKVSelector.root",Option_t* option="recreate");
+	virtual void WriteTreeToFile(KVString filename="FileFromKVSelector.root",Option_t* option="recreate");
+	
+	ClassDef(KVSelector, 0);     //Analysis class for TChains of KVINDRAReconEvents
 };
 
 #endif
