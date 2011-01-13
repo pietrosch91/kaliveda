@@ -866,8 +866,7 @@ void KVSelector::LoadDataSelector(void)
              Data() << "*.*\" ..." << endl;
          gSystem->
              Exec(Form
-                  ("rm %s.[c,h]*", fDataSelector.Data(),
-                   fDataSelector.Data()));
+                  ("rm %s.[c,h]*", fDataSelector.Data()));
       }
    } else {
       fKVDataSelector = 0;
