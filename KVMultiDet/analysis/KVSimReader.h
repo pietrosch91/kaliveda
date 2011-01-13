@@ -74,7 +74,7 @@ class KVSimReader : public KVFileReader
 	virtual KVString GetDate(){
 		TDatime now;
 		KVString stime;
-		stime.Form("%d_%0.2d_%0.2d_%0.2d:%0.2d:%0.2d",
+		stime.Form("%d_%02d_%02d_%02d:%02d:%02d",
 			now.GetYear(),
 			now.GetMonth(),
 			now.GetDay(),
