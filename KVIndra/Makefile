@@ -34,6 +34,7 @@ endif
 endif
 
 indra2root : 
+	INDRA2ROOT/fortran_lecture_dst/compil_kali $(F77)	
 #	-cp INDRA2ROOT/indra2root.C $(KVINSTALLDIR)/src/
 #	-cp INDRA2ROOT/veda2root $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/veda2root_kali $(KVINSTALLDIR)/bin/

@@ -513,8 +513,10 @@ c --- Si Gamma ( Code = 0 )
               		code16=code_part(i)                                   
             		call DECODE_PART(icou(i),code16,code4)                
             		code(i)=code4(1)
-            		if(dump_eric_2)write(*,*)' particule : num,code=',i,code(i)
-            		do k=1,4
+            		if(dump_eric_2) then
+							write(*,*)' particule : num,code=',i,code(i)
+            		endif
+						do k=1,4
              			code_idf(k,i)=code4(k)
            			enddo
 c   Decodage de zcombo -acombo                

@@ -329,7 +329,7 @@ C
 C
 CCC INITIALISATION DE VEDALOSS
 C
-       				PRINT * , '                                                    '
+       				PRINT * , '                       '
       				icode=0
       				numf=49  ! numero logique de fichier DAPNIA
       				call LOSS_INIT (numf,icode) ! ca se trouve dans vedaloss_2E.f

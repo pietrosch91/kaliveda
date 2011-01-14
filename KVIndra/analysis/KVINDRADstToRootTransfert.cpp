@@ -71,6 +71,8 @@ void KVINDRADstToRootTransfert::InitRun()
 	TDatime now1;
 	Info("InitRun","Debut lecture DST %s",now1.AsString());
 	DefineSHELLVariables();
+	
+	
 	ReadDST();
 	
 	if (gBatchSystem){
@@ -299,7 +301,7 @@ void KVINDRADstToRootTransfert::DefineSHELLVariables(){
 //	shell_var.Form("%s",gSystem->ExpandPathName("$PWD"));
 //	gSystem->Setenv("DIR_PERSO",shell_var.Data());
 	
-	shell_var.Form("%s/lib/veda%d",gSystem->ExpandPathName("$THRONG_DIR"),fCampNumber);
+	shell_var.Form("%s/lib",gSystem->ExpandPathName("$KVROOT"));
 	gSystem->Setenv("REP_LIBS",shell_var.Data());
 	
 	shell_var.Form("%s/src/faire_arbre_c%d.f",gSystem->ExpandPathName("$KVROOT"),fCampNumber);

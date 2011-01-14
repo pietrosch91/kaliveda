@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 echo "----------------------------------------"
-echo "   lancement de KALI en INTERACTIF  "
+echo "   SHELL de lancement de KALI           "
 echo "----------------------------------------"
 
 #---- Ajout des eventuelles librairies supplementaires ----------
@@ -22,39 +22,10 @@ if ($status != '0') then
 endif
 echo '  end of compilation and load ' `date`
 
-#--------
-#set nomfic="$NOMFI.cart"
-#set WRITE="0"
-#if( $CAMPAGNE == "4" ) then
-#	echo "$WRITE   Lecture de cartouches DST" >> $nomfic
-#else
-#	echo "$WRITE Pas d'ecriture de cartouches reduites" >> $nomfic
-#endif
-#
-#echo $DST_FILE >> $nomfic
-
-#echo "Fichier nomfic=$nomfic :"
-#cat $nomfic
-#echo " "
-
-#if ( $CAMPAGNE == "4" ) then
-#	echo "EOF EOF 0" >> $nomfic
-#else
-#	echo "EOF 0 EOF 0" >> $nomfic
-#endif
-
 #------ Running ....---------------------------
 echo ' Execution begins ...' `date`
 ./x$RUN_PREFIX
 echo ' Execution ends .....' `date`  
 
-#rm x$NOMFI
-#rm $nomfic
-#------> D.Cussol : Instructions de fin de tache (copies de fichiers par exemple)
-#ls -l
-#rm r[0-9]*
-#---------------------------------------------
-# Transformation of text file to ROOT/KaliVeda file
-#source $KVROOT/bin/fin_$PFOR.exe
 exit
 

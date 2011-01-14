@@ -749,7 +749,7 @@ c	path='/home/crash19/indra/run_camp93/'
 	Print *,' '
 	Do i=1,17
 	   if(ijeu(i).gt.0) then
-	      Print *,'  Couronne ',i,'  ==> ',ijeu(i),'jeux de param lus'
+	      Print *,'Couronne ',i,' ==> ',ijeu(i),'jeux de param lus'
 	   endif
 	End do   
 	
