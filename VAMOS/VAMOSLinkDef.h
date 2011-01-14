@@ -23,7 +23,9 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class ReconstructionSeDv+;
 #pragma link C++ class LogFile+;
 #pragma link C++ class Random+;
+#pragma link C++ class DriftChamber+;
 #pragma link C++ class DriftChamberv+;
+#pragma link C++ class IonisationChamber+;
 #pragma link C++ class IonisationChamberv+;
 #pragma link C++ class SeDv+;
 #pragma link C++ class SeD12v+;
@@ -31,4 +33,5 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class Identificationv+;
 #pragma link C++ class EnergyTree+;
 #pragma link C++ class CsIv+;
+#pragma link C++ class PlaneAbsorber+;
 #endif

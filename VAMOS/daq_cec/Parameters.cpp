@@ -1332,7 +1332,7 @@ void Parameters::GetData(Short_t *data)
 #endif
 #ifdef SI
       case 19:
-      if(data[1] > 250)
+      if(data[1] > 0)	//was previously > 250
 	{
 	  SIENr[SIEM] = fParameterMap[data[0]];
 	  SIE[SIEM] = data[1];
