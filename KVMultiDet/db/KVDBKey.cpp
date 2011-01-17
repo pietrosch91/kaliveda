@@ -36,8 +36,7 @@ ClassImp(KVDBKey)
 KVDBKey::KVDBKey()
 {
    fIsUnique = fSingle = kFALSE;
-   fLinks = new KVHashList;
-   fLinks->SetCleanup(kTRUE);
+   fLinks = new KVRList;
    fRecord = 0;
 }
 
@@ -49,8 +48,7 @@ KVDBKey::KVDBKey(const Char_t * name, const Char_t * title,
    fIsUnique = fSingle = kFALSE;
    fRecord = 0;
    SetParent(parent);
-   fLinks = new KVHashList;
-   fLinks->SetCleanup(kTRUE);
+   fLinks = new KVRList;
    TString knom(name);
    knom.Prepend("Key:");
    SetName(knom.Data());
@@ -60,9 +58,11 @@ KVDBKey::KVDBKey(const Char_t * name, const Char_t * title,
 //_____________________________________________________________________________
 KVDBKey::~KVDBKey()
 {
-   fLinks->Clear();
-   delete fLinks;
-   fLinks = 0;
+   if (fLinks) {
+      fLinks->Clear();
+      delete fLinks;
+      fLinks = 0;
+   }
    fRecord = 0;
 }
 
@@ -169,41 +169,3 @@ void KVDBKey::RemoveLink(KVDBRecord * rec)
 
    fLinks->Remove(rec);
 }
-
-KVDBRecord *KVDBKey::GetLink(const Char_t * link) const
-{
-   return (KVDBRecord *) fLinks->FindObject(link);
-}
-
-KVDBRecord *KVDBKey::GetParent()
-{
-   return fRecord;
-}
-
-void KVDBKey::SetParent(KVDBRecord * parent)
-{
-   fRecord = parent;
-}
-
-void KVDBKey::SetRecord(KVDBRecord * parent)
-{
-   SetParent(parent);
-}
-
-
-KVDBRecord *KVDBKey::GetRecord()
-{
-   return GetParent();
-}
-
-void KVDBKey::SetUniqueStatus(Bool_t unique)
-{
-   fIsUnique = unique;
-}
-
-void KVDBKey::SetSingleStatus(Bool_t single)
-{
-   fSingle = single;
-}
-
-

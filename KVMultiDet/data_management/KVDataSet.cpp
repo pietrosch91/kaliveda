@@ -303,7 +303,6 @@ void KVDataSet::OpenDBFile(const Char_t * full_path_to_dbfile)
 			fDataBase->ReadObjects( fDBase ); // read any associated objects
 		}
       work_dir->cd();           //back to initial working directory
-      fDBase->Close(); // close database file
    }
 }
 

@@ -21,10 +21,17 @@ class KVDBTape:public KVDBRecord {
    KVDBTape(Int_t tape_number);
    virtual ~ KVDBTape();
 
-   virtual KVHashList *GetRuns();
+   virtual KVRList *GetRuns();
    void AddRun(KVDBRun * run);
 
     ClassDef(KVDBTape, 3)       // Class describing a DLT tape
 };
 
+inline KVRList *KVDBTape::GetRuns()
+{
+   if (GetKey("Runs")) {
+      return GetKey("Runs")->GetLinks();
+   }
+   return 0;
+}
 #endif

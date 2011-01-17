@@ -92,7 +92,7 @@ void KVINDRAUpDater_e475s::SetCalibrationParameters(UInt_t run){
 void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 {
    
-	KVHashList *param_list = kvrun->GetLinks("Calibrations");
+	KVRList *param_list = kvrun->GetLinks("Calibrations");
 
    if (!param_list)
       return;
@@ -134,7 +134,7 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 void KVINDRAUpDater_e475s::SetPedestals(KVDBRun* kvrun)
 {
    
-	KVHashList *param_list = kvrun->GetLinks("Pedestals");
+	KVRList *param_list = kvrun->GetLinks("Pedestals");
 
    if (!param_list)
       return;

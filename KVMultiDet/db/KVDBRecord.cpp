@@ -161,7 +161,7 @@ KVDBRecord *KVDBRecord::GetLink(const Char_t * key, const Char_t * link) const
 
 //___________________________________________________________________________
 
-KVHashList *KVDBRecord::GetLinks(const Char_t * key) const
+KVRList *KVDBRecord::GetLinks(const Char_t * key) const
 {
    //Returns the list of records linked to this record in table "key"
 
@@ -220,18 +220,5 @@ void KVDBRecord::SetTable(const KVDBTable * table)
 {
    fFullPathTable = table->GetFullPath();
 }
-
-KVDBKey *KVDBRecord::GetKey(const Char_t * key) const
-{
-   TString knom(key);
-   knom.Prepend("Key:");
-   return (KVDBKey *) FindObject(knom.Data());
-}
-
-TList *KVDBRecord::GetKeys() const
-{
-   return (TList *) GetListOfFolders();
-}
-
 
 

@@ -103,15 +103,3 @@ KVDBRecord *KVDBTable::GetRecord(Int_t num) const
    while ((obj = (KVDBRecord *) next()) && (obj->GetNumber() != num));
    return (obj ? (obj->GetNumber() == num ? obj : 0) : 0);
 }
-
-KVDBRecord *KVDBTable::GetRecord(const Char_t * rec) const
-{
-   return (KVDBRecord *) FindObject(rec);
-}
-
-TList *KVDBTable::GetRecords() const
-{
-   return (TList *) GetListOfFolders();
-}
-
-

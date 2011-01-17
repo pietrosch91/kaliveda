@@ -163,7 +163,7 @@ void KVINDRAUpDater::SetGains(KVDBRun * kvrun)
     KVDetector *kvd;
     while ((kvd = (KVDetector *) next()))
         kvd->SetGain(1.00);
-    KVHashList *gain_list = kvrun->GetLinks("Gains");
+    KVRList *gain_list = kvrun->GetLinks("Gains");
     if (!gain_list)
     {
         return;
@@ -205,7 +205,7 @@ void KVINDRAUpDater::SetChIoPressures(KVDBRun * kvrun)
 {
     //Update ChIo pressures for this run with values in database (if any)
 
-    KVHashList *param_list = kvrun->GetLinks("ChIo Pressures");
+    KVRList *param_list = kvrun->GetLinks("ChIo Pressures");
     if (!param_list)
     {
         return;
@@ -261,7 +261,7 @@ void KVINDRAUpDater::SetChVoltParameters(KVDBRun * kvrun)
 {
 
 
-    KVHashList *param_list = kvrun->GetLinks("Channel-Volt");
+    KVRList *param_list = kvrun->GetLinks("Channel-Volt");
     if (!param_list)
         return;
     if (!param_list->GetSize())
@@ -308,7 +308,7 @@ void KVINDRAUpDater::SetChVoltParameters(KVDBRun * kvrun)
 void KVINDRAUpDater::SetVoltEnergyChIoSiParameters(KVDBRun * kvrun)
 {
 
-    KVHashList *param_list = kvrun->GetLinks("Volt-Energy ChIo-Si");
+    KVRList *param_list = kvrun->GetLinks("Volt-Energy ChIo-Si");
     if (!param_list)
         return;
     if (!param_list->GetSize())
@@ -386,7 +386,7 @@ void KVINDRAUpDater::SetCsIGainCorrectionParameters(KVDBRun * kvrun)
         csi->SetTotalLightGainCorrection(1.0);
     }
 
-    KVHashList *param_list = kvrun->GetLinks("CsIGainCorr");
+    KVRList *param_list = kvrun->GetLinks("CsIGainCorr");
     if (!param_list)
     {
         return;
@@ -428,7 +428,7 @@ void KVINDRAUpDater::SetLitEnergyCsIParameters(KVDBRun * kvrun)
 {
 
     // Setting Light- Energy CsI calibration parameters for Z=1
-    KVHashList *param_list = kvrun->GetLinks("Light-Energy CsI Z=1");
+    KVRList *param_list = kvrun->GetLinks("Light-Energy CsI Z=1");
 
     if (!param_list)
     {

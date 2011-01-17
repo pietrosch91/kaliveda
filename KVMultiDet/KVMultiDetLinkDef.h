@@ -81,12 +81,12 @@
 #pragma link C++ class KVDataRepositoryManager+;
 #pragma link C++ class KVDataSetManager+;
 #pragma link C++ class KVDatime+;
-#pragma link C++ class KVDBKey+;
-#pragma link C++ class KVDBRecord+;
+#pragma link C++ class KVDBKey;
+#pragma link C++ class KVDBRecord;
 #pragma link C++ class KVDBRun;
 #pragma link C++ class KVDBSystem;
 #pragma link C++ class KVDBSystemDialog+;
-#pragma link C++ class KVDBTable+;
+#pragma link C++ class KVDBTable;
 #pragma link C++ class KVDatedFileManager+;
 #pragma link C++ class KVDetectorEvent+;
 #pragma link C++ class KVElasticScatter+;
