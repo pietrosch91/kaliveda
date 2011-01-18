@@ -230,8 +230,10 @@ ifeq ($(PLATFORM),macosx)
 	 ln -s $(KVINSTALLDIR)/lib/$(LIBDYVERSION) $(KVINSTALLDIR)/lib/$(LIB_DY)
 endif
   endif
+ifeq ($(SITE),CCIN2P3)
 ifeq ($(PROJ_NAME),KVIndra)
 	$(MAKE) indra2root
+endif
 endif
 #this is for HTML doc generation
 	$(foreach subdir,$(MODULES),$(shell rm -f $(KVINSTALLDIR)/include/$(subdir)))
