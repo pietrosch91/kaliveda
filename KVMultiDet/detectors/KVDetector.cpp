@@ -168,30 +168,22 @@ void KVDetector::Copy(TObject & obj)
 //_______________________________________________________________
 KVDetector::~KVDetector()
 {
-   if (fIDTelescopes && fIDTelescopes->TestBit(kNotDeleted)) {
-      //all ID telescopes to which this detector belonged now cease to exist.
-      fIDTelescopes->Delete();
-      delete fIDTelescopes;
-   }
-   fIDTelescopes = 0;
-
+   fIDTelescopes->Clear();
+   SafeDelete(fIDTelescopes);
    SafeDelete(fModules);
    SafeDelete(fCalibrators);
    SafeDelete(fBrowser);
    SafeDelete(fParticles);
    delete fAbsorbers;
-
    SafeDelete(fACQParams);
    init();
    fActiveLayer = -1;
-   if (fIDTelAlign && fIDTelAlign->TestBit(kNotDeleted)) {
-      fIDTelAlign->Clear();
-      delete fIDTelAlign;
-   }
-   fIDTelAlign = 0;
+   fIDTelAlign->Clear();
+   SafeDelete(fIDTelAlign);
    if(par_loss) delete [] par_loss;
    if(par_res) delete [] par_res;
    SafeDelete(fIDTele4Ident);
+
 }
 
 //________________________________________________________________
