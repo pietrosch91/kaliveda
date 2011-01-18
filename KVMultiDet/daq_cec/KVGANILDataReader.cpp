@@ -232,7 +232,7 @@ void KVGANILDataReader::OpenFile(const Char_t * file)
    fGanilData->SetFileName(file);
    SetName( gSystem->BaseName(file) );
    SetTitle(file);
-   fGanilData->SetScalerBuffersManagement(GTGanilData::kSkipScaler);
+   fGanilData->SetScalerBuffersManagement(GTGanilData::kDumpScaler);
    fGanilData->Open();
 
    //test whether file has been opened
