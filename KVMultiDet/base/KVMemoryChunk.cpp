@@ -50,7 +50,7 @@ void* KVMemoryChunk::GetMemory(size_t bytes)
 }
    void KVMemoryChunk::Print()
    {
-   	  printf("KVMemoryChunk: %d bytes  (%d used)  chunk add: %p\n",
+   	  printf("KVMemoryChunk: %d bytes  (%d used) at: %p\n",
    	  	fSize, fUsed, fMemory);
    };
 

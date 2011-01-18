@@ -31,15 +31,21 @@ KVMemoryPool::KVMemoryPool(int nchunks, size_t bytes)
 void *KVMemoryPool::GetMemory(size_t bytes)
 {
     // return pointer to memory of size 'bytes'
-    void* p = 0;
-    if(fLastChunkUsed) p=fLastChunkUsed->GetMemory(bytes);
-    if( !p && fLastChunkUsed ){
-    	// search for next available chunk which can provide memory
-        fLastChunkUsed = fLastChunkUsed->Next();
-        while(fLastChunkUsed && !p) p = fLastChunkUsed->GetMemory(bytes);
+    void* p=fFirst->GetMemory(bytes);
+    fLastChunkUsed = fFirst;
+    if( !p ){
+    	// search for first available chunk which can provide memory
+        do {
+            fLastChunkUsed = fLastChunkUsed->Next();
+            if(fLastChunkUsed) p = fLastChunkUsed->GetMemory(bytes);
+        } while (!p && fLastChunkUsed);
     }
     if( !p ){
-    	// add new chunk to pool
+    	// there are no chunks big enough to provide memory
+    	// add a bigger chunk
+    	size_t new_chunk=fChunkSize;
+    	while(new_chunk < bytes) new_chunk*=2;
+    	fChunkSize = new_chunk;
     	KVMemoryChunk * chunk = new KVMemoryChunk( fChunkSize );
     	fLast->SetNext(chunk);
     	fLast=chunk;
@@ -53,7 +59,7 @@ KVMemoryPool::~KVMemoryPool()
 {
    // Destructor
    KVMemoryChunk* p=fFirst;
-   KVMemoryChunk* next=p;
+   KVMemoryChunk* next;
    while(p){
    		next = p->Next();
    		delete p;
