@@ -336,7 +336,7 @@ c-------------------------------------------------------------------
 		real*4 e,de1,de2
 		real*4 bragg(100)
 		common/bragg/bragg
-		character*50 filename,vedadata
+		character*200 filename,vedadata
 		
 		print*,'**************************************************'
 		print*,' Rustines Camp2 '

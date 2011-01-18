@@ -1,7 +1,7 @@
 #!/bin/bash
 
-
-if [ $# -lt 1 ]; then compil=g77; else compil=$1; fi
+# get default system F77 compiler
+compil=`cat INDRA2ROOT/Default.F77`
 
 echo "Compilateur fortran -> $compil"
 lcampagne="1 2 4"

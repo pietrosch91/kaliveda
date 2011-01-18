@@ -34,10 +34,12 @@ endif
 endif
 
 indra2root : 
-	INDRA2ROOT/fortran_lecture_dst/compil_kali $(F77)	
+	cd INDRA2ROOT && $(MAKE) -f GetDefaultF77.mk
+	INDRA2ROOT/fortran_lecture_dst/compil_kali	
 #	-cp INDRA2ROOT/indra2root.C $(KVINSTALLDIR)/src/
 #	-cp INDRA2ROOT/veda2root $(KVINSTALLDIR)/bin/
 	-cp INDRA2ROOT/veda2root_kali $(KVINSTALLDIR)/bin/
+	-cp INDRA2ROOT/GetDefaultF77.mk $(KVINSTALLDIR)/bin/
 #	-cp INDRA2ROOT/veda2root_kali96 $(KVINSTALLDIR)/bin/
 #	-cp INDRA2ROOT/veda2root_lanceur $(KVINSTALLDIR)/bin/
 #	-cp INDRA2ROOT/SetBatchRessources $(KVINSTALLDIR)/bin/

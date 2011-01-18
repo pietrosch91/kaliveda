@@ -14,8 +14,11 @@ else
 endif
 
 #------ Compilation ------------------
+# get default system F77 compiler
+make -f $KVROOT/bin/GetDefaultF77.mk
+set fort_comp=`cat Default.F77`
 echo ' start of compilation and load ' `date`
-g77 -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -ox$RUN_PREFIX `cernlib pawlib mathlib` 
+$fort_comp -v -I$VEDA_FOR $FOR_PERSO $VEDA_LIBS -ox$RUN_PREFIX `cernlib` 
 if ($status != '0') then
    echo ' Big problem with the compilation '
    exit 99
