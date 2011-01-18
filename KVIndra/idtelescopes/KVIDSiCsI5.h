@@ -84,6 +84,8 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
    virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");
+   virtual Double_t GetPedestalX(Option_t * opt = "");
+   virtual Double_t GetPedestalY(Option_t * opt = "");
 
    const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
    virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);

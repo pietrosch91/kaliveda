@@ -136,6 +136,8 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
    virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");
+   virtual Double_t GetPedestalX(Option_t * opt = "");
+   virtual Double_t GetPedestalY(Option_t * opt = "");
 
    void SetHasMassID(Bool_t yes=kTRUE) {
       SetBit(kMassID,yes);

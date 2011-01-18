@@ -74,6 +74,14 @@ Double_t KVIDSi150CsI_camp5::GetIDMapY(Option_t * opt)
     return (Double_t)fSIPG->GetData();
 }
 
+//____________________________________________________________________________________
+
+Double_t KVIDSi150CsI_camp5::GetPedestalY(Option_t * opt)
+{
+    //Y-coordinate pedestal for Si150-CsI identification map is "PG" pedestal for Silicon
+    return (Double_t)fSIPG->GetPedestal();
+}
+
 //________________________________________________________________________________________//
 
 Bool_t KVIDSi150CsI_camp5::Identify(KVIdentificationResult* IDR)

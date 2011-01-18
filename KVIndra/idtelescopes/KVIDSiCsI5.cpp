@@ -260,6 +260,21 @@ Double_t KVIDSiCsI5::GetIDMapX(Option_t * opt)
    Double_t h = (Double_t)fCsI->GetLumiereTotale(rapide,lente);
    return h;
 }
+//__________________________________________________________________________//
+
+Double_t KVIDSiCsI5::GetPedestalX(Option_t * opt)
+{
+   //Returns pedestal of X coordinate for identification.
+   //It is the CsI detector's total light output calculated values of 'R' and 'L'
+   //equal to their pedestal values (because identification maps were drawn without
+   //correcting for pedestals).
+   //'opt' has no effect.
+
+   Double_t rapide = fCsIRPedestal;
+   Double_t lente = fCsILPedestal;
+   Double_t h = (Double_t)fCsI->GetLumiereTotale(rapide,lente);
+   return h;
+}
 
 //____________________________________________________________________________________
 
@@ -289,23 +304,40 @@ void KVIDSiCsI5::Initialize()
 Double_t KVIDSiCsI5::GetIDMapY(Option_t * opt)
 {
    //Calculates current Y coordinate for identification.
-   //It is the silicon detector's current grand gain (if opt="GG") or petit gain (opt != "GG")
-   //coder data, without pedestal correction.
+   //It is the silicon detector's current grand gain (by default, i.e. opt="", or if opt="GG")
+   //or petit gain (opt="PG") coder data, without pedestal correction.
    //We include a "correction" for the gain of the Silicon amplifier:
    //this was set to 1.0 during the runs for which the identification grids were drawn;
    //when it increases to 1.41 we simply scale the data down by the same factor.
 
    Double_t si, si_ped;
-   if (!strcmp(opt, "GG")) {
-      si = (Double_t)fSi->GetGG();
-		si_ped = fSiGGPedestal;
-   } else {
+   if (!strcmp(opt, "PG")) {
       si = (Double_t)fSi->GetPG();
 		si_ped = fSiPGPedestal;
+   } else {
+      si = (Double_t)fSi->GetGG();
+		si_ped = fSiGGPedestal;
    }
    //gain "correction"
    if (fSiGain > 1.1) si = (si - si_ped) / fSiGain + si_ped;
    return si;
+}
+
+//__________________________________________________________________________//
+
+Double_t KVIDSiCsI5::GetPedestalY(Option_t * opt)
+{
+   //Calculates current Y coordinate pedestal for identification.
+   //It is the silicon detector's current grand gain (by default, i.e. opt="", or if opt="GG")
+   //or petit gain (opt = "PG") pedestal.
+
+   Double_t si_ped=0.;
+   if (!strcmp(opt, "PG")) {
+ 		si_ped = fSiPGPedestal;
+   } else {
+		si_ped = fSiGGPedestal;
+   }
+   return si_ped;
 }
 
 

@@ -55,7 +55,7 @@ ClassImp(KVINDRAReconNuc);
 //       ** Note2: for a general test of the type of detector in which the particle stopped,
 //                 you can do one of the following e.g. to test if it stopped in an
 //                 ionisation chamber (assuming a particle pointer 'part'):
-//       
+//
 //        if( !strcmp(part->GetStoppingDetector()->GetType(), "CI") ) { ... }
 //               //test the type of the detector - see INDRA detector classes for the different types
 //        if( part->GetStoppingDetector()->InheritsFrom("KVChIo") ) { ... }
@@ -173,7 +173,7 @@ void KVINDRAReconNuc::Print(Option_t * option) const
       cout << " Z=" << GetZ() << " A=" << ((KVINDRAReconNuc *) this)->
           GetA();
       if(((KVINDRAReconNuc *) this)->IsAMeasured()) cout << " Areal=" << ((KVINDRAReconNuc *) this)->GetRealA();
-      else cout << " Zreal=" << GetRealZ();         
+      else cout << " Zreal=" << GetRealZ();
       cout << endl << " Identification code = " << ((KVINDRAReconNuc *) this)->
           GetCodes().GetIDStatus() << endl;
    } else {
@@ -403,23 +403,23 @@ Bool_t KVINDRAReconNuc::CoherencyChIoSiCsI(KVIdentificationResult theID)
    		// (we cannot trust the punch-through lines in the grids).
    		// in this case the measured energy loss of the ChIo can be solely attributed to this particle
    		// and we return kTRUE;
-   		
+
    		// ChIo was hit by more than one particle in group
    		if(GetChIo() && GetChIo()->GetNHits()>1) return kFALSE;
-   		
+
    		KVIdentificationResult *IDchiosi = GetIdentificationResult(3);
    		if(!IDchiosi){
    		    // no ChIo-Si identification ? assume coherency ?
    		    return kTRUE;
    		}
-   		
+
    		// if we have a successful ChIo-Si id with a Z > Z given by CsI or Si-CsI id,
    		// then we consider that there is a pile-up in the ChIo
    		// note that we consider Z_ChIoSi = 1 to mean the ChIo is in the pedestal i.e. nothing seen
    		if(IDchiosi->IDOK && IDchiosi->Z>1 && IDchiosi->Z>theID.Z){
    		    return kFALSE;
    		}
-   		
+
    		return kTRUE;
 }
 
@@ -438,19 +438,19 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 	//              and there is probably a second particle which stopped in the silicon
 	//              detector at the same time, to be identified in ChIo-Si after
 	//              subtraction of the Silicon contribution
-	
+
 	KVIdentificationResult *IDcsi = GetIdentificationResult(1);
 	KVIdentificationResult *IDsicsi = GetIdentificationResult(2);
 	fCoherent=kTRUE;
 	fPileup=kFALSE;
-	
+
 	// Unsuccessful/no CsI id attempt with successful Si-CsI id ?
 	// Then use Si-CsI identification result
 	if(IDsicsi->IDOK && !IDcsi->IDOK){
 		theID = *IDsicsi;
 		return kTRUE;
 	}
-	
+
 	// check coherency of CsI-R/L and Si-CsI identifications
 	if(IDcsi->IDOK){
 		// gammas
@@ -458,22 +458,34 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 			theID = *IDcsi;
 			return kTRUE;
 		}
-		// neutrons have no energy loss in Si detector, thus detection of charged
-		// particle (Z=1,2) in CsI R/L in coincidence with failed Si-CsI identification
-		// and SiGG < 150 (roughly arbitrary value)
-		// => neutron
-		// we include also "successful" Si-CsI id with Z=1 and A=0
-		if((!IDsicsi->IDOK && GetSi() && GetSi()->GetGG()<150 && IDcsi->Z<3) || (IDsicsi->IDOK && IDsicsi->Z==1 && IDsicsi->A==0)){
-			theID = *IDcsi;
-			theID.IDOK=kTRUE;
-			theID.Zident=kTRUE;
-			theID.Aident=kTRUE;
-			theID.Z=0;
-			theID.A=1;
-			theID.IDcode=kIDCode1; // general code for neutrons
-			return kTRUE;
+		// Neutrons have no energy loss in Si detector (pedestal) and show up in Si-CsI maps as a horizontal
+		// band around the Si pedestal for low energies (energies where proton dE is significantly larger than
+        // the pedestal).
+        // First we check that we are in the domain where proton dE can be distinguished from pedestal.
+        // If so, if the measured dE is below [ped + 0.1*(dE_exp - ped)], then we label the particle as a neutron.
+		if(IDcsi->Z==1 && GetSi()){
+            KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( IDsicsi->GetType() );
+            if(idt){
+                Double_t ped = idt->GetPedestalY();
+                Int_t status;
+                Double_t dE_exp = idt->GetMeanDEFromID(status, 1, 1);
+                if(status==KVIDTelescope::kMeanDE_OK){ // proton/Z=1 line exists, and we are in its energy range
+                    if(dE_exp>ped+5.){ // arbitrary choice, must have expected dE at least 5 channels above pedestal
+                        if(idt->GetIDMapY() < (ped+0.1*(dE_exp-ped))){
+                            theID = *IDsicsi;
+                            theID.IDOK=kTRUE;
+                            theID.Zident=kTRUE;
+                            theID.Aident=kTRUE;
+                            theID.Z=0;
+                            theID.A=1;
+                            theID.IDcode=kIDCode1; // general code for neutrons
+                            return kTRUE;
+                        }
+                    }
+                }
+            }
 		}
-		
+
 		// We check the coherency of the mass and charge identifications
 		// If a successful Si-CsI identification is available we check:
 		//   if Si-CsI gives A & Z - must have same Z, A within +/-1 unit
@@ -504,7 +516,7 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 			Int_t Zref = IDcsi->Z;
 			Int_t Aref = IDcsi->A;
 			if(IDsicsi->Aident){   // Si-CsI provides mass identification
-			
+
 				if(IDcsi->Z==4 && IDcsi->A==8){
 					// traitement special 8Be
 					// if sicsi => 7Li, it is 8Be (2alpha)
@@ -624,10 +636,10 @@ void KVINDRAReconNuc::Identify()
    //Their "identifying" telescope is set to the CsI ID telescope
    
    KVReconstructedNucleus::Identify();
-   
+
    KVIdentificationResult partID;
    Bool_t ok = kFALSE;
-   
+
    // INDRA coherency treatment
    if(GetRingNumber()<10)
    {
@@ -664,8 +676,8 @@ void KVINDRAReconNuc::Identify()
    		// for all others we take the first identification which gives IDOK==kTRUE
    		Int_t id_no = 1;
    		KVIdentificationResult *pid = GetIdentificationResult(id_no);
-   		while( pid && pid->IDattempted ){
-   			if( pid->IDOK ){
+   		while( pid ){
+   			if( pid->IDattempted && pid->IDOK ){
    				ok = kTRUE;
    				partID = *pid;
    				break;
@@ -674,7 +686,7 @@ void KVINDRAReconNuc::Identify()
    			pid = GetIdentificationResult(id_no);
    		}
    }
-   
+
    if(ok){
         SetIsIdentified();
         KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
@@ -686,32 +698,32 @@ void KVINDRAReconNuc::Identify()
         SetIdentifyingTelescope(  idt );
         SetIdentification( &partID );
    }
-   
+
    if ( IsIdentified() ) {
-      
+
       /******* IDENTIFIED PARTICLES *******/
       if ( GetIdentifyingTelescope()->InheritsFrom("KVIDCsI") ) {   /**** CSI R-L IDENTIFICATION ****/
-         
+
          //Identified particles with ID code = 2 with subcodes 4 & 5
          //(masse hors limite superieure/inferieure) are relabelled
          //with kIDCode10 (identification entre les lignes CsI)
-         
+
          Int_t csi_subid = (Int_t) GetIDSubCode(GetCodes().GetSubCodes());
          if (csi_subid == KVIDGCsI::kICODE4 || csi_subid == KVIDGCsI::kICODE5) {
             SetIDCode(kIDCode10);
          }
-         
+
       }
-      
+
    }
    else
    {
-      
+
       /******* UNIDENTIFIED PARTICLES *******/
-      
+
       /*** general ID code for non-identified particles ***/
       SetIDCode( kIDCode14 );
-     
+
       KVIDCsI* idtel = (KVIDCsI*)GetIDTelescopes()->FindObjectByType("CSI_R_L");
       if( idtel ){
          //Particles remaining unidentified are checked: if their identification in CsI R-L gave subcodes 6 or 7
@@ -724,9 +736,9 @@ void KVINDRAReconNuc::Identify()
             SetIdentifyingTelescope(idtel);
          }
       }
-      
+
    }
-}   
+}
 
 //_________________________________________________________________________________
 
@@ -756,7 +768,7 @@ void KVINDRAReconNuc::Calibrate()
         }
         return;
     }
-    
+
     // rings 10-17
    KVReconstructedNucleus::Calibrate();
    KVIDTelescope* idt;
@@ -802,9 +814,9 @@ void KVINDRAReconNuc::CalibrateRings1To10()
         SetECode(kECode2); // not a real energy measure
         return;
     }
-    
+
     SetECode(kECode1);
-    
+
     if(GetCsI()){
         /* CSI ENERGY CALIBRATION */
         if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){

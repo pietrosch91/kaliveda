@@ -401,6 +401,24 @@ Double_t KVIDTelescope::GetIDMapX(Option_t * opt)
    return GetDetector(2)->GetEnergy();
 }
 
+Double_t KVIDTelescope::GetPedestalX(Option_t * opt)
+{
+   // Returns the pedestal associated with the 2nd detector of the telescope,
+   // optionally depending on the given option string.
+   // By default this returns 0, and should be overridden in specific implementations.
+
+   return 0.;
+}
+
+Double_t KVIDTelescope::GetPedestalY(Option_t * opt)
+{
+   // Returns the pedestal associated with the 1st detector of the telescope,
+   // optionally depending on the given option string.
+   // By default this returns 0, and should be overridden in specific implementations.
+
+   return 0.;
+}
+
 //____________________________________________________________________________________
 
 Double_t KVIDTelescope::GetIDMapY(Option_t * opt)
