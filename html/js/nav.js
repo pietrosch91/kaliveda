@@ -14,7 +14,6 @@ var links = new Array (
   "ClassRefIndex",
   "appli",
   "launchpad",
-  "KaliVedaForum",
   "KaliVedaBugs"
  );
 
@@ -29,7 +28,6 @@ var links_text = new Array (
   "Reference Guide",
   "Commands & GUI",
   "Launchpad",
-  "Forum",
   "Report a Bug"
  );
 
@@ -44,7 +42,6 @@ var links_url = new Array (
   "ClassRefIndex.html",
   "appli.html",
   "https://launchpad.net/kaliveda",
-  "http://indra.in2p3.fr/KaliVedaForum",
   "https://bugs.launchpad.net/kaliveda/+filebug"
  );
 
