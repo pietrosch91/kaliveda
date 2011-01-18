@@ -31,6 +31,23 @@ Here is a list of some of the innovations in KaliVeda v1.8.0.<br>
 For more details, see <a
  href="https://launchpad.net/kaliveda/+milestone/1.8.0">here</a>.<br>
 <br>
+<h2>Data format in ROOT files</h2>
+<br>
+Multidetector array objects are no longer written in ROOT files along
+with TTree containing data. This means that reconstructed data files
+written with versions &lt;1.8 cannot be read with versions &gt;=1.8,
+and vice versa. See this <a
+ href="http://indra.in2p3.fr/spip2/IMG/pdf/John_kaliveda_1-8_juin2010.pdf">presentation</a>
+for details (en fran&ccedil;ais).<br>
+<br>
+<h2>Regeneration of INDRA data (campaigns 1-4)</h2>
+<br>
+The DST-&gt;ROOT conversion now appears as a data analysis task in the
+KaliVedaGUI. Most of the necessary corrections have been applied to the
+old data. See this <a
+ href="http://indra.in2p3.fr/spip2/IMG/pdf/KaliVeda_Dst.pdf">presentation</a>
+for details (en fran&ccedil;ais).<br>
+<br>
 <h2>Simulated Events</h2>
 <br>
 New classes for handling simulated data, converting them into
