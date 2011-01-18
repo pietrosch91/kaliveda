@@ -313,6 +313,11 @@ bool GTGanilData::Next(void)
     switch(fWhatScaler)
     {
     case kSkipScaler:     return(Next()); // Skip
+    case kDumpScaler:
+		 fScaler->Fill((scale*)&(fBuffer->les_donnees.cas.scale));    
+       fScaler->DumpScalers();
+		 return(Next());
+		 
     case kReportScaler:   fIsScalerBuffer=true; return(true); // Got scaler evnt
     case kAutoWriteScaler: {
       //      cout <<"kAutoWriteScaler: not implemented!"<<endl;

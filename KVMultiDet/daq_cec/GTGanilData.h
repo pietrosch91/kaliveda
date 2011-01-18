@@ -62,6 +62,7 @@ public:
   typedef enum
   {
     kSkipScaler,     // Skip it.
+    kDumpScaler,     // Print all values of scalers in buffer
     kReportScaler,   // Report the existance of a scaler buffer. WARNING! user
                      // have to take care of it.
     kAutoWriteScaler // Automatic scaler management: wrote on disk    
