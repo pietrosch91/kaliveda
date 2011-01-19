@@ -253,8 +253,8 @@ public:
     const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
                                      KVIDSubCode & code) const;
 
-    void SetRealZ(Float_t Z) {
-        fRealZ = Z;
+    void SetRealZ(Float_t zz) {
+        fRealZ = zz;
     }
     void SetRealA(Float_t A) {
         fRealA = A;
