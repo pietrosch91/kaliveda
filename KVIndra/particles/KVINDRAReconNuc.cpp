@@ -458,12 +458,13 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 			theID = *IDcsi;
 			return kTRUE;
 		}
-		// Neutrons have no energy loss in Si detector (pedestal) and show up in Si-CsI maps as a horizontal
+		// Neutrons have no energy loss in Si detector (pedestal), have a reaction in the CsI and create a Z=1
+		// or Z=2 which is identified in CsI R-L,  while they show up in Si-CsI maps as a horizontal
 		// band around the Si pedestal for low energies (energies where proton dE is significantly larger than
         // the pedestal).
         // First we check that we are in the domain where proton dE can be distinguished from pedestal.
-        // If so, if the measured dE is below [ped + 0.1*(dE_exp - ped)], then we label the particle as a neutron.
-		if(IDcsi->Z==1 && GetSi()){
+        // If so, if the measured dE is below [ped + 0.5*(dE_exp - ped)], then we label the particle as a neutron.
+		if((IDcsi->Z==1 || IDcsi->Z==2) && GetSi()){
             KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( IDsicsi->GetType() );
             if(idt){
                 Double_t ped = idt->GetPedestalY();
@@ -471,7 +472,7 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
                 Double_t dE_exp = idt->GetMeanDEFromID(status, 1, 1);
                 if(status==KVIDTelescope::kMeanDE_OK){ // proton/Z=1 line exists, and we are in its energy range
                     if(dE_exp>ped+5.){ // arbitrary choice, must have expected dE at least 5 channels above pedestal
-                        if(idt->GetIDMapY() < (ped+0.1*(dE_exp-ped))){
+                        if(idt->GetIDMapY() < (ped+0.5*(dE_exp-ped))){
                             theID = *IDsicsi;
                             theID.IDOK=kTRUE;
                             theID.Zident=kTRUE;
