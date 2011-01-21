@@ -336,18 +336,29 @@ void KVDataSet::SaveDataBase()
    // DataSet.DatabaseName:        DataBase
 
    TString dbfile_fullpath = GetFullPathToDB();
-   TString tmp = gSystem->DirName( dbfile_fullpath.Data() );
-   // create $KVROOT/db/[dataset] subdirectory if necessary
-   if( gSystem->AccessPathName( tmp.Data() ) ){
-      //make directory db/[dataset]
-      if( gSystem->mkdir( tmp.Data() )==-1 ){
-          //is $KVROOT/db missing ?
-          TString tmp2 = gSystem->DirName(tmp.Data());
-          if( gSystem->mkdir(tmp2.Data())==-1){
-            Error("SaveDataBase", "Cannot create directory %s required to save database",
+   TString tmp = gSystem->DirName( dbfile_fullpath.Data() );//full path to directory $KVROOT/db/[dataset name]
+	
+   if( gSystem->AccessPathName( tmp.Data() ) ){ // directory $KVROOT/db/[dataset name] does not exist
+		
+      if( gSystem->mkdir( tmp.Data() )==-1 ){  // problem creating $KVROOT/db/[dataset name]
+			
+          TString tmp2 = gSystem->DirName(tmp.Data());// full path to directory $KVROOT/db
+			 
+   		 if( gSystem->AccessPathName( tmp2.Data() ) ){ // directory $KVROOT/db does not exist
+				 
+          	if( gSystem->mkdir(tmp2.Data())==-1){ // problem creating $KVROOT/db
+            	Error("SaveDataBase", "Cannot create directory %s required to save database",
                tmp2.Data());
-            return;
+            	return;
+				}
+				
           }
+			 else
+			 {
+            	Error("SaveDataBase", "Cannot create directory %s required to save database, even though %s exists: check disk space ?",
+               tmp.Data(), tmp2.Data());
+            	return;
+			 }
           //try again
           if( gSystem->mkdir( tmp.Data() )==-1 ){
               Error("SaveDataBase", "Cannot create directory %s required to save database",
