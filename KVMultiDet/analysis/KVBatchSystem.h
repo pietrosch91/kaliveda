@@ -94,7 +94,7 @@ class KVBatchSystem : public KVBase {
 
    virtual void SetAnalyser(KVDataAnalyser* da){ fAnalyser = da; };
 	
-	virtual TString BQS_Request(KVString value,KVString jobname=""){
+	virtual TString BQS_Request(KVString /*value*/,KVString /*jobname*/ = ""){
 		
 		Warning("BQS_Request","Only define for KV_CCIN2P3_BQS sub class");
 		return "";

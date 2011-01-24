@@ -278,7 +278,7 @@ void KVBatchSystem::ChangeDefJobOpt(KVDataAnalyser* da)
          GetName(), da->GetAnalysisTask()->GetName()), "" );
    if( tmp.Length() ){
       Info("ChangeDefJobOpt", "Changing default batch options for task %s.", da->GetAnalysisTask()->GetName());
-      Info("ChangeDefJobOpt", "Batch job options for this job are : ", tmp.Data());
+      Info("ChangeDefJobOpt", "Batch job options for this job are : %s", tmp.Data());
       SetDefaultJobOptions( tmp.Data() );
    }
 	else
