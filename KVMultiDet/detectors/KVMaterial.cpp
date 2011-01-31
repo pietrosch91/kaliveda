@@ -77,6 +77,7 @@ void KVMaterial::init()
    fMoleWt = 0.;
    fTemp = 19.;
    fUnits = 10;
+   fState = "";
    fZmat = 0.;
    if (kDataFilePath == "") {
       //get full path to range tables file from env vars (i.e. .kvrootrc)
@@ -131,13 +132,12 @@ KVList *KVMaterial::GetListOfMaterials()
 
    KVList *tmp = new KVList();
 
-   Char_t name[25], gtype[25];
+   Char_t name[25], gtype[25],state[10];
    Float_t Amat = 0.;
    Float_t Dens = 0.;
    Float_t GasThick = 0.;
    Float_t MoleWt = 0.;
    Float_t Temp = 19.;
-   UInt_t Units = 10;
    Float_t Zmat = 0.;
 
    if (kDataFilePath == "") {
@@ -162,10 +162,10 @@ KVList *KVMaterial::GetListOfMaterials()
 
          case '+':             // header lines
 
-            if (sscanf(line, "+ %s %s %u %f %f %f %f %f %f",
-                       gtype, name, &Units, &Dens, &Zmat, &Amat,
-                       &GasThick, &MoleWt, &Temp)
-                != 9) {
+            if (sscanf(line, "+ %s %s %s %f %f %f %f %f",
+                       gtype, name, state, &Dens, &Zmat, &Amat,
+                       &MoleWt, &Temp)
+                != 8) {
                cout << "KVMaterial::GetMaterialsList> : ";
                printf(KVMATERIAL_INIT_FILE_HEADER_PROBLEM, kDataFilePath.Data());
                cout << endl;
@@ -191,7 +191,7 @@ void KVMaterial::SetMaterial(const Char_t * mat_type)
    //For materials which are elements of the periodic table you can specify
    //the isotope such as "64Ni", "13C", "natSn", etc. etc.
 
-   Char_t name[25], gtype[25];
+   Char_t name[25], gtype[25], state[10];
    init();
    FILE *fp;
    //are we dealing with an isotope ?
@@ -217,16 +217,17 @@ void KVMaterial::SetMaterial(const Char_t * mat_type)
 
          case '+':             // header lines
 
-            if (sscanf(line, "+ %s %s %u %lf %lf %lf %lf %lf %lf",
-                       gtype, name, &fUnits, &fDens, &fZmat, &fAmat,
-                       &fGasThick, &fMoleWt, &fTemp)
-                != 9) {
+            if (sscanf(line, "+ %s %s %s %lf %lf %lf %lf %lf",
+                       gtype, name, state, &fDens, &fZmat, &fAmat,
+                       &fMoleWt, &fTemp)
+                != 8) {
                Error("SetMaterial", KVMATERIAL_INIT_FILE_HEADER_PROBLEM,
                      kDataFilePath.Data());
                goto bad_exit;
             }
             SetName(name);
             SetType(gtype);
+            SetState(state);
             if (!strcmp(GetType(), type)) {     // is this what you're looking for ?
                //look for energy limits to calculation validity
                if (!fgets(line, 132, fp)) {
@@ -371,10 +372,10 @@ Double_t KVMaterial::GetDensity() const
 
    if (GetActiveLayer())
       return GetActiveLayer()->GetDensity();
-   if (fUnits == kTORR)
-      return (fMoleWt * fThick) / ((fTemp + ZERO_KELVIN) * RTT);
-   if (fUnits == kMBAR)
-      return (fMoleWt * fThick * 0.75) / ((fTemp + ZERO_KELVIN) * RTT);
+   if(fState=="gas"){
+        if (fUnits == kTORR) return (fMoleWt * fThick) / ((fTemp + ZERO_KELVIN) * RTT);
+        if (fUnits == kMBAR) return (fMoleWt * fThick * 0.75) / ((fTemp + ZERO_KELVIN) * RTT);
+   }
    return fDens;
 }
 

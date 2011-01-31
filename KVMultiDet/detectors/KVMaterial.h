@@ -99,6 +99,7 @@ class KVMaterial:public KVBase {
    Float_t fThick;              //thickness of absorber
    Double_t fELoss;             //total of energy lost by all particles traversing absorber
    static Char_t kUnits[5][10]; //!strings for names of units for thickness
+   TString fState;// state of material = "solid", "liquid", "gas"
       
  public:
    KVMaterial();
@@ -186,7 +187,7 @@ class KVMaterial:public KVBase {
 	
 	virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/="");
    
-   ClassDef(KVMaterial, 5)      //Interface to VEDALOSS description of slowing-down of ions in absorbers
+   ClassDef(KVMaterial, 6)      //Interface to VEDALOSS description of slowing-down of ions in absorbers
 };
 
 #endif
