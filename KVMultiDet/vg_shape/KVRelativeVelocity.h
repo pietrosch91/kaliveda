@@ -18,10 +18,11 @@ class KVRelativeVelocity:public KVVarGlobMean
 	public:
 
 // Protected fields (if any):
-        protected:
+	protected:
 
 // Methods
 	protected:
+	TList * heaviest;           //list of pointers to nuclei
 	void init_KVRelativeVelocity(void);
 
 	public:
@@ -39,7 +40,11 @@ class KVRelativeVelocity:public KVVarGlobMean
 
 	KVRelativeVelocity& operator = (const KVRelativeVelocity &a); // operator =
 	
-	virtual void Fill2(KVNucleus *ci,KVNucleus *cj);  	// Filling method
+	//virtual void Fill2(KVNucleus *ci,KVNucleus *cj);  	// Filling method
+	virtual void Fill(KVNucleus * c);    // Remplissage de la variable.
+   virtual void Reset(void);    // Remise a zero de la charge et du
+   // pointeur.
+   virtual void Init(void);     // Remise a zero de la charge et du
 		
    ClassDef(KVRelativeVelocity,1)//calculate for a given a couple of particles the magnitude of relative velocity
 	
