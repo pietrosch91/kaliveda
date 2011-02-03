@@ -250,4 +250,6 @@
 #pragma link C++ class SRBFile_t+;
 #pragma link C++ class SRBDataRepository+;
 #pragma link C++ class SRBAvailableRunsFile+;
+#pragma link C++ class KVedaLossMaterial+;
+#pragma link C++ class KVedaLoss+;
 #endif

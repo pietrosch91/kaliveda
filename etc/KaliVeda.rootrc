@@ -691,8 +691,8 @@ INDRA_camp5.KVMultiDetArray.DetectorThicknesses:	EtalonThicknessCamp5.dat
 # Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
 KVSilicon.ZminForPHDCorrection:        10
 
-# File containing range tables for calculation of energy losses in KVMaterial
-KVMaterial.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# File containing range tables for calculation of energy losses in KVedaLoss
+KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
 
 # Mass tables used by KVNucleus
 KVNucleus.MassTable:      PACE2MassTable

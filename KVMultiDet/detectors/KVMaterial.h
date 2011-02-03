@@ -40,8 +40,6 @@ $Id: KVMaterial.h,v 1.31 2008/12/17 13:01:26 franklan Exp $
 #define ZERO_KELVIN	273.15
 #define PERC				0.02
 
-// maximum atomic number included in range tables
-#define ZMAX_VEDALOSS 100
 
 class KVNucleus;
 class KVTelescope;
@@ -84,22 +82,10 @@ class KVMaterial:public KVBase {
    };
 
  private:
-   Double_t fAmat;              //atomic mass of material
-   Double_t fZmat;              //atomic number of material
-   Double_t fDens;              //density of material
    UInt_t fUnits;               //used to determine how to calculate effective thickness
-   Double_t fGasThick;          //only used for gases
-   Double_t fMoleWt;            //only used for gases
-   Double_t fTemp;              //only used for gases
-   Double_t fCoeff[ZMAX_VEDALOSS][15];  //[ZMAX_VEDALOSS][15] parameters for range tables
-   Float_t fAmasr;              //isotopic mass for material; if not set will use default value
-   static TString kDataFilePath;        //! full path to file containing energy loss parameters
-   Float_t fEmax[ZMAX_VEDALOSS];        //[ZMAX_VEDALOSS] Z-dependent maximum energy/nucleon for calculation to be valid
-   Float_t fEmin[ZMAX_VEDALOSS];        //[ZMAX_VEDALOSS] Z-dependent minimum energy/nucleon for calculation to be valid
    Float_t fThick;              //thickness of absorber
    Double_t fELoss;             //total of energy lost by all particles traversing absorber
    static Char_t kUnits[5][10]; //!strings for names of units for thickness
-   TString fState;// state of material = "solid", "liquid", "gas"
       
  public:
    KVMaterial();
