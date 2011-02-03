@@ -6,6 +6,30 @@
 
 #include "KVBase.h"
 
+namespace Units
+{
+   // UNITS
+   // Standard units are:
+   //   [L]   cm
+   //   [M]  g
+   //   [P]   torr
+   // lengths
+   Double_t cm = 1.0;
+   Double_t um = 1.e-4;
+   Double_t mm = 1.e-1;
+   Double_t m = 1.e+2;
+   //  weights
+   Double_t g = 1.0;
+   Double_t kg = 1.e+3;
+   Double_t mg = 1.e-3;
+   Double_t ug = 1.e-6;
+   // pressures
+   Double_t torr = 1.0;
+   Double_t mbar = 0.75;
+   Double_t atm = 760.;
+};
+   
+
 class KVIonRangeTable : public KVBase
 {
 

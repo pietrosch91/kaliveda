@@ -3,6 +3,7 @@
 
 #include "KVedaLossMaterial.h"
 #include <TMath.h>
+#include "KVIonRangeTable.h"
 //#define RTT				623.61040
 #define RTT  62.36367e+03  // cm^3.Torr.K^-1.mol^-1
 #define ZERO_KELVIN	273.15
@@ -108,9 +109,13 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
                }
 
    fRange = new TF1( Form("KVedaLossMaterial:%s:Range",GetType()), this, &KVedaLossMaterial::RangeFunc,
-         0., 1.e+04, 3, "KVedaLossMaterial", "RangeFunc");
+         0.1, 1.e+04, 3, "KVedaLossMaterial", "RangeFunc");
+    fRange->SetNpx(1000);
          
-               return kTRUE;
+   fDeltaE = new TF1( Form("KVedaLossMaterial:%s:EnergyLoss",GetType()), this, &KVedaLossMaterial::DeltaEFunc,
+         0.1, 1.e+04, 4, "KVedaLossMaterial", "DeltaEFunc");
+    fDeltaE->SetNpx(1000);
+     return kTRUE;
 }
 
 Double_t KVedaLossMaterial::CalculateGasDensity(Double_t T, Double_t P) const
@@ -129,11 +134,33 @@ void KVedaLossMaterial::ls(Option_t*) const
    else printf(" Density = %f g/cm**3\n\n", GetDensity());
 }
 
+Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t* Mypar)
+{
+   // Function parameterising the energy loss of charged particles in this material.
+   // The incident energy E[0] is given in MeV.
+   // The energy loss is calculated in MeV.
+   //
+   //Parameters:
+   //  Mypar[0]  = thickness of material in g/cm**2
+   //  Mypar[1]  = Z of charged particle
+   //  Mypar[2]  = A of charged particle
+   //  Mypar[3]  = isotope of material element (0 if material is not isotopically pure)
+   
+   // if range < thickness, particle stops: dE = E0
+   Double_t R0 = RangeFunc(E, &Mypar[1]);
+   if( R0 < Mypar[0] ) {  return E[0]; }
+   
+   // calculate energy loss - invert range function to find E corresponding to (R0 - thickness)
+   R0-=Mypar[0];
+   Double_t dE = E[0] - fRange->GetX(R0);
+   return dE;
+}
+
 Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t* Mypar)
 {
    // Function parameterising the range of charged particles in this material.
    // The energy E[0] is given in MeV.
-   // The range is calculated in units of centimetres.
+   // The range is calculated in units of g/cm**2
    //
    //Parameters:
    //  Mypar[0]  = Z of charged particle
@@ -177,10 +204,9 @@ Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t* Mypar)
    }
    ran += riso;
 
-   // range in mg/cm**2
-   Double_t range = TMath::Exp(ran);
-   // range in cm
-   return (range/(1000. * GetDensity()));
+   // range in g/cm**2
+   Double_t range = TMath::Exp(ran) * Units::mg/pow(Units::cm,2);
+   return range;
 }
 
 TF1* KVedaLossMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
@@ -191,5 +217,16 @@ TF1* KVedaLossMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
    
    fRange->SetParameters(Z, A, isoAmat);
    return fRange;
+}
+
+TF1* KVedaLossMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat)
+{
+   // Return function giving energy loss (in MeV) as a function of incident energy (in MeV) for
+   // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
+   // If required, the isotopic mass of the material can be given.
+   
+   fRange->SetParameters(Z, A, isoAmat);
+   fDeltaE->SetParameters(e, Z, A, isoAmat);
+   return fDeltaE;
 }
 

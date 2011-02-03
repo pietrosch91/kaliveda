@@ -24,11 +24,11 @@ class KVedaLossMaterial : public KVBase
    Double_t fEmin[ZMAX_VEDALOSS];        //[ZMAX_VEDALOSS] Z-dependent minimum energy/nucleon for calculation to be valid
    Double_t fCoeff[ZMAX_VEDALOSS][14];  //[ZMAX_VEDALOSS][14] parameters for range tables
 
-   //TF1* fDeltaE; // function parameterising energy loss in material
+   TF1* fDeltaE; // function parameterising energy loss in material
    //TF1* fEres; // function parameterising residual energy after crossing material
    TF1* fRange; // function parameterising range of charged particles in material
    
-   //Double_t DeltaEFunc(Double_t*,Double_t*);
+   Double_t DeltaEFunc(Double_t*,Double_t*);
    //Double_t EResFunc(Double_t*, Double_t*);
    Double_t RangeFunc(Double_t*, Double_t*);
    
@@ -71,7 +71,8 @@ class KVedaLossMaterial : public KVBase
    void ls(Option_t* = "") const;
    
    TF1* GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat = 0);
-   
+ TF1* GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat=0);
+  
    ClassDef(KVedaLossMaterial,1)//Description of material properties used by KVedaLoss range calculation
 };
 
