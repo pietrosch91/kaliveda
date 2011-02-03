@@ -2,6 +2,10 @@
 //Author: frankland,,,,
 
 #include "KVedaLossMaterial.h"
+#include <TMath.h>
+//#define RTT				623.61040
+#define RTT  62.36367e+03  // cm^3.Torr.K^-1.mol^-1
+#define ZERO_KELVIN	273.15
 
 ClassImp(KVedaLossMaterial)
 
@@ -15,23 +19,36 @@ ClassImp(KVedaLossMaterial)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVedaLossMaterial::KVedaLossMaterial()
+      : fState("unknown"),
+        fDens(0.),
+        fZmat(0),
+        fAmat(0),
+        fMoleWt(0),
+        fRange(0)
 {
    // Default constructor
+   for (int i = 0; i < 100; i++) {
+      fEmin[i] = 0.0;
+      fEmax[i] = 500.0;
+   }
 }
 
 KVedaLossMaterial::KVedaLossMaterial(const Char_t* name, const Char_t* type, const Char_t* state,
-      Double_t density, Double_t Z, Double_t A, Double_t MoleWt, Double_t temperature)
+      Double_t density, Double_t Z, Double_t A, Double_t MoleWt)
       : fState(state),
         fDens(density),
         fZmat(Z),
         fAmat(A),
         fMoleWt(MoleWt),
-        fTemp(temperature),
-        fAmasr(0)
+        fRange(0)
 {
    // create new material
    SetName(name);
    SetType(type);
+   for (int i = 0; i < 100; i++) {
+      fEmin[i] = 0.0;
+      fEmax[i] = 500.0;
+   }
 }
 
 KVedaLossMaterial::~KVedaLossMaterial()
@@ -39,7 +56,7 @@ KVedaLossMaterial::~KVedaLossMaterial()
    // Destructor
 }
 
-void KVedaLossMaterial::ReadRangeTable(FILE* fp)
+Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
 {
    // Read Z-dependent range parameters for material
    char line[132];
@@ -48,14 +65,18 @@ void KVedaLossMaterial::ReadRangeTable(FILE* fp)
                if (!fgets(line, 132, fp)) {
                   Warning("ReadRangeTable", "Problem reading energy limits in range table file for %s (%s)",
                      GetName(), GetType());
-                  return;
+                  return kFALSE;
                } else {
                   while (line[0] == 'Z') {
                      Int_t z1, z2;
                      Float_t e1, e2;
                      sscanf(line, "Z = %d,%d     %f < E/A  <  %f MeV", &z1,
                             &z2, &e1, &e2);
-                     fgets(line, 132, fp);
+                     char* tmp; tmp = fgets(line, 132, fp);
+                     for (int i = z1; i <= z2; i++) {
+                        fEmin[i - 1] = e1;
+                        fEmax[i - 1] = e2;
+                     }
                   }
                }
 
@@ -68,11 +89,11 @@ void KVedaLossMaterial::ReadRangeTable(FILE* fp)
                              &fCoeff[count][6], &fCoeff[count][7])
                       != 8) {
                      Error("ReadRangeTable", "problem reading coeffs 0-7 in range table for %s (%s)", GetName(), GetType());
-                     return;
+                     return kFALSE;
                   }
                   if (!fgets(line, 132, fp)) {
                      Warning("ReadRangeTable","file too short ??? %s (%s)", GetName(), GetType());
-                     return;
+                     return kFALSE;
                   } else {
                      if (sscanf(line, "%lf %lf %lf %lf %lf %lf",
                                 &fCoeff[count][8], &fCoeff[count][9],
@@ -80,10 +101,95 @@ void KVedaLossMaterial::ReadRangeTable(FILE* fp)
                                 &fCoeff[count][12], &fCoeff[count][13])
                          != 6) {
                         Error("ReadRangeTable","problem reading coeffs 8-13 in range table for %s (%s)", GetName(), GetType());
-                        goto bad_exit;
+                        return kFALSE;
                      }
                   }
-                  fgets(line, 132, fp);
+                  char* tmp; tmp = fgets(line, 132, fp);
                }
+
+   fRange = new TF1( Form("KVedaLossMaterial:%s:Range",GetType()), this, &KVedaLossMaterial::RangeFunc,
+         0., 1.e+04, 3, "KVedaLossMaterial", "RangeFunc");
+         
+               return kTRUE;
+}
+
+Double_t KVedaLossMaterial::CalculateGasDensity(Double_t T, Double_t P) const
+{
+   // for a gaseous material, calculate density in g/cm**3 according to given
+   // conditions of temperature (T, in degrees celsius) and pressure (P, in Torr)
+   
+   return (fMoleWt * P) / ((T + ZERO_KELVIN) * RTT);
+}
+
+void KVedaLossMaterial::ls(Option_t*) const
+{
+   printf("KVedaLossMaterial::%s     Material type : %s    State : %s\n", GetName(), GetType(), fState.Data());
+   printf("\tZ=%f  A=%f  ", fZmat, fAmat);
+   if(IsGas()) printf(" Mole Weight = %f g.    Density at S.T.P. = %f g/cm**3\n\n", fMoleWt, CalculateGasDensity(19., 760.));
+   else printf(" Density = %f g/cm**3\n\n", GetDensity());
+}
+
+Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t* Mypar)
+{
+   // Function parameterising the range of charged particles in this material.
+   // The energy E[0] is given in MeV.
+   // The range is calculated in units of centimetres.
+   //
+   //Parameters:
+   //  Mypar[0]  = Z of charged particle
+   //  Mypar[1]  = A of charged particle
+   //  Mypar[2]  = isotope of material element (0 if material is not isotopically pure)
+
+   Int_t Z = (Int_t )Mypar[0];
+   Double_t A = Mypar[1];
+   // get parameters for this Z
+   Double_t *par = fCoeff[Z - 1];
+   
+   // set up polynomial
+   Double_t x1 = TMath::Log(0.1);
+   Double_t x2 = TMath::Log(0.2);
+   Double_t ran = 0.0;
+   for (register int j = 2; j < 7; j++)
+      ran += par[j + 1] * TMath::Power(x2, (Double_t) (j - 1));
+   ran += par[2];
+   Double_t y2 = ran;
+   ran = 0.0;
+   for (register int jj = 2; jj < 7; jj++)
+      ran += par[jj + 1] * TMath::Power(x1, (Double_t) (jj - 1));
+   ran += par[2];
+   Double_t y1 = ran;
+   Double_t adm = (y2 - y1) / (x2 - x1);
+   Double_t adn = (y1 - adm * x1);
+   // calculate energy loss
+   Double_t eps = E[0] / A;       //energy in MeV/nucleon
+   Double_t dleps = TMath::Log(eps);
+   Double_t MatIsoR = 0.;
+   if(Mypar[2] > 0.0) MatIsoR = TMath::Log(Mypar[2] / fAmat);
+   Double_t riso = TMath::Log(A / par[1]) + MatIsoR;
+
+   if (eps < 0.1)
+      ran = adm * dleps + adn;
+   else {
+      ran = 0.0;
+      for (register int j = 2; j < 7; j++)
+         ran += par[j + 1] * TMath::Power(dleps, (Double_t) (j - 1));
+      ran += par[2];
+   }
+   ran += riso;
+
+   // range in mg/cm**2
+   Double_t range = TMath::Exp(ran);
+   // range in cm
+   return (range/(1000. * GetDensity()));
+}
+
+TF1* KVedaLossMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
+{
+   // Return function giving range (in centimetres) as a function of energy (in MeV) for
+   // charged particles (Z,A) in this material.
+   // If required, the isotopic mass of the material can be given.
+   
+   fRange->SetParameters(Z, A, isoAmat);
+   return fRange;
 }
 

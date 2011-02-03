@@ -56,7 +56,6 @@ ClassImp(KVMaterial);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-TString KVMaterial::kDataFilePath = "";
 Char_t KVMaterial::kUnits[][10] = {
    "mbar",
    "microns",
@@ -65,34 +64,29 @@ Char_t KVMaterial::kUnits[][10] = {
    "Torr"
 };
 
+KVIonRangeTable* KVMaterial::fIonRangeTable = 0x0;
+
 //___________________________________________________________________________________
 void KVMaterial::init()
 {
-   //Default initialisations.
-   //No properties are set for the material.
-   fAmasr = 0.;
-   fAmat = 0.;
-   fDens = 0.;
-   fGasThick = 0.;
-   fMoleWt = 0.;
-   fTemp = 19.;
-   fUnits = 10;
-   fState = "";
-   fZmat = 0.;
-   if (kDataFilePath == "") {
-      //get full path to range tables file from env vars (i.e. .kvrootrc)
-      kDataFilePath = gEnv->GetValue("KVMaterial.RangeTables", "");
-      gSystem->ExpandPathName( kDataFilePath );
-   }
-   for (int i = 0; i < 100; i++) {
-      fEmin[i] = 0.0;
-      fEmax[i] = 500.0;
-   }
+   // Default initialisations.
+   // No properties are set for the material (except default gas temperature: 19°C)
+   // Default range table is generated if not already done.
+   // By default it is the VEDALOSS table implemented in KVedaLoss.
+   // You can change this by changing the value of environment variable KVMaterial.IonRangeTable.
+   
    fELoss = 0;
    SetName("");
    SetTitle("");
    ELoss = ERes = 0;
    fNormToMat.SetXYZ(0,0,1);
+   fAmasr = 0;
+   fPressure = 0;
+   fTemp = 19.0;
+   // create default range table singleton if not already done
+   if(!fIonRangeTable) {
+      fIonRangeTable = KVIonRangeTable::GetRangeTable( gEnv->GetValue("KVMaterial.IonRangeTable", "VEDALOSS") );
+   }
 }
 
 //
@@ -103,7 +97,7 @@ KVMaterial::KVMaterial()
 }
 
 //__________________________________________________________________________________
-KVMaterial::KVMaterial(const Char_t * type, const Float_t thick)
+KVMaterial::KVMaterial(const Char_t * type, const Double_t thick)
 {
    //Initialise absorber with given type of material and thickness (default = 0.0)
    init();
@@ -124,76 +118,14 @@ KVMaterial::KVMaterial(const KVMaterial & obj)
 }
 
 //___________________________________________________________________________________
-KVList *KVMaterial::GetListOfMaterials()
-{
-   //Creates and fills a list with all the materials currently described in the
-   //$KVROOT/KVFiles/kvloss.data parameters file.
-   //To avoid memory leakage, delete the list after use !!
-
-   KVList *tmp = new KVList();
-
-   Char_t name[25], gtype[25],state[10];
-   Float_t Amat = 0.;
-   Float_t Dens = 0.;
-   Float_t GasThick = 0.;
-   Float_t MoleWt = 0.;
-   Float_t Temp = 19.;
-   Float_t Zmat = 0.;
-
-   if (kDataFilePath == "") {
-      //get full path to range tables file from env vars (i.e. .kvrootrc)
-      kDataFilePath = gEnv->GetValue("KVMaterial.RangeTables", "");
-      gSystem->ExpandPathName( kDataFilePath );
-   }
-   
-   FILE *fp;
-   if (!(fp = fopen(kDataFilePath.Data(), "r"))) {
-      printf("KVMaterial::GetMaterialsList : ");
-      printf(KVMATERIAL_INIT_FILE_NOT_FOUND, kDataFilePath.Data());
-      return 0;
-   } else {
-      char line[132];
-      while (fgets(line, 132, fp)) {    // read lines from file
-
-         switch (line[0]) {
-
-         case '/':             // ignore comment lines
-            break;
-
-         case '+':             // header lines
-
-            if (sscanf(line, "+ %s %s %s %f %f %f %f %f",
-                       gtype, name, state, &Dens, &Zmat, &Amat,
-                       &MoleWt, &Temp)
-                != 8) {
-               cout << "KVMaterial::GetMaterialsList> : ";
-               printf(KVMATERIAL_INIT_FILE_HEADER_PROBLEM, kDataFilePath.Data());
-               cout << endl;
-               fclose(fp);
-               return 0;
-            }
-//found a new material
-            KVMaterial *tmp_mat = new KVMaterial(gtype);
-            tmp->Add(tmp_mat);
-            break;
-         }
-      }
-      fclose(fp);
-   }
-   return tmp;
-}
-
-//___________________________________________________________________________________
 void KVMaterial::SetMaterial(const Char_t * mat_type)
 {
    //Intialise material of a given type.
-   //The known types are defined by the contents of file $KVROOT/kvloss.data.
+   //The material must exist in the currently used range tables (fIonRangeTable).
    //For materials which are elements of the periodic table you can specify
    //the isotope such as "64Ni", "13C", "natSn", etc. etc.
 
-   Char_t name[25], gtype[25], state[10];
    init();
-   FILE *fp;
    //are we dealing with an isotope ?
    Char_t type[10];
    Int_t iso_mass = 0;
@@ -202,117 +134,29 @@ void KVMaterial::SetMaterial(const Char_t * mat_type)
          strcpy(type, mat_type);
       }
    }
-
-   if (!(fp = fopen(kDataFilePath.Data(), "r"))) {
-      Error("SetMaterial", KVMATERIAL_INIT_FILE_NOT_FOUND,
-            kDataFilePath.Data());
-   } else {
-      char line[132];
-      while (fgets(line, 132, fp)) {    // read lines from file
-
-         switch (line[0]) {
-
-         case '/':             // ignore comment lines
-            break;
-
-         case '+':             // header lines
-
-            if (sscanf(line, "+ %s %s %s %lf %lf %lf %lf %lf",
-                       gtype, name, state, &fDens, &fZmat, &fAmat,
-                       &fMoleWt, &fTemp)
-                != 8) {
-               Error("SetMaterial", KVMATERIAL_INIT_FILE_HEADER_PROBLEM,
-                     kDataFilePath.Data());
-               goto bad_exit;
-            }
-            SetName(name);
-            SetType(gtype);
-            SetState(state);
-            if (!strcmp(GetType(), type)) {     // is this what you're looking for ?
-               //look for energy limits to calculation validity
-               if (!fgets(line, 132, fp)) {
-                  Warning("SetMaterial", KVMATERIAL_INIT_FILE_DATA_PROBLEM,
-                          kDataFilePath.Data());
-                  goto bad_exit;
-               } else {
-                  while (line[0] == 'Z') {
-                     Int_t z1, z2;
-                     Float_t e1, e2;
-                     sscanf(line, "Z = %d,%d     %f < E/A  <  %f MeV", &z1,
-                            &z2, &e1, &e2);
-                     for (int i = z1; i <= z2; i++) {
-                        fEmin[i - 1] = e1;
-                        fEmax[i - 1] = e2;
-                     }
-                     fgets(line, 132, fp);
-                  }
-               }
-
-               for (register int count = 0; count < 100; count++) {
-
-                  if (sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
-                             &fCoeff[count][0], &fCoeff[count][1],
-                             &fCoeff[count][2], &fCoeff[count][3],
-                             &fCoeff[count][4], &fCoeff[count][5],
-                             &fCoeff[count][6], &fCoeff[count][7])
-                      != 8) {
-                     Error("SetMaterial",
-                           KVMATERIAL_INIT_FILE_COEFF_PROBLEM, kDataFilePath.Data(),
-                           type);
-                     goto bad_exit;
-                  }
-                  if (!fgets(line, 132, fp)) {
-                     Warning("SetMaterial",
-                             KVMATERIAL_INIT_FILE_DATA_PROBLEM,
-                             kDataFilePath.Data());
-                     goto bad_exit;
-                  } else {
-                     if (sscanf(line, "%lf %lf %lf %lf %lf %lf",
-                                &fCoeff[count][8], &fCoeff[count][9],
-                                &fCoeff[count][10], &fCoeff[count][11],
-                                &fCoeff[count][12], &fCoeff[count][13])
-                         != 6) {
-                        Error("SetMaterial",
-                              KVMATERIAL_INIT_FILE_COEFF_PROBLEM,
-                              kDataFilePath.Data(), type);
-                        goto bad_exit;
-                     }
-                  }
-                  fgets(line, 132, fp);
-               }
-               goto normal_exit;        // i apologise for the use of "g**o"
-            }
-            break;
-         }
-      }
-// only come here if nothing has been found
-      Warning("SetMaterial", KVMATERIAL_TYPE_NOT_FOUND, type, kDataFilePath.Data());
-      init();                   //no properties are set
-      return;
-    bad_exit:
-      Fatal("SetMaterial", "Programme execution impossible");
-    normal_exit:
-      fclose(fp);
-      //set isotope in case call was made with "64Ni" or "48Ca" etc.
-      if (iso_mass)
-         SetMass(iso_mass);
-   }
+   if(iso_mass) SetMass( iso_mass );
+   SetType(type);
+   if(!fIonRangeTable->IsMaterialKnown(type))
+      Warning("SetMaterial", 
+      "Called for material %s which is unknown in current range table %s. Energy loss & range calculations impossible.",
+      type, fIonRangeTable->GetName());
+   else {
+      SetType( fIonRangeTable->GetMaterialName(type) );
+      SetName(mat_type);
+    }
 }
 
 //___________________________________________________________________________________
 KVMaterial::~KVMaterial()
 {
    //Destructor
-   //The TF1 objects "ELoss" and "ERes" are not to be deleted as they can be
-   //used by other KVMaterial objects (they are retrieved from gROOT->GetListOfFunctions())
-   //and cannot cause a memory leak as they are only ever created if not found in
-   //the gROOT list of functions.
 }
 
-void KVMaterial::SetMass(Float_t a)
+void KVMaterial::SetMass(Double_t a)
 {
-//Set the atomic mass of the material - use if you want to change the default naturally
-//occuring mass for some rarer isotope.
+   //Set the atomic mass of the material - use if you want to change the default naturally
+   //occuring mass for some rarer isotope.
+   
    if (GetActiveLayer()) {
       GetActiveLayer()->SetMass(a);
       return;
@@ -324,9 +168,10 @@ void KVMaterial::SetMass(Float_t a)
 Double_t KVMaterial::GetMass() const
 {
    //Returns atomic mass of material. Will be isotopic mass if set.
+   
    if (GetActiveLayer())
       return GetActiveLayer()->GetMass();
-   return (fAmasr ? fAmasr : fAmat);
+   return (fAmasr ? fAmasr : fIonRangeTable->GetAtomicMass(GetType()));
 }
 
 //___________________________________________________________________________________
@@ -359,60 +204,56 @@ Double_t KVMaterial::GetZ() const
    //Returns atomic number of material.
    if (GetActiveLayer())
       return GetActiveLayer()->GetZ();
-   return fZmat;
+   return fIonRangeTable->GetZ(GetType());
 }
 
 //___________________________________________________________________________________
+
 Double_t KVMaterial::GetDensity() const
 {
-   //Returns density of material.
-   //For solids, the units are g/cm**3.
-   //For a gas, density is calculated from molecular weight, pressure
-   //and temperature according to ideal gas law
+   //Returns density of material in g/cm**3.
+   //For a gas, density is calculated from current pressure & temperature according to ideal gas law
 
    if (GetActiveLayer())
       return GetActiveLayer()->GetDensity();
-   if(fState=="gas"){
-        if (fUnits == kTORR) return (fMoleWt * fThick) / ((fTemp + ZERO_KELVIN) * RTT);
-        if (fUnits == kMBAR) return (fMoleWt * fThick * 0.75) / ((fTemp + ZERO_KELVIN) * RTT);
+   if(fIonRangeTable->IsMaterialGas(GetType())){
+      Double_t P = fPressure;
+      if(fUnits == kMBAR) P*=0.750061683; // convert to Torr
+      return fIonRangeTable->GetGasDensity(GetType(), fTemp, fPressure);
    }
-   return fDens;
+   return fIonRangeTable->GetDensity(GetType());
 }
 
-void KVMaterial::SetPressure(Float_t t)
+//___________________________________________________________________________________
+
+void KVMaterial::SetPressure(Double_t p)
 {
-   //Set the pressure of a gas.
-   //If the material is not a gas, this has no effect.
-   //The units depend on fUnits
+   // Set the pressure of a gaseous material.
 
    if (GetActiveLayer()) {
-      GetActiveLayer()->SetPressure(t);
+      GetActiveLayer()->SetPressure(p);
       return;
    }
-
-   if (fUnits == kMBAR || fUnits == kTORR)
-      fThick = t;
+   fPressure = p;
 }
 
 
 //___________________________________________________________________________________
 
-Float_t KVMaterial::GetPressure() const
+Double_t KVMaterial::GetPressure() const
 {
-   //Returns the pressure of a gas.
+   // Returns the pressure of a gas.
    //If the material is not a gas, value is zero.
    //The units depend on fUnits
 
    if (GetActiveLayer())
       return GetActiveLayer()->GetPressure();
-   if (fUnits == kMBAR || fUnits == kTORR)
-      return fThick;
-   return 0.0;
+   return fPressure;
 }
 
 //___________________________________________________________________________________
 
-void KVMaterial::SetTemperature(Float_t t)
+void KVMaterial::SetTemperature(Double_t t)
 {
    //Set temperature of material.
    //The units are: degrees celsius
@@ -428,7 +269,7 @@ void KVMaterial::SetTemperature(Float_t t)
 
 //___________________________________________________________________________________
 
-Float_t KVMaterial::GetTemperature() const
+Double_t KVMaterial::GetTemperature() const
 {
    //Returns temperature of material.
    //The units are: degrees celsius
@@ -473,7 +314,7 @@ UInt_t KVMaterial::GetUnits() const
 
 //___________________________________________________________________________________
 
-void KVMaterial::SetThickness(Float_t t)
+void KVMaterial::SetThickness(Double_t t)
 {
    //Set the thickness of the material.
    //
@@ -488,16 +329,12 @@ void KVMaterial::SetThickness(Float_t t)
       GetActiveLayer()->SetThickness(t);
       return;
    }
-
-   if (fUnits == kMBAR || fUnits == kTORR)
-      fGasThick = t;            //thickness of gas cell in cm
-   else
-      fThick = t;
+   fThick = t;
 }
 
 //___________________________________________________________________________________
 
-Float_t KVMaterial::GetThickness() const
+Double_t KVMaterial::GetThickness() const
 {
    //Returns the "thickness" of the material - units depend on the material type
    //For a gas it is the depth of the gas cell in millimetres.
@@ -508,8 +345,6 @@ Float_t KVMaterial::GetThickness() const
 	
    if (GetActiveLayer())
       return GetActiveLayer()->GetThickness();
-   if (fUnits == kMBAR || fUnits == kTORR)
-      return fGasThick;
    return fThick;
 }
 
@@ -521,14 +356,13 @@ Double_t KVMaterial::GetThicknessInCM() const
 	
    if (GetActiveLayer())
       return GetActiveLayer()->GetThicknessInCM();
-	Double_t t = (Double_t)fGasThick;
+	Double_t t = (Double_t)fThick;
    if (fUnits == kMBAR || fUnits == kTORR)
       return (t/10.);
-	t = (Double_t)fThick;
 	if(fUnits == kMICRONS)
 		return (t/10000.);
 	else if(fUnits == kMGCM2)
-		return (t/fDens);
+		return (t/fIonRangeTable->GetDensity(GetType()));
    return fThick;
 }
 
@@ -562,11 +396,6 @@ void KVMaterial::Print(Option_t * option) const
    cout << "-----------------------------------------------" << endl;
    cout << " Z = " << GetZ() << " atomic mass = " << GetMass() << endl;
    cout << " Density = " << GetDensity() << endl;
-   cout << " Validity of calculation:" << endl;
-   cout << "  Z = 1,2 -- " << GetEminVedaloss(1) << " AMeV < E < " <<
-       GetEmaxVedaloss(1) << " AMeV" << endl;
-   cout << "  Z >= 3  -- " << GetEminVedaloss(3) << " AMeV < E < " <<
-       GetEmaxVedaloss(3) << " AMeV" << endl;
    cout << "-----------------------------------------------" << endl;
 }
 
@@ -656,6 +485,8 @@ Double_t EResSaclay(Double_t * x, Double_t * par)
       depsx += par[8];
    }
 
+   const Double_t PERC = 0.02;
+   
    Double_t eps1 = depsx + TMath::Log(1 - PERC);
    Double_t eps2 = depsx + TMath::Log(1 + PERC);
    Double_t rap = TMath::Log((1 + PERC) / (1 - PERC));

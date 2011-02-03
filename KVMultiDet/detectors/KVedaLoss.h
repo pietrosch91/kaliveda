@@ -4,22 +4,39 @@
 #ifndef __KVEDALOSS_H
 #define __KVEDALOSS_H
 
-#include "KVBase.h"
+#include "KVIonRangeTable.h"
+#include "KVHashList.h"
 
-class KVedaLoss : public KVBase
+class KVedaLossMaterial;
+
+class KVedaLoss : public KVIonRangeTable
 {
-   static TList* fMaterials;// static list of all known materials
+   static KVHashList* fMaterials;// static list of all known materials
     
-   void init_materials();
+   Bool_t init_materials() const;
    Bool_t CheckMaterialsList() const
    {
-      if(!fMaterials) init_materials();
+      if(!fMaterials) return init_materials();
+      return kTRUE;
    };
    
    public:
    KVedaLoss();
    virtual ~KVedaLoss();
 
+   Bool_t IsMaterialKnown(const Char_t* material);
+   Bool_t IsMaterialGas(const Char_t* material);
+   
+   KVedaLossMaterial* GetMaterial(const Char_t* material);
+   const Char_t* GetMaterialName(const Char_t* material);
+
+   Double_t GetDensity(const Char_t* material);
+   Double_t GetGasDensity(const Char_t*material, Double_t temperature, Double_t pressure);
+   Double_t GetZ(const Char_t* material);
+   Double_t GetAtomicMass(const Char_t* material);
+   
+   void Print(Option_t* = "") const;
+   
    ClassDef(KVedaLoss,1)//C++ implementation of VEDALOSS stopping power calculation
 };
 

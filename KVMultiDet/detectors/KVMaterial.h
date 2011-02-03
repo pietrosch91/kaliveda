@@ -28,18 +28,7 @@ $Id: KVMaterial.h,v 1.31 2008/12/17 13:01:26 franklan Exp $
 #include "TF1.h"
 #include "TVector3.h"
 #include "Riostream.h"
-
-// warning messages
-#define KVMATERIAL_INIT_FILE_NOT_FOUND 	"Initialisation file %s not found. Cannot create detectors"
-#define KVMATERIAL_INIT_FILE_HEADER_PROBLEM 	"Problem reading initialisation file %s. Check format of header"
-#define KVMATERIAL_INIT_FILE_COEFF_PROBLEM 	"Problem reading initialisation file %s. Check format of coefficients for %s"
-#define KVMATERIAL_INIT_FILE_DATA_PROBLEM 	"Problem reading initialisation file %s. Check format of data"
-#define KVMATERIAL_TYPE_NOT_FOUND 	"Unknown material type %s. Check file %s for known types"
-
-#define RTT				623.61040
-#define ZERO_KELVIN	273.15
-#define PERC				0.02
-
+#include "KVIonRangeTable.h"
 
 class KVNucleus;
 class KVTelescope;
@@ -51,6 +40,8 @@ Double_t EResSaclay(Double_t * x, Double_t * par);
 class KVMaterial:public KVBase {
 
  protected:
+   static KVIonRangeTable* fIonRangeTable; //  pointer to class used to calculate charged particle ranges & energy losses
+   
    TF1 * ELoss;                 //!function calculating energy loss in material from incident energy
    TF1 *ERes;                   //!function calculating residual energy from incident energy
    TVector3 fNormToMat;//!dummy vector for calculating normal to absorber
@@ -82,40 +73,27 @@ class KVMaterial:public KVBase {
    };
 
  private:
+   Int_t fAmasr;                // isotopic mass of element
    UInt_t fUnits;               //used to determine how to calculate effective thickness
-   Float_t fThick;              //thickness of absorber
+   Double_t fThick;              // thickness of absorber
+   Double_t fPressure;        // pressure of gas, if this is a gas
+   Double_t fTemp;  // temperature of gas, if this is a gas
    Double_t fELoss;             //total of energy lost by all particles traversing absorber
    static Char_t kUnits[5][10]; //!strings for names of units for thickness
       
  public:
    KVMaterial();
-   KVMaterial(const Char_t * type, const Float_t thick = 0.0);
+   KVMaterial(const Char_t * type, const Double_t thick = 0.0);
    KVMaterial(const KVMaterial &);
    void init();
    virtual ~ KVMaterial();
-   static KVList *GetListOfMaterials();
-   void SetMass(Float_t a);
+   void SetMass(Double_t a);
    virtual void SetMaterial(const Char_t * type);
    Double_t GetMass() const;
    Double_t GetZ() const;
    Double_t GetDensity() const;
-   void SetDensity(Double_t d)
-	{
-		// Set density of material. Units are g/cm**3
-		fDens = d;
-	}
-   Float_t GetEmaxVedaloss(UInt_t Z) const {
-      if (GetActiveLayer())
-         return GetActiveLayer()->GetEmaxVedaloss(Z);
-      return ((Z <= ZMAX_VEDALOSS && Z > 0) ? fEmax[Z - 1] : 0.0);
-   };
-   Float_t GetEminVedaloss(UInt_t Z) const {
-      if (GetActiveLayer())
-         return GetActiveLayer()->GetEminVedaloss(Z);
-      return ((Z <= ZMAX_VEDALOSS && Z > 0) ? fEmin[Z - 1] : 0.0);
-   };
-   void SetThickness(Float_t thick);
-   Float_t GetThickness() const;
+   void SetThickness(Double_t thick);
+   Double_t GetThickness() const;
    Double_t GetThicknessInCM() const;
    Double_t GetEffectiveThickness(TVector3 & norm, TVector3 & direction);
 
@@ -156,11 +134,11 @@ class KVMaterial:public KVBase {
       return 0;
    };                           //to facilitate polymorphism with KVDetector class
 
-   virtual void SetPressure(Float_t);
-   virtual void SetTemperature(Float_t t);
+   virtual void SetPressure(Double_t);
+   virtual void SetTemperature(Double_t);
 
-   Float_t GetPressure() const;
-   Float_t GetTemperature() const;
+   Double_t GetPressure() const;
+   Double_t GetTemperature() const;
 
    Bool_t IsIsotopic() const;
    Bool_t IsNat() const;
@@ -173,7 +151,7 @@ class KVMaterial:public KVBase {
 	
 	virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/="");
    
-   ClassDef(KVMaterial, 6)      //Interface to VEDALOSS description of slowing-down of ions in absorbers
+   ClassDef(KVMaterial, 6)      // Class describing physical materials used to construct detectors & targets
 };
 
 #endif
