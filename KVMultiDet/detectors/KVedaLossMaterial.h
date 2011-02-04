@@ -14,6 +14,13 @@
 #define ZMAX_VEDALOSS 100
 
 class KVedaLossMaterial : public KVBase {
+private:
+   // internal variables common to RangeFunc and DeltaEFunc
+   Double_t riso;
+   Double_t arm;
+   Double_t adn;
+   Double_t adm;
+   
 protected:
    TString fState;               // state of material = "solid", "liquid", "gas", "unknown"
    Double_t fDens;              // density of material in g/cm**3
@@ -25,11 +32,11 @@ protected:
    Double_t fCoeff[ZMAX_VEDALOSS][14];  //[ZMAX_VEDALOSS][14] parameters for range tables
 
    TF1* fDeltaE; // function parameterising energy loss in material
-   //TF1* fEres; // function parameterising residual energy after crossing material
+   TF1* fEres; // function parameterising residual energy after crossing material
    TF1* fRange; // function parameterising range of charged particles in material
 
    Double_t DeltaEFunc(Double_t*, Double_t*);
-   //Double_t EResFunc(Double_t*, Double_t*);
+   Double_t EResFunc(Double_t*, Double_t*);
    Double_t RangeFunc(Double_t*, Double_t*);
 
 public:
@@ -65,9 +72,11 @@ public:
    };
 
    void ls(Option_t* = "") const;
+   void Print(Option_t* = "") const { ls(); };
 
    TF1* GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat = 0);
    TF1* GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
+   TF1* GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
 
    void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat = 0, Double_t units = Units::cm, Double_t T = -1, Double_t P = -1);
 

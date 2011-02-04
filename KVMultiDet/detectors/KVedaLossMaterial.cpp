@@ -112,9 +112,16 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
 
    fRange = new TF1(Form("KVedaLossMaterial:%s:Range", GetType()), this, &KVedaLossMaterial::RangeFunc,
                     0., 1.e+04, 3, "KVedaLossMaterial", "RangeFunc");
+                    fRange->SetNpx(100);
 
    fDeltaE = new TF1(Form("KVedaLossMaterial:%s:EnergyLoss", GetType()), this, &KVedaLossMaterial::DeltaEFunc,
                      0., 1.e+04, 4, "KVedaLossMaterial", "DeltaEFunc");
+                     fDeltaE->SetNpx(100);
+
+   fEres = new TF1(Form("KVedaLossMaterial:%s:ResidualEnergy", GetType()), this, &KVedaLossMaterial::EResFunc,
+                     0., 1.e+04, 4, "KVedaLossMaterial", "EResFunc");
+                     fEres->SetNpx(100);
+                     
    return kTRUE;
 }
 
@@ -138,8 +145,6 @@ Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t* Mypar)
    //  Mypar[1]  = Z of charged particle
    //  Mypar[2]  = A of charged particle
    //  Mypar[3]  = isotope of material element (0 if material is not isotopically pure)
-   //
-   // Obviously, the last two parameters are only used for gaseous elements
 
    // if range < thickness, particle stops: dE = E0
    Double_t R0 = RangeFunc(E, &Mypar[1]);
@@ -149,8 +154,75 @@ Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t* Mypar)
 
    // calculate energy loss - invert range function to find E corresponding to (R0 - thickness)
    R0 -= Mypar[0];
-   Double_t dE = E[0] - fRange->GetX(R0);
-   return dE;
+
+   Int_t Z = (Int_t)Mypar[1];
+   Double_t A = Mypar[2];
+   
+   // invert range function to get energy after absorber
+      Double_t dE = E[0] - fRange->GetX(R0);
+      return dE;
+/*   
+   // VEDALOSS inversion of R(E)
+   // range in mg/cm**2 for VEDALOSS
+   R0 /= (Units::mg / pow(Units::cm,2));
+   // get parameters for this Z
+   Double_t *par = fCoeff[Z - 1];
+   Double_t ranx = TMath::Log(R0);
+   Double_t ranx1 = ranx - riso;
+   Double_t depsx;
+   if (ranx1 < arm)
+      depsx = (ranx1 - adn) / adm;
+   else {
+      depsx = 0.0;
+      for (register int j = 2; j < 7; j++)
+         depsx += par[j + 7] * TMath::Power(ranx1, (Double_t) (j - 1));
+      depsx += par[8];
+   }
+
+   const Double_t PERC = 0.02;
+   
+   Double_t eps1 = depsx + TMath::Log(1 - PERC);
+   Double_t eps2 = depsx + TMath::Log(1 + PERC);
+   Double_t rap = TMath::Log((1 + PERC) / (1 - PERC));
+
+   Double_t rn1 = 0.0;
+   if (TMath::Exp(eps1) < 0.1)
+      rn1 = adm * eps1 + adn;
+   else {
+      for (register int j = 1; j < 7; j++)
+         rn1 += par[j + 1] * TMath::Power(eps1, (Double_t) (j - 1));
+   }
+   Double_t rn2 = 0.0;
+   if (TMath::Exp(eps2) < 0.1)
+      rn2 = adm * eps2 + adn;
+   else {
+      for (register int j = 1; j < 7; j++)
+         rn2 += par[j + 1] * TMath::Power(eps2, (Double_t) (j - 1));
+   }
+
+   Double_t epres = eps1 + (rap / (rn2 - rn1)) * (ranx1 - rn1);
+   epres = TMath::Exp(epres);
+   Double_t eres = A * epres;
+   
+   // garde-fou - calculated energy after absorber > incident energy ?!!
+   //if(eres > E[0]) return 0.0;
+   return E[0] - eres;
+   */
+}
+
+Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t* Mypar)
+{
+   // Function parameterising the residual energy of charged particles in this material.
+   // The incident energy E[0] is given in MeV.
+   // The residual energy is calculated in MeV.
+   //
+   //Parameters:
+   //  Mypar[0]  = thickness of material in g/cm**2
+   //  Mypar[1]  = Z of charged particle
+   //  Mypar[2]  = A of charged particle
+   //  Mypar[3]  = isotope of material element (0 if material is not isotopically pure)
+
+   return E[0] - DeltaEFunc(E, Mypar);
 }
 
 Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t* Mypar)
@@ -182,14 +254,14 @@ Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t* Mypar)
       ran += par[jj + 1] * TMath::Power(x1, (Double_t)(jj - 1));
    ran += par[2];
    Double_t y1 = ran;
-   Double_t adm = (y2 - y1) / (x2 - x1);
-   Double_t adn = (y1 - adm * x1);
+   adm = (y2 - y1) / (x2 - x1);
+   adn = (y1 - adm * x1);
    // calculate energy loss
    Double_t eps = E[0] / A;       //energy in MeV/nucleon
    Double_t dleps = TMath::Log(eps);
    Double_t MatIsoR = 0.;
    if (Mypar[2] > 0.0) MatIsoR = TMath::Log(Mypar[2] / fAmat);
-   Double_t riso = TMath::Log(A / par[1]) + MatIsoR;
+   riso = TMath::Log(A / par[1]) + MatIsoR;
 
    if (eps < 0.1)
       ran = adm * dleps + adn;
@@ -213,6 +285,7 @@ TF1* KVedaLossMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
    // If required, the isotopic mass of the material can be given.
 
    fRange->SetParameters(Z, A, isoAmat);
+   fRange->SetRange(0., 500.*A);
    return fRange;
 }
 
@@ -222,9 +295,23 @@ TF1* KVedaLossMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t
    // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
    // If required, the isotopic mass of the material can be given.
 
-   fRange->SetParameters(Z, A, isoAmat);
+   GetRangeFunction(Z, A, isoAmat);
    fDeltaE->SetParameters(e, Z, A, isoAmat);
+   fDeltaE->SetRange(0., 500.*A);
    return fDeltaE;
+}
+
+TF1* KVedaLossMaterial::GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat)
+{
+   // Return function giving residual energy (in MeV) as a function of incident energy (in MeV) for
+   // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
+   // If required, the isotopic mass of the material can be given.
+
+   GetRangeFunction(Z, A, isoAmat);
+   GetDeltaEFunction(e, Z, A, isoAmat);
+   fEres->SetParameters(e, Z, A, isoAmat);
+   fEres->SetRange(0., 500.*A);
+   return fEres;
 }
 
 void KVedaLossMaterial::PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat, Double_t units, Double_t T, Double_t P)

@@ -11,7 +11,7 @@ namespace Units {
    // Standard units are:
    //   [L]   cm
    //   [M]  g
-   //   [P]   torr
+   //   [P]   Torr
    // lengths
    Double_t cm = 1.0;
    Double_t um = 1.e-4;
@@ -24,8 +24,9 @@ namespace Units {
    Double_t ug = 1.e-6;
    // pressures
    Double_t torr = 1.0;
-   Double_t mbar = 0.75;
    Double_t atm = 760.;
+   Double_t Pa = atm/101325.;
+   Double_t mbar = 100.*Pa;
 };
 
 
