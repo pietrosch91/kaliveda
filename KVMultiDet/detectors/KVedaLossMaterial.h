@@ -8,6 +8,7 @@
 #include <TString.h>
 #include <Riostream.h>
 #include <TF1.h>
+#include "KVIonRangeTable.h"
 
 // maximum atomic number included in range tables
 #define ZMAX_VEDALOSS 100
@@ -55,12 +56,12 @@ class KVedaLossMaterial : public KVBase
    };
    Double_t GetDensity() const
    {
-      // return density of (solid) material in g/cm**3
-      // for gases, use CalculateGasDensity(T,P)
-      if(fState=="gas") Warning("GetDensity", "%s is gaseous material. Use CalculateGasDensity(T,P).", GetName());
+      // return density of material in g/cm**3.
+      // for gaseous materials, you must call SetGasDensity(T,P) first in order
+      // to define the temperature and pressure of the gas.
       return fDens;
    };
-   Double_t CalculateGasDensity(Double_t T, Double_t P) const;
+   void SetGasDensity(Double_t T, Double_t P);
    
    Bool_t IsGas() const
    {
@@ -72,6 +73,8 @@ class KVedaLossMaterial : public KVBase
    
    TF1* GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat = 0);
  TF1* GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat=0);
+ 
+ void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat=0, Double_t units = Units::cm, Double_t T=-1, Double_t P=-1);
   
    ClassDef(KVedaLossMaterial,1)//Description of material properties used by KVedaLoss range calculation
 };

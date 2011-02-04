@@ -109,29 +109,20 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
                }
 
    fRange = new TF1( Form("KVedaLossMaterial:%s:Range",GetType()), this, &KVedaLossMaterial::RangeFunc,
-         0.1, 1.e+04, 3, "KVedaLossMaterial", "RangeFunc");
-    fRange->SetNpx(1000);
+         0., 1.e+04, 3, "KVedaLossMaterial", "RangeFunc");
          
    fDeltaE = new TF1( Form("KVedaLossMaterial:%s:EnergyLoss",GetType()), this, &KVedaLossMaterial::DeltaEFunc,
-         0.1, 1.e+04, 4, "KVedaLossMaterial", "DeltaEFunc");
-    fDeltaE->SetNpx(1000);
+         0., 1.e+04, 4, "KVedaLossMaterial", "DeltaEFunc");
      return kTRUE;
-}
-
-Double_t KVedaLossMaterial::CalculateGasDensity(Double_t T, Double_t P) const
-{
-   // for a gaseous material, calculate density in g/cm**3 according to given
-   // conditions of temperature (T, in degrees celsius) and pressure (P, in Torr)
-   
-   return (fMoleWt * P) / ((T + ZERO_KELVIN) * RTT);
 }
 
 void KVedaLossMaterial::ls(Option_t*) const
 {
    printf("KVedaLossMaterial::%s     Material type : %s    State : %s\n", GetName(), GetType(), fState.Data());
    printf("\tZ=%f  A=%f  ", fZmat, fAmat);
-   if(IsGas()) printf(" Mole Weight = %f g.    Density at S.T.P. = %f g/cm**3\n\n", fMoleWt, CalculateGasDensity(19., 760.));
-   else printf(" Density = %f g/cm**3\n\n", GetDensity());
+   if(IsGas()) printf(" Mole Weight = %f g.", fMoleWt);
+   if(fDens>0) printf(" Density = %f g/cm**3", fDens);
+   printf("\n\n");
 }
 
 Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t* Mypar)
@@ -145,6 +136,8 @@ Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t* Mypar)
    //  Mypar[1]  = Z of charged particle
    //  Mypar[2]  = A of charged particle
    //  Mypar[3]  = isotope of material element (0 if material is not isotopically pure)
+   //
+   // Obviously, the last two parameters are only used for gaseous elements
    
    // if range < thickness, particle stops: dE = E0
    Double_t R0 = RangeFunc(E, &Mypar[1]);
@@ -229,4 +222,34 @@ TF1* KVedaLossMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t
    fDeltaE->SetParameters(e, Z, A, isoAmat);
    return fDeltaE;
 }
+
+void KVedaLossMaterial::PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat, Double_t units, Double_t T, Double_t P)
+{
+   // Print range of element (in mg/cm**2) as a function of incident energy (in MeV).
+   // For solid elements, print also the linear range (in cm). To change the default units,
+   // set optional argument units (e.g. to have range in microns, call with units = Units::um).
+   // For gaseous elements, give the temperature (in degrees) and the pressure (in torr)
+   // in order to print the range in terms of length units.
+   
+   fRange->SetParameters(Z, A, isoAmat);
+   printf("  ****  VEDALOSS Range Table  ****\n\n");
+   ls();
+   printf(" Element: Z=%d A=%d\n\n", Z, A);
+   printf("\tENERGY (MeV)\t\tRANGE (mg/cm**2)");
+   if(!IsGas() || (IsGas() && T>0 && P>0)) printf("\t\tLIN. RANGE");
+   if(IsGas() && T>0 && P>0) SetGasDensity(T,P);
+   printf("\n\n");
+   for(Double_t e=0.1; e<=1.e+4; e*=10){
+      printf("\t%10.5g\t\t%10.5g",e,fRange->Eval(e));
+      if(!IsGas() || (IsGas() && T>0 && P>0)) printf("\t\t\t%10.5g", fRange->Eval(e)/GetDensity()/units);
+      printf("\n");
+   }
+}
+
+   void KVedaLossMaterial::SetGasDensity(Double_t T, Double_t P)
+   {
+      // for a gaseous material, calculate density in g/cm**3 according to given
+      // conditions of temperature (T, in degrees celsius) and pressure (P, in Torr)
+      fDens = (fMoleWt * P) / ((T + ZERO_KELVIN) * RTT);
+   };
 

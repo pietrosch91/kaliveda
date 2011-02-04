@@ -42,9 +42,9 @@ class KVIonRangeTable : public KVBase
    // Returns density (g/cm**3) of a material in the range tables
    virtual Double_t GetDensity(const Char_t* ) = 0;
    
-   // Returns density (g/cm**3) of a gaseous material in the range tables
-   // Temperature should be given in degrees celsius, and pressure in Torr
-   virtual Double_t GetGasDensity(const Char_t*, Double_t temperature, Double_t pressure) = 0;
+   // Set temperature (in degrees celsius) and pressure (in torr) for a given material.
+   // This usually has no effect except for gaseous materials, for which T & P determine the density (in g/cm**3).
+   virtual void SetTemperatureAndPressure(const Char_t*, Double_t temperature, Double_t pressure) = 0;
    
    // Returns atomic number of a material in the range tables
    virtual Double_t GetZ(const Char_t* ) = 0;

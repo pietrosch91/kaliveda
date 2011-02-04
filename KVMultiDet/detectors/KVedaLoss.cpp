@@ -175,13 +175,14 @@ Double_t KVedaLoss::GetDensity(const Char_t* material)
 
 //________________________________________________________________________________//
 
-Double_t KVedaLoss::GetGasDensity(const Char_t*material, Double_t temperature, Double_t pressure)
+void KVedaLoss::SetTemperatureAndPressure(const Char_t*material, Double_t temperature, Double_t pressure)
 {
-   // Returns density (g/cm**3) of a gaseous material in the range tables
-   // Temperature should be given in degrees celsius, and pressure in Torr
+   // Set temperature (in degrees celsius) and pressure (in torr) for a given
+   // material. This has no effect except for gaseous materials, for which T & P
+   // determine the density (in g/cm**3).
+   
    KVedaLossMaterial* M = GetMaterial(material);
-   if(M) return M->CalculateGasDensity(temperature,pressure);
-   return 0.0;
+   if(M && M->IsGas()) M->SetGasDensity(temperature,pressure);
 }
 
 //________________________________________________________________________________//

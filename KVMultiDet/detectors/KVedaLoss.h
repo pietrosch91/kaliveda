@@ -31,7 +31,7 @@ class KVedaLoss : public KVIonRangeTable
    const Char_t* GetMaterialName(const Char_t* material);
 
    Double_t GetDensity(const Char_t* material);
-   Double_t GetGasDensity(const Char_t*material, Double_t temperature, Double_t pressure);
+   void SetTemperatureAndPressure(const Char_t*material, Double_t temperature, Double_t pressure);
    Double_t GetZ(const Char_t* material);
    Double_t GetAtomicMass(const Char_t* material);
    
