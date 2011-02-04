@@ -57,7 +57,7 @@ public:
       // to define the temperature and pressure of the gas.
       return fDens;
    };
-   void SetGasDensity(Double_t T, Double_t P);
+   void SetTemperatureAndPressure(Double_t T, Double_t P);
 
    Bool_t IsGas() const {
       // returns kTRUE if material is in gaseous state
@@ -70,6 +70,12 @@ public:
    TF1* GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
 
    void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat = 0, Double_t units = Units::cm, Double_t T = -1, Double_t P = -1);
+
+   virtual Double_t GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat=0, Double_t T=-1., Double_t P=-1.);
+
+   virtual Double_t GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
 
    ClassDef(KVedaLossMaterial, 1) //Description of material properties used by KVedaLoss range calculation
 };

@@ -58,6 +58,30 @@ public:
 
    // Return name of material of given type or name if it is in range tables
    virtual const Char_t* GetMaterialName(const Char_t*) = 0;
+   
+   // Returns range (in mg/cm**2) of ion (Z,A) with energy E (MeV) in material.
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   virtual Double_t GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
+      Double_t Amat=0., Double_t T=-1., Double_t P=-1.) = 0;
+
+   // Returns linear range (in cm) of ion (Z,A) with energy E (MeV) in material.
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   virtual Double_t GetLinearRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
+      Double_t Amat=0., Double_t T=-1., Double_t P=-1.) = 0;
+
+   // Returns energy lost (in MeV) by ion (Z,A) with energy E (MeV) after thickness r (in mg/cm**2).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   virtual Double_t GetDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t r,
+      Double_t Amat=0., Double_t T=-1., Double_t P=-1.) = 0;
+      
+   // Returns energy lost (in MeV) by ion (Z,A) with energy E (MeV) after thickness d (in cm).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   virtual Double_t GetLinearDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t d,
+      Double_t Amat=0., Double_t T=-1., Double_t P=-1.) = 0;
 
    ClassDef(KVIonRangeTable, 1) //Abstract base class for calculation of range & energy loss of charged particles in matter
 };

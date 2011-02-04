@@ -182,7 +182,7 @@ void KVedaLoss::SetTemperatureAndPressure(const Char_t*material, Double_t temper
    // determine the density (in g/cm**3).
 
    KVedaLossMaterial* M = GetMaterial(material);
-   if (M && M->IsGas()) M->SetGasDensity(temperature, pressure);
+   if (M) M->SetTemperatureAndPressure(temperature, pressure);
 }
 
 //________________________________________________________________________________//
@@ -192,5 +192,58 @@ void KVedaLoss::Print(Option_t*) const
    printf("KVedaLoss::%s\n%s\n", GetName(), GetTitle());
    printf("\nEnergy loss & range tables loaded for %d materials:\n\n", fMaterials->GetEntries());
    fMaterials->ls();
+}
+
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
+      Double_t Amat, Double_t T, Double_t P)
+{
+   // Returns range (in mg/cm**2) of ion (Z,A) with energy E (MeV) in material.
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   KVedaLossMaterial* M = GetMaterial(mat);
+   if(M) return M->GetRangeOfIon(Z, A, E, Amat, T, P);
+   return 0.0;
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
+      Double_t Amat, Double_t T, Double_t P)
+{
+   // Returns linear range (in cm) of ion (Z,A) with energy E (MeV) in material.
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   KVedaLossMaterial* M = GetMaterial(mat);
+   if(M) return M->GetLinearRangeOfIon(Z, A, E, Amat, T, P);
+   return 0.0;
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t r,
+      Double_t Amat, Double_t T, Double_t P)
+{
+   // Returns energy lost (in MeV) by ion (Z,A) with energy E (MeV) after thickness r (in mg/cm**2).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   KVedaLossMaterial* M = GetMaterial(mat);
+   if(M) return M->GetDeltaEOfIon(Z, A, E, r, Amat, T, P);
+   return 0.0;
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t d,
+      Double_t Amat, Double_t T, Double_t P)
+{
+   // Returns energy lost (in MeV) by ion (Z,A) with energy E (MeV) after thickness d (in cm).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   KVedaLossMaterial* M = GetMaterial(mat);
+   if(M) return M->GetLinearDeltaEOfIon(Z, A, E, d, Amat, T, P);
+   return 0.0;
 }
 
