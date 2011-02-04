@@ -6,8 +6,7 @@
 
 #include "KVBase.h"
 
-namespace Units
-{
+namespace Units {
    // UNITS
    // Standard units are:
    //   [L]   cm
@@ -28,40 +27,39 @@ namespace Units
    Double_t mbar = 0.75;
    Double_t atm = 760.;
 };
-   
 
-class KVIonRangeTable : public KVBase
-{
 
-   public:
+class KVIonRangeTable : public KVBase {
+
+public:
    KVIonRangeTable();
    virtual ~KVIonRangeTable();
 
    static KVIonRangeTable* GetRangeTable(const Char_t* name);
-   
+
    // Returns density (g/cm**3) of a material in the range tables
-   virtual Double_t GetDensity(const Char_t* ) = 0;
-   
+   virtual Double_t GetDensity(const Char_t*) = 0;
+
    // Set temperature (in degrees celsius) and pressure (in torr) for a given material.
    // This usually has no effect except for gaseous materials, for which T & P determine the density (in g/cm**3).
    virtual void SetTemperatureAndPressure(const Char_t*, Double_t temperature, Double_t pressure) = 0;
-   
+
    // Returns atomic number of a material in the range tables
-   virtual Double_t GetZ(const Char_t* ) = 0;
-   
+   virtual Double_t GetZ(const Char_t*) = 0;
+
    // Returns atomic mass of a material in the range tables
-   virtual Double_t GetAtomicMass(const Char_t* ) = 0;
-   
+   virtual Double_t GetAtomicMass(const Char_t*) = 0;
+
    // Return kTRUE if material is in range tables
-   virtual Bool_t IsMaterialKnown(const Char_t* ) = 0;
-   
+   virtual Bool_t IsMaterialKnown(const Char_t*) = 0;
+
    // Return kTRUE if material is gaseous
-   virtual Bool_t IsMaterialGas(const Char_t* ) = 0;
-   
+   virtual Bool_t IsMaterialGas(const Char_t*) = 0;
+
    // Return name of material of given type or name if it is in range tables
-   virtual const Char_t* GetMaterialName(const Char_t* ) = 0;
-   
-   ClassDef(KVIonRangeTable,1)//Abstract base class for calculation of range & energy loss of charged particles in matter
+   virtual const Char_t* GetMaterialName(const Char_t*) = 0;
+
+   ClassDef(KVIonRangeTable, 1) //Abstract base class for calculation of range & energy loss of charged particles in matter
 };
 
 #endif

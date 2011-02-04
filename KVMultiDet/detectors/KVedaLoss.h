@@ -9,24 +9,22 @@
 
 class KVedaLossMaterial;
 
-class KVedaLoss : public KVIonRangeTable
-{
+class KVedaLoss : public KVIonRangeTable {
    static KVHashList* fMaterials;// static list of all known materials
-    
+
    Bool_t init_materials() const;
-   Bool_t CheckMaterialsList() const
-   {
-      if(!fMaterials) return init_materials();
+   Bool_t CheckMaterialsList() const {
+      if (!fMaterials) return init_materials();
       return kTRUE;
    };
-   
-   public:
+
+public:
    KVedaLoss();
    virtual ~KVedaLoss();
 
    Bool_t IsMaterialKnown(const Char_t* material);
    Bool_t IsMaterialGas(const Char_t* material);
-   
+
    KVedaLossMaterial* GetMaterial(const Char_t* material);
    const Char_t* GetMaterialName(const Char_t* material);
 
@@ -34,10 +32,10 @@ class KVedaLoss : public KVIonRangeTable
    void SetTemperatureAndPressure(const Char_t*material, Double_t temperature, Double_t pressure);
    Double_t GetZ(const Char_t* material);
    Double_t GetAtomicMass(const Char_t* material);
-   
+
    void Print(Option_t* = "") const;
-   
-   ClassDef(KVedaLoss,1)//C++ implementation of VEDALOSS stopping power calculation
+
+   ClassDef(KVedaLoss, 1) //C++ implementation of VEDALOSS stopping power calculation
 };
 
 #endif

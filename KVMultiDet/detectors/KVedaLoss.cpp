@@ -25,7 +25,7 @@ KVedaLoss::KVedaLoss()
    // Default constructor
    SetName("VEDALOSS");
    SetTitle("Calculation of range and energy loss of charged particles in matter using VEDALOSS range tables");
-   if(!CheckMaterialsList()){
+   if (!CheckMaterialsList()) {
       Error("KVedaLoss", "Problem reading range tables. Do not use.");
    }
 }
@@ -39,15 +39,15 @@ Bool_t KVedaLoss::init_materials() const
 {
    // PRIVATE method - called to initialize fMaterials list of all known materials
    // properties, read from file given by TEnv variable KVedaLoss.RangeTables
-   
+
    fMaterials = new KVHashList;
    fMaterials->SetName("VEDALOSS materials list");
    fMaterials->SetOwner();
-   
-   TString DataFilePath = gEnv->GetValue("KVedaLoss.RangeTables","");
-   gSystem->ExpandPathName( DataFilePath );
-   
-   Char_t name[25], gtype[25],state[10];
+
+   TString DataFilePath = gEnv->GetValue("KVedaLoss.RangeTables", "");
+   gSystem->ExpandPathName(DataFilePath);
+
+   Char_t name[25], gtype[25], state[10];
    Float_t Amat = 0.;
    Float_t Dens = 0.;
    Float_t MoleWt = 0.;
@@ -64,25 +64,25 @@ Bool_t KVedaLoss::init_materials() const
 
          switch (line[0]) {
 
-         case '/':             // ignore comment lines
-            break;
+            case '/':             // ignore comment lines
+               break;
 
-         case '+':             // header lines
+            case '+':             // header lines
 
-            if (sscanf(line, "+ %s %s %s %f %f %f %f %f",
-                       gtype, name, state, &Dens, &Zmat, &Amat,
-                       &MoleWt, &Temp)
-                != 8) {
-               Error("init_materials()", "Problem reading file %s", DataFilePath.Data());
-               fclose(fp);
-               return kFALSE;
-            }
+               if (sscanf(line, "+ %s %s %s %f %f %f %f %f",
+                          gtype, name, state, &Dens, &Zmat, &Amat,
+                          &MoleWt, &Temp)
+                   != 8) {
+                  Error("init_materials()", "Problem reading file %s", DataFilePath.Data());
+                  fclose(fp);
+                  return kFALSE;
+               }
 //found a new material
-            KVedaLossMaterial *tmp_mat = new KVedaLossMaterial(name, gtype, state, Dens, 
-               Zmat, Amat, MoleWt);
-            fMaterials->Add(tmp_mat);
-            if(!tmp_mat->ReadRangeTable(fp)) return kFALSE;
-            break;
+               KVedaLossMaterial *tmp_mat = new KVedaLossMaterial(name, gtype, state, Dens,
+                                                                  Zmat, Amat, MoleWt);
+               fMaterials->Add(tmp_mat);
+               if (!tmp_mat->ReadRangeTable(fp)) return kFALSE;
+               break;
          }
       }
       fclose(fp);
@@ -97,9 +97,9 @@ Double_t KVedaLoss::GetAtomicMass(const Char_t* material)
    // Return atomic mass of a material in the range table.
    // "material" can be either the type or the name of the material.
    // Prints a warning and returns 0 if material is unknown.
-   
+
    KVedaLossMaterial* M = GetMaterial(material);
-   if(!M){
+   if (!M) {
       Warning("GetAtomicMass", "Material %s is unknown. Returned mass = 0.", material);
       return 0.0;
    }
@@ -113,9 +113,9 @@ Double_t KVedaLoss::GetZ(const Char_t* material)
    // Return atomic number of a material in the range table.
    // "material" can be either the type or the name of the material.
    // Prints a warning and returns 0 if material is unknown.
-   
+
    KVedaLossMaterial* M = GetMaterial(material);
-   if(!M){
+   if (!M) {
       Warning("GetZ", "Material %s is unknown. Returned Z = 0.", material);
       return 0.0;
    }
@@ -137,7 +137,7 @@ Bool_t KVedaLoss::IsMaterialGas(const Char_t* material)
 {
    // Returns kTRUE if material of given name or type is gaseous.
    KVedaLossMaterial* M = GetMaterial(material);
-   if(M) return M->IsGas();
+   if (M) return M->IsGas();
    return kFALSE;
 }
 
@@ -146,11 +146,11 @@ Bool_t KVedaLoss::IsMaterialGas(const Char_t* material)
 KVedaLossMaterial* KVedaLoss::GetMaterial(const Char_t* material)
 {
    // Returns pointer to material of given name or type.
-  KVedaLossMaterial* M = (KVedaLossMaterial*)fMaterials->FindObject(material);
-   if(!M){
+   KVedaLossMaterial* M = (KVedaLossMaterial*)fMaterials->FindObject(material);
+   if (!M) {
       M = (KVedaLossMaterial*)fMaterials->FindObjectByType(material);
-  }
-  return M;
+   }
+   return M;
 }
 
 //________________________________________________________________________________//
@@ -159,7 +159,7 @@ const Char_t* KVedaLoss::GetMaterialName(const Char_t* material)
 {
    // Return name of material of given type or name if it is in range tables
    KVedaLossMaterial* M = GetMaterial(material);
-   if(M) return M->GetName();
+   if (M) return M->GetName();
    return "";
 }
 
@@ -169,7 +169,7 @@ Double_t KVedaLoss::GetDensity(const Char_t* material)
 {
    // Return density of material (g/cm**3) of given type or name if it is in range tables
    KVedaLossMaterial* M = GetMaterial(material);
-   if(M) return M->GetDensity();
+   if (M) return M->GetDensity();
    return 0.0;
 }
 
@@ -180,9 +180,9 @@ void KVedaLoss::SetTemperatureAndPressure(const Char_t*material, Double_t temper
    // Set temperature (in degrees celsius) and pressure (in torr) for a given
    // material. This has no effect except for gaseous materials, for which T & P
    // determine the density (in g/cm**3).
-   
+
    KVedaLossMaterial* M = GetMaterial(material);
-   if(M && M->IsGas()) M->SetGasDensity(temperature,pressure);
+   if (M && M->IsGas()) M->SetGasDensity(temperature, pressure);
 }
 
 //________________________________________________________________________________//
