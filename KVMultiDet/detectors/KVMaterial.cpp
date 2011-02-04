@@ -1,5 +1,4 @@
 /***************************************************************************
-$Id: KVMaterial.cpp,v 1.55 2009/04/01 09:28:02 franklan Exp $
                           kvmaterial.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
@@ -56,21 +55,13 @@ ClassImp(KVMaterial);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-Char_t KVMaterial::kUnits[][10] = {
-   "mbar",
-   "microns",
-   "mg/cm2",
-   "cm",
-   "Torr"
-};
-
 KVIonRangeTable* KVMaterial::fIonRangeTable = 0x0;
 
 //___________________________________________________________________________________
 void KVMaterial::init()
 {
    // Default initialisations.
-   // No properties are set for the material (except default gas temperature: 19°C)
+   // No properties are set for the material (except standard temperature (19°C) and pressure (1 atm))
    // Default range table is generated if not already done.
    // By default it is the VEDALOSS table implemented in KVedaLoss.
    // You can change this by changing the value of environment variable KVMaterial.IonRangeTable.
@@ -78,10 +69,9 @@ void KVMaterial::init()
    fELoss = 0;
    SetName("");
    SetTitle("");
-   ELoss = ERes = 0;
    fNormToMat.SetXYZ(0,0,1);
    fAmasr = 0;
-   fPressure = 0;
+   fPressure = 1. * Units::atm;
    fTemp = 19.0;
    // create default range table singleton if not already done
    if(!fIonRangeTable) {
@@ -99,9 +89,35 @@ KVMaterial::KVMaterial()
 //__________________________________________________________________________________
 KVMaterial::KVMaterial(const Char_t * type, const Double_t thick)
 {
-   //Initialise absorber with given type of material and thickness (default = 0.0)
+   // Create material with given type and linear thickness in cm.
+   
    init();
    SetMaterial(type);
+   SetThickness(thick);
+}
+
+KVMaterial::KVMaterial(Double_t area_density, const Char_t * type)
+{
+   // Create material with given area density in g/cm**2 and given type
+   
+   init();
+   SetMaterial(type);
+   SetAreaDensity(area_density);
+}
+
+KVMaterial::KVMaterial(const Char_t * gas, const Double_t thick, const Double_t pressure, const Double_t temperature)
+{
+   // Create gaseous material with given type, linear thickness in cm, pressure in Torr,
+   // and temperature in degrees C (default value 19°C).
+   //
+   // Examples
+   // 15 cm of CF4 gas at 1 atm and 19°C :   KVMaterial("CF4", 15., 1.*Units::atm)
+   // 50 mm of C3F8 at 30 mbar and 25°C :  KVMaterial("C3F8", 50.*Units::mm, 30.*Units::mbar, 25.)
+      
+   init();
+   SetMaterial(gas);
+   fPressure = pressure;
+   fTemp = temperature;
    SetThickness(thick);
 }
 
@@ -211,16 +227,12 @@ Double_t KVMaterial::GetZ() const
 
 Double_t KVMaterial::GetDensity() const
 {
-   //Returns density of material in g/cm**3.
-   //For a gas, density is calculated from current pressure & temperature according to ideal gas law
+   // Returns density of material in g/cm**3.
+   // For a gas, density is calculated from current pressure & temperature according to ideal gas law
 
    if (GetActiveLayer())
       return GetActiveLayer()->GetDensity();
-   if(fIonRangeTable->IsMaterialGas(GetType())){
-      Double_t P = fPressure;
-      if(fUnits == kMBAR) P*=0.750061683; // convert to Torr
-      return fIonRangeTable->GetGasDensity(GetType(), fTemp, fPressure);
-   }
+   fIonRangeTable->SetTemperatureAndPressure(GetType(), fTemp, fPressure);
    return fIonRangeTable->GetDensity(GetType());
 }
 
@@ -281,89 +293,31 @@ Double_t KVMaterial::GetTemperature() const
 
 //___________________________________________________________________________________
 
-void KVMaterial::SetUnits(UInt_t u)
-{
-   //Set units for 'thickness' of material.
-   //WARNING: changing the default units will alter how the 'thickness'
-   //is used in energy loss calculations!
-   //WARNING2: we do not perform a conversion of any existing value
-   //for the 'thickness' of the material, the existing value will be used
-   //with the new units
-
-   if (GetActiveLayer()) {
-      GetActiveLayer()->SetUnits(u);
-      return;
-   }
-
-   fUnits = u;
-}
-
-
-//___________________________________________________________________________________
-
-UInt_t KVMaterial::GetUnits() const
-{
-   //Returns units for 'thickness' of material.
-   //Can be one of KVMaterial::kMBAR, KVMaterial::kMGCM2, KVMaterial::kTORR,
-   //KVMaterial::kMICRON, KVMaterial::kCM.
-
-   if (GetActiveLayer())
-      return GetActiveLayer()->GetUnits();
-   return fUnits;
-}
-
-//___________________________________________________________________________________
-
 void KVMaterial::SetThickness(Double_t t)
 {
-   //Set the thickness of the material.
-   //
-   //The meaning and units of "thickness" depend on the material.
-   //For a gas it is the depth of the gas cell in millimetres.
-   //For silicon and mylar it is the thickness in micrometres.
-   //For CsI and plastic scintillators it is the length/thickness in centimetres.
-   //For metallic elements (such as for targets) it is the areal density
-   //in milligrams per cm^2.
+   // Set the linear thickness of the material in cm or use one of the
+   // Units constants:
+   //       SetThickness( 30.*Units::um );  set thickness to 30 microns
 
    if (GetActiveLayer()) {
       GetActiveLayer()->SetThickness(t);
       return;
    }
-   fThick = t;
+   // calculate area density
+   fThick = t * GetDensity();
 }
 
 //___________________________________________________________________________________
 
 Double_t KVMaterial::GetThickness() const
 {
-   //Returns the "thickness" of the material - units depend on the material type
-   //For a gas it is the depth of the gas cell in millimetres.
-   //For silicon and mylar it is the thickness in micrometres.
-   //For CsI and plastic scintillators it is the length/thickness in centimetres.
-   //For metallic elements (such as for targets) it is the areal density
-   //in milligrams per cm^2.
+   // Returns the linear thickness of the material in cm.
+   // Use Units to change units:
+   //      mat.GetThickness()/Units::um ;   in microns
 	
    if (GetActiveLayer())
       return GetActiveLayer()->GetThickness();
-   return fThick;
-}
-
-//___________________________________________________________________________________
-
-Double_t KVMaterial::GetThicknessInCM() const
-{
-   //Returns the thickness of the material in CENTIMETRES
-	
-   if (GetActiveLayer())
-      return GetActiveLayer()->GetThicknessInCM();
-	Double_t t = (Double_t)fThick;
-   if (fUnits == kMBAR || fUnits == kTORR)
-      return (t/10.);
-	if(fUnits == kMICRONS)
-		return (t/10000.);
-	else if(fUnits == kMGCM2)
-		return (t/fIonRangeTable->GetDensity(GetType()));
-   return fThick;
+   return fThick/GetDensity();
 }
 
 //___________________________________________________________________________________
@@ -371,8 +325,8 @@ Double_t KVMaterial::GetThicknessInCM() const
 Double_t KVMaterial::GetEffectiveThickness(TVector3 & norm,
                                            TVector3 & direction)
 {
-   //Calculate effective thickness of absorber as 'seen' in 'direction', taking into
-   //account the arbitrary orientation of the 'norm' normal to the material's surface
+   // Calculate effective thickness of absorber as 'seen' in 'direction', taking into
+   // account the arbitrary orientation of the 'norm' normal to the material's surface
 
    TVector3 n = norm.Unit();
    TVector3 d = direction.Unit();
@@ -386,226 +340,26 @@ void KVMaterial::Print(Option_t * option) const
 {
    //Show information on this material
    cout << "KVMaterial: " << GetName() << " (" << GetType() << ")" << endl;
-   if (fUnits == kMBAR || fUnits == kTORR)
-      cout << " Thickness " << KVMaterial::
-          GetThickness() << " mm, pressure " << GetPressure() << " " <<
-          GetThicknessUnits() << endl;
-   else
-      cout << " Thickness " << KVMaterial::
-          GetThickness() << " " << GetThicknessUnits() << endl;
+   if (fIonRangeTable->IsMaterialGas(GetType()))
+      cout << " Pressure " << GetPressure() << " torr" << endl;
+   cout << " Thickness " << KVMaterial::GetThickness() << " cm" << endl;
    cout << "-----------------------------------------------" << endl;
    cout << " Z = " << GetZ() << " atomic mass = " << GetMass() << endl;
    cout << " Density = " << GetDensity() << endl;
    cout << "-----------------------------------------------" << endl;
 }
 
-//_______________________________________________________________________________________
-Double_t ELossSaclay(Double_t * x, Double_t * par)
-{
-   //Calculates energy loss (DE) as a function of incident energy x[0]
-   //Parameters:
-   // par[0] - par[14] : Saclay range tables parameters
-   //      par[0] = Z of nucleus
-   // par[15] = A of nucleus
-   // par[16] = minimum incident energy in MeV for valid calculation
-   // par[17] = maximum incident energy in MeV for valid calculation
-   // par[18] = ratio of isotopic to natural mass of material, log(fAmasr/fAmat)
-
-   //energy loss = incident energy - residual energy
-   return x[0] - EResSaclay(x, par);
-}
-
-//_______________________________________________________________________________________
-Double_t EResSaclay(Double_t * x, Double_t * par)
-{
-   //Calculates residual energy after passage through material
-   //as a function of incident energy x[0]
-   //Parameters:
-   // par[0] - par[14] : Saclay range tables parameters
-   //      par[0] = Z of nucleus
-   // par[15] = A of nucleus
-   // par[16] = minimum incident energy in MeV for valid calculation
-   // par[17] = maximum incident energy in MeV for valid calculation
-   // par[18] = ratio of isotopic to natural mass of material, log(fAmasr/fAmat)
-
-   //check incident energy is valid
-   //incident energy less than minimum valid energy - residual energy=0 (particle stops)
-   //if (x[0] < par[16])
-   //   return 0.0;
-   //incident energy greater than maximum valid energy - residual E = incident E
-   //if (x[0] > par[17])
-   //   return x[0];
-
-   // set up polynomial
-   Double_t x1 = TMath::Log(0.1);
-   Double_t x2 = TMath::Log(0.2);
-   Double_t ran = 0.0;
-   for (register int j = 2; j < 7; j++)
-      ran += par[j + 1] * TMath::Power(x2, (Double_t) (j - 1));
-   ran += par[2];
-   Double_t y2 = ran;
-   ran = 0.0;
-   for (register int jj = 2; jj < 7; jj++)
-      ran += par[jj + 1] * TMath::Power(x1, (Double_t) (jj - 1));
-   ran += par[2];
-   Double_t y1 = ran;
-   Double_t adm = (y2 - y1) / (x2 - x1);
-   Double_t adn = (y1 - adm * x1);
-   Double_t arm = y1;
-   // calculate energy loss
-   Double_t eps = x[0] / par[15];       //energy in MeV/nucleon
-   Double_t dleps = TMath::Log(eps);
-   Double_t riso = TMath::Log(par[15] / par[1]) + par[18];
-
-   if (eps < 0.1)
-      ran = adm * dleps + adn;
-   else {
-      ran = 0.0;
-      for (register int j = 2; j < 7; j++)
-         ran += par[j + 1] * TMath::Power(dleps, (Double_t) (j - 1));
-      ran += par[2];
-   }
-   ran += riso;
-
-   Double_t range = TMath::Exp(ran);
-   range -= par[14];
-   if (range <= 0.005) {        // particle stopped in material, gives up all energy
-      return 0.0;               //residual energy = 0
-   }
-
-   Double_t ranx = TMath::Log(range);
-   Double_t ranx1 = ranx - riso;
-   Double_t depsx;
-   if (ranx1 < arm)
-      depsx = (ranx1 - adn) / adm;
-   else {
-      depsx = 0.0;
-      for (register int j = 2; j < 7; j++)
-         depsx += par[j + 7] * TMath::Power(ranx1, (Double_t) (j - 1));
-      depsx += par[8];
-   }
-
-   const Double_t PERC = 0.02;
-   
-   Double_t eps1 = depsx + TMath::Log(1 - PERC);
-   Double_t eps2 = depsx + TMath::Log(1 + PERC);
-   Double_t rap = TMath::Log((1 + PERC) / (1 - PERC));
-
-   Double_t rn1 = 0.0;
-   if (TMath::Exp(eps1) < 0.1)
-      rn1 = adm * eps1 + adn;
-   else {
-      for (register int j = 1; j < 7; j++)
-         rn1 += par[j + 1] * TMath::Power(eps1, (Double_t) (j - 1));
-   }
-   Double_t rn2 = 0.0;
-   if (TMath::Exp(eps2) < 0.1)
-      rn2 = adm * eps2 + adn;
-   else {
-      for (register int j = 1; j < 7; j++)
-         rn2 += par[j + 1] * TMath::Power(eps2, (Double_t) (j - 1));
-   }
-
-   Double_t epres = eps1 + (rap / (rn2 - rn1)) * (ranx1 - rn1);
-   epres = TMath::Exp(epres);
-   Double_t eres = par[15] * epres;
-   //make sure residual energy is <= incident energy
-   //following original code, the minimum energy loss is 0.005 MeV
-
-   Double_t eloss = x[0] - eres;
-   if (eloss < 0.005 && eres > eloss)
-      eres = x[0];
-   return eres;
-}
-
-//_______________________________________________________________________________________//
-
-void KVMaterial::GetELossParams(Int_t Z, Int_t A, Double_t * par)
-{
-   // get coefficients associated with this nucleus Z 
-   if(Z<1 || Z>ZMAX_VEDALOSS) return;
-     
-   for (int i = 0; i < 14; i++) {
-
-      par[i] = fCoeff[(Z - 1)][i];
-
-   }
-   fAmasr = (fAmasr ? fAmasr : fAmat);
-   // calculate "thickness"
-   //for isotopic materials, the density used in the conversion
-   //from microns or cm to mg/cm2 is modified according to the
-   //chosen isotopic mass, fAmasr
-   switch (fUnits) {
-   case kMICRONS:
-      par[14] = 0.1 * fThick * fDens * (fAmasr / fAmat);
-      break;
-   case kMGCM2:
-      par[14] = fThick;
-      break;
-   case kCM:
-      par[14] = fThick * fDens * 1000. * (fAmasr / fAmat);
-      break;
-      //gases: calculate density*thickness of cell
-   case kMBAR:
-   case kTORR:
-      par[14] = fGasThick * GetDensity();
-      break;
-   }
-   par[15] = A;
-   par[16] = GetEminVedaloss(Z) * A;
-   par[17] = GetEmaxVedaloss(Z) * A;
-   if( fAmasr == fAmat ) par[18] = 0.;
-   else par[18] = TMath::Log(fAmasr / fAmat);
-}
-
-//______________________________________________________________________________________________//
-void KVMaterial::SetELossParams(Int_t Z, Int_t A)
-{
-   //Initialise energy loss coefficients for this material and a given incident nucleus (Z,A)
-   static Double_t par[19];
-   GetELossParams(Z, A, par);
-   if (!ELoss) {
-      //search in list of functions for one corresponding to this material
-      //the name of the required function is ELoss
-      ELoss = (TF1 *) gROOT->GetListOfFunctions()->FindObject("ELoss");
-      if (!ELoss)
-         ELoss = new TF1("ELoss", ELossSaclay, 0.1, 5000., 19);
-   }
-   ELoss->SetParameters(par);
-}
-
-//______________________________________________________________________________________________//
-void KVMaterial::SetEResParams(Int_t Z, Int_t A)
-{
-   //Initialise coefficients for residual energy function for this material and a given incident nucleus (Z,A)
-
-   static Double_t par[19];
-   GetELossParams(Z, A, par);
-   if (!ERes) {
-      //search in list of functions for one corresponding to this material
-      //the name of the required function is ERes
-      ERes = (TF1 *) gROOT->GetListOfFunctions()->FindObject("ERes");
-      if (!ERes)
-         ERes = new TF1("ERes", EResSaclay, 0.1, 5000., 19);
-   }
-   ERes->SetParameters(par);
-}
-
 //______________________________________________________________________________________//
 
 Double_t KVMaterial::GetELostByParticle(KVNucleus * kvn, TVector3 * norm)
 {
-   //*** Saclay VEDALOSS library: translation of functions PARAM, GET_PARAM and ELOSS.
+   // Method to simulate passage of an ion through a given thickness of material.
+   // The energy loss of the particle (in MeV) in the material is returned by the method.
    //
-   //Method to simulate passage of a charged particle (ion) through a given thickness of
-   //material. The energy loss of the particle in the material is returned by the method.
-   //The thickness is given in cm (for CsI crystals, NE102), in mbar (for C3F8), in micrometres
-   //(for Silicon, Mylar), or mg/cm2 (all others).
-   //
-   //If the optional argument 'norm' is given, it is supposed to be a vector
-   //normal to the material, oriented from the origin towards the material.
-   //In this case the effective thickness of the material 'seen' by the particle
-   //depending on its direction of motion is used for the calculation.
+   // If the optional argument 'norm' is given, it is supposed to be a vector
+   // normal to the material, oriented from the origin towards the material.
+   // In this case the effective thickness of the material 'seen' by the particle
+   // depending on its direction of motion is used for the calculation.
 
 
    if (norm) {
@@ -657,11 +411,9 @@ Double_t KVMaterial::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    // with kinetic energy Einc (MeV)
    // For a KVDetector, the energy loss of the ACTIVE layer only is returned.
 
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
-   
-   SetELossParams(Z, A);
-
-   Double_t E_loss = GetELossFunction()->Eval(Einc);
+   if(Z<1) return 0.;
+   Double_t E_loss =
+      fIonRangeTable->GetDeltaEOfIon(GetType(), Z, A, Einc, fThick, fAmasr, fTemp, fPressure);
 
    return E_loss;
 }
@@ -769,11 +521,10 @@ Double_t KVMaterial::GetERes(Int_t Z, Int_t A, Double_t Einc)
    // Calculate residual energy after absorber for incident nucleus (Z,A)
    // with kinetic energy Einc (MeV)
 
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
+   if(Z<1) return 0.;
    
-   SetEResParams(Z, A);
-
-   Double_t E_res = GetEResFunction()->Eval(Einc);
+   Double_t E_res =
+      fIonRangeTable->GetEResOfIon(GetType(), Z, A, Einc, fThick, fAmasr, fTemp, fPressure);
 
    return E_res;
 }
@@ -817,20 +568,6 @@ void KVMaterial::Clear(Option_t * opt)
    fELoss = 0.0;
 }
 
-//__________________________________________________________________________________________
-
-const Char_t *KVMaterial::GetThicknessUnits() const
-{
-   //Returns a string with the name of the units used to measure "thickness"
-   //for this material type
-   if (GetActiveLayer())
-      return GetActiveLayer()->GetThicknessUnits();
-   if (fUnits < 10)
-      return kUnits[GetUnits()];
-   else
-      return "(undefined)";
-}
-
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
 void KVMaterial::Copy(TObject & obj) const
 #else
@@ -841,9 +578,9 @@ void KVMaterial::Copy(TObject & obj)
    KVBase::Copy(obj);
    ((KVMaterial &) obj).SetMaterial(GetType());
    ((KVMaterial &) obj).SetMass(GetMass());
-   ((KVMaterial &) obj).SetThickness(GetThickness());
    ((KVMaterial &) obj).SetPressure(GetPressure());
    ((KVMaterial &) obj).SetTemperature(GetTemperature());
+   ((KVMaterial &) obj).SetThickness(GetThickness());
 }
 
 //__________________________________________________________________________________________

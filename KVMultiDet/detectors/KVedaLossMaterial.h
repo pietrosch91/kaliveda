@@ -86,6 +86,9 @@ public:
    virtual Double_t GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    virtual Double_t GetLinearDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
 
+   virtual Double_t GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+
    ClassDef(KVedaLossMaterial, 1) //Description of material properties used by KVedaLoss range calculation
 };
 

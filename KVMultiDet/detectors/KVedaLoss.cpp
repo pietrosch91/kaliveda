@@ -246,4 +246,30 @@ Double_t KVedaLoss::GetLinearDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Do
    if(M) return M->GetLinearDeltaEOfIon(Z, A, E, d, Amat, T, P);
    return 0.0;
 }
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t r,
+      Double_t Amat, Double_t T, Double_t P)
+{
+   // Returns residual energy (in MeV) of ion (Z,A) with incident energy E (MeV) after thickness r (in mg/cm**2).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   KVedaLossMaterial* M = GetMaterial(mat);
+   if(M) return M->GetEResOfIon(Z, A, E, r, Amat, T, P);
+   return 0.0;
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t d,
+      Double_t Amat, Double_t T, Double_t P)
+{
+   // Returns residual energy (in MeV) of ion (Z,A) with incident energy E (MeV) after thickness d (in cm).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   KVedaLossMaterial* M = GetMaterial(mat);
+   if(M) return M->GetLinearEResOfIon(Z, A, E, d, Amat, T, P);
+   return 0.0;
+}
 

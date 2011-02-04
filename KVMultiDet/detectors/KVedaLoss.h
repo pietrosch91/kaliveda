@@ -45,6 +45,11 @@ public:
    virtual Double_t GetLinearDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t d,
       Double_t Amat=0., Double_t T=-1., Double_t P=-1.);
 
+   virtual Double_t GetEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t r,
+      Double_t Amat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t d,
+      Double_t Amat=0., Double_t T=-1., Double_t P=-1.);
+
    ClassDef(KVedaLoss, 1) //C++ implementation of VEDALOSS stopping power calculation
 };
 
