@@ -14,12 +14,6 @@
 #define ZMAX_VEDALOSS 100
 
 class KVedaLossMaterial : public KVBase {
-private:
-   // internal variables common to RangeFunc and DeltaEFunc
-   Double_t riso;
-   Double_t arm;
-   Double_t adn;
-   Double_t adm;
    
 protected:
    TString fState;               // state of material = "solid", "liquid", "gas", "unknown"
@@ -80,14 +74,20 @@ public:
 
    void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat = 0, Double_t units = Units::cm, Double_t T = -1, Double_t P = -1);
 
-   virtual Double_t GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat=0.);
    virtual Double_t GetLinearRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat=0, Double_t T=-1., Double_t P=-1.);
 
-   virtual Double_t GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0.);
    virtual Double_t GetLinearDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
 
-   virtual Double_t GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0.);
    virtual Double_t GetLinearEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+
+   virtual Double_t GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat=0.);
+   virtual Double_t GetLinearEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+
+   virtual Double_t GetEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat=0.);
+   virtual Double_t GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
 
    ClassDef(KVedaLossMaterial, 1) //Description of material properties used by KVedaLoss range calculation
 };

@@ -204,7 +204,7 @@ Double_t KVedaLoss::GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t 
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
    KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetRangeOfIon(Z, A, E, Amat, T, P);
+   if(M) return M->GetRangeOfIon(Z, A, E, Amat);
    return 0.0;
 }
 //________________________________________________________________________________//
@@ -230,7 +230,7 @@ Double_t KVedaLoss::GetDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
    KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetDeltaEOfIon(Z, A, E, r, Amat, T, P);
+   if(M) return M->GetDeltaEOfIon(Z, A, E, r, Amat);
    return 0.0;
 }
 //________________________________________________________________________________//
@@ -256,7 +256,7 @@ Double_t KVedaLoss::GetEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
    KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetEResOfIon(Z, A, E, r, Amat, T, P);
+   if(M) return M->GetEResOfIon(Z, A, E, r, Amat);
    return 0.0;
 }
 //________________________________________________________________________________//
