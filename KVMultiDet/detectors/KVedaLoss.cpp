@@ -7,6 +7,11 @@
 #include <TSystem.h>
 #include <TEnv.h>
 
+#define FIND_MAT_AND_EXEC(method,defval) \
+    KVedaLossMaterial* M = GetMaterial(mat); \
+    if(M) return M->method; \
+    return defval
+
 ClassImp(KVedaLoss)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,12 +138,10 @@ Bool_t KVedaLoss::IsMaterialKnown(const Char_t* material)
 
 //________________________________________________________________________________//
 
-Bool_t KVedaLoss::IsMaterialGas(const Char_t* material)
+Bool_t KVedaLoss::IsMaterialGas(const Char_t* mat)
 {
    // Returns kTRUE if material of given name or type is gaseous.
-   KVedaLossMaterial* M = GetMaterial(material);
-   if (M) return M->IsGas();
-   return kFALSE;
+   FIND_MAT_AND_EXEC(IsGas(),kFALSE);
 }
 
 //________________________________________________________________________________//
@@ -155,22 +158,18 @@ KVedaLossMaterial* KVedaLoss::GetMaterial(const Char_t* material)
 
 //________________________________________________________________________________//
 
-const Char_t* KVedaLoss::GetMaterialName(const Char_t* material)
+const Char_t* KVedaLoss::GetMaterialName(const Char_t* mat)
 {
    // Return name of material of given type or name if it is in range tables
-   KVedaLossMaterial* M = GetMaterial(material);
-   if (M) return M->GetName();
-   return "";
+   FIND_MAT_AND_EXEC(GetName(),"");
 }
 
 //________________________________________________________________________________//
 
-Double_t KVedaLoss::GetDensity(const Char_t* material)
+Double_t KVedaLoss::GetDensity(const Char_t* mat)
 {
    // Return density of material (g/cm**3) of given type or name if it is in range tables
-   KVedaLossMaterial* M = GetMaterial(material);
-   if (M) return M->GetDensity();
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetDensity(),0.0);
 }
 
 //________________________________________________________________________________//
@@ -197,15 +196,13 @@ void KVedaLoss::Print(Option_t*) const
 //________________________________________________________________________________//
 
 Double_t KVedaLoss::GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
-      Double_t Amat, Double_t T, Double_t P)
+      Double_t Amat, Double_t , Double_t)
 {
    // Returns range (in mg/cm**2) of ion (Z,A) with energy E (MeV) in material.
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
-   KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetRangeOfIon(Z, A, E, Amat);
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetRangeOfIon(Z, A, E, Amat),0.0);
 }
 //________________________________________________________________________________//
 
@@ -216,22 +213,18 @@ Double_t KVedaLoss::GetLinearRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Dou
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
-   KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetLinearRangeOfIon(Z, A, E, Amat, T, P);
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetLinearRangeOfIon(Z, A, E, Amat, T, P),0.0);
 }
 //________________________________________________________________________________//
 
 Double_t KVedaLoss::GetDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t r,
-      Double_t Amat, Double_t T, Double_t P)
+      Double_t Amat, Double_t , Double_t )
 {
    // Returns energy lost (in MeV) by ion (Z,A) with energy E (MeV) after thickness r (in mg/cm**2).
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
-   KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetDeltaEOfIon(Z, A, E, r, Amat);
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetDeltaEOfIon(Z, A, E, r, Amat),0.0);
 }
 //________________________________________________________________________________//
 
@@ -242,22 +235,18 @@ Double_t KVedaLoss::GetLinearDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Do
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
-   KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetLinearDeltaEOfIon(Z, A, E, d, Amat, T, P);
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetLinearDeltaEOfIon(Z, A, E, d, Amat, T, P),0.0);
 }
 //________________________________________________________________________________//
 
 Double_t KVedaLoss::GetEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t r,
-      Double_t Amat, Double_t T, Double_t P)
+      Double_t Amat, Double_t , Double_t )
 {
    // Returns residual energy (in MeV) of ion (Z,A) with incident energy E (MeV) after thickness r (in mg/cm**2).
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
-   KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetEResOfIon(Z, A, E, r, Amat);
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetEResOfIon(Z, A, E, r, Amat),0.0);
 }
 //________________________________________________________________________________//
 
@@ -268,8 +257,117 @@ Double_t KVedaLoss::GetLinearEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Doub
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
    
-   KVedaLossMaterial* M = GetMaterial(mat);
-   if(M) return M->GetLinearEResOfIon(Z, A, E, d, Amat, T, P);
-   return 0.0;
+   FIND_MAT_AND_EXEC(GetLinearEResOfIon(Z, A, E, d, Amat, T, P),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat, Double_t , Double_t )
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in mg/cm**2).
+   // Give Amat to change default (isotopic) mass of material,
+   FIND_MAT_AND_EXEC(GetEIncFromEResOfIon(Z, A, Eres, e, isoAmat),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e,
+                                                       Double_t isoAmat, Double_t T, Double_t P)
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in cm).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   FIND_MAT_AND_EXEC(GetLinearEIncFromEResOfIon(Z, A, Eres, e, isoAmat, T, P),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat, Double_t , Double_t )
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in mg/cm**2).
+   // Give Amat to change default (isotopic) mass of material,
+   FIND_MAT_AND_EXEC(GetEIncFromDeltaEOfIon(Z, A, DeltaE, e, isoAmat),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t deltaE, Double_t e,
+                                                         Double_t isoAmat, Double_t T, Double_t P)
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in cm).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   FIND_MAT_AND_EXEC(GetLinearEIncFromDeltaEOfIon(Z, A, deltaE, e, isoAmat,T,P),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat, Double_t , Double_t )
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in mg/cm**2).
+   // Give Amat to change default (isotopic) mass of material,
+   FIND_MAT_AND_EXEC(GetDeltaEFromEResOfIon(Z, A, Eres, e, isoAmat),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat, Double_t T, Double_t P)
+{
+   // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in cm).
+   // Give Amat to change default (isotopic) mass of material,
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   FIND_MAT_AND_EXEC(GetLinearDeltaEFromEResOfIon(Z, A, Eres, e, isoAmat,T,P),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetPunchThroughEnergy(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t , Double_t )
+{
+   // Calculate incident energy (in MeV) for ion (Z,A) for which the range is equal to the
+   // given thickness e (in mg/cm**2). At this energy the residual energy of the ion is (just) zero,
+   // for all energies above this energy the residual energy is > 0.
+   // Give Amat to change default (isotopic) mass of material.
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   FIND_MAT_AND_EXEC(GetPunchThroughEnergy(Z, A, e, isoAmat),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetLinearPunchThroughEnergy(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t T, Double_t P)
+{
+   // Calculate incident energy (in MeV) for ion (Z,A) for which the range is equal to the
+   // given thickness e (in cm). At this energy the residual energy of the ion is (just) zero,
+   // for all energies above this energy the residual energy is > 0.
+   // Give Amat to change default (isotopic) mass of material.
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   FIND_MAT_AND_EXEC(GetLinearPunchThroughEnergy(Z, A, e, isoAmat,T, P),0.0);
+}
+//________________________________________________________________________________//
+
+Double_t KVedaLoss::GetMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t , Double_t )
+{
+   // Calculate maximum energy loss (in MeV) of ion (Z,A) in given thickness e (in g/cm**2).
+   // Give Amat to change default (isotopic) mass of material.
+   FIND_MAT_AND_EXEC(GetMaxDeltaEOfIon(Z, A, e, isoAmat),0.0);   
+}
+
+Double_t KVedaLoss::GetEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t , Double_t )
+{
+   // Calculate incident energy (in MeV) corresponding to maximum energy loss of ion (Z,A)
+   // in given thickness e (in g/cm**2).
+   // Give Amat to change default (isotopic) mass of material.
+   
+   FIND_MAT_AND_EXEC(GetEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat),0.0);   
+}
+
+Double_t KVedaLoss::GetLinearMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t T, Double_t P)
+{
+   // Calculate maximum energy loss (in MeV) of ion (Z,A) in given thickness e (in cm).
+   // Give Amat to change default (isotopic) mass of material.
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   FIND_MAT_AND_EXEC(GetLinearMaxDeltaEOfIon(Z, A, e, isoAmat, T, P),0.0);   
+}
+
+Double_t KVedaLoss::GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat, Double_t T, Double_t P)
+{
+   // Calculate incident energy (in MeV) corresponding to maximum energy loss of ion (Z,A)
+   // in given thickness e (in cm).
+   // Give Amat to change default (isotopic) mass of material.
+   // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
+   
+   FIND_MAT_AND_EXEC(GetLinearEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat, T, P),0.0);   
 }
 

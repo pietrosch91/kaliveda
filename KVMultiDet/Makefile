@@ -6,13 +6,13 @@ PROJ_NAME = KVMultiDet
 MODULES = analysis base calibration daq_cec data_management db detectors events geometry gui identification idmaps idtelescopes particles \
 	vg_base vg_charge vg_energy vg_multiplicity vg_shape vg_momentum trieur
 
-EXTRA_HEADERS = base/KVError.h base/KVParameter.h
+EXTRA_HEADERS = base/KVError.h base/KVParameter.h detectors/KVDetector.h
 
 ETC_DATA = data
 ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVReg*.cpp
+NOT_READY := daq_cec/KVReg*.cpp detectors/KVDetector.cpp
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += daq_cec/GT*.cpp analysis/KVGANILDataReader.cpp analysis/KVRawDataAnalyser.cpp
 endif

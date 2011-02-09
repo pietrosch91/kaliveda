@@ -32,27 +32,7 @@ ClassImp(KVMaterial);
 ///////////////////////////////////////////////////////////////////////////////
 //                       KVMaterial
 //
-//The KVMaterial class encapsulates the routines of R. Dayras et al for calculating
-//the energy lost by charged particles (nuclei) in different absorbers,
-//formerly known as the "vedaloss" routines.
-//
-//To create an absorber, use the ctor specifying a type of material and optionally
-//the thickness of the absorber.
-//     KVMaterial mat1("Si",150.0); //150 microns of silicon
-//     KVMaterial mat2("Au",0.8); //800 micrograms/cm**2 of gold
-//The available materials are defined in the $KVROOT/KVFiles/kvloss.data file. In order to get
-//a list of the currently defined materials, use KVMaterial::GetListOfMaterials().
-//
-//Depending on the type of material, the default units of "thickness" are different:
-//     fType = Si, Myl - thickness in micrometres
-//     fType = NE102, CsI - thickness in centimetres
-//     fType = C3F8, CF4 - pressure in mbar
-//     fType = Au, Sn, U, Nb, Ni, C, Ta - thickness in mg/cm2
-//
-//By default, the naturally-occuring atomic mass is used for the elements. To use
-//some rarer isotope, use the SetMass() method with the appropriate mass (not
-//valid for compounds).
-//
+// Description of materials used for detectors and targets.
 ///////////////////////////////////////////////////////////////////////////////
 
 KVIonRangeTable* KVMaterial::fIonRangeTable = 0x0;
@@ -136,10 +116,10 @@ KVMaterial::KVMaterial(const KVMaterial & obj)
 //___________________________________________________________________________________
 void KVMaterial::SetMaterial(const Char_t * mat_type)
 {
-   //Intialise material of a given type.
-   //The material must exist in the currently used range tables (fIonRangeTable).
-   //For materials which are elements of the periodic table you can specify
-   //the isotope such as "64Ni", "13C", "natSn", etc. etc.
+   // Intialise material of a given type.
+   // The material must exist in the currently used range tables (fIonRangeTable).
+   // For materials which are elements of the periodic table you can specify
+   // the isotope such as "64Ni", "13C", "natSn", etc. etc.
 
    init();
    //are we dealing with an isotope ?
@@ -240,7 +220,7 @@ Double_t KVMaterial::GetDensity() const
 
 void KVMaterial::SetPressure(Double_t p)
 {
-   // Set the pressure of a gaseous material.
+   // Set the pressure of a gaseous material (in torr)
 
    if (GetActiveLayer()) {
       GetActiveLayer()->SetPressure(p);
@@ -254,9 +234,8 @@ void KVMaterial::SetPressure(Double_t p)
 
 Double_t KVMaterial::GetPressure() const
 {
-   // Returns the pressure of a gas.
+   // Returns the pressure of a gas (in torr).
    //If the material is not a gas, value is zero.
-   //The units depend on fUnits
 
    if (GetActiveLayer())
       return GetActiveLayer()->GetPressure();
@@ -325,7 +304,7 @@ Double_t KVMaterial::GetThickness() const
 Double_t KVMaterial::GetEffectiveThickness(TVector3 & norm,
                                            TVector3 & direction)
 {
-   // Calculate effective thickness of absorber as 'seen' in 'direction', taking into
+   // Calculate effective linear thickness of absorber (in cm) as 'seen' in 'direction', taking into
    // account the arbitrary orientation of the 'norm' normal to the material's surface
 
    TVector3 n = norm.Unit();
@@ -361,20 +340,16 @@ Double_t KVMaterial::GetELostByParticle(KVNucleus * kvn, TVector3 * norm)
    // In this case the effective thickness of the material 'seen' by the particle
    // depending on its direction of motion is used for the calculation.
 
-
+   Double_t thickness;
    if (norm) {
-      Double_t thick = GetThickness();
       TVector3 p = kvn->GetMomentum();
-      Double_t e = GetEffectiveThickness((*norm), p);
-#ifdef DBG_TRGT
-      cout << "Thickness used in energy loss calculation=" << e << endl;
-#endif
-      SetThickness(e);
-      Double_t E_loss = GetDeltaE(kvn->GetZ(), kvn->GetA(), kvn->GetKE());
-      SetThickness(thick);
-      return E_loss;
+      thickness = GetEffectiveThickness((*norm), p);
    }
-   Double_t E_loss = GetDeltaE(kvn->GetZ(), kvn->GetA(), kvn->GetKE());
+   else
+      thickness = GetThickness();
+   Double_t E_loss = 
+         fIonRangeTable->GetLinearDeltaEOfIon(GetType(),kvn->GetZ(), kvn->GetA(), kvn->GetKE(),
+            thickness, fAmasr,fTemp,fPressure);
    return E_loss;
 }
 
@@ -390,16 +365,16 @@ Double_t KVMaterial::GetParticleEIncFromERes(KVNucleus * kvn, TVector3 * norm)
    //In this case the effective thickness of the material 'seen' by the particle
    //depending on its direction of motion is used for the calculation.
 
+   Double_t thickness;
    if (norm) {
-      Double_t thick = GetThickness();
       TVector3 p = kvn->GetMomentum();
-      Double_t e = GetEffectiveThickness((*norm), p);
-      SetThickness(e);
-      Double_t E_inc = GetIncidentEnergyFromERes(kvn->GetZ(), kvn->GetA(), kvn->GetKE());
-      SetThickness(thick);
-      return E_inc;
+      thickness = GetEffectiveThickness((*norm), p);
    }
-   Double_t E_inc = GetIncidentEnergyFromERes(kvn->GetZ(), kvn->GetA(), kvn->GetKE());
+   else
+      thickness = GetThickness();
+   Double_t E_inc = fIonRangeTable->
+      GetLinearEIncFromEResOfIon(GetType(),kvn->GetZ(), kvn->GetA(), kvn->GetKE(),
+         thickness, fAmasr, fTemp, fPressure);
    return E_inc;
 }
 
@@ -412,9 +387,9 @@ Double_t KVMaterial::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    // For a KVDetector, the energy loss of the ACTIVE layer only is returned.
 
    if(Z<1) return 0.;
+   if(GetActiveLayer()) return GetActiveLayer()->GetDeltaE(Z,A,Einc);
    Double_t E_loss =
-      fIonRangeTable->GetDeltaEOfIon(GetType(), Z, A, Einc, fThick, fAmasr, fTemp, fPressure);
-
+      fIonRangeTable->GetLinearDeltaEOfIon(GetType(), Z, A, Einc, GetThickness(), fAmasr, fTemp, fPressure);
    return E_loss;
 }
 
@@ -426,18 +401,10 @@ Double_t KVMaterial::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
    // having a residual kinetic energy Eres (MeV) after the absorber
    // For a KVDetector, the energy loss of the ACTIVE layer only is returned.
 
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
-   
-   Double_t EINC = -1.;
-   SetEResParams(Z, A);
-   EINC = GetEResFunction()->GetX(Eres, GetEminVedaloss(Z) * A,
-                               GetEmaxVedaloss(Z) * A);
-   
-   // Calculate energy loss in absorber for incident nucleus (Z,A)
-   // with kinetic energy Einc (MeV)
-   SetELossParams(Z, A);
-   Double_t E_loss = GetELossFunction()->Eval(EINC);
-
+   if(Z<1) return 0.;
+   Double_t E_loss = fIonRangeTable->
+      GetLinearDeltaEFromEResOfIon(
+         GetType(),Z,A,Eres,GetThickness(),fAmasr,fTemp,fPressure);
    return E_loss;
 }
 

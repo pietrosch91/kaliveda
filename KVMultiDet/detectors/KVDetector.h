@@ -136,7 +136,7 @@ Double_t *par_res;//!array of params for eres function
 		// everything into centimetres and return the total thickness with these units.
 		fTotThickness=0;
 		TIter next(fAbsorbers); KVMaterial* mat;
-		while( (mat = (KVMaterial*)next()) ) fTotThickness += mat->GetThicknessInCM();
+		while( (mat = (KVMaterial*)next()) ) fTotThickness += mat->GetThickness();
 		return fTotThickness;
 	};
 

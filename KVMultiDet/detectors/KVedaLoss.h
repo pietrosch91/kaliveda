@@ -50,6 +50,23 @@ public:
    virtual Double_t GetLinearEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E, Double_t d,
       Double_t Amat=0., Double_t T=-1., Double_t P=-1.);
 
+   virtual Double_t GetEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+   virtual Double_t GetLinearEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+
+   virtual Double_t GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+   virtual Double_t GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+
+   virtual Double_t GetDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0., Double_t T=-1., Double_t P=-1.);
+         
+   virtual Double_t GetPunchThroughEnergy(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.) ;
+   virtual Double_t GetLinearPunchThroughEnergy(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.) ;
+   
+   virtual Double_t GetMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
+   
    ClassDef(KVedaLoss, 1) //C++ implementation of VEDALOSS stopping power calculation
 };
 
