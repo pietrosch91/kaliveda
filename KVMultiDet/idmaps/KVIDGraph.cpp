@@ -885,9 +885,8 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
    //and its dependence on the 'residual energy' i.e. the 'x'-coordinate of the 'data' histogram,
    //each identification weighted by the contents of the original data bin.
    //
-   //The 'identification" we represent is the result of the KVReconstructedNucleus::GetPID() method.
-   //For particles identified in Z only, this is the "real Z".
-   //For particles with A & Z identification, this is Z + 0.2*(A - 2*Z)
+   //The "identification" or PID we represent is the result of the KVReconstructedNucleus::GetPID()
+   //method for the identified nucleus.
 
 	//Initialize the grid: calculate line widths etc.
 	Initialize();
