@@ -276,7 +276,7 @@ public:
         //Return particle identification PID for this particle.
         //If particle Z & A have been identified, this is "real Z" + 0.1*("real A"-2*"real Z")
         //If only Z identification has been performed, it is the "real Z"
-        if (GetRealA() > 0)
+        if (IsAMeasured())
             return (GetRealZ() + 0.1 * (GetRealA() - 2. * GetRealZ()));
         return GetRealZ();
     };
@@ -301,13 +301,13 @@ public:
         // mass number, A, was measured, not calculated
         SetBit(kAMeasured,yes);
     };
-    virtual Bool_t IsZMeasured()
+    virtual Bool_t IsZMeasured() const
     {
         // Returns kTRUE for reconstructed nuclei whose
         // atomic number, Z, was measured, not calculated
         return TestBit(kZMeasured);
     };
-    virtual Bool_t IsAMeasured()
+    virtual Bool_t IsAMeasured() const
     {
         // Returns kTRUE for reconstructed nuclei whose
         // mass number, A, was measured, not calculated
