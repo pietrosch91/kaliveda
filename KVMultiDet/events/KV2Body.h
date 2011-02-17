@@ -38,11 +38,11 @@ class KV2Body:public TObject {
    Double_t BCM;                //beta of centre of mass
    Double_t WLT;                //total lab energy
    Double_t WCT;                //total cm energy
-    Double_t WC3, WC4;
+    Double_t WC[5];           //cm energy of each nucleus
    
 	Double_t VC[5];              //cm velocities
    Double_t EC[5];              //cm energies
-   Double_t K[5];						//defined only for nuclei 3 et 4
+   Double_t K[5];						//ratio of c.m. velocity to velocity of nucleus in c.m. v_cm/v_i_cm
    Double_t TETAMAX[5];				//defined only for nuclei 3 et 4
    Double_t TETAMIN[5];				//defined only for nuclei 3 et 4
    
@@ -54,17 +54,25 @@ class KV2Body:public TObject {
    TF1* fEqbmChargeState;   // function equilibrium charge state of projectile vs. E/A projectile
 
    void Set4thNucleus();
-   Double_t ThetaLabProj(Double_t *,Double_t *);
-   Double_t ThetaCMProj(Double_t *,Double_t *);
+   Double_t ThetaLabVsThetaCM(Double_t *,Double_t *);
+   Double_t ELabVsThetaCM(Double_t *,Double_t *);
 	Double_t XSecRuthLab(Double_t *,Double_t *);
 	Double_t XSecRuthLabInt(Double_t *,Double_t *);
    Double_t XSecRuthCM(Double_t *,Double_t *);
+   Double_t XSecRuthCMVsThetaCM(Double_t *,Double_t *);
+   
+   TF1* fThetaLabVsThetaCM[5];
+   TF1* fELabVsThetaCM[5];
+   
+   Bool_t fSetOutgoing;// = kTRUE if SetOutgoing is called before CalculateKinematics
+   
+   Int_t FindRoots(TF1*, Double_t, Double_t, Double_t, Double_t&, Double_t&) const;
 
  public:
 
    void init();
     KV2Body();
-    KV2Body(KVNucleus * proj, KVNucleus * cib, KVNucleus * proj_out =
+    KV2Body(KVNucleus * proj, KVNucleus * cib = 0, KVNucleus * proj_out =
             0, Double_t Ediss = 0.0);
     virtual ~ KV2Body();
 
@@ -77,7 +85,6 @@ class KV2Body:public TObject {
    void SetTarget(KVNucleus *);
    void SetTarget(Int_t z, Int_t a = 0);
    void SetOutgoing(KVNucleus * proj_out);
-   void SetOutgoing(Int_t inuc, KVNucleus * nuc);
 
    void SetExcitEnergy(Double_t ex) {
       fEDiss = ex;
@@ -117,16 +124,32 @@ class KV2Body:public TObject {
       return gamma;
    };
 
-   Double_t GetELabProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   Double_t GetVLabProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   Double_t GetThetaLabProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   Double_t GetThetaCMProj(Double_t ThetaLab,Int_t OfNucleus=3) const;
+	TF1* GetThetaLabVsThetaCMFunc(Int_t OfNucleus);
+   TF1* GetELabVsThetaCMFunc(Int_t OfNucleus);
+	
+   Double_t GetThetaLab(Double_t ThetaCM, Int_t OfNucleus) const
+   {
+      // Calculate lab angle of nucleus OfNucleus (=1,2,3,4) as a function of CM angle
+      return const_cast<KV2Body*>(this)->GetThetaLabVsThetaCMFunc(OfNucleus)->Eval(ThetaCM);
+   };
+   Double_t GetELab(Double_t ThetaCM, Int_t OfNucleus) const
+   {
+      // Calculate lab energy of nucleus OfNucleus (=1,2,3,4) as a function of CM angle
+      return const_cast<KV2Body*>(this)->GetELabVsThetaCMFunc(OfNucleus)->Eval(ThetaCM);
+   };
+   Int_t GetThetaCM(Double_t ThetaLab, Int_t OfNucleus, Double_t &t1, Double_t &t2) const;
+   Double_t GetThetaCM(Int_t OfNucleus, Double_t theta, Int_t OtherNucleus) const
+   {
+      // Calculate projectile CM angle from target CM angle and vice versa
+      if(TMath::Abs(OfNucleus-OtherNucleus)%2) return 180.-theta;
+      return theta;
+   };
+   Double_t GetMinThetaCMFromThetaLab(Int_t OfNucleus, Double_t theta, Int_t OtherNucleus) const;
    
-	Double_t GetELabTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   Double_t GetVLabTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   Double_t GetThetaLabTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   Double_t GetThetaCMTarget(Double_t ThetaLab,Int_t OfNucleus=3) const;
-   
+   Int_t GetELab(Int_t OfNucleus, Double_t ThetaLab, Int_t AngleNucleus, Double_t& e1, Double_t& e2) const;
+   Int_t GetVLab(Int_t OfNucleus, Double_t ThetaLab, Int_t AngleNucleus, Double_t& e1, Double_t& e2) const;
+   Int_t GetThetaLab(Int_t OfNucleus, Double_t ThetaLab, Int_t AngleNucleus, Double_t& e1, Double_t& e2) const;
+
 	Double_t GetXSecRuthLab(Double_t ThetaLab_Proj,Int_t OfNucleus=3) const;
    Double_t GetXSecRuthCM(Double_t ThetaLab_Proj,Int_t OfNucleus=3) const;
 	
@@ -149,7 +172,7 @@ class KV2Body:public TObject {
 	
 	Double_t EqbmChargeState(Double_t *t,Double_t*);
 	TF1* GetEqbmChargeStateFunc();
-
+	
    ClassDef(KV2Body, 0)         //Relativistic binary kinematical calculation
 };
 

@@ -290,9 +290,16 @@ void KVElasticScatterEvent::MakeDiffusion(Double_t theta,Double_t phi){
 	//de l'energie cinetique du projectile diffuse
 	//All kinematics properties calculated in the KV2Body class
 	//are accessible via the KV2Body& GetKinematics() method
+	//
+	// WARNING: in inverse kinematics, there are two projectile energies
+	// for each lab angle. We only use the highest energy, corresponding
+	// to the most forward CM angle.
 	k2body.GetNucleus(3)->SetTheta(theta);
 	k2body.GetNucleus(3)->SetPhi(phi);
-	k2body.GetNucleus(3)->SetKE(k2body.GetELabProj(theta));
+	Int_t nsol;
+	Double_t e1, e2;
+	nsol = k2body.GetELab(3, theta, 3, e1, e2);
+	k2body.GetNucleus(3)->SetKE( TMath::Max(e1, e2) );
 
 	//Diffusion elastique
 	//		p1+p2 = p3+p4
@@ -422,8 +429,7 @@ void KVElasticScatterEvent::Process(KVMultiDetArray* mdet){
 	//-------------------------
 
 	DuplicateEvent("IN","DIFF");
-	k2body.SetOutgoing(3,kcurrent_evt->GetParticle("PROJ"));
-	k2body.SetOutgoing(4,kcurrent_evt->GetParticle("TARG"));
+	k2body.SetOutgoing(kcurrent_evt->GetParticle("PROJ"));
 	k2body.CalculateKinematics();
 
 	Double_t anglemax=k2body.GetMaxAngleLab(3);

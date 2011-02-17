@@ -87,8 +87,7 @@ void KVElasticScatterEvent_e475s::Process(KVMultiDetArray* mdet){
 	//-------------------------
 	
 	DuplicateEvent("IN","DIFF");	
-	k2body.SetOutgoing(3,kcurrent_evt->GetParticle("PROJ"));
-	k2body.SetOutgoing(4,kcurrent_evt->GetParticle("TARG"));
+	k2body.SetOutgoing(kcurrent_evt->GetParticle("PROJ"));
 	k2body.CalculateKinematics();
 	
 	Double_t anglemax=k2body.GetMaxAngleLab(3);
