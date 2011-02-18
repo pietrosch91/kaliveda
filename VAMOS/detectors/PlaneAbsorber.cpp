@@ -19,7 +19,8 @@ PlaneAbsorber::PlaneAbsorber(){
     thickness = 0.;
 
     realThickness = thickness/TMath::Cos(GetOrientation("RAD"));
-
+    absorber = 0;
+	
     absorber = new KVDetector();
     absorber->SetTitle("PLANE_ABS");
     absorberMaterial = new KVMaterial("Myl",realThickness);  // default Mylar - no thickness, no orientation
@@ -28,7 +29,10 @@ PlaneAbsorber::PlaneAbsorber(){
 }
 
 PlaneAbsorber::~PlaneAbsorber(){
-    delete absorber;
+       if(absorber != 0){
+        delete absorber;
+        absorber=0;
+    }
 }
 
 void PlaneAbsorber::SetMaterial(const Char_t *type){

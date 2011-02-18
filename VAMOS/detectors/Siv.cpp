@@ -93,10 +93,70 @@ Siv::Siv(LogFile *Log)
 #endif
 
   inf.close();
+  
+  
+   Int_t  num; 
+   Float_t off;  
+   TString sline;
+   
+   ifstream in2;
+
+   if(!gDataSet->OpenDataSetFile("Offset.cal",in2))
+  {
+     cout << "Could not open the calibration file Offset.cal !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	cout<< "Reading Offset.cal" <<endl;
+	while(!in2.eof()){
+       sline.ReadLine(in2);
+       if(!in2.eof()){
+	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
+	     sscanf(sline.Data(),"%d %f ",&num ,&off );
+	     TOffset[num] = off;
+	     //L->Log << "off	:"<<off<<endl;
+	     	   }
+       		}
+     	}
+  }
+  in2.close();  
+
+
+
+   Int_t  numm;
+   Int_t thi=0;
+   ifstream in;
+   TString sline2;
+   
+   if(!gDataSet->OpenDataSetFile("thick.dat",in))
+  {
+     cout << "Could not open the calibration file thick.dat !!!" << endl;
+     return;
+  }
+  else 
+  {
+	while(!in.eof()){
+       sline2.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline2.BeginsWith("#")){
+	     sscanf(sline2.Data(),"%d %d", &numm, &thi);
+	     si_thick[numm]=thi;
+	     	   }
+       		}
+     	}
+  }
+  in.close();
+
+
+    
   Ready=kTRUE;
 }
 Siv::~Siv(void)
 {
+
+delete Rnd;
+
 #ifdef DEBUG
   cout << "Si::Destructor" << endl;
 #endif
@@ -152,6 +212,7 @@ void Siv::Init(void)
   for(Int_t i=0;i<21;i++)
     {
       E[i] = 0.0;
+      //TOffset[i] = 0.0;
     }
   for(Int_t i=0;i<3;i++)
     {
@@ -161,11 +222,6 @@ void Siv::Init(void)
   EM = 0;
   ETotal = 0.0;
   Number = -10;
-  /*
-  AA = 0;
-  ZZ = 0;
-  Err_E = 0;
-  */
 }
 
 void Siv::Calibrate(void)
@@ -189,12 +245,9 @@ void Siv::Calibrate(void)
 	    	//cout << i << " " << j << " " <<TCoef[i][j] << endl;
 	  //}
     }
-  	L->Log<<"T_Raw[0] : "<<T_Raw[0]<<" "<<"T[0] : "<<T[0]<<endl;
+  	L->Log<<"Siv.cpp :	"<<"T_Raw[0] : "<<T_Raw[0]<<" "<<"T[0] : "<<T[0]<<endl;
 	//L->Log<<"TCoef[0][1] : "<<TCoef[0][1]<<" "<<"TCoef[0][2] : "<<TCoef[0][2]<<" "<<"TCoef[0][3] : "<<TCoef[0][3]<<" "<<"TCoef[0][4] : "<<TCoef[0][4]<<endl;
-  //cout<< "T[0] = "<<T[0]<<endl;
-  //cout<< "T[1] = "<<T[1]<<endl;
-  //cout<< "T[2] = "<<T[2]<<endl;    
-  
+
   for(i=0;i<E_RawM;i++)
       {
 	//cout<<"Si : E_Raw["<<i<<"] = "<<E_Raw[i]<<endl;
@@ -206,8 +259,7 @@ void Siv::Calibrate(void)
 // 	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
 // 			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
 	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] +	Rnd->Uniform(0,1),	
-			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
-			  		  
+			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];		
 	    //	    cout<<"RANDOM-------------"<<Rnd->Uniform(0,1)<<endl<<flush;
 	    //	    cout<<"ECoeff="<<ECoef[E_Raw_Nr[i]][k]<<endl<<flush;
 	  }
@@ -216,8 +268,11 @@ void Siv::Calibrate(void)
 	    ETotal = E[E_Raw_Nr[i]];
 	    	    //cout<<"ETotal Si = "<<E[E_Raw_Nr[i]]<<endl;
 		    //cout<<"E Si = "<<E<<endl;
+		 
 	    Number = E_Raw_Nr[i];
-
+	    T[0] += TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
+	    
+	    L->Log<<"T:	"<<T[0]<<"	Offset:		"<<TOffset[Number]<<endl;
 	    EM++;
 	  }
       }
@@ -236,7 +291,7 @@ void Siv::Calibrate(void)
       Present = true;
       Counter[1]++;
     }
-  
+//delete Rnd;  
 }
 
 void Siv::Treat(void)
@@ -309,10 +364,7 @@ void Siv::outAttach(TTree *outT)
    //outT->Branch("SiERaw",&E_Raw[0],"SiERaw/S");
    //outT->Branch("SiERaw",SiRaw,"SiERaw[21]/S");
    
-   //outT->Branch("iA",&AA,"iA/D");
-   //outT->Branch("ZZ",&ZZ,"ZZ/D");
-
-   //outT->Branch("TSi_HF",&T[0],"TSi_HF/F");
+   outT->Branch("TSi_HF",&T[0],"TSi_HF/F");
    //outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    //outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");
 

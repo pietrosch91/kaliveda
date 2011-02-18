@@ -13,6 +13,9 @@
 
 #include <stdio.h>
 
+#include <cstdlib>
+#include <stdlib.h>
+#include <new>
 
 ClassImp(EnergyTree)
 
@@ -25,7 +28,7 @@ ClassImp(EnergyTree)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-EnergyTree::EnergyTree(LogFile *Log)
+EnergyTree::EnergyTree(LogFile *Log,Siv *SiD)
 {
    // Default constructor
   eN=0;
@@ -47,8 +50,6 @@ EnergyTree::EnergyTree(LogFile *Log)
   diff2=0.;
   diffsi=0.;
   diffcsi=0.;
-  diffetot=0.;
-  difflum=0.;
   sA=0;
   iA=0.;
   right=0;
@@ -57,17 +58,56 @@ EnergyTree::EnergyTree(LogFile *Log)
   Einc=0.;
   EEsi=0.;
   Echio=0.;
-  L=Log;
   
+  L=Log;
+  Si = SiD;
+
+    kvt=0;
+    ioCh=0;
+    gap=0;
+    si=0;
+    csi=0;
+    kvt_icsi=0; 
+    kvt_sicsi=0;
+    lum=0; 
+
+/*    ioCh = new IonisationChamber();  
+    gap = new PlaneAbsorber();
+    si = new PlaneAbsorber();
+    csi = new PlaneAbsorber();
+    
+    kvt_icsi = new KVTelescope();  
+    kvt_sicsi = new KVTelescope();
+    lum=new KVLightEnergyCsI(csi->GetDetector());*/
+
 }
 
 EnergyTree::~EnergyTree()
 {
    // Destructor
+   /*
+    delete ioCh;
+    ioCh = 0;  
+    delete gap;
+    gap = 0;
+    delete si; 
+    si = 0;
+    delete csi; 
+    csi = 0;
+    
+    delete kvt_icsi; 
+    kvt_icsi = 0;
+    delete kvt_sicsi; 
+    kvt_sicsi = 0;
+    delete lum;	   
+    lum = 0;
+    */	   
+   //ClearEvent();
 }
 
 //-------------------telescope and calibrations initialization----------------------------
 // return the thickness in microm of this Silicon number of the VAMOS wall-Si 
+/*
 Double_t EnergyTree::GetSiliconThickness(Int_t number)
 {
     Double_t si_thick[18] =
@@ -81,7 +121,8 @@ Double_t EnergyTree::GetSiliconThickness(Int_t number)
 
     return si_thick[number];	
 }
-
+*/
+/*
   void EnergyTree::InitDetector()
 {
  	detsi=new KVDetector ("Si",thick);	//define a Silicon detector of 500 microm thick
@@ -92,6 +133,7 @@ Double_t EnergyTree::GetSiliconThickness(Int_t number)
 	//lum=new KVLightEnergyCsI(detcsi);
 	//kvt->Print();
 }
+*/
 
 void EnergyTree::InitIcSi(Int_t number) // Ionisation Chamber to Silicon Telescope
 {
@@ -110,10 +152,11 @@ void EnergyTree::InitIcSi(Int_t number) // Ionisation Chamber to Silicon Telesco
     gap = new PlaneAbsorber();
     si = new PlaneAbsorber();
 
+/*
     Double_t si_thick[19] = 
         {0., 522., 530., 531., 532., 533., 533., 534., 535., 531., 
                 535., 524., 531., 529., 524., 533., 537., 519., 530.};
-
+*/
     // Remember 'gap' and 'si' are of class 'PlaneAbsorber'
     // see header files for list of functions that can be called
 
@@ -121,7 +164,8 @@ void EnergyTree::InitIcSi(Int_t number) // Ionisation Chamber to Silicon Telesco
     gap->SetMaterial("C4H10");
     gap->SetPressure(40.);
 
-    si->SetThickness(si_thick[number],"NORM");
+    si->SetThickness(Si->si_thick[number],"NORM");
+    //si->SetThickness(Thick(number),"NORM");
     si->SetMaterial("Si");
     si->SetActive();
 
@@ -169,19 +213,21 @@ void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
     beam >>  | Silicon | C4H10 (Gap) | CsI 
 
     ********************************************************************************/
-
+ 
     si = new PlaneAbsorber();
     gap = new PlaneAbsorber();
     csi = new PlaneAbsorber();
 
+/*
     Double_t si_thick[19] =
         {0., 522., 530., 531., 532., 533., 533., 534., 535., 531.,
-                535., 524., 531., 529., 524., 533., 537., 519., 530.};
-
+                535., 524., 531., 529., 524., 533., 537., 519., 530.};	//# Si : 1 to 18
+*/
     // Remember they are of class 'PlaneAbsorber'
     // see header files for list of methods that can be called
-
-    si->SetThickness(si_thick[number],"NORM");
+     //L->Log<<"Silicon Thickness	: "<<si_thick[number]<<endl;
+    si->SetThickness(Si->si_thick[number],"NORM");
+    //si->SetThickness(Thick(number),"NORM");
     si->SetMaterial("Si");
     si->SetActive();
 
@@ -201,16 +247,53 @@ void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
     kvt_sicsi->Add(si->GetDetector());
     kvt_sicsi->Add(gap->GetDetector());  // In-active so no 'detected' energy
     kvt_sicsi->Add(csi->GetDetector());
+    lum=new KVLightEnergyCsIVamos(csi->GetDetector());
     lum=new KVLightEnergyCsI(csi->GetDetector());
-
 }
 
+Int_t EnergyTree::ClearEvent(){     
+    if(kvt != 0){
+        delete kvt;
+        kvt=0;
+    }
+    if(ioCh != 0){
+        delete ioCh;
+        ioCh=0;
+    }
+    if(gap != 0){
+         delete gap;
+        gap=0;
+    }
+    if(si != 0){
+         delete si;
+        si=0;
+    }
+    if(csi != 0){ 
+        delete csi;
+        csi=0;
+    }
+    if(kvt_icsi != 0){
+        delete kvt_icsi;
+        kvt_icsi=0;
+    }
+    if(kvt_sicsi != 0){ 
+        delete kvt_sicsi;
+        kvt_sicsi=0;
+    }
+    if(lum != 0){ 
+        delete lum;
+        lum=0;
+    }
+    return 0;
+}
 
-  void EnergyTree::SetSiliconThickness(Int_t number)
+  void EnergyTree::SetSiliconThickness(Int_t number)	//Si->Number goes to 0 to 17
 {
-	thick=GetSiliconThickness(number);
-	InitSiCsI(number);
-	//detsi->SetThickness(thick);
+	//thick=GetSiliconThickness(number);
+	
+		//Test	
+	InitSiCsI(number+1);	//InitSiCsI(#)	(1-18)
+		//Fin Test
 }
 //-------------------------------------------------------------------
 
@@ -222,6 +305,7 @@ void EnergyTree::SetCalSi(Float_t p1, Float_t p2, Float_t p3){
   b=p2;
   c=p3;
   alpha=1;
+  L->Log<<"parametri silicio a="<<a<<" b="<<b<<" c="<<c<<endl;
 }
 
 //Set CsI pedestal
@@ -231,10 +315,13 @@ void EnergyTree::SetCsIPed(Float_t pied){
 
 //CsI calibration parameters and the piedestal
 void EnergyTree::SetCalCsI(Float_t a1, Float_t a2, Float_t a3){
+ //lum=new KVLightEnergyCsIVamos(csi->GetDetector());
+ 
  lum=new KVLightEnergyCsI(csi->GetDetector());
  lum->SetNumberParams(3);
  lum->SetParameters(a1,a2,a3);
- //cout<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
+ L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
+ L->Log<<"pedestal csi=		"<<ePied<<endl;
 }
 
 /*   
@@ -255,13 +342,14 @@ void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
     }
   if(CsI->E_RawM>0)
     {
-      //cout<<" SetCalibration:: csinum="<<csinum<<" ped "<<CsI->Ped[csinum][0]<<endl;
       SetCsIPed(CsI->Ped[csinum][0]);
       SetCalCsI(CsI->ECoef[csinum][0],CsI->ECoef[csinum][1],CsI->ECoef[csinum][2]);
     }
   else
     {
       ePied=0.0;
+      //lum=new KVLightEnergyCsIVamos(csi->GetDetector());
+      
       lum=new KVLightEnergyCsI(csi->GetDetector());
       lum->SetNumberParams(3);
       lum->SetParameters(0.,0.,0.);
@@ -275,6 +363,13 @@ void EnergyTree::SetFragmentZ(Int_t Zin){
 }
 
 //---------------------------best estimation of Ecsi and A-----------
+void EnergyTree::DoIt(UShort_t chsi, UShort_t chcsi, Int_t Aoo){
+  CalculateESi(chsi);
+  ECsIch(chcsi);
+  SetFragmentA(Aoo);
+  CompleteSimulation(short(LightCsI));  
+}
+
 
 //Complete procedure to get the best estimate of the residual energy
 Double_t EnergyTree::GetResidualEnergyCsI(UShort_t chsi, UShort_t chcsi){
@@ -294,11 +389,11 @@ Double_t EnergyTree::GetResidualEnergyCsI(UShort_t chsi, UShort_t chcsi){
   return sRefECsI; 
 }
 
-Double_t EnergyTree::GetResidualEnergyCsI2(UShort_t chsi, UShort_t chcsi, Int_t Zoo){
+Double_t EnergyTree::GetResidualEnergyCsI2(UShort_t chsi, UShort_t chcsi, Int_t Zoo, Int_t Aoo){
 //Int_t eZ;
 Zoo=eZ;
 Int_t A;
-A=2*eZ;
+A=Aoo;
 
   CalculateESi(chsi);
   ECsIch(chcsi);
@@ -318,6 +413,7 @@ void EnergyTree::CalculateESi(UShort_t chan){
   Double_t fact=1.;
   //  cout<<"eEnergy Si ch="<<chan<<endl;
   eEnergySi = fact*alpha*(a+chan*b+chan*chan*c);
+  //L->Log<<" a="<<a<<" b="<<b<<" c="<<c<<" alpha="<<alpha<<endl;
   //eEnergySi = Si->ETotal;
   //cout<<"eEnergySi=MeV "<<eEnergySi<<endl;	//" a="<<a<<" b="<<b<<" c="<<c<<" alpha="<<alpha<<endl;  
 }
@@ -329,6 +425,7 @@ void EnergyTree::ECsIch(UShort_t chan){
   LightCsI=chan - ePied; 
   //cout<<"pedestal csi="<<ePied<<" chan="<<chan<<endl; //paola
   //L->Log<<"LightCsI ECsIch() = "<<LightCsI<<endl;
+  //L->Log<<"pedestal csi=	"<<ePied<<endl;
 }
 //set fragment A
 void EnergyTree::SetFragmentA(Int_t Ain){ 
@@ -370,17 +467,17 @@ void EnergyTree::SimulateEvent(){
   //L->Log<<"Einc = "<<Einc<<endl;
   //cout<<"Zsim="<<eZ<<" Asim="<<sA<<" Einc="<<Einc<<endl; //paola
   part.SetEnergy(Einc);
-  kvt_sicsi->DetectParticle(&part);	//Change the telescope to tqke account the gap between the two detectors
-  
-  //L->Log<<"Edetsi = "<<detsi->GetEnergy()<<endl;
-  //L->Log<<"Edetcsi = "<<detcsi->GetEnergy()<<endl;
-  
+  kvt_sicsi->DetectParticle(&part);	//Change the telescope to take account the gap between the two detectors
+
+	  
   diffsi = eEnergySi-si->GetEnergy();
   diffcsi = RetrieveEnergyCsI()-csi->GetEnergy();
   //diffetot = si->GetIncidentEnergy(eZ,sA,eEnergySi)-(eEnergySi+RetrieveEnergyCsI());
   
-  //L->Log<<"diff Si = "<<eEnergySi-detsi->GetEnergy()<<endl;
-  //L->Log<<"diff CsI = "<<RetrieveEnergyCsI()-detcsi->GetEnergy()<<endl;
+//  L->Log<<"======="<<endl;
+//  L->Log<<"diff Si = "<<eEnergySi-si->GetEnergy()<<endl;
+//  L->Log<<"diff CsI = "<<RetrieveEnergyCsI()-csi->GetEnergy()<<endl;
+//  L->Log<<"eZ = "<<eZ<<"	sA = "<<sA<<endl;
   //L->Log<<"diff Etot = "<<detsi->GetIncidentEnergy(eZ,sA,eEnergySi)-(eEnergySi+RetrieveEnergyCsI())<<endl;
   //part.Print();
   //return part.GetA()*part.GetAMeV();
@@ -395,7 +492,7 @@ void EnergyTree::GetESi(){
 //Energy in CsI from simulation
 void EnergyTree::GetECsI(){
   sEnergyCsI=csi->GetEnergy();
-  //cout<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
+  //L->Log<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
 }
 
 // Reset the telescope in order to prepare for the next event
@@ -413,7 +510,7 @@ void EnergyTree::Bisection(Int_t A, UShort_t chan){
   if(A-5>0)
   left=A-5.;  //left and right are integer!! A is a double
   else left=1;
-  right=A+10.;
+  right=A+10;	
   //L->Log<<"-----------------------------------BISECTION-------------------"<<endl;//paola
 
   //loop: bisection

@@ -13,7 +13,12 @@
 IonisationChamber::IonisationChamber(){
 
     // Default Ionisation Chamber
-
+    ioCh = 0;
+    entranceWindow = 0;
+    exitWindow = 0;
+    deadGas = 0;
+    activeGas = 0;
+    
     ioCh = new KVDetector();
     ioCh->SetTitle("IOCH");
 
@@ -35,7 +40,26 @@ IonisationChamber::IonisationChamber(){
 }
 
 IonisationChamber::~IonisationChamber(){
-    delete ioCh;
+    if(ioCh != 0){
+        delete ioCh;
+        ioCh=0;
+    }
+    if(entranceWindow != 0){
+        delete entranceWindow;
+        entranceWindow=0;
+    }
+    if(exitWindow != 0){
+        delete exitWindow;
+        exitWindow=0;
+    }
+    if(deadGas != 0){
+        delete deadGas;
+        deadGas=0;
+    }
+    if(activeGas != 0){
+        delete activeGas;
+        activeGas=0;
+    } 
 }
 
 Float_t IonisationChamber::GetDeadGasThickness(){

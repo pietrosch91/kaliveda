@@ -13,7 +13,11 @@
 DriftChamber::DriftChamber(){
 
     // Default drift chamber 
-    
+    entranceWindow = 0;
+    exitWindow = 0;
+    gas = 0;
+    driftChamber = 0;
+        
     entranceWindow = new KVMaterial("Myl", 1.5);    // 1.5um Mylar Window
     exitWindow = new KVMaterial("Myl", 1.5);        // 1.5um Mylar Window
 
@@ -30,7 +34,22 @@ DriftChamber::DriftChamber(){
 }
 
 DriftChamber::~DriftChamber(){
-    delete driftChamber;
+       if(entranceWindow != 0){
+        delete entranceWindow;
+        entranceWindow=0;
+    }
+    if(exitWindow != 0){
+        delete exitWindow;
+        exitWindow=0;
+    }
+    if(gas != 0){
+        delete gas;  
+        gas=0;
+    }
+    if(driftChamber != 0){
+        delete driftChamber;
+        driftChamber=0;
+    }
 }
 
 Float_t DriftChamber::GetGasPressure(){

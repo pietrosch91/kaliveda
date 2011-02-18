@@ -2,6 +2,8 @@
 //Author: chbihi
 
 #include "KVLightEnergyCsIVamos.h"
+#include "TMath.h"
+#include "KVCsI.h"
 
 ClassImp(KVLightEnergyCsIVamos)
 
@@ -40,7 +42,7 @@ KVLightEnergyCsIVamos::KVLightEnergyCsIVamos()
 {
    // Default constructor
 }
-   
+  
 KVLightEnergyCsIVamos::KVLightEnergyCsIVamos(KVDetector * kvd)
         : KVLightEnergyCsI(kvd)
 {
@@ -68,9 +70,16 @@ Double_t KVLightEnergyCsIVamos::Compute(Double_t light) const
    par[4] = (Double_t) fA;
   
    const_cast<KVLightEnergyCsIVamos*>(this)->fLightVamos.SetParameters(par);
+   //fLightVamos.SetParameters(par);
    
+   /*
+   cout<<"====	This	===="<<endl;
+   this->Print();
+   cout<<"====	Vamos	===="<<endl;
+   fLightVamos.Print();
+   */
    //invert light vs. energy function to find energy
-Double_t xmin, xmax; fLightVamos.GetRange(xmin,xmax);
+   Double_t xmin, xmax; fLightVamos.GetRange(xmin,xmax);
    Double_t energy = fLightVamos.GetX(light, xmin, xmax);
 
    return energy;

@@ -5,6 +5,8 @@
 #include "EnergyTree.h"
 #include "KVNucleus.h"
 
+#include "KVIVReconIdent.h"
+
 //Author: Maurycy Rejmund
 ClassImp(Identificationv)
 
@@ -20,8 +22,9 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 ////////////////////////////////////////////////////////////////////////////////
 
 Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
-				 DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID)
+				 DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID, EnergyTree *E)
 {
+/*
 #ifdef DEBUG
   cout << "Identificationv::Constructor" << endl;
 #endif
@@ -30,6 +33,7 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   int len=255;
   int i;
   int tmp;
+*/
 
   L = Log;
   Rec = Recon;
@@ -37,17 +41,19 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   Ic = IonCh;
   Si = SiD;
   CsI=CsID;
+  
+  energytree = E;
   	
-  for(i=0;i<6;i++)
-    Counter[i] = 0;
+  //for(i=0;i<6;i++)
+    //Counter[i] = 0;
 
   Init();
 
   Rnd = new Random;
-
-  energytree=new EnergyTree(L);
+  //energytree=new EnergyTree(L);
   //energytree->Init();
 
+/*
 #ifdef FOLLOWPEAKS
 
   ifstream inf2("CgLast.cal");
@@ -211,10 +217,15 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
 
 
 #endif
-
+*/
 }
+
 Identificationv::~Identificationv(void)
 {
+
+delete Rnd;
+
+/*
 #ifdef DEBUG
 
   cout << "Identificationv::Destructor" << endl;
@@ -250,9 +261,11 @@ Identificationv::~Identificationv(void)
 
 
 #endif
+*/
 
 }
 
+/*
 void Identificationv::PrintCounters(void)
 {
 #ifdef DEBUG
@@ -272,6 +285,7 @@ void Identificationv::PrintCounters(void)
 
 
 }
+*/
 
 void Identificationv::Init(void)
 {
@@ -281,26 +295,21 @@ void Identificationv::Init(void)
   //#endif
   Present = false; 
 
-  dE = dE1 = E = T = V = M_Q = M = Z1 = Z2 =  Beta = Q = D = -10;
+  dE = dE1 = E = T = V = M_Q = M = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
   M_Qr = Mr = Qr = -10.0;
   Qc = Mc = -10.0;
   Gamma = 1.; 
-	      
+
+/*	      
 #ifdef FOLLOWPEAKS
   Mcorr = M_Qcorr = 0.0;
   M_Qcorr1 = 0.0;
   Mcorr1 = 0.0;
 #endif
-  for(Int_t i=0;i<5;i++)
-    {
-    dif1[i]=-10.0;
-    dif2[i]=-10.0;
-    As[i]=-10.0;
-    ZZZ[i]=-10.0;
-    }
-        
+*/
+       
 zt = ZZ = AA = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
-ESi = ECsI = EEtot = -10.0;
+ESi = ECsI = EEtot = AA2 = ZR = -10.0;
 }
 
 void Identificationv::SetBrho(Double_t bbrho)
@@ -313,315 +322,169 @@ Double_t Identificationv::GetBrho(void)
 return brho;
 }
 
-void Identificationv::Simulation(Int_t ZZZ, Int_t AAA, Double_t E1, Double_t E2)
-{		
-EEtot = E1+E2;
-i=10;
-		
-L->Log<<"-------------Simulation-------------"<<endl;
-energytree->InitIcSi(int(Si->Number));
-for(EEtot+i;EEtot+i<EEtot+51;i++)
-	{
-	energytree->GetResidualEnergyIc(ZZZ,AAA,EEtot+i);
-	if(abs(E1-energytree->EEsi)<0.5)
-		break;
-	//L->Log<<"Esi = "<<energytree->EEsi<<" "<<"Echio = "<<energytree->Echio<<endl;
-	}
-L->Log<<"Esi = "<<energytree->EEsi<<" "<<"Echio = "<<energytree->Echio<<endl;
-L->Log<<"-------------End simulation-------------"<<endl;
-}
-
 void Identificationv::Calculate(void)
 {
   //#ifdef DEBUG
   //cout << "Identificationv::Calculate" << endl;
   //L->Log<< "Identificationv::Calculate" << endl;
   //#endif
+	
+  energytree->SetSiliconThickness(int(Si->Number));	//0-17
   
-  L->Log<<"num si="<<int(Si->Number)<<endl;
-  L->Log<<"num csi="<<int(CsI->Number)<<endl;
-  
-  energytree->SetSiliconThickness(Si->Number);
-  
-  L->Log<<"Thick : "<<energytree->thick<<" "<<"Det. Nb. : "<<Si->Number<<endl;
+  L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
+  L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;
+
+
+
+	    
+ // L->Log<<"Thick : "<<energytree->thick<<" "<<"Det. Nb. : "<<Si->Number<<endl;
   
   energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
- 
+
+	
   for(Int_t y=0;y< Si->E_RawM ;y++)	 
     {
-      //L->Log<<"ch si="<<Si->E_Raw[y]<<endl<<flush;
       for(Int_t j=0;j< CsI->E_RawM;j++)	
 	{
 	  if(Geometry(Si->Number,CsI->Number)==1)			// if csi is behind the si
 	    { 
 	      CsIRaw = int(CsI->E_Raw[j]);
 	      SiRaw = int(Si->E_Raw[y]);
-	      L->Log<<"CsIRaw = "<<CsIRaw<<endl;
-	      L->Log<<"SiRaw = "<<SiRaw<<endl;
+	      L->Log<<"CsIRaw	= "<<CsIRaw<<endl;
+	      L->Log<<"SiRaw	= "<<SiRaw<<endl;
 	      //CsI->CsIRaw[CsI->Number] = CsI->E_Raw[j];			//Associer le canal au # du détecteur CsI
 	      //Si->SiRaw[Si->Number] = Si->E_Raw[y];				//Associer le canal au # du détecteur Si
-	      
-	      //L->Log<<"ch csi="<<CsI->E_Raw[j]<<endl<<flush;
-	      
-	      	Double_t min,max;
-  		min = max = rap[0];
-		Float_t min2,max2;
-  		min2 = max2 = val[0];
+			
+		Double_t min3,max3;
+  		min3 = max3 = abs(dif1[0]);
 		
-		Float_t min3,max3;
-  		min3 = max3 = abs(diffsi[0]);
-		Float_t min4,max4;
-  		min4 = max4 = abs(difflum[0]);
-		Float_t min5,max5;
-		min5 = max5 = abs(diffsi[0]*difflum[0]);
+		Double_t min11,max11;
+  		min11 = max11 = abs(dif11[0]);
 		
-		Float_t mmin,mmax;
-  		mmin = mmax = diffe[0];
+		Double_t min12,max12;
+  		min12 = max12 = abs(dif12[0]);
+				
+		Double_t min4,max4;
+  		min4 = max4 = abs(dif2[0]);
 		
 		//energytree->eEnergySi=Si->ETotal;
-
+			
 	      for(energytree->eZ=3;energytree->eZ<24;energytree->eZ++)
 	      {
 	      energytree->SetFragmentZ(energytree->eZ);
 	      energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
-		dif1[energytree->eZ-3]=energytree->diff1;
-		dif2[energytree->eZ-3]=energytree->diff2;
-		As[energytree->eZ-3]=energytree->sA;
+	      
+		dif1[energytree->eZ-3]=energytree->diffsi;
+		dif2[energytree->eZ-3]=energytree->diffcsi;
 		
+		As[energytree->eZ-3]=energytree->sA;		
 		SiRef[energytree->eZ-3] = energytree->eEnergySi;
 		ARetreive[energytree->eZ-3]=energytree->RetrieveA();
-		CsIsRef[energytree->eZ-3] = energytree->sRefECsI;
-		
-		val[energytree->eZ-3]=abs(dif1[energytree->eZ-3]*dif2[energytree->eZ-3]);
-		rap[energytree->eZ-3]=double(energytree->sA)/double(energytree->eZ);
-		//diffe[energytree->eZ-3]=abs((energytree->detsi->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt]))-double(SiRef[zt]+CsIsRef[zt]));
-		
-		if(rap[energytree->eZ-3] < min)
-      			min = rap[energytree->eZ-3];
+		CsIsRef[energytree->eZ-3] = energytree->eEnergyCsI;				//energytree->sRefECsI;
+			
+		if(abs(dif1[energytree->eZ-3]) < min3)
+      			min3 = abs(dif1[energytree->eZ-3]);
     		else
-      			max = rap[energytree->eZ-3];
+      			max3 = abs(dif1[energytree->eZ-3]);
 		
-		if(val[energytree->eZ-3] < min2)
-      			min2 = val[energytree->eZ-3];
+		if(abs(dif2[energytree->eZ-3]) < min4)
+      			min4 = abs(dif2[energytree->eZ-3]);
     		else
-      			max2 = val[energytree->eZ-3];
-		/*	
-		if(diffe[energytree->eZ-3] < mmin)
-      			mmin = diffe[energytree->eZ-3];
-    		else
-      			mmax = diffe[energytree->eZ-3];	
-		*/				
+      			max4 = abs(dif2[energytree->eZ-3]);						
 	      }
 		
-		//L->Log<<"Min : "<<min<<endl;
-		
   		for(zt=0;zt<21;zt++)				
-		{
-			if(rap[zt]==min && rap[zt]>1.3 && rap[zt]<2.8 && ARetreive[zt]>3 && ARetreive[zt]<=50) //&& dif1[zt]>0 && dif2[zt]>0) CsIsRef[zt]>1e-8 && CsIsRef[zt]<1e+6) //&& (dif1[zt]>0 || dif2[zt]>0)) //|| val[zt]==min2)	
-				break;	//rap[zt]==min
-			//else if(val[zt]==min2 && )
-				//break;	
+		{	
+			if(abs(dif1[zt])== min3)		//Minimizing the silicon energy
+			//if(abs(dif2[zt])== min4)		//Minimizing the cesium iodide energy
+				break;		
 		}
 		
-		
-		if(ARetreive[zt]>100 || ARetreive[zt]<3 || isnan(double(ARetreive[zt]))==1 || isinf(double(ARetreive[zt]))==1)//(CsIsRef[zt]<1e-10 || CsIsRef[zt]>1e+6)	//ARetreive[zt]>100 || ARetreive[zt]<0 || //Si le min ne correspond pas a la bonne valeur de A
+		if((ARetreive[zt]<=41 && 455<=gIndra->GetCurrentRunNumber()<593) || (ARetreive[zt]<=49 && 379<=gIndra->GetCurrentRunNumber()<424))
 		{
-  			for(zt=0;zt<21;zt++)				
-			{
-			if(rap[zt]<2.8 && (((zt==0 || zt==1) && val[zt]<400) || (((zt>1 && zt<10)||zt==10) &&
-			val[zt]<1000) ||(zt>10 && val[zt]<20000)) )	//(CsIsRef[zt]>1e-8 && CsIsRef[zt]<1e+6) &&
-				break;
-			}
-		}
-		L->Log<<"eZ = "<<zt+3<<endl<<flush;
-		L->Log<<"A = "<<ARetreive[zt]<<endl<<flush;
-		L->Log<<"Esi = "<<float(SiRef[zt])<<endl;
-		L->Log<<"Ecsi = "<<CsIsRef[zt]<<endl;
-		//L->Log<<"Canal csi Invert() = "<<energytree->CalculateCanalCsI()<<endl;
-		L->Log<<"E tot = "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
-		//L->Log<<"Getincidentenergy = "<<energytree->si->GetDetector()->GetIncidentEnergy(zt+3,int(As[zt]),SiRef[zt])<<endl;
+		L->Log<<"==========================="<<endl;
+		L->Log<<"dif1(Si)	= "<<dif1[zt]<<endl;
+		L->Log<<"dif2(CsI)	= "<<dif2[zt]<<endl;
+		
+		L->Log<<"eZ	= "<<zt+3<<"	Zreel	= "<<((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt])<<endl;	
+		L->Log<<"sigma	= "<<(zt+4)-(((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif1[zt]))<<endl;
+		
+		L->Log<<"A	= "<<ARetreive[zt]<<endl;
+		L->Log<<"sA	= "<<As[zt]<<endl;
+		L->Log<<"Esi	= "<<float(SiRef[zt])<<endl;
+		L->Log<<"Ecsi	= "<<CsIsRef[zt]<<endl;
+		L->Log<<"E tot	= "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
+		
 				
 	        ECsI = double(CsIsRef[zt]);
 		ESi = double(SiRef[zt]);
 		ZZ = zt+3;
+		ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt]);
 		AA = int(ARetreive[zt]);
-		//cout<<"ZZ = "<<ZZ<<"	"<<"AA = "<<AA<<endl;
-		DetCsI = int(CsI->Number); 
-		DetSi = int(Si->Number);
-		
-		//Simulation(ZZ,AA,ESi,ECsI);
-/*
-	for(energytree->eZ=3;energytree->eZ<24;energytree->eZ++)	//Modification : Boucle sur les valeurs des Z : 2010-05-11
-  		{ 
-
-		Int_t AAA=2*energytree->eZ;
-			
-		energytree->sA=AAA;
-		energytree->SetFragmentZ(energytree->eZ);
-		energytree->SetFragmentA(AAA);
-		energytree->ECsIch(CsI->E_Raw[j]);
-		energytree->CompleteSimulation(energytree->LightCsI);			//Simulation for the case A=2*Z
-		
-		//energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
-		
-		//L->Log<<"-------------Cas A=2Z-------------------"<<endl;
-		//L->Log<<"eZ = "<<energytree->eZ<<endl<<flush;
-		//L->Log<<"A = "<<energytree->sA<<endl<<flush;
-		//L->Log<<"Esi = "<<float(energytree->eEnergySi)<<endl;
-		//L->Log<<"Ecsi = "<<energytree->RetrieveEnergyCsI()<<endl;
-		//L->Log<<"Canal csi Invert() = "<<energytree->CalculateCanalCsI()<<endl;
-		//L->Log<<"E tot = "<<double(energytree->eEnergySi+energytree->RetrieveEnergyCsI())<<endl;
-		//L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	//AAA
-		//L->Log<<"Diffsi = "<<energytree->diffsi<<" "<<"Diffcsi = "<<energytree->diffcsi<<" "<<"Diffetot = "<<energytree->diffetot<<" "<<"Difflum = "<<energytree->difflum<<endl;
-		//L->Log<<"Diff lum %= "<<((energytree->CanalCsI-energytree->LightCsI)/energytree->LightCsI)*100<<endl;
-		//L->Log<<"-------------Fin A=2Z-------------------"<<endl;
-		
-		
-		diffsi[energytree->eZ-3]=abs(energytree->diffsi);			//Calculate the difference between the calibrate energy and the simulated one
-		diffcsi[energytree->eZ-3]=abs(energytree->diffcsi);
-		diffetot[energytree->eZ-3]=abs(energytree->diffetot);
-		difflum[energytree->eZ-3]=abs(energytree->difflum);
-		diffpro[energytree->eZ-3]=abs(energytree->difflum*energytree->diffsi);
-				
-		if(diffsi[energytree->eZ-3] < min3)
-      			min3 = diffsi[energytree->eZ-3];
-    		else
-      			max3 = diffsi[energytree->eZ-3];
-		
-		if(difflum[energytree->eZ-3] < min4)
-      			min4 = difflum[energytree->eZ-3];
-    		else
-      			max4 = difflum[energytree->eZ-3];
-			
-		if(diffpro[energytree->eZ-3] < min5)
-      			min5 = diffpro[energytree->eZ-3];
-    		else
-      			max5 = diffpro[energytree->eZ-3];
+		AA2 = ARetreive[zt];	
+		DetCsI = int(CsI->Number)+1;	// (1-80)
+		DetSi = int(Si->Number)+1;	// (1-18)
 		}
 		
-		for(zt=0;zt<21;zt++)				
+		if((ARetreive[zt]>41 && 455<=gIndra->GetCurrentRunNumber()<593) || (ARetreive[zt]>49 && 379<=gIndra->GetCurrentRunNumber()<424))
 		{
-			if(diffpro[zt]==min5)
+		
+		for(Int_t a=5;a<60;a++)
+		{
+		energytree->SetFragmentZ(zt+4);	//Set Z at : eZ+1
+		energytree->SetFragmentA(a);
+		energytree->DoIt(Si->E_Raw[y],CsI->E_Raw[j],a);
+		
+		dif11[a-5]=energytree->diffsi;
+		dif12[a-5]=energytree->diffcsi;
+		As11[a-5]=energytree->sA;		
+		SiRef11[a-5] = energytree->eEnergySi;
+		ARetreive11[a-5]=energytree->RetrieveA();
+		CsIsRef11[a-5] = energytree->eEnergyCsI;
+		
+		if(abs(dif11[a-5]) < min11)
+      			min11 = abs(dif11[a-5]);
+    		else
+      			max11 = abs(dif11[a-5]);
+		
+		if(abs(dif12[a-5]) < min12)
+      			min12 = abs(dif12[a-5]);
+    		else
+      			max12 = abs(dif12[a-5]);
+		}
+		
+		for(aa=0;aa<55;aa++)
+		{
+			if(abs(dif11[aa])== min11)
 				break;
 		}
-		L->Log<<"Pos min :"<<zt+1<<endl;
-		L->Log<<"Z trouvé ="<<zt+3<<endl;
-	
-
-	Float_t min6,max6;	
-	min6 = max6 = diffpro5[0];
-			
-	for(energytree->eZ=zt;energytree->eZ<zt+5;energytree->eZ++)			//From the minimum found, isolate a "Z region"
-	      {
-	      energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);		//Identification method
-	      
-	        L->Log<<"eZ = "<<energytree->eZ<<endl<<flush;
-		//L->Log<<"A = "<<energytree->sA<<endl<<flush;
+		L->Log<<"==========================="<<endl;
+		L->Log<<"dif11(Si)	= "<<dif11[aa]<<endl;
+		L->Log<<"dif12(Csi)	= "<<dif12[aa]<<endl;
 		
-	        diffsi5[energytree->eZ-zt]= abs(energytree->diffsi);
-		difflum5[energytree->eZ-zt]= abs(energytree->difflum);
-	        diffpro5[energytree->eZ-zt]= abs(energytree->difflum*energytree->diffsi);
-		
-		ZZZ[energytree->eZ-zt]=energytree->eZ;
-		As[energytree->eZ-zt]=energytree->sA;	
-		SiRef[energytree->eZ-zt] = energytree->eEnergySi;
-		ARetreive[energytree->eZ-zt]=energytree->RetrieveA();
-		CsIsRef[energytree->eZ-zt] = energytree->sRefECsI;
-			
-		if(diffpro5[energytree->eZ-zt] < min6)
-      			min6 = diffpro5[energytree->eZ-zt];
-    		else
-      			max6 = diffpro5[energytree->eZ-zt];
-		
-		L->Log<<"Esi = "<<float(energytree->eEnergySi)<<endl;	
-		L->Log<<"Ecsi interp="<<energytree->sRefECsI<<" A interp="<<energytree->iA<<endl;
-		L->Log<<"E tot = "<<double(energytree->eEnergySi+energytree->RetrieveEnergyCsI())<<endl;
-		//L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	
-		L->Log<<"Getincidentenergy = "<<energytree->detsi->GetIncidentEnergy(energytree->eZ,int(energytree->sA),energytree->eEnergySi)<<endl;	
-		L->Log<<"Diffsi = "<<energytree->diffsi<<" "<<"Diffcsi = "<<energytree->diffcsi<<" "<<"Diffetot = "<<energytree->diffetot<<" "<<"Difflum = "<<energytree->difflum<<endl;
-		L->Log<<"Diff lum %= "<<((energytree->CanalCsI-energytree->LightCsI)/energytree->LightCsI)*100<<endl;
-		//L->Log<<"diffsi = "<<diffsi5[energytree->eZ-zt]<<" "<<"difflum = "<<difflum5[energytree->eZ-zt]<<" "<<"diffpro = "<<diffpro5[energytree->eZ-zt]<<endl;
-		
-	      }
-	      
-		Int_t ztt;
-		for(ztt=0;ztt<5;ztt++)				
-		{
-			if(diffpro5[ztt]==min6)
-				break;
-		}
-		
-	        L->Log<<"Position finale : "<<ztt<<endl;
-	      	ECsI = double(CsIsRef[ztt]);
-		ESi = energytree->eEnergySi;
-		ZZ = ZZZ[ztt];
-		AA = int(ARetreive[ztt]);
-		DetCsI = int(CsI->Number); 
-		DetSi = int(Si->Number);
-		//L->Log<<"Pos min (final):"<<zt+1<<endl;
-		L->Log<<"Z trouvé(final)="<<ZZZ[ztt]<<" A trouvé(final)="<<AA<<endl;
-		L->Log<<"ESi = "<<ESi<<" ECsI = "<<ECsI<<endl;
-*/		
-		/*		
-		if(energytree->eZ==3 && abs(energytree->diff1*energytree->diff2)<40)	//Modification : Condition sur les différentes valeurs de Z : 2010-05-19
-			break;
-		else if(energytree->eZ==4 && abs(energytree->diff1*energytree->diff2)<55)
-			break;
-		else if(energytree->eZ==5 && abs(energytree->diff1*energytree->diff2)<300)
-			break;
-		else if(((energytree->eZ<7 && energytree->eZ>5 || energytree->eZ==7) && abs(energytree->diff1*energytree->diff2)<300)) 
-			break;
-		else if((((energytree->eZ<10 && energytree->eZ>7) || energytree->eZ==10 ) && abs(energytree->diff1*energytree->diff2)<800))
-			break;
-		else if((energytree->eZ>10 && abs(energytree->diff1*energytree->diff2)<2000))
-		 	break;
-		*/	 
-		//&& abs(energytree->eEnergySi-energytree->esi1)<30) // && ((energytree->eZ<=6 && energytree->iA<20)||(energytree->eZ>6 && energytree->iA>10))) 
-			//Condition sur les differences between the simulated energies in Si and calibrated one
+		L->Log<<"eZ	= "<<zt+4<<"	Zreel	= "<<((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif11[aa])<<endl;	
+		L->Log<<"sigma	= "<<(zt+4)-(((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif11[aa]))<<endl;
 				
-		//if( energytree->ecsi1==0 && energytree->ecsi2==0)
-			//energytree->iA=-10;			
-/*
-	      if(energytree->RetrieveA()<-10||energytree->RetrieveA()>200)	//Si A trouvée est -inf ou +inf
-	      {
-			energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j],energytree->eZ);
-			if(abs(energytree->diff1*energytree->diff2)<10000)
-				break;	   
-	      }
-*/
-	      //L->Log<<"-----"<<endl;
-	      /*
-	      //L->Log<<"Einc MeV = "<<energytree->Einc<<endl;
-	      L->Log<<"left="<<energytree->left<<" right="<<energytree->right<<endl;
-	      L->Log<<"diff1 = "<<energytree->diff1<<" diff2 = "<<energytree->diff2<<endl;	
-   	      L->Log<<"esi1="<<energytree->esi1<<" ecsi1="<<energytree->ecsi1<<" esi2="<<energytree->esi2<<" ecsi2="<<energytree->ecsi2<<" esi mis="<<energytree->eEnergySi<<endl;
-       	      L->Log<<"Ecsi interp="<<energytree->sRefECsI<<" A interp="<<energytree->iA<<endl;
-	      L->Log<<"-----"<<endl;
-	      L->Log<<"Z found = "<<energytree->eZ<<endl;
-	      L->Log<<"E silicio MeV="<<Si->ETotal<<endl;
-	      L->Log<<"E CsI in MeV="<<energytree->sRefECsI<<endl;
-	      L->Log<<"-----"<<endl;
-	      */
-	      
-	      //L->Log<<"___________________________________________"<<endl;
- 	      //L->Log<<"___________________________________________"<<endl; 
+		L->Log<<"aa	= "<<aa+5<<endl;
+		L->Log<<"sA	= "<<As11[aa]<<endl;
+		L->Log<<"Esi	= "<<float(SiRef11[aa])<<endl;
+		L->Log<<"Ecsi	= "<<CsIsRef11[aa]<<endl;
+		L->Log<<"E tot	= "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
+		 
+		ECsI = double(CsIsRef11[aa]);
+		ESi = double(SiRef11[aa]);
+		ZZ = zt+4;
+		ZR = ((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif11[aa]);
+		AA = aa+5;
+		AA2 = ARetreive11[aa];	
+		DetCsI = int(CsI->Number)+1; 
+		DetSi = int(Si->Number)+1;				
+		}		
+				
 	    }
 	}
     }
-
- 	//Simulation(ZZ,AA,ESi,ECsI);
-
-/*
-if(Dr->Present){
-L->Log<<"Dr est présent!!"<<endl;
-}
-else{
-L->Log<<"Dr n'est pas présent!!"<<endl;
-}
-*/
-
-
-  //cout<<"I'm back..."<<endl<<flush;
+	
   L->Log<<"Dr->E[0] : "<<Dr->E[0]<<" "<<"Dr->E[1] : "<<Dr->E[1]<<" "<<"Ic->ETotal : "<<Ic->ETotal<<endl;
   if(
      Dr->E[0] > 0 &&
@@ -629,16 +492,20 @@ L->Log<<"Dr n'est pas présent!!"<<endl;
      Ic->ETotal > 0)
     {
       //      dE += Dr->E[0];
+      
       //      dE += Dr->E[1];
       dE = dE1 = Ic->ETotal;
       if(Dr->Present) dE1 = dE1 / cos(Dr->Tf/1000.);
       dE /= 0.614;
       dE += dE*0.15;
-      if((ESi+ECsI)>0)	//if(Si->ETotal > 0)		//Originalement : if(Si->ETotal>0)
-	E = (dE/1000) + (ESi+ECsI)*0.99;
+      if((dE1+ESi+ECsI)>0)	//if(Si->ETotal > 0)		//Originalement : if(Si->ETotal>0)
+	//E = (dE/1000) + (ESi+ECsI)*0.99;
+	E = dE1 + ESi + ECsI;		//Total energy (MeV)	dE1+ESi+ECsI
+	E *= 1.03;		//Correction for the different dead layers (about 3%)
 	//L->Log<<"dE1 = "<<dE1<<endl;
-	L->Log<<"dE = "<<dE/1000<<endl;
-	L->Log<<"E = "<<E<<endl;
+	L->Log<<"dE1	(MeV)= "<<dE1<<endl;
+	L->Log<<"E	(MeV)= "<<E<<endl;
+	L->Log<<"ESi	(MeV)= "<<ESi<<"	ECsI	(MeV)= "<<ECsI<<"	Ic	(MeV)= "<<dE1<<endl;
     }
 
 /*
@@ -652,23 +519,21 @@ L->Log<<"Dr n'est pas présent!!"<<endl;
     }
 */
 
-
-
-
-T = Si->T[0];		//Call the time T_Si-HF
+T = Si->T[0]-8.90;	//8.90 ns: Correction to get the time between the target and the focal plane. The time T_Si-HF, given in ns
 
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
-      D = 943.8;	//Distance between silicon and the target in cm	
-      // D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);
+      //D = 943.8/cos(Rec->GetAngleVamos()*(TMath::Pi()/180));	//Distance between silicon and the target in cm	
+      D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);	//Distance from the target to the focal plane
       //            cout << Rec->Path << " " << (Dr->Yf)/10. << " " <<
       //      	Rec->Phi/1000.*180/3.1415 << " " << D << endl;
       V = D/T;		//Velocity given in cm/ns
-      //V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));
+      V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));
       Beta =V/29.9792; 
       Gamma = 1./sqrt(1.-TMath::Power(Beta,2.));
       //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
-      L->Log<<"V = "<<V<<" Beta = "<<Beta<<endl;
+      L->Log<<"D = "<<D<<"	V = "<<V<<"	Beta = "<<Beta<<endl;
+      //L->Log<<"brho = "<<Rec->GetBrhoRef()<<"	angle = "<<Rec->GetAngleVamos()<<endl;
     }
 
   if(Beta>0 && Rec->Brho>0&&Gamma>1.&&Si->Present)
@@ -678,6 +543,7 @@ T = Si->T[0];		//Call the time T_Si-HF
       L->Log<<"M = "<<M<<endl;
       L->Log<<"M/Q = "<<M_Q<<endl;
 
+/*
 #ifdef FOLLOWPEAKS
       if(myct[Si->Number]->IsInside(M_Q,M))
 	{
@@ -699,6 +565,7 @@ T = Si->T[0];		//Call the time T_Si-HF
 	  }
       }
 #endif
+*/
 
       Mr = (E/1000.)/931.5016/(Gamma-1.);
       M_Qr = Rec->Brho/3.105/Beta/Gamma;
@@ -709,17 +576,28 @@ T = Si->T[0];		//Call the time T_Si-HF
       Qc = int(Qr+0.5);
       Mc = M_Qr*Qc;
     }
-  
-  Z1 = sqrt(dE*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
+/*  
+  Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
   Z2 = sqrt(dE/931.5016)*TMath::Power(Beta,2.)*100.;
-//L->Log<<"Z1 = "<<Z1<<" Z2 = "<<Z2<<endl;
-
-
+  
+  Z_tot = sqrt(E/931.5016)*TMath::Power(Beta,2.);
+  Z_si = sqrt(ESi/931.5016)*TMath::Power(Beta,2.);
+L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
+*/
+  Z1 = (sqrt((dE1*E)/931.5016)*29.9792)/7;		//(1/7) : Correction for the mass (1/sqrt(A))
+  Z2 = sqrt(dE/931.5016)*TMath::Power(Beta,2.)*100.;
+  
+    Z_tot = (sqrt((ESi*E)/931.5016)*29.9792)/7;
+    Z_si = (sqrt((dE1*E)/931.5016)*29.9792)/7;
+    
+L->Log<<"Z1 = "<<Z1<<" 		Z2 = "<<Z2<<endl;
+L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
   if( T > 0 && V > 0 && M_Q > 0 && M > 0 && Z1 > 0 && Z2 > 0 && Beta > 0 && Gamma > 1.0) 
     {
       Present=true;
       Counter[2]++;
     }
+    energytree->ClearEvent();
 }
 
 
@@ -729,12 +607,12 @@ void Identificationv::Treat(void)
   cout << "Identificationv::Treat" << endl;
 #endif
 
-  Counter[0]++;
+  //Counter[0]++;
   Init();
   //if(Rec->Present) Counter[1]++;		//Non commenter
   Calculate();
   //#ifdef DEBUG
-  Show();
+  //Show();
   //#endif
   
 }
@@ -766,7 +644,9 @@ void Identificationv::outAttach(TTree *outT)
   cout << "Attaching Identificationv variables" << endl;
 #endif
 	outT->Branch("A",&AA,"A/I");
+	outT->Branch("A2",&AA2,"A2/F");
    	outT->Branch("Z",&ZZ,"Z/I");
+	outT->Branch("ZR",&ZR,"ZR/D");
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
 	outT->Branch("ESi",&ESi,"ESi/D");
@@ -801,15 +681,21 @@ void Identificationv::outAttach(TTree *outT)
   outT->Branch("Mr",&Mr,"Mr/F");
   outT->Branch("Qc",&Qc,"Qc/F");
   outT->Branch("Mc",&Mc,"Mc/F");
+  
+  /*
   outT->Branch("Z1",&Z1,"Z1/F");
   outT->Branch("Z2",&Z2,"Z2/F");
+  outT->Branch("Z_tot",&Z_tot,"Z_tot/F");
+  outT->Branch("Z_si",&Z_si,"Z_si/F");
+  */
+/*  
 #ifdef FOLLOWPEAKS
   outT->Branch("M_Qcorr",&M_Qcorr,"M_Qcorr/F");
   outT->Branch("Mcorr",&Mcorr,"Mcorr/F");
   outT->Branch("M_Qcorr1",&M_Qcorr1,"M_Qcorr1/F");
   outT->Branch("Mcorr1",&Mcorr1,"Mcorr1/F");
 #endif
-
+*/
 }
 
 
@@ -842,7 +728,39 @@ void Identificationv::Show(void)
 //temporary method to reconstruct VAMOS telescopes
 int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
 {
-  int geom[18][6];
+  //int geom[18][6];
+  //Int_t geom[18][6];
+  
+   Int_t  num;
+   Int_t csi1=0, csi2=0, csi3=0, csi4=0, csi5=0, csi6=0;
+   ifstream in;
+   TString sline;
+   
+   if(!gDataSet->OpenDataSetFile("geom.dat",in))
+  {
+     cout << "Could not open the calibration file geom.dat !!!" << endl;
+     return 0;
+  }
+  else 
+  {
+	while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %d %d %d %d", &num, &csi1, &csi2, &csi3, &csi4, &csi5, &csi6);
+	     geom[num][0]=csi1;
+	     geom[num][1]=csi2;
+	     geom[num][2]=csi3;
+	     geom[num][3]=csi4;
+	     geom[num][4]=csi5;
+	     geom[num][5]=csi6;
+	     	   }
+       		}
+     	}
+  }
+  in.close();
+
+/*  
   geom[0][0]=0;
   geom[0][1]=1;
   geom[0][2]=12;
@@ -964,11 +882,11 @@ int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
 
   geom[17][0]=40;
   geom[17][1]=41;
-  geom[17][2]=57;
-  geom[17][3]=58;
+  geom[17][2]=56;
+  geom[17][3]=57;
   geom[17][4]=68;
   geom[17][5]=69;
-
+*/
 
   for(int i=0;i<6;i++)
     {

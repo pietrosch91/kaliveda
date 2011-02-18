@@ -1,6 +1,7 @@
 #ifndef _SI_CLASS
 #define _SI_CLASS
 
+#include <TString.h>
 #include "Rtypes.h"
 #include"Defines.h"
 #include"LogFile.h"
@@ -43,17 +44,13 @@ class Siv
   Int_t E_RawM;
   UShort_t T_Raw[3];
 
-/*
-  Double_t AA;
-  Double_t ZZ;
-  Double_t Err_E;
-*/
-
   //Calibration coeff
   Float_t ECoef[21][3];
   Float_t TOff[21][2];
   Float_t TCoef[3][5]; //for the new time calibration with 4 parameters
 
+  Float_t TOffset[21];
+  Double_t si_thick[19];   
   //
 
   //energy time Calibrated

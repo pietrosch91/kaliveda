@@ -8,6 +8,7 @@
 #include "TFile.h"
 #include "TEventList.h"
 #include "KVLightEnergyCsI.h"
+#include "KVLightEnergyCsIVamos.h"
 #include "KVTelescope.h"
 #include "KVDetector.h"
 #include "TCut.h"
@@ -35,7 +36,7 @@ class EnergyTree
         Double_t Einc;
         Double_t EEsi;
         Double_t Echio;
-        
+	
         Double_t sEnergySi;
         Double_t sEnergyCsI;
         Double_t sRefECsI;
@@ -74,12 +75,14 @@ class EnergyTree
         
         Double_t thick;
         
+	/*
         TTree* eTree;
         TFile* eFile;
         TFile* f;
         TTree* tree;
         TEventList* list;
-        
+        */
+		
         KVLightEnergyCsI* lum;
         KVTelescope* kvt;
         
@@ -90,20 +93,16 @@ class EnergyTree
         PlaneAbsorber *si;
         PlaneAbsorber *gap;
         PlaneAbsorber *csi;   
-        
-        KVDetector* detsi;
-        KVDetector* detsi2;
-        KVDetector* detcsi;	
-        KVDetector *chio;
-        KVMaterial *iso;
+            
         KVNucleus part;
         KVNucleus part2;
-          
+         
+	 /* 
         struct MyPoint{
             UShort_t light_si;
             Double_t light_csi;
             Int_t Z;
-            /*       Int_t A; */ //paola
+      //      Int_t A;  //paola
             Double_t A;
             Double_t err_A;
             Double_t energy_si;
@@ -117,18 +116,19 @@ class EnergyTree
             Double_t Eerr_csi_l;
             Double_t Eerr_si_r;
             Double_t Eerr_csi_r;
-        };
-         
+        }; 
         MyPoint point;
-            
+        */
+	    
         Siv *Si;
         CsIv *CsI;
         
-        EnergyTree(LogFile *Log);
+        EnergyTree(LogFile *Log, Siv *Si);
         LogFile *L;
         virtual ~EnergyTree();
         
-        
+        Int_t ClearEvent();	
+	        
         //necessary methods to Init 
         Double_t GetSiliconThickness(Int_t);
         void SetSiliconThickness(Int_t);
@@ -138,8 +138,7 @@ class EnergyTree
         void InitIcSi(Int_t);
         Double_t GetResidualEnergyIc(Int_t, Int_t, Double_t);
         
-        void InitSiCsI(Int_t);
-            
+        void InitSiCsI(Int_t);  
         void InitSiCalib(Int_t);
         void SetCalSi(Float_t,Float_t,Float_t);
         void InitCsIPed(Int_t);
@@ -148,7 +147,9 @@ class EnergyTree
         void SetCalCsI(Float_t,Float_t,Float_t);
 	
         //void Init();
-        
+        void DoIt(UShort_t, UShort_t, Int_t);
+	Double_t Thick(Int_t);
+	
         void CalculateCanalCsI();
         
         void SetCalibration(Siv*,CsIv*,Int_t,Int_t);
@@ -156,7 +157,7 @@ class EnergyTree
         
         //necessary methods to GetResidualEnergyCsI: best estimation of ECsI and A
         Double_t GetResidualEnergyCsI(UShort_t,UShort_t);	/* Original :  Double_t GetResidualEnergyCsI(UShort_t,UShort_t) */
-        Double_t GetResidualEnergyCsI2(UShort_t,UShort_t,Int_t);
+        Double_t GetResidualEnergyCsI2(UShort_t,UShort_t,Int_t, Int_t);
         void CalculateESi(UShort_t);
         void ECsIch(UShort_t);
         void Bisection(Int_t,UShort_t);

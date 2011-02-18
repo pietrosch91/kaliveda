@@ -18,7 +18,7 @@ class Identificationv
 {
  public:
   Identificationv(LogFile *Log, Reconstructionv *Recon,
-		  DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID);
+		  DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID, EnergyTree *E);
   virtual ~Identificationv(void);
   
   LogFile *L;
@@ -27,9 +27,9 @@ class Identificationv
   IonisationChamberv *Ic;
   Siv *Si;
   CsIv *CsI;
-
   EnergyTree *energytree;
 
+/*
 #ifdef FOLLOWPEAKS
   TCutG *myct[21];
   TCutG *myct1[21];
@@ -40,7 +40,7 @@ class Identificationv
   Float_t M_QCoef[21][3];
   Float_t MCoef[21][3];
 #endif
-
+*/
   UShort_t TFil1;
   UShort_t TFil2;
   UShort_t EFil1;
@@ -48,37 +48,39 @@ class Identificationv
   
   Int_t ZZ;
   Int_t AA;
+  Float_t AA2;
   Int_t DetCsI;
   Int_t DetSi;
   Int_t CsIRaw;
   Int_t SiRaw;
+  
   Double_t ECsI;
   Double_t ESi;
   Double_t EEtot;
+
+/****	Test Commentaire	***   
+****	Fin test	****/ 
+  Double_t dif11[55];
+  Double_t dif12[55];
+  
+  Float_t As11[55];
+  Float_t ARetreive11[55];
+  Double_t CsIsRef11[55];
+  Double_t SiRef11[55];
+        
+
+  Double_t dif1[21];	//Z de 3 a 24
+  Double_t dif2[21];
     
-  Float_t dif1[21];	//Z de 3 a 24
-  Float_t dif2[21];
-  Float_t diffsi[21];
-  Float_t diffcsi[21];
-  Float_t diffetot[21];
-  Float_t difflum[21];
-  Float_t diffpro[21];
-  
-  Float_t diffe[21];
-  Float_t rap[21];
-  Float_t val[21];
-  
   Float_t As[21]; 
   Float_t ARetreive[21];
-  Float_t CsIsRef[21];
-  Float_t SiRef[21];
-  Float_t ZZZ[21];
-  Float_t diffpro5[5];
-  Float_t diffsi5[5];
-  Float_t difflum5[5];
+  Double_t CsIsRef[21];
+  Double_t SiRef[21];
 
+  Int_t geom[18][6]; 
   Int_t i;  
   Int_t zt;
+  Int_t aa;
 
 Double_t brho;
     
@@ -98,7 +100,6 @@ Double_t brho;
   
   void SetBrho(Double_t);
   Double_t GetBrho(void);
-  void Simulation(Int_t, Int_t, Double_t, Double_t);
 
   int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
 
@@ -130,7 +131,9 @@ Double_t brho;
   Float_t Z1;
   Float_t Z2;
   
-
+  Float_t Z_tot;
+  Float_t Z_si;  
+  Double_t ZR;
 
   //Counters
   Int_t Counter[6];
