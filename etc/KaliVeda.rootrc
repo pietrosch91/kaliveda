@@ -396,9 +396,7 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 # There must be an entry here for each dataset
 # Syntax:
 # Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
-Plugin.KVRawDataReader:    raw.INDRA_e494s    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
-+Plugin.KVRawDataReader:    raw.INDRA_e503    KVIVRawDataReader     VAMOS    "KVIVRawDataReader()"
-+Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
+Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 
