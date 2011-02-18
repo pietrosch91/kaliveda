@@ -283,9 +283,9 @@ void KVMultiDetArray::Build()
 
     BuildGeometry();
 
-    SetGroupsAndIDTelescopes();
-
     MakeListOfDetectors();
+
+    SetGroupsAndIDTelescopes();
 
     SetACQParams();
 

@@ -385,9 +385,9 @@ const Char_t *KVDetector::GetArrayName()
 	// Override this method in child classes in order to define a naming
 	// convention for specific detectors of the array.
 	//
-	// By default we return an empty string.
+	// By default we return the same name as KVDetector::GetName
 
-   fFName = "";
+   fFName = GetName();
    return fFName.Data();
 }
 
