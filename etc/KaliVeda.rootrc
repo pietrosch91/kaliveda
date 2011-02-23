@@ -706,7 +706,7 @@ MassExcess.DataFile: pace2_2009.data
 
 # Abundance tables used by KVNucleus
 KVNucleus.AbundanceTable:      KVAbundanceTable
-Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
++Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
