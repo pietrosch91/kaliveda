@@ -132,10 +132,12 @@
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
 #pragma link C++ class KVNucleus+;
+/*
 #pragma link C++ class KVMassTable+;
 #pragma link C++ class PACE2MassTable+;
 #pragma link C++ class PACE2Map::value+;
 #pragma link C++ class PACE2Map::key+;
+*/
 #pragma link C++ class KVNumberList+;
 #pragma link C++ class KVParticle+;
 #pragma link C++ class KVParticleCondition+;
@@ -250,4 +252,14 @@
 #pragma link C++ class SRBFile_t+;
 #pragma link C++ class SRBDataRepository+;
 #pragma link C++ class SRBAvailableRunsFile+;
+#pragma link C++ class KVNuclData+;
+#pragma link C++ class KVLifeTime+;
+#pragma link C++ class KVAbundance+;
+#pragma link C++ class KVMassExcess+;
+#pragma link C++ class KVNuclDataTable+;
+#pragma link C++ class NDT::value+;
+#pragma link C++ class NDT::key+;
+#pragma link C++ class KVLifeTimeTable+;
+#pragma link C++ class KVAbundanceTable+;
+#pragma link C++ class KVMassExcessTable+;
 #endif

@@ -1489,6 +1489,8 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
             }
         }
 
+			Info("MakeEDeltaEZGrid","Z= %d, E1=%lf",z,E1);
+
         //find E2
         //go from E1 MeV to Emax_per_nucleon*A MeV
         Double_t E2min = E1, E2max = Emax_per_nucleon*part.GetA();
@@ -1513,7 +1515,9 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
                 E2 = (E2max + E2min) / 2.;
             }
         }
-
+			
+			Info("MakeEDeltaEZGrid","Z= %d, E2=%lf",z,E2);
+			
         // check we are within limits of validity of energy loss tables
         if ( E2 > dEDet->GetEmaxVedaloss(z)*part.GetA() )
         {
@@ -1538,7 +1542,7 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
         {
 
             Double_t E = TMath::Exp(logE1 + i * dLog);
-            if (E>E2) break;
+            //if (E>E2) break;
 
             Double_t Eres = 0.0;
             Int_t counter=0;

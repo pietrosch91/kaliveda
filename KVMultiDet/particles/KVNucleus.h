@@ -19,9 +19,12 @@ $Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
 #include "TH2F.h"
 #include "KVString.h"
 #include "KVDataSet.h"
-#include "KVMassTable.h"
+#include "KVNuclDataTable.h"
 
 class KVNumberList;
+class KVLifeTime;
+class KVMassExcess;
+class KVAbundance;
 
 class KVNucleus:public KVParticle {
 
@@ -30,12 +33,17 @@ class KVNucleus:public KVParticle {
    UChar_t fA;                  //nuclear mass number
    UChar_t fZ;                  //nuclear charge number (atomic number)
    UChar_t fMassFormula;        //mass formula for calculating A from Z
-	static KVMassTable* fMassTable;//! the mass table
-   static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
+	static KVNuclDataTable* fMassExcessTable;	//! the mass table
+ 	static KVNuclDataTable* fLifeTimeTable;	//! the lifetime table
+ 	static KVNuclDataTable* fAbundanceTable;	//! the relative abundance table
+	static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
    static Char_t fElements[][3];        //!symbols of chemical elements
    TString fSymbolName;        //!
-   void InitMassTable();
-   Double_t fExx;               //excitation energy in MeV
+   
+	void InitDataTable();
+   //void InitLifeTimeTable();
+   
+	Double_t fExx;               //excitation energy in MeV
 
    enum {
       kIsHeavy = BIT(17)        //flag when mass of nucleus is > 255
@@ -100,8 +108,14 @@ class KVNucleus:public KVParticle {
 	Double_t GetChargeAsymetry() const { return Double_t(GetA()-GetZ())/GetZ(); }
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
+	
+	void ChechZAndA(Int_t &z, Int_t&a);
+
    Double_t GetMassExcess(Int_t z = -1, Int_t a = -1);
-   Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1);
+	Double_t GetExtraMassExcess(Int_t z = -1, Int_t a = -1);
+   KVMassExcess* GetMassExcessPtr(Int_t z = -1, Int_t a = -1);
+   
+	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1);
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1);
    
 	KVNumberList GetKnownARange(Int_t z=-1);
@@ -116,11 +130,17 @@ class KVNucleus:public KVParticle {
       return fExx;
    };
 	
-    KVNucleus & operator=(const KVNucleus & rhs);
-   KVNucleus operator+(const KVNucleus & rhs);
-   KVNucleus operator-(const KVNucleus & rhs);
-    KVNucleus & operator+=(const KVNucleus & rhs);
-    KVNucleus & operator-=(const KVNucleus & rhs);
+	Double_t GetLifeTime(Int_t z = -1, Int_t a = -1);
+	KVLifeTime* GetLifeTimePtr(Int_t z = -1, Int_t a = -1);
+	
+   Double_t GetAbundance(Int_t z = -1, Int_t a = -1);
+	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1);
+	
+	KVNucleus & operator=(const KVNucleus & rhs);
+	KVNucleus operator+(const KVNucleus & rhs);
+	KVNucleus operator-(const KVNucleus & rhs);
+	KVNucleus & operator+=(const KVNucleus & rhs);
+	KVNucleus & operator-=(const KVNucleus & rhs);
 	
 	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
 	Double_t DeduceEincFromBrho(Double_t Brho,Int_t ChargeState=0);
