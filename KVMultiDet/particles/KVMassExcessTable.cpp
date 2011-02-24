@@ -32,23 +32,24 @@ KVMassExcessTable::~KVMassExcessTable()
 //_____________________________________________
 void KVMassExcessTable::init()
 {
-	
+	SetName("MassExcess");
 }
 
 //_____________________________________________
 void KVMassExcessTable::Initialize()
 {
 	
+	TString dfile; dfile.Form("%s.DataFile",GetName());
 	TString cl_path;
-	if( !SearchKVFile(gEnv->GetValue("MassExcess.DataFile",""),cl_path,"data") ){
-		Error("Initialize","No file found for MassExcess");
+	if( !SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
+		Error("Initialize","No file found for %s",GetName());
 		return;
 	}	
 	else 
-		Info("Initialize","%s will be read",gEnv->GetValue("MassExcess.DataFile",""));
+		Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
 	
-	kfilename.Form(gEnv->GetValue("MassExcess.DataFile",""));
-		
+	SetTitle(gEnv->GetValue(dfile.Data(),""));
+
 	Int_t ntot=0;
 	nucMap = new TMap(50,2);
 	KVFileReader* fr = new KVFileReader();
@@ -63,7 +64,7 @@ void KVMassExcessTable::Initialize()
 		else if (fr->GetNparRead()==0){ break; }
 		else if (fr->GetReadPar(0).BeginsWith("//")){ 
 		
-			kcomments+=fr->GetReadPar(0);
+			kcomments+=fr->GetCurrentLine();
 			kcomments+="\n";
 		
 		}
@@ -102,7 +103,7 @@ void KVMassExcessTable::Initialize()
 				if (ntot==0)
 					InfoOnMeasured();
 			}
-			lf->SetMeasured(kFALSE);
+			//lf->SetMeasured(kFALSE);
 			
 			ntot+=1;
 		}

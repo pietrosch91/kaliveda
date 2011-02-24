@@ -692,20 +692,20 @@ KVSilicon.ZminForPHDCorrection:        10
 # File containing range tables for calculation of energy losses in KVMaterial
 KVMaterial.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
 
-# LifeTime tables used by KVNucleus
-KVNucleus.LifeTimeTable:      KVLifeTimeTable
+# LifeTime tables used by KVNDTManager
+KVNDTManager.LifeTimeTable:       KVLifeTimeTable
 Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
 LifeTime.DataFile:	lifetime_nudat2.data
 
-# Mass Excess tables used by KVNucleus
-KVNucleus.MassExcessTable:      KVMassExcessTable
+# Mass Excess tables used by KVNDTManager
+KVNDTManager.MassExcessTable:      KVMassExcessTable
 +Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDet   "KVMassExcessTable()"
-#MassExcess.DataFile:	massexcess_nudat2.data
+MassExcess.DataFile:	massexcess_nudat2.data
 #MassExcess.DataFile: audi_wapstra_2003.data
-MassExcess.DataFile: pace2_2009.data
+#MassExcess.DataFile: pace2_2009.data
 
-# Abundance tables used by KVNucleus
-KVNucleus.AbundanceTable:      KVAbundanceTable
+# Abundance tables used by KVNDTManager
+KVNDTManager.AbundanceTable:      KVAbundanceTable
 +Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
 

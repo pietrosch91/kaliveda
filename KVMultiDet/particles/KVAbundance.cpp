@@ -36,6 +36,12 @@ KVAbundance::~KVAbundance()
 }
 
 //_________________________________
+void KVAbundance::init()
+{
+   SetMeasured(kTRUE);
+}
+
+//_________________________________
 const Char_t* KVAbundance::GetUnit() const{
 
 	TString unit="percentage";

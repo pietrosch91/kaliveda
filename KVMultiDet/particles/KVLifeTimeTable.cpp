@@ -107,6 +107,7 @@ void KVLifeTimeTable::init()
 		}
 	}
 
+	SetName("LifeTime");
 
 }
 
@@ -115,12 +116,17 @@ void KVLifeTimeTable::init()
 void KVLifeTimeTable::Initialize()
 {
 	
+	TString dfile; dfile.Form("%s.DataFile",GetName());
 	TString cl_path;
-	if( !SearchKVFile(gEnv->GetValue("LifeTime.DataFile",""),cl_path,"data") )
-		Warning("Initialize","No file found for LifeTime");
+	if( !SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
+		Error("Initialize","No file found for %s",GetName());
+		return;
+	}	
 	else 
-		Info("Initialize","%s will be read",cl_path.Data());
-		
+		Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
+	
+	SetTitle(gEnv->GetValue(dfile.Data(),""));
+
 	Int_t ntot=0;
 	nucMap = new TMap(50,2);
 	KVFileReader* fr = new KVFileReader();
@@ -131,7 +137,12 @@ void KVLifeTimeTable::Initialize()
 	
 		fr->ReadLine(" ");
 		if (fr->GetNparRead()==0) break;
-		else if (fr->GetReadPar(0).BeginsWith("//")){}
+		else if (fr->GetReadPar(0).BeginsWith("//")){ 
+		
+			kcomments+=fr->GetCurrentLine();
+			kcomments+="\n";
+		
+		}
 		else {
 			Int_t zz = fr->GetIntReadPar(0);
 			Int_t aa = fr->GetIntReadPar(1);
