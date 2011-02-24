@@ -10,6 +10,7 @@ $Date: 2008/11/12 10:01:24 $
 #include "TROOT.h"
 #include "Analysisv_e503.h"
 #include <cstdlib>
+#include <stdlib.h>
 
 ClassImp(Analysisv_e503)
 
@@ -146,13 +147,23 @@ Analysisv_e503::Analysisv_e503(LogFile*Log)
     }
   L->Log << "CsI defined" << endl;  
   CsI=new CsIv(L);
-  Id = new Identificationv(L,RC,Dr,Ic,Si,CsI);
+  
+    energytree = new EnergyTree(L,Si);
+  if(!energytree)
+    {
+      cout << "Coud not allocate memory to hold Energytree !" << endl;
+      exit(EXIT_FAILURE);
+    }
+    
+  Id = new Identificationv(L,RC,Dr,Ic,Si,CsI,energytree);
   if(!Id)
     {
       cout << "Coud not allocate memory to hold Identification !" << endl;
       exit(EXIT_FAILURE);
     }
 
+
+    
 #else
   cout << "DriftChamber will not be treated !" << endl;
   L->Log << "DriftChamber will not be treated !" << endl;
@@ -243,11 +254,12 @@ Analysisv_e503::~Analysisv_e503()
   delete Pl;
 #endif
 
-#ifdef DRIFT
+//#ifdef DRIFT
   delete Dr;
   delete RC;
   delete Id;
-#endif
+  delete energytree;
+//#endif
 
 #ifdef SED1
   delete SeD1;

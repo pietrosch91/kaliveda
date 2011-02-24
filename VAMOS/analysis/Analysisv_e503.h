@@ -25,6 +25,7 @@ $Date: 2007/06/08 15:49:10 $
 #include"DriftChamberv.h"
 #include"Reconstructionv.h"
 #include"Identificationv.h"
+#include"EnergyTree.h"
 
 #include"Analysisv.h"
 
@@ -39,7 +40,8 @@ class Analysisv_e503 : public Analysisv
   IonisationChamberv *Ic;
   Siv *Si;
   CsIv *CsI;
-
+  EnergyTree *energytree;
+  
    TTree* t;
    
   UShort_t T_Raw[10];
