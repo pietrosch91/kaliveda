@@ -697,10 +697,7 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
                                          Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
-   // Returns calculated average cross-section [mb] per event for the runs in question, using average dead time.
-   // This is only strictly correct if the dead time is the same for each run in the list: if it varies widely from
-   // run to run then one should use the cross-section for each event and the number of measured events for
-   // each run separately in order to calculate the total cross-section (i.e. use GetTotalCrossSection(TH1*)).
+   // Returns calculated average cross-section [mb] per event for the runs in question.
    // It is assumed that all runs correspond to the same reaction,
    // with the same beam & target characteristics and multiplicity trigger.
    // The target thickness etc. are taken from the first run.
@@ -711,21 +708,16 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
       return 0;
    }
    Double_t sum_xsec = 0;
-   Double_t avg_ded_tim = 0;
-   int nruns = 0;
    for (register int run = run1; run <= run2; run++) {
 
       if (!GetRun(run))
          continue;              //skip non-existent runs
       sum_xsec +=
           GetRun(run)->GetNIncidentIons(Q_apres_cible,
-                                        Coul_par_top);
-       avg_ded_tim +=  GetRun(run)->GetTempsMort();
-         nruns++;
+                                        Coul_par_top) * (1. - GetRun(run)->GetTempsMort());
    }
-   if(nruns) avg_ded_tim/=(1.0*nruns);
-   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei) * (1 - <TM>))
-   return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec * (1. - avg_ded_tim)));
+   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei * (1 - TM)) )
+   return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec));
 }
 
 //__________________________________________________________________________________________________________________
@@ -801,9 +793,6 @@ Double_t KVINDRADB::GetTotalCrossSection(const Char_t * system_name,
    //Returns calculated total cross-section [mb] for all events in all runs of the named system* with trigger multiplicity 'mul_trig'.
    //                                               *to see the list of all system names, use gIndraDB->GetSystems()->ls()
    //See KVDBRun::GetNIncidentIons() for meaning of other arguments
-   //
-   //This is GetEventCrossSection(system_name, mult_trig) * SUM( events )
-   //where SUM(events) is the total number of events measured in all the runs
 
    KVDBSystem *system = GetSystem(system_name);
    if (!system) {
@@ -834,9 +823,6 @@ Double_t KVINDRADB::GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cib
    // Calculate the cross-section [mb] for a given selection of events in several runs,
    // given by the TH1, which is a distribution of run numbers (i.e. a histogram filled with
    // the number of selected events for each run, the run number is on the x-axis of the histogram).
-   // This calculation is exact, even if the dead time is very different from run to run
-   // (on the contrary to using GetEventCrossSection(Int_t run1, Int_t run2) and multiplying
-   // by the total number of selected events in the runs).
    
    Info("GetTotalCrossSection", "Calculating cross-section for q=%f", Q_apres_cible);
    Double_t xsec = 0, ninc = 0;
