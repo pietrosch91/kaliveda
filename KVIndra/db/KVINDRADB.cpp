@@ -763,7 +763,7 @@ Double_t KVINDRADB::GetEventCrossSection(const Char_t * system_name,
    }
    KVTarget *targ = system->GetTarget();
    if (!targ) {
-      Error("GetEventCrossSection", "No target defined for system %d",
+      Error("GetEventCrossSection", "No target defined for system %s",
             system_name);
       return 0;
    }

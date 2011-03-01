@@ -522,11 +522,13 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
 
     fGroups->Delete();           // clear out (delete) old groups
     fIDTelescopes->Delete();     // clear out (delete) old identification telescopes
-
+   
+   TIter nxtlay1(fLayers);
+   KVLayer *l1; 
     if (fLayers->GetSize() > 1) {
         fGr = 0;                  // for numbering groups
-        TIter nxtlay1(fLayers), nxtlay2(fLayers);
-        KVLayer *l1, *l2;
+        TIter nxtlay2(fLayers);
+        KVLayer *l2;
 
         while ((l1 = (KVLayer *) nxtlay1())) {    // loop over layers
             while ((l2 = (KVLayer *) nxtlay2())) { // loop over layers
@@ -537,6 +539,8 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
             }
             nxtlay2.Reset();
         }
+     }  //if(fLayers->GetSize()>1)
+        
         // Finally, create groups for all orphan telescopes which are not in any existing
         // group
 
@@ -565,7 +569,7 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
                 }
             }
         }
-    }                            //if(fLayers->GetSize()>1)
+   
 
     //now read list of groups and create list of ID telescopes
     KVGroup *grp;
