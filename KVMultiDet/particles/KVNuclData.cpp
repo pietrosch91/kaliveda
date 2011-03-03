@@ -39,7 +39,7 @@ KVNuclData::~KVNuclData()
 void KVNuclData::init()
 {
 	
-	SetMeasured(kFALSE);
+	SetMeasured(kTRUE);
 	SetValue(0);
 }
 

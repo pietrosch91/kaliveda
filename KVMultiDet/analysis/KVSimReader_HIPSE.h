@@ -5,7 +5,6 @@
 #define __KVSIMREADER_HIPSE_H
 
 #include "KVSimReader.h"
-#include "TH1F.h"
 
 class KVSimReader_HIPSE : public KVSimReader
 {

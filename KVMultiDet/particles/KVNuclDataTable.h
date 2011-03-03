@@ -22,14 +22,11 @@ class KVNuclDataTable : public KVBase
 	TMap *nucMap;			//mapping (Z,A) -> nucleus index
 	Int_t current_idx;	//current index
 	Int_t NbNuc;			//nbre de noyaux presents dans la table
-	
+	KVString kfilename; 	//nom du fichier lu
 	KVString kcomments; 	//Commentaire provenant de la lecture fichier
 	KVString kclassname;
 	
-	//KVNumberList plageZ;
-	
 	TObjArray* tobj;	//! array where all nucldata objects are
-	//TObjArray* tobj_rangeA;	//! array where range of A associated to each Z is stored via KVIntegerList
 	
 	KVNuclData* GetCurrent() const { return (KVNuclData* )tobj->At(current_idx); }
 	void CreateTable(Int_t ntot);	//Creation of the table
@@ -52,10 +49,8 @@ class KVNuclDataTable : public KVBase
 	Bool_t  IsMeasured(Int_t zz, Int_t aa) const;
 	
 	Int_t GetNumberOfNuclei() const;
-	const Char_t*   GetReadFileName() const;
+	KVString GetReadFileName() const;
 	KVString GetCommentsFromFile() const;
-   
-	ClassDef(KVNuclDataTable,1)//Store information on nuclei
 		
 };	
 

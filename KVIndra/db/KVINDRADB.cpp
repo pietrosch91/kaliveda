@@ -32,7 +32,6 @@
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
 #include "KVCsI.h"
-#include "TH1.h"
 
 KVINDRADB *gIndraDB;
 

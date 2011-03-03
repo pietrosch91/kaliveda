@@ -54,7 +54,7 @@ class KVElasticScatterEvent
 	virtual void ResetHistoTree();
 	KVList* GetObjectList() {return lhisto_control;}
 
-	virtual TH1* GetHisto(KVString hname) { return (TH1* )lhisto_control->FindObject(hname); }
+	virtual TH1* GetHisto(KVString hname) { return (TH1F* )lhisto_control->FindObject(hname); }
 	virtual TTree* GetTree(KVString tname){ return (TTree* )lhisto_control->FindObject(tname); }
 
 	virtual void SetTarget(KVTarget *targ,Bool_t IsRandomized=kTRUE) {

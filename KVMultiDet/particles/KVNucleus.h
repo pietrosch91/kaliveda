@@ -16,8 +16,10 @@ $Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
 #include "KVParticle.h"
 #include "KVParticleCondition.h"
 #include "TLorentzRotation.h"
+#include "TH2F.h"
 #include "KVString.h"
 #include "KVDataSet.h"
+#include "KVNuclDataTable.h"
 
 class KVNumberList;
 class KVLifeTime;
@@ -31,9 +33,15 @@ class KVNucleus:public KVParticle {
    UChar_t fA;                  //nuclear mass number
    UChar_t fZ;                  //nuclear charge number (atomic number)
    UChar_t fMassFormula;        //mass formula for calculating A from Z
+	static KVNuclDataTable* fMassExcessTable;	//! the mass table
+ 	static KVNuclDataTable* fLifeTimeTable;	//! the lifetime table
+ 	static KVNuclDataTable* fAbundanceTable;	//! the relative abundance table
 	static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
    static Char_t fElements[][3];        //!symbols of chemical elements
    TString fSymbolName;        //!
+   
+	void InitDataTable();
+   //void InitLifeTimeTable();
    
 	Double_t fExx;               //excitation energy in MeV
 
@@ -134,7 +142,7 @@ class KVNucleus:public KVParticle {
 	KVNucleus & operator+=(const KVNucleus & rhs);
 	KVNucleus & operator-=(const KVNucleus & rhs);
 	
-//	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
+	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
 	Double_t DeduceEincFromBrho(Double_t Brho,Int_t ChargeState=0);
 	
     ClassDef(KVNucleus, 5)      //Class describing atomic nuclei

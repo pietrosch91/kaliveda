@@ -11,7 +11,7 @@ class KVAbundance : public KVNuclData
 
 	protected:
 	
-	void init();
+	void init(){}	//do nothing
 	
 	public:
    KVAbundance();

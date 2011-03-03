@@ -82,8 +82,8 @@ void KVNuclDataTable::init()
 	
 	current_idx = 0;
 	NbNuc = 0;
+	kfilename = "";
 	kcomments = "";
-	SetName("NuclDataTable");
 
 }
 
@@ -176,10 +176,10 @@ Int_t KVNuclDataTable::GetNumberOfNuclei() const
 }
 
 //_____________________________________________
-const Char_t*  KVNuclDataTable::GetReadFileName() const
+KVString KVNuclDataTable::GetReadFileName() const
 {
 
-	return GetTitle();
+	return kfilename;
 
 }
 

@@ -11,7 +11,6 @@ $Date: 2009/01/23 08:30:05 $
 #include "KVString.h"
 #include "KVSeqCollection.h"
 #include "KVChIo.h"
-#include "TH2F.h"
 
 ClassImp(KVElasticScatterEvent_e475s)
 

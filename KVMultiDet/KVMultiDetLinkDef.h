@@ -13,7 +13,6 @@
 #pragma link C++ global gDataRepositoryManager;
 #pragma link C++ global gDataSet;
 #pragma link C++ global gHistoManipulator;
-#pragma link C++ global gNDTManager;
 #pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
@@ -263,5 +262,4 @@
 #pragma link C++ class KVLifeTimeTable+;
 #pragma link C++ class KVAbundanceTable+;
 #pragma link C++ class KVMassExcessTable+;
-#pragma link C++ class KVNDTManager+;
 #endif

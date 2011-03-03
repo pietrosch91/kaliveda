@@ -4,7 +4,6 @@
 #include "KVAbundanceTable.h"
 #include "KVFileReader.h"
 #include "TEnv.h"
-//#include "KVIntegerList.h"
 
 ClassImp(KVAbundanceTable)
 
@@ -20,36 +19,33 @@ ClassImp(KVAbundanceTable)
 KVAbundanceTable::KVAbundanceTable():KVNuclDataTable("KVAbundance")
 {
    // Default constructor
-	init();
 }
 
 //_____________________________________________
 KVAbundanceTable::~KVAbundanceTable()
 {
    // Destructor
-	init();
 }
 
 //_____________________________________________
 void KVAbundanceTable::init()
 {
-	SetName("Abundance");
+	
 }
 
 //_____________________________________________
 void KVAbundanceTable::Initialize()
 {
 	
-	TString dfile; dfile.Form("%s.DataFile",GetName());
 	TString cl_path;
-	if( !SearchKVFile(gEnv->GetValue(dfile.Data(),""),cl_path,"data") ){
-		Error("Initialize","No file found for %s",GetName());
+	if( !SearchKVFile(gEnv->GetValue("Abundance.DataFile",""),cl_path,"data") ){
+		Error("Initialize","No file found for Abundance");
 		return;
 	}	
 	else 
-		Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
+		Info("Initialize","%s will be read",gEnv->GetValue("Abundance.DataFile",""));
 	
-	SetTitle(gEnv->GetValue(dfile.Data(),""));
+	kfilename.Form(gEnv->GetValue("Abundance.DataFile",""));
 		
 	Int_t ntot=0;
 	nucMap = new TMap(50,2);
@@ -58,10 +54,6 @@ void KVAbundanceTable::Initialize()
 	
 	//Premier passage
 	//Lecture du nombre de noyaux a enregistrer
-	/*
-	Int_t zmax=-1;
-	Int_t amax=-1;
-	*/
 	while (fr->IsOK()){
 	
 		fr->ReadLine(" ");
@@ -69,28 +61,18 @@ void KVAbundanceTable::Initialize()
 		else if (fr->GetNparRead()==0){ break; }
 		else if (fr->GetReadPar(0).BeginsWith("//")){ 
 		
-			kcomments+=fr->GetCurrentLine();
+			kcomments+=fr->GetReadPar(0);
 			kcomments+="\n";
 		
 		}
 		else {
 			Int_t zz = fr->GetIntReadPar(0);
 			Int_t aa = fr->GetIntReadPar(1);
-			/*
-			if (zz>zmax) zmax=zz;
-			if (aa>amax) amax=aa;
-			*/
 			GiveIndexToNucleus(zz,aa,ntot);
 			ntot+=1;
 		}
 	}
 	
-	//CreateTableRange(zmax+1);
-	/*
-	tobj_rangeA = new TObjArray(zmax+1);
-	tobj_rangeZ = new TObjArray(amax+1);
-	KVIntegerList* il=0;
-	*/
 	if ( !fr->PreparForReadingAgain() ) return;
 	
 	Info("Initialize","Set up map for %d nuclei", ntot);
@@ -108,26 +90,9 @@ void KVAbundanceTable::Initialize()
 			CreateElement(ntot);
 			lf = GetCurrent();
 			
-			/*
-			Int_t zz = fr->GetIntReadPar(0);
-			Int_t aa = fr->GetIntReadPar(1);
-			
-			
-			if ( !(il = (KVIntegerList* )tobj_rangeA->At(zz)) ) {
-				il = new KVIntegerList(); 
-				tobj_rangeA->AddAt(il,zz);
-			}
-			il->Add(aa);
-			
-			if ( !(il = (KVIntegerList* )tobj_rangeZ->At(aa)) ) {
-				il = new KVIntegerList(); 
-				tobj_rangeZ->AddAt(il,aa);
-			}
-			il->Add(zz);
-			*/
 			Double_t val = fr->GetDoubleReadPar(2);
 			lf->SetValue(val);
-			//lf->SetMeasured(kTRUE);
+			lf->SetMeasured(kTRUE);
 			
 			ntot+=1;
 		}
@@ -137,24 +102,6 @@ void KVAbundanceTable::Initialize()
 	Info("Initialize","table initialised correctly for %d/%d nuclei", ntot,GetNumberOfNuclei());
 	fr->CloseFile();
 	delete fr;
-
-	/*
-	for (Int_t zz=0;zz<=zmax;zz+=1){
-		if ( il = (KVIntegerList* )tobj_rangeA->At(zz) ){
-			il->CheckForUpdate();
-			//printf("%d %s\n",zz,tobj_rangeA->At(zz)->GetName());
-		
-		}
-	}
-	
-	for (Int_t aa=0;aa<=amax;aa+=1){
-		if ( il = (KVIntegerList* )tobj_rangeZ->At(aa) ){
-			il->CheckForUpdate();
-			//printf("%d %s\n",aa,tobj_rangeZ->At(aa)->GetName());
-		
-		}
-	}
-	*/
 
 }
 
