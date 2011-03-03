@@ -85,9 +85,14 @@ KVDBSystem::~KVDBSystem()
 
 KV2Body *KVDBSystem::GetKinematics()
 {
-   //Create (if it doesn't already exist) and return pointer to a KV2Body object initialised
-   //with the entrance channel corresponding to this system. Use this to obtain information
-   //such as the recoil velocity of the CM, available energy, etc. (see KV2Body).
+   // Create (if it doesn't already exist) and return pointer to a KV2Body object initialised
+   // with the entrance channel corresponding to this system. Use this to obtain information
+   // such as the recoil velocity of the CM, available energy, etc. (see KV2Body).
+   //
+   // If no projectile and/or target are defined for the system, we return 0x0.
+   
+   if(GetZbeam()*GetZtarget()==0) return 0;
+   
    if (!fCinema) {
       fCinema = new KV2Body();
       fCinema->SetProjectile(GetZbeam(), GetAbeam());
@@ -105,6 +110,7 @@ Double_t KVDBSystem::GetZVtot() const
    //Returns product of atomic number and velocity component parallel to beam axis of projectile nucleus in laboratory frame
    //Units are cm/ns (velocity units)
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (fZbeam * kin->GetNucleus(1)->GetVpar());
 }
 
@@ -115,6 +121,7 @@ Double_t KVDBSystem::GetPtot() const
    //Returns momentum component parallel to beam axis of projectile nucleus in laboratory frame
    //Units are MeV/c
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (kin->GetNucleus(1)->GetMomentum().Z());
 }
 
@@ -125,6 +132,7 @@ Double_t KVDBSystem::GetEtot() const
    //Returns total (mass + kinetic) energy of entrance channel corresponding to system
    //Units are MeV
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (kin->GetNucleus(1)->E() + kin->GetNucleus(2)->E());
 }
 
@@ -135,6 +143,7 @@ Double_t KVDBSystem::GetECM() const
    //Returns total available (CM) kinetic energy of entrance channel corresponding to system
    //Units are MeV
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (kin->GetCMEnergy());
 }
 

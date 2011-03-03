@@ -243,7 +243,8 @@ Bool_t KVSelector::Notify()
 
       fCurrentRun->Print();
       if (fCurrentRun->GetSystem()) {
-         fCurrentRun->GetSystem()->GetKinematics()->Print();
+         if(fCurrentRun->GetSystem()->GetKinematics())
+             fCurrentRun->GetSystem()->GetKinematics()->Print();
       }
 
    cout << endl << " ================================================= " <<
@@ -347,7 +348,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
    totentry++;
 
    //calculate momenta of particles in reaction cm frame
-   if (fCurrentRun->GetSystem()) {
+   if (fCurrentRun->GetSystem() && fCurrentRun->GetSystem()->GetKinematics()) {
 
        GetEvent()->SetFrame("CM",
                             fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
