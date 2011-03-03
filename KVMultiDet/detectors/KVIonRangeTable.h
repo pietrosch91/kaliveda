@@ -1,8 +1,8 @@
 //Created by KVClassFactory on Thu Feb  3 10:04:41 2011
 //Author: frankland,,,,
 
-#ifndef __KVIONRANGETABLE_H
-#define __KVIONRANGETABLE_H
+#ifndef KVIONRANGETABLE_H
+#define KVIONRANGETABLE_H
 
 #include "KVBase.h"
 
@@ -13,31 +13,43 @@ namespace Units {
    //   [M]  g
    //   [P]   Torr
    // lengths
-   Double_t cm = 1.0;
-   Double_t um = 1.e-4;
-   Double_t mm = 1.e-1;
-   Double_t m = 1.e+2;
+const Double_t cm = 1.0;
+const Double_t um = 1.e-4;
+const Double_t mm = 1.e-1;
+const Double_t m = 1.e+2;
    //  weights
-   Double_t g = 1.0;
-   Double_t kg = 1.e+3;
-   Double_t mg = 1.e-3;
-   Double_t ug = 1.e-6;
+const Double_t g = 1.0;
+const Double_t kg = 1.e+3;
+const Double_t mg = 1.e-3;
+const Double_t ug = 1.e-6;
    // pressures
-   Double_t torr = 1.0;
-   Double_t atm = 760.;
-   Double_t Pa = atm/101325.;
-   Double_t mbar = 100.*Pa;
+const Double_t torr = 1.0;
+const Double_t atm = 760.;
+const Double_t Pa = atm/101325.;
+const Double_t mbar = 100.*Pa;
 };
-
 
 class KVIonRangeTable : public KVBase {
 
 public:
+   enum SolType {
+      kEmax,
+      kEmin
+   };
+   
    KVIonRangeTable();
    virtual ~KVIonRangeTable();
 
    static KVIonRangeTable* GetRangeTable(const Char_t* name);
+   
+   // Create and fill a list of all materials for which range tables exist. 
+   // Each entry is a TNamed with the name and type (title) of the material.
+   virtual TObjArray* GetListOfMaterials() = 0;
 
+   // Return maximum incident energy (in MeV) for which range table is valid for given
+   // material and (Z,A) of incident ion
+   virtual Double_t GetEmaxValid(const Char_t* material, Int_t Z, Int_t A) = 0;
+   
    // Returns density (g/cm**3) of a material in the range tables
    virtual Double_t GetDensity(const Char_t*) = 0;
 
@@ -92,8 +104,8 @@ public:
    virtual Double_t GetEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.)=0;
    virtual Double_t GetLinearEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.)=0;
 
-   virtual Double_t GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.)=0;
-   virtual Double_t GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.)=0;
+   virtual Double_t GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum SolType type = kEmax, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.)=0;
+   virtual Double_t GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum SolType type = kEmax, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.)=0;
 
    virtual Double_t GetDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0., Double_t T=-1., Double_t P=-1.)=0;
    virtual Double_t GetLinearDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0., Double_t T=-1., Double_t P=-1.)=0;

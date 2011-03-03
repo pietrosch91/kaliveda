@@ -40,10 +40,6 @@ class KVMaterial:public KVBase {
    TVector3 fNormToMat;//!dummy vector for calculating normal to absorber
 
  public:
-   enum SolType {
-      kEmax,
-      kEmin
-   };
 
  private:
    Int_t fAmasr;                // isotopic mass of element
@@ -65,17 +61,26 @@ class KVMaterial:public KVBase {
    Double_t GetMass() const;
    Double_t GetZ() const;
    Double_t GetDensity() const;
-   void SetThickness(Double_t thick);
-   void SetAreaDensity(Double_t dens) { fThick = dens; };
-   Double_t GetAreaDensity() const { return fThick; };
-   Double_t GetThickness() const;
+   void SetAreaDensity(Double_t dens /* g/cm**2 */)
+   { 
+      if(GetActiveLayer())
+         GetActiveLayer()->SetAreaDensity(dens);
+      else
+         fThick = dens;
+   };
+   Double_t GetAreaDensity() const
+   {
+      if(GetActiveLayer()) return GetActiveLayer()->GetAreaDensity();
+      return fThick;
+   };
+   virtual void SetThickness(Double_t thick /* cm */);
+   virtual Double_t GetThickness() const;
    Double_t GetEffectiveThickness(TVector3 & norm, TVector3 & direction);
+   Double_t GetEffectiveAreaDensity(TVector3 & norm, TVector3 & direction);
 
    virtual void DetectParticle(KVNucleus *, TVector3 * norm = 0);
    virtual Double_t GetELostByParticle(KVNucleus *, TVector3 * norm = 0);
    virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
-   virtual Double_t GetIncidentEnergyFromERes(Int_t Z, Int_t A,
-                                              Double_t Eres);
 
    virtual void Print(Option_t * option = "") const;
    virtual Double_t GetEnergyLoss() {
@@ -92,15 +97,17 @@ class KVMaterial:public KVBase {
 #endif
    virtual void Clear(Option_t * opt = "");
 
-   Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
-                              -1.0, enum SolType type = kEmax);
-   Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
-   Double_t GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres);
-   Double_t GetERes(Int_t Z, Int_t A, Double_t Einc);
-   Double_t GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE =
-                              -1.0, enum SolType type = kEmax);
-   Double_t GetBraggE(Int_t Z, Int_t A);
-   Double_t GetBraggDE(Int_t Z, Int_t A);
+   virtual Double_t GetEmaxValid(Int_t Z, Int_t A);
+   virtual Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
+                              -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
+   virtual Double_t GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres);
+   virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres);
+   virtual Double_t GetERes(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE =
+                              -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
+   virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
+   virtual Double_t GetMaxDeltaE(Int_t Z, Int_t A);
 
    virtual KVMaterial *GetActiveLayer() const {
       return 0;
@@ -109,8 +116,8 @@ class KVMaterial:public KVBase {
    virtual void SetPressure(Double_t);
    virtual void SetTemperature(Double_t);
 
-   Double_t GetPressure() const;
-   Double_t GetTemperature() const;
+   virtual Double_t GetPressure() const;
+   virtual Double_t GetTemperature() const;
 
    Bool_t IsIsotopic() const;
    Bool_t IsNat() const;
@@ -122,6 +129,8 @@ class KVMaterial:public KVBase {
    };
 	
 	virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/="");
+	
+	virtual KVIonRangeTable* GetRangeTable() const { return fIonRangeTable; };
    
    ClassDef(KVMaterial, 6)      // Class describing physical materials used to construct detectors & targets
 };

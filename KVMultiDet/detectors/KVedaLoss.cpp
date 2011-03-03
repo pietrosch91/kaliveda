@@ -45,6 +45,12 @@ Bool_t KVedaLoss::init_materials() const
    // PRIVATE method - called to initialize fMaterials list of all known materials
    // properties, read from file given by TEnv variable KVedaLoss.RangeTables
 
+   Info("init_materials", "Initialising KVedaLoss...");
+   printf("\n");
+   printf("\t*************************************************************************\n");
+   printf("\t*                VEDALOSS STOPPING POWER & RANGE TABLES                 *\n");
+   printf("\t*                                                                       *\n");
+   int mat_count = 0;
    fMaterials = new KVHashList;
    fMaterials->SetName("VEDALOSS materials list");
    fMaterials->SetOwner();
@@ -87,11 +93,22 @@ Bool_t KVedaLoss::init_materials() const
                                                                   Zmat, Amat, MoleWt);
                fMaterials->Add(tmp_mat);
                if (!tmp_mat->ReadRangeTable(fp)) return kFALSE;
+               ++mat_count;
+               Double_t rho = 0.;
+               if(tmp_mat->IsGas()) tmp_mat->SetTemperatureAndPressure(19., 1.*Units::atm);
+               rho = tmp_mat->GetDensity();
+               printf("\t*  %2d.  %-7s %-18s  Z=%2d A=%5.1f  rho=%6.3f g/cm**3    *\n",
+                           mat_count, tmp_mat->GetType(), tmp_mat->GetName(),
+                           (int)tmp_mat->GetZ(), tmp_mat->GetMass(),
+                           rho);
                break;
          }
       }
       fclose(fp);
    }
+   printf("\t*                                                                       *\n");
+   printf("\t*                       INITALISATION COMPLETE                          *\n");
+   printf("\t*************************************************************************\n");
    return kTRUE;
 }
 
@@ -279,21 +296,21 @@ Double_t KVedaLoss::GetLinearEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t
 }
 //________________________________________________________________________________//
 
-Double_t KVedaLoss::GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat, Double_t , Double_t )
+Double_t KVedaLoss::GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type, Double_t isoAmat, Double_t , Double_t )
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in mg/cm**2).
    // Give Amat to change default (isotopic) mass of material,
-   FIND_MAT_AND_EXEC(GetEIncFromDeltaEOfIon(Z, A, DeltaE, e, isoAmat),0.0);
+   FIND_MAT_AND_EXEC(GetEIncFromDeltaEOfIon(Z, A, DeltaE, e, type, isoAmat),0.0);
 }
 //________________________________________________________________________________//
 
-Double_t KVedaLoss::GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t deltaE, Double_t e,
+Double_t KVedaLoss::GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t deltaE, Double_t e, enum KVIonRangeTable::SolType type,
                                                          Double_t isoAmat, Double_t T, Double_t P)
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in cm).
    // Give Amat to change default (isotopic) mass of material,
    // give temperature (degrees C) & pressure (torr) (T,P) for gaseous materials.
-   FIND_MAT_AND_EXEC(GetLinearEIncFromDeltaEOfIon(Z, A, deltaE, e, isoAmat,T,P),0.0);
+   FIND_MAT_AND_EXEC(GetLinearEIncFromDeltaEOfIon(Z, A, deltaE, e, type, isoAmat,T,P),0.0);
 }
 //________________________________________________________________________________//
 
@@ -371,3 +388,31 @@ Double_t KVedaLoss::GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, In
    FIND_MAT_AND_EXEC(GetLinearEIncOfMaxDeltaEOfIon(Z, A, e, isoAmat, T, P),0.0);   
 }
 
+Double_t KVedaLoss::GetEmaxValid(const Char_t* mat, Int_t Z, Int_t A)
+{
+   // Returns maximum energy (in MeV) for which range table is valid
+   // for given material and incident ion (Z,A)
+   
+   FIND_MAT_AND_EXEC(GetEmaxValid(Z, A),0.0);   
+}
+
+//______________________________________________________________________________________//
+
+TObjArray* KVedaLoss::GetListOfMaterials()
+{
+   // Create and fill a list of all materials for which range tables exist.
+   // Each entry is a TNamed with the name and type (title) of the material.
+   // User's responsibility to delete list after use (it owns its objects).
+   
+   if(CheckMaterialsList()){
+      TObjArray* list = new TObjArray(fMaterials->GetEntries());
+      list->SetOwner(kTRUE);
+      TIter next(fMaterials);
+      KVedaLossMaterial* mat;
+      while( (mat = (KVedaLossMaterial*)next()) ){
+         list->Add(new TNamed(mat->GetName(), mat->GetType()));
+      }
+      return list;
+   }
+   return 0;
+}

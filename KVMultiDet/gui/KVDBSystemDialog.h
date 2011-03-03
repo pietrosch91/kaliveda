@@ -57,7 +57,7 @@ class KVDBSystemDialog
    KVMaterial *fLayer;//current target layer
    KVNumberList fRuns;//runs selected by user
    
-   KVList* fMaterialsList;//list of all available materials
+   TObjArray* fMaterialsList;//list of all available materials
    
    KVDatedFileManager* fUndo;//allows to undo changes to Systems.dat
    KVString fCurrentSystemsFile;//name (including timestamp) of currently used Systems.dat

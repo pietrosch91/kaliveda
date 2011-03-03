@@ -28,12 +28,15 @@ public:
    KVedaLossMaterial* GetMaterial(const Char_t* material);
    const Char_t* GetMaterialName(const Char_t* material);
 
+   virtual Double_t GetEmaxValid(const Char_t* material, Int_t Z, Int_t A);
+   
    Double_t GetDensity(const Char_t* material);
    void SetTemperatureAndPressure(const Char_t*material, Double_t temperature, Double_t pressure);
    Double_t GetZ(const Char_t* material);
    Double_t GetAtomicMass(const Char_t* material);
 
    void Print(Option_t* = "") const;
+   TObjArray* GetListOfMaterials();
 
    virtual Double_t GetRangeOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t E,
       Double_t Amat=0., Double_t T=-1., Double_t P=-1.);
@@ -53,8 +56,8 @@ public:
    virtual Double_t GetEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
    virtual Double_t GetLinearEIncFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
 
-   virtual Double_t GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
-   virtual Double_t GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+   virtual Double_t GetEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax,  Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+   virtual Double_t GetLinearEIncFromDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
 
    virtual Double_t GetDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0., Double_t T=-1., Double_t P=-1.);
    virtual Double_t GetLinearDeltaEFromEResOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0., Double_t T=-1., Double_t P=-1.);

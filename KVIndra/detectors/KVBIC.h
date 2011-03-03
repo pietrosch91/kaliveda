@@ -55,6 +55,16 @@ class KVBIC:public KVChIo {
    {
       return (fLinCal && fLinCal->GetStatus());
    };
+   virtual void SetPressure(Double_t P /* torr*/)
+   {
+      // Set pressure of gas in torr
+      GetActiveLayer()->SetPressure(P);
+   };
+   virtual Double_t GetPressure() const /* torr */
+   {
+      // Give pressure of gas in torr
+      return GetActiveLayer()->GetPressure();
+   };
 
     ClassDef(KVBIC, 2)          //Blocking ChIo for E416 experiment
 };

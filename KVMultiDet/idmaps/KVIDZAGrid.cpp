@@ -1464,8 +1464,8 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
 
         Double_t E1, E2;
         //find E1
-        //go from 0.1 MeV to dE->GetBraggE(part.GetZ(),part.GetA()))
-        Double_t E1min = 0.1, E1max = dEDet->GetBraggE(part.GetZ(),part.GetA());
+        //go from 0.1 MeV to dE->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
+        Double_t E1min = 0.1, E1max = dEDet->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA());
         E1 = (E1min + E1max) / 2.;
 
         while ((E1max - E1min) > 0.1)
@@ -1512,15 +1512,6 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
                 E2min = E2;
                 E2 = (E2max + E2min) / 2.;
             }
-        }
-
-        // check we are within limits of validity of energy loss tables
-        if ( E2 > dEDet->GetEmaxVedaloss(z)*part.GetA() )
-        {
-            Warning("MakeEDeltaEZGrid",
-                    "Emax=%f MeV for Z=%d : beyond validity of range tables. Will use max limit=%f MeV",
-                    E2, z, dEDet->GetEmaxVedaloss(z)*part.GetA());
-            E2 = dEDet->GetEmaxVedaloss(z)*part.GetA();
         }
 
         KVIDentifier *line = NewLine("ID");

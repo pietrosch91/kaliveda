@@ -39,7 +39,7 @@ ClassImp(KVSilicon)
 //
 //Used to describe Silicon detectors of the INDRA array.
 //In order to create a detector, use the KVSilicon::KVSilicon(Float_t thick)
-//constructor with "thick" the thickness in microns.
+//constructor with "thick" the thickness in centimetres
 //
 //Type of detector : "SI"
 
@@ -70,10 +70,10 @@ KVSilicon::KVSilicon()
 }
 
 //______________________________________________________________________________
-KVSilicon::KVSilicon(Float_t thick):KVINDRADetector("Si", thick)
+KVSilicon::KVSilicon(Float_t thick):KVINDRADetector("Si", thick*Units::um)
 {
-   // constructor for silicon detector
-	//Type of detector: "SI"
+   // constructor for silicon detector, thickness in microns
+	// Type of detector: "SI"
    SetType("SI");
    init();
 }
@@ -252,8 +252,8 @@ Double_t KVSilicon::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t tr
    if (e < 0.) e = GetEnergy();
    if( e <= 0 ) return 0;
    // calculate incident energy from measured energy loss in detector
-   enum KVMaterial::SolType solution = KVMaterial::kEmax;
-   if(!trn) solution = KVMaterial::kEmin;
+   enum KVIonRangeTable::SolType solution = KVIonRangeTable::kEmax;
+   if(!trn) solution = KVIonRangeTable::kEmin;
    Double_t EINC = GetIncidentEnergy(z, a, e, solution);
    //incident energy - residual energy = total real energy loss
    return (EINC - GetERes(z, a, EINC));
@@ -414,63 +414,6 @@ void KVSilicon::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1
 
 //______________________________________________________________________________
 
-void KVSilicon::SetELossParams(Int_t Z, Int_t A)
-{
-   //Initialise energy loss coefficients for this detector and a given incident nucleus (Z,A)
-   //We redefine the KVDetector::SetELossParams method in order to include the
-   //pulse height defect (if defined) for the silicon detector in the calculation of
-   //the energy loss in the active (silicon) layer.
-
-   //PHD not defined ? ignore
-   if(!fPHD || !fPHD->GetStatus()){
-      KVDetector::SetELossParams(Z,A);
-      return;
-   }
-
-   //do we need to set up the ELoss function ?
-   //only if it has never been done for PHD before
-   Int_t npar_siphd = 19+6;      //number of params for eloss function = 19 params for energy loss + 6 for PHD (Z,a_1,a_2,b_1,b_2,Zmin)
-
-   if( npar_loss !=  npar_siphd ){
-      npar_loss = npar_siphd;
-      if( par_loss ) delete [] par_loss; //delete previous parameter array
-      par_loss = new Double_t[npar_loss];
-      //find/create function
-      //search in list of functions for one corresponding to this detector
-      //the name of the required function is ELoss_SiPHD
-      ELoss =
-          (TF1 *) gROOT->GetListOfFunctions()->FindObject("ELoss_SiPHD");
-      if (!ELoss)
-         ELoss = new TF1("ELoss_SiPHD", ELossSiPHD, 0.1, 5000., npar_loss);
-   }
-
-   //fill parameter array
-  ((KVMaterial*)fAbsorbers->At(0))->GetELossParams(Z, A, par_loss);
-  par_loss[19] = Z;
-  for (register int i = 0; i < 5; i++) par_loss[i+20] = fPHD->GetParameter(i);
-
-   //set parameters of energy loss function
-   ELoss->SetParameters(par_loss);
-}
-
-//_____________________________________________________________________________________//
-
-Double_t ELossSiPHD(Double_t * x, Double_t * par)
-{
-   //Calculates measured/apparent energy loss in silicon detector, taking into account PHD
-   //Parameters par[0] to par [18] are energy loss parameters for Silicon
-   //Parameter par[19] is Z of nucleus
-   //Parameters par[20] to par[24] are Moulton PHD parameters (see KVPulseHeightDefect
-   //source file for function & parameter definitions).
-   //Argument x[0] is incident energy in MeV
-
-   //measured/apparent dE = real dE - PHD
-   return (ELossSaclay(x, par) - PHDMoulton(x, &par[19]));
-}
-
-
-//______________________________________________________________________________
-
 Short_t KVSilicon::GetCalcACQParam(KVACQParam* ACQ,Double_t ECalc) const
 {
    // Calculates & returns value of given acquisition parameter corresponding to
@@ -482,6 +425,26 @@ Short_t KVSilicon::GetCalcACQParam(KVACQParam* ACQ,Double_t ECalc) const
    if(ACQ->IsType("PG")) return (Short_t)const_cast<KVSilicon*>(this)->GetCanalPGFromVolts(volts);
    else if(ACQ->IsType("GG")) return (Short_t)const_cast<KVSilicon*>(this)->GetCanalGGFromVolts(volts);
    return -1;
+}
+
+//______________________________________________________________________________
+
+TF1* KVSilicon::GetELossFunction(Int_t Z, Int_t A)
+{
+   // Overrides KVDetector::GetELossFunction
+   // If the pulse height deficit (PHD) has been set for this detector,
+   // we return an energy loss function which takes into account the PHD,
+   // i.e. for an incident energy E we calculate dEphd(E,Z,A) = dE(E,Z,A) - PHD(E',Z)
+   // (where E' is the energy just before the active layer, in case there are
+   // dead zones before it)
+   // If no PHD is set, we return the usual KVDetector::GetELossFunction
+   // which calculates dE(E,Z,A)
+   
+   if(fPHD && fPHD->GetStatus()) {
+      fELossF = fPHD->GetELossFunction(Z,A);
+      fELossF->SetRange(0., GetSmallestEmaxValid(Z,A));
+   }
+   return KVDetector::GetELossFunction(Z,A);
 }
 
 //__________________________________________________________________________________________
@@ -541,7 +504,7 @@ KVSiLi::KVSiLi(Float_t thick):KVSilicon(thick)
    //Default ctor
    // first layer (active) : 2mm silicon (nominal)
    // second layer (dead) : 40um silicon (nominal)
-   AddAbsorber( new KVMaterial("Si", 40.0) );
+   AddAbsorber( new KVMaterial("Si", 40.0*Units::um) );
    SetType("SILI");
    SetLabel("SILI");
 }

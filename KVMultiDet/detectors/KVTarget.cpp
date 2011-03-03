@@ -28,6 +28,9 @@ In order to make a target with several absorber layers, proceed as follows:
    KVTarget targ("Ta", 8.3); // first layer 8.3mg/cm2 Ta
    targ.AddLayer("C", 20.0); // second layer 20mg/cm2 C
 </pre>
+
+Note that all "thicknesses" for targets and target layers are in mg/cm**2.
+
 <h4>ORIENTATION OF TARGET</h4>
 
 The target can be oriented in an arbitrary way, by defining the vector normal to its
@@ -139,10 +142,11 @@ KVTarget::KVTarget():fNormal(0, 0, 1), fIntPoint(0, 0, 0)
 
 //________________________________________________________________________
 
-KVTarget::KVTarget(const Char_t * material,
-                   const Double_t thick):KVMaterial(), fNormal(0, 0, 1)
+KVTarget::KVTarget(const Char_t * material, const Double_t thick):KVMaterial(), fNormal(0, 0, 1)
 {
-   //Just give the type & thickness of material for target
+   // Just give the type & "thickness" of material for target
+   // The "thickness" is the area density of the target in mg/cm**2.
+   
    init();
    AddLayer(material, thick);
 }
@@ -176,19 +180,19 @@ void KVTarget::Copy(TObject & obj)
 	TIter next(GetLayers());
    KVMaterial *mat = 0;
    while ((mat = (KVMaterial *) next())) {
-      ((KVTarget &) obj).AddLayer(mat->GetType(),mat->GetThickness());
+      ((KVTarget &) obj).AddLayer(mat->GetType(), mat->GetAreaDensity()/Units::mg);
    }
 }
 //________________________________________________________________________
 
 void KVTarget::AddLayer(const Char_t * material, Double_t thick)
 {
-   //Add a layer to a target
-   //Sets/updates name of target with name of material.
-   //In case of multi-layer target the name is
+   // Add a layer to a target, with 'thickness' in mg/cm**2 (area density).
+   // Sets/updates name of target with name of material.
+   // In case of multi-layer target the name is
    //      material1/material2/material3/...
 
-   fTargets->Add(new KVMaterial(material, thick));
+   fTargets->Add(new KVMaterial(thick*Units::mg, material));
    fNLayers++;
    if (fNLayers == 1) {
       SetName(material);
@@ -204,21 +208,25 @@ void KVTarget::AddLayer(const Char_t * material, Double_t thick)
 
 Double_t KVTarget::GetTotalThickness()
 {
-   //return sum of thicknesses of all layers in target
+   // return sum of 'thicknesses' (area densities in mg/cm**2)
+   // of all layers in target
+   
    Float_t thick = 0.;
    TIter next(fTargets);
    KVMaterial *mat = 0;
    while ((mat = (KVMaterial *) next())) {
-      thick += mat->GetThickness();
+      thick += mat->GetAreaDensity();
    }
-   return thick;
+   return thick/Units::mg;
 }
 
 //________________________________________________________________________
 
 Double_t KVTarget::GetTotalThickness(Int_t lay1, Int_t lay2)
 {
-   //return sum of thicknesses of layers lay1 to lay2 in target
+   //return sum of 'thicknesses' (area densities in mg/cm**2)
+   // of layers lay1 to lay2 in target
+   
    Double_t thick = 0.;
    for (register int i = lay1; i <= lay2; i++) {
       thick += GetThickness(i);
@@ -250,7 +258,7 @@ Double_t KVTarget::GetAngleToBeam()
 
 Double_t KVTarget::GetEffectiveThickness(KVParticle * part, Int_t ilayer)
 {
-   //Return effective thickness of layer ilayer (ilayer=1, 2, ...)
+   //Return effective 'thickness' (in mg/cm**2) of layer ilayer (ilayer=1, 2, ...)
    //By default ilayer=1 (i.e. for single layer target)
    //The effective thickness depends on the angle of the target (rotation about
    //x-axis => theta wrt z- (beam)-axis).
@@ -273,7 +281,7 @@ Double_t KVTarget::GetEffectiveThickness(KVParticle * part, Int_t ilayer)
 Double_t KVTarget::GetEffectiveThickness(TVector3 & direction,
                                          Int_t ilayer)
 {
-   //Return effective thickness of layer ilayer (ilayer=1, 2, ...)
+   //Return effective 'thickness' (in mg/cm**2) of layer ilayer (ilayer=1, 2, ...)
    //By default ilayer=1 (i.e. for single layer target)
    //The effective thickness depends on the orientation of the target (given by
    //the direction of the normal to its surface) and on the direction (e.g. direction of a particle)
@@ -284,8 +292,7 @@ Double_t KVTarget::GetEffectiveThickness(TVector3 & direction,
             ilayer, NumberOfLayers());
       return 0.0;
    }
-   return GetLayerByIndex(ilayer)->GetEffectiveThickness(fNormal,
-                                                         direction);
+   return GetLayerByIndex(ilayer)->GetEffectiveAreaDensity(fNormal, direction)/Units::mg;
 }
 
 //________________________________________________________________________
@@ -294,7 +301,7 @@ KVMaterial *KVTarget::GetLayer(TVector3 & depth)
 {
    //Returns absorber corresponding to 'depth' inside target, starting from the 'entrance'
    //layer and following the direction of 'depth'. Note: 'depth' is measured in the same
-   //'thickness' units as the thickness of the different layers of the target (mg/cm2, um, etc.)
+   //'thickness' units as the thickness of the different layers of the target (mg/cm2)
    //WARNING : returns 0 if no layer is found (depth is outside of target)
 
    return GetLayerByIndex(GetLayerIndex(depth));
@@ -306,7 +313,7 @@ Int_t KVTarget::GetLayerIndex(TVector3 & depth)
 {
    //Returns absorber index corresponding to 'depth' inside target, starting from the 'entrance'
    //layer and following the direction of 'depth'. Note: 'depth' is measured in the same
-   //'thickness' units as the thickness of the different layers of the target (mg/cm2, um, etc.)
+   //'thickness' units as the thickness of the different layers of the target (mg/cm2)
    //WARNING : user should check returned index is >0
    //If not, this means that the given depth does not correspond to a layer inside the target
 
@@ -357,9 +364,9 @@ KVMaterial *KVTarget::GetLayer(const Char_t * name)
 
 Double_t KVTarget::GetThickness(Int_t ilayer) const
 {
-   //Thickness of layer 'ilayer' in target
+   //'Thickness' in mg/cm**2 of layer 'ilayer' in target
    KVMaterial *lay = GetLayerByIndex(ilayer);
-   return (lay ? lay->GetThickness() : 0.0);
+   return (lay ? lay->GetAreaDensity()/Units::mg : 0.0);
 }
 
 //________________________________________________________________________
@@ -368,7 +375,7 @@ Int_t KVTarget::GetLayerIndex(Double_t depth)
 {
    //Returns absorber index corresponding to 'depth' inside target, starting from the 'entrance'
    //layer and following the normal direction. Note: 'depth' is measured in the same
-   //'thickness' units as the thickness of the different layers of the target (mg/cm2, um, etc.)
+   //'thickness' units as the thickness of the different layers of the target (mg/cm2)
    //WARNING : user should check returned index is >0
    //If not, this means that the given depth does not correspond to a layer inside the target
 
@@ -387,7 +394,7 @@ Int_t KVTarget::GetLayerIndex(Double_t depth)
 
 Double_t KVTarget::GetTotalEffectiveThickness(KVParticle * part)
 {
-   //return sum of effective thicknesses of all layers in target
+   //return sum of effective 'thicknesses' (mg/cm**2) of all layers in target
    //taking into account the angle of the target to the beam
    //and the direction of motion of the incident particle.
    //If no particle is given, effective thicknesses are calculated as for
@@ -402,7 +409,7 @@ Double_t KVTarget::GetTotalEffectiveThickness(KVParticle * part)
 Double_t KVTarget::GetTotalEffectiveThickness(TVector3 & dir, Int_t ilay1,
                                               Int_t ilay2)
 {
-   //return sum of effective thicknesses of layers ilay1 to ilay2 in target
+   //return sum of effective 'thicknesses' (mg/cm**2) of layers ilay1 to ilay2 in target
    //taking into account the angle of the target to the beam
    //and the given direction.
    //
@@ -484,18 +491,18 @@ void KVTarget::DetectParticle(KVNucleus * kvp, TVector3 * dummy)
                                                     iplay_index) -
              GetInteractionPoint() * GetNormal();
          e_thick_iplay =
-             (IsIncoming()? iplay->GetThickness() -
+             (IsIncoming()? iplay->GetAreaDensity()/Units::mg -
               e_thick_iplay : e_thick_iplay);
 
          if (backwards)
-            e_thick_iplay = iplay->GetThickness() - e_thick_iplay;
+            e_thick_iplay = iplay->GetAreaDensity()/Units::mg - e_thick_iplay;
 #ifdef DBG_TRGT
          cout << "Effective thickness of IP layer is " << e_thick_iplay <<
-             " (real:" << iplay->GetThickness() << ")" << endl;
+             " (real:" << iplay->GetAreaDensity()/Units::mg << ")" << endl;
 #endif
          //modify effective physical thickness of layer
-         Double_t thick_iplay = iplay->GetThickness();
-         iplay->SetThickness(e_thick_iplay);
+         Double_t thick_iplay = iplay->GetAreaDensity();// in g/cm**2
+         iplay->SetAreaDensity(e_thick_iplay*Units::mg);
 
          //first and last indices of layers to pass through
          Int_t ilay1 =
@@ -516,7 +523,7 @@ void KVTarget::DetectParticle(KVNucleus * kvp, TVector3 * dummy)
          }
 
          //reset original thickness of IP layer
-         iplay->SetThickness(thick_iplay);
+         iplay->SetAreaDensity(thick_iplay);
 
       } else {
          Error("DetectParticle", "Interaction point is outside of target");
@@ -586,18 +593,18 @@ Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
                                                     iplay_index) -
              GetInteractionPoint() * GetNormal();
          e_thick_iplay =
-             (IsIncoming()? iplay->GetThickness() -
+             (IsIncoming()? iplay->GetAreaDensity()/Units::mg -
               e_thick_iplay : e_thick_iplay);
 
          if (backwards)
-            e_thick_iplay = iplay->GetThickness() - e_thick_iplay;
+            e_thick_iplay = iplay->GetAreaDensity()/Units::mg - e_thick_iplay;
 #ifdef DBG_TRGT
          cout << "Effective thickness of IP layer is " << e_thick_iplay <<
-             " (real:" << iplay->GetThickness() << ")" << endl;
+             " (real:" << iplay->GetAreaDensity()/Units::mg << ")" << endl;
 #endif
          //modify effective physical thickness of layer
-         Double_t thick_iplay = iplay->GetThickness();
-         iplay->SetThickness(e_thick_iplay);
+         Double_t thick_iplay = iplay->GetAreaDensity(); // g/cm**2
+         iplay->SetAreaDensity(e_thick_iplay*Units::mg);
 
          //first and last indices of layers to pass through
          Int_t ilay1 =
@@ -626,7 +633,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
          }
 
          //reset original thickness of IP layer
-         iplay->SetThickness(thick_iplay);
+         iplay->SetAreaDensity(thick_iplay);
 
       } else {
          Error("DetectParticle", "Interaction point is outside of target");
@@ -776,7 +783,7 @@ void KVTarget::SetInteractionLayer(const Char_t * name, KVParticle * part)
 
 void KVTarget::SetMaterial(const Char_t * type)
 {
-   //Set material of first layer
+   // Set material of first layer
    if (GetLayerByIndex(1))
       GetLayerByIndex(1)->SetMaterial(type);
 }
@@ -785,9 +792,9 @@ void KVTarget::SetMaterial(const Char_t * type)
 
 void KVTarget::SetThickness(Float_t thick, Int_t ilayer)
 {
-   //Setthickness of a layer, by default this is the first layer
+   // Set 'thickness' in mg/cm**2 of a layer, by default this is the first layer
    if (GetLayerByIndex(ilayer))
-      GetLayerByIndex(ilayer)->SetThickness(thick);
+      GetLayerByIndex(ilayer)->SetAreaDensity(thick*Units::mg);
 }
 
 //______________________________________________________________________________________________________
@@ -795,7 +802,7 @@ void KVTarget::SetThickness(Float_t thick, Int_t ilayer)
 Double_t KVTarget::GetAtomsPerCM2() const
 {
    //Calculates total number of atoms per square centimetre of the target.
-   //For a multilayer target, the areal densities for each layer are summed up.
+   //For a multilayer target, the area densities for each layer are summed up.
    Double_t atom_cib = 0;
    for (register int i = 1; i <= NumberOfLayers(); i++) {
       //N_atoms = N_Avogadro * target_thickness (mg/cm**2) * 1.e-3 / atomic_mass_of_target
@@ -860,14 +867,14 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus * kvp, TVector3*)
                                                     iplay_index) -
              GetInteractionPoint() * GetNormal();
          e_thick_iplay =
-             (IsIncoming()? iplay->GetThickness() -
+             (IsIncoming()? iplay->GetAreaDensity()/Units::mg -
               e_thick_iplay : e_thick_iplay);
 
          if (backwards)
-            e_thick_iplay = iplay->GetThickness() - e_thick_iplay;
+            e_thick_iplay = iplay->GetAreaDensity()/Units::mg - e_thick_iplay;
          //modify effective physical thickness of layer
          Double_t thick_iplay = iplay->GetThickness();
-         iplay->SetThickness(e_thick_iplay);
+         iplay->SetAreaDensity(e_thick_iplay);
 
          //first and last indices of layers to pass through
          Int_t ilay1 =
@@ -901,7 +908,7 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus * kvp, TVector3*)
          }
 
          //reset original thickness of IP layer
-         iplay->SetThickness(thick_iplay);
+         iplay->SetAreaDensity(thick_iplay);
 
       } else {
          Error("GetParticleEIncFromERes", "Interaction point is outside of target");
@@ -938,22 +945,5 @@ Double_t KVTarget::GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres)
    //Fake nucleus
    KVNucleus dummy(Z,A); dummy.SetKE(Eres);
    return GetParticleEIncFromERes(&dummy);
-}
-
-//___________________________________________________________________________________
-
-UInt_t KVTarget::GetUnits() const
-{
-   // Returns units for 'thickness' of target.
-   // We actually only look at the 1st layer of the target, and assume all layers have
-   // the same units.
-   // If you want, you can examine individual layers with GetLayer(i)->GetUnits().
-   // Returned value can be one of:
-   //    KVMaterial::kMBAR, KVMaterial::kMGCM2, KVMaterial::kTORR,
-   //    KVMaterial::kMICRON, KVMaterial::kCM.
-
-   KVMaterial * lay = const_cast<KVTarget*>(this)->GetLayerByIndex(1);
-   if (lay) return lay->GetUnits();
-   return 10; // no layers - undefined
 }
 

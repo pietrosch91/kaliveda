@@ -315,6 +315,21 @@ Double_t KVMaterial::GetEffectiveThickness(TVector3 & norm,
 }
 
 //___________________________________________________________________________________
+
+Double_t KVMaterial::GetEffectiveAreaDensity(TVector3 & norm,
+                                           TVector3 & direction)
+{
+   // Calculate effective area density of absorber (in g/cm**2) as 'seen' in 'direction', taking into
+   // account the arbitrary orientation of the 'norm' normal to the material's surface
+
+   TVector3 n = norm.Unit();
+   TVector3 d = direction.Unit();
+   //absolute value of scalar product, in case direction is opposite to normal
+   Double_t prod = TMath::Abs(n * d);
+   return GetAreaDensity() / TMath::Max(prod, 1.e-03);
+}
+
+//___________________________________________________________________________________
 void KVMaterial::Print(Option_t * option) const
 {
    //Show information on this material
@@ -384,10 +399,8 @@ Double_t KVMaterial::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
 {
    // Calculate energy loss in absorber for incident nucleus (Z,A)
    // with kinetic energy Einc (MeV)
-   // For a KVDetector, the energy loss of the ACTIVE layer only is returned.
 
    if(Z<1) return 0.;
-   if(GetActiveLayer()) return GetActiveLayer()->GetDeltaE(Z,A,Einc);
    Double_t E_loss =
       fIonRangeTable->GetLinearDeltaEOfIon(GetType(), Z, A, Einc, GetThickness(), fAmasr, fTemp, fPressure);
    return E_loss;
@@ -399,7 +412,6 @@ Double_t KVMaterial::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 {
    // Calculate energy loss in absorber for nucleus (Z,A)
    // having a residual kinetic energy Eres (MeV) after the absorber
-   // For a KVDetector, the energy loss of the ACTIVE layer only is returned.
 
    if(Z<1) return 0.;
    Double_t E_loss = fIonRangeTable->
@@ -410,8 +422,7 @@ Double_t KVMaterial::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 
 //______________________________________________________________________________________//
 
-Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE,
-                                       enum SolType type)
+Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum KVIonRangeTable::SolType type)
 {
    // Calculate residual kinetic energy Eres (MeV) after the absorber from
    // energy loss in absorber for nucleus (Z,A). If dE is not given, the energy
@@ -431,54 +442,29 @@ Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE,
    //maximum dE.
    
    Double_t EINC = GetIncidentEnergy(Z,A,dE,type);
-   SetEResParams(Z, A);
-   return GetEResFunction()->Eval(EINC);
+   return EINC-dE;
 }
 
 //__________________________________________________________________________________________
 
-Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e,
-                                       enum SolType type)
+Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum KVIonRangeTable::SolType type)
 {
    //Calculate incident energy of nucleus (Z,A) corresponding to the energy loss
    //in this absorber. If delta_e is not given, the energy loss in this absorber is used.
    //
    //By default the solution corresponding to the highest incident energy is returned
    //This is the solution found for Einc greater than the maximum of the dE(Einc) curve.
-   //If you want the low energy solution (i.e. below Bragg peak for gas detector)
-   //set SolType = KVMaterial::kEmin.
+   //If you want the low energy solution set SolType = KVIonRangeTable::kEmin.
    //
    //If the given energy loss in the absorber is greater than the maximum theoretical dE
-   //(dE > GetBraggDE) then we return the incident energy corresponding to the maximum,
-   //GetBraggE.
+   //(dE > GetMaxDeltaE(Z,A)) then we return the incident energy corresponding to the maximum,
+   //GetEIncOfMaxDeltaE(Z,A)
 
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
+   if(Z<1) return 0.;
    
-   Double_t EINC = -1.;
    Double_t DE = (delta_e > 0 ? delta_e : GetEnergyLoss());
 
-   SetELossParams(Z, A);
-   //energy loss in the absorber is greater than the maximum theoretical dE ?
-   Double_t braggDE = GetELossFunction()->GetMaximum(GetEminVedaloss(Z) * A,
-                                         GetEmaxVedaloss(Z) * A);
-   if (DE > braggDE)
-      return GetELossFunction()->GetMaximumX(GetEminVedaloss(Z) * A,
-                                          GetEmaxVedaloss(Z) * A);
-
-   // Emax = GetBraggE(Z,A)
-   Double_t Emax = GetELossFunction()->GetMaximumX(GetEminVedaloss(Z) * A,
-                                          GetEmaxVedaloss(Z) * A);
-   switch (type) {
-      case kEmin:
-         EINC = GetELossFunction()->GetX(DE, GetEminVedaloss(Z) * A, Emax);
-         break;
-
-      case kEmax:
-         EINC = GetELossFunction()->GetX(DE, Emax, GetEmaxVedaloss(Z) * A);
-         break;
-   }
-   
-   return EINC;
+   return fIonRangeTable->GetLinearEIncFromDeltaEOfIon(GetType(),Z,A,DE,GetThickness(),type,fAmasr,fTemp,fPressure);
 }
 
 //______________________________________________________________________________________//
@@ -556,39 +542,36 @@ Double_t KVMaterial::GetIncidentEnergyFromERes(Int_t Z, Int_t A,
                                                Double_t Eres)
 {
    //Get incident energy from residual energy
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
+   if(Z<1) return 0.;
    
-   Double_t EINC = -1.;
-   SetEResParams(Z, A);
-   EINC =
-       GetEResFunction()->GetX(Eres, GetEminVedaloss(Z) * A,
-                               GetEmaxVedaloss(Z) * A);
-   return EINC;
+   return fIonRangeTable->
+      GetLinearEIncFromEResOfIon(GetType(),Z,A,Eres,GetThickness(),fAmasr,fTemp,fPressure);
 }
 
 //__________________________________________________________________________________________
 
-Double_t KVMaterial::GetBraggE(Int_t Z, Int_t A)
+Double_t KVMaterial::GetEIncOfMaxDeltaE(Int_t Z, Int_t A)
 {
    //Incident energy for which the DE(E) curve has a maximum
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
+   if(Z<1) return 0.;
    
-   SetELossParams(Z, A);
-   return GetELossFunction()->GetMaximumX(GetEminVedaloss(Z) * A,
-                                          GetEmaxVedaloss(Z) * A);
+   return fIonRangeTable->
+      GetLinearEIncOfMaxDeltaEOfIon(GetType(),Z,A,GetThickness(),fAmasr,fTemp,fPressure);
 }
 
 //__________________________________________________________________________________________
 
-Double_t KVMaterial::GetBraggDE(Int_t Z, Int_t A)
+Double_t KVMaterial::GetMaxDeltaE(Int_t Z, Int_t A)
 {
-   //The maximum energy loss of this particle
-   //(corresponding to incident energy GetBraggE(Z,A))
-   if(Z<1 || Z>ZMAX_VEDALOSS) return 0.;
+   // The maximum energy loss of this particle (corresponding to incident energy GetEIncOfMaxDeltaE(Z,A))
+   // For detectors, this is the maximum energy loss in the active layer.
    
-   SetELossParams(Z, A);
-   return GetELossFunction()->GetMaximum(GetEminVedaloss(Z) * A,
-                                         GetEmaxVedaloss(Z) * A);
+   if(GetActiveLayer()) return GetActiveLayer()->GetMaxDeltaE(Z,A);
+   
+   if(Z<1) return 0.;
+   
+   return fIonRangeTable->
+      GetLinearMaxDeltaEOfIon(GetType(),Z,A,GetThickness(),fAmasr,fTemp,fPressure);
 }
 
 //__________________________________________________________________________________________
@@ -644,30 +627,12 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 	return gmed;
 }
 
-
-//______________________________________________________________________________
-
-void KVMaterial::Streamer(TBuffer &R__b)
+Double_t KVMaterial::GetEmaxValid(Int_t Z, Int_t A)
 {
-   // Stream an object of class KVMaterial.
-
-   UInt_t R__s, R__c;
-   if (R__b.IsReading()) {
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      R__b.ReadClassBuffer(KVMaterial::Class(),this,R__v,R__s,R__c);
-      if (R__v < 5){
-			// correct densities of solids written with class version < 5
-			// this is to fix launchpad bug#446163
-			// it affects materials with fUnits = kMICRONS or kCM
-			// if the density we read is less than that we find
-			// for a new instanciation of the same type of material,
-			// we use the current value.
-			if(fUnits==kMICRONS || fUnits==kCM){
-				KVMaterial tmp(GetType());
-				if(GetDensity() < tmp.GetDensity()) SetDensity(tmp.GetDensity());
-			}
-		}
-   } else {
-      R__b.WriteClassBuffer(KVMaterial::Class(),this);
-   }
+   // Return maximum incident energy for which range tables are valid
+   // for this material and ion (Z,A).
+   // For detectors, return max energy for active layer.
+   if(GetActiveLayer()) return GetActiveLayer()->GetEmaxValid(Z,A);
+   return fIonRangeTable->GetEmaxValid(GetType(), Z, A);
 }
+

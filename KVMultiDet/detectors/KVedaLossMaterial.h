@@ -94,8 +94,8 @@ public:
    virtual Double_t GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0.);
    virtual Double_t GetLinearEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
 
-   virtual Double_t GetEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0.);
-   virtual Double_t GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
+   virtual Double_t GetEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax, Double_t isoAmat = 0.);
+   virtual Double_t GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
 
    virtual Double_t GetDeltaEFromEResOfIon(Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0.) {
       // Calculates energy loss (in MeV) of an ion (Z,A) from residual energy ERes (MeV) after thickness e (in mg/cm**2).

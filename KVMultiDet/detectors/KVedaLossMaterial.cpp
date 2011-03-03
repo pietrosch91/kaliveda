@@ -109,15 +109,15 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
 
    fRange = new TF1(Form("KVedaLossMaterial:%s:Range", GetType()), this, &KVedaLossMaterial::RangeFunc,
                     0., 1.e+03, 3, "KVedaLossMaterial", "RangeFunc");
-   fRange->SetNpx(100);
+   fRange->SetNpx(500);
 
    fDeltaE = new TF1(Form("KVedaLossMaterial:%s:EnergyLoss", GetType()), this, &KVedaLossMaterial::DeltaEFunc,
                      0., 1.e+03, 4, "KVedaLossMaterial", "DeltaEFunc");
-   fDeltaE->SetNpx(100);
+   fDeltaE->SetNpx(500);
 
    fEres = new TF1(Form("KVedaLossMaterial:%s:ResidualEnergy", GetType()), this, &KVedaLossMaterial::EResFunc,
                    0., 1.e+03, 4, "KVedaLossMaterial", "EResFunc");
-   fEres->SetNpx(100);
+   fEres->SetNpx(500);
 
    return kTRUE;
 }
@@ -424,15 +424,25 @@ Double_t KVedaLossMaterial::GetLinearEIncFromEResOfIon(Int_t Z, Int_t A, Double_
    return GetEIncFromEResOfIon(Z, A, Eres, e, isoAmat);
 }
 
-Double_t KVedaLossMaterial::GetEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, Double_t isoAmat)
+Double_t KVedaLossMaterial::GetEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type, Double_t isoAmat)
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material,
    GetDeltaEFunction(e, Z, A, isoAmat);
-   return fDeltaE->GetX(DeltaE);
+   Double_t e1,e2;
+   fDeltaE->GetRange(e1,e2);
+   switch(type){
+      case KVIonRangeTable::kEmin:
+         e2=GetEIncOfMaxDeltaEOfIon(Z,A,e,isoAmat);
+         break;
+      case KVIonRangeTable::kEmax:
+         e1=GetEIncOfMaxDeltaEOfIon(Z,A,e,isoAmat);
+         break;
+   }
+   return fDeltaE->GetX(DeltaE,e1,e2);
 }
 
-Double_t KVedaLossMaterial::GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t deltaE, Double_t e,
+Double_t KVedaLossMaterial::GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t deltaE, Double_t e, enum KVIonRangeTable::SolType type,
                                                          Double_t isoAmat, Double_t T, Double_t P)
 {
    // Calculates incident energy (in MeV) of an ion (Z,A) from energy loss DeltaE (MeV) in thickness e (in cm).
@@ -441,7 +451,7 @@ Double_t KVedaLossMaterial::GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Doubl
 
    SetTemperatureAndPressure(T, P);
    e *= GetDensity();
-   return GetEIncFromDeltaEOfIon(Z, A, deltaE, e, isoAmat);
+   return GetEIncFromDeltaEOfIon(Z, A, deltaE, e, type, isoAmat);
 }
 
 Double_t KVedaLossMaterial::GetPunchThroughEnergy(Int_t Z, Int_t A, Double_t e, Double_t isoAmat)

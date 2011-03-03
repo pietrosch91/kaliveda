@@ -64,20 +64,19 @@ KVChIo::KVChIo()
 }
 
 //______________________________________________________________________________
-KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5)
+KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5*Units::um)
 {
-   //Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' mm of C3F8.
-   //By default 'thick'=50mm
-   //By default 'pressure'=0mbar
-   //The type of these detectors is "CI"
+   // Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' cm of C3F8,
+   // give gas pressure in mbar
+   // By default 'thick'=5cm
+   // The type of these detectors is "CI"
 
    //gas layer
-   KVMaterial *mat = new KVMaterial("C3F8", thick);
-   mat->SetPressure(pressure);
+   KVMaterial *mat = new KVMaterial("C3F8", thick, pressure*Units::mbar);
    AddAbsorber(mat);
    SetActiveLayer(mat);         //gas is the active layer
    // mylar for second window
-   mat = new KVMaterial("Myl", 2.5);
+   mat = new KVMaterial("Myl", 2.5*Units::um);
    AddAbsorber(mat);
 
    SetType("CI");
@@ -181,11 +180,13 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    //if stopped=kTRUE, we give the correction for a particle which stops in the detector
    //(by default we assume the particle continues after the detector)
    //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
+   //If the dE energy loss in the gas is > maximum theoretical dE, GetMaxDeltaE(z,a),
    //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg).
-   //if dE_measured - dE_Bragg > 2 MeV, a warning is printed.
+   //corresponding to dE = GetMaxDeltaE(z,a), and then we scale up according
+   //to: dE_Mylar = dE_Mylar_max * (dE_measured / dE_max).
+   //
+   //If the calculated energy loss in the mylar is <0 (i.e. if calculated incident energy
+   //of particle is > (dE in gas + residual energy)), we return 0.
 
    egas = ((egas < 0.) ? GetEnergy() : egas);
    if (egas <= 0.)
@@ -195,16 +196,16 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
 
    //egas > max possible ?
    Double_t de_measured = 0.;
-   if (egas > GetBraggDE(z, a)) {
+   if (egas > GetMaxDeltaE(z, a)) {
       de_measured = egas;
-      egas = GetBraggDE(z, a);
+      egas = GetMaxDeltaE(z, a);
       maxDE = kTRUE;
 //      if(de_measured-egas>2.0)
 //         Warning("GetELossMylar","%s: Measured de_ChIo (%f) is greater than maximum for Z=%d (%f)",
 //            GetName(), de_measured, (int)z, egas);
    }
-   enum KVMaterial::SolType solution = KVMaterial::kEmax;
-   if(stopped) solution = KVMaterial::kEmin;
+   enum KVIonRangeTable::SolType solution = KVIonRangeTable::kEmax;
+   if(stopped) solution = KVIonRangeTable::kEmin;
    //calculate incident energy
    Double_t e_inc = GetIncidentEnergy(z, a, egas, solution);
 
@@ -217,10 +218,6 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    emylar = ((emylar < 0.) ? 0. : emylar);
 
    if (maxDE){
-      //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-      //this calculation is not valid. The mylar energy loss is calculated for a dE
-      //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-      //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
       emylar *= (de_measured/egas);
    }
 
@@ -236,14 +233,14 @@ Double_t KVChIo::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas, Bool_t tr
    //from energy loss tables. Returns total energy loss in mylar+gas+mylar
    //If argument 'egas' not given, KVChIo::GetEnergy() is used
    //If transmission=kFALSE we give the correction for a particle stopping in the
-   //detector (i.e. we calculate the incident energy for a particle with dE<dE_Bragg)
+   //detector (i.e. we calculate the incident energy for a particle with dE<dE_max)
    //By default transmission=kTRUE & we assume the particle continues after the
    //detector.
    //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
+   //If the dE energy loss in the gas is > maximum theoretical dE (GetMaxDeltaE)
    //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
+   //corresponding to dE = GetMaxDeltaE(z,a), and then we scale up according
+   //to: dE_Mylar = dE_Mylar_max * (dE_measured / dE_max)
 
    egas = ((egas < 0.) ? GetEnergy() : egas);
    if( egas <=0 ) return 0;

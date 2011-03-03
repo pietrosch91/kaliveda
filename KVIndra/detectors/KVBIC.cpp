@@ -80,24 +80,18 @@ KVBIC::KVBIC(Float_t pressure, Float_t bomb):KVChIo()
 
    fBomb = bomb;
    //build detector
-   AddAbsorber(new KVMaterial("Myl", 1.5));     //mylar entry window
+   AddAbsorber(new KVMaterial("Myl", 1.5*Units::um));     //mylar entry window
    Float_t e = GetEffectiveEntryThickness();
-   KVMaterial *gas = new KVMaterial("CF4", e);
-   gas->SetPressure(pressure);
-   gas->SetUnits(KVMaterial::kTORR);    //set units for pressure to Torr
+   KVMaterial *gas = new KVMaterial("CF4", e*Units::mm, pressure);
    AddAbsorber(gas);            //gas between two windows
-   AddAbsorber(new KVMaterial("Myl", 1.0));     //interior window
-   gas = new KVMaterial("CF4", 60);
-   gas->SetPressure(pressure);
-   gas->SetUnits(KVMaterial::kTORR);    //set units for pressure to Torr
+   AddAbsorber(new KVMaterial("Myl", 1.0*Units::um));     //interior window
+   gas = new KVMaterial("CF4", 60*Units::mm,pressure);
    AddAbsorber(gas);            //main body of gas
    SetActiveLayer(gas);         //active layer - energy loss is measured
-   AddAbsorber(new KVMaterial("Myl", 1.0));     //2nd interor window
-   gas = new KVMaterial("CF4", e);
-   gas->SetPressure(pressure);
-   gas->SetUnits(KVMaterial::kTORR);    //set units for pressure to Torr
+   AddAbsorber(new KVMaterial("Myl", 1.0*Units::um));     //2nd interor window
+   gas = new KVMaterial("CF4", e*Units::mm, pressure);
    AddAbsorber(gas);            //gas between two exit windows
-   AddAbsorber(new KVMaterial("Myl", 1.5));     //exit window
+   AddAbsorber(new KVMaterial("Myl", 1.5*Units::um));     //exit window
 
 }
 
@@ -194,8 +188,8 @@ Double_t KVBIC::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas)
    Bool_t maxDE = kFALSE;
 
    //egas > max possible ?
-   if (egas > GetBraggDE(z, a)) {
-      egas = GetBraggDE(z, a);
+   if (egas > GetMaxDeltaE(z, a)) {
+      egas = GetMaxDeltaE(z, a);
       maxDE = kTRUE;
    }
    //calculate incident energy

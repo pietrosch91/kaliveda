@@ -108,11 +108,10 @@ void KVDetector::init()
    fIDTelAlign->SetCleanup(kTRUE);
    fIDTele4Ident=0;
    fIdentP = fUnidentP = 0;
-   npar_loss = npar_res = 0;
-   par_loss = par_res = 0;
 	fTotThickness = 0.;
 	fDepthInTelescope = 0.;
 	fFiredMask.Set("0");
+	fELossF = fEResF = 0;
 }
 
 KVDetector::KVDetector()
@@ -125,7 +124,7 @@ KVDetector::KVDetector()
 KVDetector::KVDetector(const Char_t * type,
                        const Float_t thick):KVMaterial()
 {
-   //Create a new detector of a given material and thickness (default value = 0.0)
+   // Create a new detector of a given material and thickness in centimetres (default value = 0.0)
 
    init();
    SetType("DET");
@@ -176,22 +175,22 @@ KVDetector::~KVDetector()
    SafeDelete(fParticles);
    delete fAbsorbers;
    SafeDelete(fACQParams);
+   SafeDelete(fELossF);
+   SafeDelete(fEResF);
    init();
    fActiveLayer = -1;
    fIDTelAlign->Clear();
    SafeDelete(fIDTelAlign);
-   if(par_loss) delete [] par_loss;
-   if(par_res) delete [] par_res;
    SafeDelete(fIDTele4Ident);
-
 }
 
 //________________________________________________________________
 void KVDetector::SetMaterial(const Char_t * type)
 {
-   //Set material of active layer.
-   //If no absorbers have been added to the detector, create and add
-   //one (active layer by default)
+   // Set material of active layer.
+   // If no absorbers have been added to the detector, create and add
+   // one (active layer by default)
+   
    if (!GetActiveLayer())
       AddAbsorber(new KVMaterial(type));
    else
@@ -602,7 +601,7 @@ void KVDetector::AddToTelescope(KVTelescope * T, const int fcon)
       if (fcon == KVD_RECPRC_CNXN)
          T->AddDetector(this, KVD_NORECPRC_CNXN);
    } else {
-      Warning("AddToTelescope", KVDETECTOR_ADD_TO_UNKNOWN_TELESCOPE);
+      Warning("AddToTelescope", "Pointer to telescope is null");
    }
 }
 
@@ -822,18 +821,15 @@ Double_t KVDetector::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t t
 
 //______________________________________________________________________________//
 
-UInt_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
+Int_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
 {
    //For particles which stop in the first stage of an identification telescope,
    //we can at least estimate a minimum Z value based on the energy lost in this
    //detector.
    //
-   //This is based on the KVMaterial::GetBraggDE method, giving the maximum
-   //energy loss in the detector for a given nucleus. For e.g. single-layer silicon
-   //detectors this energy corresponds to the threshold or punch-through energy
-   //(including correction for pulse-height deficit, if known), whereas
-   //for e.g. gas detectors with mylar windows this energy is slightly higher than that
-   //corresponding to the limit of the particle stopping in the detector.
+   //This is based on the KVMaterial::GetMaxDeltaE method, giving the maximum
+   //energy loss in the active layer of the detector for a given nucleus (A,Z).
+   //
    //The "Zmin" is the Z of the particle which gives a maximum energy loss just greater
    //than that measured in the detector. Particles with Z<Zmin could not lose as much
    //energy and so are excluded.
@@ -864,7 +860,7 @@ UInt_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
 
       particle.SetZ(z);
 
-      difference = GetBraggDE(z,particle.GetA()) - ELOSS;
+      difference = GetMaxDeltaE(z,particle.GetA()) - ELOSS;
       //if difference < 0 the z is too small
       if (difference < 0.0) {
 
@@ -890,133 +886,55 @@ UInt_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
 
 //_____________________________________________________________________________________//
 
-Double_t ELossActive(Double_t * x, Double_t * par)
+Double_t KVDetector::ELossActive(Double_t * x, Double_t * par)
 {
-   //Calculates energy loss in active layer of detector, taking into account preceding layers
-   //First parameter is number of active layer, first layer is numbered 1
-   //Following parameters (by sets of 19) are parameters for energy loss in different layers
-   //Argument x[0] is incident energy in MeV
+   // Calculates energy loss (in MeV) in active layer of detector, taking into account preceding layers
+   //
+   // Arguments are:
+   //    x[0] is incident energy in MeV
+   // Parameters are:
+   //   par[0]   Z of ion
+   //   par[1]   A of ion
 
-   Int_t n_active = (Int_t) par[0];
-   if (n_active < 2)
-      return ELossSaclay(x, &par[1]);
-   else {
-      Int_t par_ind = 1;
-      Double_t e = x[0];
-      for (Int_t layer = 1; layer < n_active; layer++) {
-
-         e = EResSaclay(&e, &par[par_ind]);     //residual energy after layer
+   Double_t e = x[0];
+   TIter next(fAbsorbers); KVMaterial* mat;
+   if(fActiveLayer>0){
+      // calculate energy losses in absorbers before active layer
+      for (Int_t layer = 0; layer < fActiveLayer; layer++) {
+      
+         mat = (KVMaterial*)next();
+         e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
          if (e < KVDETECTOR_MINIMUM_E)
             return 0.;          // return 0 if particle stops in layers before active layer
-         par_ind += 19;
 
       }
-      //calculate energy loss in active layer
-      return ELossSaclay(&e, &par[par_ind]);
    }
-   return 0.;
+   mat = (KVMaterial*)next();
+   //calculate energy loss in active layer
+   return mat->GetDeltaE(par[0], par[1], e); 
 }
 
 //_____________________________________________________________________________________//
 
-Double_t EResDet(Double_t * x, Double_t * par)
+Double_t KVDetector::EResDet(Double_t * x, Double_t * par)
 {
-   //Calculates residual energy of particle after traversing all layers of detector.
+   //Calculates residual energy (in MeV) of particle after traversing all layers of detector.
    //Returned value is 0 if particle stops in one of the layers of the detector.
-   //First parameter par[0]=number of layers of detector
-   //Following parameters (by sets of 19) are parameters for energy loss in different layers
-   //Argument x[0] is incident energy in MeV
+   //
+   // Arguments are:
+   //    x[0] is incident energy in MeV
+   // Parameters are:
+   //   par[0]   Z of ion
+   //   par[1]   A of ion
 
-   Int_t n_layers = (Int_t) par[0];
-   if (n_layers < 2)
-      return EResSaclay(x, &par[1]);
-   else {
-      Int_t par_ind = 1;
-      Double_t e = x[0];
-      for (Int_t layer = 1; layer <= n_layers; layer++) {
-
-         e = EResSaclay(&e, &par[par_ind]);     //residual energy after layer
+   Double_t e = x[0];
+   TIter next(fAbsorbers); KVMaterial* mat;
+   while( (mat = (KVMaterial*)next()) ){
+         e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
          if (e < KVDETECTOR_MINIMUM_E)
-            return 0.;          // return 0 if particle stops in one of layers in detector
-         par_ind += 19;
-
-      }
-      return e;
+            return 0.;          // return 0 if particle stops in layers before active layer
    }
-   return 0.;
-}
-
-//______________________________________________________________________________________________//
-
-void KVDetector::SetELossParams(Int_t Z, Int_t A)
-{
-   //Initialise energy loss coefficients for this detector and a given incident nucleus (Z,A)
-
-   //do we need to set up the ELoss function ?
-   //only if it has never been done or if the index of the active layer has changed...
-   if( !npar_loss || (npar_loss != 1 + ((Int_t) fActiveLayer + 1) * 19) ){
-      //number of params for eloss function = 1 (index of active layer) + 19 params for each layer up to & including active layer
-      npar_loss = 1 + ((Int_t) fActiveLayer + 1) * 19;
-      if( par_loss ) delete [] par_loss; //delete previous parameter array
-      par_loss = new Double_t[npar_loss];
-      par_loss[0] = (Int_t) fActiveLayer + 1;
-      //find/create function
-      TString name_eloss; name_eloss.Form("ELoss_nact%d", ((Int_t) fActiveLayer + 1));
-      //search in list of functions for one corresponding to this detector
-      //the name of the required function is ELoss_nactx with x = number of active layer (1, 2, etc.)
-      ELoss =
-          (TF1 *) gROOT->GetListOfFunctions()->FindObject(name_eloss.Data());
-      if (!ELoss)
-         ELoss = new TF1(name_eloss.Data(), ELossActive, 0.1, 5000., npar_loss);
-   }
-
-   //loop over layers to fill parameter arrays
-   TIter next_abs(fAbsorbers); int i=0; KVMaterial*abs;
-   while( (abs = (KVMaterial*)next_abs()) ){
-      if (i <= (int) fActiveLayer)
-         abs->GetELossParams(Z, A, (par_loss + 1 + 19 * i));
-      else break;
-      i++;
-   }
-
-   //set parameters of energy loss function
-   ELoss->SetParameters(par_loss);
-}
-
-//______________________________________________________________________________________________//
-
-void KVDetector::SetEResParams(Int_t Z, Int_t A)
-{
-   //Initialise coefficients of residual energy function for this detector and a given incident nucleus (Z,A)
-
-   //do we need to set up the ERes function ?
-   //only if it has never been done or if the number of layers has changed...
-   if( !npar_res || (npar_res != 1 + fAbsorbers->GetSize() * 19) ){
-      //number of params for eres function = 1 (number of layers) + 19 params for each layer in detector
-      npar_res = 1 + fAbsorbers->GetSize() * 19;
-      if( par_res ) delete [] par_res; //delete previous parameter array
-      par_res = new Double_t[npar_res];
-      par_res[0] = fAbsorbers->GetSize();
-      //find/create function
-      TString name_eres; name_eres.Form("ERes_nlay%d", fAbsorbers->GetSize());
-      //search in list of functions for one corresponding to this material
-      //the name of the required function is ERes_nlayx with x= number of absorbers in detector
-      ERes =
-          (TF1 *) gROOT->GetListOfFunctions()->FindObject(name_eres.Data());
-      if (!ERes)
-         ERes =
-             new TF1(name_eres.Data(), EResDet, 0.1, 5000., npar_res);
-   }
-
-   //loop over layers to fill parameter arrays
-   TIter next_abs(fAbsorbers); int i=0; KVMaterial*abs;
-   while( (abs = (KVMaterial*)next_abs()) ){
-      abs->GetELossParams(Z, A, (par_res + 1 + 19 * i));
-      i++;
-   }
-
-   //set parameters of residual energy function
-   ERes->SetParameters(par_res);
+   return e;
 }
 
 //____________________________________________________________________________________
@@ -1146,7 +1064,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
 	while( (abs = (KVMaterial*)next()) ){
 		// get medium for absorber
 		med = abs->GetGeoMedium();
-		Double_t thick = abs->GetThicknessInCM();
+		Double_t thick = abs->GetThickness();
 		GetVerticesInOwnFrame(coords, fDepthInTelescope+depth_in_det, thick);
 		for(register int i=0;i<8;i++){
 			vertices[2*i] = coords[i].X();
@@ -1298,5 +1216,131 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 	cout << surf << " mm2" << endl;
 
 	return surf;
+}
+   
+TF1* KVDetector::GetEResFunction(Int_t Z, Int_t A)
+{
+   // Return pointer toTF1 giving residual energy after detector as function of incident energy,
+   // for a given nucleus (Z,A).
+   if(!fEResF){
+      fEResF = new TF1(Form("KVDetector:%s:ERes", GetName()), this, &KVDetector::EResDet,
+                    0., 1.e+04, 2, "KVDetector", "EResDet");
+      fEResF->SetNpx(500);
+   }
+   fEResF->SetParameters((Double_t)Z, (Double_t)A);
+   fEResF->SetRange(0., GetSmallestEmaxValid(Z,A));
+
+   return fEResF;
+}
+
+TF1* KVDetector::GetELossFunction(Int_t Z, Int_t A)
+{
+   // Return pointer toTF1 giving energy loss in active layer of detector as function of incident energy,
+   // for a given nucleus (Z,A).
+   if(!fELossF){
+      fELossF = new TF1(Form("KVDetector:%s:ELossActive", GetName()), this, &KVDetector::ELossActive,
+                    0., 1.e+04, 2, "KVDetector", "ELossActive");
+      fELossF->SetNpx(500);
+   }
+   fELossF->SetParameters((Double_t)Z, (Double_t)A);
+   fELossF->SetRange(0., GetSmallestEmaxValid(Z,A));
+   return fELossF;
+}
+
+Double_t KVDetector::GetEIncOfMaxDeltaE(Int_t Z, Int_t A)
+{
+   // Overrides KVMaterial::GetEIncOfMaxDeltaE
+   // Returns incident energy corresponding to maximum energy loss in the
+   // active layer of the detector, for a given nucleus.
+   
+   return GetELossFunction(Z,A)->GetMaximumX();
+}
+
+Double_t KVDetector::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
+{
+   // Overrides KVMaterial::GetDeltaE
+   // Returns energy loss of given nucleus in the active layer of the detector.
+   
+   return GetELossFunction(Z,A)->Eval(Einc);
+}
+
+Double_t KVDetector::GetERes(Int_t Z, Int_t A, Double_t Einc)
+{
+   // Overrides KVMaterial::GetERes
+   // Returns residual energy of given nucleus after the detector.
+   
+   return GetEResFunction(Z,A)->Eval(Einc);
+}
+   
+Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum KVIonRangeTable::SolType type)
+{
+   // Overrides KVMaterial::GetIncidentEnergy
+   // Returns incident energy corresponding to energy loss delta_e in active layer of detector for a given nucleus.
+   // If delta_e is not given, the current energy loss in the active layer is used.
+   //
+   //By default the solution corresponding to the highest incident energy is returned
+   //This is the solution found for Einc greater than the maximum of the dE(Einc) curve.
+   //If you want the low energy solution set SolType = KVIonRangeTable::kEmin.
+   //
+   //If the given energy loss in the active layer is greater than the maximum theoretical dE
+   //(dE > GetMaxDeltaE(Z,A)) then we return the incident energy corresponding to the maximum,
+   //GetEIncOfMaxDeltaE(Z,A)
+   
+   if(Z<1) return 0.;
+   
+   Double_t DE = (delta_e > 0 ? delta_e : GetEnergyLoss());
+   
+   TF1* dE = GetELossFunction(Z, A);
+   Double_t e1,e2;
+   dE->GetRange(e1,e2);
+   switch(type){
+      case KVIonRangeTable::kEmin:
+         e2=GetEIncOfMaxDeltaE(Z,A);
+         break;
+      case KVIonRangeTable::kEmax:
+         e1=GetEIncOfMaxDeltaE(Z,A);
+         break;
+   }
+   return dE->GetX(DE,e1,e2);
+}
+
+Double_t KVDetector::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
+{
+   // Overrides KVMaterial::GetDeltaEFromERes
+   //
+   // Calculate energy loss in active layer of detector for nucleus (Z,A)
+   // having a residual kinetic energy Eres (MeV)
+   
+   if(Z<1 || Eres<KVDETECTOR_MINIMUM_E) return 0.;
+   Double_t Einc = GetIncidentEnergyFromERes(Z,A,Eres);
+   if(Einc < KVDETECTOR_MINIMUM_E) return 0.;
+   return GetELossFunction(Z,A)->Eval(Einc);
+}
+ 
+Double_t KVDetector::GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres)
+{
+   // Overrides KVMaterial::GetIncidentEnergyFromERes
+   //
+   // Calculate incident energy of nucleus from residual energy
+   
+   if(Z<1 || Eres<KVDETECTOR_MINIMUM_E) return 0.;
+   return GetEResFunction(Z,A)->GetX(Eres);
+}
+
+Double_t KVDetector::GetSmallestEmaxValid(Int_t Z, Int_t A)
+{
+   // Returns the smallest maximum energy for which range tables are valid
+   // for all absorbers in the detector, and given ion (Z,A)
+   
+   Double_t maxmin=-1.;
+	TIter next(fAbsorbers); 
+	KVMaterial *abs;
+	while( (abs = (KVMaterial*)next()) ){
+	   if(maxmin<0.) maxmin = abs->GetEmaxValid(Z,A);
+	   else {
+	      if(abs->GetEmaxValid(Z,A) < maxmin) maxmin = abs->GetEmaxValid(Z,A);
+	   }
+	}
+	return maxmin;
 }
 

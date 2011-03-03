@@ -840,8 +840,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 
       		Double_t E1, E2;
       		//find E1
-      		//go from 0.1 MeV to chio->GetBraggE(part.GetZ(),part.GetA()))
-      		Double_t E1min = 0.1, E1max = det_de->GetBraggE(zzz,aaa);
+      		//go from 0.1 MeV to chio->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
+      		Double_t E1min = 0.1, E1max = det_de->GetEIncOfMaxDeltaE(zzz,aaa);
       		E1 = (E1min + E1max) / 2.;
 
 				while ((E1max - E1min) > 0.1) {
@@ -864,8 +864,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
       		}
 
       		//add point to Bragg line
-      		Double_t dE_B = det_de->GetBraggDE(zzz, aaa);
-      		Double_t E_B = det_de->GetBraggE(zzz, aaa);
+      		Double_t dE_B = det_de->GetMaxDeltaE(zzz, aaa);
+      		Double_t E_B = det_de->GetEIncOfMaxDeltaE(zzz, aaa);
       		Double_t Eres_B = det_de->GetERes(zzz, aaa, E_B);
       		B_line->SetPoint(npoi_bragg++, Eres_B, dE_B);
 

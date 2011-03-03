@@ -27,12 +27,6 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #define KVD_NORECPRC_CNXN 0
 #endif
 
-
-#define KVDETECTOR_UNKNOWN_MATERIAL "Constructor called with unknown material"
-#define KVDETECTOR_UNKNOWN_DETECTOR "Constructor called with unknown detector prototype"
-#define KVDETECTOR_NOT_IN_TELESCOPE "Detector not associated to any telescope: position undefined"
-#define KVDETECTOR_ADD_TO_UNKNOWN_TELESCOPE "Pointer to telescope is null."
-
 //for energies less than this (MeV) particles are considered to be stopped
 #define KVDETECTOR_MINIMUM_E 0.001
 
@@ -50,9 +44,6 @@ class KVGroup;
 class KVIDTelescope;
 class TGeoVolume;
 class TTree;
-
-Double_t ELossActive(Double_t * x, Double_t * par);
-Double_t EResDet(Double_t * x, Double_t * par);
 
 class KVDetector:public KVMaterial {
 
@@ -78,10 +69,6 @@ class KVDetector:public KVMaterial {
    Int_t fUnidentP;             //! temporary counters, determine state of identified/unidentified particle flags
 
  protected:
-Int_t npar_loss;//!number of params for eloss function
-Int_t npar_res;//!number of params for eres function
-Double_t *par_loss;//!array of params for eloss function
-Double_t *par_res;//!array of params for eres function
 
    TString fFName;              //!dynamically generated full name of detector
    KVList *fModules;            //references to connected electronic modules (not implemented yet)
@@ -97,6 +84,12 @@ Double_t *par_res;//!array of params for eres function
 	Double_t fDepthInTelescope; //! used to store depth of detector in parent telescope
 
 	Binary8_t  fFiredMask;//bitmask used by Fired to determine which parameters to take into account
+
+   Double_t ELossActive(Double_t * x, Double_t * par);
+   Double_t EResDet(Double_t * x, Double_t * par);
+   
+   TF1* fELossF; //! parametric function dE in active layer vs. incident energy
+   TF1* fEResF; //! parametric function Eres residual energy after all layers of detector
 
  public:
     KVDetector();
@@ -129,11 +122,9 @@ Double_t *par_res;//!array of params for eres function
 
 	Double_t GetTotalThicknessInCM()
 	{
-		// Calculate and return the total thickness of ALL absorbers making up the detector,
-		// not just the active layer (as for GetThickness()).
-		//
-		// As different materials can have different default units for thickness, we convert
-		// everything into centimetres and return the total thickness with these units.
+		// Calculate and return the total thickness in centimetres of ALL absorbers making up the detector,
+		// not just the active layer (value returned by GetThickness()).
+
 		fTotThickness=0;
 		TIter next(fAbsorbers); KVMaterial* mat;
 		while( (mat = (KVMaterial*)next()) ) fTotThickness += mat->GetThickness();
@@ -171,7 +162,7 @@ Double_t *par_res;//!array of params for eres function
    };
    virtual Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e =
                                        -1., Bool_t transmission=kTRUE);
-   virtual UInt_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
+   virtual Int_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
 
    void AddACQParam(KVACQParam*);
    virtual KVACQParam *GetACQParam(const Char_t*/*name*/);
@@ -264,9 +255,6 @@ Double_t *par_res;//!array of params for eres function
       return TestBit(kIsBeingDeleted);
    };
 
-   virtual void SetEResParams(Int_t Z, Int_t A);
-   virtual void SetELossParams(Int_t Z, Int_t A);
-
 	static KVDetector *MakeDetector(const Char_t * name, Float_t thick);
    const TVector3& GetNormal();
 
@@ -287,6 +275,19 @@ Double_t *par_res;//!array of params for eres function
 		// detector implementations: this version just returns -1.
 		return -1;
 	};
+   virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
+   virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetERes(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
+                              -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
+   /*virtual Double_t GetEResFromDeltaE(...)  - DON'T IMPLEMENT, CALLS GETINCIDENTENERGY*/
+   virtual Double_t GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres);
+   virtual Double_t GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres);
+   
+   virtual TF1* GetEResFunction(Int_t Z, Int_t A);
+   virtual TF1* GetELossFunction(Int_t Z, Int_t A);
+   
+   virtual Double_t GetSmallestEmaxValid(Int_t Z, Int_t A);
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };

@@ -60,10 +60,6 @@ KVPhoswich::KVPhoswich(Float_t thick_102, Float_t thick_115):KVINDRADetector("NE
 
 KVPhoswich::~KVPhoswich()
 {
-   //If gIndra exists, remove from list of phoswich
-//    if (gIndra) {
-//       gIndra->GetListOfPhoswich()->Remove(this);
-//    }
 }
 
 
