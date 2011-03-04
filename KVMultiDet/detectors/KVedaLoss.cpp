@@ -19,6 +19,17 @@ ClassImp(KVedaLoss)
 /* -->
 <h2>KVedaLoss</h2>
 <h4>C++ implementation of VEDALOSS stopping power calculation</h4>
+<h3>Credits</h3>
+From the original documentation of vedaloss.f:<br>
+<pre>
+ vedaloss.doc       MAJ 5/9/97   
+ -------------
+ Routines ecrites par E. de Filippo          
+ Mise a jour :      19/12/96 par O. LOPEZ pour UNIX sur ANASTASIE.
+ Mise a jour :      22/05/97 par J-L. Charvet (voir routine DELTA)
+ Mise a jour :      27/10/97 par R. Dayras
+ Mise a jour :      23/03/00 par R. Dayras (ajout Nobium)
+</pre>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////

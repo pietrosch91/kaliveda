@@ -61,18 +61,8 @@ class KVMaterial:public KVBase {
    Double_t GetMass() const;
    Double_t GetZ() const;
    Double_t GetDensity() const;
-   void SetAreaDensity(Double_t dens /* g/cm**2 */)
-   { 
-      if(GetActiveLayer())
-         GetActiveLayer()->SetAreaDensity(dens);
-      else
-         fThick = dens;
-   };
-   Double_t GetAreaDensity() const
-   {
-      if(GetActiveLayer()) return GetActiveLayer()->GetAreaDensity();
-      return fThick;
-   };
+   void SetAreaDensity(Double_t dens /* g/cm**2 */);
+   Double_t GetAreaDensity() const;
    virtual void SetThickness(Double_t thick /* cm */);
    virtual Double_t GetThickness() const;
    Double_t GetEffectiveThickness(TVector3 & norm, TVector3 & direction);
@@ -121,6 +111,8 @@ class KVMaterial:public KVBase {
 
    Bool_t IsIsotopic() const;
    Bool_t IsNat() const;
+   
+   Bool_t IsGas() const;
    
    virtual const TVector3& GetNormal() {
       // Return vector normal to surface of absorber. For a KVMaterial, this is (0,0,1) as

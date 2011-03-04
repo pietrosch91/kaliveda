@@ -195,6 +195,18 @@ Bool_t KVMaterial::IsNat() const
 }
 
 //___________________________________________________________________________________
+
+Bool_t KVMaterial::IsGas() const
+{
+   // Returns kTRUE for gaseous materials/detectors.
+   
+   if (GetActiveLayer())
+      return GetActiveLayer()->IsGas();
+   return fIonRangeTable->IsMaterialGas(GetType());
+}
+
+//___________________________________________________________________________________
+
 Double_t KVMaterial::GetZ() const
 {
    //Returns atomic number of material.
@@ -218,60 +230,6 @@ Double_t KVMaterial::GetDensity() const
 
 //___________________________________________________________________________________
 
-void KVMaterial::SetPressure(Double_t p)
-{
-   // Set the pressure of a gaseous material (in torr)
-
-   if (GetActiveLayer()) {
-      GetActiveLayer()->SetPressure(p);
-      return;
-   }
-   fPressure = p;
-}
-
-
-//___________________________________________________________________________________
-
-Double_t KVMaterial::GetPressure() const
-{
-   // Returns the pressure of a gas (in torr).
-   //If the material is not a gas, value is zero.
-
-   if (GetActiveLayer())
-      return GetActiveLayer()->GetPressure();
-   return fPressure;
-}
-
-//___________________________________________________________________________________
-
-void KVMaterial::SetTemperature(Double_t t)
-{
-   //Set temperature of material.
-   //The units are: degrees celsius
-
-   if (GetActiveLayer()) {
-      GetActiveLayer()->SetTemperature(t);
-      return;
-   }
-
-   fTemp = t;
-}
-
-
-//___________________________________________________________________________________
-
-Double_t KVMaterial::GetTemperature() const
-{
-   //Returns temperature of material.
-   //The units are: degrees celsius
-
-   if (GetActiveLayer())
-      return GetActiveLayer()->GetTemperature();
-   return fTemp;
-}
-
-//___________________________________________________________________________________
-
 void KVMaterial::SetThickness(Double_t t)
 {
    // Set the linear thickness of the material in cm or use one of the
@@ -282,7 +240,7 @@ void KVMaterial::SetThickness(Double_t t)
       GetActiveLayer()->SetThickness(t);
       return;
    }
-   // calculate area density
+   // recalculate area density
    fThick = t * GetDensity();
 }
 
@@ -297,6 +255,101 @@ Double_t KVMaterial::GetThickness() const
    if (GetActiveLayer())
       return GetActiveLayer()->GetThickness();
    return fThick/GetDensity();
+}
+
+//___________________________________________________________________________________
+
+void KVMaterial::SetAreaDensity(Double_t dens /* g/cm**2 */)
+{
+   // Set area density in g/cm**2.
+   //
+   // For solids, area density can only changed by changing linear dimension
+   // (fixed density).
+   // For gases, the density depends on temperature and pressure. This method
+   // leaves temperature and pressure unchanged, therefore for gases also this
+   // method will effectively modify the linear dimension of the gas cell. 
+   
+   if(GetActiveLayer())
+      GetActiveLayer()->SetAreaDensity(dens);
+   fThick = dens;
+}
+
+//___________________________________________________________________________________
+
+Double_t KVMaterial::GetAreaDensity() const
+{
+   // Return area density of material in g/cm**2
+   
+      if(GetActiveLayer()) return GetActiveLayer()->GetAreaDensity();
+      return fThick;
+}
+
+//___________________________________________________________________________________
+
+void KVMaterial::SetPressure(Double_t p)
+{
+   // Set the pressure of a gaseous material (in torr)
+   // As this changes the density of the gas, it also changes
+   // the area density of the absorber (for fixed linear dimension)
+
+   if(!IsGas()) return;
+   if (GetActiveLayer()) {
+      GetActiveLayer()->SetPressure(p);
+      return;
+   }
+   // get current linear dimension of absorber
+   Double_t e = GetThickness();
+   fPressure = p;
+   // change area density to keep linear dimension constant
+   SetThickness(e);
+}
+
+
+//___________________________________________________________________________________
+
+Double_t KVMaterial::GetPressure() const
+{
+   // Returns the pressure of a gas (in torr).
+   // If the material is not a gas, value is zero.
+
+   if(!IsGas()) return 0.0;
+   if (GetActiveLayer())
+      return GetActiveLayer()->GetPressure();
+   return fPressure;
+}
+
+//___________________________________________________________________________________
+
+void KVMaterial::SetTemperature(Double_t t)
+{
+   // Set temperature of material.
+   // The units are: degrees celsius
+   // As this changes the density of the gas, it also changes
+   // the area density of the absorber (for fixed linear dimension)
+
+   if(!IsGas()) return;
+   if (GetActiveLayer()) {
+      GetActiveLayer()->SetTemperature(t);
+      return;
+   }
+   // get current linear dimension of absorber
+   Double_t e = GetThickness();
+   fTemp = t;
+   // change area density to keep linear dimension constant
+   SetThickness(e);
+}
+
+
+//___________________________________________________________________________________
+
+Double_t KVMaterial::GetTemperature() const
+{
+   //Returns temperature of material.
+   //The units are: degrees celsius
+
+   if (GetActiveLayer())
+      return GetActiveLayer()->GetTemperature();
+   return fTemp;
 }
 
 //___________________________________________________________________________________
