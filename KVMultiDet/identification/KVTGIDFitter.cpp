@@ -46,7 +46,7 @@ The following is the documentation from Laurent's code.
 			yy = ((g*E)**(mu+1)+lambda**(mu+1)*Z**2*A**mu)**(1/(mu+1))-g*E + pdy
 		 * For the extended formula :
 			yy = ((g*E)**(mu+nu+1)+(lambda*Z**alpha*A**beta)**(mu+nu+1)+
-						xi*A**mu*(g*E)**nu)**(1/(mu+mu+1))-g*E + pdy
+						xi*Z**2*A**mu*(g*E)**nu)**(1/(mu+nu+1))-g*E + pdy
 
 		 *  If ih=0  no non-linear light response : E=xx-pdx
 		 *  If ih<>0 non-linear light response included :
