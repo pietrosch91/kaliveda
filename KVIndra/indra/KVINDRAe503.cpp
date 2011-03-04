@@ -85,6 +85,7 @@ void KVINDRAe503::BuildGeometry()
    //Modify INDRA_camp4 multidetector so that it corresponds to E503 experiment:
    //      - no rings 1-3
    //      - all silicons on rings 6&7 are 150um thick
+   //      - the group corresponding to ChIo 4.17 is removed
 
    KVINDRA4::BuildGeometry();
    // ring 6
@@ -102,6 +103,12 @@ void KVINDRAe503::BuildGeometry()
    RemoveRing("SI-CSI", 2);
    RemoveRing("SI-CSI", 3);
    RemoveRing("CHIO", 2);
+   GetRing("CHIO", 4)->RemoveTelescope("CI_0417");
+   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
+   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
+   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
+   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
+   
 }
 
 //_________________________________________________________________________________________
@@ -109,15 +116,8 @@ void KVINDRAe503::BuildGeometry()
 void KVINDRAe503::Build()
 {
    //construct specific realisation of INDRA array for E503 experiment
-   //      - the group corresponding to ChIo 4.17 is removed
 
    KVINDRA4::Build();
-   
-   GetRing("CHIO", 4)->RemoveTelescope("CI_0417");
-   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
-   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
-   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
-   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
    
    SetName("INDRA");
    SetTitle("INDRA detector, INDRA-VAMOS configuration");
