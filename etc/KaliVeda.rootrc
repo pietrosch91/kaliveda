@@ -700,6 +700,8 @@ KVSilicon.ZminForPHDCorrection:        10
 
 # File containing range tables for calculation of energy losses in KVedaLoss
 KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# TF1::fNpx parameter for TF1 range, energy loss, residual energy
+KVedaLoss.Npx:         50
 
 # Mass tables used by KVNucleus
 KVNucleus.MassTable:      PACE2MassTable
