@@ -396,7 +396,7 @@ void KVElasticScatterEvent::Print(){
 	for (Int_t nn=0;nn<GetTarget().GetLayers()->GetEntries();nn+=1){
 		printf("# type:%s epaisseur:%1.2lf (mg/cm**2)\n",
 			GetTarget().GetLayerByIndex(nn+1)->GetType(),
-			GetTarget().GetLayerByIndex(nn+1)->GetAreaDensity()/(Units::mg/pow(Units::cm, 2.))
+			GetTarget().GetLayerByIndex(nn+1)->GetAreaDensity()/(KVUnits::mg/pow(KVUnits::cm, 2.))
 		);
 	}
 	printf("#####################\n");

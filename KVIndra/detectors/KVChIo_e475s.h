@@ -25,7 +25,7 @@ class KVChIo_e475s : public KVChIo
 	public:
 	
    KVChIo_e475s();
-   KVChIo_e475s(Float_t pressure, Float_t thick=50.0*Units::mm);
+   KVChIo_e475s(Float_t pressure, Float_t thick=50.0*KVUnits::mm);
    virtual ~KVChIo_e475s(){};
 	
 	virtual void SetCalibrators(){};

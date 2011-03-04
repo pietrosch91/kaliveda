@@ -106,7 +106,7 @@ Bool_t KVedaLoss::init_materials() const
                if (!tmp_mat->ReadRangeTable(fp)) return kFALSE;
                ++mat_count;
                Double_t rho = 0.;
-               if(tmp_mat->IsGas()) tmp_mat->SetTemperatureAndPressure(19., 1.*Units::atm);
+               if(tmp_mat->IsGas()) tmp_mat->SetTemperatureAndPressure(19., 1.*KVUnits::atm);
                rho = tmp_mat->GetDensity();
                printf("\t*  %2d.  %-7s %-18s  Z=%2d A=%5.1f  rho=%6.3f g/cm**3    *\n",
                            mat_count, tmp_mat->GetType(), tmp_mat->GetName(),

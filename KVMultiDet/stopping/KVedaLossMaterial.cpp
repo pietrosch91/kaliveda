@@ -158,7 +158,7 @@ Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t* Mypar)
    /*
       // VEDALOSS inversion of R(E)
       // range in mg/cm**2 for VEDALOSS
-      R0 /= (Units::mg / pow(Units::cm,2));
+      R0 /= (KVUnits::mg / pow(KVUnits::cm,2));
       // get parameters for this Z
       Int_t Z = (Int_t)Mypar[1];
       Double_t A = Mypar[2];
@@ -280,7 +280,7 @@ Double_t KVedaLossMaterial::RangeFunc(Double_t* E, Double_t* Mypar)
    ran += riso;
 
    // range in g/cm**2
-   Double_t range = TMath::Exp(ran) * Units::mg / pow(Units::cm, 2);
+   Double_t range = TMath::Exp(ran) * KVUnits::mg / pow(KVUnits::cm, 2);
    return range;
 }
 
@@ -323,7 +323,7 @@ void KVedaLossMaterial::PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat, Doub
 {
    // Print range of element (in g/cm**2) as a function of incident energy (in MeV).
    // For solid elements, print also the linear range (in cm). To change the default units,
-   // set optional argument units (e.g. to have linear range in microns, call with units = Units::um).
+   // set optional argument units (e.g. to have linear range in microns, call with units = KVUnits::um).
    // For gaseous elements, give the temperature (in degrees) and the pressure (in torr)
    // in order to print the range in terms of length units.
 

@@ -5,29 +5,7 @@
 #define KVIONRANGETABLE_H
 
 #include "KVBase.h"
-
-namespace Units {
-   // UNITS
-   // Standard units are:
-   //   [L]   cm
-   //   [M]  g
-   //   [P]   Torr
-   // lengths
-const Double_t cm = 1.0;
-const Double_t um = 1.e-4;
-const Double_t mm = 1.e-1;
-const Double_t m = 1.e+2;
-   //  weights
-const Double_t g = 1.0;
-const Double_t kg = 1.e+3;
-const Double_t mg = 1.e-3;
-const Double_t ug = 1.e-6;
-   // pressures
-const Double_t torr = 1.0;
-const Double_t atm = 760.;
-const Double_t Pa = atm/101325.;
-const Double_t mbar = 100.*Pa;
-};
+#include "KVUnits.h"
 
 class KVIonRangeTable : public KVBase {
 

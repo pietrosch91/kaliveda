@@ -41,7 +41,7 @@ class KVChIo:public KVINDRADetector {
  public:
 
     KVChIo();
-    KVChIo(Float_t pressure, Float_t thick = 5.0*Units::cm);
+    KVChIo(Float_t pressure, Float_t thick = 5.0*KVUnits::cm);
     virtual ~ KVChIo();
 
    Double_t GetVoltsFromCanalPG(Double_t chan = 0.0);
@@ -84,12 +84,12 @@ class KVChIo:public KVINDRADetector {
    virtual void SetPressure(Double_t P /* mbar */)
    {
       // Set pressure of gas in mbar
-      GetActiveLayer()->SetPressure(P*Units::mbar);
+      GetActiveLayer()->SetPressure(P*KVUnits::mbar);
    };
    virtual Double_t GetPressure() const /* mbar */
    {
       // Give pressure of gas in mbar
-      return GetActiveLayer()->GetPressure()/Units::mbar;
+      return GetActiveLayer()->GetPressure()/KVUnits::mbar;
    };
    
    ClassDef(KVChIo, 4)          //The ionisation chamber detectors (ChIo) of the INDRA array

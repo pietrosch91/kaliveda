@@ -80,18 +80,18 @@ KVBIC::KVBIC(Float_t pressure, Float_t bomb):KVChIo()
 
    fBomb = bomb;
    //build detector
-   AddAbsorber(new KVMaterial("Myl", 1.5*Units::um));     //mylar entry window
+   AddAbsorber(new KVMaterial("Myl", 1.5*KVUnits::um));     //mylar entry window
    Float_t e = GetEffectiveEntryThickness();
-   KVMaterial *gas = new KVMaterial("CF4", e*Units::mm, pressure);
+   KVMaterial *gas = new KVMaterial("CF4", e*KVUnits::mm, pressure);
    AddAbsorber(gas);            //gas between two windows
-   AddAbsorber(new KVMaterial("Myl", 1.0*Units::um));     //interior window
-   gas = new KVMaterial("CF4", 60*Units::mm,pressure);
+   AddAbsorber(new KVMaterial("Myl", 1.0*KVUnits::um));     //interior window
+   gas = new KVMaterial("CF4", 60*KVUnits::mm,pressure);
    AddAbsorber(gas);            //main body of gas
    SetActiveLayer(gas);         //active layer - energy loss is measured
-   AddAbsorber(new KVMaterial("Myl", 1.0*Units::um));     //2nd interor window
-   gas = new KVMaterial("CF4", e*Units::mm, pressure);
+   AddAbsorber(new KVMaterial("Myl", 1.0*KVUnits::um));     //2nd interor window
+   gas = new KVMaterial("CF4", e*KVUnits::mm, pressure);
    AddAbsorber(gas);            //gas between two exit windows
-   AddAbsorber(new KVMaterial("Myl", 1.5*Units::um));     //exit window
+   AddAbsorber(new KVMaterial("Myl", 1.5*KVUnits::um));     //exit window
 
 }
 

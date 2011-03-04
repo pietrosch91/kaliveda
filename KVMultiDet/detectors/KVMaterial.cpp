@@ -51,7 +51,7 @@ void KVMaterial::init()
    SetTitle("");
    fNormToMat.SetXYZ(0,0,1);
    fAmasr = 0;
-   fPressure = 1. * Units::atm;
+   fPressure = 1. * KVUnits::atm;
    fTemp = 19.0;
    // create default range table singleton if not already done
    if(!fIonRangeTable) {
@@ -91,8 +91,8 @@ KVMaterial::KVMaterial(const Char_t * gas, const Double_t thick, const Double_t 
    // and temperature in degrees C (default value 19°C).
    //
    // Examples
-   // 15 cm of CF4 gas at 1 atm and 19°C :   KVMaterial("CF4", 15., 1.*Units::atm)
-   // 50 mm of C3F8 at 30 mbar and 25°C :  KVMaterial("C3F8", 50.*Units::mm, 30.*Units::mbar, 25.)
+   // 15 cm of CF4 gas at 1 atm and 19°C :   KVMaterial("CF4", 15., 1.*KVUnits::atm)
+   // 50 mm of C3F8 at 30 mbar and 25°C :  KVMaterial("C3F8", 50.*KVUnits::mm, 30.*KVUnits::mbar, 25.)
       
    init();
    SetMaterial(gas);
@@ -234,7 +234,7 @@ void KVMaterial::SetThickness(Double_t t)
 {
    // Set the linear thickness of the material in cm or use one of the
    // Units constants:
-   //       SetThickness( 30.*Units::um );  set thickness to 30 microns
+   //       SetThickness( 30.*KVUnits::um );  set thickness to 30 microns
 
    if (GetActiveLayer()) {
       GetActiveLayer()->SetThickness(t);
@@ -250,7 +250,7 @@ Double_t KVMaterial::GetThickness() const
 {
    // Returns the linear thickness of the material in cm.
    // Use Units to change units:
-   //      mat.GetThickness()/Units::um ;   in microns
+   //      mat.GetThickness()/KVUnits::um ;   in microns
 	
    if (GetActiveLayer())
       return GetActiveLayer()->GetThickness();

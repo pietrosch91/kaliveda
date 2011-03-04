@@ -80,7 +80,7 @@ public:
    TF1* GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
    TF1* GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
 
-   void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat = 0, Double_t units = Units::cm, Double_t T = -1, Double_t P = -1);
+   void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat = 0, Double_t units = KVUnits::cm, Double_t T = -1, Double_t P = -1);
 
    virtual Double_t GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat = 0.);
    virtual Double_t GetLinearRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat = 0, Double_t T = -1., Double_t P = -1.);

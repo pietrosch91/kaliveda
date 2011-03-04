@@ -49,7 +49,7 @@ class KVTarget:public KVMaterial {
    Double_t GetAngleToBeam();
 
    virtual void SetMaterial(const Char_t * type);
-   void SetThickness(Float_t thick, Int_t ilayer = 1);
+   void SetLayerThickness(Float_t thick, Int_t ilayer = 1);
 
    void AddLayer(const Char_t * material, Double_t thick);
    Int_t NumberOfLayers() const {

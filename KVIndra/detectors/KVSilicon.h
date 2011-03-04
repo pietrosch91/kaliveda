@@ -102,12 +102,12 @@ class KVSilicon:public KVINDRADetector {
    virtual void SetThickness(Double_t thick /* um */)
    {
       // Sets thickness of active layer in microns
-      GetActiveLayer()->SetThickness(thick*Units::um);
+      GetActiveLayer()->SetThickness(thick*KVUnits::um);
    };
    virtual Double_t GetThickness() const /* um */
    {
       // Returns thickness of active layer in microns
-      return GetActiveLayer()->GetThickness()/Units::um;
+      return GetActiveLayer()->GetThickness()/KVUnits::um;
    };
    
    ClassDef(KVSilicon, 7)       //INDRA forward-rings silicon detector

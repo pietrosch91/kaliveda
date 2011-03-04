@@ -16,7 +16,7 @@
 #pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
-#pragma link C++ namespace Units;
+#pragma link C++ namespace KVUnits;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma extra_include "Rtypes.h";

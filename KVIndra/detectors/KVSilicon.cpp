@@ -70,7 +70,7 @@ KVSilicon::KVSilicon()
 }
 
 //______________________________________________________________________________
-KVSilicon::KVSilicon(Float_t thick):KVINDRADetector("Si", thick*Units::um)
+KVSilicon::KVSilicon(Float_t thick):KVINDRADetector("Si", thick*KVUnits::um)
 {
    // constructor for silicon detector, thickness in microns
 	// Type of detector: "SI"
@@ -504,7 +504,7 @@ KVSiLi::KVSiLi(Float_t thick):KVSilicon(thick)
    //Default ctor
    // first layer (active) : 2mm silicon (nominal)
    // second layer (dead) : 40um silicon (nominal)
-   AddAbsorber( new KVMaterial("Si", 40.0*Units::um) );
+   AddAbsorber( new KVMaterial("Si", 40.0*KVUnits::um) );
    SetType("SILI");
    SetLabel("SILI");
 }

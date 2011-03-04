@@ -64,7 +64,7 @@ KVChIo::KVChIo()
 }
 
 //______________________________________________________________________________
-KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5*Units::um)
+KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5*KVUnits::um)
 {
    // Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' cm of C3F8,
    // give gas pressure in mbar
@@ -72,11 +72,11 @@ KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5*Units
    // The type of these detectors is "CI"
 
    //gas layer
-   KVMaterial *mat = new KVMaterial("C3F8", thick, pressure*Units::mbar);
+   KVMaterial *mat = new KVMaterial("C3F8", thick, pressure*KVUnits::mbar);
    AddAbsorber(mat);
    SetActiveLayer(mat);         //gas is the active layer
    // mylar for second window
-   mat = new KVMaterial("Myl", 2.5*Units::um);
+   mat = new KVMaterial("Myl", 2.5*KVUnits::um);
    AddAbsorber(mat);
 
    SetType("CI");

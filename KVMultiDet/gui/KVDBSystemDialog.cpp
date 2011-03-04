@@ -436,7 +436,7 @@ void KVDBSystemDialog::UpdateTargetLayerProperties(Int_t ind)
    }
    fLayer = (KVMaterial*)fTarget->GetLayers()->At(ind);
    //update thickness - actually area density in mg/cm2
-   fNumberEntry1526->SetNumber(fLayer->GetAreaDensity()/(Units::mg/pow(Units::cm,2)));
+   fNumberEntry1526->SetNumber(fLayer->GetAreaDensity()/(KVUnits::mg/pow(KVUnits::cm,2)));
    //update atomic mass
    fNumberEntry1537->SetNumber(fLayer->GetMass());
    //update thickness units
@@ -509,7 +509,7 @@ void KVDBSystemDialog::TargetLayerThicknessChanged(Long_t)
    // Note that this is in fact the area density in mg/cm**2
    
    Double_t t = fNumberEntry1526->GetNumber();
-   fLayer->SetAreaDensity(t*Units::mg/pow(Units::cm,2.));
+   fLayer->SetAreaDensity(t*KVUnits::mg/pow(KVUnits::cm,2.));
    SetNeedSave(1);
 }
 
@@ -553,7 +553,7 @@ void KVDBSystemDialog::AddNewTargetLayer()
       }
    }
    //add layer with default area density 0.1 mg/cm2
-   fTarget->AddLayer( mat->GetTitle() , 0.1*Units::mg/pow(Units::cm,2.) );
+   fTarget->AddLayer( mat->GetTitle() , 0.1*KVUnits::mg/pow(KVUnits::cm,2.) );
    //update list of layers in target
    Int_t nlay = fComboBox1515->GetNumberOfEntries();
    fComboBox1515->AddEntry( mat->GetName(), nlay );
