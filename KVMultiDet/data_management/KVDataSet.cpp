@@ -577,21 +577,23 @@ void KVDataSet::AddAvailableDataType(const Char_t* type)
 
 void KVDataSet::SetAnalysisTasks(const KVSeqCollection * task_list)
 {
-   //Add to fTasks list any data analysis task in list 'task_list" whose pre-requisite
-   //datatype is present for this dataset. Any dataset-specific "tweaking" of the
-   //task is done here.
+   // Add to fTasks list any data analysis task in list 'task_list'
+	// whose pre-requisite datatype is present for this dataset.
+	// Any dataset-specific "tweaking" of the task (including the prerequisite datatype) is done here.
 
    fTasks.Delete();
    TIter nxt(task_list);
    KVDataAnalysisTask *dat;
    while ((dat = (KVDataAnalysisTask *) nxt())) {
-      if (HasDataType(dat->GetPrereq())){
-         //make new copy of default analysis task
-         KVDataAnalysisTask* new_task = new KVDataAnalysisTask( *dat );
-         //check if any dataset-specific parameters need to be changed
-         new_task->SetParametersForDataSet(this);
+      //make new copy of default analysis task
+      KVDataAnalysisTask* new_task = new KVDataAnalysisTask( *dat );
+      //check if any dataset-specific parameters need to be changed
+      new_task->SetParametersForDataSet(this);
+      if (HasDataType(new_task->GetPrereq())){
          fTasks.Add( new_task );
       }
+		else
+			delete new_task;
    }
 }
 

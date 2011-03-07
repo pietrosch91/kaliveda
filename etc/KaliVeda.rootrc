@@ -163,6 +163,8 @@ INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+# raw->ident impossible for INDRA-VAMOS
+INDRA_e503.RawIdent.DataAnalysisTask.Prereq:     xxx
 
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
@@ -172,6 +174,8 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+# raw->ident impossible for INDRA-VAMOS
+INDRA_e494s.RawIdent.DataAnalysisTask.Prereq:     xxx
 
 +DataSet:    VAMOS_e503
 VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)

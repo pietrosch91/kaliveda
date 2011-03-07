@@ -220,6 +220,8 @@ void KVDataAnalysisTask::SetParametersForDataSet( KVDataSet* dataset )
    if( envar != "" ) fAnalyser = envar;
    envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.UserClass.Base", GetName()));
    if( envar != "" ) SetUserBaseClass(envar);
+   envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.Prereq", GetName()));
+   if( envar != "" ) SetPrereq(envar);
 }
 
 Bool_t KVDataAnalysisTask::CheckUserBaseClassIsLoaded()
