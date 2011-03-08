@@ -390,9 +390,10 @@ void KVMaterial::Print(Option_t * option) const
    if (fIonRangeTable->IsMaterialGas(GetType()))
       cout << " Pressure " << GetPressure() << " torr" << endl;
    cout << " Thickness " << KVMaterial::GetThickness() << " cm" << endl;
+   cout << " Area density " << KVMaterial::GetAreaDensity() << " g/cm**2" << endl;
    cout << "-----------------------------------------------" << endl;
    cout << " Z = " << GetZ() << " atomic mass = " << GetMass() << endl;
-   cout << " Density = " << GetDensity() << endl;
+   cout << " Density = " << GetDensity() << " g/cm**3" << endl;
    cout << "-----------------------------------------------" << endl;
 }
 

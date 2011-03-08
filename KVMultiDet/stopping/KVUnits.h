@@ -10,20 +10,20 @@ namespace KVUnits {
    //   [M]  g
    //   [P]   Torr
    // lengths
-const Double_t cm = 1.0;
-const Double_t um = 1.e-4;
-const Double_t mm = 1.e-1;
-const Double_t m = 1.e+2;
+const long double cm = 1.0l;
+const long double um = 1.e-4l;
+const long double mm = 1.e-1l;
+const long double m = 1.e+2l;
    //  masses
-const Double_t g = 1.0;
-const Double_t kg = 1.e+3;
-const Double_t mg = 1.e-3;
-const Double_t ug = 1.e-6;
+const long double g = 1.0l;
+const long double kg = 1.e+3l;
+const long double mg = 1.e-3l;
+const long double ug = 1.e-6l;
    // pressures
-const Double_t torr = 1.0;
-const Double_t atm = 760.;
-const Double_t Pa = atm/101325.;
-const Double_t mbar = 100.*Pa;
+const long double torr = 1.0l;
+const long double atm = 760.l;
+const long double Pa = atm/101325.l;
+const long double mbar = 100.l*Pa;
 };
 
 #endif

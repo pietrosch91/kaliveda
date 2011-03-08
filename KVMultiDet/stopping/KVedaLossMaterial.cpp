@@ -64,9 +64,11 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
    //   KVedaLossMaterial:[type]:EnergyLoss           -  gives dE as a function of particle energy
    //   KVedaLossMaterial:[type]:ResidualEnergy       -  gives energy after material (0 if particle stops)
    //
-   // The TF1::fNpx parameter for these functions is defined by the environment variable
+   // The TF1::fNpx parameter for these functions is defined by the environment variables
    //
-   //   KVedaLoss.Npx:         100
+   //   KVedaLoss.Range.Npx:         20
+   //   KVedaLoss.EnergyLoss.Npx:         50
+   //   KVedaLoss.ResidualEnergy.Npx:         20
    //
    
    char line[132];
@@ -119,17 +121,19 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
       tmp = fgets(line, 132, fp);
    }
 
-   // get require Npx value from (user-defined) environment variable
-   Int_t my_npx = gEnv->GetValue("KVedaLoss.Npx", 100);   
+   // get require Npx value from (user-defined) environment variables
+   Int_t my_npx = gEnv->GetValue("KVedaLoss.Range.Npx", 100);   
    
    fRange = new TF1(Form("KVedaLossMaterial:%s:Range", GetType()), this, &KVedaLossMaterial::RangeFunc,
                     0., 1.e+03, 3, "KVedaLossMaterial", "RangeFunc");
    fRange->SetNpx(my_npx);
 
+   my_npx = gEnv->GetValue("KVedaLoss.EnergyLoss.Npx", 100);   
    fDeltaE = new TF1(Form("KVedaLossMaterial:%s:EnergyLoss", GetType()), this, &KVedaLossMaterial::DeltaEFunc,
                      0., 1.e+03, 4, "KVedaLossMaterial", "DeltaEFunc");
    fDeltaE->SetNpx(my_npx);
 
+   my_npx = gEnv->GetValue("KVedaLoss.ResidualEnergy.Npx", 100);   
    fEres = new TF1(Form("KVedaLossMaterial:%s:ResidualEnergy", GetType()), this, &KVedaLossMaterial::EResFunc,
                    0., 1.e+03, 4, "KVedaLossMaterial", "EResFunc");
    fEres->SetNpx(my_npx);
