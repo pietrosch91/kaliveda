@@ -519,14 +519,16 @@ void Identificationv::Calculate(void)
     }
 */
 
-T = Si->T[0]-8.90;	//8.90 ns: Correction to get the time between the target and the focal plane. The time T_Si-HF, given in ns
+//T = Si->T[0]-8.90;	//8.90 ns: Correction to get the time between the target and the focal plane. The time T_Si-HF, given in ns
+T = Si->T[0];
 
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
-      //D = 943.8/cos(Rec->GetAngleVamos()*(TMath::Pi()/180));	//Distance between silicon and the target in cm	
-      D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);	//Distance from the target to the focal plane
-      //            cout << Rec->Path << " " << (Dr->Yf)/10. << " " <<
-      //      	Rec->Phi/1000.*180/3.1415 << " " << D << endl;
+      //Distance between silicon and the target in cm	
+      //D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);	//Distance from the target to the focal plane
+      
+      D = (Rec->Path + (68.450/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		//Distance correction from the target to the silicon wall
+
       V = D/T;		//Velocity given in cm/ns
       V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));
       Beta =V/29.9792; 
@@ -589,6 +591,8 @@ L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
   
     Z_tot = (sqrt((ESi*E)/931.5016)*29.9792)/7;
     Z_si = (sqrt((dE1*E)/931.5016)*29.9792)/7;
+    
+NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
     
 L->Log<<"Z1 = "<<Z1<<" 		Z2 = "<<Z2<<endl;
 L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
@@ -653,7 +657,7 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("ECsI",&ECsI,"ECsI/D");
 	outT->Branch("DetSi",&DetSi,"DetSi/I");
 	outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
-	
+	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");	
 	//outT->Branch("V",&V,"V/F");
 	//outT->Branch("Beta",&Beta,"Beta/F");
   	//outT->Branch("Gamma",&Gamma,"Gamma/F");

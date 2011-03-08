@@ -57,9 +57,8 @@ class Identificationv
   Double_t ECsI;
   Double_t ESi;
   Double_t EEtot;
+  Double_t NormVamos;
 
-/****	Test Commentaire	***   
-****	Fin test	****/ 
   Double_t dif11[55];
   Double_t dif12[55];
   
