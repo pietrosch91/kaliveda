@@ -195,10 +195,18 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
 
    // add list of parameter names in fUserTree->GetUserInfos()
    // and if option="arrays" add aliases for each parameter & its multiplicity
-   TObjArray *parlist = new TObjArray(GetRawDataParameters()->GetEntries(),1);
-   parlist->SetName("ParameterList");
+	
+	// TObjArray has to be as big as the largest parameter number in the list
+	// of raw data parameters. So first loop over parameters to find max param number.
+	Int_t maxpar = 0;
    TIter next(GetRawDataParameters());
    KVACQParam* par;
+	while( (par=(KVACQParam*)next()) ) if (par->GetNumber()>maxpar) maxpar=par->GetNumber();
+	
+   TObjArray *parlist = new TObjArray(maxpar,1);
+   parlist->SetName("ParameterList");
+	
+	next.Reset();
    while( (par = (KVACQParam*)next()) ){
       parlist->AddAt( new TNamed( par->GetName(), Form("index=%d",par->GetNumber()) ), par->GetNumber() );
       if( make_arrays ){
