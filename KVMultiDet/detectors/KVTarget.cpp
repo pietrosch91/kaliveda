@@ -874,9 +874,7 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus * kvp, TVector3*)
             e_thick_iplay = iplay->GetAreaDensity()/KVUnits::mg - e_thick_iplay;
          //modify effective physical thickness of layer
          Double_t thick_iplay = iplay->GetAreaDensity();
-         cout << "thickness of layer " << iplay_index << " was : " << thick_iplay/KVUnits::mg << " mg/cm**2" << endl;
          iplay->SetAreaDensity(e_thick_iplay*KVUnits::mg);
-         cout << "setting to new value : " << e_thick_iplay << " mg/cm**2" << endl;
 
          //first and last indices of layers to pass through
          Int_t ilay1 =
@@ -910,7 +908,6 @@ Double_t KVTarget::GetParticleEIncFromERes(KVNucleus * kvp, TVector3*)
          }
 
          //reset original thickness of IP layer
-         cout << "resetting thickness to value : " << thick_iplay/KVUnits::mg << " mg/cm**2" << endl;
          iplay->SetAreaDensity(thick_iplay);
 
       } else {
