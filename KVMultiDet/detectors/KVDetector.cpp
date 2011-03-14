@@ -1363,4 +1363,59 @@ Double_t KVDetector::GetSmallestEmaxValid(Int_t Z, Int_t A)
 	}
 	return maxmin;
 }
+   
+void KVDetector::ReadDefinitionFromFile(const Char_t* envrc)
+{
+	// Create detector from text file in 'TEnv' format.
+	//
+	// Example:
+	// ========
+	//
+	// Layer:  Gold
+	// Gold.Material:   Au
+	// Gold.AreaDensity:   200.*KVUnits::ug
+	// +Layer:  Gas1
+	// Gas1.Material:   C3F8
+	// Gas1.Thickness:   5.*KVUnits::cm
+	// Gas1.Pressure:   50.*KVUnits::mbar
+	// Gas1.Active:    yes
+	// +Layer:  Si1
+	// Si1.Material:   Si
+	// Si1.Thickness:   300.*KVUnits::um
+	
+	TEnv fEnvFile(envrc);
+	
+   KVString layers(fEnvFile.GetValue("Layer", ""));
+   layers.Begin(" ");
+   while( !layers.End() ){
+      KVString layer = layers.Next();
+      KVString mat = fEnvFile.GetValue(Form("%s.Material",layer.Data()),"");
+      KVString tS = fEnvFile.GetValue(Form("%s.Thickness",layer.Data()),"");
+      KVString pS = fEnvFile.GetValue(Form("%s.Pressure",layer.Data()),"");
+      KVString dS = fEnvFile.GetValue(Form("%s.AreaDensity",layer.Data()),"");
+      Double_t thick, dens, press;
+      thick=dens=press=0.;KVMaterial* M = 0;
+      if(pS != "" && tS != ""){
+         press = (Double_t)gROOT->ProcessLineFast( Form("%s*1.e+12", pS.Data()) );
+         press/=1.e+12;
+         thick = (Double_t)gROOT->ProcessLineFast( Form("%s*1.e+12", tS.Data()) );
+         thick/=1.e+12;
+         M = new KVMaterial(mat.Data(), thick, press);
+      }
+      else if(tS != ""){
+         thick = (Double_t)gROOT->ProcessLineFast( Form("%s*1.e+12", tS.Data()) );
+         thick/=1.e+12;
+         M = new KVMaterial(mat.Data(), thick);
+      }
+      else if(dS != ""){
+         dens = (Double_t)gROOT->ProcessLineFast( Form("%s*1.e+12", dS.Data()) );
+         dens/=1.e+12;
+         M = new KVMaterial(dens, mat.Data());
+      }
+      if(M){
+         fDet->AddAbsorber(M);
+         if(fEnvFile.GetValue(Form("%s.Active",layer.Data()),kFALSE)) fDet->SetActiveLayer(M);
+      }
+   }
+}
 

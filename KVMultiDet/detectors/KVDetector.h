@@ -299,6 +299,8 @@ class KVDetector:public KVMaterial {
    {
    	return fEResforEinc;
    };
+   
+   virtual void ReadDefinitionFromFile(const Char_t*);
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
