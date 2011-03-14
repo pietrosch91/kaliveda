@@ -809,16 +809,42 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 
 Double_t KVDetector::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t transmission)
 {
-   //This function should be redefined in specific detector child classes in order
-   //to return the total energy loss in the detector for a given nucleus
-   //including inactive absorber layers, and any particle-dependent correction to
-   //the 'raw' energy calibration.
+   // Returns the total energy loss in the detector for a given nucleus
+   // including inactive absorber layers.
+   // e = energy loss in active layer (if not given, we use current value)
+   // transmission = kTRUE (default): the particle is assumed to emerge with
+   //            a non-zero residual energy Eres after the detector.
+   //          = kFALSE: the particle is assumed to stop in the detector.
    //
-   //If not redefined, this just returns the same as GetEnergy()
+   // WARNING: if transmission=kTRUE, and if the residual energy after the detector
+   //   is known (i.e. measured in a detector placed after this one), you should
+   //   first call
+   //       SetEResAfterDetector(Eres);
+   //   before calling this method. Otherwise, especially for heavy ions, the
+   //   correction may be false for particles which are just above the punch-through energy.
 
-   if (e > 0.)
-      return e;
-   return GetEnergy();
+   if (e < 0.) e = GetEnergy();
+   if( e <= 0 ) { SetEResAfterDetector(-1.); return 0; }
+   
+   enum KVIonRangeTable::SolType solution = KVIonRangeTable::kEmax;
+   if(!transmission) solution = KVIonRangeTable::kEmin;
+   
+   Double_t EINC, ERES = GetEResAfterDetector();
+   if(transmission && ERES>0.){
+   	// if residual energy is known we use it to calculate EINC.
+   	// if EINC < max of dE curve, we change solution
+     	EINC = GetIncidentEnergyFromERes(z, a, ERES);
+     	if(EINC < GetEIncOfMaxDeltaE(z,a)) solution = KVIonRangeTable::kEmin;
+     	// we could keep the EINC value calculated using ERES, but then
+     	// the corrected dE of this detector would not depend on the
+     	// measured dE !
+   }
+   EINC = GetIncidentEnergy(z, a, e, solution);
+   ERES = GetERes(z,a,EINC);
+   
+   SetEResAfterDetector(-1.);
+   //incident energy - residual energy = total real energy loss
+   return (EINC - ERES);
 }
 
 //______________________________________________________________________________//
@@ -1271,6 +1297,14 @@ Double_t KVDetector::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    return GetELossFunction(Z,A)->Eval(Einc);
 }
 
+Double_t KVDetector::GetTotalDeltaE(Int_t Z, Int_t A, Double_t Einc)
+{
+   // Returns calculated total energy loss of ion in ALL layers of the detector.
+   // This is just (Einc - GetERes(Z,A,Einc))
+   
+   return Einc-GetERes(Z,A,Einc);
+}
+
 Double_t KVDetector::GetERes(Int_t Z, Int_t A, Double_t Einc)
 {
    // Overrides KVMaterial::GetERes
@@ -1413,8 +1447,8 @@ void KVDetector::ReadDefinitionFromFile(const Char_t* envrc)
          M = new KVMaterial(dens, mat.Data());
       }
       if(M){
-         fDet->AddAbsorber(M);
-         if(fEnvFile.GetValue(Form("%s.Active",layer.Data()),kFALSE)) fDet->SetActiveLayer(M);
+         AddAbsorber(M);
+         if(fEnvFile.GetValue(Form("%s.Active",layer.Data()),kFALSE)) SetActiveLayer(M);
       }
    }
 }

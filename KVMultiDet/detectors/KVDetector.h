@@ -279,6 +279,7 @@ class KVDetector:public KVMaterial {
 	};
    virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetTotalDeltaE(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetERes(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
                               -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);

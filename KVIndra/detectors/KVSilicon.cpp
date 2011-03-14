@@ -235,56 +235,6 @@ Double_t KVSilicon::GetPHD(Double_t Einc, UInt_t Z)
    return fPHD->Compute(Einc);
 }
 
-//____________________________________________________________________________________________
-
-Double_t KVSilicon::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t trn)
-{
-   // Returns total energy lost by particle in silicon detector corrected for PHD.
-   //
-   // If "e" (measured/apparent energy loss in detector) not given, current value
-   // measured in detector is used. If PHD for detector has not been set, no correction
-   // is performed
-   // See GetPHD() and class KVPulseHeightDefect.
-   //
-   // transmission=kTRUE (default): particle does not stop in the detector
-   // transmission=kFALSE:                 particle stops in the detector
-   //
-   // For heavy ions, and energies just above the punch-through energy, we cannot
-   // assume that the particle's incident energy is above the maximum of the dE(Einc)
-   // curve. In this region, if we have no information on the residual energy of the
-   // particle, then this corrected energy may be false, overestimating the real dE
-   // of the particle.
-   // If the residual energy of the particle is known (i.e. measured in a detector
-   // placed behind the silicon), you should first call
-   //   SetEResAfterDetector(eres)
-   // before calling this method. The residual energy can be used to calculate
-   // unambiguously the incident energy before the detector, and therefore we
-   // know which solution to use.
-
-   if (e < 0.) e = GetEnergy();
-   if( e <= 0 ) { SetEResAfterDetector(-1.); return 0; }
-   
-   enum KVIonRangeTable::SolType solution = KVIonRangeTable::kEmax;
-   if(!trn) solution = KVIonRangeTable::kEmin;
-   
-   Double_t EINC, ERES = GetEResAfterDetector();
-   if(trn && ERES>0.){
-   	// if residual energy is known we use it to calculate EINC.
-   	// if EINC < max of dE curve, we change solution
-     	EINC = GetIncidentEnergyFromERes(z, a, ERES);
-     	if(EINC < GetEIncOfMaxDeltaE(z,a)) solution = KVIonRangeTable::kEmin;
-     	// we could keep the EINC value calculated using ERES, but then
-     	// the corrected dE of this detector would not depend on the
-     	// measured dE !
-   }
-   EINC = GetIncidentEnergy(z, a, e, solution);
-   ERES = GetERes(z,a,EINC);
-   
-   SetEResAfterDetector(-1.);
-   //incident energy - residual energy = total real energy loss
-   return (EINC - ERES);
-}
-
 //__________________________________________________________________________________________
 Double_t KVSilicon::GetCalibratedEnergy()
 {

@@ -88,7 +88,6 @@ class KVSilicon:public KVINDRADetector {
    };
 
    Double_t GetPHD(Double_t Einc, UInt_t Z);
-   Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
 
    inline Bool_t IsCalibrated() const;
 

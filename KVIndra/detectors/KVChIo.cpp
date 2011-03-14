@@ -180,72 +180,19 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    //if stopped=kTRUE, we give the correction for a particle which stops in the detector
    //(by default we assume the particle continues after the detector)
    //
-   //If the dE energy loss in the gas is > maximum theoretical dE, GetMaxDeltaE(z,a),
-   //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetMaxDeltaE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_max * (dE_measured / dE_max).
-   //
-   //If the calculated energy loss in the mylar is <0 (i.e. if calculated incident energy
-   //of particle is > (dE in gas + residual energy)), we return 0.
+   // WARNING: if stopped=kFALSEE, and if the residual energy after the detector
+   //   is known (i.e. measured in a detector placed after this one), you should
+   //   first call
+   //       SetEResAfterDetector(Eres);
+   //   before calling this method. Otherwise, especially for heavy ions, the
+   //   correction may be false for particles which are just above the punch-through energy.
 
    egas = ((egas < 0.) ? GetEnergy() : egas);
    if (egas <= 0.)
       return 0.0;               //check measured (calibrated) energy in gas is reasonable (>0)
 
-   Bool_t maxDE = kFALSE;
-
-   //egas > max possible ?
-   Double_t de_measured = 0.;
-   if (egas > GetMaxDeltaE(z, a)) {
-      de_measured = egas;
-      egas = GetMaxDeltaE(z, a);
-      maxDE = kTRUE;
-//      if(de_measured-egas>2.0)
-//         Warning("GetELossMylar","%s: Measured de_ChIo (%f) is greater than maximum for Z=%d (%f)",
-//            GetName(), de_measured, (int)z, egas);
-   }
-   enum KVIonRangeTable::SolType solution = KVIonRangeTable::kEmax;
-   if(stopped) solution = KVIonRangeTable::kEmin;
-   //calculate incident energy
-   Double_t e_inc = GetIncidentEnergy(z, a, egas, solution);
-
-   //calculate residual energy
-   Double_t e_res = GetERes(z, a, e_inc);
-
-   //calculate mylar energy
-   Double_t emylar = e_inc - e_res - egas;
-
-   emylar = ((emylar < 0.) ? 0. : emylar);
-
-   if (maxDE){
-      emylar *= (de_measured/egas);
-   }
-
+	Double_t emylar = GetCorrectedEnergy(z,a,egas,!stopped) - egas;
    return emylar;
-}
-
-//__________________________________________________________________________________________________________________________
-
-Double_t KVChIo::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas, Bool_t transmission)
-{
-   //Redefinition of KVDetector method.
-   //Based on energy loss in gas, calculates correction for mylar windows
-   //from energy loss tables. Returns total energy loss in mylar+gas+mylar
-   //If argument 'egas' not given, KVChIo::GetEnergy() is used
-   //If transmission=kFALSE we give the correction for a particle stopping in the
-   //detector (i.e. we calculate the incident energy for a particle with dE<dE_max)
-   //By default transmission=kTRUE & we assume the particle continues after the
-   //detector.
-   //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetMaxDeltaE)
-   //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetMaxDeltaE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_max * (dE_measured / dE_max)
-
-   egas = ((egas < 0.) ? GetEnergy() : egas);
-   if( egas <=0 ) return 0;
-   Double_t emyl = GetELossMylar(z, a, egas, !transmission);
-   return (egas + emyl);
 }
 
 //_______________________________________________________________________________
