@@ -842,6 +842,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
             // all is apparently well
+            GetSi()->SetEResAfterDetector(fECsI);
             fESi = GetSi()->GetCorrectedEnergy(GetZ(),GetA());
          	if(fESi<=0) {
             	SetECode(kECode15);// bad - no Si energy
@@ -852,6 +853,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
         {
             Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),fECsI);
 				// calculated energy: negative
+				GetSi()->SetEResAfterDetector(fECsI);
             fESi = -GetSi()->GetCorrectedEnergy(GetZ(),GetA(),e0);
             SetECode(kECode2);
         }
@@ -861,12 +863,14 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     // if fUseFullChIoEnergyForCalib = kFALSE, we have to estimate the ChIo energy for this particle
         if(fUseFullChIoEnergyForCalib && GetChIo()->IsCalibrated()){
             // all is apparently well
+            GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+fECsI);
             fEChIo = GetChIo()->GetCorrectedEnergy(GetZ(),GetA());
         }
         else
         {
-            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),fECsI+fESi);
+            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+fECsI);
 				// calculated energy: negative
+            GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+fECsI);
             fEChIo = -GetChIo()->GetCorrectedEnergy(GetZ(),GetA(),e0);
             SetECode(kECode2);
         }
