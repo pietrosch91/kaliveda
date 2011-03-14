@@ -119,13 +119,13 @@ Double_t KVPulseHeightDefect::operator() (Double_t energy)
 
 TF1* KVPulseHeightDefect::GetELossFunction(Int_t Z, Int_t A)
 {
-   // Return pointer toTF1 giving energy loss in active layer of detector minus
+   // Return pointer to TF1 giving energy loss in active layer of detector minus
    // the pulse height defect for a given nucleus (Z,A).
    
    if(!fDeltaEphd){
       fDeltaEphd = new TF1(Form("KVPulseHeightDefect:%s:ELossActive", GetDetector()->GetName()),
            this, &KVPulseHeightDefect::ELossActive, 0., 1.e+04, 2, "KVPulseHeightDefect", "ELossActive");
-      fDeltaEphd->SetNpx(500);
+      fDeltaEphd->SetNpx( gEnv->GetValue("KVPulseHeightDefect.EnergyLoss.Npx", 20) );
    }
    fDeltaEphd->SetParameters((Double_t)Z, (Double_t)A);
    GetMoultonPHDFunction(Z);

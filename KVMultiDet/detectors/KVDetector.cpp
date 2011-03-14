@@ -112,6 +112,7 @@ void KVDetector::init()
 	fDepthInTelescope = 0.;
 	fFiredMask.Set("0");
 	fELossF = fEResF = 0;
+	fEResforEinc = -1.;
 }
 
 KVDetector::KVDetector()
@@ -545,6 +546,7 @@ void KVDetector::Clear(Option_t * opt)
    while ((mat = (KVMaterial *) next())) {
       mat->Clear();
    }
+   fEResforEinc=-1.;
 }
 
 //______________________________________________________________________________
@@ -1287,13 +1289,22 @@ Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum 
    // Returns incident energy corresponding to energy loss delta_e in active layer of detector for a given nucleus.
    // If delta_e is not given, the current energy loss in the active layer is used.
    //
-   //By default the solution corresponding to the highest incident energy is returned
-   //This is the solution found for Einc greater than the maximum of the dE(Einc) curve.
-   //If you want the low energy solution set SolType = KVIonRangeTable::kEmin.
+   // By default the solution corresponding to the highest incident energy is returned
+   // This is the solution found for Einc greater than the maximum of the dE(Einc) curve.
+   // If you want the low energy solution set SolType = KVIonRangeTable::kEmin.
    //
-   //If the given energy loss in the active layer is greater than the maximum theoretical dE
+   // WARNING: calculating the incident energy of a particle using only the dE in a detector
+   // is ambiguous, as in general (and especially for very heavy ions) the maximum of the dE
+   // curve occurs for Einc greater than the punch-through energy, therefore it is not always
+   // true to assume that if the particle does not stop in the detector the required solution
+   // is that for type=KVIonRangeTable::kEmax. For a range of energies between punch-through
+   // and dE_max, the required solution is still that for type=KVIonRangeTable::kEmin.
+   // If the residual energy of the particle is unknown, there is no way to know which is the
+   // correct solution.
+   //
+   // If the given energy loss in the active layer is greater than the maximum theoretical dE
    //(dE > GetMaxDeltaE(Z,A)) then we return the incident energy corresponding to the maximum,
-   //GetEIncOfMaxDeltaE(Z,A)
+   // GetEIncOfMaxDeltaE(Z,A)
    
    if(Z<1) return 0.;
    

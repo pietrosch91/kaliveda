@@ -695,6 +695,8 @@ KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
 # Special names for special datasets:
 INDRA_camp5.KVMultiDetArray.DetectorThicknesses:	EtalonThicknessCamp5.dat
 
+# KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
+KVPulseHeightDefect.EnergyLoss.Npx:        20
 # Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
 KVSilicon.ZminForPHDCorrection:        10
 

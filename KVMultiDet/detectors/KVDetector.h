@@ -90,6 +90,8 @@ class KVDetector:public KVMaterial {
    
    TF1* fELossF; //! parametric function dE in active layer vs. incident energy
    TF1* fEResF; //! parametric function Eres residual energy after all layers of detector
+   
+   Double_t fEResforEinc;//! used by GetIncidentEnergy & GetCorrectedEnergy
 
  public:
     KVDetector();
@@ -288,6 +290,15 @@ class KVDetector:public KVMaterial {
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
    
    virtual Double_t GetSmallestEmaxValid(Int_t Z, Int_t A);
+   
+   virtual void SetEResAfterDetector(Double_t e)
+   {
+   	fEResforEinc=e;
+   };
+   virtual Double_t GetEResAfterDetector() const
+   {
+   	return fEResforEinc;
+   };
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
