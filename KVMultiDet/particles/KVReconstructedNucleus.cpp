@@ -317,7 +317,6 @@ void KVReconstructedNucleus::Identify()
     // This continues until a successful identification is achieved or there are no more ID telescopes to try.
     // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-//    TList *idt_list = GetStoppingDetector()->GetTelescopesForIdentification();
     KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
 
     if (idt_list && idt_list->GetSize() > 0) {
@@ -346,11 +345,11 @@ void KVReconstructedNucleus::Identify()
                     //then exact status depends on segmentation of the other particles : reanalyse
                     //cout << "...........NSegDet now = " << GetNSegDet() << " && number unidentified in group="
                     //              << (int)GetGroup()->GetNUnidentified() << endl;
-                    if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1)
-                        break;
+                    //if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1)
+                        //break;
                     //if NSegDet = 0 it's hopeless
-                    if (!GetNSegDet())
-                        break;
+                    //if (!GetNSegDet())
+                        //break;
 
             }
 
