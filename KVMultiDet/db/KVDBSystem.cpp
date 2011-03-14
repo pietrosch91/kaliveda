@@ -228,9 +228,9 @@ void KVDBSystem::Load(istream &f)
    //+155Gd + 238U 36 MeV/A   '+'  followed by name of system
    //155 64 238 92 36.0    Aproj Zproj Atarg Ztarg Ebeam
    //Target: 3 0.0                    target with 3 layers, angle 0 degrees
-   //C 0.02                            1st layer : carbon, 20 g/cm2
-   //238U 0.1                          2nd layer : uranium-238, 100 g/cm2
-   //C 0.023                           3rd layer : carbon, 23 g/cm2
+   //C 0.02                            1st layer : carbon, 20 ug/cm2
+   //238U 0.1                          2nd layer : uranium-238, 100 ug/cm2
+   //C 0.023                           3rd layer : carbon, 23 ug/cm2
    //Runs: 770-804             list of runs in KVNumberList format
 
    TString line;
