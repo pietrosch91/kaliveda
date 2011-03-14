@@ -918,8 +918,8 @@ Double_t KVDetector::ELossActive(Double_t * x, Double_t * par)
 
 Double_t KVDetector::EResDet(Double_t * x, Double_t * par)
 {
-   //Calculates residual energy (in MeV) of particle after traversing all layers of detector.
-   //Returned value is 0 if particle stops in one of the layers of the detector.
+   // Calculates residual energy (in MeV) of particle after traversing all layers of detector.
+   // Returned value is -1000 if particle stops in one of the layers of the detector.
    //
    // Arguments are:
    //    x[0] is incident energy in MeV
@@ -930,9 +930,10 @@ Double_t KVDetector::EResDet(Double_t * x, Double_t * par)
    Double_t e = x[0];
    TIter next(fAbsorbers); KVMaterial* mat;
    while( (mat = (KVMaterial*)next()) ){
-         e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
-         if (e < KVDETECTOR_MINIMUM_E)
-            return 0.;          // return 0 if particle stops in layers before active layer
+   	Double_t eres = mat->GetERes(par[0], par[1], e);     //residual energy after layer
+      if (eres <= 0.)
+         return -1000.;          // return -1000 if particle stops in layers before active layer
+      e = eres;
    }
    return e;
 }
@@ -1222,10 +1223,12 @@ TF1* KVDetector::GetEResFunction(Int_t Z, Int_t A)
 {
    // Return pointer toTF1 giving residual energy after detector as function of incident energy,
    // for a given nucleus (Z,A).
+   // The TF1::fNpx parameter is taken from environment variable KVDetector.ResidualEnergy.Npx
+   
    if(!fEResF){
       fEResF = new TF1(Form("KVDetector:%s:ERes", GetName()), this, &KVDetector::EResDet,
                     0., 1.e+04, 2, "KVDetector", "EResDet");
-      fEResF->SetNpx(500);
+      fEResF->SetNpx( gEnv->GetValue("KVDetector.ResidualEnergy.Npx", 20) );
    }
    fEResF->SetParameters((Double_t)Z, (Double_t)A);
    fEResF->SetRange(0., GetSmallestEmaxValid(Z,A));
@@ -1235,12 +1238,14 @@ TF1* KVDetector::GetEResFunction(Int_t Z, Int_t A)
 
 TF1* KVDetector::GetELossFunction(Int_t Z, Int_t A)
 {
-   // Return pointer toTF1 giving energy loss in active layer of detector as function of incident energy,
+   // Return pointer to TF1 giving energy loss in active layer of detector as function of incident energy,
    // for a given nucleus (Z,A).
+   // The TF1::fNpx parameter is taken from environment variable KVDetector.EnergyLoss.Npx
+   
    if(!fELossF){
       fELossF = new TF1(Form("KVDetector:%s:ELossActive", GetName()), this, &KVDetector::ELossActive,
                     0., 1.e+04, 2, "KVDetector", "ELossActive");
-      fELossF->SetNpx(500);
+      fELossF->SetNpx( gEnv->GetValue("KVDetector.EnergyLoss.Npx", 20));
    }
    fELossF->SetParameters((Double_t)Z, (Double_t)A);
    fELossF->SetRange(0., GetSmallestEmaxValid(Z,A));
@@ -1269,7 +1274,11 @@ Double_t KVDetector::GetERes(Int_t Z, Int_t A, Double_t Einc)
    // Overrides KVMaterial::GetERes
    // Returns residual energy of given nucleus after the detector.
    
-   return GetEResFunction(Z,A)->Eval(Einc);
+   Double_t eres = GetEResFunction(Z,A)->Eval(Einc);
+   // Eres function returns -1000 when particle stops in detector,
+   // in order for function inversion (GetEIncFromEres) to work
+   if(eres<0.) eres = 0.;
+   return eres;
 }
    
 Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum KVIonRangeTable::SolType type)
