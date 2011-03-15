@@ -1006,12 +1006,24 @@ void KVINDRA::FillListsOfDetectorsByType()
    }
 }
 
+//_______________________________________________________________________________________
+void KVINDRA::UpdateArray()
+{
+    // Updates pointer to chio layer if necessary (it may have been removed),
+    // then performs normal update KVMultiDetArray::UpdateArray()
+
+	fChIoLayer = GetLayer("CHIO");
+	KVMultiDetArray::UpdateArray();
+}
+
 //_________________________________________________________________________________________
 void KVINDRA::SetNamesChIo()
 {
    // INDRA-specific numbering of ChIo according to smallest ring,module of csi behind
    // the cell
 
+	if(!GetChIoLayer()) return; // chios have been removed ?
+	
    TIter next_ring(GetChIoLayer()->GetRings());
    KVRing *robj;
    while ((robj = (KVRing *) next_ring())) {

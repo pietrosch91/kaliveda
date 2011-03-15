@@ -97,6 +97,7 @@ class KVINDRA:public KVMultiDetArray {
    virtual void Build();
    virtual Bool_t ArePHDSet() const { return fPHDSet; };
    virtual void PHDSet(Bool_t yes=kTRUE) { fPHDSet=yes; };
+   virtual void UpdateArray();
 
    virtual void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 
