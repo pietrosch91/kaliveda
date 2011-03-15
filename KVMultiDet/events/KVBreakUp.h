@@ -9,7 +9,7 @@
 #include "TH1F.h"
 #include "TCanvas.h"
 #include "TROOT.h"
-#include "KVList.h"
+#include "KVHashList.h"
 #include "KVString.h"
 #include "TTree.h"
 #include "TH2F.h"
@@ -21,70 +21,74 @@
 #include "Riostream.h"
 
 
-class KVBreakUp:public TObject
+class KVBreakUp:public KVPartitionList
 {
 	
 	protected:
 	
-	enum {
-      kStorePartitions = BIT(14),	//Variables has to be recalculated
-   };
-	
-	virtual void init(void);
-	void SetZtot(Int_t zt);
-	void SetMtot(Int_t mt);
-	void SetZmin(Int_t zlim);
-	void SetBreakUpMethod(KVString bup_method);
-	
 	Int_t Ztotal;
 	Int_t Mtotal;
 	Int_t Zmin;
-	Int_t *bound;	//[Ztotal]
+	Int_t *bound;	//[Ztotal] tableau permettant de gérer les cassures de liens
 	KVString BreakUpMethod,TRandom_Method;
 	TRandom* alea;
 	
 	KVNumberList nl;
 	Int_t nbre_nuc;
 	Int_t size_max;
-	Int_t size[500];
+	Int_t *size; 	//[size_max]->
 	Int_t niter_tot;
 	Int_t tstart,tstop,tellapsed;
 
-	KVPartitionList* parman;
-	TH1F* hzz;
+	TH1F* hzz; //->
 	TH1F* hzt;
 	TH1F* hmt;
 	
-	KVList* lobjects;
-	KVList* lhisto;
+	KVHashList* lobjects;	//->
+	KVHashList* lhisto;	//->
 	KVIntegerList* partition;
-
+	
+	enum {
+      kStorePartitions = BIT(14),	//Variables has to be recalculated
+   };
+	
+	void init();
+	void SetZtot(Int_t zt);
+	void SetMtot(Int_t mt);
+	void SetZmin(Int_t zlim);
+	void SetBreakUpMethod(KVString bup_method);
+	
+	void Start();
+	void Stop();
+	
 	public:
 
 	Int_t nraffine;
 	
-	virtual void DefineHistos();
+	//Methodes qui devraient etre declaree
+	//en privee
+	//mais celà rend impossible leur utilisation
+	//via TMethodCall
+	Int_t BreakUsingChain();
+	Int_t BreakUsingPile();
+	Int_t BreakUsingIndividual();
+	Int_t BreakUsingLine();
 	
-	KVBreakUp();
+	KVBreakUp(Int_t taille_max=1000);
 	virtual ~KVBreakUp();
 	void Clear(Option_t* = "");
 	
 	void RedefineTRandom(KVString TRandom_Method);
 	void SetConditions(Int_t zt,Int_t mt,Int_t zmin=1);
 	void DefineBreakUpMethod(KVString bup_method="");
+	void StorePartitions(Bool_t choix=kTRUE);
+	virtual void DefineHistos();
 	
 	Int_t GetZtot(void) const;
 	Int_t GetMtot(void) const;
 	Int_t GetZmin(void) const;
 	KVString GetBreakUpMethod(void) const;
 	
-	void StorePartitions(Bool_t choix=kTRUE);
-	
-	Int_t BreakUsingChain();
-	Int_t BreakUsingPile();
-	Int_t BreakUsingIndividual();
-	Int_t BreakUsingLine();
-		
 	virtual void TreatePartition();
 
 	void BreakNtimes(Int_t times=1000);
@@ -93,19 +97,16 @@ class KVBreakUp:public TObject
 	
 	virtual void DrawPanel();
 	
-	Int_t TotalIterations(void);
-	KVList* GetHistos();
-	KVList* GetObjects();
-	KVPartitionList* GetManager();
+	Int_t GetTotalIterations(void);
+	KVHashList* GetHistos();
+	KVHashList* GetObjects();
+	
 	virtual void ResetTotalIterations();
 	virtual void ResetHistos();
 	
 	virtual void SaveHistos(KVString filename="",KVString suff="",Option_t* option="recreate");
    
 	void	Print(Option_t* option = "") const;
-	
-	void Start();
-	void Stop();
 	Int_t GetDeltaTime();
 	
 	
