@@ -273,7 +273,7 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    fDepth =
        new TH1F("hDepth", "Depth (mg/cm2)", 500, 0.,
                 fTarget->GetTotalEffectiveThickness());
-   fTheta = new TH1F("hTheta", "Theta (deg.)", 500, 0., 180.);
+   fTheta = new TH1F("hTheta", "Theta (deg.)", 500, 0., 0.);
 
    /* -------------------------------------------------------------------------------------------------------------------------- */
 
@@ -289,8 +289,7 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    while ((d = (KVDetector *) n())) {
       fHistos->
           Add(new
-              TH1F(Form("hEloss_%s", d->GetName()), "Eloss (MeV)", fBinE, 0.,
-                   fEnergy * 1.2));
+              TH1F(Form("hEloss_%s", d->GetName()), "Eloss (MeV)", fBinE, 0.,0.));
    }
 
    /* -------------------------------------------------------------------------------------------------------------------------- */
