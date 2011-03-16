@@ -452,13 +452,13 @@ void KVTarget::DetectParticle(KVNucleus * kvp, TVector3 * dummy)
    //If IsIncoming()=kTRUE, calculate energy loss up to interaction point
    //If IsOutgoing()=kTRUE, calculate energy loss from interaction point onwards (outwards)
 
-   if (kvp->GetKE() <= KVDETECTOR_MINIMUM_E)
+   if (kvp->GetKE() <= 0.)
       return;
 
    if (!IsIncoming() && !IsOutgoing()) {
       //calculate losses in all layers
       for (register int i = 1;
-           i <= NumberOfLayers() && kvp->GetKE() > KVDETECTOR_MINIMUM_E;
+           i <= NumberOfLayers() && kvp->GetKE() > 0.;
            i++) {
          GetLayerByIndex(i)->DetectParticle(kvp, &fNormal);
       }
@@ -514,11 +514,11 @@ void KVTarget::DetectParticle(KVNucleus * kvp, TVector3 * dummy)
 
          if (backwards) {
             for (register int i = ilay1;
-                 i >= ilay2 && kvp->GetKE() > KVDETECTOR_MINIMUM_E; i--)
+                 i >= ilay2 && kvp->GetKE() > 0.; i--)
                GetLayerByIndex(i)->DetectParticle(kvp, &fNormal);
          } else {
             for (register int i = ilay1;
-                 i <= ilay2 && kvp->GetKE() > KVDETECTOR_MINIMUM_E; i++)
+                 i <= ilay2 && kvp->GetKE() > 0.; i++)
                GetLayerByIndex(i)->DetectParticle(kvp, &fNormal);
          }
 
@@ -548,7 +548,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
 
    Double_t Eloss = 0.0, E0 = kvp->GetKE();
 
-   if (E0 <= KVDETECTOR_MINIMUM_E)
+   if (E0 <= 0.)
       return E0;
 
    //make 'clone' of nucleus to simulate energy losses
@@ -558,7 +558,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
    if (!IsIncoming() && !IsOutgoing()) {
       //calculate losses in all layers
       for (register int i = 1;
-           i <= NumberOfLayers() && clone_part->GetKE() > KVDETECTOR_MINIMUM_E;
+           i <= NumberOfLayers() && clone_part->GetKE() > 0.;
            i++) {
          Eloss +=
              GetLayerByIndex(i)->GetELostByParticle(clone_part, &fNormal);
@@ -616,7 +616,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
 
          if (backwards) {
             for (register int i = ilay1;
-                 i >= ilay2 && clone_part->GetKE() > KVDETECTOR_MINIMUM_E; i--) {
+                 i >= ilay2 && clone_part->GetKE() > 0.; i--) {
                Eloss +=
                    GetLayerByIndex(i)->GetELostByParticle(clone_part,
                                                           &fNormal);
@@ -624,7 +624,7 @@ Double_t KVTarget::GetELostByParticle(KVNucleus * kvp, TVector3 * depth)
             }
          } else {
             for (register int i = ilay1;
-                 i <= ilay2 && clone_part->GetKE() > KVDETECTOR_MINIMUM_E; i++) {
+                 i <= ilay2 && clone_part->GetKE() > 0.; i++) {
                Eloss +=
                    GetLayerByIndex(i)->GetELostByParticle(clone_part,
                                                           &fNormal);

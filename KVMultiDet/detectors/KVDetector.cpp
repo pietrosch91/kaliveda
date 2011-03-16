@@ -211,7 +211,7 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    //In this case the effective thicknesses of the detector's absorbers 'seen' by the particle
    //depending on its direction of motion is used for the calculation.
 
-   if (kvp->GetKE() <= KVDETECTOR_MINIMUM_E)
+   if (kvp->GetKE() <= 0.)
       return;
 
    AddHit(kvp);                 //add nucleus to list of particles hitting detector in the event
@@ -220,7 +220,7 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    KVMaterial *abs;
    TIter next(fAbsorbers);
    while ((abs = (KVMaterial *) next())
-          && kvp->GetKE() > KVDETECTOR_MINIMUM_E) {
+          && kvp->GetKE() > 0.) {
       abs->DetectParticle(kvp, norm);
    }
 }
@@ -242,12 +242,12 @@ Double_t KVDetector::GetELostByParticle(KVNucleus * kvp, TVector3 * norm)
    //make 'clone' of particle
    KVNucleus* clone_part = new KVNucleus(kvp->GetZ(), kvp->GetA());
    clone_part->SetMomentum(kvp->GetMomentum());
-   if (clone_part->GetEnergy() > KVDETECTOR_MINIMUM_E) {
+   if (clone_part->GetEnergy() > 0.) {
       //composite detector - calculate losses in all layers
       KVMaterial *abs; int i=0;
       TIter next(fAbsorbers);
       while ((abs = (KVMaterial *) next())
-          && clone_part->GetKE() > KVDETECTOR_MINIMUM_E) {
+          && clone_part->GetKE() > 0.) {
             eloss = abs->GetELostByParticle(clone_part, norm);
             if (i++ == fActiveLayer)
                ElossActive = eloss;
@@ -807,7 +807,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 
 //______________________________________________________________________________//
 
-Double_t KVDetector::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t transmission)
+Double_t KVDetector::GetCorrectedEnergy(Int_t z, Int_t a, Double_t e, Bool_t transmission)
 {
    // Returns the total energy loss in the detector for a given nucleus
    // including inactive absorber layers.
@@ -932,7 +932,7 @@ Double_t KVDetector::ELossActive(Double_t * x, Double_t * par)
       
          mat = (KVMaterial*)next();
          e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
-         if (e < KVDETECTOR_MINIMUM_E)
+         if (e <= 0.)
             return 0.;          // return 0 if particle stops in layers before active layer
 
       }
@@ -1365,9 +1365,9 @@ Double_t KVDetector::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
    // Calculate energy loss in active layer of detector for nucleus (Z,A)
    // having a residual kinetic energy Eres (MeV)
    
-   if(Z<1 || Eres<KVDETECTOR_MINIMUM_E) return 0.;
+   if(Z<1 || Eres<= 0.) return 0.;
    Double_t Einc = GetIncidentEnergyFromERes(Z,A,Eres);
-   if(Einc < KVDETECTOR_MINIMUM_E) return 0.;
+   if(Einc <= 0.) return 0.;
    return GetELossFunction(Z,A)->Eval(Einc);
 }
  
@@ -1377,7 +1377,7 @@ Double_t KVDetector::GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres)
    //
    // Calculate incident energy of nucleus from residual energy
    
-   if(Z<1 || Eres<KVDETECTOR_MINIMUM_E) return 0.;
+   if(Z<1 || Eres<= 0.) return 0.;
    return GetEResFunction(Z,A)->GetX(Eres);
 }
 

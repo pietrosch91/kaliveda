@@ -98,6 +98,9 @@ class KVMaterial:public KVBase {
                               -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
    virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetMaxDeltaE(Int_t Z, Int_t A);
+   
+   virtual Double_t GetRange(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetLinearRange(Int_t Z, Int_t A, Double_t Einc);
 
    virtual KVMaterial *GetActiveLayer() const {
       return 0;

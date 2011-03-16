@@ -462,6 +462,38 @@ Double_t KVMaterial::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
 
 //______________________________________________________________________________________//
 
+Double_t KVMaterial::GetRange(Int_t Z, Int_t A, Double_t Einc)
+{
+   // Calculate range in absorber (in g/cm**2) for incident nucleus (Z,A)
+   // with kinetic energy Einc (MeV)
+   //
+   // N.B. For detectors, we only consider the 'active' layer
+
+	if(GetActiveLayer()) return GetActiveLayer()->GetRange(Z,A,Einc);
+   if(Z<1) return 0.;
+   Double_t R =
+      fIonRangeTable->GetRangeOfIon(GetType(), Z, A, Einc, fAmasr, fTemp, fPressure);
+   return R;
+}
+
+//______________________________________________________________________________________//
+
+Double_t KVMaterial::GetLinearRange(Int_t Z, Int_t A, Double_t Einc)
+{
+   // Calculate linear range in absorber (in centimetres) for incident nucleus (Z,A)
+   // with kinetic energy Einc (MeV)
+   //
+   // N.B. For detectors, we only consider the 'active' layer
+
+	if(GetActiveLayer()) return GetActiveLayer()->GetLinearRange(Z,A,Einc);
+   if(Z<1) return 0.;
+   Double_t R =
+      fIonRangeTable->GetLinearRangeOfIon(GetType(), Z, A, Einc, fAmasr, fTemp, fPressure);
+   return R;
+}
+
+//______________________________________________________________________________________//
+
 Double_t KVMaterial::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 {
    // Calculate energy loss in absorber for nucleus (Z,A)

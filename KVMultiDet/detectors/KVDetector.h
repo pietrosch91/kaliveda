@@ -27,9 +27,6 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #define KVD_NORECPRC_CNXN 0
 #endif
 
-//for energies less than this (MeV) particles are considered to be stopped
-#define KVDETECTOR_MINIMUM_E 0.001
-
 #include "KVMaterial.h"
 #include "KVList.h"
 #include "KVNucleus.h"
@@ -162,7 +159,7 @@ class KVDetector:public KVMaterial {
    virtual void SetEnergyLoss(Double_t e) {
       SetEnergy(e);
    };
-   virtual Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e =
+   virtual Double_t GetCorrectedEnergy(Int_t z, Int_t a, Double_t e =
                                        -1., Bool_t transmission=kTRUE);
    virtual Int_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
 

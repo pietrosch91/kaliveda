@@ -17,6 +17,14 @@
 
 class KVedaLossMaterial : public KVBase {
 
+private:
+	// internal variables used by RangeFunc/DeltaEFunc
+	Double_t RF_Z;
+	Double_t RF_A;
+	Double_t *par;
+	Double_t ran,adm,dleps,adn,riso,eps,DLEP;
+	Double_t thickness; // in g/cm**2
+	
 protected:
    TString fState;               // state of material = "solid", "liquid", "gas", "unknown"
    Double_t fDens;              // density of material in g/cm**3
@@ -98,7 +106,7 @@ public:
    virtual Double_t GetLinearEIncFromDeltaEOfIon(Int_t Z, Int_t A, Double_t DeltaE, Double_t e, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax, Double_t isoAmat = 0., Double_t T = -1., Double_t P = -1.);
 
    virtual Double_t GetDeltaEFromEResOfIon(Int_t Z, Int_t A, Double_t ERes, Double_t e, Double_t isoAmat = 0.) {
-      // Calculates energy loss (in MeV) of an ion (Z,A) from residual energy ERes (MeV) after thickness e (in mg/cm**2).
+      // Calculates energy loss (in MeV) of an ion (Z,A) from residual energy ERes (MeV) after thickness e (in g/cm**2).
       // Give Amat to change default (isotopic) mass of material,
       return GetEIncFromEResOfIon(Z, A, ERes, e, isoAmat) - ERes;
    }

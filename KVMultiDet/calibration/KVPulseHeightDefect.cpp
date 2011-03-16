@@ -144,7 +144,7 @@ Double_t KVPulseHeightDefect::ELossActive(Double_t *x, Double_t *par)
    while( (mat = (KVMaterial*)next()) != GetDetector()->GetActiveLayer() ){
       // calculate energy losses in absorbers before active layer
          e = mat->GetERes(par[0], par[1], e);     //residual energy after layer
-         if (e < KVDETECTOR_MINIMUM_E)
+         if (e <= 0.)
             return 0.;          // return 0 if particle stops in layers before active layer
    }
    // calculate energy loss in active layer
