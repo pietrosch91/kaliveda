@@ -6,293 +6,227 @@
 #include "KVCouple.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TChain.h"
+#include "TDatime.h"
 #include "TNamed.h"
-#include "KVIntegerList.h"
-#include "TEventList.h"
-#include "TList.h"
+
 
 ClassImp(KVPartitionGenerator)
 ////////////////////////////////////////////////////////////////////////////////
 /*
 BEGIN_HTML
 <h2>KVPartitionGenerator</h2>
-<h4>Calcul numeriquement toutes les partitions d'un couple Zfrag/Mfrag donne</h4>
+<h4>Permet de determiner numeriquement et exactement un ensemble de partitions d'entrees
+remplissante certaines conditions</h4>
 END_HTML
-Compute all possible partitions for a given number in a given number of pieces
-For exmaple the break up of a total charge Zfrag in Mfrag charges, assuming a minimum size for these charges (Zinf)
-Beta Version ...
-Seems to work as to be tested
-Different ways of break-up
-	Test_Zf_Zinf -> Only Zf as a constraint for the total charge
-	Test_Zf_Zmax_Zinf -> Zf as the total charge and Zmax as the biggest charge
-	Test_Mf_Zmax_Zinf -> Mf as the number of pieces and Zmax as the biggest charge
-	Test_Zf_Mf_Zinf -> Zf as the total charge and Mf the number of pieces
-All these methods call the Process() method which use the KVCouple class to iteratively break the total initial charge in the given number of pieces
+----
+Les differentes recontrees grandeurs sont :
+- Ztot (Zt) -> Charge/Taille totale a repartir au sein de la partition
+- Mtot (Mt) -> Nombre de total d'element (fragment, cluster) de la partition (Zi) i=1,Mtot
+- Zmax (Zm) -> Charge/Taille du plus gros element de la partition
+- Zinf (Zi) -> Charge minimale des elements de la partition (Zi) Zi>=Zinf quelque soit i (tous les calculs necessitent cet argument)
+
+Plusieurs methodes correspondant conditions initiales possibles :
+- BreakUsing_Ztot_Zinf_Criterion (la methode la plus generale), donnant toutes les partitions pour une taille initiale donnee
+- BreakUsing_Ztot_Zinf_Criterion, donnant toutes les partitions pour une taille initiale donnee
+- BreakUsing_Ztot_Zmax_Zinf_Criterion, donnant toutes les partitions pour une taille initiale donnee, avec une contrainte sur Zmax
+- BreakUsing_Mtot_Zmax_Zinf_Criterion, donnant toutes les partitions remplissant les contraintes sur le Zmax et sur le Mtot
+
+Toutes ces methodes utilisent la protected methode MakePartitions() qui calcule les partitions
+pour un couple (Ztot,Mtot) donné qui sauvegarde ces partitions dans un fichier ROOT via un arbre, contenant
+l'information minimum :
+- branche zt
+- branche mt 
+- branche tabz [mt], tableau d'entier comprenant les differentes charges (Zi), trie par ordre decroissant
+Le chemin ou les arbres sont ecrits peut etre definis via la methode SetPathForFile, par defaut les arbres seront
+ecrits dans le repertoire courant, attention car pour des nombres importants (Ztot>100) la place necessaire devient
+non negligeable (ex : toutes les partition de Ztot=200 et Zinf=5 -> 20GB environ)
+
+A chaque fois que la methode MakePartitions() est appelle par les methodes BreakUsing...(), on garde
+en memoire l'ensemble des fichiers contenant chacun un arbre, pour a la fin du processus
+ecrire dans un fichier ROOT, une TChain permettant de travailler rapidement et facilement sur les partitions generees
+----
+
+Un petit exemple de routine simple : 
+Cette routine produit en sortie un fichier root Partitions_Zf60_Zi1.root
+contenant la TChain de tous les arbres ...
+
+void test{
+
+	KVPartitionGenerator* pg = new KVPartitionGenerator();    
+	pg->SetPathForFile("/space/bonnet/");
+	pg->BreakUsing_Ztot_Zinf_Criterion(60,1);
+
+	Info in <BreakUsing_Ztot_Zinf_Criterion>: 966467.000000 partitions crees en 5 seconds
+	delete pg;
+
+}
+----
+
+root Partitions_Zf60_Zi1.root
+Attaching file Partitions_Zf60_Zi1.root as _file0...
+root [2] .ls
+TFile**		Partitions_Zf60_Zi1.root	
+ TFile*		Partitions_Zf60_Zi1.root	
+  KEY: TChain	PartitionTree;1	
+root [3] PartitionTree->Draw("tabz")
 
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+//_______________________________________________________
 KVPartitionGenerator::KVPartitionGenerator()
 {
    // Default constructor
-	ndim = 0;
-	tabz = 0;
-	ztot = 0;
-	mtot = 0;
-	
-	
-	kcurrent = 0;
-	kzf = 0;
-	kmf = 0;
-	kzm = 0;
-	mshift=0;
-	zshift=0;
-	to_be_checked=kFALSE;
-	
-	npar=0;
-	
-	file=0;
-	tree=0;
-	
-	levt=0;
-	levt_collect=0;
-	levt_z1=0;
-	
-	evt=0;
-	
-	nl_zf=0;
-	nl_mf=0;
-	nl_zm=0;
-	nl_z1=0;
+	init();
+
 }
 
+//_______________________________________________________
+void KVPartitionGenerator::init()
+{
+	//protected method
+	//Initisalisation des variables
+	tabz = 0;
+	ztot = mtot = 0;
+
+	kcurrent = 0;
+	kzt = kmt = 0;
+	mshift = zshift = 0;
+	
+	to_be_checked=kFALSE;
+	
+	npar = npar_zt_mt = 0;
+	tree=0;
+	tname = "PartitionTree";
+	cname = "";
+	
+	kwriting_path="";
+	flist = 0;
+
+}
+
+//_______________________________________________________
 KVPartitionGenerator::~KVPartitionGenerator()
 {
    // Destructor
 	if (kcurrent) {delete [] kcurrent; kcurrent = 0;}
 	if (tabz) {delete [] tabz; tabz = 0;}
 	
-	
-	if (nl_zf) delete nl_zf;
-	if (nl_mf) delete nl_mf;
-	if (nl_zm) delete nl_zm;
-	if (nl_z1) delete nl_z1;
-
 }
 
-void KVPartitionGenerator::PreparTree(const Char_t* filename,const Char_t* treename,Int_t Ndim,Option_t* option){
-
-	KVString snom;
-
-	SaveAndCloseFile();
-	
-	if (nl_zf) nl_zf->Clear(); else nl_zf = new KVIntegerList();
-	if (nl_mf) nl_mf->Clear(); else nl_mf = new KVIntegerList();
-	if (nl_zm) nl_zm->Clear(); else nl_zm = new KVIntegerList();
-	if (nl_z1) nl_z1->Clear(); else nl_z1 = new KVIntegerList();
-	
-	if (filename) file = new TFile(filename,option);
-	else {
-		snom.Form("From_%s.root",this->Class_Name());
-		file = new TFile(snom.Data(),option);
-	}
-	
-	snom.Form("From_%s",this->Class_Name());
-	if (treename) tree = new TTree(treename,snom.Data());
-	else tree = new TTree("tree",snom.Data());
-	
-	if (tabz) delete [] tabz;
-	ndim = Ndim;
-	tabz = new Int_t[ndim];
-
-	tree->Branch("ztot",			&ztot,	"ztot/I");
-	tree->Branch("mtot",			&mtot,	"mtot/I");
-	tree->Branch("tabz",			tabz,		"tabz[mtot]/I");
-	
-	
-	levt = new TList(); snom.Form("TEventListFor_%s",tree->GetName());
-	levt->SetName(snom.Data());
-	levt->SetOwner(kTRUE);
-	
-	npar = 0;
-	
-	levt_collect = new TList();
-	levt_z1 = new TList();
-	
-	bsup = -100;
-	binf = Ndim;
-
-}
-
-void KVPartitionGenerator::Break_Using_Zf_Zinf_Criterion(Int_t Zfrag,Int_t Zinf){
-
-	Int_t mfmin = 1;
-	Int_t mfmax = Zfrag/Zinf;
-
-	for (Int_t Mfrag=mfmin;Mfrag<=mfmax;Mfrag+=1){
-		SetConditions(Zfrag,Mfrag,Zinf);
-		Process();
-	}
-
-}
-
-void KVPartitionGenerator::Break_Using_Zf_Zmax_Zinf_Criterion(Int_t Zfrag,Int_t Zmax,Int_t Zinf){
-
-	if (Zfrag==Zmax){	
-		SetConditions(Zfrag,1,Zinf);
-		Process();
-	}
-	else if (Zfrag-Zmax>=Zinf){
-		
-		Int_t mfmin=2;
-		Int_t np=0;
-		KVCouple* cp = new KVCouple(Zfrag,Zmax,mfmin);
-		np=cp->GetNbreCouples();
-		while (np<=0){
-			if (cp) delete cp; cp = 0;
-			mfmin+=1;
-			cp = new KVCouple(Zfrag,Zmax,mfmin);
-			np = cp->GetNbreCouples();
-		}
-		printf("a priori mfmin=%d OK\n",mfmin);
-		for (Int_t ii=0;ii<cp->GetNbreCouples();ii+=1){
-			printf("%d %d\n",cp->GetZ1(ii),cp->GetZ2(ii));
-		}
-		if (cp) delete cp; cp=0;
-		
-		
-		Int_t mfmax=((Zfrag-Zmax)/Zinf)+1;
-		np=0;
-		cp = new KVCouple(Zfrag,Zmax,mfmax);
-		np=cp->GetNbreCouples();
-		while (np<=0){
-			if (cp) delete cp; cp = 0;
-			mfmax-=1;
-			cp = new KVCouple(Zfrag,Zmax,mfmax);
-			np = cp->GetNbreCouples();
-		}
-		printf("a priori mfmax=%d OK\n",mfmax);
-		for (Int_t ii=0;ii<cp->GetNbreCouples();ii+=1){
-			printf("%d %d\n",cp->GetZ1(ii),cp->GetZ2(ii));
-		}
-		if (cp) delete cp; cp=0;
-		
-		
-		for (Int_t Mfrag=mfmin;Mfrag<=mfmax;Mfrag+=1){
-			mshift=1;
-			zshift=Zmax;
-			to_be_checked=kTRUE;
-			SetConditions(Zfrag-zshift,Mfrag-mshift,Zinf);
-			Process();
-		}
-		
-	}
-	else {
-		printf("%d %d ??? \n",Zfrag-Zmax,Zinf);
-	}
-}
-
-void KVPartitionGenerator::Break_Using_Mf_Zmax_Zinf_Criterion(Int_t Mfrag,Int_t Zmax,Int_t Zinf){
-
-	
-	Int_t zfmin = Zmax+(Mfrag-1)*Zinf; 
-	Int_t zfmax = Zmax*Mfrag;
-	
-	for (Int_t Zfrag=zfmin;Zfrag<=zfmax;Zfrag+=1){
-		mshift=1;
-		zshift=Zmax;
-		to_be_checked=kTRUE;
-		SetConditions(Zfrag-zshift,Mfrag-mshift,Zinf);
-		Process();
-	}
+//_______________________________________________________
+void KVPartitionGenerator::SetPathForFile(KVString path)
+{ 
+   // Defini le chemin ou les arbres seront ecris
+	//prevoir des zones pouvant recevoir de gros volumes de données
+	//si les calculs de partitions se fait a partir de grosse taille initiale
+	kwriting_path = path;
 	
 }
 
-void KVPartitionGenerator::Break_Using_Zf_Mf_Zinf_Criterion(Int_t Zfrag,Int_t Mfrag,Int_t Zinf){
-
-	SetConditions(Zfrag,Mfrag,Zinf);
+//_______________________________________________________
+void KVPartitionGenerator::MakePartitions(Int_t Ztot,Int_t Mtot,Int_t Zinf)
+{
+	//protected method
+	//Cree un fichier avec nom formate : 
+	// 	From_[ClassName]_Zt[Ztot]_Mt[Mtot]_Zm[Zinf].root
+	//
+	//Defini l'arbre ou seront enregistrees les partitions
+	//
+	//Determine toute les partitions pour un 
+	//couple donné de parametres : (Ztot, Mtot, Zinf)
+	//avec : 
+	//	-	Ztot -> taille totale de la partition
+	//	-	Mtot -> multiplicité de partition
+	//	-	Zinf -> taille minimale pour les fragments de la partition
+	//--------------------------------
+	//Enregistre l arbre et ferme le fichier
+	//
+	//Routine centrale de la classe appelée par toutes les methodes de type Break_Using...Criterion()
+	//
+	
+	SetConditions(Ztot,Mtot,Zinf);
+	
+	PreparTree();
+	
 	Process();
 	
+	WriteTreeAndCloseFile();
+
 }
 
-void KVPartitionGenerator::SetConditions(Int_t Zfrag,Int_t Mfrag,Int_t Zinf){
+//_______________________________________________________
+void KVPartitionGenerator::SetConditions(Int_t Ztot,Int_t Mtot,Int_t Zinf)
+{
+	//protected method
+	//Repercute les parametres passes via la methode SetConditions
+	//Prepare les tableaux necessaires
+	//
+	kzt = Ztot;
+	kmt = Mtot;
+	kzinf = Zinf;
+	
+	if (kcurrent) 
+		delete kcurrent;
+	kcurrent = new Int_t[kmt]; 
+	for (Int_t mm=0;mm<kmt;mm+=1) 
+		kcurrent[mm]=0;
+	
+	npar_zt_mt = 0;
 
-	
-	kzf = Zfrag;
-	kmf = Mfrag;
-	kzm = Zinf;
-	if (kcurrent) delete kcurrent;
-	kcurrent = new Int_t[kmf]; for (Int_t mm=0;mm<kmf;mm+=1) kcurrent[mm]=0;
-	
-	mtot = kmf+mshift;
-	if (mtot>ndim){
-		Warning("SetConditions","la multiplicité %d est superieure a la val max du tableau (%d)",mtot,ndim);
-	
-	}
-	ztot = kzf+zshift;
-	
-	if (mshift) tabz[0] = zshift;
-	
-	npar_zf_mf = 0;
-	
-	nl_zf->Add(ztot);
-	nl_mf->Add(mtot);
-	nl_zm->Add(kzm);
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::PreparTree()
+{
+	//protected method
+	//Creation du fichier formate suivant les parametres passes via la methode SetConditions
+	//Creation de l'arbre
 	
 	KVString snom;
-	snom.Form("ztot_%d_mtot_%d_zinf_%d",ztot,mtot,Zinf);
-	levt->Add( new TEventList(snom.Data(),tree->GetName()) );
-	evt = (TEventList* )levt->Last();
+	snom.Form("%sFrom_%s_Zt%d_Mt%d_Zi%d.root",kwriting_path.Data(),this->Class_Name(),ztot,mtot,kzinf);
+	TFile* file = new TFile(snom.Data(),"recreate");
+	flist->Add(new TNamed(file->GetName(),""));
+	tree = new TTree(tname.Data(),this->Class_Name());
 	
-	Int_t entries = levt_z1->GetEntries();
-	TEventList* e1=0;
-	for (Int_t nn=0;nn<entries;nn+=1){
-		e1 = (TEventList* )levt_z1->RemoveAt(0);
-		if (e1->GetN()>0){
-			levt_collect->Add(e1);
-			/*
-			if (nn>bsup) bsup=nn;
-			if (nn<binf) binf=nn;
-			*/
-		}
-		else {
-			delete e1;	
-		}
-	}
+	if (tabz) delete [] tabz;
 	
-	for (Int_t ii=0;ii<=ztot;ii+=1){
-		snom.Form("ztot_%d_mtot_%d_zmax_%d_zinf_%d",ztot,mtot,ii,Zinf);
-		levt_z1->Add(new TEventList(snom.Data(),tree->GetName()));
-	}
-}
+	mtot = kmt+mshift;
+	ztot = kzt+zshift;
+	
+	tabz = new Int_t[mtot];
+	
+	tree->Branch("ztot",	&ztot,	"ztot/I");
+	tree->Branch("mtot",	&mtot,	"mtot/I");
+	tree->Branch("tabz",	tabz,		"tabz[mtot]/I");
 
-void KVPartitionGenerator::TreatePartition(){
-		
-	npar_zf_mf += 1; 
-
-	tree->Fill();
-	evt->Enter(npar);
-	((TEventList* )levt_z1->At(tabz[0]))->Enter(npar);
-	
-	npar+=1;
+	if (mshift) tabz[0] = zshift;
 
 }
 
+//_______________________________________________________
+void KVPartitionGenerator::Process(void)
+{
+	//protected method
+	//Determine toute les partitions pour un 
+	//couple donné de parametres : (Ztot, Mtot, Zinf)
+	//avec : 
+	//	-	Ztot -> taille totale de la partition
+	//	-	Mtot -> multiplicité de partition
+	//	-	Zinf -> taille minimale pour les fragments de la partition
+	//
 
-void KVPartitionGenerator::Process(void){
-
-
-	if (kmf==1){
-		tabz[0+mshift] = kzf;
+	if (kmt==1){
+		tabz[0+mshift] = kzt;
 		TreatePartition();
-		
 		return;
 	}
 	
-	Int_t zutilise = (kmf*kzm);   
-  	Int_t zdispo = kzf-zutilise;
+	Int_t zutilise = (kmt*kzinf);   
+  	Int_t zdispo = kzt-zutilise;
 	
-	Int_t nb_cassure = kmf-1;
+	Int_t nb_cassure = kmt-1;
 	KVCouple* coup[nb_cassure];
 	Int_t ncouple[nb_cassure]; 
 	Int_t niter[nb_cassure]; 
@@ -307,7 +241,7 @@ void KVPartitionGenerator::Process(void){
 	for (nc=0;nc<nb_cassure;nc+=1){
 		
 		if (!coup[nc]) {
-			coup[nc] = new KVCouple(zdispo,zsup,kmf-nc);
+			coup[nc] = new KVCouple(zdispo,zsup,kmt-nc);
 			
 			ncouple[nc] = coup[nc]->GetNbreCouples();
 			niter[nc] = 0;
@@ -331,8 +265,8 @@ void KVPartitionGenerator::Process(void){
 			kcurrent[nc] = coup[nc]->GetZ1(niter[nc]);
 			kcurrent[nc+1] = coup[nc]->GetZ2(niter[nc]);
 			
-			for (Int_t ii=0;ii<kmf;ii+=1)
-				tabz[ii+mshift] = kcurrent[ii]+kzm;
+			for (Int_t ii=0;ii<kmt;ii+=1)
+				tabz[ii+mshift] = kcurrent[ii]+kzinf;
 			
 			if (to_be_checked) { 
 				if (tabz[0]>=tabz[mshift])	{
@@ -368,7 +302,7 @@ void KVPartitionGenerator::Process(void){
 			
 			for (Int_t ncbis=previous+1; ncbis<nb_cassure; ncbis+=1){	
 				if (!coup[ncbis]) {
-					coup[ncbis] = new KVCouple(zdispo,zsup,kmf-ncbis);
+					coup[ncbis] = new KVCouple(zdispo,zsup,kmt-ncbis);
 					
 					ncouple[ncbis] = coup[ncbis]->GetNbreCouples();
 					niter[ncbis] = 0;
@@ -385,44 +319,257 @@ void KVPartitionGenerator::Process(void){
 		}														  
 	}
 	
-	Info("Process","zfrag:%d en mfrag:%d avec zlim:%d donne %d combinaisons (total %d)",kzf,kmf,kzm,npar_zf_mf,npar);
+	Info("Process","ztot:%d en mtot:%d avec zinf:%d donne %lf combinaisons (total %lf)",kzt,kmt,kzinf,npar_zt_mt,npar);
 	
 
 }
 
-void KVPartitionGenerator::WriteInfo(){
 
-	tree->GetUserInfo()->Add(new TNamed("Ztot Range",nl_zf->GetName()));
-	tree->GetUserInfo()->Add(new TNamed("Mtot Range",nl_mf->GetName()));
-	tree->GetUserInfo()->Add(new TNamed("Zinf Range",nl_zm->GetName()));
+//_______________________________________________________
+void KVPartitionGenerator::BeforeBreak()
+{
+	//protected method
+	//Creation de la liste pour creation de la TChain
+	//stop du chrono
+	//
+	flist = new KVUniqueNameList(); flist->SetOwner(kTRUE);
+	Start();
+
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::AfterBreak()
+{
+	//protected method
+	//Permet de creer une TChain recapitulant tout les arbres
+	//crees et suvegardes lors de la determination de toutes les
+	//partitions par une des methodes BreakUsing_[Critere]_Criterion()
+	//stop du chrono
+	//
 	
-	TEventList* e1=0;
-	Int_t entries = levt_z1->GetEntries();
-	for (Int_t nn=0;nn<entries;nn+=1){
-		e1 = (TEventList* )levt_z1->RemoveAt(0);
-		if (e1->GetN()>0){
-			levt_collect->Add(e1);
-		}
-		else {
-			delete e1;	
-		}
+	Stop();
+	TFile* file = new TFile(cname.Data(),"recreate");
+	TChain* ch = new TChain(tname.Data());
+	TIter nf(flist);
+	TNamed* tn = 0;
+	while ( (tn = (TNamed* )nf.Next()) )
+		ch->AddFile(tn->GetName());
+	ch->Write();	
+	file->Close();
+	delete flist;
+
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::BreakUsing_Ztot_Zinf_Criterion(Int_t Ztot,Int_t Zinf,KVString chain_name,Int_t min,Int_t max)
+{
+	//Determine toutes les partitions pour :
+	//	-	une taille totale de la partition donnée (Ztot)
+	//	-	une taille minimale pour les fragments de la partition (Zinf)
+	// - le nom du fichier ou la TChain recapitulant tous les arbres crees va etre enregistree
+	// (par defaut, si chain_name=="", le nom de fichier est formate en fonction des arguments
+	//Les arguments min et max permettent de restreindre le calcul a une plage en multiplicité
+	//	si min==-1 (defaut) -> mfmin=1
+	//	si max==-1 (defaut) -> mfmax=Ztot/Zinf
+	cname = chain_name;
+	if (cname=="") cname.Form("Partitions_Zf%d_Zi%d.root",Ztot,Zinf);
+	BeforeBreak();
+	
+	Int_t mtmin = 1;
+	Int_t mtmax = Ztot/Zinf;
+	
+	if (min!=-1 && min<=mtmax) 
+		mtmin=min;
+	
+	if (max!=-1 && max<=mtmax && max>=mtmin) 
+		mtmax=max;
+	
+	for (Int_t Mtot=mtmin;Mtot<=mtmax;Mtot+=1){
+		MakePartitions(Ztot,Mtot,Zinf);
 	}
-	//nl_z1->SetMinMax(nl_zm->First(),nl_zf->Last());
-	tree->GetUserInfo()->Add(new TNamed("Zmax Range",nl_z1->GetName()));
+	
+	AfterBreak();
+	Info("BreakUsing_Ztot_Zinf_Criterion","%lf partitions crees en %d seconds",npar,GetDeltaTime());
 	
 }
 
-void KVPartitionGenerator::SaveAndCloseFile(){
+//_______________________________________________________
+void KVPartitionGenerator::BreakUsing_Ztot_Mtot_Zinf_Criterion(Int_t Ztot,Int_t Mtot,Int_t Zinf,KVString chain_name)
+{
+	//Determine toutes les partitions pour :
+	//	-	une taille totale de la partition donnée (Ztot)
+	//	-	une multiplicité de partition donnée (Mtot)
+	//	-	une taille minimale pour les fragments de la partition (Zinf)
+	// - le nom du fichier ou la TChain recapitulant tous les arbres crees va etre enregistree
+	// (par defaut, si chain_name=="", le nom de fichier est formate en fonction des arguments
+	cname = chain_name;
+	if (cname=="") cname.Form("Partitions_Zt%d_Mt%d_Zi%d.root",Ztot,Mtot,Zinf);
+	BeforeBreak();
+	
+	MakePartitions(Ztot,Mtot,Zinf);
+	
+	AfterBreak();
+	Info("BreakUsing_Ztot_Mtot_Zinf_Criterion","%lf partitions crees en %d seconds",npar,GetDeltaTime());
+	
+}
 
-	if (file && file->IsOpen()) {
-		file->cd();
-		if (tree && file->IsWritable()) {
-			Info("SaveAndCloseFile","Ecriture du fichier %s avec l'arbre %s (%d entrees)",file->GetName(),tree->GetName(),tree->GetEntries());
-			
-			file->Write();
+//_______________________________________________________
+void KVPartitionGenerator::BreakUsing_Ztot_Zmax_Zinf_Criterion(Int_t Ztot,Int_t Zmax,Int_t Zinf,KVString chain_name)
+{
+	//Determine toutes les partitions pour :
+	//	-	une taille totale de la partition donnée (Ztot)
+	//	-	une taille donnée du plus gros fragment de la partition (Zmax)
+	//	-	une taille minimale pour les fragments de la partition (Zinf)
+	// - le nom du fichier ou la TChain recapitulant tous les arbres crees va etre enregistree
+	// (par defaut, si chain_name=="", le nom de fichier est formate en fonction des arguments
+	cname = chain_name;
+	if (cname=="") cname.Form("Partitions_Zt%d_Zm%d_Zi%d.root",Ztot,Zmax,Zinf);
+	BeforeBreak();
+	
+	if (Ztot==Zmax){	
+		MakePartitions(Ztot,1,Zinf);
+	}
+	else if (Ztot-Zmax>=Zinf){
+		
+		Int_t mfmin=2;
+		Int_t np=0;
+		KVCouple* cp = new KVCouple(Ztot,Zmax,mfmin);
+		np=cp->GetNbreCouples();
+		while (np<=0){
+			if (cp) delete cp; cp = 0;
+			mfmin+=1;
+			cp = new KVCouple(Ztot,Zmax,mfmin);
+			np = cp->GetNbreCouples();
 		}
-		Info("SaveAndCloseFile","Fermeture de %s",file->GetName());
-		file->Close();
+		printf("a priori mfmin=%d OK\n",mfmin);
+		for (Int_t ii=0;ii<cp->GetNbreCouples();ii+=1){
+			printf("%d %d\n",cp->GetZ1(ii),cp->GetZ2(ii));
+		}
+		if (cp) delete cp; cp=0;
+		
+		
+		Int_t mfmax=((Ztot-Zmax)/Zinf)+1;
+		np=0;
+		cp = new KVCouple(Ztot,Zmax,mfmax);
+		np=cp->GetNbreCouples();
+		while (np<=0){
+			if (cp) delete cp; cp = 0;
+			mfmax-=1;
+			cp = new KVCouple(Ztot,Zmax,mfmax);
+			np = cp->GetNbreCouples();
+		}
+		printf("a priori mfmax=%d OK\n",mfmax);
+		for (Int_t ii=0;ii<cp->GetNbreCouples();ii+=1){
+			printf("%d %d\n",cp->GetZ1(ii),cp->GetZ2(ii));
+		}
+		if (cp) delete cp; cp=0;
+		
+		
+		for (Int_t Mtot=mfmin;Mtot<=mfmax;Mtot+=1){
+			mshift=1;
+			zshift=Zmax;
+			to_be_checked=kTRUE;
+			MakePartitions(Ztot-zshift,Mtot-mshift,Zinf);
+		}
 		
 	}
+	else {
+		printf("%d %d ??? \n",Ztot-Zmax,Zinf);
+	}
+
+	AfterBreak();
+	Info("BreakUsing_Ztot_Zmax_Zinf_Criterion","%lf partitions crees en %d seconds",npar,GetDeltaTime());
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::BreakUsing_Mtot_Zmax_Zinf_Criterion(Int_t Mtot,Int_t Zmax,Int_t Zinf,KVString chain_name)
+{
+	//Determine toutes les partitions pour :
+	//	-	une multiplicité de partition donnée (Mtot)
+	//	-	une taille donnée du plus gros fragment de la partition (Zmax)
+	//	-	une taille minimale pour les fragments de la partition (Zinf)
+	// - le nom du fichier ou la TChain recapitulant tous les arbres crees va etre enregistree
+	// (par defaut, si chain_name=="", le nom de fichier est formate en fonction des arguments
+	cname = chain_name;
+	if (cname=="") cname.Form("Partitions_Mt%d_Zm%d_Zi%d.root",Mtot,Zmax,Zinf);
+	BeforeBreak();
+	
+	Int_t ztmin = Zmax+(Mtot-1)*Zinf; 
+	Int_t ztmax = Zmax*Mtot;
+	
+	for (Int_t Ztot=ztmin;Ztot<=ztmax;Ztot+=1){
+		mshift=1;
+		zshift=Zmax;
+		to_be_checked=kTRUE;
+		MakePartitions(Ztot-zshift,Mtot-mshift,Zinf);
+	}
+	
+	AfterBreak();
+	Info("BreakUsing_Mtot_Zmax_Zinf_Criterion","%lf partitions crees en %d seconds",npar,GetDeltaTime());
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::TreatePartition()
+{
+	//Rempli l arbre avec la partition courante	
+	//Incremente les compteurs sur le nombre de particules creees
+	tree->Fill();
+	
+	npar_zt_mt += 1; 
+	npar+=1;
+
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::WriteTreeAndCloseFile()
+{
+	//Test le fichier courant (pointeur gFile)
+	//Si tout va bien
+	//Ecriture de l arbre dans le fichier (tout deux definis dans PreparTree)
+	//et ajout du nom de fichier
+	//dans une liste permettant de generer la TChain en fin de processus
+	//
+	if (gFile && gFile->IsOpen()){
+	
+		if (tree && gFile->IsWritable()) {
+			
+			Info("WriteTreeAndCloseFile","Ecriture du fichier:\n%s avec l'arbre:\n %s (%d entrees)",gFile->GetName(),tree->GetName(),tree->GetEntries());
+			tree->ResetBranchAddresses();
+			flist->Add(new TNamed(gFile->GetName(),""));
+			gFile->Write();
+		}
+		gFile->Close();
+	}
+
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::Start()
+{
+	//protected method
+	//Signal start
+	TDatime time;
+	tstart = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
+
+}
+
+//_______________________________________________________
+void KVPartitionGenerator::Stop()
+{
+	//protected method
+	//Signal stop
+	TDatime time;
+	tstop = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
+	tellapsed = tstop-tstart;
+
+}
+
+//_______________________________________________________
+Int_t KVPartitionGenerator::GetDeltaTime()
+{
+	//protected method
+	//Retoune le temps ecoules (en seconde)
+	//entre un appel Start() et un appel Stop()
+	return tellapsed;
+
 }

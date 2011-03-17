@@ -34,7 +34,7 @@ void test{
 
 KVBreakUp* bu = new KVBreakUp();
 bu->SetConditions(80,6,5);
-bu->StorePartitions();
+bu->StorePartitions(kFALSE);
 bu->BreakNtimes(10000);
 
 bu->DrawPanel();
@@ -50,8 +50,9 @@ bu->SaveHistos("essai.root","","update")
 
 void KVBreakUp::init(void)
 {
-
-	//Condition initiale de la cassure Ztot,Mtot,Zlim
+	//Initialisation des variables
+	//appele par le constructeur
+	
 	Ztotal=0;
 	bound = 0;
 	SetConditions(0,0,0);
@@ -80,15 +81,20 @@ void KVBreakUp::init(void)
 
 //_______________________________________________________
 KVBreakUp::KVBreakUp(Int_t taille_max)
-{ 
+{ 	
+	//Constructeur, l'argument taille_max correspond
+	//a la taille maximale du tableau ou sont enregistrees
+	//les produits de la cassure (par defaut 5000)
+	//Ce qui correspond a la cassure en 5000 morceaux max
 	size_max=taille_max;
 	size = new Int_t[size_max];
 	init();
 }
 	
 //_______________________________________________________
-KVBreakUp::~KVBreakUp(){
-	
+KVBreakUp::~KVBreakUp()
+{
+	//Destructeur	
 	delete alea;
 	delete lhisto;
 	delete lobjects;
@@ -101,8 +107,11 @@ KVBreakUp::~KVBreakUp(){
 			
 }
 //_______________________________________________________
-void KVBreakUp::Clear(Option_t* opt){
-
+void KVBreakUp::Clear(Option_t* opt)
+{
+	//Remet a zero les compteurs
+	//Efface les partitions enregistrees
+	//Le contenu des histos
 	KVPartitionList::Clear(opt);
 	ResetTotalIterations();
 	ResetHistos();
@@ -110,12 +119,12 @@ void KVBreakUp::Clear(Option_t* opt){
 }
 
 //_______________________________________________________
-void KVBreakUp::DefineHistos(){
-	
+void KVBreakUp::DefineHistos()
+{
 	//Definition des histogrammes
 	//A redefinir si besoin dans les classes filles
-	
 	//A Remplir dans la methode TreatePartition()
+	
 	hzt = new TH1F("KVBreakUp_hzt","h ztotal",200,-0.5,199.5);	lhisto->Add(hzt);
 	hmt = new TH1F("KVBreakUp_hmt","h mtotal",200,-0.5,199.5);	lhisto->Add(hmt);
 }
@@ -138,7 +147,7 @@ void KVBreakUp::SetMtot(Int_t mt)
 { 
 	//Protected method	
 	if (mt>size_max) {
-		Warning("SetMtot","%d -> La multiplicite max (%d) est depassee",mt,size_max);
+		Error("SetMtot","%d -> La multiplicite max (%d) est depassee",mt,size_max);
 		exit(EXIT_FAILURE);
 	}
 	Mtotal=mt; 
@@ -698,6 +707,7 @@ void KVBreakUp::SaveHistos(KVString filename,KVString suff,Option_t* option)
 //_______________________________________________________
 void KVBreakUp::Print(Option_t* option) const
 {
+	//Comme c'est écrit
 	Info("Print","Configuration for the break up");
 	printf(" Ztot=%d - Mtot=%d - Zmin=%d\n",GetZtot(),GetMtot(),GetZmin());
 	printf(" Charge to be distributed %d - Biggest possible charge %d\n",nbre_nuc,Zmin+nbre_nuc);
