@@ -29,8 +29,6 @@ $Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
 class KVChIo;
 class KVDBParameterSet;
 
-Double_t ELossSiPHD(Double_t * x, Double_t * par);
-
 class KVSilicon:public KVINDRADetector {
 
  protected:
@@ -52,7 +50,7 @@ class KVSilicon:public KVINDRADetector {
  public:
 
     KVSilicon();
-    KVSilicon(Float_t thick);
+    KVSilicon(Float_t thick /* um */);
     virtual ~ KVSilicon();
 
    Double_t GetVoltsFromCanalPG(Double_t chan = 0.0);
@@ -90,8 +88,6 @@ class KVSilicon:public KVINDRADetector {
    };
 
    Double_t GetPHD(Double_t Einc, UInt_t Z);
-   Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
-   virtual void SetELossParams(Int_t Z, Int_t A);
 
    inline Bool_t IsCalibrated() const;
 
@@ -100,7 +96,19 @@ class KVSilicon:public KVINDRADetector {
    void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
    Int_t GetZminPHD() { return fZminPHD; };
    virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
+   virtual TF1* GetELossFunction(Int_t Z, Int_t A);
 
+   virtual void SetThickness(Double_t thick /* um */)
+   {
+      // Sets thickness of active layer in microns
+      GetActiveLayer()->SetThickness(thick*KVUnits::um);
+   };
+   virtual Double_t GetThickness() const /* um */
+   {
+      // Returns thickness of active layer in microns
+      return GetActiveLayer()->GetThickness()/KVUnits::um;
+   };
+   
    ClassDef(KVSilicon, 7)       //INDRA forward-rings silicon detector
 };
 

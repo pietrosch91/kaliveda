@@ -321,7 +321,7 @@ void KVPartitionList::SaveAsTree(const Char_t* filename,const Char_t* treename,B
  	
 	TFile* file = new TFile(filename,option);
 	TTree* tt = 0;
-	if ( (tt = GenereTree(treename) ) tt->Write();
+	if ( (tt = GenereTree(treename)) ) tt->Write();
 	file->Close();
 }
 

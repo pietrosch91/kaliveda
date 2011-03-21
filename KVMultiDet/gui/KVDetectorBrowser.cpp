@@ -29,11 +29,11 @@ KVDetectorBrowser::KVDetectorBrowser(const TGWindow * p,
    widg->SetWidget(fCombo);
    AddToWidgetList(widg);
    // fill list with all available materials
-   KVList *mat_list = fDet->GetListOfMaterials();
+   TObjArray *mat_list = fDet->GetRangeTable()->GetListOfMaterials();
    TIter next_mat(mat_list);
-   KVMaterial *mat;
+   TNamed *mat;
    Int_t i = 0, iselect = -1;
-   while ((mat = (KVMaterial *) next_mat())) {
+   while ((mat = (TNamed *) next_mat())) {
       if (!strcmp(mat->GetName(), fDet->GetMaterialName()))
          iselect = i;
       fCombo->AddEntry(mat->GetName(), i++);

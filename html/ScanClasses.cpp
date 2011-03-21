@@ -103,6 +103,7 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("particles", "Particles & Nuclei"));
 	fClassTitles->Add( new KVBase("events", "Multiparticle Events"));
 	fClassTitles->Add( new KVBase("detectors", "Absorbers, Targets & Detectors"));
+	fClassTitles->Add( new KVBase("stopping", "Stopping Power & Range Tables for Heavy Ions"));
 	fClassTitles->Add( new KVBase("geometry", "Multidetector Geometry"));
 	fClassTitles->Add( new KVBase("indra", "INDRA Multidetector Array"));
 	fClassTitles->Add( new KVBase("data_management", "Data Management"));

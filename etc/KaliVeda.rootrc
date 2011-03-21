@@ -683,6 +683,13 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 #
 #
 
+# Plugins for calculation of range & energy loss of charge particles in matter.
+# Each class must derive from KVIonRangeTable abstract base class.
+Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
+
+# Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
+KVMaterial.IonRangeTable:   VEDALOSS
+
 # Default name for TEnv-format file containing real thicknesses of detectors
 # in multidetector arrays defined for datasets.
 # See KVMultiDetArray::SetDetectorThicknesses for file format.
@@ -690,11 +697,21 @@ KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
 # Special names for special datasets:
 INDRA_camp5.KVMultiDetArray.DetectorThicknesses:	EtalonThicknessCamp5.dat
 
+# KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
+KVPulseHeightDefect.EnergyLoss.Npx:        20
 # Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
 KVSilicon.ZminForPHDCorrection:        10
 
-# File containing range tables for calculation of energy losses in KVMaterial
-KVMaterial.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# File containing range tables for calculation of energy losses in KVedaLoss
+KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# TF1::fNpx parameter for TF1 range, energy loss, residual energy
+KVedaLoss.Range.Npx:         20
+KVedaLoss.EnergyLoss.Npx:         50
+KVedaLoss.ResidualEnergy.Npx:         20
+
+# KVDetector: TF1::fNpx parameter for TF1 energy loss & residual energy
+KVDetector.EnergyLoss.Npx:         20
+KVDetector.ResidualEnergy.Npx:         50
 
 # LifeTime tables used by KVNDTManager
 KVNDTManager.LifeTimeTable:       KVLifeTimeTable

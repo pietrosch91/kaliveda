@@ -268,7 +268,7 @@ void KVReconstructedEvent::IdentifyEvent()
    KVReconstructedNucleus *d;
    while ((d = GetNextParticle())) {
       if (!d->IsIdentified()){
-         if(d->GetStatus() == 0) {
+         if(d->GetStatus() < 3) { // if(d->GetStatus() == 0)
             // identifiable particles
             d->Identify();
          }

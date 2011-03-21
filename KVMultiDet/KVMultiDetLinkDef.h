@@ -17,6 +17,7 @@
 #pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
+#pragma link C++ namespace KVUnits;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma extra_include "Rtypes.h";
@@ -126,19 +127,13 @@
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;
-#pragma link C++ class KVMaterial-;
+#pragma link C++ class KVMaterial+;
 #pragma link C++ class KVMemoryChunk+;
 #pragma link C++ class KVMemoryPool+;
 #pragma link C++ class KVModule+;
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
 #pragma link C++ class KVNucleus+;
-/*
-#pragma link C++ class KVMassTable+;
-#pragma link C++ class PACE2MassTable+;
-#pragma link C++ class PACE2Map::value+;
-#pragma link C++ class PACE2Map::key+;
-*/
 #pragma link C++ class KVNumberList+;
 #pragma link C++ class KVParticle+;
 #pragma link C++ class KVParticleCondition+;
@@ -264,4 +259,7 @@
 #pragma link C++ class KVAbundanceTable+;
 #pragma link C++ class KVMassExcessTable+;
 #pragma link C++ class KVNDTManager+;
+#pragma link C++ class KVIonRangeTable+;
+#pragma link C++ class KVedaLossMaterial+;
+#pragma link C++ class KVedaLoss+;
 #endif

@@ -674,6 +674,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
       if( e1< 0.0 ) e1 = 0.0;
       else{
          d1->SetEnergyLoss(e1);
+         d1->SetEResAfterDetector(e2);
          e1 = d1->GetCorrectedEnergy(z,a);
          //status code
          fCalibStatus = kCalibStatus_Calculated;
@@ -706,7 +707,9 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    else if(d2){//2nd detector is calibrated too: get corrected energy loss
 
       e2 = d2->GetCorrectedEnergy(z, a, -1, kFALSE);//N.B.: transmission=kFALSE because particle assumed to stop in d2
-
+		// recalculate corrected energy in first stage using info on Eres
+		d1->SetEResAfterDetector(e2);
+      e1 = d1->GetCorrectedEnergy(z, a);
    }
 
    //incident energy of particle (before 1st member of telescope)
@@ -736,6 +739,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
             //significantly larger, there may be a second particle.
             e1 = det->GetDeltaEFromERes(z,a,einc);
             if( e1< 0.0 ) e1 = 0.0;
+            det->SetEResAfterDetector(einc);
             dE = det->GetCorrectedEnergy(z,a);
             einc += dE;
          }
@@ -763,6 +767,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
                //status code
                fCalibStatus = kCalibStatus_Calculated;
             }
+            det->SetEResAfterDetector(einc);
             e1 = det->GetCorrectedEnergy(z,a,e1);
             einc += e1;
          }
@@ -840,8 +845,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 
       		Double_t E1, E2;
       		//find E1
-      		//go from 0.1 MeV to chio->GetBraggE(part.GetZ(),part.GetA()))
-      		Double_t E1min = 0.1, E1max = det_de->GetBraggE(zzz,aaa);
+      		//go from 0.1 MeV to chio->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
+      		Double_t E1min = 0.1, E1max = det_de->GetEIncOfMaxDeltaE(zzz,aaa);
       		E1 = (E1min + E1max) / 2.;
 
 				while ((E1max - E1min) > 0.1) {
@@ -864,8 +869,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
       		}
 
       		//add point to Bragg line
-      		Double_t dE_B = det_de->GetBraggDE(zzz, aaa);
-      		Double_t E_B = det_de->GetBraggE(zzz, aaa);
+      		Double_t dE_B = det_de->GetMaxDeltaE(zzz, aaa);
+      		Double_t E_B = det_de->GetEIncOfMaxDeltaE(zzz, aaa);
       		Double_t Eres_B = det_de->GetERes(zzz, aaa, E_B);
       		B_line->SetPoint(npoi_bragg++, Eres_B, dE_B);
 
