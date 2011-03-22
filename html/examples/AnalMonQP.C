@@ -205,8 +205,8 @@ Bool_t AnalMonQP::Analysis(void)
  // On va faire la boucle sur les particules associees au QP
  KVINDRAReconNuc *part=0;
   
- while( (part=GetEvent()->GetNextParticle("QP"))) // On peut utiliser ceci car on a appele "QP" toutes les particules associees
-                                                  // au QP dans le KVQPsource.
+ while( (part=GetEvent()->GetNextParticle("QPsource"))) // On peut utiliser ceci car on a mis dans le groupe "QPsource"
+	 																	// toutes les particules associees au QP dans le KVQPsource.
   {
   // On verifie que c'est un alpha
   if((part->GetZ() == 2 && part->GetA() == 4))
