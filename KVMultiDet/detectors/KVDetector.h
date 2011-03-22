@@ -89,6 +89,7 @@ class KVDetector:public KVMaterial {
    TF1* fEResF; //! parametric function Eres residual energy after all layers of detector
    
    Double_t fEResforEinc;//! used by GetIncidentEnergy & GetCorrectedEnergy
+   TList* fAlignedDetectors[2];//! stores lists of aligned detectors in both directions
 
  public:
     KVDetector();
@@ -299,6 +300,8 @@ class KVDetector:public KVMaterial {
    };
    
    virtual void ReadDefinitionFromFile(const Char_t*);
+   
+   virtual TList* GetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };

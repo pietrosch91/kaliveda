@@ -1,11 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
   <title>KaliVeda data analysis framework</title>
   <link rel="stylesheet" href="css/general.css" type="text/css">
   <link rel="stylesheet" href="css/nav_menu.css" type="text/css">
   <link rel="stylesheet" href="css/faq.css" type="text/css">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta content="J.D. Frankland, GANIL (France)" name="author">
   <link rel="icon" href="images/favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="images/favicon.ico"
@@ -24,16 +24,32 @@ these is now obsolete!!! (KaliVeda v1.5.7)</span><br>
 <ol>
   <li><a
  href="http://indra.in2p3.fr/KaliVedaDoc/.Formation/PDF/KaliVedaIntro.pdf">A
-Quick and Easy Introduction to KaliVeda</a></li>
+Quick
+and
+Easy
+Introduction
+to KaliVeda</a></li>
   <li><a
  href="http://indra.in2p3.fr/KaliVedaDoc/.Formation/PDF/KaliVedaRawAnalysisAndCalibration.pdf">Analysing
-Raw Data: How to Perform and Implement Calibrations</a></li>
+Raw
+Data:
+How
+to
+Perform and Implement Calibrations</a></li>
   <li><a
  href="http://indra.in2p3.fr/KaliVedaDoc/.Formation/PDF/KaliVedaReconAnalysisAndIdentification.pdf">Analysing
-Reconstructed Data: How to Perform and Implement Particle Identification</a></li>
+Reconstructed
+Data:
+How
+to
+Perform and Implement Particle Identification</a></li>
   <li><a
  href="http://indra.in2p3.fr/KaliVedaDoc/.Formation/PDF/KVVarGlob-en.pdf">KVSelector,
-KVVarGlob and KVTrieur: The Dream Team for Data Analyses of INDRA
+KVVarGlob
+and
+KVTrieur:
+The
+Dream Team for Data Analyses of INDRA
 Experiments with ROOT/KaliVeda</a><br>
   </li>
 </ol>
@@ -63,8 +79,8 @@ detectors of INDRA</a></li>
 associated to any detector of INDRA</a></li>
   <li><a href="#axes_idtel">INDRA identification telescopes</a></li>
   <li><a href="#indra4">Checking particle identifications</a></li>
-  <li><a href="#id_grids">Particle identification using grids</a></li>
-  <li><a href="#tgid">Particle identification using functionals</a></li>
+  <li><a href="#tgid">Particle identification using Tassan-Got
+functionals</a></li>
   <li><a href="#addclass">Adding a class to KaliVeda</a><span
  style="color: rgb(255, 0, 0); font-weight: bold; font-style: italic;">
     <br>
@@ -94,16 +110,13 @@ everything except the variables that you customize.<br>
 (N.B.: the same remarks are true for $ROOTSYS/etc/system.rootrc and
 your personal .rootrc).<br>
 </p>
-<p>The aspects which can be configured in your $HOME/.kvrootrc are:<br>
+<p>To find out what can be configured in your $HOME/.kvrootrc, see the <a
+ href="kvrootrc.html">Configuration</a> page, read the comments in <a
+ href="examples/KaliVeda.rootrc.html">$KVROOT/KVFiles/.kvrootrc</a>,
+and see the documentation of individual classes and methods which rely
+on this file.
 </p>
 <ol>
-  <li>Data repository configuration (obligatory for data analysis)</li>
-  <li>Default dataset list, analysis task and user groups files</li>
-  <li>Default format of runfile names for different datasets</li>
-  <li>Default filenames used to construct databases</li>
-  <li>Define multidetector and database for different datasets</li>
-  <li>Define identification telescope classes for different datasets<br>
-  </li>
 </ol>
 <h3><a name="lists"></a>Using lists of objects: what makes ROOT so
 powerful</h3>
@@ -205,7 +218,8 @@ object from a list is by using its name:</p>
 <div class="code">
 TObject *obj = <a
  href="http://root.cern.ch/html/TList.html#TList:FindObject">stuff-&gt;FindObject(
-"h1" )</a>; // get object with name
+"h1"
+)</a>; // get object with name
 "h1"</div>
 <p>
 But you can also use the index of the object in the list, if you know
@@ -213,7 +227,8 @@ that the first object's index is 0 and remembering that the index
 increases in the order that objects are added to the list:</p>
 <div class="code">
 TObject* obj = <a href="http://root.cern.ch/html/TList.html#TList:At">stuff-&gt;At(
-0 )</a>; // get first object in list, i.e. the
+0
+)</a>; // get first object in list, i.e. the
 histogram "h1"</div>
 <p>Notice that, as we said before, the objects in the list can be of
 any type, but they must inherit from TObject: therefore, when
@@ -270,22 +285,23 @@ TObject is a base class of TH1F, TH1F "inherits from" TObject<br>
 to test every object you use in e.g. a loop over the contents of a list
 - as long as all the objects in the list have a common base class (not
 necessarily TObject, although it must be derived from TObject).</p>
-<p>Consider a list of detectors which are objects of the classes <a
+<p>Consider a list of INDRA detectors which are objects of the classes <a
  href="KVChIo.html">KVChIo</a>,
 <a href="KVSilicon.html">KVSilicon</a> and <a href="KVCsI.html">KVCsI</a>.
-Each type of detector has its own particularities,
+Each
+type
+of
+detector
+has its own particularities,
 but the properties shared in common by <em>all</em> detectors are
 described by the base class <a href="KVDetector.html">KVDetector</a>,
 from which each of the three
 previous classes inherits. The <a
  href="KVDetector.html#KVDetector:GetCorrectedEnergy">GetCorrectedEnergy()</a>
-method is defined for the KVDetector class (it doesn't actually do
-anything), so
+method is defined for the KVDetector class, so
 we can always use it if all the objects in the list inherit from
-KVDetector. But this method has been <em>redefined </em>for each of
-the three
-classes KVChIo, KVSilicon and KVCsI: for each type of detector, the
-method does something completely different (see the class
+KVDetector. But this method has been <em>redefined </em>for the
+class KVCsI (see the class
 documentation). In order to use the
 GetCorrectedEnergy() method corresponding to the class of each detector
 in the list, you just need
@@ -299,7 +315,8 @@ detector
 </div>
 <p>Each time that <code>det-&gt;GetCorrectedEnergy(Z,A)</code> is
 executed, the actual method that is called depends on the class of the
-object to which 'det' is pointing. This is called polymorphism.<br>
+object to which 'det' is pointing. This is called <a
+ href="http://en.wikipedia.org/wiki/Polymorphism_in_object-oriented_programming">polymorphism</a>.<br>
 </p>
 <h4>6. Looping over the objects in the list</h4>
 <p>There are several ways to run through the objects in the list (see <a
@@ -332,7 +349,8 @@ detector_list-&gt;R__FOR_EACH(KVDetector, DetectParticle)(nuc)&nbsp; //
 'nuc' is a pointer to a KVNucleus particle object<br>
 </div>
 <p>This will loop over the detectors in the list and calculate the
-energy loss of the particle in each one in turn. Please feel free to be
+energy loss of the particle in each one in turn, taking into account
+the energy losses in the preceding detectors. Please feel free to be
 impressed that this can be achieved with <em>one line of code!</em>
 </p>
 <h3><a name="strings"></a>Using strings, generating histogram names,
@@ -505,7 +523,7 @@ valid:</p>
 KVNucleus a(6,12), b(0,1); // 'a' is a carbon-12, 'b' is a neutron<br>
 KVNucleus c = a + b; // 'c' is the result of adding a neutron to
 carbon-12<br>
-c.GetExcitationEnergy(); // gives the Q-value of the reaction (4.946
+c.GetExcitEnergy(); // gives the Q-value of the reaction (4.946
 MeV)
 </div>
 <p>
@@ -522,12 +540,12 @@ b.SetEnergy(14.0); // set neutron energy to 14MeV<br>
 KVNucleus d = a + b; // 'd' now results from fusion of 14MeV neutron
 with 12C<br>
 d.Print();<br>
-KVNucleus Z=6 A=13 KE=1.09402 E*=17.8524 Theta=0 Phi=0
+KVNucleus Z=6 A=13 KE=1.0908 E*=17.8555 Theta=0 Phi=0
 </div>
 <p>
-the resulting nucleus d has the appropriate recoil energy (1.094 MeV)
+the resulting nucleus d has the appropriate recoil energy (1.09 MeV)
 as well as
-excitation energy.<br>
+excitation energy (17.9 MeV).<br>
 See also <a href="#nuclei3">"How can I calculate the kinematics of a
 nuclear reaction ?"</a>
 </p>
@@ -583,10 +601,15 @@ TVector3 vcm = kinematics-&gt;GetCMVelocity();
 </div>
 <!-- How can I simulate the response of a detector or group of detectors to the passage of a charged particle ? -->
 <h3><a name="simul1"></a>Simulate passage of a charged particle through
-a detector or group of detectors</h3>
+a group of detectors in an array<br>
+</h3>
 <p>
 Use <a href="KVMultiDetArray.html#KVMultiDetArray:DetectParticleIn">KVMultiDetArray::DetectParticleIn</a>.
-This function takes as its argument the name of the detector in which
+This
+function
+takes
+as
+its argument the name of the detector in which
 you want the particle to be detected, and a pointer to a <a
  href="KVNucleus.html">KVNucleus</a>
 describing the particle in
@@ -609,41 +632,62 @@ KVINDRA pointer gIndra can also be used, but the methods presented here
 are completely general and valid for any KVMultiDetArray) :
 </p>
 <div class="code">
-KVNucleus *carbon = new KVCarbon(6,12);<br>
+KVNucleus *carbon = new KVNucleus(6,12);<br>
 carbon-&gt;SetEnergy(50);<br>
 gMultiDetArray-&gt;DetectParticleIn("CSI_0201", carbon);
 </div>
 <p>
-In order to see the detectors hit by the particle, you need to retrieve
-the <a href="KVDetectorEvent.html">KVDetectorEvent</a>
-(list of <a href="KVGroup.html">groups</a>
-hit by particles in an event) :
+In order to obtain the calculated energy loss <span
+ style="font-weight: bold;">in the active layer</span> of each detector
+hit by the particle, you can (if you know which detectors are
+concerned) retrieve the address of each detector in turn by using
+gMultiDetArray-&gt;GetDetector("name"):<br>
 </p>
 <div class="code">
-KVDetectorEvent *kvde = gMultiDetArray-&gt;GetDetectorEvent();<br>
-kvde-&gt;Print();<br>
+KVDetector* det1 = gMultiDetArray-&gt;GetDetector("CI_0201")<br>
+det1-&gt;GetEnergy()<br>
 <br>
-KVDetectorEvent<br>
---------------<br>
+(Double_t)3.05361599534978723e+00<br>
 <br>
-Groups hit: 1<br>
+gMultiDetArray-&gt;GetDetector("SI_0201")-&gt;Print("data")<br>
 <br>
-CI_0201 -- E=3.01667&nbsp;CI_0201_GG=0&nbsp; CI_0201_PG=0&nbsp;
-CI_0201_T=110<br>
-SI_0201 -- E=44.8569&nbsp;SI_0201_GG=0&nbsp; SI_0201_PG=0&nbsp;
-SI_0201_T=110
+SI_0201 -- E=44.7961&nbsp; SI_0201_GG=-1/0&nbsp; SI_0201_PG=-1/0&nbsp;
+SI_0201_T=-1/0<br>
 </div>
 <p>
-As you can see, unsurprisingly in this example, although the carbon
-nucleus was destined for CSI_0201, it did not have sufficient energy to
-reach it.<br>
-<br>
-To reset the energy losses in all the detectors and the target to zero,
-use <a href="KVMultiDetArray.html#KVMultiDetArray:Clear">gMultiDetArray-&gt;Clear()</a>.
-<br>
-<b>The KVDetectorEvent object must be deleted after use in order to
-avoid memory leaks.</b>
+If you don't know a priori which detectors of the array are concerned,
+you can obtain the list of detectors geometrically aligned
+with e.g. "CSI_0201" and print the energy losses in each one like so
+(only for KaliVeda v1.8.1 and later):<br>
 </p>
+<div class="code">
+gMultiDetArray-&gt;GetDetector("CSI_0201")-&gt;GetAlignedDetectors()-&gt;Print("data")<br>
+<br>
+Collection name='TList', class='TList', size=3<br>
+&nbsp;CSI_0201 -- H=0 -- E=0&nbsp; CSI_0201_R=-1/0&nbsp;
+CSI_0201_L=-1/0&nbsp; CSI_0201_T=-1/0<br>
+&nbsp;SI_0201 -- E=44.7961&nbsp; SI_0201_GG=-1/0&nbsp;
+SI_0201_PG=-1/0&nbsp; SI_0201_T=-1/0&nbsp; <br>
+&nbsp;CI_0201 -- E=3.05362&nbsp; CI_0201_GG=-1/0&nbsp;
+CI_0201_PG=-1/0&nbsp; CI_0201_T=-1/0<br>
+</div>
+<p>As you can see, unsurprisingly in this example, although the carbon
+nucleus was destined for 'CSI_0201', it did not have sufficient energy
+to
+reach it. Note that the sum of the energy losses in 'CI_0201' and
+'SI_0201' does not equal the total (50 MeV) lost by the particle:
+energy losses in detectors only correspond to their <span
+ style="font-weight: bold;">active layer</span> (in the case of silicon
+detectors, if the parametrisation of the detector's PHD has been
+defined, it is also taken into account). In this example, the remaining
+unaccounted 2.15 MeV were lost in the Mylar windows of the ionisation
+chamber.<br>
+<br>
+To reset the energy losses in all the detectors and the target to zero
+before "detecting" another particle,
+use <a href="KVMultiDetArray.html#KVMultiDetArray:Clear">gMultiDetArray-&gt;Clear()</a>.
+<b><br>
+</b></p>
 <!-- How to get particle velocities etc. in the frame associated with the eigenvectors of the CM momentum tensor ? -->
 <h3><a name="frame_tensor"></a>Using different Lorentz frames to
 describe reactions</h3>
@@ -679,8 +723,12 @@ method with the name of the frame.<br>
 </p>
 <p><span style="font-weight: bold;">NOTE:</span> when analysing INDRA
 data using an analysis class derived from <a href="KVSelector.html">KVSelector</a>,
-the centre of
-mass frame corresponding to the analysed system is automatically
+the
+centre
+of
+mass
+frame
+corresponding to the analysed system is automatically
 defined for you: to use it in your <code>Analysis()</code> method:<br>
 </p>
 <div class="code">
@@ -717,7 +765,11 @@ of mass frame for the current system is:<br>
 //TVector3 vcm =
 gIndra-&gt;GetSystem()-&gt;GetKinematics()-&gt;GetCMVelocity();<br>
 event-&gt;<a href="KVEvent.html#KVEvent:SetFrame">SetFrame</a>("tensor",
-vcm, rot ); // define "tensor" frame with CM velocity and rotation of
+vcm,
+rot
+);
+//
+define "tensor" frame with CM velocity and rotation of
 axes
 </div>
 <p>Or, as the centre of mass frame already exists (when analysing INDRA
@@ -726,7 +778,11 @@ the rotation to the centre of mass momenta directly:<br>
 </p>
 <div class="code">
 event-&gt;<a href="KVEvent.html#KVEvent:SetFrame">SetFrame</a>("tensor2",
-"CM", rot ); // define "tensor" frame by rotating axes of "CM" frame<br>
+"CM",
+rot
+);
+//
+define "tensor" frame by rotating axes of "CM" frame<br>
 </div>
 <p>The difference between the two approaches is that the "tensor" frame
 is directly accessible from the particle, whereas "tensor2" is a
@@ -798,13 +854,14 @@ to retrieve the silicon detector of ring 3 module 14
 (the naming convention for INDRA detectors is the same as that of the
 GANIL acquisition
 system, in order to associate more easily the detectors with the
-corresponding acquisition parameters on raw data tapes).
+corresponding acquisition parameters in raw data files).
 </p>
 <p>
 If you know the ring number,
 module number and type of the detector, you can use
 <code><a href="KVINDRA.html#KVINDRA:GetDetectorByType">gIndra-&gt;GetDetectorByType(3,
-14, Si_GG)</a></code>
+14,
+Si_GG)</a></code>
 where the 'type' is one of a set of named constants defined in the
 <a href="KVINDRA.html">KVINDRA</a> class. These 'type' constants
 correspond to those used in the
@@ -868,6 +925,10 @@ Rapide-Lente "telescope" </td>
     </tr>
     <tr>
       <td style="vertical-align: top; text-align: center;">"SI_CSI_0101"&nbsp;&nbsp;
+
+
+
+
       </td>
       <td style="vertical-align: top; text-align: center;">Silicon-CsI
 dE-E telescope<br>
@@ -935,7 +996,8 @@ chamber-Silicon 75µm dE-E telescope<br>
       <td style="vertical-align: top; text-align: center;">"SILI_CSI_1002"<br>
       </td>
       <td style="vertical-align: top; text-align: center;">Silicon/Lithium-CsI
-dE-E telescope</td>
+dE-E
+telescope</td>
       <td style="vertical-align: top; text-align: center;"><a
  href="KVIDSiLiCsI.html">KVIDSiLiCsI</a><br>
       </td>
@@ -950,7 +1012,8 @@ The naming convention is defined in the <code>GetArrayName()</code>
 method of each class.
 By default (<code><a
  href="KVIDTelescope.html#KVIDTelescope:GetArrayName">KVIDTelescope::GetArrayName</a></code>)
-it is
+it
+is
 </p>
 <div class="code">
 TypeDetDE_TypeDetE_RRMM
@@ -1026,94 +1089,7 @@ initialised; for each type of identification, the method <a
 defines how to read and set the parameters for ALL of the
 identifications of the given type in the array.<br>
 </p>
-<!-- identification grids? -->
-<h3><a name="id_grids"></a>Identification grids</h3>
-<p>Collections of lines used to identify charged particles from
-identification maps measured with identification telescopes are called
-identification grids. In the KaliVeda environment, identification lines
-are handled by the KVIDLine classes, which derive from TGraph in order
-to be able to draw them without any extra work:<br>
-<br>
-<img style="width: 992px; height: 188px;" alt=""
- src="images/KVIDLine_hierarchy.gif"></p>
-<p>The <a href="KVIDLine.html">KVIDLine</a> class implements the basic
-functionality required for any line in an identification map:
-calculating the distance from any point in the map to the line, testing
-whether a point is above or below, left or right of the line, in
-between the endpoints of a line etc. etc. However, this class does not
-have any particle identification characteristics associated with it,
-and objects of this class can only be used to delimit various areas of
-the identification map e.g. in order to define which part of the map
-identification is impossible or not to be trusted (below thresholds,
-Bragg peak, etc.). Such lines are an essential part of any
-identification map, and are referred to as "OK lines" in the KVIDGrid
-identification grid classes (see below).<br>
-<br>
-The child classes of KVIDLine are simply specialisations for
-Z-identification (<a href="KVIDZLine.html">KVIDZLine</a>), Z- and
-A-identification (<a href="KVIDZALine.html">KVIDZALine</a>), and
-identification in INDRA CsI Rapide-Lente matrices (<a
- href="KVIDCsIRLLine.html">KVIDCsIRLLine</a>).<br>
-</p>
-<p>Identification grids are handled by children of the <a
- href="KVIDGrid.html">KVIDGrid</a> class. The basic functionality is
-described by KVIDGrid, which has two collections of lines: "OK lines"
-used to determine e.g. which parts of the identification map can
-actually be exploited for particle identification; and "ID lines" which
-are the actual lines corresponding to the loci of different particle
-species in the map. The basic functions of the identification grid -
-determine if a data point can be identified, and associate it to the
-correct particle species - are ensured by methods IsIdentifiable() and
-Identify(), which must be defined in the child classes corresponding to
-specific identification grids.<br>
-<img style="width: 869px; height: 536px;" alt=""
- src="images/KVIDGrid_Hierarchy.gif"><br>
-</p>
-<p>The identification grids necessary for all identification telescopes
-of a multidetector array are handled by a single instance of the <a
- href="KVIDGridManager.html">KVIDGridManager</a> class, which is
-accessible through the global pointer <code
- style="color: rgb(255, 0, 0);">gIDGridManager</code>.
-This object is created when the multidetector array object is created.
-For each experimental run, the ID grid manager is used by the
-multidetector array in order to associate the correct grid with each
-identification telescope. You can use the graphical interface tool
-KVIDGridManagerGUI to view/modify/create/test/etc. etc. a set of
-identification grid. To start the tool, assuming that gIDGridManager
-exists (it will if you already created an object derived from
-KVMultiDetArray - if not, you can create it with the command "<code>new
-KVIDGridManager</code>"), type:</p>
-<div class="code">
-gIDGridManager-&gt;StartViewer()
-</div>
-<p><img style="width: 538px; height: 327px;" alt=""
- src="images/KVIDGridManagerGUI.gif"><br>
-</p>
-<p>For any identification telescope with a valid identification grid,
-the <a href="KVIDTelescope.html#KVIDTelescope:GetIDGrid">GetIDGrid()</a>
-method returns a pointer to the associated grid. If the telescope has
-no identification grid, the method returns 0. Here is an example for
-INDRA:<br>
-</p>
-<div class="code">
-KVIDTelescope* csirl = gIndra-&gt;GetIDTelescope("CSI_R_L_0101");
-// get pointer to ID telescope<br>
-KVIDGrid* grid = csirl-&gt;GetIDGrid(); //get pointer to identification
-grid<br>
-if( grid ) { ....... }&nbsp;// test if grid exists<br>
-</div>
-<p>
-In order to visualize the grid, use its Draw() method. If no canvas (or
-an empty canvas) exists, the grid will be drawn with axes adjusted to
-its size. If not, the grid is superimposed on the current canvas (e.g.
-a 2D map of identification data):
-</p>
-<div class="code">
-grid-&gt;SetLineColor( kYellow );// you can change the
-colour/style/width of the grid if you want<br>
-grid-&gt;Draw();// draw grid ;-)<br>
-</div>
-<!-- tassangot functionals -->
+<!-- identification grids? --><!-- tassangot functionals -->
 <h3><a name="tgid"></a>Identification using functionals developed by L.
 Tassan-Got</h3>
 <p>
@@ -1195,7 +1171,10 @@ the conventions of the KaliVeda environment. You can use this method to
 generate base classes or derived classes, and also classes which are
 based on template files. Regarding coding style, you should read and
 follow the <a href="http://root.cern.ch/root/Conventions.html">conventions
-of the ROOT framework</a>.<br>
+of
+the
+ROOT
+framework</a>.<br>
 </p>
 <h4>2. Adding the code to the source tree<br>
 </h4>
@@ -1298,6 +1277,12 @@ catgegory<br>
       </td>
     </tr>
     <tr>
+      <td style="vertical-align: top;">data_management<br>
+      </td>
+      <td style="vertical-align: top;">Data management<br>
+      </td>
+    </tr>
+    <tr>
       <td style="vertical-align: top;">events<br>
       </td>
       <td style="vertical-align: top;">Multiparticle events<br>
@@ -1364,6 +1349,13 @@ catgegory<br>
       </td>
     </tr>
     <tr>
+      <td style="vertical-align: top;">stopping<br>
+      </td>
+      <td style="vertical-align: top;">Stopping Power &amp; Range
+Tables for Heavy Ions<br>
+      </td>
+    </tr>
+    <tr>
       <td style="vertical-align: top;">detectors<br>
       </td>
       <td style="vertical-align: top;">Absorbers, targets and detectors<br>
@@ -1372,7 +1364,21 @@ catgegory<br>
     <tr>
       <td style="vertical-align: top;">identification<br>
       </td>
-      <td style="vertical-align: top;">Charged particle identification<br>
+      <td style="vertical-align: top;">Tools for charged particle
+identification<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">idtelescopes<br>
+      </td>
+      <td style="vertical-align: top;">Charged particle identification
+telescopes<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">idmaps<br>
+      </td>
+      <td style="vertical-align: top;">Identification maps &amp; grids<br>
       </td>
     </tr>
     <tr>
@@ -1459,7 +1465,11 @@ appropriate methods.<br>
 </p>
 <p style="margin-left: 200px;"><span
  style="color: rgb(255, 0, 0); font-weight: bold;">WARNING!!! </span>Your
-global variable will only be compiled and loaded during the execution
+global
+variable
+will
+only
+be compiled and loaded during the execution
 of your analysis, not when your analysis class is compiled. You cannot
 put a <code>#include "MyVarGlob.h"</code> directive in your analysis
 class, neither can you explicitly use objects or pointers of your class
@@ -1475,7 +1485,7 @@ dedicated to this purpose, e.g. $HOME/myVarGlobs, and put all your
 global variables in it. In this case, you should add the following line
 to your .rootrc file:<br>
 </p>
-<div class="code">+Unix.*.ROOT.MacroPath:&nbsp;&nbsp;
+<div class="code">+Unix.*.Root.MacroPath:&nbsp;&nbsp;
 $(HOME)/myVarGlobs:</div>
 <p><span style="font-weight: bold;">(2) $HOME/.kvrootrc</span><br>
 Each global variable that you wish to add must be declared as a

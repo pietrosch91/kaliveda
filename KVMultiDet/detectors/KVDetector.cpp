@@ -113,6 +113,8 @@ void KVDetector::init()
 	fFiredMask.Set("0");
 	fELossF = fEResF = 0;
 	fEResforEinc = -1.;
+	fAlignedDetectors[0] = 0;
+	fAlignedDetectors[1] = 0;
 }
 
 KVDetector::KVDetector()
@@ -183,6 +185,8 @@ KVDetector::~KVDetector()
    fIDTelAlign->Clear();
    SafeDelete(fIDTelAlign);
    SafeDelete(fIDTele4Ident);
+   SafeDelete(fAlignedDetectors[0]);
+   SafeDelete(fAlignedDetectors[1]);
 }
 
 //________________________________________________________________
@@ -1451,5 +1455,31 @@ void KVDetector::ReadDefinitionFromFile(const Char_t* envrc)
          if(fEnvFile.GetValue(Form("%s.Active",layer.Data()),kFALSE)) SetActiveLayer(M);
       }
    }
+}
+
+//_________________________________________________________________________________________//
+
+TList* KVDetector::GetAlignedDetectors(UInt_t direction)
+{
+	// Returns list of detectors (including this one) which are in geometrical aligment
+	// with respect to the target position (assuming this detector is part of a multidetector
+	// array described by KVMultiDetArray).
+	//
+	// By default the list is in the order starting from this detector and going towards the target
+	// (direction=KVGroup::kBackwards).
+	// Call with argument direction=KVGroup::kForwards to have the list of detectors in the order
+	// "seen" by a particle flying out from the target and arriving in this detector.
+	//
+	// If this detector is not part of a KVMultiDetArray (i.e. we have no information on
+	// its geometrical relation to other detectors), we return 0x0.
+	//
+	// The list pointers are stored in member variable fAlignedDetectors[] for rapid retrieval,
+	// the lists will be deleted with this detector.
+	// 
+	// See KVGroup::GetAlignedDetectors for more details.
+	
+	if(!GetGroup() || direction<0 || direction>1) return 0x0;
+	if(fAlignedDetectors[direction]) return fAlignedDetectors[direction];
+	return (fAlignedDetectors[direction] = GetGroup()->GetAlignedDetectors(this,direction));
 }
 
