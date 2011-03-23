@@ -44,7 +44,7 @@ class KVIDGraph : public TCutG
 	TList 			fTelescopes;		//ID telescopes for which grid is valid
 	TString			fDyName; 			//!dynamically generated name
    TString  		fPattern;			//pattern of filenames used to write or read grid
-	Int_t fMassFormula;//! *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
+	Int_t fMassFormula;// *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
 	
    void Scale(Double_t sx = -1, Double_t sy = -1);
    virtual void ReadFromAsciiFile(ifstream & gridfile);
@@ -96,11 +96,7 @@ class KVIDGraph : public TCutG
    void SetXVariable(const char* v){ SetVarX(v);  Modified();}; //  *MENU={Hierarchy="Set.../X Variable"}* *ARGS={v=>fVarX}
    void SetYVariable(const char* v){ SetVarY(v);  Modified();};//  *MENU={Hierarchy="Set.../Y Variable"}* *ARGS={v=>fVarY}
 	void SetRunList(const char* runlist){ SetRuns( KVNumberList(runlist) ); };  // *MENU={Hierarchy="Set.../List of Runs"}*
-   // Use this method if the graph is only to be used for Z identification
-   // (no isotopic information). Default is to identify both Z & A
-   // (fOnlyZid = kFALSE). Note that setting fOnlyZid=kTRUE changes the way line
-   // widths are calculated (see KVIDGrid::CalculateLineWidths)
-   void SetOnlyZId(Bool_t yes=kTRUE) { fOnlyZId = yes; Modified(); };//  *TOGGLE={Hierarchy="Z identification only"}*
+   void SetOnlyZId(Bool_t yes=kTRUE);//  *TOGGLE={Hierarchy="Z identification only"}*
 	void SetMassFormula(Int_t);// *SUBMENU={Hierarchy="Set.../Mass Formula"}*
    void WriteAsciiFile(const Char_t * filename);// *MENU*
    void SetXScaleFactor(Double_t = 0); //  *MENU={Hierarchy="Scale.../X Scale Factor"}*
@@ -227,7 +223,10 @@ class KVIDGraph : public TCutG
 		id->SetParent(this);
 		id->SetVarX(GetVarX());
 		id->SetVarY(GetVarY());
-		id->SetBit(kMustCleanup);
+		id->SetOnlyZId(OnlyZId());
+   	//if grid is Z-identification only, set mass formula for line
+   	//according to mass formula of grid
+   	if(OnlyZId()) id->SetMassFormula(GetMassFormula());
  		Modified();    };
    void AddCut(KVIDentifier *cut) {
 		// Add cut to the graph. It will be deleted by the graph.
@@ -294,7 +293,10 @@ class KVIDGraph : public TCutG
 		KVIDTelescope* id = (KVIDTelescope*)fTelescopes.First();
 		return (id ? id->GetLabel() : "");
 	};
-	Int_t GetMassFormula();
+	Int_t GetMassFormula() const
+	{
+		return fMassFormula;
+	};
 	void ResetPad();
 	void ClearPad(TVirtualPad*);
 	

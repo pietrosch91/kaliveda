@@ -72,7 +72,7 @@ void KVIDGraph::init()
 	SetName("");
 	SetEditable(kFALSE);
 	if(gIDGridManager) gIDGridManager->AddGrid(this);
-	fMassFormula = -1;
+	fMassFormula = 0;
 }
 
 //________________________________________________________________________________
@@ -103,6 +103,8 @@ void KVIDGraph::Copy(TObject & obj)
 
    fIdentifiers->Copy((TObject &) (*grid.GetIdentifiers()));
    fCuts->Copy((TObject &) (*grid.GetCuts()));
+   // set mass formula of grid (and identifiers)
+	grid.SetMassFormula(GetMassFormula());
    //copy all parameters EXCEPT scaling parameters
    KVParameter<KVString> *par = 0;
    for( int i=0; i<fPar->GetNPar(); i++) { //loop over all parameters
@@ -357,8 +359,8 @@ void KVIDGraph::WriteToAsciiFile(ofstream & gridfile)
       gridfile << "<PARAMETER> " << par->GetName() << "=" << par->GetVal().Data() << endl;
    }
 
-   //write fOnlyZId
-   if(OnlyZId()) gridfile << "OnlyZId" << endl;
+   //write fOnlyZId & mass formula
+   if(OnlyZId()) gridfile << "OnlyZId " << GetMassFormula() << endl;
 
    //remove scaling if there is one
    if (fLastScaleX != 1 || fLastScaleY != 1)
@@ -409,6 +411,7 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
    KVString s;
    int line_no=0;// counter for lines read
    SetOnlyZId(kFALSE);
+   Int_t mass_formula = -1;
 
    while (gridfile.good()) {
       //read a line
@@ -467,6 +470,12 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
 		}
       else if (s.BeginsWith("OnlyZId")){
          SetOnlyZId(kTRUE);
+         s.ReplaceAll("OnlyZId","");
+         s.Remove(TString::kBoth, ' ');
+         if(s!=""){//older versions did not write mass formula after OnlyZId
+         	mass_formula=s.Atoi();
+				if(mass_formula>-1) SetMassFormula(mass_formula);
+         }
       }
       else if (s.BeginsWith('+')) {
          //New line
@@ -1217,24 +1226,6 @@ else return temoin;
 
 //___________________________________________________________________________________
 
-Int_t KVIDGraph::GetMassFormula()
-{
-	// Returns mass formula used to calculate A from Z of all identifiers in graph.
-	// In fact, we return the mass formula of the first identifier in the list...
-
-	if(fMassFormula<0){
-		KVIDentifier* line=0;
-		if( (line=GetIdentifierAt(0)) ){
-			fMassFormula = line->GetMassFormula();
-		}
-		else
-			return 0;
-	}
-	return fMassFormula;
-}
-
-//___________________________________________________________________________________
-
 void KVIDGraph::SetMassFormula(Int_t mass)
 {
 	// Set mass formula for all identifiers if graph has OnlyZId()=kTRUE.
@@ -1248,6 +1239,22 @@ void KVIDGraph::SetMassFormula(Int_t mass)
 	}
 	Modified();
 }
+
+//___________________________________________________________________________________
+
+void KVIDGraph::SetOnlyZId(Bool_t yes)
+{
+   // Use this method if the graph is only to be used for Z identification
+   // (no isotopic information). Default is to identify both Z & A
+   // (fOnlyZid = kFALSE). Note that setting fOnlyZid=kTRUE changes the way line
+   // widths are calculated (see KVIDGrid::CalculateLineWidths)
+	fOnlyZId = yes;
+   	if (GetNumberOfIdentifiers() > 0) {
+      	fIdentifiers->R__FOR_EACH(KVIDentifier, SetOnlyZId) (yes);
+		}
+	Modified();
+}
+
 
 //___________________________________________________________________________________
 

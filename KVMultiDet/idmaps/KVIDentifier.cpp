@@ -36,6 +36,7 @@ void KVIDentifier::init()
     SetLineWidth(2);
     SetEditable(kFALSE);
     fParent = 0;
+    fGridOnlyZId=kFALSE;
 }
 
 KVIDentifier::KVIDentifier()
@@ -87,6 +88,7 @@ void KVIDentifier::Copy(TObject & obj) const
     ((TCutG&)obj).SetVarY(GetVarY());
     ((KVIDentifier&)obj).SetZ(GetZ());
     ((KVIDentifier&)obj).SetA(GetA());
+    ((KVIDentifier&)obj).SetOnlyZId(OnlyZId());
     ((KVIDentifier&)obj).SetMassFormula(GetMassFormula());
 }
 
@@ -355,8 +357,9 @@ void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t 
         this->GetPoint(nn,xx,yy);
         idbis->SetPoint(nn,xx,yy);
     }
-
+	 idbis->SetOnlyZId(OnlyZId());
     idbis->SetZ(newzt);
+    idbis->SetMassFormula(GetMassFormula());
     if (newar!=-1)
     {
         idbis->SetA(newar);

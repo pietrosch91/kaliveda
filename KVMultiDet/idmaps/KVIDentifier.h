@@ -25,6 +25,7 @@ class KVIDentifier : public TCutG
 	protected:
 	KVIDGraph 	*fParent;	//!parent identification map or grid
    KVNucleus 	fIon;    	//ion/nucleus corresponding to this identifier
+   Bool_t      fGridOnlyZId;//=kTRUE if parent grid has OnlyZId set
 
 	Int_t fZ;//! dummy variables used by context menu dialog boxes
 	Int_t fA;//! dummy variables used by context menu dialog boxes
@@ -64,7 +65,9 @@ class KVIDentifier : public TCutG
    virtual void SetZ(Int_t ztnum){ fIon.SetZ(ztnum); SetNameFromNucleus(); }; // *MENU={Hierarchy="SetNucleus.../Z"}*
    virtual void SetA(Int_t atnum){ fIon.SetA(atnum); SetNameFromNucleus(); };  // *MENU={Hierarchy="SetNucleus.../A"}*
    virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU={Hierarchy="SetNucleus.../A and Z"}* *ARGS={atnum=>fA,ztnum=>fZ}
-   virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus(); };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}*
+   virtual void SetOnlyZId(Bool_t onlyz=kTRUE){ fGridOnlyZId=onlyz; };
+   virtual Bool_t OnlyZId()const { return fGridOnlyZId; }
+   virtual void SetMassFormula(Int_t mf){ if(OnlyZId()) {fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus();} };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}*
    virtual Int_t GetMassFormula()const { return fIon.GetMassFormula(); }
 
    virtual Bool_t TestPoint(Double_t x, Double_t y)
