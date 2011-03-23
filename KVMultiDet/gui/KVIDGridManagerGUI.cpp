@@ -19,6 +19,8 @@
 #include <KVDropDownDialog.h>
 #include "TEnv.h"
 #include "KVInputDialog.h"
+#include "KVIDCutLine.h"
+#include "KVIDCutContour.h"
 
 ClassImp(KVIDGridManagerGUI)
 //////////////////////////////////////////////////////////
@@ -285,6 +287,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI():TGMainFrame(gClient->GetRoot(), 500,
     fLastGrid = -1;
     fSelectedGrid = 0;
     fSelectedEntries = 0;
+    fLastSelectedGrid = 0;
     
     //to have access to online KaliVeda documentation via context menus
     //and dialog box "Online Help" buttons
@@ -352,10 +355,59 @@ KVIDGridManagerGUI::KVIDGridManagerGUI():TGMainFrame(gClient->GetRoot(), 500,
     CreateAndFillTabs();
 
     fHframe->AddFrame(fGridListTabs,
-                      new TGLayoutHints(kLHintsLeft | kLHintsTop |
-                                        kLHintsExpandX | kLHintsExpandY, 30,
-                                        10, 10, 10));
+                      new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX| kLHintsExpandY, 10,10, 10, 10));
 
+	 TGVerticalFrame* line_frame = new TGVerticalFrame(fHframe, 500, 400);
+	 
+	 TGLabel* lab1 = new TGLabel(line_frame, "CURRENT GRID IDENTIFIERS");
+	 line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsExpandX,2,2,2,2));
+	 
+	 // list view for lines in current grid
+	 fIDLineList = new KVListView(KVIDentifier::Class(), line_frame, 500, 400);
+        fIDLineList->SetDataColumns(5);
+        fIDLineList->SetDataColumn(0, "Name", "", kTextLeft);
+        fIDLineList->SetDataColumn(1, "Z", "", kTextCenterX);
+        fIDLineList->SetDataColumn(2, "A", "", kTextCenterX);
+        fIDLineList->SetDataColumn(3, "OnlyZId", "OnlyZId", kTextCenterX);
+        fIDLineList->SetDataColumn(4, "MassFormula", "", kTextCenterX);
+        fIDLineList->GetDataColumn(3)->SetIsBoolean();
+        fIDLineList->ActivateSortButtons();
+        fIDLineList->AllowBrowse(kFALSE);
+        //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+         //                    "SelectionChanged()");
+        line_frame->AddFrame(fIDLineList, new TGLayoutHints(kLHintsTop| kLHintsExpandY|kLHintsExpandX, 2,2, 2, 10));
+	 
+	 lab1 = new TGLabel(line_frame, "CUT LINES");
+	 line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsExpandX,2,2,2,2));
+	 
+	 fCUTLineList = new KVListView(KVIDCutLine::Class(), line_frame, 500, 150);
+        fCUTLineList->SetDataColumns(3);
+        fCUTLineList->SetDataColumn(0, "Name", "", kTextLeft);
+        fCUTLineList->SetDataColumn(1, "# Points", "GetN", kTextCenterX);
+        fCUTLineList->SetDataColumn(2, "Direction", "GetAcceptedDirection", kTextCenterX);
+         fCUTLineList->ActivateSortButtons();
+        fCUTLineList->AllowBrowse(kFALSE);
+        //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+         //                    "SelectionChanged()");
+        line_frame->AddFrame(fCUTLineList, new TGLayoutHints(kLHintsTop| kLHintsExpandX, 2,2, 2, 2));
+       
+	 lab1 = new TGLabel(line_frame, "CUT CONTOURS");
+	 line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsExpandX,2,2,2,2));
+	 
+	 fCUTContourList = new KVListView(KVIDCutContour::Class(), line_frame, 500, 150);
+        fCUTContourList->SetDataColumns(3);
+        fCUTContourList->SetDataColumn(0, "Name", "", kTextLeft);
+        fCUTContourList->SetDataColumn(1, "# Points", "GetN", kTextCenterX);
+        fCUTContourList->SetDataColumn(2, "Exclusive", "IsExclusive", kTextCenterX);
+        fCUTContourList->GetDataColumn(2)->SetIsBoolean();
+         fCUTContourList->ActivateSortButtons();
+        fCUTContourList->AllowBrowse(kFALSE);
+        //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+         //                    "SelectionChanged()");
+        line_frame->AddFrame(fCUTContourList, new TGLayoutHints(kLHintsTop| kLHintsExpandX, 2,2, 2, 2));
+       
+        fHframe->AddFrame(line_frame, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandY, 50,10, 10, 10));
+	 
     AddFrame(fHframe,
              new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0,
                                0));
@@ -366,7 +418,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI():TGMainFrame(gClient->GetRoot(), 500,
     MapSubwindows();
     Resize(GetDefaultSize());
     MapWindow();
-    SetWMSize(750, 500);
+    SetWMSize(1200, 600);
     // first tab is visible, but TabSelect(0) is not called automatically
     TabSelect(0);
 }
@@ -542,13 +594,13 @@ void KVIDGridManagerGUI::SelectionChanged()
     //fSelectedEntries : the list of all selected entries
     //GetNSelected() : the number of selected entries
     //fSelectedGrid : the last selected grid (=the only grid selected if GeTNSelected==1)
-    //The grid buttons' state is modified according to the number of selected grids
 
     //get number of selected items
     if (fSelectedEntries)
         delete fSelectedEntries;
     fSelectedEntries = fIDGridList->GetSelectedObjects();
     fSelectedGrid = (KVIDGraph*)fIDGridList->GetLastSelectedObject();
+    ShowListOfLines();
 }
 
 Int_t KVIDGridManagerGUI::GetNSelected()
@@ -774,7 +826,7 @@ void KVIDGridManagerGUI::UpdateTabs()
     // create a tab for each type of ID telescope
     // put a list box for ID grid names on each tab
 
-    KVString labels("[unknown]");
+    KVString labels("");
     if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
     //add any missing labels, update existing ones
     labels.Begin(",");
@@ -871,3 +923,55 @@ void KVIDGridManagerGUI::RemoveEmptyTabs()
     fGridListTabs->Layout();
 }
 
+void KVIDGridManagerGUI::UpdateListOfLines()
+{
+	// called when a previously selected grid is modified
+	// updates lists of lines
+	
+	if(!fLastSelectedGrid) return;
+	
+		KVList* ids = fLastSelectedGrid->GetIdentifiers();
+		// sort lines in order of increasing Z
+		ids->Sort();
+		fIDLineList->Display(ids);
+		KVSeqCollection* cutlines = fSelectedGrid->GetCuts()->GetSubListWithClass("KVIDCutLine");
+		fCUTLineList->Display(cutlines);
+		delete cutlines;
+		cutlines = fSelectedGrid->GetCuts()->GetSubListWithClass("KVIDCutContour");
+		fCUTContourList->Display(cutlines);
+		delete cutlines;
+}
+
+void KVIDGridManagerGUI::ShowListOfLines()
+{
+	// Called when a grid is selected in list of grids
+	// We fill list of all lines in grid
+    //If only one grid is selected, we display its lines in the line list
+    //If more than one grid is selected, we clear the line list
+	if(GetNSelected()==1) {
+		KVList* ids = fSelectedGrid->GetIdentifiers();
+		// sort lines in order of increasing Z
+		ids->Sort();
+		fIDLineList->Display(ids);
+		KVSeqCollection* cutlines = fSelectedGrid->GetCuts()->GetSubListWithClass("KVIDCutLine");
+		fCUTLineList->Display(cutlines);
+		delete cutlines;
+		cutlines = fSelectedGrid->GetCuts()->GetSubListWithClass("KVIDCutContour");
+		fCUTContourList->Display(cutlines);
+		delete cutlines;
+		if(fLastSelectedGrid){
+			fLastSelectedGrid->Disconnect("Modified()", this, "UpdateListOfLines()");
+		}
+		fSelectedGrid->Connect("Modified()", "KVIDGridManagerGUI", this, "UpdateListOfLines()");
+		fLastSelectedGrid=fSelectedGrid;
+	}
+	else{
+		fIDLineList->RemoveAll();
+		fCUTLineList->RemoveAll();
+		fCUTContourList->RemoveAll();
+		if(fLastSelectedGrid){
+			fLastSelectedGrid->Disconnect("Modified()", this, "UpdateListOfLines()");
+			fLastSelectedGrid=0;
+		}
+	}
+}

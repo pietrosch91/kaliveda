@@ -8,6 +8,7 @@ $Date: 2009/03/03 13:36:00 $
 //Author: franklan
 
 #include "KVIDCutContour.h"
+#include "KVIDGraph.h"
 
 ClassImp(KVIDCutContour)
 
@@ -62,4 +63,11 @@ void KVIDCutContour::ReadAsciiFile_extras(ifstream & file)
 	KVIDContour::ReadAsciiFile_extras(file);
 	file >> fExclusive;	
 }
+
+	void KVIDCutContour::SetExclusive(Bool_t e)
+	 { 
+	// Make contour exclusive i.e. only accept points outside contour
+	 fExclusive=e; 
+	 if(GetParent()) GetParent()->Modified();
+	 }
 

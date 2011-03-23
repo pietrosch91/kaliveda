@@ -111,7 +111,7 @@ class KVIDentifier : public TCutG
 #endif
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TNamed.h, to stop these methods appearing in the ID line context menus
-   virtual void     SetName(const char *name){TGraph::SetName(name);};
+   virtual void     SetName(const char *name);
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TObject.h, to stop these methods appearing in the ID line context menus
    //virtual void        Delete(Option_t *option=""){TGraph::Delete(option);};

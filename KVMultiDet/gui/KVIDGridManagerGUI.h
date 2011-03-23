@@ -40,9 +40,13 @@ class KVIDGridManagerGUI:public TGMainFrame {
    TGHorizontalFrame *fHframe;
 	TGTab *fGridListTabs;//tabs with lists of grids
 	KVListView *fIDGridList;//list of grids in current tab
+	KVListView *fIDLineList;//list of lines in currently selected grid
+	KVListView *fCUTLineList;//list of lines in currently selected grid
+	KVListView *fCUTContourList;//list of lines in currently selected grid
    Int_t fFirstGrid;
    Int_t fLastGrid;
    KVIDGraph *fSelectedGrid;
+   KVIDGraph *fLastSelectedGrid;
    TString fFileName;
    TList *fSelectedEntries;
 
@@ -67,6 +71,9 @@ class KVIDGridManagerGUI:public TGMainFrame {
    void RemoveEmptyTabs();
 	void TabSelect(Int_t);
    void UpdateListOfGrids();
+   
+   void ShowListOfLines();
+   void UpdateListOfLines();
 
    void SelectionChanged();
    Int_t GetNSelected();

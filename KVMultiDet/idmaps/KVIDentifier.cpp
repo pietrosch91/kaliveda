@@ -24,6 +24,12 @@ ClassImp(KVIDentifier)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+void  KVIDentifier::SetName(const char *name)
+{
+	TGraph::SetName(name);
+	if(GetParent()) GetParent()->Modified();
+}
+
 void KVIDentifier::init()
 {
     // Default initialisations
