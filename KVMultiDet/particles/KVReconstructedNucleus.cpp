@@ -277,7 +277,7 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
     //measured in a series of detectors/telescopes.
     //
     //Starting from detector *kvd, collect information from all detectors placed directly
-    //in front of *kvd (kvd->GetGroup()->GetAlignedDetectors( kvd )),
+    //in front of *kvd (kvd->GetAlignedDetectors()),
     //these are the detectors the particle has passed through.
     //
     //Each one is added to the particle's list (KVReconstructedNucleus::AddDetector), and,
@@ -289,7 +289,7 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
 
     //get list of detectors through which particle passed
     if (kvd->GetGroup()) {
-        TList *aligned = kvd->GetGroup()->GetAlignedDetectors(kvd);
+        TList *aligned = kvd->GetAlignedDetectors();
         if (aligned) {
 
             TIter next_aligned(aligned);
@@ -299,7 +299,6 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
                 d->AddHit(this);  // add particle to list of particles hitting detector
                 d->SetAnalysed(kTRUE);   //cannot be used to seed another particle
             }
-            delete aligned;
         }
         kvd->GetGroup()->AddHit(this);
     }

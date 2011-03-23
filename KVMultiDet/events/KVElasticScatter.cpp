@@ -91,7 +91,6 @@ KVElasticScatter::KVElasticScatter():fBeamDirection(0, 0, 1)
    fBinE = 500;	
    fEnergy = 0;
    fKinematics = 0;
-   fGroup = 0;
    fTelescope = 0;
    fTarget = 0;
    fProj = fTarg = 0;
@@ -119,8 +118,6 @@ KVElasticScatter::~KVElasticScatter()
       delete fProj;
    if (fTarg)
       delete fTarg;
-   if (fAlignedDetectors)
-      delete fAlignedDetectors;
    if (fHistos)
       delete fHistos;
    if (fDetInd)
@@ -167,12 +164,9 @@ void KVElasticScatter::SetDetector(const Char_t * det)
    //Set name of detector which will detect particle
    fDetector = gMultiDetArray->GetDetector(det);
    fTelescope = fDetector->GetTelescope();
-   fGroup = fTelescope->GetGroup();
    //get list of all detectors particle must pass through to get to required detector
-   if (fAlignedDetectors)
-      delete fAlignedDetectors;
    fAlignedDetectors =
-       fGroup->GetAlignedDetectors(fDetector, KVGroup::kForwards);
+       fDetector->GetAlignedDetectors(KVGroup::kForwards);
    //we store the association between detector type and index in list
    if (!fDetInd)
       fDetInd = new KVParameterList < int >;

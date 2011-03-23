@@ -83,6 +83,8 @@ class KVMultiDetArray:public KVBase {
 
    TString fDataSet;            //!name of associated dataset, used with MakeMultiDetector()
    UInt_t fCurrentRun;          //Number of the current run used to call SetParameters
+   
+   Bool_t fSimMode;             //!=kTRUE in "simulation mode" (use for calculating response to simulated events)
 
    void SetGroups(KVLayer *, KVLayer *);
    void UpdateGroupsInRings(KVRing * r1, KVRing * r2);
@@ -256,6 +258,22 @@ class KVMultiDetArray:public KVBase {
    void PrintCalibStatusOfDetectors();
 
 	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
+   virtual void SetSimMode(Bool_t on = kTRUE)
+   {
+   	// Set simulation mode of array (and of all detectors in array)
+   	// If on=kTRUE (default), we are in simulation mode (calculation of energy losses etc.)
+   	// If on=kFALSE, we are analysing/reconstruction experimental data
+   	fSimMode = on;
+   	GetListOfDetectors()->Execute("SetSimMode", Form("%d", (Int_t)on));
+   };
+   virtual Bool_t IsSimMode() const
+   {
+   	// Returns simulation mode of array:
+   	//   IsSimMode()=kTRUE : we are in simulation mode (calculation of energy losses etc.)
+   	//   IsSimMode()=kFALSE: we are analysing/reconstruction experimental data
+   	return fSimMode;
+   };
+
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };

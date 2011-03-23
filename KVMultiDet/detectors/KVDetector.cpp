@@ -395,28 +395,6 @@ const Char_t *KVDetector::GetArrayName()
    return fFName.Data();
 }
 
-
-//___________________________________________________________________________________
-Double_t KVDetector::GetEnergy()
-{
-//
-//Returns energy lost in active layer by particles.
-//
-   if (GetActiveLayer())
-      return GetActiveLayer()->GetEnergyLoss();
-   return KVMaterial::GetEnergyLoss();
-}
-
-void KVDetector::SetEnergy(Double_t e)
-{
-//
-//Set value of energy lost in active layer
-//
-   if (GetActiveLayer())
-      GetActiveLayer()->SetEnergyLoss(e);
-   KVMaterial::SetEnergyLoss(e);
-}
-
 //_____________________________________________________________________________________
 UInt_t KVDetector::GetTelescopeNumber() const
 {
@@ -590,13 +568,6 @@ void KVDetector::SetActiveLayer(KVMaterial * mat)
    if( fAbsorbers->IndexOf(mat) > -1 ) SetActiveLayer((Short_t) (fAbsorbers->IndexOf(mat) ));
 }
 
-KVMaterial *KVDetector::GetActiveLayer() const
-{
-   //Get pointer to the "active" layer in the detector, i.e. the one in which energy losses are measured
-
-   return GetAbsorber(fActiveLayer);
-}
-
 //_________________________________________________________________________________
 void KVDetector::AddToTelescope(KVTelescope * T, const int fcon)
 {
@@ -624,12 +595,6 @@ void KVDetector::SetTelescope(KVTelescope * kvt)
    //Set telescope to which detector belongs
 
    fTelescope = kvt;
-}
-
-KVMaterial *KVDetector::GetAbsorber(const Char_t* name) const
-{
-   // Return absorber with given name
-   return (KVMaterial*)(fAbsorbers ? fAbsorbers->FindObject(name) : 0);
 }
 
 KVMaterial *KVDetector::GetAbsorber(Int_t i) const
@@ -716,14 +681,6 @@ void KVDetector::AddIDTelescope(KVIDTelescope * idt)
 
 //___________________________________________________________________________//
 
-KVList *KVDetector::GetIDTelescopes()
-{
-   //Return list of IDTelescopes to which detector belongs
-   return fIDTelescopes;
-}
-
-//___________________________________________________________________________//
-
 TList *KVDetector::GetTelescopesForIdentification()
 {
    //Returns list of identification telescopes to be used in order to try to identify
@@ -741,15 +698,6 @@ TList *KVDetector::GetTelescopesForIdentification()
 
 //___________________________________________________________________________//
 
-KVList *KVDetector::GetAlignedIDTelescopes()
-{
-   //return list of ID telescopes made of this detector
-   //and all aligned detectors placed in front of it
-   return fIDTelAlign;
-}
-
-//___________________________________________________________________________//
-
 void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 {
    //Create and add to list all ID telescopes made of this detector
@@ -759,7 +707,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
    //in fIDTelAlign. (first clear fIDTelAlign)
 
 
-   TList *aligned = GetGroup()->GetAlignedDetectors(this);      //delete after use
+   TList *aligned = GetAlignedDetectors();
 
    Bool_t list_zero = kFALSE;
 
@@ -788,8 +736,6 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
          gMultiDetArray->GetIDTelescopes(det1, det2, list);
       }
    }
-
-   delete aligned;              //clean up
 
    if (list_zero) {
       //now we use the created ID telescopes to find pointers to the already

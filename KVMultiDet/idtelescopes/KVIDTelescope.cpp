@@ -289,7 +289,7 @@ TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
    //get list of all detectors through which particle must pass in order to reach
    //2nd member of ID Telescope
    TList *detectors =
-       GetGroup()->GetAlignedDetectors(GetDetector(2), KVGroup::kForwards);
+       GetDetector(2)->GetAlignedDetectors(KVGroup::kForwards);
    //detectors->ls();
    TIter next_det(detectors);
    //cout << "nsteps =" << nsteps << endl;
@@ -330,7 +330,6 @@ TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
       tmp = new TGraph(nsteps, x, y);
    delete[]x;
    delete[]y;
-   delete detectors;
    return tmp;
 }
 

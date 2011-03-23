@@ -90,6 +90,8 @@ class KVDetector:public KVMaterial {
    
    Double_t fEResforEinc;//! used by GetIncidentEnergy & GetCorrectedEnergy
    TList* fAlignedDetectors[2];//! stores lists of aligned detectors in both directions
+   
+   Bool_t fSimMode;//! =kTRUE when using to simulate detector response, =kFALSE when analysing data
 
  public:
     KVDetector();
@@ -111,9 +113,17 @@ class KVDetector:public KVMaterial {
       fActiveLayer = actif;
       SetBit(kActiveSet);
    };
-   KVMaterial *GetActiveLayer() const;
+   KVMaterial *GetActiveLayer() const
+   {
+   	//Get pointer to the "active" layer in the detector, i.e. the one in which energy losses are measured
+   	return GetAbsorber(fActiveLayer);
+	};
    KVMaterial *GetAbsorber(Int_t i) const;
-   KVMaterial *GetAbsorber(const Char_t*) const;
+   KVMaterial *GetAbsorber(const Char_t* name) const
+   {
+   	// Return absorber with given name
+   	return (KVMaterial*)(fAbsorbers ? fAbsorbers->FindObject(name) : 0);
+	};
    KVList* GetListOfAbsorbers() const
    {
    	return fAbsorbers;
@@ -152,8 +162,21 @@ class KVDetector:public KVMaterial {
    void SetGain(Float_t gain);
    Float_t GetGain() const;
 
-   virtual Double_t GetEnergy();
-   virtual void SetEnergy(Double_t e);
+   virtual Double_t GetEnergy()
+   {
+		//
+		// Returns energy lost in active layer by particles.
+		//
+   	return (GetActiveLayer() ? GetActiveLayer()->GetEnergyLoss() : KVMaterial::GetEnergyLoss());
+	};
+   virtual void SetEnergy(Double_t e)
+   {
+		//
+		//Set value of energy lost in active layer
+		//
+   	if (GetActiveLayer()) GetActiveLayer()->SetEnergyLoss(e);
+   	else KVMaterial::SetEnergyLoss(e);
+	};
    virtual Double_t GetEnergyLoss() {
       return GetEnergy();
    };
@@ -229,8 +252,17 @@ class KVDetector:public KVMaterial {
    virtual void RemoveCalibrators();
 
    virtual void AddIDTelescope(KVIDTelescope * idt);
-   KVList *GetIDTelescopes();
-   KVList *GetAlignedIDTelescopes();
+   KVList *GetIDTelescopes()
+   {
+   	//Return list of IDTelescopes to which detector belongs
+   	return fIDTelescopes;
+	};
+   KVList *GetAlignedIDTelescopes()
+   {
+   	//return list of ID telescopes made of this detector
+   	//and all aligned detectors placed in front of it
+   	return fIDTelAlign;
+	};
    TList *GetTelescopesForIdentification();
    void GetAlignedIDTelescopes(TCollection * list);
 
@@ -302,6 +334,25 @@ class KVDetector:public KVMaterial {
    virtual void ReadDefinitionFromFile(const Char_t*);
    
    virtual TList* GetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
+   
+   virtual void SetSimMode(Bool_t on = kTRUE)
+   {
+   	// Set simulation mode of detector
+   	// If on=kTRUE (default), we are in simulation mode (calculation of energy losses etc.)
+   	// If on=kFALSE, we are analysing/reconstruction experimental data
+   	// Changes behaviour of Fired(): in simulation mode, Fired() returns kTRUE
+   	// whenever the energy loss in the active layer is >0
+   	fSimMode = on;
+   };
+   virtual Bool_t IsSimMode() const
+   {
+   	// Returns simulation mode of detector:
+   	//   IsSimMode()=kTRUE : we are in simulation mode (calculation of energy losses etc.)
+   	//   IsSimMode()=kFALSE: we are analysing/reconstruction experimental data
+   	// Changes behaviour of Fired(): in simulation mode, Fired() returns kTRUE
+   	// whenever the energy loss in the active layer is >0
+   	return fSimMode;
+   };
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
@@ -347,6 +398,15 @@ inline Float_t KVDetector::GetGain() const
 
 Bool_t KVDetector::Fired(Option_t * opt)
 {
+	// Returns kTRUE if detector was hit (fired) in an event
+	//
+	// The actual meaning of hit/fired depends on the context and the option string opt.
+	//
+	// If the detector is in "simulation mode", i.e. if SetSimMode(kTRUE) has been called,
+	// this method returns kTRUE if the calculated energy loss in the active layer is > 0.
+	//
+	// In "experimental mode" (i.e. IsSimMode() returns kFALSE), depending on the option:
+	//
    //opt="any" (default):
    //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
    //opt="all" :
@@ -362,6 +422,8 @@ Bool_t KVDetector::Fired(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
+	if(IsSimMode()) return (GetEnergy()>0.); // simulation mode: detector fired if energy lost in active layer
+	
    if(opt[0]=='P') return FiredP(opt+1);
 
 	Binary8_t event; // bitmask for event

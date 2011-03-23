@@ -34,7 +34,6 @@ class KVElasticScatter {
 
    KV2Body *fKinematics;        //kinematics calculation
 
-   KVGroup *fGroup;             //group where particle will be detected
    KVTelescope *fTelescope;     //telescope where particle will be detected
    KVDetector *fDetector;       //detector where particle will be detected
    TList *fAlignedDetectors;    //all aligned detectors
