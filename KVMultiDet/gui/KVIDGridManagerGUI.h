@@ -11,38 +11,42 @@
 #include <TGTextEntry.h>
 #include <TGProgressBar.h>
 #include "TGTab.h"
+#include "TGToolBar.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KVIDGridManagerGUI
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class KVIDGridManagerGUI:public TGMainFrame {
+class KVIDGridManagerGUI: public TGMainFrame {
 
    //TGMainFrame* fMain;
    TGPopupMenu *fMenuFile;
    TGPopupMenu *fMenuHelp;
    enum {
-		M_GRIDS_NEW,
-		M_GRIDS_READ,
-		M_GRIDS_SAVE_SEL,
-		M_GRIDS_SAVE_TAB,
-		M_GRIDS_SAVE_ALL,
-		M_GRIDS_DEL_SEL,
-		M_GRIDS_DEL_TAB,
-		M_GRIDS_DEL_ALL,
-		M_GRIDS_RUNLIST,
+      M_GRIDS_NEW,
+      M_GRIDS_READ,
+      M_GRIDS_SAVE_SEL,
+      M_GRIDS_SAVE_TAB,
+      M_GRIDS_SAVE_ALL,
+      M_GRIDS_DEL_SEL,
+      M_GRIDS_DEL_TAB,
+      M_GRIDS_DEL_ALL,
+      M_GRIDS_RUNLIST,
       ID_LIST_BOX
    };
    TGLayoutHints *fMenuBarItemLayout;
    TGLayoutHints *fMenuBarHelpLayout;
    TGMenuBar *fMenuBar;
    TGHorizontalFrame *fHframe;
-	TGTab *fGridListTabs;//tabs with lists of grids
-	KVListView *fIDGridList;//list of grids in current tab
-	KVListView *fIDLineList;//list of lines in currently selected grid
-	KVListView *fCUTLineList;//list of lines in currently selected grid
-	KVListView *fCUTContourList;//list of lines in currently selected grid
+   TGTab *fGridListTabs;//tabs with lists of grids
+   KVListView *fIDGridList;//list of grids in current tab
+   KVListView *fIDLineList;//list of lines in currently selected grid
+   KVListView *fCUTLineList;//list of lines in currently selected grid
+   KVListView *fCUTContourList;//list of lines in currently selected grid
+
+   TGToolBar* fToolBar;
+
    Int_t fFirstGrid;
    Int_t fLastGrid;
    KVIDGraph *fSelectedGrid;
@@ -50,17 +54,16 @@ class KVIDGridManagerGUI:public TGMainFrame {
    TString fFileName;
    TList *fSelectedEntries;
 
-	TList* GetAllGridsInTab()
-	{
-		// list of all grids (selected or not) in current tab
-		if(fIDGridList) return fIDGridList->GetUserItems();
-		return 0;
-	};
+   TList* GetAllGridsInTab() {
+      // list of all grids (selected or not) in current tab
+      if (fIDGridList) return fIDGridList->GetUserItems();
+      return 0;
+   };
 
- public:
+public:
 
-    KVIDGridManagerGUI();
-    virtual ~ KVIDGridManagerGUI();
+   KVIDGridManagerGUI();
+   virtual ~ KVIDGridManagerGUI();
 
    void CloseWindow();
 
@@ -69,9 +72,9 @@ class KVIDGridManagerGUI:public TGMainFrame {
    void CreateAndFillTabs();
    void UpdateTabs();
    void RemoveEmptyTabs();
-	void TabSelect(Int_t);
+   void TabSelect(Int_t);
    void UpdateListOfGrids();
-   
+
    void ShowListOfLines();
    void UpdateListOfLines();
 
