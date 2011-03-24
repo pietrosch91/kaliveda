@@ -35,7 +35,8 @@ KVDropDownDialog::KVDropDownDialog(const TGWindow * main,
    // The Bool_t variable will be set to kTRUE if "OK" is pressed (kFALSE otherwise)
    // Optional argument 'tooltip' will be displayed when mouse held over text entry widget
 
-   fMain = new TGTransientFrame(gClient->GetRoot(), main, 200, 100);
+   fMain = new TGTransientFrame(gClient->GetDefaultRoot(), main, 200, 100);
+   fMain->CenterOnParent();
    fMain->Connect("CloseWindow()", "KVDropDownDialog", this, "DoClose()");
    fMain->DontCallClose();      // to avoid double deletions.
    // use hierarchical cleaning

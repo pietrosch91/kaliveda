@@ -102,7 +102,7 @@ class KVIDGraph : public TCutG
    void SetXScaleFactor(Double_t = 0); //  *MENU={Hierarchy="Scale.../X Scale Factor"}*
    void SetYScaleFactor(Double_t = 0);//  *MENU={Hierarchy="Scale.../Y Scale Factor"}*
 	virtual void NewCut();// *MENU={Hierarchy="AddLine.../NewCut"}*
-	virtual void NewIdentifier();// *MENU={Hierarchy="AddLine.../NewIdentifier"}*
+	//virtual void NewIdentifier();// *MENU={Hierarchy="AddLine.../NewIdentifier"}*
    virtual void          SetEditable(Bool_t editable=kTRUE); // *TOGGLE* *GETTER=GetEditable
 	
    void Draw(Option_t * opt = ""); //  *MENU={Hierarchy="View.../Draw"}*

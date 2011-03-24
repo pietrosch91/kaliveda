@@ -12,6 +12,7 @@
 #include <TGProgressBar.h>
 #include "TGTab.h"
 #include "TGToolBar.h"
+#include "TGStatusBar.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KVIDGridManagerGUI
@@ -45,7 +46,22 @@ class KVIDGridManagerGUI: public TGMainFrame {
    KVListView *fCUTLineList;//list of lines in currently selected grid
    KVListView *fCUTContourList;//list of lines in currently selected grid
 
+
    TGToolBar* fToolBar;
+   TGButton* fTBbuttons[50];
+   Int_t fNbButtons;
+   TGButton* fTBOpen;
+   TGButton* fTBSave;
+   TGButton* fTBNewG;
+   TGButton* fTBNewIDL;
+   TGButton* fTBNewIDC;
+   TGButton* fTBNewCut;
+   TGButton* fTBTest;
+   TGButton* fTBTestTree;
+   TGButton* fTBDelG;
+   TGButton* fTBQuit;
+
+   TGStatusBar* fStatusBar;
 
    Int_t fFirstGrid;
    Int_t fLastGrid;
@@ -58,6 +74,11 @@ class KVIDGridManagerGUI: public TGMainFrame {
       // list of all grids (selected or not) in current tab
       if (fIDGridList) return fIDGridList->GetUserItems();
       return 0;
+   };
+
+   void SetStatus(const Char_t* text = "") {
+      //set status bar message
+      fStatusBar->SetText(text);
    };
 
 public:
@@ -87,7 +108,23 @@ public:
    void DeleteGrids();
    void DeleteAllGridsInTab();
 
+   void ActivateToolbarButtons();
+
    void SaveAs(const TList* /*selected*/ = 0);
+
+   void OpenFile();
+   void SaveCurrent() {
+      SaveAs();
+   };
+   void NewIDLine();
+   void NewIDContour() {};
+   void NewCut() {};
+   void TestGrid() {};
+   void TestTreeGrid() {};
+   void DeleteSelectedGrids();
+   void Quit() {
+      CloseWindow();
+   };
 
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
 };

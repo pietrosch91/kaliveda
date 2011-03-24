@@ -819,38 +819,6 @@ void KVIDGraph::NewCut()
 
 //___________________________________________________________________________________
 
-void KVIDGraph::NewIdentifier()
-{
-	// GUI method called from context menu to draw a new identifier and add it to graph.
-	// A dialog box with drop-down list pops up for the user to choose the class of the
-	// new identifier, unless only one choice is possible, in which case it is used automatically.
-	// For each KVIDGraph-derived class, the list of possible identifier classes and the
-	// default class are define in .kvrootrc by the variables:
-	//
-	// [class_name].IDClass:  [id class 1]
-	// +[class_name].IDClass:  [id class 2]
-	// + ...
-	// [class_name].DefaultIDClass:  [id class]
-
-	TString resname;
-	resname.Form("%s.IDClass", ClassName());
-	TString cut_choices = gEnv->GetValue(resname.Data(),"");
-	resname.Form("%s.DefaultIDClass", ClassName());
-	TString cut_default = gEnv->GetValue(resname.Data(),"");
-	TString cut_class; Bool_t okpressed;
-	if(cut_choices.Contains(" ")){
-		new KVDropDownDialog(gClient->GetRoot(),
-			"Choose class of new identifier :",
-			cut_choices.Data(),
-			cut_default.Data(),
-			&cut_class,
-			&okpressed);
-		if(!okpressed) return;
-	}
-	else
-		cut_class=cut_choices;
-	DrawAndAdd("ID",cut_class.Data());
-}
 
 //___________________________________________________________________________________
 

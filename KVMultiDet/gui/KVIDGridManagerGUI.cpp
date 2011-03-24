@@ -343,52 +343,111 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    AddFrame(fMenuBar,
             new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0,
                               0, 1, 1));
+// adding a horizontal line as a separator
+   TGHorizontal3DLine *lh = new TGHorizontal3DLine(this);
+   AddFrame(lh, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
 
+///////////////////////////*   TOOLBAR *////////////////////////////////
 // toolbar icon files
    const char *xpms[] = {
-      "x_pic.xpm",
-      "y_pic.xpm",
-      "z_pic.xpm",
+      "ofolder_t.xpm", // open
+      "filesaveas.xpm",  // save
+      "f2_t.xpm",
+      "line.xpm",
+      "ellipse.xpm",
+      "cut.xpm",
+      "h1_t.xpm",
+      "branch_t.xpm",
+      "sm_delete.xpm",
+      "quit.xpm",
       0
    };
 // toolbar tool tip text
    const char *tips[] = {
-      "X Settings",
-      "Y Settings",
-      "Z Settings",
+      "Open file containing grids",
+      "Save all grids in current file",
+      "New grid",
+      "Add identification line",
+      "Add identification contour",
+      "Add cut",
+      "Test grid identification",
+      "Test grid (TTree)",
+      "Delete selected grid(s)",
+      "Quit",
       0
    };
-// toolbar button separator
-   int separator = 5;
+   int spacing[] = {
+      5,
+      0,
+      20,
+      0,
+      0,
+      0,
+      10,
+      0,
+      10,
+      100,
+      0
+   };
+   TGButton** buttons[] = {
+      &fTBOpen,
+      &fTBSave,
+      &fTBNewG,
+      &fTBNewIDL,
+      &fTBNewIDC,
+      &fTBNewCut,
+      &fTBTest,
+      &fTBTestTree,
+      &fTBDelG,
+      &fTBQuit,
+      0
+   };
+   const char* method[] = {
+      "OpenFile()",
+      "SaveCurrent()",
+      "NewGrid()",
+      "NewIDLine()",
+      "NewIDContour()",
+      "NewCut()",
+      "TestGrid()",
+      "TestTreeGrid()",
+      "DeleteSelectedGrids()",
+      "Quit()",
+      0
+   };
+   fNbButtons = 0;
 // structure containing toolbar button information
-   ToolBarData_t t[3];
+   ToolBarData_t t[50];
 // creation of a toolbar object as a child of main frame
    fToolBar = new TGToolBar(this, 520, 80);
-   for (int i = 0; i < 3; i++) {
-// filling the ToolBarData_t with information
-      t[i].fPixmap
-      = xpms[i];
-// icon file
+   int i = 0;
+   while (xpms[i]) {
+      t[i].fPixmap = xpms[i];
       t[i].fTipText = tips[i];
-// tool tip text
       t[i].fStayDown = kFALSE;
-// button behavior if clicked
       t[i].fId = i + 1;
-// button id
       t[i].fButton = NULL;
-// button pointer
-      if (strlen(xpms[i]) == 0) {
-         separator = 5;
-         continue;
-      }
-      fToolBar->AddButton(this, &t[i], separator);
-      separator = 0;
+      *buttons[i] = fToolBar->AddButton(this, &t[i], spacing[i]);
+      (*buttons[i])->Connect("Clicked()", "KVIDGridManagerGUI", this, method[i]);
+      fTBbuttons[i] = *buttons[i];
+      fNbButtons++;
+      i++;
    }
+   // 'new id line' button stays down until line is drawn
+   fTBNewIDL->AllowStayDown(kTRUE);
+
 // adding the tool bar to the main frame
    AddFrame(fToolBar, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+///////////////////////////*  END TOOLBAR *////////////////////////////////
+
 // adding a horizontal line as a separator
-   TGHorizontal3DLine *lh = new TGHorizontal3DLine(this);
+   lh = new TGHorizontal3DLine(this);
    AddFrame(lh, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+
+//////////////////////////*STATUS BAR*////////////////////////////////:
+   fStatusBar = new TGStatusBar(this);
+   AddFrame(fStatusBar, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+//////////////////////////*STATUS BAR*////////////////////////////////:
 
    fHframe = new TGHorizontalFrame(this, 10, 10);
 
@@ -465,8 +524,10 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    Resize(GetDefaultSize());
    MapWindow();
    SetWMSize(1200, 600);
+
    // first tab is visible, but TabSelect(0) is not called automatically
    TabSelect(0);
+
 }
 
 KVIDGridManagerGUI::~KVIDGridManagerGUI()
@@ -496,33 +557,9 @@ void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
          NewGrid();
          break;
 
-      case M_GRIDS_READ: {
-         static TString dir(".");
-         const char *filetypes[] = {
-            "ID Grid files", "*.dat",
-            "All files", "*",
-            0, 0
-         };
-         TGFileInfo fi;
-         fi.fFileTypes = filetypes;
-         fi.fIniDir = StrDup(dir);
-         //printf("fIniDir = %s\n", fi.fIniDir);
-         new TGFileDialog(gClient->GetRoot(), this, kFDOpen, &fi);
-         if (fi.fFilename) {
-            if (gIDGridManager->ReadAsciiFile(fi.fFilename)) {
-               //read file ok no problem. update list of grids.
-               //UpdateListOfGrids();
-               //set filename for Save
-               fFileName = fi.fFilename;
-            } else {
-               new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                            Form("Could not read file %s", fi.fFilename),
-                            0, kMBOk);
-            }
-         }
-         dir = fi.fIniDir;
-      }
-      break;
+      case M_GRIDS_READ:
+         OpenFile();
+         break;
 
       case M_GRIDS_SAVE_SEL:
          // save current selection of grids in file
@@ -541,17 +578,9 @@ void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
          break;
 
       case M_GRIDS_DEL_SEL:
-         //warning message and confirmation
-      {
-         Int_t ret_val;
-         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
-                      "This will delete the selected grids. Are you sure ?",
-                      kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-         if (ret_val & kMBOk) {
-            DeleteGrids();
-         }
-      }
-      break;
+         DeleteSelectedGrids();
+         break;
+
       case M_GRIDS_DEL_TAB:
          //warning message and confirmation
       {
@@ -605,6 +634,46 @@ void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
    }
 }
 
+void KVIDGridManagerGUI::DeleteSelectedGrids()
+{
+   //warning message and confirmation
+   Int_t ret_val;
+   new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                "This will delete the selected grids. Are you sure ?",
+                kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+   if (ret_val & kMBOk) {
+      DeleteGrids();
+   }
+}
+
+void KVIDGridManagerGUI::OpenFile()
+{
+   static TString dir(".");
+   const char *filetypes[] = {
+      "ID Grid files", "*.dat",
+      "All files", "*",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   //printf("fIniDir = %s\n", fi.fIniDir);
+   new TGFileDialog(gClient->GetRoot(), this, kFDOpen, &fi);
+   if (fi.fFilename) {
+      if (gIDGridManager->ReadAsciiFile(fi.fFilename)) {
+         //read file ok no problem. update list of grids.
+         //UpdateListOfGrids();
+         //set filename for Save
+         fFileName = fi.fFilename;
+      } else {
+         new TGMsgBox(gClient->GetRoot(), this, "ID Grid Manager",
+                      Form("Could not read file %s", fi.fFilename),
+                      0, kMBOk);
+      }
+   }
+   dir = fi.fIniDir;
+}
+
 void KVIDGridManagerGUI::UpdateListOfGrids()
 {
    //remove all existing entries, then fill list from gIDGridManager
@@ -635,6 +704,8 @@ void KVIDGridManagerGUI::SelectionChanged()
    fSelectedEntries = fIDGridList->GetSelectedObjects();
    fSelectedGrid = (KVIDGraph*)fIDGridList->GetLastSelectedObject();
    ShowListOfLines();
+   //(de)activate toolbar buttons
+   ActivateToolbarButtons();
 }
 
 Int_t KVIDGridManagerGUI::GetNSelected()
@@ -984,3 +1055,67 @@ void KVIDGridManagerGUI::ShowListOfLines()
       }
    }
 }
+
+void KVIDGridManagerGUI::ActivateToolbarButtons()
+{
+   // disable all buttons
+   for (int i = 0; i < fNbButtons; i++) fTBbuttons[i]->SetEnabled(kFALSE);
+   // enable 'open' & 'quit' & 'new grid"
+   fTBOpen->SetEnabled();
+   fTBQuit->SetEnabled();
+   fTBNewG->SetEnabled();
+   // enable 'save' if there are grids
+   if (gIDGridManager->GetGrids()->GetEntries()) fTBSave->SetEnabled();
+
+   if (!GetNSelected()) return; // no grids selected
+
+   //enable delete selected grid(s)
+   fTBDelG->SetEnabled();
+
+   if (GetNSelected() == 1) {
+      // only one grid selected
+      fTBNewIDL->SetEnabled();
+      fTBNewIDC->SetEnabled();
+      fTBNewCut->SetEnabled();
+      fTBTest->SetEnabled();
+      fTBTestTree->SetEnabled();
+   }
+}
+
+void KVIDGridManagerGUI::NewIDLine()
+{
+   // GUI method to draw a new identifier and add it to graph.
+   // A dialog box with drop-down list pops up for the user to choose the class of the
+   // new identifier, unless only one choice is possible, in which case it is used automatically.
+   // For each KVIDGraph-derived class, the list of possible identifier classes and the
+   // default class are define in .kvrootrc by the variables:
+   //
+   // [class_name].IDClass:  [id class 1]
+   // +[class_name].IDClass:  [id class 2]
+   // + ...
+   // [class_name].DefaultIDClass:  [id class]
+
+   if (!fSelectedGrid || GetNSelected() != 1) return;
+   TString resname;
+   resname.Form("%s.IDClass", fSelectedGrid->ClassName());
+   TString cut_choices = gEnv->GetValue(resname.Data(), "");
+   resname.Form("%s.DefaultIDClass", fSelectedGrid->ClassName());
+   TString cut_default = gEnv->GetValue(resname.Data(), "");
+   TString cut_class;
+   Bool_t okpressed;
+   if (cut_choices.Contains(" ")) {
+      new KVDropDownDialog(this,
+                           "Choose class of new identifier :",
+                           cut_choices.Data(),
+                           cut_default.Data(),
+                           &cut_class,
+                           &okpressed);
+      if (!okpressed) return;
+   } else
+      cut_class = cut_choices;
+   SetStatus(Form("Draw ID line (%s) in current pad", cut_class.Data()));
+   fSelectedGrid->DrawAndAdd("ID", cut_class.Data());
+   fTBNewIDL->SetDown(kFALSE, kFALSE);
+   SetStatus();
+}
+
