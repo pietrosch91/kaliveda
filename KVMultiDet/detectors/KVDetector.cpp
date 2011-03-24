@@ -115,6 +115,7 @@ void KVDetector::init()
 	fEResforEinc = -1.;
 	fAlignedDetectors[0] = 0;
 	fAlignedDetectors[1] = 0;
+	fSimMode = kFALSE;
 }
 
 KVDetector::KVDetector()
