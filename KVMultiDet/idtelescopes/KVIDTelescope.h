@@ -31,6 +31,7 @@ class KVIDGraph;
 class KVIDGrid;
 class KVMultiDetArray;
 class KVIdentificationResult;
+class TH2;
 
 class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
@@ -169,7 +170,7 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
 	const Char_t* GetDefaultIDGridClass();
 	KVIDGrid* CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints);
-
+	KVIDGrid* CalculateDeltaE_EGrid(TH2* haa_zz, Bool_t Zonly, Int_t npoints);
     // status codes for GetMeanDEFromID
     enum{
         kMeanDE_OK,       // all OK

@@ -30,9 +30,11 @@ Author : $Author: franklan $
 #include "KVDataSet.h"
 #include "KVIDGridManager.h"
 #include "KVIDZALine.h"
+#include "KVIDCutLine.h"
 #include "KVIdentificationResult.h"
 #include "TMath.h"
 #include "TClass.h"
+#include "TH2.h"
 
 ClassImp(KVIDTelescope)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +138,8 @@ void KVIDTelescope::AddDetector(KVDetector * d)
    if (d) {
       fDetectors->Add(d);
       d->AddIDTelescope(this);
-   } else {
+   }
+	else {
       Warning("AddDetector", "Called with null pointer");
    }
 }
@@ -798,65 +801,78 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
 }
 
 //_____________________________________________________________________________________________________//
-
-KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaMasse,Int_t npoints)
+KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA,Int_t npoints)
 {
-
+	//Genere une grille dE-E (perte d'energie - energie residuelle) pour une gamme en Z donnée
+	// - Zrange définit l'ensemble des charges pour lequel les lignes vont êtres calculées
+	// - deltaA permet de définir si à chaque Z n'est associée qu'un seul A (deltaA=0) ou plusieurs
+	//Exemple :
+	//		deltaA=1 -> Aref-1, Aref et Aref+1 seront les masses associées a chaque Z et 
+	//		donc trois lignes de A par Z. le Aref pour chaque Z est determine par
+	//		la formule de masse par defaut (Aref = KVNucleus::GetA() voir le .kvrootrc)
+	//		deltaA=0 -> pour chaque ligne de Z le A associe sera celui de KVNucleus::GetA()
+	// - est le nombre de points par ligne
+	//	
+	//un noyau de A et Z donné n'est considéré que s'il retourne KVNucleus::IsKnown() = kTRUE
+	//
 	if (GetSize()<=1) return 0;
 
 	KVNumberList nlz(Zrange);
-
+	
 	TClass* cl = new TClass(GetDefaultIDGridClass());
 	KVIDGrid* idgrid = (KVIDGrid* )cl->New();
 	delete cl;
 
 	idgrid->AddIDTelescope(this);
-	idgrid->SetOnlyZId((deltaMasse!=0));
+	idgrid->SetOnlyZId((deltaA==0));
 
 	KVDetector* det_de = GetDetector(1);	if (!det_de)		return 0;
 	KVDetector* det_eres = GetDetector(2);	if (!det_eres) 	return 0;
 
 	KVNucleus part;
-	Info("SimulateGrid",
+	Info("CalculateDeltaE_EGrid",
         "Calculating dE-E grid: dE detector = %s, E detector = %s",
         det_de->GetName(), det_eres->GetName());
 
-	KVIDLine *B_line = (KVIDLine *)idgrid->Add("OK", "KVIDCutLine");
+	KVIDCutLine *B_line = (KVIDCutLine *)idgrid->Add("OK", "KVIDCutLine");
    Int_t npoi_bragg = 0;
 	B_line->SetName("Bragg_line");
-
+	B_line->SetAcceptedDirection("right");
+	
+	Double_t SeuilE=0.1;
+	
    nlz.Begin(); while (!nlz.End()){
-		Int_t zzz = nlz.Next();
-		part.SetZ(zzz);
-		Int_t aref = part.GetAWithMaxBindingEnergy(zzz);
-		printf("%d\n",zzz);
-		for (Int_t aaa=aref-deltaMasse; aaa<=aref+deltaMasse; aaa+=1){
-      	part.SetA(aaa);
-			printf("+ %d %d %d\n",aaa,aref,part.IsKnown());
+		Int_t zz = nlz.Next();
+		part.SetZ(zz);
+		Int_t aref = part.GetA();
+		printf("%d\n",zz);
+		for (Int_t aa=aref-deltaA; aa<=aref+deltaA; aa+=1){
+      	part.SetA(aa);
+			printf("+ %d %d %d\n",aa,aref,part.IsKnown());
 			if (part.IsKnown()){
 
 				//loop over energy
       		//first find :
-      		//      ****E1 = energy at which particle passes ChIo and starts to enter Si****
-      		//      E2 = energy at which particle passes Si
+      		//  ****E1 = energy at which particle passes 1st detector and starts to enter in the 2nd one****
+      		//      E2 = energy at which particle passes the 2nd detector
       		//then perform npoints calculations between these two energies and use these
-      		//to construct a KVIDZLine
+      		//to construct a KVIDZALine
 
       		Double_t E1, E2;
       		//find E1
-      		//go from 0.1 MeV to chio->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
-      		Double_t E1min = 0.1, E1max = det_de->GetEIncOfMaxDeltaE(zzz,aaa);
+      		//go from SeuilE MeV to det_de->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
+      		Double_t E1min = SeuilE, E1max = det_de->GetEIncOfMaxDeltaE(zz,aa);
       		E1 = (E1min + E1max) / 2.;
 
-				while ((E1max - E1min) > 0.1) {
-					//printf("1ere iteration %lf>0.1\n",E1max - E1min);
-         		part.SetEnergy(E1);
+				while ((E1max - E1min) > SeuilE) {
+					
+					part.SetEnergy(E1);
          		det_de->Clear();
 					det_eres->Clear();
 
          		det_de->DetectParticle(&part);
          		det_eres->DetectParticle(&part);
-         		if (det_eres->GetEnergy() > .1) {
+         		if (det_eres->GetEnergy() > SeuilE) {
             		//particle got through - decrease energy
             		E1max = E1;
             		E1 = (E1max + E1min) / 2.;
@@ -868,25 +884,25 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
       		}
 
       		//add point to Bragg line
-      		Double_t dE_B = det_de->GetMaxDeltaE(zzz, aaa);
-      		Double_t E_B = det_de->GetEIncOfMaxDeltaE(zzz, aaa);
-      		Double_t Eres_B = det_de->GetERes(zzz, aaa, E_B);
+      		Double_t dE_B = det_de->GetMaxDeltaE(zz, aa);
+      		Double_t E_B = det_de->GetEIncOfMaxDeltaE(zz, aa);
+      		Double_t Eres_B = det_de->GetERes(zz, aa, E_B);
       		B_line->SetPoint(npoi_bragg++, Eres_B, dE_B);
 
       		//find E2
-      		//go from E1 MeV to 6000 MeV
-      		Double_t E2min = E1, E2max = 6000;
+      		//go from E1 MeV to maximum value where the energy loss formula is valid
+      		Double_t E2min = E1, E2max = det_eres->GetEmaxValid(part.GetZ(),part.GetA());
       		E2 = (E2min + E2max) / 2.;
 
-      		while ((E2max - E2min > 0.1)) {
-					//printf("2ere iteration %lf>0.1\n",E2max - E2min);
-         		part.SetEnergy(E2);
+      		while ((E2max - E2min > SeuilE)) {
+					
+					part.SetEnergy(E2);
          		det_de->Clear();
 					det_eres->Clear();
 
 					det_de->DetectParticle(&part);
          		det_eres->DetectParticle(&part);
-         		if (part.GetEnergy() > .1) {
+         		if (part.GetEnergy() > SeuilE) {
             		//particle got through - decrease energy
             		E2max = E2;
             		E2 = (E2max + E2min) / 2.;
@@ -897,24 +913,23 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
          		}
       		}
 
-      		cout << "Z=" << zzz << " E1 = " << E1 << " E2 = " << E2 << endl;
-      		KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
-      		if (TMath::Even(zzz)) line->SetLineColor(4);
-				line->SetZ(zzz);
-				line->SetA(aaa);
+      		printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
+				KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
+      		if (TMath::Even(zz)) line->SetLineColor(4);
+				line->SetZ(zz);
+				line->SetA(aa);
 
       		Double_t logE1 = TMath::Log(E1);
       		Double_t logE2 = TMath::Log(E2);
       		Double_t dLog = (logE2 - logE1) / (npoints - 1.);
 
       		for (Int_t i = 0; i < npoints; i++) {
-//                      Double_t E = E1 + i*(E2-E1)/(npoints-1.);
+//					Double_t E = E1 + i*(E2-E1)/(npoints-1.);
          		Double_t E = TMath::Exp(logE1 + i * dLog);
-//					printf("points %d sur %d - %lf\n",i,npoints,E);
 
          		Double_t Eres = 0.;
          		Int_t niter=0;
-					while (Eres < 0.1 && niter<=20) {
+					while (Eres < SeuilE && niter<=20) {
             		det_de->Clear();
             		det_eres->Clear();
 
@@ -924,15 +939,15 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
             		det_eres->DetectParticle(&part);
 
 						Eres = det_eres->GetEnergy();
-            		E += 0.1;
-
-						//printf("3eme iteration %lf<0.1 - %lf\n",Eres,E);
+            		E += SeuilE;
 						niter+=1;
 					}
          		if (!(niter>20)){
          			Double_t dE = det_de->GetEnergy();
-         			//PHD correction
+         			Double_t gEres,gdE;
+						line->GetPoint(i-1,gEres,gdE);
 						line->SetPoint(i, Eres, dE);
+						
       			}
 				}
 				//printf("sort de boucle points");
@@ -944,6 +959,193 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaM
 
 }
 
+//_____________________________________________________________________________________________________//
+KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(TH2* haa_zz,Bool_t Zonly,Int_t npoints)
+{
+	//Genere une grille dE-E (perte d'energie - energie residuelle) 
+	//Le calcul est fait pour chaque couple comptant de charge (Z) et masse (A) 
+	//au moins un coup dans l'histogramme haa_zz definit :
+	// Axe X -> Z
+	// Axe Y -> A	
+	//
+	//- Si Zonly=kTRUE (kFALSE par defaut), pour un Z donne, le A choisi est la valeur entiere la 
+	//plus proche de la valeur moyenne <A>
+	//- Si Zonly=kFALSE et que pour un Z donne il n'y a qu'un seul A associe, les lignes correspondants
+	//a A-1 et A+1 sont ajoutes
+	//- Si a un Z donne, il n'y a aucun A, pas de ligne tracee
+	//un noyau de A et Z donné n'est considéré que s'il retourne KVNucleus::IsKnown() = kTRUE
+	
+	if (GetSize()<=1) return 0;
+
+	TClass* cl = new TClass(GetDefaultIDGridClass());
+	KVIDGrid* idgrid = (KVIDGrid* )cl->New();
+	delete cl;
+
+	idgrid->AddIDTelescope(this);
+	idgrid->SetOnlyZId(Zonly);
+
+	KVDetector* det_de = GetDetector(1);	if (!det_de)		return 0;
+	KVDetector* det_eres = GetDetector(2);	if (!det_eres) 	return 0;
+
+	KVNucleus part;
+	Info("CalculateDeltaE_EGrid",
+        "Calculating dE-E grid: dE detector = %s, E detector = %s",
+        det_de->GetName(), det_eres->GetName());
+
+	KVIDCutLine *B_line = (KVIDCutLine *)idgrid->Add("OK", "KVIDCutLine");
+   Int_t npoi_bragg = 0;
+	B_line->SetName("Bragg_line");
+	B_line->SetAcceptedDirection("right");
+	
+	Double_t SeuilE=0.1;
+	
+	for (Int_t nx=1;nx<=haa_zz->GetNbinsX();nx+=1){
+		
+		Int_t zz = TMath::Nint(haa_zz->GetXaxis()->GetBinCenter(nx));
+		KVNumberList nlA;
+		Double_t sumA=0,sum=0;
+		for (Int_t ny=1;ny<=haa_zz->GetNbinsY();ny+=1){
+			Double_t stat = haa_zz->GetBinContent(nx,ny);
+			if (stat>0){
+				Double_t val = haa_zz->GetYaxis()->GetBinCenter(ny);
+				nlA.Add(TMath::Nint(val));
+				sumA	+=	val*stat;
+				sum	+=	stat;
+			}
+		}
+		sumA /= sum;
+		Int_t nA = nlA.GetNValues();
+		if (nA==0){
+			Warning("CalculateDeltaE_EGrid","no count for Z=%d",zz);
+		}
+		else {
+			if (Zonly){
+				nlA.Clear();
+				nlA.Add(TMath::Nint(sumA));
+			}
+			else {
+				if (nA==1){
+					Int_t aref = nlA.Last();
+					nlA.Add(aref-1);
+					nlA.Add(aref+1);
+				}
+			}	
+			part.SetZ(zz);
+			printf("zz=%d\n",zz);
+			nlA.Begin();
+			while (!nlA.End()){
+				Int_t aa = nlA.Next();
+				part.SetA(aa);
+				printf("+ aa=%d known=%d\n",aa,part.IsKnown());
+				if (part.IsKnown()){
+
+				//loop over energy
+      		//first find :
+      		//  ****E1 = energy at which particle passes 1st detector and starts to enter in the 2nd one****
+      		//      E2 = energy at which particle passes the 2nd detector
+      		//then perform npoints calculations between these two energies and use these
+      		//to construct a KVIDZALine
+				
+				Double_t E1, E2;
+      		//find E1
+      		//go from SeuilE MeV to det_de->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
+      		Double_t E1min = SeuilE, E1max = det_de->GetEIncOfMaxDeltaE(zz,aa);
+      		E1 = (E1min + E1max) / 2.;
+
+				while ((E1max - E1min) > SeuilE) {
+					
+					part.SetEnergy(E1);
+         		det_de->Clear();
+					det_eres->Clear();
+
+         		det_de->DetectParticle(&part);
+         		det_eres->DetectParticle(&part);
+         		if (det_eres->GetEnergy() > SeuilE) {
+            		//particle got through - decrease energy
+            		E1max = E1;
+            		E1 = (E1max + E1min) / 2.;
+         		} else {
+            		//particle stopped - increase energy
+            		E1min = E1;
+            		E1 = (E1max + E1min) / 2.;
+         		}
+      		}
+
+      		//add point to Bragg line
+      		Double_t dE_B = det_de->GetMaxDeltaE(zz, aa);
+      		Double_t E_B = det_de->GetEIncOfMaxDeltaE(zz, aa);
+      		Double_t Eres_B = det_de->GetERes(zz, aa, E_B);
+      		B_line->SetPoint(npoi_bragg++, Eres_B, dE_B);
+
+      		//find E2
+      		//go from E1 MeV to maximum value where the energy loss formula is valid
+      		Double_t E2min = E1, E2max = det_eres->GetEmaxValid(part.GetZ(),part.GetA());
+      		E2 = (E2min + E2max) / 2.;
+
+      		while ((E2max - E2min > SeuilE)) {
+					
+					part.SetEnergy(E2);
+         		det_de->Clear();
+					det_eres->Clear();
+
+					det_de->DetectParticle(&part);
+         		det_eres->DetectParticle(&part);
+         		if (part.GetEnergy() > SeuilE) {
+            		//particle got through - decrease energy
+            		E2max = E2;
+            		E2 = (E2max + E2min) / 2.;
+         		} else {
+            		//particle stopped - increase energy
+            		E2min = E2;
+            		E2 = (E2max + E2min) / 2.;
+         		}
+      		}
+
+      		printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
+				KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
+      		if (TMath::Even(zz)) line->SetLineColor(4);
+				line->SetAandZ(aa,zz);
+
+      		Double_t logE1 = TMath::Log(E1);
+      		Double_t logE2 = TMath::Log(E2);
+      		Double_t dLog = (logE2 - logE1) / (npoints - 1.);
+
+      		for (Int_t i = 0; i < npoints; i++) {
+         		Double_t E = TMath::Exp(logE1 + i * dLog);
+					Double_t Eres = 0.;
+         		Int_t niter=0;
+					while (Eres < SeuilE && niter<=20) {
+            		det_de->Clear();
+            		det_eres->Clear();
+
+						part.SetEnergy(E);
+
+						det_de->DetectParticle(&part);
+            		det_eres->DetectParticle(&part);
+
+						Eres = det_eres->GetEnergy();
+            		E += SeuilE;
+
+						niter+=1;
+					}
+         		if (!(niter>20)){
+         			Double_t dE = det_de->GetEnergy();
+         			Double_t gEres,gdE;
+						line->GetPoint(i-1,gEres,gdE);
+						line->SetPoint(i, Eres, dE);
+					}
+				}
+			
+				}
+			}
+		
+		}
+	
+   }
+
+	return idgrid;
+
+}
 //_________________________________________________________________________________________
 
 Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
