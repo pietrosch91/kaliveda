@@ -893,7 +893,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
 
 //___________________________________________________________________________________
 
-void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
+TFile* KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
 {
    //This method allows to test the identification capabilities of the grid using data in a TH2F.
    //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
@@ -912,34 +912,37 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
    TH2F* data = (TH2F* )gROOT->FindObject(name_of_data_histo);
 	if (!data) {
 		printf(" KVIDGraph::TestIdentificationWithTree l histo %s n existe pas\n",name_of_data_histo);
-		return;
+		return 0;
 	}
 
-	TH2F* idmap = 0;
-	if ( (idmap = (TH2F* )gROOT->FindObject("idcode_map") )){
-		delete idmap;
-	}
-	idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
 
    KVIdentificationResult *idr = new KVIdentificationResult;
    KVReconstructedNucleus nuc;
 
+	// store current memory directory
+	TDirectory* CWD = gDirectory;
+	
 	TTree* tid = 0;
 	if ( (tid = (TTree* )gROOT->FindObject("tree_idresults")) ) {
 		printf(" KVIDGraph::TestIdentificationWithTree effacemenent de l arbre existant\n");
 		delete tid;
 	}
+	// create temporary file for tree
+	TString fn("IDtestTree.root");
+	KVBase::GetTempFileName(fn);
+	TFile* tmpfile = new TFile(fn.Data(), "recreate");
+	TH2F* idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
 	tid = new TTree("tree_idresults","pid");
 	Float_t br_xxx,br_yyy,br_stat,br_pid;
 	Int_t br_idcode,br_isid;
 
-	tid->Branch("xxx",&br_xxx,"br_xxx/F");
-	tid->Branch("yyy",&br_yyy,"br_yyy/F");
-	tid->Branch("stat",&br_stat,"br_stat/F");
+	tid->Branch("X",&br_xxx,"br_xxx/F");
+	tid->Branch("Y",&br_yyy,"br_yyy/F");
+	tid->Branch("Stat",&br_stat,"br_stat/F");
 
-	tid->Branch("pid",&br_pid,"br_pid/F");
-	tid->Branch("idcode",&br_idcode,"br_idcode/I");
-	tid->Branch("isid",&br_isid,"br_isid/I");
+	tid->Branch("PID",&br_pid,"br_pid/F");
+	tid->Branch("IDcode",&br_idcode,"br_idcode/I");
+	tid->Branch("IsIdentified",&br_isid,"br_isid/I");
 
   Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
@@ -1001,6 +1004,8 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
    }
 
    delete idr;
+   CWD->cd();
+   return tmpfile;
 }
 
 //___________________________________________________________________________________

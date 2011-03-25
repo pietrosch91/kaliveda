@@ -127,7 +127,7 @@ class KVIDGraph : public TCutG
    	fCuts->Execute("SetLineWidth", Form("%d", (Int_t) lwidth));Modified();
 	};// *MENU={Hierarchy="View.../SetLineWidth"}*
 	
-   void TestIdentificationWithTree(const Char_t* name_of_data_histo); //  *MENU={Hierarchy="Test.../TestIdentificationWithTree"}*
+   TFile* TestIdentificationWithTree(const Char_t* name_of_data_histo);
 	
    Double_t GetXScaleFactor();
    Double_t GetYScaleFactor();

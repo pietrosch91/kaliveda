@@ -1170,6 +1170,7 @@ void KVIDGridManagerGUI::TestGrid()
    // test the identification with selected grid
    // we search in current pad for the data histogram
    
+   	SetStatus("");
    if(GetNSelected()!=1) return;
    if(!fSelectedGrid) return;
    // look for data histogram in current pad
@@ -1181,7 +1182,52 @@ void KVIDGridManagerGUI::TestGrid()
    		if(o->InheritsFrom("TH2")) { histo = (TH2*)o; break; }
    	}
    }
+   if(!histo){
+   	SetStatus("No TH2 found in current pad. Select pad containing 2D histo with data to identify.");
+   	return;
+   }
+   else
+   {
+   	SetStatus(Form("Test identification of data in current pad %s.",histo->GetName()));
+   }
    new KVTestIDGridDialog(fClient->GetDefaultRoot(), this, 10, 10, fSelectedGrid, histo);
+   	SetStatus("");
 }
 
-
+void KVIDGridManagerGUI::TestTreeGrid()
+{
+   // test the identification with selected grid
+   // we search in current pad for the data histogram
+   	SetStatus("");
+   if(GetNSelected()!=1) return;
+   if(!fSelectedGrid) return;
+   // look for data histogram in current pad
+   TH2* histo=0;
+   if(gPad){
+   	TIter next(gPad->GetListOfPrimitives());
+   	TObject* o; 
+   	while( (o = next()) ){
+   		if(o->InheritsFrom("TH2")) { histo = (TH2*)o; break; }
+   	}
+   }
+   if(!histo){
+   	SetStatus("No TH2 found in current pad. Select pad containing 2D histo with data to identify.");
+   	return;
+   }
+   else
+   {
+   	SetStatus(Form("Test identification of data in current pad %s.",histo->GetName()));
+   }
+   TFile* tmpfiles = fSelectedGrid->TestIdentificationWithTree(histo->GetName());
+   if(!tmpfiles) {
+   	SetStatus("There was a problem with the test ???");
+   	return;
+   }
+   new TCanvas;
+   TH2* id = (TH2*)tmpfiles->Get("idcode_map");
+   id->SetStats(kFALSE);
+   id->Draw("zcol");
+   TTree* t = (TTree*)tmpfiles->Get("tree_idresults");
+   t->StartViewer();
+   	SetStatus("");
+}

@@ -121,7 +121,7 @@ public:
    void NewIDContour() {};
    void NewCut();
    void TestGrid();
-   void TestTreeGrid() {};
+   void TestTreeGrid();
    void DeleteSelectedGrids();
    void Quit() {
       CloseWindow();
