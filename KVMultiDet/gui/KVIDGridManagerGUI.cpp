@@ -21,6 +21,7 @@
 #include "KVInputDialog.h"
 #include "KVIDCutLine.h"
 #include "KVIDCutContour.h"
+#include "KVVirtualIDFitter.h"
 
 ClassImp(KVIDGridManagerGUI)
 //////////////////////////////////////////////////////////
@@ -354,10 +355,11 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    const char *xpms[] = {
       "ofolder_t.xpm", // open
       "filesaveas.xpm",  // save
-      "f2_t.xpm",
+      "profile_t.xpm",
       "line.xpm",
       "ellipse.xpm",
       "cut.xpm",
+      "selection_t.xpm",
       "h1_t.xpm",
       "branch_t.xpm",
       "sm_delete.xpm",
@@ -372,6 +374,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "Add identification line",
       "Add identification contour",
       "Add cut",
+      "Fit grid",
       "Test grid identification",
       "Test grid (TTree)",
       "Delete selected grid(s)",
@@ -387,6 +390,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       0,
       10,
       0,
+      0,
       10,
       1000,
       0
@@ -398,6 +402,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       &fTBNewIDL,
       &fTBNewIDC,
       &fTBNewCut,
+      &fTBFit,
       &fTBTest,
       &fTBTestTree,
       &fTBDelG,
@@ -411,6 +416,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "NewIDLine()",
       "NewIDContour()",
       "NewCut()",
+      "FitGrid()",
       "TestGrid()",
       "TestTreeGrid()",
       "DeleteSelectedGrids()",
@@ -1079,7 +1085,7 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
    if (GetNSelected() == 1) {
       // only one grid selected
       fTBNewIDL->SetEnabled();
-      //fTBNewIDC->SetEnabled();
+      fTBFit->SetEnabled();
       fTBNewCut->SetEnabled();
       fTBTest->SetEnabled();
       fTBTestTree->SetEnabled();
@@ -1230,4 +1236,19 @@ void KVIDGridManagerGUI::TestTreeGrid()
    TTree* t = (TTree*)tmpfiles->Get("tree_idresults");
    t->StartViewer();
    	SetStatus("");
+}
+
+void KVIDGridManagerGUI::FitGrid()
+{
+   	SetStatus("");
+   if(GetNSelected()!=1) return;
+   if(!fSelectedGrid) return;
+   SetStatus(Form("Fitting grid %s",fSelectedGrid->GetName()));
+	 KVVirtualIDFitter * fitter = KVVirtualIDFitter::GetDefaultFitter();
+    fitter->SetGrid(fSelectedGrid);
+    fitter->SetPad(fSelectedGrid->GetPad());
+    TMethod * m = fitter->IsA()->GetMethodAny("FitPanel");
+    TContextMenu * cm = new TContextMenu("FitPanel", "Context menu for KVVirtualIDFitter::FitPanel");
+    cm->Action(fitter,m);
+    delete cm;
 }

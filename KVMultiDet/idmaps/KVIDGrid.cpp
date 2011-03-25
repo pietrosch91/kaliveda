@@ -245,21 +245,6 @@ void KVIDGrid::Initialize()
 
 //___________________________________________________________________________________
 
-void KVIDGrid::FitPanel()
-{
-    // GUI method, use default ID fitter object in order to fit this ID grid.
-
-    KVVirtualIDFitter * fitter = KVVirtualIDFitter::GetDefaultFitter();
-    fitter->SetGrid(this);
-    fitter->SetPad(fPad);
-    TMethod * m = fitter->IsA()->GetMethodAny("FitPanel");
-    TContextMenu * cm = new TContextMenu("KVIDGrid::FitPanel", "Context menu for KVIDGrid::FitPanel");
-    cm->Action(fitter,m);
-    delete cm;
-}
-
-//___________________________________________________________________________________
-
 void KVIDGrid::Streamer(TBuffer &R__b)
 {
     // Stream an object of class KVIDGrid.

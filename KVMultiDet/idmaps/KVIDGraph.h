@@ -87,6 +87,8 @@ class KVIDGraph : public TCutG
    KVIDentifier *GetIdentifier(Int_t Z, Int_t A) const;
    void RemoveIdentifier(KVIDentifier*);
    void RemoveCut(KVIDentifier*);
+   
+   TVirtualPad* GetPad() const { return fPad; };
 	
    void ReadAsciiFile(const Char_t * filename);
 	void AddIDTelescopes(const TList*);

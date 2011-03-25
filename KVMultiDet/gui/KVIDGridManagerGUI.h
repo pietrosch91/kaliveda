@@ -57,6 +57,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
    TGButton* fTBNewIDL;
    TGButton* fTBNewIDC;
    TGButton* fTBNewCut;
+   TGButton* fTBFit;
    TGButton* fTBTest;
    TGButton* fTBTestTree;
    TGButton* fTBDelG;
@@ -120,6 +121,7 @@ public:
    void NewIDLine();
    void NewIDContour() {};
    void NewCut();
+   void FitGrid();
    void TestGrid();
    void TestTreeGrid();
    void DeleteSelectedGrids();
