@@ -114,7 +114,7 @@ class KVIDentifier : public TCutG
    virtual void     SetName(const char *name);
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TObject.h, to stop these methods appearing in the ID line context menus
-   //virtual void        Delete(Option_t *option=""){TGraph::Delete(option);};
+   virtual void        Delete(Option_t *option=""){TGraph::Delete(option);};
    virtual void        DrawClass() const {TGraph::DrawClass();};
    virtual TObject    *DrawClone(Option_t *option="") const {return TGraph::DrawClone(option);};
    virtual void        CloneScaleStore(Int_t newzt,Double_t sy,Int_t newat=-1,Double_t sx=-1);  // *MENU*
@@ -128,6 +128,8 @@ class KVIDentifier : public TCutG
 
 	virtual Int_t         InsertPoint(){ if(GetEditable()){ return TCutG::InsertPoint(); } else {return -2;} }; // *MENU*
 	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU*
+	
+	virtual Double_t GetPID() const;
 
    ClassDef(KVIDentifier,2)//Base class for graphical cuts used in particle identification
 };

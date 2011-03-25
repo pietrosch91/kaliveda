@@ -101,7 +101,7 @@ class KVIDGraph : public TCutG
    void WriteAsciiFile(const Char_t * filename);// *MENU*
    void SetXScaleFactor(Double_t = 0); //  *MENU={Hierarchy="Scale.../X Scale Factor"}*
    void SetYScaleFactor(Double_t = 0);//  *MENU={Hierarchy="Scale.../Y Scale Factor"}*
-	virtual void NewCut();// *MENU={Hierarchy="AddLine.../NewCut"}*
+	//virtual void NewCut();// *MENU={Hierarchy="AddLine.../NewCut"}*
 	//virtual void NewIdentifier();// *MENU={Hierarchy="AddLine.../NewIdentifier"}*
    virtual void          SetEditable(Bool_t editable=kTRUE); // *TOGGLE* *GETTER=GetEditable
 	
@@ -127,7 +127,6 @@ class KVIDGraph : public TCutG
    	fCuts->Execute("SetLineWidth", Form("%d", (Int_t) lwidth));Modified();
 	};// *MENU={Hierarchy="View.../SetLineWidth"}*
 	
-	void TestGrid(); // *MENU={Hierarchy="Test.../TestGrid"}*
    void TestIdentificationWithTree(const Char_t* name_of_data_histo); //  *MENU={Hierarchy="Test.../TestIdentificationWithTree"}*
 	
    Double_t GetXScaleFactor();
@@ -322,7 +321,7 @@ class KVIDGraph : public TCutG
 #endif
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TObject.h, to stop these methods appearing in the ID line context menus
-   //virtual void        Delete(Option_t *option=""){TGraph::Delete(option);}; 
+   virtual void        Delete(Option_t *option=""){TGraph::Delete(option);}; 
    virtual void        DrawClass() const {TGraph::DrawClass();};
    virtual TObject    *DrawClone(Option_t *option="") const {return TGraph::DrawClone(option);};
    virtual void        Dump() const {TGraph::Dump();}; 

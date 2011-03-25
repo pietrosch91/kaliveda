@@ -784,38 +784,6 @@ void KVIDGraph::Scale(Double_t sx, Double_t sy)
 
 //___________________________________________________________________________________
 
-void KVIDGraph::NewCut()
-{
-	// GUI method called from context menu to draw a new cut and add it to graph.
-	// A dialog box with drop-down list pops up for the user to choose the class of the
-	// new cut, unless only one choice is possible, in which case it is used automatically.
-	// For each KVIDGraph-derived class, the list of possible cut classes and the
-	// default class are define in .kvrootrc by the variables:
-	//
-	// [class_name].CutClass:  [cut class 1]
-	// +[class_name].CutClass:  [cut class 2]
-	// + ...
-	// [class_name].DefaultCutClass:  [cut class]
-
-	TString resname;
-	resname.Form("%s.CutClass", ClassName());
-	TString cut_choices = gEnv->GetValue(resname.Data(),"");
-	resname.Form("%s.DefaultCutClass", ClassName());
-	TString cut_default = gEnv->GetValue(resname.Data(),"");
-	TString cut_class; Bool_t okpressed;
-	if(cut_choices.Contains(" ")){
-		new KVDropDownDialog(gClient->GetRoot(),
-			"Choose class of new cut :",
-			cut_choices.Data(),
-			cut_default.Data(),
-			&cut_class,
-			&okpressed);
-		if(!okpressed) return;
-	}
-	else
-		cut_class=cut_choices;
-	DrawAndAdd("CUT",cut_class.Data());
-}
 
 //___________________________________________________________________________________
 
@@ -913,7 +881,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
          percent = (1. * events_read / tot_events) * 100.;
          Increment((Float_t) events_read);      //sends signal to GUI progress bar
          if (percent >= cumul) {
-            cout << (Int_t) percent << "\% processed" << endl;
+            //cout << (Int_t) percent << "\% processed" << endl;
             cumul += 10;
          }
          gSystem->ProcessEvents();
@@ -936,7 +904,7 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
    //
    //The 'identification" we represent is the result of the KVReconstructedNucleus::GetPID() method.
    //For particles identified in Z only, this is the "real Z".
-   //For particles with A & Z identification, this is Z + 0.2*(A - 2*Z)
+   //For particles with A & Z identification, this is Z + 0.1*(A - 2*Z)
 
 	//Initialize the grid: calculate line widths etc.
 	Initialize();
@@ -1274,14 +1242,6 @@ KVIDGraph *KVIDGraph::MakeIDGraph(const Char_t * class_name)
    //execute constructor/macro for graph - assumed without arguments
    KVIDGraph *gr = (KVIDGraph *) ph->ExecPlugin(0);
    return gr;
-}
-
-//___________________________________________________________________________________
-
-void KVIDGraph::TestGrid()
-{
-   //test the identification with this grid
-   new KVTestIDGridDialog(gClient->GetRoot(), gClient->GetRoot(), 10, 10, this);
 }
 
 //___________________________________________________________________________________

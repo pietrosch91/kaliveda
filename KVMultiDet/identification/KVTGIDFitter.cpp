@@ -284,6 +284,8 @@ void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
    if (fGrid->GetXmin() == fGrid->GetXmax()) fGrid->FindAxisLimits();
 	KVIDGrid* fitgr = fTGID->MakeIDGrid(fGrid->GetXmax(), fGrid->GetXmin());
 	fitgr->SetLineColor( kRed );
+	// make fitted grid 'onlyzid' if parent grid was
+	fitgr->SetOnlyZId(fGrid->OnlyZId());
 	gIDGridManager->Modified();
 
 	if( fPad ){

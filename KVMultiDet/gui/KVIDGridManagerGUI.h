@@ -34,7 +34,8 @@ class KVIDGridManagerGUI: public TGMainFrame {
       M_GRIDS_DEL_TAB,
       M_GRIDS_DEL_ALL,
       M_GRIDS_RUNLIST,
-      ID_LIST_BOX
+      ID_LIST_BOX,
+      M_QUIT
    };
    TGLayoutHints *fMenuBarItemLayout;
    TGLayoutHints *fMenuBarHelpLayout;
@@ -118,8 +119,8 @@ public:
    };
    void NewIDLine();
    void NewIDContour() {};
-   void NewCut() {};
-   void TestGrid() {};
+   void NewCut();
+   void TestGrid();
    void TestTreeGrid() {};
    void DeleteSelectedGrids();
    void Quit() {

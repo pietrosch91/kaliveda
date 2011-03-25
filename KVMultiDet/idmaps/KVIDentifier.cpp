@@ -379,3 +379,9 @@ void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t 
 
     delete cl;
 }
+
+Double_t KVIDentifier::GetPID() const
+{
+	if(OnlyZId()) return (Double_t)GetZ();
+	return (GetZ()+0.1*(GetA()-2.*GetZ()));
+}
