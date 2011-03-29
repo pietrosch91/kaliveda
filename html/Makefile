@@ -70,11 +70,15 @@ SCANCLASSESO = ScanClasses.$(ObjSuf)
 .PHONY : clean
 
 clean:
-	-rm -f $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML)
+	-rm -f $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML) MyPathDefinition_cxx.so
         
-$(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO)
+$(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO) MyPathDefinition_cxx.so 
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(LINK_LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
+
+MyPathDefinition_cxx.so: MyPathDefinition.h MyPathDefinition.cxx
+	@root -b -n -q -l loadMyPathDefinition.C
+	-cp MyPathDefinition_cxx.so $(KVROOT)/lib/
 
 $(MAKEHTMLO): $(MAKEHTMLS)
 	$(CXX) $(CXXFLAGS) -c $<

@@ -5,6 +5,8 @@
 #include "ScanClasses.h"
 #include "TApplication.h"
 #include "KVBase.h"
+#include "Riostream.h"
+#include "MyPathDefinition.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +26,9 @@ int main(int argc, char *argv[])
    examples.Process();
    //make all individual class pages
    THtml a;
+   MyPathDefinition mypath;
+   a.SetPathDefinition(mypath);
+   
 #ifndef __WITHOUT_THTML_SETPRODUCTNAME
    a.SetProductName("KaliVeda");
 #endif
