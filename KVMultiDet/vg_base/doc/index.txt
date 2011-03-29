@@ -1,0 +1,17 @@
+BEGIN_HTML
+<h1>Global Variables for analysis of multibody events</h1>
+END_HTML
+A global variable is an analysis tool for condensing the information in a multibody event into one or a few
+characteristic values. A simple example is the event multiplicity (the number of particles in each event),
+which can be used to characterize heavy-ion collision events in terms of violence or centrality.
+
+In KaliVeda, the base class for a multibody event is KVEvent, which is basically a collection of
+nuclei (base class KVNucleus). Therefore the global variable classes below can be used with any
+event described by a class derived from KVEvent, containing particles described by a class which
+inherits from KVNucleus.
+
+The list of classes below are base classes used for implementing global variables. KVVarGlob implements
+the basic interface. KVVarGlob1 is a specialised base class for global variables which calculate a single
+representative value. KVVarGlobMean is a further specialisation for variables which calculate the mean
+value and variance of some quantity. KVVGSum is a very flexible class which can be easily configured to
+calculate many user-defined global variables. 

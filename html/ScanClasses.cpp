@@ -241,7 +241,7 @@ void ScanClasses::WritePage()
 		index_file.ToUpper();
 		index_file.Append("_Index.html");
 //      list_file << "<h4><a href=\"#_" << class_title->GetName() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
-      list_file << "<h4><a href=\"" << index_file.Data() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
+      list_file << "<h4><a href=\"" <<KVBase::GetKVVersion()<<"/"<< index_file.Data() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
    }
    next_rep.Reset();
    list_file <<"<br>" <<endl;
@@ -261,7 +261,7 @@ void ScanClasses::WritePage()
 		index_file.ToUpper();
 		index_file.Append("_Index.html");
 		
-		list_file << "<a href=\"" << index_file.Data() << "\">" << class_title->GetTitle() << "</a>";
+		list_file << "<a href=\"" <<KVBase::GetKVVersion()<<"/"<< index_file.Data() << "\">" << class_title->GetTitle() << "</a>";
 		
 		list_file << " </a><it>(" << list->GetSize() << " class";
 		if(list->GetSize()>1) list_file << "es";

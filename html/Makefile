@@ -96,10 +96,9 @@ install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc/tools
 	-mkdir -p $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers
 	./$(MAKEHTML)
-	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
+#	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
 	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/
-	-ln -s $(VERSION_NUMBER)/src $(KVROOT)/KaliVedaDoc/src
-	-ln -s $(VERSION_NUMBER)/examples $(KVROOT)/KaliVedaDoc/examples
+	-ln -s -t$(KVROOT)/KaliVedaDoc $(VERSION_NUMBER)/incl $(VERSION_NUMBER)/inh $(VERSION_NUMBER)/inhmem $(VERSION_NUMBER)/src $(VERSION_NUMBER)/examples
 	-cp *.html $(KVROOT)/KaliVedaDoc/
 	-cp css/* $(KVROOT)/KaliVedaDoc/css/
 	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
