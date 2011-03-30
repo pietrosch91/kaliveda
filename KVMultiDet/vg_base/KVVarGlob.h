@@ -66,11 +66,10 @@ class KVVarGlob:public KVBase {
 	virtual Double_t getvalue_char(const Char_t* name)
 	{
 		// By default, this method returns the value of the variable "name"
-		// using the name-index table set up with SetNameIndex.
+		// using the name-index table set up with SetNameIndex(const Char_t*,Int_t).
 		// Redefine this method in child classes to change the behaviour of
 		// KVVarGlob::GetValue(const Char_t*)
 		
-   	// on retourne la valeur de la variable "name"
    	return getvalue_int(GetNameIndex(name));
 	};
 	virtual Double_t getvalue_int(Int_t)
@@ -100,10 +99,16 @@ class KVVarGlob:public KVBase {
     // returns kTRUE for variables of N-body type for which FillN(KVEvent*) method must be defined
     Bool_t IsNBody() { return fType==kNBody; };
     
-   virtual void Init(void) { printf("do nothing\n"); }
-   // methode d'initialisation des variables Internes
-   virtual void Reset(void) { printf("do nothing\n"); }
-   // Remise a zero avant le traitement d'un evenement
+   virtual void Init(void) {
+   	// Initialisation of internal variables, called once before beginning treatment
+   	Info("Init", "Default method. Does nothing."); 
+   };
+   
+   virtual void Reset(void) {
+   	// Reset internal variables, called before treatment of each event
+   	Info("Reset", "Default method. Does nothing."); 
+   };
+   
    
    virtual void Fill(KVNucleus * c);
    virtual void Fill2(KVNucleus * n1, KVNucleus* n2);

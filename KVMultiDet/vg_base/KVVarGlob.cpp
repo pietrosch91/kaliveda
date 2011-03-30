@@ -18,10 +18,10 @@ ClassImp(KVVarGlob)
 // variable class deriving from KVVarGlob has to provide the following methods:
 //      virtual void Init(void)                 initiates the internal fields
 //      virtual void Reset(void)                resets internal fields before the treatment
-//      virtual Double_t GetValue(void)         returns the value of the global variable
-//      virtual Double_t *GetValuePtr(void)     returns a pointer to an array of variables
-//      virtual Double_t GetValue(Int_t i)      returns the ith value of the array of variable
-//      virtual Double_t GetValue(Char_t *name) returns the value of a variable in a array by its name
+//      Double_t GetValue(void)         returns the value of the global variable
+//      Double_t *GetValuePtr(void)     returns a pointer to an array of variables
+//      Double_t GetValue(Int_t i)      returns the ith value of the array of variable
+//      Double_t GetValue(Char_t *name) returns the value of a variable in a array by its name
 //       
 //  Child classes KVVarGlob1 and KVVarGlobMean provide some of theses methods.
 //
@@ -249,7 +249,7 @@ void KVVarGlob::FillMethodBody(KVString& body, int type)
          body = "   // Calculation of contribution to N-body global variable of particles in event e.\n";
          break;
       default:
-         body = "   // Calculation of contribution to 1-body global variable of nucleus n1\n";
+         body = "   // Calculation of contribution to 1-body global variable of nucleus n\n";
    }
 }
    
@@ -260,6 +260,12 @@ void KVVarGlob::AddInitMethod(const Char_t* classname, KVClassFactory &cf, KVStr
    cf.AddMethod(Form("init_%s", classname), "void", "protected");
    body = "   // Private initialisation method called by all constructors.\n";
    body+= "   // All member initialisations should be done here.\n";
+   body+= "   //\n";
+   body+= "   // You should also (if your variable calculates several different quantities)\n";
+   body+= "   // set up a correspondance between named values and index number\n";
+   body+= "   // using method SetNameIndex(const Char_t*,Int_t)\n";
+   body+= "   // in order for GetValue(const Char_t*) to work correctly.\n";
+   body+= "   // The index numbers should be the same as in your getvalue_int(Int_t) method.\n";
    body+= "\n";
    switch(type){
       case kTwoBody:
