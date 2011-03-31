@@ -20,6 +20,9 @@ class KVTensP:public KVVarGlob {
    static Int_t nb_dest;
    KVTenseur3 * tenseurP;
    TString fLabel;              //particle label for which to calculate tensor
+   
+   Double_t fVal[8];//! used by GetValuePtr
+   
    void init_KVTensP(void);
    virtual Double_t getvalue_void(void) const;
    virtual Double_t getvalue_int(Int_t i);

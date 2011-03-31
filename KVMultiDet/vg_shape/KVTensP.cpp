@@ -272,18 +272,16 @@ Double_t *KVTensP::GetValuePtr(void)
 // 6      Coplanarity
 // 7      Directivity
 //
-//  USER MUST DELETE ARRAY AFTER USING !!!
 
-   Double_t *v = new Double_t[8];
-   v[0] = tenseurP->GetThetaFlot();
-   v[1] = tenseurP->GetPhiPlan();
-   v[2] = tenseurP->GetVap(1);
-   v[3] = tenseurP->GetVap(2);
-   v[4] = tenseurP->GetVap(3);
-   v[5] = tenseurP->GetSphericite();
-   v[6] = tenseurP->GetCoplanarite();
-   v[7] = tenseurP->GetDirectivite();
-   return v;
+   fVal[0] = tenseurP->GetThetaFlot();
+   fVal[1] = tenseurP->GetPhiPlan();
+   fVal[2] = tenseurP->GetVap(1);
+   fVal[3] = tenseurP->GetVap(2);
+   fVal[4] = tenseurP->GetVap(3);
+   fVal[5] = tenseurP->GetSphericite();
+   fVal[6] = tenseurP->GetCoplanarite();
+   fVal[7] = tenseurP->GetDirectivite();
+   return fVal;
 }
 
 //_________________________________________________________________

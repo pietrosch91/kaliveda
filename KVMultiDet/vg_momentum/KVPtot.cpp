@@ -250,13 +250,12 @@ Double_t *KVPtot::GetValuePtr(void)
 //   1        X component of Ptot
 //   2        Y component of Ptot
 //
-// USER MUST DELETE ARRAY AFTER USING !!!
+
 	
-   Double_t *val = new Double_t[3];
    for (Int_t i = 0; i < 3; i++) {
-      val[i] = GetValue(i);
+      fVal[i] = GetValue(i);
    }
-   return val;
+   return fVal;
 }
 
 //_________________________________________________________________

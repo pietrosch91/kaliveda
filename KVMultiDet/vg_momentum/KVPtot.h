@@ -20,6 +20,7 @@ class KVPtot:public KVVarGlob {
 // Champs intermediaires 
  protected:
     TVector3 ptot;
+    Double_t fVal[3];//! used by GetValuePtr
 
 // Methodes
  protected:
