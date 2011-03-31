@@ -36,7 +36,14 @@ void KVVarGlobTemplate::Copy(TObject&a) const
    
    KVVarGlobTemplate& aglob = (KVVarGlobTemplate&)a;
    // Now copy any additional attributes specific to this class:
-   //    aglob.SetSomething( GetSomething() );
+	// To copy a specific field, do as follows:
+	//
+	//     aglob.field=field;
+	//
+	// If setters and getters are available, proceed as follows
+	//
+	//    aglob.SetField(GetField());
+	//
 }
 
 //_________________________________________________________________

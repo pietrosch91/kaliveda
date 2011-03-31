@@ -8,8 +8,9 @@
 //                                                      Etot, etc..) 
 //
 
-#include <math.h>
-#include <stdio.h>
+#include "TMath.h"
+#include "TString.h"
+#include "Riostream.h"
 #include "KVVarGlob1.h"
 #include "KVClassFactory.h"
 
@@ -51,16 +52,14 @@ KVVarGlob1::KVVarGlob1(void):KVVarGlob()
 //
 // Createur par default
 //
-   Char_t *nom = new Char_t[80];
-
+   TString nom;
    init();
-   sprintf(nom, "KVVarGlob1_%d", nb_crea);
-   SetName(nom);
-   SetTitle(nom);
+   nom.Form( "KVVarGlob1_%d", nb_crea);
+   SetName(nom.Data());
+   SetTitle(nom.Data());
 #ifdef DEBUG_KVVarGlob1
    cout << nb << " crees...(defaut) " << endl;
 #endif
-   delete[]nom;
 }
 
 //_________________________________________________________________
@@ -151,16 +150,6 @@ Double_t KVVarGlob1::getvalue_void(void) const
 }
 
 //_________________________________________________________________
-Double_t *KVVarGlob1::GetValuePtr(void)
-{
-	// On retourne un tableau de 
-	// valeurs 
-   Double_t *v = new Double_t[1];
-   *v = var;
-   return v;
-}
-
-//_________________________________________________________________
 Double_t KVVarGlob1::getvalue_int(Int_t i)
 {
 	// there is only one value, so whatever the value of i,
@@ -189,8 +178,7 @@ void KVVarGlob1::Copy(TObject & a)
 
 //_________________________________________________________________
 
-void KVVarGlob1::MakeClass(const Char_t * classname,
-                           const Char_t * classdesc, int type)
+void KVVarGlob1::MakeClass(const Char_t * classname, const Char_t * classdesc, int type)
 {
    //Creates skeleton '.h' and '.cpp' files for a new global variable class which
    //inherits from this class. Give a name for the new class and a short description
@@ -255,7 +243,7 @@ void KVVarGlob1::FillMethodBody(KVString& body, int type)
    body += "   // KVNucleus passed as argument. For example, to evaluate the sum of the charge\n";
    body += "   // of all fragments, you may proceed as follows:\n";
    body += "   //\n";
-   body += "   // FillVar(n1->GetZ());\n";
+   body += "   // FillVar(n->GetZ());\n";
    }
 }
    

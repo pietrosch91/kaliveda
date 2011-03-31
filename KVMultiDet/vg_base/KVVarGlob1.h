@@ -19,7 +19,7 @@ class KVVarGlob1:public KVVarGlob {
    static Int_t nb_dest;
 // Champ propre:
  protected:
-    Double_t var;
+    Double_t var;// the quantity to be calculated
 // Methodes
  protected:
    void init(void);
@@ -27,8 +27,9 @@ class KVVarGlob1:public KVVarGlob {
       var += val;
    };
    void SetValue(Double_t val) {
+   // On donne la valeur de la variable
       var = val;
-   };                           // On donne la valeur de la variable
+   };                           
 static void FillMethodBody(KVString& body, int type);
 
    virtual Double_t getvalue_void(void) const;
@@ -50,11 +51,8 @@ static void FillMethodBody(KVString& body, int type);
 #else
    virtual void Copy(TObject & obj);
 #endif
-   virtual void Init(void);     // methode d'initialisation des
-   // variables Int_ternes
-   virtual void Reset(void);    // Remise a zero avant le
-
-   virtual Double_t *GetValuePtr(void);
+   virtual void Init(void);     
+   virtual void Reset(void);   
 	
    static void MakeClass(const Char_t * classname,
                          const Char_t * classdesc, int type = KVVarGlob::kOneBody);
