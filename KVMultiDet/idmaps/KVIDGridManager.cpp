@@ -171,7 +171,11 @@ KVIDGraph *KVIDGridManager::GetGrid ( const Char_t * name )
 void KVIDGridManager::StartViewer() const
 {
    //Opens GUI for managing grids
-   new KVIDGridManagerGUI;
+   if (gROOT->IsBatch()){
+		Warning("StartViewer","To launch graphical interface, you should not use ROOT in batch mode");
+		return;
+	}
+	new KVIDGridManagerGUI;
 }
 
 void KVIDGridManager::GetListOfIDTelescopeLabels ( KVString& list )

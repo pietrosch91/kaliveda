@@ -89,7 +89,7 @@ class KVIDentifier : public TCutG
 
 	virtual void WaitForPrimitive();
 
-	virtual void ExtendLine(Double_t, Option_t* Direction="HORI");  // *MENU*
+	virtual void ExtendLine(Double_t, Option_t* Direction="HORI");  // *MENU={Hierarchy="Modify Line.../ExtendLine"}*
 
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TGraph.h, to stop these methods appearing in the ID line context menus
@@ -126,8 +126,11 @@ class KVIDentifier : public TCutG
    virtual void        SetFillAttributes() {TGraph::SetFillAttributes();};
    virtual void        SetMarkerAttributes(){TGraph::SetMarkerAttributes();};
 
-	virtual Int_t         InsertPoint(){ if(GetEditable()){ return TCutG::InsertPoint(); } else {return -2;} }; // *MENU*
-	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU*
+	virtual Int_t         InsertPoint(); // *MENU={Hierarchy="Modify Line.../InsertPoint"}*
+	virtual Int_t         AddPointAtTheEnd(); // *MENU={Hierarchy="Modify Line.../AddPointAtTheEnd"}*
+	virtual Int_t 			 ContinueDrawing(); // *MENU={Hierarchy="Modify Line.../ContinueDrawing"}*
+	virtual void 			ChechHierarchy(KVIDentifier* gr);
+	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU={Hierarchy="Modify Line.../RemovePoint"}*
 	
 	virtual Double_t GetPID() const;
 

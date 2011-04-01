@@ -21,6 +21,8 @@ class KVIDContour : public KVIDentifier
    KVIDContour(const KVIDContour &);
    KVIDContour(const TCutG &);
    virtual ~KVIDContour();
+	
+	virtual Int_t InsertPoint() { if(GetEditable()){ return TCutG::InsertPoint(); } else {return -2;} }; // *MENU*
 
    ClassDef(KVIDContour,1)//Basic graphical contour class for use in particle identification
 };
