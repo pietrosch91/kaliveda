@@ -503,7 +503,7 @@ KVVarGlob *KVSelector::AddGV(const Char_t * class_name,
    //      (1) add to the ROOT macro path the directory where her class's source code is kept, e.g. in $HOME/.rootrc
    //              add the following line:
    //
-   //              +Unix.*.Root.MacroPath:      :$(HOME)/myVarGlobs
+   //              +Unix.*.Root.MacroPath:      $(HOME)/myVarGlobs
    //
    //      (2) for each user-defined class, add a line to $HOME/.kvrootrc to define a "plugin". E.g. for a class called MyNewVarGlob,
    //

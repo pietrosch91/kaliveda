@@ -73,8 +73,47 @@ pairs of particles), or N-body (multibody correlations) (looking at existing cla
 Then, use one of the following methods at the ROOT command line in order to generate skeleton '.h' and
 '.cpp' files for your class:
 
-	KVVarGlob::MakeClass("MyClassName", "The description of my class", type)
-	KVVarGlob1::MakeClass("MyClassName", "The description of my class", type)
-	KVVarGlobMean::MakeClass("MyClassName", "The description of my class", type)
+	root[0]  KVVarGlob::MakeClass("MyClassName", "The description of my class", type)
+	root[0]  KVVarGlob1::MakeClass("MyClassName", "The description of my class", type)
+	root[0]  KVVarGlobMean::MakeClass("MyClassName", "The description of my class", type)
 	
 with 'type' equal to one of KVVarGlob::kOneBody, KVVarGlob::kTwoBody, KVVarGlob::kNBody.
+
+When you have modified the skeleton according to your needs (see comments in generated code for help),
+you can test the compilation of your class in a ROOT interactive session:
+
+	root[0]  KVBase::InitEnvironment()
+	root[0]  .L MyClassName.cpp+
+	
+BEGIN_HTML
+<h3>Using your own global variables in a KVSelector data analysis class</h3>
+END_HTML
+You need to set up your environment correctly in order to tell ROOT where to find the sources for
+your global variables (this is essential for analysis tasks to run in batch mode), and in order to add
+your variables to the list available for KaliVeda analysis.
+
+First modify (or create if it doesn't exist) your '.rootrc' file, adding/modifying the following line:
+
+	+Unix.*.Root.MacroPath:   /full/path/to/directory/with/source/files
+	+ACLiC.IncludePaths:     -I/full/path/to/directory/with/source/files
+	
+You can use environment variables in this definition, as long as you enclose them in '$()', e.g. '$(HOME)'.
+If you have several source directories, you can put them together:
+
+	+Unix.*.Root.MacroPath:   /first/path:/second/path:/another/path
+	+ACLiC.IncludePaths:     -I/first/path -I/second/path -I/another/path
+	
+After relaunching ROOT, you will now be able to compile your class(es) even if you launch ROOT
+in a different directory.
+
+Next, modify (or create if it doesn't exist) your '.kvrootrc' file, adding for each of your global variables
+a line like this:
+
+	+Plugin.KVVarGlob:  MyClassName   MyClassName  MyClassName.cpp+  "MyClassName()"
+	
+Then you can use your global variable in an analysis in exactly the same way as other variables:
+
+	[in your analysis class .cpp file]
+	#include "MyClassName.h"
+	...
+	MyClassName* myvg = (MyClassName*)AddGV("MyClassName", "myVarGlob");

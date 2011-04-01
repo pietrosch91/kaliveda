@@ -115,10 +115,14 @@ class KVVarGlob:public KVBase {
    virtual void FillN(KVEvent *e);
 
    void FillWithCondition(KVNucleus * c){
+   	// Evaluate contribution of particle to variable only if it satisfies
+      // the particle selection criteria given with SetSelection(KVParticleCondition&)
       Bool_t ok = (fSelection ? fSelection->Test(c) : kTRUE);
       if( ok ) Fill(c);  
    };
    void Fill2WithCondition(KVNucleus * n1, KVNucleus* n2){
+   	// Evaluate contribution of particles to variable only if both satisfy
+      // the particle selection criteria given with SetSelection(KVParticleCondition&)
       Bool_t ok = (fSelection ? (fSelection->Test(n1) && fSelection->Test(n2))  : kTRUE);
       if( ok ) Fill2(n1,n2);
    };
