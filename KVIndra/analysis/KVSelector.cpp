@@ -1,24 +1,4 @@
 #define KVSelector_cxx
-// The class definition in KVSelector.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector().
-//
-// This class is derived from the ROOT class TSelector.
-// The following members functions are called by the TTree::Process() functions:
-//    Begin():       called everytime a loop on the tree starts,
-//                   a convenient place to create your histograms.
-//    Notify():      this function is called at the first entry of a new Tree
-//                   in a chain.
-//    Process():     called for each event. In this function you decide what 
-//                   to read and you fill your histograms.
-//    Terminate():   called at the end of a loop on the tree,
-//                   a convenient place to draw/fit your histograms.
-//
-//   To use this file, try the following session on your Tree T
-//
-// Root > T->Process("KVSelector.C")
-// Root > T->Process("KVSelector.C","some options")
-// Root > T->Process("KVSelector.C+")
-//
 #include "KVSelector.h"
 #include "TH2.h"
 #include "TStyle.h"
@@ -45,92 +25,107 @@ selection, you will not be able to regenerate them."
 KVString KVSelector::fBranchName = "INDRAReconEvent";
    
 ClassImp(KVSelector)
-//______________________________________________________________________________
-//KVSelector
-//
-//Basic analysis class derived from TSelector for the analysis of TChains of
-//KVINDRAReconEvent objects (ROOT files containing INDRA data).
-//
-//The user's analysis class, derived from KVSelector, must define the following
-//methods:
-//
-//      void    InitAnalysis()
-//
-//              Called once at the beginning of the analysis.
-//              Can be used to define histograms, TTrees, etc.
-//              Also the place to define the list of global variables to be used.
-//
-//      void    InitRun();
-//
-//              Called at the beginning of each new run.
-//              Define code masks for "good" particles here.
-//
-//      Bool_t  Analysis();
-//
-//              The analysis of the event.
-//              Return value: kTRUE normally, kFALSE skips to the next run (?)
-//
-//      void    EndRun();
-//
-//              Called at the end of each run.
-//
-//      void    EndAnalysis();
-//
-//              Called at the end of the analysis.
-//              Write histograms, TTrees to TFiles, etc.
-//
-//Use the static method KVSelector::Make("MySelector") in order to generate a
-//template for your analysis class with the correct declarations for the above
-//methods. MySelector.C and MySelector.h will be generated.
-//
-//Using Global Variables
-//======================
-//Many of the most frequently used global variables have been implemented as
-//KaliVeda classes, all of which derive from the base class KVVarGlob. The KVSelector
-//class provides a semi-automatic way to calculate and use these variables, via
-//an internal list of global variables (KVGVList class). In order to use a
-//global variable in your analysis, declare it in your InitAnalysis() method,
-//its value will automatically be calculated for each event analysed.
-//Note that only particles with KVINDRAReconNuc::IsOK()==kTRUE are included in the calculation.
-//
-//For example, let us suppose you want to calculate the isotropy ratio Riso for
-//each event. In InitAnalysis() you should add the line:
-//
-//     AddGV( "KVRiso", "riso" );
-//
-//This will create a new KVRiso global variable object with the name "riso"
-//(used to retrieve the object from the list when you want to know its value)
-//and add it to the internal list of global variables to be calculated.
-//
-//In your event-by-event Analysis() method, you can retrieve the value of
-//the global variable using e.g.
-//
-//     Double_t rapport = GetGV("riso")->GetValue();
-//
-//This gives the value of the isotropy ratio for the currently analysed event.
-//
-//
-//More examples can be found in the AnalyseCamp1 analysis class.
-//
-//Manage histograms
-//======================
-//Few methods are defined to make easier the management
-//of histograms
-//Redefine the method CreateHistos() and create the histograms
-//like this
-//lhisto->Add(new TH1F(...));
-//lhisto->Add(new TH2F(...));
-//lhisto->Add(new TProfile(...));
-//All histograms are stored in the KVHashList "lhisto"
-//
-//The method FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
-//allows to fill any histogram declared as shown above
-//you only need to give the histogram name followed by the arguments you use normally in the Fill method
-//of TH1::Fill() and derivated
-//
-//Finally, to write the list of histograms in a file
-//Just call the WriteHistoToFile method indicating the name of the file
-//
+//////////////////////////////////////////////////////////////////////////////////////
+/*
+begin_html<H1>Base class for analysis of events in TTrees</h1>end_html
+
+Basic analysis class derived from TSelector for the analysis of TChains/TTrees of
+KVEvent objects. The user's analysis class, derived from KVSelector, must define
+the following methods:
+
+     void    InitAnalysis()
+
+             Called once at the beginning of the analysis.
+             Can be used to define histograms, TTrees, etc.
+             Also the place to define the list of global variables to be used.
+
+     void    InitRun();
+
+             Called at the beginning of each new run.
+             Define conditions for selecting "OK" particles here.
+
+     Bool_t  Analysis();
+
+             The analysis of the event. Retrieve a pointer to the event
+             with GetEvent() method. Global variables for the event are calculated
+             before calling this method, their values can be retrieved here.
+             Return value: kTRUE normally, kFALSE skips to the next run (?)
+
+     void    EndRun();
+
+             Called at the end of each run.
+
+     void    EndAnalysis();
+
+             Called at the end of the analysis.
+             Write histograms, TTrees to TFiles, etc.
+
+In order to generate skeleton '.h' and '.cpp' files for a new analysis class for
+a given dataset, use the following method at the ROOT command line:
+
+   gDataSet->MakeAnalysisClass("data-type", "NameOfClass")
+   
+where "data-type" is the type of data to be analysed (="recon", "ident", "root").
+Then it only remains to fill in the 5 methods in the generated NameOfClass.cpp file.
+
+BEGIN_HTML
+<h2>Using Global Variables in Data Analysis</h2>
+END_HTML
+A KVSelector manages a list of global variables (a KVGVList). Users can add global variables to this list in their
+InitAnalysis() or InitRun() method by calling method
+
+	KVVarGlob* AddGV(const Char_t* class_name, const Char_t* name)
+
+For every event which is analysed, the list of global variables defined by the user is calculated automatically
+by KVSelector just before calling the user's Analysis() method. Therefore, in Analysis(),
+one may retrieve the value(s) of each global variable for the event by using method
+
+	KVVarGlob* GetGV(const Char_t* name)
+
+BEGIN_HTML
+<h3>Automatic creation and filling of TTree branches with global variable values</h3>
+END_HTML
+The KVGVList class provides methods to automatically create a branch for the value of each global
+variable in the list. In your analysis class, you can get a pointer to the internal list of
+global variables using method
+
+	KVGVList* GetGVList()
+	
+Then in your InitAnalysis() or InitRun() method, after creating a TTree and filling the list of global
+variables with AddGV(), you can create the necessary branches in your TTree like so:
+
+	TTree* myTree = new TTree(...);
+	AddGV(...);
+	AddGV(...);
+	GetGVList()->MakeBranches(t);
+	
+In your Analysis() method in order to fill the branches with the values of all the variables for the current
+event you just need to call
+
+	GetGVList()->FillBranches();
+	myTree->Fill();
+
+begin_html<h2>Histogram/tree management</h2>end_html
+A few methods are defined to make easier the management of histograms and trees.
+Redefine the method CreateHistos() and create the histograms
+like this:
+
+   lhisto->Add(new TH1F(...));
+   lhisto->Add(new TH2F(...));
+   lhisto->Add(new TProfile(...));
+
+All histograms are stored in the KVHashList pointed to by "lhisto". Similarly, you can redefine
+method CreateTrees() and store your tree(s) in the KVHashList pointed to by "ltree".
+
+The method FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
+allows to fill any histogram declared as shown above. You only need to give the histogram name
+followed by the arguments you would use normally with TH1::Fill() etc. Similarly, FillTree() can
+be used to fill all defined trees (or individual ones).
+
+Finally, to write the list of histograms in a file just call the WriteHistoToFile() method
+indicating the name of the file, and to write the trees in a file use WriteTreeToFile().
+*/
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 KVSelector::KVSelector(TTree * tree)
 {
