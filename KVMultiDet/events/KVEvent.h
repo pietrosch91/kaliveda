@@ -35,7 +35,7 @@ class KVEvent:public KVBase {
  protected:
 
    TClonesArray * fParticles;   //->array of particles in event
-   TIter *fOKIter;              //!used for iterating over "good" (IsOK=kTRUE) particles
+   TIter *fOKIter;              //!used for iterating over particles
 
  public:
 

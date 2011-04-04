@@ -103,7 +103,6 @@ ClassImp(KVParticle);
 //            - name of group must not contain "/" character
 //            - the oldest SetName and GetName Methods have been taken into account
 //              to backward compatibility but it is strongly recommended to use  AddGroup() and BelongsToGroup() methods
-//	     The label "OK" is also incorporated in this group list to apply in a easier way these methods with on entire events
 //      When new KVParticle is defined using SetFrame() Method, the list of group names is already stored in it
 //      In the same way, when some change is made on the "principal" KVParticle, if some "secondary" particles
 //      have been already stored in fBoosted list, the change is also apply
@@ -117,7 +116,6 @@ ClassImp(KVParticle);
 KVParticle::KVParticle()
 {
    init();
-	AddGroup("OK");
 }
 
 void KVParticle::init()
@@ -321,8 +319,6 @@ void KVParticle::SetIsOK(Bool_t flag)
 
    SetBit(kIsOK, flag);
    SetBit(kIsOKSet);
-	if (!flag) RemoveGroup("OK");
-	else AddGroup("OK");
 }
 
 //________________________________________________________________________________________________________

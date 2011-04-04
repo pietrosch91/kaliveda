@@ -160,7 +160,6 @@ class KVParticle:public TLorentzVector {
    void SetIsOK(Bool_t flag = kTRUE);
    void ResetIsOK() {
       ResetBit(kIsOKSet);
-		AddGroup("OK");
    };
 	
 	KVList* GetListOfFrames(void) {return fBoosted;}
