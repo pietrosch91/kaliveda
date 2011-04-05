@@ -94,6 +94,7 @@
 #pragma link C++ class KVElasticScatter+;
 #pragma link C++ class KVElasticScatterEvent+;
 #pragma link C++ class KVEvent+;
+#pragma link C++ class KVEventSelector+;
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVHashList+;
