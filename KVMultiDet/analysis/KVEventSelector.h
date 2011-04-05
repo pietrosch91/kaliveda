@@ -21,6 +21,7 @@
 #include <TH3.h>
 #include <TH2.h>
 #include <TProfile2D.h>
+#include "KVParameterList.h"
 
 class KVEventSelector : public TSelector {
 
@@ -54,12 +55,17 @@ protected :
    KVHashList* ltree;            //->!
 
    Bool_t fNotifyCalled; // avoid multiple calls to Notify/InitRun
+   
+   //parsed list of options given to TTree::Process
+   KVParameterList<KVString> fOptionList;
 
    void FillTH1(TH1* h1, Double_t one, Double_t two);
    void FillTProfile(TProfile* h1, Double_t one, Double_t two, Double_t three);
    void FillTH2(TH2* h2, Double_t one, Double_t two, Double_t three);
    void FillTProfile2D(TProfile2D* h2, Double_t one, Double_t two, Double_t three, Double_t four);
    void FillTH3(TH3* h3, Double_t one, Double_t two, Double_t three, Double_t four);
+   
+   void ParseOptions();
 
 public:
    KVEventSelector(TTree * /*tree*/ = 0) : gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
@@ -75,13 +81,14 @@ public:
          ResetBit(kDeleteGVList);
       }
       SafeDelete(fPartCond);
-      lhisto->Delete();
+      lhisto->Clear();
       delete lhisto;
       lhisto = 0;
-      ltree->Delete();
+      ltree->Clear();
       delete ltree;
       ltree = 0;
    };
+   void SetEventsReadInterval(Long64_t N) { fEventsReadInterval = N; };
    virtual Int_t   Version() const {
       return 2;
    }
@@ -92,9 +99,6 @@ public:
    virtual Bool_t  Process(Long64_t entry);
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) {
       return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0;
-   }
-   virtual void    SetOption(const char *option) {
-      fOption = option;
    }
    virtual void    SetObject(TObject *obj) {
       fObject = obj;
@@ -191,6 +195,12 @@ public:
 
    virtual void WriteHistoToFile(KVString filename = "FileFromKVSelector.root", Option_t* option = "recreate");
    virtual void WriteTreeToFile(KVString filename = "FileFromKVSelector.root", Option_t* option = "recreate");
+
+   virtual void SetOpt(const Char_t* option, const Char_t* value);   
+   virtual Bool_t IsOptGiven(const Char_t* option);
+   virtual KVString& GetOpt(const Char_t* option) const;
+   virtual void UnsetOpt(const Char_t* opt);
+   
    ClassDef(KVEventSelector, 0);
 };
 
@@ -206,22 +216,6 @@ void KVEventSelector::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
-   //
-   // Analyse comma-separated list of options given (if any) and look for:
-   //
-   //     BranchName=xxxx  :  change name of branch in TTree containing data
-
-   KVString option = GetOption();
-   option.Begin(",");
-   while (!option.End()) {
-
-      KVString opt = option.Next();
-      opt.Begin("=");
-      KVString param = opt.Next();
-      KVString val = opt.Next();
-
-      if (param == "BranchName") SetBranchName(val.Data());
-   }
 
    // Set object pointer
    Event = 0;

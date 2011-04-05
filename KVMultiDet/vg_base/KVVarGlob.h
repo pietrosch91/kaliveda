@@ -192,6 +192,22 @@ class KVVarGlob:public KVBase {
    virtual Double_t AsDouble() const { return GetValue(); };
    operator double() const { return AsDouble(); };
    
+   virtual Int_t GetNumberOfValues() const
+   {
+   	// Returns number of values associated with global variable.
+   	// This is the number of indices defined using SetNameIndex method.
+   	return nameList.GetNPar();
+   };
+   const Char_t* GetValueName(Int_t i) const
+   {
+   	// Returns name of value associated with index 'i',
+   	// as defined by using SetNameIndex method.
+   	for(int j=0; j<GetNumberOfValues(); j++){
+   		if(nameList.GetParameter(j)->GetVal() == i) return nameList.GetParameter(j)->GetName();
+   	}
+   	return "unknown";
+   };
+   
    ClassDef(KVVarGlob, 4)      // Base class for global variables
 };
 #endif

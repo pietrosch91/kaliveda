@@ -1,40 +1,24 @@
 #define KVEventSelector_cxx
-// The class definition in KVEventSelector.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector(). This class is derived
-// from the ROOT class TSelector. For more information on the TSelector
-// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
-
-// The following methods are defined in this file:
-//    Begin():        called every time a loop on the tree starts,
-//                    a convenient place to create your histograms.
-//    SlaveBegin():   called after Begin(), when on PROOF called only on the
-//                    slave servers.
-//    Process():      called for each event, in this function you decide what
-//                    to read and fill your histograms.
-//    SlaveTerminate: called at the end of the loop on the tree, when on PROOF
-//                    called only on the slave servers.
-//    Terminate():    called at the end of the loop on the tree,
-//                    a convenient place to draw/fit your histograms.
-//
-// To use this file, try the following session on your Tree T:
-//
-// Root > T->Process("KVEventSelector.C")
-// Root > T->Process("KVEventSelector.C","some options")
-// Root > T->Process("KVEventSelector.C+")
-//
-
 #include "KVEventSelector.h"
 #include <TStyle.h>
 #include "TPluginManager.h"
 
+ClassImp(KVEventSelector)
+
 void KVEventSelector::Begin(TTree * /*tree*/)
 {
-   // The Begin() function is called at the start of the query.
-   // When running with PROOF Begin() is only called on the client.
-   // The tree argument is deprecated (on PROOF 0 is passed).
+   // Analyse comma-separated list of options given (if any) and look for:
+   //
+   //     BranchName=xxxx  :  change name of branch in TTree containing data
+   //     EventsReadInterval=N: print "+++ 12345 events processed +++" every N events
 
-   TString option = GetOption();
-
+	// parse options given to TTree::Process
+   ParseOptions();
+	fOptionList.Print();
+	// check for branch name
+	if(IsOptGiven("BranchName")) SetBranchName(GetOpt("BranchName"));
+	// check for events read interval
+	if(IsOptGiven("EventsReadInterval")) SetEventsReadInterval(GetOpt("EventsReadInterval").Atoi());
 }
 
 void KVEventSelector::SlaveBegin(TTree * /*tree*/)
@@ -42,9 +26,6 @@ void KVEventSelector::SlaveBegin(TTree * /*tree*/)
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
-
-   TString option = GetOption();
-
 }
 
 Bool_t KVEventSelector::Process(Long64_t entry)
@@ -349,9 +330,6 @@ void KVEventSelector::WriteHistoToFile(KVString filename, Option_t* option)
 
    //If no filename is specified, assume that the current directory is writable
 	
-	//dissociate all histos from directories/files etc. to avoid double deletions with ROOT cleanup
-	//mechanism when exiting ROOT session (all histos are deleted in our dtor)
-	lhisto->R__FOR_EACH(TH1,SetDirectory)(0);
    if (filename == "") {
       GetHistoList()->Write();
    } else {
@@ -421,9 +399,6 @@ void KVEventSelector::WriteTreeToFile(KVString filename, Option_t* option)
 
    //If no filename is specified, assume that the current directory is writable
 
-	//dissociate all trees from directories/files etc. to avoid double deletions with ROOT cleanup
-	//mechanism when exiting ROOT session (all trees are deleted in our dtor)
-	ltree->R__FOR_EACH(TTree,SetDirectory)(0);
    if (filename == "") {
       GetTreeList()->Write();
    } else {
@@ -440,4 +415,58 @@ void KVEventSelector::WriteTreeToFile(KVString filename, Option_t* option)
       pwd->cd();
    }
 
+}
+
+void KVEventSelector::SetOpt(const Char_t* option, const Char_t* value)
+{
+   //Set a value for an option
+   KVString tmp(value);
+   fOptionList.SetParameter(option, tmp);
+}
+
+//_________________________________________________________________
+
+Bool_t KVEventSelector::IsOptGiven(const Char_t* opt)
+{
+   //Returns kTRUE if the option 'opt' has been set
+   
+   return fOptionList.HasParameter(opt);
+}
+
+//_________________________________________________________________
+
+KVString& KVEventSelector::GetOpt(const Char_t* opt) const
+{
+   //Returns the value of the option
+   
+   return (KVString&)fOptionList.GetParameter(opt);
+}
+
+//_________________________________________________________________
+
+void KVEventSelector::UnsetOpt(const Char_t* opt)
+{
+   //Removes the option 'opt' from the internal lists, as if it had never been set
+   
+   fOptionList.RemoveParameter(opt);
+}
+
+void KVEventSelector::ParseOptions()
+{
+   // Analyse comma-separated list of options given to TTree::Process
+   // and store all "option=value" pairs in fOptionList.
+   // Options can then be accessed using IsOptGiven(), GetOptString(), etc.
+
+	fOptionList.Clear(); // clear list
+   KVString option = GetOption();
+   option.Begin(",");
+   while (!option.End()) {
+
+      KVString opt = option.Next();
+      opt.Begin("=");
+      KVString param = opt.Next();
+      KVString val = opt.Next();
+
+      SetOpt(param.Data(), val.Data());
+   }
 }
