@@ -9,6 +9,7 @@ $Id: KVTGIDManager.cpp,v 1.12 2008/04/04 09:06:25 franklan Exp $
 ***************************************************************************/
 
 #include "KVTGIDManager.h"
+#include "KVTGIDGrid.h"
 
 ClassImp(KVTGIDManager)
 ///////////////////////////////////////////////////////////////////////////
@@ -252,7 +253,7 @@ Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
 
 //___________________________________________________________________________________________//
 
-KVIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
+KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
                                      Double_t xmax, Double_t xmin,
                                      Int_t ID_min, Int_t ID_max,
                                      Int_t npoints, Bool_t logscale)
@@ -265,12 +266,14 @@ KVIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
    KVTGID *_tg = GetTGID(tgid_name);
    if (!_tg)
       return 0;
-   return (_tg->MakeIDGrid(xmax, xmin, ID_min, ID_max, npoints, logscale));
+   KVTGIDGrid* gr = new KVTGIDGrid(_tg);
+   gr->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
+   return gr;
 }
 
 //___________________________________________________________________________________________//
 
-KVIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * idt_name,
+KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * idt_name,
                                      const Char_t * id_type,
                                      const Char_t * grid_type,
                                      Double_t xmax, Double_t xmin,

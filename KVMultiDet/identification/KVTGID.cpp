@@ -151,56 +151,6 @@ Double_t KVTGID::GetIdentification(Double_t ID_min, Double_t ID_max,
     return ID;
 }
 
-//___________________________________________________________________________//
-
-KVIDGrid *KVTGID::MakeIDGrid(Double_t xmax, Double_t xmin, Int_t ID_min,
-                             Int_t ID_max, Int_t npoints, Bool_t logscale)
-{
-    //Generate ID grid from the functional using current values of parameters.
-    //
-    //      xmin, xmax - min and max values of 'x' coordinate used in corresponding
-    //                                      identification map
-    //      ID_min, ID_max - min and max 'ID' of lines in grid
-    //      npoints    - number of points in each line
-    //
-    //DEFAULT ARGUMENT VALUES:
-    //=========================
-    //   xmin = 0.
-    // If the grid gets "ugly" for small x, you might try setting xmin = fitted X-pedestal
-    // This is the value of parameter 7 in most cases....
-    //
-    //  ID_min, ID_max = min and max ID of lines on which functional was fitted
-    //  npoints = 100
-    //
-    // if logscale=kTRUE (default is kFALSE) lines are generated with more points at
-    // the beginning of the lines than at the end.
-    //________________________________________________________________
-    //
-    //The methods
-    //       void SetIdent(KVIDLine*, Double_t ID)
-    //      KVIDLine* AddLine()
-    //      KVIDGrid* NewGrid()
-    //must be defined in child classes.
-
-    ID_min = (ID_min ? ID_min : (Int_t) GetIDmin());
-    ID_max = (ID_max ? ID_max : (Int_t) GetIDmax());
-
-    //create new grid
-    KVTGIDGrid *gri = new KVTGIDGrid(this);
-
-    for (Int_t ID = ID_min; ID <= ID_max; ID++) {
-        AddLineToGrid(gri, ID, npoints, xmin, xmax, logscale);
-    }
-
-    gri->SetVarX( GetVarX() );
-    gri->SetVarY( GetVarY() );
-    gri->SetRuns( GetValidRuns() );
-    TCollection* idtels = GetIDTelescopes();
-    gri->AddIDTelescopes( (const TList*)idtels );
-    delete idtels;
-    return gri;
-}
-
 //_______________________________________________________________________________________//
 
 void KVTGID::AddLineToGrid(KVIDGrid * g, Int_t ID, Int_t npoints,
