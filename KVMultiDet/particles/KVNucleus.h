@@ -80,9 +80,11 @@ class KVNucleus:public KVParticle {
    };
    Int_t Compare(const TObject * obj) const;
 
-    virtual ~ KVNucleus();
+	virtual ~ KVNucleus();
    static Int_t GetAFromZ(Double_t, Char_t mt);
-   static Double_t GetRealAFromZ(Double_t, Char_t mt);
+   static Int_t GetNFromZ(Double_t, Char_t mt);
+	static Double_t GetRealAFromZ(Double_t, Char_t mt);
+	static Double_t GetRealNFromZ(Double_t, Char_t mt);
    const Char_t *GetSymbol(Option_t* opt="") const;
 
    static Int_t GetZFromSymbol(const Char_t *);
@@ -91,13 +93,22 @@ class KVNucleus:public KVParticle {
 
    void SetZ(Int_t z, Char_t mt = -1);
    void SetA(Int_t a);
-   virtual void Print(Option_t * t = "") const;
+	void SetN(Int_t n);
+   void SetZandA(Int_t z, Int_t a);
+   void SetZandN(Int_t z,Int_t n);
+   
+	virtual void Print(Option_t * t = "") const;
    Int_t GetZ() const;
    Int_t GetA() const;
-   Int_t GetN() const { return GetA()-GetZ(); };
-   Double_t GetAsurZ() const {return Double_t(GetA())/GetZ(); };
-   Double_t GetNsurZ() const {return Double_t(GetN())/GetZ(); };
-	Double_t GetChargeAsymetry() const { return Double_t(GetA()-GetZ())/GetZ(); }
+	Int_t GetN() const;
+   
+   Double_t GetAsurZ() const {return Double_t(GetA())/GetZ(); }
+   Double_t GetNsurZ() const {return Double_t(GetN())/GetZ(); }
+	Double_t GetChargeAsymetry() const {
+		//The charge asymertry  = (neutrons-protons)/nucleons 
+		//
+		return Double_t(GetN()-GetZ())/GetA();
+	}
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
 	

@@ -386,7 +386,16 @@ Double_t KVNucleus::GetRealAFromZ(Double_t Z, Char_t mt)
 
    return A;
 }
+//___________________________________________________________________________________________
 
+Double_t KVNucleus::GetRealNFromZ(Double_t Z, Char_t mt)
+{
+	//Calculate neutron number from the element's atomic number Z.
+   //This value is not rounded off, we just return the result
+	//obtain from the chosen mass formula (mt)
+	return GetRealAFromZ(Z,mt)-Z;
+
+}
 //___________________________________________________________________________________________
 Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
 {
@@ -451,6 +460,13 @@ Int_t KVNucleus::GetAFromZ(Double_t Z, Char_t mt)
    }
    return A;
 }
+//___________________________________________________________________________________________
+Int_t KVNucleus::GetNFromZ(Double_t Z, Char_t mt)
+{
+//Calculate neutron number from the element's atomic number Z.
+	return GetAFromZ(Z,mt)-Int_t(Z);
+
+}
 
 //___________________________________________________________________________________________
 void KVNucleus::SetA(Int_t a)
@@ -473,6 +489,17 @@ void KVNucleus::SetA(Int_t a)
    }
    SetMass(kAMU * a + GetMassExcess());
 }
+//___________________________________________________________________________________________
+void KVNucleus::SetN(Int_t n)
+{
+   //Set mass number
+   //Be careful not to call SetZ() after SetN(), as SetZ() will
+   //reset the neutron number according to one of the available
+   //parametrisations of A (N+Z) as a function of Z.
+   //
+	Int_t z = GetZ();
+   SetA(z+n);
+}
 
 //___________________________________________________________________________________________
 void KVNucleus::SetZ(Int_t z, Char_t mt)
@@ -488,6 +515,22 @@ void KVNucleus::SetZ(Int_t z, Char_t mt)
 }
 
 //___________________________________________________________________________________________
+void KVNucleus::SetZandA(Int_t z, Int_t a)
+{
+//Set atomic number and mass number
+	SetZ(z);
+	SetA(a);
+}
+
+//___________________________________________________________________________________________
+void KVNucleus::SetZandN(Int_t z, Int_t n)
+{
+//Set atomic number and mass number
+	SetZ(z);
+	SetN(n);
+}
+
+//___________________________________________________________________________________________
 void KVNucleus::Print(Option_t * t) const
 {
 // Display nucleus parameters
@@ -500,7 +543,15 @@ void KVNucleus::Print(Option_t * t) const
 //___________________________________________________________________________________________
 Int_t KVNucleus::GetZ() const
 {
+	//Return the number of proton / atomic number
    return (Int_t) fZ;
+}
+
+//___________________________________________________________________________________________
+Int_t KVNucleus::GetN() const
+{
+	//Return the number of neutron
+   return (Int_t)(fA-fZ);
 }
 
 //___________________________________________________________________________________________
@@ -565,8 +616,8 @@ Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a)
 
 Double_t KVNucleus::GetExtraMassExcess(Int_t z, Int_t a)
 {
-	//Calculate the mass excess value  
-	//using KVNucleus::LiquidDrop_BrackGuet is returned.
+	//Calculate the extrapoled mass excess value  
+	// from the LiquidDrop_BrackGuet formula
 	//If optional arguments (z,a) are given we return the value for the
 	//required nucleus.	
 	
