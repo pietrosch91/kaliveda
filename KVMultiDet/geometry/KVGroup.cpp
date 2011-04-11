@@ -28,6 +28,7 @@ $Id: KVGroup.cpp,v 1.35 2008/01/17 15:17:20 franklan Exp $
 #include "KVIDTelescope.h"
 #include "KVReconstructedNucleus.h"
 #include "TROOT.h"
+#include "KVNameValueList.h"
 
 ClassImp(KVGroup);
 /////////////////////////////////////////////////////////////////////
@@ -233,21 +234,30 @@ void KVGroup::Sort()
 
 //_____________________________________________________________________________________
 
-void KVGroup::DetectParticle(KVNucleus * part)
+KVNameValueList*  KVGroup::DetectParticle(KVNucleus * part)
 {
    //Calculate energy losses of a charged particle traversing the telescopes of the group.
-
+	//This method return a list of TNamed where each detector which is throught in the particle
+	//are written with the corrresponding energy loss
+	//WARNING : this KVNameValueList has to be deleted by the user
+	//				after use
+	//return 0 if no telescope are on the path of the particle (DEAD zone)
    TList *d = GetTelescopes(part->GetTheta(), part->GetPhi());
    if (d) {
       TIter nextd(d);
       KVTelescope *t = 0;
-      while ((t = (KVTelescope *) nextd())) {
-         t->DetectParticle(part);
-         if (part->GetEnergy() <= 0.0)
-            break;
-      }
+      KVNameValueList* nvl = new KVNameValueList();
+		while ((t = (KVTelescope *) nextd())) {
+         t->DetectParticle(part,nvl);
+         if (part->GetEnergy() <= 0.0){
+				delete d;
+				return nvl;
+			}	
+		}
       delete d;
-   }
+   	return nvl;
+	}
+	return 0;
 }
 
 //_____________________________________________________________________________________

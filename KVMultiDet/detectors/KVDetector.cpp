@@ -227,7 +227,7 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    while ((abs = (KVMaterial *) next())
           && kvp->GetKE() > 0.) {
       abs->DetectParticle(kvp, norm);
-   }
+	}
 }
 
 //_______________________________________________________________________________

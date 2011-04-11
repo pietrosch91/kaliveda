@@ -25,6 +25,7 @@ $Id: KVTelescope.cpp,v 1.29 2007/05/31 09:59:22 franklan Exp $
 #include "Riostream.h"
 #include "TString.h"
 #include "TROOT.h"
+#include "TMath.h"
 
 ClassImp(KVTelescope)
 /////////////////////////////////////////////////////////////////////////
@@ -139,7 +140,7 @@ void KVTelescope::AddToRing(KVRing * kvr, const int fcon)
 
 //_________________________________________________________________________________
 
-void KVTelescope::DetectParticle(KVNucleus * kvp)
+void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
 {
    //Simulates the passage of a charged particle through all detectors of the telescope, in the order in which they
    //were added to it (corresponding to rank given by GetDetectorRank()).
@@ -149,14 +150,39 @@ void KVTelescope::DetectParticle(KVNucleus * kvp)
    //It should be noted that
    // (1) the small variations in effective detector thickness due to the particle's angle of incidence are not, for the moment, taken into account
    // (2) the simplified description of detector geometry used here does not take into account trajectories such as that marked "b" shown in the figure.
-   //      All particles impinging on the first detector of the telescope are assumed to pass through all subsequent detectors as in "c" (unless they stop in one of
-   //      the detectors)
-   KVDetector *obj;
-   TIter next(GetDetectors());
+   //      All particles impinging on the first detector of the telescope are assumed to pass through all subsequent detectors as in "c" 
+	//		(unless they stop in one of the detectors)
+   //
+	//The KVNameValueList, if it's defined, allows to store
+	//the energy loss in the different detectors the particle goes through
+	//exemple : for a SI_CSI telescope of INDRA , you will obtained:   
+	//		{
+	//			KVNucleus nn(6,12); nn.SetKE(1000);
+	//			KVTelescope* tel = gIndra->GetTelescope("SI_CSI_0401");
+	//			KVNameValueList* nvl = new KVNameValueList;
+	//			tel->DetectParticle(&nn,nvl);
+	//			nvl->Print();
+	//		}
+	//		Collection name='KVNameValueList', class='KVNameValueList', size=2
+	//		 OBJ: TNamed	SI_0401	8.934231
+	//		 OBJ: TNamed	CSI_0401	991.065769
+	//The energy loss in each detector corresponds to those lost in active layer
+	//
+	//If an other particle went through the same telescope, we take it into account
+	//an substract its contribution to energy loss	
+	
+	KVDetector *obj;
+   
+	TIter next(GetDetectors());
    while ((obj = (KVDetector *) next())) {
-      obj->DetectParticle(kvp);
-      if (kvp->GetEnergy() <= 0.0)
-         break;
+		
+		Double_t ebefore = obj->GetEnergy();	//Energie dans le detecteur avant passage
+		obj->DetectParticle(kvp);
+      ebefore -= obj->GetEnergy();				//Si une autre particule est deja passee   
+		if (nvl)
+			nvl->SetValue(obj->GetName(),TMath::Abs(obj->GetEnergy()));
+		if (kvp->GetEnergy() <= 0.0)			
+      	break;
    }
 }
 

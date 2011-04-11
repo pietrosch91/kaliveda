@@ -26,6 +26,8 @@ $Id: KVParticle.h,v 1.41 2008/05/21 13:19:56 ebonnet Exp $
 #include "TRef.h"
 #include "TMath.h"
 #include "KVList.h"
+#include "KVUniqueNameList.h"
+#include "TObjString.h"
 
 class KVEvent;
 class KVList;
@@ -36,7 +38,7 @@ class KVParticle:public TLorentzVector {
    TString fName;            	//!non-persistent name field - Is useful
    TString fFrameName;			//!non-persistent frame name field, sets when calling SetFrame method
 	KVList *fBoosted;				//!list of momenta of the particle in different Lorentz-boosted frames
-   									 
+   KVUniqueNameList* fGroups;	//!-> list of TObjString for manage different group name									 
    static Double_t kSpeedOfLight;       //speed of light in cm/ns
 
  protected:
@@ -49,8 +51,19 @@ class KVParticle:public TLorentzVector {
 		printf("DUUUUUUUUUUUUUMYYYYYYY do nothing\n");
 	};
 	virtual void AddGroup_Sanscondition(const Char_t* groupname, const Char_t* from="");
-	void SetGroupNames(const Char_t* groupname) { fName=groupname; }
-	const Char_t* GetGroupNames() const { return fName; }
+	
+	void SetGroups(KVUniqueNameList* un) { 
+		fGroups->Clear();
+		AddGroups(un);
+	}
+	void AddGroups(KVUniqueNameList* un){
+		TObjString* os = 0;
+		TIter no(un);
+		while ( (os = (TObjString* )no.Next()) ) {
+			AddGroup(os->GetName());
+		}
+	}
+	KVUniqueNameList* GetGroups() const { return fGroups; }
 	
 	public:
 	
@@ -59,6 +72,9 @@ class KVParticle:public TLorentzVector {
 		if (fBoosted) return fBoosted->GetEntries();
 		else return 0;
 		//	return (fBoosted ? fBoosted->GetEntries() : 0); 
+	}
+	Int_t GetNumberOfDefinedGroups(void) {  
+		return fGroups->GetEntries();
 	}
 	
    enum {

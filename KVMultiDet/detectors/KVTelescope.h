@@ -28,6 +28,7 @@ $Id: KVTelescope.h,v 1.19 2008/12/17 13:01:26 franklan Exp $
 #include "KVDetector.h"
 #include "KVList.h"
 #include "TRef.h"
+#include "KVNameValueList.h"
 
 class KVNucleus;
 class KVRing;
@@ -86,7 +87,7 @@ class KVTelescope:public KVPosition {
       return (fDetectors ? fDetectors->GetSize() : 0);
    };
    void AddToRing(KVRing * kvr, const int fcon = KVD_RECPRC_CNXN);
-   virtual void DetectParticle(KVNucleus * kvp);
+   virtual void DetectParticle(KVNucleus * kvp,KVNameValueList* nvl=0);
    virtual void Print(Option_t * opt = "") const;
    void ResetDetectors();
 

@@ -118,11 +118,12 @@ KVParticle::KVParticle()
    init();
 }
 
+//_________________________________________________________
 void KVParticle::init()
 {
    //default initialisation
    fE0 = 0;
-   SetGroupNames("");
+   fGroups = new KVUniqueNameList(); fGroups->SetOwner(kTRUE);
 	SetFrameName("");
    fBoosted = 0;
 }
@@ -148,6 +149,7 @@ KVParticle::KVParticle(Double_t m, TVector3 & p)
    SetMomentum(p);
 }
 
+//________________________________________________________
 KVParticle::KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz)
 {
    //create particle with given mass and momentum vector
@@ -156,15 +158,16 @@ KVParticle::KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz)
    SetMomentum(px, py, pz);
 }
 
+//________________________________________________________
 KVParticle::~KVParticle()
 {
    //dtor
    Clear();
    if (fBoosted) delete fBoosted;
+	delete fGroups;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
+//________________________________________________________
 Double_t KVParticle::C()
 {
    //Static function.
@@ -172,6 +175,7 @@ Double_t KVParticle::C()
    return kSpeedOfLight;
 }
 
+//________________________________________________________
 void KVParticle::SetRandomMomentum(Double_t T, Double_t thmin,
                                    Double_t thmax, Double_t phmin,
                                    Double_t phmax, Option_t * opt)
@@ -199,8 +203,7 @@ void KVParticle::SetRandomMomentum(Double_t T, Double_t thmin,
    SetMomentum(dir);            // set momentum 4-vector
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-
+//________________________________________________________
 void KVParticle::SetMomentum(Double_t T, TVector3 dir)
 {
    //set momentum with kinetic energy t and unit direction vector d
@@ -216,9 +219,7 @@ void KVParticle::SetMomentum(Double_t T, TVector3 dir)
    SetMomentum(pdir);
 };
 
-
 //________________________________________________________________________________________
-
 void KVParticle::Print(Option_t * t) const
 {
 // print out characteristics of particle
@@ -267,13 +268,15 @@ void KVParticle::Copy(TObject & obj)
 	//avec un rajout pour le champs fE0
 	//La KVList des KVParticle deduite de la methode SetFrame
 	//n est pas copiee
-	
+	//Info("Copy","je rentre");
    ((KVParticle &) obj) = *this;
-	((KVParticle &) obj).SetGroupNames(GetGroupNames());
+	((KVParticle &) obj).SetGroups(this->GetGroups());
 	//((KVParticle &) obj).SetFrameName(GetFrameName());
+	//Info("Copy","je sort");
 }
 
 
+//______________________________________________________________________________________
 void KVParticle::Clear(Option_t * opt)
 {
    //Reset particle properties i.e. before creating/reading a new event
@@ -285,8 +288,8 @@ void KVParticle::Clear(Option_t * opt)
    }
    ResetIsOK();                 //in case IsOK() status was set "by hand" in previous event
    ResetBit(kIsDetected);
-	SetGroupNames("");
-	SetFrameName("");
+	
+	GetGroups()->Clear();
    if (fBoosted) {
 		fBoosted->Clear();
       delete fBoosted;
@@ -295,7 +298,6 @@ void KVParticle::Clear(Option_t * opt)
 }
 
 //_________________________________________________________________________________________________________
-
 Bool_t KVParticle::IsOK()
 {
    //Determine whether this particle is considered "good" or not for analysis,
@@ -351,28 +353,16 @@ void KVParticle::ResetEnergy()
 
 void KVParticle::SetName(const Char_t * nom)
 {
-   //Add name to the list of groups particle belongs to
-	// WARNING input string must not contain "/" 
-	// It is strongly suggest to use now KVParticle::AddGroup() method
-	// Apply the method to all particles stored in fBoosted
-	AddGroup(TString(nom));
-
+   //Set Name of the particle
+	fName.Form("%s",nom);
+	
 }
 
 //___________________________________________________________________________//
 const Char_t *KVParticle::GetName() const
 {
-   // Get last stored group name of the particle 
-	// ie to allow backward compatibility with oldest version
-	// if the user only use SetName and GetName method
-	// ca devrait marche ...
-	// But it is strongly suggest to use now KVParticle::AddGroup()
-	// and KVParticle::BelongsToGroup methods
-	if (fName.IsNull()) return "";
-	TObjArray *toks = fName.Tokenize("/");
-	TString temp = ((TObjString *)toks->Last())->GetString();
-	delete toks;
-	return temp.Data();
+   // return the field fName
+	return fName.Data();
 }
 
 //___________________________________________________________________________//
@@ -382,9 +372,9 @@ void KVParticle::AddGroup(const Char_t* groupname,const Char_t* from)
    // Associate this particle with the given named group. 
 	// Optional argument "from" allows to put a condition on the already stored
 	// group list, is set to "" by default
-	// WARNING input string must not contain "/" 
+	// 
 	// Apply the method to all particles stored in fBoosted
-	
+	//Info("AddGroup","%s",groupname);
 	AddGroup_Sanscondition(groupname,from);
 }
 
@@ -395,21 +385,11 @@ void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* fr
    // Implementation of AddGroup(const Char_t*, const Char_t*)
 	// Can be overridden in child classes [instead of AddGroup(const Char_t*, const Char_t*),
 	// which cannot]
-	
-	if ( strcmp(from,"") && !BelongsToGroup(from) ) return; //if an already existing group is set 
-											//via from, check that the particle belongs to it				
-	TString stemp=groupname;
-	stemp.ToUpper();
-	if (BelongsToGroup(stemp) || stemp.IsWhitespace()) return; //if group already exists or groupname is empty->dont't store it
-	
-	if (fName=="") fName = "/"+stemp+"/";
-	else {
-		if (!fName.Contains("/"))	fName += "/"+stemp+"/";
-		else 								fName += stemp+"/";
-	}
-	if (fBoosted) {
-		TString inst; inst.Form("\"%s\"",stemp.Data());
-		fBoosted->Execute("AddGroup",inst.Data());
+	//Info("AddGroup_Sanscondition","%s",groupname);
+	if ( BelongsToGroup(from) && !BelongsToGroup(groupname)){
+		fGroups->Add(new TObjString(groupname));
+		if (fBoosted)
+			fBoosted->Execute("AddGroup",groupname);
 	}
 }
 
@@ -431,14 +411,14 @@ void KVParticle::AddGroup(const Char_t* groupname, KVParticleCondition* cond)
 Bool_t KVParticle::BelongsToGroup(const Char_t* groupname) const
 {
    //Check if particle belong to a given group
-	// if groupname is empty return KTRUE	
-	// WARNING input string must not contain "/" 
+	//return kTRUE if groupname="".
 	
-	if (!strcmp(groupname,"")) return kTRUE;
-	TString stemp=groupname;
+	TString stemp(groupname);
+	if (stemp.IsNull()) return kTRUE;
 	stemp.ToUpper();
-	if (fName.Contains("/"+stemp+"/")) return kTRUE;
-	else return kFALSE;
+	
+	if ( fGroups->FindObject(groupname) ) return kTRUE;
+	return kFALSE;
 }
 
 //___________________________________________________________________________//
@@ -446,25 +426,22 @@ Bool_t KVParticle::BelongsToGroup(const Char_t* groupname) const
 void KVParticle::RemoveGroup(const Char_t* groupname)
 {
    // Remove group from list of groups
-	// WARNING input string must not contain "/" 
 	// Apply the method to all particles stored in fBoosted
-	TString stemp=groupname;
+	TString stemp(groupname);
 	stemp.ToUpper();
-	if (fName.Contains("/"+stemp+"/")) {
-		fName.ReplaceAll("/"+stemp+"/","/");
-		if (fBoosted) {
-			TString inst; inst.Form("\"%s\"",stemp.Data());
-			fBoosted->Execute("RemoveGroup",inst.Data());
-		}
-	}
+	TObjString* os = 0;
+	if ( (os = (TObjString* )fGroups->FindObject(groupname)) )
+		delete fGroups->Remove(os);	
+	if (fBoosted)
+		fBoosted->Execute("RemoveGroup",groupname);
 }
 //___________________________________________________________________________//
 
 void KVParticle::RemoveAllGroups()
 {
-   //Remove all groups ie fName=""
+   //Remove all groups
 	// Apply the method to all particles stored in fBoosted
-	SetGroupNames("");
+	fGroups->Clear();
 	if (fBoosted) fBoosted->Execute("RemoveAllGroups","");
 }
 
@@ -474,7 +451,7 @@ void KVParticle::ListGroups(void) const
 {
    //List all stored groups
 	
-	if (fName.IsNull()) {
+	if (fGroups->GetEntries()==0) {
 		cout << "Cette particle n appartient a aucun groupe" << endl;
 		return;
 	}
@@ -482,9 +459,9 @@ void KVParticle::ListGroups(void) const
 		cout << "--------------------------------------------------" << endl;
 		cout << "Liste des groupes auxquels la particule appartient" << endl;
 	}
-	KVString dupli = fName;
-	dupli.Begin("/");
-	while (!dupli.End()) cout << dupli.Next() << endl;
+	TObjString* os = 0;
+	TIter no(GetGroups());
+	while ( (os = (TObjString* )no.Next()) ) cout << os->GetName() << endl;
 	cout << "--------------------------------------------------" << endl;
 }
 
@@ -507,11 +484,17 @@ KVParticle *KVParticle::GetFrame(const Char_t * frame)
    //i.e. you will access the particle's "default" frame, which usually corresponds to the
    //'laboratory' or 'detector' frame.
 
-   if (!fBoosted || !strcmp(frame,"") ) {
-      return this;
-   }
+   if ( !fBoosted || !strcmp(frame,"") )
+		return this;
+   
    KVParticle* f = (KVParticle *) fBoosted->FindObjectWithMethod(frame,"GetFrameName");
-   return (f ? f : this);
+   if (!f){
+		Warning("Frame %s does not defined for this particle",frame); 
+		return this;
+	}
+	else{
+		return f;
+	}
 }
 
 //___________________________________________________________________________//
@@ -580,20 +563,25 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
    //      v *= rot.Inverse();
    //where v = particle's original momentum 4-vector and rot = TLorentzRotation
 
-   //create list if not already done
-   if (!fBoosted)
+   if ( !strcmp(frame,"") ) return;
+	
+	//create list if not already done
+ 	if (!fBoosted)
       fBoosted = new KVList;    //owns its objects
 	
-	KVParticle *tmp = GetFrame(frame);
-	
-	//if this frame has not already been defined, create a new particle
-   if ( (tmp == this) && (strcmp(frame,"")) ) {
+	KVParticle *tmp = 0;
+	if ( HasFrame(frame) ){
+		tmp = GetFrame(frame);
+	}
+	else {
+		//if this frame has not already been defined, create a new particle
 		tmp = (KVParticle* )this->IsA()->New();
 		tmp->SetFrameName(frame);
 		tmp->SetBit(kCanDelete);
 		fBoosted->Add(tmp);
-   }
-   //copy all information on particle
+	}
+	
+	//copy all information on particle
    this->Copy(*tmp);
    //transform to boosted frame
    (*tmp) *= rot.Inverse();

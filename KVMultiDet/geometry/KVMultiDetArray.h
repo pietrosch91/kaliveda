@@ -41,11 +41,14 @@ class KVMultiDetBrowser;
 class KVRList;
 class KVMaterial;
 class KVNucleus;
+class KVNameValueList;
 class KVTarget;
 class KVIDTelescope;
 class KV2Body;
 class KVReconstructedNucleus;
+class KVReconstructedEvent;
 class TGeoManager;
+class KVUniqueNameList;
 
 class KVMultiDetArray:public KVBase {
 
@@ -75,6 +78,7 @@ class KVMultiDetArray:public KVBase {
    KVSeqCollection *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
    KVSeqCollection *fTelescopes;         //-> list of telescope prototypes used to construct array
    KVSeqCollection *fGroups;             //->list of groups of telescopes in array
+   KVUniqueNameList *fHitGroups;          //list of hitted groups
    KVSeqCollection *fIDTelescopes;       //->deltaE-E telescopes in groups
    KVSeqCollection *fDetectors;          //->list of references to all detectors in array
    KVSeqCollection *fACQParams;          //references to data acquisition parameters associated to detectors
@@ -180,9 +184,9 @@ class KVMultiDetArray:public KVBase {
    };
    virtual void SetArrayACQParams();
 
-   void DetectEvent(KVEvent * event);
+	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event);
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
-   Bool_t DetectParticle(KVNucleus * part);
+   KVNameValueList* DetectParticle(KVNucleus * part);
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
    KVIDTelescope *GetIDTelescope(const Char_t * name) const;
