@@ -224,7 +224,7 @@ KVNucleus *KVEvent::GetNextParticle(Option_t * opt)
    //If opt="ok" or "OK" only particles whose IsOK() method returns kTRUE are included.
    //
    //Any other value of opt is interpreted as a particle group name: only
-   //particles with BelongsTiGroup(opt) returning kTRUE are included.
+   //particles with BelongsToGroup(opt) returning kTRUE are included.
    //
    //If you want to start from the beginning again before getting to the end
    //of the list, use ResetGetNextParticle().
@@ -233,7 +233,7 @@ KVNucleus *KVEvent::GetNextParticle(Option_t * opt)
    Opt.ToUpper();
    
 	Bool_t only_ok = (Opt == "OK");
-   Bool_t label = (Opt != "");
+   //Bool_t label = (Opt != "");
    
    if (!fOKIter) 	//check if iterator exists i.e. if iteration is in progress
    {
@@ -244,14 +244,19 @@ KVNucleus *KVEvent::GetNextParticle(Option_t * opt)
    KVNucleus *tmp;
    while ((tmp = (KVNucleus *) fOKIter->Next())) {
    	if(only_ok){
-   		if(tmp->IsOK()) return tmp;
+   		if(tmp->IsOK()) 
+				return tmp;
    	}
-      else if (label){
-      	if(tmp->BelongsToGroup(Opt.Data())) return tmp;
+      else {
+		//if (label){
+      	if(tmp->BelongsToGroup(Opt.Data())) 
+				return tmp;
       }
-      else
+      /*
+		else
       	return tmp;
-   }
+   	*/
+	}
    //we have reached the end of the list - reset iterator
 
    ResetGetNextParticle();

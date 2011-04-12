@@ -96,13 +96,14 @@ ClassImp(KVParticle);
 //      calorimetry
 //		  For KVNucleus and derived classes group can be defined using KVParticleCondition.	
 //      For the same particle, number of groups is unlimited.
-//      The non persistent field fName is now only devoted to the definition of groups for particle
+//		  All these groups are stored in the fGroups pointeur (KVUniqueNameList of TObjString objects)
+//      
 //		  The name of the frame which particle as been created via the SetFrame() method is now stored 
 //      in the non persistent field fFrameName	
 //      Two WARNINGS : 
-//            - name of group must not contain "/" character
-//            - the oldest SetName and GetName Methods have been taken into account
-//              to backward compatibility but it is strongly recommended to use  AddGroup() and BelongsToGroup() methods
+//            - SetName and GetName Methods now are related to the fName field which is the name of the particle
+//            - All group names are not case sensitive
+//					Ex : KVNucleus nn; nn.AddGroup("forward"); nn.BelongsToGroup("ForWaRD") -> return kTRUE
 //      When new KVParticle is defined using SetFrame() Method, the list of group names is already stored in it
 //      In the same way, when some change is made on the "principal" KVParticle, if some "secondary" particles
 //      have been already stored in fBoosted list, the change is also apply
@@ -386,10 +387,17 @@ void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* fr
 	// Can be overridden in child classes [instead of AddGroup(const Char_t*, const Char_t*),
 	// which cannot]
 	//Info("AddGroup_Sanscondition","%s",groupname);
-	if ( BelongsToGroup(from) && !BelongsToGroup(groupname)){
-		fGroups->Add(new TObjString(groupname));
-		if (fBoosted)
-			fBoosted->Execute("AddGroup",groupname);
+	TString sfrom(from);
+	sfrom.ToUpper();
+	TString sgroupname(groupname);
+	sgroupname.ToUpper();
+	
+	if ( BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data()) ){
+		fGroups->Add(new TObjString(sgroupname.Data()));
+		if (fBoosted){
+			TString inst; inst.Form("\"%s\"",sgroupname.Data());
+			fBoosted->Execute("AddGroup",inst.Data());
+		}
 	}
 }
 
@@ -398,7 +406,7 @@ void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* fr
 void KVParticle::AddGroup(const Char_t* groupname, KVParticleCondition* cond)
 {
    //define and store a group name from a condition on the particle
-	// WARNING input string groupname must not contain "/" 
+	// 
 	// Apply the method to all particles stored in fBoosted
 	// SetParticleClassName has to be set before using this method if you use 
 	// in the KVParticleCondistion a specific method of a derived KVNucleus class 
@@ -413,11 +421,12 @@ Bool_t KVParticle::BelongsToGroup(const Char_t* groupname) const
    //Check if particle belong to a given group
 	//return kTRUE if groupname="".
 	
-	TString stemp(groupname);
-	if (stemp.IsNull()) return kTRUE;
-	stemp.ToUpper();
+	TString sgroupname(groupname);
+	sgroupname.ToUpper();	
+	//Important for KVEvent::GetNextParticle()
+	if (sgroupname.IsNull()) return kTRUE;
 	
-	if ( fGroups->FindObject(groupname) ) return kTRUE;
+	if ( fGroups->FindObject(sgroupname.Data()) ) return kTRUE;
 	return kFALSE;
 }
 
@@ -427,13 +436,17 @@ void KVParticle::RemoveGroup(const Char_t* groupname)
 {
    // Remove group from list of groups
 	// Apply the method to all particles stored in fBoosted
-	TString stemp(groupname);
-	stemp.ToUpper();
+	TString sgroupname(groupname);
+	sgroupname.ToUpper();
+	
 	TObjString* os = 0;
-	if ( (os = (TObjString* )fGroups->FindObject(groupname)) )
+	if ( (os = (TObjString* )fGroups->FindObject(sgroupname.Data())) ){
 		delete fGroups->Remove(os);	
-	if (fBoosted)
-		fBoosted->Execute("RemoveGroup",groupname);
+		if (fBoosted){
+			TString inst; inst.Form("\"%s\"",sgroupname.Data());
+			fBoosted->Execute("RemoveGroup",inst.Data());
+		}
+	}	
 }
 //___________________________________________________________________________//
 
@@ -489,7 +502,7 @@ KVParticle *KVParticle::GetFrame(const Char_t * frame)
    
    KVParticle* f = (KVParticle *) fBoosted->FindObjectWithMethod(frame,"GetFrameName");
    if (!f){
-		Warning("Frame %s does not defined for this particle",frame); 
+		//Warning("GetFrame","Frame %s does not defined for this particle",frame); 
 		return this;
 	}
 	else{

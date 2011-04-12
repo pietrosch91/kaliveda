@@ -915,7 +915,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							dd->GetHits()->Remove(part);
 						}
 					
-					part->AddGroup("DEADZONE");
+					part->AddGroup("DEAD ZONE");
 					part->AddGroup("UNDETECTED");
 				}
 				else {
