@@ -40,6 +40,8 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	Float_t fECsI;//csi contribution to energy
 	Float_t fESi;//si contribution to energy
 	Float_t fEChIo;//chio contribution to energy
+	
+	void CheckCsIEnergy();
    
  public:
 

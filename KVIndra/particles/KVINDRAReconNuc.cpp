@@ -771,6 +771,7 @@ void KVINDRAReconNuc::Calibrate()
           fEloss[ndet] = det->GetEnergy();
           ++ndet;
         }
+        CheckCsIEnergy();
         return;
     }
 
@@ -788,6 +789,7 @@ void KVINDRAReconNuc::Calibrate()
          SetECode( kECode2 );
       else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_NoCalibrations )
          SetECode( kECode0 );
+      CheckCsIEnergy();
    }
 }
 
@@ -880,4 +882,18 @@ void KVINDRAReconNuc::CalibrateRings1To10()
         }
     }
 	 SetEnergy( fECsI + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
+}
+
+//________________________________________________________________________________//
+
+void KVINDRAReconNuc::CheckCsIEnergy()
+{
+	// Check calculated CsI energy loss of particle.
+	// If it is greater than the maximum theoretical energy loss
+	// (depending on the length of CsI, the Z & A of the particle)
+	// we set the energy calibration code to kECode3 (historical VEDA code
+	// for particles with E_csi > E_max_csi)
+	
+	KVDetector* csi = GetCsI();
+	if(csi && (csi->GetEnergy() > csi->GetMaxDeltaE(GetZ(), GetA()))) SetECode(kECode3);
 }
