@@ -132,9 +132,12 @@ void KVTarget::init()
    SetName("KVTarget");
    SetTitle("Target for experiment");
    fNLayers = 0;
+	
+	fNormal.SetXYZ(0, 0, 1);
+	fIntPoint.SetXYZ(0, 0, 0);
 }
 
-KVTarget::KVTarget():fNormal(0, 0, 1), fIntPoint(0, 0, 0)
+KVTarget::KVTarget()
 {
    //Default costructor
    init();
@@ -142,7 +145,7 @@ KVTarget::KVTarget():fNormal(0, 0, 1), fIntPoint(0, 0, 0)
 
 //________________________________________________________________________
 
-KVTarget::KVTarget(const Char_t * material, const Double_t thick):KVMaterial(), fNormal(0, 0, 1)
+KVTarget::KVTarget(const Char_t * material, const Double_t thick)
 {
    // Just give the type & "thickness" of material for target
    // The "thickness" is the area density of the target in mg/cm**2.
@@ -176,11 +179,13 @@ void KVTarget::Copy(TObject & obj)
    ((KVTarget &) obj).SetRandomized(IsRandomized());
    ((KVTarget &) obj).SetIncoming(IsIncoming());
    ((KVTarget &) obj).SetOutgoing(IsOutgoing());
-
+	
+	((KVTarget &) obj).fNormal = fNormal;
+	
 	TIter next(GetLayers());
    KVMaterial *mat = 0;
    while ((mat = (KVMaterial *) next())) {
-      ((KVTarget &) obj).AddLayer(mat->GetType(), mat->GetAreaDensity()/KVUnits::mg);
+      ((KVTarget &) obj).AddLayer(mat->GetName(), mat->GetAreaDensity()/KVUnits::mg);
    }
 }
 //________________________________________________________________________
@@ -267,7 +272,9 @@ Double_t KVTarget::GetEffectiveThickness(KVParticle * part, Int_t ilayer)
    //particles travelling in the beam direction.
 
    //get (or make) vector in particle direction of motion (z-direction if no particle)
-   TVector3 p;
+   //Info("KVTarget::GetEffectiveThickness","(KVParticle * part, Int_t ilayer)");
+	
+	TVector3 p;
    if (part)
       p = part->GetMomentum();
    else
@@ -285,7 +292,7 @@ Double_t KVTarget::GetEffectiveThickness(TVector3 & direction,
    //By default ilayer=1 (i.e. for single layer target)
    //The effective thickness depends on the orientation of the target (given by
    //the direction of the normal to its surface) and on the direction (e.g. direction of a particle)
-
+	//	Info("KVTarget::GetEffectiveThickness","TVector3 & direction,Int_t ilayer");
    if (ilayer < 1 || ilayer > NumberOfLayers()) {
       Error("GetEffectiveThickness(Int_t ilayer, TVector3& direction)",
             "Layer number %d is illegal. Valid values are between 1 and %d.",
