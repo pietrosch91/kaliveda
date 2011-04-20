@@ -1,16 +1,21 @@
 How to build and install KaliVeda
-=======================
+=================================
 
 0. Prerequisites
---------------------
+----------------
 It is assumed that you have a correctly installed and fully functioning version of ROOT (http://root.cern.ch).
 Most notably, we assume that the ROOTSYS environment variable is positioned and contains the path to
 the top-level directory of your ROOT installation, and that the ROOTSYS/lib and ROOTSYS/bin directories
 are included in the system search paths for shared libraries and executables, respectively.
+See below (2.1) if ROOTSYS is not defined on your system.
 
+0.1 Prerequisites for bazaar branch builds
+------------------------------------------
+If you obtain the sources as a bazaar branch, you must have all GNU build tools installed:
+automake, autoconf, autoreconf, libtool, etc. etc.
 
-1. Setting the installation location (KVROOT).
-----------------------------------------------------------
+1. Setting the installation location (KVROOT)
+---------------------------------------------
 The environment variable KVROOT must be defined by the user.
 It must contain the full path to the directory in which you wish to install KaliVeda.
 This directory must exist before installation begins.
@@ -29,15 +34,8 @@ e.g. on a Linux C-shell system:
 	setenv LD_LIBRARY_PATH ${KVROOT}/lib:${LD_LIBRARY_PATH}
 	setenv PATH ${KVROOT}/bin:${PATH}
 	
-1.1 MacOSX
------------------
-In addition to the previous shell variables, you also need to define/modify the following:
-
-   DYLD_LIBRARY_PATH :  add $ROOTSYS/lib and $KVROOT/lib
-   MACOSX_DEPLOYMENT_TARGET : set to "10.3"
-	
 2. Building and installing
--------------------------------
+--------------------------
 If you obtained the KaliVeda sources in the form of a compressed archive (tarball or ".tgz"), you must
 first of all type the following command in the top-level directory:
 
@@ -49,29 +47,31 @@ the top-level directory of the KaliVeda sources:
 	make
 	
 2.1 ROOTSYS is not defined / ROOT installed in e.g. /usr/local/bin
------------------------------------------------------------------------------------
+------------------------------------------------------------------
 If your installation of ROOT is NOT in a single directory (maybe ROOTSYS is not defined), then you need to
 give the path to the ROOT makefile called "Makefile.arch" in order to build KaliVeda. In normal installations,
 this file is in $ROOTSYS/test.
 For example, if the ROOT executables are installed in /usr/local/bin, and the ROOT libraries in /usr/local/lib/root,
-then Makefile.arch is in /usr/local/share/root/test. You need to type:
+then Makefile.arch may be in /usr/local/share/root/test (the exact location depends on the version of ROOT.
+If this is not the right directory, you will have to search for it). You need to type:
 
    make ROOT_MAKEFILE_PATH=/usr/local/share/root/test
    
 2.2 Debug build
---------------------
+---------------
 If you want to compile KaliVeda with the maximum of debugging information (to use with e.g. gdb), then type:
 
    make debug=yes
    
 2.3 Building GANIL acquisition library with Xrootd support
---------------------------------------------------------------------------
+----------------------------------------------------------
 In order to read raw GANIL acquisition data over the network using Xrootd, type:
    
    make MAKE_GANTAPE_XRD=yes
-    	
+
+
 3. Installing documentation
-----------------------------------
+---------------------------
 If you want to install a local copy of the KaliVeda web site, including the full documentation of all classes,
 type the following command in the top-level directory of the KaliVeda sources:
 
@@ -81,7 +81,7 @@ Open the file KVROOT/KaliVedaDoc/KaliVeda.html in a web browser.
 
 	
 4. Configuration
---------------------
+----------------
 Many aspects of the KaliVeda environment (such as the location of the data repository you use for data
 reduction and analysis) can be configured by creating and editing the file $HOME/.kvrootrc.
 See the comments & examples in the file $KVROOT/KVFiles/.kvrootrc (do not copy this file in to your
@@ -89,14 +89,33 @@ $HOME directory!), or look on the KaliVeda website for more information.
 	
 
 5. Loading KaliVeda libraries in an interactive ROOT session
-------------------------------------------------------------------------------
+------------------------------------------------------------
 All libraries are installed into the directory "KVROOT/lib". Thus for example, to load the KVMultiDet library,
 type the following instruction (which should be valid for any operating system, assuming that the system-
 dependent search path for shared libraries includes KVROOT/lib; see #1 above):
 
-	gSystem->Load("libKVMultiDet")
+	root[0]  gSystem->Load("libKVMultiDet")
 	
-or alternatively you can type (may only work on Linux systems):
+Then to initialise the system (in order for example to compile your own code which depends on
+the KaliVeda libraries) use:
 
-	.L $KVROOT/lib/libKVMultiDet.so
+	root[1]  KVBase::InitEnvironment()
 	
+If the ROOT automatic library loading mechanism (rlibmap) functions correctly on your system,
+it is only necessary to type KVBase::InitEnvironment() in order to load and initialise the libraries.
+In fact, in this case, you can directly use KaliVeda classes in your interactive session, the libraries
+will be loaded and initialised when needed.
+
+
+6. Building with KaliVeda libraries outside of ROOT interactive session
+-----------------------------------------------------------------------
+Assuming a GNU/Linux system with gcc, here is how to compile your code using KaliVeda & ROOT:
+
+	g++ `root-config --cflags` -I$KVROOT/include MYCODE.CXX -L$KVROOT/lib -lKVMultiDet `root-config --glibs`
+	
+If your code uses classes which are not part of the main libKVMultiDet.so library (see class doc to know
+to which library each class belongs), you should add them as follows:
+
+	g++ `root-config --cflags` -I$KVROOT/include MYCODE.CXX -L$KVROOT/lib -lKVIndra -lKVMultiDet `root-config --glibs`
+	g++ `root-config --cflags` -I$KVROOT/include MYCODE.CXX -L$KVROOT/lib -lVAMOS -lKVIndra -lKVMultiDet `root-config --glibs`
+
