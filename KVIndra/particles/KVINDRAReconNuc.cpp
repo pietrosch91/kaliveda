@@ -62,7 +62,8 @@ ClassImp(KVINDRAReconNuc);
 //               //test the inheritance of the class of the stopping detector
 //
 //    GetChIo(), GetSi(), GetCsI()    -  return pointers to the detectors through which the particle passed
-//    GetEnergyChIo(), GetEnergySi(), GetEnergyCsI()   -  return the energy measured in the detectors
+//    GetEnergyChIo(), GetEnergySi(), GetEnergyCsI()   -  return the calculated contribution of each detector to the
+//                                                                                      particle's energy
 //
 //Identification/Calibration status and codes
 //-------------------------------------------
@@ -281,35 +282,6 @@ KVCsI *KVINDRAReconNuc::GetCsI()
    return csi;
 }
 
-Float_t KVINDRAReconNuc::GetEnergyChIo()
-{
-   //If this particle passed through a ChIo, return the energy measured
-   KVChIo *chio = GetChIo();
-   if (chio) {
-      return chio->GetEnergy();
-   }
-   return 0.0;
-}
-
-Float_t KVINDRAReconNuc::GetEnergySi()
-{
-   //If this particle passed through a Si, return the energy measured
-   KVSilicon *si = GetSi();
-   if (si) {
-      return si->GetEnergy();
-   }
-   return 0.0;
-}
-
-Float_t KVINDRAReconNuc::GetEnergyCsI()
-{
-   //If this particle passed through a CsI, return the energy measured
-   KVCsI *csi = GetCsI();
-   if (csi) {
-      return csi->GetEnergy();
-   }
-   return 0.0;
-}
 
 Bool_t KVINDRAReconNuc::StoppedInChIo()
 {
