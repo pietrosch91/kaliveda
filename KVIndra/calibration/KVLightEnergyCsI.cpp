@@ -42,16 +42,17 @@ Double_t CalculLumiere(Double_t * x, Double_t * par)
    // par[0] = a1
    // par[1] = a2
    // par[2] = a3 
-   // par[3] = Z
-   // par[4] = A
+   // par[3] = a4
+   // par[4] = Z
+   // par[5] = A
 
-   Double_t Z = par[3];
-   Double_t A = par[4];
+   Double_t Z = par[4];
+   Double_t A = par[5];
    Double_t energie = x[0];
    Double_t c1 = par[0];
    Double_t c2 = Z * Z * A * par[1];
    Double_t c3 = A * par[2];
-   Double_t c4 = 0.385; // was = 0.27
+   Double_t c4 = par[3];
    Double_t T = 8 * A;
    Double_t c4_new = c4 / (1. + TMath::Exp((c3 - energie) / T));
    Double_t c0 = c4 / (1. + TMath::Exp(c3 / T));
@@ -65,7 +66,7 @@ Double_t CalculLumiere(Double_t * x, Double_t * par)
    return lumcalc;
 }
 
-TF1 KVLightEnergyCsI::fLight("fLight_CsI", CalculLumiere, 0., 10000., 5);
+TF1 KVLightEnergyCsI::fLight("fLight_CsI", CalculLumiere, 0., 10000., 6);
 
 //__________________________________________________________________________
 
@@ -77,13 +78,13 @@ void KVLightEnergyCsI::init()
    SetZ(1);
 }
 
-KVLightEnergyCsI::KVLightEnergyCsI():KVCalibrator(3)
+KVLightEnergyCsI::KVLightEnergyCsI():KVCalibrator(4)
 {
    init();
 }
 
 //___________________________________________________________________________
-KVLightEnergyCsI::KVLightEnergyCsI(KVDetector * kvd):KVCalibrator(3)
+KVLightEnergyCsI::KVLightEnergyCsI(KVDetector * kvd):KVCalibrator(4)
 {
    //Create an electronic calibration object for a specific detector (*kvd)
    init();
@@ -100,11 +101,11 @@ Double_t KVLightEnergyCsI::Compute(Double_t light) const
    // This is done by inversion of the light-energy function using TF1::GetX.
 
    //set parameters of light-energy function
-   Double_t par[5];
-   for (int i = 0; i < 3; i++)
+   Double_t par[6];
+   for (int i = 0; i < 4; i++)
       par[i] = GetParameter(i);
-   par[3] = (Double_t) fZ;
-   par[4] = (Double_t) fA;
+   par[4] = (Double_t) fZ;
+   par[5] = (Double_t) fA;
    fLight.SetParameters(par);
    
    //invert light vs. energy function to find energy
@@ -130,11 +131,11 @@ Double_t KVLightEnergyCsI::Invert(Double_t energy)
    //calibration parameters (useful for filtering simulations).
 
    //set parameters of light-energy function
-   Double_t par[5];
-   for (int i = 0; i < 3; i++)
+   Double_t par[6];
+   for (int i = 0; i < 4; i++)
       par[i] = GetParameter(i);
-   par[3] = (Double_t) fZ;
-   par[4] = (Double_t) fA;
+   par[4] = (Double_t) fZ;
+   par[5] = (Double_t) fA;
    fLight.SetParameters(par);
 
    return fLight.Eval(energy);
