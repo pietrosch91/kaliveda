@@ -73,7 +73,6 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVDBPeak;
 #pragma link C++ class KVDBAlphaPeak;
 #pragma link C++ class KVDBElasticPeak;
-#pragma link C++ class KVElasticScatterEvent_e475s+;
 #pragma link C++ class KVINDRADB1;
 #pragma link C++ class KVINDRADB2;
 #pragma link C++ class KVINDRADB4;
