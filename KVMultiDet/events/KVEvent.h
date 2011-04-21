@@ -55,7 +55,8 @@ class KVEvent:public KVBase {
 
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * t = "") const;
-   KVNucleus *GetParticle(const Char_t * name) const;
+   KVNucleus *GetParticleWithName(const Char_t * name) const;
+   KVNucleus *GetParticle(const Char_t * group_name) const;
    KVNucleus *GetNextParticle(Option_t * opt = "");
    void ResetGetNextParticle();
 

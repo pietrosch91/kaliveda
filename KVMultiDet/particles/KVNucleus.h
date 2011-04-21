@@ -64,7 +64,7 @@ class KVNucleus:public KVParticle {
     KVNucleus();
     KVNucleus(const KVNucleus &);
    virtual void Clear(Option_t * opt = "");
-    KVNucleus(Int_t z, Int_t a = 0);
+    KVNucleus(Int_t z, Int_t a = 0, Double_t ekin = 0);
     KVNucleus(Int_t z, Float_t t, TVector3 & p);
     KVNucleus(Int_t z, Int_t a, TVector3 p);
     KVNucleus(const Char_t *);
@@ -96,7 +96,8 @@ class KVNucleus:public KVParticle {
 	void SetN(Int_t n);
    void SetZandA(Int_t z, Int_t a);
    void SetZandN(Int_t z,Int_t n);
-   
+	void SetZAandE(Int_t z, Int_t a, Double_t ekin);
+  
 	virtual void Print(Option_t * t = "") const;
    Int_t GetZ() const;
    Int_t GetA() const;

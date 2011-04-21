@@ -110,7 +110,7 @@ class KVBreakUp:public KVPartitionList
 	Int_t GetDeltaTime();
 	
 	
-	ClassDef(KVBreakUp,1)//Partitioning of nuclei
+	ClassDef(KVBreakUp,1)//Exemple de differentes facons de casser un entier en plusieurs autres entiers, avec comme principales contraintes la charge totale et le nombre de clusters
 };
 
 #endif

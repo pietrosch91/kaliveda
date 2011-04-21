@@ -15,7 +15,8 @@ ClassImp(KVRelativeVelocity)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVRelativeVelocity</h2>
-<h4>calculate for a given a couple of particles the magnitude of relative velocity</h4>
+<h4>calculate for a given group of particles the mean relative velocity</h4>
+Sum i>j |Vij| / Sum i>j
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +29,7 @@ void KVRelativeVelocity::init_KVRelativeVelocity(void)
 	heaviest = 0;
 //
 // Initialisation of the fields of the KVRelativeVelocity class
-// This private method is called by the contrctors only. 
+// This private method is called by the constructors only. 
 //
 	}
 

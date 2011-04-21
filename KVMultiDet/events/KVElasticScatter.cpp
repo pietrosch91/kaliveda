@@ -101,6 +101,13 @@ KVElasticScatter::KVElasticScatter():fBeamDirection(0, 0, 1)
    fExx = 0.;
    fHistos = 0;
    fDetInd = 0;
+	if (gMultiDetArray){
+		gMultiDetArray->SetSimMode(kTRUE);
+	}
+	else {	
+		Warning("KVElasticScatter","gMultiDetArray does not refer to a valid multidetector array");
+		printf("Define it before using this class, and put it in simulation mode : gMultiDetArray->SetSimMode(kTRUE)");
+	}
 }
 
 //__________________________________________________________________//
@@ -122,6 +129,7 @@ KVElasticScatter::~KVElasticScatter()
       delete fHistos;
    if (fDetInd)
       delete fDetInd;
+	gMultiDetArray->SetSimMode(kFALSE);
 }
 
 //__________________________________________________________________//

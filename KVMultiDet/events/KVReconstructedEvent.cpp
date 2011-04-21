@@ -32,7 +32,8 @@ ClassImp(KVReconstructedEvent);
 //calibration procedures.
 //
 //      GetParticle(Int_t i)       -  returns ith reconstructed particle of event (i=1,...,GetMult())
-//      GetParticle(const Char_t*)    -  returns particle with given name/label
+//      GetParticleWithName(const Char_t*)    -  returns the first particle with given name
+//      GetParticle(const Char_t*)				 -  returns the first particle belonging to a given group
 //      UseMeanAngles()      - particle's theta & phi are taken from mean theta & phi of detectors
 //      UseRandomAngles()      - particle's theta & phi are randomized within theta & phi limits of detectors
 //      HasMeanAngles()/HasRandomAngles()   -  indicate in which of the two previous cases we find ourselves

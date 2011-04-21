@@ -848,10 +848,14 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 #endif
 		
 		part->SetE0();
+		Double_t eLostInTarget=0;
 		if (fTarget){
 			//simulate passage through target material
+			Double_t ebef = part->GetKE();
 			fTarget->DetectParticle(part);
+			eLostInTarget = ebef-part->GetKE();
 		}
+		
 		if (part->GetKE()==0) { 
 			part->AddGroup("STOPPED IN TARGET"); 
 			part->AddGroup("UNDETECTED"); 
@@ -975,6 +979,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						if (part->InheritsFrom("KVSimNucleus")){
 							TIter it(nvl);
 							TNamed* nam = 0;
+							if (fTarget)
+								((KVSimNucleus* )part)->GetParameters()->SetValue("TARGET",eLostInTarget);
 							while ( (nam = (TNamed* )it.Next()) ){
 								((KVSimNucleus* )part)->GetParameters()->SetValue(nam->GetName(),nam->GetTitle());
 							}

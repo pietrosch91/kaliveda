@@ -261,11 +261,12 @@ void KVNucleus::Clear(Option_t * opt)
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(Int_t z, Int_t a)
+KVNucleus::KVNucleus(Int_t z, Int_t a, Double_t ekin)
 {
    //Create a nucleus with atomic number Z.
    //If the mass number A is not given, A is calculated using the
    //parametrisation determined by the value of fMassFormula (see KVNucleus::GetAFromZ).
+   //ekin is the kinetic energy in MeV
 
    init();
    fZ = (UChar_t) z;
@@ -274,6 +275,7 @@ KVNucleus::KVNucleus(Int_t z, Int_t a)
    } else {
       SetA(a);
    }
+	SetKE(ekin);
 }
 
 //___________________________________________________________________________________________
@@ -520,6 +522,15 @@ void KVNucleus::SetZandA(Int_t z, Int_t a)
 //Set atomic number and mass number
 	SetZ(z);
 	SetA(a);
+}
+
+//___________________________________________________________________________________________
+void KVNucleus::SetZAandE(Int_t z, Int_t a,Double_t ekin)
+{
+//Set atomic number, mass number, and kinetic energy in MeV
+	SetZ(z);
+	SetA(a);
+	SetKE(ekin);
 }
 
 //___________________________________________________________________________________________

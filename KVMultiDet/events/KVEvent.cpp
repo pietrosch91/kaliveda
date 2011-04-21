@@ -90,8 +90,11 @@ void KVEvent::Copy(TObject & obj)
 {
    //Copy this to obj
    KVBase::Copy(obj);
-	for (Int_t nn=0;nn<fParticles->GetEntriesFast();nn+=1)
+	for (Int_t nn=0;nn<fParticles->GetEntriesFast();nn+=1){
+		//printf("avant=%s - ",GetParticle(nn+1)->GetName());
 		GetParticle(nn+1)->Copy( *((KVEvent &) obj).AddParticle() );
+		//printf("apres=%s\n",((KVEvent &) obj).GetParticle(nn+1)->GetName());
+	}
 }
 //_______________________________________________________________________________
 
@@ -163,20 +166,32 @@ void KVEvent::Print(Option_t * t) const
 
 //________________________________________________________________________________
 
-KVNucleus *KVEvent::GetParticle(const Char_t * name) const
+KVNucleus *KVEvent::GetParticleWithName(const Char_t * name) const
 {
-   //Find particle using its name/label
+   //Find particle using its name (SetName()/GetName() methods)
    //In case more than one particle has the same name, the first one found is returned.
+   //
+
+	KVNucleus *tmp = (KVNucleus* )fParticles->FindObject(name);
+	return tmp;
+}
+
+//________________________________________________________________________________
+
+KVNucleus *KVEvent::GetParticle(const Char_t * group_name) const
+{
+   //Find particle using groups it is belonging
+   //In case more than one particle belongs to the same group, the first one found is returned.
    //
    //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
    //OVER THE EVENT USING GETNEXTPARTICLE() !!!
 
    const_cast < KVEvent * >(this)->ResetGetNextParticle();
-   KVNucleus *tmp = const_cast < KVEvent * >(this)->GetNextParticle(name);
+   KVNucleus *tmp = const_cast < KVEvent * >(this)->GetNextParticle(group_name);
    const_cast < KVEvent * >(this)->ResetGetNextParticle();
    if (tmp)
       return tmp;
-   Warning("GetParticle", "Particle not found: %s", name);
+   Warning("GetParticle", "Particle not found: %s", group_name);
    return 0;
 }
 

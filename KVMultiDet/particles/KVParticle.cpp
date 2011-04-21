@@ -272,6 +272,7 @@ void KVParticle::Copy(TObject & obj)
 	//Info("Copy","je rentre");
    ((KVParticle &) obj) = *this;
 	((KVParticle &) obj).SetGroups(this->GetGroups());
+	((KVParticle &) obj).SetName(this->GetName());
 	//((KVParticle &) obj).SetFrameName(GetFrameName());
 	//Info("Copy","je sort");
 }

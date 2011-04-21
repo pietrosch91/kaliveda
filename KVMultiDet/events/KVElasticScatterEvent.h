@@ -15,111 +15,114 @@ $Date: 2009/01/14 15:35:50 $
 #include "KVTarget.h"
 #include "KVLayer.h"
 #include "KVMaterial.h"
+#include "KVSimNucleus.h"
 #include "KVNucleus.h"
-#include "KVEvent.h"
+#include "KVSimEvent.h"
 #include "KV2Body.h"
 #include "KVMultiDetArray.h"
 #include "KVReconstructedNucleus.h"
-#include "KVDetectorEvent.h"
 #include "KVReconstructedEvent.h"
 #include "TObject.h"
+#include "TTree.h"
+#include "KVHashList.h"
+#include "KVBase.h"
+#include "KVDBSystem.h"
 
 
-class KVElasticScatterEvent
+class KVElasticScatterEvent : public KVBase
 {
 
    protected:
+	KV2Body*						kb2;//!
+	TVector3 					kIPPVector;//!
+	KVTarget*					ktarget;//!
+	KVNucleus*					proj;//!->
+	KVNucleus*					targ;//!->
+	KVReconstructedEvent* 	rec_evt;//!
+	KVSimEvent*					sim_evt; //!
+	
+	KVHashList*					lhisto;//!-> to store control histogram
+	KVHashList*					ltree;//!->	to store tree
 
-	TVector3 					kIPPVector;
-
-	KVTarget						ktarget;
-	KVNucleus*					kcurrent_nuc;
-	KVEvent*						kcurrent_evt;
-	KVList*						kevent_list;
-	KV2Body						k2body;
-	KVReconstructedEvent 	recev;
-	KVDetectorEvent             detevt;
-	KVList*						lhisto_control;
-
-	Double_t 					th_min,th_max,phi_min,phi_max;
-	Double_t						kXruth_evt;
-	Int_t 						kchoix_layer;
-	Int_t 						kTreatedNevts;
-
-   public:
-
+	Double_t 					th_min,th_max,phi_min,phi_max;//!
+	Double_t						kXruth_evt;//!
+	Int_t 						kchoix_layer;//!
+	Int_t 						kTreatedNevts;//!		number of diffusion performed
+	
+	void		init();
+	void 		GenereKV2Body();
+	Bool_t 	DefineTargetNucleusFromLayer(KVString layer_name="");
+	void 		PropagateInTargetLayer();
+	void 		NewInteractionPointInTargetLayer();
+	void 		StartEvents();
+	virtual void MakeDiffusion();
+	
+	public:
+   
+	enum {
+      kProjIsSet = BIT(14),     	//kTRUE if projectile nucleus defined
+      kTargIsSet = BIT(15),     	//kTRUE if target nucleus defined
+      kHasTarget = BIT(16),		//kTRUE if target material defined
+      kIsUpdated = BIT(17)			//flag indicating if ValidateEntrance method has to be called
+   };
+	
+	Bool_t IsProjNucSet() {  return TestBit(kProjIsSet); }
+	Bool_t IsTargNucSet() {  return TestBit(kTargIsSet); }
+	Bool_t IsTargMatSet() {  return TestBit(kHasTarget); }
+ 	Bool_t IsUpdated()	{  return TestBit(kIsUpdated); }
+  
 	KVElasticScatterEvent();
    virtual ~KVElasticScatterEvent();
-	virtual void AddHistoTree();
-	virtual void ResetHistoTree();
-	KVList* GetObjectList() {return lhisto_control;}
-
-	virtual TH1* GetHisto(KVString hname) { return (TH1* )lhisto_control->FindObject(hname); }
-	virtual TTree* GetTree(KVString tname){ return (TTree* )lhisto_control->FindObject(tname); }
-
-	virtual void SetTarget(KVTarget *targ,Bool_t IsRandomized=kTRUE) {
-		targ->Copy(ktarget);
-		ktarget.SetRandomized(IsRandomized);
+	
+	virtual void SetSystem(KVDBSystem* sys);
+	virtual void SetSystem(Int_t zp,Int_t ap,Double_t ekin,Int_t zt,Int_t at);
+	virtual void SetTargNucleus(KVNucleus *nuc);
+	virtual void SetProjNucleus(KVNucleus *nuc);
+	
+	KVNucleus* GetNucleus(const Char_t* name) const;
+	KVNucleus* GetNucleus(Int_t ii) const;
+	
+	virtual void SetTargetMaterial(KVTarget *targ,Bool_t IsRandomized=kTRUE);
+	KVTarget* GetTarget() const;
+	
+	virtual TVector3& GetInteractionPointInTargetLayer();
+	
+	KVReconstructedNucleus* GetReconstructedNucleus(KVString nucname){
+		return GetReconstructedEvent()->GetParticleWithName(nucname);
 	}
-	virtual KVTarget& GetTarget() { return ktarget;}
-	virtual KV2Body& GetKinematics() { return k2body;}
-	virtual TVector3& GetInteractionPointInTargetLayer() { return kIPPVector; }
-	virtual KVNucleus* GetNucleus(KVString nucname,KVString evtname){
-		KVEvent* evt=0;
-		if ( (evt = (KVEvent* )kevent_list->FindObject(evtname)) )
-			return evt->GetParticle(nucname);
-		else return 0;
+	KVReconstructedEvent* GetReconstructedEvent(void) const {
+		return rec_evt;
 	}
-	virtual KVReconstructedNucleus* GetReconstructedNucleus(KVString nucname){
-		return GetReconstructedEvent().GetParticle(nucname);
+	KVSimEvent* GetSimEvent(void) const {
+		return sim_evt;
 	}
-	virtual KVReconstructedEvent& GetReconstructedEvent(void){
-		return recev;
-	}
-	virtual Double_t GetTheta(KVString opt){
-		if (opt=="min") return th_min;
-		else if (opt=="max") return th_max;
-		else return -1;
-	}
-	virtual Double_t GetPhi(KVString opt){
-		if (opt=="min") return phi_min;
-		else if (opt=="max") return phi_max;
-		else return -1;
-	}
-
-	virtual void SetTargNucleus(KVNucleus *nuc) { SetEntranceNucleus(nuc,"TARG"); }
-	virtual void SetProjNucleus(KVNucleus *nuc) { SetEntranceNucleus(nuc,"PROJ"); }
-
-	virtual void DefineAngularRange(Double_t tmin, Double_t tmax, Double_t pmin,Double_t pmax){
-	//Define in which angular (polar and azimuthal) range
-	//The projectile diffusion direction will be randomized
-	//If this method is not used
-	//Default range is \theta [0,180] and \phi [0,360]
-		if (tmin!=-1) th_min=tmin;
-		if (tmax!=-1) th_max=tmax;
-		if (pmin!=-1) phi_min=pmin;
-		if (pmax!=-1) phi_max=pmax;
-	}
-
-	virtual Bool_t DefineTargetNucleusFromLayer(KVString layer_name="");
-	virtual void SetEntranceNucleus(KVNucleus *nuc,KVString type="PROJ");
-
-	virtual void DuplicateEvent(KVString from,KVString to);
+	
+	virtual void Reset();
 	virtual Bool_t ValidateEntrance();
 
-	virtual void Process(KVMultiDetArray* mdet=0);
-
+	virtual void Process(Int_t ntimes=1,Bool_t reset=kTRUE);
+	
+	virtual void SetAnglesForDiffusion(Double_t theta,Double_t phi);
+	virtual void Filter();
+	virtual void TreateEvent();
+	
 	virtual void DefineAngularRange(TObject* );
+	void DefineAngularRange(Double_t tmin, Double_t tmax, Double_t pmin,Double_t pmax);
+	Double_t GetTheta(KVString opt) const;
+	Double_t GetPhi(KVString opt)const;
 
-	virtual void PropagateInTargetLayer(KVString opt);
-	virtual void NewInteractionPointInTargetLayer();
-
-	virtual void MakeDiffusion(Double_t theta,Double_t phi);
-
-	virtual void Filter(KVMultiDetArray* mdet);
-	virtual void CheckReconstrutedEventStatus();
-	virtual void Print();
-
+	void Print();
+	
+	virtual void ClearTrees();
+	virtual void ResetTrees();
+	virtual void DefineTrees();
+	KVHashList* GetTrees() const;
+	
+	virtual void ClearHistos();
+	virtual void DefineHistos();
+	virtual void ResetHistos();
+	KVHashList* GetHistos() const;
+	
 	ClassDef(KVElasticScatterEvent,1)//simulate ElasticScatterEvent and answer of a given (multi-)detector
 };
 

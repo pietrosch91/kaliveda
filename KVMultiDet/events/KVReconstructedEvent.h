@@ -42,7 +42,8 @@ class KVReconstructedEvent:public KVEvent {
 
    inline KVReconstructedNucleus *AddParticle();
    inline KVReconstructedNucleus *GetParticle(Int_t npart) const;
-   inline KVReconstructedNucleus *GetParticle(const Char_t * name) const;
+   inline KVReconstructedNucleus *GetParticleWithName(const Char_t * name) const;
+   inline KVReconstructedNucleus *GetParticle(const Char_t * group_name) const;
    inline KVReconstructedNucleus *GetNextParticle(Option_t * opt = "");
    virtual void ReconstructEvent(KVDetectorEvent * kvde);
    virtual Bool_t AnalyseGroup(KVGroup * kvg);
@@ -83,11 +84,21 @@ GetParticle(Int_t npart) const
 /////////////////////////////////////////////////////////////////////////////
 
 inline KVReconstructedNucleus *KVReconstructedEvent::
-GetParticle(const Char_t * name) const
+GetParticle(const Char_t * group_name) const
 {
    //Access to event particle by name
 
-   return (KVReconstructedNucleus *) (KVEvent::GetParticle(name));
+   return (KVReconstructedNucleus *) (KVEvent::GetParticle(group_name));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+inline KVReconstructedNucleus *KVReconstructedEvent::
+GetParticleWithName(const Char_t * name) const
+{
+   //Access to event particle by name
+
+   return (KVReconstructedNucleus *) (KVEvent::GetParticleWithName(name));
 }
 
 /////////////////////////////////////////////////////////////////////////////
