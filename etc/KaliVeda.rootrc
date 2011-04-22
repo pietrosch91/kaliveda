@@ -694,8 +694,6 @@ KVMaterial.IonRangeTable:   VEDALOSS
 # in multidetector arrays defined for datasets.
 # See KVMultiDetArray::SetDetectorThicknesses for file format.
 KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
-# Special names for special datasets:
-INDRA_camp5.KVMultiDetArray.DetectorThicknesses:	EtalonThicknessCamp5.dat
 
 # KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
 KVPulseHeightDefect.EnergyLoss.Npx:        20

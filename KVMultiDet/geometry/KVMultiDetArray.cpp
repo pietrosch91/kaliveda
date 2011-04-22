@@ -354,26 +354,27 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
 
     KVIDTelescope *idt = 0;
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
-
+	 Int_t de_thick = TMath::Nint(de->GetThickness());
+	 Int_t e_thick = TMath::Nint(e->GetThickness());
     //first we look for ID telescopes specific to current dataset
     TString uri;
     uri.Form("%s.%s%d-%s%d", fDataSet.Data(), de->GetType(),
-             (int) de->GetThickness(), e->GetType(),
-             (int) e->GetThickness());
+             de_thick, e->GetType(),
+             e_thick);
     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
         set_up_telescope(de,e,idtels,idt,uri);
     }
     else
     {
         uri.Form("%s.%s%d-%s", fDataSet.Data(), de->GetType(),
-                 (int) de->GetThickness(), e->GetType());
+                 de_thick, e->GetType());
         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
             set_up_telescope(de,e,idtels,idt,uri);
         }
         else
         {
             uri.Form("%s.%s-%s%d", fDataSet.Data(), de->GetType(), e->GetType(),
-                     (int) e->GetThickness());
+                     e_thick);
             if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                 set_up_telescope(de,e,idtels,idt,uri);
             }
@@ -386,14 +387,14 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
                 else
                 {
                     //now we look for generic ID telescopes
-                    uri.Form("%s%d-%s%d", de->GetType(), (int) de->GetThickness(),
-                             e->GetType(), (int) e->GetThickness());
+                    uri.Form("%s%d-%s%d", de->GetType(), de_thick,
+                             e->GetType(), e_thick);
                     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                         set_up_telescope(de,e,idtels,idt,uri);
                     }
                     else
                     {
-                        uri.Form("%s%d-%s", de->GetType(), (int) de->GetThickness(),
+                        uri.Form("%s%d-%s", de->GetType(), de_thick,
                                  e->GetType());
                         if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                             set_up_telescope(de,e,idtels,idt,uri);
@@ -401,7 +402,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
                         else
                         {
                             uri.Form("%s-%s%d", de->GetType(), e->GetType(),
-                                     (int) e->GetThickness());
+                                     e_thick);
                             if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                                 set_up_telescope(de,e,idtels,idt,uri);
                             }
@@ -423,7 +424,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     idt = 0;
     //look for ID telescopes with only one of the two detectors
     uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
-             (int) de->GetThickness());
+             de_thick);
     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
         set_up_single_stage_telescope(de,idtels,idt,uri);
     }
@@ -436,7 +437,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
         else
         {
             uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
-                     (int) e->GetThickness());
+                     e_thick);
             if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                 set_up_single_stage_telescope(e,idtels,idt,uri);
             }
@@ -448,7 +449,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
                 }
                 else
                 {
-                    uri.Form("%s%d", de->GetType(), (int) de->GetThickness());
+                    uri.Form("%s%d", de->GetType(), de_thick);
                     if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                         set_up_single_stage_telescope(de,idtels,idt,uri);
                     }
@@ -460,7 +461,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
                         }
                         else
                         {
-                            uri.Form("%s%d", e->GetType(), (int) e->GetThickness());
+                            uri.Form("%s%d", e->GetType(), e_thick);
                             if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
                                 set_up_single_stage_telescope(e,idtels,idt,uri);
                             }
@@ -2213,19 +2214,19 @@ void KVMultiDetArray::SetDetectorThicknesses()
 	// Any detector which is not in the file will be left with its nominal thickness.
 	//
 	// EXAMPLE FILE:
-	//# default units for thickness of detectors in file
-    //*.Units: um
     //
     //# thickness of detector DET01 in default units
     //DET01: 56.4627
     //
-    //# DET02 has thickness with different units
-    //DET02.Units: mm
-    //DET02: 2.345
-    //
     //# DET03 has several layers
     //DET03.Abs0: 61.34
     //DET03.Abs1: 205.62
+    //
+    // !!! WARNING !!!
+    // Single-layer detectors: The units are those defined by default for the detector's
+    //         Get/SetThickness methods.
+    // Multi-layer: Each layer is a KVMaterial object. The thickness MUST be given in centimetres
+    //         (default thickness unit for KVMaterial).
 
 	TString filename = gDataSet->GetDataSetEnv("KVMultiDetArray.DetectorThicknesses", "");
 	if(filename==""){
