@@ -169,5 +169,14 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \<= $(ROOT_v5_20_00)),1)
 	echo '' >> $@
 endif
 endif
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_29_01)),1)
+#------------------TParameter adds a Merge(TCollection*) method from v5.29.02 onwards
+#------------------TParameter<TString> no longer works!
+	@echo '//------------------TParameter adds a Merge(TCollection*) method from v5.29.02 onwards' >> $@; \
+	echo '//------------------- TParameter<TString> no longer works' >> $@; \
+	echo '//SOLUTION:   use KVParameter' >> $@; \
+	echo '#define __WITHOUT_TPARAMETER 1' >> $@; \
+	echo '' >> $@
+endif
 	@echo '#endif' >> $@
 	-cp $@ $(KVINSTALLDIR)/include/

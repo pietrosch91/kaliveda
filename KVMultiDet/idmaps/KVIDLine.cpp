@@ -167,7 +167,7 @@ KVIDLine *KVIDLine::MakeIDLine(TObject *obj,Double_t xdeb,Double_t xfin,Double_t
     // - "np" is in the TF1 case the number point (default value 20), in the TProfile case is the minimum threshold
     // for the bin entries (default value is one); for the TGraph case it has no effect;
     // In the TProfile and TGraph cases the number of points are determined by the object considering the interval
-    // - "save" allow to save the TF1 or TProfile object	which can be recall with the GetListofFunction() and GetHistogram() TGraph methods
+    // - "save" allow to save the TF1 or TProfile object	which can be recall with the GetListofFunction()  method
     Double_t xdeb_bis=xdeb,xfin_bis=xfin,np_bis=np;
     if (obj)
     {
@@ -217,7 +217,7 @@ KVIDLine *KVIDLine::MakeIDLine(TObject *obj,Double_t xdeb,Double_t xfin,Double_t
                 if ( xdeb_bis<=xx && xx<=xfin_bis && pf->GetBinEntries(pp)>=np ) line->SetPoint(np2++,xx,pf->GetBinContent(pp));
             }
             if (xfin_bis > pf->GetBinCenter(xmax)) line->SetPoint(np2,xfin_bis,pf->GetBinContent(xmax));
-            if (save) line->SetHistogram(pf);
+            if (save) line->GetListOfFunctions()->Add(pf);
         }
         else cout << "le type ne correspond pas " << endl;
         line->SetName(Form("from_%s",obj->GetName()));

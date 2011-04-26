@@ -76,6 +76,7 @@ export ROOT_v5_12_00 = $(call get_root_version,5,12,0)
 export ROOT_v5_13_06 = $(call get_root_version,5,13,6)
 export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
 export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
+export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
