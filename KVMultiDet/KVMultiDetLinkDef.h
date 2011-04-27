@@ -55,6 +55,7 @@
 #pragma link C++ class KVBatchSystem;
 #pragma link C++ class KVBatchSystemManager;
 #pragma link C++ class KV_CCIN2P3_BQS;
+#pragma link C++ class KV_CCIN2P3_GE;
 #pragma link C++ class KVRootBatch;
 #pragma link C++ class KVLinuxBatch;
 #pragma link C++ class KVBrowser;

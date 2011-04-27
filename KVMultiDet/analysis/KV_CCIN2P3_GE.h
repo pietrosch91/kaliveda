@@ -1,18 +1,12 @@
-/*
-$Id: KV_CCIN2P3_BQS.h,v 1.8 2008/04/03 07:36:35 franklan Exp $
-$Revision: 1.8 $
-$Date: 2008/04/03 07:36:35 $
-*/
-
-//Created by KVClassFactory on Thu Apr 13 13:08:06 2006
+//Created by KVClassFactory on Wed Apr 27 15:43:08 CEST 2011
 //Author: John Frankland
 
-#ifndef __KV_CCIN2P3_BQS_H
-#define __KV_CCIN2P3_BQS_H
+#ifndef __KV_CCIN2P3_GE_H
+#define __KV_CCIN2P3_GE_H
 
 #include <KVBatchSystem.h>
 
-class KV_CCIN2P3_BQS:public KVBatchSystem {
+class KV_CCIN2P3_GE:public KVBatchSystem {
 
  protected:
 		 
@@ -27,8 +21,8 @@ class KV_CCIN2P3_BQS:public KVBatchSystem {
 	
  public:
 
-   KV_CCIN2P3_BQS(const Char_t* name);
-   virtual ~ KV_CCIN2P3_BQS();
+   KV_CCIN2P3_GE(const Char_t* name);
+   virtual ~ KV_CCIN2P3_GE();
 
    virtual void SetJobTime(const Char_t* h="");        /* Set CPU time for batch job */
    virtual void SetJobTime(Int_t, Int_t = 0, Int_t = 0);        /* Set CPU time for batch job */
@@ -52,9 +46,9 @@ class KV_CCIN2P3_BQS:public KVBatchSystem {
    virtual void ReadBatchEnvFile(TEnv*);
    virtual void Print(Option_t* /*option*/ = "") const;
    
-	TString BQS_Request(KVString value,KVString jobname="");
+	TString GE_Request(KVString value,KVString jobname="");
 	
-   ClassDef(KV_CCIN2P3_BQS, 1)  //Interface to CCIN2P3-BQS batch job management system
+   ClassDef(KV_CCIN2P3_GE, 1)  //Interface to CCIN2P3-GE batch job management system
 };
 
 #endif
