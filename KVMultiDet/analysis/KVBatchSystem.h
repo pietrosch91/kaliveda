@@ -99,6 +99,10 @@ class KVBatchSystem : public KVBase {
 		Warning("BQS_Request","Only define for KV_CCIN2P3_BQS sub class");
 		return "";
 	}
+   virtual void SetJobTimeString(const Char_t* h=""){};    
+   virtual void SetJobTime(Int_t, Int_t = 0, Int_t = 0){};    
+   virtual void SetJobMemory(const Char_t* h=""){}; 
+   virtual void SetJobDisk(const Char_t* h=""){};
    
 	ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
 };

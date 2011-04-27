@@ -27,7 +27,6 @@
 #include "KVNucleus.h"
 #include "KVINDRADB.h"
 #include "KVINDRAReconDataAnalyser.h"
-#include "KV_CCIN2P3_BQS.h"
 #include "KVBatchSystemManager.h"
 #include "TSystemDirectory.h"
 #include "KVInputDialog.h"
@@ -1447,11 +1446,9 @@ else if(strcmp(task->GetUserBaseClass(), "")){
       gBatchSystem->Clear();
       if(IsBatchNameAuto()) gBatchSystem->SetJobName(teBatchNameFormat->GetText());
       else gBatchSystem->SetJobName(teBatchName->GetText());
-      if(gBatchSystem->InheritsFrom("KV_CCIN2P3_BQS")){
-         ((KV_CCIN2P3_BQS*)gBatchSystem)->SetJobMemory(teBatchMemory->GetText());
-         ((KV_CCIN2P3_BQS*)gBatchSystem)->SetJobDisk(teBatchDisk->GetText());
-         ((KV_CCIN2P3_BQS*)gBatchSystem)->SetJobTime((Int_t)teBatchTime->GetIntNumber());
-      }
+      gBatchSystem->SetJobMemory(teBatchMemory->GetText());
+      gBatchSystem->SetJobDisk(teBatchDisk->GetText());
+      gBatchSystem->SetJobTime((Int_t)teBatchTime->GetIntNumber());
       gBatchSystem->SetRunsPerJob(runsPerJob->GetNumber());
       gBatchSystem->SetMultiJobsMode(runsPerJob->GetNumber()<listOfRuns.GetNValues());
       datan->SetBatchSystem(gBatchSystem);
