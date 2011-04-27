@@ -185,7 +185,7 @@ class KVIDGraph : public TCutG
 	const Char_t* GetRunList() const
 	{
 		// Get list of runs for which grid is valid
-		return fRunList;
+		return (const char*)fRunList;
 	};
    KVIDentifier *GetIdentifierAt(Int_t index) const
 	{
