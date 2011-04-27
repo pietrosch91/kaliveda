@@ -101,10 +101,13 @@ class KVMaterial:public KVBase {
    
    virtual Double_t GetRange(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetLinearRange(Int_t Z, Int_t A, Double_t Einc);
+   
+   virtual Double_t GetPunchThroughEnergy(Int_t Z, Int_t A);
 
    virtual KVMaterial *GetActiveLayer() const {
+   	//to facilitate polymorphism with KVDetector class
       return 0;
-   };                           //to facilitate polymorphism with KVDetector class
+   };                           
 
    virtual void SetPressure(Double_t);
    virtual void SetTemperature(Double_t);

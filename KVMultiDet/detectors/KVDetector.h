@@ -47,6 +47,7 @@ class KVDetector:public KVMaterial {
    friend class KVDetectorBrowser;
 
  private:
+ 	static Int_t fDetCounter;
     KVDetectorBrowser * fBrowser;       //! GUI for viewing and modifying characteristics
    Short_t fActiveLayer;        //The active absorber in the detector
    KVTelescope *fTelescope;     //reference to telescope to which detector belongs
@@ -84,9 +85,11 @@ class KVDetector:public KVMaterial {
 
    Double_t ELossActive(Double_t * x, Double_t * par);
    Double_t EResDet(Double_t * x, Double_t * par);
+   Double_t RangeDet(Double_t * x, Double_t * par);
    
    TF1* fELossF; //! parametric function dE in active layer vs. incident energy
    TF1* fEResF; //! parametric function Eres residual energy after all layers of detector
+   TF1* fRangeF; //! parametric function range of particles in detector
    
    Double_t fEResforEinc;//! used by GetIncidentEnergy & GetCorrectedEnergy
    TList* fAlignedDetectors[2];//! stores lists of aligned detectors in both directions
@@ -316,9 +319,13 @@ class KVDetector:public KVMaterial {
    /*virtual Double_t GetEResFromDeltaE(...)  - DON'T IMPLEMENT, CALLS GETINCIDENTENERGY*/
    virtual Double_t GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres);
    virtual Double_t GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres);
+   virtual Double_t GetRange(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetLinearRange(Int_t Z, Int_t A, Double_t Einc);   
+   virtual Double_t GetPunchThroughEnergy(Int_t Z, Int_t A);
    
    virtual TF1* GetEResFunction(Int_t Z, Int_t A);
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
+	virtual TF1* GetRangeFunction(Int_t Z, Int_t A);
    
    virtual Double_t GetSmallestEmaxValid(Int_t Z, Int_t A);
    

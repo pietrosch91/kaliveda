@@ -25,6 +25,7 @@
 #pragma link C++ class Binary_t<UShort_t>+;
 #pragma link C++ class Binary_t<UInt_t>+;
 #pragma link C++ class Binary_t<Long64_t>+;
+#pragma link C++ class KVString+;
 #ifdef __WITHOUT_TPARAMETER
 #pragma link C++ class KVParameter<Int_t>+;
 #pragma link C++ class KVParameter<Double_t>+;
@@ -185,7 +186,6 @@
 #pragma link C++ class KVWidgetList;
 #pragma link C++ class KV2Body+;
 #pragma link C++ class KVBreakUp;
-#pragma link C++ class KVString+;
 #pragma link C++ class KVMergeGridsDialog+;
 #pragma link C++ class KVNewGridDialog+;
 #pragma link C++ class KVTestIDGridDialog+;

@@ -707,9 +707,10 @@ KVedaLoss.Range.Npx:         20
 KVedaLoss.EnergyLoss.Npx:         50
 KVedaLoss.ResidualEnergy.Npx:         20
 
-# KVDetector: TF1::fNpx parameter for TF1 energy loss & residual energy
+# KVDetector: TF1::fNpx parameter for TF1 energy loss, range & residual energy
 KVDetector.EnergyLoss.Npx:         20
 KVDetector.ResidualEnergy.Npx:         50
+KVDetector.Range.Npx:        20
 
 # LifeTime tables used by KVNDTManager
 KVNDTManager.LifeTimeTable:       KVLifeTimeTable

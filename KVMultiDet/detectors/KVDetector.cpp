@@ -88,6 +88,9 @@ ClassImp(KVDetector)
 //WARNING: KVMaterial methods not explicitely redefined here act only on the
 //active absorber in the detector. It is the case for e.g. KVMaterial::GetIncidentEnergy
 //which does not take into account any absorbers placed in front of the active layer.
+
+Int_t KVDetector::fDetCounter = 0;
+
 void KVDetector::init()
 {
    //default initialisations
@@ -111,7 +114,7 @@ void KVDetector::init()
 	fTotThickness = 0.;
 	fDepthInTelescope = 0.;
 	fFiredMask.Set("0");
-	fELossF = fEResF = 0;
+	fELossF = fEResF = fRangeF = 0;
 	fEResforEinc = -1.;
 	fAlignedDetectors[0] = 0;
 	fAlignedDetectors[1] = 0;
@@ -122,6 +125,8 @@ KVDetector::KVDetector()
 {
 //default ctor
    init();
+   fDetCounter++;
+   SetName(Form("Det_%d",fDetCounter));
 }
 
 //________________________________________________________________________________________
@@ -132,6 +137,8 @@ KVDetector::KVDetector(const Char_t * type,
 
    init();
    SetType("DET");
+   fDetCounter++;
+   SetName(Form("Det_%d",fDetCounter));
    AddAbsorber(new KVMaterial(type, thick));
 }
 
@@ -140,6 +147,8 @@ KVDetector::KVDetector(const KVDetector & obj)
 {
 //copy ctor
    init();
+   fDetCounter++;
+   SetName(Form("Det_%d",fDetCounter));
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    obj.Copy(*this);
 #else
@@ -181,7 +190,7 @@ KVDetector::~KVDetector()
    SafeDelete(fACQParams);
    SafeDelete(fELossF);
    SafeDelete(fEResF);
-   init();
+   SafeDelete(fRangeF);
    fActiveLayer = -1;
    fIDTelAlign->Clear();
    SafeDelete(fIDTelAlign);
@@ -895,6 +904,50 @@ Double_t KVDetector::ELossActive(Double_t * x, Double_t * par)
 
 //_____________________________________________________________________________________//
 
+Double_t KVDetector::RangeDet(Double_t * x, Double_t * par)
+{
+	// Calculates range (in centimetres) of ions in detector as a function of incident energy (in MeV),
+	// taking into account all layers of the detector.
+	//
+	// Arguments are:
+	//   x[0]  =  incident energy in MeV
+	// Parameters are:
+	//   par[0] = Z of ion
+	//   par[1] = A of ion
+	
+	Double_t Einc = x[0];
+	Int_t Z=(Int_t)par[0];
+	Int_t A=(Int_t)par[1];
+	Double_t range = 0.;
+	TIter next(fAbsorbers); KVMaterial* mat= (KVMaterial*)next();
+	if(!mat) return 0.;
+   do {
+   	// range in this layer
+   	Double_t this_range = mat->GetLinearRange(Z,A,Einc);
+   	KVMaterial* next_mat = (KVMaterial*)next();
+   	if(this_range > mat->GetThickness()){
+   		// particle traverses layer.
+   		if(next_mat)
+   			range += mat->GetThickness();
+   		else // if this is last layer, the range continues to increase beyond size of detector
+   			range += this_range;
+   		// calculate incident energy for next layer (i.e. residual energy after this layer)
+   		Einc = mat->GetERes(Z, A, Einc);
+   	}
+   	else
+   	{
+   		// particle stops in layer
+   		range += this_range;
+   		return range;
+   	}
+   	mat = next_mat;
+   } while (mat);
+   // particle traverses detector
+   return range;
+}
+
+//_____________________________________________________________________________________//
+
 Double_t KVDetector::EResDet(Double_t * x, Double_t * par)
 {
    // Calculates residual energy (in MeV) of particle after traversing all layers of detector.
@@ -1211,8 +1264,27 @@ TF1* KVDetector::GetEResFunction(Int_t Z, Int_t A)
    }
    fEResF->SetParameters((Double_t)Z, (Double_t)A);
    fEResF->SetRange(0., GetSmallestEmaxValid(Z,A));
+   fEResF->SetTitle(Form("Residual energy [MeV] after detector %s for Z=%d A=%d", GetName(), Z, A));
 
    return fEResF;
+}
+
+TF1* KVDetector::GetRangeFunction(Int_t Z, Int_t A)
+{
+   // Return pointer toTF1 giving range (in centimetres) in detector as function of incident energy,
+   // for a given nucleus (Z,A).
+   // The TF1::fNpx parameter is taken from environment variable KVDetector.Range.Npx
+   
+   if(!fRangeF){
+      fRangeF = new TF1(Form("KVDetector:%s:Range", GetName()), this, &KVDetector::RangeDet,
+                    0., 1.e+04, 2, "KVDetector", "RangeDet");
+      fRangeF->SetNpx( gEnv->GetValue("KVDetector.Range.Npx", 20) );
+   }
+   fRangeF->SetParameters((Double_t)Z, (Double_t)A);
+   fRangeF->SetRange(0., GetSmallestEmaxValid(Z,A));
+   fRangeF->SetTitle(Form("Range [cm] in detector %s for Z=%d A=%d", GetName(), Z, A));
+
+   return fRangeF;
 }
 
 TF1* KVDetector::GetELossFunction(Int_t Z, Int_t A)
@@ -1228,6 +1300,7 @@ TF1* KVDetector::GetELossFunction(Int_t Z, Int_t A)
    }
    fELossF->SetParameters((Double_t)Z, (Double_t)A);
    fELossF->SetRange(0., GetSmallestEmaxValid(Z,A));
+   fELossF->SetTitle(Form("Energy loss [MeV] in detector %s for Z=%d A=%d", GetName(), Z, A));
    return fELossF;
 }
 
@@ -1430,3 +1503,25 @@ TList* KVDetector::GetAlignedDetectors(UInt_t direction)
 	return (fAlignedDetectors[direction] = GetGroup()->GetAlignedDetectors(this,direction));
 }
 
+Double_t KVDetector::GetRange(Int_t Z, Int_t A, Double_t Einc)
+{
+	// WARNING: SAME AS KVDetector::GetLinearRange
+	// Only linear range in centimetres is calculated for detectors!
+	return GetLinearRange(Z,A,Einc);
+}
+
+Double_t KVDetector::GetLinearRange(Int_t Z, Int_t A, Double_t Einc)
+{
+	// Returns range of ion in centimetres in this detector,
+	// taking into account all layers.
+	// Note that for Einc > punch through energy, this range is no longer correct
+	// (but still > total thickness of detector).
+	return GetRangeFunction(Z,A)->Eval(Einc);
+}   
+
+Double_t KVDetector::GetPunchThroughEnergy(Int_t Z, Int_t A)
+{
+	// Returns energy (in MeV) necessary for ion (Z,A) to punch through all
+	// layers of this detector
+	return GetRangeFunction(Z,A)->GetX( GetTotalThicknessInCM() );
+}
