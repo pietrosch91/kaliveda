@@ -23,7 +23,7 @@ Default.BatchSystem:   BQS
 
 +BatchSystem:    GE
 GE.BatchSystem.Title:   Use Grid Engine batch system
-GE.BatchSystem.DefaultJobOptions:   -P P_indra -j yes -l CPUBound,os='sl5',hpss=1,xrootd=1,srb=1 -V -N #JobName#
+GE.BatchSystem.DefaultJobOptions:   -P P_indra -j yes -l os='sl5',hpss=1,xrootd=1,srb=1 -V -N #JobName#
 GE.BatchSystem.JobSubCmd:   qsub
 GE.BatchSystem.JobScript:   $KVROOT/bin/KVA
 GE.BatchSystem.DefaultJobTime:   4000
