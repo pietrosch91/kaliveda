@@ -27,8 +27,8 @@ GE.BatchSystem.DefaultJobOptions:   -P P_indra -j yes -l CPUBound,os='sl5',hpss=
 GE.BatchSystem.JobSubCmd:   qsub
 GE.BatchSystem.JobScript:   $KVROOT/bin/KVA
 GE.BatchSystem.DefaultJobTime:   4000
-GE.BatchSystem.DefaultJobMemory:  256MB
-GE.BatchSystem.DefaultJobDisk:   100MB
+GE.BatchSystem.DefaultJobMemory:  256M
+GE.BatchSystem.DefaultJobDisk:   100M
 +Plugin.KVBatchSystem:    GE    KV_CCIN2P3_GE     KVMultiDet    "KV_CCIN2P3_GE(const Char_t*)"
 # Modify this variable in order to submit N runs per job in parallel batch mode
 #BQS.BatchSystem.RunsPerJob:    1

@@ -27,8 +27,8 @@ KV_CCIN2P3_GE::KV_CCIN2P3_GE(const Char_t* name)
    //Sets default job time, memory and disk space as defined in $KVROOT/KVFiles/.kvrootrc
    
    fDefJobTime = gEnv->GetValue("GE.BatchSystem.DefaultJobTime", 4000);
-   fDefJobMem = gEnv->GetValue("GE.BatchSystem.DefaultJobMemory", "256MB");
-   fDefJobDisk = gEnv->GetValue("GE.BatchSystem.DefaultJobDisk", "100MB");
+   fDefJobMem = gEnv->GetValue("GE.BatchSystem.DefaultJobMemory", "256M");
+   fDefJobDisk = gEnv->GetValue("GE.BatchSystem.DefaultJobDisk", "100M");
    fTimeSet=fDiskSet=fMemSet=kFALSE;
 }
 
@@ -79,7 +79,7 @@ void KV_CCIN2P3_GE::SetJobTimeString(const Char_t* time)
 void KV_CCIN2P3_GE::SetJobMemory(const Char_t * mem)
 {
    //Set maximum memory used by job.
-   //Include units in string, i.e. "100MB", "1GB" etc.
+   //Include units in string, i.e. "100M", "1G" etc.
    //If mem="", use default value
    KVString tmp(mem);
    if(tmp=="") tmp = fDefJobMem;
@@ -90,7 +90,7 @@ void KV_CCIN2P3_GE::SetJobMemory(const Char_t * mem)
 void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
 {
    //Set maximum disk space used by job.
-   //Include units in string, i.e. "100MB", "1GB" etc.
+   //Include units in string, i.e. "100M", "1G" etc.
    //If diks="", use default value
    KVString tmp(diks);
    if(tmp=="") tmp = fDefJobDisk;
