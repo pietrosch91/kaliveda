@@ -38,24 +38,22 @@ $Id: KVDetector.cpp,v 1.87 2009/03/03 14:27:15 franklan Exp $
 
 ClassImp(KVDetector)
 ///////////////////////////////////////////////////////////////////////////////////////
-//Base class for the description of detectors in multidetector arrays.
-//
-//Begin_Html
-//<img src="images/kvdetector_structure.gif">
-//End_Html
-//
+/*
+Begin_Html
+<h2>Base class for the description of detectors in multidetector arrays</h2>
+<img src="images/kvdetector_structure.gif">
+End_Html
+*/
 //A detector is composed of one or more absorber layers (KVMaterial objects) in which the energy loss of charged particles can be calculated. One of these layers
 //is set as "active" (by default it is the last added layer) which means that only the energy loss in this layer can actually be "read", e.g. an ionisation chamber is composed of an
 //"active" gas layer sandwiched between two "inactive" windows :
 //
-//      KVDetector chio("Myl",2.5);                                             //first layer - 2.5 micron mylar window
-//      KVMaterial *gas = new KVMaterial("C3F8",50.0);
-//      chio.AddAbsorber(gas);                                                  //second layer - 50mm of C3F8
-//      chio.SetActiveLayer(gas);                                               //make gas layer "active"
-//      gas->SetPressure( 50 );                                                  //set pressure of gas to 50mbar
-//      KVMaterial *win = new KVMaterial("Myl",2.5);    //exit window
+//      KVDetector chio("Myl", 2.5*KVUnits::um);                       //first layer - 2.5 micron mylar window
+//      KVMaterial *gas = new KVMaterial("C3F8", 5.*KVUnits::cm, 50.0*KVUnits::mbar);
+//      chio.AddAbsorber(gas);                                         //second layer - 5cm of C3F8 gas at 50mbar pressure and 19 deg. C
+//      chio.SetActiveLayer(gas);                                      //make gas layer "active"
+//      KVMaterial *win = new KVMaterial("Myl",2.5*KVUnits::um);       //exit window
 //      chio.AddAbsorber(win);
-//(This is how the INDRA ionisation chambers are built in class KVChIo).
 //
 //A detector is created either with the constructor taking the material type as argument:
 //      KVDetector det("Si");
@@ -63,16 +61,11 @@ ClassImp(KVDetector)
 //      KVDetector det;
 //      det.SetMaterial("Si");
 //
-//For available material types see KVMaterial.
-//
-//Set the "thickness" of the detector:
-//___________________________________________
-//      det.SetThickness(300);
-//or in the constructor:
-//      KVDetector det("Si",300.0);
-//
-//Calculate the energy loss of a charged particle in a detector:
-//_____________________________________________________________________
+/*
+begin_html
+<h4>Calculate the energy loss of a charged particle in a detector</h4>
+end_html
+*/
 //Two methods are available: one simply calculates the energy lost by the particle
 //in the detector, but does not modify either the particle or the detector (GetELostByParticle);
 //the other simulates the passage of the particle through the detector, the particle's energy
@@ -85,9 +78,6 @@ ClassImp(KVDetector)
 //      alpha.GetEnergy();                      //residual energy of particle
 //      det.Clear();                            //reset detector ready for a new detection
 //
-//WARNING: KVMaterial methods not explicitely redefined here act only on the
-//active absorber in the detector. It is the case for e.g. KVMaterial::GetIncidentEnergy
-//which does not take into account any absorbers placed in front of the active layer.
 
 Int_t KVDetector::fDetCounter = 0;
 
