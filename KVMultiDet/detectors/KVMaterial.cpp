@@ -522,7 +522,7 @@ Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum KVIon
    //maximum dE.
    
    Double_t EINC = GetIncidentEnergy(Z,A,dE,type);
-   return EINC-dE;
+   return GetERes(Z,A,EINC);
 }
 
 //__________________________________________________________________________________________
