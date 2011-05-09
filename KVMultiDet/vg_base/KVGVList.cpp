@@ -94,7 +94,7 @@ KVGVList::KVGVList(const KVGVList & a)
 // Contructeur par Copy
 //
    init_KVGVList();
-   KVList::KVList((KVList &) a);
+   a.Copy(*this);
 #ifdef DEBUG_KVGVList
    cout << nb << " crees...(Copy) " << endl;
 #endif
