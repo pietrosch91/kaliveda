@@ -172,7 +172,7 @@ void KVINDRAPulserDataTree::Build()
 	delete fPinDir;
 }
 
-const Char_t* KVINDRAPulserDataTree::GetDirectoryName(const Char_t* dirvar)
+TString KVINDRAPulserDataTree::GetDirectoryName(const Char_t* dirvar)
 {
 	// Returns the name of the directory defined by the .kvrootrc environment variable
 	//
@@ -187,7 +187,7 @@ const Char_t* KVINDRAPulserDataTree::GetDirectoryName(const Char_t* dirvar)
 		Error("GetDirectoryName", "%s is not defined for dataset %s. Check .kvrootrc files.",
 				datasetenv.Data(), gDataSet->GetName());
 	}
-	return search.Data();
+	return search;
 }
 
 void KVINDRAPulserDataTree::CreateTree()

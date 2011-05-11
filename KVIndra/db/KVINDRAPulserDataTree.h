@@ -31,7 +31,7 @@ class KVINDRAPulserDataTree : public KVBase
 	THashTable *fIndex;//!associate name of branch to index in fVal
 	TList* fRunlist;//!list of runs given by database
 
-	const Char_t* GetDirectoryName(const Char_t*);
+	TString GetDirectoryName(const Char_t*);
 	void CreateTree();
 	void ReadData();
 	void ReadData(Int_t);
