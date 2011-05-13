@@ -152,7 +152,7 @@ void KVIDChIoCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
     //On affecte l'energie calculee au detecteur CsI
 	 det_Eres->SetEnergyLoss(Eres);
 
-    Double_t Einc = det_dE->GetCorrectedEnergy(nuc->GetZ(),nuc->GetA(),dE,kTRUE) + Eres;
+    Double_t Einc = det_dE->GetCorrectedEnergy(nuc,dE,kTRUE) + Eres;
 
     fCalibStatus = kCalibStatus_Calculated;
 	

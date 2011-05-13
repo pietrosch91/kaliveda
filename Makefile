@@ -143,7 +143,7 @@ $(DATE_RECORD_FILE) :
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
 	@echo 'Updating KVConfig.h'
-	$(MAKE) -f Makefile.compat
+	$(MAKE) -f Makefile.compat debug=$(debug)
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \

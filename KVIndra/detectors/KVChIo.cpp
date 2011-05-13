@@ -180,7 +180,7 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    //if stopped=kTRUE, we give the correction for a particle which stops in the detector
    //(by default we assume the particle continues after the detector)
    //
-   // WARNING: if stopped=kFALSEE, and if the residual energy after the detector
+   // WARNING: if stopped=kFALSE, and if the residual energy after the detector
    //   is known (i.e. measured in a detector placed after this one), you should
    //   first call
    //       SetEResAfterDetector(Eres);
@@ -191,7 +191,8 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    if (egas <= 0.)
       return 0.0;               //check measured (calibrated) energy in gas is reasonable (>0)
 
-	Double_t emylar = GetCorrectedEnergy(z,a,egas,!stopped) - egas;
+	KVNucleus tmp(z,a);
+	Double_t emylar = GetCorrectedEnergy(&tmp,egas,!stopped) - egas;
    return emylar;
 }
 

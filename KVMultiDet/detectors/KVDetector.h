@@ -186,7 +186,7 @@ class KVDetector:public KVMaterial {
    virtual void SetEnergyLoss(Double_t e) {
       SetEnergy(e);
    };
-   virtual Double_t GetCorrectedEnergy(Int_t z, Int_t a, Double_t e =
+   virtual Double_t GetCorrectedEnergy(const KVNucleus*, Double_t e =
                                        -1., Bool_t transmission=kTRUE);
    virtual Int_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
 

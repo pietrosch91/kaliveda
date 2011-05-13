@@ -396,7 +396,7 @@ void KVCsI::Streamer(TBuffer &R__b)
 
 //______________________________________________________________________________
 
-Double_t KVCsI::GetCorrectedEnergy(Int_t Z, Int_t A, Double_t lum, Bool_t trans)
+Double_t KVCsI::GetCorrectedEnergy(const KVNucleus* nuc, Double_t lum, Bool_t trans)
 {
    //Calculate calibrated energy loss for a nucleus (Z,A) giving total light
    //output "lum". If "lum" is not given, the total light of the detector
@@ -406,6 +406,9 @@ Double_t KVCsI::GetCorrectedEnergy(Int_t Z, Int_t A, Double_t lum, Bool_t trans)
    //Returns -1 in case of problems (no calibration available or light calculation
    //not valid).
 
+	Int_t Z = nuc->GetZ();
+	Int_t A = nuc->GetA();
+	
    KVLightEnergyCsI* calib = 0;
 
    if( Z==1 && fCalZ1 ) calib = fCalZ1;

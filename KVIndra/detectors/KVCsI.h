@@ -90,7 +90,7 @@ class KVCsI:public KVINDRADetector {
    void SetACQParams();
    void SetCalibrators();
 
-   Double_t GetCorrectedEnergy(Int_t Z, Int_t A, Double_t lum = -1., Bool_t transmission=kTRUE);
+   Double_t GetCorrectedEnergy(const KVNucleus*, Double_t lum = -1., Bool_t transmission=kTRUE);
    Double_t GetLightFromEnergy(Int_t Z, Int_t A, Double_t E = -1.);
 
 	void SetPinLaser(Int_t n){ if(n>0&&n<255) fPinLaser = (Char_t)n; };

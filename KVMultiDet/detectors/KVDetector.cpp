@@ -757,7 +757,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 
 //______________________________________________________________________________//
 
-Double_t KVDetector::GetCorrectedEnergy(Int_t z, Int_t a, Double_t e, Bool_t transmission)
+Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t transmission)
 {
    // Returns the total energy loss in the detector for a given nucleus
    // including inactive absorber layers.
@@ -772,7 +772,15 @@ Double_t KVDetector::GetCorrectedEnergy(Int_t z, Int_t a, Double_t e, Bool_t tra
    //       SetEResAfterDetector(Eres);
    //   before calling this method. Otherwise, especially for heavy ions, the
    //   correction may be false for particles which are just above the punch-through energy.
+   //
+   // WARNING 2: if measured energy loss in detector active layer is greater than
+   // maximum possible theoretical value for given nucleus, we return a value calculated
+   // for the first nucleus with Z > nuc->GetZ() for which the theoretical energy loss
+   // is sufficient
 
+	Int_t z = nuc->GetZ();
+	Int_t a = nuc->GetA();
+	
    if (e < 0.) e = GetEnergy();
    if( e <= 0 ) { SetEResAfterDetector(-1.); return 0; }
    
@@ -789,11 +797,41 @@ Double_t KVDetector::GetCorrectedEnergy(Int_t z, Int_t a, Double_t e, Bool_t tra
      	// the corrected dE of this detector would not depend on the
      	// measured dE !
    }
-   EINC = GetIncidentEnergy(z, a, e, solution);
+   EINC = GetIncidentEnergy(z, a, e, solution);//will be <0 if deltaE is too big
+        Bool_t einc_neg = kFALSE;   
+            if(EINC<0.){
+            	einc_neg=kTRUE;
+            	Info("GetCorrectedEnergy",
+            	   "%s : (%d,%d) dE=%f > max theoretical dE=%f",
+            	   GetName(),z,a,e,GetMaxDeltaE(z,a));
+            	// deltaE is bigger than max theoretical dE for (Z,A)
+            	// increase Z until we find a solution
+            	KVNucleus tmpnuc;
+            	tmpnuc.SetMassFormula(nuc->GetMassFormula());
+            	while(EINC<0. && z<(nuc->GetZ()+10)){
+            		tmpnuc.SetZ(++z);
+            		a = tmpnuc.GetA();
+            		EINC = GetIncidentEnergy(z,a,e,solution);
+            	}
+            	if(EINC>0)
+            	Info("GetCorrectedEnergy",
+            	   "%s : energy loss compatible with (%d,%d), Einc=%f",
+            	   GetName(),z,a,EINC);
+            	else
+             	Info("GetCorrectedEnergy",
+            	   "%s : still no solution found even with (%d,%d)",
+            	   GetName(),z,a);
+           }
+   
+//   ERES = GetERes(nuc->GetZ(),nuc->GetA(),EINC);
    ERES = GetERes(z,a,EINC);
    
    SetEResAfterDetector(-1.);
    //incident energy - residual energy = total real energy loss
+            	if(einc_neg && EINC>0)
+            	Info("GetCorrectedEnergy",
+            	   "%s : (%d,%d) dE=%f --> (%d,%d) corrected dE=%f",
+            	   GetName(),nuc->GetZ(),nuc->GetA(),e,z,a,EINC-ERES);
    return (EINC - ERES);
 }
 
@@ -1323,7 +1361,9 @@ Double_t KVDetector::GetERes(Int_t Z, Int_t A, Double_t Einc)
 {
    // Overrides KVMaterial::GetERes
    // Returns residual energy of given nucleus after the detector.
+   // Returns 0 if Einc<=0
    
+   if(Einc<=0.) return 0.;
    Double_t eres = GetEResFunction(Z,A)->Eval(Einc);
    // Eres function returns -1000 when particle stops in detector,
    // in order for function inversion (GetEIncFromEres) to work
@@ -1350,13 +1390,19 @@ Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum 
    // If the residual energy of the particle is unknown, there is no way to know which is the
    // correct solution.
    //
+   // WARNING 2
    // If the given energy loss in the active layer is greater than the maximum theoretical dE
-   //(dE > GetMaxDeltaE(Z,A)) then we return the incident energy corresponding to the maximum,
-   // GetEIncOfMaxDeltaE(Z,A)
+   // for given Z & A, (dE > GetMaxDeltaE(Z,A)) then we return a NEGATIVE incident energy
+   // corresponding to the maximum, GetEIncOfMaxDeltaE(Z,A)
    
    if(Z<1) return 0.;
    
    Double_t DE = (delta_e > 0 ? delta_e : GetEnergyLoss());
+   
+   // If the given energy loss in the active layer is greater than the maximum theoretical dE
+   // for given Z & A, (dE > GetMaxDeltaE(Z,A)) then we return a NEGATIVE incident energy
+   // corresponding to the maximum, GetEIncOfMaxDeltaE(Z,A)
+   if(DE > GetMaxDeltaE(Z,A)) return -GetEIncOfMaxDeltaE(Z,A);
    
    TF1* dE = GetELossFunction(Z, A);
    Double_t e1,e2;

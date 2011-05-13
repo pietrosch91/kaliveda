@@ -788,7 +788,8 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     if(GetCodes().TestIDCode(kIDCode_Neutron)){
         // use energy of CsI calculated using the Z & A of the CsI identification
         // to calculate the energy deposited by the neutron
-		 fECsI = GetCsI()->GetCorrectedEnergy( IDcsi->Z, IDcsi->A, -1., kFALSE );
+        KVNucleus tmp(IDcsi->Z, IDcsi->A);
+		 fECsI = GetCsI()->GetCorrectedEnergy(&tmp, -1., kFALSE );
         SetEnergy( fECsI );
         SetECode(kECode2); // not a real energy measure
         return;
@@ -802,11 +803,12 @@ void KVINDRAReconNuc::CalibrateRings1To10()
             // Beryllium-8 = 2 alpha particles of same energy
             // We halve the total light output of the CsI to calculate the energy of 1 alpha
             Double_t half_light = GetCsI()->GetLumiereTotale()*0.5;
-            fECsI = 2.*GetCsI()->GetCorrectedEnergy(2,4,half_light,kFALSE);
+            KVNucleus tmp(2,4);
+            fECsI = 2.*GetCsI()->GetCorrectedEnergy(&tmp,half_light,kFALSE);
             SetECode(kECode2);
         }
         else
-            fECsI = GetCsI()->GetCorrectedEnergy(GetZ(), GetA(), -1., kFALSE);
+            fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
             SetECode(kECode15);// bad - no CsI energy
             return;
@@ -821,7 +823,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
             // all is apparently well
             GetSi()->SetEResAfterDetector(fECsI);
-            fESi = GetSi()->GetCorrectedEnergy(GetZ(),GetA());
+            fESi = GetSi()->GetCorrectedEnergy(this);
          	if(fESi<=0) {
             	SetECode(kECode15);// bad - no Si energy
             	return;
@@ -832,7 +834,8 @@ void KVINDRAReconNuc::CalibrateRings1To10()
             Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),fECsI);
 				// calculated energy: negative
 				GetSi()->SetEResAfterDetector(fECsI);
-            fESi = -GetSi()->GetCorrectedEnergy(GetZ(),GetA(),e0);
+            fESi = GetSi()->GetCorrectedEnergy(this,e0);
+            fESi = -TMath::Abs(fESi);
             SetECode(kECode2);
         }
     }
@@ -842,14 +845,15 @@ void KVINDRAReconNuc::CalibrateRings1To10()
         if(fUseFullChIoEnergyForCalib && GetChIo()->IsCalibrated()){
             // all is apparently well
             GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+fECsI);
-            fEChIo = GetChIo()->GetCorrectedEnergy(GetZ(),GetA());
+            fEChIo = GetChIo()->GetCorrectedEnergy(this);
         }
         else
         {
             Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+fECsI);
 				// calculated energy: negative
             GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+fECsI);
-            fEChIo = -GetChIo()->GetCorrectedEnergy(GetZ(),GetA(),e0);
+            fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
+            fEChIo = -TMath::Abs(fEChIo);
             SetECode(kECode2);
         }
     }

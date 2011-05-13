@@ -647,7 +647,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    // particles stopped in first member of telescope
    if( nuc->GetStatus() == 3 ) {
       if(d1_cal){
-         nuc->SetEnergy( d1->GetCorrectedEnergy(z, a, -1, kFALSE) );//N.B.: transmission=kFALSE because particle stop in d1
+         nuc->SetEnergy( d1->GetCorrectedEnergy(nuc, -1, kFALSE) );//N.B.: transmission=kFALSE because particle stop in d1
          //set angles from the dimensions of the telescope in which particle detected
          //N.B. should use dimensions of stopping detector, but this could be inconsistent
          //with the association of this ID telescope as the "identifying telescope" of the particle
@@ -662,7 +662,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    if (!d1_cal) {//1st detector not calibrated - calculate from residual energy in 2nd detector
 
       //second detector must exist and have all acquisition parameters fired with above-pedestal value
-      if(d2 && d2->Fired("Pall")) e2 = d2->GetCorrectedEnergy(z, a, -1, kFALSE);//N.B.: transmission=kFALSE because particle stop in d2
+      if(d2 && d2->Fired("Pall")) e2 = d2->GetCorrectedEnergy(nuc, -1, kFALSE);//N.B.: transmission=kFALSE because particle stop in d2
       if( e2 <= 0.0 ){
          // zero energy loss in 2nd detector ? can't do anything...
          fCalibStatus = kCalibStatus_NoCalibrations;
@@ -677,19 +677,19 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
       else{
          d1->SetEnergyLoss(e1);
          d1->SetEResAfterDetector(e2);
-         e1 = d1->GetCorrectedEnergy(z,a);
+         e1 = d1->GetCorrectedEnergy(nuc);
          //status code
          fCalibStatus = kCalibStatus_Calculated;
       }
    } else {//1st detector is calibrated too: get corrected energy loss
 
-      e1 = d1->GetCorrectedEnergy(z, a);
+      e1 = d1->GetCorrectedEnergy(nuc);
 
    }
 
    if (d2 && !d2_cal) {//2nd detector not calibrated - calculate from energy loss in 1st detector
 
-      e1 = d1->GetCorrectedEnergy(z, a);
+      e1 = d1->GetCorrectedEnergy(nuc);
       if( e1 <= 0.0 ){
          // zero energy loss in 1st detector ? can't do anything...
          fCalibStatus = kCalibStatus_NoCalibrations;
@@ -701,17 +701,17 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
       else{
          e2 = d2->GetDeltaE(z,a,e2);
          d2->SetEnergyLoss(e2);
-         e2 = d2->GetCorrectedEnergy(z,a);
+         e2 = d2->GetCorrectedEnergy(nuc);
          //status code
          fCalibStatus = kCalibStatus_Calculated;
       }
    }
    else if(d2){//2nd detector is calibrated too: get corrected energy loss
 
-      e2 = d2->GetCorrectedEnergy(z, a, -1, kFALSE);//N.B.: transmission=kFALSE because particle assumed to stop in d2
+      e2 = d2->GetCorrectedEnergy(nuc, -1, kFALSE);//N.B.: transmission=kFALSE because particle assumed to stop in d2
 		// recalculate corrected energy in first stage using info on Eres
 		d1->SetEResAfterDetector(e2);
-      e1 = d1->GetCorrectedEnergy(z, a);
+      e1 = d1->GetCorrectedEnergy(nuc);
    }
 
    //incident energy of particle (before 1st member of telescope)
@@ -742,7 +742,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
             e1 = det->GetDeltaEFromERes(z,a,einc);
             if( e1< 0.0 ) e1 = 0.0;
             det->SetEResAfterDetector(einc);
-            dE = det->GetCorrectedEnergy(z,a);
+            dE = det->GetCorrectedEnergy(nuc);
             einc += dE;
          }
          else{
@@ -770,7 +770,7 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
                fCalibStatus = kCalibStatus_Calculated;
             }
             det->SetEResAfterDetector(einc);
-            e1 = det->GetCorrectedEnergy(z,a,e1);
+            e1 = det->GetCorrectedEnergy(nuc,e1);
             einc += e1;
          }
          idet++;
