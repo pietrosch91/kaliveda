@@ -2,6 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVINDRADetector.h"
+#include "KVGroup.h"
 
 ClassImp(KVINDRADetector)
 
@@ -17,6 +18,8 @@ ClassImp(KVINDRADetector)
 KVINDRADetector::KVINDRADetector()
 {
    // Default constructor
+   fGGtoPG_0 = 0;
+   fGGtoPG_1 = 1./15.;
 }
 
 KVINDRADetector::~KVINDRADetector()
@@ -78,5 +81,58 @@ KVACQParam *KVINDRADetector::GetACQParam(const Char_t *type)
    name.Append("_");
    name.Append(type);
    return KVDetector::GetACQParam(name.Data());
+}
+
+//__________________________________________________________________________________________________________________________
+
+Double_t KVINDRADetector::GetPGfromGG(Double_t GG)
+{
+   //Linear conversion from GG to PG coder values (silicon and ionisation chamber detectors)
+   //If GG is not given as argument, the current value of the detector's GG ACQParam is read
+   //The PG value returned includes the current pedestal:
+   //      PG = pied_PG + fGGtoPG_0 + fGGtoPG_1 * (GG - pied_GG)
+   //alpha, beta coefficients are obtained by fitting (PG-pied) vs. (GG-pied) for data.
+   if (GG < 0)
+      GG = (Double_t) GetGG();
+   Double_t PG =
+       GetPedestal("PG") + fGGtoPG_0 + fGGtoPG_1 * (GG - GetPedestal("GG"));
+   return PG;
+}
+
+//__________________________________________________________________________________________________________________________
+
+Double_t KVINDRADetector::GetGGfromPG(Double_t PG)
+{
+   //Linear conversion from PG to GG coder values (silicon and ionisation chamber detectors)
+   //If PG is not given as argument, the current value of the detector's PG ACQParam is read
+   //The GG value returned includes the current pedestal:
+   //      GG = pied_GG - (fGGtoPG_0/fGGtoPG_1) + (PG - pied_PG)/fGGtoPG_1 
+   //alpha, beta coefficients are obtained by fitting (PG-pied) vs. (GG-pied) for data.
+   if (PG < 0)
+      PG = (Double_t) GetPG();
+   Double_t GG =
+       GetPedestal("GG") - (fGGtoPG_0/fGGtoPG_1)  +  (PG - GetPedestal("PG"))/fGGtoPG_1;
+   return GG;
+}
+
+KVINDRADetector*KVINDRADetector::FindChIo()
+{
+   //PRIVATE METHOD
+   //Used when GetChIo is called the first time to retrieve the
+   //pointer to the ChIo of the group associated to this detector
+   if (GetTelescope()) {
+      KVGroup *kvgr = GetTelescope()->GetGroup();
+      if (kvgr) {
+         KVList *dets = kvgr->GetDetectors();
+         TIter next_det(dets);
+         KVINDRADetector *dd;
+         while ((dd = (KVINDRADetector *) next_det())) {
+            if (dd->InheritsFrom("KVChIo"))
+               fChIo = dd;
+         }
+      }
+   } else
+      fChIo=0;
+   return fChIo;
 }
 

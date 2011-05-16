@@ -460,9 +460,10 @@ INDRADB.Gains:    Gains.dat
 INDRADB.VamosScaler:    scalersVamos.dat
 # VAMOS Brho & angle for INDRA-VAMOS experiments
 INDRADB.VamosBrhoAngle:    Vamos_run_brho_angle.dat
-
 # Default filename containing correspondance between CsI detector and PinLaser
 INDRADB.CsIPinCorr:          CsI_PILA.dat
+# Default name for file containing linear coefficients for GG->PG conversion (silicon & ChIo detectors)
+INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
@@ -470,6 +471,10 @@ KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
 KVINDRAPulserDataTree.GenePinDir:   gene_pins
 
 # Dataset-specific parameter files
+INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
+INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
+INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
+# 5th campaign
 INDRA_camp5.INDRADB.Gains:    Gains5.dat
 INDRA_camp5.INDRADB.ElectronicCalibration:    ChVolt5.dat
 INDRA_camp5.INDRADB.ElectronicCalibration.Etalons:   coef_canauxTOmev_etalons_camp5.dat
@@ -477,14 +482,15 @@ INDRA_camp5.INDRADB.Pedestals:      Pedestals5.dat
 INDRA_camp5.INDRADB.CalibCsI.Z=1:       calib_CsI_Z1.dat
 INDRA_camp5.INDRADB.CalibCsI.Z>1:       calib_CsI_Z2.dat
 INDRA_camp5.INDRADB.PHD:     coefs_moulton_camp5.dat
-INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
-INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
-INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
+# E416a
 INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
+# E475s
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
+# INDRA-VAMOS
 INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
 INDRA_e503.INDRADB.Pedestals:      PedestalsE503.dat
+INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
 
 # Default headers for runlist columns
 INDRADB.Runlist.Run:    Run

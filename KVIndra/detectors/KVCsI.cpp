@@ -80,25 +80,6 @@ KVCsI::~KVCsI()
 {
 }
 
-//____________________________________________________________________________________________
-KVChIo *KVCsI::GetChIo() const
-{
-// return pointer to ChIo corresponding to the detector
-   if (GetTelescope()) {
-      KVGroup *kvgr = GetTelescope()->GetGroup();
-      if (kvgr) {
-         KVList *dets = kvgr->GetDetectors();
-         TIter next_det(dets);
-         KVDetector *dd;
-         while ((dd = (KVDetector *) next_det())) {
-            if (dd->InheritsFrom("KVChIo"))
-               return (KVChIo *) dd;
-         }
-      }
-   }
-   return 0;
-}
-
 //______________________________________________________________________________________________
 
 Double_t KVCsI::GetLumiereTotale(Double_t rapide, Double_t lente)

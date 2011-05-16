@@ -53,8 +53,6 @@ void KVSilicon::init()
    fPHD=0;
    fZminPHD=10;
    fSegment = 1;
-   fPGtoGG_0 = 0;
-   fPGtoGG_1 = 15;
 }
 
 //______________________________________________________
@@ -120,38 +118,6 @@ Int_t KVSilicon::GetCanalGGFromVolts(Float_t volts)
 
 //____________________________________________________________________________________________
 
-KVChIo *KVSilicon::GetChIo() const
-{
-   //Return pointer to ChIo corresponding to the detector
-   //i.e. the ChIo placed in front of the silicon
-   return (fChIo ? fChIo : const_cast<KVSilicon*>(this)->FindChIo());
-}
-
-//____________________________________________________________________________________________
-
-KVChIo *KVSilicon::FindChIo()
-{
-   //PRIVATE METHOD
-   //Used when GetChIo is called the first time to retrieve the
-   //pointer to the ChIo associated to this silicon
-   if (GetTelescope()) {
-      KVGroup *kvgr = GetTelescope()->GetGroup();
-      if (kvgr) {
-         KVList *dets = kvgr->GetDetectors();
-         TIter next_det(dets);
-         KVDetector *dd;
-         while ((dd = (KVDetector *) next_det())) {
-            if (dd->InheritsFrom("KVChIo"))
-               fChIo = (KVChIo *) dd;
-         }
-      }
-   } else
-      fChIo=0;
-   return fChIo;
-}
-
-//____________________________________________________________________________________________
-
 void KVSilicon::SetACQParams()
 {
    //Setup acquistion parameters for this Silicon.
@@ -181,39 +147,6 @@ void KVSilicon::SetCalibrators()
    fChVoltGG  =  (KVChannelVolt *) GetCalibrator("Channel-Volt GG");
    fPHD  =  (KVPulseHeightDefect *) GetCalibrator("Pulse Height Defect");
    fZminPHD = (Int_t)gDataSet->GetDataSetEnv("KVSilicon.ZminForPHDCorrection", 10.);
-}
-
-
-//__________________________________________________________________________________________
-
-Float_t KVSilicon::GetGGfromPG(Float_t PG)
-{
-   //Calculate GG from PG when GG is saturated (>4095).
-   //If PG is not given as argument, the current value of the detector's PG ACQParam is read
-   //The GG value returned includes the current pedestal:
-   //      GG = pied_GG + alpha + beta * (PG - pied_PG)
-   //alpha, beta coefficients are obtained by fitting (GG-pied) vs. (PG-pied) for data.
-   if (PG < 0)
-      PG = (Float_t) GetPG();
-   Float_t GG =
-       GetPedestal("GG") + fPGtoGG_0 + fPGtoGG_1 * (PG -
-                                                    GetPedestal("PG"));
-   return GG;
-}
-
-//__________________________________________________________________________________________
-
-Float_t KVSilicon::GetPGfromGG(Float_t GG)
-{
-   //Calculate PG from GG
-   //If GG is not given as argument, the current value of the detector's GG ACQParam is read
-   //The PG value returned includes the current pedestal:
-   //      PG = (1 / beta)*( GG - pied_GG - alpha ) + pied_PG
-   //alpha, beta coefficients were obtained by fitting (GG-pied) vs. (PG-pied) for data.
-   if (GG < 0)
-      GG = (Float_t) GetGG();
-   Float_t PG = (1./fPGtoGG_1)*(GG - GetPedestal("GG") - fPGtoGG_0) + GetPedestal("PG");
-   return PG;
 }
 
 //__________________________________________________________________________________________

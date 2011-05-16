@@ -30,8 +30,6 @@ class KVChIo:public KVINDRADetector {
 
  protected:
 
-   Float_t fPGtoGG_0;           //conversion factor = offset
-   Float_t fPGtoGG_1;           //conversion factor = slope
    KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
    KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
    KVVoltEnergy* fVoltE;//!volt-energy conversion
@@ -53,27 +51,10 @@ class KVChIo:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
-   Float_t GetPG() {
-      return GetACQData("PG");
-   }
-   Float_t GetGG() {
-      return GetACQData("GG");
-   }
-   UShort_t GetMT() {
-      return GetACQParam("T")->GetCoderData();
-   }
-
    virtual Double_t GetEnergy();
 
    void SetACQParams();
    void SetCalibrators();
-
-   Float_t GetGGfromPG(Float_t PG = -1);
-
-   void SetPGtoGG(Float_t alph, Float_t beta) {
-      fPGtoGG_0 = alph;
-      fPGtoGG_1 = beta;
-   };
 
    Double_t GetELossMylar(UInt_t z, UInt_t a, Double_t egas = -1.0, Bool_t stopped=kFALSE);
 
@@ -91,7 +72,7 @@ class KVChIo:public KVINDRADetector {
       return GetActiveLayer()->GetPressure()/KVUnits::mbar;
    };
    
-   ClassDef(KVChIo, 4)          //The ionisation chamber detectors (ChIo) of the INDRA array
+   ClassDef(KVChIo, 5)          //The ionisation chamber detectors (ChIo) of the INDRA array
 };
 
 //____________________________________________________________________________________________

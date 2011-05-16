@@ -895,6 +895,7 @@ void KVINDRA::Build()
 {
    // Overrides KVMultiDetArray::Build in order to set the name of the detector.
    // Correspondance between CsI detectors and pin lasers is set up if known.
+   // GG to PG conversion factors for Si and ChIo are set if known.
 
    KVMultiDetArray::Build();
 
@@ -902,6 +903,7 @@ void KVINDRA::Build()
    SetTitle("1st & 2nd campaign INDRA multidetector");
    
    SetPinLasersForCsI();
+	SetGGtoPGConversionFactors();
 }
 
 void KVINDRA::SetArrayACQParams()
@@ -1321,4 +1323,61 @@ void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_pa
    if( fired_params && !GetTriggerInfo()->IsINDRAEvent() ) return;
    KVMultiDetArray::GetDetectorEvent(detev,fired_params);
 }
+
+//_______________________________________________________________________________
+
+void KVINDRA::SetGGtoPGConversionFactors()
+{
+   // Sets the parameters for linear conversion of silicon & ChIo coder values
+   // between GG and PG, using the following formula:
+   //
+   //   PG  = alpha + beta*(GG - GG_0) + PG_0
+   //
+   // where GG_0 and PG_0 are respectively GG and PG pedestals
+   //
+   // We look for the file whose name is given by the .kvrootrc variable
+   //    [dataset].INDRADB.GGtoPGFactors:
+   // or by default
+   //    INDRADB.GGtoPGFactors:
+   // and expect to find in it a line for each detector of the form:
+   //    Det_Name   alpha   beta
+   // Comments in the file can be written on lines beginning with the character '#'
+   
+	ifstream datfile;
+	if( !gDataSet->OpenDataSetFile( gDataSet->GetDataSetEnv("INDRADB.GGtoPGFactors",""), datfile ) ){
+
+		Info("SetGGtoPGConversionFactors", "Cannot open file with parameters for conversion (%s).",
+				gDataSet->GetDataSetEnv("INDRADB.GGtoPGFactors",""));
+	   return;
+	}
+	else
+	{
+		Info("SetGGtoPGConversionFactors", "Reading parameters from file %s",
+				gDataSet->GetDataSetEnv("INDRADB.GGtoPGFactors",""));
+
+   	Char_t detname[30];
+   	Double_t a, b;
+   	TString aline;
+      aline.ReadLine(datfile);
+   	while (datfile.good()) {
+	
+     		if (aline[0]!='#') {     //skip comments
+
+				sscanf(aline.Data(), "%s %lf %lf", detname, &a, &b);
+         	KVINDRADetector *det = (KVINDRADetector *)GetDetector(detname);
+         	if (!det) {
+            	//no detector found with cou, mod and type
+            	Error("SetGGtoPGConversionFactors", "Unknown detector : %s", detname);
+         	}
+         	else{
+         		det->SetGGtoPGConversionFactors(a,b);
+         		//Info("SetGGtoPGConversionFactors", "%s : PG = %f + %f * GG", detname, a, b);
+      		}
+      	}
+      	aline.ReadLine(datfile);
+   	}                            //while( datfile.good()
+   	datfile.close();
+   }
+}
+
 

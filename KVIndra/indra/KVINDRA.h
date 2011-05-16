@@ -89,6 +89,7 @@ class KVINDRA:public KVMultiDetArray {
    virtual void BuildGeometry();
    virtual void SetGroupsAndIDTelescopes();
    void FillListsOfDetectorsByType();
+   void SetGGtoPGConversionFactors();
 
  public:
     KVINDRA();

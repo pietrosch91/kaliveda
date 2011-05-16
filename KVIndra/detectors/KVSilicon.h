@@ -33,12 +33,6 @@ class KVSilicon:public KVINDRADetector {
 
  protected:
 
-   Float_t fPGtoGG_0;           //conversion factor = offset
-   Float_t fPGtoGG_1;           //conversion factor = slope
-
-   KVChIo* fChIo;//!pointer to INDRA ionisation chamber associated to this detector
-   KVChIo* FindChIo();
-
    KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
    KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
    KVVoltEnergy* fVoltE;//!volt-energy conversion
@@ -62,30 +56,10 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
-   Float_t GetPG() {
-      return GetACQData("PG");
-   }
-   Float_t GetGG() {
-      return GetACQData("GG");
-   }
-   UShort_t GetMT() {
-      return GetACQParam("T")->GetCoderData();
-   }
-
    virtual Double_t GetEnergy();
-
-   virtual KVChIo *GetChIo() const;
 
    void SetACQParams();
    void SetCalibrators();
-
-   Float_t GetGGfromPG(Float_t PG = -1);
-   Float_t GetPGfromGG(Float_t GG = -1);
-
-   void SetPGtoGG(Float_t alph, Float_t beta) {
-      fPGtoGG_0 = alph;
-      fPGtoGG_1 = beta;
-   };
 
    Double_t GetPHD(Double_t Einc, UInt_t Z);
 
@@ -109,7 +83,7 @@ class KVSilicon:public KVINDRADetector {
       return GetActiveLayer()->GetThickness()/KVUnits::um;
    };
    
-   ClassDef(KVSilicon, 7)       //INDRA forward-rings silicon detector
+   ClassDef(KVSilicon, 8)       //INDRA forward-rings silicon detector
 };
 
 //____________________________________________________________________________________________

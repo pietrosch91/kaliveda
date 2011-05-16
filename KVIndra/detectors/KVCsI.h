@@ -30,7 +30,6 @@ $Id: KVCsI.h,v 1.26 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVACQParam.h"
 #include "KVINDRA.h"
 
-class KVChIo;
 class KVTelescope;
 class KVLightEnergyCsI;
 
@@ -62,18 +61,13 @@ class KVCsI:public KVINDRADetector {
     KVCsI(Float_t thick);
     virtual ~ KVCsI();
 
-   KVChIo *GetChIo() const;
-
    Float_t GetR() {
       return fACQ_R->GetData();
-   }
+   };
    Float_t GetL() {
       return fACQ_L->GetData();
-   }
-   UShort_t GetMT() {
-      return GetACQParam("T")->GetCoderData();
-   }
-
+   };
+   
    virtual Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
                              -1.0);
    virtual Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =

@@ -49,8 +49,6 @@ void KVChIo::init()
    fChVoltPG=0;
    fVoltE=0;
    fSegment = 0;
-   fPGtoGG_0 = 0;
-   fPGtoGG_1 = 15;
 }
 
 KVChIo::KVChIo()
@@ -151,23 +149,6 @@ void KVChIo::SetCalibrators()
    fVoltE = (KVVoltEnergy *) GetCalibrator("Volt-Energy");
    fChVoltPG  =  (KVChannelVolt *) GetCalibrator("Channel-Volt PG");
    fChVoltGG  =  (KVChannelVolt *) GetCalibrator("Channel-Volt GG");
-}
-
-//__________________________________________________________________________________________________________________________
-
-Float_t KVChIo::GetGGfromPG(Float_t PG)
-{
-   //Calculate GG from PG when GG is saturated.
-   //If PG is not given as argument, the current value of the detector's PG ACQParam is read
-   //The GG value returned includes the current pedestal:
-   //      GG = pied_GG + alpha + beta * (PG - pied_PG)
-   //alpha, beta coefficients were obtained by fitting (GG-pied) vs. (PG-pied) for data.
-   if (PG < 0)
-      PG = (Float_t) GetPG();
-   Float_t GG =
-       GetPedestal("GG") + fPGtoGG_0 + fPGtoGG_1 * (PG -
-                                                    GetPedestal("PG"));
-   return GG;
 }
 
 //__________________________________________________________________________________________________________________________
