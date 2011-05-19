@@ -333,7 +333,10 @@ void KVGroup::Reset()
    }
    //reset energy loss and KVDetector::IsAnalysed() state
    //plus ACQParams set to zero
-   GetDetectors()->Execute("Clear", "");
+   //GetDetectors()->Execute("Clear", "");
+   if(GetDetectors()){
+   	  GetDetectors()->R__FOR_EACH(KVDetector, Clear)();
+   }
 }
 
 //_________________________________________________________________________________

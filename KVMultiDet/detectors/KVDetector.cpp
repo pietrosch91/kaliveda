@@ -519,7 +519,7 @@ void KVDetector::Clear(Option_t * opt)
          par->Clear();
       }
    }
-   if (fParticles) {
+   if ((fParticles)) {
       fParticles->Clear();
    }
    //reset all layers in detector

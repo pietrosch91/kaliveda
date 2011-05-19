@@ -72,7 +72,7 @@ class KVDetector:public KVMaterial {
    KVList *fModules;            //references to connected electronic modules (not implemented yet)
    KVList *fCalibrators;        //list of associated calibrator objects
    KVList *fACQParams;          //list of raw data parameters read from coders
-   TList *fParticles;         //!list of particles hitting detector in an event
+   KVList *fParticles;         //!list of particles hitting detector in an event
    KVList *fAbsorbers;          //->list of absorbers making up the detector
    UShort_t fSegment;           //used in particle reconstruction
    Float_t fGain;               //gain of amplifier
@@ -220,15 +220,18 @@ class KVDetector:public KVMaterial {
    virtual void StartBrowser();
    virtual void CloseBrowser();
 
-   // Add to the list of particles hitting this detector in an event
    void AddHit(KVNucleus * part)
    {
-      if (!fParticles) fParticles = new TList();
+   // Add to the list of particles hitting this detector in an event
+      if (!fParticles) {
+      	fParticles = new KVList(kFALSE);
+      	fParticles->SetCleanup();
+      }
       fParticles->Add(part);
    };
 
    // Return the list of particles hitting this detector in an event
-   TList *GetHits() const
+   KVList *GetHits() const
    {
       return fParticles;
    };
@@ -236,7 +239,7 @@ class KVDetector:public KVMaterial {
    // Return the number of particles hitting this detector in an event
    Int_t GetNHits() const
    {
-      return (fParticles ? fParticles->GetSize() : 0);
+      return (fParticles ? fParticles->GetEntries() : 0);
    };
 
    inline UShort_t GetSegment() const;
