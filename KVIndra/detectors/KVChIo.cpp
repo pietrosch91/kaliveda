@@ -285,7 +285,8 @@ Double_t KVChIo::GetEnergy()
 
    //fELoss already set, return its value
    Double_t ELoss = KVDetector::GetEnergy();
-   if( ELoss > 0 ) return KVDetector::GetEnergy();
+   if(IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
+   if( ELoss > 0 ) return ELoss;
    ELoss = GetCalibratedEnergy();
    if( ELoss < 0 ) ELoss = 0;
    SetEnergy(ELoss);

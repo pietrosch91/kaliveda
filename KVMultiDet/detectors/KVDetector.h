@@ -429,7 +429,7 @@ Bool_t KVDetector::Fired(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
-	if(IsSimMode()) return (GetEnergy()>0.); // simulation mode: detector fired if energy lost in active layer
+	if(IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
 	
    if(opt[0]=='P') return FiredP(opt+1);
 
