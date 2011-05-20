@@ -7,6 +7,8 @@
 #include "KVBase.h"
 #include "KVUnits.h"
 
+class TGeoMaterial;
+
 class KVIonRangeTable : public KVBase {
 
 public:
@@ -23,6 +25,9 @@ public:
    // Create and fill a list of all materials for which range tables exist. 
    // Each entry is a TNamed with the name and type (title) of the material.
    virtual TObjArray* GetListOfMaterials() = 0;
+   
+   // Create and return pointer to TGeoMaterial/Mixture corresponding to material
+   virtual TGeoMaterial* GetTGeoMaterial(const Char_t* material) = 0;
 
    // Return maximum incident energy (in MeV) for which range table is valid for given
    // material and (Z,A) of incident ion

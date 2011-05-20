@@ -694,7 +694,7 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 	
 	if( !gmat ){
 		// create material
-		gmat = new TGeoMaterial( GetName(), GetMass(), GetZ(), GetDensity() );
+		gmat = GetRangeTable()->GetTGeoMaterial(GetName());
 		gmat->SetPressure( GetPressure() );
 		gmat->SetTemperature( GetTemperature() );
 	}

@@ -5,6 +5,8 @@
 #include <TMath.h>
 #include "KVIonRangeTable.h"
 #include <TEnv.h>
+#include "TGeoManager.h"
+#include "TGeoMaterial.h"
 
 ClassImp(KVedaLossMaterial)
 
@@ -19,6 +21,8 @@ ClassImp(KVedaLossMaterial)
 
 KVedaLossMaterial::KVedaLossMaterial()
    : fState("unknown"),
+   fCompound(0),
+   fComposition(0),
      fDens(0.),
      fZmat(0),
      fAmat(0),
@@ -35,6 +39,8 @@ KVedaLossMaterial::KVedaLossMaterial()
 KVedaLossMaterial::KVedaLossMaterial(const Char_t* name, const Char_t* type, const Char_t* state,
                                      Double_t density, Double_t Z, Double_t A, Double_t MoleWt)
    : fState(state),
+   fCompound(0),
+   fComposition(0),
      fDens(density),
      fZmat(Z),
      fAmat(A),
@@ -53,6 +59,7 @@ KVedaLossMaterial::KVedaLossMaterial(const Char_t* name, const Char_t* type, con
 KVedaLossMaterial::~KVedaLossMaterial()
 {
    // Destructor
+   SafeDelete(fComposition);
 }
 
 Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
@@ -74,6 +81,35 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
    char line[132];
 
    //look for energy limits to calculation validity
+   if (!fgets(line, 132, fp)) {
+      Warning("ReadRangeTable", "Problem reading energy limits in range table file for %s (%s)",
+              GetName(), GetType());
+      return kFALSE;
+   } else {
+      if(!strncmp(line,"COMPOUND",8)){
+      	// material is compound. read composition for TGeoMixture.
+      	SetCompound();
+      	fgets(line, 132, fp);
+      	fComposition = new TList; // create table of elements
+      	fComposition->SetOwner(kTRUE);
+      	int nel = atoi(line);  // read number of elements
+      	float total_poids=0;
+      	for(int el=0; el<nel; el++){
+      		fgets(line, 132, fp);
+      		char elname[5]; float poids=-1.;
+      		sscanf(line, "%s %f", elname, &poids);
+      		total_poids+=poids;
+      		fComposition->Add(new TNamed(elname, Form("%f",poids)));
+      	}
+      	// normalise weights
+      	for(int el=0; el<nel; el++){
+      		TNamed* elob = (TNamed*)fComposition->At(el);
+      		float poids = atof(elob->GetTitle());
+      		poids/=total_poids;
+      		elob->SetTitle(Form("%f",poids));
+      	}
+      }
+   }
    if (!fgets(line, 132, fp)) {
       Warning("ReadRangeTable", "Problem reading energy limits in range table file for %s (%s)",
               GetName(), GetType());
@@ -517,3 +553,27 @@ Double_t KVedaLossMaterial::GetLinearEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Doub
    return GetEIncOfMaxDeltaEOfIon(Z,A,e,isoAmat);
 }
 
+TGeoMaterial* KVedaLossMaterial::GetTGeoMaterial() const
+{
+	// Create and return pointer to a TGeoMaterial or TGeoMixture (for compound materials)
+	// with the properties of this material.
+	// gGeoManager must exist.
+	
+	TGeoMaterial* gmat=0x0;
+	if(!gGeoManager) return gmat;
+	if(IsCompound()){
+		gmat = new TGeoMixture(GetTitle(), GetComposition()->GetEntries(), GetDensity());
+		TIter next(GetComposition());
+		TNamed* el;
+		while((el = (TNamed*)next())){
+			TGeoElement* gel = gGeoManager->GetElementTable()->FindElement(el->GetName());
+			float poids = atof(el->GetTitle());
+			((TGeoMixture*)gmat)->AddElement(gel, poids);
+		}
+	}
+	else
+	{
+		gmat = new TGeoMaterial( GetTitle(), GetMass(), GetZ(), GetDensity() );
+	}
+	return gmat;
+}

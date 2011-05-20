@@ -9,6 +9,9 @@
 #include <Riostream.h>
 #include <TF1.h>
 #include "KVIonRangeTable.h"
+#include "TList.h"
+
+class TGeoMaterial;
 
 // maximum atomic number included in range tables
 #define ZMAX_VEDALOSS 100
@@ -27,6 +30,8 @@ private:
 	
 protected:
    TString fState;               // state of material = "solid", "liquid", "gas", "unknown"
+   Bool_t   fCompound;         // =kTRUE if material is a compound, =kFALSE if it is an element
+   TList*   fComposition;      // composition of compound
    Double_t fDens;              // density of material in g/cm**3
    Double_t fZmat;              // atomic number of material
    Double_t fAmat;              // atomic mass of material
@@ -78,6 +83,21 @@ public:
       // returns kTRUE if material is in gaseous state
       return (fState == "gas");
    };
+   
+   Bool_t IsCompound() const {
+   	// returns kTRUE if material is a compound, kFALSE if it is an element
+   	return fCompound;
+   };
+   TList* GetComposition() const
+   {
+   	// return list of elements in compound material
+   	return fComposition;
+   };
+   void SetCompound(Bool_t compound = kTRUE) {
+   	// kTRUE if material is a compound, kFALSE if it is an element
+   	fCompound=compound;
+   };
+	TGeoMaterial* GetTGeoMaterial() const;
 
    void ls(Option_t* = "") const;
    void Print(Option_t* = "") const {
@@ -127,7 +147,7 @@ public:
    virtual Double_t GetLinearMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
       
-   ClassDef(KVedaLossMaterial, 1) //Description of material properties used by KVedaLoss range calculation
+   ClassDef(KVedaLossMaterial, 2) //Description of material properties used by KVedaLoss range calculation
 };
 
 #endif

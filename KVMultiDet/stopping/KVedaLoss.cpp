@@ -6,6 +6,7 @@
 #include <TString.h>
 #include <TSystem.h>
 #include <TEnv.h>
+#include "TGeoMaterial.h"
 
 #define FIND_MAT_AND_EXEC(method,defval) \
     KVedaLossMaterial* M = GetMaterial(mat); \
@@ -432,3 +433,13 @@ TObjArray* KVedaLoss::GetListOfMaterials()
    }
    return 0;
 }
+
+TGeoMaterial* KVedaLoss::GetTGeoMaterial(const Char_t* mat)
+{
+   // Return pointer to TGeoMaterial corresponding to this material,
+   // for use in ROOT geometries, VMC, etc.
+   
+   FIND_MAT_AND_EXEC(GetTGeoMaterial(),0x0);   
+}
+
+

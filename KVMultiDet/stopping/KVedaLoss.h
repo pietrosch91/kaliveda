@@ -8,6 +8,7 @@
 #include "KVHashList.h"
 
 class KVedaLossMaterial;
+class TGeoMaterial;
 
 class KVedaLoss : public KVIonRangeTable {
    static KVHashList* fMaterials;// static list of all known materials
@@ -26,6 +27,7 @@ public:
    Bool_t IsMaterialGas(const Char_t* material);
 
    KVedaLossMaterial* GetMaterial(const Char_t* material);
+   TGeoMaterial* GetTGeoMaterial(const Char_t* material);
    const Char_t* GetMaterialName(const Char_t* material);
 
    virtual Double_t GetEmaxValid(const Char_t* material, Int_t Z, Int_t A);
