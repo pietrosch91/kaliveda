@@ -23,7 +23,6 @@
 #include "KVHashList.h"
 #include "KVList.h"
 #include "KVDetector.h"
-#include "KVIDSubCodeManager.h"
 #include "KVIDTelescope.h"
 #include "KVIdentificationResult.h"
 
@@ -248,11 +247,12 @@ public:
         return TestBit(kIsCalibrated);
     };
 
-    Int_t GetIDSubCode(const Char_t * id_tel_type,
+/* 
+   Int_t GetIDSubCode(const Char_t * id_tel_type,
                        KVIDSubCode & code) const;
     const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
                                      KVIDSubCode & code) const;
-
+*/
     void SetRealZ(Float_t zz) {
         fRealZ = zz;
     }

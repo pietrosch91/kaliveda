@@ -23,7 +23,6 @@ $Id: KVIDTelescope.h,v 1.33 2009/04/01 15:58:10 ebonnet Exp $
 #include "KVDetector.h"
 #include "KVRList.h"
 #include "TGraph.h"
-#include "KVIDSubCodeManager.h"
 
 class KVReconstructedNucleus;
 class KVGroup;
@@ -33,14 +32,11 @@ class KVMultiDetArray;
 class KVIdentificationResult;
 class TH2;
 
-class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
+class KVIDTelescope:public KVBase {
 
  protected:
    KVList * fDetectors;         //->list of detectors in telescope
    KVGroup *fGroup;             //group to which telescope belongs
-   UShort_t fIDCode;            //!code corresponding to correct identification by this type of telescope
-   UShort_t fZminCode;          //!code corresponding to particle stopping in first member of this type of telescope
-   UChar_t fECode;              //!code corresponding to correct calibration by this type of telescope
    KVList *fIDGrids;           //->identification grid(s)
    enum {
       kMassID = BIT(15),         //set if telescope is capable of mass identification i.e. isotopic resolution
@@ -89,9 +85,6 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
    void SetGroup(KVGroup * kvg);
    UInt_t GetGroupNumber();
 
-   const Char_t *GetName() const;
-   virtual const Char_t *GetArrayName();
-
    virtual TGraph *MakeIDLine(KVNucleus * nuc, Float_t Emin, Float_t Emax,
                               Float_t Estep = 0.0);
 
@@ -117,16 +110,6 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
 
    virtual void Print(Option_t * opt = "") const;
 
-   UShort_t GetIDCode() {
-      return fIDCode;
-   };
-   UShort_t GetZminCode() {
-      return fZminCode;
-   };
-   UChar_t GetECode() {
-      return fECode;
-   };
-
    void SetIDGrid(KVIDGraph *);
    virtual KVIDGraph *GetIDGrid();
    virtual KVIDGraph *GetIDGrid(Int_t);
@@ -148,12 +131,6 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
    // as well as their charge (Z).
    Bool_t HasMassID() const {
       return TestBit(kMassID);
-   };
-
-   inline void SetSubCodeManager(UChar_t n_bits,
-                                 UChar_t most_significant_bit) {
-      SetNbits(n_bits);
-      SetMSB(most_significant_bit);
    };
 
    static KVIDTelescope *MakeIDTelescope(const Char_t * name);
@@ -180,7 +157,7 @@ class KVIDTelescope:public KVBase, public KVIDSubCodeManager {
     };
 	virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1);
 
-	ClassDef(KVIDTelescope, 4)   //A delta-E - E identification telescope
+	ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };
 
 #endif

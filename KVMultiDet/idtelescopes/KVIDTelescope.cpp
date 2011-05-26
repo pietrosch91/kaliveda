@@ -111,7 +111,6 @@ void KVIDTelescope::init()
    fDetectors = new KVList(kFALSE);
    fDetectors->SetCleanup(kTRUE);
    fGroup = 0;
-   fIDCode = 0;                 //default
    fIDGrids = new KVList(kFALSE);
    fIDGrids->SetCleanup(kTRUE);
 }
@@ -171,50 +170,6 @@ void KVIDTelescope::Print(Option_t * opt) const
    }
 }
 
-//____________________________________________________________________________________
-const Char_t *KVIDTelescope::GetName() const
-{
-   // Name of telescope given in the form Det1_Det2_Ring-numberTelescope-number
-   // The detectors are signified by their TYPE names i.e. KVDetector::GetType
-   //
-   //Just a wrapper for GetArrayName to allow polymorphism
-   return ((KVIDTelescope *) this)->GetArrayName();
-}
-const Char_t *KVIDTelescope::GetArrayName()
-{
-   // Name of telescope given in the form Det1_Det2_Ring-numberTelescope-number
-   //where ring and telescope numbers are those of the smallest (in angular terms)
-   //detector of the telescope (if both are the same size, either one will do).
-   // The detectors are signified by their TYPE names i.e. KVDetector::GetType
-
-   //in order to access angular dimensions of detectors, we need their KVTelescopes
-   KVTelescope *de_det = GetDetector(1)->GetTelescope();
-   KVTelescope *e_det = 0;
-   if (GetSize() > 1)
-      e_det = GetDetector(2)->GetTelescope();
-   UInt_t ring, mod;
-   if (!e_det || de_det->IsSmallerThan(e_det)) {
-      ring = de_det->GetRingNumber();
-      mod = de_det->GetNumber();
-   } else {
-      ring = e_det->GetRingNumber();
-      mod = e_det->GetNumber();
-   }
-   SetName(GetDetector(1)->GetType());
-   if (e_det) {
-      fName.Append("_");
-      fName.Append(GetDetector(2)->GetType());
-   }
-   SetType(fName.Data());
-   fName.Append("_");
-   TString num;
-   num.Form("%02d%02d", ring, mod);
-   fName += num;
-
-   return fName.Data();
-}
-
-//____________________________________________________________________________________
 UInt_t KVIDTelescope::GetDetectorRank(KVDetector * kvd)
 {
    //returns position (1=front, 2=next, etc.) detector in the telescope structure
@@ -530,47 +485,6 @@ Bool_t KVIDTelescope::SetIdentificationParameters(const KVMultiDetArray* MDA)
    return kTRUE;
 }
 
-//______________________________________________________________________________
-
-void KVIDTelescope::Streamer(TBuffer &R__b)
-{
-   // Stream an object of class KVIDTelescope.
-   // Handles backwards compatibility for objects with version number < 3
-   // for which a single KVIDGrid was associated with the telescope instead
-   // of a list of grids.
-
-   if (R__b.IsReading()) {
-      UInt_t R__s, R__c;
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      if (R__v < 4) {
-         KVBase::Streamer(R__b);
-         //ID telescopes previous to V.4 had no label corresponding to plugin URI
-         //here we add the label if it is missing
-         if(!strcmp(GetLabel(),"")) {
-            SetLabelFromURI( GetPluginURI("KVIDTelescope", ClassName()) );
-         }
-         KVIDSubCodeManager::Streamer(R__b);
-         fDetectors->Streamer(R__b);
-         R__b >> fGroup;
-         KVIDGrid* fIDGrid=0;
-         R__b >> fIDGrid;
-         //clear any previous grids from list and add the read-in grid as sole member
-         fIDGrids->Clear();
-         if(fIDGrid){
-            fIDGrids->Add(fIDGrid);
-         }
-         R__b.CheckByteCount(R__s, R__c, KVIDTelescope::IsA());
-      }
-      else
-      {
-         R__b.ReadClassBuffer(KVIDTelescope::Class(), this, R__v, R__s, R__c);
-      }
-   } else {
-      R__b.WriteClassBuffer(KVIDTelescope::Class(), this);
-   }
-}
-
-//______________________________________________________________________________
 
 void KVIDTelescope::RemoveIdentificationParameters()
 {
@@ -819,9 +733,9 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA
 
 	KVNumberList nlz(Zrange);
 	
-	TClass* cl = new TClass(GetDefaultIDGridClass());
+	TClass* cl = TClass::GetClass(GetDefaultIDGridClass());
+	if(!cl || !cl->InheritsFrom("KVIDZAGrid")) cl = TClass::GetClass("KVIDZAGrid");
 	KVIDGrid* idgrid = (KVIDGrid* )cl->New();
-	delete cl;
 
 	idgrid->AddIDTelescope(this);
 	idgrid->SetOnlyZId((deltaA==0));

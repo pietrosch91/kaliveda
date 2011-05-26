@@ -18,10 +18,10 @@
 #ifndef KVIDSi75SiLi_H
 #define KVIDSi75SiLi_H
 
-#include "KVIDTelescope.h"
+#include "KVINDRAIDTelescope.h"
 
 
-class KVIDSi75SiLi:public KVIDTelescope {
+class KVIDSi75SiLi:public KVINDRAIDTelescope {
 
  public:
 

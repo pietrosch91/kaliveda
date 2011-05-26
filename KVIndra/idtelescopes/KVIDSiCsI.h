@@ -19,9 +19,9 @@ $Id: KVIDSiCsI.h,v 1.10 2006/10/19 14:32:43 franklan Exp $
 #ifndef KVIDSICSI_H
 #define KVIDSICSI_H
 
-#include "KVIDTelescope.h"
+#include "KVINDRAIDTelescope.h"
 
-class KVIDSiCsI:public KVIDTelescope {
+class KVIDSiCsI:public KVINDRAIDTelescope {
 
  public:
 

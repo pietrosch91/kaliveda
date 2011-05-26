@@ -18,9 +18,9 @@
 #ifndef KVIDChIoCsI_H
 #define KVIDChIoCsI_H
 
-#include "KVIDTelescope.h"
+#include "KVINDRAIDTelescope.h"
 
-class KVIDChIoCsI:public KVIDTelescope {
+class KVIDChIoCsI:public KVINDRAIDTelescope {
 
  public:
 

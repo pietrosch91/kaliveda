@@ -26,6 +26,7 @@ $Id: KVINDRAReconNuc.h,v 1.39 2009/04/03 14:28:37 franklan Exp $
 #include "KVTelescope.h"
 #include "KVINDRACodes.h"
 #include "KVINDRAReconEvent.h"
+#include "KVINDRAIDTelescope.h"
 
 class KVChIo;
 class KVSilicon;
@@ -45,6 +46,10 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    
  public:
 
+   Int_t GetIDSubCode(const Char_t * id_tel_type,
+                       KVIDSubCode & code) const;
+    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
+                                     KVIDSubCode & code) const;
 	Bool_t AreSiCsICoherent() const
 	{
 		// RINGS 1-9

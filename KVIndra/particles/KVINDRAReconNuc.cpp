@@ -335,11 +335,7 @@ Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type) const
    //
    //In case of problems (see KVReconstructedNucleus::GetIDSubCode()) value returned is -65535
 
-   return KVReconstructedNucleus::GetIDSubCode(id_tel_type,
-                                               const_cast <
-                                               KVINDRAReconNuc *
-                                               >(this)->GetCodes().
-                                               GetSubCodes());
+   return GetIDSubCode(id_tel_type,const_cast <KVINDRAReconNuc *>(this)->GetCodes().GetSubCodes());
 }
 
 const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
@@ -358,7 +354,7 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
    //       no ID telescope of type 'id_tel_type' :  "No identification attempted in id_tel_type"
    //       particle not identified               :  "Particle unidentified. Identifying telescope not set."
 
-   return KVReconstructedNucleus::GetIDSubCodeString(id_tel_type,
+   return GetIDSubCodeString(id_tel_type,
                                                      const_cast <
                                                      KVINDRAReconNuc *
                                                      >(this)->GetCodes().
@@ -873,3 +869,63 @@ void KVINDRAReconNuc::CheckCsIEnergy()
 	KVDetector* csi = GetCsI();
 	if(csi && (csi->GetEnergy() > csi->GetMaxDeltaE(GetZ(), GetA()))) SetECode(kECode3);
 }
+
+Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type,
+        KVIDSubCode & code) const
+{
+    //If the identification of the particle was attempted using a KVIDTelescope of type "id_tel_type",
+    //and 'code' holds all the subcodes from the different identification routines tried for this particle,
+    //then this method returns the subcode for this particle from telescope type "id_tel_type".
+    //
+    //In case of problems (no ID telescope of type 'id_tel_type'), the returned value is -65535.
+    //
+    //If no type is given (first argument = ""), we use the identifying telescope (obviously if the
+    //particle has remained unidentified - IsIdentified()==kFALSE - and the GetIdentifyingTelescope()
+    //pointer is not set, we return -65535).
+
+    KVINDRAIDTelescope *idtel;
+    if (strcmp(id_tel_type, ""))
+        idtel =
+            (KVINDRAIDTelescope *) GetIDTelescopes()->
+            FindObjectByType(id_tel_type);
+    else
+        idtel = (KVINDRAIDTelescope *)GetIdentifyingTelescope();
+    if (!idtel)
+        return -65535;
+    return idtel->GetIDSubCode(code);
+}
+
+//______________________________________________________________________________________________//
+
+const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
+        id_tel_type,
+        KVIDSubCode &
+        code) const
+{
+    //If the identification of the particle was attempted using a KVIDTelescope of type "id_tel_type",
+    //and 'code' holds all the subcodes from the different identification routines tried for this particle,
+    //then this method returns an explanation for the subcode for this particle from telescope type "id_tel_type".
+    //
+    //If no type is given (first argument = ""), we use the identifying telescope.
+    //
+    //In case of problems :
+    //       no ID telescope of type 'id_tel_type' :  "No identification attempted in id_tel_type"
+    //       particle not identified               :  "Particle unidentified. Identifying telescope not set."
+
+    KVINDRAIDTelescope *idtel;
+    if (strcmp(id_tel_type, ""))
+        idtel =
+            (KVINDRAIDTelescope *) GetIDTelescopes()->
+            FindObjectByType(id_tel_type);
+    else
+        idtel = (KVINDRAIDTelescope *)GetIdentifyingTelescope();
+    if (!idtel) {
+        if (strcmp(id_tel_type, ""))
+            return Form("No identification attempted in %s", id_tel_type);
+        else
+            return
+                Form("Particle unidentified. Identifying telescope not set.");
+    }
+    return idtel->GetIDSubCodeString(code);
+}
+

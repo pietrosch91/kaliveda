@@ -117,7 +117,7 @@
 #pragma link C++ class KVIDGridManager;
 #pragma link C++ class KVIDZAGrid-;
 #pragma link C++ class KVIDZGrid-;
-#pragma link C++ class KVIDTelescope-;
+#pragma link C++ class KVIDTelescope+;
 #pragma link C++ class KVIDSubCodeManager+;
 #pragma link C++ class KVVirtualIDFitter+;
 #pragma link C++ class KVLayer+;

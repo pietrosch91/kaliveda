@@ -390,7 +390,7 @@ void KVReconstructedNucleus::GetAnglesFromTelescope(Option_t * opt)
 }
 
 //______________________________________________________________________________________________//
-
+/*
 Int_t KVReconstructedNucleus::GetIDSubCode(const Char_t * id_tel_type,
         KVIDSubCode & code) const
 {
@@ -449,7 +449,7 @@ const Char_t *KVReconstructedNucleus::GetIDSubCodeString(const Char_t *
     }
     return idtel->GetIDSubCodeString(code);
 }
-
+*/
 //_________________________________________________________________________________
 
 void KVReconstructedNucleus::Calibrate()

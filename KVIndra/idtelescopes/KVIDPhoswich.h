@@ -18,10 +18,10 @@
 #ifndef KVIDPhoswich_H
 #define KVIDPhoswich_H
 
-#include "KVIDTelescope.h"
+#include "KVINDRAIDTelescope.h"
 
 
-class KVIDPhoswich:public KVIDTelescope {
+class KVIDPhoswich:public KVINDRAIDTelescope {
 
  public:
 
