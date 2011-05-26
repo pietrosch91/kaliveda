@@ -1117,7 +1117,8 @@ TGeoVolume* KVDetector::GetGeoVolume()
 		}
 		Double_t dz = tot_thick_det/2.;
 		med = GetGeoMedium("Vacuum");
-		mother_vol = gGeoManager->MakeArb8(GetName(), med, dz, vertices);
+//		mother_vol = gGeoManager->MakeArb8(Form("%s_VOL",GetName()), med, dz, vertices);
+		mother_vol = gGeoManager->MakeVolumeAssembly(Form("%s_VOL",GetName()));
 	}
 
 	/**** BUILD & ADD ABSORBER VOLUMES ****/
@@ -1132,8 +1133,11 @@ TGeoVolume* KVDetector::GetGeoVolume()
 			vertices[2*i+1] = coords[i].Y();
 		}
 		Double_t dz = thick/2.;
+		TString vol_name;
+		if(abs==GetActiveLayer()) vol_name = GetName();
+		else vol_name = Form("%s_%d_%s", GetName(), no_abs, abs->GetType());
 		TGeoVolume *vol =
-				gGeoManager->MakeArb8( Form("%s_%d_%s", GetName(), no_abs, abs->GetType()), med, dz, vertices);
+				gGeoManager->MakeArb8( vol_name.Data(), med, dz, vertices);
 		vol->SetLineColor( med->GetMaterial()->GetDefaultColor() );
 		if( multi_layer ){
 			/*** position absorber in mother ***/
