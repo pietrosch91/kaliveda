@@ -2195,9 +2195,10 @@ TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_
     TGeoMedium*Vacuum = new TGeoMedium("Vacuum",1, matVacuum);
     TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  dx, dy, dz);
     geom->SetTopVolume(top);
-    TIter next( GetListOfDetectors() );
-    KVDetector*det;
-    while ((det=(KVDetector*)next())) det->AddToGeometry();
+    TIter nxt_lay(fLayers); KVLayer* L;
+    while( (L = (KVLayer*)nxt_lay()) ){
+    	L->AddToGeometry();
+    }
     geom->CloseGeometry();
     return geom;
 }

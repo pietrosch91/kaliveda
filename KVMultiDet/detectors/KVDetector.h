@@ -132,6 +132,10 @@ class KVDetector:public KVMaterial {
    	return fAbsorbers;
 	};
    virtual const Char_t *GetArrayName();
+   virtual Double_t GetDepthInTelescope() const
+   {
+   	return fDepthInTelescope;
+   };
 
 	Double_t GetTotalThicknessInCM()
 	{

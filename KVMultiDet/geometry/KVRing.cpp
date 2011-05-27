@@ -23,6 +23,8 @@ $Id: KVRing.cpp,v 1.22 2007/05/31 09:59:22 franklan Exp $
 #include "KVParticle.h"
 #include "KVLayer.h"
 #include "TROOT.h"
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
 
 ClassImp(KVRing);
 
@@ -334,3 +336,60 @@ void KVRing::RemoveDetectors(const Char_t * type)
    while ((tele = (KVTelescope *) next()))
       tele->RemoveDetectors(type);
 }
+
+//___________________________________________________________________________________________
+
+TGeoVolume* KVRing::GetGeoVolume()
+{
+	// Create and return TGeoVolume representing detectors in this ring.
+	
+	TString name(GetName());
+	name.ToUpper();
+	name.ReplaceAll(" ","_");
+	TGeoVolume *mother_vol = gGeoManager->MakeVolumeAssembly(name.Data());
+	//**** BUILD & ADD TELESCOPEs ****
+	TIter next(fTelescopes); KVTelescope *det;
+	while( (det = (KVTelescope*)next()) ){
+		TGeoVolume* det_vol = det->GetGeoVolume();
+		// position telescope in ring
+		// rotate telescope to orientation corresponding to (theta,phi)
+		Double_t theta = det->GetTheta(); Double_t phi = det->GetPhi();
+		TGeoRotation rot1, rot2;
+		rot2.SetAngles(phi+90., theta, 0.);
+		rot1.SetAngles(-90., 0., 0.);
+		Double_t tot_len_tel = det->GetTotalLengthInCM();
+		// distance to telescope centre = distance to telescope + half total length of telescope
+		Double_t dist = det->GetDistance()/10. + tot_len_tel/2.;
+		// translate telescope to correct distance from target (note: reference is CENTRE of telescope)
+		Double_t trans_1 = dist;
+		// translate telescope so that centre of ring is on origin
+		Double_t trans_2 = dist*TMath::Cos(theta*TMath::DegToRad());
+		// set distance for ring = distance between origin and centre of ring
+		SetDistance(10.*trans_2);// distance in mm
+
+		TGeoTranslation tran1(0,0,trans_1);
+		TGeoTranslation tran2(0,0, -trans_2);
+		TGeoHMatrix h = tran2 * rot2 * tran1 * rot1;
+		TGeoHMatrix *ph = new TGeoHMatrix(h);
+		
+		mother_vol->AddNode(det_vol, 1, ph);
+	}
+	return mother_vol;
+}
+
+void KVRing::AddToGeometry()
+{
+	// Construct and position a TGeoVolume shape to represent this ring in the current geometry
+	if(!gGeoManager) return;
+
+	// get volume for ring
+	TGeoVolume* vol = GetGeoVolume();
+
+	// translate ring to correct distance
+	TGeoTranslation* tr = new TGeoTranslation(0,0,GetDistance()/10.);//distance set in GetGeoVolume()	
+
+	// add ring volume to geometry
+	gGeoManager->GetTopVolume()->AddNode(vol, 1, tr);
+}
+
+

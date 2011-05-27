@@ -91,6 +91,8 @@ class KVRing:public KVPosition {
 		KVTelescope *tel; TIter nxttel(GetTelescopes()); while ((tel = (KVTelescope *) nxttel())) sol_ang+=tel->GetSolidAngle();
 		return sol_ang;
 	}
+   virtual TGeoVolume* GetGeoVolume();
+   virtual void AddToGeometry();
 
    ClassDef(KVRing, 2)          //Class representing one ring of an axially symmetric multidetector array
 };

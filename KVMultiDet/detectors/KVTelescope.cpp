@@ -26,6 +26,8 @@ $Id: KVTelescope.cpp,v 1.29 2007/05/31 09:59:22 franklan Exp $
 #include "TString.h"
 #include "TROOT.h"
 #include "TMath.h"
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
 
 ClassImp(KVTelescope)
 /////////////////////////////////////////////////////////////////////////
@@ -583,3 +585,66 @@ KVDetector *KVTelescope::GetDetectorType(const Char_t * type) const
    }
    return 0;
 }
+
+//___________________________________________________________________________________________
+
+TGeoVolume* KVTelescope::GetGeoVolume()
+{
+	// Create and return TGeoVolume representing detectors in this telescope.
+	
+	int no_of_dets = GetDetectors()->GetEntries();
+	if(no_of_dets==1){
+		// single detector "telescope": just return detector volume
+		return GetDetector(1)->GetGeoVolume();
+	}
+	TGeoVolume *mother_vol = gGeoManager->MakeVolumeAssembly(Form("%s_TEL",GetName()));
+	// total length of telescope = depth of last detector + thickness of last detector
+	Double_t tot_len_tel =  GetTotalLengthInCM();
+	//**** BUILD & ADD DETECTOR VOLUMES ****
+	TIter next(fDetectors); KVDetector *det;
+	while( (det = (KVDetector*)next()) ){
+		TGeoVolume* det_vol = det->GetGeoVolume();
+		// position detector in telescope	
+		Double_t dist = -tot_len_tel/2. + det->GetDepthInTelescope() + det->GetTotalThicknessInCM()/2.;
+		TGeoTranslation *tran = new TGeoTranslation(0., 0., dist);
+		mother_vol->AddNode(det_vol, 1, tran);
+	}
+	return mother_vol;
+}
+
+void KVTelescope::AddToGeometry()
+{
+	// Construct and position a TGeoVolume shape to represent this telescope in the current geometry
+	if(!gGeoManager) return;
+
+	// get volume for telescope
+	TGeoVolume* vol = GetGeoVolume();
+
+	// rotate telescope to orientation corresponding to (theta,phi)
+	Double_t theta = GetTheta(); Double_t phi = GetPhi();
+	TGeoRotation rot1, rot2;
+	rot2.SetAngles(phi+90., theta, 0.);
+	rot1.SetAngles(-90., 0., 0.);
+	Double_t tot_len_tel = GetTotalLengthInCM();
+	// distance to telescope centre = distance to telescope + half total lenght of telescope
+	Double_t dist = GetDistance()/10. + tot_len_tel/2.;
+	// translate telescope to correct distance from target (note: reference is CENTRE of telescope)
+	Double_t trans_z = dist;
+
+	TGeoTranslation tran(0,0,trans_z);
+	TGeoHMatrix h = rot2 * tran * rot1;
+	TGeoHMatrix *ph = new TGeoHMatrix(h);
+
+	// add telescope volume to geometry
+	gGeoManager->GetTopVolume()->AddNode(vol, 1, ph);
+}
+
+   Double_t KVTelescope::GetTotalLengthInCM() const
+   {
+   	// calculate total length of telescope from entrance of first detector to
+   	// backside of last detector
+		int no_of_dets = GetDetectors()->GetEntries();
+		Double_t tot_len_tel = GetDepthInCM(no_of_dets) + GetDetector(no_of_dets)->GetTotalThicknessInCM();
+		return tot_len_tel;
+   }
+

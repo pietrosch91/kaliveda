@@ -1109,16 +1109,7 @@ TGeoVolume* KVDetector::GetGeoVolume()
 	Bool_t multi_layer = fAbsorbers->GetSize()>1;
 
 	if( multi_layer ){
-		/**** BUILD MOTHER VOLUME : big Vacuum-filled box to put all absorbers in ****/
-		GetVerticesInOwnFrame(coords, fDepthInTelescope, tot_thick_det);
-		for(register int i=0;i<8;i++){
-			vertices[2*i] = coords[i].X();
-			vertices[2*i+1] = coords[i].Y();
-		}
-		Double_t dz = tot_thick_det/2.;
-		med = GetGeoMedium("Vacuum");
-//		mother_vol = gGeoManager->MakeArb8(Form("%s_VOL",GetName()), med, dz, vertices);
-		mother_vol = gGeoManager->MakeVolumeAssembly(Form("%s_VOL",GetName()));
+		mother_vol = gGeoManager->MakeVolumeAssembly(Form("%s_DET",GetName()));
 	}
 
 	/**** BUILD & ADD ABSORBER VOLUMES ****/

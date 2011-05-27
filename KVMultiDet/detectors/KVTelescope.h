@@ -115,6 +115,7 @@ class KVTelescope:public KVPosition {
 
    void SetDepth(UInt_t ndet, Float_t depth);
    Float_t GetDepth(UInt_t ndet) const;
+   Double_t GetTotalLengthInCM() const;
    Double_t GetDepthInCM(UInt_t ndet) const
 	{
 		// return depth inside telescope of detector number ndet in centimetres
@@ -132,6 +133,9 @@ class KVTelescope:public KVPosition {
                                      Double_t thickness);
    virtual void SetDetectorTypeThickness(const Char_t * detector_type,
                                          Double_t thickness);
+                                         
+   virtual TGeoVolume* GetGeoVolume();
+   virtual void AddToGeometry();
 
    ClassDef(KVTelescope, 2)     //Multi-layered telescopes composed of different absorbers
 };

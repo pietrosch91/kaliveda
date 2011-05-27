@@ -23,6 +23,8 @@ $Id: KVLayer.cpp,v 1.17 2006/10/19 14:32:43 franklan Exp $
 #include "KVEvent.h"
 #include "KVMultiDetArray.h"
 #include "KVLayerBrowser.h"
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
 
 ClassImp(KVLayer)
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -203,3 +205,38 @@ void KVLayer::RemoveRing(KVRing * ring, Bool_t kDeleteRing,
          Delete();
    }
 }
+
+//___________________________________________________________________________________________
+
+TGeoVolume* KVLayer::GetGeoVolume()
+{
+	// Create and return TGeoVolume representing detectors in this layer
+	
+	TGeoVolume *mother_vol = gGeoManager->MakeVolumeAssembly(GetName());
+	//**** BUILD & ADD Rings ****
+	TIter next(fRings); KVRing*det;
+	while( (det = (KVRing*)next()) ){
+		TGeoVolume* det_vol = det->GetGeoVolume();
+		// position ring in layer
+		TGeoTranslation* tr = new TGeoTranslation(0,0,det->GetDistance()/10.);//distance set in KVRing::GetGeoVolume()	
+		mother_vol->AddNode(det_vol, 1, tr);
+	}
+	return mother_vol;
+}
+
+void KVLayer::AddToGeometry()
+{
+	// Construct and position a TGeoVolume shape to represent this layer in the current geometry
+	if(!gGeoManager) return;
+
+	// get volume for layer
+	TGeoVolume* vol = GetGeoVolume();
+
+	// add to geometry
+	TGeoTranslation* tr = new TGeoTranslation(0,0,0);	
+
+	// add ring volume to geometry
+	gGeoManager->GetTopVolume()->AddNode(vol, 1, tr);
+}
+
+
