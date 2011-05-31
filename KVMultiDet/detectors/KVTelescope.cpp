@@ -179,10 +179,10 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
    while ((obj = (KVDetector *) next())) {
 		
 		Double_t ebefore = obj->GetEnergy();	//Energie dans le detecteur avant passage
-		obj->DetectParticle(kvp);
-      ebefore -= obj->GetEnergy();				//Si une autre particule est deja passee   
+		obj->DetectParticle(kvp);					//Detection de la particule
+      ebefore -= obj->GetEnergy();				//la difference d energie avant et apres passage (donc l energie laissee par la particule)   
 		if (nvl)
-			nvl->SetValue(obj->GetName(),TMath::Abs(obj->GetEnergy()));
+			nvl->SetValue(obj->GetName(),TMath::Abs(ebefore)); //Enregistrement de la perte d energie
 		if (kvp->GetEnergy() <= 0.0)			
       	break;
    }
