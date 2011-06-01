@@ -88,7 +88,19 @@ Double_t KVCsI::GetLumiereTotale(Double_t rapide, Double_t lente)
    // corrected measured fast and slow components.
    // If no arguments are given, the detector's own ACQData parameters ("R" and "L")
    // are used, with pedestal subtraction.
+   //
+   // NOTE: Simulations
+   // If detector is in 'SimMode', then we look for a KVSimNucleus in the list of particles
+   // which hit the detector in the event, and use the Z & A of this nucleus and the energy
+   // deposited in the CsI to calculate the light; then we use the Z & A of 'nuc' (not necessarily
+   // the same) to calculate the calibrated energy from the light.
 
+	if(IsSimMode()){
+   		TIter nxthit(GetHits()); KVNucleus *nunuc, *simnuc=0;
+   		while( (nunuc = (KVNucleus*)nxthit()) ) {if(nunuc->InheritsFrom("KVSimNucleus")) simnuc=nunuc;}
+   		if(!simnuc) return -1.;
+   		return GetLightFromEnergy(simnuc->GetZ(),simnuc->GetA(),GetEnergy());
+   }
    return Calculate(kLumiere, rapide, lente);
 }
 
@@ -379,13 +391,20 @@ void KVCsI::Streamer(TBuffer &R__b)
 
 Double_t KVCsI::GetCorrectedEnergy(const KVNucleus* nuc, Double_t lum, Bool_t trans)
 {
-   //Calculate calibrated energy loss for a nucleus (Z,A) giving total light
-   //output "lum". If "lum" is not given, the total light of the detector
-   //calculated from the current values of the "R" and "L" acquisition
-   //parameters will be used.
-//  Two KVLightEnergyCsI calibrators are used, one for Z=1, the other for Z>1
-   //Returns -1 in case of problems (no calibration available or light calculation
-   //not valid).
+   // Calculate calibrated energy loss for a nucleus (Z,A) giving total light output "lum".
+   // If "lum" is not given, the total light of the detector
+   // calculated from the current values of the "R" and "L" acquisition
+   // parameters will be used (taking into account an eventual correction for gain variations,
+   // see GetCorrectedLumiereTotale()).
+   //
+   //Two KVLightEnergyCsI calibrators are used, one for Z=1, the other for Z>1
+   // Returns -1 in case of problems (no calibration available or light calculation not valid).
+   //
+   // NOTE: Simulations
+   // If detector is in 'SimMode', then we look for a KVSimNucleus in the list of particles
+   // which hit the detector in the event, and use the Z & A of this nucleus and the energy
+   // deposited in the CsI to calculate the light; then we use the Z & A of 'nuc' (not necessarily
+   // the same) to calculate the calibrated energy from the light.
 
 	Int_t Z = nuc->GetZ();
 	Int_t A = nuc->GetA();
@@ -396,9 +415,15 @@ Double_t KVCsI::GetCorrectedEnergy(const KVNucleus* nuc, Double_t lum, Bool_t tr
    else calib = fCal;
 
    if( calib && calib->GetStatus() ){
-      if (lum < 0.) {
-         //light not given - calculate from R and L components
+   	if(IsSimMode()){
          lum = GetLumiereTotale();
+         if(lum<0.) return -1.;
+         //force "OK" status for light
+         fLumTotStatus = NO_GAIN_CORRECTION;
+   	}
+      else if (lum < 0.) {
+         //light not given - calculate from R and L components
+         lum = GetCorrectedLumiereTotale(); // include gain correction
       } else {
          //light given as argument - force "OK" status for light
          fLumTotStatus = NO_GAIN_CORRECTION;
