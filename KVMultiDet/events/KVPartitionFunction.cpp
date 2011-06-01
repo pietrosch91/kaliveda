@@ -307,3 +307,34 @@ Double_t KVPartitionFunction::MeanNZ(int A0, int Z0, int Z)
     for(Int_t A=Z; A<=(Z+A0-Z0); A++) NZ += MeanNAZ(A0,Z0,A,Z);
     return NZ;    
 }
+
+Double_t KVPartitionFunction::MeanM(int A0)
+{
+	// Calculate the mean multiplicity of all partitions of a single-component
+	// system of mass A0.
+	Double_t mult=0.;
+	Double_t part_sum=0;
+	Double_t part_func=0;
+	for(int i=1; i<=A0; i++){
+		part_func = PartFunc(A0,i);
+		mult += i*part_func;
+		part_sum += part_func;
+	}
+	mult/=part_sum;
+	return mult;
+}
+
+Double_t KVPartitionFunction::MeanA(int A0)
+{
+	// Calculate the mean size of clusters in all partitions of a single-component
+	// system of mass A0.
+	Double_t mult,moy=0.;
+	Double_t sum=0;
+	for(int i=1; i<=A0; i++){
+		mult = MeanNA(A0,i);
+		moy += i*mult;
+		sum += mult;
+	}
+	moy/=sum;
+	return moy;
+}
