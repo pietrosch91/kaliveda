@@ -207,7 +207,8 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
 {
    //Calculate the energy loss of a charged particle traversing the detector,
    //the particle is slowed down, it is added to the list of all particles hitting the
-   //detector.
+   //detector. The apparent energy loss of the particle in the active layer of the
+   //detector is set.
    //Do nothing if particle has zero (or -ve) energy.
    //
    //If the optional argument 'norm' is given, it is supposed to be a vector
@@ -219,48 +220,80 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
       return;
 
    AddHit(kvp);                 //add nucleus to list of particles hitting detector in the event
-
-   //composite detector - calculate losses in all layers
-   KVMaterial *abs;
-   TIter next(fAbsorbers);
-   while ((abs = (KVMaterial *) next())
-          && kvp->GetKE() > 0.) {
-      abs->DetectParticle(kvp, norm);
+   //set flag to say that particle has been slowed down
+   kvp->SetIsDetected();
+   //If this is the first absorber that the particle crosses, we set a "reminder" of its
+   //initial energy
+   if (!kvp->GetPInitial())
+      kvp->SetE0();
+      
+	Double_t* thickness;
+	if(norm){
+		// modify thicknesses of all layers according to orientation,
+		// and store original thicknesses in array
+      TVector3 p = kvp->GetMomentum();
+		thickness = new Double_t[fAbsorbers->GetEntries()];
+      KVMaterial *abs; int i=0;
+      TIter next(fAbsorbers);
+      while ((abs = (KVMaterial *) next())) {
+            thickness[i++] = abs->GetThickness();
+      		Double_t T = abs->GetEffectiveThickness((*norm), p);
+            abs->SetThickness(T);
+      }
 	}
+	Double_t eloss = GetTotalDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
+	Double_t dE = GetDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
+	if(norm){
+		// reset thicknesses of absorbers
+      KVMaterial *abs; int i=0;
+      TIter next(fAbsorbers);
+      while ((abs = (KVMaterial *) next())) {
+            abs->SetThickness(thickness[i++]);
+      }
+      delete [] thickness;
+	}
+   Double_t epart = kvp->GetEnergy() - eloss;
+   kvp->SetEnergy(epart);
+   SetEnergyLoss(dE);
 }
 
 //_______________________________________________________________________________
 
 Double_t KVDetector::GetELostByParticle(KVNucleus * kvp, TVector3 * norm)
 {
-   //Calculate the energy loss of a charged particle traversing all layers of the detector,
-   //returning only the energy lost in the "active" layer. This does not affect the "stored"
-   //energy loss value of the detector, nor its ACQData, nor the energy of the particle.
+   //Calculate the total energy loss of a charged particle traversing the detector.
+   //This does not affect the "stored" energy loss value of the detector,
+   //nor its ACQData, nor the energy of the particle.
    //
    //If the optional argument 'norm' is given, it is supposed to be a vector
    //normal to the detector, oriented from the origin towards the detector.
    //In this case the effective thicknesses of the detector's absorbers 'seen' by the particle
    //depending on its direction of motion is used for the calculation.
 
-   Double_t eloss, ElossActive = 0.0;
-   //make 'clone' of particle
-   KVNucleus* clone_part = new KVNucleus(kvp->GetZ(), kvp->GetA());
-   clone_part->SetMomentum(kvp->GetMomentum());
-   if (clone_part->GetEnergy() > 0.) {
-      //composite detector - calculate losses in all layers
+	Double_t* thickness;
+	if(norm){
+		// modify thicknesses of all layers according to orientation,
+		// and store original thicknesses in array
+      TVector3 p = kvp->GetMomentum();
+		thickness = new Double_t[fAbsorbers->GetEntries()];
       KVMaterial *abs; int i=0;
       TIter next(fAbsorbers);
-      while ((abs = (KVMaterial *) next())
-          && clone_part->GetKE() > 0.) {
-            eloss = abs->GetELostByParticle(clone_part, norm);
-            if (i++ == fActiveLayer)
-               ElossActive = eloss;
-            clone_part->SetKE(clone_part->GetKE() - eloss);
+      while ((abs = (KVMaterial *) next())) {
+            thickness[i++] = abs->GetThickness();
+      		Double_t T = abs->GetEffectiveThickness((*norm), p);
+            abs->SetThickness(T);
       }
-   }
-   //delete clone
-   delete clone_part;
-   return ElossActive;
+	}
+	Double_t eloss = GetTotalDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
+	if(norm){
+		// reset thicknesses of absorbers
+      KVMaterial *abs; int i=0;
+      TIter next(fAbsorbers);
+      while ((abs = (KVMaterial *) next())) {
+            abs->SetThickness(thickness[i++]);
+      }
+      delete [] thickness;
+	}
 }
 
 //_______________________________________________________________________________
