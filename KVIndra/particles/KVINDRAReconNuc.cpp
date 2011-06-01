@@ -792,8 +792,9 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     }
 
     SetECode(kECode1);
-
+    Bool_t stopped_in_silicon=kTRUE;
     if(GetCsI()){
+    	stopped_in_silicon=kFALSE;
         /* CSI ENERGY CALIBRATION */
         if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){
             // Beryllium-8 = 2 alpha particles of same energy
@@ -818,8 +819,15 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
             // all is apparently well
-            GetSi()->SetEResAfterDetector(fECsI);
-            fESi = GetSi()->GetCorrectedEnergy(this);
+            Bool_t si_transmission=kTRUE;
+            if(stopped_in_silicon){
+            	si_transmission=kFALSE;
+            }
+            else
+            {
+            	GetSi()->SetEResAfterDetector(fECsI);
+            }
+            fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
          	if(fESi<=0) {
             	SetECode(kECode15);// bad - no Si energy
             	return;
