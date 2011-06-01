@@ -2273,3 +2273,62 @@ void KVMultiDetArray::SetDetectorThicknesses()
 	    }
 	}
 }
+
+Double_t KVMultiDetArray::GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A)
+{
+	// Calculate incident energy of particle (Z,A) required to punch through given detector,
+	// taking into account any detectors which the particle must first cross in order to reach it.
+	
+	KVDetector* theDet = GetDetector(detector);
+	if(!theDet){
+		Error("GetPunchThroughEnergy", "Detector %s not found in array", detector);
+		return -1.0;
+	}
+	Double_t E0 = theDet->GetPunchThroughEnergy(Z,A);
+	TIter alDets(theDet->GetAlignedDetectors());
+	// first detector in list is theDet
+	alDets.Next();
+	KVDetector* D;
+	while( (D = (KVDetector*)alDets.Next()) ){
+		Double_t E1 = D->GetIncidentEnergyFromERes(Z,A,E0);
+		E0 = E1;
+	}
+	return E0;
+}
+
+TGraph* KVMultiDetArray::DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform)
+{
+	// Creates and fills a TGraph with the punch through energy in MeV vs. Z for the given detector,
+	// for Z=1-92. The mass of each nucleus is calculated according to the given mass formula
+	// (see KVNucleus).
+
+	TGraph* punch = new TGraph(92);
+	punch->SetName(Form("KVMultiDetpunchthrough_%s_mass%d",detector,massform));
+	punch->SetTitle(Form("Array Punch-through %s (MeV) (mass formula %d)",detector,massform));
+	KVNucleus nuc;
+	nuc.SetMassFormula(massform);
+	for(int Z=1; Z<=92; Z++){
+		nuc.SetZ(Z);
+		punch->SetPoint(Z-1, Z, GetPunchThroughEnergy(detector,nuc.GetZ(),nuc.GetA()));
+	}
+	return punch;
+}
+
+TGraph* KVMultiDetArray::DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform)
+{
+	// Creates and fills a TGraph with the punch through energy in MeV/nucleon vs. Z for the given detector,
+	// for Z=1-92. The mass of each nucleus is calculated according to the given mass formula
+	// (see KVNucleus).
+
+	TGraph* punch = new TGraph(92);
+	punch->SetName(Form("KVMultiDetpunchthroughEsurA_%s_mass%d",detector,massform));
+	punch->SetTitle(Form("Array Punch-through %s (AMeV) (mass formula %d)",detector,massform));
+	KVNucleus nuc;
+	nuc.SetMassFormula(massform);
+	for(int Z=1; Z<=92; Z++){
+		nuc.SetZ(Z);
+		punch->SetPoint(Z-1, Z, GetPunchThroughEnergy(detector,nuc.GetZ(),nuc.GetA())/nuc.GetA());
+	}
+	return punch;
+}
+

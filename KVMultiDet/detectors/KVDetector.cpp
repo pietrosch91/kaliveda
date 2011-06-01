@@ -294,6 +294,7 @@ Double_t KVDetector::GetELostByParticle(KVNucleus * kvp, TVector3 * norm)
       }
       delete [] thickness;
 	}
+	return eloss;
 }
 
 //_______________________________________________________________________________
@@ -1589,3 +1590,41 @@ Double_t KVDetector::GetPunchThroughEnergy(Int_t Z, Int_t A)
 	// layers of this detector
 	return GetRangeFunction(Z,A)->GetX( GetTotalThicknessInCM() );
 }
+
+
+TGraph* KVDetector::DrawPunchThroughEnergyVsZ(Int_t massform)
+{
+	// Creates and fills a TGraph with the punch through energy in MeV vs. Z for the given detector,
+	// for Z=1-92. The mass of each nucleus is calculated according to the given mass formula
+	// (see KVNucleus).
+
+	TGraph* punch = new TGraph(92);
+	punch->SetName(Form("KVDetpunchthrough_%s_mass%d",GetName(),massform));
+	punch->SetTitle(Form("Simple Punch-through %s (MeV) (mass formula %d)",GetName(),massform));
+	KVNucleus nuc;
+	nuc.SetMassFormula(massform);
+	for(int Z=1; Z<=92; Z++){
+		nuc.SetZ(Z);
+		punch->SetPoint(Z-1, Z, GetPunchThroughEnergy(nuc.GetZ(),nuc.GetA()));
+	}
+	return punch;
+}
+
+TGraph* KVDetector::DrawPunchThroughEsurAVsZ(Int_t massform)
+{
+	// Creates and fills a TGraph with the punch through energy in MeV/nucleon vs. Z for the given detector,
+	// for Z=1-92. The mass of each nucleus is calculated according to the given mass formula
+	// (see KVNucleus).
+
+	TGraph* punch = new TGraph(92);
+	punch->SetName(Form("KVDetpunchthroughEsurA_%s_mass%d",GetName(),massform));
+	punch->SetTitle(Form("Simple Punch-through %s (AMeV) (mass formula %d)",GetName(),massform));
+	KVNucleus nuc;
+	nuc.SetMassFormula(massform);
+	for(int Z=1; Z<=92; Z++){
+		nuc.SetZ(Z);
+		punch->SetPoint(Z-1, Z, GetPunchThroughEnergy(nuc.GetZ(),nuc.GetA())/nuc.GetA());
+	}
+	return punch;
+}
+

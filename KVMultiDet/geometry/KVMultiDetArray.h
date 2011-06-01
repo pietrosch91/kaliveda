@@ -278,6 +278,9 @@ class KVMultiDetArray:public KVBase {
    	return fSimMode;
    };
 
+	virtual Double_t GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A);
+	virtual TGraph* DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
+	virtual TGraph* DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };

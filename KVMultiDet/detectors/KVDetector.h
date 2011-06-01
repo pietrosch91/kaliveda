@@ -41,6 +41,7 @@ class KVGroup;
 class KVIDTelescope;
 class TGeoVolume;
 class TTree;
+class TGraph;
 
 class KVDetector:public KVMaterial {
 
@@ -329,6 +330,8 @@ class KVDetector:public KVMaterial {
    virtual Double_t GetRange(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetLinearRange(Int_t Z, Int_t A, Double_t Einc);   
    virtual Double_t GetPunchThroughEnergy(Int_t Z, Int_t A);
+	virtual TGraph* DrawPunchThroughEnergyVsZ(Int_t massform=KVNucleus::kBetaMass);
+	virtual TGraph* DrawPunchThroughEsurAVsZ(Int_t massform=KVNucleus::kBetaMass);
    
    virtual TF1* GetEResFunction(Int_t Z, Int_t A);
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
