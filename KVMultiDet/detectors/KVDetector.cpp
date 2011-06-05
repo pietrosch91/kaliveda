@@ -835,9 +835,9 @@ Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t
         Bool_t einc_neg = kFALSE;   
             if(EINC<0.){
             	einc_neg=kTRUE;
-            	Info("GetCorrectedEnergy",
+            	/*Info("GetCorrectedEnergy",
             	   "%s : (%d,%d) dE=%f > max theoretical dE=%f",
-            	   GetName(),z,a,e,GetMaxDeltaE(z,a));
+            	   GetName(),z,a,e,GetMaxDeltaE(z,a));*/
             	// deltaE is bigger than max theoretical dE for (Z,A)
             	// increase Z until we find a solution
             	KVNucleus tmpnuc;
@@ -847,14 +847,17 @@ Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t
             		a = tmpnuc.GetA();
             		EINC = GetIncidentEnergy(z,a,e,solution);
             	}
-            	if(EINC>0)
-            	Info("GetCorrectedEnergy",
+            	/*if(EINC>0){
+            		Info("GetCorrectedEnergy",
             	   "%s : energy loss compatible with (%d,%d), Einc=%f",
             	   GetName(),z,a,EINC);
+					}
             	else
-             	Info("GetCorrectedEnergy",
+					{
+             		Info("GetCorrectedEnergy",
             	   "%s : still no solution found even with (%d,%d)",
             	   GetName(),z,a);
+					}*/
            }
    
 //   ERES = GetERes(nuc->GetZ(),nuc->GetA(),EINC);
@@ -862,10 +865,10 @@ Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t
    
    SetEResAfterDetector(-1.);
    //incident energy - residual energy = total real energy loss
-            	if(einc_neg && EINC>0)
+            	/*if(einc_neg && EINC>0)
             	Info("GetCorrectedEnergy",
             	   "%s : (%d,%d) dE=%f --> (%d,%d) corrected dE=%f",
-            	   GetName(),nuc->GetZ(),nuc->GetA(),e,z,a,EINC-ERES);
+            	   GetName(),nuc->GetZ(),nuc->GetA(),e,z,a,EINC-ERES);*/
    return (EINC - ERES);
 }
 
