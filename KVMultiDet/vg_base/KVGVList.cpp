@@ -248,7 +248,7 @@ void KVGVList::MakeBranches(TTree* tree)
       	   TString sane_name( ((KVVarGlob*)ob)->GetValueName(i) );
       	   sane_name.ReplaceAll("*", "star");
       		tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()),
-      			&fBranchVar[ fNbBranch++ ], Form("%s/D", sane_name.Data()));
+      			&fBranchVar[ fNbBranch++ ], Form("%s_%s/D", ob->GetName(), sane_name.Data()));
       	}
       }
       else
