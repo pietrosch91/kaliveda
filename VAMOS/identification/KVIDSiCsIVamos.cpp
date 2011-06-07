@@ -8,7 +8,6 @@ $Date: 2009/01/21 08:04:20 $
 //Author: Abdelouahao Chbihi
 
 #include "KVIDSiCsIVamos.h"
-#include "KVINDRAReconNuc.h"
 #include "KVIDGridManager.h"
 #include "KVIdentificationResult.h"
 
@@ -106,13 +105,13 @@ Bool_t KVIDSiCsIVamos::Identify(KVIdentificationResult* idr)
 		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE7){
 			// if the final quality code is kICODE7 (above last line in grid) then the estimated
 			// Z is only a minimum value (Zmin)
-			idr->IDcode = kIDCode5;
+			idr->IDcode = 5;
 			return kTRUE;
 		}
 
 
 		// set general ID code SiLi-CsI
-      idr->IDcode = kIDCode3;
+      idr->IDcode = 3;
       return kTRUE;
 }
 
