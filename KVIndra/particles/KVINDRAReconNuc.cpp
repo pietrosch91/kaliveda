@@ -596,6 +596,8 @@ void KVINDRAReconNuc::Identify()
    // Here we attribute the Veda6-style general identification codes depending on the
    // result of KVReconstructedNucleus::Identify and the subcodes from the different
    // identification algorithms:
+   // If the particle's mass A was NOT measured, we make sure that it is calculated
+   // from the measured Z using the mass formula defined by default
    //
    //IDENTIFIED PARTICLES
    //Identified particles with ID code = 2 with subcodes 4 & 5
@@ -818,6 +820,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
+        Info("calib","all well");
             // all is apparently well
             Bool_t si_transmission=kTRUE;
             if(stopped_in_silicon){
@@ -829,6 +832,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
             }
             fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
          	if(fESi<=0) {
+         	  Info("calib", "esi=%f",fESi);
             	SetECode(kECode15);// bad - no Si energy
             	return;
          	}

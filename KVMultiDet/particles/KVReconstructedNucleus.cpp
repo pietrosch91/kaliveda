@@ -514,11 +514,14 @@ void KVReconstructedNucleus::MakeDetectorList()
 void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)
 {
 	// Set identification of nucleus from informations in identification result object
+	// The mass (A) information in KVIdentificationResult is only used if the mass
+	// was measured as part of the identification. Otherwise the nucleus' mass formula
+	// will be used to calculate A from the measured Z.
+	
                	  SetIDCode( idr->IDcode );
                	  SetZMeasured( idr->Zident );
                	  SetAMeasured( idr->Aident );
                	  SetZ( idr->Z );
-               	  if(idr->A > 0) SetA( idr->A );
-               	  if(idr->Aident) SetRealA( idr->PID );
+               	  if(idr->Aident) {SetA( idr->A );SetRealA( idr->PID );}
                	  else SetRealZ( idr->PID );
 }

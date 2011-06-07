@@ -727,22 +727,10 @@ KVNDTManager.AbundanceTable:      KVAbundanceTable
 Abundance.DataFile:	abundance_nudat2.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
-# this plugin is used for KVNucleus also if no DataSet is specified
 # if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula
 # the chosen mass formula is only available for KVINDRAReconNuc for this dataset
-# in the source codes KVINDRAReconNuc has KVINDRAReconNuc and KVNucleus has default
-# parametrisation set to KVNucleus::kEALMass (2)
-# KVINDRAReconNuc.MassFormula:        0
-# INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
-
-# Default mass formula used by KVNucleus to calculate A from Z
-# Possibile values are:
-#   0  = kBetaMass
-#   1  = kVedaMass
-#   2  = kEALMass
-#   3  = kEALResMass
-# (see KVNucleus::GetAFromZ)
-KVNucleus.DefaultMassFormula:       0
+KVINDRAReconNuc.MassFormula:        2
+INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
 
 #ROOT environment variables
 +ACLiC.IncludePaths:     -I$(KVROOT)/include

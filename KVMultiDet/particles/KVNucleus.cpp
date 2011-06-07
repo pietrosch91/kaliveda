@@ -216,16 +216,14 @@ void KVNucleus::SetZFromSymbol(const Char_t * sym)
 void KVNucleus::init()
 {
    // Default intialisations
-   // The mass formula is taken from environment
-   // variable KVNucleus.DefaultMassFormula (if not defined, we
-   // use kBetaMass, i.e. the formula for the valley of beta-stability).
+   // The mass formula is kBetaMass, i.e. the formula for the valley of beta-stability.
   
    fZ = fA = 0;
    fExx = 0;
    if (!fNb_nuc){
       KVBase::InitEnvironment(); // initialise environment i.e. read .kvrootrc
    }
-   fMassFormula = (Int_t)gEnv->GetValue("KVNucleus.DefaultMassFormula", kBetaMass);
+   fMassFormula = kBetaMass;
    fNb_nuc++;
    fExx = 0.;
 }
