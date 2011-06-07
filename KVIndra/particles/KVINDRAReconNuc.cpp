@@ -820,7 +820,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
-        Info("calib","all well");
+        //Info("calib","all well");
             // all is apparently well
             Bool_t si_transmission=kTRUE;
             if(stopped_in_silicon){
@@ -832,7 +832,7 @@ void KVINDRAReconNuc::CalibrateRings1To10()
             }
             fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
          	if(fESi<=0) {
-         	  Info("calib", "esi=%f",fESi);
+         	  //Info("calib", "esi=%f",fESi);
             	SetECode(kECode15);// bad - no Si energy
             	return;
          	}
