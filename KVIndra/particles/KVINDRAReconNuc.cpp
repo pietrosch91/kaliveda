@@ -736,6 +736,8 @@ void KVINDRAReconNuc::Calibrate()
         }
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
+        // set particle momentum from telescope dimensions (random)
+        GetAnglesFromTelescope();        
 		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
         while( (det = (KVDetector*)nxt()) ){
           fEloss[ndet] = det->GetEnergy();

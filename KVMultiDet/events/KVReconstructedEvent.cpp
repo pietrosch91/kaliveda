@@ -84,17 +84,21 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
    if (R__b.IsReading()) {
       Clear();
       R__b.ReadClassBuffer(KVReconstructedEvent::Class(), this);
-      //set angles
-      KVReconstructedNucleus *par;
-      while ((par = GetNextParticle())) {
-         if (HasMeanAngles())
-            par->GetAnglesFromTelescope("mean");
-         else
-            par->GetAnglesFromTelescope("random");
-         //reconstruct fAnalStatus information for KVReconstructedNucleus
-         if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
-            if (par->GetGroup())
-               par->GetGroup()->AnalyseParticles();
+      // if the multidetector object exists, update some informations
+      // concerning the detectors etc. hit by this particle
+      if ( gMultiDetArray ){
+      	//set angles
+      	KVReconstructedNucleus *par;
+      	while ((par = GetNextParticle())) {
+         	if (HasMeanAngles())
+         	   par->GetAnglesFromTelescope("mean");
+         	else
+            	par->GetAnglesFromTelescope("random");
+         	//reconstruct fAnalStatus information for KVReconstructedNucleus
+         	if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
+            	if (par->GetGroup())
+               	par->GetGroup()->AnalyseParticles();
+         }
       }
    } else {
       R__b.WriteClassBuffer(KVReconstructedEvent::Class(), this);

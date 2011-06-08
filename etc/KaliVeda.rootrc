@@ -693,7 +693,7 @@ KVMaterial.IonRangeTable:   VEDALOSS
 KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
 
 # KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
-KVPulseHeightDefect.EnergyLoss.Npx:        20
+KVPulseHeightDefect.EnergyLoss.Npx:        60
 # Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
 KVSilicon.ZminForPHDCorrection:        10
 

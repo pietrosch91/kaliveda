@@ -562,10 +562,6 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    if( nuc->GetStatus() == 3 ) {
       if(d1_cal){
          nuc->SetEnergy( d1->GetCorrectedEnergy(nuc, -1, kFALSE) );//N.B.: transmission=kFALSE because particle stop in d1
-         //set angles from the dimensions of the telescope in which particle detected
-         //N.B. should use dimensions of stopping detector, but this could be inconsistent
-         //with the association of this ID telescope as the "identifying telescope" of the particle
-         nuc->GetAnglesFromTelescope();
       }
       return;
    }
@@ -692,8 +688,6 @@ void KVIDTelescope::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
    }
    //einc is now the energy of the particle before crossing the first detector
    nuc->SetEnergy(einc);
-   //set angles from the dimensions of the telescope in which particle detected
-   nuc->GetAnglesFromTelescope();
 }
 
 //_____________________________________________________________________________________________________//

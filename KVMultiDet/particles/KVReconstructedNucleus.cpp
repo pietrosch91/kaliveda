@@ -492,6 +492,8 @@ void KVReconstructedNucleus::Calibrate()
           fEloss[ndet] = det->GetEnergy();
           ++ndet;
         }
+        // set particle momentum from telescope dimensions (random)
+        GetAnglesFromTelescope();
     }
 }
 
