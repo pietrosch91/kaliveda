@@ -108,7 +108,7 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
+.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
 all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
 
@@ -118,6 +118,9 @@ export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
+
+changelog :
+	@bzr log --forward --short -v -n0 -r$(oldrev).. > changelog_$(VERSION_NUMBER).txt
 
 fitltg-0.1/configure: fitltg-0.1/configure.ac 
 	cd fitltg-0.1 && autoreconf -ivf
