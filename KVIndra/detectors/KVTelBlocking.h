@@ -26,7 +26,6 @@ class KVTelBlocking:public KVTelescope {
 
    KVTelBlocking(UInt_t n = 0);
    virtual ~ KVTelBlocking();
-   const Char_t *GetArrayName();
 
     ClassDef(KVTelBlocking, 1)  //Blocking telescope for E416 experiment
 };

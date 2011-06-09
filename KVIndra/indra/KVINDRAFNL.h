@@ -35,7 +35,7 @@ class KVINDRAFNL:public KVINDRA4 {
 
    virtual void Build();
 
-   KVDetector *GetDetectorByType(UInt_t cou, UInt_t mod,
+   KVINDRADetector *GetDetectorByType(UInt_t cou, UInt_t mod,
                                  UInt_t type) const;
 
     ClassDef(KVINDRAFNL, 1)     //INDRA multidetector array for FNL experiment

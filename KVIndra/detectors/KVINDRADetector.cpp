@@ -16,6 +16,7 @@ ClassImp(KVINDRADetector)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVINDRADetector::KVINDRADetector()
+	: fChIo(0)
 {
    // Default constructor
    fGGtoPG_0 = 0;

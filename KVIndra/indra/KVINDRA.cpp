@@ -179,7 +179,7 @@ void KVINDRA::PrototypeTelescopes()
 #ifdef KV_DEBUG
    Info("PrototypeTelescopes", "Phoswich - begin");
 #endif
-   KVTelescope *kvt = new KVTelescope;
+   KVINDRATelescope *kvt = new KVINDRATelescope;
    kvt->AddDetector((KVPhoswich *) GetDetectorTypes()->
                     FindObjectByLabel("PHOS"));
    kvt->SetType("Phoswich");
@@ -191,7 +191,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 2
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -205,7 +205,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 3
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -219,7 +219,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 4
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -233,7 +233,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 5
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -247,7 +247,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 6
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
@@ -261,7 +261,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 7
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
@@ -275,7 +275,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 8
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
@@ -289,7 +289,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // Si-CsI Ring 9
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI300"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
@@ -303,7 +303,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // CsI Ring 10
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI76"));
    kvt->SetType("CsI Ring10");
    kvt->SetAzimuthalWidth(14.44);
@@ -314,7 +314,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 10 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring10");
@@ -324,7 +324,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 11
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI76"));
    kvt->SetType("CsI Ring11");
    kvt->SetAzimuthalWidth(14.52);
@@ -335,7 +335,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 11 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
 	kvt->SetDepth(1, 0.0);
@@ -345,7 +345,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 12
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI48"));
    kvt->SetType("CsI Ring12");
    kvt->SetAzimuthalWidth(14.56);
@@ -356,7 +356,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 12 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring12");
@@ -366,7 +366,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 13
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI60"));
    kvt->SetType("CsI Ring13");
    kvt->SetAzimuthalWidth(14.64);
@@ -377,7 +377,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 13 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring13");
@@ -387,7 +387,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 14
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
    kvt->SetType("CsI Ring14");
    kvt->SetAzimuthalWidth(22.08);
@@ -398,7 +398,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 14 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring14");
@@ -408,7 +408,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 15
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
    kvt->SetType("CsI Ring15");
    kvt->SetAzimuthalWidth(21.98);
@@ -419,7 +419,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 15 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring15");
@@ -429,7 +429,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 16
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
    kvt->SetType("CsI Ring16");
    kvt->SetAzimuthalWidth(43.65);
@@ -440,7 +440,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 16 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring16");
@@ -450,7 +450,7 @@ void KVINDRA::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // CsI Ring 17
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
    kvt->SetType("CsI Ring17");
    kvt->SetAzimuthalWidth(39.99);
@@ -461,7 +461,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    //Ring 17 etalon telescope
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring17");
@@ -472,7 +472,7 @@ void KVINDRA::PrototypeTelescopes()
 
 
    // ChIo 2-3
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO30"));
    kvt->SetType("ChIo Ring2");
@@ -484,7 +484,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 4-5
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO30"));
    kvt->SetType("ChIo Ring4");
@@ -496,7 +496,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 6-7
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO30"));
    kvt->SetType("ChIo Ring6");
@@ -508,7 +508,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 8-9
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO20"));
    kvt->SetType("ChIo Ring8");
@@ -520,7 +520,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 10-11
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO20"));
    kvt->SetType("ChIo Ring10");
@@ -532,7 +532,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 12
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO20"));
    kvt->SetType("ChIo Ring12");
@@ -544,7 +544,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 13
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO20"));
    kvt->SetType("ChIo Ring13");
@@ -556,7 +556,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 14-15
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO20"));
    kvt->SetType("ChIo Ring14");
@@ -568,7 +568,7 @@ void KVINDRA::PrototypeTelescopes()
 #endif
 
    // ChIo 16-17
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVChIo *) fDetectorTypes->
                     FindObjectByLabel("CHIO20"));
    kvt->SetType("ChIo Ring16");
@@ -1067,45 +1067,15 @@ void KVINDRA::SetGroupsAndIDTelescopes()
 
 }
 
-//_________________________________________________________________________________
-
-KVChIo *KVINDRA::GetChIoOf(KVDetector * kvd)
-{
-
-   //Returns a pointer to the Ionisation Chamber placed directly in front of the
-   //detector *kvd. If no ChIo is present, a null pointer is returned.
-
-   if (kvd->GetTelescope()) {
-      KVGroup *kvgr = kvd->GetTelescope()->GetGroup();
-      if (kvgr) {
-         KVList *dets = kvgr->GetDetectors();
-         TIter next_det(dets);
-         KVDetector *dd;
-         while ((dd = (KVDetector *) next_det())) {
-            if (dd->InheritsFrom("KVChIo"))
-               return (KVChIo *)dd;
-         }
-      }
-   }
-   return 0;
-}
-
 KVChIo *KVINDRA::GetChIoOf(const Char_t * detname)
 {
 
    //Returns a pointer to the Ionisation Chamber placed directly in front of the
    //detector "detname". If no ChIo is present, a null pointer is returned.
 
-   TString det_name(detname);
-   KVDetector *kvd;
-
-   if (det_name.Contains("SI") || det_name.Contains("CSI")) {
-      kvd = GetDetector(detname);
-      return GetChIoOf(kvd);
-   } else {
-      //cout<<"KVChIo* GetChIoOf(const Char_t* detname) const : Senseless in this context."<<endl;
-   }
-   return 0;
+   KVINDRADetector *kvd;
+   kvd = dynamic_cast<KVINDRADetector*>(GetDetector(detname));
+   return (kvd ? (KVChIo*)kvd->GetChIo() : NULL);
 }
 
 //________________________________________________________________________________________
@@ -1129,7 +1099,7 @@ void KVINDRA::SetTrigger(UChar_t trig)
    fTrigger = trig;
 }
 
-KVDetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) const
+KVINDRADetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) const
 {
    //Find a detector based on the old BaseIndra type definitions:
    //
@@ -1156,37 +1126,37 @@ KVDetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type) cons
 //      Phos_T,//=3
 //};
 
-   KVDetector *det = 0;
+   KVINDRADetector *det = 0;
 
    char nom_det[20];
    if (cou == 1) {
       if (type >= Phos_R && type <= Phos_T) {
          sprintf(nom_det, "PHOS_%02d", mod);
          det =
-             (KVDetector *) GetListOfPhoswich()->FindObjectByName(nom_det);
+             (KVINDRADetector *) GetListOfPhoswich()->FindObjectByName(nom_det);
       }
    }
    if (det)
       return det;
    else if (type >= ChIo_GG && type <= ChIo_T) {
       sprintf(nom_det, "CI_%02d%02d", cou, mod);
-      det = (KVDetector *) GetListOfChIo()->FindObjectByName(nom_det);
+      det = (KVINDRADetector *) GetListOfChIo()->FindObject(nom_det);
       return det;
    } else if (type >= Si_GG && type <= Si_T) {
       sprintf(nom_det, "SI_%02d%02d", cou, mod);
-      det = (KVDetector *) GetListOfSi()->FindObjectByName(nom_det);
+      det = (KVINDRADetector *) GetListOfSi()->FindObject(nom_det);
       return det;
    } else if (type >= SiLi_GG && type <= SiLi_T) {
       sprintf(nom_det, "SILI_%02d", cou);
-      det = (KVDetector *) GetListOfSi()->FindObjectByName(nom_det);
+      det = (KVINDRADetector *) GetListOfSi()->FindObject(nom_det);
       return det;
    } else if (type >= Si75_GG && type <= Si75_T) {
       sprintf(nom_det, "SI75_%02d", cou);
-      det = (KVDetector *) GetListOfSi()->FindObjectByName(nom_det);
+      det = (KVINDRADetector *) GetListOfSi()->FindObject(nom_det);
       return det;
    } else if (type >= CsI_R && type <= CsI_T) {
       sprintf(nom_det, "CSI_%02d%02d", cou, mod);
-      det = (KVDetector *) GetListOfCsI()->FindObjectByName(nom_det);
+      det = (KVINDRADetector *) GetListOfCsI()->FindObject(nom_det);
       return det;
    }
    return 0;
@@ -1203,8 +1173,11 @@ void KVINDRA::GetIDTelescopes(KVDetector * de, KVDetector * e,
    KVMultiDetArray::GetIDTelescopes(de, e, idtels);
 
    if (de->InheritsFrom("KVSiLi") && e->InheritsFrom("KVCsI")) {
-      KVChIo *chio = GetChIoOf(e);
+      KVChIo *chio = (KVChIo*)((KVINDRADetector*)e)->GetChIo();
       if (chio) {
+         /*printf("chio=%p\n",(TObject*)chio);
+         printf("chio-class=%s\n",((TObject*)chio)->ClassName());
+         chio->Print("all");*/
          KVMultiDetArray::GetIDTelescopes(chio, e, idtels);
       }
    }

@@ -33,21 +33,13 @@ KVTelBlocking::KVTelBlocking(UInt_t n):KVTelescope()
       SetDepth(1, 0.);
       SetDepth(2, 119.);        //SIB is 119mm behind BIC
    }
+   SetName(Form("TEL_BLOCK_%d", (Int_t)n));
 }
 
 //__________________________________________________________________________
 
 KVTelBlocking::~KVTelBlocking()
 {
-}
-
-//__________________________________________________________________________
-
-const Char_t *KVTelBlocking::GetArrayName()
-{
-   //overrides KVTelescope. name "TEL_BLOCK_x" x=number of telescope
-   int num = GetNumber();
-   return Form("TEL_BLOCK_%d", num);
 }
 
 //__________________________________________________________________________

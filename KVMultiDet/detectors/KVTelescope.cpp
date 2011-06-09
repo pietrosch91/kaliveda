@@ -40,6 +40,7 @@ ClassImp(KVTelescope)
 // inline Bool_t KVTelescope::Fired(Option_t* opt) const
 // {
 //      //returns kTRUE if at least one detector has KVDetector::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
+
     KVTelescope::KVTelescope()
 {
    init();
@@ -157,10 +158,10 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
    //
 	//The KVNameValueList, if it's defined, allows to store
 	//the energy loss in the different detectors the particle goes through
-	//exemple : for a SI_CSI telescope of INDRA , you will obtained:   
+	//exemple : for a Silicon-CsI telescope named SI_CSI_0401 , you will obtain:   
 	//		{
 	//			KVNucleus nn(6,12); nn.SetKE(1000);
-	//			KVTelescope* tel = gIndra->GetTelescope("SI_CSI_0401");
+	//			KVTelescope* tel = gMultiDetArray->GetTelescope("SI_CSI_0401");
 	//			KVNameValueList* nvl = new KVNameValueList;
 	//			tel->DetectParticle(&nn,nvl);
 	//			nvl->Print();
@@ -220,36 +221,6 @@ void KVTelescope::Print(Option_t * opt) const
    }
 }
 
-
-//_________________________________________________________________________
-const Char_t *KVTelescope::GetName() const
-{
-   // Name of telescope given in the form Det1_Det2_..._Ring-numberTelescope-number
-   // where Det1 etc. are the ACTIVE detector layers of the telescope
-   // The detectors are signified by their TYPE names i.e. KVDetector::GetType
-   //
-   //Just a wrapper for GetArrayName to allow polymorphism
-   return ((KVTelescope *) this)->GetArrayName();
-}
-
-const Char_t *KVTelescope::GetArrayName()
-{
-   // Name of telescope given in the form Det1_Det2_..._Ring-numberTelescope-number
-   // where Det1 etc. are the ACTIVE detector layers of the telescope
-   // The detectors are signified by their TYPE names i.e. KVDetector::GetType
-   TIter next_det(fDetectors);
-   KVDetector *kdet;
-   TString dummy;
-   while ((kdet = (KVDetector *) next_det())) { //loop over detectors in telescope
-      if (dummy == "")
-         dummy = kdet->GetType();
-      else
-         dummy += kdet->GetType();
-      dummy += "_";
-   }
-   fName.Form("%s%02d%02d", dummy.Data(), GetRingNumber(), GetNumber());
-   return fName.Data();
-}
 
 //_________________________________________________________________________
 UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)

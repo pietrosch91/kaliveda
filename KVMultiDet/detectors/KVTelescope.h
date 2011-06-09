@@ -38,7 +38,7 @@ class TGraph;
 
 class KVTelescope:public KVPosition {
 
- private:
+ protected:
    KVList * fDetectors;         //-> list of detectors in telescope
    KVGroup *fGroup;             //group to which telescope belongs
    KVRing *fRing;               //ring to which telescope belongs
@@ -102,8 +102,6 @@ class KVTelescope:public KVPosition {
 
    const Char_t *GetRingName() const;
    const Char_t *GetLayerName() const;
-   const Char_t *GetName() const;
-   virtual const Char_t *GetArrayName();
 
    Bool_t IsSortable() const {
       return kTRUE;

@@ -404,7 +404,7 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
  		 KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		 if(!csi) return 0;
  		 KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
- 		 KVChIo *chio = gIndra->GetChIoOf( csi );
+ 		 KVChIo *chio = (KVChIo*)csi->GetChIo();
 		 if(!chio) return 0;
  		 chio->SetEnergy( de1 );
  		 if(si)si->SetEnergy( de2 );
@@ -427,7 +427,7 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
  		 //chio-csi or chio-si75-sili-csi
  		 KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		 if(!csi) return 0;
- 		 KVChIo *chio = gIndra->GetChIoOf( csi );
+ 		 KVChIo *chio = (KVChIo*)csi->GetChIo();
 		 if(!chio) return 0;
  		 KVSi75 *si75 = 0;
  		 KVSiLi *sili = 0;
@@ -495,7 +495,7 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
 		if(!csi) return 0;
 		KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
 		if( !si ) return 0;
-		KVChIo *chio = gIndra->GetChIoOf( csi );
+		KVChIo *chio = (KVChIo*)csi->GetChIo();
 		if( !chio ) return 0;
 		chio->SetEnergy( de1 );
 		chio->GetACQParam("GG")->SetData( (UShort_t)canal[ChIo_GG] );
@@ -515,7 +515,7 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
 	else if(ring>=10){
 		KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		if(!csi) return 0;
-		KVChIo *chio = gIndra->GetChIoOf( csi );
+		KVChIo *chio = (KVChIo*)csi->GetChIo();
 		if( !chio ) return 0;
 		KVSi75 *si75 = (KVSi75*)gIndra->GetDetectorByType(ring,mod,Si75_GG);
 		if( !si75 ) return 0;
@@ -633,7 +633,7 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
  		 //chio-si  	 
  		 KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
 		 if(!si) return 0;
- 		 KVChIo *chio = gIndra->GetChIoOf( si );
+ 		 KVChIo *chio = (KVChIo*)si->GetChIo();
 		 if(!chio) return 0;
  		 chio->SetEnergy( de1 );
  		 chio->GetACQParam("GG")->SetData( (UShort_t)canal[ChIo_GG] );
@@ -653,7 +653,7 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
  		 //chio-csi or chio-si75
  		 KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		 if(!csi) return 0;
- 		 KVChIo *chio = gIndra->GetChIoOf( csi );
+ 		 KVChIo *chio = (KVChIo*)csi->GetChIo();
 		 if( !chio) return 0;
  		 KVSi75 *si75 = (KVSi75*)gIndra->GetDetectorByType(ring,mod,Si75_GG);
 		 if(!si75) return 0;
@@ -693,7 +693,7 @@ KVDetector* KVINDRADstToRootTransfert::Code7(Int_t ring, Int_t mod)
 		//to a Si/CsI, and not those of a ChIo module
 		//try CsI with given ring number and module
 		KVCsI* csi = (KVCsI*)gIndra->GetDetectorByType(ring, mod, CsI_R);
-		if(csi) chio=gIndra->GetChIoOf(csi);
+		if(csi) chio=(KVChIo*)csi->GetChIo();
 		if(!chio) return 0;
 	}
  	chio->SetEnergy( de1 );
@@ -878,7 +878,11 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
 						tmp->SetRealA(a_indra);
 					}
 					else
+					{
 						tmp->SetAMeasured(kFALSE);
+						// reset Z in order to force calculation of mass according to default mass formula of KVINDRAReconNuc
+						tmp->SetZ(z);
+					}
 					if( code == 1 ){
 						//set Z and realZ = 0 in case of 'neutron'
 						tmp->SetZ(0); tmp->SetRealZ(0);

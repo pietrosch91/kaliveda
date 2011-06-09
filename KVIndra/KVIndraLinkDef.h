@@ -20,6 +20,7 @@
 #pragma link C++ class KVINDRACodeMask+;
 #pragma link C++ class KVINDRADetector+;
 #pragma link C++ class KVINDRAIDTelescope+;
+#pragma link C++ class KVINDRATelescope+;
 #pragma link C++ class KVINDRADstToRootTransfert;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVINDRARawDataAnalyser;

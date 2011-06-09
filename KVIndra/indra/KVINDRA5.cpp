@@ -68,7 +68,7 @@ void KVINDRA5::PrototypeTelescopes()
 
    KVINDRA4::PrototypeTelescopes();
    // Si-CsI Ring 2
-   KVTelescope *kvt = new KVTelescope;
+   KVINDRATelescope *kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -79,7 +79,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 3
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -90,7 +90,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 4
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -101,7 +101,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 5
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -112,7 +112,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 6
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
@@ -123,7 +123,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 7
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
@@ -134,7 +134,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 8
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
@@ -145,7 +145,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 9
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));

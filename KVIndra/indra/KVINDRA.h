@@ -30,6 +30,8 @@ $Id: KVINDRA.h,v 1.43 2009/01/21 10:05:51 franklan Exp $
 #include "KVUpDater.h"
 #include "KVDataSetManager.h"
 #include "KVINDRATriggerInfo.h"
+#include "KVINDRADetector.h"
+#include "KVINDRATelescope.h"
 
 class KVLayer;
 class KVNucleus;
@@ -117,10 +119,9 @@ class KVINDRA:public KVMultiDetArray {
    };
 
    virtual KVChIo *GetChIoOf(const Char_t * detname);
-   virtual KVChIo *GetChIoOf(KVDetector * kvd);
    void SetNamesChIo();
    virtual void cd(Option_t * option = "");
-   virtual KVDetector *GetDetectorByType(UInt_t cou, UInt_t mod,
+   virtual KVINDRADetector *GetDetectorByType(UInt_t cou, UInt_t mod,
                                          UInt_t type) const;
 
    void SetTrigger(UChar_t trig);

@@ -319,9 +319,8 @@ KVList *KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector * detector,
             KVDetector *pic_det =
                 //the chio's in the file are written with the
                 //ring,module of the Si/CsI in coinc
-                sign > ChIo_T ? gIndra->GetDetectorByType(cour, modu, sign)
-                : gIndra->GetChIoOf(gIndra->
-                                    GetDetectorByType(cour, modu, CsI_R));
+                (sign > ChIo_T) ? gIndra->GetDetectorByType(cour, modu, sign)
+                : gIndra->GetDetectorByType(cour, modu, CsI_R)->GetChIo();
 
             //is it the right detector ?
             if (detector && detector != pic_det)

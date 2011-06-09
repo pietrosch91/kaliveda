@@ -22,8 +22,10 @@ public:
     KVINDRADetector();
     virtual ~KVINDRADetector();
     KVINDRADetector(const Char_t * type, const Float_t thick = 0.0)
-            : KVDetector(type,thick)
+            : KVDetector(type,thick), fChIo(0) 
     {
+   	fGGtoPG_0 = 0;
+   	fGGtoPG_1 = 1./15.;
     };
 
     const Char_t *GetArrayName();
