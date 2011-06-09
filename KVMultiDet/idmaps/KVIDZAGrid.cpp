@@ -1198,9 +1198,9 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
             	dt = -(y1 + y2) / dist;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
-            		GetName(), Zint, fICode);
+            		GetName(), Zint, fICode);*/
         }
         else if (ix2 == -ix1 * 2)       // dZ2 = 2*dZ1
         {
@@ -1210,9 +1210,9 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
-            		GetName(), Zint, fICode);
+            		GetName(), Zint, fICode);*/
         }
         else if (ix1 == -ix2 * 2)       // dZ1 = 2*dZ2
         {
@@ -1222,9 +1222,9 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
-            		GetName(), Zint, fICode);
+            		GetName(), Zint, fICode);*/
         }
         if (i)
         {
@@ -1233,17 +1233,17 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
             {
             	if(y2!=0)
                 	deltaZ = yy * ix2 / y2 / 2.;
-            	else
+            	/*else
             		Warning("IdentZ","%s : cannot calculate interpolated charge (y2=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
-            			GetName(), y2, Zint, fICode);
+            			GetName(), y2, Zint, fICode);*/
             }
             else
             {
             	if(dist>-1. && dt*yy>-1.)
                		deltaZ = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
-            	else
+            	/*else
             		Warning("IdentZ","%s : cannot calculate interpolated charge (dist=%f dt*yy=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
-            			GetName(), dist, dt*yy, Zint, fICode);
+            			GetName(), dist, dt*yy, Zint, fICode);*/
             }
             Z += deltaZ;
         }

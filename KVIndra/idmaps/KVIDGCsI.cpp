@@ -499,9 +499,9 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             	dt = -(y1 + y2) / dist;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            		GetName(), dist, Z, Aint, fICode);
+            		GetName(), dist, Z, Aint, fICode);*/
         }
         else if (ix2 == -ix1 * 2)       // dA2 = 2*dA1
         {
@@ -511,9 +511,9 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZA","%s : cannot calculate interpolated mass (y1*y1-4*dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            		GetName(), tmp, Z, Aint, fICode);
+            		GetName(), tmp, Z, Aint, fICode);*/
         }
         else if (ix1 == -ix2 * 2)       // dA1 = 2*dA2
         {
@@ -523,9 +523,9 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZA","%s : cannot calculate interpolated mass (y2*y2-4*dist=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            		GetName(), tmp, Z, Aint, fICode);
+            		GetName(), tmp, Z, Aint, fICode);*/
         }
         if (i)
         {
@@ -534,17 +534,17 @@ void KVIDGCsI::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             {
             	if(y2!=0)
                 	deltaA = yy * ix2 / y2 / 2.;
-            	else
+            	/*else
             		Warning("IdentZA","%s : cannot calculate interpolated mass (y2=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            			GetName(), y2, Z, Aint, fICode);
+            			GetName(), y2, Z, Aint, fICode);*/
             }
             else
             {
                 if(dist>-1. && dt*yy>-1.)
                 	deltaA = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
-            	else
+            	/*else
             		Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f dt*yy=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            			GetName(), dist, dt*yy, Z, Aint, fICode);
+            			GetName(), dist, dt*yy, Z, Aint, fICode);*/
             }
             A += deltaA;
         }

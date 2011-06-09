@@ -3,7 +3,7 @@
 <head>
   <meta content="text/html; charset=ISO-8859-1"
  http-equiv="Content-Type">
-  <title>KaliVeda v1.8.0 Release Notes</title>
+  <title>KaliVeda v1.8.1 Release Notes</title>
   <link rel="stylesheet" href="css/site.css" type="text/css">
 </head>
 <body>
@@ -27,13 +27,40 @@
 <div class="page">
 <h2><br>
 </h2>
-Here is a list of some of the innovations in KaliVeda v1.8.1.<br>
+Here is a list of what's new in KaliVeda v1.8.1.<br>
 For more details, see <a
  href="https://launchpad.net/kaliveda/+milestone/1.8.1">here</a>.<br>
 <br>
 You should probably also read the <a href="ReleaseNotes_1.8.0.html">Release
 Notes
-for v1.8.0</a>.<br>
+for
+v1.8.0</a>.<br>
+<br>
+<h2>INDRA data reduction</h2>
+<br>
+Many improvements mainly concerning the reduction of data from the 5th
+campaign of experiments:<br>
+<ul>
+  <li>corrected thicknesses of 112/124Sn targets. The nominal thickness
+(330 &micro;g/cm2) has been replaced with the measured value of
+530&micro;g/cm2.</li>
+  <li>identification &amp; calibration for the forward rings (1-9)
+takes into account as much as possible the coherency between CsI,
+Si-CsI and ChIo-Si identifications. Energy losses of identified
+particles are calculated in detectors in which pile-up appears to have
+occured, but no attempt is made to identify the apparent second
+particle (no IDCode 6).<br>
+  </li>
+  <li>CsI energy losses of all particles are checked, if they are
+greater than the maximum theoretical energy loss the particle is given
+energy code (ECode) 3.</li>
+  <li>the real thicknesses of all (nominal) 300&micro;m Silicon
+detectors are used. The thicknesses of Si75 and Si(Li) detectors
+(including dead zones) are included.</li>
+  <li>all particles whose mass is not measured have A calculated from Z
+using Charity EAL formula (KVNucleus::kEALMass formula).<br>
+  </li>
+</ul>
 <br>
 <h2>Stopping Power &amp; Range Tables for Heavy Ions</h2>
 <br>
@@ -46,7 +73,8 @@ which make up detectors and targets. The calculation of energy losses,
 range, etc. of heavy ions in these absorbers is handled through an
 abstract interface, <a href="1.8.1/KVIonRangeTable.html">KVIonRangeTable</a>.
 The
-specific implementation to be used is determined by an environment
+specific
+implementation to be used is determined by an environment
 variable:<br>
 <pre>KVMaterial.IonRangeTable:     VEDALOSS</pre>
 and all implementations are plugin classes derived from KVIonRangeTable:<br>
@@ -81,7 +109,9 @@ still in microns, gas pressures of ionisation chambers (<a
  href="1.8.1/KVChIo.html">KVChIo</a>) are still in millibar, and the
 lengths of Cesium Iodide scintillators (<a href="1.8.1/KVCsI.html">KVCsI</a>)
 are
-still in centimetres.<br>
+still
+in centimetres. Note that these classes now inherit the new <a
+ href="1.8.1/KVINDRADetector.html">KVINDRADetector</a> base class.<br>
 <br>
 <h3>Changes to existing classes</h3>
 <h4><a name="KVMaterial"></a>KVMaterial</h4>
@@ -175,7 +205,8 @@ implementations of the VEDALOSS range &amp; energy loss tables
 previously implemented in KVMaterial. KVedaLoss is based on the
 abstract interface provided by <a href="1.8.1/KVIonRangeTable.html">KVIonRangeTable</a>.
 It
-manages a list of KVedaLossMaterial objects which use the same
+manages
+a list of KVedaLossMaterial objects which use the same
 tabulation of ranges of heavy ions as before:<br>
 <pre>	*************************************************************************<br>	*                VEDALOSS STOPPING POWER &amp; RANGE TABLES                 *<br>	*                                                                       *<br>	*   1.  Si      Silicon             Z=14 A= 28.1  rho= 2.330 g/cm**3    *<br>	*   2.  Myl     Mylar               Z= 4 A=  8.7  rho= 1.395 g/cm**3    *<br>	*   3.  NE102   Plastic             Z= 3 A=  6.5  rho= 1.032 g/cm**3    *<br>	*   4.  Ni      Nickel              Z=28 A= 58.7  rho= 8.902 g/cm**3    *<br>	*   5.  C3F8    Octofluoropropane   Z= 8 A= 17.1  rho= 0.008 g/cm**3    *<br>	*   6.  C       Carbon              Z= 6 A= 12.0  rho= 1.900 g/cm**3    *<br>	*   7.  Ag      Silver              Z=47 A=107.9  rho=10.500 g/cm**3    *<br>	*   8.  Sn      Tin                 Z=50 A=118.7  rho= 5.750 g/cm**3    *<br>	*   9.  CsI     CesiumIodide        Z=54 A=129.9  rho= 4.510 g/cm**3    *<br>	*  10.  Au      Gold                Z=79 A=197.0  rho=19.300 g/cm**3    *<br>	*  11.  U       Uranium             Z=92 A=238.0  rho=18.950 g/cm**3    *<br>	*  12.  Air     Air                 Z= 7 A= 14.4  rho= 0.001 g/cm**3    *<br>	*  13.  Nb      Nobium              Z=41 A= 92.9  rho= 8.570 g/cm**3    *<br>	*  14.  Ta      Tantalum            Z=73 A=180.9  rho=16.654 g/cm**3    *<br>	*  15.  Al      Aluminium           Z=13 A= 27.0  rho= 2.699 g/cm**3    *<br>	*  16.  KCl     KCl                 Z=18 A= 37.3  rho= 1.987 g/cm**3    *<br>	*  17.  CF4     Tetrafluoromethane  Z= 8 A= 17.6  rho= 0.004 g/cm**3    *<br>	*  18.  Ca      Calcium             Z=20 A= 40.1  rho= 1.550 g/cm**3    *<br>	*  19.  Ge      Germanium           Z=32 A= 72.6  rho= 5.323 g/cm**3    *<br>	*  20.  Cu      Copper              Z=29 A= 63.5  rho= 8.960 g/cm**3    *<br>	*  21.  Ti      Titanium            Z=22 A= 47.9  rho= 4.540 g/cm**3    *<br>	*  22.  Bi      Bismuth             Z=83 A=209.0  rho= 9.747 g/cm**3    *<br>	*  23.  V       Vanadium            Z=23 A= 50.9  rho= 6.110 g/cm**3    *<br>	*  24.  C4H10   Isobutane           Z= 2 A=  4.2  rho= 0.002 g/cm**3    *<br>	*  25.  Pb      Lead                Z=82 A=207.2  rho=11.350 g/cm**3    *<br>	*  26.  PbS     LeadSulphide        Z=49 A=120.0  rho= 7.500 g/cm**3    *<br>	*  27.  Mg      Magnesium           Z=12 A= 24.3  rho= 1.738 g/cm**3    *<br>	*  28.  Li      Lithium             Z= 3 A=  6.9  rho= 0.534 g/cm**3    *<br>	*  29.  Zn      Zinc                Z=30 A= 65.4  rho= 7.133 g/cm**3    *<br>	*                                                                       *<br>	*     TF1::Range::Npx =   20            TF1::EnergyLoss::Npx =   50     *<br>	*                      TF1::ResidualEnergy::Npx =   20                  *<br>	*                                                                       *<br>	*                       INITALISATION COMPLETE                          *<br>	*************************************************************************<br></pre>
 The tabulated range of ions in each material as a function of incident
@@ -192,7 +223,8 @@ identical absorbers of thickness <span style="font-style: italic;">x</span>
 and comparing with the calculated energy loss of the same ions in a
 single absorber of thickness <span style="font-style: italic;">Nx</span>:
 the
-two results were not always the same, and could have a significant
+two
+results were not always the same, and could have a significant
 difference).<br>
 <br>
 As mentioned above, all units and "thicknesses" have been rationalised
