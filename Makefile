@@ -54,9 +54,10 @@ empty:=
 space:= $(empty) $(empty)
 rootvers1:=$(subst .,$(space),$(rootvers))
 rootvers2:=$(subst /,$(space),$(rootvers1))
-root_maj := $(word 1,$(rootvers2))
-root_min := $(word 2,$(rootvers2))
-root_rel := $(word 3,$(rootvers2))
+rootvers3:=$(subst -,$(space),$(rootvers2))
+root_maj := $(word 1,$(rootvers3))
+root_min := $(word 2,$(rootvers3))
+root_rel := $(word 3,$(rootvers3))
 #define macro for calculating ROOT version code from maj, min and release
 get_root_version = $(shell expr $(1) \* 10000 \+ $(2) \* 100 \+ $(3))
 export ROOT_VERSION_CODE = $(call get_root_version,$(root_maj),$(root_min),$(root_rel))
