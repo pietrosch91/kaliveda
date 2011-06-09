@@ -363,7 +363,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "h1_t.xpm",
       "branch_t.xpm",
       "sm_delete.xpm",
-      "quit.xpm",
+//      "quit.xpm",
       0
    };
 // toolbar tool tip text
@@ -378,7 +378,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "Test grid identification",
       "Test grid (TTree)",
       "Delete selected grid(s)",
-      "Quit",
+//      "Quit",
       0
    };
    int spacing[] = {
@@ -392,7 +392,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       0,
       0,
       10,
-      1000,
+ //     1000,
       0
    };
    TGButton** buttons[] = {
@@ -406,7 +406,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       &fTBTest,
       &fTBTestTree,
       &fTBDelG,
-      &fTBQuit,
+//      &fTBQuit,
       0
    };
    const char* method[] = {
@@ -420,7 +420,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "TestGrid()",
       "TestTreeGrid()",
       "DeleteSelectedGrids()",
-      "Quit()",
+ //     "Quit()",
       0
    };
    fNbButtons = 0;
@@ -462,7 +462,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
 
    // Tabs for lists of grids. Each tab holds list of grids for a given
    // type of ID telescope.
-   fGridListTabs = new TGTab(fHframe, 600, 400);
+   fGridListTabs = new TGTab(fHframe, 550, 400);
    fGridListTabs->Connect("Selected(Int_t)", "KVIDGridManagerGUI", this, "TabSelect(Int_t)");
    fIDGridList = 0;
    //initialise tabs with lists of grids
@@ -471,13 +471,13 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    fHframe->AddFrame(fGridListTabs,
                      new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 10));
 
-   TGVerticalFrame* line_frame = new TGVerticalFrame(fHframe, 300, 400);
+   TGVerticalFrame* line_frame = new TGVerticalFrame(fHframe, 350, 400);
 
    TGLabel* lab1 = new TGLabel(line_frame, "CURRENT GRID IDENTIFIERS");
-   line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 2, 2, 2));
+   line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 2, 10, 2));
 
    // list view for lines in current grid
-   fIDLineList = new KVListView(KVIDentifier::Class(), line_frame, 300, 400);
+   fIDLineList = new KVListView(KVIDentifier::Class(), line_frame, 350, 400);
    fIDLineList->SetDataColumns(5);
    fIDLineList->SetDataColumn(0, "Name", "", kTextLeft);
    fIDLineList->SetDataColumn(1, "Z", "", kTextCenterX);
@@ -494,7 +494,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    lab1 = new TGLabel(line_frame, "CUT LINES");
    line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 2, 2, 2));
 
-   fCUTLineList = new KVListView(KVIDCutLine::Class(), line_frame, 300, 150);
+   fCUTLineList = new KVListView(KVIDCutLine::Class(), line_frame, 350, 150);
    fCUTLineList->SetDataColumns(3);
    fCUTLineList->SetDataColumn(0, "Name", "", kTextLeft);
    fCUTLineList->SetDataColumn(1, "# Points", "GetN", kTextCenterX);
@@ -508,7 +508,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    lab1 = new TGLabel(line_frame, "CUT CONTOURS");
    line_frame->AddFrame(lab1, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 2, 2, 2, 2));
 
-   fCUTContourList = new KVListView(KVIDCutContour::Class(), line_frame, 300, 150);
+   fCUTContourList = new KVListView(KVIDCutContour::Class(), line_frame, 350, 150);
    fCUTContourList->SetDataColumns(3);
    fCUTContourList->SetDataColumn(0, "Name", "", kTextLeft);
    fCUTContourList->SetDataColumn(1, "# Points", "GetN", kTextCenterX);
@@ -518,9 +518,9 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    fCUTContourList->AllowBrowse(kFALSE);
    //fIDLineList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
    //                    "SelectionChanged()");
-   line_frame->AddFrame(fCUTContourList, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 2, 2, 2, 2));
+   line_frame->AddFrame(fCUTContourList, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 2, 2, 2, 10));
 
-   fHframe->AddFrame(line_frame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandY, 50, 10, 10, 10));
+   fHframe->AddFrame(line_frame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandY, 20, 20, 20, 20));
 
    AddFrame(fHframe,
             new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0,
@@ -874,9 +874,37 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
    // create a tab for each type of ID telescope
    // put a list box for ID grid names on each tab
 
-   KVString labels("[unknown]");
+   KVString labels;
    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
-
+	if(labels==""){
+		// no known idtelescopes referenced by grids (maybe we don't have a KVMultiDetArray?)
+		// make 1 tab "Grids" and put them all in
+      KVString lab = "Grids";
+      TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
+      cf->ChangeOptions(kVerticalFrame);
+      fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
+      fIDGridList->SetDataColumns(10);
+      fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
+      fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
+      fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
+      fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+      fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+      fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+      fIDGridList->GetDataColumn(5)->SetIsBoolean();
+      fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+      fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+      fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+      fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
+      fIDGridList->ActivateSortButtons();
+      fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+                           "SelectionChanged()");
+      cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
+                                                  kLHintsExpandX | kLHintsExpandY, 30,
+                                                  10, 10, 10));
+      KVList* grids = gIDGridManager->GetGrids();
+      fIDGridList->Display(grids);
+      return;
+	}
    //loop over labels
    labels.Begin(",");
    while (! labels.End()) {
@@ -927,6 +955,24 @@ void KVIDGridManagerGUI::UpdateTabs()
 
    KVString labels("[unknown]");
    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
+	if(labels==""){
+		// no known idtelescopes referenced by grids (maybe we don't have a KVMultiDetArray?)
+		// update "Grids" tab
+         TGCompositeFrame*cf = fGridListTabs->GetTabContainer("Grids");
+         if (!cf) {
+            cout << "cf = 0x0 : label=Grids tab name=" <<
+                 fGridListTabs->GetTabTab("Grids")->GetText()->GetString() << endl;
+         } else {
+            TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
+            fIDGridList = (KVListView*)el->fFrame;
+            KVList* grids = gIDGridManager->GetGrids();
+            fIDGridList->Display(grids);
+         }
+   //make sure we are on the right tab
+   Int_t ntabs = fGridListTabs->GetCurrent();
+   TabSelect(ntabs);
+         return;
+	}
    //add any missing labels, update existing ones
    labels.Begin(",");
    while (! labels.End()) {
@@ -1072,7 +1118,7 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
    for (int i = 0; i < fNbButtons; i++) fTBbuttons[i]->SetEnabled(kFALSE);
    // enable 'open' & 'quit' & 'new grid"
    fTBOpen->SetEnabled();
-   fTBQuit->SetEnabled();
+   //fTBQuit->SetEnabled();
    fTBNewG->SetEnabled();
    // enable 'save' if there are grids
    if (gIDGridManager->GetGrids()->GetEntries()) fTBSave->SetEnabled();
