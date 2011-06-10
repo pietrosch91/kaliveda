@@ -757,12 +757,14 @@ return rho;
 }
 //###############################################################################################################"
 //-------------------------------------------------
-KVList* KVHistoManipulator::Give_ProjectionList(TH2* hh,TString axis){
+KVList* KVHistoManipulator::Give_ProjectionList(TH2* hh,Double_t MinIntegral, TString axis){
 //-------------------------------------------------
-	// Retourne une liste contenant toutes les projections par tranche de l'axe (TString axis)
+	// Retourne une liste contenant les projections par tranche de l'axe (TString axis="X" ou "Y")
+	// remplissant une condition leur integral qui doit etre superieur à MinIntegral (=-1 par defaut)
 	// si axis="X", les projections sur l'axe Y de l'histogramme est fait pour chaque bin de l'axe X
-
+	
 	if (!hh) { cout << "pointeur histogramme nul" << endl; return NULL; }
+	TH1D* h1d = 0;
 	TString proj_name;
 	if (hh->InheritsFrom("TH2")){
 		KVList *list = new KVList();
@@ -770,17 +772,30 @@ KVList* KVHistoManipulator::Give_ProjectionList(TH2* hh,TString axis){
 		if (axis=="X"){
 			for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1){
 				Double_t integ=0;
-				for (Int_t ny=1;ny<=hh->GetNbinsY();ny+=1) integ+=hh->GetBinContent(nx,ny);
-				proj_name.Form("%s_bX_%d",hh->GetName(),nx);
-				list->Add(hh->ProjectionY(proj_name.Data(),nx,nx));	
+				for (Int_t ny=1;ny<=hh->GetNbinsY();ny+=1) 
+					integ+=hh->GetBinContent(nx,ny);
+				
+				if (integ > MinIntegral){
+					proj_name.Form("%s_bX_%d",hh->GetName(),nx);
+					h1d = hh->ProjectionY(proj_name.Data(),nx,nx);
+					h1d->SetTitle(Form("%lf",hh->GetXaxis()->GetBinCenter(nx)));
+					list->Add(h1d);
+				}
+				
 			}
 		}
 		else if (axis=="Y"){
 			for (Int_t ny=1;ny<=hh->GetNbinsY();ny+=1){
 				Double_t integ=0;
-				for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1) integ+=hh->GetBinContent(nx,ny);
-				proj_name.Form("%s_bY_%d",hh->GetName(),ny);
-				list->Add(hh->ProjectionX(proj_name.Data(),ny,ny));
+				for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1) 
+					integ+=hh->GetBinContent(nx,ny);
+				
+				if (integ > MinIntegral){
+					proj_name.Form("%s_bY_%d",hh->GetName(),ny);
+					h1d = hh->ProjectionX(proj_name.Data(),ny,ny);
+					h1d->SetTitle(Form("%lf",hh->GetYaxis()->GetBinCenter(ny)));
+					list->Add(h1d);
+				}
 			}
 		}
 		else {cout << "l option TString axis doit etre X ou Y" << endl; }	 
@@ -1267,4 +1282,122 @@ TH1* KVHistoManipulator::CumulatedHisto(TH1* hh, Double_t xmin, Double_t xmax, T
 	Int_t bmax = hh->FindBin(xmax);
 	if(bmax>hh->GetNbinsX()) bmax = hh->GetNbinsX();
 	return CumulatedHisto(hh,direction,bmin,bmax,norm);
+}
+
+//-------------------------------------------------
+Double_t KVHistoManipulator::GetChisquare(TH1* h1, TF1* f1,Bool_t norm,Bool_t err,Double_t* para)
+{
+	//Camcul du chi2 entre un histogramme et une fonction donnée
+	//Warning : ne prend en compte que les bins avec une stat>0
+	//de l histogramme
+	// norm = kTRUE (default), normalise la valeur du Chi2 au nombre de bin pris en compte
+	// err = kTRUE (default), prend en compte les erreurs du contenu des bins dans le calcul 
+	// (si celle ci est >0)
+	Double_t chi2 = 0;
+	Int_t nbre = 0;
+	if (h1->InheritsFrom("TH2")){
+		Double_t xx[2];
+		for (Int_t nx=1;nx<h1->GetNbinsX();nx+=1)
+			for (Int_t ny=1;ny<=h1->GetNbinsY();ny+=1){
+				Double_t hval = h1->GetBinContent(nx,ny);
+				if (hval>0) {
+					if (err){
+						Double_t herr = h1->GetBinError(nx,ny);
+						if (herr>0){
+							nbre += 1;
+							xx[0] = h1->GetXaxis()->GetBinCenter(nx);
+							xx[1] = h1->GetYaxis()->GetBinCenter(ny);
+							Double_t fval = f1->EvalPar(xx,para);
+							chi2 += TMath::Power((hval-fval)/herr,2.);
+						}
+					}
+					else {
+						nbre += 1;
+						xx[0] = h1->GetXaxis()->GetBinCenter(nx);
+						xx[1] = h1->GetYaxis()->GetBinCenter(ny);
+						Double_t fval = f1->EvalPar(xx,para);
+						chi2 += TMath::Power((hval-fval),2.);
+					}
+				}	
+			}	
+	}
+	else {
+		Double_t xx[1];
+		for (Int_t nx=1;nx<h1->GetNbinsX();nx+=1){
+			Double_t hval = h1->GetBinContent(nx);
+			if (hval>0) {
+				if (err){
+					Double_t herr = h1->GetBinError(nx);
+					if (herr>0){
+						nbre += 1;
+						xx[0] = h1->GetXaxis()->GetBinCenter(nx);
+						Double_t fval = f1->EvalPar(xx,para);
+						chi2 += TMath::Power((hval-fval)/herr,2.);
+					}	
+				}
+				else {
+					nbre += 1;
+					xx[0] = h1->GetXaxis()->GetBinCenter(nx);
+					Double_t fval = f1->EvalPar(xx,para);
+					chi2 += TMath::Power((hval-fval),2.);
+				}
+			}
+		}	
+	}
+	
+	if (nbre==0) {
+		printf("Warning, KVHistoManipulator::GetChisquare :\n\taucune cellule price en compte dans le calcul du Chi2 ...\n");
+		return -1;
+	}
+	return (norm ? chi2/nbre : chi2);
+	
+
+}
+//-------------------------------------------------
+Double_t KVHistoManipulator::GetLikelihood(TH1* h1, TF1* f1,Bool_t norm,Double_t* para)
+{
+	//Calcul du chi2 entre un histogramme et une fonction donnée
+	//Warning : ne prend en compte que les bins avec une stat>0
+	//de l histogramme
+	// norm = kTRUE (default), normalise la valeur du Chi2 au nombre de bin pris en compte
+	// err = kTRUE (default), prend en compte les erreurs du contenu des bins dans le calcul 
+	// (si celle ci est >0)
+	Double_t chi2 = 0;
+	Int_t nbre = 0;
+	if (h1->InheritsFrom("TH2")){
+		Double_t xx[2];
+		for (Int_t nx=1;nx<h1->GetNbinsX();nx+=1)
+			for (Int_t ny=1;ny<=h1->GetNbinsY();ny+=1){
+				Double_t hval = h1->GetBinContent(nx,ny);
+				if (hval>0) {
+					nbre += 1;
+					xx[0] = h1->GetXaxis()->GetBinCenter(nx);
+					xx[1] = h1->GetYaxis()->GetBinCenter(ny);
+					Double_t fval = f1->EvalPar(xx,para);
+					Double_t logfval = TMath::Log(fval);
+					chi2 += fval -1*hval*logfval;
+				}
+			}	
+	}
+	else {
+		Double_t xx[1];
+		for (Int_t nx=1;nx<h1->GetNbinsX();nx+=1){
+			Double_t hval = h1->GetBinContent(nx);
+			if (hval>0) {
+				nbre += 1;
+				xx[0] = h1->GetXaxis()->GetBinCenter(nx);
+				Double_t fval = f1->EvalPar(xx,para);
+				Double_t logfval = TMath::Log(fval);
+				chi2 += fval -1*hval*logfval;
+			}
+		}
+	}
+	
+	if (nbre==0) {
+		printf("Warning, KVHistoManipulator::GetChisquare :\n\taucune cellule price en compte dans le calcul du Chi2 ...\n");
+		return -1;
+	}
+	return (norm ? chi2/nbre : chi2);
+	
+
 }
