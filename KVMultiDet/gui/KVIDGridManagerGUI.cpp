@@ -72,13 +72,13 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    //fMenuFile->AddEntry("&Read grids...", M_GRIDS_READ);
 
    /* cascading "Set..." menu... */
-   TGPopupMenu * sgm = new TGPopupMenu(gClient->GetRoot());
-   sgm->AddEntry("List of Runs", M_GRIDS_RUNLIST);
+   //TGPopupMenu * sgm = new TGPopupMenu(gClient->GetRoot());
+   //sgm->AddEntry("List of Runs", M_GRIDS_RUNLIST);
 // sgm->AddEntry("...in tab", M_GRIDS_DEL_TAB);
 // sgm->AddEntry("...all", M_GRIDS_DEL_ALL);
-   fMenuFile->AddPopup("Set...", sgm);
+   //fMenuFile->AddPopup("Set...", sgm);
    /* cascading "Save grids" menu... */
-   sgm = new TGPopupMenu(gClient->GetRoot());
+   TGPopupMenu * sgm = new TGPopupMenu(gClient->GetRoot());
    sgm->AddEntry("Selected", M_GRIDS_SAVE_SEL);
    sgm->AddEntry("Tab", M_GRIDS_SAVE_TAB);
    sgm->AddEntry("All", M_GRIDS_SAVE_ALL);
@@ -506,6 +506,7 @@ void KVIDGridManagerGUI::DeleteGrids()
    TIter next(fSelectedEntries, kIterBackward);
    KVIDGraph* entry;
    while ((entry = (KVIDGraph *) next())) {
+			if(fLastSelectedGrid==entry) fLastSelectedGrid=0;
          gIDGridManager->DeleteGrid(entry, kFALSE);   //no update
    }
    if(fSelectedEntries) delete fSelectedEntries;
@@ -559,17 +560,20 @@ void KVIDGridManagerGUI::NewGrid()
    // For a given type of ID telescope, several types of grid may be
    // applicable. If so, we ask the user to choose one.
 
-   TList * telescopes = new TList;
-   Bool_t cancel;
-   new KVIDGUITelescopeChooserDialog(gMultiDetArray, telescopes, &cancel,
+	TString default_class = "KVIDZAGrid";
+   	TList * telescopes = new TList;
+	if(gMultiDetArray){
+   	Bool_t cancel;
+   	new KVIDGUITelescopeChooserDialog(gMultiDetArray, telescopes, &cancel,
                                      fClient->GetDefaultRoot(), this);
-   if (cancel || !telescopes->At(0)) {
-      Info("NewGrid", "No ID telescopes chosen. Grid creation cancelled.");
-      return;
-   }
-   // get default ID grid class of first ID telescope
-   TString default_class = ((KVIDTelescope*)telescopes->At(0))->GetDefaultIDGridClass();
-   // get list of possible choices of grid class = list of all plugin classes
+   	if (cancel || !telescopes->At(0)) {
+      	Info("NewGrid", "No ID telescopes chosen. Grid creation cancelled.");
+      	return;
+   	}
+   	// get default ID grid class of first ID telescope
+   	default_class = ((KVIDTelescope*)telescopes->At(0))->GetDefaultIDGridClass();
+	}
+	// get list of possible choices of grid class = list of all plugin classes
    // defined for KVIDGraph
    TString choice = KVBase::GetListOfPlugins("KVIDGraph");
    // open dialog to choose ID grid class
@@ -581,10 +585,9 @@ void KVIDGridManagerGUI::NewGrid()
       Info("NewGrid", "No ID grid class chosen. Grid creation cancelled.");
       return;
    }
-   cout << "Make grid with class " << id_grid_class.Data() << endl;
    gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
    KVIDGraph *new_gr = KVIDGraph::MakeIDGraph(id_grid_class.Data());
-   new_gr->AddIDTelescopes(telescopes);
+   if(telescopes->GetEntries()) new_gr->AddIDTelescopes(telescopes);
    UpdateTabs();
    gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this, "UpdateListOfGrids()");
    delete telescopes;
@@ -718,8 +721,39 @@ void KVIDGridManagerGUI::UpdateTabs()
    // create a tab for each type of ID telescope
    // put a list box for ID grid names on each tab
 
-   KVString labels("[unknown]");
+   KVString labels("");
    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
+	else{
+		// there are no grids in the grid manager
+		RemoveEmptyTabs();
+      KVString lab = "Grids";
+      TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
+      cf->ChangeOptions(kVerticalFrame);
+      fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
+      fIDGridList->SetDataColumns(10);
+      fIDGridList->SetDataColumn(0, "Name", "", kTextLeft);
+      fIDGridList->SetDataColumn(1, "VarX", "", kTextLeft);
+      fIDGridList->SetDataColumn(2, "VarY", "", kTextLeft);
+      fIDGridList->SetDataColumn(3, "ID Telescopes", "GetNamesOfIDTelescopes", kTextLeft);
+      fIDGridList->SetDataColumn(4, "RunList", "", kTextLeft);
+      fIDGridList->SetDataColumn(5, "OnlyZId", "IsOnlyZId", kTextCenterX);
+      fIDGridList->GetDataColumn(5)->SetIsBoolean();
+      fIDGridList->SetDataColumn(6, "# Ident.", "GetNumberOfIdentifiers", kTextRight);
+      fIDGridList->SetDataColumn(7, "# Cuts", "GetNumberOfCuts", kTextRight);
+      fIDGridList->SetDataColumn(8, "X scaling", "GetXScaleFactor", kTextRight);
+      fIDGridList->SetDataColumn(9, "Y scaling", "GetYScaleFactor", kTextRight);
+      fIDGridList->ActivateSortButtons();
+      fIDGridList->Connect("SelectionChanged()", "KVIDGridManagerGUI", this,
+                           "SelectionChanged()");
+      cf->AddFrame(fIDGridList, new TGLayoutHints(kLHintsLeft | kLHintsTop |
+                                                  kLHintsExpandX | kLHintsExpandY, 30,
+                                                  10, 10, 10));
+         fGridListTabs->MapSubwindows();
+         fGridListTabs->Layout();
+   Int_t ntabs = fGridListTabs->GetCurrent();
+   TabSelect(ntabs);
+      return;		
+	}
 	if(labels==""){
 		// no known idtelescopes referenced by grids (maybe we don't have a KVMultiDetArray?)
 		// update "Grids" tab
