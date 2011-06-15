@@ -52,10 +52,10 @@ class KVTensP:public KVVarGlob {
 
    virtual Double_t *GetValuePtr(void); // On retourne un tableau de 
 
-   virtual void SetPartLabel(const Char_t * lab) {
+   virtual void SetPartGroup(const Char_t * lab) {
       fLabel = lab;
    };
-   virtual const Char_t *GetPartLabel() const {
+   virtual const Char_t *GetPartGroup() const {
       return fLabel.Data();
    };
 
