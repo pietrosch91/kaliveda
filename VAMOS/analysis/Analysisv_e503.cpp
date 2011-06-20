@@ -7,8 +7,10 @@ $Date: 2008/11/12 10:01:24 $
 //Created by KVClassFactory on Fri Jun  8 15:26:12 2007
 //Author: John Frankland
 
+#include "TROOT.h"
 #include "Analysisv_e503.h"
 #include <cstdlib>
+#include <stdlib.h>
 
 ClassImp(Analysisv_e503)
 
@@ -24,9 +26,11 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+
 Analysisv_e503::Analysisv_e503(LogFile*Log)
    :Analysisv(Log)
 {
+
    //Default constructor
 #ifdef DEBUG
   cout << "Analysisv_e503::Constructor" << endl;
@@ -43,10 +47,10 @@ Analysisv_e503::Analysisv_e503(LogFile*Log)
 
 #ifdef MULTIPLEPEAK
   cout << "Multiple peak rejection defined" << endl;
-  L->Log << "Multiple peak rejection defined" << endl;
+  //L->Log << "Multiple peak rejection defined" << endl;
 #else
   cout << "Multiple peak rejection NOT defined" << endl;
-  L->Log << "Multiple peak rejection NOT defined" << endl;
+  //L->Log << "Multiple peak rejection NOT defined" << endl;
 #endif
 
 #ifdef SECHIP
@@ -133,19 +137,33 @@ Analysisv_e503::Analysisv_e503(LogFile*Log)
       cout << "Coud not allocate memory to hold DriftChamber !" << endl;
       exit(EXIT_FAILURE);
     }
+    
   RC = new Reconstructionv(L,Dr);
+
   if(!RC)
     {
       cout << "Coud not allocate memory to hold Reconstruction !" << endl;
       exit(EXIT_FAILURE);
     }
-  Id = new Identificationv(L,RC,Dr,Ic,Si);
+  L->Log << "CsI defined" << endl;  
+  CsI=new CsIv(L);
+  
+    energytree = new EnergyTree(L,Si);
+  if(!energytree)
+    {
+      cout << "Coud not allocate memory to hold Energytree !" << endl;
+      exit(EXIT_FAILURE);
+    }
+    
+  Id = new Identificationv(L,RC,Dr,Ic,Si,CsI,energytree);
   if(!Id)
     {
       cout << "Coud not allocate memory to hold Identification !" << endl;
       exit(EXIT_FAILURE);
     }
 
+
+    
 #else
   cout << "DriftChamber will not be treated !" << endl;
   L->Log << "DriftChamber will not be treated !" << endl;
@@ -236,11 +254,13 @@ Analysisv_e503::~Analysisv_e503()
   delete Pl;
 #endif
 
-#ifdef DRIFT
+//#ifdef DRIFT
+L->Log << "Analysisv_e503::Destuctor" << endl;
   delete Dr;
   delete RC;
   delete Id;
-#endif
+  delete energytree;
+//#endif
 
 #ifdef SED1
   delete SeD1;
@@ -261,9 +281,60 @@ Analysisv_e503::~Analysisv_e503()
 #ifdef SI
   delete Si;
 #endif
+#ifdef CSI
+  delete CsI;
+#endif
 #ifdef EXOGAM
   delete Ex;
 #endif
+}
+
+void Analysisv_e503::SetModuleMap(string map[18][80])
+{
+energytree->SetModuleMap(map);
+for(Int_t i=0;i<18;i++){
+	for(Int_t j=0;j<80;j++){
+		mmodulemap[i][j] = map[i][j];
+	}
+}
+
+}
+
+void Analysisv_e503::SetFocalPlan(KVFocalPlanVamos* v)
+{
+	energytree->SetFocalPlan(v);
+	vv = v;
+}
+
+void Analysisv_e503::SetBrhoRef(Double_t B)
+{
+	RC->SetBrhoRef(B);
+	BB = B;
+}
+
+void Analysisv_e503::SetAngleVamos(Double_t theta)
+{
+	RC->SetAngleVamos(theta);
+	ttheta = theta;
+}
+Double_t Analysisv_e503::GetBrhoRef(void)
+{
+	return BB;
+}
+Double_t Analysisv_e503::GetAngleVamos(void)
+{
+	return ttheta;
+}
+
+void Analysisv_e503::SetRunFlag(Int_t runFlag)
+{
+	Id->SetRunFlag(runFlag);
+	rrunFlag = runFlag;
+}
+
+Int_t Analysisv_e503::GetRunFlag(void)
+{
+	return rrunFlag;
 }
 
 void Analysisv_e503::Treat()
@@ -271,7 +342,7 @@ void Analysisv_e503::Treat()
 #ifdef DEBUG
   cout << "Analysisv_e503::Treat " << endl;
 #endif
-
+  //L->Log << "Analysisv_e503::Treat " << endl;
 #ifdef PLASTIC
   Pl->Treat();
 #endif
@@ -282,6 +353,9 @@ void Analysisv_e503::Treat()
 
 #ifdef SI
   Si->Treat();
+#endif
+#ifdef CSI
+  CsI->Treat();
 #endif
 #ifdef DRIFT
   Dr->Treat();
@@ -349,12 +423,16 @@ void Analysisv_e503::CreateHistograms()
 #ifdef SI
   Si->CreateHistograms();
 #endif
-
+#ifdef CSI
+  CsI->CreateHistograms();
+#endif
 
 
 }
 void Analysisv_e503::FillHistograms()
 {
+if(Id->Geometry(Si->Number,CsI->Number)==1) //&& si->E_RawM==1 && csi->E_RawM==1) 	
+   {
 #ifdef DEBUG
   cout << "Analysisv_e503::FillHistograms : " << endl;
 #endif
@@ -392,7 +470,11 @@ void Analysisv_e503::FillHistograms()
 #ifdef SI
   Si->FillHistograms();
 #endif
+#ifdef CSI
+  CsI->FillHistograms();
+#endif
 
+   }	
 }
 
 void Analysisv_e503::outAttach()
@@ -434,14 +516,18 @@ void Analysisv_e503::outAttach()
   Si->outAttach(outT);
 #endif
 
+#ifdef CSI
+  CsI->outAttach(outT);
+#endif
+/*
   outT->Branch("PILEUP",T_Raw+0,"PILEUP/s");
   outT->Branch("GATCONF",T_Raw+1,"GATCONF/s");
   outT->Branch("TSED1_HF",T_Raw+2,"TSeD1_Hf/s");
   outT->Branch("TSED2_HF",T_Raw+3,"TSeD2_Hf/s");
   outT->Branch("TSED1_SED2",T_Raw+4,"TSeD1_SeD2/s");
   outT->Branch("TSI_SED1",T_Raw+5,"TSi_SeD1/s");
-  outT->Branch("TSI_HF",T_Raw+6,"TSi_Hf/s");
-
+  outT->Branch("TSI_HF",T_Raw+6,"TSi_Hf/s"); 
+*/
 
 }
 
@@ -484,7 +570,10 @@ void Analysisv_e503::inAttach()
 #ifdef SI
   Si->inAttach(inT);
 #endif
-
+#ifdef SI
+  CsI->inAttach(inT);
+#endif
+/*
   inT->SetBranchStatus("PILEUP",1);
 
   inT->SetBranchAddress("PILEUP",T_Raw+0);
@@ -507,7 +596,7 @@ void Analysisv_e503::inAttach()
   inT->SetBranchStatus("TSI_HF",1);
 
   inT->SetBranchAddress("TSI_HF",T_Raw+6);
-
+*/
 
 
 }

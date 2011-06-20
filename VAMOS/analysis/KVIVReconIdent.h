@@ -11,14 +11,18 @@ $Date: 2007/06/08 15:49:10 $
 #define __KVIVRECONIDENT_H
 
 #include "KVReconIdent.h"
+#include "KVFocalPlanVamos.h"
+#include <string>
+#include <string.h>
 
+#define ID_SWITCH -1
 class Analysisv;
 class LogFile;
 
 class KVIVReconIdent : public KVReconIdent
 {
    Analysisv* fAnalyseV;//VAMOS calibration
-   LogFile* fLogV;//VAMOS calibration log
+   LogFile* fLogV;//VAMOS calibration log  
    
    public:
 
@@ -29,7 +33,18 @@ class KVIVReconIdent : public KVReconIdent
    void InitRun();
    Bool_t Analysis();
    void EndAnalysis();
-
+   
+   Int_t SetRunFlag(Int_t);
+   Int_t GetRunFlag();   
+   Int_t runFlag;
+   Int_t ReadModuleMap();	//const Char_t *
+   KVFocalPlanVamos* v;
+   string module_map[18][80];   
+   Int_t event;
+   Float_t  thetavam,brho;
+   Double_t  brhorun;
+   Double_t  thetavamrun;
+	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

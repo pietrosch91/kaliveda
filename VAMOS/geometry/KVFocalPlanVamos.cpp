@@ -9,8 +9,12 @@ $Date: 2009/01/21 08:04:20 $
 
 #include "KVFocalPlanVamos.h"
 #include "TROOT.h"
+#include "KVChIo.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+#include "KVTelescope.h"
+#include "KVDetector.h"
+#include "KVMaterial.h" 
 
 ClassImp(KVFocalPlanVamos)
 
@@ -30,7 +34,12 @@ KVFocalPlanVamos::KVFocalPlanVamos()
    fSi = new KVList(kFALSE);
    fSi->SetCleanup();
    fCsI = new KVList(kFALSE);
-   fCsI->SetCleanup();
+   fCsI->SetCleanup();   
+   fChIo = new KVList(kFALSE);
+   fChIo->SetCleanup();
+   fGap = new KVList(kFALSE);
+   fGap->SetCleanup();
+
    fSiLayer = 0;
 }
 
@@ -47,6 +56,12 @@ KVFocalPlanVamos::~KVFocalPlanVamos()
       delete fCsI;
    }
    fCsI = 0;
+   if (fGap && fGap->TestBit(kNotDeleted)) {
+   	fGap->Clear();
+	delete fGap;
+   }
+   fGap = 0;
+
 }
 
 //_________________________________________________________________________________
@@ -55,18 +70,30 @@ void KVFocalPlanVamos::MakeListOfDetectorTypes()
 {
 //Make list of all detector types needed to build Vamos focal plan
 
-   // Silicon detectors
+/*
+// ChIo ionisation chambers
+KVChIo *kvchio = (KVChIo* )KVDetector::MakeDetector(Form("%s.CHIO",gDataSet->GetName()), 10.45);
+	kvchio->SetLabel("CI");
+	fDetectorTypes->Add(kvchio);
+*/
+	
+// Silicon detectors
 KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 530.0);
-//	KVSilicon *kvsi =new KVSilicon(530);	// The precise thickness should be set a later. 
+//	KVSilicon *kvsi =new KVSilicon(530);	// The precise thickness should be set a later. 	
+	KVMaterial *gas = new KVMaterial("C4H10",136.5);
+	kvsi->AddAbsorber(gas);
+	gas->SetPressure(40.0);
 	kvsi->SetLabel("SIE");		
-	fDetectorTypes->Add(kvsi);		
-			
-		
-   // CsI scintillators
-KVCsI *kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",gDataSet->GetName()), 1.);
+	fDetectorTypes->Add(kvsi);
+	kvsi->Print("all");	
+	
+// CsI scintillators
+KVCsI *kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",gDataSet->GetName()),1.);  	
 	kvcsi->SetLabel("CSI");
 	fDetectorTypes->Add(kvcsi);
-	
+	kvcsi->Print("all");
+
+
 #ifdef KV_DEBUG
    Info("MakeListOfDetectorTypes", "Success");
 #endif
@@ -80,6 +107,22 @@ void KVFocalPlanVamos::PrototypeTelescopes()
    Info("PrototypeTelescopes", "Begin");
    GetDetectorTypes()->Print();
 #endif
+/*
+    for(Int_t ii=0;ii<7;ii+=1){   
+    	KVTelescope *kvt = new KVTelescope;
+    	kvt->AddDetector((KVChIo *) fDetectorTypes->FindObjectByLabel("CI"));
+	Char_t type[50];
+	sprintf(type,"ChIo Ring%i",ii+1);
+	kvt->SetType(type);
+    	kvt->SetAzimuthalWidth(6.0);		//6
+    	kvt->SetDepth(1, 0.0);
+    	fTelescopes->Add(kvt);
+    }
+*/
+ #ifdef KV_DEBUG
+   Info("PrototypeTelescopes", "ChIo Ring1 to Ring7, step 1  Vamos - success");
+#endif
+cout<<"Adding CI Ring"<<endl;
 
     for(Int_t ii=0;ii<18;ii+=2){   
     	KVTelescope *kvt = new KVTelescope;
@@ -94,9 +137,11 @@ void KVFocalPlanVamos::PrototypeTelescopes()
 #ifdef KV_DEBUG
    Info("PrototypeTelescopes", "Si Ring1 to Ring17, step 2  Vamos - success");
 #endif
+cout<<"Adding SI Ring"<<endl;
+
     for(Int_t ii=0;ii<18;ii+=1){   
     	KVTelescope *kvt = new KVTelescope;
-    	kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI"));
+	kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI"));
 	Char_t type[50];
 	sprintf(type,"CsI Ring%i",ii+1);
 	kvt->SetType(type);
@@ -105,6 +150,7 @@ void KVFocalPlanVamos::PrototypeTelescopes()
     	fTelescopes->Add(kvt);
     
     }
+cout<<"Adding CSI Ring"<<endl;
 
 #ifdef KV_DEBUG
    Info("PrototypeTelescopes", "CsI Ring1 to Ring18, Vamos - success");
@@ -124,12 +170,35 @@ void KVFocalPlanVamos::BuildGeometry()
    // The polar angle ofthe entrance of Vamos relative to the beam was set at 2. with an opening angle of 5, it was
    // covering the angular range 2-7 deg. We tried to make a kind of an image of this angular opening to the FP.    	 
 
+//Build ChIo layer
+//1st Layer - ChIo
+/*
+   Float_t step = 9./7.;  // I assume : 9 deg is the opening polar angle of Vamos that I divide by 9 det in horizontal line of vamos  
+   KVLayer *kvl = new KVLayer;
+   for(Int_t ii=0;ii<7;ii+=1){
+	Char_t type[50];
+	sprintf(type,"ChIo Ring%i",ii+1);
+        Float_t theta_min=85.5+ii*step;		
+	Float_t theta_max=85.5+(ii+1)*step;
+	Int_t ringnum = ii+1;
+       kvl->                // verifier phi et distance
+          AddRing(new
+               KVRing(ringnum, theta_min+.01, theta_max, 90, 1, 5056.,
+                      (KVTelescope *) fTelescopes->
+                      FindObjectByType(type), 1,1,6.)	//60
+       );
 
+   }
+   
+   kvl->SetName("CI");   
+   AddLayer(kvl);
+cout<<"Build CI Ring"<<endl;
+*/
 
    //Build Si layer
-   //1st Layer - Si
+   //2nd Layer - Si
    Float_t step = 9./9.;  // I assume : 9 deg is the opening polar angle of Vamos that I divid by 9 det in horizontal line of vamos  
-   KVLayer *kvl = new KVLayer;
+   KVLayer* kvl = new KVLayer;
    for(Int_t ii=0;ii<9;ii+=1){
 	Char_t type[50];
 	sprintf(type,"Si Ring%i",2*ii+1);
@@ -148,6 +217,7 @@ void KVFocalPlanVamos::BuildGeometry()
    kvl->SetName("SIE");   
    AddLayer(kvl);
    fSiLayer = kvl;
+cout<<"Build SI Ring"<<endl;
 
    //Build CsI layer	
    
@@ -180,6 +250,7 @@ void KVFocalPlanVamos::BuildGeometry()
    }
    kvl->SetName("CSI");   
    AddLayer(kvl);
+   cout<<"Build CSI Ring"<<endl;
 #ifdef KV_DEBUG
    Info("Build", "Made CsI Layer");
 #endif
@@ -212,7 +283,20 @@ void KVFocalPlanVamos::SetNamesDetectors()
    UInt_t ksih = 0;
    UInt_t ksib = 19;
    UInt_t kcsi = 0;
+   UInt_t kchio = 1;
+   UInt_t kgaph = 0;
+   UInt_t kgapb = 19;
+		  
   	while((det = (KVDetector *) next_det())){
+/*		
+		   if(det->IsType("CI")){
+		   Char_t name[50];
+		   sprintf(name,"CI_%02d",kchio);
+		   det->SetName(name);
+		   det->SetThickness(10.45);	   
+		   kchio++;
+	   }
+*/
 	   if(det->IsType("SI")){
 		   Char_t name[50];
 		   UInt_t modnum = det->GetTelescope()->GetNumber();
@@ -220,14 +304,15 @@ void KVFocalPlanVamos::SetNamesDetectors()
 		           ksih++;
 			   sprintf(name,"SIE_%02d",ksih);
 			   det->SetName(name);
-			   det->SetThickness(thick_si[ksih-1]);
+			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]);
 		   } else if(modnum==2) {
 		           ksib-=1;
 			   sprintf(name,"SIE_%02d",ksib);
 			   det->SetName(name);
-			   det->SetThickness(thick_si[ksib-1]);
+			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]);
 		   }
 	}
+
 	   if(det->IsType("CSI")){
 		   Char_t name[50];
 		   sprintf(name,"CSI%02d",numcsi[kcsi]);

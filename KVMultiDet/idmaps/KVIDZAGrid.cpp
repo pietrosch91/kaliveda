@@ -1378,7 +1378,10 @@ void KVIDZAGrid::Initialize()
     KVIDGrid::Initialize();
     // Zmax should be Z of last line in sorted list
     fZMaxLine = (KVIDZALine *) GetIdentifiers()->Last();
-    if (fZMaxLine) fZMax = fZMaxLine->GetZ();
+    if (fZMaxLine) {
+    fZMax = fZMaxLine->GetZ();
+    //cout<<"Lines are found and Zmax : "<<fZMax<<endl;
+    }
     else 				fZMax=0;			// protection au cas ou il n y a aucune ligne de Z
 }
 

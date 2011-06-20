@@ -17,14 +17,20 @@ $Date: 2007/06/08 15:49:10 $
 #define DRIFT
 #define IONCHAMBER
 #define SI
+#define CSI
 
 #include"IonisationChamberv.h"
 #include"Siv.h"
+#include"CsIv.h"
 #include"DriftChamberv.h"
 #include"Reconstructionv.h"
 #include"Identificationv.h"
+#include"EnergyTree.h"
 
-#include "Analysisv.h"
+#include"Analysisv.h"
+
+#include "TTree.h"
+#include "KVFocalPlanVamos.h"
 
 class Analysisv_e503 : public Analysisv
 {
@@ -35,7 +41,11 @@ class Analysisv_e503 : public Analysisv
   Identificationv *Id;
   IonisationChamberv *Ic;
   Siv *Si;
-
+  CsIv *CsI;
+  EnergyTree *energytree;
+  
+   TTree* t;
+   
   UShort_t T_Raw[10];
   
   Analysisv_e503(LogFile *Log);
@@ -47,6 +57,22 @@ class Analysisv_e503 : public Analysisv
   void CreateHistograms();
   void FillHistograms();
   
+  void SetBrhoRef(Double_t);
+  void SetAngleVamos(Double_t); 
+  Double_t GetBrhoRef(void);
+  Double_t GetAngleVamos(void);
+  
+  void SetFocalPlan(KVFocalPlanVamos *);
+  void SetModuleMap(string map[18][80]);
+  void SetRunFlag(Int_t); 
+  Int_t GetRunFlag(void);
+  
+  string mmodulemap[18][80];
+  KVFocalPlanVamos* vv;
+  Int_t rrunFlag;  
+  Double_t BB;
+  Double_t ttheta;
+
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 
 };

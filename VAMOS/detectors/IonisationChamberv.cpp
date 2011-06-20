@@ -37,15 +37,33 @@ IonisationChamberv::IonisationChamberv(LogFile *Log)
   Init();
 
   Rnd = new Random;
-  
-  ifstream inf;
-  
+
+   ifstream inf;
+   Int_t num=0;
+   Float_t dummy1, dummy2, dummy3;
+   TString sline;
 
   if(!gDataSet->OpenDataSetFile("IonisationChamber.cal",inf))
   {
      cout << "Could not open the calibration file IonisationChamber.cal !" << endl;
      return;
   }
+   else 
+  {
+   cout<< "Reading IonisationChamber.cal" <<endl;
+   while(!inf.eof()){
+       sline.ReadLine(inf);
+       if(!inf.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %f %f %f", &num, &dummy1, &dummy2, &dummy3);
+	     a[num] = dummy1;
+	     b[num] = dummy2;
+	     Vnorm[num] = dummy3;	     
+	     	   }
+         	}
+       	}
+}
+/*
   else
     {
       cout.setf(ios::showpoint);
@@ -89,6 +107,7 @@ IonisationChamberv::IonisationChamberv(LogFile *Log)
 	  inf.getline(line,len);
 	}
     }
+*/
   inf.close();
   Ready=kTRUE;
   
@@ -150,16 +169,18 @@ void IonisationChamberv::Init(void)
 
   ETotal = 0.0;
   EM = 0;
+  eloss = 7.54; //Energy loss (MeV) for the elastic pic form the active zone of the IC
+  
   for(Int_t i=0;i<3;i++)
     for(Int_t j=0;j<8;j++)
       {
 	E[i*8+j] = 0.0;
       }
 
-
+/*
   for(Int_t i =0;i<3;i++)
     ES[i] = 0.;
-
+*/  
 }
 
 void IonisationChamberv::Calibrate(void)
@@ -170,6 +191,16 @@ void IonisationChamberv::Calibrate(void)
   cout << "IonisationChamberv::Calibrate" << endl;
 #endif
 
+  for(i=0;i<E_RawM;i++)
+    {
+    E[E_Raw_Nr[i]] = ((((Float_t) E_Raw[i] + Rnd->Value())*a[E_Raw_Nr[i]])+b[E_Raw_Nr[i]])*(eloss/Vnorm[E_Raw_Nr[i]]);	//The linear fit * k/Vnorm
+    ETotal = E[E_Raw_Nr[i]];
+    Number = int(E_Raw_Nr[i]);
+    //L->Log<<"IC		E_raw : "<<E_Raw[i]<<"	# : "<<Number<<"	E : "<<ETotal<<endl;
+    EM++;
+    }
+
+/*
   int a,b;
   int MRow[3];
 
@@ -193,17 +224,19 @@ void IonisationChamberv::Calibrate(void)
 	      MRow[a] ++;
 	      ETotal += E[E_Raw_Nr[i]];
 	      //	      ENr[EM] = E_Raw_Nr[i];
+	      Number = int(E_Raw_Nr[i]);
 	      EM++;
 	    }
 	  
 	}
 
     }
-
-  for(i=0;i<3;i++)
-    if(ES[i] > 0) Counter[i+1]++;
+*/
+ // for(i=0;i<3;i++)
+   // if(ES[i] > 0) Counter[i+1]++;
   
-  if(ES[0] > 0. &&  ETotal > 0.0 )//&& MRow[0] == 1 && MRow[1] ==1 )
+ // if(ES[0] > 0. &&  ETotal > 0.0 )//&& MRow[0] == 1 && MRow[1] ==1 )
+ if(ETotal > 0.0)
     {
       Present = true; 
       Counter[4]++;
@@ -263,13 +296,15 @@ void IonisationChamberv::outAttach(TTree *outT)
 #ifdef DEBUG
   cout << "Attaching IonisationChamberv variables" << endl;
 #endif
-  outT->Branch("IcEA",&ES[0],"IcEA/F");
-  outT->Branch("IcEB",&ES[1],"IcEB/F");
-  outT->Branch("IcEC",&ES[2],"IcEC/F");
+  //outT->Branch("IcEA",&ES[0],"IcEA/F");
+  //outT->Branch("IcEB",&ES[1],"IcEB/F");
+  //outT->Branch("IcEC",&ES[2],"IcEC/F");
   outT->Branch("IcET",&ETotal,"IcET/F");
 
   outT->Branch("IcM",&EM,"IcM/I");
   outT->Branch("IcE",E,"IcE[24]/F");
+  
+  outT->Branch("IcNb",&Number,"IcNb/I");
 
 }
 void IonisationChamberv::CreateHistograms(void)
@@ -346,7 +381,7 @@ void IonisationChamberv::Show(void)
 	    }
 	}
       for(i=0;i<3;i++)
-	cout << "SUM ROW:" << i << " " << ES[i] << endl;
+	//cout << "SUM ROW:" << i << " " << ES[i] << endl;
       cout << "ETotal: " << ETotal << endl;
     }
 }

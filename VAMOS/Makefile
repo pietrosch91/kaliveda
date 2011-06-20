@@ -3,7 +3,8 @@
 
 PROJ_NAME = VAMOS
 
-MODULES = daq_cec analysis base identification detectors geometry
+# recon_nucleus is for the KVVAMOS.h experiment - Will not compile yet
+MODULES = daq_cec analysis base identification detectors geometry #recon_nucleus
 
 EXTRA_HEADERS = analysis/Defines.h
 

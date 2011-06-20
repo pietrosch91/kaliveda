@@ -45,10 +45,12 @@ KVTimeEntry::KVTimeEntry(const TGWindow *parent, Double_t val,
    // first remove all things
    UnmapWindow();
    RemoveFrame(fNumericEntry);
+
 	/* current layout manager is deleted by TGCompositeFrame::SetLayoutManager
 	  therefore the following is not necessary and will lead to a seg violation
 	  when SetLayoutManager is called. Strangely, until I compiled this with
 	  ROOT 5.24/00 and gcc 4.1.2 at ccali, this didn't seem to matter...??? */
+
    //delete GetLayoutManager();
    
    // Constructs a numeric entry widget.
