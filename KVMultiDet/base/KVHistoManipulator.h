@@ -74,7 +74,7 @@ class KVHistoManipulator
 	Double_t GetCorrelationFactor(TH2* hh);
 	TGraph* LinkGraphs(TGraph* grx,TGraph* gry);
 	
-	KVList* Give_ProjectionList(TH2 *hh,TString axis="X");
+	KVList* Give_ProjectionList(TH2 *hh,Double_t MinIntegral=-1,TString axis="X");
 
 	void DefinePattern(TH1* ob,TString titleX="22 0.08 0.8",TString titleY="22 0.07 1.2",TString labelX="22 0.05 0.005",TString labelY="22 0.05 0.006");
 	void DefinePattern(TGraph* ob,TString titleX="22 0.08 0.8",TString titleY="22 0.07 1.2",TString labelX="22 0.05 0.005",TString labelY="22 0.05 0.006");
@@ -105,6 +105,9 @@ class KVHistoManipulator
 			Option_t* opt="", const Char_t* direction="C",
 			Double_t xmin=-1, Double_t xmax=-1, Double_t qmin=0.05, Double_t qmax=0.95,
 			Double_t eps=1.e-07);
+	
+	Double_t GetChisquare(TH1* h1, TF1* f1,Bool_t norm=kTRUE,Bool_t err=kTRUE,Double_t* para=0);
+	Double_t GetLikelihood(TH1* h1, TF1* f1,Bool_t norm=kTRUE,Double_t* para=0);
 	
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };

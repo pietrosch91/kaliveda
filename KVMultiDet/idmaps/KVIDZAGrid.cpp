@@ -900,9 +900,9 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             	dt = -(y1 + y2) / dist;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            		GetName(), Z, Aint, fICode);
+            		GetName(), Z, Aint, fICode);*/
         }
         else if (ix2 == -ix1 * 2)       // dA2 = 2*dA1
         {
@@ -912,9 +912,9 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            		GetName(), Z, Aint, fICode);
+            		GetName(), Z, Aint, fICode);*/
         }
         else if (ix1 == -ix2 * 2)       // dA1 = 2*dA2
         {
@@ -924,9 +924,9 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZA","%s : cannot calculate interpolated mass, Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            		GetName(), Z, Aint, fICode);
+            		GetName(), Z, Aint, fICode);*/
         }
         if (i)
         {
@@ -935,17 +935,17 @@ void KVIDZAGrid::IdentZA(Double_t x, Double_t y, Int_t & Z, Double_t & A)
             {
             	if(y2!=0)
                 	deltaA = yy * ix2 / y2 / 2.;
-            	else
+            	/*else
             		Warning("IdentZA","%s : cannot calculate interpolated mass (y2=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            			GetName(), y2, Z, Aint, fICode);
+            			GetName(), y2, Z, Aint, fICode);*/
             }
             else
             {
                 if(dist>-1. && dt*yy>-1.)
                 	deltaA = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
-            	else
+            	/*else
             		Warning("IdentZA","%s : cannot calculate interpolated mass (dist=%f dt*yy=%f), Areal will equal Aint (Z=%d Aint=%d fICode=%d)",
-            			GetName(), dist, dt*yy, Z, Aint, fICode);
+            			GetName(), dist, dt*yy, Z, Aint, fICode);*/
             }
             A += deltaA;
         }
@@ -1198,9 +1198,9 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
             	dt = -(y1 + y2) / dist;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
-            		GetName(), Zint, fICode);
+            		GetName(), Zint, fICode);*/
         }
         else if (ix2 == -ix1 * 2)       // dZ2 = 2*dZ1
         {
@@ -1210,9 +1210,9 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
-            		GetName(), Zint, fICode);
+            		GetName(), Zint, fICode);*/
         }
         else if (ix1 == -ix2 * 2)       // dZ1 = 2*dZ2
         {
@@ -1222,9 +1222,9 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
                    TMath::Sqrt(tmp)) / dist / 2.;
             	i = kTRUE;
             }
-            else
+            /*else
             	Warning("IdentZ","%s : cannot calculate interpolated charge, Zreal will equal Zint (Zint=%d fICode=%d)",
-            		GetName(), Zint, fICode);
+            		GetName(), Zint, fICode);*/
         }
         if (i)
         {
@@ -1233,17 +1233,17 @@ void KVIDZAGrid::IdentZ(Double_t x, Double_t y, Double_t & Z)
             {
             	if(y2!=0)
                 	deltaZ = yy * ix2 / y2 / 2.;
-            	else
+            	/*else
             		Warning("IdentZ","%s : cannot calculate interpolated charge (y2=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
-            			GetName(), y2, Zint, fICode);
+            			GetName(), y2, Zint, fICode);*/
             }
             else
             {
             	if(dist>-1. && dt*yy>-1.)
                		deltaZ = ix2 / 2. / TMath::Log(1. + dist) * TMath::Log(1. + dt * yy);
-            	else
+            	/*else
             		Warning("IdentZ","%s : cannot calculate interpolated charge (dist=%f dt*yy=%f), Zreal will equal Zint (Zint=%d fICode=%d)",
-            			GetName(), dist, dt*yy, Zint, fICode);
+            			GetName(), dist, dt*yy, Zint, fICode);*/
             }
             Z += deltaZ;
         }
@@ -1467,8 +1467,8 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
 
         Double_t E1, E2;
         //find E1
-        //go from 0.1 MeV to dE->GetBraggE(part.GetZ(),part.GetA()))
-        Double_t E1min = 0.1, E1max = dEDet->GetBraggE(part.GetZ(),part.GetA());
+        //go from 0.1 MeV to dE->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
+        Double_t E1min = 0.1, E1max = dEDet->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA());
         E1 = (E1min + E1max) / 2.;
 
         while ((E1max - E1min) > 0.1)
@@ -1522,12 +1522,12 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
 			Info("MakeEDeltaEZGrid","Z= %d, E2=%lf",z,E2);
 			
         // check we are within limits of validity of energy loss tables
-        if ( E2 > dEDet->GetEmaxVedaloss(z)*part.GetA() )
+        if ( E2 > dEDet->GetEmaxValid(z, part.GetA()) )
         {
             Warning("MakeEDeltaEZGrid",
                     "Emax=%f MeV for Z=%d : beyond validity of range tables. Will use max limit=%f MeV",
-                    E2, z, dEDet->GetEmaxVedaloss(z)*part.GetA());
-            E2 = dEDet->GetEmaxVedaloss(z)*part.GetA();
+                    E2, z, dEDet->GetEmaxValid(z,part.GetA()));
+            E2 = dEDet->GetEmaxValid(z,part.GetA());
         }
 
         KVIDentifier *line = NewLine("ID");

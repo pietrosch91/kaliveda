@@ -236,8 +236,6 @@ public:
     };
 
 
-    void FitPanel(); // *MENU*
-
     ClassDef(KVIDGrid, 5)        //Base class for 2D identification grids
 };
 

@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="Content-Type">
+  <title>KaliVeda v1.8.1 Release Notes</title>
+  <link rel="stylesheet" href="css/site.css" type="text/css">
+</head>
+<body>
+<h1>KaliVeda v1.8.1 Release Notes</h1>
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+<img
+ style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;"
+ alt="indra" src="images/indra_camp4_210x188.png"><br>
+<script language="javascript" src="js/nav.js"></script>
+<br>
+<!-- SiteSearch Google -->
+<form method="get" action="http://www.google.com/search"><input
+ name="ie" value="UTF-8" type="hidden"> <input name="oe" value="UTF-8"
+ type="hidden"><input name="q" style="margin-top: 5px;" size="13"
+ maxlength="255" value="" type="text"> <input name="btnG"
+ style="margin-top: 5px;" value="Search site"
+ onclick="send_data(this.form)" type="submit"></form>
+<!-- SiteSearch Google -->
+</div>
+<div class="page">
+<h2><br>
+</h2>
+Here is a (far-from-complete) list of what's new in KaliVeda v1.8.1.<br>
+For more details, see <a
+ href="https://launchpad.net/kaliveda/1.8/1.8.1">here</a>.<br>
+<br>
+You should probably also read the <a href="ReleaseNotes_1.8.0.html">Release
+Notes
+for
+v1.8.0</a>.<br>
+<br>
+<h2>INDRA data reduction</h2>
+<br>
+Many improvements mainly concerning the reduction of data from the <span
+ style="font-weight: bold;">5th
+campaign of experiments</span>:<br>
+<ul>
+  <li>corrected thicknesses of 112/124Sn targets. The nominal thickness
+(330 &micro;g/cm2) has been replaced with the measured value of
+530&micro;g/cm2.</li>
+  <li>identification &amp; calibration for the forward rings (1-9)
+takes into account as much as possible the coherency between CsI,
+Si-CsI and ChIo-Si identifications. Energy losses of identified
+particles are calculated in detectors in which pile-up appears to have
+occured, but no attempt is made to identify the apparent second
+particle (no IDCode 6).<br>
+  </li>
+  <li>CsI energy losses of all particles are checked, if they are
+greater than the maximum theoretical energy loss the particle is given
+energy code (ECode) 3.</li>
+  <li>the real thicknesses of all (nominal) 300&micro;m Silicon
+detectors are used. The thicknesses of Si75 and Si(Li) detectors
+(including dead zones) are included.</li>
+  <li>all particles whose mass is not measured have A calculated from Z
+using Charity EAL formula (KVNucleus::kEALMass formula).</li>
+  <li>discrimination of neutrons is performed for all forward rings
+(1-9) by comparison of CsI and Si-CsI identifications.<br>
+  </li>
+</ul>
+<br>
+<h2>Reorganisation of analysis tasks</h2>
+<br>
+The "raw-&gt;ident" analysis task has been suppressed; it is obsolete
+as now "recon" data is independent of any changes made to detector
+geometry, calibrations, etc. "recon" data should be generated from raw
+data once and for all, and all subsequent processing done by
+"recon-&gt;ident" task.<br>
+<br>
+<br>
+<h2>Filtering simulated events</h2>
+<br>
+New "simulation mode" for detectors (<a
+ href="1.8.1/KVDetector.html#KVDetector:SetSimMode">KVDetector::SetSimMode</a>)
+and multidetector arrays (<a
+ href="1.8.1/KVMultiDetArray.html#KVMultiDetArray:SetSimMode">KVMultiDetArray::SetSimMode</a>
+- this just turns on the "simulation mode" for all detectors of the
+array). In "simulation mode" a detector is "fired" (<a
+ href="1.8.1/KVDetector.html#KVDetector:Fired">KVDetector::Fired</a>
+returns kTRUE) if the calculated energy loss in its active layer is
+non-zero.<br>
+New method <a
+ href="1.8.1/KVMultiDetArray.html#KVMultiDetArray:DetectEvent">KVMultiDetArray::DetectEvent
+</a>takes as input a <a href="1.8.1/KVEvent.html">KVEvent</a> (or
+child class) and produces a <a href="1.8.1/KVReconstructedEvent.html">KVReconstructedEvent</a>
+with the reconstructed detected nuclei. If the simulated event contains
+<a href="1.8.1/KVSimNucleus.html">KVSimNucleus</a> objects, information
+on the detection of each will be added to their parameter list.<br>
+<br>
+<br>
+<h2>Reorganisation of class hierarchies</h2>
+<br>
+In order to facilitate use of KaliVeda outside of a purely INDRA
+context, new classes have been introduced to separate INDRA-specific
+behaviour of detectors (KVINDRADetector), telescopes
+(KVINDRATelescope), and identification telescopes (KVINDRAIDTelescope).
+All INDRA detectors, telescopes, and identification telescopes now
+inherit from these classes, instead of directly from the base classes
+KVDetector, KVTelescope, and KVIDTelescope. The main difference
+concerns automatic generation of names for the different objects.<br>
+<br>
+<br>
+<h2>Nuclear Data Tables</h2>
+<br>
+Many experimental informations on nuclei have been added/updated - mass
+excess (<a href="1.8.1/KVMassExcess.html">KVMassExcess</a>), lifetimes (<a
+ href="1.8.1/KVLifeTime.html">KVLifeTime</a>), and abundances (<a
+ href="1.8.1/KVAbundance.html">KVAbundance</a>) are handled by new
+Nuclear Data Table manager class <a href="1.8.1/KVNDTManager.html">KVNDTManager</a>
+accessible through a gNDTManager global pointer set up by
+KVBase::InitEnvironnement.<br>
+<br>
+<br>
+<h2>Interface to ROOT geometry package and VMC</h2>
+<br>
+Several improvements have been made to the ROOT geometry generated from
+a KVMultiDetArray (method <a
+ href="1.8.1/KVMultiDetArray.html#KVMultiDetArray:CreateGeoManager">KVMultiDetArray::CreateGeoManager</a>),
+with a view to using it with the Virtual Monte Carlo (VMC) package
+provided by ROOT in order to interface with packages such as GEANT3 and
+GEANT4.<br>
+All TGeoMaterials used in the geometry for composite materials in the
+KVedaLoss package (such as C3F8, Mylar, CsI, etc.) now have the correct
+chemical composition required for VMC simulations. In addition, purely
+for esthetic reasons, the materials appear in the GL viewer as
+transparent, allowing to see more easily the internal structure of the
+geometry.<br>
+<img style="width: 803px; height: 499px;" alt="New TGeo INDRA"
+ title="New TGeo INDRA" src="images/newIndraTGeo.png"><br>
+The logical structure of the generated TGeoVolumes now follows the
+layer-ring-telescope structure of KVMultiDetArray, which makes it easy
+to visualize individual rings or telescopes using the standard ROOT
+browser:<br>
+<img style="width: 500px; height: 442px;" alt="INDRA TGeo in TBrowser"
+ title="INDRA TGeo in TBrowser" src="images/newTgeoInTBrowser.png"><img
+ style="width: 300px; height: 250px;" alt="INDRA ring 5 si-csi"
+ title="INDRA ring 5 si-csi" src="images/newIndraTgeoRing5sicsi.png"><br>
+<br>
+<br>
+<h2>Stopping Power &amp; Range Tables for Heavy Ions</h2>
+<br>
+In previous versions, the class used to describe materials making up
+detectors and targets, <a href="1.8.1/KVMaterial.html">KVMaterial</a>,
+was itself an implementation of the VEDALOSS range tables used by the
+INDRA collaboration. This serious design flaw has now been corrected.
+The role of KVMaterial is just to describe properties of absorbers
+which make up detectors and targets. The calculation of energy losses,
+range, etc. of heavy ions in these absorbers is handled through an
+abstract interface, <a href="1.8.1/KVIonRangeTable.html">KVIonRangeTable</a>.
+The
+specific
+implementation
+to be used is determined by an environment
+variable:<br>
+<pre>KVMaterial.IonRangeTable:     VEDALOSS</pre>
+and all implementations are plugin classes derived from KVIonRangeTable:<br>
+<pre>Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   <span
+ class="string">"KVedaLoss()"</span></pre>
+By default, the range table used is a new implementation of the
+VEDALOSS package, <a href="1.8.1/KVedaLoss.html">KVedaLoss</a> (see <a
+ href="#KVedaLoss">below</a>).<br>
+<br>
+<h3>IMPORTANT - Units!</h3>
+In previous versions of KVMaterial, different materials had different
+"default" units to describe their "thickness", which also had a
+different meaning depending on the material (linear dimension for some,
+area density for others, or even pressure for gases). For this new
+implementation, we have standardised the units for dimension, mass, and
+pressure, and a new namespace <a href="1.8.1/KVUnits.html">KVUnits</a>
+can be used to facilitate conversions. In addition, the <a
+ href="1.8.1/KVMaterial.html">KVMaterial</a> interface has been
+clarified to distinguish between linear dimensions and area density
+(see <a href="#KVMaterial">below</a>). Unless otherwise stated, all
+linear dimensions are in centimetres, all masses are in grammes, and
+all pressures are in torr. Units and "thickness" have the same meaning
+for all materials. See <a href="1.8.1/KVUnits.html">KVUnits</a> for
+converting from one unit to another.<br>
+<h4><br>
+</h4>
+<h4>Units for INDRA detectors</h4>
+For backwards compatibility, we have kept the "special units" for
+specific implementations of INDRA detectors. Thus, thicknesses of INDRA
+silicon detectors (<a href="1.8.1/KVSilicon.html">KVSilicon</a>) are
+still in microns, gas pressures of ionisation chambers (<a
+ href="1.8.1/KVChIo.html">KVChIo</a>) are still in millibar, and the
+lengths of Cesium Iodide scintillators (<a href="1.8.1/KVCsI.html">KVCsI</a>)
+are
+still
+in
+centimetres. Note that these classes now inherit the new <a
+ href="1.8.1/KVINDRADetector.html">KVINDRADetector</a> base class.<br>
+<br>
+<h3>Changes to existing classes</h3>
+<h4><a name="KVMaterial"></a>KVMaterial</h4>
+There are now three constructors for defining absorbers, by linear
+thickness, by area density, or the special case of a gas (for which
+temperature and pressure must be specified):<br>
+<pre>KVMaterial(const Char_t * type, const Double_t thick = 0.0);<br>KVMaterial(Double_t area_density, const Char_t * type);<br>KVMaterial(const Char_t * gas, const Double_t thick, const Double_t pressure, const Double_t temperature = 19.0);<br></pre>
+The methods <span style="font-family: monospace;">Get/SetThickness</span>
+now have the same meaning for all materials: they concern the linear
+dimensions of the absorber (standard units: centimetres). New methods <span
+ style="font-family: monospace;">Get/SetAreaDensity</span> apply in the
+same way to all, with standard units of g/cm**3.<br>
+The methods<br>
+<pre>Double_t GetBraggDE(Int_t Z, Int_t A)<br>Double_t GetBraggE(Int_t Z, Int_t A)<br></pre>
+have been renamed:<br>
+<pre>Double_t GetMaxDeltaE(Int_t Z, Int_t A)<br>Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A)<br></pre>
+and, as their names now imply, they return the maximum possible energy
+loss and the incident energy for which this maximum occurs,
+respectively, for a given ion.<br>
+<br>
+The methods <span style="font-family: monospace;">GetEmin/maxVedaloss(UInt_t
+Z)</span> obviously no longer exist; instead, there is a generic method
+for obtaining the upper limit to the current range table's validity,<br>
+<pre>Double_t GetEmaxValid(Int_t Z, Int_t A)<br></pre>
+The "solution type" enumeration used in the previous implementation of
+the methods<br>
+<pre>Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t dE=-1.0, KVMaterial::SolType type=kEmax)<br>Double_t GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE=-1.0, KVMaterial::SolType type=kEmax)<br></pre>
+is no longer part of KVMaterial, it has been moved to the abstract base
+class for range tables, KVIonRangeTable. The two possible values of <span
+ style="font-family: monospace;">KVIonRangeTable::SolType</span> are <span
+ style="font-family: monospace;">KVIonRangeTable::kEmax</span> and <span
+ style="font-family: monospace;">KVIonRangeTable::kEmin</span>.<br>
+<br>
+The method <span style="font-family: monospace;">KVIonRangeTable*
+KVMaterial::GetRangeTable()</span> returns the address of the current
+default range table implementation.<br>
+<br>
+<h4>KVDetector</h4>
+Following the normalisation of units and conventions in KVMaterial, the
+constructor<br>
+<pre>KVDetector(const Char_t* type, const Float_t thick=0.0)<br></pre>
+creates an absorber with linear thickness given in centimetres,
+whatever the nature of the chosen material.<br>
+A new general method for calculating the total energy loss of an ion in
+the detector based on the measured energy loss in the 'active' layer
+has been introduced:<br>
+<pre>Double_t GetCorrectedEnergy(Int_t Z, Int_t A, Double_t de=-1., Bool_t transmission=kTRUE)<br></pre>
+(in previous versions, this method just returned the measured energy
+loss, specific corrections were implemented in child classes). The
+energy loss <span style="font-family: monospace;">de</span> does not
+allow an unambiguous answer for particles which punch through, as in
+general it is not always correct to assume that such particles have an
+incident energy beyond the maximum of the <span
+ style="font-style: italic;">dE(E) </span>curve. If the residual
+energy of the particle is also measured, the ambiguity disappears. It
+should first be set by calling new method<br>
+<pre>void SetEResAfterDetector(Double_t eres)<br></pre>
+This allows to obtain correct energies for all punch-through particles.<br>
+In addition, if the measured dE is &gt; max theoretical dE for given
+(Z,A), we increase the Z of the given nucleus (using the nucleus' mass
+formula to calculate A) until the dE is &lt; max theoretical. Then we
+perform the correction for the new Z (the Z and A of the nucleus given
+as argument remain unchanged).<br>
+<br>
+The new method<br>
+<pre>void ReadDefinitionFromFile(const Char_t* envrc)<br></pre>
+can be used to define new detectors using only '.rootrc'-style text
+files, for example:<br>
+<pre># MyDet.rc<br># Example file to use with KVDetector::ReadDefinitionFromFile<br>Layer:  Gold<br>Gold.Material:   Au<br>Gold.AreaDensity:   200.*KVUnits::ug<br>+Layer:  Gas1<br>Gas1.Material:   C3F8<br>Gas1.Thickness:   5.*KVUnits::cm<br>Gas1.Pressure:   50.*KVUnits::mbar<br>Gas1.Active:    yes<br>+Layer:  Si1<br>Si1.Material:   Si<br></pre>
+<pre>Si1.Thickness:   300.*KVUnits::um<br></pre>
+To create the new detector, it is only necessary to do:<br>
+<pre>KVDetector* D = new KVDetector;<br>D-&gt;ReadDefinitionFromFile("MyDet.rc");<br></pre>
+New methods are provided for calculating the range of particles in
+detectors, and also the punch-through energy for any given ion. <a
+ href="1.8.1/KVDetector.html#KVDetector:DrawPunchThroughEnergyVsZ">KVDetector::DrawPunchThroughEnergyvsZ</a>
+creates a TGraph which gives the punch-through energy as a function of
+Z for Z=1 to Z=92. <a
+ href="1.8.1/KVMultiDetArray.html#KVMultiDetArray:DrawPunchThroughEnergyVsZ">KVMultiDetArray::DrawPunchThroughEnergyvsZ(const
+Char_t* detector)</a> does the same but takes into account any
+detectors which are placed in front of the detector in question in the
+array geometry; the punch-through energy in this case corresponds to
+the incident energy required to punch through all previous detectors
+plus the detector in question.<br>
+<br>
+<h4>KVTarget</h4>
+In accordance with convention, all target "thicknesses" are expressed
+in terms of area density, with standard units mg/cm**2.<br>
+<h4><br>
+</h4>
+<h4>KVChIo</h4>
+The previous specific GetCorrectedEnergy method has been replaced by
+the new generic method in KVDetector. The mylar correction for
+low-energy punching-through heavy ions (around the Bragg curve) is
+better treated by using the residual energy measured behind the ChIo.<br>
+<br>
+<h4>KVSilicon, KVPulseHeightDefect</h4>
+The previous specific GetCorrectedEnergy method has been replaced by
+the new generic method in KVDetector. As before, the energy loss
+function for silicon detectors is replaced by a function including (if
+defined) the pulse height defect (PHD). The correction for low-energy
+punching-through heavy ions is better treated by using the residual
+energy measured behind the silicon detector.<br>
+<br>
+<h3><a name="KVedaLoss"></a>KVedaLoss</h3>
+<a href="1.8.1/KVedaLoss.html">KVedaLoss</a> and <a
+ href="1.8.1/KVedaLossMaterial.html">KVedaLossMaterial</a> are new
+implementations of the VEDALOSS range &amp; energy loss tables
+previously implemented in KVMaterial. KVedaLoss is based on the
+abstract interface provided by <a href="1.8.1/KVIonRangeTable.html">KVIonRangeTable</a>.
+It
+manages
+a
+list of KVedaLossMaterial objects which use the same
+tabulation of ranges of heavy ions as before:<br>
+<pre>	*************************************************************************<br>	*                VEDALOSS STOPPING POWER &amp; RANGE TABLES                 *<br>	*                                                                       *<br>	*   1.  Si      Silicon             Z=14 A= 28.1  rho= 2.330 g/cm**3    *<br>	*   2.  Myl     Mylar               Z= 4 A=  8.7  rho= 1.395 g/cm**3    *<br>	*   3.  NE102   Plastic             Z= 3 A=  6.5  rho= 1.032 g/cm**3    *<br>	*   4.  Ni      Nickel              Z=28 A= 58.7  rho= 8.902 g/cm**3    *<br>	*   5.  C3F8    Octofluoropropane   Z= 8 A= 17.1  rho= 0.008 g/cm**3    *<br>	*   6.  C       Carbon              Z= 6 A= 12.0  rho= 1.900 g/cm**3    *<br>	*   7.  Ag      Silver              Z=47 A=107.9  rho=10.500 g/cm**3    *<br>	*   8.  Sn      Tin                 Z=50 A=118.7  rho= 5.750 g/cm**3    *<br>	*   9.  CsI     CesiumIodide        Z=54 A=129.9  rho= 4.510 g/cm**3    *<br>	*  10.  Au      Gold                Z=79 A=197.0  rho=19.300 g/cm**3    *<br>	*  11.  U       Uranium             Z=92 A=238.0  rho=18.950 g/cm**3    *<br>	*  12.  Air     Air                 Z= 7 A= 14.4  rho= 0.001 g/cm**3    *<br>	*  13.  Nb      Nobium              Z=41 A= 92.9  rho= 8.570 g/cm**3    *<br>	*  14.  Ta      Tantalum            Z=73 A=180.9  rho=16.654 g/cm**3    *<br>	*  15.  Al      Aluminium           Z=13 A= 27.0  rho= 2.699 g/cm**3    *<br>	*  16.  KCl     KCl                 Z=18 A= 37.3  rho= 1.987 g/cm**3    *<br>	*  17.  CF4     Tetrafluoromethane  Z= 8 A= 17.6  rho= 0.004 g/cm**3    *<br>	*  18.  Ca      Calcium             Z=20 A= 40.1  rho= 1.550 g/cm**3    *<br>	*  19.  Ge      Germanium           Z=32 A= 72.6  rho= 5.323 g/cm**3    *<br>	*  20.  Cu      Copper              Z=29 A= 63.5  rho= 8.960 g/cm**3    *<br>	*  21.  Ti      Titanium            Z=22 A= 47.9  rho= 4.540 g/cm**3    *<br>	*  22.  Bi      Bismuth             Z=83 A=209.0  rho= 9.747 g/cm**3    *<br>	*  23.  V       Vanadium            Z=23 A= 50.9  rho= 6.110 g/cm**3    *<br>	*  24.  C4H10   Isobutane           Z= 2 A=  4.2  rho= 0.002 g/cm**3    *<br>	*  25.  Pb      Lead                Z=82 A=207.2  rho=11.350 g/cm**3    *<br>	*  26.  PbS     LeadSulphide        Z=49 A=120.0  rho= 7.500 g/cm**3    *<br>	*  27.  Mg      Magnesium           Z=12 A= 24.3  rho= 1.738 g/cm**3    *<br>	*  28.  Li      Lithium             Z= 3 A=  6.9  rho= 0.534 g/cm**3    *<br>	*  29.  Zn      Zinc                Z=30 A= 65.4  rho= 7.133 g/cm**3    *<br>	*                                                                       *<br>	*     TF1::Range::Npx =   20            TF1::EnergyLoss::Npx =   50     *<br>	*                      TF1::ResidualEnergy::Npx =   20                  *<br>	*                                                                       *<br>	*                       INITALISATION COMPLETE                          *<br>	*************************************************************************<br></pre>
+The tabulated range of ions in each material as a function of incident
+energy is implemented as a <a
+ href="http://root.cern.ch/root/html/TF1.html">TF1</a> object. This
+function is inverted using <a
+ href="http://root.cern.ch/root/html/TF1.html#TF1:GetX">TF1::GetX</a>
+in order to calculate residual energies or energy losses in finite
+absorbers. This is the main difference from the previous
+implementation, in which the original numerical inversion was used
+(this had problems for certain cases, for example when calculating the
+total energy loss of ions crossing <span style="font-style: italic;">N</span>
+identical absorbers of thickness <span style="font-style: italic;">x</span>
+and comparing with the calculated energy loss of the same ions in a
+single absorber of thickness <span style="font-style: italic;">Nx</span>:
+the
+two
+results
+were not always the same, and could have a significant
+difference).<br>
+<br>
+As mentioned above, all units and "thicknesses" have been rationalised
+and standardised. Unless otherwise stated, all
+linear dimensions are in centimetres, all masses are in grammes, and
+all pressures are in torr. Units and "thickness" have the same meaning
+for all materials. See <a href="1.8.1/KVUnits.html">KVUnits</a> for
+converting from one unit to another.<br>
+<br>
+KVedaLoss is the default range table used by KVMaterial and KVDetector
+classes to calculate energy losses of heavy ions. It can also be used
+independently, as a "stand-alone" energy loss calculator:<br>
+<pre>KVedaLoss* vedaloss = new KVedaLoss;<br>// calculate punch-through energy of 129Xe ions in 300um silicon detector<br>vedaloss-&gt;GetLinearPunchThroughEnergy("Si", 54, 129, 300*KVUnits::um);<br></pre>
+<br>
+<h2>Identification grid GUI</h2>
+<br>
+A new graphical interface for handling, drawing, testing, fitting, etc.
+identification grids has been developed.<br>
+<br>
+<img style="width: 800px; height: 619px;" alt="New ID grid manager GUI"
+ title="New ID grid manager GUI" src="images/newIDgridManager.png"><br>
+<br>
+<br>
+<br>
+<span style="font-style: italic;"></span></div>
+</body>
+</html>

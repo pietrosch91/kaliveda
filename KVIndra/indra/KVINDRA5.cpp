@@ -23,9 +23,6 @@
 #include "KVChIo.h"
 #include "KVCsI.h"
 
-#define PG_GG_SI_FILE "Si_fit_PG_GG.dat"
-#define PG_GG_CHIO_FILE "ChIo_fit_PG_GG.dat"
-
 ClassImp(KVINDRA5);
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -71,7 +68,7 @@ void KVINDRA5::PrototypeTelescopes()
 
    KVINDRA4::PrototypeTelescopes();
    // Si-CsI Ring 2
-   KVTelescope *kvt = new KVTelescope;
+   KVINDRATelescope *kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -82,7 +79,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 3
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -93,7 +90,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 4
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -104,7 +101,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 5
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
@@ -115,7 +112,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 6
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
@@ -126,7 +123,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 7
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
@@ -137,7 +134,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 8
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
@@ -148,7 +145,7 @@ void KVINDRA5::PrototypeTelescopes()
    fTelescopes->Add(kvt);
 
    // Si-CsI Ring 9
-   kvt = new KVTelescope;
+   kvt = new KVINDRATelescope;
    kvt->AddDetector((KVSilicon *) fDetectorTypes->
                     FindObjectByLabel("SI150"));
    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
@@ -169,75 +166,6 @@ void KVINDRA5::Build()
    KVINDRA4::Build();
    SetName("INDRA");
    SetTitle("5th campaign INDRA detector");
-   SetPGtoGGFactors("SI");
-   SetPGtoGGFactors("CI");
-}
-
-//_______________________________________________________________________________
-
-void KVINDRA5::SetPGtoGGFactors(Option_t * type)
-{
-   //Read files containing experimental PG to GG conversion factors and set these
-   //factors for detectors of type "type"
-
-
-   UInt_t det_type = ChIo_GG;
-   ifstream datfile;
-
-   if (!strcmp(type, "SI")) {
-      if (!SearchAndOpenKVFile(PG_GG_SI_FILE, datfile, fDataSet.Data()))
-         return;
-      det_type = Si_GG;
-   } else if (!strcmp(type, "CI")) {
-      if (!SearchAndOpenKVFile(PG_GG_CHIO_FILE, datfile, fDataSet.Data()))
-         return;
-      det_type = ChIo_GG;
-   } else {
-      return;
-   }
-
-   if (!datfile.good()) {
-      Error("SetPGtoGGFactors",
-            "PG to GG conversion data not found for type %s", type);
-      return;
-   }
-
-   KVString aline;
-   int cou, mod;
-   float alpha, beta;
-
-   aline.ReadLine(datfile);
-   while (datfile.good()) {
-
-      if (!aline.BeginsWith('#')) {     //skip comments in header
-
-         if (sscanf(aline.Data(), "%d %d %f %f", &cou, &mod, &alpha, &beta)
-             != 4) {
-            //erreur de lecture
-            Error("SetPGtoGGFactors", "Problem reading line :\n%s",
-                  aline.Data());
-            datfile.close();
-            return;
-         }
-         KVDetector *det =
-             GetDetectorByType((UInt_t) cou, (UInt_t) mod, det_type);
-         if (!det) {
-            //no detector found with cou, mod and type
-            Error("SetPGtoGGFactors",
-                  "No detector found with cou=%d mod=%d and type=%d", cou,
-                  mod, det_type);
-            datfile.close();
-            return;
-         }
-         if (det->InheritsFrom("KVSilicon")) {
-            ((KVSilicon *) det)->SetPGtoGG(alpha, beta);
-         } else if (det->InheritsFrom("KVChIo")) {
-            ((KVChIo *) det)->SetPGtoGG(alpha, beta);
-         }
-      }
-      aline.ReadLine(datfile);
-   }                            //while( datfile.good()
-   datfile.close();
 }
 
 //_________________________________________________________________________________________

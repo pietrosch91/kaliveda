@@ -178,7 +178,7 @@ void KVINDRAFNL::Build()
 
 //_________________________________________________________________________________
 
-KVDetector *KVINDRAFNL::GetDetectorByType(UInt_t cou, UInt_t mod,
+KVINDRADetector *KVINDRAFNL::GetDetectorByType(UInt_t cou, UInt_t mod,
                                           UInt_t type) const
 {
    //Modified KVINDRA::GetDetectorByType
@@ -207,25 +207,25 @@ KVDetector *KVINDRAFNL::GetDetectorByType(UInt_t cou, UInt_t mod,
    //GetDetectorByType(7,18,Si_GG/PG/T) -> SIB_3
    //
 
-   KVDetector *det = KVINDRA::GetDetectorByType(cou, mod, type);
+   KVINDRADetector *det = KVINDRA::GetDetectorByType(cou, mod, type);
 
    if (!det) {
       if (cou == 4 && mod == 23 && (type >= ChIo_GG && type <= ChIo_T))
-         det = GetDetector("BIC_1");
+         det = (KVINDRADetector*)GetDetector("BIC_1");
       else if (cou == 6 && mod == 1 && (type >= ChIo_GG && type <= ChIo_T))
-         det = GetDetector("BIC_2");
+         det = (KVINDRADetector*)GetDetector("BIC_2");
       else if (cou == 6 && mod == 17
                && (type >= ChIo_GG && type <= ChIo_T))
-         det = GetDetector("BIC_3");
+         det = (KVINDRADetector*)GetDetector("BIC_3");
       else if ((cou >= 4 && cou <= 5) && (mod >= 23 && mod <= 24)
                && (type >= Si_GG && type <= Si_T))
-         det = GetDetector("SIB_1");
+         det = (KVINDRADetector*)GetDetector("SIB_1");
       else if ((cou >= 6 && cou <= 7) && (mod >= 1 && mod <= 2)
                && (type >= Si_GG && type <= Si_T))
-         det = GetDetector("SIB_2");
+         det = (KVINDRADetector*)GetDetector("SIB_2");
       else if ((cou >= 6 && cou <= 7) && (mod >= 17 && mod <= 18)
                && (type >= Si_GG && type <= Si_T))
-         det = GetDetector("SIB_3");
+         det = (KVINDRADetector*)GetDetector("SIB_3");
    }
    return det;
 }

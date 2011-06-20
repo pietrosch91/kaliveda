@@ -11,6 +11,7 @@ $Date: 2009/03/03 14:27:15 $
 #include "fit_ede.h"
 #include "KVIDZAGrid.h"
 #include "KVIDGridManager.h"
+#include "KVTGIDGrid.h"
 
 ClassImp(KVTGIDFitter)
 
@@ -282,13 +283,18 @@ void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
 	if(last_Z!=-1) fTGID->SetIDmax(last_Z);
 
    if (fGrid->GetXmin() == fGrid->GetXmax()) fGrid->FindAxisLimits();
-	KVIDGrid* fitgr = fTGID->MakeIDGrid(fGrid->GetXmax(), fGrid->GetXmin());
-	fitgr->SetLineColor( kRed );
+   // generate grid representing fit
+	KVTGIDGrid* fitgr = new KVTGIDGrid(fTGID);
+	fitgr->Generate(fGrid->GetXmax(), fGrid->GetXmin());
+	// make fitted grid 'onlyzid' if parent grid was
+	fitgr->SetOnlyZId(fGrid->OnlyZId());
 	gIDGridManager->Modified();
 
 	if( fPad ){
 		// draw fitted grid in same pad as original
 		fPad->cd();
 		fitgr->Draw();
+		fPad->Modified();
+		fPad->Update();
 	}
 }

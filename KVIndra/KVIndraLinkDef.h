@@ -1,13 +1,3 @@
-/***************************************************************************
-$Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
-                              kaliveda5LinkDef.h
-                               description
-                             -------------------
-                       Auteur   :  Alexis Mignon + J.D. Frankland
-                       email    :  mignon@ganil.fr
-                       Cree le  :  21/05/2002
- ***************************************************************************/
-
 #ifdef __CINT__
 #pragma link off all globals;
 #pragma link off all classes;
@@ -29,6 +19,8 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVINDRACodes+;
 #pragma link C++ class KVINDRACodeMask+;
 #pragma link C++ class KVINDRADetector+;
+#pragma link C++ class KVINDRAIDTelescope+;
+#pragma link C++ class KVINDRATelescope+;
 #pragma link C++ class KVINDRADstToRootTransfert;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVINDRARawDataAnalyser;
@@ -74,7 +66,6 @@ $Id: KVIndraLinkDef.h,v 1.95 2009/04/15 09:46:27 ebonnet Exp $
 #pragma link C++ class KVDBPeak;
 #pragma link C++ class KVDBAlphaPeak;
 #pragma link C++ class KVDBElasticPeak;
-#pragma link C++ class KVElasticScatterEvent_e475s+;
 #pragma link C++ class KVINDRADB1;
 #pragma link C++ class KVINDRADB2;
 #pragma link C++ class KVINDRADB4;

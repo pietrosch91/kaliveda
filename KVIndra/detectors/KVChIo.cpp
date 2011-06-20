@@ -49,8 +49,6 @@ void KVChIo::init()
    fChVoltPG=0;
    fVoltE=0;
    fSegment = 0;
-   fPGtoGG_0 = 0;
-   fPGtoGG_1 = 15;
 }
 
 KVChIo::KVChIo()
@@ -64,20 +62,19 @@ KVChIo::KVChIo()
 }
 
 //______________________________________________________________________________
-KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5)
+KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5*KVUnits::um)
 {
-   //Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' mm of C3F8.
-   //By default 'thick'=50mm
-   //By default 'pressure'=0mbar
-   //The type of these detectors is "CI"
+   // Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' cm of C3F8,
+   // give gas pressure in mbar
+   // By default 'thick'=5cm
+   // The type of these detectors is "CI"
 
    //gas layer
-   KVMaterial *mat = new KVMaterial("C3F8", thick);
-   mat->SetPressure(pressure);
+   KVMaterial *mat = new KVMaterial("C3F8", thick, pressure*KVUnits::mbar);
    AddAbsorber(mat);
    SetActiveLayer(mat);         //gas is the active layer
    // mylar for second window
-   mat = new KVMaterial("Myl", 2.5);
+   mat = new KVMaterial("Myl", 2.5*KVUnits::um);
    AddAbsorber(mat);
 
    SetType("CI");
@@ -156,23 +153,6 @@ void KVChIo::SetCalibrators()
 
 //__________________________________________________________________________________________________________________________
 
-Float_t KVChIo::GetGGfromPG(Float_t PG)
-{
-   //Calculate GG from PG when GG is saturated.
-   //If PG is not given as argument, the current value of the detector's PG ACQParam is read
-   //The GG value returned includes the current pedestal:
-   //      GG = pied_GG + alpha + beta * (PG - pied_PG)
-   //alpha, beta coefficients were obtained by fitting (GG-pied) vs. (PG-pied) for data.
-   if (PG < 0)
-      PG = (Float_t) GetPG();
-   Float_t GG =
-       GetPedestal("GG") + fPGtoGG_0 + fPGtoGG_1 * (PG -
-                                                    GetPedestal("PG"));
-   return GG;
-}
-
-//__________________________________________________________________________________________________________________________
-
 Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped)
 {
    //Based on energy loss in gas, calculates sum of energy losses in mylar windows
@@ -181,74 +161,20 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    //if stopped=kTRUE, we give the correction for a particle which stops in the detector
    //(by default we assume the particle continues after the detector)
    //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-   //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg).
-   //if dE_measured - dE_Bragg > 2 MeV, a warning is printed.
+   // WARNING: if stopped=kFALSE, and if the residual energy after the detector
+   //   is known (i.e. measured in a detector placed after this one), you should
+   //   first call
+   //       SetEResAfterDetector(Eres);
+   //   before calling this method. Otherwise, especially for heavy ions, the
+   //   correction may be false for particles which are just above the punch-through energy.
 
    egas = ((egas < 0.) ? GetEnergy() : egas);
    if (egas <= 0.)
       return 0.0;               //check measured (calibrated) energy in gas is reasonable (>0)
 
-   Bool_t maxDE = kFALSE;
-
-   //egas > max possible ?
-   Double_t de_measured = 0.;
-   if (egas > GetBraggDE(z, a)) {
-      de_measured = egas;
-      egas = GetBraggDE(z, a);
-      maxDE = kTRUE;
-//      if(de_measured-egas>2.0)
-//         Warning("GetELossMylar","%s: Measured de_ChIo (%f) is greater than maximum for Z=%d (%f)",
-//            GetName(), de_measured, (int)z, egas);
-   }
-   enum KVMaterial::SolType solution = KVMaterial::kEmax;
-   if(stopped) solution = KVMaterial::kEmin;
-   //calculate incident energy
-   Double_t e_inc = GetIncidentEnergy(z, a, egas, solution);
-
-   //calculate residual energy
-   Double_t e_res = GetERes(z, a, e_inc);
-
-   //calculate mylar energy
-   Double_t emylar = e_inc - e_res - egas;
-
-   emylar = ((emylar < 0.) ? 0. : emylar);
-
-   if (maxDE){
-      //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-      //this calculation is not valid. The mylar energy loss is calculated for a dE
-      //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-      //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
-      emylar *= (de_measured/egas);
-   }
-
+	KVNucleus tmp(z,a);
+	Double_t emylar = GetCorrectedEnergy(&tmp,egas,!stopped) - egas;
    return emylar;
-}
-
-//__________________________________________________________________________________________________________________________
-
-Double_t KVChIo::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas, Bool_t transmission)
-{
-   //Redefinition of KVDetector method.
-   //Based on energy loss in gas, calculates correction for mylar windows
-   //from energy loss tables. Returns total energy loss in mylar+gas+mylar
-   //If argument 'egas' not given, KVChIo::GetEnergy() is used
-   //If transmission=kFALSE we give the correction for a particle stopping in the
-   //detector (i.e. we calculate the incident energy for a particle with dE<dE_Bragg)
-   //By default transmission=kTRUE & we assume the particle continues after the
-   //detector.
-   //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-   //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
-
-   egas = ((egas < 0.) ? GetEnergy() : egas);
-   if( egas <=0 ) return 0;
-   Double_t emyl = GetELossMylar(z, a, egas, !transmission);
-   return (egas + emyl);
 }
 
 //_______________________________________________________________________________
@@ -359,7 +285,8 @@ Double_t KVChIo::GetEnergy()
 
    //fELoss already set, return its value
    Double_t ELoss = KVDetector::GetEnergy();
-   if( ELoss > 0 ) return KVDetector::GetEnergy();
+   if(IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
+   if( ELoss > 0 ) return ELoss;
    ELoss = GetCalibratedEnergy();
    if( ELoss < 0 ) ELoss = 0;
    SetEnergy(ELoss);

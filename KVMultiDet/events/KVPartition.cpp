@@ -105,7 +105,7 @@ void KVPartition::Update()
 
 	if (fMult>ftab->fN) 				ftab->Set(fMult); 
 	if (fMult_diff>ftab_diff->fN) ftab_diff->Set(fMult_diff); 
-//	Info("Update","fMult=%d fMult_diff=%d",fMult,fMult_diff);
+	//Info("Update","fMult=%d fMult_diff=%d",fMult,fMult_diff);
 	Int_t mdiff=0,mtot=0;	
 	KVString snom="",stamp="";
 	for (Int_t ii = fLimiteRegle; ii>=0; ii-=1){

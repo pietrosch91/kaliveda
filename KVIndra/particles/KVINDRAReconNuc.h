@@ -26,6 +26,7 @@ $Id: KVINDRAReconNuc.h,v 1.39 2009/04/03 14:28:37 franklan Exp $
 #include "KVTelescope.h"
 #include "KVINDRACodes.h"
 #include "KVINDRAReconEvent.h"
+#include "KVINDRAIDTelescope.h"
 
 class KVChIo;
 class KVSilicon;
@@ -40,9 +41,36 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	Float_t fECsI;//csi contribution to energy
 	Float_t fESi;//si contribution to energy
 	Float_t fEChIo;//chio contribution to energy
+	
+	void CheckCsIEnergy();
    
  public:
 
+   Int_t GetIDSubCode(const Char_t * id_tel_type,
+                       KVIDSubCode & code) const;
+    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
+                                     KVIDSubCode & code) const;
+	Bool_t AreSiCsICoherent() const
+	{
+		// RINGS 1-9
+		// Returns result of coherency test between Si-CsI and CsI-RL identifications.
+		// See CoherencySiCsI(KVIdentificationResult&).
+		return fCoherent;
+	};
+	Bool_t IsSiPileup() const
+	{
+		// RINGS 1-9
+		// Returns result of coherency test between Si-CsI and CsI-RL identifications.
+		// See CoherencySiCsI(KVIdentificationResult&).
+		return fPileup;
+	};
+	Bool_t UseFullChIoEnergyForCalib() const
+	{
+		// RINGS 1-9
+		// Returns result of coherency test between ChIo-Si, Si-CsI and CsI-RL identifications.
+		// See CoherencyChIoSiCsI(KVIdentificationResult).
+		return fUseFullChIoEnergyForCalib;
+	};
     KVINDRAReconNuc();
     KVINDRAReconNuc(const KVINDRAReconNuc &);
    void init();
@@ -82,9 +110,34 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	virtual void CalibrateRings1To10();
    virtual void Calibrate();
    
-   Float_t GetEnergyChIo();
-   Float_t GetEnergySi();
-   Float_t GetEnergyCsI();
+	Float_t GetEnergyChIo()
+	{
+   	// Return the calculated ChIo contribution to the particle's energy
+  		// (including correction for losses in Mylar windows).
+   	// This may be negative, in case the ChIo contribution was calculated
+   	// because either (1) the ChIo was not calibrated, or (2) coherency check
+   	// between ChIo-Si and Si-CsI/CsI-RL identification indicates contribution
+   	// of several particles to ChIo energy
+   
+   	return fEChIo;
+	};
+	Float_t GetEnergySi()
+	{
+   	// Return the calculated Si contribution to the particle's energy
+   	// (including correction for pulse height defect).
+   	// This may be negative, in case the Si contribution was calculated
+   	// because either (1) the Si was not calibrated, or (2) coherency check
+   	// indicates pileup in Si, or (3) coherency check indicates measured
+   	// Si energy is too small for particle identified in CsI-RL
+
+   	return fESi;
+	};
+	Float_t GetEnergyCsI()
+	{
+   	// Return the calculated CsI contribution to the particle's energy
+		return fECsI;
+	};
+
    KVChIo *GetChIo();
    KVSilicon *GetSi();
    KVCsI *GetCsI();

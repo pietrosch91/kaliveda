@@ -32,7 +32,8 @@ ClassImp(KVReconstructedEvent);
 //calibration procedures.
 //
 //      GetParticle(Int_t i)       -  returns ith reconstructed particle of event (i=1,...,GetMult())
-//      GetParticle(const Char_t*)    -  returns particle with given name/label
+//      GetParticleWithName(const Char_t*)    -  returns the first particle with given name
+//      GetParticle(const Char_t*)				 -  returns the first particle belonging to a given group
 //      UseMeanAngles()      - particle's theta & phi are taken from mean theta & phi of detectors
 //      UseRandomAngles()      - particle's theta & phi are randomized within theta & phi limits of detectors
 //      HasMeanAngles()/HasRandomAngles()   -  indicate in which of the two previous cases we find ourselves
@@ -83,17 +84,21 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
    if (R__b.IsReading()) {
       Clear();
       R__b.ReadClassBuffer(KVReconstructedEvent::Class(), this);
-      //set angles
-      KVReconstructedNucleus *par;
-      while ((par = GetNextParticle())) {
-         if (HasMeanAngles())
-            par->GetAnglesFromTelescope("mean");
-         else
-            par->GetAnglesFromTelescope("random");
-         //reconstruct fAnalStatus information for KVReconstructedNucleus
-         if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
-            if (par->GetGroup())
-               par->GetGroup()->AnalyseParticles();
+      // if the multidetector object exists, update some informations
+      // concerning the detectors etc. hit by this particle
+      if ( gMultiDetArray ){
+      	//set angles
+      	KVReconstructedNucleus *par;
+      	while ((par = GetNextParticle())) {
+         	if (HasMeanAngles())
+         	   par->GetAnglesFromTelescope("mean");
+         	else
+            	par->GetAnglesFromTelescope("random");
+         	//reconstruct fAnalStatus information for KVReconstructedNucleus
+         	if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
+            	if (par->GetGroup())
+               	par->GetGroup()->AnalyseParticles();
+         }
       }
    } else {
       R__b.WriteClassBuffer(KVReconstructedEvent::Class(), this);
@@ -268,7 +273,7 @@ void KVReconstructedEvent::IdentifyEvent()
    KVReconstructedNucleus *d;
    while ((d = GetNextParticle())) {
       if (!d->IsIdentified()){
-         if(d->GetStatus() == 0) {
+         if(d->GetStatus() < 3) { // if(d->GetStatus() == 0)
             // identifiable particles
             d->Identify();
          }

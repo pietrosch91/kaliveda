@@ -32,7 +32,7 @@ KVSiB::KVSiB():fLinCal(0)
 
 KVSiB::KVSiB(Float_t thickness):KVSilicon(thickness),fLinCal(0)
 {
-   //Make a 'thickness' um thick silicon detector with type="SIB"
+   // Make a 'thickness' um thick silicon detector with type="SIB"
    SetType("SIB");
 }
 

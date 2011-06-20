@@ -259,6 +259,11 @@ void KVSeqCollection::RecursiveRemove(TObject *obj)
 {
    // Remove object from this collection and recursively remove the object
    // from all other objects (and collections).
+   //
+	// NOTE: lists which are 'cleanup' and 'sendmodifiedsignals':
+	// the list will not emit 'Modified()' when objects in the
+	// list are deleted elsewhere, they are then removed by the cleanup mechanism
+	// by calling this method.
 
 	fCollection->RecursiveRemove(obj);
 }
@@ -426,7 +431,7 @@ TObject *KVSeqCollection::FindObjectWithMethod(const Char_t* retvalue,const Char
                         return obj;
                     }
                 }
-                else Error("FindObjectWithMethod", "Return type %s is not supported", mt.ReturnType());
+                else Error("FindObjectWithMethod", "Return type %d is not supported", mt.ReturnType());
             }
         }
     }

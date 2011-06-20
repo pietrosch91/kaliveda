@@ -10,6 +10,7 @@
 #include <TGLayout.h>
 #include <TCanvas.h>
 #include "KVConfig.h"
+#include "TStyle.h"
 
 TString KVTestIDGridDialog::fNameData = "htemp";
 TString KVTestIDGridDialog::fNameZreal = "hzreal";
@@ -30,8 +31,21 @@ ClassImp(KVTestIDGridDialog)
 ////////////////////////////////////////////////////////////////
     KVTestIDGridDialog::KVTestIDGridDialog(const TGWindow * p,
                                            const TGWindow * main, UInt_t w,
-                                           UInt_t h, KVIDGraph * g)
+                                           UInt_t h, KVIDGraph * g, TH2* data_histo)
 {
+	if(data_histo){
+		fNameData.Form("%s", data_histo->GetName());
+		fNameZreal.Form("PID:H=%s_G=%s", data_histo->GetName(),g->GetName());
+		fNameZvsE.Form("PIDvsEres:H=%s_G=%s", data_histo->GetName(),g->GetName());
+		hzvsexmax = data_histo->GetXaxis()->GetXmax();
+	}
+	// set PID limits from grid
+	g->GetIdentifiers()->Sort(); // make sure lines are in order of increasing PID
+	hzrealxmin = ((KVIDentifier*)g->GetIdentifiers()->First())->GetPID() - 1.0;
+	hzrealxmax = ((KVIDentifier*)g->GetIdentifiers()->Last())->GetPID() + 1.0;
+	hzvseymin = hzrealxmin;
+	hzvseymax = hzrealxmax;
+	
    //Dialog box for testing identification grid
    fMain = new TGTransientFrame(p, main, w, h);
    fMain->Connect("CloseWindow()", "KVTestIDGridDialog", this,
@@ -56,7 +70,7 @@ ClassImp(KVTestIDGridDialog)
    fHzrealFrame = new TGGroupFrame(fMain, "ID test histo");
    fHzrealNameFrame = new TGHorizontalFrame(fHzrealFrame);
    fHzrealNameLabel =
-       new TGLabel(fHzrealNameFrame, "Name of ID histo (TH1F)");
+       new TGLabel(fHzrealNameFrame, "Name of PID histo (TH1F)");
    fHzrealNameEntry = new TGTextEntry(fNameZreal, fHzrealNameFrame);
    fHzrealNameEntry->SetWidth(150);
    fHzrealNameFrame->AddFrame(fHzrealNameEntry,
@@ -97,7 +111,7 @@ ClassImp(KVTestIDGridDialog)
                           new TGLayoutHints(kLHintsNormal, 5, 5, 2, 2));
 
         /******* frame for ZvsE histo **************/
-   fHzvseFrame = new TGGroupFrame(fMain, "ID vs. E histo");
+   fHzvseFrame = new TGGroupFrame(fMain, "PID vs. E histo");
    fHzvseNameFrame = new TGHorizontalFrame(fHzvseFrame);
    fHzvseNameLabel = new TGLabel(fHzvseNameFrame, "Name of histo (TH2F)");
    fHzvseNameEntry = new TGTextEntry(fNameZvsE, fHzvseNameFrame);
@@ -312,5 +326,24 @@ void KVTestIDGridDialog::TestGrid()
    fSelectedGrid->Disconnect("Increment(Float_t)", fProgressBar,
                              "SetPosition(Float_t)");
    fProgressBar->Reset();
+   
+   // show results in canvas
+   TCanvas *C = new TCanvas;
+   C->SetTitle(Form("ID test : grid %s : histo %s", fSelectedGrid->GetName(), hdata->GetName()));
+   C->Divide(1,2);
+   C->cd(1);
+   gPad->SetGridx();
+   gPad->SetGridy();
+   hzreal->SetStats(kFALSE);
+   hzreal->Draw();
+   C->cd(2)->SetLogz(kTRUE);
+   gPad->SetGridx();
+   gPad->SetGridy();
+   gStyle->SetPalette(1);
+   hzvse->SetStats(kFALSE);
+   hzvse->Draw("zcol");
+   
+   // close dialog
+   DoClose();
 }
 

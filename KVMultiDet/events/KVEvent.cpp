@@ -90,8 +90,11 @@ void KVEvent::Copy(TObject & obj)
 {
    //Copy this to obj
    KVBase::Copy(obj);
-	for (Int_t nn=0;nn<fParticles->GetEntriesFast();nn+=1)
+	for (Int_t nn=0;nn<fParticles->GetEntriesFast();nn+=1){
+		//printf("avant=%s - ",GetParticle(nn+1)->GetName());
 		GetParticle(nn+1)->Copy( *((KVEvent &) obj).AddParticle() );
+		//printf("apres=%s\n",((KVEvent &) obj).GetParticle(nn+1)->GetName());
+	}
 }
 //_______________________________________________________________________________
 
@@ -163,20 +166,32 @@ void KVEvent::Print(Option_t * t) const
 
 //________________________________________________________________________________
 
-KVNucleus *KVEvent::GetParticle(const Char_t * name) const
+KVNucleus *KVEvent::GetParticleWithName(const Char_t * name) const
 {
-   //Find particle using its name/label
+   //Find particle using its name (SetName()/GetName() methods)
    //In case more than one particle has the same name, the first one found is returned.
+   //
+
+	KVNucleus *tmp = (KVNucleus* )fParticles->FindObject(name);
+	return tmp;
+}
+
+//________________________________________________________________________________
+
+KVNucleus *KVEvent::GetParticle(const Char_t * group_name) const
+{
+   //Find particle using groups it is belonging
+   //In case more than one particle belongs to the same group, the first one found is returned.
    //
    //YOU MUST NOT USE THIS METHOD INSIDE A LOOP
    //OVER THE EVENT USING GETNEXTPARTICLE() !!!
 
    const_cast < KVEvent * >(this)->ResetGetNextParticle();
-   KVNucleus *tmp = const_cast < KVEvent * >(this)->GetNextParticle(name);
+   KVNucleus *tmp = const_cast < KVEvent * >(this)->GetNextParticle(group_name);
    const_cast < KVEvent * >(this)->ResetGetNextParticle();
    if (tmp)
       return tmp;
-   Warning("GetParticle", "Particle not found: %s", name);
+   Warning("GetParticle", "Particle not found: %s", group_name);
    return 0;
 }
 
@@ -221,19 +236,20 @@ KVNucleus *KVEvent::GetNextParticle(Option_t * opt)
    //at the start of the list of particles in the event.
    //
    //If opt="" all particles are included in the iteration.
+   //If opt="ok" or "OK" only particles whose IsOK() method returns kTRUE are included.
    //
    //Any other value of opt is interpreted as a particle group name: only
-   //particles with BelongsTiGroup(opt) returning kTRUE are included.
+   //particles with BelongsToGroup(opt) returning kTRUE are included.
    //
    //If you want to start from the beginning again before getting to the end
    //of the list, use ResetGetNextParticle().
 
    TString Opt(opt);
    Opt.ToUpper();
-   /*
+   
 	Bool_t only_ok = (Opt == "OK");
-   Bool_t label = !(Opt == "");
-	*/
+   //Bool_t label = (Opt != "");
+   
    if (!fOKIter) 	//check if iterator exists i.e. if iteration is in progress
    {
       //fOKIter does not exist - begin new iteration
@@ -242,8 +258,20 @@ KVNucleus *KVEvent::GetNextParticle(Option_t * opt)
    //look for next particle in event
    KVNucleus *tmp;
    while ((tmp = (KVNucleus *) fOKIter->Next())) {
-      if (tmp && tmp->BelongsToGroup(Opt.Data())) return tmp;
-   }
+   	if(only_ok){
+   		if(tmp->IsOK()) 
+				return tmp;
+   	}
+      else {
+		//if (label){
+      	if(tmp->BelongsToGroup(Opt.Data())) 
+				return tmp;
+      }
+      /*
+		else
+      	return tmp;
+   	*/
+	}
    //we have reached the end of the list - reset iterator
 
    ResetGetNextParticle();

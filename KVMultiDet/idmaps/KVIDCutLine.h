@@ -33,7 +33,7 @@ class KVIDCutLine : public KVIDLine
    //    cut->SetAcceptedDirection("above")
    // Possible values are: "above", "below", "left" or "right"
    // (see KVIDLine::WhereAmI).
-   virtual inline void SetAcceptedDirection(const Char_t* dir);  // *MENU*
+   virtual void SetAcceptedDirection(const Char_t* dir);  // *MENU*
 
    virtual Int_t GetA() const{ return 0;};
    virtual Int_t GetZ() const{ return 0;};
@@ -55,15 +55,5 @@ class KVIDCutLine : public KVIDLine
    
    ClassDef(KVIDCutLine,1)//Line in ID grid used to delimit regions where identification is possible
 };
-
-inline void KVIDCutLine::SetAcceptedDirection(const Char_t* dir)
-{
-   // Set the direction of the acceptable region relative to the cut line
-   // E.g. if points to identify must be above this cut, use
-   //    cut->SetAcceptedDirection("above")
-   // Possible values are: "above", "below", "left" or "right"
-   // (see KVIDLine::WhereAmI).
-   fAcceptedDirection=dir;
-}
 
 #endif

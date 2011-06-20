@@ -18,10 +18,10 @@
 #ifndef KVIDCsI_H
 #define KVIDCsI_H
 
-#include "KVIDTelescope.h"
+#include "KVINDRAIDTelescope.h"
 #include "KVIDGCsI.h"
 
-class KVIDCsI:public KVIDTelescope {
+class KVIDCsI:public KVINDRAIDTelescope {
 
    KVIDGCsI* CsIGrid;//! telescope's grid
 	KVDetector* fCsI;//!

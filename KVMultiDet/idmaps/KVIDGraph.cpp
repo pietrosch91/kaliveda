@@ -72,7 +72,7 @@ void KVIDGraph::init()
 	SetName("");
 	SetEditable(kFALSE);
 	if(gIDGridManager) gIDGridManager->AddGrid(this);
-	fMassFormula = -1;
+	fMassFormula = 0;
 }
 
 //________________________________________________________________________________
@@ -103,6 +103,8 @@ void KVIDGraph::Copy(TObject & obj)
 
    fIdentifiers->Copy((TObject &) (*grid.GetIdentifiers()));
    fCuts->Copy((TObject &) (*grid.GetCuts()));
+   // set mass formula of grid (and identifiers)
+	grid.SetMassFormula(GetMassFormula());
    //copy all parameters EXCEPT scaling parameters
    KVParameter<KVString> *par = 0;
    for( int i=0; i<fPar->GetNPar(); i++) { //loop over all parameters
@@ -357,8 +359,8 @@ void KVIDGraph::WriteToAsciiFile(ofstream & gridfile)
       gridfile << "<PARAMETER> " << par->GetName() << "=" << par->GetVal().Data() << endl;
    }
 
-   //write fOnlyZId
-   if(OnlyZId()) gridfile << "OnlyZId" << endl;
+   //write fOnlyZId & mass formula
+   if(OnlyZId()) gridfile << "OnlyZId " << GetMassFormula() << endl;
 
    //remove scaling if there is one
    if (fLastScaleX != 1 || fLastScaleY != 1)
@@ -409,6 +411,7 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
    KVString s;
    int line_no=0;// counter for lines read
    SetOnlyZId(kFALSE);
+   Int_t mass_formula = -1;
 
    while (gridfile.good()) {
       //read a line
@@ -467,6 +470,12 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
 		}
       else if (s.BeginsWith("OnlyZId")){
          SetOnlyZId(kTRUE);
+         s.ReplaceAll("OnlyZId","");
+         s.Remove(TString::kBoth, ' ');
+         if(s!=""){//older versions did not write mass formula after OnlyZId
+         	mass_formula=s.Atoi();
+				if(mass_formula>-1) SetMassFormula(mass_formula);
+         }
       }
       else if (s.BeginsWith('+')) {
          //New line
@@ -775,73 +784,9 @@ void KVIDGraph::Scale(Double_t sx, Double_t sy)
 
 //___________________________________________________________________________________
 
-void KVIDGraph::NewCut()
-{
-	// GUI method called from context menu to draw a new cut and add it to graph.
-	// A dialog box with drop-down list pops up for the user to choose the class of the
-	// new cut, unless only one choice is possible, in which case it is used automatically.
-	// For each KVIDGraph-derived class, the list of possible cut classes and the
-	// default class are define in .kvrootrc by the variables:
-	//
-	// [class_name].CutClass:  [cut class 1]
-	// +[class_name].CutClass:  [cut class 2]
-	// + ...
-	// [class_name].DefaultCutClass:  [cut class]
-
-	TString resname;
-	resname.Form("%s.CutClass", ClassName());
-	TString cut_choices = gEnv->GetValue(resname.Data(),"");
-	resname.Form("%s.DefaultCutClass", ClassName());
-	TString cut_default = gEnv->GetValue(resname.Data(),"");
-	TString cut_class; Bool_t okpressed;
-	if(cut_choices.Contains(" ")){
-		new KVDropDownDialog(gClient->GetRoot(),
-			"Choose class of new cut :",
-			cut_choices.Data(),
-			cut_default.Data(),
-			&cut_class,
-			&okpressed);
-		if(!okpressed) return;
-	}
-	else
-		cut_class=cut_choices;
-	DrawAndAdd("CUT",cut_class.Data());
-}
 
 //___________________________________________________________________________________
 
-void KVIDGraph::NewIdentifier()
-{
-	// GUI method called from context menu to draw a new identifier and add it to graph.
-	// A dialog box with drop-down list pops up for the user to choose the class of the
-	// new identifier, unless only one choice is possible, in which case it is used automatically.
-	// For each KVIDGraph-derived class, the list of possible identifier classes and the
-	// default class are define in .kvrootrc by the variables:
-	//
-	// [class_name].IDClass:  [id class 1]
-	// +[class_name].IDClass:  [id class 2]
-	// + ...
-	// [class_name].DefaultIDClass:  [id class]
-
-	TString resname;
-	resname.Form("%s.IDClass", ClassName());
-	TString cut_choices = gEnv->GetValue(resname.Data(),"");
-	resname.Form("%s.DefaultIDClass", ClassName());
-	TString cut_default = gEnv->GetValue(resname.Data(),"");
-	TString cut_class; Bool_t okpressed;
-	if(cut_choices.Contains(" ")){
-		new KVDropDownDialog(gClient->GetRoot(),
-			"Choose class of new identifier :",
-			cut_choices.Data(),
-			cut_default.Data(),
-			&cut_class,
-			&okpressed);
-		if(!okpressed) return;
-	}
-	else
-		cut_class=cut_choices;
-	DrawAndAdd("ID",cut_class.Data());
-}
 
 //___________________________________________________________________________________
 
@@ -936,7 +881,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
          percent = (1. * events_read / tot_events) * 100.;
          Increment((Float_t) events_read);      //sends signal to GUI progress bar
          if (percent >= cumul) {
-            cout << (Int_t) percent << "\% processed" << endl;
+            //cout << (Int_t) percent << "\% processed" << endl;
             cumul += 10;
          }
          gSystem->ProcessEvents();
@@ -948,7 +893,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
 
 //___________________________________________________________________________________
 
-void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
+TFile* KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
 {
    //This method allows to test the identification capabilities of the grid using data in a TH2F.
    //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
@@ -959,7 +904,7 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
    //
    //The 'identification" we represent is the result of the KVReconstructedNucleus::GetPID() method.
    //For particles identified in Z only, this is the "real Z".
-   //For particles with A & Z identification, this is Z + 0.2*(A - 2*Z)
+   //For particles with A & Z identification, this is Z + 0.1*(A - 2*Z)
 
 	//Initialize the grid: calculate line widths etc.
 	Initialize();
@@ -967,34 +912,37 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
    TH2F* data = (TH2F* )gROOT->FindObject(name_of_data_histo);
 	if (!data) {
 		printf(" KVIDGraph::TestIdentificationWithTree l histo %s n existe pas\n",name_of_data_histo);
-		return;
+		return 0;
 	}
 
-	TH2F* idmap = 0;
-	if ( (idmap = (TH2F* )gROOT->FindObject("idcode_map") )){
-		delete idmap;
-	}
-	idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
 
    KVIdentificationResult *idr = new KVIdentificationResult;
    KVReconstructedNucleus nuc;
 
+	// store current memory directory
+	TDirectory* CWD = gDirectory;
+	
 	TTree* tid = 0;
 	if ( (tid = (TTree* )gROOT->FindObject("tree_idresults")) ) {
 		printf(" KVIDGraph::TestIdentificationWithTree effacemenent de l arbre existant\n");
 		delete tid;
 	}
+	// create temporary file for tree
+	TString fn("IDtestTree.root");
+	KVBase::GetTempFileName(fn);
+	TFile* tmpfile = new TFile(fn.Data(), "recreate");
+	TH2F* idmap = (TH2F* )data->Clone("idcode_map"); idmap->Reset();
 	tid = new TTree("tree_idresults","pid");
 	Float_t br_xxx,br_yyy,br_stat,br_pid;
 	Int_t br_idcode,br_isid;
 
-	tid->Branch("xxx",&br_xxx,"br_xxx/F");
-	tid->Branch("yyy",&br_yyy,"br_yyy/F");
-	tid->Branch("stat",&br_stat,"br_stat/F");
+	tid->Branch("X",&br_xxx,"br_xxx/F");
+	tid->Branch("Y",&br_yyy,"br_yyy/F");
+	tid->Branch("Stat",&br_stat,"br_stat/F");
 
-	tid->Branch("pid",&br_pid,"br_pid/F");
-	tid->Branch("idcode",&br_idcode,"br_idcode/I");
-	tid->Branch("isid",&br_isid,"br_isid/I");
+	tid->Branch("PID",&br_pid,"br_pid/F");
+	tid->Branch("IDcode",&br_idcode,"br_idcode/I");
+	tid->Branch("IsIdentified",&br_isid,"br_isid/I");
 
   Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
@@ -1056,6 +1004,8 @@ void KVIDGraph::TestIdentificationWithTree(const Char_t* name_of_data_histo)
    }
 
    delete idr;
+   CWD->cd();
+   return tmpfile;
 }
 
 //___________________________________________________________________________________
@@ -1217,24 +1167,6 @@ else return temoin;
 
 //___________________________________________________________________________________
 
-Int_t KVIDGraph::GetMassFormula()
-{
-	// Returns mass formula used to calculate A from Z of all identifiers in graph.
-	// In fact, we return the mass formula of the first identifier in the list...
-
-	if(fMassFormula<0){
-		KVIDentifier* line=0;
-		if( (line=GetIdentifierAt(0)) ){
-			fMassFormula = line->GetMassFormula();
-		}
-		else
-			return 0;
-	}
-	return fMassFormula;
-}
-
-//___________________________________________________________________________________
-
 void KVIDGraph::SetMassFormula(Int_t mass)
 {
 	// Set mass formula for all identifiers if graph has OnlyZId()=kTRUE.
@@ -1248,6 +1180,22 @@ void KVIDGraph::SetMassFormula(Int_t mass)
 	}
 	Modified();
 }
+
+//___________________________________________________________________________________
+
+void KVIDGraph::SetOnlyZId(Bool_t yes)
+{
+   // Use this method if the graph is only to be used for Z identification
+   // (no isotopic information). Default is to identify both Z & A
+   // (fOnlyZid = kFALSE). Note that setting fOnlyZid=kTRUE changes the way line
+   // widths are calculated (see KVIDGrid::CalculateLineWidths)
+	fOnlyZId = yes;
+   	if (GetNumberOfIdentifiers() > 0) {
+      	fIdentifiers->R__FOR_EACH(KVIDentifier, SetOnlyZId) (yes);
+		}
+	Modified();
+}
+
 
 //___________________________________________________________________________________
 
@@ -1299,14 +1247,6 @@ KVIDGraph *KVIDGraph::MakeIDGraph(const Char_t * class_name)
    //execute constructor/macro for graph - assumed without arguments
    KVIDGraph *gr = (KVIDGraph *) ph->ExecPlugin(0);
    return gr;
-}
-
-//___________________________________________________________________________________
-
-void KVIDGraph::TestGrid()
-{
-   //test the identification with this grid
-   new KVTestIDGridDialog(gClient->GetRoot(), gClient->GetRoot(), 10, 10, this);
 }
 
 //___________________________________________________________________________________

@@ -80,7 +80,7 @@ class KVTestIDGridDialog {
 
  public:
     KVTestIDGridDialog(const TGWindow * p = 0, const TGWindow * main =
-                       0, UInt_t w = 1, UInt_t h = 1, KVIDGraph * g = 0);
+                       0, UInt_t w = 1, UInt_t h = 1, KVIDGraph * g = 0, TH2* data_histo=0);
     virtual ~ KVTestIDGridDialog();
 
    void DoClose();

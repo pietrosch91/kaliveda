@@ -66,11 +66,10 @@ class KVVarGlob:public KVBase {
 	virtual Double_t getvalue_char(const Char_t* name)
 	{
 		// By default, this method returns the value of the variable "name"
-		// using the name-index table set up with SetNameIndex.
+		// using the name-index table set up with SetNameIndex(const Char_t*,Int_t).
 		// Redefine this method in child classes to change the behaviour of
 		// KVVarGlob::GetValue(const Char_t*)
 		
-   	// on retourne la valeur de la variable "name"
    	return getvalue_int(GetNameIndex(name));
 	};
 	virtual Double_t getvalue_int(Int_t)
@@ -100,20 +99,30 @@ class KVVarGlob:public KVBase {
     // returns kTRUE for variables of N-body type for which FillN(KVEvent*) method must be defined
     Bool_t IsNBody() { return fType==kNBody; };
     
-   virtual void Init(void) { printf("do nothing\n"); }
-   // methode d'initialisation des variables Internes
-   virtual void Reset(void) { printf("do nothing\n"); }
-   // Remise a zero avant le traitement d'un evenement
+   virtual void Init(void) {
+   	// Initialisation of internal variables, called once before beginning treatment
+   	Info("Init", "Default method. Does nothing."); 
+   };
+   
+   virtual void Reset(void) {
+   	// Reset internal variables, called before treatment of each event
+   	Info("Reset", "Default method. Does nothing."); 
+   };
+   
    
    virtual void Fill(KVNucleus * c);
    virtual void Fill2(KVNucleus * n1, KVNucleus* n2);
    virtual void FillN(KVEvent *e);
 
    void FillWithCondition(KVNucleus * c){
+   	// Evaluate contribution of particle to variable only if it satisfies
+      // the particle selection criteria given with SetSelection(KVParticleCondition&)
       Bool_t ok = (fSelection ? fSelection->Test(c) : kTRUE);
       if( ok ) Fill(c);  
    };
    void Fill2WithCondition(KVNucleus * n1, KVNucleus* n2){
+   	// Evaluate contribution of particles to variable only if both satisfy
+      // the particle selection criteria given with SetSelection(KVParticleCondition&)
       Bool_t ok = (fSelection ? (fSelection->Test(n1) && fSelection->Test(n2))  : kTRUE);
       if( ok ) Fill2(n1,n2);
    };
@@ -182,6 +191,22 @@ class KVVarGlob:public KVBase {
 
    virtual Double_t AsDouble() const { return GetValue(); };
    operator double() const { return AsDouble(); };
+   
+   virtual Int_t GetNumberOfValues() const
+   {
+   	// Returns number of values associated with global variable.
+   	// This is the number of indices defined using SetNameIndex method.
+   	return nameList.GetNPar();
+   };
+   const Char_t* GetValueName(Int_t i) const
+   {
+   	// Returns name of value associated with index 'i',
+   	// as defined by using SetNameIndex method.
+   	for(int j=0; j<GetNumberOfValues(); j++){
+   		if(nameList.GetParameter(j)->GetVal() == i) return nameList.GetParameter(j)->GetName();
+   	}
+   	return "unknown";
+   };
    
    ClassDef(KVVarGlob, 4)      // Base class for global variables
 };

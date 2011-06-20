@@ -34,8 +34,8 @@ ClassImp(KVVarGlobMean)
 //      SumVar          2                       Sum of weighted var values
 //      SumVarSquared   3                       Sum of weighted squared var values
 //      SumOfWeights    4                       Sum of weights
-//      Min             5                       Maximum value
-//      Max             6                       Minimum value
+//      Min             5                       Minimum value
+//      Max             6                       Maximum value
 //              
 //
 // Here are examples on how obtaining values.
@@ -139,16 +139,14 @@ KVVarGlobMean::KVVarGlobMean(void):KVVarGlob1()
 //
 // Createur par default
 //
-   Char_t *nom = new Char_t[80];
-
+   TString nom;
    init();
-   sprintf(nom, "KVVarGlobMean_%d", nb_crea);
-   SetName(nom);
-   SetTitle(nom);
+   nom.Form("KVVarGlobMean_%d", nb_crea);
+   SetName(nom.Data());
+   SetTitle(nom.Data());
 #ifdef DEBUG_KVVarGlobMean
    cout << nb << " crees...(defaut) " << endl;
 #endif
-   delete[]nom;
 }
 
 //_________________________________________________________________
@@ -276,19 +274,20 @@ Double_t *KVVarGlobMean::GetValuePtr(void)
 // 2      Sum of weighted var values
 // 3      Sum of weighted squared var values
 // 4      Sum of weights
+//  5    Maximum value
+//  6    Max             6                       Minimum value
 //
-// USER MUST DELETE ARRAY AFTER USING !!!
+// The array is an internal variable of the class, do not delete it!
 
-   Double_t *v = new Double_t[7];
    CalcVar();
-   v[0] = var;
-   v[1] = ect;
-   v[2] = svar;
-   v[3] = svar2;
-   v[4] = sw;
-   v[5] = min;
-   v[6] = max;
-   return v;
+   fTab[0] = var;
+   fTab[1] = ect;
+   fTab[2] = svar;
+   fTab[3] = svar2;
+   fTab[4] = sw;
+   fTab[5] = min;
+   fTab[6] = max;
+   return fTab;
 }
 
 //_________________________________________________________________
@@ -409,9 +408,9 @@ void KVVarGlobMean::FillMethodBody(KVString& body, int type)
    body += "   // Use the FillVar(v,w) method to increment the quantity of the global variable.\n";
    body += "   // The value, v, and the weight, w, are to be evaluated from the properties of the \n";
    body += "   // KVNucleus passed as argument. For example, to evaluate the mean parallel velocity\n";
-   body += "   // weighted by the chargeof the nucleus, you may proceed as follows:\n";
+   body += "   // weighted by the charge of the nucleus, you may proceed as follows:\n";
    body += "   //\n";
-   body += "   // FillVar(n1->GetV().Z(), n1->GetZ());\n";
+   body += "   // FillVar(n->GetVpar(), n->GetZ());\n";
    }
 }
    

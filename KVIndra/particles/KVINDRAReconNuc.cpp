@@ -62,7 +62,8 @@ ClassImp(KVINDRAReconNuc);
 //               //test the inheritance of the class of the stopping detector
 //
 //    GetChIo(), GetSi(), GetCsI()    -  return pointers to the detectors through which the particle passed
-//    GetEnergyChIo(), GetEnergySi(), GetEnergyCsI()   -  return the energy measured in the detectors
+//    GetEnergyChIo(), GetEnergySi(), GetEnergyCsI()   -  return the calculated contribution of each detector to the
+//                                                                                      particle's energy
 //
 //Identification/Calibration status and codes
 //-------------------------------------------
@@ -281,35 +282,6 @@ KVCsI *KVINDRAReconNuc::GetCsI()
    return csi;
 }
 
-Float_t KVINDRAReconNuc::GetEnergyChIo()
-{
-   //If this particle passed through a ChIo, return the energy measured
-   KVChIo *chio = GetChIo();
-   if (chio) {
-      return chio->GetEnergy();
-   }
-   return 0.0;
-}
-
-Float_t KVINDRAReconNuc::GetEnergySi()
-{
-   //If this particle passed through a Si, return the energy measured
-   KVSilicon *si = GetSi();
-   if (si) {
-      return si->GetEnergy();
-   }
-   return 0.0;
-}
-
-Float_t KVINDRAReconNuc::GetEnergyCsI()
-{
-   //If this particle passed through a CsI, return the energy measured
-   KVCsI *csi = GetCsI();
-   if (csi) {
-      return csi->GetEnergy();
-   }
-   return 0.0;
-}
 
 Bool_t KVINDRAReconNuc::StoppedInChIo()
 {
@@ -363,11 +335,7 @@ Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type) const
    //
    //In case of problems (see KVReconstructedNucleus::GetIDSubCode()) value returned is -65535
 
-   return KVReconstructedNucleus::GetIDSubCode(id_tel_type,
-                                               const_cast <
-                                               KVINDRAReconNuc *
-                                               >(this)->GetCodes().
-                                               GetSubCodes());
+   return GetIDSubCode(id_tel_type,const_cast <KVINDRAReconNuc *>(this)->GetCodes().GetSubCodes());
 }
 
 const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
@@ -386,7 +354,7 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
    //       no ID telescope of type 'id_tel_type' :  "No identification attempted in id_tel_type"
    //       particle not identified               :  "Particle unidentified. Identifying telescope not set."
 
-   return KVReconstructedNucleus::GetIDSubCodeString(id_tel_type,
+   return GetIDSubCodeString(id_tel_type,
                                                      const_cast <
                                                      KVINDRAReconNuc *
                                                      >(this)->GetCodes().
@@ -628,6 +596,8 @@ void KVINDRAReconNuc::Identify()
    // Here we attribute the Veda6-style general identification codes depending on the
    // result of KVReconstructedNucleus::Identify and the subcodes from the different
    // identification algorithms:
+   // If the particle's mass A was NOT measured, we make sure that it is calculated
+   // from the measured Z using the mass formula defined by default
    //
    //IDENTIFIED PARTICLES
    //Identified particles with ID code = 2 with subcodes 4 & 5
@@ -766,11 +736,14 @@ void KVINDRAReconNuc::Calibrate()
         }
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
+        // set particle momentum from telescope dimensions (random)
+        GetAnglesFromTelescope();        
 		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
         while( (det = (KVDetector*)nxt()) ){
           fEloss[ndet] = det->GetEnergy();
           ++ndet;
         }
+        CheckCsIEnergy();
         return;
     }
 
@@ -788,6 +761,7 @@ void KVINDRAReconNuc::Calibrate()
          SetECode( kECode2 );
       else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_NoCalibrations )
          SetECode( kECode0 );
+      CheckCsIEnergy();
    }
 }
 
@@ -814,25 +788,28 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     if(GetCodes().TestIDCode(kIDCode_Neutron)){
         // use energy of CsI calculated using the Z & A of the CsI identification
         // to calculate the energy deposited by the neutron
-		 fECsI = GetCsI()->GetCorrectedEnergy( IDcsi->Z, IDcsi->A, -1., kFALSE );
+        KVNucleus tmp(IDcsi->Z, IDcsi->A);
+		 fECsI = GetCsI()->GetCorrectedEnergy(&tmp, -1., kFALSE );
         SetEnergy( fECsI );
         SetECode(kECode2); // not a real energy measure
         return;
     }
 
     SetECode(kECode1);
-
+    Bool_t stopped_in_silicon=kTRUE;
     if(GetCsI()){
+    	stopped_in_silicon=kFALSE;
         /* CSI ENERGY CALIBRATION */
         if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){
             // Beryllium-8 = 2 alpha particles of same energy
             // We halve the total light output of the CsI to calculate the energy of 1 alpha
             Double_t half_light = GetCsI()->GetLumiereTotale()*0.5;
-            fECsI = 2.*GetCsI()->GetCorrectedEnergy(2,4,half_light,kFALSE);
+            KVNucleus tmp(2,4);
+            fECsI = 2.*GetCsI()->GetCorrectedEnergy(&tmp,half_light,kFALSE);
             SetECode(kECode2);
         }
         else
-            fECsI = GetCsI()->GetCorrectedEnergy(GetZ(), GetA(), -1., kFALSE);
+            fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
             SetECode(kECode15);// bad - no CsI energy
             return;
@@ -845,9 +822,19 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
         if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
+        //Info("calib","all well");
             // all is apparently well
-            fESi = GetSi()->GetCorrectedEnergy(GetZ(),GetA());
+            Bool_t si_transmission=kTRUE;
+            if(stopped_in_silicon){
+            	si_transmission=kFALSE;
+            }
+            else
+            {
+            	GetSi()->SetEResAfterDetector(fECsI);
+            }
+            fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
          	if(fESi<=0) {
+         	  //Info("calib", "esi=%f",fESi);
             	SetECode(kECode15);// bad - no Si energy
             	return;
          	}
@@ -856,7 +843,9 @@ void KVINDRAReconNuc::CalibrateRings1To10()
         {
             Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),fECsI);
 				// calculated energy: negative
-            fESi = -GetSi()->GetCorrectedEnergy(GetZ(),GetA(),e0);
+				GetSi()->SetEResAfterDetector(fECsI);
+            fESi = GetSi()->GetCorrectedEnergy(this,e0);
+            fESi = -TMath::Abs(fESi);
             SetECode(kECode2);
         }
     }
@@ -865,15 +854,92 @@ void KVINDRAReconNuc::CalibrateRings1To10()
     // if fUseFullChIoEnergyForCalib = kFALSE, we have to estimate the ChIo energy for this particle
         if(fUseFullChIoEnergyForCalib && GetChIo()->IsCalibrated()){
             // all is apparently well
-            fEChIo = GetChIo()->GetCorrectedEnergy(GetZ(),GetA());
+            GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+fECsI);
+            fEChIo = GetChIo()->GetCorrectedEnergy(this);
         }
         else
         {
-            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),fECsI+fESi);
+            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+fECsI);
 				// calculated energy: negative
-            fEChIo = -GetChIo()->GetCorrectedEnergy(GetZ(),GetA(),e0);
+            GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+fECsI);
+            fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
+            fEChIo = -TMath::Abs(fEChIo);
             SetECode(kECode2);
         }
     }
 	 SetEnergy( fECsI + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
 }
+
+//________________________________________________________________________________//
+
+void KVINDRAReconNuc::CheckCsIEnergy()
+{
+	// Check calculated CsI energy loss of particle.
+	// If it is greater than the maximum theoretical energy loss
+	// (depending on the length of CsI, the Z & A of the particle)
+	// we set the energy calibration code to kECode3 (historical VEDA code
+	// for particles with E_csi > E_max_csi)
+	
+	KVDetector* csi = GetCsI();
+	if(csi && (csi->GetEnergy() > csi->GetMaxDeltaE(GetZ(), GetA()))) SetECode(kECode3);
+}
+
+Int_t KVINDRAReconNuc::GetIDSubCode(const Char_t * id_tel_type,
+        KVIDSubCode & code) const
+{
+    //If the identification of the particle was attempted using a KVIDTelescope of type "id_tel_type",
+    //and 'code' holds all the subcodes from the different identification routines tried for this particle,
+    //then this method returns the subcode for this particle from telescope type "id_tel_type".
+    //
+    //In case of problems (no ID telescope of type 'id_tel_type'), the returned value is -65535.
+    //
+    //If no type is given (first argument = ""), we use the identifying telescope (obviously if the
+    //particle has remained unidentified - IsIdentified()==kFALSE - and the GetIdentifyingTelescope()
+    //pointer is not set, we return -65535).
+
+    KVINDRAIDTelescope *idtel;
+    if (strcmp(id_tel_type, ""))
+        idtel =
+            (KVINDRAIDTelescope *) GetIDTelescopes()->
+            FindObjectByType(id_tel_type);
+    else
+        idtel = (KVINDRAIDTelescope *)GetIdentifyingTelescope();
+    if (!idtel)
+        return -65535;
+    return idtel->GetIDSubCode(code);
+}
+
+//______________________________________________________________________________________________//
+
+const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
+        id_tel_type,
+        KVIDSubCode &
+        code) const
+{
+    //If the identification of the particle was attempted using a KVIDTelescope of type "id_tel_type",
+    //and 'code' holds all the subcodes from the different identification routines tried for this particle,
+    //then this method returns an explanation for the subcode for this particle from telescope type "id_tel_type".
+    //
+    //If no type is given (first argument = ""), we use the identifying telescope.
+    //
+    //In case of problems :
+    //       no ID telescope of type 'id_tel_type' :  "No identification attempted in id_tel_type"
+    //       particle not identified               :  "Particle unidentified. Identifying telescope not set."
+
+    KVINDRAIDTelescope *idtel;
+    if (strcmp(id_tel_type, ""))
+        idtel =
+            (KVINDRAIDTelescope *) GetIDTelescopes()->
+            FindObjectByType(id_tel_type);
+    else
+        idtel = (KVINDRAIDTelescope *)GetIdentifyingTelescope();
+    if (!idtel) {
+        if (strcmp(id_tel_type, ""))
+            return Form("No identification attempted in %s", id_tel_type);
+        else
+            return
+                Form("Particle unidentified. Identifying telescope not set.");
+    }
+    return idtel->GetIDSubCodeString(code);
+}
+

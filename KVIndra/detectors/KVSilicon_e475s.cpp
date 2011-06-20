@@ -28,10 +28,7 @@ ClassImp(KVSilicon_e475s)
 void KVSilicon_e475s::init()
 //------------------------------
 {
-   fSegment = 1;
-   fPGtoGG_0 = 0;
-   fPGtoGG_1 = 15;
-	
+   fSegment = 1;	
    //initialise non-persistent pointers
 	fcalibPG=0;
 	fcalibGG=0;

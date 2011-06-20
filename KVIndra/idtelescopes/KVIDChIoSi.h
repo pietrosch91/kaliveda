@@ -18,10 +18,10 @@
 #ifndef KVIDChIoSi_H
 #define KVIDChIoSi_H
 
-#include "KVIDTelescope.h"
+#include "KVINDRAIDTelescope.h"
 #include "KVIDGChIoSi.h"
 
-class KVIDChIoSi:public KVIDTelescope {
+class KVIDChIoSi:public KVINDRAIDTelescope {
 
 protected:
 

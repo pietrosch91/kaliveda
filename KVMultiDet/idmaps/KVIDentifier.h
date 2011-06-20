@@ -25,6 +25,7 @@ class KVIDentifier : public TCutG
 	protected:
 	KVIDGraph 	*fParent;	//!parent identification map or grid
    KVNucleus 	fIon;    	//ion/nucleus corresponding to this identifier
+   Bool_t      fGridOnlyZId;//=kTRUE if parent grid has OnlyZId set
 
 	Int_t fZ;//! dummy variables used by context menu dialog boxes
 	Int_t fA;//! dummy variables used by context menu dialog boxes
@@ -64,7 +65,9 @@ class KVIDentifier : public TCutG
    virtual void SetZ(Int_t ztnum){ fIon.SetZ(ztnum); SetNameFromNucleus(); }; // *MENU={Hierarchy="SetNucleus.../Z"}*
    virtual void SetA(Int_t atnum){ fIon.SetA(atnum); SetNameFromNucleus(); };  // *MENU={Hierarchy="SetNucleus.../A"}*
    virtual void SetAandZ(Int_t atnum,Int_t ztnum){fIon.SetZ(ztnum);  fIon.SetA(atnum); SetNameFromNucleus();};  // *MENU={Hierarchy="SetNucleus.../A and Z"}* *ARGS={atnum=>fA,ztnum=>fZ}
-   virtual void SetMassFormula(Int_t mf){ fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus(); };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}*
+   virtual void SetOnlyZId(Bool_t onlyz=kTRUE){ fGridOnlyZId=onlyz; };
+   virtual Bool_t OnlyZId()const { return fGridOnlyZId; }
+   virtual void SetMassFormula(Int_t mf){ if(OnlyZId()) {fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus();} };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}*
    virtual Int_t GetMassFormula()const { return fIon.GetMassFormula(); }
 
    virtual Bool_t TestPoint(Double_t x, Double_t y)
@@ -86,7 +89,7 @@ class KVIDentifier : public TCutG
 
 	virtual void WaitForPrimitive();
 
-	virtual void ExtendLine(Double_t, Option_t* Direction="HORI");  // *MENU*
+	virtual void ExtendLine(Double_t, Option_t* Direction="HORI");  // *MENU={Hierarchy="Modify Line.../ExtendLine"}*
 
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TGraph.h, to stop these methods appearing in the ID line context menus
@@ -108,10 +111,10 @@ class KVIDentifier : public TCutG
 #endif
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TNamed.h, to stop these methods appearing in the ID line context menus
-   virtual void     SetName(const char *name){TGraph::SetName(name);};
+   virtual void     SetName(const char *name);
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TObject.h, to stop these methods appearing in the ID line context menus
-   //virtual void        Delete(Option_t *option=""){TGraph::Delete(option);};
+   virtual void        Delete(Option_t *option=""){TGraph::Delete(option);};
    virtual void        DrawClass() const {TGraph::DrawClass();};
    virtual TObject    *DrawClone(Option_t *option="") const {return TGraph::DrawClone(option);};
    virtual void        CloneScaleStore(Int_t newzt,Double_t sy,Int_t newat=-1,Double_t sx=-1);  // *MENU*
@@ -123,8 +126,13 @@ class KVIDentifier : public TCutG
    virtual void        SetFillAttributes() {TGraph::SetFillAttributes();};
    virtual void        SetMarkerAttributes(){TGraph::SetMarkerAttributes();};
 
-	virtual Int_t         InsertPoint(){ if(GetEditable()){ return TCutG::InsertPoint(); } else {return -2;} }; // *MENU*
-	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU*
+	virtual Int_t         InsertPoint(); // *MENU={Hierarchy="Modify Line.../InsertPoint"}*
+	virtual Int_t         AddPointAtTheEnd(); // *MENU={Hierarchy="Modify Line.../AddPointAtTheEnd"}*
+	virtual Int_t 			 ContinueDrawing(); // *MENU={Hierarchy="Modify Line.../ContinueDrawing"}*
+	virtual void 			ChechHierarchy(KVIDentifier* gr);
+	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU={Hierarchy="Modify Line.../RemovePoint"}*
+	
+	virtual Double_t GetPID() const;
 
    ClassDef(KVIDentifier,2)//Base class for graphical cuts used in particle identification
 };

@@ -385,10 +385,10 @@ void KVPosition::GetCornerCoordinates(TVector3 * corners, Double_t depth)
 	// situated at distance (fDistance+depth) from the origin.
    //
    // The order of the 4 corners is as follows:
-   //       corners[0] : theta-min, phi-min
-   //       corners[1] : theta-max, phi-min
-   //       corners[2] : theta-max, phi-max
-   //       corners[3] : theta-min, phi-max
+   //       corners[3] : theta-min, phi-min
+   //       corners[2] : theta-max, phi-min
+   //       corners[1] : theta-max, phi-max
+   //       corners[0] : theta-min, phi-max
 	//
 	// Coordinates are in CENTIMETRES
 	
@@ -398,10 +398,10 @@ void KVPosition::GetCornerCoordinates(TVector3 * corners, Double_t depth)
 	TVector3 normal_to_plane(sin(pthR)*cos(pphR), sin(pthR)*sin(pphR), cos(pthR));
 	
 	// the four directions/lines
-	corners[0].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMin() );
-	corners[1].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMin() );
-	corners[2].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMax() );
-	corners[3].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMax() );
+	corners[3].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMin() );
+	corners[2].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMin() );
+	corners[1].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMax() );
+	corners[0].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMax() );
 	
 	// calculate intersection points
 	for(register int i=0; i<4; i++){

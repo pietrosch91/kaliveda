@@ -9,12 +9,12 @@ $Author: franklan $
 #define __KVNUMBERLIST_H
 
 #include <TString.h>
-#include <TObjString.h>
 #include <TArrayI.h>
+#include <TObject.h>
 
-class KVNumberList : public TObjString {
+class KVNumberList : public TObject {
 
-   //TString fString;
+   TString fString;
    TArrayI *fLowerBounds;       //->
    TArrayI *fUpperBounds;       //->
    Int_t fNLimits;              //number of limits in arrays
@@ -32,22 +32,6 @@ class KVNumberList : public TObjString {
    void AddLimits(Int_t min, Int_t max);
    void AddLimits(TString & string);
    void ParseAndFindLimits(TString & string, const Char_t delim);
- 
- protected:
- 
- 	void AddTofString(TString st){
-		
-		TString tmp(GetfString());
-		tmp += st;
-		SetfString(tmp.Data());
-		
-	}
-	void SetfString(const Char_t* st){
-		TObjString::SetString(st);
-	}	
-	TString GetfString() const{
-		return TObjString::GetString();
-	}	
 
  public:
 
@@ -55,10 +39,7 @@ class KVNumberList : public TObjString {
     KVNumberList(const KVNumberList &);
     KVNumberList(const Char_t *);
     virtual ~ KVNumberList();
-	
-	void SetString(const char * /*s*/) { Warning("KVNumberList::SetString","method with no effect"); }
-	TString GetString()  const { Warning("KVNumberList::GetString","method with no effect"); return ""; }
-	
+
    void SetList(TString &);
    void SetList(const Char_t *);
 
@@ -86,7 +67,7 @@ class KVNumberList : public TObjString {
    Int_t *GetArray(Int_t & size);
    const Char_t *GetList();
    const Char_t *GetExpandedList();
-   const Char_t *GetLogical(const Char_t *observable);
+   TString GetLogical(const Char_t *observable);
 	const Char_t *AsString(Int_t maxchars=0);
    
    Int_t Next(void);

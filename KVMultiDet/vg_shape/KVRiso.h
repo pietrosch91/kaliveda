@@ -22,6 +22,7 @@ class KVRiso:public KVVarGlob {
     Double_t Riso;
    Double_t Epar;
    Double_t Etrans;
+   Double_t fVal[3];//! used by GetValuePtr
 
 // Methodes
  protected:

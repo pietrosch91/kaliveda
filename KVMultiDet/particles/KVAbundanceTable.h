@@ -17,7 +17,10 @@ class KVAbundanceTable : public KVNuclDataTable
    public:
    KVAbundanceTable();
    virtual ~KVAbundanceTable();
-	
+	/*
+	TObjArray* tobj_rangeA;
+	TObjArray* tobj_rangeZ;
+	*/
 	virtual void Initialize();
 	
 	KVAbundance* GetAbundance(Int_t zz, Int_t aa) const;

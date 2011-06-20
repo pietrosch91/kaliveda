@@ -1,24 +1,4 @@
 #define KVSelector_cxx
-// The class definition in KVSelector.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector().
-//
-// This class is derived from the ROOT class TSelector.
-// The following members functions are called by the TTree::Process() functions:
-//    Begin():       called everytime a loop on the tree starts,
-//                   a convenient place to create your histograms.
-//    Notify():      this function is called at the first entry of a new Tree
-//                   in a chain.
-//    Process():     called for each event. In this function you decide what 
-//                   to read and you fill your histograms.
-//    Terminate():   called at the end of a loop on the tree,
-//                   a convenient place to draw/fit your histograms.
-//
-//   To use this file, try the following session on your Tree T
-//
-// Root > T->Process("KVSelector.C")
-// Root > T->Process("KVSelector.C","some options")
-// Root > T->Process("KVSelector.C+")
-//
 #include "KVSelector.h"
 #include "TH2.h"
 #include "TStyle.h"
@@ -45,6 +25,7 @@ selection, you will not be able to regenerate them."
 KVString KVSelector::fBranchName = "INDRAReconEvent";
    
 ClassImp(KVSelector)
+
 //______________________________________________________________________________
 //KVSelector
 //
@@ -121,7 +102,7 @@ ClassImp(KVSelector)
 //lhisto->Add(new TH1F(...));
 //lhisto->Add(new TH2F(...));
 //lhisto->Add(new TProfile(...));
-//All histograms are stored in the KVHashList "lhisto"
+//All histograms are stored in an "owner" KVHashList "lhisto"
 //
 //The method FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
 //allows to fill any histogram declared as shown above
@@ -129,8 +110,30 @@ ClassImp(KVSelector)
 //of TH1::Fill() and derivated
 //
 //Finally, to write the list of histograms in a file
-//Just call the WriteHistoToFile method indicating the name of the file
+//Just call the WriteHistoToFile method indicating the name of the file (or not)
 //
+//
+//Manage trees
+//======================
+//Few methods are defined to make easier the management
+//of trees
+//Redefine the method CreateTrees() and create the histograms
+//like this
+//TTree* tt = 0;
+//lhisto->Add(new TTree(...));
+//tt = (TTree* )lhisto->Last()
+//tt->Branch(...)
+//tt->Branch(...)
+//All histograms are stored in an "owner" KVHashList "ltree"
+//
+//The method FillTree(KVString sname="")
+//allows to fill tree(s) according to the name passed as argument
+//if "" is given all trees are filled
+//
+//Finally, to write the list of trees in a file
+//Just call the WriteTreeToFile method indicating the name of the file (or not)
+//
+//////////////////////////////////////////////////////////////////
 
 KVSelector::KVSelector(TTree * tree)
 {
@@ -172,6 +175,8 @@ KVSelector::~KVSelector()
    delete fTimer;
    SafeDelete(fPartCond);
 	delete lhisto;
+	delete ltree;
+
 }
 
 void KVSelector::Init(TTree * tree)
@@ -503,7 +508,7 @@ KVVarGlob *KVSelector::AddGV(const Char_t * class_name,
    //      (1) add to the ROOT macro path the directory where her class's source code is kept, e.g. in $HOME/.rootrc
    //              add the following line:
    //
-   //              +Unix.*.Root.MacroPath:      :$(HOME)/myVarGlobs
+   //              +Unix.*.Root.MacroPath:      $(HOME)/myVarGlobs
    //
    //      (2) for each user-defined class, add a line to $HOME/.kvrootrc to define a "plugin". E.g. for a class called MyNewVarGlob,
    //
@@ -1128,19 +1133,22 @@ void KVSelector::WriteHistoToFile(KVString filename,Option_t* option)
 {
 
 	//If no filename is specified, assume that the current directory is writable
+	//if filename correspond to an already opened file, write in it
+	//if not open/create it, depending on the option ("recreate" by default)
+	//and write in it
+	Bool_t IsCreated=kFALSE;
 	if (filename == ""){
 		GetHistoList()->Write();
 	}
 	else {
 		TFile* file=0;
-		//if filename correspond to an already opened file, write in it
-		//if not open/create it, depending on the option ("recreate" by default)
-		//and write in it
-		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) )
+		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) ){
+			IsCreated=kTRUE;
 			file = new TFile(filename.Data(),option);
+		}
 		file->cd();
 		GetHistoList()->Write();
-		file->Close();	
+		if (IsCreated) file->Close();	
 	}
 
 }
@@ -1196,6 +1204,7 @@ void KVSelector::WriteTreeToFile(KVString filename,Option_t* option)
 {
 
 	//If no filename is specified, assume that the current directory is writable
+	Bool_t IsCreated=kFALSE;
 	if (filename == ""){
 		GetTreeList()->Write();
 	}
@@ -1204,11 +1213,13 @@ void KVSelector::WriteTreeToFile(KVString filename,Option_t* option)
 		//if filename correspond to an already opened file, write in it
 		//if not open/create it, depending on the option ("recreate" by default)
 		//and write in it
-		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) )
+		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) ){
+			IsCreated=kTRUE;
 			file = new TFile(filename.Data(),option);
+		}
 		file->cd();
 		GetTreeList()->Write();
-		file->Close();	
+		if (IsCreated) file->Close();	
 	}
 
 }

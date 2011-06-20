@@ -54,9 +54,10 @@ empty:=
 space:= $(empty) $(empty)
 rootvers1:=$(subst .,$(space),$(rootvers))
 rootvers2:=$(subst /,$(space),$(rootvers1))
-root_maj := $(word 1,$(rootvers2))
-root_min := $(word 2,$(rootvers2))
-root_rel := $(word 3,$(rootvers2))
+rootvers3:=$(subst -,$(space),$(rootvers2))
+root_maj := $(word 1,$(rootvers3))
+root_min := $(word 2,$(rootvers3))
+root_rel := $(word 3,$(rootvers3))
 #define macro for calculating ROOT version code from maj, min and release
 get_root_version = $(shell expr $(1) \* 10000 \+ $(2) \* 100 \+ $(3))
 export ROOT_VERSION_CODE = $(call get_root_version,$(root_maj),$(root_min),$(root_rel))
@@ -76,6 +77,7 @@ export ROOT_v5_12_00 = $(call get_root_version,5,12,0)
 export ROOT_v5_13_06 = $(call get_root_version,5,13,6)
 export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
 export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
+export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
@@ -107,7 +109,7 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
+.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
 all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
 
@@ -117,6 +119,9 @@ export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
+
+changelog :
+	@bzr log --forward --short -v -n0 -r$(oldrev).. > changelog_$(VERSION_NUMBER).txt
 
 fitltg-0.1/configure: fitltg-0.1/configure.ac 
 	cd fitltg-0.1 && autoreconf -ivf
@@ -142,7 +147,7 @@ $(DATE_RECORD_FILE) :
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
 	@echo 'Updating KVConfig.h'
-	$(MAKE) -f Makefile.compat
+	$(MAKE) -f Makefile.compat debug=$(debug)
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \

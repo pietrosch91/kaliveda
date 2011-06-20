@@ -9,6 +9,7 @@ $Date: 2009/03/03 13:36:00 $
 
 #include "KVIDCutLine.h"
 #include "Riostream.h"
+#include "KVIDGraph.h"
 
 ClassImp(KVIDCutLine)
 
@@ -37,7 +38,8 @@ void KVIDCutLine::WriteAsciiFile_extras(ofstream & file, const Char_t * name_pre
 {
    // Write accepted direction for cut
 	
-   file << fAcceptedDirection.Data() << endl;
+   if(fAcceptedDirection=="") file << "[undefined accepted direction]" << endl;
+	else file << fAcceptedDirection.Data() << endl;
 }
 
 //__________________________________________________________
@@ -46,6 +48,18 @@ void KVIDCutLine::ReadAsciiFile_extras(ifstream & file)
 {
    // Read accepted direction for cut
 	
-   file >> fAcceptedDirection;
+   fAcceptedDirection.ReadLine(file);
+	if(fAcceptedDirection=="[undefined accepted direction]") fAcceptedDirection="";
+}
+
+void KVIDCutLine::SetAcceptedDirection(const Char_t* dir)
+{
+   // Set the direction of the acceptable region relative to the cut line
+   // E.g. if points to identify must be above this cut, use
+   //    cut->SetAcceptedDirection("above")
+   // Possible values are: "above", "below", "left" or "right"
+   // (see KVIDLine::WhereAmI).
+   fAcceptedDirection=dir;
+   if(GetParent()) GetParent()->Modified();
 }
 

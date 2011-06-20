@@ -91,7 +91,6 @@ KVElasticScatter::KVElasticScatter():fBeamDirection(0, 0, 1)
    fBinE = 500;	
    fEnergy = 0;
    fKinematics = 0;
-   fGroup = 0;
    fTelescope = 0;
    fTarget = 0;
    fProj = fTarg = 0;
@@ -102,6 +101,13 @@ KVElasticScatter::KVElasticScatter():fBeamDirection(0, 0, 1)
    fExx = 0.;
    fHistos = 0;
    fDetInd = 0;
+	if (gMultiDetArray){
+		gMultiDetArray->SetSimMode(kTRUE);
+	}
+	else {	
+		Warning("KVElasticScatter","gMultiDetArray does not refer to a valid multidetector array");
+		printf("Define it before using this class, and put it in simulation mode : gMultiDetArray->SetSimMode(kTRUE)");
+	}
 }
 
 //__________________________________________________________________//
@@ -119,12 +125,11 @@ KVElasticScatter::~KVElasticScatter()
       delete fProj;
    if (fTarg)
       delete fTarg;
-   if (fAlignedDetectors)
-      delete fAlignedDetectors;
    if (fHistos)
       delete fHistos;
    if (fDetInd)
       delete fDetInd;
+	gMultiDetArray->SetSimMode(kFALSE);
 }
 
 //__________________________________________________________________//
@@ -167,12 +172,9 @@ void KVElasticScatter::SetDetector(const Char_t * det)
    //Set name of detector which will detect particle
    fDetector = gMultiDetArray->GetDetector(det);
    fTelescope = fDetector->GetTelescope();
-   fGroup = fTelescope->GetGroup();
    //get list of all detectors particle must pass through to get to required detector
-   if (fAlignedDetectors)
-      delete fAlignedDetectors;
    fAlignedDetectors =
-       fGroup->GetAlignedDetectors(fDetector, KVGroup::kForwards);
+       fDetector->GetAlignedDetectors(KVGroup::kForwards);
    //we store the association between detector type and index in list
    if (!fDetInd)
       fDetInd = new KVParameterList < int >;
@@ -273,7 +275,7 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    fDepth =
        new TH1F("hDepth", "Depth (mg/cm2)", 500, 0.,
                 fTarget->GetTotalEffectiveThickness());
-   fTheta = new TH1F("hTheta", "Theta (deg.)", 500, 0., 180.);
+   fTheta = new TH1F("hTheta", "Theta (deg.)", 500, 0., 0.);
 
    /* -------------------------------------------------------------------------------------------------------------------------- */
 
@@ -289,8 +291,7 @@ void KVElasticScatter::CalculateScattering(Int_t N)
    while ((d = (KVDetector *) n())) {
       fHistos->
           Add(new
-              TH1F(Form("hEloss_%s", d->GetName()), "Eloss (MeV)", fBinE, 0.,
-                   fEnergy * 1.2));
+              TH1F(Form("hEloss_%s", d->GetName()), "Eloss (MeV)", fBinE, 0.,0.));
    }
 
    /* -------------------------------------------------------------------------------------------------------------------------- */

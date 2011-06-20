@@ -277,7 +277,7 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
     //measured in a series of detectors/telescopes.
     //
     //Starting from detector *kvd, collect information from all detectors placed directly
-    //in front of *kvd (kvd->GetGroup()->GetAlignedDetectors( kvd )),
+    //in front of *kvd (kvd->GetAlignedDetectors()),
     //these are the detectors the particle has passed through.
     //
     //Each one is added to the particle's list (KVReconstructedNucleus::AddDetector), and,
@@ -289,7 +289,7 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
 
     //get list of detectors through which particle passed
     if (kvd->GetGroup()) {
-        TList *aligned = kvd->GetGroup()->GetAlignedDetectors(kvd);
+        TList *aligned = kvd->GetAlignedDetectors();
         if (aligned) {
 
             TIter next_aligned(aligned);
@@ -299,7 +299,6 @@ void KVReconstructedNucleus::Reconstruct(KVDetector * kvd)
                 d->AddHit(this);  // add particle to list of particles hitting detector
                 d->SetAnalysed(kTRUE);   //cannot be used to seed another particle
             }
-            delete aligned;
         }
         kvd->GetGroup()->AddHit(this);
     }
@@ -317,7 +316,6 @@ void KVReconstructedNucleus::Identify()
     // This continues until a successful identification is achieved or there are no more ID telescopes to try.
     // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
-//    TList *idt_list = GetStoppingDetector()->GetTelescopesForIdentification();
     KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
 
     if (idt_list && idt_list->GetSize() > 0) {
@@ -346,11 +344,11 @@ void KVReconstructedNucleus::Identify()
                     //then exact status depends on segmentation of the other particles : reanalyse
                     //cout << "...........NSegDet now = " << GetNSegDet() << " && number unidentified in group="
                     //              << (int)GetGroup()->GetNUnidentified() << endl;
-                    if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1)
-                        break;
+                    //if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1)
+                        //break;
                     //if NSegDet = 0 it's hopeless
-                    if (!GetNSegDet())
-                        break;
+                    //if (!GetNSegDet())
+                        //break;
 
             }
 
@@ -392,7 +390,7 @@ void KVReconstructedNucleus::GetAnglesFromTelescope(Option_t * opt)
 }
 
 //______________________________________________________________________________________________//
-
+/*
 Int_t KVReconstructedNucleus::GetIDSubCode(const Char_t * id_tel_type,
         KVIDSubCode & code) const
 {
@@ -451,7 +449,7 @@ const Char_t *KVReconstructedNucleus::GetIDSubCodeString(const Char_t *
     }
     return idtel->GetIDSubCodeString(code);
 }
-
+*/
 //_________________________________________________________________________________
 
 void KVReconstructedNucleus::Calibrate()
@@ -494,6 +492,8 @@ void KVReconstructedNucleus::Calibrate()
           fEloss[ndet] = det->GetEnergy();
           ++ndet;
         }
+        // set particle momentum from telescope dimensions (random)
+        GetAnglesFromTelescope();
     }
 }
 
@@ -516,11 +516,14 @@ void KVReconstructedNucleus::MakeDetectorList()
 void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)
 {
 	// Set identification of nucleus from informations in identification result object
+	// The mass (A) information in KVIdentificationResult is only used if the mass
+	// was measured as part of the identification. Otherwise the nucleus' mass formula
+	// will be used to calculate A from the measured Z.
+	
                	  SetIDCode( idr->IDcode );
                	  SetZMeasured( idr->Zident );
                	  SetAMeasured( idr->Aident );
                	  SetZ( idr->Z );
-               	  if(idr->A > 0) SetA( idr->A );
-               	  if(idr->Aident) SetRealA( idr->PID );
+               	  if(idr->Aident) {SetA( idr->A );SetRealA( idr->PID );}
                	  else SetRealZ( idr->PID );
 }

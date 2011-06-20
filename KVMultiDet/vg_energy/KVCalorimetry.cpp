@@ -16,6 +16,35 @@ ClassImp(KVCalorimetry)
 /* -->
 <h2>KVCalorimetry</h2>
 <h4>compute calorimetry</h4>
+//Several parameters has to be set in order to allow the calculation
+//they correspond to hypotheses of the procedure
+//	 SetAsurZ(Double_t fact)								-> Correpond to the ratio between mass and charge of the source					  
+//  SetMinimumChargeForFragment(Double_t fact)  	-> Correspond to an eventuel different treatment
+//																	between "fragments" and "particles"
+//  SetFactorForNeutronsMeanEnergy(Double_t fact)	-> coefficient/factor for the mean neutron energy
+//																	used values are mostly 1 or 1/2
+//	 SetLevelDensityParameter(Double_t fact)    		-> Mostly used values 8,10, 12
+//	 SetFactorForParticles(Double_t fact)  	  		-> In the case there is a distinction between
+//																	"fragments" and "particles" and not the whole angular
+//																	range of particles are considered (ex 1/2 4pi -> fact=2)
+//
+//Methode : - resolution du polynome de degré 2 en température
+//				 - utilisation de la formule d'un gaz de Fermi (E* = aT2)
+//	E* = aT2 = Asource/alevel T2 
+// E* + \Delta Qi  = Ek + Mn*T + \Delta Qf --> E* + \Delta Qi - Eksource - Mneutron*T - \Delta Qf
+// -> aT2 + \DeltaQi - Eksource - Mneutron*T - \Delta Qf = 0 
+//	Variables de sorties : 
+//	- Differentes propriétés de la sources reconstruites :
+//		-> Température, Energie d'excitation etc ...
+//	- Différentes composantes associées aux fragments/particules/neutrons
+//		-> Energie cinétique, defaut de masse etc ...	
+//	Liste	complete accessible via void PrintParameters()
+//
+//Utilisation : Fill(KVNucleus* )
+//
+//Acces aux variables calculees : 	GetValue(Int_t idx) par index
+//												GetValue(GetNameIndex("Apart")) par nom
+
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////

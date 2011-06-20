@@ -48,10 +48,12 @@ class KVIDCutContour : public KVIDContour
    };
 	
 	// Make contour exclusive i.e. only accept points outside contour
-	void SetExclusive(Bool_t e=kTRUE) { fExclusive=e; };// *TOGGLE*
+	void SetExclusive(Bool_t e=kTRUE);// *TOGGLE*
 	
 	// kTRUE for exclusive contour, kFALSE for inclusive contour
 	Bool_t IsExclusive() const { return fExclusive; };
+   // This is redeclared to make it appear in context menus for KVIDContourLines
+   virtual void     SetName(const char *name){KVIDContour::SetName(name);};  // *MENU*
 	
    ClassDef(KVIDCutContour,1)//Graphical contour for excluding/including regions in particle identification maps
 };

@@ -163,8 +163,6 @@ INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
-# raw->ident impossible for INDRA-VAMOS
-INDRA_e503.RawIdent.DataAnalysisTask.Prereq:     xxx
 
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
@@ -174,8 +172,6 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
-# raw->ident impossible for INDRA-VAMOS
-INDRA_e494s.RawIdent.DataAnalysisTask.Prereq:     xxx
 
 +DataSet:    VAMOS_e503
 VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
@@ -279,11 +275,6 @@ Identification1.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
 # If no value is set for the current dataset (second variable), the value of the
 # first variable will be used. If neither is defined, the new file will be written in the same repository as
 # the recon file (if possible, i.e. if repository is not remote).
-
-+DataAnalysisTask:     RawIdent
-RawIdent.DataAnalysisTask.Title:     Identification & calibration of raw data (raw->ident)
-RawIdent.DataAnalysisTask.Prereq:     raw
-RawIdent.DataAnalysisTask.Analyser:     INDRARawDataIdent
 
 +DataAnalysisTask:     Identification2
 Identification2.DataAnalysisTask.Title:     Final identification and coherency checks (ident->root)
@@ -460,9 +451,10 @@ INDRADB.Gains:    Gains.dat
 INDRADB.VamosScaler:    scalersVamos.dat
 # VAMOS Brho & angle for INDRA-VAMOS experiments
 INDRADB.VamosBrhoAngle:    Vamos_run_brho_angle.dat
-
 # Default filename containing correspondance between CsI detector and PinLaser
 INDRADB.CsIPinCorr:          CsI_PILA.dat
+# Default name for file containing linear coefficients for GG->PG conversion (silicon & ChIo detectors)
+INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
@@ -470,6 +462,10 @@ KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
 KVINDRAPulserDataTree.GenePinDir:   gene_pins
 
 # Dataset-specific parameter files
+INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
+INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
+INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
+# 5th campaign
 INDRA_camp5.INDRADB.Gains:    Gains5.dat
 INDRA_camp5.INDRADB.ElectronicCalibration:    ChVolt5.dat
 INDRA_camp5.INDRADB.ElectronicCalibration.Etalons:   coef_canauxTOmev_etalons_camp5.dat
@@ -477,14 +473,15 @@ INDRA_camp5.INDRADB.Pedestals:      Pedestals5.dat
 INDRA_camp5.INDRADB.CalibCsI.Z=1:       calib_CsI_Z1.dat
 INDRA_camp5.INDRADB.CalibCsI.Z>1:       calib_CsI_Z2.dat
 INDRA_camp5.INDRADB.PHD:     coefs_moulton_camp5.dat
-INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
-INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
-INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
+# E416a
 INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
+# E475s
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
+# INDRA-VAMOS
 INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
 INDRA_e503.INDRADB.Pedestals:      PedestalsE503.dat
+INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
 
 # Default headers for runlist columns
 INDRADB.Runlist.Run:    Run
@@ -683,53 +680,57 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 #
 #
 
+# Plugins for calculation of range & energy loss of charge particles in matter.
+# Each class must derive from KVIonRangeTable abstract base class.
+Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
+
+# Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
+KVMaterial.IonRangeTable:   VEDALOSS
+
 # Default name for TEnv-format file containing real thicknesses of detectors
 # in multidetector arrays defined for datasets.
 # See KVMultiDetArray::SetDetectorThicknesses for file format.
 KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
-# Special names for special datasets:
-INDRA_camp5.KVMultiDetArray.DetectorThicknesses:	EtalonThicknessCamp5.dat
 
+# KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
+KVPulseHeightDefect.EnergyLoss.Npx:        60
 # Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
 KVSilicon.ZminForPHDCorrection:        10
 
-# File containing range tables for calculation of energy losses in KVMaterial
-KVMaterial.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# File containing range tables for calculation of energy losses in KVedaLoss
+KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# TF1::fNpx parameter for TF1 range, energy loss, residual energy
+KVedaLoss.Range.Npx:         20
+KVedaLoss.EnergyLoss.Npx:         50
+KVedaLoss.ResidualEnergy.Npx:         20
 
-# LifeTime tables used by KVNucleus
-KVNucleus.LifeTimeTable:      KVLifeTimeTable
+# KVDetector: TF1::fNpx parameter for TF1 energy loss, range & residual energy
+KVDetector.EnergyLoss.Npx:         20
+KVDetector.ResidualEnergy.Npx:         50
+KVDetector.Range.Npx:        20
+
+# LifeTime tables used by KVNDTManager
+KVNDTManager.LifeTimeTable:       KVLifeTimeTable
 Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
 LifeTime.DataFile:	lifetime_nudat2.data
 
-# Mass Excess tables used by KVNucleus
-KVNucleus.MassExcessTable:      KVMassExcessTable
+# Mass Excess tables used by KVNDTManager
+KVNDTManager.MassExcessTable:      KVMassExcessTable
 +Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDet   "KVMassExcessTable()"
-#MassExcess.DataFile:	massexcess_nudat2.data
+MassExcess.DataFile:	massexcess_nudat2.data
 #MassExcess.DataFile: audi_wapstra_2003.data
-MassExcess.DataFile: pace2_2009.data
+#MassExcess.DataFile: pace2_2009.data
 
-# Abundance tables used by KVNucleus
-KVNucleus.AbundanceTable:      KVAbundanceTable
+# Abundance tables used by KVNDTManager
+KVNDTManager.AbundanceTable:      KVAbundanceTable
 +Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
-# this plugin is used for KVNucleus also if no DataSet is specified
 # if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula
 # the chosen mass formula is only available for KVINDRAReconNuc for this dataset
-# in the source codes KVINDRAReconNuc has KVINDRAReconNuc and KVNucleus has default
-# parametrisation set to KVNucleus::kEALMass (2)
-# KVINDRAReconNuc.MassFormula:        0
-# INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
-
-# Default mass formula used by KVNucleus to calculate A from Z
-# Possibile values are:
-#   0  = kBetaMass
-#   1  = kVedaMass
-#   2  = kEALMass
-#   3  = kEALResMass
-# (see KVNucleus::GetAFromZ)
-KVNucleus.DefaultMassFormula:       0
+KVINDRAReconNuc.MassFormula:        2
+INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
 
 #ROOT environment variables
 +ACLiC.IncludePaths:     -I$(KVROOT)/include

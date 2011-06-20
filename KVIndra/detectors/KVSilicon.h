@@ -29,17 +29,9 @@ $Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
 class KVChIo;
 class KVDBParameterSet;
 
-Double_t ELossSiPHD(Double_t * x, Double_t * par);
-
 class KVSilicon:public KVINDRADetector {
 
  protected:
-
-   Float_t fPGtoGG_0;           //conversion factor = offset
-   Float_t fPGtoGG_1;           //conversion factor = slope
-
-   KVChIo* fChIo;//!pointer to INDRA ionisation chamber associated to this detector
-   KVChIo* FindChIo();
 
    KVChannelVolt* fChVoltGG;//!channel-volt conversion (GG)
    KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
@@ -52,7 +44,7 @@ class KVSilicon:public KVINDRADetector {
  public:
 
     KVSilicon();
-    KVSilicon(Float_t thick);
+    KVSilicon(Float_t thick /* um */);
     virtual ~ KVSilicon();
 
    Double_t GetVoltsFromCanalPG(Double_t chan = 0.0);
@@ -64,34 +56,12 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
-   Float_t GetPG() {
-      return GetACQData("PG");
-   }
-   Float_t GetGG() {
-      return GetACQData("GG");
-   }
-   UShort_t GetMT() {
-      return GetACQParam("T")->GetCoderData();
-   }
-
    virtual Double_t GetEnergy();
-
-   virtual KVChIo *GetChIo() const;
 
    void SetACQParams();
    void SetCalibrators();
 
-   Float_t GetGGfromPG(Float_t PG = -1);
-   Float_t GetPGfromGG(Float_t GG = -1);
-
-   void SetPGtoGG(Float_t alph, Float_t beta) {
-      fPGtoGG_0 = alph;
-      fPGtoGG_1 = beta;
-   };
-
    Double_t GetPHD(Double_t Einc, UInt_t Z);
-   Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
-   virtual void SetELossParams(Int_t Z, Int_t A);
 
    inline Bool_t IsCalibrated() const;
 
@@ -100,8 +70,20 @@ class KVSilicon:public KVINDRADetector {
    void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
    Int_t GetZminPHD() { return fZminPHD; };
    virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
+   virtual TF1* GetELossFunction(Int_t Z, Int_t A);
 
-   ClassDef(KVSilicon, 7)       //INDRA forward-rings silicon detector
+   virtual void SetThickness(Double_t thick /* um */)
+   {
+      // Sets thickness of active layer in microns
+      GetActiveLayer()->SetThickness(thick*KVUnits::um);
+   };
+   virtual Double_t GetThickness() const /* um */
+   {
+      // Returns thickness of active layer in microns
+      return GetActiveLayer()->GetThickness()/KVUnits::um;
+   };
+   
+   ClassDef(KVSilicon, 8)       //INDRA forward-rings silicon detector
 };
 
 //____________________________________________________________________________________________

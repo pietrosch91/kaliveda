@@ -27,15 +27,6 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #define KVD_NORECPRC_CNXN 0
 #endif
 
-
-#define KVDETECTOR_UNKNOWN_MATERIAL "Constructor called with unknown material"
-#define KVDETECTOR_UNKNOWN_DETECTOR "Constructor called with unknown detector prototype"
-#define KVDETECTOR_NOT_IN_TELESCOPE "Detector not associated to any telescope: position undefined"
-#define KVDETECTOR_ADD_TO_UNKNOWN_TELESCOPE "Pointer to telescope is null."
-
-//for energies less than this (MeV) particles are considered to be stopped
-#define KVDETECTOR_MINIMUM_E 0.001
-
 #include "KVMaterial.h"
 #include "KVList.h"
 #include "KVNucleus.h"
@@ -50,15 +41,14 @@ class KVGroup;
 class KVIDTelescope;
 class TGeoVolume;
 class TTree;
-
-Double_t ELossActive(Double_t * x, Double_t * par);
-Double_t EResDet(Double_t * x, Double_t * par);
+class TGraph;
 
 class KVDetector:public KVMaterial {
 
    friend class KVDetectorBrowser;
 
  private:
+ 	static Int_t fDetCounter;
     KVDetectorBrowser * fBrowser;       //! GUI for viewing and modifying characteristics
    Short_t fActiveLayer;        //The active absorber in the detector
    KVTelescope *fTelescope;     //reference to telescope to which detector belongs
@@ -78,16 +68,12 @@ class KVDetector:public KVMaterial {
    Int_t fUnidentP;             //! temporary counters, determine state of identified/unidentified particle flags
 
  protected:
-Int_t npar_loss;//!number of params for eloss function
-Int_t npar_res;//!number of params for eres function
-Double_t *par_loss;//!array of params for eloss function
-Double_t *par_res;//!array of params for eres function
 
    TString fFName;              //!dynamically generated full name of detector
    KVList *fModules;            //references to connected electronic modules (not implemented yet)
    KVList *fCalibrators;        //list of associated calibrator objects
    KVList *fACQParams;          //list of raw data parameters read from coders
-   TList *fParticles;         //!list of particles hitting detector in an event
+   KVList *fParticles;         //!list of particles hitting detector in an event
    KVList *fAbsorbers;          //->list of absorbers making up the detector
    UShort_t fSegment;           //used in particle reconstruction
    Float_t fGain;               //gain of amplifier
@@ -97,6 +83,19 @@ Double_t *par_res;//!array of params for eres function
 	Double_t fDepthInTelescope; //! used to store depth of detector in parent telescope
 
 	Binary8_t  fFiredMask;//bitmask used by Fired to determine which parameters to take into account
+
+   Double_t ELossActive(Double_t * x, Double_t * par);
+   Double_t EResDet(Double_t * x, Double_t * par);
+   Double_t RangeDet(Double_t * x, Double_t * par);
+   
+   TF1* fELossF; //! parametric function dE in active layer vs. incident energy
+   TF1* fEResF; //! parametric function Eres residual energy after all layers of detector
+   TF1* fRangeF; //! parametric function range of particles in detector
+   
+   Double_t fEResforEinc;//! used by GetIncidentEnergy & GetCorrectedEnergy
+   TList* fAlignedDetectors[2];//! stores lists of aligned detectors in both directions
+   
+   Bool_t fSimMode;//! =kTRUE when using to simulate detector response, =kFALSE when analysing data
 
  public:
     KVDetector();
@@ -118,25 +117,35 @@ Double_t *par_res;//!array of params for eres function
       fActiveLayer = actif;
       SetBit(kActiveSet);
    };
-   KVMaterial *GetActiveLayer() const;
+   KVMaterial *GetActiveLayer() const
+   {
+   	//Get pointer to the "active" layer in the detector, i.e. the one in which energy losses are measured
+   	return GetAbsorber(fActiveLayer);
+	};
    KVMaterial *GetAbsorber(Int_t i) const;
-   KVMaterial *GetAbsorber(const Char_t*) const;
+   KVMaterial *GetAbsorber(const Char_t* name) const
+   {
+   	// Return absorber with given name
+   	return (KVMaterial*)(fAbsorbers ? fAbsorbers->FindObject(name) : 0);
+	};
    KVList* GetListOfAbsorbers() const
    {
    	return fAbsorbers;
 	};
    virtual const Char_t *GetArrayName();
+   virtual Double_t GetDepthInTelescope() const
+   {
+   	return fDepthInTelescope;
+   };
 
 	Double_t GetTotalThicknessInCM()
 	{
-		// Calculate and return the total thickness of ALL absorbers making up the detector,
-		// not just the active layer (as for GetThickness()).
-		//
-		// As different materials can have different default units for thickness, we convert
-		// everything into centimetres and return the total thickness with these units.
+		// Calculate and return the total thickness in centimetres of ALL absorbers making up the detector,
+		// not just the active layer (value returned by GetThickness()).
+
 		fTotThickness=0;
 		TIter next(fAbsorbers); KVMaterial* mat;
-		while( (mat = (KVMaterial*)next()) ) fTotThickness += mat->GetThicknessInCM();
+		while( (mat = (KVMaterial*)next()) ) fTotThickness += mat->GetThickness();
 		return fTotThickness;
 	};
 
@@ -161,17 +170,30 @@ Double_t *par_res;//!array of params for eres function
    void SetGain(Float_t gain);
    Float_t GetGain() const;
 
-   virtual Double_t GetEnergy();
-   virtual void SetEnergy(Double_t e);
+   virtual Double_t GetEnergy()
+   {
+		//
+		// Returns energy lost in active layer by particles.
+		//
+   	return (GetActiveLayer() ? GetActiveLayer()->GetEnergyLoss() : KVMaterial::GetEnergyLoss());
+	};
+   virtual void SetEnergy(Double_t e)
+   {
+		//
+		//Set value of energy lost in active layer
+		//
+   	if (GetActiveLayer()) GetActiveLayer()->SetEnergyLoss(e);
+   	else KVMaterial::SetEnergyLoss(e);
+	};
    virtual Double_t GetEnergyLoss() {
       return GetEnergy();
    };
    virtual void SetEnergyLoss(Double_t e) {
       SetEnergy(e);
    };
-   virtual Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e =
+   virtual Double_t GetCorrectedEnergy(const KVNucleus*, Double_t e =
                                        -1., Bool_t transmission=kTRUE);
-   virtual UInt_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
+   virtual Int_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
 
    void AddACQParam(KVACQParam*);
    virtual KVACQParam *GetACQParam(const Char_t*/*name*/);
@@ -203,15 +225,18 @@ Double_t *par_res;//!array of params for eres function
    virtual void StartBrowser();
    virtual void CloseBrowser();
 
-   // Add to the list of particles hitting this detector in an event
    void AddHit(KVNucleus * part)
    {
-      if (!fParticles) fParticles = new TList();
+   // Add to the list of particles hitting this detector in an event
+      if (!fParticles) {
+      	fParticles = new KVList(kFALSE);
+      	fParticles->SetCleanup();
+      }
       fParticles->Add(part);
    };
 
    // Return the list of particles hitting this detector in an event
-   TList *GetHits() const
+   KVList *GetHits() const
    {
       return fParticles;
    };
@@ -219,7 +244,7 @@ Double_t *par_res;//!array of params for eres function
    // Return the number of particles hitting this detector in an event
    Int_t GetNHits() const
    {
-      return (fParticles ? fParticles->GetSize() : 0);
+      return (fParticles ? fParticles->GetEntries() : 0);
    };
 
    inline UShort_t GetSegment() const;
@@ -238,8 +263,17 @@ Double_t *par_res;//!array of params for eres function
    virtual void RemoveCalibrators();
 
    virtual void AddIDTelescope(KVIDTelescope * idt);
-   KVList *GetIDTelescopes();
-   KVList *GetAlignedIDTelescopes();
+   KVList *GetIDTelescopes()
+   {
+   	//Return list of IDTelescopes to which detector belongs
+   	return fIDTelescopes;
+	};
+   KVList *GetAlignedIDTelescopes()
+   {
+   	//return list of ID telescopes made of this detector
+   	//and all aligned detectors placed in front of it
+   	return fIDTelAlign;
+	};
    TList *GetTelescopesForIdentification();
    void GetAlignedIDTelescopes(TCollection * list);
 
@@ -264,9 +298,6 @@ Double_t *par_res;//!array of params for eres function
       return TestBit(kIsBeingDeleted);
    };
 
-   virtual void SetEResParams(Int_t Z, Int_t A);
-   virtual void SetELossParams(Int_t Z, Int_t A);
-
 	static KVDetector *MakeDetector(const Char_t * name, Float_t thick);
    const TVector3& GetNormal();
 
@@ -287,6 +318,58 @@ Double_t *par_res;//!array of params for eres function
 		// detector implementations: this version just returns -1.
 		return -1;
 	};
+   virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
+   virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetTotalDeltaE(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetERes(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
+                              -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
+   /*virtual Double_t GetEResFromDeltaE(...)  - DON'T IMPLEMENT, CALLS GETINCIDENTENERGY*/
+   virtual Double_t GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres);
+   virtual Double_t GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres);
+   virtual Double_t GetRange(Int_t Z, Int_t A, Double_t Einc);
+   virtual Double_t GetLinearRange(Int_t Z, Int_t A, Double_t Einc);   
+   virtual Double_t GetPunchThroughEnergy(Int_t Z, Int_t A);
+	virtual TGraph* DrawPunchThroughEnergyVsZ(Int_t massform=KVNucleus::kBetaMass);
+	virtual TGraph* DrawPunchThroughEsurAVsZ(Int_t massform=KVNucleus::kBetaMass);
+   
+   virtual TF1* GetEResFunction(Int_t Z, Int_t A);
+   virtual TF1* GetELossFunction(Int_t Z, Int_t A);
+	virtual TF1* GetRangeFunction(Int_t Z, Int_t A);
+   
+   virtual Double_t GetSmallestEmaxValid(Int_t Z, Int_t A);
+   
+   virtual void SetEResAfterDetector(Double_t e)
+   {
+   	fEResforEinc=e;
+   };
+   virtual Double_t GetEResAfterDetector() const
+   {
+   	return fEResforEinc;
+   };
+   
+   virtual void ReadDefinitionFromFile(const Char_t*);
+   
+   virtual TList* GetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
+   
+   virtual void SetSimMode(Bool_t on = kTRUE)
+   {
+   	// Set simulation mode of detector
+   	// If on=kTRUE (default), we are in simulation mode (calculation of energy losses etc.)
+   	// If on=kFALSE, we are analysing/reconstruction experimental data
+   	// Changes behaviour of Fired(): in simulation mode, Fired() returns kTRUE
+   	// whenever the energy loss in the active layer is >0
+   	fSimMode = on;
+   };
+   virtual Bool_t IsSimMode() const
+   {
+   	// Returns simulation mode of detector:
+   	//   IsSimMode()=kTRUE : we are in simulation mode (calculation of energy losses etc.)
+   	//   IsSimMode()=kFALSE: we are analysing/reconstruction experimental data
+   	// Changes behaviour of Fired(): in simulation mode, Fired() returns kTRUE
+   	// whenever the energy loss in the active layer is >0
+   	return fSimMode;
+   };
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
@@ -332,6 +415,15 @@ inline Float_t KVDetector::GetGain() const
 
 Bool_t KVDetector::Fired(Option_t * opt)
 {
+	// Returns kTRUE if detector was hit (fired) in an event
+	//
+	// The actual meaning of hit/fired depends on the context and the option string opt.
+	//
+	// If the detector is in "simulation mode", i.e. if SetSimMode(kTRUE) has been called,
+	// this method returns kTRUE if the calculated energy loss in the active layer is > 0.
+	//
+	// In "experimental mode" (i.e. IsSimMode() returns kFALSE), depending on the option:
+	//
    //opt="any" (default):
    //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
    //opt="all" :
@@ -347,6 +439,8 @@ Bool_t KVDetector::Fired(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
+	if(IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
+	
    if(opt[0]=='P') return FiredP(opt+1);
 
 	Binary8_t event; // bitmask for event

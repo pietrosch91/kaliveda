@@ -60,10 +60,10 @@ void KV_CCIN2P3_BQS::SetJobTime(Int_t ss, Int_t mm, Int_t hh)
       tmp.Form("%d:%02d", mm, ss);
    else if (ss)
       tmp.Form("%d", ss);
-   SetJobTime(tmp.Data());
+   SetJobTimeString(tmp.Data());
 }
 
-void KV_CCIN2P3_BQS::SetJobTime(const Char_t* time)
+void KV_CCIN2P3_BQS::SetJobTimeString(const Char_t* time)
 {
    //Set CPU time for batch job.
    //      SetJobTime() => use default time
@@ -132,7 +132,7 @@ void KV_CCIN2P3_BQS::ChooseJobTime()
      << fDefJobTime << "] : ";cout.flush();
     tmp.ReadToDelim(cin);
     if(!tmp.Length()){
-       SetJobTime();
+       SetJobTimeString();
        return;
     }
     Int_t sec=tmp.Atoi();
@@ -201,7 +201,7 @@ void KV_CCIN2P3_BQS::ReadBatchEnvFile(TEnv* env)
    //Read any useful information on batch system from the TEnv
    //(this method is used by KVDataAnalyser::ReadBatchEnvFile)
    KVBatchSystem::ReadBatchEnvFile(env);
-   SetJobTime(env->GetValue("BatchSystem.Time", ""));
+   SetJobTimeString(env->GetValue("BatchSystem.Time", ""));
    SetJobMemory(env->GetValue("BatchSystem.Memory", ""));
    SetJobDisk(env->GetValue("BatchSystem.Disk", ""));
 }

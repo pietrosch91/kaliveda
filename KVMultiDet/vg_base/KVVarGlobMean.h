@@ -26,6 +26,8 @@ class KVVarGlobMean:public KVVarGlob1 {
    Double_t min;
    Double_t max;
    Int_t calc;
+   Double_t fTab[7];//! used by GetValuePtr
+   
 // Methodes
    virtual Double_t getvalue_void(void) const; 
    virtual Double_t getvalue_int(Int_t i);

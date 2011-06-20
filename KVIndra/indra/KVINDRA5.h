@@ -35,8 +35,6 @@ class KVINDRA5:public KVINDRA4 {
 
    virtual void Build();
 
-   virtual void SetPGtoGGFactors(Option_t * type);
-
     ClassDef(KVINDRA5, 1)       //the INDRA multidetector array in its 5th campaign configuration
 };
 #endif

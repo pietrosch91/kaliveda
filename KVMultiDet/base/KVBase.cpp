@@ -35,6 +35,8 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "KVConfig.h"
 #include "TGMimeTypes.h"
 #include "TGClient.h"
+#include "KVNDTManager.h"
+
 
 ClassImp(KVBase)
 
@@ -217,9 +219,13 @@ void KVBase::InitEnvironment()
 
       //generate new seed from system clock
       gRandom->SetSeed(0);
-
-      // initialisation has been performed
+		
+		// initialisation has been performed
       fEnvIsInit = kTRUE;
+		
+		//read all nucl data table
+		gNDTManager = new KVNDTManager();
+		gNDTManager->Print();
    }
 }
 

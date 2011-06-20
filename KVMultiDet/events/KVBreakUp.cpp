@@ -12,8 +12,8 @@ ClassImp(KVBreakUp)
 /* 
 BEGIN_HTML
 <h2>KVBreakUp</h2>
-<h4>Partitioning (KVPartition) of an integer in a given number of intenger
-under different conditions and/or way of break up
+<h4>Permet de casser aleatoirement un nombre entier (ztot) en un nombre (mtot) d'entiers plus petits d'une valeur minimale (zmin) 
+donnée. Plusieurs methodes de cassures sont proposees
 </h4>
 END_HTML
 Initialisation :
@@ -34,17 +34,13 @@ void test{
 
 KVBreakUp* bu = new KVBreakUp();
 bu->SetConditions(80,6,5);
-bu->StorePartitions();
+bu->StorePartitions(kFALSE);
 bu->BreakNtimes(10000);
-bu->GetManager()->TransfertToMainList();
-
-bu->BreakNtimesOnGaussian(10000,80, 5, 6, 1, 5);
-bu->GetManager()->TransfertToMainList();
-
-bu->GetTree()->GetListOfBranches()->ls();
-bu->GetHistos()->ls();
 
 bu->DrawPanel();
+
+bu->SaveAsTree("essai.root","tree")
+bu->SaveHistos("essai.root","","update")
 
 }
 
@@ -54,9 +50,9 @@ bu->DrawPanel();
 
 void KVBreakUp::init(void)
 {
+	//Initialisation des variables
+	//appele par le constructeur
 	
-	size_max=500;
-	//Condition initiale de la cassure Ztot,Mtot,Zlim
 	Ztotal=0;
 	bound = 0;
 	SetConditions(0,0,0);
@@ -68,14 +64,15 @@ void KVBreakUp::init(void)
 	BreakUpMethod="BreakUsingChain";
 	SetBreakUpMethod(BreakUpMethod);
 	
+	lhisto= new KVHashList(); lhisto->SetOwner(kTRUE);
+	//Rempli dans les methodes type Break...()
+	hzz = new TH1F("KVBreakUp_hzz","distri z",200,-0.5,199.5);	lhisto->Add(hzz);
 	nraffine=0;
 	
-	lobjects=0;	
+	lobjects = new KVHashList(); lobjects->SetOwner(kTRUE);	
 	
-	lhisto=0;	
 	DefineHistos();
 	
-	parman=0;
 	niter_tot = 0;
 	tstart = tstop = tellapsed = 0;
 	
@@ -83,41 +80,51 @@ void KVBreakUp::init(void)
 }
 
 //_______________________________________________________
-KVBreakUp::KVBreakUp()
-{ 
-
+KVBreakUp::KVBreakUp(Int_t taille_max)
+{ 	
+	//Constructeur, l'argument taille_max correspond
+	//a la taille maximale du tableau ou sont enregistrees
+	//les produits de la cassure (par defaut 5000)
+	//Ce qui correspond a la cassure en 5000 morceaux max
+	size_max=taille_max;
+	size = new Int_t[size_max];
 	init();
-
 }
 	
 //_______________________________________________________
-KVBreakUp::~KVBreakUp(){
-	
+KVBreakUp::~KVBreakUp()
+{
+	//Destructeur	
 	delete alea;
 	delete lhisto;
+	delete lobjects;
+	
+	if (bound) delete [] bound;
+	delete [] size;
+	
 	TCanvas* c1 = 0;
 	if ( (c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("BreakUp_Control")) ) delete c1;
-	if (bound) delete [] bound;
-		
-	lobjects->Clear();
-	delete lobjects;
 			
 }
 //_______________________________________________________
-void KVBreakUp::Clear(Option_t* opt){
-
-	GetManager()->Clear(opt);
+void KVBreakUp::Clear(Option_t* opt)
+{
+	//Remet a zero les compteurs
+	//Efface les partitions enregistrees
+	//Le contenu des histos
+	KVPartitionList::Clear(opt);
+	ResetTotalIterations();
 	ResetHistos();
-	niter_tot = 0;
 
 }
 
 //_______________________________________________________
-void KVBreakUp::DefineHistos(){
+void KVBreakUp::DefineHistos()
+{
+	//Definition des histogrammes
+	//A redefinir si besoin dans les classes filles
+	//A Remplir dans la methode TreatePartition()
 	
-	lhisto = new KVList();
-	//histogramme de control
-	hzz = new TH1F("KVBreakUp_hzz","distri z",200,-0.5,199.5);	lhisto->Add(hzz);
 	hzt = new TH1F("KVBreakUp_hzt","h ztotal",200,-0.5,199.5);	lhisto->Add(hzt);
 	hmt = new TH1F("KVBreakUp_hmt","h mtotal",200,-0.5,199.5);	lhisto->Add(hmt);
 }
@@ -128,6 +135,7 @@ void KVBreakUp::SetZtot(Int_t zt)
 	//Protected method	
 	if (zt!=Ztotal){
 		Ztotal=zt; 
+		//zt correspond au nombre de possibles liens a casser
 		if (bound) delete bound;	bound = new Int_t[Ztotal];
 		for (Int_t nn=0;nn<Ztotal;nn+=1) bound[nn]=1;
 		nbre_nuc = Ztotal-Mtotal*Zmin;
@@ -139,7 +147,7 @@ void KVBreakUp::SetMtot(Int_t mt)
 { 
 	//Protected method	
 	if (mt>size_max) {
-		Warning("SetMtot","%d -> La multiplicite max (%d) est depassee",mt,size_max);
+		Error("SetMtot","%d -> La multiplicite max (%d) est depassee",mt,size_max);
 		exit(EXIT_FAILURE);
 	}
 	Mtotal=mt; 
@@ -149,8 +157,8 @@ void KVBreakUp::SetMtot(Int_t mt)
 //_______________________________________________________
 void KVBreakUp::SetZmin(Int_t zlim)
 {
-
-	//Protected method	
+	//Protected method
+	
 	Zmin=zlim; 
 	nbre_nuc = Ztotal-Mtotal*Zmin;
 
@@ -159,7 +167,6 @@ void KVBreakUp::SetZmin(Int_t zlim)
 //_______________________________________________________
 void KVBreakUp::SetBreakUpMethod(KVString bup_method)
 {
-	
 	//Protected method	
 	BreakUpMethod=bup_method;
 
@@ -168,6 +175,10 @@ void KVBreakUp::SetBreakUpMethod(KVString bup_method)
 //_______________________________________________________
 void KVBreakUp::RedefineTRandom(KVString TRandom_Method)
 {
+	//Permet de definir une classe pour le tirage aleatoire pour la
+	//cassure en entiers
+	//La class doit derivee de TRandom
+	
 	if (alea) delete alea;
 	TClass *cl = new TClass(TRandom_Method.Data());
 	alea = (TRandom* )cl->New();
@@ -177,6 +188,8 @@ void KVBreakUp::RedefineTRandom(KVString TRandom_Method)
 //_______________________________________________________
 void KVBreakUp::SetConditions(Int_t zt,Int_t mt,Int_t zmin)
 {
+	//Definition du nombre a casser (zt), en plusieurs nombres entiers (mt)
+	//avec une valeur minimale (zmin)
 	SetZtot(zt);
 	SetMtot(mt);
 	SetZmin(zmin);
@@ -185,6 +198,8 @@ void KVBreakUp::SetConditions(Int_t zt,Int_t mt,Int_t zmin)
 //_______________________________________________________
 void KVBreakUp::DefineBreakUpMethod(KVString bup_method)
 {
+	//Permet de definir une methode 
+	//de cassure
 	
 	if (bup_method==""){
 		Info("DefineBreakUpMethod", "Available methods are");
@@ -203,7 +218,7 @@ void KVBreakUp::DefineBreakUpMethod(KVString bup_method)
 //_______________________________________________________
 Int_t KVBreakUp::GetZtot(void) const
 {
-
+	//Retourne le nombre entier a casser
 	return Ztotal;
 
 }
@@ -211,7 +226,7 @@ Int_t KVBreakUp::GetZtot(void) const
 //_______________________________________________________
 Int_t KVBreakUp::GetMtot(void) const
 {
-
+	//Retourne le nombre d'entiers apres cassure (la multiplicite)
 	return Mtotal;
 
 }
@@ -219,7 +234,7 @@ Int_t KVBreakUp::GetMtot(void) const
 //_______________________________________________________
 Int_t KVBreakUp::GetZmin(void) const
 {
-
+	//Retourne la taille minimale des entiers apres cassure
 	return Zmin;
 	
 }
@@ -227,26 +242,24 @@ Int_t KVBreakUp::GetZmin(void) const
 //_______________________________________________________
 KVString KVBreakUp::GetBreakUpMethod(void) const
 {
-
+	//Retourne methode de cassure
 	return BreakUpMethod;
 
 }
 
 //_______________________________________________________
-void KVBreakUp::StorePartitions(Bool_t choix){
-	
+void KVBreakUp::StorePartitions(Bool_t choix)
+{
+	//si choix=kTRUE, on enregistre les partitions
 	SetBit(kStorePartitions,choix);
-	
-	if ( !GetManager() ){
-		parman = new KVPartitionList();
-		if (!lobjects) lobjects = new KVList(); 
-		lobjects->Add(parman);
-	}
+
 }
 
 //_______________________________________________________
-Int_t KVBreakUp::BreakUsingChain(void){
-
+Int_t KVBreakUp::BreakUsingChain(void)
+{
+	//Methode de cassure
+	
 	//Conditions de depart
 	//Mtotal clusters de taille minimale Zmin
 	for (Int_t mm=0;mm<Mtotal;mm+=1) { size[mm]=Zmin-1; }
@@ -301,7 +314,8 @@ Int_t KVBreakUp::BreakUsingChain(void){
 //_______________________________________________________
 Int_t KVBreakUp::BreakUsingLine(void)
 {
-
+	//Methode de cassure
+	
 	//Conditions de depart
 	//Mtotal clusters de taille minimale Zmin
 	for (Int_t mm=0;mm<Mtotal;mm+=1) { size[mm]=Zmin-1; }
@@ -357,7 +371,8 @@ Int_t KVBreakUp::BreakUsingLine(void)
 //_______________________________________________________
 Int_t KVBreakUp::BreakUsingIndividual(void)
 {
-
+	//Methode de cassure
+	
 	//Conditions de depart
 	// Mtotal clusters de taille minimale Zmin
 	for (Int_t mm=0;mm<Mtotal;mm+=1) { size[mm]=Zmin; }
@@ -416,8 +431,7 @@ Int_t KVBreakUp::BreakUsingIndividual(void)
 //_______________________________________________________
 Int_t KVBreakUp::BreakUsingPile(void)
 {
-
-	
+	//Methode de cassure
 	Int_t bb=0;
 	
 	for (Int_t mm=0;mm<Mtotal;mm+=1) { size[mm]=Zmin; }
@@ -444,21 +458,32 @@ Int_t KVBreakUp::BreakUsingPile(void)
 //_______________________________________________________
 void KVBreakUp::TreatePartition()
 {
-
+	//Remplissage des histogrammes predefinis
+	//A redefinir si besoin dans les classes filles
+	//
+	//Enregistrement de la partition (si demande, via StorePartitions(kTRUE) par defaut)
+	//Si une partition identique est deja presente, on incremente sa population
+	//sinon on enregistre celle-ci, voir KVPartitionList
 	hmt->Fill(Mtotal);
 	hzt->Fill(Ztotal);
 	
-	partition = new KVIntegerList();
-	partition->Fill(size,Mtotal);
-			
-	if (parman->Fill(partition)) delete partition;
-
+	if (TestBit(kStorePartitions)){
+		partition = new KVIntegerList();
+		partition->Fill(size,Mtotal);
+		
+		if (Fill(partition)) delete partition;
+	}
 }
 	
 //_______________________________________________________
 void KVBreakUp::BreakNtimes(Int_t times)
 {
-
+	//On realise times fois la cassure
+	//suivant les conditions definis vis la methode SetConditions et DefineBreakUpMethod
+	//Plusieurs series de cassures peuvent etre ainsi realise
+	//
+	//Si l utilisateur veut changer de conditions et ne pas melanger les partitions
+	//il faut appeler la methode Clear()
 	
 	Start();
 	
@@ -488,6 +513,15 @@ void KVBreakUp::BreakNtimes(Int_t times)
 //_______________________________________________________
 void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin)
 {
+	//On realise times fois la cassure sur une double gaussienne
+	//la methode SetCondition n'a ici aucune influence
+	//les valeurs ztot et mtot sont tirees aleatoirement sur une gaussienne
+	//a chaque iteration
+	//
+	//Plusieurs series de cassures peuvent etre ainsi realise
+	//
+	//Si l utilisateur veut changer de conditions et ne pas melanger les partitions
+	//il faut appeler la methode Clear()
 
 	Start();
 	
@@ -527,7 +561,19 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Zto
 //_______________________________________________________
 void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin)
 {
-
+	//On realise times fois la cassure suivant un histogramme a deux dimensions
+	//avec en definition :
+	//	mtot -> axe X
+	//	ztot -> axe Y
+	//la methode SetCondition n'a ici aucune influence
+	//les valeurs ztot et mtot sont tirees aleatoirement sur cette histogramme
+	//a chaque iteration
+	//
+	//Plusieurs series de cassures peuvent etre ainsi realise
+	//
+	//Si l utilisateur veut changer de conditions et ne pas melanger les partitions
+	//il faut appeler la methode Clear()
+	
 	TH2F* h2 = hh_zt_VS_mt;
 	if (!h2) return;
 	
@@ -571,48 +617,44 @@ void KVBreakUp::BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin)
 }		
 
 //_______________________________________________________
-Int_t KVBreakUp::TotalIterations(void)
+Int_t KVBreakUp::GetTotalIterations(void)
 {
-
+	//Retourne le nombre total d iterations
+	//depuis le dernier clear
 	return niter_tot;
 
 }
 
 //_______________________________________________________
-KVList* KVBreakUp::GetHistos()
+KVHashList* KVBreakUp::GetHistos()
 {
-
+	//Retourne la liste des histogrammes
+	//definis dans DefineHistos()
+	//si l utilisateur a utilise lhisto->Add(TObject * )
 	return lhisto;
 	
 }
 
 //_______________________________________________________
-KVList* KVBreakUp::GetObjects()
+KVHashList* KVBreakUp::GetObjects()
 {
-
+	//Retourne la liste d'objects autres ...
 	return lobjects;
 	
 }
 	
 //_______________________________________________________
-KVPartitionList* KVBreakUp::GetManager()
-{
-	
-	return parman;
-
-}
-
-//_______________________________________________________
 void KVBreakUp::ResetTotalIterations()
 {
-
+	//Comme c'est écrit
 	niter_tot=0;
 	
 }
 
 //_______________________________________________________
-void KVBreakUp::ResetHistos(){
-
+void KVBreakUp::ResetHistos()
+{
+	//Met a zero le contenu des histogrammes
 	lhisto->Execute("Reset","");
 	
 }
@@ -620,6 +662,8 @@ void KVBreakUp::ResetHistos(){
 //_______________________________________________________
 void KVBreakUp::DrawPanel()
 {
+	//Trace les histos definis
+	//A redefinir si besoin dans les classes filles
 		
 	TCanvas* c1 = 0;
 	if ( !(c1 = (TCanvas* )gROOT->GetListOfCanvases()->FindObject("BreakUp_Control")) ){
@@ -634,13 +678,23 @@ void KVBreakUp::DrawPanel()
 }
 
 //_______________________________________________________
-void KVBreakUp::SaveHistos(KVString filename,KVString suff,Option_t* option){
-
+void KVBreakUp::SaveHistos(KVString filename,KVString suff,Option_t* option)
+{
+	//Permet la sauvegarde des histogrammes
+	//dans un fichier (option est l'option classique de TFile::TFile())
+	//
+	//Si filename=="" (defaut) -> nom du fichier = "KVBreakUp_Ouput.root";
+	//Si suff=="" (defaut) -> definition d'un suffixe en utisant les arguments de SetConditions()
+	//Ce suffixe est ensuite utilise dans la redefinition des noms des histogrammes 
+	//Exemple:
+	// nom de l'histogramme : histo -> histo_suff
+	//
 	if (filename=="") filename="KVBreakUp_Ouput.root";
+	TFile* file = new TFile(filename.Data(),option);
+	
 	if (suff=="")	
 		suff.Form("Zt%d_Mt%d_Zm%d_%s",GetZtot(),GetMtot(),GetZmin(),GetBreakUpMethod().Data());
-	TFile* file = new TFile(filename.Data(),option);
-
+	
 	KVString snom;
 	for (Int_t nn=0;nn<lhisto->GetEntries();nn+=1){
 		snom.Form("%s_%s",lhisto->At(nn)->GetName(),suff.Data());
@@ -653,6 +707,7 @@ void KVBreakUp::SaveHistos(KVString filename,KVString suff,Option_t* option){
 //_______________________________________________________
 void KVBreakUp::Print(Option_t* option) const
 {
+	//Comme c'est écrit
 	Info("Print","Configuration for the break up");
 	printf(" Ztot=%d - Mtot=%d - Zmin=%d\n",GetZtot(),GetMtot(),GetZmin());
 	printf(" Charge to be distributed %d - Biggest possible charge %d\n",nbre_nuc,Zmin+nbre_nuc);
@@ -665,7 +720,8 @@ void KVBreakUp::Print(Option_t* option) const
 //_______________________________________________________
 void KVBreakUp::Start()
 {
-
+	//protected method
+	//Signal start
 	TDatime time;
 	tstart = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
 
@@ -674,6 +730,8 @@ void KVBreakUp::Start()
 //_______________________________________________________
 void KVBreakUp::Stop()
 {
+	//protected method
+	//Signal stop
 	TDatime time;
 	tstop = time.GetHour()*3600+time.GetMinute()*60+time.GetSecond();
 	tellapsed = tstop-tstart;
@@ -683,7 +741,8 @@ void KVBreakUp::Stop()
 //_______________________________________________________
 Int_t KVBreakUp::GetDeltaTime()
 {
-
+	//Retoune le temps ecoules (en seconde)
+	//entre un appel Start() et un appel Stop()
 	return tellapsed;
 
 }

@@ -41,11 +41,14 @@ class KVMultiDetBrowser;
 class KVRList;
 class KVMaterial;
 class KVNucleus;
+class KVNameValueList;
 class KVTarget;
 class KVIDTelescope;
 class KV2Body;
 class KVReconstructedNucleus;
+class KVReconstructedEvent;
 class TGeoManager;
+class KVUniqueNameList;
 
 class KVMultiDetArray:public KVBase {
 
@@ -75,6 +78,7 @@ class KVMultiDetArray:public KVBase {
    KVSeqCollection *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
    KVSeqCollection *fTelescopes;         //-> list of telescope prototypes used to construct array
    KVSeqCollection *fGroups;             //->list of groups of telescopes in array
+   KVUniqueNameList *fHitGroups;          //list of hitted groups
    KVSeqCollection *fIDTelescopes;       //->deltaE-E telescopes in groups
    KVSeqCollection *fDetectors;          //->list of references to all detectors in array
    KVSeqCollection *fACQParams;          //references to data acquisition parameters associated to detectors
@@ -83,6 +87,8 @@ class KVMultiDetArray:public KVBase {
 
    TString fDataSet;            //!name of associated dataset, used with MakeMultiDetector()
    UInt_t fCurrentRun;          //Number of the current run used to call SetParameters
+   
+   Bool_t fSimMode;             //!=kTRUE in "simulation mode" (use for calculating response to simulated events)
 
    void SetGroups(KVLayer *, KVLayer *);
    void UpdateGroupsInRings(KVRing * r1, KVRing * r2);
@@ -178,9 +184,9 @@ class KVMultiDetArray:public KVBase {
    };
    virtual void SetArrayACQParams();
 
-   void DetectEvent(KVEvent * event);
+	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event);
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
-   Bool_t DetectParticle(KVNucleus * part);
+   KVNameValueList* DetectParticle(KVNucleus * part);
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
    KVIDTelescope *GetIDTelescope(const Char_t * name) const;
@@ -256,6 +262,25 @@ class KVMultiDetArray:public KVBase {
    void PrintCalibStatusOfDetectors();
 
 	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
+   virtual void SetSimMode(Bool_t on = kTRUE)
+   {
+   	// Set simulation mode of array (and of all detectors in array)
+   	// If on=kTRUE (default), we are in simulation mode (calculation of energy losses etc.)
+   	// If on=kFALSE, we are analysing/reconstruction experimental data
+   	fSimMode = on;
+   	GetListOfDetectors()->Execute("SetSimMode", Form("%d", (Int_t)on));
+   };
+   virtual Bool_t IsSimMode() const
+   {
+   	// Returns simulation mode of array:
+   	//   IsSimMode()=kTRUE : we are in simulation mode (calculation of energy losses etc.)
+   	//   IsSimMode()=kFALSE: we are analysing/reconstruction experimental data
+   	return fSimMode;
+   };
+
+	virtual Double_t GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A);
+	virtual TGraph* DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
+	virtual TGraph* DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };

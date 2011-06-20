@@ -13,9 +13,11 @@
 #pragma link C++ global gDataRepositoryManager;
 #pragma link C++ global gDataSet;
 #pragma link C++ global gHistoManipulator;
+#pragma link C++ global gNDTManager;
 #pragma link C++ enum KVBase::EKaliVedaBits;
 #pragma link C++ function SearchFile(const Char_t*, TString&, int);
 #pragma link C++ namespace KVTGIDFunctions;
+#pragma link C++ namespace KVUnits;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma extra_include "Rtypes.h";
@@ -23,6 +25,7 @@
 #pragma link C++ class Binary_t<UShort_t>+;
 #pragma link C++ class Binary_t<UInt_t>+;
 #pragma link C++ class Binary_t<Long64_t>+;
+#pragma link C++ class KVString+;
 #ifdef __WITHOUT_TPARAMETER
 #pragma link C++ class KVParameter<Int_t>+;
 #pragma link C++ class KVParameter<Double_t>+;
@@ -52,6 +55,7 @@
 #pragma link C++ class KVBatchSystem;
 #pragma link C++ class KVBatchSystemManager;
 #pragma link C++ class KV_CCIN2P3_BQS;
+#pragma link C++ class KV_CCIN2P3_GE;
 #pragma link C++ class KVRootBatch;
 #pragma link C++ class KVLinuxBatch;
 #pragma link C++ class KVBrowser;
@@ -92,6 +96,7 @@
 #pragma link C++ class KVElasticScatter+;
 #pragma link C++ class KVElasticScatterEvent+;
 #pragma link C++ class KVEvent+;
+#pragma link C++ class KVEventSelector+;
 #pragma link C++ class KVGroup+;
 #pragma link C++ class KVGenParList+;
 #pragma link C++ class KVHashList+;
@@ -112,7 +117,7 @@
 #pragma link C++ class KVIDGridManager;
 #pragma link C++ class KVIDZAGrid-;
 #pragma link C++ class KVIDZGrid-;
-#pragma link C++ class KVIDTelescope-;
+#pragma link C++ class KVIDTelescope+;
 #pragma link C++ class KVIDSubCodeManager+;
 #pragma link C++ class KVVirtualIDFitter+;
 #pragma link C++ class KVLayer+;
@@ -125,19 +130,13 @@
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;
-#pragma link C++ class KVMaterial-;
+#pragma link C++ class KVMaterial+;
 #pragma link C++ class KVMemoryChunk+;
 #pragma link C++ class KVMemoryPool+;
 #pragma link C++ class KVModule+;
 #pragma link C++ class KVMultiDetArray-;
 #pragma link C++ class KVMultiDetBrowser;
 #pragma link C++ class KVNucleus+;
-/*
-#pragma link C++ class KVMassTable+;
-#pragma link C++ class PACE2MassTable+;
-#pragma link C++ class PACE2Map::value+;
-#pragma link C++ class PACE2Map::key+;
-*/
 #pragma link C++ class KVNumberList+;
 #pragma link C++ class KVParticle+;
 #pragma link C++ class KVParticleCondition+;
@@ -188,7 +187,6 @@
 #pragma link C++ class KVWidgetList;
 #pragma link C++ class KV2Body+;
 #pragma link C++ class KVBreakUp;
-#pragma link C++ class KVString+;
 #pragma link C++ class KVMergeGridsDialog+;
 #pragma link C++ class KVNewGridDialog+;
 #pragma link C++ class KVTestIDGridDialog+;
@@ -262,4 +260,8 @@
 #pragma link C++ class KVLifeTimeTable+;
 #pragma link C++ class KVAbundanceTable+;
 #pragma link C++ class KVMassExcessTable+;
+#pragma link C++ class KVNDTManager+;
+#pragma link C++ class KVIonRangeTable+;
+#pragma link C++ class KVedaLossMaterial+;
+#pragma link C++ class KVedaLoss+;
 #endif

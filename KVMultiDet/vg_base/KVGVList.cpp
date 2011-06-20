@@ -94,7 +94,7 @@ KVGVList::KVGVList(const KVGVList & a)
 // Contructeur par Copy
 //
    init_KVGVList();
-   KVList::KVList((KVList &) a);
+   a.Copy(*this);
 #ifdef DEBUG_KVGVList
    cout << nb << " crees...(Copy) " << endl;
 #endif
@@ -231,6 +231,8 @@ void KVGVList::MakeBranches(TTree* tree)
    // Create a branch in the TTree for each global variable in the list.
    // A leaf with the name of each global variable will be created to hold the
    // value of the variable (result of GetValue() method).
+   // For multi-valued global variables we add a branch for each value with name
+   //   GVname.ValueName
    
    if(!tree) return;
    if(fNbBranch>=MAX_CAP_BRANCHES) return;
@@ -238,7 +240,19 @@ void KVGVList::MakeBranches(TTree* tree)
 	TIter next(this); TObject*ob;
    while ((ob = next()) && fNbBranch<MAX_CAP_BRANCHES) {
       
-      tree->Branch( ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
+      if(((KVVarGlob*)ob)->GetNumberOfValues()>1){
+      	// multi-valued variable
+      	for(int i=0; i<((KVVarGlob*)ob)->GetNumberOfValues(); i++){
+      		// replace any nasty mathematical symbols which could pose problems
+      		// in names of TTree leaves/branches
+      	   TString sane_name( ((KVVarGlob*)ob)->GetValueName(i) );
+      	   sane_name.ReplaceAll("*", "star");
+      		tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()),
+      			&fBranchVar[ fNbBranch++ ], Form("%s_%s/D", ob->GetName(), sane_name.Data()));
+      	}
+      }
+      else
+      	tree->Branch( ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
       
    }
 }
@@ -259,7 +273,14 @@ void KVGVList::FillBranches()
 	TIter next(this); KVVarGlob*ob;
    while ((ob = (KVVarGlob*)next()) && fNbBranch<MAX_CAP_BRANCHES) {
             
-      fBranchVar[ i++ ] = ob->GetValue();      
+      if(((KVVarGlob*)ob)->GetNumberOfValues()>1){
+      	// multi-valued variable
+      	for(int j=0; j<((KVVarGlob*)ob)->GetNumberOfValues(); j++){
+      		fBranchVar[ i++ ] = ob->GetValue(j);
+      	}
+      }
+      else
+      	fBranchVar[ i++ ] = ob->GetValue();      
 		
    }
 }

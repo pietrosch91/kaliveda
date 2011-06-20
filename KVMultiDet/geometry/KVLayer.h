@@ -95,6 +95,8 @@ class KVLayer:public KVBase {
    Bool_t IsRemoving() {
       return TestBit(kIsRemoving);
    }
+   virtual TGeoVolume* GetGeoVolume();
+   virtual void AddToGeometry();
    ClassDef(KVLayer, 2)         //Layer of telescopes at the "same distance" from the target in a multidetector array
 };
 

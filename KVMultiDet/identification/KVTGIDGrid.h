@@ -24,6 +24,9 @@ class KVTGIDGrid : public KVIDZAGrid
    KVTGIDGrid(KVTGID*);
    virtual ~KVTGIDGrid();
 	void WriteToAsciiFile(ofstream &);
+   virtual void Generate(Double_t xmax, Double_t xmin = 0.,
+                                Int_t ID_min = 0, Int_t ID_max =
+                                0, Int_t npoints = 100, Bool_t logscale = kFALSE);//  *MENU*	
 	
 	const KVTGID* GetTGID() const { return fTGID; };
 

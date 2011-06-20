@@ -29,6 +29,7 @@ $Id: KVGroup.h,v 1.25 2007/01/04 16:38:50 franklan Exp $
 
 class KVDetector;
 class KVNucleus;
+class KVNameValueList;
 class KVReconstructedNucleus;
 class KVMultiDetArray;
 
@@ -76,7 +77,7 @@ class KVGroup:public KVPosition {
    KVDetector *GetDetector(const Char_t * name);
    KVTelescope *GetTelescope(const Char_t * name);
    void Sort();
-   void DetectParticle(KVNucleus * part);
+	KVNameValueList* DetectParticle(KVNucleus * part);
    UInt_t GetNumberOfLayers() {
       if (!fNumberOfLayers)
          CountLayers();

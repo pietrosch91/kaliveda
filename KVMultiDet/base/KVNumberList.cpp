@@ -57,8 +57,7 @@ ClassImp(KVNumberList)
 void KVNumberList::init_numberlist()
 {
    //Default initialisation used by ctors
-   //Info("init_numberlist()","rentre, fString=%s",GetfString().Data());
-	fMaxNLimits = 0;
+   fMaxNLimits = 0;
    fNLimits = 0;
    fLowerBounds = new TArrayI();
    fUpperBounds = new TArrayI();
@@ -70,10 +69,9 @@ void KVNumberList::init_numberlist()
 
 //____________________________________________________________________________________________//
 
-KVNumberList::KVNumberList()
+KVNumberList::KVNumberList():fString()
 {
    //Default constructor
-	//Info("KVNumberList()","rentre");
    init_numberlist();
 }
 
@@ -82,20 +80,18 @@ KVNumberList::KVNumberList()
 KVNumberList::KVNumberList(const KVNumberList & orig)
 {
    //Copy constructor
-   //Info("KVNumberList(const KVNumberList & orig)","rentre");
-	init_numberlist();
-   SetfString(orig.GetfString());
+   init_numberlist();
+   fString = orig.fString;
    ParseList();
 }
 
 //____________________________________________________________________________________________//
 
-KVNumberList::KVNumberList(const Char_t * list):TObjString(list)
+KVNumberList::KVNumberList(const Char_t * list):fString(list)
 {
    //Initialise number list using string and parse it to fill limits arrays
    //Any number will only appear once.
-   //Info("KVNumberList(const Char_t * list)","rentre");
-	init_numberlist();
+   init_numberlist();
    ParseList();
 }
 
@@ -115,13 +111,8 @@ void KVNumberList::ParseList()
 {
    //PRIVATE METHOD
    //Breaks string containing list down and fills limits arrays accordingly
-   //Info("ParseList()","rentre, fString=%s",GetfString().Data());
-	Clear();
-	TString st = GetfString();
-	//Info("ParseList()","lance, ParseAndFindLimits avec st=%s",st.Data());
-	ParseAndFindLimits( st, ' ');
-	//Info("ParseList()","sort, fString=%s",GetfString().Data());
-	
+   Clear();
+   ParseAndFindLimits(fString, ' ');
 }
 
 //____________________________________________________________________________________________//
@@ -146,12 +137,10 @@ void KVNumberList::ParseAndFindLimits(TString & string, const Char_t delim)
    //Any part which contains "-" will be sent to AddLimits().
    TObjArray *toks1 = string.Tokenize(delim);
    Int_t n_toks = toks1->GetEntries();
-   //Info("ParseAndFindLimits","n_toks=%d string=%s",n_toks,string.Data());
-	for (register int i = 0; i < n_toks; i++) {
+   for (register int i = 0; i < n_toks; i++) {
       TString tok = ((TObjString *) (*toks1)[i])->GetString();
       KVString kvtok(tok);
-      //Info("ParseAndFindLimits","i=%d, kvtok=%s tok=%s",i,kvtok.Data(),tok.Data());
-		if (tok.Contains(','))
+      if (tok.Contains(','))
          ParseAndFindLimits(tok, ',');
       else if (tok.Contains(' '))
          ParseAndFindLimits(tok, ' ');
@@ -163,7 +152,6 @@ void KVNumberList::ParseAndFindLimits(TString & string, const Char_t delim)
       }
    }
    delete toks1;
-	//Info("ParseAndFindLimits","sort");
 }
 
 //____________________________________________________________________________________________//
@@ -193,8 +181,7 @@ void KVNumberList::AddLimits(Int_t min, Int_t max)
 {
    //The numbers contained in the range [min,max]
    //are added to the list.
-   //Info("AddLimits","rentre min et max %d %d",min,max);
-	if (++fNLimits > fMaxNLimits) {
+   if (++fNLimits > fMaxNLimits) {
       fMaxNLimits += 10;
       fLowerBounds->Set(fMaxNLimits);
       fUpperBounds->Set(fMaxNLimits);
@@ -206,7 +193,6 @@ void KVNumberList::AddLimits(Int_t min, Int_t max)
    if (max > fLastValue)
       fLastValue = max;
    fNValues += (max - min + 1);
-	//Info("AddLimits","sort");
 }
 
 //____________________________________________________________________________________________//
@@ -221,7 +207,7 @@ void KVNumberList::PrintLimits()
    
    cout << "KVNumberList" << endl;
    cout << "There are " << fNLimits << " limits in the string : " <<
-       GetfString().Data() << endl;
+       fString.Data() << endl;
    cout << "MIN = ";
    for (int i = 0; i < fNLimits; i++) {
       cout << Form("%5d", (*fLowerBounds)[i]);
@@ -248,8 +234,7 @@ void KVNumberList::SetList(const Char_t * list)
    //use it to replace any previously defined list.
    //New ranges are calculated automatically.
    //Any number will only appear once.
-   
-	SetfString(list);
+   fString = list;
    ParseList();
 }
 
@@ -328,15 +313,13 @@ Int_t *KVNumberList::GetArray(Int_t & size)
    Int_t *temp2 = new Int_t[n_uniq];
    size=n_uniq; 
    if(n_uniq<fNValues){
-      n_uniq=1; SetfString("");
+      n_uniq=1; fString="";
       temp2[0]=temp[ind[0]];
-      //fString+=temp2[0];
-		AddTofString(Form("%d",temp2[0]));
+      fString+=temp2[0];
       for (register int i = 0; i < fNValues; i++) {
          if(i && (temp[ind[i]] != temp[ind[i-1]]) ){
             temp2[n_uniq++]=temp[ind[i]];
-            //fString+=" "; fString+=temp[ind[i]];
-				AddTofString(Form(" %d",temp[ind[i]]));
+            fString+=" "; fString+=temp[ind[i]];
          }
       }
       fNValues=size;
@@ -355,8 +338,8 @@ Int_t *KVNumberList::GetArray(Int_t & size)
 void KVNumberList::Add(Int_t n)
 {
    //Add value 'n' to the list
-   if(!fNValues) SetfString("");
-   TString tmp = (GetfString() != "" ? GetfString() + " " : GetfString());
+   if(!fNValues) fString="";
+   TString tmp = (fString != "" ? fString + " " : fString);
    tmp += n;
    SetList(tmp);
 }
@@ -376,9 +359,9 @@ void KVNumberList::Remove(Int_t n)
 void KVNumberList::Add(const KVNumberList& list)
 {
    //Add values in 'list' to this list
-   if(!fNValues) SetfString("");
-   TString tmp = (GetfString() != "" ? GetfString() + " " : GetfString());
-   tmp += list.GetfString();
+   if(!fNValues) fString="";
+   TString tmp = (fString != "" ? fString + " " : fString);
+   tmp += list.fString;
    SetList(tmp);
 }
 
@@ -419,8 +402,8 @@ void KVNumberList::Remove(const Char_t* list)
 void KVNumberList::Add(Int_t n, Int_t * arr)
 {
    //Add n values from array arr to the list
-   if(!fNValues) SetfString("");
-   TString tmp = (GetfString() != "" ? GetfString() + " " : GetfString());
+   if(!fNValues) fString="";
+   TString tmp = (fString != "" ? fString + " " : fString);
    for (register int i = 0; i < n; i++) {
          tmp += arr[i];
          tmp += " ";
@@ -482,15 +465,15 @@ const Char_t *KVNumberList::GetList()
 
    //no numbers in list  ?
    if (!fNValues) {
-      SetfString("");
-      return GetfString().Data();
+      fString = "";
+      return fString.Data();
    }
    //get array of all values
    Int_t n;
    Int_t *arr = GetArray(n);
    Int_t min, max;
    min = max = arr[0];   //put min & max = smallest (first) value to start with
-   SetfString("");
+   fString = "";
    for (register int i = 1; i < n; i++) {
 
       Int_t val = arr[i];        // loop over values in increasing order
@@ -498,9 +481,9 @@ const Char_t *KVNumberList::GetList()
          if (val - arr[i - 1] > 1) {
             //cout << "end of continuous range ?" << endl;
             if (min != max) {
-               AddTofString(Form("%d-%d ", min, max));
+               fString += Form("%d-%d ", min, max);
             } else {
-               AddTofString(Form("%d ", min));
+               fString += Form("%d ", min);
             }
             min = max = val;
          } else {
@@ -510,12 +493,12 @@ const Char_t *KVNumberList::GetList()
       
    }
    if (min != max) {
-      AddTofString(Form("%d-%d", min, max));
+      fString += Form("%d-%d", min, max);
    } else {
-      AddTofString(Form("%d", min));
+      fString += Form("%d", min);
    }
    delete[]arr;
-   return GetfString().Data();
+   return fString.Data();
 }
 
 //____________________________________________________________________________________________//
@@ -528,27 +511,27 @@ const Char_t *KVNumberList::GetExpandedList()
 
    //no numbers in list  ?
    if (!fNValues) {
-      SetfString("");
-      return GetfString().Data();
+      fString = "";
+      return fString.Data();
    }
    //get array of all values
    Int_t n;
    Int_t *arr = GetArray(n);
-   SetfString("");
+   fString = "";
    for (register int i = 0; i < n - 1; i++) {
 
       Int_t val = arr[i];        // loop over values in increasing order
-      AddTofString(Form("%d ", val));
+      fString += Form("%d ", val);
    }
    Int_t val = arr[n - 1];       //last value
-   AddTofString(Form("%d", val));
+   fString += Form("%d", val);
    delete[]arr;
-   return GetfString().Data();
+   return fString.Data();
 }
 
 //____________________________________________________________________________________________//
 
-const Char_t *KVNumberList::GetLogical(const Char_t *observable)
+TString KVNumberList::GetLogical(const Char_t *observable)
 {
 	// Get logical expression of 'this' list in the TTree:Draw condition format
 	// observable is one of the leaf of the TTree
@@ -557,7 +540,7 @@ const Char_t *KVNumberList::GetLogical(const Char_t *observable)
 	
 	if (IsEmpty()) return "";
 	GetList();
-	TString tmp = GetfString();
+	TString tmp = fString;
 	tmp.ReplaceAll(" ","||");
 	TObjArray *toks = tmp.Tokenize("||");
 	TString cond="( ";
@@ -570,7 +553,7 @@ const Char_t *KVNumberList::GetLogical(const Char_t *observable)
 	}
 	cond += " )";
 	delete toks;
-	return cond.Data();
+	return cond;
 }
 
 //____________________________________________________________________________________________//
@@ -578,7 +561,7 @@ const Char_t *KVNumberList::GetLogical(const Char_t *observable)
 KVNumberList & KVNumberList::operator=(const KVNumberList & val)
 {
    //Set this number list equal to val
-   SetfString(val.GetfString());
+   fString = val.fString;
    ParseList();
    return (*this);
 }

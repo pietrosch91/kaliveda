@@ -16,9 +16,9 @@ class KVPartitionList : public KVUniqueNameList
 	protected:
 	
    Bool_t  atrouve;
-	Double_t knbre_diff;
-	Double_t knbre_tot;
-	KVPartition* mult_range;	//->
+	Double_t knbre_diff;		//    Nbre de partitions differentes
+	Double_t knbre_tot;		//		Nbre de partitions totales
+	KVPartition* mult_range;	//->   Permet d'extraire la gamme en multiplicité
 	
 	void init();
 	void ValidateEntrance(KVIntegerList* il);

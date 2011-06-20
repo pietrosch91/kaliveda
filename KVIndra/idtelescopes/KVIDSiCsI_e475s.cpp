@@ -156,7 +156,7 @@ void KVIDSiCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
     Double_t Eres = det_dE->GetEResFromDeltaE(nuc->GetZ(),nuc->GetA(),dE);
     det_Eres->SetEnergyLoss(Eres);
 
-    Double_t Einc = det_dE->GetCorrectedEnergy(nuc->GetZ(),nuc->GetA(),dE,kTRUE) + Eres;
+    Double_t Einc = det_dE->GetCorrectedEnergy(nuc,dE,kTRUE) + Eres;
 
     fCalibStatus = kCalibStatus_Calculated;
 
@@ -177,7 +177,7 @@ void KVIDSiCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
             KVDetector *det = nuc->GetDetector(idet);
             if ( det->Fired() && det->IsCalibrated() && det->GetNHits() == 1 )
             {
-                Einc += det->GetCorrectedEnergy(nuc->GetZ(),nuc->GetA());
+                Einc += det->GetCorrectedEnergy(nuc);
             }
             idet++;
         }

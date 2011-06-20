@@ -25,6 +25,9 @@ $Id: KVTelescope.cpp,v 1.29 2007/05/31 09:59:22 franklan Exp $
 #include "Riostream.h"
 #include "TString.h"
 #include "TROOT.h"
+#include "TMath.h"
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
 
 ClassImp(KVTelescope)
 /////////////////////////////////////////////////////////////////////////
@@ -37,6 +40,7 @@ ClassImp(KVTelescope)
 // inline Bool_t KVTelescope::Fired(Option_t* opt) const
 // {
 //      //returns kTRUE if at least one detector has KVDetector::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
+
     KVTelescope::KVTelescope()
 {
    init();
@@ -139,7 +143,7 @@ void KVTelescope::AddToRing(KVRing * kvr, const int fcon)
 
 //_________________________________________________________________________________
 
-void KVTelescope::DetectParticle(KVNucleus * kvp)
+void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
 {
    //Simulates the passage of a charged particle through all detectors of the telescope, in the order in which they
    //were added to it (corresponding to rank given by GetDetectorRank()).
@@ -149,14 +153,39 @@ void KVTelescope::DetectParticle(KVNucleus * kvp)
    //It should be noted that
    // (1) the small variations in effective detector thickness due to the particle's angle of incidence are not, for the moment, taken into account
    // (2) the simplified description of detector geometry used here does not take into account trajectories such as that marked "b" shown in the figure.
-   //      All particles impinging on the first detector of the telescope are assumed to pass through all subsequent detectors as in "c" (unless they stop in one of
-   //      the detectors)
-   KVDetector *obj;
-   TIter next(GetDetectors());
+   //      All particles impinging on the first detector of the telescope are assumed to pass through all subsequent detectors as in "c" 
+	//		(unless they stop in one of the detectors)
+   //
+	//The KVNameValueList, if it's defined, allows to store
+	//the energy loss in the different detectors the particle goes through
+	//exemple : for a Silicon-CsI telescope named SI_CSI_0401 , you will obtain:   
+	//		{
+	//			KVNucleus nn(6,12); nn.SetKE(1000);
+	//			KVTelescope* tel = gMultiDetArray->GetTelescope("SI_CSI_0401");
+	//			KVNameValueList* nvl = new KVNameValueList;
+	//			tel->DetectParticle(&nn,nvl);
+	//			nvl->Print();
+	//		}
+	//		Collection name='KVNameValueList', class='KVNameValueList', size=2
+	//		 OBJ: TNamed	SI_0401	8.934231
+	//		 OBJ: TNamed	CSI_0401	991.065769
+	//The energy loss in each detector corresponds to those lost in active layer
+	//
+	//If an other particle went through the same telescope, we take it into account
+	//an substract its contribution to energy loss	
+	
+	KVDetector *obj;
+   
+	TIter next(GetDetectors());
    while ((obj = (KVDetector *) next())) {
-      obj->DetectParticle(kvp);
-      if (kvp->GetEnergy() <= 0.0)
-         break;
+		
+		Double_t ebefore = obj->GetEnergy();	//Energie dans le detecteur avant passage
+		obj->DetectParticle(kvp);					//Detection de la particule
+      ebefore -= obj->GetEnergy();				//la difference d energie avant et apres passage (donc l energie laissee par la particule)   
+		if (nvl)
+			nvl->SetValue(obj->GetName(),TMath::Abs(ebefore)); //Enregistrement de la perte d energie
+		if (kvp->GetEnergy() <= 0.0)			
+      	break;
    }
 }
 
@@ -192,36 +221,6 @@ void KVTelescope::Print(Option_t * opt) const
    }
 }
 
-
-//_________________________________________________________________________
-const Char_t *KVTelescope::GetName() const
-{
-   // Name of telescope given in the form Det1_Det2_..._Ring-numberTelescope-number
-   // where Det1 etc. are the ACTIVE detector layers of the telescope
-   // The detectors are signified by their TYPE names i.e. KVDetector::GetType
-   //
-   //Just a wrapper for GetArrayName to allow polymorphism
-   return ((KVTelescope *) this)->GetArrayName();
-}
-
-const Char_t *KVTelescope::GetArrayName()
-{
-   // Name of telescope given in the form Det1_Det2_..._Ring-numberTelescope-number
-   // where Det1 etc. are the ACTIVE detector layers of the telescope
-   // The detectors are signified by their TYPE names i.e. KVDetector::GetType
-   TIter next_det(fDetectors);
-   KVDetector *kdet;
-   TString dummy;
-   while ((kdet = (KVDetector *) next_det())) { //loop over detectors in telescope
-      if (dummy == "")
-         dummy = kdet->GetType();
-      else
-         dummy += kdet->GetType();
-      dummy += "_";
-   }
-   fName.Form("%s%02d%02d", dummy.Data(), GetRingNumber(), GetNumber());
-   return fName.Data();
-}
 
 //_________________________________________________________________________
 UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)
@@ -557,3 +556,66 @@ KVDetector *KVTelescope::GetDetectorType(const Char_t * type) const
    }
    return 0;
 }
+
+//___________________________________________________________________________________________
+
+TGeoVolume* KVTelescope::GetGeoVolume()
+{
+	// Create and return TGeoVolume representing detectors in this telescope.
+	
+	int no_of_dets = GetDetectors()->GetEntries();
+	if(no_of_dets==1){
+		// single detector "telescope": just return detector volume
+		return GetDetector(1)->GetGeoVolume();
+	}
+	TGeoVolume *mother_vol = gGeoManager->MakeVolumeAssembly(Form("%s_TEL",GetName()));
+	// total length of telescope = depth of last detector + thickness of last detector
+	Double_t tot_len_tel =  GetTotalLengthInCM();
+	//**** BUILD & ADD DETECTOR VOLUMES ****
+	TIter next(fDetectors); KVDetector *det;
+	while( (det = (KVDetector*)next()) ){
+		TGeoVolume* det_vol = det->GetGeoVolume();
+		// position detector in telescope	
+		Double_t dist = -tot_len_tel/2. + det->GetDepthInTelescope() + det->GetTotalThicknessInCM()/2.;
+		TGeoTranslation *tran = new TGeoTranslation(0., 0., dist);
+		mother_vol->AddNode(det_vol, 1, tran);
+	}
+	return mother_vol;
+}
+
+void KVTelescope::AddToGeometry()
+{
+	// Construct and position a TGeoVolume shape to represent this telescope in the current geometry
+	if(!gGeoManager) return;
+
+	// get volume for telescope
+	TGeoVolume* vol = GetGeoVolume();
+
+	// rotate telescope to orientation corresponding to (theta,phi)
+	Double_t theta = GetTheta(); Double_t phi = GetPhi();
+	TGeoRotation rot1, rot2;
+	rot2.SetAngles(phi+90., theta, 0.);
+	rot1.SetAngles(-90., 0., 0.);
+	Double_t tot_len_tel = GetTotalLengthInCM();
+	// distance to telescope centre = distance to telescope + half total lenght of telescope
+	Double_t dist = GetDistance()/10. + tot_len_tel/2.;
+	// translate telescope to correct distance from target (note: reference is CENTRE of telescope)
+	Double_t trans_z = dist;
+
+	TGeoTranslation tran(0,0,trans_z);
+	TGeoHMatrix h = rot2 * tran * rot1;
+	TGeoHMatrix *ph = new TGeoHMatrix(h);
+
+	// add telescope volume to geometry
+	gGeoManager->GetTopVolume()->AddNode(vol, 1, ph);
+}
+
+   Double_t KVTelescope::GetTotalLengthInCM() const
+   {
+   	// calculate total length of telescope from entrance of first detector to
+   	// backside of last detector
+		int no_of_dets = GetDetectors()->GetEntries();
+		Double_t tot_len_tel = GetDepthInCM(no_of_dets) + GetDetector(no_of_dets)->GetTotalThicknessInCM();
+		return tot_len_tel;
+   }
+

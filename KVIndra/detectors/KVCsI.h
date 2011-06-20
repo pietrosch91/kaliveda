@@ -30,7 +30,6 @@ $Id: KVCsI.h,v 1.26 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVACQParam.h"
 #include "KVINDRA.h"
 
-class KVChIo;
 class KVTelescope;
 class KVLightEnergyCsI;
 
@@ -62,18 +61,13 @@ class KVCsI:public KVINDRADetector {
     KVCsI(Float_t thick);
     virtual ~ KVCsI();
 
-   KVChIo *GetChIo() const;
-
    Float_t GetR() {
       return fACQ_R->GetData();
-   }
+   };
    Float_t GetL() {
       return fACQ_L->GetData();
-   }
-   UShort_t GetMT() {
-      return GetACQParam("T")->GetCoderData();
-   }
-
+   };
+   
    virtual Double_t GetLumiereTotale(Double_t rapide = -1.0, Double_t lente =
                              -1.0);
    virtual Double_t GetCorrectedLumiereTotale(Double_t rapide = -1.0, Double_t lente =
@@ -90,8 +84,8 @@ class KVCsI:public KVINDRADetector {
    void SetACQParams();
    void SetCalibrators();
 
-   Double_t GetCorrectedEnergy(UInt_t Z, UInt_t A, Double_t lum = -1., Bool_t transmission=kTRUE);
-   Double_t GetLightFromEnergy(UInt_t Z, UInt_t A, Double_t E = -1.);
+   Double_t GetCorrectedEnergy(const KVNucleus*, Double_t lum = -1., Bool_t transmission=kTRUE);
+   Double_t GetLightFromEnergy(Int_t Z, Int_t A, Double_t E = -1.);
 
 	void SetPinLaser(Int_t n){ if(n>0&&n<255) fPinLaser = (Char_t)n; };
 	Int_t GetPinLaser()

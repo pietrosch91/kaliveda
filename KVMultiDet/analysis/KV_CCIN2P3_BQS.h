@@ -30,7 +30,7 @@ class KV_CCIN2P3_BQS:public KVBatchSystem {
    KV_CCIN2P3_BQS(const Char_t* name);
    virtual ~ KV_CCIN2P3_BQS();
 
-   virtual void SetJobTime(const Char_t* h="");        /* Set CPU time for batch job */
+   virtual void SetJobTimeString(const Char_t* h="");        /* Set CPU time for batch job */
    virtual void SetJobTime(Int_t, Int_t = 0, Int_t = 0);        /* Set CPU time for batch job */
    virtual void SetJobMemory(const Char_t* h="");   /* Set max memory for batch job */
    virtual void SetJobDisk(const Char_t* h="");     /* Set max disk space for batch job */
@@ -54,7 +54,7 @@ class KV_CCIN2P3_BQS:public KVBatchSystem {
    
 	TString BQS_Request(KVString value,KVString jobname="");
 	
-   ClassDef(KV_CCIN2P3_BQS, 1)  //Interface to CCIN2P3 batch job management system
+   ClassDef(KV_CCIN2P3_BQS, 1)  //Interface to CCIN2P3-BQS batch job management system
 };
 
 #endif

@@ -28,6 +28,7 @@ $Id: KVTelescope.h,v 1.19 2008/12/17 13:01:26 franklan Exp $
 #include "KVDetector.h"
 #include "KVList.h"
 #include "TRef.h"
+#include "KVNameValueList.h"
 
 class KVNucleus;
 class KVRing;
@@ -37,7 +38,7 @@ class TGraph;
 
 class KVTelescope:public KVPosition {
 
- private:
+ protected:
    KVList * fDetectors;         //-> list of detectors in telescope
    KVGroup *fGroup;             //group to which telescope belongs
    KVRing *fRing;               //ring to which telescope belongs
@@ -86,7 +87,7 @@ class KVTelescope:public KVPosition {
       return (fDetectors ? fDetectors->GetSize() : 0);
    };
    void AddToRing(KVRing * kvr, const int fcon = KVD_RECPRC_CNXN);
-   virtual void DetectParticle(KVNucleus * kvp);
+   virtual void DetectParticle(KVNucleus * kvp,KVNameValueList* nvl=0);
    virtual void Print(Option_t * opt = "") const;
    void ResetDetectors();
 
@@ -101,8 +102,6 @@ class KVTelescope:public KVPosition {
 
    const Char_t *GetRingName() const;
    const Char_t *GetLayerName() const;
-   const Char_t *GetName() const;
-   virtual const Char_t *GetArrayName();
 
    Bool_t IsSortable() const {
       return kTRUE;
@@ -114,6 +113,7 @@ class KVTelescope:public KVPosition {
 
    void SetDepth(UInt_t ndet, Float_t depth);
    Float_t GetDepth(UInt_t ndet) const;
+   Double_t GetTotalLengthInCM() const;
    Double_t GetDepthInCM(UInt_t ndet) const
 	{
 		// return depth inside telescope of detector number ndet in centimetres
@@ -131,6 +131,9 @@ class KVTelescope:public KVPosition {
                                      Double_t thickness);
    virtual void SetDetectorTypeThickness(const Char_t * detector_type,
                                          Double_t thickness);
+                                         
+   virtual TGeoVolume* GetGeoVolume();
+   virtual void AddToGeometry();
 
    ClassDef(KVTelescope, 2)     //Multi-layered telescopes composed of different absorbers
 };

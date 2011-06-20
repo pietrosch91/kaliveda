@@ -24,6 +24,12 @@ ClassImp(KVIDentifier)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+void  KVIDentifier::SetName(const char *name)
+{
+	TGraph::SetName(name);
+	if(GetParent()) GetParent()->Modified();
+}
+
 void KVIDentifier::init()
 {
     // Default initialisations
@@ -36,6 +42,7 @@ void KVIDentifier::init()
     SetLineWidth(2);
     SetEditable(kFALSE);
     fParent = 0;
+    fGridOnlyZId=kFALSE;
 }
 
 KVIDentifier::KVIDentifier()
@@ -87,6 +94,7 @@ void KVIDentifier::Copy(TObject & obj) const
     ((TCutG&)obj).SetVarY(GetVarY());
     ((KVIDentifier&)obj).SetZ(GetZ());
     ((KVIDentifier&)obj).SetA(GetA());
+    ((KVIDentifier&)obj).SetOnlyZId(OnlyZId());
     ((KVIDentifier&)obj).SetMassFormula(GetMassFormula());
 }
 
@@ -355,8 +363,9 @@ void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t 
         this->GetPoint(nn,xx,yy);
         idbis->SetPoint(nn,xx,yy);
     }
-
+	 idbis->SetOnlyZId(OnlyZId());
     idbis->SetZ(newzt);
+    idbis->SetMassFormula(GetMassFormula());
     if (newar!=-1)
     {
         idbis->SetA(newar);
@@ -369,4 +378,173 @@ void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t 
 
 
     delete cl;
+}
+
+//______________________________________________________________________________
+Int_t KVIDentifier::InsertPoint()
+{
+   // Insert a new point at the mouse position
+	if(!GetEditable()) return -2;
+	
+   Int_t px = gPad->GetEventX();
+   Int_t py = gPad->GetEventY();
+	
+	Info("InsertPoint","x=%d y=%d",px,py);
+	Int_t ifound;
+   //while ( gPad->XtoAbsPixel(gPad->XtoPad(fX[ii]))>px && ii<fNpoints-1) ii+=1;
+	//Recherche en pixel absolu
+	//pour trouver le point a partir duquel le TGraph
+	//doit bouger
+	Print("");
+	for (Int_t ii=0;ii<fNpoints;ii+=1){
+		Info("InsertPoint","np=%d ii=%d %lf %lf %d\n",
+			fNpoints,
+			ii,
+			fX[ii],
+			gPad->XtoPad(fX[ii]),
+			gPad->XtoAbsPixel(gPad->XtoPad(fX[ii]))
+		);
+		if (gPad->XtoAbsPixel(gPad->XtoPad(fX[ii]))>px) {
+			ifound=ii;
+			break;
+		}
+	}	
+	
+	Info("InsertPoint","point ifound=%d",ifound);
+	
+	Double_t deltaX = fX[ifound] - fX[ifound-1];
+	Double_t aa = (fY[ifound] - fY[ifound-1])/(deltaX);
+	Double_t bb = fY[ifound] - fX[ifound]*aa;
+	//Conversion du px pour le TGraph et extrapole le new Y
+	Double_t newX = gPad->PadtoX(gPad->AbsPixeltoX(px));
+	Double_t newY = aa*newX + bb;
+	Info("InsertPoint","nouveau point %lf %lf",newX,newY);
+	
+	//Dernier point du graph
+	Double_t lastX=fX[fNpoints-1];
+	Double_t lastY=fY[fNpoints-1];
+	//Le dernier point est ajoute en fin de graph
+	//fNpoint -> fNpoint+1
+	SetPoint(fNpoints,lastX,lastY);
+	//On deplace les autres points
+	for (Int_t ii=fNpoints-2;ii>=ifound;ii-=1)
+		SetPoint(ii,fX[ii-1],fY[ii-1]);
+	//Ajout du nouveau point
+	SetPoint(ifound,newX,newY);
+	
+	Print("");
+	
+	gPad->Modified();
+   
+	return ifound;
+}
+
+//______________________________________________________________________________
+Int_t KVIDentifier::ContinueDrawing()
+{
+   // Continue to draw an existing the line
+	if(!GetEditable()) return -2;
+   
+	KVIDentifier* gr = (KVIDentifier* )this->IsA()->New();
+	gr->WaitForPrimitive();
+	ChechHierarchy(gr);
+	
+	Int_t np=gr->GetN();
+	
+	Double_t last,first,yy;
+	gr->GetPoint(np-1,last,yy);
+	gr->GetPoint(0,first,yy);
+	
+	Double_t xmax = fX[fNpoints-1];
+	Double_t xmin = fX[0];
+	
+	Info("ContinueDrawing","Existing Line %lf %lf, Added line %lf %lf",xmin,xmax,last,first);
+	
+	if (first>xmax){
+		//A rajouter apres (a droite) de la ligne existante
+		Double_t xx;
+		for (Int_t ii=0;ii<np;ii+=1){
+			gr->GetPoint(ii,xx,yy);
+			this->SetPoint(fNpoints,xx,yy);
+		}
+	}
+	else if (last<xmin){
+		//A rajouter avant (a gauche) la ligne existante
+		Double_t xx;
+		for (Int_t ii=0;ii<fNpoints;ii+=1){
+			this->GetPoint(ii,xx,yy);
+			gr->SetPoint(gr->GetN(),xx,yy);
+		}
+		
+		for (Int_t ii=0;ii<gr->GetN();ii+=1){
+			gr->GetPoint(ii,xx,yy);
+			this->SetPoint(ii,xx,yy);
+		}
+	}
+	else {
+		Info("ContinueDrawing","Faire une extension a droite ou a gauche\nsans recouvrement avec la ligne existante");
+	}
+
+	delete gr;
+	gPad->Modified();
+	
+	return np;
+}
+
+//______________________________________________________________________________
+void KVIDentifier::ChechHierarchy(KVIDentifier* gr)
+{
+	//Check if the line has been draw from left to right
+	//or right to left
+	//In this last case, we invert the filling order
+	
+	Int_t np = gr->GetN();
+	Double_t*xx = gr->GetX();
+	Double_t*yy = gr->GetY();
+	Double_t Delta = xx[np-1]-xx[0];
+	if (Delta>0) return;
+	
+	Info("ChechHierarchy","Invert filling order");
+	Double_t* xp = new Double_t[np];
+	Double_t* yp = new Double_t[np];
+	for (Int_t nn=0; nn<np; nn+=1){
+		xp[nn] = xx[nn];
+		yp[nn] = yy[nn];
+	}
+	
+	for (Int_t ii=1;ii<=np;ii+=1){
+		gr->SetPoint(ii-1,xp[np-ii],yp[np-ii]);
+	}
+	delete [] xp;
+	delete [] yp;
+ 
+}
+
+//______________________________________________________________________________
+Int_t KVIDentifier::AddPointAtTheEnd()
+{
+   // Insert a new point at the end
+	// its position is extrapolated from the two last points
+	// assuming linear evolution (yy = a*xx + bb)
+	// The KVIDentifier has to have at least 2 points
+	if(!GetEditable()) return -2;
+	if (fNpoints<2) return -3;
+	
+	Int_t np = fNpoints;
+	Double_t deltaX = fX[np-1] - fX[np-2];
+	Double_t aa = (fY[np-1] - fY[np-2])/(deltaX);
+	Double_t bb = fY[np-1] - fX[np-1]*aa;
+	//yy = aa*xx+bb -> bb = yy-aa*xx
+	Double_t newX = fX[np-1]+deltaX;
+	Double_t newY = aa*newX+bb;	
+	SetPoint(np,newX,newY);
+	gPad->Modified();
+	return np+1;
+
+}
+
+Double_t KVIDentifier::GetPID() const
+{
+	if(OnlyZId()) return (Double_t)GetZ();
+	return (GetZ()+0.1*(GetA()-2.*GetZ()));
 }

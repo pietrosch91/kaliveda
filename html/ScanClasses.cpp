@@ -103,6 +103,7 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("particles", "Particles & Nuclei"));
 	fClassTitles->Add( new KVBase("events", "Multiparticle Events"));
 	fClassTitles->Add( new KVBase("detectors", "Absorbers, Targets & Detectors"));
+	fClassTitles->Add( new KVBase("stopping", "Stopping Power & Range Tables for Heavy Ions"));
 	fClassTitles->Add( new KVBase("geometry", "Multidetector Geometry"));
 	fClassTitles->Add( new KVBase("indra", "INDRA Multidetector Array"));
 	fClassTitles->Add( new KVBase("data_management", "Data Management"));
@@ -234,8 +235,13 @@ void ScanClasses::WritePage()
 		if(!list){
 			continue;
 		}
-		
-      list_file << "<h4><a href=\"#_" << class_title->GetName() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
+		// instead of linking to list on this page, we link to the THtml-generated Index page for
+		// this module. This may have extra documentation.
+		TString index_file(class_title->GetName());
+		index_file.ToUpper();
+		index_file.Append("_Index.html");
+//      list_file << "<h4><a href=\"#_" << class_title->GetName() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
+      list_file << "<h4><a href=\"" <<KVBase::GetKVVersion()<<"/"<< index_file.Data() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
    }
    next_rep.Reset();
    list_file <<"<br>" <<endl;
@@ -251,7 +257,11 @@ void ScanClasses::WritePage()
 		
 		list_file << "<h3 class=\"newsTitle\">" ;
 		list_file << "<a name=\"_" << class_title->GetName() <<"\">";
-		list_file << class_title->GetTitle();
+		TString index_file(class_title->GetName());
+		index_file.ToUpper();
+		index_file.Append("_Index.html");
+		
+		list_file << "<a href=\"" <<KVBase::GetKVVersion()<<"/"<< index_file.Data() << "\">" << class_title->GetTitle() << "</a>";
 		
 		list_file << " </a><it>(" << list->GetSize() << " class";
 		if(list->GetSize()>1) list_file << "es";
