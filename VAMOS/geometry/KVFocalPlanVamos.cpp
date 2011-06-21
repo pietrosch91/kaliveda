@@ -78,11 +78,14 @@ KVChIo *kvchio = (KVChIo* )KVDetector::MakeDetector(Form("%s.CHIO",gDataSet->Get
 */
 	
 // Silicon detectors
-KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 530.0);
+KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 530.0*KVUnits::um);
 //	KVSilicon *kvsi =new KVSilicon(530);	// The precise thickness should be set a later. 	
-	KVMaterial *gas = new KVMaterial("C4H10",136.5);
+    KVMaterial *gas = 0;    
+    gas = new KVMaterial("C4H10", 13.65); //New unit system in KV_1.8.1
+    gas->SetPressure(40./KVUnits::mbar);
+	//KVMaterial *gas = new KVMaterial("C4H10",136.5);
 	kvsi->AddAbsorber(gas);
-	gas->SetPressure(40.0);
+	//gas->SetPressure(40.0);
 	kvsi->SetLabel("SIE");		
 	fDetectorTypes->Add(kvsi);
 	kvsi->Print("all");	
@@ -127,9 +130,9 @@ cout<<"Adding CI Ring"<<endl;
     for(Int_t ii=0;ii<18;ii+=2){   
     	KVTelescope *kvt = new KVTelescope;
     	kvt->AddDetector((KVSilicon *) fDetectorTypes->FindObjectByLabel("SIE"));
-	Char_t type[50];
-	sprintf(type,"Si Ring%i",ii+1);
-	kvt->SetType(type);
+	    Char_t type[50];
+	    sprintf(type,"Si Ring%i",ii+1);
+	    kvt->SetType(type);
     	kvt->SetAzimuthalWidth(2.9);		//6
     	kvt->SetDepth(1, 0.0);
     	fTelescopes->Add(kvt);
@@ -141,10 +144,10 @@ cout<<"Adding SI Ring"<<endl;
 
     for(Int_t ii=0;ii<18;ii+=1){   
     	KVTelescope *kvt = new KVTelescope;
-	kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI"));
-	Char_t type[50];
-	sprintf(type,"CsI Ring%i",ii+1);
-	kvt->SetType(type);
+	    kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI"));
+	    Char_t type[50];
+	    sprintf(type,"CsI Ring%i",ii+1);
+	    kvt->SetType(type);
     	kvt->SetAzimuthalWidth(0.9);		//2
     	kvt->SetDepth(1, 0.);
     	fTelescopes->Add(kvt);
@@ -304,12 +307,12 @@ void KVFocalPlanVamos::SetNamesDetectors()
 		           ksih++;
 			   sprintf(name,"SIE_%02d",ksih);
 			   det->SetName(name);
-			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]);
+			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]*KVUnits::um);
 		   } else if(modnum==2) {
 		           ksib-=1;
 			   sprintf(name,"SIE_%02d",ksib);
 			   det->SetName(name);
-			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]);
+			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]*KVUnits::um);
 		   }
 	}
 
