@@ -146,6 +146,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             while ( (det = (KVDetector*)next_det()) ){
                 fNSegDet += det->GetSegment();
                 det->AddHit(this);
+					 det->SetAnalysed();
                det->SetEnergy(fEloss[ndet]);
                ndet++;
                if (det->GetACQParamList()) {
@@ -328,28 +329,14 @@ void KVReconstructedNucleus::Identify()
 
 			KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
 			
-            if ( IDR && idt->IsReadyForID() ) { // is telescope able to identify for this run ?
+            if ( IDR ){
+					if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
 				
-				idt->Identify( IDR );
-				
-                    //We reduce the "segmentation" index by 1.
-                    //If this remains >=2, we carry on trying to identify
-                    //However, if it falls to 1, then the particle's identifiability depends
-                    //on the rest of the KVGroup where it was detected.
-                    //If there are no other _unidentified_ particles in the group, it's fine.
-                    //If there _are_ other unidentified particles in the group, then we should wait until
-                    //the next ID round (equivalent of particles with GetAnalStatus=1).
-                    SetNSegDet(TMath::Max(GetNSegDet() - 1, 0));
-                    //if there are other unidentified particles in the group and NSegDet is < 2
-                    //then exact status depends on segmentation of the other particles : reanalyse
-                    //cout << "...........NSegDet now = " << GetNSegDet() << " && number unidentified in group="
-                    //              << (int)GetGroup()->GetNUnidentified() << endl;
-                    //if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1)
-                        //break;
-                    //if NSegDet = 0 it's hopeless
-                    //if (!GetNSegDet())
-                        //break;
-
+						IDR->IDattempted = kTRUE;
+						idt->Identify( IDR );
+					}
+					else
+						IDR->IDattempted = kFALSE;
             }
 
         }

@@ -273,14 +273,14 @@ void KVReconstructedEvent::IdentifyEvent()
    KVReconstructedNucleus *d;
    while ((d = GetNextParticle())) {
       if (!d->IsIdentified()){
-         if(d->GetStatus() < 3) { // if(d->GetStatus() == 0)
+         if(d->GetStatus() == 0){
             // identifiable particles
             d->Identify();
          }
          else if(d->GetStatus() == 3) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
-            UInt_t zmin = d->GetStoppingDetector()->FindZmin();
+            UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());
             if( zmin ){
                d->SetZ( zmin );
                d->SetIsIdentified();

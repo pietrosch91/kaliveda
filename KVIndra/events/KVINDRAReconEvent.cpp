@@ -342,20 +342,74 @@ void KVINDRAReconEvent::ChangeFragmentMasses(UChar_t mass_formula)
 
 void KVINDRAReconEvent::IdentifyEvent()
 {
-   //Performs event identification (see KVReconstructedEvent::IdentifyEvent), and then
-   //particles stopping in first member of a telescope (KVReconstructedNucleus::GetStatus=3) are
-   //labelled with VEDA ID code kIDCode5 (Zmin)
-  //Unidentified particles receive the general ID code for non-identified particles (kIDCode14)
+   // Performs event identification (see KVReconstructedEvent::IdentifyEvent), and then
+   // particles stopping in first member of a telescope (KVReconstructedNucleus::GetStatus=3) are
+   // labelled with VEDA ID code kIDCode5 (Zmin)
+	// 
+	//   When CsI identification gives a gamma, we unset the 'analysed' state of all detectors
+	// in front of the CsI and reanalyse the group in order to reconstruct and identify charged particles
+	// stopping in them.
+	//
+   // Unidentified particles receive the general ID code for non-identified particles (kIDCode14)
 
    KVReconstructedEvent::IdentifyEvent();
    KVINDRAReconNuc *d=0;
-   while ((d = GetNextParticle())) {
-      if (d->IsIdentified() && d->GetStatus() == 3) {
-         d->SetIDCode( kIDCode5 ); // Zmin
-      }
+	int mult = GetMult();
+	KVUniqueNameList gammaGroups;//list of groups with gammas identified in CsI
+	ResetGetNextParticle();
+	
+   while((d = GetNextParticle())){
+      if (d->IsIdentified()&&d->GetStatus() == 3) {
+         	d->SetIDCode( kIDCode5 ); // Zmin
+		}
+      else if (d->IsIdentified()&&d->GetCodes().TestIDCode(kIDCode0)){
+				// gamma identified in CsI
+				// reset analysed state of all detectors in front of CsI
+			if(d->GetCsI()){
+				if(d->GetCsI()->GetAlignedDetectors()){
+					TIter next(d->GetCsI()->GetAlignedDetectors());
+					KVDetector*det=(KVDetector*)next();//first detector = CsI
+					while( (det = (KVDetector*)next()) ) det->SetAnalysed(kFALSE);
+					gammaGroups.Add(d->GetGroup());
+				}
+				else
+				{
+					Error("IdentifyEvent", "particule id gamma, no aligned detectors???");
+					d->Print();
+				}	
+			}
+			else
+			{
+				Error("IdentifyEvent", "particule identified as gamma, has no CsI!!");
+				d->Print();
+			}
+		}
+   }
+	
+	// perform secondary reconstruction in groups with detected gammas
+	int ngamG = gammaGroups.GetEntries();
+	if(ngamG){
+		for(int i=0; i<ngamG; i++){
+			AnalyseGroup( (KVGroup*)gammaGroups.At(i) );
+		}
+	}
+	if(GetMult()>mult) Info("IdentifyEvent", "Event#%d: Secondary reconstruction (gammas) -> %d new particles",
+		GetNumber(), GetMult()-mult);
+	
+	// identify new particles generated in secondary reconstruction 
+   KVReconstructedEvent::IdentifyEvent();
+	ResetGetNextParticle();
+	
+   while((d = GetNextParticle())){
+      if (d->IsIdentified()&&d->GetStatus() == 3) {
+         	d->SetIDCode( kIDCode5 ); // Zmin
+		}
       else if(!d->IsIdentified()){
          d->SetIDCode( kIDCode14 );
       }
-   }
+	}
+		for(int i=mult+1; i<=GetMult(); i++){
+			 GetParticle(i)->Print();
+		}
 }
 
