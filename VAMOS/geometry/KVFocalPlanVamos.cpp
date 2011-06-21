@@ -78,7 +78,7 @@ KVChIo *kvchio = (KVChIo* )KVDetector::MakeDetector(Form("%s.CHIO",gDataSet->Get
 */
 	
 // Silicon detectors
-KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 530.0*KVUnits::um);
+KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 530.0);
 //	KVSilicon *kvsi =new KVSilicon(530);	// The precise thickness should be set a later. 	
     KVMaterial *gas = 0;    
     gas = new KVMaterial("C4H10", 13.65); //New unit system in KV_1.8.1
@@ -266,6 +266,7 @@ void KVFocalPlanVamos::SetGroupsAndIDTelescopes()
 {
    // set correct names for detectors instead of incorrect ring-
    // and module-based names a la INDRA
+    printf("Setting Groups and ID Telescopes...\n");
 
    SetNamesDetectors();
    KVMultiDetArray::SetGroupsAndIDTelescopes();
@@ -273,6 +274,8 @@ void KVFocalPlanVamos::SetGroupsAndIDTelescopes()
 
 void KVFocalPlanVamos::SetNamesDetectors()
 {
+
+    printf("KVFocalPlanVamos::SetNamesDetectors()...\n");
    // set correct names for detectors instead of incorrect ring-
    // and module-based names a la INDRA
 	
@@ -289,6 +292,8 @@ void KVFocalPlanVamos::SetNamesDetectors()
    UInt_t kchio = 1;
    UInt_t kgaph = 0;
    UInt_t kgapb = 19;
+
+    printf("Initiating while loop...\n");
 		  
   	while((det = (KVDetector *) next_det())){
 /*		
@@ -307,12 +312,12 @@ void KVFocalPlanVamos::SetNamesDetectors()
 		           ksih++;
 			   sprintf(name,"SIE_%02d",ksih);
 			   det->SetName(name);
-			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]*KVUnits::um);
+			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]);
 		   } else if(modnum==2) {
 		           ksib-=1;
 			   sprintf(name,"SIE_%02d",ksib);
 			   det->SetName(name);
-			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]*KVUnits::um);
+			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]);
 		   }
 	}
 
@@ -327,6 +332,8 @@ void KVFocalPlanVamos::SetNamesDetectors()
 #ifdef KV_DEBUG
    Info("SetNamesSi", "Success");
 #endif
+
+    printf("End of KVFocalPlanVamos::SetNamesDetectors()\n");
 
 }
 
