@@ -266,7 +266,6 @@ void KVFocalPlanVamos::SetGroupsAndIDTelescopes()
 {
    // set correct names for detectors instead of incorrect ring-
    // and module-based names a la INDRA
-    printf("Setting Groups and ID Telescopes...\n");
 
    SetNamesDetectors();
    KVMultiDetArray::SetGroupsAndIDTelescopes();
@@ -275,7 +274,6 @@ void KVFocalPlanVamos::SetGroupsAndIDTelescopes()
 void KVFocalPlanVamos::SetNamesDetectors()
 {
 
-    printf("KVFocalPlanVamos::SetNamesDetectors()...\n");
    // set correct names for detectors instead of incorrect ring-
    // and module-based names a la INDRA
 	
@@ -284,6 +282,7 @@ void KVFocalPlanVamos::SetNamesDetectors()
 		   17,29,45,61,73,6,18,30,46,62,74,7,19,31,47,63,75,8,20,32,48,64,76,9,21,33,
 		   49,65,77,10,22,34,50,66,78,11,23,35,51,67,79,12,24,36,52,68,80,37,53,
 		  38,54,39,55,40,56};
+
    TIter next_det(gMultiDetArray->GetListOfDetectors());
    KVDetector *det;
    UInt_t ksih = 0;
@@ -293,9 +292,8 @@ void KVFocalPlanVamos::SetNamesDetectors()
    UInt_t kgaph = 0;
    UInt_t kgapb = 19;
 
-    printf("Initiating while loop...\n");
-		  
   	while((det = (KVDetector *) next_det())){
+
 /*		
 		   if(det->IsType("CI")){
 		   Char_t name[50];
@@ -309,31 +307,35 @@ void KVFocalPlanVamos::SetNamesDetectors()
 		   Char_t name[50];
 		   UInt_t modnum = det->GetTelescope()->GetNumber();
 		   if(modnum==1) {
-		           ksih++;
-			   sprintf(name,"SIE_%02d",ksih);
-			   det->SetName(name);
-			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]);
+		        ksih++;
+			    sprintf(name,"SIE_%02d",ksih);
+			    det->SetName(name);
+			    //det->GetAbsorber("Silicon")->SetThickness(thick_si[ksih-1]);
+
+                // NEED TO MAKE THE FOLLOWING 'SAFE'!!
+			    det->GetAbsorber("Si")->SetThickness(thick_si[ksih-1]*1E-4); //um->cm
 		   } else if(modnum==2) {
-		           ksib-=1;
-			   sprintf(name,"SIE_%02d",ksib);
-			   det->SetName(name);
-			   det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]);
+		        ksib-=1;
+			    sprintf(name,"SIE_%02d",ksib);
+			    det->SetName(name);
+			    //det->GetAbsorber("Silicon")->SetThickness(thick_si[ksib-1]);
+
+                // NEED TO MAKE THE FOLLOWING 'SAFE'!!
+			   det->GetAbsorber("Si")->SetThickness(thick_si[ksib-1]*1E-4);     //um->cm
 		   }
 	}
 
 	   if(det->IsType("CSI")){
-		   Char_t name[50];
-		   sprintf(name,"CSI%02d",numcsi[kcsi]);
-			   det->SetName(name);
-		   kcsi++;
+		    Char_t name[50];
+		    sprintf(name,"CSI%02d",numcsi[kcsi]);
+		    det->SetName(name);
+		    kcsi++;
 	}
 	   }
-   
+
 #ifdef KV_DEBUG
    Info("SetNamesSi", "Success");
 #endif
-
-    printf("End of KVFocalPlanVamos::SetNamesDetectors()\n");
 
 }
 

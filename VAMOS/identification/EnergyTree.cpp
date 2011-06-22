@@ -151,6 +151,10 @@ return name;
 
 void EnergyTree::InitTelescope(KVFocalPlanVamos *vamos, Int_t si_num ,Int_t csi_num)
 {
+
+   // printf("EnergyTree::InitTelescope():\n");
+   // printf("Arguments passed: KVFocalPlanVamos %p, si_num %i, csi_num %i\n", vamos, si_num, csi_num);
+    
     Char_t si_name [128] = "null";
     Char_t csi_name [128] = "null";
     string module_name;
@@ -159,8 +163,12 @@ void EnergyTree::InitTelescope(KVFocalPlanVamos *vamos, Int_t si_num ,Int_t csi_
     sprintf(csi_name, "CSI%02i", csi_num+1);
 
     //sprintf(module_name, GetModuleName(si_num, csi_num));    // Automate module name
+
+    //printf("Retrieving module name from the map...");
 	
     module_name = GetModuleName(si_num, csi_num);		//Original
+
+    //printf("done.\n");
     
     Char_t tel_name [128] = "null";
     sprintf(tel_name, "SIE_%02i_CSI%02i", si_num+1, csi_num+1);
@@ -173,22 +181,42 @@ void EnergyTree::InitTelescope(KVFocalPlanVamos *vamos, Int_t si_num ,Int_t csi_
     kvd_si = 0;
     //kvd_gap = 0;
     //frag = 0;
+
+    //printf("Retrieving list of ID Telescopes...\n");
   
     list = (KVSeqCollection*) vamos->GetListOfIDTelescopes();
+
+    //printf("List retrieved at %p\n", list);
+    
+    //printf("Searching the list...\n");
     
     if(list != 0){
 
         kvid = (KVIDSiCsIVamos*) list->FindObjectByName(tel_name);				//Original	FindObjectByName(module_name.c_str())
-	//kvid = (KVIDSiCsIVamos*) vamos->GetIDTelescope(tel_name);				//Modified
+	    //kvid = (KVIDSiCsIVamos*) vamos->GetIDTelescope(tel_name);				//Modified
+        //printf("kvid assigned : %p\n", kvid);
 		
 	if(kvid != 0){
             // Check to see if we are in the correct telescope
             kvd_csi = (KVCsIVamos*) kvid->GetDetector(csi_name);
+            //printf("kvd_csi assigned: %p\n", kvd_csi);
             kvd_si  = (KVSiliconVamos*) kvid->GetDetector(si_name);
-	    //kvd_gap = (KVDetector*) kvid->GetDetector("GAP_FOCAL_PLAN");	    
+            //printf("kvd_si assigned: %p\n", kvd_si);
+	        //kvd_gap = (KVDetector*) kvid->GetDetector("GAP_FOCAL_PLAN");	    
+
+            //printf("Si Thickness(KVSiliconVamos): %.2f\n", kvd_si->GetThickness());
+            KVMaterial *gap = 0;
+            gap = (KVMaterial*)kvd_si->GetAbsorber("C4H10");
+            
+            if(gap != 0){
+               // printf("Gap Thickness: %.2f\n", gap->GetThickness());
+            }else{
+                printf("Error: Could not find absorber \"C4H10\" \n");
+            }
+            
 	    
-	    L->Log<<"Thickness Si  : "<<kvd_si->GetThickness()<<endl;
-	    L->Log<<"Thickness Gap : "<<kvd_si->GetAbsorber("Isobutane")->GetThickness()<<endl;	
+	    //L->Log<<"Thickness Si  : "<<kvd_si->GetThickness()<<endl;
+	   //L->Log<<"Thickness Gap : "<<kvd_si->GetAbsorber("Isobutane")->GetThickness()<<endl;	
             if(kvd_csi != 0){
 
                 if(kvd_si != 0){
@@ -213,6 +241,8 @@ void EnergyTree::InitTelescope(KVFocalPlanVamos *vamos, Int_t si_num ,Int_t csi_
     }else{
         printf("Error: 'list' assignment failed\n");   
     }
+
+   // printf("Telescope Initialised\n");
 
 }
 

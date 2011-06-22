@@ -72,9 +72,9 @@ gDataSet->BuildMultiDetector();
 v = new KVFocalPlanVamos();
 v->Build();
 */
-//fAnalyseV->SetFocalPlan(v);
-//ReadModuleMap(); 	//"module_map.dat"       
-//fAnalyseV->SetModuleMap(module_map);
+fAnalyseV->SetFocalPlan(v);
+ReadModuleMap(); 	//"module_map.dat"       
+fAnalyseV->SetModuleMap(module_map);
 }
 
 //_____________________________________
@@ -194,6 +194,8 @@ return runFlag;
 
 Int_t KVIVReconIdent::ReadModuleMap(){	//const Char_t *map	
 
+    printf("Reading the module map...\n");
+
 ifstream f;
 if(!gDataSet->OpenDataSetFile("module_map.dat",f))
   {
@@ -203,11 +205,15 @@ if(!gDataSet->OpenDataSetFile("module_map.dat",f))
   
 else 
   {
+
+    printf("Initialising null module_map...\n");
     for(Int_t i=0; i<18; i++){
         for(Int_t j=0; j<80; j++){
             module_map[i][j] = "null";
         }
     }
+
+    printf("Reading the data...\n");
 
     Int_t si_num = 0;
     Int_t csi_num = 0;
@@ -217,10 +223,10 @@ else
 
     //ifstream f(map);
 
-    /*if (!f.good()){
-        cout << "Error: Module map file not good (" << map << ")" << endl;
-        exit(-1);
-    }*/
+    //if (!f.good()){
+    //    cout << "Error: Module map file not good (" << map << ")" << endl;
+    //    exit(-1);
+    //}
 
     while(getline(f, line)){
         if(line[0] != '#'){
@@ -229,12 +235,15 @@ else
             }else{
                 istringstream s (line);
                 s >> module_name >> csi_num;	//csi_num is real number (1-80) and si_num is (0-17)
+                printf("Processing Si_raw(%02i) CsI_raw(%02i)...\n", si_num, csi_num);
                 module_map[si_num][csi_num-1] = module_name;
             }
         }
     }
 }
+
     f.close();
+    printf("Module map has been read successfully\n");
 
     return 0;
 }
