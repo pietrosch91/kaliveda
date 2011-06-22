@@ -24,7 +24,7 @@ class KVSimEvent : public KVEvent
 		add_variables = new KVNameValueList();
 	}
 	
-	void Clear(Option_t * opt = ""){
+	void Clear(Option_t * /* opt */ = ""){
 		KVEvent::Clear();
 		add_variables->Clear();
 	

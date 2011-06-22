@@ -78,7 +78,7 @@ class KVMultiDetArray:public KVBase {
    KVSeqCollection *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
    KVSeqCollection *fTelescopes;         //-> list of telescope prototypes used to construct array
    KVSeqCollection *fGroups;             //->list of groups of telescopes in array
-   KVUniqueNameList *fHitGroups;          //list of hitted groups
+   KVDetectorEvent *fHitGroups;          //list of hit groups in simulation
    KVSeqCollection *fIDTelescopes;       //->deltaE-E telescopes in groups
    KVSeqCollection *fDetectors;          //->list of references to all detectors in array
    KVSeqCollection *fACQParams;          //references to data acquisition parameters associated to detectors

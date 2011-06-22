@@ -85,7 +85,9 @@ Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR)
     {
         IDR->IDcode = kIDCode5;
         IDR->Z = fchio->FindZmin();
+        IDR->SetComment("point to identify left of Si threshold line (bruit/arret ChIo?)");
     }
+    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
 
     return kTRUE;
 }

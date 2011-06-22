@@ -333,10 +333,7 @@ void KVGroup::Reset()
    }
    //reset energy loss and KVDetector::IsAnalysed() state
    //plus ACQParams set to zero
-   //GetDetectors()->Execute("Clear", "");
-   if(GetDetectors()){
-   	  GetDetectors()->R__FOR_EACH(KVDetector, Clear)();
-   }
+   GetDetectors()->R__FOR_EACH(KVDetector, Clear)();
 }
 
 //_________________________________________________________________________________
@@ -779,7 +776,7 @@ void KVGroup::AnalyseParticles()
 
          if (nuc->GetNSegDet() >= 2) {
             //all part.s crossing 2 or more independent detectors are fine
-            nuc->SetStatus(0);
+            nuc->SetStatus( KVReconstructedNucleus::kStatusOK );
          } else if (nuc->GetNSegDet() == 1) {
             //only 1 independent detector hit => depends on what's in the rest
             //of the group
@@ -787,7 +784,7 @@ void KVGroup::AnalyseParticles()
          } else {
             //part.s crossing 0 independent detectors (i.E. arret ChIo)
             //can not be reconstructed
-            nuc->SetStatus(3);
+            nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
          }
       }
       next.Reset();
@@ -802,18 +799,18 @@ void KVGroup::AnalyseParticles()
                //after identifying the others and subtracting their calculated
                //energy losses from the "dependent"/"non-segmented" detector
                //(i.E. the ChIo)
-               nuc->SetStatus(1);
+               nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterSub );
             } else {
                //more than one ? then we can make some wild guess by sharing the
                //"non-segmented" (i.e. ChIo) contribution between them, but
                //I wouldn't trust it as far as I can spit
-               nuc->SetStatus(2);
+               nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterShare );
             }
             //one possibility remains: the particle may actually have stopped e.g. in the Si member
             //of a Ring 1 Si-CsI telescope, in which case AnalStatus = 3
             if (nuc->GetIDTelescopes()->GetSize() == 0) {
                //no ID telescopes with which to identify particle
-               nuc->SetStatus(3);
+               nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
             }
          }
       }
@@ -829,16 +826,16 @@ void KVGroup::AnalyseParticles()
 
       if (nuc->GetNSegDet() > 0) {
          //OK no problem
-         nuc->SetStatus(0);
+         nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
       } else {
          //dead in the water
-         nuc->SetStatus(3);
+         nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
       }
       //one possibility remains: the particle may actually have stopped e.g. in the 1st member
       //of a telescope, in which case AnalStatus = 3
       if (nuc->GetIDTelescopes()->GetSize() == 0) {
          //no ID telescopes with which to identify particle
-         nuc->SetStatus(3);
+         nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
       }
    }
 #ifdef KV_DEBUG
@@ -866,3 +863,10 @@ UInt_t KVGroup::GetNUnidentified()
    return (GetHits() - GetNIdentified());
 };
 #endif
+
+void KVGroup::ClearHitDetectors()
+{
+	// Loop over all detectors in group and clear their list of 'hits'
+	// i.e. the lists of particles which hit each detector
+	GetDetectors()->R__FOR_EACH(KVDetector, ClearHits)();
+}

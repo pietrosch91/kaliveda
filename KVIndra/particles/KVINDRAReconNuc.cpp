@@ -368,12 +368,14 @@ Bool_t KVINDRAReconNuc::CoherencyChIoSiCsI(KVIdentificationResult theID)
    		// we check that the ChIo contribution is sane:
    		// if no other particles hit this group, the Z given by the ChIoSi
    		// must be <= the Z found from Si-CsI or CsI-RL identification
-   		// (we cannot trust the punch-through lines in the grids).
+   		//
    		// in this case the measured energy loss of the ChIo can be solely attributed to this particle
    		// and we return kTRUE;
 
    		// ChIo was hit by more than one particle in group
-   		if(GetChIo() && GetChIo()->GetNHits()>1) return kFALSE;
+   		if(GetChIo() && GetChIo()->GetNHits()>1) {
+   			return kFALSE;
+   		}
 
    		KVIdentificationResult *IDchiosi = GetIdentificationResult(3);
    		if(!IDchiosi){
@@ -384,7 +386,8 @@ Bool_t KVINDRAReconNuc::CoherencyChIoSiCsI(KVIdentificationResult theID)
    		// if we have a successful ChIo-Si id with a Z > Z given by CsI or Si-CsI id,
    		// then we consider that there is a pile-up in the ChIo
    		// note that we consider Z_ChIoSi = 1 to mean the ChIo is in the pedestal i.e. nothing seen
-   		if(IDchiosi->IDOK && IDchiosi->Z>1 && IDchiosi->Z>theID.Z){
+   		// we also require the chio-si identification to be above the punch-through line
+   		if(IDchiosi->IDOK && IDchiosi->Z>1 && IDchiosi->IDquality!=KVIDGChIoSi::k_BelowPunchThrough && IDchiosi->Z>theID.Z){
    		    return kFALSE;
    		}
 
@@ -622,12 +625,12 @@ void KVINDRAReconNuc::Identify()
    		// particles stopping in CsI detectors on rings 1-9
    		// check coherency of CsI-R/L and Si-CsI identifications
    		ok = CoherencySiCsI(partID);
-   		// if Si-CsI and CsI-RL are coherent and no pileup is apparent,
    		// we check that the ChIo contribution is sane:
    		// if no other particles hit this group, the Z given by the ChIoSi
    		// must be <= the Z found from Si-CsI or CsI-RL identification
-   		// (we cannot trust the punch-through lines in the grids).
-   		if(fCoherent && !fPileup) fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
+
+   		//if(fCoherent && !fPileup)
+   		fUseFullChIoEnergyForCalib = CoherencyChIoSiCsI(partID);
 		}
 		else
 		{
@@ -643,7 +646,7 @@ void KVINDRAReconNuc::Identify()
    			++id_no;
    			pid = GetIdentificationResult(id_no);
    		}
-			
+			fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
 		}
     }
    else

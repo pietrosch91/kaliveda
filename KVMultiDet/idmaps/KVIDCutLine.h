@@ -19,10 +19,10 @@ class KVIDCutLine : public KVIDLine
    KVString fAcceptedDirection;         //direction relative to cut line corresponding to acceptable region
    virtual void WriteAsciiFile_extras(ofstream &, const Char_t * name_prefix ="");
    virtual void ReadAsciiFile_extras(ifstream &);
-   virtual void SetZ(Int_t atnum){ ; };
-   virtual void SetA(Int_t atnum){ ; };
-   virtual void SetAandZ(Int_t atnum,Int_t ztnum){;};
-   virtual void SetMassFormula(Int_t mf){ ; };
+   virtual void SetZ(Int_t /*atnum*/){ ; };
+   virtual void SetA(Int_t /*atnum*/){ ; };
+   virtual void SetAandZ(Int_t /*atnum*/,Int_t /*ztnum*/){;};
+   virtual void SetMassFormula(Int_t /*mf*/){ ; };
    
    public:
    KVIDCutLine();

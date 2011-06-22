@@ -70,6 +70,10 @@ class KVINDRAReconEvent:public KVReconstructedEvent {
    void IdentifyEvent();
    void ChangeFragmentMasses(UChar_t mass_formula);
    
+      virtual void SecondaryIdentCalib();
+void SecondaryAnalyseGroup(KVGroup* grp);
+
+   
    ClassDef(KVINDRAReconEvent, 6)       //Event reconstructed from energy losses in INDRA array
 };
 

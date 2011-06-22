@@ -65,6 +65,17 @@ protected:
 
 public:
 
+	// status codes given to reconstructed particles by KVGroup::AnalyseParticles
+	enum {
+		kStatusOK,      // = 0 :   identification is, in principle at least, possible straight away
+		kStatusOKafterSub,   //= 1 :   identification is, in principle, possible after identification and subtraction
+		                                   //         of energy losses of other particles in the same group which have Status=0
+		kStatusOKafterShare,  // = 2 : the energy loss in the shared detector of the group must be shared
+                                           // (arbitrarily) between this and the other particle(s) with Status=2
+		kStatusStopFirstStage  // = 3 :   the particle has stopped in the first member of an identification
+                                           // telescope; a minimum Z could be estimated from the measured energy loss.
+	};
+
     KVReconstructedNucleus();
     KVReconstructedNucleus(const KVReconstructedNucleus &);
     void init();
@@ -155,12 +166,12 @@ public:
         // straight away or if we need to wait until other particles in the same group have been
         // identified and calibrated (case of >1 particle crossing shared detector in a group).
         //
-        //  Status = 0 :   identification is, in principle at least, possible straight away
-        //  Status = 1 :   identification is, in principle, possible after identification of other particles
-        //                         in the same group which have Status=0
-        //  Status = 2 :   the energy loss in the shared detector of the group must be shared
-        //                         (arbitrarily) between this and the other particle(s) with Status=2
-        //  Status = 3 :   the particle has stopped in the first member of an identification
+        //  kStatusOK (0) :   identification is, in principle at least, possible straight away
+        //  kStatusOKafterSub (1) :   identification is, in principle, possible after identification and subtraction
+		  //                                           of energy losses of other particles in the same group which have Status=0
+        //  kStatusOKafterShare (2)  :   the energy loss in the shared detector of the group must be shared
+        //                                                (arbitrarily) between this and the other particle(s) with Status=2
+        //  kStatusStopFirstStage (3) :   the particle has stopped in the first member of an identification
         //                         telescope; a minimum Z could be estimated from the measured energy loss.
         //                         (see KVDetector::FindZmin)
         return fAnalStatus;
@@ -349,6 +360,8 @@ KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
 	// Returns NULL if no identification of given type found.
 	return GetIdentificationResult(idt->GetType());
 };
+
+	virtual void SubtractEnergyFromAllDetectors();
 	
     ClassDef(KVReconstructedNucleus, 14)  //Nucleus detected by multidetector array
 };

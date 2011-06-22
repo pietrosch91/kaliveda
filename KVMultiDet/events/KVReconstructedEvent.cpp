@@ -59,6 +59,7 @@ void KVReconstructedEvent::init()
    //default initialisations
    UseRandomAngles();
    fPartSeedCond = "all";
+   fHitGroups = 0;
 }
 
 KVReconstructedEvent::KVReconstructedEvent(Int_t mult, const char
@@ -119,6 +120,7 @@ void KVReconstructedEvent::ReconstructEvent(KVDetectorEvent * kvde)
 //   construct "particle" etc. etc.
 //
 
+	fHitGroups = kvde; // store list of hit groups
    KVGroup *grp_tch;
 
 #ifdef KV_DEBUG
@@ -273,11 +275,11 @@ void KVReconstructedEvent::IdentifyEvent()
    KVReconstructedNucleus *d;
    while ((d = GetNextParticle())) {
       if (!d->IsIdentified()){
-         if(d->GetStatus() == 0){
+         if(d->GetStatus() == KVReconstructedNucleus::kStatusOK){
             // identifiable particles
             d->Identify();
          }
-         else if(d->GetStatus() == 3) {
+         else if(d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
             UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());

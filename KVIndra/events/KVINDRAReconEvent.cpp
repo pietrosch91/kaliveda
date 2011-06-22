@@ -23,6 +23,7 @@
 #include "KVTelescope.h"
 #include "KVDetector.h"
 #include "KVCsI.h"
+#include "KVSilicon.h"
 #include "KVDetectorEvent.h"
 #include "KVINDRAReconNuc.h"
 #include "KVINDRA.h"
@@ -136,77 +137,6 @@ void KVINDRAReconEvent::Print(Option_t * option) const
       frag->Print();
    }
 }
-
-//_____________________________________________________________________________
-
-//void KVINDRAReconEvent::GeometricFilter()
-//{
-//      //Private method, called during event reconstruction if SetGeometricFilter(kTRUE)
-//      //was previously called.
-//      //From the "coherence" analysis (see AnalyseGroup) we only keep particles which
-//      //can be correctly reconstructed either with or without subtraction of other
-//      //particles' calculated energy losses, and we make sure that particles actually
-//      //get stopped by the detectors.
-//      //
-//      //An additional energy threshold can be given (SetThreshold) which defines the
-//      //minimum energy in MeV/nucleon for a particle to be accepted (i.e. identification
-//      //threshold).
-//      //
-//      //Accepted particles have IsOK = kTRUE, rejected particles have IsOK = kFALSE
-//
-//      for(Int_t i=1; i<=GetMult(); i++)
-//      {
-//              KVINDRAReconNuc *nuc = GetParticle(i);
-//              nuc->SetIsOK();
-//              //from the "coherence" analysis (see AnalyseGroup) we only keep particles which
-//              //can be correctly reconstructed either with or without subtraction of other
-//              //particles' calculated energy losses
-//              if(nuc->GetAnalStatus() > 1) {
-//                      nuc->SetIsOK(kFALSE);
-//              }
-//              //make sure only one particle stopped in "stopping" detector
-//              if( nuc->GetStoppingDetector()->GetHits()->GetSize() > 1){
-//                      nuc->SetIsOK(kFALSE);
-//              }
-//              //make sure particle actually stopped in detector
-//              if(((KVNucleus*)nuc->GetStoppingDetector()->GetHits()->At(0))->GetEnergy()>0.0) {
-//                      nuc->SetIsOK(kFALSE);
-//              }
-//              if(nuc->IsOK())
-//              {
-//                      //particle accepted so far - get A, Z and energy from simulated particle
-//                      //and detector energy losses.
-//                      //Particle may still be rejected by identification threshold - see below !!!
-//                              KVNucleus* simpart = (KVNucleus*)nuc->GetStoppingDetector()->GetHits()->At(0);
-//                              if(!simpart)cout<<"No simpart"<<endl;
-//                              nuc->SetSimPart(simpart);
-//                              nuc->SetZ(simpart->GetZ());
-//                              if(nuc->GetZ()<3)
-//                              {
-//                                      //for LCP reaching CsI, use true isotope mass
-//                                      if(nuc->StoppedInCsI())
-//                                      {
-//                                              nuc->SetA(simpart->GetA());
-//                                      }
-//                              }
-//                              //add up corrected energy losses in detectors
-//                              Float_t fEnew=0.0;
-//                              for(UInt_t d=0; d<nuc->GetNumDet(); d++)
-//                              {
-//                                      fEnew += nuc->GetDetector(d)->GetCorrectedEnergy(nuc->GetZ(),nuc->GetA());
-//                              }
-//                              nuc->SetEnergy(fEnew);
-//                              nuc->GetAnglesFromTelescope();
-//                              nuc->SetEnergy(fEnew);
-//                              //identification threshold in mev/nuc - is 0.0 if not set
-//                              if((nuc->GetEnergy()/nuc->GetA())<fThreshold){
-//                                      nuc->SetIsOK(kFALSE);
-//                              }
-//              }
-//      }
-//}
-
-////////////////////////////////////////////////////////////////////////////////////////
 
 KVINDRAReconNuc *KVINDRAReconEvent::GetNextParticle(Option_t * opt)
 {
@@ -343,7 +273,7 @@ void KVINDRAReconEvent::ChangeFragmentMasses(UChar_t mass_formula)
 void KVINDRAReconEvent::IdentifyEvent()
 {
    // Performs event identification (see KVReconstructedEvent::IdentifyEvent), and then
-   // particles stopping in first member of a telescope (KVReconstructedNucleus::GetStatus=3) are
+   // particles stopping in first member of a telescope (GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) are
    // labelled with VEDA ID code kIDCode5 (Zmin)
 	// 
 	//   When CsI identification gives a gamma, we unset the 'analysed' state of all detectors
@@ -359,7 +289,7 @@ void KVINDRAReconEvent::IdentifyEvent()
 	ResetGetNextParticle();
 	
    while((d = GetNextParticle())){
-      if (d->IsIdentified()&&d->GetStatus() == 3) {
+      if (d->IsIdentified()&&d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
          	d->SetIDCode( kIDCode5 ); // Zmin
 		}
       else if (d->IsIdentified()&&d->GetCodes().TestIDCode(kIDCode0)){
@@ -401,7 +331,7 @@ void KVINDRAReconEvent::IdentifyEvent()
 	ResetGetNextParticle();
 	
    while((d = GetNextParticle())){
-      if (d->IsIdentified()&&d->GetStatus() == 3) {
+      if (d->IsIdentified()&&d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
          	d->SetIDCode( kIDCode5 ); // Zmin
 		}
       else if(!d->IsIdentified()){
@@ -411,5 +341,79 @@ void KVINDRAReconEvent::IdentifyEvent()
 		for(int i=mult+1; i<=GetMult(); i++){
 			 GetParticle(i)->Print();
 		}
+}
+
+void KVINDRAReconEvent::SecondaryIdentCalib()
+{
+	// Perform identifications and calibrations of particles not included
+   // in first round (methods IdentifyEvent() and CalibrateEvent()).
+   //
+   // Here we treat particles with GetStatus()==KVReconstructedNucleus::kStatusOKafterSub
+   // after subtracting the energy losses of all previously calibrated particles in group from the
+   // measured energy losses in the detectors they crossed.
+   
+   if(!GetHitGroups()){
+   	Error("SecondaryIdentCalib", "no list of hit groups set");
+   	return;
+   }
+   //loop over hit groups
+   TIter next_grp(GetHitGroups()->GetGroups());
+   KVGroup* grp;
+   while( (grp = (KVGroup*)next_grp()) ){
+   	SecondaryAnalyseGroup(grp);
+   }
+}
+
+void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
+{
+	// Perform identifications and calibrations of particles not included
+   // in first round (methods IdentifyEvent() and CalibrateEvent()).
+   //
+   // Here we treat particles with GetStatus()==KVReconstructedNucleus::kStatusOKafterSub
+   // after subtracting the energy losses of all previously calibrated particles in group from the
+   // measured energy losses in the detectors they crossed.
+   
+   // loop over al identified & calibrated particles in group and subtract calculated
+   // energy losses from all detectors
+   KVINDRAReconNuc* nuc;
+   TList sixparts;
+   TIter parts(grp->GetParticles());
+   while( (nuc = (KVINDRAReconNuc*)parts()) ){
+   	if(nuc->IsIdentified() && nuc->IsCalibrated()){
+   		nuc->SubtractEnergyFromAllDetectors();
+   		// reconstruct particles from pile-up in silicon detectors revealed by coherency CsIR/L - SiCsI
+   		if(nuc->IsSiPileup() && nuc->GetSi()->GetEnergy()>0.1){
+   			KVINDRAReconNuc* SIX = AddParticle();
+   			SIX->Reconstruct(nuc->GetSi());
+   			sixparts.Add(SIX);
+   		}
+   	}
+   }
+   // reanalyse group
+   grp->AnalyseParticles();
+   // identify any particles added by coherency CsIR/L - SiCsI
+   if(sixparts.GetEntries()){
+   	KVINDRAReconNuc* SIX;
+   	TIter nextsix(&sixparts);
+   	while( (SIX = (KVINDRAReconNuc*)nextsix()) ){
+   		if( SIX->GetStatus() == KVReconstructedNucleus::kStatusOK ){
+   			SIX->Identify();
+   			if(SIX->IsIdentified()) {
+   				SIX->SetIDCode( kIDCode6 );
+   				SIX->Calibrate();
+   				if(SIX->IsCalibrated()) SIX->SubtractEnergyFromAllDetectors();
+   			}
+   		}
+   	}
+   }
+   TIter parts2(grp->GetParticles()); // list may have changed if we have added particles
+   // identify & calibrate any remaining particles with status=KVReconstructedNucleus::kStatusOK
+   while( (nuc = (KVINDRAReconNuc*)parts2()) ){
+   	if(nuc->GetStatus()==KVReconstructedNucleus::kStatusOK && !nuc->IsIdentified()){
+   		nuc->Identify();
+   		if(nuc->IsIdentified()) nuc->Calibrate();
+   		if(nuc->IsIdentified() && nuc->IsCalibrated()) nuc->SubtractEnergyFromAllDetectors();
+   	}
+   }
 }
 

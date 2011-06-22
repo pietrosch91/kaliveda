@@ -778,7 +778,7 @@ void KVMultiDetArray::Print(Option_t * opt) const
 }
 
 //__________________________________________________________________________________
-
+//#define KV_DEBUG 1
 void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event)
 {
     //Simulate detection of event by multidetector array.
@@ -831,12 +831,11 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	if (!fHitGroups){
 		//Create the list where fired groups will be stored
 		//for reconstruction
-		fHitGroups = new KVUniqueNameList();
-   	fHitGroups->SetOwner(kFALSE); // owns its objects
+		fHitGroups = new KVDetectorEvent;//KVUniqueNameList();
 	}
 	else {
 		//Clear the multidetector before a new filter process
-		fHitGroups->R__FOR_EACH(KVGroup,Reset) ();
+		//fHitGroups->R__FOR_EACH(KVGroup,Reset) ();
     	fHitGroups->Clear();
 	}
 	
@@ -864,15 +863,20 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		else {
 			KVNameValueList* nvl = 0;
 			if ( !(nvl = DetectParticle(part)) ) {
+						Info("DetEv","nvl=0");
 				part->AddGroup("DEAD ZONE"); 
 				part->AddGroup("UNDETECTED"); 
 			}
 			else if ( nvl->GetNpar()==0 ) {
+						Info("DetEv","no params in nvl");
 				part->AddGroup("DEAD ZONE"); 
 				part->AddGroup("UNDETECTED");
 				delete nvl;
 			}
 			else {
+#ifdef KV_DEBUG
+						Info("DetEv","OK for now");
+#endif
 				Int_t nbre_nvl = nvl->GetEntries();
 				KVString LastDet(nvl->GetNameAt(nbre_nvl-1));
 				KVDetector* last_det = GetDetector(LastDet.Data());
@@ -883,12 +887,28 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				KVDetector*dd = 0;
 				//Test de la trajectoire coherente
 				while ( ( dd = (KVDetector* )it1.Next() ) ){
-					if (dd->GetHits()){
-						if (dd->GetHits()->FindObject(part)) ntrav+=1;	
-						else 
+					if (dd->GetNHits()){
+#ifdef KV_DEBUG
+						Info("DetEv", "detector %s has hits",dd->GetName());
+#endif
+						if (dd->GetHits()->FindObject(part)){
+#ifdef KV_DEBUG
+							Info("DetEv", "particle found in hits list");
+#endif
+							ntrav+=1;
+						}	
+						else {
+#ifdef KV_DEBUG
+							Info("DetEv", "particle not found in hit list");
+#endif
+							dd->GetHits()->ls();
 							if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
+						}
 					}
 					else {
+#ifdef KV_DEBUG
+					Info("DetEv", "detector %s NO HITS",dd->GetName());
+#endif
 						if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 					}
 				}
@@ -907,7 +927,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					// des particules arretes dans les zones mortes
 					// non detectees
 					it1.Reset();
-					//Warning("DetectEvent","trajectoire incoherente ...");
+#ifdef KV_DEBUG
+					Warning("DetectEvent","trajectoire incoherente ...");
+#endif
 					while ( ( dd = (KVDetector* )it1.Next() ) )
 						if (dd->GetHits() && dd->GetHits()->FindObject(part)){
 							if ( nvl->HasParameter(dd->GetName()) ){
@@ -924,9 +946,15 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					part->AddGroup("UNDETECTED");
 				}
 				else {
+#ifdef KV_DEBUG
+						Info("DetEv","trajectoire OK");
+#endif
 					
 					TList* lidtel = last_det->GetTelescopesForIdentification();
 					if (lidtel->GetEntries()==0 && last_det->GetEnergy()==0){
+#ifdef KV_DEBUG
+						Info("DetEv","Arret dans un absorbeur");
+#endif
 						//Arret dans un absorbeur (unactive layer, mylar pour les ChIo par ex)
 						part->AddGroup("UNDETECTED");
 						part->AddGroup("THRESHOLD");
@@ -936,9 +964,12 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						//Warning("DetectEvent","threshold ...");
 					}
 					else {
+#ifdef KV_DEBUG
+						Info("DetEv","adding to hit groups");
+#endif
 						part->AddGroup("DETECTED");
 						
-						fHitGroups->Add( last_det->GetGroup() );
+						fHitGroups->AddGroup( last_det->GetGroup() );
 						
 						if (lidtel->GetEntries()>0){
 							//Il y a possibilite d identification
@@ -1004,13 +1035,19 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		}
 		part->SetMomentum(*part->GetPInitial());
 	}
-
+    // before reconstruction we have to clear the list of 'hits' of each detector
+    // (they currently hold the addresses of the simulated particles which were detected)
+    // which will be filled with the reconstructed particles, otherwise the number of hits
+    // in each detector will be 2x the real value, and coherency analysis of the reconstructed
+    // events will not work
 	KVGroup *grp_tch;
-	TIter nxt_grp(fHitGroups);
+	TIter nxt_grp(fHitGroups->GetGroups());
    while ((grp_tch = (KVGroup *) nxt_grp())) {
-  		rec_event->AnalyseGroup(grp_tch);
+   	grp_tch->ClearHitDetectors();
+  		//rec_event->AnalyseGroup(grp_tch);
    }
-
+    // reconstruct the event
+    rec_event->ReconstructEvent(fHitGroups);
 }
 
 //__________________________________________________________________________________
@@ -1037,7 +1074,11 @@ KVNameValueList* KVMultiDetArray::DetectParticle(KVNucleus * part)
         grp_tch->Print("angles");
 #endif
         //simulate detection of particle by this group
-        return grp_tch->DetectParticle(part);
+        KVNameValueList*nvl= grp_tch->DetectParticle(part);
+#ifdef KV_DEBUG
+        nvl->Print();
+ #endif
+       return nvl;
     }
     return 0;
 }

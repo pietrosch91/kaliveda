@@ -514,3 +514,24 @@ void KVReconstructedNucleus::SetIdentification(KVIdentificationResult* idr)
                	  if(idr->Aident) {SetA( idr->A );SetRealA( idr->PID );}
                	  else SetRealZ( idr->PID );
 }
+
+void KVReconstructedNucleus::SubtractEnergyFromAllDetectors()
+{
+	// Subtract the calculated energy loss of this particle from the measured energy
+	// loss of all detectors it passed through.
+		
+	TIter nxt(GetDetectorList(), kIterBackward);
+	KVDetector* det;
+   Double_t Einc = GetEnergy() - GetTargetEnergyLoss(); // energy before first detector
+   while( (det = (KVDetector*)nxt()) ){
+   	Double_t Edet = det->GetEnergy();
+   	Double_t dE = det->GetDeltaE(GetZ(), GetA(), Einc); // calculate apparent energy loss in active layer
+   	Double_t Eres = det->GetERes(GetZ(), GetA(), Einc); // calculate energy after detector
+   	Edet-=dE;
+   	if(Edet<0.1) Edet=0.;
+   	det->SetEnergyLoss(Edet);
+   	Einc = Eres;
+   	if(Einc<0.1) break;
+	}
+}
+

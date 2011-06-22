@@ -33,7 +33,7 @@ class KVIDentifier : public TCutG
 
 	// Does nothing. Can be overridden in child classes in order to write any
 	// extra information in between the name of the object and the number of points.
-   virtual void WriteAsciiFile_extras(ofstream &, const Char_t * name_prefix =""){};
+   virtual void WriteAsciiFile_extras(ofstream &, const Char_t * /*name_prefix*/ =""){};
 
 	// Does nothing. Can be overridden in child classes in order to read any
 	// extra information in between the name of the object and the number of points.
@@ -70,7 +70,7 @@ class KVIDentifier : public TCutG
    virtual void SetMassFormula(Int_t mf){ if(OnlyZId()) {fIon.SetMassFormula(mf); fMassFormula=mf; SetNameFromNucleus();} };   // *SUBMENU={Hierarchy="SetNucleus.../Mass Formula"}*
    virtual Int_t GetMassFormula()const { return fIon.GetMassFormula(); }
 
-   virtual Bool_t TestPoint(Double_t x, Double_t y)
+   virtual Bool_t TestPoint(Double_t /*x*/, Double_t /*y*/)
 	{
 		// Abstract method, should be overridden in child classes.
 		// Used to test whether a point (x,y) in the ID map is identifiable.
@@ -131,6 +131,7 @@ class KVIDentifier : public TCutG
 	virtual Int_t 			 ContinueDrawing(); // *MENU={Hierarchy="Modify Line.../ContinueDrawing"}*
 	virtual void 			ChechHierarchy(KVIDentifier* gr);
 	virtual Int_t         RemovePoint(){ if(GetEditable()){ return TCutG::RemovePoint(); } else {return -1;} }; // *MENU={Hierarchy="Modify Line.../RemovePoint"}*
+	virtual Int_t         RemovePoint(Int_t i){ return TCutG::RemovePoint(i); };
 	
 	virtual Double_t GetPID() const;
 

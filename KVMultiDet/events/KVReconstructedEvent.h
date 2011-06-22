@@ -31,9 +31,11 @@ class KVReconstructedEvent:public KVEvent {
 
    Bool_t fMeanAngles;          //!kTRUE if particle momenta calculated using mean angles of detectors (default: randomised angles)
    TString fPartSeedCond;   //!condition used in AnalyseTelescopes for seeding new reconstructed particle
+   KVDetectorEvent* fHitGroups;//! non-persistent pointer to list of hit groups used in call to ReconstructEvent()
 
  public:
  
+ 	KVDetectorEvent* GetHitGroups() const { return fHitGroups; };
    void init();
     KVReconstructedEvent(Int_t mult = 50, const char *classname =
                          "KVReconstructedNucleus");
@@ -68,6 +70,12 @@ class KVReconstructedEvent:public KVEvent {
    };
    inline Bool_t HasRandomAngles() {
       return !fMeanAngles;
+   };
+   
+   virtual void SecondaryIdentCalib()
+   {
+   	// Perform identifications and calibrations of particles not included
+   	// in first round (methods IdentifyEvent() and CalibrateEvent()).
    };
 
    ClassDef(KVReconstructedEvent, 2)    //Base class for reconstructed experimental multiparticle events
