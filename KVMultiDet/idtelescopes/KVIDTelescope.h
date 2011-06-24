@@ -95,7 +95,7 @@ class KVIDTelescope:public KVBase {
       ResetBit(kReadyForID);
    };
 
-   virtual Bool_t Identify(KVIdentificationResult*);
+   virtual Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 
    virtual void CalculateParticleEnergy(KVReconstructedNucleus * nuc);
    virtual Int_t GetCalibStatus() const
@@ -155,7 +155,7 @@ class KVIDTelescope:public KVBase {
         kMeanDE_XtooLarge,   // X-coordinate is larger than largest X-coordinate of ID line
         kMeanDE_NoIdentifier   // No identifier found for Z or (Z,A)
     };
-	virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1);
+	virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1, Double_t Eres = -1.0);
 
 	ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };

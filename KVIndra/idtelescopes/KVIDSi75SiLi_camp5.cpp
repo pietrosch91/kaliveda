@@ -91,7 +91,7 @@ Double_t KVIDSi75SiLi_camp5::GetIDMapY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDSi75SiLi_camp5::Identify(KVIdentificationResult *IDR)
+Bool_t KVIDSi75SiLi_camp5::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y)
 {
     //Particle identification and code setting using identification grids.
 
@@ -99,8 +99,8 @@ Bool_t KVIDSi75SiLi_camp5::Identify(KVIdentificationResult *IDR)
 		IDR->SetIDType( GetType() );
 		IDR->IDattempted = kTRUE;
 
-    Double_t si75 = GetIDMapY("GG");
-    Double_t sili = GetIDMapX();
+    Double_t si75 = (y<0. ? GetIDMapY("GG") : y);
+    Double_t sili = (x<0. ? GetIDMapX() : x);
 
     KVIDGrid* theIdentifyingGrid = 0;
 
@@ -111,7 +111,7 @@ Bool_t KVIDSi75SiLi_camp5::Identify(KVIdentificationResult *IDR)
     {
 
         // try Z & A identification in Si75(PG)-SiLi(PG) map
-        si75 = GetIDMapY("PG");
+        si75 = (y<0. ? GetIDMapY("PG") : y);
         fPGgrid->Identify(sili, si75, IDR);
         theIdentifyingGrid = (KVIDGrid*)fPGgrid;
 

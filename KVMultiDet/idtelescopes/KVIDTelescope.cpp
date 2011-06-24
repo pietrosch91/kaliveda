@@ -293,7 +293,7 @@ TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
 
 //____________________________________________________________________________________
 
-Bool_t KVIDTelescope::Identify(KVIdentificationResult*)
+Bool_t KVIDTelescope::Identify(KVIdentificationResult*, Double_t, Double_t)
 {
    //Default identification method.
    //Identification of experimental data needs to be implemented in specific
@@ -1056,14 +1056,14 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(TH2* haa_zz,Bool_t Zonly,Int_t np
 }
 //_________________________________________________________________________________________
 
-Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
+Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A, Double_t Eres)
 {
 	// Returns the Y-axis value in the 2D identification map containing isotope (Z,A)
-	// corresponding to the current X-axis value given by GetIDMapX.
+	// corresponding to either the given X-axis/Eres value or the current X-axis value given by GetIDMapX.
 	// If no mass information is available, just give Z.
 	//
 	// In this (default) implementation this means scanning the ID grids associated with
-	// this telescope until we find and identification line Z or (Z,A), and then interpolating
+	// this telescope until we find an identification line Z or (Z,A), and then interpolating
 	// the Y-coordinate for the current X-coordinate value.
 	//
 	// Status variable can take one of following values:
@@ -1088,7 +1088,7 @@ Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
 	    return -1.;
 	}
 	Double_t x,x1,y1,x2,y2;
-	x = GetIDMapX();
+	x = (Eres < 0 ? GetIDMapX() : Eres);
 	idline->GetEndPoint(x2,y2);
 	if(x>x2){
         status = kMeanDE_XtooLarge;

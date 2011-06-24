@@ -153,10 +153,22 @@ public:
    }
 
     Int_t GetNSegDet() const {
+    	// return segmentation index of particle used by Identify() and
+    	// KVGroup::AnalyseParticles
         return fNSegDet;
     };
     void SetNSegDet(Int_t seg) {
+    	// set segmentation index of particle used by Identify() and
+    	// KVGroup::AnalyseParticles
         fNSegDet = seg;
+    };
+    void ResetNSegDet()
+    {
+    	// recalculate segmentation index of particle used by Identify() and
+    	// KVGroup::AnalyseParticles
+    	fNSegDet=0;
+    	KVDetector* det; TIter nxt(fDetList);
+    	while( (det=(KVDetector*)nxt()) ) fNSegDet += det->GetSegment();
     };
     inline Int_t GetStatus() const
     {

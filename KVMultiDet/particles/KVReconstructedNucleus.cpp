@@ -318,15 +318,12 @@ void KVReconstructedNucleus::Identify()
     // The identification code corresponding to the identifying telescope is set as the identification code of the particle.
 
     KVList *idt_list = GetStoppingDetector()->GetAlignedIDTelescopes();
-
     if (idt_list && idt_list->GetSize() > 0) {
 
         KVIDTelescope *idt;
         TIter next(idt_list);
         Int_t idnumber = 1;
-
         while ((idt = (KVIDTelescope *) next())) {
-
 			KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
 			
             if ( IDR ){
@@ -337,6 +334,24 @@ void KVReconstructedNucleus::Identify()
 					}
 					else
 						IDR->IDattempted = kFALSE;
+					
+					if((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK)){
+						// the particle is less identifiable than initially thought
+						// we may have to wait for secondary identification
+						Int_t nseg = GetNSegDet();
+						SetNSegDet(TMath::Max(nseg - 1, 0));
+						//if there are other unidentified particles in the group and NSegDet is < 2
+               	//then exact status depends on segmentation of the other particles : reanalyse
+               	if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1){
+							GetGroup()->AnalyseParticles();
+                  	return;
+                  }
+               	//if NSegDet = 0 it's hopeless
+               	if (!GetNSegDet()){
+							GetGroup()->AnalyseParticles();
+                     return;
+                  }
+					}
             }
 
         }

@@ -38,6 +38,7 @@ class KVINDRAReconEvent:public KVReconstructedEvent {
          fCodeMask = new KVINDRACodeMask;
       return fCodeMask;
    };
+   KVUniqueNameList* fHitGroups;//! non-persistent pointer to list of hit groups used in SecondaryIdentAndCalib()
 
  public:
 

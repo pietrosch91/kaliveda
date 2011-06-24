@@ -49,15 +49,15 @@ KVIDChIoSi::~KVIDChIoSi()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR)
+Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y)
 {
     //Particle identification and code setting using identification grid KVIDGChIoSi
 
 		IDR->SetIDType( GetType() );
 		IDR->IDattempted = kTRUE;
     //identification
-    Double_t chio = GetIDMapY();
-    Double_t si = GetIDMapX();
+    Double_t chio = (y<0. ? GetIDMapY() : y);
+    Double_t si = (x<0. ? GetIDMapX() : x);
 
     if (ChIoSiGrid->IsIdentifiable(si,chio))
         ChIoSiGrid->Identify(si,chio,IDR);

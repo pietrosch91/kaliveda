@@ -59,7 +59,6 @@ void KVReconstructedEvent::init()
    //default initialisations
    UseRandomAngles();
    fPartSeedCond = "all";
-   fHitGroups = 0;
 }
 
 KVReconstructedEvent::KVReconstructedEvent(Int_t mult, const char
@@ -119,8 +118,6 @@ void KVReconstructedEvent::ReconstructEvent(KVDetectorEvent * kvde)
 // - loop over next to last stage...if any detector hit NOT ALREADY IN A "PARTICLE"
 //   construct "particle" etc. etc.
 //
-
-	fHitGroups = kvde; // store list of hit groups
    KVGroup *grp_tch;
 
 #ifdef KV_DEBUG

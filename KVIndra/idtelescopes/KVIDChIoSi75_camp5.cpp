@@ -80,7 +80,7 @@ Double_t KVIDChIoSi75_camp5::GetIDMapY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi75_camp5::Identify(KVIdentificationResult* IDR)
+Bool_t KVIDChIoSi75_camp5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 {
     //Particle identification and code setting using identification grids.
 
@@ -90,8 +90,9 @@ Bool_t KVIDChIoSi75_camp5::Identify(KVIdentificationResult* IDR)
 
     if ( fGGgrid )
     {
-
-        fGGgrid->Identify(GetIDMapX("GG"), GetIDMapY("GG"), IDR);
+			Double_t cigg = (y<0. ? 		GetIDMapY("GG")	: y);
+			Double_t sigg = (x<0. ? 		GetIDMapX("GG")	: x);
+        fGGgrid->Identify(sigg, cigg, IDR);
         theIdentifyingGrid =(KVIDGrid*)fGGgrid;
 
     }
@@ -100,7 +101,9 @@ Bool_t KVIDChIoSi75_camp5::Identify(KVIdentificationResult* IDR)
 
         if ( fPGgrid )
         {
-            fPGgrid->Identify(GetIDMapX("PG"), GetIDMapY("PG"), IDR);
+			Double_t cipg = (y<0. ? 		GetIDMapY("PG")	: y);
+			Double_t sipg = (x<0. ? 		GetIDMapX("PG")	: x);
+            fPGgrid->Identify(sipg, cipg, IDR);
             theIdentifyingGrid = (KVIDGrid*)fPGgrid;
         }
     }
