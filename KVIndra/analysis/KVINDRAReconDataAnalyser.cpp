@@ -324,8 +324,8 @@ void KVINDRAReconDataAnalyser::ConnectRawDataTree()
 	ParNum = new UInt_t[maxNopar];	
 	parList = (TObjArray*)theRawData->GetUserInfo()->FindObject("ParameterList");
 	theRawData->SetBranchAddress("NbParFired", &NbParFired);
-	theRawData->SetBranchAddress("ParNum", &ParNum);
-	theRawData->SetBranchAddress("ParVal", &ParVal);
+	theRawData->SetBranchAddress("ParNum", ParNum);
+	theRawData->SetBranchAddress("ParVal", ParVal);
 	Info("ConnectRawDataTree", "Connected raw data parameters");
 	Entry=0;
 }
