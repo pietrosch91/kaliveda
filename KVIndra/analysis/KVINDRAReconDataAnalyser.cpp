@@ -28,6 +28,9 @@ KVINDRAReconDataAnalyser::KVINDRAReconDataAnalyser()
    //Default constructor
    fDataSelector="none";
    theChain=0;
+   theRawData=0;
+   ParVal=0;
+   ParNum=0;
 }
 
 void KVINDRAReconDataAnalyser::Reset()
@@ -36,11 +39,16 @@ void KVINDRAReconDataAnalyser::Reset()
    KVDataAnalyser::Reset();
    fDataSelector="none";
    theChain=0;
+   theRawData=0;
+   ParVal=0;
+   ParNum=0;
 }
 
 KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
 {
    //Destructor
+   if(ParVal) delete [] ParVal;
+   if(ParNum) delete [] ParNum;
 }
 
 //_________________________________________________________________
@@ -274,17 +282,50 @@ void KVINDRAReconDataAnalyser::preInitAnalysis()
 void KVINDRAReconDataAnalyser::preInitRun()
 {
 	// Called by currently-processed KVSelector when a new file in the TChain is opened.
-	// If gIndra=0x0 we build the multidetector for the current dataset.
 	// We call gIndra->SetParameters for the current run.
 	
 	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
 	gIndra->SetParameters(run);
+	ConnectRawDataTree();
 }
 
-void KVINDRAReconDataAnalyser::postEndAnalysis()
+void KVINDRAReconDataAnalyser::preAnalysis()
 {
-	// Called by currently-processed KVSelector after user's EndAnalysis() method.
-	// We clean up by deleting gIndra
+	// Read and set raw data for this event
 	
-	if(gIndra) delete gIndra;
+	if(!theRawData) return;
+	theRawData->GetEntry(Entry);
+	Entry++;
+	for(int i=0; i<NbParFired; i++){
+		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
+		if(par) par->SetData(ParVal[i]);
+	}
+}
+
+void KVINDRAReconDataAnalyser::ConnectRawDataTree()
+{
+	// Called by preInitRun().
+	// When starting to read a new run (=new file), we look for the TTree "RawData" in the
+	// current file (it should have been created by KVINDRARawDataReconstructor).
+	// If found, it will be used by ReadRawData() to set the values of all acquisition parameters
+	// for each event.
+	
+	theRawData=(TTree*)theChain->GetCurrentFile()->Get("RawData");
+	if(!theRawData){
+		Warning("ConnectRawDataTree", "RawData tree not found in file; raw data parameters of detectors will not be available in analysis");
+		return;
+	}
+	else
+		Info("ConnectRawDataTree", "Found RawData tree in file");
+	Int_t maxNopar = theRawData->GetMaximum("NbParFired");
+   if(ParVal) delete [] ParVal;
+   if(ParNum) delete [] ParNum;
+	ParVal = new UShort_t[maxNopar];	
+	ParNum = new UInt_t[maxNopar];	
+	parList = (TObjArray*)theRawData->GetUserInfo()->FindObject("ParameterList");
+	theRawData->SetBranchAddress("NbParFired", &NbParFired);
+	theRawData->SetBranchAddress("ParNum", &ParNum);
+	theRawData->SetBranchAddress("ParVal", &ParVal);
+	Info("ConnectRawDataTree", "Connected raw data parameters");
+	Entry=0;
 }

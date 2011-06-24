@@ -23,6 +23,13 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    virtual KVNumberList PrintAvailableRuns(KVString & datatype);
    
    TChain* theChain;//chain of TTrees to be analysed
+	TTree* theRawData;//raw data TTree in recon file
+   Int_t NbParFired;
+   UShort_t* ParVal;
+   UInt_t* ParNum;
+   TObjArray* parList;
+   Long64_t Entry;
+	void ConnectRawDataTree();
 	
  public:
 
@@ -46,8 +53,8 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    virtual const Char_t* ExpandAutoBatchName(const Char_t* format);
    
    void preInitAnalysis();
+   void preAnalysis();
    void preInitRun();
-   void postEndAnalysis();
    
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };

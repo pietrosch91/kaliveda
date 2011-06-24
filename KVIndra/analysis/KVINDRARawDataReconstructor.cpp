@@ -89,7 +89,9 @@ void KVINDRARawDataReconstructor::InitRun()
       rawtree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
       rawtree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
       
-      TString raw_opt = gDataSet->GetDataSetEnv("KVINDRARawDataReconstructor.RawDataTreeFormat", "arrays");
+      // the format of the raw data tree must be "arrays" : we depend on it in KVINDRAReconDataAnalyser
+      // in order to read the raw data and set the detector acquisition parameters
+      TString raw_opt = "arrays";
       GetRawDataReader()->SetUserTree(rawtree,raw_opt.Data());
       Info("InitRun", "Created raw data tree (%s : %s). Format: %s",
             rawtree->GetName(), rawtree->GetTitle(), raw_opt.Data());
