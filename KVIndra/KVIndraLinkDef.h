@@ -28,6 +28,7 @@
 #pragma link C++ class KVINDRARawIdent;
 #endif
 #pragma link C++ class KVRunListLine;
+#pragma link C++ class KVINDRAReconRoot;
 #pragma link C++ class KVINDRARunListReader;
 #pragma link C++ class KVINDRARunSheetReader;
 #pragma link C++ class KVINDRARunSheetGUI;
