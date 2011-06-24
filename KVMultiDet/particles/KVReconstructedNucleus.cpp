@@ -1,22 +1,3 @@
-/***************************************************************************
-                          kvreconstructednucleus.cpp  -  description
-                             -------------------
-    begin                : Fri Oct 18 2002
-    copyright            : (C) 2002 by Alexis Mignon
-    email                : mignon@ganil.fr
-
-$Id: KVReconstructedNucleus.cpp,v 1.60 2009/03/03 13:36:00 franklan Exp $
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
 #include "Riostream.h"
 #include "KVReconstructedNucleus.h"
 #include "KVTelescope.h"
@@ -68,14 +49,6 @@ void KVReconstructedNucleus::init()
     ResetBit(kIsIdentified);
     ResetBit(kIsCalibrated);
     ResetBit(kCoherency);
-   fNumDet = 0;
-   fNumPar = 0;
-   for (register int i = 0; i < MAX_NUM_DET; i++) {
-      fEloss[i] = 0.0;
-   }
-   for (register int i = 0; i < MAX_NUM_PAR; i++) {
-      fACQData[i] = 0;
-   }
    for (register int i = 0; i < IDRESULTS_DIM; i++) {
       fIDresults[i].Reset();
    }
@@ -109,7 +82,6 @@ KVReconstructedNucleus::~KVReconstructedNucleus()
         GetGroup()->Reset();
     }
     if (fDetList){
-        //fDetList->Clear();
         delete fDetList;
         fDetList=0;
     }
@@ -131,7 +103,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
     UInt_t R__s, R__c;
     if (R__b.IsReading()) {
         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-        //if( R__v < 12 ) { }
+        //if( R__v < 15 ) { }
         R__b.ReadClassBuffer(KVReconstructedNucleus::Class(),this,R__v,R__s,R__c);
         // if the multidetector object exists, update some informations
         // concerning the detectors etc. hit by this particle
@@ -142,20 +114,11 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             fIDTelescope = 0;
 			if(fIDTelName!="") fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
             TIter next_det(fDetList);
-            KVDetector *det;register int ndet = 0;UInt_t npar=0;
+            KVDetector *det;
             while ( (det = (KVDetector*)next_det()) ){
                 fNSegDet += det->GetSegment();
                 det->AddHit(this);
 					 det->SetAnalysed();
-               det->SetEnergy(fEloss[ndet]);
-               ndet++;
-               if (det->GetACQParamList()) {
-                  TIter next_par(det->GetACQParamList());
-                  KVACQParam *par;
-                  while ((par = (KVACQParam *) next_par())) {
-                     par->SetData(fACQData[npar++]);
-                  }
-               }
                 //modify detector's counters depending on particle's identification state
                 if (IsIdentified())
                     det->IncrementIdentifiedParticles();
@@ -174,10 +137,10 @@ void KVReconstructedNucleus::Print(Option_t * option) const
 {
 
     cout << "KVReconstructedNucleus:" << endl;
+	int ndets=GetNumDet();
+    if (ndets) {
 
-    if (GetNumDet()) {
-
-        for (int i = GetNumDet() - 1; i >= 0; i--) {
+        for (int i = ndets - 1; i >= 0; i--) {
             KVDetector *det = GetDetector(i);
             if(det) det->Print("data");
         }
@@ -204,10 +167,6 @@ void KVReconstructedNucleus::Copy(TObject & obj)
 	 ((KVReconstructedNucleus &) obj).fDetNames = fDetNames;
     ((KVReconstructedNucleus &) obj).SetRealZ(GetRealZ());
     ((KVReconstructedNucleus &) obj).SetRealA(GetRealA());
-   ((KVReconstructedNucleus &) obj).SetNumDet(GetNumDet());
-   ((KVReconstructedNucleus &) obj).SetNumPar(GetNumPar());
-   ((KVReconstructedNucleus &) obj).SetElossTable(GetElossTable());
-   ((KVReconstructedNucleus &) obj).SetACQData(GetACQData());
 }
 
 
@@ -221,7 +180,6 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
     if (GetGroup())
         GetGroup()->Reset();
     if (fDetList){
-        //fDetList->Clear();
         delete fDetList;
         fDetList=0;
     };
@@ -231,8 +189,7 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
 void KVReconstructedNucleus::AddDetector(KVDetector * det)
 {
     //Add a detector to the list of those through which the particle passed.
-    //Put reference to detector into fDetectors array, store detector's energy loss value in
-    //fEloss array, increase number of detectors by one.
+    //Put reference to detector into fDetectors array, increase number of detectors by one.
     //As this is only used in initial particle reconstruction, we add 1 unidentified particle to the detector.
     // Creates KVHashList fDetList in case it does not exist.
 
@@ -242,28 +199,6 @@ void KVReconstructedNucleus::AddDetector(KVDetector * det)
     // store pointer to detector
     if (!fDetList) fDetList = new KVHashList;
     fDetList->Add(det);
-   if (fNumDet == MAX_NUM_DET) {
-      Warning("AddDetector",
-              "Cannot store informations for more than %d detectors for reconstructed nucleus. Detector infos not taken into account",
-              fNumDet);
-   }
-   else {
-   		fEloss[fNumDet++] = det->GetEnergy();
-   		if (det->GetACQParamList()) {
-      		if ((fNumPar + det->GetACQParamList()->GetSize()) > MAX_NUM_PAR) {
-         		Warning("AddDetector",
-                 "Cannot add more than %d DAQ parameters to reconstructed nucleus. Parameters not taken into account",
-                 MAX_NUM_PAR);
-      		}
-      		else{
-      			TIter next_par(det->GetACQParamList());
-      			KVACQParam *par;
-      			while ((par = (KVACQParam *) next_par())) {
-         			fACQData[fNumPar++] = par->GetCoderData();
-      			}
-   			}
-   		}
-   	}
     //add segmentation index of detector to total segmentation index of particle
     fNSegDet += det->GetSegment();
     //add 1 unidentified particle to the detector
@@ -391,67 +326,6 @@ void KVReconstructedNucleus::GetAnglesFromTelescope(Option_t * opt)
     }
 }
 
-//______________________________________________________________________________________________//
-/*
-Int_t KVReconstructedNucleus::GetIDSubCode(const Char_t * id_tel_type,
-        KVIDSubCode & code) const
-{
-    //If the identification of the particle was attempted using a KVIDTelescope of type "id_tel_type",
-    //and 'code' holds all the subcodes from the different identification routines tried for this particle,
-    //then this method returns the subcode for this particle from telescope type "id_tel_type".
-    //
-    //In case of problems (no ID telescope of type 'id_tel_type'), the returned value is -65535.
-    //
-    //If no type is given (first argument = ""), we use the identifying telescope (obviously if the
-    //particle has remained unidentified - IsIdentified()==kFALSE - and the GetIdentifyingTelescope()
-    //pointer is not set, we return -65535).
-
-    KVIDTelescope *idtel;
-    if (strcmp(id_tel_type, ""))
-        idtel =
-            (KVIDTelescope *) GetIDTelescopes()->
-            FindObjectByType(id_tel_type);
-    else
-        idtel = GetIdentifyingTelescope();
-    if (!idtel)
-        return -65535;
-    return idtel->GetIDSubCode(code);
-}
-
-//______________________________________________________________________________________________//
-
-const Char_t *KVReconstructedNucleus::GetIDSubCodeString(const Char_t *
-        id_tel_type,
-        KVIDSubCode &
-        code) const
-{
-    //If the identification of the particle was attempted using a KVIDTelescope of type "id_tel_type",
-    //and 'code' holds all the subcodes from the different identification routines tried for this particle,
-    //then this method returns an explanation for the subcode for this particle from telescope type "id_tel_type".
-    //
-    //If no type is given (first argument = ""), we use the identifying telescope.
-    //
-    //In case of problems :
-    //       no ID telescope of type 'id_tel_type' :  "No identification attempted in id_tel_type"
-    //       particle not identified               :  "Particle unidentified. Identifying telescope not set."
-
-    KVIDTelescope *idtel;
-    if (strcmp(id_tel_type, ""))
-        idtel =
-            (KVIDTelescope *) GetIDTelescopes()->
-            FindObjectByType(id_tel_type);
-    else
-        idtel = GetIdentifyingTelescope();
-    if (!idtel) {
-        if (strcmp(id_tel_type, ""))
-            return Form("No identification attempted in %s", id_tel_type);
-        else
-            return
-                Form("Particle unidentified. Identifying telescope not set.");
-    }
-    return idtel->GetIDSubCodeString(code);
-}
-*/
 //_________________________________________________________________________________
 
 void KVReconstructedNucleus::Calibrate()
@@ -472,13 +346,6 @@ void KVReconstructedNucleus::Calibrate()
 
     KVIDTelescope* idt = GetIdentifyingTelescope();
     idt->CalculateParticleEnergy(this);
-    //if calibration was successful, we now read the energy losses from the detectors
-    //this is because detectors whose calibration
-    //depends on the identity (Z & A) of the particle will only have their energy loss
-    //member set when this method is called; otherwise it remains 0.
-    //Also, whenever possible, we calculate the energy loss for any uncalibrated or
-    //non-functioning detectors during this procedure, so this calculated energy loss
-    //will also be stored.
     if ( idt->GetCalibStatus() != KVIDTelescope::kCalibStatus_NoCalibrations ){
         SetIsCalibrated();
         //add correction for target energy loss - charged particles only
@@ -489,11 +356,6 @@ void KVReconstructedNucleus::Calibrate()
         }
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
-		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
-        while( (det = (KVDetector*)nxt()) ){
-          fEloss[ndet] = det->GetEnergy();
-          ++ndet;
-        }
         // set particle momentum from telescope dimensions (random)
         GetAnglesFromTelescope();
     }

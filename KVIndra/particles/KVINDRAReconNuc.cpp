@@ -180,16 +180,6 @@ void KVINDRAReconNuc::Print(Option_t * option) const
    } else {
       cout << "(unidentified)" << endl;
    }
-   if (GetIDTelescopes() && GetIDTelescopes()->GetSize()) {
-      cout << " ID Sub-codes: " << endl;
-      TIter next(GetIDTelescopes());
-      KVIDTelescope *idt;
-      while ((idt = (KVIDTelescope *) next())) {
-         cout << idt->GetName() << " : " << GetIDSubCodeString(idt->
-                                                               GetType())
-             << endl;
-      }
-   }
    if (IsCalibrated()) {
       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
 		if(GetRingNumber()<10){
@@ -741,11 +731,6 @@ void KVINDRAReconNuc::Calibrate()
         SetEnergy( E_tot );
         // set particle momentum from telescope dimensions (random)
         GetAnglesFromTelescope();        
-		TIter nxt(GetDetectorList()); KVDetector* det; register int ndet = 0;
-        while( (det = (KVDetector*)nxt()) ){
-          fEloss[ndet] = det->GetEnergy();
-          ++ndet;
-        }
         CheckCsIEnergy();
         return;
     }
