@@ -327,8 +327,8 @@ void KVINDRAReconEvent::IdentifyEvent()
 		}
 	}
 	if(GetMult()>mult) {
-		Info("IdentifyEvent", "Event#%d: Secondary reconstruction (gammas) -> %d new particles",
-			GetNumber(), GetMult()-mult);
+		/*Info("IdentifyEvent", "Event#%d: Secondary reconstruction (gammas) -> %d new particles",
+			GetNumber(), GetMult()-mult);*/
 
 		// identify new particles generated in secondary reconstruction 
    	KVReconstructedEvent::IdentifyEvent();
@@ -342,9 +342,17 @@ void KVINDRAReconEvent::IdentifyEvent()
          	d->SetIDCode( kIDCode14 );
       	}
 		}
+		/*
 		for(int i=mult+1; i<=GetMult(); i++){
-			 GetParticle(i)->Print();
+			d = GetParticle(i);
+			if(d->IsIdentified())
+				printf("\t%2d: Ring %2d Module %2d Z=%2d  A=%3d  code=%d\n",i,d->GetRingNumber(),
+						d->GetModuleNumber(),d->GetZ(),d->GetA(),d->GetCodes().GetVedaIDCode());
+			else
+				printf("\t%2d: Ring %2d Module %2d UNIDENTIFIED status=%d\n", i,d->GetRingNumber(),
+						d->GetModuleNumber(), d->GetStatus());
 		}
+		*/
 	}
 }
 
