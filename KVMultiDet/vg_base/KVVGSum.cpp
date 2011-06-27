@@ -78,6 +78,7 @@ ClassImp(KVVGSum)
 
 void KVVGSum::init_KVVGSum(void)
 {
+	ClearNameIndex();
    fClass = 0;
    fMethod = 0;
    fVal = 0;
