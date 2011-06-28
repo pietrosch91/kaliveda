@@ -62,6 +62,9 @@ void Identificationv::Init(void)
 zt = ZZ = AA = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
 ESi = ECsI = EEtot = AA2 = ZR = -10.0;
 PID = Z_PID = A_PID = -10.0;
+
+    runNumber = 0;
+    runNumber = (Int_t)gIndra->GetCurrentRunNumber();
 }
 
 
@@ -438,6 +441,7 @@ void Identificationv::outAttach(TTree *outT)
 #ifdef DEBUG
   cout << "Attaching Identificationv variables" << endl;
 #endif
+    outT->Branch("RunNumber", &runNumber, "runNumber/I");
 	outT->Branch("A",&AA,"A/I");
 	//outT->Branch("A2",&AA2,"A2/F");
    	outT->Branch("Z",&ZZ,"Z/I");

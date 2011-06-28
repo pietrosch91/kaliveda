@@ -90,7 +90,7 @@ void KVIVReconIdent::InitRun(void)
    fAnalyseV->CreateHistograms();
    fAnalyseV->OpenInputTree(fChain->GetTree());
    fAnalyseV->inAttach();
-   
+
    ifstream in;   
    Int_t run1;
    TString sline;
@@ -235,7 +235,7 @@ else
             }else{
                 istringstream s (line);
                 s >> module_name >> csi_num;	//csi_num is real number (1-80) and si_num is (0-17)
-                printf("Processing Si_raw(%02i) CsI_raw(%02i)...\n", si_num, csi_num);
+                printf("Processing Si(%02i) CsI(%02i)...\n", si_num+1, csi_num); // +1 on si to get real
                 module_map[si_num][csi_num-1] = module_name;
             }
         }

@@ -45,6 +45,8 @@ class Identificationv
   UShort_t TFil2;
   UShort_t EFil1;
   UShort_t EFil2;
+
+    Int_t runNumber;
   
   Int_t ZZ;
   Int_t AA;
