@@ -801,8 +801,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	 //     (high energy particle punh through), or which miss some detectors due to a non perfect overlap between defined telescope,
 	 //	  or particles which stopped in the first detection stage of the multidetector in a detector which can not give
 	 //		alone a clear identification, this correponds to status=3 or idcode=5 in INDRA data
-	 //If the pointer KVEvent contains KVSimNucleus particles, the list of detectors and their energy loss are added
-	 //and is accessible via KVNucleus::GetParameters()
+	 //	!!! WARNING : to keep all information about the detection process, the filtered KVSimEvent object has
+	 //	!!! to contain KVSimNucleus object 
+	 //	!!! the detection status of each particle and the list of detectors and their energy loss are stored
+	 //	!!! and are accessible via KVSimNucleus::GetParameters() method
 	 //
 	 //
 	 //After the filtered process, a reconstructed event are obtain from the fired groups corresponding
@@ -842,6 +844,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	
 	// iterate through list of particles
 	KVNucleus *part;
+	KVNameValueList* det_stat = new KVNameValueList();
+	KVNameValueList* nvl = 0;
 	while ((part = event->GetNextParticle())) {  // loop over particles
 #ifdef KV_DEBUG
 		cout << "DetectEvent(): looking at particle---->" << endl;
@@ -849,162 +853,202 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 #endif
 		
 		part->SetE0();
+		det_stat->Clear();
 		Double_t eLostInTarget=0;
-		if (fTarget){
-			//simulate passage through target material
-			Double_t ebef = part->GetKE();
-			fTarget->DetectParticle(part);
-			eLostInTarget = ebef-part->GetKE();
-		}
 		
 		if (part->GetKE()==0) { 
-			part->AddGroup("STOPPED IN TARGET"); 
+			det_stat->SetValue("UNDETECTED","NO ENERGY");
+			
 			part->AddGroup("UNDETECTED"); 
+			part->AddGroup("NO ENERGY"); 
+			
 		}
 		else {
-			KVNameValueList* nvl = 0;
-			if ( !(nvl = DetectParticle(part)) ) {
-				part->AddGroup("DEAD ZONE"); 
-				part->AddGroup("UNDETECTED"); 
+		
+			//Double_t eLostInTarget=0;
+			if (fTarget){
+				//simulate passage through target material
+				Double_t ebef = part->GetKE();
+				fTarget->DetectParticle(part);
+				eLostInTarget = ebef-part->GetKE();
+				if (part->GetKE()==0) {
+					det_stat->SetValue("UNDETECTED","STOPPED IN TARGET"); 
+					
+					part->AddGroup("UNDETECTED");
+					part->AddGroup("STOPPED IN TARGET"); 
+					
+				}	
 			}
-			else if ( nvl->GetNpar()==0 ) {
-				part->AddGroup("DEAD ZONE"); 
-				part->AddGroup("UNDETECTED");
-				delete nvl;
+		
+			if (part->GetKE()==0) { 
+			
 			}
 			else {
-				Int_t nbre_nvl = nvl->GetEntries();
-				KVString LastDet(nvl->GetNameAt(nbre_nvl-1));
-				KVDetector* last_det = GetDetector(LastDet.Data());
-				TList* ldet = last_det->GetAlignedDetectors();
-				TIter it1(ldet);
-				
-				Int_t ntrav=0;
-				KVDetector*dd = 0;
-				//Test de la trajectoire coherente
-				while ( ( dd = (KVDetector* )it1.Next() ) ){
-					if (dd->GetHits()){
-						if (dd->GetHits()->FindObject(part)) ntrav+=1;	
-						else 
-							if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
-					}
-					else {
-						if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
-					}
-				}
-				
-				if (ntrav != ldet->GetEntries()){
-					// la particule a une trajectoire
-					// incoherente, elle a loupe un detecteur avec une ouverture 
-					// plus large que ceux a la suite ou la particule est passe
-					// (ceci peut etre du a un pb de definition de zone morte autour de certains detecteur)
-					// 
-					// on retire la particule sur tout les detecteurs
-					// ou elle est enregistree et on retire egalement
-					// sa contribution en energie
-					//
-					// on assimile en fait ces particules a 
-					// des particules arretes dans les zones mortes
-					// non detectees
-					it1.Reset();
-					//Warning("DetectEvent","trajectoire incoherente ...");
-					while ( ( dd = (KVDetector* )it1.Next() ) )
-						if (dd->GetHits() && dd->GetHits()->FindObject(part)){
-							if ( nvl->HasParameter(dd->GetName()) ){
-								Double_t el = dd->GetEnergy();
-								el -= nvl->GetDoubleValue(dd->GetName());
-								dd->SetEnergyLoss(el);
-								if (dd->GetNHits()==1)
-									dd->SetEnergyLoss(0);
-							}
-							dd->GetHits()->Remove(part);
-						}
+				//KVNameValueList* nvl = 0;
+				if ( !(nvl = DetectParticle(part)) ) {
+					det_stat->SetValue("UNDETECTED","DEAD ZONE"); 
 					
-					part->AddGroup("DEAD ZONE");
+					part->AddGroup("UNDETECTED"); 
+					part->AddGroup("DEAD ZONE"); 
+					
+				}
+				else if ( nvl->GetNpar()==0 ) {
+					
 					part->AddGroup("UNDETECTED");
+					part->AddGroup("DEAD ZONE"); 
+					
+					det_stat->SetValue("UNDETECTED","DEAD ZONE");
+					delete nvl; nvl=0;
 				}
 				else {
-					
-					TList* lidtel = last_det->GetTelescopesForIdentification();
-					if (lidtel->GetEntries()==0 && last_det->GetEnergy()==0){
-						//Arret dans un absorbeur (unactive layer, mylar pour les ChIo par ex)
-						part->AddGroup("UNDETECTED");
-						part->AddGroup("THRESHOLD");
-						//On retire la particule du detecteur considere 
-						//
-						last_det->GetHits()->Remove(part);
-						//Warning("DetectEvent","threshold ...");
-					}
-					else {
-						part->AddGroup("DETECTED");
-						
-						fHitGroups->Add( last_det->GetGroup() );
-						
-						if (lidtel->GetEntries()>0){
-							//Il y a possibilite d identification
-						}
-						else if (last_det->GetEnergy()>0){
-							//Il n'y a pas de possibilite d'identification
-							//arret dans une ChIo ou  un Si qui sont le
-							//premier etage de detection 
-							part->AddGroup("INCOMPLETE");
+					Int_t nbre_nvl = nvl->GetEntries();
+					KVString LastDet(nvl->GetNameAt(nbre_nvl-1));
+					KVDetector* last_det = GetDetector(LastDet.Data());
+					TList* ldet = last_det->GetAlignedDetectors();
+					TIter it1(ldet);
+				
+					Int_t ntrav=0;
+					KVDetector*dd = 0;
+					//Test de la trajectoire coherente
+					while ( ( dd = (KVDetector* )it1.Next() ) ){
+						if (dd->GetHits()){
+							if (dd->GetHits()->FindObject(part)) ntrav+=1;	
+							else 
+								if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
 						else {
-							Warning("DetectEvent","Cas non prevu ....");
+							if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
+					}
+				
+					if (ntrav != ldet->GetEntries()){
+						// la particule a une trajectoire
+						// incoherente, elle a loupe un detecteur avec une ouverture 
+						// plus large que ceux a la suite ou la particule est passe
+						// (ceci peut etre du a un pb de definition de zone morte autour de certains detecteur)
+						// 
+						// on retire la particule sur tout les detecteurs
+						// ou elle est enregistree et on retire egalement
+						// sa contribution en energie
+						//
+						// on assimile en fait ces particules a 
+						// des particules arretes dans les zones mortes
+						// non detectees
+						it1.Reset();
+						//Warning("DetectEvent","trajectoire incoherente ...");
+						while ( ( dd = (KVDetector* )it1.Next() ) )
+							if (dd->GetHits() && dd->GetHits()->FindObject(part)){
+								if ( nvl->HasParameter(dd->GetName()) ){
+									Double_t el = dd->GetEnergy();
+									el -= nvl->GetDoubleValue(dd->GetName());
+									dd->SetEnergyLoss(el);
+									if (dd->GetNHits()==1)
+										dd->SetEnergyLoss(0);
+								}
+								dd->GetHits()->Remove(part);
+							}
+						det_stat->SetValue("UNDETECTED","GEOMETRY INCOHERENCY");
 						
-						//Test d'une energie residuelle non nulle
-						//La particule n a pas ete arrete par le detecteur
-						if (part->GetKE()>0){
-							if (nbre_nvl != last_det->GetGroup()->GetNumberOfDetectorLayers()){
-								//----
-								// Fuite, 
-								// la particule a loupe des detecteurs normalement aligne
-								// avec le dernier par laquelle elle est passee
-								// (ceci peut etre du a un pb de definition de la geometrie)
-								//Warning("DetectEvent","Fuite ......");
+						part->AddGroup("UNDETECTED");
+						part->AddGroup("GEOMETRY INCOHERENCY");
+						
+					}
+					else {
+						
+						TList* lidtel = last_det->GetTelescopesForIdentification();
+						if (lidtel->GetEntries()==0 && last_det->GetEnergy()==0){
+							//Arret dans un absorbeur (unactive layer, mylar pour les ChIo par ex)
+							det_stat->SetValue("UNDETECTED","THRESHOLD");
+							
+							part->AddGroup("UNDETECTED");
+							part->AddGroup("THRESHOLD");
+							
+							//On retire la particule du detecteur considere 
+							//
+							last_det->GetHits()->Remove(part);
+							//Warning("DetectEvent","threshold ...");
+						}
+						else {
+							part->AddGroup("DETECTED");
+							det_stat->SetValue("DETECTED","");
+							fHitGroups->Add( last_det->GetGroup() );
+							
+							if (lidtel->GetEntries()>0){
+								//Il y a possibilite d identification
+							}
+							else if (last_det->GetEnergy()>0){
+								//Il n'y a pas de possibilite d'identification
+								//arret dans une ChIo ou  un Si qui sont le
+								//premier etage de detection 
+								det_stat->SetValue("DETECTED","INCOMPLETE");
+								part->AddGroup("INCOMPLETE");
 							}
 							else {
-								//----
-								// Punch Through,
-								// La particule est trop energetique, elle a traversee
-								// tout l'appareillage de detection
-								//Warning("DetectEvent","Punch Through ......");
+								Warning("DetectEvent","Cas non prevu ....");
 							}
-							//Pour ces deux cas
-							//on a une information incomplete
-							//pour la particule
-							part->AddGroup("INCOMPLETE");
-						}
-						
-						if (part->InheritsFrom("KVSimNucleus")){
-							TIter it(nvl);
-							TNamed* nam = 0;
-							if (fTarget)
-								((KVSimNucleus* )part)->GetParameters()->SetValue("TARGET",eLostInTarget);
-							while ( (nam = (TNamed* )it.Next()) ){
-								((KVSimNucleus* )part)->GetParameters()->SetValue(nam->GetName(),nam->GetTitle());
+							
+							//Test d'une energie residuelle non nulle
+							//La particule n a pas ete arrete par le detecteur
+							if (part->GetKE()>0){
+								if (nbre_nvl != last_det->GetGroup()->GetNumberOfDetectorLayers()){
+									//----
+									// Fuite, 
+									// la particule a loupe des detecteurs normalement aligne
+									// avec le dernier par laquelle elle est passee
+									// (ceci peut etre du a un pb de definition de la geometrie)
+									//Warning("DetectEvent","Fuite ......");
+								}
+								else {
+									//----
+									// Punch Through,
+									// La particule est trop energetique, elle a traversee
+									// tout l'appareillage de detection
+									//Warning("DetectEvent","Punch Through ......");
+								}
+								//Pour ces deux cas
+								//on a une information incomplete
+								//pour la particule
+								part->AddGroup("INCOMPLETE");
+								det_stat->SetValue("DETECTED","INCOMPLETE");
 							}
 						}
-						
-						/*	
-						//Test pour le detecteur ou la particule s'est arrete
-						//du nombre de hits
-						//si celui ici est superieur a 1
-						//on peut considerer le cas d un PILE UP
-						//
-						if (last_det->GetNHits()>1)
-							for (Int_t nnn=0;nnn<last_det->GetNHits();nnn+=1)
-								((KVNucleus* )last_det->GetHits()->At(nnn))->AddGroup("PILEUP");
-						*/	
 					}
 				}
+			}
+		}
+		
+		if (part->InheritsFrom("KVSimNucleus")){
+			//On enregistre l eventuelle perte dans la cible
+			if (fTarget)
+				((KVSimNucleus* )part)->GetParameters()->SetValue("TARGET",eLostInTarget);
+			//On enregistre le statut de detection
+			for (Int_t nds=0;nds<det_stat->GetNpar();nds+=1){
+				((KVSimNucleus* )part)->GetParameters()->SetValue(det_stat->GetNameAt(nds),det_stat->GetStringValue(nds));
+			}
+			//On enregistre les differentes pertes d'energie dans les detecteurs
+			if (nvl){
+				
+				TIter it(nvl);
+				TNamed* nam = 0;
+				while ( (nam = (TNamed* )it.Next()) ){
+					((KVSimNucleus* )part)->GetParameters()->SetValue(nam->GetName(),nam->GetTitle());
+				}
 				delete nvl;
+				nvl = 0;
+			}
+		}
+		else {
+			if (nvl){
+				delete nvl;
+				nvl = 0;
 			}
 		}
 		part->SetMomentum(*part->GetPInitial());
-	}
 
+	} 	//fin de loop over particles
+	
+	delete det_stat;
+	
 	KVGroup *grp_tch;
 	TIter nxt_grp(fHitGroups);
    while ((grp_tch = (KVGroup *) nxt_grp())) {

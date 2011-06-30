@@ -253,7 +253,11 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
       delete [] thickness;
 	}
    Double_t epart = kvp->GetEnergy() - eloss;
-   kvp->SetEnergy(epart);
+   if (epart<1e-3) {
+		//printf("%s, pb d arrondi on met l energie de la particule a 0\n",GetName());
+		epart = 0.0;
+	}
+	kvp->SetEnergy(epart);
    SetEnergyLoss(dE);
 }
 

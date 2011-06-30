@@ -63,7 +63,6 @@ class KVParticle:public TLorentzVector {
 			AddGroup(os->GetName());
 		}
 	}
-	KVUniqueNameList* GetGroups() const { return fGroups; }
 	
 	public:
 	
@@ -76,7 +75,8 @@ class KVParticle:public TLorentzVector {
 	Int_t GetNumberOfDefinedGroups(void) {  
 		return fGroups->GetEntries();
 	}
-	
+	KVUniqueNameList* GetGroups() const { return fGroups; }
+  
    enum {
       kIsOK = BIT(14),          //acceptation/rejection flag
       kIsOKSet = BIT(15),       //flag to indicate flag is set
@@ -126,8 +126,11 @@ class KVParticle:public TLorentzVector {
       return Vect();
    };
    Double_t GetKE() const {
-      return (E() - M());
-   };
+      Double_t e=  E();
+		Double_t m = M();
+		//return (E() - M());
+   	return e-m;
+	};
    Double_t GetEnergy() const {
       return GetKE();
    };
