@@ -41,8 +41,8 @@ class KVElasticScatterEvent : public KVBase
 	KVReconstructedEvent* 	rec_evt;//!
 	KVSimEvent*					sim_evt; //!
 	
-	KVHashList*					lhisto;//!-> to store control histogram
-	KVHashList*					ltree;//!->	to store tree
+	KVHashList*					lhisto;//! to store control histogram
+	KVHashList*					ltree;//!	to store tree
 
 	Double_t 					th_min,th_max,phi_min,phi_max;//!
 	Double_t						kXruth_evt;//!

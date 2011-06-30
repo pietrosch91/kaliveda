@@ -452,22 +452,20 @@ void KVElasticScatterEvent::PropagateInTargetLayer()
 	//in the Filter() method
 	//
 	
+	Double_t eLostInTarget = GetNucleus("PROJ")->GetKE();
 	ktarget->SetIncoming(kTRUE);
 	ktarget->DetectParticle(GetNucleus("PROJ"),0);
+	eLostInTarget -= GetNucleus("PROJ")->GetKE();
 	
-	/*
-	printf("%lf %lf\n",
-		GetNucleus(1)->GetKE()/GetNucleus(1)->GetA(),
-		GetInteractionPointInTargetLayer().Z()
-	);
-	*/
-	
+	((KVSimNucleus* )sim_evt->GetParticleWithName("PROJ"))->GetParameters()->SetValue("Before Int",eLostInTarget);
+	//On modifie l'energie du projectile dans KV2Body
+	//pour prendre en compte l energie deposee dans la cible
+	//avant de faire le calcul de la cinematique
 	kb2->GetNucleus(1)->SetKE(GetNucleus("PROJ")->GetKE());
 	kb2->CalculateKinematics();
 		
 	ktarget->SetIncoming(kFALSE);
-	
-	GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
+
 }
 
 //_______________________________________________________________________
@@ -495,7 +493,10 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	
 	kXruth_evt = kb2->GetXSecRuthLab(theta,3);
 	
+	//On modifie l energie et les angles du projectile diffuse
+	//puis par conservation, on deduit ceux du noyau cible
 	KVSimNucleus* knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("PROJ");
+	//printf("proj diff -> ek=%lf th=%lf\n",eproj1,theta);
 	knuc->SetKE(eproj1);
 	knuc->SetTheta(theta);
 	knuc->SetPhi(phi);
@@ -511,6 +512,7 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	//on met a jour les pptés la cible diffusée
 	knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("TARG");
 	knuc->SetPxPyPzE(ptot.X(),ptot.Y(),ptot.Z(),etot);
+	//printf("targ diff -> ek=%lf th=%lf\n",knuc->GetKE(),knuc->GetTheta());
 	((TH2F* )lhisto->FindObject("ek_theta"))->Fill(knuc->GetTheta(),knuc->GetKE());
 	
 	sim_evt->SetNumber(kTreatedNevts);
@@ -523,6 +525,10 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	if (nsol_kin_proj==2)
 		sim_evt->GetParameters()->SetValue("Sol2",eproj2);
 	
+	//L' energie cinetique du projectile est reinitialisee
+	//pour la prochaine diffusion
+	GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
+	
 }
 
 //_______________________________________________________________________
@@ -531,7 +537,7 @@ void KVElasticScatterEvent::Filter()
 	//Simulate passage of the projectile/target couple
 	//through the multidetector refered by the gMultiDetArray pointer
 	//if it is not valid do nothing
-
+	
 	if (IsTargMatSet()){
 		ktarget->SetOutgoing(kTRUE);
 		gMultiDetArray->DetectEvent(sim_evt,rec_evt);
@@ -741,8 +747,7 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
 	
 	DefineAngularRange(tmin,tmax,pmin,pmax);
 
-}
-	
+}	
 	
 //_______________________________________________________________________
 Double_t KVElasticScatterEvent::GetTheta(KVString opt) const
@@ -766,4 +771,3 @@ Double_t KVElasticScatterEvent::GetPhi(KVString opt) const
 	else return -1;
 
 }
-
