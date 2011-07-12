@@ -45,6 +45,7 @@ class KVINDRADstToRootTransfert : public KVDataAnalyser
 	Int_t events_good, events_read;//totals of events read and trees filled
 	
 	TTree* data_tree;//tree for writing events
+   TTree* rawtree;//raw data tree
 
 	Int_t fRunNumber;//run number of current file
    Int_t fCampNumber;
