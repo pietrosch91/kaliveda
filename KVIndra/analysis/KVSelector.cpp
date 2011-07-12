@@ -176,7 +176,6 @@ KVSelector::~KVSelector()
    SafeDelete(fPartCond);
 	delete lhisto;
 	delete ltree;
-
 }
 
 void KVSelector::Init(TTree * tree)
@@ -194,7 +193,7 @@ void KVSelector::Init(TTree * tree)
    else
       fTreeOffset = 0;
 
-	data=0;
+	data=0;b_data=0;
    fChain->SetBranchAddress( fBranchName.Data() , &data, &b_data);
    b_data->SetAutoDelete(kFALSE);
 
@@ -206,6 +205,8 @@ void KVSelector::Init(TTree * tree)
    {
       fKVDataSelector->Init();
    }
+	// tell the data analyser who we are
+	gDataAnalyser->RegisterUserClass(this);
 	gDataAnalyser->preInitAnalysis();
    InitAnalysis();              //user initialisations for analysis
 	gDataAnalyser->postInitAnalysis();
@@ -306,10 +307,10 @@ void KVSelector::SlaveBegin(TTree * tree)
    // When running with PROOF SlaveBegin() is called in each slave
    // Initialize the tree branches.
 
-   Init(tree);
+/*    Init(tree);
 
    TString option = GetOption();
-
+ */
 }
 
 #ifdef __WITHOUT_TSELECTOR_LONG64_T

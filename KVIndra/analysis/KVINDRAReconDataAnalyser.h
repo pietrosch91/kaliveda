@@ -11,6 +11,7 @@ $Date: 2007/05/31 09:59:22 $
 #define __KVINDRAReconDataAnalyser_H
 
 #include "KVDataAnalyser.h"
+#include "KVSelector.h"
 class TChain;
 
 class KVINDRAReconDataAnalyser:public KVDataAnalyser {
@@ -21,7 +22,7 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    KVString fDataSelectorDec;//name of KVDataSelector header file (if it exists)
 
    virtual KVNumberList PrintAvailableRuns(KVString & datatype);
-   
+   KVSelector* fSelector;// the data analysis class
    TChain* theChain;//chain of TTrees to be analysed
 	TTree* theRawData;//raw data TTree in recon file
    Int_t NbParFired;
@@ -55,6 +56,7 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    void preInitAnalysis();
    void preAnalysis();
    void preInitRun();
+	virtual void RegisterUserClass(TObject*obj) {fSelector=(KVSelector*)obj;};
    
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };

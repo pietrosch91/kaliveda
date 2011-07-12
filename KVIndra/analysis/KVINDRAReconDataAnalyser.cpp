@@ -15,7 +15,6 @@ $Date: 2007/11/15 14:59:45 $
 #include "TChain.h"
 #include "TObjString.h"
 #include "TChain.h"
-#include "KVSelector.h"
 #include "KVAvailableRunsFile.h"
 
 ClassImp(KVINDRAReconDataAnalyser)
@@ -31,6 +30,7 @@ KVINDRAReconDataAnalyser::KVINDRAReconDataAnalyser()
    theRawData=0;
    ParVal=0;
    ParNum=0;
+	fSelector=0;
 }
 
 void KVINDRAReconDataAnalyser::Reset()
@@ -42,6 +42,7 @@ void KVINDRAReconDataAnalyser::Reset()
    theRawData=0;
    ParVal=0;
    ParNum=0;
+	fSelector=0;
 }
 
 KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
@@ -49,6 +50,7 @@ KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
    //Destructor
    if(ParVal) delete [] ParVal;
    if(ParNum) delete [] ParNum;
+	SafeDelete(fSelector);
 }
 
 //_________________________________________________________________
@@ -104,27 +106,25 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
    
-   TSelector *selector = (TSelector*)GetInstanceOfUserClass();
+   fSelector = (KVSelector*)GetInstanceOfUserClass();
    
-   if(!selector || !selector->InheritsFrom("TSelector"))
+   if(!fSelector || !fSelector->InheritsFrom("TSelector"))
     {
     	cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
     	cout << "Process aborted." << endl;
-    	if(selector) {
-    		delete selector;
-    		selector=0;
-    	}
     }
    else
     {
+   	SafeDelete(fSelector);
+		 Info("SubmitTask", "Beginning TChain::Process...");
       if (nbEventToRead) {
          theChain->Process(GetUserClass(), option.Data(),nbEventToRead);
       } else {
          theChain->Process(GetUserClass(), option.Data());
       }
     }
-   if(selector) delete selector;
    delete theChain;
+   fSelector=0;//deleted by TChain/TTreePlayer
 }
 
 //_________________________________________________________________
@@ -291,11 +291,12 @@ void KVINDRAReconDataAnalyser::preInitRun()
 
 void KVINDRAReconDataAnalyser::preAnalysis()
 {
-	// Read and set raw data for this event
+	// Read and set raw data for the current reconstructed event
 	
 	if(!theRawData) return;
-	theRawData->GetEntry(Entry);
-	Entry++;
+	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
+	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+	theRawData->GetEntry(rawEntry);
 	for(int i=0; i<NbParFired; i++){
 		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
 		if(par) par->SetData(ParVal[i]);
