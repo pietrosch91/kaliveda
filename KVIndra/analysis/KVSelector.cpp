@@ -337,6 +337,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       cout << " +++ " << totentry << " events processed +++ " << endl;
 
    fChain->GetTree()->GetEntry(fTreeEntry);
+	gDataAnalyser->preAnalysis();
 
    //additional selection criteria ?
    if(fPartCond){
@@ -366,7 +367,6 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    Bool_t ok_anal = kTRUE;
 
-	gDataAnalyser->preAnalysis();
    if (needToSelect) {
       ok_anal = fKVDataSelector->ProcessCurrentEntry(); //Data Selection and user analysis
    } else
