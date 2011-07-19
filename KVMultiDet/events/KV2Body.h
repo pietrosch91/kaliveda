@@ -64,9 +64,13 @@ class KV2Body:public TObject {
    TF1* fThetaLabVsThetaCM[5];
    TF1* fELabVsThetaCM[5];
    
-   Bool_t fSetOutgoing;// = kTRUE if SetOutgoing is called before CalculateKinematics
+   TF1* fXSecRuthLabIntegral[5];
+   TF1* fXSecRuthLab[5];
+   
+	Bool_t fSetOutgoing;// = kTRUE if SetOutgoing is called before CalculateKinematics
    
    Int_t FindRoots(TF1*, Double_t, Double_t, Double_t, Double_t&, Double_t&) const;
+	Double_t fIntPrec;	//Precision of the TF1::Integral method
 
  public:
 
@@ -85,7 +89,7 @@ class KV2Body:public TObject {
    void SetTarget(KVNucleus *);
    void SetTarget(Int_t z, Int_t a = 0);
    void SetOutgoing(KVNucleus * proj_out);
-
+	
    void SetExcitEnergy(Double_t ex) {
       fEDiss = ex;
    };
@@ -172,6 +176,15 @@ class KV2Body:public TObject {
 	
 	Double_t EqbmChargeState(Double_t *t,Double_t*);
 	TF1* GetEqbmChargeStateFunc();
+	
+	Double_t GetIntegralPrecision() {
+		//Precision of the TF1::Integral() method
+		return fIntPrec;
+	}
+	void SetIntegralPrecision(Double_t precision) {
+		//Set the precision of the TF1::Integral() method
+		fIntPrec = precision;
+	}
 	
    ClassDef(KV2Body, 0)         //Relativistic binary kinematical calculation
 };

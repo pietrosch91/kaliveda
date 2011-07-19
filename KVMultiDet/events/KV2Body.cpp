@@ -107,6 +107,8 @@ void KV2Body::init()
    fKoxReactionXSec = 0;
    fEqbmChargeState = 0;
    fSetOutgoing = kFALSE;
+	
+	SetIntegralPrecision(1e-10);
 }
 
 KV2Body::KV2Body():fNuclei(4, 1)
@@ -946,7 +948,8 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	Double_t theta_max = 179.;
 	if( th1<theta_min) theta_min = th1;
 	if(th2>theta_max) theta_max=th2;
-	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2)*TMath::DegToRad()*dphi;
+	const Double_t *para = 0;
+	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2,para,fIntPrec)*TMath::DegToRad()*dphi;
 }
 
 //__________________________________________________________________________________________________
