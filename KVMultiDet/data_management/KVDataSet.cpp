@@ -999,21 +999,13 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type)
 {
    // Returns list of runs which are present for data type "base_type" but not for "other_type"
-	//On travaille que sur des systemes deja au moins en partie convertis
-	// de ref_type en type
 	// if type is NULL or ="" returns empty KVNumberList
 
 	KVNumberList manquant;
-	//if (!type || !strlen(type)) return numb;
-	//KVString in_type = base_type;
-	
-	//numb = GetRunList(ref_type);
-	//KVNumberList lout = GetRunList(type);
-	
-	//numb.Remove(lout);
-	TList* ll = GetListOfAvailableSystems(type);
+	TList* ll = GetListOfAvailableSystems(ref_type);
 	if(!ll || !ll->GetEntries()){
 	   //numb.Clear();
+		Info("GetRunList_StageSelection","No data available of type \"%s\"", ref_type);
 	   return manquant;
 	}
 	
