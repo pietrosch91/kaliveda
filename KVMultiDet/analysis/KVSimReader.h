@@ -68,7 +68,7 @@ class KVSimReader : public KVFileReader
 		CreateInfoList();
 		
 		nv = new KVNameValueList();				
-		nv->SetName("Temporary List");
+		nv->SetName_NVL("Temporary List");
 	}
 	
 	virtual KVString GetDate(){
@@ -187,18 +187,21 @@ class KVSimReader : public KVFileReader
 	void WriteInfo(){
 		
 		TList* list = GetTree()->GetUserInfo();
-		list->Add(new KVNameValueList());
+		//list->Add(new KVNameValueList());
 		KVNameValueList* ltamp = (KVNameValueList* )list->Last();
-		ltamp->SetName(GetSimuInfo()->GetName());
-		Int_t ne = GetSimuInfo()->GetEntries(); 
-		for (Int_t kk=0;kk<ne;kk+=1)	ltamp->Add(GetSimuInfo()->RemoveAt(0));
-		
+		ltamp->SetName_NVL(GetSimuInfo()->GetName_NVL());
+		Int_t ne = GetSimuInfo()->GetNpar(); 
+		for (Int_t kk=0;kk<ne;kk+=1)	{
+			ltamp->SetValue(GetSimuInfo()->GetNameAt(ne),GetSimuInfo()->GetStringValue(ne));
+			//ltamp->Add(GetSimuInfo()->RemoveAt(0));
+		}
+		GetSimuInfo()->Clear_NVL();
 	}
 	void CreateInfoList(){
 	
 		linked_info = new KVNameValueList();	
-		linked_info->SetOwner(kFALSE); 
-		linked_info->SetName("Simulation info");
+		linked_info->SetOwner_NVL(kFALSE); 
+		linked_info->SetName_NVL("Simulation info");
 	
 	}
 

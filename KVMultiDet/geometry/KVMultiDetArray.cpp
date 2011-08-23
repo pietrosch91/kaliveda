@@ -853,7 +853,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 #endif
 		
 		part->SetE0();
-		det_stat->Clear();
+		det_stat->Clear_NVL();
 		Double_t eLostInTarget=0;
 		
 		if (part->GetKE()==0) { 
@@ -901,7 +901,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					delete nvl; nvl=0;
 				}
 				else {
-					Int_t nbre_nvl = nvl->GetEntries();
+					Int_t nbre_nvl = nvl->GetNpar();
 					KVString LastDet(nvl->GetNameAt(nbre_nvl-1));
 					KVDetector* last_det = GetDetector(LastDet.Data());
 					TList* ldet = last_det->GetAlignedDetectors();
@@ -990,7 +990,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							//Test d'une energie residuelle non nulle
 							//La particule n a pas ete arrete par le detecteur
 							if (part->GetKE()>0){
-								if (nbre_nvl != last_det->GetGroup()->GetNumberOfDetectorLayers()){
+								if (nbre_nvl != Int_t(last_det->GetGroup()->GetNumberOfDetectorLayers())){
 									//----
 									// Fuite, 
 									// la particule a loupe des detecteurs normalement aligne
@@ -1020,19 +1020,20 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		if (part->InheritsFrom("KVSimNucleus")){
 			//On enregistre l eventuelle perte dans la cible
 			if (fTarget)
-				((KVSimNucleus* )part)->GetParameters()->SetValue("TARGET",eLostInTarget);
+				((KVSimNucleus* )part)->SetValue("TARGET",eLostInTarget);
 			//On enregistre le statut de detection
 			for (Int_t nds=0;nds<det_stat->GetNpar();nds+=1){
-				((KVSimNucleus* )part)->GetParameters()->SetValue(det_stat->GetNameAt(nds),det_stat->GetStringValue(nds));
+				((KVSimNucleus* )part)->SetValue(det_stat->GetNameAt(nds),det_stat->GetStringValue(nds));
 			}
 			//On enregistre les differentes pertes d'energie dans les detecteurs
 			if (nvl){
 				
-				TIter it(nvl);
+				TIter it(nvl->GetList());
 				TNamed* nam = 0;
 				while ( (nam = (TNamed* )it.Next()) ){
-					((KVSimNucleus* )part)->GetParameters()->SetValue(nam->GetName(),nam->GetTitle());
+					((KVSimNucleus* )part)->SetValue(nam->GetName(),nam->GetTitle());
 				}
+				
 				delete nvl;
 				nvl = 0;
 			}

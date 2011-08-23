@@ -136,7 +136,7 @@ void KVGenParList::SetValue(const Char_t* name, Double_t val)
    // New parameter is created if "name" does not exist.
    
    KVString tmp;
-   tmp.Form("%g", val); // write value in temporary string
+   tmp.Form("%lf", val); // write value in temporary string
    SetParameter(name, tmp);
 }
 
@@ -160,6 +160,6 @@ void KVGenParList::IncrementValue(const Char_t* name, Double_t val)
    // New parameter is created if "name" does not exist.
    
    KVString tmp;
-   tmp.Form("%g", val+GetDoubleValue(name)); // write value in temporary string
+   tmp.Form("%lf", val+GetDoubleValue(name)); // write value in temporary string
    SetParameter(name, tmp);
 }

@@ -66,10 +66,10 @@ Bool_t KVSimReader_MMM::ReadEvent(){
 			Info("ReadEvent","Nombre de parametres (%d) different de celui attendu (%d)",res,natt);
 			return kFALSE;
 		}
-		evt->GetParameters()->SetValue("Eth",GetDoubleReadPar(idx++));
-		evt->GetParameters()->SetValue("Eclb",GetDoubleReadPar(idx++));
-		evt->GetParameters()->SetValue("Eexci",GetDoubleReadPar(idx++));
-		evt->GetParameters()->SetValue("Ebind",GetDoubleReadPar(idx++));
+		evt->SetValue("Eth",GetDoubleReadPar(idx++));
+		evt->SetValue("Eclb",GetDoubleReadPar(idx++));
+		evt->SetValue("Eexci",GetDoubleReadPar(idx++));
+		evt->SetValue("Ebind",GetDoubleReadPar(idx++));
 		
 		for (Int_t mm=0; mm<mult; mm+=1){
 			nuc = (KVSimNucleus* )evt->AddParticle();

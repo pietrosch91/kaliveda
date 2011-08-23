@@ -27,6 +27,8 @@ $Date: 2009/01/14 15:35:50 $
 #include "KVHashList.h"
 #include "KVBase.h"
 #include "KVDBSystem.h"
+#include "KVPosition.h"
+#include "KVParticle.h"
 
 
 class KVElasticScatterEvent : public KVBase
@@ -48,6 +50,10 @@ class KVElasticScatterEvent : public KVBase
 	Double_t						kXruth_evt;//!
 	Int_t 						kchoix_layer;//!
 	Int_t 						kTreatedNevts;//!		number of diffusion performed
+	
+	Int_t 						kDiffNuc;//!
+	Option_t*					kRandomOpt;//!
+	KVPosition					kposalea;//!
 	
 	void		init();
 	void 		GenereKV2Body();
@@ -99,7 +105,11 @@ class KVElasticScatterEvent : public KVBase
 	
 	virtual void Reset();
 	virtual Bool_t ValidateEntrance();
-
+	
+	void SetDiffNucleus(KVString name="PROJ");
+	void SetRandomOption(Option_t* opt="isotropic");
+	Bool_t IsIsotropic();
+	
 	virtual void Process(Int_t ntimes=1,Bool_t reset=kTRUE);
 	
 	virtual void SetAnglesForDiffusion(Double_t theta,Double_t phi);
@@ -110,7 +120,8 @@ class KVElasticScatterEvent : public KVBase
 	void DefineAngularRange(Double_t tmin, Double_t tmax, Double_t pmin,Double_t pmax);
 	Double_t GetTheta(KVString opt) const;
 	Double_t GetPhi(KVString opt)const;
-
+	
+	KV2Body* GetKV2Body() {return kb2;}
 	void Print();
 	
 	virtual void ClearTrees();

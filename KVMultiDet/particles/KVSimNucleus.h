@@ -5,54 +5,36 @@
 #define __KVSIMNUCLEUS_H
 
 #include "KVNucleus.h"
-#include "TVector3.h"
 #include "KVNameValueList.h"
 
-class KVSimNucleus : public KVNucleus
+class TVector3;
+
+class KVSimNucleus : public KVNucleus, public KVNameValueList
 {
 
 	protected:
 	TVector3 position; 	// vector position of the particle in fm
 	TVector3 angmom; 	// angular momentum of the particle in ???
-	KVNameValueList *add_variables;	//additional variables
 	Bool_t IsCleared;
 	
+	void init();
+	
 	public:
-	KVSimNucleus(){
-		init();
-	}
 	
-	void init(){
-		add_variables = new KVNameValueList();
-		IsCleared = kFALSE;
+	KVSimNucleus();
+	virtual ~KVSimNucleus();
 	
-	}
+	void Copy(TObject& obj) const;
+	void Print(Option_t* opt = "") const;
+	void Clear(Option_t * opt="");
 	
-   virtual ~KVSimNucleus(){
-		if ( !IsCleared ) Clear();
-	}
+	void SetPosition(Double_t rx, Double_t ry, Double_t rz);
+	const TVector3* GetPosition() const;
 	
-	void Clear(Option_t * opt=""){
-		KVNucleus::Clear();
-		delete add_variables;
-		add_variables=0;
-		
-		IsCleared = kTRUE;	
-	}
+	void SetAngMom(Double_t lx, Double_t ly, Double_t lz);
+	const TVector3* GetAngMom() const;
 	
-	void SetPosition(Double_t rx, Double_t ry, Double_t rz){
-		position.SetXYZ(rx,ry,rz);
-	}
-	const TVector3* GetPosition() const {return &position; }
-	
-	void SetAngMom(Double_t lx, Double_t ly, Double_t lz){
-		angmom.SetXYZ(lx,ly,lz);
-	}
-	const TVector3* GetAngMom() const {return &angmom; }
-	
-	KVNameValueList* GetParameters() { return add_variables; }
-	
-   ClassDef(KVSimNucleus,1)//essai_sim
+	ClassDef(KVSimNucleus,2)//essai_sim
 
 };
 
