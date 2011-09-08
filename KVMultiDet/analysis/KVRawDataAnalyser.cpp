@@ -39,8 +39,8 @@ void KVRawDataAnalyser::ProcessRun()
 	// each of these methods (preInitRun(), postAnalysis(), etc. etc.)
 
    //Open data file
-	KVString raw_file = gDataSet->GetFullPathToRunfile("raw", fRunNumber);
-   fRunFile = (KVRawDataReader*)gDataSet->OpenRunfile( "raw", fRunNumber );
+	KVString raw_file = gDataSet->GetFullPathToRunfile(GetDataType().Data(), fRunNumber);
+   fRunFile = (KVRawDataReader*)gDataSet->OpenRunfile(GetDataType().Data() , fRunNumber );
    if( (!fRunFile) || fRunFile->IsZombie() ){
       //skip run if file cannot be opened
       if(fRunFile) delete fRunFile;

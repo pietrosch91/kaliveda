@@ -92,9 +92,10 @@ Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "K
 +Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
 # Different types of data which can be associated with datasets
-KVDataSet.DataTypes: raw dst recon ident root
+KVDataSet.DataTypes: online raw dst recon ident root
 #
 # Names used for subdirectories containing data of different types
+KVDataSet.DataType.Subdir.online:  raw
 KVDataSet.DataType.Subdir.raw:  raw
 KVDataSet.DataType.Subdir.dst:  dst
 KVDataSet.DataType.Subdir.recon:  recon2
@@ -102,6 +103,7 @@ KVDataSet.DataType.Subdir.ident:  ident2
 KVDataSet.DataType.Subdir.root:  root2
 #
 # Default formats for runfile names (run number is used to replace integer format)
+DataSet.RunFileName.online:    run%d.raw
 DataSet.RunFileName.raw:    run%d.raw
 DataSet.RunFileName.dst:    run%d.dst
 DataSet.RunFileName.recon:    run%d.recon.root
@@ -109,6 +111,7 @@ DataSet.RunFileName.ident:    run%d.ident.root
 DataSet.RunFileName.root:    run%d.root
 #
 # Default base classes for reading runfiles of different types
+DataSet.RunFileClass.online:    KVRawDataReader
 DataSet.RunFileClass.raw:    KVRawDataReader
 DataSet.RunFileClass.recon:    TFile
 DataSet.RunFileClass.ident:    TFile
@@ -190,6 +193,7 @@ e613.DataSet.Title:    The Last Experiment (Ever)
 e613.DataSet.RepositoryDir:   e613
 e613.DataSet.RunFileName.raw:    run_%04d.dat%*
 e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
@@ -302,6 +306,13 @@ RawAnalysis.DataAnalysisTask.Analyser:     UserClass
 RawAnalysis.DataAnalysisTask.UserClass:     yes
 RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
 
++DataAnalysisTask:     OnlineAnalysis
+OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
+OnlineAnalysis.DataAnalysisTask.Prereq:     online
+OnlineAnalysis.DataAnalysisTask.Analyser:     UserClass
+OnlineAnalysis.DataAnalysisTask.UserClass:     yes
+OnlineAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
 ReconAnalysis.DataAnalysisTask.Prereq:     recon
@@ -406,6 +417,8 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.e613    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
++Plugin.KVRawDataReader:    online.*    KVGRUNetClientGanilReader     KVGRUNetClientGanilReader.cpp++   "KVGRUNetClientGanilReader()"
+KVGRUNetClientGanilReader.AcqHostName:     ganp1010
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 
 # Plugins for KVGANILDataReader/GTGanilData class
