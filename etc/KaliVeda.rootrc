@@ -185,6 +185,12 @@ t10_02.DataSet.RepositoryDir:   t10_02
 t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
 t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
++DataSet:   e613
+e613.DataSet.Title:    The Last Experiment (Ever)
+e613.DataSet.RepositoryDir:   e613
+e613.DataSet.RunFileName.raw:    run_%04d.dat%*
+e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
@@ -246,6 +252,12 @@ t10_02.KVDetector.Fired.ACQParameterList.SI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
+
+e613.KVDetector.Fired.ACQParameterList.CI: PG,GG
+e613.KVDetector.Fired.ACQParameterList.SI: PG,GG
+e613.KVDetector.Fired.ACQParameterList.SILI: PG,GG
+e613.KVDetector.Fired.ACQParameterList.SI75: PG,GG
+e613.KVDetector.Fired.ACQParameterList.CSI: R,L
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
@@ -393,6 +405,7 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 # Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
++Plugin.KVRawDataReader:    raw.e613    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 
 # Plugins for KVGANILDataReader/GTGanilData class
@@ -532,6 +545,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    e613    KVINDRA4     KVIndra    "KVINDRA4()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -551,6 +565,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    e613   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
@@ -561,6 +576,7 @@ Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRA
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
++Plugin.KVUpDater:    e613    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
