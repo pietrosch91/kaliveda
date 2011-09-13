@@ -27,6 +27,7 @@ class KVDataAnalysisTask:public KVBase {
    Bool_t   fBaseIsPlugin;     //true if base class for user analysis is in a plugin library
    KVString fPluginURI;        //uri of the plugin library containing user base class
    KVString fPluginBase;       //known base class extended by plugin library
+	KVString fExtraAClicIncludes;  //to be added to AClic include paths before compilation
 
    virtual void SetParametersForDataSet( KVDataSet* );
 

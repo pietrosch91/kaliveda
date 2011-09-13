@@ -312,6 +312,7 @@ OnlineAnalysis.DataAnalysisTask.Prereq:     online
 OnlineAnalysis.DataAnalysisTask.Analyser:     UserClass
 OnlineAnalysis.DataAnalysisTask.UserClass:     yes
 OnlineAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+OnlineAnalysis.DataAnalysisTask.UserClass.ExtraACliCIncludes:     -DONLINE_ANALYSIS
 
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
