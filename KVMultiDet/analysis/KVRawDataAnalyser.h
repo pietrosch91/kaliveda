@@ -5,6 +5,7 @@
 #define __KVRAWDATAANALYSER_H
 
 #include "KVDataAnalyser.h"
+#include "KVHashList.h"
 #include "KVDetectorEvent.h"
 #include "KVRawDataReader.h"
 
@@ -16,6 +17,7 @@ class KVRawDataAnalyser : public KVDataAnalyser
    Int_t fRunNumber; 				//run number of current file
    Long64_t fEventNumber;			//event number in current run
    KVDetectorEvent* fDetEv;		//list of hit groups for current event
+	KVHashList fHistoList;        //list of histograms of user analysis
    
    virtual void ProcessRun();
    
@@ -36,6 +38,8 @@ class KVRawDataAnalyser : public KVDataAnalyser
    virtual Bool_t FileHasUnknownParameters() const { return (fRunFile->GetUnknownParameters()->GetSize()>0); };
    virtual void SubmitTask();
    static void Make(const Char_t * kvsname = "MyOwnRawDataAnalyser");
+   virtual void AddHisto(TH1*, const Char_t* /* family */ = 0);
+	virtual void SaveSpectra(const Char_t* filename);
    
    ClassDef(KVRawDataAnalyser,1)//Abstract base class for user analysis of raw data
 };

@@ -4,6 +4,7 @@
 #include "KVRawDataAnalyser.h"
 #include "KVMultiDetArray.h"
 #include "KVClassFactory.h"
+#include "TH1.h"
 
 ClassImp(KVRawDataAnalyser)
 
@@ -179,4 +180,65 @@ void KVRawDataAnalyser::Make(const Char_t * kvsname)
    body = "   //Method called at end of analysis: save/display histograms etc.";
    cf.AddMethodBody("EndAnalysis", body);
    cf.GenerateCode();
+}
+
+//_______________________________________________________________________//
+
+void KVRawDataAnalyser::AddHisto(TH1* h, const Char_t* family)
+{
+	// Add user histo to internal list of spectra.
+	// "family" can be used to arrange histograms into a directory structure,
+	// e.g.
+	//   toto->AddHisto(h1, "CSI_R_L/Ring_10")
+	// will create (if they don't exist) sublists "CSI_R_L" and "Ring_10"
+	// and store the histogram referenced by pointer h1 in the second one.
+	//
+	// All spectra can be saved at any time by calling SaveSpectra method.
+	
+	KVString dir_struc(family);
+	if(dir_struc==""){
+		fHistoList.Add(h);
+		return;
+	}
+	dir_struc.Begin("/");
+	int level=0;
+	KVHashList* sublist=0;
+	while(!dir_struc.End()){
+		KVString dir = dir_struc.Next();
+		if(!level){
+			// use top-level directory name as name of fHistoList
+			fHistoList.SetName(dir.Data());
+			sublist = &fHistoList;
+		}
+		else{
+			KVHashList* sublist2 = (KVHashList*)sublist->FindObject(dir.Data());
+			if(!sublist2){
+				sublist2 = new KVHashList;
+				sublist2->SetName(dir.Data());
+				sublist->Add(sublist2);
+			}
+			sublist=sublist2;
+		}
+		level++;
+	}
+	sublist->Add(h);
+}
+
+void KVRawDataAnalyser::SaveSpectra(const Char_t* filename)
+{
+	// Save all histograms added via AddHisto in the file
+	// "filename". Any previously existing file will be overwritten.
+	// If 'directory' names were used in AddHisto, this structure
+	// will be preserved in the file.
+	
+	TFile* savegard =  new TFile(filename,"recreate");
+	if(strcmp(fHistoList.GetName(),"KVHashList")){
+		// list has been given a name => have directory structure
+		fHistoList.Write(fHistoList.GetName(), TObject::kSingleKey);
+	}
+	else{
+		fHistoList.Write();
+	}
+	savegard->Write();
+	savegard->Close();
 }

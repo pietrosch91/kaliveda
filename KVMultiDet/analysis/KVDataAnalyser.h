@@ -173,11 +173,6 @@ class KVDataAnalyser : public TObject {
 	virtual void WriteBatchInfo(TTree*);
 	virtual Int_t GetRunNumberFromFileName(const Char_t*);
 	
-   virtual void AddHistoToServer(TH1*, const Char_t* /* family */ = 0)
-	{
-		// DUMMY METHOD!!!
-	};
-	
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };
 
