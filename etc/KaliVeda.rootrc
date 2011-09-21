@@ -257,11 +257,11 @@ t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
 
-e613.KVDetector.Fired.ACQParameterList.CI: PG,GG
-e613.KVDetector.Fired.ACQParameterList.SI: PG,GG
-e613.KVDetector.Fired.ACQParameterList.SILI: PG,GG
-e613.KVDetector.Fired.ACQParameterList.SI75: PG,GG
-e613.KVDetector.Fired.ACQParameterList.CSI: R,L
+e613.KVDetector.Fired.ACQParameterList.CI: PG,GG,T
+e613.KVDetector.Fired.ACQParameterList.SI: PG,GG,T
+e613.KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
+e613.KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
+e613.KVDetector.Fired.ACQParameterList.CSI: R,L,T
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
