@@ -51,6 +51,7 @@ class KVDatime:public TDatime {
    void SetGanacqDate(const Char_t * GanacqDateString);
    void SetGanacq2010Date(const Char_t * GanacqDateString);
    const Char_t *AsGanacqDateString() const;
+   const Char_t *AsGanacq2010DateString() const;
    void SetSQLDate(const Char_t* SQLDateString);
    void SetSRBDate(const Char_t* SRBDateString);
 	
