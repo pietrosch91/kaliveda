@@ -231,6 +231,7 @@ void KVRawDataAnalyser::SaveSpectra(const Char_t* filename)
 	// If 'directory' names were used in AddHisto, this structure
 	// will be preserved in the file.
 	
+	Info("SaveSpectra", "Saving all histograms in file %s", filename);
 	TFile* savegard =  new TFile(filename,"recreate");
 	if(strcmp(fHistoList.GetName(),"KVHashList")){
 		// list has been given a name => have directory structure
@@ -241,4 +242,21 @@ void KVRawDataAnalyser::SaveSpectra(const Char_t* filename)
 	}
 	savegard->Write();
 	savegard->Close();
+}
+
+void KVRawDataAnalyser::ClearAllHistos()
+{
+	// RAZ de tous les histos
+	clearallhistos(&fHistoList);
+}
+
+void KVRawDataAnalyser::clearallhistos(TCollection*list)
+{
+	// RAZ de tous les histos in list
+	TIter next(list);
+	TObject* obj;
+	while( (obj = next()) ){
+		if(obj->InheritsFrom("TCollection")) clearallhistos((TCollection*)list);
+		else if(obj->InheritsFrom("TH1")) ((TH1*)obj)->Reset();
+	}
 }

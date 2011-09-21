@@ -20,7 +20,8 @@ class KVRawDataAnalyser : public KVDataAnalyser
 	KVHashList fHistoList;        //list of histograms of user analysis
    
    virtual void ProcessRun();
-   
+   void clearallhistos(TCollection*);
+	
    public:
    KVRawDataAnalyser();
    virtual ~KVRawDataAnalyser();
@@ -40,6 +41,7 @@ class KVRawDataAnalyser : public KVDataAnalyser
    static void Make(const Char_t * kvsname = "MyOwnRawDataAnalyser");
    virtual void AddHisto(TH1*, const Char_t* /* family */ = 0);
 	virtual void SaveSpectra(const Char_t* filename);
+	virtual void ClearAllHistos();
    
    ClassDef(KVRawDataAnalyser,1)//Abstract base class for user analysis of raw data
 };
