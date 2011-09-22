@@ -50,12 +50,21 @@ void KVINDRADetector::AddACQParamType(const Char_t * type)
 	// convention, i.e. name_of_detector_type e.g.
 	//    CI_0201_PG (type="PG")
 	//    CSI_0913_R (type="R")
+	//
+	// If you want to use a different extension for a given type for certain
+	// detectors, you can define them in the .kvrootrc file, e.g.:
+	//
+	//   e613.KVACQParam.SI_0101.T:    TOF
+	//
+	// Then for the dataset 'e613', calling GetACQParam("T") for the detector
+	// SI_0101 will return the parameter with name "SI_0101_TOF"
 
    KVACQParam *par = new KVACQParam();
+	TString extension = gDataSet->GetDataSetEnv(Form("KVACQParam.%s.%s",GetName(),type),type);
    TString name;
    name = this->GetName();
    name.Append("_");
-   name.Append(type);
+   name.Append(extension.Data());
    par->SetName(name);
    par->SetType(type);
    AddACQParam(par);
@@ -76,11 +85,20 @@ KVACQParam *KVINDRADetector::GetACQParam(const Char_t *type)
 	// If using this method in a loop over a list of INDRA- and non-INDRA
 	// detectors, the behaviour of the method will be different for the two
 	// types of detectors, and results may not be what you wanted.
+	//
+	// If you want to use a different extension for a given type for certain
+	// detectors, you can define them in the .kvrootrc file, e.g.:
+	//
+	//   e613.KVACQParam.SI_0101.T:    TOF
+	//
+	// Then for the dataset 'e613', calling GetACQParam("T") for the detector
+	// SI_0101 will return the parameter with name "SI_0101_TOF"
 	
    TString name;
+	TString extension = gDataSet->GetDataSetEnv(Form("KVACQParam.%s.%s",GetName(),type),type);
    name = GetName();
    name.Append("_");
-   name.Append(type);
+   name.Append(extension.Data());
    return KVDetector::GetACQParam(name.Data());
 }
 

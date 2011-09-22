@@ -263,6 +263,74 @@ e613.KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
 e613.KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
 e613.KVDetector.Fired.ACQParameterList.CSI: R,L,T
 
+# The marqueuers de temps for silicon detectors from SI_0101 to SI_0416
+# are replaced by TDC modules, the parameter names are 'SI_0101_TOF' etc.
+e613.KVACQParam.SI_0101.T:    TOF
+e613.KVACQParam.SI_0102.T:    TOF
+e613.KVACQParam.SI_0103.T:    TOF
+e613.KVACQParam.SI_0104.T:    TOF
+e613.KVACQParam.SI_0105.T:    TOF
+e613.KVACQParam.SI_0106.T:    TOF
+e613.KVACQParam.SI_0107.T:    TOF
+e613.KVACQParam.SI_0108.T:    TOF
+e613.KVACQParam.SI_0109.T:    TOF
+e613.KVACQParam.SI_0110.T:    TOF
+e613.KVACQParam.SI_0111.T:    TOF
+e613.KVACQParam.SI_0112.T:    TOF
+e613.KVACQParam.SI_0201.T:    TOF
+e613.KVACQParam.SI_0203.T:    TOF
+e613.KVACQParam.SI_0205.T:    TOF
+e613.KVACQParam.SI_0207.T:    TOF
+e613.KVACQParam.SI_0209.T:    TOF
+e613.KVACQParam.SI_0211.T:    TOF
+e613.KVACQParam.SI_0213.T:    TOF
+e613.KVACQParam.SI_0215.T:    TOF
+e613.KVACQParam.SI_0217.T:    TOF
+e613.KVACQParam.SI_0219.T:    TOF
+e613.KVACQParam.SI_0221.T:    TOF
+e613.KVACQParam.SI_0223.T:    TOF
+e613.KVACQParam.SI_0301.T:    TOF
+e613.KVACQParam.SI_0302.T:    TOF
+e613.KVACQParam.SI_0303.T:    TOF
+e613.KVACQParam.SI_0304.T:    TOF
+e613.KVACQParam.SI_0305.T:    TOF
+e613.KVACQParam.SI_0306.T:    TOF
+e613.KVACQParam.SI_0307.T:    TOF
+e613.KVACQParam.SI_0308.T:    TOF
+e613.KVACQParam.SI_0309.T:    TOF
+e613.KVACQParam.SI_0310.T:    TOF
+e613.KVACQParam.SI_0311.T:    TOF
+e613.KVACQParam.SI_0312.T:    TOF
+e613.KVACQParam.SI_0313.T:    TOF
+e613.KVACQParam.SI_0314.T:    TOF
+e613.KVACQParam.SI_0315.T:    TOF
+e613.KVACQParam.SI_0316.T:    TOF
+e613.KVACQParam.SI_0317.T:    TOF
+e613.KVACQParam.SI_0318.T:    TOF
+e613.KVACQParam.SI_0319.T:    TOF
+e613.KVACQParam.SI_0320.T:    TOF
+e613.KVACQParam.SI_0321.T:    TOF
+e613.KVACQParam.SI_0322.T:    TOF
+e613.KVACQParam.SI_0323.T:    TOF
+e613.KVACQParam.SI_0324.T:    TOF
+e613.KVACQParam.SI_0401.T:    TOF
+e613.KVACQParam.SI_0402.T:    TOF
+e613.KVACQParam.SI_0403.T:    TOF
+e613.KVACQParam.SI_0404.T:    TOF
+e613.KVACQParam.SI_0405.T:    TOF
+e613.KVACQParam.SI_0406.T:    TOF
+e613.KVACQParam.SI_0407.T:    TOF
+e613.KVACQParam.SI_0408.T:    TOF
+e613.KVACQParam.SI_0409.T:    TOF
+e613.KVACQParam.SI_0410.T:    TOF
+e613.KVACQParam.SI_0411.T:    TOF
+e613.KVACQParam.SI_0412.T:    TOF
+e613.KVACQParam.SI_0413.T:    TOF
+e613.KVACQParam.SI_0414.T:    TOF
+e613.KVACQParam.SI_0415.T:    TOF
+e613.KVACQParam.SI_0416.T:    TOF
+
+
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
 # This can be changed by setting the environment variable(s):
