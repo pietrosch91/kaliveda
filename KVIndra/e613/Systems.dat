@@ -1,4 +1,22 @@
-# Systems.dat file written by KVINDRADB::WriteSystemsFile on Thu Sep  8 09:27:17 2011
+# Systems.dat file written by KVINDRADB::WriteSystemsFile on Thu Sep 22 18:08:24 2011
 +Source alpha 3 pics
-Runs: 2-45
+Runs: 2-50 52-54 56-58 77-84 102-103
+
++Automates
+Runs: 62-74 101 104-110
+
++Dec Physique / Gene
+Runs: 59-61
+
++Poubelle
+Runs: 51 55 75 87-88 91-100 111
+
++Piedestaux Si-ChIo
+Runs: 76 90 112
+
++Piedestaux CsI
+Runs: 85-86 89 99
+
++cosmiques
+Runs: 113
 
