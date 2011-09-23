@@ -264,4 +264,5 @@
 #pragma link C++ class KVIonRangeTable+;
 #pragma link C++ class KVedaLossMaterial+;
 #pragma link C++ class KVedaLoss+;
+#pragma link C++ class KVGRUNetClientGanilReader+;
 #endif

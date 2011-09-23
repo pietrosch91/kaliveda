@@ -193,7 +193,7 @@ e613.DataSet.Title:    The Last Experiment (Ever)
 e613.DataSet.RepositoryDir:   e613
 e613.DataSet.RunFileName.raw:    run_%04d.dat%*
 e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
-e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
@@ -313,23 +313,6 @@ e613.KVACQParam.SI_0321.T:    TOF
 e613.KVACQParam.SI_0322.T:    TOF
 e613.KVACQParam.SI_0323.T:    TOF
 e613.KVACQParam.SI_0324.T:    TOF
-e613.KVACQParam.SI_0401.T:    TOF
-e613.KVACQParam.SI_0402.T:    TOF
-e613.KVACQParam.SI_0403.T:    TOF
-e613.KVACQParam.SI_0404.T:    TOF
-e613.KVACQParam.SI_0405.T:    TOF
-e613.KVACQParam.SI_0406.T:    TOF
-e613.KVACQParam.SI_0407.T:    TOF
-e613.KVACQParam.SI_0408.T:    TOF
-e613.KVACQParam.SI_0409.T:    TOF
-e613.KVACQParam.SI_0410.T:    TOF
-e613.KVACQParam.SI_0411.T:    TOF
-e613.KVACQParam.SI_0412.T:    TOF
-e613.KVACQParam.SI_0413.T:    TOF
-e613.KVACQParam.SI_0414.T:    TOF
-e613.KVACQParam.SI_0415.T:    TOF
-e613.KVACQParam.SI_0416.T:    TOF
-
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
@@ -459,6 +442,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   INDRARawDataIdent      KVINDRARawIdent              KVIndra "KVINDRARawIdent()"
 +Plugin.KVDataAnalyser:   IVRawDataRecon         KVIVRawDataReconstructor     VAMOS   "KVIVRawDataReconstructor()"
 +Plugin.KVDataAnalyser:   IVRawDataAnalyser      KVIVRawDataAnalyser          VAMOS   "KVIVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRAOnlineDataAnalyser   KVINDRAOnlineDataAnalyser     KVIndra     "KVINDRAOnlineDataAnalyser()"   
 # TSelector plugins for analysis of ROOT TTrees
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
 +Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
@@ -486,7 +470,7 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.e613    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
-+Plugin.KVRawDataReader:    online.*    KVGRUNetClientGanilReader     KVGRUNetClientGanilReader.cpp++   "KVGRUNetClientGanilReader()"
++Plugin.KVRawDataReader:    online.*    KVGRUNetClientGanilReader     KVMultiDet   "KVGRUNetClientGanilReader()"
 KVGRUNetClientGanilReader.AcqHostName:     ganp1010
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 

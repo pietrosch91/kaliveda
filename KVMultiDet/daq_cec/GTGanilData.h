@@ -43,9 +43,10 @@
 #ifndef __GanAcqBuf_H
 //extern "C"
 //{
-  typedef union {int bidon;} in2p3_buffer_struct;
+//  typedef union {int bidon;} in2p3_buffer_struct;
 //}
 #endif
+#include "gan_acq_buf.h"
 #ifndef __GAN_TAPE_GENERAL_H
 //extern "C"
 //{
