@@ -55,18 +55,19 @@ void KVINDRAOnlineDataAnalyser::preInitAnalysis()
 	last_events=0;
    fEventsRefresh=100;
 	
- 	Info("InitAnalysis","New Spectra DB");
+//  	Info("InitAnalysis","New Spectra DB");
+// 	
+//    fSpectraDB =new GSpectra();
+// 
+//  	Info("InitAnalysis","New Spectra Server");
+//    fSpectraServer = new GNetServerRoot(fSpectraDB);
+//    port =9090;
+//    fSpectraServer->SetPort(port);
+//    port = fSpectraServer->StartGNetServer(kTRUE,kTRUE);
+//    Info("preInitAnalysis", "Histogram server is on port %d", port);
+// 	port++;
 	
-   fSpectraDB =new GSpectra();
-
- 	Info("InitAnalysis","New Spectra Server");
-   fSpectraServer = new GNetServerRoot(fSpectraDB);
-   port =9090;
-   fSpectraServer->SetPort(port);
-   port = fSpectraServer->StartGNetServer(kTRUE,kTRUE);
-   Info("preInitAnalysis", "Histogram server is on port %d", port);
-	port++;
-	
+	port=9091;
 	TString path("$(HOME)/.kvonlineanalysisrc");
 	gSystem->ExpandPathName(path);
 	TEnv env(path.Data());
@@ -82,7 +83,7 @@ void KVINDRAOnlineDataAnalyser::preInitAnalysis()
 void KVINDRAOnlineDataAnalyser::preInitRun()
 {
 	Info("InitRun","Traitement du run %d",GetRunNumber());
-   
+   fSpectraDB = ((KVGRUNetClientGanilReader*)fRunFile)->GetSpectraServer();
    events=0;	
 }
 

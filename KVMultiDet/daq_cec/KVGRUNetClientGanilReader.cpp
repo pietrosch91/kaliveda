@@ -60,6 +60,10 @@ KVGRUNetClientGanilReader::KVGRUNetClientGanilReader()
 	//fGRUAcq->GetRunStatus(kTRUE);
 	fGRUAcq->Infos();
    fGRUAcq->EventInit((char*)expname.Data());
+   fGRUAcq->SetSpectraMode(0);
+   fGRUAcq->SetUserMode(1);
+   fGRUAcq->SetNetMode(1);
+   
 	Int_t run = fGRUAcq->GetRunNumber();
       
    fReadFirstBuffer=kTRUE;
@@ -192,7 +196,7 @@ void KVGRUNetClientGanilReader::FillFiredParameterList()
    	}
 }
 
-GSpectra* KVGRUNetClientGANILReader::GetSpectraServer() const
+GSpectra* KVGRUNetClientGanilReader::GetSpectraServer() const
 {
 	return fGRUAcq->GetSpectra();
 }
