@@ -1,22 +1,46 @@
-# Systems.dat file written by KVINDRADB::WriteSystemsFile on Fri Sep 23 20:36:40 2011
+# Systems.dat file written by KVINDRADB::WriteSystemsFile on Fri Sep 30 09:33:25 2011
 +Source alpha 3 pics
-Runs: 2-50 52-54 56-58 77-84 102-103 114
+Runs: 2-50 52-54 56-58 77-84 102-103 114-121
 
 +Automates
-Runs: 62-74 101 104-110
+Runs: 62-74 101 104-110 160-165
 
 +Dec Physique / Gene
 Runs: 59-61
 
 +Poubelle
-Runs: 51 55 75 87-88 91-100 111
+Runs: 51 55 75 87-88 91-100 111 195-198 201 409-410 516
 
 +Piedestaux Si-ChIo
-Runs: 76 90 112
+Runs: 76 90 112 531
 
 +Piedestaux CsI
-Runs: 85-86 89 99
+Runs: 85-86 89 99 532
 
 +cosmiques
-Runs: 113
+Runs: 113 122-159
+
++181Ta + 66Zn 39.6 MeV/A
+181 73 65 30 39.609
+Target: 1 0
+Zinc 0.350
+Runs: 166-195 199-512
+
++181Ta + 197Au 39.6 MeV/A
+181 73 197 79 39.609
+Target: 1 0
+Gold 0.250
+Runs: 518-529
+
++181Ta + CH2 39.6 MeV/A
+181 73 12 6 39.609
+Target: 1 0
+Carbon 0.200
+Runs: 513-515 517
+
++181Ta + Au 6.14 MeV/A
+181 73 197 79 6.14
+Target: 1 0
+Gold 0.250
+Runs: 533-558
 
