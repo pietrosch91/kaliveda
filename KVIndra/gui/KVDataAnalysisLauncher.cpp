@@ -541,7 +541,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 	lvRuns->SetDataColumn(1, "System", "GetSystemName");
 	lvRuns->SetDataColumn(2, "Trigger", "GetTriggerString");
 	lvRuns->SetDataColumn(3, "Events", "", kTextRight);
-	lvRuns->SetDataColumn(4, "File written", "GetDatime");
+	lvRuns->SetDataColumn(4, "Start", "GetStartDatime");
 	lvRuns->GetDataColumn(4)->SetIsDateTime();
 	lvRuns->SetDataColumn(5, "Comments", "", kTextLeft);
 	lvRuns->ActivateSortButtons();
