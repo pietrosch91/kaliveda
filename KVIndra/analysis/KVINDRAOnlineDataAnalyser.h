@@ -7,8 +7,6 @@
 #include "KVINDRARawDataAnalyser.h"
 #include <boost/progress.hpp>
 
-using boost::timer;
-
 class GSpectra;
 class GNetServerRoot;
 class TH1;
@@ -21,7 +19,7 @@ class KVINDRAOnlineDataAnalyser : public KVINDRARawDataAnalyser
    Int_t events;
    int last_events;
 	TDatime fStart;
-   timer t1;
+   boost::timer t1;//!
    
    Int_t fEventsRefresh;
 
