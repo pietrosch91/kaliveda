@@ -60,9 +60,11 @@ KVGRUNetClientGanilReader::KVGRUNetClientGanilReader()
 	//fGRUAcq->GetRunStatus(kTRUE);
 	fGRUAcq->Infos();
    fGRUAcq->EventInit((char*)expname.Data());
-   fGRUAcq->SetSpectraMode(0);
-   fGRUAcq->SetUserMode(1);
-   fGRUAcq->SetNetMode(1);
+   //fGRUAcq->SetSpectraMode(0);
+   //fGRUAcq->SetUserMode(0);
+   // we have to test ports for availability
+   fSpecServPort = TestPorts(9090);
+   fGRUAcq->SetNetMode(1, fSpecServPort);
    
 	Int_t run = fGRUAcq->GetRunNumber();
       

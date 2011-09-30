@@ -19,6 +19,7 @@ class KVGRUNetClientGanilReader : public KVRawDataReader
 	KVHashList* fExtParams;
 	Int_t fTimeout; // time out in seconds to wait for buffer
 	Int_t fStatus;
+   Int_t fSpecServPort;
 	
 	void ConnectRawDataParameters();
 	KVACQParam* CheckACQParam(const Char_t*);
@@ -53,6 +54,7 @@ class KVGRUNetClientGanilReader : public KVRawDataReader
 		fTimeout=sec;
 	};
 	GSpectra* GetSpectraServer() const;
+	Int_t GetSpectraServerPort() const { return fSpecServPort; };
    
    ClassDef(KVGRUNetClientGanilReader,1)//Read GANIL acquisition events over network connection
 };
