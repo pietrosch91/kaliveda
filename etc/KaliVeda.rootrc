@@ -194,6 +194,7 @@ INDRA_e613.DataSet.RepositoryDir:   e613
 INDRA_e613.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
+INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction

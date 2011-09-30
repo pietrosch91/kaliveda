@@ -31,7 +31,12 @@ KVGRUNetClientGanilReader::KVGRUNetClientGanilReader()
    // hostname taken from
    //
    // KVGRUNetClientGanilReader.AcqHostName:   ganp737
-	//
+   //
+   // If the dataset name is not the same as the GANIL acquisition experiment name,
+   // it is ESSENTIAL to give the correct name, as for exemple:
+   //
+	// INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
+   //
 	// If hostname not defined or introuvable, GetStatus() returns KVGRUNetClientGanilReader::kSTATUS_NOHOST
    //
 	// Default timeout = 1 second
@@ -53,7 +58,7 @@ KVGRUNetClientGanilReader::KVGRUNetClientGanilReader()
 	}
 	
    fGRUAcq = new GAcq(client);
-   TString expname = gDataSet->GetName();
+   TString expname = gDataSet->GetDataSetEnv("KVGRUNetClientGanilReader.ExpName", gDataSet->GetName());
    expname.ToLower();
 	// read (and print) status of acquisition, including run number
 	fGRUAcq->SetConfGanilAcq(kTRUE);
