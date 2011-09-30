@@ -263,7 +263,7 @@ e613.KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
 e613.KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
 e613.KVDetector.Fired.ACQParameterList.CSI: R,L,T
 
-# The marqueuers de temps for silicon detectors from SI_0101 to SI_0416
+# The marqueuers de temps for silicon detectors from SI_0101 to SI_0324
 # are replaced by TDC modules, the parameter names are 'SI_0101_TOF' etc.
 e613.KVACQParam.SI_0101.T:    TOF
 e613.KVACQParam.SI_0102.T:    TOF
