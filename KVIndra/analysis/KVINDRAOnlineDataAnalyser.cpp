@@ -31,6 +31,7 @@ KVINDRAOnlineDataAnalyser::KVINDRAOnlineDataAnalyser()
    fSpectraServer=0;
    fSpectraDB=0;
 	fMessageThread=0;
+   t1.restart();
 }
 
 KVINDRAOnlineDataAnalyser::~KVINDRAOnlineDataAnalyser()
@@ -46,45 +47,59 @@ KVINDRAOnlineDataAnalyser::~KVINDRAOnlineDataAnalyser()
 
 void KVINDRAOnlineDataAnalyser::preInitAnalysis()
 {
-   // Before calling user's InitAnalysis, we create a histogram database
-   // and start the associated histogram server.
+   // Before calling user's InitAnalysis we start the thread listening for messages on port 9091
    // The TCP/IP port connected to the server is printed.
    
  	fStart.Set();
  	Info("InitAnalysis","Started analysis on %s", fStart.AsString());
 	last_events=0;
-   fEventsRefresh=100;
+   	fEventsRefresh=100;
 	
-//  	Info("InitAnalysis","New Spectra DB");
-// 	
-//    fSpectraDB =new GSpectra();
-// 
-//  	Info("InitAnalysis","New Spectra Server");
-//    fSpectraServer = new GNetServerRoot(fSpectraDB);
-//    port =9090;
-//    fSpectraServer->SetPort(port);
-//    port = fSpectraServer->StartGNetServer(kTRUE,kTRUE);
-//    Info("preInitAnalysis", "Histogram server is on port %d", port);
-// 	port++;
-	
-	port=9091;
+   // Test ports for availability
+	port=10000;//TestPorts(10000);
 	TString path("$(HOME)/.kvonlineanalysisrc");
 	gSystem->ExpandPathName(path);
 	TEnv env(path.Data());
-	env.SetValue(Form("%s.%s.SpectraDB.port",ClassName(), gSystem->HostName()),port);
 	env.SetValue(Form("%s.%s.Messages.port",ClassName(), gSystem->HostName()),port);
 	env.SaveLevel(kEnvLocal);
 
- 	fMessageThread = new TThread("AnalysisMess",(void(*)(void*))&ecouteSockets, (void*) this);
- 	Info("InitAnalysis","Started ecoutesocket on port %d", port);
- 	fMessageThread->Run();
+ 	//fMessageThread = new TThread("AnalysisMess",(void(*)(void*))&ecouteSockets, (void*) this);
+ 	//Info("InitAnalysis","Started ecoutesocket on port %d", port);
+ 	//fMessageThread->Run();
 }
 
 void KVINDRAOnlineDataAnalyser::preInitRun()
 {
 	Info("InitRun","Traitement du run %d",GetRunNumber());
    fSpectraDB = ((KVGRUNetClientGanilReader*)fRunFile)->GetSpectraServer();
+	TString path("$(HOME)/.kvonlineanalysisrc");
+	gSystem->ExpandPathName(path);
+	TEnv env(path.Data());
+	env.SetValue(Form("%s.%s.SpectraDB.port",ClassName(),
+         gSystem->HostName()),((KVGRUNetClientGanilReader*)fRunFile)->GetSpectraServerPort());
+	env.SaveLevel(kEnvLocal);
+   addallhistostoserver(&fHistoList,fHistoList.GetName());
    events=0;	
+}
+
+void KVINDRAOnlineDataAnalyser::addallhistostoserver(TCollection*list, const TString& family_pref)
+{
+	TIter next(list);
+	TObject* obj;
+	TString family="";
+	while( (obj = next()) ){
+		if(obj->InheritsFrom("TCollection")) {
+         family=family_pref+"/";
+         family+=obj->GetName();
+			addallhistostoserver((TCollection*)obj,family);
+		}
+		else if(obj->InheritsFrom("TH1")){
+         if(fSpectraDB){
+            Info("KVINDRAOnlineDataAnalyser", "Adding histo %s to family %s", obj->GetName(), family_pref.Data());
+            fSpectraDB->AddSpectrum((TH1*)obj, family_pref.Data());
+         }
+      }
+	}
 }
 
 void KVINDRAOnlineDataAnalyser::postAnalysis()
@@ -93,17 +108,10 @@ void KVINDRAOnlineDataAnalyser::postAnalysis()
   if((events-last_events)>=fEventsRefresh) PrintControlRate();
 }
 
-void KVINDRAOnlineDataAnalyser::AddHisto(TH1*h, const Char_t* family)
-{
-   // Add a histogram to the server database
-	KVRawDataAnalyser::AddHisto(h,family);
-   fSpectraDB->AddSpectrum(h, (char*)family);
-}
-
 void KVINDRAOnlineDataAnalyser::PrintControlRate()
 {
-	TDatime nowtime;
-	int time_passed = nowtime.Convert()-fStart.Convert();
+//	TDatime nowtime;
+	int time_passed = t1.elapsed();//nowtime.Convert()-fStart.Convert();
    if(time_passed==0){
       fEventsRefresh*=2;
       return;
@@ -116,7 +124,10 @@ void KVINDRAOnlineDataAnalyser::PrintControlRate()
 	printf("Events read = %d  <=>  Control rate = %f /sec.\n", events, acq_rate);
 	last_events = events;
 	 			
- 	fStart.Set();
+// 	fStart.Set();
+   t1.restart();
+   
+   if(fDumpEvents) fRunFile->GetFiredDataParameters()->ls();
 }
 
 void KVINDRAOnlineDataAnalyser::ProcessRun()
@@ -151,6 +162,7 @@ void KVINDRAOnlineDataAnalyser::ProcessRun()
 
    //loop over events in file
 	fGoEventLoop = kTRUE;
+   fDumpEvents = kFALSE;
 	while(fGoEventLoop)
 	{ 
 		Bool_t gotevent = fRunFile->GetNextEvent();
@@ -282,6 +294,9 @@ void KVINDRAOnlineDataAnalyser::HandleCommands(TString& ordre, TSocket* theSocke
 	// STOP   will stop the analysis (calls EndRun() and EndAnalysis())
 	// CLEAR  RAZ de tous les spectres
 	//
+	// DUMP=yes  start dumping fired data parameters
+	// DUMP=no   stop dumping fired data parameters
+	//
 	// SAVE=toto.root          will save all histograms in '${ANALYSIS_RESULTS}/toto.root' (does not stop analysis)
 	// SAVE=/home/toto.root    will save all histograms in '/home/toto.root' (does not stop analysis)
 	// SAVE                    will save all histograms in '${ANALYSIS_RESULTS}/[class name]_Run[run number]_[date].root' (does not stop analysis)
@@ -321,5 +336,37 @@ void KVINDRAOnlineDataAnalyser::HandleCommands(TString& ordre, TSocket* theSocke
 		theSocket->Send("ok");
 		return;
 	}
+	else if(ordre=="DUMP"){
+		TString tmp_fil = com.Next();
+      tmp_fil.ToLower();
+      if(tmp_fil=="yes")fDumpEvents=kTRUE;
+      else if(tmp_fil=="no")fDumpEvents=kFALSE;
+      else {
+         theSocket->Send("unknown command");
+         return;
+      }
+		theSocket->Send("ok");
+		return;
+	}
 	theSocket->Send("unknown command");
+}
+Int_t KVINDRAOnlineDataAnalyser::TestPorts(Int_t p)
+{
+   // Test ports for availability. Start from 'port' and go up to port+2000 at most.
+   // Returns -1 if no ports available.
+   
+	GNetClientRoot testnet((char*) "localhost");
+	Int_t ret;
+	ret = p;
+
+	for (int i = 0; i < 2000; i++) {
+		ret = testnet.TestPortFree(p, (char*) "localhost");
+		if (ret > 0)
+			break;
+		if ((ret <= 0))
+			p++;
+	}
+
+	return ret;
+   
 }

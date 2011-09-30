@@ -5,6 +5,9 @@
 #define __KVINDRAONLINEDATAANALYSER_H
 
 #include "KVINDRARawDataAnalyser.h"
+#include <boost/progress.hpp>
+
+using boost::timer;
 
 class GSpectra;
 class GNetServerRoot;
@@ -12,22 +15,29 @@ class TH1;
 class TThread;
 class TSocket;
 
+
 class KVINDRAOnlineDataAnalyser : public KVINDRARawDataAnalyser
 {
    Int_t events;
    int last_events;
 	TDatime fStart;
+   timer t1;
+   
    Int_t fEventsRefresh;
 
   GSpectra* fSpectraDB;
   GNetServerRoot* fSpectraServer;
-   virtual void ProcessRun();
-	Bool_t fGoEventLoop;
-	Int_t port;
-         
-	static void ecouteSockets(void*);
-	TThread* fMessageThread;
-	void HandleCommands(TString&, TSocket*);
+  virtual void ProcessRun();
+  Bool_t fGoEventLoop;
+  Bool_t fDumpEvents;
+  Int_t port;
+   Int_t TestPorts(Int_t);
+  
+  static void ecouteSockets(void*);
+  TThread* fMessageThread;
+  void HandleCommands(TString&, TSocket*);
+  
+  void addallhistostoserver(TCollection*list, const TString& family_pref);
 	
    public:
    KVINDRAOnlineDataAnalyser();
@@ -36,7 +46,6 @@ class KVINDRAOnlineDataAnalyser : public KVINDRARawDataAnalyser
    void preInitAnalysis();
    void preInitRun();
    void postAnalysis();
-   void AddHisto(TH1*, const Char_t* /* family */ = 0);
 	
 	virtual void PrintControlRate();
 
