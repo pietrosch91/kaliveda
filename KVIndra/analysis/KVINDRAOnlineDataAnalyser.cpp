@@ -31,7 +31,6 @@ KVINDRAOnlineDataAnalyser::KVINDRAOnlineDataAnalyser()
    fSpectraServer=0;
    fSpectraDB=0;
 	fMessageThread=0;
-   t1.restart();
 }
 
 KVINDRAOnlineDataAnalyser::~KVINDRAOnlineDataAnalyser()
@@ -110,22 +109,21 @@ void KVINDRAOnlineDataAnalyser::postAnalysis()
 
 void KVINDRAOnlineDataAnalyser::PrintControlRate()
 {
-//	TDatime nowtime;
-	int time_passed = t1.elapsed();//nowtime.Convert()-fStart.Convert();
-   if(time_passed==0){
+	TDatime nowtime;
+	int time_passed = nowtime.Convert()-fStart.Convert();
+   if(time_passed<1.0){
       fEventsRefresh*=2;
       return;
    }
    // check time - we aim for a 5 second refresh
-   fEventsRefresh *= 5./(1.*time_passed);
+   fEventsRefresh *= 5./time_passed;
    // minimum 5 events
    fEventsRefresh = TMath::Max(fEventsRefresh, 5);
 	Float_t acq_rate = (1.0*(events-last_events))/(1.0*time_passed);
 	printf("Events read = %d  <=>  Control rate = %f /sec.\n", events, acq_rate);
 	last_events = events;
 	 			
-// 	fStart.Set();
-   t1.restart();
+ 	fStart.Set();
    
    if(fDumpEvents) fRunFile->GetFiredDataParameters()->ls();
 }
