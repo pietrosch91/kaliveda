@@ -42,6 +42,7 @@ class KVRawDataAnalyser : public KVDataAnalyser
    virtual void AddHisto(TH1*, const Char_t* /* family */ = 0);
 	virtual void SaveSpectra(const Char_t* filename);
 	virtual void ClearAllHistos();
+   TH1* FindHisto(const Char_t* path);
    
    ClassDef(KVRawDataAnalyser,1)//Abstract base class for user analysis of raw data
 };
