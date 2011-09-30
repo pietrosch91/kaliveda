@@ -553,7 +553,7 @@ void KVDBSystemDialog::AddNewTargetLayer()
       }
    }
    //add layer with default area density 0.1 mg/cm2
-   fTarget->AddLayer( mat->GetTitle() , 0.1*KVUnits::mg/pow(KVUnits::cm,2.) );
+   fTarget->AddLayer( mat->GetTitle() , 0.1 );
    //update list of layers in target
    Int_t nlay = fComboBox1515->GetNumberOfEntries();
    fComboBox1515->AddEntry( mat->GetName(), nlay );
