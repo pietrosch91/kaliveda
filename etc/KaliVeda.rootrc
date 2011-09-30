@@ -188,12 +188,12 @@ t10_02.DataSet.RepositoryDir:   t10_02
 t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
 t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
-+DataSet:   e613
-e613.DataSet.Title:    The Last Experiment (Ever)
-e613.DataSet.RepositoryDir:   e613
-e613.DataSet.RunFileName.raw:    run_%04d.dat%*
-e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
-e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
++DataSet:   INDRA_e613
+INDRA_e613.DataSet.Title:    The Last Experiment (Ever)
+INDRA_e613.DataSet.RepositoryDir:   e613
+INDRA_e613.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
@@ -257,62 +257,56 @@ t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
 
-e613.KVDetector.Fired.ACQParameterList.CI: PG,GG,T
-e613.KVDetector.Fired.ACQParameterList.SI: PG,GG,T
-e613.KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
-e613.KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
-e613.KVDetector.Fired.ACQParameterList.CSI: R,L,T
-
 # The marqueuers de temps for silicon detectors from SI_0101 to SI_0324
 # are replaced by TDC modules, the parameter names are 'SI_0101_TOF' etc.
-e613.KVACQParam.SI_0101.T:    TOF
-e613.KVACQParam.SI_0102.T:    TOF
-e613.KVACQParam.SI_0103.T:    TOF
-e613.KVACQParam.SI_0104.T:    TOF
-e613.KVACQParam.SI_0105.T:    TOF
-e613.KVACQParam.SI_0106.T:    TOF
-e613.KVACQParam.SI_0107.T:    TOF
-e613.KVACQParam.SI_0108.T:    TOF
-e613.KVACQParam.SI_0109.T:    TOF
-e613.KVACQParam.SI_0110.T:    TOF
-e613.KVACQParam.SI_0111.T:    TOF
-e613.KVACQParam.SI_0112.T:    TOF
-e613.KVACQParam.SI_0201.T:    TOF
-e613.KVACQParam.SI_0203.T:    TOF
-e613.KVACQParam.SI_0205.T:    TOF
-e613.KVACQParam.SI_0207.T:    TOF
-e613.KVACQParam.SI_0209.T:    TOF
-e613.KVACQParam.SI_0211.T:    TOF
-e613.KVACQParam.SI_0213.T:    TOF
-e613.KVACQParam.SI_0215.T:    TOF
-e613.KVACQParam.SI_0217.T:    TOF
-e613.KVACQParam.SI_0219.T:    TOF
-e613.KVACQParam.SI_0221.T:    TOF
-e613.KVACQParam.SI_0223.T:    TOF
-e613.KVACQParam.SI_0301.T:    TOF
-e613.KVACQParam.SI_0302.T:    TOF
-e613.KVACQParam.SI_0303.T:    TOF
-e613.KVACQParam.SI_0304.T:    TOF
-e613.KVACQParam.SI_0305.T:    TOF
-e613.KVACQParam.SI_0306.T:    TOF
-e613.KVACQParam.SI_0307.T:    TOF
-e613.KVACQParam.SI_0308.T:    TOF
-e613.KVACQParam.SI_0309.T:    TOF
-e613.KVACQParam.SI_0310.T:    TOF
-e613.KVACQParam.SI_0311.T:    TOF
-e613.KVACQParam.SI_0312.T:    TOF
-e613.KVACQParam.SI_0313.T:    TOF
-e613.KVACQParam.SI_0314.T:    TOF
-e613.KVACQParam.SI_0315.T:    TOF
-e613.KVACQParam.SI_0316.T:    TOF
-e613.KVACQParam.SI_0317.T:    TOF
-e613.KVACQParam.SI_0318.T:    TOF
-e613.KVACQParam.SI_0319.T:    TOF
-e613.KVACQParam.SI_0320.T:    TOF
-e613.KVACQParam.SI_0321.T:    TOF
-e613.KVACQParam.SI_0322.T:    TOF
-e613.KVACQParam.SI_0323.T:    TOF
-e613.KVACQParam.SI_0324.T:    TOF
+INDRA_e613.KVACQParam.SI_0101.T:    TOF
+INDRA_e613.KVACQParam.SI_0102.T:    TOF
+INDRA_e613.KVACQParam.SI_0103.T:    TOF
+INDRA_e613.KVACQParam.SI_0104.T:    TOF
+INDRA_e613.KVACQParam.SI_0105.T:    TOF
+INDRA_e613.KVACQParam.SI_0106.T:    TOF
+INDRA_e613.KVACQParam.SI_0107.T:    TOF
+INDRA_e613.KVACQParam.SI_0108.T:    TOF
+INDRA_e613.KVACQParam.SI_0109.T:    TOF
+INDRA_e613.KVACQParam.SI_0110.T:    TOF
+INDRA_e613.KVACQParam.SI_0111.T:    TOF
+INDRA_e613.KVACQParam.SI_0112.T:    TOF
+INDRA_e613.KVACQParam.SI_0201.T:    TOF
+INDRA_e613.KVACQParam.SI_0203.T:    TOF
+INDRA_e613.KVACQParam.SI_0205.T:    TOF
+INDRA_e613.KVACQParam.SI_0207.T:    TOF
+INDRA_e613.KVACQParam.SI_0209.T:    TOF
+INDRA_e613.KVACQParam.SI_0211.T:    TOF
+INDRA_e613.KVACQParam.SI_0213.T:    TOF
+INDRA_e613.KVACQParam.SI_0215.T:    TOF
+INDRA_e613.KVACQParam.SI_0217.T:    TOF
+INDRA_e613.KVACQParam.SI_0219.T:    TOF
+INDRA_e613.KVACQParam.SI_0221.T:    TOF
+INDRA_e613.KVACQParam.SI_0223.T:    TOF
+INDRA_e613.KVACQParam.SI_0301.T:    TOF
+INDRA_e613.KVACQParam.SI_0302.T:    TOF
+INDRA_e613.KVACQParam.SI_0303.T:    TOF
+INDRA_e613.KVACQParam.SI_0304.T:    TOF
+INDRA_e613.KVACQParam.SI_0305.T:    TOF
+INDRA_e613.KVACQParam.SI_0306.T:    TOF
+INDRA_e613.KVACQParam.SI_0307.T:    TOF
+INDRA_e613.KVACQParam.SI_0308.T:    TOF
+INDRA_e613.KVACQParam.SI_0309.T:    TOF
+INDRA_e613.KVACQParam.SI_0310.T:    TOF
+INDRA_e613.KVACQParam.SI_0311.T:    TOF
+INDRA_e613.KVACQParam.SI_0312.T:    TOF
+INDRA_e613.KVACQParam.SI_0313.T:    TOF
+INDRA_e613.KVACQParam.SI_0314.T:    TOF
+INDRA_e613.KVACQParam.SI_0315.T:    TOF
+INDRA_e613.KVACQParam.SI_0316.T:    TOF
+INDRA_e613.KVACQParam.SI_0317.T:    TOF
+INDRA_e613.KVACQParam.SI_0318.T:    TOF
+INDRA_e613.KVACQParam.SI_0319.T:    TOF
+INDRA_e613.KVACQParam.SI_0320.T:    TOF
+INDRA_e613.KVACQParam.SI_0321.T:    TOF
+INDRA_e613.KVACQParam.SI_0322.T:    TOF
+INDRA_e613.KVACQParam.SI_0323.T:    TOF
+INDRA_e613.KVACQParam.SI_0324.T:    TOF
 
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
@@ -469,7 +463,6 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 # Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
-+Plugin.KVRawDataReader:    raw.e613    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    online.*    KVGRUNetClientGanilReader     KVMultiDet   "KVGRUNetClientGanilReader()"
 KVGRUNetClientGanilReader.AcqHostName:     ganp1010
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
@@ -611,7 +604,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
-+Plugin.KVMultiDetArray:    e613    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA4     KVIndra    "KVINDRA4()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -631,7 +624,6 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
-+Plugin.KVDataBase:    e613   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 
 #================================ Plugins for different datasets
 # Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
@@ -642,7 +634,6 @@ Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRA
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
-+Plugin.KVUpDater:    e613    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 
 #============================== Plugins for identification telescopes
 # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
