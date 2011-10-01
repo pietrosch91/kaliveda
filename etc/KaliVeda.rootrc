@@ -186,10 +186,10 @@ t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
 t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:   INDRA_e613
-e613.DataSet.Title:    The Last Experiment (Ever)
-e613.DataSet.RepositoryDir:   e613
-e613.DataSet.RunFileName.raw:    run_%04d.dat%*
-e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_e613.DataSet.Title:    The Last Experiment (Ever)
+INDRA_e613.DataSet.RepositoryDir:   e613
+INDRA_e613.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
