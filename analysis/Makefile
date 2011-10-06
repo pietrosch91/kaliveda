@@ -20,7 +20,7 @@ endif
 
 KV_INC = 
 
-CXXFLAGS += -I$(KVINSTALLDIR)/include $(KV_INC)
+CXXFLAGS += -I$(KVINSTALLDIR)/include $(KV_INC) -DNET_LIB
 
 
 LIBKVINDRA = -L$(KVROOT)/lib -lKVIndra

@@ -110,8 +110,8 @@ ifeq ($(ARCH),win32)
 CXXFLAGS := $(CXXFLAGS_NOOPT)
 endif
 
-ALL_CXXFLAGS = $(CXXFLAGS) $(KV_INC)
-ALL_CXXFLAGS_NOOPT = $(CXXFLAGS_NOOPT) $(KV_INC)
+ALL_CXXFLAGS = $(CXXFLAGS) $(KV_INC) -DNET_LIB
+ALL_CXXFLAGS_NOOPT = $(CXXFLAGS_NOOPT) $(KV_INC) -DNET_LIB
 
 #Location of KaliVeda project sources root directory relative to subprojects which 'include' this Makefile
 #Override in project's Makefile if it is not simply a subdirectory of KaliVeda
