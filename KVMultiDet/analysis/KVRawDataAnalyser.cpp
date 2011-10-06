@@ -283,11 +283,12 @@ TH1* KVRawDataAnalyser::FindHisto(const Char_t* path)
       else sublist = (KVHashList*)&fHistoList;
       subpath = Path.Next();
       while(!Path.End()){
-         sublist=(KVHashList*)sublist->FindObject(subpath.Data());
-         if(!sublist){
+         KVHashList*sublist2=(KVHashList*)sublist->FindObject(subpath.Data());
+         if(!sublist2){
             Error("FindHisto", "path=%s. Cannot find %s in subdir %s", path, subpath.Data(), sublist->GetName());
             return 0;
          }
+			sublist=sublist2;
          subpath = Path.Next();
       }
       TH1* histo = (TH1*)sublist->FindObject(subpath.Data());
