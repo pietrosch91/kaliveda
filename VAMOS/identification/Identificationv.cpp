@@ -65,6 +65,7 @@ PID = Z_PID = A_PID = -10.0;
 
     runNumber = 0;
     runNumber = (Int_t)gIndra->GetCurrentRunNumber();
+
 }
 
 
@@ -199,7 +200,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 		L->Log<<"E tot	= "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
 		L->Log<<"==========================="<<endl;		
 				
-	        ECsI = double(CsIsRef[zt]);
+	    ECsI = double(CsIsRef[zt]);
 		ESi = double(SiRef[zt]);
 		ZZ = zt+3;
 		ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt]);
@@ -211,20 +212,53 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 		
 		L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
 				    
-		//if(!(KVIDZAGrid*)gIDGridManager->GetGrid(energytree->kvid->GetName()))
-		if(!(KVIDZAGrid*)energytree->kvid->GetListOfIDGrids()->At(0))
+		/*if(!(KVIDZAGrid*)gIDGridManager->GetGrid(energytree->kvid->GetName()))
+		//if(!(KVIDZAGrid*)energytree->kvid->GetListOfIDGrids()->At(0))
 		{
 		L->Log<<"NO GRID..."<<endl;
 		}
-		else
-		{
+		else {*/
 		/*
 		cout<<"==============="<<endl;	    
 		KVIDZAGrid* idg = (KVIDZAGrid* )energytree->kvid->GetListOfIDGrids()->At(0);
             	idg->Print();
 		cout<<"==============="<<endl;
 		*/
+
+        KVList *grid_list = 0;
 		id = new KVIdentificationResult();
+        char scope_name [256];
+        sprintf(scope_name, "null");
+        sprintf(scope_name,"%s", energytree->kvid->GetName());
+
+        if(gIDGridManager != 0){
+            grid_list = (KVList*) gIDGridManager->GetGrids();
+
+            if(grid_list == 0){
+                printf("Error: gIDGridManager->GetGrids() failed\n");
+
+            }else{
+                KVIDGraph *grd = 0;
+
+                if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
+
+                    if(grd != 0){
+                        energytree->kvid->SetIDGrid(grd);
+                        energytree->kvid->Identify(ESi, (double) CsI->E_Raw[j], id);
+                        A_PID = id->A;
+                        Z_PID = id->Z;
+                        PID = id->PID;
+                    }
+                    
+                }else{  
+                    //printf("No object named %s in grid list\n", scope_name);
+                }
+
+            }
+
+        }
+
+		/*id = new KVIdentificationResult();
 		
 		Double_t x = ESi;
 		Double_t y = double(CsI->E_Raw[j]);
@@ -241,7 +275,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 		L->Log<<"Zident : "<<id->Zident<<endl;
 		L->Log<<"Aident : "<<id->Aident<<endl;		
 		L->Log<<"==========================="<<endl;
-		}
+		}*/
 														
 		//}
 		
@@ -345,12 +379,16 @@ T = Si->T[0];
       //Distance between silicon and the target in cm	
       //D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);	//Distance correction from the target to the SED
       
-      D = (Rec->Path + (72.05/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		//Distance correction from the target to the silicon wall
+      //D = (Rec->Path + (72.05/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		//Old Distance
+        D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (72.05/TMath::Cos(Dr->Tf/1000.)));
+      //D = (Rec->Path + (68.45/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		//New Distance [Old -36mm]
 
       V = D/T;		//Velocity given in cm/ns
-      V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));	//Velocity correction based on the angles 
-      Beta =V/29.9792; 
-      Gamma = 1./sqrt(1.-TMath::Power(Beta,2.));
+      //V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));	//Velocity correction based on the angles 
+      V = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));
+      Beta = V/29.9792458; 
+      //Gamma = 1./sqrt(1.-TMath::Power(Beta,2.));
+      Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
       //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
       L->Log<<"D = "<<D<<"	V = "<<V<<"	Beta = "<<Beta<<"	D/T = "<<D/T<<endl;
       //L->Log<<"brho = "<<Rec->GetBrhoRef()<<"	angle = "<<Rec->GetAngleVamos()<<endl;
@@ -358,8 +396,11 @@ T = Si->T[0];
 
   if(Beta>0 && Rec->Brho>0&&Gamma>1.&&Si->Present)
     {
-      M = 2.* E / 931.5016/TMath::Power(Beta,2.);
-      M_Q = Rec->Brho/3.105/Beta;
+
+      //M = 2.* E / 931.5016/TMath::Power(Beta,2.);
+      M = 2.* E / (931.5016*TMath::Power(Beta,2.));
+      //M_Q = Rec->Brho/3.105/Beta;
+      M_Q = Rec->Brho/(3.105*Beta);
       L->Log<<"M = "<<M<<endl;
       L->Log<<"M/Q = "<<M_Q<<endl;
 

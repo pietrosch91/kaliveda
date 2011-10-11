@@ -47,6 +47,7 @@ class Identificationv
   UShort_t EFil2;
 
     Int_t runNumber;
+    Bool_t grids_avail;
   
   Int_t ZZ;
   Int_t AA;
@@ -104,7 +105,7 @@ Int_t runFlag;
   void outAttach(TTree *outT);
   void CreateHistograms();
   void FillHistograms();
-  void PrintCounters(void);
+  //void PrintCounters(void);
   
   void SetBrho(Double_t);
   Double_t GetBrho(void);

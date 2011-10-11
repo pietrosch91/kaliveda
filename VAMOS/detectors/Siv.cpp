@@ -109,11 +109,13 @@ Siv::Siv(LogFile *Log)
   else 
   {
   	cout<< "Reading Offset.cal" <<endl;
+    L->Log << "Reading Offset.cal" << endl;
 	while(!in2.eof()){
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
 	     sscanf(sline.Data(),"%d %f ",&num ,&off );
+         L->Log << "SI_" << num << ": Offset: "<< off << endl;  
 	     TOffset[num] = off;
 	     //L->Log << "off	:"<<off<<endl;
 	     	   }
@@ -363,7 +365,7 @@ void Siv::outAttach(TTree *outT)
    
    //outT->Branch("SiERaw",&E_Raw[0],"SiERaw/S");
    //outT->Branch("SiERaw",SiRaw,"SiERaw[21]/S");
-   outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/F");
+   outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/s");
    outT->Branch("TSi_HF",&T[0],"TSi_HF/F");
    //outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    //outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");

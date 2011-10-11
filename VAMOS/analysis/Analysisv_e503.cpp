@@ -297,7 +297,6 @@ for(Int_t i=0;i<18;i++){
 		mmodulemap[i][j] = map[i][j];
 	}
 }
-
 }
 
 void Analysisv_e503::SetFocalPlan(KVFocalPlanVamos* v)

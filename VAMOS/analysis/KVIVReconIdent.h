@@ -12,6 +12,7 @@ $Date: 2007/06/08 15:49:10 $
 
 #include "KVReconIdent.h"
 #include "KVFocalPlanVamos.h"
+#include "KVIDGridManager.h"
 #include <string>
 #include <string.h>
 
@@ -38,6 +39,7 @@ class KVIVReconIdent : public KVReconIdent
    Int_t GetRunFlag();   
    Int_t runFlag;
    Int_t ReadModuleMap();	//const Char_t *
+   Bool_t LoadGrids();
    KVFocalPlanVamos* v;
    string module_map[18][80];   
    Int_t event;

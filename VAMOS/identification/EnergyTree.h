@@ -123,7 +123,7 @@ class EnergyTree
   	string module_map[18][80];
           
         //necessary methods to Init 
-        Double_t GetSiliconThickness(Int_t);
+        //Double_t GetSiliconThickness(Int_t);
         void SetSiliconThickness(Int_t);
         void SetFocalPlan(KVFocalPlanVamos *);
 	KVFocalPlanVamos* GetFocalPlan(void);
@@ -134,13 +134,13 @@ class EnergyTree
             
         void InitIcSi(Int_t);
         Double_t GetResidualEnergyIc(Int_t, Int_t, Double_t);
-        
+
         void InitSiCsI(Int_t);  
-        void InitSiCalib(Int_t);
+        //void InitSiCalib(Int_t);
         void SetCalSi(Float_t,Float_t,Float_t);
-        void InitCsIPed(Int_t);
+        //void InitCsIPed(Int_t);
         void SetCsIPed(Float_t);
-        void InitCsICalib(Int_t,Int_t);
+        //void InitCsICalib(Int_t,Int_t);
         void SetCalCsI(Float_t,Float_t,Float_t);
 	
         void DoIt(UShort_t, UShort_t, Int_t);
@@ -170,6 +170,8 @@ class EnergyTree
         Double_t RetrieveA();
         Double_t RetrieveLight();
         Double_t RetrieveEnergyCsI();
+
+        //Bool_t LoadGrids();
         
         ClassDef(EnergyTree,1)//EnergyTree
 };
