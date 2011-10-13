@@ -50,8 +50,7 @@ class Identificationv
     Bool_t grids_avail;
   
   Int_t ZZ;
-  Int_t AA;
-  Float_t AA2;
+  Float_t AA;
   Int_t DetCsI;
   Int_t DetSi;
   Int_t CsIRaw;

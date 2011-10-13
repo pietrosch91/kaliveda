@@ -59,8 +59,8 @@ void Identificationv::Init(void)
   Qc = Mc = -10.0;
   Gamma = 1.; 
  initThickness=0.;      
-zt = ZZ = AA = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
-ESi = ECsI = EEtot = AA2 = ZR = -10.0;
+zt = ZZ  = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
+ESi = ECsI = EEtot  = AA =  ZR = -10.0;
 PID = Z_PID = A_PID = -10.0;
 
     runNumber = 0;
@@ -135,6 +135,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 	      SiRaw = int(Si->E_Raw[y]);
 	      L->Log<<"CsIRaw	= "<<CsIRaw<<endl;
 	      L->Log<<"SiRaw	= "<<SiRaw<<endl;
+	      
 	            
 	      //CsI->CsIRaw[CsI->Number] = CsI->E_Raw[j]; //Associer le canal au # du détecteur CsI
 	      //Si->SiRaw[Si->Number] = Si->E_Raw[y];	 //Associer le canal au # du détecteur Si
@@ -182,51 +183,22 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 			if(abs(dif1[zt])== min3)		//Minimizing the silicon energy
 			//if(abs(dif2[zt])== min4)		//Minimizing the cesium iodide energy
 				break;		
-		}
-		
-		//if((ARetreive[zt]<=41 && 455<=gIndra->GetCurrentRunNumber()<593) || (ARetreive[zt]<=49 && 379<=gIndra->GetCurrentRunNumber()<424))
-		//{
-		L->Log<<"==========================="<<endl;
-		L->Log<<"dif1(Si)	= "<<dif1[zt]<<endl;
-		L->Log<<"dif2(CsI)	= "<<dif2[zt]<<endl;
-		
-		L->Log<<"eZ	= "<<zt+3<<"	Zreel	= "<<((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt])<<endl;		//(energytree->eEnergySi-dif1[zt])<<endl;	
-		L->Log<<"sigma	= "<<(zt+4)-(((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif1[zt]))<<endl;
-		
-		L->Log<<"A	= "<<ARetreive[zt]<<endl;
-		L->Log<<"sA	= "<<As[zt]<<endl;
-		L->Log<<"Esi	= "<<float(SiRef[zt])<<endl;
-		L->Log<<"Ecsi	= "<<CsIsRef[zt]<<endl;
-		L->Log<<"E tot	= "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
-		L->Log<<"==========================="<<endl;		
+		}		
 				
-	    ECsI = double(CsIsRef[zt]);
+	        //ECsI = double(CsIsRef[zt]);
 		ESi = double(SiRef[zt]);
-		ZZ = zt+3;
-		ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt]);
+		//ZZ = zt+3;
+		//ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt]);
 		//ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->sEnergySi);
-		AA = int(ARetreive[zt]);
-		AA2 = ARetreive[zt];											
-		DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
-		DetSi = int(Si->Number)+1;	// Numérotation : (1-18)
+		//AA = int(ARetreive[zt]);
+		//AA2 = ARetreive[zt];											
+		//DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
+		//DetSi = int(Si->Number)+1;	// Numérotation : (1-18)
 		
 		L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
-				    
-		/*if(!(KVIDZAGrid*)gIDGridManager->GetGrid(energytree->kvid->GetName()))
-		//if(!(KVIDZAGrid*)energytree->kvid->GetListOfIDGrids()->At(0))
-		{
-		L->Log<<"NO GRID..."<<endl;
-		}
-		else {*/
-		/*
-		cout<<"==============="<<endl;	    
-		KVIDZAGrid* idg = (KVIDZAGrid* )energytree->kvid->GetListOfIDGrids()->At(0);
-            	idg->Print();
-		cout<<"==============="<<endl;
-		*/
 
         KVList *grid_list = 0;
-		id = new KVIdentificationResult();
+	id = new KVIdentificationResult();
         char scope_name [256];
         sprintf(scope_name, "null");
         sprintf(scope_name,"%s", energytree->kvid->GetName());
@@ -244,10 +216,34 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 
                     if(grd != 0){
                         energytree->kvid->SetIDGrid(grd);
+			//cout<<"esi = "<<ESi<<endl;
+			//cout<<"ecsi = "<<(double) CsI->E_Raw[j]<<endl;
                         energytree->kvid->Identify(ESi, (double) CsI->E_Raw[j], id);
                         A_PID = id->A;
                         Z_PID = id->Z;
                         PID = id->PID;
+			
+			Int_t Z_PIDI = int(Z_PID);		
+			energytree->SetFragmentZ(Z_PIDI);
+	      		energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
+			As[Z_PIDI]=energytree->sA;		
+			SiRef[Z_PIDI] = energytree->eEnergySi;
+			ARetreive[Z_PIDI]=energytree->RetrieveA();
+			CsIsRef[Z_PIDI] = energytree->eEnergyCsI;
+			
+	        	ECsI = double(CsIsRef[Z_PIDI]);
+			ESi = double(SiRef[Z_PIDI]);
+			AA = ARetreive[Z_PIDI];											
+			DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
+			DetSi = int(Si->Number)+1;	// Numérotation : (1-18)		
+			
+			L->Log<<"==========================="<<endl;		
+			L->Log<<"Z	= "<<PID<<endl;
+			L->Log<<"A	= "<<ARetreive[Z_PIDI]<<endl;
+			L->Log<<"Esi	= "<<float(SiRef[Z_PIDI])<<endl;
+			L->Log<<"Ecsi	= "<<CsIsRef[Z_PIDI]<<endl;
+			L->Log<<"E tot	= "<<double(SiRef[Z_PIDI]+CsIsRef[Z_PIDI])<<endl;
+			L->Log<<"==========================="<<endl;			
                     }
                     
                 }else{  
@@ -275,64 +271,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 		L->Log<<"Zident : "<<id->Zident<<endl;
 		L->Log<<"Aident : "<<id->Aident<<endl;		
 		L->Log<<"==========================="<<endl;
-		}*/
-														
-		//}
-		
-		/*if((ARetreive[zt]>41 && 455<=gIndra->GetCurrentRunNumber()<593) || (ARetreive[zt]>49 && 379<=gIndra->GetCurrentRunNumber()<424))
-		{
-		
-		for(Int_t a=5;a<60;a++)
-		{
-		energytree->SetFragmentZ(zt+4);	//Set Z at : eZ+1
-		energytree->SetFragmentA(a);
-		energytree->DoIt(Si->E_Raw[y],CsI->E_Raw[j],a);
-		
-		dif11[a-5]=energytree->diffsi;
-		dif12[a-5]=energytree->diffcsi;
-		As11[a-5]=energytree->sA;		
-		SiRef11[a-5] = energytree->eEnergySi;
-		ARetreive11[a-5]=energytree->RetrieveA();
-		CsIsRef11[a-5] = energytree->eEnergyCsI;
-		
-		if(abs(dif11[a-5]) < min11)
-      			min11 = abs(dif11[a-5]);
-    		else
-      			max11 = abs(dif11[a-5]);
-		
-		if(abs(dif12[a-5]) < min12)
-      			min12 = abs(dif12[a-5]);
-    		else
-      			max12 = abs(dif12[a-5]);
-		}
-		
-		for(aa=0;aa<55;aa++)
-		{
-			if(abs(dif11[aa])== min11)
-				break;
-		}
-		L->Log<<"==========================="<<endl;
-		L->Log<<"dif11(Si)	= "<<dif11[aa]<<endl;
-		L->Log<<"dif12(Csi)	= "<<dif12[aa]<<endl;
-		
-		L->Log<<"eZ	= "<<zt+4<<"	Zreel	= "<<((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif11[aa])<<endl;	
-		L->Log<<"sigma	= "<<(zt+4)-(((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif11[aa]))<<endl;
-				
-		L->Log<<"aa	= "<<aa+5<<endl;
-		L->Log<<"sA	= "<<As11[aa]<<endl;
-		L->Log<<"Esi	= "<<float(SiRef11[aa])<<endl;
-		L->Log<<"Ecsi	= "<<CsIsRef11[aa]<<endl;
-		L->Log<<"E tot	= "<<double(SiRef[zt]+CsIsRef[zt])<<endl;
-		 
-		ECsI = double(CsIsRef11[aa]);
-		ESi = double(SiRef11[aa]);
-		ZZ = zt+4;
-		ZR = ((energytree->eEnergySi)*(zt+4))/(energytree->eEnergySi-dif11[aa]);
-		AA = aa+5;
-		AA2 = ARetreive11[aa];	
-		DetCsI = int(CsI->Number)+1; 
-		DetSi = int(Si->Number)+1;				
-		}*/		
+		*/									
 				
 	    }
 	}
@@ -483,10 +422,7 @@ void Identificationv::outAttach(TTree *outT)
   cout << "Attaching Identificationv variables" << endl;
 #endif
     outT->Branch("RunNumber", &runNumber, "runNumber/I");
-	outT->Branch("A",&AA,"A/I");
-	//outT->Branch("A2",&AA2,"A2/F");
-   	outT->Branch("Z",&ZZ,"Z/I");
-	outT->Branch("ZR",&ZR,"ZR/D");
+	outT->Branch("A",&AA,"A/F");
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
 	outT->Branch("ESi",&ESi,"ESi/D");
