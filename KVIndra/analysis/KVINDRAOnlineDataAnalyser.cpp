@@ -55,16 +55,16 @@ void KVINDRAOnlineDataAnalyser::preInitAnalysis()
    	fEventsRefresh=100;
 	
    // Test ports for availability
-	port=10000;//TestPorts(10000);
+	TestPorts(10000);
 	TString path("$(HOME)/.kvonlineanalysisrc");
 	gSystem->ExpandPathName(path);
 	TEnv env(path.Data());
 	env.SetValue(Form("%s.%s.Messages.port",ClassName(), gSystem->HostName()),port);
 	env.SaveLevel(kEnvLocal);
-
- 	//fMessageThread = new TThread("AnalysisMess",(void(*)(void*))&ecouteSockets, (void*) this);
- 	//Info("InitAnalysis","Started ecoutesocket on port %d", port);
- 	//fMessageThread->Run();
+// 
+// fMessageThread = new TThread("AnalysisMess",(void(*)(void*))&ecouteSockets, (void*) this);
+// Info("InitAnalysis","Started ecoutesocket on port %d", port);
+// fMessageThread->Run();
 }
 
 void KVINDRAOnlineDataAnalyser::preInitRun()
