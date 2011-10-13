@@ -92,7 +92,7 @@ class KVIDGraph : public TCutG
 	
    void ReadAsciiFile(const Char_t * filename);
 	void AddIDTelescopes(const TList*);
-   virtual void     SetName(const char *name){TNamed::SetName(name); Modified();}; // *MENU*
+   virtual void     SetName(const char *name){TNamed::SetName(name); /*Modified()*/;}; // *MENU*
 	virtual void Clear(Option_t* opt=""); //  *MENU*	
 	void SetIDTelescopes();// *MENU={Hierarchy="Set.../ID Telescopes"}*
    void SetXVariable(const char* v){ SetVarX(v);  Modified();}; //  *MENU={Hierarchy="Set.../X Variable"}* *ARGS={v=>fVarX}
@@ -218,7 +218,7 @@ class KVIDGraph : public TCutG
    Int_t GetNumberOfCuts() const {
       return fCuts->GetSize();
    };
-   void AddIdentifier(KVIDentifier *id) {
+   virtual void AddIdentifier(KVIDentifier *id) {
 		// Add identifier to the graph. It will be deleted by the graph.
       fIdentifiers->Add(id);
 		id->SetParent(this);
@@ -228,8 +228,9 @@ class KVIDGraph : public TCutG
    	//if grid is Z-identification only, set mass formula for line
    	//according to mass formula of grid
    	if(OnlyZId()) id->SetMassFormula(GetMassFormula());
- 		Modified();    };
-   void AddCut(KVIDentifier *cut) {
+ 		//Modified(); 
+         };
+   virtual void AddCut(KVIDentifier *cut) {
 		// Add cut to the graph. It will be deleted by the graph.
       cut->SetLineColor(kRed);
 		cut->SetParent(this);
@@ -237,7 +238,8 @@ class KVIDGraph : public TCutG
 		cut->SetVarX(GetVarX());
 		cut->SetVarY(GetVarY());
 		cut->SetBit(kMustCleanup);
- 		Modified();    };
+ 		//Modified(); 
+         };
    void SortIdentifiers() {
       fIdentifiers->Sort();
  		//Modified();

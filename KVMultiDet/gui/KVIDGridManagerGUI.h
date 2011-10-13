@@ -61,6 +61,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
    TGButton* fTBTest;
    TGButton* fTBTestTree;
    TGButton* fTBDelG;
+   TGButton* fTBRefresh;
    TGButton* fTBQuit;
 
    TGStatusBar* fStatusBar;
@@ -72,7 +73,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
    TString fFileName;
    TList *fSelectedEntries;
 
-   TList* GetAllGridsInTab() {
+   TCollection* GetAllGridsInTab() {
       // list of all grids (selected or not) in current tab
       if (fIDGridList) return fIDGridList->GetUserItems();
       return 0;
@@ -112,7 +113,7 @@ public:
 
    void ActivateToolbarButtons();
 
-   void SaveAs(const TList* /*selected*/ = 0);
+   void SaveAs(const TCollection* /*selected*/ = 0);
 
    void OpenFile();
    void SaveCurrent() {

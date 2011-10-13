@@ -28,10 +28,11 @@ KVTGIDGrid::KVTGIDGrid()
    fTGID=0;
 }
 
-KVTGIDGrid::KVTGIDGrid(KVTGID *tgid)
+KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
 		: KVIDZAGrid()
 {
    // Create a grid in order to visualize the results of a fit of an identification grid.
+   // We keep any "cuts" from the original grid and add them to the fitted grid
    
    fTGID = tgid;
     SetVarX( fTGID->GetVarX() );
@@ -49,6 +50,7 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid)
 		} while( gIDGridManager->GetGrid( name.Data() ) );
 	}
 	SetName( name.Data() );
+   if(original) original->GetCuts()->Copy((TObject &)*fCuts);  
 }
 
 KVTGIDGrid::~KVTGIDGrid()
@@ -58,11 +60,11 @@ KVTGIDGrid::~KVTGIDGrid()
 
 //_______________________________________________________________________________________________//
 
-void KVTGIDGrid::WriteToAsciiFile(ofstream & gridfile)
-{
-	// Write parameters of LTG fit used to generate grid in file.
-    fTGID->WriteToAsciiFile(gridfile);
-}
+// void KVTGIDGrid::WriteToAsciiFile(ofstream & gridfile)
+// {
+// 	// Write parameters of LTG fit used to generate grid in file.
+//     fTGID->WriteToAsciiFile(gridfile);
+// }
 
 //___________________________________________________________________________//
 
@@ -94,13 +96,20 @@ void KVTGIDGrid::Generate(Double_t xmax, Double_t xmin, Int_t ID_min, Int_t ID_m
     Bool_t was_drawn = kFALSE;
     TVirtualPad* last_pad=fPad;
     if(fPad) {UnDraw(); was_drawn=kTRUE;}
-    Clear();
+    
+    // delete all previous identification lines
+    fIdentifiers->Delete();
+    fXmin = fYmin = fXmax = fYmax = 0;
 
     for (Int_t ID = ID_min; ID <= ID_max; ID++) {
         fTGID->AddLineToGrid(this, ID, npoints, xmin, xmax, logscale);
     }
-	SetLineColor(kRed);
 	if(was_drawn) {last_pad->cd(); Draw();}
 }
 
-
+void KVTGIDGrid::AddIdentifier(KVIDentifier *id)
+{
+   id->SetLineColor(kGray+2);
+   id->SetLineStyle(2);
+   KVIDGraph::AddIdentifier(id);
+}
