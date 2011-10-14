@@ -9,7 +9,7 @@
 class KVLightEnergyCsIVamos : public KVLightEnergyCsI
 {
 
-   TF1 fLightVamos;           //function parameterising light output as function of (energy, Z, A)
+   static TF1 fLightVamos;           //function parameterising light output as function of (energy, Z, A)
 
    public:
    KVLightEnergyCsIVamos();

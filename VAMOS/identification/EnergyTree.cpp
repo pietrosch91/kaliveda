@@ -335,8 +335,8 @@ void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
     kvt_sicsi->Add(gap->GetDetector());  // In-active so no 'detected' energy
     kvt_sicsi->Add(csi);
     
-    //lum=new KVLightEnergyCsIVamos(csi);
-    lum=new KVLightEnergyCsI(csi);
+    lum=new KVLightEnergyCsIVamos(csi);
+    //lum=new KVLightEnergyCsI(csi);
 }
 
 Int_t EnergyTree::ClearEvent(Int_t runFlag){     
@@ -398,12 +398,18 @@ void EnergyTree::SetCsIPed(Float_t pied){
 
 //CsI calibration parameters and the piedestal
 void EnergyTree::SetCalCsI(Float_t a1, Float_t a2, Float_t a3){
- //lum=new KVLightEnergyCsIVamos(csi->GetDetector());
  
- lum=new KVLightEnergyCsI(kvd_csi);
+ /*lum=new KVLightEnergyCsI(kvd_csi);
  lum->SetNumberParams(3);
  lum->SetParameters(a1,a2,a3);
- L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
+ L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;*/
+ 
+ 
+ lum=new KVLightEnergyCsIVamos(kvd_csi); 
+ lum->SetNumberParams(2);
+ lum->SetParameters(a1,a2);
+ L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<endl;
+ 
  L->Log<<"pedestal csi=		"<<ePied<<endl;
 }
 
@@ -424,11 +430,15 @@ void EnergyTree::SetCalibration(Siv *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
   else
     {
       ePied=0.0;
-      //lum=new KVLightEnergyCsIVamos(csi->GetDetector());
       
-      lum=new KVLightEnergyCsI(kvd_csi);
+      /*lum=new KVLightEnergyCsI(kvd_csi);
       lum->SetNumberParams(3);
-      lum->SetParameters(0.,0.,0.);
+      lum->SetParameters(0.,0.,0.);*/     
+      
+      
+      lum=new KVLightEnergyCsIVamos(kvd_csi);      
+      lum->SetNumberParams(2);
+      lum->SetParameters(0.,0.);
     }
 }
 

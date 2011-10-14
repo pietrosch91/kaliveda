@@ -37,8 +37,11 @@ Double_t CalculLumiereVamos(Double_t * x, Double_t * par)
 }
 
 //__________________________________________________________________________
+//KVLightEnergyCsIVamos::KVLightEnergyCsIVamos()
+//         : fLightVamos("fLight_CsI", CalculLumiereVamos, 0., 10000., 5)
+TF1 KVLightEnergyCsIVamos::fLightVamos("fLight_CsI", CalculLumiereVamos, 0., 10000., 6);
+
 KVLightEnergyCsIVamos::KVLightEnergyCsIVamos()
-         : fLightVamos("fLight_CsI", CalculLumiereVamos, 0., 10000., 5)
 {
    // Default constructor
 }
@@ -69,8 +72,8 @@ Double_t KVLightEnergyCsIVamos::Compute(Double_t light) const
    par[3] = (Double_t) fZ;
    par[4] = (Double_t) fA;
   
-   const_cast<KVLightEnergyCsIVamos*>(this)->fLightVamos.SetParameters(par);
-   //fLightVamos.SetParameters(par);
+   //const_cast<KVLightEnergyCsIVamos*>(this)->fLightVamos.SetParameters(par);
+   fLightVamos.SetParameters(par);
    
    /*
    cout<<"====	This	===="<<endl;
