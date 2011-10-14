@@ -326,6 +326,10 @@ void KVDBSystem::SetRuns(KVNumberList&rl)
       run_number = rl.Next();
       KVDBRun* run = (KVDBRun*)runtable->GetRecord(run_number);
       if(run){
+         if(run->GetSystem()){
+            Error("SetRuns", "Associating run %d with system \"%s\" : run already associated with system \"%s\"",
+                  run_number, GetName(), run->GetSystem()->GetName());
+         }
          if(AddLink("Runs", run)){
             //use name of system as title of run
             run->SetTitle(GetName());
