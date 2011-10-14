@@ -594,10 +594,14 @@ void KVDBSystemDialog::SetRuns()
    //Called when "SetRuns" button is clicked.
    //The selected system is associated with the runlist passed to the constructor.
    //The Systems.dat file is updated
-   KVNumberList tmp;
-   fSystem->GetRunList(tmp);
-   tmp.Add(fRuns);
-   fSystem->SetRuns(tmp);
+   //Any previous association run<->system is removed
+   
+//    KVNumberList tmp;
+//    fSystem->GetRunList(tmp);
+//    tmp.Add(fRuns);
+//    fSystem->SetRuns(tmp);
+   fRuns.Begin();
+   while(!fRuns.End()) fSystem->AddRun(fRuns.Next());
    SaveSystems();
    UpdateRunlist();
 }

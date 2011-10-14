@@ -127,6 +127,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "selection_t.xpm",
       "h1_t.xpm",
       "branch_t.xpm",
+      "refresh1.xpm",
       "sm_delete.xpm",
 //      "quit.xpm",
       0
@@ -142,6 +143,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "Fit grid",
       "Test grid identification",
       "Test grid (TTree)",
+      "Refresh display",
       "Delete selected grid(s)",
 //      "Quit",
       0
@@ -156,6 +158,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       10,
       0,
       0,
+      5,
       10,
  //     1000,
       0
@@ -170,6 +173,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       &fTBFit,
       &fTBTest,
       &fTBTestTree,
+      &fTBRefresh,
       &fTBDelG,
 //      &fTBQuit,
       0
@@ -184,6 +188,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "FitGrid()",
       "TestGrid()",
       "TestTreeGrid()",
+      "UpdateListOfGrids()",
       "DeleteSelectedGrids()",
  //     "Quit()",
       0
@@ -601,7 +606,7 @@ void KVIDGridManagerGUI::MergeGrids()
    //new KVMergeGridsDialog(g1, g2, fClient->GetDefaultRoot(), this, 10, 10);
 }
 
-void KVIDGridManagerGUI::SaveAs(const TList *selection)
+void KVIDGridManagerGUI::SaveAs(const TCollection *selection)
 {
    // Opens dialog to choose filename in which to save grids.
    // If selection=0 (default), all grids are saved
@@ -884,7 +889,7 @@ void KVIDGridManagerGUI::ShowListOfLines()
    //If only one grid is selected, we display its lines in the line list
    //If more than one grid is selected, we clear the line list
    
-   if (GetNSelected() == 1) {
+   if (GetNSelected() == 1 && fSelectedGrid) {
       KVList* ids = fSelectedGrid->GetIdentifiers();
       // sort lines in order of increasing Z
       ids->Sort();
@@ -917,6 +922,7 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
    for (int i = 0; i < fNbButtons; i++) fTBbuttons[i]->SetEnabled(kFALSE);
    // enable 'open' & 'quit' & 'new grid"
    fTBOpen->SetEnabled();
+   fTBRefresh->SetEnabled();
    //fTBQuit->SetEnabled();
    fTBNewG->SetEnabled();
    // enable 'save' if there are grids

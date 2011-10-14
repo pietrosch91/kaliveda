@@ -21,7 +21,9 @@ endif
 KV_INC = 
 
 CXXFLAGS += -I$(KVINSTALLDIR)/include $(KV_INC)
-
+ifeq ($(WITH_GRU_LIB),yes)
+CXXFLAGS += -DNET_LIB
+endif
 
 LIBKVINDRA = -L$(KVROOT)/lib -lKVIndra
 LIBKVMULTIDET = -L$(KVROOT)/lib -lKVMultiDet
@@ -129,7 +131,7 @@ PREREQ = $(PREQ:%.cpp=%.d)
 all: config $(ANALOG) $(KVDTAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
 	
 $(ANALOG): $(ANALOGO)
-	$(LD) $(LDFLAGS) $^ $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^  $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(ANALOGO): $(ANALOGS)

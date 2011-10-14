@@ -284,10 +284,11 @@ void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
 
    if (fGrid->GetXmin() == fGrid->GetXmax()) fGrid->FindAxisLimits();
    // generate grid representing fit
-	KVTGIDGrid* fitgr = new KVTGIDGrid(fTGID);
-	fitgr->Generate(fGrid->GetXmax(), fGrid->GetXmin());
+	KVTGIDGrid* fitgr = new KVTGIDGrid(fTGID,(KVIDZAGrid*)fGrid);
 	// make fitted grid 'onlyzid' if parent grid was
 	fitgr->SetOnlyZId(fGrid->OnlyZId());
+   if(fGrid->OnlyZId()) fitgr->SetMassFormula(fGrid->GetMassFormula());
+	fitgr->Generate(fGrid->GetXmax(), fGrid->GetXmin());
 	gIDGridManager->Modified();
 
 	if( fPad ){

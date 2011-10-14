@@ -256,7 +256,43 @@ void KVRawDataAnalyser::clearallhistos(TCollection*list)
 	TIter next(list);
 	TObject* obj;
 	while( (obj = next()) ){
-		if(obj->InheritsFrom("TCollection")) clearallhistos((TCollection*)list);
+		if(obj->InheritsFrom("TCollection")) clearallhistos((TCollection*)obj);
 		else if(obj->InheritsFrom("TH1")) ((TH1*)obj)->Reset();
 	}
+}
+
+TH1* KVRawDataAnalyser::FindHisto(const Char_t* path)
+{
+   // return address of histogram using its full path
+   // i.e. using 
+   //    FindHisto("BidimChIoSi/ring6/CI_SI_0604_PG")
+   
+   KVString Path(path);
+   if(Path.Contains("/")){
+      // path given. parse it to find names of sublists and histo.
+      Path.Begin("/");
+      KVHashList* sublist=0;
+      KVString subpath = Path.Next();
+      if(subpath!=fHistoList.GetName()) {
+         sublist=(KVHashList*)fHistoList.FindObject(subpath.Data());
+         if(!sublist) {
+            Error("FindHisto", "path=%s. Cannot find %s in top-level.", path, subpath.Data());
+            return 0;
+         }
+      }
+      else sublist = (KVHashList*)&fHistoList;
+      subpath = Path.Next();
+      while(!Path.End()){
+         KVHashList*sublist2=(KVHashList*)sublist->FindObject(subpath.Data());
+         if(!sublist2){
+            Error("FindHisto", "path=%s. Cannot find %s in subdir %s", path, subpath.Data(), sublist->GetName());
+            return 0;
+         }
+			sublist=sublist2;
+         subpath = Path.Next();
+      }
+      TH1* histo = (TH1*)sublist->FindObject(subpath.Data());
+      return histo;
+   }
+   return 0;
 }

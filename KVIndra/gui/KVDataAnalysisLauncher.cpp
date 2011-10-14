@@ -386,7 +386,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  
 	entryMax=-1;
    //Initialisation of resource file
-   GUIenv=new TEnv(Form(".KVDataAnalysisGUIrc.%s",gSystem->HostName()));
+   GUIenv=new TEnv(".KVDataAnalysisGUIrc");
    //initialisation of list used by Get/SetResource
    ResourceNames = new TList;
    ResourceNames->Add( new TNamed("Repository","") );

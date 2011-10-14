@@ -111,4 +111,7 @@
 #pragma link C++ class KVDB_BIC_Pressures+;
 #pragma link C++ class KVINDRADB_e416a;
 #pragma link C++ class KVINDRAUpDater_e416a+;
+#ifdef WITH_GRULIB
+#pragma link C++ class KVINDRAOnlineDataAnalyser+;
+#endif
 #endif

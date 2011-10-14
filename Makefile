@@ -19,6 +19,10 @@ PLATFORM     := $(shell root-config --platform)
 #which will override the following definition
 export ROOT_MAKEFILE_PATH = $(ROOTSYS)/test
 
+# for compilation with gru lib
+export WITH_GRU_LIB = no
+export GRU_DIR = /home/acqexp/GRU/GRUcurrent
+
 # GanTape library with RFIO or XROOTD
 # To compile the Ganil acquisition library using RFIO or XROOTD to
 # open and read the files. Uncomment one if required.

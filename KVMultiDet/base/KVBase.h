@@ -117,7 +117,9 @@ class KVBase:public TNamed {
    static const Char_t *FindFile(const Char_t * search, TString & wfil);
    static Bool_t FindClassSourceFiles(const Char_t* class_name, KVString& imp_file,
          KVString& dec_file, const Char_t* dir_name=".");
-
+#ifdef WITH_GRULIB   
+   Int_t TestPorts(Int_t port);
+#endif
 
    ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
 };

@@ -36,7 +36,9 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TGMimeTypes.h"
 #include "TGClient.h"
 #include "KVNDTManager.h"
-
+#ifdef WITH_GRULIB
+#include "GNetClientRoot.h"
+#endif
 
 ClassImp(KVBase)
 
@@ -947,3 +949,27 @@ void KVBase::ReadGUIMimeTypes()
 		}
 	}
 }
+   
+//__________________________________________________________________________________________________________________
+#ifdef WITH_GRULIB
+Int_t KVBase::TestPorts(Int_t port)
+{
+   // Test ports for availability. Start from 'port' and go up to port+2000 at most.
+   // Returns -1 if no ports available.
+   
+	GNetClientRoot testnet((char*) "localhost");
+	Int_t ret;
+	ret = port;
+
+	for (int i = 0; i < 2000; i++) {
+		ret = testnet.TestPortFree(port, (char*) "localhost");
+		if (ret > 0)
+			break;
+		if ((ret <= 0))
+			port++;
+	}
+
+	return ret;
+   
+}
+#endif
