@@ -24,7 +24,7 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 ////////////////////////////////////////////////////////////////////////////////
 
 Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
-				 DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID, EnergyTree *E)
+				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, EnergyTree *E)
 {
   L = Log;
   Rec = Recon;
@@ -54,7 +54,7 @@ void Identificationv::Init(void)
 {
   Present = false; 
 
-  dE = dE1 = E = T = V = M_Q = M = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
+  dE = dE1 = E = T = V = V2 = M_Q = M = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
   M_Qr = Mr = Qr = -10.0;
   Qc = Mc = -10.0;
   Gamma = 1.; 
@@ -140,7 +140,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 	      //CsI->CsIRaw[CsI->Number] = CsI->E_Raw[j]; //Associer le canal au # du détecteur CsI
 	      //Si->SiRaw[Si->Number] = Si->E_Raw[y];	 //Associer le canal au # du détecteur Si
 			
-		Double_t min3,max3;
+		/*Double_t min3,max3;
   		min3 = max3 = abs(dif1[0]);
 		
 		Double_t min11,max11;
@@ -176,17 +176,18 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
       			min4 = abs(dif2[energytree->eZ-3]); //Calcul du min et max de la diff. d'énergie du CsI
     		else
       			max4 = abs(dif2[energytree->eZ-3]);						
-	      }
+	      }*/
 		
-  		for(zt=0;zt<21;zt++)				
+  		/*for(zt=0;zt<21;zt++)				
 		{	
 			if(abs(dif1[zt])== min3)		//Minimizing the silicon energy
 			//if(abs(dif2[zt])== min4)		//Minimizing the cesium iodide energy
 				break;		
-		}		
+		}*/
 				
+		ESi = double(energytree->RetrieveEnergySi());	//SiRef[zt]		
 	        //ECsI = double(CsIsRef[zt]);
-		ESi = double(SiRef[zt]);
+		
 		//ZZ = zt+3;
 		//ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->eEnergySi-dif1[zt]);
 		//ZR = ((energytree->eEnergySi)*(zt+3))/(energytree->sEnergySi);
@@ -216,8 +217,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 
                     if(grd != 0){
                         energytree->kvid->SetIDGrid(grd);
-			//cout<<"esi = "<<ESi<<endl;
-			//cout<<"ecsi = "<<(double) CsI->E_Raw[j]<<endl;
+
                         energytree->kvid->Identify(ESi, (double) CsI->E_Raw[j], id);
                         A_PID = id->A;
                         Z_PID = id->Z;
@@ -225,7 +225,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 			
 			Int_t Z_PIDI = int(Z_PID);		
 			energytree->SetFragmentZ(Z_PIDI);
-	      		energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);
+	      		energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);		//Method called for guessing A value by bissection method and getting CsI energy
 			As[Z_PIDI]=energytree->sA;		
 			SiRef[Z_PIDI] = energytree->eEnergySi;
 			ARetreive[Z_PIDI]=energytree->RetrieveA();
@@ -253,26 +253,8 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
             }
 
         }
-
-		/*id = new KVIdentificationResult();
-		
-		Double_t x = ESi;
-		Double_t y = double(CsI->E_Raw[j]);
-
-		energytree->kvid->Identify(x, y, id);
-		
-		A_PID = id->A;
-		Z_PID = id->Z;
-		PID = id->PID;
-
-		L->Log<<"A : "<<id->A<<endl;
-		L->Log<<"Z : "<<id->Z<<endl;
-		L->Log<<"PID : "<<id->PID<<endl;
-		L->Log<<"Zident : "<<id->Zident<<endl;
-		L->Log<<"Aident : "<<id->Aident<<endl;		
-		L->Log<<"==========================="<<endl;
-		*/									
-				
+	
+					
 	    }
 	}
     }
@@ -283,18 +265,17 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
      Dr->E[1] > 0 &&
      Ic->ETotal > 0)
     {
-      //      dE += Dr->E[0];
-      
+      //      dE += Dr->E[0];      
       //      dE += Dr->E[1];
       dE = dE1 = Ic->ETotal;
       if(Dr->Present) dE1 = dE1 / cos(Dr->Tf/1000.);
       dE /= 0.614;
       dE += dE*0.15;
-      if((dE1+ESi+ECsI)>0)	//if(Si->ETotal > 0)		//Originalement : if(Si->ETotal>0)
+      if((dE1+ESi+ECsI)>0)		//if(Si->ETotal > 0)		//Originalement : if(Si->ETotal>0)
 	//E = (dE/1000) + (ESi+ECsI)*0.99;
 	E = dE1 + ESi + ECsI;		//Total energy (MeV)	dE1+ESi+ECsI
-	E *= 1.03;		//Correction for the different dead layers (about 3%)
-	//L->Log<<"dE1 = "<<dE1<<endl;
+	E *= 1.03;			//Correction for the different dead layers (about 3%)
+
 	L->Log<<"dE1	(MeV)= "<<dE1<<endl;
 	L->Log<<"E	(MeV)= "<<E<<endl;
 	L->Log<<"ESi	(MeV)= "<<ESi<<"	ECsI	(MeV)= "<<ECsI<<"	Ic	(MeV)= "<<dE1<<endl;
@@ -316,18 +297,17 @@ T = Si->T[0];
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
       //Distance between silicon and the target in cm	
-      //D = Rec->Path + (-1.*(Dr->Yf)/10.*sin(3.14159/4.)/ cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.);	//Distance correction from the target to the SED
       
-      //D = (Rec->Path + (72.05/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		//Old Distance
-        D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (72.05/TMath::Cos(Dr->Tf/1000.)));
-      //D = (Rec->Path + (68.45/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		//New Distance [Old -36mm]
-
+      //D = (Rec->Path + (72.05/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		 
+        D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (72.05/TMath::Cos(Dr->Tf/1000.)));	//Distance : 9423mm(si layer position) - 8702.5mm(focal plane position) = 720.50 mm
+ 
       V = D/T;		//Velocity given in cm/ns
-      //V = V+ V*(1-cos(Dr->Tf/1000.)*cos(Dr->Pf/1000.));	//Velocity correction based on the angles 
-      V = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));
+      
+      V2 = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));
+      
       Beta = V/29.9792458; 
-      //Gamma = 1./sqrt(1.-TMath::Power(Beta,2.));
       Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
+      
       //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
       L->Log<<"D = "<<D<<"	V = "<<V<<"	Beta = "<<Beta<<"	D/T = "<<D/T<<endl;
       //L->Log<<"brho = "<<Rec->GetBrhoRef()<<"	angle = "<<Rec->GetAngleVamos()<<endl;
@@ -336,10 +316,9 @@ T = Si->T[0];
   if(Beta>0 && Rec->Brho>0&&Gamma>1.&&Si->Present)
     {
 
-      //M = 2.* E / 931.5016/TMath::Power(Beta,2.);
       M = 2.* E / (931.5016*TMath::Power(Beta,2.));
-      //M_Q = Rec->Brho/3.105/Beta;
       M_Q = Rec->Brho/(3.105*Beta);
+      
       L->Log<<"M = "<<M<<endl;
       L->Log<<"M/Q = "<<M_Q<<endl;
 
@@ -445,7 +424,8 @@ void Identificationv::outAttach(TTree *outT)
   //outT->Branch("dE1",&dE1,"dE1/F");
   outT->Branch("E",&E,"E/F");
   outT->Branch("T",&T,"T/F");
-  outT->Branch("V",&V,"V/F");
+  outT->Branch("V",&V,"V/F");  
+  outT->Branch("V2",&V2,"V2/F");
   outT->Branch("D",&D,"D/F");
   outT->Branch("Beta",&Beta,"Beta/F");
   outT->Branch("Gamma",&Gamma,"Gamma/F");

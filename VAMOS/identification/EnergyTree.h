@@ -14,7 +14,7 @@
 #include "KVTelescope.h"
 #include "KVIDTelescope.h"
 #include "TCut.h"
-#include "Siv.h"
+#include "Sive503.h"
 #include "CsIv.h"
 #include "LogFile.h"
 
@@ -89,7 +89,7 @@ class EnergyTree
 	
 	KVReconstructedNucleus *frag;
 	KVFocalPlanVamos *v;	
-        KVLightEnergyCsI* lum;
+        KVLightEnergyCsIVamos* lum;
         
         KVTelescope *kvt_icsi;
         KVTelescope *kvt_sicsi;
@@ -111,10 +111,10 @@ class EnergyTree
         KVNucleus part;
         KVNucleus part2;
    	    
-        Siv *Si;
+        Sive503 *Si;
         CsIv *CsI;
         
-        EnergyTree(LogFile *Log, Siv *Si);
+        EnergyTree(LogFile *Log, Sive503 *Si);
         LogFile *L;
         virtual ~EnergyTree();
         
@@ -123,7 +123,7 @@ class EnergyTree
   	string module_map[18][80];
           
         //necessary methods to Init 
-        //Double_t GetSiliconThickness(Int_t);
+        Double_t GetSiliconThickness(Int_t);
         void SetSiliconThickness(Int_t);
         void SetFocalPlan(KVFocalPlanVamos *);
 	KVFocalPlanVamos* GetFocalPlan(void);
@@ -134,20 +134,20 @@ class EnergyTree
             
         void InitIcSi(Int_t);
         Double_t GetResidualEnergyIc(Int_t, Int_t, Double_t);
-
+        
         void InitSiCsI(Int_t);  
-        //void InitSiCalib(Int_t);
+        void InitSiCalib(Int_t);
         void SetCalSi(Float_t,Float_t,Float_t);
-        //void InitCsIPed(Int_t);
+        void InitCsIPed(Int_t);
         void SetCsIPed(Float_t);
-        //void InitCsICalib(Int_t,Int_t);
+        void InitCsICalib(Int_t,Int_t);
         void SetCalCsI(Float_t,Float_t,Float_t);
 	
         void DoIt(UShort_t, UShort_t, Int_t);
 	
         void CalculateCanalCsI();
         
-        void SetCalibration(Siv*,CsIv*,Int_t,Int_t);
+        void SetCalibration(Sive503*,CsIv*,Int_t,Int_t);
         void SetFragmentZ(Int_t);
         
         //necessary methods to GetResidualEnergyCsI: best estimation of ECsI and A
@@ -170,8 +170,6 @@ class EnergyTree
         Double_t RetrieveA();
         Double_t RetrieveLight();
         Double_t RetrieveEnergyCsI();
-
-        //Bool_t LoadGrids();
         
         ClassDef(EnergyTree,1)//EnergyTree
 };

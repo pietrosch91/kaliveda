@@ -117,7 +117,7 @@ Analysisv_e503::Analysisv_e503(LogFile*Log)
 #ifdef SI
   cout << "Si defined" << endl;
   L->Log << "Si defined" << endl;
-  Si = new Siv(L);
+  Si = new Sive503(L);
   if(!Ic)
     {
       cout << "Coud not allocate memory to hold Si !" << endl;

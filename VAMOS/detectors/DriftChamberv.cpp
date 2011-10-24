@@ -18,7 +18,7 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-DriftChamberv::DriftChamberv(LogFile *Log, Siv *SiD)
+DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
 {
 #ifdef DEBUG
   cout << "DriftChamberv::Constructor" << endl;

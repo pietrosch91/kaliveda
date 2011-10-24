@@ -20,7 +20,7 @@ $Date: 2007/06/08 15:49:10 $
 #define CSI
 
 #include"IonisationChamberv.h"
-#include"Siv.h"
+#include"Sive503.h"
 #include"CsIv.h"
 #include"DriftChamberv.h"
 #include"Reconstructionv.h"
@@ -40,7 +40,7 @@ class Analysisv_e503 : public Analysisv
   Reconstructionv *RC;
   Identificationv *Id;
   IonisationChamberv *Ic;
-  Siv *Si;
+  Sive503 *Si;
   CsIv *CsI;
   EnergyTree *energytree;
   

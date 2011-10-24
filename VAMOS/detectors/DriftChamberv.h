@@ -5,18 +5,18 @@
 #include"Defines.h"
 #include"LogFile.h"
 #include"Random.h"
- #include "Siv.h"
+ #include "Sive503.h"
 #include "TH2.h"
 
 class DriftChamberv
 {
    Bool_t Ready;
  public:
-  DriftChamberv(LogFile *Log, Siv *SiD);
+  DriftChamberv(LogFile *Log, Sive503 *SiD);
   virtual ~DriftChamberv(void);
   
   LogFile *L;
-  Siv *Si;
+  Sive503 *Si;
 
   bool Present; //true if focal coordinates determined
   bool PresentWires; //true if Wires are present

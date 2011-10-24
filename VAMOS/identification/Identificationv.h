@@ -9,7 +9,7 @@
 #include"Reconstructionv.h"
 #include"DriftChamberv.h"
 #include"IonisationChamberv.h"
-#include"Siv.h"
+#include"Sive503.h"
 #include"CsIv.h"
 #include "TCutG.h"
 #include "EnergyTree.h"
@@ -25,14 +25,14 @@ class Identificationv
 {
  public:
   Identificationv(LogFile *Log, Reconstructionv *Recon,
-		  DriftChamberv *Drift, IonisationChamberv *IonCh, Siv *SiD, CsIv *CsID, EnergyTree *E);
+		  DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, EnergyTree *E);
   virtual ~Identificationv(void);
   
   LogFile *L;
   Reconstructionv *Rec;
   DriftChamberv   *Dr;
   IonisationChamberv *Ic;
-  Siv *Si;
+  Sive503 *Si;
   CsIv *CsI;
   EnergyTree *energytree;
 
@@ -127,6 +127,7 @@ Int_t runFlag;
   Float_t E;
   Float_t T;
   Float_t V;
+  Float_t V2;
   Float_t Beta;
   Float_t Gamma;
   Float_t M_Q;
