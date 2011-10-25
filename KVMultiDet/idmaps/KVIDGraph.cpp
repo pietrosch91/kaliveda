@@ -277,6 +277,10 @@ void KVIDGraph::WriteParameterListOfIDTelescopes()
 	// Fill parameter "IDTelescopes" with list of names of telescopes associated
 	// with this grid, ready to write in ascii file
 
+	// if list of telescope pointers is empty, do nothing
+	// this is in case there are telescope names already in the IDTelescopes parameter
+	// but they are not telescopes in the current multi det array
+	if(!fTelescopes.GetEntries()) return;
 	fPar->SetValue("IDTelescopes", "");
 	KVString tel_list = GetNamesOfIDTelescopes();
 	fPar->SetValue("IDTelescopes",tel_list);
@@ -294,7 +298,15 @@ void KVIDGraph::FillListOfIDTelescopes()
 	if( fPar->HasParameter("IDTelescopes") ){
 		KVString tel_list = fPar->GetStringValue("IDTelescopes");
 		tel_list.Begin(",");
-		while (!tel_list.End() ) fTelescopes.Add( gMultiDetArray->GetIDTelescope( tel_list.Next().Data() ) );
+		while (!tel_list.End() ) {
+			TString tel_name = tel_list.Next();
+			KVIDTelescope* idt = gMultiDetArray->GetIDTelescope( tel_name.Data() ) ;
+			if( idt ) fTelescopes.Add( idt );
+			else {
+				Warning("FillListOfIDTelescopes", "Cannot find ID telescope %s in gMultiDetArray %p",
+					tel_name.Data(), gMultiDetArray);
+			}
+		}
 	}
 }
 
@@ -1087,6 +1099,13 @@ const Char_t* KVIDGraph::GetName() const
 	if(fName!="") return fName;
 	const_cast<KVIDGraph*>(this)->fDyName = "";
 	if(fTelescopes.At(0)) const_cast<KVIDGraph*>(this)->fDyName = fTelescopes.At(0)->GetName();
+	else {
+		if( fPar->HasParameter("IDTelescopes") ){
+			KVString tel_list = fPar->GetStringValue("IDTelescopes");
+			tel_list.Begin(",");
+			const_cast<KVIDGraph*>(this)->fDyName = tel_list.Next();
+		}
+	}
 	return fDyName;
 }
 
@@ -1276,6 +1295,14 @@ const Char_t* KVIDGraph::GetNamesOfIDTelescopes()
 	// this grid is valid.
 
 	static TString tel_list;
+	if(!fTelescopes.GetEntries()){
+		// case of grid with "unknown" ID telescopes
+		// we return the value of the IDTelescopes parameter (if defined)
+		if(fPar->HasParameter("IDTelescopes")){
+			tel_list = fPar->GetStringValue("IDTelescopes");
+			return tel_list.Data();
+		}
+	}
 	TIter next(&fTelescopes);
 	TObject* id = next();
 	if(id) tel_list = id->GetName();
