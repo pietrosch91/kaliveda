@@ -46,7 +46,9 @@ class KVIVReconIdent : public KVReconIdent
    Float_t  thetavam,brho;
    Double_t  brhorun;
    Double_t  thetavamrun;
-	
+   
+   KVINDRAReconNuc *part;
+   	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

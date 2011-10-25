@@ -18,9 +18,8 @@ class KVLightEnergyCsIVamos : public KVLightEnergyCsI
    
    virtual Double_t Compute(Double_t chan) const;
    virtual Double_t Invert(Double_t);
-
-
-   ClassDef(KVLightEnergyCsIVamos,1)//Specific light-Energy Function for Vamos CsI
+      
+   ClassDef(KVLightEnergyCsIVamos,1)//Specific light-Energy Function for Vamos CsI   
 };
 
 #endif

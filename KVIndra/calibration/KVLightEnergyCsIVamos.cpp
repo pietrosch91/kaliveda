@@ -69,8 +69,8 @@ Double_t KVLightEnergyCsIVamos::Compute(Double_t light) const
    Double_t par[5];
    for (int i = 0; i < 3; i++)
    par[i] = GetParameter(i);
-   par[3] = (Double_t) fZ;
-   par[4] = (Double_t) fA;
+   par[3] =  (Double_t)fZ;
+   par[4] =  (Double_t)fA;
   
    //const_cast<KVLightEnergyCsIVamos*>(this)->fLightVamos.SetParameters(par);
    fLightVamos.SetParameters(par);
@@ -99,8 +99,8 @@ Double_t KVLightEnergyCsIVamos::Invert(Double_t energy)
    Double_t par[5];
    for (int i = 0; i < 3; i++)
       par[i] = GetParameter(i);
-   par[3] = (Double_t) fZ;
-   par[4] = (Double_t) fA;
+   par[3] =  (Double_t)fZ;
+   par[4] =  (Double_t)fA;
    fLightVamos.SetParameters(par);
 
    return fLightVamos.Eval(energy);

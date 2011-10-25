@@ -65,17 +65,20 @@ void KVIVReconIdent::InitAnalysis(void)
    }
    //get VAMOS calibrator for current dataset
    fAnalyseV = Analysisv::NewAnalyser( gDataSet->GetName(), fLogV );
-
+   
+//gDataSetManager->GetDataSet("VAMOS_e503")->cd();
 //gDataSetManager->GetDataSet("INDRA_e503")->cd();
 /*gDataSetManager->GetDataSet("VAMOS_e503")->cd();
 gDataSet->BuildMultiDetector();
 v = new KVFocalPlanVamos();
 v->Build();
 */
-fAnalyseV->SetFocalPlan(v);
-ReadModuleMap(); 	//"module_map.dat"       
-fAnalyseV->SetModuleMap(module_map);
-LoadGrids();
+
+
+//fAnalyseV->SetFocalPlan(v);
+//ReadModuleMap(); 	//"module_map.dat"       
+//fAnalyseV->SetModuleMap(module_map);
+//LoadGrids();
 }
 
 //_____________________________________
@@ -96,19 +99,28 @@ void KVIVReconIdent::InitRun(void)
    Int_t run1;
    TString sline;
    
+// Initialisation of the DataSet :
+
+// Début partie commentée
+   
 //gDataSetManager->GetDataSet("INDRA_e503")->cd();
 gDataSetManager->GetDataSet("VAMOS_e503")->cd();
 //gDataSet->BuildMultiDetector();
+
+//LoadGrids();
 v = new KVFocalPlanVamos();
 v->Build();   
 
 v->SetParameters(gIndra->GetCurrentRunNumber());
 v->InitializeIDTelescopes(); 
-v->PrintStatusOfIDTelescopes();
+//v->PrintStatusOfIDTelescopes();
 
 fAnalyseV->SetFocalPlan(v);
 ReadModuleMap(); 	//"module_map.dat"       
 fAnalyseV->SetModuleMap(module_map);
+
+// Fin partie commentée
+
     
       //reading brho and thetavamos values
    if(!gDataSet->OpenDataSetFile("Vamos_run_brho_angle.dat",in))
@@ -156,17 +168,36 @@ Bool_t KVIVReconIdent::Analysis(void)
    fLogV->Log<<"ev num vamos="<<event<<endl;
    //fLogV->Log<<"GetMult		"<<GetEvent()->GetMult()<<endl;
    //fLogV->Log<<"-----------"<<endl;
-   
+
+// Identification of INDRA events
+      
    fEventNumber = GetEvent()->GetNumber();
    if (GetEvent()->GetMult() > 0) {
       GetEvent()->IdentifyEvent();
-      GetEvent()->CalibrateEvent();
+      GetEvent()->CalibrateEvent();      
+      
+      fLogV->Log<<"======"<<endl;
+      fLogV->Log<<"Mult. indra : "<<GetEvent()->GetMult()<<endl;
+      fLogV->Log<<"======"<<endl;
+      while(part = GetEvent()->GetNextParticle("ok")){
+        //fLogV->Log<<"ring indra : "<<part->GetRingNumber()<<endl;
+	//fLogV->Log<<"module indra : "<<part->GetModuleNumber()<<endl;
+      	//fLogV->Log<<"Z indra : "<<part->GetZ()<<endl;
+	
+      } 
    }
 
+
+// Ident/Reconstruction of VAMOS data
+
+// Début partie commentée
+   
    fAnalyseV->Treat();
    		
    fIdentTree->Fill();
    fAnalyseV->FillHistograms();
+
+// Fin partie commentée
    
 	event++;
     	
@@ -195,7 +226,7 @@ return runFlag;
 
 Int_t KVIVReconIdent::ReadModuleMap(){	//const Char_t *map	
 
-    printf("Reading the module map...\n");
+    //printf("Reading the module map...\n");
 
 ifstream f;
 if(!gDataSet->OpenDataSetFile("module_map.dat",f))
@@ -207,14 +238,14 @@ if(!gDataSet->OpenDataSetFile("module_map.dat",f))
 else 
   {
 
-    printf("Initialising null module_map...\n");
+    //printf("Initialising null module_map...\n");
     for(Int_t i=0; i<18; i++){
         for(Int_t j=0; j<80; j++){
             module_map[i][j] = "null";
         }
     }
 
-    printf("Reading the data...\n");
+    //printf("Reading the data...\n");
 
     Int_t si_num = 0;
     Int_t csi_num = 0;
@@ -236,7 +267,7 @@ else
             }else{
                 istringstream s (line);
                 s >> module_name >> csi_num;	//csi_num is real number (1-80) and si_num is (0-17)
-                printf("Processing Si(%02i) CsI(%02i)...\n", si_num+1, csi_num); // +1 on si to get real
+                //printf("Processing Si(%02i) CsI(%02i)...\n", si_num+1, csi_num); // +1 on si to get real
                 module_map[si_num][csi_num-1] = module_name;
             }
         }
@@ -244,7 +275,7 @@ else
 }
 
     f.close();
-    printf("Module map has been read successfully\n");
+    //printf("Module map has been read successfully\n");
 
     return 0;
 }

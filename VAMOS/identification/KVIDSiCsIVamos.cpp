@@ -8,6 +8,7 @@ $Date: 2009/01/21 08:04:20 $
 //Author: Abdelouahao Chbihi
 
 #include "KVIDSiCsIVamos.h"
+#include "KVINDRAReconNuc.h"
 #include "KVIDGridManager.h"
 #include "KVIdentificationResult.h"
 
