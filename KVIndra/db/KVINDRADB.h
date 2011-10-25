@@ -28,6 +28,7 @@
 #include "TEnv.h"
 #include "KVINDRARunListReader.h"
 #include "KVINDRAPulserDataTree.h"
+#include "KVNumberList.h"
 
 //dimension of run_range arrays
 #define MAX_NUM_RUN_RANGES 100
@@ -128,6 +129,12 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
                                  Double_t Q_apres_cible,
                                  Double_t Coul_par_top = 1.e-10) const;
    Double_t GetTotalCrossSection(Int_t run1, Int_t run2,
+                                 Double_t Q_apres_cible,
+                                 Double_t Coul_par_top = 1.e-10) const;
+   Double_t GetEventCrossSection(KVNumberList runs,
+                                 Double_t Q_apres_cible,
+                                 Double_t Coul_par_top = 1.e-10) const;
+   Double_t GetTotalCrossSection(KVNumberList runs,
                                  Double_t Q_apres_cible,
                                  Double_t Coul_par_top = 1.e-10) const;
    Double_t GetEventCrossSection(const Char_t * system, Int_t Mult_trigger,

@@ -1699,3 +1699,60 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
 }
 
 //_____________________________________________________________________________
+//__________________________________________________________________________________________________________________
+
+Double_t KVINDRADB::GetEventCrossSection(KVNumberList runs,
+                                         Double_t Q_apres_cible,
+                                         Double_t Coul_par_top) const
+{
+   // Returns calculated average cross-section [mb] per event for the runs in question.
+   // It is assumed that all runs correspond to the same reaction,
+   // with the same beam & target characteristics and multiplicity trigger.
+   // The target thickness etc. are taken from the first run.
+   
+   runs.Begin();
+   Int_t run1 = runs.Next();
+   KVTarget *targ = GetRun(run1)->GetTarget();
+   if (!targ) {
+      Error("GetEventCrossSection", "No target for run %d", run1);
+      return 0;
+   }
+   Double_t sum_xsec = 0;
+   runs.Begin();
+   while(!runs.End()){
+   
+   	int run = runs.Next();
+      if (!GetRun(run))
+         continue;              //skip non-existent runs
+      sum_xsec +=
+          GetRun(run)->GetNIncidentIons(Q_apres_cible,
+                                        Coul_par_top) * (1. - GetRun(run)->GetTempsMort());                                       
+   }
+   
+   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei * (1 - TM)) )
+   return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec));
+}
+
+//__________________________________________________________________________________________________________________
+
+Double_t KVINDRADB::GetTotalCrossSection(KVNumberList runs,
+                                         Double_t Q_apres_cible,
+                                         Double_t Coul_par_top) const
+{
+   //Returns calculated total measured cross-section [mb] for the runs in question.
+   //This is SUM (GetEventCrossSection(run1,run2) * SUM( events )
+   //where SUM(events) is the total number of events measured in all the runs
+   Int_t sum = 0;
+   runs.Begin();
+   while(!runs.End()) {
+			int run = runs.Next();
+      if (!GetRun(run))
+         continue;              //skip non-existent runs
+      sum += GetRun(run)->GetEvents();
+
+   }
+   return sum * GetEventCrossSection(runs, Q_apres_cible,
+                                     Coul_par_top);
+}
+
+
