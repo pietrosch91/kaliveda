@@ -91,7 +91,7 @@ endif
 KVRSRDS = runsheetreader.cpp
 KVRSRDO = runsheetreader.$(ObjSuf)
 KVRSRD  = KVDataBaseGUI$(ExeSuf)
-KVRSRD_LIBS = $(LIBKVINDRA)
+KVRSRD_LIBS = $(LINK_LIBS)
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVRSRD_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
 endif
@@ -107,7 +107,7 @@ endif
 KVGUIS = KaliVedaGUI.cpp
 KVGUIO = KaliVedaGUI.$(ObjSuf)
 KVGUI  = KaliVedaGUI$(ExeSuf)
-KVGUI_LIBS = $(LIBKVINDRA)
+KVGUI_LIBS = $(LIBKVINDRA) -L$(ROOTSYS)/lib -lGui
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVGUI_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
 endif
