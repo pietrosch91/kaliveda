@@ -33,6 +33,7 @@
 #include "KVDataSetManager.h"
 #include "KVCsI.h"
 #include "TH1.h"
+#include "KVNumberList.h"
 
 KVINDRADB *gIndraDB;
 
@@ -116,11 +117,33 @@ void KVINDRADB::LinkRecordToRunRange(KVDBRecord * rec, UInt_t first_run,
    //and the runs. The list of associated runs will be kept with the record, and each of the runs
    //will have a link to the record.
 
-   for (UInt_t i = first_run; i <= last_run; i++) {
-      KVDBRun *run = GetRun(i);
-      if (run)
-         rec->AddLink("Runs", run);
+   for (UInt_t ii = first_run; ii <= last_run; ii++) {
+      LinkRecordToRun(rec,ii);
    }
+}
+//_____________________________________________________________________
+void KVINDRADB::LinkRecordToRunRange(KVDBRecord * rec, KVNumberList nl)
+{
+   //If the KVDBRecord 'rec' (i.e. set of calibration parameters, reaction system, etc.) is
+   //associated to, or valid for, a range of runs, we use this method in order to link the record
+   //and the runs. The list of associated runs will be kept with the record, and each of the runs
+   //will have a link to the record.
+	nl.Begin(); 
+	while (!nl.End()){
+		Int_t rr = nl.Next();
+		//Info("LinkRecordToRunRange","run number %d",rr);
+   	LinkRecordToRun(rec,rr);
+	}
+}
+
+//_____________________________________________________________________
+void KVINDRADB::LinkRecordToRun(KVDBRecord * rec, Int_t rnumber)
+{
+
+	KVDBRun *run = GetRun(rnumber);
+	if (run)
+		rec->AddLink("Runs", run);
+
 }
 
 //_____________________________________________________________________
@@ -169,6 +192,27 @@ void KVINDRADB::LinkListToRunRanges(TList * list, UInt_t rr_number,
          next.Reset();
       }
    }
+}
+//______________________________________________________________________________
+void KVINDRADB::LinkListToRunRange(TList * list, KVNumberList nl)
+{
+   //Link the records contained in the list to the set of runs (see LinkRecordToRunRanges).
+
+   if (!list) {
+      Error("LinkListToRunRange",
+            "NULL pointer passed for parameter TList");
+      return;
+   }
+   if (list->GetSize() == 0) {
+      Error("LinkListToRunRange(TList*,KVNumberList)",
+            "The list is empty");
+      return;
+   }
+   TIter next(list);
+   KVDBRecord *rec;
+  	while ((rec = (KVDBRecord *) next())) {
+   	LinkRecordToRunRange(rec, nl);
+	}
 }
 
 //____________________________________________________________________________

@@ -70,6 +70,7 @@
 #pragma link C++ class KVINDRADB4;
 #pragma link C++ class KVINDRADB_e475s;
 #pragma link C++ class KVINDRADB_e503;
+#pragma link C++ class KVINDRADB_e613;
 #pragma link C++ class KVINDRAPulserDataTree+;
 #pragma link C++ class KVINDRATriggerInfo+;
 #pragma link C++ class KVINDRAUpDater;

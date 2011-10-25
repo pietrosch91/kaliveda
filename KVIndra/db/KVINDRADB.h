@@ -33,6 +33,8 @@
 //dimension of run_range arrays
 #define MAX_NUM_RUN_RANGES 100
 
+class KVNumberList;
+
 class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 
  private:
@@ -68,7 +70,11 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
                                       UInt_t run_ranges[][2]);
    virtual void LinkRecordToRunRange(KVDBRecord * rec, UInt_t first_run,
                                      UInt_t last_run);
-   virtual void ReadSystemList();
+   virtual void LinkListToRunRange(TList * list, KVNumberList nl);
+   virtual void LinkRecordToRunRange(KVDBRecord * rec,  KVNumberList nl);
+   virtual void LinkRecordToRun(KVDBRecord * rec,  Int_t run);
+	
+	virtual void ReadSystemList();
    virtual void ReadGainList();
    virtual void ReadChIoPressures();
 	virtual void ReadCsITotalLightGainCorrections();
