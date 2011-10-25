@@ -409,7 +409,7 @@ void KV2Body::CalculateKinematics()
    
    // call SetOutgoing if not already done
    if(!fSetOutgoing) SetOutgoing(Nuc1);
-   fSetOutgoing = kFALSE;
+   //fSetOutgoing = kFALSE;
 
    // set everything to zero   
    WLT = WCT = BCM = 0.;
