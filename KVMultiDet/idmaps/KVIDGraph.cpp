@@ -185,7 +185,6 @@ void KVIDGraph::SetXScaleFactor(Double_t s)
       Scale(1.0 / fLastScaleX);
       fLastScaleX = 1.0;
    }
-	Modified();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +202,6 @@ void KVIDGraph::SetYScaleFactor(Double_t s)
       Scale(-1.0, 1.0 / fLastScaleY);
       fLastScaleY = 1.0;
    }
-	Modified();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -278,7 +276,7 @@ void KVIDGraph::WriteParameterListOfIDTelescopes()
 {
 	// Fill parameter "IDTelescopes" with list of names of telescopes associated
 	// with this grid, ready to write in ascii file
-	
+
 	// if list of telescope pointers is empty, do nothing
 	// this is in case there are telescope names already in the IDTelescopes parameter
 	// but they are not telescopes in the current multi det array
@@ -360,6 +358,8 @@ void KVIDGraph::WriteToAsciiFile(ofstream & gridfile)
    gridfile << "# " << endl;
    gridfile << "++" << ClassName() << endl;
 
+   // write name if given
+   if(fName!="") gridfile << "<NAME> " << fName.Data() << endl;
    //write X & Y axis names
 	gridfile << "<VARX> " << GetVarX() << endl;
 	gridfile << "<VARY> " << GetVarY() << endl;
@@ -439,6 +439,11 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
             Warning("ReadFromAsciiFile(ofstream&)",
                     "Class name in file %s does not correspond to this class (%s)",
                     s.Data(), ClassName());
+      } else if (s.BeginsWith("<NAME>")) {
+         //name of grid
+         s.Remove(0, 7);
+			s.Remove( TString::kBoth, ' ');//remove whitespace
+			SetName(s.Data());
       } else if (s.BeginsWith("<VARX>")) {
          //x-axis definition
          s.Remove(0, 7);
@@ -1101,6 +1106,7 @@ const Char_t* KVIDGraph::GetName() const
 			const_cast<KVIDGraph*>(this)->fDyName = tel_list.Next();
 		}
 	}	
+
 	return fDyName;
 }
 

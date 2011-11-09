@@ -124,7 +124,7 @@ void KVParticle::init()
 {
    //default initialisation
    fE0 = 0;
-   fGroups = new KVUniqueNameList(); fGroups->SetOwner(kTRUE);
+   fGroups = 0;
 	SetFrameName("");
    fBoosted = 0;
 }
@@ -164,8 +164,11 @@ KVParticle::~KVParticle()
 {
    //dtor
    Clear();
-   if (fBoosted) delete fBoosted;
-	delete fGroups;
+	/*
+	Mise en commentaire ces deux pointeurs sont deja delete et mis a zero dans Clear
+	if (fBoosted) delete fBoosted;
+	if (fGroups) delete fGroups;
+	*/
 }
 
 //________________________________________________________
@@ -291,8 +294,13 @@ void KVParticle::Clear(Option_t * opt)
    ResetIsOK();                 //in case IsOK() status was set "by hand" in previous event
    ResetBit(kIsDetected);
 	
-	GetGroups()->Clear();
-   if (fBoosted) {
+	if (fGroups) {
+		fGroups->Clear();
+   	delete fGroups;
+		fGroups = 0;
+	}
+	
+	if (fBoosted) {
 		fBoosted->Clear();
       delete fBoosted;
       fBoosted = 0;
@@ -368,7 +376,44 @@ const Char_t *KVParticle::GetName() const
 }
 
 //___________________________________________________________________________//
-
+void KVParticle::AddGroup_Withcondition(const Char_t*, KVParticleCondition*)
+{
+	// Dummy implementation of AddGroup(const Char_t* groupname, KVParticleCondition*)
+	// Does nothing. Real implementation is in KVNucleus::AddGroup_Withcondition.
+	Warning("AddGroup_Withcondition","DUUUUUUUUUUUUUMYYYYYYY do nothing");
+};
+	
+//___________________________________________________________________________//
+void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* from)
+{
+   // Implementation of AddGroup_Sansconditioncon(st Char_t*, const Char_t*)
+	// Can be overridden in child classes [instead of AddGroup(const Char_t*, const Char_t*),
+	// which cannot]
+	// if this method is overridde in child class
+	// the line 
+	//         if (!fGroups) CreateGroups();
+	// has to be included
+	
+	TString sfrom(from);
+	sfrom.ToUpper();
+	TString sgroupname(groupname);
+	sgroupname.ToUpper();
+	
+	//Creation of the list of groups
+	//if the method is derive in other class
+	//this line has to be included
+	if (!fGroups) CreateGroups();
+	
+	if ( BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data()) ){
+		fGroups->Add(new TObjString(sgroupname.Data()));
+		if (fBoosted){
+			TString inst; inst.Form("\"%s\"",sgroupname.Data());
+			fBoosted->Execute("AddGroup",inst.Data());
+		}
+	}
+}
+	
+//___________________________________________________________________________//
 void KVParticle::AddGroup(const Char_t* groupname,const Char_t* from)
 {
    // Associate this particle with the given named group. 
@@ -380,27 +425,6 @@ void KVParticle::AddGroup(const Char_t* groupname,const Char_t* from)
 	AddGroup_Sanscondition(groupname,from);
 }
 
-//___________________________________________________________________________//
-
-void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* from)
-{
-   // Implementation of AddGroup(const Char_t*, const Char_t*)
-	// Can be overridden in child classes [instead of AddGroup(const Char_t*, const Char_t*),
-	// which cannot]
-	//Info("AddGroup_Sanscondition","%s",groupname);
-	TString sfrom(from);
-	sfrom.ToUpper();
-	TString sgroupname(groupname);
-	sgroupname.ToUpper();
-	
-	if ( BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data()) ){
-		fGroups->Add(new TObjString(sgroupname.Data()));
-		if (fBoosted){
-			TString inst; inst.Form("\"%s\"",sgroupname.Data());
-			fBoosted->Execute("AddGroup",inst.Data());
-		}
-	}
-}
 
 //___________________________________________________________________________//
 
@@ -416,27 +440,79 @@ void KVParticle::AddGroup(const Char_t* groupname, KVParticleCondition* cond)
 }
 
 //___________________________________________________________________________//
+void KVParticle::CreateGroups()
+{
+	//Method called to created the pointeur fGroups
+	//and defined it has owner of its objects
+	//
+	fGroups = new KVUniqueNameList();
+	fGroups->SetOwner(kTRUE);
+	
+}
+	
+//___________________________________________________________________________//
+void KVParticle::SetGroups(KVUniqueNameList* un)
+{ 
+	//Define for the particle a new list of groups
+	//if there is an existing list, it's deleted	
+	if (fGroups)
+		fGroups->Clear();
+	else 
+		CreateGroups();
+		
+	AddGroups(un);
+}
+	
+//___________________________________________________________________________//
+void KVParticle::AddGroups(KVUniqueNameList* un)
+{
+	//list of groups added to the current one
+	TObjString* os = 0;
+	TIter no(un);
+	while ( (os = (TObjString* )no.Next()) ) {
+		AddGroup(os->GetName());
+	}
 
+}
+//___________________________________________________________________________//
+Int_t KVParticle::GetNumberOfDefinedGroups(void)
+{  
+	//return the number of defined groups for the particle
+	if (fGroups)	return fGroups->GetEntries();
+	else 				return 0;
+}
+	
+//___________________________________________________________________________//
+KVUniqueNameList* KVParticle::GetGroups() const
+{
+	//return the KVUniqueNameList pointeur where list of groups are stored
+	return fGroups;
+
+}
+
+//___________________________________________________________________________//
 Bool_t KVParticle::BelongsToGroup(const Char_t* groupname) const
 {
    //Check if particle belong to a given group
 	//return kTRUE if groupname="".
+	//return kFALSE if no group has be defined
 	
 	TString sgroupname(groupname);
 	sgroupname.ToUpper();	
 	//Important for KVEvent::GetNextParticle()
 	if (sgroupname.IsNull()) return kTRUE;
-	
+	//retourne kFALSE si aucun groupe n'est defini
+	if (!fGroups) return kFALSE;
 	if ( fGroups->FindObject(sgroupname.Data()) ) return kTRUE;
 	return kFALSE;
 }
 
 //___________________________________________________________________________//
-
 void KVParticle::RemoveGroup(const Char_t* groupname)
 {
    // Remove group from list of groups
 	// Apply the method to all particles stored in fBoosted
+	if (!fGroups) return;
 	TString sgroupname(groupname);
 	sgroupname.ToUpper();
 	
@@ -449,12 +525,13 @@ void KVParticle::RemoveGroup(const Char_t* groupname)
 		}
 	}	
 }
-//___________________________________________________________________________//
 
+//___________________________________________________________________________//
 void KVParticle::RemoveAllGroups()
 {
    //Remove all groups
 	// Apply the method to all particles stored in fBoosted
+	if (!fGroups) return;
 	fGroups->Clear();
 	if (fBoosted) fBoosted->Execute("RemoveAllGroups","");
 }
@@ -464,7 +541,10 @@ void KVParticle::RemoveAllGroups()
 void KVParticle::ListGroups(void) const
 {
    //List all stored groups
-	
+	if (!fGroups) {
+		cout << "Cette particle n appartient a aucun groupe" << endl;
+		return;
+	}
 	if (fGroups->GetEntries()==0) {
 		cout << "Cette particle n appartient a aucun groupe" << endl;
 		return;

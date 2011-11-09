@@ -92,9 +92,11 @@ Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "K
 +Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
 # Different types of data which can be associated with datasets
+# KVDataSet.DataTypes: online raw dst recon ident root
 KVDataSet.DataTypes: raw dst recon ident root
 #
 # Names used for subdirectories containing data of different types
+# KVDataSet.DataType.Subdir.online:  raw
 KVDataSet.DataType.Subdir.raw:  raw
 KVDataSet.DataType.Subdir.dst:  dst
 KVDataSet.DataType.Subdir.recon:  recon2
@@ -102,6 +104,7 @@ KVDataSet.DataType.Subdir.ident:  ident2
 KVDataSet.DataType.Subdir.root:  root2
 #
 # Default formats for runfile names (run number is used to replace integer format)
+# DataSet.RunFileName.online:    run%d.raw
 DataSet.RunFileName.raw:    run%d.raw
 DataSet.RunFileName.dst:    run%d.dst
 DataSet.RunFileName.recon:    run%d.recon.root
@@ -109,6 +112,7 @@ DataSet.RunFileName.ident:    run%d.ident.root
 DataSet.RunFileName.root:    run%d.root
 #
 # Default base classes for reading runfiles of different types
+# DataSet.RunFileClass.online:    KVRawDataReader
 DataSet.RunFileClass.raw:    KVRawDataReader
 DataSet.RunFileClass.recon:    TFile
 DataSet.RunFileClass.ident:    TFile
@@ -185,6 +189,14 @@ t10_02.DataSet.RepositoryDir:   t10_02
 t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
 t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
++DataSet:   INDRA_e613
+INDRA_e613.DataSet.Title:    The Last Experiment (Ever)
+INDRA_e613.DataSet.RepositoryDir:   e613
+INDRA_e613.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+# INDRA_e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
+# INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
+
 # Default task list used by KVDataSetManager::Init()
 DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
@@ -247,6 +259,58 @@ t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
 
+# Experience e613
+# The marqueuers de temps for silicon detectors from SI_0101 to SI_0324
+# are replaced by TDC modules, the parameter names are 'SI_0101_TOF' etc.
+INDRA_e613.KVACQParam.SI_0101.T:    TOF
+INDRA_e613.KVACQParam.SI_0102.T:    TOF
+INDRA_e613.KVACQParam.SI_0103.T:    TOF
+INDRA_e613.KVACQParam.SI_0104.T:    TOF
+INDRA_e613.KVACQParam.SI_0105.T:    TOF
+INDRA_e613.KVACQParam.SI_0106.T:    TOF
+INDRA_e613.KVACQParam.SI_0107.T:    TOF
+INDRA_e613.KVACQParam.SI_0108.T:    TOF
+INDRA_e613.KVACQParam.SI_0109.T:    TOF
+INDRA_e613.KVACQParam.SI_0110.T:    TOF
+INDRA_e613.KVACQParam.SI_0111.T:    TOF
+INDRA_e613.KVACQParam.SI_0112.T:    TOF
+INDRA_e613.KVACQParam.SI_0201.T:    TOF
+INDRA_e613.KVACQParam.SI_0203.T:    TOF
+INDRA_e613.KVACQParam.SI_0205.T:    TOF
+INDRA_e613.KVACQParam.SI_0207.T:    TOF
+INDRA_e613.KVACQParam.SI_0209.T:    TOF
+INDRA_e613.KVACQParam.SI_0211.T:    TOF
+INDRA_e613.KVACQParam.SI_0213.T:    TOF
+INDRA_e613.KVACQParam.SI_0215.T:    TOF
+INDRA_e613.KVACQParam.SI_0217.T:    TOF
+INDRA_e613.KVACQParam.SI_0219.T:    TOF
+INDRA_e613.KVACQParam.SI_0221.T:    TOF
+INDRA_e613.KVACQParam.SI_0223.T:    TOF
+INDRA_e613.KVACQParam.SI_0301.T:    TOF
+INDRA_e613.KVACQParam.SI_0302.T:    TOF
+INDRA_e613.KVACQParam.SI_0303.T:    TOF
+INDRA_e613.KVACQParam.SI_0304.T:    TOF
+INDRA_e613.KVACQParam.SI_0305.T:    TOF
+INDRA_e613.KVACQParam.SI_0306.T:    TOF
+INDRA_e613.KVACQParam.SI_0307.T:    TOF
+INDRA_e613.KVACQParam.SI_0308.T:    TOF
+INDRA_e613.KVACQParam.SI_0309.T:    TOF
+INDRA_e613.KVACQParam.SI_0310.T:    TOF
+INDRA_e613.KVACQParam.SI_0311.T:    TOF
+INDRA_e613.KVACQParam.SI_0312.T:    TOF
+INDRA_e613.KVACQParam.SI_0313.T:    TOF
+INDRA_e613.KVACQParam.SI_0314.T:    TOF
+INDRA_e613.KVACQParam.SI_0315.T:    TOF
+INDRA_e613.KVACQParam.SI_0316.T:    TOF
+INDRA_e613.KVACQParam.SI_0317.T:    TOF
+INDRA_e613.KVACQParam.SI_0318.T:    TOF
+INDRA_e613.KVACQParam.SI_0319.T:    TOF
+INDRA_e613.KVACQParam.SI_0320.T:    TOF
+INDRA_e613.KVACQParam.SI_0321.T:    TOF
+INDRA_e613.KVACQParam.SI_0322.T:    TOF
+INDRA_e613.KVACQParam.SI_0323.T:    TOF
+INDRA_e613.KVACQParam.SI_0324.T:    TOF
+
 # By default the file containing reconstructed events will be written in the same data repository
 # as the raw data file from which it is created.
 # This can be changed by setting the environment variable(s):
@@ -289,6 +353,14 @@ RawAnalysis.DataAnalysisTask.Prereq:     raw
 RawAnalysis.DataAnalysisTask.Analyser:     UserClass
 RawAnalysis.DataAnalysisTask.UserClass:     yes
 RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+
+# +DataAnalysisTask:     OnlineAnalysis
+# OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
+# OnlineAnalysis.DataAnalysisTask.Prereq:     online
+# OnlineAnalysis.DataAnalysisTask.Analyser:     UserClass
+# OnlineAnalysis.DataAnalysisTask.UserClass:     yes
+# OnlineAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+# OnlineAnalysis.DataAnalysisTask.UserClass.ExtraACliCIncludes:     -DONLINE_ANALYSIS
 
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
@@ -367,6 +439,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   INDRARawDataIdent      KVINDRARawIdent              KVIndra "KVINDRARawIdent()"
 +Plugin.KVDataAnalyser:   IVRawDataRecon         KVIVRawDataReconstructor     VAMOS   "KVIVRawDataReconstructor()"
 +Plugin.KVDataAnalyser:   IVRawDataAnalyser      KVIVRawDataAnalyser          VAMOS   "KVIVRawDataAnalyser()"
+# +Plugin.KVDataAnalyser:   INDRAOnlineDataAnalyser   KVINDRAOnlineDataAnalyser     KVIndra     "KVINDRAOnlineDataAnalyser()"   
 # TSelector plugins for analysis of ROOT TTrees
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
 +Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
@@ -393,6 +466,8 @@ Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransf
 # Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 +Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
+# +Plugin.KVRawDataReader:    online.*    KVGRUNetClientGanilReader     KVMultiDet   "KVGRUNetClientGanilReader()"
+# KVGRUNetClientGanilReader.AcqHostName:     ganp1010
 +Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
 
 # Plugins for KVGANILDataReader/GTGanilData class
@@ -532,6 +607,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA4     KVIndra    "KVINDRA4()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.

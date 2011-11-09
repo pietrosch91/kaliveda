@@ -65,20 +65,10 @@ void KVIVReconIdent::InitAnalysis(void)
    }
    //get VAMOS calibrator for current dataset
    fAnalyseV = Analysisv::NewAnalyser( gDataSet->GetName(), fLogV );
-   
-//gDataSetManager->GetDataSet("VAMOS_e503")->cd();
-//gDataSetManager->GetDataSet("INDRA_e503")->cd();
-/*gDataSetManager->GetDataSet("VAMOS_e503")->cd();
-gDataSet->BuildMultiDetector();
-v = new KVFocalPlanVamos();
-v->Build();
-*/
 
-
-//fAnalyseV->SetFocalPlan(v);
 //ReadModuleMap(); 	//"module_map.dat"       
 //fAnalyseV->SetModuleMap(module_map);
-//LoadGrids();
+LoadGrids();
 }
 
 //_____________________________________
@@ -99,28 +89,8 @@ void KVIVReconIdent::InitRun(void)
    Int_t run1;
    TString sline;
    
-// Initialisation of the DataSet :
-
-// Début partie commentée
-   
-//gDataSetManager->GetDataSet("INDRA_e503")->cd();
-gDataSetManager->GetDataSet("VAMOS_e503")->cd();
-//gDataSet->BuildMultiDetector();
-
-//LoadGrids();
-v = new KVFocalPlanVamos();
-v->Build();   
-
-v->SetParameters(gIndra->GetCurrentRunNumber());
-v->InitializeIDTelescopes(); 
-//v->PrintStatusOfIDTelescopes();
-
-fAnalyseV->SetFocalPlan(v);
-ReadModuleMap(); 	//"module_map.dat"       
-fAnalyseV->SetModuleMap(module_map);
-
-// Fin partie commentée
-
+//ReadModuleMap(); 	//"module_map.dat"       
+//fAnalyseV->SetModuleMap(module_map);
     
       //reading brho and thetavamos values
    if(!gDataSet->OpenDataSetFile("Vamos_run_brho_angle.dat",in))
@@ -177,27 +147,23 @@ Bool_t KVIVReconIdent::Analysis(void)
       GetEvent()->CalibrateEvent();      
       
       fLogV->Log<<"======"<<endl;
-      fLogV->Log<<"Mult. indra : "<<GetEvent()->GetMult()<<endl;
+      fLogV->Log<<"Mult. indra	: "<<GetEvent()->GetMult()<<endl;
       fLogV->Log<<"======"<<endl;
       while(part = GetEvent()->GetNextParticle("ok")){
-        //fLogV->Log<<"ring indra : "<<part->GetRingNumber()<<endl;
-	//fLogV->Log<<"module indra : "<<part->GetModuleNumber()<<endl;
-      	//fLogV->Log<<"Z indra : "<<part->GetZ()<<endl;
+        fLogV->Log<<"ring indra	: "<<part->GetRingNumber()<<endl;
+	fLogV->Log<<"module indra	: "<<part->GetModuleNumber()<<endl;
+      	fLogV->Log<<"Z indra		: "<<part->GetZ()<<endl;				
 	
       } 
    }
 
 
 // Ident/Reconstruction of VAMOS data
-
-// Début partie commentée
    
    fAnalyseV->Treat();
    		
    fIdentTree->Fill();
    fAnalyseV->FillHistograms();
-
-// Fin partie commentée
    
 	event++;
     	
@@ -212,7 +178,6 @@ void KVIVReconIdent::EndAnalysis(void)
 {
    fAnalyseV->SetRunFlag(-5);	
    	delete fLogV;
-	delete v;
 }
 
 Int_t KVIVReconIdent::SetRunFlag(Int_t flag){
@@ -283,9 +248,11 @@ else
 Bool_t KVIVReconIdent::LoadGrids(){
 
     const char *grid_map= "grid_vamos.dat";
-
+    const char *grid_map2= "SI_CSI_C4-9.dat";
+    
     printf("Attempting to load grids from %s...\n", grid_map);
-
+    printf("Attempting to load grids from %s...\n", grid_map2);
+    
     if(gIDGridManager == 0){
         printf("gIDGridManager not running\n");
         return 1;
@@ -293,17 +260,21 @@ Bool_t KVIVReconIdent::LoadGrids(){
 
     char ds_path[256];
     sprintf(ds_path, "null");
-
+    char ds_path2[256];
+    sprintf(ds_path2, "null");
+    
     if(gDataSet->GetDataSetDir() == 0){
         printf("Failed to retrieve data set dir string\n");  
         return 1;
     }
 
     sprintf(ds_path, "%s/%s", gDataSet->GetDataSetDir(), grid_map);
-
-    printf("Reading grid map: %s\n", grid_map);
-    if(gIDGridManager->ReadAsciiFile(ds_path) != 0){
-        printf("Grids loaded\n");
+    sprintf(ds_path2, "%s/%s", gDataSet->GetDataSetDir(), grid_map2);
+    
+    printf("Reading grid map: %s\n", grid_map);    
+    printf("Reading grid map: %s\n", grid_map2);
+    if(gIDGridManager->ReadAsciiFile(ds_path) != 0 && gIDGridManager->ReadAsciiFile(ds_path2) != 0){
+        printf("All Grids from Indra and Vamos loaded\n");
     }else{
         return 1;
     }

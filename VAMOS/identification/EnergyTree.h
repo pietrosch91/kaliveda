@@ -13,6 +13,7 @@
 #include "KVDetector.h"
 #include "KVTelescope.h"
 #include "KVIDTelescope.h"
+#include "KVList.h"
 #include "TCut.h"
 #include "Sive503.h"
 #include "CsIv.h"
@@ -23,9 +24,10 @@
 #include "KVSiliconVamos.h"
 #include "KVCsIVamos.h"
 #include "KVIDSiCsIVamos.h"
+#include "KVIDGraph.h"
+#include "KVIDZAGrid.h"
 
 #include "KVClassMonitor.h"
-#include "KVFocalPlanVamos.h"
 #include <string>
 #include <string.h>
 
@@ -87,8 +89,7 @@ class EnergyTree
         
         Double_t thick;
 	
-	KVReconstructedNucleus *frag;
-	KVFocalPlanVamos *v;	
+	KVReconstructedNucleus *frag;	
         KVLightEnergyCsIVamos* lum;
         
         KVTelescope *kvt_icsi;
@@ -99,8 +100,8 @@ class EnergyTree
 	KVCsIVamos *kvd_csi;
 		
 	KVDetector *kvd_gap;	
-	KVSeqCollection *list;
-        KVIDSiCsIVamos *kvid;
+	KVList *list;
+        KVIDGraph *kvid;
 	//KVIDTelescope *kvid;
 	
         IonisationChamber *ioCh;
@@ -125,11 +126,9 @@ class EnergyTree
         //necessary methods to Init 
         Double_t GetSiliconThickness(Int_t);
         void SetSiliconThickness(Int_t);
-        void SetFocalPlan(KVFocalPlanVamos *);
-	KVFocalPlanVamos* GetFocalPlan(void);
 	void SetModuleMap(string id_modulemap[18][80]);  
 	string GetModuleName(Int_t, Int_t);
-	void InitTelescope(KVFocalPlanVamos *, Int_t, Int_t);
+	void InitTelescope(Int_t, Int_t);
         //void InitDetector(Int_t);
             
         void InitIcSi(Int_t);

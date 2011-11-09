@@ -3,14 +3,14 @@
 
 
 #include "Rtypes.h"
-#include"Defines.h"
-#include"LogFile.h"
-#include"Random.h"
-#include"Reconstructionv.h"
-#include"DriftChamberv.h"
-#include"IonisationChamberv.h"
-#include"Sive503.h"
-#include"CsIv.h"
+#include "Defines.h"
+#include "LogFile.h"
+#include "Random.h"
+#include "Reconstructionv.h"
+#include "DriftChamberv.h"
+#include "IonisationChamberv.h"
+#include "Sive503.h"
+#include "CsIv.h"
 #include "TCutG.h"
 #include "EnergyTree.h"
 
@@ -127,6 +127,10 @@ Int_t runFlag;
   Float_t E;
   Float_t T;
   Float_t V;
+  
+  Float_t V_Etot;
+  Float_t T_FP;
+  
   Float_t V2;
   Float_t Beta;
   Float_t Gamma;

@@ -42,6 +42,13 @@ class Reconstructionv
   Random *Rnd;
 
   Float_t BrhoRef;
+  Float_t DDC1;   
+  Float_t DSED1; 
+  Float_t DDC2;
+  Float_t DCHIO;
+  Float_t DSI;
+  Float_t DCSI;
+      
   Double_t Coef[4][330]; //D,T,P,Path seventh order reconst in x,y,t,p
   
   Float_t Theta;

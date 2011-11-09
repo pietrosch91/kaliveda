@@ -30,7 +30,6 @@ $Date: 2007/06/08 15:49:10 $
 #include"Analysisv.h"
 
 #include "TTree.h"
-#include "KVFocalPlanVamos.h"
 
 class Analysisv_e503 : public Analysisv
 {
@@ -62,13 +61,11 @@ class Analysisv_e503 : public Analysisv
   Double_t GetBrhoRef(void);
   Double_t GetAngleVamos(void);
   
-  void SetFocalPlan(KVFocalPlanVamos *);
   void SetModuleMap(string map[18][80]);
   void SetRunFlag(Int_t); 
   Int_t GetRunFlag(void);
   
   string mmodulemap[18][80];
-  KVFocalPlanVamos* vv;
   Int_t rrunFlag;  
   Double_t BB;
   Double_t ttheta;

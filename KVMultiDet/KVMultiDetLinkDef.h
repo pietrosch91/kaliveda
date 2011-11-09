@@ -47,7 +47,7 @@
 #pragma link C++ class Hexa_t+;
 #pragma link C++ class KVACQParam+;
 #pragma link C++ class KVAvailableRunsFile+;
-#pragma link C++ class KVNameValueList+;
+#pragma link C++ class KVNameValueList-;//customised streamer
 #pragma link C++ class KVSimNucleus+;
 #pragma link C++ class KVSimEvent-;
 #pragma link C++ class KVRemoteAvailableRunsFile+;
@@ -264,4 +264,7 @@
 #pragma link C++ class KVIonRangeTable+;
 #pragma link C++ class KVedaLossMaterial+;
 #pragma link C++ class KVedaLoss+;
+#ifdef WITH_GRULIB
+#pragma link C++ class KVGRUNetClientGanilReader+;
+#endif
 #endif

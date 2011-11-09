@@ -14,6 +14,7 @@
 #include "KVSeqCollection.h"
 #include "KVIDGridManager.h"
 #include "KVIDZAGrid.h"
+#include "KVIDSiCsIVamos.h"
 
 #include <stdio.h>
 
@@ -113,17 +114,6 @@ Double_t EnergyTree::GetSiliconThickness(Int_t number)
     lum=new KVLightEnergyCsI(csi);
 }*/
 
-
-void EnergyTree::SetFocalPlan(KVFocalPlanVamos *vv)
-{
-v = vv;
-}
-
-KVFocalPlanVamos* EnergyTree::GetFocalPlan(void)
-{
-return v;
-}
-
 void EnergyTree::SetModuleMap(string id_modulemap[18][80])
 {
 for(Int_t i=0;i<18;i++){
@@ -149,11 +139,8 @@ cout<<" Si and CsI : "<<si<<" "<<csi<<endl;
 return name;
 }
 
-void EnergyTree::InitTelescope(KVFocalPlanVamos *vamos, Int_t si_num ,Int_t csi_num)
+void EnergyTree::InitTelescope(Int_t si_num ,Int_t csi_num)
 {
-
-   // printf("EnergyTree::InitTelescope():\n");
-   // printf("Arguments passed: KVFocalPlanVamos %p, si_num %i, csi_num %i\n", vamos, si_num, csi_num);
     
     Char_t si_name [128] = "null";
     Char_t csi_name [128] = "null";
@@ -162,64 +149,54 @@ void EnergyTree::InitTelescope(KVFocalPlanVamos *vamos, Int_t si_num ,Int_t csi_
     sprintf(si_name, "SIE_%02i", si_num+1); 
     sprintf(csi_name, "CSI%02i", csi_num+1);
 	
-    module_name = GetModuleName(si_num, csi_num);		//Original
+    //module_name = GetModuleName(si_num, csi_num);		//Original
 
     Char_t tel_name [128] = "null";
     sprintf(tel_name, "SIE_%02i_CSI%02i", si_num+1, csi_num+1);
 
-    list = 0;
+    list = 0;        
+    KVList *grid_list = 0;
     kvid = 0;
-    kvd_csi = 0;
-    kvd_si = 0;
+    KVNumberList runList = 0;
 
-    list = (KVSeqCollection*) vamos->GetListOfIDTelescopes();
-
-    if(list != 0){
-
-        kvid = (KVIDSiCsIVamos*) list->FindObjectByName(tel_name);				//FindObjectByName(module_name.c_str())
-	    //kvid = (KVIDSiCsIVamos*) vamos->GetIDTelescope(tel_name);				
+    list = (KVList*) gIDGridManager->GetGrids();
 		
-	if(kvid != 0){
-            // Check to see if we are in the correct telescope
-            kvd_csi = (KVCsIVamos*) kvid->GetDetector(csi_name);
-            kvd_si  = (KVSiliconVamos*) kvid->GetDetector(si_name);
-	        //kvd_gap = (KVDetector*) kvid->GetDetector("GAP_FOCAL_PLAN");	    
+    if(list != 0){
+	
+		Int_t entries = (Int_t) list->GetEntries();
+		Int_t kHasGrids = 0;
 
-            KVMaterial *gap = 0;
-            gap = (KVMaterial*)kvd_si->GetAbsorber("C4H10");
-	    
-    	kvt_sicsi = new KVTelescope();
-    	kvt_sicsi->Add(kvd_si);
-    	kvt_sicsi->Add(kvd_csi);
-	           
-            if(gap != 0){
-               // printf("Gap Thickness: %.2f\n", gap->GetThickness());
-            }else{
-                printf("Error: Could not find absorber \"C4H10\" \n");
-            }
-            
-	   //L->Log<<"Thickness Si  : "<<kvd_si->GetThickness()<<endl;
-	   //L->Log<<"Thickness Gap : "<<kvd_si->GetAbsorber("Isobutane")->GetThickness()<<endl;	
-            if(kvd_csi != 0){
+		KVIDGrid *tmpGrid = 0;
+		Int_t nGridsForRun = 0;
 
-                if(kvd_si != 0){
+		for(Int_t i=0; i<entries; i++){
+    			tmpGrid = (KVIDGrid*) list->At(i);
+    			if(tmpGrid != 0){
+        			runList = (KVNumberList) tmpGrid->GetRuns();
+        			runList.Begin();
+        			while( !runList.End() ){
+            				UInt_t next_val = (UInt_t) runList.Next();
+            				if(next_val == gIndra->GetCurrentRunNumber()){
+						if(strcmp(tmpGrid->GetName(),tel_name)==0){
+							kvid = tmpGrid;
+							}
+						}
+					
+        				}
+    				}
+			} 
+			
+			      				
+		if(kvid != 0){
 
-                    //kvd_csi->Print();
-                    //kvd_si->Print(); 
-
-                }else{
-                    printf("Error: 'kvd_si' assignment failed\n");
-		    cout<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl;
-      
-                }
-            }else{
-                printf("Error: 'kvd_csi' assignment failed\n");
-		cout<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl;      
-            }
         }else{  
 	    printf("Error: 'kvid' assignment failed\n");
 	    cout<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
-	    cout<<"name : "<<tel_name<<endl;  
+	    cout<<"name : "<<tel_name<<endl; 	    
+	    
+	    L->Log<<"Error: 'kvid' assignment failed"<<endl;
+	    L->Log<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
+	    L->Log<<"name : "<<tel_name<<endl; 
         }
     }else{
         printf("Error: 'list' assignment failed\n");   
@@ -291,7 +268,7 @@ Double_t EnergyTree::GetResidualEnergyIc(Int_t Z, Int_t A, Double_t EEinc)
 	return Echio;
 }
 
-void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
+void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope	# Si : 1 to 18	
 {
 
    /********************************************************************************
@@ -301,9 +278,9 @@ void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
 
     ********************************************************************************/
  
-    si = new KVSiliconVamos(Si->si_thick[number]);
+    kvd_si = new KVSiliconVamos(Si->si_thick[number]);	//# Si : 1 to 18
     gap = new PlaneAbsorber();
-    csi = new KVCsIVamos(1.);
+    kvd_csi = new KVCsIVamos(1.);
 
 /*
     Double_t si_thick[19] =
@@ -323,11 +300,11 @@ void EnergyTree::InitSiCsI(Int_t number) // Si-CsI Telescope
     // of type KVDetector
 
     kvt_sicsi = new KVTelescope();
-    kvt_sicsi->Add(si);
+    kvt_sicsi->Add(kvd_si);
     kvt_sicsi->Add(gap->GetDetector());  // In-active so no 'detected' energy
-    kvt_sicsi->Add(csi);
+    kvt_sicsi->Add(kvd_csi);
     
-    lum=new KVLightEnergyCsIVamos(csi);
+    lum=new KVLightEnergyCsIVamos(kvd_csi);
 }
 
 Int_t EnergyTree::ClearEvent(Int_t runFlag){     

@@ -38,44 +38,28 @@ class KVParticle:public TLorentzVector {
    TString fName;            	//!non-persistent name field - Is useful
    TString fFrameName;			//!non-persistent frame name field, sets when calling SetFrame method
 	KVList *fBoosted;				//!list of momenta of the particle in different Lorentz-boosted frames
-   KVUniqueNameList* fGroups;	//!-> list of TObjString for manage different group name									 
+   KVUniqueNameList* fGroups;	//!list of TObjString for manage different group name									 
    static Double_t kSpeedOfLight;       //speed of light in cm/ns
 
  protected:
 
    TVector3 * fE0;             //the momentum of the particle before it is slowed/stopped by an absorber
-	virtual void AddGroup_Withcondition(const Char_t*, KVParticleCondition*)
-	{
-		// Dummy implementation of AddGroup(const Char_t* groupname, KVParticleCondition*)
-		// Does nothing. Real implementation is in KVNucleus::AddGroup_Withcondition.
-		printf("DUUUUUUUUUUUUUMYYYYYYY do nothing\n");
-	};
+	virtual void AddGroup_Withcondition(const Char_t*, KVParticleCondition*);
 	virtual void AddGroup_Sanscondition(const Char_t* groupname, const Char_t* from="");
-	
-	void SetGroups(KVUniqueNameList* un) { 
-		fGroups->Clear();
-		AddGroups(un);
-	}
-	void AddGroups(KVUniqueNameList* un){
-		TObjString* os = 0;
-		TIter no(un);
-		while ( (os = (TObjString* )no.Next()) ) {
-			AddGroup(os->GetName());
-		}
-	}
-	KVUniqueNameList* GetGroups() const { return fGroups; }
+	void CreateGroups();
+	void SetGroups(KVUniqueNameList* un);
+	void AddGroups(KVUniqueNameList* un);
 	
 	public:
 	
 	Bool_t HasFrame(const Char_t* frame);
 	Int_t GetNumberOfDefinedFrames(void) {  
-		if (fBoosted) return fBoosted->GetEntries();
-		else return 0;
+		if (fBoosted)	return fBoosted->GetEntries();
+		else				return 0;
 		//	return (fBoosted ? fBoosted->GetEntries() : 0); 
 	}
-	Int_t GetNumberOfDefinedGroups(void) {  
-		return fGroups->GetEntries();
-	}
+	Int_t GetNumberOfDefinedGroups(void);
+	KVUniqueNameList* GetGroups() const;
 	
    enum {
       kIsOK = BIT(14),          //acceptation/rejection flag
@@ -126,8 +110,11 @@ class KVParticle:public TLorentzVector {
       return Vect();
    };
    Double_t GetKE() const {
-      return (E() - M());
-   };
+      Double_t e=  E();
+		Double_t m = M();
+		//return (E() - M());
+   	return e-m;
+	};
    Double_t GetEnergy() const {
       return GetKE();
    };

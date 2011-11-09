@@ -553,7 +553,7 @@ void KVDBSystemDialog::AddNewTargetLayer()
       }
    }
    //add layer with default area density 0.1 mg/cm2
-   fTarget->AddLayer( mat->GetTitle() , 0.1*KVUnits::mg/pow(KVUnits::cm,2.) );
+   fTarget->AddLayer( mat->GetTitle() , 0.1 );
    //update list of layers in target
    Int_t nlay = fComboBox1515->GetNumberOfEntries();
    fComboBox1515->AddEntry( mat->GetName(), nlay );
@@ -594,10 +594,14 @@ void KVDBSystemDialog::SetRuns()
    //Called when "SetRuns" button is clicked.
    //The selected system is associated with the runlist passed to the constructor.
    //The Systems.dat file is updated
-   KVNumberList tmp;
-   fSystem->GetRunList(tmp);
-   tmp.Add(fRuns);
-   fSystem->SetRuns(tmp);
+   //Any previous association run<->system is removed
+   
+//    KVNumberList tmp;
+//    fSystem->GetRunList(tmp);
+//    tmp.Add(fRuns);
+//    fSystem->SetRuns(tmp);
+   fRuns.Begin();
+   while(!fRuns.End()) fSystem->AddRun(fRuns.Next());
    SaveSystems();
    UpdateRunlist();
 }

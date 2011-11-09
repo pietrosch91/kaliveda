@@ -4,6 +4,7 @@
 #include "KVRawDataAnalyser.h"
 #include "KVMultiDetArray.h"
 #include "KVClassFactory.h"
+#include "TH1.h"
 
 ClassImp(KVRawDataAnalyser)
 
@@ -39,8 +40,8 @@ void KVRawDataAnalyser::ProcessRun()
 	// each of these methods (preInitRun(), postAnalysis(), etc. etc.)
 
    //Open data file
-	KVString raw_file = gDataSet->GetFullPathToRunfile("raw", fRunNumber);
-   fRunFile = (KVRawDataReader*)gDataSet->OpenRunfile( "raw", fRunNumber );
+	KVString raw_file = gDataSet->GetFullPathToRunfile(GetDataType().Data(), fRunNumber);
+   fRunFile = (KVRawDataReader*)gDataSet->OpenRunfile(GetDataType().Data() , fRunNumber );
    if( (!fRunFile) || fRunFile->IsZombie() ){
       //skip run if file cannot be opened
       if(fRunFile) delete fRunFile;
@@ -179,4 +180,119 @@ void KVRawDataAnalyser::Make(const Char_t * kvsname)
    body = "   //Method called at end of analysis: save/display histograms etc.";
    cf.AddMethodBody("EndAnalysis", body);
    cf.GenerateCode();
+}
+
+//_______________________________________________________________________//
+
+void KVRawDataAnalyser::AddHisto(TH1* h, const Char_t* family)
+{
+	// Add user histo to internal list of spectra.
+	// "family" can be used to arrange histograms into a directory structure,
+	// e.g.
+	//   toto->AddHisto(h1, "CSI_R_L/Ring_10")
+	// will create (if they don't exist) sublists "CSI_R_L" and "Ring_10"
+	// and store the histogram referenced by pointer h1 in the second one.
+	//
+	// All spectra can be saved at any time by calling SaveSpectra method.
+	
+	KVString dir_struc(family);
+	if(dir_struc==""){
+		fHistoList.Add(h);
+		return;
+	}
+	dir_struc.Begin("/");
+	int level=0;
+	KVHashList* sublist=0;
+	while(!dir_struc.End()){
+		KVString dir = dir_struc.Next();
+		if(!level){
+			// use top-level directory name as name of fHistoList
+			fHistoList.SetName(dir.Data());
+			sublist = &fHistoList;
+		}
+		else{
+			KVHashList* sublist2 = (KVHashList*)sublist->FindObject(dir.Data());
+			if(!sublist2){
+				sublist2 = new KVHashList;
+				sublist2->SetName(dir.Data());
+				sublist->Add(sublist2);
+			}
+			sublist=sublist2;
+		}
+		level++;
+	}
+	sublist->Add(h);
+}
+
+void KVRawDataAnalyser::SaveSpectra(const Char_t* filename)
+{
+	// Save all histograms added via AddHisto in the file
+	// "filename". Any previously existing file will be overwritten.
+	// If 'directory' names were used in AddHisto, this structure
+	// will be preserved in the file.
+	
+	Info("SaveSpectra", "Saving all histograms in file %s", filename);
+	TFile* savegard =  new TFile(filename,"recreate");
+	if(strcmp(fHistoList.GetName(),"KVHashList")){
+		// list has been given a name => have directory structure
+		fHistoList.Write(fHistoList.GetName(), TObject::kSingleKey);
+	}
+	else{
+		fHistoList.Write();
+	}
+	savegard->Write();
+	savegard->Close();
+}
+
+void KVRawDataAnalyser::ClearAllHistos()
+{
+	// RAZ de tous les histos
+	clearallhistos(&fHistoList);
+}
+
+void KVRawDataAnalyser::clearallhistos(TCollection*list)
+{
+	// RAZ de tous les histos in list
+	TIter next(list);
+	TObject* obj;
+	while( (obj = next()) ){
+		if(obj->InheritsFrom("TCollection")) clearallhistos((TCollection*)obj);
+		else if(obj->InheritsFrom("TH1")) ((TH1*)obj)->Reset();
+	}
+}
+
+TH1* KVRawDataAnalyser::FindHisto(const Char_t* path)
+{
+   // return address of histogram using its full path
+   // i.e. using 
+   //    FindHisto("BidimChIoSi/ring6/CI_SI_0604_PG")
+   
+   KVString Path(path);
+   if(Path.Contains("/")){
+      // path given. parse it to find names of sublists and histo.
+      Path.Begin("/");
+      KVHashList* sublist=0;
+      KVString subpath = Path.Next();
+      if(subpath!=fHistoList.GetName()) {
+         sublist=(KVHashList*)fHistoList.FindObject(subpath.Data());
+         if(!sublist) {
+            Error("FindHisto", "path=%s. Cannot find %s in top-level.", path, subpath.Data());
+            return 0;
+         }
+      }
+      else sublist = (KVHashList*)&fHistoList;
+      subpath = Path.Next();
+      while(!Path.End()){
+         KVHashList*sublist2=(KVHashList*)sublist->FindObject(subpath.Data());
+         if(!sublist2){
+            Error("FindHisto", "path=%s. Cannot find %s in subdir %s", path, subpath.Data(), sublist->GetName());
+            return 0;
+         }
+			sublist=sublist2;
+         subpath = Path.Next();
+      }
+      TH1* histo = (TH1*)sublist->FindObject(subpath.Data());
+      return histo;
+   }
+   return 0;
 }

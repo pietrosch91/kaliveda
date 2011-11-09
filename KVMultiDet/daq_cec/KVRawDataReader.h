@@ -25,6 +25,8 @@ class KVRawDataReader : public KVBase
    virtual Bool_t GetNextEvent()=0;
    virtual KVSeqCollection* GetFiredDataParameters() const = 0;
 	
+	virtual Int_t GetStatus() const { return 0; };
+	
    ClassDef(KVRawDataReader,0)//Base class for reading raw data
 };
 

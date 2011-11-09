@@ -22,6 +22,7 @@ $Id: KVPosition.h,v 1.20 2009/01/19 14:36:57 ebonnet Exp $
 #include "TMath.h"
 #include "TVector3.h"
 #include "KVBase.h"
+#include "KVParticle.h"
 
 class KVPosition:public KVBase {
  private:
@@ -56,6 +57,7 @@ class KVPosition:public KVBase {
       SetAzimuthalMinMax(min, max);
    };
    TVector3 GetRandomDirection(Option_t * t = "isotropic");
+	void GetRandomAngles(Double_t &th, Double_t &ph, Option_t * t = "isotropic");
    TVector3 GetDirection();
 
    Bool_t IsInPolarRange(const Float_t theta);

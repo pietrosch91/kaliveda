@@ -77,7 +77,7 @@ class KVListView : public TGListView
 	    // DELETE AFTER USE !!!
 	    return ((KVLVContainer*)GetContainer())->GetSelectedObjects();
     };
-	TList* GetUserItems()
+	TCollection* GetUserItems()
 	{
 		// return list of all objects (selected or unselected) in list view
 		return ((KVLVContainer*)GetContainer())->GetUserItems();

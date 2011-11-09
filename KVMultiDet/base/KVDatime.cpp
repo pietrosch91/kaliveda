@@ -183,6 +183,17 @@ const Char_t *KVDatime::AsGanacqDateString() const
                Data(), GetYear(), GetHour(), GetMinute(), GetSecond());
 }
 
+/*
+const Char_t *KVDatime::AsGanacq2010DateString() const
+{
+	//Return date and time string with format "29Sep05 09h42m17s"
+   //Copy the string immediately if you want to reuse/keep it
+   return Form("%d%s%2d_%02dh%02dm%02ds",
+	            GetDay(),
+               ((TObjString *) fmonths->At(GetMonth() - 1))->String().
+               Data(), GetYear(), GetHour(), GetMinute(), GetSecond());
+}
+*/
 const Char_t* KVDatime::String(EKVDateFormat fmt)
 {
 	// Returns date & time as a string in required format:

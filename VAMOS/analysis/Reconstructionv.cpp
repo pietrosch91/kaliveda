@@ -39,7 +39,55 @@ Reconstructionv::Reconstructionv(LogFile *Log, DriftChamberv *Drift)
 
   Rnd = new Random;
   
+  ifstream inf3;
+  if(!gDataSet->OpenDataSetFile("Vamos_distance.dat", inf3))
+    {
+      cout << "Could not open the calibration file Vamos_distance.dat !" << endl;
+      return;
+    }
+  else
+    {
+      cout << "Reading Vamos_distance.dat " << endl;
+      L->Log << "Reading Vamos_distance.dat " << endl;
 
+
+      inf3.getline(line,len);      
+      inf3.getline(line,len);
+      inf3 >> DDC1;
+      cout << DDC1 << endl;
+      L->Log << DDC1 << endl;      
+      
+      inf3.getline(line,len);      
+      inf3.getline(line,len);      
+      inf3 >> DSED1;
+      cout << DSED1 << endl;
+      L->Log << DSED1 << endl;
+      
+      inf3.getline(line,len);
+      inf3.getline(line,len);            
+      inf3 >> DDC2;
+      cout << DDC2 << endl;
+      L->Log << DDC2 << endl;      
+      
+      inf3.getline(line,len);
+      inf3.getline(line,len);            
+      inf3 >> DCHIO;
+      cout << DCHIO << endl;
+      L->Log << DCHIO << endl; 
+      
+      inf3.getline(line,len); 
+      inf3.getline(line,len);           
+      inf3 >> DSI;
+      cout << DSI << endl;
+      L->Log << DSI << endl;      
+      
+      inf3.getline(line,len);
+      inf3.getline(line,len);            
+      inf3 >> DCSI;
+      cout << DCSI << endl;
+      L->Log << DCSI << endl;           
+	}
+  inf3.close();
 
   ifstream inf;
   if(!gDataSet->OpenDataSetFile("Reconstruction.cal", inf))
@@ -236,12 +284,14 @@ void Reconstructionv::Calculate(void)
       Counter[2]++;
       Present = true;
       Brho = GetBrhoRef()*((Float_t) Brhot);
+      //Brho = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")*((Float_t) Brhot);
       Theta = (Float_t) Thetat*-1;
       Phi = (Float_t) Phit*-1;
       Path = (Float_t) Patht + PathOffset;
 
       TVector3 myVec(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
       myVec.RotateY(GetAngleVamos()*3.141592654/180.);
+      //myVec.RotateY(gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta")*3.141592654/180.);
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
       

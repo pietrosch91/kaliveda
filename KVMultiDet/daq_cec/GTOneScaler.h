@@ -31,12 +31,7 @@
 
 #include <TObject.h>
 
-#ifndef __GanAcqBuf_H
-//extern "C"
-//{// This might be written better
-typedef struct SCALE_STRUCT {int bidon;} scale_struct;
-//}
-#endif
+#include "gan_acq_buf.h"
 
 // ---------------------------------------------------------------------------
 class GTOneScaler : public TObject

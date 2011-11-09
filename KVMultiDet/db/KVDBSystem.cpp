@@ -221,7 +221,7 @@ void KVDBSystem::Save(ostream &f) const
       while( (lay = (KVMaterial*)next()) ){
          if( lay->IsIsotopic() ) f << Form("%d%s", (Int_t)lay->GetMass(), lay->GetType());
          else f << lay->GetType();
-         f << " " << lay->GetThickness() << endl;
+         f << " " << lay->GetAreaDensity()/KVUnits::mg << endl;
       }
    }
    KVNumberList runlist; GetRunList(runlist);
@@ -326,6 +326,10 @@ void KVDBSystem::SetRuns(KVNumberList&rl)
       run_number = rl.Next();
       KVDBRun* run = (KVDBRun*)runtable->GetRecord(run_number);
       if(run){
+         if(run->GetSystem()){
+            Error("SetRuns", "Associating run %d with system \"%s\" : run already associated with system \"%s\"",
+                  run_number, GetName(), run->GetSystem()->GetName());
+         }
          if(AddLink("Runs", run)){
             //use name of system as title of run
             run->SetTitle(GetName());

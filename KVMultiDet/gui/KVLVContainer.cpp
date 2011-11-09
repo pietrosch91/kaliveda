@@ -285,7 +285,9 @@ void KVLVContainer::default_init()
 			"KVLVContainer", this, "OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t)");
 	Connect("DoubleClicked(TGFrame*,Int_t,Int_t,Int_t)",
 			"KVLVContainer", this, "HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t)");
-	fUserItems = new TList;
+	fUserItems = new KVList;
+   fUserItems->SetOwner(kFALSE);
+   fUserItems->SetCleanup();
 	
 	fAllowContextMenu = kTRUE;
 	fAllowBrowse = kTRUE;
@@ -401,7 +403,9 @@ void KVLVContainer::FillList(const TCollection* l)
 	// Fill list from list
 	// Pointers to objects are stored in internal list fUserItems for Refresh()
 
-	if(l) fUserItems->Clear();
+	if(l){
+      fUserItems->Clear();
+   }
 
 	if(l && !l->GetSize()) return;
 

@@ -21,7 +21,9 @@ endif
 KV_INC = 
 
 CXXFLAGS += -I$(KVINSTALLDIR)/include $(KV_INC)
-
+ifeq ($(WITH_GRU_LIB),yes)
+CXXFLAGS += -DNET_LIB
+endif
 
 LIBKVINDRA = -L$(KVROOT)/lib -lKVIndra
 LIBKVMULTIDET = -L$(KVROOT)/lib -lKVMultiDet
@@ -89,7 +91,7 @@ endif
 KVRSRDS = runsheetreader.cpp
 KVRSRDO = runsheetreader.$(ObjSuf)
 KVRSRD  = KVDataBaseGUI$(ExeSuf)
-KVRSRD_LIBS = $(LIBKVINDRA)
+KVRSRD_LIBS = $(LINK_LIBS)
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVRSRD_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
 endif
@@ -105,7 +107,7 @@ endif
 KVGUIS = KaliVedaGUI.cpp
 KVGUIO = KaliVedaGUI.$(ObjSuf)
 KVGUI  = KaliVedaGUI$(ExeSuf)
-KVGUI_LIBS = $(LIBKVINDRA)
+KVGUI_LIBS = $(LIBKVINDRA) -L$(ROOTSYS)/lib -lGui
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVGUI_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
 endif
@@ -129,7 +131,7 @@ PREREQ = $(PREQ:%.cpp=%.d)
 all: config $(ANALOG) $(KVDTAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
 	
 $(ANALOG): $(ANALOGO)
-	$(LD) $(LDFLAGS) $^ $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^  $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(ANALOGO): $(ANALOGS)

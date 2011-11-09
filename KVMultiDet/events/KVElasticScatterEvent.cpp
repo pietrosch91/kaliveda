@@ -101,6 +101,10 @@ void KVElasticScatterEvent::init()
 	ResetBit( kTargIsSet );
 	ResetBit( kHasTarget );
 	ResetBit( kIsUpdated );
+	
+	SetDiffNucleus("PROJ");
+	SetRandomOption("isotropic");
+	
 }
 
 //_______________________________________________________________________
@@ -156,7 +160,40 @@ void KVElasticScatterEvent::SetTargNucleus(KVNucleus *nuc)
 	ResetBit(kIsUpdated);
 
 }
+
+//_______________________________________________________________________
+void KVElasticScatterEvent::SetDiffNucleus(KVString name)
+{ 
+	//Defini le noyau qui est concerné par le domaine angulaire pour le tirage aleatoire
+	//name="PROJ" (default), on etudie la diffusion du projectile
+	//name="TARG" on etudie la diffusion de la cible
 	
+	if (name=="TARG"){ kDiffNuc=4; }
+	else {
+		kDiffNuc=3;
+		if (name!="PROJ") { 
+			Warning("SetDiffNucleus","%s Le nom en argument doit etre PROJ ou TARG, par defaut on choisit le projectile",name.Data());
+		}
+	}
+}
+
+//_______________________________________________________________________
+void KVElasticScatterEvent::SetRandomOption(Option_t* opt)
+{
+	//Defini le mode de tirage aleatoire pour l'angle polaire
+	//opt="isotropic" ou "" (defaut) ou "random"
+	//voir KVPosition::GetRandomDirection()
+	kRandomOpt = opt;
+	
+}
+
+//_______________________________________________________________________
+Bool_t KVElasticScatterEvent::IsIsotropic(){
+
+	return strcmp(kRandomOpt,"random");
+
+}
+
 //_______________________________________________________________________
 void KVElasticScatterEvent::SetProjNucleus(KVNucleus *nuc)
 {
@@ -356,7 +393,7 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
 	if (!ltree) DefineTrees();
 	if (!lhisto) DefineHistos();
 	
-	Print();
+	//Print();
 	
 	SetBit(kIsUpdated);
 	
@@ -371,13 +408,17 @@ void KVElasticScatterEvent::Process(Int_t ntimes,Bool_t reset)
 	//process ntimes elastic scatter
 	//if reset=kTRUE, reset histograms, trees and counter before
 	if ( !IsUpdated() )
-		ValidateEntrance();
+		if (!ValidateEntrance()) return;
 		
 	if (reset) Reset();
 	Int_t nn=0;
-	while (nn++<ntimes) 
+	while (nn<ntimes){ 
 		MakeDiffusion();
-
+		nn+=1;
+		if ((nn%1000)==0)
+			Info("Process","%d/%d diffusions treated",nn,ntimes);
+	}
+	Info("Process","End of process : %d diffusions performed",kTreatedNevts);
 }
 
 //_______________________________________________________________________
@@ -396,7 +437,7 @@ void KVElasticScatterEvent::MakeDiffusion()
 	
 	KVSimNucleus* knuc = 0;
 	while ( (knuc = (KVSimNucleus* )sim_evt->GetNextParticle()) ){
-		knuc->GetParameters()->Clear();
+		knuc->Clear_NVL();
 		knuc->RemoveAllGroups();
 	}
 	//-------------------------
@@ -405,19 +446,41 @@ void KVElasticScatterEvent::MakeDiffusion()
 		PropagateInTargetLayer();
 	}
 	//-------------------------
+	
 
-	Double_t anglemax=kb2->GetMaxAngleLab(3);
-	Double_t the=GetTheta("min");	if (anglemax<the) return;
-
-	Double_t phi=GetPhi("min");
-	if (GetTheta("min")!=GetTheta("max"))
-		the = gRandom->Uniform(GetTheta("min"),TMath::Min(GetTheta("max"),kb2->GetMaxAngleLab(3)));
-	if (GetPhi("min")!=GetPhi("max"))
-		phi = gRandom->Uniform(GetPhi("min"),GetPhi("max"));
-
-	((TH2F* )lhisto->FindObject("theta_phi"))->Fill(the,phi);
-
-	SetAnglesForDiffusion(the,phi);
+	Double_t tmin = GetTheta("min");
+	if (tmin >= kb2->GetMaxAngleLab(kDiffNuc)) {
+		GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
+		return;
+	}
+	Double_t tmax = GetTheta("max");
+	
+	if (tmax <= kb2->GetMinAngleLab(kDiffNuc)) {
+		GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
+		return;
+	}
+	
+	if (tmin<kb2->GetMinAngleLab(kDiffNuc)) tmin = kb2->GetMinAngleLab(kDiffNuc);
+	if (tmax>kb2->GetMaxAngleLab(kDiffNuc)) tmax = kb2->GetMaxAngleLab(kDiffNuc);
+	
+	Double_t pmin=GetPhi("min");
+	Double_t pmax=GetPhi("max");
+	
+	kposalea.SetPolarMinMax(tmin,tmax);
+	kposalea.SetAzimuthalMinMax(pmin,pmax);
+	
+	//kposalea.GetRandomParticle(kpartalea,kRandomOpt);
+	
+	Double_t th_deg,ph_deg;
+	kposalea.GetRandomAngles(th_deg,ph_deg,kRandomOpt);
+	/*
+	 = kpartalea.GetTheta();
+	Double_t ph_deg = kpartalea.GetPhi();
+	*/
+	((TH2F* )lhisto->FindObject("phi_theta"))->Fill(th_deg,ph_deg);
+	((TH1F* )lhisto->FindObject("costheta"))->Fill(TMath::Cos(TMath::DegToRad()*th_deg));
+	
+	SetAnglesForDiffusion(th_deg,ph_deg);
 	
 	if (gMultiDetArray) 
 		Filter();
@@ -436,7 +499,7 @@ void KVElasticScatterEvent::NewInteractionPointInTargetLayer()
 	if (kchoix_layer!=-1){
 		TVector3 dir = GetNucleus("PROJ")->GetMomentum();
 		ktarget->SetInteractionLayer(kchoix_layer,dir);
-		kIPPVector = ktarget->GetInteractionPoint();
+		//kIPPVector = ktarget->GetInteractionPoint();
 	}
 	kIPPVector = ktarget->GetInteractionPoint(GetNucleus("PROJ"));
 	((TH1F* )lhisto->FindObject("target_layer_depth"))->Fill(kIPPVector.Z());
@@ -451,23 +514,25 @@ void KVElasticScatterEvent::PropagateInTargetLayer()
 	//The outgoing (after diffusion) pathes are not treated here but
 	//in the Filter() method
 	//
-	
+	//Double_t entree = GetNucleus("PROJ")->GetKE();
+	Double_t eLostInTarget = GetNucleus("PROJ")->GetKE();
 	ktarget->SetIncoming(kTRUE);
 	ktarget->DetectParticle(GetNucleus("PROJ"),0);
+	eLostInTarget -= GetNucleus("PROJ")->GetKE();
 	
-	/*
-	printf("%lf %lf\n",
-		GetNucleus(1)->GetKE()/GetNucleus(1)->GetA(),
-		GetInteractionPointInTargetLayer().Z()
-	);
-	*/
-	
+	((KVSimNucleus* )sim_evt->GetParticleWithName("PROJ"))->SetValue("Before Int",eLostInTarget);
+	//On modifie l'energie du projectile dans KV2Body
+	//pour prendre en compte l energie deposee dans la cible
+	//avant de faire le calcul de la cinematique
+	if (GetNucleus("PROJ")->GetKE()==0){
+		GetNucleus("PROJ")->Print();
+		printf("%lf / %lf\n",eLostInTarget,proj->GetKE());
+	}
 	kb2->GetNucleus(1)->SetKE(GetNucleus("PROJ")->GetKE());
 	kb2->CalculateKinematics();
 		
 	ktarget->SetIncoming(kFALSE);
-	
-	GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
+
 }
 
 //_______________________________________________________________________
@@ -490,13 +555,21 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	// for each lab angle.
 	
 	//Int_t kb2->GetELab(Int_t OfNucleus, Double_t ThetaLab, Int_t AngleNucleus, Double_t& e1, Double_t& e2) const
-	Double_t eproj1,eproj2;
-	Int_t nsol_kin_proj = kb2->GetELab(3, theta, 3, eproj1,eproj2);
+	Double_t ediff1,ediff2;
+	Int_t nsol_kin = kb2->GetELab(kDiffNuc, theta, kDiffNuc, ediff1,ediff2);
 	
-	kXruth_evt = kb2->GetXSecRuthLab(theta,3);
+	kXruth_evt = kb2->GetXSecRuthLab(theta,kDiffNuc);
 	
-	KVSimNucleus* knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("PROJ");
-	knuc->SetKE(eproj1);
+	//On modifie l energie et les angles du projectile ou cible diffusé(e)
+	//puis par conservation, on deduit ceux du noyau cible
+	KVSimNucleus* knuc = 0;
+	
+	if (kDiffNuc==3)
+		knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("PROJ");
+	else 
+		knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("TARG");
+			
+	knuc->SetKE(ediff1);
 	knuc->SetTheta(theta);
 	knuc->SetPhi(phi);
 	((TH2F* )lhisto->FindObject("ek_theta"))->Fill(knuc->GetTheta(),knuc->GetKE());
@@ -505,23 +578,33 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	//Conservation de l energie tot
 	TVector3 ptot = proj->Vect()+targ->Vect();
 	Double_t etot = proj->E()+targ->E();
-	//on retire la contribution du projectile diffusé
+	//on retire la contribution du noyau diffusé
 	ptot -= knuc->Vect();
 	etot -= knuc->E();
-	//on met a jour les pptés la cible diffusée
-	knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("TARG");
+	//on met a jour les pptés la cible ou projectile diffusé(e)
+	
+	if (kDiffNuc==3)
+		knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("TARG");
+	else 
+		knuc = (KVSimNucleus* )sim_evt->GetParticleWithName("PROJ");
+	
 	knuc->SetPxPyPzE(ptot.X(),ptot.Y(),ptot.Z(),etot);
+	
 	((TH2F* )lhisto->FindObject("ek_theta"))->Fill(knuc->GetTheta(),knuc->GetKE());
 	
 	sim_evt->SetNumber(kTreatedNevts);
 	
-	sim_evt->GetParameters()->SetValue("XRuth",kXruth_evt);
-	sim_evt->GetParameters()->SetValue("ThProj",theta);
-	sim_evt->GetParameters()->SetValue("EkProj",eproj1);
-	sim_evt->GetParameters()->SetValue("IPz",kIPPVector.Z());
+	sim_evt->SetValue("XRuth",kXruth_evt);
+	sim_evt->SetValue("ThDiff",theta);
+	sim_evt->SetValue("EkDiff",ediff1);
+	sim_evt->SetValue("IPz",kIPPVector.Z());
 	
-	if (nsol_kin_proj==2)
-		sim_evt->GetParameters()->SetValue("Sol2",eproj2);
+	if (nsol_kin==2)
+		sim_evt->SetValue("Sol2",ediff2);
+	
+	//L' energie cinetique du projectile est reinitialisee
+	//pour la prochaine diffusion
+	GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
 	
 }
 
@@ -531,7 +614,7 @@ void KVElasticScatterEvent::Filter()
 	//Simulate passage of the projectile/target couple
 	//through the multidetector refered by the gMultiDetArray pointer
 	//if it is not valid do nothing
-
+	
 	if (IsTargMatSet()){
 		ktarget->SetOutgoing(kTRUE);
 		gMultiDetArray->DetectEvent(sim_evt,rec_evt);
@@ -597,7 +680,7 @@ void KVElasticScatterEvent::Print()
 void KVElasticScatterEvent::DefineHistos()
 {
 	//Definition of control histograms
-	//- theta_phi : filled with angles choosen to determine the direction of the diffused projectile
+	//- phi_theta : filled with angles choosen to determine the direction of the diffused projectile
 	//- target_layer_depth : interaction point position in the target 
 	//- ek_theta : filled with energies and polar angles of projectile and target nuclei after diffusion
 	//- ek_theta_DETECTED : filled with energies and polar angles of projectile and target nuclei if 
@@ -606,7 +689,8 @@ void KVElasticScatterEvent::DefineHistos()
 	lhisto = new KVHashList(); 
 	lhisto->SetOwner(kTRUE);
 
-	lhisto->Add(new TH2F("theta_phi","theta_phi",180,0,180,360,0,360));
+	lhisto->Add(new TH2F("phi_theta","phi_theta",180,0,180,360,0,360));
+	lhisto->Add(new TH1F("costheta","costheta",200,-1,1));
 	if ( IsTargMatSet() ){
 		Float_t thickness = GetTarget()->GetThickness();
 		lhisto->Add(new TH1F("target_layer_depth","target_layer_depth",TMath::Nint(thickness*110),0,thickness*1.1));
@@ -688,6 +772,7 @@ void KVElasticScatterEvent::DefineAngularRange(Double_t tmin, Double_t tmax, Dou
 	if (tmax!=-1) th_max=tmax;
 	if (pmin!=-1) phi_min=pmin;
 	if (pmax!=-1) phi_max=pmax;
+
 }
 
 //_______________________________________________________________________
@@ -741,8 +826,7 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
 	
 	DefineAngularRange(tmin,tmax,pmin,pmax);
 
-}
-	
+}	
 	
 //_______________________________________________________________________
 Double_t KVElasticScatterEvent::GetTheta(KVString opt) const
@@ -766,4 +850,3 @@ Double_t KVElasticScatterEvent::GetPhi(KVString opt) const
 	else return -1;
 
 }
-

@@ -22,6 +22,11 @@ NOT_ROOTCINT := base/KVError.h
 ifeq ($(ROOTGANILTAPE),yes)
 KV_INC_EXTRAS := -I$(GANTAPE_INC) -DROOTGANILTAPE
 endif
+ifeq ($(WITH_GRU_LIB),yes)
+KV_INC_EXTRAS += -I$(GRU_DIR)/include -DWITH_GRULIB -DNET_LIB
+else
+NOT_READY += daq_cec/KVGRUNetClientGanilReader.cpp
+endif
 
 include ../Makefile.general
 RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
@@ -47,4 +52,7 @@ ifeq ($(MAKE_GANTAPE_XRD),yes)
 KV_INC += -DCCIN2P3_XRD
 RLIBMAPDEPS += libXrdPosix.so
 endif
+endif
+ifeq ($(WITH_GRU_LIB),yes)
+LINK_LIB += -L$(GRU_DIR)/linux -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
 endif

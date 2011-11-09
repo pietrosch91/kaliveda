@@ -57,8 +57,8 @@ class KVValues : public KVNameValueList
 	virtual ~KVValues();
 	
 	void Reset();
-	void Clear(Option_t* option = "");
-	void Print(Option_t* option = "");
+	void Clear_NVL(Option_t* option = "");
+	void Print_NVL(Option_t* option = "");
 	
 	void FillVar(Double_t val);
 	void FillVar(Double_t val,Double_t weight);

@@ -7,32 +7,21 @@
 #include "KVEvent.h"
 #include "KVNameValueList.h"
 
-class KVSimEvent : public KVEvent
+class KVSimEvent : public KVEvent, public KVNameValueList
 {
 	protected:
+	void init();
 	
-	KVNameValueList* add_variables;	//-> additional variables
-   
 	public:
    
 	KVSimEvent(Int_t mult = 50, const char *classname = "KVSimNucleus");
-	virtual ~KVSimEvent(){
-		delete add_variables; add_variables=0;
-	}
-
-	void init(){
-		add_variables = new KVNameValueList();
-	}
+	virtual ~KVSimEvent();
 	
-	void Clear(Option_t * opt = ""){
-		KVEvent::Clear();
-		add_variables->Clear();
+	void Copy(TObject& obj) const;
+	void Clear(Option_t * opt = "");
+	void Print(Option_t* opt = "") const;
 	
-	}
-	
-	KVNameValueList* GetParameters() { return add_variables; }
-
-   ClassDef(KVSimEvent,1)//Events from simulation
+   ClassDef(KVSimEvent,2)//Events from simulation
 };
 
 #endif

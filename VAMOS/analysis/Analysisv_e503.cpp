@@ -295,15 +295,10 @@ energytree->SetModuleMap(map);
 for(Int_t i=0;i<18;i++){
 	for(Int_t j=0;j<80;j++){
 		mmodulemap[i][j] = map[i][j];
+		}
 	}
 }
-}
 
-void Analysisv_e503::SetFocalPlan(KVFocalPlanVamos* v)
-{
-	energytree->SetFocalPlan(v);
-	vv = v;
-}
 
 void Analysisv_e503::SetBrhoRef(Double_t B)
 {

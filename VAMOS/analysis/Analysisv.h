@@ -4,7 +4,6 @@
 #include "Rtypes.h"
 #include "Defines.h"
 #include "LogFile.h"
-#include "KVFocalPlanVamos.h"
 
 class TTree;
 class TFile;
@@ -40,7 +39,6 @@ class Analysisv
   virtual void FillHistograms()=0;
   
   virtual void SetModuleMap(string map[18][80])=0;
-  virtual void SetFocalPlan(KVFocalPlanVamos* )=0;
  
   virtual void SetBrhoRef(Double_t)=0;
   virtual void SetAngleVamos(Double_t)=0; 

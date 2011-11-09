@@ -133,6 +133,7 @@ void KVDataAnalysisTask::Copy(TObject & obj)
    ((KVDataAnalysisTask &) obj).fBaseIsPlugin = fBaseIsPlugin;
    ((KVDataAnalysisTask &) obj).fPluginBase = fPluginBase;
    ((KVDataAnalysisTask &) obj).fPluginURI = fPluginURI;
+   ((KVDataAnalysisTask &) obj).fExtraAClicIncludes = fExtraAClicIncludes;
 }
 
 KVDataAnalysisTask::~KVDataAnalysisTask()
@@ -222,15 +223,22 @@ void KVDataAnalysisTask::SetParametersForDataSet( KVDataSet* dataset )
    if( envar != "" ) SetUserBaseClass(envar);
    envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.Prereq", GetName()));
    if( envar != "" ) SetPrereq(envar);
+   envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.UserClass.ExtraACliCIncludes", GetName()));
+   if( envar != "" ) fExtraAClicIncludes=envar;
 }
 
 Bool_t KVDataAnalysisTask::CheckUserBaseClassIsLoaded()
 {
     // This method checks that the base class for the user's analysis class is loaded.
     // If this base class requires a plugin library to be loaded, it will be loaded.
+	 // First we add any required extra ACliC include paths (taken from DataAnalysisTask.UserClass.ExtraACliCIncludes)
     // If all is OK, returns kTRUE.
-    // Returns kFALSE if plugin cannot be loaded or class is simply unknown.
+    // Returns kFALSE if plugin cannot be loaded or class is simply unknown
 
+		if(fExtraAClicIncludes!="") {
+			gSystem->AddIncludePath(fExtraAClicIncludes.Data());
+			Info("CheckUserBaseClassIsLoaded", "Added ACliC include path: %s", fExtraAClicIncludes.Data());
+		}
     TClass *cl = TClass::GetClass(fBaseClass.Data()); // class in dictionary already ?
     if(cl) return kTRUE;
     if(fBaseIsPlugin){

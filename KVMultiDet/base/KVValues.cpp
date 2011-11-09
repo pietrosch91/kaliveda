@@ -86,7 +86,7 @@ KVValues::KVValues(const Char_t* name,Int_t ordre_max,Int_t nbre_max)
 //constructor
 	knbre_val_max = nbre_max;		//nbre max de valeurs stockables 
 	kordre_mom_max = ordre_max;	//ordre max des moments calcules a chaque iteration
-	SetName(name);						//nom correspondant aux valeurs calculees
+	SetName_NVL(name);						//nom correspondant aux valeurs calculees
 
 	init_val_base();
 	init_val_add();
@@ -104,19 +104,17 @@ void KVValues::Reset()
 KVValues::~KVValues()
 {
 //destructeur	
-	Clear();
+	Clear_NVL();
 	delete [] values; values=0;
 	kval_tot = kval_base = kdeb = 0;
 }
 
 
 //___________________________________________________________________________________________
-void	KVValues::Clear(Option_t* option)
+void	KVValues::Clear_NVL(Option_t* option)
 {
 
 	Reset();
-	
-	for (Int_t ii=0;ii<kval_add;ii+=1)	delete RemoveAt(kval_base);
 	
 	delete kform_add; 	kform_add=0;
 	delete kpar_add;		kpar_add = 0;
@@ -127,9 +125,10 @@ void	KVValues::Clear(Option_t* option)
 }
 
 //___________________________________________________________________________________________
-void	KVValues::Print(Option_t* option)
+void	KVValues::Print_NVL(Option_t* option)
 {
-	Info("Print","%s : %d values computed",GetName(),kval_tot);
+	//Info("Print","%s : %d values computed",GetName(),kval_tot);
+	printf("KVValues::Print_NVL\n%s : %d values computed",GetName_NVL(),kval_tot);
 	for (Int_t nn=0; nn<kval_tot; nn+=1){
 		printf("- %d %s %lf\n",nn,GetNameAt(nn),GetValue(nn));
 	}
