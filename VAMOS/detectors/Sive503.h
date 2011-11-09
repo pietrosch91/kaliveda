@@ -50,6 +50,9 @@ class Sive503
   Float_t TCoef[3][5]; //for the new time calibration with 4 parameters
 
   Float_t TOffset[21];
+  Double_t TRef[19];
+  Double_t Tpropre_el[19];
+  Double_t Tfrag;
   Double_t si_thick[19];   
   //
 

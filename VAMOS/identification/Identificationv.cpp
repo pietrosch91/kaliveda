@@ -215,8 +215,8 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
     }
 */
 
-T = Si->T[0];
-
+T = Si->Tfrag;
+      
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
       //Distance between silicon and the target in cm	
@@ -233,7 +233,8 @@ T = Si->T[0];
       
       //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
       L->Log<<"D	= "<<D<<"	V = "<<V<<"	Beta = "<<Beta<<"	D/T = "<<D/T<<endl;
-      L->Log<<"diff	= "<<((Rec->DSI-Dr->FocalPos)/10)<<endl;
+      //L->Log<<"diff	= "<<((Rec->DSI-Dr->FocalPos)/10)<<endl;
+      L->Log<<"TOF	= "<<T<<endl;
       //L->Log<<"brho = "<<Rec->GetBrhoRef()<<"	angle = "<<Rec->GetAngleVamos()<<endl;
       
       V_Etot = 1.39*sqrt(E/AA);

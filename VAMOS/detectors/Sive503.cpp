@@ -96,7 +96,8 @@ Sive503::Sive503(LogFile *Log)
   
   
    Int_t  num; 
-   Float_t off;  
+   Float_t ref;
+   Float_t propre;  
    TString sline;
    
    ifstream in2;
@@ -114,10 +115,11 @@ Sive503::Sive503(LogFile *Log)
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
-	     sscanf(sline.Data(),"%d %f ",&num ,&off );
-         L->Log << "SI_" << num << ": Offset: "<< off << endl;  
-	     TOffset[num] = off;
-	     //L->Log << "off	:"<<off<<endl;
+	     sscanf(sline.Data(),"%d %f %f",&num ,&ref, &propre );
+         	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
+	     TRef[num] = ref;
+	     Tpropre_el[num] = propre;
+	     L->Log << "TRef[num] : " << TRef[num] << " Tpropre_el[num] :  "<< Tpropre_el[num] << endl;
 	     	   }
        		}
      	}
@@ -215,12 +217,16 @@ void Sive503::Init(void)
     {
       E[i] = 0.0;
       //TOffset[i] = 0.0;
+      //TRef[i] = 0.0;  
+      //Tpropre_el[i] = 0.0;
     }
   for(Int_t i=0;i<3;i++)
     {
       T[i] = 0.0;
     }
   Offset[0] = Offset[1]  = 0.0;
+  Tfrag = 0.0;
+  
   EM = 0;
   ETotal = 0.0;
   Number = -10;
@@ -272,9 +278,12 @@ void Sive503::Calibrate(void)
 		    //cout<<"E Si = "<<E<<endl;
 		 
 	    Number = E_Raw_Nr[i];
-	    T[0] += TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
 	    
-	    L->Log<<"T:	"<<T[0]<<"	Offset:		"<<TOffset[Number]<<endl;
+	    //T[0]+= TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
+	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
+	    
+	    L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     
+	    L->Log<<"thick = "<<si_thick[E_Raw_Nr[i]]<<endl;
 	    EM++;
 	  }
       }
@@ -366,7 +375,8 @@ void Sive503::outAttach(TTree *outT)
    //outT->Branch("SiERaw",&E_Raw[0],"SiERaw/S");
    //outT->Branch("SiERaw",SiRaw,"SiERaw[21]/S");
    outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/s");
-   outT->Branch("TSi_HF",&T[0],"TSi_HF/F");
+   outT->Branch("TSi_HFpropre",&T[0],"TSi_HFpropre/D");
+   outT->Branch("Tfrag",&Tfrag,"Tfrag/D");
    //outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    //outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");
 
