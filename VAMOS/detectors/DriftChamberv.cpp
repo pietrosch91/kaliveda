@@ -443,20 +443,36 @@ void DriftChamberv::Calibrate(void)
 	  E[i]+=powf((Float_t)E_Raw[i] + Rnd->Value(),
 		     (Float_t) j)*ECoef[i][j];
       }
+
   for(i=0;i<2;i++)
     if(T_Raw[i]>0)
       {
         //L->Log<<"T_raw : "<<T_Raw[i]<<endl;
 	Rnd->Next();
-	for(j=0;j<2;j++)
-	  T[i]+=powf((Float_t) T_Raw[i] + Rnd->Value(),
-		     (Float_t) j)*TCoef[i][j];
+
+	for(j=0;j<2;j++){
+
+	    T[i] += powf((Float_t) T_Raw[i] + Rnd->Value(),
+		        (Float_t) j)*TCoef[i][j];
+        L->Log << "DCTWire" << i+1 << " (no offset)" << ": " << T[i] << " ns" << endl;
+
+    }
 	//	cout << i << " " << T[i] << " " << T_Raw[i] << endl;
 	if(Si->Present) 
 	  {
 	    //	    T[i] += Si->Offset[1] - Si->T[1];
 	  }
       }
+
+    //Offset to set DC1 and DC2 to their expected TOF values
+    Float_t dct1Offset = -1906.23;  //8136mm
+    Float_t dct2Offset = -1815.86;  //8999mm
+
+     for(int i=0; i<2; i++){
+        if(i==0) T[i] += dct1Offset;
+        if(i==1) T[i] += dct2Offset;
+        L->Log << "DCTWire" << i+1 << ": " << T[i] << " ns" << endl;
+     }
 
   if(E[0] > 0.0) Counter[1]++;
   if(E[1] > 0.0) Counter[2]++;

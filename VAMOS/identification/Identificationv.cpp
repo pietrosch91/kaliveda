@@ -135,6 +135,31 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
                 printf("Error: gIDGridManager->GetGrids() failed\n");
 
             }else{
+
+                Int_t entries = (Int_t) grid_list->GetEntries();
+                kHasGrids = 0;
+
+                KVNumberList runList = 0;
+                KVIDGrid *tmpGrid = 0;
+                Int_t nGridsForRun = 0;
+
+                for(Int_t i=0; i<entries; i++){
+                    tmpGrid = (KVIDGrid*) grid_list->At(i);
+                    if(tmpGrid != 0){
+                        runList = (KVNumberList) tmpGrid->GetRuns();
+                        //runList.PrintLimits();
+                        runList.Begin();
+                        while( !runList.End() ){
+                            UInt_t next_val = (UInt_t) runList.Next();
+                            if(next_val == gIndra->GetCurrentRunNumber()) nGridsForRun++;
+                        }
+                    }
+                }
+
+                if(nGridsForRun > 0) kHasGrids = 1;
+
+                if(kHasGrids != 1) return;
+
                 KVIDGraph *grd = 0;
 
                 if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){

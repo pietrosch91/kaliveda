@@ -26,6 +26,8 @@ $Date: 2007/11/21 11:22:59 $
 #include "KVIdentificationResult.h"
 #include "KVCsI.h"
 #include "KVSilicon.h"
+#include "KVIDGridManager.h"
+#include "KVIDGrid.h"
 
 using namespace std;
 
@@ -245,7 +247,7 @@ else
     return 0;
 }
 
-Bool_t KVIVReconIdent::LoadGrids(){
+/*Bool_t KVIVReconIdent::LoadGrids(){
 
     const char *grid_map= "grid_vamos.dat";
     const char *grid_map2= "SI_CSI_C4-9.dat";
@@ -280,5 +282,5 @@ Bool_t KVIVReconIdent::LoadGrids(){
     }
 
     return 0;
-}
+}*/
 

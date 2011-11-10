@@ -156,6 +156,8 @@ Int_t runFlag;
   //Counters
   Int_t Counter[6];
 
+    Bool_t kHasGrids;
+
 ClassDef(Identificationv,0)
 
 };
