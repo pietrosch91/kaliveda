@@ -686,34 +686,3 @@ Double_t EnergyTree::RetrieveLight(){
 Double_t EnergyTree::RetrieveEnergyCsI(){
 	return eEnergyCsI;
 }
-
-/*Bool_t EnergyTree::LoadGrids(){
-
-    const char *grid_map= "grid_vamos.dat";
-
-    printf("Attempting to load grids from %s...\n", grid_map);
-
-    if(gIDGridManager == 0){
-        printf("gIDGridManager not running\n");
-        return 1;
-    }
-
-    char ds_path[256];
-    sprintf(ds_path, "null");
-
-    if(gDataSet->GetDataSetDir() == 0){
-        printf("Failed to retrieve data set dir string\n");  
-        return 1;
-    }
-
-    sprintf(ds_path, "%s/%s", gDataSet->GetDataSetDir(), grid_map);
-
-    printf("Reading grid map: %s\n", grid_map);
-    if(gIDGridManager->ReadAsciiFile(ds_path) != 0){
-        printf("Grids loaded\n");
-    }else{
-        return 1;
-    }
-
-    return 0;
-}*/

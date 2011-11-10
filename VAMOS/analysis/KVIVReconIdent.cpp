@@ -26,6 +26,8 @@ $Date: 2007/11/21 11:22:59 $
 #include "KVIdentificationResult.h"
 #include "KVCsI.h"
 #include "KVSilicon.h"
+#include "KVIDGridManager.h"
+#include "KVIDGrid.h"
 
 using namespace std;
 
@@ -75,7 +77,7 @@ v->Build();
 fAnalyseV->SetFocalPlan(v);
 ReadModuleMap(); 	//"module_map.dat"       
 fAnalyseV->SetModuleMap(module_map);
-LoadGrids();
+//LoadGrids();
 }
 
 //_____________________________________
@@ -109,6 +111,36 @@ v->PrintStatusOfIDTelescopes();
 fAnalyseV->SetFocalPlan(v);
 ReadModuleMap(); 	//"module_map.dat"       
 fAnalyseV->SetModuleMap(module_map);
+
+/*        kHasGrids = 0;
+        KVList *gridList = 0;
+        gridList = (KVList*) gIDGridManager->GetGrids();
+
+        // Need to scan all of the grids and check if there is at least one 
+        // grid existing for this run
+
+        Int_t entries = (Int_t) gridList->GetEntries();
+
+        KVNumberList runList = 0;
+        KVIDGrid *tmpGrid = 0;
+        Int_t nGridsForRun = 0;
+
+        for(Int_t i=0; i<entries; i++){
+            tmpGrid = (KVIDGrid*) gridList->At(i);
+            if(tmpGrid != 0){
+                runList = (KVNumberList) tmpGrid->GetRuns();
+                //runList.PrintLimits();
+                runList.Begin();
+                while( !runList.End() ){
+                    UInt_t next_val = (UInt_t) runList.Next();
+                    if(next_val == gIndra->GetCurrentRunNumber()) nGridsForRun++;
+                }
+            }
+        }
+
+        if(nGridsForRun > 0) kHasGrids = 1;
+        //printf("nGridsForRun = %i\n", nGridsForRun);
+*/
     
       //reading brho and thetavamos values
    if(!gDataSet->OpenDataSetFile("Vamos_run_brho_angle.dat",in))
@@ -249,7 +281,7 @@ else
     return 0;
 }
 
-Bool_t KVIVReconIdent::LoadGrids(){
+/*Bool_t KVIVReconIdent::LoadGrids(){
 
     const char *grid_map= "grid_vamos.dat";
 
@@ -278,5 +310,5 @@ Bool_t KVIVReconIdent::LoadGrids(){
     }
 
     return 0;
-}
+}*/
 

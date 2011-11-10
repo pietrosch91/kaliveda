@@ -39,13 +39,16 @@ class KVIVReconIdent : public KVReconIdent
    Int_t GetRunFlag();   
    Int_t runFlag;
    Int_t ReadModuleMap();	//const Char_t *
-   Bool_t LoadGrids();
+   //Bool_t LoadGrids();
    KVFocalPlanVamos* v;
    string module_map[18][80];   
    Int_t event;
    Float_t  thetavam,brho;
    Double_t  brhorun;
    Double_t  thetavamrun;
+    
+    //Bool_t kHasGrids;
+    //Bool_t GetGridStatus(){return kHasGrids};
 	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };

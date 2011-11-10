@@ -171,8 +171,6 @@ class EnergyTree
         Double_t RetrieveLight();
         Double_t RetrieveEnergyCsI();
 
-        //Bool_t LoadGrids();
-        
         ClassDef(EnergyTree,1)//EnergyTree
 };
      
