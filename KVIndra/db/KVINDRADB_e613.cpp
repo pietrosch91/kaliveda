@@ -39,15 +39,19 @@ KVINDRADB_e613::~KVINDRADB_e613()
 void KVINDRADB_e613::ReadGainList()
 {
 
-   // Read the file listing any detectors whose gain value changes during exeriment
-	  //need description of INDRA geometry
-   if (!gIndra) {
+   // Read the file listing any detectors whose gain value changes during experiment
+	// need description of INDRA geometry
+	// information are in  [dataset name].INDRADB.Gains:    ...
+	//
+	
+	//need description of INDRA geometry
+	if (!gIndra) {
       KVMultiDetArray::MakeMultiDetector(fDataSet.Data());
    }
    //gIndra exists, but has it been built ?
    if (!gIndra->IsBuilt())
       gIndra->Build();
-
+   
 	KVFileReader flist;
 	TString fp;
 	if (!KVBase::SearchKVFile(GetCalibFileName("Gains"), fp, fDataSet.Data())){
@@ -71,7 +75,6 @@ void KVINDRADB_e613::ReadGainList()
 			toks = flist.GetReadPar(0).Tokenize("_");
 			Int_t nt = toks->GetEntries();
 			Int_t ring=-1;
-			Int_t mod=-1;
 			KVList* sl = 0;
 			KVList* ssl = 0;
 			TString det_type="";
@@ -143,6 +146,56 @@ void KVINDRADB_e613::ReadGainList()
 	
 	flist.CloseFile();
 
+}
+//____________________________________________________________________________
+void KVINDRADB_e613::ReadPedestalList()
+{
+
+   //Read the names of pedestal files to use for each run range, found
+   //in file with name defined by the environment variable:
+   //   [dataset name].INDRADB.Pedestals:    ...
+	
+	KVFileReader flist;
+	TString fp;
+	if (!KVBase::SearchKVFile(gDataSet->GetDataSetEnv("INDRADB.Pedestals",""), fp, gDataSet->GetName())){
+		Error("ReadPedestalList","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.Pedestals",""));
+		return;
+	}
+	fPedestals->SetTitle("Values of pedestals");
+	if (!flist.OpenFileToRead(fp.Data())){
+		return;
+	}
+	TEnv* env = 0;
+	TEnvRec* rec = 0;
+	KVDBParameterSet* par = 0;
+	
+	while (flist.IsOK()){
+		flist.ReadLine(NULL);
+		KVString file = flist.GetCurrentLine();
+		KVNumberList nl;
+		if ( file!="" && !file.BeginsWith('#') ){
+			if ( KVBase::SearchKVFile(file.Data(), fp, gDataSet->GetName()) ){
+				Info("ReadPedestalList","Lecture de %s",fp.Data());
+				env = new TEnv();
+				env->ReadFile(fp.Data(),kEnvAll);
+				TIter it(env->GetTable());
+				while ( (rec = (TEnvRec* )it.Next()) ){
+					if (!strcmp(rec->GetName(),"RunRange")){
+						nl.SetList(rec->GetValue());
+					}
+					else {
+						par = new KVDBParameterSet(rec->GetName(), "Piedestal", 1);
+						par->SetParameter(env->GetValue(rec->GetName(),0));
+						fPedestals->AddRecord(par);
+						LinkRecordToRunRange(par,nl);
+					}
+				}
+				delete env;
+				
+			}
+		}
+	}
+   Info("ReadPedestalList","End of reading");
 }
 
 //____________________________________________________________________________

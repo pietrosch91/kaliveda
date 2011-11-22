@@ -2297,7 +2297,7 @@ void KVMultiDetArray::SetDetectorThicknesses()
 	        // simple single layer detector
 	        Double_t thick = thickdat.GetValue( det->GetName(), 0.0 );
 	        det->SetThickness( thick );
-	        Info("SetDetectorThicknesses", "Set thickness of %s to %f", det->GetName(), thick);
+	        //Info("SetDetectorThicknesses", "Set thickness of %s to %f", det->GetName(), thick);
 	    }
 	    else {
             Char_t i=0;
@@ -2309,7 +2309,7 @@ void KVMultiDetArray::SetDetectorThicknesses()
                 while( (abs = det->GetAbsorber(i)) ){
                     Double_t thick = thickdat.GetValue( absname.Data(), 0.0 );
                     abs->SetThickness( thick );
-                    Info("SetDetectorThicknesses", "Set thickness of %s.Abs%d to %f", det->GetName(), (Int_t)i, thick);
+                    //Info("SetDetectorThicknesses", "Set thickness of %s.Abs%d to %f", det->GetName(), (Int_t)i, thick);
                     i++;
                     absname.Form("%s.Abs%d", det->GetName(), (Int_t)i);
                     if( !thickdat.Defined( absname.Data() ) ) break;

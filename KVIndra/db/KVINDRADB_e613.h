@@ -10,14 +10,17 @@ class KVINDRADB_e613 : public KVINDRADB
 {
 
 	protected:
+	
 	virtual void ReadGainList();
+	virtual void ReadPedestalList();
 	
 	public:
    KVINDRADB_e613();
    KVINDRADB_e613(const Char_t * name);
    virtual ~KVINDRADB_e613();
 
-   ClassDef(KVINDRADB_e613,1)//Child class for e613 experiment
+   
+	ClassDef(KVINDRADB_e613,1)//Child class for e613 experiment
 };
 
 #endif
