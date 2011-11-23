@@ -1325,6 +1325,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
         //no lines corresponding to point were found
         const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
         idr->IDquality = kICODE8;
+        idr->SetComment("no identification: (x,y) out of range covered by grid");
         return;
     }
     if ( OnlyZId() )
@@ -1343,6 +1344,18 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
         idr->Z = Zint;
         idr->PID = Z;
 		idr->A= Aint;
+		switch(fICode){
+     case kICODE0:                   idr->SetComment("ok"); break;
+  case kICODE1:                   idr->SetComment("slight ambiguity of Z, which could be larger"); break;
+  case kICODE2:                   idr->SetComment("slight ambiguity of Z, which could be smaller"); break;
+    case kICODE3:                  idr->SetComment("slight ambiguity of Z, which could be larger or smaller"); break;
+   case kICODE4:                   idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified"); break;
+  case kICODE5:                   idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified"); break;
+   case kICODE6:                   idr->SetComment("(x,y) is below first line in grid"); break;
+   case kICODE7:                   idr->SetComment("(x,y) is above last line in grid"); break;
+  default:
+                      idr->SetComment("no identification: (x,y) out of range covered by grid");
+		}
     }
     else
     {
@@ -1362,6 +1375,18 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
             idr->Aident = kTRUE;
             idr->IDOK = kTRUE;
         }
+		switch(fICode){
+     case kICODE0:                   idr->SetComment("ok"); break;
+  case kICODE1:                   idr->SetComment("slight ambiguity of A, which could be larger"); break;
+  case kICODE2:                   idr->SetComment("slight ambiguity of A, which could be smaller"); break;
+    case kICODE3:                  idr->SetComment("slight ambiguity of A, which could be larger or smaller"); break;
+   case kICODE4:                   idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified"); break;
+  case kICODE5:                   idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified"); break;
+   case kICODE6:                   idr->SetComment("(x,y) is below first line in grid"); break;
+   case kICODE7:                   idr->SetComment("(x,y) is above last line in grid"); break;
+  default:
+                      idr->SetComment("no identification: (x,y) out of range covered by grid");
+		}
     }
 }
 

@@ -77,15 +77,15 @@ Double_t KVIDChIoCsI_e475s::GetIDMapY(Option_t * opt)
 }
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoCsI_e475s::Identify(KVIdentificationResult* IDR)
+Bool_t KVIDChIoCsI_e475s::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 {
     //Particle identification and code setting using identification grid KVIDGChIoSi
 
 		IDR->SetIDType( GetType() );
 		IDR->IDattempted = kTRUE;
     //identification
-    Double_t varX = GetIDMapX();
-    Double_t varY = GetIDMapY();
+    Double_t varX = (x<0. ? GetIDMapX() : x);
+    Double_t varY = (y<0. ? GetIDMapY() : y);
 
     if (fidgrid->IsIdentifiable(varX,varY))
         fidgrid->Identify(varX,varY,IDR);

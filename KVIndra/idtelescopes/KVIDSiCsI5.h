@@ -71,7 +71,7 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
 
    virtual Double_t IdentifyZ(Double_t & funLTG);
 
-   virtual Bool_t Identify(KVIdentificationResult*);
+   virtual Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 
    void SetHasPG2(Bool_t yes=kTRUE) {
       SetBit(kHasPG2, yes);
@@ -92,7 +92,7 @@ class KVIDSiCsI5:public KVIDSiCsI, public KVTGIDManager {
    virtual void RemoveIdentificationParameters();
 
    virtual void Initialize();
-   virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1);
+   virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1, Double_t Eres = -1.);
 
    ClassDef(KVIDSiCsI5, 2)      //5th campaign INDRA identification using Si-CsI matrices
 };

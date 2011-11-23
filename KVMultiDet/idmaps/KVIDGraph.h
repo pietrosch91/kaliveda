@@ -339,6 +339,7 @@ class KVIDGraph : public TCutG
    virtual void 			SetVarY(const char* v){TCutG::SetVarY(v); };
    virtual Int_t         InsertPoint(){return TCutG::InsertPoint();};
    virtual Int_t         RemovePoint(){return TCutG::RemovePoint();};
+   virtual Int_t         RemovePoint(Int_t i){return TCutG::RemovePoint(i);};
 	
    ClassDef(KVIDGraph,1)//Base class for particle identification in a 2D map
 };

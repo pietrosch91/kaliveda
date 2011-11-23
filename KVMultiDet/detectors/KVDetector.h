@@ -227,7 +227,8 @@ class KVDetector:public KVMaterial {
 
    void AddHit(KVNucleus * part)
    {
-   // Add to the list of particles hitting this detector in an event
+   	// Add to the list of particles hitting this detector in an event
+   	
       if (!fParticles) {
       	fParticles = new KVList(kFALSE);
       	fParticles->SetCleanup();
@@ -240,7 +241,11 @@ class KVDetector:public KVMaterial {
    {
       return fParticles;
    };
-
+	void ClearHits()
+	{
+		// clear the list of particles hitting this detector in an event
+		if(fParticles) fParticles->Clear();
+	};
    // Return the number of particles hitting this detector in an event
    Int_t GetNHits() const
    {

@@ -25,6 +25,7 @@
 #include "KVDataSetManager.h"
 #include "KVDataRepository.h"
 #include "KVBatchSystem.h"
+#include "KVGANILDataReader.h"
 
 typedef KVDetector* (KVINDRADstToRootTransfert::*FNMETHOD) ( int,int );
 
@@ -177,6 +178,25 @@ void KVINDRADstToRootTransfert::ProcessRun()
       //leaves for reconstructed events
 		data_tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &evt, 10000000, 0)->SetAutoDelete(kFALSE);
 
+      //tree for raw data
+		rawtree = new TTree("RawData", Form("%s : %s : raw data",
+			 	gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle()));
+      rawtree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
+		Int_t fEventNumber=1;
+      rawtree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
+      
+      // the format of the raw data tree must be "arrays" : we depend on it in KVINDRAReconDataAnalyser
+      // in order to read the raw data and set the detector acquisition parameters
+      TString raw_opt = "arrays";
+		KVGANILDataReader* raw_data = (KVGANILDataReader*)gDataSet->OpenRunfile("raw", fRunNumber);
+      raw_data->SetUserTree(rawtree,raw_opt.Data());
+      Info("InitRun", "Created raw data tree (%s : %s). Format: %s",
+            rawtree->GetName(), rawtree->GetTitle(), raw_opt.Data());
+		
+	// fill the raw data tree
+	while( raw_data->GetNextEvent() ) fEventNumber++;
+   Info("InitRun", "Raw data tree containes %d events", fEventNumber-1);
+		
 	events_good=events_read=0;
 
 	if(camp2){
@@ -240,6 +260,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 
 	gDataAnalyser->WriteBatchInfo(data_tree);
 	data_tree->Write();		//write tree to file
+	rawtree->Write();
 
 		//add new file to repository
 		OutputDataset->CommitRunfile("root", fRunNumber, fi);

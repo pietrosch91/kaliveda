@@ -30,7 +30,7 @@ class KVIDSiCsI_e475s : public KVIDSiCsI
 
 	virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");
-	virtual Bool_t Identify(KVIdentificationResult*);
+	virtual Bool_t Identify(KVIdentificationResult*, Double_t x =-1., Double_t y=-1.);
 
 	virtual void CalculateParticleEnergy(KVReconstructedNucleus * nuc);
 

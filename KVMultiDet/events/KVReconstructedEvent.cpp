@@ -118,7 +118,6 @@ void KVReconstructedEvent::ReconstructEvent(KVDetectorEvent * kvde)
 // - loop over next to last stage...if any detector hit NOT ALREADY IN A "PARTICLE"
 //   construct "particle" etc. etc.
 //
-
    KVGroup *grp_tch;
 
 #ifdef KV_DEBUG
@@ -273,14 +272,14 @@ void KVReconstructedEvent::IdentifyEvent()
    KVReconstructedNucleus *d;
    while ((d = GetNextParticle())) {
       if (!d->IsIdentified()){
-         if(d->GetStatus() < 3) { // if(d->GetStatus() == 0)
+         if(d->GetStatus() == KVReconstructedNucleus::kStatusOK){
             // identifiable particles
             d->Identify();
          }
-         else if(d->GetStatus() == 3) {
+         else if(d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
-            UInt_t zmin = d->GetStoppingDetector()->FindZmin();
+            UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());
             if( zmin ){
                d->SetZ( zmin );
                d->SetIsIdentified();

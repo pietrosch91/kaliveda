@@ -83,11 +83,11 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 #endif
    virtual void Clear(Option_t * t = "");
    void Print(Option_t * option = "") const;
-   inline UShort_t GetTimeMarker() const {
-      return (GetStoppingDetector()?
-              (GetStoppingDetector()->
-               GetACQParam("T") ? GetStoppingDetector()->GetACQParam("T")->
-               GetCoderData() : 0) : 0);
+   inline Short_t GetTimeMarker() const {
+		if(!GetStoppingDetector()) return -1;
+		KVACQParam* mqrt = GetStoppingDetector()->GetACQParam("T");
+		if(!mqrt || !mqrt->IsWorking()) return -1;
+      return (Short_t)mqrt->GetCoderData();
    };
    UInt_t GetRingNumber(void) const {
       if (GetTelescope()) {

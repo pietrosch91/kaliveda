@@ -17,10 +17,11 @@ ClassImp(KVTensP)
 //By default, only particles with Z >=  Zmin (default value=3) are included in
 //the calculation. Use SetZmin(0) or SetZmin(1) to include all particles.
 //
-//Use SetPartLabel() in order to use only particles with a given label.
+//Use SetPartGroup() in order to use only particles belonging to a given group
+//(see KVParticle::AddGroup and KVParticle::BelongsToGroup).
 //Note that the condition on the particle's Z is still used, thus
-//if e.g., SetZmin(10) and  SetPartLabel("alpha") are used, only
-//particles with the name/label "alpha" and Z>=10 will be included. 
+//if e.g., SetZmin(10) and  SetPartGroup("alpha") are used, only
+//particles belonging to group "alpha" and Z>=10 will be included. 
 //
 //By default the tensor is calculated from particle momenta
 //in the default (laboratory) frame.
@@ -34,14 +35,13 @@ ClassImp(KVTensP)
 //
 //      Name            Index                   Meaning
 //----------------------------------------------------------------------------
-//      ThetaFlot       0       (default)       Theta flow (in degrees between -90 and +90)
+//      ThetaFlot       0       (default)       Theta flow (in degrees between 0 and +90)
 //      PhiPlan         1                       Phi of the reaction plane (in degrees between 0 and 360)
 //      Vap1            2                       Value of the 1st eigenvalue
 //      Vap2            3                       Value of the 2nd eigenvalue
 //      Vap3            4                       Value of the 3rd eigenvalue
 //      Sphericite      5                       Sphericity
 //      Coplanarite     6                       Coplanarity
-//      Directivite     7       (not computed)  Directivity
 //
 // All these values can be obtained by calling the GetValuePtr() method which
 // returns an array of Double_t containing the values.
@@ -88,7 +88,6 @@ void KVTensP::init_KVTensP(void)
    SetNameIndex("Vap3", 4);
    SetNameIndex("Sphericite", 5);
    SetNameIndex("Coplanarite", 6);
-   SetNameIndex("Directivite", 7);
 }
 
 
@@ -227,9 +226,9 @@ void KVTensP::Fill(KVNucleus * c)
    //
    //This particle will be rejected if:
    //(1) it has Z < Zmin
-   //(2) it does not have the name/label defined with SetPartLabel**
+   //(2) it does not belong to the group defined with SetPartGroup**
    //
-   // **if no label defined, only Z>=Zmin condition is used.
+   // **if no group defined, only Z>=Zmin condition is used.
    //
    //This uses the 3 cartesian components of the particle's velocity vector
    //with a weight equal to the particle's A.
@@ -238,9 +237,7 @@ void KVTensP::Fill(KVNucleus * c)
    //To calculate in another frame, use KVVarGlob::SetFrame() before
    //calculation begins
 
-   //if particle label has been set, check name of particle
-   //if not, accept all
-   Bool_t ok = ((fLabel != "") ? (fLabel == c->GetName()) : kTRUE);
+   Bool_t ok = ((fLabel != "") ? (c->BelongsToGroup(fLabel.Data())) : kTRUE);
 
    //check Z of particle
    if ((c->GetZ() >= GetZmin()) && ok) {
@@ -270,17 +267,15 @@ Double_t *KVTensP::GetValuePtr(void)
 // 4      Value of the 3rd eigenvalue
 // 5      Sphericity
 // 6      Coplanarity
-// 7      Directivity
 //
 
-   fVal[0] = tenseurP->GetThetaFlot();
+   fVal[0] = TMath::Abs(tenseurP->GetThetaFlot());
    fVal[1] = tenseurP->GetPhiPlan();
    fVal[2] = tenseurP->GetVap(1);
    fVal[3] = tenseurP->GetVap(2);
    fVal[4] = tenseurP->GetVap(3);
    fVal[5] = tenseurP->GetSphericite();
    fVal[6] = tenseurP->GetCoplanarite();
-   fVal[7] = tenseurP->GetDirectivite();
    return fVal;
 }
 
@@ -298,13 +293,12 @@ Double_t KVTensP::getvalue_int(Int_t i)
 // 4       Value of the 3rd eigenvalue
 // 5       Sphericity
 // 6       Coplanarity
-// 7       Directivity
 //
 //
    Double_t rval = 0;
    switch (i) {
    case 0:
-      rval = tenseurP->GetThetaFlot();
+      rval = TMath::Abs(tenseurP->GetThetaFlot());
       break;
 
    case 1:
@@ -329,10 +323,6 @@ Double_t KVTensP::getvalue_int(Int_t i)
 
    case 6:
       rval = tenseurP->GetCoplanarite();
-      break;
-
-   case 7:
-      rval = tenseurP->GetDirectivite();
       break;
 
    default:
