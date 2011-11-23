@@ -124,7 +124,7 @@ Bool_t KVedaLoss::init_materials() const
    printf("\t*                      TF1::ResidualEnergy::Npx = %4d                  *\n",
    		gEnv->GetValue("KVedaLoss.ResidualEnergy.Npx",100));
    printf("\t*                                                                       *\n");
-   printf("\t*                       INITALISATION COMPLETE                          *\n");
+   printf("\t*                       INITIALISATION COMPLETE                         *\n");
    printf("\t*************************************************************************\n");
    return kTRUE;
 }
