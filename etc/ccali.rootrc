@@ -19,7 +19,6 @@ BQS.BatchSystem.DefaultJobDisk:   100MB
 +Plugin.KVBatchSystem:    BQS    KV_CCIN2P3_BQS     KVMultiDet    "KV_CCIN2P3_BQS(const Char_t*)"
 # Modify this variable in order to submit N runs per job in parallel batch mode
 #BQS.BatchSystem.RunsPerJob:    1
-Default.BatchSystem:   BQS
 
 +BatchSystem:    GE
 GE.BatchSystem.Title:   Use Grid Engine batch system
@@ -31,4 +30,6 @@ GE.BatchSystem.DefaultJobMemory:  256M
 GE.BatchSystem.DefaultJobDisk:   100M
 +Plugin.KVBatchSystem:    GE    KV_CCIN2P3_GE     KVMultiDet    "KV_CCIN2P3_GE(const Char_t*)"
 # Modify this variable in order to submit N runs per job in parallel batch mode
-#BQS.BatchSystem.RunsPerJob:    1
+#GE.BatchSystem.RunsPerJob:    1
+
+Default.BatchSystem:   GE

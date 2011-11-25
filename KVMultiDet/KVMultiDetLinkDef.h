@@ -127,6 +127,8 @@
 #pragma link C++ class KVListView;
 #pragma link C++ class KVLockfile+;
 #pragma link C++ class KVLogReader+;
+#pragma link C++ class KVBQSLogReader+;
+#pragma link C++ class KVGELogReader+;
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;

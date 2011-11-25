@@ -1,11 +1,14 @@
 /*******************************************************************************
 $Id: KVLogReader.h,v 1.10 2008/04/07 15:34:27 franklan Exp $
 *******************************************************************************/
+#ifndef __KVLOGREADER_H
+#define __KVLOGREADER_H
+
 #include "Rtypes.h"
 #include "KVString.h"
 
 class KVLogReader {
- private:
+ protected:
 
    TString fFMT;                //format string used to extract run number from job name
    TString fJobname;            //name of job
@@ -19,15 +22,16 @@ class KVLogReader {
    Bool_t fOK;                  //job OK or not ?
    Bool_t fGotRequests;   //set true when disk & memory request has been read
 
-   Int_t GetByteMultiplier(TString & unit);
-   void ReadLine(TString & line, Bool_t &);
-   void ReadCPULimit(TString & line);
+	protected:
+   virtual Int_t GetByteMultiplier(TString & unit)=0;
+   virtual void ReadLine(TString & line, Bool_t &);
+   virtual void ReadCPULimit(TString & line)=0;
    void ReadStorageReq(TString & line);
-   void ReadScratchUsed(TString & line);
-   void ReadMemUsed(TString & line);
-   void ReadStatus(TString & line);
+   virtual void ReadScratchUsed(TString & line)=0;
+   virtual void ReadMemUsed(TString & line)=0;
+   virtual void ReadStatus(TString & line)=0;
    void ReadJobname(TString & line);
-   Int_t ReadStorage(KVString & stor);
+   virtual Int_t ReadStorage(KVString & stor)=0;
 
  public:
 
@@ -81,5 +85,7 @@ class KVLogReader {
    };
    Bool_t Incomplete() const;
 
-   ClassDef(KVLogReader, 0)     //Tool for reading CCIN2P3 BQS batch logs
+   ClassDef(KVLogReader, 0)//Tool for reading CCIN2P3 batch logs
 };
+
+#endif
