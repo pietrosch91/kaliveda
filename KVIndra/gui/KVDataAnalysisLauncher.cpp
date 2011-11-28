@@ -831,11 +831,9 @@ else
                          "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
  
  if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE)){
-	 Info("init", "KVDataAnalysisLauncher.AutoBatchName=1 so button down");
   chIsBatchNameAuto->SetState(kButtonDown,kFALSE);
   }
  else{
-	 Info("init", "KVDataAnalysisLauncher.AutoBatchName=0 so button up");
   chIsBatchNameAuto->SetState(kButtonUp,kFALSE);
 }
  SetBatch();
@@ -1796,8 +1794,10 @@ void KVDataAnalysisLauncher::SetBatch(void)
  if(IsBatch()) {
  	runsPerJob->SetState(kTRUE);
  	GUIenv->SetValue("KVDataAnalysisLauncher.RunsPerJob", (Int_t)runsPerJob->GetNumber());
+ 	if(!chIsBatchNameAuto->IsEnabled()){
+ 		chIsBatchNameAuto->SetEnabled(kTRUE);
+ 	}
  	SetBatchNameAuto();
- 	//chIsBatchNameAuto->SetEnabled(kTRUE);
  	if(teBatchMemory&&teBatchTime&&teBatchDisk){
  		teBatchMemory->SetState(kTRUE);
  		teBatchTime->SetState(kTRUE);
