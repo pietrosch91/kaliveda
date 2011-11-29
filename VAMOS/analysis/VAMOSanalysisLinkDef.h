@@ -8,9 +8,6 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link off all classes;
 #pragma link off all functions;
 #ifdef ROOTGANILTAPE
-#pragma link C++ class ParameterName+;
-#pragma link C++ class Parameters+;
-#pragma link C++ class GTGanilDataVAMOS+;
 #pragma link C++ class KVIVRawDataAnalyser+;
 #pragma link C++ class KVIVRawDataReconstructor+;
 #endif
@@ -20,17 +17,5 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link C++ class Analysisv_e503+;
 #pragma link C++ class Reconstructionv+;
 #pragma link C++ class ReconstructionSeDv+;
-#pragma link C++ class LogFile+;
-#pragma link C++ class Random+;
-#pragma link C++ class DriftChamberv+;
-#pragma link C++ class IonisationChamberv+;
-#pragma link C++ class SeDv+;
-#pragma link C++ class SeD12v+;
-#pragma link C++ class Siv+;
-#pragma link C++ class Identificationv+;
-#pragma link C++ class KVCsIVamos+;
-#pragma link C++ class KVSiliconVamos+;
-#pragma link C++ class KVIDSiCsIVamos+;
-#pragma link C++ class KVFocalPlanVamos+;
 #pragma link C++ class KVIVSelector+;
 #endif
