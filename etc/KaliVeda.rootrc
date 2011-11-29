@@ -481,6 +481,9 @@ Plugin.GTGanilData:    INDRA_e503      GTGanilDataVAMOS      VAMOS     "GTGanilD
 +Plugin.GTGanilData:   VAMOS_e503     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 +Plugin.GTGanilData:             *               GTGanilData            KVMultiDet       "GTGanilData()"
 
+# Change handling of scaler buffers in GANIL data files
+KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
+
 #Define groups of users for restricting access to certain datasets
 #To add a new group:
 #+UserGroup: name_of_group

@@ -3,12 +3,14 @@
 
 #include "KVGANILDataReader.h"
 #include "GTGanilData.h"
+#include "GTOneScaler.h"
 #include "KVDataSet.h"
 #include "KVMultiDetArray.h"
 #include "TSystem.h"
 #include "TUrl.h"
 #include "TPluginManager.h"
 #include "RVersion.h"
+#include <TInterpreter.h>
 
 ClassImp(KVGANILDataReader)
 
@@ -18,20 +20,19 @@ ClassImp(KVGANILDataReader)
 <h2>KVGANILDataReader</h2>
 <h4>Reads GANIL acquisition files</h4>
    Open and initialise a GANIL data file for reading.
-   By default, Scaler buffers are ignored.
    If file cannot be opened, this object will be made a zombie. Do not use.
    To test if file is open, use IsOpen().
    The basename of the file (excluding any path) can be obtained using GetName()
    The full pathname of the file can be obtained using GetTitle()
-   <br>
+   <br><br>
    If the dataset corresponding to the data to be read is known i.e. if gDataSet has been defined and points
    to the correct dataset, this will allow to build the necessary multidetector object if it has not already
    been done, and to set the calibration parameters etc. as a function of the run number.
-	<br>
+	<br><br>
    If not (i.e. if no information is available on detectors, calibrations, geometry, etc.),
    then a list of KVACQParam objects will be generated and connected ready for reading the data.
-   <br>
-   To fill a TTree with all data in the file, do the following:
+   <br><br>
+   To fill a TTree with all data in the file, do the following:<br>
 <pre>
 KVGANILDataReader* runfile = new KVGANILDataReader("run1.dat");
 TFile* file = new TFile("run1.root","recreate");
@@ -40,8 +41,20 @@ runfile->SetUserTree(T);
 while( runfile->GetNextEvent() ) ;
 file->Write();
 file->Close();
-</pre>
+</pre><br>
 See method <a href="#KVGANILDataReader:SetUserTree">SetUserTree()</a> for more details.
+See below if you want to include a TTree containing scaler data in the file.
+<h4>Scaler buffers management</h4>
+By default, scaler buffers are ignored (<a href="GTGanilData.html#GTGanilData:SetScalerBuffersManagement">GTGanilData::SetScalerBuffersManagement</a>(GTGanilData::kSkipScaler)).
+This can be changed by changing the value of<br>
+<pre>
+KVGANILDataReader.ScalerBuffersManagement:       kSkipScaler
+</pre>
+<br>
+For possible values, see <a href="GTGanilData.html#GTGanilData:SetScalerBuffersManagement">GTGanilData::SetScalerBuffersManagement</a>.<br><br>
+You can also add a second TTree to the user tree generated above containing the values
+of all scaler buffers written in the data file. The TTree will be called 'Scalers'.
+You need to add "SCALERS" to the option given to method <a href="#KVGANILDataReader:SetUserTree">SetUserTree()</a> (see below).
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,12 +170,22 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
    // do:
    //     TObjArray* parlist = (TObjArray*) T->GetUserInfo()->FindObject("ParameterList");
    //     cout << "Par 674 name = " << (*parlist)[674]->GetName() << endl;
+   //
+   //
+   //  Automatic creation & filling of Scalers TTree
+   //
+   // give an option string containing "scalers", i.e. "leaves,scalers", or "ARRAYS+SCALERS", etc.
+   // a TTree with name 'Scalers' will be created, all scaler buffers will be written in it.
 
 
    TString option = opt;
    option.ToUpper();
    make_arrays = option.Contains("ARRAYS");
    make_leaves = option.Contains("LEAVES");
+   Bool_t make_scalers = option.Contains("SCALERS");
+   if(make_scalers){
+   	fGanilData->SetScalerBuffersManagement(GTGanilData::kAutoWriteScaler);
+   }
 
    fUserTree = T;
    if( make_arrays ){
@@ -219,8 +242,13 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
 
 void KVGANILDataReader::OpenFile(const Char_t * file)
 {
-   //Open and initialise a GANIL data file for reading.
-   //If file cannot be opened, this object will be made a zombie. Do not use.
+   	//Open and initialise a GANIL data file for reading.
+	//By default, scaler buffers are ignored.
+	//This can be changed by changing the value of
+	//
+	//	KVGANILDataReader.ScalerBuffersManagement:       kSkipScaler
+	//	
+	//If file cannot be opened, this object will be made a zombie. Do not use.
    //To test if file is open, use IsOpen().
    //The basename of the file (excluding any path) can be obtained using GetName()
    //The full pathname of the file can be obtained using GetTitle()
@@ -240,7 +268,13 @@ void KVGANILDataReader::OpenFile(const Char_t * file)
    fGanilData->SetFileName(file);
    SetName( gSystem->BaseName(file) );
    SetTitle(file);
-   fGanilData->SetScalerBuffersManagement(GTGanilData::kSkipScaler);
+   
+   // handling scaler buffers
+   TString what_scale = gEnv->GetValue("KVGANILDataReader.ScalerBuffersManagement","kSkipScaler");
+   what_scale.Prepend("GTGanilData::");
+   Long_t ws = gInterpreter->ProcessLine(what_scale);
+   fGanilData->SetScalerBuffersManagement((GTGanilData::ScalerWhat_t)ws);
+   
    fGanilData->Open();
 
    //test whether file has been opened
@@ -405,3 +439,18 @@ void KVGANILDataReader::FillFiredParameterList()
    KVACQParam *par;
    while( (par = (KVACQParam*)next()) ) if(par->Fired()) fFired->Add(par);
 }
+
+ //____________________________________________________________________________
+   Bool_t KVGANILDataReader::HasScalerBuffer() const { return fGanilData->IsScalerBuffer(); }
+
+Int_t KVGANILDataReader::GetNumberOfScalers() const
+{
+	return fGanilData->GetScalers()->GetNbChannel();
+}
+
+UInt_t KVGANILDataReader::GetScalerCount(Int_t index) const
+{
+	return fGanilData->GetScalers()->GetScalerPtr(index)->GetCount();
+}
+
+

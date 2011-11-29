@@ -58,6 +58,10 @@ class KVGANILDataReader : public KVRawDataReader
 	};
 
    static KVGANILDataReader* Open(const Char_t* filename, Option_t* opt = "");
+   
+   Bool_t HasScalerBuffer() const;
+   Int_t GetNumberOfScalers() const;
+   UInt_t GetScalerCount(Int_t index) const;
 
    ClassDef(KVGANILDataReader,0)//Reads GANIL acquisition files
 };
