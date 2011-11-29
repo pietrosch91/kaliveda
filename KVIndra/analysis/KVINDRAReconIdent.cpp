@@ -1,6 +1,6 @@
-#define KVReconIdent_cxx
+#define KVINDRAReconIdent_cxx
 
-#include "KVReconIdent.h"
+#include "KVINDRAReconIdent.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "KVDataRepository.h"
@@ -8,19 +8,19 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataAnalyser.h"
 
-ClassImp(KVReconIdent)
+ClassImp(KVINDRAReconIdent)
 
 ///////////////////////////////////////////////////////////
 // Analysis class used to identify previously
 // reconstructed events and write the new data files in the data repository
 //
 
-void KVReconIdent::InitAnalysis(void)
+void KVINDRAReconIdent::InitAnalysis(void)
 {
 }
 
 //_____________________________________
-void KVReconIdent::InitRun(void)
+void KVINDRAReconIdent::InitRun(void)
 {
    //When each run is opened, we create a new ROOT file for the identified events we
    //are going to generate from the reconstructed events we are reading.
@@ -71,7 +71,7 @@ void KVReconIdent::InitRun(void)
 }
 
 //_____________________________________
-Bool_t KVReconIdent::Analysis(void)
+Bool_t KVINDRAReconIdent::Analysis(void)
 {
    //For each event we:
    //     perform primary event identification and calibration and fill tree
@@ -86,7 +86,7 @@ Bool_t KVReconIdent::Analysis(void)
 }
 
 //_____________________________________
-void KVReconIdent::EndRun(void)
+void KVINDRAReconIdent::EndRun(void)
 {
    //At the end of each run we:
    //      write the tree into the new file
@@ -117,6 +117,6 @@ void KVReconIdent::EndRun(void)
 }
 
 //_____________________________________
-void KVReconIdent::EndAnalysis(void)
+void KVINDRAReconIdent::EndAnalysis(void)
 {
 }

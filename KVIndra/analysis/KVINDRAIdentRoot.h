@@ -1,12 +1,20 @@
-#ifndef KVINDRAReconRoot_h
-#define KVINDRAReconRoot_h
+/*
+$Id: KVINDRAIdentRoot.h,v 1.2 2006/10/19 14:32:43 franklan Exp $
+$Revision: 1.2 $
+$Date: 2006/10/19 14:32:43 $
+*/
+
+#ifndef KVINDRAIdentRoot_h
+#define KVINDRAIdentRoot_h
 
 #include "KVSelector.h"
+
 
 class TFile;
 class TTree;
 
-class KVINDRAReconRoot:public KVSelector {
+class KVINDRAIdentRoot:public KVSelector {
+
 	int codes[15];
 	int status[4];
 	int Acodes[15];
@@ -19,11 +27,11 @@ class KVINDRAReconRoot:public KVSelector {
    Int_t fEventNumber;
 
  public:
-    KVINDRAReconRoot() {
+   KVINDRAIdentRoot() {
       fIdentFile = 0;
       fIdentTree = 0;
    };
-   virtual ~ KVINDRAReconRoot() {
+   virtual ~ KVINDRAIdentRoot() {
    };
 
    virtual void InitRun();
@@ -31,11 +39,11 @@ class KVINDRAReconRoot:public KVSelector {
    virtual void InitAnalysis();
    virtual Bool_t Analysis();
    virtual void EndAnalysis();
-   
+
    void CountStatus();
    void CountCodes();
 
-   ClassDef(KVINDRAReconRoot, 0) //Generation of fully-identified and calibrated INDRA data files
+   ClassDef(KVINDRAIdentRoot, 0);//Generation of fully-identified and calibrated INDRA data files
 };
 
 #endif

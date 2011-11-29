@@ -10,9 +10,9 @@ $Date: 2007/11/16 15:41:55 $
 #ifndef __KVRECONIDENT_E475S_H
 #define __KVRECONIDENT_E475S_H
 
-#include "KVReconIdent.h"
+#include "KVINDRAReconIdent.h"
 
-class KVReconIdent_e475s : public KVReconIdent
+class KVReconIdent_e475s : public KVINDRAReconIdent
 {
    public:
 
