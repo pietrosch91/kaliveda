@@ -508,7 +508,7 @@ template < class T > T Binary_t < T >::Subvalue(UChar_t firstbit,
 template < class T > Long64_t Binary_t < T >::Max() const
 {
    //Returns maximum value that can be stored in number, i.e. when all bits = 1
-   return (Long64_t)pow(2, fNBits)-1;
+   return (Long64_t)pow(2.0, (int)fNBits)-1;
 }
 
 //_____________________________________________________________________________//

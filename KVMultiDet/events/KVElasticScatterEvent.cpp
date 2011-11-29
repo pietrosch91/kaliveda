@@ -658,7 +658,7 @@ void KVElasticScatterEvent::Print()
 		printf("-------------------------\n");
 		printf("# Propagation dans une cible de:\n");
 		for (Int_t nn=0;nn<GetTarget()->GetLayers()->GetEntries();nn+=1){
-			Double_t epaiss = GetTarget()->GetLayerByIndex(nn+1)->GetAreaDensity()/( KVUnits::mg / pow(KVUnits::cm, 2.) );
+			Double_t epaiss = GetTarget()->GetLayerByIndex(nn+1)->GetAreaDensity()/( KVUnits::mg / pow(KVUnits::cm, 2) );
 			printf("#\ttype:%s epaisseur:%lf (mg/cm**2) / %lf\n",
 				GetTarget()->GetLayerByIndex(nn+1)->GetType(),
 				epaiss,
