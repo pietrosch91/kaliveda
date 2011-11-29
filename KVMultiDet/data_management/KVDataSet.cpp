@@ -328,7 +328,7 @@ void KVDataSet::SaveDataBase()
    // Write the database to disk (ROOT file).
    // It will be written in the directory
    //   $KVROOT/db/[dataset name]
-   // If the directory does not exist, it will be created.
+   // If the directory does not exist, it will be created. Permissions are set to 775 (rwxrwxr-x).
    //
    // # Default name of database file containing informations on runs, systems, calibration parameters etc.
    // DataSet.DatabaseFile:        DataBase.root
@@ -351,7 +351,7 @@ void KVDataSet::SaveDataBase()
                tmp2.Data());
             	return;
 				}
-				
+				gSystem->Chmod(tmp2.Data(), 0775);
           }
 			 else
 			 {
@@ -365,6 +365,14 @@ void KVDataSet::SaveDataBase()
               tmp.Data());
               return;
           }
+          else
+          {
+          	gSystem->Chmod(tmp.Data(), 0775);
+          }
+      }
+      else
+      {
+      	gSystem->Chmod(tmp.Data(), 0775);
       }
    }
 
@@ -377,6 +385,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
 {
    //PRIVATE METHOD
    //Write the database to disk.
+   //Set permissions to rw for user & group
 
    TDirectory *work_dir = gDirectory;   //keep pointer to current directory
    if (fDBase) {
@@ -393,6 +402,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    fDataBase->WriteObjects( fDBase ); //write any associated objects
    fDBase->Write();        // write file header etc.
    fDBase->Close();         // close file
+   gSystem->Chmod(full_path_to_dbfile, 0664); // set permissions to rw-rw-r--
    work_dir->cd();              //back to initial working directory
 }
 
