@@ -216,6 +216,7 @@ distclean : clean
 	-rm -f $(HOME)/.KVDataAnalysisGUIrc*
 		
 install :
+	-chmod 0775 $(KVINSTALLDIR)
 	-mkdir -p $(KVINSTALLDIR)/src
 	-mkdir -p $(KVINSTALLDIR)/KVFiles
 	-mkdir -p $(KVINSTALLDIR)/db
