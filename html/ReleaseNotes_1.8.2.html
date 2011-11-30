@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=ISO-8859-1"
+      http-equiv="Content-Type">
+    <title>KaliVeda v1.8.2 Release Notes</title>
+    <link rel="stylesheet" href="ReleaseNotes_1.8.2_files/site.css"
+      type="text/css">
+  </head>
+  <body>
+    <h1>KaliVeda v1.8.2 Release Notes</h1>
+<div class="leftSide">
+<div class="KaliVeda">KaliVeda</div>
+<img
+ style="margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;"
+ alt="indra" src="images/indra_camp4_210x188.png"><br>
+<script language="javascript" src="js/nav.js"></script>
+<br>
+      <!-- SiteSearch Google -->
+      <form method="get" action="http://www.google.com/search"><input
+          name="ie" value="UTF-8" type="hidden"> <input name="oe"
+          value="UTF-8" type="hidden"><input name="q" style="margin-top:
+          5px;" size="13" maxlength="255" type="text"> <input
+          name="btnG" style="margin-top: 5px;" value="Search site"
+          onclick="send_data(this.form)" type="submit"></form>
+      <!-- SiteSearch Google -->
+    </div>
+    <div class="page">
+      <h2><br>
+      </h2>
+      Here is a (far-from-complete) list of what's new in KaliVeda
+      v1.8.2.<br>
+      For more details, see <a
+        href="https://launchpad.net/kaliveda/1.8/1.8.2">here</a>.<br>
+      <br>
+      You should probably also read the <a
+        href="ReleaseNotes_1.8.1.html">Release
+        Notes
+        for
+        v1.8.1a</a>.<br>
+      <br>
+      <h2>Grid Engine batch system (CCIN2P3)</h2>
+      <br>
+      Replacement of BQS by GE at CCIN2P3. v1.8.2 only works with GE
+      (BQS became obsolete on 6/12/2011).<br>
+      Change is nearly transparent for users, except:<br>
+      <ul>
+        <li>memory and scratch disk request units are now 'M' instead of
+          'MB', 'G' instead of 'GB'</li>
+        <li>'analyse_logs' works for log-files produced by 'parallel'
+          batch jobs with 1 run per job, but no information is available
+          on consumed scratch disk space (none is given by GE)<br>
+        </li>
+      </ul>
+      <br>
+      <h2>E613</h2>
+      <br>
+      Data for new experiment E613 (September-October 2011) can be
+      accessed with this version. Pedestals and some other calibration
+      parameters have been implemented.<br>
+      <br>
+      <h2>INDRA data reduction</h2>
+      <br>
+      The 'ident-&gt;root' data reduction task has been implemented. It
+      produces data files which include all identified and calibrated
+      particles (including those revealed by coherency analysis, i.e.
+      "code 6" particles).<br>
+      <br>
+      <h2>Changes to data structures</h2>
+      <br>
+      Due to recent changes to data structures, not all informations are
+      available when reading data files written with version 1.8.0 or
+      1.8.1.<br>
+      In 'root' files generated from DST (INDRA campaigns 1, 2, &amp;
+      4), no access to raw data parameters is possible. The files should
+      be regenerated with v1.8.2 in order for this to be possible.<br>
+      <br>
+      <h2>Reorganisation of analysis tasks</h2>
+      <br>
+      The "raw-&gt;ident" analysis task has been suppressed; it is
+      obsolete
+      as now "recon" data is independent of any changes made to detector
+      geometry, calibrations, etc. "recon" data should be generated from
+      raw
+      data once and for all, and all subsequent processing done by
+      "recon-&gt;ident" task.<br>
+      The (temporary) "recon-&gt;root" task has been removed.<br>
+      Data reduction schema is: 1) raw-&gt;recon; 2) recon-&gt;ident; 3)
+      ident-&gt;root<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <span style="font-style: italic;"></span></div>
+  </body>
+</html>
