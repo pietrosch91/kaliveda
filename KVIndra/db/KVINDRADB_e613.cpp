@@ -185,7 +185,7 @@ void KVINDRADB_e613::ReadPedestalList()
 					}
 					else {
 						par = new KVDBParameterSet(rec->GetName(), "Piedestal", 1);
-						par->SetParameter(env->GetValue(rec->GetName(),0));
+						par->SetParameter(env->GetValue(rec->GetName(),0.0));
 						fPedestals->AddRecord(par);
 						LinkRecordToRunRange(par,nl);
 					}
