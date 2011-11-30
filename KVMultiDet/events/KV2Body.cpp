@@ -317,7 +317,7 @@ Double_t KV2Body::GetMinAngleLab(Int_t i) const
 
 TVector3 KV2Body::GetCMVelocity() const
 {
-   //Return velocity of centre of mass of reaction
+   //Return vector velocity of centre of mass of reaction (units: cm/ns)
 
    return VCM;
 }
