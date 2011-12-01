@@ -103,6 +103,8 @@ void KVGELogReader::ReadStatus(TString & line)
    //with final status of job.
    //if status = "0" then JobOK() will return kTRUE
    //otherwise, JobOK() will be kFALSE
+	
+	fGotStatus = kTRUE;
    TObjArray *toks = line.Tokenize("*: ");
    fStatus = ((TObjString *) toks->At(2))->GetString();
    fOK = (fStatus == "0");
