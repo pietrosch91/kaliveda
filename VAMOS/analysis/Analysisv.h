@@ -5,6 +5,12 @@
 #include "Defines.h"
 #include "LogFile.h"
 
+#include "KVTelescope.h"
+#include "KVSiliconVamos.h"
+#include "PlaneAbsorber.h"
+#include "KVCsIVamos.h"
+#include "KVDetector.h"
+
 class TTree;
 class TFile;
 
@@ -38,15 +44,11 @@ class Analysisv
   virtual void CreateHistograms()=0;
   virtual void FillHistograms()=0;
   
-  virtual void SetModuleMap(string map[18][80])=0;
- 
-  virtual void SetBrhoRef(Double_t)=0;
-  virtual void SetAngleVamos(Double_t)=0; 
-  virtual Double_t GetBrhoRef(void)=0;
-  virtual Double_t GetAngleVamos(void)=0;
-  
   virtual void SetRunFlag(Int_t)=0; 
   virtual Int_t GetRunFlag(void)=0;
+  virtual void SetTel1(KVSiliconVamos *si)=0;
+  virtual void SetTel2(KVDetector *gap)=0;  
+  virtual void SetTel3(KVCsIVamos *csi)=0;  
   ClassDef(Analysisv,0)
 
 };

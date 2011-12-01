@@ -15,6 +15,11 @@ $Date: 2007/06/08 15:49:10 $
 #include <string>
 #include <string.h>
 
+#include "IonisationChamber.h"
+#include "KVSiliconVamos.h"
+#include "KVCsIVamos.h"
+#include "KVDetector.h"
+
 #define ID_SWITCH -1
 class Analysisv;
 class LogFile;
@@ -41,12 +46,17 @@ class KVIVReconIdent : public KVReconIdent
    Bool_t LoadGrids();
    string module_map[18][80];   
    Int_t event;
+   Int_t M_INDRA;
    Float_t  thetavam,brho;
    Double_t  brhorun;
    Double_t  thetavamrun;
    
    KVINDRAReconNuc *part;
-   	
+   KVTelescope *kvt_sicsi;
+   KVSiliconVamos *kvd_si;
+   KVCsIVamos *kvd_csi;   
+   KVDetector *gap; 
+	  	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

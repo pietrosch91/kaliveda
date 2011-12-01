@@ -1,5 +1,9 @@
 #include "Sive503.h"
 #include "KVDataSet.h"
+
+#include "KVINDRADB_e503.h"
+#include "KVINDRAe503.h"
+
 #include <cmath>
 #include "TRandom3.h"
 
@@ -97,7 +101,8 @@ Sive503::Sive503(LogFile *Log)
   
    Int_t  num; 
    Float_t ref;
-   Float_t propre;  
+   Float_t propre;    
+   Float_t off467; 
    TString sline;
    
    ifstream in2;
@@ -115,10 +120,11 @@ Sive503::Sive503(LogFile *Log)
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
-	     sscanf(sline.Data(),"%d %f %f",&num ,&ref, &propre );
+	     sscanf(sline.Data(),"%d %f %f %f",&num ,&ref, &propre, &off467 );
          	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
 	     TRef[num] = ref;
 	     Tpropre_el[num] = propre;
+	     Offset467[num] = off467;
 	     L->Log << "TRef[num] : " << TRef[num] << " Tpropre_el[num] :  "<< Tpropre_el[num] << endl;
 	     	   }
        		}
@@ -204,6 +210,7 @@ void Sive503::InitRaw(void)
       T_Raw[i] = 0;
     }
   E_RawM = 0;
+  T_Raw_SIHF = 0;
 }
 
 void Sive503::Init(void)
@@ -216,9 +223,6 @@ void Sive503::Init(void)
   for(Int_t i=0;i<21;i++)
     {
       E[i] = 0.0;
-      //TOffset[i] = 0.0;
-      //TRef[i] = 0.0;  
-      //Tpropre_el[i] = 0.0;
     }
   for(Int_t i=0;i<3;i++)
     {
@@ -230,6 +234,7 @@ void Sive503::Init(void)
   EM = 0;
   ETotal = 0.0;
   Number = -10;
+  DetSi= 0;
 }
 
 void Sive503::Calibrate(void)
@@ -253,7 +258,12 @@ void Sive503::Calibrate(void)
 	    	//cout << i << " " << j << " " <<TCoef[i][j] << endl;
 	  //}
     }
-  	L->Log<<"Sive503.cpp :	"<<"T_Raw[0] : "<<T_Raw[0]<<" "<<"T[0] : "<<T[0]<<endl;
+    
+    //==Raw_signal class==
+    T_Raw_SIHF = T_Raw[0];
+    //====================
+    
+  	//L->Log<<"Sive503.cpp :	"<<"T_Raw[0] : "<<T_Raw[0]<<" "<<"T[0] : "<<T[0]<<endl;
 	//L->Log<<"TCoef[0][1] : "<<TCoef[0][1]<<" "<<"TCoef[0][2] : "<<TCoef[0][2]<<" "<<"TCoef[0][3] : "<<TCoef[0][3]<<" "<<"TCoef[0][4] : "<<TCoef[0][4]<<endl;
 
   for(i=0;i<E_RawM;i++)
@@ -267,7 +277,11 @@ void Sive503::Calibrate(void)
 // 	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
 // 			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
 	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] +	Rnd->Uniform(0,1),	
-			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];		
+			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
+			  
+    		//==Raw_signal class==
+    		SI_Raw = E_Raw[i];
+    		//====================				
 	    //	    cout<<"RANDOM-------------"<<Rnd->Uniform(0,1)<<endl<<flush;
 	    //	    cout<<"ECoeff="<<ECoef[E_Raw_Nr[i]][k]<<endl<<flush;
 	  }
@@ -278,12 +292,19 @@ void Sive503::Calibrate(void)
 		    //cout<<"E Si = "<<E<<endl;
 		 
 	    Number = E_Raw_Nr[i];
+	    DetSi = int(Number)+1;	//numérotation 1-18
 	    
 	    //T[0]+= TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
 	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
 	    
-	    L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     
-	    L->Log<<"thick = "<<si_thick[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"Tfrag avant	: "<<Tfrag<<"	Offset467	: "<<Offset467[E_Raw_Nr[i]]<<endl;
+	    /*if(gIndra->GetCurrentRunNumber()>465 && gIndra->GetCurrentRunNumber()<475){
+	    Tfrag -= Offset467[E_Raw_Nr[i]];
+	    }*/
+	    //L->Log<<"Tfrag apres	: "<<Tfrag<<endl;	    
+	    
+	    //L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     
+	    //L->Log<<"thick = "<<si_thick[E_Raw_Nr[i]]<<endl;
 	    EM++;
 	  }
       }
@@ -377,6 +398,7 @@ void Sive503::outAttach(TTree *outT)
    outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/s");
    outT->Branch("TSi_HFpropre",&T[0],"TSi_HFpropre/D");
    outT->Branch("Tfrag",&Tfrag,"Tfrag/D");
+   outT->Branch("DetSi",&DetSi,"DetSi/I");
    //outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    //outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");
 

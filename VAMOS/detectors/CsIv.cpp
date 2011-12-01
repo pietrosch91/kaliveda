@@ -108,7 +108,7 @@ CsIv::~CsIv()
 
 void CsIv::InitRaw(void)
 {
-  cout << "CsI::InitRaw" << endl;
+  //cout << "CsI::InitRaw" << endl;
 
   for(Int_t i=0;i<80;i++)
     {
@@ -122,7 +122,7 @@ void CsIv::InitRaw(void)
 
 void CsIv::Init()
 {
-  cout<<"Init()"<<endl;
+  //cout<<"Init()"<<endl;
 
   //Initialization of calibrated parameter
   for(Int_t i=0;i<80;i++)
@@ -133,6 +133,7 @@ void CsIv::Init()
   EM=0;
   ETotal=-1;
   Number=-10;
+  DetCsI=0;
 }
 
 void CsIv::Calibrate(void)
@@ -152,8 +153,13 @@ void CsIv::Calibrate(void)
 		//cout<<"E_Raw_Nr[i] "<<E_Raw_Nr[i]<<endl;
 	if(E_Raw > 0)
  	  {
-	    //cout<<"E_Raw "<<E_Raw[i]<<endl;
-	    Number = E_Raw_Nr[i];
+	    //cout<<"E_Raw "<<E_Raw[i]<<endl;    		
+	    
+	        //==Raw_signal class==
+    		CSI_Raw = E_Raw[i];
+    		//====================
+	    Number = E_Raw_Nr[i];	    
+	    DetCsI = int(Number)+1;	//numérotation 1-80
 	    EM++;
 	  }
       }
@@ -199,7 +205,8 @@ void CsIv::outAttach(TTree *outT)
   cout << "Attaching CsI variables" << endl;
 #endif
 
-   outT->Branch("CsIEM",&EM,"CsIEM/I");
+   outT->Branch("CsIEM",&EM,"CsIEM/I");	
+   outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
    //outT->Branch("CsIE",E,"CsIE[80]/F");
    //outT->Branch("CsIET",&ETotal,"CsIET/F");
 

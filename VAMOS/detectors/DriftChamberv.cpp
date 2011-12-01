@@ -47,7 +47,35 @@ DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
 
   L->Log << "Number of considered strips: " << NStrips << endl;
 
-  
+   Int_t  num; 
+   Float_t ref;
+   Float_t propre;  
+   TString sline;
+   
+   ifstream in2;
+
+   if(!gDataSet->OpenDataSetFile("DriftChamber_time.cal",in2))
+  {
+     cout << "Could not open the calibration file Offset.cal !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	cout<< "Reading DriftChamber_time.cal" <<endl;
+    L->Log << "Reading DriftChamber_time.cal" << endl;
+	while(!in2.eof()){
+       sline.ReadLine(in2);
+       if(!in2.eof()){
+	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
+	     sscanf(sline.Data(),"%d %f %f",&num ,&ref, &propre );
+         	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
+	     T_DCRef[num] = ref;
+	     T_DCpropre_el[num] = propre;
+	     	   }
+       		}
+     	}
+  }
+  in2.close();    
 
   ifstream inf1;
   if(!gDataSet->OpenDataSetFile("DriftChamberRef.cal",inf1))
@@ -451,12 +479,15 @@ void DriftChamberv::Calibrate(void)
 	for(j=0;j<2;j++)
 	  T[i]+=powf((Float_t) T_Raw[i] + Rnd->Value(),
 		     (Float_t) j)*TCoef[i][j];
-	//	cout << i << " " << T[i] << " " << T_Raw[i] << endl;
+	  T_DCfrag[i] = T_DCRef[i] + T_DCpropre_el[i] - T[i];
 	if(Si->Present) 
 	  {
 	    //	    T[i] += Si->Offset[1] - Si->T[1];
 	  }
-      }
+      }	
+      
+        //L->Log << "T_DCRef[0] : " << T_DCRef[0] << " T_DCpropre_el[0] : "<<T_DCpropre_el[0]<<" T[0] : "<<T[0]<<" T_DCfrag[0] = "<<T_DCfrag[0]<<endl;	
+	//L->Log << "T_DCRef[1] : " << T_DCRef[1] << " T_DCpropre_el[1] : "<<T_DCpropre_el[1]<<" T[1] : "<<T[1]<<" T_DCfrag[1] = "<<T_DCfrag[1]<<endl;
 
   if(E[0] > 0.0) Counter[1]++;
   if(E[1] > 0.0) Counter[2]++;
@@ -947,8 +978,8 @@ void DriftChamberv::outAttach(TTree *outT)
 
   outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
   outT->Branch("DcEWire2",&E[1],"DcEWire2/F");
-  outT->Branch("DcTWire1",&T[0],"DcTWire1/F");
-  outT->Branch("DcTWire2",&T[1],"DcTWire2/F");
+  outT->Branch("DcTWire1",&T_DCfrag[0],"DcTWire1/F");
+  outT->Branch("DcTWire2",&T_DCfrag[1],"DcTWire2/F");  
   
   outT->Branch("DcX1",&X[0],"DcX1/F");
   outT->Branch("DcX2",&X[1],"DcX2/F");

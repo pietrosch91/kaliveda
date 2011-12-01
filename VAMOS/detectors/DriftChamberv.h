@@ -63,7 +63,10 @@ class DriftChamberv
  
   //Calibrated Time Wire
   Float_t T[2];
- 
+  Float_t T_DCRef[2];
+  Float_t T_DCpropre_el[2];
+  Float_t T_DCfrag[2];
+   
   //Charge Raw
   UShort_t Q_Raw[4*64];
   UShort_t Q_Raw_Nr[4*64];

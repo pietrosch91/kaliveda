@@ -43,6 +43,9 @@ class Sive503
   UShort_t E_Raw_Nr[21];
   Int_t E_RawM;
   UShort_t T_Raw[3];
+  
+  UShort_t T_Raw_SIHF;
+  UShort_t SI_Raw;
 
   //Calibration coeff
   Float_t ECoef[21][3];
@@ -51,7 +54,8 @@ class Sive503
 
   Float_t TOffset[21];
   Double_t TRef[19];
-  Double_t Tpropre_el[19];
+  Double_t Tpropre_el[19];  
+  Double_t Offset467[19];
   Double_t Tfrag;
   Double_t si_thick[19];   
   //
@@ -63,7 +67,8 @@ class Sive503
   Float_t T[3];
   Float_t Offset[2];
   Float_t ETotal;
-  UShort_t Number;
+  UShort_t Number;  
+  Int_t DetSi;
  
 
   //Counters

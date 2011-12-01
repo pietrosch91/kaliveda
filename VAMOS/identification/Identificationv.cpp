@@ -2,12 +2,14 @@
 #include "TMath.h"
 #include <cmath>
 #include <iostream>
-#include "EnergyTree.h"
+#include "CsICalib.h"
 #include "KVNucleus.h"
 #include "KVDetector.h"
 
 #include "KVIDZAGrid.h"
-#include "KVIDGridManager.h"
+#include "KVIDGridManager.h" 
+
+#define AnalyseOnlyMyIsotope kFALSE
 
 //Author: Maurycy Rejmund
 ClassImp(Identificationv)
@@ -24,7 +26,7 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 ////////////////////////////////////////////////////////////////////////////////
 
 Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
-				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, EnergyTree *E)
+				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, CsICalib *E)
 {
   L = Log;
   Rec = Recon;
@@ -68,18 +70,6 @@ PID = Z_PID = A_PID = -10.0;
 
 }
 
-
-
-void Identificationv::SetBrho(Double_t bbrho)
-{
-brho=bbrho;
-}
-
-Double_t Identificationv::GetBrho(void)
-{
-return brho;
-}
-
 void Identificationv::SetRunFlag(Int_t rrunFlag)
 {
 runFlag=rrunFlag;
@@ -93,6 +83,9 @@ return runFlag;
 void Identificationv::Calculate(void)
 {
 
+  //L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
+  //L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;
+	        
 if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(Si->Number==0 && CsI->Number==0))) // if csi is behind the si
 { 
 energytree->InitTelescope(Si->Number,CsI->Number);
@@ -100,28 +93,57 @@ energytree->InitSiCsI(Si->Number+1);
 energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 }	
 
-  //energytree->SetSiliconThickness(int(Si->Number));		//Initialise the Si-gap-CsI telescope (numérotation : 0-17)
-  
-  L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
-  L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;	    
+  //energytree->SetSiliconThickness(int(Si->Number));		//Initialise the Si-gap-CsI telescope (numérotation : 0-17)	    
  // L->Log<<"Thick : "<<energytree->thick<<" "<<"Det. Nb. : "<<Si->Number<<endl;
   
  //energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);	//Apply the calibration parameters for the Si and the CsI
+
+Bool_t mg24 = kFALSE;
 	
   for(Int_t y=0;y< Si->E_RawM ;y++)	 
     {
+    	if(AnalyseOnlyMyIsotope)
+	{
+	 //if(Si->Number!=15)	continue; //condition for mg24 in si=14 and csi=47 (from zero)
+	 }	//blame paola....
       for(Int_t j=0;j< CsI->E_RawM;j++)	
 	{
-	  if(Geometry(Si->Number,CsI->Number)==1 && energytree->kvid != 0) // if csi is behind the si
-	    { 
+	if(AnalyseOnlyMyIsotope)
+		{
+	    	//conditions for mg24 in si=14 and csi=47 (from zero)
+		//if(CsI->Number!=47)	continue;	//blame paola....	
+  		//if(Si->E_Raw[y] >1626 || Si->E_Raw[y] <1571) continue;		//Mg 24
+		//if(Si->T_Raw[0] <7917 || Si->T_Raw[0] >8202) continue;		//Mg 24
+		
+	    	//conditions for mg24 in si=15 and csi=45 (from zero)
+		//if(CsI->Number!=45)	continue;	//blame paola....	
+  		//if(Si->E_Raw[y] >1635 || Si->E_Raw[y] <1553) continue;		//Mg 24
+		//if(Si->T_Raw[0] <7738 || Si->T_Raw[0] >8082) continue;		//Mg 24		
+		
+		// conditions for 40Ca 20+
+		//if(Rec->Brho<1.695 || Rec->Brho>1.71)continue;
+  		//if(Si->E_Raw[y] >5350 || Si->E_Raw[y] <5200) continue;		//Ca 40
+		//if(CsI->E_Raw[j] <2600 || CsI->E_Raw[j] >2800) continue;		//Ca 40		
+		mg24 = kTRUE;
+		}
+		
+		L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
+ 	 	L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;
+				      
 	      CsIRaw = int(CsI->E_Raw[j]);
 	      SiRaw = int(Si->E_Raw[y]);
 	      L->Log<<"CsIRaw	= "<<CsIRaw<<endl;
 	      L->Log<<"SiRaw	= "<<SiRaw<<endl;
-				
-		ESi = double(energytree->RetrieveEnergySi());				
+	      if(SiRaw>0){
+			energytree->CalculateESi(Si->E_Raw[y]);		
+			ESi = double(energytree->RetrieveEnergySi());
+			L->Log<<"esi : "<<ESi<<endl;	      
+	      }
+	  if(Geometry(Si->Number,CsI->Number)==1 && energytree->kvid != 0) // if csi is behind the si
+	    {				
 		L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
 		L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
+		//energytree->kvid->Print();
         KVList *grid_list = 0;
 	id = new KVIdentificationResult();
         char scope_name [256];
@@ -140,32 +162,53 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
                 if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
 
                     if(grd != 0){
-
-                        energytree->kvid->Identify((double) CsI->E_Raw[j], ESi, id);		//energytree->kvid : KVIDGraph
+		    	
+		    	energytree->CalculateESi(Si->E_Raw[y]);
+			energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
                         A_PID = id->A;
                         Z_PID = id->Z;
                         PID = id->PID;
-			
-			Int_t Z_PIDI = int(Z_PID);		
+						
+			Int_t Z_PIDI = int(Z_PID);
+			L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
 			energytree->SetFragmentZ(Z_PIDI);
 	      		energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);		//Method called for guessing A value by bissection method and getting CsI energy
-			As[Z_PIDI]=energytree->sA;		
-			SiRef[Z_PIDI] = energytree->eEnergySi;
-			ARetreive[Z_PIDI]=energytree->RetrieveA();
-			CsIsRef[Z_PIDI] = energytree->eEnergyCsI;
 			
-	        	ECsI = double(CsIsRef[Z_PIDI]);
-			ESi = double(SiRef[Z_PIDI]);
-			AA = ARetreive[Z_PIDI];											
-			DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
-			DetSi = int(Si->Number)+1;	// Numérotation : (1-18)		
+	        	ECsI = energytree->RetrieveEnergyCsI();
+			ESi = energytree->RetrieveEnergySi();
+			AA = energytree->RetrieveA();											
+			//DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
+			//DetSi = int(Si->Number)+1;	// Numérotation : (1-18)		
 			
 			L->Log<<"==========================="<<endl;		
 			L->Log<<"Z	= "<<PID<<endl;
-			L->Log<<"A	= "<<ARetreive[Z_PIDI]<<endl;
-			L->Log<<"Esi	= "<<float(SiRef[Z_PIDI])<<endl;
-			L->Log<<"Ecsi	= "<<CsIsRef[Z_PIDI]<<endl;
-			L->Log<<"E tot	= "<<double(SiRef[Z_PIDI]+CsIsRef[Z_PIDI])<<endl;
+			L->Log<<"A	= "<<AA<<endl;
+			L->Log<<"Esi	= "<<ESi<<endl;
+			L->Log<<"Ecsi	= "<<ECsI<<endl;
+			L->Log<<"Invert ECsI = "<<energytree->lum->Invert(PID,AA,ECsI)<<endl;			
+			L->Log<<"Compute ECsI = "<<energytree->lum->Compute(PID,AA,energytree->LightCsI)<<endl;
+			
+			a_bisec = energytree->BisectionLight(PID,AA,ECsI);
+			e_bisec = (ECsI*a_bisec)/AA;
+			L->Log<<"A - Bisection light = "<<a_bisec<<endl;
+			L->Log<<"ECsI - Bisection Light = "<<(ECsI*a_bisec)/AA<<endl;
+			L->Log<<"Light - Bisection Light = "<<energytree->lum->Invert(PID,a_bisec,((ECsI*a_bisec)/AA))<<endl;
+			
+			
+			/*Double_t ite_A = 0.;
+			Double_t ite_light=0.;
+			Double_t ite_E=0.;
+			
+			for(Int_t i=-5;i<6;i++){
+				for(Int_t j=-10;j<11;j++){
+					ite_A = AA+(double(i)/10.);
+					ite_E = ECsI+j;
+					ite_light=energytree->lum->Invert(PID,ite_A,ite_E);
+					L->Log<<"Light ECsI (boucle) = "<<ite_light<<"	A (ite_A) : "<<ite_A<<" E (ite_E) : "<<ite_E<<" Delta_L : "<<ite_light-energytree->LightCsI<<endl;			
+					L->Log<<"Compute ECsI (boucle) = "<<energytree->lum->Compute(PID,ite_A,ite_light)<<endl;				 
+				}
+			}*/
+			L->Log<<"Esi+csi	= "<<ESi+ECsI<<endl;
 			L->Log<<"==========================="<<endl;			
                     }
                     
@@ -181,6 +224,11 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 	    }
 	}
     }
+	if(AnalyseOnlyMyIsotope)
+		{
+		//if(!mg24) return;
+		}
+		
 	
   L->Log<<"Dr->E[0] : "<<Dr->E[0]<<" "<<"Dr->E[1] : "<<Dr->E[1]<<" "<<"Ic->ETotal : "<<Ic->ETotal<<endl;
   if(
@@ -197,7 +245,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
       if((dE1+ESi+ECsI)>0)		//if(Si->ETotal > 0)		//Originalement : if(Si->ETotal>0)
 	//E = (dE/1000) + (ESi+ECsI)*0.99;
 	E = dE1 + ESi + ECsI;		//Total energy (MeV)	dE1+ESi+ECsI
-	E *= 1.03;			//Correction for the different dead layers (about 3%)
+	//E *= 1.03;			//Correction for the different dead layers (about 3%)
 
 	L->Log<<"dE1	(MeV)= "<<dE1<<endl;
 	L->Log<<"E	(MeV)= "<<E<<endl;
@@ -284,7 +332,7 @@ L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
       Present=true;
       Counter[2]++;
     }
-    energytree->ClearEvent(runFlag);
+    //energytree->ClearEvent(runFlag);
 }
 
 
@@ -331,13 +379,17 @@ void Identificationv::outAttach(TTree *outT)
   cout << "Attaching Identificationv variables" << endl;
 #endif
     outT->Branch("RunNumber", &runNumber, "runNumber/I");
-	outT->Branch("A",&AA,"A/F");
+	outT->Branch("A",&AA,"A/F");	
+	
+	outT->Branch("A_bisec",&a_bisec,"a_bisec/D");
+	outT->Branch("E_bisec",&e_bisec,"e_bisec/D");	
+	
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
 	outT->Branch("ESi",&ESi,"ESi/D");
 	outT->Branch("ECsI",&ECsI,"ECsI/D");
-	outT->Branch("DetSi",&DetSi,"DetSi/I");
-	outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
+	//outT->Branch("DetSi",&DetSi,"DetSi/I");
+	//outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
 	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");	
 	
 	outT->Branch("Z_PID",&Z_PID,"Z_PID/D");

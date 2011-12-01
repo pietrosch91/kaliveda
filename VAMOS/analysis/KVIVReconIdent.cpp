@@ -89,44 +89,18 @@ void KVIVReconIdent::InitRun(void)
    Int_t run1;
    TString sline;
    
-//ReadModuleMap(); 	//"module_map.dat"       
-//fAnalyseV->SetModuleMap(module_map);
+    kvd_si = new KVSiliconVamos(530.*KVUnits::um);   
+    gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
+    kvd_csi = new KVCsIVamos(1.);
     
-      //reading brho and thetavamos values
-   if(!gDataSet->OpenDataSetFile("Vamos_run_brho_angle.dat",in))
-  {
-     fLogV->Log << "Could not open Vamos_run_brho_angle.dat file !!!" << endl;
-     return;
-  }
-  else 
-  {
-   fLogV->Log << "Reading Vamos_run_brho_angle.dat!!!" <<endl;
-   while(!in.eof()){
-       sline.ReadLine(in);
-       if(!in.eof()){
-	   if (!sline.BeginsWith("#")){
-	     sscanf(sline.Data(),"%d %f %f", &run1, &brho, &thetavam);
-	     if(gIndra->GetCurrentRunNumber()==run1)
-	     	{
-		brhorun = double(brho);
-		thetavamrun = double(thetavam);
-		fAnalyseV->SetBrhoRef(brhorun);
-   		fAnalyseV->SetAngleVamos(thetavamrun);
-		}
-		//else file->Log<<"Mauvais numéro de run!!!"<<endl;		
-	   }
-         }
-       }
-     }
-   in.close();
-      
-   fLogV->Log<<"-----------"<<endl;
-   fLogV->Log<<"RUN "<<   gIndra->GetCurrentRunNumber()<<endl;
-   fLogV->Log<<"Brho	"<<fAnalyseV->GetBrhoRef()<<endl;
-   fLogV->Log<<"ThetaV	"<<fAnalyseV->GetAngleVamos()<<endl;
-   fLogV->Log<<"-----------"<<endl; 
-
- 	event=1;
+    gap->SetPressure(40.*KVUnits::mbar); 
+    
+    fAnalyseV->SetTel1(kvd_si);    
+    fAnalyseV->SetTel2(gap);        
+    fAnalyseV->SetTel3(kvd_csi);
+            
+    fIdentTree->Branch("M_INDRA",&M_INDRA,"M_INDRA/I");
+    event=1;
 }
 
 //_____________________________________
@@ -143,16 +117,21 @@ Bool_t KVIVReconIdent::Analysis(void)
       
    fEventNumber = GetEvent()->GetNumber();
    if (GetEvent()->GetMult() > 0) {
+
       GetEvent()->IdentifyEvent();
       GetEvent()->CalibrateEvent();      
       
       fLogV->Log<<"======"<<endl;
       fLogV->Log<<"Mult. indra	: "<<GetEvent()->GetMult()<<endl;
-      fLogV->Log<<"======"<<endl;
+      fLogV->Log<<"======"<<endl;   	
+      M_INDRA = GetEvent()->GetMult();
       while(part = GetEvent()->GetNextParticle("ok")){
-        fLogV->Log<<"ring indra	: "<<part->GetRingNumber()<<endl;
+      
+        /*fLogV->Log<<"ring indra	: "<<part->GetRingNumber()<<endl;
 	fLogV->Log<<"module indra	: "<<part->GetModuleNumber()<<endl;
-      	fLogV->Log<<"Z indra		: "<<part->GetZ()<<endl;				
+      	fLogV->Log<<"Z indra		: "<<part->GetZ()<<endl; 
+	fLogV->Log<<"Telescope	: "<<part->GetIdentifyingTelescope()<<endl;
+	fLogV->Log<<"Bool		: "<<part->IsIdentified()<<endl;*/				
 	
       } 
    }

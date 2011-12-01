@@ -72,8 +72,8 @@ Double_t CalculLumiere(Double_t * x, Double_t * par)
    Double_t energie = x[0]/w;
    Double_t lumcalc = par[0] * (energie - par[1]*TMath::Log(1.+energie/par[1]));
    
-   return lumcalc*w;  
-    */
+   return lumcalc*w;*/  
+    
  
 }
 

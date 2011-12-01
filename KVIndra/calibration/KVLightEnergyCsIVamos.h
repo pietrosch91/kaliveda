@@ -16,9 +16,11 @@ class KVLightEnergyCsIVamos : public KVLightEnergyCsI
     KVLightEnergyCsIVamos(KVDetector * kvd);
    virtual ~KVLightEnergyCsIVamos();
    
-   virtual Double_t Compute(Double_t chan) const;
+   virtual Double_t Compute(Double_t chan) const;   
+   virtual Double_t Compute(Double_t, Double_t, Double_t chan) const;
+   virtual Double_t Invert(Double_t,Double_t,Double_t);
    virtual Double_t Invert(Double_t);
-      
+         
    ClassDef(KVLightEnergyCsIVamos,1)//Specific light-Energy Function for Vamos CsI   
 };
 

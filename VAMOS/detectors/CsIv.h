@@ -43,12 +43,15 @@ class CsIv
   UShort_t E_Raw_Nr[80];
   Int_t E_RawM;
   
+  UShort_t CSI_Raw;
+  
   //energy time Calibrated
   Int_t   EM;
   //Float_t E[80];
   UShort_t ENr[80];
   Float_t ETotal;
   UShort_t Number;
+  Int_t DetCsI;
   
 
 

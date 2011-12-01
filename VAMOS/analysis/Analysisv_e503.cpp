@@ -148,7 +148,7 @@ Analysisv_e503::Analysisv_e503(LogFile*Log)
   L->Log << "CsI defined" << endl;  
   CsI=new CsIv(L);
   
-    energytree = new EnergyTree(L,Si);
+    energytree = new CsICalib(L,Si);
   if(!energytree)
     {
       cout << "Coud not allocate memory to hold Energytree !" << endl;
@@ -289,35 +289,19 @@ L->Log << "Analysisv_e503::Destuctor" << endl;
 #endif
 }
 
-void Analysisv_e503::SetModuleMap(string map[18][80])
+void Analysisv_e503::SetTel1(KVSiliconVamos *si)
 {
-energytree->SetModuleMap(map);
-for(Int_t i=0;i<18;i++){
-	for(Int_t j=0;j<80;j++){
-		mmodulemap[i][j] = map[i][j];
-		}
-	}
+	energytree->SetTel1(si);
 }
 
-
-void Analysisv_e503::SetBrhoRef(Double_t B)
+void Analysisv_e503::SetTel2(KVDetector *gap)
 {
-	RC->SetBrhoRef(B);
-	BB = B;
+	energytree->SetTel2(gap);
 }
 
-void Analysisv_e503::SetAngleVamos(Double_t theta)
+void Analysisv_e503::SetTel3(KVCsIVamos *csi)
 {
-	RC->SetAngleVamos(theta);
-	ttheta = theta;
-}
-Double_t Analysisv_e503::GetBrhoRef(void)
-{
-	return BB;
-}
-Double_t Analysisv_e503::GetAngleVamos(void)
-{
-	return ttheta;
+	energytree->SetTel3(csi);
 }
 
 void Analysisv_e503::SetRunFlag(Int_t runFlag)

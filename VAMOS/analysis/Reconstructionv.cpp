@@ -1,7 +1,12 @@
 #include "Reconstructionv.h"
 #include "TVector3.h"
 #include "KVDataSet.h"
+
+#include "KVINDRADB_e503.h"
+#include "KVINDRAe503.h"
+
 #include <cmath>
+
 //Author: Maurycy Rejmund
 
 ClassImp(Reconstructionv)
@@ -193,29 +198,6 @@ void Reconstructionv::Init(void)
   ThetaL = PhiL = -500.;
 }
 
-
-void Reconstructionv::SetBrhoRef(Double_t B)
-{
-	BB = B;
-}
-
-void Reconstructionv::SetAngleVamos(Double_t theta)
-{
-	ttheta = theta; 
-}
-
-Double_t Reconstructionv::GetBrhoRef(void)
-{
-	return BB;
-}
-
-Double_t Reconstructionv::GetAngleVamos(void)
-{
-	return ttheta; 
-}
-
-
-
 void Reconstructionv::Calculate(void)
 {
 #ifdef DEBUG
@@ -272,34 +254,30 @@ void Reconstructionv::Calculate(void)
 		Phit += Coef[2][i] *Vecp;
 		i++;
 	      }
-	//L->Log << "Test brho	: "<< GetBrhoRef()<<endl;
-	//L->Log << "Test vamos	: "<< GetAngleVamos()<<endl;
-	L->Log<<"-----------"<<endl;
-	L->Log << "Brhot = "<< Brhot << " " << "Thetat = "<< Thetat << " " <<"Phit = "<< Phit <<" "<<"Patht = "<<Patht<<endl;
-	L->Log<<"-----------"<<endl;
+	//L->Log<<"-----------"<<endl;
+	//L->Log << "Brhot = "<< Brhot << " " << "Thetat = "<< Thetat << " " <<"Phit = "<< Phit <<" "<<"Patht = "<<Patht<<endl;
+	//L->Log<<"-----------"<<endl;
   //  cout << i << " " << Dr->Xf/10. << " " << Dr->Tf << " " << Dr->Yf/10. << " " << Dr->Pf << endl; 
   if(Brhot >0.001 && Thetat > -300. && Thetat < 300. 
      && Phit > -300. && Phit < 300. && Patht >0 && Patht < 2000.)
     {
       Counter[2]++;
       Present = true;
-      Brho = GetBrhoRef()*((Float_t) Brhot);
-      //Brho = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")*((Float_t) Brhot);
+      Brho = (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho"))*((Float_t) Brhot);
       Theta = (Float_t) Thetat*-1;
       Phi = (Float_t) Phit*-1;
       Path = (Float_t) Patht + PathOffset;
 
       TVector3 myVec(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
-      myVec.RotateY(GetAngleVamos()*3.141592654/180.);
-      //myVec.RotateY(gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta")*3.141592654/180.);
+      myVec.RotateY((gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta"))*3.141592654/180.);
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
       
             //cout << Brho << " " << Theta << " " << Phi << endl;
-	    L->Log<<"-----------"<<endl;
-	    L->Log << "Brho = "<< Brho << " " << "Theta = "<< Theta << " " <<"Phi = "<< Phi <<" "<<"Path = "<<Path<<endl;
-	    L->Log << "ThetaL = "<< ThetaL << " " <<"PhiL = "<< PhiL <<endl;
-	    L->Log<<"-----------"<<endl;
+	    //L->Log<<"-----------"<<endl;
+	    //L->Log << "Brho = "<< Brho << " " << "Theta = "<< Theta << " " <<"Phi = "<< Phi <<" "<<"Path = "<<Path<<endl;
+	    //L->Log << "ThetaL = "<< ThetaL << " " <<"PhiL = "<< PhiL <<endl;
+	    //L->Log<<"-----------"<<endl;
     } 
 
 }

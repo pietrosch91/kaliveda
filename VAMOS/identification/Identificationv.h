@@ -12,7 +12,7 @@
 #include "Sive503.h"
 #include "CsIv.h"
 #include "TCutG.h"
-#include "EnergyTree.h"
+#include "CsICalib.h"
 
 #include "KVSiliconVamos.h"
 #include "KVCsIVamos.h"
@@ -25,7 +25,7 @@ class Identificationv
 {
  public:
   Identificationv(LogFile *Log, Reconstructionv *Recon,
-		  DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, EnergyTree *E);
+		  DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, CsICalib *E);
   virtual ~Identificationv(void);
   
   LogFile *L;
@@ -34,7 +34,7 @@ class Identificationv
   IonisationChamberv *Ic;
   Sive503 *Si;
   CsIv *CsI;
-  EnergyTree *energytree;
+  CsICalib *energytree;
 
         KVSiliconVamos *si;
         PlaneAbsorber *gap;
@@ -56,6 +56,9 @@ class Identificationv
   Int_t CsIRaw;
   Int_t SiRaw;
   
+  Double_t a_bisec;  
+  Double_t e_bisec; 
+    
   Double_t initThickness;
   Double_t ECsI;
   Double_t ESi;
@@ -68,20 +71,9 @@ Double_t A_PID;
 
   Double_t dif11[55];
   Double_t dif12[55];
-  
-  Float_t As11[55];
-  Float_t ARetreive11[55];
-  Double_t CsIsRef11[55];
-  Double_t SiRef11[55];
-        
 
   Double_t dif1[21];	//Z de 3 a 24
   Double_t dif2[21];
-    
-  Float_t As[21]; 
-  Float_t ARetreive[21];
-  Double_t CsIsRef[21];
-  Double_t SiRef[21];
   
 
   Int_t geom[18][6]; 
@@ -89,7 +81,6 @@ Double_t A_PID;
   Int_t zt;
   Int_t aa;
 
-Double_t brho;
 Int_t runFlag;
     
   bool Present; //true if coordinates determined
@@ -106,11 +97,6 @@ Int_t runFlag;
   void FillHistograms();
   //void PrintCounters(void);
   
-  void SetBrho(Double_t);
-  Double_t GetBrho(void);
-  
-
-
 	void SetRunFlag(Int_t);
 	Int_t GetRunFlag(void);
 	

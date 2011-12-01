@@ -25,9 +25,14 @@ $Date: 2007/06/08 15:49:10 $
 #include"DriftChamberv.h"
 #include"Reconstructionv.h"
 #include"Identificationv.h"
-#include"EnergyTree.h"
+#include"CsICalib.h"
 
 #include"Analysisv.h"
+
+#include "KVTelescope.h"
+#include "KVSiliconVamos.h"
+#include "KVCsIVamos.h"
+#include "PlaneAbsorber.h"
 
 #include "TTree.h"
 
@@ -41,7 +46,11 @@ class Analysisv_e503 : public Analysisv
   IonisationChamberv *Ic;
   Sive503 *Si;
   CsIv *CsI;
-  EnergyTree *energytree;
+  CsICalib *energytree;
+  
+  KVSiliconVamos *si;  
+  KVCsIVamos *csi;
+  KVDetector *gap;
   
    TTree* t;
    
@@ -55,20 +64,16 @@ class Analysisv_e503 : public Analysisv
   void Treat(); // Treating data
   void CreateHistograms();
   void FillHistograms();
-  
-  void SetBrhoRef(Double_t);
-  void SetAngleVamos(Double_t); 
-  Double_t GetBrhoRef(void);
-  Double_t GetAngleVamos(void);
-  
-  void SetModuleMap(string map[18][80]);
+    
   void SetRunFlag(Int_t); 
   Int_t GetRunFlag(void);
   
+  void SetTel1(KVSiliconVamos *si);
+  void SetTel2(KVDetector *gap);  
+  void SetTel3(KVCsIVamos *csi);
+    
   string mmodulemap[18][80];
   Int_t rrunFlag;  
-  Double_t BB;
-  Double_t ttheta;
 
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 
