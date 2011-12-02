@@ -99,7 +99,6 @@ void GTGanilData::SetFileName(const TString filename)
 //______________________________________________________________________________
 GTGanilData::~GTGanilData             (void)
 {
-  if (fScalerFile) {fScalerFile->Write();fScalerFile->Close();}
   if(fScaler)delete   fScaler;
   if(fDataParameters)delete   fDataParameters;
   if(fDevice)delete   fDevice;
@@ -138,7 +137,6 @@ void GTGanilData::InitDefault(const Int_t argc, char **argv)
   fStructEvent    = new char[STRUCTEVENTSIZE];
 
   fScalerTree     = NULL; // By default, no scaler tree
-  fScalerFile     = NULL; // By default, no scaler file
   fScaler         = new GTScalers; // Scaler class
 
   val_ret DeRetour;   // Union to communicate with ganil_tape lib routines
@@ -299,6 +297,39 @@ bool GTGanilData::Next(void)
 {
   // Read an event on tape/file and put in into the event array
   // return true until read fails 
+  //
+  // If scaler buffer management (fWhatScaler) has been set to
+  // kSkipScaler, kDumpScaler or kAutoWriteScaler, then every time this method
+  // returns kTRUE a new event has been read (and perhaps 1 or more scaler buffers
+  // were read and dealt with internally).
+  // In this case, a loop over all events will look like this:
+  //
+  // while( my_gtganildata->Next() ){
+  //	// new event read from file
+  //    my_gtganilData->GetFiredDataParameters()->ls(); // or whatever
+  // }
+  //
+  // If fWhatScaler = kReportScaler then this method also returns kTRUE after
+  // reading a scaler buffer (no new event read), so that the user can do
+  // something with the scalers.
+  // In this case, a loop over all events including treatment of scaler buffers
+  // will look like this:
+  //
+  // while( my_gtganildata->Next() ){
+  //    if( my_gtganildata->IsScalerBuffer() ){
+  //       // scaler buffer read from file
+  //       GTScalers* scalers = my_gtganildata->GetScalers();
+  //       // N.B. GTGanilData::GetScalers() also resets the IsScalerBuffer()
+  //       // flag ready for next event/buffer, so even if you don't
+  //       // do anything with the scalers, you should call it
+  //    }
+  //    else
+  //    {
+  //	   // new event read from file
+  //       my_gtganilData->GetFiredDataParameters()->ls(); // or whatever
+  //    }
+  // }
+  
   if (fEventNumber==-1) ReadBuffer();
   if (fStatus) return(false); // Maybe more to say here
   TString _heads(fHeader); _heads.ToUpper();
@@ -309,18 +340,20 @@ bool GTGanilData::Next(void)
   }
   if (strcmp (fHeader , SCALER_Id ) == 0 ) 
   {
-    cout << "Scaler buffer"<<endl;
     switch(fWhatScaler)
     {
     case kSkipScaler:     return(Next()); // Skip
     case kDumpScaler:
 		 fScaler->Fill((scale*)&(fBuffer->les_donnees.cas.scale));    
-       fScaler->DumpScalers();
+        fScaler->DumpScalers();
 		 return(Next());
 		 
-    case kReportScaler:   fIsScalerBuffer=true; return(true); // Got scaler evnt
+    case kReportScaler:   
+		 fScaler->Fill((scale*)&(fBuffer->les_donnees.cas.scale));    
+    	 fIsScalerBuffer=true; 
+		 return kTRUE;
+		 
     case kAutoWriteScaler: {
-      //      cout <<"kAutoWriteScaler: not implemented!"<<endl;
       fScaler->Fill((scale*)&(fBuffer->les_donnees.cas.scale));
       fScaler->DumpScalers();
       fScalerTree->Fill();
@@ -543,30 +576,33 @@ void GTGanilData::DumpParameterName(void) const
 //______________________________________________________________________________
 void GTGanilData::SetScalerBuffersManagement(const ScalerWhat_t sc )
 {
-  // Scaler buffers management can be:
-  //  kSkipScaler,     : Skip it.
-  //  kReportScaler,   : Report the existance of a scaler buffer. WARNING! user
-  //                     have to take care of it.
-  //  kAutoWriteScaler : Automatic scaler buffer management, not implemented.    
+  // Set scaler buffers management. It can be:
+  //  GTGanilData::kSkipScaler      : Skip scaler buffers
+  //  GTGanilData::kDumpScaler      : Dump all scaler buffers on stdout
+  //  GTGanilData::kAutoWriteScaler : Automatic scaler buffer management, all scalers written in a TTree
+  //                     To use this, the current TFile (i.e. gFile) must be writable.
+  //                     i.e. you should do TFile file("somefile.root", "create")
+  //                     and then toto.SetScalerBuffersManagement(GTGanilData::kReportScaler)
+  //  GTGanilData::kReportScaler    : when Next() encounters a scaler buffer, the IsScalerBuffer()
+  //                     flag is set to kTRUE and the data can be retrieved by
+  //                     calling GetScalers() (returns a pointer to a GScalers object).
+  //                     WARNING: this option changes the logic of a loop over all events
+  //                     in the file (see GTGanilData::Next()).
 
-  // Cases where one change this setup during a run should be added.
-  // Until then, DONT DO IT !
-  
   fWhatScaler=sc;
 
   if (fWhatScaler==kAutoWriteScaler) {
-    fScalerFile = new TFile("scaler.root","recreate"); // Temporary hard coded name
-    fScalerTree = new TTree("AutoScalers","Automatic filled scalers");
-    fScalerTree->Branch("scalers",fScaler,8000,99);
+  	if(gFile && gFile->IsWritable()){
+    	fScalerTree = new TTree("Scalers","Automatic filled scalers");
+    	fScalerTree->Branch("scalers",fScaler,8000,99);
+    }
+    else
+    {
+    	cout << "Error in <GTGanilData::SetScalerBuffersManagement> : ";
+    	cout << "You must open a writable TFile before calling SetScalerBuffersManagement(kAutoWriteScaler)" << endl;
+    	fWhatScaler = kSkipScaler;
+    }
   }
-}
-
-//______________________________________________________________________________
-const UShort_t* GTGanilData::GetBrutScalerBuffer    (void            ) const
-{
-  // This very primitiv function should be replaced by a far better one 
-  // returning a full Scaler Class.
-  return((UShort_t*)(&(fBuffer->les_donnees.cas.scale))); 
 }
 
 //______________________________________________________________________________

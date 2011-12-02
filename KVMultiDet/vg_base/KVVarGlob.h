@@ -40,6 +40,11 @@ class KVVarGlob:public KVBase {
  protected:
    void init(void);
    void SetNameIndex(const Char_t * name, Int_t index); // associe un nom et un index
+   void ClearNameIndex()
+   {
+   	// Delete previously defined associations between variable name and index
+   	nameList.Clear();
+   };
 
    KVString fFrame;//(optional) name of reference frame used for kinematics
    KVParameterList<KVString> fOptions;//list of options

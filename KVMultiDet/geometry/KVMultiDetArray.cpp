@@ -282,6 +282,7 @@ KVMultiDetArray::~KVMultiDetArray()
         delete fCalibStatusDets;
         fCalibStatusDets=0;
     }
+    SafeDelete(fHitGroups);
 }
 
 //_______________________________________________________________________________________
@@ -833,12 +834,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	if (!fHitGroups){
 		//Create the list where fired groups will be stored
 		//for reconstruction
-		fHitGroups = new KVUniqueNameList();
-   	fHitGroups->SetOwner(kFALSE); // owns its objects
+		fHitGroups = new KVDetectorEvent;
 	}
 	else {
 		//Clear the multidetector before a new filter process
-		fHitGroups->R__FOR_EACH(KVGroup,Reset) ();
     	fHitGroups->Clear();
 	}
 	
@@ -971,7 +970,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						else {
 							part->AddGroup("DETECTED");
 							det_stat->SetValue("DETECTED","");
-							fHitGroups->Add( last_det->GetGroup() );
+							fHitGroups->AddGroup( last_det->GetGroup() );
 							
 							if (lidtel->GetEntries()>0){
 								//Il y a possibilite d identification
@@ -1050,11 +1049,18 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	
 	delete det_stat;
 	
+    // before reconstruction we have to clear the list of 'hits' of each detector
+    // (they currently hold the addresses of the simulated particles which were detected)
+    // which will be filled with the reconstructed particles, otherwise the number of hits
+    // in each detector will be 2x the real value, and coherency analysis of the reconstructed
+    // events will not work
 	KVGroup *grp_tch;
-	TIter nxt_grp(fHitGroups);
+	TIter nxt_grp(fHitGroups->GetGroups());
    while ((grp_tch = (KVGroup *) nxt_grp())) {
-  		rec_event->AnalyseGroup(grp_tch);
+   	grp_tch->ClearHitDetectors();
    }
+    // reconstruct the event
+    rec_event->ReconstructEvent(fHitGroups);
 
 }
 
@@ -1082,7 +1088,11 @@ KVNameValueList* KVMultiDetArray::DetectParticle(KVNucleus * part)
         grp_tch->Print("angles");
 #endif
         //simulate detection of particle by this group
-        return grp_tch->DetectParticle(part);
+        KVNameValueList*nvl= grp_tch->DetectParticle(part);
+#ifdef KV_DEBUG
+        nvl->Print();
+ #endif
+       return nvl;
     }
     return 0;
 }
@@ -2297,7 +2307,7 @@ void KVMultiDetArray::SetDetectorThicknesses()
 	        // simple single layer detector
 	        Double_t thick = thickdat.GetValue( det->GetName(), 0.0 );
 	        det->SetThickness( thick );
-	        Info("SetDetectorThicknesses", "Set thickness of %s to %f", det->GetName(), thick);
+	        //Info("SetDetectorThicknesses", "Set thickness of %s to %f", det->GetName(), thick);
 	    }
 	    else {
             Char_t i=0;
@@ -2309,7 +2319,7 @@ void KVMultiDetArray::SetDetectorThicknesses()
                 while( (abs = det->GetAbsorber(i)) ){
                     Double_t thick = thickdat.GetValue( absname.Data(), 0.0 );
                     abs->SetThickness( thick );
-                    Info("SetDetectorThicknesses", "Set thickness of %s.Abs%d to %f", det->GetName(), (Int_t)i, thick);
+                    //Info("SetDetectorThicknesses", "Set thickness of %s.Abs%d to %f", det->GetName(), (Int_t)i, thick);
                     i++;
                     absname.Form("%s.Abs%d", det->GetName(), (Int_t)i);
                     if( !thickdat.Defined( absname.Data() ) ) break;

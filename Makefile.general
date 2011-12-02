@@ -16,19 +16,13 @@ SrcSuf	= cpp
 
 .SUFFIXES: .$(SrcSuf) .$(ObjSuf) .$(DllSuf)
 
-DICT_CXX = $(PROJ_NAME)Dict.cpp
-
-DICT_H = $(DICT_CXX:%.cpp=%.h) 
-
-DICT_OBJ = $(DICT_CXX:%.cpp=%.$(ObjSuf)) 
-
-LINKDEF = $(PROJ_NAME)LinkDef.h
-
 #make list of all .cpp files in all subdirectories
 TEMPSOU := $(patsubst %, %/*.cpp, $(MODULES))
 ALL_SOURCES := $(wildcard $(TEMPSOU))
 #apply wildcard to user's NOT_READY list in case there are '*.cpp' in it
 ALL_NOT_READY := $(wildcard $(NOT_READY))
+#the header files
+ALL_NOT_READY_H := $(patsubst %.cpp,%.h,$(ALL_NOT_READY))
 #list of all .cpp except the not_ready ones
 SOURCES := $(filter-out $(ALL_NOT_READY),$(ALL_SOURCES))
 	  
@@ -41,6 +35,13 @@ KV_INC += -I$(KVPROJ_ROOT_ABS)
 KV_INC += -I$(KVINSTALLDIR)/include
 
 HEADERS = $(SOURCES:%.cpp=%.h) $(EXTRA_HEADERS)
+
+####################################
+# DICTIONARIES
+# list of dictionaries by module (subdirectory)
+DICT_SOURCES := $(patsubst %, $(PROJ_NAME)%Dict.$(SrcSuf), $(MODULES))
+DICT_HEADERS := $(patsubst %.$(SrcSuf),%.h,$(DICT_SOURCES))
+DICT_OBJECTS := $(patsubst %.$(SrcSuf),%.$(ObjSuf),$(DICT_SOURCES))
 
 #apply wildcard to user's NOT_ROOTCINT list in case there are '*.h' in it
 ALL_NOT_ROOTCINT := $(wildcard $(NOT_ROOTCINT))
@@ -124,13 +125,19 @@ endif
 
 .PHONY : all clean install uninstall removemoduledirs copymanipdirs rootlibmap
 
-all : .config $(DICT_CXX) $(DICT_OBJ) $(OBJECTS) $(LIB_SO) rootlibmap $(EXTRAS) .copyheads
+all : .config dictionaries $(LIB_SO) rootlibmap $(EXTRAS) .copyheads
+
+dictionaries:
+	for module in $(MODULES); do \
+		make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$$module LIBNAME=$(PROJ_NAME) INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)" ; \
+	done
 
 rootlibmap :
-	rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c $(LINKDEF)
+	cat */*LinkDef.h > tmpLinkDef.h
+	rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c tmpLinkDef.h
 	-cp $(MY_ROOTMAP) $(KVINSTALLDIR)/lib/
 
-$(LIB_SO):        $(OBJECTS) $(DICT_OBJ)
+$(LIB_SO):        $(OBJECTS) $(DICT_OBJECTS)
 ifeq ($(PLATFORM),macosx)
 # We need to make both the .dylib and the .so
 		@echo "Building SO and DYLIB file"
@@ -163,17 +170,10 @@ endif
 
 ###
 
-$(DICT_CXX): $(ROOTCINT_HEADERS) $(LINKDEF)
-	@echo "Generating dictionary $@..."
-	rootcint -v -f $@ -c -p $(KV_INC) $^
-
-$(DICT_OBJ): $(DICT_CXX)
-	@echo "Building dictionary $@..."
-	$(CXX) $(ALL_CXXFLAGS_NOOPT) -c -o $@ $^
-
 clean :
-	-rm -f $(PREREQ) $(OBJECTS) $(DICT_CXX) $(DICT_OBJ) $(DICT_H) lib$(PROJ_NAME)*.*
+	-rm -f $(PREREQ) $(OBJECTS) $(DICT_SOURCES) $(DICT_HEADERS) $(DICT_OBJECTS) lib$(PROJ_NAME)*.*
 	-rm -f .copyheads .config .copysource
+	-rm -f tmpLinkDef.h
 
 .copyheads: $(HEADERS)
 	-cp $? $(KVINSTALLDIR)/include/
@@ -195,7 +195,6 @@ dist :
 	-cp $(HEADERS) $(DIST_DIR)/
 	-cp -r $(ETC_DATA) $(DIST_DIR)/
 	-cp -r $(MANIP_DIRS) $(DIST_DIR)/
-	-cp $(LINKDEF) $(DIST_DIR)/
 	-cp Makefile $(DIST_DIR)/
 ifeq ($(PROJ_NAME),KVIndra)
 	-mkdir $(DIST_DIR)/INDRA2ROOT
@@ -295,7 +294,7 @@ copymanipdirs :
 		echo "	@echo Database needs update" >> $(KVINSTALLDIR)/KVFiles/$$manip_dir/Makefile ; \
 	done
 
-.config : $(HEADERS) $(LINKDEF) $(SOURCES)
+.config : $(HEADERS) $(SOURCES)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "CONFIGURATION OF MAKEFILE FOR "$(PROJ_NAME)
 	@echo "--------------------------------------------------------------------------------"
@@ -304,6 +303,8 @@ copymanipdirs :
 	@echo "HEADERS = "$(HEADERS)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "OBJECTS = "$(OBJECTS)
+	@echo "--------------------------------------------------------------------------------"
+	@echo "DICT_OBJECTS = "$(DICT_OBJECTS)
 	@echo "--------------------------------------------------------------------------------"
 	@echo "ETC_DATA = "$(ETC_DATA)
 	@echo "--------------------------------------------------------------------------------"

@@ -208,7 +208,7 @@ void KVDBSystemDialog::CreateNewSystem()
    
    //If a projectile and target are defined, we suggest a standard name
    if( IsProjectileDefined() && IsTargetDefined() ){      
-         sys_name.Form("%d%s + %s %.3g MeV/A",
+         sys_name.Form("%ld%s + %s %.3g MeV/A",
                fNumberEntry1499->GetIntNumber(),  // proj A
                fTextEntry1490->GetText(), // proj symbol
                fTarget->GetName(), // target symbol
@@ -509,7 +509,7 @@ void KVDBSystemDialog::TargetLayerThicknessChanged(Long_t)
    // Note that this is in fact the area density in mg/cm**2
    
    Double_t t = fNumberEntry1526->GetNumber();
-   fLayer->SetAreaDensity(t*KVUnits::mg/pow(KVUnits::cm,2.));
+   fLayer->SetAreaDensity(t*KVUnits::mg/pow(KVUnits::cm,2));
    SetNeedSave(1);
 }
 

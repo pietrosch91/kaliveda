@@ -117,6 +117,11 @@ class KVSelector:public TSelector {
    KVINDRAReconEvent *GetEvent() {
       return data;
    };
+   Int_t GetEventNumber() {
+		// returns number of currently analysed event
+		// N.B. this may be different to the TTree/TChain entry number etc.
+      return data->GetNumber();
+   };
 
    Int_t Version() const {
       return 2;

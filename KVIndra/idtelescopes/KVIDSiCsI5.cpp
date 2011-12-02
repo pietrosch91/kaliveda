@@ -115,7 +115,7 @@ Double_t KVIDSiCsI5::IdentifyZ(Double_t & funLTG)
 }
 
 //______________________________________________________________________________
-Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
+Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 {
    //Identification of particles using Si(300)-CsI matrices for 5th campaign.
    //First of all, Z identification is attempted with KVIDSiCsI5::IdentZ.
@@ -126,6 +126,8 @@ Bool_t KVIDSiCsI5::Identify(KVIdentificationResult* IDR)
    //too bizarre, i.e. it must be in the KVNucleus mass table (KVNucleus::IsKnown = kTRUE).
    //If not, or if mass identification is not possible, the mass of the nucleus
    //is deduced from Z using the default mass formula of class KVNucleus.
+   //
+   // Note that optional arguments (x,y) for testing identification are not used.
 
    Double_t funLTG_Z = -1;
    Double_t funLTG_A = -1;
@@ -490,10 +492,10 @@ void KVIDSiCsI5::RemoveIdentificationParameters()
    SetHasPG2(kFALSE);
 }
 
-Double_t KVIDSiCsI5::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
+Double_t KVIDSiCsI5::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A, Double_t Eres)
 {
 	// Returns the Y-axis value in the 2D identification map containing isotope (Z,A)
-	// corresponding to the current X-axis value given by GetIDMapX.
+	// corresponding to either the given X-axis/Eres value or the current X-axis value given by GetIDMapX.
 	// If no mass information is available, just give Z.
 	//
 	// This method overrides KVIDTelescope::GetMeanDEFromID, as here we have
@@ -508,6 +510,7 @@ Double_t KVIDSiCsI5::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
         // mass identification not possible for telescope - ignore A
         A=-1;
     }
+	Double_t x = (Eres < 0 ? GetIDMapX() : Eres);
     // loop over TGID objects
     TIter next( &GetListOfIDFunctions() );
     KVTGID* tgid;
@@ -521,7 +524,7 @@ Double_t KVIDSiCsI5::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
                 // get position on isotopic line (Z,A)
                 Double_t y=0;
                 tgid->SetParameter("Z", Z);
-                y = tgid->GetDistanceToLine( GetIDMapX(), y, A );
+                y = tgid->GetDistanceToLine( x, y, A );
                 return y;
             }
             if(A==-1 && !tgid->GetZorA()){
@@ -531,7 +534,7 @@ Double_t KVIDSiCsI5::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A)
             if(A<0 && tgid->GetZorA()){
                 // get position on Z line
                 Double_t y=0;
-                y = tgid->GetDistanceToLine( GetIDMapX(), y, Z );
+                y = tgid->GetDistanceToLine( x, y, Z );
                 return y;
             }
         }

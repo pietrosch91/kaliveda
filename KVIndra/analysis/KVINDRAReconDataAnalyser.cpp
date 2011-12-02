@@ -15,7 +15,6 @@ $Date: 2007/11/15 14:59:45 $
 #include "TChain.h"
 #include "TObjString.h"
 #include "TChain.h"
-#include "KVSelector.h"
 #include "KVAvailableRunsFile.h"
 
 ClassImp(KVINDRAReconDataAnalyser)
@@ -28,6 +27,10 @@ KVINDRAReconDataAnalyser::KVINDRAReconDataAnalyser()
    //Default constructor
    fDataSelector="none";
    theChain=0;
+   theRawData=0;
+   ParVal=0;
+   ParNum=0;
+	fSelector=0;
 }
 
 void KVINDRAReconDataAnalyser::Reset()
@@ -36,11 +39,18 @@ void KVINDRAReconDataAnalyser::Reset()
    KVDataAnalyser::Reset();
    fDataSelector="none";
    theChain=0;
+   theRawData=0;
+   ParVal=0;
+   ParNum=0;
+	fSelector=0;
 }
 
 KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
 {
    //Destructor
+   if(ParVal) delete [] ParVal;
+   if(ParNum) delete [] ParNum;
+	SafeDelete(fSelector);
 }
 
 //_________________________________________________________________
@@ -96,27 +106,25 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
    
-   TSelector *selector = (TSelector*)GetInstanceOfUserClass();
+   fSelector = (KVSelector*)GetInstanceOfUserClass();
    
-   if(!selector || !selector->InheritsFrom("TSelector"))
+   if(!fSelector || !fSelector->InheritsFrom("TSelector"))
     {
     	cout << "The selector \"" << GetUserClass() << "\" is not valid." << endl;
     	cout << "Process aborted." << endl;
-    	if(selector) {
-    		delete selector;
-    		selector=0;
-    	}
     }
    else
     {
+   	SafeDelete(fSelector);
+		 Info("SubmitTask", "Beginning TChain::Process...");
       if (nbEventToRead) {
          theChain->Process(GetUserClass(), option.Data(),nbEventToRead);
       } else {
          theChain->Process(GetUserClass(), option.Data());
       }
     }
-   if(selector) delete selector;
    delete theChain;
+   fSelector=0;//deleted by TChain/TTreePlayer
 }
 
 //_________________________________________________________________
@@ -274,17 +282,51 @@ void KVINDRAReconDataAnalyser::preInitAnalysis()
 void KVINDRAReconDataAnalyser::preInitRun()
 {
 	// Called by currently-processed KVSelector when a new file in the TChain is opened.
-	// If gIndra=0x0 we build the multidetector for the current dataset.
 	// We call gIndra->SetParameters for the current run.
 	
 	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
 	gIndra->SetParameters(run);
+	ConnectRawDataTree();
 }
 
-void KVINDRAReconDataAnalyser::postEndAnalysis()
+void KVINDRAReconDataAnalyser::preAnalysis()
 {
-	// Called by currently-processed KVSelector after user's EndAnalysis() method.
-	// We clean up by deleting gIndra
+	// Read and set raw data for the current reconstructed event
 	
-	if(gIndra) delete gIndra;
+	if(!theRawData) return;
+	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
+	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+	theRawData->GetEntry(rawEntry);
+	for(int i=0; i<NbParFired; i++){
+		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
+		if(par) par->SetData(ParVal[i]);
+	}
+}
+
+void KVINDRAReconDataAnalyser::ConnectRawDataTree()
+{
+	// Called by preInitRun().
+	// When starting to read a new run (=new file), we look for the TTree "RawData" in the
+	// current file (it should have been created by KVINDRARawDataReconstructor).
+	// If found, it will be used by ReadRawData() to set the values of all acquisition parameters
+	// for each event.
+	
+	theRawData=(TTree*)theChain->GetCurrentFile()->Get("RawData");
+	if(!theRawData){
+		Warning("ConnectRawDataTree", "RawData tree not found in file; raw data parameters of detectors will not be available in analysis");
+		return;
+	}
+	else
+		Info("ConnectRawDataTree", "Found RawData tree in file");
+	Int_t maxNopar = theRawData->GetMaximum("NbParFired");
+   if(ParVal) delete [] ParVal;
+   if(ParNum) delete [] ParNum;
+	ParVal = new UShort_t[maxNopar];	
+	ParNum = new UInt_t[maxNopar];	
+	parList = (TObjArray*)theRawData->GetUserInfo()->FindObject("ParameterList");
+	theRawData->SetBranchAddress("NbParFired", &NbParFired);
+	theRawData->SetBranchAddress("ParNum", ParNum);
+	theRawData->SetBranchAddress("ParVal", ParVal);
+	Info("ConnectRawDataTree", "Connected raw data parameters");
+	Entry=0;
 }

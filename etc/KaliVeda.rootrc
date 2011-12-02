@@ -156,7 +156,7 @@ INDRA_e416a.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyse
 INDRA_e475s.DataSet.Title:    Isospin dependence of the emission of complex fragments (E475S) (2006)
 INDRA_e475s.DataSet.RepositoryDir:   e475s
 INDRA_e475s.DataSet.RunFileName.raw:    run_%04d.dat%*
-#INDRA_e475s.Identification1.DataAnalysisTask.UserClass.Base:     ReconIdent_e475s/TSelector
+#INDRA_e475s.ReconIdent.DataAnalysisTask.UserClass.Base:     ReconIdent_e475s/TSelector
 INDRA_e475s.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 
 +DataSet:    INDRA_e503
@@ -164,7 +164,7 @@ INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
 INDRA_e503.DataSet.RepositoryDir:   e503
 INDRA_e503.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
-INDRA_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+INDRA_e503.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 
@@ -173,7 +173,7 @@ INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494
 INDRA_e494s.DataSet.RepositoryDir:   e494s
 INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
-INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 
@@ -202,10 +202,6 @@ DataAnalysisTask:     Reconstruction
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
 Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
-
-# The following variable can be used to change the format of the "RawData" tree which is created and filled
-# in 'recon' data files. The value is the option given to KVGANILDataReader::SetUserTree.
-KVINDRARawDataReconstructor.RawDataTreeFormat:     arrays
 
 # The following variable controls the way that particles are reconstructed from raw data
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
@@ -322,30 +318,30 @@ INDRA_e613.KVACQParam.SI_0324.T:    TOF
 # first variable will be used. If neither is defined, the new file will be written in the same repository as
 # the raw file (if possible, i.e. if repository is not remote).
 
-+DataAnalysisTask:     Identification1
-Identification1.DataAnalysisTask.Title:     Identification of reconstructed events (recon->ident)
-Identification1.DataAnalysisTask.Prereq:     recon
-Identification1.DataAnalysisTask.Analyser:     INDRAReconData
-Identification1.DataAnalysisTask.UserClass:     no
-Identification1.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
++DataAnalysisTask:     ReconIdent
+ReconIdent.DataAnalysisTask.Title:     Identification of reconstructed events (recon->ident)
+ReconIdent.DataAnalysisTask.Prereq:     recon
+ReconIdent.DataAnalysisTask.Analyser:     INDRAReconData
+ReconIdent.DataAnalysisTask.UserClass:     no
+ReconIdent.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
 
 # By default the file containing identified events will be written in the same data repository
 # as the recon data file from which it is created.
 # This can be changed by setting the environment variable(s):
 #
-#Identification1.DataAnalysisTask.OutputRepository:     [name of repository]
-#[name of dataset].Identification1.DataAnalysisTask.OutputRepository:         [name of repository]
+#ReconIdent.DataAnalysisTask.OutputRepository:     [name of repository]
+#[name of dataset].ReconIdent.DataAnalysisTask.OutputRepository:         [name of repository]
 #
 # If no value is set for the current dataset (second variable), the value of the
 # first variable will be used. If neither is defined, the new file will be written in the same repository as
 # the recon file (if possible, i.e. if repository is not remote).
 
-+DataAnalysisTask:     Identification2
-Identification2.DataAnalysisTask.Title:     Final identification and coherency checks (ident->root)
-Identification2.DataAnalysisTask.Prereq:     ident
-Identification2.DataAnalysisTask.Analyser:     INDRAReconData
-Identification2.DataAnalysisTask.UserClass:     no
-Identification2.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
++DataAnalysisTask:     IdentRoot
+IdentRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (ident->root)
+IdentRoot.DataAnalysisTask.Prereq:     ident
+IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
+IdentRoot.DataAnalysisTask.UserClass:     no
+IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
 
 +DataAnalysisTask:     RawAnalysis
 RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
@@ -443,8 +439,8 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 # TSelector plugins for analysis of ROOT TTrees
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
 +Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
-+Plugin.TSelector:   INDRAReconIdent        KVReconIdent                 KVIndra   "KVReconIdent()"
-+Plugin.TSelector:   INDRAIdentRoot         KVIdentRoot                  KVIndra   "KVIdentRoot()"
++Plugin.TSelector:   INDRAReconIdent        KVINDRAReconIdent                 KVIndra   "KVINDRAReconIdent()"
++Plugin.TSelector:   INDRAIdentRoot         KVINDRAIdentRoot                  KVIndra   "KVINDRAIdentRoot()"
 +Plugin.TSelector:   IVReconIdent           KVIVReconIdent               VAMOS     "KVIVReconIdent()"
 #+Plugin.TSelector:   ReconIdent_e475s       KVReconIdent_e475s           KVIndra   "KVReconIdent_e475s()"
 +Plugin.TSelector:   IVSelector           KVIVSelector               VAMOS     "KVIVSelector()"
@@ -476,6 +472,9 @@ Plugin.GTGanilData:    INDRA_e503      GTGanilDataVAMOS      VAMOS     "GTGanilD
 +Plugin.GTGanilData:   INDRA_e494s     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 +Plugin.GTGanilData:   VAMOS_e503     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 +Plugin.GTGanilData:             *               GTGanilData            KVMultiDet       "GTGanilData()"
+
+# Change handling of scaler buffers in GANIL data files
+KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
 
 #Define groups of users for restricting access to certain datasets
 #To add a new group:
@@ -530,6 +529,8 @@ INDRADB.VamosBrhoAngle:    Vamos_run_brho_angle.dat
 INDRADB.CsIPinCorr:          CsI_PILA.dat
 # Default name for file containing linear coefficients for GG->PG conversion (silicon & ChIo detectors)
 INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
+# correspondance entre codeur et detecteurs
+INDRADB.Codeurs:    Codeurs.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
@@ -625,6 +626,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e613    KVINDRADB_e613     KVIndra    "KVINDRADB_e613(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 
@@ -635,6 +637,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
++Plugin.KVUpDater:    INDRA_e613    KVINDRAUpDater_e613     KVIndra    "KVINDRAUpDater_e613()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 

@@ -21,10 +21,12 @@ $Date: 2007/06/08 15:49:10 $
 #include "KVDetector.h"
 
 #define ID_SWITCH -1
+#include "KVINDRAReconIdent.h"
+
 class Analysisv;
 class LogFile;
 
-class KVIVReconIdent : public KVReconIdent
+class KVIVReconIdent : public KVINDRAReconIdent
 {
    Analysisv* fAnalyseV;//VAMOS calibration
    LogFile* fLogV;//VAMOS calibration log  

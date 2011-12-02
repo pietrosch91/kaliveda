@@ -95,7 +95,7 @@ Double_t KVIDChIoCsI_camp5::GetIDMapY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoCsI_camp5::Identify(KVIdentificationResult* idr)
+Bool_t KVIDChIoCsI_camp5::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
 {
    //Particle identification and code setting using identification grids.
 
@@ -104,8 +104,8 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVIdentificationResult* idr)
 		idr->SetIDType( GetType() );
 		idr->IDattempted = kTRUE;
 	
-      Double_t cigg = GetIDMapY("GG");
-      Double_t lumtot = GetIDMapX();
+      Double_t cigg = (y<0. ? GetIDMapY("GG") : y);
+      Double_t lumtot = (x<0. ? GetIDMapX() : x);
 
       KVIDGrid* theIdentifyingGrid = 0;
 
@@ -115,7 +115,7 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVIdentificationResult* idr)
       if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
 
          // try Z & A identification in ChIo(PG)-CsI(H) map
-         Double_t cipg = GetIDMapY("PG");
+         Double_t cipg = (y<0. ? GetIDMapY("PG") : y);
          fPGgrid->Identify(lumtot, cipg, idr);
          theIdentifyingGrid = (KVIDGrid*)fPGgrid;
 		}

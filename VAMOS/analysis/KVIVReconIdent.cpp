@@ -78,7 +78,7 @@ void KVIVReconIdent::InitRun(void)
    
    //fAnalyseV->SetRunFlag(0);
 
-   KVReconIdent::InitRun();
+   KVINDRAReconIdent::InitRun();
    fAnalyseV->OpenOutputTree(fIdentTree);
    fAnalyseV->outAttach();
    fAnalyseV->CreateHistograms();

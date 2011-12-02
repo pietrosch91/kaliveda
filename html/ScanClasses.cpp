@@ -16,6 +16,7 @@ $Date: 2009/03/27 16:43:40 $
 #include "KVBase.h"
 #include "TSystemDirectory.h"
 #include "TSystem.h"
+#include <TError.h>
 
 //ClassImp(ScanClasses)
 
@@ -128,15 +129,19 @@ void ScanClasses::FillListOfClasses()
 {
    //Fill 'cnames' with names of all classes to be processed
    
+   // force loading of all libraries (KLUDGE!!!)
+   gSystem->Load("libKVIndra");
+   gSystem->Load("libVAMOS");
 	//Initialise the class table, loading all classes defined in currently-loaded libraries
 	gClassTable->Init();
    //first fill TObjArray of TObjStrings containing all class names in class table
    //this is to avoid using gClassTable->Next() and gROOT->GetClass() at the same time
    //(see TROOT::GetClass doc)
    if(cnames) delete cnames;
-   cnames=new TObjArray(gClassTable->Classes());
+   int SizeClassTable = gClassTable->Classes();
+   cnames=new TObjArray(SizeClassTable);
    cnames->SetOwner();
-   for (int i = 0; i < gClassTable->Classes(); i++) {
+   for (int i = 0; i < SizeClassTable; i++) {
       //add entry with name of each KaliVeda class in table
       TObjString* tos=new TObjString(gClassTable->Next());
       TString cl_name = tos->String();

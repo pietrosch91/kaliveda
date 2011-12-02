@@ -74,7 +74,7 @@ const Char_t *KVIDCsI::GetArrayName()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR)
+Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 {
    //Particle identification and code setting using identification grid KVIDGCsI* fGrid.
 
@@ -82,8 +82,8 @@ Bool_t KVIDCsI::Identify(KVIdentificationResult* IDR)
 		IDR->IDattempted = kTRUE;
 	
       //perform identification
-      Double_t csir = GetIDMapY();
-      Double_t csil = GetIDMapX();
+      Double_t csir = (y<0. ? GetIDMapY() : y);
+      Double_t csil = (x<0. ? GetIDMapX() : x);
       CsIGrid->Identify(csil, csir, IDR);
 
       // set general ID code

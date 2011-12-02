@@ -38,6 +38,7 @@ class KVINDRAReconEvent:public KVReconstructedEvent {
          fCodeMask = new KVINDRACodeMask;
       return fCodeMask;
    };
+   KVUniqueNameList* fHitGroups;//! non-persistent pointer to list of hit groups used in SecondaryIdentAndCalib()
 
  public:
 
@@ -69,6 +70,10 @@ class KVINDRAReconEvent:public KVReconstructedEvent {
 
    void IdentifyEvent();
    void ChangeFragmentMasses(UChar_t mass_formula);
+   
+      virtual void SecondaryIdentCalib();
+void SecondaryAnalyseGroup(KVGroup* grp);
+
    
    ClassDef(KVINDRAReconEvent, 6)       //Event reconstructed from energy losses in INDRA array
 };

@@ -108,10 +108,11 @@ Int_t KVSilicon::GetCanalGGFromVolts(Float_t volts)
    //Any change in the coder pedestal between the current run and the effective pedestal
    //of the channel-volt calibration (GetCanal(V=0)) is automatically corrected for.
    //
-   //Returns -1 if PG <-> Volts calibration is not available
+   //Returns GG calculated from PG if GG <-> Volts calibration is not available
 
-      if (!fChVoltGG || !fChVoltGG->GetStatus())
-         return -1;
+      if (!fChVoltGG || !fChVoltGG->GetStatus()){
+         return GetGGfromPG(GetCanalPGFromVolts(volts));
+      }
       Int_t chan = TMath::Nint(fChVoltGG->Invert(volts) + GetPedestal("GG") - fChVoltGG->Invert(0));
       return chan;
 }

@@ -134,8 +134,8 @@ $(ANALOG): $(ANALOGO)
 	$(LD) $(LDFLAGS) $^  $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
-#$(ANALOGO): $(ANALOGS)
-#	$(CXX) $(CXXFLAGS) -c $<
+$(ANALOGO): $(ANALOGS)
+	$(CXX) $(CXXFLAGS) -DGRIDENGINE_LOG_READER -c $<
 
 $(KVDTAN): $(KVDTANO)
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(KVDTAN_LIBS) $(OutPutOpt)$@

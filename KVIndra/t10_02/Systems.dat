@@ -38,37 +38,37 @@ Runs: 615-626
 +12C + 197Au 15.5 MeV/A
 12 6 197 79 15.5
 Target: 1.0
-197Au 0.2
+197Au 0.25
 Runs: 648
 
 +16O + 197Au 15.5 MeV/A
 16 8 197 79 15.5
 Target: 1.0
-197Au 0.2
+197Au 0.25
 Runs: 649
 
 +20Ne + 197Au 15.5 MeV/A
 20 10 197 79 15.5
 Target: 1.0
-197Au 0.2
+197Au 0.25
 Runs: 650
 
 +12C + 197Au 20.0 MeV/A
 12 6 197 79 20.0
 Target: 1.0
-197Au 0.2
+197Au 0.25
 Runs: 651
 
 +15N + 197Au 20.0 MeV/A
 15 7 197 79 20.0
 Target: 1.0
-197Au 0.2
+197Au 0.25
 Runs: 652
 
 +18O + 197Au 20.0 MeV/A
 18 8 197 79 20.0
 Target: 1.0
-197Au 0.2
+197Au 0.25
 Runs: 653
 
 +181Ta + 66Zn 19.1 MeV/A

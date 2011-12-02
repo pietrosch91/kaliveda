@@ -84,7 +84,7 @@ Double_t KVIDSi150CsI_camp5::GetPedestalY(Option_t * opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDSi150CsI_camp5::Identify(KVIdentificationResult* IDR)
+Bool_t KVIDSi150CsI_camp5::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
 {
     //Particle identification and code setting using identification grids
 
@@ -93,14 +93,16 @@ Bool_t KVIDSi150CsI_camp5::Identify(KVIdentificationResult* IDR)
     KVIDGrid* theIdentifyingGrid = 0;
 
     // try full isotopic identification
-    fZAGrid->Identify(GetIDMapX(), GetIDMapY(), IDR);
+    Double_t sili= (y<0. ? GetIDMapY() : y);
+    Double_t csi = (x<0. ? GetIDMapX() : x);
+    fZAGrid->Identify(csi,sili, IDR);
     theIdentifyingGrid = fZAGrid;
 
     if (fZAGrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fZGrid)
     {
 
         // particle is above Z&A grid: try Z only ID
-        fZGrid->Identify(GetIDMapX(), GetIDMapY(), IDR);
+        fZGrid->Identify(csi,sili, IDR);
         theIdentifyingGrid = fZGrid;
     }
 

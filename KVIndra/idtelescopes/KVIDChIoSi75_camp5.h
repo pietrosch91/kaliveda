@@ -18,7 +18,7 @@ class KVIDChIoSi75_camp5 : public KVIDChIoSi75
    virtual ~KVIDChIoSi75_camp5();
 
    virtual void Initialize(void);
-   Bool_t Identify(KVIdentificationResult*);
+   Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 
    virtual Double_t GetIDMapX(Option_t * opt = "");
    virtual Double_t GetIDMapY(Option_t * opt = "");

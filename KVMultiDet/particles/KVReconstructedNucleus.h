@@ -1,21 +1,3 @@
-/***************************************************************************
-                          kvreconstructednucleus.h  -  description
-                             -------------------
-    begin                : Fri Oct 18 2002
-    copyright            : (C) 2002 by Alexis Mignon
-    email                : mignon@ganil.fr
-
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
 #ifndef KVRECONSTRUCTEDNUCLEUS_H
 #define KVRECONSTRUCTEDNUCLEUS_H
 
@@ -32,13 +14,6 @@ class KVGroup;
 class KVReconstructedNucleus:public KVNucleus {
 
 protected:
-#define MAX_NUM_DET 5
-#define MAX_NUM_PAR 15
-   Int_t fNumDet;               //number of detectors particle passed through - Int_t imposed by TStreamerInfo
-   Double_t fEloss[MAX_NUM_DET]; //[5] measured energy losses in each successive detector
-   Int_t fNumPar;               //number of associated acquisition parameters - Int_t imposed by TStreamerInfo
-   UShort_t fACQData[MAX_NUM_PAR];//[15] values of acquisition parameters
-
     KVString fDetNames; // list of names of detectors through which particle passed
     KVHashList* fDetList; //! non-persistent list of pointers to detectors
     KVString fIDTelName;   // name of identification telescope which identified this particle (if any)
@@ -64,6 +39,17 @@ protected:
     virtual void MakeDetectorList();
 
 public:
+
+	// status codes given to reconstructed particles by KVGroup::AnalyseParticles
+	enum {
+		kStatusOK,      // = 0 :   identification is, in principle at least, possible straight away
+		kStatusOKafterSub,   //= 1 :   identification is, in principle, possible after identification and subtraction
+		                                   //         of energy losses of other particles in the same group which have Status=0
+		kStatusOKafterShare,  // = 2 : the energy loss in the shared detector of the group must be shared
+                                           // (arbitrarily) between this and the other particle(s) with Status=2
+		kStatusStopFirstStage  // = 3 :   the particle has stopped in the first member of an identification
+                                           // telescope; a minimum Z could be estimated from the measured energy loss.
+	};
 
     KVReconstructedNucleus();
     KVReconstructedNucleus(const KVReconstructedNucleus &);
@@ -102,50 +88,26 @@ public:
         // Return pointer to the detector in which this particle stopped
         return GetDetector(0);
     };
-   void SetNumDet(UChar_t num) {
-      if (num > MAX_NUM_DET) {
-         Warning("SetNumDet(num)", "num is greater than max allowed (%d)",
-                 MAX_NUM_DET);
-         num = MAX_NUM_DET;
-      }
-      fNumDet = num;
+   Int_t GetNumDet() const {
+      return GetDetectorList()->GetEntries();
    };
-   UChar_t GetNumDet() const {
-      return fNumDet;
-   };
-   void SetNumPar(UChar_t num) {
-      if (num > MAX_NUM_PAR) {
-         Warning("SetNumPar(num)", "num is greater than max allowed (%d)",
-                 MAX_NUM_PAR);
-         num = MAX_NUM_PAR;
-      }
-      fNumPar = num;
-   };
-   UChar_t GetNumPar() const {
-      return fNumPar;
-   };
-   void SetACQData(const UShort_t * acqtab) {
-      for (UChar_t i = 0; i < fNumPar; i++) {
-         fACQData[i] = acqtab[i];
-      }
-   };
-   const UShort_t *GetACQData() const {
-      return fACQData;
-   }
-   void SetElossTable(const Double_t * etab) {
-      for (UChar_t i = 0; i < fNumDet; i++) {
-         fEloss[i] = etab[i];
-      }
-   }
-   const Double_t *GetElossTable() const {
-      return fEloss;
-   }
-
     Int_t GetNSegDet() const {
+    	// return segmentation index of particle used by Identify() and
+    	// KVGroup::AnalyseParticles
         return fNSegDet;
     };
     void SetNSegDet(Int_t seg) {
+    	// set segmentation index of particle used by Identify() and
+    	// KVGroup::AnalyseParticles
         fNSegDet = seg;
+    };
+    void ResetNSegDet()
+    {
+    	// recalculate segmentation index of particle used by Identify() and
+    	// KVGroup::AnalyseParticles
+    	fNSegDet=0;
+    	KVDetector* det; TIter nxt(fDetList);
+    	while( (det=(KVDetector*)nxt()) ) fNSegDet += det->GetSegment();
     };
     inline Int_t GetStatus() const
     {
@@ -155,12 +117,12 @@ public:
         // straight away or if we need to wait until other particles in the same group have been
         // identified and calibrated (case of >1 particle crossing shared detector in a group).
         //
-        //  Status = 0 :   identification is, in principle at least, possible straight away
-        //  Status = 1 :   identification is, in principle, possible after identification of other particles
-        //                         in the same group which have Status=0
-        //  Status = 2 :   the energy loss in the shared detector of the group must be shared
-        //                         (arbitrarily) between this and the other particle(s) with Status=2
-        //  Status = 3 :   the particle has stopped in the first member of an identification
+        //  kStatusOK (0) :   identification is, in principle at least, possible straight away
+        //  kStatusOKafterSub (1) :   identification is, in principle, possible after identification and subtraction
+		  //                                           of energy losses of other particles in the same group which have Status=0
+        //  kStatusOKafterShare (2)  :   the energy loss in the shared detector of the group must be shared
+        //                                                (arbitrarily) between this and the other particle(s) with Status=2
+        //  kStatusStopFirstStage (3) :   the particle has stopped in the first member of an identification
         //                         telescope; a minimum Z could be estimated from the measured energy loss.
         //                         (see KVDetector::FindZmin)
         return fAnalStatus;
@@ -247,12 +209,6 @@ public:
         return TestBit(kIsCalibrated);
     };
 
-/* 
-   Int_t GetIDSubCode(const Char_t * id_tel_type,
-                       KVIDSubCode & code) const;
-    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
-                                     KVIDSubCode & code) const;
-*/
     void SetRealZ(Float_t zz) {
         fRealZ = zz;
     }
@@ -349,8 +305,10 @@ KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
 	// Returns NULL if no identification of given type found.
 	return GetIdentificationResult(idt->GetType());
 };
+
+	virtual void SubtractEnergyFromAllDetectors();
 	
-    ClassDef(KVReconstructedNucleus, 14)  //Nucleus detected by multidetector array
+    ClassDef(KVReconstructedNucleus, 15)  //Nucleus detected by multidetector array
 };
 
 #endif

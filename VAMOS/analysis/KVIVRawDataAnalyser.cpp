@@ -40,7 +40,8 @@ KVIVRawDataAnalyser::~KVIVRawDataAnalyser()
 
 void KVIVRawDataAnalyser::postInitRun()	
 {
-   	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( fBidonTree );
+	KVINDRARawDataAnalyser::postInitRun(); // initialise event counters
+   ((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( fBidonTree );
 }
 
 //_______________________________________________________________________//

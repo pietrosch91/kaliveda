@@ -86,7 +86,7 @@ public:
   bool            Next               (void            );
   void            MakeTree           (const TString filename="", UInt_t nEvents=kMaxUInt);
   inline bool     IsScalerBuffer     (void            ) const{return(fIsScalerBuffer);};
-  const UShort_t* GetBrutScalerBuffer(void            ) const;
+  GTScalers* GetScalers(void ) { fIsScalerBuffer=kFALSE; return fScaler; };
   Int_t           GetStatus          (void            ) const {return(fStatus);}
   void            SetScalerBuffersManagement(const ScalerWhat_t sc );
   Int_t				GetRunNumber		 (void				) const;
@@ -132,7 +132,6 @@ protected:
   GTDataParameters *fDataParameters; //! Data parameters names class
   GTScalers     *fScaler;        //! Scaler array
   TTree         *fScalerTree;    // Scaler tree for automatic filling
-  TFile         *fScalerFile;    // If requested, scaler is filled in a dedicated file
 public:
   ClassDef(GTGanilData,0)        // Interface to a GANIL formated Tape or File
 };

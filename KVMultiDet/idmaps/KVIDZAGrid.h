@@ -131,8 +131,7 @@ public:
         return fIdxClosest;
     };
 
-    virtual void MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax,
-                                  Double_t Emax_per_nucleon=100., Int_t npoints=20);//*MENU*
+    virtual void MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Int_t npoints=20, Double_t gamma = 2);//*MENU*
 
     KVIDGraph* MakeSubsetGraph(Int_t Zmin, Int_t Zmax, const Char_t* /*graph_class*/="");//*MENU*
     KVIDGraph* MakeSubsetGraph(TList*, TClass* /*graph_class*/=0);

@@ -258,7 +258,8 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
 		epart = 0.0;
 	}
 	kvp->SetEnergy(epart);
-   SetEnergyLoss(dE);
+   Double_t eloss_old = GetEnergyLoss();
+   SetEnergyLoss(eloss_old+dE);
 }
 
 //_______________________________________________________________________________
@@ -557,9 +558,7 @@ void KVDetector::Clear(Option_t * opt)
          par->Clear();
       }
    }
-   if ((fParticles)) {
-      fParticles->Clear();
-   }
+   ClearHits();
    //reset all layers in detector
    KVMaterial *mat;
    TIter next(fAbsorbers);

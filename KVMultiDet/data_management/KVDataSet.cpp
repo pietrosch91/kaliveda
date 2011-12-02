@@ -328,7 +328,7 @@ void KVDataSet::SaveDataBase()
    // Write the database to disk (ROOT file).
    // It will be written in the directory
    //   $KVROOT/db/[dataset name]
-   // If the directory does not exist, it will be created.
+   // If the directory does not exist, it will be created. Permissions are set to 775 (rwxrwxr-x).
    //
    // # Default name of database file containing informations on runs, systems, calibration parameters etc.
    // DataSet.DatabaseFile:        DataBase.root
@@ -351,7 +351,7 @@ void KVDataSet::SaveDataBase()
                tmp2.Data());
             	return;
 				}
-				
+				gSystem->Chmod(tmp2.Data(), 0775);
           }
 			 else
 			 {
@@ -365,6 +365,14 @@ void KVDataSet::SaveDataBase()
               tmp.Data());
               return;
           }
+          else
+          {
+          	gSystem->Chmod(tmp.Data(), 0775);
+          }
+      }
+      else
+      {
+      	gSystem->Chmod(tmp.Data(), 0775);
       }
    }
 
@@ -377,6 +385,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
 {
    //PRIVATE METHOD
    //Write the database to disk.
+   //Set permissions to rw for user & group
 
    TDirectory *work_dir = gDirectory;   //keep pointer to current directory
    if (fDBase) {
@@ -393,6 +402,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    fDataBase->WriteObjects( fDBase ); //write any associated objects
    fDBase->Write();        // write file header etc.
    fDBase->Close();         // close file
+   gSystem->Chmod(full_path_to_dbfile, 0664); // set permissions to rw-rw-r--
    work_dir->cd();              //back to initial working directory
 }
 
@@ -999,21 +1009,13 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type)
 {
    // Returns list of runs which are present for data type "base_type" but not for "other_type"
-	//On travaille que sur des systemes deja au moins en partie convertis
-	// de ref_type en type
 	// if type is NULL or ="" returns empty KVNumberList
 
 	KVNumberList manquant;
-	//if (!type || !strlen(type)) return numb;
-	//KVString in_type = base_type;
-	
-	//numb = GetRunList(ref_type);
-	//KVNumberList lout = GetRunList(type);
-	
-	//numb.Remove(lout);
-	TList* ll = GetListOfAvailableSystems(type);
+	TList* ll = GetListOfAvailableSystems(ref_type);
 	if(!ll || !ll->GetEntries()){
 	   //numb.Clear();
+		Info("GetRunList_StageSelection","No data available of type \"%s\"", ref_type);
 	   return manquant;
 	}
 	
