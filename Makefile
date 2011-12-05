@@ -297,7 +297,7 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
-	-cp Makefile* $(KV_DIST)/
+	-cp Make* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/
 	-cp KVBzrInfo.h $(KV_DIST)/
 	-cp INSTALL $(KV_DIST)/
