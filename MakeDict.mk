@@ -17,9 +17,9 @@ HEADERS := $(filter-out $(LINKDEF),$(TMPHEADERS2))
 
 $(DICT_OBJ): $(DICT_CXX)
 	@echo "Compiling dictionary $@..."
-	$(CXX) $(DICT_COMPILE_FLAGS) -c -o $@ $^
+	@$(CXX) $(DICT_COMPILE_FLAGS) -c -o $@ $^
 
 $(DICT_CXX): $(HEADERS) $(LINKDEF)
 	@echo "Generating dictionary $@ using $(LINKDEF)..."
-	rootcint -v -f $@ -c -p $(INCLUDE) $^
+	@rootcint -v -f $@ -c -p $(INCLUDE) $^
 
