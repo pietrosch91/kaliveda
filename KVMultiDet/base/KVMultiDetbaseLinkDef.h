@@ -33,7 +33,7 @@
 #pragma link C++ class KVParameterList<KVString>+;
 #pragma link C++ class KVRungeKutta+;
 #pragma link C++ class Hexa_t+;
-#pragma link C++ class KVNameValueList-;//customised streamer
+#pragma link C++ class KVNameValueList+;
 #pragma link C++ class KVBase-;//customised streamer
 #pragma link C++ class KVClassFactory+;
 #pragma link C++ class KVClassMethod+;
@@ -48,6 +48,7 @@
 #pragma link C++ class KVPartitionList+;
 #pragma link C++ class KVList-;
 #pragma link C++ class KVLockfile+;
+#pragma link C++ class KVNamedParameter+;
 #pragma link C++ class KVLogReader+;
 #pragma link C++ class KVBQSLogReader+;
 #pragma link C++ class KVGELogReader+;

@@ -25,22 +25,33 @@ $Id: KVEvent.cpp,v 1.41 2008/12/17 11:23:12 ebonnet Exp $
 
 ClassImp(KVEvent);
 
-///////////////////////////////////////////////////////////////////////////////
-//KVEvent
-//
-//Base class for all types of multiparticle event consisting of KVNucleus objects.
-//These particles are stored in a TClonesArray and KVEvent provides some basic
-//functionality for accessing and manipulating the list.
-//
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVEvent</h2>
+<h4>Base class for all types of multiparticle event consisting of KVNucleus objects</h4>
+<!-- */
+// --> END_HTML
+/*Particles are stored in a TClonesArray and KVEvent provides some basic
+functionality for accessing and manipulating the list.
 
-void KVEvent::init()
-{
-   //Default initialisations
+Events can be built using any class derived from KVNucleus to represent particles.
+These classes can allocate memory in their default ctor: when filling events in a loop,
+the same 'particle' objects are re-used for each new event, the ctor of each object will
+only be called once when the object is first created (e.g. in the first event).
+The particle class Clear() method will be called before each new event.
+Therefore the cycle of use of the particle objects in a loop over many events is:
 
-   fOKIter = 0;
-}
-
-//_______________________________________________________________________________
+<particle ctor>
+   Building 1st event
+   <particle Clear()>
+   Building 2nd event
+   <particle Clear()>
+   ...
+   Building last event
+<particle dtor>
+*/
+/////////////////////////////////////////////////////////////////////////////://
 
 
 KVEvent::KVEvent(Int_t mult, const char *classname)
@@ -57,10 +68,14 @@ KVEvent::KVEvent(Int_t mult, const char *classname)
    //wish to force the TClonesArray to use the "classname" streamer, you must use
    //     KVEvent::CustomStreamer();
    //before reading/writing the event to/from a file etc.
-
-   init();
+   fOKIter = 0;
    fParticles = new TClonesArray(classname, mult);
-   TStreamerInfo::SetCanDelete(kFALSE);
+//  Set object delete option.
+   //  When this option is activated (default), ReadBuffer automatically
+   //  delete objects when a data member is a pointer to an object.
+   //  If your constructor is not presetting pointers to 0, you must
+   //  call this static function TStreamerInfo::SetCanDelete(kFALSE);
+ // TStreamerInfo::SetCanDelete(kFALSE);
 }
 
 
@@ -77,7 +92,6 @@ KVEvent::~KVEvent()
       delete fOKIter;
       fOKIter = 0;
    }
-   init();
 }
 
 //_______________________________________________________________________________
@@ -90,6 +104,7 @@ void KVEvent::Copy(TObject & obj)
 {
    //Copy this to obj
    KVBase::Copy(obj);
+   fParameters.Copy( ((KVEvent&)obj).fParameters );
 	for (Int_t nn=0;nn<fParticles->GetEntriesFast();nn+=1){
 		//printf("avant=%s - ",GetParticle(nn+1)->GetName());
 		GetParticle(nn+1)->Copy( *((KVEvent &) obj).AddParticle() );
@@ -116,17 +131,19 @@ KVNucleus *KVEvent::GetParticle(Int_t npart) const
 
 KVNucleus *KVEvent::AddParticle()
 {
-   //Method used for building an event particle by particle.
-   //DO NOT USE FOR READING EVENTS - use GetParticle(Int_t npart)!!
-   //This method increases the multiplicity fMult by one and "creates"
-   //a new particle with index (fMult-1).
-   //The default constructor for the class corresponding to the
-   //"new" particle is called.
-   //A reference is set in the particle which points to this event.
-
+   // Method used for building an event particle by particle.
+   // DO NOT USE FOR READING EVENTS - use GetParticle(Int_t npart)!!
+   //
+   // This method increases the multiplicity fMult by one and "creates" a new particle with index (fMult-1).
+   // In actual fact a new object is only created if needed i.e. if the new multiplicity is greater
+   // than previously. Particle objects in the array are reused from one event to another.
+   // The default constructor for the class corresponding to the "new" particle will only be called
+   // once during its lifetime (i.e. if N events are generated, the particle ctor will be called only once,
+   // not N times). Once created, in subsequent events we just call the particle's Clear() method
+   // in order to reset its internal variables ready for a new event.
 
    Int_t mult = GetMult();
-   KVNucleus *tmp = (KVNucleus *) fParticles->New(mult);
+   KVNucleus *tmp = (KVNucleus *) fParticles->ConstructedAt(mult, "C");
    if (!tmp) {
       Error("AddParticle", "Allocation failure, Mult=%d", mult);
       return 0;
@@ -141,7 +158,8 @@ void KVEvent::Clear(Option_t * opt)
    //Reset the event to zero ready for new event.
 
    fParticles->Clear("C");
-   init();
+   fParameters.Clear();
+   ResetGetNextParticle();
 }
 
 //________________________________________________________________________________
@@ -157,6 +175,7 @@ void KVEvent::Print(Option_t * t) const
    cout << "\nKVEvent with " << ((KVEvent *) this)->
        GetMult(t) << " particles :" << endl;
    cout << "------------------------------------" << endl;
+   fParameters.Print();
    KVNucleus *frag = 0;
    const_cast < KVEvent * >(this)->ResetGetNextParticle();
    while ((frag = ((KVEvent *) this)->GetNextParticle(t))) {

@@ -231,7 +231,7 @@ public:
     	return fCollection;
     };
 
-    ClassDef(KVSeqCollection,1)//KaliVeda extensions to ROOT collections
+    ClassDef(KVSeqCollection,2)//KaliVeda extensions to ROOT collections
 };
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,11,2)

@@ -124,9 +124,8 @@ void KVParticle::init()
 {
    //default initialisation
    fE0 = 0;
-   fGroups = 0;
 	SetFrameName("");
-   fBoosted = 0;
+   fGroups.SetOwner(kTRUE);
 }
 
 //_________________________________________________________
@@ -162,13 +161,7 @@ KVParticle::KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz)
 //________________________________________________________
 KVParticle::~KVParticle()
 {
-   //dtor
    Clear();
-	/*
-	Mise en commentaire ces deux pointeurs sont deja delete et mis a zero dans Clear
-	if (fBoosted) delete fBoosted;
-	if (fGroups) delete fGroups;
-	*/
 }
 
 //________________________________________________________
@@ -231,6 +224,7 @@ void KVParticle::Print(Option_t * t) const
    cout << "KVParticle mass=" << M() <<
        " Theta=" << GetTheta() << " Phi=" << GetPhi()
        << " KE=" << GetKE() << endl;
+   GetParameters()->Print();
 }
 
 //_________________________________________________________________________________________
@@ -276,6 +270,7 @@ void KVParticle::Copy(TObject & obj)
    ((KVParticle &) obj) = *this;
 	((KVParticle &) obj).SetGroups(this->GetGroups());
 	((KVParticle &) obj).SetName(this->GetName());
+   fParameters.Copy( ((KVParticle &) obj).fParameters );
 	//((KVParticle &) obj).SetFrameName(GetFrameName());
 	//Info("Copy","je sort");
 }
@@ -293,18 +288,9 @@ void KVParticle::Clear(Option_t * opt)
    }
    ResetIsOK();                 //in case IsOK() status was set "by hand" in previous event
    ResetBit(kIsDetected);
-	
-	if (fGroups) {
-		fGroups->Clear();
-   	delete fGroups;
-		fGroups = 0;
-	}
-	
-	if (fBoosted) {
-		fBoosted->Clear();
-      delete fBoosted;
-      fBoosted = 0;
-   }
+	fParameters.Clear();
+	fGroups.Clear();	
+	fBoosted.Clear();
 }
 
 //_________________________________________________________________________________________________________
@@ -399,16 +385,11 @@ void KVParticle::AddGroup_Sanscondition(const Char_t* groupname,const Char_t* fr
 	TString sgroupname(groupname);
 	sgroupname.ToUpper();
 	
-	//Creation of the list of groups
-	//if the method is derive in other class
-	//this line has to be included
-	if (!fGroups) CreateGroups();
-	
 	if ( BelongsToGroup(sfrom.Data()) && !BelongsToGroup(sgroupname.Data()) ){
-		fGroups->Add(new TObjString(sgroupname.Data()));
-		if (fBoosted){
+		fGroups.Add(new TObjString(sgroupname.Data()));
+		if (fBoosted.GetEntries()){
 			TString inst; inst.Form("\"%s\"",sgroupname.Data());
-			fBoosted->Execute("AddGroup",inst.Data());
+			fBoosted.Execute("AddGroup",inst.Data());
 		}
 	}
 }
@@ -440,26 +421,11 @@ void KVParticle::AddGroup(const Char_t* groupname, KVParticleCondition* cond)
 }
 
 //___________________________________________________________________________//
-void KVParticle::CreateGroups()
-{
-	//Method called to created the pointeur fGroups
-	//and defined it has owner of its objects
-	//
-	fGroups = new KVUniqueNameList();
-	fGroups->SetOwner(kTRUE);
-	
-}
-	
-//___________________________________________________________________________//
 void KVParticle::SetGroups(KVUniqueNameList* un)
 { 
 	//Define for the particle a new list of groups
 	//if there is an existing list, it's deleted	
-	if (fGroups)
-		fGroups->Clear();
-	else 
-		CreateGroups();
-		
+	fGroups.Clear();
 	AddGroups(un);
 }
 	
@@ -478,16 +444,14 @@ void KVParticle::AddGroups(KVUniqueNameList* un)
 Int_t KVParticle::GetNumberOfDefinedGroups(void)
 {  
 	//return the number of defined groups for the particle
-	if (fGroups)	return fGroups->GetEntries();
-	else 				return 0;
+	return fGroups.GetEntries();
 }
 	
 //___________________________________________________________________________//
 KVUniqueNameList* KVParticle::GetGroups() const
 {
 	//return the KVUniqueNameList pointeur where list of groups are stored
-	return fGroups;
-
+	return (KVUniqueNameList*)&fGroups;
 }
 
 //___________________________________________________________________________//
@@ -502,8 +466,8 @@ Bool_t KVParticle::BelongsToGroup(const Char_t* groupname) const
 	//Important for KVEvent::GetNextParticle()
 	if (sgroupname.IsNull()) return kTRUE;
 	//retourne kFALSE si aucun groupe n'est defini
-	if (!fGroups) return kFALSE;
-	if ( fGroups->FindObject(sgroupname.Data()) ) return kTRUE;
+	if (!fGroups.GetEntries()) return kFALSE;
+	if ( fGroups.FindObject(sgroupname.Data()) ) return kTRUE;
 	return kFALSE;
 }
 
@@ -512,16 +476,16 @@ void KVParticle::RemoveGroup(const Char_t* groupname)
 {
    // Remove group from list of groups
 	// Apply the method to all particles stored in fBoosted
-	if (!fGroups) return;
+	if (!fGroups.GetEntries()) return;
 	TString sgroupname(groupname);
 	sgroupname.ToUpper();
 	
 	TObjString* os = 0;
-	if ( (os = (TObjString* )fGroups->FindObject(sgroupname.Data())) ){
-		delete fGroups->Remove(os);	
-		if (fBoosted){
+	if ( (os = (TObjString* )fGroups.FindObject(sgroupname.Data())) ){
+		delete fGroups.Remove(os);	
+		if (fBoosted.GetEntries()){
 			TString inst; inst.Form("\"%s\"",sgroupname.Data());
-			fBoosted->Execute("RemoveGroup",inst.Data());
+			fBoosted.Execute("RemoveGroup",inst.Data());
 		}
 	}	
 }
@@ -531,9 +495,8 @@ void KVParticle::RemoveAllGroups()
 {
    //Remove all groups
 	// Apply the method to all particles stored in fBoosted
-	if (!fGroups) return;
-	fGroups->Clear();
-	if (fBoosted) fBoosted->Execute("RemoveAllGroups","");
+	fGroups.Clear();
+	if (fBoosted.GetEntries()) fBoosted.Execute("RemoveAllGroups","");
 }
 
 //___________________________________________________________________________//
@@ -541,11 +504,7 @@ void KVParticle::RemoveAllGroups()
 void KVParticle::ListGroups(void) const
 {
    //List all stored groups
-	if (!fGroups) {
-		cout << "Cette particle n appartient a aucun groupe" << endl;
-		return;
-	}
-	if (fGroups->GetEntries()==0) {
+	if (!fGroups.GetEntries()) {
 		cout << "Cette particle n appartient a aucun groupe" << endl;
 		return;
 	}
@@ -578,10 +537,10 @@ KVParticle *KVParticle::GetFrame(const Char_t * frame)
    //i.e. you will access the particle's "default" frame, which usually corresponds to the
    //'laboratory' or 'detector' frame.
 
-   if ( !fBoosted || !strcmp(frame,"") )
+   if ( !fBoosted.GetEntries() || !strcmp(frame,"") )
 		return this;
    
-   KVParticle* f = (KVParticle *) fBoosted->FindObjectWithMethod(frame,"GetFrameName");
+   KVParticle* f = (KVParticle *) fBoosted.FindObjectWithMethod(frame,"GetFrameName");
    if (!f){
 		//Warning("GetFrame","Frame %s does not defined for this particle",frame); 
 		return this;
@@ -596,10 +555,10 @@ Bool_t KVParticle::HasFrame(const Char_t * frame)
 {
    //Check if a given frame has been defined
 
-   if (!fBoosted || !strcmp(frame,"") ) {
+   if (!fBoosted.GetEntries() || !strcmp(frame,"") ) {
       return kFALSE;
    }
-   KVParticle* f = (KVParticle *) fBoosted->FindObjectWithMethod(frame,"GetFrameName");
+   KVParticle* f = (KVParticle *) fBoosted.FindObjectWithMethod(frame,"GetFrameName");
 		
 	return (f ? kTRUE : kFALSE);
 }
@@ -659,10 +618,6 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 
    if ( !strcmp(frame,"") ) return;
 	
-	//create list if not already done
- 	if (!fBoosted)
-      fBoosted = new KVList;    //owns its objects
-	
 	KVParticle *tmp = 0;
 	if ( HasFrame(frame) ){
 		tmp = GetFrame(frame);
@@ -672,7 +627,7 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 		tmp = (KVParticle* )this->IsA()->New();
 		tmp->SetFrameName(frame);
 		tmp->SetBit(kCanDelete);
-		fBoosted->Add(tmp);
+		fBoosted.Add(tmp);
 	}
 	
 	//copy all information on particle

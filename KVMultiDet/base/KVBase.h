@@ -120,6 +120,8 @@ class KVBase:public TNamed {
 #ifdef WITH_GRULIB   
    Int_t TestPorts(Int_t port);
 #endif
+   
+   static Bool_t AreEqual(Double_t x, Double_t y, Long64_t maxdif=1);
 
    ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
 };

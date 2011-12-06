@@ -165,11 +165,11 @@ void KVMultiDetArray::init()
 
     fLayers = new KVList;
     fLayers->SetCleanup(kTRUE);
-    fDetectors = new KVHashList(20,2);
+    fDetectors = new KVHashList();
     fDetectors->SetCleanup(kTRUE);
     fGroups = new KVList;
     fGroups->SetCleanup(kTRUE);
-    fIDTelescopes = new KVHashList(20,2);
+    fIDTelescopes = new KVHashList();
     fIDTelescopes->SetOwner(kTRUE); // owns its objects
     fIDTelescopes->SetCleanup(kTRUE);
    
@@ -852,7 +852,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 #endif
 		
 		part->SetE0();
-		det_stat->Clear_NVL();
+		det_stat->Clear();
 		Double_t eLostInTarget=0;
 		
 		if (part->GetKE()==0) { 
@@ -1019,10 +1019,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		if (part->InheritsFrom("KVSimNucleus")){
 			//On enregistre l eventuelle perte dans la cible
 			if (fTarget)
-				((KVSimNucleus* )part)->SetValue("TARGET",eLostInTarget);
+				((KVSimNucleus* )part)->GetParameters()->SetValue("TARGET",eLostInTarget);
 			//On enregistre le statut de detection
 			for (Int_t nds=0;nds<det_stat->GetNpar();nds+=1){
-				((KVSimNucleus* )part)->SetValue(det_stat->GetNameAt(nds),det_stat->GetStringValue(nds));
+				((KVSimNucleus* )part)->GetParameters()->SetValue(det_stat->GetNameAt(nds),det_stat->GetStringValue(nds));
 			}
 			//On enregistre les differentes pertes d'energie dans les detecteurs
 			if (nvl){
@@ -1030,7 +1030,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				TIter it(nvl->GetList());
 				TNamed* nam = 0;
 				while ( (nam = (TNamed* )it.Next()) ){
-					((KVSimNucleus* )part)->SetValue(nam->GetName(),nam->GetTitle());
+					((KVSimNucleus* )part)->GetParameters()->SetValue(nam->GetName(),nam->GetTitle());
 				}
 				
 				delete nvl;

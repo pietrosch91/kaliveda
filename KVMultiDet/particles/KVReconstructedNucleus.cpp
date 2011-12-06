@@ -49,13 +49,10 @@ void KVReconstructedNucleus::init()
     ResetBit(kIsIdentified);
     ResetBit(kIsCalibrated);
     ResetBit(kCoherency);
-   for (register int i = 0; i < IDRESULTS_DIM; i++) {
-      fIDresults[i].Reset();
-   }
 }
 
 
-KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0)
+KVReconstructedNucleus::KVReconstructedNucleus()
 {
     //default ctor.
     init();
@@ -63,7 +60,7 @@ KVReconstructedNucleus::KVReconstructedNucleus() : fDetList(0)
 
 KVReconstructedNucleus::
 KVReconstructedNucleus(const KVReconstructedNucleus &
-                       obj) : fDetList(0)
+                       obj)
 {
     //copy ctor
     init();
@@ -80,10 +77,6 @@ KVReconstructedNucleus::~KVReconstructedNucleus()
     // calls KVGroup::Reset() of the group in which this particle was detected
     if (GetGroup()) {
         GetGroup()->Reset();
-    }
-    if (fDetList){
-        delete fDetList;
-        fDetList=0;
     }
     init();
 }
@@ -108,12 +101,11 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
         // if the multidetector object exists, update some informations
         // concerning the detectors etc. hit by this particle
         if ( gMultiDetArray ){
-            if(!fDetList) fDetList=new KVHashList;
             MakeDetectorList();
             if (GetGroup()) GetGroup()->AddHit(this);
             fIDTelescope = 0;
 			if(fIDTelName!="") fIDTelescope = gMultiDetArray->GetIDTelescope( fIDTelName.Data() );
-            TIter next_det(fDetList);
+            TIter next_det(&fDetList);
             KVDetector *det;
             while ( (det = (KVDetector*)next_det()) ){
                 fNSegDet += det->GetSegment();
@@ -149,6 +141,7 @@ void KVReconstructedNucleus::Print(Option_t * option) const
         	if(idr && idr->IDattempted) idr->Print();
         }
     }
+    GetParameters()->Print();
 }
 
 //_______________________________________________________________________________
@@ -179,10 +172,10 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
     KVNucleus::Clear(opt);
     if (GetGroup())
         GetGroup()->Reset();
-    if (fDetList){
-        delete fDetList;
-        fDetList=0;
-    };
+    fDetList.Clear();
+    for (register int i = 0; i < IDRESULTS_DIM; i++) {
+       fIDresults[i].Reset();
+    }
     init();
 }
 
@@ -197,8 +190,7 @@ void KVReconstructedNucleus::AddDetector(KVDetector * det)
     fDetNames += det->GetName();
     fDetNames += "/";
     // store pointer to detector
-    if (!fDetList) fDetList = new KVHashList;
-    fDetList->Add(det);
+    fDetList.Add(det);
     //add segmentation index of detector to total segmentation index of particle
     fNSegDet += det->GetSegment();
     //add 1 unidentified particle to the detector
@@ -367,12 +359,12 @@ void KVReconstructedNucleus::MakeDetectorList()
     // the detectors whose names are stored in fDetNames.
     // If gMultiDetArray=0x0, fDetList list will be empty.
 
-	fDetList->Clear();
+	fDetList.Clear();
     if ( gMultiDetArray ){
     	fDetNames.Begin("/");
     	while ( !fDetNames.End() ) {
     	    KVDetector* det = gMultiDetArray->GetDetector( fDetNames.Next(kTRUE) );
-    	    if ( det ) fDetList->Add(det);
+    	    if ( det ) fDetList.Add(det);
     	} 
     }
 }

@@ -40,7 +40,7 @@ KVINDRARawDataReconstructor::KVINDRARawDataReconstructor()
 KVINDRARawDataReconstructor::~KVINDRARawDataReconstructor()
 {
    //Destructor
-   if(recev) delete recev;
+   SafeDelete(recev);
 }
 
 void KVINDRARawDataReconstructor::InitAnalysis()
@@ -53,7 +53,7 @@ void KVINDRARawDataReconstructor::InitAnalysis()
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used.
    
-   recev = new KVINDRAReconEvent;
+   if(!recev) recev = new KVINDRAReconEvent;
    recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
 }
 
@@ -121,7 +121,8 @@ void KVINDRARawDataReconstructor::InitRun()
 
       
       //leaves for reconstructed events
-		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
+		//tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 10000000, 0)->SetAutoDelete(kFALSE);
+		tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &recev, 10000000, 0);
       
       Info("InitRun", "Created reconstructed data tree %s : %s", tree->GetName(), tree->GetTitle());
             
@@ -151,6 +152,9 @@ void KVINDRARawDataReconstructor::InitRun()
       //initialise number of reconstructed events
       nb_recon = 0;
 		
+   class_mon.Check();
+   class_mon.Check();
+   class_mon.SetInitStatistics();
 }
 
 //______________________________________________________________________________________//
@@ -189,6 +193,10 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 
 void KVINDRARawDataReconstructor::EndRun()
 {
+   SafeDelete(recev);
+   Info("EndRun","MEMORY CHECK");
+   class_mon.CompareToInit();
+   
       cout << endl << " *** Number of reconstructed INDRA events : "
             << nb_recon << " ***" << endl<< endl;
 		file->cd();
