@@ -3,6 +3,7 @@
 
 #include "KVNameValueList.h"
 #include "KVNamedParameter.h"
+#include "Riostream.h"
 
 ClassImp(KVNameValueList)
 
@@ -40,6 +41,14 @@ KVNameValueList::KVNameValueList()
    : fList()
 {
    // Default constructor
+	fList.SetOwner(kTRUE);
+}
+
+//______________________________________________
+KVNameValueList::KVNameValueList(const Char_t* name, const Char_t* title)
+   : TNamed(name,title), fList()
+{
+   // Ctor with name & title
 	fList.SetOwner(kTRUE);
 }
 
@@ -89,7 +98,8 @@ void KVNameValueList::Clear(Option_t* opt)
 void KVNameValueList::Print(Option_t* opt) const
 {
 	//Print stored parameters (name, and value)
-	printf("%s, %d stored:\n",GetName(),GetNpar());
+	cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
+   cout << "Number of stored parameters = " << GetNpar() << " :"<< endl;
 	for (Int_t ii=0;ii<GetNpar();ii+=1){
 		printf("%d | ",ii);
       GetParameter(ii)->ls();

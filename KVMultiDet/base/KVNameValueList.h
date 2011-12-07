@@ -17,6 +17,7 @@ class KVNameValueList : public TNamed
 	public:
    
 	KVNameValueList();
+	KVNameValueList(const Char_t* name, const Char_t* title="");
 	KVNameValueList(const KVNameValueList&);
    virtual ~KVNameValueList();
 	
