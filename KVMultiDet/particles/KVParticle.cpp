@@ -114,7 +114,7 @@ ClassImp(KVParticle);
 //        and  par->GetFrame(framename).BelongsToGroup(groupname) = kTRUE
 ///////////////////////////////////////////////////////////////////////////
 
-KVParticle::KVParticle()
+KVParticle::KVParticle() : fParameters("ParticleParameters","Parameters associated with a particle in an event")
 {
    init();
 }
@@ -141,7 +141,7 @@ KVParticle::KVParticle(const KVParticle & obj)
 }
 
 //________________________________________________________
-KVParticle::KVParticle(Double_t m, TVector3 & p)
+KVParticle::KVParticle(Double_t m, TVector3 & p) : fParameters("ParticleParameters","Parameters associated with a particle in an event")
 {
    //create particle with given mass and momentum vector
    init();
@@ -150,7 +150,7 @@ KVParticle::KVParticle(Double_t m, TVector3 & p)
 }
 
 //________________________________________________________
-KVParticle::KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz)
+KVParticle::KVParticle(Double_t m, Double_t px, Double_t py, Double_t pz) : fParameters("ParticleParameters","Parameters associated with a particle in an event")
 {
    //create particle with given mass and momentum vector
    init();

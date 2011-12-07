@@ -50,11 +50,17 @@ Therefore the cycle of use of the particle objects in a loop over many events is
    ...
    Building last event
 <particle dtor>
+
+When writing events in a TTree, it is very important to call the TBranch::SetAutoDelete(kFALSE)
+method of the branch which is used to store the event object.
+If not, when the events are read back, the KVEvent constructor and destructor will be called
+every time an event is read from the TTRee!! Leading to very slow reading times (& probably
+memory leaks)
 */
 /////////////////////////////////////////////////////////////////////////////://
 
 
-KVEvent::KVEvent(Int_t mult, const char *classname)
+KVEvent::KVEvent(Int_t mult, const char *classname) : fParameters("EventParameters","Parameters associated with an event")
 {
    //Initialise KVEvent to hold mult events of "classname" objects
    //(the class must inherit from KVNucleus).
@@ -64,18 +70,10 @@ KVEvent::KVEvent(Int_t mult, const char *classname)
    // Default argument :
    //     classname = "KVNucleus"
    //
-   //If the class "classname" has a custom streamer, or if for some other reason you
-   //wish to force the TClonesArray to use the "classname" streamer, you must use
-   //     KVEvent::CustomStreamer();
-   //before reading/writing the event to/from a file etc.
+   
    fOKIter = 0;
    fParticles = new TClonesArray(classname, mult);
-//  Set object delete option.
-   //  When this option is activated (default), ReadBuffer automatically
-   //  delete objects when a data member is a pointer to an object.
-   //  If your constructor is not presetting pointers to 0, you must
-   //  call this static function TStreamerInfo::SetCanDelete(kFALSE);
- // TStreamerInfo::SetCanDelete(kFALSE);
+   CustomStreamer();//force use of KVEvent::Streamer function for reading/writing
 }
 
 
@@ -85,7 +83,8 @@ KVEvent::~KVEvent()
 {
    //Destructor. Destroys all objects stored in TClonesArray and releases
    //allocated memory.
-   fParticles->Delete();
+
+    fParticles->Delete();
    delete fParticles;
    fParticles = 0;
    if (fOKIter) {
@@ -557,3 +556,20 @@ void KVEvent::SetFrame(const Char_t * newframe, const Char_t * oldframe,
 		nuc->SetFrame(newframe, oldframe, boost, rot, beta);
 	}
 }
+
+//______________________________________________________________________________
+
+void KVEvent::Streamer(TBuffer &R__b)
+{
+   // Customised Streamer for KVEvent.
+   // This is just the automatic Streamer with the addition of a call to the Clear()
+   // method before reading a new object (avoid memory leaks with lists of parameters).
+
+   if (R__b.IsReading()) {
+      Clear();
+      R__b.ReadClassBuffer(KVEvent::Class(),this);
+   } else {
+      R__b.WriteClassBuffer(KVEvent::Class(),this);
+   }
+}
+

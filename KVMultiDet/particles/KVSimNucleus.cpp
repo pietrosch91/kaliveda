@@ -12,9 +12,6 @@ ClassImp(KVSimNucleus)
 <h4>Classe dérivée de KVNucleus pour gérer des simulations dans KaliVeda</h4>
 <!-- */
 // --> END_HTML
-//La classe dérive également de KVNameValueList pour pouvoir ajouter autant
-// de parametres que possible afin d'enregistrer des propriétés des noyaux 
-// propre à chaque simulation
 //Deux TVector3 sont ajoutés en champs de la classe : 
 // - le vecteur position
 // - le vecteur moment angulaire

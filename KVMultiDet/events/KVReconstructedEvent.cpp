@@ -74,15 +74,10 @@ KVReconstructedEvent::KVReconstructedEvent(Int_t mult, const char
 void KVReconstructedEvent::Streamer(TBuffer & R__b)
 {
    //Stream an object of class KVReconstructedEvent.
-   //When reading an event, first Clear() is called (this calls the Clear()
-   //method of all the particles in the previous event, in case they have
-   //to do some cleaning up i.e. in the multidetector array which detected
-   //them).
-   //Then we set the particles' angles depending on whether mean or random angles
+   //We set the particles' angles depending on whether mean or random angles
    //are wanted (fMeanAngles = kTRUE or kFALSE)
 
    if (R__b.IsReading()) {
-      Clear();
       R__b.ReadClassBuffer(KVReconstructedEvent::Class(), this);
       // if the multidetector object exists, update some informations
       // concerning the detectors etc. hit by this particle

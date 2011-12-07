@@ -16,8 +16,6 @@ $Date: 2008/10/17 10:58:07 $
 #include "TTree.h"
 #include "TString.h"
 
-#include "KVClassMonitor.h"
-
 class KVINDRARawDataReconstructor : public KVINDRARawDataAnalyser
 {
    protected:
@@ -30,8 +28,6 @@ class KVINDRARawDataReconstructor : public KVINDRARawDataAnalyser
    Int_t nb_recon;//number of reconstructed INDRA events
    TString taskname;
    TString datatype;
-   
-   KVClassMonitor class_mon;
    
    public:
 

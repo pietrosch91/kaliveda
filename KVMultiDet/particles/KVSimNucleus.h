@@ -29,7 +29,7 @@ class KVSimNucleus : public KVNucleus
 	void SetAngMom(Double_t lx, Double_t ly, Double_t lz);
 	const TVector3* GetAngMom() const;
 	
-	ClassDef(KVSimNucleus,2)//essai_sim
+	ClassDef(KVSimNucleus,3)//Nuclear particle in a simulated event
 
 };
 
