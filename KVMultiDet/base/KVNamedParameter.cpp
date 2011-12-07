@@ -175,15 +175,15 @@ void KVNamedParameter::Print(Option_t* opt) const
 void KVNamedParameter::ls(Option_t* opt) const
 {
    if (IsString()) {
-      cout << GetName() << " | " << GetTitle() << endl;
+      cout << "<"<<GetName() << "=" << GetTitle() <<">"<< endl;
    } else {
       switch (GetType()) {
          case kIsInt:
-            cout << GetName() << " | " << GetInt() << endl;
+            cout << "<"<<GetName() <<"="<< GetInt() <<">"<< endl;
             break;
 
          case kIsDouble:
-            cout << GetName() << " | " << GetDouble() << endl;
+            cout << "<"<< GetName() <<"="<< GetDouble() <<">"<< endl;
             break;
 
          default:

@@ -98,10 +98,8 @@ void KVNameValueList::Clear(Option_t* opt)
 void KVNameValueList::Print(Option_t* opt) const
 {
 	//Print stored parameters (name, and value)
-	cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
-   cout << "Number of stored parameters = " << GetNpar() << " :"<< endl;
+	cout << GetName()<<" list : " <<GetTitle() <<" ("<< this << ")"<<endl;
 	for (Int_t ii=0;ii<GetNpar();ii+=1){
-		printf("%d | ",ii);
       GetParameter(ii)->ls();
    }
 }
