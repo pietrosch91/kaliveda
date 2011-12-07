@@ -642,7 +642,7 @@ void 	KVCalorimetry::Calculate(void)
 	// on y obtient directement la température
 	// 
 	
-	Info("Calculate","Debut");
+	//Info("Calculate","Debut");
 	SumUp();
 	
 	if (kfree_neutrons_included){
@@ -680,7 +680,7 @@ void 	KVCalorimetry::Calculate(void)
 		}
 	
 	}
-	Info("Calculate","Fin");
+	//Info("Calculate","Fin");
 }
 
 //________________________________________________________________
