@@ -88,7 +88,7 @@ KVINDRAReconNuc *KVINDRAReconEvent::GetParticle(Int_t npart) const
    //Access to event member with index npart (1<=npart<=fMult)
    //
 
-   return (KVINDRAReconNuc *) (KVEvent::GetParticle(npart));
+   return (KVINDRAReconNuc *) (KVReconstructedEvent::GetParticle(npart));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ KVINDRAReconNuc *KVINDRAReconEvent::AddParticle()
 {
    //Wrapper for KVEvent::GetNextParticle casting result to KVINDRAReconNuc*
 
-   KVINDRAReconNuc *tmp = (KVINDRAReconNuc *) (KVEvent::AddParticle());
+   KVINDRAReconNuc *tmp = (KVINDRAReconNuc *) (KVReconstructedEvent::AddParticle());
    return tmp;
 }
 

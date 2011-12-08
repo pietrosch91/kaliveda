@@ -437,7 +437,7 @@ void KVElasticScatterEvent::MakeDiffusion()
 	
 	KVSimNucleus* knuc = 0;
 	while ( (knuc = (KVSimNucleus* )sim_evt->GetNextParticle()) ){
-		knuc->Clear_NVL();
+		knuc->Clear();
 		knuc->RemoveAllGroups();
 	}
 	//-------------------------
@@ -520,7 +520,7 @@ void KVElasticScatterEvent::PropagateInTargetLayer()
 	ktarget->DetectParticle(GetNucleus("PROJ"),0);
 	eLostInTarget -= GetNucleus("PROJ")->GetKE();
 	
-	((KVSimNucleus* )sim_evt->GetParticleWithName("PROJ"))->SetValue("Before Int",eLostInTarget);
+	((KVSimNucleus* )sim_evt->GetParticleWithName("PROJ"))->GetParameters()->SetValue("Before Int",eLostInTarget);
 	//On modifie l'energie du projectile dans KV2Body
 	//pour prendre en compte l energie deposee dans la cible
 	//avant de faire le calcul de la cinematique
@@ -594,13 +594,13 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	
 	sim_evt->SetNumber(kTreatedNevts);
 	
-	sim_evt->SetValue("XRuth",kXruth_evt);
-	sim_evt->SetValue("ThDiff",theta);
-	sim_evt->SetValue("EkDiff",ediff1);
-	sim_evt->SetValue("IPz",kIPPVector.Z());
+	sim_evt->GetParameters()->SetValue("XRuth",kXruth_evt);
+	sim_evt->GetParameters()->SetValue("ThDiff",theta);
+	sim_evt->GetParameters()->SetValue("EkDiff",ediff1);
+	sim_evt->GetParameters()->SetValue("IPz",kIPPVector.Z());
 	
 	if (nsol_kin==2)
-		sim_evt->SetValue("Sol2",ediff2);
+		sim_evt->GetParameters()->SetValue("Sol2",ediff2);
 	
 	//L' energie cinetique du projectile est reinitialisee
 	//pour la prochaine diffusion

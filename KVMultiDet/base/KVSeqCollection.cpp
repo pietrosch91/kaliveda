@@ -157,7 +157,7 @@ KVSeqCollection::~KVSeqCollection()
 
 void KVSeqCollection::Copy(TObject & obj) const
 {
-    // Copy a list of objects.
+    // Copy a list of objects, including the name of the list.
     // If this list owns its objects, we make new Clones of all objects in the list
     // (N.B. the Clone() method must work correctly for the objects in question)
     // and put them in the copy list, the copy will own these new objects.
@@ -166,6 +166,7 @@ void KVSeqCollection::Copy(TObject & obj) const
 
     TSeqCollection::Copy(obj);            //in fact this calls TObject::Copy, no Copy method defined for collection classes
     KVSeqCollection & copy = (KVSeqCollection&) obj;
+    copy.SetName( GetName() );
 
     //clear any pre-existing objects in copy list
     if (copy.IsOwner()) copy.Delete();
@@ -799,13 +800,23 @@ void KVSeqCollection::Streamer(TBuffer &R__b)
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c); if (R__v) { }
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
-      R__b >> fCollection;
+      if(fCollection) {
+         Bool_t owns = fCollection->IsOwner();
+         fCollection->SetOwner(kFALSE);
+         fCollection->Streamer(R__b);
+         fCollection->SetOwner(owns);
+      }
+      else R__b >> fCollection;
       R__b.CheckByteCount(R__s, R__c, KVSeqCollection::IsA());
    } else {
       R__c = R__b.WriteVersion(KVSeqCollection::IsA(), kTRUE);
       TSeqCollection::Streamer(R__b);
       fQObject.Streamer(R__b);
-      R__b << fCollection;
+      if(fCollection) {
+         fCollection->Streamer(R__b);
+      }
+      else R__b << fCollection;
       R__b.SetByteCount(R__c, kTRUE);
    }
 }
+

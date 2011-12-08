@@ -36,7 +36,7 @@ KVSimReader::~KVSimReader()
 {
    // Destructor
 	//Info("~KVSimReader","clear de nv");
-	nv->Clear_NVL();
+	nv->Clear();
 	//Info("~KVSimReader","delete de nv");
 	delete nv;
 	

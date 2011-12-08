@@ -5,23 +5,15 @@
 #define __KVSIMEVENT_H
 
 #include "KVEvent.h"
-#include "KVNameValueList.h"
 
-class KVSimEvent : public KVEvent, public KVNameValueList
+class KVSimEvent : public KVEvent
 {
-	protected:
-	void init();
-	
 	public:
    
 	KVSimEvent(Int_t mult = 50, const char *classname = "KVSimNucleus");
 	virtual ~KVSimEvent();
-	
-	void Copy(TObject& obj) const;
-	void Clear(Option_t * opt = "");
-	void Print(Option_t* opt = "") const;
-	
-   ClassDef(KVSimEvent,2)//Events from simulation
+   
+   ClassDef(KVSimEvent,3)//Events from simulation
 };
 
 #endif

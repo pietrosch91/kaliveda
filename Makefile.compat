@@ -178,5 +178,11 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_29_01)),1)
 	echo '#define __WITHOUT_TPARAMETER 1' >> $@; \
 	echo '' >> $@
 endif
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+#------------------TClonesArray::ConstructedAt method from v5.32.00 onwards
+	@echo '//------------------TClonesArray::ConstructedAt method from v5.32.00 onwards' >> $@; \
+	echo '#define __WITHOUT_TCA_CONSTRUCTED_AT 1' >> $@; \
+	echo '' >> $@
+endif
 	@echo '#endif' >> $@
 	-cp $@ $(KVINSTALLDIR)/include/
