@@ -1441,8 +1441,6 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
    //which takes the full path to the file as argument (any other arguments taking default options)
    //and returns a pointer of the BaseClass type to the created object which can be used to read the file.
 
-   Info("Open", "called for type %s", type);
-   
    TString fname = GetFullPathToRunfile(type, run);
    if (fname == "") return 0; //file not found
 
@@ -1451,12 +1449,10 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
 
    //get base class for dataset & type
    KVString base_class = GetDataSetEnv( Form("DataSet.RunFileClass.%s", type) );
-   Info("Open", "base class %s", base_class.Data());
 
    //look for plugin specific to dataset & type
    TPluginHandler *ph = LoadPlugin( base_class.Data(), Form("%s.%s", type, GetName()));
 
-   Info("Open", "plugin handler %p", ph);
    TClass* cl;
    if(!ph){
       //no plugin - use base class
