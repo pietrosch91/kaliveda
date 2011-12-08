@@ -142,7 +142,11 @@ KVNucleus *KVEvent::AddParticle()
    // in order to reset its internal variables ready for a new event.
 
    Int_t mult = GetMult();
+#ifdef __WITHOUT_TCA_CONSTRUCTED_AT
+   KVNucleus *tmp = (KVNucleus *) ConstructedAt(mult, "C");
+#else
    KVNucleus *tmp = (KVNucleus *) fParticles->ConstructedAt(mult, "C");
+#endif
    if (!tmp) {
       Error("AddParticle", "Allocation failure, Mult=%d", mult);
       return 0;
@@ -573,3 +577,50 @@ void KVEvent::Streamer(TBuffer &R__b)
    }
 }
 
+//______________________________________________________________________________
+
+#ifdef __WITHOUT_TCA_CONSTRUCTED_AT
+TObject* KVEvent::ConstructedAt(Int_t idx)
+{
+   // Get an object at index 'idx' that is guaranteed to have been constructed.
+   // It might be either a freshly allocated object or one that had already been
+   // allocated (and assumingly used).  In the later case, it is the callers 
+   // responsability to insure that the object is returned to a known state,
+   // usually by calling the Clear method on the TClonesArray.
+   //
+   // Tests to see if the destructor has been called on the object.  
+   // If so, or if the object has never been constructed the class constructor is called using
+   // New().  If not, return a pointer to the correct memory location.
+   // This explicitly to deal with TObject classes that allocate memory
+   // which will be reset (but not deallocated) in their Clear()
+   // functions.
+   
+   TObject *obj = (*fParticles)[idx];
+   if ( obj && obj->TestBit(TObject::kNotDeleted) ) {
+      return obj;
+   }
+   return (fParticles->GetClass()) ? static_cast<TObject*>(fParticles->GetClass()->New(obj)) : 0;
+}
+//______________________________________________________________________________
+TObject *KVEvent::ConstructedAt(Int_t idx, Option_t *clear_options)
+{
+   // Get an object at index 'idx' that is guaranteed to have been constructed.
+   // It might be either a freshly allocated object or one that had already been
+   // allocated (and assumingly used).  In the later case, the function Clear
+   // will be called and passed the value of 'clear_options'
+   //
+   // Tests to see if the destructor has been called on the object.  
+   // If so, or if the object has never been constructed the class constructor is called using
+   // New().  If not, return a pointer to the correct memory location.
+   // This explicitly to deal with TObject classes that allocate memory
+   // which will be reset (but not deallocated) in their Clear()
+   // functions.
+   
+   TObject *obj = (*fParticles)[idx];
+   if ( obj && obj->TestBit(TObject::kNotDeleted) ) {
+      obj->Clear(clear_options);
+      return obj;
+   }
+   return (fParticles->GetClass()) ? static_cast<TObject*>(fParticles->GetClass()->New(obj)) : 0;
+}
+#endif

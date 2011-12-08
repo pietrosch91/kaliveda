@@ -38,7 +38,10 @@ class KVEvent:public KVBase {
    TClonesArray * fParticles;   //->array of particles in event
    TIter *fOKIter;              //!used for iterating over particles
    KVNameValueList fParameters;//general-purpose list of parameters
-
+#ifdef __WITHOUT_TCA_CONSTRUCTED_AT
+   TObject* ConstructedAt(Int_t idx);
+   TObject* ConstructedAt(Int_t idx, Option_t* clear_options);
+#endif
  public:
 
    KVNameValueList* GetParameters() const { return (KVNameValueList*)&fParameters; };
