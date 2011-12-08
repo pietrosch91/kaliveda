@@ -2,7 +2,7 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataRepository.h"
 #include "KVINDRAReconNuc.h"
-
+#include "KVINDRAReconDataAnalyser.h"
 ClassImp(KVINDRAIdentRoot)
 
 
@@ -35,6 +35,31 @@ void KVINDRAIdentRoot::InitRun(void)
    // first variable will be used. If neither is defined, the new file will be written in the same repository as
    // the recon file (if possible, i.e. if repository is not remote).
 
+/*
+CHECK that ident file was not generated with v1.8.0, 1.8.1 or 1.8.2 (1.8.1a or >=1.8.3 is OK)
+  if bzr branch = 1.8 must have revision >= 489
+  if bzr branch = 1.8.1-bugfixes must have revision >= 444
+*/
+TEnv* infos = ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetReconDataTreeInfos();
+if(infos){
+	TString branchname = infos->GetValue("KVBase::bzrBranchNick()","");
+	if(branchname==""){
+		Warning("InitRun", "IDENT file generated with UNKNOWN version of KaliVeda (no bzr branchname)");
+	}
+	else
+	{
+		Int_t revno = infos->GetValue("KVBase::bzrRevisionNumber()", 0);
+		if(!revno){
+			Warning("InitRun", "IDENT file generated with UNKNOWN version of KaliVeda (no bzr revno)");
+		}
+		else{
+			if((branchname=="1.8" && revno<489) || (branchname=="1.8.1-bugfixes" && revno<444)){
+				Fatal("InitRun", "**** IDENT FILE GENERATED WITH WRONG VERSION!!! **** IDENT FILE GENERATED WITH WRONG VERSION!!!\n\n\t\t\t====>> Regenerate with KaliVeda v1.8.3+ <====");
+				exit(1);
+			}
+		}
+	}
+}
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
