@@ -242,12 +242,12 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 	// Due to many people being caught out by this mechanism when submitting
 	// raw->recon, raw->ident, etc. jobs from an SPS directory (and thus being penalised
 	// unfairly by the limited number of SPS-ressource-declaring jobs), we only declare
-	// u_sps_indra if the analysis task is not "Reconstruction", "Identification1",
-	// "RawIdent", or "Identification2". We also add some warning messages.
+	// u_sps_indra if the analysis task is not "Reconstruction", "ReconIdent",
+	// "IdentRoot". We also add some warning messages.
 
 	KVBatchSystem::ChangeDefJobOpt(da);
 	KVString taskname = da->GetAnalysisTask()->GetName();
-	Bool_t recId = (taskname=="Reconstruction"||taskname=="Identification1"||taskname=="RawIdent"||taskname=="Identification2");
+	Bool_t recId = (taskname=="Reconstruction"||taskname=="ReconIdent"||taskname=="IdentRoot");
 	KVString wrkdir( gSystem->WorkingDirectory() );
 	KVString oldoptions( GetDefaultJobOptions() );
 	if( wrkdir.Contains("/sps/") && !oldoptions.Contains("sps") ){
