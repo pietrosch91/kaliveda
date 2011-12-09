@@ -93,8 +93,14 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    theChain->SetDirectory(0); // we handle delete
    
    fRunList.Begin(); Int_t run;
+	
+	// open and add to TChain all required files
+	// we force the opening of the files to avoid problems with xrootd which sometimes
+	// seems to have a little difficulty
    while( !fRunList.End() ){
       run = fRunList.Next();
+      cout << "Opening file " << gDataSet->GetFullPathToRunfile(fDataType.Data(),run)<<endl;
+      gDataSet->OpenRunfile(fDataType.Data(),run);
       cout << "Adding file " << gDataSet->GetFullPathToRunfile(fDataType.Data(),run);
       cout << " to the TChain." << endl;
       theChain->Add(gDataSet->GetFullPathToRunfile(fDataType.Data(),run));
