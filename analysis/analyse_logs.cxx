@@ -4,6 +4,7 @@
 #include "KVGELogReader.h"
 #endif
 #include "KVNumberList.h"
+#include "KVNameValueList.h"
 #include "KVParameterList.h"
 #include "Riostream.h"
 #include "TSystemDirectory.h"
@@ -70,6 +71,7 @@ cout << "Grid Engine";
    CPUreq_kill=MEMreq_kill=SCRreq_kill=0;
 	Double_t CPUreq_incomp, MEMreq_incomp, SCRreq_incomp;
    CPUreq_incomp=MEMreq_incomp=SCRreq_incomp=0;
+	KVNameValueList incompleteStatus;//status of each incomplete job
 	
 	//loop over files in current directory
 	TSystemDirectory thisDir(".",".");
@@ -180,6 +182,7 @@ cout << "Grid Engine";
 		else if( log_reader.SegFault() ) seg.Add(run);
 		else if( log_reader.Incomplete() ){
          oot.Add(run);
+			incompleteStatus.SetValue(Form("Run %d",run), log_reader.GetStatus());
 			CPUreq_incomp = log_reader.GetCPUrequest();
 			MEMreq_incomp = log_reader.GetMEMrequest();
 			SCRreq_incomp = log_reader.GetSCRATCHrequest();
@@ -287,8 +290,14 @@ cout << "Grid Engine";
 		cout << INCOMPlimits.GetParameter("minSCR")/1024. << " / ";
 		cout << INCOMPavg.GetParameter("SCR")/(1.*oot.GetNValues())/1024. << " / ";
 		cout << INCOMPlimits.GetParameter("maxSCR")/1024. << ")" << endl << endl;
+		incompleteStatus.Print();
 	}
 	cout << "      ";
 	cout << seg.GetNValues() << " jobs had SEGMENTATION FAULT :\n\n" << seg.GetList() << endl << endl;
+	
+	cout << "If you want to delete any or all of these log files, use 'delete_logs':" << endl << endl;
+	cout << "\t\tdelete_logs "<<argv[1]<<" \"34-67 98 123-567\"" << endl << endl;
+	cout << "If you want to resubmit e.g. incomplete jobs, click on the 'Runlist' button in"<<endl;
+	cout << "KaliVedaGUI and copy and paste the runlist which appears above into the dialogue box"<< endl;
 	return 0;
 }

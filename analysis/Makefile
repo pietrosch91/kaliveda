@@ -86,6 +86,14 @@ ifeq ($(MAKE_GANTAPE_XRD),yes)
 ANALOG_LIBS += $(XRDPOSIX)
 endif
 
+DELOGS = delete_logs.cxx
+DELOGO = delete_logs.$(ObjSuf)
+DELOG  = delete_logs$(ExeSuf)
+DELOG_LIBS = $(LIBKVMULTIDET)
+ifeq ($(MAKE_GANTAPE_XRD),yes)
+DELOG_LIBS += $(XRDPOSIX)
+endif
+
 KVDTANS = kvdatanalyser.cxx
 KVDTANO = kvdatanalyser.$(ObjSuf)
 KVDTAN  = kvdatanalyser$(ExeSuf)
@@ -126,15 +134,15 @@ ifeq ($(MAKE_GANTAPE_XRD),yes)
 UPDRLT_LIBS += $(XRDPOSIX)
 endif
 
-SCRIPTS = $(UPDRLT) $(KVDTAN) $(ANALOG) $(KVRSRD) $(KVANAL) $(KVGUI) KVA KaliVeda
+SCRIPTS = $(UPDRLT) $(KVDTAN) $(ANALOG) $(DELOG) $(KVRSRD) $(KVANAL) $(KVGUI) KVA KaliVeda
 
-SOURCES = $(ANALOGS) $(KVDTANS) $(KVRSRDS) $(KVANALS) $(KVGUIS) $(UPDRLTS)
+SOURCES = $(ANALOGS) $(DELOGS) $(KVDTANS) $(KVRSRDS) $(KVANALS) $(KVGUIS) $(UPDRLTS)
 PREQ = $(SOURCES:%.cxx=%.d)
 PREREQ = $(PREQ:%.cpp=%.d)
 
 .PHONY: all install clean
 
-all: config $(ANALOG) $(KVDTAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
+all: config $(ANALOG) $(DELOG) $(KVDTAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
 	
 $(ANALOG): $(ANALOGO)
 	$(LD) $(LDFLAGS) $^  $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
@@ -142,6 +150,10 @@ $(ANALOG): $(ANALOGO)
 
 $(ANALOGO): $(ANALOGS)
 	$(CXX) $(CXXFLAGS) -DGRIDENGINE_LOG_READER -c $<
+
+$(DELOG): $(DELOGO)
+	$(LD) $(LDFLAGS) $^  $(LIBS) $(DELOG_LIBS) $(OutPutOpt)$@
+	@echo "$@ done"
 
 $(KVDTAN): $(KVDTANO)
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(KVDTAN_LIBS) $(OutPutOpt)$@
@@ -191,6 +203,7 @@ clean:
 	-rm -f *Dict*
 	-rm -f *.$(DllSuf) *.d .depend
 	-rm -f $(ANALOG)
+	-rm -f $(DELOG)
 	-rm -f $(KVDTAN)
 	-rm -f $(KVRSRD)
 	-rm -f $(KVANAL)
