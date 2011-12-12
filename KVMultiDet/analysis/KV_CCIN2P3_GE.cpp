@@ -101,16 +101,8 @@ void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
 void KV_CCIN2P3_GE::PrintJobs(Option_t * opt)
 {
    //Print list of owner's jobs.
-   //opt="" (default) : print all jobs
-   //opt="r[unning]" : print running jobs
-   //opt="q[ueued]" : print queued jobs
-   KVString _opt(opt), cmd("qjob");
-   _opt.ToUpper();
-   if (_opt.BeginsWith("R"))
-      cmd += " -r";
-   else if (_opt.BeginsWith("Q"))
-      cmd += " -q";
-   gSystem->Exec(cmd.Data());
+   AnalyseQstatResponse();
+   joblist.Print();
 }
 
 Bool_t KV_CCIN2P3_GE::CheckJobParameters()
