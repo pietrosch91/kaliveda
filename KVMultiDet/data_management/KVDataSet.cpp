@@ -976,7 +976,6 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 	TList* lrun=0;
 	for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
 		sys = (KVDBSystem* )ll->At(nl);
-		sys->ls();
 		lrun = GetListOfAvailableSystems(type,sys);
 		KVNumberList oldList = numb;
 		for (Int_t nr=0;nr<lrun->GetEntries();nr+=1){
