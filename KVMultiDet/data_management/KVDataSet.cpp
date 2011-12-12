@@ -957,8 +957,8 @@ void KVDataSet::DeleteRunfiles(const Char_t * type, KVNumberList nl, Bool_t conf
 
 KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* min,TDatime* max)
 {
-   //Returns list of runs after date / time selection
-	//Run generated between ]min;max[ are selected
+   //Prints out and returns list of runs after date / time selection
+	//Runs generated between ]min;max[ are selected
 	//if min=NULL	runs with date <max are selected
 	//if max=NULL runs with date >min are selected
 	//if max and min are NULL returns empty KVNumberList
@@ -978,7 +978,7 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 		sys = (KVDBSystem* )ll->At(nl);
 		sys->ls();
 		lrun = GetListOfAvailableSystems(type,sys);
-
+		KVNumberList oldList = numb;
 		for (Int_t nr=0;nr<lrun->GetEntries();nr+=1){
 			run =(KVDBRun* )lrun->At(nr);
 
@@ -998,6 +998,8 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 				}
 			}
 		}
+		// print runs for system if any
+		if(numb.GetEntries()>oldList.GetEntries()) printf("%s : %s\n", sys->GetName(), (numb-oldList).AsString());
 	}
 
 	return numb;
