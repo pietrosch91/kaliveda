@@ -294,4 +294,34 @@ TString KV_CCIN2P3_GE::GE_Request(KVString value,KVString jobname)
 	KVString inst; inst.Form("qselect -N %s %s",jobname.Data(),value.Data());
 	return gSystem->GetFromPipe(inst.Data());
 	
+}	
+
+void KV_CCIN2P3_GE::AnalyseQstatResponse()
+{
+	// Analyse output of 'qstat -r' command
+	// Extract from it a list of jobnames with their job-ids and status
+	
+   TString reply = gSystem->GetFromPipe("qstat -r");
+   joblist.Clear();
+	TObjArray* lines = reply.Tokenize("\n");
+	Int_t nlines = lines->GetEntries();
+	for(Int_t line_number=0; line_number<nlines; line_number++){
+		TString thisLine = ((TObjString*)(*lines)[line_number])->String();
+		if(thisLine.Contains("Full jobname:")){
+			// previous line contains job-id and status
+			TString lastLine = ((TObjString*)(*lines)[line_number-1])->String();
+			TObjArray* bits = lastLine.Tokenize(" ");
+			Int_t jobid = ((TObjString*)(*bits)[0])->String().Atoi();
+			TString status = ((TObjString*)(*bits)[4])->String();
+         delete bits;
+         bits = thisLine.Tokenize(": ");
+         TString jobname =  ((TObjString*)(*bits)[2])->String();
+         delete bits;
+         KVBase* job = new KVBase(jobname.Data(), Form("status=%s", status.Data()));
+         job->SetNumber(jobid);
+         joblist.Add(job);
+		}
+	}
+	delete lines;
 }
+

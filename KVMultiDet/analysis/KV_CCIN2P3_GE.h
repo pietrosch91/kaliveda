@@ -16,8 +16,10 @@ class KV_CCIN2P3_GE:public KVBatchSystem {
    Bool_t fTimeSet;
    Bool_t fDiskSet;
    Bool_t fMemSet;
+   KVList joblist;
    
 	virtual void ChangeDefJobOpt(KVDataAnalyser*);
+	void AnalyseQstatResponse();
 	
  public:
 
