@@ -34,6 +34,8 @@ protected:
     virtual void	PrintCollectionHeader(Option_t* option) const;
     virtual KVSeqCollection* NewCollectionLikeThisOne() const;
     virtual void SetCollection(const Char_t*);
+    virtual void _GetSubListWithMethod(KVSeqCollection*, TCollection*, const Char_t* ,const Char_t* );
+    void _GetSubListWithClass(KVSeqCollection*, TCollection*, const TClass* );
 
 public:
     KVSeqCollection();
