@@ -67,15 +67,7 @@ TString SRB::pipeCommand()
 	// the value given by the operating system in a string.
 	
 	if(fcmd=="") return TString("");
-	fout="";
-	FILE *pipe=gSystem->OpenPipe(fcmd.Data(),"r");
-	TString line;
-	while(line.Gets(pipe)){
-		if(fout!="")
-			fout+="\n";
-		fout+=line;
-	}
-	/*Int_t r=*/gSystem->ClosePipe(pipe);
+	fout=gSystem->GetFromPipe(fcmd.Data());
 	return fout;
 }
 
