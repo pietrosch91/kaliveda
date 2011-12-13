@@ -1399,5 +1399,34 @@ Double_t KVHistoManipulator::GetLikelihood(TH1* h1, TF1* f1,Bool_t norm,Double_t
 	}
 	return (norm ? chi2/nbre : chi2);
 	
-
 }
+
+//______________________________________________________________________________________________
+
+TGraph* KVHistoManipulator::DivideGraphs(TGraph* G1, TGraph* G2)
+{
+	// Create and fill a TGraph containing, for each point in G1 and G2,
+	// the value of (y1/y2).
+	// G1 & G2 should have the same number of points, with the same x-coordinates
+	// i.e. x1 = x2 for all points
+	// if any y2 value = 0, we set the corresponding point's y=0
+	
+	Int_t npoints = G1->GetN();
+	if(G2->GetN() != npoints){
+		Error("DivideGraphs", "Graphs must have same number of points");
+		return 0;
+	}
+	// make copy of G1
+	TGraph* Gdiv = new TGraph(*G1);
+	Gdiv->SetName(Form("%s_divided_by_%s", G1->GetName(), G2->GetName()));
+	Gdiv->SetTitle(Form("%s divided by %s", G1->GetTitle(), G2->GetTitle()));
+	Double_t *X = G1->GetX();
+	Double_t *Y1 = G1->GetY();
+	Double_t *Y2 = G2->GetY();
+	for(int i=0; i<npoints; i++){
+		if(Y2[i]!=0) Gdiv->SetPoint(i, X[i], Y1[i]/Y2[i]);
+		else  Gdiv->SetPoint(i, X[i], 0.);
+	}
+	return Gdiv;
+}
+

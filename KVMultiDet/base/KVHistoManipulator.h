@@ -109,6 +109,8 @@ class KVHistoManipulator
 	Double_t GetChisquare(TH1* h1, TF1* f1,Bool_t norm=kTRUE,Bool_t err=kTRUE,Double_t* para=0);
 	Double_t GetLikelihood(TH1* h1, TF1* f1,Bool_t norm=kTRUE,Double_t* para=0);
 	
+	TGraph* DivideGraphs(TGraph* G1, TGraph* G2);
+	
 	ClassDef(KVHistoManipulator,1)//Propose differentes operations sur les histo
 };
 
