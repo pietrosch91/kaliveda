@@ -167,7 +167,7 @@ KVSelector::~KVSelector()
    //dtor
    //delete global variable list if it belongs to us, i.e. if created by a
    //call to GetGVList
-   if (TestBit(kDeleteGVList)) {
+   if (gvlist && TestBit(kDeleteGVList)) {
       delete gvlist;
       gvlist = 0;
       ResetBit(kDeleteGVList);
