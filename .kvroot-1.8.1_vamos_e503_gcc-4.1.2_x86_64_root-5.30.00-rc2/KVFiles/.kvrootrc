@@ -1,0 +1,916 @@
+# Default environment configuration file for KaliVeda
+# To change the default configuration, put your own values in a .kvrootrc file in your
+# $HOME or working directory.
+#    *** DO NOT MAKE A COPY OF THE ENTIRE FILE, JUST THE PARTS YOU WANT TO CHANGE ***
+#    *** Newer versions of KaliVeda will change the contents of the default
+#    *** config file, which may then be in conflict with any local copy
+# The order of precedence for values in the different files is:
+#	local .kvrootrc  >>>  $HOME .kvrootrc  >>> $KVROOT/KVFiles/.kvrootrc
+# where ">>>" means "values in the files to the left take precedence over those in the file to the right".
+
+# KaliVeda Environment settings are handled via the class TEnv. To see
+# which values are active do: gEnv->Print().
+
+#DATA REPOSITORY CONFIGURATION
+#
+#Examples of typical configurations (copy the appropriate lines to your .kvrootrc & uncomment them)
+#
+#Note for Windows users:
+#==================
+#Make sure the top level directory name of your local repository (DataRepository.RootDir)
+#does not contain spaces: $(HOME) on WinXP is often "C:\Documents and Settings\user" !
+#Best to write a full Windows-style (i.e. with '\') path such as
+#default.DataRepository.RootDir: c:\cygwin\home\user\data
+#For access to remote data repositories, the cygwin executables 'bbftp.exe' and 'curl.exe'
+#(for example) must be visible from your Windows environment, i.e. in your %PATH%.
+#
+#Definition of default data repository
+#Only necessary if more than one repository is defined.
+#DataRepository.Default:  myrepo
+#
+#####################Case 1
+#User has data files on his machine or on a locally-mounted disk
+#
+#DataRepository: home
+#home.DataRepository.RootDir: $(HOME)/Data
+#
+#####################Case 2
+#User can access data at CC-IN2P3 using xrootd via an SSH tunnel.
+#If your local username is not the same as your login for ccali.in2p3.fr,
+#uncomment the lines ending in ".user:" and put your ccali username.
+#
+#DataRepository: ccali
+#ccali.DataRepository.Type: remote
+#ccali.DataRepository.RootDir:       /hpss/in2p3.fr/group/indra
+#ccali.DataRepository.ReadProtocol:     root
+#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+#ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
+#ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
+#ccali.DataRepository.XRDTunnel.port:          10000
+#ccali.DataRepository.XRDTunnel.user:
+#ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
+#ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
+#ccali.DataRepository.FileTransfer.type:    root
+#
+####################Case 3
+#User has data files on his machine or on a locally-mounted disk, and can also
+#access data at CC-IN2P3 using xrootd via an SSH tunnel.
+#If your local username is not the same as your login for ccali.in2p3.fr,
+#uncomment the lines ending in ".user:" and put your ccali username.
+#
+#--------Definition of local repository
+#DataRepository: myrepo
+#myrepo.DataRepository.RootDir: $(HOME)/Data
+#
+#--------Definition of remote repository
+#+DataRepository: ccali
+#ccali.DataRepository.Type: remote
+#ccali.DataRepository.RootDir:       /hpss/in2p3.fr/group/indra
+#ccali.DataRepository.ReadProtocol:     root
+#ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+#ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
+#ccali.DataRepository.XRDTunnel.host:       ccali.in2p3.fr
+#ccali.DataRepository.XRDTunnel.port:          10000
+#ccali.DataRepository.XRDTunnel.user:
+#ccali.DataRepository.RemoteAvailableRuns.protocol:  curl
+#ccali.DataRepository.RemoteAvailableRuns.url:   http://indra.in2p3.fr/KaliVedaDoc
+#ccali.DataRepository.FileTransfer.type:    root
+#
+#---------Definition of default data repository
+#DataRepository.Default:  myrepo
+#
+####################################################################################################################
+#
+# Plugins for KVDataRepository
+Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
++Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
++Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
+#
+# Plugins for KVAvailableRunsFile
+Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
+#
+# Different types of data which can be associated with datasets
+# KVDataSet.DataTypes: online raw dst recon ident root
+KVDataSet.DataTypes: raw dst recon ident root
+#
+# Names used for subdirectories containing data of different types
+# KVDataSet.DataType.Subdir.online:  raw
+KVDataSet.DataType.Subdir.raw:  raw
+KVDataSet.DataType.Subdir.dst:  dst
+KVDataSet.DataType.Subdir.recon:  recon2
+KVDataSet.DataType.Subdir.ident:  ident2
+KVDataSet.DataType.Subdir.root:  root2
+#
+# Default formats for runfile names (run number is used to replace integer format)
+# DataSet.RunFileName.online:    run%d.raw
+DataSet.RunFileName.raw:    run%d.raw
+DataSet.RunFileName.dst:    run%d.dst
+DataSet.RunFileName.recon:    run%d.recon.root
+DataSet.RunFileName.ident:    run%d.ident.root
+DataSet.RunFileName.root:    run%d.root
+#
+# Default base classes for reading runfiles of different types
+# DataSet.RunFileClass.online:    KVRawDataReader
+DataSet.RunFileClass.raw:    KVRawDataReader
+DataSet.RunFileClass.recon:    TFile
+DataSet.RunFileClass.ident:    TFile
+DataSet.RunFileClass.root:    TFile
+
+# Default name of database file containing informations on runs, systems, calibration parameters etc.
+DataSet.DatabaseFile:        DataBase.root
+# Default name of database object in file
+DataSet.DatabaseName:        DataBase
+
+# Default list of datasets
+DataSet:     INDRA_camp1
+INDRA_camp1.DataSet.Title:    1st INDRA campaign (1993)
+INDRA_camp1.DataSet.RepositoryDir:   campagne1
+INDRA_camp1.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
++DataSet:    INDRA_camp2
+INDRA_camp2.DataSet.Title:    2nd INDRA campaign (1994)
+INDRA_camp2.DataSet.RepositoryDir:   campagne2
+INDRA_camp2.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
++DataSet:    INDRA_camp4
+INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
+INDRA_camp4.DataSet.RepositoryDir:   campagne4
+INDRA_camp4.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_camp4.KVDataSet.DataType.Subdir.dst:  dst2
+
++DataSet:    INDRA_camp5
+INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
+INDRA_camp5.DataSet.RepositoryDir:   campagne5
+INDRA_camp5.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
++DataSet:    INDRA_e416a
+INDRA_e416a.DataSet.Title:    Fission lifetimes of SHE (E416a) (2005)
+INDRA_e416a.DataSet.RepositoryDir:   e416a
+INDRA_e416a.DataSet.UserGroup:   e416a
+INDRA_e416a.DataSet.RunFileName.raw:    Run%d%*
+INDRA_e416a.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
++DataSet:    INDRA_e475s
+INDRA_e475s.DataSet.Title:    Isospin dependence of the emission of complex fragments (E475S) (2006)
+INDRA_e475s.DataSet.RepositoryDir:   e475s
+INDRA_e475s.DataSet.RunFileName.raw:    run_%04d.dat%*
+#INDRA_e475s.Identification1.DataAnalysisTask.UserClass.Base:     ReconIdent_e475s/TSelector
+INDRA_e475s.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
++DataSet:    INDRA_e503
+INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
+INDRA_e503.DataSet.RepositoryDir:   e503
+INDRA_e503.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+INDRA_e503.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
+INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+
++DataSet:    INDRA_e494s
+INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
+INDRA_e494s.DataSet.RepositoryDir:   e494s
+INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+INDRA_e494s.Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
+INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+
++DataSet:    VAMOS_e503
+VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
+VAMOS_e503.DataSet.RepositoryDir:   e503
+VAMOS_e503.DataSet.RunFileName.raw:    run_%d.dat%*
+VAMOS_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+
++DataSet:   t10_02
+t10_02.DataSet.Title:    Test INDRA T10_02 (Nov.-Dec. 2010)
+t10_02.DataSet.RepositoryDir:   t10_02
+t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
+t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+
++DataSet:   INDRA_e613
+INDRA_e613.DataSet.Title:    The Last Experiment (Ever)
+INDRA_e613.DataSet.RepositoryDir:   e613
+INDRA_e613.DataSet.RunFileName.raw:    run_%04d.dat%*
+INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+# INDRA_e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
+# INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
+
+# Default task list used by KVDataSetManager::Init()
+DataAnalysisTask:     Reconstruction
+Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
+Reconstruction.DataAnalysisTask.Prereq:     raw
+Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
+
+# The following variable can be used to change the format of the "RawData" tree which is created and filled
+# in 'recon' data files. The value is the option given to KVGANILDataReader::SetUserTree.
+KVINDRARawDataReconstructor.RawDataTreeFormat:     arrays
+
+# The following variable controls the way that particles are reconstructed from raw data
+# In the detector in which the particle stops, we require KVDetector::Fired( "option" )
+# with "option" = "all" or "any".
+#
+# In addition with these 2 options, it is possible that the test include the pedestal value
+# using the "P" letter in front of "all" or "any"
+# Exemple : the "Pall" option means that all of the associated acquisition parameters must be
+# fired ABOVE the pedestal value.
+#
+# By default for INDRA data, "option" = "all", which means that all of the associated
+# acquisition parameters must be fired in order for a particle to be reconstructed from the detector:
+Reconstruction.DataAnalysisTask.ParticleSeedCond:     all
+# To change this condition to the less strict "any" (meaning that KVDetector::Fired() returns
+# kTRUE if the detector has at least one fired acquisition parameter, of any type), either
+# change the previous value (this will affect ALL datasets), or, to change behaviour for a
+# specific dataset, use a variable such as the following:
+INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
+INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
+# (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
+# due to a bad configuration of the trigger)
+INDRA_e475s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     Pall
+
+# You can "fine-tune" what is meant by "all" acquisition parameters using the following
+# variables. For each detector type, give a comma-separated list of the acquisition
+# parameter types to be taken into account in the KVDetector::Fired method.
+# Only those parameters which appear in the list will be considered:
+#  then "all" means => all parameters in the list
+#  and  "any" means => any of the parameters in the list
+# These lists are read during construction of multidetector arrays (KVMultiDetArray::Build),
+# the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
+# of the array.
+KVDetector.Fired.ACQParameterList.CI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SILI: PG,GG,T
+KVDetector.Fired.ACQParameterList.SI75: PG,GG,T
+KVDetector.Fired.ACQParameterList.CSI: R,L,T
+
+INDRA_e475s.KVDetector.Fired.ACQParameterList.CI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
+INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
+
+VAMOS_e503.KVDetector.Fired.ACQParameterList.SI: E
+VAMOS_e503.KVDetector.Fired.ACQParameterList.CSI: E
+
+t10_02.KVDetector.Fired.ACQParameterList.CI: PG,GG
+t10_02.KVDetector.Fired.ACQParameterList.SI: PG,GG
+t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
+t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
+t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
+
+# Experience e613
+# The marqueuers de temps for silicon detectors from SI_0101 to SI_0324
+# are replaced by TDC modules, the parameter names are 'SI_0101_TOF' etc.
+INDRA_e613.KVACQParam.SI_0101.T:    TOF
+INDRA_e613.KVACQParam.SI_0102.T:    TOF
+INDRA_e613.KVACQParam.SI_0103.T:    TOF
+INDRA_e613.KVACQParam.SI_0104.T:    TOF
+INDRA_e613.KVACQParam.SI_0105.T:    TOF
+INDRA_e613.KVACQParam.SI_0106.T:    TOF
+INDRA_e613.KVACQParam.SI_0107.T:    TOF
+INDRA_e613.KVACQParam.SI_0108.T:    TOF
+INDRA_e613.KVACQParam.SI_0109.T:    TOF
+INDRA_e613.KVACQParam.SI_0110.T:    TOF
+INDRA_e613.KVACQParam.SI_0111.T:    TOF
+INDRA_e613.KVACQParam.SI_0112.T:    TOF
+INDRA_e613.KVACQParam.SI_0201.T:    TOF
+INDRA_e613.KVACQParam.SI_0203.T:    TOF
+INDRA_e613.KVACQParam.SI_0205.T:    TOF
+INDRA_e613.KVACQParam.SI_0207.T:    TOF
+INDRA_e613.KVACQParam.SI_0209.T:    TOF
+INDRA_e613.KVACQParam.SI_0211.T:    TOF
+INDRA_e613.KVACQParam.SI_0213.T:    TOF
+INDRA_e613.KVACQParam.SI_0215.T:    TOF
+INDRA_e613.KVACQParam.SI_0217.T:    TOF
+INDRA_e613.KVACQParam.SI_0219.T:    TOF
+INDRA_e613.KVACQParam.SI_0221.T:    TOF
+INDRA_e613.KVACQParam.SI_0223.T:    TOF
+INDRA_e613.KVACQParam.SI_0301.T:    TOF
+INDRA_e613.KVACQParam.SI_0302.T:    TOF
+INDRA_e613.KVACQParam.SI_0303.T:    TOF
+INDRA_e613.KVACQParam.SI_0304.T:    TOF
+INDRA_e613.KVACQParam.SI_0305.T:    TOF
+INDRA_e613.KVACQParam.SI_0306.T:    TOF
+INDRA_e613.KVACQParam.SI_0307.T:    TOF
+INDRA_e613.KVACQParam.SI_0308.T:    TOF
+INDRA_e613.KVACQParam.SI_0309.T:    TOF
+INDRA_e613.KVACQParam.SI_0310.T:    TOF
+INDRA_e613.KVACQParam.SI_0311.T:    TOF
+INDRA_e613.KVACQParam.SI_0312.T:    TOF
+INDRA_e613.KVACQParam.SI_0313.T:    TOF
+INDRA_e613.KVACQParam.SI_0314.T:    TOF
+INDRA_e613.KVACQParam.SI_0315.T:    TOF
+INDRA_e613.KVACQParam.SI_0316.T:    TOF
+INDRA_e613.KVACQParam.SI_0317.T:    TOF
+INDRA_e613.KVACQParam.SI_0318.T:    TOF
+INDRA_e613.KVACQParam.SI_0319.T:    TOF
+INDRA_e613.KVACQParam.SI_0320.T:    TOF
+INDRA_e613.KVACQParam.SI_0321.T:    TOF
+INDRA_e613.KVACQParam.SI_0322.T:    TOF
+INDRA_e613.KVACQParam.SI_0323.T:    TOF
+INDRA_e613.KVACQParam.SI_0324.T:    TOF
+
+# By default the file containing reconstructed events will be written in the same data repository
+# as the raw data file from which it is created.
+# This can be changed by setting the environment variable(s):
+#
+#Reconstruction.DataAnalysisTask.OutputRepository:     [name of repository]
+#[name of dataset].Reconstruction.DataAnalysisTask.OutputRepository:         [name of repository]
+#
+# If no value is set for the current dataset (second variable), the value of the
+# first variable will be used. If neither is defined, the new file will be written in the same repository as
+# the raw file (if possible, i.e. if repository is not remote).
+
++DataAnalysisTask:     Identification1
+Identification1.DataAnalysisTask.Title:     Identification of reconstructed events (recon->ident)
+Identification1.DataAnalysisTask.Prereq:     recon
+Identification1.DataAnalysisTask.Analyser:     INDRAReconData
+Identification1.DataAnalysisTask.UserClass:     no
+Identification1.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
+
+# By default the file containing identified events will be written in the same data repository
+# as the recon data file from which it is created.
+# This can be changed by setting the environment variable(s):
+#
+#Identification1.DataAnalysisTask.OutputRepository:     [name of repository]
+#[name of dataset].Identification1.DataAnalysisTask.OutputRepository:         [name of repository]
+#
+# If no value is set for the current dataset (second variable), the value of the
+# first variable will be used. If neither is defined, the new file will be written in the same repository as
+# the recon file (if possible, i.e. if repository is not remote).
+
++DataAnalysisTask:     Identification2
+Identification2.DataAnalysisTask.Title:     Final identification and coherency checks (ident->root)
+Identification2.DataAnalysisTask.Prereq:     ident
+Identification2.DataAnalysisTask.Analyser:     INDRAReconData
+Identification2.DataAnalysisTask.UserClass:     no
+Identification2.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
+
++DataAnalysisTask:     RawAnalysis
+RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
+RawAnalysis.DataAnalysisTask.Prereq:     raw
+RawAnalysis.DataAnalysisTask.Analyser:     UserClass
+RawAnalysis.DataAnalysisTask.UserClass:     yes
+RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+
+# +DataAnalysisTask:     OnlineAnalysis
+# OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
+# OnlineAnalysis.DataAnalysisTask.Prereq:     online
+# OnlineAnalysis.DataAnalysisTask.Analyser:     UserClass
+# OnlineAnalysis.DataAnalysisTask.UserClass:     yes
+# OnlineAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+# OnlineAnalysis.DataAnalysisTask.UserClass.ExtraACliCIncludes:     -DONLINE_ANALYSIS
+
++DataAnalysisTask:     ReconAnalysis
+ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
+ReconAnalysis.DataAnalysisTask.Prereq:     recon
+ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+ReconAnalysis.DataAnalysisTask.UserClass:     yes
+ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+
++DataAnalysisTask:     GeneAnalysis
+GeneAnalysis.DataAnalysisTask.Title:     Analysis of gene data (recon)
+GeneAnalysis.DataAnalysisTask.Prereq:     recon
+GeneAnalysis.DataAnalysisTask.Analyser:     INDRAGeneDataAnalyser
+GeneAnalysis.DataAnalysisTask.UserClass:     yes
+GeneAnalysis.DataAnalysisTask.UserClass.Base:     INDRAGeneDataSelector/TSelector
+
++DataAnalysisTask:     IdentAnalysis
+IdentAnalysis.DataAnalysisTask.Title:     Analysis of partially identified & calibrated reconstructed events (ident)
+IdentAnalysis.DataAnalysisTask.Prereq:     ident
+IdentAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+IdentAnalysis.DataAnalysisTask.UserClass:     yes
+IdentAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+
++DataAnalysisTask:     RootAnalysis
+RootAnalysis.DataAnalysisTask.Title:     Analysis of fully calibrated data (root)
+RootAnalysis.DataAnalysisTask.Prereq:     root
+RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
+RootAnalysis.DataAnalysisTask.UserClass:     yes
+RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+
++DataAnalysisTask:     DSTtoROOT
+DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
+DSTtoROOT.DataAnalysisTask.Prereq:     dst
+DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
+
+#-------------------------------- Compiler options for user analysis classes
+#                                                              DEBUGGING
+# Set this resource to "yes" or "true" for user analysis classes to be compiled with ACliC's debug option
+# i.e. will be compiled with ".L toto.cpp+g". N.B. if you previously compiled your class without the debugging
+# option you should delete the generated '.so' file so that it will be recompiled in debug mode, or set
+# the KVDataAnalyser.UserClass.ForceRecompile variable to "yes".
+KVDataAnalyser.UserClass.Debug:     no
+#                                                           OPTIMISATION
+# Set this resource to "yes" or "true" for user analysis classes to be compiled with ACliC's optimisation
+# i.e. will be compiled with ".L toto.cpp+O". N.B. if you previously compiled your class without the optimisation
+# option you should delete the generated '.so' file so that it will be recompiled in optimised mode, or set
+# the KVDataAnalyser.UserClass.ForceRecompile variable to "yes".
+KVDataAnalyser.UserClass.Optimise:     no
+#                                                        FORCE RECOMPILE
+# Set this resource to "yes" or "true" to force recompilation of user analysis classes every time that
+# an analysis is processed. Default is to only compile if the source code is more recent than the last
+# compiled version i.e. ACliC compilation with ".L toto.cpp+".
+KVDataAnalyser.UserClass.ForceRecompile:     no
+
+# Batch systems
+BatchSystem:     Xterm
+Xterm.BatchSystem.Title:    Execute task in an X-terminal window
+Xterm.BatchSystem.DefaultJobOptions:   -T #JobName# -e
+Xterm.BatchSystem.JobSubCmd:   xterm
+Xterm.BatchSystem.JobScript: "$KVROOT/bin/KaliVedaAnalysis -b -n"&
++BatchSystem:     Linux
+Linux.BatchSystem.Title:    Execute task in background with output stored in log file
+Linux.BatchSystem.DefaultJobOptions:   -b -n &> #JobName#.log &
+Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
+#Plugins for batch systems
+Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
++Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDet    "KVLinuxBatch(const Char_t*)"
+
+# Plugins for data analysis
+# KVDataAnalyser can be tuned for different datasets/environments
+Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDet "KVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRARawDataAnalyser   KVINDRARawDataAnalyser       KVIndra "KVINDRARawDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRADstToRootTransfert   KVINDRADstToRootTransfert       KVIndra "KVINDRADstToRootTransfert()"
++Plugin.KVDataAnalyser:   INDRAReconData         KVINDRAReconDataAnalyser     KVIndra "KVINDRAReconDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRARawDataRecon      KVINDRARawDataReconstructor  KVIndra "KVINDRARawDataReconstructor()"
++Plugin.KVDataAnalyser:   INDRAGeneDataAnalyser  KVINDRAGeneDataAnalyser      KVIndra "KVINDRAGeneDataAnalyser()"
++Plugin.KVDataAnalyser:   INDRARawDataIdent      KVINDRARawIdent              KVIndra "KVINDRARawIdent()"
++Plugin.KVDataAnalyser:   IVRawDataRecon         KVIVRawDataReconstructor     VAMOS   "KVIVRawDataReconstructor()"
++Plugin.KVDataAnalyser:   IVRawDataAnalyser      KVIVRawDataAnalyser          VAMOS   "KVIVRawDataAnalyser()"
+# +Plugin.KVDataAnalyser:   INDRAOnlineDataAnalyser   KVINDRAOnlineDataAnalyser     KVIndra     "KVINDRAOnlineDataAnalyser()"   
+# TSelector plugins for analysis of ROOT TTrees
++Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
++Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
++Plugin.TSelector:   INDRAReconIdent        KVReconIdent                 KVIndra   "KVReconIdent()"
++Plugin.TSelector:   INDRAIdentRoot         KVIdentRoot                  KVIndra   "KVIdentRoot()"
++Plugin.TSelector:   IVReconIdent           KVIVReconIdent               VAMOS     "KVIVReconIdent()"
+#+Plugin.TSelector:   ReconIdent_e475s       KVReconIdent_e475s           KVIndra   "KVReconIdent_e475s()"
++Plugin.TSelector:   IVSelector           KVIVSelector               VAMOS     "KVIVSelector()"
+
+# Plugins for VAMOS calibration
+Plugin.Analysisv:   INDRA_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogFile*)"
++Plugin.Analysisv:   INDRA_e494s     Analysisv_e494s   VAMOS   "Analysisv_e494s(LogFile*)"
++Plugin.Analysisv:   VAMOS_e503     Analysisv_e503   VAMOS   "Analysisv_e503(LogFile*)"
+
+# Plugins for data transfer between repositories
+# Used by KVDataTransfer::NewTransfer
+Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransferSFTP()"
++Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDet   "KVDataTransferBBFTP()"
++Plugin.KVDataTransfer:   xrd    KVDataTransferXRD   KVMultiDet   "KVDataTransferXRD()"
+
+# Plugins for reading raw data
+# There must be an entry here for each dataset
+# Syntax:
+# Plugin.KVRawDataReader:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVRawDataReader:    raw.VAMOS_e503    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
++Plugin.KVRawDataReader:    raw.t10_02    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
+# +Plugin.KVRawDataReader:    online.*    KVGRUNetClientGanilReader     KVMultiDet   "KVGRUNetClientGanilReader()"
+# KVGRUNetClientGanilReader.AcqHostName:     ganp1010
++Plugin.KVRawDataReader:    raw.INDRA*    KVGANILDataReader     KVMultiDet    "KVGANILDataReader()"
+
+# Plugins for KVGANILDataReader/GTGanilData class
+# The actual object used to open and read the data files can change depending on dataset
+Plugin.GTGanilData:    INDRA_e503      GTGanilDataVAMOS      VAMOS     "GTGanilDataVAMOS()"
++Plugin.GTGanilData:   INDRA_e494s     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
++Plugin.GTGanilData:   VAMOS_e503     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
++Plugin.GTGanilData:             *               GTGanilData            KVMultiDet       "GTGanilData()"
+
+#Define groups of users for restricting access to certain datasets
+#To add a new group:
+#+UserGroup: name_of_group
+#To add a user to a group:
+#+name_of_group.Users: name_of_users
+#Neither the group name nor the user names must contain spaces
+UserGroup:      e416a
+e416a.Users:        eindra
++e416a.Users:       franklan
++e416a.Users:       morjean
++e416a.Users:       parlog
++e416a.Users:       chbihi
++e416a.Users:       djacquet
++e416a.Users:       dauvergn
++e416a.Users:       nalpas
++e416a.Users:       dayras
++e416a.Users:       tassan
++e416a.Users:       cschmitt
+
+# Default values for names of files used to construct INDRA databases
+# Default name for file describing systems for each dataset.
+INDRADB.Systems:     Systems.dat
+# Default name for file containing runlist for each dataset.
+INDRADB.Runlist:     Runlist.csv
+# Default settings for reading runlists (see KVINDRARunListReader)
+INDRADB.Runlist.Separator:       |
+INDRADB.Runlist.Comment:       #
+# Default name for file containing ChIo pressures for each dataset.
+INDRADB.Pressures:     ChIoPressures.dat
+# Default name for file containing correspondence run-pedestal file for each dataset.
+INDRADB.Pedestals:      Pedestals.dat
+# Default name for file containing calibration peaks for each dataset.
+INDRADB.CalibPeaks:        kvpeak_base.dat
+# Default name for file containing electronic calibration for ChIo & Si for each dataset.
+INDRADB.ElectronicCalibration:    ChVolt.dat
+# Default name for file containing ChIo & Si calibration for each dataset.
+INDRADB.ChIoSiVoltMeVCalib:     CalibMeVVoltChIoSi.dat
+# Default names for files containing CsI calibrations for each dataset.
+INDRADB.CalibCsI.Z=1:            CsICalibZ1.dat
+INDRADB.CalibCsI.Z>1:            CsICalibZ2.dat
+# Stability corrections for gain of CsI total light output
+INDRADB.CsILumCorr:          corrLum
+INDRADB.CsILumCorr.FileName:    run%d.corrLum
+# Run - gain correspondence for detectors
+INDRADB.Gains:    Gains.dat
+# VAMOS scalers for INDRA-VAMOS experiments
+INDRADB.VamosScaler:    scalersVamos.dat
+# VAMOS Brho & angle for INDRA-VAMOS experiments
+INDRADB.VamosBrhoAngle:    Vamos_run_brho_angle.dat
+# Default filename containing correspondance between CsI detector and PinLaser
+INDRADB.CsIPinCorr:          CsI_PILA.dat
+# Default name for file containing linear coefficients for GG->PG conversion (silicon & ChIo detectors)
+INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
+
+# Default dataset subdirectory containing files with mean pulser data for each run
+KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
+# Default dataset subdirectory containing files with pin diode & laser data for each run
+KVINDRAPulserDataTree.GenePinDir:   gene_pins
+
+# Dataset-specific parameter files
+INDRA_camp1.INDRADB.Runlist.Separator:       <TAB>
+INDRA_camp2.INDRADB.Runlist.Separator:       <TAB>
+INDRA_camp4.INDRADB.Runlist.Separator:       <TAB>
+# 5th campaign
+INDRA_camp5.INDRADB.Gains:    Gains5.dat
+INDRA_camp5.INDRADB.ElectronicCalibration:    ChVolt5.dat
+INDRA_camp5.INDRADB.ElectronicCalibration.Etalons:   coef_canauxTOmev_etalons_camp5.dat
+INDRA_camp5.INDRADB.Pedestals:      Pedestals5.dat
+INDRA_camp5.INDRADB.CalibCsI.Z=1:       calib_CsI_Z1.dat
+INDRA_camp5.INDRADB.CalibCsI.Z>1:       calib_CsI_Z2.dat
+INDRA_camp5.INDRADB.PHD:     coefs_moulton_camp5.dat
+# E416a
+INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
+# E475s
+INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
+INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
+# INDRA-VAMOS
+INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
+INDRA_e503.INDRADB.Pedestals:      PedestalsE503.dat
+INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
+
+# Default headers for runlist columns
+INDRADB.Runlist.Run:    Run
+INDRADB.Runlist.Tape:    Tape
+INDRADB.Runlist.Buffers:    Buffers (save)
+INDRADB.Runlist.Events:    Events (save)
+INDRADB.Runlist.Far1:    Faraday1
+INDRADB.Runlist.Far2:    Faraday2
+INDRADB.Runlist.Time:    Length (min)
+INDRADB.Runlist.Size:    Size (MB)
+INDRADB.Runlist.GDir:    Gene Direct
+INDRADB.Runlist.GLas:    Gene Laser
+INDRADB.Runlist.GElec:    Gene Elect
+INDRADB.Runlist.GTest:    Gene Test
+INDRADB.Runlist.GMarq:    Gene MRQ
+INDRADB.Runlist.GTM:    Gene TM
+INDRADB.Runlist.DEC:      DEC
+INDRADB.Runlist.FC:      FC
+INDRADB.Runlist.OK:      OK
+INDRADB.Runlist.FT:      FT
+INDRADB.Runlist.AVL:      AVL
+INDRADB.Runlist.OCD:      OCD
+INDRADB.Runlist.OA:      OA
+INDRADB.Runlist.RAZ:      RAZ
+INDRADB.Runlist.PlastAll:      Plastic (all)
+INDRADB.Runlist.PlastG:      Plastic (G)
+INDRADB.Runlist.PlastC:      Plastic (C)
+INDRADB.Runlist.PlastD:      Plastic (D)
+INDRADB.Runlist.TMpc:      Temps mort (%)
+INDRADB.Runlist.Trigger:      Trigger
+INDRADB.Runlist.Start:      Date (start)
+INDRADB.Runlist.End:      Date (end)
+INDRADB.Runlist.Comments:      Comments
+INDRADB.Runlist.Log:      Cahier
+
+# Plugins for different datasets
+# Each dataset has an associated multidetector array describing the experimental setup.
+# There must be an entry here for each dataset
+# Syntax:
+# Plugin.KVMultiDetArray:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
++Plugin.KVMultiDetArray:    INDRA_camp2    KVINDRA2     KVIndra    "KVINDRA2()"
++Plugin.KVMultiDetArray:    INDRA_camp4    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_camp5    KVINDRA5     KVIndra    "KVINDRA5()"
++Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndra    "KVINDRAFNL()"
++Plugin.KVMultiDetArray:    INDRA_e475s    KVINDRAe475s     KVIndra    "KVINDRAe475s()"
++Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
++Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
++Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
++Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA4     KVIndra    "KVINDRA4()"
+
+# Plugins for different datasets
+# Each dataset has an associated database of informations on runs, calibration parameters, etc.
+# By default, this is assumed to be in file $KVROOT/db/name_of_dataset/[value of DataSet.DatabaseFile]
+# If this file is not found, the database has to be rebuilt from the various parameter files in the
+# directory, using the class indicated here.
+# There must be an entry here for each dataset
+# Syntax:
+# Plugin.KVDataBase:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const Char_t*)"
++Plugin.KVDataBase:    INDRA_camp2    KVINDRADB2     KVIndra    "KVINDRADB2(const Char_t*)"
++Plugin.KVDataBase:    INDRA_camp4    KVINDRADB4     KVIndra    "KVINDRADB4(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e416a    KVINDRADB_e416a     KVIndra    "KVINDRADB_e416a(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e475s    KVINDRADB_e475s     KVIndra    "KVINDRADB_e475s(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
+
+#================================ Plugins for different datasets
+# Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
+# If there is no entry here for a dataset, an object of the default KVUpDater class will be used.
+# Syntax:
+# Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRAUpDater_e416a()"
++Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
++Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
++Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
+
+#============================== Plugins for identification telescopes
+# The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
+# create KVIDTelescope instances adapted to the specific array geometry and detector types.
+# For each pair of detectors we look for a plugin with one of the following names:
+#	[name_of_dataset].de_detector_type[de detector thickness]-e_detector_type[de detector thickness]
+# Each characteristic in [] brackets may or may not be present in the name; first we test for names
+# with these characteristics, then all combinations where one or other of the characteristics is not present.
+# In addition, we first test all combinations which begin with [name_of_dataset].
+# The first plugin found in this order will be used.
+# In addition, if for one of the two detectors there is a plugin called
+#	[name_of_dataset].de_detector_type[de detector thickness]
+#	[name_of_dataset].e_detector_type[e detector thickness]
+# then we add also an instance of this 1-detector identification telescope.
+#
+# NOTE: the '^' and '$' around each URI are just for the ROOT RegExp interpreter
+#
+Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich         KVIndra         "KVIDPhoswich()"
++Plugin.KVIDTelescope:   ^CSI$                                      KVIDCsI                  KVIndra          "KVIDCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CSI$        KVIDCsI_e475s              KVIndra      "KVIDCsI_e475s()"
++Plugin.KVIDTelescope:    ^SI-CSI$                                KVIDSiCsI              KVIndra           "KVIDSiCsI()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI-CSI$        KVIDSiCsI5              KVIndra      "KVIDSiCsI5()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI150-CSI$   KVIDSi150CsI_camp5        KVIndra        "KVIDSi150CsI_camp5()"
++Plugin.KVIDTelescope:    ^SILI-CSI$                               KVIDSiLiCsI            KVIndra         "KVIDSiLiCsI()"
++Plugin.KVIDTelescope:    ^SI75-SILI$                            KVIDSi75SiLi           KVIndra         "KVIDSi75SiLi()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SI75-SILI$                            KVIDSi75SiLi_camp5           KVIndra         "KVIDSi75SiLi_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.SILI-CSI$                            KVIDSiLiCsI_camp5           KVIndra         "KVIDSiLiCsI_camp5()"
++Plugin.KVIDTelescope:     ^CI-SI$                                  KVIDChIoSi              KVIndra         "KVIDChIoSi()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$        KVIDChIoSi5              KVIndra      "KVIDChIoSi5()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
++Plugin.KVIDTelescope:     ^CI-SI75$                              KVIDChIoSi75          KVIndra         "KVIDChIoSi75()"
++Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$        KVIDChIoSi75_camp5              KVIndra      "KVIDChIoSi75_camp5()"
++Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
++Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra         "KVIDChIoCsI_camp5()"
++Plugin.KVIDTelescope:      ^BIC-SIB$                            KVIDBlocking            KVIndra     "KVIDBlocking()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
++Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
+# ===> Plugin pour FocalPlanVamos
++Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
+
+# COHERENCE TOLERANCE PARAMETER
+# In KVIDTelescope::CalculateParticleEnergy, we compare the calculated and measured energy losses
+# of each particle in each of the detectors in front of the identifying telescope. If the measured
+# energy loss, dE_meas, is greater than (CoherencyTolerance)*dE_calc, we add the calculated energy
+# loss to the total energy of the particle, and this calculated energy is subtracted from the
+# measured energy loss in the detector in order to "reveal" an extra energy loss due to another
+# particle (pile-up).
+# The value of CoherencyTolerance can be set with this variable.
+# By default, the value is 1.05 i.e. we tolerate up to 5% difference between dE_calc and dE_meas.
+#
+# KVIDTelescope.CoherencyTolerance:   1.05
+
+
+#======================= Identification parameter files for different datasets
+# Format is
+#
+# [dataset name].IdentificationParameterFile.[identification telescope label]:      [filename]
+#
+# The identification telescope labels are those used in the KVIDTelescope plugin definitions above,
+# e.g. 'PHOS', 'CSI', 'SI-CSI', etc. etc.
+# If an absolute pathname is not given, the file must be in $KVROOT/KVFiles/[dataset name]
+#
+################################################
+INDRA_camp5.IdentificationParameterFile.CSI:        CsIGrids.dat
+INDRA_camp5.IdentificationParameterFile.SI150-CSI:    Si150CsIGrids.dat
+INDRA_camp5.IdentificationParameterFile.SI150-CSI.SIPGLimits:    Si150PGLimits.dat
+INDRA_camp5.IdentificationParameterFile.SI-CSI:         SiCsI_Ident.dat
+INDRA_camp5.IdentificationParameterFile.CI-CSI:         ChioCsI_C10-12_PGZmin_GGZmax_Gaz1-2.dat
+INDRA_camp5.IdentificationParameterFile.CI-SI:           ChIoSiGrids.dat
+INDRA_camp5.IdentificationParameterFile.CI-SI75:           ChioSi75Grids.dat
+INDRA_camp5.IdentificationParameterFile.SI75-SILI:           Si75SiLiGrids.dat
+INDRA_camp5.IdentificationParameterFile.SILI-CSI:           SiLiCsIGrids.dat
+################################################
+INDRA_e475s.IdentificationParameterFile.CI-SI:        IDGridManager_E475s_CI_SI.dat
+INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL.dat
+INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
+INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
+################################################
+# pour FocalPlanVamos 
+VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
+
+# non-functioning acqusition parameters
+INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
+
+#====================== Active identifications for each dataset
+# Only the identifications whose labels are given here will be initialised & capable of identifying particles
+# (the labels/types are the same as in the definitions of the plugins above)
+# Format:
+#
+# [dataset name].ActiveIdentifications:    [type1]  [type2] ...
+INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
+VAMOS_e503.ActiveIdentifications:    SI-CSI
+
+#================================ Plugins for detectors
+#Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
+Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t)"
++Plugin.KVDetector:      INDRA_e475s.SI      KVSilicon_e475s      KVIndra      "KVSilicon_e475s(Float_t)"
+#+Plugin.KVDetector:      ^SILI$      KVSiLi      KVIndra      "KVSiLi(Float_t)"
+#+Plugin.KVDetector:      ^SI75$      KVSi75      KVIndra      "KVSi75()"
+#+Plugin.KVDetector:      ^SIB$      KVSiB      KVIndra      "KVSiB()"
++Plugin.KVDetector:	CI                                      KVChIo                  KVIndra          "KVChIo(Float_t,Float_t)"
++Plugin.KVDetector:	INDRA_e475s.CI                                      KVChIo_e475s                  KVIndra          "KVChIo_e475s(Float_t,Float_t)"
+#+Plugin.KVDetector:   BIC                                      KVBIC                  KVIndra          "KVBIC()"
++Plugin.KVDetector: CSI             KVCsI       KVIndra  "KVCsI(Float_t)"
++Plugin.KVDetector: INDRA_e475s.CSI KVCsI_e475s KVIndra  "KVCsI_e475s(Float_t)"
++Plugin.KVDetector:    VAMOS_e503.CSI             KVCsIVamos     VAMOS     "KVCsIVamos(Float_t)"
++Plugin.KVDetector:    VAMOS_e503.SI             KVSiliconVamos     VAMOS     "KVSiliconVamos(Float_t)"
+
+# Environment variables for the Data Selectors. They define the filename and
+# the directory of the file where the TEventList are stored. The default
+# directory is the working directory and the default filename is
+# "ListOfDataSelector.root".
+#
+#DataSelector.fileName: ListOfDataSelector.root
+#DataSelector.directory: $(PWD)
+#
+#
+
+# Plugins for calculation of range & energy loss of charge particles in matter.
+# Each class must derive from KVIonRangeTable abstract base class.
+Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
+
+# Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
+KVMaterial.IonRangeTable:   VEDALOSS
+
+# Default name for TEnv-format file containing real thicknesses of detectors
+# in multidetector arrays defined for datasets.
+# See KVMultiDetArray::SetDetectorThicknesses for file format.
+KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
+
+# KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
+KVPulseHeightDefect.EnergyLoss.Npx:        60
+# Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
+KVSilicon.ZminForPHDCorrection:        10
+
+# File containing range tables for calculation of energy losses in KVedaLoss
+KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# TF1::fNpx parameter for TF1 range, energy loss, residual energy
+KVedaLoss.Range.Npx:         20
+KVedaLoss.EnergyLoss.Npx:         50
+KVedaLoss.ResidualEnergy.Npx:         20
+
+# KVDetector: TF1::fNpx parameter for TF1 energy loss, range & residual energy
+KVDetector.EnergyLoss.Npx:         20
+KVDetector.ResidualEnergy.Npx:         50
+KVDetector.Range.Npx:        20
+
+# LifeTime tables used by KVNDTManager
+KVNDTManager.LifeTimeTable:       KVLifeTimeTable
+Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
+LifeTime.DataFile:	lifetime_nudat2.data
+
+# Mass Excess tables used by KVNDTManager
+KVNDTManager.MassExcessTable:      KVMassExcessTable
++Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDet   "KVMassExcessTable()"
+MassExcess.DataFile:	massexcess_nudat2.data
+#MassExcess.DataFile: audi_wapstra_2003.data
+#MassExcess.DataFile: pace2_2009.data
+
+# Abundance tables used by KVNDTManager
+KVNDTManager.AbundanceTable:      KVAbundanceTable
++Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
+Abundance.DataFile:	abundance_nudat2.data
+
+# Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
+# if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula
+# the chosen mass formula is only available for KVINDRAReconNuc for this dataset
+KVINDRAReconNuc.MassFormula:        2
+INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
+
+#ROOT environment variables
++ACLiC.IncludePaths:     -I$(KVROOT)/include
+Root.Html.Author:      //Author:
+Root.Html.Header:      header.html
+Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
++Plugin.TSystem:      ^rfio:    KVRFIOSystem   KVMultiDet    "KVRFIOSystem()"
+
+# Classes for fitting identification grids
+# To change the default fitter class, change the value of the following variable:
+KVVirtualIDFitter.DefaultFitter:   KVTGIDFitter
+# and add your class to the list of KVVirtualIDFitter plugins:
+Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDet "KVTGIDFitter()"
+
+# Default identification grid classes for ID telescopes
+# Used by KVIDGridManagerGUI when creating new grids
+#
+# KVIDTelescope.DefaultGrid is used for all telescopes which do not define an alternative
+KVIDTelescope.DefaultGrid:              KVIDZAGrid
+# The following are specific grids for specific telescopes
+KVIDTelescope.DefaultGrid.CSI:          KVIDGCsI
+KVIDTelescope.DefaultGrid.CI-SI:        KVIDGChIoSi
+KVIDTelescope.DefaultGrid.CI-SI75:      KVIDGChIoSi
+KVIDTelescope.DefaultGrid.BIC-SIB:      KVIDGChIoSi
+
+# Default identification/cut classes for different ID graphs
+# Used by KVIDGridManagerGUI when creating new grids
+#
+KVIDZAGrid.CutClass:  KVIDCutLine
++KVIDZAGrid.CutClass:  KVIDCutContour
+KVIDZAGrid.DefaultCutClass:  KVIDCutLine
+KVIDZAGrid.IDClass:  KVIDZALine
+KVIDGCsI.CutClass:  KVIDCutLine
++KVIDGCsI.CutClass:  KVIDCutContour
+KVIDGCsI.DefaultCutClass:  KVIDCutLine
+KVIDGCsI.IDClass:  KVIDCsIRLLine
+KVIDGChIoSi.CutClass:  KVIDCutLine
++KVIDGChIoSi.CutClass:  KVIDCutContour
+KVIDGChIoSi.DefaultCutClass:  KVIDCutLine
+KVIDGChIoSi.IDClass:  KVIDZALine
+
+# Plugins for identification graphs/grids
+# User can extend identification possibilities by adding plugins to list
+# Syntax:
+# Plugin.KVIDGraph:    name_of_class    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDet   "KVIDZAGrid()"
+#+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDet   "KVIDZAMap()"
++Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVIndra      "KVIDGCsI()"
++Plugin.KVIDGraph:   KVIDGChIoSi   KVIDGChIoSi   KVIndra      "KVIDGChIoSi()"
+
+# Mime-types for GUI
+# These define the icons associated with different objects displayed in KVListView widgets.
+KaliVeda.GUI.MimeTypes:   KVIDMap
+KaliVeda.GUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDZAGrid
+KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDGCsI
+KaliVeda.GUI.MimeTypes.KVIDGCsI.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDGChIoSi
+KaliVeda.GUI.MimeTypes.KVIDGChIoSi.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVTGIDGrid
+KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
++KaliVeda.GUI.MimeTypes:   KVDBRun
+KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
++KaliVeda.GUI.MimeTypes:   KVINDRADBRun
+KaliVeda.GUI.MimeTypes.KVINDRADBRun.Icon:   tree_t.xpm
+
+# User-configurable options for KaliVedaGUI analysis launcher
+# Width & height of main window
+KaliVedaGUI.MainGUIWidth:       700
+KaliVedaGUI.MainGUIHeight:       600
+# Max width (number of characters) of runlist columns
+KaliVedaGUI.MaxColWidth:       500
+# Specific environment configuration file for KaliVeda on CCIN2P3 machines
+
+DataRepository: ccali
+ccali.DataRepository.Type: srb
+ccali.DataRepository.RootDir:       /indra
+ccali.DataRepository.ReadProtocol:     root
+ccali.DataRepository.CanWrite: NO
+ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
+
++BatchSystem:    BQS
+BQS.BatchSystem.Title:   Use BQS batch system
+BQS.BatchSystem.DefaultJobOptions:   -eo -l CPUBound,platform=LINUX,hpss,u_hpss_indra,u_xrootd -V -N #JobName#
+BQS.BatchSystem.JobSubCmd:   qsub
+BQS.BatchSystem.JobScript:   $KVROOT/bin/KVA
+BQS.BatchSystem.DefaultJobTime:   4000
+BQS.BatchSystem.DefaultJobMemory:  256MB
+BQS.BatchSystem.DefaultJobDisk:   100MB
++Plugin.KVBatchSystem:    BQS    KV_CCIN2P3_BQS     KVMultiDet    "KV_CCIN2P3_BQS(const Char_t*)"
+# Modify this variable in order to submit N runs per job in parallel batch mode
+#BQS.BatchSystem.RunsPerJob:    1
+Default.BatchSystem:   BQS
+
++BatchSystem:    GE
+GE.BatchSystem.Title:   Use Grid Engine batch system
+GE.BatchSystem.DefaultJobOptions:   -P P_indra -o $PWD -j yes -l os='sl5',hpss=1,xrootd=1,srb=1 -V -N #JobName#
+GE.BatchSystem.JobSubCmd:   qsub
+GE.BatchSystem.JobScript:   $KVROOT/bin/KVA
+GE.BatchSystem.DefaultJobTime:   4000
+GE.BatchSystem.DefaultJobMemory:  256M
+GE.BatchSystem.DefaultJobDisk:   100M
++Plugin.KVBatchSystem:    GE    KV_CCIN2P3_GE     KVMultiDet    "KV_CCIN2P3_GE(const Char_t*)"
+# Modify this variable in order to submit N runs per job in parallel batch mode
+#BQS.BatchSystem.RunsPerJob:    1

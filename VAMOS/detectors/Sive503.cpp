@@ -189,6 +189,8 @@ void Sive503::PrintCounters(void)
 
 void Sive503::InitRaw(void)
 {
+    L->Log << "Sive503::InitRaw()" << endl;
+
 #ifdef DEBUG
   cout << "Si::InitRaw" << endl;
 #endif
@@ -208,6 +210,8 @@ void Sive503::InitRaw(void)
 
 void Sive503::Init(void)
 {
+    L->Log << "Sive503::Init()" << endl;
+
 #ifdef DEBUG
   cout << "Sive503::Init" << endl;
 #endif
@@ -226,6 +230,7 @@ void Sive503::Init(void)
     }
   Offset[0] = Offset[1]  = 0.0;
   Tfrag = 0.0;
+  timeRefCheck = 0.;
   
   EM = 0;
   ETotal = 0.0;
@@ -234,6 +239,9 @@ void Sive503::Init(void)
 
 void Sive503::Calibrate(void)
 {
+
+    L->Log << "Sive503::Calibrate()" << endl;
+
   Int_t i,j,k;
 
 #ifdef DEBUG
@@ -253,7 +261,7 @@ void Sive503::Calibrate(void)
 	    	//cout << i << " " << j << " " <<TCoef[i][j] << endl;
 	  //}
     }
-  	L->Log<<"Sive503.cpp :	"<<"T_Raw[0] : "<<T_Raw[0]<<" "<<"T[0] : "<<T[0]<<endl;
+  	L->Log << "T_Raw[0] : " << T_Raw[0] << " " << "T[0] : " << T[0] << endl;
 	//L->Log<<"TCoef[0][1] : "<<TCoef[0][1]<<" "<<"TCoef[0][2] : "<<TCoef[0][2]<<" "<<"TCoef[0][3] : "<<TCoef[0][3]<<" "<<"TCoef[0][4] : "<<TCoef[0][4]<<endl;
 
   for(i=0;i<E_RawM;i++)
@@ -280,9 +288,12 @@ void Sive503::Calibrate(void)
 	    Number = E_Raw_Nr[i];
 	    
 	    //T[0]+= TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
-	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
+	    //Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
+	    timeRefCheck = 114.973 - (Float_t)Tpropre_el[E_Raw_Nr[i]];   // Should be narrow
+        Tfrag = 25.023 + Tpropre_el[E_Raw_Nr[i]]; // Main peak offset
 	    
 	    L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     
+        L->Log << "timeRefCheck: " << timeRefCheck << endl;
 	    L->Log<<"thick = "<<si_thick[E_Raw_Nr[i]]<<endl;
 	    EM++;
 	  }
@@ -307,6 +318,8 @@ void Sive503::Calibrate(void)
 
 void Sive503::Treat(void)
 {
+    L->Log << "Sive503::Treat()" << endl;
+
 #ifdef DEBUG
   cout << "Sive503::Treat" << endl;
 #endif
@@ -324,6 +337,7 @@ void Sive503::Treat(void)
 void Sive503::inAttach(TTree *inT)
 {
 
+    L->Log << " + Sive503::inAttach(TTree* " << inT << ")" << endl;
 #ifdef DEBUG
   cout << "Si::inAttach" << endl;
 #endif
@@ -360,6 +374,8 @@ void Sive503::inAttach(TTree *inT)
 void Sive503::outAttach(TTree *outT)
 {
 
+    L->Log << " + Sive503::outAttach(TTree* " << outT << ")" << endl;
+
 #ifdef DEBUG
   cout << "Si::inAttach" << endl;
 #endif
@@ -375,8 +391,9 @@ void Sive503::outAttach(TTree *outT)
    //outT->Branch("SiERaw",&E_Raw[0],"SiERaw/S");
    //outT->Branch("SiERaw",SiRaw,"SiERaw[21]/S");
    outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/s");
-   outT->Branch("TSi_HFpropre",&T[0],"TSi_HFpropre/D");
+   outT->Branch("TSi_HFpropre",&T[0],"TSi_HFpropre/F");
    outT->Branch("Tfrag",&Tfrag,"Tfrag/D");
+   outT->Branch("timeRefCheck",&timeRefCheck,"timeRefCheck/F");
    //outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    //outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");
 

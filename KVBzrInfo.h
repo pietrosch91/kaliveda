@@ -1,0 +1,5 @@
+#define BZR_REVISION_ID "pwigg@ccali05-20111110103527-ofdx8muv7vfkfpzk" 
+#define BZR_REVISION_DATE "2011-11-10 11:35:27 +0100" 
+#define BZR_REVISION_NUMBER 357
+#define BZR_BRANCH_NICK "1.8.1_vamos_e503" 
+#define BZR_BRANCH_IS_CLEAN 0
