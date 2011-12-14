@@ -804,23 +804,13 @@ else
  tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchName","");
  teBatchName->SetText(tmp.Data());
  
+ tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchNameFormat","");
+ teBatchNameFormat->SetText(tmp.Data());
  if(GUIenv->GetValue("KVDataAnalysisLauncher.Batch",kFALSE))
  	rbBatch->SetState(kButtonDown);
  else
   rbInteractive->SetState(kButtonDown);
   runsPerJob->SetNumber(GUIenv->GetValue("KVDataAnalysisLauncher.RunsPerJob", 1));
- if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE)){
-  chIsBatchNameAuto->SetState(kButtonDown);
-  chIsBatchNameAuto->SetState(kButtonUp);
- chIsBatchNameAuto->SetState(kButtonDown);
-  }
- else{
-  chIsBatchNameAuto->SetState(kButtonUp);
- chIsBatchNameAuto->SetState(kButtonDown);
-  chIsBatchNameAuto->SetState(kButtonUp);
-}
- tmp=GUIenv->GetValue("KVDataAnalysisLauncher.BatchNameFormat","");
- teBatchNameFormat->SetText(tmp.Data());
  
  if(withBatchParams){
    teBatchMemory->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchMemory","256MB"));
@@ -840,6 +830,12 @@ else
  teBatchNameFormat->Connect("TextChanged(const char*)",
                          "KVDataAnalysisLauncher",this,"SetAutoBatchName()");
  
+ if(GUIenv->GetValue("KVDataAnalysisLauncher.AutoBatchName",kFALSE)){
+  chIsBatchNameAuto->SetState(kButtonDown,kFALSE);
+  }
+ else{
+  chIsBatchNameAuto->SetState(kButtonUp,kFALSE);
+}
  SetBatch();
  
 }
@@ -1798,8 +1794,10 @@ void KVDataAnalysisLauncher::SetBatch(void)
  if(IsBatch()) {
  	runsPerJob->SetState(kTRUE);
  	GUIenv->SetValue("KVDataAnalysisLauncher.RunsPerJob", (Int_t)runsPerJob->GetNumber());
+ 	if(!chIsBatchNameAuto->IsEnabled()){
+ 		chIsBatchNameAuto->SetEnabled(kTRUE);
+ 	}
  	SetBatchNameAuto();
- 	chIsBatchNameAuto->SetEnabled(kTRUE);
  	if(teBatchMemory&&teBatchTime&&teBatchDisk){
  		teBatchMemory->SetState(kTRUE);
  		teBatchTime->SetState(kTRUE);

@@ -1,6 +1,6 @@
-#define KVReconIdent_cxx
+#define KVINDRAReconIdent_cxx
 
-#include "KVReconIdent.h"
+#include "KVINDRAReconIdent.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "KVDataRepository.h"
@@ -8,27 +8,27 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataAnalyser.h"
 
-ClassImp(KVReconIdent)
+ClassImp(KVINDRAReconIdent)
 
 ///////////////////////////////////////////////////////////
 // Analysis class used to identify previously
 // reconstructed events and write the new data files in the data repository
 //
 
-void KVReconIdent::InitAnalysis(void)
+void KVINDRAReconIdent::InitAnalysis(void)
 {
 }
 
 //_____________________________________
-void KVReconIdent::InitRun(void)
+void KVINDRAReconIdent::InitRun(void)
 {
    //When each run is opened, we create a new ROOT file for the identified events we
    //are going to generate from the reconstructed events we are reading.
    // By default this file will be written in the same data repository as the recon data file we are reading.
    // This can be changed by setting the environment variable(s):
    //
-   //     Identification1.DataAnalysisTask.OutputRepository:     [name of repository]
-   //     [name of dataset].Identification1.DataAnalysisTask.OutputRepository:         [name of repository]
+   //     ReconIdent.DataAnalysisTask.OutputRepository:     [name of repository]
+   //     [name of dataset].ReconIdent.DataAnalysisTask.OutputRepository:         [name of repository]
    //
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used. If neither is defined, the new file will be written in the same repository as
@@ -37,7 +37,7 @@ void KVReconIdent::InitRun(void)
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("Identification1.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
+         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
          gDataSet->GetName() );
 
    //create new ROOT file for identified events
@@ -71,7 +71,7 @@ void KVReconIdent::InitRun(void)
 }
 
 //_____________________________________
-Bool_t KVReconIdent::Analysis(void)
+Bool_t KVINDRAReconIdent::Analysis(void)
 {
    //For each event we:
    //     perform primary event identification and calibration and fill tree
@@ -86,7 +86,7 @@ Bool_t KVReconIdent::Analysis(void)
 }
 
 //_____________________________________
-void KVReconIdent::EndRun(void)
+void KVINDRAReconIdent::EndRun(void)
 {
    //At the end of each run we:
    //      write the tree into the new file
@@ -107,7 +107,7 @@ void KVReconIdent::EndRun(void)
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("Identification1.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
+         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
          gDataSet->GetName() );
 
    OutputDataset->CommitRunfile("ident", gIndra->GetCurrentRunNumber(),
@@ -117,6 +117,6 @@ void KVReconIdent::EndRun(void)
 }
 
 //_____________________________________
-void KVReconIdent::EndAnalysis(void)
+void KVINDRAReconIdent::EndAnalysis(void)
 {
 }

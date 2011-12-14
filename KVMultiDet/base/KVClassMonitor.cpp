@@ -20,6 +20,11 @@ class derived from TObject to the previous Check().
 We print a warning message for every class whose instance count has increased.
 </p>
 <p>
+YOU MUST ACTIVATE ROOT OBJECT TRACKING FOR THIS TO WORK!
+In your .rootrc file, add/change this variable:<br>
+Root.ObjectStat:   1
+</p>
+<p>
 Note that, as the instance counts are stored in a TEnv, any time new classes are
 instanciated, some class instances increase due to the TEnv itself changing.
 Typical output in this case is:

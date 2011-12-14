@@ -21,6 +21,7 @@ KVINDRADetector::KVINDRADetector()
    // Default constructor
    fGGtoPG_0 = 0;
    fGGtoPG_1 = 1./15.;
+	NumeroCodeur = 0;
 }
 
 KVINDRADetector::~KVINDRADetector()
@@ -155,3 +156,17 @@ KVINDRADetector*KVINDRADetector::FindChIo()
    return fChIo;
 }
 
+//__________________________________________________________________________________________________________________________
+void KVINDRADetector::SetNumeroCodeur(Int_t numero)
+{
+	//Set the number of the electronic module of type QDC
+	NumeroCodeur=numero;
+}
+
+//__________________________________________________________________________________________________________________________
+Int_t KVINDRADetector::GetNumeroCodeur()
+{
+	//Get the number of the electronic module of type QDC
+	//this field are initialized in KVINDRA::Build()
+	return NumeroCodeur;
+}

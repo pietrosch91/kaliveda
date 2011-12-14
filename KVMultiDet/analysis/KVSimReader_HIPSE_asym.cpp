@@ -48,7 +48,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 		evt->SetNumber(nevt);
 		mult = GetIntReadPar(0);
 		mtotal = GetIntReadPar(1);
-		evt->SetValue("mult",mtotal);
+		evt->GetParameters()->SetValue("mult",mtotal);
 		
 		break;
 	default:
@@ -68,9 +68,9 @@ Bool_t KVSimReader_HIPSE_asym::ReadEvent(){
 	case 0:
 		return kFALSE; 
 	case 1:
-		evt->SetValue("Esa",GetDoubleReadPar(0));
-		evt->SetValue("vcm",GetDoubleReadPar(1));
-		evt->SetValue("Bparstore",GetDoubleReadPar(2));
+		evt->GetParameters()->SetValue("Esa",GetDoubleReadPar(0));
+		evt->GetParameters()->SetValue("vcm",GetDoubleReadPar(1));
+		evt->GetParameters()->SetValue("Bparstore",GetDoubleReadPar(2));
 		
 		break;
 	default:
@@ -119,7 +119,7 @@ Bool_t KVSimReader_HIPSE_asym::ReadNucleus(){
 		
 		nuc->SetZ(GetIntReadPar(1));
 		nuc->SetA(GetIntReadPar(0));
-		nuc->SetValue("proven",GetDoubleReadPar(2));
+		nuc->GetParameters()->SetValue("proven",GetDoubleReadPar(2));
 		
 		
 		break;

@@ -10,16 +10,16 @@ $Date: 2007/06/08 15:49:10 $
 #ifndef __KVIVRECONIDENT_H
 #define __KVIVRECONIDENT_H
 
-#include "KVReconIdent.h"
 #include "KVIDGridManager.h"
 #include <string>
 #include <string.h>
+#include "KVINDRAReconIdent.h"
 
 #define ID_SWITCH -1
 class Analysisv;
 class LogFile;
 
-class KVIVReconIdent : public KVReconIdent
+class KVIVReconIdent : public KVINDRAReconIdent
 {
    Analysisv* fAnalyseV;//VAMOS calibration
    LogFile* fLogV;//VAMOS calibration log  

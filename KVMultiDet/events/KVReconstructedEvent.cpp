@@ -74,15 +74,10 @@ KVReconstructedEvent::KVReconstructedEvent(Int_t mult, const char
 void KVReconstructedEvent::Streamer(TBuffer & R__b)
 {
    //Stream an object of class KVReconstructedEvent.
-   //When reading an event, first Clear() is called (this calls the Clear()
-   //method of all the particles in the previous event, in case they have
-   //to do some cleaning up i.e. in the multidetector array which detected
-   //them).
-   //Then we set the particles' angles depending on whether mean or random angles
+   //We set the particles' angles depending on whether mean or random angles
    //are wanted (fMeanAngles = kTRUE or kFALSE)
 
    if (R__b.IsReading()) {
-      Clear();
       R__b.ReadClassBuffer(KVReconstructedEvent::Class(), this);
       // if the multidetector object exists, update some informations
       // concerning the detectors etc. hit by this particle
@@ -118,7 +113,6 @@ void KVReconstructedEvent::ReconstructEvent(KVDetectorEvent * kvde)
 // - loop over next to last stage...if any detector hit NOT ALREADY IN A "PARTICLE"
 //   construct "particle" etc. etc.
 //
-
    KVGroup *grp_tch;
 
 #ifdef KV_DEBUG
@@ -273,14 +267,14 @@ void KVReconstructedEvent::IdentifyEvent()
    KVReconstructedNucleus *d;
    while ((d = GetNextParticle())) {
       if (!d->IsIdentified()){
-         if(d->GetStatus() < 3) { // if(d->GetStatus() == 0)
+         if(d->GetStatus() == KVReconstructedNucleus::kStatusOK){
             // identifiable particles
             d->Identify();
          }
-         else if(d->GetStatus() == 3) {
+         else if(d->GetStatus() == KVReconstructedNucleus::kStatusStopFirstStage) {
             // particles stopped in first member of a telescope
             // estimation of Z (minimum) from energy loss (if detector is calibrated)
-            UInt_t zmin = d->GetStoppingDetector()->FindZmin();
+            UInt_t zmin = d->GetStoppingDetector()->FindZmin(-1., d->GetMassFormula());
             if( zmin ){
                d->SetZ( zmin );
                d->SetIsIdentified();

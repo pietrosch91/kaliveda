@@ -317,7 +317,7 @@ Double_t KV2Body::GetMinAngleLab(Int_t i) const
 
 TVector3 KV2Body::GetCMVelocity() const
 {
-   //Return velocity of centre of mass of reaction
+   //Return vector velocity of centre of mass of reaction (units: cm/ns)
 
    return VCM;
 }
@@ -409,7 +409,7 @@ void KV2Body::CalculateKinematics()
    
    // call SetOutgoing if not already done
    if(!fSetOutgoing) SetOutgoing(Nuc1);
-   fSetOutgoing = kFALSE;
+   //fSetOutgoing = kFALSE;
 
    // set everything to zero   
    WLT = WCT = BCM = 0.;

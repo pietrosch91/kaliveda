@@ -86,7 +86,7 @@ KVValues::KVValues(const Char_t* name,Int_t ordre_max,Int_t nbre_max)
 //constructor
 	knbre_val_max = nbre_max;		//nbre max de valeurs stockables 
 	kordre_mom_max = ordre_max;	//ordre max des moments calcules a chaque iteration
-	SetName_NVL(name);						//nom correspondant aux valeurs calculees
+	SetName(name);						//nom correspondant aux valeurs calculees
 
 	init_val_base();
 	init_val_add();
@@ -104,14 +104,14 @@ void KVValues::Reset()
 KVValues::~KVValues()
 {
 //destructeur	
-	Clear_NVL();
+	Clear();
 	delete [] values; values=0;
 	kval_tot = kval_base = kdeb = 0;
 }
 
 
 //___________________________________________________________________________________________
-void	KVValues::Clear_NVL(Option_t* option)
+void	KVValues::Clear(Option_t* option)
 {
 
 	Reset();
@@ -125,10 +125,10 @@ void	KVValues::Clear_NVL(Option_t* option)
 }
 
 //___________________________________________________________________________________________
-void	KVValues::Print_NVL(Option_t* option)
+void	KVValues::Print(Option_t* option) const
 {
 	//Info("Print","%s : %d values computed",GetName(),kval_tot);
-	printf("KVValues::Print_NVL\n%s : %d values computed",GetName_NVL(),kval_tot);
+	printf("KVValues::Print_NVL\n%s : %d values computed",GetName(),kval_tot);
 	for (Int_t nn=0; nn<kval_tot; nn+=1){
 		printf("- %d %s %lf\n",nn,GetNameAt(nn),GetValue(nn));
 	}
@@ -289,14 +289,14 @@ void KVValues::FillVar(Double_t val,Double_t weight)
 }
 	
 //___________________________________________________________________________________________
-Int_t KVValues::GetOrdreMax()
+Int_t KVValues::GetOrdreMax() const
 { 
 	
 	return kordre_mom_max; 
 	
 }
 //___________________________________________________________________________________________
-Int_t KVValues::GetShift()
+Int_t KVValues::GetShift() const
 { 
 
 	return kdeb; 
@@ -304,24 +304,24 @@ Int_t KVValues::GetShift()
 }
 	
 //___________________________________________________________________________________________
-Double_t KVValues::GetValue(Int_t idx)
+Double_t KVValues::GetValue(Int_t idx) const
 {
 	
-	ComputeAdditionalValues();
-	kToBeRecalculated = kFALSE;
+	const_cast<KVValues*>(this)->ComputeAdditionalValues();
+	const_cast<KVValues*>(this)->kToBeRecalculated = kFALSE;
 	return values[idx];
 
 }
 	
 //___________________________________________________________________________________________
-Double_t KVValues::GetValue(const Char_t* name)
+Double_t KVValues::GetValue(const Char_t* name) const
 { 
 
 	return GetValue(GetValuePosition(name));
 	
 }
 //___________________________________________________________________________________________
-Int_t KVValues::GetValuePosition(const Char_t* name)
+Int_t KVValues::GetValuePosition(const Char_t* name) const
 {
 
 	return GetIntValue(name);
@@ -329,7 +329,7 @@ Int_t KVValues::GetValuePosition(const Char_t* name)
 }
 	
 //___________________________________________________________________________________________
-TString KVValues::GetValueExpression(const Char_t* name)
+TString KVValues::GetValueExpression(const Char_t* name) const
 {
 	
 	Int_t idx = GetValuePosition(name);
@@ -337,7 +337,7 @@ TString KVValues::GetValueExpression(const Char_t* name)
 }
 	
 //___________________________________________________________________________________________
-TString KVValues::GetValueExpression(Int_t idx)
+TString KVValues::GetValueExpression(Int_t idx) const
 {
 	Int_t new_idx = idx-kval_base;
 	if (new_idx<0){
@@ -348,7 +348,7 @@ TString KVValues::GetValueExpression(Int_t idx)
 }
 	
 //___________________________________________________________________________________________
-Int_t KVValues::GetNValues(KVString opt)
+Int_t KVValues::GetNValues(KVString opt) const
 {
 	if (opt=="base") 		return kval_base;
 	else if (opt=="add")	return kval_add;

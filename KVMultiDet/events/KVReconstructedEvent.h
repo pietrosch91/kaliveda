@@ -69,6 +69,12 @@ class KVReconstructedEvent:public KVEvent {
    inline Bool_t HasRandomAngles() {
       return !fMeanAngles;
    };
+   
+   virtual void SecondaryIdentCalib()
+   {
+   	// Perform identifications and calibrations of particles not included
+   	// in first round (methods IdentifyEvent() and CalibrateEvent()).
+   };
 
    ClassDef(KVReconstructedEvent, 2)    //Base class for reconstructed experimental multiparticle events
 };

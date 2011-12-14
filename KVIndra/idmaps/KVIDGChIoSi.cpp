@@ -247,13 +247,13 @@ void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) 
 	 {
 		 //identified particles below (left of) Bragg line : Z is a Zmin
     	 if (fBragg && fBragg->WhereAmI(x, y, "left")){
-			  const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;
+			  const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;idr->SetComment("Point to identify below Bragg curve. Z given is a Zmin");
 			  }
     	 //if a particle is well-identified (i.e. not too far from the identification lines)
 	 	 //but it lies below the 'Punch_through' line, we give it a warning code
     	 if (fPunch && fPunch->WhereAmI(x, y, "below")){
 			  const_cast<KVIDGChIoSi*>(this)->fICode = k_BelowPunchThrough;
-			  idr->SetComment("WARNING: Point to identify falls below punch-through line drawn for grid");
+			  idr->SetComment("warning: point below punch-through line");
 			  }
 		 idr->IDquality = fICode;
 	 }

@@ -57,24 +57,24 @@ class KVValues : public KVNameValueList
 	virtual ~KVValues();
 	
 	void Reset();
-	void Clear_NVL(Option_t* option = "");
-	void Print_NVL(Option_t* option = "");
+	void Clear(Option_t* option = "");
+	void Print(Option_t* option = "") const;
 	
 	void FillVar(Double_t val);
 	void FillVar(Double_t val,Double_t weight);
 	
-	Int_t GetOrdreMax();
-	Int_t GetShift();
+	Int_t GetOrdreMax() const;
+	Int_t GetShift() const;
 	
-	Double_t GetValue(Int_t idx);
+	Double_t GetValue(Int_t idx) const;
 	
-	Double_t GetValue(const Char_t* name);
-	Int_t GetValuePosition(const Char_t* name);
+	Double_t GetValue(const Char_t* name) const;
+	Int_t GetValuePosition(const Char_t* name) const;
 	
-	TString GetValueExpression(const Char_t* name);
-	TString GetValueExpression(Int_t idx);
+	TString GetValueExpression(const Char_t* name) const;
+	TString GetValueExpression(Int_t idx) const;
 
-	Int_t GetNValues(KVString opt="base");
+	Int_t GetNValues(KVString opt="base") const;
 	
 	void DefineAdditionalValue(KVString name,KVString expr);
 	

@@ -49,13 +49,13 @@ the top-level directory of the KaliVeda sources:
 2.1 ROOTSYS is not defined / ROOT installed in e.g. /usr/local/bin
 ------------------------------------------------------------------
 If your installation of ROOT is NOT in a single directory (maybe ROOTSYS is not defined), then you need to
-give the path to the ROOT makefile called "Makefile.arch" in order to build KaliVeda. In normal installations,
-this file is in $ROOTSYS/test.
+give the path to the ROOT makefile called "Makefile.arch" in order to build KaliVeda.
+In normal installations, this file is in $ROOTSYS/test (for ROOT upto v5.30) or in $ROOTSYS/etc (from v5.32 onwards).
 For example, if the ROOT executables are installed in /usr/local/bin, and the ROOT libraries in /usr/local/lib/root,
-then Makefile.arch may be in /usr/local/share/root/test (the exact location depends on the version of ROOT.
+then Makefile.arch may be in /usr/local/share/root/etc (the exact location depends on the version of ROOT.
 If this is not the right directory, you will have to search for it). You need to type:
 
-   make ROOT_MAKEFILE_PATH=/usr/local/share/root/test
+   make ROOT_MAKEFILE_PATH=/usr/local/share/root/etc
    
 2.2 Debug build
 ---------------
@@ -69,6 +69,9 @@ In order to read raw GANIL acquisition data over the network using Xrootd, type:
    
    make MAKE_GANTAPE_XRD=yes
 
+For ROOT version 5.32 and later, xrootd is no longer installed as a ROOT package,
+but as an external package. In this case, the XRDSYS variable must be defined
+and contain the path to the xrootd installation. 
 
 3. Installing documentation
 ---------------------------

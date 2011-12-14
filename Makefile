@@ -9,15 +9,54 @@
 ARCH         := $(shell root-config --arch)
 PLATFORM     := $(shell root-config --platform)
 
+#split ROOT version into major, minor and release version numbers
+rootvers:= $(shell root-config --version)
+empty:=
+space:= $(empty) $(empty)
+rootvers1:=$(subst .,$(space),$(rootvers))
+rootvers2:=$(subst /,$(space),$(rootvers1))
+rootvers3:=$(subst -,$(space),$(rootvers2))
+root_maj := $(word 1,$(rootvers3))
+root_min := $(word 2,$(rootvers3))
+root_rel := $(word 3,$(rootvers3))
+#define macro for calculating ROOT version code from maj, min and release
+get_root_version = $(shell expr $(1) \* 10000 \+ $(2) \* 100 \+ $(3))
+export ROOT_VERSION_CODE = $(call get_root_version,$(root_maj),$(root_min),$(root_rel))
+#define constants for different versions tested in submakefiles
+export ROOT_v4_00_06 = $(call get_root_version,4,0,6)
+export ROOT_v4_00_08 = $(call get_root_version,4,0,8)
+export ROOT_v4_01_04 = $(call get_root_version,4,1,4)
+export ROOT_v4_01_01 = $(call get_root_version,4,1,1)
+export ROOT_v4_01_02 = $(call get_root_version,4,1,2)
+export ROOT_v4_03_04 = $(call get_root_version,4,3,4)
+export ROOT_v5_02_00 = $(call get_root_version,5,2,0)
+export ROOT_v5_04_00 = $(call get_root_version,5,4,0)
+export ROOT_v5_08_00 = $(call get_root_version,5,8,0)
+export ROOT_v5_10_00 = $(call get_root_version,5,10,0)
+export ROOT_v5_11_02 = $(call get_root_version,5,11,2)
+export ROOT_v5_12_00 = $(call get_root_version,5,12,0)
+export ROOT_v5_13_06 = $(call get_root_version,5,13,6)
+export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
+export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
+export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
+export ROOT_v5_32_00 = $(call get_root_version,5,32,0)
+
 #By default, we use the system-dependent definitions contained in the ROOT
-#makefile found in $ROOTSYS/test/Makefile.arch, for standard installations.
-#If ROOT is not installed in a single directory (ROOTSYS) you must
-#give the path to the Makefile by invoking make with the argument:
-#
-# $>  make ROOT_MAKEFILE_PATH=/usr/local/share/root/test
-#
-#which will override the following definition
+#makefile found (for standard installations) in
+#        $ROOTSYS/test/Makefile.arch     (versions up to 5.30)
+#        $ROOTSYS/etc/Makefile.arch      (versions from 5.32)
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
 export ROOT_MAKEFILE_PATH = $(ROOTSYS)/test
+else
+export ROOT_MAKEFILE_PATH = $(shell root-config --etcdir)
+endif
+#If ROOT is not installed in a single directory (ROOTSYS) you must
+#give the path to the Makefile by invoking make with the ROOT_MAKEFILE_PATH argument:
+#
+#        $>  make ROOT_MAKEFILE_PATH=/usr/local/share/root/test     (versions up to 5.30)
+# OR $>  make ROOT_MAKEFILE_PATH=/usr/local/share/root/etc      (versions from 5.32)
+#
+#which will override the previous definition
 
 # for compilation with gru lib
 export WITH_GRU_LIB = no
@@ -51,37 +90,6 @@ export KVINSTALLDIR = $(shell cygpath -u '$(KVROOT)')
 else
 export KVINSTALLDIR = $(KVROOT)
 endif
-
-#split ROOT version into major, minor and release version numbers
-rootvers:= $(shell root-config --version)
-empty:=
-space:= $(empty) $(empty)
-rootvers1:=$(subst .,$(space),$(rootvers))
-rootvers2:=$(subst /,$(space),$(rootvers1))
-rootvers3:=$(subst -,$(space),$(rootvers2))
-root_maj := $(word 1,$(rootvers3))
-root_min := $(word 2,$(rootvers3))
-root_rel := $(word 3,$(rootvers3))
-#define macro for calculating ROOT version code from maj, min and release
-get_root_version = $(shell expr $(1) \* 10000 \+ $(2) \* 100 \+ $(3))
-export ROOT_VERSION_CODE = $(call get_root_version,$(root_maj),$(root_min),$(root_rel))
-#define constants for different versions tested in submakefiles
-export ROOT_v4_00_06 = $(call get_root_version,4,0,6)
-export ROOT_v4_00_08 = $(call get_root_version,4,0,8)
-export ROOT_v4_01_04 = $(call get_root_version,4,1,4)
-export ROOT_v4_01_01 = $(call get_root_version,4,1,1)
-export ROOT_v4_01_02 = $(call get_root_version,4,1,2)
-export ROOT_v4_03_04 = $(call get_root_version,4,3,4)
-export ROOT_v5_02_00 = $(call get_root_version,5,2,0)
-export ROOT_v5_04_00 = $(call get_root_version,5,4,0)
-export ROOT_v5_08_00 = $(call get_root_version,5,8,0)
-export ROOT_v5_10_00 = $(call get_root_version,5,10,0)
-export ROOT_v5_11_02 = $(call get_root_version,5,11,2)
-export ROOT_v5_12_00 = $(call get_root_version,5,12,0)
-export ROOT_v5_13_06 = $(call get_root_version,5,13,6)
-export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
-export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
-export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
@@ -208,6 +216,7 @@ distclean : clean
 	-rm -f $(HOME)/.KVDataAnalysisGUIrc*
 		
 install :
+	-chmod 0775 $(KVINSTALLDIR)
 	-mkdir -p $(KVINSTALLDIR)/src
 	-mkdir -p $(KVINSTALLDIR)/KVFiles
 	-mkdir -p $(KVINSTALLDIR)/db
@@ -246,6 +255,10 @@ ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.raw $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.root2
 	-cat etc/KaliVeda.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 else
 	-cat etc/KaliVeda.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
@@ -284,7 +297,7 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
-	-cp Makefile* $(KV_DIST)/
+	-cp Make* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/
 	-cp KVBzrInfo.h $(KV_DIST)/
 	-cp INSTALL $(KV_DIST)/

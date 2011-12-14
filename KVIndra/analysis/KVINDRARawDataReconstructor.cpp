@@ -40,7 +40,7 @@ KVINDRARawDataReconstructor::KVINDRARawDataReconstructor()
 KVINDRARawDataReconstructor::~KVINDRARawDataReconstructor()
 {
    //Destructor
-   if(recev) delete recev;
+   SafeDelete(recev);
 }
 
 void KVINDRARawDataReconstructor::InitAnalysis()
@@ -53,7 +53,7 @@ void KVINDRARawDataReconstructor::InitAnalysis()
    // If no value is set for the current dataset (second variable), the value of the
    // first variable will be used.
    
-   recev = new KVINDRAReconEvent;
+   if(!recev) recev = new KVINDRAReconEvent;
    recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
 }
 
@@ -89,7 +89,9 @@ void KVINDRARawDataReconstructor::InitRun()
       rawtree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
       rawtree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
       
-      TString raw_opt = gDataSet->GetDataSetEnv("KVINDRARawDataReconstructor.RawDataTreeFormat", "arrays");
+      // the format of the raw data tree must be "arrays" : we depend on it in KVINDRAReconDataAnalyser
+      // in order to read the raw data and set the detector acquisition parameters
+      TString raw_opt = "arrays";
       GetRawDataReader()->SetUserTree(rawtree,raw_opt.Data());
       Info("InitRun", "Created raw data tree (%s : %s). Format: %s",
             rawtree->GetName(), rawtree->GetTitle(), raw_opt.Data());
@@ -187,6 +189,8 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 
 void KVINDRARawDataReconstructor::EndRun()
 {
+   SafeDelete(recev);
+   
       cout << endl << " *** Number of reconstructed INDRA events : "
             << nb_recon << " ***" << endl<< endl;
 		file->cd();

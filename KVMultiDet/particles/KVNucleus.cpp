@@ -547,6 +547,7 @@ void KVNucleus::Print(Option_t * t) const
        GetKE();
    cout << " E*=" << GetExcitEnergy();
    cout << " Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
+   GetParameters()->Print();
 }
 
 //___________________________________________________________________________________________

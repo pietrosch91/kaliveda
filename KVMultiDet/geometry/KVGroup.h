@@ -98,6 +98,7 @@ class KVGroup:public KVPosition {
       else
          return 0;
    };
+   void ClearHitDetectors();
 #if !defined(R__MACOSX)
    inline UInt_t GetNIdentified();
    inline UInt_t GetNUnidentified();

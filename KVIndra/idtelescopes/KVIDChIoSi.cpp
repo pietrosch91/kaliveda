@@ -49,15 +49,15 @@ KVIDChIoSi::~KVIDChIoSi()
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR)
+Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y)
 {
     //Particle identification and code setting using identification grid KVIDGChIoSi
 
 		IDR->SetIDType( GetType() );
 		IDR->IDattempted = kTRUE;
     //identification
-    Double_t chio = GetIDMapY();
-    Double_t si = GetIDMapX();
+    Double_t chio = (y<0. ? GetIDMapY() : y);
+    Double_t si = (x<0. ? GetIDMapX() : x);
 
     if (ChIoSiGrid->IsIdentifiable(si,chio))
         ChIoSiGrid->Identify(si,chio,IDR);
@@ -85,7 +85,9 @@ Bool_t KVIDChIoSi::Identify(KVIdentificationResult * IDR)
     {
         IDR->IDcode = kIDCode5;
         IDR->Z = fchio->FindZmin();
+        IDR->SetComment("point to identify left of Si threshold line (bruit/arret ChIo?)");
     }
+    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
 
     return kTRUE;
 }

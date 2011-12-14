@@ -123,6 +123,7 @@ void KVIntegerList::Copy(TObject& obj) const
 //Classe dérivée de TNamed, fait une copie vers l'objet obj
 	TNamed::Copy(obj);
    ((KVIntegerList& )obj).DeducePartitionFromTNamed();
+	((KVIntegerList& )obj).SetPopulation(this->GetPopulation());
 
 }
 

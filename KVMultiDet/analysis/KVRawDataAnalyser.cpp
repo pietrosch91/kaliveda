@@ -5,6 +5,7 @@
 #include "KVMultiDetArray.h"
 #include "KVClassFactory.h"
 #include "TH1.h"
+#include "TSystem.h"
 
 ClassImp(KVRawDataAnalyser)
 
@@ -55,7 +56,7 @@ void KVRawDataAnalyser::ProcessRun()
 		fRunNumber = newrun;
 	}
 
-	fEventNumber=0;//event number
+	fEventNumber=1;//event number
 
    Long64_t nevents = GetNbEventToRead();
 	if(nevents<=0){
@@ -79,8 +80,6 @@ void KVRawDataAnalyser::ProcessRun()
    //loop over events in file
 	while( fRunFile->GetNextEvent() && nevents--)
 	{
-      fEventNumber++;
-
       //reconstruct hit groups
       KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
       gMultiDetArray->GetDetectorEvent(fDetEv, fired);
@@ -92,7 +91,16 @@ void KVRawDataAnalyser::ProcessRun()
 
        fDetEv->Clear();
 
-		if(!((fEventNumber)%10000)) cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
+		if(!((fEventNumber)%10000)) {
+         cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
+         ProcInfo_t pid;
+         if(gSystem->GetProcInfo(&pid)==0){
+            cout << "     ------------- Process infos -------------" << endl;
+            printf("     CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+               pid.fCpuSys, pid.fCpuUser, pid.fMemResident/1024., pid.fMemVirtual/1024.);
+         } 
+      }
+		fEventNumber+=1;
    }
 
     delete fDetEv;
@@ -100,7 +108,7 @@ void KVRawDataAnalyser::ProcessRun()
 	cout << "Ending analysis of run " << fRunNumber << " on : ";
 	TDatime now2;
 	cout <<  now2.AsString() << endl << endl;
-	cout << endl << "Finished reading " << fEventNumber << " events from file " << raw_file.Data() << endl << endl;
+	cout << endl << "Finished reading " << fEventNumber-1 << " events from file " << raw_file.Data() << endl << endl;
 
 	preEndRun();
 	//call user's end of run function

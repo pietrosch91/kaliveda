@@ -17,6 +17,7 @@ protected:
 
    KVINDRADetector* fChIo;//!pointer to ionisation chamber in group associated to this detector
    KVINDRADetector* FindChIo();
+	Int_t NumeroCodeur;		//Numero du codeur (QDC pour les ChIo/Si)
 
 public:
     KVINDRADetector();
@@ -26,6 +27,7 @@ public:
     {
    	fGGtoPG_0 = 0;
    	fGGtoPG_1 = 1./15.;
+		NumeroCodeur = 0;
     };
 
     const Char_t *GetArrayName();
@@ -79,6 +81,9 @@ public:
    UShort_t GetMT() {
       return GetACQParam("T")->GetCoderData();
    };
+
+	void SetNumeroCodeur(Int_t numero);
+	Int_t GetNumeroCodeur();
 
    ClassDef(KVINDRADetector,2)//Detectors of INDRA array
 };

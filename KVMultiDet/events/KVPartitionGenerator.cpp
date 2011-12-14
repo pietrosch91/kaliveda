@@ -183,6 +183,8 @@ void KVPartitionGenerator::PreparTree()
 	//protected method
 	//Creation du fichier formate suivant les parametres passes via la methode SetConditions
 	//Creation de l'arbre
+	mtot = kmt+mshift;
+	ztot = kzt+zshift;
 	
 	KVString snom;
 	snom.Form("%sFrom_%s_Zt%d_Mt%d_Zi%d.root",kwriting_path.Data(),this->Class_Name(),ztot,mtot,kzinf);
@@ -191,9 +193,6 @@ void KVPartitionGenerator::PreparTree()
 	tree = new TTree(tname.Data(),this->Class_Name());
 	
 	if (tabz) delete [] tabz;
-	
-	mtot = kmt+mshift;
-	ztot = kzt+zshift;
 	
 	tabz = new Int_t[mtot];
 	

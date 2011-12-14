@@ -1325,6 +1325,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
         //no lines corresponding to point were found
         const_cast < KVIDZAGrid * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
         idr->IDquality = kICODE8;
+        idr->SetComment("no identification: (x,y) out of range covered by grid");
         return;
     }
     if ( OnlyZId() )
@@ -1343,6 +1344,18 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
         idr->Z = Zint;
         idr->PID = Z;
 		idr->A= Aint;
+		switch(fICode){
+     case kICODE0:                   idr->SetComment("ok"); break;
+  case kICODE1:                   idr->SetComment("slight ambiguity of Z, which could be larger"); break;
+  case kICODE2:                   idr->SetComment("slight ambiguity of Z, which could be smaller"); break;
+    case kICODE3:                  idr->SetComment("slight ambiguity of Z, which could be larger or smaller"); break;
+   case kICODE4:                   idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified"); break;
+  case kICODE5:                   idr->SetComment("point is in between two lines of different Z, too far from either to be considered well-identified"); break;
+   case kICODE6:                   idr->SetComment("(x,y) is below first line in grid"); break;
+   case kICODE7:                   idr->SetComment("(x,y) is above last line in grid"); break;
+  default:
+                      idr->SetComment("no identification: (x,y) out of range covered by grid");
+		}
     }
     else
     {
@@ -1362,6 +1375,18 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
             idr->Aident = kTRUE;
             idr->IDOK = kTRUE;
         }
+		switch(fICode){
+     case kICODE0:                   idr->SetComment("ok"); break;
+  case kICODE1:                   idr->SetComment("slight ambiguity of A, which could be larger"); break;
+  case kICODE2:                   idr->SetComment("slight ambiguity of A, which could be smaller"); break;
+    case kICODE3:                  idr->SetComment("slight ambiguity of A, which could be larger or smaller"); break;
+   case kICODE4:                   idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified"); break;
+  case kICODE5:                   idr->SetComment("point is in between two isotopes of different Z, too far from either to be considered well-identified"); break;
+   case kICODE6:                   idr->SetComment("(x,y) is below first line in grid"); break;
+   case kICODE7:                   idr->SetComment("(x,y) is above last line in grid"); break;
+  default:
+                      idr->SetComment("no identification: (x,y) out of range covered by grid");
+		}
     }
 }
 
@@ -1419,15 +1444,16 @@ void KVIDZAGrid::Streamer(TBuffer &R__b)
 
 //______________________________________________________________________________
 
-void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucleon, Int_t npoints)
+void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Int_t npoints, Double_t gamma)
 {
     // Generate dE-Eres grid for associated ID telescope.
     // 1 line per Z is generated, using mass formula set for grid.
+    // For each (Z,A) we calculate npoints corresponding to incident energies from the punch-through
+    // of the first member up to the punch-through of the second.
+    // gamma controls the spacing of the incident energies:
+    //    gamma = 1 : equidistant steps in Einc
+    //    gamma > 1 : steps at low Einc are more closely spaced, more & more for gamma >> 1
 
-    Double_t x_scale = GetXScaleFactor();
-    Double_t y_scale = GetYScaleFactor();
-    //clear old lines from grid (and scaling parameters)
-    Clear();
     KVIDTelescope* tel = ((KVIDTelescope*)fTelescopes.At(0));
     if (!tel)
     {
@@ -1443,6 +1469,10 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
               "This identification telescope only has one member !");
         return;
     }
+    Double_t x_scale = GetXScaleFactor();
+    Double_t y_scale = GetYScaleFactor();
+    //clear old lines from grid (and scaling parameters)
+    Clear();
 
     //loop over Z
     KVNucleus part;
@@ -1460,68 +1490,26 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
 
         //loop over energy
         //first find :
-        //      ****E1 = energy at which particle passes dE and starts to enter Eres****
-        //      E2 = energy at which particle passes Eres
+        //      E1 = dE punch through + 0.1 MeV
+        //      E2 = 95% of energy at which particle passes Eres
         //then perform npoints calculations between these two energies and use these
         //to construct a KVIDZLine
 
-        Double_t E1, E2;
-        //find E1
-        //go from 0.1 MeV to dE->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA()))
-        Double_t E1min = 0.1, E1max = dEDet->GetEIncOfMaxDeltaE(part.GetZ(),part.GetA());
-        E1 = (E1min + E1max) / 2.;
-
-        while ((E1max - E1min) > 0.1)
-        {
-
-            part.SetEnergy(E1);
-            ErDet->Clear();
-            dEDet->DetectParticle(&part);
-            ErDet->DetectParticle(&part);
-            if (ErDet->GetEnergy() > .1)
-            {
-                //particle got through - decrease energy
-                E1max = E1;
-                E1 = (E1max + E1min) / 2.;
-            }
-            else
-            {
-                //particle stopped - increase energy
-                E1min = E1;
-                E1 = (E1max + E1min) / 2.;
-            }
-        }
-
-			Info("MakeEDeltaEZGrid","Z= %d, E1=%lf",z,E1);
-
-        //find E2
-        //go from E1 MeV to Emax_per_nucleon*A MeV
-        Double_t E2min = E1, E2max = Emax_per_nucleon*part.GetA();
-        E2 = (E2min + E2max) / 2.;
-
-        while ((E2max - E2min > 0.1))
-        {
-
-            part.SetEnergy(E2);
-            dEDet->DetectParticle(&part);
-            ErDet->DetectParticle(&part);
-            if (part.GetEnergy() > .1)
-            {
-                //particle got through - decrease energy
-                E2max = E2;
-                E2 = (E2max + E2min) / 2.;
-            }
-            else
-            {
-                //particle stopped - increase energy
-                E2min = E2;
-                E2 = (E2max + E2min) / 2.;
-            }
-        }
-			
-			Info("MakeEDeltaEZGrid","Z= %d, E2=%lf",z,E2);
+        Double_t E1, E2, E1bis;
+			E1bis = dEDet->GetEIncOfMaxDeltaE(z, part.GetA());
+			E1 = dEDet->GetPunchThroughEnergy(z, part.GetA()) + 0.1;
+			if(E1 < E1bis) E1 = E1bis;
+			E2 = 0.95*dEDet->GetIncidentEnergyFromERes(z, part.GetA(), ErDet->GetPunchThroughEnergy(z, part.GetA()));
+			Info("MakeEDeltaEZGrid","Z= %d, E1=%lf E2=%lf",z,E1,E2);
 			
         // check we are within limits of validity of energy loss tables
+        if ( E2 > dEDet->GetEmaxValid(z, part.GetA()) )
+        {
+            Warning("MakeEDeltaEZGrid",
+                    "Emax=%f MeV for Z=%d : beyond validity of range tables. Will use max limit=%f MeV",
+                    E2, z, dEDet->GetEmaxValid(z,part.GetA()));
+            E2 = dEDet->GetEmaxValid(z,part.GetA());
+        }
         if ( E2 > dEDet->GetEmaxValid(z, part.GetA()) )
         {
             Warning("MakeEDeltaEZGrid",
@@ -1535,31 +1523,22 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Double_t Emax_per_nucl
         line->SetZ(z);
         line->SetMassFormula(part.GetMassFormula());
 
-        Double_t logE1 = TMath::Log(E1);
-        Double_t logE2 = TMath::Log(E2);
-        Double_t dLog = (logE2 - logE1) / (npoints - 1.);
+        Double_t dE = (E2 - E1) / pow((npoints - 1.),gamma);
 
         Int_t npoints_added = 0;
 
         for (int i = 0; npoints_added < npoints; i++)
         {
 
-            Double_t E = TMath::Exp(logE1 + i * dLog);
-            //if (E>E2) break;
+            Double_t E = E1 + dE*pow(i,gamma);
 
             Double_t Eres = 0.0;
-            Int_t counter=0;
-            while (Eres < 0.1 && counter<20)
-            {
-                counter++;
                 dEDet->Clear();
                 ErDet->Clear();
                 part.SetEnergy(E);
                 dEDet->DetectParticle(&part);
                 ErDet->DetectParticle(&part);
                 Eres = ErDet->GetEnergy();
-                E += 0.1;
-            }
 
             line->SetPoint(npoints_added, ErDet->GetEnergy(), dEDet->GetEnergy());
             npoints_added++;

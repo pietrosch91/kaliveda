@@ -328,7 +328,7 @@ void KVDataSet::SaveDataBase()
    // Write the database to disk (ROOT file).
    // It will be written in the directory
    //   $KVROOT/db/[dataset name]
-   // If the directory does not exist, it will be created.
+   // If the directory does not exist, it will be created. Permissions are set to 775 (rwxrwxr-x).
    //
    // # Default name of database file containing informations on runs, systems, calibration parameters etc.
    // DataSet.DatabaseFile:        DataBase.root
@@ -351,7 +351,7 @@ void KVDataSet::SaveDataBase()
                tmp2.Data());
             	return;
 				}
-				
+				gSystem->Chmod(tmp2.Data(), 0775);
           }
 			 else
 			 {
@@ -365,6 +365,14 @@ void KVDataSet::SaveDataBase()
               tmp.Data());
               return;
           }
+          else
+          {
+          	gSystem->Chmod(tmp.Data(), 0775);
+          }
+      }
+      else
+      {
+      	gSystem->Chmod(tmp.Data(), 0775);
       }
    }
 
@@ -377,6 +385,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
 {
    //PRIVATE METHOD
    //Write the database to disk.
+   //Set permissions to rw for user & group
 
    TDirectory *work_dir = gDirectory;   //keep pointer to current directory
    if (fDBase) {
@@ -393,6 +402,7 @@ void KVDataSet::WriteDBFile(const Char_t * full_path_to_dbfile)
    fDataBase->WriteObjects( fDBase ); //write any associated objects
    fDBase->Write();        // write file header etc.
    fDBase->Close();         // close file
+   gSystem->Chmod(full_path_to_dbfile, 0664); // set permissions to rw-rw-r--
    work_dir->cd();              //back to initial working directory
 }
 
@@ -947,8 +957,8 @@ void KVDataSet::DeleteRunfiles(const Char_t * type, KVNumberList nl, Bool_t conf
 
 KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* min,TDatime* max)
 {
-   //Returns list of runs after date / time selection
-	//Run generated between ]min;max[ are selected
+   //Prints out and returns list of runs after date / time selection
+	//Runs generated between ]min;max[ are selected
 	//if min=NULL	runs with date <max are selected
 	//if max=NULL runs with date >min are selected
 	//if max and min are NULL returns empty KVNumberList
@@ -966,9 +976,8 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 	TList* lrun=0;
 	for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
 		sys = (KVDBSystem* )ll->At(nl);
-		sys->ls();
 		lrun = GetListOfAvailableSystems(type,sys);
-
+		KVNumberList oldList = numb;
 		for (Int_t nr=0;nr<lrun->GetEntries();nr+=1){
 			run =(KVDBRun* )lrun->At(nr);
 
@@ -988,6 +997,8 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 				}
 			}
 		}
+		// print runs for system if any
+		if(numb.GetEntries()>oldList.GetEntries()) printf("%s : %s\n", sys->GetName(), (numb-oldList).AsString());
 	}
 
 	return numb;
@@ -999,21 +1010,13 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type)
 {
    // Returns list of runs which are present for data type "base_type" but not for "other_type"
-	//On travaille que sur des systemes deja au moins en partie convertis
-	// de ref_type en type
 	// if type is NULL or ="" returns empty KVNumberList
 
 	KVNumberList manquant;
-	//if (!type || !strlen(type)) return numb;
-	//KVString in_type = base_type;
-	
-	//numb = GetRunList(ref_type);
-	//KVNumberList lout = GetRunList(type);
-	
-	//numb.Remove(lout);
-	TList* ll = GetListOfAvailableSystems(type);
+	TList* ll = GetListOfAvailableSystems(ref_type);
 	if(!ll || !ll->GetEntries()){
 	   //numb.Clear();
+		Info("GetRunList_StageSelection","No data available of type \"%s\"", ref_type);
 	   return manquant;
 	}
 	
@@ -1439,8 +1442,6 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
    //which takes the full path to the file as argument (any other arguments taking default options)
    //and returns a pointer of the BaseClass type to the created object which can be used to read the file.
 
-   Info("Open", "called for type %s", type);
-   
    TString fname = GetFullPathToRunfile(type, run);
    if (fname == "") return 0; //file not found
 
@@ -1449,12 +1450,10 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
 
    //get base class for dataset & type
    KVString base_class = GetDataSetEnv( Form("DataSet.RunFileClass.%s", type) );
-   Info("Open", "base class %s", base_class.Data());
 
    //look for plugin specific to dataset & type
    TPluginHandler *ph = LoadPlugin( base_class.Data(), Form("%s.%s", type, GetName()));
 
-   Info("Open", "plugin handler %p", ph);
    TClass* cl;
    if(!ph){
       //no plugin - use base class

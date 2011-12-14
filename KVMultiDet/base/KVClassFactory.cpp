@@ -69,6 +69,7 @@ ClassImp(KVClassFactory)
 KVClassFactory::KVClassFactory()
 {
    fHasBaseClass = kFALSE;
+      fBaseClassTObject=kFALSE;
 }
 
 KVClassFactory::KVClassFactory(const Char_t * classname,
@@ -294,9 +295,9 @@ void KVClassFactory::WriteClassDec(ofstream & file)
 	}
 	delete ctor;
 	// default dtor
-   file << "   virtual ~" << fClassName.Data() << "();\n" << endl;
+   file << "   virtual ~" << fClassName.Data() << "();" << endl;
 
-   // protected methods
+   // public methods
    KVList* pub = (KVList*)fMethods.GetSubListWithMethod("public", "GetAccess");
    if( pub->GetEntries() ){
       KVString line;
@@ -434,12 +435,6 @@ void KVClassFactory::MakeClass(const Char_t * classname,
    //
    //will generate the following MyClass.h and MyClass.cpp files:
 //MyClass.h ======================================>>>>
-// /*
-// $Id        (<--------- CVS tags)
-// $Revision
-// $Date
-// */
-//
 // //Created by KVClassFactory on Fri Mar 24 23:52:54 2006    (<-------creation date)
 // //Author: John Frankland    (<----- full name of user who calls MakeClass method)
 //
@@ -462,12 +457,6 @@ void KVClassFactory::MakeClass(const Char_t * classname,
 //<<<<<<<===========================================
 //
 //MyClass.cpp=================================>>>>>>>
-// /*
-// $Id       (<--------- CVS tags)
-// $Revision
-// $Date
-// */
-//
 // //Created by KVClassFactory on Fri Mar 24 23:52:54 2006
 // //Author: John Frankland   (<----- full name of user who calls MakeClass method)
 //
@@ -501,7 +490,19 @@ void KVClassFactory::GenerateCode()
       Warning("GenerateCode", "Object is zombie. No code will be generated.");
       return;
    }
-
+   
+      // check for base class which inherits from TObject
+      // if so, we add a skeleton Copy(const TObject&) method
+      // and use it in the copy ctor
+   if(fBaseClassTObject){
+      // check for base class which inherits from TObject
+      // if so, we add a skeleton Copy(const TObject&) method
+      // and use it in the copy ctor
+      AddTObjectCopyMethod();
+      AddCopyConstructor(kTRUE);
+   }
+   else
+      AddCopyConstructor(kFALSE);
    if (fWithTemplate) {
       WriteClassWithTemplateHeader();
       WriteClassWithTemplateImp();
@@ -823,6 +824,9 @@ KVClassMethod* KVClassFactory::AddConstructor(const Char_t* argument_type,
 	//
 	// If more than one argument is needed, user should keep the returned pointer
 	// to the new KVClassMethod object and use KVClassMethod::AddArgument() in order to add further arguments.
+	//
+	// In order to define the implementation of the ctor method, user should keep the returned pointer
+	// to the new KVClassMethod object and use KVClassMethod::SetMethodBody(KVString&).
 
    KVClassMethod* meth = new KVClassMethod;
    fMethods.Add( meth );
@@ -859,6 +863,7 @@ void KVClassFactory::AddMethodArgument(const Char_t* method_name, const Char_t* 
 void KVClassFactory::AddMethodBody(const Char_t* method_name, KVString &body)
 {
    //Set the body of the code for method 'method_name' added to the class using AddMethod.
+   //N.B. does not work for implementing constructors, see AddConstructor
 
    KVClassMethod* meth = (KVClassMethod*)fMethods.FindObjectByName(method_name);
    if( !meth ){
@@ -898,7 +903,7 @@ void KVClassFactory::AddImplIncludeFile(const Char_t* filename)
 void KVClassFactory::Print(Option_t*) const
 {
    //Print infos on object
-   Info("Print", "object name = %s, address = %#x", GetName(), (long)this);
+   Info("Print", "object name = %s, address = %p", GetName(), this);
    cout << " * fClassName = " << fClassName.Data() << endl;
    cout << " * fClassDesc = " << fClassDesc.Data() << endl;
    cout << " * fBaseClass = " << fBaseClass.Data() << endl;
@@ -910,6 +915,50 @@ void KVClassFactory::Print(Option_t*) const
    cout << "---------> Implementation Includes" << endl;
    fImpInc.Print();
 }
+
+//__________________________________________________________________________________
+
+void KVClassFactory::AddTObjectCopyMethod()
+{
+   // Adds skeleton standard ROOT Copy method
+   AddMethod("Copy", "void", "public", kFALSE, kTRUE);
+   AddMethodArgument("Copy", "TObject&", "obj");
+   KVString body("   // This method copies the current state of 'this' object into 'obj'\n");
+   body+="   // You should add here any member variables, for example:\n";
+   body+="   //    (supposing a member variable ";
+   body+=fClassName;
+   body+="::fToto)\n";
+   body+="   //    CastedObj.fToto = fToto;\n";
+   body+="   // or\n";
+   body+="   //    CastedObj.SetToto( GetToto() );\n\n   ";
+   // call Copy method for base class
+   body+=fBaseClass;
+   body+="::Copy(obj);\n   //";
+   body+=fClassName;
+   body+="& CastedObj = (";
+   body+=fClassName;
+   body+="&)obj;";
+   AddMethodBody("Copy", body);
+}
+
+void KVClassFactory::AddCopyConstructor(Bool_t withTObjectCopy)
+{
+   // Adds copy constructor
+   // If class inherits from TObject, this just calls the Copy method
+   
+   KVClassMethod*ctor = AddConstructor(Form("const %s&", fClassName.Data()), "obj");
+   KVString body = "   // Copy constructor\n";
+   body+="   // This ctor is used to make a copy of an existing object (for example\n";
+   body+="   // when a method returns an object), and it is always a good idea to\n";
+   body+="   // implement it.\n";
+   body+="   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)\n";
+   if(withTObjectCopy){
+      body+="\n   obj.Copy(*this);";
+   }
+   ctor->SetMethodBody(body);
+}
+
+//___________________________________________________________________________________
 
 
 ClassImp(KVClassMethod)

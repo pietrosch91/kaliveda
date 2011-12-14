@@ -105,7 +105,7 @@ Bool_t KVSimReader_SMF_asym::ReadEvent(){
 	}
 	
 	evt->SetNumber(nv->GetIntValue("event_number"));
-	evt->SetValue("sub_number",ndes);
+	evt->GetParameters()->SetValue("sub_number",ndes);
 	for (Int_t mm=0; mm<mult; mm+=1){	
 		nuc = (KVSimNucleus* )evt->AddParticle();
 		if (!ReadNucleus()) return kFALSE;
