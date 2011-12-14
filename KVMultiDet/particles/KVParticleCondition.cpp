@@ -306,7 +306,7 @@ void KVParticleCondition::Optimize()
    //execute constructor
    fOptimal = (KVParticleCondition*) ph->ExecPlugin(0);
    
-   Info("Optimize", "fOptimal = %#x", (long)fOptimal);
+   Info("Optimize", "fOptimal = %p", fOptimal);
      if( !fOptimal ){
       Error("Optimize", " *** Optimization failed for KVParticleCondition : %s",fCondition.Data());
       Error("Optimize", " *** Use method AddExtraInclude(const Char_t*) to give the names of all necessary header files for compilation of your condition.");
@@ -325,7 +325,7 @@ gSystem->Unlink( C_file.Data() );
 void KVParticleCondition::Print(Option_t*) const
 {
    //Print informations on object
-   Info("Print", "object name = %s, address = %#x", GetName(), (long)this);
+   Info("Print", "object name = %s, address = %p", GetName(), this);
    cout << " * condition = " << fCondition.Data() << endl;
    cout << " * classname = " << fClassName.Data() << endl;
    if(cf){
