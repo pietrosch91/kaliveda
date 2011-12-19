@@ -1179,7 +1179,7 @@ void Parameters::GetData(Short_t *data)
       case 1:
       case 2:
     case 3:
-       if((data[1] > 200))
+       if((data[1] > 0))	//was previously >200
       {
 	EchiNr[EchiM] = fParameterMap[data[0]];
 	Echi[EchiM] = data[1];
@@ -1344,7 +1344,7 @@ void Parameters::GetData(Short_t *data)
 
 #ifdef WCSI
       case 24:
-      if(data[1] > 0)
+      if(data[1] > 0)	//was >0
 	{
 	  WCSIENr[WCSIEM] = fParameterMap[data[0]];
 	  WCSIE[WCSIEM] = data[1];
@@ -1352,7 +1352,7 @@ void Parameters::GetData(Short_t *data)
 	}
       break;
       case 34:
-      if(data[1] > 0)
+      if(data[1] > 0)	//was >0
 	{
 	  WCSIENr[WCSIEM] = fParameterMap[data[0]];
 	  WCSIE[WCSIEM] = data[1];
