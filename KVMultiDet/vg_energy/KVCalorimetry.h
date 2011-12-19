@@ -12,12 +12,14 @@ $Date: 2009/01/23 15:25:52 $
 
 #include "KVVarGlob.h"
 #include "KVNameValueList.h"
+#include "KVNucleus.h"
 
 class KVCalorimetry:public KVVarGlob
 {
    
 	protected:
 	
+	KVNucleus nn;	//! permet d utiliser des methodes de KVNucleus
 	KVNameValueList* nvl_ing;//!-> //Contains all ingredients computed
 	KVNameValueList* nvl_par;//!-> //Contains all parameters needed for the computation
 	
