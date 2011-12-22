@@ -10,7 +10,7 @@ $Date: 2007/06/08 15:49:10 $
 #ifndef __KVIVRECONIDENT_H
 #define __KVIVRECONIDENT_H
 
-#include "KVReconIdent.h"
+//#include "KVReconIdent.h"
 #include "KVIDGridManager.h"
 #include <string>
 #include <string.h>
