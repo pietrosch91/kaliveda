@@ -48,8 +48,8 @@ class Analysisv_e503 : public Analysisv
   CsIv *CsI;
   CsICalib *energytree;
   
-  KVSiliconVamos *si;  
-  KVCsIVamos *csi;
+  KVDetector *si;  
+  KVDetector *csi;
   KVDetector *gap;
   
    TTree* t;
@@ -68,9 +68,9 @@ class Analysisv_e503 : public Analysisv
   void SetRunFlag(Int_t); 
   Int_t GetRunFlag(void);
   
-  void SetTel1(KVSiliconVamos *si);
+  void SetTel1(KVDetector *si);
   void SetTel2(KVDetector *gap);  
-  void SetTel3(KVCsIVamos *csi);
+  void SetTel3(KVDetector *csi);
     
   string mmodulemap[18][80];
   Int_t rrunFlag;  

@@ -15,6 +15,7 @@
 #include "KVIDGridManager.h"
 #include "KVIDZAGrid.h"
 #include "KVIDSiCsIVamos.h"
+#include "KVUnits.h"
 
 #include <stdio.h>
 
@@ -88,12 +89,12 @@ CsICalib::~CsICalib()
    L->Log<<"***Destructor CsICalib***"<<endl;
 }
 
-void CsICalib::SetTel1(KVSiliconVamos *SI)
+void CsICalib::SetTel1(KVDetector *SI)
 {
 ssi = SI;
 }
 
-KVSiliconVamos* CsICalib::GetTel1(void)
+KVDetector* CsICalib::GetTel1(void)
 {
 return ssi;
 }
@@ -108,12 +109,12 @@ KVDetector* CsICalib::GetTel2(void)
 return ggap;
 }
 
-void CsICalib::SetTel3(KVCsIVamos *CSI)
+void CsICalib::SetTel3(KVDetector *CSI)
 {
 ccsi = CSI;
 }
 
-KVCsIVamos* CsICalib::GetTel3(void)
+KVDetector* CsICalib::GetTel3(void)
 {
 return ccsi;
 }
@@ -193,12 +194,12 @@ void CsICalib::InitSiCsI(Int_t number) // Si-CsI Telescope	# Si : 1 to 18
 
     ********************************************************************************/
 
-    GetTel1()->SetThickness(Si->si_thick[number]);
+    GetTel1()->SetThickness(Si->si_thick[number]*KVUnits::um);
     L->Log<<"Thickness	: "<<GetTel1()->GetThickness()<<endl;   
     kvt_sicsi = new KVTelescope();
     kvt_sicsi->Add(GetTel1());
     kvt_sicsi->Add(GetTel2());  // In-active so no 'detected' energy
-    kvt_sicsi->Add(GetTel3());
+    kvt_sicsi->Add(GetTel3());    
     
     lum=new KVLightEnergyCsIVamos(GetTel3());
     //lum=new KVLightEnergyCsIVamos(kvd_csi);
@@ -224,7 +225,7 @@ void CsICalib::SetCalibration(Sive503 *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
       a1 = CsI->ECoef[csinum][0];
       a2 = CsI->ECoef[csinum][1];
       a3 = CsI->ECoef[csinum][2];
-      
+            
        lum=new KVLightEnergyCsIVamos(GetTel3()); 
  	//lum=new KVLightEnergyCsIVamos(kvd_csi);
  
@@ -260,28 +261,28 @@ void CsICalib::SetFragmentA(Int_t Ain){
 }
 
 //Complete procedure to get the best estimate of the residual energy
-Double_t CsICalib::GetResidualEnergyCsI(UShort_t chsi, UShort_t chcsi){
+Double_t CsICalib::GetResidualEnergyCsI(Double_t chsi, Double_t chcsi){		//UShort_t chsi, UShort_t chcsi
   Int_t A;
   A=2*eZ;
   CalculateESi(chsi); 
   
   LightCsI=chcsi - ePied;		// 
-  L->Log<<"LightCsI ECsIch() = "<<LightCsI<<endl;
+  L->Log<<"LightCsI = "<<LightCsI<<endl;
   
-  Bisection(A,short(LightCsI));		//Call the bisection method 	
+  Bisection(A,double(LightCsI));		//Call the bisection method 	
   Interpolate();			//Interpolation of ECsI and A values
   
   return sRefECsI; 
 }
 
 //Si calibration function
-void CsICalib::CalculateESi(UShort_t chan){
+void CsICalib::CalculateESi(Double_t chan){	//UShort_t chan
   Double_t fact=1.;
   eEnergySi = fact*alpha*(a+chan*b+chan*chan*c); 
 }
 
 //Complete procedure for to get the energy losses from simulation
-void  CsICalib::CompleteSimulation(UShort_t chan){	
+void  CsICalib::CompleteSimulation(Double_t chan){	//UShort_t chan	
 
   L->Log<<"light before calculating : "<<LightCsI<<endl;
   eEnergyCsI=lum->Compute(LightCsI);				//Get the ECsI from the known (Z,A) and the calibration 
@@ -289,7 +290,7 @@ void  CsICalib::CompleteSimulation(UShort_t chan){
   eEnergyGap = GetTel2()->GetEnergy();
   //cout<<"Invert : "<<lum->Invert(eEnergyCsI)<<endl;      
   //L->Log<<"Invert : "<<lum->Invert(eEnergyCsI)<<endl;
-  L->Log<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl; //paola
+  L->Log<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl;		//" eEnergyGap=MeV "<<eEnergyGap<<endl; //paola
     
   part.SetZ(eZ);
   part.SetA(sA);
@@ -303,7 +304,7 @@ void  CsICalib::CompleteSimulation(UShort_t chan){
   L->Log<<"simualed energy gap : "<<GetTel2()->GetEnergy()<<endl;  
   L->Log<<"simualed energy CsI : "<<GetTel3()->GetEnergy()<<endl;   
   
-  CanalCsI=lum->Invert(double(eZ),double(sA),GetTel3()->GetEnergy());     
+  CanalCsI=lum->Invert(double(eZ),double(sA),GetTel3()->GetEnergy());		//GetTel3()->GetEnergy()); kvd_csi->GetEnergy()    
    L->Log<<"Invert simulation: "<<CanalCsI<<endl;
    difflum = (CanalCsI-LightCsI);
    L->Log<<"difflum = "<<difflum<<endl; //paola
@@ -315,10 +316,16 @@ void  CsICalib::CompleteSimulation(UShort_t chan){
   L->Log<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
 
   part.Clear();
+  GetTel1()->Clear();
+  GetTel2()->Clear();
+  GetTel3()->Clear();
+  //kvd_si->Clear();
+  //gap->Clear();
+  //kvd_csi->Clear();
   kvt_sicsi->Clear();
 }
 
-void CsICalib::Bisection(Int_t A, UShort_t chan){ 
+void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
   Int_t middle, it=0;
   L->Log<<"------------"<<endl;
   L->Log<<"Valeur de A : "<<A<<endl;
@@ -537,4 +544,5 @@ Double_t CsICalib::RetrieveEnergyCsI(){
 	return sRefECsI;		//was eEnergyCsI
 }
 
-
+ 
+  

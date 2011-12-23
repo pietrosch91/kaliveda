@@ -55,10 +55,12 @@ class KVIVReconIdent : public KVINDRAReconIdent
    
    KVINDRAReconNuc *part;
    KVTelescope *kvt_sicsi;
-   KVSiliconVamos *kvd_si;
+   /*KVSiliconVamos *kvd_si;
    KVCsIVamos *kvd_csi;   
-   KVDetector *gap; 
-	  	
+   KVDetector *gap; */
+   KVDetector *kvd_si;
+   KVDetector *kvd_csi;   
+   KVDetector *gap; 	  	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

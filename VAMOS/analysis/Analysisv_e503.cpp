@@ -289,7 +289,7 @@ L->Log << "Analysisv_e503::Destuctor" << endl;
 #endif
 }
 
-void Analysisv_e503::SetTel1(KVSiliconVamos *si)
+void Analysisv_e503::SetTel1(KVDetector *si)
 {
 	energytree->SetTel1(si);
 }
@@ -299,7 +299,7 @@ void Analysisv_e503::SetTel2(KVDetector *gap)
 	energytree->SetTel2(gap);
 }
 
-void Analysisv_e503::SetTel3(KVCsIVamos *csi)
+void Analysisv_e503::SetTel3(KVDetector *csi)
 {
 	energytree->SetTel3(csi);
 }

@@ -135,7 +135,7 @@ Bool_t mg24 = kFALSE;
 	      L->Log<<"CsIRaw	= "<<CsIRaw<<endl;
 	      L->Log<<"SiRaw	= "<<SiRaw<<endl;
 	      if(SiRaw>0){
-			energytree->CalculateESi(Si->E_Raw[y]);		
+			energytree->CalculateESi(double(Si->E_Raw[y]));		
 			ESi = double(energytree->RetrieveEnergySi());
 			L->Log<<"esi : "<<ESi<<endl;	      
 	      }
@@ -163,7 +163,7 @@ Bool_t mg24 = kFALSE;
 
                     if(grd != 0){
 		    	
-		    	energytree->CalculateESi(Si->E_Raw[y]);
+		    	energytree->CalculateESi(double(Si->E_Raw[y]));
 			energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
                         A_PID = id->A;
                         Z_PID = id->Z;
@@ -172,7 +172,7 @@ Bool_t mg24 = kFALSE;
 			Int_t Z_PIDI = int(Z_PID);
 			L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
 			energytree->SetFragmentZ(Z_PIDI);
-	      		energytree->GetResidualEnergyCsI(Si->E_Raw[y],CsI->E_Raw[j]);		//Method called for guessing A value by bissection method and getting CsI energy
+	      		energytree->GetResidualEnergyCsI(double(Si->E_Raw[y]),double(CsI->E_Raw[j]));		//Method called for guessing A value by bissection method and getting CsI energy
 			
 	        	ECsI = energytree->RetrieveEnergyCsI();
 			ESi = energytree->RetrieveEnergySi();

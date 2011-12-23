@@ -89,9 +89,13 @@ void KVIVReconIdent::InitRun(void)
    Int_t run1;
    TString sline;
    
-    kvd_si = new KVSiliconVamos(530.*KVUnits::um);   
+    /*kvd_si = new KVSiliconVamos(530.*KVUnits::um);   
     gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
-    kvd_csi = new KVCsIVamos(1.);
+    kvd_csi = new KVCsIVamos(1.);*/
+    
+    kvd_si = new KVDetector("Si",530.*KVUnits::um);   
+    gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
+    kvd_csi = new KVDetector("CsI",1.*KVUnits::cm);
     
     gap->SetPressure(40.*KVUnits::mbar); 
     

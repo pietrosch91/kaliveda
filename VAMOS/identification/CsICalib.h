@@ -109,9 +109,9 @@ class CsICalib
         PlaneAbsorber *gap;
         KVCsIVamos *csi; 
 	  
-        KVSiliconVamos *ssi;
+        KVDetector *ssi;
         KVDetector *ggap;
-        KVCsIVamos *ccsi;
+        KVDetector *ccsi;
 	             
         KVNucleus part;
         KVNucleus part2;
@@ -126,12 +126,12 @@ class CsICalib
         Int_t ClearEvent(Int_t);	
 	string name;
           	
-	void SetTel1(KVSiliconVamos *si);
-	KVSiliconVamos* GetTel1(void);
+	void SetTel1(KVDetector *si);
+	KVDetector* GetTel1(void);
 	void SetTel2(KVDetector *gap);
 	KVDetector* GetTel2(void);	
-	void SetTel3(KVCsIVamos *csi);
-	KVCsIVamos* GetTel3(void);	
+	void SetTel3(KVDetector *csi);
+	KVDetector* GetTel3(void);	
 	 
 	void InitTelescope(Int_t, Int_t);
         
@@ -148,13 +148,13 @@ class CsICalib
         void SetFragmentA(Int_t);
         
 	//necessary methods to GetResidualEnergyCsI: best estimation of ECsI and A
-        Double_t GetResidualEnergyCsI(UShort_t,UShort_t);
+        Double_t GetResidualEnergyCsI(Double_t,Double_t);
 	
-        void CalculateESi(UShort_t);
-        void ECsIch(UShort_t);
-        void Bisection(Int_t,UShort_t);
+        void CalculateESi(Double_t);
+        void ECsIch(Double_t);
+        void Bisection(Int_t,Double_t);
 	Double_t BisectionLight(Double_t , Double_t , Double_t);
-        void CompleteSimulation(UShort_t);
+        void CompleteSimulation(Double_t);
         void CalculateECsI();
         void SimulateEvent();
 
