@@ -205,6 +205,9 @@ void KVAvailableRunsFile::Update()
    //      [run number]|[date of modification]|[name of file]
    // For "old" runs we keep the existing informations (including KV version & username)
 
+
+   // read all existing informations
+   ReadFile();
    //use "lockfile" to make sure nobody else tries to modify available_runs file
    //while we are working on it
    TString runlist;
@@ -212,9 +215,6 @@ void KVAvailableRunsFile::Update()
                    gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
                                            GetFileName()));
    if(!runlist_lock.Lock(runlist.Data())) return;
-
-   // read all existing informations
-   ReadFile();
    
    //open temporary file
    TString tmp_file_path(GetFileName());
@@ -581,7 +581,85 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 }
 
 //__________________________________________________________________________________________________________________
+void KVAvailableRunsFile::UpdateInfos(Int_t run, const Char_t * filename, const Char_t* kvversion, const Char_t* username)
+{
+   // Call this mehod to update informations on the file "filename" corresponding to run,
+   // by adding/replacing the KV version and username read from the file itself (not necessarily
+   // corresponding to current KV version and username)
+   
+   //does runlist exist ?
+   if (!OpenAvailableRunsFile()) {
+      Error("UpdateInfos", "Error opening available runs file");
+      return;
+   }
+   //open temporary file
+   TString tmp_file_path(GetFileName());
+   ofstream tmp_file;
+   KVBase::OpenTempFile(tmp_file_path, tmp_file);
 
+   TString FileName(filename);
+   //loop over lines in fRunlist file
+   //all lines which do not begin with 'run'| are directly copied to temp file
+   TString line;
+   line.ReadLine(fRunlist);
+   while (fRunlist.good()) {
+         //filename was specified: we copy everything up to the line
+         //with the right filename & number
+         if (line.BeginsWith(Form("%d|", run))) {
+
+            TObjArray *toks = line.Tokenize('|');       // split into fields
+            TString ReadFileName;
+            //backwards compatibility
+            //an old available_runs file will not have the filename field
+            //in this case we assume that the name of the file is given by the
+            //dataset's base file name (i.e. with no date/time suffix)
+            if (toks->GetEntries() > 2) {
+               ReadFileName = ((TObjString *) toks->At(2))->String();
+            } else {
+               ReadFileName =
+                   fDataSet->GetBaseFileName(GetDataType(), run);
+            }
+
+            if (ReadFileName != FileName) {
+               //copy line
+               tmp_file << line.Data() << endl;
+            }
+            else
+            {
+               // replace existing infos
+               tmp_file << run << "|" << ((TObjString *) toks->At(1))->String() << "|" << filename << "|" << kvversion << "|" << username << endl;
+            }
+            delete toks;
+
+         } else {
+            //copy line
+            tmp_file << line.Data() << endl;
+         }
+      line.ReadLine(fRunlist);
+   }
+
+   CloseAvailableRunsFile();
+   TString fRunlist_path;
+   AssignAndDelete(fRunlist_path,
+                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                                           GetFileName()));
+   //keep lock on runsfile
+   if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
+
+   //close temp file
+   tmp_file.close();
+
+   //copy temporary file to KVFiles directory, overwrite previous
+   gSystem->CopyFile(tmp_file_path, fRunlist_path, kTRUE);
+   //set access permissions to 664
+   gSystem->Chmod(fRunlist_path.Data(), CHMODE(6,6,4));
+   //delete temp file
+   gSystem->Unlink(tmp_file_path);
+   //unlock runsfile
+   runlist_lock.Release();
+}
+
+//__________________________________________________________________________________________________________________
 void KVAvailableRunsFile::Remove(Int_t run, const Char_t * filename)
 {
    //Remove from the file the entry corresponding to this run
@@ -646,18 +724,17 @@ void KVAvailableRunsFile::Remove(Int_t run, const Char_t * filename)
    }
 
    CloseAvailableRunsFile();
+   TString fRunlist_path;
+   AssignAndDelete(fRunlist_path,
+                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                                           GetFileName()));
+   //keep lock on runsfile
+   if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
 
    //close temp file
    tmp_file.close();
 
    //copy temporary file to KVFiles directory, overwrite previous
-   TString fRunlist_path;
-   AssignAndDelete(fRunlist_path,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
-   //lock runsfile
-   if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
-
    gSystem->CopyFile(tmp_file_path, fRunlist_path, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(fRunlist_path.Data(), CHMODE(6,6,4));
@@ -694,6 +771,12 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
    }
 
    CloseAvailableRunsFile();
+   TString runlist_path;
+   AssignAndDelete(runlist_path,
+                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                                           GetFileName()));
+   // keep lock on runsfile
+   if( !runlist_lock.Lock( runlist_path.Data() ) ) return;
 
    //add entry for run
    FileStat_t fs;
@@ -713,12 +796,6 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
    tmp_file.close();
 
    //copy temporary file to KVFiles directory, overwrite previous
-   TString runlist_path;
-   AssignAndDelete(runlist_path,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
-   //lock runsfile
-   if( !runlist_lock.Lock( runlist_path.Data() ) ) return;
    gSystem->CopyFile(tmp_file_path, runlist_path, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(runlist_path.Data(), CHMODE(6,6,4));
