@@ -23,6 +23,8 @@ class KVDBSystem;
 class KVDataSet;
 class TList;
 class KVList;
+class KVHashList;
+class KVNameValueList;
 
 class KVAvailableRunsFile:public KVBase {
 
@@ -31,6 +33,9 @@ class KVAvailableRunsFile:public KVBase {
    KVLockfile runlist_lock;   //for locking runlist file
 
    KVDataSet *fDataSet;         //dataset to which this file belongs
+   KVHashList* fAvailableRuns;//! temporary list used to store infos when updating
+   void ReadFile();
+   KVNameValueList* RunHasFileWithDateAndName(Int_t run, const Char_t* filename, TDatime modtime, Int_t& OccNum);
 
    virtual const Char_t *GetFileName();
    virtual Bool_t OpenAvailableRunsFile();
@@ -40,7 +45,7 @@ class KVAvailableRunsFile:public KVBase {
       return fRunlist.is_open();
    };
 
- public:
+ public:   
 
    KVAvailableRunsFile();
    KVAvailableRunsFile(const Char_t * type);

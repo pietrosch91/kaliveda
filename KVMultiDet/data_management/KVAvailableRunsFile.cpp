@@ -46,6 +46,8 @@ KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type,
    runlist_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
    runlist_lock.SetSuspend( 5 ); // suspension after timeout
    runlist_lock.SetSleeptime( 1 ); // try lock every second
+   
+   fAvailableRuns=0;
 }
 
 KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type):KVBase(type)
@@ -57,6 +59,8 @@ KVAvailableRunsFile::KVAvailableRunsFile(const Char_t * type):KVBase(type)
    runlist_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
    runlist_lock.SetSuspend( 5 ); // suspension after timeout
    runlist_lock.SetSleeptime( 1 ); // try lock every second
+   
+   fAvailableRuns=0;
 }
 
 KVAvailableRunsFile::KVAvailableRunsFile()
@@ -67,12 +71,15 @@ KVAvailableRunsFile::KVAvailableRunsFile()
    runlist_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
    runlist_lock.SetSuspend( 5 ); // suspension after timeout
    runlist_lock.SetSleeptime( 1 ); // try lock every second
+   
+   fAvailableRuns=0;
 }
 
 KVAvailableRunsFile::~KVAvailableRunsFile()
 {
    //Destructor
    //cout << "KVAvailableRunsFile::~KVAvailableRunsFile()" << endl;
+   SafeDelete(fAvailableRuns);
 }
 
 //__________________________________________________________________________________________________________________
@@ -190,12 +197,25 @@ Bool_t KVAvailableRunsFile::ExtractDateFromFileName(const Char_t* name, KVDatime
 
 void KVAvailableRunsFile::Update()
 {
-   //Examine the contents of the repository directory corresponding to this datatype
-   //for parent dataset fDataSet.
-   //For each file found which corresponds to a run in the database gDataBase,
-   //we add an entry to the available runlist file:
+   // Examine the contents of the repository directory corresponding to this datatype
+   // for parent dataset fDataSet.
+   // For each file found which was not already in the list of available runs and
+   // which corresponds to a run in the database gDataBase,
+   // we add an entry to the available runlist file:
    //      [run number]|[date of modification]|[name of file]
+   // For "old" runs we keep the existing informations (including KV version & username)
 
+   //use "lockfile" to make sure nobody else tries to modify available_runs file
+   //while we are working on it
+   TString runlist;
+   AssignAndDelete(runlist,
+                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                                           GetFileName()));
+   if(!runlist_lock.Lock(runlist.Data())) return;
+
+   // read all existing informations
+   ReadFile();
+   
    //open temporary file
    TString tmp_file_path(GetFileName());
    ofstream tmp_file;
@@ -231,10 +251,23 @@ void KVAvailableRunsFile::Update()
                 GetFileInfo(fDataSet, GetDataType(),
                             objs->GetName(), fs)) {
                //runfile exists in repository
-               //write in temporary runlist file '[run number]|[date of modification]|[name of file]
                TDatime modt(fs.fMtime);
-               tmp_file << run->GetNumber() << '|' << modt.
-                   AsSQLString() << '|' << objs->GetName() << endl;
+               // was there already an entry for exactly the same file in the previous file ?
+               Int_t occIdx=0;
+               KVNameValueList* prevEntry = RunHasFileWithDateAndName(run->GetNumber(), objs->GetName(), modt, occIdx);
+               if(prevEntry){
+                  // copy infos of previous entry
+                  tmp_file << run->GetNumber() << '|' << modt.AsSQLString() << '|' << objs->GetName();
+                  if(prevEntry->HasParameter(Form("KVVersion[%d]",occIdx))){
+                     tmp_file <<"|"<< prevEntry->GetStringValue(Form("KVVersion[%d]",occIdx)) <<"|"<<prevEntry->GetStringValue(Form("Username[%d]",occIdx));
+                  }
+                  tmp_file << endl;
+               }
+               else
+               {
+                  // New Entry - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+                  tmp_file << run->GetNumber() << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
+               }
             }
          }
       }
@@ -249,15 +282,7 @@ void KVAvailableRunsFile::Update()
    //close temp file
    tmp_file.close();
 
-   //copy temporary file to KVFiles directory, overwrite previous
-   TString runlist;
-   AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
-   //use "lockfile" to make sure nobody else tries to write available_runs file
-   //while we are copying it
-   if(!runlist_lock.Lock(runlist.Data())) return;
-
+   //copy temporary file to KVFiles directory, overwrite previous   
    gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
@@ -648,6 +673,7 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
 {
    //Add to the file an entry corresponding to this run, assumed to be present in the repository
    //with the given filename.
+   //write in temporary runlist file '[run number]|[date of modification]|[name of file]|KaliVeda version|username
 
    //does runlist exist ?
    if (!OpenAvailableRunsFile()) {
@@ -676,10 +702,12 @@ void KVAvailableRunsFile::Add(Int_t run, const Char_t * filename)
        GetFileInfo(fDataSet, GetDataType(), filename,
                    fs)) {
       //runfile exists in repository
-      //write in temporary runlist file '[run number]|[date of modification]|[name of file]
+      //write in temporary runlist file '[run number]|[date of modification]|[name of file]|KaliVeda version|username
       TDatime modt(fs.fMtime);
+      UserGroup_t *userinfo = gSystem->GetUserInfo();
       tmp_file << run << '|' << modt.
-          AsSQLString() << '|' << filename << endl;
+          AsSQLString() << '|' << filename << '|' << GetKVVersion() << '|' << userinfo->fUser << endl;
+      delete userinfo;
    }
    //close temp file
    tmp_file.close();
@@ -849,4 +877,107 @@ KVNumberList KVAvailableRunsFile::GetRunList(const KVDBSystem * sys)
 
    CloseAvailableRunsFile();
    return runs;
+}
+
+//____________________________________________________________________________________________________________________
+
+void KVAvailableRunsFile::ReadFile()
+{
+   // Read all infos in available runs file and store as KVNameValueList objects in fAvailableRuns.
+   // For each run in the file we add a KVNameValueList with the following fields:
+   //
+   // Name = run number
+   // Occurs = number of times run appears in file
+   // Filename[0] = name of first file for run
+   // Filename[1] =
+   //  ...
+   // Filename[Occurs-1] = name of last file for run
+   // Date[0] = date & time of generation of first file etc.
+   // KVVersion[0] = name of KaliVeda version used to generate first file etc. (if known)
+   // Username[0] = name of user who generated first file etc. (if known)
+   
+   //does runlist exist ?
+   if (!OpenAvailableRunsFile()) {
+      Error("ReadFile", "Cannot open available runs file");
+      return;
+   }
+
+   if(fAvailableRuns) delete fAvailableRuns;
+   fAvailableRuns = new KVHashList;
+   fAvailableRuns->SetOwner(kTRUE);
+   
+   TString fLine;
+   fLine.ReadLine(fRunlist);
+
+   Int_t fRunNumber;
+
+   while (fRunlist.good()) {
+
+      TObjArray *toks = fLine.Tokenize('|');    // split into fields
+      
+      // number of fields can vary
+      // nfields = 2: run number, date
+      // nfields = 3: run number, date, filename
+      // nfields = 5: run number, date, filename, KaliVeda version, username
+      Int_t nfields = toks->GetEntries();
+      
+      KVString kvs(((TObjString *) toks->At(0))->GetString());
+      fRunNumber = kvs.Atoi();
+      
+      // is run already in list ?
+      KVNameValueList* NVL = (KVNameValueList*)fAvailableRuns->FindObject(kvs);
+      Int_t Occurs = (NVL ? NVL->GetIntValue("Occurs")+1 : 1);
+      if(!NVL) {
+         NVL = new KVNameValueList(kvs);
+         fAvailableRuns->Add(NVL);
+      }
+      NVL->SetValue("Occurs", Occurs);
+      
+      //get date string
+      KVString datestring(((TObjString *) toks->At(1))->GetString());
+      NVL->SetValue(Form("Date[%d]",Occurs-1), datestring.Data());
+
+      //backwards compatibility
+      //an old available_runs file will not have the filename field
+      //in this case we assume that the name of the file is given by the
+      //dataset's base file name (i.e. with no date/time suffix)
+      KVString filename;
+      if (nfields > 2) {
+         filename = ((TObjString *) toks->At(2))->GetString();
+      } else {
+         filename = fDataSet->GetBaseFileName(GetDataType(), fRunNumber);
+      }
+      NVL->SetValue(Form("Filename[%d]",Occurs-1), filename.Data());
+      KVString kvversion,username;
+      if (nfields > 4) {
+         kvversion = ((TObjString *) toks->At(3))->GetString();
+         username = ((TObjString *) toks->At(4))->GetString();
+         NVL->SetValue(Form("KVVersion[%d]",Occurs-1), kvversion.Data());
+         NVL->SetValue(Form("Username[%d]",Occurs-1), username.Data());
+      }
+      delete toks;
+
+      fLine.ReadLine(fRunlist);
+   }
+
+   CloseAvailableRunsFile();
+}
+   
+KVNameValueList* KVAvailableRunsFile::RunHasFileWithDateAndName(Int_t run, const Char_t* filename, TDatime modtime, Int_t& OccNum)
+{
+   // look in previously read infos (see ReadFile) to see if, for a given run, there is a file with the
+   // given name and modification date/time
+   // if so, returns the address of the KVNameValueList for the run & sets OccNum to the index number of
+   // the corresponding entry (in case of several files for the run)
+   // if not, returns NULL
+   
+   if(!fAvailableRuns) return NULL;
+   // is run already in list ?
+   KVNameValueList* NVL = (KVNameValueList*)fAvailableRuns->FindObject(Form("%d",run));
+   if(!NVL) return NULL;
+   Int_t Occurs = NVL->GetIntValue("Occurs");
+   for(OccNum=0; OccNum<Occurs; OccNum++){
+      if( NVL->IsValue( Form("Filename[%d]",OccNum) , filename ) && NVL->IsValue( Form("Date[%d]",OccNum) , modtime.AsSQLString() ) ) return NVL;
+   }
+   return NULL;
 }
