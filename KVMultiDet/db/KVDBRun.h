@@ -43,9 +43,16 @@ protected:
        KVParameterList<Double_t> fFloatPar;//list of floating point parameters
        KVParameterList<KVString> fStringPar;//list of string parameters
        TDatime fDatime;             //!set dynamically with date&time of ROOT file corresponding to run
+       TString fKVVersion;             //!set dynamically with KaliVeda version used to generate ROOT file corresponding to run
+       TString fUserName;             //!set dynamically with name of user who generated ROOT file corresponding to run
 
  public:
 
+   void SetKVVersion(const Char_t* V) { fKVVersion=V; };
+   const Char_t* GetKVVersion() const { return fKVVersion.Data(); };
+   void SetUserName(const Char_t* U) { fUserName = U; };
+   const Char_t* GetUserName() const { return fUserName.Data(); };
+   
   	void Modified() // *SIGNAL*
 	{
 		// Signal sent out when run properties change (used by GUI)

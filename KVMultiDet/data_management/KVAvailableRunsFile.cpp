@@ -491,6 +491,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 
    Int_t fRunNumber;
    TDatime fDatime;
+   TString kvversion, username;
    KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
    Bool_t noSystems = (!fDataSet->GetDataBase()->GetTable("Systems")->GetRecords()->GetSize());
 
@@ -507,11 +508,14 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 
       fRunNumber = kvs.Atoi();
 
-      if (!systol) {
+      //if (!systol) {
          TString tmp = ((TObjString *) toks->At(1))->GetString();
          fDatime = TDatime(tmp.Data());
+      //}
+      if(toks->GetEntries()>3){
+         kvversion = ((TObjString *) toks->At(3))->GetString();
+         username = ((TObjString *) toks->At(4))->GetString();
       }
-
       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
       KVDBSystem *sys = 0;
@@ -531,6 +535,8 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 					no longer exists */
             a_run->BlockSignals(kTRUE);
 				a_run->SetDatime(fDatime);
+            a_run->SetKVVersion(kvversion);
+            a_run->SetUserName(username);
 				a_run->BlockSignals(kFALSE);
 
             if (!sys_list->Contains(sys)) {
@@ -555,6 +561,8 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 					no longer exists */
             	a_run->BlockSignals(kTRUE);
 					a_run->SetDatime(fDatime);
+            a_run->SetKVVersion(kvversion);
+            a_run->SetUserName(username);
 					a_run->BlockSignals(kFALSE);
 				}
             if(a_run) sys_list->Add(a_run);
