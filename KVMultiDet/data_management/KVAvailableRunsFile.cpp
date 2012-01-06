@@ -1058,3 +1058,23 @@ KVNameValueList* KVAvailableRunsFile::RunHasFileWithDateAndName(Int_t run, const
    }
    return NULL;
 }
+
+Bool_t KVAvailableRunsFile::InfosNeedUpdate(Int_t run, const Char_t * filename)
+{
+   // return kTRUE if the given file for this run is lacking some information
+   // e.g. the KV version and username
+   // N.B.: if no file is known for this run, we return kFALSE
+   
+   ReadFile();
+   // is run already in list ?
+   KVNameValueList* NVL = (KVNameValueList*)fAvailableRuns->FindObject(Form("%d",run));
+   if(!NVL) return kFALSE;
+   Int_t Occurs = NVL->GetIntValue("Occurs");
+   for(Int_t OccNum=0; OccNum<Occurs; OccNum++){
+      if( NVL->IsValue( Form("Filename[%d]",OccNum) , filename ) ){
+         // infos need update if no KV version has been set
+         return ( !NVL->HasParameter(Form("KVVersion[%d]",OccNum)) );
+      }
+   }
+   return kFALSE;   
+}

@@ -69,6 +69,7 @@ class KVAvailableRunsFile:public KVBase {
 
    virtual void Remove(Int_t run, const Char_t * filename = "");
    virtual void UpdateInfos(Int_t run, const Char_t * filename, const Char_t* kvversion, const Char_t* username);
+   virtual Bool_t InfosNeedUpdate(Int_t run, const Char_t * filename);
    virtual void Add(Int_t run, const Char_t * filename);
    virtual KVDataSet *GetDataSet() const;
    virtual void SetDataSet(KVDataSet*);
