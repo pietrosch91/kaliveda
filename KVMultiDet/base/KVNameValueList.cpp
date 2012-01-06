@@ -312,3 +312,36 @@ const Char_t* KVNameValueList::GetStringValue(Int_t idx) const
 	}
    return GetParameter(idx)->GetString();
 }
+	
+Bool_t KVNameValueList::IsValue(const Char_t* name,const Char_t* value)
+{
+   // Returns kTRUE if parameter with given name exists and is equal to given value
+   KVNamedParameter* par = FindParameter(name);
+   if(par){
+      KVNamedParameter tmp(name, value);
+      return (*par)==tmp;
+   }
+   return kFALSE;
+}
+	
+Bool_t KVNameValueList::IsValue(const Char_t* name,Int_t value)
+{
+   // Returns kTRUE if parameter with given name exists and is equal to given value
+   KVNamedParameter* par = FindParameter(name);
+   if(par){
+      KVNamedParameter tmp(name, value);
+      return (*par)==tmp;
+   }
+   return kFALSE;
+}
+	
+Bool_t KVNameValueList::IsValue(const Char_t* name,Double_t value)
+{
+   // Returns kTRUE if parameter with given name exists and is equal to given value
+   KVNamedParameter* par = FindParameter(name);
+   if(par){
+      KVNamedParameter tmp(name, value);
+      return (*par)==tmp;
+   }
+   return kFALSE;
+}
