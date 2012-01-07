@@ -196,7 +196,10 @@ void IonisationChamberv::Calibrate(void)
     E[E_Raw_Nr[i]] = ((((Float_t) E_Raw[i] + Rnd->Value())*a[E_Raw_Nr[i]])+b[E_Raw_Nr[i]])*(eloss/Vnorm[E_Raw_Nr[i]]);	//The linear fit * k/Vnorm
     ETotal = E[E_Raw_Nr[i]];
     Number = int(E_Raw_Nr[i]);
-    //L->Log<<"IC		E_raw : "<<E_Raw[i]<<"	# : "<<Number<<"	E : "<<ETotal<<endl;
+    //L->Log<<"IC		E_raw : "<<E_Raw[i]<<"	# : "<<Number<<"	E : "<<ETotal<<endl;    		
+    		//==Raw_signal class==
+    		IC_Raw = E_Raw[i];
+    		//====================
     EM++;
     }
 

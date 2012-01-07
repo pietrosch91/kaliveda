@@ -8,6 +8,8 @@
 
 #include "KVIDZAGrid.h"
 #include "KVIDGridManager.h" 
+#include "KVINDRADB_e503.h"
+#include "KVINDRAe503.h"
 
 #define AnalyseOnlyMyIsotope kFALSE
 
@@ -56,7 +58,7 @@ void Identificationv::Init(void)
 {
   Present = false; 
 
-  dE = dE1 = E = T = V = V2 = V_Etot = T_FP = M_Q = M = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
+  dE = dE1 = E = T = V = V2 = V_Etot = T_FP = M_Q = M_Q_corr = M = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
   M_Qr = Mr = Qr = -10.0;
   Qc = Mc = -10.0;
   Gamma = 1.; 
@@ -164,7 +166,10 @@ Bool_t mg24 = kFALSE;
                     if(grd != 0){
 		    	
 		    	energytree->CalculateESi(double(Si->E_Raw[y]));
+			//energytree->CalculateESi(5003.75);
+			
 			energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
+			//energytree->kvid->Identify(3019.60, double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
                         A_PID = id->A;
                         Z_PID = id->Z;
                         PID = id->PID;
@@ -174,6 +179,8 @@ Bool_t mg24 = kFALSE;
 			energytree->SetFragmentZ(Z_PIDI);
 	      		energytree->GetResidualEnergyCsI(double(Si->E_Raw[y]),double(CsI->E_Raw[j]));		//Method called for guessing A value by bissection method and getting CsI energy
 			
+			//energytree->SetFragmentZ(20);
+	      		//energytree->GetResidualEnergyCsI(5003.75,3019.60);		//Method called for guessing A value by bissection method and getting CsI energy
 	        	ECsI = energytree->RetrieveEnergyCsI();
 			ESi = energytree->RetrieveEnergySi();
 			AA = energytree->RetrieveA();											
@@ -296,10 +303,12 @@ T = Si->Tfrag;
 
       M = 2.* E / (931.5016*TMath::Power(Beta,2.));
       M_Q = Rec->Brho/(3.105*Beta);
+      M_Q_corr = M_Q * (2/(2.02098 + (-0.00024494*Dr->Tf)));
       
       L->Log<<"M	= "<<M<<endl;
       L->Log<<"M/Q	= "<<M_Q<<endl;
-
+      L->Log<<"M/Q_corr	= "<<M_Q_corr<<endl;
+      
       Mr = (E/1000.)/931.5016/(Gamma-1.);
       M_Qr = Rec->Brho/3.105/Beta/Gamma;
 
@@ -409,7 +418,8 @@ void Identificationv::outAttach(TTree *outT)
   outT->Branch("D",&D,"D/F");
   outT->Branch("Beta",&Beta,"Beta/F");
   outT->Branch("Gamma",&Gamma,"Gamma/F");
-  outT->Branch("M_Q",&M_Q,"M_Q/F");
+  outT->Branch("M_Q",&M_Q,"M_Q/F");  
+  outT->Branch("M_Q_corr",&M_Q_corr,"M_Q_corr/F");
   outT->Branch("Q",&Q,"Q/F");
   outT->Branch("M",&M,"M/F");
   outT->Branch("M_Qr",&M_Qr,"M_Qr/F");

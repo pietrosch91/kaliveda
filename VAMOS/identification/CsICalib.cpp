@@ -543,6 +543,3 @@ Double_t CsICalib::RetrieveLight(){
 Double_t CsICalib::RetrieveEnergyCsI(){
 	return sRefECsI;		//was eEnergyCsI
 }
-
- 
-  

@@ -36,7 +36,8 @@ class IonisationChamberv
   UShort_t E_Raw[3*8];
   UShort_t E_Raw_Nr[3*8];
   Int_t E_RawM;
-
+  UShort_t IC_Raw;
+  
   //Calibration coeff
   Float_t a[7];
   Float_t b[7];

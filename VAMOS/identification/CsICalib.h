@@ -19,11 +19,6 @@
 #include "CsIv.h"
 #include "LogFile.h"
 
-#include "PlaneAbsorber.h"
-#include "IonisationChamber.h"
-#include "KVSiliconVamos.h"
-#include "KVCsIVamos.h"
-#include "KVIDSiCsIVamos.h"
 #include "KVIDGraph.h"
 #include "KVIDZAGrid.h"
 
@@ -87,7 +82,8 @@ class CsICalib
 	Double_t a1;
         Double_t a2;
         Double_t a3;
-        
+        Double_t a4;
+	        
         Double_t thick;
 	
 	KVReconstructedNucleus *frag;	
@@ -97,21 +93,21 @@ class CsICalib
 	
         KVTelescope *kvt_icsi;
         KVTelescope *kvt_sicsi;
-	KVSiliconVamos *kvd_si;
-	KVCsIVamos *kvd_csi;
+	KVDetector *kvd_si;
+	KVDetector *kvd_csi;
 		
 	KVDetector *kvd_gap;	
 	KVList *list;
         KVIDGraph *kvid;
 	
-        IonisationChamber *ioCh;
-        KVSiliconVamos *si;
-        PlaneAbsorber *gap;
-        KVCsIVamos *csi; 
+        KVDetector *gap;
+	KVDetector *si;
+	KVDetector *csi; 
 	  
+
         KVDetector *ssi;
         KVDetector *ggap;
-        KVDetector *ccsi;
+	KVDetector *ccsi; 		         
 	             
         KVNucleus part;
         KVNucleus part2;
@@ -125,9 +121,9 @@ class CsICalib
         
         Int_t ClearEvent(Int_t);	
 	string name;
-          	
+          		
 	void SetTel1(KVDetector *si);
-	KVDetector* GetTel1(void);
+	KVDetector* GetTel1(void);	
 	void SetTel2(KVDetector *gap);
 	KVDetector* GetTel2(void);	
 	void SetTel3(KVDetector *csi);
@@ -148,13 +144,13 @@ class CsICalib
         void SetFragmentA(Int_t);
         
 	//necessary methods to GetResidualEnergyCsI: best estimation of ECsI and A
-        Double_t GetResidualEnergyCsI(Double_t,Double_t);
+        Double_t GetResidualEnergyCsI(Double_t,Double_t);	//UShort_t,UShort_t
 	
-        void CalculateESi(Double_t);
+        void CalculateESi(Double_t);	//UShort_t
+        void Bisection(Int_t,Double_t);	//UShort_t
         void ECsIch(Double_t);
-        void Bisection(Int_t,Double_t);
 	Double_t BisectionLight(Double_t , Double_t , Double_t);
-        void CompleteSimulation(Double_t);
+        void CompleteSimulation(Double_t);	//UShort_t
         void CalculateECsI();
         void SimulateEvent();
 

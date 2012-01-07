@@ -290,6 +290,7 @@ void Sive503::Calibrate(void)
 	    ETotal = E[E_Raw_Nr[i]];
 	    	    //cout<<"ETotal Si = "<<E[E_Raw_Nr[i]]<<endl;
 		    //cout<<"E Si = "<<E<<endl;
+		    L->Log<<"ETotal : "<<ETotal<<endl;
 		 
 	    Number = E_Raw_Nr[i];
 	    DetSi = int(Number)+1;	//numérotation 1-18
@@ -298,9 +299,9 @@ void Sive503::Calibrate(void)
 	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
 	    
 	    //L->Log<<"Tfrag avant	: "<<Tfrag<<"	Offset467	: "<<Offset467[E_Raw_Nr[i]]<<endl;
-	    /*if(gIndra->GetCurrentRunNumber()>465 && gIndra->GetCurrentRunNumber()<475){
+	    if(gIndra->GetCurrentRunNumber()>465 && gIndra->GetCurrentRunNumber()<475){
 	    Tfrag -= Offset467[E_Raw_Nr[i]];
-	    }*/
+	    }
 	    //L->Log<<"Tfrag apres	: "<<Tfrag<<endl;	    
 	    
 	    //L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     

@@ -64,17 +64,7 @@ Double_t CalculLumiere(Double_t * x, Double_t * par)
       lumcalc = lumcalc - c1* c2 * TMath::Log(1. + energie / c2)+ c1 * c2 * c4_new * TMath::Log((energie + c2) /(c3 + c2)) + xm;
    }
        
-   return lumcalc;
-   
-   /*Double_t Z = par[3];
-   Double_t A = par[4];
-    Double_t w=A*Z*Z;
-   Double_t energie = x[0]/w;
-   Double_t lumcalc = par[0] * (energie - par[1]*TMath::Log(1.+energie/par[1]));
-   
-   return lumcalc*w;*/  
-    
- 
+   return lumcalc; 
 }
 
 TF1 KVLightEnergyCsI::fLight("fLight_CsI", CalculLumiere, 0., 10000., 6);

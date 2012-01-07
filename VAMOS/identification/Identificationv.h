@@ -14,9 +14,6 @@
 #include "TCutG.h"
 #include "CsICalib.h"
 
-#include "KVSiliconVamos.h"
-#include "KVCsIVamos.h"
-#include "KVIDSiCsIVamos.h"
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"
 #include "KVIdentificationResult.h"
@@ -36,9 +33,6 @@ class Identificationv
   CsIv *CsI;
   CsICalib *energytree;
 
-        KVSiliconVamos *si;
-        PlaneAbsorber *gap;
-        KVCsIVamos *csi;
 	KVIdentificationResult*	id;
 		
   UShort_t TFil1;
@@ -121,6 +115,7 @@ Int_t runFlag;
   Float_t Beta;
   Float_t Gamma;
   Float_t M_Q;
+  Float_t M_Q_corr;  
   Float_t M_Qcorr;
   Float_t M_Qcorr1;
   Float_t Q;

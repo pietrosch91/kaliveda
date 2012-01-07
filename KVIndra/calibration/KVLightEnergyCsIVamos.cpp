@@ -31,8 +31,12 @@ Double_t CalculLumiereVamos(Double_t * x, Double_t * par)
    Double_t A = par[4];
     Double_t w=A*Z*Z;
    Double_t energie = x[0]/w;
-   Double_t lumcalc = par[0] * (energie - par[1]*TMath::Log(1.+energie/par[1]));
-   
+   //Double_t lumcalc = par[0] * (energie - par[1]*TMath::Log(1.+energie/par[1])); 
+   Double_t lumcalc = par[0] * (energie - par[1]*TMath::Log(1.+energie/par[2])); 
+   //Double_t lumcalc = par[0] + (par[1]*energie) + (par[2]*energie*energie);
+   //Double_t lumcalc = par[0] + (par[1]*energie) + (par[2]*energie*energie) + (par[3]*energie*energie*energie); 
+   //Double_t lumcalc = par[0] *(energie -  par[1]*TMath::Log(1.+energie/par[1]))+par[2];
+     
    return lumcalc*w;
 }
 
