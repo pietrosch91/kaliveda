@@ -507,15 +507,16 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
       good_lines++;
 
       fRunNumber = kvs.Atoi();
-
-      //if (!systol) {
+kvversion= username="";
+      if (!systol) {
          TString tmp = ((TObjString *) toks->At(1))->GetString();
          fDatime = TDatime(tmp.Data());
-      //}
+      }
       if(toks->GetEntries()>3){
          kvversion = ((TObjString *) toks->At(3))->GetString();
          username = ((TObjString *) toks->At(4))->GetString();
       }
+   
       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
       KVDBSystem *sys = 0;
