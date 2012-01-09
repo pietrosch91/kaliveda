@@ -21,6 +21,7 @@ class KVLogReader {
    TString fStatus;             //status string
    Bool_t fOK;                  //job OK or not ?
    Bool_t fGotRequests;   //set true when disk & memory request has been read
+   Bool_t fGotStatus;   //set true when end of job infos have been read
 
 	protected:
    virtual Int_t GetByteMultiplier(TString & unit)=0;

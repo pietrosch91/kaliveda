@@ -23,6 +23,7 @@ void KVLogReader::Reset()
    fStatus = "";
    fOK = kFALSE;
    fGotRequests = kFALSE;
+	fGotStatus = kFALSE;
 }
 
 void KVLogReader::ReadFile(const Char_t * fname)
@@ -112,11 +113,20 @@ Int_t KVLogReader::GetRunNumber() const
 }
 
 Bool_t KVLogReader::Incomplete() const {
+	// job considered incomplete if
+	//  - it was not 'killed'
+	//  - it did not end in segmentation fault/violation
+	//  AND
+	//  - the end of job status report was not found
+	//  - OR the disk & memory requests were not found
+	//  - OR the status indicates the job was incomplete
+	
       return (
 	(!Killed() && !SegFault())
 	&&
 	(
-		(!fGotRequests)
+		(!fGotStatus)
+		||(!fGotRequests)
 		|| (fStatus == "VEDA Fortran out of time")
 		|| (fStatus.BeginsWith("rfcp"))
 	)

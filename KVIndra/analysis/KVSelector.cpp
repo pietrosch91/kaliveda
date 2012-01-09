@@ -195,7 +195,6 @@ void KVSelector::Init(TTree * tree)
 
 	data=0;b_data=0;
    fChain->SetBranchAddress( fBranchName.Data() , &data, &b_data);
-   b_data->SetAutoDelete(kFALSE);
 
 //
 // Builds a TEventList by adding the contents of the lists for each run
@@ -333,9 +332,15 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    fTreeEntry = entry;
 
-   if (!(totentry % 5000) && totentry)
+   if (!(totentry % 5000) && totentry){
       cout << " +++ " << totentry << " events processed +++ " << endl;
-
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         cout << "     ------------- Process infos -------------" << endl;
+         printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+            pid.fCpuSys, pid.fCpuUser, pid.fMemResident/1024., pid.fMemVirtual/1024.);
+      }
+   }   
    fChain->GetTree()->GetEntry(fTreeEntry);
 	gDataAnalyser->preAnalysis();
 

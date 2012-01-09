@@ -5,6 +5,7 @@
 #include "KVMultiDetArray.h"
 #include "KVClassFactory.h"
 #include "TH1.h"
+#include "TSystem.h"
 
 ClassImp(KVRawDataAnalyser)
 
@@ -90,7 +91,15 @@ void KVRawDataAnalyser::ProcessRun()
 
        fDetEv->Clear();
 
-		if(!((fEventNumber)%10000)) cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
+		if(!((fEventNumber)%10000)) {
+         cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
+         ProcInfo_t pid;
+         if(gSystem->GetProcInfo(&pid)==0){
+            cout << "     ------------- Process infos -------------" << endl;
+            printf("     CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+               pid.fCpuSys, pid.fCpuUser, pid.fMemResident/1024., pid.fMemVirtual/1024.);
+         } 
+      }
 		fEventNumber+=1;
    }
 

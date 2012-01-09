@@ -239,9 +239,9 @@ void KVCalorimetry::Print(Option_t* option) const
 	//opt==par, print the list of parameters
 
 	if (!strcmp(option,"ing"))
-		nvl_ing->Print_NVL();
+		nvl_ing->Print();
 	else if (!strcmp(option,"par"))
-		nvl_par->Print_NVL();
+		nvl_par->Print();
 	else 
 		KVVarGlob::Print();
 
@@ -336,8 +336,8 @@ void KVCalorimetry::init_KVCalorimetry ()
 	//Elles sont remplies au fur et à mesure des 
 	//methodes, pas besoin de définition a priori des
 	//noms des ingrédients / paramètres
-	nvl_ing = new KVNameValueList();	nvl_ing->SetName_NVL("Ingredients");
-	nvl_par = new KVNameValueList(); nvl_par->SetName_NVL("Parameters");
+	nvl_ing = new KVNameValueList();	nvl_ing->SetName("Ingredients");
+	nvl_par = new KVNameValueList(); nvl_par->SetName("Parameters");
 	
 	//par defaut, aucun mode de calcul/remplissage n est sélectionné
 	kfree_neutrons_included = kFALSE;
@@ -642,7 +642,7 @@ void 	KVCalorimetry::Calculate(void)
 	// on y obtient directement la température
 	// 
 	
-	Info("Calculate","Debut");
+	//Info("Calculate","Debut");
 	SumUp();
 	
 	if (kfree_neutrons_included){
@@ -680,7 +680,7 @@ void 	KVCalorimetry::Calculate(void)
 		}
 	
 	}
-	Info("Calculate","Fin");
+	//Info("Calculate","Fin");
 }
 
 //________________________________________________________________
