@@ -37,6 +37,10 @@ class KVNameValueList : public TNamed
 	void SetValue(const Char_t* name,Int_t value);
 	void SetValue(const Char_t* name,Double_t value);
 	
+	Bool_t IsValue(const Char_t* name,const Char_t* value);
+	Bool_t IsValue(const Char_t* name,Int_t value);
+	Bool_t IsValue(const Char_t* name,Double_t value);
+   
 	KVNamedParameter* FindParameter(const Char_t* name) const;
 	KVNamedParameter* GetParameter(Int_t idx) const;
 	void RemoveParameter(const Char_t* name);

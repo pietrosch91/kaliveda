@@ -99,11 +99,22 @@ void KVINDRAReconDataAnalyser::SubmitTask()
 	// seems to have a little difficulty
    while( !fRunList.End() ){
       run = fRunList.Next();
-      cout << "Opening file " << gDataSet->GetFullPathToRunfile(fDataType.Data(),run)<<endl;
-      gDataSet->OpenRunfile(fDataType.Data(),run);
-      cout << "Adding file " << gDataSet->GetFullPathToRunfile(fDataType.Data(),run);
+      TString fullPathToRunfile = gDataSet->GetFullPathToRunfile(fDataType.Data(),run);
+      cout << "Opening file " << fullPathToRunfile <<endl;
+      TFile* f = (TFile*)gDataSet->OpenRunfile(fDataType.Data(),run);
+      cout << "Adding file " << fullPathToRunfile;
       cout << " to the TChain." << endl;
-      theChain->Add(gDataSet->GetFullPathToRunfile(fDataType.Data(),run));
+      theChain->Add( fullPathToRunfile );
+      if(f && !f->IsZombie()){
+         // update run infos in available runs file if necessary
+         KVAvailableRunsFile* ARF = gDataSet->GetAvailableRunsFile(fDataType.Data());
+         if( ARF->InfosNeedUpdate(run, gSystem->BaseName( fullPathToRunfile )) ){
+	            TEnv*treeInfos = (TEnv*)((TTree*)f->Get("ReconstructedEvents"))->GetUserInfo()->FindObject("TEnv");
+               TString kvversion = treeInfos->GetValue("KVBase::GetKVVersion()","");
+               TString username = treeInfos->GetValue("gSystem->GetUserInfo()->fUser","");
+               if(kvversion!="") ARF->UpdateInfos(run, gSystem->BaseName( fullPathToRunfile ), kvversion, username);
+         }
+      }
    }
    
    TString option("");
