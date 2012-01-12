@@ -73,7 +73,9 @@ void KVINDRA4::BuildGeometry()
    KVINDRA::BuildGeometry();
    KVTelescope *proto_cour_1 =
        (KVTelescope *) fTelescopes->FindObjectByType("Si-CsI Ring2");
-   GetTelescope("PHOS_0101")->GetRing()->SetPrototype(proto_cour_1);
+	KVRing* rg = GetTelescope("PHOS_0101")->GetRing();
+	rg->SetTitle("Si-CsI Ring1");
+	rg->SetPrototype(proto_cour_1);
    ReplaceTelescope("PHOS_0101", proto_cour_1);
    ReplaceTelescope("PHOS_0102", proto_cour_1);
    ReplaceTelescope("PHOS_0103", proto_cour_1);
@@ -86,4 +88,6 @@ void KVINDRA4::BuildGeometry()
    ReplaceTelescope("PHOS_0110", proto_cour_1);
    ReplaceTelescope("PHOS_0111", proto_cour_1);
    ReplaceTelescope("PHOS_0112", proto_cour_1);
+	rg->GetTelescopes()->Execute("SetType","\"Si-CsI Ring1\"");
+	
 }
