@@ -141,8 +141,8 @@ KVSelector::KVSelector(TTree * tree)
    fChain=0;
    callnotif = 0;
    gvlist = 0;                  // Global variable list set to nul.
-   lhisto = new KVHashList(); lhisto->SetOwner(kTRUE);
-  	ltree = new KVHashList(); ltree->SetOwner(kTRUE);
+   lhisto = new KVHashList();
+  	ltree = new KVHashList();
 	//create stopwatch
    fTimer = new TStopwatch;
    // event list
@@ -174,7 +174,9 @@ KVSelector::~KVSelector()
    }
    delete fTimer;
    SafeDelete(fPartCond);
+	lhisto->Clear();
 	delete lhisto;
+	ltree->Clear();
 	delete ltree;
 }
 
