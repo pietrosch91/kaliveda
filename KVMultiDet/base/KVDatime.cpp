@@ -112,6 +112,25 @@ void KVDatime::SetSRBDate(const Char_t * DateString)
    Set(Y,M,D,h,m,s);
 }
 
+void KVDatime::SetGanacq2010Date(const Char_t * GanacqDateString)
+{
+	// Decodes dates in new (2010) format of GANIL acquisition
+	// run files, e.g. run_0058.dat.27Nov10_02h07m40s
+	Int_t Y,D,H,M,S;
+	Char_t Month[5];
+	TString tmp(GanacqDateString);
+	tmp.ToUpper();
+	tmp.ReplaceAll("_"," ");
+	if(sscanf(tmp.Data(), "%02d%3s%02d %02dH%02dM%02dS", &D, Month, &Y, &H, &M, &S)==6)
+	{
+   		TObject *mm = fmonths->FindObject(Month);
+   		Int_t month = 0;
+   		if (mm) month = fmonths->IndexOf(mm) + 1;
+   		Y+=2000;
+   		Set(Y,month,D,H,M,S);
+	}
+}
+
 void KVDatime::SetGanacqDate(const Char_t * GanacqDateString)
 {
    //Decodes GANIL acquisition (INDRA) run-sheet format date into a TDatime
@@ -164,6 +183,17 @@ const Char_t *KVDatime::AsGanacqDateString() const
                Data(), GetYear(), GetHour(), GetMinute(), GetSecond());
 }
 
+/*
+const Char_t *KVDatime::AsGanacq2010DateString() const
+{
+	//Return date and time string with format "29Sep05 09h42m17s"
+   //Copy the string immediately if you want to reuse/keep it
+   return Form("%d%s%2d_%02dh%02dm%02ds",
+	            GetDay(),
+               ((TObjString *) fmonths->At(GetMonth() - 1))->String().
+               Data(), GetYear(), GetHour(), GetMinute(), GetSecond());
+}
+*/
 const Char_t* KVDatime::String(EKVDateFormat fmt)
 {
 	// Returns date & time as a string in required format:
@@ -200,6 +230,21 @@ Bool_t KVDatime::IsGANACQFormat(const Char_t* date)
 	}
 	delete toks;
 	return kTRUE;
+}
+
+Bool_t KVDatime::IsGANACQ2010Format(const Char_t* date)
+{
+	// Static method, returns kTRUE if 'date' is in new (2010) format of GANIL acquisition
+	// run files, e.g. run_0058.dat.27Nov10_02h07m40s
+	
+	Int_t Y,D,H,M,S;
+	Char_t Month[5];
+	TString tmp(date);
+	tmp.ToUpper();
+	tmp.ReplaceAll("_"," ");
+	if(sscanf(tmp.Data(), "%02d%3s%02d %02dH%02dM%02dS", &D, Month, &Y, &H, &M, &S)==6)
+		return kTRUE;
+	return kFALSE;
 }
 
 Bool_t KVDatime::IsSQLFormat(const Char_t* date)

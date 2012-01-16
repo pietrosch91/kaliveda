@@ -276,13 +276,11 @@ Double_t *KVRiso::GetValuePtr(void)
 //  1       Sum of parallel kinetic energies
 //  2       Sum of transverse kinetic energies
 //
-//  USER MUST DELETE ARRAY AFTER USING !!!
-	
-   Double_t *val = new Double_t[3];
+
    for (Int_t i = 0; i < 3; i++) {
-      val[i] = GetValue(i);
+      fVal[i] = GetValue(i);
    }
-   return val;
+   return fVal;
 }
 
 //_________________________________________________________________

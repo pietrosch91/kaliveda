@@ -29,6 +29,7 @@ $Id: KVGroup.h,v 1.25 2007/01/04 16:38:50 franklan Exp $
 
 class KVDetector;
 class KVNucleus;
+class KVNameValueList;
 class KVReconstructedNucleus;
 class KVMultiDetArray;
 
@@ -57,6 +58,11 @@ class KVGroup:public KVPosition {
 #else
    void Copy(TObject & obj);
 #endif
+   virtual void SetNumber(UInt_t num) {
+      // Setting number for group also sets name to "Group_n"
+      SetName( Form("Group_%ud", num) );
+      KVBase::SetNumber(num);
+   };
    void Add(KVTelescope *);
    Bool_t Contains(KVTelescope *) const;
    void Reset();
@@ -71,7 +77,7 @@ class KVGroup:public KVPosition {
    KVDetector *GetDetector(const Char_t * name);
    KVTelescope *GetTelescope(const Char_t * name);
    void Sort();
-   void DetectParticle(KVNucleus * part);
+	KVNameValueList* DetectParticle(KVNucleus * part);
    UInt_t GetNumberOfLayers() {
       if (!fNumberOfLayers)
          CountLayers();
@@ -92,6 +98,7 @@ class KVGroup:public KVPosition {
       else
          return 0;
    };
+   void ClearHitDetectors();
 #if !defined(R__MACOSX)
    inline UInt_t GetNIdentified();
    inline UInt_t GetNUnidentified();
@@ -109,7 +116,7 @@ class KVGroup:public KVPosition {
    void RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope =
                         kFALSE, Bool_t kDeleteEmptyGroup = kTRUE);
 
-   void GetIDTelescopes(KVList *);
+   void GetIDTelescopes(TCollection *);
 
    Bool_t IsRemoving() {
       return TestBit(kIsRemoving);

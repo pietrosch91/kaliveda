@@ -1,18 +1,7 @@
-/*
-$Id: KVINDRADstToRootTransfert.cpp,v 1.4 2009/01/14 16:13:49 franklan Exp $
-$Revision: 1.4 $
-$Date: 2009/01/14 16:13:49 $
-*/
-
-//Created by KVClassFactory on Fri May  4 15:26:02 2007
-//Author: franklan
+//Author: Eric Bonnet
 
 #include "KVINDRADstToRootTransfert.h"
-#include "KVString.h"
-#include "KVINDRA.h"
-#include "KVDataSet.h"
 #include "KVClassFactory.h"
-#include "SRBDataRepository.h"
 #include "KVBatchSystem.h"
 
 #include "TROOT.h"
@@ -32,12 +21,11 @@ $Date: 2009/01/14 16:13:49 $
 #include "KVDetector.h"
 #include "KVIDTelescope.h"
 #include "KVDBRun.h"
-#include "TProcessID.h"
 #include "KVDataRepositoryManager.h"
 #include "KVDataSetManager.h"
 #include "KVDataRepository.h"
-#include "KVDataSet.h"
-#include "TString.h"
+#include "KVBatchSystem.h"
+#include "KVGANILDataReader.h"
 
 typedef KVDetector* (KVINDRADstToRootTransfert::*FNMETHOD) ( int,int );
 
@@ -47,7 +35,7 @@ ClassImp(KVINDRADstToRootTransfert)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVINDRADstToRootTransfert</h2>
-<h4>Data transfert from DST to regular root file</h4>
+<h4>Conversion of INDRA DST file to KaliVeda ROOT format</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +53,12 @@ KVINDRADstToRootTransfert::~KVINDRADstToRootTransfert()
 void KVINDRADstToRootTransfert::InitRun()
 {
 	Info("InitRun","ds InitRun");
+	if (gBatchSystem){
+		//gBatchSystem->Print();
+		req_time = gBatchSystem->BQS_Request("cpu_limit");
+		req_mem = gBatchSystem->BQS_Request("req_mem");
+		req_scratch = gBatchSystem->BQS_Request("req_scratch");
+	}
 	
 	KVString dst_file = gDataSet->GetFullPathToRunfile("dst", fRunNumber);
   	Info("InitRun","dst file %s",dst_file.Data());
@@ -78,7 +72,18 @@ void KVINDRADstToRootTransfert::InitRun()
 	TDatime now1;
 	Info("InitRun","Debut lecture DST %s",now1.AsString());
 	DefineSHELLVariables();
+	
+	
 	ReadDST();
+	
+	if (gBatchSystem){
+		Info("InitRun","Bilan ressource apres ReadDST");
+		Info("InitRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
+		Info("InitRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
+		Info("InitRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
+	}
+
+	
 	TDatime now2;
 	Info("InitRun","Fin lecture DST %s",now2.AsString());
 	
@@ -102,7 +107,16 @@ void KVINDRADstToRootTransfert::ReadDST(){
 void KVINDRADstToRootTransfert::ProcessRun()
 {
     
-   //Open data file
+   // Convert DST file for 1 run to KaliVeda ROOT format.
+   // By default the new ROOT file will be written in the same data repository as the DST file we are reading.
+   // This can be changed by setting the environment variable(s):
+   //
+   //     DSTtoROOT.DataAnalysisTask.OutputRepository:     [name of repository]
+   //     [name of dataset].DSTtoROOT.DataAnalysisTask.OutputRepository:         [name of repository]
+   //
+   // If no value is set for the current dataset (second variable), the value of the
+   // first variable will be used. If neither is defined, the new file will be written in the same repository as
+   // the DST file (if possible, i.e. if repository is not remote).
 	
 	ifstream f_in("list_of_files");
 	KVString line="";
@@ -140,13 +154,49 @@ void KVINDRADstToRootTransfert::ProcessRun()
 	evt->SetTitle( gIndra->GetSystem()->GetName() );
 	evt->SetName( gIndra->GetCurrentRun()->GetName() );
 
-	TFile* fi = gDataSet->NewRunfile("root", fRunNumber);
+   // Create new ROOT file with TTree for converted events.
+   
+   // get dataset to which we must associate new run
+   KVDataSet* OutputDataset =
+      gDataRepositoryManager->GetDataSet(
+         gDataSet->GetDataSetEnv("DSTtoROOT.DataAnalysisTask.OutputRepository",gDataRepository->GetName()),
+         gDataSet->GetName() );
+      
+		TFile* fi = OutputDataset->NewRunfile("root", fRunNumber);
+	
 	KVString stit; 
-	stit.Form("%s : %s : root events converted from DST",gIndra->GetCurrentRun()->GetName(), gIndra->GetSystem()->GetName());
-	data_tree = new TTree("tree", stit.Data());
-	data_tree->SetAutoSave(30000000);
-	data_tree->Branch("data", "KVINDRAReconEvent", &evt, 64000, 0)->SetAutoDelete(kFALSE);
+	stit.Form("%s : %s : root events converted from DST", gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle());
+      //tree for reconstructed events
+		data_tree = new TTree("ReconstructedEvents", stit.Data());
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+   data_tree->SetAutoFlush(0);
+#endif
+#endif
+      //leaves for reconstructed events
+		data_tree->Branch("INDRAReconEvent", "KVINDRAReconEvent", &evt, 10000000, 0)->SetAutoDelete(kFALSE);
 
+      //tree for raw data
+		rawtree = new TTree("RawData", Form("%s : %s : raw data",
+			 	gIndraDB->GetRun(fRunNumber)->GetName(), gIndraDB->GetRun(fRunNumber)->GetTitle()));
+      rawtree->Branch("RunNumber", &fRunNumber, "RunNumber/I");
+		Int_t fEventNumber=1;
+      rawtree->Branch( "EventNumber", &fEventNumber, "EventNumber/I");
+      
+      // the format of the raw data tree must be "arrays" : we depend on it in KVINDRAReconDataAnalyser
+      // in order to read the raw data and set the detector acquisition parameters
+      TString raw_opt = "arrays";
+		KVGANILDataReader* raw_data = (KVGANILDataReader*)gDataSet->OpenRunfile("raw", fRunNumber);
+      raw_data->SetUserTree(rawtree,raw_opt.Data());
+      Info("InitRun", "Created raw data tree (%s : %s). Format: %s",
+            rawtree->GetName(), rawtree->GetTitle(), raw_opt.Data());
+		
+	// fill the raw data tree
+	while( raw_data->GetNextEvent() ) fEventNumber++;
+   Info("InitRun", "Raw data tree containes %d events", fEventNumber-1);
+		
 	events_good=events_read=0;
 
 	if(camp2){
@@ -154,6 +204,14 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		Info("ProcessRun","Particles detected in phoswich ring 1 have general ID code=4");
 		Info("ProcessRun","After translation, they will have Veda ID code=2 (like 1st campaign)");
 	}
+	
+	if (gBatchSystem){
+		Info("ProcessRun","Bilan ressource avant lecture des %d fichiers ascii",nfiles);
+		Info("ProcessRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
+		Info("ProcessRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
+		Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
+	}
+
 	
 	KVString inst;
 	for (Int_t nf=1;nf<=nfiles;nf+=1){
@@ -166,12 +224,22 @@ void KVINDRADstToRootTransfert::ProcessRun()
 			evt->Clear();
 			
 			if(events_read%10000 == 0 && events_read > 0){
+				if (gBatchSystem)
+					Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
 				cout << events_read << "th event read... " << endl;
 			}
 		}
 		f_data.close();
 		
 		inst.Form(".! rm arbre_root_%d.txt",nf);
+		
+		if (gBatchSystem){
+			Info("ProcessRun","Bilan ressource apres lecture du fichier numero %d/%d",nf,nfiles);
+			Info("ProcessRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
+			Info("ProcessRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
+			Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
+		}
+		
 		gROOT->ProcessLine(inst.Data());
 	}
 
@@ -185,14 +253,17 @@ void KVINDRADstToRootTransfert::ProcessRun()
 	}
 
 	//At the end of each run we:
-	//	write the tree and INDRA into the new file
+	//	write the tree into the new file
 	//	add the file to the repository
 
 	fi->cd();
-	gIndra->Write("INDRA");	//write INDRA to file
-	((KVINDRADataAnalyser* )gDataAnalyser)->WriteBatchInfo(data_tree);
+
+	gDataAnalyser->WriteBatchInfo(data_tree);
 	data_tree->Write();		//write tree to file
-	gDataSet->CommitRunfile("root", fRunNumber, fi);
+	rawtree->Write();
+
+		//add new file to repository
+		OutputDataset->CommitRunfile("root", fRunNumber, fi);
 
 	TDatime now2;
 	Info("ProcessRun","Fin Conversion format ROOT %s",now2.AsString());
@@ -251,7 +322,7 @@ void KVINDRADstToRootTransfert::DefineSHELLVariables(){
 //	shell_var.Form("%s",gSystem->ExpandPathName("$PWD"));
 //	gSystem->Setenv("DIR_PERSO",shell_var.Data());
 	
-	shell_var.Form("%s/lib/veda%d",gSystem->ExpandPathName("$THRONG_DIR"),fCampNumber);
+	shell_var.Form("%s/lib",gSystem->ExpandPathName("$KVROOT"));
 	gSystem->Setenv("REP_LIBS",shell_var.Data());
 	
 	shell_var.Form("%s/src/faire_arbre_c%d.f",gSystem->ExpandPathName("$KVROOT"),fCampNumber);
@@ -354,7 +425,7 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
  		 KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		 if(!csi) return 0;
  		 KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
- 		 KVChIo *chio = gIndra->GetChIoOf( csi );
+ 		 KVChIo *chio = (KVChIo*)csi->GetChIo();
 		 if(!chio) return 0;
  		 chio->SetEnergy( de1 );
  		 if(si)si->SetEnergy( de2 );
@@ -377,7 +448,7 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
  		 //chio-csi or chio-si75-sili-csi
  		 KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		 if(!csi) return 0;
- 		 KVChIo *chio = gIndra->GetChIoOf( csi );
+ 		 KVChIo *chio = (KVChIo*)csi->GetChIo();
 		 if(!chio) return 0;
  		 KVSi75 *si75 = 0;
  		 KVSiLi *sili = 0;
@@ -445,7 +516,7 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
 		if(!csi) return 0;
 		KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
 		if( !si ) return 0;
-		KVChIo *chio = gIndra->GetChIoOf( csi );
+		KVChIo *chio = (KVChIo*)csi->GetChIo();
 		if( !chio ) return 0;
 		chio->SetEnergy( de1 );
 		chio->GetACQParam("GG")->SetData( (UShort_t)canal[ChIo_GG] );
@@ -465,7 +536,7 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
 	else if(ring>=10){
 		KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		if(!csi) return 0;
-		KVChIo *chio = gIndra->GetChIoOf( csi );
+		KVChIo *chio = (KVChIo*)csi->GetChIo();
 		if( !chio ) return 0;
 		KVSi75 *si75 = (KVSi75*)gIndra->GetDetectorByType(ring,mod,Si75_GG);
 		if( !si75 ) return 0;
@@ -583,7 +654,7 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
  		 //chio-si  	 
  		 KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
 		 if(!si) return 0;
- 		 KVChIo *chio = gIndra->GetChIoOf( si );
+ 		 KVChIo *chio = (KVChIo*)si->GetChIo();
 		 if(!chio) return 0;
  		 chio->SetEnergy( de1 );
  		 chio->GetACQParam("GG")->SetData( (UShort_t)canal[ChIo_GG] );
@@ -603,7 +674,7 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
  		 //chio-csi or chio-si75
  		 KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		 if(!csi) return 0;
- 		 KVChIo *chio = gIndra->GetChIoOf( csi );
+ 		 KVChIo *chio = (KVChIo*)csi->GetChIo();
 		 if( !chio) return 0;
  		 KVSi75 *si75 = (KVSi75*)gIndra->GetDetectorByType(ring,mod,Si75_GG);
 		 if(!si75) return 0;
@@ -643,7 +714,7 @@ KVDetector* KVINDRADstToRootTransfert::Code7(Int_t ring, Int_t mod)
 		//to a Si/CsI, and not those of a ChIo module
 		//try CsI with given ring number and module
 		KVCsI* csi = (KVCsI*)gIndra->GetDetectorByType(ring, mod, CsI_R);
-		if(csi) chio=gIndra->GetChIoOf(csi);
+		if(csi) chio=(KVChIo*)csi->GetChIo();
 		if(!chio) return 0;
 	}
  	chio->SetEnergy( de1 );
@@ -828,7 +899,11 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
 						tmp->SetRealA(a_indra);
 					}
 					else
+					{
 						tmp->SetAMeasured(kFALSE);
+						// reset Z in order to force calculation of mass according to default mass formula of KVINDRAReconNuc
+						tmp->SetZ(z);
+					}
 					if( code == 1 ){
 						//set Z and realZ = 0 in case of 'neutron'
 						tmp->SetZ(0); tmp->SetRealZ(0);
@@ -848,3 +923,50 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
 	}//if(f_in.good
 
 }
+
+KVNumberList KVINDRADstToRootTransfert::PrintAvailableRuns(KVString & datatype)
+{
+   //Prints list of available runs, sorted according to multiplicity
+   //trigger, for selected dataset, data type/analysis task, and system
+   //Returns list containing all run numbers
+
+   KVNumberList all_runs=
+       fDataSet->GetRunList(datatype.Data(), fSystem);
+   KVINDRADBRun *dbrun;
+   
+   //first read list and find what triggers are available
+   int triggers[10], n_trigs = 0;
+   all_runs.Begin();
+   while ( !all_runs.End() ) {
+      dbrun = (KVINDRADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+      if (!KVBase::
+          ArrContainsValue(n_trigs, triggers, dbrun->GetTrigger())) {
+         triggers[n_trigs++] = dbrun->GetTrigger();
+      }
+   }
+   //sort triggers in ascending order
+   int ord_trig[10];
+   TMath::Sort(n_trigs, triggers, ord_trig, kFALSE);
+
+   int trig = 0;
+   while (trig < n_trigs) {
+      cout << " ---> Trigger M>" << triggers[ord_trig[trig]] << endl;
+      all_runs.Begin();
+      while ( !all_runs.End() ) {
+         dbrun = (KVINDRADBRun *)fDataSet->GetDataBase()->GetTable("Runs")->GetRecord(all_runs.Next());
+         if (dbrun->GetTrigger() == triggers[ord_trig[trig]]) {
+            cout << "    " << Form("%4d", dbrun->GetNumber());
+            cout << Form("\t(%7d events)", dbrun->GetEvents());
+            cout << "\t[File written: " << dbrun->GetDatime().
+                AsString() << "]";
+            if (dbrun->GetComments())
+               cout << "\t" << dbrun->GetComments();
+            cout << endl;
+         }
+      }
+      trig++;
+      cout << endl;
+   }
+   return all_runs;
+}
+

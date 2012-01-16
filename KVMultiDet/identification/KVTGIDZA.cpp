@@ -45,6 +45,8 @@ ClassImp(KVTGIDZA)
    //using a KVTGIDFunctions namespace function (e.g. "tassangot_A"),
    //for 'x' values from xmin to xmax, npar parameters, and defining
    //the parameter indices corresponding to 'x' and 'y' coordinates.
+
+   fZorA=0;
 }
 
 //___________________________________________________________________________//
@@ -57,7 +59,7 @@ KVTGIDZA::KVTGIDZA(const Char_t * name, Int_t npar, Int_t type, Int_t light)
 	// npar = total number of parameters
 	// type = functional type (0: standard, 1:extended)
 	// light = with (1) or without (0) CsI light-energy dependence
-	
+
 	fZorA=0;
 	SetParameter(2,fZorA);
 	SetParName(3,"Z");
@@ -113,23 +115,23 @@ void KVTGIDZA::AddLineToGrid(KVIDGrid * g, Int_t Z, Int_t npoints,
    //A & Z identification
    //on va faire: p,d,t,3He,4He,6He,6Li,7Li,8Li,7Be,9Be, etc.
    static Int_t Ziso[] =
-       { 1, 1, 1, 
-		 	2, 2, 2, 
-			3, 3, 3, 
-			4, 4, 4, 
-			5, 5, 5, 
-			6, 6, 6, 
+       { 1, 1, 1,
+		 	2, 2, 2,
+			3, 3, 3,
+			4, 4, 4,
+			5, 5, 5,
+			6, 6, 6,
 			7, 7, 7,
 			8, 8, 8
    };
    static Int_t Aiso[] =
-       { 1, 2, 3, 
-			3, 4, 6, 
-			6, 7, 8, 
-			7, 9, 10, 
-			10, 11, 12, 
+       { 1, 2, 3,
+			3, 4, 6,
+			6, 7, 8,
+			7, 9, 10,
+			10, 11, 12,
 			12, 13, 14,
-			14, 15, 16, 
+			14, 15, 16,
 			15, 16, 17
    };
    static Int_t nisotopes = 24; //number of isotopes in arrays

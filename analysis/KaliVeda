@@ -1,2 +1,2 @@
 #!/bin/csh -f
-kvdatanalyser -b -n plugin=INDRA $argv
+kvdatanalyser -n plugin=INDRA $argv

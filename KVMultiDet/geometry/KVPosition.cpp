@@ -222,34 +222,48 @@ TVector3 KVPosition::GetRandomDirection(Option_t * t)
    //"random" among the corresponding angles, or "isotropic".
    //By default, the direction is "isotropic".
 
-   TVector3 dummy(1.0);         // a unit vector
-   Float_t dtor = TMath::Pi() / 180.0;
-   Float_t phmin = fPhi_min * dtor;     //phimin in radians
-   Float_t phmax = fPhi_max * dtor;     //phimax in radians
+   Double_t  dtor = TMath::DegToRad();
+   Double_t th,ph;
+	GetRandomAngles(th,ph,t);
+	TVector3 dummy;
+	dummy.SetMagThetaPhi(1.0,th*dtor,ph*dtor); // a unit vector
+	
+	return dummy;
+}
+//___________________________________________________________________________
+void KVPosition::GetRandomAngles(Double_t &th,Double_t &ph, Option_t * t)
+{
+   //Set theta and phi to random values between the max and min limits defining the
+   //solid angle element.
+   //Depending on the optional option string, the direction is either drawn at
+   //"random" among the corresponding angles, or "isotropic".
+   //By default, the direction is "isotropic".
+	
+	Float_t dtor = TMath::DegToRad();
+   Float_t phmin = fPhi_min;     //phimin in radians
+   Float_t phmax = fPhi_max;     //phimax in radians
    if (phmax < phmin)
-      phmax += (360. * dtor);
-   Float_t dphi = phmax - phmin;
+      phmax += 360;
+   
+	Float_t dphi = phmax - phmin;
    Float_t thmin, thmax, dtheta;
 
-   if (!strcmp(t, "random")) {
+	if (!strcmp(t, "random")) {
       thmin = fTheta_min * dtor;
       thmax = fTheta_max * dtor;
       dtheta = thmax - thmin;
-      fTheta = gRandom->Uniform(dtheta) + thmin;
+      th = gRandom->Uniform(dtheta) + thmin;
    } else {
       thmin = TMath::Cos(fTheta_min * dtor);
       thmax = TMath::Cos(fTheta_max * dtor);
       dtheta = thmin - thmax;
-      fTheta = TMath::ACos(gRandom->Uniform(dtheta) + thmax);
+      th = TMath::ACos(gRandom->Uniform(dtheta) + thmax);
    }
-   fPhi = gRandom->Uniform(dphi) + phmin;
-   if (fPhi > (2. * TMath::Pi()))
-      fPhi -= (2. * TMath::Pi());
-   dummy.SetTheta(fTheta);
-   dummy.SetPhi(fPhi);
-   fPhi /= dtor;
-   fTheta /= dtor;
-   return dummy;
+   ph = gRandom->Uniform(dphi) + phmin;
+   if (ph > 360)
+      ph -= 360;
+  	th/=dtor;
+	
 }
 
 //___________________________________________________________________________
@@ -385,10 +399,10 @@ void KVPosition::GetCornerCoordinates(TVector3 * corners, Double_t depth)
 	// situated at distance (fDistance+depth) from the origin.
    //
    // The order of the 4 corners is as follows:
-   //       corners[0] : theta-min, phi-min
-   //       corners[1] : theta-max, phi-min
-   //       corners[2] : theta-max, phi-max
-   //       corners[3] : theta-min, phi-max
+   //       corners[3] : theta-min, phi-min
+   //       corners[2] : theta-max, phi-min
+   //       corners[1] : theta-max, phi-max
+   //       corners[0] : theta-min, phi-max
 	//
 	// Coordinates are in CENTIMETRES
 	
@@ -398,10 +412,10 @@ void KVPosition::GetCornerCoordinates(TVector3 * corners, Double_t depth)
 	TVector3 normal_to_plane(sin(pthR)*cos(pphR), sin(pthR)*sin(pphR), cos(pthR));
 	
 	// the four directions/lines
-	corners[0].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMin() );
-	corners[1].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMin() );
-	corners[2].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMax() );
-	corners[3].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMax() );
+	corners[3].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMin() );
+	corners[2].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMin() );
+	corners[1].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMax(), TMath::DegToRad()*GetPhiMax() );
+	corners[0].SetMagThetaPhi(1.0, TMath::DegToRad()*GetThetaMin(), TMath::DegToRad()*GetPhiMax() );
 	
 	// calculate intersection points
 	for(register int i=0; i<4; i++){

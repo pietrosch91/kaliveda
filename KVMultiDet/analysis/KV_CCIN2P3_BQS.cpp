@@ -10,6 +10,8 @@ $Date: 2008/04/14 08:49:37 $
 #include "KV_CCIN2P3_BQS.h"
 #include "TSystem.h"
 #include "TEnv.h"
+#include "KVDataAnalyser.h"
+#include "KVDataAnalysisTask.h"
 
 ClassImp(KV_CCIN2P3_BQS)
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,10 +60,10 @@ void KV_CCIN2P3_BQS::SetJobTime(Int_t ss, Int_t mm, Int_t hh)
       tmp.Form("%d:%02d", mm, ss);
    else if (ss)
       tmp.Form("%d", ss);
-   SetJobTime(tmp.Data());
+   SetJobTimeString(tmp.Data());
 }
 
-void KV_CCIN2P3_BQS::SetJobTime(const Char_t* time)
+void KV_CCIN2P3_BQS::SetJobTimeString(const Char_t* time)
 {
    //Set CPU time for batch job.
    //      SetJobTime() => use default time
@@ -130,7 +132,7 @@ void KV_CCIN2P3_BQS::ChooseJobTime()
      << fDefJobTime << "] : ";cout.flush();
     tmp.ReadToDelim(cin);
     if(!tmp.Length()){
-       SetJobTime();
+       SetJobTimeString();
        return;
     }
     Int_t sec=tmp.Atoi();
@@ -199,7 +201,7 @@ void KV_CCIN2P3_BQS::ReadBatchEnvFile(TEnv* env)
    //Read any useful information on batch system from the TEnv
    //(this method is used by KVDataAnalyser::ReadBatchEnvFile)
    KVBatchSystem::ReadBatchEnvFile(env);
-   SetJobTime(env->GetValue("BatchSystem.Time", ""));
+   SetJobTimeString(env->GetValue("BatchSystem.Time", ""));
    SetJobMemory(env->GetValue("BatchSystem.Memory", ""));
    SetJobDisk(env->GetValue("BatchSystem.Disk", ""));
 }
@@ -233,13 +235,60 @@ void KV_CCIN2P3_BQS::ChangeDefJobOpt(KVDataAnalyser* da)
 	// on the /sps/ semi-permanent storage facility. In this case we need to add
 	// the option '-l u_sps_indra' to the 'qsub' command (if not already in the
 	// default job options)
+	//
+	// Due to many people being caught out by this mechanism when submitting
+	// raw->recon, raw->ident, etc. jobs from an SPS directory (and thus being penalised
+	// unfairly by the limited number of SPS-ressource-declaring jobs), we only declare
+	// u_sps_indra if the analysis task is not "Reconstruction", "Identification1",
+	// "RawIdent", or "Identification2". We also add some warning messages.
 
 	KVBatchSystem::ChangeDefJobOpt(da);
+	KVString taskname = da->GetAnalysisTask()->GetName();
+	Bool_t recId = (taskname=="Reconstruction"||taskname=="Identification1"||taskname=="RawIdent"||taskname=="Identification2");
 	KVString wrkdir( gSystem->WorkingDirectory() );
 	KVString oldoptions( GetDefaultJobOptions() );
 	if( wrkdir.Contains("/sps/") && !oldoptions.Contains("u_sps_indra") ){
-		oldoptions += " -l u_sps_indra";
-		SetDefaultJobOptions( oldoptions.Data() );
+		if( recId ){
+			// submitting recon/ident job from /sps directory. do not add u_sps_indra ressource
+			Warning("ChangeDefJobOpt",
+					"Your job is being submitted from %s.\nHowever, for reconstruction/identification tasks, we do not declare the 'u_sps_indra' ressource, so that the number of jobs which can be treated concurrently will not be limited.",
+					wrkdir.Data());
+		}
+		else
+		{
+			oldoptions += " -l u_sps_indra";
+			SetDefaultJobOptions( oldoptions.Data() );
+			Warning("ChangeDefJobOpt",
+				"Your job is being submitted from %s.\nTherefore the ressource 'u_sps_indra' has been declared and the number of jobs which can be treated concurrently will be limited.",
+				wrkdir.Data());
+		}
 	}	
 }
 
+//_______________________________________________________________________________//
+TString KV_CCIN2P3_BQS::BQS_Request(KVString value,KVString jobname)
+{
+	//Permet d interroger un job vis la commande BQS qselect
+	//sur differentes grandeurs (qselect -list -v)
+	/*
+	//Ici les commandes les plus utiles actuellement
+	//
+	bastacputime	//temps ecoule depuis le start
+	cpu_limit	//temps max
+	cpurate		//temps CPU
+	
+	req_scratch             requested scratch size (MB)
+	cur_scratch             current scratch size (MB)
+	max_scratch             max scratch size (MB)
+	
+	req_mem                 requested memory size (MB)
+	cur_mem                 current memory size (MB)
+	max_mem                 max memory size (MB)
+	*/
+	
+	if ( jobname == "" )
+		jobname.Form("%s",GetJobName());
+	KVString inst; inst.Form("qselect -N %s %s",jobname.Data(),value.Data());
+	return gSystem->GetFromPipe(inst.Data());
+	
+}

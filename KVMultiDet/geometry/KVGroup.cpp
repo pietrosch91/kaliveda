@@ -28,6 +28,7 @@ $Id: KVGroup.cpp,v 1.35 2008/01/17 15:17:20 franklan Exp $
 #include "KVIDTelescope.h"
 #include "KVReconstructedNucleus.h"
 #include "TROOT.h"
+#include "KVNameValueList.h"
 
 ClassImp(KVGroup);
 /////////////////////////////////////////////////////////////////////
@@ -57,7 +58,7 @@ void KVGroup::init()
    //Default initialisation
 
    fTelescopes = new KVList(kFALSE);
-   gROOT->GetListOfCleanups()->Add(fTelescopes);
+   fTelescopes->SetCleanup();
    fNumberOfLayers = 0;
    fLayNumMin = 0;
    fLayNumMax = 0;
@@ -90,13 +91,11 @@ KVGroup::~KVGroup()
       while ((tel = (KVTelescope *) next()))
          tel->SetGroup(0);
       fTelescopes->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fTelescopes));
       delete fTelescopes;
    }
    fTelescopes = 0;
    if (fReconstructedNuclei && fReconstructedNuclei->TestBit(kNotDeleted)) {
       fReconstructedNuclei->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fReconstructedNuclei));
       delete fReconstructedNuclei;
       fReconstructedNuclei = 0;
    }
@@ -106,7 +105,6 @@ KVGroup::~KVGroup()
    fReconstructedNuclei = 0;
    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
       fDetectors->Clear();
-      while (gROOT->GetListOfCleanups()->Remove(fDetectors));
       delete fDetectors;
       fDetectors = 0;
    }
@@ -118,7 +116,6 @@ void KVGroup::Add(KVTelescope * kvt)
 {
 //Add a telescope to the current group.
    if (kvt) {
-      kvt->SetBit(kMustCleanup);
       fTelescopes->Add(kvt);
       kvt->SetGroup(this);
    } else
@@ -237,21 +234,30 @@ void KVGroup::Sort()
 
 //_____________________________________________________________________________________
 
-void KVGroup::DetectParticle(KVNucleus * part)
+KVNameValueList*  KVGroup::DetectParticle(KVNucleus * part)
 {
    //Calculate energy losses of a charged particle traversing the telescopes of the group.
-
+	//This method return a list of TNamed where each detector which is throught in the particle
+	//are written with the corrresponding energy loss
+	//WARNING : this KVNameValueList has to be deleted by the user
+	//				after use
+	//return 0 if no telescope are on the path of the particle (DEAD zone)
    TList *d = GetTelescopes(part->GetTheta(), part->GetPhi());
    if (d) {
       TIter nextd(d);
       KVTelescope *t = 0;
-      while ((t = (KVTelescope *) nextd())) {
-         t->DetectParticle(part);
-         if (part->GetEnergy() <= 0.0)
-            break;
-      }
+      KVNameValueList* nvl = new KVNameValueList();
+		while ((t = (KVTelescope *) nextd())) {
+         t->DetectParticle(part,nvl);
+         if (part->GetEnergy() <= 0.0){
+				delete d;
+				return nvl;
+			}	
+		}
       delete d;
-   }
+   	return nvl;
+	}
+	return 0;
 }
 
 //_____________________________________________________________________________________
@@ -327,7 +333,7 @@ void KVGroup::Reset()
    }
    //reset energy loss and KVDetector::IsAnalysed() state
    //plus ACQParams set to zero
-   GetDetectors()->Execute("Clear", "");
+   GetDetectors()->R__FOR_EACH(KVDetector, Clear)();
 }
 
 //_________________________________________________________________________________
@@ -361,6 +367,7 @@ void KVGroup::AddHit(KVReconstructedNucleus * kvd)
 {
    if (!fReconstructedNuclei) {
       fReconstructedNuclei = new KVList(kFALSE);
+      fReconstructedNuclei->SetCleanup();
    }
    fReconstructedNuclei->Add(kvd);
 }
@@ -592,7 +599,7 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
 
 //_________________________________________________________________________________
 
-void KVGroup::GetIDTelescopes(KVList * tel_list)
+void KVGroup::GetIDTelescopes(TCollection * tel_list)
 {
    //Identify all the ways of identifying particles possible from the detectors
    //in the group, create the appropriate KVIDTelescope objects and add them to
@@ -684,7 +691,7 @@ KVList *KVGroup::GetDetectors()
 
    if (!fDetectors) {
       fDetectors = new KVList(kFALSE);
-      gROOT->GetListOfCleanups()->Add(fDetectors);
+      fDetectors->SetCleanup();
 
       //fill the list
       TIter ntel(fTelescopes);
@@ -693,7 +700,6 @@ KVList *KVGroup::GetDetectors()
          TIter ndet(tel->GetDetectors());
          KVDetector *det;
          while ((det = (KVDetector *) ndet())) {
-            det->SetBit(kMustCleanup);
             fDetectors->Add(det);
          }
       }
@@ -770,7 +776,7 @@ void KVGroup::AnalyseParticles()
 
          if (nuc->GetNSegDet() >= 2) {
             //all part.s crossing 2 or more independent detectors are fine
-            nuc->SetStatus(0);
+            nuc->SetStatus( KVReconstructedNucleus::kStatusOK );
          } else if (nuc->GetNSegDet() == 1) {
             //only 1 independent detector hit => depends on what's in the rest
             //of the group
@@ -778,7 +784,7 @@ void KVGroup::AnalyseParticles()
          } else {
             //part.s crossing 0 independent detectors (i.E. arret ChIo)
             //can not be reconstructed
-            nuc->SetStatus(3);
+            nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
          }
       }
       next.Reset();
@@ -793,18 +799,18 @@ void KVGroup::AnalyseParticles()
                //after identifying the others and subtracting their calculated
                //energy losses from the "dependent"/"non-segmented" detector
                //(i.E. the ChIo)
-               nuc->SetStatus(1);
+               nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterSub );
             } else {
                //more than one ? then we can make some wild guess by sharing the
                //"non-segmented" (i.e. ChIo) contribution between them, but
                //I wouldn't trust it as far as I can spit
-               nuc->SetStatus(2);
+               nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterShare );
             }
             //one possibility remains: the particle may actually have stopped e.g. in the Si member
             //of a Ring 1 Si-CsI telescope, in which case AnalStatus = 3
             if (nuc->GetIDTelescopes()->GetSize() == 0) {
                //no ID telescopes with which to identify particle
-               nuc->SetStatus(3);
+               nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
             }
          }
       }
@@ -820,16 +826,16 @@ void KVGroup::AnalyseParticles()
 
       if (nuc->GetNSegDet() > 0) {
          //OK no problem
-         nuc->SetStatus(0);
+         nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
       } else {
          //dead in the water
-         nuc->SetStatus(3);
+         nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
       }
       //one possibility remains: the particle may actually have stopped e.g. in the 1st member
       //of a telescope, in which case AnalStatus = 3
       if (nuc->GetIDTelescopes()->GetSize() == 0) {
          //no ID telescopes with which to identify particle
-         nuc->SetStatus(3);
+         nuc->SetStatus(KVReconstructedNucleus::kStatusStopFirstStage);
       }
    }
 #ifdef KV_DEBUG
@@ -857,3 +863,10 @@ UInt_t KVGroup::GetNUnidentified()
    return (GetHits() - GetNIdentified());
 };
 #endif
+
+void KVGroup::ClearHitDetectors()
+{
+	// Loop over all detectors in group and clear their list of 'hits'
+	// i.e. the lists of particles which hit each detector
+	GetDetectors()->R__FOR_EACH(KVDetector, ClearHits)();
+}

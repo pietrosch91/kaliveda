@@ -13,15 +13,52 @@ ClassImp(KVQPsource)
 
 ////////////////////////////////////////////////////////////////////////////////
 // User global variable class for reconstruction of QP source
+//
+// It takes all nuclei with centre of mass velocities > 0 and adds them
+// together (charge, mass, momentum, energy) in order to calculate
+// a 'source' nucleus, for which we can obtain various quantities (see below).
+// Each nucleus which is included in the source definition is added
+// to a group called "QPsource". This can be used for further analysis
+// of the particles (by testing KVParticle::BelongsToGroup("QPsource") method).
+//
+//	Index     Name		 	Meaning
+//-----------------------------------------------------
+//   0		  E*			Excitation Energy
+//   1		  Z			Z source
+//   2		  A			A source
+//   3		  Vz			z component of velocity
+//   4		  Vx			x component of velocity
+//   5 	 	  Vy			y component of velocity
+//   6		  Theta		polar angle relative to the beam
+//
+// These quantities can be obtained either by name:
+//
+//      Double_t estar = GetValue("E*");
+//
+// or by index:
+//
+//      Double_t estar = GetValue(0);
+//
+// or in an array:
+//
+//     Double_t *vals = GetValuePtr();
+//     Double_t estar = vals[0]
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 //_________________________________________________________________
 void KVQPsource::init_KVQPsource(void)
 	{
-//
-// Initialisation des champs de KVQPsource
-// Cette methode privee n'est appelee par les createurs
-//
+		// Initialisation called by ctor.
+		// Set up correspondance between variable names and index.
+		
+ SetNameIndex("E*",0);
+ SetNameIndex("Z",1);
+ SetNameIndex("A",2);
+ SetNameIndex("Vz",3);
+ SetNameIndex("Vx",4);
+ SetNameIndex("Vy",5);
+ SetNameIndex("Theta",6);
 	}
 
  
@@ -116,23 +153,19 @@ void KVQPsource::Reset(void)
 void KVQPsource::Fill(KVNucleus *c)
 {
 //Add the particle's contribution to global variable.
-//
+//Chosen particles are labelled as belonging to "QPsource" group
 	if(c->GetFrame("CM")->GetVpar() > 0)
 	 {
 	 QPsource+=(*c);
-	 c->SetName("QP");
+	 c->AddGroup("QPsource");
 	 }
 }		
 				
 //_________________________________________________________________
-Double_t KVQPsource::GetValue(void) const
+Double_t KVQPsource::getvalue_void() const
  {
-// returns the value of the global variable
- 	Double_t val=const_cast<KVQPsource*>(this)->GetValue(0);
- 
-// compute here the value of the global variable and set the value of val
-
- return val; 
+	// returns the excitation energy of the source
+	return QPsource.GetExcitEnergy(); 
  }		
 				
 //_________________________________________________________________
@@ -152,20 +185,17 @@ Double_t *KVQPsource::GetValuePtr(void)
 // 6	  Theta
 //
 //
- Double_t *v=0;
- 
- v=new Double_t[7];
  for(Int_t i=0;i<7;i++)
   {
-  v[i]=GetValue(i);
+  fVal[i]=GetValue(i);
   }
 
 
- return v;
+ return fVal;
  }	
                                 
 //_________________________________________________________________
-Double_t KVQPsource::GetValue(Int_t i)
+Double_t KVQPsource::getvalue_int(Int_t i)
  {
 // on retourne la ieme valeur du tableau
 //
@@ -211,72 +241,12 @@ Double_t KVQPsource::GetValue(Int_t i)
  }         
 				
 //_________________________________________________________________
-Double_t KVQPsource::GetValue(Char_t *name)    
- {
-// on retourne la valeur de la variable "name"
-//
-//	Name		 Meaning
-//-----------------------------------------------------
-//     E*		Excitation Energy
-//     Z		Z source
-//     A		A source
-//     Vz		z compoenent of velocity
-//     Vx		x compoenent of velocity
-//     Vy		y compoenent of velocity
-//     Theta		angle relative to the beam
-//
-// par exemple, KVQPsource::GetValue("Excit") retourne la valeur de l'energie
-// d'excitation. Des noms peuvent etre "synonymes": ils peuvent retourner la meme
-// valeur. Par exemple "Var1" et "Variable1" peuvent retourner la valeur de la Variable 1. 
-//
- Int_t i=0;
- if(strcmp(name,"E*")==0)
-  {
-  i=0;
-  }
- else if(strcmp(name,"Z")==0)
-  {
-  i=1;
-  }
- else if(strcmp(name,"A")==0)
-  {
-  i=2;
-  }
- else if(strcmp(name,"Vz")==0)
-  {
-  i=3;
-  }
- else if(strcmp(name,"Vx")==0)
-  {
-  i=4;
-  }
- else if(strcmp(name,"Vy")==0)
-  {
-  i=5;
-  }
- else if(strcmp(name,"Theta")==0)
-  {
-  i=6;
-  }
- else
-  {
-  i=0;
-  Warning("GetValue(Char_t *name)",Form("The name \"%s\" is unknown, default value returned.",name)); 
-  }
-
- return GetValue(i);
- }         
-
-//_________________________________________________________________
 TObject *KVQPsource::GetObject(void)    
  {
 //
-// Returns a pointer to an object linked to this globa variable
-// This may be a list of particles, an intermediate object used to compute values, etc.
+// Returns address of the KVNucleus used to calculate source properties
 // 
  TObject *obj=(TObject *)&QPsource;
-
-// Sets the value of the pointer here
  
 
  return obj;

@@ -11,29 +11,42 @@ $Date: 2009/01/23 15:25:52 $
 #define __KVCALORIMETRY_H
 
 #include "KVVarGlob.h"
+#include "KVNameValueList.h"
+#include "KVNucleus.h"
 
 class KVCalorimetry:public KVVarGlob
 {
    
 	protected:
 	
-	KVString ingredient_list;
-	KVString parameter_list;
-	Double_t*	ingredients;//!
-	Int_t 	nbre_ingredients;
+	KVNucleus nn;	//! permet d utiliser des methodes de KVNucleus
+	KVNameValueList* nvl_ing;//!-> //Contains all ingredients computed
+	KVNameValueList* nvl_par;//!-> //Contains all parameters needed for the computation
 	
-	Bool_t 	kIsModified;
-	Bool_t	kParameterChanged;
-	Double_t kracine_max,kracine_min;
-	Int_t 	kroot_status;
+	Bool_t 	kIsModified;	//indique les ingredients ont été modifiés
+	Double_t kracine_max,kracine_min; //deux racines issues de la resolution de RootSquare
+	Int_t 	kroot_status;	//statut pour la methode de RootSquare
+	
+	Bool_t kfree_neutrons_included;	// = kTRUE -> Estimation des neutrons libre est faite
+	Bool_t kchargediff;	// = kTRUE -> distinction entre particule et fragment
+	Bool_t ktempdeduced;	// = kTRUE -> calcul de la temperature
 	
 	void 		SumUp(); 
 	Bool_t 	RootSquare(Double_t aaa,Double_t bbb,Double_t ccc);
-	Double_t GetIngValue(KVString ingredient_name){ return ingredients[GetNameIndex(ingredient_name.Data())]; }
-	void 		SetIngValue(KVString ingredient_name,Double_t value){ ingredients[GetNameIndex(ingredient_name.Data())]=value; }
-	void	 	AddIngValue(KVString ingredient_name,Double_t value){ ingredients[GetNameIndex(ingredient_name.Data())]+=value; }
 	
 	virtual Double_t getvalue_int(Int_t);
+	
+	void SetFragmentMinimumCharge(Double_t value);
+	void SetParticleFactor(Double_t value);
+	void SetLevelDensityParameter(Double_t value);
+	void SetAsurZ(Double_t value);
+	void SetNeutronMeanEnergyFactor(Double_t value);
+	
+	Double_t GetIngValue(Int_t idx);
+	void SetIngValue(KVString name,Double_t value);
+	void AddIngValue(KVString name,Double_t value);
+	void SetParameter(const Char_t* par, Double_t value);
+	void init_KVCalorimetry();
 	
 	public:
 	
@@ -50,45 +63,25 @@ class KVCalorimetry:public KVVarGlob
 #endif
 	KVCalorimetry& operator = (const KVCalorimetry &a);
    
-	void SetParameter(const Char_t* par, Double_t value){
-
-		if (!fParameters.HasParameter(par)) parameter_list += KVString(par)+" ";
-		KVVarGlob::SetParameter(par,value);
-		kParameterChanged=kTRUE;
-
-	}				
-
-	void SetAsurZ(Double_t fact)								{ SetParameter("AsurZ",fact); }
-	void SetMinimumChargeForFragment(Double_t fact)		{ SetParameter("zmin_frag",fact); }
-	void SetFactorForNeutronsMeanEnergy(Double_t fact)	{ SetParameter("neutron_factor",fact); }
-	void SetLevelDensityParameter(Double_t fact)			{ SetParameter("level_parameter",fact); }
-	void SetFactorForParticles(Double_t fact)				{ SetParameter("particle_factor",fact); }
-	
 	void Reset(void);	
+	void Print(Option_t* opt="") const;
+	KVNameValueList* GetList(Option_t* opt="ing") const;
 	
-	void 	init_KVCalorimetry();
-   void 	Fill(KVNucleus*);
-   
-	void 	Calculate(Double_t neutron_factor=-1,Double_t level_parameter=-1);
+	Int_t GetNumberOfValues() const;
 	
-	void 	PrintIngredients(){
-		if (ingredients) {
-			ingredient_list.Begin(" ");
-			while (!ingredient_list.End()){
-				KVString name = ingredient_list.Next();
-				Int_t idx = GetNameIndex(name.Data());
-				printf("%d - %s - %lf\n",idx,name.Data(),GetValue(idx));
-			}
-		}
-	}
+	Double_t GetIngValue(KVString name);
+	Double_t GetParValue(KVString name);
+	Bool_t HasParameter(KVString name);
+	Int_t GetNameIndex(const Char_t * name);
+	const Char_t* GetValueName(Int_t i) const;
+	Double_t* GetValuePtr(void);
 	
-	void 	PrintParameters(){
-		parameter_list.Begin(" ");
-		while (!parameter_list.End()){
-			KVString name = parameter_list.Next();
-			printf("%s - %lf\n",name.Data(),GetParameter(name.Data()));
-		}
-	}
+	void UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor);
+	void DeduceTemperature(Double_t LevelDensityParameter);
+	void IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter);
+	
+	void 	Fill(KVNucleus*);
+   void 	Calculate(void);
 	
 	ClassDef(KVCalorimetry,1)//compute calorimetry
 	

@@ -1,24 +1,4 @@
 #define KVSelector_cxx
-// The class definition in KVSelector.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector().
-//
-// This class is derived from the ROOT class TSelector.
-// The following members functions are called by the TTree::Process() functions:
-//    Begin():       called everytime a loop on the tree starts,
-//                   a convenient place to create your histograms.
-//    Notify():      this function is called at the first entry of a new Tree
-//                   in a chain.
-//    Process():     called for each event. In this function you decide what 
-//                   to read and you fill your histograms.
-//    Terminate():   called at the end of a loop on the tree,
-//                   a convenient place to draw/fit your histograms.
-//
-//   To use this file, try the following session on your Tree T
-//
-// Root > T->Process("KVSelector.C")
-// Root > T->Process("KVSelector.C","some options")
-// Root > T->Process("KVSelector.C+")
-//
 #include "KVSelector.h"
 #include "TH2.h"
 #include "TStyle.h"
@@ -45,6 +25,7 @@ selection, you will not be able to regenerate them."
 KVString KVSelector::fBranchName = "INDRAReconEvent";
    
 ClassImp(KVSelector)
+
 //______________________________________________________________________________
 //KVSelector
 //
@@ -112,16 +93,197 @@ ClassImp(KVSelector)
 //
 //More examples can be found in the AnalyseCamp1 analysis class.
 //
-void KVSelector::Begin(TTree * tree)
+//Manage histograms
+//======================
+//Few methods are defined to make easier the management
+//of histograms
+//Redefine the method CreateHistos() and create the histograms
+//like this
+//lhisto->Add(new TH1F(...));
+//lhisto->Add(new TH2F(...));
+//lhisto->Add(new TProfile(...));
+//All histograms are stored in an "owner" KVHashList "lhisto"
+//
+//The method FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
+//allows to fill any histogram declared as shown above
+//you only need to give the histogram name followed by the arguments you use normally in the Fill method
+//of TH1::Fill() and derivated
+//
+//Finally, to write the list of histograms in a file
+//Just call the WriteHistoToFile method indicating the name of the file (or not)
+//
+//
+//Manage trees
+//======================
+//Few methods are defined to make easier the management
+//of trees
+//Redefine the method CreateTrees() and create the histograms
+//like this
+//TTree* tt = 0;
+//lhisto->Add(new TTree(...));
+//tt = (TTree* )lhisto->Last()
+//tt->Branch(...)
+//tt->Branch(...)
+//All histograms are stored in an "owner" KVHashList "ltree"
+//
+//The method FillTree(KVString sname="")
+//allows to fill tree(s) according to the name passed as argument
+//if "" is given all trees are filled
+//
+//Finally, to write the list of trees in a file
+//Just call the WriteTreeToFile method indicating the name of the file (or not)
+//
+//////////////////////////////////////////////////////////////////
+
+KVSelector::KVSelector(TTree * tree)
+{
+   //ctor
+   fChain=0;
+   callnotif = 0;
+   gvlist = 0;                  // Global variable list set to nul.
+   lhisto = new KVHashList(); lhisto->SetOwner(kTRUE);
+  	ltree = new KVHashList(); ltree->SetOwner(kTRUE);
+	//create stopwatch
+   fTimer = new TStopwatch;
+   // event list
+   fEvtList = 0;
+   fTEVLexist = 0;
+   fKVDataSelector = 0;
+   fDataSelector = "";
+   needToSelect = kFALSE;
+   needToCallEndRun = kFALSE;
+   fCurrentRun = 0;
+   fPartCond = 0;
+   fGeneData = 0;
+   fRawData = 0;
+   data = 0;
+   dataselector_lock.SetTimeout( 60 ); // 60-second timeout in case of problems
+   dataselector_lock.SetSuspend( 5 ); // suspension after timeout
+   dataselector_lock.SetSleeptime( 1 ); // try lock every second
+}
+
+KVSelector::~KVSelector()
+{
+   //dtor
+   //delete global variable list if it belongs to us, i.e. if created by a
+   //call to GetGVList
+   if (gvlist && TestBit(kDeleteGVList)) {
+      delete gvlist;
+      gvlist = 0;
+      ResetBit(kDeleteGVList);
+   }
+   delete fTimer;
+   SafeDelete(fPartCond);
+	delete lhisto;
+	delete ltree;
+}
+
+void KVSelector::Init(TTree * tree)
+{
+       if(fChain) return;//Init has already been called
+       
+    if(!tree) return;
+       
+	//   Set branch addresses
+   fChain = tree;
+   fChain->SetMakeClass(1);
+
+   if (fChain->InheritsFrom("TChain"))
+      fTreeOffset = ((TChain *) fChain)->GetTreeOffset();
+   else
+      fTreeOffset = 0;
+
+	data=0;b_data=0;
+   fChain->SetBranchAddress( fBranchName.Data() , &data, &b_data);
+
+//
+// Builds a TEventList by adding the contents of the lists for each run
+//
+   BuildEventList();
+   if (fKVDataSelector)         // Init of the KVDataSelector if needed
+   {
+      fKVDataSelector->Init();
+   }
+	// tell the data analyser who we are
+	gDataAnalyser->RegisterUserClass(this);
+	gDataAnalyser->preInitAnalysis();
+   InitAnalysis();              //user initialisations for analysis
+	gDataAnalyser->postInitAnalysis();
+	
+   if (gvlist) {
+      gvlist->Init();
+   }
+}
+
+Bool_t KVSelector::Notify()
+{
+   // Called when loading a new file.
+   // Get branch pointers.
+
+   cout << "Analyse du fichier " << fChain->GetCurrentFile()->GetName()
+       << " : " << fChain->GetTree()->GetEntries() << endl;
+   NbTreeEntry = (Int_t) fChain->GetTree()->GetEntries();
+   fCurrentTreeNumber = fChain->GetTreeNumber();
+
+   needToCallEndRun = kTRUE;
+
+   Int_t nrun =
+       gDataAnalyser->GetRunNumberFromFileName(fChain->GetCurrentFile()->GetName());
+      fCurrentRun = ((KVINDRADB *) gDataBase)->GetRun(nrun);
+
+   if (fEvtList)
+      needToSelect = !(fTEVLexist[fCurrentTreeNumber]);
+   else
+      needToSelect = kFALSE;
+
+   if (needToSelect) {
+      if (!fKVDataSelector) {
+         LoadDataSelector();
+      }
+      fKVDataSelector->Reset(nrun);
+   }
+
+   cout << endl << " ===================  New Run  =================== " <<
+       endl << endl;
+
+      fCurrentRun->Print();
+      if (fCurrentRun->GetSystem()) {
+         if(fCurrentRun->GetSystem()->GetKinematics())
+             fCurrentRun->GetSystem()->GetKinematics()->Print();
+      }
+
+   cout << endl << " ================================================= " <<
+       endl << endl;
+   
+	// Retrieving the pointer to the raw data tree
+   fRawData = (TTree*) fChain->GetCurrentFile()->Get("RawData");
+	// Retrieving the pointer to the gene tree
+   fGeneData = (TTree*) fChain->GetCurrentFile()->Get("GeneData");
+   if(!fGeneData) {
+      cout << "  --> No pulser & laser data for this run !!!" << endl << endl;
+   } else {
+      cout << "  --> Pulser & laser data tree contains " << fGeneData->GetEntries()
+            << " events" << endl << endl;
+   }
+   
+   if (needToSelect) {
+      cout << " Building new TEventList : " << fKVDataSelector->
+          GetTEventList()->GetName()
+          << endl;
+   }
+
+	gDataAnalyser->preInitRun();
+   InitRun();                   //user initialisations for run
+	gDataAnalyser->postInitRun();
+   return kTRUE;
+}
+
+void KVSelector::Begin(TTree *)
 {
    // Function called before starting the event loop.
    // When running with PROOF Begin() is only called in the client.
-   // Initialize the tree branches.
 
-   if (fChain != tree) {
-      Init(tree);
-   }
-//
+ //
 // Get the option and the name of the DataSelector if needed
 //
    TString option = GetOption();
@@ -132,26 +294,7 @@ void KVSelector::Begin(TTree * tree)
       SetDataSelector();
    }
 
-//
-// Builds a TEventList by adding the contents of the lists for each run
-//
-   BuildEventList();
-
    totentry = 0;
-
-   InitAnalysis();              //user initialisations for analysis
-
-   if (gvlist) {
-      gvlist->Init();
-   }
-
-   if (fKVDataSelector)         // Init of the KVDataSelector if needed
-   {
-      fKVDataSelector->Init();
-   }
-
-   cout << endl << "Beginning processing of TChain :" << endl;
-   fChain->ls();
 
    //start stopwatch, after first resetting it (in case this is not the first time the analysis is run)
    fTimer->Start(kTRUE);
@@ -163,10 +306,10 @@ void KVSelector::SlaveBegin(TTree * tree)
    // When running with PROOF SlaveBegin() is called in each slave
    // Initialize the tree branches.
 
-   Init(tree);
+/*    Init(tree);
 
    TString option = GetOption();
-
+ */
 }
 
 #ifdef __WITHOUT_TSELECTOR_LONG64_T
@@ -189,10 +332,17 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    fTreeEntry = entry;
 
-   if (!(totentry % 5000) && totentry)
+   if (!(totentry % 5000) && totentry){
       cout << " +++ " << totentry << " events processed +++ " << endl;
-
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         cout << "     ------------- Process infos -------------" << endl;
+         printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+            pid.fCpuSys, pid.fCpuUser, pid.fMemResident/1024., pid.fMemVirtual/1024.);
+      }
+   }   
    fChain->GetTree()->GetEntry(fTreeEntry);
+	gDataAnalyser->preAnalysis();
 
    //additional selection criteria ?
    if(fPartCond){
@@ -210,7 +360,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
    totentry++;
 
    //calculate momenta of particles in reaction cm frame
-   if (fCurrentRun->GetSystem()) {
+   if (fCurrentRun->GetSystem() && fCurrentRun->GetSystem()->GetKinematics()) {
 
        GetEvent()->SetFrame("CM",
                             fCurrentRun->GetSystem()->GetKinematics()->GetCMVelocity());
@@ -226,15 +376,18 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       ok_anal = fKVDataSelector->ProcessCurrentEntry(); //Data Selection and user analysis
    } else
       ok_anal = Analysis();     //user analysis
-
+	gDataAnalyser->postAnalysis();
+	
    // Testing whether EndRun() should be called
    if (AtEndOfRun()) {
       TString mes("End of run after ");
       mes += (totentry);
       mes += " events.";
       Info("Process", mes.Data());
-
+	
+	gDataAnalyser->preEndRun();
       EndRun();                 //user routine end of run
+	gDataAnalyser->postEndRun();
       needToCallEndRun = kFALSE;
 
       // save the new Built TEventList
@@ -242,14 +395,6 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
          SaveCurrentDataSelection();
          needToSelect = kFALSE;
       }
-
-      Info("Process", "delete data");
-      delete data;
-      data = 0;
-      Info("Process", "delete gIndra");
-      delete gIndra;            // Absolutely necessary to keep the coherence between
-      gIndra = 0;               // the pointers to the detectors and the TRef's
-      Info("Process", "delete OK");
    }
 
    return ok_anal;
@@ -271,11 +416,9 @@ void KVSelector::Terminate()
                            //includes time actually spent analysing data
 
    if (needToCallEndRun) {
+	gDataAnalyser->preEndRun();
       EndRun();
-      delete data;
-      data = 0;
-      delete gIndra;            // Absolutely necessary to keep the coherence between
-      gIndra = 0;               // the pointers to the detectors and the TRef's
+	gDataAnalyser->postEndRun();
    }
 
    if (needToSelect) {
@@ -300,7 +443,9 @@ void KVSelector::Terminate()
       fEvtList = 0;
    }
 
+	gDataAnalyser->preEndAnalysis();
    EndAnalysis();               //user end of analysis routine
+	gDataAnalyser->postEndAnalysis();
 }
 
 void KVSelector::Make(const Char_t * kvsname)
@@ -369,7 +514,7 @@ KVVarGlob *KVSelector::AddGV(const Char_t * class_name,
    //      (1) add to the ROOT macro path the directory where her class's source code is kept, e.g. in $HOME/.rootrc
    //              add the following line:
    //
-   //              +Unix.*.Root.MacroPath:      :$(HOME)/myVarGlobs
+   //              +Unix.*.Root.MacroPath:      $(HOME)/myVarGlobs
    //
    //      (2) for each user-defined class, add a line to $HOME/.kvrootrc to define a "plugin". E.g. for a class called MyNewVarGlob,
    //
@@ -552,7 +697,7 @@ void KVSelector::BuildEventList(void)
          fTEVLexist[tn] = kFALSE;
          TString fname(((TNamed *) lof->At(tn))->GetTitle());
          cout << fname.Data() << endl;
-         Int_t nrun = GetRunNumberFromFileName(fname.Data());
+         Int_t nrun = gDataAnalyser->GetRunNumberFromFileName(fname.Data());
          if (nrun) {
             cout << "Numero de run " << nrun << endl;
             cout << "Recherche de " << Form("%s_run%d;1",
@@ -598,7 +743,6 @@ void KVSelector::BuildEventList(void)
          fEvtList = 0;
       }
    }
-
    fChain->SetEventList(fEvtList);
 }
 
@@ -734,8 +878,7 @@ void KVSelector::LoadDataSelector(void)
              Data() << "*.*\" ..." << endl;
          gSystem->
              Exec(Form
-                  ("rm %s.[c,h]*", fDataSelector.Data(),
-                   fDataSelector.Data()));
+                  ("rm %s.[c,h]*", fDataSelector.Data()));
       }
    } else {
       fKVDataSelector = 0;
@@ -810,17 +953,6 @@ void KVSelector::SaveCurrentDataSelection(void)
    } else {
       cout << "No TEventList to save..." << endl;
    }
-}
-
-//____________________________________________________________________________
-Int_t KVSelector::GetRunNumberFromFileName(const Char_t * fileName)
-{
-   // Get the run number from the current tree file
-   
-   KVAvailableRunsFile *arf;
-   //get type of data being analysed from analyser running the analysis
-   arf = gDataSet->GetAvailableRunsFile( gDataAnalyser->GetDataType().Data() );
-   return arf->IsRunFileName(fileName);
 }
 
 //____________________________________________________________________________
@@ -900,59 +1032,200 @@ void KVSelector::SetParticleConditions(const KVParticleCondition& cond)
    //set name of class to which we cast. this is for optimization to work
    fPartCond->SetParticleClassName("KVINDRAReconNuc");
 }
+  
+//____________________________________________________________________________
+   
+KVHashList* KVSelector::GetHistoList()
+{
+
+	return lhisto; 
+	
+}
+ 
+//____________________________________________________________________________
+
+TH1* KVSelector::GetHisto(const Char_t* histo_name) {
+
+	return (TH1* )lhisto->FindObject(histo_name);
+
+}
+   
+//____________________________________________________________________________
+   
+void KVSelector::FillHisto(KVString sname,Double_t one,Double_t two,Double_t three,Double_t four)
+{
+	
+	//Find in the list, if there is an histogram named "sname"
+	//If not print an error message
+	//If yes redirect to the right method according to its closest mother class
+	//to fill it
+	TH1* h1=0;
+	if ( (h1 = GetHisto(sname.Data())) ){
+		if ( h1->InheritsFrom("TH3") )
+			FillTH3((TH3* )h1,one,two,three,four);
+		else if ( h1->InheritsFrom("TProfile2D") )
+			FillTProfile2D((TProfile2D* )h1,one,two,three,four);
+		else if ( h1->InheritsFrom("TH2") )
+			FillTH2((TH2* )h1,one,two,three);
+		else if ( h1->InheritsFrom("TProfile") )
+			FillTProfile((TProfile* )h1,one,two,three);
+		else if ( h1->InheritsFrom("TH1") )
+			FillTH1(h1,one,two);
+		else 
+			Warning("FillHisto","%s -> Classe non prevue ...",lhisto->FindObject(sname.Data())->ClassName());
+	}
+	else { 
+		Warning("FillHisto","%s introuvable",sname.Data());
+	}
+
+}
 
 //____________________________________________________________________________
    
-void KVSelector::CheckIfINDRAUpdateRequired()
+void KVSelector::FillTH1(TH1* h1,Double_t one,Double_t two)
 {
-   //  Updating calibration/identification parameters contained in data files.
-   //  When recon/ident data files are created, a KVINDRA object containing all of the
-   //  currently available identification & calibration parameters is written in the file.
-   //  During subsequent analysis of these files (e.g. during recon->ident transformation)
-   //  it is the parameters stored in the file which are used.
-   //  If you want to use different parameters (e.g. because those in the file have become
-   //  obsolete), it is possible by setting the following variables:
-   // 
-   //  [name of dataset].[data file type].UpdateIdentifications:    yes
-   //  [name of dataset].[data file type].UpdateIDTelescopes:    yes
-   //  [name of dataset].[data file type].UpdateCalibrations:    yes
-   // 
-   //  For example, to update the identification parameters during analysis of 'recon'
-   //  data from the 5th INDRA campaign, add the following line in your .kvrootrc:
-   // 
-   //  INDRA_camp5.recon.UpdateIdentifications:   yes
-   // 
-   //  In this example, if a recon->ident task is launched, the identification parameters
-   //  stored in the file will be ignored, and new identification parameters will be set
-   //  according to the current values of INDRA_camp5.ActiveIdentifications and the
-   //  variables giving the names of identification parameter files (see above).
-   // 
-   //  N.B. the parameters in the file being analysed will not be modified. However,
-   //  if you do e.g. recon->ident with 'Update' activated, the INDRA object in the new
-   //  'ident' file will contain the update parameters.
-      
-   Bool_t id_up = gDataSet->GetDataSetEnv( Form("%s.UpdateIdentifications",
-      gDataAnalyser->GetDataType().Data()), kFALSE );
-   Bool_t idtel_up = gDataSet->GetDataSetEnv( Form("%s.UpdateIDTelescopes",
-      gDataAnalyser->GetDataType().Data()), kFALSE );
-   Bool_t cal_up = gDataSet->GetDataSetEnv( Form("%s.UpdateCalibrations",
-      gDataAnalyser->GetDataType().Data()), kFALSE );
-   //update identification telescopes ?
-   if(idtel_up){
-      cout << endl << " +++ UPDATING IDENTIFICATION TELESCOPES OF INDRA +++ "<< endl << endl; 
-      gIndra->UpdateIDTelescopes();
-      gIndra->SetRunIdentificationParameters( fCurrentRun->GetNumber() );
-   }
-   //update identification parameters ?
-   else if(id_up){
-      cout << endl << " +++ UPDATING IDENTIFICATION PARAMETERS OF INDRA +++ "<< endl << endl; 
-      gIndra->UpdateIdentifications();
-      gIndra->SetRunIdentificationParameters( fCurrentRun->GetNumber() );
-   }
-   //update calibrations ?
-   if(cal_up){
-      cout << endl << " +++ UPDATING CALIBRATION PARAMETERS OF INDRA +++ " << endl<< endl; 
-      gIndra->UpdateCalibrators();
-      gIndra->SetRunCalibrationParameters( fCurrentRun->GetNumber() );
-   }
+
+	h1->Fill(one,two);
+	
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTProfile(TProfile* h1,Double_t one,Double_t two,Double_t three)
+{
+	
+	h1->Fill(one,two,three);
+
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTH2(TH2* h2,Double_t one,Double_t two,Double_t three)
+{
+
+	h2->Fill(one,two,three);
+
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTProfile2D(TProfile2D* h2,Double_t one,Double_t two,Double_t three,Double_t four)
+{
+	
+	h2->Fill(one,two,three,four);
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillTH3(TH3* h3,Double_t one,Double_t two,Double_t three,Double_t four)
+{
+	
+	h3->Fill(one,two,three,four);
+}
+	
+	
+//____________________________________________________________________________
+   
+void KVSelector::CreateHistos()
+{
+
+	Warning("CreateHistos","To be redefined child class");
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::WriteHistoToFile(KVString filename,Option_t* option)
+{
+
+	//If no filename is specified, assume that the current directory is writable
+	//if filename correspond to an already opened file, write in it
+	//if not open/create it, depending on the option ("recreate" by default)
+	//and write in it
+	Bool_t IsCreated=kFALSE;
+	if (filename == ""){
+		GetHistoList()->Write();
+	}
+	else {
+		TFile* file=0;
+		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) ){
+			IsCreated=kTRUE;
+			file = new TFile(filename.Data(),option);
+		}
+		file->cd();
+		GetHistoList()->Write();
+		if (IsCreated) file->Close();	
+	}
+
+}
+
+//____________________________________________________________________________
+   
+KVHashList* KVSelector::GetTreeList()
+{
+
+	return ltree; 
+	
+}
+ 
+//____________________________________________________________________________
+
+TTree* KVSelector::GetTree(const Char_t* tree_name) {
+
+	return (TTree* )ltree->FindObject(tree_name);
+
+}
+//____________________________________________________________________________
+   
+void KVSelector::CreateTrees()
+{
+
+	Warning("CreateTrees","To be redefined child class");
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::FillTree(KVString sname)
+{
+	
+	if (sname==""){
+		ltree->Execute("Fill","");
+	}
+	else {
+		TTree* tt=0;
+		if ( (tt = GetTree(sname.Data())) ){
+			tt->Fill();
+		}
+		else { 
+			Warning("FillTree","%s introuvable",sname.Data());
+		}
+	}
+
+}
+
+//____________________________________________________________________________
+   
+void KVSelector::WriteTreeToFile(KVString filename,Option_t* option)
+{
+
+	//If no filename is specified, assume that the current directory is writable
+	Bool_t IsCreated=kFALSE;
+	if (filename == ""){
+		GetTreeList()->Write();
+	}
+	else {
+		TFile* file=0;
+		//if filename correspond to an already opened file, write in it
+		//if not open/create it, depending on the option ("recreate" by default)
+		//and write in it
+		if (!(file = (TFile* )gROOT->GetListOfFiles()->FindObject(filename.Data())) ){
+			IsCreated=kTRUE;
+			file = new TFile(filename.Data(),option);
+		}
+		file->cd();
+		GetTreeList()->Write();
+		if (IsCreated) file->Close();	
+	}
+
 }

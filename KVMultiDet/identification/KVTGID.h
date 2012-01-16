@@ -84,9 +84,7 @@ class KVTGID:public TF1 {
     KVTGID(const Char_t * name, const Char_t * function,
            Double_t xmin, Double_t xmax, Int_t npar, Int_t par_x,
            Int_t par_y);
-    virtual ~ KVTGID() {
-     Info("~KVTGID","Deleting %s", GetName());
-   };
+    virtual ~ KVTGID() {};
 
    void SetIDmax(Double_t x) {
       fID_max = x;
@@ -105,9 +103,6 @@ class KVTGID:public TF1 {
                                       Double_t & ID_quality,
                                       Double_t * par = 0);
 
-   virtual KVIDGrid *MakeIDGrid(Double_t xmax, Double_t xmin = 0.,
-                                Int_t ID_min = 0, Int_t ID_max =
-                                0, Int_t npoints = 100, Bool_t logscale = kFALSE);
    virtual void AddLineToGrid(KVIDGrid * g, Int_t ID, Int_t npoints,
                               Double_t xmin, Double_t xmax, Bool_t log_scale=kFALSE);
 

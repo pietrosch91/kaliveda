@@ -10,21 +10,23 @@ $Date: 2007/05/31 09:59:22 $
 #ifndef __KVINDRADSTTOROOTTRANSFERT_H
 #define __KVINDRADSTTOROOTTRANSFERT_H
 
-#include "KVINDRADataAnalyser.h"
-#include "KVINDRATriggerInfo.h"
-#include "KVINDRARawDataReader.h"
-#include "KVDetectorEvent.h"
-#include "KVINDRAReconEvent.h"
+#include "KVString.h"
+#include "KVNumberList.h"
 #include "KVDataSet.h"
-#include "KVDetector.h"
-#include "KVIDTelescope.h"
-#include "Riostream.h"
-#include "TTree.h"
+#include "KVDataAnalyser.h"
+#include "TString.h"
 
-class KVINDRADstToRootTransfert : public KVINDRADataAnalyser
+class KVINDRAReconEvent;
+class KVIDTelescope;
+class KVDetector;
+class TTree;
+
+class KVINDRADstToRootTransfert : public KVDataAnalyser
 {
 
    protected:
+
+   virtual KVNumberList PrintAvailableRuns(KVString & datatype);
    
 	Int_t mt;
 	Double_t de1,de2,de3,de4,de5;
@@ -33,19 +35,23 @@ class KVINDRADstToRootTransfert : public KVINDRADataAnalyser
 	KVIDTelescope* identifying_telescope;
 
 	Bool_t camp1;
-	//set to kTRUE when reading 2nd campaign: => phoswich code is 4, not 2
-	Bool_t camp2;
-	//set to kTRUE when reading 4th campaign: => ring1 is Si-CsI
-	Bool_t camp4;
-	//total number of events read from each file - for tests
-	Int_t events_in_file;
-	//totals of events read and trees filled
-	Int_t events_good, events_read;
-	//tree for writing events
-	TTree* data_tree;
+	
+	Bool_t camp2;//set to kTRUE when reading 2nd campaign: => phoswich code is 4, not 2
+	
+	Bool_t camp4;//set to kTRUE when reading 4th campaign: => ring1 is Si-CsI
+	
+	Int_t events_in_file;//total number of events read from each file - for tests
+	
+	Int_t events_good, events_read;//totals of events read and trees filled
+	
+	TTree* data_tree;//tree for writing events
+   TTree* rawtree;//raw data tree
 
 	Int_t fRunNumber;//run number of current file
    Int_t fCampNumber;
+	
+	TString req_time,req_mem,req_scratch;
+	TString cur_time,cur_mem,cur_scratch;
 	
 	void SetCampagneNumber(){
 		fCampNumber=-1;
@@ -88,7 +94,7 @@ class KVINDRADstToRootTransfert : public KVINDRADataAnalyser
 	
 	void lire_evt(ifstream &f_in,KVINDRAReconEvent *evt);
    
-	ClassDef(KVINDRADstToRootTransfert,1)//Analysis of raw INDRA data
+	ClassDef(KVINDRADstToRootTransfert,1)//Conversion of INDRA DST to KaliVeda ROOT format
 };
 
 #endif

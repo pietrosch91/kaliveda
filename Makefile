@@ -9,15 +9,58 @@
 ARCH         := $(shell root-config --arch)
 PLATFORM     := $(shell root-config --platform)
 
+#split ROOT version into major, minor and release version numbers
+rootvers:= $(shell root-config --version)
+empty:=
+space:= $(empty) $(empty)
+rootvers1:=$(subst .,$(space),$(rootvers))
+rootvers2:=$(subst /,$(space),$(rootvers1))
+rootvers3:=$(subst -,$(space),$(rootvers2))
+root_maj := $(word 1,$(rootvers3))
+root_min := $(word 2,$(rootvers3))
+root_rel := $(word 3,$(rootvers3))
+#define macro for calculating ROOT version code from maj, min and release
+get_root_version = $(shell expr $(1) \* 10000 \+ $(2) \* 100 \+ $(3))
+export ROOT_VERSION_CODE = $(call get_root_version,$(root_maj),$(root_min),$(root_rel))
+#define constants for different versions tested in submakefiles
+export ROOT_v4_00_06 = $(call get_root_version,4,0,6)
+export ROOT_v4_00_08 = $(call get_root_version,4,0,8)
+export ROOT_v4_01_04 = $(call get_root_version,4,1,4)
+export ROOT_v4_01_01 = $(call get_root_version,4,1,1)
+export ROOT_v4_01_02 = $(call get_root_version,4,1,2)
+export ROOT_v4_03_04 = $(call get_root_version,4,3,4)
+export ROOT_v5_02_00 = $(call get_root_version,5,2,0)
+export ROOT_v5_04_00 = $(call get_root_version,5,4,0)
+export ROOT_v5_08_00 = $(call get_root_version,5,8,0)
+export ROOT_v5_10_00 = $(call get_root_version,5,10,0)
+export ROOT_v5_11_02 = $(call get_root_version,5,11,2)
+export ROOT_v5_12_00 = $(call get_root_version,5,12,0)
+export ROOT_v5_13_06 = $(call get_root_version,5,13,6)
+export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
+export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
+export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
+export ROOT_v5_32_00 = $(call get_root_version,5,32,0)
+
 #By default, we use the system-dependent definitions contained in the ROOT
-#makefile found in $ROOTSYS/test/Makefile.arch, for standard installations.
-#If ROOT is not installed in a single directory (ROOTSYS) you must
-#give the path to the Makefile by invoking make with the argument:
-#
-# $>  make ROOT_MAKEFILE_PATH=/usr/local/share/root/test
-#
-#which will override the following definition
+#makefile found (for standard installations) in
+#        $ROOTSYS/test/Makefile.arch     (versions up to 5.30)
+#        $ROOTSYS/etc/Makefile.arch      (versions from 5.32)
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
 export ROOT_MAKEFILE_PATH = $(ROOTSYS)/test
+else
+export ROOT_MAKEFILE_PATH = $(shell root-config --etcdir)
+endif
+#If ROOT is not installed in a single directory (ROOTSYS) you must
+#give the path to the Makefile by invoking make with the ROOT_MAKEFILE_PATH argument:
+#
+#        $>  make ROOT_MAKEFILE_PATH=/usr/local/share/root/test     (versions up to 5.30)
+# OR $>  make ROOT_MAKEFILE_PATH=/usr/local/share/root/etc      (versions from 5.32)
+#
+#which will override the previous definition
+
+# for compilation with gru lib
+export WITH_GRU_LIB = no
+export GRU_DIR = /home/acqexp/GRU/GRUcurrent
 
 # GanTape library with RFIO or XROOTD
 # To compile the Ganil acquisition library using RFIO or XROOTD to
@@ -48,43 +91,14 @@ else
 export KVINSTALLDIR = $(KVROOT)
 endif
 
-#split ROOT version into major, minor and release version numbers
-rootvers:= $(shell root-config --version)
-empty:=
-space:= $(empty) $(empty)
-rootvers1:=$(subst .,$(space),$(rootvers))
-rootvers2:=$(subst /,$(space),$(rootvers1))
-root_maj := $(word 1,$(rootvers2))
-root_min := $(word 2,$(rootvers2))
-root_rel := $(word 3,$(rootvers2))
-#define macro for calculating ROOT version code from maj, min and release
-get_root_version = $(shell expr $(1) \* 10000 \+ $(2) \* 100 \+ $(3))
-export ROOT_VERSION_CODE = $(call get_root_version,$(root_maj),$(root_min),$(root_rel))
-#define constants for different versions tested in submakefiles
-export ROOT_v4_00_06 = $(call get_root_version,4,0,6)
-export ROOT_v4_00_08 = $(call get_root_version,4,0,8)
-export ROOT_v4_01_04 = $(call get_root_version,4,1,4)
-export ROOT_v4_01_01 = $(call get_root_version,4,1,1)
-export ROOT_v4_01_02 = $(call get_root_version,4,1,2)
-export ROOT_v4_03_04 = $(call get_root_version,4,3,4)
-export ROOT_v5_02_00 = $(call get_root_version,5,2,0)
-export ROOT_v5_04_00 = $(call get_root_version,5,4,0)
-export ROOT_v5_08_00 = $(call get_root_version,5,8,0)
-export ROOT_v5_10_00 = $(call get_root_version,5,10,0)
-export ROOT_v5_11_02 = $(call get_root_version,5,11,2)
-export ROOT_v5_12_00 = $(call get_root_version,5,12,0)
-export ROOT_v5_13_06 = $(call get_root_version,5,13,6)
-export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
-export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
-
 #ganil libraries for reading raw data only build on linux systems
 #+ extensions for VAMOS data
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
-RGTAPE = gan_tape ROOTGT
+export ROOTGANILTAPE = yes
+RGTAPE = gan_tape
 INDRAVAMOS = VAMOS
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
 RGTAPE =
 INDRAVAMOS = VAMOS
 endif
@@ -107,18 +121,19 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : MultiDet Indra gan_tape ROOTGT VAMOS Indra5 clean cleangantape unpack install analysis FNL html html_ccali byebye distclean
+.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit MultiDet $(RGTAPE) Indra $(INDRAVAMOS) Indra5 FNL install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
 
 doc : html byebye
 
-export GANILTAPE_INC = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/include
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
-export GANILTAPE_LIB = $(KVPROJ_ROOT_ABS)/ROOTGanilTape/lib
 
 export VERSION_NUMBER = $(shell cat VERSION)
 KV_DIST = KaliVeda-$(VERSION_NUMBER)-$(KV_BUILD_DATE)
+
+changelog :
+	@bzr log --forward --short -v -n0 -r$(oldrev).. > changelog_$(VERSION_NUMBER).txt
 
 fitltg-0.1/configure: fitltg-0.1/configure.ac 
 	cd fitltg-0.1 && autoreconf -ivf
@@ -131,7 +146,7 @@ fitltg-0.1/configure: fitltg-0.1/configure.ac
 	touch .init
 
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
-	@echo '#define KV_VERSION "$(VERSION_NUMBER)-$(KV_BUILD_DATE)"' > $@;\
+	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > $@;\
 	echo '#define KV_BUILD_DATE "$(KV_BUILD_DATE)"' >> $@;\
 	echo '#define KV_BUILD_USER "$(USER)"' >> $@;\
 	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> $@
@@ -144,7 +159,7 @@ $(DATE_RECORD_FILE) :
 
 $(KV_CONFIG__H) : $(ROOT_VERSION_TAG)
 	@echo 'Updating KVConfig.h'
-	$(MAKE) -f Makefile.compat
+	$(MAKE) -f Makefile.compat debug=$(debug)
 		
 $(ROOT_VERSION_TAG) :
 	@if test ! -f $@; then \
@@ -159,9 +174,7 @@ $(BZR_INFOS) : $(BZR_LAST_REVISION)
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386
-
-ROOTGT : .init
-	cd ROOTGanilTape && $(MAKE)
+	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
 ltgfit : .init
 	cd fitltg-0.1 && make && make install
@@ -171,12 +184,6 @@ MultiDet : .init
 
 Indra : .init
 	cd KVIndra && $(MAKE)
-
-Indra5 : .init
-	cd KVIndra5 && $(MAKE)
-
-FNL : .init
-	cd KVIndraFNL && $(MAKE)
 
 analysis : .init
 	cd analysis && $(MAKE)
@@ -188,7 +195,6 @@ html :
 	cd html && $(MAKE) install_html debug=$(debug)
 		
 cleangantape :
-	cd ROOTGanilTape && $(MAKE) clean
 	cd GanTape && rm -rf i386-linux_*
 	
 clean :
@@ -198,12 +204,9 @@ clean :
 	cd KVMultiDet && $(MAKE) clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
-ifeq ($(INDRADLT),yes)
-	cd ROOTGanilTape && $(MAKE) clean
+ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
-	cd KVIndra5 && $(MAKE) clean
-	cd KVIndraFNL && $(MAKE) clean
 	cd VAMOS && $(MAKE) clean
 	cd analysis && $(MAKE) clean
 	cd html && $(MAKE) clean
@@ -213,49 +216,49 @@ distclean : clean
 	-rm -f $(HOME)/.KVDataAnalysisGUIrc*
 		
 install :
+	-chmod 0775 $(KVINSTALLDIR)
 	-mkdir -p $(KVINSTALLDIR)/src
 	-mkdir -p $(KVINSTALLDIR)/KVFiles
 	-mkdir -p $(KVINSTALLDIR)/db
 	-mkdir -p $(KVINSTALLDIR)/examples
 	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
-ifeq ($(INDRADLT),yes)
-	cd ROOTGanilTape && $(MAKE) install
-endif
 	cd KVIndra && $(MAKE) install
-	cd KVIndra5 && $(MAKE) install
-	cd KVIndraFNL && $(MAKE) install
 	cd VAMOS && $(MAKE) install
 	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(KVINSTALLDIR)/tools/
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
 ifeq ($(SITE),CCIN2P3)
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/ccali.available.datasets $(KVINSTALLDIR)/KVFiles/ccali.available.datasets
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.root $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.root $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.root $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.recon $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.ident $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.root $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.raw $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.recon $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.ident $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/available_runs.e416a.root $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e416a/ccali.available_runs.e416a.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/available_runs.e475s.root $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e475s/ccali.available_runs.e475s.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.raw $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.recon $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.ident $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/available_runs.e503.root $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e503/ccali.available_runs.e503.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e503/ccali.available_runs.e503.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.raw $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.raw
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.recon $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.ident $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident
-	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/available_runs.e494s.root $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e494s/ccali.available_runs.e494s.root2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.raw $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.root2
 	-cat etc/KaliVeda.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 else
 	-cat etc/KaliVeda.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
@@ -266,23 +269,16 @@ uninstall :
 	-rm -rf $(KVINSTALLDIR)/examples
 	-rm -rf $(KVINSTALLDIR)/KaliVedaDoc
 	-rm -rf $(KVINSTALLDIR)/db
-ifeq ($(INDRADLT),yes)
-	-rm -f $(KVINSTALLDIR)/include/GT*.H
-	-rm -f $(KVINSTALLDIR)/src/GT*.cpp
-	-rm -f $(KVINSTALLDIR)/lib/libROOTGanilTape.so
+ifeq ($(ROOTGANILTAPE),yes)
 	-rm -f $(KVINSTALLDIR)/lib/libgan_tape.a
 endif
 	cd KVMultiDet && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall
-	cd KVIndra5 && $(MAKE) uninstall
-	cd KVIndraFNL && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall-indra2root
 	cd VAMOS && $(MAKE) uninstall
 	cd analysis && $(MAKE) uninstall
 	cd KVMultiDet && $(MAKE) removemoduledirs
 	cd KVIndra && $(MAKE) removemoduledirs
-	cd KVIndra5 && $(MAKE) removemoduledirs
-	cd KVIndraFNL && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
@@ -290,8 +286,6 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
-	tar -czf libKVIndra5-$(VERSION_NUMBER).tgz KVIndra5
-	tar -czf libKVIndraFNL-$(VERSION_NUMBER).tgz KVIndraFNL
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
 	tar -czf html-$(VERSION_NUMBER).tgz html
@@ -302,9 +296,8 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
-	-cp -r ROOTGanilTape $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
-	-cp Makefile* $(KV_DIST)/
+	-cp Make* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/
 	-cp KVBzrInfo.h $(KV_DIST)/
 	-cp INSTALL $(KV_DIST)/
@@ -319,16 +312,12 @@ unpack :
 	-tar zxf fitltg-0.1.tar.gz 
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
-	-tar zxf libKVIndra5-$(VERSION_NUMBER).tgz 
-	-tar zxf libKVIndraFNL-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
 	-tar zxf html-$(VERSION_NUMBER).tgz
 	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
-	-rm libKVIndraFNL-$(VERSION_NUMBER).tgz 
-	-rm libKVIndra5-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
 	-rm html-$(VERSION_NUMBER).tgz
@@ -347,10 +336,18 @@ config :
 indent :
 	cd KVMultiDet && $(MAKE) indent
 	cd KVIndra && $(MAKE) indent
-	cd KVIndra5 && $(MAKE) indent
-	cd KVIndraFNL && $(MAKE) indent
 	
 byebye :
 	@echo ''
 	@echo 'NORMAL SUCCESSFUL COMPLETION OF MAKEFILE'
 	@echo ''	
+
+# the following copied from GSL build
+# neat way to set up symbolic links from current build directory
+# to all the header files in other subdirectories of main project
+#header_links :
+#	HEADERLIST="../gsl*.h ../*/gsl*.h"; \
+#	for h in $HEADERLIST; do \
+#	  BASENAME=`basename $h`; \
+#	  test -r $BASENAME || ln -s $h $BASENAME; \
+#	done

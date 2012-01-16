@@ -72,17 +72,20 @@ else {
 KVBatchSystem *gBatchSystem = 0;
 
 KVBatchSystem::KVBatchSystem(const Char_t* name)
-      :KVBase(name)
+      :KVBase(name), fMultiJobs(kFALSE)
 {
    // Constructor with name of batch system. Name will be used to retrieve
    // resources from configuration file, e.g. batch system title, job submission
-   // command, name of batch script, default job options:
+   // command, name of batch script, default job options, runs per job in multijob mode:
    //
-   //   [batch system name].BatchSystem.Title:   
-   //   [batch system name].BatchSystem.JobSubCmd:   
-   //   [batch system name].BatchSystem.JobScript:  
+   //   [batch system name].BatchSystem.Title:
+   //   [batch system name].BatchSystem.JobSubCmd:
+   //   [batch system name].BatchSystem.JobScript:
    //   [batch system name].BatchSystem.DefaultJobOptions:
-   
+   //   [batch system name].BatchSystem.RunsPerJob:
+   //
+   // If RunsPerJob is not defined, we use 1 as default value
+
    //set title of batch system
    SetTitle( gEnv->GetValue(Form("%s.BatchSystem.Title", name), "") );
    //command for job submission
@@ -96,6 +99,8 @@ KVBatchSystem::KVBatchSystem(const Char_t* name)
    SetJobScript(gEnv->GetValue(Form("%s.BatchSystem.JobScript", name), ""));
    //set default job options
    SetDefaultJobOptions(  gEnv->GetValue(Form("%s.BatchSystem.DefaultJobOptions", name), "") );
+   //default number of runs per job in multi jobs mode (default=1)
+   SetRunsPerJob(gEnv->GetValue(Form("%s.BatchSystem.RunsPerJob", name), 1));
 }
 
 KVBatchSystem::~KVBatchSystem()
@@ -194,15 +199,23 @@ void KVBatchSystem::Run()
    //In multijobs mode, this submits one job for each run in the runlist associated to fAnalyser
 
    if(!CheckJobParameters()) return;
-   
+
    if(MultiJobsMode()){
-      //submit one job for each run in runlist
+      //submit jobs for every GetRunsPerJob() runs in runlist
       KVNumberList runs = fAnalyser->GetRunList();
       runs.Begin();
-      while( !runs.End() ){
-         fRunNumber = runs.Next();
-         fAnalyser->SetRuns(Form("%d", fRunNumber),kFALSE);
-         SubmitJob();
+      Int_t remaining_runs = runs.GetNValues();
+      fCurrJobRunList.Clear();
+      while( remaining_runs && !runs.End() ){
+         Int_t run = runs.Next();
+         remaining_runs--;
+         fCurrJobRunList.Add(run);
+         if((fCurrJobRunList.GetNValues()==GetRunsPerJob()) || runs.End()){
+             // submit job for GetRunsPerJob() runs (or less if we have reached end of runlist 'runs')
+            fAnalyser->SetRuns(fCurrJobRunList,kFALSE);
+            SubmitJob();
+            fCurrJobRunList.Clear();
+         }
       }
       fAnalyser->SetRuns(runs, kFALSE);
    }
@@ -237,7 +250,7 @@ void KVBatchSystem::SubmitTask(KVDataAnalyser* da)
    //
    // Note that the default options for this batch system may be changed just before
 	// job submission depending on the current environment, see ChangeDefJobOpt().
-   
+
    Info("SubmitTask", "Task submission for analyser class : %s", da->ClassName());
    fAnalyser = da;
 	//change job submission options depending on task, environment, etc.
@@ -260,12 +273,12 @@ void KVBatchSystem::ChangeDefJobOpt(KVDataAnalyser* da)
    // and if found we use the options defined by it. If not, we use the default
 	// job options defined by
 	// [batch system name].BatchSystem.DefaultJobOptions
-	
+
    TString tmp = gEnv->GetValue( Form("%s.BatchSystem.DefaultJobOptions.%s",
          GetName(), da->GetAnalysisTask()->GetName()), "" );
    if( tmp.Length() ){
       Info("ChangeDefJobOpt", "Changing default batch options for task %s.", da->GetAnalysisTask()->GetName());
-      Info("ChangeDefJobOpt", "Batch job options for this job are : ", tmp.Data());
+      Info("ChangeDefJobOpt", "Batch job options for this job are : %s", tmp.Data());
       SetDefaultJobOptions( tmp.Data() );
    }
 	else
@@ -283,15 +296,23 @@ const Char_t *KVBatchSystem::GetJobName()
    //task is running in batch mode (access through gBatchSystem global pointer).
    //
    //In multi-job mode, the job name is generated from the base name set by SetJobName()
-   //plus the extension "_Rxxxx" with "xxxx"=the run number being analysed by the current job.
-   
+   //plus the extension "_Rxxxx-yyyy" with "xxxx" and "yyyy" the number of the first and last run
+   //which will be analysed by the current job.
+
    if(!fAnalyser){
       //stand-alone batch submission ?
       fCurrJobName = fJobName;
    } else {
       //replace any special symbols with their current values
       fCurrJobName = fAnalyser->ExpandAutoBatchName(fJobName.Data());
-      if(MultiJobsMode() && !fAnalyser->BatchMode()) fCurrJobName += Form("_R%d", fRunNumber);
+      if(MultiJobsMode() && !fAnalyser->BatchMode()){
+          KVString tmp;
+          if(fCurrJobRunList.GetNValues()>1)
+            tmp.Form("_R%d-%d", fCurrJobRunList.First(), fCurrJobRunList.Last());
+          else
+            tmp.Form("_R%d", fCurrJobRunList.First());
+          fCurrJobName += tmp;
+      }
    }
    return fCurrJobName.Data();
 }
@@ -312,7 +333,7 @@ Bool_t KVBatchSystem::CheckJobParameters()
      }
     }
    return kTRUE;
-}    
+}
 
 //_______________________________________________________________________________//
 
@@ -321,7 +342,7 @@ void KVBatchSystem::WriteBatchEnvFile(TEnv* env)
    //Store any useful information on batch system in the TEnv
    //(this method is used by KVDataAnalyser::WriteBatchEnvFile)
    env->SetValue("BatchSystem.MultiJobs", MultiJobsMode());
-   if(MultiJobsMode()) env->SetValue("BatchSystem.CurrentRun", fRunNumber);
+   if(MultiJobsMode()) env->SetValue("BatchSystem.CurrentRunList", fCurrJobRunList.AsString());
    env->SetValue("BatchSystem.JobName", GetJobName());
 }
 
@@ -333,7 +354,7 @@ void KVBatchSystem::ReadBatchEnvFile(TEnv* env)
    //(this method is used by KVDataAnalyser::ReadBatchEnvFile)
    fJobName = env->GetValue("BatchSystem.JobName", "");
    SetMultiJobsMode(env->GetValue("BatchSystem.MultiJobs", kFALSE));
-   if(MultiJobsMode()) fRunNumber = (Int_t)env->GetValue("BatchSystem.CurrentRun", 0);
+   if(MultiJobsMode()) fCurrJobRunList.SetList(env->GetValue("BatchSystem.CurrentRunList", ""));
 }
 
 //_______________________________________________________________________________//
@@ -350,13 +371,13 @@ void KVBatchSystem::Print(Option_t* option) const
    else if(!strcmp(option, "all")){
       cout << ClassName() << " : Name = " << GetName() << endl << " Title = " << GetTitle() << endl;
       cout << " fJobSubCmd = " << fJobSubCmd.Data() << endl;
-      cout << " fJobScript = " << fJobScript.Data() << endl; 
-      cout << " fDefOpt = " << fDefOpt.Data() << endl; 
+      cout << " fJobScript = " << fJobScript.Data() << endl;
+      cout << " fDefOpt = " << fDefOpt.Data() << endl;
       fParList.Print();        //list of parameters/switches to be passed on job submission command line
    } else
       KVBase::Print(option);
 }
-   
+
 //_______________________________________________________________________________//
 
 void KVBatchSystem::SetJobName(const Char_t *name)
@@ -368,4 +389,4 @@ void KVBatchSystem::SetJobName(const Char_t *name)
    //in the name given here depending on the characteristics of the job. See
    //KVDataAnalyser::ExpandAutoBatchName for allowed symbols.
    fJobName=name;
-} 
+}

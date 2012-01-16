@@ -12,14 +12,14 @@ $Date: 2008/01/24 10:09:38 $
 
 #include <KVCalibrator.h>
 
-Double_t PHDMoulton(Double_t * x, Double_t * par);
 
 class KVPulseHeightDefect : public KVCalibrator
 {
-   static TF1 fMoulton;           //Moulton formula for PHD =  f(E,Z)
-   UInt_t fZ;                   //!Z of nucleus to be calibrated
-
-   void SetPars();
+   TF1* fMoulton;           //!Moulton formula for PHD =  f(E,Z)
+   TF1* fDeltaEphd;           //!deltaE calculated including PHD
+   Int_t fZ;                   //!Z of nucleus to be calibrated
+   Int_t fZmin;                   //!minimum Z for which PHD is considered
+   Double_t a_1, a_2, b_1, b_2; //! parameters of Moulton formula
    
    public:
 
@@ -33,12 +33,16 @@ class KVPulseHeightDefect : public KVCalibrator
    virtual Double_t operator() (Double_t );
    virtual Double_t Invert(Double_t);
 
-   void SetZ(UInt_t z) {
+   void SetZ(Int_t z) {
       fZ = z;
    };
-   UInt_t GetZ() const {
+   Int_t GetZ() const {
       return fZ;
    };
+   Double_t PHDMoulton(Double_t * x, Double_t * par);
+   TF1* GetMoultonPHDFunction(Int_t Z);
+   Double_t ELossActive(Double_t *x, Double_t *par);
+   TF1* GetELossFunction(Int_t Z, Int_t A);
    
    ClassDef(KVPulseHeightDefect,1)//Silicon PHD described by Moulton formula
 };

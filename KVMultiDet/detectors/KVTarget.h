@@ -49,7 +49,7 @@ class KVTarget:public KVMaterial {
    Double_t GetAngleToBeam();
 
    virtual void SetMaterial(const Char_t * type);
-   void SetThickness(Float_t thick, Int_t ilayer = 1);
+   void SetLayerThickness(Float_t thick, Int_t ilayer = 1);
 
    void AddLayer(const Char_t * material, Double_t thick);
    Int_t NumberOfLayers() const {
@@ -73,9 +73,8 @@ class KVTarget:public KVMaterial {
 
    Double_t GetTotalThickness();
    Double_t GetTotalThickness(Int_t lay1, Int_t lay2);
-   Float_t GetThickness() const {
-      return (Float_t) const_cast <
-          KVTarget * >(this)->GetTotalThickness();
+   Double_t GetThickness() const {
+      return const_cast <KVTarget * >(this)->GetTotalThickness();
    };
    Double_t GetTotalEffectiveThickness(KVParticle * part = 0);
    Double_t GetTotalEffectiveThickness(TVector3 &, Int_t lay1 =
@@ -149,6 +148,7 @@ class KVTarget:public KVMaterial {
 #else
    virtual void Copy(TObject & obj);
 #endif
+  // virtual UInt_t GetUnits() const;
 
    Double_t GetAtomsPerCM2() const;
 

@@ -117,7 +117,7 @@ void KVNumberList::ParseList()
 
 //____________________________________________________________________________________________//
 
-void KVNumberList::Clear()
+void KVNumberList::Clear(Option_t*)
 {
    //Empty number list, reset it to initial state.
    fNLimits = 0;
@@ -531,7 +531,7 @@ const Char_t *KVNumberList::GetExpandedList()
 
 //____________________________________________________________________________________________//
 
-const Char_t *KVNumberList::GetLogical(const Char_t *observable)
+TString KVNumberList::GetLogical(const Char_t *observable)
 {
 	// Get logical expression of 'this' list in the TTree:Draw condition format
 	// observable is one of the leaf of the TTree
@@ -553,7 +553,7 @@ const Char_t *KVNumberList::GetLogical(const Char_t *observable)
 	}
 	cond += " )";
 	delete toks;
-	return cond.Data();
+	return cond;
 }
 
 //____________________________________________________________________________________________//
@@ -687,3 +687,37 @@ const Char_t *KVNumberList::AsString(Int_t maxlen)
 
 //____________________________________________________________________________________________//
 
+Bool_t KVNumberList::IsFull()
+{
+	//Return kTRUE if the list is in fact a continuous list of number
+	// ie "123-126" or "1,2,3,4" etc ...
+	
+	Int_t total = Last()-First()+1;
+	return (total == GetNValues());	
+}
+	
+//____________________________________________________________________________________________//
+
+KVNumberList KVNumberList::GetComplementaryList()
+{
+	//Return the complementary of the list
+	// ie for "123-127 129" it will be returned "128"
+	
+	KVNumberList nl("");
+	if (IsFull()) return nl;
+	nl.SetMinMax(this->First(),this->Last());
+	nl.Remove(*this);
+	return nl;
+
+}
+	
+//____________________________________________________________________________________________//
+
+KVNumberList KVNumberList::operator-(const KVNumberList& other)
+{
+	// Returns difference between 'this' and 'other'
+	// i.e. 'this' list with any values in 'other' removed
+	KVNumberList tmp(*this);
+	tmp.Remove(other);
+	return tmp;
+}

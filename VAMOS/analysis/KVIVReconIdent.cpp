@@ -50,7 +50,7 @@ void KVIVReconIdent::InitRun(void)
 {
    //Connect VAMOS branches in input and output trees
 
-   KVReconIdent::InitRun();
+   KVINDRAReconIdent::InitRun();
    fAnalyseV->OpenOutputTree(fIdentTree);
    fAnalyseV->outAttach();
    fAnalyseV->CreateHistograms();

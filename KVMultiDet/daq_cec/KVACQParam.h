@@ -33,6 +33,7 @@ class KVACQParam:public KVBase {
    UShort_t fData;              //!Dummy used when reading back events from a TTree etc.
    Float_t fPied;               //Pedestal value for the current run
    Bool_t fWorks;            //kFALSE if acquisition parameter was not working
+   UChar_t fNbBits;         //number of bits (<=16) actually used by parameter
 
  public:
    void init();
@@ -78,7 +79,14 @@ class KVACQParam:public KVBase {
       fWorks = on;
    };
    
-   ClassDef(KVACQParam, 3)      //Data acquisition parameters read from raw DLT's
+   void SetNbBits(UChar_t n){
+      fNbBits = n;
+   };
+   UChar_t GetNbBits() const{
+      return fNbBits;
+   };
+   
+   ClassDef(KVACQParam, 4)      //Data acquisition parameters read from raw DLT's
 };
 
 inline void KVACQParam::SetData(UShort_t val)

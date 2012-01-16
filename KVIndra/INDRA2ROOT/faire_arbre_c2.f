@@ -195,15 +195,17 @@ c      call initevt()
 			enddo                                                             
 c --- open new text file for writing events every 200 000 events
       
-			if(mod(necrit, 50000).eq.0) then
+			if(mod(necrit, 10000).eq.0) then
 				nfiles = nfiles+1
 				close(88)
 				if(nfiles.lt.10) then
 					write(filename,'(a,i1,a)') 'arbre_root_', nfiles, '.txt'
       		else if (nfiles.lt.100) then
 					write(filename,'(a,i2,a)') 'arbre_root_', nfiles, '.txt'
-     			else 
+      		else if (nfiles.lt.1000) then
 					write(filename,'(a,i3,a)') 'arbre_root_', nfiles, '.txt'
+     			else 
+					write(filename,'(a,i4,a)') 'arbre_root_', nfiles, '.txt'
 				endif 																					  
       		print *,'Opening file for writing : ', filename
 				open(unit=88,file=filename,status='new')
@@ -334,7 +336,7 @@ c-------------------------------------------------------------------
 		real*4 e,de1,de2
 		real*4 bragg(100)
 		common/bragg/bragg
-		character*50 filename,vedadata
+		character*200 filename,vedadata
 		
 		print*,'**************************************************'
 		print*,' Rustines Camp2 '

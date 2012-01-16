@@ -4,113 +4,72 @@
 #ifndef __KVPARTITION_H
 #define __KVPARTITION_H
 #include "KVString.h"
+#include "KVIntegerList.h"
+#include "KVValues.h"
 
-class KVNumberList;
-class KVEvent;
-class KVGenParList;
-
-class KVPartition : public TObject
+class KVPartition : public KVIntegerList
 {
 	
 	protected:
 	
-	void AddToRegle(Int_t val);
-	void Compute();
-	void ComputeValues();
-	void FillWithRegle(Int_t* regl,Int_t vmax);
-
-	Int_t val_max; 
-	Int_t mom_max;
-	Int_t population;
+	TArrayI* ftab;	//!-> tableau regroupant tous les entiers de la partition (ordre decroissant)
+	TArrayI* ftab_diff; //!-> tableau regroupant tous les entiers differents de la partition (ordre decroissant)
+	Int_t fMult_diff;	//!	Nbre de valeurs differentes
+	KVValues* fValues;	//!-> Object permettant de gerer les moments ou autre
 	
-	Int_t* regle;			//[val_max+1]
-	Double_t* moments;	//[mom_max+1]
+	void Update();
+	virtual void init(Int_t mommax=5);
 	
-	Int_t nbre_val_diff;
-	Int_t nbre_val;
-	
-	Int_t* valeurs;			//[nbre_val]
-	Int_t* valeurs_diff;		//[nbre_val_diff]
-	
-	KVString name;
-   
-	KVGenParList* lgen;	//->
+	void add_values(Int_t val,Int_t freq);
+	Bool_t remove_values(Int_t val,Int_t freq);
 	
 	public:
   	
-	enum {
-      kHastobeComputed = BIT(14)	//Variables has to be recalculated
-  	};
-	
-	virtual void init(Int_t valmax=100,Int_t mommax=5);
-	Int_t GetValMax() const {return val_max;}
-	Int_t GetMomMax() const {return mom_max;}
-	
-	
 	KVPartition();
-	KVPartition(Int_t valmax,Int_t mommax=5);
-
-   virtual ~KVPartition();
+	KVPartition(Int_t mommax);
+	virtual ~KVPartition();
+	
+	void Clear(Option_t* option = "");
 	void Copy(TObject& obj) const;
-	
-	void SetName(KVString snom) { name=snom; }
-	const char* GetName() const { return name.Data(); }
-	
-	const char* GetTitle() const { KVString stit; stit.Form("%d",GetPopulation()); return stit.Data(); }
-	
-	void Fill(Int_t* tab,Int_t mult);
-	void Fill(Double_t* tab,Int_t mult);
-	void FillWithConditions(Int_t* tab,Int_t mult,Int_t zmin=-1,Int_t zmax=-1);
-	void Fill(KVNumberList nl);
-	void Fill(KVEvent* evt,Option_t* opt = "");
-	
-	void Reset();
-	void ResetMoments();
-	void ResetPopulation() { population=0; }
-	void AddOne() { AddPopulation(1); }
-	Int_t GetPopulation() const { return population; }
-	void AddPopulation(Int_t pop) { population+=pop; }
-	
 	void Print(Option_t* option = "") const;
-
-	Int_t GetMultDiff(void) const {return nbre_val_diff; }
-	Int_t* GetValeurs() const { return valeurs; }
-	Int_t GetValeur(Int_t rang) const { return valeurs[rang]; }	
-	Int_t GetFrequence(Int_t rang) const { return regle[GetValeur(rang)]; }	
-	Bool_t Contains(Int_t valeur) const { return regle[valeur]>0; }	
 	
+	Int_t GetOrdreMax() const { return fValues->GetOrdreMax(); }
+	
+	//Methodes donnant aux valeurs uniques de la partition
+	Int_t GetMultDiff(void) const {return fMult_diff; }
+	Int_t* GetValeursDiff() const { return ftab_diff->fArray; } 
+	Int_t GetValeurDiff(Int_t rang) const { return ftab_diff->At(rang); }	
+	
+	//Methodes donnant accès à toutes les valeus de la partition avec la notion d'occurence/frequence
+	//en utilisant le rang ou la valeur
+	Int_t GetMult(void) const {return GetNbre(); }
+	Int_t* GetValeurs() const { return ftab->fArray; }
+	Int_t GetValeur(Int_t rang) const { return ftab->At(rang); }	
+	Int_t GetFrequenceAt(Int_t rang) const { return fRegle->At(GetValeur(rang)); }
+	
+	//Methodes donnant acces aux variables calculees de la partition
 	Double_t GetMoment(Int_t ordre) const {
-		return ( (ordre<=GetMomentOrdreMax()) ? moments[ordre] : -1 );
+		return ( (ordre<=fValues->GetOrdreMax()) ? fValues->GetValue(ordre+fValues->GetShift()) : -1 );
 	}
-	
-	Double_t GetMomentNormalise(Int_t ordre) const { return moments[ordre]/GetMoment(0); }	
-	Int_t GetMomentOrdreMax(void) const {return mom_max; }
-	
-	Double_t GetZmax(Int_t rang=0) const;
-	Double_t GetZmin(Int_t rang=0) const;
+	Double_t GetMomentNormalise(Int_t ordre) const { 
+		return fValues->GetValue(ordre+fValues->GetShift())/GetMoment(0); 
+	}	
 	
 	Double_t GetZtot() const {return GetMoment(1); }
 	Double_t GetMtot() const {return GetMoment(0); }
 	Double_t GetZmean() const {return GetMomentNormalise(1); }
+	
+	Double_t GetZmax(Int_t rang=0) const;
+	Double_t GetZmin(Int_t rang=0) const;
 	Double_t GetZ1() const {return GetZmax(0); }
 	Double_t GetZ2() const {return GetZmax(1); }
 	
-	KVGenParList* GetParametersList() const { return lgen; }
-	
-	Int_t Compare(const TObject* obj) const;
-	Int_t CompareMoments(KVPartition* par) const;
-	Int_t CompareMult(KVPartition* par) const;
-	Int_t CompareValeurs(KVPartition* par) const;
-	Int_t CompareName(KVPartition* par) const;
-	
-	virtual void CalculValeursAdditionnelles();
-	Double_t GetValeursEnPlus(KVString sname);
-	Double_t GetValeursEnPlus(const char* sname);
-	
+	Bool_t RemoveAllValuesAt(Int_t rang);
 	Bool_t RemoveAt(Int_t rang);
-   Bool_t RemoveValue(Int_t value);
 	
-	ClassDef(KVPartition,1)//a partition of integer
+	KVValues* GetAddValues() { return fValues; }
+	
+	ClassDef(KVPartition,1)//Permet de gerer des partitions de nombres entiers et le calcul de grandeurs associees
 };
 
 #endif

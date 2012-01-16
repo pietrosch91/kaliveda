@@ -61,5 +61,10 @@ int main(int argc, char *argv[])
    delete myapp;
    delete gDataRepositoryManager;   
 
+// avoid batch jobs running long after analysis has completed
+// the only way to do it is to kill the process
+	int pid = gSystem->GetPid();
+	gSystem->Exec(Form("kill -9 %d",pid));
+	
    return 0;
 }

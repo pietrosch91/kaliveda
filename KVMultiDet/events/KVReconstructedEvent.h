@@ -29,16 +29,11 @@ class TList;
 
 class KVReconstructedEvent:public KVEvent {
 
-   Float_t fThreshold;          //seuil en energie (MeV/nuc) pour filtre geometrique
    Bool_t fMeanAngles;          //!kTRUE if particle momenta calculated using mean angles of detectors (default: randomised angles)
    TString fPartSeedCond;   //!condition used in AnalyseTelescopes for seeding new reconstructed particle
 
  public:
-
-   enum {
-      kUseGeomFilt = BIT(14)    //flag for filtering simulations; by default kFALSE, if kTRUE then a simple geometric filtering is implemented
-   };
-
+ 
    void init();
     KVReconstructedEvent(Int_t mult = 50, const char *classname =
                          "KVReconstructedNucleus");
@@ -47,7 +42,8 @@ class KVReconstructedEvent:public KVEvent {
 
    inline KVReconstructedNucleus *AddParticle();
    inline KVReconstructedNucleus *GetParticle(Int_t npart) const;
-   inline KVReconstructedNucleus *GetParticle(const Char_t * name) const;
+   inline KVReconstructedNucleus *GetParticleWithName(const Char_t * name) const;
+   inline KVReconstructedNucleus *GetParticle(const Char_t * group_name) const;
    inline KVReconstructedNucleus *GetNextParticle(Option_t * opt = "");
    virtual void ReconstructEvent(KVDetectorEvent * kvde);
    virtual Bool_t AnalyseGroup(KVGroup * kvg);
@@ -58,15 +54,6 @@ class KVReconstructedEvent:public KVEvent {
    };
    virtual void IdentifyEvent();
    virtual void CalibrateEvent();
-
-   void SetGeometricFilter(Bool_t onoff);
-   inline Bool_t UseGeoFilt() {
-      return TestBit(kUseGeomFilt);
-   };
-   virtual void GeometricFilter() {
-      Info("GeometricFilter", "Not implemented");
-   };
-   virtual void SetThreshold(Float_t mev_sur_a);
 
    virtual void Print(Option_t * t = "") const;
 
@@ -82,8 +69,14 @@ class KVReconstructedEvent:public KVEvent {
    inline Bool_t HasRandomAngles() {
       return !fMeanAngles;
    };
+   
+   virtual void SecondaryIdentCalib()
+   {
+   	// Perform identifications and calibrations of particles not included
+   	// in first round (methods IdentifyEvent() and CalibrateEvent()).
+   };
 
-   ClassDef(KVReconstructedEvent, 1)    //Base class for reconstructed experimental multiparticle events
+   ClassDef(KVReconstructedEvent, 2)    //Base class for reconstructed experimental multiparticle events
 };
 
 inline KVReconstructedNucleus *KVReconstructedEvent::
@@ -97,11 +90,21 @@ GetParticle(Int_t npart) const
 /////////////////////////////////////////////////////////////////////////////
 
 inline KVReconstructedNucleus *KVReconstructedEvent::
-GetParticle(const Char_t * name) const
+GetParticle(const Char_t * group_name) const
 {
    //Access to event particle by name
 
-   return (KVReconstructedNucleus *) (KVEvent::GetParticle(name));
+   return (KVReconstructedNucleus *) (KVEvent::GetParticle(group_name));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+inline KVReconstructedNucleus *KVReconstructedEvent::
+GetParticleWithName(const Char_t * name) const
+{
+   //Access to event particle by name
+
+   return (KVReconstructedNucleus *) (KVEvent::GetParticleWithName(name));
 }
 
 /////////////////////////////////////////////////////////////////////////////

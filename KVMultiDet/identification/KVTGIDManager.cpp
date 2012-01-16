@@ -9,6 +9,7 @@ $Id: KVTGIDManager.cpp,v 1.12 2008/04/04 09:06:25 franklan Exp $
 ***************************************************************************/
 
 #include "KVTGIDManager.h"
+#include "KVTGIDGrid.h"
 
 ClassImp(KVTGIDManager)
 ///////////////////////////////////////////////////////////////////////////
@@ -155,10 +156,13 @@ Double_t KVTGIDManager::IdentZ(KVIDTelescope * idt, Double_t & funLTG,
    }
    //we need to lower and raise the limits in Z in order to pass the Eval(Zmin)*Eval(Zmax)<0
    //condition. E.G. for GG, Zmin=1, which means that any points below the Z=1 line are not
-   //identified, whereas we should allow Zreal between 0.5 and 1.5 (in principle - see below
-   //for triton identification).
-   Zmin -= 0.5;
-   Zmax += 0.5;
+   //identified, whereas we should allow Zreal between 0.5 and 1.5 
+   //also when several fits are used for different ranges of Z, often the ranges of validity
+   //of two successive fits do not overlap, i.e. Z=1-5 in GG, then Z=6-20 in PG etc.
+   //in this case somewhere in between Z=5 & Z=6 particles will be left unidentified
+   //as they will neither work in GG nor in PG.
+   Zmin -= 1.;
+   Zmax += 1.;
 
    Zfound = _tgid->GetIdentification(Zmin, Zmax, funLTG);
 
@@ -208,14 +212,37 @@ Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
    _tgid->SetParameter("Z", Z);
 
    Double_t Afound = -1., Amin, Amax;
-   if (Z <= 2) {
-      Amin = Z / 10.;
-      Amax = 10. * Z;
-   } else {
-      Amin = 1. * Z - 0.5;
-      Amax = 5. * Z;
+   // reasonable limits for nuclear masses:
+   if (Z == 1) {
+      Amin = 1.;
+      Amax = 3.;
+   }
+   else if(Z==2){
+   	Amin = 3;
+   	Amax = 8;
+   }
+   else if(Z==3){
+   	Amin = 6;
+   	Amax = 11;
+   }
+   else if(Z==4){
+   	Amin = 7;
+   	Amax = 14;
+   }
+   else if(Z==5){
+   	Amin = 8;
+   	Amax = 17;
+   }
+   else{
+   //formula for Amin reasonable for 6<Z<20
+   	Amin = TMath::Max((Z+1.), (1.8*(Z-2.)+1.));
+   	Amax = 2.*Z+8.;
    }
 
+	// same limit trick as in IdentZ
+	Amin -= 0.5;
+	Amax += 0.5;
+	
    Afound = _tgid->GetIdentification(Amin, Amax, funLTG);
 
    if (_tgid->GetStatus() == KVTGID::kStatus_NotBetween_IDMin_IDMax)
@@ -226,7 +253,7 @@ Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
 
 //___________________________________________________________________________________________//
 
-KVIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
+KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
                                      Double_t xmax, Double_t xmin,
                                      Int_t ID_min, Int_t ID_max,
                                      Int_t npoints, Bool_t logscale)
@@ -239,12 +266,14 @@ KVIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
    KVTGID *_tg = GetTGID(tgid_name);
    if (!_tg)
       return 0;
-   return (_tg->MakeIDGrid(xmax, xmin, ID_min, ID_max, npoints, logscale));
+   KVTGIDGrid* gr = new KVTGIDGrid(_tg);
+   gr->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
+   return gr;
 }
 
 //___________________________________________________________________________________________//
 
-KVIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * idt_name,
+KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * idt_name,
                                      const Char_t * id_type,
                                      const Char_t * grid_type,
                                      Double_t xmax, Double_t xmin,

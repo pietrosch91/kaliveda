@@ -25,7 +25,7 @@ class KVChIo_e475s : public KVChIo
 	public:
 	
    KVChIo_e475s();
-   KVChIo_e475s(Float_t pressure, Float_t thick=50.0);
+   KVChIo_e475s(Float_t pressure, Float_t thick=50.0*KVUnits::mm);
    virtual ~KVChIo_e475s(){};
 	
 	virtual void SetCalibrators(){};
@@ -41,7 +41,7 @@ class KVChIo_e475s : public KVChIo
 
 	Double_t	GetCalibratedEnergy();
 	virtual Double_t	GetEnergy();
-   virtual Short_t GetCalcACQParam(KVACQParam*) const;
+   virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
 
 	ClassDef(KVChIo_e475s,1)//derivation of KVChIo class for E475s experiment
 };

@@ -41,7 +41,7 @@ class KVDataSelector:public KVBase {
    static void MakeClass(const Char_t * classname,
                          const Char_t * classdesc);
 
-   ClassDef(KVDataSelector, 1)  //KVBase
+   ClassDef(KVDataSelector, 1)  //Class handling event lists for KVSelector analysis of data chains
 };
 
 #endif

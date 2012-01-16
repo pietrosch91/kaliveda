@@ -11,19 +11,18 @@ $Id: KVNucleus.h,v 1.40 2009/04/02 09:32:55 ebonnet Exp $
 #ifndef KVNUCLEUS_H
 #define KVNUCLEUS_H
 
-#define MAX_Z_MASS_TABLE 108
-#define MAX_A_MASS_TABLE 263
-
 #include "TVector3.h"
 #include "TEnv.h"
 #include "KVParticle.h"
 #include "KVParticleCondition.h"
 #include "TLorentzRotation.h"
-#include "TH2F.h"
 #include "KVString.h"
 #include "KVDataSet.h"
 
 class KVNumberList;
+class KVLifeTime;
+class KVMassExcess;
+class KVAbundance;
 
 class KVNucleus:public KVParticle {
 
@@ -32,11 +31,11 @@ class KVNucleus:public KVParticle {
    UChar_t fA;                  //nuclear mass number
    UChar_t fZ;                  //nuclear charge number (atomic number)
    UChar_t fMassFormula;        //mass formula for calculating A from Z
-   static Double_t fMassExcess[MAX_Z_MASS_TABLE][MAX_A_MASS_TABLE];     //!table of mass excesses in MeV for known nuclei
-   static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
+	static UInt_t fNb_nuc;       //!counts number of existing KVNucleus objects
    static Char_t fElements[][3];        //!symbols of chemical elements
-   void ReadMassTable();
-   Double_t fExx;               //excitation energy in MeV
+   TString fSymbolName;        //!
+   
+	Double_t fExx;               //excitation energy in MeV
 
    enum {
       kIsHeavy = BIT(17)        //flag when mass of nucleus is > 255
@@ -55,6 +54,7 @@ class KVNucleus:public KVParticle {
    };
 
    static Double_t kAMU;        //atomic mass unit in MeV
+   static Double_t kMe;        //electron mass in MeV/c2
    static Double_t u(void);
 
    inline void SetMassFormula(UChar_t mt);
@@ -64,7 +64,7 @@ class KVNucleus:public KVParticle {
     KVNucleus();
     KVNucleus(const KVNucleus &);
    virtual void Clear(Option_t * opt = "");
-    KVNucleus(Int_t z, Int_t a = 0);
+    KVNucleus(Int_t z, Int_t a = 0, Double_t ekin = 0);
     KVNucleus(Int_t z, Float_t t, TVector3 & p);
     KVNucleus(Int_t z, Int_t a, TVector3 p);
     KVNucleus(const Char_t *);
@@ -80,10 +80,12 @@ class KVNucleus:public KVParticle {
    };
    Int_t Compare(const TObject * obj) const;
 
-    virtual ~ KVNucleus();
+	virtual ~ KVNucleus();
    static Int_t GetAFromZ(Double_t, Char_t mt);
-   static Double_t GetRealAFromZ(Double_t, Char_t mt);
-   const Char_t *GetSymbol() const;
+   static Int_t GetNFromZ(Double_t, Char_t mt);
+	static Double_t GetRealAFromZ(Double_t, Char_t mt);
+	static Double_t GetRealNFromZ(Double_t, Char_t mt);
+   const Char_t *GetSymbol(Option_t* opt="") const;
 
    static Int_t GetZFromSymbol(const Char_t *);
    void SetZFromSymbol(const Char_t *);
@@ -91,17 +93,33 @@ class KVNucleus:public KVParticle {
 
    void SetZ(Int_t z, Char_t mt = -1);
    void SetA(Int_t a);
-   virtual void Print(Option_t * t = "") const;
+	void SetN(Int_t n);
+   void SetZandA(Int_t z, Int_t a);
+   void SetZandN(Int_t z,Int_t n);
+	void SetZAandE(Int_t z, Int_t a, Double_t ekin);
+  
+	virtual void Print(Option_t * t = "") const;
    Int_t GetZ() const;
    Int_t GetA() const;
-   Int_t GetN() const { return GetA()-GetZ(); };
-   Double_t GetAsurZ() const {return Double_t(GetA())/GetZ(); };
-   Double_t GetNsurZ() const {return Double_t(GetN())/GetZ(); };
-	Double_t GetChargeAsymetry() const { return Double_t(GetA()-GetZ())/GetZ(); }
+	Int_t GetN() const;
+   
+   Double_t GetAsurZ() const {return Double_t(GetA())/GetZ(); }
+   Double_t GetNsurZ() const {return Double_t(GetN())/GetZ(); }
+	Double_t GetChargeAsymetry() const {
+		//The charge asymertry  = (neutrons-protons)/nucleons 
+		//
+		return Double_t(GetN()-GetZ())/GetA();
+	}
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
+	
+	void ChechZAndA(Int_t &z, Int_t&a);
+
    Double_t GetMassExcess(Int_t z = -1, Int_t a = -1);
-   Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1);
+	Double_t GetExtraMassExcess(Int_t z = -1, Int_t a = -1);
+   KVMassExcess* GetMassExcessPtr(Int_t z = -1, Int_t a = -1);
+   
+	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1);
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1);
    
 	KVNumberList GetKnownARange(Int_t z=-1);
@@ -116,13 +134,20 @@ class KVNucleus:public KVParticle {
       return fExx;
    };
 	
-    KVNucleus & operator=(const KVNucleus & rhs);
-   KVNucleus operator+(const KVNucleus & rhs);
-   KVNucleus operator-(const KVNucleus & rhs);
-    KVNucleus & operator+=(const KVNucleus & rhs);
-    KVNucleus & operator-=(const KVNucleus & rhs);
+	Double_t GetLifeTime(Int_t z = -1, Int_t a = -1);
+	KVLifeTime* GetLifeTimePtr(Int_t z = -1, Int_t a = -1);
 	
-	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
+   Double_t GetAbundance(Int_t z = -1, Int_t a = -1);
+	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1);
+	
+	KVNucleus & operator=(const KVNucleus & rhs);
+	KVNucleus operator+(const KVNucleus & rhs);
+	KVNucleus operator-(const KVNucleus & rhs);
+	KVNucleus & operator+=(const KVNucleus & rhs);
+	KVNucleus & operator-=(const KVNucleus & rhs);
+	
+//	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
+	Double_t DeduceEincFromBrho(Double_t Brho,Int_t ChargeState=0);
 	
     ClassDef(KVNucleus, 5)      //Class describing atomic nuclei
 };

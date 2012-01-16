@@ -18,6 +18,7 @@ $Id: KVDBTable.cpp,v 1.18 2007/04/27 14:46:29 franklan Exp $
 #include "KVDBTable.h"
 #include "KVDBRecord.h"
 #include "Riostream.h"
+#include "TROOT.h"
 
 
 ClassImp(KVDBTable)
@@ -48,6 +49,7 @@ KVDBTable::KVDBTable(const Char_t * name, const Char_t * type,
 
 KVDBTable::~KVDBTable()
 {
+	gROOT->GetListOfCleanups()->Remove(this);
 }
 
 //___________________________________________________________________

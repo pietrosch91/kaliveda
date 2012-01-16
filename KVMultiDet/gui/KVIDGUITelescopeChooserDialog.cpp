@@ -168,7 +168,7 @@ void KVIDGUITelescopeChooserDialog::FillTelescopeListWithType(const char* type)
 	
 	fListBox980->RemoveAll();
 	fListBox980->Layout();
-	KVList *telescopes = fMultiDet->GetIDTelescopesWithType(type);
+	KVSeqCollection *telescopes = fMultiDet->GetIDTelescopesWithType(type);
 	TIter next_tel(telescopes); KVIDTelescope* idt; int i=0;
 	while( (idt = (KVIDTelescope*)next_tel()) ){
 		fListBox980->AddEntry( idt->GetName(), i++ );

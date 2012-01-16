@@ -33,11 +33,16 @@ class KVBase:public TNamed {
    static TString KVFilesDir;   //!
 
    static Bool_t fEnvIsInit;//! set when environment is initialised
-   
+
    void init();
 	static void ReadGUIMimeTypes();
 
  public:
+
+    enum EKaliVedaBits {
+       kIsKaliVedaObject = BIT(23)   //all KVBase-derived objects have this bit set in TObject::fBits
+   };
+
    static void InitEnvironment();
     KVBase();
     KVBase(const Char_t * name, const Char_t * title = "");
@@ -61,7 +66,7 @@ class KVBase:public TNamed {
    virtual void List() {
    };
    static const Char_t *GetKVRoot();
-   void SetNumber(UInt_t num) {
+   virtual void SetNumber(UInt_t num) {
       fNumber = num;
    };
    UInt_t GetNumber() const {
@@ -112,9 +117,13 @@ class KVBase:public TNamed {
    static const Char_t *FindFile(const Char_t * search, TString & wfil);
    static Bool_t FindClassSourceFiles(const Char_t* class_name, KVString& imp_file,
          KVString& dec_file, const Char_t* dir_name=".");
+#ifdef WITH_GRULIB   
+   Int_t TestPorts(Int_t port);
+#endif
    
+   static Bool_t AreEqual(Double_t x, Double_t y, Long64_t maxdif=1);
 
-   ClassDef(KVBase, 2)          //Base class for all KaliVeda objects
+   ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
 };
 
 //this function is implemented in TSystem.cxx

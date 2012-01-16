@@ -21,11 +21,15 @@ class KVQPsource:public KVVarGlob
 // Champ proteges:
         private:
 	KVNucleus QPsource;
+	Double_t fVal[7];//! used by GetValuePtr
 
 	
 // Methodes
 	protected:
 	void init_KVQPsource(void);
+	virtual Double_t getvalue_void() const;	
+	virtual Double_t getvalue_int(Int_t i);
+				
 
 	public:
 	KVQPsource(void);			// constructeur par defaut
@@ -43,23 +47,12 @@ class KVQPsource:public KVVarGlob
 	KVQPsource& operator = (const KVQPsource &a); // operateur =
 	
 
-	virtual void Init(void);		// methode d'initialisation des
-						// variables internes
-	virtual void Reset(void);		// Remise a zero avant le
-						// traitement d'un evenement
-	virtual void Fill(KVNucleus *c);  	// Remplissage de la variable.
+	virtual void Init(void);
+	virtual void Reset(void);	
+	virtual void Fill(KVNucleus *c);  
+	virtual Double_t *GetValuePtr(void); 
+	virtual TObject *GetObject(void); 
 	
-	virtual Double_t GetValue(void) const;	// On retourne la valeur de la
-						// variable.
-	virtual Double_t *GetValuePtr(void);	// On retourne un tableau de 
-	                                        // valeurs 
-	virtual Double_t GetValue(Int_t i);     // on retourne la ieme valeur du
-						// tableau
-	virtual Double_t GetValue(Char_t *name); // on retourne la valeur de
-						 // la variable "name"
-	virtual TObject *GetObject(void);      // on retourne un pointeur sur un
-					       // objet
-
 	ClassDef(KVQPsource,1)//User global variable class for reconstruction of QP source
 	
 	};

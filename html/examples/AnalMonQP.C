@@ -115,11 +115,6 @@ void AnalMonQP::InitAnalysis(void)
  // Listing des histogrammes declares
  fsave->ls();
   
- // On récupère les valeurs de Vproj et Vcm pour le calcul de Vred
-  vproj=gIndra->GetSystem()->GetKinematics()->GetNucleus(1)->GetVpar();
-  zproj=gIndra->GetSystem()->GetZproj();
-  Vcm=gIndra->GetSystem()->GetKinematics()->GetCMVelocity();
-  vcm=Vcm.Z();
  }
 
 //_____________________________________
@@ -134,6 +129,11 @@ void AnalMonQP::InitRun(void)
  // Enter your code here
  //
   cout << "Debut du run " << gIndra->GetCurrentRunNumber() << endl;
+ // On récupère les valeurs de Vproj et Vcm pour le calcul de Vred
+  vproj=gIndra->GetSystem()->GetKinematics()->GetNucleus(1)->GetVpar();
+  zproj=gIndra->GetSystem()->GetZproj();
+  Vcm=gIndra->GetSystem()->GetKinematics()->GetCMVelocity();
+  vcm=Vcm.Z();
  // To define which identification/calibration codes you want
  // to use in your analysis:
     GetEvent()->AcceptIDCodes(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//VEDA id-codes code(i)=2 and 6 accepted
@@ -205,8 +205,8 @@ Bool_t AnalMonQP::Analysis(void)
  // On va faire la boucle sur les particules associees au QP
  KVINDRAReconNuc *part=0;
   
- while( (part=GetEvent()->GetNextParticle("QP"))) // On peut utiliser ceci car on a appele "QP" toutes les particules associees
-                                                  // au QP dans le KVQPsource.
+ while( (part=GetEvent()->GetNextParticle("QPsource"))) // On peut utiliser ceci car on a mis dans le groupe "QPsource"
+	 																	// toutes les particules associees au QP dans le KVQPsource.
   {
   // On verifie que c'est un alpha
   if((part->GetZ() == 2 && part->GetA() == 4))

@@ -28,9 +28,12 @@
 #include "TEnv.h"
 #include "KVINDRARunListReader.h"
 #include "KVINDRAPulserDataTree.h"
+#include "KVNumberList.h"
 
 //dimension of run_range arrays
 #define MAX_NUM_RUN_RANGES 100
+
+class KVNumberList;
 
 class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 
@@ -67,7 +70,11 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
                                       UInt_t run_ranges[][2]);
    virtual void LinkRecordToRunRange(KVDBRecord * rec, UInt_t first_run,
                                      UInt_t last_run);
-   virtual void ReadSystemList();
+   virtual void LinkListToRunRange(TList * list, KVNumberList nl);
+   virtual void LinkRecordToRunRange(KVDBRecord * rec,  KVNumberList nl);
+   virtual void LinkRecordToRun(KVDBRecord * rec,  Int_t run);
+	
+	virtual void ReadSystemList();
    virtual void ReadGainList();
    virtual void ReadChIoPressures();
 	virtual void ReadCsITotalLightGainCorrections();
@@ -130,12 +137,19 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    Double_t GetTotalCrossSection(Int_t run1, Int_t run2,
                                  Double_t Q_apres_cible,
                                  Double_t Coul_par_top = 1.e-10) const;
+   Double_t GetEventCrossSection(KVNumberList runs,
+                                 Double_t Q_apres_cible,
+                                 Double_t Coul_par_top = 1.e-10) const;
+   Double_t GetTotalCrossSection(KVNumberList runs,
+                                 Double_t Q_apres_cible,
+                                 Double_t Coul_par_top = 1.e-10) const;
    Double_t GetEventCrossSection(const Char_t * system, Int_t Mult_trigger,
                                  Double_t Q_apres_cible,
                                  Double_t Coul_par_top = 1.e-10) const;
    Double_t GetTotalCrossSection(const Char_t * system, Int_t Mult_trigger,
                                  Double_t Q_apres_cible,
                                  Double_t Coul_par_top = 1.e-10) const;
+   Double_t GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top = 1.e-10);
 
    void WriteRunListFile() const;
    void ReadNewRunList();

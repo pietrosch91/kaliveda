@@ -1,6 +1,12 @@
 #!/bin/bash
 
+# get default system F77 compiler
+compil=`cat INDRA2ROOT/Default.F77`
+
+echo "Compilateur fortran -> $compil"
 lcampagne="1 2 4"
+
+cd INDRA2ROOT/fortran_lecture_dst
 
 for campagne in $lcampagne
 do
@@ -39,14 +45,14 @@ do
 		for sup in *.f
 		do
 			echo $sup
-			g77 -w -I$VEDA_INC $sup -c
+			$compil -w -I$VEDA_INC $sup -c
 			rac=`basename $sup .f`
 			echo "$rac.o"
 			lpointo="$lpointo $rac.o"
 		done	
 		ar qv $lib_sup $lpointo
 		mv $lib_sup $KVROOT/lib/.
-		ln -sf $KVROOT/lib/$lib_sup $VEDA_LIB
+#		ln -sf $KVROOT/lib/$lib_sup $VEDA_LIB
 		rm $lpointo
 		echo $lpointo
 		cd ../
@@ -54,10 +60,12 @@ do
 		echo "pas de supp_camp"$campagne""
 	fi
 	
-	g77 -w -I$VEDA_INC kali_lecture_dst_camp$campagne.f -c
+	$compil -w -I$VEDA_INC kali_lecture_dst_camp$campagne.f -c
 	mv kali_lecture_dst_camp$campagne.o $KVROOT/lib/.
-	ln -sf $KVROOT/lib/kali_lecture_dst_camp$campagne.o $VEDA_LIB
+	#ln -sf $KVROOT/lib/kali_lecture_dst_camp$campagne.o $VEDA_LIB
 
 done
+
+cd ../../.
 
 exit

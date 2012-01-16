@@ -19,9 +19,9 @@ $Id: KVPhoswich.h,v 1.9 2006/10/19 14:32:43 franklan Exp $
 #ifndef KVPHOSWICH_H
 #define KVPHOSWICH_H
 
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 
-class KVPhoswich:public KVDetector {
+class KVPhoswich:public KVINDRADetector {
  public:
    KVPhoswich();
    KVPhoswich(Float_t, Float_t);
@@ -33,7 +33,7 @@ class KVPhoswich:public KVDetector {
    void SetEnergy(Double_t e);
    void SetACQParams();
 
-    ClassDef(KVPhoswich, 1)     //Phoswich telescopes of the INDRA array
+    ClassDef(KVPhoswich, 2)     //Phoswich telescopes of the INDRA array
 };
 
 #endif

@@ -14,6 +14,7 @@ $Date: 2008/10/17 10:58:07 $
 #include "KVINDRAReconEvent.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TString.h"
 
 class KVINDRARawDataReconstructor : public KVINDRARawDataAnalyser
 {
@@ -25,6 +26,8 @@ class KVINDRARawDataReconstructor : public KVINDRARawDataAnalyser
    TTree* rawtree;
    KVINDRAReconEvent* recev;
    Int_t nb_recon;//number of reconstructed INDRA events
+   TString taskname;
+   TString datatype;
    
    public:
 
@@ -36,6 +39,8 @@ class KVINDRARawDataReconstructor : public KVINDRARawDataAnalyser
    virtual Bool_t Analysis();
    virtual void EndRun();
    virtual void EndAnalysis(){};
+   
+   virtual void ExtraProcessing(){};
    
    ClassDef(KVINDRARawDataReconstructor,2)//Reconstruction of events from raw data acquisition files
 };

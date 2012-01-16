@@ -85,9 +85,14 @@ KVDBSystem::~KVDBSystem()
 
 KV2Body *KVDBSystem::GetKinematics()
 {
-   //Create (if it doesn't already exist) and return pointer to a KV2Body object initialised
-   //with the entrance channel corresponding to this system. Use this to obtain information
-   //such as the recoil velocity of the CM, available energy, etc. (see KV2Body).
+   // Create (if it doesn't already exist) and return pointer to a KV2Body object initialised
+   // with the entrance channel corresponding to this system. Use this to obtain information
+   // such as the recoil velocity of the CM, available energy, etc. (see KV2Body).
+   //
+   // If no projectile and/or target are defined for the system, we return 0x0.
+   
+   if(GetZbeam()*GetZtarget()==0) return 0;
+   
    if (!fCinema) {
       fCinema = new KV2Body();
       fCinema->SetProjectile(GetZbeam(), GetAbeam());
@@ -105,6 +110,7 @@ Double_t KVDBSystem::GetZVtot() const
    //Returns product of atomic number and velocity component parallel to beam axis of projectile nucleus in laboratory frame
    //Units are cm/ns (velocity units)
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (fZbeam * kin->GetNucleus(1)->GetVpar());
 }
 
@@ -115,6 +121,7 @@ Double_t KVDBSystem::GetPtot() const
    //Returns momentum component parallel to beam axis of projectile nucleus in laboratory frame
    //Units are MeV/c
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (kin->GetNucleus(1)->GetMomentum().Z());
 }
 
@@ -125,6 +132,7 @@ Double_t KVDBSystem::GetEtot() const
    //Returns total (mass + kinetic) energy of entrance channel corresponding to system
    //Units are MeV
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (kin->GetNucleus(1)->E() + kin->GetNucleus(2)->E());
 }
 
@@ -135,6 +143,7 @@ Double_t KVDBSystem::GetECM() const
    //Returns total available (CM) kinetic energy of entrance channel corresponding to system
    //Units are MeV
    KV2Body *kin = const_cast < KVDBSystem * >(this)->GetKinematics();
+   if(!kin) return 0.;
    return (kin->GetCMEnergy());
 }
 
@@ -153,7 +162,7 @@ Int_t KVDBSystem::Compare(const TObject * obj) const
        dynamic_cast < KVDBSystem * >(const_cast < TObject * >(obj));
    if (!other_sys)
       return 0;
-   TList *other_runs;
+   KVList *other_runs;
    if (!(other_runs = other_sys->GetRuns()))
       return 0;
    Int_t first = ((KVDBRecord *) fRunlist->At(0))->GetNumber();
@@ -212,7 +221,7 @@ void KVDBSystem::Save(ostream &f) const
       while( (lay = (KVMaterial*)next()) ){
          if( lay->IsIsotopic() ) f << Form("%d%s", (Int_t)lay->GetMass(), lay->GetType());
          else f << lay->GetType();
-         f << " " << lay->GetThickness() << endl;
+         f << " " << lay->GetAreaDensity()/KVUnits::mg << endl;
       }
    }
    KVNumberList runlist; GetRunList(runlist);
@@ -228,9 +237,9 @@ void KVDBSystem::Load(istream &f)
    //+155Gd + 238U 36 MeV/A   '+'  followed by name of system
    //155 64 238 92 36.0    Aproj Zproj Atarg Ztarg Ebeam
    //Target: 3 0.0                    target with 3 layers, angle 0 degrees
-   //C 0.02                            1st layer : carbon, 20 g/cm2
-   //238U 0.1                          2nd layer : uranium-238, 100 g/cm2
-   //C 0.023                           3rd layer : carbon, 23 g/cm2
+   //C 0.02                            1st layer : carbon, 20 ug/cm2
+   //238U 0.1                          2nd layer : uranium-238, 100 ug/cm2
+   //C 0.023                           3rd layer : carbon, 23 ug/cm2
    //Runs: 770-804             list of runs in KVNumberList format
 
    TString line;
@@ -296,8 +305,8 @@ void KVDBSystem::Load(istream &f)
    }
    //set target if not already done (old versions)
    if(!fTarget && target_thickness>0 && fZtarget>0){
-      KVNucleus n(fZtarget);
-      fTarget = new KVTarget(Form("%d%s", fAtarget, n.GetSymbol()), target_thickness);
+      KVNucleus n(fZtarget,fAtarget);
+      fTarget = new KVTarget(n.GetSymbol(), target_thickness);
       fTarget->Print();
    }
 }
@@ -317,6 +326,10 @@ void KVDBSystem::SetRuns(KVNumberList&rl)
       run_number = rl.Next();
       KVDBRun* run = (KVDBRun*)runtable->GetRecord(run_number);
       if(run){
+         if(run->GetSystem()){
+            Error("SetRuns", "Associating run %d with system \"%s\" : run already associated with system \"%s\"",
+                  run_number, GetName(), run->GetSystem()->GetName());
+         }
          if(AddLink("Runs", run)){
             //use name of system as title of run
             run->SetTitle(GetName());

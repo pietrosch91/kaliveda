@@ -8,6 +8,7 @@ $Date: 2009/01/14 15:59:11 $
 //Author: John Frankland
 
 #include "KVIVRawDataReconstructor.h"
+#include "KVINDRA.h"
 
 ClassImp(KVIVRawDataReconstructor)
 
@@ -40,7 +41,8 @@ Bool_t KVIVRawDataReconstructor::Analysis()
    //  - INDRA present in mode gene/laser
 
    KVINDRARawDataReconstructor::Analysis();
-   if( !IsINDRAEvent() || (IsINDRAEvent()&&(!fRunFile->IsPhysics()))) {
+   if( !gIndra->GetTriggerInfo()->IsINDRAEvent()
+            || (gIndra->GetTriggerInfo()->IsINDRAEvent()&&(!gIndra->GetTriggerInfo()->IsPhysics()))) {
       tree->Fill();
    }
    return kTRUE;

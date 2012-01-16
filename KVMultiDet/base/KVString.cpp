@@ -499,7 +499,8 @@ void KVString::Begin(TString delim)
 	else {
 		if (kObjArr) delete kObjArr;
 		kObjArr = Tokenize(delim);
-	   if (!kObjArr || !kObjArr->GetEntries()) { fEndList=kTRUE;}
+	   if (!kObjArr) { fEndList=kTRUE;}
+	   else if (!kObjArr->GetEntries()) { fEndList=kTRUE; delete kObjArr; kObjArr=0;}
 	}
 }
 
@@ -552,10 +553,12 @@ KVString KVString::Next(Bool_t strip_whitespace)
 	//  Second
 	//  Third
 	
-	KVString st = "";
-	if(!kObjArr || !kObjArr->GetEntries() || fIterIndex>=kObjArr->GetEntries()) return st;
+	static KVString st;
+	st = "";
+	if(!kObjArr) return st;
 	st = ((TObjString* )kObjArr->At(fIterIndex++))->GetString();
 	fEndList = (fIterIndex==kObjArr->GetEntries());
+	if(fEndList) {delete kObjArr; kObjArr=0;};
 	if(strip_whitespace) st.Remove(kBoth,' ');
 	return st;
 }

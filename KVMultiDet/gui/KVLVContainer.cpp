@@ -285,7 +285,9 @@ void KVLVContainer::default_init()
 			"KVLVContainer", this, "OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t)");
 	Connect("DoubleClicked(TGFrame*,Int_t,Int_t,Int_t)",
 			"KVLVContainer", this, "HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t)");
-	fUserItems = new TList;
+	fUserItems = new KVList;
+   fUserItems->SetOwner(kFALSE);
+   fUserItems->SetCleanup();
 	
 	fAllowContextMenu = kTRUE;
 	fAllowBrowse = kTRUE;
@@ -353,7 +355,7 @@ void KVLVContainer::AddFrame(TGFrame *f, TGLayoutHints *l)
 
 //______________________________________________________________________________
 
-void KVLVContainer::Display(const TList* list_of_objects)
+void KVLVContainer::Display(const TCollection* list_of_objects)
 {
    // Display the list of objects in the container.
 
@@ -396,16 +398,18 @@ void KVLVContainer::RemoveAll()
 
 //______________________________________________________________________________
 
-void KVLVContainer::FillList(const TList* l)
+void KVLVContainer::FillList(const TCollection* l)
 {
 	// Fill list from list
 	// Pointers to objects are stored in internal list fUserItems for Refresh()
 
-	if(l) fUserItems->Clear();
+	if(l){
+      fUserItems->Clear();
+   }
 
 	if(l && !l->GetSize()) return;
 
-	TList* theList = (TList*)(l ? l : fUserItems);
+	TCollection* theList = (TCollection*)(l ? l : fUserItems);
 	TIter nxt(theList);
 	TObject* obj = 0;
 	while( (obj = nxt()) ){

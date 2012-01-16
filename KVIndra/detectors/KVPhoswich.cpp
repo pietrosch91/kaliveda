@@ -40,7 +40,7 @@ KVPhoswich::KVPhoswich()
 }
 
 //______________________________________________________________________________
-KVPhoswich::KVPhoswich(Float_t thick_102, Float_t thick_115):KVDetector("NE102",
+KVPhoswich::KVPhoswich(Float_t thick_102, Float_t thick_115):KVINDRADetector("NE102",
            thick_102)
 {
    //Build phoswich telescope from two layers of plastic - (NE102) and (NE115).
@@ -60,10 +60,6 @@ KVPhoswich::KVPhoswich(Float_t thick_102, Float_t thick_115):KVDetector("NE102",
 
 KVPhoswich::~KVPhoswich()
 {
-   //If gIndra exists, remove from list of phoswich
-//    if (gIndra) {
-//       gIndra->GetListOfPhoswich()->Remove(this);
-//    }
 }
 
 
@@ -100,7 +96,7 @@ void KVPhoswich::SetACQParams()
    //Set acquisition parameters for this phoswich.
    //Do not call before detector's name has been set.
 
-   AddACQParam("R");
-   AddACQParam("L");
-   AddACQParam("T");
+   AddACQParamType("R");
+   AddACQParamType("L");
+   AddACQParamType("T");
 }

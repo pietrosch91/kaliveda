@@ -49,8 +49,6 @@ void KVChIo::init()
    fChVoltPG=0;
    fVoltE=0;
    fSegment = 0;
-   fPGtoGG_0 = 0;
-   fPGtoGG_1 = 15;
 }
 
 KVChIo::KVChIo()
@@ -64,20 +62,19 @@ KVChIo::KVChIo()
 }
 
 //______________________________________________________________________________
-KVChIo::KVChIo(Float_t pressure, Float_t thick):KVDetector("Myl", 2.5)
+KVChIo::KVChIo(Float_t pressure, Float_t thick):KVINDRADetector("Myl", 2.5*KVUnits::um)
 {
-   //Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' mm of C3F8.
-   //By default 'thick'=50mm
-   //By default 'pressure'=0mbar
-   //The type of these detectors is "CI"
+   // Make an INDRA ChIo: 2.5micron mylar windows enclosing 'thick' cm of C3F8,
+   // give gas pressure in mbar
+   // By default 'thick'=5cm
+   // The type of these detectors is "CI"
 
    //gas layer
-   KVMaterial *mat = new KVMaterial("C3F8", thick);
-   mat->SetPressure(pressure);
+   KVMaterial *mat = new KVMaterial("C3F8", thick, pressure*KVUnits::mbar);
    AddAbsorber(mat);
    SetActiveLayer(mat);         //gas is the active layer
    // mylar for second window
-   mat = new KVMaterial("Myl", 2.5);
+   mat = new KVMaterial("Myl", 2.5*KVUnits::um);
    AddAbsorber(mat);
 
    SetType("CI");
@@ -103,11 +100,9 @@ Int_t KVChIo::GetCanalPGFromVolts(Float_t volts)
 
       if (!fChVoltPG || !fChVoltPG->GetStatus())
          return -1;
-      Int_t chan = (Int_t) (fChVoltPG->Invert(volts));
-      //correct for pedestal drift
-      chan = chan + (Int_t) (GetPedestal("PG") - fChVoltPG->Invert(0));
+      Int_t chan = TMath::Nint(fChVoltPG->Invert(volts) + GetPedestal("PG") - fChVoltPG->Invert(0));
       return chan;
-   
+
 }
 
 //____________________________________________________________________________________________
@@ -118,13 +113,12 @@ Int_t KVChIo::GetCanalGGFromVolts(Float_t volts)
    //Any change in the coder pedestal between the current run and the effective pedestal
    //of the channel-volt calibration (GetCanal(V=0)) is automatically corrected for.
    //
-   //Returns -1 if PG <-> Volts calibration is not available
+   //Returns GG calculated from PG if GG <-> Volts calibration is not available
 
-      if (!fChVoltGG || !fChVoltGG->GetStatus())
-         return -1;
-      Int_t chan = (Int_t) (fChVoltGG->Invert(volts));
-      //correct for pedestal drift
-      chan = chan + (Int_t) (GetPedestal("GG") - fChVoltGG->Invert(0));
+      if (!fChVoltGG || !fChVoltGG->GetStatus()){
+         return GetGGfromPG(GetCanalPGFromVolts(volts));
+      }
+      Int_t chan = TMath::Nint(fChVoltGG->Invert(volts) + GetPedestal("GG") - fChVoltGG->Invert(0));
       return chan;
 }
 
@@ -136,9 +130,9 @@ void KVChIo::SetACQParams()
    //Setup acquistion parameters for this ChIo.
    //Do not call before ChIo name has been set.
 
-   AddACQParam("GG");
-   AddACQParam("PG");
-   AddACQParam("T");
+   AddACQParamType("GG");
+   AddACQParamType("PG");
+   AddACQParamType("T");
 
 }
 
@@ -160,23 +154,6 @@ void KVChIo::SetCalibrators()
 
 //__________________________________________________________________________________________________________________________
 
-Float_t KVChIo::GetGGfromPG(Float_t PG)
-{
-   //Calculate GG from PG when GG is saturated.
-   //If PG is not given as argument, the current value of the detector's PG ACQParam is read
-   //The GG value returned includes the current pedestal:
-   //      GG = pied_GG + alpha + beta * (PG - pied_PG)
-   //alpha, beta coefficients were obtained by fitting (GG-pied) vs. (PG-pied) for data.
-   if (PG < 0)
-      PG = (Float_t) GetPG();
-   Float_t GG =
-       GetPedestal("GG") + fPGtoGG_0 + fPGtoGG_1 * (PG -
-                                                    GetPedestal("PG"));
-   return GG;
-}
-
-//__________________________________________________________________________________________________________________________
-
 Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped)
 {
    //Based on energy loss in gas, calculates sum of energy losses in mylar windows
@@ -185,74 +162,20 @@ Double_t KVChIo::GetELossMylar(UInt_t z, UInt_t a, Double_t egas, Bool_t stopped
    //if stopped=kTRUE, we give the correction for a particle which stops in the detector
    //(by default we assume the particle continues after the detector)
    //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-   //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg).
-   //if dE_measured - dE_Bragg > 2 MeV, a warning is printed.
+   // WARNING: if stopped=kFALSE, and if the residual energy after the detector
+   //   is known (i.e. measured in a detector placed after this one), you should
+   //   first call
+   //       SetEResAfterDetector(Eres);
+   //   before calling this method. Otherwise, especially for heavy ions, the
+   //   correction may be false for particles which are just above the punch-through energy.
 
    egas = ((egas < 0.) ? GetEnergy() : egas);
    if (egas <= 0.)
       return 0.0;               //check measured (calibrated) energy in gas is reasonable (>0)
 
-   Bool_t maxDE = kFALSE;
-
-   //egas > max possible ?
-   Double_t de_measured = 0.;
-   if (egas > GetBraggDE(z, a)) {
-      de_measured = egas;
-      egas = GetBraggDE(z, a);
-      maxDE = kTRUE;
-//      if(de_measured-egas>2.0)
-//         Warning("GetELossMylar","%s: Measured de_ChIo (%f) is greater than maximum for Z=%d (%f)",
-//            GetName(), de_measured, (int)z, egas);
-   }
-   enum KVMaterial::SolType solution = KVMaterial::kEmax;
-   if(stopped) solution = KVMaterial::kEmin;
-   //calculate incident energy
-   Double_t e_inc = GetIncidentEnergy(z, a, egas, solution);
-
-   //calculate residual energy
-   Double_t e_res = GetERes(z, a, e_inc);
-
-   //calculate mylar energy
-   Double_t emylar = e_inc - e_res - egas;
-
-   emylar = ((emylar < 0.) ? 0. : emylar);
-
-   if (maxDE){
-      //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-      //this calculation is not valid. The mylar energy loss is calculated for a dE
-      //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-      //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
-      emylar *= (de_measured/egas);
-   }
-   
+	KVNucleus tmp(z,a);
+	Double_t emylar = GetCorrectedEnergy(&tmp,egas,!stopped) - egas;
    return emylar;
-}
-
-//__________________________________________________________________________________________________________________________
-
-Double_t KVChIo::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas, Bool_t transmission)
-{
-   //Redefinition of KVDetector method.
-   //Based on energy loss in gas, calculates correction for mylar windows
-   //from energy loss tables. Returns total energy loss in mylar+gas+mylar
-   //If argument 'egas' not given, KVChIo::GetEnergy() is used
-   //If transmission=kFALSE we give the correction for a particle stopping in the
-   //detector (i.e. we calculate the incident energy for a particle with dE<dE_Bragg)
-   //By default transmission=kTRUE & we assume the particle continues after the
-   //detector.
-   //
-   //If the dE energy loss in the gas is > maximum theoretical dE (GetBraggDE)
-   //this calculation is not valid. The mylar energy loss is calculated for a dE
-   //corresponding to dE = GetBraggDE(z,a), and then we scale up according
-   //to: dE_Mylar = dE_Mylar_Bragg * (dE_measured / dE_Bragg)
-
-   egas = ((egas < 0.) ? GetEnergy() : egas);
-   if( egas <=0 ) return 0;
-   Double_t emyl = GetELossMylar(z, a, egas, !transmission);
-   return (egas + emyl);
 }
 
 //_______________________________________________________________________________
@@ -267,7 +190,7 @@ Double_t KVChIo::GetCalibratedEnergy()
    if (IsCalibrated() && Fired("Pany")){
       return (fVoltE->Compute( GetVolts() ));
    }
-   return 0;      
+   return 0;
 }
 
 //_______________________________________________________________________________
@@ -279,7 +202,7 @@ Double_t KVChIo::GetVoltsFromEnergy(Double_t e)
    if (fVoltE->GetStatus()){
       return (fVoltE->Invert( e ));
    }
-   return 0;      
+   return 0;
 }
 
 //____________________________________________________________________________________________
@@ -323,11 +246,11 @@ Double_t KVChIo::GetVoltsFromCanalGG(Double_t chan)
          chan = GetGG();
       }
       if (chan < -0.5)
-         return 0.;          //GG parameter absent 
+         return 0.;          //GG parameter absent
       //correct for pedestal drift
       chan = chan - (Double_t) GetPedestal("GG") + fChVoltGG->Invert(0);
       return (fChVoltGG->Compute(chan));
-   
+
 }
 
 Double_t KVChIo::GetVolts()
@@ -344,7 +267,7 @@ Double_t KVChIo::GetVolts()
       else if (fChVoltGG && fChVoltGG->GetStatus()) {
          return GetVoltsFromCanalGG(GetGGfromPG());
       }
-      
+
    return 0;
 }
 
@@ -363,7 +286,8 @@ Double_t KVChIo::GetEnergy()
 
    //fELoss already set, return its value
    Double_t ELoss = KVDetector::GetEnergy();
-   if( ELoss > 0 ) return KVDetector::GetEnergy();
+   if(IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
+   if( ELoss > 0 ) return ELoss;
    ELoss = GetCalibratedEnergy();
    if( ELoss < 0 ) ELoss = 0;
    SetEnergy(ELoss);
@@ -389,16 +313,14 @@ void KVChIo::Streamer(TBuffer &R__b)
 
 //______________________________________________________________________________
 
-Short_t KVChIo::GetCalcACQParam(KVACQParam* ACQ) const
+Short_t KVChIo::GetCalcACQParam(KVACQParam* ACQ, Double_t ECalc) const
 {
-   // Calculates & returns value of given acquisition parameter corresponding to the
-   // current value of fEcalc, i.e. the calculated residual energy loss in the detector
-   // after subtraction of calculated energy losses corresponding to each identified
-   // particle crossing this detector.
-   // Returns -1 if fEcalc = 0 or if detector is not calibrated
-   
-   if(!IsCalibrated() || GetECalc()==0) return -1;
-   Double_t volts = const_cast<KVChIo*>(this)->GetVoltsFromEnergy( GetECalc() );
+   // Calculates & returns value of given acquisition parameter corresponding to
+   // given calculated energy loss in the detector
+   // Returns -1 if detector is not calibrated
+
+   if(!IsCalibrated()) return -1;
+   Double_t volts = const_cast<KVChIo*>(this)->GetVoltsFromEnergy( ECalc );
    if(ACQ->IsType("PG")) return (Short_t)const_cast<KVChIo*>(this)->GetCanalPGFromVolts(volts);
    else if(ACQ->IsType("GG")) return (Short_t)const_cast<KVChIo*>(this)->GetCanalGGFromVolts(volts);
    return -1;

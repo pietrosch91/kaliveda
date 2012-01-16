@@ -13,6 +13,7 @@ $Date: 2008/01/24 09:53:24 $
 #include "KVSilicon.h"
 #include "KVCsI.h"
 #include "KVChIo.h"
+#include "KVIDTelescope.h"
 
 ClassImp(GetChIoSiMap)
 
@@ -80,7 +81,7 @@ Bool_t GetChIoSiMap::Analysis ()
    //  KVDetectorEvent* fDetEv gives list of hit groups for current event
    //  Processing will stop if this method returns kFALSE
    
-	if( !fTrig->IsPhysics() || !fDetEv ) return kTRUE; //check state of trigger for event, exclude 'generateur' events
+	if( !gIndra->GetTriggerInfo()->IsPhysics() || !fDetEv ) return kTRUE; //check state of trigger for event, exclude 'generateur' events
 		
 	rec_ev->ReconstructEvent( fDetEv ); //reconstruct particles from detector energy losses
 	

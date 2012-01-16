@@ -1,34 +1,47 @@
-#include "KVLogReader.h"
+#ifdef BQS_LOG_READER
+#include "KVBQSLogReader.h"
+#else
+#include "KVGELogReader.h"
+#endif
 #include "KVNumberList.h"
+#include "KVNameValueList.h"
 #include "KVParameterList.h"
 #include "Riostream.h"
-
-/*
-analyse_logs [fmt] [files]
-
-arguments are:
-	[fmt] format of jobname allowing to extract run number, e.g. "PbAu29MeV_R%d" for jobs with names "PbAu29MeV_R8213" etc.
-	[files]	list of BQS log files to be read and analysed
-
-Example:
-analyse_logs "run%d" run*.o*
-*/
+#include "TSystemDirectory.h"
+#include "TSystemFile.h"
 
 int main(int argc, char** argv)
 {
 	if(argc<2){
-		cout << "\t\tAnalysis of BQS batch log files" << endl << endl;
-		cout << "\tanalyse_logs [fmt] [files]" << endl << endl;
+		cout << "\t\tAnalysis of ";
+#ifdef BQS_LOG_READER
+cout << "BQS";
+#else
+cout << "Grid Engine";
+#endif
+		cout << " (CCIN2P3) batch log files" << endl << endl;
+		cout << "\tanalyse_logs [jobname]" << endl << endl;
 		cout << "\targuments are:" << endl;
-		cout << "\t\t[fmt] format of jobname allowing to extract run number" << endl;
-		cout << "\t\t      e.g. \"PbAu29MeV_R%d\" for jobs with names \"PbAu29MeV_R8213\" etc." << endl;
-		cout << "\t\t[files]	list of BQS log files to be read and analysed" << endl << endl;
-		cout << "\tExample:" << endl;
-		cout << "\t\tanalyse_logs \"run%d\" run*.o*" << endl;
+		cout << "\t\t[jobname] common root of name of all jobs to analyse" << endl;
+		cout << "\t\t      e.g. \"PbAu29MeV\" for jobs with names like \"PbAu29MeV_R8213\" etc." << endl;
+		cout << "\t\t      The programme will attempt to read all files with names like" << endl;
+		cout << "\t\t          PbAu29MeV_R8213.o5647093" << endl;
+		cout << "\t\t          PbAu29MeV_R8214.o5647094" << endl;
+		cout << "\t\t      etc. in the current directory" << endl;		
 		return 0;
 	}
-	KVLogReader log_reader;
-	log_reader.SetNameFormat( argv[1] );
+#ifdef BQS_LOG_READER
+	KVBQSLogReader log_reader;
+#else
+	KVGELogReader log_reader;
+#endif
+	
+	// take root of job name and add suffix "_R"
+	KVString nameForm(argv[1]);
+	nameForm+="_R";
+	KVString nameFormLR=nameForm+"%d";//format for KVLogReader	
+	log_reader.SetNameFormat( nameFormLR.Data() );
+	
 	//number lists for listing runs according to status: OK, out of time, killed, seg fault
 	KVNumberList ok, oot, kill, seg;
 	//max and min CPU, SCRATCH, VIRTUAL STORAGE for OK jobs
@@ -58,11 +71,24 @@ int main(int argc, char** argv)
    CPUreq_kill=MEMreq_kill=SCRreq_kill=0;
 	Double_t CPUreq_incomp, MEMreq_incomp, SCRreq_incomp;
    CPUreq_incomp=MEMreq_incomp=SCRreq_incomp=0;
-	//loop over files
-   
-	for(int nfile=2; nfile<argc; nfile++){
+	KVNameValueList incompleteStatus;//status of each incomplete job
+	
+	//loop over files in current directory
+	TSystemDirectory thisDir(".",".");
+	TList* fileList=thisDir.GetListOfFiles();
+	TIter nextFile(fileList);
+	int nfile=0;
+	TSystemFile* aFile=0;
+	while( (aFile = (TSystemFile*)nextFile()) ){
 		
-		log_reader.ReadFile( argv[nfile] );
+		// look for files with names like [nameForm]1234.o6579780
+		KVString fileName = aFile->GetName();
+		if( !fileName.BeginsWith(nameForm.Data()) ) continue;
+		if( !fileName.Contains(".o") ) continue;
+   				
+		nfile++;
+		
+		log_reader.ReadFile( fileName.Data() );
 		
 		Int_t run = log_reader.GetRunNumber();
 		if( log_reader.JobOK() ){
@@ -156,6 +182,7 @@ int main(int argc, char** argv)
 		else if( log_reader.SegFault() ) seg.Add(run);
 		else if( log_reader.Incomplete() ){
          oot.Add(run);
+			incompleteStatus.SetValue(Form("Run %d",run), log_reader.GetStatus());
 			CPUreq_incomp = log_reader.GetCPUrequest();
 			MEMreq_incomp = log_reader.GetMEMrequest();
 			SCRreq_incomp = log_reader.GetSCRATCHrequest();
@@ -200,8 +227,12 @@ int main(int argc, char** argv)
       }
 	}
 	
+#ifdef BQS_LOG_READER
 	cout << "BQS log analysis==============>" << endl;
-	cout << "Analysed " << (argc-2) << " jobs" << endl;
+#else
+	cout << "GridEngine log analysis==============>" << endl;
+#endif
+	cout << "Analysed " << nfile << " jobs" << endl;
 	cout << endl;
 	cout << "      ";
 	cout << ok.GetNValues() << " jobs were OK \n\n" << ok.GetList() << endl;
@@ -259,8 +290,14 @@ int main(int argc, char** argv)
 		cout << INCOMPlimits.GetParameter("minSCR")/1024. << " / ";
 		cout << INCOMPavg.GetParameter("SCR")/(1.*oot.GetNValues())/1024. << " / ";
 		cout << INCOMPlimits.GetParameter("maxSCR")/1024. << ")" << endl << endl;
+		incompleteStatus.Print();
 	}
 	cout << "      ";
 	cout << seg.GetNValues() << " jobs had SEGMENTATION FAULT :\n\n" << seg.GetList() << endl << endl;
+	
+	cout << "If you want to delete any or all of these log files, use 'delete_logs':" << endl << endl;
+	cout << "\t\tdelete_logs "<<argv[1]<<" \"34-67 98 123-567\"" << endl << endl;
+	cout << "If you want to resubmit e.g. incomplete jobs, click on the 'Runlist' button in"<<endl;
+	cout << "KaliVedaGUI and copy and paste the runlist which appears above into the dialogue box"<< endl;
 	return 0;
 }

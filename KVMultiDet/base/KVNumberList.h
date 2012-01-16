@@ -10,8 +10,9 @@ $Author: franklan $
 
 #include <TString.h>
 #include <TArrayI.h>
+#include <TObject.h>
 
-class KVNumberList {
+class KVNumberList : public TObject {
 
    TString fString;
    TArrayI *fLowerBounds;       //->
@@ -66,7 +67,7 @@ class KVNumberList {
    Int_t *GetArray(Int_t & size);
    const Char_t *GetList();
    const Char_t *GetExpandedList();
-   const Char_t *GetLogical(const Char_t *observable);
+   TString GetLogical(const Char_t *observable);
 	const Char_t *AsString(Int_t maxchars=0);
    
    Int_t Next(void);
@@ -76,17 +77,25 @@ class KVNumberList {
    Bool_t IsEmpty() const {
       return (fNValues == 0);
    };
-   void Clear();
+   
+	void Clear(Option_t* = "");
    Int_t GetNValues();
+   Int_t GetEntries()
+   {
+   	return GetNValues();
+   };
 
    void PrintLimits();
+   Bool_t IsFull();
+	KVNumberList GetComplementaryList();
    
-   KVNumberList & operator=(const KVNumberList &);
+	KVNumberList & operator=(const KVNumberList &);
+	KVNumberList operator-(const KVNumberList &);
 	
 	   // Type conversion
    operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }
 
-   ClassDef(KVNumberList, 1)    //Strings used to represent a set of ranges of values
+   ClassDef(KVNumberList, 2)    //Strings used to represent a set of ranges of values
 };
 
 #endif

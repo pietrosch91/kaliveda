@@ -208,7 +208,7 @@ void KVDBSystemDialog::CreateNewSystem()
    
    //If a projectile and target are defined, we suggest a standard name
    if( IsProjectileDefined() && IsTargetDefined() ){      
-         sys_name.Form("%d%s + %s %.3g MeV/A",
+         sys_name.Form("%ld%s + %s %.3g MeV/A",
                fNumberEntry1499->GetIntNumber(),  // proj A
                fTextEntry1490->GetText(), // proj symbol
                fTarget->GetName(), // target symbol
@@ -387,7 +387,7 @@ void KVDBSystemDialog::UpdateProjectileProperties()
       fCheckButton1376->SetState(kButtonDown);EnableProjectileProperties(kTRUE);
    } 
    //update projectile symbol
-   fTextEntry1490->SetText(proj.GetSymbol());
+   fTextEntry1490->SetText(proj.GetSymbol("EL"));
    //update projectile Z
    fNumberEntry1493->SetNumber(proj.GetZ());
    //update projectile A
@@ -435,12 +435,12 @@ void KVDBSystemDialog::UpdateTargetLayerProperties(Int_t ind)
       return;
    }
    fLayer = (KVMaterial*)fTarget->GetLayers()->At(ind);
-   //update thickness
-   fNumberEntry1526->SetNumber(fLayer->GetThickness());
+   //update thickness - actually area density in mg/cm2
+   fNumberEntry1526->SetNumber(fLayer->GetAreaDensity()/(KVUnits::mg/pow(KVUnits::cm,2)));
    //update atomic mass
    fNumberEntry1537->SetNumber(fLayer->GetMass());
    //update thickness units
-   fLabel1530->SetText(fLayer->GetThicknessUnits());
+   fLabel1530->SetText("mg/cm2");
    //enable button to remove layer
    fTextButton1554->SetEnabled(kTRUE);
 }
@@ -474,7 +474,7 @@ void KVDBSystemDialog::ProjectileZChanged(Long_t)
    
    Int_t Z = (Int_t)fNumberEntry1493->GetIntNumber();
    KVNucleus r(Z);
-   fTextEntry1490->SetText(r.GetSymbol());
+   fTextEntry1490->SetText(r.GetSymbol("EL"));
    Int_t A = r.GetA();
    fNumberEntry1499->SetNumber(A);
    if(fSystem){
@@ -505,10 +505,11 @@ void KVDBSystemDialog::ProjectileEChanged(Long_t)
 
 void KVDBSystemDialog::TargetLayerThicknessChanged(Long_t)
 {
-   //Called when target layer thickness is changed
+   // Called when target layer "thickness" is changed
+   // Note that this is in fact the area density in mg/cm**2
    
    Double_t t = fNumberEntry1526->GetNumber();
-   fLayer->SetThickness(t);
+   fLayer->SetAreaDensity(t*KVUnits::mg/pow(KVUnits::cm,2));
    SetNeedSave(1);
 }
 
@@ -538,7 +539,9 @@ void KVDBSystemDialog::AddNewTargetLayer()
    //The new layer will be added after any existing layers in the target.
    
    //get selected material
-   KVMaterial* mat = (KVMaterial*)fMaterialsList->At( fComboBox1542->GetSelected() );
+   TNamed* mat = (TNamed*)fMaterialsList->At( fComboBox1542->GetSelected() );
+   KVMaterial bidon;
+   KVIonRangeTable* RT = bidon.GetRangeTable();
    //add to target of current system
    //if no target is defined, we create a new one
    if( !fTarget ){
@@ -546,16 +549,16 @@ void KVDBSystemDialog::AddNewTargetLayer()
       if(fSystem){
          fSystem->SetTarget( fTarget );
          cout << "Created target for system : " << fSystem->GetName() << endl;
-         fSystem->SetZtarget((UInt_t)mat->GetZ()); fSystem->SetAtarget((UInt_t)mat->GetMass());
+         fSystem->SetZtarget((UInt_t)RT->GetZ(mat->GetName())); fSystem->SetAtarget((UInt_t)RT->GetAtomicMass(mat->GetName()));
       }
    }
-   //add layer with default thickness 0.1 mg/cm2
-   fTarget->AddLayer( mat->GetType() , 0.1 );
+   //add layer with default area density 0.1 mg/cm2
+   fTarget->AddLayer( mat->GetTitle() , 0.1 );
    //update list of layers in target
    Int_t nlay = fComboBox1515->GetNumberOfEntries();
    fComboBox1515->AddEntry( mat->GetName(), nlay );
    fComboBox1515->Select( nlay+1 );
-   cout << "Added layer " << mat->GetType() << " to target" << endl;
+   cout << "Added layer " << mat->GetTitle() << " to target" << endl;
    SetNeedSave(1);
 }
 
@@ -575,7 +578,7 @@ void KVDBSystemDialog::RemoveTargetLayer()
       TIter next(fTarget->GetLayers()); KVMaterial* mat;
       while ( (mat = (KVMaterial*)next()) ) {
          if( mat != fLayer ){
-            new_target->AddLayer( mat->GetType(), mat->GetThickness() );
+            new_target->AddLayer( mat->GetType(), mat->GetAreaDensity() );
          }
       }
       new_target->SetAngleToBeam( fTarget->GetAngleToBeam() );
@@ -591,10 +594,14 @@ void KVDBSystemDialog::SetRuns()
    //Called when "SetRuns" button is clicked.
    //The selected system is associated with the runlist passed to the constructor.
    //The Systems.dat file is updated
-   KVNumberList tmp;
-   fSystem->GetRunList(tmp);
-   tmp.Add(fRuns);
-   fSystem->SetRuns(tmp);
+   //Any previous association run<->system is removed
+   
+//    KVNumberList tmp;
+//    fSystem->GetRunList(tmp);
+//    tmp.Add(fRuns);
+//    fSystem->SetRuns(tmp);
+   fRuns.Begin();
+   while(!fRuns.End()) fSystem->AddRun(fRuns.Next());
    SaveSystems();
    UpdateRunlist();
 }
@@ -799,7 +806,8 @@ void KVDBSystemDialog::CreateMainWindow(const TGWindow * p, const TGWindow * mai
    fComboBox1542 = new TGComboBox(fGroupFrame1541,-1,kHorizontalFrame | kSunkenFrame | kDoubleBorder | kOwnBackground);
    fComboBox1542->Resize(80,22);
    //fill list of all available materials
-   fMaterialsList = KVMaterial::GetListOfMaterials();
+   KVMaterial bidon;
+   fMaterialsList = bidon.GetRangeTable()->GetListOfMaterials();
    TIter it_mat(fMaterialsList); TObject* obj; Int_t ind = 0;
    while( (obj = it_mat()) ){
       fComboBox1542->AddEntry(obj->GetName(), ind++);

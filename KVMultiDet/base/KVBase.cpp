@@ -15,7 +15,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
+#include <cassert>
 #include "Riostream.h"
 #include "TMath.h"
 #include "KVBase.h"
@@ -32,10 +32,13 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TDatime.h"
 #include "THashList.h"
 #include "TError.h"
-#include "KVCVSUpdateChecker.h"
 #include "KVConfig.h"
 #include "TGMimeTypes.h"
 #include "TGClient.h"
+#include "KVNDTManager.h"
+#ifdef WITH_GRULIB
+#include "GNetClientRoot.h"
+#endif
 
 ClassImp(KVBase)
 
@@ -53,6 +56,12 @@ KVBase object has<br>
 <li>a label - Get/SetLabel()<br>
 </li>
 </ul>
+When objects are accessed through a TObject/TNamed base pointer, it is possible
+to test whether an object is derived from KVBase, using the bit KVBase::kIsKaliVedaObject:
+<code>
+TObject* ob = (address of some object)
+if( ob->TestBit( KVBase::kIsKaliVedaObject ) ){
+</code>
 This class also provides a number of general utilities, often as static
 (stand-alone) methods.<br>
 <h3>KaliVeda build/installation information</h3>
@@ -157,6 +166,7 @@ void KVBase::init()
    fNumber = 0;
    fNbObj++;
    fSLabel = "";
+   SetBit( kIsKaliVedaObject );
 }
 
 void KVBase::InitEnvironment()
@@ -168,10 +178,6 @@ void KVBase::InitEnvironment()
    // (data repositories, datasets, etc. etc.)
    // Resets the gRandom random number sequence using a clock-based seed
    // (i.e. random sequences do not repeat).
-   // 
-   // If automatic update checking is enabled (KaliVeda.AutoUpdateCheck:   yes),
-   // we perform the check here. If updates are found, we download them and
-   // then rebuild the sources. This will force the current application to terminate.
    //
    // Normally, the first object created which inherits from KVBase will
    // perform this initialisation; if you need to set up the environment before
@@ -179,11 +185,11 @@ void KVBase::InitEnvironment()
    // the environment has been initialised, you can call this method.
 
    if (!fEnvIsInit) {//test if environment already initialised
-   
+
       ::Info("KVBase::InitEnvironment", "Initialising KaliVeda environment...");
       ::Info("KVBase::InitEnvironment", "Using KaliVeda version %s built on %s",
 				GetKVVersion(), GetKVBuildDate());
-      ::Info("KVBase::InitEnvironment", "(Bzr branch : %s revno : %d (%d) date : %s)",
+      ::Info("KVBase::InitEnvironment", "(BZR branch : %s revision#%d (clean=%d) date : %s)",
       	bzrBranchNick(), bzrRevisionNumber(), bzrIsBranchClean(), bzrRevisionDate());
       KVRootDir = gSystem->Getenv("KVROOT");
       TString tmp;
@@ -205,35 +211,23 @@ void KVBase::InitEnvironment()
          gEnv->ReadFile(tmp.Data(), kEnvUser);
          tmp = "./.kvrootrc";
          gEnv->ReadFile(tmp.Data(), kEnvLocal);
-			
+
 			// load plugin handlers
          gROOT->GetPluginManager()->LoadHandlersFromEnv(gEnv);
-         
+
 			// load mime types/icon definitions when not in batch (i.e. GUI-less) mode
 			if(!gROOT->IsBatch()) ReadGUIMimeTypes();
       }
-      
-      // update check - do not perform if ROOT is running in batch mode
-      if(!gROOT->IsBatch() && gEnv->GetValue("KaliVeda.AutoUpdateCheck", kFALSE)){
-         KVCVSUpdateChecker upchk;
-         upchk.SetSourceDir( GetKVSourceDir() );
-         if( upchk.NeedsUpdate() ){
-            ::Info("KVBase::InitEnvironment",
-                  "A more recent version of KaliVeda is available");
-            cout << "Download updates (y/n) ? ";
-            KVString answ; answ.ReadLine(cin);
-				cout << endl;
-            if(answ=="y") upchk.Update();
-            //cout << "Build and install (y/n) ? ";
-				//answ.ReadLine(cin);
-         }
-      }
-      
+
       //generate new seed from system clock
       gRandom->SetSeed(0);
-      
-      // initialisation has been performed
+		
+		// initialisation has been performed
       fEnvIsInit = kTRUE;
+		
+		//read all nucl data table
+		gNDTManager = new KVNDTManager();
+		gNDTManager->Print();
    }
 }
 
@@ -297,9 +291,11 @@ void KVBase::Copy(TObject & obj)
 //____________________________________________________________________________________
 void KVBase::Print(Option_t * option) const
 {
-   cout << "KVBase object: fName=" << GetName() << " fType=" << GetType();
+   cout << "KVBase object: Name=" << GetName() << " Type=" << GetType();
    if (fSLabel != "")
-      cout << " fSLabel=" << GetLabel();
+      cout << " Label=" << GetLabel();
+   if (fNumber != 0)
+      cout << " Number=" << GetNumber();
    cout << endl;
 };
 
@@ -341,6 +337,8 @@ void KVBase::Streamer(TBuffer & R__b)
 {
    //Backwards compatible streamer for KVBase objects
    //Needed to handle 'fLabel' char array in class version 1
+   //Objects written with version < 3 did not have kIsKaliVedaObject bit set,
+   //we set it here when reading object.
 
    if (R__b.IsReading()) {
       UInt_t R__s, R__c;
@@ -348,6 +346,7 @@ void KVBase::Streamer(TBuffer & R__b)
       if (R__v > 1) {
          //AUTOMATIC STREAMER EVOLUTION FOR CLASS VERSION > 1
          KVBase::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
+         if(R__v<3) SetBit(kIsKaliVedaObject);
          return;
       }
       //OLD STREAMER FOR CLASS VERSION 1
@@ -361,6 +360,7 @@ void KVBase::Streamer(TBuffer & R__b)
          fSLabel = Label;
          delete[]Label;
       }
+      SetBit(kIsKaliVedaObject);
       R__b.CheckByteCount(R__s, R__c, KVBase::IsA());
    } else {
       KVBase::Class()->WriteBuffer(R__b, this);
@@ -510,7 +510,7 @@ Bool_t KVBase::SearchAndOpenKVFile(const Char_t * name, ofstream & file, const C
    } else {
       AssignAndDelete(fullpath,
                       gSystem->ConcatFileName(GetKVFilesDir(), name));
-   }     
+   }
    //Backup file if necessary
    BackupFileWithDate( fullpath.Data() );
    //put lock on file if required
@@ -529,7 +529,7 @@ void KVBase::BackupFileWithDate(const Char_t * path)
    //Example:
    //   KVBase::BackupFileWithDate("$(HOME)/toto.txt")
    //The file toto.txt will be renamed toto.txt.2007-05-02_16:22:37
-   
+
    //does the file exist ?
    KVString fullpath=path;
    gSystem->ExpandPathName(fullpath);
@@ -543,7 +543,7 @@ void KVBase::BackupFileWithDate(const Char_t * path)
          gSystem->Rename(fullpath.Data(), backup.Data());
          printf("Info in <KVBase::BackupFileWithDate(const Char_t *)> : Existing file %s renamed %s\n",
             fullpath.Data(), backup.Data());
-      }       
+      }
    }
 }
 
@@ -783,12 +783,12 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    decl_alt.SetParameter("%s.h", i);
    decl_alt.SetParameter("%s.hh", i);
    decl_alt.SetParameter("%s.H", i);
-   
+
    TString _dir_name = dir_name; gSystem->ExpandPathName(_dir_name);
    TSystemDirectory dir("LocDir", _dir_name.Data());
    TList *lf = dir.GetListOfFiles();
    Bool_t ok_imp, ok_dec; ok_imp = ok_dec = kFALSE;
-   
+
    //look for implementation file
    for(i=0; i<impl_alt.GetNPar(); i++){
       if(lf->FindObject(Form( impl_alt.GetParameter(i)->GetName(), class_name ) )){
@@ -806,7 +806,7 @@ Bool_t KVBase::FindClassSourceFiles(const Char_t* class_name, KVString& imp_file
    delete lf;
    return (ok_imp && ok_dec);
 }
- 
+
 //__________________________________________________________________________________________________________________
 
 const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
@@ -822,7 +822,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
    //then calling KVBase::GetPluginURI("KVIDTelescope", "KVIDPhoswich") will return "PHOS".
    //
    //Most of the code is copied from TPluginManager::LoadHandlersFromEnv
-   
+
    TIter next(gEnv->GetTable());
    TEnvRec *er;
    static TString tmp;
@@ -839,7 +839,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
             s += 7;
             //is it the right base class ?
             if( strcmp(s , base) ) continue;//skip to next env var if not right base
-            
+
             char *v = StrDup(val);
             while (1) {
                TString regexp = strtok(!cnt ? v : 0, "; ");
@@ -861,7 +861,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
                   tmp = regexp;
                   delete [] v;
                   return tmp.Data();
-               } 
+               }
                cnt++;
             }
             delete [] v;
@@ -871,7 +871,7 @@ const Char_t* KVBase::GetPluginURI(const Char_t* base, const Char_t* derived)
    tmp = "";
    return tmp;
 }
- 
+
 //__________________________________________________________________________________________________________________
 
 const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
@@ -880,7 +880,7 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
 	// the given base class.
    //
    // Most of the code is copied from TPluginManager::LoadHandlersFromEnv
-   
+
    TIter next(gEnv->GetTable());
    TEnvRec *er;
    static TString tmp;
@@ -897,7 +897,7 @@ const Char_t* KVBase::GetListOfPlugins(const Char_t* base)
             s += 7;
             //is it the right base class ?
             if( strcmp(s , base) ) continue;//skip to next env var if not right base
-            
+
             char *v = StrDup(val);
             while (1) {
                TString regexp = strtok(!cnt ? v : 0, "; ");
@@ -934,20 +934,79 @@ void KVBase::ReadGUIMimeTypes()
 	//  KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon :   draw_t.xpm
 	//
 	// etc.
-	
+
 	KVString mimetypes = gEnv->GetValue("KaliVeda.GUI.MimeTypes","");
 	if(mimetypes!=""){
-		
+
 		mimetypes.Begin(" ");
 		while( !mimetypes.End() ){
-			
+
 			KVString classname = mimetypes.Next(kTRUE);
 			KVString icon = gEnv->GetValue( Form("KaliVeda.GUI.MimeTypes.%s.Icon", classname.Data()), "draw_t.xpm");
 			KVString type = classname; type.ToLower();
-			
+
 			if(gClient) gClient->GetMimeTypeList()->AddType(Form("[kaliveda/%s]",type.Data()),
 					classname.Data(), icon.Data(), icon.Data(), "");
-			
+
 		}
 	}
+}
+   
+//__________________________________________________________________________________________________________________
+#ifdef WITH_GRULIB
+Int_t KVBase::TestPorts(Int_t port)
+{
+   // Test ports for availability. Start from 'port' and go up to port+2000 at most.
+   // Returns -1 if no ports available.
+   
+	GNetClientRoot testnet((char*) "localhost");
+	Int_t ret;
+	ret = port;
+
+	for (int i = 0; i < 2000; i++) {
+		ret = testnet.TestPortFree(port, (char*) "localhost");
+		if (ret > 0)
+			break;
+		if ((ret <= 0))
+			port++;
+	}
+
+	return ret;
+   
+}
+#endif
+   
+Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
+{
+   // Comparison between two 64-bit floating-point values
+   // Returns kTRUE if the integer representations of the two values are within
+   // maxdif of each other.
+   // By default maxdif=1, which means that we consider that x==y if the
+   // difference between them is no greater than the precision of Double_t
+   // variables, i.e. 4.94065645841246544e-324
+   //
+   // Based on the function AlmostEqual2sComplement(float, float, int)
+   // by Bruce Dawson http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+
+   union converter {
+      Double_t f;
+      Long64_t i;
+   } val1, val2;
+   
+   assert( maxdif > 0 );
+   
+    if (A == B) return true;
+    
+   val1.f = A;
+   val2.f = B;
+   Long64_t Aint, Bint;
+   Aint = val1.i;
+   Bint = val2.i;
+   if(Aint < 0) Aint = 0x8000000000000000 - Aint;
+   if(Bint < 0) Bint = 0x8000000000000000 - Bint;
+   Long64_t intDiff = abs(val1.i - val2.i);
+
+    if (intDiff <= maxdif) return true;
+
+    return false;
 }

@@ -1,57 +1,42 @@
-/*
-$Id: KVINDRARawDataAnalyser.h,v 1.3 2007/05/31 09:59:22 franklan Exp $
-$Revision: 1.3 $
-$Date: 2007/05/31 09:59:22 $
-*/
-
 //Created by KVClassFactory on Fri May  4 15:26:02 2007
 //Author: franklan
 
 #ifndef __KVINDRARAWDATAANALYSER_H
 #define __KVINDRARAWDATAANALYSER_H
 
-#include "KVINDRADataAnalyser.h"
-#include "KVINDRATriggerInfo.h"
-#include "KVINDRARawDataReader.h"
+#include "KVRawDataAnalyser.h"
 #include "KVDetectorEvent.h"
-#include "KVINDRAReconEvent.h"
 #include "KVDataSet.h"
+#include "KVGANILDataReader.h"
 
-class KVINDRARawDataAnalyser : public KVINDRADataAnalyser
+class KVINDRARawDataAnalyser : public KVRawDataAnalyser
 {
    friend class KVDataSet;
    
    protected:
-         
-   KVINDRARawDataReader* fRunFile;//currently analysed run file
-   Int_t fRunNumber;//run number of current file
-   Long64_t fEventNumber;//event number in current run
-   KVINDRATriggerInfo* fTrig;//INDRA trigger for current event
-   KVDetectorEvent* fDetEv;//list of hit groups for current event
+   Int_t INDRA_events;
+   Int_t gene_events;
+   Int_t other_events;
    
-   virtual void ProcessRun();
-   
+   virtual KVNumberList PrintAvailableRuns(KVString & datatype);
+      
    public:
 
    KVINDRARawDataAnalyser();
    virtual ~KVINDRARawDataAnalyser();
    
-   virtual void InitAnalysis()=0;
-   virtual void InitRun()=0;
-   virtual Bool_t Analysis()=0;
-   virtual void EndRun()=0;
-   virtual void EndAnalysis()=0;
+   void postInitRun();
+   void preAnalysis();
+   void preEndRun();
    
-   Bool_t IsINDRAEvent() const { return fRunFile->IsINDRAEvent(); };
-   const KVINDRATriggerInfo* GetINDRATrigger() const { return fTrig; };
-   const KVDetectorEvent* GetINDRADetectorEvent() const { return fDetEv; };
+   KVGANILDataReader* GetRawDataReader() const
+   {
+   	return (KVGANILDataReader*)fRunFile;
+   };
    
-   Bool_t FileHasUnknownParameters() const { return (fRunFile->GetUnknownParameters()->GetSize()>0); };
-   virtual void SubmitTask();
-   static void Make(const Char_t * kvsname = "MyOwnRawDataAnalyser");
+   static void Make(const Char_t * kvsname = "MyOwnINDRARawDataAnalyser");   
    
-   
-   ClassDef(KVINDRARawDataAnalyser,1)//Analysis of raw INDRA data
+   ClassDef(KVINDRARawDataAnalyser,2)//Analysis of raw INDRA data
 };
 
 #endif

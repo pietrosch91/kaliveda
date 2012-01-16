@@ -21,11 +21,15 @@ class KVTGIDGrid : public KVIDZAGrid
 	
    public:
    KVTGIDGrid();
-   KVTGIDGrid(KVTGID*);
+   KVTGIDGrid(KVTGID*, KVIDZAGrid* = 0);
    virtual ~KVTGIDGrid();
-	void WriteToAsciiFile(ofstream &);
+	//void WriteToAsciiFile(ofstream &);
+   virtual void Generate(Double_t xmax, Double_t xmin = 0.,
+                                Int_t ID_min = 0, Int_t ID_max =
+                                0, Int_t npoints = 50, Bool_t logscale = kTRUE);//  *MENU*	
 	
 	const KVTGID* GetTGID() const { return fTGID; };
+   virtual void AddIdentifier(KVIDentifier *id);
 
    ClassDef(KVTGIDGrid,1)//Grid representing result of fit
 };

@@ -23,27 +23,26 @@ $Id: KVACQParam.cpp,v 1.23 2007/12/06 15:12:54 franklan Exp $
 #include "TRandom.h"
 
 ClassImp(KVACQParam)
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//16-bit GANIL Data acquisition parameters read from raw data.
+///////////////////////////////////////////////////////////////////////////////
+//16-bit data acquisition parameters read from raw data.
 //
-//This class provides a link between class KVINDRADLT (used to read raw INDRA data),
-//the values of the parameters for each event as read from the raw data file,
-//and the detectors of the array. Each detector has a KVACQParam object for each
+//This class provides a link between the values of the parameters for each event as read
+//from a raw data file, and the detectors. Each detector has a KVACQParam object for each
 //parameter concerning it written in the raw data file (KVDetector::SetACQParams is
 //responsible for setting up a list of the relevant KVACQParams for each instance).
 //
 //GetCoderData() returns the 16-bit integer value of the acquisition parameter
-//as read from acquisition tape. "-1" means that the parameter was not present in the event
-//(coder did not fire).
+//as read from the file. "-1" means that the parameter was not present in the event.
 //
 //GetData() takes the value of GetCoderData() and adds a random number in the range
-//[-0.5,+0.5] to give continuous floating-point values."-1" means that the parameter was not present in the event
-//(coder did not fire).
+//[-0.5,+0.5] to give continuous floating-point values."-1" means that the parameter was
+//not present in the event.
 //
-//Fired() returns true or false depending on if the parameter was 'touched' (i.e. if GetCoderData is > -1)
+//Fired() returns true or false depending on if the parameter was 'fired' (i.e. if GetCoderData is > -1)
 //
 //GetPedestal() returns the current pedestal value associated to this parameter
-//_________________________________________________________________________
+///////////////////////////////////////////////////////////////////////////////
+
 void KVACQParam::init()
 {
 //Default initialisations
@@ -52,6 +51,7 @@ void KVACQParam::init()
    fDet = 0;
    fPied = 0.;
    fWorks = kTRUE;
+   fNbBits = 16;
 }
 
 //_________________________________________________________________________
@@ -96,6 +96,7 @@ void KVACQParam::Copy(TObject & obj)
    ((KVACQParam &) obj).SetData(GetCoderData());
    if (GetDetector())
       ((KVACQParam &) obj).SetDetector(GetDetector());
+   ((KVACQParam &) obj).SetNbBits(GetNbBits());
 }
 
 void KVACQParam::Print(Option_t * opt) const

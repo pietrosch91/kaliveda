@@ -12,17 +12,19 @@ $Date: 2008/04/11 09:58:58 $
 ClassImp(KVTensE)
 
 ////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
+/*
+BEGIN_HTML
 <h2>KVTensE</h2>
 <h4>Kinetic energy tensor</h4>
+We calculate the tensor:
 END_HTML
 BEGIN_LATEX
 Q_{ij} = #sum_{#nu} #frac{p^{i}_{#nu} p^{j}_{#nu}}{m_{#nu}(#gamma_{#nu}+1)}
 END_LATEX
 BEGIN_HTML
-<!-- */
-// --> END_HTML
+from particle momenta.
+END_HTML
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 

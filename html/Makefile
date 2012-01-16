@@ -26,25 +26,29 @@ include $(KVPROJ_ROOT_ABS)/Makefile.compat
 CXXFLAGS += $(KV_INC)
 
 ifeq ($(ARCH),win32)
-LINK_LIBS = '$(KVROOT)\lib\libKVIndraFNL.lib' '$(KVROOT)\lib\libKVIndra5.lib' '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
+LINK_LIBS = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
-LINK_LIBS = -L$(KVROOT)/lib -lKVIndraFNL -lKVIndra5 -lKVIndra -lKVMultiDet
+LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
 endif
 
 #ganil libraries for reading raw data only build on linux systems
 ifeq ($(PLATFORM),linux)
-export INDRADLT = yes
+export ROOTGANILTAPE = yes
 ifneq ($(WITH_VAMOS),no)
 LINK_LIBS +=  -lVAMOS
 endif
-LINK_LIBS +=  -lROOTGanilTape -lgan_tape
-CXXFLAGS += -I$(GANILTAPE_INC)
 else
-export INDRADLT = no
+export ROOTGANILTAPE = no
+endif
+
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
+else
+XRDPOSIX = -L$(XRDSYS)/lib -lXrdPosix
 endif
 
 ifeq ($(MAKE_GANTAPE_XRD),yes)
-LINK_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
+LINK_LIBS += $(XRDPOSIX)
 endif
 
 ifeq ($(ARCH),macosx)
@@ -72,11 +76,15 @@ SCANCLASSESO = ScanClasses.$(ObjSuf)
 .PHONY : clean
 
 clean:
-	-rm -f $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML)
+	-rm -f *.d $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML) MyPathDefinition_cxx.so examples/*.so examples/*.d
         
-$(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO)
+$(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO) MyPathDefinition_cxx.so 
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(LINK_LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
+
+MyPathDefinition_cxx.so: MyPathDefinition.h MyPathDefinition.cxx
+	@root -b -n -q -l loadMyPathDefinition.C
+	-cp MyPathDefinition_cxx.so $(KVROOT)/lib/
 
 $(MAKEHTMLO): $(MAKEHTMLS)
 	$(CXX) $(CXXFLAGS) -c $<
@@ -86,18 +94,22 @@ $(SCANCLASSESO): $(SCANCLASSESS)
 
 install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc
+	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)
 	-mkdir -p $(KVROOT)/KaliVedaDoc/images
+	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images
 	-mkdir -p $(KVROOT)/KaliVedaDoc/css
 	-mkdir -p $(KVROOT)/KaliVedaDoc/js
 	-mkdir -p $(KVROOT)/KaliVedaDoc/tools
 	-mkdir -p $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers
 	./$(MAKEHTML)
-	-cp ClassCategories.html $(KVROOT)/KaliVedaDoc/
-	-cp examples/Examples.html $(KVROOT)/KaliVedaDoc/
-	-rm -f $(KVROOT)/KaliVedaDoc/index.html
+#	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
+	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/
+	-ln -s -t$(KVROOT)/KaliVedaDoc $(VERSION_NUMBER)/incl $(VERSION_NUMBER)/inh $(VERSION_NUMBER)/inhmem $(VERSION_NUMBER)/src $(VERSION_NUMBER)/examples
 	-cp *.html $(KVROOT)/KaliVedaDoc/
 	-cp css/* $(KVROOT)/KaliVedaDoc/css/
+	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
+	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp tools/* $(KVROOT)/KaliVedaDoc/tools/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/

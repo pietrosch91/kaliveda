@@ -3,7 +3,7 @@
 <head>
   <title>KaliVeda analysis framework</title>
   <link rel="stylesheet" href="css/site.css" type="text/css">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta content="J.D. Frankland, GANIL (France)" name="author">
   <link rel="icon" href="images/favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="images/favicon.ico"
@@ -47,17 +47,16 @@ simulation of many other charged particle detectors, as well as being
 adapted to the analysis of general multiparticle events encountered in
 heavy ion collisions.<br>
 </p>
-<p class="newsText">KaliVeda is mainly developed in a Linux
-environment, but thanks to ROOT it can also be installed and used under
-MacOSX and
-WindowsXP.<br>
+<p class="newsText">KaliVeda is developed and maintained for 32- and
+64-bit Linux systems (tested on Ubuntu, Scientific Linux, Fedora).<br>
 </p>
 <br>
 <h3 class="newsTitle">Getting started</h3>
 <br>
 <span
  style="font-style: italic; font-weight: bold; color: rgb(255, 0, 0);"></span>To
-download and install KaliVeda, see <a href="#download">below</a>.<br>
+download
+and install KaliVeda, see <a href="#download">below</a>.<br>
 <br>
 The <a href="DataAnalysis.html">Data Analysis</a> page is a hands-on
 quick-start guide to analysing INDRA data within the KaliVeda
@@ -70,7 +69,7 @@ Examples of classes for analysing data can be found <a
 The <a href="appli.html">Commands</a> page documents various
 GUI and command-line tools provided by KaliVeda.<br>
 <br>
-The <a href="ClassCategories.html">Class Reference</a> page has links
+The <a href="ClassRefIndex.html">Reference Guide</a> page has links
 to the documentation of every class in the KaliVeda toolkit.<br>
 <br>
 For information on configuring the KaliVeda environment to suit your
@@ -82,13 +81,15 @@ needs, see the <a href="kvrootrc.html">Configuration</a> page.<br>
 <br>
 <span
  style="font-style: italic; font-weight: bold; color: rgb(255, 0, 0);"></span><span
- style="font-weight: bold;"></span>For help, support and discussion, go
-to the <a href="http://indra.in2p3.fr/KaliVedaForum">KaliVedaForum</a>.<br>
+ style="font-weight: bold;"></span>For help, support and discussion,
+you can ask a question <a
+ href="https://answers.launchpad.net/kaliveda/+addquestion">here</a>.<br>
 <br>
-<a
- href="http://listserv.in2p3.fr/cgi-bin/wa?SUBED1=kaliveda-l&A=1">Click here</a> to join the mailing list, <a
+<a href="http://listserv.in2p3.fr/cgi-bin/wa?SUBED1=kaliveda-l&amp;A=1">Click
+here</a> to join the mailing list, <a
  href="http://listserv.in2p3.fr/archives/kaliveda-l.html">KALIVEDA-L@IN2P3.FR</a>,
-for important announcements.
+for
+important announcements.
 <br>
 <br>
 If you find a bug, please report it to our Launchpad <a
@@ -107,7 +108,8 @@ to help new collaborators implement bugs and blueprints that are an
 ideal introduction to the project.<br>
 <br>
 For more details, see the <a href="https://launchpad.net/kaliveda">KaliVeda
-project page</a> on Launchpad, and click on "Mentoring available".<br>
+project
+page</a> on Launchpad, and click on "Mentoring available".<br>
 <br>
 <br>
 <h3 class="newsTitle">Download and install<a name="download"></a><br>
@@ -119,12 +121,8 @@ Source tarballs can be downloaded from <a
 Instructions for building &amp; installing:<br>
 <div style="margin-left: 40px;"><a
  href="http://indra.in2p3.fr/KaliVedaDoc/.Formation/PDF/InstallKaliVeda.pdf">Instructions
-for installing KaliVeda</a> <span style="font-style: italic;">(Linux
-and MacOSX)</span><br>
-</div>
-<div style="margin-left: 40px;"><a href="install_root_winxp.html">Instructions
-for Windows with VisualC++Basic</a> <span style="font-style: italic;">(includes
-instructions to install &amp; build ROOT)</span><br>
+for
+installing KaliVeda</a> <span style="font-style: italic;">(Linux)</span><br>
 </div>
 <br>
 Details of the build system (Makefile targets &amp; options) can be
@@ -139,7 +137,8 @@ found <a href="build.html">here</a>.<span style="font-style: italic;"></span><br
 provided by KaliVeda:<br>
 </p>
 <p class="newsText"><span style="font-weight: bold;"><a href="#part_nuc">Particles
-&amp; Nuclei</a><br>
+&amp;
+Nuclei</a><br>
 </span><span style="font-weight: bold;"><a href="#nuc_reac"><span
  style="font-weight: bold;">Nuclear Reactions</span></a><br>
 </span><span style="font-weight: bold;"><a href="#multpart"><span
@@ -196,7 +195,8 @@ Nuclei</span><br>
 the basis for the <a href="KVParticle.html">KVParticle</a> base class,
 itself derived from <a
  href="http://root.cern.ch/root/html/TLorentzVector.html">TLorentzVector</a>.
-This class gives all information on particle kinematics, in a variety
+This
+class gives all information on particle kinematics, in a variety
 of different user-defined Lorentz-boosted frames (see <a
  href="KVParticle.html#KVParticle:SetFrame">KVParticle::SetFrame</a>).<br>
 </p>
@@ -253,7 +253,8 @@ Events</span><br>
 for the description of events resulting from nuclear reactions,
 composed of a number (<a
  href="file:///home/john/Programmes/KaliVeda/KaliVeda4INDRA/html/KVEvent.html#KVEvent:GetMult">multiplicity</a>)
-of different nuclei. Looping over particles in the event is made
+of
+different nuclei. Looping over particles in the event is made
 simple using the <a href="KVEvent.html#KVEvent:GetNextParticle">GetNextParticle()</a>
 iterator. The event kinematics can be "viewed" in <a
  href="KVEvent.html#KVEvent:SetFrame">different Lorentz frames defined
@@ -271,7 +272,8 @@ detector simulation, event filtering, and also data calibration.
 Ideally this class should be replaced by an interface to e.g. <a
  href="http://wwwasd.web.cern.ch/wwwasd/geant4/geant4.html">GEANT4</a>
 and/or the <a href="http://root.cern.ch/root/html/TGeoManager.html">ROOT
-geometry classes</a> - this would also allow easy visualisation of
+geometry
+classes</a> - this would also allow easy visualisation of
 detector structures and event geometries.</p>
 <p class="newsText"><a href="KVDetector.html">KVDetector</a> is a base
 class for the description of (heavy ion) detectors, itself derived from
@@ -289,7 +291,8 @@ signal is stored and later <a
 by some data acquisition system; the signal can be <a
  href="KVDetector.html#KVDetector:AddCalibrator">calibrated by various
 methods</a>; after identification of a particle (see <a href="#part_id">below</a>)
-its energy loss in the detector corrected for dead zones, non-active
+its
+energy loss in the detector corrected for dead zones, non-active
 layers, or particle-dependent (e.g. charge and/or mass-dependent)
 effects can be <a href="KVDetector.html#KVDetector:GetCorrectedEnergy">calculated</a>.<br>
 </p>
@@ -301,7 +304,8 @@ corresponding acquisition parameters, e.g. as in <a
  href="KVINDRADLT.html">raw acquisition data for INDRA read from GANIL
 run files</a>. It also gives access to <a
  href="KVACQParam.html#KVACQParam:GetPedestal">coder pedestal values</a>,
-as classes describing the <a href="KVModule.html">electronics</a>
+as
+classes describing the <a href="KVModule.html">electronics</a>
 associated to detectors have not yet been fully implemented.<br>
 </p>
 <span style="font-weight: bold;"><a name="calib"></a>Detector
@@ -326,7 +330,8 @@ characteristics, identification procedures, energy calibration, etc.,
 for different runs of an experimental campaign are stored in a database
 implemented by classes derived from <a href="KVDataBase.html">KVDataBase</a>,
 <a href="KVDBTable.html">KVDBTable</a>, <a href="KVDBRecord.html">KVDBRecord</a>.
-These include: <a href="KVDBRun.html">KVDBRun</a> for the description
+These
+include: <a href="KVDBRun.html">KVDBRun</a> for the description
 of a given experimental run; <a href="KVDBParameterSet.html">KVDBParameterSet</a>
 which holds the identification or calibration parameters for a given
 detector; <a href="KVDBTape.html">KVDBTape</a> which describes a data
@@ -355,7 +360,8 @@ events</a>, either by the whole array or <a
 specific detectors</a> (e.g.
 for calibration purposes);</li>
   <li><a href="KVMultiDetArray.html#KVMultiDetArray:GetDetectorEvent">reconstruction
-of the list of hit groups</a> corresponding to an event from the data
+of
+the list of hit groups</a> corresponding to an event from the data
 acquisition system - this is the first step in <a href="#event_recon">event
 reconstruction</a>.</li>
 </ul>
@@ -367,7 +373,8 @@ current experimental run is also accessible via <a
  href="KVMultiDetArray.html#KVMultiDetArray:GetTarget">KVMultiDetArray::GetTarget</a>.<br>
 </p>
 <span style="font-weight: bold;"><a name="multidet_geom"></a>Multidetector
-Array Geometry</span><br>
+Array
+Geometry</span><br>
 <p class="newsText">The base class for detector positioning is <a
  href="KVPosition.html">KVPosition</a>. It represents a solid angle
 element (theta_min, theta_max, phi_min, phi_max) at a given distance
@@ -377,8 +384,10 @@ the relative positioning of different elements of a multidetector
 array, deciding if two detectors are <a
  href="KVPosition.html#KVPosition:IsOverlappingWith">overlapping</a>,
 in angular <a href="KVPosition.html#KVPosition:IsAlignedWith">alignment</a>,
-or if one has a <a href="KVPosition.html#KVPosition:IsSmallerThan">smaller
-opening angle</a> than the other, etc. This class should ideally be
+or
+if one has a <a href="KVPosition.html#KVPosition:IsSmallerThan">smaller
+opening
+angle</a> than the other, etc. This class should ideally be
 replaced by an interface to the <a
  href="http://wwwasd.web.cern.ch/wwwasd/geant4/geant4.html">GEANT4</a>
 or <a href="http://root.cern.ch/root/html/TGeoManager.html">ROOT
@@ -458,12 +467,14 @@ position of data points in the dE-E plane, it is common to use <a
 identifiable nuclei. Base classes are provided for lines and grids used
 to identify only the atomic number Z of the detected particle (<a
  href="KVIDZLine.html">KVIDZLine</a>, <a href="KVIDZGrid.html">KVIDZGrid</a>),
-or both Z and the mass number, A (<a href="KVIDZALine.html">KVIDZALine</a>,
+or
+both Z and the mass number, A (<a href="KVIDZALine.html">KVIDZALine</a>,
 <a href="KVIDZAGrid.html">KVIDZAGrid</a>). Although the specific
 details of the identification are left to be determined by derived
 classes, it is most likely to use the general algorithm defined in
 KVIDGrid for <a href="KVIDGrid.html#KVIDGrid:FindNearestIDLine">finding
-the closest identification line</a> to a (dE,E) point, as well as the <a
+the
+closest identification line</a> to a (dE,E) point, as well as the <a
  href="KVIDLine.html#KVIDLine:WhereAmI">WhereAmI</a> method implemented
 in KVIDLine which allows e.g. to decide whether a data point is
 identifiable based on its position relative to some cut(s) in the
@@ -486,7 +497,8 @@ physical detectors with their geometrical location etc.).<br>
 to reconstruct physical particles, which constitute a reconstructed
 event. The base class for particles reconstructed from energy losses in
 successive detectors is <a href="KVReconstructedNucleus.html">KVReconstructedNucleus</a>,
-and the base class for reconstructed events is <a
+and
+the base class for reconstructed events is <a
  href="KVReconstructedEvent.html">KVReconstructedEvent</a>. <a
  href="KVReconstructedEvent.html#KVReconstructedEvent:ReconstructEvent">KVReconstructedEvent::ReconstructEvent</a>
 takes a KVDetectorEvent 'raw' event and turns it into a list of
@@ -502,7 +514,8 @@ for Event Analysis</span><br>
 <p class="newsText">A set of classes to describe many common global
 variables used for the analysis of multibody heavy ion reactions is
 provided. These are based on class <a href="KVVarGlob.html">KVVarGlob</a>.
-A common use of such variables is to permit event sorting, and classes
+A
+common use of such variables is to permit event sorting, and classes
 dedicated to this task are derived from <a href="KVTrieur.html">KVTrieur</a>.<br>
 </p>
 </div>

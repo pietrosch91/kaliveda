@@ -23,6 +23,8 @@ $Id: KVLayer.cpp,v 1.17 2006/10/19 14:32:43 franklan Exp $
 #include "KVEvent.h"
 #include "KVMultiDetArray.h"
 #include "KVLayerBrowser.h"
+#include "TGeoManager.h"
+#include "TGeoMatrix.h"
 
 ClassImp(KVLayer)
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -43,25 +45,6 @@ ClassImp(KVLayer)
    init();
 }
 
-//______________________________________________________________________________
-void KVLayer::Streamer(TBuffer & R__b)
-{
-   //Customised streamer for backwards compatibility with multidetectors written to file
-   //before use of gROOT->GetListOfCleanups()
-
-   if (R__b.IsReading()) {
-      UInt_t R__s, R__c;
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      KVLayer::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
-      if (R__v < 2) {
-         {
-            fRings->R__FOR_EACH(TObject, SetBit) (kMustCleanup);
-         }
-      }
-   } else {
-      KVLayer::Class()->WriteBuffer(R__b, this);
-   }
-}
 
 //______________________________________________________________________________
 KVLayer::~KVLayer()
@@ -71,7 +54,6 @@ KVLayer::~KVLayer()
    if (fRings && fRings->TestBit(kNotDeleted)) {
 
       fRings->Delete();
-      while (gROOT->GetListOfCleanups()->Remove(fRings));
       delete fRings;
    }
    fRings = 0;
@@ -84,7 +66,7 @@ void KVLayer::init()
 {
    //default initialisation
    fRings = new KVList;
-   gROOT->GetListOfCleanups()->Add(fRings);
+   fRings->SetCleanup();
    fBrowser = 0;
    fArray = 0;
    strcpy(fDyName, "");
@@ -95,7 +77,6 @@ void KVLayer::AddRing(KVRing * kvr, UInt_t fcon)
 
    //Add a previously defined ring to the layer.
 
-   kvr->SetBit(kMustCleanup);
    fRings->Add(kvr);
    if (fcon == KVR_RCPRC_CNXN)
       kvr->AddToLayer(this, KVR_NORCPRC_CNXN);
@@ -107,7 +88,6 @@ KVRing *KVLayer::AddRing()
 //Create and add a new ring to the layer.
 
    KVRing *kvr = new KVRing;
-   kvr->SetBit(kMustCleanup);
    fRings->Add(kvr);
    kvr->AddToLayer(this, KVR_NORCPRC_CNXN);
    return kvr;
@@ -225,3 +205,38 @@ void KVLayer::RemoveRing(KVRing * ring, Bool_t kDeleteRing,
          Delete();
    }
 }
+
+//___________________________________________________________________________________________
+
+TGeoVolume* KVLayer::GetGeoVolume()
+{
+	// Create and return TGeoVolume representing detectors in this layer
+	
+	TGeoVolume *mother_vol = gGeoManager->MakeVolumeAssembly(GetName());
+	//**** BUILD & ADD Rings ****
+	TIter next(fRings); KVRing*det;
+	while( (det = (KVRing*)next()) ){
+		TGeoVolume* det_vol = det->GetGeoVolume();
+		// position ring in layer
+		TGeoTranslation* tr = new TGeoTranslation(0,0,det->GetDistance()/10.);//distance set in KVRing::GetGeoVolume()	
+		mother_vol->AddNode(det_vol, 1, tr);
+	}
+	return mother_vol;
+}
+
+void KVLayer::AddToGeometry()
+{
+	// Construct and position a TGeoVolume shape to represent this layer in the current geometry
+	if(!gGeoManager) return;
+
+	// get volume for layer
+	TGeoVolume* vol = GetGeoVolume();
+
+	// add to geometry
+	TGeoTranslation* tr = new TGeoTranslation(0,0,0);	
+
+	// add ring volume to geometry
+	gGeoManager->GetTopVolume()->AddNode(vol, 1, tr);
+}
+
+

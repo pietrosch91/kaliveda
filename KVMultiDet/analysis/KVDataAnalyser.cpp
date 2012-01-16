@@ -24,6 +24,7 @@ $Author: franklan $
 #include "TSystemDirectory.h"
 #include "TROOT.h"
 #include "TClass.h"
+#include "THashList.h"
 
 ClassImp(KVDataAnalyser)
 //////////////////////////////////////////////////
@@ -216,7 +217,7 @@ void KVDataAnalyser::PrintSplashScreen()
        endl;
       cout << "*                                                         *" <<
        endl;
-      printf( "*             Version:%22s              *\n", KVBase::GetKVVersion());
+      printf( "*                   Version:%10s                    *\n", KVBase::GetKVVersion());
       cout << "*                                                         *" <<
        endl;
       cout << "*              For help, see the Web site :               *" <<
@@ -1369,12 +1370,10 @@ const Char_t* KVDataAnalyser::SystemBatchName()
    tmp ="";
    if(fSystem->GetKinematics()){
       if(fSystem->GetKinematics()->GetNucleus(1)){
-         tmp=Form("%d%s",fSystem->GetKinematics()->GetNucleus(1)->GetA(),
-               fSystem->GetKinematics()->GetNucleus(1)->GetSymbol());
+         tmp=fSystem->GetKinematics()->GetNucleus(1)->GetSymbol();
       }
       if(fSystem->GetKinematics()->GetNucleus(2)){
-         tmp+=Form("%d%s",fSystem->GetKinematics()->GetNucleus(2)->GetA(),
-               fSystem->GetKinematics()->GetNucleus(2)->GetSymbol());
+         tmp+=fSystem->GetKinematics()->GetNucleus(2)->GetSymbol();
       }
       if(fSystem->GetEbeam()>0){
          tmp+=TMath::Nint(fSystem->GetEbeam());
@@ -1469,3 +1468,72 @@ void KVDataAnalyser::CopyAnalysisResultsToLaunchDirectory()
 		}
    }
 }
+
+//_________________________________________________________________
+
+void KVDataAnalyser::WriteBatchInfo(TTree* tt)
+{
+	// Store lots of useful information about the current version of KaliVeda,
+	// ROOT, etc. etc. in a TEnv object which will be added to the TTree's
+	// list of user infos (TTree::GetUserInfo).
+
+tt->GetUserInfo()->Add(new TEnv());		
+TEnv* kvenv = (TEnv* )tt->GetUserInfo()->FindObject("TEnv");
+		
+//----
+THashList* hh = gEnv->GetTable();
+KVString tamp;
+for (Int_t kk=0;kk<hh->GetEntries();kk+=1){
+	tamp.Form("%s",hh->At(kk)->GetName());
+	if (tamp.BeginsWith("Plugin.")){}
+	else kvenv->SetValue(hh->At(kk)->GetName(),((TEnvRec* )hh->At(kk))->GetValue(),kEnvUser);
+}
+		
+kvenv->SetValue("KVBase::GetKVRoot()",KVBase::GetKVRoot(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVVersion()",KVBase::GetKVVersion(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVBuildDate()",KVBase::GetKVBuildDate(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVBuildUser()",KVBase::GetKVBuildUser(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVSourceDir()",KVBase::GetKVSourceDir(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVRootDir()",KVBase::GetKVRootDir(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVBinDir()",KVBase::GetKVBinDir(),kEnvUser);
+kvenv->SetValue("KVBase::GetKVFilesDir()",KVBase::GetKVFilesDir(),kEnvUser);
+
+kvenv->SetValue("KVBase::bzrRevisionId()",KVBase::bzrRevisionId(),kEnvUser);
+kvenv->SetValue("KVBase::bzrRevisionDate()",KVBase::bzrRevisionDate(),kEnvUser);
+kvenv->SetValue("KVBase::bzrBranchNick()",KVBase::bzrBranchNick(),kEnvUser);
+kvenv->SetValue("KVBase::bzrRevisionNumber()",KVBase::bzrRevisionNumber());
+kvenv->SetValue("KVBase::bzrIsBranchClean()",KVBase::bzrIsBranchClean());
+
+kvenv->SetValue("gROOT->GetVersion()",gROOT->GetVersion(),kEnvUser);
+
+kvenv->SetValue("gSystem->GetBuildArch()",gSystem->GetBuildArch(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildCompiler()",gSystem->GetBuildCompiler(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildCompilerVersion()",gSystem->GetBuildCompilerVersion(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildNode()",gSystem->GetBuildNode(),kEnvUser);
+kvenv->SetValue("gSystem->GetBuildDir()",gSystem->GetBuildDir(),kEnvUser);
+
+kvenv->SetValue("gSystem->GetUserInfo()->fUser",gSystem->GetUserInfo()->fUser,kEnvUser);
+kvenv->SetValue("gSystem->HostName()",gSystem->HostName(),kEnvUser);
+		
+if ( fBatchEnv ){
+	THashList* hh = fBatchEnv->GetTable();
+	for (Int_t kk=0;kk<hh->GetEntries();kk+=1){
+		tamp.Form("%s",hh->At(kk)->GetName());
+		if ( !strcmp(kvenv->GetValue(hh->At(kk)->GetName(),"rien"),"rien") )
+			kvenv->SetValue(hh->At(kk)->GetName(),((TEnvRec* )hh->At(kk))->GetValue(),kEnvUser);
+	}
+}
+
+
+}
+
+Int_t KVDataAnalyser::GetRunNumberFromFileName(const Char_t * fileName)
+{
+   // Get the run number from the filename
+   
+   KVAvailableRunsFile *arf;
+   arf = GetDataSet()->GetAvailableRunsFile( GetDataType().Data() );
+   return arf->IsRunFileName(fileName);
+}
+
+

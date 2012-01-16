@@ -6,6 +6,10 @@ $Date: 2009/01/22 15:39:26 $
 
 //Created by KVClassFactory on Wed Jan 21 13:44:30 2009
 //Author: Chbihi 
+// Updated by A. Chbihi on 20/08/2009
+// In addition to set the VAMOS scalers in the data base using ReadVamosScalers ()  method
+//  it set the Vamos Brho's and angle.
+// The new method of this class is ReadVamosBrhoAndAngle ().
 
 #include "KVINDRADB_e503.h"
 
@@ -36,9 +40,11 @@ KVINDRADB_e503::~KVINDRADB_e503()
 void KVINDRADB_e503::Build () 
 {
 	// Read runlist and systems list, then read VAMOS scalers
+   // Read Brho and angle of Vamos for each run
 	
    KVINDRADB::Build();
    ReadVamosScalers();
+   ReadVamosBrhoAndAngle ();
 }
 
 //________________________________________________________________
@@ -107,10 +113,47 @@ void KVINDRADB_e503::ReadVamosScalers ()
 			}   
 		} 
 	}			
-   fin.close();
-
-         
-         
-         
+   fin.close();         
 }
 
+//________________________________________________________________
+
+void KVINDRADB_e503::ReadVamosBrhoAndAngle () 
+{
+	TString sline; 
+      ifstream fin;
+
+    if( !OpenCalibFile("VamosBrhoAngle", fin) ){
+         Warning("VamosBrhoAngle", "VAMOS Brho and angle file not found : %s",
+					GetCalibFileName("VamosBrhoAngle"));
+         return;
+   }
+   
+   Info("ReadVamosBrhoAngle", "Reading in VamosBrho and angle file : %s",
+			GetCalibFileName("VamosBrhoAngle"));
+   
+   Int_t run = 0;
+   Float_t Brho = -1;
+   Float_t theta = -1.;
+while (fin.good()) {         //reading the file
+      sline.ReadLine(fin);
+      if (!fin.eof()) {          //fin du fichier
+		   if (sline.Sizeof() > 1 && !sline.BeginsWith("#") ){
+				 sscanf(sline.Data(), "%d %f %f ", &run, &Brho, &theta);
+              cout<<" run = "<<run<<", Brho = "<<Brho<<", Theta = "<<theta<<endl;
+               if(Brho==0){
+                  Brho = -1.;
+                  theta = -1.;
+               }
+               KVINDRADBRun * idb = GetRun(run);
+               if (idb){
+                  idb->Set("Brho",Brho);
+                  idb->Set("Theta",theta);
+                  }            
+      }
+   }
+}
+            
+   fin.close();         
+            
+   }

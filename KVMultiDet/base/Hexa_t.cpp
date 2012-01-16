@@ -66,7 +66,7 @@ const Char_t *Hexa_t::String(UChar_t) const
    //This can be changed using SetPrefix.
 
    //use Form's circular Char_t buffer to return pointer
-   return (Form("%s%x", fPrefix.Data(), Value()));
+   return (Form("%s%llx", fPrefix.Data(), (ULong64_t)Value()));
 }
 
 Hexa_t & Hexa_t::operator=(const Long64_t val)

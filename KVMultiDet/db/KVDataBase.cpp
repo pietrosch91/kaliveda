@@ -154,6 +154,8 @@ KVDataBase::~KVDataBase()
    if (gDataBase == this)
       gDataBase = 0;
    gROOT->GetRootFolder()->Remove(this);
+	gROOT->GetListOfCleanups()->Remove(this);
+	Info("~KVDataBase", "%s", GetName());
 }
 
 //_______________________________________________________________________

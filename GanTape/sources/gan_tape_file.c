@@ -500,7 +500,7 @@ int acq_mt_skip_block_c  ( gan_tape_desc DeviceName , int NombreSkip ) {
 
 	int Status;
 
-	extern int BufSize;
+	int BufSize=BUFSIZE;
 
 #if defined ( __VMS ) || defined ( VMS )
 

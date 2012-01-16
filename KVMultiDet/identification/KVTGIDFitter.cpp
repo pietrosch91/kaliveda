@@ -11,6 +11,7 @@ $Date: 2009/03/03 14:27:15 $
 #include "fit_ede.h"
 #include "KVIDZAGrid.h"
 #include "KVIDGridManager.h"
+#include "KVTGIDGrid.h"
 
 ClassImp(KVTGIDFitter)
 
@@ -46,7 +47,7 @@ The following is the documentation from Laurent's code.
 			yy = ((g*E)**(mu+1)+lambda**(mu+1)*Z**2*A**mu)**(1/(mu+1))-g*E + pdy
 		 * For the extended formula :
 			yy = ((g*E)**(mu+nu+1)+(lambda*Z**alpha*A**beta)**(mu+nu+1)+
-						xi*A**mu*(g*E)**nu)**(1/(mu+mu+1))-g*E + pdy
+						xi*Z**2*A**mu*(g*E)**nu)**(1/(mu+nu+1))-g*E + pdy
 
 		 *  If ih=0  no non-linear light response : E=xx-pdx
 		 *  If ih<>0 non-linear light response included :
@@ -282,13 +283,19 @@ void KVTGIDFitter::FitPanel(Int_t functional_type, Bool_t with_csi_light_energy,
 	if(last_Z!=-1) fTGID->SetIDmax(last_Z);
 
    if (fGrid->GetXmin() == fGrid->GetXmax()) fGrid->FindAxisLimits();
-	KVIDGrid* fitgr = fTGID->MakeIDGrid(fGrid->GetXmax(), fGrid->GetXmin());
-	fitgr->SetLineColor( kRed );
+   // generate grid representing fit
+	KVTGIDGrid* fitgr = new KVTGIDGrid(fTGID,(KVIDZAGrid*)fGrid);
+	// make fitted grid 'onlyzid' if parent grid was
+	fitgr->SetOnlyZId(fGrid->OnlyZId());
+   if(fGrid->OnlyZId()) fitgr->SetMassFormula(fGrid->GetMassFormula());
+	fitgr->Generate(fGrid->GetXmax(), fGrid->GetXmin());
 	gIDGridManager->Modified();
 
 	if( fPad ){
 		// draw fitted grid in same pad as original
 		fPad->cd();
 		fitgr->Draw();
+		fPad->Modified();
+		fPad->Update();
 	}
 }

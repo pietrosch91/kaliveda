@@ -15,7 +15,8 @@ ClassImp(KVRelativeVelocity)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVRelativeVelocity</h2>
-<h4>calculate for a given a couple of particles the magnitude of relative velocity</h4>
+<h4>calculate for a given group of particles the mean relative velocity</h4>
+Sum i>j |Vij| / Sum i>j
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,10 +25,11 @@ ClassImp(KVRelativeVelocity)
 void KVRelativeVelocity::init_KVRelativeVelocity(void)
 	{
 
-	fType = KVVarGlob::kTwoBody;
+	fType = KVVarGlob::kOneBody;
+	heaviest = 0;
 //
 // Initialisation of the fields of the KVRelativeVelocity class
-// This private method is called by the contrctors only. 
+// This private method is called by the constructors only. 
 //
 	}
 
@@ -71,7 +73,11 @@ KVRelativeVelocity::~KVRelativeVelocity(void)
 // 
 // Destructeur
 //
-       }
+ if (heaviest) {
+      heaviest->Clear("nodelete");
+      delete heaviest;
+      heaviest = 0;
+   }      }
 
 //_________________________________________________________________
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
@@ -93,6 +99,13 @@ void KVRelativeVelocity::Copy(TObject&a)
 	//
 	//((KVRelativeVelocity &)a).SetField(GetField());
 	//
+   //copy list of fragments if it exists
+   if (heaviest) {
+      KVNucleus *tmp;
+      TIter next(heaviest);
+      while ((tmp = (KVNucleus *) next()))
+         ((KVRelativeVelocity &) a).Fill(tmp);
+   }
 	
 	}
 	
@@ -112,7 +125,7 @@ KVRelativeVelocity& KVRelativeVelocity::operator = (const KVRelativeVelocity &a)
 
 
 //_________________________________________________________________
-void KVRelativeVelocity::Fill2(KVNucleus *ci,KVNucleus *cj)
+void KVRelativeVelocity::Fill(KVNucleus *cc)
 {
 
  //
@@ -134,10 +147,43 @@ void KVRelativeVelocity::Fill2(KVNucleus *ci,KVNucleus *cj)
  //
  // FillVar(c->GetV().Z(),c->GetZ());
  //
-   
-   if(ci==cj) return; // can be called for same nucleus
-   
-	TVector3 ww = ci->BoostVector() - cj->BoostVector(); 
-	FillVar(ww.Mag());			
+   if (!heaviest) {
+      heaviest = new TList;
+      heaviest->SetOwner(kFALSE);
+   	heaviest->Add(cc);
+	}
+   else{
+		for (Int_t ii=0; ii<heaviest->GetEntries(); ii+=1){
+			TVector3 ww = cc->BoostVector() - ((KVNucleus* )heaviest->At(ii))->BoostVector();
+			FillVar(ww.Mag());
+		}
+		heaviest->Add(cc);
+	}		
 
  }
+//_________________________________________________________________
+void KVRelativeVelocity::Reset(void)
+{
+//
+// Remise a Zero de la variable et du pointeur
+//      
+   KVVarGlobMean::Reset();
+   if (heaviest) {
+      heaviest->Clear("nodelete");
+   }
+   
+}
+
+//_________________________________________________________________
+void KVRelativeVelocity::Init(void)
+{
+//
+// Remise a Zero de la variable et du pointeur
+//      
+   KVVarGlobMean::Init();
+   if (heaviest) {
+      heaviest->SetOwner(kFALSE);
+      heaviest->Clear("nodelete");
+   }
+  
+}

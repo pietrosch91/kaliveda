@@ -16,6 +16,7 @@ $Date: 2009/03/27 16:43:40 $
 #include "KVBase.h"
 #include "TSystemDirectory.h"
 #include "TSystem.h"
+#include <TError.h>
 
 //ClassImp(ScanClasses)
 
@@ -103,11 +104,15 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("particles", "Particles & Nuclei"));
 	fClassTitles->Add( new KVBase("events", "Multiparticle Events"));
 	fClassTitles->Add( new KVBase("detectors", "Absorbers, Targets & Detectors"));
+	fClassTitles->Add( new KVBase("stopping", "Stopping Power & Range Tables for Heavy Ions"));
 	fClassTitles->Add( new KVBase("geometry", "Multidetector Geometry"));
 	fClassTitles->Add( new KVBase("indra", "INDRA Multidetector Array"));
+	fClassTitles->Add( new KVBase("data_management", "Data Management"));
 	fClassTitles->Add( new KVBase("analysis", "Data Analysis"));
 	fClassTitles->Add( new KVBase("db", "Database Classes"));
-	fClassTitles->Add( new KVBase("identification", "Charged Particle Identification"));
+	fClassTitles->Add( new KVBase("idtelescopes", "Charged Particle Identification Telescopes"));
+	fClassTitles->Add( new KVBase("idmaps", "Identification Maps & Grids"));
+	fClassTitles->Add( new KVBase("identification", "Tools for Particle Identification"));
 	fClassTitles->Add( new KVBase("calibration", "Detector Calibration"));
 	fClassTitles->Add( new KVBase("daq_cec", "Data acquisition & Detector Command and Control"));
 	fClassTitles->Add( new KVBase("vg_base", "Global Variables: Base Classes"));
@@ -116,7 +121,7 @@ void ScanClasses::MakeClassCategoriesList()
 	fClassTitles->Add( new KVBase("vg_multiplicity", "Global Variables: Multiplicities"));
 	fClassTitles->Add( new KVBase("vg_shape", "Global Variables: Event Shape"));
 	fClassTitles->Add( new KVBase("vg_charge", "Global Variables: Partitions"));
-	fClassTitles->Add( new KVBase("trieur", "Event Selection"));
+	fClassTitles->Add( new KVBase("trieur", "Event Sorting"));
 	fClassTitles->Add( new KVBase("gui", "Graphical User Interfaces"));
 }
 
@@ -124,19 +129,24 @@ void ScanClasses::FillListOfClasses()
 {
    //Fill 'cnames' with names of all classes to be processed
    
+   // force loading of all libraries (KLUDGE!!!)
+   gSystem->Load("libKVIndra");
+   gSystem->Load("libVAMOS");
 	//Initialise the class table, loading all classes defined in currently-loaded libraries
 	gClassTable->Init();
    //first fill TObjArray of TObjStrings containing all class names in class table
    //this is to avoid using gClassTable->Next() and gROOT->GetClass() at the same time
    //(see TROOT::GetClass doc)
    if(cnames) delete cnames;
-   cnames=new TObjArray(gClassTable->Classes());
+   int SizeClassTable = gClassTable->Classes();
+   cnames=new TObjArray(SizeClassTable);
    cnames->SetOwner();
-   for (int i = 0; i < gClassTable->Classes(); i++) {
+   for (int i = 0; i < SizeClassTable; i++) {
       //add entry with name of each KaliVeda class in table
       TObjString* tos=new TObjString(gClassTable->Next());
       TString cl_name = tos->String();
-		if( cl_name.BeginsWith("KV") || cl_name.BeginsWith("Binary") || cl_name.BeginsWith("Hexa") ){
+		if( cl_name.BeginsWith("KV") || cl_name.BeginsWith("Binary") || cl_name.BeginsWith("Hexa") 
+				|| cl_name.BeginsWith("GT") || cl_name.BeginsWith("SRB") || cl_name.BeginsWith("PACE2") ){
          cnames->Add(tos);
       }
       else
@@ -230,8 +240,13 @@ void ScanClasses::WritePage()
 		if(!list){
 			continue;
 		}
-		
-      list_file << "<h4><a href=\"#_" << class_title->GetName() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
+		// instead of linking to list on this page, we link to the THtml-generated Index page for
+		// this module. This may have extra documentation.
+		TString index_file(class_title->GetName());
+		index_file.ToUpper();
+		index_file.Append("_Index.html");
+//      list_file << "<h4><a href=\"#_" << class_title->GetName() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
+      list_file << "<h4><a href=\"" <<KVBase::GetKVVersion()<<"/"<< index_file.Data() << "\">"<< class_title->GetTitle() << "</a></h4>" << endl;
    }
    next_rep.Reset();
    list_file <<"<br>" <<endl;
@@ -247,14 +262,22 @@ void ScanClasses::WritePage()
 		
 		list_file << "<h3 class=\"newsTitle\">" ;
 		list_file << "<a name=\"_" << class_title->GetName() <<"\">";
-		list_file << class_title->GetTitle();
+		TString index_file(class_title->GetName());
+		index_file.ToUpper();
+		index_file.Append("_Index.html");
 		
-		list_file << " </a><it>(" << list->GetSize() << " classes)</it>:</h3><ul>" << endl;
+		list_file << "<a href=\"" <<KVBase::GetKVVersion()<<"/"<< index_file.Data() << "\">" << class_title->GetTitle() << "</a>";
+		
+		list_file << " </a><it>(" << list->GetSize() << " class";
+		if(list->GetSize()>1) list_file << "es";
+		list_file << ")</it>:</h3><ul>" << endl;
 	
 		TIter next_class(list); TClass* cl;
 		while( (cl = (TClass*)next_class()) ){
 			
-			list_file << "<li><tt><a href=\"" << HTMLFileName(cl->GetName()) << "\">";
+			// class doc files are in subdirectory starting with version name
+			// i.e. in $KVROOT/KaliVedaDoc/1.7.4/
+			list_file << "<li><tt><a href=\"" << HTMLFileName(Form("%s/%s", KVBase::GetKVVersion(), cl->GetName())) << "\">";
 			
 			list_file << HTMLSafeLink(cl->GetName()) << "</a>";
 			

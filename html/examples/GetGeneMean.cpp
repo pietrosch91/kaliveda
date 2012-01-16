@@ -2,13 +2,18 @@
 $Id: GetGeneMean.cpp,v 1.3 2007/06/29 10:46:46 franklan Exp $
 $Revision: 1.3 $
 $Date: 2007/06/29 10:46:46 $
+Modifie avril 2011 MFR :
+    restreint le domaine pour calcul de la moyenne pour le Si/Si75/SiLi
+   ne fonctionne pas pour ChIo et CsI, pics larges avec des zeros au milieu
+   Pour gagner en précision, on pourrait regrouper les bins ?
 */
 
 //Created by KVClassFactory on Thu Jun 28 12:08:25 2007
 //Author: franklan
 
+#include "TROOT.h"
 #include "GetGeneMean.h"
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 #include "KVACQParam.h"
 #include "KVBatchSystem.h"
 #include "Riostream.h"
@@ -22,7 +27,8 @@ ClassImp(GetGeneMean)
 <h4>Example gene data analysis class</h4>
 This class reads the pulser & laser data for each run and does the following:
 1. fills a TTree with the data for each detector
-2. writes a text file "runxxxx.gene" which contains the mean value for each parameter
+2. writes a text file "runxxxx.gene" which contains the mean value 
+   and the rms for each parameter
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +81,6 @@ void GetGeneMean::InitRun ()
    
    //set run number for TTree
    run = RunNumber;
-   
    //reset number of events read for run
    runEvents=0;
 }
@@ -90,59 +95,62 @@ Bool_t GetGeneMean::Analysis ()
    //KVINDRATriggerInfo* TriggerInfo holds info on INDRA trigger for current event
    
    //loop over fired detectors
-   TIter next_det( gIndra->GetListOfDetectors() ); KVDetector* det=0;
-   while( (det = (KVDetector*)next_det()) ){
+   TIter next_det( gIndra->GetListOfDetectors() ); KVINDRADetector* det=0;
+   while( (det = (KVINDRADetector*)next_det()) ){
       
       TString det_type = det->GetType(); // = "CI", "SI", "CSI", "SI75" or "SILI"
       
       //only use CsI params if GeneLaser; only use ChIo/Si params if GeneElec
-      if( (det_type=="CSI" && TriggerInfo->IsLaser()) || (det_type=="CI" && TriggerInfo->IsPulser())
-            || (det_type.BeginsWith("SI") && TriggerInfo->IsPulser()) ){   //include types "SI", "SI75" & "SILI"
+      if( (det_type=="CSI" && TriggerInfo->IsLaser()) || 
+	    (det_type=="CI" && TriggerInfo->IsPulser()) ||
+            (det_type.BeginsWith("SI") && TriggerInfo->IsPulser()) ){   
+// last condition includes types "SI", "SI75" & "SILI"
          
-         if( det->Fired() ){
+//    if( det->Fired() ){   // le 20 avril 2010 pb de backward compatibility avec KaliVeda
          
-            ring = det->GetRingNumber();
-            module = det->GetModuleNumber();
-            cigg=cipg=sipg=sigg=si75gg=si75pg=siligg=silipg=csir=csil=-1;
-            Bool_t csi = (det_type=="CSI");
-            Bool_t si = (det_type=="SI");
-            Bool_t si75 = (det_type=="SI75");
-            Bool_t sili = (det_type=="SILI");
-            Bool_t ci = (det_type=="CI");
+          ring = det->GetRingNumber();
+          module = det->GetModuleNumber();
+          cigg=cipg=sipg=sigg=si75gg=si75pg=siligg=silipg=csir=csil=-1;
+          Bool_t csi = (det_type=="CSI");
+          Bool_t si = (det_type=="SI");
+          Bool_t si75 = (det_type=="SI75");
+          Bool_t sili = (det_type=="SILI");
+          Bool_t ci = (det_type=="CI");
             
-            //loop over acquisition parameters associated to detector
-            TIter next_par( det->GetACQParamList() ); KVACQParam* par=0;
-            while( (par = (KVACQParam*)next_par()) ){
+//loop over acquisition parameters associated to detector
+          TIter next_par( det->GetACQParamList() ); KVACQParam* par=0;
+          while( (par = (KVACQParam*)next_par()) ){
                
-               TString par_type = par->GetType(); // = "PG", "GG", "R", "L", or "T"
+             TString par_type = par->GetType(); // = "PG", "GG", "R", "L", or "T"
                
-               if( par_type != "T" ){ //skip time marker
+             if( par_type != "T" ){ //skip time marker
                   
-                  if( csi ) {
-                     if ( par_type=="R" ) csir = par->GetCoderData();
-                     else if ( par_type=="L" ) csil = par->GetCoderData();
-                  } else if( ci ) {
-                     if ( par_type=="GG" ) cigg = par->GetCoderData();
-                     else if ( par_type=="PG" ) cipg = par->GetCoderData();
-                  } else if( si ) {
-                     if ( par_type=="GG" ) sigg = par->GetCoderData();
-                     else if ( par_type=="PG" ) sipg = par->GetCoderData();
-                  } else if( si75 ) {
-                     if ( par_type=="GG" ) si75gg = par->GetCoderData();
-                     else if ( par_type=="PG" ) si75pg = par->GetCoderData();
-                  } else if( sili ) {
-                     if ( par_type=="GG" ) siligg = par->GetCoderData();
-                     else if ( par_type=="PG" ) silipg = par->GetCoderData();
-                  }
+                if( csi ) {
+                   if ( par_type=="R" ) csir = par->GetCoderData();
+                   else if ( par_type=="L" ) csil = par->GetCoderData();
+                } else if( ci ) {
+                   if ( par_type=="GG" ) cigg = par->GetCoderData();
+                   else if ( par_type=="PG" ) cipg = par->GetCoderData();
+                } else if( si ) {
+                   if ( par_type=="GG" ) sigg = par->GetCoderData();
+                   else if ( par_type=="PG" ) sipg = par->GetCoderData();
+                } else if( si75 ) {
+                   if ( par_type=="GG" ) si75gg = par->GetCoderData();
+                   else if ( par_type=="PG" ) si75pg = par->GetCoderData();
+                } else if( sili ) {
+                   if ( par_type=="GG" ) siligg = par->GetCoderData();
+                   else if ( par_type=="PG" ) silipg = par->GetCoderData();
+                }
                   
-               }
+              }
                
-            }
+           }
             
-            //fill tree with acquisition parameters for the detector
-            geneTree->Fill();
-            runEvents++;
-         }
+//fill tree with acquisition parameters for the detector
+           geneTree->Fill();
+           runEvents++;
+            
+//            }  //  if( det->Fired() )
          
       }
       
@@ -172,57 +180,82 @@ void GetGeneMean::EndRun ()
    ofstream geneRun;
    geneRun.open( output.Data() );
    //loop over detectors
-   TIter next_det( gIndra->GetListOfDetectors() ); KVDetector* det=0;
-   while( (det = (KVDetector*)next_det()) ){
+   TIter next_det( gIndra->GetListOfDetectors() ); KVINDRADetector* det=0;
+   while( (det = (KVINDRADetector*)next_det()) ){
       
       TString det_type = det->GetType(); // = "CI", "SI", "CSI", "SI75" or "SILI"
                
-            Bool_t csi = (det_type=="CSI");
-            Bool_t si = (det_type=="SI");
-            Bool_t si75 = (det_type=="SI75");
-            Bool_t sili = (det_type=="SILI");
-            Bool_t ci = (det_type=="CI");
+         Bool_t csi = (det_type=="CSI");
+         Bool_t si = (det_type=="SI");
+         Bool_t si75 = (det_type=="SI75");
+         Bool_t sili = (det_type=="SILI");
+         Bool_t ci = (det_type=="CI");
             
-            //loop over acquisition parameters associated to detector
-            TIter next_par( det->GetACQParamList() ); KVACQParam* par=0;
-            while( (par = (KVACQParam*)next_par()) ){
+ //loop over acquisition parameters associated to detector
+         TIter next_par( det->GetACQParamList() ); KVACQParam* par=0;
+         while( (par = (KVACQParam*)next_par()) ){
                
-               TString par_type = par->GetType(); // = "PG", "GG", "R", "L", or "T"
+            TString par_type = par->GetType(); // = "PG", "GG", "R", "L", or "T"
                
-               if( par_type != "T" ){ //skip time marker
+              if( par_type != "T" ){ //skip time marker
+
+// redefinir la gamme en X avant de remplir l'histo, sinon le canal du max
+// est la derniere valeur de "i" dans le test if("si") !!!		
+		bininf = 1; binsup = 4096; // exclut under/overflows
+		moy=0.; binmax= 10; Int_t i=0;
+		geneHist->GetXaxis()->SetRange(bininf,binsup);
                   
-                  TString selection;
-                  selection.Form("ring==%d&&module==%d&&", det->GetRingNumber(), det->GetModuleNumber());
-                  TString varname;
+                TString selection;
+                selection.Form("ring==%d&&module==%d&&", det->GetRingNumber(), det->GetModuleNumber());
+                TString varname;
                   
-                  if( csi ) {
-                     if ( par_type=="R" ) varname="csir";
-                     else if ( par_type=="L" ) varname="csil";
-                  } else if( ci ) {
-                     if ( par_type=="GG" ) varname="cigg";
-                     else if ( par_type=="PG" ) varname="cipg";
-                  } else if( si ) {
-                     if ( par_type=="GG" ) varname="sigg";
-                     else if ( par_type=="PG" ) varname="sipg";
-                  } else if( si75 ) {
-                     if ( par_type=="GG" ) varname="si75gg";
-                     else if ( par_type=="PG" ) varname="si75pg";
-                  } else if( sili ) {
-                     if ( par_type=="GG" ) varname="siligg";
-                     else if ( par_type=="PG" ) varname="silipg";
-                  }
+                if( csi ) {
+                   if ( par_type=="R" ) varname="csir";
+                   else if ( par_type=="L" ) varname="csil";
+                } else if( ci ) {
+                   if ( par_type=="GG" ) varname="cigg";
+                   else if ( par_type=="PG" ) varname="cipg";
+                } else if( si ) {
+                   if ( par_type=="GG" ) varname="sigg";
+                   else if ( par_type=="PG" ) varname="sipg";
+                } else if( si75 ) {
+                   if ( par_type=="GG" ) varname="si75gg";
+                   else if ( par_type=="PG" ) varname="si75pg";
+                } else if( sili ) {
+                   if ( par_type=="GG" ) varname="siligg";
+                   else if ( par_type=="PG" ) varname="silipg";
+                }
                   
-                  //add selection to exclude events where detector not hit (= -1)
-                  selection.Append( Form("%s>-1", varname.Data()) );
+ //add selection to exclude events where detector not hit (= -1)
+                selection.Append( Form("%s>-1", varname.Data()) );
                   
-                  //project into histo geneHist  to get mean value
-                  TString draw = Form("%s >> geneHist", varname.Data());
-                  geneTree->Draw( draw.Data(), selection.Data(), "goff" );
-                  geneRun << par->GetName() << "     " << geneHist->GetMean() << endl;
-                  cout << par->GetName() << "     " << geneHist->GetMean() << endl;                  
-               }
-            }
-         }   
+//project into histo geneHist  to get mean value
+                TString draw = Form("%s >> geneHist", varname.Data());
+                geneTree->Draw( draw.Data(), selection.Data(), "goff" );
+
+		if(varname.BeginsWith("si")) 
+		{
+		  for(i=geneHist->GetMaximumBin(); i<4097; i++)
+		   {  // test 3 canaux consecutifs nuls
+                      if( geneHist->GetBinContent(i)<1 &&
+			  geneHist->GetBinContent(i+1)<1 && 
+			  geneHist->GetBinContent(i+2)<1 ) { binsup=i; break;}
+		   }
+		  for( i=geneHist->GetMaximumBin(); i>0; i--)
+		   {
+                      if( geneHist->GetBinContent(i)<1 &&
+			  geneHist->GetBinContent(i-1)<1 && 
+			  geneHist->GetBinContent(i-2)<1 ) { bininf=i; break;}
+		   }
+	        }
+
+		 geneHist->GetXaxis()->SetRange(bininf,binsup);
+		 moy = geneHist->GetMean(1);
+                geneRun << par->GetName() << "     " << moy  << "   "<<geneHist->GetRMS(1) <<endl;
+ cout << par->GetName() << "     " << moy <<"   "<<geneHist->GetRMS(1) <<endl; 
+              }  // if not MT
+            }  // boucle parametres
+         }   // boucle detecteurs
    //close file
    cout << "Fermeture du fichier : " << output.Data() << endl;
    geneRun.close();   

@@ -66,12 +66,12 @@ for the user's class is itself derived from KVDataAnalyser (via a plugin: see <a
 it is the user's class which will be used to perform the analysis ("...Analyser: UserClass").
 </p>
 <pre>
-+DataAnalysisTask:     Identification1
-Identification1.DataAnalysisTask.Title:     Identification of reconstructed events (recon->ident)
-Identification1.DataAnalysisTask.Prereq:     recon
-Identification1.DataAnalysisTask.Analyser:     INDRAReconData
-Identification1.DataAnalysisTask.UserClass:     no
-Identification1.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
++DataAnalysisTask:     ReconIdent
+ReconIdent.DataAnalysisTask.Title:     Identification of reconstructed events (recon->ident)
+ReconIdent.DataAnalysisTask.Prereq:     recon
+ReconIdent.DataAnalysisTask.Analyser:     INDRAReconData
+ReconIdent.DataAnalysisTask.UserClass:     no
+ReconIdent.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
 +Plugin.TSelector:   INDRAReconIdent        KVReconIdent                 KVIndra   "KVReconIdent()"
 </pre>
 <p>
@@ -133,6 +133,7 @@ void KVDataAnalysisTask::Copy(TObject & obj)
    ((KVDataAnalysisTask &) obj).fBaseIsPlugin = fBaseIsPlugin;
    ((KVDataAnalysisTask &) obj).fPluginBase = fPluginBase;
    ((KVDataAnalysisTask &) obj).fPluginURI = fPluginURI;
+   ((KVDataAnalysisTask &) obj).fExtraAClicIncludes = fExtraAClicIncludes;
 }
 
 KVDataAnalysisTask::~KVDataAnalysisTask()
@@ -174,10 +175,10 @@ void KVDataAnalysisTask::SetUserBaseClass(const Char_t* base_name)
 	// +Plugin.KVDataAnalyser:   IVRawDataAnalyser   KVIVRawDataAnalyser VAMOS "KVIVRawDataAnalyser()"
 	//
 	// Example 2:
-	// The user analysis class for task "Identification1" must derive from class
+	// The user analysis class for task "ReconIdent" must derive from class
 	// KVIVReconIdent (itself derived from TSelector) which is defined in library libVAMOS.so (not loaded by default):
 	//
-	// Identification1.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
+	// ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 	// +Plugin.TSelector:    IVReconIdent    KVIVReconIdent     VAMOS    "KVIVReconIdent()"
 
 	fBaseClass = base_name;
@@ -220,15 +221,24 @@ void KVDataAnalysisTask::SetParametersForDataSet( KVDataSet* dataset )
    if( envar != "" ) fAnalyser = envar;
    envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.UserClass.Base", GetName()));
    if( envar != "" ) SetUserBaseClass(envar);
+   envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.Prereq", GetName()));
+   if( envar != "" ) SetPrereq(envar);
+   envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.UserClass.ExtraACliCIncludes", GetName()));
+   if( envar != "" ) fExtraAClicIncludes=envar;
 }
 
 Bool_t KVDataAnalysisTask::CheckUserBaseClassIsLoaded()
 {
     // This method checks that the base class for the user's analysis class is loaded.
     // If this base class requires a plugin library to be loaded, it will be loaded.
+	 // First we add any required extra ACliC include paths (taken from DataAnalysisTask.UserClass.ExtraACliCIncludes)
     // If all is OK, returns kTRUE.
-    // Returns kFALSE if plugin cannot be loaded or class is simply unknown.
+    // Returns kFALSE if plugin cannot be loaded or class is simply unknown
 
+		if(fExtraAClicIncludes!="") {
+			gSystem->AddIncludePath(fExtraAClicIncludes.Data());
+			Info("CheckUserBaseClassIsLoaded", "Added ACliC include path: %s", fExtraAClicIncludes.Data());
+		}
     TClass *cl = TClass::GetClass(fBaseClass.Data()); // class in dictionary already ?
     if(cl) return kTRUE;
     if(fBaseIsPlugin){

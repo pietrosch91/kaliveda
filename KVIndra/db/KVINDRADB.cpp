@@ -32,6 +32,8 @@
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
 #include "KVCsI.h"
+#include "TH1.h"
+#include "KVNumberList.h"
 
 KVINDRADB *gIndraDB;
 
@@ -115,11 +117,33 @@ void KVINDRADB::LinkRecordToRunRange(KVDBRecord * rec, UInt_t first_run,
    //and the runs. The list of associated runs will be kept with the record, and each of the runs
    //will have a link to the record.
 
-   for (UInt_t i = first_run; i <= last_run; i++) {
-      KVDBRun *run = GetRun(i);
-      if (run)
-         rec->AddLink("Runs", run);
+   for (UInt_t ii = first_run; ii <= last_run; ii++) {
+      LinkRecordToRun(rec,ii);
    }
+}
+//_____________________________________________________________________
+void KVINDRADB::LinkRecordToRunRange(KVDBRecord * rec, KVNumberList nl)
+{
+   //If the KVDBRecord 'rec' (i.e. set of calibration parameters, reaction system, etc.) is
+   //associated to, or valid for, a range of runs, we use this method in order to link the record
+   //and the runs. The list of associated runs will be kept with the record, and each of the runs
+   //will have a link to the record.
+	nl.Begin(); 
+	while (!nl.End()){
+		Int_t rr = nl.Next();
+		//Info("LinkRecordToRunRange","run number %d",rr);
+   	LinkRecordToRun(rec,rr);
+	}
+}
+
+//_____________________________________________________________________
+void KVINDRADB::LinkRecordToRun(KVDBRecord * rec, Int_t rnumber)
+{
+
+	KVDBRun *run = GetRun(rnumber);
+	if (run)
+		rec->AddLink("Runs", run);
+
 }
 
 //_____________________________________________________________________
@@ -168,6 +192,27 @@ void KVINDRADB::LinkListToRunRanges(TList * list, UInt_t rr_number,
          next.Reset();
       }
    }
+}
+//______________________________________________________________________________
+void KVINDRADB::LinkListToRunRange(TList * list, KVNumberList nl)
+{
+   //Link the records contained in the list to the set of runs (see LinkRecordToRunRanges).
+
+   if (!list) {
+      Error("LinkListToRunRange",
+            "NULL pointer passed for parameter TList");
+      return;
+   }
+   if (list->GetSize() == 0) {
+      Error("LinkListToRunRange(TList*,KVNumberList)",
+            "The list is empty");
+      return;
+   }
+   TIter next(list);
+   KVDBRecord *rec;
+  	while ((rec = (KVDBRecord *) next())) {
+   	LinkRecordToRunRange(rec, nl);
+	}
 }
 
 //____________________________________________________________________________
@@ -318,9 +363,8 @@ KVList *KVINDRADB::GetCalibrationPeaks(Int_t run, KVDetector * detector,
             KVDetector *pic_det =
                 //the chio's in the file are written with the
                 //ring,module of the Si/CsI in coinc
-                sign > ChIo_T ? gIndra->GetDetectorByType(cour, modu, sign)
-                : gIndra->GetChIoOf(gIndra->
-                                    GetDetectorByType(cour, modu, CsI_R));
+                (sign > ChIo_T) ? gIndra->GetDetectorByType(cour, modu, sign)
+                : gIndra->GetDetectorByType(cour, modu, CsI_R)->GetChIo();
 
             //is it the right detector ?
             if (detector && detector != pic_det)
@@ -673,7 +717,7 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run, Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
    //Returns calculated cross-section [mb] per event for the run in question.
-   //See KVDBRun::GetEventCrossSection()
+   //See KVINDRADBRun::GetEventCrossSection()
    if (!GetRun(run))
       return 0;
    return GetRun(run)->GetEventCrossSection(Q_apres_cible, Coul_par_top);
@@ -685,7 +729,7 @@ Double_t KVINDRADB::GetTotalCrossSection(Int_t run, Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
    //Returns calculated total measured cross-section [mb] for the run in question.
-   //See KVDBRun::GetTotalCrossSection()
+   //See KVINDRADBRun::GetTotalCrossSection()
    if (!GetRun(run))
       return 0;
    return GetRun(run)->GetTotalCrossSection(Q_apres_cible, Coul_par_top);
@@ -697,12 +741,11 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
                                          Double_t Q_apres_cible,
                                          Double_t Coul_par_top) const
 {
-   //Returns calculated average cross-section [mb] per event for the runs in question.
-   //Based on sect_effic.f by M.F. Rivet.
-   //For each run we calculate the temps mort-corrected total number of incident ions, these are then summed
-   //and the cross-section is calculated using this overall number of incident beam particles.
-   //It is assumed that all runs correspond to the same reaction, with the same beam & target characteristics and multiplicity trigger.
-   //The target thickness etc. are taken from the first run.
+   // Returns calculated average cross-section [mb] per event for the runs in question.
+   // It is assumed that all runs correspond to the same reaction,
+   // with the same beam & target characteristics and multiplicity trigger.
+   // The target thickness etc. are taken from the first run.
+   
    KVTarget *targ = GetRun(run1)->GetTarget();
    if (!targ) {
       Error("GetEventCrossSection", "No target for run %d", run1);
@@ -715,12 +758,9 @@ Double_t KVINDRADB::GetEventCrossSection(Int_t run1, Int_t run2,
          continue;              //skip non-existent runs
       sum_xsec +=
           GetRun(run)->GetNIncidentIons(Q_apres_cible,
-                                        Coul_par_top) * (1. -
-                                                         GetRun(run)->
-                                                         GetTempsMort());
-
+                                        Coul_par_top) * (1. - GetRun(run)->GetTempsMort());
    }
-   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei * (1 - temps mort)))
+   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei * (1 - TM)) )
    return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec));
 }
 
@@ -731,7 +771,7 @@ Double_t KVINDRADB::GetTotalCrossSection(Int_t run1, Int_t run2,
                                          Double_t Coul_par_top) const
 {
    //Returns calculated total measured cross-section [mb] for the runs in question.
-   //This is GetEventCrossSection(run1,run2) * SUM( events )
+   //This is SUM (GetEventCrossSection(run1,run2) * SUM( events )
    //where SUM(events) is the total number of events measured in all the runs
    Int_t sum = 0;
    for (register int run = run1; run <= run2; run++) {
@@ -766,7 +806,7 @@ Double_t KVINDRADB::GetEventCrossSection(const Char_t * system_name,
    }
    KVTarget *targ = system->GetTarget();
    if (!targ) {
-      Error("GetEventCrossSection", "No target defined for system %d",
+      Error("GetEventCrossSection", "No target defined for system %s",
             system_name);
       return 0;
    }
@@ -797,9 +837,6 @@ Double_t KVINDRADB::GetTotalCrossSection(const Char_t * system_name,
    //Returns calculated total cross-section [mb] for all events in all runs of the named system* with trigger multiplicity 'mul_trig'.
    //                                               *to see the list of all system names, use gIndraDB->GetSystems()->ls()
    //See KVDBRun::GetNIncidentIons() for meaning of other arguments
-   //
-   //This is GetEventCrossSection(system_name, mult_trig) * SUM( events )
-   //where SUM(events) is the total number of events measured in all the runs
 
    KVDBSystem *system = GetSystem(system_name);
    if (!system) {
@@ -824,6 +861,31 @@ Double_t KVINDRADB::GetTotalCrossSection(const Char_t * system_name,
 }
 
 //__________________________________________________________________________________________________________________
+
+Double_t KVINDRADB::GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top)
+{
+   // Calculate the cross-section [mb] for a given selection of events in several runs,
+   // given by the TH1, which is a distribution of run numbers (i.e. a histogram filled with
+   // the number of selected events for each run, the run number is on the x-axis of the histogram).
+   
+   Info("GetTotalCrossSection", "Calculating cross-section for q=%f", Q_apres_cible);
+   Double_t xsec = 0, ninc = 0;
+   KVTarget *targ = 0;
+   for(int i = 1; i<=events_histo->GetNbinsX(); i++){
+      Double_t events = events_histo->GetBinContent(i);
+      if(events==0) continue;
+      int run_num = events_histo->GetBinCenter(i);
+      KVINDRADBRun* run = GetRun(run_num);
+      if(!targ) targ = run->GetTarget();
+      ninc +=
+          run->GetNIncidentIons(Q_apres_cible,
+                                Coul_par_top);
+      xsec += events/(1. - run->GetTempsMort());
+      cout << "Run#" << run_num << "   Events : " << events
+         << "   Dead time : " << run->GetTempsMort() << endl;
+   }
+   return (1.e27 / (ninc * targ->GetAtomsPerCM2())) * xsec;
+}
 
 void KVINDRADB::WriteRunListFile() const
 {
@@ -1636,7 +1698,7 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
    KVDBParameterSet *parset;
    TList *par_list = new TList();
 
-   Float_t a2, a1, a3, chi2;    // calibration parameters
+   Float_t a2, a1, a3, a4, chi2;    // calibration parameters
    Int_t ring, mod, npoints;
 
    while (fin.good()) {         //reading the file
@@ -1644,8 +1706,8 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
       if (fin.good()) {
          if (!sline.BeginsWith("#")) {  //skip comments
             if (sscanf
-                (sline.Data(), "%d %d %f %f %f %f %d", &ring, &mod, &a1,
-                 &a2, &a3, &chi2, &npoints) != 7) {
+                (sline.Data(), "%d %d %f %f %f %f %f %d", &ring, &mod, &a1,
+                 &a2, &a3, &a4, &chi2, &npoints) != 8) {
                Warning("ReadLightEnergyCsI()",
                        "Bad format in line :\n%s\nUnable to read parameters",
                        sline.Data());
@@ -1660,8 +1722,8 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
                }
                parset =
                    new KVDBParameterSet(csi->GetName(), Form("Light-Energy CsI %s", zrange),
-                                        3);
-               parset->SetParameters(a1, a2, a3);
+                                        4);
+               parset->SetParameters(a1, a2, a3, a4);
                table->AddRecord(parset);
                par_list->Add(parset);
             }                   //parameters correctly read
@@ -1681,3 +1743,60 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
 }
 
 //_____________________________________________________________________________
+//__________________________________________________________________________________________________________________
+
+Double_t KVINDRADB::GetEventCrossSection(KVNumberList runs,
+                                         Double_t Q_apres_cible,
+                                         Double_t Coul_par_top) const
+{
+   // Returns calculated average cross-section [mb] per event for the runs in question.
+   // It is assumed that all runs correspond to the same reaction,
+   // with the same beam & target characteristics and multiplicity trigger.
+   // The target thickness etc. are taken from the first run.
+   
+   runs.Begin();
+   Int_t run1 = runs.Next();
+   KVTarget *targ = GetRun(run1)->GetTarget();
+   if (!targ) {
+      Error("GetEventCrossSection", "No target for run %d", run1);
+      return 0;
+   }
+   Double_t sum_xsec = 0;
+   runs.Begin();
+   while(!runs.End()){
+   
+   	int run = runs.Next();
+      if (!GetRun(run))
+         continue;              //skip non-existent runs
+      sum_xsec +=
+          GetRun(run)->GetNIncidentIons(Q_apres_cible,
+                                        Coul_par_top) * (1. - GetRun(run)->GetTempsMort());                                       
+   }
+   
+   //average X-section [mb] per event = 1e27 / (no. atoms in target * SUM(no. of projectile nuclei * (1 - TM)) )
+   return (1.e27 / (targ->GetAtomsPerCM2() * sum_xsec));
+}
+
+//__________________________________________________________________________________________________________________
+
+Double_t KVINDRADB::GetTotalCrossSection(KVNumberList runs,
+                                         Double_t Q_apres_cible,
+                                         Double_t Coul_par_top) const
+{
+   //Returns calculated total measured cross-section [mb] for the runs in question.
+   //This is SUM (GetEventCrossSection(run1,run2) * SUM( events )
+   //where SUM(events) is the total number of events measured in all the runs
+   Int_t sum = 0;
+   runs.Begin();
+   while(!runs.End()) {
+			int run = runs.Next();
+      if (!GetRun(run))
+         continue;              //skip non-existent runs
+      sum += GetRun(run)->GetEvents();
+
+   }
+   return sum * GetEventCrossSection(runs, Q_apres_cible,
+                                     Coul_par_top);
+}
+
+

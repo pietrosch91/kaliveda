@@ -29,19 +29,25 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "TRotation.h"
 #include "TLorentzRotation.h"
 #include "KVParticleCondition.h"
+#include "KVNameValueList.h"
 
 class KVEvent:public KVBase {
 
  protected:
 
    TClonesArray * fParticles;   //->array of particles in event
-   TIter *fOKIter;              //!used for iterating over "good" (IsOK=kTRUE) particles
-
+   TIter *fOKIter;              //!used for iterating over particles
+   KVNameValueList fParameters;//general-purpose list of parameters
+#ifdef __WITHOUT_TCA_CONSTRUCTED_AT
+   TObject* ConstructedAt(Int_t idx);
+   TObject* ConstructedAt(Int_t idx, Option_t* clear_options);
+#endif
  public:
 
+   KVNameValueList* GetParameters() const { return (KVNameValueList*)&fParameters; };
+   
     KVEvent(Int_t mult = 50, const char *classname = "KVNucleus");
     virtual ~ KVEvent();
-   void init();
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject & obj) const;
@@ -55,7 +61,9 @@ class KVEvent:public KVBase {
 
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * t = "") const;
-   KVNucleus *GetParticle(const Char_t * name) const;
+   virtual void ls(Option_t * t = "") const { Print(t); };
+   KVNucleus *GetParticleWithName(const Char_t * name) const;
+   KVNucleus *GetParticle(const Char_t * group_name) const;
    KVNucleus *GetNextParticle(Option_t * opt = "");
    void ResetGetNextParticle();
 
@@ -86,7 +94,7 @@ class KVEvent:public KVBase {
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
                  const TVector3 & boost, TRotation & rot, Bool_t beta = kFALSE);
 
-   ClassDef(KVEvent, 3)         //Base class for all types of multiparticle event
+   ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };
 
 #endif

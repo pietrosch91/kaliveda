@@ -18,6 +18,7 @@ $Date: 2009/04/28 09:11:29 $
 #include "Riostream.h"
 #include "KVDatime.h"
 #include "TContextMenu.h"
+#include "KVList.h"
 
 class KVLVColumnData
 {
@@ -93,9 +94,9 @@ class KVLVContainer : public TGLVContainer
 	Int_t 				*fSortDir;		// direction of sorting for each column
 	Int_t 				fNcols;			// number of data columns
 	TContextMenu		*fContextMenu; // used to display popup context menu for items
-	TList 				*fUserItems;	// list of currently displayed items, used by Refresh()
+	KVList 				*fUserItems;	// list of currently displayed items, used by Refresh()
 
-	virtual void FillList(const TList* = 0);
+	virtual void FillList(const TCollection* = 0);
 	void DeleteColData();
 	void default_init();
 
@@ -110,7 +111,7 @@ class KVLVContainer : public TGLVContainer
 
 				void  	AddFrame 		(TGFrame *f, TGLayoutHints *l=0);
 				void  	Sort				(int column);
-	virtual  void  	Display			(const TList* = 0);
+	virtual  void  	Display			(const TCollection* = 0);
 	virtual  void  	Refresh			();
 	virtual  void  	SetDataColumns (Int_t ncols);
 	virtual  void  	SetDataColumn	(Int_t index, TClass *cl, const Char_t* name, const Char_t* method="");
@@ -144,7 +145,7 @@ class KVLVContainer : public TGLVContainer
 	TObject* GetLastInList();
 	TList* GetSelectedItems();
 	TList* GetSelectedObjects();
-	TList* GetUserItems()
+	TCollection* GetUserItems()
 	{
 		// return list of all objects in list (regardless of selection)
 		return fUserItems;

@@ -37,7 +37,7 @@ class KVListView : public TGListView
 		return ((KVLVContainer*)GetContainer())->GetDataColumn(index);
 	};
 
-	virtual void Display(const TList *l) { ((KVLVContainer*)GetContainer())->Display(l); };
+	virtual void Display(const TCollection *l) { ((KVLVContainer*)GetContainer())->Display(l); };
 	virtual void Sort(Int_t column)
 	{
 	    // Sort list according to data in given column (=0, 1, ...)
@@ -77,7 +77,7 @@ class KVListView : public TGListView
 	    // DELETE AFTER USE !!!
 	    return ((KVLVContainer*)GetContainer())->GetSelectedObjects();
     };
-	TList* GetUserItems()
+	TCollection* GetUserItems()
 	{
 		// return list of all objects (selected or unselected) in list view
 		return ((KVLVContainer*)GetContainer())->GetUserItems();

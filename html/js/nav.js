@@ -11,10 +11,9 @@ var links = new Array (
   "DataAnalysis",
   "Examples",
   "KaliVeda-FAQ",
-  "ClassCategories",
+  "ClassRefIndex",
   "appli",
   "launchpad",
-  "KaliVedaForum",
   "KaliVedaBugs"
  );
 
@@ -26,10 +25,9 @@ var links_text = new Array (
   "Data Analysis",
   "Examples",
   "Tutorials",
-  "Class Reference",
+  "Reference Guide",
   "Commands & GUI",
   "Launchpad",
-  "Forum",
   "Report a Bug"
  );
 
@@ -41,10 +39,9 @@ var links_url = new Array (
   "DataAnalysis.html",
   "Examples.html",
   "KaliVeda-FAQ.html",
-  "ClassCategories.html",
+  "ClassRefIndex.html",
   "appli.html",
   "https://launchpad.net/kaliveda",
-  "http://indra.in2p3.fr/KaliVedaForum",
   "https://bugs.launchpad.net/kaliveda/+filebug"
  );
 
