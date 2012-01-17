@@ -84,7 +84,7 @@ class KVLogReader {
    Bool_t SegFault() const {
       return (fStatus.Contains("egmentation"));
    };
-   Bool_t Incomplete() const;
+   virtual Bool_t Incomplete() const;
 
    ClassDef(KVLogReader, 0)//Tool for reading CCIN2P3 batch logs
 };

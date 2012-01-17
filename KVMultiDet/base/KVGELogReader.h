@@ -20,6 +20,19 @@ class KVGELogReader : public KVLogReader
    KVGELogReader();
    virtual ~KVGELogReader();
 
+   virtual Bool_t Incomplete() const
+	{
+		return (KVLogReader::Incomplete()
+				|| 	
+			((!Killed() && !SegFault())  &&
+	(
+		(fStatus == "Cputime limit exceeded")
+		|| (fStatus == "Filesize limit exceeded")
+	)
+				)
+				);
+
+	};
 
    ClassDef(KVGELogReader,1)//Read GE (Grid Engine) log files
 };
