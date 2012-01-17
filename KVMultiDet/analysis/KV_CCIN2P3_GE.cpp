@@ -317,3 +317,33 @@ void KV_CCIN2P3_GE::AnalyseQstatResponse()
 	delete lines;
 }
 
+void KV_CCIN2P3_GE::qalter(const Char_t* job_base_name, const Char_t* new_ressources)
+{
+	// Will change ressources request for all jobs having 'job_base_name' as the root
+	// of their jobname.
+	// N.B.: in the new ressources, you must specify ALL ressources, including
+	// the ones which are not changed
+	
+	// get list of jobs
+	if(!joblist.GetEntries()) AnalyseQstatResponse();
+	
+	// build number list of job-ids corresponding to jobs with correct base name
+	TIter nextjob(&joblist);
+	KVNumberList jids;
+	KVBase* job;
+	while( (job = (KVBase*)nextjob()) ){
+		TString jobname = job->GetName();
+		if(jobname.BeginsWith(job_base_name)) {
+			Info("qalter", "Selected job %s (jid = %d)", jobname.Data(), job->GetNumber());
+			jids.Add(job->GetNumber());
+		}
+	}
+	TString cmd_base;
+	cmd_base.Form("qalter %s", new_ressources);
+	TString cmd;
+	jids.Begin();
+	while( !jids.End() ){
+		cmd.Form("%s %d", cmd_base.Data(), jids.Next());
+		gSystem->Exec(cmd.Data());
+	}
+}
