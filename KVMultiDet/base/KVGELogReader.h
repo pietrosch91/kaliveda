@@ -16,10 +16,16 @@ class KVGELogReader : public KVLogReader
    virtual void ReadStatus(TString & line);
    virtual Int_t ReadStorage(KVString & stor);
    virtual void ReadKVCPU(TString & line);
-
+	Bool_t fileCopiedtoSRB;
+	
    public:
    KVGELogReader();
    virtual ~KVGELogReader();
+   virtual void Reset()
+	{
+		KVLogReader::Reset();
+		fileCopiedtoSRB=kFALSE;
+	};
 
    virtual Bool_t Incomplete() const
 	{

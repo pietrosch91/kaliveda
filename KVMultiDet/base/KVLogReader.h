@@ -41,7 +41,7 @@ class KVLogReader {
    };
 
    void ReadFile(const Char_t * fname);
-   void Reset();
+   virtual void Reset();
 
    void SetNameFormat(const Char_t * fmt) {
       fFMT = fmt;

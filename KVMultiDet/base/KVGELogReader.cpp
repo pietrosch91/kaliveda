@@ -19,6 +19,7 @@ ClassImp(KVGELogReader)
 KVGELogReader::KVGELogReader()
 {
    // Default constructor
+	fileCopiedtoSRB=kFALSE;
 }
 
 KVGELogReader::~KVGELogReader()
@@ -30,13 +31,20 @@ KVGELogReader::~KVGELogReader()
 void KVGELogReader::ReadLine(TString & line, Bool_t & ok)
 {
    //analyse contents of line read from log file
-   //if line contains "segmentation" then we put ok=kFALSE to stop reading file
-   //status will equal the contents of the current line
 	
 	KVLogReader::ReadLine(line,ok);
+	//if we find a seg fault after having copied a file to SRB (raw->recon, recon->ident, ident->root tasks)
+	//then we ignore it: the job is good!
+	if(!ok && fileCopiedtoSRB){
+		ok=kTRUE;
+		fOK=kTRUE;
+	}
 	if(!ok) return;
 	
-   if (line.Contains("Cputime limit exceeded")) {
+   if (line.Contains("LOCAL:") && line.Contains("->SRB:")) {
+		fileCopiedtoSRB=kTRUE;
+	}
+   else if (line.Contains("Cputime limit exceeded")) {
       ok = kFALSE;
       fStatus = line;
       fOK = kFALSE;
