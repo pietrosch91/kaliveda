@@ -48,10 +48,10 @@ void KVGELogReader::ReadLine(TString & line, Bool_t & ok)
       fOK = kFALSE;
 		return;
 	}
-	else if (line.Contains("cpu time"))
+	else if (line.Contains("cpu time:"))
       ReadCPULimit(line);
-//   else if (line.Contains("SCRATCH:"))
-//      ReadScratchUsed(line);
+	else if (line.Contains("CpuUser ="))
+      ReadKVCPU(line);
    else if (line.Contains(" vmem:"))
       ReadMemUsed(line);
    else if (line.Contains("Exit status:"))
@@ -62,6 +62,31 @@ void KVGELogReader::ReadLine(TString & line, Bool_t & ok)
       ReadStorageReq(line);
 }
 
+void KVGELogReader::ReadKVCPU(TString & line)
+{
+   // update infos on CPU time, memoire & disk from lines such as
+   // CpuUser = 137.8598 s.     VirtMem = 250.32647 MB      DiskUsed = 356M
+   
+   TObjArray* toks = line.Tokenize("= ");
+   Int_t ntoks = toks->GetEntries();
+   for(int i=0; i<ntoks; i++){
+      TString token = ((TObjString*)toks->At(i))->String();
+      if(token=="CpuUser"){
+         fCPUused = ((TObjString*)toks->At(i+1))->String().Atof();
+      }
+      else if(token=="VirtMem"){
+         fMemKB = ((TObjString*)toks->At(i+1))->String().Atof();
+         fMemKB*=GetByteMultiplier(((TObjString*)toks->At(i+2))->String());
+      }
+      else if(token=="DiskUsed"){
+         token = ((TObjString*)toks->At(i+1))->String();
+         TString units = token[token.Length()-1];
+         token.Remove(token.Length()-1);
+         fScratchKB=token.Atoi()*GetByteMultiplier(units);
+      }
+   }
+}
+
 void KVGELogReader::ReadCPULimit(TString & line)
 {
    //read line of type "*   cpu time:              693 / 15000                        *"
@@ -70,7 +95,8 @@ void KVGELogReader::ReadCPULimit(TString & line)
    TObjArray *toks = line.Tokenize("*:/ ");
    //get used CPU time (in seconds)
    KV__TOBJSTRING_TO_INT(toks,2,sec)
-   fCPUused = sec;
+   if(sec) fCPUused = sec; //if there is a GE problem, could be "0 / 3000"
+   //in this case we use values printed at end of job by KV
    //get requested CPU time (in seconds)
    KV__TOBJSTRING_TO_INT(toks,3,sec_)
    fCPUreq = sec_;
@@ -90,8 +116,12 @@ void KVGELogReader::ReadMemUsed(TString & line)
    //corresponding to memory used by job
 	
    TObjArray *toks = line.Tokenize("*: ");
+	if(toks->GetEntries()<2) {
+      //in case Grid Engine goes west & doesn't write vmem in log
+      delete toks;
+      return;
+   }
    //value read is converted to KB, depending on units
-	
 	TString vmem = ((TObjString*)toks->At(1))->String();
    TString units = vmem[vmem.Length()-1];
 	vmem.Remove(vmem.Length()-1);
@@ -106,7 +136,7 @@ Int_t KVGELogReader::GetByteMultiplier(TString & unit)
    static Int_t KB = 1;
    static Int_t MB = 2 << 9;
    static Int_t GB = 2 << 19;
-   return (unit == "K" ? KB : (unit == "M" ? MB : GB));
+   return (unit.BeginsWith("K") ? KB : (unit.BeginsWith("M") ? MB : GB));
 }
 
 void KVGELogReader::ReadStatus(TString & line)
@@ -118,7 +148,7 @@ void KVGELogReader::ReadStatus(TString & line)
 	
 	fGotStatus = kTRUE;
    TObjArray *toks = line.Tokenize("*: ");
-   fStatus = ((TObjString *) toks->At(2))->GetString();
+   fStatus = ((TObjString *) toks->At(2))->String();
    fOK = (fStatus == "0");
    delete toks;
 }

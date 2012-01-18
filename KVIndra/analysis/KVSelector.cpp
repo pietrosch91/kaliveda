@@ -338,9 +338,13 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       cout << " +++ " << totentry << " events processed +++ " << endl;
       ProcInfo_t pid;
       if(gSystem->GetProcInfo(&pid)==0){
-         cout << "     ------------- Process infos -------------" << endl;
-         printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
-            pid.fCpuSys, pid.fCpuUser, pid.fMemResident/1024., pid.fMemVirtual/1024.);
+         TString du = gSystem->GetFromPipe("du -hs");
+         TObjArray* toks = du.Tokenize(" .");
+         TString disk = ((TObjString*)toks->At(0))->String();
+         delete toks;
+         cout <<"     ------------- Process infos -------------" << endl;
+         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
       }
    }   
    fChain->GetTree()->GetEntry(fTreeEntry);
