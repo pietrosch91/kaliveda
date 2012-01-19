@@ -654,7 +654,9 @@ KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
 Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
 {
 	//Returns life time in seconds (see KVLifeTime class for unit details).
-   //For 'stable' nuclei, if no lifetime exists in the table we return 1.e+100.
+   //For 'stable' nuclei (for which the abundance is known),
+   //if no lifetime exists in the table we return 1.e+100.
+   //For other "nuclei" with no known lifetime we return -1. 
    //For resonances (IsResonance() returns kTRUE) we calculate the lifetime
    //from the width of the resonance, t = hbar/W.
 	//If optional arguments (z,a) are given we return the value for the
@@ -662,7 +664,10 @@ Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
 	
 	ChechZAndA(z,a);
 	KVLifeTime* lf = GetLifeTimePtr(z,a);
-   if(!lf) return 1.e+100;
+   if(!lf) {
+      if(GetAbundance(z,a)>0) return 1.e+100;
+      return -1.0;
+   }
    if(lf && !lf->IsAResonnance()) {
       Double_t life = lf->GetValue();
       return (life<0. ? 1.e+100 : life);
