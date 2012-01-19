@@ -199,3 +199,68 @@ void KVINDRADB_e613::ReadPedestalList()
 }
 
 //____________________________________________________________________________
+void KVINDRADB_e613::ReadChannelVolt()
+{
+	Info("ReadChannelVolt","En cours d implementation");
+/*
+   //Read the names of pedestal files to use for each run range, found
+   //in file with name defined by the environment variable:
+   //   [dataset name].INDRADB.Pedestals:    ...
+	
+	KVFileReader flist;
+	TString fp;
+	if (!KVBase::SearchKVFile(gDataSet->GetDataSetEnv("INDRADB.ElectronicCalibration",""), fp, gDataSet->GetName())){
+		Error("ReadChannelVolt","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.ElectronicCalibration",""));
+		return;
+	}
+	
+	if (!flist.OpenFileToRead(fp.Data())){
+		return;
+	}
+	TEnv* env = 0;
+	TEnvRec* rec = 0;
+	KVDBParameterSet* par = 0;
+	
+	while (flist.IsOK()){
+		flist.ReadLine(NULL);
+		KVString file = flist.GetCurrentLine();
+		KVNumberList nl;
+		if ( file!="" && !file.BeginsWith('#') ){
+			if ( KVBase::SearchKVFile(file.Data(), fp, gDataSet->GetName()) ){
+				Info("ReadChannelVolt","Lecture de %s",fp.Data());
+				TString cal_type;
+				if (fp.BeginsWith("PGtoVolt")) cal_type="Channel-Volt PG";
+				else if (fp.BeginsWith("GGtoVolt")) cal_type="Channel-Volt GG";
+				
+				env = new TEnv();
+				env->ReadFile(fp.Data(),kEnvAll);
+				TIter it(env->GetTable());
+				while ( (rec = (TEnvRec* )it.Next()) ){
+					TString srec(rec->GetName());
+					if (srec.BeginsWith("Ring")){
+						srec.ReplaceAll("Ring","");
+						lring->SetValue(srec.Data(),rec->GetValue());
+					}
+					else {
+						
+						//Int_t rr = ((KVINDRADetector* )gIndra->GetDetector(srec.Data()))->GetRingNumber();
+						//parset = new KVDBParameterSet(srec.Data(), cal_type.Data(), 5);
+            		//parset->SetParameters(a0, a1, a2, dum1, dum2);
+						
+						
+						//par = new KVDBParameterSet(rec->GetName(), "Piedestal", 1);
+						//par->SetParameter(env->GetValue(rec->GetName(),0.0));
+						//fPedestals->AddRecord(par);
+						//LinkRecordToRunRange(par,nl);
+						
+					}
+				}
+				delete env;
+				
+			}
+		}
+	}
+   Info("ReadPedestalList","End of reading");
+*/
+}
+

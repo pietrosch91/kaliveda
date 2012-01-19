@@ -608,7 +608,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
-+Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -671,6 +671,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$        KVIDChIoSi5              KVIndra      "KVIDChIoSi5()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
 +Plugin.KVIDTelescope:     ^CI-SI75$                              KVIDChIoSi75          KVIndra         "KVIDChIoSi75()"
++Plugin.KVIDTelescope:     ^CI-SILI$                              KVIDChIoSiLi          KVIndra         "KVIDChIoSiLi()"
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$        KVIDChIoSi75_camp5              KVIndra      "KVIDChIoSi75_camp5()"
 +Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
 +Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra         "KVIDChIoCsI_camp5()"
