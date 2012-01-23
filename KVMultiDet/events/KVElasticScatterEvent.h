@@ -15,9 +15,8 @@ $Date: 2009/01/14 15:35:50 $
 #include "KVTarget.h"
 #include "KVLayer.h"
 #include "KVMaterial.h"
-#include "KVSimNucleus.h"
 #include "KVNucleus.h"
-#include "KVSimEvent.h"
+#include "KVEvent.h"
 #include "KV2Body.h"
 #include "KVMultiDetArray.h"
 #include "KVReconstructedNucleus.h"
@@ -41,7 +40,7 @@ class KVElasticScatterEvent : public KVBase
 	KVNucleus*					proj;//!->
 	KVNucleus*					targ;//!->
 	KVReconstructedEvent* 	rec_evt;//!
-	KVSimEvent*					sim_evt; //!
+	KVEvent*						sim_evt; //!
 	
 	KVHashList*					lhisto;//! to store control histogram
 	KVHashList*					ltree;//!	to store tree
@@ -54,7 +53,12 @@ class KVElasticScatterEvent : public KVBase
 	Int_t 						kDiffNuc;//!
 	Option_t*					kRandomOpt;//!
 	KVPosition					kposalea;//!
-	
+	//Variables permettant de traiter les doubles solutions cinematiques
+	//pour un theta donne
+	Bool_t 						SecondTurn;
+	Double_t 					Ekdiff_ST;
+	Double_t						Thdiff_ST;
+	Double_t						Phdiff_ST;
 	void		init();
 	void 		GenereKV2Body();
 	Bool_t 	DefineTargetNucleusFromLayer(KVString layer_name="");
@@ -62,6 +66,7 @@ class KVElasticScatterEvent : public KVBase
 	void 		NewInteractionPointInTargetLayer();
 	void 		StartEvents();
 	virtual void MakeDiffusion();
+	void		SortieDeCible();
 	
 	public:
    
@@ -99,7 +104,7 @@ class KVElasticScatterEvent : public KVBase
 	KVReconstructedEvent* GetReconstructedEvent(void) const {
 		return rec_evt;
 	}
-	KVSimEvent* GetSimEvent(void) const {
+	KVEvent* GetSimEvent(void) const {
 		return sim_evt;
 	}
 	
@@ -128,6 +133,7 @@ class KVElasticScatterEvent : public KVBase
 	virtual void ResetTrees();
 	virtual void DefineTrees();
 	KVHashList* GetTrees() const;
+	virtual void DefineAliases(TTree* tt);
 	
 	virtual void ClearHistos();
 	virtual void DefineHistos();
