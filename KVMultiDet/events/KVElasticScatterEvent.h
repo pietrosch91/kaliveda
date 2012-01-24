@@ -53,12 +53,15 @@ class KVElasticScatterEvent : public KVBase
 	Int_t 						kDiffNuc;//!
 	Option_t*					kRandomOpt;//!
 	KVPosition					kposalea;//!
+	Int_t 						kChoixSol;
 	//Variables permettant de traiter les doubles solutions cinematiques
 	//pour un theta donne
+	/*
 	Bool_t 						SecondTurn;
 	Double_t 					Ekdiff_ST;
 	Double_t						Thdiff_ST;
 	Double_t						Phdiff_ST;
+	*/
 	void		init();
 	void 		GenereKV2Body();
 	Bool_t 	DefineTargetNucleusFromLayer(KVString layer_name="");
@@ -74,13 +77,17 @@ class KVElasticScatterEvent : public KVBase
       kProjIsSet = BIT(14),     	//kTRUE if projectile nucleus defined
       kTargIsSet = BIT(15),     	//kTRUE if target nucleus defined
       kHasTarget = BIT(16),		//kTRUE if target material defined
-      kIsUpdated = BIT(17)			//flag indicating if ValidateEntrance method has to be called
+      kIsUpdated = BIT(17),		//flag indicating if ValidateEntrance method has to be called
+      kIsDetectionOn = BIT(18)	//flag indicating if user asked detection of events
    };
 	
 	Bool_t IsProjNucSet() {  return TestBit(kProjIsSet); }
 	Bool_t IsTargNucSet() {  return TestBit(kTargIsSet); }
 	Bool_t IsTargMatSet() {  return TestBit(kHasTarget); }
  	Bool_t IsUpdated()	{  return TestBit(kIsUpdated); }
+ 	Bool_t IsDetectionOn() {  return TestBit(kIsDetectionOn); }
+	
+	void ChooseKinSol(Int_t choix=1);
   
 	KVElasticScatterEvent();
    virtual ~KVElasticScatterEvent();
@@ -89,6 +96,9 @@ class KVElasticScatterEvent : public KVBase
 	virtual void SetSystem(Int_t zp,Int_t ap,Double_t ekin,Int_t zt,Int_t at);
 	virtual void SetTargNucleus(KVNucleus *nuc);
 	virtual void SetProjNucleus(KVNucleus *nuc);
+	
+	void SetDetectionOn(Bool_t On=kTRUE);
+	
 	
 	KVNucleus* GetNucleus(const Char_t* name) const;
 	KVNucleus* GetNucleus(Int_t ii) const;
@@ -133,8 +143,7 @@ class KVElasticScatterEvent : public KVBase
 	virtual void ResetTrees();
 	virtual void DefineTrees();
 	KVHashList* GetTrees() const;
-	virtual void DefineAliases(TTree* tt);
-	
+
 	virtual void ClearHistos();
 	virtual void DefineHistos();
 	virtual void ResetHistos();

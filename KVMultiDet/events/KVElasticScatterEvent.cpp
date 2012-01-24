@@ -51,8 +51,8 @@ Réalistion des diffusions
 	- propagation du noyau projectile dans la cible jusqu'au point d'intéraction
 	- tirage d'un théta et phi pour la diffusion sur le noyau cible
 	- calcul de la cinématique pour cette direction choisie (réalisé par la classe KV2Body)
-	- si un KVMultiDetArray est défini et en mode dimulation, détection des projectiles et cibles en voie de sortie avec enregistrement
-	dans un arbre sous forme de KVEvent	
+	- si un KVMultiDetArray est défini et que la méthode SetDetectionOn(), détection des projectiles et cibles en voie de sortie
+	- enregistrement des evts diffuses dans un arbre sous forme de KVEvent	
 
 Exemple : 
 ---------
@@ -89,9 +89,6 @@ KVElasticScatterEvent::~KVElasticScatterEvent()
 	if (sim_evt) delete sim_evt;
 	if (rec_evt) delete rec_evt;
 	
-	if (gMultiDetArray) 
-		gMultiDetArray->SetSimMode(kFALSE);
-
 	ClearHistos();
 	ClearTrees();
 }
@@ -131,12 +128,13 @@ void KVElasticScatterEvent::init()
 	ResetBit( kTargIsSet );
 	ResetBit( kHasTarget );
 	ResetBit( kIsUpdated );
+	ResetBit( kIsDetectionOn );
 	
 	SetDiffNucleus("PROJ");
 	SetRandomOption("isotropic");
 	
-	SecondTurn = kFALSE;
-	Ekdiff_ST = Thdiff_ST = Phdiff_ST = 0;
+	SetDetectionOn(kFALSE);
+	ChooseKinSol(1);
 	
 }
 
@@ -227,6 +225,20 @@ Bool_t KVElasticScatterEvent::IsIsotropic(){
 }
 
 //_______________________________________________________________________
+void KVElasticScatterEvent::ChooseKinSol(Int_t choix)
+{
+	//Dans le cas d'une cinematique inverse (Zproj>Ztarget)
+	//deux solutions cinetiques sont possibles pour un meme angle de
+	//diffusion du projectile
+	//choix=1, on traite seulement la premiere solution ie diffusion a l arriere de la cible
+	//choix=2, on traite seulement la deuxieme solution ie diffusion a l avant de la cible
+	//choix=0, les deux solution sont traitees avec la meme probabilite
+	if (choix>=0 && choix<=2)
+		kChoixSol=choix;
+
+}
+
+//_______________________________________________________________________
 void KVElasticScatterEvent::SetProjNucleus(KVNucleus *nuc)
 {
 	//Define new projectile nucleus
@@ -235,6 +247,7 @@ void KVElasticScatterEvent::SetProjNucleus(KVNucleus *nuc)
 	proj->SetName("PROJ");
 	SetBit(kProjIsSet);
 	ResetBit(kIsUpdated);
+	proj->SetE0();
 
 }
 
@@ -274,6 +287,22 @@ void KVElasticScatterEvent::SetTargetMaterial(KVTarget *targ,Bool_t IsRandomized
 }
 
 //_______________________________________________________________________
+void KVElasticScatterEvent::SetDetectionOn(Bool_t On)
+{
+
+	if ( gMultiDetArray ){
+		gMultiDetArray->SetSimMode(On);
+		SetBit(kIsDetectionOn,On);
+		ResetBit(kIsUpdated);
+	}
+	else {
+		if (On)
+			Warning("MakeDetection","Detection asked but no multiDetArray defined");
+	}
+
+}
+
+//_______________________________________________________________________
 KVTarget* KVElasticScatterEvent::GetTarget() const
 { 
 	//return the current target material 
@@ -303,7 +332,7 @@ void KVElasticScatterEvent::GenereKV2Body()
 	kb2 = new KV2Body(new KVNucleus(*proj),new KVNucleus(*targ));
 	kb2->CalculateKinematics();
 	
-	GetNucleus("PROJ")->SetE0();
+	//GetNucleus("PROJ")->SetE0();
 
 	//Creer ou clear les deux pointeurs associes aux evts simules et reconstruits
 	StartEvents();
@@ -405,13 +434,17 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
 		}
 	}
 	
-	if (gMultiDetArray){
-		gMultiDetArray->SetSimMode(kTRUE);
+	if (IsDetectionOn()){
 		if (GetTarget()){
-			//Fait un clone
-			gMultiDetArray->SetTarget(GetTarget());
-			delete ktarget;
-			ktarget = gMultiDetArray->GetTarget();
+			if ( gMultiDetArray->GetTarget() && gMultiDetArray->GetTarget() ==  ktarget ){
+			
+			}
+			else {
+				//Fait un clone
+				gMultiDetArray->SetTarget(GetTarget());
+				delete ktarget;
+				ktarget = gMultiDetArray->GetTarget();
+			}
 		}
 		else if (gMultiDetArray->GetTarget()){
 			ktarget = gMultiDetArray->GetTarget();
@@ -422,8 +455,7 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
 		DefineAngularRange(gMultiDetArray);
 	}
 	else {
-		Warning("ValidateEntrance","gMultiDetArray does not refer to a valid object\n");
-		printf("\t -> The elastic scatter events will not be detected/filtered\n");
+		Info("ValidateEntrance","The elastic scatter events will not be detected/filtered");
 	}
 	
 	GenereKV2Body();
@@ -432,9 +464,9 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
 	//of validate entrance
 	
 	if (!ltree) DefineTrees();
-	if (!lhisto) DefineHistos();
 	
-	//Print();
+	ClearHistos();
+	DefineHistos();
 	
 	SetBit(kIsUpdated);
 	
@@ -449,20 +481,17 @@ void KVElasticScatterEvent::Process(Int_t ntimes,Bool_t reset)
 	//process ntimes elastic scatter
 	//if reset=kTRUE, reset histograms, trees and counter before
 	Info("Process","Je Suis dans Process ... Youpee");
-	SecondTurn = kFALSE;
+	
 	if ( !IsUpdated() )
 		if (!ValidateEntrance()) return;
 		
 	if (reset) Reset();
-	Int_t nn=0,ndouble=0;
+	Int_t nn=0;
 	while (nn<ntimes){
 		MakeDiffusion();
-		if (SecondTurn) 
-			ndouble+=1;
-		else {
-			nn+=1;
-			if ((nn%1000)==0)
-				Info("Process","%d/%d diffusions treated dont %d avec deux solutions",nn,ntimes,ndouble);
+		nn+=1;
+		if ((nn%1000)==0){
+			Info("Process","%d/%d diffusions treated",nn,ntimes);
 		}
 	}
 	Info("Process","End of process : %d diffusions performed",kTreatedNevts);
@@ -527,13 +556,12 @@ void KVElasticScatterEvent::MakeDiffusion()
 	((TH1F* )lhisto->FindObject("costheta"))->Fill(TMath::Cos(TMath::DegToRad()*th_deg));
 	
 	
-	if (gMultiDetArray) {
+	if (IsDetectionOn()) {
 		Filter();
 	}
 	else{
-		if (IsTargMatSet()){
+		if (IsTargMatSet())
 			SortieDeCible();
-		}
 	}
 	
 	TreateEvent();
@@ -600,25 +628,20 @@ TVector3& KVElasticScatterEvent::GetInteractionPointInTargetLayer()
 //_______________________________________________________________________
 void KVElasticScatterEvent::SortieDeCible()
 {
-	//Apply Energy loss calculation to the outgoing projectile
+	//Apply Energy loss calculation in target material for the outgoing projectile
 	//and target
 	//
 	
 	ktarget->SetOutgoing(kTRUE);
-	
-	Double_t eLostInTarget = GetNucleus("PROJ")->GetKE();
-	ktarget->DetectParticle(GetNucleus("PROJ"),0);
-	eLostInTarget -= GetNucleus("PROJ")->GetKE();
-	
-	//Traitemenet du projectile Energie perdue du point d interaction jusqu'a la sortie
-	sim_evt->GetParticleWithName("PROJ")->GetParameters()->SetValue("TARGET Out",eLostInTarget);
-	
-	eLostInTarget = GetNucleus("TARG")->GetKE();
-	ktarget->DetectParticle(GetNucleus("TARG"),0);
-	eLostInTarget -= GetNucleus("TARG")->GetKE();
-	
-	//Traitemenet de la cible Energie perdue du point d interaction jusqu'a la sortie
-	sim_evt->GetParticleWithName("TARG")->GetParameters()->SetValue("TARGET Out",eLostInTarget);
+	KVNucleus* knuc = 0;
+	while ( (knuc = sim_evt->GetNextParticle()) ){
+		knuc->SetE0();
+		Double_t eLostInTarget = knuc->GetKE();
+		ktarget->DetectParticle(knuc,0);
+		eLostInTarget -= knuc->GetKE();
+		knuc->GetParameters()->SetValue("TARGET Out",eLostInTarget);
+		knuc->SetMomentum(*knuc->GetPInitial());
+	}
 	
 	ktarget->SetOutgoing(kFALSE);
 
@@ -635,18 +658,25 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	//
 	// WARNING: in inverse kinematics, there are two projectile energies
 	// for each lab angle.
-	
+	Double_t ediff;
 	Double_t ediff1,ediff2;
 	Int_t nsol_kin;
-	if (SecondTurn){
-		ediff1 = Ekdiff_ST;
-		theta = Thdiff_ST;
-		phi = Phdiff_ST;
-		nsol_kin=0;
+	
+	nsol_kin = kb2->GetELab(kDiffNuc, theta, kDiffNuc, ediff1,ediff2);
+	
+	if (nsol_kin==1){
+		ediff = ediff1;
 	}
 	else {
-		nsol_kin = kb2->GetELab(kDiffNuc, theta, kDiffNuc, ediff1,ediff2);
+		if (kChoixSol==1) ediff = ediff1;
+		else if (kChoixSol==2) { ediff = ediff2; }
+		else {
+			Int_t choix = TMath::Nint(gRandom->Uniform(0.5,2.5));
+			if (choix==2)	ediff=ediff2;
+			else 				ediff=ediff1;
+		}
 	}
+	Bool_t sol2 = (ediff==ediff2);
 	
 	kXruth_evt = kb2->GetXSecRuthLab(theta,kDiffNuc);
 	
@@ -659,7 +689,7 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	else 
 		knuc = sim_evt->GetParticleWithName("TARG");
 			
-	knuc->SetKE(ediff1);
+	knuc->SetKE(ediff);
 	knuc->SetTheta(theta);
 	knuc->SetPhi(phi);
 	((TH2F* )lhisto->FindObject("ek_theta"))->Fill(knuc->GetTheta(),knuc->GetKE());
@@ -688,21 +718,10 @@ void KVElasticScatterEvent::SetAnglesForDiffusion(Double_t theta,Double_t phi)
 	sim_evt->GetParameters()->SetValue("ThDiff",theta);
 	sim_evt->GetParameters()->SetValue("EkDiff",ediff1);
 	sim_evt->GetParameters()->SetValue("IPz",kIPPVector.Z());
-	if (SecondTurn){
-		sim_evt->GetParameters()->SetValue("Sol2",1);
-	}
 	
-	if (nsol_kin==2){
-		//sim_evt->GetParameters()->SetValue("Sol2",ediff2);
-		SecondTurn = kTRUE;
-		Ekdiff_ST = ediff2;
-		Thdiff_ST = theta;
-		Phdiff_ST = phi;
-	}
-	else {
-		SecondTurn = kFALSE;
-		Ekdiff_ST = Thdiff_ST = Phdiff_ST = 0;
-	}
+	if (sol2)
+		sim_evt->GetParameters()->SetValue("Sol2",1);
+	
 	//L' energie cinetique du projectile est reinitialisee
 	//pour la prochaine diffusion
 	GetNucleus("PROJ")->SetMomentum(*GetNucleus("PROJ")->GetPInitial());
@@ -739,6 +758,8 @@ void KVElasticScatterEvent::TreateEvent()
 	// on fera 
 	//		GetTree("Simulated_evts")->Draw("N1_CI_0601")
 	//
+	// Generation des correlation Energie Cinetique (Ek) vs Angle de diffusion (theta)
+	// pour tous les cas de détection
 	
 	TTree* tt = (TTree* )ltree->FindObject("ElasticScatter");
 	tt->Fill();
@@ -747,26 +768,29 @@ void KVElasticScatterEvent::TreateEvent()
 	KVNamedParameter* nm = 0;
 	
 	TIter it(sim_evt->GetParameters()->GetList());
-	while (nm = (KVNamedParameter* )it.Next()){
+	while ( (nm = (KVNamedParameter* )it.Next()) ){
 		snom.Form("%s",nm->GetName());
+		if (snom.Contains(" ")) snom.ReplaceAll(" ","_");
 		stit.Form("Simulated_evts->GetParameters()->GetDoubleValue(\"%s\")",nm->GetName());
 		tt->SetAlias(snom.Data(),stit.Data());
 	}
 	TIter it1(sim_evt->GetParticle(1)->GetParameters()->GetList());
-	while (nm = (KVNamedParameter* )it1.Next()){
+	while ( (nm = (KVNamedParameter* )it1.Next()) ){
 		snom.Form("N1_%s",nm->GetName());
+		if (snom.Contains(" ")) snom.ReplaceAll(" ","_");
 		stit.Form("Simulated_evts->GetParticle(1)->GetParameters()->GetDoubleValue(\"%s\")",nm->GetName());
 		tt->SetAlias(snom.Data(),stit.Data());
 	}
 	TIter it2(sim_evt->GetParticle(2)->GetParameters()->GetList());
-	while (nm = (KVNamedParameter* )it2.Next()){
+	while ( (nm = (KVNamedParameter* )it2.Next()) ){
 		snom.Form("N2_%s",nm->GetName());
+		if (snom.Contains(" ")) snom.ReplaceAll(" ","_");
 		stit.Form("Simulated_evts->GetParticle(2)->GetParameters()->GetDoubleValue(\"%s\")",nm->GetName());
 		tt->SetAlias(snom.Data(),stit.Data());
 	}
 	
-	TH2F* hh = 0, *hvz=0;
-	
+	if (IsDetectionOn()){
+	TH2F* hh = 0;
 	KVNucleus* knuc = 0;
 	while ( (knuc = sim_evt->GetNextParticle()) ){
 		
@@ -776,14 +800,7 @@ void KVElasticScatterEvent::TreateEvent()
 				if ( !(hh = (TH2F* )lhisto->FindObject(snom.Data())) ){
 					Double_t totalE = GetNucleus(1)->GetKE();
 					lhisto->Add(new TH2F(snom.Data(),"DETECTED",180,0,180,TMath::Nint(totalE*11),0,totalE*1.1));
-					hh = (TH2F* )lhisto->Last();
-				}
-				snom.Form("z_vz_DETECTED");
-				if ( !(hvz = (TH2F* )lhisto->FindObject(snom.Data())) ){
-					Double_t totalE = GetNucleus(1)->BoostVector().Z();
-					Int_t maxZ = TMath::Max(GetNucleus(1)->GetZ(),GetNucleus(2)->GetZ());
-					lhisto->Add(new TH2F(snom.Data(),"DETECTED",200,-1.1*totalE,totalE*1.5,maxZ+5,0.5,maxZ+5.5));
-					hvz = (TH2F* )lhisto->Last();
+					hh = (TH2F* )lhisto->Last(); hh->SetXTitle("#theta_{ lab}"); hh->SetYTitle("Ek_{ lab}"); 
 				}
 			}
 			else {
@@ -791,14 +808,7 @@ void KVElasticScatterEvent::TreateEvent()
 				if ( !(hh = (TH2F* )lhisto->FindObject(snom.Data())) ){
 					Double_t totalE = GetNucleus(1)->GetKE();
 					lhisto->Add(new TH2F(snom.Data(),knuc->GetParameters()->GetStringValue("DETECTED"),180,0,180,TMath::Nint(totalE*11),0,totalE*1.1));
-					hh = (TH2F* )lhisto->Last();
-				}
-				snom.Form("z_vz_%s",knuc->GetParameters()->GetStringValue("DETECTED"));
-				if ( !(hvz = (TH2F* )lhisto->FindObject(snom.Data())) ){
-					Double_t totalE = GetNucleus(1)->BoostVector().Z();
-					Int_t maxZ = TMath::Max(GetNucleus(1)->GetZ(),GetNucleus(2)->GetZ());
-					lhisto->Add(new TH2F(snom.Data(),knuc->GetParameters()->GetStringValue("DETECTED"),200,-1.1*totalE,totalE*1.5,maxZ+5,0.5,maxZ+5.5));
-					hvz = (TH2F* )lhisto->Last();
+					hh = (TH2F* )lhisto->Last(); hh->SetXTitle("#theta_{ lab}"); hh->SetYTitle("Ek_{ lab}");
 				}
 			}
 		}
@@ -808,14 +818,7 @@ void KVElasticScatterEvent::TreateEvent()
 				if ( !(hh = (TH2F* )lhisto->FindObject(snom.Data())) ){
 					Double_t totalE = GetNucleus(1)->GetKE();
 					lhisto->Add(new TH2F(snom.Data(),"UNDETECTED",180,0,180,TMath::Nint(totalE*11),0,totalE*1.1));
-					hh = (TH2F* )lhisto->Last();
-				}
-				snom.Form("z_vz_UNDETECTED");
-				if ( !(hvz = (TH2F* )lhisto->FindObject(snom.Data())) ){
-					Double_t totalE = GetNucleus(1)->BoostVector().Z();
-					Int_t maxZ = TMath::Max(GetNucleus(1)->GetZ(),GetNucleus(2)->GetZ());
-					lhisto->Add(new TH2F(snom.Data(),"UNDETECTED",200,-1.1*totalE,totalE*1.5,maxZ+5,0.5,maxZ+5.5));
-					hvz = (TH2F* )lhisto->Last();
+					hh = (TH2F* )lhisto->Last(); hh->SetXTitle("#theta_{ lab}"); hh->SetYTitle("Ek_{ lab}");
 				}
 			}
 			else {
@@ -823,14 +826,7 @@ void KVElasticScatterEvent::TreateEvent()
 				if ( !(hh = (TH2F* )lhisto->FindObject(snom.Data())) ){
 					Double_t totalE = GetNucleus(1)->GetKE();
 					lhisto->Add(new TH2F(snom.Data(),knuc->GetParameters()->GetStringValue("UNDETECTED"),180,0,180,TMath::Nint(totalE*11),0,totalE*1.1));
-					hh = (TH2F* )lhisto->Last();
-				}
-				snom.Form("z_vz_%s",knuc->GetParameters()->GetStringValue("UNDETECTED"));
-				if ( !(hvz = (TH2F* )lhisto->FindObject(snom.Data())) ){
-					Double_t totalE = GetNucleus(1)->BoostVector().Z();
-					Int_t maxZ = TMath::Max(GetNucleus(1)->GetZ(),GetNucleus(2)->GetZ());
-					lhisto->Add(new TH2F(snom.Data(),knuc->GetParameters()->GetStringValue("UNDETECTED"),200,-1.1*totalE,totalE*1.5,maxZ+5,0.5,maxZ+5.5));
-					hvz = (TH2F* )lhisto->Last();
+					hh = (TH2F* )lhisto->Last(); hh->SetXTitle("#theta_{ lab}"); hh->SetYTitle("Ek_{ lab}");
 				}
 			}
 		}
@@ -839,8 +835,7 @@ void KVElasticScatterEvent::TreateEvent()
 		}
 		if (hh)
 			hh->Fill(knuc->GetTheta(),knuc->GetKE());
-		if (hvz)
-			hvz->Fill(knuc->BoostVector().Z(),knuc->GetZ());
+	}
 	}	
 
 }
@@ -872,10 +867,7 @@ void KVElasticScatterEvent::Print()
 		}
 	}
 	printf("-------------------------\n");
-	if (!gMultiDetArray){
-		printf("Pointer gMultiDetArray does not refer to a valid object\n");
-	}
-	else {
+	if (IsDetectionOn()){
 		printf("# Detection par %s\n",gMultiDetArray->GetName());
 	}
 	printf("#####################\n");
@@ -892,16 +884,22 @@ void KVElasticScatterEvent::DefineHistos()
 	Info("DefineHistos","DefineHistos");
 	lhisto = new KVHashList(); 
 	lhisto->SetOwner(kTRUE);
+	TH2F* h2 = 0;
+	TH1F* h1 = 0;
 	
 	lhisto->Add(new TH2F("phi_theta","phi_theta",180,0,180,360,0,360));
+	h2 = (TH2F* )lhisto->Last(); h2->SetXTitle("#theta_{ lab}"); h2->SetYTitle("#phi_{ lab}"); 
 	lhisto->Add(new TH1F("costheta","costheta",200,-1,1));
+	h1 = (TH1F* )lhisto->Last(); h1->SetXTitle("cos #theta_{ lab}"); 
 	if ( IsTargMatSet() ){
 		Info("DefineHistos","Creation de l histo interaction dans la cible");
 		Float_t thickness = GetTarget()->GetThickness();
 		lhisto->Add(new TH1F("target_layer_depth","target_layer_depth",TMath::Nint(thickness*110),0,thickness*1.1));
+		h1 = (TH1F* )lhisto->Last(); h1->SetXTitle("IP position (mg / cm²)"); 
 	}
 	Float_t totalE = GetNucleus(1)->GetKE();
 	lhisto->Add(new TH2F("ek_theta","ek_theta",180,0,180,TMath::Nint(totalE*11),0,totalE*1.1));
+	h2 = (TH2F* )lhisto->Last(); h2->SetXTitle("#theta_{ lab}"); h2->SetYTitle("Ek_{ lab}"); 
 
 }
 
@@ -973,7 +971,8 @@ void KVElasticScatterEvent::ResetTrees()
 	//Reset the tree contents
 	//and aliases for the "ElasticScatter" tree
 	ltree->Execute("Reset","");
-	((TTree* )ltree->FindObject("ElasticScatter"))->GetListOfAliases()->Clear();
+	if (((TTree* )ltree->FindObject("ElasticScatter"))->GetListOfAliases())
+		((TTree* )ltree->FindObject("ElasticScatter"))->GetListOfAliases()->Clear();
 
 }
 
