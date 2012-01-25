@@ -1,0 +1,11 @@
+INDRA_camp1 : raw dst recon root
+INDRA_camp2 : raw dst root
+INDRA_camp4 : raw dst root
+INDRA_camp5 : raw recon ident root
+INDRA_e416a : raw
+INDRA_e475s : raw recon
+INDRA_e503 : raw recon ident
+INDRA_e494s : raw recon ident
+VAMOS_e503 : raw recon ident
+t10_02 : raw recon
+INDRA_e613 : raw recon
