@@ -833,6 +833,7 @@ KVClassMethod* KVClassFactory::AddConstructor(const Char_t* argument_type,
 	// use type of first argument as name of ctor method
    meth->SetName(argument_type);
    meth->SetClassName(fClassName);
+   if(fHasBaseClass) meth->SetBaseClass(fBaseClass);
    meth->SetConstructor();
    meth->SetAccess(access);
 	meth->AddArgument( argument_type, argument_name, default_value );
@@ -994,7 +995,7 @@ void KVClassMethod::WriteDeclaration(KVString&decl)
 void KVClassMethod::WriteImplementation(KVString&decl)
 {
    //Write skeleton implementation in the KVString object
-
+   //All constructors call the default ctor of the base class (if defined)
    decl = GetReturnType();
 	if(!IsConstructor()){
    	decl += " ";
@@ -1016,6 +1017,12 @@ void KVClassMethod::WriteImplementation(KVString&decl)
    }
    decl += ") ";
    if(fConst) decl += "const";
+   if(IsConstructor() && fFields.HasParameter("BaseClass"))
+   {
+      decl+=" : ";
+      decl+=fFields.GetParameter("BaseClass").Data();
+      decl+="()";
+   }
    decl += "\n{\n";
    if( !strcmp(GetAccess(), "private") ) decl += "   // PRIVATE method\n";
    else if( !strcmp(GetAccess(), "protected") ) decl += "   // PROTECTED method\n";
