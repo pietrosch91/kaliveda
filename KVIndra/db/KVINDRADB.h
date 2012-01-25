@@ -166,6 +166,8 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 
 	KVINDRAPulserDataTree* GetPulserData() { return fPulserData; };
 
+	virtual void PrintRuns(KVNumberList&) const;
+	
    ClassDef(KVINDRADB, 4)       //DataBase of parameters for an INDRA campaign
 };
 

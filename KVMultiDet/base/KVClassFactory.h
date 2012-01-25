@@ -48,6 +48,10 @@ class KVClassMethod : public TNamed {
      KVString s(name);
      fFields.SetParameter("ClassName", s);
    };
+   void SetBaseClass(const Char_t* name) {
+     KVString s(name);
+     fFields.SetParameter("BaseClass", s);
+   };
    void AddArgument(const Char_t* type, const Char_t* argname="", const Char_t* defaultvalue="") {
       KVString _type(type);
       fFields.SetParameter( Form("Arg_%d", ++fNargs), _type);

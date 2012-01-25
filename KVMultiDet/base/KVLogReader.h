@@ -32,7 +32,7 @@ class KVLogReader {
    virtual void ReadMemUsed(TString & line)=0;
    virtual void ReadStatus(TString & line)=0;
    void ReadJobname(TString & line);
-   virtual Int_t ReadStorage(KVString & stor)=0;
+   virtual Double_t ReadStorage(KVString & stor)=0;
 
  public:
 
@@ -41,7 +41,7 @@ class KVLogReader {
    };
 
    void ReadFile(const Char_t * fname);
-   void Reset();
+   virtual void Reset();
 
    void SetNameFormat(const Char_t * fmt) {
       fFMT = fmt;
@@ -84,7 +84,7 @@ class KVLogReader {
    Bool_t SegFault() const {
       return (fStatus.Contains("egmentation"));
    };
-   Bool_t Incomplete() const;
+   virtual Bool_t Incomplete() const;
 
    ClassDef(KVLogReader, 0)//Tool for reading CCIN2P3 batch logs
 };

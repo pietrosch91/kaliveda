@@ -507,15 +507,14 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
       good_lines++;
 
       fRunNumber = kvs.Atoi();
-
-      //if (!systol) {
+      kvversion= username="";
          TString tmp = ((TObjString *) toks->At(1))->GetString();
          fDatime = TDatime(tmp.Data());
-      //}
       if(toks->GetEntries()>3){
          kvversion = ((TObjString *) toks->At(3))->GetString();
          username = ((TObjString *) toks->At(4))->GetString();
       }
+   
       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
       KVDBSystem *sys = 0;
@@ -553,7 +552,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
          if (noSystems || (systol == sys)) {   //run belongs to same system
             if (!sys_list)
                sys_list = new TList;
-            if(noSystems && a_run){
+            //if(noSystems && a_run){
 					/* Block Modified() signal being emitted by KVDBRun object
 				   when we set its 'datime'. This is to avoid seg fault with
 					KVDataAnalysisGUI, when we are changing system/display,
@@ -561,10 +560,10 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
 					no longer exists */
             	a_run->BlockSignals(kTRUE);
 					a_run->SetDatime(fDatime);
-            a_run->SetKVVersion(kvversion);
-            a_run->SetUserName(username);
+               a_run->SetKVVersion(kvversion);
+               a_run->SetUserName(username);
 					a_run->BlockSignals(kFALSE);
-				}
+				//}
             if(a_run) sys_list->Add(a_run);
          }
       }

@@ -241,7 +241,11 @@ void KVMaterial::SetThickness(Double_t t)
       return;
    }
    // recalculate area density
-   fThick = t * GetDensity();
+   if ( GetDensity()!=0 )
+		fThick = t * GetDensity();
+	else 
+		fThick = t;
+		
 }
 
 //___________________________________________________________________________________
@@ -254,7 +258,10 @@ Double_t KVMaterial::GetThickness() const
 	
    if (GetActiveLayer())
       return GetActiveLayer()->GetThickness();
-   return fThick/GetDensity();
+   if ( GetDensity()!=0 )
+		return fThick/GetDensity();
+	else 
+		return fThick;	
 }
 
 //___________________________________________________________________________________

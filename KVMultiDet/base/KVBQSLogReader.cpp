@@ -119,7 +119,7 @@ void KVBQSLogReader::ReadStatus(TString & line)
    delete toks;
 }
 
-Int_t KVBQSLogReader::ReadStorage(KVString & stor)
+Double_t KVBQSLogReader::ReadStorage(KVString & stor)
 {
    //'stor' is a string such as "200MB", "3GB" etc.
    //value returned is corresponding storage space in KB
@@ -131,6 +131,6 @@ Int_t KVBQSLogReader::ReadStorage(KVString & stor)
       return 0;
    stor.Remove(index);
    TString u(units[i]);
-   return (stor.Atoi() * GetByteMultiplier(u));
+   return (stor.Atof() * GetByteMultiplier(u));
 }
 

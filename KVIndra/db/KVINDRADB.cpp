@@ -1799,4 +1799,31 @@ Double_t KVINDRADB::GetTotalCrossSection(KVNumberList runs,
                                      Coul_par_top);
 }
 
+//__________________________________________________________________________________________________________________
+
+void KVINDRADB::PrintRuns(KVNumberList& nl) const
+{
+	// Print compact listing of runs in the number list like this:
+	//
+	// root [9] gIndraDB->PrintRuns("8100-8120")
+	// RUN     SYSTEM                          TRIGGER         EVENTS          COMMENTS
+	// ------------------------------------------------------------------------------------------------------------------
+	// 8100    129Xe + 58Ni 8 MeV/A            M>=2            968673
+	// 8101    129Xe + 58Ni 8 MeV/A            M>=2            969166
+	// 8102    129Xe + 58Ni 8 MeV/A            M>=2            960772
+	// 8103    129Xe + 58Ni 8 MeV/A            M>=2            970029
+	// 8104    129Xe + 58Ni 8 MeV/A            M>=2            502992          disjonction ht chassis 1
+	// 8105    129Xe + 58Ni 8 MeV/A            M>=2            957015          intensite augmentee a 200 pA
+	
+	printf("RUN\tSYSTEM\t\t\t\tTRIGGER\t\tEVENTS\t\tCOMMENTS\n");
+	printf("------------------------------------------------------------------------------------------------------------------\n");
+	nl.Begin();
+	while( !nl.End() ){
+		KVINDRADBRun* run = GetRun(nl.Next());
+		if(!run) continue;
+		printf("%4d\t%-30s\t%s\t\t%d\t\t%s\n",
+				run->GetNumber(), (run->GetSystem()?run->GetSystem()->GetName():"            "), run->GetTriggerString(),
+				run->GetEvents(), run->GetComments());
+	}
+}
 

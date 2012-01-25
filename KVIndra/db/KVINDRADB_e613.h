@@ -13,6 +13,7 @@ class KVINDRADB_e613 : public KVINDRADB
 	
 	virtual void ReadGainList();
 	virtual void ReadPedestalList();
+	void ReadChannelVolt();
 	
 	public:
    KVINDRADB_e613();
