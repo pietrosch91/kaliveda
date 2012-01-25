@@ -21,6 +21,7 @@ CsIv::CsIv(LogFile *Log)
 {
 
 	L=Log;
+    logLevel = LOG_NORMAL;
 	
   InitRaw();
   Init();
@@ -108,7 +109,6 @@ CsIv::~CsIv()
 
 void CsIv::InitRaw(void)
 {
-  cout << "CsI::InitRaw" << endl;
 
   for(Int_t i=0;i<80;i++)
     {
@@ -122,8 +122,6 @@ void CsIv::InitRaw(void)
 
 void CsIv::Init()
 {
-    L->Log << "CsIv::Init()" << endl;
-
   cout<<"Init()"<<endl;
 
   //Initialization of calibrated parameter
@@ -139,7 +137,8 @@ void CsIv::Init()
 
 void CsIv::Calibrate(void)
 {
-    L->Log << "CsIv::Calibrate()" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[CsIv] CsIv::Calibrate()" << endl;
 
   Int_t i,j,k;
 
@@ -167,7 +166,9 @@ void CsIv::Calibrate(void)
 
 void CsIv::Treat(void)
 {
-    L->Log << "CsIv::Treat()" << endl;
+
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[CsIv] CsIv::Treat()" << endl;
 
   //#ifdef DEBUG
   //cout << "CsIv::Treat" << endl;
@@ -180,7 +181,8 @@ void CsIv::Treat(void)
 void CsIv::inAttach(TTree *inT)
 {
 
-    L->Log << " + CsIv::inAttach(TTree* " << inT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[CsIv] CsIv::inAttach(TTree* " << inT << ")" << endl;
 
 #ifdef DEBUG
   cout << "CsI::inAttach" << endl;
@@ -199,7 +201,8 @@ void CsIv::inAttach(TTree *inT)
 void CsIv::outAttach(TTree *outT)
 {
 
-    L->Log << " + CsIv::outAttach(TTree* " << outT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[CsIv] CsIv::outAttach(TTree* " << outT << ")" << endl;
 
 #ifdef DEBUG
   cout << "CsI::inAttach" << endl;

@@ -15,6 +15,8 @@
 class CsIv
 {
 
+    int logLevel;
+
    public:
    CsIv(LogFile *Log);
    virtual ~CsIv();
@@ -49,6 +51,9 @@ class CsIv
   UShort_t ENr[80];
   Float_t ETotal;
   UShort_t Number;
+    
+    void SetLogLevel(int level){logLevel = level;};
+    int GetLogLevel(){return logLevel;};
   
 
 

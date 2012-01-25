@@ -27,6 +27,8 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
 				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, EnergyTree *E)
 {
   L = Log;
+  logLevel = LOG_NORMAL;
+
   Rec = Recon;
   Dr = Drift;
   Ic = IonCh;
@@ -53,6 +55,7 @@ delete id;
 void Identificationv::Init(void)
 {
 
+    if(logLevel == LOG_HIGH)
     L->Log << "Identificationv::Init()" << endl;
 
   Present = false; 
@@ -96,6 +99,7 @@ return runFlag;
 void Identificationv::Calculate(void)
 {
 
+    if(logLevel == LOG_HIGH)
     L->Log << "Identificationv::Calculate()" << endl;
 
 if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(Si->Number==0 && CsI->Number==0))) // if csi is behind the si
@@ -106,9 +110,12 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 }	
 
   //energytree->SetSiliconThickness(int(Si->Number));		//Initialise the Si-gap-CsI telescope (numérotation : 0-17)
-  
-  L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
-  L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;	    
+ 
+    if(logLevel >= LOG_NORMAL){ 
+        L->Log << "Si->Number  (0-17): " << Si->Number << endl;
+        L->Log << "CsI->Number (0-79): " << CsI->Number << endl;	    
+    }
+
  // L->Log<<"Thick : "<<energytree->thick<<" "<<"Det. Nb. : "<<Si->Number<<endl;
   
  //energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);	//Apply the calibration parameters for the Si and the CsI
@@ -121,12 +128,19 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 	    { 
 	      CsIRaw = int(CsI->E_Raw[j]);
 	      SiRaw = int(Si->E_Raw[y]);
-	      L->Log<<"CsIRaw	= "<<CsIRaw<<endl;
-	      L->Log<<"SiRaw	= "<<SiRaw<<endl;
+
+          if(logLevel >= LOG_NORMAL){
+	        L->Log << "CsIRaw: " << CsIRaw << endl;
+	        L->Log << "SiRaw: " << SiRaw << endl;
+          }
 				
 		ESi = double(energytree->RetrieveEnergySi());				
-		L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
-		L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
+
+        if(logLevel >= LOG_NORMAL){
+		    L->Log << "name : " << energytree->kvid->GetName() << endl;
+		    L->Log << "Runs : " << energytree->kvid->GetRuns() << endl;
+        }
+
         KVList *grid_list = 0;
 	id = new KVIdentificationResult();
         char scope_name [256];
@@ -137,8 +151,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
             grid_list = (KVList*) gIDGridManager->GetGrids();
 
             if(grid_list == 0){
-                printf("Error: gIDGridManager->GetGrids() failed\n");
-
+                cout << "Error: gIDGridManager->GetGrids() failed" << endl;
             }else{
 
                 Int_t entries = (Int_t) grid_list->GetEntries();
@@ -190,14 +203,16 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 			AA = ARetreive[Z_PIDI];											
 			DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
 			DetSi = int(Si->Number)+1;	// Numérotation : (1-18)		
-			
-			L->Log<<"==========================="<<endl;		
-			L->Log<<"Z	= "<<PID<<endl;
-			L->Log<<"A	= "<<ARetreive[Z_PIDI]<<endl;
-			L->Log<<"Esi	= "<<float(SiRef[Z_PIDI])<<endl;
-			L->Log<<"Ecsi	= "<<CsIsRef[Z_PIDI]<<endl;
-			L->Log<<"E tot	= "<<double(SiRef[Z_PIDI]+CsIsRef[Z_PIDI])<<endl;
-			L->Log<<"==========================="<<endl;			
+		
+            if(logLevel >= LOG_NORMAL){	
+			    L->Log << "===========================" << endl;		
+			    L->Log << "Z	= " << PID << endl;
+			    L->Log << "A	= " << ARetreive[Z_PIDI] << endl;
+			    L->Log << "Esi	= " << SiRef[Z_PIDI] << endl;
+			    L->Log << "Ecsi	= " << CsIsRef[Z_PIDI] << endl;
+			    L->Log << "Etot	= " << SiRef[Z_PIDI] + CsIsRef[Z_PIDI] << endl;
+			    L->Log << "===========================" << endl;			
+            }
                     }
                     
                 }else{  
@@ -212,8 +227,13 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 	    }
 	}
     }
-	
-  L->Log<<"Dr->E[0] : "<<Dr->E[0]<<" "<<"Dr->E[1] : "<<Dr->E[1]<<" "<<"Ic->ETotal : "<<Ic->ETotal<<endl;
+
+    if(logLevel == LOG_HIGH){
+        L->Log  << "Dr->E[0]: " << Dr->E[0] << " "
+                << "Dr->E[1]: " << Dr->E[1] << " "
+                << "Ic->ETotal: " << Ic->ETotal << endl;
+    }
+
   if(
      Dr->E[0] > 0 &&
      Dr->E[1] > 0 &&
@@ -230,9 +250,11 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 	E = dE1 + ESi + ECsI;		//Total energy (MeV)	dE1+ESi+ECsI
 	E *= 1.03;			//Correction for the different dead layers (about 3%)
 
-	L->Log<<"dE1	(MeV)= "<<dE1<<endl;
-	L->Log<<"E	(MeV)= "<<E<<endl;
-	L->Log<<"ESi	(MeV)= "<<ESi<<"	ECsI	(MeV)= "<<ECsI<<"	Ic	(MeV)= "<<dE1<<endl;
+    if(logLevel >= LOG_NORMAL){
+	    L->Log << "E(MeV): " << E << endl;
+	    L->Log << "ESi(MeV): " << ESi << " ECsI(MeV): " << ECsI << " Ic(MeV): "<< dE1 << endl;
+    }
+
     }
 
 /*
@@ -261,17 +283,20 @@ T = Si->Tfrag;
       
       Beta = V/29.9792458; 
       Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
-      
-      //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
-      L->Log<<"D	= "<<D<<"	V = "<<V<<"	Beta = "<<Beta<<"	D/T = "<<D/T<<endl;
-      //L->Log<<"diff	= "<<((Rec->DSI-Dr->FocalPos)/10)<<endl;
-      L->Log<<"TOF	= "<<T<<endl;
-      //L->Log<<"brho = "<<Rec->GetBrhoRef()<<"	angle = "<<Rec->GetAngleVamos()<<endl;
+
+      if(logLevel >= LOG_NORMAL){
+        L->Log << "D: " << D << " V: " << V << " Beta: " << Beta << " D/T: " << D/T << endl;
+        L->Log << "TOF: " << T << endl;
+      }
       
       V_Etot = 1.39*sqrt(E/AA);
-      L->Log<<"V_Etot	= "<<V_Etot<<endl;
       T_FP = ((Dr->FocalPos)/10.) / V_Etot;
-      L->Log<<"T_FP	= "<<T_FP<<endl;
+
+      if(logLevel >= LOG_NORMAL){
+        L->Log<<"V_Etot	= "<<V_Etot<<endl;
+        L->Log<<"T_FP	= "<<T_FP<<endl;
+      }
+
     }
 
   if(Beta>0 && Rec->Brho>0&&Gamma>1.&&Si->Present)
@@ -307,9 +332,11 @@ L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
     Z_si = (sqrt((dE1*E)/931.5016)*29.9792)/7;
     
 NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
-    
-L->Log<<"Z1 = "<<Z1<<" 		Z2 = "<<Z2<<endl;
-L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
+
+if(logLevel >= LOG_NORMAL){    
+    L->Log << "Z1: " << Z1 << " Z2: " << Z2 << endl;
+    L->Log << "Z_tot: " << Z_tot << " Z_si: " << Z_si << endl;
+}
   if( T > 0 && V > 0 && M_Q > 0 && M > 0 && Z1 > 0 && Z2 > 0 && Beta > 0 && Gamma > 1.0) 
     {
       Present=true;
@@ -322,6 +349,7 @@ L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
 void Identificationv::Treat(void)
 {
 
+    if(logLevel == LOG_HIGH)
     L->Log << "Identificationv::Treat()" << endl;
 
 #ifdef DEBUG
@@ -340,6 +368,7 @@ void Identificationv::Treat(void)
 void Identificationv::inAttach(TTree *inT)
 {
 
+    if(logLevel == LOG_HIGH)
     L->Log << " + Identificationv::inAttach(TTree* " << inT << ")" << endl;
 
 #ifdef DEBUG
@@ -359,7 +388,7 @@ void Identificationv::inAttach(TTree *inT)
 
 void Identificationv::outAttach(TTree *outT)
 {
-
+    if(logLevel == LOG_HIGH)
     L->Log << " + Identificationv::outAttach(TTree* " << outT << ")" << endl;
 
 #ifdef DEBUG

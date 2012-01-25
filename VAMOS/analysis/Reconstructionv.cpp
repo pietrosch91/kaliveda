@@ -31,6 +31,8 @@ Reconstructionv::Reconstructionv(LogFile *Log, DriftChamberv *Drift)
   int i,j;
 
   L = Log;
+  logLevel = LOG_NORMAL;
+
   Dr = Drift;
 
 
@@ -174,11 +176,13 @@ void Reconstructionv::PrintCounters(void)
   cout << "Called with Drift Present :" << Counter[1] << endl;
   cout << "Present :" << Counter[2] << endl;
 
-  L->Log << endl;
-  L->Log << "Reconstructionv::PrintCounters" << endl;
-  L->Log << "Called :" << Counter[0] << endl;
-  L->Log << "Called with Drift Present :" << Counter[1] << endl;
-  L->Log << "Present :" << Counter[2] << endl;
+  if(logLevel >= LOG_HIGH){
+    L->Log << endl;
+    L->Log << "[Reconstructionv] Reconstructionv::PrintCounters" << endl;
+    L->Log << "[Reconstructionv] Called :" << Counter[0] << endl;
+    L->Log << "[Reconstructionv] Called with Drift Present :" << Counter[1] << endl;
+    L->Log << "[Reconstructionv] Present :" << Counter[2] << endl;
+  }
 
 
 }
@@ -186,7 +190,9 @@ void Reconstructionv::PrintCounters(void)
 void Reconstructionv::Init(void)
 {
 
-L->Log << "Reconstructionv::Init()" << endl;
+if(logLevel >= LOG_HIGH)
+L->Log << "[Reconstructionv] Reconstructionv::Init()" << endl;
+
 #ifdef DEBUG
   cout << "Reconstructionv::Init" << endl;
 #endif
@@ -224,8 +230,8 @@ Double_t Reconstructionv::GetAngleVamos(void)
 
 void Reconstructionv::Calculate(void)
 {
-
-    L->Log << "Reconstructionv::Calculate()" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Reconstructionv] Reconstructionv::Calculate()" << endl;
 
 #ifdef DEBUG
   cout << "Reconstructionv::Calculate" << endl;
@@ -283,9 +289,13 @@ void Reconstructionv::Calculate(void)
 	      }
 	//L->Log << "Test brho	: "<< GetBrhoRef()<<endl;
 	//L->Log << "Test vamos	: "<< GetAngleVamos()<<endl;
-	L->Log<<"-----------"<<endl;
-	L->Log << "Brhot = "<< Brhot << " " << "Thetat = "<< Thetat << " " <<"Phit = "<< Phit <<" "<<"Patht = "<<Patht<<endl;
-	L->Log<<"-----------"<<endl;
+
+    if(logLevel >= LOG_NORMAL){
+	    L->Log << "[Reconstructionv] -----------"<<endl;
+	    L->Log << "[Reconstructionv] Brhot = "<< Brhot << " " << "Thetat = " << Thetat 
+                << " " << "Phit = " << Phit << " " << "Patht = " << Patht << endl;
+	    L->Log << "[Reconstructionv] -----------"<<endl;
+    }
   //  cout << i << " " << Dr->Xf/10. << " " << Dr->Tf << " " << Dr->Yf/10. << " " << Dr->Pf << endl; 
   if(Brhot >0.001 && Thetat > -300. && Thetat < 300. 
      && Phit > -300. && Phit < 300. && Patht >0 && Patht < 2000.)
@@ -305,10 +315,14 @@ void Reconstructionv::Calculate(void)
       PhiL = myVec.Phi();
       
             //cout << Brho << " " << Theta << " " << Phi << endl;
-	    L->Log<<"-----------"<<endl;
-	    L->Log << "Brho = "<< Brho << " " << "Theta = "<< Theta << " " <<"Phi = "<< Phi <<" "<<"Path = "<<Path<<endl;
-	    L->Log << "ThetaL = "<< ThetaL << " " <<"PhiL = "<< PhiL <<endl;
-	    L->Log<<"-----------"<<endl;
+
+        if(logLevel >= LOG_NORMAL){
+	        L->Log << "[Reconstructionv] -----------"<<endl;
+	        L->Log << "[Reconstructionv] Brho = " << Brho << " " << "Theta = "<< Theta 
+                    << " " << "Phi = " << Phi << " " << "Path = " << Path << endl;
+	        L->Log << "[Reconstructionv] ThetaL = "<< ThetaL << " " << "PhiL = " << PhiL << endl;
+	        L->Log << "[Reconstructionv] -----------" <<endl;
+        }
     } 
 
 }
@@ -316,7 +330,9 @@ void Reconstructionv::Calculate(void)
 
 void Reconstructionv::Treat(void)
 {
-    L->Log << "Reconstructionv::Treat()" << endl;
+
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Reconstructionv] Reconstructionv::Treat()" << endl;
 
 #ifdef DEBUG
   cout << "Reconstructionv::Treat" << endl;
@@ -338,8 +354,8 @@ void Reconstructionv::Treat(void)
 
 void Reconstructionv::outAttach(TTree *outT)
 {
-
-    L->Log << " + Reconstructionv::outAttach(TTree* " << outT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Reconstructionv] Reconstructionv::outAttach(TTree* " << outT << ")" << endl;
 
 #ifdef DEBUG
   cout << "Reconstructionv::outAttach " << endl;

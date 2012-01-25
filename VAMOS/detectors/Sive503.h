@@ -12,7 +12,8 @@
 
 class Sive503
 {
-   Bool_t Ready;
+    Bool_t Ready;
+    int logLevel;
    
  public:
   Sive503(LogFile *Log);
@@ -72,6 +73,9 @@ class Sive503
 
   //Counters
   Int_t Counter[2];
+
+  void SetLogLevel(int level){logLevel = level;};
+  int GetLogLevel(){return logLevel;};
 
   //ClassDef(Sive503,1)
 };

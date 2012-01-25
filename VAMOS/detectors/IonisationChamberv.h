@@ -10,6 +10,8 @@
 class IonisationChamberv
 {
    Bool_t Ready;
+   int logLevel;
+
  public:
   IonisationChamberv(LogFile *LOg);
   virtual ~IonisationChamberv(void);
@@ -59,6 +61,9 @@ class IonisationChamberv
   Int_t Counter[5];
 
   ClassDef(IonisationChamberv,0)
+
+    void SetLogLevel(int level){logLevel = level;};
+    int GetLogLevel(){return logLevel;};
 };
 
 #endif

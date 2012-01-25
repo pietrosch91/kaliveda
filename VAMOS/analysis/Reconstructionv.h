@@ -10,6 +10,8 @@
 class Reconstructionv
 {
    Bool_t Ready;
+    int logLevel;
+
  public:
   Reconstructionv(LogFile *Log, DriftChamberv *Drift);
   virtual ~Reconstructionv(void);
@@ -62,6 +64,9 @@ class Reconstructionv
 
   //Counters
   Int_t Counter[6];
+
+    void SetLogLevel(int level){logLevel = level;};
+    int GetLogLevel(){return logLevel;};
 
 ClassDef(Reconstructionv,0)
 

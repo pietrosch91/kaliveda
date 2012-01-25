@@ -23,6 +23,7 @@
 
 class Identificationv
 {
+    int logLevel;
  public:
   Identificationv(LogFile *Log, Reconstructionv *Recon,
 		  DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, EnergyTree *E);
@@ -156,7 +157,10 @@ Int_t runFlag;
   //Counters
   Int_t Counter[6];
 
-    Bool_t kHasGrids;
+  Bool_t kHasGrids;
+
+  void SetLogLevel(int level){logLevel = level;};
+  int GetLogLevel(){return logLevel;};
 
 ClassDef(Identificationv,0)
 

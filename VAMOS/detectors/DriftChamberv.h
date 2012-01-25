@@ -5,12 +5,16 @@
 #include"Defines.h"
 #include"LogFile.h"
 #include"Random.h"
- #include "Sive503.h"
+#include "Sive503.h"
 #include "TH2.h"
+
+//enum LogSuppresion{LOG_NONE, LOG_NORMAL, LOG_HIGH}; 
 
 class DriftChamberv
 {
-   Bool_t Ready;
+    Bool_t Ready;
+    int logLevel;
+
  public:
   DriftChamberv(LogFile *Log, Sive503 *SiD);
   virtual ~DriftChamberv(void);
@@ -119,6 +123,9 @@ class DriftChamberv
   Float_t tRef[2];
   Float_t tProperElastic[2];
   Float_t tFrag;
+
+    void SetLogLevel(int level){logLevel= level;};
+    int GetLogLevel(){return logLevel;};
 
   ClassDef(DriftChamberv,0)
 

@@ -35,6 +35,8 @@ Sive503::Sive503(LogFile *Log)
   for(i=0;i<2;i++)
     Counter[i] = 0;
 
+  logLevel = LOG_NORMAL;
+
   InitRaw();
   Init();
 
@@ -171,25 +173,28 @@ delete Rnd;
 void Sive503::PrintCounters(void)
 {
 #ifdef DEBUG
-  cout << "Si::PrintCounters" << endl;
+  cout << "Sive503::PrintCounters()" << endl;
 #endif
   
   cout << endl;
-  cout << "Si::PrintCounters" << endl;
+  cout << "Sive503::PrintCounters()" << endl;
   cout << "Called: " << Counter[0] << endl;
   cout << "Present: " << Counter[1] << endl;
-  
-  L->Log << endl;
-  L->Log << "Si::PrintCounters" << endl;
-  L->Log << "Called: " << Counter[0] << endl;
-  L->Log << "Present: " << Counter[1] << endl;
+
+  if(logLevel >= LOG_HIGH){
+    L->Log << endl;
+    L->Log << "[Sive503] Sive503::PrintCounters()" << endl;
+    L->Log << "[Sive503] Called: " << Counter[0] << endl;
+    L->Log << "[Sive503] Present: " << Counter[1] << endl;
+  }
 
 }
 
 
 void Sive503::InitRaw(void)
 {
-    L->Log << "Sive503::InitRaw()" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Sive503] Sive503::InitRaw()" << endl;
 
 #ifdef DEBUG
   cout << "Si::InitRaw" << endl;
@@ -210,7 +215,9 @@ void Sive503::InitRaw(void)
 
 void Sive503::Init(void)
 {
-    L->Log << "Sive503::Init()" << endl;
+
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Sive503] Sive503::Init()" << endl;
 
 #ifdef DEBUG
   cout << "Sive503::Init" << endl;
@@ -240,7 +247,8 @@ void Sive503::Init(void)
 void Sive503::Calibrate(void)
 {
 
-    L->Log << "Sive503::Calibrate()" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Sive503] Sive503::Calibrate()" << endl;
 
   Int_t i,j,k;
 
@@ -261,7 +269,9 @@ void Sive503::Calibrate(void)
 	    	//cout << i << " " << j << " " <<TCoef[i][j] << endl;
 	  //}
     }
-  	L->Log << "T_Raw[0] : " << T_Raw[0] << " " << "T[0] : " << T[0] << endl;
+    
+    if(logLevel >= LOG_NORMAL)
+  	L->Log << "[Sive503] T_Raw[0] : " << T_Raw[0] << " " << "T[0] : " << T[0] << endl;
 	//L->Log<<"TCoef[0][1] : "<<TCoef[0][1]<<" "<<"TCoef[0][2] : "<<TCoef[0][2]<<" "<<"TCoef[0][3] : "<<TCoef[0][3]<<" "<<"TCoef[0][4] : "<<TCoef[0][4]<<endl;
 
   for(i=0;i<E_RawM;i++)
@@ -287,14 +297,18 @@ void Sive503::Calibrate(void)
 		 
 	    Number = E_Raw_Nr[i];
 	    
-	    //T[0]+= TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
-	    //Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
-	    timeRefCheck = 114.973 - (Float_t)Tpropre_el[E_Raw_Nr[i]];   // Should be narrow
-        Tfrag = 25.023 + Tpropre_el[E_Raw_Nr[i]]; // Main peak offset
-	    
-	    L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     
-        L->Log << "timeRefCheck: " << timeRefCheck << endl;
-	    L->Log<<"thick = "<<si_thick[E_Raw_Nr[i]]<<endl;
+	    //T[0] += TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
+	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
+	    timeRefCheck = 114.973 - (Float_t)Tpropre_el[E_Raw_Nr[i]];   // Should be narrow (expected - observed)
+	   
+        if(logLevel >= LOG_NORMAL){
+	        L->Log<<"[Sive503] TRef : " << TRef[E_Raw_Nr[i]] << " Tpropre_el : " << Tpropre_el[E_Raw_Nr[i]]
+                            << " Tpropre_frag : " << T[0] << endl;	     
+            L->Log << "[Sive503] tFrag: " << Tfrag << endl;
+            L->Log << "[Sive503] timeRefCheck: " << timeRefCheck << endl;
+	        L->Log<<"[Sive503] thick = "<<si_thick[E_Raw_Nr[i]]<<endl;
+        }
+
 	    EM++;
 	  }
       }
@@ -318,7 +332,9 @@ void Sive503::Calibrate(void)
 
 void Sive503::Treat(void)
 {
-    L->Log << "Sive503::Treat()" << endl;
+
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Sive503] Sive503::Treat()" << endl;
 
 #ifdef DEBUG
   cout << "Sive503::Treat" << endl;
@@ -337,7 +353,9 @@ void Sive503::Treat(void)
 void Sive503::inAttach(TTree *inT)
 {
 
-    L->Log << " + Sive503::inAttach(TTree* " << inT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Sive503] Sive503::inAttach(TTree* " << inT << ")" << endl;
+
 #ifdef DEBUG
   cout << "Si::inAttach" << endl;
 #endif
@@ -358,8 +376,6 @@ void Sive503::inAttach(TTree *inT)
   inT->SetBranchStatus("TSI_SED",1);
   inT->SetBranchStatus("TSED_HF",1);
 
-  
-
 #endif
 
   inT->SetBranchAddress("SIEM",&E_RawM);
@@ -373,8 +389,8 @@ void Sive503::inAttach(TTree *inT)
 }
 void Sive503::outAttach(TTree *outT)
 {
-
-    L->Log << " + Sive503::outAttach(TTree* " << outT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[Sive503] Sive503::outAttach(TTree* " << outT << ")" << endl;
 
 #ifdef DEBUG
   cout << "Si::inAttach" << endl;

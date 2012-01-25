@@ -37,6 +37,8 @@ DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
     for(j=0;j<5;j++)
       Counter1[i][j] = 0;
 
+  logLevel = LOG_NORMAL;
+
   InitRaw();
   Zero();
 
@@ -44,10 +46,7 @@ DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
   
   NStrips = 3;
   cout << "Number of considered strips: " << NStrips << endl;
-
-  L->Log << "Number of considered strips: " << NStrips << endl;
-
-  
+  L->Log << "[DriftChamberv] Number of considered strips: " << NStrips << endl;
 
   ifstream inf1;
   if(!gDataSet->OpenDataSetFile("DriftChamberRef.cal",inf1))
@@ -59,7 +58,7 @@ DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
     {
       cout.setf(ios::showpoint);
       cout << "Reading DriftChamberRef.cal" << endl;
-      L->Log << "Reading DriftChamberRef.cal" << endl;
+      L->Log << "[DriftChamberv] Reading DriftChamberRef.cal" << endl;
       inf1.getline(line,len);
       cout << line << endl;
       L->Log << line << endl;
@@ -142,7 +141,7 @@ DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
     {
       cout.setf(ios::showpoint);
       cout << "Reading DriftChamber.cal" << endl;
-      L->Log << "Reading DriftChamber.cal" << endl;
+      L->Log << "[DriftChamberv] Reading DriftChamber.cal" << endl;
 
 
       inf.getline(line,len);
@@ -231,39 +230,44 @@ void DriftChamberv::PrintCounters(void)
 
 
   L->Log << endl;
-  L->Log << "DriftChamberv::PrintCounters" << endl;
-  L->Log << "Called: " << Counter[0] << endl;
-  L->Log << "E1: " << Counter[1] << endl;
-  L->Log << "E2: " << Counter[2] << endl;
-  L->Log << "T1: " << Counter[3] << endl;
-  L->Log << "T2: " << Counter[4] << endl;
-  L->Log << "PresentWires: " << Counter[5] << endl;
-  L->Log << "STRIP Mult >= " << NStrips << endl;
+  L->Log << "[DriftChamberv] DriftChamberv::PrintCounters" << endl;
+  L->Log << "[DriftChamberv] Called: " << Counter[0] << endl;
+  L->Log << "[DriftChamberv] E1: " << Counter[1] << endl;
+  L->Log << "[DriftChamberv] E2: " << Counter[2] << endl;
+  L->Log << "[DriftChamberv] T1: " << Counter[3] << endl;
+  L->Log << "[DriftChamberv] T2: " << Counter[4] << endl;
+  L->Log << "[DriftChamberv] PresentWires: " << Counter[5] << endl;
+  L->Log << "[DriftChamberv] STRIP Mult >= " << NStrips << endl;
+  L->Log << "[DriftChamberv] ";  
   for(i=0;i<4;i++)
     L->Log << Counter1[i][0] << " ";
   L->Log << endl;
-  L->Log << "PresentStrips: " << Counter[6] << endl;
-  L->Log << "X: Sequence Hiperbolique" << endl;
+  L->Log << "[DriftChamberv] PresentStrips: " << Counter[6] << endl;
+  L->Log << "[DriftChamberv] X: Sequence Hiperbolique" << endl;
+  L->Log << "[DriftChamberv] ";  
   for(i=0;i<4;i++)
     L->Log << Counter1[i][1] << " ";
   L->Log << endl;
-  L->Log << "X: Weighted Average" << endl;
+  L->Log << "[DriftChamberv] X: Weighted Average" << endl;
+  L->Log << "[DriftChamberv] ";  
   for(i=0;i<4;i++)
     L->Log << Counter1[i][2] << " ";
   L->Log << endl;
-  L->Log << "X: MultiplePeak" << endl;
+  L->Log << "[DriftChamberv] X: MultiplePeak" << endl;
+  L->Log << "[DriftChamberv] ";  
   for(i=0;i<4;i++)
     L->Log << Counter1[i][3] << " ";
   L->Log << endl;
-  L->Log << "PresentSubseqX: " << Counter[7] << endl;
-  L->Log << "Y: " << endl;
+  L->Log << "[DriftChamberv] PresentSubseqX: " << Counter[7] << endl;
+  L->Log << "[DriftChamberv] Y: " << endl;
+  L->Log << "[DriftChamberv] ";  
   for(i=0;i<2;i++)
     L->Log << Counter1[i][4] << " ";
   L->Log << endl;
-  L->Log << "PresentSubseqY: " << Counter[8] << endl;
-  L->Log << "Xf: " << Counter[10] << " Tf: " << Counter[9] <<
+  L->Log << "[DriftChamberv] PresentSubseqY: " << Counter[8] << endl;
+  L->Log << "[DriftChamberv] Xf: " << Counter[10] << " Tf: " << Counter[9] <<
     " Yf: " << Counter[12] << " Pf: " << Counter[11] << endl;
-  L->Log << "Present: " << Counter[13] << endl; 
+  L->Log << "[DriftChamberv] Present: " << Counter[13] << endl; 
 
 }
 
@@ -302,7 +306,10 @@ void DriftChamberv::SetMatX(void)
 
 
   Det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
-	L->Log<<"Déterminant SetMatX"<<Det<<endl;
+
+    if(logLevel >= LOG_HIGH)
+	L->Log << "[DriftChamberv] Déterminant SetMatX "<< Det << endl;
+
   if(Det == 0.0)
     {
       cout << "DriftChamberv::SetMatX: Det == 0 !" << endl;
@@ -315,8 +322,11 @@ void DriftChamberv::SetMatX(void)
       MatX[1][0] = -1.0*A[0][1]/Det;
       MatX[0][1] = -1.0*A[1][0]/Det;
    }
-   
-   L->Log<<"Det = "<<Det<<" "<<"MatX : "<<MatX[0][0]<<" "<<MatX[1][1]<<" "<<MatX[1][0]<<" "<<MatX[0][1]<<endl;
+
+    if(logLevel >= LOG_HIGH){
+        L->Log << "[DriftChamberv] Det = " << Det << " " << "MatX : " 
+                << MatX[0][0] << " " << MatX[1][1] << " " << MatX[1][0] << " " << MatX[0][1] << endl;
+    }
 
 }
 
@@ -360,8 +370,11 @@ void DriftChamberv::SetMatY(void)
       MatY[0][1] = -1.0*A[1][0]/Det;
       MatY[1][0] = -1.0*A[0][1]/Det;
    }
-
-   L->Log<<"Det = "<<Det<<" "<<"MatY : "<<MatY[0][0]<<" "<<MatY[1][1]<<" "<<MatY[1][0]<<" "<<MatY[0][1]<<endl;
+    
+    if(logLevel >= LOG_HIGH){
+        L->Log << "Det = " << Det << " " << "MatY : "
+                << MatY[0][0] << " " << MatY[1][1] << " " << MatY[1][0] << " " << MatY[0][1] << endl;
+    }
 }
 
 
@@ -391,7 +404,6 @@ void DriftChamberv::Zero(void)
 
 void DriftChamberv::InitRaw(void)
 {
-    L->Log << "DriftChamberv::InitRaw()" << endl;
 
 #ifdef DEBUG
   cout << "DriftChamberv::InitRaw" << endl;
@@ -411,8 +423,6 @@ void DriftChamberv::InitRaw(void)
 
 void DriftChamberv::Init(void)
 {
-
-    L->Log << "DriftChamberv::Init()" << endl;
 
     tFrag = -1.;
     tRef[0] = -1.;
@@ -438,7 +448,9 @@ void DriftChamberv::Init(void)
 void DriftChamberv::Calibrate(void)
 {
 
-    L->Log << "DriftChamberv::Calibrate()" << endl;
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::Calibrate()" << endl;
+    }
 
 #ifdef DEBUG
   cout << "DriftChamberv::Calibrate" << endl;
@@ -446,8 +458,10 @@ void DriftChamberv::Calibrate(void)
   
   Int_t i,j,k;
   Float_t QTmp;
-    L->Log<<"E_raw : "<<E_Raw[0]<<" "<<E_Raw[1]<<endl;
-    L->Log<<"T_raw : "<<T_Raw[0]<<" "<<T_Raw[1]<<endl;
+    if(logLevel >= LOG_NORMAL){
+        L->Log << "[DriftChamberv] E_raw: " << E_Raw[0] << " " << E_Raw[1] << endl;
+        L->Log << "[DriftChamberv] T_raw: " << T_Raw[0] << " " << T_Raw[1] << endl;
+    }
   for(i=0;i<2;i++)
     if(E_Raw[i]>0)
       {
@@ -468,7 +482,9 @@ void DriftChamberv::Calibrate(void)
 
 	    T[i] += powf((Float_t) T_Raw[i] + Rnd->Value(),
 		        (Float_t) j)*TCoef[i][j];
-        L->Log << "DCTWire" << i+1 << "[" << j+1 <<  "](Proper)" << ": " << T[i] << " ns" << endl;
+        if(logLevel >= LOG_NORMAL){
+            L->Log << "[DriftChamberv] DCTWire" << i+1 << "[" << j+1 <<  "](Proper)" << ": " << T[i] << " ns" << endl;
+        }
 
     }
 	//	cout << i << " " << T[i] << " " << T_Raw[i] << endl;
@@ -493,13 +509,17 @@ void DriftChamberv::Calibrate(void)
     for(i=0; i<2; i++){
 
         tFrag = tRef[i] + tProperElastic[i] - T[i];
-        L->Log << "[DC" << i+1 << "] tRef: " << tRef[i] << " tProperElastic: " << tProperElastic[i] 
-                << " tProper: " << T[i] << " tFrag: " << tFrag << endl;
+        if(logLevel >= LOG_NORMAL){
+            L->Log << "[DriftChamberv] [DC" << i+1 << "] tRef: " << tRef[i] << " tProperElastic: " << tProperElastic[i] 
+                    << " tProper: " << T[i] << " tFrag: " << tFrag << endl;
+        }
         T[i] = tFrag;
         //L->Log << "DCTWire" << i+1 << ": " << T[i] << " ns" << endl;
     }
 
-    L->Log << "Delta(DcTWire): " << T[1] - T[0] << endl;
+    if(logLevel >= LOG_NORMAL){
+        L->Log << "[DriftChamberv] Delta(DcTWire): " << T[1] - T[0] << endl;
+    }
 
      //for(int i=0; i<2; i++){
      //   if(i==0) T[i] += dct1Offset;
@@ -581,6 +601,10 @@ void DriftChamberv::Calibrate(void)
 
 void DriftChamberv::Focal(void)
 {
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::Focal()" << endl;
+    }
+
 #ifdef DEBUG
   cout << "DriftChamberv::Focal" << endl;
 #endif
@@ -608,6 +632,10 @@ void DriftChamberv::Focal(void)
 }
 void DriftChamberv::FocalSubseqX(void)
 {
+
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::FocalSubseqX()" << endl;
+    }
 
   Int_t i,j,k;
   Float_t QTmp[64];
@@ -795,6 +823,10 @@ void DriftChamberv::FocalSubseqX(void)
 
 void DriftChamberv::FocalSubseqY(void)
 {
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::FocalSubseqY()" << endl;
+    }
+
   Int_t i;
 
 #ifdef DEBUG
@@ -830,6 +862,10 @@ void DriftChamberv::FocalSubseqY(void)
 
 void DriftChamberv::FocalX(void)
 {
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::FocalX()" << endl;
+    }
+
   Int_t i;
   Double_t A[2];
   Double_t B[2];
@@ -872,6 +908,11 @@ void DriftChamberv::FocalX(void)
 }
 void DriftChamberv::FocalY(void)
 {
+
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::FocalY()" << endl;
+    }
+
   Int_t i;
   Float_t A[2];
   Float_t B[2];
@@ -912,6 +953,10 @@ void DriftChamberv::FocalY(void)
 
 void DriftChamberv::Treat(void)
 {
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::Treat()" << endl;
+    }
+
 #ifdef DEBUG
   cout << "DriftChamberv::Treat" << endl;
 #endif
@@ -934,7 +979,9 @@ void DriftChamberv::Treat(void)
 void DriftChamberv::inAttach(TTree *inT)
 {
 
-    L->Log << " + DriftChamberv::inAttach(TTree* " << inT << ")" << endl;
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::inAttach(TTree* " << inT << ")" << endl;
+    }
 
 #ifdef DEBUG
   cout << "DriftChamberv::inAttach " << endl;
@@ -987,7 +1034,10 @@ void DriftChamberv::inAttach(TTree *inT)
 }
 void DriftChamberv::outAttach(TTree *outT)
 {
-    L->Log << " + DriftChamberv::outAttach(TTree* " << outT << ")" << endl;
+
+    if(logLevel == LOG_HIGH){
+        L->Log << "[DriftChamberv] DriftChamberv::outAttach(TTree* " << outT << ")" << endl;
+    }
 
 #ifdef DEBUG
   cout << "DriftChamberv::outAttach " << endl;
@@ -1118,3 +1168,4 @@ void DriftChamberv::Show(void)
       Xf << " " << Tf << " " <<
       Yf << " " << Pf << endl;
 }
+

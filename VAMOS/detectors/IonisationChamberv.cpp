@@ -29,6 +29,7 @@ IonisationChamberv::IonisationChamberv(LogFile *Log)
   Float_t tmp1;
 
   L=Log;
+  logLevel = LOG_NORMAL;
 
   for(i=0;i<5;i++)
     Counter[i] = 0;
@@ -134,13 +135,14 @@ void IonisationChamberv::PrintCounters(void)
     cout << "E" << i << ": " << Counter[i+1] << endl;
   cout << "Present: " << Counter[4] << endl;
 
-  
-  L->Log << endl;
-  L->Log << "IonisationChamberv::PrintCounters" << endl;
-  L->Log << "Called: " << Counter[0] << endl;
-  for(Int_t i=0;i<3;i++)
-    L->Log << "E" << i << ": " << Counter[1] << endl;
-  L->Log << "Present: " << Counter[4] << endl;
+  if(logLevel >= LOG_HIGH){ 
+    L->Log << endl;
+    L->Log << "[IonisationChamberv] IonisationChamberv::PrintCounters" << endl;
+    L->Log << "[IonisationChamberv] Called: " << Counter[0] << endl;
+    for(Int_t i=0;i<3;i++)
+        L->Log << "[IonisationChamberv] E" << i << ": " << Counter[1] << endl;
+    L->Log << "[IonisationChamberv] Present: " << Counter[4] << endl;
+  }
 
 }
 
@@ -162,7 +164,9 @@ void IonisationChamberv::InitRaw(void)
 
 void IonisationChamberv::Init(void)
 {
-    L->Log << "IonisationChamberv::Init()" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[IonisationChamberv] IonisationChamberv::Init()" << endl;
+
 #ifdef DEBUG
   cout << "IonisationChamberv::Init" << endl;
 #endif
@@ -187,7 +191,8 @@ void IonisationChamberv::Init(void)
 void IonisationChamberv::Calibrate(void)
 {
 
-    L->Log << "IonisationChamberv::Calibrate()" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[IonisationChamberv] IonisationChamberv::Calibrate()" << endl;
 
   Int_t i,k;
 
@@ -251,7 +256,9 @@ void IonisationChamberv::Calibrate(void)
 
 void IonisationChamberv::Treat(void)
 {
-    L->Log << "IonisationChamberv::Treat()" << endl;
+
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[IonisationChamberv] IonisationChamberv::Treat()" << endl;
 
 #ifdef DEBUG
   cout << "IonisationChamberv::Treat" << endl;
@@ -269,7 +276,8 @@ void IonisationChamberv::Treat(void)
 void IonisationChamberv::inAttach(TTree *inT)
 {
 
-    L->Log << " + IonisationChamberv::inAttach(TTree* " << inT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[IonisationChamberv] IonisationChamberv::inAttach(TTree* " << inT << ")" << endl;
 
 #ifdef DEBUG
   cout << "IonisationChamberv::inAttach" << endl;
@@ -297,7 +305,8 @@ void IonisationChamberv::inAttach(TTree *inT)
 void IonisationChamberv::outAttach(TTree *outT)
 {
 
-    L->Log << " + IonisationChamberv::outAttach(TTree* " << outT << ")" << endl;
+    if(logLevel >= LOG_HIGH)
+    L->Log << "[IonisationChamberv] IonisationChamberv::outAttach(TTree* " << outT << ")" << endl;
 
 #ifdef DEBUG
   cout << "IonisationChamberv::outAttach" << endl;
