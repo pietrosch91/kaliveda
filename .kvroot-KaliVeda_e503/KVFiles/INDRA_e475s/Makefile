@@ -1,2 +1,0 @@
-$(KVROOT)/db/INDRA_e475s/DataBase.root : ChIoPressures.dat E475s_calibration_file.list E475s_calibration_file_CIPG.dat E475s_calibration_file_CSILumTot.dat E475s_calibration_file_SIPG.dat E475s_pedestal_file.list E475s_pedestal_file_CI.dat E475s_pedestal_file_CSI.dat E475s_pedestal_file_SI.dat IDGridManager_E475s_CI_CSI.dat IDGridManager_E475s_CI_SI.dat IDGridManager_E475s_CSI_RL.dat IDGridManager_E475s_SI_CSI.dat Runlist.csv Systems.dat detailed_idcalib detailed_ped
-	@echo Database needs update

@@ -1,5 +1,0 @@
-#define BZR_REVISION_ID "pwigg@ccage028-20120109145427-qfzofixhzdo94lh1" 
-#define BZR_REVISION_DATE "2012-01-09 15:54:27 +0100" 
-#define BZR_REVISION_NUMBER 365
-#define BZR_BRANCH_NICK "KaliVeda_e503" 
-#define BZR_BRANCH_IS_CLEAN 0
