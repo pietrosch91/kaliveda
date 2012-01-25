@@ -78,7 +78,7 @@ void KVGELogReader::ReadKVCPU(TString & line)
    TObjArray* toks = line.Tokenize("= ");
    Int_t ntoks = toks->GetEntries();
    for(int i=0; i<ntoks; i++){
-      TString token = ((TObjString*)toks->At(i))->String();
+      KVString token = ((TObjString*)toks->At(i))->String();
       if(token=="CpuUser"){
          fCPUused = ((TObjString*)toks->At(i+1))->String().Atof();
       }
@@ -88,9 +88,7 @@ void KVGELogReader::ReadKVCPU(TString & line)
       }
       else if(token=="DiskUsed"){
          token = ((TObjString*)toks->At(i+1))->String();
-         TString units = token[token.Length()-1];
-         token.Remove(token.Length()-1);
-         fScratchKB=token.Atoi()*GetByteMultiplier(units);
+         fScratchKB=ReadStorage(token);
       }
    }
 }
@@ -161,18 +159,25 @@ void KVGELogReader::ReadStatus(TString & line)
    delete toks;
 }
 
-Int_t KVGELogReader::ReadStorage(KVString & stor)
+Double_t KVGELogReader::ReadStorage(KVString & stor)
 {
    //'stor' is a string such as "200M", "3G" etc.
    //value returned is corresponding storage space in KB
+   //if no units symbol found, we assume MB (as output of 'du -h')
+   
    static const Char_t *units[] = { "K", "M", "G" };
    Int_t i = 0, index = -1;
    while ((index = stor.Index(units[i])) < 0 && i < 2)
       i++;
-   if (index < 0)
-      return 0;
-   stor.Remove(index);
-   TString u(units[i]);
-   return (stor.Atoi() * GetByteMultiplier(u));
+   TString u;
+   if (index >= 0){
+      stor.Remove(index);
+      u=units[i];
+   }
+   else
+   {
+      u="M";
+   }
+   return (stor.Atof() * GetByteMultiplier(u));
 }
 

@@ -32,7 +32,7 @@ class KVLogReader {
    virtual void ReadMemUsed(TString & line)=0;
    virtual void ReadStatus(TString & line)=0;
    void ReadJobname(TString & line);
-   virtual Int_t ReadStorage(KVString & stor)=0;
+   virtual Double_t ReadStorage(KVString & stor)=0;
 
  public:
 

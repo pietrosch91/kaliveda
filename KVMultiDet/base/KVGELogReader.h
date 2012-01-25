@@ -14,7 +14,7 @@ class KVGELogReader : public KVLogReader
    virtual void ReadScratchUsed(TString & line);
    virtual void ReadMemUsed(TString & line);
    virtual void ReadStatus(TString & line);
-   virtual Int_t ReadStorage(KVString & stor);
+   virtual Double_t ReadStorage(KVString & stor);
    virtual void ReadKVCPU(TString & line);
 	Bool_t fileCopiedtoSRB;
 	
