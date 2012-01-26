@@ -41,72 +41,51 @@ class KVMultiDetArray;
 
 class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
 
-        Double_t param0;
-        Double_t param1;
-        Double_t param2;
-    
         KVTGID *tgid;
         
-        KVSilicon* fSi;//!the silicon
-        KVCsI* fCsI;//!the csi
+        KVSilicon* fSi;
+        KVCsI* fCsI;
 
-        Double_t fCsIRPedestal;//!CsI Rapide pedestal for current run
-        Double_t fCsILPedestal;//!CsI Lente pedestal for current run
+        Double_t fCsILight;
+        Double_t fCsIRPedestal;
+        Double_t fCsILPedestal;
 
-        Double_t fSiPGPedestal;//!Silicon PG pedestal for current run
-        Double_t fSiGGPedestal;//!Silicon GG pedestal for current run
-
-        
+        Double_t fSiCorr;
+        Double_t fSiPG;
+        Double_t fSiGG;
+        Double_t fSiPGPedestal;
+        Double_t fSiGGPedestal;
 
     public:
 
-        enum {                       //identification status subcodes
-            kZOK_AnoTGID,             //Z id OK, mass ID attempted but no KVTGIDZA found
-            kZOK_AOutOfIDRange,       //Z id OK, mass ID attempted but point to identify outside of identification range of KVTGIDZA
-            kZOK_A_ZtooSmall,         //Z id ok, mass ID attempted but Z passed to IdentA too small (<1)
-            kZOK_A_ZtooLarge,         //Z id ok, mass ID attempted but Z passed to IdentA larger than max Z defined by KVTGIDZA
-        };
-
-        KVIDSiCorrCsI() {
-
-            fSi = 0;
-            fCsI = 0;
-            SetLabel("KVIDSiCorrCsI");
-            //SetType("KVIDSiCorrCsI");
-
-        };
-        
-        virtual ~ KVIDSiCorrCsI() {
-        };
-
-        virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
-
-        void Print(Option_t *opt = "") const;
-
-        virtual Double_t GetIDMapX(Option_t *opt = "");
-        virtual Double_t GetIDMapY(Option_t *opt = "");
-
-        const Char_t *GetIDSubCodeString(KVIDSubCode &concat) const;
-
-        virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
-        virtual Bool_t SetSiCorrelationParameters(const KVMultiDetArray*);
-        virtual void RemoveIdentificationParameters();
-
-        //void PrintFitParameters(const KVMultiDetArray *MDA);
-        void PrintFitParameters();
-        void PrintSiCorrelationParameters();
-
-        void AddParamsToTelescope(Double_t par0, Double_t par1, Double_t par2){
-            param0 = par0;
-            param1 = par1;
-            param2 = par2;
-        }
-
-        Double_t GetSiCorrParam(Int_t npar);
+        KVIDSiCorrCsI(){};
+        virtual ~KVIDSiCorrCsI(){};
 
         virtual void Initialize();
 
-    ClassDef(KVIDSiCorrCsI, 2)  
+        virtual Double_t GetIDMapX(Option_t *opt = ""); 
+        virtual Double_t GetIDMapY(Option_t *opt = "");
+
+        virtual Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
+
+        virtual Bool_t SetIdentificationParameters(const KVMultiDetArray*);
+        virtual void RemoveIdentificationParameters();
+
+        void PrintFitParameters();
+
+        // Methods to check the pedestals etc.
+
+        Double_t GetCsILight(){return fCsILight;};
+        Double_t GetCsIRPedestal(){return fCsIRPedestal;};
+        Double_t GetCsILPedestal(){return fCsILPedestal;};
+
+        Double_t GetSiCorr(){return fSiCorr;};
+        Double_t GetSiGG(){return fSiGG;};
+        Double_t GetSiPG(){return fSiPG;};
+        Double_t GetSiGGPedestal(){return fSiGGPedestal;};
+        Double_t GetSiPGPedestal(){return fSiPGPedestal;};
+
+        ClassDef(KVIDSiCorrCsI, 2)  
 };
 
 #endif

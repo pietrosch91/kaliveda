@@ -18,24 +18,17 @@ ClassImp(KVIDChIoCorrCsI)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVIDChIoCorrCsI</h2>
-<h4>ChIo-CsI id with grids for INDRA_E503 and INDRA_E494s</h4>
+<h4>ChIo-CsI identification with grids for E503/E494s </h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoCorrCsI::KVIDChIoCorrCsI()
-{
-    // Default constructor
-
-    fGrid = 0;
-    fChIo = 0;
-    fCsI = 0;
+KVIDChIoCorrCsI::KVIDChIoCorrCsI() {
 
 }
 
-KVIDChIoCorrCsI::~KVIDChIoCorrCsI()
-{
-    // Destructor
+KVIDChIoCorrCsI::~KVIDChIoCorrCsI() {
+
 }
 
 //___________________________________________________________________________________________
@@ -44,16 +37,21 @@ void KVIDChIoCorrCsI::Initialize()
 {
     // Initialize telescope for current run.
 
-	fChIo = (KVChIo *) GetDetector(1);
+    fChIoCorr = -5.;
     fChIoGG = -5.;
     fChIoPG = -5.;
     fChIoGGPedestal = -5.;
     fChIoPGPedestal = -5.;
-    fChIoCorr = -5.;
 
-	fCsI = (KVCsI *) GetDetector(2);
-	fCsIRPedestal = fCsI->GetPedestal("R");
-	fCsILPedestal = fCsI->GetPedestal("L");
+    fCsILight = -5.;
+    fCsIRPedestal = -5.;
+    fCsILPedestal = -5.;
+
+	fChIo = 0;
+    fChIo = (KVChIo *) GetDetector(1);
+
+	fCsI = 0;
+    fCsI = (KVCsI *) GetDetector(2);
 
     fGrid = 0;
     fGrid = (KVIDZAGrid*) GetIDGrid();
@@ -65,65 +63,63 @@ void KVIDChIoCorrCsI::Initialize()
         SetBit(kReadyForID);
 
     }else{
+
         ResetBit(kReadyForID);
     }
 
 }
 
+//___________________________________________________________________________________________
 
-Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt)
-{
-    //Calculates current X coordinate for identification.
+Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt) {
+
     //'opt' has no effect.
 
-    Double_t h = (Double_t)fCsI->GetLumiereTotale();
+    fCsILight = fCsI->GetLumiereTotale();
 
-    return h;
+    return fCsILight;
 }
 
 //__________________________________________________________________________//
 
+Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *opt) {
 
-Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *)
-{
-    Double_t chIo = -5.;
+    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
+
+    fChIoCorr = -5.;
 
     if(fChIo != 0){
 
-        fChIoGG = fChIo->GetGG();
         fChIoPG = fChIo->GetPG();
         fChIoPGPedestal = fChIo->GetPedestal("PG");
+
+        fChIoGG = fChIo->GetGG();
         fChIoGGPedestal = fChIo->GetPedestal("GG");
 
-        /***********************
-            if(fChIoGG < 3900.){                 //No pedestal correction for chIoGG
-
-            // For ChIo correlation we don't subtract the pedestal for GG for E503/E494s
-            // (Manually set to zero)
-
-            fChIo->SetPedestal("GG", 0.); 
-            fChIoGGPedestal = fChIo->GetPedestal("GG"); //resets the value;
-
-            chIo = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
-
-        }else{
-        ************************/
-
-            chIo = fChIoPG - fChIoPGPedestal;
+        // Disabled for E503 - just returns fChIoPG - fChIoPGPedestal
+        //if(fChIoGG < 3900.){
+        //    fChIo->SetPedestal("GG", 0.);
+        //    fChIoGGPedestal = fChIo->GetPedestal("GG"); // Resets the stored value  
+        //
+        //    fChIoCorr = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
+        //
+        //}else{
+        //
+            fChIoCorr = fChIoPG - fChIoPGPedestal;
         //}
+    
+    }else{
 
+        return 10000.;
     }
 
-    fChIoCorr = chIo;
-
-    return chIo;
-
+    return fChIoCorr;
 }
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoCorrCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
-{
+Bool_t KVIDChIoCorrCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_t y) {
+
     idr->SetIDType(GetType());
     idr->IDattempted = kTRUE;
 	

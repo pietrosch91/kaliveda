@@ -28,11 +28,14 @@ class KVIDChIoSiCorr : public KVIDChIoSi
         KVSilicon *fSi;
 
         Double_t fChIoCorr;
-        Double_t fChIoGGPedestal;
-        Double_t fChIoPGPedestal;
         Double_t fChIoGG;
         Double_t fChIoPG;
+        Double_t fChIoGGPedestal;
+        Double_t fChIoPGPedestal;
 
+        Double_t fSiCorr;
+        Double_t fSiGG;
+        Double_t fSiPG;
         Double_t fSiPGPedestal;
         Double_t fSiGGPedestal;
 
@@ -49,6 +52,14 @@ class KVIDChIoSiCorr : public KVIDChIoSi
         Double_t GetIDMapY(Option_t * opt = "");
 
         Bool_t Identify(KVIdentificationResult * IDR, Double_t x, Double_t y);
+
+        // Methods to check the pedestals etc.
+
+        Double_t GetSiCorr(){return fSiCorr;};
+        Double_t GetSiGG(){return fSiGG;};
+        Double_t GetSiPG(){return fSiPG;};
+        Double_t GetSiGGPedestal(){return fSiGGPedestal;};
+        Double_t GetSiPGPedestal(){return fSiPGPedestal;};
 
         Double_t GetChIoCorr(){return fChIoCorr;};
         Double_t GetChIoGG(){return fChIoGG;};

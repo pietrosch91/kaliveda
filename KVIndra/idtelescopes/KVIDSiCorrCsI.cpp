@@ -28,17 +28,94 @@ ClassImp(KVIDSiCorrCsI)
 //
 // All of the grids were fitted using the LTG fit functional "fede" (10 fit parameters, extended functional, total light)
 
-// ID SUB-CODES:
+// ID SUB-CODES: (Standard KVTGIDManager Codes)
 // -------------
-//  9  KVIDSiCorrCsI::kZOK_AnoTGID       "Z ok, A identification tried but not available",
-// 10  KVIDSiCorrCsI::kZOK_AOutOfIDRange "Z ok, A identification tried but point to identify outside of identification range of function",
-// 11  KVIDSiCorrCsI::kZOK_A_ZtooSmall   "Z ok, A identification tried but IdentA called with Z<1",
-// 12  KVIDSiCorrCsI::kZOK_A_ZtooLarge   "Z ok, A identification tried but IdentA called with Z larger than max Z defined for KVTGIDZA isotopic identification object"
+// 0 KVTGIDManager::kStatus_OK            "ok",
+// 1 KVTGIDManager::kStatus_noTGID        "no KVTGID for requested identification",
+// 2 KVTGIDManager::kStatus_OutOfIDRange  "point to identify outside of identification range of function",
+// 3 KVTGIDManager::kStatus_ZtooSmall     "IdentA called with Z<1",
+// 4 KVTGIDManager::kStatus_ZtooLarge     "IdentA called with Z larger than max Z defined for KVTGIDZA isotopic identification object"
 /////////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y)
-{
+//__________________________________________________________________________//
+
+void KVIDSiCorrCsI::Initialize() {
+
+    // Initialisation of telescope before identification.
+    // This method MUST be called once before any identification is attempted.
+    // IsReadyForID() will return kTRUE if KVTGID objects are associated
+    // to this telescope for the current run.
+
+    fSi = 0;
+    fSi = (KVSilicon*)GetDetector(1);
+
+    fSiCorr = -5.;
+    fSiPG = -5.;
+    fSiGG = -5.;
+    fSiPGPedestal = -5.;
+    fSiGGPedestal = -5.;
+
+    fCsI = 0;
+    fCsI = (KVCsI*)GetDetector(2);
+    fCsILight = -5.;
+    fCsIRPedestal = -5.;
+    fCsILPedestal = -5.;
+
+    if(GetListOfIDFunctions().GetEntries()){
+        SetBit(kReadyForID);
+    }else{
+      ResetBit(kReadyForID);
+    }
+
+}
+
+//__________________________________________________________________________//
+
+Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) {
+
+    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
+
+    fCsILight = fCsI->GetLumiereTotale();
+
+    return fCsILight;
+}
+
+//__________________________________________________________________________//
+
+Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) {
+
+    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
+
+    fSiCorr = -5.;
+
+    if(fSi != 0){
+
+        fSiPG = fSi->GetPG();
+        fSiPGPedestal = fSi->GetPedestal("PG");
+
+        fSiGG = fSi->GetGG();
+        fSiGGPedestal = fSi->GetPedestal("GG");
+
+        if(fSiGG < 3900.){
+
+            fSiCorr = fSi->GetPGfromGG(fSiGG) - fSiPGPedestal;
+
+        }else{
+
+            fSiCorr = fSiPG - fSiPGPedestal;
+        }
+    
+    }else{
+
+        return 10000.;
+    }
+
+    return fSiCorr;
+}
+
+//__________________________________________________________________________//
+
+Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) {
 
     Double_t xVar; xVar = x; // not used (Keeps the compiler quiet)
     Double_t yVar; yVar = y; // not used
@@ -173,132 +250,8 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
 //__________________________________________________________________________//
 
-void KVIDSiCorrCsI::Print(Option_t * opt) const
-{
-    Option_t *tmp; tmp = opt;     // not used (keeps the compiler quiet)
+Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) {
 
-    //cout << "KVIDSiCorrCsI : " << GetName() << endl;
-
-    if (GetListOfIDFunctions().GetSize() > 0) {
-
-        if (HasMassID()){
-            //cout << "  A and Z identification" << endl;
-        }else{
-           // cout << "  Z identification only" << endl;
-        }
-
-        //cout << "Identification objects :" << endl;
-        GetListOfIDFunctions().Print();
-    }
-}
-
-//__________________________________________________________________________//
-
-Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt)
-{
-    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
-
-    //Calculates current X coordinate for identification.
-
-    Double_t h = (Double_t)fCsI->GetLumiereTotale();
-
-    return h;
-}
-//__________________________________________________________________________//
-
-void KVIDSiCorrCsI::Initialize()
-{
-
-    // Initialisation of telescope before identification.
-    // This method MUST be called once before any identification is attempted.
-    // IsReadyForID() will return kTRUE if KVTGID objects are associated
-    // to this telescope for the current run.
-
-    fSi = (KVSilicon*)GetDetector(1);
-
-    fSiPGPedestal = fSi->GetPedestal("PG");
-    fSiGGPedestal = fSi->GetPedestal("GG");
-
-    fCsI = (KVCsI*)GetDetector(2);
-    fCsIRPedestal = fCsI->GetPedestal("R");
-    fCsILPedestal = fCsI->GetPedestal("L");
-
-    if(GetListOfIDFunctions().GetEntries()){
-        SetBit(kReadyForID);
-    }else{
-      ResetBit(kReadyForID);
-    }
-
-}
-
-//__________________________________________________________________________//
-
-Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt)
-{
-
-    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
-
-    //Calculates current Y coordinate for identification (Silicon Correlation)
-
-    Double_t si = -1.;
-    Double_t siPG = -1.;
-    Double_t siPG_ped = -1.;
-    Double_t siGG = -1.;
-    Double_t siGG_ped = -1.;
-
-    if(fSi != 0){
-
-        if(fSi->GetGG() < 3900.){
-
-            siPG = (Double_t)fSi->GetPG();
-            siPG_ped = fSiPGPedestal;
-
-            siGG = (Double_t)fSi->GetGG();
-            siGG_ped = fSiGGPedestal;
-
-            si = fSi->GetPGfromGG(siGG) - siPG_ped;
-
-        }else{
-
-            siPG = (Double_t)fSi->GetPG();
-            siPG_ped = fSiPGPedestal;
-
-            si = siPG - siPG_ped;
-        }
-    
-    }else{
-
-        return 10000.;
-    }
-
-    return si;
-}
-
-//__________________________________________________________________________//
-
-const Char_t *KVIDSiCorrCsI::GetIDSubCodeString(KVIDSubCode &concat) const
-{
-    //Returns string explaining subcodes for this telescope
-
-    static TString messages[] = {
-        "no Z identification available",
-        "point outside of range of possible Z identification",
-        "Z ok, A identification tried but not available",
-        "Z ok, A identification tried but point to identify outside of identification range of function",
-        "Z ok, A identification tried but IdentA called with Z<1",
-        "Z ok, A identification tried but IdentA called with Z larger than max Z defined for KVTGIDZA isotopic identification object"
-    };
-   
-    Int_t code = GetIDSubCode(concat);
-    if (code == -1)
-        return SubCodeNotSet();
-    return messages[code];
-}
-
-//____________________________________________________________________________________
-
-Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
-{
     //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     //kind (label) in the multidetector array. Therefore this method need only be called once, and not
     //called for each telescope. The kind/label (returned by GetLabel) of the telescope corresponds
@@ -323,8 +276,6 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
         return kFALSE;
     }
     Info("SetIdentificationParameters", "Using file %s", path.Data());
-
-    //cout << "Setting identification parameters..." << endl;
 
     ifstream datfile;
     datfile.open(path.Data());
@@ -411,55 +362,6 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
 
     datfile.close();
 
-    //SetSiCorrelationParameters(MDA);
-
-    return kTRUE;
-}
-
-Bool_t KVIDSiCorrCsI::SetSiCorrelationParameters(const KVMultiDetArray* MDA){
-
-    //cout << "Setting silicon correlation parameters..." << endl;
-
-    TString filename = "ParamFitPol1_Sipg_gg.dat_new.dat";
-    
-    TString path;
-    if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-        Error("SetSiCorrelationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
-
-        return kFALSE;
-    }
-
-    Info("SetSiCorrelationParameters", "Using file %s", path.Data());
-
-    ifstream file;
-    file.open(path.Data());
-
-    Int_t ringNum = -1;
-    Int_t moduleNum = -1;
-
-    string line;
-    Double_t par0 = -1.;
-    Double_t par1 = -1.;
-    Double_t par2 = -1.;
-
-    KVIDSiCorrCsI  *idt;
-
-    while (file.good() == 1) {
-        std::getline(file, line);
-        sscanf(line.c_str(), "SI_%02d%02d %lf %lf %lf", &ringNum, &moduleNum, &par0, &par1, &par2);
-
-        stringstream name;
-        name << "SI_CSI_" << setfill('0') << setw(2) << ringNum
-                << setfill('0') << setw(2) << moduleNum;
-
-        idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(name.str().c_str());
-
-        idt->AddParamsToTelescope(par0, par1, par2);
-
-    }
-
     return kTRUE;
 }
 
@@ -499,34 +401,5 @@ void KVIDSiCorrCsI::PrintFitParameters(){
    }
 
     cout << endl;
-
-}
-
-void KVIDSiCorrCsI::PrintSiCorrelationParameters(){
-
-    cout << endl;
-    cout << "___Silicon Correlation Parameters___" << endl;
-
-    for(int i=4; i<10; i++){
-        for(int j=1; j<25; j++){
-    
-            cout << "SI_CSI_" << setfill('0') << setw(2) << i 
-                                << setfill('0') << setw(2)  << j << ":"
-                                << " p0: " << param0 
-                                << " p1: " << param1 
-                                << " p2: " << param2 << endl;
-        }
-    }
-}
-
-
-Double_t KVIDSiCorrCsI::GetSiCorrParam(Int_t npar){
-
-    if(npar == 0) return param0;
-    else if(npar == 1) return param1;
-    else if(npar == 2) return param2;
-
-    else
-        return -5.;
 
 }
