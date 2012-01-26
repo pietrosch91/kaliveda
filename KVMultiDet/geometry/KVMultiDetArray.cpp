@@ -324,6 +324,9 @@ void KVMultiDetArray::UpdateArray()
     SetGroupsAndIDTelescopes();
     SetACQParams();
     SetCalibrators();
+    SetIdentifications();
+    SetDetectorThicknesses();
+    
     // if graphical interface is being used, need to update display
     if (fBrowser)
         fBrowser->UpdateArray();
@@ -535,7 +538,13 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
     //List is in fGroups.
     //Also creates all ID telescopes in array and stores them in fIDTelescopes.
     //Any previous groups/idtelescopes are deleted beforehand.
+   // As any ID grids stored in gIDGridManager will have been associated to the
+   // old ID telescopes (whose addresses now become obsolete), we clear the ID grid manager
+   // deleting all ID grids. You should therefore follow this with a call to
+   // SetIdentifications() in order to reinitialize all that.
 
+   gIDGridManager->Clear();
+ 
     fGroups->Delete();           // clear out (delete) old groups
     fIDTelescopes->Delete();     // clear out (delete) old identification telescopes
    

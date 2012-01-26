@@ -36,11 +36,11 @@ void KVIDChIoSiCorr::Initialize(){
 
     fChIo = (KVChIo*)GetDetector(1);
 
-    fChIoGG = -1.;
-    fChIoPG = -1.;
-    fChIoGGPedestal = -1.;
-    fChIoPGPedestal = -1.;
-    fChIoCorr = -1.;
+    fChIoGG = -5.;
+    fChIoPG = -5.;
+    fChIoGGPedestal = -5.;
+    fChIoPGPedestal = -5.;
+    fChIoCorr = -5.;
 
     fSi = (KVSilicon*)GetDetector(2);
     fSiPGPedestal = fSi->GetPedestal("PG");
@@ -100,7 +100,7 @@ Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *)
 
 Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *)
 {
-    Double_t chIo = -1.;
+    Double_t chIo = -5.;
 
     if(fChIo != 0){
 
@@ -123,7 +123,7 @@ Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *)
         }else{
         ************************/
 
-            chIo = fChIoPG;// - fChIoPGPedestal;
+            chIo = fChIoPG - fChIoPGPedestal;
         //}
 
     }

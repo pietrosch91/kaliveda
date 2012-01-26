@@ -27,10 +27,11 @@ class KVIDChIoCorrCsI : public KVIDChIoCsI
 	    Double_t fCsIRPedestal;
 	    Double_t fCsILPedestal;
 
-        Double_t fChIoPGPedestal;
+        Double_t fChIoCorr;
         Double_t fChIoGGPedestal;
-        Double_t fChIoPG;
+        Double_t fChIoPGPedestal;
         Double_t fChIoGG;
+        Double_t fChIoPG;
 
     public:
 
@@ -44,6 +45,7 @@ class KVIDChIoCorrCsI : public KVIDChIoCsI
 
         Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 
+        Double_t GetChIoCorr(){return fChIoCorr;};
         Double_t GetChIoGG(){return fChIoGG;};
         Double_t GetChIoPG(){return fChIoPG;};
         Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};

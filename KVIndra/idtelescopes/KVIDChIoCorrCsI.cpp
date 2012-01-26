@@ -45,10 +45,11 @@ void KVIDChIoCorrCsI::Initialize()
     // Initialize telescope for current run.
 
 	fChIo = (KVChIo *) GetDetector(1);
-    fChIoGG = fChIo->GetGG();
-    fChIoPG = fChIo->GetPG();
-    fChIoGGPedestal = fChIo->GetPedestal("GG");
-    fChIoPGPedestal = fChIo->GetPedestal("PG");
+    fChIoGG = -5.;
+    fChIoPG = -5.;
+    fChIoGGPedestal = -5.;
+    fChIoPGPedestal = -5.;
+    fChIoCorr = -5.;
 
 	fCsI = (KVCsI *) GetDetector(2);
 	fCsIRPedestal = fCsI->GetPedestal("R");
@@ -82,45 +83,40 @@ Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt)
 
 //__________________________________________________________________________//
 
-Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t * opt)
-{
-    //Calculates current Y coordinate for identification.
-    //'opt' has no effect.
 
-    Double_t chIo = -1.;
-    Double_t chIoPG = -1.;
-    Double_t chIoPG_ped = -1.;
-    Double_t chIoGG = -1.;
-    Double_t chIoGG_ped = -1.;
+Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *)
+{
+    Double_t chIo = -5.;
 
     if(fChIo != 0){
-         
-         if(fChIo->GetGG() < 3900.){                 //No pedestal correction for chIoGG
 
-            chIoPG = fChIoPG;
-            chIoPG_ped = fChIoPGPedestal;
+        fChIoGG = fChIo->GetGG();
+        fChIoPG = fChIo->GetPG();
+        fChIoPGPedestal = fChIo->GetPedestal("PG");
+        fChIoGGPedestal = fChIo->GetPedestal("GG");
 
-            chIoGG = fChIoGG;
-            chIoGG_ped = fChIoGGPedestal;
-               
+        /***********************
+            if(fChIoGG < 3900.){                 //No pedestal correction for chIoGG
+
             // For ChIo correlation we don't subtract the pedestal for GG for E503/E494s
             // (Manually set to zero)
 
-            fChIo->SetPedestal("GG", 0.);
+            fChIo->SetPedestal("GG", 0.); 
+            fChIoGGPedestal = fChIo->GetPedestal("GG"); //resets the value;
 
-            chIo = fChIo->GetPGfromGG(chIoGG) - chIoPG_ped;
+            chIo = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
 
         }else{
+        ************************/
 
-            chIoPG = fChIoPG;
-            chIoPG_ped = fChIoPGPedestal;
-
-            chIo = chIoPG - chIoPG_ped;
-        }
+            chIo = fChIoPG - fChIoPGPedestal;
+        //}
 
     }
 
-   return chIo;
+    fChIoCorr = chIo;
+
+    return chIo;
 
 }
 
