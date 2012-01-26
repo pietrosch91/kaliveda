@@ -27,6 +27,7 @@ class KVIDChIoSiCorr : public KVIDChIoSi
         KVChIo *fChIo;
         KVSilicon *fSi;
 
+        Double_t fChIoCorr;
         Double_t fChIoGGPedestal;
         Double_t fChIoPGPedestal;
         Double_t fChIoGG;
@@ -49,6 +50,7 @@ class KVIDChIoSiCorr : public KVIDChIoSi
 
         Bool_t Identify(KVIdentificationResult * IDR, Double_t x, Double_t y);
 
+        Double_t GetChIoCorr(){return fChIoCorr;};
         Double_t GetChIoGG(){return fChIoGG;};
         Double_t GetChIoPG(){return fChIoPG;};
         Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};

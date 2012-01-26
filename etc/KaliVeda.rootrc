@@ -556,8 +556,9 @@ INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
 INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
-INDRA_e503.INDRADB.Pedestals:      PedestalsE503.dat
-INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
+INDRA_e503.INDRADB.Pedestals:       PedestalsE503.dat
+INDRA_e494s.INDRADB.GGtoPGFactors:      ParamFitPG_GG.dat
+INDRA_e503.INDRADB.GGtoPGFactors:       ParamFitPG_GG.dat
 
 # Default headers for runlist columns
 INDRADB.Runlist.Run:    Run
@@ -719,6 +720,10 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
+INDRA_e503.IdentificationParameterFile.SI-CSI:      SI_CSI_C4-9_autofit.dat
+INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.dat
+INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
+################################################
 # pour FocalPlanVamos 
 VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
 
@@ -731,9 +736,10 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 # Format:
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
-INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
-INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
-VAMOS_e503.ActiveIdentifications:    SI-CSI
+INDRA_camp5.ActiveIdentifications:      CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e475s.ActiveIdentifications:      CSI CI-CSI SI-CSI CI-SI
+VAMOS_e503.ActiveIdentifications:       SI-CSI
+INDRA_e503.ActiveIdentifications:       SI-CSI CI-SI CI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"

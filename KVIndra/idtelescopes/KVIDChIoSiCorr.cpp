@@ -40,6 +40,7 @@ void KVIDChIoSiCorr::Initialize(){
     fChIoPG = -1.;
     fChIoGGPedestal = -1.;
     fChIoPGPedestal = -1.;
+    fChIoCorr = -1.;
 
     fSi = (KVSilicon*)GetDetector(2);
     fSiPGPedestal = fSi->GetPedestal("PG");
@@ -100,48 +101,34 @@ Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *)
 Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *)
 {
     Double_t chIo = -1.;
-    Double_t chIoPG = -1.;
-    Double_t chIoPG_ped = -1.;
-    Double_t chIoGG = -1.;
-    Double_t chIoGG_ped = -1.;
 
     if(fChIo != 0){
 
-        if(fChIo->GetGG() < 3900.){                 //No pedestal correction for chIoGG
+        fChIoGG = fChIo->GetGG();
+        fChIoPG = fChIo->GetPG();
+        fChIoPGPedestal = fChIo->GetPedestal("PG");
+        fChIoGGPedestal = fChIo->GetPedestal("GG");
 
-            fChIoGG = fChIo->GetGG();
-            fChIoPG = fChIo->GetPG();
-            fChIoPGPedestal = fChIo->GetPedestal("PG");
-            fChIoGGPedestal = fChIo->GetPedestal("GG");
-
-            chIoPG = fChIoPG;
-            chIoPG_ped = fChIoPGPedestal;
-
-            chIoGG = fChIoGG;
-            chIoGG_ped = fChIoGGPedestal;
+        /***********************
+            if(fChIoGG < 3900.){                 //No pedestal correction for chIoGG
 
             // For ChIo correlation we don't subtract the pedestal for GG for E503/E494s
             // (Manually set to zero)
 
-            //fChIo->SetPedestal("GG", 0.); 
-            //fChIoGGPedestal = fChIo->GetPedestal("GG");
+            fChIo->SetPedestal("GG", 0.); 
+            fChIoGGPedestal = fChIo->GetPedestal("GG"); //resets the value;
 
-            chIo = fChIo->GetPGfromGG(chIoGG) - chIoPG_ped;
+            chIo = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
 
         }else{
+        ************************/
 
-            fChIoGG = fChIo->GetGG();
-            fChIoPG = fChIo->GetPG();
-            fChIoPGPedestal = fChIo->GetPedestal("PG");
-            fChIoGGPedestal = fChIo->GetPedestal("GG");
-
-            chIoPG = fChIoPG;
-            chIoPG_ped = fChIoPGPedestal;
-
-            chIo = chIoPG - chIoPG_ped;
-        }
+            chIo = fChIoPG;// - fChIoPGPedestal;
+        //}
 
     }
+
+    fChIoCorr = chIo;
 
     return chIo;
 
@@ -149,20 +136,17 @@ Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *)
 
 Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y)
 {
-    //Particle identification and code setting using identification grid KVIDGChIoSi
 
     IDR->SetIDType( GetType() );
     IDR->IDattempted = kTRUE;
 
-    //identification
-    //Double_t chio = (y<0. ? GetIDMapY() : y);
-    //Double_t si = (x<0. ? GetIDMapX() : x);
-
     Double_t chio = GetIDMapY("");
     Double_t si = GetIDMapX("");
 
-    if (ChIoSiGrid->IsIdentifiable(si,chio))
+    if (ChIoSiGrid->IsIdentifiable(si,chio)){
         ChIoSiGrid->Identify(si,chio,IDR);
+    }
+
     Int_t quality = ChIoSiGrid->GetQualityCode();
     IDR->IDquality = quality;
 

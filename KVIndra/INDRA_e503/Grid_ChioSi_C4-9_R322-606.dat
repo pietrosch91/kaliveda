@@ -7,7 +7,7 @@
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0404
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -398,7 +398,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0405
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -616,10 +616,6 @@ ID:Z=16 A=32
 3202.98   327.638
 3939.66   275.195
 +KVIDCutLine
-OK:
-2
-0
-+KVIDCutLine
 OK:Zlower
 above
 7
@@ -664,7 +660,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0410
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -875,7 +871,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0411
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -1135,7 +1131,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0412
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -1429,7 +1425,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0413
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -1726,7 +1722,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0414
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -2028,7 +2024,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0415
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -2302,7 +2298,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0416
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -2598,7 +2594,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0419
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -2939,7 +2935,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0420
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -3245,7 +3241,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0421
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -3578,7 +3574,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0422
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -3923,7 +3919,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0423
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -4275,7 +4271,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0424
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -4615,7 +4611,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0403
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -4980,7 +4976,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0406
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -5254,7 +5250,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0407
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -5515,7 +5511,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0408
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -5765,7 +5761,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0408
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -5983,7 +5979,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0409
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -6242,8 +6238,8 @@ below
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0503
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -6566,7 +6562,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0504
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -6921,8 +6918,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0505
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -7272,8 +7269,8 @@ ID:Z=17 A=34
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0506
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -7631,8 +7628,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0507
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -7948,8 +7945,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0508
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -8265,8 +8262,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0509
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -8622,8 +8619,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0510
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -8979,8 +8976,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0511
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -9336,8 +9333,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0513
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -9692,8 +9689,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0514
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -10048,8 +10045,8 @@ ID:Z=18 A=37
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0515
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -10415,8 +10412,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0516
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -10782,8 +10779,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0519
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -11149,8 +11146,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0519
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -11516,8 +11513,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0520
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -11883,8 +11880,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0521
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -12250,8 +12247,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0522
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -12617,8 +12614,8 @@ ID:Z=19 A=39
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0523
-<PARAMETER> Runlist=
-OnlyZId
+<PARAMETER> Runlist=322-606
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -12974,7 +12971,7 @@ ID:Z=18 A=37
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0524
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -13330,7 +13327,7 @@ ID:Z=18 A=37
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0610
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -13689,7 +13686,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0611
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -14048,7 +14045,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0612
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -14407,7 +14404,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0613
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -14766,7 +14763,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0614
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -15125,7 +15122,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0616
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -15484,7 +15481,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0617
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -15843,7 +15840,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0618
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -16202,7 +16199,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0619
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -16561,7 +16558,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0601
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -16839,7 +16836,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0620
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -17198,7 +17195,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0621
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -17557,7 +17554,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0622
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -17916,7 +17913,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0623
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -18275,7 +18272,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0624
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -18634,7 +18631,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0602
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -18987,7 +18984,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0603
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -19332,7 +19329,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0604
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -19653,7 +19650,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0605
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -20027,7 +20024,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0606
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -20383,7 +20380,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0607
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -20742,7 +20739,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0608
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -21101,7 +21098,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0609
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -21460,7 +21457,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0710
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -21819,7 +21816,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0711
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -22178,7 +22175,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0712
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -22537,7 +22534,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0713
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -22896,7 +22893,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0714
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -23255,7 +23252,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0715
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -23614,7 +23611,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0716
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -23973,7 +23970,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0717
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -24332,7 +24329,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0718
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -24691,7 +24688,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0719
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -25050,7 +25047,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0701
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -25328,7 +25325,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0720
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -25687,7 +25684,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0721
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -26046,7 +26043,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0722
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -26405,7 +26402,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0723
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -26764,7 +26761,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0724
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -27123,7 +27120,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0702
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -27476,7 +27473,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0703
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -27821,7 +27818,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0704
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -28142,7 +28139,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0705
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -28516,7 +28513,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0706
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -28872,7 +28869,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0707
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -29231,7 +29228,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0708
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -29590,7 +29587,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0709
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -29949,7 +29946,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0808
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -30290,7 +30287,7 @@ above
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0801
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -30604,7 +30601,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0802
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -30916,7 +30913,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0803
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -31227,7 +31224,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0804
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -31536,7 +31533,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0805
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -31842,7 +31839,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0806
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -32148,7 +32145,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0807
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -32454,7 +32451,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0809
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -32759,7 +32756,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0810
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -33064,7 +33061,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0811
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -33361,7 +33358,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0812
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -33658,7 +33655,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0813
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -33955,7 +33952,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0814
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -34253,7 +34250,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0815
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -34551,7 +34548,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0816
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -34849,7 +34846,7 @@ ID:Z=16 A=32
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0817
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -35162,7 +35159,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0818
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -35475,7 +35472,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0819
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -35788,7 +35785,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0820
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -36101,7 +36098,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0821
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -36414,7 +36411,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0822
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -36726,7 +36723,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0823
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -37038,7 +37035,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0824
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -37350,7 +37347,7 @@ ID:Z=17 A=34
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0910
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -37680,7 +37677,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0911
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -37999,7 +37996,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0912
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -38319,7 +38316,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0913
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -38639,7 +38636,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0914
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -38960,7 +38957,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0915
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -39282,7 +39279,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0916
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -39604,7 +39601,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0917
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -39926,7 +39923,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0918
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -40248,7 +40245,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0919
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -40570,7 +40567,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0901
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -40910,7 +40907,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0920
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -41232,7 +41229,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0921
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -41554,7 +41551,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0922
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -41876,7 +41873,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0924
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -42198,7 +42195,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0902
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -42536,7 +42533,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0903
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -42872,7 +42869,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0904
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -43204,7 +43201,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0905
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -43534,7 +43531,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0906
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -43865,7 +43862,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0907
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -44197,7 +44194,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0908
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
@@ -44529,7 +44526,7 @@ below
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI_0909
 <PARAMETER> Runlist=322-606
-OnlyZId
+OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
 2	4
