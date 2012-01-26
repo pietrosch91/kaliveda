@@ -343,6 +343,13 @@ IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
 IdentRoot.DataAnalysisTask.UserClass:     no
 IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
 
++DataAnalysisTask:     ReconRoot
+IdentRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
+IdentRoot.DataAnalysisTask.Prereq:     recon
+IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
+IdentRoot.DataAnalysisTask.UserClass:     no
+IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
+
 +DataAnalysisTask:     RawAnalysis
 RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
 RawAnalysis.DataAnalysisTask.Prereq:     raw
@@ -440,6 +447,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
 +Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
 +Plugin.TSelector:   INDRAReconIdent        KVINDRAReconIdent                 KVIndra   "KVINDRAReconIdent()"
++Plugin.TSelector:   INDRAReconRoot        KVINDRAReconRoot                 KVIndra   "KVINDRAReconRoot()"
 +Plugin.TSelector:   INDRAIdentRoot         KVINDRAIdentRoot                  KVIndra   "KVINDRAIdentRoot()"
 +Plugin.TSelector:   IVReconIdent           KVIVReconIdent               VAMOS     "KVIVReconIdent()"
 #+Plugin.TSelector:   ReconIdent_e475s       KVReconIdent_e475s           KVIndra   "KVReconIdent_e475s()"
