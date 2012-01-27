@@ -75,15 +75,15 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
 
         // Methods to check the pedestals etc.
 
-        Double_t GetCsILight(){return fCsILight;};
-        Double_t GetCsIRPedestal(){return fCsIRPedestal;};
-        Double_t GetCsILPedestal(){return fCsILPedestal;};
+        //Double_t GetCsILight(){return fCsILight;};
+        //Double_t GetCsIRPedestal(){return fCsIRPedestal;};
+        //Double_t GetCsILPedestal(){return fCsILPedestal;};
 
-        Double_t GetSiCorr(){return fSiCorr;};
-        Double_t GetSiGG(){return fSiGG;};
-        Double_t GetSiPG(){return fSiPG;};
-        Double_t GetSiGGPedestal(){return fSiGGPedestal;};
-        Double_t GetSiPGPedestal(){return fSiPGPedestal;};
+        //Double_t GetSiCorr(){return fSiCorr;};
+        //Double_t GetSiGG(){return fSiGG;};
+        //Double_t GetSiPG(){return fSiPG;};
+        //Double_t GetSiGGPedestal(){return fSiGGPedestal;};
+        //Double_t GetSiPGPedestal(){return fSiPGPedestal;};
 
         ClassDef(KVIDSiCorrCsI, 2)  
 };

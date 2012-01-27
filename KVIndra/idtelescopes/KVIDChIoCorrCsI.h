@@ -48,15 +48,15 @@ class KVIDChIoCorrCsI : public KVIDChIoCsI
 
         // Methods to check the pedestals etc.
 
-        Double_t GetCsILight(){return fCsILight;};
-        Double_t GetCsIRPedestal(){return fCsIRPedestal;};
-        Double_t GetCsILPedestal(){return fCsILPedestal;};
+        //Double_t GetCsILight(){return fCsILight;};
+        //Double_t GetCsIRPedestal(){return fCsIRPedestal;};
+        //Double_t GetCsILPedestal(){return fCsILPedestal;};
 
-        Double_t GetChIoCorr(){return fChIoCorr;};
-        Double_t GetChIoGG(){return fChIoGG;};
-        Double_t GetChIoPG(){return fChIoPG;};
-        Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};
-        Double_t GetChIoPGPedestal(){return fChIoPGPedestal;};
+        //Double_t GetChIoCorr(){return fChIoCorr;};
+        //Double_t GetChIoGG(){return fChIoGG;};
+        //Double_t GetChIoPG(){return fChIoPG;};
+        //Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};
+        //Double_t GetChIoPGPedestal(){return fChIoPGPedestal;};
 
         ClassDef(KVIDChIoCorrCsI,2)
 };
