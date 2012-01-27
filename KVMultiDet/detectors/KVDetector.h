@@ -96,7 +96,8 @@ class KVDetector:public KVMaterial {
    TList* fAlignedDetectors[2];//! stores lists of aligned detectors in both directions
    
    Bool_t fSimMode;//! =kTRUE when using to simulate detector response, =kFALSE when analysing data
-
+	Bool_t fPresent;//! =kTRUE if detector is present, =kFALSE if it has been removed
+	Bool_t fDetecting;//! =kTRUE if detector is "detecting", =kFALSE if not
  public:
     KVDetector();
     KVDetector(const Char_t * type, const Float_t thick = 0.0);
@@ -356,7 +357,8 @@ class KVDetector:public KVMaterial {
    virtual void ReadDefinitionFromFile(const Char_t*);
    
    virtual TList* GetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
-   
+   void ResetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
+	
    virtual void SetSimMode(Bool_t on = kTRUE)
    {
    	// Set simulation mode of detector
@@ -374,6 +376,19 @@ class KVDetector:public KVMaterial {
    	// Changes behaviour of Fired(): in simulation mode, Fired() returns kTRUE
    	// whenever the energy loss in the active layer is >0
    	return fSimMode;
+   };
+   
+	virtual void SetPresent(Bool_t present = kTRUE);
+	virtual Bool_t IsPresent() const
+   {
+   	// return the presence or not of the detector
+   	return fPresent;
+   };
+	virtual void SetDetecting(Bool_t detecting = kTRUE);
+	virtual Bool_t IsDetecting() const
+   {
+   	// return if the detector is ready to detect or not
+   	return fDetecting;
    };
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays

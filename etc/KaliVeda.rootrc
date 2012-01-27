@@ -539,6 +539,10 @@ INDRADB.CsIPinCorr:          CsI_PILA.dat
 INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 # correspondance entre codeur et detecteurs
 INDRADB.Codeurs:    Codeurs.dat
+# liste des detecteurs physiquement absents
+INDRADB.AbsentDet:	AbsentDetectors.dat
+# liste des detecteurs ne marchant pas ou éteints (out of order)
+INDRADB.OoODet:    OoODetectors.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs

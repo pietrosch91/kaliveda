@@ -913,9 +913,11 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					TIter it1(ldet);
 				
 					Int_t ntrav=0;
+					Int_t ndetecting=0;
 					KVDetector*dd = 0;
 					//Test de la trajectoire coherente
 					while ( ( dd = (KVDetector* )it1.Next() ) ){
+						ndetecting += dd->IsDetecting();
 						if (dd->GetHits()){
 							if (dd->GetHits()->FindObject(part)) ntrav+=1;	
 							else 
@@ -926,7 +928,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						}
 					}
 				
+					//printf("ntrav=%d, ldet->GetEntries()=%d, ndetecting=%d\n",ntrav,ldet->GetEntries(),ndetecting);
 					if (ntrav != ldet->GetEntries()){
+					
 						// la particule a une trajectoire
 						// incoherente, elle a loupe un detecteur avec une ouverture 
 						// plus large que ceux a la suite ou la particule est passe
@@ -956,7 +960,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						
 						part->AddGroup("UNDETECTED");
 						part->AddGroup("GEOMETRY INCOHERENCY");
-						
+					
 					}
 					else {
 						
@@ -1054,8 +1058,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    while ((grp_tch = (KVGroup *) nxt_grp())) {
    	grp_tch->ClearHitDetectors();
    }
-    // reconstruct the event
-    rec_event->ReconstructEvent(fHitGroups);
+	// reconstruct the event
+	rec_event->ReconstructEvent(fHitGroups);
 
 }
 

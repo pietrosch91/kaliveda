@@ -6,6 +6,7 @@
 #include "KVFileReader.h"
 #include "TObjArray.h"
 #include "KVDBParameterSet.h"
+#include "KVDBChIoPressures.h"
 
 ClassImp(KVINDRADB_e613)
 
@@ -33,6 +34,118 @@ KVINDRADB_e613::KVINDRADB_e613(const Char_t * name):KVINDRADB(name)
 KVINDRADB_e613::~KVINDRADB_e613()
 {
    // Destructor
+}
+
+//____________________________________________________________________________
+void KVINDRADB_e613::ReadChIoPressures()
+{
+   //Read ChIo pressures for different run ranges and enter into database.
+   //Format of file is:
+   //
+   //# some comments
+   //#which start with '#'
+   //RunRange	6001 6018
+   //2_3	50.0
+   //4_5	50.0
+   //6_7	50.0
+   //8_12	30.0
+   //13_17	30.0
+   //
+   //Pressures (of C3F8) are given in mbar).
+
+   ifstream fin;
+   if (!OpenCalibFile("Pressures", fin)) {
+      Error("ReadChIoPressures()", "Could not open file %s",
+            GetCalibFileName("Pressures"));
+      return;
+   }
+   Info("ReadChIoPressures()", "Reading ChIo pressures parameters...");
+
+   TString sline;
+   
+	Bool_t prev_rr = kFALSE;     //was the previous line a run range indication ?
+   Bool_t read_pressure = kFALSE; // have we read any pressures recently ?
+	KVNumberList nl;
+   KVDBChIoPressures *parset=0;
+   TList *par_list = new TList();
+	TObjArray* toks = 0;
+         //any ChIo not in list is assumed absent (pressure = 0)
+	
+	Float_t pressure[5] = { 0, 0, 0, 0, 0 };
+
+   while (fin.good()) {         // parcours du fichier
+
+      sline.ReadLine(fin);
+      if (sline.BeginsWith("#")){
+		
+		}
+		else if (sline.BeginsWith("RunRange")) {    // run range found
+         if (!prev_rr) {        // New set of run ranges to read
+
+            //have we just finished reading some pressures ?
+            if (read_pressure){
+               parset = new KVDBChIoPressures(pressure);
+               GetTable("ChIo Pressures")->AddRecord(parset);
+               par_list->Add(parset);
+               LinkListToRunRange(par_list, nl);
+               par_list->Clear();
+               for(register int zz=0;zz<5;zz++) pressure[zz]=0.;
+               read_pressure=kFALSE;
+            }
+         }
+         toks = sline.Tokenize("\t");
+			
+			if (toks->GetEntries()!=2){
+				Error("ReadChIoPressures","Pb de format, il faut RunRange\tRun1-Run2 ... ");
+				return;
+			}
+			
+			prev_rr = kTRUE;
+         nl.SetList(((TObjString* )toks->At(1))->GetString().Data());
+			delete toks;
+		}                         // Run Range found
+      else if (fin.eof()) {          //fin du fichier
+      	//have we just finished reading some pressures ?
+      	if (read_pressure){
+				parset = new KVDBChIoPressures(pressure);
+				GetTable("ChIo Pressures")->AddRecord(parset);
+				par_list->Add(parset);
+				LinkListToRunRange(par_list, nl);
+				par_list->Clear();
+				for(register int zz=0;zz<5;zz++) pressure[zz]=0.;
+				read_pressure=kFALSE;
+			}
+      }
+      else {
+			prev_rr = kFALSE;
+
+			toks = sline.Tokenize("\t");
+			if (toks->GetEntries()!=2){
+				Error("ReadChIoPressures","Pb de format, il faut numero de la chio (ex 2_3)\tpression");
+				return;
+			}
+			
+			TString chio = ((TObjString*)toks->At(0))->String();
+         TString press = ((TObjString*)toks->At(1))->String();
+         
+			printf("%s %lf\n",chio.Data(),press.Atof());
+			delete toks;
+
+         read_pressure=kTRUE;
+			
+			if( chio == "2_3" ) 			pressure[0] = press.Atof();
+         else if( chio == "4_5" ) 	pressure[1] = press.Atof();
+         else if( chio == "6_7" ) 	pressure[2] = press.Atof();
+         else if( chio == "8_12" ) 	pressure[3] = press.Atof();
+         else if( chio == "13_17" ) pressure[4] = press.Atof();
+         else {
+				printf("#%s# ne correspond a rien\n",chio.Data());
+				read_pressure=kFALSE;
+			}
+      }                         //line with ChIo pressure data
+   }                            //parcours du fichier
+   delete par_list;
+   fin.close();
 }
 
 //____________________________________________________________________________

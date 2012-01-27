@@ -27,7 +27,8 @@ class KVINDRAUpDater:public KVUpDater {
    //virtual void SetTarget(KVDBRun *);
    virtual void SetTrigger(KVDBRun *);
    virtual void SetGains(KVDBRun *);
-
+	virtual void SetAbsentDetectors(KVDBRun *);
+	virtual void SetOoODetectors(KVDBRun *);
    virtual void SetCalibParameters(KVDBRun *);
    virtual void SetChIoPressures(KVDBRun *);
    virtual void SetPedestals(KVDBRun *);

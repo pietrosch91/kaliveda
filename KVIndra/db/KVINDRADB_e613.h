@@ -10,10 +10,10 @@ class KVINDRADB_e613 : public KVINDRADB
 {
 
 	protected:
-	
+	virtual void ReadChIoPressures();
 	virtual void ReadGainList();
 	virtual void ReadPedestalList();
-	void ReadChannelVolt();
+	virtual void ReadChannelVolt();
 	
 	public:
    KVINDRADB_e613();

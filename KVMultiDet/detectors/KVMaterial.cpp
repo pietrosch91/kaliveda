@@ -464,7 +464,8 @@ Double_t KVMaterial::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    if(Z<1) return 0.;
    Double_t E_loss =
       fIonRangeTable->GetLinearDeltaEOfIon(GetType(), Z, A, Einc, GetThickness(), fAmasr, fTemp, fPressure);
-   return E_loss;
+   
+	return TMath::Max(E_loss,0.);
 }
 
 //______________________________________________________________________________________//
@@ -562,8 +563,10 @@ Double_t KVMaterial::GetERes(Int_t Z, Int_t A, Double_t Einc)
    // with kinetic energy Einc (MeV)
 
    if(Z<1) return 0.;
+   if (IsGas() && GetPressure()==0)
+		return Einc;
    
-   Double_t E_res =
+	Double_t E_res =
       fIonRangeTable->GetEResOfIon(GetType(), Z, A, Einc, fThick, fAmasr, fTemp, fPressure);
 
    return E_res;
