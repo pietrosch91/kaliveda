@@ -344,11 +344,11 @@ IdentRoot.DataAnalysisTask.UserClass:     no
 IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
 
 +DataAnalysisTask:     ReconRoot
-IdentRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
-IdentRoot.DataAnalysisTask.Prereq:     recon
-IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
-IdentRoot.DataAnalysisTask.UserClass:     no
-IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
+ReconRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
+ReconRoot.DataAnalysisTask.Prereq:     recon
+ReconRoot.DataAnalysisTask.Analyser:     INDRAReconData
+ReconRoot.DataAnalysisTask.UserClass:     no
+ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
 
 +DataAnalysisTask:     RawAnalysis
 RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
