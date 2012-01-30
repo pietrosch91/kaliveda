@@ -61,11 +61,11 @@ class KVIDChIoSiCorr : public KVIDChIoSi
         //Double_t GetSiGGPedestal(){return fSiGGPedestal;};
         //Double_t GetSiPGPedestal(){return fSiPGPedestal;};
 
-        //Double_t GetChIoCorr(){return fChIoCorr;};
-        //Double_t GetChIoGG(){return fChIoGG;};
-        //Double_t GetChIoPG(){return fChIoPG;};
-        //Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};
-        //Double_t GetChIoPGPedestal(){return fChIoPGPedestal;};
+        Double_t GetChIoCorr(){return fChIoCorr;};
+        Double_t GetChIoGG(){return fChIoGG;};
+        Double_t GetChIoPG(){return fChIoPG;};
+        Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};
+        Double_t GetChIoPGPedestal(){return fChIoPGPedestal;};
 
         ClassDef(KVIDChIoSiCorr,2)
 };

@@ -111,17 +111,16 @@ Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt) {
         fChIoGG = fChIo->GetGG();
         fChIoGGPedestal = fChIo->GetPedestal("GG");
 
-        // Disabled for E503 - just returns fChIoPG - fChIoPGPedestal
-        //if(fChIoGG < 3900.){
-        //    fChIo->SetPedestal("GG", 0.);
-        //    fChIoGGPedestal = fChIo->GetPedestal("GG"); // Resets the stored value  
-        //
-        //    fChIoCorr = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
-        //
-        //}else{
-        //
+        if(fChIoGG < 3900.){
+            fChIo->SetPedestal("GG", 0.);
+            fChIoGGPedestal = fChIo->GetPedestal("GG"); // Resets the stored value  
+        
+            fChIoCorr = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
+        
+        }else{
+        
             fChIoCorr = fChIoPG - fChIoPGPedestal;
-        //}
+        }
     
     }else{
 
