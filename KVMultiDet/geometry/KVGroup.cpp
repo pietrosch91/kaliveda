@@ -645,7 +645,7 @@ void KVGroup::GetIDTelescopes(TCollection * tel_list)
          KVDetector *det;
 			
          while ((det = (KVDetector *) next_det())) {
-				if ( det->IsPresent() && det->IsDetecting() ){
+				if ( det->IsOK() ){
 					//1st call: create ID telescopes, they will be added to the
             	//gMultiDetArray list of IDTelescopes
             	det->GetAlignedIDTelescopes(tel_list);

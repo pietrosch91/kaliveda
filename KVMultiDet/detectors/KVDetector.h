@@ -391,6 +391,12 @@ class KVDetector:public KVMaterial {
    	return fDetecting;
    };
 	
+	virtual Bool_t IsOK() const
+	{
+		//return kTRUE if detector is here and working
+		return (fPresent && fDetecting);
+	}
+	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
 

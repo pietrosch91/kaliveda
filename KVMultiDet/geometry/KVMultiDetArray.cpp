@@ -356,7 +356,21 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //This method is called by KVGroup in order to set up all ID telescopes
     //of the array.
 
-    KVIDTelescope *idt = 0;
+	if ( !(de->IsOK() && e->IsOK()) ){
+		/*
+		Warning("GetIDTelescopes","Appel avec au moins un detecteur foireux %s(%d/%d), %s (%d/%d)",
+			de->GetName(),
+			de->IsPresent(),
+			de->IsDetecting(),
+			e->GetName(),
+			e->IsPresent(),
+			e->IsDetecting()
+		);
+		*/
+		return;
+	}
+	KVIDTelescope *idt = 0;
+
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
 	 Int_t de_thick = TMath::Nint(de->GetThickness());
 	 Int_t e_thick = TMath::Nint(e->GetThickness());
@@ -482,11 +496,14 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
             }
         }
     }
+	 
 }
 
 void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri)
 {
-    idt->AddDetector(de);
+    //Info("set_up_telescope","de det %s e det %s -> %s",de->GetName(),e->GetName(),uri.Data());
+
+	 idt->AddDetector(de);
     idt->AddDetector(e);
     if (de->GetGroup()) {
         idt->SetGroup(de->GetGroup());
@@ -913,11 +930,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					TIter it1(ldet);
 				
 					Int_t ntrav=0;
-					Int_t ndetecting=0;
 					KVDetector*dd = 0;
 					//Test de la trajectoire coherente
 					while ( ( dd = (KVDetector* )it1.Next() ) ){
-						ndetecting += dd->IsDetecting();
 						if (dd->GetHits()){
 							if (dd->GetHits()->FindObject(part)) ntrav+=1;	
 							else 
@@ -927,8 +942,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
 					}
-				
-					//printf("ntrav=%d, ldet->GetEntries()=%d, ndetecting=%d\n",ntrav,ldet->GetEntries(),ndetecting);
+					
 					if (ntrav != ldet->GetEntries()){
 					
 						// la particule a une trajectoire

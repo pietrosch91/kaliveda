@@ -391,7 +391,7 @@ void KVDetector::Print(Option_t * opt) const
          cout << option << option;
          abs->Print();
          if (GetActiveLayer() == abs)
-            cout << " ### ACTIVE LAYER ### " << endl;
+            cout << " #################### " << endl;
       }
       cout << option << "Gain:      " << GetGain() << endl;
       if (fParticles) {
@@ -745,15 +745,11 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
    //If list=0 then we store pointers to the ALREADY EXISTING ID telescopes
    //in fIDTelAlign. (first clear fIDTelAlign)
 	
-	/*
-	if (!this->IsDetecting()) {
-		Info("GetAlignedIDTelescopes","%s appelle la methode ... on sort",this->GetName());
-		return;
-	}
-   */
+	if ( !(IsOK()) ) return;
+	
 	TList *aligned = GetAlignedDetectors();
-
-   Bool_t list_zero = kFALSE;
+	
+	Bool_t list_zero = kFALSE;
 
    if (!list) {
       list_zero = kTRUE;
@@ -777,8 +773,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
          KVDetector *det1 = (KVDetector *) aligned->At(i + 1);
          KVDetector *det2 = (KVDetector *) aligned->At(i);
 			
-			if (det1->IsDetecting() && det2->IsDetecting())
-				gMultiDetArray->GetIDTelescopes(det1, det2, list);
+			gMultiDetArray->GetIDTelescopes(det1, det2, list);
       }
    }
 
@@ -798,6 +793,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
       //destroy the superfluous copy telescopes we just created
       list->Delete(); delete list;
    }
+	
 }
 
 //______________________________________________________________________________//
@@ -1465,7 +1461,7 @@ Double_t KVDetector::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 {
    // Overrides KVMaterial::GetDeltaEFromERes
    //
-   // Calculate energy loss in active layer of detector for nucleus (Z,A)
+   // Calculate energy loss in active layer of detGetAlignedDetector for nucleus (Z,A)
    // having a residual kinetic energy Eres (MeV)
    
    if(Z<1 || Eres<= 0.) return 0.;
@@ -1728,19 +1724,14 @@ void KVDetector::SetDetecting(Bool_t detecting)
 	
 	fDetecting = detecting;
 	if ( !fDetecting ){
-		
 		KVGroup* gr = fTelescope->GetGroup();
 		gr->PrepareModif();
-		
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}		
 	else {
-		
 		KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
 		gr->PrepareModif();
-			
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
-			
 	}
 
 }
