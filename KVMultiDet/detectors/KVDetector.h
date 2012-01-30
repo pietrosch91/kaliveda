@@ -459,7 +459,8 @@ Bool_t KVDetector::Fired(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
-	if(IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
+	if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
+	if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
 	
    if(opt[0]=='P') return FiredP(opt+1);
 
@@ -492,6 +493,8 @@ Bool_t KVDetector::FiredP(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
+	if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
+	
 	Binary8_t event; // bitmask for event
 	TIter next(fACQParams);
 	KVACQParam* par; Int_t id = 0;
