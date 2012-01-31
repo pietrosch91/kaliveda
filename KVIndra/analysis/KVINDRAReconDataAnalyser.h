@@ -57,7 +57,9 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    void preAnalysis();
    void preInitRun();
 	virtual void RegisterUserClass(TObject*obj) {fSelector=(KVSelector*)obj;};
-   
+	void PrintTreeInfos() const;
+   TEnv* GetReconDataTreeInfos() const;
+	
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };
 

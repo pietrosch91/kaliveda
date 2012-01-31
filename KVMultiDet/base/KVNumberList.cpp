@@ -710,3 +710,14 @@ KVNumberList KVNumberList::GetComplementaryList()
 	return nl;
 
 }
+	
+//____________________________________________________________________________________________//
+
+KVNumberList KVNumberList::operator-(const KVNumberList& other)
+{
+	// Returns difference between 'this' and 'other'
+	// i.e. 'this' list with any values in 'other' removed
+	KVNumberList tmp(*this);
+	tmp.Remove(other);
+	return tmp;
+}

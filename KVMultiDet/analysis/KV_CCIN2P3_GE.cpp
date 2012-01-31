@@ -101,16 +101,8 @@ void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
 void KV_CCIN2P3_GE::PrintJobs(Option_t * opt)
 {
    //Print list of owner's jobs.
-   //opt="" (default) : print all jobs
-   //opt="r[unning]" : print running jobs
-   //opt="q[ueued]" : print queued jobs
-   KVString _opt(opt), cmd("qjob");
-   _opt.ToUpper();
-   if (_opt.BeginsWith("R"))
-      cmd += " -r";
-   else if (_opt.BeginsWith("Q"))
-      cmd += " -q";
-   gSystem->Exec(cmd.Data());
+   AnalyseQstatResponse();
+   joblist.Print();
 }
 
 Bool_t KV_CCIN2P3_GE::CheckJobParameters()
@@ -242,12 +234,12 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 	// Due to many people being caught out by this mechanism when submitting
 	// raw->recon, raw->ident, etc. jobs from an SPS directory (and thus being penalised
 	// unfairly by the limited number of SPS-ressource-declaring jobs), we only declare
-	// u_sps_indra if the analysis task is not "Reconstruction", "Identification1",
-	// "RawIdent", or "Identification2". We also add some warning messages.
+	// u_sps_indra if the analysis task is not "Reconstruction", "ReconIdent",
+	// "IdentRoot". We also add some warning messages.
 
 	KVBatchSystem::ChangeDefJobOpt(da);
 	KVString taskname = da->GetAnalysisTask()->GetName();
-	Bool_t recId = (taskname=="Reconstruction"||taskname=="Identification1"||taskname=="RawIdent"||taskname=="Identification2");
+	Bool_t recId = (taskname=="Reconstruction"||taskname=="ReconIdent"||taskname=="IdentRoot");
 	KVString wrkdir( gSystem->WorkingDirectory() );
 	KVString oldoptions( GetDefaultJobOptions() );
 	if( wrkdir.Contains("/sps/") && !oldoptions.Contains("sps") ){
@@ -294,4 +286,64 @@ TString KV_CCIN2P3_GE::GE_Request(KVString value,KVString jobname)
 	KVString inst; inst.Form("qselect -N %s %s",jobname.Data(),value.Data());
 	return gSystem->GetFromPipe(inst.Data());
 	
+}	
+
+void KV_CCIN2P3_GE::AnalyseQstatResponse()
+{
+	// Analyse output of 'qstat -r' command
+	// Extract from it a list of jobnames with their job-ids and status
+	
+   TString reply = gSystem->GetFromPipe("qstat -r");
+   joblist.Clear();
+	TObjArray* lines = reply.Tokenize("\n");
+	Int_t nlines = lines->GetEntries();
+	for(Int_t line_number=0; line_number<nlines; line_number++){
+		TString thisLine = ((TObjString*)(*lines)[line_number])->String();
+		if(thisLine.Contains("Full jobname:")){
+			// previous line contains job-id and status
+			TString lastLine = ((TObjString*)(*lines)[line_number-1])->String();
+			TObjArray* bits = lastLine.Tokenize(" ");
+			Int_t jobid = ((TObjString*)(*bits)[0])->String().Atoi();
+			TString status = ((TObjString*)(*bits)[4])->String();
+         delete bits;
+         bits = thisLine.Tokenize(": ");
+         TString jobname =  ((TObjString*)(*bits)[2])->String();
+         delete bits;
+         KVBase* job = new KVBase(jobname.Data(), Form("status=%s", status.Data()));
+         job->SetNumber(jobid);
+         joblist.Add(job);
+		}
+	}
+	delete lines;
+}
+
+void KV_CCIN2P3_GE::qalter(const Char_t* job_base_name, const Char_t* new_ressources)
+{
+	// Will change ressources request for all jobs having 'job_base_name' as the root
+	// of their jobname.
+	// N.B.: in the new ressources, you must specify ALL ressources, including
+	// the ones which are not changed
+	
+	// get list of jobs
+	if(!joblist.GetEntries()) AnalyseQstatResponse();
+	
+	// build number list of job-ids corresponding to jobs with correct base name
+	TIter nextjob(&joblist);
+	KVNumberList jids;
+	KVBase* job;
+	while( (job = (KVBase*)nextjob()) ){
+		TString jobname = job->GetName();
+		if(jobname.BeginsWith(job_base_name)) {
+			Info("qalter", "Selected job %s (jid = %d)", jobname.Data(), job->GetNumber());
+			jids.Add(job->GetNumber());
+		}
+	}
+	TString cmd_base;
+	cmd_base.Form("qalter %s", new_ressources);
+	TString cmd;
+	jids.Begin();
+	while( !jids.End() ){
+		cmd.Form("%s %d", cmd_base.Data(), jids.Next());
+		gSystem->Exec(cmd.Data());
+	}
 }

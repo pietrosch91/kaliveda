@@ -68,6 +68,11 @@ void KVLogReader::ReadLine(TString & line, Bool_t & ok)
       ok = kFALSE;
       fStatus = "rfcp error";
       fOK = kFALSE;
+   } else if (line.Contains("TXNetFile") && line.Contains("open attempt failed")) {
+      //failure to open recon file with xrootd
+      ok = kFALSE;
+      fStatus = "XROOTD error";
+      fOK = kFALSE;
    }
 }
 

@@ -291,9 +291,11 @@ void KVBase::Copy(TObject & obj)
 //____________________________________________________________________________________
 void KVBase::Print(Option_t * option) const
 {
-   cout << "KVBase object: fName=" << GetName() << " fType=" << GetType();
+   cout << "KVBase object: Name=" << GetName() << " Type=" << GetType();
    if (fSLabel != "")
-      cout << " fSLabel=" << GetLabel();
+      cout << " Label=" << GetLabel();
+   if (fNumber != 0)
+      cout << " Number=" << GetNumber();
    cout << endl;
 };
 

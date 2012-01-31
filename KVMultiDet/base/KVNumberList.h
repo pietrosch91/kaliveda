@@ -80,12 +80,17 @@ class KVNumberList : public TObject {
    
 	void Clear(Option_t* = "");
    Int_t GetNValues();
+   Int_t GetEntries()
+   {
+   	return GetNValues();
+   };
 
    void PrintLimits();
    Bool_t IsFull();
 	KVNumberList GetComplementaryList();
    
 	KVNumberList & operator=(const KVNumberList &);
+	KVNumberList operator-(const KVNumberList &);
 	
 	   // Type conversion
    operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }

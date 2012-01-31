@@ -566,22 +566,29 @@ KVSeqCollection *KVSeqCollection::GetSubListWithClass(const TClass* _class)
 
     KVSeqCollection *sublist = NewCollectionLikeThisOne();
     sublist->SetOwner(kFALSE);
+    _GetSubListWithClass(sublist, fCollection, _class);
+    return sublist;
+}
+
+void KVSeqCollection::_GetSubListWithClass(KVSeqCollection* outputList, TCollection* Col, const TClass* _class)
+{
     if (_class)
     {
-        TIter next(fCollection);
+        TIter next(Col);
         TObject* ob;
         while ((ob=next()))
         {
-            if ( _class == ob->IsA() ) sublist->Add(ob);
+            if ( _class == ob->IsA() ) outputList->Add(ob);
+            // if we are looking for objects of class "TList" or some other TCollection, they will all be included!
+            if(ob->InheritsFrom("TCollection")) _GetSubListWithClass(outputList,(TCollection*)ob,_class);
         }
     }
-    return sublist;
 }
 
 //_______________________________________________________________________________
 KVSeqCollection *KVSeqCollection::GetSubListWithClass(const Char_t* class_name)
 {
-    // Create and fill a (sub)list with objects in this list of the given class.
+    // Recursively create and fill a (sub)list with objects in this list (and any sublists) of the given class.
     // This new list will be of the same kind as this one.
     // The objects in the sublist do not belong to the sublist.
     //
@@ -597,14 +604,14 @@ KVSeqCollection *KVSeqCollection::GetSubListWithClass(const Char_t* class_name)
 //_______________________________________________________________________________
 KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method)
 {
-    // Create and fill a (sub)list with objects in this list for which the
+    // Recursively create and fill a (sub)list with objects in this list (and any sublists) for which the
     // given method returns the given return value:
     //   e.g. if method = "GetName" and retvalue = "john", we return the
     //    (sub)list of objects in this list for which GetName() returns "john".
     //
     // This new list will be of the same kind as this one.
     // The objects in the sublist do not belong to the sublist.
-    //  *** WARNING *** : DELETE the KVList returned by this method after using it !!!
+    //  *** WARNING *** : DELETE the list returned by this method after using it !!!
     //
     // For each object of the list, the existence of the given method is checked using TMethodCall::IsValid()
     // if the method is valid and the return value is equal to the input one (retvalue) object is added to the subKVList
@@ -612,16 +619,26 @@ KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,co
 
     KVSeqCollection* sublist = NewCollectionLikeThisOne();
     sublist->SetOwner(kFALSE);
+    _GetSubListWithMethod(sublist, fCollection,retvalue,method);
+    return sublist;
+}
+
+void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollection* Col, const Char_t* retvalue,const Char_t* method)
+{
     if (retvalue && method)
     {
         KVString RV(retvalue);
         KVString MTH(method);
         Bool_t wildcard = RV.Contains("*");
-        TIter next(fCollection);
+        TIter next(Col);
         TObject* ob;
         while ((ob=next()))
         {
-
+           // recursive search in subidrectories
+           if(ob->InheritsFrom("TCollection")){
+              _GetSubListWithMethod(outputList, (TCollection*)ob, retvalue, method);
+              continue;
+           }
             TMethodCall mt;
             mt.InitWithPrototype(ob->IsA(), MTH.Data(),"");
             if (mt.IsValid())
@@ -633,30 +650,29 @@ KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,co
                     mt.Execute(ob,"",&ret);
                     if (!wildcard)
                     {
-                        if (RV==ret) sublist->Add(ob);
+                        if (RV==ret) outputList->Add(ob);
                     }
                     else
                     {
-                        if (KVString(ret).Match(RV)) sublist->Add(ob);
+                        if (KVString(ret).Match(RV)) outputList->Add(ob);
                     }
                 }
                 else if (mt.ReturnType()==TMethodCall::kLong)
                 {
                     Long_t ret;
                     mt.Execute(ob,"",ret);
-                    if (ret==RV.Atoi()) sublist->Add(ob);
+                    if (ret==RV.Atoi()) outputList->Add(ob);
                 }
                 else if (mt.ReturnType()==TMethodCall::kDouble)
                 {
                     Double_t ret;
                     mt.Execute(ob,"",ret);
-                    if (ret==RV.Atof()) sublist->Add(ob);
+                    if (ret==RV.Atof()) outputList->Add(ob);
                 }
                 else cout << "this type is not supported " << mt.ReturnType() << endl;
             }
         }
     }
-    return sublist;
 }
 
 //_______________________________________________________________________________

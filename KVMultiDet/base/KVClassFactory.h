@@ -9,6 +9,7 @@ $Date: 2009/01/21 08:04:20 $
 
 #include "Riostream.h"
 #include "TDatime.h"
+#include "TClass.h"
 #include "TNamed.h"
 #include "KVString.h"
 #include "KVParameterList.h"
@@ -46,6 +47,10 @@ class KVClassMethod : public TNamed {
    void SetClassName(const Char_t* name) {
      KVString s(name);
      fFields.SetParameter("ClassName", s);
+   };
+   void SetBaseClass(const Char_t* name) {
+     KVString s(name);
+     fFields.SetParameter("BaseClass", s);
    };
    void AddArgument(const Char_t* type, const Char_t* argname="", const Char_t* defaultvalue="") {
       KVString _type(type);
@@ -118,6 +123,7 @@ class KVClassFactory : public TObject {
    KVString fClassDesc;   //class description
    KVString fBaseClass;   //name of base class
    Bool_t fHasBaseClass; //kTRUE if class derived from another
+   Bool_t fBaseClassTObject; //kTRUE if class derived from TObject
    KVString fAuthor;      //user who called ClassFactory to generate class
    TDatime fNow;         //for dating files
    Bool_t fWithTemplate;  //true if class has a template
@@ -145,6 +151,8 @@ class KVClassFactory : public TObject {
 
 
    Ssiz_t FindNextUncommentedLine(TString&, Ssiz_t beg=0);
+   void AddTObjectCopyMethod();
+   void AddCopyConstructor(Bool_t withTObjectCopy=kFALSE);
    
  public:
 
@@ -192,6 +200,11 @@ class KVClassFactory : public TObject {
    void SetBaseClass(const Char_t* b) {
       fBaseClass = b;
       fHasBaseClass = (fBaseClass != "");
+      fBaseClassTObject=kFALSE;
+      if(fHasBaseClass){
+         TClass* baseClass = TClass::GetClass(fBaseClass);
+         fBaseClassTObject=(baseClass && baseClass->InheritsFrom("TObject"));
+      }
    };
    const Char_t* GetBaseClass() const { return fBaseClass.Data(); };
    Bool_t WithMultipleBaseClasses() const { return fBaseClass.Contains(","); };
@@ -201,7 +214,7 @@ class KVClassFactory : public TObject {
    
    void Print(Option_t* opt = "") const;
 
-    ClassDef(KVClassFactory, 3) //Factory for generating KaliVeda skeleton classes
+    ClassDef(KVClassFactory, 4) //Factory for generating KaliVeda skeleton classes
 };
 
 #endif
