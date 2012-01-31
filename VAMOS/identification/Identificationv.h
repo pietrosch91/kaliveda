@@ -54,7 +54,9 @@ class Identificationv
   Double_t e_bisec; 
     
   Double_t initThickness;
+  Double_t EGap;
   Double_t ECsI;
+  Double_t ECsI_corr;  
   Double_t ESi;
   Double_t EEtot;
   Double_t NormVamos;
@@ -105,6 +107,7 @@ Int_t runFlag;
   Float_t dE;
   Float_t dE1;
   Float_t E;
+  Float_t E_corr;
   Float_t T;
   Float_t V;
   
@@ -117,6 +120,7 @@ Int_t runFlag;
   Float_t M_Q;
   Float_t M_Q_corr;  
   Float_t M_Qcorr;
+  Float_t M_corr;
   Float_t M_Qcorr1;
   Float_t Q;
   Float_t Mr;

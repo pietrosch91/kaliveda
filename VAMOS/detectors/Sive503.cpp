@@ -101,12 +101,42 @@ Sive503::Sive503(LogFile *Log)
   
    Int_t  num; 
    Float_t ref;
-   Float_t propre;    
+   Float_t propre;
+   
+   Float_t off328;   
+   Float_t off333;
+   Float_t off339;
+   Float_t off344;
+   Float_t off348;   
+   Float_t off353;
+   Float_t off355;
+   
+   Float_t off379;            
+   Float_t off384;
+   Float_t off390; 
+   Float_t off398;
+   Float_t off403;
+   Float_t off405;
+   Float_t off407;
+              
+   Float_t off455;      
    Float_t off467; 
+   Float_t off475;
+   Float_t off484; 
+   Float_t off490;
+   Float_t off493;   
+      
+   Float_t off525; 
+   Float_t off528;      
+   Float_t off531; 
+   Float_t off537;           
+   Float_t off543;    
+   
    TString sline;
    
    ifstream in2;
-
+   
+  //ToF calibration and offsets according to the system and the run number
    if(!gDataSet->OpenDataSetFile("Offset.cal",in2))
   {
      cout << "Could not open the calibration file Offset.cal !!!" << endl;
@@ -120,11 +150,38 @@ Sive503::Sive503(LogFile *Log)
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
-	     sscanf(sline.Data(),"%d %f %f %f",&num ,&ref, &propre, &off467 );
+	     sscanf(sline.Data(),"%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",&num ,&ref, &propre, &off328, &off333, &off339, &off344, &off348, &off353, &off355, &off379,
+	     &off384, &off390, &off398, &off403, &off405, &off407, &off455, &off467, &off475, &off484, &off490, &off493, &off525, &off528, &off531, &off537, &off543 );
          	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
 	     TRef[num] = ref;
 	     Tpropre_el[num] = propre;
+	     
+	     Offset328[num] = off328;	     
+	     Offset333[num] = off333;
+	     Offset339[num] = off339;
+	     Offset344[num] = off344;
+	     Offset348[num] = off348;
+	     Offset353[num] = off353;
+	     Offset355[num] = off355;
+	     
+	     Offset379[num] = off379;	     	     	     	     
+	     Offset384[num] = off384;
+	     Offset390[num] = off390;
+	     Offset398[num] = off398;
+	     	     	     	     
+	     Offset455[num] = off455;
 	     Offset467[num] = off467;
+	     Offset475[num] = off475;
+	     Offset484[num] = off484;
+	     Offset490[num] = off490;
+	     Offset493[num] = off493;	     
+	     	     	
+	     Offset525[num] = off525;
+	     Offset528[num] = off528;	          
+	     Offset531[num] = off531;
+	     Offset537[num] = off537;	     
+	     Offset543[num] = off543;	     
+	     
 	     L->Log << "TRef[num] : " << TRef[num] << " Tpropre_el[num] :  "<< Tpropre_el[num] << endl;
 	     	   }
        		}
@@ -299,9 +356,118 @@ void Sive503::Calibrate(void)
 	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
 	    
 	    //L->Log<<"Tfrag avant	: "<<Tfrag<<"	Offset467	: "<<Offset467[E_Raw_Nr[i]]<<endl;
+	    
+      	    //=========================================================================
+            //ToF offset according to the system and the run number
+      	    //=========================================================================	    
+	    //System : 48Ca + 40Ca	    
+	    if(gIndra->GetCurrentRunNumber()>327 && gIndra->GetCurrentRunNumber()<333){
+	    Tfrag -= Offset328[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset328[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>332 && gIndra->GetCurrentRunNumber()<339){
+	    Tfrag -= Offset333[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset333[E_Raw_Nr[i]]<<endl;
+	    }	  
+	    if(gIndra->GetCurrentRunNumber()>338 && gIndra->GetCurrentRunNumber()<344){
+	    Tfrag -= Offset339[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset339[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>343 && gIndra->GetCurrentRunNumber()<348){
+	    Tfrag -= Offset344[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset344[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>347 && gIndra->GetCurrentRunNumber()<351){
+	    Tfrag -= Offset348[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset348[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>352 && gIndra->GetCurrentRunNumber()<355){
+	    Tfrag -= Offset353[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset353[E_Raw_Nr[i]]<<endl;
+	    }	 
+	    if(gIndra->GetCurrentRunNumber()>354 && gIndra->GetCurrentRunNumber()<361){
+	    Tfrag -= Offset355[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset355[E_Raw_Nr[i]]<<endl;
+	    }
+      	    //=========================================================================	    	       
+	    //System : 48Ca + 48Ca	    
+	    if(gIndra->GetCurrentRunNumber()>378 && gIndra->GetCurrentRunNumber()<384){
+	    Tfrag -= Offset379[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset379[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>383 && gIndra->GetCurrentRunNumber()<390){
+	    Tfrag -= Offset384[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset384[E_Raw_Nr[i]]<<endl;
+	    }	  
+	    if(gIndra->GetCurrentRunNumber()>389 && gIndra->GetCurrentRunNumber()<398){
+	    Tfrag -= Offset390[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset390[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>397 && gIndra->GetCurrentRunNumber()<403){
+	    Tfrag -= Offset398[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset398[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>402 && gIndra->GetCurrentRunNumber()<405){
+	    Tfrag -= Offset403[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset403[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>404 && gIndra->GetCurrentRunNumber()<407){
+	    Tfrag -= Offset405[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset405[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>406 && gIndra->GetCurrentRunNumber()<425){
+	    Tfrag -= Offset407[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset407[E_Raw_Nr[i]]<<endl;
+	    }	    	    
+      	    //=========================================================================	    	    	    	      
+	    //System : 40Ca + 48Ca
+	    if(gIndra->GetCurrentRunNumber()>454 && gIndra->GetCurrentRunNumber()<466){
+	    Tfrag -= Offset455[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset455[E_Raw_Nr[i]]<<endl;
+	    }
 	    if(gIndra->GetCurrentRunNumber()>465 && gIndra->GetCurrentRunNumber()<475){
 	    Tfrag -= Offset467[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset467[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>474 && gIndra->GetCurrentRunNumber()<484){
+	    Tfrag -= Offset475[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset475[E_Raw_Nr[i]]<<endl;
 	    }
+	    if(gIndra->GetCurrentRunNumber()>483 && gIndra->GetCurrentRunNumber()<490){
+	    Tfrag -= Offset484[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset484[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>489 && gIndra->GetCurrentRunNumber()<494){
+	    Tfrag -= Offset490[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset490[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>493 && gIndra->GetCurrentRunNumber()<510){
+	    Tfrag -= Offset493[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset493[E_Raw_Nr[i]]<<endl;
+	    }	    
+      	    //=========================================================================	    
+	    //System : 40Ca + 40Ca	
+	    if(gIndra->GetCurrentRunNumber()>524 && gIndra->GetCurrentRunNumber()<528){
+	    Tfrag -= Offset525[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset525[E_Raw_Nr[i]]<<endl;
+	    }
+	    if(gIndra->GetCurrentRunNumber()>527 && gIndra->GetCurrentRunNumber()<531){
+	    Tfrag -= Offset528[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset528[E_Raw_Nr[i]]<<endl;
+	    }	    	        	    
+	    if(gIndra->GetCurrentRunNumber()>530 && gIndra->GetCurrentRunNumber()<537){
+	    Tfrag -= Offset531[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset531[E_Raw_Nr[i]]<<endl;
+	    }	
+	    if(gIndra->GetCurrentRunNumber()>536 && gIndra->GetCurrentRunNumber()<543){
+	    Tfrag -= Offset537[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset537[E_Raw_Nr[i]]<<endl;
+	    }	    
+	    if(gIndra->GetCurrentRunNumber()>542 && gIndra->GetCurrentRunNumber()<548){
+	    Tfrag -= Offset543[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset543[E_Raw_Nr[i]]<<endl;
+	    }	    
+      	    //=========================================================================	    	    
 	    //L->Log<<"Tfrag apres	: "<<Tfrag<<endl;	    
 	    
 	    //L->Log<<"TRef : "<<TRef[E_Raw_Nr[i]]<<" Tpropre_el : "<<Tpropre_el[E_Raw_Nr[i]]<<" Tpropre_frag : "<<T[0]<<endl;	     

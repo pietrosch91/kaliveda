@@ -86,7 +86,7 @@ CsICalib::CsICalib(LogFile *Log,Sive503 *SiD)
 CsICalib::~CsICalib()
 {
    // Destructor
-   L->Log<<"***Destructor CsICalib***"<<endl;
+   //L->Log<<"***Destructor CsICalib***"<<endl;
 }
 
 void CsICalib::SetTel1(KVDetector *SI)
@@ -174,12 +174,12 @@ void CsICalib::InitTelescope(Int_t si_num ,Int_t csi_num)
 	    cout<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
 	    cout<<"name : "<<tel_name<<endl;*/ 	    
 	    
-	    L->Log<<"Error: 'kvid' assignment failed"<<endl;
-	    L->Log<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
-	    L->Log<<"name : "<<tel_name<<endl; 
+	    //L->Log<<"Error: 'kvid' assignment failed"<<endl;
+	    //L->Log<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
+	    //L->Log<<"name : "<<tel_name<<endl; 
         }
     }else{
-        printf("Error: 'list' assignment failed\n");   
+        //printf("Error: 'list' assignment failed\n");   
     }
 
 }
@@ -195,7 +195,7 @@ void CsICalib::InitSiCsI(Int_t number) // Si-CsI Telescope	# Si : 1 to 18
     ********************************************************************************/
 
     GetTel1()->SetThickness(Si->si_thick[number]*KVUnits::um);
-    L->Log<<"Thickness	: "<<GetTel1()->GetThickness()<<endl;   
+    //L->Log<<"Thickness	: "<<GetTel1()->GetThickness()<<endl;   
     kvt_sicsi = new KVTelescope();
     kvt_sicsi->Add(GetTel1());
     kvt_sicsi->Add(GetTel2());  // In-active so no 'detected' energy
@@ -213,7 +213,7 @@ void CsICalib::SetCalibration(Sive503 *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
   b=Si->ECoef[sinum][1];  
   c=Si->ECoef[sinum][2];  
   alpha=1;
-  L->Log<<"parametri silicio a="<<a<<" b="<<b<<" c="<<c<<endl;  
+  //L->Log<<"parametri silicio a="<<a<<" b="<<b<<" c="<<c<<endl;  
   }
   else
     {
@@ -231,8 +231,8 @@ void CsICalib::SetCalibration(Sive503 *Si, CsIv* CsI,Int_t sinum, Int_t csinum)
  
 	 lum->SetNumberParams(3);
  	 lum->SetParameters(a1,a2,a3);
-	 L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
-	 L->Log<<"pedestal csi=		"<<ePied<<endl;
+	 //L->Log<<"parametri cesio a1="<<a1<<" a2="<<a2<<" a3="<<a3<<endl;
+	 //L->Log<<"pedestal csi=		"<<ePied<<endl;
 
     }
   else
@@ -257,7 +257,7 @@ void CsICalib::SetFragmentZ(Int_t Zin){
 void CsICalib::SetFragmentA(Int_t Ain){ 
   lum->SetA(Ain);
   sA=Ain;
-  L->Log<<"SetFragment A : "<<sA<<endl; 
+  //L->Log<<"SetFragment A : "<<sA<<endl; 
 }
 
 //Complete procedure to get the best estimate of the residual energy
@@ -267,7 +267,7 @@ Double_t CsICalib::GetResidualEnergyCsI(Double_t chsi, Double_t chcsi){		//UShor
   CalculateESi(chsi); 
   
   LightCsI=chcsi - ePied;		// 
-  L->Log<<"LightCsI = "<<LightCsI<<endl;
+  //L->Log<<"LightCsI = "<<LightCsI<<endl;
   
   Bisection(A,double(LightCsI));		//Call the bisection method 	
   Interpolate();			//Interpolation of ECsI and A values
@@ -284,13 +284,12 @@ void CsICalib::CalculateESi(Double_t chan){	//UShort_t chan
 //Complete procedure for to get the energy losses from simulation
 void  CsICalib::CompleteSimulation(Double_t chan){	//UShort_t chan	
 
-  L->Log<<"light before calculating : "<<LightCsI<<endl;
+  //L->Log<<"light before calculating : "<<LightCsI<<endl;
   eEnergyCsI=lum->Compute(LightCsI);				//Get the ECsI from the known (Z,A) and the calibration 
   
-  eEnergyGap = GetTel2()->GetEnergy();
   //cout<<"Invert : "<<lum->Invert(eEnergyCsI)<<endl;      
   //L->Log<<"Invert : "<<lum->Invert(eEnergyCsI)<<endl;
-  L->Log<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl;		//" eEnergyGap=MeV "<<eEnergyGap<<endl; //paola
+  //L->Log<<"light csi="<<LightCsI<<" eEnergyCsI=MeV "<<eEnergyCsI<<endl;		//" eEnergyGap=MeV "<<eEnergyGap<<endl; //paola
     
   part.SetZ(eZ);
   part.SetA(sA);
@@ -299,21 +298,22 @@ void  CsICalib::CompleteSimulation(Double_t chan){	//UShort_t chan
   
   kvt_sicsi->DetectParticle(&part);			//Simulate the fragment through the telescope  
   
-  L->Log<<"Total incident E. : "<<Einc <<endl;
-  L->Log<<"simualed energy Si : "<<GetTel1()->GetEnergy()<<endl;   
-  L->Log<<"simualed energy gap : "<<GetTel2()->GetEnergy()<<endl;  
-  L->Log<<"simualed energy CsI : "<<GetTel3()->GetEnergy()<<endl;   
+  //L->Log<<"Total incident E. : "<<Einc <<endl;
+  //L->Log<<"simualed energy Si : "<<GetTel1()->GetEnergy()<<endl;   
+  //L->Log<<"simualed energy gap : "<<GetTel2()->GetEnergy()<<endl;  
+  //L->Log<<"simualed energy CsI : "<<GetTel3()->GetEnergy()<<endl;   
+  eEnergyGap = GetTel2()->GetEnergy();
   
   CanalCsI=lum->Invert(double(eZ),double(sA),GetTel3()->GetEnergy());		//GetTel3()->GetEnergy()); kvd_csi->GetEnergy()    
-   L->Log<<"Invert simulation: "<<CanalCsI<<endl;
+   //L->Log<<"Invert simulation: "<<CanalCsI<<endl;
    difflum = (CanalCsI-LightCsI);
-   L->Log<<"difflum = "<<difflum<<endl; //paola
+   //L->Log<<"difflum = "<<difflum<<endl; //paola
   
   sEnergySi=GetTel1()->GetEnergy();			//simulated ESi obtained from the Einc (ESi(calibration) + ECsI(Z,A known and calibration))  
-  L->Log<<"GetESi:: sEnergySi= "<<sEnergySi<<endl;
+  //L->Log<<"GetESi:: sEnergySi= "<<sEnergySi<<endl;
     
   sEnergyCsI=GetTel3()->GetEnergy();			//simulated ESi obtained from the Einc (ESi(calibration) + ECsI(Z,A known and calibration))  
-  L->Log<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
+  //L->Log<<"GetECsI:: sEnergyCsI= "<<sEnergyCsI<<endl;
 
   part.Clear();
   GetTel1()->Clear();
@@ -327,14 +327,14 @@ void  CsICalib::CompleteSimulation(Double_t chan){	//UShort_t chan
 
 void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
   Int_t middle, it=0;
-  L->Log<<"------------"<<endl;
-  L->Log<<"Valeur de A : "<<A<<endl;
-  L->Log<<"Energy Si Reference :	"<<eEnergySi<<endl;
+  //L->Log<<"------------"<<endl;
+  //L->Log<<"Valeur de A : "<<A<<endl;
+  //L->Log<<"Energy Si Reference :	"<<eEnergySi<<endl;
   if(A-5>0)
   left=A-5.;  //left and right are integer!! A is a double
   else left=1;
   right=A+10;	
-  L->Log<<"-----------------------------------BISECTION-------------------"<<endl;//paola
+  //L->Log<<"-----------------------------------BISECTION-------------------"<<endl;//paola
 
 //new bisection method 
 //=== Test  
@@ -347,7 +347,7 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
     	factor = -1;
     }
     difference *= factor;
-	L->Log<<"A left : "<<left<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl;
+	//L->Log<<"A left : "<<left<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl;
 	    
     SetFragmentA(right);
     CompleteSimulation(chan);    
@@ -362,7 +362,7 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
   //loop: bisection
   while(right-left>1){
 
-    L->Log<<"-------------------loop bisection------------"<<endl;
+    //L->Log<<"-------------------loop bisection------------"<<endl;
 	//L->Log<<"LightCsI	: "<<LightCsI<<endl;	
 	//cout<<"LightCsI	: "<<LightCsI<<endl;
 	middle=(left+right+1)/2;
@@ -376,7 +376,7 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
 //new bisection method 
 //=== Test
     	difference = factor*(eEnergySi - sEnergySi);
-	L->Log<<"difference : "<<difference<<endl;	 
+	//L->Log<<"difference : "<<difference<<endl;	 
 	if(difference<0){
 		left = middle;
 	}
@@ -390,10 +390,10 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
 	else
 	left=middle;*/
 	    
-    L->Log<<"A2 (middle) :	"<<middle<<"	ESi2=	"<<sEnergySi<<"	ECsI2=	"<<sEnergyCsI<<endl; //paola
+    //L->Log<<"A2 (middle) :	"<<middle<<"	ESi2=	"<<sEnergySi<<"	ECsI2=	"<<sEnergyCsI<<endl; //paola
 
     it++;
-    L->Log<<"----------------iteration= "<<it<<endl;
+    //L->Log<<"----------------iteration= "<<it<<endl;
   }    //end of bisection loop
   
   //simulated energies for two values of A closest to the point of zero 
@@ -402,13 +402,13 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
     CompleteSimulation(chan);
     esi1=sEnergySi;
     ecsi1=sEnergyCsI;
-    L->Log<<"esi1 : "<<esi1<<" ecsi1 : "<<ecsi1<<endl;
+    //L->Log<<"esi1 : "<<esi1<<" ecsi1 : "<<ecsi1<<endl;
     
     SetFragmentA(right);
     CompleteSimulation(chan);
     esi2=sEnergySi;
     ecsi2=sEnergyCsI;    
-    L->Log<<"esi2 : "<<esi2<<" ecsi2 : "<<ecsi2<<endl;
+    //L->Log<<"esi2 : "<<esi2<<" ecsi2 : "<<ecsi2<<endl;
 
 }
 
@@ -417,16 +417,16 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI){
   Double_t middle=0.; 
   Int_t it=0;
   Double_t leftA, rightA=0.;
-  L->Log<<"------------"<<endl;
-  L->Log<<"Valeur de A : "<<A<<endl;
-  L->Log<<"Light Reference :	"<<LightCsI<<endl;
+  //L->Log<<"------------"<<endl;
+  //L->Log<<"Valeur de A : "<<A<<endl;
+  //L->Log<<"Light Reference :	"<<LightCsI<<endl;
   
   if(A-0.5>0)
   leftA=A-0.5;  //left and right are integer!! A is a double
   else leftA=0.;
   rightA=A+0.5;	
   
-  L->Log<<"-----------------------------------BISECTION-LIGHT------------------"<<endl;//paola
+  //L->Log<<"-----------------------------------BISECTION-LIGHT------------------"<<endl;//paola
 
 //new bisection method 
 //=== Test  
@@ -440,22 +440,22 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI){
     	factor = -1;
     }
     difference *= factor;
-	L->Log<<"A left : "<<leftA<<" Measured Light : "<<LightCsI<<" Calculated  Light : "<<calcul_light<<" difference : "<<difference<<" factor : "<<factor<<endl;
+	//L->Log<<"A left : "<<leftA<<" Measured Light : "<<LightCsI<<" Calculated  Light : "<<calcul_light<<" difference : "<<difference<<" factor : "<<factor<<endl;
 
     calcul_light = lum->Invert(Z,rightA,ECsI);
     difference = LightCsI - calcul_light;	              
     difference *= factor;
-	L->Log<<"A right : "<<rightA<<" Measured Light : "<<LightCsI<<" Calculated  Light : "<<calcul_light<<" difference : "<<difference<<" factor : "<<factor<<endl;
+	//L->Log<<"A right : "<<rightA<<" Measured Light : "<<LightCsI<<" Calculated  Light : "<<calcul_light<<" difference : "<<difference<<" factor : "<<factor<<endl;
  
     if(difference<0){
-    	L->Log<<"Bisection error"<<endl;
+    	//L->Log<<"Bisection error"<<endl;
     } 
 // === End test
     
   //loop: bisection
   while(rightA-leftA>0.1){
 
-    L->Log<<"-------------------loop bisection------------"<<endl;
+    //L->Log<<"-------------------loop bisection------------"<<endl;
 	//L->Log<<"LightCsI	: "<<LightCsI<<endl;	
 	//cout<<"LightCsI	: "<<LightCsI<<endl;
 	middle=(leftA+rightA)/2;
@@ -466,7 +466,7 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI){
 //new bisection method 
 //=== Test
     	difference = factor*(LightCsI - calcul_light);
-	L->Log<<"difference : "<<difference<<endl;	 
+	//L->Log<<"difference : "<<difference<<endl;	 
 	if(difference<0){
 		leftA = middle;
 	}
@@ -480,10 +480,10 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI){
 	else
 	left=middle;*/
 	    
-    L->Log<<"A2 (middle) :	"<<middle<<"	Measured Light =	"<<LightCsI<<"	Calculated Light =	"<<calcul_light<<endl; //paola
+    //L->Log<<"A2 (middle) :	"<<middle<<"	Measured Light =	"<<LightCsI<<"	Calculated Light =	"<<calcul_light<<endl; //paola
 
     it++;
-    L->Log<<"----------------iteration= "<<it<<endl;
+    //L->Log<<"----------------iteration= "<<it<<endl;
   }    //end of bisection loop
   
   //simulated energies for two values of A closest to the point of zero 
@@ -503,12 +503,12 @@ Double_t CsICalib::BisectionLight(Double_t Z, Double_t A, Double_t ECsI){
 //interpolation usage for to find the right residual energy and right A, using 
 //the final interval returned by bisection 
 void CsICalib::Interpolate(){   
- L->Log<<"esi1 : "<<esi1<<" ecsi1 : "<<ecsi1<<endl;    
- L->Log<<"esi2 : "<<esi2<<" ecsi2 : "<<ecsi2<<endl;
+ //L->Log<<"esi1 : "<<esi1<<" ecsi1 : "<<ecsi1<<endl;    
+ //L->Log<<"esi2 : "<<esi2<<" ecsi2 : "<<ecsi2<<endl;
    sRefECsI= GetInterpolationD(esi1,ecsi1,esi2,ecsi2,eEnergySi);
-   L->Log<<"sRefECsI : "<<sRefECsI<<endl;
+   //L->Log<<"sRefECsI : "<<sRefECsI<<endl;
    iA=GetInterpolationD(esi1,(Double_t)left,esi2,(Double_t)right,eEnergySi);
-   L->Log<<"iA : "<<iA<<endl;   
+   //L->Log<<"iA : "<<iA<<endl;   
      
 }
 

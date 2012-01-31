@@ -58,13 +58,13 @@ void Identificationv::Init(void)
 {
   Present = false; 
 
-  dE = dE1 = E = T = V = V2 = V_Etot = T_FP = M_Q = M_Q_corr = M = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
+  dE = dE1 = E = T = V = V2 = V_Etot = T_FP = M_Q = M_Q_corr = M = M_corr = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
   M_Qr = Mr = Qr = -10.0;
   Qc = Mc = -10.0;
   Gamma = 1.; 
  initThickness=0.;      
 zt = ZZ  = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
-ESi = ECsI = EEtot  = AA =  ZR = -10.0;
+ESi = ECsI = ECsI_corr = E_corr = EEtot  = AA =  ZR = -10.0;
 PID = Z_PID = A_PID = -10.0;
 
     runNumber = 0;
@@ -100,7 +100,7 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
   
  //energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);	//Apply the calibration parameters for the Si and the CsI
 
-Bool_t mg24 = kFALSE;
+//Bool_t mg24 = kFALSE;
 	
   for(Int_t y=0;y< Si->E_RawM ;y++)	 
     {
@@ -113,7 +113,7 @@ Bool_t mg24 = kFALSE;
 	if(AnalyseOnlyMyIsotope)
 		{
 	    	//conditions for mg24 in si=14 and csi=47 (from zero)
-		//if(CsI->Number!=47)	continue;	//blame paola....	
+		//if(CsI->Number!=48)	continue;	//blame paola....	
   		//if(Si->E_Raw[y] >1626 || Si->E_Raw[y] <1571) continue;		//Mg 24
 		//if(Si->T_Raw[0] <7917 || Si->T_Raw[0] >8202) continue;		//Mg 24
 		
@@ -126,7 +126,7 @@ Bool_t mg24 = kFALSE;
 		//if(Rec->Brho<1.695 || Rec->Brho>1.71)continue;
   		//if(Si->E_Raw[y] >5350 || Si->E_Raw[y] <5200) continue;		//Ca 40
 		//if(CsI->E_Raw[j] <2600 || CsI->E_Raw[j] >2800) continue;		//Ca 40		
-		mg24 = kTRUE;
+		//mg24 = kTRUE;
 		}
 		
 		L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
@@ -164,10 +164,9 @@ Bool_t mg24 = kFALSE;
                 if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
 
                     if(grd != 0){
-		    	
-		    	energytree->CalculateESi(double(Si->E_Raw[y]));
-			//energytree->CalculateESi(5003.75);
-			
+		    	energytree->CalculateESi(double(Si->E_Raw[y]));						//Si calibration (signal->energy)
+			//energytree->CalculateESi(5003.75);	
+														//Identification according to the grid (csi,si)
 			energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
 			//energytree->kvid->Identify(3019.60, double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
                         A_PID = id->A;
@@ -183,6 +182,8 @@ Bool_t mg24 = kFALSE;
 	      		//energytree->GetResidualEnergyCsI(5003.75,3019.60);		//Method called for guessing A value by bissection method and getting CsI energy
 	        	ECsI = energytree->RetrieveEnergyCsI();
 			ESi = energytree->RetrieveEnergySi();
+			EGap = energytree->eEnergyGap;
+			
 			AA = energytree->RetrieveA();											
 			//DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
 			//DetSi = int(Si->Number)+1;	// Numérotation : (1-18)		
@@ -249,10 +250,10 @@ Bool_t mg24 = kFALSE;
       if(Dr->Present) dE1 = dE1 / cos(Dr->Tf/1000.);
       dE /= 0.614;
       dE += dE*0.15;
-      if((dE1+ESi+ECsI)>0)		//if(Si->ETotal > 0)		//Originalement : if(Si->ETotal>0)
+      if((dE1+ESi+ECsI)>0)					//if(Si->ETotal > 0)
 	//E = (dE/1000) + (ESi+ECsI)*0.99;
-	E = dE1 + ESi + ECsI;		//Total energy (MeV)	dE1+ESi+ECsI
-	//E *= 1.03;			//Correction for the different dead layers (about 3%)
+	E = dE1 + ESi + EGap + ECsI;				//Total energy (MeV)	(ChIo, Si, estimated gap energy, CsI)
+	E += (0.00331495 + (0.0089892*AA));			//Correction for the layers before the IC
 
 	L->Log<<"dE1	(MeV)= "<<dE1<<endl;
 	L->Log<<"E	(MeV)= "<<E<<endl;
@@ -270,7 +271,7 @@ Bool_t mg24 = kFALSE;
     }
 */
 
-T = Si->Tfrag;
+T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added on the ToF distribution to get a straight M/Q=2 distribution
       
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
@@ -302,12 +303,63 @@ T = Si->Tfrag;
     {
 
       M = 2.* E / (931.5016*TMath::Power(Beta,2.));
+      
+
+      //=========================================================================
+      //M Correction depending on the Si detector
+      if(int(Si->Number+1)==18){
+      M_corr = -13.261 + (2.56372*M) + (-0.0508636*M*M) + (0.000513482*M*M*M);
+      }
+      if(int(Si->Number+1)==17){
+      M_corr = -17.6552 + (2.72249*M) + (-0.0471087*M*M) + (0.000399392*M*M*M);
+      }      
+      if(int(Si->Number+1)==16){
+      M_corr = -10.3725 + (1.94285*M) + (-0.0212104*M*M) + (0.000112669*M*M*M);
+      } 
+      if(int(Si->Number+1)==15){
+      M_corr = -7.42487 + (1.70064*M) + (-0.0131194*M*M) + (-1.59333E-05*M*M*M);
+      }       
+      if(int(Si->Number+1)==14){
+      M_corr = -26.0143 + (3.81171*M) + (-0.0926025*M*M) + (0.000968838*M*M*M);
+      }      
+      if(int(Si->Number+1)==13){
+      M_corr = -25.0593 + (3.27641*M) + (-0.0778539*M*M) + (0.00090637*M*M*M);
+      }      
+      if(int(Si->Number+1)==12){
+      M_corr = -25.9265 + (3.62184*M) + (-0.0785141*M*M) + (0.00072279*M*M*M);
+      }       
+      if(int(Si->Number+1)==11){
+      M_corr = -101.585 + (12.0667*M) + (-0.38208*M*M) + (0.00425009*M*M*M);
+      }
+      if(int(Si->Number+1)==8){
+      M_corr = -4.09712 + (1.43131*M) + (-0.0161507*M*M) + (0.000246024*M*M*M);
+      }            
+      //=========================================================================   
+      
+      //=========================================================================
+      //Total energy correction based on the actual calibration 
+      if(M_corr!= -10){
+      energytree->Bisection(M_corr,double(CsIRaw));		//Call the bisection method 	
+      energytree->Interpolate();
+      ECsI_corr = energytree->RetrieveEnergyCsI();
+      E_corr = E - ECsI + ECsI_corr;    
+      }
+      //=========================================================================
+             
       M_Q = Rec->Brho/(3.105*Beta);
       M_Q_corr = M_Q * (2/(2.02098 + (-0.00024494*Dr->Tf)));
-      
+            
+      L->Log<<"===M/Q construction==="<<endl;
+      L->Log<<"Brho	= "<<Rec->Brho<<endl;
+      L->Log<<"Beta	= "<<Beta<<endl;
+      L->Log<<"===================="<<endl;
+      L->Log<<"===M construction==="<<endl;
+      L->Log<<"E	= "<<E<<endl;
+      L->Log<<"Beta	= "<<Beta<<endl;
+      L->Log<<"===================="<<endl;      
       L->Log<<"M	= "<<M<<endl;
       L->Log<<"M/Q	= "<<M_Q<<endl;
-      L->Log<<"M/Q_corr	= "<<M_Q_corr<<endl;
+      L->Log<<"M/Q_c	= "<<M_Q_corr<<endl;
       
       Mr = (E/1000.)/931.5016/(Gamma-1.);
       M_Qr = Rec->Brho/3.105/Beta/Gamma;
@@ -317,6 +369,9 @@ T = Si->Tfrag;
       Qr = (-1.036820+1.042380*Qr +0.4801678e-03*Qr*Qr);
       Qc = int(Qr+0.5);
       Mc = M_Qr*Qc;
+      
+      L->Log<<"Q	= "<<Q<<endl;      
+      L->Log<<"Q_c	= "<<M/M_Q_corr<<endl;
     }
 /*  
   Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
@@ -396,7 +451,9 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
 	outT->Branch("ESi",&ESi,"ESi/D");
+	outT->Branch("EGap",&EGap,"EGap/D");
 	outT->Branch("ECsI",&ECsI,"ECsI/D");
+	outT->Branch("ECsI_corr",&ECsI_corr,"ECsI_corr/D");
 	//outT->Branch("DetSi",&DetSi,"DetSi/I");
 	//outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
 	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");	
@@ -408,6 +465,7 @@ void Identificationv::outAttach(TTree *outT)
   //outT->Branch("dE",&dE,"dE/F");
   //outT->Branch("dE1",&dE1,"dE1/F");
   outT->Branch("E",&E,"E/F");
+  outT->Branch("E_corr",&E_corr,"E_corr/F");
   outT->Branch("T",&T,"T/F");
   outT->Branch("V",&V,"V/F");
   
@@ -422,6 +480,7 @@ void Identificationv::outAttach(TTree *outT)
   outT->Branch("M_Q_corr",&M_Q_corr,"M_Q_corr/F");
   outT->Branch("Q",&Q,"Q/F");
   outT->Branch("M",&M,"M/F");
+  outT->Branch("M_corr",&M_corr,"M_corr/F");
   outT->Branch("M_Qr",&M_Qr,"M_Qr/F");
   outT->Branch("Qr",&Qr,"Qr/F");
   outT->Branch("Mr",&Mr,"Mr/F");

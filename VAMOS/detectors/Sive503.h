@@ -54,8 +54,41 @@ class Sive503
 
   Float_t TOffset[21];
   Double_t TRef[19];
-  Double_t Tpropre_el[19];  
-  Double_t Offset467[19];
+  Double_t Tpropre_el[19]; 
+   
+  //System 48Ca + 40Ca
+  Double_t Offset328[19]; 
+  Double_t Offset333[19];
+  Double_t Offset339[19];
+  Double_t Offset344[19];
+  Double_t Offset348[19];
+  Double_t Offset353[19];
+  Double_t Offset355[19];
+        
+  //System 48Ca + 48Ca
+  Double_t Offset379[19]; 
+  Double_t Offset384[19];
+  Double_t Offset390[19];
+  Double_t Offset398[19];
+  Double_t Offset403[19];
+  Double_t Offset405[19];  
+  Double_t Offset407[19];
+              
+  //System 40Ca + 48Ca 
+  Double_t Offset455[19];
+  Double_t Offset467[19];  
+  Double_t Offset475[19];
+  Double_t Offset484[19];
+  Double_t Offset490[19];
+  Double_t Offset493[19];  
+    
+  //System 40Ca + 40Ca  
+  Double_t Offset525[19];  
+  Double_t Offset528[19]; 
+  Double_t Offset531[19];  
+  Double_t Offset537[19];  
+  Double_t Offset543[19]; 
+  
   Double_t Tfrag;
   Double_t si_thick[19];   
   //
