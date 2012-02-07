@@ -21,6 +21,7 @@ class KVLogReader {
    TString fStatus;             //status string
    Bool_t fOK;                  //job OK or not ?
    Bool_t fGotRequests;   //set true when disk & memory request has been read
+   Bool_t fGotStatus;   //set true when end of job infos have been read
 
 	protected:
    virtual Int_t GetByteMultiplier(TString & unit)=0;
@@ -31,7 +32,7 @@ class KVLogReader {
    virtual void ReadMemUsed(TString & line)=0;
    virtual void ReadStatus(TString & line)=0;
    void ReadJobname(TString & line);
-   virtual Int_t ReadStorage(KVString & stor)=0;
+   virtual Double_t ReadStorage(KVString & stor)=0;
 
  public:
 
@@ -40,7 +41,7 @@ class KVLogReader {
    };
 
    void ReadFile(const Char_t * fname);
-   void Reset();
+   virtual void Reset();
 
    void SetNameFormat(const Char_t * fmt) {
       fFMT = fmt;
@@ -83,7 +84,7 @@ class KVLogReader {
    Bool_t SegFault() const {
       return (fStatus.Contains("egmentation"));
    };
-   Bool_t Incomplete() const;
+   virtual Bool_t Incomplete() const;
 
    ClassDef(KVLogReader, 0)//Tool for reading CCIN2P3 batch logs
 };

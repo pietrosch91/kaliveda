@@ -48,7 +48,6 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 #include "KVHashList.h"
 #include "KVNameValueList.h"
 #include "KVUniqueNameList.h"
-#include "KVSimNucleus.h"
 
 ClassImp(KVMultiDetArray)
 //////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +118,7 @@ ClassImp(KVMultiDetArray)
 //The method needs :
 //	-	a valid pointer for the simulated event which will be filtered 
 //	-  KVReconstructedEvent pointer where user obtain, at the end, a list of KVReconstructedNucleus after the first step to reconstruction of the "filtered" event.
-//If the KVEvent input pointer contains KVSimNucleus pointers for particles a list of energy loss in each detector are associated.
+//For each particles of the KVEvent input pointer a list of energy loss in each detector are associated.
 //the energy of these particles are the same as before the filter process.
 //Different tags using the KVNucleus::AddGroup method are set depending on the status of the particles.
 //The multi detector is cleared at the beginning of the method, to remove all traces of the precedent event
@@ -165,11 +164,11 @@ void KVMultiDetArray::init()
 
     fLayers = new KVList;
     fLayers->SetCleanup(kTRUE);
-    fDetectors = new KVHashList(20,2);
+    fDetectors = new KVHashList();
     fDetectors->SetCleanup(kTRUE);
     fGroups = new KVList;
     fGroups->SetCleanup(kTRUE);
-    fIDTelescopes = new KVHashList(20,2);
+    fIDTelescopes = new KVHashList();
     fIDTelescopes->SetOwner(kTRUE); // owns its objects
     fIDTelescopes->SetCleanup(kTRUE);
    
@@ -189,6 +188,7 @@ void KVMultiDetArray::init()
 
     fStatusIDTelescopes = 0;
     fCalibStatusDets = 0;
+	 fSimMode = kFALSE;
 }
 
 //______________________________________________________________________________
@@ -324,6 +324,9 @@ void KVMultiDetArray::UpdateArray()
     SetGroupsAndIDTelescopes();
     SetACQParams();
     SetCalibrators();
+    SetIdentifications();
+    SetDetectorThicknesses();
+    
     // if graphical interface is being used, need to update display
     if (fBrowser)
         fBrowser->UpdateArray();
@@ -353,7 +356,21 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //This method is called by KVGroup in order to set up all ID telescopes
     //of the array.
 
-    KVIDTelescope *idt = 0;
+	if ( !(de->IsOK() && e->IsOK()) ){
+		/*
+		Warning("GetIDTelescopes","Appel avec au moins un detecteur foireux %s(%d/%d), %s (%d/%d)",
+			de->GetName(),
+			de->IsPresent(),
+			de->IsDetecting(),
+			e->GetName(),
+			e->IsPresent(),
+			e->IsDetecting()
+		);
+		*/
+		return;
+	}
+	KVIDTelescope *idt = 0;
+
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
 	 Int_t de_thick = TMath::Nint(de->GetThickness());
 	 Int_t e_thick = TMath::Nint(e->GetThickness());
@@ -479,11 +496,14 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
             }
         }
     }
+	 
 }
 
 void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri)
 {
-    idt->AddDetector(de);
+    //Info("set_up_telescope","de det %s e det %s -> %s",de->GetName(),e->GetName(),uri.Data());
+
+	 idt->AddDetector(de);
     idt->AddDetector(e);
     if (de->GetGroup()) {
         idt->SetGroup(de->GetGroup());
@@ -535,7 +555,13 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
     //List is in fGroups.
     //Also creates all ID telescopes in array and stores them in fIDTelescopes.
     //Any previous groups/idtelescopes are deleted beforehand.
+   // As any ID grids stored in gIDGridManager will have been associated to the
+   // old ID telescopes (whose addresses now become obsolete), we clear the ID grid manager
+   // deleting all ID grids. You should therefore follow this with a call to
+   // SetIdentifications() in order to reinitialize all that.
 
+   gIDGridManager->Clear();
+ 
     fGroups->Delete();           // clear out (delete) old groups
     fIDTelescopes->Delete();     // clear out (delete) old identification telescopes
    
@@ -581,7 +607,7 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
                                                     tobj->GetPhiMax());
                             fGroups->Add(kvg);
                         }
-                    }
+							}
                 }
             }
         }
@@ -651,8 +677,7 @@ void KVMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
 // b) if one of them is in a group already, add the orphan telescope to it
 // c) if both are in groups already, merge the two groups
     KVGroup *kvg;
-
-
+	
     if (!kt1->GetGroup() && !kt2->GetGroup()) {  // case a)
 #ifdef KV_DEBUG
         cout << "Making new Group from " << kt1->
@@ -802,10 +827,6 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	 //     (high energy particle punh through), or which miss some detectors due to a non perfect overlap between defined telescope,
 	 //	  or particles which stopped in the first detection stage of the multidetector in a detector which can not give
 	 //		alone a clear identification, this correponds to status=3 or idcode=5 in INDRA data
-	 //	!!! WARNING : to keep all information about the detection process, the filtered KVSimEvent object has
-	 //	!!! to contain KVSimNucleus object 
-	 //	!!! the detection status of each particle and the list of detectors and their energy loss are stored
-	 //	!!! and are accessible via KVSimNucleus::GetParameters() method
 	 //
 	 //
 	 //After the filtered process, a reconstructed event are obtain from the fired groups corresponding
@@ -852,7 +873,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 #endif
 		
 		part->SetE0();
-		det_stat->Clear_NVL();
+		det_stat->Clear();
 		Double_t eLostInTarget=0;
 		
 		if (part->GetKE()==0) { 
@@ -866,6 +887,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		
 			//Double_t eLostInTarget=0;
 			if (fTarget){
+				fTarget->SetOutgoing(kTRUE);
 				//simulate passage through target material
 				Double_t ebef = part->GetKE();
 				fTarget->DetectParticle(part);
@@ -876,7 +898,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					part->AddGroup("UNDETECTED");
 					part->AddGroup("STOPPED IN TARGET"); 
 					
-				}	
+				}
+				fTarget->SetOutgoing(kFALSE);	
 			}
 		
 			if (part->GetKE()==0) { 
@@ -919,8 +942,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
 					}
-				
+					
 					if (ntrav != ldet->GetEntries()){
+					
 						// la particule a une trajectoire
 						// incoherente, elle a loupe un detecteur avec une ouverture 
 						// plus large que ceux a la suite ou la particule est passe
@@ -950,7 +974,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						
 						part->AddGroup("UNDETECTED");
 						part->AddGroup("GEOMETRY INCOHERENCY");
-						
+					
 					}
 					else {
 						
@@ -1016,32 +1040,21 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 			}
 		}
 		
-		if (part->InheritsFrom("KVSimNucleus")){
-			//On enregistre l eventuelle perte dans la cible
-			if (fTarget)
-				((KVSimNucleus* )part)->SetValue("TARGET",eLostInTarget);
-			//On enregistre le statut de detection
-			for (Int_t nds=0;nds<det_stat->GetNpar();nds+=1){
-				((KVSimNucleus* )part)->SetValue(det_stat->GetNameAt(nds),det_stat->GetStringValue(nds));
-			}
-			//On enregistre les differentes pertes d'energie dans les detecteurs
-			if (nvl){
-				
-				TIter it(nvl->GetList());
-				TNamed* nam = 0;
-				while ( (nam = (TNamed* )it.Next()) ){
-					((KVSimNucleus* )part)->SetValue(nam->GetName(),nam->GetTitle());
-				}
-				
-				delete nvl;
-				nvl = 0;
-			}
+		//On enregistre l eventuelle perte dans la cible
+		if (fTarget)
+			part->GetParameters()->SetValue("TARGET Out",eLostInTarget);
+		//On enregistre le statut de detection
+		for (Int_t ii=0;ii<det_stat->GetNpar();ii+=1){
+			part->GetParameters()->SetValue(det_stat->GetNameAt(ii),det_stat->GetStringValue(ii));
 		}
-		else {
-			if (nvl){
-				delete nvl;
-				nvl = 0;
+		//On enregistre les differentes pertes d'energie dans les detecteurs
+		if (nvl){
+				
+			for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
+				part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
 			}
+			delete nvl;
+			nvl = 0;
 		}
 		part->SetMomentum(*part->GetPInitial());
 
@@ -1059,8 +1072,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    while ((grp_tch = (KVGroup *) nxt_grp())) {
    	grp_tch->ClearHitDetectors();
    }
-    // reconstruct the event
-    rec_event->ReconstructEvent(fHitGroups);
+	// reconstruct the event
+	rec_event->ReconstructEvent(fHitGroups);
 
 }
 

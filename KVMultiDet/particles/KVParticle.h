@@ -28,6 +28,7 @@ $Id: KVParticle.h,v 1.41 2008/05/21 13:19:56 ebonnet Exp $
 #include "KVList.h"
 #include "KVUniqueNameList.h"
 #include "TObjString.h"
+#include "KVNameValueList.h"
 
 class KVEvent;
 class KVList;
@@ -37,13 +38,15 @@ class KVParticle:public TLorentzVector {
 
    TString fName;            	//!non-persistent name field - Is useful
    TString fFrameName;			//!non-persistent frame name field, sets when calling SetFrame method
-	KVList *fBoosted;				//!list of momenta of the particle in different Lorentz-boosted frames
-   KVUniqueNameList* fGroups;	//!list of TObjString for manage different group name									 
+	KVList fBoosted;				//!list of momenta of the particle in different Lorentz-boosted frames
+   KVUniqueNameList fGroups;	//!list of TObjString for manage different group name									 
    static Double_t kSpeedOfLight;       //speed of light in cm/ns
 
  protected:
 
    TVector3 * fE0;             //the momentum of the particle before it is slowed/stopped by an absorber
+   KVNameValueList fParameters;//a general-purpose list of parameters associated with this particle
+ 
 	virtual void AddGroup_Withcondition(const Char_t*, KVParticleCondition*);
 	virtual void AddGroup_Sanscondition(const Char_t* groupname, const Char_t* from="");
 	void CreateGroups();
@@ -54,10 +57,8 @@ class KVParticle:public TLorentzVector {
 	
 	Bool_t HasFrame(const Char_t* frame);
 	Int_t GetNumberOfDefinedFrames(void) {  
-		if (fBoosted)	return fBoosted->GetEntries();
-		else				return 0;
-		//	return (fBoosted ? fBoosted->GetEntries() : 0); 
-	}
+		return fBoosted.GetEntries();
+	};
 	Int_t GetNumberOfDefinedGroups(void);
 	KVUniqueNameList* GetGroups() const;
 	
@@ -165,7 +166,7 @@ class KVParticle:public TLorentzVector {
       ResetBit(kIsOKSet);
    };
 	
-	KVList* GetListOfFrames(void) {return fBoosted;}
+	KVList* GetListOfFrames(void) {return (KVList*)&fBoosted;}
 	
    void SetE0(TVector3 * e = 0) {
       if (!fE0)
@@ -220,8 +221,13 @@ class KVParticle:public TLorentzVector {
 	
 	const Char_t *GetFrameName(void) const { return fFrameName; }
 	void SetFrameName(const Char_t* framename) {fFrameName=framename;} 
+   
+   KVNameValueList* GetParameters() const
+   {
+      return (KVNameValueList*)&fParameters;
+   };
 	
-   ClassDef(KVParticle, 7)      //General base class for all massive particles
+   ClassDef(KVParticle, 8)      //General base class for all massive particles
 };
 
 #endif

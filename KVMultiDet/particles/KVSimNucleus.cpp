@@ -12,9 +12,6 @@ ClassImp(KVSimNucleus)
 <h4>Classe dérivée de KVNucleus pour gérer des simulations dans KaliVeda</h4>
 <!-- */
 // --> END_HTML
-//La classe dérive également de KVNameValueList pour pouvoir ajouter autant
-// de parametres que possible afin d'enregistrer des propriétés des noyaux 
-// propre à chaque simulation
 //Deux TVector3 sont ajoutés en champs de la classe : 
 // - le vecteur position
 // - le vecteur moment angulaire
@@ -26,24 +23,11 @@ ClassImp(KVSimNucleus)
 KVSimNucleus::KVSimNucleus()
 {
 	//Constructeur par defaut
-	init();
 }
 	
-//___________________________
-void KVSimNucleus::init()
-{
-	//protected method
-	//to initialize variables
-	IsCleared = kFALSE;
-}
-
 //___________________________
 KVSimNucleus::~KVSimNucleus()
 {
-	
-	//Destructeur
-	if ( !IsCleared ) 
-		Clear();
 }
 
 //___________________________
@@ -52,38 +36,9 @@ void KVSimNucleus::Copy(TObject& obj) const
 
 	//Copy l'object "this" vers obj
 	
-	KVNucleus::Copy(obj);
-	
+	KVNucleus::Copy(obj);	
 	((KVSimNucleus &)obj).position = position;
 	((KVSimNucleus &)obj).angmom = angmom;
-	
-	//Appel direct de KVNameValueList::Copy()
-	//provoquait un segmentation fault ...
-	//on recopie peu ou prou
-	//cette methode, pour que ca marche
-
-	khl->Copy(*((KVSimNucleus &)obj).GetList());
-	((KVSimNucleus &)obj).GetList()->SetName(khl->GetName());
-}
-
-//___________________________
-void KVSimNucleus::Print(Option_t* opt) const
-{
-	//print des informations relatives à l objet
-	KVNucleus::Print(opt);
-	Print_NVL(opt);
-
-}
-
-//___________________________
-void KVSimNucleus::Clear(Option_t * opt)
-{
-	//Clear des variables héritées de KVNucleus
-	//La liste des parametres est effacées
-	KVNucleus::Clear(opt);
-	Clear_NVL(opt);
-	
-	IsCleared = kTRUE;	
 }
 
 //___________________________

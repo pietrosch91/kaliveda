@@ -34,6 +34,8 @@ protected:
     virtual void	PrintCollectionHeader(Option_t* option) const;
     virtual KVSeqCollection* NewCollectionLikeThisOne() const;
     virtual void SetCollection(const Char_t*);
+    virtual void _GetSubListWithMethod(KVSeqCollection*, TCollection*, const Char_t* ,const Char_t* );
+    void _GetSubListWithClass(KVSeqCollection*, TCollection*, const TClass* );
 
 public:
     KVSeqCollection();
@@ -231,7 +233,7 @@ public:
     	return fCollection;
     };
 
-    ClassDef(KVSeqCollection,1)//KaliVeda extensions to ROOT collections
+    ClassDef(KVSeqCollection,2)//KaliVeda extensions to ROOT collections
 };
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,11,2)

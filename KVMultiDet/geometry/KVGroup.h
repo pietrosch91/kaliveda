@@ -44,6 +44,7 @@ class KVGroup:public KVPosition {
    UInt_t fLayNumMin;           //minimum layer number (nearest to target)
    UInt_t fLayNumMax;           //maximum layer number (furthest from target)
    KVList *fReconstructedNuclei;        //!Particles reconstructed in this group
+	
  public:
    enum {
       kForwards,
@@ -126,7 +127,9 @@ class KVGroup:public KVPosition {
 
    void AnalyseParticles();
    inline Bool_t Fired(Option_t * opt = "any") const;
-
+	void PrepareModif();
+	
+	
    ClassDef(KVGroup, 1)         //Group of telescopes in different layers having similar angular positions.
 };
 

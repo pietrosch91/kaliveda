@@ -5,11 +5,11 @@
 #pragma link off all functions;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
-#pragma link C++ class KVSimEvent-;
+#pragma link C++ class KVSimEvent+;
 #pragma link C++ class KVDetectorEvent+;
 #pragma link C++ class KVElasticScatter+;
 #pragma link C++ class KVElasticScatterEvent+;
-#pragma link C++ class KVEvent+;
+#pragma link C++ class KVEvent-;
 #pragma link C++ class KVReconstructedEvent-;//customised streamer
 #pragma link C++ class KVTestEvent+;
 #pragma link C++ class KV2Body+;

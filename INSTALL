@@ -69,6 +69,9 @@ In order to read raw GANIL acquisition data over the network using Xrootd, type:
    
    make MAKE_GANTAPE_XRD=yes
 
+For ROOT version 5.32 and later, xrootd is no longer installed as a ROOT package,
+but as an external package. In this case, the XRDSYS variable must be defined
+and contain the path to the xrootd installation. 
 
 3. Installing documentation
 ---------------------------

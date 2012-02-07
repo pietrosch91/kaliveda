@@ -15,7 +15,7 @@ class KVReconstructedNucleus:public KVNucleus {
 
 protected:
     KVString fDetNames; // list of names of detectors through which particle passed
-    KVHashList* fDetList; //! non-persistent list of pointers to detectors
+    KVHashList fDetList; //! non-persistent list of pointers to detectors
     KVString fIDTelName;   // name of identification telescope which identified this particle (if any)
     KVIDTelescope* fIDTelescope; //! non-persistent pointer to identification telescope
 
@@ -66,11 +66,10 @@ public:
         // Return pointer to list of detectors through which particle passed,
         // in reverse order (i.e. first detector in list is the one in which particle stopped).
         
-        if (!fDetList) {
-        	const_cast<KVReconstructedNucleus*>(this)->fDetList = new KVHashList;
+        if (!fDetList.GetEntries()) {
         	const_cast<KVReconstructedNucleus*>(this)->MakeDetectorList();
         }
-        return fDetList;
+        return &fDetList;
     };
     KVDetector *GetDetector(int i) const
     {
@@ -106,7 +105,7 @@ public:
     	// recalculate segmentation index of particle used by Identify() and
     	// KVGroup::AnalyseParticles
     	fNSegDet=0;
-    	KVDetector* det; TIter nxt(fDetList);
+    	KVDetector* det; TIter nxt(&fDetList);
     	while( (det=(KVDetector*)nxt()) ) fNSegDet += det->GetSegment();
     };
     inline Int_t GetStatus() const

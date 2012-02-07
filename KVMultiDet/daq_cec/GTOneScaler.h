@@ -30,7 +30,7 @@
 #define GT_GTOneScaler_H
 
 #include <TObject.h>
-
+#include "GEN_TYPE.H"
 #include "gan_acq_buf.h"
 
 // ---------------------------------------------------------------------------

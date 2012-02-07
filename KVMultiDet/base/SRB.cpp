@@ -22,14 +22,10 @@ ClassImp(SRB)
 
 SRB::SRB()
 {
-   // Initializes SRB session - calls Sinit()
-	Sinit();
 }
 
 SRB::~SRB()
 {
-   // Ends SRB session - calls Sexit()
-	Sexit();
 }
 
 Bool_t SRB::buildCommand(const Char_t* scmd, const Char_t* args, Option_t* opts)
@@ -71,20 +67,13 @@ TString SRB::pipeCommand()
 	// the value given by the operating system in a string.
 	
 	if(fcmd=="") return TString("");
-	fout="";
-	FILE *pipe=gSystem->OpenPipe(fcmd.Data(),"r");
-	TString line;
-	while(line.Gets(pipe)){
-		if(fout!="")
-			fout+="\n";
-		fout+=line;
-	}
-	/*Int_t r=*/gSystem->ClosePipe(pipe);
+	fout=gSystem->GetFromPipe(fcmd.Data());
 	return fout;
 }
 
 Int_t SRB::Sinit()
 {
+   // Call in interactive session if you want to use relative pathnames
 	buildCommand("Sinit");
 	return execCommand();
 }
@@ -153,6 +142,7 @@ Int_t SRB::Smkdir(const Char_t* path, Option_t* opt)
 
 Int_t SRB::Sexit()
 {
+   // Call at end of interactive session (i.e. if you previously called Sinit())
 	buildCommand("Sexit");
 	return execCommand();
 }

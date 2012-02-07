@@ -65,7 +65,7 @@ void KVINDRAUpDater_e613::SetGains(KVDBRun * kvrun)
 	if (nchange==0)
 		Info("SetGains","Gains of the %d detectors are the same than the run before ",ndets);
 	else 
-		Info("SetGains","Gains have been changed for %d detectors (total = %d) :\n%s",nchange,ndets,list.Data());
+		Info("SetGains","Gains have been changed for %d detectors (total = %d)",nchange,ndets);
 
 }
 
@@ -106,6 +106,6 @@ void KVINDRAUpDater_e613::SetPedestals(KVDBRun * kvrun)
 	if (nchange==0)
 		Info("SetGains","Pedestals of the %d acquisition parameters are the same than the run before ",ndets);
 	else 
-		Info("SetGains","Pedestals have been changed for %d acquisition parameters (total = %d) :\n%s",nchange,ndets,list.Data());
+		Info("SetGains","Pedestals have been changed for %d acquisition parameters (total = %d)",nchange,ndets);
 
 }

@@ -957,8 +957,8 @@ void KVDataSet::DeleteRunfiles(const Char_t * type, KVNumberList nl, Bool_t conf
 
 KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* min,TDatime* max)
 {
-   //Returns list of runs after date / time selection
-	//Run generated between ]min;max[ are selected
+   //Prints out and returns list of runs after date / time selection
+	//Runs generated between ]min;max[ are selected
 	//if min=NULL	runs with date <max are selected
 	//if max=NULL runs with date >min are selected
 	//if max and min are NULL returns empty KVNumberList
@@ -976,9 +976,8 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 	TList* lrun=0;
 	for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
 		sys = (KVDBSystem* )ll->At(nl);
-		sys->ls();
 		lrun = GetListOfAvailableSystems(type,sys);
-
+		KVNumberList oldList = numb;
 		for (Int_t nr=0;nr<lrun->GetEntries();nr+=1){
 			run =(KVDBRun* )lrun->At(nr);
 
@@ -998,24 +997,34 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 				}
 			}
 		}
+		// print runs for system if any
+		if(numb.GetEntries()>oldList.GetEntries()) printf("%s : %s\n", sys->GetName(), (numb-oldList).AsString());
 	}
-
+   if(lrun) delete lrun;
+   delete ll;
 	return numb;
 
 }
 
 //___________________________________________________________________________
 
-KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type)
+KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type, KVDBSystem*system)
 {
    // Returns list of runs which are present for data type "base_type" but not for "other_type"
 	// if type is NULL or ="" returns empty KVNumberList
+	// If pointer to system is given, only runs for the system are considered.
 
 	KVNumberList manquant;
 	TList* ll = GetListOfAvailableSystems(ref_type);
 	if(!ll || !ll->GetEntries()){
 	   //numb.Clear();
 		Info("GetRunList_StageSelection","No data available of type \"%s\"", ref_type);
+      if(ll) delete ll;
+	   return manquant;
+	}
+	if(system && !ll->FindObject(system)){
+		Info("GetRunList_StageSelection","No data available of type \"%s\" for system %s", ref_type, system->GetName());
+      delete ll;
 	   return manquant;
 	}
 	
@@ -1028,8 +1037,9 @@ KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Cha
 	for (Int_t nl=0; nl<ll->GetEntries(); nl+=1){
 		
 		sys = (KVDBSystem* )ll->At(nl);
-		nsys = gDataSet->GetRunList(type,sys);
-		nsys_ref = gDataSet->GetRunList(ref_type,sys);
+		if(system && sys!=system) continue;
+		nsys = GetRunList(type,sys);
+		nsys_ref = GetRunList(ref_type,sys);
 		Int_t nref = nsys_ref.GetNValues();
 		
 		nsys_ref.Remove(nsys);
@@ -1042,12 +1052,51 @@ KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Cha
 		);
 		manquant.Add(nsys_ref);
 	}
-	
+	delete ll;
 	return manquant;
 
 }
 //___________________________________________________________________________
 
+KVNumberList KVDataSet::GetRunList_VersionSelection(const Char_t* type, const Char_t* version, KVDBSystem*sys)
+{
+   // Returns list of runs of given type that were created with the given version of KaliVeda.
+   // If system!="" then only runs for the given system are considered
+   
+   KVNumberList runs;
+   if(sys){
+	   TList*lrun = GetListOfAvailableSystems(type,sys);
+      TIter next(lrun);
+      KVDBRun* run;
+      while( (run=(KVDBRun*)next()) ){
+         if(!strcmp(run->GetKVVersion(),version)) runs.Add(run->GetNumber());
+      }
+      delete lrun;
+      return runs;
+   }
+	TList* ll = GetListOfAvailableSystems(type);
+	if(!ll || !ll->GetEntries()){
+	   //numb.Clear();
+		Info("GetRunList_VersionSelection","No data available of type \"%s\"", type);
+      if(ll) delete ll;
+	   return runs;
+	}
+   Int_t nsys=ll->GetEntries();
+	for (Int_t nl=0; nl<nsys; nl+=1){
+		sys = (KVDBSystem* )ll->At(nl);
+		TList* lrun = GetListOfAvailableSystems(type,sys);
+      TIter next(lrun);
+      KVDBRun* run;
+      while( (run=(KVDBRun*)next()) ){
+         if(!strcmp(run->GetKVVersion(),version)) runs.Add(run->GetNumber());
+      }
+      delete lrun;
+   }
+   delete ll;
+   return runs;
+}
+
+//___________________________________________________________________________
 void KVDataSet::CommitRunfile(const Char_t * type, Int_t run, TFile * file)
 {
    //Commit a runfile previously created with NewRunfile() to the repository.
@@ -1441,8 +1490,6 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
    //which takes the full path to the file as argument (any other arguments taking default options)
    //and returns a pointer of the BaseClass type to the created object which can be used to read the file.
 
-   Info("Open", "called for type %s", type);
-   
    TString fname = GetFullPathToRunfile(type, run);
    if (fname == "") return 0; //file not found
 
@@ -1451,12 +1498,10 @@ TObject* KVDataSet::Open(const Char_t* type, Int_t run, Option_t *opt)
 
    //get base class for dataset & type
    KVString base_class = GetDataSetEnv( Form("DataSet.RunFileClass.%s", type) );
-   Info("Open", "base class %s", base_class.Data());
 
    //look for plugin specific to dataset & type
    TPluginHandler *ph = LoadPlugin( base_class.Data(), Form("%s.%s", type, GetName()));
 
-   Info("Open", "plugin handler %p", ph);
    TClass* cl;
    if(!ph){
       //no plugin - use base class

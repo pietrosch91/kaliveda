@@ -475,10 +475,20 @@ UInt_t KVGroup::GetNumberOfDetectorLayers()
    UInt_t imax = GetLayerFurthestTarget();
    for (UInt_t i = imin; i <= imax; i++) {
       TList *list = GetTelescopesInLayer(i);
-      //note we assume that all telescopes in same layer are identically constructed
-      if (list) {
-         ndl += ((KVTelescope *) list->At(0))->GetDetectors()->GetSize();
-         delete list;
+      //note we take the max number of detectors in telescopes of layer i
+      Int_t max=0;
+		if (list) {
+      	TIter it(list);
+			KVTelescope* tel = 0;
+			while ( (tel = (KVTelescope* )it.Next()) )
+				if (max<tel->GetDetectors()->GetSize())
+					max = tel->GetDetectors()->GetSize();
+			ndl+= max;
+		//
+		//before it was assume that all telescopes in same layer are identically constructed
+		//	ndl += ((KVTelescope *) list->At(0))->GetDetectors()->GetSize();
+      //
+		   delete list;
       }
    }
 
@@ -494,7 +504,7 @@ TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
    //GetNumberOfDetectorLayers().
    //Delete list after use.
 
-   if (lay < 1)
+	if (lay < 1)
       return 0;
    UInt_t ndl = 0;
    UInt_t imin = GetLayerNearestTarget();
@@ -502,21 +512,29 @@ TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
    for (UInt_t i = imin; i <= imax; i++) {
       TList *tlist = GetTelescopesInLayer(i);
       if (tlist) {
-         //note we assume that all telescopes in same layer are identically constructed
-         ndl += ((KVTelescope *) tlist->At(0))->GetDetectors()->GetSize();
-         if (ndl >= lay) {
+         //note we take the max number of detectors in telescopes of layer i
+         Int_t max=0;
+			TIter it(tlist);
+			KVTelescope* tel = 0;
+			while ( (tel = (KVTelescope* )it.Next()) )
+				if (max<tel->GetDetectors()->GetSize())
+					max = tel->GetDetectors()->GetSize();
+			ndl += max;
+			//
+			//before it was assume that all telescopes in same layer are identically constructed
+			//ndl += ((KVTelescope *) tlist->At(0))->GetDetectors()->GetSize();
+         //
+			if (ndl >= lay) {
             //the required detector layer is in the telescopes in the list
 
             //calculate rank of detectors in telescopes
-            UInt_t rank =
-                ((KVTelescope *) tlist->At(0))->GetDetectors()->GetSize() -
-                ndl + lay;
-            TIter next(tlist);
+            UInt_t rank = max - ndl + lay;
+				TIter next(tlist);
             KVTelescope *tel;
             TList *list = new TList;
             while ((tel = (KVTelescope *) next())) {
-               KVDetector *det = tel->GetDetector(rank);
-               list->Add(det);
+               if (rank<=tel->GetSize())
+						list->Add(tel->GetDetector(rank));
             }
             delete tlist;
             return list;
@@ -525,6 +543,7 @@ TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
       }
    }
    return 0;
+	
 }
 
 //_________________________________________________________________________________
@@ -573,7 +592,7 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
                    IsOverlappingWith(det->GetTelescope())) {
                   tmp->Add(d2);
                }
-            }
+				}
             delete dets;
          }
       }
@@ -588,7 +607,7 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
                    IsOverlappingWith(det->GetTelescope())) {
                   tmp->Add(d2);
                }
-            }
+				}
             delete dets;
          }
       }
@@ -624,19 +643,18 @@ void KVGroup::GetIDTelescopes(TCollection * tel_list)
 
          TIter next_det(det_lay);
          KVDetector *det;
-
+			
          while ((det = (KVDetector *) next_det())) {
-
-
-            //1st call: create ID telescopes, they will be added to the
-            //gMultiDetArray list of IDTelescopes
-            det->GetAlignedIDTelescopes(tel_list);
-            //2nd call: set up in the detector a list of pointers to the
-            //ID telescopes made up of it and all aligned detectors in front
-            //of it
-            det->GetAlignedIDTelescopes(0);
-
-         }
+				if ( det->IsOK() ){
+					//1st call: create ID telescopes, they will be added to the
+            	//gMultiDetArray list of IDTelescopes
+            	det->GetAlignedIDTelescopes(tel_list);
+            	//2nd call: set up in the detector a list of pointers to the
+            	//ID telescopes made up of it and all aligned detectors in front
+            	//of it
+            	det->GetAlignedIDTelescopes(0);
+				}
+			}
          delete det_lay;
       }
    }
@@ -869,4 +887,40 @@ void KVGroup::ClearHitDetectors()
 	// Loop over all detectors in group and clear their list of 'hits'
 	// i.e. the lists of particles which hit each detector
 	GetDetectors()->R__FOR_EACH(KVDetector, ClearHits)();
+}
+
+void KVGroup::PrepareModif()
+{
+	//Casse tous les liens entre les detecteurs d un meme groupe
+	//pour preparer l ajout ou le retrait d un detecteur
+	//voir KVDetector::SetPresent()
+	//
+	//
+	KVNameValueList nv;
+	
+	KVDetector* det = 0;
+	KVIDTelescope* id = 0;
+			
+	KVList* lgrdet = GetDetectors();
+	TIter nextdet(lgrdet);
+	while ( (det = (KVDetector* )nextdet()) ){
+		//Info("PrepareModif","On retire les detecteurs alignes pour %s",det->GetName());
+		det->ResetAlignedDetectors(KVGroup::kForwards);
+		det->ResetAlignedDetectors(KVGroup::kBackwards);
+		Int_t ntel = det->GetIDTelescopes()->GetEntries();
+		for (Int_t ii=0;ii<ntel;ii+=1){
+			id = (KVIDTelescope* )det->GetIDTelescopes()->At(0);
+			nv.SetValue(id->GetName(),"");
+			det->GetIDTelescopes()->RemoveAt(0);
+		}	
+	}
+	
+	KVHashList* lidtel = (KVHashList* )gMultiDetArray->GetListOfIDTelescopes();		
+	for (Int_t ii=0;ii<nv.GetEntries();ii+=1){
+		id = (KVIDTelescope* )lidtel->FindObject(nv.GetNameAt(ii));
+		//Info("PrepareModif","On retire et on detruit l'ID tel %s",id->GetName());
+		delete lidtel->Remove(id);
+	}
+	nv.Clear();
+
 }

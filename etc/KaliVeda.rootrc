@@ -343,6 +343,13 @@ IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
 IdentRoot.DataAnalysisTask.UserClass:     no
 IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
 
++DataAnalysisTask:     ReconRoot
+ReconRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
+ReconRoot.DataAnalysisTask.Prereq:     recon
+ReconRoot.DataAnalysisTask.Analyser:     INDRAReconData
+ReconRoot.DataAnalysisTask.UserClass:     no
+ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
+
 +DataAnalysisTask:     RawAnalysis
 RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
 RawAnalysis.DataAnalysisTask.Prereq:     raw
@@ -440,6 +447,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
 +Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
 +Plugin.TSelector:   INDRAReconIdent        KVINDRAReconIdent                 KVIndra   "KVINDRAReconIdent()"
++Plugin.TSelector:   INDRAReconRoot        KVINDRAReconRoot                 KVIndra   "KVINDRAReconRoot()"
 +Plugin.TSelector:   INDRAIdentRoot         KVINDRAIdentRoot                  KVIndra   "KVINDRAIdentRoot()"
 +Plugin.TSelector:   IVReconIdent           KVIVReconIdent               VAMOS     "KVIVReconIdent()"
 #+Plugin.TSelector:   ReconIdent_e475s       KVReconIdent_e475s           KVIndra   "KVReconIdent_e475s()"
@@ -531,6 +539,10 @@ INDRADB.CsIPinCorr:          CsI_PILA.dat
 INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 # correspondance entre codeur et detecteurs
 INDRADB.Codeurs:    Codeurs.dat
+# liste des detecteurs physiquement absents
+INDRADB.AbsentDet:	AbsentDetectors.dat
+# liste des detecteurs ne marchant pas ou éteints (out of order)
+INDRADB.OoODet:    OoODetectors.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
@@ -608,7 +620,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
-+Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -671,6 +683,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$        KVIDChIoSi5              KVIndra      "KVIDChIoSi5()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
 +Plugin.KVIDTelescope:     ^CI-SI75$                              KVIDChIoSi75          KVIndra         "KVIDChIoSi75()"
++Plugin.KVIDTelescope:     ^CI-SILI$                              KVIDChIoSiLi          KVIndra         "KVIDChIoSiLi()"
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$        KVIDChIoSi75_camp5              KVIndra      "KVIDChIoSi75_camp5()"
 +Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
 +Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra         "KVIDChIoCsI_camp5()"
@@ -855,6 +868,10 @@ KVIDGChIoSi.CutClass:  KVIDCutLine
 +KVIDGChIoSi.CutClass:  KVIDCutContour
 KVIDGChIoSi.DefaultCutClass:  KVIDCutLine
 KVIDGChIoSi.IDClass:  KVIDZALine
+KVTGIDGrid.CutClass:  KVIDCutLine
++KVTGIDGrid.CutClass:  KVIDCutContour
+KVTGIDGrid.DefaultCutClass:  KVIDCutLine
+KVTGIDGrid.IDClass:  KVIDZALine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list

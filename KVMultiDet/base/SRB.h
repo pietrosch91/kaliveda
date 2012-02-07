@@ -39,13 +39,13 @@ class SRB : public KVBase
 	Bool_t   buildCommand(const Char_t* scmd, const Char_t* args="", Option_t* opts="");
 	Int_t    execCommand();
 	TString  pipeCommand();
-	Int_t Sinit();
-	Int_t Sexit();
 			
    public:
    SRB();
    virtual ~SRB();
 
+	Int_t Sinit();
+	Int_t Sexit();
 	TString Sls(const Char_t* directory="", Option_t* opt="");
 	Int_t Scd(const Char_t* directory="");
 	Int_t Sput(const Char_t* source, const Char_t* target=".", Option_t* opt="");

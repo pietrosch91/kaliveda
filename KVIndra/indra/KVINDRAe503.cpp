@@ -103,11 +103,6 @@ void KVINDRAe503::BuildGeometry()
    RemoveRing("SI-CSI", 2);
    RemoveRing("SI-CSI", 3);
    RemoveRing("CHIO", 2);
-   GetRing("CHIO", 4)->RemoveTelescope("CI_0417");
-   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
-   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
-   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
-   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
    
 }
 
@@ -122,4 +117,10 @@ void KVINDRAe503::Build()
    SetName("INDRA");
    SetTitle("INDRA detector, INDRA-VAMOS configuration");
 
+   GetRing("CHIO", 4)->RemoveTelescope("CI_0417");
+   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
+   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
+   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
+   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
+   UpdateArray();
 }

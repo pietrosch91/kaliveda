@@ -41,8 +41,14 @@ else
 export ROOTGANILTAPE = no
 endif
 
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
+else
+XRDPOSIX = -L$(XRDSYS)/lib -lXrdPosix
+endif
+
 ifeq ($(MAKE_GANTAPE_XRD),yes)
-LINK_LIBS += -L$(ROOTSYS)/lib -lXrdPosix
+LINK_LIBS += $(XRDPOSIX)
 endif
 
 ifeq ($(ARCH),macosx)
@@ -70,7 +76,7 @@ SCANCLASSESO = ScanClasses.$(ObjSuf)
 .PHONY : clean
 
 clean:
-	-rm -f $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML) MyPathDefinition_cxx.so
+	-rm -f *.d $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML) MyPathDefinition_cxx.so examples/*.so examples/*.d
         
 $(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO) MyPathDefinition_cxx.so 
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(LINK_LIBS) $(OutPutOpt)$@

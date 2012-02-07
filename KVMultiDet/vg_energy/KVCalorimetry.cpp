@@ -151,6 +151,15 @@ ClassImp(KVCalorimetry)
 // la méthode DeduceTemperature(Double_t LevelDensityParameter) qui donne la température suivant la formule : 
 //	T = TMath::Sqrt(Exci * [LevelDensityParameter]/Asum)
 //
+// Pour Resume, 
+//		IL EST INDISPENSABLE D APPELER LA METHODE Calculate() avant d'utiliser les variables calculées dans KVCalorimetry
+//		les methodes :
+//			void UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor);
+//			void DeduceTemperature(Double_t LevelDensityParameter);
+//			void IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter);
+//		DOIVENT ETRE APPELEES AVANT LES OPERATIONS DE FILL de l'objet KVCalorimetry
+	
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 KVCalorimetry::KVCalorimetry(void):KVVarGlob()
@@ -239,9 +248,9 @@ void KVCalorimetry::Print(Option_t* option) const
 	//opt==par, print the list of parameters
 
 	if (!strcmp(option,"ing"))
-		nvl_ing->Print_NVL();
+		nvl_ing->Print();
 	else if (!strcmp(option,"par"))
-		nvl_par->Print_NVL();
+		nvl_par->Print();
 	else 
 		KVVarGlob::Print();
 
@@ -336,8 +345,8 @@ void KVCalorimetry::init_KVCalorimetry ()
 	//Elles sont remplies au fur et à mesure des 
 	//methodes, pas besoin de définition a priori des
 	//noms des ingrédients / paramètres
-	nvl_ing = new KVNameValueList();	nvl_ing->SetName_NVL("Ingredients");
-	nvl_par = new KVNameValueList(); nvl_par->SetName_NVL("Parameters");
+	nvl_ing = new KVNameValueList();	nvl_ing->SetName("Ingredients");
+	nvl_par = new KVNameValueList(); nvl_par->SetName("Parameters");
 	
 	//par defaut, aucun mode de calcul/remplissage n est sélectionné
 	kfree_neutrons_included = kFALSE;
@@ -576,44 +585,39 @@ void KVCalorimetry::SumUp()
 	// On en déduit ensuite l'exces de masse asscoié à ces neutrons
 	// Détermination ensuite de l excès de masse de la source
 	
-	if (kIsModified){	
-		
-		// premier calcul depuis le dernier remplissage par Fill
-		// Les proprietes de la source sont calculees
-		
-		if (kchargediff){
-			// somme des contributions fragments et particules
-			SetIngValue("Zsum",GetIngValue("Zfrag")+ GetParValue("ParticleFactor")*GetIngValue("Zpart"));
-			SetIngValue("Asum",GetIngValue("Afrag")+ GetParValue("ParticleFactor")*GetIngValue("Apart"));
-			SetIngValue("Eksum",GetIngValue("Ekfrag")+ GetParValue("ParticleFactor")*GetIngValue("Ekpart"));
-			SetIngValue("Qsum",GetIngValue("Qfrag")+ GetParValue("ParticleFactor")*GetIngValue("Qpart"));
-			SetIngValue("Msum",GetIngValue("Mfrag")+ GetParValue("ParticleFactor")*GetIngValue("Mpart"));
+	// Les proprietes de la source sont calculees
+	
+	if (kchargediff){
+		// somme des contributions fragments et particules
+		AddIngValue("Zsum",GetIngValue("Zfrag")+ GetParValue("ParticleFactor")*GetIngValue("Zpart"));
+		AddIngValue("Asum",GetIngValue("Afrag")+ GetParValue("ParticleFactor")*GetIngValue("Apart"));
+		AddIngValue("Eksum",GetIngValue("Ekfrag")+ GetParValue("ParticleFactor")*GetIngValue("Ekpart"));
+		AddIngValue("Qsum",GetIngValue("Qfrag")+ GetParValue("ParticleFactor")*GetIngValue("Qpart"));
+		AddIngValue("Msum",GetIngValue("Mfrag")+ GetParValue("ParticleFactor")*GetIngValue("Mpart"));
+	}
+	
+	//printf("Eksum=%lf avant neutrons \n",GetIngValue("Eksum"));
+	
+	if ( kfree_neutrons_included ){
+		// conservation du AsurZ du systeme --> multiplicite moyenne des neutrons	
+		Double_t Mneutron = Double_t(TMath::Nint(GetParValue("AsurZ")*GetIngValue("Zsum") - GetIngValue("Asum"))); 	
+		if (Mneutron<0) {
+			Warning("SumUp","Nombre de neutrons déduits négatif : %1.0lf -> on le met à zéro",Mneutron);
+			Mneutron = 0;
 		}
+		SetIngValue("Aneu",Mneutron);
+		SetIngValue("Qneu",Mneutron*nn.GetMassExcess(0,1));
+		SetIngValue("Mneu",Mneutron);
 		
-		if ( kfree_neutrons_included ){
-			// conservation du AsurZ du systeme --> multiplicite moyenne des neutrons	
-			Double_t Mneutron = Double_t(TMath::Nint(GetParValue("AsurZ")*GetIngValue("Zsum") - GetIngValue("Asum"))); 	
-			if (Mneutron<0) {
-				Warning("SumUp","Nombre de neutrons déduits négatif : %1.0lf -> on le met à zéro",Mneutron);
-				Mneutron = 0;
-			}
-			SetIngValue("Aneu",Mneutron);
-			SetIngValue("Qneu",Mneutron*gNDTManager->GetValue(0,1,"MassExcess"));
-			SetIngValue("Mneu",Mneutron);
-			
-			// prise en compte des neutrons dans la source
-			AddIngValue("Asum",GetIngValue("Mneu"));
-			AddIngValue("Qsum",GetIngValue("Qneu"));
-			AddIngValue("Msum",GetIngValue("Mneu"));
-		
-		}
-		
-		// defaut de masse de la source reconstruite
-		SetIngValue("Qini",gNDTManager->GetValue((Int_t)(GetIngValue("Zsum")),(Int_t)(GetIngValue("Asum")),"MassExcess"));
-		
-		kIsModified=kFALSE;
+		// prise en compte des neutrons dans la source
+		AddIngValue("Asum",GetIngValue("Mneu"));
+		AddIngValue("Qsum",GetIngValue("Qneu"));
+		AddIngValue("Msum",GetIngValue("Mneu"));
 	
 	}
+	//printf("Eksum=%lf apres neutrons \n",GetIngValue("Eksum"));
+	// defaut de masse de la source reconstruite
+	SetIngValue("Qini",nn.GetMassExcess(TMath::Nint(GetIngValue("Zsum")),TMath::Nint(GetIngValue("Asum"))));
 
 }
 
@@ -642,25 +646,29 @@ void 	KVCalorimetry::Calculate(void)
 	// on y obtient directement la température
 	// 
 	
-	Info("Calculate","Debut");
+	//Info("Calculate","Debut");
+	
+	if (!kIsModified) return;
+	kIsModified=kFALSE;
+	// premier calcul depuis le dernier remplissage par Fill
 	SumUp();
 	
 	if (kfree_neutrons_included){
 	
 		Double_t coefA = GetIngValue("Asum")/GetParValue("LevelDensityParameter");
-		Double_t coefB = GetParValue("NeutronMeanEnergyFactor") * GetIngValue("Mneu");
+		Double_t coefB = -1.*GetParValue("NeutronMeanEnergyFactor") * GetIngValue("Mneu");
 		Double_t coefC = GetIngValue("Qini") - GetIngValue("Qsum") - GetIngValue("Eksum");
 		
 		// Resolution du polynome de degre 2 
 		// Les champs ne sont remplis que si une solution reelle est trouvee	
-		if ( RootSquare(coefA,-1.*coefB,coefC) ){
+		if ( RootSquare(coefA,coefB,coefC) ){
 			// la solution max donne la temperature
 			SetIngValue("Temp",kracine_max);
 			SetIngValue("Exci",coefA*TMath::Power(GetIngValue("Temp"),2.));
 	
 			// ajout de l'energie des neutrons a l energie totale de la source
-			SetIngValue("Ekneu",coefB*GetIngValue("Temp"));
-			SetIngValue("Eksum",GetIngValue("Eksum")+GetIngValue("Ekneu"));
+			SetIngValue("Ekneu",GetParValue("NeutronMeanEnergyFactor") * GetIngValue("Mneu")*GetIngValue("Temp"));
+			AddIngValue("Eksum",GetIngValue("Ekneu"));
 			
 			//parametre additionnel
 			//SetIngValue("Tmin",kracine_min); // la deuxieme solution de l'eq en T2
@@ -668,6 +676,7 @@ void 	KVCalorimetry::Calculate(void)
 		else {
 			Warning("Calculate","La resolution du polynome d ordre 2 a posé pb");
 		}
+		//printf("Ekneu = %lf/%lf, Eksum=%lf apres neutrons ds calculate\n",coefB*GetIngValue("Temp"),GetIngValue("Ekneu"),GetIngValue("Eksum"));
 	
 	}
 	else {
@@ -680,7 +689,7 @@ void 	KVCalorimetry::Calculate(void)
 		}
 	
 	}
-	Info("Calculate","Fin");
+	//Info("Calculate","Fin");
 }
 
 //________________________________________________________________

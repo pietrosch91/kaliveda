@@ -141,8 +141,8 @@ KVSelector::KVSelector(TTree * tree)
    fChain=0;
    callnotif = 0;
    gvlist = 0;                  // Global variable list set to nul.
-   lhisto = new KVHashList(); lhisto->SetOwner(kTRUE);
-  	ltree = new KVHashList(); ltree->SetOwner(kTRUE);
+   lhisto = new KVHashList();
+  	ltree = new KVHashList();
 	//create stopwatch
    fTimer = new TStopwatch;
    // event list
@@ -167,14 +167,16 @@ KVSelector::~KVSelector()
    //dtor
    //delete global variable list if it belongs to us, i.e. if created by a
    //call to GetGVList
-   if (TestBit(kDeleteGVList)) {
+   if (gvlist && TestBit(kDeleteGVList)) {
       delete gvlist;
       gvlist = 0;
       ResetBit(kDeleteGVList);
    }
    delete fTimer;
    SafeDelete(fPartCond);
+	lhisto->Clear();
 	delete lhisto;
+	ltree->Clear();
 	delete ltree;
 }
 
@@ -195,7 +197,6 @@ void KVSelector::Init(TTree * tree)
 
 	data=0;b_data=0;
    fChain->SetBranchAddress( fBranchName.Data() , &data, &b_data);
-   b_data->SetAutoDelete(kFALSE);
 
 //
 // Builds a TEventList by adding the contents of the lists for each run
@@ -333,9 +334,19 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    fTreeEntry = entry;
 
-   if (!(totentry % 5000) && totentry)
+   if (!(totentry % 5000) && totentry){
       cout << " +++ " << totentry << " events processed +++ " << endl;
-
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         TString du = gSystem->GetFromPipe("du -hs");
+         TObjArray* toks = du.Tokenize(" .");
+         TString disk = ((TObjString*)toks->At(0))->String();
+         delete toks;
+         cout <<"     ------------- Process infos -------------" << endl;
+         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+      }
+   }   
    fChain->GetTree()->GetEntry(fTreeEntry);
 	gDataAnalyser->preAnalysis();
 

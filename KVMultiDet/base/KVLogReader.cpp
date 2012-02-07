@@ -23,6 +23,7 @@ void KVLogReader::Reset()
    fStatus = "";
    fOK = kFALSE;
    fGotRequests = kFALSE;
+	fGotStatus = kFALSE;
 }
 
 void KVLogReader::ReadFile(const Char_t * fname)
@@ -66,6 +67,11 @@ void KVLogReader::ReadLine(TString & line, Bool_t & ok)
       //failure to copy new run to hpss system at ccali
       ok = kFALSE;
       fStatus = "rfcp error";
+      fOK = kFALSE;
+   } else if (line.Contains("TXNetFile") && line.Contains("open attempt failed")) {
+      //failure to open recon file with xrootd
+      ok = kFALSE;
+      fStatus = "XROOTD error";
       fOK = kFALSE;
    }
 }
@@ -112,11 +118,20 @@ Int_t KVLogReader::GetRunNumber() const
 }
 
 Bool_t KVLogReader::Incomplete() const {
+	// job considered incomplete if
+	//  - it was not 'killed'
+	//  - it did not end in segmentation fault/violation
+	//  AND
+	//  - the end of job status report was not found
+	//  - OR the disk & memory requests were not found
+	//  - OR the status indicates the job was incomplete
+	
       return (
 	(!Killed() && !SegFault())
 	&&
 	(
-		(!fGotRequests)
+		(!fGotStatus)
+		||(!fGotRequests)
 		|| (fStatus == "VEDA Fortran out of time")
 		|| (fStatus.BeginsWith("rfcp"))
 	)

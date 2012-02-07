@@ -15,7 +15,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
+#include <cassert>
 #include "Riostream.h"
 #include "TMath.h"
 #include "KVBase.h"
@@ -291,9 +291,11 @@ void KVBase::Copy(TObject & obj)
 //____________________________________________________________________________________
 void KVBase::Print(Option_t * option) const
 {
-   cout << "KVBase object: fName=" << GetName() << " fType=" << GetType();
+   cout << "KVBase object: Name=" << GetName() << " Type=" << GetType();
    if (fSLabel != "")
-      cout << " fSLabel=" << GetLabel();
+      cout << " Label=" << GetLabel();
+   if (fNumber != 0)
+      cout << " Number=" << GetNumber();
    cout << endl;
 };
 
@@ -973,3 +975,38 @@ Int_t KVBase::TestPorts(Int_t port)
    
 }
 #endif
+   
+Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
+{
+   // Comparison between two 64-bit floating-point values
+   // Returns kTRUE if the integer representations of the two values are within
+   // maxdif of each other.
+   // By default maxdif=1, which means that we consider that x==y if the
+   // difference between them is no greater than the precision of Double_t
+   // variables, i.e. 4.94065645841246544e-324
+   //
+   // Based on the function AlmostEqual2sComplement(float, float, int)
+   // by Bruce Dawson http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+
+   union converter {
+      Double_t f;
+      Long64_t i;
+   } val1, val2;
+   
+   assert( maxdif > 0 );
+   
+    if (A == B) return true;
+    
+   val1.f = A;
+   val2.f = B;
+   Long64_t Aint, Bint;
+   Aint = val1.i;
+   Bint = val2.i;
+   if(Aint < 0) Aint = 0x8000000000000000 - Aint;
+   if(Bint < 0) Bint = 0x8000000000000000 - Bint;
+   Long64_t intDiff = abs(val1.i - val2.i);
+
+    if (intDiff <= maxdif) return true;
+
+    return false;
+}

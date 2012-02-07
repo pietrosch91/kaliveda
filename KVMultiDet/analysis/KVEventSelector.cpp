@@ -2,6 +2,7 @@
 #include "KVEventSelector.h"
 #include <TStyle.h>
 #include "TPluginManager.h"
+#include "TSystem.h"
 
 ClassImp(KVEventSelector)
 
@@ -50,8 +51,15 @@ Bool_t KVEventSelector::Process(Long64_t entry)
 
    fTreeEntry = entry;
 
-   if (!(fEventsRead % fEventsReadInterval) && fEventsRead) Info("Process", " +++ %ld events processed +++ ", fEventsRead);
-
+   if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
+      Info("Process", " +++ %ld events processed +++ ", fEventsRead);
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         cout << "     ------------- Process infos -------------" << endl;
+         printf(" CpuSys = %f  s.    CpuUser = %f s.    ResMem = %f MB   VirtMem = %f MB\n",
+            pid.fCpuSys, pid.fCpuUser, pid.fMemResident/1024., pid.fMemVirtual/1024.);
+      }
+   }
    GetEntry(entry);
    fEventsRead++;
 

@@ -76,6 +76,7 @@ public:
    void SetTemperatureAndPressure(Double_t T, Double_t P) {
       // for a gaseous material, calculate density in g/cm**3 according to given
       // conditions of temperature (T, in degrees celsius) and pressure (P, in Torr)
+		if (IsGas() && P == 0) fDens = 0;
       if (IsGas() && T > 0 && P > 0) fDens = (fMoleWt * P) / ((T + ZERO_KELVIN) * RTT);
    };
 
