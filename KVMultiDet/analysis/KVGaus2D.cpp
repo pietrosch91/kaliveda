@@ -4,6 +4,7 @@
 #include "KVGaus2D.h"
 #include "TH2.h"
 #include "Riostream.h"
+#include "TMath.h"
 
 ClassImp(KVGaus2D)
 
@@ -99,8 +100,8 @@ Double_t norm 	=	para[5];
 Double_t dE1 	= 	E1-e1;	
 Double_t dE2 	= 	E2-e2;	
  
-Double_t A = -0.5/( (1.-pow(rho,2.))*pow(sigE1*sigE2,2.) )*( pow(dE1*sigE2,2.) + pow(dE2*sigE1,2.) - 2.*rho*dE1*dE2*sigE1*sigE2 );
-Double_t det = (1.-pow(rho,2.))*pow(sigE1*sigE2,2.);
+Double_t A = -0.5/( (1.-TMath::Power(rho,2.))*TMath::Power(sigE1*sigE2,2.) )*( TMath::Power(dE1*sigE2,2.) + TMath::Power(dE2*sigE1,2.) - 2.*rho*dE1*dE2*sigE1*sigE2 );
+Double_t det = (1.-TMath::Power(rho,2.))*TMath::Power(sigE1*sigE2,2.);
 Double_t P = norm * 1./det*exp(A);
 
 return P;
@@ -118,7 +119,7 @@ TF1* f1;
 ofstream fout(Form("%s",hfit->GetName()));
 TIter it(lfunc);
 fout<< lfunc->GetEntries() << endl;
-while (f1 = (TF1* )it.Next()){
+while ( (f1 = (TF1* )it.Next()) ){
 	fout<<f1->GetName() << endl;
 	fout << GetName() << "::f2D" << endl;
 	
