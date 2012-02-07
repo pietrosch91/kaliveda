@@ -88,7 +88,10 @@ public:
     virtual void Copy(TObject &);
 #endif
 
-    virtual void Initialize();//*MENU*
+    void RemoveLine(Int_t Z, Int_t A=-1); // *MENU*
+    void RemoveZLines(const Char_t* ZList);     // *MENU*
+
+    virtual void Initialize();// *MENU*
     void DrawLinesWithWidth();// *MENU={Hierarchy="View.../DrawLinesWithWidth"}*
 
     virtual void CalculateLineWidths();

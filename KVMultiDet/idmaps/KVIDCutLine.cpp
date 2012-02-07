@@ -22,7 +22,7 @@ ClassImp(KVIDCutLine)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDCutLine::KVIDCutLine() : fAcceptedDirection("")
+KVIDCutLine::KVIDCutLine() : fAcceptedDirection("above")
 {
    // Default constructor
 }

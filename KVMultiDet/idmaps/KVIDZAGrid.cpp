@@ -125,6 +125,47 @@ void KVIDZAGrid::init()
 
 //_________________________________________________________________________//
 
+void KVIDZAGrid::RemoveLine(Int_t Z, Int_t A)
+{
+	// Remove and destroy identifier
+    Int_t toto = -1;
+    KVIDZALine* tmpline=0;
+    if((A>0)&&(!IsOnlyZId()))
+      {
+      if((tmpline=GetZALine(Z,A,toto))) RemoveIdentifier((KVIDentifier*)tmpline);
+      }
+    else
+      {
+      if(!IsOnlyZId()) 
+        {
+	KVList* tmplist = (KVList*)fIdentifiers->GetSubListWithMethod(Form("%d",Z),"GetZ");
+	TIter next_id(tmplist);
+	while((tmpline=(KVIDZALine*)next_id()))
+	  {
+	  if(tmpline) RemoveIdentifier((KVIDentifier*)tmpline);
+	  }
+	delete tmplist;
+	}
+      else if((tmpline=GetZLine(Z,toto))) RemoveIdentifier((KVIDentifier*)tmpline);
+      }
+}
+
+//_________________________________________________________________________//
+
+void KVIDZAGrid::RemoveZLines(const Char_t* ZList)
+{
+	// Remove and destroy identifiers
+    KVNumberList ZL(ZList);
+    ZL.Begin();
+    while( !ZL.End() )
+      {
+      Int_t Z = ZL.Next();
+      RemoveLine(Z,-1);
+      }
+}
+
+//_________________________________________________________________________//
+
 KVIDZALine *KVIDZAGrid::GetZLine(Int_t z, Int_t & index) const
 {
     //Returns ID line for which GetZ() returns 'z'. index=index of line found in

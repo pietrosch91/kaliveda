@@ -39,10 +39,15 @@ ClassImp(KVIDGraph)
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVIDGraph::ResetPad(){
-	cout << "The pad showing graph " << GetName() << " has been closed" << endl;
-	fPad->Disconnect("Closed()", this, "ResetPad()");
-	if(fPad->GetCanvas()) fPad->GetCanvas()->Disconnect("Cleared(TVirtualPad*)", this, "ClearPad(TVirtualPad*)");
+	cout << "The pad showing graph " << GetName() << " has been closed !" << endl;
+	
+	if(fPad)
+	  {
+	  fPad->Disconnect("Closed()", this, "ResetPad()");
+	  if(fPad->GetCanvas()) fPad->GetCanvas()->Disconnect("Cleared(TVirtualPad*)", this, "ClearPad(TVirtualPad*)");
+	  }
 	fPad = 0;
+	
 }
 
 void KVIDGraph::ClearPad(TVirtualPad* pad){
