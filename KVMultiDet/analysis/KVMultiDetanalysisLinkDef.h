@@ -24,6 +24,9 @@
 #pragma link C++ class KVSimReader_MMM;
 #pragma link C++ class KVSimReader_MMM_asym;
 #pragma link C++ class KVDalitzPlot;
+#pragma link C++ class KVAutoFit;
+#pragma link C++ class KVGaus1D;																											 
+#pragma link C++ class KVGaus2D;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVRawDataAnalyser+;
 #endif
