@@ -43,6 +43,8 @@ class KVAutoFit : public KVBase
 	TString spath,sdir,sfile;
 	TString output_file;
 	*/
+	Bool_t userdefined;
+	TString koption;
 	
 	virtual void init();
 	void ClearRange(void);
@@ -51,11 +53,20 @@ class KVAutoFit : public KVBase
 	virtual Bool_t NewFunction_1D();
 	virtual Bool_t NewFunction_2D();
 	
+	TF1* ReloadFunction(const Char_t*, Int_t );
+	virtual TF1* ReloadFunction_1D(const Char_t*, Int_t);
+	virtual TF1* ReloadFunction_2D(const Char_t*, Int_t);
+	
+	
 	virtual Double_t f2D(Double_t *xx,Double_t *para);	
 	virtual Double_t f1D(Double_t *xx,Double_t *para);
-
 	
-   public:
+	void NextHisto();
+	Bool_t IsKnown(const Char_t*);
+	
+   
+	
+	public:
    Bool_t is2D;			//histogramme analyse herite de TH1 ou TH2
 	
 	KVAutoFit();
@@ -66,12 +77,14 @@ class KVAutoFit : public KVBase
 	void Clear(Option_t* opt = "");
 	void Print(Option_t* opt = "") const;
 	
-	virtual void SetHistos(KVHashList* lh);
+	virtual void SetHistos(KVHashList* lh,TString option="");
 	virtual void SetHisto(TH1* hh);
 	void GetInterval();
 	void Recommence();
 	virtual void Gather();
+	
 	virtual void Save();
+	virtual void Relecture(const Char_t* name);
 	
    ClassDef(KVAutoFit,1)//Manage SemiAutomatic Fits
 };

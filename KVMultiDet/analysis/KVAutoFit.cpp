@@ -6,6 +6,7 @@
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TH2.h"
+#include "TObjString.h"
 
 ClassImp(KVAutoFit)
 
@@ -32,6 +33,7 @@ KVAutoFit::KVAutoFit()
 	/*
 	is2D = kTRUE;
 	*/
+
 }
 
 //________________________________________________________________
@@ -39,6 +41,7 @@ void KVAutoFit::init()
 {
    lfunc = new KVHashList();
 	lfunc->SetOwner(kTRUE);
+	userdefined = kFALSE;
 	
 	c1 = new TCanvas(Form("%s_canvas",GetName()),Form("%s_canvas",GetName()),0,0,1200,600);
 	
@@ -67,6 +70,8 @@ void KVAutoFit::init()
 	
 	lhisto = 0;
  	nhisto = 0;
+	
+	koption= "";
 }
 
 //________________________________________________________________
@@ -136,13 +141,60 @@ KVAutoFit::~KVAutoFit()
 }
 
 //________________________________________________________________
-void KVAutoFit::SetHistos(KVHashList* lh)
+void KVAutoFit::SetHistos(KVHashList* lh,TString option)
 {
 	
+	if (option=="all"){
+		Info("SetHistos","On s'occupe de tous les histos de la liste");
+	}
+	else if (option=="relecture"){
+		Info("SetHistos","On s'occupe de tous les histos de la liste en relisant les infos des histos pour lesquels on en a (des info)");
+	}
+	else if (option=="inconnu"){
+		Info("SetHistos","On ne s'occupe que des histos pour lesquels on n'a pas d info");
+	}
+	else {
+		Info("SetHistos","la variable option doit prendre la valeur \"all\", \"relecture\" ou \"inconnu\"");
+		return;
+	}
+	
+	koption=option;
+	
 	lhisto = lh;
-	nhisto=0;
-	SetHisto((TH1F* )lhisto->At(nhisto));
+	nhisto = -1;
+	NextHisto();
+	
+}
 
+//________________________________________________________________
+void KVAutoFit::NextHisto()
+{
+
+	if (!lhisto) return;
+	
+	nhisto+=1;
+	
+	if (nhisto>=lhisto->GetEntries()){
+		Info("NextHisto","Fin de la liste d histos");
+		return;
+	}
+	
+	if (koption=="all" || koption=="relecture"){	
+		SetHisto((TH1F* )lhisto->At(nhisto));
+	}
+	
+	if (koption=="inconnu"){	
+		TString snom(lhisto->At(nhisto)->GetName());
+		while ( IsKnown(snom.Data()) ){
+			nhisto+=1;
+			if (nhisto>=lhisto->GetEntries()){
+				Info("NextHisto","Fin de la liste d histos");
+				return;
+			}
+			snom.Form("%s",lhisto->At(nhisto)->GetName());
+		}
+		SetHisto((TH1F* )lhisto->At(nhisto));
+	}
 
 }
 
@@ -182,10 +234,37 @@ Bool_t KVAutoFit::NewFunction_2D()
 }
 
 //________________________________________________________________
+TF1* KVAutoFit::ReloadFunction(const Char_t* name, Int_t np)
+{
+	//Generation de la fonction 1D ou 2D
+	//definie dans la methode NewFunction_1D ou NewFunction_2D
+	
+	if (is2D)
+		return ReloadFunction_2D(name,np);
+	else 
+		return ReloadFunction_1D(name,np);
+	
+}
+//________________________________________________________________
+TF1* KVAutoFit::ReloadFunction_1D(const Char_t*, Int_t)
+{
+	
+	Info("ReloadFunction_1D","To be defined in child class");
+	return 0;
+}
+//________________________________________________________________
+TF1* KVAutoFit::ReloadFunction_2D(const Char_t*, Int_t)
+{	
+	Info("ReloadFunction_2D","To be defined in child class");
+	return 0;
+
+}
+
+//________________________________________________________________
 Double_t	KVAutoFit::f2D(Double_t *xx,Double_t *para)
 {
-
-return 0;
+	//userdefined = kTRUE;
+	return 0;
 
 }
 
@@ -193,15 +272,17 @@ return 0;
 Double_t	KVAutoFit::f1D(Double_t *xx,Double_t *para)
 {
 
-return 0;
+	//userdefined = kTRUE;
+	return 0;
 
 }
 
 //________________________________________________________________
 void KVAutoFit::SetHisto(TH1* hh)
 {
+	
 	Clear();
-
+	
 	Bool_t ok = kFALSE;
 	if ( hh->InheritsFrom("TH2") ){
 		if (is2D)
@@ -216,6 +297,7 @@ void KVAutoFit::SetHisto(TH1* hh)
 		Warning("SetHisto","La dimension de lhisto n'est pas compatible avec celle definie ds cette classe");
 		return;
 	}
+	
 	if (hclone)
 		delete hclone;
 	hclone=(TH1* )hh->Clone("ap_clone");
@@ -227,6 +309,10 @@ void KVAutoFit::SetHisto(TH1* hh)
 	else			hfit->Draw();
 	
 	lplabel->Execute("Draw","");
+	
+	if (koption=="relecture")
+		if ( IsKnown(hfit->GetName()) )
+			Relecture( hfit->GetName() );
 	
 	c1->Update();
 
@@ -273,13 +359,7 @@ void KVAutoFit::GetInterval()
 	}
 	else if (event==kButton1Double){
 		Save();
-		/*
-		if (lhisto){
-			nhisto+=1;
-			if (nhisto<lhisto->GetEntries())
-				SetHisto((TH1F* )lhisto->At(nhisto));
-		}
-		*/
+		NextHisto();
 	}
 	
 	if (XminSet && XmaxSet){
@@ -332,11 +412,7 @@ if (event==kButton1Down){
 		ClearRange();
 	}
 	if ( !strcmp("Suivant",select->GetTitle()) ){
-		if (lhisto){
-			nhisto+=1;
-			if (nhisto<lhisto->GetEntries())
-				SetHisto((TH1F* )lhisto->At(nhisto));
-		}
+		NextHisto();
 	}
 
 }
@@ -361,16 +437,21 @@ if (event==kButton1Down){
 void KVAutoFit::Save()
 {
 
-//Warning("Save","Do Nothing");
 if (lfunc->GetEntries()==0) return;
 
 TF1* f1;
 ofstream fout(Form("%s",hfit->GetName()));
 TIter it(lfunc);
+fout<<"// Sauvegarde des fonctions générée par le classe="<<GetName() <<endl;
+fout<<"// Revision bzr de KV rev="<<KVBase::bzrRevisionNumber() << endl;
 fout<< lfunc->GetEntries() << endl;
-while (f1 = (TF1* )it.Next()){
-	fout<<f1->GetName() << endl;
-	fout<<f1->GetExpFormula() << endl;
+while ( (f1 = (TF1* )it.Next()) ){
+	fout<< f1->GetName() << endl;
+	fout<< userdefined << endl;
+	if (!userdefined)
+		fout<<f1->GetExpFormula() << endl;
+	else 
+		fout<<f1->GetNpar() << endl;
 	Double_t x1,x2,y1,y2;
 	if (!is2D){
 		f1->GetRange(x1,x2);
@@ -386,5 +467,136 @@ while (f1 = (TF1* )it.Next()){
 	
 }
 fout.close();
+
+}
+
+//________________________________________________________________
+void KVAutoFit::Relecture(const Char_t* name)
+{
+
+Info("Relecture","%s, Lecture des données existantes",name);
+TObjArray* toks;
+ifstream fin(name);
+TString line;
+
+if (!is2D){
+	TF1* freload;
+	TString f1d; 
+	f1d.Form("%s::f1D",GetName());
+	while (fin.good()){
+		line.ReadLine(fin);
+		while (line.BeginsWith("//")) line.ReadLine(fin);
+		
+		Int_t nf = line.Atoi();		//Lecture du nombre de fonctions enregistrees
+		for (Int_t ii=0;ii<nf;ii+=1){
+			
+			line.ReadLine(fin);		//lecture du nom de la fonction
+			TString snom = line;
+			
+			line.ReadLine(fin);		//lecture de l'expression ou de la methode definissant la fonction
+			TString sfor = line;
+			
+			if (sfor.Atoi()==0){
+				//Creation de la fonction a partir d une formule
+				line.ReadLine(fin);
+				freload = new TF1(snom.Data(),line.Data());
+			}
+			else {
+				//lecture de l'expression ou de la methode definissant la fonction
+				//lecture du nombre de parametres
+				line.ReadLine(fin);
+				Int_t np = line.Atoi();
+				freload = ReloadFunction(snom.Data(),np);
+			}
+
+			line.ReadLine(fin);	//Lecture de l intervalle de definition
+			toks = line.Tokenize(" ");
+			freload->SetRange( 
+				((TObjString* )toks->At(0))->GetString().Atof(),
+				((TObjString* )toks->At(1))->GetString().Atof()
+			);
+			delete toks;
+			
+			for (Int_t jj=0;jj<freload->GetNpar();jj+=1){	//Lecture des parametres
+				line.ReadLine(fin);
+				toks = line.Tokenize(" ");
+				freload->SetParameter(jj,((TObjString* )toks->At(1))->GetString().Atof());
+				freload->SetParError(jj,((TObjString* )toks->At(2))->GetString().Atof());
+				delete toks;	
+			}
+			
+			lfunc->Add(freload);
+			freload->Draw("same");
+			
+		}
+	}	
+}
+else {
+	TF2* freload;
+	TString f2d; 
+	f2d.Form("%s::f2D",GetName());
+	while (fin.good()){
+		line.ReadLine(fin);
+		while (line.BeginsWith("//")) line.ReadLine(fin);
+		
+		Int_t nf = line.Atoi();		//Lecture du nombre de fonctions enregistrees
+		for (Int_t ii=0;ii<nf;ii+=1){
+			
+			line.ReadLine(fin);		//lecture du nom de la fonction
+			TString snom = line;
+			
+			line.ReadLine(fin);		//lecture de l'expression ou de la methode definissant la fonction
+			TString sfor = line;
+			
+			if (sfor.Atoi()==0){
+				//Creation de la fonction a partir d une formule
+				line.ReadLine(fin);
+				freload = new TF2(snom.Data(),line.Data());
+			}
+			else {
+				//lecture de l'expression ou de la methode definissant la fonction
+				//lecture du nombre de parametres
+				line.ReadLine(fin);
+				Int_t np = line.Atoi();
+				freload = (TF2* )ReloadFunction(snom.Data(),np);
+			}
+			
+			line.ReadLine(fin);	//Lecture de l intervalle de definition
+			toks = line.Tokenize(" ");
+			freload->SetRange( 
+				((TObjString* )toks->At(0))->GetString().Atof(),
+				((TObjString* )toks->At(2))->GetString().Atof(),
+				((TObjString* )toks->At(1))->GetString().Atof(),
+				((TObjString* )toks->At(3))->GetString().Atof()
+			);
+			delete toks;
+			
+			for (Int_t jj=0;jj<freload->GetNpar();jj+=1){	//Lecture des parametres
+				line.ReadLine(fin);
+				toks = line.Tokenize(" ");
+				freload->SetParameter(jj,((TObjString* )toks->At(1))->GetString().Atof());
+				freload->SetParError(jj,((TObjString* )toks->At(2))->GetString().Atof());
+				delete toks;	
+			}
+			
+			lfunc->Add(freload);
+			freload->Draw("cont2,same");
+			
+		}
+	}
+}	
+		
+
+fin.close();
+
+
+}
+
+
+//________________________________________________________________
+Bool_t KVAutoFit::IsKnown(const Char_t* name)
+{
+
+	return (gSystem->IsFileInIncludePath(name));
 
 }

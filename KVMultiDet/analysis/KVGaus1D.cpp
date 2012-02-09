@@ -75,7 +75,7 @@ if (event==kButton1Down){
 		Int_t nfin=0;
 		TF1* f1;
 		TIter it(lfunc);
-		while (f1 = (TF1* )it.Next()){
+		while ( (f1 = (TF1* )it.Next()) ){
 			if (xdeb<=f1->GetParameter(1) && f1->GetParameter(1)<=xfin){
 				nfin+=1;
 			}
@@ -92,7 +92,7 @@ if (event==kButton1Down){
 		TF1* fsum = new TF1("sum",expr.Data(),xdeb,xfin);
 		Int_t np=0;
 		it.Reset();
-		while (f1 = (TF1* )it.Next()){
+		while ( (f1 = (TF1* )it.Next()) ){
 			for (Int_t ii=0;ii<f1->GetNpar();ii+=1){
 				fsum->SetParameter(np++,f1->GetParameter(ii));
 			}
