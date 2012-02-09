@@ -80,12 +80,30 @@ Bool_t KVGaus2D::NewFunction_2D()
 }
 
 //________________________________________________________________
+TF1* KVGaus2D::ReloadFunction_2D(const Char_t* nom, Int_t npar)
+{	
+	
+	TF2* f2 = new TF2(nom,
+		this,
+		&KVGaus2D::f2D,
+		0,1,0,1,
+		npar,
+		GetName(),
+		"f2D"
+	);
+		
+	return f2;
+}
+
+//________________________________________________________________
 Double_t	KVGaus2D::f2D(Double_t *xx,Double_t *para)
 {
 
 //Function gaussienne 2D
 //
 // E1 vs E2
+
+userdefined = kTRUE;
 
 Double_t e2 = xx[0];
 Double_t e1 = xx[1];
@@ -105,31 +123,5 @@ Double_t det = (1.-TMath::Power(rho,2.))*TMath::Power(sigE1*sigE2,2.);
 Double_t P = norm * 1./det*exp(A);
 
 return P;
-
-}
-
-//________________________________________________________________
-void KVGaus2D::Save()
-{
-
-//Warning("Save","Do Nothing");
-if (lfunc->GetEntries()==0) return;
-
-TF1* f1;
-ofstream fout(Form("%s",hfit->GetName()));
-TIter it(lfunc);
-fout<< lfunc->GetEntries() << endl;
-while ( (f1 = (TF1* )it.Next()) ){
-	fout<<f1->GetName() << endl;
-	fout << GetName() << "::f2D" << endl;
-	
-	Double_t x1,x2,y1,y2;
-	f1->GetRange(x1,y1,x2,y2);
-	fout << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
-	for (Int_t ii=0;ii<f1->GetNpar();ii+=1){
-		fout << ii << " " << f1->GetParameter(ii) << " " << f1->GetParError(ii) << endl;
-	}
-}
-fout.close();
 
 }
