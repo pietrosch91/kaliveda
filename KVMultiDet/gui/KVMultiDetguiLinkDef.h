@@ -29,4 +29,6 @@
 #pragma link C++ class KVInputDialog+;
 #pragma link C++ class KVTextEntry+;
 #pragma link C++ class KVDBSystemDialog+;
+#pragma link C++ class KVIDGridEditorCanvas+;
+#pragma link C++ class KVIDGridEditor+;
 #endif
