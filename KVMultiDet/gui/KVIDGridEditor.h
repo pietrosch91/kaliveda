@@ -65,11 +65,11 @@ class KVIDGridEditor : public KVBase
    TF2* frx;
    TF2* fry;
    
-   bool ownhisto;
-   bool dlmode;
-   bool drawmode;
-   bool selectmode;
-   bool ready;
+   Bool_t ownhisto;
+   Bool_t dlmode;
+   Bool_t drawmode;
+   Bool_t selectmode;
+   Bool_t ready;
    
    Double_t xmin,xmax,ymin,ymax;
    Double_t oldx, oldy;
@@ -104,21 +104,21 @@ class KVIDGridEditor : public KVBase
    void AddAction         (TString label);
    void AddGridOption     (TString label, KVHashList* thelist);
    void ConstructModulator();
-   bool IsClosed();
+   Bool_t IsClosed();
    
-   void TranslateX(int Sign);
-   void TranslateY(int Sign);
-   void RotateZ   (int Sign);
-   void ScaleX    (int Sign);
-   void ScaleY    (int Sign);
-   void ScaleXY   (int Sign);
+   void TranslateX(Int_t Sign);
+   void TranslateY(Int_t Sign);
+   void RotateZ   (Int_t Sign);
+   void ScaleX    (Int_t Sign);
+   void ScaleY    (Int_t Sign);
+   void ScaleXY   (Int_t Sign);
    
    void Unzoom      ();
    void SetLogz     ();
    void SetLogy     ();
    void SetLogx     ();
    void ZoomSelected();
-   void SetPivot    (double xx0, double yy0);
+   void SetPivot    (Double_t xx0, Double_t yy0);
    
    void SetEditable(TPaveLabel* label);
    void SelectLines(TPaveLabel* label);
@@ -134,14 +134,14 @@ class KVIDGridEditor : public KVBase
 
    void UpdateViewer();
    void ForceUpdate();
-   void DrawAtt    (bool piv);
+   void DrawAtt    (Bool_t piv);
    void ResetColor(KVIDentifier* Ident);
    void ResetColor(KVList* IdentList);
    void ChooseSelectedColor();
    
    void SuggestMoreAction();
    void DispatchOrder(TPaveLabel* label);
-   void ChangeStep(const char* title, int dstep=1);
+   void ChangeStep(const char* title, Int_t dstep=1);
    const char* WhoIsSelected();
    
    TString ListOfHistogramInMemory();

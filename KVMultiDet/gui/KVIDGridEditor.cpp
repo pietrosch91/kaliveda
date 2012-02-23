@@ -2,6 +2,8 @@
 //Author: dgruyer
 
 #include "KVIDGridEditor.h"
+#include <iostream>
+#include <sstream>
 
 ClassImp(KVIDGridEditor)
 
@@ -19,8 +21,12 @@ KVIDGridEditor::KVIDGridEditor()
 {
    // Default constructor
    
-  gROOT->ProcessLine(Form("KVIDGridEditor* gIDGridEditor = (KVIDGridEditor*)%d",(int)this)); // bidouille de la muerte !
-   
+  ostringstream oss;
+  oss << "KVIDGridEditor* gIDGridEditor = (KVIDGridEditor*)";
+  oss << this;
+  TString Commande(oss.str());    
+  gROOT->ProcessLine(Commande.Data());				// bidouille de la muerte !
+  
   SetName("gIDGridEditor");
   SetDefault();
   
@@ -91,7 +97,7 @@ void KVIDGridEditor::SetDefault()
 }
 
 //________________________________________________________________
-bool KVIDGridEditor::IsClosed()
+Bool_t KVIDGridEditor::IsClosed()
 {
   if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
   else return true;
@@ -229,7 +235,7 @@ KVIDGridEditor::~KVIDGridEditor()
 //________________________________________________________________
 void KVIDGridEditor::Copy (TObject& obj) const
 {
-  // This method copies the current state of 'this' object into 'obj'
+  // This method copies the current state of 'this' object Int_to 'obj'
   // You should add here any member variables, for example:
   //	(supposing a member variable KVIDGridEditor::fToto)
   //	CastedObj.fToto = fToto;
@@ -535,7 +541,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::DrawAtt(bool piv)
+void KVIDGridEditor::DrawAtt(Bool_t piv)
 {
   if((!ready)||IsClosed()) return;
 
@@ -556,7 +562,7 @@ void KVIDGridEditor::SetGrid(KVIDZAGrid* gg)
 {
   if(!gg)
     {
-    cout << "ERROR: KVIDGridEditor::SetHisto(): invalid pointer on the grid !" << endl;
+    cout << "ERROR: KVIDGridEditor::SetHisto(): invalid poInt_ter on the grid !" << endl;
     return;
     }
   if((TheGrid)&&(!IsClosed())) TheGrid->UnDraw();
@@ -595,7 +601,7 @@ void KVIDGridEditor::SetGrid(TString GridName)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::SetPivot(double xx0, double yy0)
+void KVIDGridEditor::SetPivot(Double_t xx0, Double_t yy0)
 {
   if(!pivot) 
     {
@@ -622,7 +628,7 @@ void KVIDGridEditor::SelectLabel()
   TPaveLabel* label = (TPaveLabel*)select;  
   if(event==kButton1Down)
     {
-    int color = label->GetFillColor();
+    Int_t color = label->GetFillColor();
     if(lplabel->Contains(label))
       {      
       lplabel->Execute("SetFillColor","kWhite");
@@ -806,7 +812,7 @@ void KVIDGridEditor::MakeTransformation()
     }
   if((event==kWheelUp)||(event==kWheelDown))
     {
-    int sign = (event==kWheelUp ? 1:-1);
+    Int_t sign = (event==kWheelUp ? 1:-1);
     const char* who = WhoIsSelected();
     
     if(!strcmp(who,"")) return;
@@ -871,7 +877,7 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
   else if(commande.Contains("Delete"))
     {
     if(!TheGrid) return;
-    int color = label->GetFillColor();
+    Int_t color = label->GetFillColor();
     if(color==kRed)
       {
       label->SetFillColor(kWhite);
@@ -893,7 +899,7 @@ void KVIDGridEditor::SetEditable(TPaveLabel* label)
 {  
   if(TheGrid)
     {
-    bool iseditable = TheGrid->IsEditable();
+    Bool_t iseditable = TheGrid->IsEditable();
     TheGrid->SetEditable(!iseditable);
     if(iseditable) label->SetFillColor(kWhite);
     else label->SetFillColor(kRed);
@@ -1161,7 +1167,7 @@ void KVIDGridEditor::DeleteCut(KVIDentifier* cut)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::ChangeStep(const char* title, int dstep)
+void KVIDGridEditor::ChangeStep(const char* title, Int_t dstep)
 {
   TString commande(title);
   if(commande.Contains("+")) 
@@ -1222,14 +1228,14 @@ const char* KVIDGridEditor::WhoIsSelected()
 }
 
 //________________________________________________________________
-void KVIDGridEditor::TranslateX(int Sign)
+void KVIDGridEditor::TranslateX(Int_t Sign)
 {
   if(!TheGrid) return;
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  double step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.5;
-  double factor = Sign*step;
+  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.5;
+  Double_t factor = Sign*step;
   
   ft->SetParameter(0,factor);
   ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (ft,0);
@@ -1240,14 +1246,14 @@ void KVIDGridEditor::TranslateX(int Sign)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::TranslateY(int Sign)
+void KVIDGridEditor::TranslateY(Int_t Sign)
 {
   if(!TheGrid) return;
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  double step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.5;
-  double factor = Sign*step;
+  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.5;
+  Double_t factor = Sign*step;
   
   ft->SetParameter(0,factor);
   ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (0,ft);
@@ -1258,15 +1264,15 @@ void KVIDGridEditor::TranslateY(int Sign)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::RotateZ(int Sign)
+void KVIDGridEditor::RotateZ(Int_t Sign)
 {  
   if(!TheGrid) return;
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
   
-  double step  = 1.*(imod/100.);
+  Double_t step  = 1.*(imod/100.);
   if(step>=45.) step = 45.;
-  double theta = Sign*step*TMath::DegToRad();
+  Double_t theta = Sign*step*TMath::DegToRad();
   
   x0 = pivot->GetX()[0];
   y0 = pivot->GetY()[0];
@@ -1282,14 +1288,14 @@ void KVIDGridEditor::RotateZ(int Sign)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::ScaleX(int Sign)
+void KVIDGridEditor::ScaleX(Int_t Sign)
 {
   if(!TheGrid) return;
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  double step   = 0.1*(imod/100.);
-  double factor = 1.+Sign*step;
+  Double_t step   = 0.1*(imod/100.);
+  Double_t factor = 1.+Sign*step;
   
   x0 = pivot->GetX()[0];
   
@@ -1302,14 +1308,14 @@ void KVIDGridEditor::ScaleX(int Sign)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::ScaleY(int Sign)
+void KVIDGridEditor::ScaleY(Int_t Sign)
 {
   if(!TheGrid) return;
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  double step   = 0.1*(imod/100.);
-  double factor = 1.+Sign*step;
+  Double_t step   = 0.1*(imod/100.);
+  Double_t factor = 1.+Sign*step;
   
   y0 = pivot->GetY()[0];
   
@@ -1322,14 +1328,14 @@ void KVIDGridEditor::ScaleY(int Sign)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::ScaleXY(int Sign)
+void KVIDGridEditor::ScaleXY(Int_t Sign)
 {
   if(!TheGrid) return;
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  double step   = 0.1*(imod/100.);
-  double factor = 1.+Sign*step;
+  Double_t step   = 0.1*(imod/100.);
+  Double_t factor = 1.+Sign*step;
   
   x0 = pivot->GetX()[0];
   y0 = pivot->GetY()[0];
