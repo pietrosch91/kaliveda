@@ -15,9 +15,9 @@ class KVIDGridEditorCanvas : public TCanvas
    virtual ~KVIDGridEditorCanvas();
    
    void HandleInput(EEventType event, Int_t px, Int_t py);
-   bool IsLogz();
-   bool IsLogy();
-   bool IsLogx();
+   Bool_t IsLogz();
+   Bool_t IsLogy();
+   Bool_t IsLogx();
    
    protected:
    void RunAutoExec();
