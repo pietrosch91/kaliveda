@@ -13,6 +13,7 @@
 #include "TGTab.h"
 #include "TGToolBar.h"
 #include "TGStatusBar.h"
+#include "KVIDGridEditor.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KVIDGridManagerGUI
@@ -35,7 +36,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
       M_GRIDS_DEL_ALL,
       M_GRIDS_RUNLIST,
       ID_LIST_BOX,
-      M_QUIT
+      M_START_EDITOR
    };
    TGLayoutHints *fMenuBarItemLayout;
    TGLayoutHints *fMenuBarHelpLayout;
@@ -46,7 +47,8 @@ class KVIDGridManagerGUI: public TGMainFrame {
    KVListView *fIDLineList;//list of lines in currently selected grid
    KVListView *fCUTLineList;//list of lines in currently selected grid
    KVListView *fCUTContourList;//list of lines in currently selected grid
-
+   
+   KVIDGridEditor* fIDGridEditor; // ID grid editor
 
    TGToolBar* fToolBar;
    TGButton* fTBbuttons[50];
@@ -62,8 +64,9 @@ class KVIDGridManagerGUI: public TGMainFrame {
    TGButton* fTBTestTree;
    TGButton* fTBDelG;
    TGButton* fTBRefresh;
-   TGButton* fTBQuit;
-
+   TGButton* fTBStartEditor;
+   TGButton* fTBOpenRoot;
+	     
    TGStatusBar* fStatusBar;
 
    Int_t fFirstGrid;
@@ -129,6 +132,8 @@ public:
    void Quit() {
       CloseWindow();
    };
-
+   void StartEditor();
+   void OpenRootFile();
+   
    ClassDef(KVIDGridManagerGUI, 0)      //A GUI for managing identification grids
 };

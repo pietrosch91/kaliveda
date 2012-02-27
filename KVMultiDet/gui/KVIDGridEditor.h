@@ -14,6 +14,11 @@
 #include "TView.h"
 #include "TKey.h"
 
+#include "TMethod.h"
+#include "TContextMenu.h"
+#include "TGMsgBox.h"
+#include "TGFileDialog.h"
+
 #include "KVIDGridEditorCanvas.h"
 #include "KVBase.h"
 #include "KVHashList.h"
@@ -32,13 +37,12 @@
 class KVIDGridEditor : public KVBase
 {
 
-   private:
+   protected:
    
-   Bool_t debug;
+   Bool_t fDebug;
    
-   KVIDGridEditorCanvas* c1;
-   TPad*     mPad;
-   TGraph*   pivot;
+   KVIDGridEditorCanvas* fCanvas;
+   TGraph*               fPivot;
    
    KVHashList* lplabel;		//contient la liste des TPaveLabel pour les transformations (rouge)
    KVHashList* lplabel2;	//contient la liste des TPaveLabel pour les actions (rouge)
@@ -75,26 +79,6 @@ class KVIDGridEditor : public KVBase
    Double_t oldx, oldy;
    Bool_t   moved;
    
-   public:
-   
-   KVIDGridEditor();
-   KVIDGridEditor (const KVIDGridEditor&) ;
-   virtual ~KVIDGridEditor();
-   void Copy (TObject&) const;   
-   
-   void StartViewer();
-   void Clear(const Option_t* opt);
-   void Close();
-   
-   void SetHisto(TH2* hh);
-   void SetGrid(KVIDZAGrid* gg);
-   void SetGrid(TString GridName);
-   
-   void SelectLabel();
-   void MakeTransformation();
-   
-   void SetSelectedColor(Int_t color){SelectedColor=color;};
-   void SetDebug(Bool_t debug_){debug=debug_;};
    
    protected:
    
@@ -137,15 +121,40 @@ class KVIDGridEditor : public KVBase
    void DrawAtt    (Bool_t piv);
    void ResetColor(KVIDentifier* Ident);
    void ResetColor(KVList* IdentList);
-   void ChooseSelectedColor();
    
    void SuggestMoreAction();
+   void ChooseSelectedColor();
+   void OpenRootFile();
+   
    void DispatchOrder(TPaveLabel* label);
    void ChangeStep(const char* title, Int_t dstep=1);
    const char* WhoIsSelected();
    
    TString ListOfHistogramInMemory();
    TString PreselectHistogram(TString ListOfName, Int_t ipert=0);
+   
+   
+   public:
+   
+   KVIDGridEditor();
+   KVIDGridEditor (const KVIDGridEditor&) ;
+   virtual ~KVIDGridEditor();
+   void Copy (TObject&) const;   
+   
+   void StartViewer();
+   void Clear(const Option_t* opt);
+   void Close();
+   
+   void SetHisto(TH2* hh);
+   void SetGrid(KVIDZAGrid* gg, Bool_t histo=true);
+   void SetGrid(TString GridName);
+   
+   void SelectLabel();
+   void MakeTransformation();
+   
+   void SetSelectedColor(Int_t color){SelectedColor=color;};
+   void SetDebug(Bool_t debug){fDebug=debug;};
+   
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };

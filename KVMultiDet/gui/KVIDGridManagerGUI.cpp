@@ -54,7 +54,9 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    fSelectedGrid = 0;
    fSelectedEntries = 0;
    fLastSelectedGrid = 0;
-
+   
+   fIDGridEditor = new KVIDGridEditor;
+   
    //to have access to online KaliVeda documentation via context menus
    //and dialog box "Online Help" buttons
    gEnv->SetValue("Browser.StartUrl", Form("http://indra.in2p3.fr/KaliVedaDoc/%s/", KVBase::GetKVVersion()));
@@ -92,7 +94,7 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    sgm->AddEntry("All", M_GRIDS_DEL_ALL);
    fMenuFile->AddPopup("Delete...", sgm);
    fMenuFile->AddSeparator();
-   fMenuFile->AddEntry("&Quit", M_QUIT);
+   fMenuFile->AddEntry("&Quit", M_START_EDITOR);
 
    fMenuFile->Connect("Activated(Int_t)", "KVIDGridManagerGUI", this,
                       "HandleGridsMenu(Int_t)");
@@ -121,15 +123,10 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "ofolder_t.xpm", // open
       "filesaveas.xpm",  // save
       "profile_t.xpm",
-      "line.xpm",
-      "ellipse.xpm",
-      "cut.xpm",
-      "selection_t.xpm",
-      "h1_t.xpm",
-      "branch_t.xpm",
-      "refresh1.xpm",
       "sm_delete.xpm",
-//      "quit.xpm",
+      "draw_t.xpm",//
+      "root_t.xpm",//
+      "refresh1.xpm",
       0
    };
 // toolbar tool tip text
@@ -137,15 +134,10 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "Open file containing grids",
       "Save all grids in current file",
       "New grid",
-      "Add identification line",
-      "Add identification contour",
-      "Add cut",
-      "Fit grid",
-      "Test grid identification",
-      "Test grid (TTree)",
-      "Refresh display",
       "Delete selected grid(s)",
-//      "Quit",
+      "Start editor",//"Quit"
+      "Open root file",
+      "Refresh display",
       0
    };
    int spacing[] = {
@@ -153,44 +145,29 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       0,
       20,
       0,
+      20,
       0,
-      0,
-      10,
-      0,
-      0,
-      5,
-      10,
- //     1000,
+      20,
       0
    };
    TGButton** buttons[] = {
       &fTBOpen,
       &fTBSave,
       &fTBNewG,
-      &fTBNewIDL,
-      &fTBNewIDC,
-      &fTBNewCut,
-      &fTBFit,
-      &fTBTest,
-      &fTBTestTree,
-      &fTBRefresh,
       &fTBDelG,
-//      &fTBQuit,
+      &fTBStartEditor,
+      &fTBOpenRoot,
+      &fTBRefresh,
       0
    };
    const char* method[] = {
       "OpenFile()",
       "SaveCurrent()",
       "NewGrid()",
-      "NewIDLine()",
-      "NewIDContour()",
-      "NewCut()",
-      "FitGrid()",
-      "TestGrid()",
-      "TestTreeGrid()",
-      "UpdateListOfGrids()",
       "DeleteSelectedGrids()",
- //     "Quit()",
+      "StartEditor()", //"Quit()"
+      "OpenRootFile()",
+      "UpdateListOfGrids()",
       0
    };
    fNbButtons = 0;
@@ -212,8 +189,8 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       i++;
    }
    // 'new id line'  & 'new cut' button stays down until line is drawn
-   fTBNewIDL->AllowStayDown(kTRUE);
-   fTBNewCut->AllowStayDown(kTRUE);
+//   fTBNewIDL->AllowStayDown(kTRUE);
+//   fTBNewCut->AllowStayDown(kTRUE);
 
 // adding the tool bar to the main frame
    AddFrame(fToolBar, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
@@ -316,6 +293,7 @@ KVIDGridManagerGUI::~KVIDGridManagerGUI()
    gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
    if (fSelectedEntries) delete fSelectedEntries;
    fSelectedEntries = 0;
+   if(fIDGridEditor) fIDGridEditor->Close();
 }
 
 void KVIDGridManagerGUI::CloseWindow()
@@ -324,15 +302,39 @@ void KVIDGridManagerGUI::CloseWindow()
    DeleteWindow();
 }
 
+void KVIDGridManagerGUI::StartEditor()
+{
+  if(!fIDGridEditor) fIDGridEditor = new KVIDGridEditor;
+  fIDGridEditor->StartViewer();
+  if(fSelectedGrid) fIDGridEditor->SetGrid((KVIDZAGrid*)fSelectedGrid);
+}
+
+void KVIDGridManagerGUI::OpenRootFile()
+{
+  static TString dir(".");
+  const char *filetypes[] = {"Root files", "*.root","All files", "*", 0, 0};
+  TGFileInfo fi;
+  fi.fFileTypes = filetypes;
+  fi.fIniDir = StrDup(dir);
+  new TGFileDialog(fClient->GetDefaultRoot(), this, kFDOpen, &fi);
+  if (fi.fFilename)
+    {
+    if(!(TFile::Open(fi.fFilename))) 
+      {
+      new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor", Form("Could not open file %s", fi.fFilename), 0, kMBOk);
+      }
+    }
+  dir = fi.fIniDir;
+}
 
 void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
 {
    //Receive signals emitted by items selected in Grids menu
    switch (id) {
 
-      case M_QUIT:
+      case M_START_EDITOR:
 
-         Quit();
+         StartEditor();
          break;
 
       case M_GRIDS_NEW:
@@ -923,8 +925,9 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
    // enable 'open' & 'quit' & 'new grid"
    fTBOpen->SetEnabled();
    fTBRefresh->SetEnabled();
-   //fTBQuit->SetEnabled();
+//   fTBStartEditor->SetEnabled();
    fTBNewG->SetEnabled();
+   fTBOpenRoot->SetEnabled();
    // enable 'save' if there are grids
    if (gIDGridManager->GetGrids()->GetEntries()) fTBSave->SetEnabled();
 
@@ -932,14 +935,10 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
 
    //enable delete selected grid(s)
    fTBDelG->SetEnabled();
-
+   
    if (GetNSelected() == 1) {
       // only one grid selected
-      fTBNewIDL->SetEnabled();
-      fTBFit->SetEnabled();
-      fTBNewCut->SetEnabled();
-      fTBTest->SetEnabled();
-      fTBTestTree->SetEnabled();
+      fTBStartEditor->SetEnabled();
    }
 }
 

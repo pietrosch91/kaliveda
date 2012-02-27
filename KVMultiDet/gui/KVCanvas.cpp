@@ -1,18 +1,18 @@
 //Created by KVClassFactory on Fri Feb 17 17:47:35 2012
 //Author: dgruyer
 
-#include "KVIDGridEditorCanvas.h"
+#include "KVCanvas.h"
 #include "TROOT.h"
 #include "TBox.h"
 #include "TAxis.h"
 #include "TContextMenu.h"
 
-ClassImp(KVIDGridEditorCanvas)
+ClassImp(KVCanvas)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVIDGridEditorCanvas</h2>
+<h2>KVCanvas</h2>
 Classe basée sur TCanvas avec surcharge de la méthode 'HandleInput'
 de manière à être sensible au mouvement de molette (kWheelUp/kWheelDown),
 et à suprimer la sensibilité des TPavaLabel.
@@ -21,18 +21,76 @@ Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDGridEditorCanvas::KVIDGridEditorCanvas()
+KVCanvas::KVCanvas()
 {
    // Default constructor
 }
 
-KVIDGridEditorCanvas::~KVIDGridEditorCanvas()
+KVCanvas::~KVCanvas()
 {
    // Destructor
 }
 
+//________________________________________________________________
+bool KVCanvas::IsLogz()
+{
+  return fLogz;
+}
+
+//________________________________________________________________
+bool KVCanvas::IsLogy()
+{
+  return fLogy;
+}
+
+//________________________________________________________________
+bool KVCanvas::IsLogx()
+{
+  return fLogx;
+}
+
 //______________________________________________________________________________
-void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
+void KVCanvas::RunAutoExec()
+{
+   // Execute the list of TExecs in the current pad.
+
+   if (!TestBit(kAutoExec)) return;
+   if (!gPad) return;
+   ((TPad*)gPad)->AutoExec();
+}
+
+//______________________________________________________________________________
+void KVCanvas::DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected)
+{
+   // Report name and title of primitive below the cursor.
+   //
+   //    This function is called when the option "Event Status"
+   //    in the canvas menu "Options" is selected.
+
+   const Int_t kTMAX=256;
+   static char atext[kTMAX];
+
+   if (!TestBit(kShowEventStatus) || !selected) return;
+
+   if (!fCanvasImp) return; //this may happen when closing a TAttCanvas
+
+   TVirtualPad* savepad;
+   savepad = gPad;
+   gPad = GetSelectedPad();
+
+   fCanvasImp->SetStatusText(selected->GetTitle(),0);
+   fCanvasImp->SetStatusText(selected->GetName(),1);
+   if (event == kKeyPress)
+      snprintf(atext, kTMAX, "%c", (char) px);
+   else
+      snprintf(atext, kTMAX, "%d,%d", px, py);
+   fCanvasImp->SetStatusText(atext,2);
+   fCanvasImp->SetStatusText(selected->GetObjectInfo(px,py),3);
+   gPad = savepad;
+}
+
+//______________________________________________________________________________
+void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 {
    // Handle Input Events.
    //
@@ -102,7 +160,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       if (fSelected) {
          FeedbackMode(kTRUE);   // to draw in rubberband mode
-         if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
+         fSelected->ExecuteEvent(event, px, py);
 
          RunAutoExec();
 	 
@@ -132,10 +190,10 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
+         fSelected->ExecuteEvent(event, px, py);
          gVirtualX->Update();
 
-         if (!fSelected->InheritsFrom(TAxis::Class())&&(!fSelected->InheritsFrom("TPaveLabel")) ) {
+         if (!fSelected->InheritsFrom(TAxis::Class())) {
             Bool_t resize = kFALSE;
             if (fSelected->InheritsFrom(TBox::Class()))
                resize = ((TBox*)fSelected)->IsBeingResized();
@@ -159,7 +217,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
+         fSelected->ExecuteEvent(event, px, py);
 
          RunAutoExec();
 
@@ -226,7 +284,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
+         fSelected->ExecuteEvent(event, px, py);
          RunAutoExec();
       }
       break;
@@ -244,7 +302,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (!fDoubleBuffer) FeedbackMode(kFALSE);
 
       if (fContextMenu && !fSelected->TestBit(kNoContextMenu) &&
-         !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu)&&(!fSelected->InheritsFrom("TPaveLabel")) )
+         !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu))
          fContextMenu->Popup(px, py, fSelected, this, pad);
 
       break;
@@ -263,7 +321,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (!fSelectedPad || !fSelected) return;
       gPad = fSelectedPad;   // don't use cd() because we won't draw in pad
                     // we will only use its coordinate system
-      if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
+      fSelected->ExecuteEvent(event, px, py);
 
       RunAutoExec();
 
@@ -279,7 +337,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       gPad = pad;   // don't use cd() we will use the current
                     // canvas via the GetCanvas member and not via
                     // gPad->GetCanvas
-      if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
+      fSelected->ExecuteEvent(event, px, py);
       RunAutoExec();
 
       break;
@@ -305,5 +363,32 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       ProcessedEvent(event, px, py, fSelected);  // emit signal
       DrawEventStatus(event, px, py, fSelected);
    }
+}
 
+//________________________________________________________________
+void KVCanvas::ZoomSelected(TH2* TheHisto)
+{
+  if(!TheHisto) return;
+  TAxis* ax = TheHisto->GetXaxis();
+  
+  Double_t ratio1 = (xmin - gPad->GetUxmin())/(gPad->GetUxmax() - gPad->GetUxmin());
+  Double_t ratio2 = (xmax - gPad->GetUxmin())/(gPad->GetUxmax() - gPad->GetUxmin());
+  
+  if((ratio2-ratio1 > 0.05))
+    {
+    ax->SetRangeUser(xmin, xmax);
+    }
+  
+  ax = TheHisto->GetYaxis();
+  
+  ratio1 = (ymin - gPad->GetUymin())/(gPad->GetUymax() - gPad->GetUymin());
+  ratio2 = (ymax - gPad->GetUymin())/(gPad->GetUymax() - gPad->GetUymin());
+  
+  if((ratio2-ratio1 > 0.05))
+    {
+    ax->SetRangeUser(ymin, ymax);
+    }
+  
+  xmax = xmin = ymax = ymin = 0.;
+  return;
 }

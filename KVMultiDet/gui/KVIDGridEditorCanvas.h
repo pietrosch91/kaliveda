@@ -5,23 +5,17 @@
 #define __KVIDGridEditorCanvas_H
 
 #include "TCanvas.h"
+#include "KVCanvas.h"
 
-class KVIDGridEditorCanvas : public TCanvas
+class KVIDGridEditorCanvas : public KVCanvas
 {
 
    public:
    KVIDGridEditorCanvas();
-   KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name,title,ww,wh){};
+   KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh):KVCanvas(name,title,ww,wh){};
    virtual ~KVIDGridEditorCanvas();
    
    void HandleInput(EEventType event, Int_t px, Int_t py);
-   Bool_t IsLogz();
-   Bool_t IsLogy();
-   Bool_t IsLogx();
-   
-   protected:
-   void RunAutoExec();
-   void DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected);
 
    ClassDef(KVIDGridEditorCanvas,1)//bidouille
 };
