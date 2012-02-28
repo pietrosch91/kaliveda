@@ -83,6 +83,7 @@ class Sive503
   Double_t Offset493[19];  
     
   //System 40Ca + 40Ca  
+  Double_t Offset511[19];  
   Double_t Offset525[19];  
   Double_t Offset528[19]; 
   Double_t Offset531[19];  

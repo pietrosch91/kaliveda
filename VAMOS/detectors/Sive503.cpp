@@ -124,8 +124,9 @@ Sive503::Sive503(LogFile *Log)
    Float_t off475;
    Float_t off484; 
    Float_t off490;
-   Float_t off493;   
-      
+   Float_t off493; 
+     
+   Float_t off511;      
    Float_t off525; 
    Float_t off528;      
    Float_t off531; 
@@ -150,8 +151,8 @@ Sive503::Sive503(LogFile *Log)
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
-	     sscanf(sline.Data(),"%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",&num ,&ref, &propre, &off328, &off333, &off339, &off344, &off348, &off353, &off355, &off379,
-	     &off384, &off390, &off398, &off403, &off405, &off407, &off455, &off467, &off475, &off484, &off490, &off493, &off525, &off528, &off531, &off537, &off543 );
+	     sscanf(sline.Data(),"%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",&num ,&ref, &propre, &off328, &off333, &off339, &off344, &off348, &off353, &off355, &off379,
+	     &off384, &off390, &off398, &off403, &off405, &off407, &off455, &off467, &off475, &off484, &off490, &off493, &off511, &off525, &off528, &off531, &off537, &off543 );
          	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
 	     TRef[num] = ref;
 	     Tpropre_el[num] = propre;
@@ -168,14 +169,18 @@ Sive503::Sive503(LogFile *Log)
 	     Offset384[num] = off384;
 	     Offset390[num] = off390;
 	     Offset398[num] = off398;
-	     	     	     	     
+	     Offset403[num] = off403;
+	     Offset405[num] = off405;
+	     Offset407[num] = off407;
+	     	     	     	     	     
 	     Offset455[num] = off455;
 	     Offset467[num] = off467;
 	     Offset475[num] = off475;
 	     Offset484[num] = off484;
 	     Offset490[num] = off490;
 	     Offset493[num] = off493;	     
-	     	     	
+
+	     Offset511[num] = off511;	     	     	
 	     Offset525[num] = off525;
 	     Offset528[num] = off528;	          
 	     Offset531[num] = off531;
@@ -347,7 +352,7 @@ void Sive503::Calibrate(void)
 	    ETotal = E[E_Raw_Nr[i]];
 	    	    //cout<<"ETotal Si = "<<E[E_Raw_Nr[i]]<<endl;
 		    //cout<<"E Si = "<<E<<endl;
-		    L->Log<<"ETotal : "<<ETotal<<endl;
+		    //L->Log<<"ETotal : "<<ETotal<<endl;
 		 
 	    Number = E_Raw_Nr[i];
 	    DetSi = int(Number)+1;	//numérotation 1-18
@@ -446,7 +451,11 @@ void Sive503::Calibrate(void)
 	    L->Log<<"offset : "<<Offset493[E_Raw_Nr[i]]<<endl;
 	    }	    
       	    //=========================================================================	    
-	    //System : 40Ca + 40Ca	
+	    //System : 40Ca + 40Ca
+	    if(gIndra->GetCurrentRunNumber()>510 && gIndra->GetCurrentRunNumber()<525){
+	    Tfrag -= Offset511[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset511[E_Raw_Nr[i]]<<endl;
+	    }	    	
 	    if(gIndra->GetCurrentRunNumber()>524 && gIndra->GetCurrentRunNumber()<528){
 	    Tfrag -= Offset525[E_Raw_Nr[i]];
 	    L->Log<<"offset : "<<Offset525[E_Raw_Nr[i]]<<endl;
