@@ -396,14 +396,14 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
   TIter nextkey(KeyList);
   while((key=(TKey*)nextkey()))
     {
-    TObject* obj = (TObject*)gFile->Get(key->GetName());
-    if(obj->InheritsFrom("TH2"))//&&(PreselectHistogram(obj->GetName()))) 
+    TString classname = key->GetClassName();
+    if(classname.Contains("TH2"))
       {
-      HistosNames += Form(" %s", obj->GetName());
+      HistosNames += Form(" %s", key->GetName());
       }
-    else if(obj->InheritsFrom("TList"))
+    else if(classname.Contains("List"))
       {
-      TList* sublist = (TList*)obj;
+      TList* sublist = (TList*)gFile->Get(key->GetName());
       if(sublist->IsEmpty()) continue;
       TObject* subobj = 0;
       TIter nextobj(sublist);
@@ -1066,12 +1066,12 @@ void KVIDGridEditor::FitGrid()
 //________________________________________________________________
 void KVIDGridEditor::SuggestMoreAction()
 {  
-  TString Default = "SetSelectedColor";
+  TString Default = "SaveCurrentGrid";
   TString Choices = Default;
-//  Choices += " ";
-//  Choices += "OpenRootFile";
-//  Choices += " Clear";
-//  Choices += " SetSelectedColor";
+  Choices += " SetVarXVarY";
+  Choices += " SetRunList";
+  Choices += " AddParameter";
+  Choices += " SetSelectedColor";
   Choices += " SpiderIdentification";
   
   TString Answer;
@@ -1083,20 +1083,85 @@ void KVIDGridEditor::SuggestMoreAction()
     } 
       
   if(!strcmp(Answer.Data(),"")) cout << "INFO: KVIDGridEditor::SuggestMoreAction(): Nothing has been done..." << endl;
-//  else if(!strcmp(Answer.Data(),"SetHistogram"))  SetHisto(0);
-//  else if(!strcmp(Answer.Data(),"SetGrid")) SetGrid("");
-//  else if(!strcmp(Answer.Data(),"Clear")) Clear("all");
-  else if(!strcmp(Answer.Data(),"SetSelectedColor")) ChooseSelectedColor();
-//  else if(!strcmp(Answer.Data(),"OpenRootFile")) OpenRootFile();
+  else if(!strcmp(Answer.Data(),"SaveCurrentGrid"))      SaveCurrentGrid();
+  else if(!strcmp(Answer.Data(),"SetSelectedColor"))     ChooseSelectedColor();
+  else if((!strcmp(Answer.Data(),"SetVarXVarY"))||(!strcmp(Answer.Data(),"SetRunList"))||(!strcmp(Answer.Data(),"AddParameter")))
+    {  
+    if(!TheGrid) return;
+    TMethod* m = TheGrid->IsA()->GetMethodAllAny(Answer.Data());
+    TContextMenu * cm = new TContextMenu(Answer.Data(), Form("Context menu for KVIDGridEditor::%s",Answer.Data()));
+    cm->Action(TheGrid,m);
+    delete cm;
+    }
   else if(!strcmp(Answer.Data(),"SpiderIdentification")) SpiderIdentification();
   else cout << "INFO: KVIDGridEditor::SuggestMoreAction(): '" << Answer << "' not implemented..." << endl;
 
 }
 
 //________________________________________________________________
+void KVIDGridEditor::SetVarXVarY(char* VarX, char* VarY)
+{
+  cout << "DEBUG: KVIDGridEditor::SetVarXVarY(): varx and vary will be set..." << endl;
+  if(!TheGrid) return;
+  TheGrid->SetVarX(VarX);
+  TheGrid->SetVarX(VarY);
+  cout << "DEBUG: KVIDGridEditor::SetVarXVarY(): varx and vary set..." << endl;
+  return;
+}
+
+//________________________________________________________________
+void KVIDGridEditor::SetRunList(char* RunList)
+{
+  if(!TheGrid) return;
+  TheGrid->SetRunList(RunList);
+  return;
+}
+
+//________________________________________________________________
+void KVIDGridEditor::SetParameter(char* Name, char* Value)
+{
+  if(!TheGrid) return;
+  TheGrid->GetParameters()->SetValue(Name,Value);
+  
+  return;
+}
+
+//________________________________________________________________
+void KVIDGridEditor::SaveCurrentGrid()
+{
+  if(!TheGrid) return;
+  TString currentdir(gSystem->ExpandPathName("."));
+  
+  static TString dir(gSystem->ExpandPathName("."));
+  const char *filetypes[] = {
+     "ID Grid files", "*.dat",
+     "All files", "*",
+     0, 0
+  };
+  TGFileInfo fi;
+  fi.fFileTypes = filetypes;
+  fi.fIniDir = StrDup(dir);
+  new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDSave, &fi);
+  if (fi.fFilename) 
+    {
+    //if no ".xxx" ending given, we add ".dat"
+    TString filenam(fi.fFilename);
+    if(filenam.Contains("toto")) filenam.ReplaceAll("toto",TheGrid->GetName());
+    if (!filenam.Contains('.')) filenam += ".dat";
+    TheGrid->WriteAsciiFile(filenam.Data());
+    }
+  dir = fi.fIniDir;
+  gSystem->cd(currentdir.Data());
+}
+
+//________________________________________________________________
 void KVIDGridEditor::OpenRootFile()
 {
-  static TString dir(".");
+  static TString dir("$HISTOROOT");
+  TString currentdir(gSystem->ExpandPathName("."));
+  
+  if(gSystem->ExpandPathName(dir)) dir = ".";
+  
   const char *filetypes[] = {"Root files", "*.root","All files", "*", 0, 0};
   TGFileInfo fi;
   fi.fFileTypes = filetypes;
@@ -1110,6 +1175,7 @@ void KVIDGridEditor::OpenRootFile()
       }
     }
   dir = fi.fIniDir;
+  gSystem->cd(currentdir.Data());
 }
 
 //________________________________________________________________
@@ -1249,7 +1315,7 @@ void KVIDGridEditor::TranslateX(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.5;
+  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.1;
   Double_t factor = Sign*step;
   
   ft->SetParameter(0,factor);
@@ -1267,7 +1333,7 @@ void KVIDGridEditor::TranslateY(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.5;
+  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.1;
   Double_t factor = Sign*step;
   
   ft->SetParameter(0,factor);
@@ -1309,7 +1375,7 @@ void KVIDGridEditor::ScaleX(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = 0.1*(imod/100.);
+  Double_t step   = 0.01*(imod/100.);
   Double_t factor = 1.+Sign*step;
   
   x0 = fPivot->GetX()[0];
@@ -1329,7 +1395,7 @@ void KVIDGridEditor::ScaleY(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = 0.1*(imod/100.);
+  Double_t step   = 0.01*(imod/100.);
   Double_t factor = 1.+Sign*step;
   
   y0 = fPivot->GetY()[0];
@@ -1349,7 +1415,7 @@ void KVIDGridEditor::ScaleXY(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = 0.1*(imod/100.);
+  Double_t step   = 0.01*(imod/100.);
   Double_t factor = 1.+Sign*step;
   
   x0 = fPivot->GetX()[0];

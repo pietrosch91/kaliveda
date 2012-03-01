@@ -373,21 +373,13 @@ void KVCanvas::ZoomSelected(TH2* TheHisto)
   
   Double_t ratio1 = (xmin - gPad->GetUxmin())/(gPad->GetUxmax() - gPad->GetUxmin());
   Double_t ratio2 = (xmax - gPad->GetUxmin())/(gPad->GetUxmax() - gPad->GetUxmin());
-  
-  if((ratio2-ratio1 > 0.05))
-    {
-    ax->SetRangeUser(xmin, xmax);
-    }
+  if((ratio2-ratio1 > 0.05)) ax->SetRangeUser(xmin, xmax);
   
   ax = TheHisto->GetYaxis();
   
   ratio1 = (ymin - gPad->GetUymin())/(gPad->GetUymax() - gPad->GetUymin());
   ratio2 = (ymax - gPad->GetUymin())/(gPad->GetUymax() - gPad->GetUymin());
-  
-  if((ratio2-ratio1 > 0.05))
-    {
-    ax->SetRangeUser(ymin, ymax);
-    }
+  if((ratio2-ratio1 > 0.05)) ax->SetRangeUser(ymin, ymax);
   
   xmax = xmin = ymax = ymin = 0.;
   return;

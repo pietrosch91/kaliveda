@@ -22,6 +22,7 @@ $Id: KVIDZAGrid.cpp,v 1.24 2009/05/05 15:57:52 franklan Exp $
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
 #include "TCanvas.h"
+#include "TROOT.h"
 #include "KVIdentificationResult.h"
 
 ClassImp(KVIDZAGrid)
@@ -127,27 +128,30 @@ void KVIDZAGrid::init()
 
 void KVIDZAGrid::RemoveLine(Int_t Z, Int_t A)
 {
-	// Remove and destroy identifier
-    Int_t toto = -1;
-    KVIDZALine* tmpline=0;
-    if((A>0)&&(!IsOnlyZId()))
-      {
-      if((tmpline=GetZALine(Z,A,toto))) RemoveIdentifier((KVIDentifier*)tmpline);
-      }
-    else
-      {
-      if(!IsOnlyZId()) 
-        {
-	KVList* tmplist = (KVList*)fIdentifiers->GetSubListWithMethod(Form("%d",Z),"GetZ");
-	TIter next_id(tmplist);
-	while((tmpline=(KVIDZALine*)next_id()))
-	  {
-	  if(tmpline) RemoveIdentifier((KVIDentifier*)tmpline);
-	  }
-	delete tmplist;
-	}
-      else if((tmpline=GetZLine(Z,toto))) RemoveIdentifier((KVIDentifier*)tmpline);
-      }
+       // Remove and destroy identifier
+   
+   gROOT->ProcessLine("if(gROOT->FindObject(\"gIDGridEditorCanvas\")) gIDGridEditor->Clear()");
+
+   Int_t toto = -1;
+   KVIDZALine* tmpline=0;
+   if((A>0)&&(!IsOnlyZId()))
+     {
+     if((tmpline=GetZALine(Z,A,toto))) RemoveIdentifier((KVIDentifier*)tmpline);
+     }
+   else
+     {
+     if(!IsOnlyZId()) 
+       {
+       KVList* tmplist = (KVList*)fIdentifiers->GetSubListWithMethod(Form("%d",Z),"GetZ");
+       TIter next_id(tmplist);
+       while((tmpline=(KVIDZALine*)next_id()))
+         {
+         if(tmpline) RemoveIdentifier((KVIDentifier*)tmpline);
+         }
+       delete tmplist;
+       }
+     else if((tmpline=GetZLine(Z,toto))) RemoveIdentifier((KVIDentifier*)tmpline);
+     }
 }
 
 //_________________________________________________________________________//

@@ -305,5 +305,4 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       ProcessedEvent(event, px, py, fSelected);  // emit signal
       DrawEventStatus(event, px, py, fSelected);
    }
-
 }

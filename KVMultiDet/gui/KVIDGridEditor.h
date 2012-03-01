@@ -88,7 +88,6 @@ class KVIDGridEditor : public KVBase
    void AddAction         (TString label);
    void AddGridOption     (TString label, KVHashList* thelist);
    void ConstructModulator();
-   Bool_t IsClosed();
    
    void TranslateX(Int_t Sign);
    void TranslateY(Int_t Sign);
@@ -125,6 +124,11 @@ class KVIDGridEditor : public KVBase
    void SuggestMoreAction();
    void ChooseSelectedColor();
    void OpenRootFile();
+   void SaveCurrentGrid();
+   
+   void SetVarXVarY(char* VarX, char* VarY); 
+   void SetRunList(char* RunList);  
+   void SetParameter(char* Name, char* Value); 
    
    void DispatchOrder(TPaveLabel* label);
    void ChangeStep(const char* title, Int_t dstep=1);
@@ -144,6 +148,7 @@ class KVIDGridEditor : public KVBase
    void StartViewer();
    void Clear(const Option_t* opt);
    void Close();
+   Bool_t IsClosed();
    
    void SetHisto(TH2* hh);
    void SetGrid(KVIDZAGrid* gg, Bool_t histo=true);

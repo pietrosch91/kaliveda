@@ -36,7 +36,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
       M_GRIDS_DEL_ALL,
       M_GRIDS_RUNLIST,
       ID_LIST_BOX,
-      M_START_EDITOR
+      M_QUIT
    };
    TGLayoutHints *fMenuBarItemLayout;
    TGLayoutHints *fMenuBarHelpLayout;
@@ -56,6 +56,7 @@ class KVIDGridManagerGUI: public TGMainFrame {
    TGButton* fTBOpen;
    TGButton* fTBSave;
    TGButton* fTBNewG;
+   TGButton* fTBCopyG;
    TGButton* fTBNewIDL;
    TGButton* fTBNewIDC;
    TGButton* fTBNewCut;
@@ -109,6 +110,7 @@ public:
    Int_t GetNSelected();
 
    void NewGrid();
+   void CopyGrid();
    void MergeGrids();
    void ClearGrid();
    void DeleteGrids();
