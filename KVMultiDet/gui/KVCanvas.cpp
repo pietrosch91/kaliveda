@@ -165,11 +165,11 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
          RunAutoExec();
 	 
 	 if(fSelected->InheritsFrom("TH2")){
-            oldx = gPad->GetEventX();
-            oldy = gPad->GetEventY();
-            xmin = gPad->AbsPixeltoX(oldx);
-            ymin = gPad->AbsPixeltoY(oldy);
-            gVirtualX->DrawBox(gPad->XtoAbsPixel(xmin), gPad->YtoAbsPixel(ymin), oldx, oldy, TVirtualX::kHollow);
+            oldx = GetEventX();
+            oldy = GetEventY();
+            xmin = AbsPixeltoX(oldx);
+            ymin = AbsPixeltoY(oldy);
+            gVirtualX->DrawBox(XtoAbsPixel(xmin), YtoAbsPixel(ymin), oldx, oldy, TVirtualX::kHollow);
          }
 
       }
@@ -179,10 +179,10 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    case kButton1Motion:
       if (fSelected) {
           if(fSelected->InheritsFrom("TH2")){
-             gVirtualX->DrawBox(gPad->XtoAbsPixel(xmin), gPad->YtoAbsPixel(ymin), oldx, oldy, TVirtualX::kHollow);
-             oldx = gPad->GetEventX();
-             oldy = gPad->GetEventY();
-             gVirtualX->DrawBox(gPad->XtoAbsPixel(xmin), gPad->YtoAbsPixel(ymin), oldx, oldy, TVirtualX::kHollow);
+             gVirtualX->DrawBox(XtoAbsPixel(xmin), YtoAbsPixel(ymin), oldx, oldy, TVirtualX::kHollow);
+             oldx = GetEventX();
+             oldy = GetEventY();
+             gVirtualX->DrawBox(XtoAbsPixel(xmin), YtoAbsPixel(ymin), oldx, oldy, TVirtualX::kHollow);
 	     moved = true;
           }
       }
@@ -228,8 +228,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
             fPadSave = this;
          }
          if(fSelected->InheritsFrom("TH2")&&moved){
-            xmax = gPad->AbsPixeltoX(gPad->GetEventX());
-            ymax = gPad->AbsPixeltoY(gPad->GetEventY());
+            xmax = AbsPixeltoX(GetEventX());
+            ymax = AbsPixeltoY(GetEventY());
             Double_t toto = 0;
             if(xmax<xmin){
 	       toto = xmax;
