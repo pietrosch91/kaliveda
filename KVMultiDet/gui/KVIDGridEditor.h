@@ -164,4 +164,7 @@ class KVIDGridEditor : public KVBase
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };
 
+//................  global variable
+R__EXTERN KVIDGridEditor *gIDGridEditor;
+
 #endif

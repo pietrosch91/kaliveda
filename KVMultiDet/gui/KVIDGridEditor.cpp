@@ -17,16 +17,14 @@ note a moi même : écrire une doc...
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+KVIDGridEditor *gIDGridEditor;
+
 KVIDGridEditor::KVIDGridEditor()
 {
    // Default constructor
    
-  ostringstream oss;
-  oss << "KVIDGridEditor* gIDGridEditor = (KVIDGridEditor*)";
-  oss << this;
-  TString Commande(oss.str());    
-  gROOT->ProcessLine(Commande.Data());				// bidouille de la muerte !
-  
+  gIDGridEditor = this;
+     
   SetName("gIDGridEditor");
   SetDefault();
   
