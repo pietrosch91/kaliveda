@@ -452,7 +452,7 @@ Bool_t KVElasticScatterEvent::ValidateEntrance()
 		else {
 			Warning("ValidateEntrance","Pas de calcul de perte dans la cible ... ");
 		}
-		DefineAngularRange(gMultiDetArray);
+		//DefineAngularRange(gMultiDetArray);
 	}
 	else {
 		Info("ValidateEntrance","The elastic scatter events will not be detected/filtered");
