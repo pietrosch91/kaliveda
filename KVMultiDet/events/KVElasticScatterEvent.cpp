@@ -217,7 +217,7 @@ void KVElasticScatterEvent::SetRandomOption(Option_t* opt)
 }
 
 //_______________________________________________________________________
-Bool_t KVElasticScatterEvent::IsIsotropic(){
+Bool_t KVElasticScatterEvent::IsIsotropic() const {
 
 	//retoune kTRUE si l'option choisi est isotrope
 	return strcmp(kRandomOpt,"random");
@@ -841,7 +841,7 @@ void KVElasticScatterEvent::TreateEvent()
 }
 
 //_______________________________________________________________________
-void KVElasticScatterEvent::Print()
+void KVElasticScatterEvent::Print(Option_t* /*opt*/) const
 {
 	
 	kb2->Print();
