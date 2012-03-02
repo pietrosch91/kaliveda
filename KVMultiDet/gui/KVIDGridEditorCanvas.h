@@ -9,7 +9,9 @@
 
 class KVIDGridEditorCanvas : public KVCanvas
 {
-
+   Int_t X0pan, X1pan, Y0pan, Y1pan;
+   Int_t Xminpan, Xmaxpan, Yminpan, Ymaxpan;
+   
    public:
    KVIDGridEditorCanvas();
    KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh):KVCanvas(name,title,ww,wh){};

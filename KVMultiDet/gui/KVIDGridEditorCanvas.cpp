@@ -205,6 +205,18 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       if(!fSelected->InheritsFrom("TH1")) fSelected->Pop();           	// pop object to foreground
       pad->cd();                  					// and make its pad the current pad
+      if(fSelected->InheritsFrom("TH2")){
+         X0pan = AbsPixeltoX(GetEventX());
+         Y0pan = AbsPixeltoY(GetEventY());
+         TAxis* theAxis=((TH2*)fSelected)->GetXaxis();
+         Xminpan = theAxis->GetBinLowEdge(theAxis->GetFirst());
+         Xmaxpan = theAxis->GetBinUpEdge(theAxis->GetLast());
+         theAxis=((TH2*)fSelected)->GetYaxis();
+         Yminpan = theAxis->GetBinLowEdge(theAxis->GetFirst());
+         Ymaxpan = theAxis->GetBinUpEdge(theAxis->GetLast());
+         //printf("You middle-clicked on %s at (%d,%d)\n",fSelected->GetName(),X0pan,Y0pan);
+         //printf("Initial viewing area X=(%d,%d) Y=(%d,%d)\n",Xminpan,Xmaxpan, Yminpan,Ymaxpan);
+      }
       if (gDebug)
          printf("Current Pad: %s / %s\n", pad->GetName(), pad->GetTitle());
 
@@ -222,7 +234,19 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       break;   // don't want fPadSave->cd() to be executed at the end
 
    case kButton2Motion:
-      //was empty!
+      if(fSelected && fSelected->InheritsFrom("TH2")){
+         X1pan = AbsPixeltoX(GetEventX());
+         Y1pan = AbsPixeltoY(GetEventY());
+         Int_t dX = -(X1pan-X0pan);
+         Int_t dY = -(Y1pan-Y0pan);
+         //printf("You have moved by (%d,%d)\n",dX,dY);
+         //printf("Viewing area now X=(%d,%d) Y=(%d,%d)\n",Xminpan+dX,Xmaxpan+dX, Yminpan+dY,Ymaxpan+dY);
+         ((TH2*)fSelected)->GetXaxis()->SetRangeUser(Xminpan+dX,Xmaxpan+dX);
+         ((TH2*)fSelected)->GetYaxis()->SetRangeUser(Yminpan+dY,Ymaxpan+dY);
+         Modified();Update();
+      }
+      break;
+      
    case kButton2Up:
       if (fSelected) {
          gPad = fSelectedPad;
