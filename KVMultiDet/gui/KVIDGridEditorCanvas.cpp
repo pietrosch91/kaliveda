@@ -161,8 +161,6 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
          if(!fSelected->InheritsFrom("TPaveLabel")) fSelected->ExecuteEvent(event, px, py);
 
-         RunAutoExec();
-
          if (fPadSave)
             gPad = fPadSave;
          else {
@@ -186,6 +184,9 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
             ZoomSelected((TH2*)fSelected);
             moved = false;
          }
+         
+         RunAutoExec();
+
          Update();    // before calling update make sure gPad is reset
       }
       break;

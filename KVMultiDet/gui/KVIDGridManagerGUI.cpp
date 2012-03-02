@@ -312,7 +312,12 @@ void KVIDGridManagerGUI::StartEditor()
 {
   if(!fIDGridEditor) fIDGridEditor = new KVIDGridEditor;
   if(fIDGridEditor->IsClosed()) fIDGridEditor->StartViewer();
-  if(fSelectedGrid) fIDGridEditor->SetGrid((KVIDZAGrid*)fSelectedGrid);
+  if(fSelectedGrid) {
+     // avant d'editer la grille, on en fait une copie pour
+     // pouvoir revenir en arriere
+     fSelectedGrid->UpdateLastSavedVersion();
+     fIDGridEditor->SetGrid((KVIDZAGrid*)fSelectedGrid);
+  }
 }
 
 void KVIDGridManagerGUI::OpenRootFile()

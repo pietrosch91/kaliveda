@@ -95,6 +95,7 @@ class KVIDGridEditor : public KVBase
    void ScaleX    (Int_t Sign);
    void ScaleY    (Int_t Sign);
    void ScaleXY   (Int_t Sign);
+   void Undo      ();
    
    void Unzoom      ();
    void SetLogz     ();
@@ -146,7 +147,7 @@ class KVIDGridEditor : public KVBase
    void Copy (TObject&) const;   
    
    void StartViewer();
-   void Clear(const Option_t* opt);
+   void Clear(const Option_t* opt = "");
    void Close();
    Bool_t IsClosed();
    

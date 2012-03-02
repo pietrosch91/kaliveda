@@ -59,6 +59,8 @@ void KVIDGraph::ClearPad(TVirtualPad* pad){
 	}
 }
 
+Bool_t KVIDGraph::fAutoAddGridManager = kTRUE;
+
 void KVIDGraph::init()
 {
    // Initialisations, used by constructors
@@ -76,8 +78,9 @@ void KVIDGraph::init()
 	fPad = 0;
 	SetName("");
 	SetEditable(kFALSE);
-	if(gIDGridManager) gIDGridManager->AddGrid(this);
+	if(fAutoAddGridManager && gIDGridManager) gIDGridManager->AddGrid(this);
 	fMassFormula = 0;
+   fLastSavedVersion = NULL;
 }
 
 //________________________________________________________________________________
@@ -399,6 +402,47 @@ void KVIDGraph::WriteToAsciiFile(ofstream & gridfile)
    //restore scaling if there is one
    if (fLastScaleX != 1 || fLastScaleY != 1)
       Scale(fLastScaleX, fLastScaleY);
+      
+   // if a back-up copy had previously been created (by starting the editor)
+   // we replace it by the version read from file
+   if(fLastSavedVersion) UpdateLastSavedVersion();
+}
+
+void KVIDGraph::UpdateLastSavedVersion()
+{   
+   //update last saved version. mkae copy of current state of graph.
+   if(!fLastSavedVersion) {
+      SetAutoAdd(kFALSE); // disable auto add to grid manager - or we'll have every grid appearing twice!
+      fLastSavedVersion = (KVIDGraph*)IsA()->New();
+      SetAutoAdd(); // re-enable auto add
+   }
+   Copy(*fLastSavedVersion);
+}
+
+void KVIDGraph::RevertToLastSavedVersion()
+{   
+   // Revert to last saved version of grid
+   // this will destroy any existing lines in the grid and replace them with
+   // copies of the lines as they were at the last moment the grid was saved
+   // If the grid is (was) visible in a pad, we redraw the new lines.
+   
+   if(!fLastSavedVersion) {
+      Info("RevertToLastSavedVersion", "No saved version to revert to! (Sorry)");
+      return;
+   }
+   Bool_t wasDrawn=kFALSE;
+   if(fPad){
+      // if grid was visible, remove it from pad before modifying (deleting) lines
+      wasDrawn=kTRUE;
+      fPad->cd();// make sure pad with grid is active (gPad) pad
+      UnDraw();
+   }
+   Clear();
+   fLastSavedVersion->Copy(*this);
+   if(wasDrawn){
+      // if grid was visible, redraw it with new lines
+      Draw();
+   }
 }
 
 //_______________________________________________________________________________________________//
@@ -534,6 +578,10 @@ void KVIDGraph::ReadFromAsciiFile(ifstream & gridfile)
 	if(fPar->HasParameter("Runlist")) SetRuns( fPar->GetStringValue("Runlist") );
 	else SetRuns("");
 	FillListOfIDTelescopes();
+   
+   // if a back-up copy had previously been created (by starting the editor)
+   // we replace it by the version read from file
+   if(fLastSavedVersion) UpdateLastSavedVersion();
 }
 
 //_______________________________________________________________________________________________//
@@ -1283,6 +1331,13 @@ KVIDGraph *KVIDGraph::MakeIDGraph(const Char_t * class_name)
 void KVIDGraph::SetEditable(Bool_t editable)
 {
 	// Toggles 'editable' status of all lines/contours in graph
+   // If editable = kTRUE this makes it possible to modify the graph
+   //    we then take a snapshot of the graph before editing begins
+   //    and store it in fLastSavedVersion. we can always revert to
+   //    this version if we want
+   
+   if(editable && !GetEditable()) UpdateLastSavedVersion();
+   
 	TCutG::SetEditable(editable);
    if (GetNumberOfIdentifiers() > 0) {
       fIdentifiers->R__FOR_EACH(KVIDentifier, SetEditable) (editable);

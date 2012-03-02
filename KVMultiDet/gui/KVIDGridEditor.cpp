@@ -256,7 +256,7 @@ void KVIDGridEditor::init()
   
   AddAction("0");
   AddAction("#odot");
-//  AddAction("#Leftarrow");
+  AddAction("#Leftarrow");
   AddAction("Lz");
   AddAction("Ly");
   AddAction("Lx");
@@ -647,8 +647,8 @@ void KVIDGridEditor::SelectLabel()
     else if(lplabel2->Contains(label))
       {
       label->SetFillColor(kRed);
-      DispatchOrder(label);
       UpdateViewer();
+      DispatchOrder(label);
       }
     else if(lplabel4->Contains(label))
       {
@@ -823,7 +823,7 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
 {
   TString commande(label->GetName());
   
-  if(commande.Contains("#Leftarrow"))  return;
+  if(commande.Contains("#Leftarrow"))  Undo();
   else if(commande.Contains("0"))      SetPivot(0,0);
   else if(commande.Contains("#odot"))  Unzoom();
   else if(commande.Contains("Lz"))     SetLogz();
@@ -1292,6 +1292,41 @@ void KVIDGridEditor::Unzoom()
     TheHisto->GetXaxis()->UnZoom();
     TheHisto->GetYaxis()->UnZoom();
     }
+}
+
+//________________________________________________________________
+void KVIDGridEditor::Undo()
+{
+   // Revert current grid to its last saved version
+   // Normally this will be the state of the grid before starting
+   // the current editing session
+   
+   if(!TheGrid) return;
+   
+   TString username = gSystem->GetUserInfo()->fRealName;
+   username.ReplaceAll(",","");
+   Int_t ret_val;
+   new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
+                Form("This will undo all changes to the grid. Are you sure, %s?", username.Data()),
+                kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+   
+   if (ret_val & kMBOk) {
+      if(ListOfLines && ListOfLines->GetEntries()){
+         // unselect any previously selected lines
+//          TPaveLabel* selectLabel=0;
+// 	      TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->FindObject("All");
+// 	      if(tmplabel->GetFillColor()==kGreen) selectLabel=tmplabel;
+//          if(selectLabel) SelectLines(selectLabel);
+// 	      tmplabel = (TPaveLabel*)lplabel3->FindObject("Select");
+// 	      if(tmplabel->GetFillColor()==kGreen) selectLabel=tmplabel;
+//          if(selectLabel) SelectLines(selectLabel);
+         Clear();
+      }
+      TheGrid->RevertToLastSavedVersion();
+   } 
+	TPaveLabel* tmplabel = (TPaveLabel*)lplabel2->FindObject("#Leftarrow");
+   tmplabel->SetFillColor(kWhite);
+   UpdateViewer();
 }
 
 //________________________________________________________________
