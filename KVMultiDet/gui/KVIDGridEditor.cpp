@@ -785,7 +785,7 @@ void KVIDGridEditor::MakeTransformation()
     else if(!strcmp(who,"S_{XY}")) ScaleXY   (sign);
     }
   
-  if(event==kButton2Up) ForceUpdate();
+  //if(event==kButton2Up) ForceUpdate();
   
   return;
 }

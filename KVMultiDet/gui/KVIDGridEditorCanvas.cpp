@@ -203,20 +203,30 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       FeedbackMode(kTRUE);
 
-      if(!fSelected->InheritsFrom("TH1")) fSelected->Pop();           	// pop object to foreground
-      pad->cd();                  					// and make its pad the current pad
+      if(!fSelected->InheritsFrom("TH1")) {fSelected->Pop();           	// pop object to foreground
+                                             pad->cd();                 // and make its pad the current pad
+                                          }
       if(fSelected->InheritsFrom("TH2")){
-         X0pan = AbsPixeltoX(GetEventX());
-         Y0pan = AbsPixeltoY(GetEventY());
-         TAxis* theAxis=((TH2*)fSelected)->GetXaxis();
-         Xminpan = theAxis->GetBinLowEdge(theAxis->GetFirst());
-         Xmaxpan = theAxis->GetBinUpEdge(theAxis->GetLast());
-         theAxis=((TH2*)fSelected)->GetYaxis();
-         Yminpan = theAxis->GetBinLowEdge(theAxis->GetFirst());
-         Ymaxpan = theAxis->GetBinUpEdge(theAxis->GetLast());
-         //printf("You middle-clicked on %s at (%d,%d)\n",fSelected->GetName(),X0pan,Y0pan);
-         //printf("Initial viewing area X=(%d,%d) Y=(%d,%d)\n",Xminpan,Xmaxpan, Yminpan,Ymaxpan);
+         // implement pan & scan
+         X0 = px; Y0 = py;  // u clikd here
+         theXaxis = ((TH2*)fSelected)->GetXaxis();
+         theYaxis = ((TH2*)fSelected)->GetYaxis();
+         NXbins = theXaxis->GetNbins();  // maximum bin number in X
+         NYbins = theYaxis->GetNbins();  // maximum bin number in Y
+         Xf1 = Xfirst0 = theXaxis->GetFirst(); // initial displayed bin range in X
+         Xl1 = Xlast0 = theXaxis->GetLast();
+         Yf1 = Yfirst0 = theYaxis->GetFirst(); // initial displayed bin range in Y
+         Yl1 = Ylast0 = theYaxis->GetLast();
+         // size of axes in pixels
+         Int_t pixelWidthX = gPad->XtoAbsPixel(gPad->GetUxmax()) - gPad->XtoAbsPixel(gPad->GetUxmin());
+         Int_t pixelWidthY = gPad->YtoAbsPixel(gPad->GetUymax()) - gPad->YtoAbsPixel(gPad->GetUymin());
+         // sizes of bins in pixels
+         NdisXbins = Xlast0 - Xfirst0 + 1;
+         NdisYbins = Ylast0 - Yfirst0 + 1;
+         XbinPixel = pixelWidthX / (1.0 * NdisXbins); 
+         YbinPixel = pixelWidthY / (1.0 * NdisYbins); 
       }
+      
       if (gDebug)
          printf("Current Pad: %s / %s\n", pad->GetName(), pad->GetTitle());
 
@@ -235,15 +245,53 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
    case kButton2Motion:
       if(fSelected && fSelected->InheritsFrom("TH2")){
-         X1pan = AbsPixeltoX(GetEventX());
-         Y1pan = AbsPixeltoY(GetEventY());
-         Int_t dX = -(X1pan-X0pan);
-         Int_t dY = -(Y1pan-Y0pan);
-         //printf("You have moved by (%d,%d)\n",dX,dY);
-         //printf("Viewing area now X=(%d,%d) Y=(%d,%d)\n",Xminpan+dX,Xmaxpan+dX, Yminpan+dY,Ymaxpan+dY);
-         ((TH2*)fSelected)->GetXaxis()->SetRangeUser(Xminpan+dX,Xmaxpan+dX);
-         ((TH2*)fSelected)->GetYaxis()->SetRangeUser(Yminpan+dY,Ymaxpan+dY);
-         Modified();Update();
+         // implement pan & scan
+         Int_t dX = px - X0; // how far have i moved ?
+         Int_t dY = py - Y0;
+         Int_t dXbins = dX / XbinPixel;
+         Int_t dYbins = dY / YbinPixel;
+         Bool_t changed=kFALSE;
+         Int_t newXfirst = Xfirst0-dXbins;
+         Int_t newXlast;
+         if(newXfirst<1){
+            newXfirst = 1;
+            newXlast = NdisXbins;
+         }
+         else
+         {
+            newXlast = Xlast0-dXbins;
+            if(newXlast>NXbins){
+               newXlast = NXbins;
+               newXfirst = newXlast - NdisXbins + 1;
+            }
+         }
+         if(newXfirst!=Xf1){
+            Xf1 = newXfirst;
+            Xl1 = newXlast;
+            theXaxis->SetRange(Xf1,Xl1);
+            changed=kTRUE;
+         }
+         Int_t newYfirst = Yfirst0-dYbins;
+         Int_t newYlast;
+         if(newYfirst<1){
+            newYfirst = 1;
+            newYlast = NdisYbins;
+         }
+         else
+         {
+            newYlast = Ylast0-dYbins;
+            if(newYlast>NYbins){
+               newYlast = NYbins;
+               newYfirst = newYlast - NdisYbins + 1;
+            }
+         }
+         if(newYfirst!=Yf1){
+            Yf1 = newYfirst;
+            Yl1 = newYlast;
+            theYaxis->SetRange(Yf1,Yl1);
+            changed=kTRUE;
+         }
+         if(changed){Modified();Update();}
       }
       break;
       
