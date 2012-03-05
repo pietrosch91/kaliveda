@@ -89,6 +89,7 @@ class KVIDGridEditor : public KVBase
    void AddGridOption     (TString label, KVHashList* thelist);
    void ConstructModulator();
    
+   void DynamicZoom(Int_t Sign);
    void TranslateX(Int_t Sign);
    void TranslateY(Int_t Sign);
    void RotateZ   (Int_t Sign);

@@ -779,7 +779,7 @@ void KVIDGridEditor::MakeTransformation()
     Int_t sign = (event==kWheelUp ? 1:-1);
     const char* who = WhoIsSelected();
     
-    if(!strcmp(who,"")) return;
+    if(!strcmp(who,"")) DynamicZoom(sign);
     else if(!strcmp(who,"T_{X}"))  TranslateX(sign);
     else if(!strcmp(who,"T_{Y}"))  TranslateY(sign);
     else if(!strcmp(who,"R_{Z}"))  RotateZ   (sign);
@@ -1377,6 +1377,43 @@ void KVIDGridEditor::TranslateY(Int_t Sign)
     
   UpdateViewer();  	     
   if(fDebug) cout << "INFO: KVIDGridEditor::TranslateY(): translation on the Y axis (" << (Sign>0 ? "+":"-") << step << ") !" << endl;
+  return;
+}
+
+//________________________________________________________________
+void KVIDGridEditor::DynamicZoom(Int_t Sign)
+{
+   // Zoom in or out of histogram with mouse wheel
+   
+  if(!TheHisto) return;
+
+  // use modulator value as the percentage of the number of bins
+  // currently displayed on each axis 
+  Double_t percent = TMath::Min(imod/100.,1.0);
+  
+  TAxis* ax = TheHisto->GetXaxis();
+  Int_t NbinsX = ax->GetNbins();
+  Int_t X0 = ax->GetFirst();
+  Int_t X1 = ax->GetLast();
+  Int_t step = TMath::Min(TMath::Max(1, (Int_t)(percent*(X1-X0))),NbinsX/2);
+  step*=Sign;
+  X0 = TMath::Min(TMath::Max(X0+step,1),X1-step);
+  X1 = TMath::Max(TMath::Min(X1-step,NbinsX),X0);
+  if(X0>=X1) X0=X1-1;
+  ax->SetRange(X0,X1);
+  
+  ax = TheHisto->GetYaxis();
+  Int_t NbinsY = ax->GetNbins();
+  Int_t Y0 = ax->GetFirst();
+  Int_t Y1 = ax->GetLast();  
+  step = TMath::Min(TMath::Max(1, (Int_t)(percent*(Y1-Y0))),NbinsY/2);
+  step*=Sign;
+  Y0 = TMath::Min(TMath::Max(Y0+step,1),Y1-step);
+  Y1 = TMath::Max(TMath::Min(Y1-step,NbinsY),Y0);
+  if(Y0>=Y1) Y0=Y1-1;
+  ax->SetRange(Y0,Y1);
+  
+  UpdateViewer();  	     
   return;
 }
 
