@@ -316,7 +316,7 @@ void KVIDGridManagerGUI::StartEditor()
      // avant d'editer la grille, on en fait une copie pour
      // pouvoir revenir en arriere
      fSelectedGrid->UpdateLastSavedVersion();
-     fIDGridEditor->SetGrid((KVIDZAGrid*)fSelectedGrid);
+     fIDGridEditor->SetGrid(fSelectedGrid);
   }
 }
 

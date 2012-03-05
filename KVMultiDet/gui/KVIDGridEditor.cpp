@@ -17,7 +17,7 @@ note a moi même : écrire une doc...
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDGridEditor *gIDGridEditor;
+KVIDGridEditor *gIDGridEditor = 0x0;
 
 KVIDGridEditor::KVIDGridEditor()
 {
@@ -225,8 +225,7 @@ KVIDGridEditor::~KVIDGridEditor()
     lplabel5->Delete("all");
     delete lplabel5;
     }
-//  if() delete ;
-//  if() delete ;
+  if(gIDGridEditor==this) gIDGridEditor=0x0;
   
 }
 
@@ -504,10 +503,14 @@ void KVIDGridEditor::SetHisto(TH2* hh)
       Double_t Ymax = 4096;
       if(TheGrid)
         {
-	TheGrid->Initialize();
-	Xmax = TheGrid->GetZmaxLine()->GetXaxis()->GetXmax();
-        Ymax = TheGrid->GetZmaxLine()->GetYaxis()->GetXmax();
-	}
+	         TheGrid->Initialize();
+            // pour pouvoir utiliser un pointeur KVIDGraph* au lieu de KVIDZAGrid*
+// 	         Xmax = TheGrid->GetZmaxLine()->GetXaxis()->GetXmax();
+//             Ymax = TheGrid->GetZmaxLine()->GetYaxis()->GetXmax();
+            TheGrid->FindAxisLimits();
+            Xmax = TheGrid->GetXmax();
+            Ymax = TheGrid->GetYmax();
+	      }
       TH2* TmpH = 0;
       if((TmpH=(TH2*)gROOT->FindObject(hname.Data()))) delete TmpH;
       TheHisto = new TH2F(hname.Data(),hname.Data(),2048,0,Xmax,2048,0,Ymax);
@@ -557,7 +560,7 @@ void KVIDGridEditor::DrawAtt(Bool_t piv)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::SetGrid(KVIDZAGrid* gg, Bool_t histo)
+void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
 {
   if(!gg)
     {
@@ -597,9 +600,9 @@ void KVIDGridEditor::SetGrid(TString GridName)
     if(proposename&&(!strcmp(TheHisto->GetName(),Answer.Data()))) sethisto = false;
     }
 
-  KVIDZAGrid* tempgrid = 0;
+  KVIDGraph* tempgrid = 0;
   if(!gIDGridManager) return;
-  if(!(tempgrid = (KVIDZAGrid*)gIDGridManager->GetGrids()->FindObject(GridName.Data()))) 
+  if(!(tempgrid = (KVIDGraph*)gIDGridManager->GetGrids()->FindObject(GridName.Data()))) 
     {
     cout << "WARNING: KVIDGridEditor::SetGrid(): Unknown grid named '" << GridName.Data() << "' !" << endl;
     return;

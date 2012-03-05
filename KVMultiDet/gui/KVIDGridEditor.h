@@ -22,7 +22,7 @@
 #include "KVIDGridEditorCanvas.h"
 #include "KVBase.h"
 #include "KVHashList.h"
-#include "KVIDZAGrid.h"
+#include "KVIDGraph.h"
 #include "KVIDGridManager.h"
 #include "KVIDZALine.h"
 #include "KVIDentifier.h"
@@ -54,7 +54,7 @@ class KVIDGridEditor : public KVBase
    
    TH2*        TheHisto;
    TH2*        TheHistoChoice;
-   KVIDZAGrid* TheGrid;
+   KVIDGraph* TheGrid;
    KVList*     ListOfLines;
    
    Int_t SelectedColor;
@@ -152,7 +152,7 @@ class KVIDGridEditor : public KVBase
    Bool_t IsClosed();
    
    void SetHisto(TH2* hh);
-   void SetGrid(KVIDZAGrid* gg, Bool_t histo=true);
+   void SetGrid(KVIDGraph* gg, Bool_t histo=true);
    void SetGrid(TString GridName);
    
    void SelectLabel();

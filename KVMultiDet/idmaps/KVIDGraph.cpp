@@ -26,6 +26,7 @@ $Date: 2009/04/28 09:07:47 $
 #include "TROOT.h"
 #include "KVTestIDGridDialog.h"
 #include "KVIdentificationResult.h"
+#include "KVIDGridEditor.h"
 
 ClassImp(KVIDGraph)
 
@@ -81,6 +82,28 @@ void KVIDGraph::init()
 	if(fAutoAddGridManager && gIDGridManager) gIDGridManager->AddGrid(this);
 	fMassFormula = 0;
    fLastSavedVersion = NULL;
+}
+
+//________________________________________________________________________________
+
+void KVIDGraph::Browse(TBrowser* b)
+{
+   // This method is executed when an object is double-clicked in a browser
+   // such as the list of grids in KVIDGridManagerGUI
+   //
+   // Overrides default TGraph::Browse (which calls Draw()) in order to open
+   // the grid in the KVIDGridEditor canvas (if one exists).
+   // If no KVIDGridEditor exists, we perform the default action (Draw()).
+   
+   if( gIDGridEditor ){
+      if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
+      // avant d'editer la grille, on en fait une copie pour
+      // pouvoir revenir en arriere
+      UpdateLastSavedVersion();
+      gIDGridEditor->SetGrid(this);
+   }
+   else
+      TGraph::Browse(b);
 }
 
 //________________________________________________________________________________

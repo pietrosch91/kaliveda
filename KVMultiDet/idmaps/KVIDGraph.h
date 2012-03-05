@@ -71,6 +71,8 @@ class KVIDGraph : public TCutG
    KVIDGraph();
    KVIDGraph(const KVIDGraph &);
    virtual ~KVIDGraph();
+   
+   virtual void Browse(TBrowser* b);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
 #else
