@@ -253,7 +253,7 @@ void KVIDGridEditor::init()
   AddTransformation("S_{Y}");
   AddTransformation("S_{XY}");
   
-  AddAction("0");
+//  AddAction("0");
   AddAction("#odot");
   AddAction("#Leftarrow");
   AddAction("Lz");
@@ -1074,6 +1074,7 @@ void KVIDGridEditor::SuggestMoreAction()
   Choices += " SetRunList";
   Choices += " AddParameter";
   Choices += " SetSelectedColor";
+  Choices += " SetPivotToOrigin";
   Choices += " SpiderIdentification";
   
   TString Answer;
@@ -1084,18 +1085,22 @@ void KVIDGridEditor::SuggestMoreAction()
     return;
     } 
       
+  TMethod* m = 0;
+      
   if(!strcmp(Answer.Data(),"")) cout << "INFO: KVIDGridEditor::SuggestMoreAction(): Nothing has been done..." << endl;
   else if(!strcmp(Answer.Data(),"SaveCurrentGrid"))      SaveCurrentGrid();
   else if(!strcmp(Answer.Data(),"SetSelectedColor"))     ChooseSelectedColor();
-  else if((!strcmp(Answer.Data(),"SetVarXVarY"))||(!strcmp(Answer.Data(),"SetRunList"))||(!strcmp(Answer.Data(),"AddParameter")))
+  else if(!strcmp(Answer.Data(),"SetPivotToOrigin"))     SetPivot(0.,0.);
+  else if(!strcmp(Answer.Data(),"SpiderIdentification")) SpiderIdentification();
+  else if(!TheGrid)                                      return;
+  else if((m = TheGrid->IsA()->GetMethodAllAny(Answer.Data())))
     {  
     if(!TheGrid) return;
-    TMethod* m = TheGrid->IsA()->GetMethodAllAny(Answer.Data());
+//    TMethod* m = TheGrid->IsA()->GetMethodAllAny(Answer.Data());
     TContextMenu * cm = new TContextMenu(Answer.Data(), Form("Context menu for KVIDGridEditor::%s",Answer.Data()));
     cm->Action(TheGrid,m);
     delete cm;
     }
-  else if(!strcmp(Answer.Data(),"SpiderIdentification")) SpiderIdentification();
   else cout << "INFO: KVIDGridEditor::SuggestMoreAction(): '" << Answer << "' not implemented..." << endl;
 
 }
@@ -1408,8 +1413,10 @@ void KVIDGridEditor::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
   X0 = TMath::Min(TMath::Max(X0+step,1),X1-step);
   X1 = TMath::Max(TMath::Min(X1-step,NbinsX),X0);
   if(X0>=X1) X0=X1-1;
-  if(Sign>0)dX = (Int_t) (X0 + (X1-X0)*0.5 - ax->FindBin(px));
-   ax->SetRange(X0-dX,X1-dX);
+  if(Sign>0) dX = (Int_t) (X0 + (X1-X0)*0.5 - ax->FindBin(px));
+  if((X0-dX)<0) ax->SetRange(0,X1-X0);
+  else if((X1-dX)>ax->GetNbins()) ax->SetRange(ax->GetNbins()-(X1-X0),ax->GetNbins());
+  else ax->SetRange(X0-dX,X1-dX);
   
   ax = TheHisto->GetYaxis();
   Int_t NbinsY = ax->GetNbins();
@@ -1421,7 +1428,9 @@ void KVIDGridEditor::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
   Y1 = TMath::Max(TMath::Min(Y1-step,NbinsY),Y0);
   if(Y0>=Y1) Y0=Y1-1;
   if(Sign>0) dY = (Int_t) (Y0 + (Y1-Y0)*0.5 - ax->FindBin(py));
-  ax->SetRange(Y0-dY,Y1-dY);
+  if((Y0-dY)<0) ax->SetRange(0,Y1-Y0);
+  else if((Y1-dY)>ax->GetNbins()) ax->SetRange(ax->GetNbins()-(Y1-Y0),ax->GetNbins());
+  else ax->SetRange(Y0-dY,Y1-dY);
   
   UpdateViewer();  	     
   return;
