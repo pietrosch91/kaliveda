@@ -25,6 +25,7 @@
 #include "KVIDGraph.h"
 #include "KVIDGridManager.h"
 #include "KVIDZALine.h"
+#include "KVIDZAGrid.h"
 #include "KVIDentifier.h"
 #include "KVDropDownDialog.h"
 #include "KVTestIDGridDialog.h"
@@ -54,7 +55,7 @@ class KVIDGridEditor : public KVBase
    
    TH2*        TheHisto;
    TH2*        TheHistoChoice;
-   KVIDGraph* TheGrid;
+   KVIDGraph*  TheGrid;
    KVList*     ListOfLines;
    
    Int_t SelectedColor;
@@ -107,6 +108,7 @@ class KVIDGridEditor : public KVBase
    
    void SetEditable(TPaveLabel* label);
    void SelectLines(TPaveLabel* label);
+   void SelectLinesByZ();
    
    void NewLine ();
    void NewCut  ();

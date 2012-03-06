@@ -739,7 +739,7 @@ void KVIDGridEditor::MakeTransformation()
         if(!ListOfLines->Contains(line))
           {
           line->SetLineColor(SelectedColor);
-          ListOfLines->Add(line);
+          ListOfLines->AddLast(line);
 	  UpdateViewer();
 	  }
         else
@@ -760,6 +760,29 @@ void KVIDGridEditor::MakeTransformation()
 	SelectLines(tmplabel);
 	UpdateViewer();
 	}
+      }
+    }
+  if((event==kButton1Shift)&&(select)&&(!dlmode))
+    {
+    if(select->InheritsFrom("KVIDZALine"))
+      {
+      KVIDZALine* line = (KVIDZALine*)select;
+      if(ListOfLines->Contains(select)) return;
+      Int_t LastZ = ((KVIDZALine*)ListOfLines->At(ListOfLines->GetSize()-1))->GetZ();
+      Int_t SeleZ = line->GetZ();
+      Int_t found;
+      for(int Z=TMath::Min(SeleZ,LastZ); Z<=TMath::Max(SeleZ,LastZ); Z++)
+        {
+	line = ((KVIDZAGrid*)TheGrid)->GetZLine(Z,found);
+	if((!line)||(found==-1)) continue;
+        if(ListOfLines->Contains(line)) continue;
+        if(line->GetZ()==SeleZ) continue;
+	line->SetLineColor(SelectedColor);
+	ListOfLines->AddLast(line);
+	}
+//       line = ((KVIDZAGrid*)TheGrid)->GetZLine(SeleZ,found);
+//       line->SetLineColor(SelectedColor);
+//       ListOfLines->AddLast(line);
       }
     }
   if((event==kButton1Double)&&(!drawmode))
@@ -1070,6 +1093,7 @@ void KVIDGridEditor::SuggestMoreAction()
 {  
   TString Default = "SaveCurrentGrid";
   TString Choices = Default;
+  Choices += " SelectLinesByZ";
   Choices += " SetVarXVarY";
   Choices += " SetRunList";
   Choices += " AddParameter";
@@ -1089,6 +1113,7 @@ void KVIDGridEditor::SuggestMoreAction()
       
   if(!strcmp(Answer.Data(),"")) cout << "INFO: KVIDGridEditor::SuggestMoreAction(): Nothing has been done..." << endl;
   else if(!strcmp(Answer.Data(),"SaveCurrentGrid"))      SaveCurrentGrid();
+  else if(!strcmp(Answer.Data(),"SelectLinesByZ"))          SelectLinesByZ();
   else if(!strcmp(Answer.Data(),"SetSelectedColor"))     ChooseSelectedColor();
   else if(!strcmp(Answer.Data(),"SetPivotToOrigin"))     SetPivot(0.,0.);
   else if(!strcmp(Answer.Data(),"SpiderIdentification")) SpiderIdentification();
@@ -1103,6 +1128,34 @@ void KVIDGridEditor::SuggestMoreAction()
     }
   else cout << "INFO: KVIDGridEditor::SuggestMoreAction(): '" << Answer << "' not implemented..." << endl;
 
+}
+
+//________________________________________________________________
+void KVIDGridEditor::SelectLinesByZ()
+{
+  if(!TheGrid) return;
+  if(!ListOfLines) return;
+  
+  TString Answer;
+  Bool_t  ok;
+  new KVInputDialog(gClient->GetDefaultRoot(),"List of lines (KVNumberList) :",&Answer,&ok);
+  if(!ok) return;
+  
+  Int_t found;
+  KVNumberList ZL(Answer.Data());
+  ZL.Begin();
+  while(!ZL.End())
+    {
+    Int_t Z = ZL.Next();
+    KVIDZALine* line = ((KVIDZAGrid*)TheGrid)->GetZLine(Z,found);
+    if((found==-1)||(!line)) continue;
+    if(!ListOfLines->Contains(line)) 
+      {
+      line->SetLineColor(SelectedColor);
+      ListOfLines->AddLast(line);  
+      }
+
+    }
 }
 
 //________________________________________________________________
