@@ -331,6 +331,10 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
    case kButton3Double:
       break;
+      
+   case kESC:
+       RunAutoExec();
+      break;
 
    case kKeyPress:
       if (!fSelectedPad || !fSelected) return;

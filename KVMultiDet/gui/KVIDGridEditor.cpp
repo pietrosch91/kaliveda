@@ -711,7 +711,7 @@ void KVIDGridEditor::MakeTransformation()
   Int_t event = gPad->GetEvent();
   if(event==kMouseMotion) return;
   TObject *select = gPad->GetSelected();
-  
+    
   if (!select){}
   else 
     {
@@ -779,7 +779,7 @@ void KVIDGridEditor::MakeTransformation()
     Int_t sign = (event==kWheelUp ? 1:-1);
     const char* who = WhoIsSelected();
     
-    if(!strcmp(who,"")) DynamicZoom(sign);
+    if(!strcmp(who,"")) DynamicZoom(sign,gPad->GetEventX(),gPad->GetEventY());
     else if(!strcmp(who,"T_{X}"))  TranslateX(sign);
     else if(!strcmp(who,"T_{Y}"))  TranslateY(sign);
     else if(!strcmp(who,"R_{Z}"))  RotateZ   (sign);
@@ -789,7 +789,8 @@ void KVIDGridEditor::MakeTransformation()
     }
   
   //if(event==kButton2Up) ForceUpdate();
-  
+  if((event==kESC)&&(TheHisto)) Unzoom();
+
   return;
 }
    
@@ -1381,7 +1382,7 @@ void KVIDGridEditor::TranslateY(Int_t Sign)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::DynamicZoom(Int_t Sign)
+void KVIDGridEditor::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
 {
    // Zoom in or out of histogram with mouse wheel
    
@@ -1390,6 +1391,13 @@ void KVIDGridEditor::DynamicZoom(Int_t Sign)
   // use modulator value as the percentage of the number of bins
   // currently displayed on each axis 
   Double_t percent = TMath::Min(imod/100.,1.0);
+  percent = 0.15-Sign*0.05;
+  
+  Int_t dX = 0;
+  Int_t dY = 0;
+  
+  px = gPad->AbsPixeltoX(px);
+  py = gPad->AbsPixeltoY(py);
   
   TAxis* ax = TheHisto->GetXaxis();
   Int_t NbinsX = ax->GetNbins();
@@ -1400,7 +1408,8 @@ void KVIDGridEditor::DynamicZoom(Int_t Sign)
   X0 = TMath::Min(TMath::Max(X0+step,1),X1-step);
   X1 = TMath::Max(TMath::Min(X1-step,NbinsX),X0);
   if(X0>=X1) X0=X1-1;
-  ax->SetRange(X0,X1);
+  if(Sign>0)dX = (Int_t) (X0 + (X1-X0)*0.5 - ax->FindBin(px));
+   ax->SetRange(X0-dX,X1-dX);
   
   ax = TheHisto->GetYaxis();
   Int_t NbinsY = ax->GetNbins();
@@ -1411,7 +1420,8 @@ void KVIDGridEditor::DynamicZoom(Int_t Sign)
   Y0 = TMath::Min(TMath::Max(Y0+step,1),Y1-step);
   Y1 = TMath::Max(TMath::Min(Y1-step,NbinsY),Y0);
   if(Y0>=Y1) Y0=Y1-1;
-  ax->SetRange(Y0,Y1);
+  if(Sign>0) dY = (Int_t) (Y0 + (Y1-Y0)*0.5 - ax->FindBin(py));
+  ax->SetRange(Y0-dY,Y1-dY);
   
   UpdateViewer();  	     
   return;
