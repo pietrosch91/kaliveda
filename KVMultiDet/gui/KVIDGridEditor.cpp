@@ -28,12 +28,12 @@ KVIDGridEditor::KVIDGridEditor()
   SetName("gIDGridEditor");
   SetDefault();
   
-  ft  = new TF1("tranlation","(x+[0])",0,4096);
-  fs  = new TF1("scale","(x-[0])*[1]+[0]",0,4096);
-  fsy = new TF1("scale_y","(x-[0])*[1]+[0]",0,4096);
+  ft  = new TF1("tranlation","(x+[0])",0,50000);
+  fs  = new TF1("scale","(x-[0])*[1]+[0]",0,50000);
+  fsy = new TF1("scale_y","(x-[0])*[1]+[0]",0,50000);
   
-  frx = new TF2("rotation_x","(x-[0])*TMath::Cos([2])-(y-[1])*TMath::Sin([2])+[0]",0,4096);
-  fry = new TF2("rotation_y","(x-[0])*TMath::Sin([2])+(y-[1])*TMath::Cos([2])+[1]",0,4096);
+  frx = new TF2("rotation_x","(x-[0])*TMath::Cos([2])-(y-[1])*TMath::Sin([2])+[0]",0,50000);
+  fry = new TF2("rotation_y","(x-[0])*TMath::Sin([2])+(y-[1])*TMath::Cos([2])+[1]",0,50000);
   
   ListOfLines = new KVList;
   ListOfLines->SetOwner(kFALSE);
@@ -252,6 +252,7 @@ void KVIDGridEditor::init()
   AddTransformation("S_{X}");
   AddTransformation("S_{Y}");
   AddTransformation("S_{XY}");
+  AddTransformation("S_{C}");
   
 //  AddAction("0");
   AddAction("#odot");
@@ -764,7 +765,8 @@ void KVIDGridEditor::MakeTransformation()
     }
   if((event==kButton1Shift)&&(select)&&(!dlmode))
     {
-    if(select->InheritsFrom("KVIDZALine"))
+    if(!select->InheritsFrom("KVIDZALine")||ListOfLines->IsEmpty()) return;
+    else
       {
       KVIDZALine* line = (KVIDZALine*)select;
       if(ListOfLines->Contains(select)) return;
@@ -805,10 +807,11 @@ void KVIDGridEditor::MakeTransformation()
     if(!strcmp(who,"")) DynamicZoom(sign,gPad->GetEventX(),gPad->GetEventY());
     else if(!strcmp(who,"T_{X}"))  TranslateX(sign);
     else if(!strcmp(who,"T_{Y}"))  TranslateY(sign);
-    else if(!strcmp(who,"R_{Z}"))  RotateZ   (sign);
-    else if(!strcmp(who,"S_{X}"))  ScaleX    (sign);
-    else if(!strcmp(who,"S_{Y}"))  ScaleY    (sign);
-    else if(!strcmp(who,"S_{XY}")) ScaleXY   (sign);
+    else if(!strcmp(who,"R_{Z}"))  RotateZ(sign);
+    else if(!strcmp(who,"S_{X}"))  ScaleX(sign);
+    else if(!strcmp(who,"S_{Y}"))  ScaleY(sign);
+    else if(!strcmp(who,"S_{XY}")) ScaleXY(sign);
+    else if(!strcmp(who,"S_{C}"))  ScaleCurvature(sign);
     }
   
   //if(event==kButton2Up) ForceUpdate();
@@ -1141,6 +1144,9 @@ void KVIDGridEditor::SelectLinesByZ()
   new KVInputDialog(gClient->GetDefaultRoot(),"List of lines (KVNumberList) :",&Answer,&ok);
   if(!ok) return;
   
+  ResetColor(ListOfLines);
+  ListOfLines->Clear();
+  
   Int_t found;
   KVNumberList ZL(Answer.Data());
   ZL.Begin();
@@ -1154,7 +1160,6 @@ void KVIDGridEditor::SelectLinesByZ()
       line->SetLineColor(SelectedColor);
       ListOfLines->AddLast(line);  
       }
-
     }
 }
 
@@ -1520,7 +1525,7 @@ void KVIDGridEditor::ScaleX(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = 0.01*(imod/100.);
+  Double_t step   = 0.05*(imod/100.);
   Double_t factor = 1.+Sign*step;
   
   x0 = fPivot->GetX()[0];
@@ -1540,7 +1545,7 @@ void KVIDGridEditor::ScaleY(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = 0.01*(imod/100.);
+  Double_t step   = 0.05*(imod/100.);
   Double_t factor = 1.+Sign*step;
   
   y0 = fPivot->GetY()[0];
@@ -1560,7 +1565,7 @@ void KVIDGridEditor::ScaleXY(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = 0.01*(imod/100.);
+  Double_t step   = 0.05*(imod/100.);
   Double_t factor = 1.+Sign*step;
   
   x0 = fPivot->GetX()[0];
@@ -1574,6 +1579,51 @@ void KVIDGridEditor::ScaleXY(Int_t Sign)
   UpdateViewer();
   if(fDebug) cout << "INFO: KVIDGridEditor::ScaleXY(): scaling (*" << factor << ") !" << endl;
   return;
+}
+
+//________________________________________________________________
+void KVIDGridEditor::ScaleCurvature(Int_t Sign)
+{
+  if(!TheGrid) return;
+  if(!ListOfLines) return;
+  if(ListOfLines->IsEmpty()) return;
+
+  Double_t step   = 0.05*(imod/100.);
+  Double_t factor = 1.+Sign*step;
+  
+  KVIDentifier* idd = 0;
+  TIter nextidd(ListOfLines);
+  
+  while((idd=(KVIDentifier*)nextidd()))
+    {
+    Double_t x1 = idd->GetX()[0];
+    Double_t x2 = idd->GetX()[idd->GetN()-1];
+    Double_t y1 = idd->GetY()[0];
+    Double_t y2 = idd->GetY()[idd->GetN()-1];
+    
+    Double_t a = (y2-y1)/(x2-x1);
+    Double_t b = y1 - a*x1;
+    Double_t theta = TMath::ATan(a);
+    Double_t X0 = -b/a;
+    
+    cout << "a=" << a << " b=" << b << " X0=" << X0 << " th=" << theta*TMath::RadToDeg() << endl;
+    
+    frx->SetParameters(x1,y1,-theta);
+    fry->SetParameters(x1,y1,-theta);
+    idd->Scale(frx,fry);
+        
+    fs->SetParameters(y1,factor);
+    idd->Scale(0,fs);
+    
+    frx->SetParameters(x1,y1,theta);
+    fry->SetParameters(x1,y1,theta);
+    idd->Scale(frx,fry);
+    }
+  
+  UpdateViewer();
+  if(fDebug) cout << "INFO: KVIDGridEditor::ScaleXY(): scaling (*" << factor << ") !" << endl;
+  return;
+
 }
 
 //________________________________________________________________

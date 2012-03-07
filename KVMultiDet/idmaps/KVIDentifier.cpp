@@ -260,10 +260,14 @@ void KVIDentifier::Scale(TF1 *sx, TF1 *sy)
     {
         for (Int_t  ii = 0; ii < fNpoints; ii++)
         {
-            if (sx_2d) fX[ii] = sx->Eval(fX[ii],fY[ii]);
-            else fX[ii] = sx->Eval(fX[ii]);
-            if (sy_2d) fY[ii] = sy->Eval(fX[ii],fY[ii]);
-            else fY[ii] = sy->Eval(fY[ii]);
+	    Double_t fXp = 0.;  // valeur intermediaire pour calculer X' et Y'
+	    Double_t fYp = 0.;  //a partir des coordonnees initiales
+            if (sx_2d) fXp = sx->Eval(fX[ii],fY[ii]);
+            else fXp = sx->Eval(fX[ii]);
+            if (sy_2d) fYp = sy->Eval(fX[ii],fY[ii]);
+            else fYp = sy->Eval(fY[ii]);
+	    fX[ii] = fXp;
+	    fY[ii] = fYp;
         }
     }
     else if (sx)

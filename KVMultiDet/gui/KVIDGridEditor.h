@@ -97,6 +97,7 @@ class KVIDGridEditor : public KVBase
    void ScaleX     (Int_t Sign);
    void ScaleY     (Int_t Sign);
    void ScaleXY    (Int_t Sign);
+   void ScaleCurvature(Int_t Sign);
    void Undo       ();
    
    void Unzoom      ();
