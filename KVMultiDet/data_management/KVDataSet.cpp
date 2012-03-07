@@ -1008,11 +1008,12 @@ KVNumberList KVDataSet::GetRunList_DateSelection(const Char_t * type,TDatime* mi
 
 //___________________________________________________________________________
 
-KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type, KVDBSystem*system)
+KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Char_t* ref_type, KVDBSystem*system, Bool_t OnlyCol)
 {
    // Returns list of runs which are present for data type "base_type" but not for "other_type"
 	// if type is NULL or ="" returns empty KVNumberList
 	// If pointer to system is given, only runs for the system are considered.
+	// If OnlyCol=kTRUE (kFALSE default) only systems with KVDBSystem::IsCollision()=kTRUE are considered
 
 	KVNumberList manquant;
 	TList* ll = GetListOfAvailableSystems(ref_type);
@@ -1037,7 +1038,8 @@ KVNumberList KVDataSet::GetRunList_StageSelection(const Char_t * type, const Cha
 	for (Int_t nl=0; nl<ll->GetEntries(); nl+=1){
 		
 		sys = (KVDBSystem* )ll->At(nl);
-		if(system && sys!=system) continue;
+		if( system && sys!=system) continue;
+		if( OnlyCol && !sys->IsCollision() ) continue;
 		nsys = GetRunList(type,sys);
 		nsys_ref = GetRunList(ref_type,sys);
 		Int_t nref = nsys_ref.GetNValues();
