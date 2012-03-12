@@ -107,19 +107,32 @@ Bool_t KVIDChIoCsI_camp5::Identify(KVIdentificationResult* idr, Double_t x, Doub
       Double_t cigg = (y<0. ? GetIDMapY("GG") : y);
       Double_t lumtot = (x<0. ? GetIDMapX() : x);
 
-      KVIDGrid* theIdentifyingGrid = 0;
+      KVIDZAGrid* theIdentifyingGrid = 0;
 
       fGGgrid->Identify(lumtot, cigg, idr);
-      theIdentifyingGrid =(KVIDGrid*)fGGgrid;
-
-      if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
-
-         // try Z & A identification in ChIo(PG)-CsI(H) map
-         Double_t cipg = (y<0. ? GetIDMapY("PG") : y);
-         fPGgrid->Identify(lumtot, cipg, idr);
-         theIdentifyingGrid = (KVIDGrid*)fPGgrid;
+      theIdentifyingGrid =(KVIDZAGrid*)fGGgrid;
+		
+		if ( idr->IDOK && idr->Z==theIdentifyingGrid->GetZmax() && TMath::Nint(GetIDMapY("GG"))==4095 ){
+			//Gestion des saturations GG
+			//on teste l identification PG
+			if (fPGgrid){
+				Double_t cipg = (y<0. ? GetIDMapY("PG") : y);
+         	fPGgrid->Identify(lumtot, cipg, idr);
+         	//on garde l identification PG si celle ci renvoie un code
+				//de 0 a 4 ou 7
+				if ( idr->Zident ){
+					theIdentifyingGrid = (KVIDZAGrid*)fPGgrid;
+				}
+			}
 		}
-
+      if ( theIdentifyingGrid==fGGgrid ){
+			if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ){ //we have to try PG grid (if there is one)
+				// try Z & A identification in ChIo(PG)-CsI(H) map
+         	Double_t cipg = (y<0. ? GetIDMapY("PG") : y);
+         	fPGgrid->Identify(lumtot, cipg, idr);
+         	theIdentifyingGrid = (KVIDZAGrid*)fPGgrid;
+			}
+		}
 		if(theIdentifyingGrid->GetQualityCode() == KVIDZAGrid::kICODE8){
 			// only if the final quality code is kICODE8 do we consider that it is
 			// worthwhile looking elsewhere. In all other cases, the particle has been
