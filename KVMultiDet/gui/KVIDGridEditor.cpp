@@ -1604,9 +1604,6 @@ void KVIDGridEditor::ScaleCurvature(Int_t Sign)
     Double_t a = (y2-y1)/(x2-x1);
     Double_t b = y1 - a*x1;
     Double_t theta = TMath::ATan(a);
-    Double_t X0 = -b/a;
-    
-    cout << "a=" << a << " b=" << b << " X0=" << X0 << " th=" << theta*TMath::RadToDeg() << endl;
     
     frx->SetParameters(x1,y1,-theta);
     fry->SetParameters(x1,y1,-theta);
@@ -1621,7 +1618,6 @@ void KVIDGridEditor::ScaleCurvature(Int_t Sign)
     }
   
   UpdateViewer();
-  if(fDebug) cout << "INFO: KVIDGridEditor::ScaleXY(): scaling (*" << factor << ") !" << endl;
   return;
 
 }
