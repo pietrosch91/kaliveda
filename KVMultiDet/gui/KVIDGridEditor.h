@@ -43,6 +43,7 @@ class KVIDGridEditor : public KVBase
    Bool_t fDebug;
    
    KVIDGridEditorCanvas* fCanvas;
+   TVirtualPad*          fPad;
    TGraph*               fPivot;
    
    KVHashList* lplabel;		//contient la liste des TPaveLabel pour les transformations (rouge)

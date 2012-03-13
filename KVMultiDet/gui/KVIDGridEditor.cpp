@@ -61,7 +61,7 @@ void KVIDGridEditor::StartViewer()
   fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
   fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
 
-  fCanvas->cd();
+  fPad = fCanvas->cd();
   
   if(!ready) init();
   if(TheHisto) TheHisto->Draw("col");
@@ -147,7 +147,7 @@ void KVIDGridEditor::Clear(const Option_t* opt)
       if(!IsClosed()) TheGrid->UnDraw();
       TheGrid = 0;
       }
-    gPad->Clear();
+    fPad->Clear();
     }
     
   SetPivot(0.,0.);
@@ -176,8 +176,8 @@ void KVIDGridEditor::UpdateViewer()
 {
   if(!IsClosed())
     {
-    gPad->Modified();
-    gPad->Update();
+    fPad->Modified();
+    fPad->Update();
     }
 }
 
@@ -537,7 +537,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   if(!IsClosed()&&(TheHisto))
     {
     TheHisto->Draw("col");
-    gPad->SetLogz(true);
+    fPad->SetLogz(true);
     }
   DrawAtt(true);
   return;
@@ -629,9 +629,9 @@ void KVIDGridEditor::SetPivot(Double_t xx0, Double_t yy0)
 //________________________________________________________________
 void KVIDGridEditor::SelectLabel()
 {
-  Int_t event = gPad->GetEvent();
+  Int_t event = fPad->GetEvent();
   if(event==kMouseMotion) return;  
-  TObject *select = gPad->GetSelected();
+  TObject *select = fPad->GetSelected();
   
   
   if(!select) return;  
@@ -709,9 +709,9 @@ void KVIDGridEditor::SelectLabel()
 //________________________________________________________________
 void KVIDGridEditor::MakeTransformation()
 {
-  Int_t event = gPad->GetEvent();
+  Int_t event = fPad->GetEvent();
   if(event==kMouseMotion) return;
-  TObject *select = gPad->GetSelected();
+  TObject *select = fPad->GetSelected();
     
   if (!select){}
   else 
@@ -730,7 +730,7 @@ void KVIDGridEditor::MakeTransformation()
       DeleteCut((KVIDentifier*)select);
       }
     }
-  if((event==kButton1Up)&&(select)&&(!dlmode))
+  if((event==kButton1Down)&&(select)&&(!dlmode))
     {
     if(select->InheritsFrom("KVIDentifier"))
       {
@@ -782,21 +782,28 @@ void KVIDGridEditor::MakeTransformation()
 	line->SetLineColor(SelectedColor);
 	ListOfLines->AddLast(line);
 	}
-//       line = ((KVIDZAGrid*)TheGrid)->GetZLine(SeleZ,found);
-//       line->SetLineColor(SelectedColor);
-//       ListOfLines->AddLast(line);
       }
     }
   if((event==kButton1Double)&&(!drawmode))
     {
-    Int_t xx = gPad->GetEventX();
-    Int_t yy = gPad->GetEventY();
+    if(!select->InheritsFrom("KVIDZALine"))
+      {
+      Int_t xx = fPad->GetEventX();
+      Int_t yy = fPad->GetEventY();
 
-    x0 = gPad->AbsPixeltoX(xx);
-    y0 = gPad->AbsPixeltoY(yy);
+      x0 = fPad->AbsPixeltoX(xx);
+      y0 = fPad->AbsPixeltoY(yy);
     
-    SetPivot(x0,y0);
-    fPivot->Draw("P");
+      SetPivot(x0,y0);
+      fPivot->Draw("P");
+      }
+    else if(select->InheritsFrom("KVIDentifier"))
+      {
+      lplabel3->Execute("SetFillColor","kWhite");
+      TPaveLabel* label = (TPaveLabel*)lplabel3->FindObject("All");
+      label->SetFillColor(kGreen);
+      SelectLines(label);
+      }
     UpdateViewer();
     }
   if((event==kWheelUp)||(event==kWheelDown))
@@ -804,7 +811,8 @@ void KVIDGridEditor::MakeTransformation()
     Int_t sign = (event==kWheelUp ? 1:-1);
     const char* who = WhoIsSelected();
     
-    if(!strcmp(who,"")) DynamicZoom(sign,gPad->GetEventX(),gPad->GetEventY());
+    if(ListOfLines->IsEmpty())     DynamicZoom(sign,fPad->GetEventX(),fPad->GetEventY());
+    else if(!strcmp(who,""))       DynamicZoom(sign,fPad->GetEventX(),fPad->GetEventY());
     else if(!strcmp(who,"T_{X}"))  TranslateX(sign);
     else if(!strcmp(who,"T_{Y}"))  TranslateY(sign);
     else if(!strcmp(who,"R_{Z}"))  RotateZ(sign);
@@ -826,8 +834,8 @@ void KVIDGridEditor::ZoomSelected()
   if(!TheHisto) return;
   TAxis* ax = TheHisto->GetXaxis();
   
-  Double_t ratio1 = (xmin - gPad->GetUxmin())/(gPad->GetUxmax() - gPad->GetUxmin());
-  Double_t ratio2 = (xmax - gPad->GetUxmin())/(gPad->GetUxmax() - gPad->GetUxmin());
+  Double_t ratio1 = (xmin - fPad->GetUxmin())/(fPad->GetUxmax() - fPad->GetUxmin());
+  Double_t ratio2 = (xmax - fPad->GetUxmin())/(fPad->GetUxmax() - fPad->GetUxmin());
   
   if((ratio2-ratio1 > 0.05))
     {
@@ -836,8 +844,8 @@ void KVIDGridEditor::ZoomSelected()
   
   ax = TheHisto->GetYaxis();
   
-  ratio1 = (ymin - gPad->GetUymin())/(gPad->GetUymax() - gPad->GetUymin());
-  ratio2 = (ymax - gPad->GetUymin())/(gPad->GetUymax() - gPad->GetUymin());
+  ratio1 = (ymin - fPad->GetUymin())/(fPad->GetUymax() - fPad->GetUymin());
+  ratio2 = (ymax - fPad->GetUymin())/(fPad->GetUymax() - fPad->GetUymin());
   
   if((ratio2-ratio1 > 0.05))
     {
@@ -1116,7 +1124,7 @@ void KVIDGridEditor::SuggestMoreAction()
       
   if(!strcmp(Answer.Data(),"")) cout << "INFO: KVIDGridEditor::SuggestMoreAction(): Nothing has been done..." << endl;
   else if(!strcmp(Answer.Data(),"SaveCurrentGrid"))      SaveCurrentGrid();
-  else if(!strcmp(Answer.Data(),"SelectLinesByZ"))          SelectLinesByZ();
+  else if(!strcmp(Answer.Data(),"SelectLinesByZ"))       SelectLinesByZ();
   else if(!strcmp(Answer.Data(),"SetSelectedColor"))     ChooseSelectedColor();
   else if(!strcmp(Answer.Data(),"SetPivotToOrigin"))     SetPivot(0.,0.);
   else if(!strcmp(Answer.Data(),"SpiderIdentification")) SpiderIdentification();
@@ -1333,22 +1341,22 @@ void KVIDGridEditor::ChangeStep(const char* title, Int_t dstep)
 //________________________________________________________________
 void KVIDGridEditor::SetLogz()
 {
-  if(fCanvas->IsLogz()) gPad->SetLogz(0);
-  else gPad->SetLogz(1);
+  if(fCanvas->IsLogz()) fPad->SetLogz(0);
+  else fPad->SetLogz(1);
 }
 
 //________________________________________________________________
 void KVIDGridEditor::SetLogy()
 {
-  if(fCanvas->IsLogy()) gPad->SetLogy(0);
-  else gPad->SetLogy(1);
+  if(fCanvas->IsLogy()) fPad->SetLogy(0);
+  else fPad->SetLogy(1);
 }
 
 //________________________________________________________________
 void KVIDGridEditor::SetLogx()
 {
-  if(fCanvas->IsLogx()) gPad->SetLogx(0);
-  else gPad->SetLogx(1);
+  if(fCanvas->IsLogx()) fPad->SetLogx(0);
+  else fPad->SetLogx(1);
 }
 
 //________________________________________________________________
@@ -1415,7 +1423,7 @@ void KVIDGridEditor::TranslateX(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.1;
+  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.02;
   Double_t factor = Sign*step;
   
   ft->SetParameter(0,factor);
@@ -1433,7 +1441,7 @@ void KVIDGridEditor::TranslateY(Int_t Sign)
   if(!ListOfLines) return;
   if(ListOfLines->IsEmpty()) return;
 
-  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.1;
+  Double_t step   = TheHisto->GetXaxis()->GetBinWidth(1)*(imod)*0.02;
   Double_t factor = Sign*step;
   
   ft->SetParameter(0,factor);
@@ -1459,8 +1467,8 @@ void KVIDGridEditor::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
   Int_t dX = 0;
   Int_t dY = 0;
   
-  px = gPad->AbsPixeltoX(px);
-  py = gPad->AbsPixeltoY(py);
+  px = fPad->AbsPixeltoX(px);
+  py = fPad->AbsPixeltoY(py);
   
   TAxis* ax = TheHisto->GetXaxis();
   Int_t NbinsX = ax->GetNbins();
@@ -1602,7 +1610,7 @@ void KVIDGridEditor::ScaleCurvature(Int_t Sign)
     Double_t y2 = idd->GetY()[idd->GetN()-1];
     
     Double_t a = (y2-y1)/(x2-x1);
-    Double_t b = y1 - a*x1;
+//    Double_t b = y1 - a*x1;
     Double_t theta = TMath::ATan(a);
     
     frx->SetParameters(x1,y1,-theta);
@@ -1659,7 +1667,7 @@ void KVIDGridEditor::ForceUpdate()
   if(fPivot) fPivot->Draw("P");  
   DrawAtt(false);
   
-  gPad->Modified();
-  gPad->Update();	     
+  fPad->Modified();
+  fPad->Update();	     
   if(fDebug) cout << "INFO: KVIDGridEditor::ForceUpdate(): Canvas and Co has been updated !" << endl; 
 }
