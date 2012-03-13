@@ -89,7 +89,7 @@ class KVIDentifier : public TCutG
 
 	virtual void WaitForPrimitive();
 
-	virtual void ExtendLine(Double_t, Option_t* Direction="HORI");  // *MENU={Hierarchy="Modify Line.../ExtendLine"}*
+	virtual void ExtendLine(Double_t, Option_t* Direction="");  // *MENU={Hierarchy="Modify Line.../ExtendLine"}*
 
    //---- The following redeclarations are here just to remove the *MENU* tag which
    //---- is present in TGraph.h, to stop these methods appearing in the ID line context menus

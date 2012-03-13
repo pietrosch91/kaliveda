@@ -3,6 +3,7 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
+#pragma link C++ global gIDGridEditor;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KVBrowser;
@@ -29,4 +30,7 @@
 #pragma link C++ class KVInputDialog+;
 #pragma link C++ class KVTextEntry+;
 #pragma link C++ class KVDBSystemDialog+;
+#pragma link C++ class KVCanvas+;
+#pragma link C++ class KVIDGridEditorCanvas+;
+#pragma link C++ class KVIDGridEditor+;
 #endif
