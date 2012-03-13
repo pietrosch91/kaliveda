@@ -89,7 +89,7 @@ ReconstructionSeDv::ReconstructionSeDv(LogFile *Log, SeD12v *SeD12)
 	      cout << line << endl;
 	      L->Log << line << endl;
 	      
-	      for(i=0;i<330;i++)
+	      for(i=0;i<1001;i++)
 		inf1 >> Coef[j][i];
 
 	    }
@@ -136,6 +136,7 @@ void ReconstructionSeDv::Init(void)
   Present = false; 
 
   Brho = Theta = Phi = Path = -500;
+  ThetaL = PhiL = -500.;
 }
 
 void ReconstructionSeDv::Calculate(void)
@@ -143,10 +144,11 @@ void ReconstructionSeDv::Calculate(void)
 #ifdef DEBUG
   cout << "ReconstructionSeDv::Calculate" << endl;
 #endif
- Double_t Brhot,Thetat,Phit,Patht;
+  Double_t Brhot,Thetat,Phit,Patht;
+  Double_t Brhot_y,Thetat_y,Patht_y;
   Double_t Vec[5],Vecp;
 
-  Int_t i,j[7];
+  Int_t i,j[10];
   
   Brhot=Thetat=Phit = Patht = 0.00000;
   Vec[0] = 1.000000;
@@ -164,8 +166,11 @@ void ReconstructionSeDv::Calculate(void)
 	  for(j[4]=j[3];j[4]<5;j[4]++)
 	    for(j[5]=j[4];j[5]<5;j[5]++)
 	      for(j[6]=j[5];j[6]<5;j[6]++)
+	    	for(j[7]=j[6];j[7]<5;j[7]++)
+		  for(j[8]=j[7];j[8]<5;j[8]++)
+		    for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Brhot += Coef[0][i] *Vecp;
 		Thetat += Coef[1][i] *Vecp;
 		Patht += Coef[3][i] *Vecp;
@@ -184,10 +189,16 @@ void ReconstructionSeDv::Calculate(void)
 	for(j[3]=j[2];j[3]<5;j[3]++)
 	  for(j[4]=j[3];j[4]<5;j[4]++)
 	    for(j[5]=j[4];j[5]<5;j[5]++)
-	      for(j[6]=j[5];j[6]<5;j[6]++)
+	      for(j[6]=j[5];j[6]<5;j[6]++)	    	
+	        for(j[7]=j[6];j[7]<5;j[7]++)
+		  for(j[8]=j[7];j[8]<5;j[8]++)
+		    for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Phit += Coef[2][i] *Vecp;
+		Brhot_y += Coef[0][i] *Vecp;
+		Thetat_y += Coef[1][i] *Vecp;
+		Patht_y += Coef[3][i] *Vecp;
 		i++;
 	      }
 

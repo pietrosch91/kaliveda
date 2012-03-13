@@ -43,7 +43,57 @@ Reconstructionv::Reconstructionv(LogFile *Log, DriftChamberv *Drift)
   Init();
 
   Rnd = new Random;
-  
+
+//===================================================
+ifstream file;	
+TString sline;
+int tmp=0;
+
+Float_t delta1;
+Float_t delta2;
+Float_t deg1;
+Float_t deg2;
+Float_t mean1;
+Float_t rms1;
+Float_t etendue1;
+Float_t stat1;
+Float_t facteur1;
+
+for(Int_t i=0;i<600;i++){
+	Delta1[i] = 0.0;
+	Delta2[i] = 0.0;
+	Deg1[i] = 0.0;
+	Deg2[i] = 0.0;
+	Facteur[i] = 0.0;
+	Stat[i] = 0.0;
+	Etendue[i] = 0.0;	
+}
+
+if(!gDataSet->OpenDataSetFile("pl_proj.dat", file))     
+{
+	cout << "Could not open the file for the phiL correction !" << endl;
+     	return;
+}
+
+while (file.good()) {         //reading the file
+      sline.ReadLine(file);
+      if (!file.eof()) {          //fin du fichier
+		if (sline.Sizeof() > 1 && !sline.BeginsWith("#")){		  	
+			sscanf(sline.Data(),"%f %f %f %f %f %f %f %f %f", &delta1, &delta2, &deg1, &deg2, &mean1, &rms1, &etendue1, &stat1, &facteur1);
+			Delta1[tmp] = delta1;
+			Delta2[tmp] = delta2;
+			Deg1[tmp] = deg1;
+			Deg2[tmp] = deg2;
+			Facteur[tmp] = facteur1;
+			Stat[tmp] = stat1;
+			Etendue[tmp] = etendue1;			
+		  	tmp++;	
+		}
+	}
+}
+file.close(); 
+//=================================================== 
+
   ifstream inf3;
   if(!gDataSet->OpenDataSetFile("Vamos_distance.dat", inf3))
     {
@@ -141,7 +191,7 @@ Reconstructionv::Reconstructionv(LogFile *Log, DriftChamberv *Drift)
 	      cout << line << endl;
 	      L->Log << line << endl;
 	      
-	      for(i=0;i<330;i++)
+	      for(i=0;i<1001;i++) 
 		inf1 >> Coef[j][i];
 
 	    }
@@ -195,7 +245,7 @@ void Reconstructionv::Init(void)
 
   //BB = ttheta = 0;
   Brho = Theta = Phi = Path = -500;
-  ThetaL = PhiL = -500.;
+  ThetaL = PhiL = corr_pl = deltat = -500.;
 }
 
 void Reconstructionv::Calculate(void)
@@ -205,9 +255,10 @@ void Reconstructionv::Calculate(void)
 #endif
   
   Double_t Brhot,Thetat,Phit,Patht;
+  Double_t Brhot_y,Thetat_y,Patht_y;
   Double_t Vec[5],Vecp;
 
-  Int_t i,j[7];
+  Int_t i,j[10];
   
   Brhot=Thetat=Phit = Patht = 0.00000;
   Vec[0] = 1.000000;
@@ -228,8 +279,11 @@ void Reconstructionv::Calculate(void)
 	  for(j[4]=j[3];j[4]<5;j[4]++)
 	    for(j[5]=j[4];j[5]<5;j[5]++)
 	      for(j[6]=j[5];j[6]<5;j[6]++)
+	        for(j[7]=j[6];j[7]<5;j[7]++)
+		  for(j[8]=j[7];j[8]<5;j[8]++)
+		    for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Brhot += Coef[0][i] *Vecp;
 		Thetat += Coef[1][i] *Vecp;
 		Patht += Coef[3][i] *Vecp;
@@ -249,9 +303,15 @@ void Reconstructionv::Calculate(void)
 	  for(j[4]=j[3];j[4]<5;j[4]++)
 	    for(j[5]=j[4];j[5]<5;j[5]++)
 	      for(j[6]=j[5];j[6]<5;j[6]++)
+	     	for(j[7]=j[6];j[7]<5;j[7]++)
+		  for(j[8]=j[7];j[8]<5;j[8]++)
+		    for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Phit += Coef[2][i] *Vecp;
+		Brhot_y += Coef[0][i] *Vecp;
+		Thetat_y += Coef[1][i] *Vecp;
+		Patht_y += Coef[3][i] *Vecp;
 		i++;
 	      }
 	//L->Log<<"-----------"<<endl;
@@ -272,12 +332,31 @@ void Reconstructionv::Calculate(void)
       myVec.RotateY((gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta"))*3.141592654/180.);
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
-      
+      Thetadeg = (Theta/1000.)*(180/3.141592654);
+      Phideg = (Phi/1000.)*(180/3.141592654);
+      ThetaLdeg = ThetaL*180/3.141592654;
+      PhiLdeg = PhiL*180/3.141592654;            
             //cout << Brho << " " << Theta << " " << Phi << endl;
 	    //L->Log<<"-----------"<<endl;
 	    //L->Log << "Brho = "<< Brho << " " << "Theta = "<< Theta << " " <<"Phi = "<< Phi <<" "<<"Path = "<<Path<<endl;
 	    //L->Log << "ThetaL = "<< ThetaL << " " <<"PhiL = "<< PhiL <<endl;
 	    //L->Log<<"-----------"<<endl;
+
+//Warning : Correction (corr_pl) is applied for thetaL<0.12 rad and phiL between -1 and 1 rad.
+deltat = double(Brho / (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")));
+
+	for(Int_t j=0;j<450;j++){
+		if(Delta1[j]<deltat && deltat<Delta2[j] && Deg1[j]<ThetaLdeg && ThetaLdeg<Deg2[j]){
+			corr_pl = double(Facteur[j]);
+			//cout<<"corr_pl	= "<<corr_pl<<endl;
+			break;
+			}
+		else if(Delta1[j]<deltat && Delta2[j]>deltat && Deg2[j-1]<ThetaLdeg && ThetaLdeg<Deg1[j]){
+			corr_pl = double((Facteur[j] + Facteur[j-1])/2);
+			//cout<<"corr_pl moy	= "<<corr_pl<<endl;				
+			break;
+			}
+	}
     } 
 
 }
@@ -317,10 +396,14 @@ void Reconstructionv::outAttach(TTree *outT)
   outT->Branch("Brho",&Brho,"Brho/F");
   outT->Branch("Theta",&Theta,"Theta/F");
   outT->Branch("Phi",&Phi,"Phi/F");
+  outT->Branch("Thetadeg",&Thetadeg,"Thetadeg/F");
+  outT->Branch("Phideg",&Phideg,"Phideg/F");  
   outT->Branch("Path",&Path,"Path/F");
   outT->Branch("ThetaL",&ThetaL,"ThetaL/F");
   outT->Branch("PhiL",&PhiL,"PhiL/F");
-
+  outT->Branch("ThetaLdeg",&ThetaLdeg,"ThetaLdeg/F");
+  outT->Branch("PhiLdeg",&PhiLdeg,"PhiLdeg/F");
+  outT->Branch("corr_pl",&corr_pl,"corr_pl/D");    
 }
 
 
