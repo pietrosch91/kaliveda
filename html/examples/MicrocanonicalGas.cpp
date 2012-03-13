@@ -1,19 +1,19 @@
 //Created by KVClassFactory on Thu Jun 24 14:22:17 2010
 //Author: John Frankland,,,
 
-#include "RKex1.h"
+#include "MicrocanonicalGas.h"
 #include "TMath.h"
 #include "Riostream.h"
 #include "TROOT.h"
 #include "TVector3.h"
 #include "TRandom.h"
 
-ClassImp(RKex1)
+ClassImp(MicrocanonicalGas)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>RKex1</h2>
+<h2>MicrocanonicalGas</h2>
 <h4>Simulation of microcanonical equilibrium using class KVRungeKutta</h4>
 <p>
 This class uses <a href="../KVRungeKutta.html">KVRungeKutta</a> in order to
@@ -22,11 +22,11 @@ kinetic energy enclosed in a sphere.
 </p>
 <p>
 Example of use:<br>
-RKex1 gas(5, 100, 20, 1);<br>
+MicrocanonicalGas gas(5, 100, 20, 1);<br>
 gas.Run(0,10000,0.1,1);<br>
 </p>
 <p>
-This will generate a ROOT file RKex1_N5_B20.000000_S1.000000_E100.00000.root containing
+This will generate a ROOT file MicrocanonicalGas_N5_B20.000000_S1.000000_E100.00000.root containing
 a TTree "Events" containing the time evolution of the total energy and
 of the kinetic energy, speed, and distance from the origin of each particle.
 </p>
@@ -34,7 +34,7 @@ of the kinetic energy, speed, and distance from the origin of each particle.
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-RKex1::RKex1(Int_t N, Double_t e0, Double_t b, Double_t s)
+MicrocanonicalGas::MicrocanonicalGas(Int_t N, Double_t e0, Double_t b, Double_t s)
 	: KVRungeKutta(6*N)
 {
    // Default constructor
@@ -49,8 +49,8 @@ RKex1::RKex1(Int_t N, Double_t e0, Double_t b, Double_t s)
    sphereradius = s;
 	xsec = 4.*pow(sphereradius,2.);
    Time = 0;
-   TheFile = new TFile(Form("RKex1_N%d_B%f_S%f_E%f.root",N,b,s,e0), "recreate");
-   TheTree = new TTree("Events", Form("RKex1 events N=%d E=%f box=%f sphere=%f",N,e0,b,s));
+   TheFile = new TFile(Form("MicrocanonicalGas_N%d_B%f_S%f_E%f.root",N,b,s,e0), "recreate");
+   TheTree = new TTree("Events", Form("MicrocanonicalGas events N=%d E=%f box=%f sphere=%f",N,e0,b,s));
    TheTree->Branch("Time", &Time);
    TheTree->Branch("Etot", &Etot);
    TheTree->Branch("CollisionRate", &collRate);
@@ -64,7 +64,7 @@ RKex1::RKex1(Int_t N, Double_t e0, Double_t b, Double_t s)
    SetRandomCoords(e0);
 }
 
-RKex1::~RKex1()
+MicrocanonicalGas::~MicrocanonicalGas()
 {
    // Destructor
    delete [] coords;
@@ -73,7 +73,7 @@ RKex1::~RKex1()
    delete [] TheDistances;
 }
 
-Double_t RKex1::GetEKin() const
+Double_t MicrocanonicalGas::GetEKin() const
 {
    // Total kinetic energy of gas
 	Double_t ekin = 0.0;
@@ -83,7 +83,7 @@ Double_t RKex1::GetEKin() const
 	return ekin;
 }
 
-Double_t RKex1::GetE(Int_t i) const
+Double_t MicrocanonicalGas::GetE(Int_t i) const
 {
    // Kinetic energy of particle i(=0,...,N-1)
 	Double_t ekin = 0.0;
@@ -93,7 +93,7 @@ Double_t RKex1::GetE(Int_t i) const
 	return ekin;
 }
 
-Double_t RKex1::GetR(Int_t i) const
+Double_t MicrocanonicalGas::GetR(Int_t i) const
 {
    // Distance from origin of particle i(=0,...,N-1)
 	Double_t ray = 0.0;
@@ -103,7 +103,7 @@ Double_t RKex1::GetR(Int_t i) const
 	return sqrt(ray);
 }
 
-Double_t RKex1::GetV(Int_t i) const
+Double_t MicrocanonicalGas::GetV(Int_t i) const
 {
    // Speed of particle i(=0,...,N-1)
 	Double_t ray = 0.0;
@@ -113,7 +113,7 @@ Double_t RKex1::GetV(Int_t i) const
 	return sqrt(ray);
 }
 
-void RKex1::CalcDerivs(Double_t /*xx*/, Double_t* yy, Double_t* dyy)
+void MicrocanonicalGas::CalcDerivs(Double_t /*xx*/, Double_t* yy, Double_t* dyy)
 {
    // Calculation of derivatives required by KVRungeKutta
 	for(register int i=0; i<3*Nparts; i++){
@@ -122,7 +122,7 @@ void RKex1::CalcDerivs(Double_t /*xx*/, Double_t* yy, Double_t* dyy)
 	}
 }
 
-Int_t RKex1::CollisionDetection()
+Int_t MicrocanonicalGas::CollisionDetection()
 {
    // Detect & perform collisions between particles of gas.
    // Two particles undergo a collision when their separation
@@ -144,7 +144,7 @@ Int_t RKex1::CollisionDetection()
    return coll;
 }
 
-void RKex1::CheckBoundaries()
+void MicrocanonicalGas::CheckBoundaries()
 {
    // Check for particles hitting the container walls.
    // Any such particles are reflected back into the bulk.
@@ -167,7 +167,7 @@ void RKex1::CheckBoundaries()
 		}
 	}
 }
-Int_t RKex1::Collision(Int_t xi, Int_t xj, Double_t *_dx)
+Int_t MicrocanonicalGas::Collision(Int_t xi, Int_t xj, Double_t *_dx)
 {
 	// Particles xi & xj are close enough to be in collision (see CollisionDetection).
 	// _dx[3] is relative displacement vector
@@ -196,7 +196,7 @@ Int_t RKex1::Collision(Int_t xi, Int_t xj, Double_t *_dx)
    return 0;
 }
 
-void RKex1::SetRandomCoords(Double_t E0)
+void MicrocanonicalGas::SetRandomCoords(Double_t E0)
 {
 	// Initialise particles with random positions inside the spherical
    // container and random velocities with a total kinetic energy = E0
@@ -218,7 +218,7 @@ void RKex1::SetRandomCoords(Double_t E0)
    
 }
 
-void RKex1::Run(Double_t tmin, Double_t tmax, Double_t dt_coll, Double_t dt_write)
+void MicrocanonicalGas::Run(Double_t tmin, Double_t tmax, Double_t dt_coll, Double_t dt_write)
 {
    // Perform the simulation from time 'tmin' to 'tmax'.
    // dt_coll = interval between collision & boundary condition checks
@@ -257,14 +257,14 @@ void RKex1::Run(Double_t tmin, Double_t tmax, Double_t dt_coll, Double_t dt_writ
    TheFile->Close();
 }
 	
-void RKex1::Print(Option_t* /*opt*/) const
+void MicrocanonicalGas::Print(Option_t* /*opt*/) const
 {
 	cout << "Configuration with " << Nparts << " particles at TIME = " << Time << endl;
 	Double_t ekin = GetEKin();
 	cout << "  EKIN = " << ekin << "  ETOT = " << ekin << endl;
 }
 
-void RKex1::WriteResults()
+void MicrocanonicalGas::WriteResults()
 {
    // Store current state of gas particles in the TTree.
    

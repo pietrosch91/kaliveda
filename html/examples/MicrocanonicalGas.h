@@ -1,8 +1,8 @@
 //Created by KVClassFactory on Thu Jun 24 14:22:17 2010
 //Author: John Frankland,,,
 
-#ifndef __RKEX1_H
-#define __RKEX1_H
+#ifndef __MicrocanonicalGas_H
+#define __MicrocanonicalGas_H
 
 #include "KVRungeKutta.h"
 #include "KVHashList.h"
@@ -11,7 +11,7 @@
 #include <TH1F.h>
 #include "Riostream.h"
 
-class RKex1 : public KVRungeKutta
+class MicrocanonicalGas : public KVRungeKutta
 {
 	Int_t Nparts;
 	Double_t *coords;
@@ -30,8 +30,8 @@ class RKex1 : public KVRungeKutta
    Double_t* TheVelocities;//!
 	
    public:
-   RKex1(Int_t n, Double_t e0, Double_t boxsize, Double_t spheresize);
-   virtual ~RKex1();
+   MicrocanonicalGas(Int_t n, Double_t e0, Double_t boxsize, Double_t spheresize);
+   virtual ~MicrocanonicalGas();
 
 	virtual void CalcDerivs(Double_t /*X*/ , Double_t* /*Y*/, Double_t* /*DY/DX*/);
 	
@@ -48,7 +48,7 @@ class RKex1 : public KVRungeKutta
 	void Print(Option_t* opt="") const;
 	void WriteResults();
 	
-   ClassDef(RKex1,1)//Simulate a microcanonical classical gas using KVRungeKutta
+   ClassDef(MicrocanonicalGas,1)//Simulate a microcanonical classical gas using KVRungeKutta
 };
 
 #endif
