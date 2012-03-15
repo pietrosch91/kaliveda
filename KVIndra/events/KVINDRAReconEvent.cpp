@@ -414,11 +414,12 @@ void KVINDRAReconEvent::SecondaryAnalyseGroup(KVGroup* grp)
    		}
    		
 			// reconstruct particles from pile-up in ChIo detectors revealed by coherency CsIR/L - ChIoCsI
-   		if(nuc->IsChIoPileup() && nuc->GetChIo()->GetEnergy()>0.1){
+   		/*if(nuc->IsChIoPileup() && nuc->GetChIo()->GetEnergy()>0.1){
    			KVINDRAReconNuc* SIX = AddParticle();
    			SIX->Reconstruct(nuc->GetChIo());
    			sixparts.Add(SIX);
    		}
+			*/
    	}
    }
    // reanalyse group
