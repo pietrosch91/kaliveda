@@ -200,6 +200,10 @@ void KVINDRAReconNuc::Print(Option_t * option) const
 			cout << "    ESi = " << TMath::Abs(fESi) << " MeV"; if(fESi<0) cout << " (calculated)"; cout << endl;
 			cout << "    ECsI = " << TMath::Abs(fECsI) << " MeV"; if(fECsI<0) cout << " (calculated)"; cout << endl;
 		}
+		else {
+			cout << "    EChIo = " << TMath::Abs(fEChIo) << " MeV"; if(fEChIo<0) cout << " (calculated)"; cout << endl;
+			cout << "    ECsI = " << TMath::Abs(fECsI) << " MeV"; if(fECsI<0) cout << " (calculated)"; cout << endl;
+		}
       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
       cout << " Calibration code = " << ((KVINDRAReconNuc *) this)->
           GetCodes().GetEStatus() << endl;
