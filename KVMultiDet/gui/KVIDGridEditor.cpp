@@ -730,7 +730,7 @@ void KVIDGridEditor::MakeTransformation()
       DeleteCut((KVIDentifier*)select);
       }
     }
-  if((event==kButton1Down)&&(select)&&(!dlmode))
+  if((event==kButton1Up)&&(select)&&(!dlmode))
     {
     if(select->InheritsFrom("KVIDentifier"))
       {
@@ -786,7 +786,7 @@ void KVIDGridEditor::MakeTransformation()
     }
   if((event==kButton1Double)&&(!drawmode))
     {
-    if(!select->InheritsFrom("KVIDZALine"))
+    if(!select->InheritsFrom("KVIDentifier"))
       {
       Int_t xx = fPad->GetEventX();
       Int_t yy = fPad->GetEventY();
@@ -799,8 +799,8 @@ void KVIDGridEditor::MakeTransformation()
       }
     else if(select->InheritsFrom("KVIDentifier"))
       {
-      lplabel3->Execute("SetFillColor","kWhite");
       TPaveLabel* label = (TPaveLabel*)lplabel3->FindObject("All");
+      lplabel3->Execute("SetFillColor","kWhite");
       label->SetFillColor(kGreen);
       SelectLines(label);
       }
