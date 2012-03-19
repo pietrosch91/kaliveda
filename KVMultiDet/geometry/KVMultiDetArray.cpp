@@ -378,6 +378,63 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //first we look for ID telescopes specific to current dataset
     //these are ID telescopes formed from two distinct detectors
     TString uri;
+    //look for ID telescopes with only one of the two detectors
+    uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
+             de_thick);
+    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        set_up_single_stage_telescope(de,idtels,idt,uri);
+    }
+    else
+    {
+        uri.Form("%s.%s", fDataSet.Data(), de->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_single_stage_telescope(de,idtels,idt,uri);
+        }
+        else
+        {
+            uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
+                     e_thick);
+            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                set_up_single_stage_telescope(e,idtels,idt,uri);
+            }
+            else
+            {
+                uri.Form("%s.%s", fDataSet.Data(), e->GetType());
+                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                    set_up_single_stage_telescope(e,idtels,idt,uri);
+                }
+                else
+                {
+                    uri.Form("%s%d", de->GetType(), de_thick);
+                    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                        set_up_single_stage_telescope(de,idtels,idt,uri);
+                    }
+                    else
+                    {
+                        uri.Form("%s", de->GetType());
+                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                            set_up_single_stage_telescope(de,idtels,idt,uri);
+                        }
+                        else
+                        {
+                            uri.Form("%s%d", e->GetType(), e_thick);
+                            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                                set_up_single_stage_telescope(e,idtels,idt,uri);
+                            }
+                            else
+                            {
+                                uri.Form("%s", e->GetType());
+                                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                                    set_up_single_stage_telescope(e,idtels,idt,uri);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    idt = 0;
 if(de != e){
     uri.Form("%s.%s%d-%s%d", fDataSet.Data(), de->GetType(),
              de_thick, e->GetType(),
@@ -441,64 +498,6 @@ if(de != e){
         }
     }
 } 
-    //if no telescope found, try single-stage telescope
-    idt = 0;
-    //look for ID telescopes with only one of the two detectors
-    uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
-             de_thick);
-    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-        set_up_single_stage_telescope(de,idtels,idt,uri);
-    }
-    else
-    {
-        uri.Form("%s.%s", fDataSet.Data(), de->GetType());
-        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-            set_up_single_stage_telescope(de,idtels,idt,uri);
-        }
-        else
-        {
-            uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
-                     e_thick);
-            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                set_up_single_stage_telescope(e,idtels,idt,uri);
-            }
-            else
-            {
-                uri.Form("%s.%s", fDataSet.Data(), e->GetType());
-                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                    set_up_single_stage_telescope(e,idtels,idt,uri);
-                }
-                else
-                {
-                    uri.Form("%s%d", de->GetType(), de_thick);
-                    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                        set_up_single_stage_telescope(de,idtels,idt,uri);
-                    }
-                    else
-                    {
-                        uri.Form("%s", de->GetType());
-                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                            set_up_single_stage_telescope(de,idtels,idt,uri);
-                        }
-                        else
-                        {
-                            uri.Form("%s%d", e->GetType(), e_thick);
-                            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                                set_up_single_stage_telescope(e,idtels,idt,uri);
-                            }
-                            else
-                            {
-                                uri.Form("%s", e->GetType());
-                                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                                    set_up_single_stage_telescope(e,idtels,idt,uri);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 	 
 }
 
