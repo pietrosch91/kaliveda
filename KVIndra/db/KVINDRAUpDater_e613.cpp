@@ -53,6 +53,12 @@ void KVINDRAUpDater_e613::SetGains(KVDBRun * kvrun)
     {
         KVDBParameterSet *dbps = (KVDBParameterSet *) gain_list->At(i);
         kvd = gIndra->GetDetector(dbps->GetName());
+		  if(!kvd){
+			  Error("SetGains",
+					  "Detector %s is unknown or does not exist at the current time...???",
+					  dbps->GetName());
+			  continue;
+		  }
         oldgain = kvd->GetGain();
 		  if ( oldgain != Float_t(dbps->GetParameter(0)) ){
 		  	  kvd->SetGain(Float_t(dbps->GetParameter(0)));

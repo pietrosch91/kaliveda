@@ -1071,6 +1071,8 @@ void KVSelector::FillHisto(KVString sname,Double_t one,Double_t two,Double_t thr
 			FillTH3((TH3* )h1,one,two,three,four);
 		else if ( h1->InheritsFrom("TProfile2D") )
 			FillTProfile2D((TProfile2D* )h1,one,two,three,four);
+		else if ( h1->InheritsFrom("KVDalitzPlot") )
+			FillKVDalitz((KVDalitzPlot* )h1,one,two,three);
 		else if ( h1->InheritsFrom("TH2") )
 			FillTH2((TH2* )h1,one,two,three);
 		else if ( h1->InheritsFrom("TProfile") )
@@ -1119,6 +1121,14 @@ void KVSelector::FillTProfile2D(TProfile2D* h2,Double_t one,Double_t two,Double_
 {
 	
 	h2->Fill(one,two,three,four);
+}
+	
+//____________________________________________________________________________
+   
+void KVSelector::FillKVDalitz(KVDalitzPlot* h2,Double_t one,Double_t two,Double_t three)
+{
+	
+	h2->FillAsDalitz(one,two,three);
 }
 	
 //____________________________________________________________________________

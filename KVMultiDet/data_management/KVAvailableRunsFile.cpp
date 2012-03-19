@@ -1004,9 +1004,13 @@ void KVAvailableRunsFile::ReadFile()
       // nfields = 3: run number, date, filename
       // nfields = 5: run number, date, filename, KaliVeda version, username
       Int_t nfields = toks->GetEntries();
-      
       KVString kvs(((TObjString *) toks->At(0))->GetString());
       fRunNumber = kvs.Atoi();
+      if(nfields<2){
+			Warning("ReadFile", "Less than 2 fields in entry for run %d???",fRunNumber);
+			toks->ls();
+			continue;
+		}
       
       // is run already in list ?
       KVNameValueList* NVL = (KVNameValueList*)fAvailableRuns->FindObject(kvs);

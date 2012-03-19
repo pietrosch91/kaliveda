@@ -102,6 +102,14 @@ KV2Body *KVDBSystem::GetKinematics()
    }
    return fCinema;
 }
+//___________________________________________________________________________
+
+Bool_t KVDBSystem::IsCollision() const
+{
+ 	//retourne kTRUE, si le systeme est une collision ie projectile+cible
+	return (GetZbeam()*GetZtarget()!=0);
+
+}
 
 //_____________________________________________________________________________
 

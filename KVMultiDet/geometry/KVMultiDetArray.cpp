@@ -374,8 +374,11 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
 	 Int_t de_thick = TMath::Nint(de->GetThickness());
 	 Int_t e_thick = TMath::Nint(e->GetThickness());
+    
     //first we look for ID telescopes specific to current dataset
+    //these are ID telescopes formed from two distinct detectors
     TString uri;
+if(de != e){
     uri.Form("%s.%s%d-%s%d", fDataSet.Data(), de->GetType(),
              de_thick, e->GetType(),
              e_thick);
@@ -437,7 +440,7 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
             }
         }
     }
-
+} 
     //if no telescope found, try single-stage telescope
     idt = 0;
     //look for ID telescopes with only one of the two detectors

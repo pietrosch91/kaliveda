@@ -41,7 +41,10 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	Float_t fECsI;//csi contribution to energy
 	Float_t fESi;//si contribution to energy
 	Float_t fEChIo;//chio contribution to energy
-	
+   
+	Bool_t fCoherentChIoCsI;//coherency of CsI & ChIo-CsI identifications
+   Bool_t fPileupChIo;//apparent pileup in ChIo, revealed by inconsistency between CsI & ChIo-CsI identifications
+
 	void CheckCsIEnergy();
    
  public:
@@ -57,6 +60,13 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 		// See CoherencySiCsI(KVIdentificationResult&).
 		return fCoherent;
 	};
+	Bool_t AreChIoCsICoherent() const
+	{
+		// RINGS 10-17
+		// Returns result of coherency test between ChIo-CsI and CsI-RL identifications.
+		// See CoherencyChIoCsI(KVIdentificationResult&).
+		return fCoherentChIoCsI;
+	};
 	Bool_t IsSiPileup() const
 	{
 		// RINGS 1-9
@@ -64,15 +74,25 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 		// See CoherencySiCsI(KVIdentificationResult&).
 		return fPileup;
 	};
+	Bool_t IsChIoPileup() const
+	{
+		// RINGS 10-17
+		// Returns result of coherency test between Si-CsI and CsI-RL identifications.
+		// See CoherencySiCsI(KVIdentificationResult&).
+		return fPileupChIo;
+	};	
 	Bool_t UseFullChIoEnergyForCalib() const
 	{
 		// RINGS 1-9
 		// Returns result of coherency test between ChIo-Si, Si-CsI and CsI-RL identifications.
 		// See CoherencyChIoSiCsI(KVIdentificationResult).
+		// RINGS 10-17
+		// Returns kTRUE if there is just one particle in the ChIo, kFALSE if more
+		
 		return fUseFullChIoEnergyForCalib;
 	};
-    KVINDRAReconNuc();
-    KVINDRAReconNuc(const KVINDRAReconNuc &);
+   KVINDRAReconNuc();
+   KVINDRAReconNuc(const KVINDRAReconNuc &);
    void init();
     virtual ~ KVINDRAReconNuc();
 
@@ -92,13 +112,13 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    UInt_t GetRingNumber(void) const {
       if (GetTelescope()) {
          return GetTelescope()->GetRingNumber();
-      } else {
+		} else {
          return 0;
       }
    };
    UInt_t GetModuleNumber(void) const {
       if (GetTelescope()) {
-         return GetTelescope()->GetNumber();
+			return GetTelescope()->GetNumber();		
       } else {
          return 0;
       }
@@ -106,8 +126,10 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 
    virtual void Identify();
 	virtual Bool_t CoherencySiCsI(KVIdentificationResult& theID);
+	virtual Bool_t CoherencyChIoCsI(KVIdentificationResult& theID);
 	virtual Bool_t CoherencyChIoSiCsI(KVIdentificationResult);
-	virtual void CalibrateRings1To10();
+	virtual void CalibrateRings1To9();
+	virtual void CalibrateRings10To17();
    virtual void Calibrate();
    
 	Float_t GetEnergyChIo()
@@ -154,7 +176,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
 
-   ClassDef(KVINDRAReconNuc, 8) //Nucleus identified by INDRA array
+   ClassDef(KVINDRAReconNuc, 9) //Nucleus identified by INDRA array
 };
 
 //____________________________________________________________________________________________//

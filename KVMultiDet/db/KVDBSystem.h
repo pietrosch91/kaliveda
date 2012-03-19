@@ -77,6 +77,8 @@ class KVDBSystem:public KVDBRecord {
    Double_t GetPtot() const;
    Double_t GetEtot() const;
    Double_t GetECM() const;
+	
+	Bool_t IsCollision() const;
 
    void SetZtarget(UInt_t z);
    void SetAtarget(UInt_t a);

@@ -81,11 +81,11 @@ class KVElasticScatterEvent : public KVBase
       kIsDetectionOn = BIT(18)	//flag indicating if user asked detection of events
    };
 	
-	Bool_t IsProjNucSet() {  return TestBit(kProjIsSet); }
-	Bool_t IsTargNucSet() {  return TestBit(kTargIsSet); }
-	Bool_t IsTargMatSet() {  return TestBit(kHasTarget); }
- 	Bool_t IsUpdated()	{  return TestBit(kIsUpdated); }
- 	Bool_t IsDetectionOn() {  return TestBit(kIsDetectionOn); }
+	Bool_t IsProjNucSet() const {  return TestBit(kProjIsSet); }
+	Bool_t IsTargNucSet() const {  return TestBit(kTargIsSet); }
+	Bool_t IsTargMatSet() const {  return TestBit(kHasTarget); }
+ 	Bool_t IsUpdated()	const {  return TestBit(kIsUpdated); }
+ 	Bool_t IsDetectionOn() const {  return TestBit(kIsDetectionOn); }
 	
 	void ChooseKinSol(Int_t choix=1);
   
@@ -123,7 +123,7 @@ class KVElasticScatterEvent : public KVBase
 	
 	void SetDiffNucleus(KVString name="PROJ");
 	void SetRandomOption(Option_t* opt="isotropic");
-	Bool_t IsIsotropic();
+	Bool_t IsIsotropic() const;
 	
 	virtual void Process(Int_t ntimes=1,Bool_t reset=kTRUE);
 	
@@ -137,7 +137,7 @@ class KVElasticScatterEvent : public KVBase
 	Double_t GetPhi(KVString opt)const;
 	
 	KV2Body* GetKV2Body() {return kb2;}
-	void Print();
+	void Print(Option_t* /*opt*/ = "") const;
 	
 	virtual void ClearTrees();
 	virtual void ResetTrees();

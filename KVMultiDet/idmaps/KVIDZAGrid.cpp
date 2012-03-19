@@ -1364,7 +1364,7 @@ void KVIDZAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
     // (usual case), then particles between the two lines can have "real" masses
     // between 7.5 and 8.5, but their integer A will be =7 or =9, never 8.
     //
-
+		idr->IDOK = kFALSE;
     if ( !const_cast<KVIDZAGrid*>(this)->FindFourEmbracingLines(x,y,"above") )
     {
         //no lines corresponding to point were found

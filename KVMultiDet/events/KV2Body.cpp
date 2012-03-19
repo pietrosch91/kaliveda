@@ -214,7 +214,12 @@ void KV2Body::Set4thNucleus()
    // Private method, used to deduce 4th nucleus (target-like) from projectile, target
    // and outgoing projectile using conservation of mass, momentum and energy.
    // This nucleus will be deleted with the object.
-
+	//
+	// if the exit channel is a the compund nucleus, there is no 4th nucleus defined
+	// and the excitation energy of the fusion reaction is set in the fEdiss variable
+	// see GetExcitEnergy() methode
+	//
+	
    KVNucleus sum = *GetNucleus(1);
    if(GetNucleus(2)) sum += *GetNucleus(2);
    if (GetNucleus(4))
@@ -222,10 +227,11 @@ void KV2Body::Set4thNucleus()
    KVNucleus *tmp4 = new KVNucleus(sum - *GetNucleus(3));
    fDeleteN4 = kTRUE;
    if (!tmp4->GetZ() && !tmp4->GetA()) {
-      delete tmp4;
+   	SetExcitEnergy(sum.GetExcitEnergy());
+		delete tmp4;
       tmp4 = 0;
       fDeleteN4 = kFALSE;
-   }
+	}
    fNuclei[4] = tmp4;
 }
 
@@ -424,38 +430,40 @@ void KV2Body::CalculateKinematics()
    VCM.SetXYZ(0.,0.,0.);
   
    //total energy (T + m) of entrance channel
-   WLT = Nuc1->E() + (Nuc2 ? Nuc2->E() : 0.);
+   WLT = Nuc1->E();
    //velocity of CM
    VCM = Nuc1->GetMomentum();
-   if(Nuc2) VCM += Nuc2->GetMomentum();
-   VCM *= (KVParticle::C() / WLT);
-   //beta of CM
-   BCM = VCM.Mag() / KVParticle::C();
+   if (Nuc2){
+		WLT += Nuc2->E();
+		VCM += Nuc2->GetMomentum();
+	}
+	
+	//beta of CM
+   BCM = VCM.Mag() / WLT;
+	VCM = BCM*KVParticle::C();
+	Nuc1->SetFrame("CM",BCM,kTRUE);
+	if (Nuc2)
+		Nuc2->SetFrame("CM",BCM,kTRUE);
+	
    //total energy in CM
    WCT = (GetCMGamma() > 0.0 ? WLT / GetCMGamma() : 0.);
    if (WCT == 0.0)
       return;
 
-   //total energy proj in CM
-   WC[1] =
-       ((Nuc1->GetMass() -
-         (Nuc2 ? Nuc2->GetMass() : 0.))
-        * (Nuc1->GetMass() +
-           (Nuc2 ? Nuc2->GetMass() : 0.)) / (2. * WCT)) +
-       WCT / 2.;
-   //kinetic energy proj in CM
-   EC[1] = WC[1] - Nuc1->GetMass();
-   //tot E target in CM
-   WC[2] = WCT - WC[1];
-   //kinetic energy targ in CM
-   EC[2] = (Nuc2 ? WC[2] - Nuc2->GetMass() : 0.);
-   VC[1] = GetVelocity(Nuc1->GetMass(), WC[1]);
-   if(VC[1]>0.) K[1] = VCM.Mag() / VC[1];
-   VC[2] =
-       (Nuc2 ? GetVelocity(Nuc2->GetMass(), WC[2]) : 0.);
-   if(VC[2]>0.) K[2] = VCM.Mag() / VC[2];
+	//total energy proj in CM
+	WC[1] = Nuc1->GetFrame("CM")->E();
+	//kinetic energy proj in CM
+   EC[1] = Nuc1->GetFrame("CM")->GetKE();
+	VC[1] = Nuc1->GetFrame("CM")->GetVelocity().Mag();
+	K[1] = VCM.Mag()/ VC[1];
+	if (Nuc2){
+		WC[2] = Nuc2->GetFrame("CM")->E();
+		EC[2] = Nuc2->GetFrame("CM")->GetKE();
+		VC[2] = Nuc2->GetFrame("CM")->GetVelocity().Mag();
+		K[2] = VCM.Mag()/ VC[2];
+	}
 
-   Double_t AM3 = GetNucleus(3)->GetMass();
+	Double_t AM3 = GetNucleus(3)->GetMass();
    Double_t AM4 = (GetNucleus(4) ? GetNucleus(4)->GetMass() : 0.0);
    //total cm energy of nucleus 3 (quasiproj)
    WC[3] = (WCT - GetEDiss()) / 2. + (AM3 - AM4) * (AM3 + AM4)
@@ -464,7 +472,8 @@ void KV2Body::CalculateKinematics()
    //cm kinetic energy
    EC[3] = WC[3] - AM3;
    if(VC[3]>0.) K[3] = VCM.Mag() / VC[3];
-   Double_t T3MAX = 0.;
+   
+	Double_t T3MAX = 0.;
    if (TMath::AreEqualAbs(K[3], 1., 1.e-16))
       T3MAX = TMath::PiOver2();
    else if (K[3] < 1.)

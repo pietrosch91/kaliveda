@@ -760,12 +760,6 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
       //clear any existing list of aligned telescopes
       fIDTelAlign->Clear();
    }
-   //The following line is in case there are no detectors aligned
-   //with 'this', but 'this' acts as an IDTelescope all by itself.
-   //In this case we expect KVMultiDetArray::GetIDTelescopes
-   //to define the appropriate ID telescope whenever one of the
-   //two detector arguments (or both!) corresponds to 'this''s type.
-   gMultiDetArray->GetIDTelescopes(this, this, list);
 
    if (aligned->GetSize() > 1) {
       //pairwise looping through list
@@ -775,6 +769,15 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 			
 			gMultiDetArray->GetIDTelescopes(det1, det2, list);
       }
+   }
+   else
+   {
+      //The following line is in case there are no detectors aligned
+      //with 'this', but 'this' acts as an IDTelescope all by itself.
+      //In this case we expect KVMultiDetArray::GetIDTelescopes
+      //to define the appropriate ID telescope whenever one of the
+      //two detector arguments (or both!) corresponds to 'this''s type.
+      gMultiDetArray->GetIDTelescopes(this, this, list);
    }
 
    if (list_zero) {
