@@ -325,3 +325,18 @@ Short_t KVChIo::GetCalcACQParam(KVACQParam* ACQ, Double_t ECalc) const
    else if(ACQ->IsType("GG")) return (Short_t)const_cast<KVChIo*>(this)->GetCanalGGFromVolts(volts);
    return -1;
 }
+
+//______________________________________________________________________________
+
+void KVChIo::DeduceACQParameters(Int_t zz,Int_t aa)
+{
+
+	Double_t volts = GetVoltsFromEnergy(GetEnergy());
+	UShort_t cipg = (UShort_t)GetCanalPGFromVolts(volts);
+	UShort_t cigg = (UShort_t)GetCanalGGFromVolts(volts);
+	//cout << "chio: pg = " << cipg << " gg = " << cigg << endl;
+	GetACQParam("PG")->SetData(TMath::Min(4095,cipg));
+	GetACQParam("GG")->SetData(TMath::Min(4095,cigg));
+	GetACQParam("T")->SetData(110);
+
+}

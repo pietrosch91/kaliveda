@@ -855,23 +855,10 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
    //KVNucleus addition operator.
    //Add two nuclei together to form a compound nucleus whose momentum and
    //excitation energy are calculated from energy and momentum conservation.
-	/*
-   KVNucleus & lhs = *this;
-   Int_t ztot = lhs.GetZ() + rhs.GetZ();
-   Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
-   Double_t extot = lhs.GetExcitEnergy() + rhs.GetExcitEnergy();
-   Double_t etot = lhs.E() + rhs.E();
-   TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
-   TVector3 Vcm = (KVParticle::C()/etot)*ptot;
-
-   KVNucleus temp(ztot, atot);  //mass of nucleus includes mass excess
-   temp.SetVelocity(Vcm);
-   //"excitation energy" of resulting nucleus is given by bilan energetique
-   Double_t estar = extot + lhs.E() + rhs.E() - temp.E();
-   temp.SetExcitEnergy(estar);
-	return temp;
-	*/
-	
+	//
+	//the excitation energy of the resulting nucleus can be negative, 
+	//if the energy balance is negative
+	//
    KVNucleus & lhs = *this;
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
    Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
@@ -888,8 +875,8 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 	if (Excn<0){
 		if (Excn>-1e-8)
 			Excn=0;
-		else 	
-			Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
+		//else 	
+		//	Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
  	}
 	
 	CN.SetVect(ptot);
@@ -933,21 +920,14 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
 		if (Exres<0){
 			if (Exres>-1e-8)
 				Exres=0;
-			else 	
-				Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
+			//else 	
+			//	Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
  		}
 		
 		RES.SetVect(pres);
 		RES.SetExcitEnergy(Exres);
 	
 		return RES;
-	   /*
-		temp.SetMomentum(pres);
-      //"excitation energy" of residual nucleus is given by bilan energetique
-      Double_t estar = exres + lhs.E() - (rhs.E() + temp.E());
-      temp.SetExcitEnergy(estar);
-      return temp;
-   	*/
 	}
 }
 
