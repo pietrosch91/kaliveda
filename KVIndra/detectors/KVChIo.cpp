@@ -332,11 +332,11 @@ void KVChIo::DeduceACQParameters(Int_t zz,Int_t aa)
 {
 
 	Double_t volts = GetVoltsFromEnergy(GetEnergy());
-	UShort_t cipg = (UShort_t)GetCanalPGFromVolts(volts);
-	UShort_t cigg = (UShort_t)GetCanalGGFromVolts(volts);
+	Int_t cipg = (Int_t)GetCanalPGFromVolts(volts);
+	Int_t cigg = (Int_t)GetCanalGGFromVolts(volts);
 	//cout << "chio: pg = " << cipg << " gg = " << cigg << endl;
-	GetACQParam("PG")->SetData(TMath::Min(4095,cipg));
-	GetACQParam("GG")->SetData(TMath::Min(4095,cigg));
+	GetACQParam("PG")->SetData((UShort_t)TMath::Min(4095,cipg));
+	GetACQParam("GG")->SetData((UShort_t)TMath::Min(4095,cigg));
 	GetACQParam("T")->SetData(110);
 
 }

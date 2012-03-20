@@ -362,13 +362,12 @@ void KVSilicon::DeduceACQParameters(Int_t zz,Int_t aa)
 {
 
 	Double_t volts = GetVoltsFromEnergy(GetEnergy());
-	UShort_t sipg = (UShort_t)GetCanalPGFromVolts(volts);
-	UShort_t sigg = (UShort_t)GetCanalGGFromVolts(volts);
-	//cout << "silicon: pg = " << sipg << " gg = " << sigg << endl;
-	GetACQParam("PG")->SetData(TMath::Min(4095,sipg));
-	GetACQParam("GG")->SetData(TMath::Min(4095,sigg));
-	GetACQParam("T")->SetData(TMath::Min(4095,sigg));
-
+	Int_t cipg = (Int_t)GetCanalPGFromVolts(volts);
+	Int_t cigg = (Int_t)GetCanalGGFromVolts(volts);
+	//cout << "chio: pg = " << cipg << " gg = " << cigg << endl;
+	GetACQParam("PG")->SetData((UShort_t)TMath::Min(4095,cipg));
+	GetACQParam("GG")->SetData((UShort_t)TMath::Min(4095,cigg));
+	GetACQParam("T")->SetData(110);
 }
 
 
