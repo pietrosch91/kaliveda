@@ -46,52 +46,51 @@ class KVIDGridEditor : public KVBase
    TVirtualPad*          fPad;
    TGraph*               fPivot;
    
-   KVHashList* lplabel;		//contient la liste des TPaveLabel pour les transformations (rouge)
-   KVHashList* lplabel2;	//contient la liste des TPaveLabel pour les actions (rouge)
-   KVHashList* lplabel3;	//contient la liste des TPaveLabel pour les selections de lignes (vert)
-   KVHashList* lplabel4;	//contient la liste des TPaveLabel pour editer la grille (rouge)
-   KVHashList* lplabel5;	//contient la liste des TPaveLabel pour moduler les pas (vert)
+   KVHashList* lplabel;			//contient la liste des TPaveLabel pour les transformations (rouge)
+   KVHashList* lplabel2;		//contient la liste des TPaveLabel pour les actions (rouge)
+   KVHashList* lplabel3;		//contient la liste des TPaveLabel pour les selections de lignes (vert)
+   KVHashList* lplabel4;		//contient la liste des TPaveLabel pour editer la grille (rouge)
+   KVHashList* lplabel5;		//contient la liste des TPaveLabel pour moduler les pas (vert)
    
    TPaveLabel* modulator;
    
-   TH2*        TheHisto;
+   TH2*        TheHisto;		//pointeur sur l'histogramme
    TH2*        TheHistoChoice;
-   KVIDGraph*  TheGrid;
-   KVList*     ListOfLines;
+   KVIDGraph*  TheGrid;			//pointeur sur la grille courante
+   KVList*     ListOfLines;		//liste des lignes selectionnees
    
-   Int_t SelectedColor;
+   Int_t SelectedColor;			//couleur des lignes selectionnees
    
-   Double_t x0;
-   Double_t y0;
-   Int_t itrans,iact,iopt, imod;
+   Double_t x0;				//coordonne x du pivot
+   Double_t y0;				//coordonne y du pivot
+   Int_t itrans,iact,iopt, imod;	//utilise pour le placement des boutons
    
-   TF1* ft;
-   TF1* fs;
-   TF1* fsy;
-   TF2* frx;
-   TF2* fry;
+   TF1* ft;				//translation
+   TF1* fs;				//scaling
+   TF1* fsy;				//scaling
+   TF2* frx;				//rotation
+   TF2* fry;				//rotation
    
-   Bool_t ownhisto;
-   Bool_t dlmode;
-   Bool_t drawmode;
-   Bool_t selectmode;
+   Bool_t ownhisto;			//true si histo par defaut
+   Bool_t dlmode;			//true si mode delete
+   Bool_t drawmode;			//true si mode draw (line, cut)
+   Bool_t selectmode;			//true si mode select
    Bool_t ready;
    
-   Double_t xmin,xmax,ymin,ymax;
-   Double_t oldx, oldy;
-   Bool_t   moved;
+   Double_t xmin,xmax,ymin,ymax;	//utilises pour les differents zooms
+   Double_t oldx, oldy;			//utilises pour les differents zooms
+   Bool_t   moved;			//utilise pour les differents zooms
    
    
    protected:
    
-   void SetDefault();
-   void init();
-   void AddTransformation (TString label);
-   void AddAction         (TString label);
-   void AddGridOption     (TString label, KVHashList* thelist);
-   void ConstructModulator();
+   void SetDefault();						//
+   void init();							//
+   void AddTransformation (TString label);			//construction de l'interface
+   void AddAction         (TString label);			//graphique et initialisation
+   void AddGridOption     (TString label, KVHashList* thelist);	//
+   void ConstructModulator();					//
    
-   void DynamicZoom(Int_t Sign, Int_t px=0, Int_t py=0);
    void TranslateX (Int_t Sign);
    void TranslateY (Int_t Sign);
    void RotateZ    (Int_t Sign);
@@ -99,49 +98,52 @@ class KVIDGridEditor : public KVBase
    void ScaleY     (Int_t Sign);
    void ScaleXY    (Int_t Sign);
    void ScaleCurvature(Int_t Sign);
-   void Undo       ();
    
-   void Unzoom      ();
-   void SetLogz     ();
-   void SetLogy     ();
-   void SetLogx     ();
-   void ZoomSelected();
+   void DynamicZoom(Int_t Sign, Int_t px=0, Int_t py=0);	//zoom molette
+   void Unzoom      ();						//unzoom histo (accessible via l'interface : I)
+   void ZoomSelected();						//zoom 'gnuplot'
+   
+   void SetLogz     ();						//echelle log sur Oz
+   void SetLogy     ();						//echelle log sur Oy
+   void SetLogx     ();						//echelle log sur Ox
+   void Undo       ();						//annule toute les opreation sur la grille courante (I)
+   
    void SetPivot    (Double_t xx0, Double_t yy0);
    
    void SetEditable(TPaveLabel* label);
    void SelectLines(TPaveLabel* label);
-   void SelectLinesByZ();
+   void SelectLinesByZ();					//'More' -> 'SelectLinesByZ'
    
-   void NewLine ();
-   void NewCut  ();
-   void FitGrid ();
-   void TestGrid();
-   void SpiderIdentification();
+   void NewLine ();						//'Line'
+   void NewCut  ();						//'Cut'
+   void FitGrid ();						//'Fit' avec fonctionnelle de T.G
+   void TestGrid();						//'Test' linearisation de l'histo avec la grille courante
+   void SpiderIdentification();					//'More' -> 'SpiderIdentification' pas implemente
    
-   void DeleteLine(KVIDentifier* line);
-   void DeleteCut (KVIDentifier* cut);
+   void DeleteLine(KVIDentifier* line);				//'Delete'
+   void DeleteCut (KVIDentifier* cut);				//'Delete'
 
-   void UpdateViewer();
-   void ForceUpdate();
-   void DrawAtt    (Bool_t piv);
-   void ResetColor(KVIDentifier* Ident);
-   void ResetColor(KVList* IdentList);
+   void UpdateViewer();						//rafraichit l'interface
+   void ForceUpdate();						//rafraichit toute l'interface de force
+   void DrawAtt    (Bool_t piv);				//affiche les bouton sur le canvas
+   void ResetColor(KVIDentifier* Ident);			//redonne la couleur d'origine a une ligne
+   void ResetColor(KVList* IdentList);				//redonne la couleur d'origine a une liste de ligne
    
-   void SuggestMoreAction();
-   void ChooseSelectedColor();
-   void OpenRootFile();
-   void SaveCurrentGrid();
+   void SuggestMoreAction();					//'More', modifier cette methode pour ajouter des fonctionnalites !!!
+   void ChooseSelectedColor();					//'More' -> SetSelectedColor change la couleur des lignes selectionnes
+   void OpenRootFile();						//pas implemente
+   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
    
-   void SetVarXVarY(char* VarX, char* VarY); 
-   void SetRunList(char* RunList);  
-   void SetParameter(char* Name, char* Value); 
+   void SetVarXVarY(char* VarX, char* VarY); 			//'More' -> SetVarXVarY change le nom des variables sur X et Y
+   void SetRunList(char* RunList);   				//'More' -> SetRunList change la liste de runs
+   void SetParameter(char* Name, char* Value);  		//'More' -> SetParameter ajoute un parametre a la liste de la grille
    
-   void DispatchOrder(TPaveLabel* label);
+   void DispatchOrder(TPaveLabel* label);			//methode qui distribue les ordres quand on clic sur un bouton
    void ChangeStep(const char* title, Int_t dstep=1);
-   const char* WhoIsSelected();
+   const char* WhoIsSelected();					//methode qui regarde quelle transformation est selectionnee
    
-   TString ListOfHistogramInMemory();
-   TString PreselectHistogram(TString ListOfName, Int_t ipert=0);
+   TString ListOfHistogramInMemory();				//revoie la liste des histo dans gFile
+   TString PreselectHistogram(TString ListOfName, Int_t ipert=0);//revoie le nom de l' histo qui as le mm nom que la grille (si existe)
    
    
    public:
@@ -151,17 +153,17 @@ class KVIDGridEditor : public KVBase
    virtual ~KVIDGridEditor();
    void Copy (TObject&) const;   
    
-   void StartViewer();
-   void Clear(const Option_t* opt = "");
-   void Close();
-   Bool_t IsClosed();
+   void StartViewer();						//ouvre l'interface graphique, utilise quand double clic sur une grille dans le gIDGridManagerGUI
+   void Clear(const Option_t* opt = "");			//nettoi l'interface ('all' enleve la grille et l'histo)
+   void Close();						//ferme l'interface graphique
+   Bool_t IsClosed();						//true si l'interface est fermee
    
-   void SetHisto(TH2* hh);
-   void SetGrid(KVIDGraph* gg, Bool_t histo=true);
-   void SetGrid(TString GridName);
+   void SetHisto(TH2* hh);					//donne l'histo a l'editeur
+   void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
+   void SetGrid(TString GridName);				//donne la grille a l'editeur par son nom
    
-   void SelectLabel();
-   void MakeTransformation();
+   void SelectLabel();						//methode ajouter a la liste des auto-exec du canvas : gere les bouton
+   void MakeTransformation();					//methode ajouter a la liste des auto-exec du canvas : gere le reste
    
    void SetSelectedColor(Int_t color){SelectedColor=color;};
    void SetDebug(Bool_t debug){fDebug=debug;};
