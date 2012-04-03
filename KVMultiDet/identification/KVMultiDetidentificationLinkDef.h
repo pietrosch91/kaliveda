@@ -15,4 +15,7 @@
 #pragma link C++ class KVTGIDManager+;
 #pragma link C++ class KVTGIDFitter+;
 #pragma link C++ class KVTGIDGrid+;
+#pragma link C++ class KVDroite+;
+#pragma link C++ class KVSpiderLine+;
+#pragma link C++ class KVSpiderIdentificator+;
 #endif

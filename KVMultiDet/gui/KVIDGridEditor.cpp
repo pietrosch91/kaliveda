@@ -2,6 +2,8 @@
 //Author: dgruyer
 
 #include "KVIDGridEditor.h"
+
+#include "TSpectrum.h"
 #include <iostream>
 #include <sstream>
 
@@ -12,7 +14,10 @@ ClassImp(KVIDGridEditor)
 /* -->
 <h2>KVIDGridEditor</h2>
 <h4>Editeur de grille d'identification</h4>
-note a moi même : écrire une doc...
+
+Doc :  <a href="images/DocGridEditor.pdf"> DocGridEditor.pdf </a> (FR)
+Présentation de l'éditeur : <a href="images/JourneeAnalyse0312_1.pdf"> JourneeAnalyse0312_1.pdf </a> (FR)
+
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -1069,7 +1074,108 @@ void KVIDGridEditor::NewCut()
 //________________________________________________________________
 void KVIDGridEditor::SpiderIdentification()
 {
-  cout << "INFO: KVIDGridEditor::SpiderIdentification(): to be implemented..." << endl;
+  if(!TheGrid) return;
+  if(!TheHisto) return;
+  
+  if(TheGrid->GetIdentifiers()->GetSize()!=0)
+    {
+    
+    Int_t ret_val;
+    new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
+                  "This will delete all existing lines. Are you sure ?",
+                  kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+		
+    if (ret_val & kMBOk) 
+      {
+      TheGrid->Clear();
+      }
+    else return;
+    }
+  
+  TString Answer;
+  Bool_t  ok;
+  new KVInputDialog(gClient->GetDefaultRoot(),"Enter The parameter [0.:5.]",&Answer,&ok);
+  if(!ok) return;
+  Double_t factor = Answer.Atof();  
+  
+  UpdateViewer();
+  
+  double ScaleFactorX = 4096./(TheHisto->GetXaxis()->GetXmax());
+  double ScaleFactorY = 4096./(TheHisto->GetYaxis()->GetXmax());
+  
+  KVHistoManipulator hm;
+  TF1 RtLt("RtLt",Form("x*%lf",ScaleFactorX),0,TheHisto->GetXaxis()->GetXmax());
+  TF1 RtLty("RtLty",Form("x*%lf",ScaleFactorY),0,TheHisto->GetXaxis()->GetXmax());
+  TH2F* hh = (TH2F*)hm.ScaleHisto(TheHisto,&RtLt,&RtLty);
+      
+  KVSpiderIdentificator* tata = new KVSpiderIdentificator(hh);
+  
+  if((tata->GetX0()>100)||(tata->GetY0()>100))
+    {
+    tata->SetX0(0.);
+    tata->SetY0(0.);
+    Warning("SpiderIdentification","piedestal has been set to (0,0).");
+    }
+        
+  tata->SetParameters(factor);        
+  tata->ProcessIdentification();
+  
+  TList* ll = (TList*)tata->GetListOfLines();   
+   
+  KVIDZALine* TheLine = 0;
+  int zmax = 0;
+
+  KVSpiderLine* spline = 0;
+  TIter next_line(ll);
+  while((spline = (KVSpiderLine*)next_line()))
+    {
+    if((spline->GetN()>20)&&(spline->GetX(0)<=tata->GetX0()+100.))
+      {
+      TF1* ff1 = 0;
+      ff1 = spline->GetFunction(tata->GetX0(),tata->GetXm());
+      if(ff1->GetParameter(1)>=3000.||(ff1->GetParameter(2)<=0.45)||(ff1->GetParameter(2)>=1.)) 
+        {
+        Info("SpiderIdentification","Z = %d has been rejected (%lf;%lf;%lf).",spline->GetZ(),ff1->GetParameter(0),ff1->GetParameter(1),ff1->GetParameter(2));
+        continue;
+        }
+      TheLine = (KVIDZALine*)((KVIDZAGrid*)TheGrid)->NewLine("ID");
+      TheLine->SetZ(spline->GetZ());
+      double min,max;
+      ff1->GetRange(min,max);
+      double step = 20.;
+      double stepmax = 800.;
+      double x = 0.;
+      for(x=min+1; x<max+0.0001*step; x+=step)
+	{
+        if(step<=stepmax) step*=1.3;
+	if(ff1->Eval(x)<4000) TheLine->SetPoint(TheLine->GetN(),x,ff1->Eval(x));
+	}
+      if(max>x)TheLine->SetPoint(TheLine->GetN(),max,ff1->Eval(max));
+        
+      TheGrid->Add("ID",TheLine);
+      if(spline->GetZ()>=zmax) zmax = spline->GetZ(); 
+      }
+    else
+      {
+      Info("SpiderIdentification","Z = %d has been rejected (%d;%lf).",spline->GetZ(),spline->GetN(),spline->GetX(0));
+      }
+    }	 
+     
+  Info("SpiderIdentification","last line generated : Z = %d.",zmax);
+      
+  TF1 fx("fx12",Form("x/%lf",ScaleFactorX),0.,4096.);
+  TF1 fy("fy12",Form("x/%lf",ScaleFactorY),0.,4096.);
+  TheGrid->Scale(&fx,&fy);
+  
+  delete tata;
+  delete hh;
+  
+  TheGrid->UnDraw();
+  TheGrid->Draw();
+  
+  UpdateViewer();
+  
+  return;
 }
 
 //________________________________________________________________

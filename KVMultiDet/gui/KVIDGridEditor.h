@@ -13,6 +13,7 @@
 #include "TROOT.h"
 #include "TView.h"
 #include "TKey.h"
+#include "TSpectrum.h"
 
 #include "TMethod.h"
 #include "TContextMenu.h"
@@ -34,6 +35,9 @@
 #include "TContextMenu.h"
 #include "TGMsgBox.h"
 #include "KVInputDialog.h"
+#include "KVHistoManipulator.h"
+
+#include "KVSpiderIdentificator.h"
 
 class KVIDGridEditor : public KVBase
 {
