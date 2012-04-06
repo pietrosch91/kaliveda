@@ -10,6 +10,8 @@
 #include "Riostream.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TSQLResult.h"
+#include "TSQLRow.h"
 #include "KVINDRA.h"
 #include "KVINDRACodes.h"
 #include "KVINDRAReconNuc.h"
@@ -43,6 +45,7 @@ ClassImp(KVINDRADstToRootTransfert)
 KVINDRADstToRootTransfert::KVINDRADstToRootTransfert()
 {
    //Default constructor
+	fRawEventNumber=1;
 }
 
 KVINDRADstToRootTransfert::~KVINDRADstToRootTransfert()
@@ -195,8 +198,18 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		
 	// fill the raw data tree
 	while( raw_data->GetNextEvent() ) fEventNumber++;
-   Info("InitRun", "Raw data tree containes %d events", fEventNumber-1);
+   Info("InitRun", "Raw data tree contains %d events", fEventNumber-1);
+	params = (TObjArray*)rawtree->GetUserInfo()->At(0);
+	STATEVE_index = params->IndexOf(params->FindObject("STAT_EVE"));
+	fRawTreeEntries = rawtree->GetEntries();
 		
+	CheckParams();
+	
+		rawtree->SetBranchAddress("EventNumber", &EventNumber);
+		rawtree->SetBranchAddress("NbParFired", &NbParFired);
+		rawtree->SetBranchAddress("ParVal", ParVal);
+		rawtree->SetBranchAddress("ParNum", ParNum);
+	
 	events_good=events_read=0;
 
 	if(camp2){
@@ -214,6 +227,10 @@ void KVINDRADstToRootTransfert::ProcessRun()
 
 	
 	KVString inst;
+	fRawEventNumber=0;
+	fDSTnumberCorrected=0;
+	fDSTnumberOK=0;
+	fRawEventNotFound=0;
 	for (Int_t nf=1;nf<=nfiles;nf+=1){
 		
 		stit.Form("arbre_root_%d.txt",nf);
@@ -243,6 +260,22 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		gROOT->ProcessLine(inst.Data());
 	}
 
+	cout << endl << "  === BILAN CORRECTION OF RAW EVENT NUMBERS ===" << endl;
+	cout << "Number of uncorrected events: " << fDSTnumberOK << "  (good event number)" << endl;
+	cout << "Number of corrected events: " << fDSTnumberCorrected << "  (modified event number)"  << endl;
+	cout << "Number of unknown events: " << fRawEventNotFound << "  (no corresponding raw event)" << endl << endl;
+	cout << "CHECK: Total number of events: " << fRawEventNotFound+fDSTnumberOK+fDSTnumberCorrected << endl  <<endl;
+	
+	if(fRawEventNotFound>= (fDSTnumberOK+fDSTnumberCorrected)){
+		ofstream badshit;
+		badshit.open(Form("run%d.bad_event_numbers",fRunNumber));
+		badshit << endl << "  === BILAN CORRECTION OF RAW EVENT NUMBERS ===" << endl;
+		badshit << "Number of uncorrected events: " << fDSTnumberOK << "  (good event number)" << endl;
+		badshit << "Number of corrected events: " << fDSTnumberCorrected << "  (modified event number)"  << endl;
+		badshit << "Number of unknown events: " << fRawEventNotFound << "  (no corresponding raw event)" << endl << endl;
+		badshit << "CHECK: Total number of events: " << fRawEventNotFound+fDSTnumberOK+fDSTnumberCorrected << endl  <<endl;	
+		badshit.close();	
+	}
 	if( gIndra->GetCurrentRun()->GetEvents() ){
 		//check number of events against scaler info for this run
 		Double_t check_events=(1.*events_read)/((Double_t)necrit);
@@ -917,6 +950,9 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
   			}//if code<11
 		}//for(int i=0;
 
+		// make sure event number corresponds to raw data event
+		CheckDSTEventNumber(num_ev, evt);					
+								
 		//write event to tree
 		data_tree->Fill();
 	
@@ -970,3 +1006,151 @@ KVNumberList KVINDRADstToRootTransfert::PrintAvailableRuns(KVString & datatype)
    return all_runs;
 }
 
+void KVINDRADstToRootTransfert::CheckParams()
+{
+	Info("CheckParams", "Checking acquisition parameter indices");
+	TObjArray* params = (TObjArray*)rawtree->GetUserInfo()->At(0);
+	TIter next(gMultiDetArray->GetACQParams());
+	KVACQParam* acqpar;
+	while( (acqpar=(KVACQParam*)next()) ){
+		TObject* par=params->FindObject(acqpar->GetName());
+		int index=-1;
+		if(par) index = params->IndexOf(par);
+		if(index<0){
+			Warning("CheckParams", "PAR: %s not found in file", acqpar->GetName());
+		}
+		else if(index!=acqpar->GetNumber()){
+			Warning("CheckParams", "PAR: %s file index=%d KV index=%d", acqpar->GetName(), index, acqpar->GetNumber());
+		}
+	}
+	Info("CheckParams", "Finished");	
+	Info("CheckParams", "Checking raw data file acquisition parameters");
+	TIter nextpar(params);
+	TNamed* param;
+	int index=1;
+	while( (param = (TNamed*)nextpar()) ){
+		if(!gMultiDetArray->GetACQParam(param->GetName())){
+			Warning("CheckParams","RAW file has unknown parameter %s (%d)",param->GetName(),index);
+		}
+		index++;
+	}
+	Info("CheckParams", "Finished");	
+}
+
+Bool_t KVINDRADstToRootTransfert::CheckDSTEventNumber(Int_t dstEvNo, KVINDRAReconEvent* EVENT, Int_t decal_index)
+{
+	// We search the raw data tree for an event having exactly the same raw data parameters
+	// as those which were read from the DST event. If this event is not the same as the
+	// event number read from the DST (dstEvNo), we change it to keep the correspondance between
+	// reconstructed and raw data.
+		
+	// build selection string
+	KVNumberList DSTevent;
+	KVINDRAReconNuc* irnuc;
+	
+	while( (irnuc = (KVINDRAReconNuc*)EVENT->GetNextParticle()) ){
+		//TIter next_det( irnuc->GetDetectorList() );
+		KVDetector* det = irnuc->GetStoppingDetector();
+		//while( (det = (KVDetector*)next_det()) ){
+			TIter next_par( det->GetACQParamList() );
+			KVACQParam* param;
+			while( (param = (KVACQParam*)next_par()) ){
+				Int_t data = (Int_t)param->GetCoderData();
+				if(data>-1){
+					TObject* par=params->FindObject(param->GetName());
+					if(par) {
+						int index = params->IndexOf(par)+decal_index;
+						if(index>676+decal_index) DSTevent.Add(index);
+					} 
+				}
+			}
+		//}
+	}
+		
+	// start search at last raw event + 1
+	Int_t first_entry = (fRawEventNumber+1) - 1;// tree entry number = event number - 1
+	Int_t good_number=0;
+	Long64_t maxEntry = TMath::Min(fRawTreeEntries,(Long64_t)(first_entry+1000));
+	Int_t nDSTparams = DSTevent.GetNValues();
+		for(Long64_t i=first_entry;i<maxEntry;i++){
+			rawtree->GetEntry(i);
+			KVNumberList RAWevent;
+			bool gene=kFALSE;
+			for(int j=0;j<NbParFired;j++){
+				if(ParNum[j]==STATEVE_index && (Short_t)ParVal[j]!=-40) {gene=kTRUE;break;}
+				if(ParNum[j]>676&&(Short_t)ParVal[j]>-1) RAWevent.Add( ParNum[j] );
+			}
+			//cout<<"RAWEvent : "<<RAWevent.AsString()<<endl;
+			if(gene){
+				//cout << "event#"<<EventNumber<<" ---> GENE"<<endl;
+						continue;
+					}
+					//CompareEvents(DSTevent,RAWevent);
+			RAWevent.Inter(DSTevent);
+			if(RAWevent.GetNValues()==nDSTparams){
+				good_number = EventNumber;
+				break;
+			}
+		}
+	if(!good_number){
+		//Info("CheckDSTEventNumber", "Checking DST event number ============> %d", dstEvNo);
+		//cout<<"DSTEvent : "<<DSTevent.AsString()<<endl;
+		//Warning("CheckDSTEventNumber", "NO RAW EVENT FOUND between %d and %d",first_entry,maxEntry);
+		fRawEventNotFound++;
+		return kFALSE;
+	}
+	if(good_number != dstEvNo){
+		//Info("CheckDSTEventNumber", "Checking DST event number ============> %d", dstEvNo);
+		//Info("CheckDSTEventNumber", "CORRECTED DST Event Number = %d", good_number);
+		EVENT->SetNumber(good_number);
+		fDSTnumberCorrected++;
+	}
+	else{
+		//Info("CheckDSTEventNumber", "DST Event Number is CORRECT");
+		fDSTnumberOK++;
+	}
+	fRawEventNumber = good_number;
+	
+	// verification des valeurs des parametres DST vs. arbre brut	
+// 	Info("CheckDSTEventNumber", "Checking DST event number ============> %d", dstEvNo);
+// 	while( (irnuc = (KVINDRAReconNuc*)EVENT->GetNextParticle()) ){
+// 		KVDetector* det = irnuc->GetStoppingDetector();
+// 			TIter next_par( det->GetACQParamList() );
+// 			KVACQParam* param;
+// 			while( (param = (KVACQParam*)next_par()) ){
+// 				Int_t data = (Int_t)param->GetCoderData();
+// 				TObject* par=params->FindObject(param->GetName());
+// 				if(par) {
+// 					int index = params->IndexOf(par);
+// 					for(int i=0;i<NbParFired;i++){
+// 						if(ParNum[i]==index){
+// 							cout << param->GetName() << "  :  DST value = " << data
+// 									<< "   raw value = " << ParVal[i] << endl;
+// 						}
+// 					}
+// 				} 
+// 			}
+// 	}
+	return kTRUE;
+}
+	
+void KVINDRADstToRootTransfert::CompareEvents(KVNumberList& e1, KVNumberList& e2)
+{
+	// for each number in e1 we look for the closest number in e2
+	// we print the e1 number, the closest e2 number, and the difference between them
+	
+	e1.Begin();
+	while( !e1.End() ){
+		
+		Int_t par1 = e1.Next();
+		
+		e2.Begin(); Int_t difference=9999; Int_t closest;
+		while( !e2.End() ){
+			Int_t par2 = e2.Next();
+			Int_t diff = TMath::Abs(par1-par2);
+			if(diff<difference) {difference=diff;closest=par2;}
+		}
+		cout << "     " << par1 << "     " << closest << "     " << par1-closest<<endl;
+		
+	}
+}
