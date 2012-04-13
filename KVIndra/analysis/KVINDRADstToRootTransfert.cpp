@@ -56,12 +56,6 @@ KVINDRADstToRootTransfert::~KVINDRADstToRootTransfert()
 void KVINDRADstToRootTransfert::InitRun()
 {
 	Info("InitRun","ds InitRun");
-	if (gBatchSystem){
-		//gBatchSystem->Print();
-		req_time = gBatchSystem->BQS_Request("cpu_limit");
-		req_mem = gBatchSystem->BQS_Request("req_mem");
-		req_scratch = gBatchSystem->BQS_Request("req_scratch");
-	}
 	
 	KVString dst_file = gDataSet->GetFullPathToRunfile("dst", fRunNumber);
   	Info("InitRun","dst file %s",dst_file.Data());
@@ -79,12 +73,17 @@ void KVINDRADstToRootTransfert::InitRun()
 	
 	ReadDST();
 	
-	if (gBatchSystem){
 		Info("InitRun","Bilan ressource apres ReadDST");
-		Info("InitRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
-		Info("InitRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
-		Info("InitRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
-	}
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         TString du = gSystem->GetFromPipe("du -hs");
+         TObjArray* toks = du.Tokenize(" .");
+         TString disk = ((TObjString*)toks->At(0))->String();
+         delete toks;
+         cout <<"     ------------- Process infos -------------" << endl;
+         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+      }
 
 	
 	TDatime now2;
@@ -218,12 +217,17 @@ void KVINDRADstToRootTransfert::ProcessRun()
 		Info("ProcessRun","After translation, they will have Veda ID code=2 (like 1st campaign)");
 	}
 	
-	if (gBatchSystem){
 		Info("ProcessRun","Bilan ressource avant lecture des %d fichiers ascii",nfiles);
-		Info("ProcessRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
-		Info("ProcessRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
-		Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
-	}
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         TString du = gSystem->GetFromPipe("du -hs");
+         TObjArray* toks = du.Tokenize(" .");
+         TString disk = ((TObjString*)toks->At(0))->String();
+         delete toks;
+         cout <<"     ------------- Process infos -------------" << endl;
+         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+      }
 
 	
 	KVString inst;
@@ -241,21 +245,34 @@ void KVINDRADstToRootTransfert::ProcessRun()
 			evt->Clear();
 			
 			if(events_read%10000 == 0 && events_read > 0){
-				if (gBatchSystem)
-					Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
-				cout << events_read << "th event read... " << endl;
+      cout << " +++ " << events_read << " events processed +++ " << endl;
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         TString du = gSystem->GetFromPipe("du -hs");
+         TObjArray* toks = du.Tokenize(" .");
+         TString disk = ((TObjString*)toks->At(0))->String();
+         delete toks;
+         cout <<"     ------------- Process infos -------------" << endl;
+         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+      }
 			}
 		}
 		f_data.close();
 		
 		inst.Form(".! rm arbre_root_%d.txt",nf);
 		
-		if (gBatchSystem){
 			Info("ProcessRun","Bilan ressource apres lecture du fichier numero %d/%d",nf,nfiles);
-			Info("ProcessRun","TIME [second] ellapsed: %s/%s",gBatchSystem->BQS_Request("bastacputime").Data(),req_time.Data());
-			Info("ProcessRun","MEM [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_mem").Data(),req_mem.Data());
-			Info("ProcessRun","SCRATCH [MB] used: %s/%s",gBatchSystem->BQS_Request("cur_scratch").Data(),req_scratch.Data());
-		}
+      ProcInfo_t pid;
+      if(gSystem->GetProcInfo(&pid)==0){
+         TString du = gSystem->GetFromPipe("du -hs");
+         TObjArray* toks = du.Tokenize(" .");
+         TString disk = ((TObjString*)toks->At(0))->String();
+         delete toks;
+         cout <<"     ------------- Process infos -------------" << endl;
+         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+      }
 		
 		gROOT->ProcessLine(inst.Data());
 	}
