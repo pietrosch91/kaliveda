@@ -284,7 +284,7 @@ void KVLVContainer::default_init()
 	Connect("Clicked(TGFrame*,Int_t,Int_t,Int_t)",
 			"KVLVContainer", this, "OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t)");
 	Connect("DoubleClicked(TGFrame*,Int_t,Int_t,Int_t)",
-			"KVLVContainer", this, "HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t)");
+			"KVLVContainer", this, "DoDoubleClick(TGFrame*,Int_t,Int_t,Int_t)");
 	fUserItems = new KVList;
    fUserItems->SetOwner(kFALSE);
    fUserItems->SetCleanup();
@@ -608,7 +608,7 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
 
 //______________________________________________________________________________
 
-void KVLVContainer::HandleDoubleClick(TGFrame* f,Int_t but,Int_t x,Int_t y)
+void KVLVContainer::DoDoubleClick(TGFrame* f,Int_t but,Int_t x,Int_t y)
 {
 	// Perform 'default' action when user double-left-clicks an object in the list.
 	// This calls the Browse(TBrowser*) method of the object (defined for TObject,

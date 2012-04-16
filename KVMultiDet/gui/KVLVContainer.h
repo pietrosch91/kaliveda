@@ -129,7 +129,7 @@ class KVLVContainer : public TGLVContainer
 				void  	ActivateItemWithColumnData(const Char_t* colname, Double_t data, Bool_t activate=kTRUE);
 
 				void		OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t);
-				void		HandleDoubleClick(TGFrame*,Int_t,Int_t,Int_t);
+				void		DoDoubleClick(TGFrame*,Int_t,Int_t,Int_t);
 
 	TObject* GetLastSelectedObject() const
 	{
