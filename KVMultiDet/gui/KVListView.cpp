@@ -148,7 +148,8 @@ Int_t KVListView::GetColumnNumber(const Char_t* colname)
 void KVListView::SetDefaultColumnWidth(TGVFileSplitter* splitter)
 {
    // Set default column width of the columns headers.
-	// Limit column size to fMaxColumnSize at most
+	// Limit minimum size of a column to total width / number of columns
+   // If only one column it will span the whole viewport
 
    TGLVContainer *container = (TGLVContainer *) fVport->GetContainer();
 
@@ -157,18 +158,23 @@ void KVListView::SetDefaultColumnWidth(TGVFileSplitter* splitter)
       return;
    }
    container->ClearViewPort();
-
+   UInt_t minWidth = container->GetPageDimension().fWidth/(fNColumns-1);
+   
    for (int i = 0; i < fNColumns; ++i) {
       if ( fSplitHeader[i] == splitter ) {
          TString dt = fColHeader[i]->GetString();
          UInt_t bsize = gVirtualX->TextWidth(fColHeader[i]->GetFontStruct(),
                                              dt.Data(), dt.Length());
          UInt_t w = TMath::Max(fColHeader[i]->GetDefaultWidth(), bsize + 20);
-         if (i == 0) w = TMath::Max(fMaxSize.fWidth + 10, w);
+         if (i == 0) {
+            //w = TMath::Max(fMaxSize.fWidth + 10, w);
+            w = TMath::Max(w, minWidth);
+         }
          if (i > 0)  {
 				w = TMath::Max(container->GetMaxSubnameWidth(i) + 40, (Int_t)w);
 				//printf("w=%ud\n",w);
-				w = TMath::Min(w, fMaxColumnSize);
+				//w = TMath::Min(w, fMaxColumnSize);
+            w = TMath::Max(w, minWidth);
 			}
          fColHeader[i]->Resize(w, fColHeader[i]->GetHeight());
          Layout();
