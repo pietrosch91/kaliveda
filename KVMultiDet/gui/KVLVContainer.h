@@ -83,7 +83,8 @@ class KVLVContainer : public TGLVContainer
 	Bool_t 		fSort;
 
 	Bool_t		fAllowContextMenu;	// can objects' context menu be opened with right-click ?
-	Bool_t		fAllowBrowse;			// can objects' Browse() method be executed by double-clicking ?
+	Bool_t		fAllowDoubleClick;	// do something when object double-clicked ?
+	Bool_t		fUserDoubleClickAction;	// user-defined double-click action instead of Browse() method
 	
 	Bool_t      fKeepUserItems;      // internal use only, do not clear list of user items in RemoveAll()
 	protected:
@@ -130,7 +131,8 @@ class KVLVContainer : public TGLVContainer
 
 				void		OpenContextMenu(TGFrame*,Int_t,Int_t,Int_t);
 				void		DoDoubleClick(TGFrame*,Int_t,Int_t,Int_t);
-
+            void     SetDoubleClickAction(const char* receiver_class, void* receiver, const char* slot);
+            
 	TObject* GetLastSelectedObject() const
 	{
 		// Returns object corresponding to last clicked item in list
@@ -161,10 +163,17 @@ class KVLVContainer : public TGLVContainer
 	};
 	void AllowBrowse(Bool_t on=kTRUE)
 	{
-		// Call with on=kFALSE to disable objects' Browse() method being called with mouse double-click
-		fAllowBrowse=on;
+		// Deprecated: use AllowDoubleClick
+		AllowDoubleClick(on);
+	};
+	void AllowDoubleClick(Bool_t on=kTRUE)
+	{
+		// Call with on=kFALSE to disable reactivity of objects to mouse double-click
+		fAllowDoubleClick=on;
 	};
 	virtual void RemoveAll();
+   
+   void DoubleClickAction(TObject*); /* SIGNAL */
 
    ClassDef(KVLVContainer,0)//List view container class
 };

@@ -175,3 +175,20 @@ void KVListView::SetDefaultColumnWidth(TGVFileSplitter* splitter)
       }
    }
 }
+
+//______________________________________________________________________________
+
+void KVListView::SetDoubleClickAction(const char* receiver_class, void* receiver, const char* slot)
+{
+   // Overrides the default 'double-click' action.
+   // By default, double-clicking on an object in the list will call the Browse(TBrowser*)
+   // method of the selected object.
+   // Use this method to override this behaviour.
+   // When an object is double-clicked the method 'slot' of the object 'receiver' of class
+   // 'receiver_class' will be called. The method in question must have the signature
+   //       receiver_class::slot(TObject*)
+   // The address of the selected (T)object is passed as argument.
+   
+   ((KVLVContainer*)GetContainer())->SetDoubleClickAction(receiver_class, receiver, slot);
+}
+   
