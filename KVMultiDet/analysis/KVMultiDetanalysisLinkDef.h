@@ -28,6 +28,7 @@
 #pragma link C++ class KVGaus1D;																											 
 #pragma link C++ class KVGaus2D;
 #pragma link C++ class KVGumbelDistribution+;
+#pragma link C++ class KVGausGumDistribution+;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVRawDataAnalyser+;
 #endif
