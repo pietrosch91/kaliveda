@@ -31,7 +31,7 @@ are given by the Gumbel distributions:
 // --> END_HTML
 /*
 BEGIN_LATEX
-\phi_{k}(s_{k}) = \frac{1}{(k-1)!}\frac{1}{b_{m}}e^{-ks_{k}-e^{-s_{k}}}
+\phi_{k}(s_{k}) = \frac{k^{k}}{(k-1)!}\frac{1}{b_{m}}e^{-ks_{k}-ke^{-s_{k}}}
 END_LATEX
 */
 // BEGIN_HTML <!--
@@ -63,7 +63,7 @@ KVGumbelDistribution::KVGumbelDistribution(const Char_t* name, Int_t k, Bool_t n
    // if norm=kTRUE: normalised PDF, 2 free parameters (a,b)
    // if norm=kFALSE: 3 parameters (a,b,Integral)
    fRank = k;
-   fkFac = 1./TMath::Factorial(k-1);
+   fkFac = TMath::Power(k,k)/TMath::Factorial(k-1);
    fNormalised = norm;
    SetParName(0, "a_{m}");
    SetParName(1, "b_{m}");
@@ -119,15 +119,9 @@ Double_t KVGumbelDistribution::GDk(Double_t* x, Double_t* p)
    
    if(p[1]==0.) return 0.;
    Double_t s = (*x - p[0])/p[1];
-   Double_t es = TMath::Exp(-s);
    Double_t gum = (fkFac/p[1]);
-   gum *= es;
-   if(fRank>1){
-      if(fRank==2) gum*=es;
-      else
-         gum*=TMath::Power(es,fRank-1);
-   }
-   gum *= TMath::Exp(-es);
+   Double_t es = -fRank*(s + TMath::Exp(-s));
+   gum *= TMath::Exp(es);
    if(!fNormalised) gum*=p[2];
    return gum;
 }

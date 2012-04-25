@@ -31,7 +31,7 @@ KVGausGumDistribution::KVGausGumDistribution(const Char_t* name, Int_t k, Double
    // f = eta*Gauss(mean,sigma) + (1-eta)*Gumbel(a,b)
    // free parameters: gauss: (mean,sigma) gumbel: (a,b) eta
    fRank = k;
-   fkFac = 1./TMath::Factorial(k-1);
+   fkFac = TMath::Power(k,k)/TMath::Factorial(k-1);
    fkGaussNor = 1./sqrt(2*TMath::Pi());
    SetParName(0, "#eta");
    SetParName(1, "#mu");
@@ -94,15 +94,9 @@ Double_t KVGausGumDistribution::GDk(Double_t* x, Double_t* p)
    
    Double_t am = p[1]-p[3];
    Double_t s = (*x - am)/p[4];
-   Double_t es = TMath::Exp(-s);
    Double_t gum = (fkFac/p[4]);
-   gum *= es;
-   if(fRank>1){
-      if(fRank==2) gum*=es;
-      else
-         gum*=TMath::Power(es,fRank-1);
-   }
-   gum *= TMath::Exp(-es);
+   Double_t es = -fRank*(s + TMath::Exp(-s));
+   gum *= TMath::Exp(es);
    
    Double_t gau = fkGaussNor/p[2];
    s = (*x - p[1])/p[2];
