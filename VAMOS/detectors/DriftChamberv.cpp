@@ -495,7 +495,7 @@ void DriftChamberv::Calibrate(void)
   if(T[1] > 0.0) Counter[4]++;
 	//L->Log<<"E[0] : "<<E[0]<<" "<<"E[1] : "<<E[1]<<" "<<"T[0] : "<<T[0]<<" "<<"T[1] : "<<T[1]<<endl;
 	
-  if(E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0)
+  if(E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0)	//E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
     {
     PresentWires = true;
     Counter[5]++;
@@ -671,7 +671,7 @@ void DriftChamberv::FocalSubseqX(void)
       if(!MultiplePeak)
 	{
 #endif
-	  if(Neighbours)
+	  if(Neighbours)	//Because SECHIP is not defined here, Neighbours is always false...
 	    {
 	      v[0] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[2]][i]);
 	      v[1] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[1]][i]);
@@ -691,7 +691,7 @@ void DriftChamberv::FocalSubseqX(void)
 	  else // the case of Weighted Average
 	    {
 #ifdef WEIGHTEDAVERAGE
-	      if(Mult[i] > NStrips)
+	      if(Mult[i] > NStrips)	
 		{
 		  //Looking for entire peak for W.A.
 		  //The Strips are ordered  0-64
