@@ -11,8 +11,6 @@
 #include "KVINDRADB_e503.h"
 #include "KVINDRAe503.h"
 
-#define AnalyseOnlyMyIsotope kFALSE
-
 //Author: Maurycy Rejmund
 ClassImp(Identificationv)
 
@@ -44,7 +42,136 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
 
   Init();
 
-  Rnd = new Random; 
+  Rnd = new Random;
+  kvn = new KVNucleus();
+  
+for(Int_t i=0;i<80;i++){
+	P0[i] = 0.;
+	P1[i] = 0.;
+	P2[i] = 0.;
+}
+for(Int_t i=0;i<600;i++){	
+	P0_mq[i] = 0.;
+	P1_mq[i] = 0.;
+	for(Int_t j=0;j<25;j++){
+		P0_m[i][j] = 0.;
+		P1_m[i][j] = 0.;
+	}
+}
+
+//==========================================================================
+// Correction de l'état de charge en fonction du détecteur CsI
+// Charge state correction according to the CsI detector
+
+Int_t csi=0;
+Float_t p0=0.;
+Float_t p1=0.;
+Float_t p2=0.;
+
+ifstream file;	
+TString sline;
+
+   if(!gDataSet->OpenDataSetFile("q_function.dat",file))
+  {	
+     L->Log << "Could not open the calibration file q_function !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	L->Log<< "Reading q_function" <<endl;
+	while (file.good()) {         //reading the file
+      		sline.ReadLine(file);
+      		if (!file.eof()) {          //fin du fichier
+			if (sline.Sizeof() > 1 && !sline.BeginsWith("#")){
+				sscanf(sline.Data(), "%u %f %f %f",
+            				&csi, &p0, &p1, &p2);
+				P0[csi] = p0;
+				P1[csi] = p1;
+				P2[csi] = p2;
+				L->Log<<p0<<"	"<<p1<<"	"<<p2<<endl;										
+				}
+			}
+		}
+  }
+file.close();   
+//==========================================================================
+
+Int_t run1=0;
+Int_t run2=0;
+Float_t brho=0.;
+Float_t chi2=0.;
+Float_t p0mq=0.;
+Float_t p1mq=0.;
+Float_t p0m=0.;
+Float_t p1m=0.;
+Int_t q=0;
+
+//==========================================================================
+// Correction du rapport M/Q en fonction du Brho (ou RunNumber...)
+// M/Q correction according to the Brho value (or the RunNumber...)
+
+ifstream file2;	
+TString sline2;
+   if(!gDataSet->OpenDataSetFile("mq_function.dat",file2))
+  {	
+     L->Log << "Could not open the calibration file q_function !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	L->Log<< "Reading mq_function" <<endl;
+	while (file2.good()) {         //reading the file
+      		sline2.ReadLine(file2);
+      		if (!file2.eof()) {          //fin du fichier
+			if (sline2.Sizeof() > 1 && !sline2.BeginsWith("#")){
+				sscanf(sline2.Data(), "%f %u %u %f %f %f",
+            				&brho, &run1, &run2, &p0mq, &p1mq, &chi2);
+					for(Int_t i=run1; i<run2; i++){
+						P0_mq[i] = p0mq;
+						P1_mq[i] = p1mq;
+						L->Log<<p0mq<<"	"<<p1mq<<endl;
+					}										
+				}
+			}
+		}
+ }
+	
+file2.close();
+//==========================================================================
+
+//==========================================================================
+// Correction de la masse en fonction du Brho (ou RunNumber...) et de l'état de charge entier Q
+// Mass correction according to the Brho value et charge state value Q (which is an interger in that case...) 
+
+ifstream file3;	
+TString sline3;   
+
+if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
+  {	
+     L->Log<< "Could not open the calibration file m_function !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	L->Log<< "Reading m_function" <<endl;  
+	while (file3.good()) {         //reading the file
+      		sline3.ReadLine(file3);
+      			if (!file3.eof()) {          //fin du fichier
+				if (sline3.Sizeof() > 1 && !sline3.BeginsWith("#")){
+					sscanf(sline3.Data(), "%f %u %u %u %f %f %f",
+            					&brho, &run1, &run2, &q, &p0m, &p1m, &chi2);
+						for(Int_t i=run1; i<run2; i++){
+							P0_m[i][q] = p0m;
+							P1_m[i][q] = p1m;
+							L->Log<<p0m<<"	"<<p1m<<endl;
+						}										
+					}
+				}
+			}
+ }
+file3.close();
+//==========================================================================
+   
 }
 
 Identificationv::~Identificationv(void)
@@ -52,13 +179,15 @@ Identificationv::~Identificationv(void)
 
 delete Rnd;
 delete id;
+delete kvn;
+delete fcoup;
 }
 
 void Identificationv::Init(void)
 {
   Present = false; 
 
-  dE = dE1 = E = T = V = V2 = V_Etot = T_FP = M_Q = M_Q_corr = M = M_corr = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
+  dE = dE1 = E = T = V = Vx = Vy = Vz = V2 = V_Etot = T_FP = M_Q = M = Mass = M_simul = Z1 = Z2 = Z_tot = Z_si =  Beta = Q = D = -10;
   M_Qr = Mr = Qr = -10.0;
   Qc = Mc = -10.0;
   Gamma = 1.; 
@@ -67,10 +196,148 @@ zt = ZZ  = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
 ESi = ECsI = ECsI_corr = E_corr = EEtot  = AA =  ZR = -10.0;
 PID = Z_PID = A_PID = -10.0;
 
+einc_si = einc_isogap1 = eloss_isogap1 = einc_ic = eloss_ic = einc_dc2 = eloss_dc2 = einc_sed = eloss_sed = einc_dc1 = eloss_dc1 = einc_tgt = eloss_tgt = 0.0;
+E_tgt = E_dc1 = E_dc2 = E_sed = E_gap1 = E_chio = 0.0;
+
+for(Int_t i=0; i<3; i++){
+ fELosLayer_dc1[i]= 0.0;
+ fELosLayer_dc2[i]= 0.0;
+ fELosLayer_ic[i]= 0.0;
+}
     runNumber = 0;
     runNumber = (Int_t)gIndra->GetCurrentRunNumber();
 
+//==========================================================================
+// Gates en Brho et état de charge pour la détermination des états de charges
+// Brho/Q gates to determine the charge state value (interger)
+
+if(gIndra->GetCurrentRunNumber()>321 && gIndra->GetCurrentRunNumber()<379)
+{
+	sys=4840;
 }
+if(gIndra->GetCurrentRunNumber()>378 && gIndra->GetCurrentRunNumber()<425)
+{
+	sys=4848;
+}
+if(gIndra->GetCurrentRunNumber()>510 && gIndra->GetCurrentRunNumber()<551)
+{
+	sys=4040;
+}
+if(gIndra->GetCurrentRunNumber()>454 && gIndra->GetCurrentRunNumber()<510)
+{
+	sys=4048;
+}
+L->Log<<"sys : "<<sys<<endl;
+
+fcoup=new TFile(Form("$KVROOT/KVFiles/INDRA_e503/cuts_brho_%d.root",sys));
+
+	if(fcoup->IsZombie()==0){
+		L->Log<<"reading cuts..."<<endl;
+		q20=(TCutG *)fcoup->Get("q20");
+		q19=(TCutG *)fcoup->Get("q19");
+		q18=(TCutG *)fcoup->Get("q18");
+		q17=(TCutG *)fcoup->Get("q17");
+		q16=(TCutG *)fcoup->Get("q16");  
+		q15=(TCutG *)fcoup->Get("q15");
+		q14=(TCutG *)fcoup->Get("q14");
+		q13=(TCutG *)fcoup->Get("q13");
+		q12=(TCutG *)fcoup->Get("q12");
+		q11=(TCutG *)fcoup->Get("q11");
+		q10=(TCutG *)fcoup->Get("q10");
+		q9=(TCutG *)fcoup->Get("q9");
+		q8=(TCutG *)fcoup->Get("q8"); 
+		q7=(TCutG *)fcoup->Get("q7");
+		q6=(TCutG *)fcoup->Get("q6");
+		q5=(TCutG *)fcoup->Get("q5");
+ 
+		fcoup->Close();
+	}
+	else{
+		L->Log<<"not reading cuts..."<<endl;
+	}
+//==========================================================================
+}
+
+
+//===================================================
+void Identificationv::SetTarget(KVTarget *tgt)
+{
+	ttgt = tgt;
+}
+void Identificationv::SetDC1(KVDetector *dcv1)
+{
+	ddcv1 = dcv1; 	
+}
+void Identificationv::SetSed(KVMaterial *sed)
+{
+	ssed = sed;	
+}
+void Identificationv::SetDC2(KVDetector *dcv2)
+{
+	ddcv2 = dcv2;	
+}
+void Identificationv::SetIC(KVDetector *ic)
+{
+	iic = ic;	
+}
+void Identificationv::SetGap1(KVMaterial *isogap1)
+{
+	iisogap1 = isogap1;	
+}
+void Identificationv::SetSi(KVMaterial *si)
+{
+	ssi = si;	
+}
+void Identificationv::SetGap2(KVMaterial *isogap2)
+{
+	iisogap2 = isogap2;	
+}
+void Identificationv::SetCsI(KVMaterial *csi)
+{
+	ccsi = csi;	
+}
+//===================================================
+
+
+//===================================================
+KVTarget* Identificationv::GetTarget()
+{
+	return ttgt;
+}
+KVDetector* Identificationv::GetDC1()
+{
+	return ddcv1; 	
+}
+KVMaterial* Identificationv::GetSed()
+{
+	return ssed;	
+}
+KVDetector* Identificationv::GetDC2()
+{
+	return ddcv2;	
+}
+KVDetector* Identificationv::GetIC()
+{
+	return iic;	
+}
+KVMaterial* Identificationv::GetGap1()
+{
+	return iisogap1;	
+}
+KVMaterial* Identificationv::GetSi()
+{
+	return ssi;	
+}
+KVMaterial* Identificationv::GetGap2()
+{
+	return iisogap2;	
+}
+KVMaterial* Identificationv::GetCsI()
+{
+	return ccsi;	
+}
+//===================================================
+
 
 void Identificationv::SetRunFlag(Int_t rrunFlag)
 {
@@ -81,12 +348,162 @@ Int_t Identificationv::GetRunFlag(void)
 {
 return runFlag;
 }
+//===================================================
+
+Double_t Identificationv::GetEnergyLossCsI(Int_t number)
+{
+	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
+
+	//Calcul de l'énergie perdue dans csi
+	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
+	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
+	
+	einc_csi = GetGap2()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),eloss_isogap2);
+	eloss_csi = GetCsI()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
+	GetSi()->Clear();
+	
+	return eloss_csi;
+}
+
+Double_t Identificationv::GetEnergyLossGap2(Int_t number)
+{
+	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
+
+	//Calcul de l'énergie perdue dans isogap2
+	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
+	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);
+	
+	GetSi()->Clear();
+	
+	return eloss_isogap2;
+}
+
+Double_t Identificationv::GetEnergyLossGap1(Int_t number)
+{
+	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);	
+	einc_si = GetSi()->GetIncidentEnergy(int(Z_PID),int(M_Q*Z_PID),ESi);
+
+	//Calcul de l'énergie perdue dans isogap1
+	einc_isogap1 = GetGap1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
+	eloss_isogap1 = GetGap1()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
+	
+	GetSi()->Clear();
+	
+	return eloss_isogap1;
+}
+
+Double_t Identificationv::GetEnergyLossChio()	
+{
+	//Calcul de l'énergie perdue dans la chio
+	einc_ic = GetIC()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_isogap1);
+
+	kvn->SetZ(int(Z_PID));
+	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetEnergy(einc_ic); 
+    	KVMaterial *kvm_ic = 0; 
+	      
+    for(Int_t i=0; i<2; i++){	//Take account only the first two layers, because the calibration gives the energy for the active layer, which is the last layer...
+    	fELosLayer_ic[i] = 0.;
+	kvm_ic = (KVMaterial*) GetIC()->GetAbsorber(i);
+        kvm_ic->DetectParticle(kvn);
+	
+        fELosLayer_ic[i] = kvm_ic->GetEnergyLoss();
+        eloss_ic += fELosLayer_ic[i];	
+	}
+	
+	kvn->Clear();
+	GetIC()->Clear();
+	
+	return eloss_ic;
+}
+
+Double_t Identificationv::GetEnergyLossDC2()
+{
+	//Calcul de l'énergie perdue dans la DC2
+	einc_dc2 = GetDC2()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_ic);
+
+	kvn->SetZ(int(Z_PID));
+	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetEnergy(einc_dc2); 
+    	KVMaterial *kvm_dc2 = 0;  
+		     
+    for(Int_t i=0; i<3; i++){
+    	fELosLayer_dc2[i] = 0.;
+	kvm_dc2 = (KVMaterial*) GetDC2()->GetAbsorber(i);
+        kvm_dc2->DetectParticle(kvn);
+	
+        fELosLayer_dc2[i] = kvm_dc2->GetEnergyLoss();
+        eloss_dc2 += fELosLayer_dc2[i];	
+	}
+	
+	kvn->Clear();
+	GetDC2()->Clear();
+	
+	return eloss_dc2;
+}
+
+Double_t Identificationv::GetEnergyLossSed()
+{
+	//Calcul de l'énergie perdue dans la SED    
+	TVector3 rot(0,1,-1); //45 deg 
+	einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
+	
+	kvn->SetZ(int(Z_PID));
+	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetEnergy(einc_sed);
+
+    	GetSed()->DetectParticle(kvn,&rot);
+    	eloss_sed = GetSed()->GetEnergyLoss();
+	
+	//einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
+	//eloss_sed = GetSed()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
+
+	GetSed()->Clear();
+	
+	return eloss_sed;
+}
+
+Double_t Identificationv::GetEnergyLossDC1()
+{
+	//Calcul de l'énergie perdue dans la DC1
+	einc_dc1 = GetDC1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_sed);
+
+	kvn->SetZ(int(Z_PID));
+	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetEnergy(einc_dc1); 
+    	KVMaterial *kvm_dc1 = 0;  
+		     
+    for(Int_t i=0; i<3; i++){
+    	fELosLayer_dc1[i] = 0.;
+	kvm_dc1 = (KVMaterial*)GetDC1()->GetAbsorber(i);
+        kvm_dc1->DetectParticle(kvn);
+	
+        fELosLayer_dc1[i] = kvm_dc1->GetEnergyLoss();
+        eloss_dc1 += fELosLayer_dc1[i];	
+	}
+	
+	kvn->Clear();
+	GetDC1()->Clear();
+	
+	return eloss_dc1;
+}
+
+Double_t Identificationv::GetEnergyLossTarget()
+{
+	//Calcul de l'énergie perdue dans la cible
+	einc_tgt = GetTarget()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
+	eloss_tgt = GetTarget()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
+	
+	GetTarget()->Clear();
+	
+	return einc_tgt-einc_dc1;
+	//return eloss_tgt;
+}
+
+//===================================================
 
 void Identificationv::Calculate(void)
 {
-
-  //L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
-  //L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;
 	        
 if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(Si->Number==0 && CsI->Number==0))) // if csi is behind the si
 { 
@@ -99,150 +516,78 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
  // L->Log<<"Thick : "<<energytree->thick<<" "<<"Det. Nb. : "<<Si->Number<<endl;
   
  //energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);	//Apply the calibration parameters for the Si and the CsI
-
-//Bool_t mg24 = kFALSE;
-	
-  for(Int_t y=0;y< Si->E_RawM ;y++)	 
-    {
-    	if(AnalyseOnlyMyIsotope)
-	{
-	 //if(Si->Number!=15)	continue; //condition for mg24 in si=14 and csi=47 (from zero)
-	 }	//blame paola....
-      for(Int_t j=0;j< CsI->E_RawM;j++)	
-	{
-	if(AnalyseOnlyMyIsotope)
-		{
-	    	//conditions for mg24 in si=14 and csi=47 (from zero)
-		//if(CsI->Number!=48)	continue;	//blame paola....	
-  		//if(Si->E_Raw[y] >1626 || Si->E_Raw[y] <1571) continue;		//Mg 24
-		//if(Si->T_Raw[0] <7917 || Si->T_Raw[0] >8202) continue;		//Mg 24
-		
-	    	//conditions for mg24 in si=15 and csi=45 (from zero)
-		//if(CsI->Number!=45)	continue;	//blame paola....	
-  		//if(Si->E_Raw[y] >1635 || Si->E_Raw[y] <1553) continue;		//Mg 24
-		//if(Si->T_Raw[0] <7738 || Si->T_Raw[0] >8082) continue;		//Mg 24		
-		
-		// conditions for 40Ca 20+
-		//if(Rec->Brho<1.695 || Rec->Brho>1.71)continue;
-  		//if(Si->E_Raw[y] >5350 || Si->E_Raw[y] <5200) continue;		//Ca 40
-		//if(CsI->E_Raw[j] <2600 || CsI->E_Raw[j] >2800) continue;		//Ca 40		
-		//mg24 = kTRUE;
-		}
-		
-		L->Log<<"num si (0-17)=	"<<int(Si->Number)<<endl;
- 	 	L->Log<<"num csi(0-79)=	"<<int(CsI->Number)<<endl;
-				      
-	      CsIRaw = int(CsI->E_Raw[j]);
-	      SiRaw = int(Si->E_Raw[y]);
-	      L->Log<<"CsIRaw	= "<<CsIRaw<<endl;
-	      L->Log<<"SiRaw	= "<<SiRaw<<endl;
-	      if(SiRaw>0){
+ 
+ for(Int_t y=0;y< Si->E_RawM ;y++)	 
+ 	{
+	for(Int_t j=0;j< CsI->E_RawM;j++)	
+		{		      
+		CsIRaw = int(CsI->E_Raw[j]);
+		SiRaw = int(Si->E_Raw[y]);
+		if(SiRaw>0){
 			energytree->CalculateESi(double(Si->E_Raw[y]));		
-			ESi = double(energytree->RetrieveEnergySi());
-			L->Log<<"esi : "<<ESi<<endl;	      
-	      }
-	  if(Geometry(Si->Number,CsI->Number)==1 && energytree->kvid != 0) // if csi is behind the si
-	    {				
-		L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
-		L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
-		//energytree->kvid->Print();
-        KVList *grid_list = 0;
-	id = new KVIdentificationResult();
-        char scope_name [256];
-        sprintf(scope_name, "null");
-        sprintf(scope_name,"%s", energytree->kvid->GetName());
+			ESi = double(energytree->RetrieveEnergySi());	      
+	      		}
+			if(Geometry(Si->Number,CsI->Number)==1 && energytree->kvid != 0) // if csi is behind the si
+   				{				   
+   				//L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
+   				//L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
+  				//energytree->kvid->Print();
+   				KVList *grid_list = 0;
+   				id = new KVIdentificationResult();
+   				char scope_name [256];
+  				sprintf(scope_name, "null");
+   				sprintf(scope_name,"%s", energytree->kvid->GetName());
 
-        if(gIDGridManager != 0){
-            grid_list = (KVList*) gIDGridManager->GetGrids();
+   	   			if(gIDGridManager != 0){
+   		   			grid_list = (KVList*) gIDGridManager->GetGrids();
 
-            if(grid_list == 0){
-                printf("Error: gIDGridManager->GetGrids() failed\n");
+   		   			if(grid_list == 0){
+			   			printf("Error: gIDGridManager->GetGrids() failed\n");
+   		   				}
+					else{
+			   			KVIDGraph *grd = 0;
 
-            }else{
-                KVIDGraph *grd = 0;
+   					if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
 
-                if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
-
-                    if(grd != 0){
-		    	energytree->CalculateESi(double(Si->E_Raw[y]));						//Si calibration (signal->energy)
-			//energytree->CalculateESi(5003.75);	
+                    				if(grd != 0 && double(Si->E_Raw[y])>0 && double(CsI->E_Raw[j])>0 ){
+		    					energytree->CalculateESi(double(Si->E_Raw[y]));						//Si calibration (signal->energy)
+							//energytree->CalculateESi(5003.75);	
 														//Identification according to the grid (csi,si)
-			energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
-			//energytree->kvid->Identify(3019.60, double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
-                        A_PID = id->A;
-                        Z_PID = id->Z;
-                        PID = id->PID;
+							energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
+							//energytree->kvid->Identify(3019.60, double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
+                        				A_PID = id->A;
+                        				Z_PID = id->Z;
+                       					PID = id->PID;
 						
-			Int_t Z_PIDI = int(Z_PID);
-			L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
-			energytree->SetFragmentZ(Z_PIDI);
-	      		energytree->GetResidualEnergyCsI(double(Si->E_Raw[y]),double(CsI->E_Raw[j]));		//Method called for guessing A value by bissection method and getting CsI energy
-			
-			//energytree->SetFragmentZ(20);
-	      		//energytree->GetResidualEnergyCsI(5003.75,3019.60);		//Method called for guessing A value by bissection method and getting CsI energy
-	        	ECsI = energytree->RetrieveEnergyCsI();
-			ESi = energytree->RetrieveEnergySi();
-			EGap = energytree->eEnergyGap;
-			
-			AA = energytree->RetrieveA();											
-			//DetCsI = int(CsI->Number)+1;	// Numérotation : (1-80)
-			//DetSi = int(Si->Number)+1;	// Numérotation : (1-18)		
-			
-			L->Log<<"==========================="<<endl;		
-			L->Log<<"Z	= "<<PID<<endl;
-			L->Log<<"A	= "<<AA<<endl;
-			L->Log<<"Esi	= "<<ESi<<endl;
-			L->Log<<"Ecsi	= "<<ECsI<<endl;
-			L->Log<<"Invert ECsI = "<<energytree->lum->Invert(PID,AA,ECsI)<<endl;			
-			L->Log<<"Compute ECsI = "<<energytree->lum->Compute(PID,AA,energytree->LightCsI)<<endl;
-			
-			a_bisec = energytree->BisectionLight(PID,AA,ECsI);
-			e_bisec = (ECsI*a_bisec)/AA;
-			L->Log<<"A - Bisection light = "<<a_bisec<<endl;
-			L->Log<<"ECsI - Bisection Light = "<<(ECsI*a_bisec)/AA<<endl;
-			L->Log<<"Light - Bisection Light = "<<energytree->lum->Invert(PID,a_bisec,((ECsI*a_bisec)/AA))<<endl;
-			
-			
-			/*Double_t ite_A = 0.;
-			Double_t ite_light=0.;
-			Double_t ite_E=0.;
-			
-			for(Int_t i=-5;i<6;i++){
-				for(Int_t j=-10;j<11;j++){
-					ite_A = AA+(double(i)/10.);
-					ite_E = ECsI+j;
-					ite_light=energytree->lum->Invert(PID,ite_A,ite_E);
-					L->Log<<"Light ECsI (boucle) = "<<ite_light<<"	A (ite_A) : "<<ite_A<<" E (ite_E) : "<<ite_E<<" Delta_L : "<<ite_light-energytree->LightCsI<<endl;			
-					L->Log<<"Compute ECsI (boucle) = "<<energytree->lum->Compute(PID,ite_A,ite_light)<<endl;				 
-				}
-			}*/
-			L->Log<<"Esi+csi	= "<<ESi+ECsI<<endl;
-			L->Log<<"==========================="<<endl;			
-                    }
-                    
-                }else{  
-                    //printf("No object named %s in grid list\n", scope_name);
-                }
+							Int_t Z_PIDI = int(Z_PID);
+							L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
+							energytree->SetFragmentZ(Z_PIDI);
+	      						energytree->GetResidualEnergyCsI(double(Si->E_Raw[y]),double(CsI->E_Raw[j]));		//Method called for guessing A value by bissection method and getting CsI energy
 
-            }
+	        					ECsI = energytree->RetrieveEnergyCsI();
+							ESi = energytree->RetrieveEnergySi();
+							EGap = energytree->eEnergyGap;
+			
+							AA = energytree->RetrieveA();													
+			
+							L->Log<<"==========================="<<endl;		
+							L->Log<<"Z	= "<<PID<<endl;
+							L->Log<<"A	= "<<AA<<endl;
+							L->Log<<"==========================="<<endl;
+							a_bisec = energytree->BisectionLight(PID,AA,ECsI);
+							e_bisec = (ECsI*a_bisec)/AA;			
+                    					}
+                				}
+						else{  
+                    					//printf("No object named %s in grid list\n", scope_name);
+                					}
+            					}
+        				}
+	    			}
+			}
+    		}
 
-        }
-	
-					
-	    }
-	}
-    }
-	if(AnalyseOnlyMyIsotope)
-		{
-		//if(!mg24) return;
-		}
-		
-	
-  L->Log<<"Dr->E[0] : "<<Dr->E[0]<<" "<<"Dr->E[1] : "<<Dr->E[1]<<" "<<"Ic->ETotal : "<<Ic->ETotal<<endl;
-  if(
-     Dr->E[0] > 0 &&
-     Dr->E[1] > 0 &&
-     Ic->ETotal > 0)
+  if(Dr->E[0] > 0 && Dr->E[1] > 0 && Ic->ETotal > 0)
     {
       //      dE += Dr->E[0];      
       //      dE += Dr->E[1];
@@ -251,11 +596,8 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
       dE /= 0.614;
       dE += dE*0.15;
       if((dE1+ESi+ECsI)>0)					//if(Si->ETotal > 0)
-	//E = (dE/1000) + (ESi+ECsI)*0.99;
 	E = dE1 + ESi + EGap + ECsI;				//Total energy (MeV)	(ChIo, Si, estimated gap energy, CsI)
-	E += (0.00331495 + (0.0089892*AA));			//Correction for the layers before the IC
 
-	L->Log<<"dE1	(MeV)= "<<dE1<<endl;
 	L->Log<<"E	(MeV)= "<<E<<endl;
 	L->Log<<"ESi	(MeV)= "<<ESi<<"	ECsI	(MeV)= "<<ECsI<<"	Ic	(MeV)= "<<dE1<<endl;
     }
@@ -275,80 +617,52 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       
   if(T >0 && Rec->Path>0 && Dr->Present)
     {
-      //Distance between silicon and the target in cm	
-      
-      //D = (Rec->Path + (72.05/cos(Dr->Tf/1000.)))/cos(Dr->Pf/1000.);		 
-        D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (((Rec->DSI-Dr->FocalPos)/10)/TMath::Cos(Dr->Tf/1000.)));	//Distance : 9423mm(si layer position) - 8702.5mm(focal plane position) = 720.50 mm
- 
-      V = D/T;		//Velocity given in cm/ns
-      
-      V2 = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));
-      
-      Beta = V/29.9792458; 
-      Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
-      
-      //L->Log<<"D = "<<D<<" Rec->Path = "<<Rec->Path<<" D-Path = "<<(-1.*(Dr->Yf)/10.*sin(3.14159/4.)/cos(3.14159/4. + fabs(Dr->Pf/1000.)))/cos(Dr->Tf/1000.)<<endl;
-      L->Log<<"D	= "<<D<<"	V = "<<V<<"	Beta = "<<Beta<<"	D/T = "<<D/T<<endl;
-      //L->Log<<"diff	= "<<((Rec->DSI-Dr->FocalPos)/10)<<endl;
-      L->Log<<"TOF	= "<<T<<endl;
-      //L->Log<<"brho = "<<Rec->GetBrhoRef()<<"	angle = "<<Rec->GetAngleVamos()<<endl;
-      
-      V_Etot = 1.39*sqrt(E/AA);
-      L->Log<<"V_Etot	= "<<V_Etot<<endl;
-      T_FP = ((Dr->FocalPos)/10.) / V_Etot;
-      L->Log<<"T_FP	= "<<T_FP<<endl;
+ 	//Distance between silicon and the target in cm		    
+ 	D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (((Rec->DSI-Dr->FocalPos)/10)/TMath::Cos(Dr->Tf/1000.)));   //Distance : 9423mm(si layer position) - 8702.5mm(focal plane position) = 720.50 mm
+
+ 	V = D/T;	   //Velocity given in cm/ns	  
+ 	V2 = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));	   
+ 	Beta = V/29.9792458; 
+ 	Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
+ 	V_Etot = 1.39*sqrt(E/AA);
+ 	T_FP = ((Dr->FocalPos)/10.) / V_Etot;
+		   
+ 	Vx = V*sin(Rec->ThetaL)*cos(Rec->PhiL);
+ 	Vy = V*sin(Rec->ThetaL)*sin(Rec->PhiL);
+ 	Vz = V*cos(Rec->ThetaL);
+
+   	kin = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetSystem()->GetKinematics();
+   	kin->SetOutgoing(kin->GetNucleus(1));
+   	kin->CalculateKinematics();
+
+ 	L->Log<<"D	   = "<<D<<"	   V = "<<V<<"     Beta = "<<Beta<<"	   D/T = "<<D/T<<endl;
+ 	L->Log<<"TOF	   = "<<T<<endl;
     }
 
-  if(Beta>0 && Rec->Brho>0&&Gamma>1.&&Si->Present)
+  if(Beta>0 && Rec->Brho>0 && Si->Present)	//Modification (2012-02-10) Original : Beta>0 && Rec->Brho>0 && Gamma>1. && Si->Present
     {
-
-      M = 2.* E / (931.5016*TMath::Power(Beta,2.));
-      
-
-      //=========================================================================
-      //M Correction depending on the Si detector
-      if(int(Si->Number+1)==18){
-      M_corr = -13.261 + (2.56372*M) + (-0.0508636*M*M) + (0.000513482*M*M*M);
-      }
-      if(int(Si->Number+1)==17){
-      M_corr = -17.6552 + (2.72249*M) + (-0.0471087*M*M) + (0.000399392*M*M*M);
-      }      
-      if(int(Si->Number+1)==16){
-      M_corr = -10.3725 + (1.94285*M) + (-0.0212104*M*M) + (0.000112669*M*M*M);
-      } 
-      if(int(Si->Number+1)==15){
-      M_corr = -7.42487 + (1.70064*M) + (-0.0131194*M*M) + (-1.59333E-05*M*M*M);
-      }       
-      if(int(Si->Number+1)==14){
-      M_corr = -26.0143 + (3.81171*M) + (-0.0926025*M*M) + (0.000968838*M*M*M);
-      }      
-      if(int(Si->Number+1)==13){
-      M_corr = -25.0593 + (3.27641*M) + (-0.0778539*M*M) + (0.00090637*M*M*M);
-      }      
-      if(int(Si->Number+1)==12){
-      M_corr = -25.9265 + (3.62184*M) + (-0.0785141*M*M) + (0.00072279*M*M*M);
-      }       
-      if(int(Si->Number+1)==11){
-      M_corr = -101.585 + (12.0667*M) + (-0.38208*M*M) + (0.00425009*M*M*M);
-      }
-      if(int(Si->Number+1)==8){
-      M_corr = -4.09712 + (1.43131*M) + (-0.0161507*M*M) + (0.000246024*M*M*M);
-      }            
-      //=========================================================================   
-      
-      //=========================================================================
-      //Total energy correction based on the actual calibration 
-      if(M_corr!= -10){
-      energytree->Bisection(M_corr,double(CsIRaw));		//Call the bisection method 	
-      energytree->Interpolate();
-      ECsI_corr = energytree->RetrieveEnergyCsI();
-      E_corr = E - ECsI + ECsI_corr;    
-      }
-      //=========================================================================
              
       M_Q = Rec->Brho/(3.105*Beta);
-      M_Q_corr = M_Q * (2/(2.02098 + (-0.00024494*Dr->Tf)));
             
+      //===============================================================
+      //Correction on the total energy
+      
+	E_csi = GetEnergyLossCsI(Si->Number+1);      
+	E_gap2 = GetEnergyLossGap2(Si->Number+1);      
+	E_gap1 = GetEnergyLossGap1(Si->Number+1);
+	E_chio = GetEnergyLossChio();
+	E_dc2 = GetEnergyLossDC2();
+ 	E_sed = GetEnergyLossSed();
+ 	E_dc1 = GetEnergyLossDC1();
+ 	E_tgt = GetEnergyLossTarget();
+	
+	E += E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1;	//Correction on the total energy based on the Silicon energy
+			
+      //===============================================================
+      
+      M = 2.* E / (931.5016*TMath::Power(Beta,2.)); 
+      Mass = M_Q*PID;     
+	                              
       L->Log<<"===M/Q construction==="<<endl;
       L->Log<<"Brho	= "<<Rec->Brho<<endl;
       L->Log<<"Beta	= "<<Beta<<endl;
@@ -359,7 +673,6 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       L->Log<<"===================="<<endl;      
       L->Log<<"M	= "<<M<<endl;
       L->Log<<"M/Q	= "<<M_Q<<endl;
-      L->Log<<"M/Q_c	= "<<M_Q_corr<<endl;
       
       Mr = (E/1000.)/931.5016/(Gamma-1.);
       M_Qr = Rec->Brho/3.105/Beta/Gamma;
@@ -370,33 +683,148 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       Qc = int(Qr+0.5);
       Mc = M_Qr*Qc;
       
-      L->Log<<"Q	= "<<Q<<endl;      
-      L->Log<<"Q_c	= "<<M/M_Q_corr<<endl;
+      L->Log<<"Q	= "<<Q<<endl;
+      
+//====================================================================================================
+// Première fonction de correction de Q
+// First Q correction, according to the CsI detector 
+
+DetCsI = int(CsI->Number)+1;   
+L->Log<<"p0 : "<<P0[DetCsI]<<" p1 : "<<P1[DetCsI]<<" p2 : "<<P2[DetCsI]<<endl;
+
+Q_corr = TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q))+0.5);
+Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q);
+if(DetCsI==50){
+	Q_corr = TMath::Floor((-6.44558+(2.53094*Q)+(-0.0970013*Q*Q)+(0.00141178*Q*Q*Q))+0.5);
+	Q_corr_D = -6.44558+(2.53094*Q)+(-0.0970013*Q*Q)+(0.00141178*Q*Q*Q);   
+}
+L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
+       
+//====================================================================================================
+
+//====================================================================================================
+    if(Q_corr!=0.0)
+    {                 
+	M_corr = Q_corr*M_Q;
+	M_corr_D = Q_corr_D*M_Q;
+	
+	// Correction de M/Q en fonction du Brho
+	// M/Q correction according to the Brho		
+	M_Qcorr = P0_mq[runNumber] + (P1_mq[runNumber]*M_Q); 
+    }	
+    if(Q_corr!=0.0 && fcoup->IsZombie()==0)
+    {   		
+	// Correction de M en fonction du Brho et de l'état de charge Q
+	// M correction according the Brho value and the charge state Q
+	if(q5->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 5;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);
+	}
+	else if(q6->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 6;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
+	}
+	else if(q7->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 7;	
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
+	}
+	else if(q8->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 8;	
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
+	}
+	else if(q9->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 9;	
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
+	}	
+	else if(q10->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 10;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
+	}
+	else if(q11->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 11;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
+	}
+	else if(q12->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 12;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
+	}
+	else if(q13->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 13;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
+	}
+	else if(q14->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 14;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
+	}	
+	else if(q15->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 15;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);
+	}
+	else if(q16->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 16;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
+	}	
+	else if(q17->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 17;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 
+	}
+	else if(q18->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 18;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
+	}
+	else if(q19->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 19;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
+	}
+	else if(q20->IsInside(Rec->Brho,Q_corr_D)==1)
+	{
+	Qid = 20;
+	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
+	}
+	/*else if(q21->IsInside(rRec->Brho,Q_corr_D)==1)
+	{
+	Qid = 21;
+	M_corr_D2 = P0_m[RunNumber][Qid] + (P1_m[RunNumber][Qid]*M_corr_D);		
+	}*/
+	
+	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
+	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;   	
+    	}	            
     }
 /*  
   Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
   Z2 = sqrt(dE/931.5016)*TMath::Power(Beta,2.)*100.;
-  
-  Z_tot = sqrt(E/931.5016)*TMath::Power(Beta,2.);
-  Z_si = sqrt(ESi/931.5016)*TMath::Power(Beta,2.);
-L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
 */
   Z1 = (sqrt((dE1*E)/931.5016)*29.9792)/7;		//(1/7) : Correction for the mass (1/sqrt(A))
   Z2 = sqrt(dE/931.5016)*TMath::Power(Beta,2.)*100.;
-  
-    Z_tot = (sqrt((ESi*E)/931.5016)*29.9792)/7;
-    Z_si = (sqrt((dE1*E)/931.5016)*29.9792)/7;
+
     
 NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
-    
-L->Log<<"Z1 = "<<Z1<<" 		Z2 = "<<Z2<<endl;
-L->Log<<"Z_tot = "<<Z_tot<<" 		Z_si = "<<Z_si<<endl;
+DT = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT");
+FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
+Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho"); 
+   
   if( T > 0 && V > 0 && M_Q > 0 && M > 0 && Z1 > 0 && Z2 > 0 && Beta > 0 && Gamma > 1.0) 
     {
       Present=true;
       Counter[2]++;
     }
-    //energytree->ClearEvent(runFlag);
+
 }
 
 
@@ -450,48 +878,73 @@ void Identificationv::outAttach(TTree *outT)
 	
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
+	
+	outT->Branch("E_tgt",&E_tgt,"E_tgt/D");	
+	outT->Branch("E_dc1",&E_dc1,"E_dc1/D");	
+	outT->Branch("E_sed",&E_sed,"E_sed/D");
+	outT->Branch("E_dc2",&E_dc2,"E_dc2/D");
+	outT->Branch("E_chio",&E_chio,"E_chio/D");
+	outT->Branch("E_gap1",&E_gap1,"E_gap1/D");						
+	
 	outT->Branch("ESi",&ESi,"ESi/D");
 	outT->Branch("EGap",&EGap,"EGap/D");
 	outT->Branch("ECsI",&ECsI,"ECsI/D");
 	outT->Branch("ECsI_corr",&ECsI_corr,"ECsI_corr/D");
-	//outT->Branch("DetSi",&DetSi,"DetSi/I");
-	//outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
 	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");	
-	
+	outT->Branch("DT",&DT,"DT/D");
+	outT->Branch("Brho_mag",&Brho_mag,"Brho_mag/D");		
+	outT->Branch("FC_Indra",&FC_Indra,"FC_Indra/D");
+		
 	outT->Branch("Z_PID",&Z_PID,"Z_PID/D");
 	outT->Branch("A_PID",&A_PID,"A_PID/D");
 	outT->Branch("PID",&PID,"PID/D");
 
-  //outT->Branch("dE",&dE,"dE/F");
-  //outT->Branch("dE1",&dE1,"dE1/F");
-  outT->Branch("E",&E,"E/F");
-  outT->Branch("E_corr",&E_corr,"E_corr/F");
-  outT->Branch("T",&T,"T/F");
-  outT->Branch("V",&V,"V/F");
-  
-  outT->Branch("V_Etot",&V_Etot,"V_Etot/F");
-  outT->Branch("T_FP",&T_FP,"T_FP/F");
+  	//outT->Branch("dE",&dE,"dE/F");
+  	//outT->Branch("dE1",&dE1,"dE1/F");
+  	outT->Branch("E",&E,"E/F");
+  	outT->Branch("E_corr",&E_corr,"E_corr/F");
+  	outT->Branch("T",&T,"T/F");
+  	outT->Branch("V",&V,"V/F");
+  	outT->Branch("Vx",&Vx,"Vx/F");
+  	outT->Branch("Vy",&Vy,"Vy/F");
+  	outT->Branch("Vz",&Vz,"Vz/F"); 
+   
+  	outT->Branch("V_Etot",&V_Etot,"V_Etot/F");
+  	outT->Branch("T_FP",&T_FP,"T_FP/F");
       
-  outT->Branch("V2",&V2,"V2/F");
-  outT->Branch("D",&D,"D/F");
-  outT->Branch("Beta",&Beta,"Beta/F");
-  outT->Branch("Gamma",&Gamma,"Gamma/F");
-  outT->Branch("M_Q",&M_Q,"M_Q/F");  
-  outT->Branch("M_Q_corr",&M_Q_corr,"M_Q_corr/F");
-  outT->Branch("Q",&Q,"Q/F");
-  outT->Branch("M",&M,"M/F");
-  outT->Branch("M_corr",&M_corr,"M_corr/F");
-  outT->Branch("M_Qr",&M_Qr,"M_Qr/F");
-  outT->Branch("Qr",&Qr,"Qr/F");
-  outT->Branch("Mr",&Mr,"Mr/F");
-  outT->Branch("Qc",&Qc,"Qc/F");
-  outT->Branch("Mc",&Mc,"Mc/F");
+	outT->Branch("V2",&V2,"V2/F");
+	outT->Branch("D",&D,"D/F");
+	outT->Branch("Beta",&Beta,"Beta/F");
+	outT->Branch("Gamma",&Gamma,"Gamma/F");
+	outT->Branch("M_Q",&M_Q,"M_Q/F");  
+	outT->Branch("Q",&Q,"Q/F");
+	outT->Branch("M",&M,"M/F");
+	outT->Branch("Mass",&Mass,"Mass/F");
+	outT->Branch("M_simul",&M_simul,"M_simul/F");
+	outT->Branch("M_Qr",&M_Qr,"M_Qr/F");
+	outT->Branch("Qr",&Qr,"Qr/F");
+	outT->Branch("Mr",&Mr,"Mr/F");
+	outT->Branch("Qc",&Qc,"Qc/F");
+	outT->Branch("Mc",&Mc,"Mc/F");
   
+	outT->Branch("M_Qcorr", &M_Qcorr, "M_Qcorr/F");
+	outT->Branch("Z_corr", &Z_corr, "Z_corr/I");
+	outT->Branch("Q_corr", &Q_corr, "Q_corr/I");
+	outT->Branch("Q_corr_D", &Q_corr_D,"Q_corr_D/D");
+	outT->Branch("M_corr", &M_corr, "M_corr/D");
+	outT->Branch("M_corr_D", &M_corr_D,"M_corr_D/D");
+	outT->Branch("M_realQ", &M_realQ, "M_realQ/D");
+	outT->Branch("M_realQ_D", &M_realQ_D,"M_realQ_D/D");
+	//outT->Branch("realQ", &realQ,"realQ/I");
+	//outT->Branch("realQ_D", &realQ_D,"realQ/D");
+	outT->Branch("M_corr_D2", &M_corr_D2,"M_corr_D2/D");
+	outT->Branch("Q_corr_D2", &Q_corr_D2,"Q_corr_D2/D");
+	outT->Branch("Qid", &Qid, "Qid/I"); 
+
+ 
   /*
   outT->Branch("Z1",&Z1,"Z1/F");
   outT->Branch("Z2",&Z2,"Z2/F");
-  outT->Branch("Z_tot",&Z_tot,"Z_tot/F");
-  outT->Branch("Z_si",&Z_si,"Z_si/F");
   */
 /*  
 #ifdef FOLLOWPEAKS
@@ -529,13 +982,9 @@ void Identificationv::Show(void)
  
 }
 
-
-//temporary method to reconstruct VAMOS telescopes
+//method to reconstruct VAMOS telescopes
 int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
-{
-  //int geom[18][6];
-  //Int_t geom[18][6];
-  
+{  
    Int_t  num;
    Int_t csi1=0, csi2=0, csi3=0, csi4=0, csi5=0, csi6=0;
    ifstream in;
@@ -565,134 +1014,6 @@ int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
   }
   in.close();
 
-/*  
-  geom[0][0]=0;
-  geom[0][1]=1;
-  geom[0][2]=12;
-  geom[0][3]=13;
-  geom[0][4]=24;
-  geom[0][5]=25;
-
-  geom[1][0]=2;
-  geom[1][1]=3;
-  geom[1][2]=14;
-  geom[1][3]=15;
-  geom[1][4]=26;
-  geom[1][5]=27;
-
-  geom[2][0]=4;
-  geom[2][1]=5;
-  geom[2][2]=16;
-  geom[2][3]=17;
-  geom[2][4]=28;
-  geom[2][5]=29;
-
-  geom[3][0]=6;
-  geom[3][1]=7;
-  geom[3][2]=18;
-  geom[3][3]=19;
-  geom[3][4]=30;
-  geom[3][5]=31;
-
-  geom[4][0]=8;
-  geom[4][1]=9;
-  geom[4][2]=20;
-  geom[4][3]=21;
-  geom[4][4]=32;
-  geom[4][5]=33;
-
-  geom[5][0]=10;
-  geom[5][1]=11;
-  geom[5][2]=22;
-  geom[5][3]=23;
-  geom[5][4]=34;
-  geom[5][5]=35;
-
-  geom[6][0]=36;
-  geom[6][1]=37;
-  geom[6][2]=-1;
-  geom[6][3]=-1;
-  geom[6][4]=-1;
-  geom[6][5]=-1;
-
-  geom[7][0]=38;
-  geom[7][1]=39;
-  geom[7][2]=-1;
-  geom[7][3]=-1;
-  geom[7][4]=-1;
-  geom[7][5]=-1;
-
-  geom[8][0]=-1;
-  geom[8][1]=-1;
-  geom[8][2]=-1;
-  geom[8][3]=-1;
-  geom[8][4]=-1;
-  geom[8][5]=-1;
-
-  geom[9][0]=-1;
-  geom[9][1]=-1;
-  geom[9][2]=-1;
-  geom[9][3]=-1;
-  geom[9][4]=-1;
-  geom[9][5]=-1;
-
-  geom[10][0]=54;
-  geom[10][1]=55;
-  geom[10][2]=-1;
-  geom[10][3]=-1;
-  geom[10][4]=-1;
-  geom[10][5]=-1;
-
-  geom[11][0]=52;
-  geom[11][1]=53;
-  geom[11][2]=-1;
-  geom[11][3]=-1;
-  geom[11][4]=-1;
-  geom[11][5]=-1;
-
-  geom[12][0]=50;
-  geom[12][1]=51;
-  geom[12][2]=66;
-  geom[12][3]=67;
-  geom[12][4]=78;
-  geom[12][5]=79;
-
-  geom[13][0]=48;
-  geom[13][1]=49;
-  geom[13][2]=64;
-  geom[13][3]=65;
-  geom[13][4]=76;
-  geom[13][5]=77;
-
-  geom[14][0]=46;
-  geom[14][1]=47;
-  geom[14][2]=62;
-  geom[14][3]=63;
-  geom[14][4]=74;
-  geom[14][5]=75;
-
-  geom[15][0]=44;
-  geom[15][1]=45;
-  geom[15][2]=60;
-  geom[15][3]=61;
-  geom[15][4]=72;
-  geom[15][5]=73;
-
-  geom[16][0]=42;
-  geom[16][1]=43;
-  geom[16][2]=58;
-  geom[16][3]=59;
-  geom[16][4]=70;
-  geom[16][5]=71;
-
-  geom[17][0]=40;
-  geom[17][1]=41;
-  geom[17][2]=56;
-  geom[17][3]=57;
-  geom[17][4]=68;
-  geom[17][5]=69;
-*/
-
   for(int i=0;i<6;i++)
     {
       if(geom[sinum][i]==csinum)return 1;
@@ -700,46 +1021,3 @@ int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
   return 0;
 }
 
-
-//-------------------------------------------------------------------
-
-/*void Identificationv::SetSiliconThickness(Int_t number)	//Si->Number goes to 0 to 17
-{
-	InitSiCsI(number+1);	//InitSiCsI(#)	(1-18)
-}*/
-
-//void Identificationv::InitSiCsI(Int_t number) // Si-CsI Telescope
-//{
-
-   /********************************************************************************
-    TELESCOPE LAYOUT: Using custom built classes IonisationChamber and PlaneAbsorber 
-
-    beam >>  | Silicon | C4H10 (Gap) | CsI 
-
-    ********************************************************************************/
- 
-    /*si = new KVSiliconVamos(Si->si_thick[number]);
-    gap = new PlaneAbsorber();
-    csi = new KVCsIVamos(1.);*/
-
-    // Remember they are of class 'PlaneAbsorber'
-    // see header files for list of methods that can be called
-     //L->Log<<"Silicon Thickness	: "<<si_thick[number]<<endl;
-
-    /*gap->SetThickness(136.5,"NORM");
-    gap->SetMaterial("C4H10");
-    gap->SetPressure(40.);*/
-
-    // Build the Telescope 
-    // Need to use the 'GetDetector()' method as they are not
-    // of type KVDetector
-
-    /*kvt_sicsi = new KVTelescope();
-    //KVTelescope kvt_sicsi();
-    kvt_sicsi->Add(si);
-    kvt_sicsi->Add(gap->GetDetector());  // In-active so no 'detected' energy
-    kvt_sicsi->Add(csi);*/
-    
-    //lum=new KVLightEnergyCsIVamos(csi);
-    //lum=new KVLightEnergyCsI(csi);
-//}

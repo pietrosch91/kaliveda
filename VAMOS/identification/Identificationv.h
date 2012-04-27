@@ -13,6 +13,10 @@
 #include "CsIv.h"
 #include "TCutG.h"
 #include "CsICalib.h"
+#include "KVDetector.h"
+#include "KVMaterial.h"
+#include "KVNucleus.h"
+#include "KV2Body.h"
 
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"
@@ -34,7 +38,29 @@ class Identificationv
   CsICalib *energytree;
 
 	KVIdentificationResult*	id;
+	KV2Body *kin;
 		
+	KVNucleus *kvn;	
+	KVTarget *tgt;
+        KVDetector *dcv1;
+        KVMaterial *sed;
+        KVDetector *dcv2;
+        KVDetector *ic;
+        KVMaterial *isogap1;
+        KVMaterial *si;
+        KVMaterial *isogap2;
+        KVMaterial *csi;
+			
+	KVTarget *ttgt;
+        KVDetector *ddcv1;
+        KVMaterial *ssed;
+        KVDetector *ddcv2;
+        KVDetector *iic;
+        KVMaterial *iisogap1;
+        KVMaterial *ssi;	
+        KVMaterial *iisogap2;
+        KVMaterial *ccsi;
+				
   UShort_t TFil1;
   UShort_t TFil2;
   UShort_t EFil1;
@@ -60,7 +86,10 @@ class Identificationv
   Double_t ESi;
   Double_t EEtot;
   Double_t NormVamos;
-
+  Double_t DT;
+  Double_t Brho_mag;
+  Double_t FC_Indra;
+  
 Double_t PID;
 Double_t Z_PID;
 Double_t A_PID;
@@ -96,8 +125,76 @@ Int_t runFlag;
 	void SetRunFlag(Int_t);
 	Int_t GetRunFlag(void);
 	
-  int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
+//===================================================
+void SetTarget(KVTarget *tgt);
+void SetDC1(KVDetector *dcv1);
+void SetSed(KVMaterial *sed);
+void SetDC2(KVDetector *dcv2);
+void SetIC(KVDetector *ic);
+void SetGap1(KVMaterial *isogap1);
+void SetSi(KVMaterial *si);
+void SetGap2(KVMaterial *isogap2);
+void SetCsI(KVMaterial *csi);
+//===================================================
 
+
+//===================================================
+KVTarget* GetTarget();
+KVDetector* GetDC1();
+KVMaterial* GetSed();
+KVDetector* GetDC2();
+KVDetector* GetIC();
+KVMaterial* GetGap1();
+KVMaterial* GetSi();
+KVMaterial* GetGap2();
+KVMaterial* GetCsI();
+//===================================================
+
+
+//===================================================
+
+Double_t GetEnergyLossCsI(Int_t);
+Double_t GetEnergyLossGap2(Int_t);
+Double_t GetEnergyLossGap1(Int_t);
+Double_t GetEnergyLossChio();
+Double_t GetEnergyLossDC2();
+Double_t GetEnergyLossSed();
+Double_t GetEnergyLossDC1();
+Double_t GetEnergyLossTarget();
+
+Double_t einc_csi;
+Double_t eloss_csi;
+Double_t einc_isogap2;
+Double_t eloss_isogap2;
+Double_t einc_si;
+Double_t einc_isogap1;
+Double_t eloss_isogap1;
+Double_t einc_ic;
+Double_t eloss_ic;
+Double_t einc_dc2;
+Double_t eloss_dc2;
+Double_t einc_sed;
+Double_t eloss_sed;
+Double_t einc_dc1;
+Double_t eloss_dc1;
+Double_t einc_tgt;
+Double_t eloss_tgt;
+
+Double_t fELosLayer_dc1[3];
+Double_t fELosLayer_dc2[3];
+Double_t fELosLayer_ic[3];
+
+Double_t E_tgt;
+Double_t E_dc1;
+Double_t E_dc2;
+Double_t E_sed;
+Double_t E_gap1;
+Double_t E_chio;
+Double_t E_gap2;
+Double_t E_csi;
+//===================================================
+	
+  int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
   Random *Rnd;
 
   UShort_t T_Raw;
@@ -110,7 +207,13 @@ Int_t runFlag;
   Float_t E_corr;
   Float_t T;
   Float_t V;
-  
+  Float_t Vx;  
+  Float_t Vy;
+  Float_t Vz;
+  Float_t VCMx;  
+  Float_t VCMy;
+  Float_t VCMz;
+        
   Float_t V_Etot;
   Float_t T_FP;
   
@@ -118,10 +221,6 @@ Int_t runFlag;
   Float_t Beta;
   Float_t Gamma;
   Float_t M_Q;
-  Float_t M_Q_corr;  
-  Float_t M_Qcorr;
-  Float_t M_corr;
-  Float_t M_Qcorr1;
   Float_t Q;
   Float_t Mr;
   Float_t M_Qr;
@@ -129,15 +228,70 @@ Int_t runFlag;
   Float_t Qc;
   Float_t Mc;
   Float_t M;
-  Float_t Mcorr;
-  Float_t Mcorr1;
+  Float_t Mass;
+  Float_t M_simul;
   Float_t Z1;
   Float_t Z2;
   
   Float_t Z_tot;
   Float_t Z_si;  
   Double_t ZR;
+  
+//Int_t csi;
+//Float_t p0;
+//Float_t p1;
+//Float_t p2;
+  
+   //Q Correction Function according to the CsI detector
+   Float_t 	P0[80];
+   Float_t 	P1[80];      
+   Float_t 	P2[80];   
+   
+   // Correction de M/Q
+   Float_t 	P0_mq[600];
+   Float_t 	P1_mq[600];
+         
+   // Correction de M
+   Float_t 	P0_m[600][25];
+   Float_t 	P1_m[600][25];
 
+   Int_t sys;
+   TFile	*fcoup;
+         
+TCutG *q21;
+TCutG *q20;
+TCutG *q19;
+TCutG *q18;
+TCutG *q17;
+TCutG *q16;
+TCutG *q15;
+TCutG *q14;
+TCutG *q13;
+TCutG *q12;
+TCutG *q11;
+TCutG *q10;
+TCutG *q9;
+TCutG *q8;
+TCutG *q7;
+TCutG *q6;
+TCutG *q5;
+
+   Double_t 	M_corr;
+   Int_t 	Q_corr;
+   Double_t	Q_corr_D;
+   Double_t	M_corr_D; 
+   Double_t	M_corr_D2;
+   Double_t	Q_corr_D2;
+        
+   Int_t	Z_corr;
+   Double_t 	Delta;
+   Double_t	M_realQ_D;
+   Double_t	M_realQ;
+   Double_t	realQ_D;
+   Int_t	realQ;
+   Int_t	Qid;
+   Float_t	M_Qcorr; 
+     
   //Counters
   Int_t Counter[6];
 
