@@ -40,7 +40,7 @@ class Reconstructionv
   Float_t DSI;
   Float_t DCSI;
       
-  Double_t Coef[4][1050]; //D,T,P,Path tenth order reconst in x,y,t,p
+  Double_t Coef[4][330]; //D,T,P,Path seventh order reconst in x,y,t,p
   
 	Float_t Delta1[600];
 	Float_t Delta2[600];

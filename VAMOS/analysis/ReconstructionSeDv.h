@@ -33,7 +33,7 @@ class ReconstructionSeDv
   Random *Rnd;
 
   Float_t BrhoRef;
-  Double_t Coef[4][1050]; //D,T,P tenth order reconst in x,y,t,p
+  Double_t Coef[4][330]; //D,T,P tenth order reconst in x,y,t,p
   
   Float_t Theta;
   Float_t Phi;

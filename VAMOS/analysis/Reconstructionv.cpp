@@ -190,8 +190,8 @@ file.close();
 	      inf1.getline(line,len);
 	      cout << line << endl;
 	      L->Log << line << endl;
-	      
-	      for(i=0;i<1001;i++) 
+
+	      for(i=0;i<330;i++) 
 		inf1 >> Coef[j][i];
 
 	    }
@@ -255,7 +255,7 @@ void Reconstructionv::Calculate(void)
 #endif
   
   Double_t Brhot,Thetat,Phit,Patht;
-  Double_t Brhot_y,Thetat_y,Patht_y;
+  //Double_t Brhot_y,Thetat_y,Patht_y;
   Double_t Vec[5],Vecp;
 
   Int_t i,j[10];
@@ -279,11 +279,13 @@ void Reconstructionv::Calculate(void)
 	  for(j[4]=j[3];j[4]<5;j[4]++)
 	    for(j[5]=j[4];j[5]<5;j[5]++)
 	      for(j[6]=j[5];j[6]<5;j[6]++)
-	        for(j[7]=j[6];j[7]<5;j[7]++)
-		  for(j[8]=j[7];j[8]<5;j[8]++)
-		    for(j[9]=j[8];j[9]<5;j[9]++)
+	        //for(j[7]=j[6];j[7]<5;j[7]++)
+		  //for(j[8]=j[7];j[8]<5;j[8]++)
+		    //for(j[9]=j[8];j[9]<5;j[9]++)
+
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]];	//*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
+
 		Brhot += Coef[0][i] *Vecp;
 		Thetat += Coef[1][i] *Vecp;
 		Patht += Coef[3][i] *Vecp;
@@ -303,15 +305,15 @@ void Reconstructionv::Calculate(void)
 	  for(j[4]=j[3];j[4]<5;j[4]++)
 	    for(j[5]=j[4];j[5]<5;j[5]++)
 	      for(j[6]=j[5];j[6]<5;j[6]++)
-	     	for(j[7]=j[6];j[7]<5;j[7]++)
-		  for(j[8]=j[7];j[8]<5;j[8]++)
-		    for(j[9]=j[8];j[9]<5;j[9]++)
+	     	//for(j[7]=j[6];j[7]<5;j[7]++)
+		  //for(j[8]=j[7];j[8]<5;j[8]++)
+		    //for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]];	//*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Phit += Coef[2][i] *Vecp;
-		Brhot_y += Coef[0][i] *Vecp;
+		/*Brhot_y += Coef[0][i] *Vecp;
 		Thetat_y += Coef[1][i] *Vecp;
-		Patht_y += Coef[3][i] *Vecp;
+		Patht_y += Coef[3][i] *Vecp;*/
 		i++;
 	      }
 	//L->Log<<"-----------"<<endl;
@@ -329,13 +331,26 @@ void Reconstructionv::Calculate(void)
       Path = (Float_t) Patht + PathOffset;
 
       TVector3 myVec(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
-      myVec.RotateY((gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta"))*3.141592654/180.);
+      myVec.RotateY((gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta"))*TMath::DegToRad());
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
-      Thetadeg = (Theta/1000.)*(180/3.141592654);
-      Phideg = (Phi/1000.)*(180/3.141592654);
-      ThetaLdeg = ThetaL*180/3.141592654;
-      PhiLdeg = PhiL*180/3.141592654;            
+      Thetadeg = (Theta/1000.)*TMath::RadToDeg();
+      Phideg = (Phi/1000.)*TMath::RadToDeg();
+      ThetaLdeg = ThetaL*TMath::RadToDeg();
+      PhiLdeg = PhiL*TMath::RadToDeg();      
+      
+      // with Yf and Pf dependence in reconstruction:
+      /*Brho_y = BrhoRef*((Float_t) Brhot_y);
+      Theta_y = (Float_t) Thetat_y*-1;
+      Path_y = (Float_t) Patht_y + PathOffset;
+
+      TVector3 *myVec_y;
+      myVec_y = new TVector3(sin(Theta_y/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta_y/1000.)*cos(Phi/1000.));
+      myVec_y->RotateY(20.*TMath::DegToRad()); //VAMOS angle
+      ThetaL_y = myVec_y->Theta();
+      ThetaLdeg_y = ThetaL_y*TMath::RadToDeg();
+      PhiL_y = myVec_y->Phi();*/   
+               
             //cout << Brho << " " << Theta << " " << Phi << endl;
 	    //L->Log<<"-----------"<<endl;
 	    //L->Log << "Brho = "<< Brho << " " << "Theta = "<< Theta << " " <<"Phi = "<< Phi <<" "<<"Path = "<<Path<<endl;
@@ -401,9 +416,18 @@ void Reconstructionv::outAttach(TTree *outT)
   outT->Branch("Path",&Path,"Path/F");
   outT->Branch("ThetaL",&ThetaL,"ThetaL/F");
   outT->Branch("PhiL",&PhiL,"PhiL/F");
+
   outT->Branch("ThetaLdeg",&ThetaLdeg,"ThetaLdeg/F");
   outT->Branch("PhiLdeg",&PhiLdeg,"PhiLdeg/F");
-  outT->Branch("corr_pl",&corr_pl,"corr_pl/D");    
+  outT->Branch("corr_pl",&corr_pl,"corr_pl/D");  
+  
+  /*outT->Branch("Brho_y",&Brho_y,"Brho_y/F");
+  outT->Branch("Theta_y",&Theta_y,"Theta_y/F");
+  outT->Branch("Path_y",&Path_y,"Path_y/F");
+  outT->Branch("ThetaL_y",&ThetaL_y,"ThetaL_y/F");
+  outT->Branch("ThetaLdeg_y",&ThetaLdeg_y,"ThetaLdeg_y/F");
+  outT->Branch("PhiL_y",&PhiL_y,"PhiL_y/F");*/    
+
 }
 
 
