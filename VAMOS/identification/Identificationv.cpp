@@ -67,6 +67,7 @@ Int_t csi=0;
 Float_t p0=0.;
 Float_t p1=0.;
 Float_t p2=0.;
+Float_t p3=0.;
 
 ifstream file;	
 TString sline;
@@ -84,11 +85,12 @@ TString sline;
       		if (!file.eof()) {          //fin du fichier
 			if (sline.Sizeof() > 1 && !sline.BeginsWith("#")){
 				sscanf(sline.Data(), "%u %f %f %f",
-            				&csi, &p0, &p1, &p2);
+            				&csi, &p0, &p1, &p3);
 				P0[csi] = p0;
 				P1[csi] = p1;
 				P2[csi] = p2;
-				L->Log<<p0<<"	"<<p1<<"	"<<p2<<endl;										
+				P3[csi] = p3;
+				L->Log<<p0<<"	"<<p1<<"	"<<p2<<"	"<<p3<<endl;										
 				}
 			}
 		}
@@ -690,14 +692,10 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
 // First Q correction, according to the CsI detector 
 
 DetCsI = int(CsI->Number)+1;   
-L->Log<<"p0 : "<<P0[DetCsI]<<" p1 : "<<P1[DetCsI]<<" p2 : "<<P2[DetCsI]<<endl;
+L->Log<<"p0 : "<<P0[DetCsI]<<" p1 : "<<P1[DetCsI]<<" p2 : "<<P2[DetCsI]<<" p3 : "<<P3[DetCsI]<<endl;
 
-Q_corr = TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q))+0.5);
-Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q);
-if(DetCsI==50){
-	Q_corr = TMath::Floor((-6.44558+(2.53094*Q)+(-0.0970013*Q*Q)+(0.00141178*Q*Q*Q))+0.5);
-	Q_corr_D = -6.44558+(2.53094*Q)+(-0.0970013*Q*Q)+(0.00141178*Q*Q*Q);   
-}
+Q_corr = TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5);
+Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
 L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
        
 //====================================================================================================

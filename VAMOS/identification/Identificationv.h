@@ -245,7 +245,8 @@ Double_t E_csi;
    //Q Correction Function according to the CsI detector
    Float_t 	P0[80];
    Float_t 	P1[80];      
-   Float_t 	P2[80];   
+   Float_t 	P2[80];
+   Float_t 	P3[80];      
    
    // Correction de M/Q
    Float_t 	P0_mq[600];
