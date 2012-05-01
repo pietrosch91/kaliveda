@@ -71,6 +71,7 @@ class Sive503
   Double_t Offset390[19];
   Double_t Offset398[19];
   Double_t Offset403[19];
+  Double_t Offset404[19];  
   Double_t Offset405[19];  
   Double_t Offset407[19];
               

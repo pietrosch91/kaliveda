@@ -116,6 +116,7 @@ Sive503::Sive503(LogFile *Log)
    Float_t off390; 
    Float_t off398;
    Float_t off403;
+   Float_t off404;
    Float_t off405;
    Float_t off407;
               
@@ -151,8 +152,8 @@ Sive503::Sive503(LogFile *Log)
        sline.ReadLine(in2);
        if(!in2.eof()){
 	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
-	     sscanf(sline.Data(),"%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",&num ,&ref, &propre, &off328, &off333, &off339, &off344, &off348, &off353, &off355, &off379,
-	     &off384, &off390, &off398, &off403, &off405, &off407, &off455, &off467, &off475, &off484, &off490, &off493, &off511, &off525, &off528, &off531, &off537, &off543 );
+	     sscanf(sline.Data(),"%d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",&num ,&ref, &propre, &off328, &off333, &off339, &off344, &off348, &off353, &off355, &off379,
+	     &off384, &off390, &off398, &off403, &off404, &off405, &off407, &off455, &off467, &off475, &off484, &off490, &off493, &off511, &off525, &off528, &off531, &off537, &off543 );
          	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
 	     TRef[num] = ref;
 	     Tpropre_el[num] = propre;
@@ -170,6 +171,7 @@ Sive503::Sive503(LogFile *Log)
 	     Offset390[num] = off390;
 	     Offset398[num] = off398;
 	     Offset403[num] = off403;
+	     Offset404[num] = off404;
 	     Offset405[num] = off405;
 	     Offset407[num] = off407;
 	     	     	     	     	     
@@ -360,7 +362,7 @@ void Sive503::Calibrate(void)
 	    //T[0]+= TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
 	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
 	    
-	    //L->Log<<"Tfrag avant	: "<<Tfrag<<"	Offset467	: "<<Offset467[E_Raw_Nr[i]]<<endl;
+	    L->Log<<"Tfrag avant	: "<<Tfrag<<"	Offset467	: "<<Offset467[E_Raw_Nr[i]]<<endl;
 	    
       	    //=========================================================================
             //ToF offset according to the system and the run number
@@ -412,10 +414,14 @@ void Sive503::Calibrate(void)
 	    Tfrag -= Offset398[E_Raw_Nr[i]];
 	    L->Log<<"offset : "<<Offset398[E_Raw_Nr[i]]<<endl;
 	    }
-	    if(gIndra->GetCurrentRunNumber()>402 && gIndra->GetCurrentRunNumber()<405){
+	    if(gIndra->GetCurrentRunNumber()>402 && gIndra->GetCurrentRunNumber()<404){
 	    Tfrag -= Offset403[E_Raw_Nr[i]];
 	    L->Log<<"offset : "<<Offset403[E_Raw_Nr[i]]<<endl;
-	    }	    
+	    }
+	    if(gIndra->GetCurrentRunNumber()==404){
+	    Tfrag -= Offset404[E_Raw_Nr[i]];
+	    L->Log<<"offset : "<<Offset404[E_Raw_Nr[i]]<<endl;
+	    }	    	    
 	    if(gIndra->GetCurrentRunNumber()>404 && gIndra->GetCurrentRunNumber()<407){
 	    Tfrag -= Offset405[E_Raw_Nr[i]];
 	    L->Log<<"offset : "<<Offset405[E_Raw_Nr[i]]<<endl;
