@@ -92,10 +92,16 @@ class KVListView : public TGListView
 	    // return last object in currently displayed list
 	    return ((KVLVContainer*)GetContainer())->GetLastInList();
     };
-	void AllowBrowse(Bool_t on=kTRUE)
+	void AllowDoubleClick(Bool_t on=kTRUE)
 	{
 		// Call with on=kFALSE to disable objects' Browse() method being called with mouse double-click
-		((KVLVContainer*)GetContainer())->AllowBrowse(on);
+		((KVLVContainer*)GetContainer())->AllowDoubleClick(on);
+   };
+   void SetDoubleClickAction(const char* receiver_class, void* receiver, const char* slot);
+	void AllowBrowse(Bool_t on=kTRUE)
+	{
+		// Deprecated: use AllowDoubleClick()
+		AllowDoubleClick(on);
    };
 	void AllowContextMenu(Bool_t on=kTRUE)
 	{

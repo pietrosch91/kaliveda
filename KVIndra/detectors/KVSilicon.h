@@ -82,8 +82,9 @@ class KVSilicon:public KVINDRADetector {
       // Returns thickness of active layer in microns
       return GetActiveLayer()->GetThickness()/KVUnits::um;
    };
+	void DeduceACQParameters(Int_t zz=-1,Int_t aa=-1);
    
-   ClassDef(KVSilicon, 8)       //INDRA forward-rings silicon detector
+	ClassDef(KVSilicon, 8)       //INDRA forward-rings silicon detector
 };
 
 //____________________________________________________________________________________________

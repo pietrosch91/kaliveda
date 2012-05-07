@@ -101,6 +101,8 @@ class KVCsI:public KVINDRADetector {
 	{
 	    return fGainCorrection;
 	};
+	
+	void DeduceACQParameters(Int_t zz=-1,Int_t aa=-1);
 
    ClassDef(KVCsI, 5)           // The CsI(Tl) detectors of the INDRA array
 };

@@ -378,6 +378,63 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //first we look for ID telescopes specific to current dataset
     //these are ID telescopes formed from two distinct detectors
     TString uri;
+    //look for ID telescopes with only one of the two detectors
+    uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
+             de_thick);
+    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        set_up_single_stage_telescope(de,idtels,idt,uri);
+    }
+    else
+    {
+        uri.Form("%s.%s", fDataSet.Data(), de->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_single_stage_telescope(de,idtels,idt,uri);
+        }
+        else
+        {
+            uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
+                     e_thick);
+            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                set_up_single_stage_telescope(e,idtels,idt,uri);
+            }
+            else
+            {
+                uri.Form("%s.%s", fDataSet.Data(), e->GetType());
+                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                    set_up_single_stage_telescope(e,idtels,idt,uri);
+                }
+                else
+                {
+                    uri.Form("%s%d", de->GetType(), de_thick);
+                    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                        set_up_single_stage_telescope(de,idtels,idt,uri);
+                    }
+                    else
+                    {
+                        uri.Form("%s", de->GetType());
+                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                            set_up_single_stage_telescope(de,idtels,idt,uri);
+                        }
+                        else
+                        {
+                            uri.Form("%s%d", e->GetType(), e_thick);
+                            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                                set_up_single_stage_telescope(e,idtels,idt,uri);
+                            }
+                            else
+                            {
+                                uri.Form("%s", e->GetType());
+                                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                                    set_up_single_stage_telescope(e,idtels,idt,uri);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    idt = 0;
 if(de != e){
     uri.Form("%s.%s%d-%s%d", fDataSet.Data(), de->GetType(),
              de_thick, e->GetType(),
@@ -441,64 +498,6 @@ if(de != e){
         }
     }
 } 
-    //if no telescope found, try single-stage telescope
-    idt = 0;
-    //look for ID telescopes with only one of the two detectors
-    uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
-             de_thick);
-    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-        set_up_single_stage_telescope(de,idtels,idt,uri);
-    }
-    else
-    {
-        uri.Form("%s.%s", fDataSet.Data(), de->GetType());
-        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-            set_up_single_stage_telescope(de,idtels,idt,uri);
-        }
-        else
-        {
-            uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
-                     e_thick);
-            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                set_up_single_stage_telescope(e,idtels,idt,uri);
-            }
-            else
-            {
-                uri.Form("%s.%s", fDataSet.Data(), e->GetType());
-                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                    set_up_single_stage_telescope(e,idtels,idt,uri);
-                }
-                else
-                {
-                    uri.Form("%s%d", de->GetType(), de_thick);
-                    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                        set_up_single_stage_telescope(de,idtels,idt,uri);
-                    }
-                    else
-                    {
-                        uri.Form("%s", de->GetType());
-                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                            set_up_single_stage_telescope(de,idtels,idt,uri);
-                        }
-                        else
-                        {
-                            uri.Form("%s%d", e->GetType(), e_thick);
-                            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                                set_up_single_stage_telescope(e,idtels,idt,uri);
-                            }
-                            else
-                            {
-                                uri.Form("%s", e->GetType());
-                                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                                    set_up_single_stage_telescope(e,idtels,idt,uri);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 	 
 }
 
@@ -865,6 +864,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
     	fHitGroups->Clear();
 	}
 	
+	KVNameValueList* un = new KVNameValueList(); 
+	TObjArray* toks = 0;
+	
 	// iterate through list of particles
 	KVNucleus *part;
 	KVNameValueList* det_stat = new KVNameValueList();
@@ -1055,6 +1057,21 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				
 			for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
 				part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
+				//On enregistre les detecteurs touches avec le Z et A de la particule
+				//Si il y a plusieurs particules, on somme les Z et A de celles ci
+				//Cela servira pour deduire les parametres d acquisition
+				//printf("%s %d %d\n",nvl->GetNameAt(ii),part->GetZ(),part->GetA());
+				if (un->HasParameter(nvl->GetNameAt(ii))){
+					TString a_z(un->GetStringValue(nvl->GetNameAt(ii)));
+					toks = a_z.Tokenize(" ");
+					Int_t zz  = part->GetZ()+((TObjString* )toks->At(0))->GetString().Atoi();
+					Int_t aa  = part->GetA()+((TObjString* )toks->At(1))->GetString().Atoi();
+					un->SetValue(nvl->GetNameAt(ii),Form("%d %d",zz,aa));
+					delete toks;
+				}
+				else {	
+					un->SetValue(nvl->GetNameAt(ii),Form("%d %d",part->GetZ(),part->GetA()));
+				}
 			}
 			delete nvl;
 			nvl = 0;
@@ -1064,6 +1081,22 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	} 	//fin de loop over particles
 	
 	delete det_stat;
+	
+	//On calcule les parametres d acquisition
+	//un->Print();
+	KVDetector* det = 0;
+	for (Int_t nn=0;nn<un->GetNpar();nn+=1){
+	
+		det = GetDetector(un->GetNameAt(nn));
+		TString a_z(un->GetStringValue(nn));
+		toks = a_z.Tokenize(" ");
+		Int_t zz  = ((TObjString* )toks->At(0))->GetString().Atoi();
+		Int_t aa  = ((TObjString* )toks->At(1))->GetString().Atoi();
+		
+		det->DeduceACQParameters(zz,aa);
+		delete toks;
+	}
+	delete un;
 	
     // before reconstruction we have to clear the list of 'hits' of each detector
     // (they currently hold the addresses of the simulated particles which were detected)

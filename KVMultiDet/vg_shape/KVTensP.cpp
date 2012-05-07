@@ -269,7 +269,7 @@ Double_t *KVTensP::GetValuePtr(void)
 // 6      Coplanarity
 //
 
-   fVal[0] = TMath::Abs(tenseurP->GetThetaFlot());
+   fVal[0] = tenseurP->GetThetaFlot();
    fVal[1] = tenseurP->GetPhiPlan();
    fVal[2] = tenseurP->GetVap(1);
    fVal[3] = tenseurP->GetVap(2);
@@ -298,7 +298,7 @@ Double_t KVTensP::getvalue_int(Int_t i)
    Double_t rval = 0;
    switch (i) {
    case 0:
-      rval = TMath::Abs(tenseurP->GetThetaFlot());
+      rval = tenseurP->GetThetaFlot();
       break;
 
    case 1:

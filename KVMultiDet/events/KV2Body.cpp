@@ -440,10 +440,11 @@ void KV2Body::CalculateKinematics()
 	
 	//beta of CM
    BCM = VCM.Mag() / WLT;
-	VCM = BCM*KVParticle::C();
-	Nuc1->SetFrame("CM",BCM,kTRUE);
+	
+	VCM *= (1./WLT)*KVParticle::C();
+	Nuc1->SetFrame("CM",VCM,kFALSE);
 	if (Nuc2)
-		Nuc2->SetFrame("CM",BCM,kTRUE);
+		Nuc2->SetFrame("CM",VCM,kFALSE);
 	
    //total energy in CM
    WCT = (GetCMGamma() > 0.0 ? WLT / GetCMGamma() : 0.);
