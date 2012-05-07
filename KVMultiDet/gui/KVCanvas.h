@@ -17,6 +17,7 @@ class KVCanvas : public TCanvas
 
    public:
    KVCanvas();
+//   using TCanvas::TCanvas;
    KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name,title,ww,wh){};
    virtual ~KVCanvas();
    

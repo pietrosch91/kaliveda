@@ -57,6 +57,7 @@ void KVCanvas::RunAutoExec()
    if (!TestBit(kAutoExec)) return;
    if (!gPad) return;
    ((TPad*)gPad)->AutoExec();
+   
 }
 
 //______________________________________________________________________________

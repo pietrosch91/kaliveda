@@ -39,6 +39,8 @@
 
 #include "KVSpiderIdentificator.h"
 
+#define FACTOR -1.
+
 class KVIDGridEditor : public KVBase
 {
 
@@ -84,7 +86,9 @@ class KVIDGridEditor : public KVBase
    Double_t xmin,xmax,ymin,ymax;	//utilises pour les differents zooms
    Double_t oldx, oldy;			//utilises pour les differents zooms
    Bool_t   moved;			//utilise pour les differents zooms
-   
+      
+   Double_t fSpiderFactor;
+   Int_t    fSpiderZp;
    
    protected:
    
@@ -114,21 +118,19 @@ class KVIDGridEditor : public KVBase
    
    void SetPivot    (Double_t xx0, Double_t yy0);
    
+
    void SetEditable(TPaveLabel* label);
    void SelectLines(TPaveLabel* label);
-   void SelectLinesByZ();					//'More' -> 'SelectLinesByZ'
    
    void NewLine ();						//'Line'
    void NewCut  ();						//'Cut'
    void FitGrid ();						//'Fit' avec fonctionnelle de T.G
    void TestGrid();						//'Test' linearisation de l'histo avec la grille courante
-   void SpiderIdentification();					//'More' -> 'SpiderIdentification' pas implemente
    
    void DeleteLine(KVIDentifier* line);				//'Delete'
    void DeleteCut (KVIDentifier* cut);				//'Delete'
 
    void UpdateViewer();						//rafraichit l'interface
-   void ForceUpdate();						//rafraichit toute l'interface de force
    void DrawAtt    (Bool_t piv);				//affiche les bouton sur le canvas
    void ResetColor(KVIDentifier* Ident);			//redonne la couleur d'origine a une ligne
    void ResetColor(KVList* IdentList);				//redonne la couleur d'origine a une liste de ligne
@@ -137,11 +139,7 @@ class KVIDGridEditor : public KVBase
    void ChooseSelectedColor();					//'More' -> SetSelectedColor change la couleur des lignes selectionnes
    void OpenRootFile();						//pas implemente
    void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
-   
-   void SetVarXVarY(char* VarX, char* VarY); 			//'More' -> SetVarXVarY change le nom des variables sur X et Y
-   void SetRunList(char* RunList);   				//'More' -> SetRunList change la liste de runs
-   void SetParameter(char* Name, char* Value);  		//'More' -> SetParameter ajoute un parametre a la liste de la grille
-   
+      
    void DispatchOrder(TPaveLabel* label);			//methode qui distribue les ordres quand on clic sur un bouton
    void ChangeStep(const char* title, Int_t dstep=1);
    const char* WhoIsSelected();					//methode qui regarde quelle transformation est selectionnee
@@ -161,6 +159,7 @@ class KVIDGridEditor : public KVBase
    void Clear(const Option_t* opt = "");			//nettoi l'interface ('all' enleve la grille et l'histo)
    void Close();						//ferme l'interface graphique
    Bool_t IsClosed();						//true si l'interface est fermee
+   void ForceUpdate();						//rafraichit toute l'interface de force
    
    void SetHisto(TH2* hh);					//donne l'histo a l'editeur
    void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
@@ -170,8 +169,13 @@ class KVIDGridEditor : public KVBase
    void MakeTransformation();					//methode ajouter a la liste des auto-exec du canvas : gere le reste
    
    void SetSelectedColor(Int_t color){SelectedColor=color;};
+   void SelectLinesByZ(const Char_t* ListOfZ);			//'More' -> 'SelectLinesByZ'
    void SetDebug(Bool_t debug){fDebug=debug;};
    
+   Int_t GetSpiderZp(){return fSpiderZp;};
+   Double_t GetSpiderFactor(){return fSpiderFactor;};
+   
+   void SpiderIdentification(int Zp, Double_t Factor);// *MENU* *ARGS={Zp=>fSpiderZp,Factor=>fSpiderFactor} 
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };

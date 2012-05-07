@@ -37,7 +37,7 @@ libPhysics.so libMathCore.so libThread.so libGui.so
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
 RLIBMAPDEPS += libGeom.so
 
-#required for use of TSpectrum*
+#required for use of TSpectrum
 LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
 RLIBMAPDEPS += libSpectrum.so
 
