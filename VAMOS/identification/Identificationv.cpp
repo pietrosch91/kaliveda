@@ -39,7 +39,7 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   	
   //for(i=0;i<6;i++)
     //Counter[i] = 0;
-
+  
   Init();
 
   Rnd = new Random;
@@ -84,8 +84,8 @@ TString sline;
       		sline.ReadLine(file);
       		if (!file.eof()) {          //fin du fichier
 			if (sline.Sizeof() > 1 && !sline.BeginsWith("#")){
-				sscanf(sline.Data(), "%u %f %f %f",
-            				&csi, &p0, &p1, &p3);
+				sscanf(sline.Data(), "%u %f %f %f &f",
+            				&csi, &p0, &p1, &p2, &p3);
 				P0[csi] = p0;
 				P1[csi] = p1;
 				P2[csi] = p2;
@@ -131,7 +131,7 @@ TString sline2;
 					for(Int_t i=run1; i<run2; i++){
 						P0_mq[i] = p0mq;
 						P1_mq[i] = p1mq;
-						L->Log<<p0mq<<"	"<<p1mq<<endl;
+						//L->Log<<p0mq<<"	"<<p1mq<<endl;
 					}										
 				}
 			}
@@ -165,7 +165,7 @@ if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
 						for(Int_t i=run1; i<run2; i++){
 							P0_m[i][q] = p0m;
 							P1_m[i][q] = p1m;
-							L->Log<<p0m<<"	"<<p1m<<endl;
+							//L->Log<<p0m<<"	"<<p1m<<endl;
 						}										
 					}
 				}
@@ -173,7 +173,7 @@ if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
  }
 file3.close();
 //==========================================================================
-   
+  
 }
 
 Identificationv::~Identificationv(void)
@@ -182,7 +182,6 @@ Identificationv::~Identificationv(void)
 delete Rnd;
 delete id;
 delete kvn;
-delete fcoup;
 }
 
 void Identificationv::Init(void)
@@ -208,58 +207,64 @@ for(Int_t i=0; i<3; i++){
 }
     runNumber = 0;
     runNumber = (Int_t)gIndra->GetCurrentRunNumber();
+}
 
-//==========================================================================
+//===================================================
 // Gates en Brho et état de charge pour la détermination des états de charges
 // Brho/Q gates to determine the charge state value (interger)
+void Identificationv::SetFileCut(TList *list)
+{
+	llist = list;	
+}
+void Identificationv::GetFileCut()
+{	
 
-if(gIndra->GetCurrentRunNumber()>321 && gIndra->GetCurrentRunNumber()<379)
-{
-	sys=4840;
-}
-if(gIndra->GetCurrentRunNumber()>378 && gIndra->GetCurrentRunNumber()<425)
-{
-	sys=4848;
-}
-if(gIndra->GetCurrentRunNumber()>510 && gIndra->GetCurrentRunNumber()<551)
-{
-	sys=4040;
-}
-if(gIndra->GetCurrentRunNumber()>454 && gIndra->GetCurrentRunNumber()<510)
-{
-	sys=4048;
-}
-L->Log<<"sys : "<<sys<<endl;
+	if(llist->IsZombie()==0){
+		L->Log<<"reading cuts..."<<endl;	
+		//llist->Print();
+		
+		q20 = (TCutG *)llist->FindObject("q20");
+		q19 = (TCutG *)llist->FindObject("q19");
+		q18 = (TCutG *)llist->FindObject("q18");
+		q17 = (TCutG *)llist->FindObject("q17");
+		q16 = (TCutG *)llist->FindObject("q16");
+		q15 = (TCutG *)llist->FindObject("q15");
+		q14 = (TCutG *)llist->FindObject("q14");
+		q13 = (TCutG *)llist->FindObject("q13");				
+		q12 = (TCutG *)llist->FindObject("q12");
+		q11 = (TCutG *)llist->FindObject("q11");
+		q10 = (TCutG *)llist->FindObject("q10");
+		q9 = (TCutG *)llist->FindObject("q9");
+		q8 = (TCutG *)llist->FindObject("q8");
+		q7 = (TCutG *)llist->FindObject("q7");
+		q6 = (TCutG *)llist->FindObject("q6");
+		q5 = (TCutG *)llist->FindObject("q5");
+		
+		//cout<<"Q=20 : "<<endl;
+		//q20->Print();	
+							
+		/*q20=(TCutG *)ffcoup->Get("q20");
+		q19=(TCutG *)ffcoup->Get("q19");
+		q18=(TCutG *)ffcoup->Get("q18");
+		q17=(TCutG *)ffcoup->Get("q17");
+		q16=(TCutG *)ffcoup->Get("q16");  
+		q15=(TCutG *)ffcoup->Get("q15");
+		q14=(TCutG *)ffcoup->Get("q14");
+		q13=(TCutG *)ffcoup->Get("q13");
+		q12=(TCutG *)ffcoup->Get("q12");
+		q11=(TCutG *)ffcoup->Get("q11");
+		q10=(TCutG *)ffcoup->Get("q10");
+		q9=(TCutG *)ffcoup->Get("q9");
+		q8=(TCutG *)ffcoup->Get("q8"); 
+		q7=(TCutG *)ffcoup->Get("q7");
+		q6=(TCutG *)ffcoup->Get("q6");
+		q5=(TCutG *)ffcoup->Get("q5");*/
 
-fcoup=new TFile(Form("$KVROOT/KVFiles/INDRA_e503/cuts_brho_%d.root",sys));
-
-	if(fcoup->IsZombie()==0){
-		L->Log<<"reading cuts..."<<endl;
-		q20=(TCutG *)fcoup->Get("q20");
-		q19=(TCutG *)fcoup->Get("q19");
-		q18=(TCutG *)fcoup->Get("q18");
-		q17=(TCutG *)fcoup->Get("q17");
-		q16=(TCutG *)fcoup->Get("q16");  
-		q15=(TCutG *)fcoup->Get("q15");
-		q14=(TCutG *)fcoup->Get("q14");
-		q13=(TCutG *)fcoup->Get("q13");
-		q12=(TCutG *)fcoup->Get("q12");
-		q11=(TCutG *)fcoup->Get("q11");
-		q10=(TCutG *)fcoup->Get("q10");
-		q9=(TCutG *)fcoup->Get("q9");
-		q8=(TCutG *)fcoup->Get("q8"); 
-		q7=(TCutG *)fcoup->Get("q7");
-		q6=(TCutG *)fcoup->Get("q6");
-		q5=(TCutG *)fcoup->Get("q5");
- 
-		fcoup->Close();
 	}
 	else{
 		L->Log<<"not reading cuts..."<<endl;
 	}
-//==========================================================================
 }
-
 
 //===================================================
 void Identificationv::SetTarget(KVTarget *tgt)
@@ -299,7 +304,6 @@ void Identificationv::SetCsI(KVMaterial *csi)
 	ccsi = csi;	
 }
 //===================================================
-
 
 //===================================================
 KVTarget* Identificationv::GetTarget()
@@ -341,15 +345,6 @@ KVMaterial* Identificationv::GetCsI()
 //===================================================
 
 
-void Identificationv::SetRunFlag(Int_t rrunFlag)
-{
-runFlag=rrunFlag;
-}
-
-Int_t Identificationv::GetRunFlag(void)
-{
-return runFlag;
-}
 //===================================================
 
 Double_t Identificationv::GetEnergyLossCsI(Int_t number)
@@ -505,8 +500,7 @@ Double_t Identificationv::GetEnergyLossTarget()
 //===================================================
 
 void Identificationv::Calculate(void)
-{
-	        
+{	        
 if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(Si->Number==0 && CsI->Number==0))) // if csi is behind the si
 { 
 energytree->InitTelescope(Si->Number,CsI->Number);
@@ -560,7 +554,8 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
                         				A_PID = id->A;
                         				Z_PID = id->Z;
                        					PID = id->PID;
-						
+							delete id;
+							
 							Int_t Z_PIDI = int(Z_PID);
 							L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
 							energytree->SetFragmentZ(Z_PIDI);
@@ -687,6 +682,13 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       
       L->Log<<"Q	= "<<Q<<endl;
       
+   M_Qcorr = 0.0;
+   M_corr_D2 = 0.0;
+   Q_corr = 0.0;
+   Q_corr_D = 0.0;
+   realQ = 0.0;
+   realQ_D = 0.0;
+   Qid = 0;      
 //====================================================================================================
 // Première fonction de correction de Q
 // First Q correction, according to the CsI detector 
@@ -694,14 +696,19 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
 DetCsI = int(CsI->Number)+1;   
 L->Log<<"p0 : "<<P0[DetCsI]<<" p1 : "<<P1[DetCsI]<<" p2 : "<<P2[DetCsI]<<" p3 : "<<P3[DetCsI]<<endl;
 
-Q_corr = TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5);
+Q_corr = int(TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5));
 Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
 L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
        
 //====================================================================================================
 
+//==========================================================================
+// Gates en Brho et état de charge pour la détermination des états de charges
+// Brho/Q gates to determine the charge state value (interger)
+GetFileCut();
+ 
 //====================================================================================================
-    if(Q_corr!=0.0)
+    if(Q_corr>0.0)
     {                 
 	M_corr = Q_corr*M_Q;
 	M_corr_D = Q_corr_D*M_Q;
@@ -710,10 +717,11 @@ L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
 	// M/Q correction according to the Brho		
 	M_Qcorr = P0_mq[runNumber] + (P1_mq[runNumber]*M_Q); 
     }	
-    if(Q_corr!=0.0 && fcoup->IsZombie()==0)
+    if(Q_corr>0.0 && llist->IsZombie()==0)
     {   		
 	// Correction de M en fonction du Brho et de l'état de charge Q
 	// M correction according the Brho value and the charge state Q
+
 	if(q5->IsInside(Rec->Brho,Q_corr_D)==1)
 	{
 	Qid = 5;
@@ -794,6 +802,11 @@ L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
 	Qid = 20;
 	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
 	}
+	else 
+	{
+	Qid = 0;
+	M_corr_D2 = 0.0;
+	}
 	/*else if(q21->IsInside(rRec->Brho,Q_corr_D)==1)
 	{
 	Qid = 21;
@@ -801,9 +814,12 @@ L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
 	}*/
 	
 	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
-	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;   	
+	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;
+	L->Log<<"Qid : "<<Qid<<endl; 
+	L->Log<<"M_corr_D2 : "<<M_corr_D2<<endl;   	
     	}	            
     }
+
 /*  
   Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
   Z2 = sqrt(dE/931.5016)*TMath::Power(Beta,2.)*100.;
@@ -999,7 +1015,7 @@ int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
        sline.ReadLine(in);
        if(!in.eof()){
 	   if (!sline.BeginsWith("#")){
-	     sscanf(sline.Data(),"%d %d %d %d %d %d", &num, &csi1, &csi2, &csi3, &csi4, &csi5, &csi6);
+	     sscanf(sline.Data(),"%d %d %d %d %d %d %d", &num, &csi1, &csi2, &csi3, &csi4, &csi5, &csi6);
 	     geom[num][0]=csi1;
 	     geom[num][1]=csi2;
 	     geom[num][2]=csi3;

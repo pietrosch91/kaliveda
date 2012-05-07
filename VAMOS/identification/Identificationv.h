@@ -12,6 +12,8 @@
 #include "Sive503.h"
 #include "CsIv.h"
 #include "TCutG.h"
+#include "TGraph.h"
+#include "TList.h"
 #include "CsICalib.h"
 #include "KVDetector.h"
 #include "KVMaterial.h"
@@ -105,8 +107,6 @@ Double_t A_PID;
   Int_t i;  
   Int_t zt;
   Int_t aa;
-
-Int_t runFlag;
     
   bool Present; //true if coordinates determined
 
@@ -122,9 +122,9 @@ Int_t runFlag;
   void FillHistograms();
   //void PrintCounters(void);
   
-	void SetRunFlag(Int_t);
-	Int_t GetRunFlag(void);
-	
+  void SetFileCut(TList *list);
+  void GetFileCut();  
+  TList	*llist;
 //===================================================
 void SetTarget(KVTarget *tgt);
 void SetDC1(KVDetector *dcv1);
@@ -255,9 +255,6 @@ Double_t E_csi;
    // Correction de M
    Float_t 	P0_m[600][25];
    Float_t 	P1_m[600][25];
-
-   Int_t sys;
-   TFile	*fcoup;
          
 TCutG *q21;
 TCutG *q20;

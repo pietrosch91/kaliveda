@@ -304,15 +304,46 @@ void Analysisv_e503::SetTel3(KVDetector *csi)
 	energytree->SetTel3(csi);
 }
 
-void Analysisv_e503::SetRunFlag(Int_t runFlag)
+void Analysisv_e503::SetFileCut(TList *list)
 {
-	Id->SetRunFlag(runFlag);
-	rrunFlag = runFlag;
+	Id->SetFileCut(list);
 }
 
-Int_t Analysisv_e503::GetRunFlag(void)
+void Analysisv_e503::SetTarget(KVTarget *tgt)
 {
-	return rrunFlag;
+	Id->SetTarget(tgt);
+}
+void Analysisv_e503::SetDC1(KVDetector *dcv1)
+{
+	Id->SetDC1(dcv1);
+}
+void Analysisv_e503::SetSed(KVMaterial *sed)
+{
+	Id->SetSed(sed);
+}
+void Analysisv_e503::SetDC2(KVDetector *dcv2)
+{
+	Id->SetDC2(dcv2);
+}
+void Analysisv_e503::SetIC(KVDetector *ic)
+{
+	Id->SetIC(ic);
+}
+void Analysisv_e503::SetGap1(KVMaterial *isogap1)
+{
+	Id->SetGap1(isogap1);
+}
+void Analysisv_e503::SetSi(KVMaterial *ssi)
+{
+	Id->SetSi(ssi);
+}
+void Analysisv_e503::SetGap2(KVMaterial *isogap2)
+{
+	Id->SetGap2(isogap2);
+}
+void Analysisv_e503::SetCsI(KVMaterial *ccsi)
+{
+	Id->SetCsI(ccsi);
 }
 
 void Analysisv_e503::Treat()

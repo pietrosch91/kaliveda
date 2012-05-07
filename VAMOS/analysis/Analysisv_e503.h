@@ -33,8 +33,11 @@ $Date: 2007/06/08 15:49:10 $
 #include "KVSiliconVamos.h"
 #include "KVCsIVamos.h"
 #include "PlaneAbsorber.h"
+#include "KVDetector.h"
+#include "KVMaterial.h"
 
 #include "TTree.h"
+#include "TList.h"
 
 class Analysisv_e503 : public Analysisv
 {
@@ -52,6 +55,16 @@ class Analysisv_e503 : public Analysisv
   KVDetector *csi;
   KVDetector *gap;
   
+	KVTarget *tgt;
+        KVDetector *dcv1;
+        KVMaterial *sed;
+        KVDetector *dcv2;
+        KVDetector *ic;
+        KVMaterial *isogap1;
+        KVMaterial *ssi;
+        KVMaterial *isogap2;	
+        KVMaterial *ccsi;
+			 
    TTree* t;
    
   UShort_t T_Raw[10];
@@ -64,16 +77,23 @@ class Analysisv_e503 : public Analysisv
   void Treat(); // Treating data
   void CreateHistograms();
   void FillHistograms();
-    
-  void SetRunFlag(Int_t); 
-  Int_t GetRunFlag(void);
   
   void SetTel1(KVDetector *si);
   void SetTel2(KVDetector *gap);  
   void SetTel3(KVDetector *csi);
-    
-  string mmodulemap[18][80];
-  Int_t rrunFlag;  
+  
+TList *fcoup;
+void SetFileCut(TList *list);
+  
+void SetTarget(KVTarget *tgt);
+void SetDC1(KVDetector *dcv1);
+void SetSed(KVMaterial *sed);
+void SetDC2(KVDetector *dcv2);
+void SetIC(KVDetector *ic);
+void SetGap1(KVMaterial *isogap1);
+void SetSi(KVMaterial *ssi);
+void SetGap2(KVMaterial *isogap2);
+void SetCsI(KVMaterial *ccsi); 
 
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 
