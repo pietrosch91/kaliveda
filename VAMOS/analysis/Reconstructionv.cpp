@@ -45,6 +45,7 @@ Reconstructionv::Reconstructionv(LogFile *Log, DriftChamberv *Drift)
   Rnd = new Random;
 
 //===================================================
+//Phi acceptance correction
 ifstream file;	
 TString sline;
 int tmp=0;
@@ -92,8 +93,60 @@ while (file.good()) {         //reading the file
 	}
 }
 file.close(); 
-//=================================================== 
+//===================================================
 
+
+//===================================================
+//Tagging the event to not count events inside the different overlap regions 
+
+ifstream file2;	
+TString sline2;
+int tmp2=0;
+
+Float_t brho0;
+Int_t run1;
+Int_t run2;
+Float_t brhomin;
+Float_t brhomax;
+
+for(Int_t i=0;i<600;i++){
+	Brho_min[i] = -10.0;
+	Brho_max[i] = -10.0;
+}
+
+if(!gDataSet->OpenDataSetFile("Brho_tag.dat", file2))     
+{
+	cout << "Could not open the file for the tag !" << endl;
+     	return;
+}
+
+while (file2.good()) {         //reading the file
+      sline2.ReadLine(file2);
+      if (!file2.eof()) {          //fin du fichier
+		if (sline2.Sizeof() > 1 && !sline2.BeginsWith("#")){		  	
+			sscanf(sline2.Data(),"%f %d %d %f %f", &brho0, &run1, &run2, &brhomin, &brhomax);				
+				for(Int_t i=run1; i<run2; i++){			
+					Brho_min[i] = brhomin;
+					Brho_max[i] = brhomax;			
+					}
+				if(run1==run2)
+					{
+					Brho_min[run1] = brhomin;
+					Brho_max[run2] = brhomax;					
+					}
+				if(TMath::Abs(run2-run1)==1)
+					{
+					Brho_min[run1] = brhomin;
+					Brho_max[run1] = brhomax;
+					Brho_min[run2] = brhomin;
+					Brho_max[run2] = brhomax;										
+					}																	
+		}
+	}
+}
+file2.close(); 
+ 
+//===================================================
   ifstream inf3;
   if(!gDataSet->OpenDataSetFile("Vamos_distance.dat", inf3))
     {
@@ -357,6 +410,16 @@ void Reconstructionv::Calculate(void)
 	    //L->Log << "ThetaL = "<< ThetaL << " " <<"PhiL = "<< PhiL <<endl;
 	    //L->Log<<"-----------"<<endl;
 
+//Tagging the event...
+	if(Brho_min[gIndra->GetCurrentRunNumber()] < Brho && Brho < Brho_max[gIndra->GetCurrentRunNumber()]){
+		Brho_tag = 1;
+		}
+	else{
+		Brho_tag = 0;
+		}	
+
+
+
 //Warning : Correction (corr_pl) is applied for thetaL<0.12 rad and phiL between -1 and 1 rad.
 deltat = double(Brho / (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")));
 
@@ -420,7 +483,8 @@ void Reconstructionv::outAttach(TTree *outT)
   outT->Branch("ThetaLdeg",&ThetaLdeg,"ThetaLdeg/F");
   outT->Branch("PhiLdeg",&PhiLdeg,"PhiLdeg/F");
   outT->Branch("corr_pl",&corr_pl,"corr_pl/D");  
-  
+  outT->Branch("Brho_tag",&Brho_tag,"Brho_tag/I");
+    
   /*outT->Branch("Brho_y",&Brho_y,"Brho_y/F");
   outT->Branch("Theta_y",&Theta_y,"Theta_y/F");
   outT->Branch("Path_y",&Path_y,"Path_y/F");

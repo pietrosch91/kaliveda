@@ -51,6 +51,10 @@ class Reconstructionv
 	Float_t Etendue[600];
 	Double_t corr_pl; 
 	Double_t deltat;
+	
+	Int_t Brho_tag;
+	Float_t Brho_min[600];
+	Float_t Brho_max[600];
 	  
   Float_t Theta;
   Float_t Phi;
