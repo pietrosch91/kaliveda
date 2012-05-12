@@ -89,7 +89,8 @@ class Sive503
   Double_t Offset528[19]; 
   Double_t Offset531[19];  
   Double_t Offset537[19];  
-  Double_t Offset543[19]; 
+  Double_t Offset543[19];
+  Double_t Offset548[19];   
   
   Double_t Tfrag;
   Double_t si_thick[19];   
