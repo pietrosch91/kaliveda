@@ -265,6 +265,33 @@ Analysisv_e494s::~Analysisv_e494s()
 #endif
 }
 
+
+// NEW  NEW NEW NEW NEW NEW NEW
+// NEW  NEW NEW NEW NEW NEW NEW
+// NEW  NEW NEW NEW NEW NEW NEW
+void Analysisv_e494s::SetBrhoRef(Double_t B)
+{
+	RC->SetBrhoRef(B);
+	BB = B;
+}
+
+void Analysisv_e494s::SetAngleVamos(Double_t theta)
+{
+	RC->SetAngleVamos(theta);
+	ttheta = theta;
+}
+Double_t Analysisv_e494s::GetBrhoRef(void)
+{
+	return BB;
+}
+Double_t Analysisv_e494s::GetAngleVamos(void)
+{
+	return ttheta;
+}
+// NEW  NEW NEW NEW NEW NEW NEW
+// NEW  NEW NEW NEW NEW NEW NEW
+// NEW  NEW NEW NEW NEW NEW NEW
+
 void Analysisv_e494s::Treat()
 {
 #ifdef DEBUG

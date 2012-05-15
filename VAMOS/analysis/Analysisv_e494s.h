@@ -54,7 +54,15 @@ class Analysisv_e494s : public Analysisv
   void Treat(); // Treating data
   void CreateHistograms();
   void FillHistograms();
+
+  void SetBrhoRef(Double_t);
+  void SetAngleVamos(Double_t); 
+  Double_t GetBrhoRef(void);
+  Double_t GetAngleVamos(void);
   
+  Double_t BB;
+  Double_t ttheta;
+    
   ClassDef(Analysisv_e494s,0)//VAMOS calibration for E494S
 
 };
