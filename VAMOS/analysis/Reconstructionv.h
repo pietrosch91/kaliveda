@@ -30,6 +30,13 @@ class Reconstructionv
   void FillHistograms();
   void PrintCounters(void);
 
+	void SetBrhoRef(Double_t);
+	void SetAngleVamos(Double_t);
+	Double_t GetBrhoRef(void);
+	Double_t GetAngleVamos(void);
+	Double_t B;
+	Double_t theta;
+	
   Random *Rnd;
 
   Float_t BrhoRef;

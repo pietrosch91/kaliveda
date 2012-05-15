@@ -144,6 +144,26 @@ void Reconstructionv::Init(void)
   ThetaL = PhiL = -500.;
 }
 
+void Reconstructionv::SetBrhoRef(Double_t BB)
+{
+	B = BB;
+}
+
+void Reconstructionv::SetAngleVamos(Double_t ttheta)
+{
+	theta = ttheta; 
+}
+
+Double_t Reconstructionv::GetBrhoRef(void)
+{
+	return B;
+}
+
+Double_t Reconstructionv::GetAngleVamos(void)
+{
+	return theta; 
+}
+
 void Reconstructionv::Calculate(void)
 {
 #ifdef DEBUG
@@ -205,13 +225,26 @@ void Reconstructionv::Calculate(void)
     {
       Counter[2]++;
       Present = true;
-      Brho = BrhoRef*((Float_t) Brhot);
+      //Brho = BrhoRef*((Float_t) Brhot);
+
+// NEW NEW NEW NEW NEW NEW NEW NEW 
+	  Brho = GetBrhoRef()*((Float_t) Brhot);
+// NEW NEW NEW NEW NEW NEW NEW NEW 
+
+
       Theta = (Float_t) Thetat*-1;
       Phi = (Float_t) Phit*-1;
       Path = (Float_t) Patht + PathOffset;
 
       TVector3 myVec(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
-      myVec.RotateY(35.*3.141592654/180.);
+/*
+ *		Inclusion of rotation angle of Vamos
+ */
+//      myVec.RotateY(35.*3.141592654/180.);
+// NEW NEW NEW NEW NEW NEW NEW NEW 
+      myVec.RotateY(GetAngleVamos()*3.141592654/180.);
+// NEW NEW NEW NEW NEW NEW NEW NEW 
+	  
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
       
