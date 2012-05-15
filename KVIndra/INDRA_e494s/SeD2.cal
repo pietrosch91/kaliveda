@@ -1,10 +1,12 @@
 //Energy Wire calib (Sept 2004)
-0.0 1.0  
-0.0 1.0  
-0.0 1.0  
-//Time Wire calib ns (Sept 2004)
-0.0 1. 
-//Charge Strip X calib
+  0.0 1.0
+  0.0 1.0
+  0.0 1.0
+//Time TSED2-HF : T[ns]-t0 = -(a+(b+(c+(d+(e+f*x)*x)*x)*x)*x)*x ; a,b,c,d,e,f :
+  0.022823 5.6213e-07 -6.5741e-11 4.1364e-15 -1.3266e-19 1.7054e-24
+//Time t0 -> T[ns] = (T[ns]-t0) + t0 : (PRELIMINARY!!!!)
+  267.458
+//Charge calibration Strip X
  -733.06   2.7135  -8.5592e-06
    56.072  0.7957  -6.7138e-06
  -264.31   0.96323 -3.4739e-06
@@ -133,7 +135,7 @@
    13.896  1.1542  -2.1019e-06
    20.531  0.94791 -3.5036e-06
 -1189.1    3.0083   1.8653e-05
-//Charge Strip Y
+//Charge calibration Strip Y
    0.0     0.0      0.0       
  181.16    1.0109   0.0       
  123.11    1.0206  -3.6156e-06
