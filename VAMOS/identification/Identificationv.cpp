@@ -128,7 +128,7 @@ TString sline2;
 			if (sline2.Sizeof() > 1 && !sline2.BeginsWith("#")){
 				sscanf(sline2.Data(), "%f %u %u %f %f %f",
             				&brho, &run1, &run2, &p0mq, &p1mq, &chi2);
-					for(Int_t i=run1; i<run2; i++){
+					for(Int_t i=run1; i<run2+1; i++){
 						P0_mq[i] = p0mq;
 						P1_mq[i] = p1mq;
 						//L->Log<<p0mq<<"	"<<p1mq<<endl;
@@ -162,7 +162,7 @@ if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
 				if (sline3.Sizeof() > 1 && !sline3.BeginsWith("#")){
 					sscanf(sline3.Data(), "%f %u %u %u %f %f %f",
             					&brho, &run1, &run2, &q, &p0m, &p1m, &chi2);
-						for(Int_t i=run1; i<run2; i++){
+						for(Int_t i=run1; i<run2+1; i++){
 							P0_m[i][q] = p0m;
 							P1_m[i][q] = p1m;
 							//L->Log<<p0m<<"	"<<p1m<<endl;
@@ -173,7 +173,52 @@ if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
  }
 file3.close();
 //==========================================================================
-  
+
+//==========================================================================
+// Calculate the total statistic for each nominal Brho.
+
+Float_t brho0;
+ifstream file6;	
+TString sline6;
+
+stat_indra = -10.0;
+for(Int_t i=0;i<600;i++){
+	Stat_Indra[i] = -10.0;
+	Stat_Indra[i] = -10.0;
+}
+
+if(!gDataSet->OpenDataSetFile("Stat_Indra.dat",file6))
+  {	
+     L->Log<< "Could not open the calibration file  Stat_Indra!!!" << endl;
+     return;
+  }
+  else 
+  {
+   while (file6.good()) {         //reading the file
+      sline6.ReadLine(file6);
+      if (!file6.eof()) {          //fin du fichier
+		if (sline6.Sizeof() > 1 && !sline6.BeginsWith("#")){		  	
+			sscanf(sline6.Data(),"%f %d %d %f", &brho0, &run1, &run2, &stat_indra);
+				//cout<<"stat indra : "<<stat_indra<<endl;				
+				for(Int_t i=run1; i<run2+1; i++){			
+					Stat_Indra[i] = stat_indra;			
+					}
+				if(run1==run2)
+					{
+					Stat_Indra[run1] = stat_indra;					
+					}
+				if(TMath::Abs(run2-run1)==1)
+					{
+					Stat_Indra[run1] = stat_indra;
+					Stat_Indra[run2] = stat_indra;										
+					}		
+		
+			}
+		}
+	}
+}
+file6.close();				
+//==========================================================================  
 }
 
 Identificationv::~Identificationv(void)
@@ -567,10 +612,10 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 			
 							AA = energytree->RetrieveA();													
 			
-							L->Log<<"==========================="<<endl;		
+							/*L->Log<<"==========================="<<endl;		
 							L->Log<<"Z	= "<<PID<<endl;
 							L->Log<<"A	= "<<AA<<endl;
-							L->Log<<"==========================="<<endl;
+							L->Log<<"==========================="<<endl;*/
 							a_bisec = energytree->BisectionLight(PID,AA,ECsI);
 							e_bisec = (ECsI*a_bisec)/AA;			
                     					}
@@ -595,8 +640,8 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
       if((dE1+ESi+ECsI)>0)					//if(Si->ETotal > 0)
 	E = dE1 + ESi + EGap + ECsI;				//Total energy (MeV)	(ChIo, Si, estimated gap energy, CsI)
 
-	L->Log<<"E	(MeV)= "<<E<<endl;
-	L->Log<<"ESi	(MeV)= "<<ESi<<"	ECsI	(MeV)= "<<ECsI<<"	Ic	(MeV)= "<<dE1<<endl;
+	//L->Log<<"E	(MeV)= "<<E<<endl;
+	//L->Log<<"ESi	(MeV)= "<<ESi<<"	ECsI	(MeV)= "<<ECsI<<"	Ic	(MeV)= "<<dE1<<endl;
     }
 
 /*
@@ -632,8 +677,8 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
    	kin->SetOutgoing(kin->GetNucleus(1));
    	kin->CalculateKinematics();
 
- 	L->Log<<"D	   = "<<D<<"	   V = "<<V<<"     Beta = "<<Beta<<"	   D/T = "<<D/T<<endl;
- 	L->Log<<"TOF	   = "<<T<<endl;
+ 	//L->Log<<"D	   = "<<D<<"	   V = "<<V<<"     Beta = "<<Beta<<"	   D/T = "<<D/T<<endl;
+ 	//L->Log<<"TOF	   = "<<T<<endl;
     }
 
   if(Beta>0 && Rec->Brho>0 && Si->Present)	//Modification (2012-02-10) Original : Beta>0 && Rec->Brho>0 && Gamma>1. && Si->Present
@@ -660,7 +705,7 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       M = 2.* E / (931.5016*TMath::Power(Beta,2.)); 
       Mass = M_Q*PID;     
 	                              
-      L->Log<<"===M/Q construction==="<<endl;
+      /*L->Log<<"===M/Q construction==="<<endl;
       L->Log<<"Brho	= "<<Rec->Brho<<endl;
       L->Log<<"Beta	= "<<Beta<<endl;
       L->Log<<"===================="<<endl;
@@ -669,7 +714,7 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       L->Log<<"Beta	= "<<Beta<<endl;
       L->Log<<"===================="<<endl;      
       L->Log<<"M	= "<<M<<endl;
-      L->Log<<"M/Q	= "<<M_Q<<endl;
+      L->Log<<"M/Q	= "<<M_Q<<endl;*/
       
       Mr = (E/1000.)/931.5016/(Gamma-1.);
       M_Qr = Rec->Brho/3.105/Beta/Gamma;
@@ -680,25 +725,28 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       Qc = int(Qr+0.5);
       Mc = M_Qr*Qc;
       
-      L->Log<<"Q	= "<<Q<<endl;
+      //L->Log<<"Q	= "<<Q<<endl;
       
    M_Qcorr = 0.0;
    M_corr_D2 = 0.0;
-   Q_corr = 0.0;
+   Q_corr = 0;
    Q_corr_D = 0.0;
-   realQ = 0.0;
-   realQ_D = 0.0;
-   Qid = 0;      
+   realQ = 0;
+   realQ_D = 0;
+   Qid = 0;
+   Z_corr=0;
+   
+   Z_corr = int(TMath::Floor(PID+0.5));      
 //====================================================================================================
 // Première fonction de correction de Q
 // First Q correction, according to the CsI detector 
 
 DetCsI = int(CsI->Number)+1;   
-L->Log<<"p0 : "<<P0[DetCsI]<<" p1 : "<<P1[DetCsI]<<" p2 : "<<P2[DetCsI]<<" p3 : "<<P3[DetCsI]<<endl;
+//L->Log<<"p0 : "<<P0[DetCsI]<<" p1 : "<<P1[DetCsI]<<" p2 : "<<P2[DetCsI]<<" p3 : "<<P3[DetCsI]<<endl;
 
 Q_corr = int(TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5));
 Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
-L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
+//L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
        
 //====================================================================================================
 
@@ -708,7 +756,7 @@ L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
 GetFileCut();
  
 //====================================================================================================
-    if(Q_corr>0.0)
+    if(Q_corr>0)
     {                 
 	M_corr = Q_corr*M_Q;
 	M_corr_D = Q_corr_D*M_Q;
@@ -717,7 +765,7 @@ GetFileCut();
 	// M/Q correction according to the Brho		
 	M_Qcorr = P0_mq[runNumber] + (P1_mq[runNumber]*M_Q); 
     }	
-    if(Q_corr>0.0 && llist->IsZombie()==0)
+    if(Q_corr>0 && llist->IsZombie()==0)
     {   		
 	// Correction de M en fonction du Brho et de l'état de charge Q
 	// M correction according the Brho value and the charge state Q
@@ -815,8 +863,8 @@ GetFileCut();
 	
 	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
 	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;
-	L->Log<<"Qid : "<<Qid<<endl; 
-	L->Log<<"M_corr_D2 : "<<M_corr_D2<<endl;   	
+	//L->Log<<"Qid : "<<Qid<<endl; 
+	//L->Log<<"M_corr_D2 : "<<M_corr_D2<<endl;   	
     	}	            
     }
 
@@ -831,7 +879,9 @@ GetFileCut();
 NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
 DT = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT");
 FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
-Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho"); 
+Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho");   
+stat_tot = 0.;
+stat_tot = Stat_Indra[gIndra->GetCurrentRunNumber()]; 
    
   if( T > 0 && V > 0 && M_Q > 0 && M > 0 && Z1 > 0 && Z2 > 0 && Beta > 0 && Gamma > 1.0) 
     {
@@ -908,7 +958,8 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("DT",&DT,"DT/D");
 	outT->Branch("Brho_mag",&Brho_mag,"Brho_mag/D");		
 	outT->Branch("FC_Indra",&FC_Indra,"FC_Indra/D");
-		
+	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");		
+	
 	outT->Branch("Z_PID",&Z_PID,"Z_PID/D");
 	outT->Branch("A_PID",&A_PID,"A_PID/D");
 	outT->Branch("PID",&PID,"PID/D");

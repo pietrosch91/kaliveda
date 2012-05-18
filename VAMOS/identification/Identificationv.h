@@ -91,6 +91,10 @@ class Identificationv
   Double_t DT;
   Double_t Brho_mag;
   Double_t FC_Indra;
+
+	Float_t stat_tot;
+	Float_t stat_indra;
+	Float_t Stat_Indra[600];  
   
 Double_t PID;
 Double_t Z_PID;
