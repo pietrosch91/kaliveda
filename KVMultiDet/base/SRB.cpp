@@ -252,9 +252,9 @@ Bool_t SRB::DirectoryContains(const Char_t* name, const Char_t* directory)
 	// Returns true if the current directory (default) or the given directory
 	// contains a file or a container with given name.
 	
-	TList *ls = GetListing(directory);
-	Bool_t ok = ls->FindObject(name);
-	delete ls;
+	TList *list = GetListing(directory);
+	Bool_t ok = list->FindObject(name);
+	delete list;
 	return ok;
 }
 
