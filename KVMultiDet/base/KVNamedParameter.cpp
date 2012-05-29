@@ -106,7 +106,7 @@ const Char_t* KVNamedParameter::GetString() const
    // returns string if parameter value is of string type
    // if not, print warning and return empty string
    if (IsString()) return GetTitle();
-   Warning("GetString", "Parameter is of type %s", GetTitle());
+   Warning("GetString", "Parameter %s is of type %s", GetName(), GetTitle());
    return "";
 }
 
@@ -115,7 +115,7 @@ Double_t KVNamedParameter::GetDouble() const
    // returns double if parameter value is of numerical type
    // if string, print warning and return zero
    if (IsString()) {
-      Warning("GetDouble", "Parameter is a string : %s", GetTitle());
+      Warning("GetDouble", "Parameter %s is a string : %s", GetName(), GetTitle());
       return 0.0;
    }
    return fNumber;
@@ -126,7 +126,7 @@ Int_t KVNamedParameter::GetInt() const
    // returns integer if parameter value is of numerical type
    // if string, print warning and return zero
    if (IsString()) {
-      Warning("GetInt", "Parameter is a string : %s", GetTitle());
+      Warning("GetInt", "Parameter %s is a string : %s", GetName(), GetTitle());
       return 0;
    }
    return (Int_t)fNumber;
