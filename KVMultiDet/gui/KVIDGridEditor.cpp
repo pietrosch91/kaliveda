@@ -7,6 +7,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <KeySymbols.h>
+
 ClassImp(KVIDGridEditor)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,19 +62,22 @@ KVIDGridEditor::KVIDGridEditor()
 //________________________________________________________________
 void KVIDGridEditor::StartViewer()
 {    
-  Close();
-  
-  fCanvas = new KVIDGridEditorCanvas(Form("%sCanvas",GetName()),Form("%sCanvas",GetName()),800,600);
-  fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
-  fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
+//  Close();
 
-  fPad = fCanvas->cd();
+  if(IsClosed())
+    {  
+    fCanvas = new KVIDGridEditorCanvas(Form("%sCanvas",GetName()),Form("%sCanvas",GetName()),800,600);
+    fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
+    fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
+
+    fPad = fCanvas->cd();
   
-  if(!ready) init();
-  if(TheHisto) TheHisto->Draw("col");
-  if(TheGrid)  TheGrid->Draw();
-  
-  DrawAtt(false);  
+    if(!ready) init();
+    if(TheHisto) TheHisto->Draw("col");
+    if(TheGrid)  TheGrid->Draw();
+    DrawAtt(false);  
+    }
+    
   return;
 }
 
@@ -82,6 +87,7 @@ void KVIDGridEditor::SetDefault()
   TheHisto = 0;
   TheGrid  = 0;
   fPivot  = 0;
+  fPad  = 0;
   x0 = y0 = 0.;
   fCanvas = 0;
   
@@ -96,7 +102,9 @@ void KVIDGridEditor::SetDefault()
   dlmode     = false;
   drawmode   = false;
   selectmode = false;
+  aoemode    = false;
   moved      = false;
+  venermode  = false;
   fDebug     = false;
   ready      = false;
 
@@ -106,7 +114,8 @@ void KVIDGridEditor::SetDefault()
 //________________________________________________________________
 Bool_t KVIDGridEditor::IsClosed()
 {
-  if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
+//  if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
+  if(fPad) return false;
   else return true;
 }
 
@@ -548,6 +557,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
     {
     TheHisto->Draw("col");
     fPad->SetLogz(true);
+    TheHisto->SetMinimum(1);
     }
   DrawAtt(true);
   return;
@@ -580,6 +590,8 @@ void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
     }
   if((TheGrid)&&(!IsClosed())) TheGrid->UnDraw();
   
+  Clear();
+  
   TheGrid = gg;
   if(histo) SetHisto(0);
   if(!IsClosed()) TheGrid->Draw();
@@ -587,8 +599,10 @@ void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
   fSpiderFactor = -1.;
   fSpiderZp     = -1;
   
-  DrawAtt(true);
+//  DrawAtt(true);
+
   UpdateViewer();
+  
   return;
 }
 
@@ -645,8 +659,7 @@ void KVIDGridEditor::SelectLabel()
   Int_t event = fPad->GetEvent();
   if(event==kMouseMotion) return;  
   TObject *select = fPad->GetSelected();
-  
-  
+    
   if(!select) return;  
   if(!select->InheritsFrom("TPaveLabel")) return;  
   
@@ -723,8 +736,63 @@ void KVIDGridEditor::SelectLabel()
 void KVIDGridEditor::MakeTransformation()
 {
   Int_t event = fPad->GetEvent();
-  if(event==kMouseMotion) return;
   TObject *select = fPad->GetSelected();
+  
+  if(((event==kMouseMotion)||(event==kButton1Motion))&&(TheHisto))
+    {
+    if(!(aoemode)) return;
+    
+    Double_t size = 0.4-0.35*venermode;
+        
+    Int_t dX = 0;
+    Int_t dY = 0;
+  
+    Int_t px = fPad->GetEventX();
+    Int_t py = fPad->GetEventY();
+    
+    px = fPad->AbsPixeltoX(px);
+    py = fPad->AbsPixeltoY(py);
+  
+    TAxis* ax = TheHisto->GetXaxis();    
+    Int_t X0 = ax->GetFirst();
+    Int_t X1 = ax->GetLast();
+    Int_t NbinsX = ax->GetNbins();
+    px = ax->FindBin(px);
+    
+    Double_t ddX   = (X1+X0)*0.5 - px;
+    Double_t distX = TMath::Abs(ddX)/(X1-X0);
+    if(distX>=0.5) return;
+        
+    TAxis* ay = TheHisto->GetYaxis();    
+    Int_t Y0 = ay->GetFirst();
+    Int_t Y1 = ay->GetLast();
+    Int_t NbinsY = ay->GetNbins();
+    py = ay->FindBin(py);
+     
+    Double_t ddY   = (Y1+Y0)*0.5 - py;
+    Double_t distY = TMath::Abs(ddY)/(Y1-Y0);
+    if(distY>=0.5) return;
+       
+    if((distX<=size)&&(distY<=size)) return;
+        
+    dX = (Int_t)ddX*(0.05 + 0.05*venermode);
+    dY = (Int_t)ddY*(0.05 + 0.05*venermode);
+    
+    Bool_t up = false;
+        
+    if((X0-dX>0)&&(X1-dX<NbinsX)) 
+      {
+      ax->SetRange(X0-dX,X1-dX);
+      up = true;
+      }
+    if((Y0-dY>0)&&(Y1-dY<NbinsY)) 
+      {
+      ay->SetRange(Y0-dY,Y1-dY);
+      up = true;
+      }
+        
+    if(up) UpdateViewer();
+    } 
     
   if (!select){}
   else 
@@ -810,13 +878,13 @@ void KVIDGridEditor::MakeTransformation()
       SetPivot(x0,y0);
       fPivot->Draw("P");
       }
-    else if(select->InheritsFrom("KVIDentifier"))
-      {
-      TPaveLabel* label = (TPaveLabel*)lplabel3->FindObject("All");
-      lplabel3->Execute("SetFillColor","kWhite");
-      label->SetFillColor(kGreen);
-      SelectLines(label);
-      }
+//     else if(select->InheritsFrom("KVIDentifier"))
+//       {
+//       TPaveLabel* label = (TPaveLabel*)lplabel3->FindObject("All");
+//       lplabel3->Execute("SetFillColor","kWhite");
+//       label->SetFillColor(kGreen);
+//       SelectLines(label);
+//       }
     UpdateViewer();
     }
   if((event==kWheelUp)||(event==kWheelDown))
@@ -1092,17 +1160,6 @@ void KVIDGridEditor::NewCut()
   return;   
 }
 
-
-// //________________________________________________________________
-// void KVIDGridEditor::SetSpiderParameters(int Zp, Double_t factor)
-// {
-//   SpiderFactor = factor;
-//   SpiderZp = Zp;
-//   
-//   Info("SetSpiderParameters","Done...");
-// }
-
-
 //________________________________________________________________
 void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
 {
@@ -1326,6 +1383,7 @@ void KVIDGridEditor::SaveCurrentGrid()
   TGFileInfo fi;
   fi.fFileTypes = filetypes;
   fi.fIniDir = StrDup(dir);
+//  fi.fFilename = Form("%s.dat",TheGrid->GetName());
   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDSave, &fi);
   if (fi.fFilename) 
     {
@@ -1770,3 +1828,239 @@ void KVIDGridEditor::ForceUpdate()
   fPad->Update();	     
   if(fDebug) cout << "INFO: KVIDGridEditor::ForceUpdate(): Canvas and Co has been updated !" << endl; 
 }
+
+//________________________________________________________________
+Bool_t KVIDGridEditor::HandleKey(Event_t *event)
+{
+   // Handle keys
+      
+   char tmp[2];
+   UInt_t keysym;
+
+   gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
+   TPaveLabel* label = 0;
+   Int_t color;
+   
+   if (event->fType == kGKeyPress) {
+      switch ((EKeySym)keysym) {
+         case kKey_F1:
+	    label = (TPaveLabel*)lplabel->At(0);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;    
+	    
+         case kKey_F2:
+	    label = (TPaveLabel*)lplabel->At(1);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;    
+	    
+         case kKey_F3:
+	    label = (TPaveLabel*)lplabel->At(2);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;    
+	    
+         case kKey_F4:
+	    label = (TPaveLabel*)lplabel->At(3);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;    
+	    
+         case kKey_F5:
+	    label = (TPaveLabel*)lplabel->At(4);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;
+	    
+         case kKey_F6:
+	    label = (TPaveLabel*)lplabel->At(5);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;
+	    
+         case kKey_F7:
+	    label = (TPaveLabel*)lplabel->At(6);
+	    SelectTrans(label);
+            UpdateViewer();
+            break;
+	    
+         case kKey_F8:
+	    SetLogy();
+	    UpdateViewer();
+            break;
+	    
+         case kKey_F9:
+	    SetLogz();
+	    UpdateViewer();
+            break;
+	    
+         case kKey_F12:
+	    Unzoom();
+	    UpdateViewer();
+            break;
+	    
+         case kKey_s:
+	    SaveCurrentGrid();
+	    UpdateViewer();
+            break;
+	    
+         case kKey_l:
+	    label = (TPaveLabel*)lplabel4->FindObject("Line");
+	    DispatchOrder(label);
+	    UpdateViewer();
+            break;
+	    
+         case kKey_e:
+	    label = (TPaveLabel*)lplabel4->FindObject("Edit");
+	    SetEditable(label);
+	    UpdateViewer();
+            break;
+	    
+         case kKey_d:
+	    label = (TPaveLabel*)lplabel4->FindObject("Delete");
+	    DispatchOrder(label);
+	    UpdateViewer();
+            break;
+	    
+         case kKey_a:
+	    label = (TPaveLabel*)lplabel3->FindObject("All");
+	    color = label->GetFillColor();
+            lplabel3->Execute("SetFillColor","kWhite");
+            if(color==kWhite) label->SetFillColor(kGreen);
+            if(color==kGreen)  label->SetFillColor(kWhite);
+	    SelectLines(label);
+	    UpdateViewer();
+            break;
+	    
+         case kKey_z:
+	    label = (TPaveLabel*)lplabel3->FindObject("Select");
+	    color = label->GetFillColor();
+            lplabel3->Execute("SetFillColor","kWhite");
+            if(color==kWhite) label->SetFillColor(kGreen);
+            if(color==kGreen)  label->SetFillColor(kWhite);
+	    SelectLines(label);
+	    UpdateViewer();
+            break;
+	    
+         case kKey_w:
+	    aoemode = !aoemode;
+            break;
+	    
+         case kKey_v:
+	    venermode = !venermode;
+            break;
+	    
+         case kKey_c:
+	    SetLogz();
+	    UpdateViewer();
+            break;
+	    
+         case kKey_x:
+	    Unzoom();
+	    UpdateViewer();
+            break;
+	    
+         case kKey_Left:
+            MoveHor(1);
+            break;
+	    
+         case kKey_Right:
+            MoveHor(-1);
+            break;
+	    
+         case kKey_Down:
+	    MoveVert(1);
+            break;
+	    
+         case kKey_Up:
+	    MoveVert(-1);
+            break;
+	    
+         case kKey_Space:
+            break;
+         default:
+            return kTRUE;
+      }
+   }
+   return kTRUE;
+}
+
+//________________________________________________________________
+void KVIDGridEditor::MoveHor(Int_t sign)
+{
+  if(!TheHisto) return;
+  
+  TAxis* xAxis = TheHisto->GetXaxis();
+      
+  Int_t XX1 = xAxis->GetFirst();
+  Int_t XX2 = xAxis->GetLast();
+  
+  if((XX1==1)&&(sign==1)) return;
+  if((XX2==xAxis->GetNbins()-1)&&(sign==-1)) return;
+
+  Int_t dX = (Int_t)sign*(XX1-XX2)*0.25;
+  
+  xAxis->SetRange(XX1+dX,XX2+dX);
+  UpdateViewer();  
+}
+
+//________________________________________________________________
+void KVIDGridEditor::MoveVert(Int_t sign)
+{
+  if(!TheHisto) return;
+  
+  TAxis* yAxis = TheHisto->GetYaxis();
+      
+  Int_t XX1 = yAxis->GetFirst();
+  Int_t XX2 = yAxis->GetLast();
+  
+  if((XX1==1)&&(sign==1)) return;
+  if((XX2==yAxis->GetNbins()-1)&&(sign==-1)) return;
+
+  Int_t dX = (Int_t)sign*(XX1-XX2)*0.25;
+  
+  yAxis->SetRange(XX1+dX,XX2+dX);
+  UpdateViewer();
+}
+
+
+//________________________________________________________________
+void KVIDGridEditor::SelectTrans(TPaveLabel* label)
+{
+  if(!label) return;
+  
+  Int_t color = label->GetFillColor();
+  lplabel->Execute("SetFillColor","kWhite");
+  if(color==kWhite) label->SetFillColor(kRed);
+  else if(color==kRed) label->SetFillColor(kWhite);
+  
+  return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

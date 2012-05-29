@@ -43,6 +43,7 @@
 
 class KVIDGridEditor : public KVBase
 {
+friend class KeyHandler;
 
    protected:
    
@@ -80,7 +81,9 @@ class KVIDGridEditor : public KVBase
    Bool_t ownhisto;			//true si histo par defaut
    Bool_t dlmode;			//true si mode delete
    Bool_t drawmode;			//true si mode draw (line, cut)
-   Bool_t selectmode;			//true si mode select
+   Bool_t aoemode;			//true si mode age of empire
+   Bool_t selectmode;			//true si mode vener
+   Bool_t venermode;			//true si mode select
    Bool_t ready;
    
    Double_t xmin,xmax,ymin,ymax;	//utilises pour les differents zooms
@@ -92,6 +95,12 @@ class KVIDGridEditor : public KVBase
    
    protected:
    
+   Bool_t HandleKey(Event_t *event);   
+   void MoveHor(Int_t sign);
+   void MoveVert(Int_t sign);
+   
+   void SelectTrans(TPaveLabel* label);
+
    void SetDefault();						//
    void init();							//
    void AddTransformation (TString label);			//construction de l'interface
@@ -118,7 +127,6 @@ class KVIDGridEditor : public KVBase
    
    void SetPivot    (Double_t xx0, Double_t yy0);
    
-
    void SetEditable(TPaveLabel* label);
    void SelectLines(TPaveLabel* label);
    
@@ -164,6 +172,8 @@ class KVIDGridEditor : public KVBase
    void SetHisto(TH2* hh);					//donne l'histo a l'editeur
    void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
    void SetGrid(TString GridName);				//donne la grille a l'editeur par son nom
+   
+   TCanvas* GetEditorCanvas(){return fCanvas;};
    
    void SelectLabel();						//methode ajouter a la liste des auto-exec du canvas : gere les bouton
    void MakeTransformation();					//methode ajouter a la liste des auto-exec du canvas : gere le reste

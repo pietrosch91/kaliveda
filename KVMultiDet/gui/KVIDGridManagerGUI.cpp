@@ -299,7 +299,7 @@ KVIDGridManagerGUI::~KVIDGridManagerGUI()
    gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
    if (fSelectedEntries) delete fSelectedEntries;
    fSelectedEntries = 0;
-   if(fIDGridEditor) fIDGridEditor->Close();
+//   if(fIDGridEditor) fIDGridEditor->Close();
 }
 
 void KVIDGridManagerGUI::CloseWindow()
