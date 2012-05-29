@@ -14,7 +14,7 @@ class SRBAvailableRunsFile : public KVAvailableRunsFile
    SRBAvailableRunsFile(const Char_t*, KVDataSet*);
    virtual ~SRBAvailableRunsFile();
 
-   virtual void Update();
+   virtual void Update(Bool_t no_existing_file = kFALSE);
 
    ClassDef(SRBAvailableRunsFile,1)//Handles list of available runs using SRB
 };

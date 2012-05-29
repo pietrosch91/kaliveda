@@ -31,7 +31,7 @@ class KVRemoteAvailableRunsFile:public KVAvailableRunsFile {
    void Remove(Int_t) {
       Info("Remove", "Not possible for remote available runs files");
    };
-   void Update() {
+   void Update(Bool_t /*no_existing_file*/ = kFALSE) {
       Info("Update", "Not possible for remote available runs files");
    };
    void Add(Int_t, const Char_t *) {
