@@ -151,12 +151,15 @@ Bool_t KVNamedParameter::operator== (const KVNamedParameter& other) const
    switch (GetType()) {
       case kIsString:
          if (fTitle == other.fTitle) return kTRUE;
+         break;
 
       case kIsInt:
          if (other.GetInt() == GetInt()) return kTRUE;
+         break;
 
       case kIsDouble:
          return KVBase::AreEqual(other.GetDouble(), GetDouble());
+         break;
 
       default:
          return kFALSE;
