@@ -6,9 +6,12 @@
 
 #include "TCanvas.h"
 #include "KVCanvas.h"
+#include "TGFrame.h"
 
 class KVIDGridEditorCanvas : public KVCanvas
 {
+//friend class KeyHandler;
+
    // variables for pan & scan
    Int_t X0, Y0;  // coordinates of initial click in pad pixels
    Int_t NdisXbins,NdisYbins;  // number of displayed bins on X & Y
@@ -17,10 +20,16 @@ class KVIDGridEditorCanvas : public KVCanvas
    TAxis *theXaxis, *theYaxis;  // the axes of the histogram
    Double_t XbinPixel, YbinPixel; // size of bins in pixels
    Int_t Xf1,Xl1,Yf1,Yl1; // last modification to axis limits
-       
+
+//   KeyHandler       *fKeyHandler;         // handler for arrow keys
+   
+   protected:
+   Bool_t HandleKey(Event_t *event);
+   
    public:
    KVIDGridEditorCanvas();
-   KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh):KVCanvas(name,title,ww,wh){};
+   KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh);//:KVCanvas(name,title,ww,wh);
+   
    virtual ~KVIDGridEditorCanvas();
    
    void HandleInput(EEventType event, Int_t px, Int_t py);

@@ -3,6 +3,7 @@
 
 #include "KVGausGumDistribution.h"
 #include "TMath.h"
+#include "Riostream.h"
 
 ClassImp(KVGausGumDistribution)
 
@@ -40,9 +41,12 @@ KVGausGumDistribution::KVGausGumDistribution(const Char_t* name, Int_t k, Double
    SetParName(4, "b_{m}");
    SetParLimits(0,0.,1.);
    SetParLimits(1,GetXmin(),GetXmax());
-   SetParLimits(2,0.01,10.);
-   SetParLimits(3,0.01,20.);
-   SetParLimits(4,0.01,10.);
+   SetParLimits(2,0.01,20.);
+   SetParLimits(3,0.01,30.);
+   SetParLimits(4,0.01,20.);
+   
+   fGaussComp  = 0;
+   fGumbelComp = 0;
 }
 
 //________________________________________________________________
@@ -60,6 +64,8 @@ KVGausGumDistribution::KVGausGumDistribution (const KVGausGumDistribution& obj) 
 
 KVGausGumDistribution::~KVGausGumDistribution()
 {
+  if(fGaussComp)  fGaussComp->Delete();
+  if(fGumbelComp) fGumbelComp->Delete();
    // Destructor
 }
 
@@ -82,6 +88,47 @@ void KVGausGumDistribution::Copy (TObject& obj) const
 
 //________________________________________________________________
 
+void KVGausGumDistribution::Draw(Option_t* option)
+{
+
+  TF1::Draw(option);
+  
+  TString opt(option);
+  opt.ToUpper();
+  if(!opt.Contains("GG")) return;
+  
+  SetLineColor(kBlack);
+  SetNpx(2000);
+  
+  if(!fGaussComp)  fGaussComp = new TF1("GaussComp","[0]*exp(-0.5*((x-[1])/[2])**2)",GetXmin(),GetXmax());
+  if(!fGumbelComp) fGumbelComp = new KVGumbelDistribution("GumbelComp",fRank,false,GetXmin(),GetXmax());
+  
+  fGaussComp->SetParameters(fkGaussNor*GetParameter(0)/GetParameter(2),GetParameter(1),GetParameter(2));
+  fGumbelComp->SetParameters(GetParameter(1)-GetParameter(3),GetParameter(4),fkFac*(1.-GetParameter(0)));
+  
+  fGaussComp->SetLineColor(kBlue);
+  fGaussComp->SetLineStyle(9);
+  fGaussComp->SetLineWidth(1.2);
+  fGaussComp->SetNpx(2000);
+  
+  fGumbelComp->SetLineColor(kRed);
+  fGumbelComp->SetLineWidth(1.2);
+  fGumbelComp->SetNpx(2000);
+  
+  fGaussComp->Draw("same");
+  fGumbelComp->Draw("same");
+    
+//   cout << "DEBUG: KVGausGumDistribution::Draw(): am = "<< GetParameter(1)-GetParameter(3) << endl;
+//   cout << "DEBUG: KVGausGumDistribution::Draw(): bm = "<< GetParameter(4) << endl;
+//   cout << "DEBUG: KVGausGumDistribution::Draw(): Norm = "<< fkFac*(1.-GetParameter(0))/GetParameter(4) << endl;
+//   cout << "DEBUG: KVGausGumDistribution::Draw(): eta = "<< GetParameter(0) << endl;
+//   cout << "DEBUG: KVGausGumDistribution::Draw(): fkFac = "<< fkFac << endl;
+  
+  return;
+}
+
+//________________________________________________________________
+
 Double_t KVGausGumDistribution::GDk(Double_t* x, Double_t* p)
 {
    // Evaluate normalised sum of Gaussian and Gumbel distribution of rank fRank for x
@@ -91,6 +138,8 @@ Double_t KVGausGumDistribution::GDk(Double_t* x, Double_t* p)
    // par[2] = sigma
    // par[3] = distance between gaussian and gumbel >=0
    // par[4] = b
+   
+   if(p[4]==0) return 0;
    
    Double_t am = p[1]-p[3];
    Double_t s = (*x - am)/p[4];

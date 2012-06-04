@@ -2,10 +2,14 @@
 //Author: dgruyer
 
 #include "KVIDGridEditorCanvas.h"
+#include "KVIDGridEditor.h"
 #include "TROOT.h"
 #include "TBox.h"
 #include "TAxis.h"
 #include "TContextMenu.h"
+#include "TRootCanvas.h"
+#include "TGWindow.h"
+#include <KeySymbols.h>
 
 ClassImp(KVIDGridEditorCanvas)
 
@@ -20,6 +24,14 @@ Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+
+
+KVIDGridEditorCanvas::KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh):KVCanvas(name,title,ww,wh)
+{
+//     gIDGridEditorCanvas = this;
+//     fKeyHandler = new KeyHandler(this);
+}
+
 
 KVIDGridEditorCanvas::KVIDGridEditorCanvas()
 {
@@ -37,7 +49,7 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    // Handle Input Events.
    //
    //  Handle input events, like button up/down in current canvas.
-
+   
    TPad    *pad;
    TPad    *prevSelPad = (TPad*) fSelectedPad;
    TObject *prevSelObj = fSelected;
@@ -383,3 +395,12 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       DrawEventStatus(event, px, py, fSelected);
    }
 }
+
+//________________________________________________________________
+Bool_t KVIDGridEditorCanvas::HandleKey(Event_t *event)
+{
+  if(gIDGridEditor) gIDGridEditor->HandleKey(event);
+  return kTRUE;
+}
+
+
