@@ -43,7 +43,8 @@
 
 class KVIDGridEditor : public KVBase
 {
-friend class KeyHandler;
+//friend class KeyHandler;
+friend class KVIDGridEditorCanvas;
 
    protected:
    

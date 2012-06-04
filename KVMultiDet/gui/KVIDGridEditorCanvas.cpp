@@ -25,145 +25,12 @@ Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-static KVIDGridEditorCanvas *gIDGridEditorCanvas;
-
-
-KeyHandler::KeyHandler() : TGFrame(gClient->GetRoot(),0,0)
-{
-   // Key handler constructor.   
-   
-   TRootCanvas *main_frame = (TRootCanvas*)(gIDGridEditorCanvas->GetCanvasImp());
-
-   // bind arrow keys and space-bar key
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Up),    0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Left),  0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
-   
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F1), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F2), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F3), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F4), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F5), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F6), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F7), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F8), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F9), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F10), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F11), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F12), 0);
-   
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_s), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_z), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_a), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_e), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_d), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_w), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_l), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_v), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_c), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_x), 0);
-   
-   
-   gVirtualX->SetKeyAutoRepeat(kTRUE);
-   
-//   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_), 0);
-   
-}
-
-KeyHandler::~KeyHandler()
-{
-   // Cleanup key handler.
-
-   // get main frame of Tetris canvas
-   TRootCanvas *main_frame = (TRootCanvas*)(gIDGridEditorCanvas->GetCanvasImp());
-
-   // remove binding of arrow keys and space-bar key
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Up),    0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Left),  0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
-   
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F1), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F2), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F3), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F4), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F5), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F6), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F7), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F8), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F9), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F10), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F11), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F12), 0);
-   
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_s), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_z), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_a), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_e), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_d), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_w), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_l), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_v), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_c), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_x), 0);
-   
-   // restore key auto repeat functionality, was turned off in TGMainFrame::HandleKey()
-   gVirtualX->SetKeyAutoRepeat(kTRUE);
-   
-}
-
-
-Bool_t KeyHandler::HandleKey(Event_t *event)
-{
-   // Handle arrow and spacebar keys
-   
-   if(gIDGridEditor) gIDGridEditor->HandleKey(event);
-   return kTRUE;
-   
-   char tmp[2];
-   UInt_t keysym;
-
-   gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
-
-   if (event->fType == kGKeyPress) {
-      switch ((EKeySym)keysym) {
-         case kKey_Left:
-            cout << "gTetris->MoveLeft()" << endl;
-            break;
-         case kKey_Right:
-            cout << "gTetris->MoveRight();" << endl;
-            break;
-         case kKey_Down:
-            cout << "gTetris->RotateRight();" << endl;
-            break;
-         case kKey_Up:
-            cout << "gTetris->RotateLeft();" << endl;
-            break;
-         case kKey_Space:
-            cout << "gTetris->DropDown();" << endl;
-            break;
-         default:
-            return kTRUE;
-      }
-   }
-   return kTRUE;
-}
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 
 KVIDGridEditorCanvas::KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh):KVCanvas(name,title,ww,wh)
 {
-     gIDGridEditorCanvas = this;
-     fKeyHandler = new KeyHandler();
+//     gIDGridEditorCanvas = this;
+//     fKeyHandler = new KeyHandler(this);
 }
-
 
 
 KVIDGridEditorCanvas::KVIDGridEditorCanvas()
@@ -528,3 +395,12 @@ void KVIDGridEditorCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       DrawEventStatus(event, px, py, fSelected);
    }
 }
+
+//________________________________________________________________
+Bool_t KVIDGridEditorCanvas::HandleKey(Event_t *event)
+{
+  if(gIDGridEditor) gIDGridEditor->HandleKey(event);
+  return kTRUE;
+}
+
+

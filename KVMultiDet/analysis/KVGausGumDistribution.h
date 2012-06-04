@@ -5,12 +5,16 @@
 #define __KVGausGumDistribution_H
 
 #include "TF1.h"
+#include "KVGumbelDistribution.h"
 
 class KVGausGumDistribution : public TF1
 {
    Int_t fRank;//rank of Gumbel distribution
    Double_t fkFac;
    Double_t fkGaussNor;
+   
+   TF1* fGaussComp;
+   KVGumbelDistribution* fGumbelComp;
    
    public:
    KVGausGumDistribution();
@@ -19,6 +23,7 @@ class KVGausGumDistribution : public TF1
    virtual ~KVGausGumDistribution();
    void Copy (TObject&) const;
    
+   void	Draw(Option_t* option = "");
    Double_t GDk(Double_t* x, Double_t* p);
 
    ClassDef(KVGausGumDistribution,1)//Sum of normalised Gaussian and Gumbel distributions
