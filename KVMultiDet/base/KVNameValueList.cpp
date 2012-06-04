@@ -4,6 +4,7 @@
 #include "KVNameValueList.h"
 #include "KVNamedParameter.h"
 #include "Riostream.h"
+#include <TEnv.h>
 
 ClassImp(KVNameValueList)
 
@@ -344,4 +345,44 @@ Bool_t KVNameValueList::IsValue(const Char_t* name,Double_t value)
       return (*par)==tmp;
    }
    return kFALSE;
+}
+
+void KVNameValueList::ReadEnvFile(const Char_t* filename)
+{
+   // Read all name-value pairs in the TEnv format file and store in list.
+   // Clears any previously stored values.
+   
+   Clear();
+   TEnv env_file(filename);
+   THashList* name_value_list = env_file.GetTable();
+   TIter next_nv(name_value_list);
+   TEnvRec* nv_pair;
+   while( (nv_pair = (TEnvRec*)next_nv()) ){
+      TString parname(nv_pair->GetName());
+      if(parname=="KVNameValueList.Name") SetName(nv_pair->GetValue());
+      else if(parname=="KVNameValueList.Title") SetTitle(nv_pair->GetValue());
+      else
+      {
+         TString parval(nv_pair->GetValue());
+         if(parval.IsDigit()) SetValue(parname,parval.Atoi());
+         else if(parval.IsFloat()) SetValue(parname,parval.Atof());
+         else SetValue(parname,parval);
+      }
+   }
+}
+
+void KVNameValueList::WriteEnvFile(const Char_t* filename)
+{
+   // Write all name-value pairs in this list as a TEnv format file.
+   
+   TEnv envile(filename);
+   envile.SetValue("KVNameValueList.Name",GetName());
+   envile.SetValue("KVNameValueList.Title",GetTitle());
+	for (Int_t ii=0;ii<GetNpar();ii+=1){
+      KVNamedParameter* par = GetParameter(ii);
+      if(par->IsString()) envile.SetValue(par->GetName(),par->GetString());
+      else if(par->IsInt()) envile.SetValue(par->GetName(),par->GetInt());
+      else if(par->IsDouble()) envile.SetValue(par->GetName(),par->GetDouble());
+   }
+   envile.Save();
 }
