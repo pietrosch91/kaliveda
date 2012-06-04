@@ -5,6 +5,7 @@
 #include "KVNamedParameter.h"
 #include "Riostream.h"
 #include <TEnv.h>
+#include <TROOT.h>
 
 ClassImp(KVNameValueList)
 
@@ -99,10 +100,14 @@ void KVNameValueList::Clear(Option_t* opt)
 void KVNameValueList::Print(Option_t* opt) const
 {
 	//Print stored parameters (name, and value)
-	cout << GetName()<<" list : " <<GetTitle() <<" ("<< this << ")"<<endl;
+   
+   TROOT::IndentLevel();
+	cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
+   TROOT::IncreaseDirLevel();
 	for (Int_t ii=0;ii<GetNpar();ii+=1){
       GetParameter(ii)->ls();
    }
+   TROOT::DecreaseDirLevel();
 }
 
 //______________________________________________
@@ -131,10 +136,12 @@ Int_t KVNameValueList::Compare(const TObject* obj) const
 	Int_t neq=0;
 	Int_t np1 = GetNpar();
 	Int_t np2 = nvl->GetNpar();
-	for (Int_t ii=0;ii<np1;ii+=1)
-	  for (Int_t jj=0;jj<np2;jj+=1)
+	for (Int_t ii=0;ii<np1;ii+=1){
+	  for (Int_t jj=0;jj<np2;jj+=1){
+        
 	     if ( *(GetParameter(ii)) == *(GetParameter(jj)) )  neq+=1;
-
+     }
+   }     
 	return neq;
 	 
 }
@@ -171,7 +178,8 @@ void KVNameValueList::SetValue(const Char_t* name,Double_t value)
 }
 
 //______________________________________________
-KVNamedParameter* KVNameValueList::FindParameter(const Char_t* name) const{
+KVNamedParameter* KVNameValueList::FindParameter(const Char_t* name) const
+{
 	//return the parameter object with the asking name
 	return (KVNamedParameter *)fList.FindObject(name);
 }
