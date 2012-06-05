@@ -145,11 +145,11 @@ class KVTreeAnalyzer : public TNamed
 {
 
 
-   TTree* fTree;//!
-   KVUniqueNameList fSelections;
+   TTree* fTree;//! the analyzed TTree
+   KVUniqueNameList fSelections;// list of TEntryList user selections
    /* leaves */
-   TGMainFrame *fMain_leaflist;//!
-   KVListView* G_leaflist;//!
+   TGMainFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
+   KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
    TGLabel* G_leaf_expr;//!
    TGCheckButton* G_leaf_swap;//!
    Bool_t fSwapLeafExpr;//!
@@ -161,20 +161,20 @@ class KVTreeAnalyzer : public TNamed
    TGTextEntry* G_alias_text;//!
    
    /* histos */
-   TGMainFrame *fMain_histolist;//!
-   KVListView* G_histolist;//!
+   TGMainFrame *fMain_histolist;//! GUI for handling histograms
+   KVListView* G_histolist;//! GUI list of histograms
    TGTextButton* G_histo_del;//!
    TGCheckButton* G_histo_same;//!
    TGCheckButton* G_histo_app_sel;//!
    TGCheckButton* G_histo_log;//!
    TGCheckButton* G_histo_new_can;//!
    TGCheckButton* G_histo_norm;//!
-   Bool_t fDrawSame;//!
+   Bool_t fDrawSame;//! =kTRUE: draw histograms in same plot
    Int_t fSameColorIndex;//!
-   Bool_t fDrawLog;//!
-   Bool_t fApplySelection;//!
-   Bool_t fNewCanvas;//!
-   Bool_t fNormHisto;//!
+   Bool_t fDrawLog;//! =kTRUE: draw histograms with log-Y (1-D) or log-Z (2-D) scale
+   Bool_t fApplySelection;//! =kTRUE: apply current selection to existing histogram
+   Bool_t fNewCanvas;//! =kTRUE: draw each histogram in a new canvas
+   Bool_t fNormHisto;//! =kTRUE: generate normalised histograms
    TList* fSelectedHistos;//!
    TGTextButton* G_make_ip_scale;//!
    TGTextButton* G_fit1;//!
@@ -194,22 +194,22 @@ class KVTreeAnalyzer : public TNamed
    KVGausGumDistribution *GausGum;//!
    
    /* selections */
-   TGMainFrame *fMain_selectionlist;//!
-   KVListView* G_selectionlist;//!
-   TGStatusBar* G_selection_status;//!
+   TGMainFrame *fMain_selectionlist;//! GUI for handling selections
+   KVListView* G_selectionlist;//! GUI list of TEntryList selections
+   TGStatusBar* G_selection_status;//! status bar in selections GUI
    TGTextEntry* G_selection_text;//!
    TGTextButton* G_selection_but;//!
    TGTextButton* G_update_but;//!
    TList* fSelectedSelections;//!
    
-   KVList fHistolist;
-   TString fTreeName;
-   TString fTreeFileName;
-   Int_t fHistoNumber;
-   Int_t fSelectionNumber;
-   Int_t fAliasNumber;
-   KVList fAliasList;
-   Bool_t fNoGui;//!
+   KVList fHistolist;//list of generated histograms
+   TString fTreeName;//name of analyzed TTree
+   TString fTreeFileName;//name of file containing analyzed TTree
+   Int_t fHistoNumber;//used for automatic naming of histograms
+   Int_t fSelectionNumber;//used for automatic naming of selections
+   Int_t fAliasNumber;//used for automatic naming of TTree aliases
+   KVList fAliasList;//list of TTree aliases
+   Bool_t fNoGui;//! =kTRUE if no graphical interface is required
    
    void AddHisto(TH1*);
    void AddSelection(TEntryList*);
