@@ -10,6 +10,7 @@
 #include "TCutG.h"
 #include "TLeaf.h"
 #include "TPaveStats.h"
+#include "TPad.h"
 
 ClassImp(KVTreeAnalyzer)
 
@@ -545,7 +546,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
          gPad->GetListOfPrimitives()->Remove(legend);
          delete legend;
       }
-      gPad->BuildLegend();
+      ((TPad*) gPad)->BuildLegend();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
       gPad->Modified();
