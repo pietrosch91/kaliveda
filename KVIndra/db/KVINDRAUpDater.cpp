@@ -175,10 +175,15 @@ void KVINDRAUpDater::SetGains(KVDBRun * kvrun)
     {
         KVDBParameterSet *dbps = (KVDBParameterSet *) gain_list->At(i);
         kvd = gIndra->GetDetector(dbps->GetName());
-        kvd->SetGain(dbps->GetParameter(0));
-        cout << "             " << kvd->GetName() << " : G=" << kvd->
-        GetGain() << endl;
-    }
+        if (kvd){
+		  	kvd->SetGain(dbps->GetParameter(0));
+        	cout << "             " << kvd->GetName() << " : G=" << kvd->
+        	GetGain() << endl;
+    	  }
+		  else {
+		  	Error("SetGains","le detecteur %s n ext pas present",dbps->GetName());
+		  }
+	 }
 }
 
 //________________________________________________________________________________________________
