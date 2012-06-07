@@ -361,7 +361,8 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
    // Clears any previously stored values.
    
    Clear();
-   TEnv env_file(filename);
+   TEnv env_file;
+   env_file.ReadFile(filename,kEnvAll);
    THashList* name_value_list = env_file.GetTable();
    TIter next_nv(name_value_list);
    TEnvRec* nv_pair;
