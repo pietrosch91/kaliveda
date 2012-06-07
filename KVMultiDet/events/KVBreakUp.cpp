@@ -497,7 +497,7 @@ void KVBreakUp::BreakNtimes(Int_t times)
 			if (ret==1)
 				TreatePartition();
 			else {
-				Info("BreakNtimes","%s retourne %d",BreakUpMethod.Data(),ret);
+				Info("BreakNtimes","%s retourne %ld",BreakUpMethod.Data(),ret);
 				nn-=1;
 			}
 		}

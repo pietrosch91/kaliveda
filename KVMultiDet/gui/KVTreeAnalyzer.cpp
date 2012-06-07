@@ -11,6 +11,7 @@
 #include "TLeaf.h"
 #include "TPaveStats.h"
 #include "TSystem.h"
+#include "TPad.h"
 
 ClassImp(KVTreeAnalyzer)
 
@@ -23,6 +24,7 @@ ClassImp(KVTreeAnalyzer)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+/* colours used for displaying several 1-D spectra on same plot */
 #define MAX_COLOR_INDEX 5
 Int_t my_color_array[] = {
    kBlue+2,
@@ -36,7 +38,10 @@ Int_t my_color_array[] = {
 KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    : TNamed(), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
 {
-   // Default constructor
+   // Default constructor - used when loading from a file.
+   // The 'nogui' option (default=kFALSE) controls whether or not to
+   // launch the graphical interface
+   
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
@@ -60,6 +65,9 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
 KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    : TNamed("KVTreeAnalyzer", t->GetTitle()), fTree(t), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
 {
+   // Initialize analyzer for a given TTree.
+   // If 'nogui' option (default=kFALSE) is kTRUE we do not launch the graphical interface.
+   
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
@@ -96,6 +104,20 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
 
 void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, const Char_t* selection)
 {
+   // PRIVATE utility method
+   // Encodes the histogram title for the desired expression and an optional selection.
+   // The expression and selection should be valid TTreeFormula strings
+   // (i.e. they use TTree leaves and/or alias names)
+   // If there is already an active selection (TEntryList set on TTree)
+   // then the corresponding selection expression will also be included in the title.
+   //
+   // The format of the resulting title string is one of the following:
+   //
+   //    "expr1[:expr2]"
+   //    "expr1[:expr2] {selection}"
+   //    "expr1[:expr2] {active selection}"
+   //    "expr1[:expr2] {(active selection) && (selection)}"
+   
    TString _selection(selection);
    TString _elist;
    if(fTree->GetEntryList()) _elist = fTree->GetEntryList()->GetTitle();
@@ -111,7 +133,22 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
 
 TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY)
 {
-   //CurrentSelection();
+   // Create and fill a new histogram with the desired expression (expr="expr1[:expr2]" etc.)
+   // with the given selection (selection="" if no selection required).
+   // Any currently active selection (TEntryList set on TTree) will also be applied.
+   // The new histogram is not drawn but added to the internal list of histograms
+   // (see method AddHisto).
+   //
+   // Histograms are automatically named 'h1', 'h2', etc. in order of creation.
+   // Histogram title is generated with method GenerateHistoTitle.
+   // Number of bins on X (and Y for a 2-D spectrum) are given. Axis limits are
+   // automatically adjusted to data.
+   //
+   // For 2-D spectra the drawing option is set to "COL"
+   //
+   // If normalisation of spectra is required (fNormHisto = kTRUE) the histogram
+   // bin contents are divided by the integral (sum of weights).
+   
    TString name;
    name.Form("h%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
@@ -128,16 +165,21 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    h->SetDirectory(0);
    AddHisto(h);
    fHistoNumber++;
-      if(fNormHisto){
-         h->Sumw2();
-         h->Scale(1./h->Integral());
-      }
+   if(fNormHisto){
+      h->Sumw2();
+      h->Scale(1./h->Integral());
+   }
    return h;
 }
 
 TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax)
 {
-   //CurrentSelection();
+   // Like MakeHisto but only used for 1-D spectra of integer variables.
+   // The number of bins is Xmax-Xmin+1 and bins are defined over [x-0.5,x+0.5]
+   // for all values of x.
+   //
+   // Histograms are automatically named 'Ih1', 'Ih2', etc. in order of creation.
+   
    TString name;
    name.Form("Ih%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
@@ -151,16 +193,29 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    h->SetDirectory(0);
    AddHisto(h);
    fHistoNumber++;
-      if(fNormHisto){
-         h->Sumw2();
-         h->Scale(1./h->Integral());
-      }
+   if(fNormHisto){
+      h->Sumw2();
+      h->Scale(1./h->Integral());
+   }
    return h;
 }
    
 void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
 {
-   //CurrentSelection();
+   // Generate a new user-selection (TEntryList) of events in the TTree
+   // according to the given selection expression (valid TTreeFormula expression
+   // using TTree leaf and/or alias names).
+   // The new selection is not applied immediately but added to the internal
+   // list of selections (see method AddSelection).
+   //
+   // If there is already an active selection (TEntryList set on TTree)
+   // this will generate the composite selection, {(active selection) && (selection)}.
+   // The selection's title will then be in the following format:
+   //
+   //    "[(active selection) && ](selection)"
+   //
+   // TEntryList objects are automatically named 'el1', 'el2', etc. in order of creation.
+   
    TString name;
    name.Form("el%d",fSelectionNumber);
    TString drawexp(name.Data());
@@ -179,6 +234,13 @@ void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    
 void KVTreeAnalyzer::SetSelection(TObject* obj)
 {
+   // Method called when a selection is double-clicked in the GUI list.
+   // The required selection is passed as argument (address of TEntryList object)
+   // and becomes the currently active selection (TEntryList set on TTree).
+   // If the requested selection was already active, it is deactivated
+   // (remove TEntryList from TTree).
+   // The 'CURRENT SELECTION' message in the GUI status bar is updated.
+   
    if(!obj->InheritsFrom("TEntryList")) return;
    TEntryList* el = dynamic_cast<TEntryList*>(obj);
    if(fTree->GetEntryList()==el){
@@ -192,6 +254,8 @@ void KVTreeAnalyzer::SetSelection(TObject* obj)
    
 void KVTreeAnalyzer::CurrentSelection()
 {
+   // Print the currently active selection (TEntryList set on TTree).
+   
    TString tmp;
    if(fTree->GetEntryList()) tmp = fTree->GetEntryList()->GetTitle();
    else tmp="";
@@ -200,6 +264,9 @@ void KVTreeAnalyzer::CurrentSelection()
 
 void KVTreeAnalyzer::FillLeafList()
 {
+   // Fills the GUI list with the names of all leaves in the TTree and
+   // all aliases defined by the user
+   
    TList stuff;
    stuff.AddAll(fTree->GetListOfLeaves());
    stuff.AddAll(&fAliasList);
@@ -208,6 +275,8 @@ void KVTreeAnalyzer::FillLeafList()
 
 void KVTreeAnalyzer::OpenGUI()
 {
+   // Launch the GUI (unless fNoGui=kTRUE in which case this does nothing)
+   
    if(fNoGui) return;
    
    ULong_t red,cyan,green,yellow,magenta,gura,gurb,gurc,gurd,gure,gurf;
@@ -484,18 +553,26 @@ void KVTreeAnalyzer::OpenGUI()
    
 void KVTreeAnalyzer::AddHisto(TH1*h)
 {
+   // Adds histogram to internal list of user histograms
+   // and updates GUI display
+   
    fHistolist.Add(h);
    G_histolist->Display(&fHistolist);
 }
    
 void KVTreeAnalyzer::AddSelection(TEntryList*e)
 {
+   // Adds selection to internal list of user histograms
+   // and updates GUI display
+   
    fSelections.Add(e);
    G_selectionlist->Display(&fSelections);
 }
 
 void KVTreeAnalyzer::SetTree(TTree* t)
 {
+   // Connects a TTree for analysis
+   
    fTree = t;
    fTreeName = t->GetName();
    fTreeFileName = t->GetCurrentFile()->GetName();
@@ -503,6 +580,9 @@ void KVTreeAnalyzer::SetTree(TTree* t)
    
 void KVTreeAnalyzer::ReconnectTree()
 {
+   // Reconnects a TTree for analysis using the stored
+   // informations on the file name and TTree name
+   
    TFile*f = TFile::Open(fTreeFileName);
    TTree *t = (TTree*)f->Get(fTreeName);
    SetTree(t);
@@ -510,6 +590,13 @@ void KVTreeAnalyzer::ReconnectTree()
 
 KVTreeAnalyzer* KVTreeAnalyzer::OpenFile(const Char_t* filename, Bool_t nogui)
 {
+   // STATIC method to open a previously saved analysis session.
+   //
+   // Use:
+   //    root[0] KVTreeAnalyzer* TA = KVTreeAnalyzer::OpenFile("my_analysis.root")
+   //
+   // If option nogui=kTRUE the GUI will not be launched
+   
    TFile* f = TFile::Open(filename);
    KVTreeAnalyzer* anal = (KVTreeAnalyzer*)f->Get("KVTreeAnalyzer");
    delete f;
@@ -521,8 +608,32 @@ KVTreeAnalyzer* KVTreeAnalyzer::OpenFile(const Char_t* filename, Bool_t nogui)
 
 void KVTreeAnalyzer::DrawHisto(TObject* obj)
 {
+   // Method called when a user double-clicks a histogram in the GUI list.
+   //
+   // * if histogram is already displayed in active pad and if the pad also
+   // contains a graphical contour (TCutG) object, we use the contour to define
+   // a new data selection (TEntryList) which is added to the internal list.
+   //
+   // * if 'reapply selection' is activated and if the current active selection
+   // is not the same as that used to generate the histogram, we generate a new
+   // histogram displaying the same variables but with the current selection.
+   //
+   // * if 'draw same' is active we superimpose the (1-D) spectrum on the existing
+   // plot with a different colour and add it to the automatically generated
+   // legend which is also displayed in the plot
+   // 
+   // * if 'new canvas' is active the histogram is displayed in a new KVCanvas
+   //
+   // * in all cases when a histogram is displayed the log/linear scale of
+   // Y (1-D) or Z (2-D) axis is automatically adjusted according to the 'log scale'
+   // check box
+   
    if(!obj->InheritsFrom("TH1")) return;
    TH1* histo = dynamic_cast<TH1*>(obj);
+   
+   // if histogram is already displayed in active pad and if the pad also
+   // contains a graphical contour (TCutG) object, we use the contour to define
+   // a new data selection (TEntryList) which is added to the internal list.
    if(gPad && gPad->GetListOfPrimitives()->FindObject(histo)){
       TIter next(gPad->GetListOfPrimitives());
       TObject* o;
@@ -533,11 +644,21 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
          }
       }
    }
+   
    TString exp,sel;
+   
    ParseHistoTitle(histo->GetTitle(),exp,sel);
+   
+   // if 'reapply selection' is activated and if the current active selection
+   // is not the same as that used to generate the histogram, we generate a new
+   // histogram displaying the same variables but with the current selection.
    if(!IsCurrentSelection(sel) && fApplySelection) histo = RemakeHisto(histo,exp);
+   
    if(fDrawSame)
    {
+      // if 'draw same' is active we superimpose the (1-D) spectrum on the existing
+      // plot with a different colour and add it to the automatically generated
+      // legend which is also displayed in the plot
       histo->SetLineColor(my_color_array[++fSameColorIndex]);
       if(fSameColorIndex==MAX_COLOR_INDEX) fSameColorIndex=-1;
       histo->Draw("same");
@@ -546,7 +667,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
          gPad->GetListOfPrimitives()->Remove(legend);
          delete legend;
       }
-      ((TPad*)gPad)->BuildLegend();
+      ((TPad*) gPad)->BuildLegend();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
       gPad->Modified();
@@ -554,6 +675,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    }
    else
    {
+      // if 'new canvas' is active the histogram is displayed in a new KVCanvas
       if(fNewCanvas) new KVCanvas;
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
@@ -599,7 +721,10 @@ Bool_t KVTreeAnalyzer::IsCurrentSelection(const Char_t* sel)
    
 TH1* KVTreeAnalyzer::RemakeHisto(TH1* h, const Char_t* expr)
 {
-   // check histo not already in list
+   // Remake an existing histogram of data 'expr' using the current active selection
+   // If such a histogram already exists, we just return its address.
+   // We try to have the same binning in the new as in the original histogram.
+   
    TString htit;
    GenerateHistoTitle(htit,expr,"");
    TH1* histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
@@ -619,8 +744,13 @@ TH1* KVTreeAnalyzer::RemakeHisto(TH1* h, const Char_t* expr)
    h = MakeHisto(expr, "", nx, ny);
    return h;
 }
+
 void KVTreeAnalyzer::GenerateSelection()
 {
+   // Method called when user hits 'return' in selection GUI text-box
+   // Takes expression from text-box and generates the corresponding
+   // selection which is added to the GUI list of selections.
+   
    TString selection = G_selection_text->GetText();
    MakeSelection(selection);
    G_selection_text->Clear();
@@ -628,6 +758,9 @@ void KVTreeAnalyzer::GenerateSelection()
 
 void KVTreeAnalyzer::GenerateAlias()
 {
+   // Method called when user hits 'return' in TTree leaf/alias GUI text-box
+   // Generates a new alias using the expression in the text-box.
+   
    TString alias = G_alias_text->GetText();
    TString name;
    name.Form("a%d", fAliasNumber++);
@@ -638,6 +771,10 @@ void KVTreeAnalyzer::GenerateAlias()
 
 void KVTreeAnalyzer::CombineSelections()
 {
+   // Method called when user hits 'combine selections' button in selections GUI.
+   // Generates new selection which is the intersection (logical AND) of
+   // the currently selected selections.
+   
    if(fSelectedSelections){
       TEntryList* save_elist = fTree->GetEntryList();
       fTree->SetEntryList((TEntryList*)fSelectedSelections->First());
@@ -657,6 +794,8 @@ void KVTreeAnalyzer::CombineSelections()
 
 void KVTreeAnalyzer::SelectionChanged()
 {
+   // Method called whenever the selected selection in the GUI list changes
+   
    SafeDelete(fSelectedSelections);
    fSelectedSelections = G_selectionlist->GetSelectedObjects();
    if(fSelectedSelections && fSelectedSelections->GetEntries()>1) G_selection_but->SetEnabled(kTRUE);
@@ -665,6 +804,9 @@ void KVTreeAnalyzer::SelectionChanged()
 
 void KVTreeAnalyzer::LeafChanged()
 {
+   // Method called whenever the leaf/alias selection in the TTree GUI list changes.
+   // Updates the names of the leaves/aliases displayed next to the 'draw' button.
+   
    SafeDelete(fSelectedLeaves);
    fSelectedLeaves = G_leaflist->GetSelectedObjects();
    fLeafExpr="-";
@@ -702,6 +844,9 @@ void KVTreeAnalyzer::LeafChanged()
 
 void KVTreeAnalyzer::DrawLeafExpr()
 {
+   // Method called when user hits 'draw' button in TTree GUI.
+   // If only one leaf/alias is selected, this actually calls DrawLeaf.
+ 
    if(fLeafExpr=="-") return;
    if(fSelectedLeaves->GetEntries()==1){
       DrawLeaf(fSelectedLeaves->First());
@@ -762,6 +907,11 @@ void KVTreeAnalyzer::DrawLeafExpr()
 
 void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 {
+   // Method called when user hits 'draw' button in TTree GUI and only one leaf/alias
+   // is selected.
+   // NB. contrary to RemakeHisto, this method will always generate a new histogram,
+   // even if a histogram for exactly the same leaf/alias and selection(s) exists.
+   
    TH1* histo = 0;
    if(obj->InheritsFrom("TLeaf")){
       TLeaf* leaf = dynamic_cast<TLeaf*>(obj);
@@ -809,6 +959,8 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 
 void KVTreeAnalyzer::HistoSelectionChanged()
 {
+   // Method called when user histo selection changes in GUI histogram list
+   
    SafeDelete(fSelectedHistos);
    G_make_ip_scale->SetEnabled(kFALSE);
          G_fit1->SetEnabled(kFALSE);
@@ -836,6 +988,11 @@ void KVTreeAnalyzer::HistoSelectionChanged()
 
 void KVTreeAnalyzer::GenerateIPSelection()
 {
+   // Method called when user hits 'return' in the 'b<...' text-box
+   // of the histogram GUI.
+   // Create a new selection of events based on the impact parameter
+   // scale previously created using MakeIPScale.
+   
    TString bmax = G_make_ip_selection->GetText();
    Double_t Bmax = bmax.Atof();
    TGString histotit = G_ip_histo->GetText();
