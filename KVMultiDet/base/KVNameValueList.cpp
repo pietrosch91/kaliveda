@@ -362,7 +362,11 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
    
    Clear();
    TEnv env_file;
-   env_file.ReadFile(filename,kEnvAll);
+   Int_t status = env_file.ReadFile(filename,kEnvAll);
+   if(status==-1){
+      Error("ReadEnvFile", "The file %s does not exist", filename);
+      return;
+   }
    THashList* name_value_list = env_file.GetTable();
    TIter next_nv(name_value_list);
    TEnvRec* nv_pair;
