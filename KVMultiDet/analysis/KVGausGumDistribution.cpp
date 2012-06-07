@@ -64,8 +64,8 @@ KVGausGumDistribution::KVGausGumDistribution (const KVGausGumDistribution& obj) 
 
 KVGausGumDistribution::~KVGausGumDistribution()
 {
-  if(fGaussComp)  fGaussComp->Delete();
-  if(fGumbelComp) fGumbelComp->Delete();
+//  if(fGaussComp)  fGaussComp->Delete();
+//  if(fGumbelComp) fGumbelComp->Delete();
    // Destructor
 }
 

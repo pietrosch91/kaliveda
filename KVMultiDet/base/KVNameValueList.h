@@ -57,7 +57,10 @@ class KVNameValueList : public TNamed
 	Int_t GetIntValue(Int_t idx) const;
 	Double_t GetDoubleValue(Int_t idx) const;
 	const Char_t* GetStringValue(Int_t idx) const;
-	
+   
+   virtual void ReadEnvFile(const Char_t* filename);
+   virtual void WriteEnvFile(const Char_t* filename);
+   
 	ClassDef(KVNameValueList,3)//A general-purpose list of parameters
 };
 
