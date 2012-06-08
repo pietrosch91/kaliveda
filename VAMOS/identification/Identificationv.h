@@ -259,7 +259,12 @@ Double_t E_csi;
    // Correction de M
    Float_t 	P0_m[600][25];
    Float_t 	P1_m[600][25];
-         
+   
+   // Tag des events	
+	Float_t Brho_min[25][60][10][600];
+	Float_t Brho_max[25][60][10][600];
+	Int_t Code_Vamos;  
+	        
 TCutG *q21;
 TCutG *q20;
 TCutG *q19;

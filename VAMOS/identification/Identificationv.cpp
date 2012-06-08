@@ -174,10 +174,77 @@ if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
 file3.close();
 //==========================================================================
 
+
+//==========================================================================
+// Tag the event according to the fragment identification (Z,A,Q),
+// Brho0 (or RunNumber) and system
+
+Int_t z;
+Int_t a;
+//Int_t q;
+Float_t brho0;
+//Int_t run1;
+//Int_t run2;
+Float_t brhomin;
+Float_t brhomax;
+
+for(Int_t i=0;i<25;i++){
+	for(Int_t j=0;j<60;j++){
+		for(Int_t k=0;k<10;k++){
+			for(Int_t l=0;l<600;l++){
+				Brho_min[i][j][k][l] = -10.0;
+				Brho_max[i][j][k][l] = -10.0;
+			}
+		}
+	}
+}
+
+
+ifstream file4;	
+TString sline4;
+
+if(!gDataSet->OpenDataSetFile("Flag_CodeVamos.dat",file4))
+  {	
+     L->Log<< "Could not open the calibration file Flag_CodeVamos !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	L->Log<< "Reading Flag_CodeVamos" <<endl; 
+	while (file4.good()) {         //reading the file
+		sline4.ReadLine(file4);
+			if (!file4.eof()) {          //fin du fichier
+				if (sline4.Sizeof() > 1 && !sline4.BeginsWith("#")){
+					sscanf(sline4.Data(), "%u %u %u %f %u %u %f %f",
+    					&z,&a,&q,&brho0,&run1,&run2,&brhomin,&brhomax);
+					for(Int_t i=run1; i<run2+1; i++){			
+						Brho_min[z][a][q][i] = brhomin;
+						Brho_max[z][a][q][i] = brhomax;			
+						}
+					if(run1==run2)
+						{
+						Brho_min[z][a][q][run1] = brhomin;
+						Brho_max[z][a][q][run2] = brhomax;					
+						}
+					if(TMath::Abs(run2-run1)==1)
+						{
+						Brho_min[z][a][q][run1] = brhomin;
+						Brho_max[z][a][q][run1] = brhomax;
+						Brho_min[z][a][q][run2] = brhomin;
+						Brho_max[z][a][q][run2] = brhomax;										
+						}				
+														
+					}
+				}
+			}
+	}
+file4.close();
+//==========================================================================
+
 //==========================================================================
 // Calculate the total statistic for each nominal Brho.
 
-Float_t brho0;
+//Float_t brho0;
 ifstream file6;	
 TString sline6;
 
@@ -241,6 +308,8 @@ void Identificationv::Init(void)
 zt = ZZ  = CsIRaw = SiRaw = DetSi = DetCsI = i =  -10;
 ESi = ECsI = ECsI_corr = E_corr = EEtot  = AA =  ZR = -10.0;
 PID = Z_PID = A_PID = -10.0;
+
+Code_Vamos = -10;
 
 einc_si = einc_isogap1 = eloss_isogap1 = einc_ic = eloss_ic = einc_dc2 = eloss_dc2 = einc_sed = eloss_sed = einc_dc1 = eloss_dc1 = einc_tgt = eloss_tgt = 0.0;
 E_tgt = E_dc1 = E_dc2 = E_sed = E_gap1 = E_chio = 0.0;
@@ -747,7 +816,8 @@ DetCsI = int(CsI->Number)+1;
 Q_corr = int(TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5));
 Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
 //L->Log<<"Q_corr_D : "<<Q_corr_D<<endl;
-       
+
+// End of the fisrt Q correction       
 //====================================================================================================
 
 //==========================================================================
@@ -756,6 +826,7 @@ Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
 GetFileCut();
  
 //====================================================================================================
+// Second Q correction, by correcting the M and M/Q value
     if(Q_corr>0)
     {                 
 	M_corr = Q_corr*M_Q;
@@ -867,7 +938,45 @@ GetFileCut();
 	//L->Log<<"M_corr_D2 : "<<M_corr_D2<<endl;   	
     	}	            
     }
+// End of the second Q correction 
+//====================================================================================================
 
+//====================================================================================================
+// Flag the events
+
+// Code_Vamos : 
+// Code_Vamos = 1 : Fragment à l'intérieur de la région d'intérêt et Q correct (Z-4<Q<Z+1)
+// Code_Vamos = 2 : Fragment à l'extérieur de la région d'intérêt, mais dont Q est correct
+// Code_Vamos = 3 : Fragment à l'intérieur de la région d'intérêt et Q>Z
+// Code_Vamos = 4 : Fragment à l'intérieur de la région d'intérêt et Q<Z-4
+// Code_Vamos = 5 : Fragment à l'extérieur de la région d'intérêt et Q>Z
+// Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-4
+// Code_Vamos = 13 : Else
+    
+  if(Z_corr>4 && Z_corr<21 && Qid>0){	// Flag les events pour Z = 5-20 et Qid>0
+    if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-4){
+		Code_Vamos = 1;
+	}
+    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid<Z_corr+1 && Qid>Z_corr-4){
+    		Code_Vamos = 2;
+    	}	
+    else if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid>Z_corr){
+		Code_Vamos = 3;
+	}
+    else if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr-4){
+    		Code_Vamos = 4;
+    	}
+    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid>Z_corr){
+		Code_Vamos = 5;
+	}
+    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid<Z_corr-4 && Qid>0){
+    		Code_Vamos = 6;
+    	}		
+	else{
+		Code_Vamos = 13;
+	}
+  }
+//====================================================================================================
 /*  
   Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
   Z2 = sqrt(dE/931.5016)*TMath::Power(Beta,2.)*100.;
@@ -935,10 +1044,10 @@ void Identificationv::outAttach(TTree *outT)
   cout << "Attaching Identificationv variables" << endl;
 #endif
     outT->Branch("RunNumber", &runNumber, "runNumber/I");
-	outT->Branch("A",&AA,"A/F");	
+	//outT->Branch("A",&AA,"A/F");	
 	
-	outT->Branch("A_bisec",&a_bisec,"a_bisec/D");
-	outT->Branch("E_bisec",&e_bisec,"e_bisec/D");	
+	//outT->Branch("A_bisec",&a_bisec,"a_bisec/D");
+	//outT->Branch("E_bisec",&e_bisec,"e_bisec/D");	
 	
 	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
@@ -959,6 +1068,7 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("Brho_mag",&Brho_mag,"Brho_mag/D");		
 	outT->Branch("FC_Indra",&FC_Indra,"FC_Indra/D");
 	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");		
+	outT->Branch("Code_Vamos", &Code_Vamos, "Code_Vamos/I");
 	
 	outT->Branch("Z_PID",&Z_PID,"Z_PID/D");
 	outT->Branch("A_PID",&A_PID,"A_PID/D");
@@ -984,13 +1094,14 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("M_Q",&M_Q,"M_Q/F");  
 	outT->Branch("Q",&Q,"Q/F");
 	outT->Branch("M",&M,"M/F");
-	outT->Branch("Mass",&Mass,"Mass/F");
+	
+	/*outT->Branch("Mass",&Mass,"Mass/F");
 	outT->Branch("M_simul",&M_simul,"M_simul/F");
 	outT->Branch("M_Qr",&M_Qr,"M_Qr/F");
 	outT->Branch("Qr",&Qr,"Qr/F");
 	outT->Branch("Mr",&Mr,"Mr/F");
 	outT->Branch("Qc",&Qc,"Qc/F");
-	outT->Branch("Mc",&Mc,"Mc/F");
+	outT->Branch("Mc",&Mc,"Mc/F");*/
   
 	outT->Branch("M_Qcorr", &M_Qcorr, "M_Qcorr/F");
 	outT->Branch("Z_corr", &Z_corr, "Z_corr/I");
