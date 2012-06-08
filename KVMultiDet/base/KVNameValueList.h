@@ -48,7 +48,7 @@ class KVNameValueList : public TNamed
 	KVNamedParameter* FindParameter(const Char_t* name) const;
 	KVNamedParameter* GetParameter(Int_t idx) const;
 	void RemoveParameter(const Char_t* name);
-	Bool_t HasParameter(const Char_t* name);
+	Bool_t HasParameter(const Char_t* name) const;
 	Int_t GetNameIndex(const Char_t* name);
 	const Char_t* GetNameAt(Int_t idx) const;
 	Int_t GetNpar() const;

@@ -232,7 +232,7 @@ void KVNameValueList::RemoveParameter(const Char_t* name)
 }
 
 //______________________________________________
-Bool_t KVNameValueList::HasParameter(const Char_t* name)
+Bool_t KVNameValueList::HasParameter(const Char_t* name) const
 {
 	//Check if there is a parameter with the asked name
 	//in the list
