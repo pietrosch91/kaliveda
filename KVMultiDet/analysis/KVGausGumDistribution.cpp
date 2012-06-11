@@ -17,16 +17,20 @@ ClassImp(KVGausGumDistribution)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVGausGumDistribution::KVGausGumDistribution()
-   : TF1()
+   : TF1(), fGaussComp(0), fGumbelComp(0)
 {
    // default ctor
+  SetLineColor(kBlack);
+  SetNpx(2000);
+  fkFac = 0.;
+   fkGaussNor = 1./sqrt(2*TMath::Pi());
 }
 
 //________________________________________________________________
 
 KVGausGumDistribution::KVGausGumDistribution(const Char_t* name, Int_t k, Double_t xmin, Double_t xmax)
    : TF1(name, this, &KVGausGumDistribution::GDk, xmin, xmax, 5,
-     "KVGausGumDistribution", "GDk")
+     "KVGausGumDistribution", "GDk"), fGaussComp(0), fGumbelComp(0)
 {
    // normalised sum of Gaussian distribution and Gumbel distribution of k-th rank
    // f = eta*Gauss(mean,sigma) + (1-eta)*Gumbel(a,b)
@@ -44,9 +48,9 @@ KVGausGumDistribution::KVGausGumDistribution(const Char_t* name, Int_t k, Double
    SetParLimits(2,0.01,20.);
    SetParLimits(3,0.01,30.);
    SetParLimits(4,0.01,20.);
-   
-   fGaussComp  = 0;
-   fGumbelComp = 0;
+  SetLineColor(kBlack);
+  SetNpx(2000);
+  
 }
 
 //________________________________________________________________
@@ -64,9 +68,9 @@ KVGausGumDistribution::KVGausGumDistribution (const KVGausGumDistribution& obj) 
 
 KVGausGumDistribution::~KVGausGumDistribution()
 {
-  if(fGaussComp)  fGaussComp->Delete();
-  if(fGumbelComp) fGumbelComp->Delete();
    // Destructor
+  SafeDelete(fGaussComp);
+  SafeDelete(fGumbelComp);
 }
 
 //________________________________________________________________
@@ -84,25 +88,20 @@ void KVGausGumDistribution::Copy (TObject& obj) const
    KVGausGumDistribution& CastedObj = (KVGausGumDistribution&)obj;
    CastedObj.fRank = fRank;
    CastedObj.fkFac = fkFac;
+   CastedObj.fkGaussNor = fkGaussNor;
 }
 
 //________________________________________________________________
 
-void KVGausGumDistribution::Draw(Option_t* option)
+void KVGausGumDistribution::Paint(Option_t* option)
 {
-
-  TF1::Draw(option);
-  
-  TString opt(option);
-  opt.ToUpper();
-  if(!opt.Contains("GG")) return;
-  
-  SetLineColor(kBlack);
-  SetNpx(2000);
+   // Draw total distribution and the two component distributions
+   
+  TF1::Paint(option);
+  if(!fkGaussNor) fkGaussNor = 1./sqrt(2*TMath::Pi());
   
   if(!fGaussComp)  fGaussComp = new TF1("GaussComp","[0]*exp(-0.5*((x-[1])/[2])**2)",GetXmin(),GetXmax());
   if(!fGumbelComp) fGumbelComp = new KVGumbelDistribution("GumbelComp",fRank,false,GetXmin(),GetXmax());
-  
   fGaussComp->SetParameters(fkGaussNor*GetParameter(0)/GetParameter(2),GetParameter(1),GetParameter(2));
   fGumbelComp->SetParameters(GetParameter(1)-GetParameter(3),GetParameter(4),fkFac*(1.-GetParameter(0)));
   
@@ -114,17 +113,8 @@ void KVGausGumDistribution::Draw(Option_t* option)
   fGumbelComp->SetLineColor(kRed);
   fGumbelComp->SetLineWidth(1.2);
   fGumbelComp->SetNpx(2000);
-  
-  fGaussComp->Draw("same");
-  fGumbelComp->Draw("same");
-    
-//   cout << "DEBUG: KVGausGumDistribution::Draw(): am = "<< GetParameter(1)-GetParameter(3) << endl;
-//   cout << "DEBUG: KVGausGumDistribution::Draw(): bm = "<< GetParameter(4) << endl;
-//   cout << "DEBUG: KVGausGumDistribution::Draw(): Norm = "<< fkFac*(1.-GetParameter(0))/GetParameter(4) << endl;
-//   cout << "DEBUG: KVGausGumDistribution::Draw(): eta = "<< GetParameter(0) << endl;
-//   cout << "DEBUG: KVGausGumDistribution::Draw(): fkFac = "<< fkFac << endl;
-  
-  return;
+  fGaussComp->Paint(option);
+  fGumbelComp->Paint(option);    
 }
 
 //________________________________________________________________
