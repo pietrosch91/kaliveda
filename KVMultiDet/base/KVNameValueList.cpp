@@ -147,7 +147,7 @@ Int_t KVNameValueList::Compare(const TObject* obj) const
 }
 
 //______________________________________________
-void KVNameValueList::SetValue(const Char_t* name,const Char_t* value)
+void KVNameValueList::SetValue_str(const Char_t* name,const Char_t* value)
 {
 	//associate a parameter (defined by its name) and a value
 	//if the parameter is not in the list, it is added
@@ -158,7 +158,7 @@ void KVNameValueList::SetValue(const Char_t* name,const Char_t* value)
 }
 
 //______________________________________________
-void KVNameValueList::SetValue(const Char_t* name,Int_t value)
+void KVNameValueList::SetValue_int(const Char_t* name,Int_t value)
 {
 	//associate a parameter (define by its name) and a value
 	//if the parameter is not in the list, it is added
@@ -168,13 +168,41 @@ void KVNameValueList::SetValue(const Char_t* name,Int_t value)
 }
 
 //______________________________________________
-void KVNameValueList::SetValue(const Char_t* name,Double_t value)
+void KVNameValueList::SetValue_flt(const Char_t* name,Double_t value)
 {
 	//associate a parameter (define by its name) and a value
 	//if the parameter is not in the list, it is added
 	//if it's in the list replace its value
    KVNamedParameter* par = FindParameter(name);
 	par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));	
+}
+
+//______________________________________________
+void KVNameValueList::SetValue(const Char_t* name,const Char_t* value)
+{
+	//associate a parameter (defined by its name) and a value
+	//if the parameter is not in the list, it is added
+	//if it's in the list replace its value
+	
+   SetValue_str(name,value);
+}
+
+//______________________________________________
+void KVNameValueList::SetValue(const Char_t* name,Int_t value)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is added
+	//if it's in the list replace its value
+   SetValue_int(name,value);
+}
+
+//______________________________________________
+void KVNameValueList::SetValue(const Char_t* name,Double_t value)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is added
+	//if it's in the list replace its value
+   SetValue_flt(name,value);
 }
 
 //______________________________________________
@@ -204,7 +232,7 @@ void KVNameValueList::RemoveParameter(const Char_t* name)
 }
 
 //______________________________________________
-Bool_t KVNameValueList::HasParameter(const Char_t* name)
+Bool_t KVNameValueList::HasParameter(const Char_t* name) const
 {
 	//Check if there is a parameter with the asked name
 	//in the list

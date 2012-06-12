@@ -11,8 +11,12 @@ class KVNamedParameter;
 
 class KVNameValueList : public TNamed
 {
-
+   protected:
 	KVHashList fList;//list of KVNamedParameter objects
+	
+   virtual void SetValue_str(const Char_t* name,const Char_t* value);
+	virtual void SetValue_int(const Char_t* name,Int_t value);
+	virtual void SetValue_flt(const Char_t* name,Double_t value);
 	
 	public:
    
@@ -44,7 +48,7 @@ class KVNameValueList : public TNamed
 	KVNamedParameter* FindParameter(const Char_t* name) const;
 	KVNamedParameter* GetParameter(Int_t idx) const;
 	void RemoveParameter(const Char_t* name);
-	Bool_t HasParameter(const Char_t* name);
+	Bool_t HasParameter(const Char_t* name) const;
 	Int_t GetNameIndex(const Char_t* name);
 	const Char_t* GetNameAt(Int_t idx) const;
 	Int_t GetNpar() const;

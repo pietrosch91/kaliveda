@@ -13,8 +13,8 @@ class KVGausGumDistribution : public TF1
    Double_t fkFac;
    Double_t fkGaussNor;
    
-   TF1* fGaussComp;
-   KVGumbelDistribution* fGumbelComp;
+   TF1* fGaussComp;//! non-persistent (not written to disk)
+   KVGumbelDistribution* fGumbelComp;//! non-persistent (not written to disk)
    
    public:
    KVGausGumDistribution();
@@ -23,7 +23,7 @@ class KVGausGumDistribution : public TF1
    virtual ~KVGausGumDistribution();
    void Copy (TObject&) const;
    
-   void	Draw(Option_t* option = "");
+   void	Paint(Option_t* option = "");
    Double_t GDk(Double_t* x, Double_t* p);
 
    ClassDef(KVGausGumDistribution,1)//Sum of normalised Gaussian and Gumbel distributions
