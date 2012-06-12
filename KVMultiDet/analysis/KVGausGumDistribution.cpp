@@ -103,7 +103,7 @@ void KVGausGumDistribution::Paint(Option_t* option)
   if(!fGaussComp)  fGaussComp = new TF1("GaussComp","[0]*exp(-0.5*((x-[1])/[2])**2)",GetXmin(),GetXmax());
   if(!fGumbelComp) fGumbelComp = new KVGumbelDistribution("GumbelComp",fRank,false,GetXmin(),GetXmax());
   fGaussComp->SetParameters(fkGaussNor*GetParameter(0)/GetParameter(2),GetParameter(1),GetParameter(2));
-  fGumbelComp->SetParameters(GetParameter(1)-GetParameter(3),GetParameter(4),fkFac*(1.-GetParameter(0)));
+  fGumbelComp->SetParameters(GetParameter(1)-GetParameter(3),GetParameter(4),(1.-GetParameter(0)));
   
   fGaussComp->SetLineColor(kBlue);
   fGaussComp->SetLineStyle(9);

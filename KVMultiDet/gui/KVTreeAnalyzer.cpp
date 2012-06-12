@@ -57,9 +57,9 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
       GDfirst=new KVGumbelDistribution("Gum1",1);
       GDsecond=new KVGumbelDistribution("Gum2",2);
       GDthird=new KVGumbelDistribution("Gum3",3);
-      GD4=new KVGumbelDistribution("Gum4",4);
-      GD5=new KVGumbelDistribution("Gum5",5);
-      GausGum=new KVGausGumDistribution("GausGum");
+      GausGum1=new KVGausGumDistribution("GausGum1",1);
+      GausGum2=new KVGausGumDistribution("GausGum2",2);
+      GausGum3=new KVGausGumDistribution("GausGum3",3);
       fNoGui=nogui;
       OpenGUI();
 }
@@ -88,9 +88,9 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
       GDfirst=new KVGumbelDistribution("Gum1",1);
       GDsecond=new KVGumbelDistribution("Gum2",2);
       GDthird=new KVGumbelDistribution("Gum3",3);
-      GD4=new KVGumbelDistribution("Gum4",4);
-      GD5=new KVGumbelDistribution("Gum5",5);
-      GausGum=new KVGausGumDistribution("GausGum");
+      GausGum1=new KVGausGumDistribution("GausGum1",1);
+      GausGum2=new KVGausGumDistribution("GausGum2",2);
+      GausGum3=new KVGausGumDistribution("GausGum3",3);
 }
 
 KVTreeAnalyzer::~KVTreeAnalyzer()
@@ -476,35 +476,35 @@ void KVTreeAnalyzer::OpenGUI()
    G_fit3->ChangeBackground(gurc);
    G_fit3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum3()");
    histo_opts->AddFrame(G_fit3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit4 = new TGTextButton(histo_opts, " 4th ");
-   G_fit4->SetTextJustify(36);
-   G_fit4->SetMargins(0,0,0,0);
-   G_fit4->SetWrapLength(-1);
-   G_fit4->Resize();
-   G_fit4->SetEnabled(kFALSE);
-   G_fit4->ChangeBackground(gurd);
-   G_fit4->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum4()");
-   histo_opts->AddFrame(G_fit4, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit5 = new TGTextButton(histo_opts, " 5th ");
-   G_fit5->SetTextJustify(36);
-   G_fit5->SetMargins(0,0,0,0);
-   G_fit5->SetWrapLength(-1);
-   G_fit5->Resize();
-   G_fit5->SetEnabled(kFALSE);
-   G_fit5->ChangeBackground(gure);
-   G_fit5->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum5()");
-   histo_opts->AddFrame(G_fit5, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   lab = new TGLabel(histo_opts,"GausGum : ");
+   lab = new TGLabel(histo_opts,"Gaus+Gum : ");
    histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,10,2,5,2));
-   G_fitGG = new TGTextButton(histo_opts, " 1 ");
-   G_fitGG->SetTextJustify(36);
-   G_fitGG->SetMargins(0,0,0,0);
-   G_fitGG->SetWrapLength(-1);
-   G_fitGG->Resize();
-   G_fitGG->SetEnabled(kFALSE);
-   G_fitGG->ChangeBackground(gurf);
-   G_fitGG->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum()");
-   histo_opts->AddFrame(G_fitGG, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+   G_fitGG1 = new TGTextButton(histo_opts, " 1 ");
+   G_fitGG1->SetTextJustify(36);
+   G_fitGG1->SetMargins(0,0,0,0);
+   G_fitGG1->SetWrapLength(-1);
+   G_fitGG1->Resize();
+   G_fitGG1->SetEnabled(kFALSE);
+   G_fitGG1->ChangeBackground(gurf);
+   G_fitGG1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum1()");
+   histo_opts->AddFrame(G_fitGG1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+   G_fitGG2 = new TGTextButton(histo_opts, " 1 ");
+   G_fitGG2->SetTextJustify(36);
+   G_fitGG2->SetMargins(0,0,0,0);
+   G_fitGG2->SetWrapLength(-1);
+   G_fitGG2->Resize();
+   G_fitGG2->SetEnabled(kFALSE);
+   G_fitGG2->ChangeBackground(gurf);
+   G_fitGG2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum2()");
+   histo_opts->AddFrame(G_fitGG2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+   G_fitGG3 = new TGTextButton(histo_opts, " 1 ");
+   G_fitGG3->SetTextJustify(36);
+   G_fitGG3->SetMargins(0,0,0,0);
+   G_fitGG3->SetWrapLength(-1);
+   G_fitGG3->Resize();
+   G_fitGG3->SetEnabled(kFALSE);
+   G_fitGG3->ChangeBackground(gurf);
+   G_fitGG3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum3()");
+   histo_opts->AddFrame(G_fitGG3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
    fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
    
    /* histo list */
@@ -1022,9 +1022,9 @@ void KVTreeAnalyzer::HistoSelectionChanged()
          G_histo_del->SetEnabled(kFALSE);
          G_fit2->SetEnabled(kFALSE);
          G_fit3->SetEnabled(kFALSE);
-         G_fit4->SetEnabled(kFALSE);
-         G_fit5->SetEnabled(kFALSE);
-         G_fitGG->SetEnabled(kFALSE);
+         G_fitGG1->SetEnabled(kFALSE);
+         G_fitGG2->SetEnabled(kFALSE);
+         G_fitGG3->SetEnabled(kFALSE);
    fSelectedHistos = G_histolist->GetSelectedObjects();
    if(fSelectedHistos && fSelectedHistos->GetEntries()==1)
    {
@@ -1034,9 +1034,9 @@ void KVTreeAnalyzer::HistoSelectionChanged()
          G_fit1->SetEnabled(kTRUE);
          G_fit2->SetEnabled(kTRUE);
          G_fit3->SetEnabled(kTRUE);
-         G_fit4->SetEnabled(kTRUE);
-         G_fit5->SetEnabled(kTRUE);
-         G_fitGG->SetEnabled(kTRUE);
+         G_fitGG1->SetEnabled(kTRUE);
+         G_fitGG2->SetEnabled(kTRUE);
+         G_fitGG3->SetEnabled(kTRUE);
       }
    }
 }
@@ -1094,6 +1094,12 @@ void KVTreeAnalyzer::FitGum1()
    GDfirst->SetParameters(histo->GetMean(),histo->GetRMS());
    histo->Fit(GDfirst,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1108,6 +1114,12 @@ void KVTreeAnalyzer::FitGum2()
    GDsecond->SetParameters(histo->GetMean(),histo->GetRMS());
    histo->Fit(GDsecond,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1122,6 +1134,12 @@ void KVTreeAnalyzer::FitGum3()
    GDthird->SetParameters(histo->GetMean(),histo->GetRMS());
    histo->Fit(GDthird,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1129,13 +1147,19 @@ void KVTreeAnalyzer::FitGum3()
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
 }
-void KVTreeAnalyzer::FitGum4()
+void KVTreeAnalyzer::FitGausGum1()
 {
    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
    if(!histo) return;
-   GD4->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GD4,"EM");
+   GausGum1->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+   histo->Fit(GausGum1,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1143,13 +1167,20 @@ void KVTreeAnalyzer::FitGum4()
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
 }
-void KVTreeAnalyzer::FitGum5()
+   
+void KVTreeAnalyzer::FitGausGum2()
 {
    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
    if(!histo) return;
-   GD5->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GD5,"EM");
+   GausGum2->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+   histo->Fit(GausGum2,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1157,13 +1188,20 @@ void KVTreeAnalyzer::FitGum5()
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
 }
-void KVTreeAnalyzer::FitGausGum()
+   
+void KVTreeAnalyzer::FitGausGum3()
 {
    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
    if(!histo) return;
-   GausGum->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
-   histo->Fit(GausGum,"EM");
+   GausGum3->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+   histo->Fit(GausGum3,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
