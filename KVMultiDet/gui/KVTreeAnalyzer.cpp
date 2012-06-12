@@ -4,6 +4,7 @@
 #include "KVTreeAnalyzer.h"
 #include "TString.h"
 #include "TDirectory.h"
+#include "TSystem.h"
 #include "TEntryList.h"
 #include "Riostream.h"
 #include "KVCanvas.h"
@@ -11,6 +12,8 @@
 #include "TLeaf.h"
 #include "TPaveStats.h"
 #include "TPad.h"
+#include "TKey.h"
+#include "TROOT.h"
 
 ClassImp(KVTreeAnalyzer)
 
@@ -35,10 +38,10 @@ Int_t my_color_array[] = {
 };
    
 KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
-   : TNamed(), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
+   : TNamed("KVTreeAnalyzer", "KVTreeAnalyzer"), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
 {
    // Default constructor - used when loading from a file.
-   // The 'nogui' option (default=kFALSE) controls whether or not to
+   // The 'nogui' option (default=kTRUE) controls whether or not to
    // launch the graphical interface
    
    fMain_histolist=0;
@@ -58,6 +61,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
       GD5=new KVGumbelDistribution("Gum5",5);
       GausGum=new KVGausGumDistribution("GausGum");
       fNoGui=nogui;
+      OpenGUI();
 }
 
 
@@ -99,6 +103,29 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
    SafeDelete(fMain_histolist);
    SafeDelete(fMain_leaflist);
    SafeDelete(fMain_selectionlist);
+}
+
+//________________________________________________________________
+
+void KVTreeAnalyzer::Copy (TObject& obj) const
+{
+   // This method copies the current state of 'this' object into 'obj'
+   // You should add here any member variables, for example:
+   //    (supposing a member variable KVTreeAnalyzer::fToto)
+   //    CastedObj.fToto = fToto;
+   // or
+   //    CastedObj.SetToto( GetToto() );
+
+   TNamed::Copy(obj);
+   KVTreeAnalyzer& CastedObj = (KVTreeAnalyzer&)obj;
+   fSelections.Copy(CastedObj.fSelections);// list of TEntryList user selections
+   fHistolist.Copy(CastedObj.fHistolist);//list of generated histograms
+   CastedObj.fTreeName = fTreeName;//name of analyzed TTree
+   CastedObj.fTreeFileName = fTreeFileName;//name of file containing analyzed TTree
+   CastedObj.fHistoNumber=fHistoNumber;//used for automatic naming of histograms
+   CastedObj.fSelectionNumber=fSelectionNumber;//used for automatic naming of selections
+   CastedObj.fAliasNumber=fAliasNumber;//used for automatic naming of TTree aliases
+   fAliasList.Copy(CastedObj.fAliasList);//list of TTree aliases
 }
 
 void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, const Char_t* selection)
@@ -267,7 +294,7 @@ void KVTreeAnalyzer::FillLeafList()
    // all aliases defined by the user
    
    TList stuff;
-   stuff.AddAll(fTree->GetListOfLeaves());
+   if(fTree) stuff.AddAll(fTree->GetListOfLeaves());
    stuff.AddAll(&fAliasList);
    G_leaflist->Display(&stuff);   
 }
@@ -338,20 +365,26 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_leaflist->MapWindow();
    fMain_leaflist->Resize(lWidth,lHeight);
    FillLeafList();
-   // main frame
+   // histogram manager window
    fMain_histolist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    fMain_histolist->SetName("fMain_histolist");
    fMain_histolist->SetWindowName("HISTOS");
    UInt_t hWidth = 400, hHeight = 600;
-   TGTextButton* save = new TGTextButton(fMain_histolist,Form("SAVE Analysis_%s",fTreeFileName.Data()));
-   save->SetTextJustify(36);
-   save->SetMargins(0,0,0,0);
-   save->SetWrapLength(-1);
-   save->Resize(hWidth,save->GetDefaultHeight());
-   save->Connect("Clicked()", "KVTreeAnalyzer", this, "Save()");
-   save->SetEnabled(kTRUE);
-   save->ChangeBackground(yellow);
-   fMain_histolist->AddFrame(save, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+             /* menus */
+   fMenuFile = new TGPopupMenu(gClient->GetRoot());
+   fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
+   fMenuFile->AddSeparator();
+   fMenuFile->AddEntry("&Save as...", MH_SAVE_FILE);
+   fMenuFile->AddSeparator();
+   fMenuFile->AddEntry("&Quit", MH_QUIT);
+   fMenuFile->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleHistoFileMenu(Int_t)");
+   fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+   fMenuBar = new TGMenuBar(fMain_histolist, 1, 1, kHorizontalFrame);
+   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
+   fMain_histolist->AddFrame(fMenuBar,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
+   TGHorizontal3DLine *lh = new TGHorizontal3DLine(fMain_histolist);
+   fMain_histolist->AddFrame(lh, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+   
    G_histo_del = new TGTextButton(fMain_histolist,"DELETE HISTO!");
    G_histo_del->SetTextJustify(36);
    G_histo_del->SetMargins(0,0,0,0);
@@ -582,6 +615,7 @@ void KVTreeAnalyzer::ReconnectTree()
    // Reconnects a TTree for analysis using the stored
    // informations on the file name and TTree name
    
+   if(fTree) fTree->GetCurrentFile()->Close();
    TFile*f = TFile::Open(fTreeFileName);
    TTree *t = (TTree*)f->Get(fTreeName);
    SetTree(t);
@@ -603,6 +637,28 @@ KVTreeAnalyzer* KVTreeAnalyzer::OpenFile(const Char_t* filename, Bool_t nogui)
    anal->ReconnectTree();
    anal->OpenGUI();
    return anal;
+}
+
+void KVTreeAnalyzer::ReadFromFile(const Char_t* filename)
+{
+   // open a previously saved analysis session.
+   
+   TFile* f = TFile::Open(filename);
+   ReadFromFile(f);
+}
+
+void KVTreeAnalyzer::ReadFromFile(TFile* f)
+{
+   // open a previously saved analysis session.
+   
+   KVTreeAnalyzer* anal = (KVTreeAnalyzer*)f->Get("KVTreeAnalyzer");
+   delete f;
+   anal->Copy(*this);
+   delete anal;
+   ReconnectTree();
+   G_selectionlist->Display(&fSelections);
+   G_histolist->Display(&fHistolist);
+   FillLeafList();
 }
 
 void KVTreeAnalyzer::DrawHisto(TObject* obj)
@@ -675,7 +731,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    else
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
-      if(fNewCanvas) new KVCanvas;
+      if(fNewCanvas) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -935,7 +991,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
             histo = MakeHisto(expr, "", 500);
          }
       }
-      if(fNewCanvas) new KVCanvas;
+      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->Draw();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -948,7 +1004,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 //       GenerateHistoTitle(htit,expr,"");
 //       histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
       if(!histo) histo = MakeHisto(expr, "", 500);
-      if(fNewCanvas) new KVCanvas;
+      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->Draw();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -1196,4 +1252,105 @@ void KVTreeAnalyzer::UpdateEntryLists()
       MakeSelection(old_el->GetTitle());
    }
    old_lists.Delete();
+}
+   
+void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
+{
+   switch(id){
+      case MH_OPEN_FILE:
+         HistoFileMenu_Open();
+         break;
+         
+      case MH_SAVE_FILE:
+         HistoFileMenu_Save();
+         break;
+      case MH_QUIT:
+         gROOT->ProcessLine(".q");
+         break;
+         
+      default:
+         break;
+   }
+}
+void KVTreeAnalyzer::HistoFileMenu_Open()
+{
+   static TString dir(".");
+   const char *filetypes[] = {
+      "ROOT files", "*.root",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDOpen, &fi);
+   if (fi.fFilename) {
+      OpenAnyFile(fi.fFilename);
+   }
+   dir = fi.fIniDir;
+}
+
+void KVTreeAnalyzer::HistoFileMenu_Save()
+{
+   static TString dir(".");
+   const char *filetypes[] = {
+      "ROOT files", "*.root",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   TString filename;
+   filename.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
+   fi.fFilename = StrDup(filename);
+   new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDSave, &fi);
+   if (fi.fFilename) {
+      //if no ".xxx" ending given, we add ".root"
+      TString filenam(fi.fFilename);
+      if (!filenam.Contains('.'))
+         filenam += ".root";
+      SaveAs(filenam);
+   }
+   dir = fi.fIniDir;
+}
+
+void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
+{
+   // assuming filepath is the URL of a ROOT file, open it and
+   // either
+   //   i) open the KVTreeAnalyzer object stored in it
+   // or ii) if no KVTreeAnalyzer object is found, open first TTree in file
+   
+   TFile* file = TFile::Open(filepath);
+   TObject*kvta = file->GetListOfKeys()->FindObject("KVTreeAnalyzer");
+   if(kvta){
+      ReadFromFile(file);
+   }
+   else
+   {
+      // look for first TTree in file
+      TIter next(file->GetListOfKeys());
+      while( (kvta=next()) ){
+         TString cn = ((TKey*)kvta)->GetClassName();
+         if(cn=="TTree"){
+            if(fTree) fTree->GetCurrentFile()->Close();
+            TTree* t=(TTree*)file->Get(kvta->GetName());
+            SetTitle(t->GetTitle());
+            SetTree(t);
+            fSelections.Clear();
+            fHistolist.Clear();
+            fAliasList.Clear();
+            fHistoNumber=1;
+            fSelectionNumber=1;
+            fAliasNumber=1;
+            fSameColorIndex=0;
+            fSelectedSelections=0;
+            fSelectedLeaves=0;
+            fSelectedHistos=0;
+            G_selectionlist->Display(&fSelections);
+            G_histolist->Display(&fHistolist);
+            FillLeafList();
+            break;
+         }
+      }
+   }
 }
