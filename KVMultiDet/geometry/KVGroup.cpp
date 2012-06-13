@@ -29,6 +29,7 @@ $Id: KVGroup.cpp,v 1.35 2008/01/17 15:17:20 franklan Exp $
 #include "KVReconstructedNucleus.h"
 #include "TROOT.h"
 #include "KVNameValueList.h"
+#include "KVIDGraph.h"
 
 ClassImp(KVGroup);
 /////////////////////////////////////////////////////////////////////
@@ -892,6 +893,9 @@ void KVGroup::ClearHitDetectors()
 void KVGroup::PrepareModif()
 {
 	//Casse tous les liens entre les detecteurs d un meme groupe
+	//Retire de la liste gMultiDetArray->GetListOfIDTelescopes() les
+	//telescopes associes et les efface apres les avoir
+	//retires des grilles auxquelles ils etaient associees
 	//pour preparer l ajout ou le retrait d un detecteur
 	//voir KVDetector::SetPresent()
 	//
@@ -919,6 +923,14 @@ void KVGroup::PrepareModif()
 	for (Int_t ii=0;ii<nv.GetEntries();ii+=1){
 		id = (KVIDTelescope* )lidtel->FindObject(nv.GetNameAt(ii));
 		//Info("PrepareModif","On retire et on detruit l'ID tel %s",id->GetName());
+		if (id->GetListOfIDGrids()){
+			KVIDGraph* idg = 0;
+			for (Int_t kk=0;kk<id->GetListOfIDGrids()->GetEntries();kk+=1){
+				idg = (KVIDGraph* )id->GetListOfIDGrids()->At(kk);
+				((TList* )idg->GetIDTelescopes())->Clear();
+			}
+		}
+		
 		delete lidtel->Remove(id);
 	}
 	nv.Clear();

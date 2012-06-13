@@ -211,9 +211,16 @@ void KVIDGridManager::SetGridsInTelescopes ( UInt_t run )
    KVIDGraph* gr = 0;
    while ( ( gr = ( KVIDGraph* ) next() ) ) {
       if ( gr->GetRuns().Contains ( ( Int_t ) run ) ) {
-         TIter nxtid ( gr->GetIDTelescopes() );
+		
+			gr->FillListOfIDTelescopes();
+			
+         //Info("SetGridsInTelescopes","la grille %s contient le numero de run %d",gr->GetName(),run);
+			TIter nxtid ( gr->GetIDTelescopes() );
          KVIDTelescope* idt;
-         while ( ( idt = ( KVIDTelescope* ) nxtid() ) ) idt->SetIDGrid ( gr );
-      }
+         while ( ( idt = ( KVIDTelescope* ) nxtid() ) ) {
+				//Info("SetGridsInTelescopes","%s %s",idt->GetName(),idt->ClassName());
+				idt->SetIDGrid ( gr );
+      	}
+		}
    }
 }
