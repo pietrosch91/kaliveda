@@ -37,6 +37,11 @@ class Analysisv
   virtual void Treat()=0; // Treating data
   virtual void CreateHistograms()=0;
   virtual void FillHistograms()=0;
+  
+  virtual void SetBrhoRef(Double_t)=0;
+  virtual void SetAngleVamos(Double_t)=0; 
+  virtual Double_t GetBrhoRef(void)=0;
+  virtual Double_t GetAngleVamos(void)=0;
 
   ClassDef(Analysisv,0)
 
