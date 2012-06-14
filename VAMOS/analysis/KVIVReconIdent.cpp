@@ -56,6 +56,59 @@ void KVIVReconIdent::InitRun(void)
    fAnalyseV->CreateHistograms();
    fAnalyseV->OpenInputTree(fChain->GetTree());
    fAnalyseV->inAttach();
+   
+
+   ifstream in;   
+   Int_t  run1, run2;
+    
+   //Float_t  thetavam,brho;
+   //Float_t  brhorun = 0.;
+   //Float_t  thetavamrun = 0.;
+   TString sline;
+   double brho,thetavam,brhorun,thetavamrun;
+     
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   //reading brho and thetavamos values
+   if(!gDataSet->OpenDataSetFile("brho.dat",in))
+  {
+     fLogV->Log << "Could not open brho.dat file !!!" << endl;
+     return;
+  }
+  else 
+  {
+   fLogV->Log << "Reading brho.dat!!!" <<endl;
+   while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %lf %lf", &run1, &run2, &brho, &thetavam);
+	     if((run1<gIndra->GetCurrentRunNumber() && gIndra->GetCurrentRunNumber()<run2) || gIndra->GetCurrentRunNumber()==run2 || gIndra->GetCurrentRunNumber()==run1)
+	     	{
+		brhorun = double(brho);
+		thetavamrun = double(thetavam);
+		fAnalyseV->SetBrhoRef(brhorun);
+   		fAnalyseV->SetAngleVamos(thetavamrun);
+		}
+		//else file->Log<<"Mauvais numéro de run!!!"<<endl;		
+	   }
+         }
+       }
+     }
+   in.close();
+      
+   fLogV->Log<<"-----------"<<endl;
+   fLogV->Log<<"RUN "<<   gIndra->GetCurrentRunNumber()<<endl;
+   fLogV->Log<<"Brho	"<<fAnalyseV->GetBrhoRef()<<endl;
+   fLogV->Log<<"ThetaV	"<<fAnalyseV->GetAngleVamos()<<endl;
+   fLogV->Log<<"-----------"<<endl;   
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   // NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
+   
 }
 
 //_____________________________________
