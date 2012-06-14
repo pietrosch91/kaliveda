@@ -13,6 +13,8 @@ $Author: franklan $
 #include "TClass.h"
 #include "TPluginManager.h"
 
+using namespace std;
+
 ClassImp(KVDataAnalysisTask)
 /////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

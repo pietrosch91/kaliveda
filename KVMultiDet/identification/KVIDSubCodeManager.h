@@ -58,8 +58,8 @@ inline Int_t KVIDSubCodeManager::GetIDSubCode(KVIDSubCode & concat) const
 
 inline void KVIDSubCodeManager::PrintSCM(Option_t *) const
 {
-   cout << "KVIDSubCodeManager: fNbits=" << (int) fNbits << " fMSB=" <<
-       (int) fMSB << endl;
+   std::cout << "KVIDSubCodeManager: fNbits=" << (int) fNbits << " fMSB=" <<
+       (int) fMSB << std::endl;
 }
 
 inline const Char_t *KVIDSubCodeManager::SubCodeNotSet() const

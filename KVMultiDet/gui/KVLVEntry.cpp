@@ -105,7 +105,7 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 	// the "Modified" signal is connected to the KVLVEntry::Refresh method
 	if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
 		gInterpreter->Execute(obj, obj->IsA(), "Connect",
-				Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%#x,\"Refresh()\"", (ULong_t)this));
+				Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
 	}
 }
 

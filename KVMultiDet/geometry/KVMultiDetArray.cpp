@@ -49,6 +49,8 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 #include "KVNameValueList.h"
 #include "KVUniqueNameList.h"
 
+using namespace std;
+
 ClassImp(KVMultiDetArray)
 //////////////////////////////////////////////////////////////////////////////////////
 //Begin_Html

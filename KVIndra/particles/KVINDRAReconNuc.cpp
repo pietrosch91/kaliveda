@@ -37,6 +37,8 @@ $Id: KVINDRAReconNuc.cpp,v 1.61 2009/04/03 14:28:37 franklan Exp $
 #include "KVIDChIoSi.h"
 #include "KVIDCsI.h"
 
+using namespace std;
+
 ClassImp(KVINDRAReconNuc);
 
 ////////////////////////////////////////////////////////////////////////////

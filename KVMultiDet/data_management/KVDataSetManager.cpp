@@ -25,6 +25,8 @@ $Author: franklan $
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
 #define CHMODE(u,g,o) ((u << 6) + (g << 3) + o)
 
+using namespace std;
+
 ClassImp(KVDataSetManager)
 /////////////////////////////////////////////////
 //KVDataSetManager handles a collection of  datasets contained in a data repository,

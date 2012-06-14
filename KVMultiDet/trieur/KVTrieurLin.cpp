@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include "KVTrieurLin.h"
 
+using namespace std;
+
 ClassImp(KVTrieurLin)
 //////////////////////////////////////////////////////////////////////////////////
 //          *****       Class for a linear sorting.      ******

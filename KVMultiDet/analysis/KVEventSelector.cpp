@@ -4,6 +4,8 @@
 #include "TPluginManager.h"
 #include "TSystem.h"
 
+using namespace std;
+
 ClassImp(KVEventSelector)
 
 void KVEventSelector::Begin(TTree * /*tree*/)
@@ -52,7 +54,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
    fTreeEntry = entry;
 
    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
-      Info("Process", " +++ %ld events processed +++ ", fEventsRead);
+      Info("Process", " +++ %lld events processed +++ ", fEventsRead);
       ProcInfo_t pid;
       if(gSystem->GetProcInfo(&pid)==0){
          cout << "     ------------- Process infos -------------" << endl;
@@ -84,7 +86,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
 
    // Testing whether EndRun() should be called
    if (AtEndOfRun()) {
-      Info("Process", "End of file reached after %ld events", fEventsRead);
+      Info("Process", "End of file reached after %lld events", fEventsRead);
 
       EndRun();
       fNotifyCalled = kFALSE;//Notify will be called when next file is opened (in TChain)

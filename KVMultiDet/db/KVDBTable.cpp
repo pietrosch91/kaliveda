@@ -21,6 +21,8 @@ $Id: KVDBTable.cpp,v 1.18 2007/04/27 14:46:29 franklan Exp $
 #include "TROOT.h"
 
 
+using namespace std;
+
 ClassImp(KVDBTable)
 ///////////////////////////////////////////////
 //Base class for a table of the data base

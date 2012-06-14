@@ -22,6 +22,8 @@ $Id: KVACQParam.cpp,v 1.23 2007/12/06 15:12:54 franklan Exp $
 #include "KVDetector.h"
 #include "TRandom.h"
 
+using namespace std;
+
 ClassImp(KVACQParam)
 ///////////////////////////////////////////////////////////////////////////////
 //16-bit data acquisition parameters read from raw data.

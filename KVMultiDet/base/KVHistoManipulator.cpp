@@ -33,6 +33,8 @@ $Date: 2009/04/07 14:54:15 $
 #include "TCanvas.h"
 
 
+using namespace std;
+
 ClassImp(KVHistoManipulator)
 
 ////////////////////////////////////////////////////////////////////////////////

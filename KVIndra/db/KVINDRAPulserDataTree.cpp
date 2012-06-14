@@ -11,6 +11,8 @@ $Date: 2009/03/27 16:42:58 $
 #include "KVDataSet.h"
 #include "KVINDRA.h"
 
+using namespace std;
+
 ClassImp(KVINDRAPulserDataTree)
 
 ////////////////////////////////////////////////////////////////////////////////

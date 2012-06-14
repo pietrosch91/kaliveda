@@ -20,6 +20,8 @@ $Date: 2007/11/20 16:46:21 $
 
 KVDataRepositoryManager *gDataRepositoryManager;
 
+using namespace std;
+
 ClassImp(KVDataRepositoryManager)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

@@ -19,6 +19,8 @@ $Id: KVCalibrator.cpp,v 1.20 2007/02/27 11:57:58 franklan Exp $
 #include "KVCalibrator.h"
 #include "Riostream.h"
 
+using namespace std;
+
 ClassImp(KVCalibrator);
 //////////////////////////////////////////////////////////////////////////////
 //              ********    Base class for calibrating detectors.  ********

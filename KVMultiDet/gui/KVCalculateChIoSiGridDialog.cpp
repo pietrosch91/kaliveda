@@ -19,6 +19,8 @@ Bool_t KVCalculateChIoSiGridDialog::set_npoints = kFALSE;
 Double_t KVCalculateChIoSiGridDialog::phd_param = -1;
 Double_t KVCalculateChIoSiGridDialog::chio_press = -1;
 
+using namespace std;
+
 ClassImp(KVCalculateChIoSiGridDialog)
 ////////////////////////////////////////////////////////////////
 // KVCalculateChIoSiGridDialog

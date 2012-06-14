@@ -24,6 +24,8 @@ selection, you will not be able to regenerate them."
 
 KVString KVSelector::fBranchName = "INDRAReconEvent";
    
+using namespace std;
+
 ClassImp(KVSelector)
 
 //______________________________________________________________________________

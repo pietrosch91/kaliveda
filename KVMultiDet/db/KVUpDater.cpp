@@ -15,6 +15,8 @@ $Author: franklan $
 #include "KVDetector.h"
 #include "KVCalibrator.h"
 
+using namespace std;
+
 ClassImp(KVUpDater)
 //////////////////////////////////////////////////////////////////////////////////
 //

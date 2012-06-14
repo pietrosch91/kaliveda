@@ -9,6 +9,8 @@ $Date: 2007/02/14 14:13:05 $
 
 #include "KVDB_BIC_Pressures.h"
 
+using namespace std;
+
 ClassImp(KVDB_BIC_Pressures)
 
 ////////////////////////////////////////////////////////////////////////////////

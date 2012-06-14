@@ -14,6 +14,8 @@ Usage:
 #include "KVDataSet.h"
 #include "Riostream.h"
 
+using namespace std;
+
 int main(int argc, char** argv)
 {
 	

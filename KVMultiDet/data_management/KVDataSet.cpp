@@ -25,6 +25,8 @@ $Author: franklan $
 #include "KVNumberList.h"
 #include "TPluginManager.h"
 
+using namespace std;
+
 ClassImp(KVDataSet)
 /////////////////////////////////////////////////
 // BEGIN_HTML <!--

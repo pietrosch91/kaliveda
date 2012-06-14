@@ -8,6 +8,8 @@ $Id: KVINDRARunListReader.cpp,v 1.8 2007/04/26 16:38:57 franklan Exp $
 #include <KVRunListLine.h>
 
 
+using namespace std;
+
 ClassImp(KVINDRARunListReader)
 //////////////////////////////////////////////////////////////
 //KVINDRARunListReader

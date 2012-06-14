@@ -16,6 +16,8 @@ $Date: 2008/10/17 10:58:07 $
 #include "KVDataRepository.h"
 #include "RVersion.h"
 
+using namespace std;
+
 ClassImp(KVINDRARawDataReconstructor)
 
 ////////////////////////////////////////////////////////////////////////////////

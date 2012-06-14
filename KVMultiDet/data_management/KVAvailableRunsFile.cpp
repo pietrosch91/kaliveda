@@ -21,6 +21,8 @@ $Date: 2009/03/12 14:01:02 $
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
 #define CHMODE(u,g,o) ((u << 6) + (g << 3) + o)
 
+using namespace std;
+
 ClassImp(KVAvailableRunsFile)
 ////////////////////////////////////////////////////////////////////////////////
 //Handles text files containing list of available runs for different datasets and types of data

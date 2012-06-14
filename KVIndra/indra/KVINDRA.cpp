@@ -45,6 +45,8 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include "TEnv.h"
 #include "KVFileReader.h"
 
+using namespace std;
+
 ClassImp(KVINDRA)
 ///////////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -1286,7 +1288,7 @@ void KVINDRA::LinkToCodeurs()
 			TEnvRec* rec = 0;
 			TObjArray* toks = 0;
 			TIter it(env->GetTable());
-			while ( rec = (TEnvRec* )it.Next() ){
+			while ( (rec = (TEnvRec* )it.Next()) ){
 				if (!strcmp(rec->GetName(),"type")){
 					Info("LinkToCodeurs","Module type %s",rec->GetValue());	
 				}

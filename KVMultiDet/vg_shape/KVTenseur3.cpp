@@ -14,6 +14,8 @@
 #include "TVector.h"
 #include "TMatrix.h"
 
+using namespace std;
+
 ClassImp(KVTenseur3)
 //////////////////////////////////////////////////////////////////////////////////
 //   This class fills, diagonalizes the velocity tensor and returns several

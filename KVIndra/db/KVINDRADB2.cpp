@@ -22,6 +22,8 @@ $Id: KVINDRADB2.cpp,v 1.16 2007/04/26 16:40:58 franklan Exp $
 #include "KVDBParameterSet.h"
 #include "TString.h"
 
+using namespace std;
+
 ClassImp(KVINDRADB2)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //   Base de donnee pour la 2eme campagne INDRA.

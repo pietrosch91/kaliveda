@@ -28,6 +28,8 @@ $Id: KVParticle.cpp,v 1.50 2009/04/28 08:59:05 franklan Exp $
 
 Double_t KVParticle::kSpeedOfLight = TMath::C() * 1.e-07;
 
+using namespace std;
+
 ClassImp(KVParticle);
 
 ////////////////////////////////////////////////////////////////////////////

@@ -17,6 +17,8 @@ $Author: franklan $
 #include "KVBase.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+using namespace std;
+
 
 ClassImp(KVINDRAUpDater)
 //////////////////////////////////////////////////////////////////////////////////

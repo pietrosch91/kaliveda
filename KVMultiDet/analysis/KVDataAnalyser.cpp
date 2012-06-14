@@ -26,6 +26,8 @@ $Author: franklan $
 #include "TClass.h"
 #include "THashList.h"
 
+using namespace std;
+
 ClassImp(KVDataAnalyser)
 //////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -709,7 +711,7 @@ void KVDataAnalyser::SetDataSet(KVDataSet * ds)
    //check repository
    if (ds->GetRepository() != gDataRepository) {
       Error("SetDataSet",
-            "%#x is address of dataset in repository \"%s\", not of the dataset in the current repository, \"%s\"",
+            "%ld is address of dataset in repository \"%s\", not of the dataset in the current repository, \"%s\"",
             (ULong_t) ds, ds->GetRepository()->GetName(),
             gDataRepository->GetName());
       fDataSet = 0;

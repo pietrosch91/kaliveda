@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include "KVTrieurBloc.h"
 
+using namespace std;
+
 ClassImp(KVTrieurBloc)
 //////////////////////////////////////////////////////////////////////////////////
 //          *****     Class for a sorting with detached cells.      ******

@@ -27,6 +27,8 @@
 #include "TGeoMedium.h"
 #include "TGeoManager.h"
 
+using namespace std;
+
 ClassImp(KVMaterial);
 
 ///////////////////////////////////////////////////////////////////////////////

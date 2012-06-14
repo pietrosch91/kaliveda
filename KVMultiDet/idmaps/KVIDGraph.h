@@ -49,11 +49,11 @@ class KVIDGraph : public TCutG
    static Bool_t  fAutoAddGridManager;//if =kTRUE, grids are automatically added to ID grid manager on creation (default)
    
    void Scale(Double_t sx = -1, Double_t sy = -1);
-   virtual void ReadFromAsciiFile(ifstream & gridfile);
-   virtual void WriteToAsciiFile(ofstream & gridfile);
+   virtual void ReadFromAsciiFile(std::ifstream & gridfile);
+   virtual void WriteToAsciiFile(std::ofstream & gridfile);
    void init();
 	virtual KVIDentifier* New(const Char_t*);
-	virtual void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, ifstream& gridfile);
+	virtual void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, std::ifstream& gridfile);
 	void FillListOfIDTelescopes();
 	void WriteParameterListOfIDTelescopes();
 	virtual void BackwardsCompatibilityFix();

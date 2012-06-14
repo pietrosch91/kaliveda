@@ -8,6 +8,8 @@
 #include "KVDBParameterSet.h"
 #include "KVDBChIoPressures.h"
 
+using namespace std;
+
 ClassImp(KVINDRADB_e613)
 
 ////////////////////////////////////////////////////////////////////////////////

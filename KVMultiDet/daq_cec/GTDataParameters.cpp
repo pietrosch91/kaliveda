@@ -1,6 +1,6 @@
 // $Id: GTDataParameters.cpp,v 1.6 2007/06/08 15:49:10 franklan Exp $
 // Author: $Author: franklan $
-/***************************************************************************
+
 //                        GTDataParameters.cpp  -  Parameters name handling
 //                             -------------------
 //    begin                : Thu Jun 14 2001
@@ -20,14 +20,16 @@
 //
 //////////////////////////////////////////////////////////////////////////
 // ---------------------------------------------------------------------------
-/***************************************************************************
+/*
+ ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
- ***************************************************************************/
+ **************************************************************************
+*/
 
 #include "Riostream.h"
 
@@ -38,6 +40,8 @@
 #include "gan_acq_buf.h"
 #include "GTDataParameters.h"
 #include "TList.h"
+
+using namespace std;
 
 ClassImp(GTDataParameters);
 

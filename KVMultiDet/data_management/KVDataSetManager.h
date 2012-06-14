@@ -20,7 +20,7 @@ class KVDataSetManager {
    friend class KVDataSet;
    
  protected:
-   ifstream fDatasets;          //for reading cached repository available datasets file
+   std::ifstream fDatasets;          //for reading cached repository available datasets file
    KVUniqueNameList fDataSets;            //list of datasets handled by manager
    KVUniqueNameList fTasks;               //list of all known analysis tasks
    Int_t fNavailable;           //number of available datasets

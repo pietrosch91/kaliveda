@@ -31,6 +31,8 @@ $Id: KVGroup.cpp,v 1.35 2008/01/17 15:17:20 franklan Exp $
 #include "KVNameValueList.h"
 #include "KVIDGraph.h"
 
+using namespace std;
+
 ClassImp(KVGroup);
 /////////////////////////////////////////////////////////////////////
 //KVGroup

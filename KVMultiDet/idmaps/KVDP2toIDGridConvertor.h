@@ -22,7 +22,7 @@ class KVDP2toIDGridConvertor
 	protected:
 	TClass		*fGridClass;   // class of grid to create from dp2 file
 	TList       *fGrids;       // list of new grids
-	virtual void ReadLineCoords(KVIDGrid*, ifstream&);
+	virtual void ReadLineCoords(KVIDGrid*, std::ifstream&);
 	virtual void ReadFile(const Char_t* filename);
 
    public:

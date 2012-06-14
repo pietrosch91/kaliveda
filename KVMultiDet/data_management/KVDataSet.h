@@ -176,7 +176,7 @@ class KVDataSet:public KVBase {
 
    virtual void MakeAnalysisClass(const Char_t* task, const Char_t* classname);
 
-   virtual Bool_t OpenDataSetFile(const Char_t* filename, ifstream& file);
+   virtual Bool_t OpenDataSetFile(const Char_t* filename, std::ifstream& file);
 	virtual Bool_t DataBaseNeedsUpdate();
 
    ClassDef(KVDataSet, 2)       //Describes a set of experimental data which may be analysed with KaliVeda

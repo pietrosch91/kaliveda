@@ -13,6 +13,8 @@ $Date: 2009/03/06 08:59:18 $
 #include "KVError.h"
 #include "KVIDGridManager.h"
 
+using namespace std;
+
 ClassImp(KVDP2toIDGridConvertor)
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -24,6 +24,8 @@ $Id: KVIDGridManager.cpp,v 1.13 2009/03/03 14:27:15 franklan Exp $
 #include "TROOT.h"
 #include "KVIDGridManagerGUI.h"
 
+using namespace std;
+
 ClassImp ( KVIDGridManager )
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //KVIDGridManager

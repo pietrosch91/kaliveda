@@ -11,6 +11,8 @@ $Id: KVTGIDZ.cpp,v 1.8 2009/03/03 14:27:15 franklan Exp $
 #include "KVIDZAGrid.h"
 #include "KVIDZALine.h"
 
+using namespace std;
+
 ClassImp(KVTGIDZ)
 //____________________________________________________________________________//
 //KVTGIDZ

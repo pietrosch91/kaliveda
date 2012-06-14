@@ -31,6 +31,8 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 Double_t KVNucleus::kAMU = 9.31494043e02;
 Double_t KVNucleus::kMe = 0.510988;
 
+using namespace std;
+
 ClassImp(KVNucleus);
 
 ////////////////////////////////////////////////////////////////////////////

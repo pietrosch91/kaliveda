@@ -129,9 +129,9 @@ protected:
 
    virtual void Print(Option_t * option = "") const;
 
-   virtual void WriteRunListLine(ostream &, Char_t delim = '|') const;
+   virtual void WriteRunListLine(std::ostream &, Char_t delim = '|') const;
    virtual void ReadRunListLine(const KVString&);
-   virtual void WriteRunListHeader(ostream &, Char_t delim = '|') const;
+   virtual void WriteRunListHeader(std::ostream &, Char_t delim = '|') const;
 
    //Set value for the scaler with the given name for this run
    virtual void SetScaler(const Char_t*name, Int_t val)

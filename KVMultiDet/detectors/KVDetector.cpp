@@ -36,6 +36,8 @@ $Id: KVDetector.cpp,v 1.87 2009/03/03 14:27:15 franklan Exp $
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 
+using namespace std;
+
 ClassImp(KVDetector)
 ///////////////////////////////////////////////////////////////////////////////////////
 /*

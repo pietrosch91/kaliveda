@@ -10,6 +10,8 @@ $Date: 2007/02/14 14:12:31 $
 #include "KVINDRADB_e416a.h"
 #include "KVDB_BIC_Pressures.h"
 
+using namespace std;
+
 ClassImp(KVINDRADB_e416a)
 
 ////////////////////////////////////////////////////////////////////////////////

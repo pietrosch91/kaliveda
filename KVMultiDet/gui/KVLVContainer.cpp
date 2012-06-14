@@ -14,6 +14,8 @@ $Date: 2009/04/28 09:11:29 $
 #include "TRootContextMenu.h"
 #include "TSystem.h"
 
+using namespace std;
+
 class KVLVFrameElement : public TGFrameElement {
 	public:
 	KVLVContainer *fContainer; // object container
