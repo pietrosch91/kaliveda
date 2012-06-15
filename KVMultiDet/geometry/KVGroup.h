@@ -127,7 +127,7 @@ class KVGroup:public KVPosition {
 
    void AnalyseParticles();
    inline Bool_t Fired(Option_t * opt = "any") const;
-	void PrepareModif();
+	void PrepareModif(KVDetector* );
 	
 	
    ClassDef(KVGroup, 1)         //Group of telescopes in different layers having similar angular positions.

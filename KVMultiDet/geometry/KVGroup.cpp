@@ -892,7 +892,7 @@ void KVGroup::ClearHitDetectors()
 	GetDetectors()->R__FOR_EACH(KVDetector, ClearHits)();
 }
 
-void KVGroup::PrepareModif()
+void KVGroup::PrepareModif(KVDetector* dd)
 {
 	//Casse tous les liens entre les detecteurs d un meme groupe
 	//Retire de la liste gMultiDetArray->GetListOfIDTelescopes() les
@@ -916,8 +916,10 @@ void KVGroup::PrepareModif()
 		Int_t ntel = det->GetIDTelescopes()->GetEntries();
 		for (Int_t ii=0;ii<ntel;ii+=1){
 			id = (KVIDTelescope* )det->GetIDTelescopes()->At(0);
-			nv.SetValue(id->GetName(),"");
-			det->GetIDTelescopes()->RemoveAt(0);
+			if (id->GetDetectors()->FindObject(dd)){
+				nv.SetValue(id->GetName(),"");
+				det->GetIDTelescopes()->RemoveAt(0);
+			}
 		}	
 	}
 	
@@ -925,14 +927,16 @@ void KVGroup::PrepareModif()
 	for (Int_t ii=0;ii<nv.GetEntries();ii+=1){
 		id = (KVIDTelescope* )lidtel->FindObject(nv.GetNameAt(ii));
 		//Info("PrepareModif","On retire et on detruit l'ID tel %s",id->GetName());
+		
 		if (id->GetListOfIDGrids()){
 			KVIDGraph* idg = 0;
 			for (Int_t kk=0;kk<id->GetListOfIDGrids()->GetEntries();kk+=1){
 				idg = (KVIDGraph* )id->GetListOfIDGrids()->At(kk);
-				((TList* )idg->GetIDTelescopes())->Clear();
+				idg->RemoveIDTelescope(id);
 			}
 		}
 		
+		//Info("PrepareModif","Je retire et j efface le idtel %s %s",id->GetName(),id->ClassName());
 		delete lidtel->Remove(id);
 	}
 	nv.Clear();

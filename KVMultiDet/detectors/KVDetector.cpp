@@ -1679,7 +1679,7 @@ void KVDetector::SetPresent(Bool_t present)
 		if (fTelescope->GetDetectors()->GetEntries()==1){
 			KVGroup* gr = fTelescope->GetGroup();
 			
-			gr->PrepareModif();
+			gr->PrepareModif(this);
 			
 			gr->RemoveTelescope(fTelescope,kFALSE,kFALSE);
 			gr->GetDetectors()->Remove(this);
@@ -1696,7 +1696,7 @@ void KVDetector::SetPresent(Bool_t present)
 		if (!fTelescope->GetGroup()){
 			KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
 			
-			gr->PrepareModif();
+			gr->PrepareModif(this);
 			
 			gr->Add(fTelescope);
 			gr->GetDetectors()->Add(this);
@@ -1730,12 +1730,12 @@ void KVDetector::SetDetecting(Bool_t detecting)
 	fDetecting = detecting;
 	if ( !fDetecting ){
 		KVGroup* gr = fTelescope->GetGroup();
-		gr->PrepareModif();
+		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}		
 	else {
 		KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
-		gr->PrepareModif();
+		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}
 
