@@ -216,7 +216,7 @@ void ScanClasses::WritePage()
 	list_file << "<h1>" << fPageTitle.Data() << " <it>(" << nclasses << " classes)</it></h1>" << endl;
 	list_file << "<div class=\"leftSide\">" << endl;
    list_file <<"<div class=\"KaliVeda\">KaliVeda</div>" << endl;
-   list_file << "<img style=\"margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;\" alt=\"indra\" src=\"images/indra_camp4_210x188.png\"><br>" << endl;
+   list_file << "<img style=\"margin-left: 1px; margin-top: 1px; width: 110px; height: 100px;\" alt=\"indra\" src=\"images/indra_huguet_210x210.png\"><br>" << endl;
    list_file << "<script language=\"javascript\" src=\"js/nav.js\"></script>" << endl;
    list_file << "<br>" << endl;
    list_file << "<!-- SiteSearch Google -->" << endl;

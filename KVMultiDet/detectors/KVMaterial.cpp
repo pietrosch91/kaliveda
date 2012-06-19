@@ -709,7 +709,7 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		gmat = GetRangeTable()->GetTGeoMaterial(GetName());
 		gmat->SetPressure( GetPressure() );
 		gmat->SetTemperature( GetTemperature() );
-		gmat->SetTransparency(50);
+		gmat->SetTransparency(0);
 	}
 	
 	// create medium
