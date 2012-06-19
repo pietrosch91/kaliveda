@@ -15,6 +15,8 @@
 #include "KVINDRA.h"
 #include "KVDataSet.h"
 
+using namespace std;
+
 ClassImp(INDRAGeometryBuilder)
 
 ////////////////////////////////////////////////////////////////////////////////
