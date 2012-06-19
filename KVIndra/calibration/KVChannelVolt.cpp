@@ -44,6 +44,7 @@ ClassImp(KVChannelVolt);
 KVChannelVolt::KVChannelVolt():KVCalibrator(3)
 {
    SetType("Channel-Volt");
+	SetGainRef(1);
 }
 
 //___________________________________________________________________________
@@ -55,6 +56,7 @@ KVChannelVolt::KVChannelVolt(const Char_t * signal, KVDetector * kvd):KVCalibrat
    SetType("Channel-Volt");
    SetDetector(kvd);
    SetSignal(signal);
+	SetGainRef(1);
 }
 
 //___________________________________________________________________________
@@ -66,7 +68,7 @@ Double_t KVChannelVolt::Compute(Double_t chan) const
       gain = det->GetGain();
    //Calculate the calibrated signal strength in volts for a given channel number.
    if (fReady) {
-      return (fPar[0] + fPar[1] * chan + fPar[2] * chan * chan) / gain;
+      return (fPar[0] + fPar[1] * chan + fPar[2] * chan * chan) * gain_ref / gain;
    } else {
       return 0.;
    }
@@ -115,7 +117,7 @@ Double_t KVChannelVolt::Invert(Double_t volts)
       if (fPar[2]) {
          // quadratic transfer function
          Double_t c;
-         c = fPar[1] * fPar[1] - 4. * fPar[2] * (fPar[0] - gain * volts);
+         c = fPar[1] * fPar[1] - 4. * fPar[2] * (fPar[0] - gain/gain_ref * volts);
          if (c < 0.0)
             return -1;
          c = (-fPar[1] + TMath::Sqrt(c)) / (2.0 * fPar[2]);
@@ -126,10 +128,22 @@ Double_t KVChannelVolt::Invert(Double_t volts)
          channel = (Int_t) (c + 0.5);
       } else {
          // linear transfer function
-         channel = (Int_t) (0.5 + (gain * volts - fPar[0]) / fPar[1]);
+         channel = (Int_t) (0.5 + (gain/gain_ref * volts - fPar[0]) / fPar[1]);
       }
    } else {
       Warning("Compute", "Parameters not correctly initialized");
    }
    return (Double_t) channel;
+}
+
+//___________________________________________________________________________
+void KVChannelVolt::SetGainRef(Double_t ref)
+{
+	gain_ref =ref;
+}
+
+//___________________________________________________________________________
+Double_t KVChannelVolt::GetGainRef(void)
+{
+	return gain_ref;
 }

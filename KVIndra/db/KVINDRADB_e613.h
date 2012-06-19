@@ -20,6 +20,8 @@ class KVINDRADB_e613 : public KVINDRADB
    KVINDRADB_e613(const Char_t * name);
    virtual ~KVINDRADB_e613();
 
+	virtual void Build();
+
    
 	ClassDef(KVINDRADB_e613,1)//Child class for e613 experiment
 };

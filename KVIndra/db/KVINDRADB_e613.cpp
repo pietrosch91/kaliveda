@@ -26,16 +26,66 @@ KVINDRADB_e613::KVINDRADB_e613()
    // Default constructor
 }
 
-//____________________________________________________________________________
+//___________________________________________________________________________
 KVINDRADB_e613::KVINDRADB_e613(const Char_t * name):KVINDRADB(name)
 {
 	Info("KVINDRADB_e613","Hi coquine, tu es sur la manip e613 ...");
 }
 
-//____________________________________________________________________________
+//___________________________________________________________________________
 KVINDRADB_e613::~KVINDRADB_e613()
 {
    // Destructor
+}
+
+//___________________________________________________________________________
+void KVINDRADB_e613::Build()
+{
+
+   //Use KVINDRARunListReader utility subclass to read complete runlist
+
+   //get full path to runlist file, using environment variables for the current dataset
+   TString runlist_fullpath;
+   KVBase::SearchKVFile(GetDBEnv("Runlist"), runlist_fullpath, fDataSet.Data());
+
+   //set comment character for current dataset runlist
+   SetRLCommentChar(GetDBEnv("Runlist.Comment")[0]);
+
+   //set field separator character for current dataset runlist
+   if (!strcmp(GetDBEnv("Runlist.Separator"), "<TAB>"))
+      SetRLSeparatorChar('\t');
+   else
+      SetRLSeparatorChar(GetDBEnv("Runlist.Separator")[0]);
+
+   //by default we set two keys for both recognising the 'header' lines and deciding
+   //if we have a good run line: the "Run" and "Events" fields must be present
+   GetLineReader()->SetFieldKeys(2, GetDBEnv("Runlist.Run"),
+                                 GetDBEnv("Runlist.Events"));
+   GetLineReader()->SetRunKeys(2, GetDBEnv("Runlist.Run"),
+                               GetDBEnv("Runlist.Events"));
+
+   kFirstRun = 999999;
+   kLastRun = 0;
+   ReadRunList(runlist_fullpath.Data());
+   //new style runlist
+   if( IsNewRunList() ){ ReadNewRunList(); };
+
+   ReadSystemList();
+   ReadChIoPressures();
+   ReadGainList();
+   ReadPedestalList();
+	ReadChannelVolt();
+   ReadVoltEnergyChIoSi();
+   ReadCalibCsI();
+   ReadAbsentDetectors();
+	ReadOoODetectors();
+
+	// read all available mean pulser data and store in tree
+	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
+	fPulserData->SetRunList( GetRuns() );
+	fPulserData->Build();
+
+	ReadCsITotalLightGainCorrections();
 }
 
 //____________________________________________________________________________
@@ -269,6 +319,8 @@ void KVINDRADB_e613::ReadPedestalList()
    //Read the names of pedestal files to use for each run range, found
    //in file with name defined by the environment variable:
    //   [dataset name].INDRADB.Pedestals:    ...
+	//Actuellement lecture d un seul run de piedestal
+	//et donc valeur unique pour l ensemble des runs
 	
 	KVFileReader flist;
 	TString fp;
@@ -283,6 +335,10 @@ void KVINDRADB_e613::ReadPedestalList()
 	TEnv* env = 0;
 	TEnvRec* rec = 0;
 	KVDBParameterSet* par = 0;
+	
+	KVNumberList default_run_list;
+	default_run_list.SetMinMax(kFirstRun,kLastRun);
+	Info("ReadPedestalList","liste des runs par defaut %s",default_run_list.AsString());
 	
 	while (flist.IsOK()){
 		flist.ReadLine(NULL);
@@ -302,7 +358,7 @@ void KVINDRADB_e613::ReadPedestalList()
 						par = new KVDBParameterSet(rec->GetName(), "Piedestal", 1);
 						par->SetParameter(env->GetValue(rec->GetName(),0.0));
 						fPedestals->AddRecord(par);
-						LinkRecordToRunRange(par,nl);
+						LinkRecordToRunRange(par,default_run_list);
 					}
 				}
 				delete env;
@@ -316,11 +372,22 @@ void KVINDRADB_e613::ReadPedestalList()
 //____________________________________________________________________________
 void KVINDRADB_e613::ReadChannelVolt()
 {
-	Info("ReadChannelVolt","En cours d implementation");
-/*
+	
    //Read the names of pedestal files to use for each run range, found
    //in file with name defined by the environment variable:
    //   [dataset name].INDRADB.Pedestals:    ...
+	
+	//need description of INDRA geometry
+	if (!gIndra) {
+      KVMultiDetArray::MakeMultiDetector(fDataSet.Data());
+   }
+   //gIndra exists, but has it been built ?
+   if (!gIndra->IsBuilt())
+      gIndra->Build();
+	
+	KVNumberList default_run_list;
+	default_run_list.SetMinMax(kFirstRun,kLastRun);
+	Info("ReadChannelVolt","liste des runs par defaut %s",default_run_list.AsString());
 	
 	KVFileReader flist;
 	TString fp;
@@ -332,10 +399,20 @@ void KVINDRADB_e613::ReadChannelVolt()
 	if (!flist.OpenFileToRead(fp.Data())){
 		return;
 	}
+
 	TEnv* env = 0;
 	TEnvRec* rec = 0;
 	KVDBParameterSet* par = 0;
+	KVDBParameterSet* par_pied = 0;
+	TObjArray* toks = 0;
+	Double_t a0,a1,a2;//parametre du polynome d ordre 2
+	Double_t gain=0;//valeur du gain de reference
+	Double_t dum2=-2;
+	Double_t pied=0;//valeur du piedestal
 	
+	KVINDRADBRun* dbrun = 0;
+	KVINDRADBRun* dbpied = 0;
+	KVNameValueList ring_run;
 	while (flist.IsOK()){
 		flist.ReadLine(NULL);
 		KVString file = flist.GetCurrentLine();
@@ -344,30 +421,84 @@ void KVINDRADB_e613::ReadChannelVolt()
 			if ( KVBase::SearchKVFile(file.Data(), fp, gDataSet->GetName()) ){
 				Info("ReadChannelVolt","Lecture de %s",fp.Data());
 				TString cal_type;
-				if (fp.BeginsWith("PGtoVolt")) cal_type="Channel-Volt PG";
-				else if (fp.BeginsWith("GGtoVolt")) cal_type="Channel-Volt GG";
+				TString sgain="GG";
+				if (fp.Contains("PGtoVolt")) sgain="PG";
+				cal_type="Channel-Volt "+sgain;
 				
 				env = new TEnv();
 				env->ReadFile(fp.Data(),kEnvAll);
 				TIter it(env->GetTable());
 				while ( (rec = (TEnvRec* )it.Next()) ){
+					KVNumberList nring;
 					TString srec(rec->GetName());
-					if (srec.BeginsWith("Ring")){
-						srec.ReplaceAll("Ring","");
-						lring->SetValue(srec.Data(),rec->GetValue());
+					//On recupere le run reference pour lequel a ete fait la calibration
+					if (srec.BeginsWith("Ring.")){
+						srec.ReplaceAll("Ring.","");
+						nring.SetList(srec);
+						nring.Begin();
+						while (!nring.End()){
+							Int_t rr = nring.Next();
+							ring_run.SetValue(Form("%d",rr),TString(rec->GetValue()).Atoi());
+							Info("ReadChannelVolt","Couronne %d, run associee %d",rr,TString(rec->GetValue()).Atoi());
+						}
 					}
-					else {
+					else if(srec.BeginsWith("Pedestal")){
+						srec.ReplaceAll("Pedestal.","");
+						dbpied = GetRun(TString(rec->GetValue()).Atoi());
+					}
+					else{
+					
+						TString spar(rec->GetValue());
+						toks = spar.Tokenize(",");
+						if (toks->GetEntries()>=3){
+							a0 = ((TObjString* )toks->At(1))->GetString().Atof();
+							a1 = ((TObjString* )toks->At(2))->GetString().Atof();
+							a2 = ((TObjString* )toks->At(3))->GetString().Atof();
+							par_pied = ((KVDBParameterSet* )dbpied->GetLink("Pedestals",Form("%s_%s",rec->GetName(),sgain.Data())));
+							if (par_pied)
+								pied = par_pied->GetParameter();
+							//Fit Canal-Volt realise avec soustraction piedestal
+							//chgmt de variable pour passer de (Canal-piedestal) a Canal brut
+							a0 = a0 - pied*a1 + pied*pied*a2;
+							a1 = a1 - 2*pied*a2;
+							//a2 inchange
+							//On recupere le run de ref, pour avoir le gain associe a chaque detecteur
+							KVINDRADetector* det = (KVINDRADetector* )gIndra->GetDetector(rec->GetName());
+							if (det){
 						
-						//Int_t rr = ((KVINDRADetector* )gIndra->GetDetector(srec.Data()))->GetRingNumber();
-						//parset = new KVDBParameterSet(srec.Data(), cal_type.Data(), 5);
-            		//parset->SetParameters(a0, a1, a2, dum1, dum2);
-						
-						
-						//par = new KVDBParameterSet(rec->GetName(), "Piedestal", 1);
-						//par->SetParameter(env->GetValue(rec->GetName(),0.0));
-						//fPedestals->AddRecord(par);
-						//LinkRecordToRunRange(par,nl);
-						
+								Int_t runref = ring_run.GetIntValue(Form("%d",det->GetRingNumber()));
+								if (!dbrun){
+									dbrun = GetRun(runref);
+								}
+								else if (dbrun->GetNumber()!=runref){
+									dbrun = GetRun(runref);
+								}
+								if (!dbrun){
+									Warning("ReadChannelVolt","Pas de run reference numero %d",runref);
+								}
+								//le gain est mis comme troisieme parametre
+								KVDBParameterSet* pargain = ((KVDBParameterSet*) dbrun->GetLink("Gains",rec->GetName()));
+								if (pargain){
+									gain = pargain->GetParameter(0);
+								}
+								else{
+									Info("ReadChannelVolt","pas de gain defini pour le run %d et le detecteur %s",runref,rec->GetName());
+								}
+								
+								//Si tout est dispo on enregistre la calibration pour ce detecteur
+								//
+								par = new KVDBParameterSet(Form("%s_%s",rec->GetName(),sgain.Data()), cal_type, 5);
+            				par->SetParameters(a0, a1, a2, gain, dum2);
+            		
+								fChanVolt->AddRecord(par);
+            				LinkRecordToRunRange(par,default_run_list);
+							}	
+						}
+						else {
+							a0 = a1 = a2 = gain = 0;
+							Warning("ReadChannelVolt","Pb de format %s",rec->GetValue());
+						}
+						delete toks;
 					}
 				}
 				delete env;
@@ -375,7 +506,7 @@ void KVINDRADB_e613::ReadChannelVolt()
 			}
 		}
 	}
-   Info("ReadPedestalList","End of reading");
-*/
+   Info("ReadChannelVolt","End of reading");
+
 }
 

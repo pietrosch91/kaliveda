@@ -15,6 +15,7 @@ class KVINDRAUpDater_e613 : public KVINDRAUpDater
 
 	virtual void SetGains(KVDBRun *);
 	virtual void SetPedestals(KVDBRun *);
+   virtual void SetChVoltParameters(KVDBRun *);
 
    ClassDef(KVINDRAUpDater_e613,1)//Sets run parameters for INDRA_e613 dataset
 };
