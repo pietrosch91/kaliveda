@@ -16,9 +16,11 @@
 #include "TProfile.h"
 #include "KVIntegerList.h"
 #include "KVPartitionList.h"
+#include "KVEvent.h"
 #include "TDatime.h"
 #include <cstdlib>
 #include "Riostream.h"
+#include "KVEvent.h"
 
 
 class KVBreakUp:public KVPartitionList
@@ -31,6 +33,7 @@ class KVBreakUp:public KVPartitionList
 	Int_t Zmin;
 	Int_t *bound;	//[Ztotal] tableau permettant de gérer les cassures de liens
 	KVString BreakUpMethod,TRandom_Method;
+	
 	TRandom* alea;
 	
 	KVNumberList nl;
@@ -47,6 +50,7 @@ class KVBreakUp:public KVPartitionList
 	KVHashList* lobjects;	//->
 	KVHashList* lhisto;	//->
 	KVIntegerList* partition;
+	KVEvent* current_event;
 	
 	enum {
       kStorePartitions = BIT(14),	//Variables has to be recalculated
@@ -94,6 +98,8 @@ class KVBreakUp:public KVPartitionList
 	void BreakNtimes(Int_t times=1000);
 	void BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin=1);
 	void BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin=1);
+	
+	KVEvent* BreakOnGaussian(Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin);
 	
 	virtual void DrawPanel();
 	
