@@ -41,7 +41,6 @@ KVINDRADB_e613::~KVINDRADB_e613()
 //___________________________________________________________________________
 void KVINDRADB_e613::Build()
 {
-
    //Use KVINDRARunListReader utility subclass to read complete runlist
 
    //get full path to runlist file, using environment variables for the current dataset
@@ -203,7 +202,6 @@ void KVINDRADB_e613::ReadChIoPressures()
 //____________________________________________________________________________
 void KVINDRADB_e613::ReadGainList()
 {
-
    // Read the file listing any detectors whose gain value changes during experiment
 	// need description of INDRA geometry
 	// information are in  [dataset name].INDRADB.Gains:    ...
@@ -315,8 +313,7 @@ void KVINDRADB_e613::ReadGainList()
 //____________________________________________________________________________
 void KVINDRADB_e613::ReadPedestalList()
 {
-
-   //Read the names of pedestal files to use for each run range, found
+  //Read the names of pedestal files to use for each run range, found
    //in file with name defined by the environment variable:
    //   [dataset name].INDRADB.Pedestals:    ...
 	//Actuellement lecture d un seul run de piedestal
@@ -372,7 +369,6 @@ void KVINDRADB_e613::ReadPedestalList()
 //____________________________________________________________________________
 void KVINDRADB_e613::ReadChannelVolt()
 {
-	
    //Read the names of pedestal files to use for each run range, found
    //in file with name defined by the environment variable:
    //   [dataset name].INDRADB.Pedestals:    ...
@@ -510,3 +506,63 @@ void KVINDRADB_e613::ReadChannelVolt()
 
 }
 
+//____________________________________________________________________________
+void KVINDRADB_e613::ReadVoltEnergyChIoSi()
+{
+   //Read Volt-Energy(MeV) calibrations for ChIo and Si detectors.
+   //The parameter filename is taken from the environment variable
+   //        [dataset name].INDRADB.ChIoSiVoltMeVCalib:
+
+	KVFileReader flist;
+	TString fp;
+	if (!KVBase::SearchKVFile(gDataSet->GetDataSetEnv("INDRADB.ChIoSiVoltMeVCalib",""), fp, gDataSet->GetName())){
+		Error("ReadVoltEnergyChIoSi","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.ChIoSiVoltMeVCalib",""));
+		return;
+	}
+	
+	if (!flist.OpenFileToRead(fp.Data())){
+		return;
+	}
+	TEnv* env = 0;
+	TEnvRec* rec = 0;
+	KVDBParameterSet* par = 0;
+	TObjArray* toks = 0;
+	
+	KVNumberList default_run_list;
+	default_run_list.SetMinMax(kFirstRun,kLastRun);
+	Info("ReadVoltEnergyChIoSi","liste des runs par defaut %s",default_run_list.AsString());
+
+	while (flist.IsOK()){
+		flist.ReadLine(NULL);
+		KVString file = flist.GetCurrentLine();
+		KVNumberList nl;
+		if ( file!="" && !file.BeginsWith('#') ){
+			if ( KVBase::SearchKVFile(file.Data(), fp, gDataSet->GetName()) ){
+				Info("ReadPedestalList","Lecture de %s",fp.Data());
+				env = new TEnv();
+				env->ReadFile(fp.Data(),kEnvAll);
+				TIter it(env->GetTable());
+				while ( (rec = (TEnvRec* )it.Next()) ){
+					
+					Double_t a0,a1,chi=1;
+					TString spar(rec->GetValue());
+					toks = spar.Tokenize(",");
+					if (toks->GetEntries()>=2){
+						a0 = ((TObjString* )toks->At(1))->GetString().Atof();
+						a1 = ((TObjString* )toks->At(2))->GetString().Atof();
+					}
+					delete toks;
+					
+					par = new KVDBParameterSet(rec->GetName(), "Volt-Energy", 3);
+					par->SetParameters(a0, a1, chi);
+					fVoltMeVChIoSi->AddRecord(par);
+					LinkRecordToRunRange(par,default_run_list);
+				
+				}
+				delete env;
+			}
+		}
+	}
+   Info("ReadVoltEnergyChIoSi","End of reading");
+
+}
