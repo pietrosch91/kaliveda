@@ -81,7 +81,7 @@ class KVBreakUp:public KVPartitionList
 	KVBreakUp(Int_t taille_max=1000);
 	virtual ~KVBreakUp();
 	void Clear(Option_t* = "");
-	
+	void LinkEvent(KVEvent*);
 	void RedefineTRandom(KVString TRandom_Method);
 	void SetConditions(Int_t zt,Int_t mt,Int_t zmin=1);
 	void DefineBreakUpMethod(KVString bup_method="");

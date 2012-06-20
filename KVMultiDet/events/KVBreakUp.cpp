@@ -101,7 +101,9 @@ KVBreakUp::~KVBreakUp()
 	delete alea;
 	delete lhisto;
 	delete lobjects;
-	delete current_event;
+	
+	//delete current_event;
+	
 	if (bound) delete [] bound;
 	delete [] size;
 	
@@ -172,6 +174,14 @@ void KVBreakUp::SetBreakUpMethod(KVString bup_method)
 {
 	//Protected method	
 	BreakUpMethod=bup_method;
+
+}
+
+//_______________________________________________________
+void KVBreakUp::LinkEvent(KVEvent* evt){
+	
+	if (current_event) delete current_event;
+	current_event = evt;
 
 }
 
