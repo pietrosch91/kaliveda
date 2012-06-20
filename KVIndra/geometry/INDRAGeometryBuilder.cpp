@@ -537,7 +537,11 @@ void INDRAGeometryBuilder::Build()
    TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
    geom->SetTopVolume(top);
 
-   MakeRing("PHOS", 1);
+   if(gIndra->GetDetector("PHOS_01")) MakeRing("PHOS", 1);
+   else {
+      MakeRing("SI",1);
+      MakeRing("CSI",1);
+   }
    for (int ring = 2; ring <= 16; ring += 2) {
       MakeRing("CI", ring);
       if (ring > 1 && ring < 10)MakeRing("SI", ring);
@@ -576,7 +580,11 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
    TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
    geom->SetTopVolume(top);
 
-   if (rings.Contains(1) && detectors.HasParameter("PHOS")) MakeRing("PHOS", 1);
+   if (rings.Contains(1)){
+      if(detectors.HasParameter("PHOS")) MakeRing("PHOS", 1);
+      if(detectors.HasParameter("SI"))MakeRing("SI", 1);
+      if(detectors.HasParameter("CSI"))MakeRing("CSI", 1);
+   }
    for (int ring = 2; ring <= 16; ring += 2) {
       if (rings.Contains(ring) && detectors.HasParameter("CI")) MakeRing("CI", ring);
       if (ring > 1 && ring < 10) {
