@@ -18,6 +18,8 @@ $Date: 2009/03/27 16:43:40 $
 #include "TSystem.h"
 #include <TError.h>
 
+using namespace std;
+
 //ClassImp(ScanClasses)
 
 ////////////////////////////////////////////////////////////////////////////////
