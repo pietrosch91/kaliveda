@@ -118,6 +118,9 @@ public:
    const Char_t* GetBranchName() const {
       return fBranchName.Data();
    };
+   virtual void SetAnalysisFrame()
+   {
+   };
 
    KVEvent* GetEvent() const {
       return Event;

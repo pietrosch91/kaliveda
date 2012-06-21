@@ -63,6 +63,7 @@ Bool_t KVEventSelector::Process(Long64_t entry)
       }
    }
    GetEntry(entry);
+   SetAnalysisFrame();//let user define any necessary reference frames
    fEventsRead++;
 
    KVNucleus* part = 0;
