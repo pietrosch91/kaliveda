@@ -809,9 +809,12 @@ void KVMultiDetArray::Print(Option_t * opt) const
 
 //__________________________________________________________________________________
 
-void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event)
+void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame)
 {
     //Simulate detection of event by multidetector array.
+    //
+    // optional argument detection_frame(="" by default) can be used to give name of
+    // inertial reference frame (defined for all particles of 'event') to be used.
     //
     //For each particle in the event we calculate first its energy loss in the target (if the target has been defined, see KVMultiDetArray::SetTarget).
     //By default these energy losses are calculated from a point half-way along the beam-direction through the target (taking into account the orientation
@@ -870,20 +873,20 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	TObjArray* toks = 0;
 	
 	// iterate through list of particles
-	KVNucleus *part;
+	KVNucleus *part,*_part;
 	KVNameValueList* det_stat = new KVNameValueList();
 	KVNameValueList* nvl = 0;
-	while ((part = event->GetNextParticle())) {  // loop over particles
+	while ((part = event->GetNextParticle())) {  // loop over particles in required frame
 #ifdef KV_DEBUG
 		cout << "DetectEvent(): looking at particle---->" << endl;
 		part->Print();
 #endif
-		
-		part->SetE0();
+		_part=(KVNucleus*)part->GetFrame(detection_frame);
+		_part->SetE0();
 		det_stat->Clear();
 		Double_t eLostInTarget=0;
 		
-		if (part->GetKE()==0) { 
+		if (_part->GetKE()==0) { 
 			det_stat->SetValue("UNDETECTED","NO ENERGY");
 			
 			part->AddGroup("UNDETECTED"); 
@@ -896,10 +899,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 			if (fTarget){
 				fTarget->SetOutgoing(kTRUE);
 				//simulate passage through target material
-				Double_t ebef = part->GetKE();
-				fTarget->DetectParticle(part);
-				eLostInTarget = ebef-part->GetKE();
-				if (part->GetKE()==0) {
+				Double_t ebef = _part->GetKE();
+				fTarget->DetectParticle(_part);
+				eLostInTarget = ebef-_part->GetKE();
+				if (_part->GetKE()==0) {
 					det_stat->SetValue("UNDETECTED","STOPPED IN TARGET"); 
 					
 					part->AddGroup("UNDETECTED");
@@ -909,12 +912,12 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				fTarget->SetOutgoing(kFALSE);	
 			}
 		
-			if (part->GetKE()==0) { 
+			if (_part->GetKE()==0) { 
 			
 			}
 			else {
 				//KVNameValueList* nvl = 0;
-				if ( !(nvl = DetectParticle(part)) ) {
+				if ( !(nvl = DetectParticle(_part)) ) {
 					det_stat->SetValue("UNDETECTED","DEAD ZONE"); 
 					
 					part->AddGroup("UNDETECTED"); 
@@ -941,7 +944,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					//Test de la trajectoire coherente
 					while ( ( dd = (KVDetector* )it1.Next() ) ){
 						if (dd->GetHits()){
-							if (dd->GetHits()->FindObject(part)) ntrav+=1;	
+							if (dd->GetHits()->FindObject(_part)) ntrav+=1;	
 							else 
 								if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
@@ -967,7 +970,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						it1.Reset();
 						//Warning("DetectEvent","trajectoire incoherente ...");
 						while ( ( dd = (KVDetector* )it1.Next() ) )
-							if (dd->GetHits() && dd->GetHits()->FindObject(part)){
+							if (dd->GetHits() && dd->GetHits()->FindObject(_part)){
 								if ( nvl->HasParameter(dd->GetName()) ){
 									Double_t el = dd->GetEnergy();
 									el -= nvl->GetDoubleValue(dd->GetName());
@@ -975,7 +978,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 									if (dd->GetNHits()==1)
 										dd->SetEnergyLoss(0);
 								}
-								dd->GetHits()->Remove(part);
+								dd->GetHits()->Remove(_part);
 							}
 						det_stat->SetValue("UNDETECTED","GEOMETRY INCOHERENCY");
 						
@@ -995,7 +998,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							
 							//On retire la particule du detecteur considere 
 							//
-							last_det->GetHits()->Remove(part);
+							last_det->GetHits()->Remove(_part);
 							//Warning("DetectEvent","threshold ...");
 						}
 						else {
@@ -1019,7 +1022,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							
 							//Test d'une energie residuelle non nulle
 							//La particule n a pas ete arrete par le detecteur
-							if (part->GetKE()>0){
+							if (_part->GetKE()>0){
 								if (nbre_nvl != Int_t(last_det->GetGroup()->GetNumberOfDetectorLayers())){
 									//----
 									// Fuite, 
@@ -1078,7 +1081,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 			delete nvl;
 			nvl = 0;
 		}
-		part->SetMomentum(*part->GetPInitial());
+		_part->SetMomentum(*_part->GetPInitial());
 
 	} 	//fin de loop over particles
 	
