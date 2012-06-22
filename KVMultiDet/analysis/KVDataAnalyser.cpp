@@ -1369,23 +1369,7 @@ const Char_t* KVDataAnalyser::SystemBatchName()
    static KVString tmp;
    tmp = "Unknown";
    if(!fSystem) return tmp.Data();
-   tmp ="";
-   if(fSystem->GetKinematics()){
-      if(fSystem->GetKinematics()->GetNucleus(1)){
-         tmp=fSystem->GetKinematics()->GetNucleus(1)->GetSymbol();
-      }
-      if(fSystem->GetKinematics()->GetNucleus(2)){
-         tmp+=fSystem->GetKinematics()->GetNucleus(2)->GetSymbol();
-      }
-      if(fSystem->GetEbeam()>0){
-         tmp+=TMath::Nint(fSystem->GetEbeam());
-      }
-   }
-   if(tmp==""){
-      tmp = fSystem->GetName();
-      tmp.ReplaceAll(" ", "_");
-   }
-   return tmp.Data();
+   return fSystem->GetBatchName();
 }
 
 //__________________________________________________________________________________//

@@ -120,6 +120,7 @@ class KVDBSystem:public KVDBRecord {
    void AddRun(KVDBRecord*);
    void AddRun(Int_t);
    void RemoveAllRuns();
+   virtual const Char_t* GetBatchName();
    
    ClassDef(KVDBSystem, 2)      // System class
 };

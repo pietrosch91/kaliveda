@@ -448,3 +448,32 @@ KVDBTable* KVDBSystem::GetRunsTable()
    path.ReplaceAll("Systems", "Runs");
    return (KVDBTable*)gROOT->FindObject(path.Data());
 }
+
+//__________________________________________________________________________________//
+
+const Char_t* KVDBSystem::GetBatchName()
+{
+   // Gives name of system in compact form with all (unix-)illegal characters
+   // replaced by '_'. Can be used for naming batch jobs, files, etc.
+
+   static KVString tmp;
+   tmp ="";
+   if(GetKinematics()){
+      if(GetKinematics()->GetNucleus(1)){
+         tmp=GetKinematics()->GetNucleus(1)->GetSymbol();
+      }
+      if(GetKinematics()->GetNucleus(2)){
+         tmp+=GetKinematics()->GetNucleus(2)->GetSymbol();
+      }
+      if(GetEbeam()>0){
+         tmp+=TMath::Nint(GetEbeam());
+      }
+   }
+   if(tmp==""){
+      tmp = GetName();
+      tmp.ReplaceAll(" ", "_");
+      tmp.ReplaceAll("/", "_");
+   }
+   return tmp.Data();
+}
+
