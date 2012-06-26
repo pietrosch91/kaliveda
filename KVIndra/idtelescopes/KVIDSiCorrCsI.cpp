@@ -39,8 +39,8 @@ ClassImp(KVIDSiCorrCsI)
 
 //__________________________________________________________________________//
 
-void KVIDSiCorrCsI::Initialize() {
-
+void KVIDSiCorrCsI::Initialize() 
+{
     // Initialisation of telescope before identification.
     // This method MUST be called once before any identification is attempted.
     // IsReadyForID() will return kTRUE if KVTGID objects are associated
@@ -71,8 +71,8 @@ void KVIDSiCorrCsI::Initialize() {
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) {
-
+Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fCsILight = fCsI->GetLumiereTotale();
@@ -82,8 +82,8 @@ Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) {
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) {
-
+Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fSiCorr = -5.;
@@ -115,14 +115,8 @@ Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) {
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) {
-
-    //std::cout << "------------------------------------" << std::endl;
-    //std::cout << "----- KVIDSiCorrCsI::Identifiy -----" << std::endl;
-    //std::cout << "------------------------------------" << std::endl;
-
-    //this->PrintFitParameters();
-
+Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
+{
     Double_t xVar; xVar = x; // not used (Keeps the compiler quiet)
     Double_t yVar; yVar = y; // not used
 
@@ -153,18 +147,9 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
                         && (GetIDMapY("") > 0.) 
                         && (GetIDMapX("") > 0.);
 
-    /*
-    const std::string ranged[2] = {"Out of Range", "In Range"};
-    std::cout << "maps in range? " << ranged[inRange] << std::endl;
-    std::cout << "idmapY: " << GetIDMapY("") << std::endl;
-    std::cout << "idmapX: " << GetIDMapX("") << std::endl;  
-    std::cout << "range condition: idmapY < 4090. && idmapX > 0. && idmapY > 0." << std::endl;
-    */
-
     if(inRange == 1){
         Z = IdentZ(this, funLTG_Z, "", "");
     }else{
-        //std::cout << "returning out of range" << std::endl;
         return kFALSE;
     }
 
@@ -172,12 +157,10 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
     IDR->IDquality = GetStatus();
 
     if(GetStatus() == KVTGID::kStatus_NotBetween_IDMin_IDMax){
-        //std::cout << "returning not between id min & max" << std::endl;
         return kFALSE;
     }
 
     if (GetStatus() != KVTGIDManager::kStatus_OK){
-        //std::cout << "returning no ident" << std::endl;
         return kFALSE;            // no ID
     }
 
@@ -259,16 +242,14 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     // set general ID code
     IDR->IDcode = kIDCode3;
-    //std::cout << "returning code 3" << std::endl;
-    //IDR->Print();
 
     return kTRUE;
 }
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) {
-
+Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) 
+{
     //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     //kind (label) in the multidetector array. Therefore this method need only be called once, and not
     //called for each telescope. The kind/label (returned by GetLabel) of the telescope corresponds
@@ -375,8 +356,6 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) {
             idt->AddTGID(_tgidZ);
             idt->AddTGID(_tgidA);
 
-            //this->PrintFitParameters();
-
         }
     }
 
@@ -391,8 +370,8 @@ void KVIDSiCorrCsI::RemoveIdentificationParameters()
    RemoveAllTGID();
 }
 
-void KVIDSiCorrCsI::PrintFitParameters(){
-
+void KVIDSiCorrCsI::PrintFitParameters()
+{
     KVTGID *tgidPrint = 0;
 
     std::cout << "------------- TGID INFO [Z] ----------------" << std::endl;
@@ -414,5 +393,4 @@ void KVIDSiCorrCsI::PrintFitParameters(){
     }
 
     std::cout << "----------------- END-----------------------" << std::endl;
-
 }

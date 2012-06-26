@@ -20,18 +20,20 @@ ClassImp(KVIDChIoSiCorr)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoSiCorr::KVIDChIoSiCorr() {
+KVIDChIoSiCorr::KVIDChIoSiCorr() 
+{
 
 }
 
-KVIDChIoSiCorr::~KVIDChIoSiCorr() {
+KVIDChIoSiCorr::~KVIDChIoSiCorr() 
+{
 
 }
 
 //________________________________________________________________________________________//
 
-void KVIDChIoSiCorr::Initialize() {
-
+void KVIDChIoSiCorr::Initialize() 
+{
     fChIoGG = -5.;
     fChIoPG = -5.;
     fChIoGGPedestal = -5.;
@@ -64,8 +66,8 @@ void KVIDChIoSiCorr::Initialize() {
 
 //________________________________________________________________________________________//
 
-Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *opt) {
-
+Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fSiCorr = -5.;
@@ -97,8 +99,8 @@ Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *opt) {
 
 //________________________________________________________________________________________//
 
-Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt) {
-
+Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fChIoCorr = -5.;
@@ -134,8 +136,8 @@ Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt) {
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y) {
-
+Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y) 
+{
     IDR->SetIDType( GetType() );
     IDR->IDattempted = kTRUE;
 
