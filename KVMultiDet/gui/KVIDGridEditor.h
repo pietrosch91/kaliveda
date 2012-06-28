@@ -53,6 +53,8 @@ friend class KVIDGridEditorCanvas;
    KVIDGridEditorCanvas* fCanvas;
    TVirtualPad*          fPad;
    TGraph*               fPivot;
+   KVString              fListOfMethods;
+   KVString              fDefaultMethod;
    
    KVHashList* lplabel;			//contient la liste des TPaveLabel pour les transformations (rouge)
    KVHashList* lplabel2;		//contient la liste des TPaveLabel pour les actions (rouge)
@@ -100,6 +102,7 @@ friend class KVIDGridEditorCanvas;
    void MoveHor(Int_t sign);
    void MoveVert(Int_t sign);
    
+   void AddMethod(const char* theMethod);
    void SelectTrans(TPaveLabel* label);
 
    void SetDefault();						//
@@ -124,7 +127,7 @@ friend class KVIDGridEditorCanvas;
    void SetLogz     ();						//echelle log sur Oz
    void SetLogy     ();						//echelle log sur Oy
    void SetLogx     ();						//echelle log sur Ox
-   void Undo       ();						//annule toute les opreation sur la grille courante (I)
+   void Undo        ();						//annule toute les operation sur la grille courante (I)
    
    void SetPivot    (Double_t xx0, Double_t yy0);
    
@@ -147,7 +150,7 @@ friend class KVIDGridEditorCanvas;
    void SuggestMoreAction();					//'More', modifier cette methode pour ajouter des fonctionnalites !!!
    void ChooseSelectedColor();					//'More' -> SetSelectedColor change la couleur des lignes selectionnes
    void OpenRootFile();						//pas implemente
-   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
+//   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
       
    void DispatchOrder(TPaveLabel* label);			//methode qui distribue les ordres quand on clic sur un bouton
    void ChangeStep(const char* title, Int_t dstep=1);
@@ -169,6 +172,7 @@ friend class KVIDGridEditorCanvas;
    void Close();						//ferme l'interface graphique
    Bool_t IsClosed();						//true si l'interface est fermee
    void ForceUpdate();						//rafraichit toute l'interface de force
+   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
    
    void SetHisto(TH2* hh);					//donne l'histo a l'editeur
    void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
@@ -182,6 +186,8 @@ friend class KVIDGridEditorCanvas;
    void SetSelectedColor(Int_t color){SelectedColor=color;};
    void SelectLinesByZ(const Char_t* ListOfZ);			//'More' -> 'SelectLinesByZ'
    void SetDebug(Bool_t debug){fDebug=debug;};
+   void MakeScaleX(Double_t scaleFactor);
+   void MakeScaleY(Double_t scaleFactor);
    
    Int_t GetSpiderZp(){return fSpiderZp;};
    Double_t GetSpiderFactor(){return fSpiderFactor;};
