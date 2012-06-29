@@ -9,7 +9,7 @@
 class KVCouple
 {
 
-	public:
+	protected:
    Int_t* tz1;
 	Int_t* tz2;
 	Int_t current_idx;
@@ -26,7 +26,12 @@ class KVCouple
 	KVCouple(Int_t zf,Int_t zsup,Int_t div);
 
 	void ResetVars(){
-		nbre = current_idx = zlim = nbre = zfra = zmax = 0;
+		nbre = 0;
+		current_idx = 0;
+		zlim = 0;
+		nbre = 0;
+		zfra = 0;
+		zmax = 0;
 		init=kFALSE;
 	}
 	

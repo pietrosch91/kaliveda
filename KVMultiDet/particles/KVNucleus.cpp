@@ -94,6 +94,10 @@ ClassImp(KVNucleus);
 //The resulting nucleus is the source nucleus with its Z, A, momentum and
 //excitation energy.
 //
+// Note for the excitation energy, if one define an excitation energy for a nucleus
+// using the SetExcitEnergy, the mass and the total energy is modified (M = Mgs + Ex)
+// when excitation energy is set, one can access to the ground state mass via GetMassGS()
+//
 //The subtraction operator allows to perform energy balance for a binary
 //splitting of a nucleus.
 //Example:
@@ -598,7 +602,7 @@ void KVNucleus::Copy(TObject & obj)
 }
 
 //________________________________________________________________________________________
-void  KVNucleus::ChechZAndA(Int_t &z, Int_t&a)
+void  KVNucleus::ChechZAndA(Int_t &z, Int_t&a) const
 {
    if (z == -1)	z = GetZ();
    if (a == -1)	a = GetA();
@@ -607,7 +611,7 @@ void  KVNucleus::ChechZAndA(Int_t &z, Int_t&a)
 
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a)
+Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a) const
 {
 	//Returns mass excess value in MeV for this nucleus.
 	//If optional arguments (z,a) are given we return the value for the
@@ -624,7 +628,7 @@ Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a)
 }
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetExtraMassExcess(Int_t z, Int_t a)
+Double_t KVNucleus::GetExtraMassExcess(Int_t z, Int_t a) const
 {
 	//Calculate the extrapoled mass excess value  
 	// from the LiquidDrop_BrackGuet formula
@@ -638,7 +642,7 @@ Double_t KVNucleus::GetExtraMassExcess(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
-KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a)
+KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
 {
 	//Returns pointer of corresponding KVMassExcess object 
 	//0 if the Z,A couple is not in the table
@@ -651,21 +655,37 @@ KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a)
+Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
 {
-	//Returns life time value (see KVLifeTime class for unit details).
+	//Returns life time in seconds (see KVLifeTime class for unit details).
+   //For 'stable' nuclei (for which the abundance is known),
+   //if no lifetime exists in the table we return 1.e+100.
+   //For other "nuclei" with no known lifetime we return -1. 
+   //For resonances (IsResonance() returns kTRUE) we calculate the lifetime
+   //from the width of the resonance, t = hbar/W.
 	//If optional arguments (z,a) are given we return the value for the
 	//required nucleus.
 	
 	ChechZAndA(z,a);
-	return gNDTManager->GetValue(z,a,"LifeTime");
-   
+	KVLifeTime* lf = GetLifeTimePtr(z,a);
+   if(!lf) {
+      if(GetAbundance(z,a)>0) return 1.e+100;
+      return -1.0;
+   }
+   if(lf && !lf->IsAResonnance()) {
+      Double_t life = lf->GetValue();
+      return (life<0. ? 1.e+100 : life);
+   }
+   // hbar in units of MeV.s
+   static Double_t hbar =  TMath::Hbar()/(1.e+06 * TMath::Qe());
+   Double_t life = hbar/lf->GetValue();
+   return life;
 }
 
 
 //________________________________________________________________________________________
 
-KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a)
+KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a) const
 {
 	//Returns the pointeur of the life time object associated to this nucleus
 	//If optional arguments (z,a) are given we return object for the
@@ -678,7 +698,7 @@ KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetAbundance(Int_t z, Int_t a)
+Double_t KVNucleus::GetAbundance(Int_t z, Int_t a) const
 {
 	//Returns life time value (see KVLifeTime class for unit details).
 	//If optional arguments (z,a) are given we return the value for the
@@ -692,7 +712,7 @@ Double_t KVNucleus::GetAbundance(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
-KVAbundance* KVNucleus::GetAbundancePtr(Int_t z, Int_t a)
+KVAbundance* KVNucleus::GetAbundancePtr(Int_t z, Int_t a) const
 {
 	//Returns the pointeur of the abundance object associated to this nucleus
 	//If optional arguments (z,a) are given we return the object for the
@@ -705,7 +725,7 @@ KVAbundance* KVNucleus::GetAbundancePtr(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
-Bool_t KVNucleus::IsKnown(int z, int a)
+Bool_t KVNucleus::IsKnown(int z, int a) const
 {
    //Old method, the answer is only valid for the mass excess table
 	//Returns kTRUE if this nucleus or (z,a) is included in the mass table.
@@ -719,7 +739,7 @@ Bool_t KVNucleus::IsKnown(int z, int a)
 
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetBindingEnergy(Int_t z, Int_t a)
+Double_t KVNucleus::GetBindingEnergy(Int_t z, Int_t a) const
 {
 //Returns binding energy in MeV for this nucleus.
 //The convention is : binding energy is positive if nucleus is bound.
@@ -737,7 +757,7 @@ Double_t KVNucleus::GetBindingEnergy(Int_t z, Int_t a)
 
 //________________________________________________________________________________________
 
-Double_t KVNucleus::GetBindingEnergyPerNucleon(Int_t z, Int_t a)
+Double_t KVNucleus::GetBindingEnergyPerNucleon(Int_t z, Int_t a) const
 {
 //Returns binding energy in MeV/A for this nucleus.
 
@@ -835,22 +855,35 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
    //KVNucleus addition operator.
    //Add two nuclei together to form a compound nucleus whose momentum and
    //excitation energy are calculated from energy and momentum conservation.
-
+	//
+	//the excitation energy of the resulting nucleus can be negative, 
+	//if the energy balance is negative
+	//
    KVNucleus & lhs = *this;
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
    Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
-   Double_t extot = lhs.GetExcitEnergy() + rhs.GetExcitEnergy();
-   Double_t etot = lhs.E() + rhs.E();
-   TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
-   TVector3 Vcm = (KVParticle::C()/etot)*ptot;
+   KVNucleus CN(ztot,atot);
+	
+	Double_t etot = lhs.E() + rhs.E();
+   TVector3 ptot = lhs.Vect() + rhs.Vect();
+	//Calcul de la masse du noyau composé
+	//celle ci inclut une éventuelle energie d'excitation
+	
+	Double_t Mcn = TMath::Sqrt(etot*etot-ptot.Mag()*ptot.Mag());
+	Double_t Excn = Mcn - CN.M();
+	
+	if (Excn<0){
+		if (Excn>-1e-8)
+			Excn=0;
+		//else 	
+		//	Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
+ 	}
+	
+	CN.SetVect(ptot);
+	CN.SetExcitEnergy(Excn);
+	
+	return CN;
 
-   KVNucleus temp(ztot, atot);  //mass of nucleus includes mass excess
-   temp.SetVelocity(Vcm);
-   //"excitation energy" of resulting nucleus is given by bilan energetique
-   Double_t estar = extot + lhs.E() + rhs.E() - temp.E();
-   temp.SetExcitEnergy(estar);
-
-   return temp;
 }
 
 //________________________________________________________________________________________
@@ -866,26 +899,36 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
    KVNucleus & lhs = *this;
    Int_t zres = lhs.GetZ() - rhs.GetZ();
    Int_t ares = lhs.GetA() - ((KVNucleus &) rhs).GetA();
-   Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
-   TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
+   Double_t eres = lhs.E() - rhs.E();
+	TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
 
-   if (zres < 0 || ares < 0) {
+	//Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
+  
+   if (zres < 0 || ares < 0 || eres < 0) {
       Warning("operator-(const KVNucleus &rhs)",
-              "Cannot subtract nuclei, resulting Z=%d A=%d", zres, ares);
-      KVNucleus temp;
-      temp.SetZ(0);
-      temp.SetA(0);
-      temp.SetExcitEnergy(0.0);
-      temp.SetEnergy(0.0);
-      return temp;
-   } else {
-      KVNucleus temp(zres, ares);       //mass of nucleus includes mass excess
-      temp.SetMomentum(pres);
-      //"excitation energy" of residual nucleus is given by bilan energetique
-      Double_t estar = exres + lhs.E() - (rhs.E() + temp.E());
-      temp.SetExcitEnergy(estar);
-      return temp;
+              "Cannot subtract nuclei, resulting Z=%d A=%d E=%lf", zres, ares, eres);
+		KVNucleus RES;
+      RES.Clear();
+      return RES;
    }
+	else {
+      KVNucleus RES(zres, ares);       //mass of nucleus includes mass excess
+		
+		Double_t Mres = TMath::Sqrt(eres*eres-pres.Mag()*pres.Mag());
+		Double_t Exres = Mres - RES.M();
+ 		
+		if (Exres<0){
+			if (Exres>-1e-8)
+				Exres=0;
+			//else 	
+			//	Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
+ 		}
+		
+		RES.SetVect(pres);
+		RES.SetExcitEnergy(Exres);
+	
+		return RES;
+	}
 }
 
 //________________________________________________________________________________________
@@ -942,14 +985,14 @@ Double_t KVNucleus::LiquidDrop_BrackGuet(UInt_t aa, UInt_t zz)
 }
 
 //________________________________________________________________________________________
-
+/*
 void KVNucleus::SetExcitEnergy(Double_t e)
 {
    //Set excitation energy. 
 
    fExx = e;
 }
-
+*/
 //_______________________________________________________________________________________
 
 Int_t KVNucleus::Compare(const TObject * obj) const
@@ -1029,4 +1072,38 @@ Double_t KVNucleus::DeduceEincFromBrho(Double_t Brho,Int_t ChargeState){
    
 	return Result;
 
+}
+
+//_______________________________________________________________________________________
+
+Bool_t KVNucleus::IsStable(Double_t min_lifetime) const
+{
+   // Returns kTRUE if this nucleus is stable.
+   // Definition of stable:
+   //   if the natural abundance is defined (look up in Abundance table)
+   // OR
+   //   if lifetime is > min_lifetime
+   if(GetAbundance()>0.) return kTRUE;
+   KVLifeTime* ptr = GetLifeTimePtr();
+   return (ptr && !ptr->IsAResonnance() && ptr->GetValue()>min_lifetime);
+}
+
+//_______________________________________________________________________________________
+
+Bool_t KVNucleus::IsResonance() const
+{
+   // Returns kTRUE if this nucleus is a resonance.
+   // In this case GetWidth() returns the width in MeV.
+   KVLifeTime* ptr = GetLifeTimePtr();
+   return (ptr && ptr->IsAResonnance());
+}
+
+//_______________________________________________________________________________________
+
+Double_t KVNucleus::GetWidth() const
+{
+   // Returns width of resonance in MeV, if this nucleus
+   // is indeed a resonance (IsResonance() returns kTRUE).
+   KVLifeTime* ptr = GetLifeTimePtr();
+   return ((ptr && ptr->IsAResonnance()) ? ptr->GetValue() : 0.0);
 }

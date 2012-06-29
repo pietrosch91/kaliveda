@@ -14,12 +14,32 @@ class KVGELogReader : public KVLogReader
    virtual void ReadScratchUsed(TString & line);
    virtual void ReadMemUsed(TString & line);
    virtual void ReadStatus(TString & line);
-   virtual Int_t ReadStorage(KVString & stor);
-
+   virtual Double_t ReadStorage(KVString & stor);
+   virtual void ReadKVCPU(TString & line);
+	Bool_t fileCopiedtoSRB;
+	
    public:
    KVGELogReader();
    virtual ~KVGELogReader();
+   virtual void Reset()
+	{
+		KVLogReader::Reset();
+		fileCopiedtoSRB=kFALSE;
+	};
 
+   virtual Bool_t Incomplete() const
+	{
+		return (KVLogReader::Incomplete()
+				|| 	
+			((!Killed() && !SegFault())  &&
+	(
+		(fStatus == "Cputime limit exceeded")
+		|| (fStatus == "Filesize limit exceeded")
+	)
+				)
+				);
+
+	};
 
    ClassDef(KVGELogReader,1)//Read GE (Grid Engine) log files
 };

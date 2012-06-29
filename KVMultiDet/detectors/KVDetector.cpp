@@ -109,6 +109,8 @@ void KVDetector::init()
 	fAlignedDetectors[0] = 0;
 	fAlignedDetectors[1] = 0;
 	fSimMode = kFALSE;
+	fPresent = kTRUE;
+	fDetecting = kTRUE;
 }
 
 KVDetector::KVDetector()
@@ -215,8 +217,8 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    //normal to the detector, oriented from the origin towards the detector.
    //In this case the effective thicknesses of the detector's absorbers 'seen' by the particle
    //depending on its direction of motion is used for the calculation.
-
-   if (kvp->GetKE() <= 0.)
+	
+	if (kvp->GetKE() <= 0.)
       return;
 
    AddHit(kvp);                 //add nucleus to list of particles hitting detector in the event
@@ -389,7 +391,7 @@ void KVDetector::Print(Option_t * opt) const
          cout << option << option;
          abs->Print();
          if (GetActiveLayer() == abs)
-            cout << " ### ACTIVE LAYER ### " << endl;
+            cout << " #################### " << endl;
       }
       cout << option << "Gain:      " << GetGain() << endl;
       if (fParticles) {
@@ -742,11 +744,12 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
    //
    //If list=0 then we store pointers to the ALREADY EXISTING ID telescopes
    //in fIDTelAlign. (first clear fIDTelAlign)
-
-
-   TList *aligned = GetAlignedDetectors();
-
-   Bool_t list_zero = kFALSE;
+	
+	if ( !(IsOK()) ) return;
+	
+	TList *aligned = GetAlignedDetectors();
+	
+	Bool_t list_zero = kFALSE;
 
    if (!list) {
       list_zero = kTRUE;
@@ -757,21 +760,24 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
       //clear any existing list of aligned telescopes
       fIDTelAlign->Clear();
    }
-   //The following line is in case there are no detectors aligned
-   //with 'this', but 'this' acts as an IDTelescope all by itself.
-   //In this case we expect KVMultiDetArray::GetIDTelescopes
-   //to define the appropriate ID telescope whenever one of the
-   //two detector arguments (or both!) corresponds to 'this''s type.
-   gMultiDetArray->GetIDTelescopes(this, this, list);
 
    if (aligned->GetSize() > 1) {
       //pairwise looping through list
       for (int i = 0; i < (aligned->GetSize() - 1); i++) {
          KVDetector *det1 = (KVDetector *) aligned->At(i + 1);
          KVDetector *det2 = (KVDetector *) aligned->At(i);
-
-         gMultiDetArray->GetIDTelescopes(det1, det2, list);
+			
+			gMultiDetArray->GetIDTelescopes(det1, det2, list);
       }
+   }
+   else
+   {
+      //The following line is in case there are no detectors aligned
+      //with 'this', but 'this' acts as an IDTelescope all by itself.
+      //In this case we expect KVMultiDetArray::GetIDTelescopes
+      //to define the appropriate ID telescope whenever one of the
+      //two detector arguments (or both!) corresponds to 'this''s type.
+      gMultiDetArray->GetIDTelescopes(this, this, list);
    }
 
    if (list_zero) {
@@ -790,6 +796,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
       //destroy the superfluous copy telescopes we just created
       list->Delete(); delete list;
    }
+	
 }
 
 //______________________________________________________________________________//
@@ -1457,7 +1464,7 @@ Double_t KVDetector::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 {
    // Overrides KVMaterial::GetDeltaEFromERes
    //
-   // Calculate energy loss in active layer of detector for nucleus (Z,A)
+   // Calculate energy loss in active layer of detGetAlignedDetector for nucleus (Z,A)
    // having a residual kinetic energy Eres (MeV)
    
    if(Z<1 || Eres<= 0.) return 0.;
@@ -1574,6 +1581,14 @@ TList* KVDetector::GetAlignedDetectors(UInt_t direction)
 	return (fAlignedDetectors[direction] = GetGroup()->GetAlignedDetectors(this,direction));
 }
 
+//_________________________________________________________________________________________//
+
+void KVDetector::ResetAlignedDetectors(UInt_t direction)
+{
+	if(!GetGroup() || direction<0 || direction>1) return;
+	if(fAlignedDetectors[direction]) fAlignedDetectors[direction] = 0;
+}
+
 Double_t KVDetector::GetRange(Int_t Z, Int_t A, Double_t Einc)
 {
 	// WARNING: SAME AS KVDetector::GetLinearRange
@@ -1634,3 +1649,92 @@ TGraph* KVDetector::DrawPunchThroughEsurAVsZ(Int_t massform)
 	return punch;
 }
 
+void KVDetector::SetPresent(Bool_t present)
+{
+	// 
+	// If present=kTRUE (default), detector is present
+	// If present=kFALSE, detector has been removed
+	// Cette methode ne fait rien si l etat demandé est l etat actuel
+	//
+	// Methode applicable seulement pour un detecteur
+	// etant le seul dans un telescope 
+	// ex les ChIo pour Indra
+	//
+	// This method as always to be call before
+	// call the SetDetecting() method
+	
+	if (present == fPresent)
+		return;
+	
+	fPresent = present;
+	
+	//On passe l etat d un detecteur de present a absent
+	//
+	if ( !fPresent ){
+		
+		//Le detecteur était l unique d un KVTelescope
+		//on retire directement le KVTelescope
+		if (fTelescope->GetDetectors()->GetEntries()==1){
+			KVGroup* gr = fTelescope->GetGroup();
+			
+			gr->PrepareModif();
+			
+			gr->RemoveTelescope(fTelescope,kFALSE,kFALSE);
+			gr->GetDetectors()->Remove(this);
+			gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
+			
+		}
+		else {
+			Warning("SetPresent","Methode implémentée seulement dans le cas ou le detecteur retire est le seul du telescope");
+		}
+	}
+	//On remet le detecteur dans le groupe auquel il appartenait
+	else {
+		
+		if (!fTelescope->GetGroup()){
+			KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
+			
+			gr->PrepareModif();
+			
+			gr->Add(fTelescope);
+			gr->GetDetectors()->Add(this);
+			gr->Sort();
+			gr->CountLayers();
+			gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
+			
+		}
+		
+	}
+	
+}
+
+void KVDetector::SetDetecting(Bool_t detecting)
+{
+
+	// This method has effect only if detector is present
+	// 
+	// If detecting=kTRUE (default), detector is detecting
+	// If detecting=kFALSE, detector has been switch off or no gas or just dead
+	// Cette methode ne fait rien si :
+	// 	- si le detecteur est déjà marqué absent
+	//		- l etat demandé est l etat actuel
+
+	if (!IsPresent())
+		return;
+	
+	if (detecting == fDetecting)
+		return;
+	
+	fDetecting = detecting;
+	if ( !fDetecting ){
+		KVGroup* gr = fTelescope->GetGroup();
+		gr->PrepareModif();
+		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
+	}		
+	else {
+		KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
+		gr->PrepareModif();
+		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
+	}
+
+}

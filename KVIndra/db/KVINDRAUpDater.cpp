@@ -53,11 +53,17 @@ void KVINDRAUpDater::SetParameters(UInt_t run)
         return;
     }
     SetTrigger(kvrun);
-    SetGains(kvrun);
     SetTarget(kvrun);
-    SetChIoPressures(kvrun);
+    
+	 //Ne pas changer l'ordre des deux routines suivantes
+	 SetAbsentDetectors(kvrun);
+	 SetOoODetectors(kvrun);
+	 
+	 SetGains(kvrun);
+	 SetChIoPressures(kvrun);
     SetCalibrationParameters(run);
     SetIdentificationParameters(run);
+    
 }
 
 //_______________________________________________________________//
@@ -140,7 +146,6 @@ void KVINDRAUpDater::SetIdentificationParameters(UInt_t run)
 // }
 
 //_______________________________________________________________//
-
 void KVINDRAUpDater::SetTrigger(KVDBRun * kvrun)
 {
     //Set trigger used during this run
@@ -151,6 +156,61 @@ void KVINDRAUpDater::SetTrigger(KVDBRun * kvrun)
     cout << "      M>=" << gIndra->GetTrigger() << endl;
 }
 
+//_______________________________________________________________//
+void KVINDRAUpDater::SetAbsentDetectors(KVDBRun * kvrun)
+{
+	//mark detectors which are absent for the current run
+	//si pas de detecteurs absents pour ce run
+	//on met tous le monde a present SetPresent(kTRUE)
+	
+	KVRList *absdet = kvrun->GetLinks("Absent Detectors");
+	
+	TIter next(gIndra->GetListOfDetectors());
+  	KVDetector *det;
+	if (!absdet){
+		while ( (det = (KVDetector*)next()) )
+			det->SetPresent();
+		return;
+	}
+	else {
+		Info("SetAbsentDetectors","%d detecteurs absents",absdet->GetSize());
+		while (( det = (KVDetector*)next()) ){
+			if ( absdet->FindObject(det->GetName(), "Absent Detector") )
+				det->SetPresent(kFALSE);
+			else 
+				det->SetPresent();	
+		}
+	}
+
+}
+//_______________________________________________________________//
+void KVINDRAUpDater::SetOoODetectors(KVDBRun * kvrun)
+{
+
+	//mark detectors which are out of order for the current run
+	//si pas de detecteurs hors service pour ce run
+	//on met tous le monde en marche SetDetecting(kTRUE)
+	
+	KVRList *absdet = kvrun->GetLinks("OoO Detectors");
+	
+	TIter next(gIndra->GetListOfDetectors());
+  	KVDetector *det;
+	if (!absdet){
+		while ( (det = (KVDetector*)next()) )
+			det->SetDetecting();
+		return;
+	}
+	else {
+		Info("SetOoODetectors","%d detecteurs HS",absdet->GetSize());
+		while ( (det = (KVDetector*)next()) ){
+			if ( absdet->FindObject(det->GetName(), "OoO Detector") )
+				det->SetDetecting(kFALSE);
+			else 
+				det->SetDetecting();	
+		}
+	}
+
+}
 //_______________________________________________________________//
 
 void KVINDRAUpDater::SetGains(KVDBRun * kvrun)
@@ -209,6 +269,10 @@ void KVINDRAUpDater::SetGains(KVDBRun * kvrun)
 void KVINDRAUpDater::SetChIoPressures(KVDBRun * kvrun)
 {
     //Update ChIo pressures for this run with values in database (if any)
+	 //
+	 //if pressure is equal to 0 (no gas)
+	 //mark the corresponding ChIo's as non detecting detector (see KVDetector::SetDetecting())
+	 //
 
     KVRList *param_list = kvrun->GetLinks("ChIo Pressures");
     if (!param_list)
@@ -254,6 +318,12 @@ void KVINDRAUpDater::SetChIoPressures(KVDBRun * kvrun)
                     kvd->SetPressure(kvps->GetPressure(CHIO_8_12));
                 if (kvd->GetRingNumber() >= 13 && kvd->GetRingNumber() <= 17)
                     kvd->SetPressure(kvps->GetPressure(CHIO_13_17));
+					 if (kvd->GetPressure()==0.0){
+					 	kvd->SetDetecting(kFALSE);
+					 }
+					 else {
+					 	kvd->SetDetecting(kTRUE);
+					 }
             }
         }
         next_chio.Reset();

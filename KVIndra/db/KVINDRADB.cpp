@@ -79,7 +79,9 @@ void KVINDRADB::init()
        AddTable("Light-Energy CsI Z>1",
                 "Calibration parameters for CsI detectors");
 
-  fGains = 0;
+	fGains = 0;
+	fAbsentDet = 0;
+	fOoODet = 0;
 
 	fPulserData = 0;
 }
@@ -1030,6 +1032,8 @@ void KVINDRADB::Build()
    ReadVoltEnergyChIoSi();
    ReadCalibCsI();
    ReadPedestalList();
+	ReadAbsentDetectors();
+	ReadOoODetectors();
 
 	// read all available mean pulser data and store in tree
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
@@ -1799,4 +1803,116 @@ Double_t KVINDRADB::GetTotalCrossSection(KVNumberList runs,
                                      Coul_par_top);
 }
 
+//__________________________________________________________________________________________________________________
+
+void KVINDRADB::PrintRuns(KVNumberList& nl) const
+{
+	// Print compact listing of runs in the number list like this:
+	//
+	// root [9] gIndraDB->PrintRuns("8100-8120")
+	// RUN     SYSTEM                          TRIGGER         EVENTS          COMMENTS
+	// ------------------------------------------------------------------------------------------------------------------
+	// 8100    129Xe + 58Ni 8 MeV/A            M>=2            968673
+	// 8101    129Xe + 58Ni 8 MeV/A            M>=2            969166
+	// 8102    129Xe + 58Ni 8 MeV/A            M>=2            960772
+	// 8103    129Xe + 58Ni 8 MeV/A            M>=2            970029
+	// 8104    129Xe + 58Ni 8 MeV/A            M>=2            502992          disjonction ht chassis 1
+	// 8105    129Xe + 58Ni 8 MeV/A            M>=2            957015          intensite augmentee a 200 pA
+	
+	printf("RUN\tSYSTEM\t\t\t\tTRIGGER\t\tEVENTS\t\tCOMMENTS\n");
+	printf("------------------------------------------------------------------------------------------------------------------\n");
+	nl.Begin();
+	while( !nl.End() ){
+		KVINDRADBRun* run = GetRun(nl.Next());
+		if(!run) continue;
+		printf("%4d\t%-30s\t%s\t\t%d\t\t%s\n",
+				run->GetNumber(), (run->GetSystem()?run->GetSystem()->GetName():"            "), run->GetTriggerString(),
+				run->GetEvents(), run->GetComments());
+	}
+}
+
+//____________________________________________________________________________
+void KVINDRADB::ReadAbsentDetectors()
+{
+	//Lit le fichier ou sont listés les détecteurs retirés au cours 
+	//de la manip
+	TString fp;
+	if (!KVBase::SearchKVFile(GetCalibFileName("AbsentDet"), fp, fDataSet.Data())){
+		Error("ReadAbsentDetectors","Fichier %s, inconnu au bataillon",GetCalibFileName("AbsentDet"));
+		return;
+	}
+	Info("ReadAbsentDetectors()", "Lecture des detecteurs absents...");
+	fAbsentDet = AddTable("Absent Detectors", "Name of physically absent detectors");
+	
+	KVDBRecord* dbrec = 0;
+	TEnv env;
+	TEnvRec* rec = 0;
+	env.ReadFile(fp.Data(),kEnvAll);
+	TIter it(env.GetTable());
+	
+	while ( (rec = (TEnvRec* )it.Next()) ){
+		KVString srec(rec->GetName());
+		KVNumberList nl(rec->GetValue());
+		cout << rec->GetValue() << endl;
+		if ( srec.Contains(",") ){
+			srec.Begin(",");
+			while (!srec.End()){
+				dbrec = new KVDBRecord(srec.Next(),"Absent Detector");
+				dbrec->AddKey("Runs", "List of Runs");
+				fAbsentDet->AddRecord(dbrec);
+				LinkRecordToRunRange(dbrec,nl);
+			}
+		}
+		else {
+			dbrec = new KVDBRecord(rec->GetName(),"Absent Detector");
+			dbrec->AddKey("Runs", "List of Runs");
+			fAbsentDet->AddRecord(dbrec);
+			LinkRecordToRunRange(dbrec,nl);
+		}
+	}
+
+}
+
+//____________________________________________________________________________
+void KVINDRADB::ReadOoODetectors()
+{
+
+	//Lit le fichier ou sont listés les détecteurs ne marchant plus au cours 
+	//de la manip
+	TString fp;
+	if (!KVBase::SearchKVFile(GetCalibFileName("OoODet"), fp, fDataSet.Data())){
+		Error("ReadOoODetectors","Fichier %s, inconnu au bataillon",GetCalibFileName("OoODet"));
+		return;
+	}
+	Info("ReadOoODetectors()", "Lecture des detecteurs hors service ...");
+	fOoODet = AddTable("OoO Detectors", "Name of out of order detectors");
+	
+	KVDBRecord* dbrec = 0;
+	TEnv env;
+	TEnvRec* rec = 0;
+	env.ReadFile(fp.Data(),kEnvAll);
+	TIter it(env.GetTable());
+	
+	while ( (rec = (TEnvRec* )it.Next()) ){
+		KVString srec(rec->GetName());
+		KVNumberList nl(rec->GetValue());
+		cout << rec->GetValue() << endl;
+		if ( srec.Contains(",") ){
+			srec.Begin(",");
+			while (!srec.End()){
+				dbrec = new KVDBRecord(srec.Next(),"OoO Detector");
+				dbrec->AddKey("Runs", "List of Runs");
+				fOoODet->AddRecord(dbrec);
+				LinkRecordToRunRange(dbrec,nl);
+			}
+		}
+		else {
+			dbrec = new KVDBRecord(rec->GetName(),"OoO Detector");
+			dbrec->AddKey("Runs", "List of Runs");
+			fOoODet->AddRecord(dbrec);
+			LinkRecordToRunRange(dbrec,nl);
+		}
+	}
+
+}
 

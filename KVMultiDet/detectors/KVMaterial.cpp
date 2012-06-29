@@ -138,7 +138,7 @@ void KVMaterial::SetMaterial(const Char_t * mat_type)
       type, fIonRangeTable->GetName());
    else {
       SetType( fIonRangeTable->GetMaterialName(type) );
-      SetName(mat_type);
+      SetName(type);
     }
 }
 
@@ -241,7 +241,11 @@ void KVMaterial::SetThickness(Double_t t)
       return;
    }
    // recalculate area density
-   fThick = t * GetDensity();
+   if ( GetDensity()!=0 )
+		fThick = t * GetDensity();
+	else 
+		fThick = t;
+		
 }
 
 //___________________________________________________________________________________
@@ -254,7 +258,10 @@ Double_t KVMaterial::GetThickness() const
 	
    if (GetActiveLayer())
       return GetActiveLayer()->GetThickness();
-   return fThick/GetDensity();
+   if ( GetDensity()!=0 )
+		return fThick/GetDensity();
+	else 
+		return fThick;	
 }
 
 //___________________________________________________________________________________
@@ -457,7 +464,8 @@ Double_t KVMaterial::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
    if(Z<1) return 0.;
    Double_t E_loss =
       fIonRangeTable->GetLinearDeltaEOfIon(GetType(), Z, A, Einc, GetThickness(), fAmasr, fTemp, fPressure);
-   return E_loss;
+   
+	return TMath::Max(E_loss,0.);
 }
 
 //______________________________________________________________________________________//
@@ -555,8 +563,10 @@ Double_t KVMaterial::GetERes(Int_t Z, Int_t A, Double_t Einc)
    // with kinetic energy Einc (MeV)
 
    if(Z<1) return 0.;
+   if (IsGas() && GetPressure()==0)
+		return Einc;
    
-   Double_t E_res =
+	Double_t E_res =
       fIonRangeTable->GetEResOfIon(GetType(), Z, A, Einc, fThick, fAmasr, fTemp, fPressure);
 
    return E_res;
@@ -697,7 +707,7 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		gmat = GetRangeTable()->GetTGeoMaterial(GetName());
 		gmat->SetPressure( GetPressure() );
 		gmat->SetTemperature( GetTemperature() );
-		gmat->SetTransparency(70);
+		gmat->SetTransparency(50);
 	}
 	
 	// create medium

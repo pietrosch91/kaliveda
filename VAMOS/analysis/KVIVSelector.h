@@ -12,12 +12,24 @@
 
 class KVIVSelector : public KVSelector {
 
-#define VERY_BIG_TABLEAU 100
+#define VERY_BIG_TABLEAU 500
 
 public :
    Int_t           EchiM;
    UShort_t        Echi[VERY_BIG_TABLEAU];   //[EchiM]
    UShort_t        EchiNr[VERY_BIG_TABLEAU];   //[EchiM]
+   Int_t           SEDMX1;
+   Int_t           SEDMY1;
+   Int_t           SEDMX2;
+   Int_t           SEDMY2;
+   UShort_t        SEDX1[VERY_BIG_TABLEAU];   //[SEDMX1]
+   UShort_t        SEDX2[VERY_BIG_TABLEAU];   //[SEDMX2]
+   UShort_t        SEDY1[VERY_BIG_TABLEAU];   //[SEDMY1]
+   UShort_t        SEDY2[VERY_BIG_TABLEAU];   //[SEDMY2]
+   UShort_t        SEDNrX1[VERY_BIG_TABLEAU];   //[SEDMX1]
+   UShort_t        SEDNrX2[VERY_BIG_TABLEAU];   //[SEDMX2]
+   UShort_t        SEDNrY1[VERY_BIG_TABLEAU];   //[SEDMY1]
+   UShort_t        SEDNrY2[VERY_BIG_TABLEAU];   //[SEDMY2]
    Int_t           STRM1;
    Int_t           STRM2;
    Int_t           STRM3;
@@ -77,19 +89,38 @@ public :
    UShort_t        EFIL_2;
    UShort_t        TFIL_1;
    UShort_t        TFIL_2;
+   UShort_t        TSED1_HF;
+   UShort_t        TSED2_HF;
    UShort_t        TSI_HF;
+   UShort_t        TSI_INDRA;
    UShort_t        TINDRA_SI;
+   UShort_t        TSED1_SED2;
+   UShort_t        TSI_SED1;
+   UShort_t        TSED1_INDRA;
    UShort_t        TCSI_HF;
    UShort_t        TINDRA_CSI;
    UShort_t        TINDRA_HF;
    UShort_t        TSI_MCP;
    UShort_t        TMCP_HF;
    UShort_t        TINDRA_MCP;
+   UShort_t        TSED1_MCP;
 
    // List of branches
    TBranch        *b_EchiM;   //!
    TBranch        *b_Echi;   //!
    TBranch        *b_EchiNr;   //!
+   TBranch        *b_SEDMX1;   //!
+   TBranch        *b_SEDMY1;   //!
+   TBranch        *b_SEDMX2;   //!
+   TBranch        *b_SEDMY2;   //!
+   TBranch        *b_SEDX1;   //!
+   TBranch        *b_SEDX2;   //!
+   TBranch        *b_SEDY1;   //!
+   TBranch        *b_SEDY2;   //!
+   TBranch        *b_SEDNrX1;   //!
+   TBranch        *b_SEDNrX2;   //!
+   TBranch        *b_SEDNrY1;   //!
+   TBranch        *b_SEDNrY2;   //!
    TBranch        *b_STRM1;   //!
    TBranch        *b_STRM2;   //!
    TBranch        *b_STRM3;   //!
@@ -157,6 +188,13 @@ public :
    TBranch        *b_TSI_MCP;   //!
    TBranch        *b_TMCP_HF;   //!
    TBranch        *b_TINDRA_MCP;   //!
+   TBranch        *b_TSED1_HF;   //!
+   TBranch        *b_TSED2_HF;   //!
+   TBranch        *b_TSI_INDRA;   //!
+   TBranch        *b_TSED1_SED2;   //!
+   TBranch        *b_TSI_SED1;   //!
+   TBranch        *b_TSED1_INDRA;   //!
+   TBranch        *b_TSED1_MCP;   //!
 
    KVIVSelector(TTree * /*tree*/ =0);
    virtual ~KVIVSelector();
@@ -185,6 +223,18 @@ void KVIVSelector::Init(TTree *tree)
    fChain->SetBranchAddress("EchiM", &EchiM, &b_EchiM);
    fChain->SetBranchAddress("Echi", Echi, &b_Echi);
    fChain->SetBranchAddress("EchiNr", EchiNr, &b_EchiNr);
+   fChain->SetBranchAddress("SEDMX1", &SEDMX1, &b_SEDMX1);
+   fChain->SetBranchAddress("SEDMY1", &SEDMY1, &b_SEDMY1);
+   fChain->SetBranchAddress("SEDMX2", &SEDMX2, &b_SEDMX2);
+   fChain->SetBranchAddress("SEDMY2", &SEDMY2, &b_SEDMY2);
+   fChain->SetBranchAddress("SEDX1", SEDX1, &b_SEDX1);
+   fChain->SetBranchAddress("SEDX2", SEDX2, &b_SEDX2);
+   fChain->SetBranchAddress("SEDY1", SEDY1, &b_SEDY1);
+   fChain->SetBranchAddress("SEDY2", SEDY2, &b_SEDY2);
+   fChain->SetBranchAddress("SEDNrX1", SEDNrX1, &b_SEDNrX1);
+   fChain->SetBranchAddress("SEDNrX2", SEDNrX2, &b_SEDNrX2);
+   fChain->SetBranchAddress("SEDNrY1", SEDNrY1, &b_SEDNrY1);
+   fChain->SetBranchAddress("SEDNrY2", SEDNrY2, &b_SEDNrY2);
    fChain->SetBranchAddress("STRM1", &STRM1, &b_STRM1);
    fChain->SetBranchAddress("STRM2", &STRM2, &b_STRM2);
    fChain->SetBranchAddress("STRM3", &STRM3, &b_STRM3);
@@ -242,9 +292,16 @@ void KVIVSelector::Init(TTree *tree)
    fChain->SetBranchAddress("CSI_IND_1224", &CSI_IND_1224, &b_CSI_IND_1224);
    fChain->SetBranchAddress("EFIL_1", &EFIL_1, &b_EFIL_1);
    fChain->SetBranchAddress("EFIL_2", &EFIL_2, &b_EFIL_2);
+   fChain->SetBranchAddress("TSED1_HF", &TSED1_HF, &b_TSED1_HF);
+   fChain->SetBranchAddress("TSED2_HF", &TSED2_HF, &b_TSED2_HF);
+   fChain->SetBranchAddress("TSI_HF", &TSI_HF, &b_TSI_HF);
+   fChain->SetBranchAddress("TSI_INDRA", &TSI_INDRA, &b_TSI_INDRA);
+   fChain->SetBranchAddress("TSED1_SED2", &TSED1_SED2, &b_TSED1_SED2);
+   fChain->SetBranchAddress("TSI_SED1", &TSI_SED1, &b_TSI_SED1);
+   fChain->SetBranchAddress("TSED1_INDRA", &TSED1_INDRA, &b_TSED1_INDRA);
+   fChain->SetBranchAddress("TSED1_MCP", &TSED1_MCP, &b_TSED1_MCP);
    fChain->SetBranchAddress("TFIL_1", &TFIL_1, &b_TFIL_1);
    fChain->SetBranchAddress("TFIL_2", &TFIL_2, &b_TFIL_2);
-   fChain->SetBranchAddress("TSI_HF", &TSI_HF, &b_TSI_HF);
    fChain->SetBranchAddress("TINDRA_SI", &TINDRA_SI, &b_TINDRA_SI);
    fChain->SetBranchAddress("TCSI_HF", &TCSI_HF, &b_TCSI_HF);
    fChain->SetBranchAddress("TINDRA_CSI", &TINDRA_CSI, &b_TINDRA_CSI);

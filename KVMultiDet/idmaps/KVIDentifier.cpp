@@ -260,10 +260,14 @@ void KVIDentifier::Scale(TF1 *sx, TF1 *sy)
     {
         for (Int_t  ii = 0; ii < fNpoints; ii++)
         {
-            if (sx_2d) fX[ii] = sx->Eval(fX[ii],fY[ii]);
-            else fX[ii] = sx->Eval(fX[ii]);
-            if (sy_2d) fY[ii] = sy->Eval(fX[ii],fY[ii]);
-            else fY[ii] = sy->Eval(fY[ii]);
+	    Double_t fXp = 0.;  // valeur intermediaire pour calculer X' et Y'
+	    Double_t fYp = 0.;  //a partir des coordonnees initiales
+            if (sx_2d) fXp = sx->Eval(fX[ii],fY[ii]);
+            else fXp = sx->Eval(fX[ii]);
+            if (sy_2d) fYp = sy->Eval(fX[ii],fY[ii]);
+            else fYp = sy->Eval(fY[ii]);
+	    fX[ii] = fXp;
+	    fY[ii] = fYp;
         }
     }
     else if (sx)
@@ -309,6 +313,7 @@ void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
     // menu allows to add a straight-line segment at the end or the beginning
     // of the line (whichever is closest to the mouse).
     //
+    //  Direction = "" (default) - continue in the direction of first/last segment
     //  Direction = "H", "h", "hori", "HORI" etc. - add horizontal segment
     //  Direction = "v", "V", "vert", "VERT" etc. - add vertical segment
 
@@ -332,13 +337,27 @@ void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
     Double_t newY = fY[ipoint];
     if (opt.BeginsWith("H")) newX = Limit;
     else if (opt.BeginsWith("V")) newY = Limit;
+    else{
+       if(fNpoints<2) {Error("ExtendLine", "Cannot extend line, need at least one segment!"); return;}
+       // trouver equation de la droite du dernier/premier segment
+       Double_t u,v,uu,vv;
+       Int_t iipoint = (ipoint==0 ? 1 : fNpoints-2);
+       u=fX[ipoint]; uu=fX[iipoint];
+       v=fY[ipoint]; vv=fY[iipoint];
+       Double_t a = vv-v;
+       Double_t b = u-uu;
+       Double_t c = -(b*v+a*u);
+       // use 'Limit' as x-coordinate of new point
+       newX = Limit;
+       newY = -(a*newX+c)/b;
+    }
 
     // add point
     Int_t iend = (ipoint>0 ? fNpoints : 0);
     Double_t **ps = ExpandAndCopy(fNpoints + 1, iend);
     CopyAndRelease(ps, ipoint, fNpoints++, ipoint + 1);
 
-    // To avoid redefenitions in descendant classes
+    // To avoid redefinitions in descendant classes
     FillZero(iend, iend + 1);
 
     if (ipoint>0) ipoint=fNpoints-1;

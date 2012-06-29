@@ -343,6 +343,13 @@ IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
 IdentRoot.DataAnalysisTask.UserClass:     no
 IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
 
++DataAnalysisTask:     ReconRoot
+ReconRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
+ReconRoot.DataAnalysisTask.Prereq:     recon
+ReconRoot.DataAnalysisTask.Analyser:     INDRAReconData
+ReconRoot.DataAnalysisTask.UserClass:     no
+ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
+
 +DataAnalysisTask:     RawAnalysis
 RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
 RawAnalysis.DataAnalysisTask.Prereq:     raw
@@ -440,6 +447,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
 +Plugin.TSelector:   INDRAGeneDataSelector  KVINDRAGeneDataSelector      KVIndra   "KVINDRAGeneDataSelector()"
 +Plugin.TSelector:   INDRAReconIdent        KVINDRAReconIdent                 KVIndra   "KVINDRAReconIdent()"
++Plugin.TSelector:   INDRAReconRoot        KVINDRAReconRoot                 KVIndra   "KVINDRAReconRoot()"
 +Plugin.TSelector:   INDRAIdentRoot         KVINDRAIdentRoot                  KVIndra   "KVINDRAIdentRoot()"
 +Plugin.TSelector:   IVReconIdent           KVIVReconIdent               VAMOS     "KVIVReconIdent()"
 #+Plugin.TSelector:   ReconIdent_e475s       KVReconIdent_e475s           KVIndra   "KVReconIdent_e475s()"
@@ -531,6 +539,10 @@ INDRADB.CsIPinCorr:          CsI_PILA.dat
 INDRADB.GGtoPGFactors:     GGtoPGFactors.dat
 # correspondance entre codeur et detecteurs
 INDRADB.Codeurs:    Codeurs.dat
+# liste des detecteurs physiquement absents
+INDRADB.AbsentDet:	AbsentDetectors.dat
+# liste des detecteurs ne marchant pas ou éteints (out of order)
+INDRADB.OoODet:    OoODetectors.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs
@@ -608,7 +620,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
-+Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA4     KVIndra    "KVINDRA4()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -671,14 +683,17 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI$        KVIDChIoSi5              KVIndra      "KVIDChIoSi5()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-SI$        KVIDChIoSi_e475s              KVIndra      "KVIDChIoSi_e475s()"
 +Plugin.KVIDTelescope:     ^CI-SI75$                              KVIDChIoSi75          KVIndra         "KVIDChIoSi75()"
++Plugin.KVIDTelescope:     ^CI-SILI$                              KVIDChIoSiLi          KVIndra         "KVIDChIoSiLi()"
 +Plugin.KVIDTelescope:    ^INDRA_camp5.CI-SI75$        KVIDChIoSi75_camp5              KVIndra      "KVIDChIoSi75_camp5()"
 +Plugin.KVIDTelescope:      ^CI-CSI$                                KVIDChIoCsI          KVIndra            "KVIDChIoCsI()"
 +Plugin.KVIDTelescope:      ^INDRA_camp5.CI-CSI$      KVIDChIoCsI_camp5         KVIndra         "KVIDChIoCsI_camp5()"
 +Plugin.KVIDTelescope:      ^BIC-SIB$                            KVIDBlocking            KVIndra     "KVIDBlocking()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
++Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
 # ===> Plugin pour FocalPlanVamos
 +Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
+
 
 # COHERENCE TOLERANCE PARAMETER
 # In KVIDTelescope::CalculateParticleEnergy, we compare the calculated and measured energy losses
@@ -718,6 +733,9 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
+INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
+INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
+################################################
 # pour FocalPlanVamos 
 VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
 
@@ -733,6 +751,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
+INDRA_e613.ActiveIdentifications:    CSI SI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
@@ -850,6 +869,10 @@ KVIDGChIoSi.CutClass:  KVIDCutLine
 +KVIDGChIoSi.CutClass:  KVIDCutContour
 KVIDGChIoSi.DefaultCutClass:  KVIDCutLine
 KVIDGChIoSi.IDClass:  KVIDZALine
+KVTGIDGrid.CutClass:  KVIDCutLine
++KVTGIDGrid.CutClass:  KVIDCutContour
+KVTGIDGrid.DefaultCutClass:  KVIDCutLine
+KVTGIDGrid.IDClass:  KVIDZALine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list

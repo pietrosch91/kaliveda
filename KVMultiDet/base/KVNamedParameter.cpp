@@ -4,6 +4,7 @@
 #include "KVNamedParameter.h"
 #include "KVBase.h"
 #include "Riostream.h"
+#include "TROOT.h"
 
 ClassImp(KVNamedParameter)
 
@@ -177,6 +178,7 @@ void KVNamedParameter::Print(Option_t* opt) const
 
 void KVNamedParameter::ls(Option_t* opt) const
 {
+   TROOT::IndentLevel();
    if (IsString()) {
       cout << "<"<<GetName() << "=" << GetTitle() <<">"<< endl;
    } else {

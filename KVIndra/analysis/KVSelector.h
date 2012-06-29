@@ -33,6 +33,7 @@
 #include "TH3.h"
 #include "TProfile2D.h"
 #include "TProfile.h"
+#include "KVDalitzPlot.h"
 
 class KVSelector:public TSelector {
 
@@ -106,6 +107,7 @@ class KVSelector:public TSelector {
 	void FillTH1(TH1* h1,Double_t one,Double_t two);
 	void FillTProfile(TProfile* h1,Double_t one,Double_t two,Double_t three);
 	void FillTH2(TH2* h2,Double_t one,Double_t two,Double_t three);
+	void FillKVDalitz(KVDalitzPlot* h2,Double_t one,Double_t two,Double_t three);
 	void FillTProfile2D(TProfile2D* h2,Double_t one,Double_t two,Double_t three,Double_t four);
 	void FillTH3(TH3* h3,Double_t one,Double_t two,Double_t three,Double_t four);
  

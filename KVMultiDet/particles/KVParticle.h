@@ -83,7 +83,7 @@ class KVParticle:public TLorentzVector {
 #endif
    virtual void Clear(Option_t * opt = "");
 
-   void SetMass(Double_t m) {
+   virtual void SetMass(Double_t m) {
       SetXYZM(Px(), Py(), Pz(), m);
    };
    Double_t GetMass() const {

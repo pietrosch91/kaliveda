@@ -22,6 +22,7 @@
 #include "KVIDCutLine.h"
 #include "KVIDCutContour.h"
 #include "KVVirtualIDFitter.h"
+//#include "KVIDTelescope.h"
 
 ClassImp(KVIDGridManagerGUI)
 //////////////////////////////////////////////////////////
@@ -54,7 +55,9 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
    fSelectedGrid = 0;
    fSelectedEntries = 0;
    fLastSelectedGrid = 0;
-
+   
+   fIDGridEditor = new KVIDGridEditor;
+   
    //to have access to online KaliVeda documentation via context menus
    //and dialog box "Online Help" buttons
    gEnv->SetValue("Browser.StartUrl", Form("http://indra.in2p3.fr/KaliVedaDoc/%s/", KVBase::GetKVVersion()));
@@ -121,15 +124,11 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "ofolder_t.xpm", // open
       "filesaveas.xpm",  // save
       "profile_t.xpm",
-      "line.xpm",
-      "ellipse.xpm",
-      "cut.xpm",
-      "selection_t.xpm",
-      "h1_t.xpm",
-      "branch_t.xpm",
-      "refresh1.xpm",
+      "bld_copy.xpm",
       "sm_delete.xpm",
-//      "quit.xpm",
+      "draw_t.xpm",//
+      "root_t.xpm",//
+      "refresh1.xpm",
       0
    };
 // toolbar tool tip text
@@ -137,15 +136,11 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       "Open file containing grids",
       "Save all grids in current file",
       "New grid",
-      "Add identification line",
-      "Add identification contour",
-      "Add cut",
-      "Fit grid",
-      "Test grid identification",
-      "Test grid (TTree)",
-      "Refresh display",
+      "Copy grid",
       "Delete selected grid(s)",
-//      "Quit",
+      "Start editor",//"Quit"
+      "Open root file",
+      "Refresh display",
       0
    };
    int spacing[] = {
@@ -154,43 +149,31 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       20,
       0,
       0,
+      20,
       0,
-      10,
-      0,
-      0,
-      5,
-      10,
- //     1000,
+      20,
       0
    };
    TGButton** buttons[] = {
       &fTBOpen,
       &fTBSave,
       &fTBNewG,
-      &fTBNewIDL,
-      &fTBNewIDC,
-      &fTBNewCut,
-      &fTBFit,
-      &fTBTest,
-      &fTBTestTree,
-      &fTBRefresh,
+      &fTBCopyG,
       &fTBDelG,
-//      &fTBQuit,
+      &fTBStartEditor,
+      &fTBOpenRoot,
+      &fTBRefresh,
       0
    };
    const char* method[] = {
       "OpenFile()",
       "SaveCurrent()",
       "NewGrid()",
-      "NewIDLine()",
-      "NewIDContour()",
-      "NewCut()",
-      "FitGrid()",
-      "TestGrid()",
-      "TestTreeGrid()",
-      "UpdateListOfGrids()",
+      "CopyGrid()",
       "DeleteSelectedGrids()",
- //     "Quit()",
+      "StartEditor()", //"Quit()"
+      "OpenRootFile()",
+      "UpdateListOfGrids()",
       0
    };
    fNbButtons = 0;
@@ -212,8 +195,8 @@ KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
       i++;
    }
    // 'new id line'  & 'new cut' button stays down until line is drawn
-   fTBNewIDL->AllowStayDown(kTRUE);
-   fTBNewCut->AllowStayDown(kTRUE);
+//   fTBNewIDL->AllowStayDown(kTRUE);
+//   fTBNewCut->AllowStayDown(kTRUE);
 
 // adding the tool bar to the main frame
    AddFrame(fToolBar, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
@@ -316,6 +299,7 @@ KVIDGridManagerGUI::~KVIDGridManagerGUI()
    gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
    if (fSelectedEntries) delete fSelectedEntries;
    fSelectedEntries = 0;
+//   if(fIDGridEditor) fIDGridEditor->Close();
 }
 
 void KVIDGridManagerGUI::CloseWindow()
@@ -324,6 +308,40 @@ void KVIDGridManagerGUI::CloseWindow()
    DeleteWindow();
 }
 
+void KVIDGridManagerGUI::StartEditor()
+{
+  if(!fIDGridEditor) fIDGridEditor = new KVIDGridEditor;
+  if(fIDGridEditor->IsClosed()) fIDGridEditor->StartViewer();
+  if(fSelectedGrid) {
+     // avant d'editer la grille, on en fait une copie pour
+     // pouvoir revenir en arriere
+     fSelectedGrid->UpdateLastSavedVersion();
+     fIDGridEditor->SetGrid(fSelectedGrid);
+  }
+}
+
+void KVIDGridManagerGUI::OpenRootFile()
+{
+  static TString dir("$HISTOROOT");
+  TString currentdir(gSystem->ExpandPathName("."));
+  
+  if(gSystem->ExpandPathName(dir)) dir = ".";
+  
+  const char *filetypes[] = {"Root files", "*.root","All files", "*", 0, 0};
+  TGFileInfo fi;
+  fi.fFileTypes = filetypes;
+  fi.fIniDir = StrDup(dir);
+  new TGFileDialog(fClient->GetDefaultRoot(), this, kFDOpen, &fi);
+  if (fi.fFilename)
+    {
+    if(!(TFile::Open(fi.fFilename))) 
+      {
+      new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor", Form("Could not open file %s", fi.fFilename), 0, kMBOk);
+      }
+    }
+  dir = fi.fIniDir;
+  gSystem->cd(currentdir.Data());
+}
 
 void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
 {
@@ -464,14 +482,16 @@ void KVIDGridManagerGUI::UpdateListOfGrids()
    //remove all existing entries, then fill list from gIDGridManager
    //we update the current pad, in case the displayed grid no longer exists
    //grid buttons are disabled, as any selected grid is deselected
-
+	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateListOfGrids(): starting..." << endl;
    UpdateTabs();
+	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateListOfGrids(): tabs has been updated !" << endl;
    //update all canvases
    TSeqCollection *Clist = gROOT->GetListOfCanvases();
    if (Clist && Clist->GetEntries()) {
       Clist->R__FOR_EACH(TCanvas, Modified)();
       Clist->R__FOR_EACH(TCanvas, Update)();
    }
+	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateListOfGrids(): canvas has been updated !" << endl;
 }
 
 void KVIDGridManagerGUI::SelectionChanged()
@@ -511,13 +531,17 @@ void KVIDGridManagerGUI::DeleteGrids()
    TIter next(fSelectedEntries, kIterBackward);
    KVIDGraph* entry;
    while ((entry = (KVIDGraph *) next())) {
+	 //  cout << "DEBUG: KVIDGridManagerGUI::DeleteGrids(): deleting grid '" << entry->GetName() << "' !" << endl;
 			if(fLastSelectedGrid==entry) fLastSelectedGrid=0;
          gIDGridManager->DeleteGrid(entry, kFALSE);   //no update
+	 //  cout << "DEBUG: KVIDGridManagerGUI::DeleteGrids(): grid has been deleted !" << endl;
    }
    if(fSelectedEntries) delete fSelectedEntries;
+	 //  cout << "DEBUG: KVIDGridManagerGUI::DeleteGrids(): list of selected grids has been deleted !" << endl;
    fSelectedEntries = 0;
    fSelectedGrid = 0;
    UpdateListOfGrids();
+	 //  cout << "DEBUG: KVIDGridManagerGUI::DeleteGrids(): list of grids has been updated !" << endl;
 }
 
 void KVIDGridManagerGUI::DeleteAllGridsInTab()
@@ -555,6 +579,22 @@ void KVIDGridManagerGUI::ClearGrid()
       Clist->R__FOR_EACH(TCanvas, Modified)();
       Clist->R__FOR_EACH(TCanvas, Update)();
    }
+}
+
+void KVIDGridManagerGUI::CopyGrid()
+{
+   if(!fSelectedGrid) return;
+   gIDGridManager->Disconnect("Modified()", this, "UpdateListOfGrids()");
+   KVIDGraph* new_gr = KVIDGraph::MakeIDGraph(fSelectedGrid->ClassName());
+   fSelectedGrid->Copy(*new_gr);
+   new_gr->AddIDTelescopes(fSelectedGrid->GetIDTelescopes());
+   new_gr->SetRunList("");
+   gIDGridManager->GetGrids()->Sort();
+   UpdateTabs();
+   gIDGridManager->Connect("Modified()", "KVIDGridManagerGUI", this, "UpdateListOfGrids()");
+   fIDGridList->Sort(0);
+   fIDGridList->Sort(0);
+   return;
 }
 
 void KVIDGridManagerGUI::NewGrid()
@@ -725,7 +765,7 @@ void KVIDGridManagerGUI::UpdateTabs()
 {
    // create a tab for each type of ID telescope
    // put a list box for ID grid names on each tab
-
+	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : starting..." << endl;
    KVString labels("");
    if (gIDGridManager->GetGrids()->GetSize()) gIDGridManager->GetListOfIDTelescopeLabels(labels);
 	else{
@@ -781,8 +821,9 @@ void KVIDGridManagerGUI::UpdateTabs()
    labels.Begin(",");
    while (! labels.End()) {
       KVString lab = labels.Next();
-
+	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : updating tab '" << lab.Data() << "'..." << endl;
       if (!fGridListTabs->GetTabContainer(lab.Data())) { // new tab
+	//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : new tab '" << lab.Data() << "'..." << endl;
          TGCompositeFrame*cf = fGridListTabs->AddTab(lab.Data());
          cf->ChangeOptions(kVerticalFrame);
          fIDGridList = new KVListView(KVIDGraph::Class(), cf, 600, 400);
@@ -811,24 +852,35 @@ void KVIDGridManagerGUI::UpdateTabs()
          fGridListTabs->Layout();
          fGridListTabs->SetTab(fGridListTabs->GetNumberOfTabs() - 1, kTRUE);
       } else { //existing tab
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : existing tab '" << lab.Data() << "'..." << endl;
          TGCompositeFrame*cf = fGridListTabs->GetTabContainer(lab.Data());
          if (!cf) {
             cout << "cf = 0x0 : label=" << lab.Data() << " tab name=" <<
                  fGridListTabs->GetTabTab(lab.Data())->GetText()->GetString() << endl;
          } else {
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup tab '" << cf->GetName() << "'..." << endl;
             TGFrameElement *el = (TGFrameElement*)cf->GetList()->At(0);
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup element '" << el->GetName() << "'..." << endl;
             fIDGridList = (KVListView*)el->fFrame;
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup view list '" << fIDGridList->GetName() << "'..." << endl;
             KVList* grids = gIDGridManager->GetGridsForIDTelescope(lab);
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : recup list de telescope'" << grids->GetName() << "'..." << endl;
+		//grids->ls();
             fIDGridList->Display(grids);
-            delete grids;
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : display list of grids in the viewerlist..." << endl;
+
+            if(grids) delete grids;
+		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : deleting the list..." << endl;
          }
       }
    }
-   //now check that none of the remaining tabs are empty & should be removed
-   RemoveEmptyTabs();
-   //make sure we are on the right tab
-   Int_t ntabs = fGridListTabs->GetCurrent();
-   TabSelect(ntabs);
+    //now check that none of the remaining tabs are empty & should be removed
+    RemoveEmptyTabs();
+ 		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : empty tabs removed !" << endl;
+    //make sure we are on the right tab
+    Int_t ntabs = fGridListTabs->GetCurrent();
+    TabSelect(ntabs);
+ 		//  cout << "DEBUG: KVIDGridManagerGUI::UpdateTabs() : current tab selected !" << endl;
 }
 
 void KVIDGridManagerGUI::RemoveEmptyTabs()
@@ -923,8 +975,9 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
    // enable 'open' & 'quit' & 'new grid"
    fTBOpen->SetEnabled();
    fTBRefresh->SetEnabled();
-   //fTBQuit->SetEnabled();
+//   fTBStartEditor->SetEnabled();
    fTBNewG->SetEnabled();
+   fTBOpenRoot->SetEnabled();
    // enable 'save' if there are grids
    if (gIDGridManager->GetGrids()->GetEntries()) fTBSave->SetEnabled();
 
@@ -932,14 +985,11 @@ void KVIDGridManagerGUI::ActivateToolbarButtons()
 
    //enable delete selected grid(s)
    fTBDelG->SetEnabled();
-
+   
    if (GetNSelected() == 1) {
       // only one grid selected
-      fTBNewIDL->SetEnabled();
-      fTBFit->SetEnabled();
-      fTBNewCut->SetEnabled();
-      fTBTest->SetEnabled();
-      fTBTestTree->SetEnabled();
+      fTBStartEditor->SetEnabled();
+      fTBCopyG->SetEnabled();
    }
 }
 

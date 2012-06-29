@@ -112,6 +112,7 @@ ClassImp(KVInputDialog)
                       kMWMFuncAll | kMWMFuncResize | kMWMFuncMaximize |
                       kMWMFuncMinimize, kMWMInputModeless);
 
+   fMain->CenterOnParent();
    fMain->MapWindow();
    gClient->WaitFor(fMain);
 }

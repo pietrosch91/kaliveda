@@ -1538,21 +1538,12 @@ void KVDataAnalysisLauncher::SetRepository(const Char_t *r)
  TGLBEntry *e=0;
  if((e=cbRepository->FindEntry(r)))
   {
-  Int_t i=0;
+  Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
   cbRepository->Select(i);
 #else
   cbRepository->Select(i,kFALSE);
 #endif
-  while(e!=cbRepository->GetSelectedEntry())
-   {
-   i++;
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbRepository->Select(i);
-#else
-   cbRepository->Select(i,kFALSE);
-#endif
-   }
   SetDataSetList((Char_t *)r);
   }
  else
@@ -1581,21 +1572,12 @@ void KVDataAnalysisLauncher::SetDataSet(const Char_t *r)
   TGLBEntry *e=0;
   if((e=cbDataSet->FindEntry(r)))
    {
-   Int_t i=0;
+   Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
    cbDataSet->Select(i);
 #else
    cbDataSet->Select(i,kFALSE);
 #endif
-   while(e!=cbDataSet->GetSelectedEntry())
-    {
-    i++;
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbDataSet->Select(i);
-#else
-    cbDataSet->Select(i,kFALSE);
-#endif
-    }
    SetTaskList((Char_t *)r);
    }
   else
@@ -1625,21 +1607,12 @@ void KVDataAnalysisLauncher::SetTask(const Char_t *r)
   TGLBEntry *e=0;
   if((e=cbTask->FindEntry(r)))
    {
-   Int_t i=0;
+   Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
     cbTask->Select(i);
 #else
    cbTask->Select(i,kFALSE);
 #endif
-   while(e!=cbTask->GetSelectedEntry())
-    {
-    i++;
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbTask->Select(i);
-#else
-    cbTask->Select(i,kFALSE);
-#endif
-    }
    SetSystemList(i);
    }
   else
@@ -1675,21 +1648,12 @@ void KVDataAnalysisLauncher::SetSystem(const Char_t *r)
   TGLBEntry *e=0;
   if((e=cbSystem->FindEntry(r)))
    {
-   Int_t i=0;
+   Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
     cbSystem->Select(i);
 #else
    cbSystem->Select(i,kFALSE);
 #endif
-   while(e!=cbSystem->GetSelectedEntry())
-    {
-    i++;
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbSystem->Select(i);
-#else
-    cbSystem->Select(i,kFALSE);
-#endif
-    }
    SetTriggersList(i);
    }
   else
@@ -1723,21 +1687,12 @@ void KVDataAnalysisLauncher::SetTrigger(const Char_t *r)
   TGLBEntry *e=0;
   if((e=cbTrigger->FindEntry(r)))
    {
-   Int_t i=0;
+   Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
     cbTrigger->Select(i);
 #else
    cbTrigger->Select(i,kFALSE);
 #endif
-   while(e!=cbTrigger->GetSelectedEntry())
-    {
-    i++;
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbTrigger->Select(i);
-#else
-    cbTrigger->Select(i,kFALSE);
-#endif
-    }
    SetTriggerRunsList(i);
    }
   else
@@ -2238,21 +2193,12 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
    if( e ){
       //Info("SetUserClass", "Found class in list");
       
-      Int_t i=0;
+      Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
       cbUserClass->Select(i);
 #else
       cbUserClass->Select(i,kFALSE);
-#endif
-      while(e!=cbUserClass->GetSelectedEntry()){
-         i++;
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-         cbUserClass->Select(i);
-#else
-         cbUserClass->Select(i,kFALSE);
-#endif
-      }
-      
+#endif      
       // save current user class
       SetResource( "UserClass", class_name );
    }

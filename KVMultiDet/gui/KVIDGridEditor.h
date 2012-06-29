@@ -1,0 +1,197 @@
+//Created by KVClassFactory on Fri Feb 17 11:05:30 2012
+//Author: dgruyer
+
+#ifndef __KVIDGridEditor_H
+#define __KVIDGridEditor_H
+
+#include "TCanvas.h"
+#include "TPaveLabel.h"
+#include "TStyle.h"
+#include "TH2F.h"
+#include "TF1.h"
+#include "TF2.h"
+#include "TROOT.h"
+#include "TView.h"
+#include "TKey.h"
+#include "TSpectrum.h"
+
+#include "TMethod.h"
+#include "TContextMenu.h"
+#include "TGMsgBox.h"
+#include "TGFileDialog.h"
+
+#include "KVIDGridEditorCanvas.h"
+#include "KVBase.h"
+#include "KVHashList.h"
+#include "KVIDGraph.h"
+#include "KVIDGridManager.h"
+#include "KVIDZALine.h"
+#include "KVIDZAGrid.h"
+#include "KVIDentifier.h"
+#include "KVDropDownDialog.h"
+#include "KVTestIDGridDialog.h"
+#include "KVVirtualIDFitter.h"
+#include "TMethod.h"
+#include "TContextMenu.h"
+#include "TGMsgBox.h"
+#include "KVInputDialog.h"
+#include "KVHistoManipulator.h"
+
+#include "KVSpiderIdentificator.h"
+
+#define FACTOR -1.
+
+class KVIDGridEditor : public KVBase
+{
+//friend class KeyHandler;
+friend class KVIDGridEditorCanvas;
+
+   protected:
+   
+   Bool_t fDebug;
+   
+   KVIDGridEditorCanvas* fCanvas;
+   TVirtualPad*          fPad;
+   TGraph*               fPivot;
+   
+   KVHashList* lplabel;			//contient la liste des TPaveLabel pour les transformations (rouge)
+   KVHashList* lplabel2;		//contient la liste des TPaveLabel pour les actions (rouge)
+   KVHashList* lplabel3;		//contient la liste des TPaveLabel pour les selections de lignes (vert)
+   KVHashList* lplabel4;		//contient la liste des TPaveLabel pour editer la grille (rouge)
+   KVHashList* lplabel5;		//contient la liste des TPaveLabel pour moduler les pas (vert)
+   
+   TPaveLabel* modulator;
+   
+   TH2*        TheHisto;		//pointeur sur l'histogramme
+   TH2*        TheHistoChoice;
+   KVIDGraph*  TheGrid;			//pointeur sur la grille courante
+   KVList*     ListOfLines;		//liste des lignes selectionnees
+   
+   Int_t SelectedColor;			//couleur des lignes selectionnees
+   
+   Double_t x0;				//coordonne x du pivot
+   Double_t y0;				//coordonne y du pivot
+   Int_t itrans,iact,iopt, imod;	//utilise pour le placement des boutons
+   
+   TF1* ft;				//translation
+   TF1* fs;				//scaling
+   TF1* fsy;				//scaling
+   TF2* frx;				//rotation
+   TF2* fry;				//rotation
+   
+   Bool_t ownhisto;			//true si histo par defaut
+   Bool_t dlmode;			//true si mode delete
+   Bool_t drawmode;			//true si mode draw (line, cut)
+   Bool_t aoemode;			//true si mode age of empire
+   Bool_t selectmode;			//true si mode vener
+   Bool_t venermode;			//true si mode select
+   Bool_t ready;
+   
+   Double_t xmin,xmax,ymin,ymax;	//utilises pour les differents zooms
+   Double_t oldx, oldy;			//utilises pour les differents zooms
+   Bool_t   moved;			//utilise pour les differents zooms
+      
+   Double_t fSpiderFactor;
+   Int_t    fSpiderZp;
+   
+   protected:
+   
+   Bool_t HandleKey(Event_t *event);   
+   void MoveHor(Int_t sign);
+   void MoveVert(Int_t sign);
+   
+   void SelectTrans(TPaveLabel* label);
+
+   void SetDefault();						//
+   void init();							//
+   void AddTransformation (TString label);			//construction de l'interface
+   void AddAction         (TString label);			//graphique et initialisation
+   void AddGridOption     (TString label, KVHashList* thelist);	//
+   void ConstructModulator();					//
+   
+   void TranslateX (Int_t Sign);
+   void TranslateY (Int_t Sign);
+   void RotateZ    (Int_t Sign);
+   void ScaleX     (Int_t Sign);
+   void ScaleY     (Int_t Sign);
+   void ScaleXY    (Int_t Sign);
+   void ScaleCurvature(Int_t Sign);
+   
+   void DynamicZoom(Int_t Sign, Int_t px=0, Int_t py=0);	//zoom molette
+   void Unzoom      ();						//unzoom histo (accessible via l'interface : I)
+   void ZoomSelected();						//zoom 'gnuplot'
+   
+   void SetLogz     ();						//echelle log sur Oz
+   void SetLogy     ();						//echelle log sur Oy
+   void SetLogx     ();						//echelle log sur Ox
+   void Undo       ();						//annule toute les opreation sur la grille courante (I)
+   
+   void SetPivot    (Double_t xx0, Double_t yy0);
+   
+   void SetEditable(TPaveLabel* label);
+   void SelectLines(TPaveLabel* label);
+   
+   void NewLine ();						//'Line'
+   void NewCut  ();						//'Cut'
+   void FitGrid ();						//'Fit' avec fonctionnelle de T.G
+   void TestGrid();						//'Test' linearisation de l'histo avec la grille courante
+   
+   void DeleteLine(KVIDentifier* line);				//'Delete'
+   void DeleteCut (KVIDentifier* cut);				//'Delete'
+
+   void UpdateViewer();						//rafraichit l'interface
+   void DrawAtt    (Bool_t piv);				//affiche les bouton sur le canvas
+   void ResetColor(KVIDentifier* Ident);			//redonne la couleur d'origine a une ligne
+   void ResetColor(KVList* IdentList);				//redonne la couleur d'origine a une liste de ligne
+   
+   void SuggestMoreAction();					//'More', modifier cette methode pour ajouter des fonctionnalites !!!
+   void ChooseSelectedColor();					//'More' -> SetSelectedColor change la couleur des lignes selectionnes
+   void OpenRootFile();						//pas implemente
+   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
+      
+   void DispatchOrder(TPaveLabel* label);			//methode qui distribue les ordres quand on clic sur un bouton
+   void ChangeStep(const char* title, Int_t dstep=1);
+   const char* WhoIsSelected();					//methode qui regarde quelle transformation est selectionnee
+   
+   TString ListOfHistogramInMemory();				//revoie la liste des histo dans gFile
+   TString PreselectHistogram(TString ListOfName, Int_t ipert=0);//revoie le nom de l' histo qui as le mm nom que la grille (si existe)
+   
+   
+   public:
+   
+   KVIDGridEditor();
+   KVIDGridEditor (const KVIDGridEditor&) ;
+   virtual ~KVIDGridEditor();
+   void Copy (TObject&) const;   
+   
+   void StartViewer();						//ouvre l'interface graphique, utilise quand double clic sur une grille dans le gIDGridManagerGUI
+   void Clear(const Option_t* opt = "");			//nettoi l'interface ('all' enleve la grille et l'histo)
+   void Close();						//ferme l'interface graphique
+   Bool_t IsClosed();						//true si l'interface est fermee
+   void ForceUpdate();						//rafraichit toute l'interface de force
+   
+   void SetHisto(TH2* hh);					//donne l'histo a l'editeur
+   void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
+   void SetGrid(TString GridName);				//donne la grille a l'editeur par son nom
+   
+   TCanvas* GetEditorCanvas(){return fCanvas;};
+   
+   void SelectLabel();						//methode ajouter a la liste des auto-exec du canvas : gere les bouton
+   void MakeTransformation();					//methode ajouter a la liste des auto-exec du canvas : gere le reste
+   
+   void SetSelectedColor(Int_t color){SelectedColor=color;};
+   void SelectLinesByZ(const Char_t* ListOfZ);			//'More' -> 'SelectLinesByZ'
+   void SetDebug(Bool_t debug){fDebug=debug;};
+   
+   Int_t GetSpiderZp(){return fSpiderZp;};
+   Double_t GetSpiderFactor(){return fSpiderFactor;};
+   
+   void SpiderIdentification(int Zp, Double_t Factor);// *MENU* *ARGS={Zp=>fSpiderZp,Factor=>fSpiderFactor} 
+
+   ClassDef(KVIDGridEditor,1)// outil de modification de grille.
+};
+
+//................  global variable
+R__EXTERN KVIDGridEditor *gIDGridEditor;
+
+#endif

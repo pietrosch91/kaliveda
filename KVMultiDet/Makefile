@@ -31,11 +31,16 @@ endif
 include ../Makefile.general
 RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
 libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \
-libPhysics.so libMathCore.so libThread.so libGui.so
+libPhysics.so libMathCore.so libThread.so libGui.so 
 
 #required for use of TGeo* classes in KVMaterial, KVDetector, etc.
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
 RLIBMAPDEPS += libGeom.so
+
+#required for use of TSpectrum
+LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
+RLIBMAPDEPS += libSpectrum.so
+
 
 ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg

@@ -96,7 +96,8 @@ class KVDetector:public KVMaterial {
    TList* fAlignedDetectors[2];//! stores lists of aligned detectors in both directions
    
    Bool_t fSimMode;//! =kTRUE when using to simulate detector response, =kFALSE when analysing data
-
+	Bool_t fPresent;//! =kTRUE if detector is present, =kFALSE if it has been removed
+	Bool_t fDetecting;//! =kTRUE if detector is "detecting", =kFALSE if not
  public:
     KVDetector();
     KVDetector(const Char_t * type, const Float_t thick = 0.0);
@@ -356,7 +357,8 @@ class KVDetector:public KVMaterial {
    virtual void ReadDefinitionFromFile(const Char_t*);
    
    virtual TList* GetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
-   
+   void ResetAlignedDetectors(UInt_t direction = /*KVGroup::kBackwards*/ 1);
+	
    virtual void SetSimMode(Bool_t on = kTRUE)
    {
    	// Set simulation mode of detector
@@ -375,6 +377,27 @@ class KVDetector:public KVMaterial {
    	// whenever the energy loss in the active layer is >0
    	return fSimMode;
    };
+   
+	virtual void SetPresent(Bool_t present = kTRUE);
+	virtual Bool_t IsPresent() const
+   {
+   	// return the presence or not of the detector
+   	return fPresent;
+   };
+	virtual void SetDetecting(Bool_t detecting = kTRUE);
+	virtual Bool_t IsDetecting() const
+   {
+   	// return if the detector is ready to detect or not
+   	return fDetecting;
+   };
+	
+	virtual Bool_t IsOK() const
+	{
+		//return kTRUE if detector is here and working
+		return (fPresent && fDetecting);
+	}
+	
+	virtual void DeduceACQParameters(Int_t zz=-1,Int_t aa=-1){};
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
@@ -444,7 +467,8 @@ Bool_t KVDetector::Fired(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
-	if(IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
+	if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
+	if (IsSimMode()) return (GetActiveLayer()->GetEnergyLoss()>0.); // simulation mode: detector fired if energy lost in active layer
 	
    if(opt[0]=='P') return FiredP(opt+1);
 
@@ -477,6 +501,8 @@ Bool_t KVDetector::FiredP(Option_t * opt)
    //          KVDetector.Fired.ACQParameterList.[type]: PG,GG,T
    // See KVDetector::SetFiredBitmask() for more details.
 
+	if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
+	
 	Binary8_t event; // bitmask for event
 	TIter next(fACQParams);
 	KVACQParam* par; Int_t id = 0;

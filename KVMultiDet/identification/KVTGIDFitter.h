@@ -38,7 +38,7 @@ class KVTGIDFitter : public KVVirtualIDFitter
 
 	virtual void Fit(KVIDGraph*);
 	
-	void FitPanel(Int_t functional_type=1, Bool_t with_csi_light_energy=kFALSE,
+	void FitPanel(Int_t functional_type=1, Bool_t with_csi_light_energy=kTRUE,
 			Int_t first_Z=-1, Int_t last_Z=-1, Double_t xmin=0.0, Double_t xmax=0.0);  //  *MENU*
 			
 	void SetType(Int_t t)

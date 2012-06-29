@@ -1054,8 +1054,9 @@ void KVINDRA::SetNamesChIo()
          chio->GetDetector(1)->SetName( chio->GetDetector(1)->GetArrayName() );
       }
    }
-   // need to rehash detector list - names of chios have changed
+   // need to rehash detector lists - names of chios have changed
    ((KVHashList*)fDetectors)->Rehash();
+   ((KVHashList*)fChIo)->Rehash();
 }
 
 //_________________________________________________________________________________________

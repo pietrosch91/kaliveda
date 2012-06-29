@@ -113,32 +113,46 @@ class KVNucleus:public KVParticle {
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
 	
-	void ChechZAndA(Int_t &z, Int_t&a);
+	void ChechZAndA(Int_t &z, Int_t&a) const;
 
-   Double_t GetMassExcess(Int_t z = -1, Int_t a = -1);
-	Double_t GetExtraMassExcess(Int_t z = -1, Int_t a = -1);
-   KVMassExcess* GetMassExcessPtr(Int_t z = -1, Int_t a = -1);
+   Double_t GetMassExcess(Int_t z = -1, Int_t a = -1) const;
+	Double_t GetExtraMassExcess(Int_t z = -1, Int_t a = -1) const;
+   KVMassExcess* GetMassExcessPtr(Int_t z = -1, Int_t a = -1) const;
    
-	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1);
-   Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1);
+	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1) const;
+   Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;
    
 	KVNumberList GetKnownARange(Int_t z=-1);
 	Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
 	
 	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
 		
-   Bool_t IsKnown(int z = -1, int a = -1);
-
-   void SetExcitEnergy(Double_t e);
+   Bool_t IsKnown(int z = -1, int a = -1) const;
+   Bool_t IsStable(Double_t min_lifetime=1.0e+15/*seconds*/) const;
+   Bool_t IsResonance() const;
+   Double_t GetWidth() const;
+   
+	virtual void SetMass(Double_t m) {
+      fExx = 0;
+		SetXYZM(Px(), Py(), Pz(), m);
+   };
+	void SetExcitEnergy(Double_t e){
+		//Modification of the Mass and the total Energy of the nucleus
+		SetMass(GetMassGS()+e);
+		fExx = e;
+	}
    Double_t GetExcitEnergy() const {
       return fExx;
    };
+	Double_t GetMassGS() const {
+      return GetMass()-fExx;
+   };
 	
-	Double_t GetLifeTime(Int_t z = -1, Int_t a = -1);
-	KVLifeTime* GetLifeTimePtr(Int_t z = -1, Int_t a = -1);
+	Double_t GetLifeTime(Int_t z = -1, Int_t a = -1) const;
+	KVLifeTime* GetLifeTimePtr(Int_t z = -1, Int_t a = -1) const;
 	
-   Double_t GetAbundance(Int_t z = -1, Int_t a = -1);
-	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1);
+   Double_t GetAbundance(Int_t z = -1, Int_t a = -1) const;
+	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1) const;
 	
 	KVNucleus & operator=(const KVNucleus & rhs);
 	KVNucleus operator+(const KVNucleus & rhs);
