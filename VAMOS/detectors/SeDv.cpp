@@ -643,11 +643,11 @@ void SeDv::inAttach(TTree *inT)
 	cout << "Attaching Sed variables" << endl;
 #	endif
 
-	for(i=0;i<3;i++)
+	/* for(i=0;i<3;i++)
 	{
 		sprintf(strnam,"QSED%1d_%1d",lnr,i+1);
 		inT->SetBranchAddress(strnam,&E_Raw[i]);
-	}
+	// }*/
 	sprintf(strnam,"TSED%1d_HF",lnr);
 	inT->SetBranchAddress(strnam,&T_Raw[0]);
 	sprintf(strnam,"SEDMX%1d",lnr);

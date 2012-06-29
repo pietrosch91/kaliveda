@@ -259,16 +259,16 @@ void Siv::inAttach(TTree *inT)
 	inT->SetBranchStatus("SIE",    1);
 	inT->SetBranchStatus("SIEM",   1);
 	inT->SetBranchStatus("TSI_HF", 1);
-	inT->SetBranchStatus("TSI_SED",1);
-	inT->SetBranchStatus("TSED_HF",1);
+	inT->SetBranchStatus("TSI_SED1",1);
+	//	inT->SetBranchStatus("TSED_HF",1);
 	#endif
 
 	inT->SetBranchAddress("SIENr",  E_Raw_Nr);
 	inT->SetBranchAddress("SIE",    E_Raw   );
 	inT->SetBranchAddress("SIEM",   &E_RawM );
 	inT->SetBranchAddress("TSI_HF", T_Raw+0 );
-	inT->SetBranchAddress("TSI_SED",T_Raw+1 );
-	inT->SetBranchAddress("TSED_HF",T_Raw+2 );
+	inT->SetBranchAddress("TSI_SED1",T_Raw+1 );
+	//	inT->SetBranchAddress("TSED_HF",T_Raw+2 );
 }
 
 void Siv::outAttach(TTree *outT)

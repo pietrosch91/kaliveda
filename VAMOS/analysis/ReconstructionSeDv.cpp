@@ -208,7 +208,7 @@ void ReconstructionSeDv::Calculate(void)
 		Phit += Coef[2][i] *Vecp;
 		i++;
 	}
-	cout << i << " Xf:" << S12->Xf << "[mm] Thf:" << S12->Tf << "[mrad] Yf:" << S12->Yf << "[mm] Phf" << S12->Pf <<"[mrad] " << endl; 
+	cout << i << " Xf:" << S12->Xf << "[mm] Thf:" << S12->Tf << "[mrad] Yf:" << S12->Yf << "[mm] Phf:" << S12->Pf <<"[mrad] " << endl; 
 	cout <<"Brhot:"<< Brhot << " Thetat:" << Thetat*c180_OVER_PI/1000. << "[deg] Phit:" << Phit*c180_OVER_PI/1000. << "[deg] Patht:" << Patht<< "[cm]" << endl;  
 
 	if(Brhot>0.001 && Thetat>-300. && Thetat<300. && Phit>-300. && Phit<300. && Patht>0 && Patht<2000.)
@@ -247,7 +247,7 @@ void ReconstructionSeDv::Calculate(void)
  		Path    = 0;				// in order to select the grid
 
 		if(drand48()>0.5)										/* abscissa */
-		{
+		  {
 			x = drand48();
 //			if(x>0.6) phi=p_max;								/* up		*/
 //			else if(x>0.3) phi=p_cut;							/* cut		*/

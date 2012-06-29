@@ -80,20 +80,6 @@ Analysisv_e494s::Analysisv_e494s(LogFile*Log)
 #endif
 
 
-#ifdef PLASTIC
-  cout << "Plastic defined" << endl;
-  L->Log << "Plastic defined" << endl;
-
-  Pl = new Plasticv(L);
-  if(!Pl)
-    {
-      cout << "Coud not allocate memory to hold Plastic !" << endl;
-      exit(EXIT_FAILURE);
-    }
-#else
-  cout << "Plastic will not be treated !" << endl;
-  L->Log << "Plastic will not be treated !" << endl;
-#endif
 
 #ifdef IONCHAMBER
   cout << "IonisationChamber defined" << endl;
@@ -123,37 +109,6 @@ Analysisv_e494s::Analysisv_e494s(LogFile*Log)
   L->Log << "Si will not be treated !" << endl; 
 #endif
 
-#ifdef DRIFT
-  cout << "DriftChamber defined" << endl;
-  L->Log << "DriftChamber defined" << endl;
-  Dr = new DriftChamberv(L,Si);
-  if(!Dr)
-    {
-      cout << "Coud not allocate memory to hold DriftChamber !" << endl;
-      exit(EXIT_FAILURE);
-    }
-  RC = new Reconstructionv(L,Dr);
-  if(!RC)
-    {
-      cout << "Coud not allocate memory to hold Reconstruction !" << endl;
-      exit(EXIT_FAILURE);
-    }
-  Id = new Identificationv(L,RC,Dr,Ic,Si);
-  if(!Id)
-    {
-      cout << "Coud not allocate memory to hold Identification !" << endl;
-      exit(EXIT_FAILURE);
-    }
-
-#else
-  cout << "DriftChamber will not be treated !" << endl;
-  L->Log << "DriftChamber will not be treated !" << endl;
-  cout << "Reconstruction will not be treated !" << endl;
-  L->Log << "Reconstruction will not be treated !" << endl;
-  cout << "Identification will not be treated !" << endl;
-  L->Log << "Identification will not be treated !" << endl;
-
-#endif
 
 #ifdef SED1
   cout << "SED1 defined" << endl;
@@ -198,28 +153,20 @@ Analysisv_e494s::Analysisv_e494s(LogFile*Log)
       cout << "Coud not allocate memory to hold ReconstructioSeDn !" << endl;
       exit(EXIT_FAILURE);
     }
+ Id = new Identificationv_e494s(L,RC,SeD12,Ic,Si);
+  if(!Id)
+    {
+      cout << "Coud not allocate memory to hold Identification_e494s !" << endl;
+      exit(EXIT_FAILURE);
+    }
 #else
   cout << "SeD12 will not be treated !" << endl;
   L->Log << "SeD12 will not be treated !" << endl;
   cout << "ReconstructionSeD will not be treated !" << endl;
   L->Log << "ReconstructionSeD will not be treated !" << endl;
+  cout << "Identificationv_e494s will not be treated !" << endl;
+  L->Log << "Identificationv_e494s will not be treated !" << endl;
 
-#endif
-
-
-
-#ifdef EXOGAM
-  cout << "Exogam defined" << endl;
-  L->Log << "Exogam defined" << endl;
-  Ex = new Exogamv(L,RC,Id,Si);
-  if(!Ex)
-    {
-      cout << "Coud not allocate memory to hold Exogam !" << endl;
-      exit(EXIT_FAILURE);
-    }
-#else
-  cout << "Exogam will not be treated !" << endl;
-  L->Log << "Exogam will not be treated !" << endl; 
 #endif
 
 }
@@ -231,16 +178,6 @@ Analysisv_e494s::~Analysisv_e494s()
   cout << "Analysisv_e494s::Destuctor" << endl;
 #endif
 
-#ifdef PLASTIC
-  delete Pl;
-#endif
-
-#ifdef DRIFT
-  delete Dr;
-  delete RC;
-  delete Id;
-#endif
-
 #ifdef SED1
   delete SeD1;
 #endif
@@ -250,6 +187,7 @@ Analysisv_e494s::~Analysisv_e494s()
 #ifdef SED12
   delete SeD12;
   delete RC;
+  delete Id;
 #endif
 
 
@@ -259,9 +197,6 @@ Analysisv_e494s::~Analysisv_e494s()
 
 #ifdef SI
   delete Si;
-#endif
-#ifdef EXOGAM
-  delete Ex;
 #endif
 }
 
@@ -298,9 +233,7 @@ void Analysisv_e494s::Treat()
   cout << "Analysisv_e494s::Treat " << endl;
 #endif
 
-#ifdef PLASTIC
-  Pl->Treat();
-#endif
+  cout<<endl<<"-- Nouvel evenement --"<<endl;
 
 #ifdef IONCHAMBER
   Ic->Treat();
@@ -308,11 +241,6 @@ void Analysisv_e494s::Treat()
 
 #ifdef SI
   Si->Treat();
-#endif
-#ifdef DRIFT
-  Dr->Treat();
-  RC->Treat();
-  Id->Treat();
 #endif
 
 #ifdef SED1
@@ -325,12 +253,7 @@ void Analysisv_e494s::Treat()
 #ifdef SED12
   SeD12->Treat();
   RC->Treat();
-#endif
-
-
-
-#ifdef EXOGAM
-  Ex->Treat();
+  Id->Treat();
 #endif
 }
 
@@ -339,16 +262,6 @@ void Analysisv_e494s::CreateHistograms()
 {
 #ifdef DEBUG
   cout << "Analysisv_e494s::CreateHistograms : " << endl;
-#endif
-
-#ifdef PLASTIC
-  Pl->CreateHistograms();
-#endif
-
-#ifdef DRIFT
-  Dr->CreateHistograms();
-  RC->CreateHistograms();
-  Id->CreateHistograms();
 #endif
 
 #ifdef SED1
@@ -362,15 +275,12 @@ void Analysisv_e494s::CreateHistograms()
 #ifdef SED12
   SeD12->CreateHistograms();
   RC->CreateHistograms();
+  Id->CreateHistograms();
 #endif
 
 
 #ifdef IONCHAMBER
   Ic->CreateHistograms();
-#endif
-
-#ifdef EXOGAM
-  Ex->CreateHistograms();
 #endif
 #ifdef SI
   Si->CreateHistograms();
@@ -385,16 +295,6 @@ void Analysisv_e494s::FillHistograms()
   cout << "Analysisv_e494s::FillHistograms : " << endl;
 #endif
 
-#ifdef PLASTIC
-  Pl->FillHistograms();
-#endif
-
-#ifdef DRIFT
-  Dr->FillHistograms();
-  RC->FillHistograms();
-  Id->FillHistograms();
-#endif
-
 #ifdef SED1
   SeD1->FillHistograms();
 #endif
@@ -405,15 +305,12 @@ void Analysisv_e494s::FillHistograms()
 
 #ifdef SED12
   SeD12->FillHistograms();
-  RC->FillHistograms();
+  RC->FillHistograms();  
+  Id->FillHistograms();
 #endif
 
 #ifdef IONCHAMBER
   Ic->FillHistograms();
-#endif
-
-#ifdef EXOGAM
-  Ex->FillHistograms();
 #endif
 #ifdef SI
   Si->FillHistograms();
@@ -427,16 +324,6 @@ void Analysisv_e494s::outAttach()
   cout << "Analysisv_e494s::outAttach " << endl;
 #endif
 
-#ifdef PLASTIC
-  Pl->outAttach(outT);
-#endif
-
-#ifdef DRIFT
-  Dr->outAttach(outT);
-  RC->outAttach(outT);
-  Id->outAttach(outT);
-#endif
-
 #ifdef SED1
   SeD1->outAttach(outT);
 #endif
@@ -446,15 +333,12 @@ void Analysisv_e494s::outAttach()
 #ifdef SED12
   SeD12->outAttach(outT);
   RC->outAttach(outT);
+  Id->outAttach(outT);
 #endif
 
 
 #ifdef IONCHAMBER
   Ic->outAttach(outT);
-#endif
-
-#ifdef EXOGAM
-  Ex->outAttach(outT);
 #endif
 #ifdef SI
   Si->outAttach(outT);
@@ -478,16 +362,13 @@ void Analysisv_e494s::inAttach()
 #endif
 
 
-
-#ifdef PLASTIC
-  Pl->inAttach(inT);
+#ifdef IONCHAMBER
+  Ic->inAttach(inT);
+#endif
+#ifdef SI
+  Si->inAttach(inT);
 #endif
 
-#ifdef DRIFT
-  Dr->inAttach(inT);
-  // No inAttach in Reconstruction
-  Id->inAttach(inT);
-#endif
 #ifdef SED1
   SeD1->inAttach(inT);
  #endif
@@ -495,45 +376,33 @@ void Analysisv_e494s::inAttach()
   SeD2->inAttach(inT);
  #endif
 #ifdef SED12
-  SeD12->inAttach(inT);
+   SeD12->inAttach(inT);
   // No inAttach in Reconstruction
+   Id->inAttach(inT);
 #endif
 
 
-#ifdef IONCHAMBER
-  Ic->inAttach(inT);
-#endif
-
-#ifdef EXOGAM
-  Ex->inAttach(inT);
-#endif
-#ifdef SI
-  Si->inAttach(inT);
-#endif
-
+  /*
   inT->SetBranchStatus("PILEUP",1);
-
   inT->SetBranchAddress("PILEUP",T_Raw+0);
+  
   inT->SetBranchStatus("GATCONF",1);
-
   inT->SetBranchAddress("GATCONF",T_Raw+1);
 
   inT->SetBranchStatus("TSED1_HF",1);
-
   inT->SetBranchAddress("TSED1_HF",T_Raw+2);
+
   inT->SetBranchStatus("TSED2_HF",1);
-
   inT->SetBranchAddress("TSED2_HF",T_Raw+3);
+
   inT->SetBranchStatus("TSED1_SED2",1);
-
   inT->SetBranchAddress("TSED1_SED2",T_Raw+4);
+
   inT->SetBranchStatus("TSI_SED1",1);
-
   inT->SetBranchAddress("TSI_SED1",T_Raw+5);
+
   inT->SetBranchStatus("TSI_HF",1);
-
   inT->SetBranchAddress("TSI_HF",T_Raw+6);
-
-
+  */
 
 }

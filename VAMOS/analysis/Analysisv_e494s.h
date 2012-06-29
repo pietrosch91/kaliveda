@@ -30,7 +30,7 @@ $Date: 2007/06/08 15:49:10 $
 #include"SeDv.h"
 #include"SeD12v.h"
 #include"ReconstructionSeDv.h"
-
+#include"Identificationv_e494s.h"
 #include "Analysisv.h"
 
 class Analysisv_e494s : public Analysisv
@@ -43,6 +43,7 @@ class Analysisv_e494s : public Analysisv
   ReconstructionSeDv *RC;
   IonisationChamberv *Ic;
   Siv *Si;
+  Identificationv_e494s *Id;
 
   UShort_t T_Raw[10];
   
@@ -62,6 +63,7 @@ class Analysisv_e494s : public Analysisv
   
   Double_t BB;
   Double_t ttheta;
+  
     
   ClassDef(Analysisv_e494s,0)//VAMOS calibration for E494S
 
