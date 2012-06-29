@@ -19,7 +19,7 @@ class KVIVReconIdent : public KVINDRAReconIdent
 {
    Analysisv* fAnalyseV;//VAMOS calibration
    LogFile* fLogV;//VAMOS calibration log
-   
+
    public:
 
    KVIVReconIdent();
