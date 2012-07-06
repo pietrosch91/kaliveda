@@ -26,6 +26,8 @@ $Id: KVIDLine.cpp,v 1.22 2009/05/05 15:57:52 franklan Exp $
 #include "TList.h"
 #include "TROOT.h"
 
+using namespace std;
+
 ClassImp(KVIDLine)
 /////////////////////////////////////////////////////////////////////////////////////////
 //KVIDLine

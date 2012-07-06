@@ -12,6 +12,8 @@ $Date: 2008/03/12 11:21:58 $
 #include "TSystem.h"
 #include "Riostream.h"
 
+using namespace std;
+
 ClassImp(KVLockfile)
 
 ////////////////////////////////////////////////////////////////////////////////

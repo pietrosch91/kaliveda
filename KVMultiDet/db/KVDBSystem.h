@@ -77,6 +77,8 @@ class KVDBSystem:public KVDBRecord {
    Double_t GetPtot() const;
    Double_t GetEtot() const;
    Double_t GetECM() const;
+	
+	Bool_t IsCollision() const;
 
    void SetZtarget(UInt_t z);
    void SetAtarget(UInt_t a);
@@ -92,8 +94,8 @@ class KVDBSystem:public KVDBRecord {
    };
 
    virtual void GetRunList(KVNumberList&) const;
-   virtual void Save(ostream&) const;
-   virtual void Load(istream&);
+   virtual void Save(std::ostream&) const;
+   virtual void Load(std::istream&);
    
    Int_t Compare(const TObject *) const;
 
@@ -118,6 +120,7 @@ class KVDBSystem:public KVDBRecord {
    void AddRun(KVDBRecord*);
    void AddRun(Int_t);
    void RemoveAllRuns();
+   virtual const Char_t* GetBatchName();
    
    ClassDef(KVDBSystem, 2)      // System class
 };

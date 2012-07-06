@@ -225,7 +225,8 @@ install :
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
-	-cp html/tools/.nedit html/tools/SetUpKaliVeda.csh html/tools/SetUpKaliVedaDirectories.sh html/tools/SetUpROOT.csh html/tools/SetUpROOTDirectories.sh html/tools/WhichKaliVeda html/tools/WhichROOT $(KVINSTALLDIR)/tools/
+	-cp tools/.nedit $(KVINSTALLDIR)/tools/
+	-cp tools/* $(KVINSTALLDIR)/tools/
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
@@ -296,6 +297,7 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
+	-cp -r tools $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
 	-cp Make* $(KV_DIST)/
 	-cp VERSION $(KV_DIST)/

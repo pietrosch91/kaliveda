@@ -8,6 +8,8 @@ $Id: KVRunListLine.cpp,v 1.6 2006/10/19 14:32:43 franklan Exp $
 #include "TError.h"
 #include <TClass.h>
 
+using namespace std;
+
 ClassImp(KVRunListLine)
 ///////////////////////////////////////////////////////////////////////////
 //KVRunListLine

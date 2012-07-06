@@ -17,6 +17,8 @@ $Id: KVTGID.cpp,v 1.17 2009/03/03 14:27:15 franklan Exp $
 #include "KVTGIDFunctions.h"
 #include "TROOT.h"
 
+using namespace std;
+
 ClassImp(KVTGID)
 /////////////////////////////////////////////////////////////////////////////////////
 //KVTGID

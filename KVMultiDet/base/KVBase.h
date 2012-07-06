@@ -16,6 +16,7 @@ $Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 #include "RVersion.h"
 #include "KVString.h"
 #include "KVLockfile.h"
+#include "Riostream.h"
 
 #define KVROOT_NOT_DEFINED "Define KVROOT environment variable before using"
 
@@ -85,16 +86,16 @@ class KVBase:public TNamed {
    static Bool_t ArrContainsValue(Int_t n, Int_t * arr, Int_t val);
    static Bool_t SearchKVFile(const Char_t * name, TString & fullpath,
                               const Char_t * kvsubdir = "");
-   static Bool_t SearchAndOpenKVFile(const Char_t * name, ifstream & file,
+   static Bool_t SearchAndOpenKVFile(const Char_t * name, std::ifstream & file,
                                      const Char_t * kvsubdir = "", KVLockfile* locks = 0);
-   static Bool_t SearchAndOpenKVFile(const Char_t * name, ofstream & file,
+   static Bool_t SearchAndOpenKVFile(const Char_t * name, std::ofstream & file,
                                      const Char_t * kvsubdir = "", KVLockfile* locks = 0);
    static void BackupFileWithDate(const Char_t * path);
    static TPluginHandler *LoadPlugin(const Char_t * base,
                                      const Char_t * uri = "0");
    static const Char_t* GetPluginURI(const Char_t* base, const Char_t* plugin);
 	static const Char_t* GetListOfPlugins(const Char_t* base);
-   static void OpenTempFile(TString & base, ofstream & fp);     /* open temp file with basename 'base' */
+   static void OpenTempFile(TString & base, std::ofstream & fp);     /* open temp file with basename 'base' */
    static void GetTempFileName(TString & base);
 
    static const Char_t *GetKVVersion();

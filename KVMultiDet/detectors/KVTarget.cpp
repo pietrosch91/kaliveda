@@ -13,6 +13,8 @@ $Id: KVTarget.cpp,v 1.32 2009/04/06 11:54:54 franklan Exp $
 #include "TMath.h"
 #include "Riostream.h"
 
+using namespace std;
+
 ClassImp(KVTarget)
 //////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

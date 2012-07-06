@@ -197,7 +197,7 @@ inline void KVINDRA::ShowSystem() const
 
    KVDBSystem *sys = GetSystem();
    if (sys) {
-      cout << sys->GetName() << endl;
+      std::cout << sys->GetName() << std::endl;
    } else {
       Warning("ShowSystem", "No system found for run");
    }

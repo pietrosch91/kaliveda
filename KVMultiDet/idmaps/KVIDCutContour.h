@@ -23,8 +23,8 @@ class KVIDCutContour : public KVIDContour
    virtual void SetAandZ(Int_t atnum,Int_t ztnum){;};
    virtual void SetMassFormula(Int_t mf){ ; };
 	
-   virtual void WriteAsciiFile_extras(ofstream &, const Char_t * name_prefix ="");
-   virtual void ReadAsciiFile_extras(ifstream &);
+   virtual void WriteAsciiFile_extras(std::ofstream &, const Char_t * name_prefix ="");
+   virtual void ReadAsciiFile_extras(std::ifstream &);
 	
    public:
 			

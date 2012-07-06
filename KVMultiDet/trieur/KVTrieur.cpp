@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include "KVTrieur.h"
 
+using namespace std;
+
 ClassImp(KVTrieur)
 //////////////////////////////////////////////////////////////////////////////////
 //          *****       Base class for Sorting purposes.      ******

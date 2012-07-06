@@ -18,6 +18,8 @@ $Date: 2007/04/04 10:39:17 $
 #include "KVNucleus.h"
 #include "TObjArray.h"
 
+using namespace std;
+
 ClassImp(KVElasticScatter)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

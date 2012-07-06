@@ -10,7 +10,7 @@ class KVINDRARunListReader {
  private:
 
    TString fRunsFile;           //!name of file to read
-   ifstream fRunsStream;        //!input file stream
+   std::ifstream fRunsStream;        //!input file stream
    KVRunListLine *fLineReader;  //!object used to analyse lines in file
    TString fLine;               //!last line read from file
    Char_t fComment;             //!character placed at beginning of comment lines

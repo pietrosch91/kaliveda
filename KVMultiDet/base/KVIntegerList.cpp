@@ -488,7 +488,8 @@ TArrayI* KVIntegerList::CreateTArrayI()
 //___________________________________________________________________________________________
 Int_t* KVIntegerList::CreateTableOfValues()
 {  
-//Cree un objet tableau d'entier de dimension fMult ( KVIntegerList::GetNbre() ) et rempli par ordre decroissant toutes les valeurs de la partition
+//Cree un objet tableau d'entier de dimension fMult ( KVIntegerList::GetNbre() ) 
+//et rempli par ordre decroissant toutes les valeurs de la partition
 //L'objet cree doit etre effacé après utilisation par l'utilisateur
 	
 	Int_t* tab = new Int_t[GetNbre()];
@@ -496,7 +497,7 @@ Int_t* KVIntegerList::CreateTableOfValues()
 	for (Int_t ii = fLimiteRegle; ii>=0; ii-=1){
 		Int_t contenu = fRegle->At(ii);
 		for (Int_t cc=0;cc<contenu;cc+=1)
-			tab[mm++,ii];
+			tab[mm++] = ii;
 	}
 	return tab;
 	

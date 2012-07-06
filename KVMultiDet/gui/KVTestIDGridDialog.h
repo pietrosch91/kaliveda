@@ -1,3 +1,6 @@
+#ifndef __KVTestIDGridDialog_H
+#define __KVTestIDGridDialog_H
+
 #include "TGFrame.h"
 #include "TGMenu.h"
 #include "TGListBox.h"
@@ -93,3 +96,4 @@ class KVTestIDGridDialog {
 
    ClassDef(KVTestIDGridDialog, 0)      //dialog box for testing an ID grid
 };
+#endif

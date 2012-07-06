@@ -116,6 +116,8 @@ $Date: 2009/01/16 14:55:20 $
 #include "KVInputDialog.h"
 #include "KVConfig.h"
 
+using namespace std;
+
 ClassImp(KVDBSystemDialog)
 
 ////////////////////////////////////////////////////////////////////////////////

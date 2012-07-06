@@ -236,8 +236,8 @@ class KVTGID:public TF1 {
         return fTelescopes.Contains(id);
     };
     TCollection* GetIDTelescopes();
-    void WriteToAsciiFile(ofstream &) const;
-    static KVTGID* ReadFromAsciiFile(const Char_t* name, ifstream &);
+    void WriteToAsciiFile(std::ofstream &) const;
+    static KVTGID* ReadFromAsciiFile(const Char_t* name, std::ifstream &);
 
    ClassDef(KVTGID, 5)          //Abstract base class for particle identfication using functionals developed by L. Tassan-Got (IPN Orsay)
 };

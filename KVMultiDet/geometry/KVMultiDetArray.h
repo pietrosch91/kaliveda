@@ -184,7 +184,7 @@ class KVMultiDetArray:public KVBase {
    };
    virtual void SetArrayACQParams();
 
-	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event);
+	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame="");
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
    KVNameValueList* DetectParticle(KVNucleus * part);
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);

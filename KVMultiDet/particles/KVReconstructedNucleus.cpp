@@ -6,6 +6,8 @@
 #include "KVMultiDetArray.h"
 #include "KVACQParam.h"
 
+using namespace std;
+
 ClassImp(KVReconstructedNucleus);
 
 //////////////////////////////////////////////////////////////////////////////////////////

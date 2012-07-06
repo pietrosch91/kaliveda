@@ -20,6 +20,8 @@ $Id: KVDBRecord.cpp,v 1.23 2007/05/31 09:59:22 franklan Exp $
 #include "KVDataBase.h"
 #include "TROOT.h"
 
+using namespace std;
+
 ClassImp(KVDBRecord);
 //__________________________________________________________________________
 //  Record folder for the database

@@ -27,6 +27,8 @@
 #include "TGeoMedium.h"
 #include "TGeoManager.h"
 
+using namespace std;
+
 ClassImp(KVMaterial);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,7 +140,7 @@ void KVMaterial::SetMaterial(const Char_t * mat_type)
       type, fIonRangeTable->GetName());
    else {
       SetType( fIonRangeTable->GetMaterialName(type) );
-      SetName(mat_type);
+      SetName(type);
     }
 }
 
@@ -707,7 +709,7 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		gmat = GetRangeTable()->GetTGeoMaterial(GetName());
 		gmat->SetPressure( GetPressure() );
 		gmat->SetTemperature( GetTemperature() );
-		gmat->SetTransparency(70);
+		gmat->SetTransparency(0);
 	}
 	
 	// create medium

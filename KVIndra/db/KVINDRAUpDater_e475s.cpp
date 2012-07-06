@@ -21,6 +21,8 @@ $Date: 2009/04/15 09:52:45 $
 #include "TList.h"
 #include "TString.h"
 
+using namespace std;
+
 ClassImp(KVINDRAUpDater_e475s)
 
 ////////////////////////////////////////////////////////////////////////////////

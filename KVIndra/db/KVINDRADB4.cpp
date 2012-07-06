@@ -23,6 +23,8 @@ $Id: KVINDRADB4.cpp,v 1.18 2007/04/26 16:40:58 franklan Exp $
 #include "KVRunListLine.h"
 #include "TString.h"
 
+using namespace std;
+
 ClassImp(KVINDRADB4)
 //___________________________________________________________________________
 //   Base de donnee pour la 4eme campagne INDRA.

@@ -6,6 +6,8 @@
 #include "KVDataSet.h"
 #include "KVDataSetManager.h"
 
+using namespace std;
+
 ClassImp(KVDataTransferXRD)
 
 ////////////////////////////////////////////////////////////////////////////////

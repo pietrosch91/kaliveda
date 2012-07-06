@@ -13,6 +13,8 @@ $Date: 2007/11/20 16:45:22 $
 #include "TObjString.h"
 #include "TEnv.h"
 
+using namespace std;
+
 ClassImp(KVBatchSystemManager)
 
 ////////////////////////////////////////////////////////////////////////////////

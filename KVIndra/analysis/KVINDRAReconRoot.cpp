@@ -9,6 +9,8 @@
 #include "KVDataAnalyser.h"
 #include "KVINDRAReconNuc.h"
 
+using namespace std;
+
 ClassImp(KVINDRAReconRoot)
 
 ////////////////////////////////////////////////////////////////////////////////

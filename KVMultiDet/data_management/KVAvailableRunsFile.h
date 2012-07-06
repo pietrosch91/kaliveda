@@ -29,7 +29,7 @@ class KVNameValueList;
 class KVAvailableRunsFile:public KVBase {
 
  protected:
-   ifstream fRunlist;     //for reading runlist file
+   std::ifstream fRunlist;     //for reading runlist file
    KVLockfile runlist_lock;   //for locking runlist file
 
    KVDataSet *fDataSet;         //dataset to which this file belongs
@@ -57,7 +57,7 @@ class KVAvailableRunsFile:public KVBase {
    }
    virtual Int_t IsRunFileName(const Char_t * filename);
 	virtual Bool_t ExtractDateFromFileName(const Char_t* name, KVDatime& date);
-   virtual void Update();
+   virtual void Update(Bool_t no_existing_file = kFALSE);
    virtual Bool_t CheckAvailable(Int_t run);
    virtual Int_t Count(Int_t run);
    virtual Bool_t GetRunInfo(Int_t run, TDatime & modtime,

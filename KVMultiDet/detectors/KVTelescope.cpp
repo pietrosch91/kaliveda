@@ -29,6 +29,8 @@ $Id: KVTelescope.cpp,v 1.29 2007/05/31 09:59:22 franklan Exp $
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 
+using namespace std;
+
 ClassImp(KVTelescope)
 /////////////////////////////////////////////////////////////////////////
 // KVTelescope

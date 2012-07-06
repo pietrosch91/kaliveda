@@ -6,6 +6,8 @@
 #include "KVError.h"
 #include "TMath.h"
 
+using namespace std;
+
 ClassImp(KVNumberList)
 //////////////////////////////////////////////
 //KVNumberList

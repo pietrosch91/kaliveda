@@ -36,6 +36,8 @@ $Id: KVDetector.cpp,v 1.87 2009/03/03 14:27:15 franklan Exp $
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 
+using namespace std;
+
 ClassImp(KVDetector)
 ///////////////////////////////////////////////////////////////////////////////////////
 /*
@@ -760,12 +762,6 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
       //clear any existing list of aligned telescopes
       fIDTelAlign->Clear();
    }
-   //The following line is in case there are no detectors aligned
-   //with 'this', but 'this' acts as an IDTelescope all by itself.
-   //In this case we expect KVMultiDetArray::GetIDTelescopes
-   //to define the appropriate ID telescope whenever one of the
-   //two detector arguments (or both!) corresponds to 'this''s type.
-   gMultiDetArray->GetIDTelescopes(this, this, list);
 
    if (aligned->GetSize() > 1) {
       //pairwise looping through list
@@ -775,6 +771,15 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 			
 			gMultiDetArray->GetIDTelescopes(det1, det2, list);
       }
+   }
+   else
+   {
+      //The following line is in case there are no detectors aligned
+      //with 'this', but 'this' acts as an IDTelescope all by itself.
+      //In this case we expect KVMultiDetArray::GetIDTelescopes
+      //to define the appropriate ID telescope whenever one of the
+      //two detector arguments (or both!) corresponds to 'this''s type.
+      gMultiDetArray->GetIDTelescopes(this, this, list);
    }
 
    if (list_zero) {
@@ -1674,7 +1679,7 @@ void KVDetector::SetPresent(Bool_t present)
 		if (fTelescope->GetDetectors()->GetEntries()==1){
 			KVGroup* gr = fTelescope->GetGroup();
 			
-			gr->PrepareModif();
+			gr->PrepareModif(this);
 			
 			gr->RemoveTelescope(fTelescope,kFALSE,kFALSE);
 			gr->GetDetectors()->Remove(this);
@@ -1691,7 +1696,7 @@ void KVDetector::SetPresent(Bool_t present)
 		if (!fTelescope->GetGroup()){
 			KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
 			
-			gr->PrepareModif();
+			gr->PrepareModif(this);
 			
 			gr->Add(fTelescope);
 			gr->GetDetectors()->Add(this);
@@ -1725,12 +1730,12 @@ void KVDetector::SetDetecting(Bool_t detecting)
 	fDetecting = detecting;
 	if ( !fDetecting ){
 		KVGroup* gr = fTelescope->GetGroup();
-		gr->PrepareModif();
+		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}		
 	else {
 		KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
-		gr->PrepareModif();
+		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}
 
