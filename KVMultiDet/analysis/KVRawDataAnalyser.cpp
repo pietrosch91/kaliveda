@@ -78,7 +78,7 @@ void KVRawDataAnalyser::ProcessRun()
    fDetEv = new KVDetectorEvent;
 
    //loop over events in file
-	while( fRunFile->GetNextEvent() && nevents--)
+	while( (nevents-- ? fRunFile->GetNextEvent() : kFALSE) )
 	{
       //reconstruct hit groups
       KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
