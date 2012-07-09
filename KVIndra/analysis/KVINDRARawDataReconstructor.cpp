@@ -166,10 +166,11 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 	//    *) event reconstruction is performed for 'Physics' events
 	//    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
 	
+   recev->SetNumber( GetEventNumber() );		         
+
    if( gIndra->GetTriggerInfo()->IsINDRAEvent() ){
       if( gIndra->GetTriggerInfo()->IsPhysics() ){
          recev->ReconstructEvent( (KVDetectorEvent*)GetDetectorEvent() );
-         recev->SetNumber( GetEventNumber() );		         
          nb_recon++;
          ExtraProcessing();
       }
