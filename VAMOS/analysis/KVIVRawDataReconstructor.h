@@ -24,7 +24,6 @@ class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
 	{
    	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( tree );
 	};
-   virtual Bool_t Analysis();
 
    ClassDef(KVIVRawDataReconstructor,1)//Reconstructs raw data from INDRA-VAMOS experiments
 };

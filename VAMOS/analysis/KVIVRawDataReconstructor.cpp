@@ -30,21 +30,3 @@ KVIVRawDataReconstructor::~KVIVRawDataReconstructor()
 {
    //Destructor
 }
-
-//______________________________________________________________________________________//
-
-Bool_t KVIVRawDataReconstructor::Analysis()
-{
-   // Make sure ReconstructedEvents tree is filled for every event,
-   // so that VAMOS arrays are filled. This means adding the cases:
-   //  - no INDRA trigger in event
-   //  - INDRA present in mode gene/laser
-
-   KVINDRARawDataReconstructor::Analysis();
-   if( !gIndra->GetTriggerInfo()->IsINDRAEvent()
-            || (gIndra->GetTriggerInfo()->IsINDRAEvent()&&(!gIndra->GetTriggerInfo()->IsPhysics()))) {
-      tree->Fill();
-   }
-   return kTRUE;
-}
-
