@@ -316,6 +316,9 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 	if(!theRawData) return;
 	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
 	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+
+	gIndra->GetACQParams()->R__FOR_EACH(KVACQParam,Clear)();
+
 	theRawData->GetEntry(rawEntry);
 	for(int i=0; i<NbParFired; i++){
 		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
