@@ -24,6 +24,11 @@ $Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVMaterial.h"
 #include "KVINDRA.h"
 #include "KVLightEnergyCsI.h"
+#include "KVIDGCsI.h"
+#include "KVIDZALine.h"
+#include "KVIDCutLine.h"
+
+using namespace std;
 
 ClassImp(KVCsI);
 //_______________________________________________________________________________________
@@ -96,10 +101,30 @@ Double_t KVCsI::GetLumiereTotale(Double_t rapide, Double_t lente)
    // the same) to calculate the calibrated energy from the light.
 
 	if(IsSimMode()){
-   		TIter nxthit(GetHits()); KVNucleus *nunuc, *simnuc=0;
-   		while( (nunuc = (KVNucleus*)nxthit()) ) {if(nunuc->InheritsFrom("KVSimNucleus")) simnuc=nunuc;}
-   		if(!simnuc) return -1.;
-   		return GetLightFromEnergy(simnuc->GetZ(),simnuc->GetA(),GetEnergy());
+   	//GetHits()->ls();
+		if (GetACQParam("T")->Fired()){
+			return Calculate(kLumiere, rapide, lente);
+		}
+		KVNucleus *nunuc = 0;
+		if (GetNHits()>0){
+			Int_t zz=0,aa=0;
+			TIter nxthit(GetHits());
+			while( (nunuc = (KVNucleus*)nxthit()) ){
+				zz = nunuc->GetZ();
+				aa = nunuc->GetA();
+			}	
+			return GetLightFromEnergy(zz,aa,GetEnergy());
+		}
+		else {
+			return -1;
+		}
+		/*
+		KVNucleus *nunuc = 0;
+		TIter nxthit(GetHits()); KVNucleus *nunuc, *simnuc=0;
+   	while( (nunuc = (KVNucleus*)nxthit()) ) {if(nunuc->InheritsFrom("KVSimNucleus")) simnuc=nunuc;}
+   	if(!simnuc) return -1.;
+   	*/
+		return GetLightFromEnergy(nunuc->GetZ(),nunuc->GetA(),GetEnergy());
    }
    return Calculate(kLumiere, rapide, lente);
 }
@@ -463,4 +488,99 @@ Double_t KVCsI::GetLightFromEnergy(Int_t Z, Int_t A, Double_t E)
       return lum;
    }
    return -1.;
+}
+
+//__________________________________________________________________________________________//
+
+void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
+{
+
+	GetACQParam("R")->SetData(0);
+	GetACQParam("L")->SetData(0);
+	GetACQParam("T")->SetData(0);
+	if (zz==-1 || aa==-1){ return; }
+		
+	UShort_t Mt = 110;
+	Double_t Xlen = 0;
+	Double_t Yrap = 0;
+	Double_t lumiere = GetLightFromEnergy(zz,aa);
+	
+	//KVIDTelescope *idcsi=(KVIDTelescope*)GetIDTelescopes()->FindObject(Form("CSI_R_L_%02d%02d",GetRingNumber(),GetModuleNumber()));
+	KVIDTelescope *idcsi=(KVIDTelescope*)GetIDTelescopes()->At(0);
+	
+	KVIDGCsI* idgcsi = (KVIDGCsI*)idcsi->GetIDGrid();
+	if (!idgcsi){
+		Warning("DeduceACQParameters","%s, No grid available",GetName());
+		return;
+	}
+	KVIDZALine* idline = (KVIDZALine*)idgcsi->GetIdentifier(zz,aa);
+	
+	GetACQParam("T")->SetData(Mt);
+	
+	if(idline){ 
+		Double_t  Yrap1,Yrap2,Xlen1,Xlen2;
+		idline->GetStartPoint(Xlen1,Yrap1);
+		idline->GetEndPoint(Xlen2,Yrap2);
+		
+		Xlen = (Xlen1+Xlen2)/2.;
+		Yrap = idline->Eval(Xlen);
+		Double_t  lumcalc = GetLumiereTotale(Yrap,Xlen);
+		
+		Int_t niter=0;
+		while(niter<20&&TMath::Abs(lumcalc-lumiere)/lumiere > 0.01){
+			if(lumcalc>lumiere){
+				Xlen2=Xlen;
+			}
+			else {
+				Xlen1=Xlen;
+			}
+			Xlen = (Xlen1+Xlen2)/2.;
+			Yrap = idline->Eval(Xlen);
+			lumcalc = GetLumiereTotale(Yrap,Xlen);
+			niter++;
+			
+		}
+	}
+	else
+	{
+		KVIDCutLine*imf_line = (KVIDCutLine*)idgcsi->GetCut("IMF_line");
+		if (!imf_line){
+			Warning("DeduceACQParameters","%s, No IMF_line defined",GetName());
+			return;
+		}
+		else {
+			Double_t  Yrap1,Yrap2,Xlen1,Xlen2;
+			imf_line->GetStartPoint(Xlen1,Yrap1);
+			imf_line->GetEndPoint(Xlen2,Yrap2);
+			
+			Xlen = (Xlen1+Xlen2)/2.;
+			Yrap = imf_line->Eval(Xlen) + 10.;//au-dessus de la ligne fragment
+			Double_t  lumcalc = GetLumiereTotale(Yrap,Xlen);
+		
+			Int_t niter=0;
+			while(niter<20 && TMath::Abs(lumcalc-lumiere)/lumiere > 0.01){
+				if(lumcalc>lumiere){
+					Xlen2=Xlen;
+				}
+				else {
+					Xlen1=Xlen;
+				}
+				Xlen = (Xlen1+Xlen2)/2.;
+				Yrap = imf_line->Eval(Xlen) + 10.;//au-dessus de la ligne fragment
+				lumcalc = GetLumiereTotale(Yrap,Xlen);
+				//cout << niter++ << " : Xlen = " << Xlen << " lumcalc = " << lumcalc << endl;
+				niter++;
+			}
+			if (niter==20){
+				Xlen=0;
+				Yrap=0;
+				Mt=0;
+			}
+		}
+		
+	}
+	GetACQParam("R")->SetData((UShort_t)Yrap);
+	GetACQParam("L")->SetData((UShort_t)Xlen);
+	GetACQParam("T")->SetData(Mt);
+
 }

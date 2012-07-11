@@ -118,7 +118,7 @@ class KV2Body:public TObject {
    Double_t GetCMVelocity(Int_t i) const;
    Double_t GetCMGamma() const {
       Double_t gamma =
-          1.0 - TMath::Power(GetCMVelocity().Mag() / KVParticle::C(), 2.);
+          1.0 - TMath::Power(BCM, 2.);
       if (gamma > 0.)
           gamma = 1. / TMath::Sqrt(gamma);
       else {

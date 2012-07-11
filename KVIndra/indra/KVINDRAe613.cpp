@@ -76,8 +76,8 @@ void KVINDRAe613::PrototypeTelescopes()
 	//les Si75 de la couronne 10 et 12 n'était physiquement pas présent
 	//on les retire de gIndra
 	KVINDRA4::PrototypeTelescopes();
-	
 	KVINDRATelescope* kvt=0;
+	
 	kvt = (KVINDRATelescope* )fTelescopes->FindObjectByType("Etalons Ring10");
 	delete fTelescopes->Remove(kvt);
 		
@@ -88,7 +88,7 @@ void KVINDRAe613::PrototypeTelescopes()
 	kvt->SetDepth(1, 1.0);
    kvt->SetAzimuthalWidth(14.44 / 2.);
    fTelescopes->Add(kvt);
-
+	
 	kvt = (KVINDRATelescope* )fTelescopes->FindObjectByType("Etalons Ring12");
 	delete fTelescopes->Remove(kvt);
 		
@@ -97,7 +97,7 @@ void KVINDRAe613::PrototypeTelescopes()
    kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
    kvt->SetType("Etalons Ring12");
 	kvt->SetDepth(1, 1.0);
-   kvt->SetAzimuthalWidth(14.44 / 2.);
+   kvt->SetAzimuthalWidth(14.56 / 2.);
    fTelescopes->Add(kvt);
 
 }

@@ -52,6 +52,8 @@ KVINDRADB *gIndraDB;
 //By default, KVINDRADB::Build() will read any or all of the standard format files Runlist.csv,
 //Systems.dat and ChIoPressures.dat which may be found in the dataset's directory.
 
+using namespace std;
+
 ClassImp(KVINDRADB)
 
 void KVINDRADB::init()
@@ -79,7 +81,9 @@ void KVINDRADB::init()
        AddTable("Light-Energy CsI Z>1",
                 "Calibration parameters for CsI detectors");
 
-  fGains = 0;
+	fGains = 0;
+	fAbsentDet = 0;
+	fOoODet = 0;
 
 	fPulserData = 0;
 }
@@ -1030,6 +1034,8 @@ void KVINDRADB::Build()
    ReadVoltEnergyChIoSi();
    ReadCalibCsI();
    ReadPedestalList();
+	ReadAbsentDetectors();
+	ReadOoODetectors();
 
 	// read all available mean pulser data and store in tree
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;
@@ -1825,5 +1831,90 @@ void KVINDRADB::PrintRuns(KVNumberList& nl) const
 				run->GetNumber(), (run->GetSystem()?run->GetSystem()->GetName():"            "), run->GetTriggerString(),
 				run->GetEvents(), run->GetComments());
 	}
+}
+
+//____________________________________________________________________________
+void KVINDRADB::ReadAbsentDetectors()
+{
+	//Lit le fichier ou sont listés les détecteurs retirés au cours 
+	//de la manip
+	TString fp;
+	if (!KVBase::SearchKVFile(GetCalibFileName("AbsentDet"), fp, fDataSet.Data())){
+		Error("ReadAbsentDetectors","Fichier %s, inconnu au bataillon",GetCalibFileName("AbsentDet"));
+		return;
+	}
+	Info("ReadAbsentDetectors()", "Lecture des detecteurs absents...");
+	fAbsentDet = AddTable("Absent Detectors", "Name of physically absent detectors");
+	
+	KVDBRecord* dbrec = 0;
+	TEnv env;
+	TEnvRec* rec = 0;
+	env.ReadFile(fp.Data(),kEnvAll);
+	TIter it(env.GetTable());
+	
+	while ( (rec = (TEnvRec* )it.Next()) ){
+		KVString srec(rec->GetName());
+		KVNumberList nl(rec->GetValue());
+		cout << rec->GetValue() << endl;
+		if ( srec.Contains(",") ){
+			srec.Begin(",");
+			while (!srec.End()){
+				dbrec = new KVDBRecord(srec.Next(),"Absent Detector");
+				dbrec->AddKey("Runs", "List of Runs");
+				fAbsentDet->AddRecord(dbrec);
+				LinkRecordToRunRange(dbrec,nl);
+			}
+		}
+		else {
+			dbrec = new KVDBRecord(rec->GetName(),"Absent Detector");
+			dbrec->AddKey("Runs", "List of Runs");
+			fAbsentDet->AddRecord(dbrec);
+			LinkRecordToRunRange(dbrec,nl);
+		}
+	}
+
+}
+
+//____________________________________________________________________________
+void KVINDRADB::ReadOoODetectors()
+{
+
+	//Lit le fichier ou sont listés les détecteurs ne marchant plus au cours 
+	//de la manip
+	TString fp;
+	if (!KVBase::SearchKVFile(GetCalibFileName("OoODet"), fp, fDataSet.Data())){
+		Error("ReadOoODetectors","Fichier %s, inconnu au bataillon",GetCalibFileName("OoODet"));
+		return;
+	}
+	Info("ReadOoODetectors()", "Lecture des detecteurs hors service ...");
+	fOoODet = AddTable("OoO Detectors", "Name of out of order detectors");
+	
+	KVDBRecord* dbrec = 0;
+	TEnv env;
+	TEnvRec* rec = 0;
+	env.ReadFile(fp.Data(),kEnvAll);
+	TIter it(env.GetTable());
+	
+	while ( (rec = (TEnvRec* )it.Next()) ){
+		KVString srec(rec->GetName());
+		KVNumberList nl(rec->GetValue());
+		cout << rec->GetValue() << endl;
+		if ( srec.Contains(",") ){
+			srec.Begin(",");
+			while (!srec.End()){
+				dbrec = new KVDBRecord(srec.Next(),"OoO Detector");
+				dbrec->AddKey("Runs", "List of Runs");
+				fOoODet->AddRecord(dbrec);
+				LinkRecordToRunRange(dbrec,nl);
+			}
+		}
+		else {
+			dbrec = new KVDBRecord(rec->GetName(),"OoO Detector");
+			dbrec->AddKey("Runs", "List of Runs");
+			fOoODet->AddRecord(dbrec);
+			LinkRecordToRunRange(dbrec,nl);
+		}
+	}
+
 }
 

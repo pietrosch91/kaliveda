@@ -532,7 +532,7 @@ void KVPartitionGenerator::WriteTreeAndCloseFile()
 	
 		if (tree && gFile->IsWritable()) {
 			
-			Info("WriteTreeAndCloseFile","Ecriture du fichier:\n%s avec l'arbre:\n %s (%d entrees)",gFile->GetName(),tree->GetName(),tree->GetEntries());
+			Info("WriteTreeAndCloseFile","Ecriture du fichier:\n%s avec l'arbre:\n %s (%lld entrees)",gFile->GetName(),tree->GetName(),tree->GetEntries());
 			tree->ResetBranchAddresses();
 			flist->Add(new TNamed(gFile->GetName(),""));
 			gFile->Write();

@@ -14,6 +14,8 @@
 #include "TVector.h"
 #include "TMatrix.h"
 
+using namespace std;
+
 ClassImp(KVTenseur3)
 //////////////////////////////////////////////////////////////////////////////////
 //   This class fills, diagonalizes the velocity tensor and returns several
@@ -266,7 +268,7 @@ void KVTenseur3::Reset(void)
 Double_t KVTenseur3::GetThetaFlot(void)
 {
 //
-// Obtention du Theta Flot (en degrès). NB. valeur entre -90 et +90 deg.
+// Obtention du Theta Flot (en degrès). NB. valeur entre 0 et +90 deg.
 //
    Double_t tf;
 
@@ -278,8 +280,6 @@ Double_t KVTenseur3::GetThetaFlot(void)
    if (vp.Z() < 0)
       vp = -vp;
    tf = vp.Theta() * 180. / TMath::Pi();
-   if (vp.X() < 0)
-      tf = -tf;
    return tf;
 }
 

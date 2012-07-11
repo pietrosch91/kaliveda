@@ -56,6 +56,12 @@ void KVGELogReader::ReadLine(TString & line, Bool_t & ok)
       fOK = kFALSE;
 		return;
 	}
+	else if (line.Contains("File size limit exceeded")) {
+      ok = kFALSE;
+      fStatus = line;
+      fOK = kFALSE;
+		return;
+	}
 	else if (line.Contains("cpu time:"))
       ReadCPULimit(line);
 	else if (line.Contains("CpuUser ="))

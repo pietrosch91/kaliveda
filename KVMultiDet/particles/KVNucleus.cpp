@@ -31,6 +31,8 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 Double_t KVNucleus::kAMU = 9.31494043e02;
 Double_t KVNucleus::kMe = 0.510988;
 
+using namespace std;
+
 ClassImp(KVNucleus);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -93,6 +95,10 @@ ClassImp(KVNucleus);
 //daughter nuclei) one need only sum all nuclei associated with the source.
 //The resulting nucleus is the source nucleus with its Z, A, momentum and
 //excitation energy.
+//
+// Note for the excitation energy, if one define an excitation energy for a nucleus
+// using the SetExcitEnergy, the mass and the total energy is modified (M = Mgs + Ex)
+// when excitation energy is set, one can access to the ground state mass via GetMassGS()
 //
 //The subtraction operator allows to perform energy balance for a binary
 //splitting of a nucleus.
@@ -543,11 +549,8 @@ void KVNucleus::SetZandN(Int_t z, Int_t n)
 void KVNucleus::Print(Option_t * t) const
 {
 // Display nucleus parameters
-   cout << "KVNucleus Z=" << GetZ() << " A=" << GetA() << " KE=" <<
-       GetKE();
-   cout << " E*=" << GetExcitEnergy();
-   cout << " Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
-   GetParameters()->Print();
+   cout << "KVNucleus Z=" << GetZ() << " A=" << GetA()  << " E*=" << GetExcitEnergy()<<endl;
+   KVParticle::Print(t);
 }
 
 //___________________________________________________________________________________________
@@ -851,22 +854,35 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
    //KVNucleus addition operator.
    //Add two nuclei together to form a compound nucleus whose momentum and
    //excitation energy are calculated from energy and momentum conservation.
-
+	//
+	//the excitation energy of the resulting nucleus can be negative, 
+	//if the energy balance is negative
+	//
    KVNucleus & lhs = *this;
    Int_t ztot = lhs.GetZ() + rhs.GetZ();
    Int_t atot = lhs.GetA() + ((KVNucleus &) rhs).GetA();
-   Double_t extot = lhs.GetExcitEnergy() + rhs.GetExcitEnergy();
-   Double_t etot = lhs.E() + rhs.E();
-   TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
-   TVector3 Vcm = (KVParticle::C()/etot)*ptot;
+   KVNucleus CN(ztot,atot);
+	
+	Double_t etot = lhs.E() + rhs.E();
+   TVector3 ptot = lhs.Vect() + rhs.Vect();
+	//Calcul de la masse du noyau composé
+	//celle ci inclut une éventuelle energie d'excitation
+	
+	Double_t Mcn = TMath::Sqrt(etot*etot-ptot.Mag()*ptot.Mag());
+	Double_t Excn = Mcn - CN.M();
+	
+	if (Excn<0){
+		if (Excn>-1e-8)
+			Excn=0;
+		//else 	
+		//	Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
+ 	}
+	
+	CN.SetVect(ptot);
+	CN.SetExcitEnergy(Excn);
+	
+	return CN;
 
-   KVNucleus temp(ztot, atot);  //mass of nucleus includes mass excess
-   temp.SetVelocity(Vcm);
-   //"excitation energy" of resulting nucleus is given by bilan energetique
-   Double_t estar = extot + lhs.E() + rhs.E() - temp.E();
-   temp.SetExcitEnergy(estar);
-
-   return temp;
 }
 
 //________________________________________________________________________________________
@@ -882,26 +898,36 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
    KVNucleus & lhs = *this;
    Int_t zres = lhs.GetZ() - rhs.GetZ();
    Int_t ares = lhs.GetA() - ((KVNucleus &) rhs).GetA();
-   Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
-   TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
+   Double_t eres = lhs.E() - rhs.E();
+	TVector3 pres = lhs.GetMomentum() - rhs.GetMomentum();
 
-   if (zres < 0 || ares < 0) {
+	//Double_t exres = lhs.GetExcitEnergy() - rhs.GetExcitEnergy();
+  
+   if (zres < 0 || ares < 0 || eres < 0) {
       Warning("operator-(const KVNucleus &rhs)",
-              "Cannot subtract nuclei, resulting Z=%d A=%d", zres, ares);
-      KVNucleus temp;
-      temp.SetZ(0);
-      temp.SetA(0);
-      temp.SetExcitEnergy(0.0);
-      temp.SetEnergy(0.0);
-      return temp;
-   } else {
-      KVNucleus temp(zres, ares);       //mass of nucleus includes mass excess
-      temp.SetMomentum(pres);
-      //"excitation energy" of residual nucleus is given by bilan energetique
-      Double_t estar = exres + lhs.E() - (rhs.E() + temp.E());
-      temp.SetExcitEnergy(estar);
-      return temp;
+              "Cannot subtract nuclei, resulting Z=%d A=%d E=%lf", zres, ares, eres);
+		KVNucleus RES;
+      RES.Clear();
+      return RES;
    }
+	else {
+      KVNucleus RES(zres, ares);       //mass of nucleus includes mass excess
+		
+		Double_t Mres = TMath::Sqrt(eres*eres-pres.Mag()*pres.Mag());
+		Double_t Exres = Mres - RES.M();
+ 		
+		if (Exres<0){
+			if (Exres>-1e-8)
+				Exres=0;
+			//else 	
+			//	Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
+ 		}
+		
+		RES.SetVect(pres);
+		RES.SetExcitEnergy(Exres);
+	
+		return RES;
+	}
 }
 
 //________________________________________________________________________________________
@@ -958,14 +984,14 @@ Double_t KVNucleus::LiquidDrop_BrackGuet(UInt_t aa, UInt_t zz)
 }
 
 //________________________________________________________________________________________
-
+/*
 void KVNucleus::SetExcitEnergy(Double_t e)
 {
    //Set excitation energy. 
 
    fExx = e;
 }
-
+*/
 //_______________________________________________________________________________________
 
 Int_t KVNucleus::Compare(const TObject * obj) const

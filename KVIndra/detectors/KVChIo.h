@@ -72,7 +72,9 @@ class KVChIo:public KVINDRADetector {
       return GetActiveLayer()->GetPressure()/KVUnits::mbar;
    };
    
-   ClassDef(KVChIo, 5)          //The ionisation chamber detectors (ChIo) of the INDRA array
+	void DeduceACQParameters(Int_t zz=-1,Int_t a=-1);
+   
+	ClassDef(KVChIo, 5)          //The ionisation chamber detectors (ChIo) of the INDRA array
 };
 
 //____________________________________________________________________________________________

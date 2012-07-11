@@ -13,6 +13,8 @@ $Date: 2009/01/14 16:13:49 $
 #include "KVDataSet.h"
 #include "KVClassFactory.h"
 
+using namespace std;
+
 ClassImp(KVINDRARawDataAnalyser)
 
 ////////////////////////////////////////////////////////////////////////////////

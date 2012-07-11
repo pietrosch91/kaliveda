@@ -15,6 +15,8 @@ $Date: 2008/04/14 08:49:11 $
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
 
+using namespace std;
+
 ClassImp(KVBatchSystem)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

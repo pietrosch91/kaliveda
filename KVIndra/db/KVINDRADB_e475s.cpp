@@ -21,6 +21,8 @@ $Date: 2009/04/09 09:23:20 $
 #include "KVINDRADB.h"
 #include "KVNumberList.h"
 
+using namespace std;
+
 ClassImp(KVINDRADB_e475s)
 
 ////////////////////////////////////////////////////////////////////////////////

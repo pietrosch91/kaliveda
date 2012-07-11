@@ -450,16 +450,16 @@ template < class T > void Binary_t < T >::WriteSubvalue(const T val,
    _nbits = (Int_t) nbits;
    if (_nbits < 1 || _nbits > _fNBits || _msb > (_fNBits - 1)
        || (_msb - _nbits + 1) < 0) {
-      cout << "Error in <Binary_t<T>::WriteSubvalue> : ";
+      std::cout << "Error in <Binary_t<T>::WriteSubvalue> : ";
       if (_nbits < 1)
-         cout << "nbits<1";
+         std::cout << "nbits<1";
       if (_nbits > _fNBits)
-         cout << "nbits(" << _nbits << ")>fNBits(" << _fNBits << ")";
+         std::cout << "nbits(" << _nbits << ")>fNBits(" << _fNBits << ")";
       if (_msb > (_fNBits - 1))
-         cout << "msb(" << _msb << ") > fNBits-1(" << _fNBits - 1 << ")";
+         std::cout << "msb(" << _msb << ") > fNBits-1(" << _fNBits - 1 << ")";
       if ((_msb - _nbits + 1) < 0)
-         cout << "(msb-nbits+1) < 0 : msb=" << _msb << " nbits=" << _nbits;
-      cout << endl;
+         std::cout << "(msb-nbits+1) < 0 : msb=" << _msb << " nbits=" << _nbits;
+      std::cout << std::endl;
       return;
    }
    //get binary representation of 'val' with nbits
@@ -474,9 +474,9 @@ template < class T > void Binary_t < T >::WriteSubvalue(const T val,
 
 template < class T > void Binary_t < T >::Print(Option_t * opt) const
 {
-   cout << "Binary number : " << const_cast<Binary_t<T>*>(this)->String() << " : fNBits=" << (int) fNBits
+   std::cout << "Binary number : " << const_cast<Binary_t<T>*>(this)->String() << " : fNBits=" << (int) fNBits
        << " fNBitsRep=" << (int) fNBitsRep << " fVal=" << (Long64_t)
-       Value() << endl;
+       Value() << std::endl;
 }
 
 template < class T > T Binary_t < T >::Subvalue(UChar_t firstbit,

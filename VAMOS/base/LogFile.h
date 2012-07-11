@@ -18,7 +18,7 @@ class LogFile
   
   
   Char_t LogFileName;
-  ofstream Log;
+  std::ofstream Log;
   void Open(char *LogFileName); 
   void Close();
   

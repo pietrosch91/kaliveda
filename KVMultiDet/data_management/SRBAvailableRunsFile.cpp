@@ -13,6 +13,8 @@
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
 #define CHMODE(u,g,o) ((u << 6) + (g << 3) + o)
 
+using namespace std;
+
 ClassImp(SRBAvailableRunsFile)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,14 +43,30 @@ SRBAvailableRunsFile::~SRBAvailableRunsFile()
 }
 
 
-void SRBAvailableRunsFile::Update()
+void SRBAvailableRunsFile::Update(Bool_t no_existing_file)
 {
    //Examine the contents of the SRB container corresponding to this datatype
    //for parent dataset fDataSet.
-   //For each file found which corresponds to a run in the database gDataBase,
+   //For each file found which was not already in the list of available runs and
+   //which corresponds to a run in the database gDataBase,
    //we add an entry to the available runlist file:
    //      [run number]|[date of modification]|[name of file]
+   // For "old" runs we keep the existing informations (including KV version & username)
+   //
+   // When no_existing_file=kTRUE we are making an available runs file
+   // for the first time. There is no pre-existing file.
 
+   TString runlist;
+   AssignAndDelete(runlist,
+                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                                           GetFileName()));
+   if(!no_existing_file){
+      // read all existing informations
+      ReadFile();
+      //use "lockfile" to make sure nobody else tries to modify available_runs file
+      //while we are working on it
+      if(!runlist_lock.Lock(runlist.Data())) return;
+   }
    //open temporary file
    TString tmp_file_path(GetFileName());
    ofstream tmp_file;
@@ -84,8 +102,30 @@ void SRBAvailableRunsFile::Update()
 					KVDatime filedate;
 					if(!ExtractDateFromFileName(objs->GetName(), filedate))
 						filedate=objs->GetModTime();
-               //write in temporary runlist file '[run number]|[date of modification]|[name of file]
-               tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
+               
+               if(!no_existing_file){
+                  // was there already an entry for exactly the same file in the previous file ?
+                  Int_t occIdx=0;
+                  KVNameValueList* prevEntry = RunHasFileWithDateAndName(run->GetNumber(), objs->GetName(), filedate, occIdx);
+                  if(prevEntry){
+                     // copy infos of previous entry
+                     tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName();
+                     if(prevEntry->HasParameter(Form("KVVersion[%d]",occIdx))){
+                        tmp_file <<"|"<< prevEntry->GetStringValue(Form("KVVersion[%d]",occIdx)) <<"|"<<prevEntry->GetStringValue(Form("Username[%d]",occIdx));
+                     }
+                     tmp_file << endl;
+                  }
+                  else
+                  {
+                     // New Entry - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+                     tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
+                  }
+               }
+               else // no previous existing file
+               {
+                  // New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+                  tmp_file << run->GetNumber() << '|' << filedate.AsSQLString() << '|' << objs->GetName() << endl;
+               }
          }
       }
 
@@ -99,21 +139,19 @@ void SRBAvailableRunsFile::Update()
    //close temp file
    tmp_file.close();
 
-   //copy temporary file to KVFiles directory, overwrite previous
-   TString runlist;
-   AssignAndDelete(runlist,
-                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
-                                           GetFileName()));
-   //use "lockfile" to make sure nobody else tries to write available_runs file
-   //while we are copying it
-   if(!runlist_lock.Lock(runlist.Data())) return;
-
+   if(no_existing_file){
+      //use "lockfile" to make sure nobody else tries to modify available_runs file
+      //while we are working on it
+      if(!runlist_lock.Lock(runlist.Data())) return;
+   }
+   
+   //copy temporary file to KVFiles directory, overwrite previous   
    gSystem->CopyFile(tmp_file_path, runlist, kTRUE);
    //set access permissions to 664
    gSystem->Chmod(runlist.Data(), CHMODE(6,6,4));
 
-   //remove lockfile
-   runlist_lock.Release();
+      //remove lockfile
+      runlist_lock.Release();
 
    //delete temp file
    gSystem->Unlink(tmp_file_path);

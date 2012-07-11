@@ -21,6 +21,8 @@ $Id: KVDBRun.cpp,v 1.14 2009/03/12 14:01:02 franklan Exp $
 #include "TObjString.h"
 #include "TObjArray.h"
 
+using namespace std;
+
 ClassImp(KVDBRun);
 ///////////////////////////////////////////////////
 //KVDBRun

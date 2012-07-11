@@ -358,6 +358,19 @@ TF1* KVSilicon::GetELossFunction(Int_t Z, Int_t A)
    return KVDetector::GetELossFunction(Z,A);
 }
 
+void KVSilicon::DeduceACQParameters(Int_t zz,Int_t aa)
+{
+
+	Double_t volts = GetVoltsFromEnergy(GetEnergy());
+	Int_t cipg = (Int_t)GetCanalPGFromVolts(volts);
+	Int_t cigg = (Int_t)GetCanalGGFromVolts(volts);
+	//cout << "chio: pg = " << cipg << " gg = " << cigg << endl;
+	GetACQParam("PG")->SetData((UShort_t)TMath::Min(4095,cipg));
+	GetACQParam("GG")->SetData((UShort_t)TMath::Min(4095,cigg));
+	GetACQParam("T")->SetData(110);
+}
+
+
 //__________________________________________________________________________________________
 
 ClassImp(KVSi75)

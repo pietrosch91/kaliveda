@@ -4,6 +4,10 @@
 #include "KVNameValueList.h"
 #include "KVNamedParameter.h"
 #include "Riostream.h"
+#include <TEnv.h>
+#include <TROOT.h>
+
+using namespace std;
 
 ClassImp(KVNameValueList)
 
@@ -98,10 +102,14 @@ void KVNameValueList::Clear(Option_t* opt)
 void KVNameValueList::Print(Option_t* opt) const
 {
 	//Print stored parameters (name, and value)
-	cout << GetName()<<" list : " <<GetTitle() <<" ("<< this << ")"<<endl;
+   
+   TROOT::IndentLevel();
+	cout << "KVNameValueList::"<<GetName()<<" : " <<GetTitle() <<" ("<< this << ")"<<endl;
+   TROOT::IncreaseDirLevel();
 	for (Int_t ii=0;ii<GetNpar();ii+=1){
       GetParameter(ii)->ls();
    }
+   TROOT::DecreaseDirLevel();
 }
 
 //______________________________________________
@@ -130,16 +138,18 @@ Int_t KVNameValueList::Compare(const TObject* obj) const
 	Int_t neq=0;
 	Int_t np1 = GetNpar();
 	Int_t np2 = nvl->GetNpar();
-	for (Int_t ii=0;ii<np1;ii+=1)
-	  for (Int_t jj=0;jj<np2;jj+=1)
+	for (Int_t ii=0;ii<np1;ii+=1){
+	  for (Int_t jj=0;jj<np2;jj+=1){
+        
 	     if ( *(GetParameter(ii)) == *(GetParameter(jj)) )  neq+=1;
-
+     }
+   }     
 	return neq;
 	 
 }
 
 //______________________________________________
-void KVNameValueList::SetValue(const Char_t* name,const Char_t* value)
+void KVNameValueList::SetValue_str(const Char_t* name,const Char_t* value)
 {
 	//associate a parameter (defined by its name) and a value
 	//if the parameter is not in the list, it is added
@@ -150,13 +160,42 @@ void KVNameValueList::SetValue(const Char_t* name,const Char_t* value)
 }
 
 //______________________________________________
-void KVNameValueList::SetValue(const Char_t* name,Int_t value)
+void KVNameValueList::SetValue_int(const Char_t* name,Int_t value)
 {
 	//associate a parameter (define by its name) and a value
 	//if the parameter is not in the list, it is added
 	//if it's in the list replace its value
    KVNamedParameter* par = FindParameter(name);
 	par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));	
+}
+
+//______________________________________________
+void KVNameValueList::SetValue_flt(const Char_t* name,Double_t value)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is added
+	//if it's in the list replace its value
+   KVNamedParameter* par = FindParameter(name);
+	par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));	
+}
+
+//______________________________________________
+void KVNameValueList::SetValue(const Char_t* name,const Char_t* value)
+{
+	//associate a parameter (defined by its name) and a value
+	//if the parameter is not in the list, it is added
+	//if it's in the list replace its value
+	
+   SetValue_str(name,value);
+}
+
+//______________________________________________
+void KVNameValueList::SetValue(const Char_t* name,Int_t value)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is added
+	//if it's in the list replace its value
+   SetValue_int(name,value);
 }
 
 //______________________________________________
@@ -165,12 +204,12 @@ void KVNameValueList::SetValue(const Char_t* name,Double_t value)
 	//associate a parameter (define by its name) and a value
 	//if the parameter is not in the list, it is added
 	//if it's in the list replace its value
-   KVNamedParameter* par = FindParameter(name);
-	par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));	
+   SetValue_flt(name,value);
 }
 
 //______________________________________________
-KVNamedParameter* KVNameValueList::FindParameter(const Char_t* name) const{
+KVNamedParameter* KVNameValueList::FindParameter(const Char_t* name) const
+{
 	//return the parameter object with the asking name
 	return (KVNamedParameter *)fList.FindObject(name);
 }
@@ -195,7 +234,7 @@ void KVNameValueList::RemoveParameter(const Char_t* name)
 }
 
 //______________________________________________
-Bool_t KVNameValueList::HasParameter(const Char_t* name)
+Bool_t KVNameValueList::HasParameter(const Char_t* name) const
 {
 	//Check if there is a parameter with the asked name
 	//in the list
@@ -344,4 +383,49 @@ Bool_t KVNameValueList::IsValue(const Char_t* name,Double_t value)
       return (*par)==tmp;
    }
    return kFALSE;
+}
+
+void KVNameValueList::ReadEnvFile(const Char_t* filename)
+{
+   // Read all name-value pairs in the TEnv format file and store in list.
+   // Clears any previously stored values.
+   
+   Clear();
+   TEnv env_file;
+   Int_t status = env_file.ReadFile(filename,kEnvAll);
+   if(status==-1){
+      Error("ReadEnvFile", "The file %s does not exist", filename);
+      return;
+   }
+   THashList* name_value_list = env_file.GetTable();
+   TIter next_nv(name_value_list);
+   TEnvRec* nv_pair;
+   while( (nv_pair = (TEnvRec*)next_nv()) ){
+      TString parname(nv_pair->GetName());
+      if(parname=="KVNameValueList.Name") SetName(nv_pair->GetValue());
+      else if(parname=="KVNameValueList.Title") SetTitle(nv_pair->GetValue());
+      else
+      {
+         TString parval(nv_pair->GetValue());
+         if(parval.IsDigit()) SetValue(parname,parval.Atoi());
+         else if(parval.IsFloat()) SetValue(parname,parval.Atof());
+         else SetValue(parname,parval);
+      }
+   }
+}
+
+void KVNameValueList::WriteEnvFile(const Char_t* filename)
+{
+   // Write all name-value pairs in this list as a TEnv format file.
+   
+   TEnv envile(filename);
+   envile.SetValue("KVNameValueList.Name",GetName());
+   envile.SetValue("KVNameValueList.Title",GetTitle());
+	for (Int_t ii=0;ii<GetNpar();ii+=1){
+      KVNamedParameter* par = GetParameter(ii);
+      if(par->IsString()) envile.SetValue(par->GetName(),par->GetString());
+      else if(par->IsInt()) envile.SetValue(par->GetName(),par->GetInt());
+      else if(par->IsDouble()) envile.SetValue(par->GetName(),par->GetDouble());
+   }
+   envile.Save();
 }

@@ -7,6 +7,8 @@
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
 
+using namespace std;
+
 ClassImp(KV_CCIN2P3_GE)
 ////////////////////////////////////////////////////////////////////////////////
 /*

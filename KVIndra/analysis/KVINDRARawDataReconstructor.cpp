@@ -16,6 +16,8 @@ $Date: 2008/10/17 10:58:07 $
 #include "KVDataRepository.h"
 #include "RVersion.h"
 
+using namespace std;
+
 ClassImp(KVINDRARawDataReconstructor)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,16 +47,7 @@ KVINDRARawDataReconstructor::~KVINDRARawDataReconstructor()
 
 void KVINDRARawDataReconstructor::InitAnalysis()
 {
-   // Create new KVINDRAReconEvent used to reconstruct & store events
-   // The condition used to seed new reconstructed particles (see KVReconstructedEvent::AnalyseTelescopes)
-   // is set by reading the value of the environment variables:
-   //     Reconstruction.DataAnalysisTask.ParticleSeedCond:        [all/any]
-   //     [name of dataset].Reconstruction.DataAnalysisTask.ParticleSeedCond:     [all/any]
-   // If no value is set for the current dataset (second variable), the value of the
-   // first variable will be used.
-   
-   if(!recev) recev = new KVINDRAReconEvent;
-   recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
+
 }
 
 //______________________________________________________________________________________//
@@ -72,6 +65,17 @@ void KVINDRARawDataReconstructor::InitRun()
    // first variable will be used. If neither is defined, the new file will be written in the same repository as
    // the raw file (if possible, i.e. if repository is not remote).
    
+   // Create new KVINDRAReconEvent used to reconstruct & store events
+   // The condition used to seed new reconstructed particles (see KVReconstructedEvent::AnalyseTelescopes)
+   // is set by reading the value of the environment variables:
+   //     Reconstruction.DataAnalysisTask.ParticleSeedCond:        [all/any]
+   //     [name of dataset].Reconstruction.DataAnalysisTask.ParticleSeedCond:     [all/any]
+   // If no value is set for the current dataset (second variable), the value of the
+   // first variable will be used.
+ 
+	if(!recev) recev = new KVINDRAReconEvent;
+   recev->SetPartSeedCond( gDataSet->GetDataSetEnv("Reconstruction.DataAnalysisTask.ParticleSeedCond") );
+  
    // get dataset to which we must associate new run
    KVDataSet* OutputDataset =
       gDataRepositoryManager->GetDataSet(
@@ -164,10 +168,11 @@ Bool_t KVINDRARawDataReconstructor::Analysis()
 	//    *) event reconstruction is performed for 'Physics' events
 	//    *) or the GeneTree is filled with pulser/laser data for 'Gene' events
 	
+   recev->SetNumber( GetEventNumber() );		         
+
    if( gIndra->GetTriggerInfo()->IsINDRAEvent() ){
       if( gIndra->GetTriggerInfo()->IsPhysics() ){
          recev->ReconstructEvent( (KVDetectorEvent*)GetDetectorEvent() );
-         recev->SetNumber( GetEventNumber() );		         
          nb_recon++;
          ExtraProcessing();
       }

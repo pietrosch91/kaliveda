@@ -132,9 +132,20 @@ class KVNucleus:public KVParticle {
    Bool_t IsResonance() const;
    Double_t GetWidth() const;
    
-   void SetExcitEnergy(Double_t e);
+	virtual void SetMass(Double_t m) {
+      fExx = 0;
+		SetXYZM(Px(), Py(), Pz(), m);
+   };
+	void SetExcitEnergy(Double_t e){
+		//Modification of the Mass and the total Energy of the nucleus
+		SetMass(GetMassGS()+e);
+		fExx = e;
+	}
    Double_t GetExcitEnergy() const {
       return fExx;
+   };
+	Double_t GetMassGS() const {
+      return GetMass()-fExx;
    };
 	
 	Double_t GetLifeTime(Int_t z = -1, Int_t a = -1) const;

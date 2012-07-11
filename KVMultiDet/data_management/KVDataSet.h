@@ -154,7 +154,7 @@ class KVDataSet:public KVBase {
    void DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm=kTRUE);
    void DeleteRunfiles(const Char_t * type, KVNumberList lrun="", Bool_t confirm=kTRUE);
    KVNumberList GetRunList_DateSelection(const Char_t * type,TDatime* min=0,TDatime* max=0);
-	KVNumberList GetRunList_StageSelection(const Char_t *other_type, const Char_t* base_type, KVDBSystem* sys=0);
+	KVNumberList GetRunList_StageSelection(const Char_t *other_type, const Char_t* base_type, KVDBSystem* sys=0,Bool_t OnlyCol=kFALSE);
    KVNumberList GetRunList_VersionSelection(const Char_t* type, const Char_t* version, KVDBSystem* sys=0);
    void SetRepository(KVDataRepository *);
    KVDataRepository *GetRepository() const;
@@ -176,7 +176,7 @@ class KVDataSet:public KVBase {
 
    virtual void MakeAnalysisClass(const Char_t* task, const Char_t* classname);
 
-   virtual Bool_t OpenDataSetFile(const Char_t* filename, ifstream& file);
+   virtual Bool_t OpenDataSetFile(const Char_t* filename, std::ifstream& file);
 	virtual Bool_t DataBaseNeedsUpdate();
 
    ClassDef(KVDataSet, 2)       //Describes a set of experimental data which may be analysed with KaliVeda

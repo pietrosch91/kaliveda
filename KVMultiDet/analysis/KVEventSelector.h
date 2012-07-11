@@ -118,6 +118,9 @@ public:
    const Char_t* GetBranchName() const {
       return fBranchName.Data();
    };
+   virtual void SetAnalysisFrame()
+   {
+   };
 
    KVEvent* GetEvent() const {
       return Event;
@@ -244,7 +247,7 @@ Bool_t KVEventSelector::Notify()
    if (fNotifyCalled) return kTRUE; // avoid multiple calls at beginning of analysis
    fNotifyCalled = kTRUE;
 
-   Info("Notify", "Beginning analysis of file %s (%ld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
+   Info("Notify", "Beginning analysis of file %s (%lld events)", fChain->GetCurrentFile()->GetName(), fChain->GetTree()->GetEntries());
 
    InitRun();                   //user initialisations for run
 

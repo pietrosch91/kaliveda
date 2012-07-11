@@ -35,9 +35,9 @@ class KVINDRAPulserDataTree : public KVBase
 	void CreateTree();
 	void ReadData();
 	void ReadData(Int_t);
-	void ReadFile(ifstream&);
-	Bool_t OpenGeneData(Int_t , ifstream &);
-	Bool_t OpenPinData(Int_t , ifstream &);
+	void ReadFile(std::ifstream&);
+	Bool_t OpenGeneData(Int_t , std::ifstream &);
+	Bool_t OpenPinData(Int_t , std::ifstream &);
 		
    public:
    KVINDRAPulserDataTree();

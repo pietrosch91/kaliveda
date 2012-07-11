@@ -4,6 +4,8 @@
 #include "SRBDataRepository.h"
 #include "KVDataSet.h"
 
+using namespace std;
+
 ClassImp(SRBDataRepository)
 
 ////////////////////////////////////////////////////////////////////////////////

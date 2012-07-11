@@ -10,15 +10,18 @@ class KVINDRADB_e613 : public KVINDRADB
 {
 
 	protected:
-	
+	virtual void ReadChIoPressures();
 	virtual void ReadGainList();
 	virtual void ReadPedestalList();
-	void ReadChannelVolt();
+	virtual void ReadChannelVolt();
+	virtual void ReadVoltEnergyChIoSi();
 	
 	public:
    KVINDRADB_e613();
    KVINDRADB_e613(const Char_t * name);
    virtual ~KVINDRADB_e613();
+
+	virtual void Build();
 
    
 	ClassDef(KVINDRADB_e613,1)//Child class for e613 experiment

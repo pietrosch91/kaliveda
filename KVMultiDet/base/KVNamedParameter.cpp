@@ -4,6 +4,9 @@
 #include "KVNamedParameter.h"
 #include "KVBase.h"
 #include "Riostream.h"
+#include "TROOT.h"
+
+using namespace std;
 
 ClassImp(KVNamedParameter)
 
@@ -106,7 +109,7 @@ const Char_t* KVNamedParameter::GetString() const
    // returns string if parameter value is of string type
    // if not, print warning and return empty string
    if (IsString()) return GetTitle();
-   Warning("GetString", "Parameter is of type %s", GetTitle());
+   Warning("GetString", "Parameter %s is of type %s", GetName(), GetTitle());
    return "";
 }
 
@@ -115,7 +118,7 @@ Double_t KVNamedParameter::GetDouble() const
    // returns double if parameter value is of numerical type
    // if string, print warning and return zero
    if (IsString()) {
-      Warning("GetDouble", "Parameter is a string : %s", GetTitle());
+      Warning("GetDouble", "Parameter %s is a string : %s", GetName(), GetTitle());
       return 0.0;
    }
    return fNumber;
@@ -126,7 +129,7 @@ Int_t KVNamedParameter::GetInt() const
    // returns integer if parameter value is of numerical type
    // if string, print warning and return zero
    if (IsString()) {
-      Warning("GetInt", "Parameter is a string : %s", GetTitle());
+      Warning("GetInt", "Parameter %s is a string : %s", GetName(), GetTitle());
       return 0;
    }
    return (Int_t)fNumber;
@@ -151,12 +154,15 @@ Bool_t KVNamedParameter::operator== (const KVNamedParameter& other) const
    switch (GetType()) {
       case kIsString:
          if (fTitle == other.fTitle) return kTRUE;
+         break;
 
       case kIsInt:
          if (other.GetInt() == GetInt()) return kTRUE;
+         break;
 
       case kIsDouble:
          return KVBase::AreEqual(other.GetDouble(), GetDouble());
+         break;
 
       default:
          return kFALSE;
@@ -174,6 +180,7 @@ void KVNamedParameter::Print(Option_t* opt) const
 
 void KVNamedParameter::ls(Option_t* opt) const
 {
+   TROOT::IndentLevel();
    if (IsString()) {
       cout << "<"<<GetName() << "=" << GetTitle() <<">"<< endl;
    } else {

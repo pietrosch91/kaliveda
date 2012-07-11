@@ -39,11 +39,11 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 
  private:
 
-   ifstream __ifpeaks;          //!ifstream for calibration peaks file
+   std::ifstream __ifpeaks;          //!ifstream for calibration peaks file
 
  protected:
 
-   Bool_t OpenCalibFile(const Char_t * type, ifstream & fs) const;
+   Bool_t OpenCalibFile(const Char_t * type, std::ifstream & fs) const;
 
    //General information
 
@@ -60,7 +60,9 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    KVDBTable *fChanVolt;        //-> ChIo/Si channel-volt calibration parameters
    KVDBTable *fVoltMeVChIoSi;   //-> ChIo/Si volt-energy calibration
    KVDBTable *fLitEnerCsI;      //->CsI light-energy calibration for Z>1
-   KVDBTable *fLitEnerCsIZ1;      //->CsI light-energy calibration for Z=1
+   KVDBTable *fLitEnerCsIZ1;		//->CsI light-energy calibration for Z=1
+   KVDBTable *fAbsentDet;			//(optional) Liste les detecteurs absents 
+   KVDBTable *fOoODet;				//(optional) Liste les detecteurs hors service
 
 	KVINDRAPulserDataTree *fPulserData;  //! mean values of pulsers for all detectors & runs
 
@@ -83,11 +85,15 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    virtual void ReadLightEnergyCsI(const Char_t*,KVDBTable*);
    virtual void ReadCalibCsI();
    virtual void ReadPedestalList();
-
-   //calibration peaks database
+	
+	virtual void ReadAbsentDetectors();
+	virtual void ReadOoODetectors();
+   
+	
+	//calibration peaks database
    Bool_t OpenCalibrationPeakFile();
    void CloseCalibrationPeakFile();
-    ifstream & GetPeakFileStream() {
+    std::ifstream & GetPeakFileStream() {
       return __ifpeaks;
    };
 

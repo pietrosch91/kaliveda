@@ -26,6 +26,8 @@ $Author: franklan $
 #include "TClass.h"
 #include "THashList.h"
 
+using namespace std;
+
 ClassImp(KVDataAnalyser)
 //////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -709,7 +711,7 @@ void KVDataAnalyser::SetDataSet(KVDataSet * ds)
    //check repository
    if (ds->GetRepository() != gDataRepository) {
       Error("SetDataSet",
-            "%#x is address of dataset in repository \"%s\", not of the dataset in the current repository, \"%s\"",
+            "%ld is address of dataset in repository \"%s\", not of the dataset in the current repository, \"%s\"",
             (ULong_t) ds, ds->GetRepository()->GetName(),
             gDataRepository->GetName());
       fDataSet = 0;
@@ -1367,23 +1369,7 @@ const Char_t* KVDataAnalyser::SystemBatchName()
    static KVString tmp;
    tmp = "Unknown";
    if(!fSystem) return tmp.Data();
-   tmp ="";
-   if(fSystem->GetKinematics()){
-      if(fSystem->GetKinematics()->GetNucleus(1)){
-         tmp=fSystem->GetKinematics()->GetNucleus(1)->GetSymbol();
-      }
-      if(fSystem->GetKinematics()->GetNucleus(2)){
-         tmp+=fSystem->GetKinematics()->GetNucleus(2)->GetSymbol();
-      }
-      if(fSystem->GetEbeam()>0){
-         tmp+=TMath::Nint(fSystem->GetEbeam());
-      }
-   }
-   if(tmp==""){
-      tmp = fSystem->GetName();
-      tmp.ReplaceAll(" ", "_");
-   }
-   return tmp.Data();
+   return fSystem->GetBatchName();
 }
 
 //__________________________________________________________________________________//

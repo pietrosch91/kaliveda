@@ -44,14 +44,16 @@ class KVIDGraph : public TCutG
 	TList 			fTelescopes;		//ID telescopes for which grid is valid
 	TString			fDyName; 			//!dynamically generated name
    TString  		fPattern;			//pattern of filenames used to write or read grid
-	Int_t fMassFormula;// *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
-	
+	Int_t          fMassFormula;     // *OPTION={GetMethod="GetMassFormula";SetMethod="SetMassFormula";Items=(0="Beta-stability", 1="VEDA mass", 2="EAL mass", 3="EAL residues", 99="2Z+1")}*
+	KVIDGraph*     fLastSavedVersion;//!copy of last save version of grid, used for 'undo'
+   static Bool_t  fAutoAddGridManager;//if =kTRUE, grids are automatically added to ID grid manager on creation (default)
+   
    void Scale(Double_t sx = -1, Double_t sy = -1);
-   virtual void ReadFromAsciiFile(ifstream & gridfile);
-   virtual void WriteToAsciiFile(ofstream & gridfile);
+   virtual void ReadFromAsciiFile(std::ifstream & gridfile);
+   virtual void WriteToAsciiFile(std::ofstream & gridfile);
    void init();
 	virtual KVIDentifier* New(const Char_t*);
-	virtual void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, ifstream& gridfile);
+	virtual void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, std::ifstream& gridfile);
 	void FillListOfIDTelescopes();
 	void WriteParameterListOfIDTelescopes();
 	virtual void BackwardsCompatibilityFix();
@@ -64,12 +66,13 @@ class KVIDGraph : public TCutG
    	return kTRUE;
 	};
 	
-	
    public:
 			
    KVIDGraph();
    KVIDGraph(const KVIDGraph &);
    virtual ~KVIDGraph();
+   
+   virtual void Browse(TBrowser* b);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
 #else
@@ -78,6 +81,15 @@ class KVIDGraph : public TCutG
    virtual void Identify(Double_t /*x*/, Double_t /*y*/, KVIdentificationResult*) const = 0;   
    virtual void Initialize()=0; 
    virtual Bool_t IsIdentifiable(Double_t /*x*/, Double_t /*y*/) const;
+   
+   static void SetAutoAdd(Bool_t yes=kTRUE){
+      // after calling KVIDGraph::SetAutoAdd(), all grids are automatically added to ID Grid Manager
+      // after calling KVIDGraph::SetAutoAdd(kFALSE), this mechanism is disabled 
+      fAutoAddGridManager = yes;
+   };
+   KVIDGraph* GetLastSavedVersion() const { return fLastSavedVersion; };
+   void RevertToLastSavedVersion();
+	void UpdateLastSavedVersion();
 
 	static KVIDGraph* MakeIDGraph(const Char_t *);
 	

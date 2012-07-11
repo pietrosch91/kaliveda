@@ -12,6 +12,8 @@ $Date: 2008/11/12 10:01:24 $
 #include <cstdlib>
 #include <stdlib.h>
 
+using namespace std;
+
 ClassImp(Analysisv_e503)
 
 ////////////////////////////////////////////////////////////////////////////////

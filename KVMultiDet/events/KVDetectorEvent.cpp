@@ -19,6 +19,8 @@ $Id: KVDetectorEvent.cpp,v 1.14 2006/10/19 14:32:43 franklan Exp $
 #include "Riostream.h"
 #include "KVDetectorEvent.h"
 
+using namespace std;
+
 ClassImp(KVDetectorEvent);
 
 //////////////////////////////////////////////

@@ -112,12 +112,12 @@ template < class T > const T & KVParameterList <
    KVParameter < T > *par =
        (KVParameter < T > *)fParameters->FindObject(name);
    if (!par) {
-      cout << "FatalError in <KVParameterList::GetParameter> : ";
-      cout << "No parameter " << name <<
+      std::cout << "FatalError in <KVParameterList::GetParameter> : ";
+      std::cout << "No parameter " << name <<
           " defined. You should use KVParameterList::HasParameter(const Char_t*)";
-      cout <<
+      std::cout <<
           " to check the existence of a parameter before calling this method. Program will exit."
-          << endl;
+          << std::endl;
       exit(EXIT_FAILURE);
    }
    return par->GetVal();
@@ -164,11 +164,11 @@ template < class T > void KVParameterList < T >::Print(Option_t * /*opt*/) const
    //Print list of parameters with their values
    if (GetNPar()) {
       for (int j = 0; j < GetNPar(); j++) {
-         cout << GetParameter(j)->GetName() << " = " << GetParameter(j)->
-             GetVal() << endl;
+         std::cout << GetParameter(j)->GetName() << " = " << GetParameter(j)->
+             GetVal() << std::endl;
       }
    } else {
-      cout << " (parameter list is empty)" << endl;
+      std::cout << " (parameter list is empty)" << std::endl;
    }
 }
 

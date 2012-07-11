@@ -19,6 +19,8 @@ $Id: KVIDCsIRLLine.cpp,v 1.6 2009/03/03 13:36:00 franklan Exp $
 #include "KVIDCsIRLLine.h"
 #include "Riostream.h"
 
+using namespace std;
+
 ClassImp(KVIDCsIRLLine)
 /////////////////////////////////////////////////////////////////////////////////////////
 //KVIDCsIRLLine

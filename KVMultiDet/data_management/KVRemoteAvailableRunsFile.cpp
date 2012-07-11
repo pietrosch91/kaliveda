@@ -13,6 +13,8 @@ $Date: 2008/02/08 08:19:59 $
 #include "TSystem.h"
 #include "TEnv.h"
 
+using namespace std;
+
 ClassImp(KVRemoteAvailableRunsFile)
 ////////////////////////////////////////////////////////////////////////////////
 // Access to lists of available runfiles in remote data repository via HTTP

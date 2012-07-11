@@ -15,6 +15,8 @@ $Id: KVINDRADB1.cpp,v 1.19 2007/04/26 16:40:57 franklan Exp $
 #include "KVRunListLine.h"
 #include "TString.h"
 
+using namespace std;
+
 ClassImp(KVINDRADB1)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //   Base de donnee pour la 1ere campagne INDRA.

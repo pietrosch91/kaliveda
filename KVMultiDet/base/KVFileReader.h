@@ -20,7 +20,7 @@ class KVFileReader : public KVBase
 	Bool_t status;
 	
 	public:
-	ifstream f_in;
+	std::ifstream f_in;
    
 	KVFileReader();
    virtual ~KVFileReader();

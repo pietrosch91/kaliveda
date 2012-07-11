@@ -6,6 +6,8 @@
 #include "KVMultiDetArray.h"
 #include "KVACQParam.h"
 
+using namespace std;
+
 ClassImp(KVReconstructedNucleus);
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -181,20 +183,23 @@ void KVReconstructedNucleus::Clear(Option_t * opt)
 
 void KVReconstructedNucleus::AddDetector(KVDetector * det)
 {
-    //Add a detector to the list of those through which the particle passed.
-    //Put reference to detector into fDetectors array, increase number of detectors by one.
-    //As this is only used in initial particle reconstruction, we add 1 unidentified particle to the detector.
-    // Creates KVHashList fDetList in case it does not exist.
+	//Add a detector to the list of those through which the particle passed.
+	//Put reference to detector into fDetectors array, increase number of detectors by one.
+	//As this is only used in initial particle reconstruction, we add 1 unidentified particle to the detector.
+	// Creates KVHashList fDetList in case it does not exist.
+	
+	//add name of detector to fDetNames
+	fDetNames += det->GetName();
+	fDetNames += "/";
+	// store pointer to detector
+	fDetList.Add(det);
+	if (det->IsDetecting()){
+    	//add segmentation index of detector to total segmentation index of particle
+    	fNSegDet += det->GetSegment();
+    	//add 1 unidentified particle to the detector
+		det->IncrementUnidentifiedParticles();
+	}
 
-    //add name of detector to fDetNames
-    fDetNames += det->GetName();
-    fDetNames += "/";
-    // store pointer to detector
-    fDetList.Add(det);
-    //add segmentation index of detector to total segmentation index of particle
-    fNSegDet += det->GetSegment();
-    //add 1 unidentified particle to the detector
-    det->IncrementUnidentifiedParticles();
 }
 
 //______________________________________________________________________________________________//

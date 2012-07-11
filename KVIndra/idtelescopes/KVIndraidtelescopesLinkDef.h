@@ -5,6 +5,7 @@
 #pragma link C++ class KVINDRAIDTelescope+;
 #pragma link C++ class KVIDSiCsI+;
 #pragma link C++ class KVIDSiCsI_e475s+;
+#pragma link C++ class KVIDSiCsI_e613+;
 #pragma link C++ class KVIDSiLiCsI+;
 #pragma link C++ class KVIDSi75SiLi+;
 #pragma link C++ class KVIDChIoSi+;

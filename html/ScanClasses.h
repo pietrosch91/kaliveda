@@ -23,7 +23,7 @@ class ScanClasses
    TList* fClassList;//list of releveant classes sorted into sublists by category (list of lists)
    TObjArray* cnames;//list containing names of all classes to be scanned
    KVString fTempString;//temporary string
-   ofstream list_file;//output HTML file
+   std::ofstream list_file;//output HTML file
    Int_t fMaxDottyCols;//used for alignment. default = 40
    Int_t nclasses;//total number of classes in all categories
    KVString fFilename;//name of HTML file to write

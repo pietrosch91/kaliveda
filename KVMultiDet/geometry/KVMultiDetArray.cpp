@@ -49,6 +49,8 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 #include "KVNameValueList.h"
 #include "KVUniqueNameList.h"
 
+using namespace std;
+
 ClassImp(KVMultiDetArray)
 //////////////////////////////////////////////////////////////////////////////////////
 //Begin_Html
@@ -356,12 +358,86 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //This method is called by KVGroup in order to set up all ID telescopes
     //of the array.
 
-    KVIDTelescope *idt = 0;
+	if ( !(de->IsOK() && e->IsOK()) ){
+		/*
+		Warning("GetIDTelescopes","Appel avec au moins un detecteur foireux %s(%d/%d), %s (%d/%d)",
+			de->GetName(),
+			de->IsPresent(),
+			de->IsDetecting(),
+			e->GetName(),
+			e->IsPresent(),
+			e->IsDetecting()
+		);
+		*/
+		return;
+	}
+	KVIDTelescope *idt = 0;
+
     if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
 	 Int_t de_thick = TMath::Nint(de->GetThickness());
 	 Int_t e_thick = TMath::Nint(e->GetThickness());
+    
     //first we look for ID telescopes specific to current dataset
+    //these are ID telescopes formed from two distinct detectors
     TString uri;
+    //look for ID telescopes with only one of the two detectors
+    uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
+             de_thick);
+    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        set_up_single_stage_telescope(de,idtels,idt,uri);
+    }
+    else
+    {
+        uri.Form("%s.%s", fDataSet.Data(), de->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_single_stage_telescope(de,idtels,idt,uri);
+        }
+        else
+        {
+            uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
+                     e_thick);
+            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                set_up_single_stage_telescope(e,idtels,idt,uri);
+            }
+            else
+            {
+                uri.Form("%s.%s", fDataSet.Data(), e->GetType());
+                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                    set_up_single_stage_telescope(e,idtels,idt,uri);
+                }
+                else
+                {
+                    uri.Form("%s%d", de->GetType(), de_thick);
+                    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                        set_up_single_stage_telescope(de,idtels,idt,uri);
+                    }
+                    else
+                    {
+                        uri.Form("%s", de->GetType());
+                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                            set_up_single_stage_telescope(de,idtels,idt,uri);
+                        }
+                        else
+                        {
+                            uri.Form("%s%d", e->GetType(), e_thick);
+                            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                                set_up_single_stage_telescope(e,idtels,idt,uri);
+                            }
+                            else
+                            {
+                                uri.Form("%s", e->GetType());
+                                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+                                    set_up_single_stage_telescope(e,idtels,idt,uri);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    idt = 0;
+if(de != e){
     uri.Form("%s.%s%d-%s%d", fDataSet.Data(), de->GetType(),
              de_thick, e->GetType(),
              e_thick);
@@ -423,70 +499,15 @@ void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
             }
         }
     }
-
-    //if no telescope found, try single-stage telescope
-    idt = 0;
-    //look for ID telescopes with only one of the two detectors
-    uri.Form("%s.%s%d", fDataSet.Data(), de->GetType(),
-             de_thick);
-    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-        set_up_single_stage_telescope(de,idtels,idt,uri);
-    }
-    else
-    {
-        uri.Form("%s.%s", fDataSet.Data(), de->GetType());
-        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-            set_up_single_stage_telescope(de,idtels,idt,uri);
-        }
-        else
-        {
-            uri.Form("%s.%s%d", fDataSet.Data(), e->GetType(),
-                     e_thick);
-            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                set_up_single_stage_telescope(e,idtels,idt,uri);
-            }
-            else
-            {
-                uri.Form("%s.%s", fDataSet.Data(), e->GetType());
-                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                    set_up_single_stage_telescope(e,idtels,idt,uri);
-                }
-                else
-                {
-                    uri.Form("%s%d", de->GetType(), de_thick);
-                    if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                        set_up_single_stage_telescope(de,idtels,idt,uri);
-                    }
-                    else
-                    {
-                        uri.Form("%s", de->GetType());
-                        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                            set_up_single_stage_telescope(de,idtels,idt,uri);
-                        }
-                        else
-                        {
-                            uri.Form("%s%d", e->GetType(), e_thick);
-                            if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                                set_up_single_stage_telescope(e,idtels,idt,uri);
-                            }
-                            else
-                            {
-                                uri.Form("%s", e->GetType());
-                                if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
-                                    set_up_single_stage_telescope(e,idtels,idt,uri);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+} 
+	 
 }
 
 void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri)
 {
-    idt->AddDetector(de);
+    //Info("set_up_telescope","de det %s e det %s -> %s",de->GetName(),e->GetName(),uri.Data());
+
+	 idt->AddDetector(de);
     idt->AddDetector(e);
     if (de->GetGroup()) {
         idt->SetGroup(de->GetGroup());
@@ -788,9 +809,12 @@ void KVMultiDetArray::Print(Option_t * opt) const
 
 //__________________________________________________________________________________
 
-void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event)
+void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame)
 {
     //Simulate detection of event by multidetector array.
+    //
+    // optional argument detection_frame(="" by default) can be used to give name of
+    // inertial reference frame (defined for all particles of 'event') to be used.
     //
     //For each particle in the event we calculate first its energy loss in the target (if the target has been defined, see KVMultiDetArray::SetTarget).
     //By default these energy losses are calculated from a point half-way along the beam-direction through the target (taking into account the orientation
@@ -845,21 +869,24 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
     	fHitGroups->Clear();
 	}
 	
+	KVNameValueList* un = new KVNameValueList(); 
+	TObjArray* toks = 0;
+	
 	// iterate through list of particles
-	KVNucleus *part;
+	KVNucleus *part,*_part;
 	KVNameValueList* det_stat = new KVNameValueList();
 	KVNameValueList* nvl = 0;
-	while ((part = event->GetNextParticle())) {  // loop over particles
+	while ((part = event->GetNextParticle())) {  // loop over particles in required frame
 #ifdef KV_DEBUG
 		cout << "DetectEvent(): looking at particle---->" << endl;
 		part->Print();
 #endif
-		
-		part->SetE0();
+		_part=(KVNucleus*)part->GetFrame(detection_frame);
+		_part->SetE0();
 		det_stat->Clear();
 		Double_t eLostInTarget=0;
 		
-		if (part->GetKE()==0) { 
+		if (_part->GetKE()==0) { 
 			det_stat->SetValue("UNDETECTED","NO ENERGY");
 			
 			part->AddGroup("UNDETECTED"); 
@@ -872,10 +899,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 			if (fTarget){
 				fTarget->SetOutgoing(kTRUE);
 				//simulate passage through target material
-				Double_t ebef = part->GetKE();
-				fTarget->DetectParticle(part);
-				eLostInTarget = ebef-part->GetKE();
-				if (part->GetKE()==0) {
+				Double_t ebef = _part->GetKE();
+				fTarget->DetectParticle(_part);
+				eLostInTarget = ebef-_part->GetKE();
+				if (_part->GetKE()==0) {
 					det_stat->SetValue("UNDETECTED","STOPPED IN TARGET"); 
 					
 					part->AddGroup("UNDETECTED");
@@ -885,12 +912,12 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				fTarget->SetOutgoing(kFALSE);	
 			}
 		
-			if (part->GetKE()==0) { 
+			if (_part->GetKE()==0) { 
 			
 			}
 			else {
 				//KVNameValueList* nvl = 0;
-				if ( !(nvl = DetectParticle(part)) ) {
+				if ( !(nvl = DetectParticle(_part)) ) {
 					det_stat->SetValue("UNDETECTED","DEAD ZONE"); 
 					
 					part->AddGroup("UNDETECTED"); 
@@ -917,7 +944,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					//Test de la trajectoire coherente
 					while ( ( dd = (KVDetector* )it1.Next() ) ){
 						if (dd->GetHits()){
-							if (dd->GetHits()->FindObject(part)) ntrav+=1;	
+							if (dd->GetHits()->FindObject(_part)) ntrav+=1;	
 							else 
 								if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
@@ -925,8 +952,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
 						}
 					}
-				
+					
 					if (ntrav != ldet->GetEntries()){
+					
 						// la particule a une trajectoire
 						// incoherente, elle a loupe un detecteur avec une ouverture 
 						// plus large que ceux a la suite ou la particule est passe
@@ -942,7 +970,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						it1.Reset();
 						//Warning("DetectEvent","trajectoire incoherente ...");
 						while ( ( dd = (KVDetector* )it1.Next() ) )
-							if (dd->GetHits() && dd->GetHits()->FindObject(part)){
+							if (dd->GetHits() && dd->GetHits()->FindObject(_part)){
 								if ( nvl->HasParameter(dd->GetName()) ){
 									Double_t el = dd->GetEnergy();
 									el -= nvl->GetDoubleValue(dd->GetName());
@@ -950,13 +978,13 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 									if (dd->GetNHits()==1)
 										dd->SetEnergyLoss(0);
 								}
-								dd->GetHits()->Remove(part);
+								dd->GetHits()->Remove(_part);
 							}
 						det_stat->SetValue("UNDETECTED","GEOMETRY INCOHERENCY");
 						
 						part->AddGroup("UNDETECTED");
 						part->AddGroup("GEOMETRY INCOHERENCY");
-						
+					
 					}
 					else {
 						
@@ -970,7 +998,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							
 							//On retire la particule du detecteur considere 
 							//
-							last_det->GetHits()->Remove(part);
+							last_det->GetHits()->Remove(_part);
 							//Warning("DetectEvent","threshold ...");
 						}
 						else {
@@ -994,7 +1022,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							
 							//Test d'une energie residuelle non nulle
 							//La particule n a pas ete arrete par le detecteur
-							if (part->GetKE()>0){
+							if (_part->GetKE()>0){
 								if (nbre_nvl != Int_t(last_det->GetGroup()->GetNumberOfDetectorLayers())){
 									//----
 									// Fuite, 
@@ -1034,15 +1062,46 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				
 			for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
 				part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
+				//On enregistre les detecteurs touches avec le Z et A de la particule
+				//Si il y a plusieurs particules, on somme les Z et A de celles ci
+				//Cela servira pour deduire les parametres d acquisition
+				//printf("%s %d %d\n",nvl->GetNameAt(ii),part->GetZ(),part->GetA());
+				if (un->HasParameter(nvl->GetNameAt(ii))){
+					TString a_z(un->GetStringValue(nvl->GetNameAt(ii)));
+					toks = a_z.Tokenize(" ");
+					Int_t zz  = part->GetZ()+((TObjString* )toks->At(0))->GetString().Atoi();
+					Int_t aa  = part->GetA()+((TObjString* )toks->At(1))->GetString().Atoi();
+					un->SetValue(nvl->GetNameAt(ii),Form("%d %d",zz,aa));
+					delete toks;
+				}
+				else {	
+					un->SetValue(nvl->GetNameAt(ii),Form("%d %d",part->GetZ(),part->GetA()));
+				}
 			}
 			delete nvl;
 			nvl = 0;
 		}
-		part->SetMomentum(*part->GetPInitial());
+		_part->SetMomentum(*_part->GetPInitial());
 
 	} 	//fin de loop over particles
 	
 	delete det_stat;
+	
+	//On calcule les parametres d acquisition
+	//un->Print();
+	KVDetector* det = 0;
+	for (Int_t nn=0;nn<un->GetNpar();nn+=1){
+	
+		det = GetDetector(un->GetNameAt(nn));
+		TString a_z(un->GetStringValue(nn));
+		toks = a_z.Tokenize(" ");
+		Int_t zz  = ((TObjString* )toks->At(0))->GetString().Atoi();
+		Int_t aa  = ((TObjString* )toks->At(1))->GetString().Atoi();
+		
+		det->DeduceACQParameters(zz,aa);
+		delete toks;
+	}
+	delete un;
 	
     // before reconstruction we have to clear the list of 'hits' of each detector
     // (they currently hold the addresses of the simulated particles which were detected)
@@ -1054,8 +1113,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    while ((grp_tch = (KVGroup *) nxt_grp())) {
    	grp_tch->ClearHitDetectors();
    }
-    // reconstruct the event
-    rec_event->ReconstructEvent(fHitGroups);
+	// reconstruct the event
+	rec_event->ReconstructEvent(fHitGroups);
 
 }
 

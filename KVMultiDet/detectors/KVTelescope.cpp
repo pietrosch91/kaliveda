@@ -29,6 +29,8 @@ $Id: KVTelescope.cpp,v 1.29 2007/05/31 09:59:22 franklan Exp $
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 
+using namespace std;
+
 ClassImp(KVTelescope)
 /////////////////////////////////////////////////////////////////////////
 // KVTelescope
@@ -178,7 +180,6 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
    
 	TIter next(GetDetectors());
    while ((obj = (KVDetector *) next())) {
-		
 		Double_t ebefore = obj->GetEnergy();	//Energie dans le detecteur avant passage
 		obj->DetectParticle(kvp);					//Detection de la particule
       ebefore -= obj->GetEnergy();				//la difference d energie avant et apres passage (donc l energie laissee par la particule)   
