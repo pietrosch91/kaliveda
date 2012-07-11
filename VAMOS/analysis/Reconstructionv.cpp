@@ -484,7 +484,8 @@ void Reconstructionv::outAttach(TTree *outT)
   outT->Branch("PhiLdeg",&PhiLdeg,"PhiLdeg/F");
   outT->Branch("corr_pl",&corr_pl,"corr_pl/D");  
   outT->Branch("Brho_tag",&Brho_tag,"Brho_tag/I");
-    
+  outT->Branch("Delta",&deltat,"deltat/D");
+      
   /*outT->Branch("Brho_y",&Brho_y,"Brho_y/F");
   outT->Branch("Theta_y",&Theta_y,"Theta_y/F");
   outT->Branch("Path_y",&Path_y,"Path_y/F");

@@ -124,12 +124,9 @@ void CsICalib::InitTelescope(Int_t si_num ,Int_t csi_num)
     
     Char_t si_name [128] = "null";
     Char_t csi_name [128] = "null";
-    string module_name;
 
     sprintf(si_name, "SIE_%02i", si_num+1); 
     sprintf(csi_name, "CSI%02i", csi_num+1);
-	
-    //module_name = GetModuleName(si_num, csi_num);		//Original
 
     Char_t tel_name [128] = "null";
     sprintf(tel_name, "SIE_%02i_CSI%02i", si_num+1, csi_num+1);
@@ -353,7 +350,7 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
     CompleteSimulation(chan);    
     difference = eEnergySi - sEnergySi;      
     difference *= factor;	
-    L->Log<<"A right : "<<right<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl; 
+    //L->Log<<"A right : "<<right<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl; 
     if(difference<0){
     	L->Log<<"Bisection error"<<endl;
     } 

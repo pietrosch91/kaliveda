@@ -41,12 +41,7 @@ class KVIVReconIdent : public KVINDRAReconIdent
    Bool_t Analysis();
    void EndAnalysis();
    
-   Int_t SetRunFlag(Int_t);
-   Int_t GetRunFlag();   
-   Int_t runFlag;
-   Int_t ReadModuleMap();	//const Char_t *
-   Bool_t LoadGrids();
-   string module_map[18][80];   
+   Bool_t LoadGrids(); 
    Int_t event;
    Int_t M_INDRA;
    Float_t  thetavam,brho;
@@ -55,9 +50,6 @@ class KVIVReconIdent : public KVINDRAReconIdent
    
    KVINDRAReconNuc *part;
    KVTelescope *kvt_sicsi;
-   /*KVSiliconVamos *kvd_si;
-   KVCsIVamos *kvd_csi;   
-   KVDetector *gap; */
    KVDetector *kvd_si;
    KVDetector *kvd_csi;   
    KVDetector *gap; 	  	

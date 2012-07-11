@@ -953,7 +953,7 @@ GetFileCut();
 // Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-4
 // Code_Vamos = 13 : Else
     
-  if(Z_corr>4 && Z_corr<21 && Qid>0){	// Flag les events pour Z = 5-20 et Qid>0
+  /*if(Z_corr>4 && Z_corr<21 && Qid>0){	// Flag les events pour Z = 5-20 et Qid>0
     if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-4){
 		Code_Vamos = 1;
 	}
@@ -975,7 +975,7 @@ GetFileCut();
 	else{
 		Code_Vamos = 13;
 	}
-  }
+  }*/
 //====================================================================================================
 /*  
   Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;

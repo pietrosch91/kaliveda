@@ -555,6 +555,12 @@ INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
+INDRA_e503.INDRADB.ChIoSiVoltMeVCalib:     CalibMeVVoltChIoSi.dat
+INDRA_e503.INDRADB.ElectronicCalibration:    ChVolt.dat
+INDRA_e503.INDRADB.ElectronicCalibration.Etalons:    ChVolt_e503_etalons.dat
+INDRA_e503.INDRADB.CalibCsI.Z=1:            CsICalibZ1.dat
+INDRA_e503.INDRADB.CalibCsI.Z>1:            CsICalibZ2.dat
+
 INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
 INDRA_e503.INDRADB.Pedestals:       PedestalsE503.dat
 INDRA_e494s.INDRADB.GGtoPGFactors:      ParamFitPG_GG.dat
