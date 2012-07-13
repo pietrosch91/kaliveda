@@ -745,6 +745,7 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
+INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
 INDRA_e503.IdentificationParameterFile.SI-CSI:      SI_CSI_C4-9_autofit.dat
 INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
@@ -767,7 +768,7 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 INDRA_camp5.ActiveIdentifications:      CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:      CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:       SI-CSI
-INDRA_e503.ActiveIdentifications:       SI-CSI CI-SI CI-CSI
+INDRA_e503.ActiveIdentifications:       SI-CSI CI-SI CI-CSI CSI
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 INDRA_e613.ActiveIdentifications:    CSI SI-CSI
