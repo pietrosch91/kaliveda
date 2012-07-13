@@ -1172,6 +1172,9 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
    static KVMaterial toto;
    KVIonRangeTable* RangeTable = toto.GetRangeTable();
    
+   // list of energy losses in active layers of detectors
+   KVNameValueList* NVL = 0;
+   
    // start from origin
    gGeoManager->SetCurrentPoint(0., 0., 0.);
    // unit vector in direction of particle's momentum
@@ -1189,11 +1192,16 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
    // track particle until we leave the geometry
    while (!gGeoManager->IsOutside()) {
       curDet = gMultiDetArray->GetDetector(lastVol->GetName());
+      
+      // create NVL when first detector is hit; if none are hit, NVL=0
+      if(curDet && !NVL) NVL = new KVNameValueList;
+      
       if(printit&&curDet) std::cout << "   NOW IN DETECTOR : " << curDet->GetName() << std::endl;
       if (printit) {
          std::cout << "will travel " << step << " cm in this material :";
          std::cout << lastVol->GetMaterial()->GetTitle() << std::endl;
       }
+      
       de = 0;
       if (RangeTable->IsMaterialKnown(lastVol->GetMaterial()->GetTitle())) {
          de =
@@ -1206,18 +1214,36 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
          if(printit&&lastVol->GetMaterial()->GetState()==TGeoMaterial::kMatStateGas)
             std::cout << "  gas pressure = " << lastVol->GetMaterial()->GetPressure() << std::endl;
          e -= de;
+         if(e<=1.e-3) e=0.;
+         // are we in the active layer of a detector ?   
+         if(curDet && (lastVol == curDet->GetActiveLayer()->GetAbsGeoVolume()))
+         {
+            if(printit){
+               std::cout << " *** ACTIVE LAYER ***" << std::endl;
+            }
+            curDet->AddHit(part);                 //add nucleus to list of particles hitting detector in the event
+            //set flag to say that particle has been slowed down
+            part->SetIsDetected();
+            //If this is the first absorber that the particle crosses, we set a "reminder" of its
+            //initial energy
+            if (!part->GetPInitial())
+            part->SetE0();
+            Double_t eloss_old = curDet->GetEnergyLoss();
+            curDet->SetEnergyLoss(eloss_old+de);
+            NVL->SetValue(curDet->GetName(),TMath::Abs(de));
+         }
       }
       lastVol = newVol;
       // stop when particle is stopped
-      if (e <= 0.) break;
+      if (e <= 1.e-3) break;
       // move on to next volume crossed by trajectory
       gGeoManager->FindNextBoundaryAndStep();
       step = gGeoManager->GetStep();
       newVol = gGeoManager->GetCurrentVolume();
    }
-   
-   // return KVNameValueList ?
-   return 0x0;
+   part->SetEnergy(e);
+   // return KVNameValueList
+   return NVL;
 }
 //____________________________________________________________________________________________
 void KVMultiDetArray::ReplaceTelescope(const Char_t * name,

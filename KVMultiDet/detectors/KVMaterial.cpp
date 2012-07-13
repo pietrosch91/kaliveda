@@ -59,6 +59,7 @@ void KVMaterial::init()
    if(!fIonRangeTable) {
       fIonRangeTable = KVIonRangeTable::GetRangeTable( gEnv->GetValue("KVMaterial.IonRangeTable", "VEDALOSS") );
    }
+   fAbsorberVolume = 0;
 }
 
 //

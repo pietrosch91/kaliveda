@@ -379,6 +379,8 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
    else
       fDetName.Form("%s_%02d%02d", det, ring, mod);
 
+   KVDetector* detWeMake = gMultiDetArray->GetDetector(fDetName);
+   
    TVector3 corners[8]; // 8 vertices of the volume
    Double_t vertices[16];
 
@@ -433,9 +435,12 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
          // single absorber: mother is absorber is detector is mother is ...
          fDetVolume = vol;
       }
+      // set reference to volume in absorber
+      detWeMake->GetAbsorber(no_abs-1)->SetAbsGeoVolume(vol);
+      
       depth_in_det += thick;
       no_abs++;
-
+      
       // front of next absorber is back of current absorber
       for (int i = 0; i < 4; i++) frontPlane[i] = backPlane[i];
       frontCentre = backCentre;
@@ -533,6 +538,7 @@ TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget)
 
    TGeoManager *geom = new TGeoManager("INDRA", Form("INDRA geometry for dataset %s", gDataSet->GetName()));
    TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+   matVacuum->SetTitle("Vacuum");
    TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
    TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
    geom->SetTopVolume(top);
@@ -577,6 +583,7 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
 
    TGeoManager *geom = new TGeoManager("INDRA", Form("INDRA geometry for dataset %s", gDataSet->GetName()));
    TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+   matVacuum->SetTitle("Vacuum");
    TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
    TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
    geom->SetTopVolume(top);
