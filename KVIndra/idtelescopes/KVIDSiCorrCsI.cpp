@@ -39,8 +39,8 @@ ClassImp(KVIDSiCorrCsI)
 
 //__________________________________________________________________________//
 
-void KVIDSiCorrCsI::Initialize() {
-
+void KVIDSiCorrCsI::Initialize() 
+{
     // Initialisation of telescope before identification.
     // This method MUST be called once before any identification is attempted.
     // IsReadyForID() will return kTRUE if KVTGID objects are associated
@@ -71,8 +71,8 @@ void KVIDSiCorrCsI::Initialize() {
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) {
-
+Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fCsILight = fCsI->GetLumiereTotale();
@@ -82,8 +82,8 @@ Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) {
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) {
-
+Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fSiCorr = -5.;
@@ -115,8 +115,8 @@ Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) {
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) {
-
+Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
+{
     Double_t xVar; xVar = x; // not used (Keeps the compiler quiet)
     Double_t yVar; yVar = y; // not used
 
@@ -143,9 +143,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     Double_t Z = -1.;
 
-    //PrintFitParameters();
-    
-    Bool_t inRange = (GetIDMapY("") < 4090.) 
+    const Bool_t inRange = (GetIDMapY("") < 4090.) 
                         && (GetIDMapY("") > 0.) 
                         && (GetIDMapX("") > 0.);
 
@@ -183,7 +181,6 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
             IDR->Zident = kTRUE;
             //subcode says "Z ok but A failed because..."
             IDR->IDquality = GetStatus();
-
         }else{                    //both Z and A successful ?
 
             ia = TMath::Nint(mass);
@@ -245,13 +242,14 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     // set general ID code
     IDR->IDcode = kIDCode3;
+
     return kTRUE;
 }
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) {
-
+Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) 
+{
     //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     //kind (label) in the multidetector array. Therefore this method need only be called once, and not
     //called for each telescope. The kind/label (returned by GetLabel) of the telescope corresponds
@@ -357,6 +355,7 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) {
             //add identification object to telescope's ID manager
             idt->AddTGID(_tgidZ);
             idt->AddTGID(_tgidA);
+
         }
     }
 
@@ -371,35 +370,27 @@ void KVIDSiCorrCsI::RemoveIdentificationParameters()
    RemoveAllTGID();
 }
 
-void KVIDSiCorrCsI::PrintFitParameters(){
+void KVIDSiCorrCsI::PrintFitParameters()
+{
+    KVTGID *tgidPrint = 0;
 
-    cout << endl;
-    cout << "___Fit Parameters___" << endl;
+    std::cout << "------------- TGID INFO [Z] ----------------" << std::endl;
+    tgidPrint = (KVTGID*) this->GetTGID(this->GetName(), "Z", "");
+    std::cout << "tgidPrint: " << tgidPrint << std::endl;
+    std::cout << "tgidLookup: " << GetTGIDName(this->GetName(), "Z", "") << std::endl;
 
-    KVTGID *tgid = 0;
-    cout << "KVTGID Name(2): " << GetTGIDName(GetName(), "", "") << endl;
-    tgid = GetTGID(GetTGIDName(GetName(), "", ""));
-            
-    if(tgid != 0){
-    
-       cout << "Functional Type: " << tgid->GetFunctionalType() << endl;
-       cout << "Light Energy Dependence: " << tgid->GetLightEnergyDependence() << endl;    
-       cout << endl;
-       cout << "Lambda: " << tgid->GetLambda() << endl;
-       cout << "Alpha: " << tgid->GetAlpha() << endl;
-       cout << "Beta: "  << tgid->GetBeta() << endl;
-       cout << "Mu: " << tgid->GetMu() << endl;
-       cout << "Nu: " << tgid->GetNu() << endl;
-       cout << "Xi: " << tgid->GetXi() << endl;
-       cout << "G: " << tgid->GetG() << endl;
-       cout << "Pdx: " << tgid->GetPdx() << endl;
-       cout << "Pdy: " << tgid->GetPdy() << endl;
-       cout << "Eta: " << tgid->GetEta() << endl;
-       cout << endl;
-   }else{
-       cout << "No fit parameters present" << endl;
-   }
+    if(tgidPrint != 0){
+        tgidPrint->Print();
+    }
 
-    cout << endl;
+    std::cout << "------------- TGID INFO [A] ----------------" << std::endl;
+    tgidPrint = (KVTGID*) this->GetTGID(this->GetName(), "A", "");
+    std::cout << "tgidPrint: " << tgidPrint << std::endl;
+    std::cout << "tgidLookup: " << GetTGIDName(this->GetName(), "A", "") << std::endl;
 
+    if(tgidPrint != 0){
+        tgidPrint->Print();
+    }
+
+    std::cout << "----------------- END-----------------------" << std::endl;
 }

@@ -82,7 +82,7 @@ endif
 #CXXFLAGS without optimisation for compilation of dictionaries
 #without this we cannot use NamespaceImp (in e.g. KVTGIDFunctions)
 OPT = -O
-OPT2 = -O2 -std=c++0x
+OPT2 = -O2 
 TMPFLAGS := $(filter-out $(OPT2),$(CXXFLAGS))
 CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
 

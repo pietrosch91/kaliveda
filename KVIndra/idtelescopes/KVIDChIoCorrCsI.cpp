@@ -23,11 +23,13 @@ ClassImp(KVIDChIoCorrCsI)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoCorrCsI::KVIDChIoCorrCsI() {
+KVIDChIoCorrCsI::KVIDChIoCorrCsI() 
+{
 
 }
 
-KVIDChIoCorrCsI::~KVIDChIoCorrCsI() {
+KVIDChIoCorrCsI::~KVIDChIoCorrCsI() 
+{
 
 }
 
@@ -71,9 +73,9 @@ void KVIDChIoCorrCsI::Initialize()
 
 //___________________________________________________________________________________________
 
-Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt) {
-
-    //'opt' has no effect.
+Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt) 
+{
+    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fCsILight = fCsI->GetLumiereTotale();
 
@@ -82,8 +84,8 @@ Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt) {
 
 //__________________________________________________________________________//
 
-Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *opt) {
-
+Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *opt) 
+{
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
     fChIoCorr = -5.;
@@ -118,8 +120,8 @@ Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *opt) {
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoCorrCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_t y) {
-
+Bool_t KVIDChIoCorrCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_t y) 
+{
     idr->SetIDType(GetType());
     idr->IDattempted = kTRUE;
 	
