@@ -52,8 +52,14 @@ Double_t KVPulseHeightDefect::PHDMoulton(Double_t * x, Double_t * par)
    // x[0] = E (MeV)
    // par[0] = Z
    
-   Int_t Z = par[0];
-   if( Z <= fZmin ) return 0;
+   Int_t      Z = par[0];
+   Double_t a_1 = GetParameter(0);
+   Double_t a_2 = GetParameter(1);
+   Double_t b_1 = GetParameter(2);
+   Double_t b_2 = GetParameter(3);
+   Int_t   Zmin = (Int_t)GetParameter(4);
+
+   if( Z <= Zmin ) return 0;
    Double_t a = a_1*Z*Z/1000. + a_2;
    Double_t b = b_1*100./Z + b_2;
    return (TMath::Power(10,b)*TMath::Power(x[0],a));
@@ -67,8 +73,6 @@ void KVPulseHeightDefect::init()
    SetType("Pulse Height Defect");
    SetZ(1);
    fMoulton = fDeltaEphd = 0;
-   a_1=a_2=b_1=b_2=0.;
-   fZmin=0;
 }
 
 KVPulseHeightDefect::KVPulseHeightDefect():KVCalibrator(5)
@@ -86,7 +90,9 @@ KVPulseHeightDefect::KVPulseHeightDefect(KVDetector*d):KVCalibrator(5)
 
 KVPulseHeightDefect::~KVPulseHeightDefect()
 {
-   //Destructor
+   	//Destructor
+   	SafeDelete(fMoulton);
+   	SafeDelete(fDeltaEphd);
 }
 
 //___________________________________________________________________________
@@ -128,6 +134,8 @@ TF1* KVPulseHeightDefect::GetELossFunction(Int_t Z, Int_t A)
       fDeltaEphd->SetNpx( gEnv->GetValue("KVPulseHeightDefect.EnergyLoss.Npx", 20) );
    }
    fDeltaEphd->SetParameters((Double_t)Z, (Double_t)A);
+   fDeltaEphd->SetRange(0., GetDetector()->GetSmallestEmaxValid(Z,A));
+   fDeltaEphd->SetTitle(Form("PHD dependent energy loss [MeV] in detector %s for Z=%d A=%d", GetDetector()->GetName(), Z, A));
    GetMoultonPHDFunction(Z);
    return fDeltaEphd;
 }
@@ -162,11 +170,6 @@ Double_t KVPulseHeightDefect::ELossActive(Double_t *x, Double_t *par)
       if(!fMoulton) {
          fMoulton = new TF1(Form("MoultonPHD:%s", GetDetector()->GetName()),
             this, &KVPulseHeightDefect::PHDMoulton, 0., 1.e+04, 1, "KVPulseHeightDefect", "PHDMoulton");
-         a_1 = GetParameter(0);
-         a_2 = GetParameter(1);
-         b_1 = GetParameter(2);
-         b_2 = GetParameter(3);
-         fZmin = (Int_t)GetParameter(4);
          fMoulton->SetNpx(500);
       }
       fMoulton->SetParameter(0,Z);
