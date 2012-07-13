@@ -523,11 +523,11 @@ void INDRAGeometryBuilder::BuildTarget()
    }
 }
 
-void INDRAGeometryBuilder::Build()
+TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget)
 {
    if (!gIndra) {
       Error("Build", "You must build the geometry with gDataSet->BuildMultiDetector() before calling this method");
-      return;
+      return 0x0;
    }
    if (gGeoManager) delete gGeoManager;
 
@@ -551,8 +551,9 @@ void INDRAGeometryBuilder::Build()
          MakeRing("CSI", ring + 1);
       }
    }
-   BuildTarget();
-   CloseAndDraw();
+   if(withTarget) BuildTarget();
+   gGeoManager->CloseGeometry();
+   return gGeoManager;
 }
 void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors)
 {

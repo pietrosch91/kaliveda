@@ -575,5 +575,8 @@ TGeoMaterial* KVedaLossMaterial::GetTGeoMaterial() const
 	{
 		gmat = new TGeoMaterial( GetTitle(), GetMass(), GetZ(), GetDensity() );
 	}
+   // set state of material
+   if(IsGas()) gmat->SetState(TGeoMaterial::kMatStateGas);
+   else gmat->SetState(TGeoMaterial::kMatStateSolid);
 	return gmat;
 }

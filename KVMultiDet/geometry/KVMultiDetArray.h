@@ -187,6 +187,7 @@ class KVMultiDetArray:public KVBase {
 	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame="");
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
    KVNameValueList* DetectParticle(KVNucleus * part);
+   KVNameValueList* DetectParticle_TGEO(KVNucleus * part);
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
    KVIDTelescope *GetIDTelescope(const Char_t * name) const;
@@ -261,7 +262,7 @@ class KVMultiDetArray:public KVBase {
    void PrintStatusOfIDTelescopes();
    void PrintCalibStatusOfDetectors();
 
-	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
+	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
    virtual void SetSimMode(Bool_t on = kTRUE)
    {
    	// Set simulation mode of array (and of all detectors in array)

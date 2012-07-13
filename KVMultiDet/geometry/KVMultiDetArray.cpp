@@ -917,7 +917,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 			}
 			else {
 				//KVNameValueList* nvl = 0;
-				if ( !(nvl = DetectParticle(_part)) ) {
+				if ( !(nvl = DetectParticle_TGEO(_part)) ) {
 					det_stat->SetValue("UNDETECTED","DEAD ZONE"); 
 					
 					part->AddGroup("UNDETECTED"); 
@@ -1151,6 +1151,74 @@ KVNameValueList* KVMultiDetArray::DetectParticle(KVNucleus * part)
     return 0;
 }
 
+//__________________________________________________________________________________
+KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
+{
+   // Use ROOT geometry to propagate particle through the array,
+   // calculating its energy losses in all absorbers, and setting the
+   // energy loss members of the active detectors on the way.
+   //
+   // It is assumed that the ROOT geometry has been generated and is
+   // pointed to by gGeoManager.
+   //
+   // Returns a list (KVNameValueList pointer) of the crossed detectors with their name and energy loss
+   //	if particle hits detector in array, 0 if not (i.e. particle
+   // in beam pipe or dead zone of the multidetector)
+   // INFO User has to delete the KVNameValueList after its use
+
+   static Bool_t printit = kTRUE; /* debug */
+   
+   // dummy material used to access range table calculator
+   static KVMaterial toto;
+   KVIonRangeTable* RangeTable = toto.GetRangeTable();
+   
+   // start from origin
+   gGeoManager->SetCurrentPoint(0., 0., 0.);
+   // unit vector in direction of particle's momentum
+   TVector3 v = part->GetMomentum().Unit();
+   // use particle's momentum direction
+   gGeoManager->SetCurrentDirection(v.x(), v.y(), v.z());
+   gGeoManager->FindNode();
+   TGeoVolume* lastVol = gGeoManager->GetCurrentVolume();
+   // move along trajectory until we hit a new volume
+   gGeoManager->FindNextBoundaryAndStep();
+   Double_t step = gGeoManager->GetStep();
+   TGeoVolume* newVol = gGeoManager->GetCurrentVolume();
+   Double_t e = part->GetKE(), de = 0;
+   KVDetector* curDet = 0;
+   // track particle until we leave the geometry
+   while (!gGeoManager->IsOutside()) {
+      curDet = gMultiDetArray->GetDetector(lastVol->GetName());
+      if(printit&&curDet) std::cout << "   NOW IN DETECTOR : " << curDet->GetName() << std::endl;
+      if (printit) {
+         std::cout << "will travel " << step << " cm in this material :";
+         std::cout << lastVol->GetMaterial()->GetTitle() << std::endl;
+      }
+      de = 0;
+      if (RangeTable->IsMaterialKnown(lastVol->GetMaterial()->GetTitle())) {
+         de =
+            RangeTable->GetLinearDeltaEOfIon(
+               lastVol->GetMaterial()->GetTitle(),
+               part->GetZ(), part->GetA(), e, step, 0.,
+               lastVol->GetMaterial()->GetTemperature(),
+               lastVol->GetMaterial()->GetPressure());
+         if (printit) std::cout << "and lose " << de << "MeV" << std::endl;
+         if(printit&&lastVol->GetMaterial()->GetState()==TGeoMaterial::kMatStateGas)
+            std::cout << "  gas pressure = " << lastVol->GetMaterial()->GetPressure() << std::endl;
+         e -= de;
+      }
+      lastVol = newVol;
+      // stop when particle is stopped
+      if (e <= 0.) break;
+      // move on to next volume crossed by trajectory
+      gGeoManager->FindNextBoundaryAndStep();
+      step = gGeoManager->GetStep();
+      newVol = gGeoManager->GetCurrentVolume();
+   }
+   
+   // return KVNameValueList ?
+   return 0x0;
+}
 //____________________________________________________________________________________________
 void KVMultiDetArray::ReplaceTelescope(const Char_t * name,
                                        KVTelescope * new_kvt)

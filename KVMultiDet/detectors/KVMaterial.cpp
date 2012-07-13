@@ -689,7 +689,9 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		else if( !strcmp(med_name, "Vacuum") ){
 			// create material
 			TGeoMaterial *gmat = new TGeoMaterial("Vacuum",0,0,0 );
+         gmat->SetTitle("Vacuum");
 			gmed = new TGeoMedium( "Vacuum", 0, gmat );
+         gmed->SetTitle("Vacuum");
 			return gmed;
 		}
 		return NULL;
@@ -698,11 +700,19 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 	// if object is a KVDetector, we return medium corresponding to the active layer
    if (GetActiveLayer()) return GetActiveLayer()->GetGeoMedium();
 	
-	TGeoMedium* gmed = gGeoManager->GetMedium( GetName() );
+   // for gaseous materials, the TGeoMedium/Material name is of the form
+   //      gasname_pressure
+   // e.g. C3F8_37.5 for C3F8 gas at 37.5 torr
+   // each gas with different pressure has to have a separate TGeoMaterial/Medium
+   TString medName;
+   if(IsGas()) medName.Form("%s_%f", GetName(), GetPressure());
+   else medName = GetName();
+   
+	TGeoMedium* gmed = gGeoManager->GetMedium( medName);
 	
 	if( gmed ) return gmed;
 		
-	TGeoMaterial *gmat = gGeoManager->GetMaterial( GetName() );
+	TGeoMaterial *gmat = gGeoManager->GetMaterial( medName);
 	
 	if( !gmat ){
 		// create material
@@ -710,11 +720,13 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		gmat->SetPressure( GetPressure() );
 		gmat->SetTemperature( GetTemperature() );
 		gmat->SetTransparency(0);
+      gmat->SetName(medName);
+      gmat->SetTitle(GetName());
 	}
 	
 	// create medium
 	static Int_t numed = 1; // static counter variable used to number media
-	gmed = new TGeoMedium( GetName(), numed, gmat );
+	gmed = new TGeoMedium( medName, numed, gmat );
 	numed+=1;
 	
 	return gmed;
