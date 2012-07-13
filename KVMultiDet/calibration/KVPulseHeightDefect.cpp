@@ -52,6 +52,11 @@ Double_t KVPulseHeightDefect::PHDMoulton(Double_t * x, Double_t * par)
    // x[0] = E (MeV)
    // par[0] = Z
    
+         a_1 = GetParameter(0);
+         a_2 = GetParameter(1);
+         b_1 = GetParameter(2);
+         b_2 = GetParameter(3);
+         fZmin = (Int_t)GetParameter(4);
    Int_t Z = par[0];
    if( Z <= fZmin ) return 0;
    Double_t a = a_1*Z*Z/1000. + a_2;
@@ -162,11 +167,6 @@ Double_t KVPulseHeightDefect::ELossActive(Double_t *x, Double_t *par)
       if(!fMoulton) {
          fMoulton = new TF1(Form("MoultonPHD:%s", GetDetector()->GetName()),
             this, &KVPulseHeightDefect::PHDMoulton, 0., 1.e+04, 1, "KVPulseHeightDefect", "PHDMoulton");
-         a_1 = GetParameter(0);
-         a_2 = GetParameter(1);
-         b_1 = GetParameter(2);
-         b_2 = GetParameter(3);
-         fZmin = (Int_t)GetParameter(4);
          fMoulton->SetNpx(500);
       }
       fMoulton->SetParameter(0,Z);
