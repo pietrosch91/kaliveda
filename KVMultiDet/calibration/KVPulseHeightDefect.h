@@ -18,8 +18,6 @@ class KVPulseHeightDefect : public KVCalibrator
    TF1* fMoulton;           //!Moulton formula for PHD =  f(E,Z)
    TF1* fDeltaEphd;           //!deltaE calculated including PHD
    Int_t fZ;                   //!Z of nucleus to be calibrated
-   Int_t fZmin;                   //!minimum Z for which PHD is considered
-   Double_t a_1, a_2, b_1, b_2; //! parameters of Moulton formula
    
    public:
 
