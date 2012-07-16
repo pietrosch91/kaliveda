@@ -11,6 +11,8 @@
 #include "KVNumberList.h"
 #include "KVNameValueList.h"
 
+class TGeoManager;
+
 class INDRAGeometryBuilder : public KVBase {
    TString fDetName;//!name of detector
    TVector3 fInnerFront[4];//!coords of inner front face
@@ -56,7 +58,7 @@ public:
    void ReflectPad(TVector3* orig, Double_t phicentre, TVector3* newpad);
    void CloseAndDraw();
 
-   void Build();
+   TGeoManager* Build(Bool_t withTarget=kTRUE);
    void BuildTarget();
    void Build(KVNumberList& rings, KVNameValueList& detectors);
    void TransformToOwnFrame(TVector3* orig, TVector3& centre, TVector3* ownframe);

@@ -31,6 +31,7 @@
 class KVNucleus;
 class KVTelescope;
 class TGeoMedium;
+class TGeoVolume;
 
 class KVMaterial:public KVBase {
 
@@ -39,6 +40,8 @@ class KVMaterial:public KVBase {
    
    TVector3 fNormToMat;//!dummy vector for calculating normal to absorber
 
+   TGeoVolume* fAbsorberVolume;//!pointer to corresponding volume in ROOT geometry
+   
  public:
 
  private:
@@ -127,7 +130,13 @@ class KVMaterial:public KVBase {
    };
 	
 	virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/="");
-	
+	virtual void SetAbsGeoVolume(TGeoVolume* v) { fAbsorberVolume = v; };
+	virtual TGeoVolume* GetAbsGeoVolume() const
+   {
+      // Returns pointer to volume representing this absorber in the ROOT geometry.
+      return fAbsorberVolume;
+   };
+   
 	virtual KVIonRangeTable* GetRangeTable() const { return fIonRangeTable; };
    
    ClassDef(KVMaterial, 6)      // Class describing physical materials used to construct detectors & targets
