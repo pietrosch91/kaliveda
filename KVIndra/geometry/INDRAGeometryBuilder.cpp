@@ -150,7 +150,8 @@ void INDRAGeometryBuilder::ReadDetCAO(const Char_t* detname, Int_t ring)
                            fFrameFront);
    // calculate centre of frame = direction of detector
    CalculateCentre(fFrameFront, fFrameCentre);
-   fFrameMat.SetMaterial(infos.GetValue("FRAME.MATERIAL", "Al"));
+   //fFrameMat.SetMaterial(infos.GetValue("FRAME.MATERIAL", "Al"));
+   fFrameMat.SetMaterial("Pb");//! frame should stop all charged particles in short distance!
 
    fInnerPads = infos.GetValue("INNER.PADS", 1);
    fOuterPads = infos.GetValue("OUTER.PADS", 0);
