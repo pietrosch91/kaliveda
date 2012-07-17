@@ -5,6 +5,8 @@
 #include "KVINDRAReconNuc.h"
 #include "KVIdentificationResult.h"
 
+using namespace std;
+
 ClassImp(KVIDSiCsI_e613)
 
 ////////////////////////////////////////////////////////////////////////////////

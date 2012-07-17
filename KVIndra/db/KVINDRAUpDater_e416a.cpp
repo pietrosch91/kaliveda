@@ -15,6 +15,8 @@ $Date: 2007/02/14 14:12:00 $
 #include "KVINDRA.h"
 #include "KVINDRADB.h"
 
+using namespace std;
+
 ClassImp(KVINDRAUpDater_e416a)
 
 ////////////////////////////////////////////////////////////////////////////////

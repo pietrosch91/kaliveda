@@ -29,7 +29,7 @@ class KVNameValueList;
 class KVAvailableRunsFile:public KVBase {
 
  protected:
-   ifstream fRunlist;     //for reading runlist file
+   std::ifstream fRunlist;     //for reading runlist file
    KVLockfile runlist_lock;   //for locking runlist file
 
    KVDataSet *fDataSet;         //dataset to which this file belongs

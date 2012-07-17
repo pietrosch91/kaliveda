@@ -13,6 +13,8 @@ $Date: 2009/04/20 12:16:50 $
 #include "TPad.h"
 #include "TClass.h"
 
+using namespace std;
+
 ClassImp(KVIDentifier)
 
 ////////////////////////////////////////////////////////////////////////////////

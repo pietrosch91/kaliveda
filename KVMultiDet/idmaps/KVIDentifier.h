@@ -33,11 +33,11 @@ class KVIDentifier : public TCutG
 
 	// Does nothing. Can be overridden in child classes in order to write any
 	// extra information in between the name of the object and the number of points.
-   virtual void WriteAsciiFile_extras(ofstream &, const Char_t * /*name_prefix*/ =""){};
+   virtual void WriteAsciiFile_extras(std::ofstream &, const Char_t * /*name_prefix*/ =""){};
 
 	// Does nothing. Can be overridden in child classes in order to read any
 	// extra information in between the name of the object and the number of points.
-   virtual void ReadAsciiFile_extras(ifstream &){};
+   virtual void ReadAsciiFile_extras(std::ifstream &){};
    virtual void SetNameFromNucleus() { SetName(Form("Z=%d A=%d", GetZ(), GetA())); };
 
 	private:
@@ -56,8 +56,8 @@ class KVIDentifier : public TCutG
    Int_t Compare(const TObject *) const;
    void Copy(TObject & obj) const;
 
-   virtual void WriteAsciiFile(ofstream &, const Char_t * name_prefix ="");
-   virtual void ReadAsciiFile(ifstream &);
+   virtual void WriteAsciiFile(std::ofstream &, const Char_t * name_prefix ="");
+   virtual void ReadAsciiFile(std::ifstream &);
 
    virtual Int_t GetID() const {return 0;};
    virtual Int_t GetA() const{ return fIon.GetA();};

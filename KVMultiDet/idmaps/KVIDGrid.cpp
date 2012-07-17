@@ -89,6 +89,8 @@ Note that this scaling is taken into account also in IsIdentifiable and Identify
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+using namespace std;
+
 ClassImp(KVIDGrid)
 
 //________________________________________________________________________________

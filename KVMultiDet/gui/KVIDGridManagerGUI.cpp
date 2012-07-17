@@ -24,6 +24,8 @@
 #include "KVVirtualIDFitter.h"
 //#include "KVIDTelescope.h"
 
+using namespace std;
+
 ClassImp(KVIDGridManagerGUI)
 //////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

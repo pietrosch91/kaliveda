@@ -6,6 +6,8 @@
 #include "KVINDRA.h"
 #include "KVDetector.h"
 #include "KVACQParam.h"
+#include "KVCalibrator.h"
+#include "KVChannelVolt.h"
 
 ClassImp(KVINDRAUpDater_e613)
 
@@ -114,4 +116,55 @@ void KVINDRAUpDater_e613::SetPedestals(KVDBRun * kvrun)
 	else 
 		Info("SetGains","Pedestals have been changed for %d acquisition parameters (total = %d)",nchange,ndets);
 
+}
+//______________________________________________________________________________
+
+void KVINDRAUpDater_e613::SetChVoltParameters(KVDBRun * kvrun)
+{
+
+
+    KVRList *param_list = kvrun->GetLinks("Channel-Volt");
+    if (!param_list)
+        return;
+    if (!param_list->GetSize())
+        return;
+
+    KVDetector *kvd;
+    KVDBParameterSet *kvps;
+    KVCalibrator *kvc;
+    TIter next_ps(param_list);
+
+
+    TString str;
+
+    // Setting Channel-Volts calibration parameters
+    while ((kvps = (KVDBParameterSet *) next_ps()))      // boucle sur les parametres
+    {
+        str = kvps->GetName();
+        str.Remove(str.Sizeof() - 4, 3);  //Removing 3 last letters (ex : "_PG")
+        kvd = gIndra->GetDetector(str.Data());
+        if (!kvd)
+            Warning("SetChVoltParameters(UInt_t)", "Dectector %s not found !",
+                    str.Data());
+        else                      // detector found
+        {
+            kvc = kvd->GetCalibrator(kvps->GetName(), kvps->GetTitle());
+            if (!kvc)
+                Warning("SetChVoltParameters(UInt_t)",
+                        "Calibrator %s %s not found !", kvps->GetName(),
+                        kvps->GetTitle());
+            else                   //calibrator found
+            {
+                //Prise en compte du gain du detecteur quand la rampe gene a ete faite
+					 //pour ponderation des coef dans KVChannelVolt
+					 Double_t gain_ref = kvps->GetParameter(kvc->GetNumberParams());
+					 ((KVChannelVolt* )kvc)->SetGainRef(gain_ref);
+					 for (Int_t i = 0; i < kvc->GetNumberParams(); i++)
+                {
+                    kvc->SetParameter(i, kvps->GetParameter(i));
+                }
+					 kvc->SetStatus((gain_ref!=0));   // calibrator ready
+            }                      //calibrator found
+        }                         //detector found
+    }                            //boucle sur les parameters
 }

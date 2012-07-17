@@ -9,6 +9,8 @@
 #include <cmath>
 #include <cstdlib>
 
+using namespace std;
+
 ClassImp(SeD12v)
 
 SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)

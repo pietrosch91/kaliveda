@@ -5,6 +5,8 @@ $Id: KVIDSubCodeManager.cpp,v 1.2 2006/10/19 14:32:43 franklan Exp $
 #include "KVIDSubCodeManager.h"
 #include "TString.h"
 
+using namespace std;
+
 ClassImp(KVIDSubCodeManager)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Stores concatenations of "subcodes" returned by different identification routines

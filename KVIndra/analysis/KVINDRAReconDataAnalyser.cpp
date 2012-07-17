@@ -17,6 +17,8 @@ $Date: 2007/11/15 14:59:45 $
 #include "TChain.h"
 #include "KVAvailableRunsFile.h"
 
+using namespace std;
+
 ClassImp(KVINDRAReconDataAnalyser)
 ////////////////////////////////////////////////////////////////////////////////
 // For analysing reconstructed INDRA data

@@ -10,6 +10,8 @@
 #include <cmath>
 #include <cstdlib>
 
+using namespace std;
+
 ClassImp(SeDv)
 
 SeDv::SeDv(LogFile *Log, short nr)

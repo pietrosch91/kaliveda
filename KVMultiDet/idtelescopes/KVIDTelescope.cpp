@@ -36,6 +36,8 @@ Author : $Author: franklan $
 #include "TClass.h"
 #include "TH2.h"
 
+using namespace std;
+
 ClassImp(KVIDTelescope)
 /////////////////////////////////////////////////////////////////////////////////////////
 //KVIDTelescope

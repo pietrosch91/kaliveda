@@ -17,6 +17,8 @@ $Date: 2009/01/14 15:35:50 $
 #include "TH1F.h"
 #include "KVNamedParameter.h"
 
+using namespace std;
+
 ClassImp(KVElasticScatterEvent)
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -17,6 +17,8 @@ $Author: franklan $
 #include "KVBase.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+using namespace std;
+
 
 ClassImp(KVINDRAUpDater)
 //////////////////////////////////////////////////////////////////////////////////
@@ -371,8 +373,8 @@ void KVINDRAUpDater::SetChVoltParameters(KVDBRun * kvrun)
                 for (Int_t i = 0; i < kvc->GetNumberParams(); i++)
                 {
                     kvc->SetParameter(i, kvps->GetParameter(i));
-                    kvc->SetStatus(kTRUE);   // calibrator ready
                 }
+					 kvc->SetStatus(kTRUE);   // calibrator ready
             }                      //calibrator found
         }                         //detector found
     }                            //boucle sur les parameters

@@ -13,6 +13,8 @@ $Date: 2008/04/14 08:49:37 $
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
 
+using namespace std;
+
 ClassImp(KV_CCIN2P3_BQS)
 ////////////////////////////////////////////////////////////////////////////////
 // Interface to CCIN2P3 batch job management system

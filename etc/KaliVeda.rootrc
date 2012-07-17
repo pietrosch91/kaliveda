@@ -906,3 +906,6 @@ KaliVedaGUI.MainGUIWidth:       700
 KaliVedaGUI.MainGUIHeight:       600
 # Max width (number of characters) of runlist columns
 KaliVedaGUI.MaxColWidth:       500
+
+# Control whether to use ROOT geometry & algorithms for particle trajectory simulation
+KVMultiDetArray.FilterUsesROOTGeometry:    yes

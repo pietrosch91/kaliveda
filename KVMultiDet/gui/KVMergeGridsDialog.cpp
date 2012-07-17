@@ -16,6 +16,8 @@ Int_t KVMergeGridsDialog::G1IDmax = 99;
 Int_t KVMergeGridsDialog::G2IDmin = 1;
 Int_t KVMergeGridsDialog::G2IDmax = 99;
 
+using namespace std;
+
 ClassImp(KVMergeGridsDialog)
 ////////////////////////////////////////////////////////////////
 // KVMergeGridsDialog

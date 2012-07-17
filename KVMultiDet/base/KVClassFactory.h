@@ -14,7 +14,6 @@ $Date: 2009/01/21 08:04:20 $
 #include "KVString.h"
 #include "KVParameterList.h"
 
-
 class KVClassMethod : public TNamed {
 
    KVParameterList<KVString> fFields;//fields of method declaration
@@ -137,11 +136,11 @@ class KVClassFactory : public TObject {
 
  protected:
 
-   void WriteCVSTags(ofstream &);
-   void WritePreProc(ofstream &);
-   void WriteWhoWhen(ofstream &);
+   void WriteCVSTags(std::ofstream &);
+   void WritePreProc(std::ofstream &);
+   void WriteWhoWhen(std::ofstream &);
    void SetWhoWhen();
-   void WriteClassDec(ofstream &);
+   void WriteClassDec(std::ofstream &);
    void WriteClassHeader();
    void WriteClassImp();
    void WriteClassWithTemplateHeader();

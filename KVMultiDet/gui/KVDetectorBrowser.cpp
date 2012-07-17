@@ -6,6 +6,8 @@
 #include "KVDetector.h"
 #include "KVWidgetList.h"
 
+using namespace std;
+
 ClassImp(KVDetectorBrowser)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // KaliVeda detector Browser and Configuration Tool

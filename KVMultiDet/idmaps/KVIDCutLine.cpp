@@ -11,6 +11,8 @@ $Date: 2009/03/03 13:36:00 $
 #include "Riostream.h"
 #include "KVIDGraph.h"
 
+using namespace std;
+
 ClassImp(KVIDCutLine)
 
 ////////////////////////////////////////////////////////////////////////////////

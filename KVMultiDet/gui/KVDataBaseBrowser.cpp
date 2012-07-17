@@ -6,6 +6,8 @@
 #include "KVDataBase.h"
 #include "KVWidgetList.h"
 
+using namespace std;
+
 ClassImp(KVDataBaseBrowser)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // KaliVeda DataBase Browser and Configuration Tool

@@ -8,6 +8,8 @@
 #include "KVDataSet.h"
 #include <cmath>
 
+using namespace std;
+
 ClassImp(IonisationChamberv)
 
 IonisationChamberv::IonisationChamberv(LogFile *Log)

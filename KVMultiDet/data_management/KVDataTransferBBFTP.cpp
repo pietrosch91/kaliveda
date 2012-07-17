@@ -15,6 +15,8 @@ $Date: 2007/03/16 15:13:16 $
 #include "Riostream.h"
 #include "TError.h"
 
+using namespace std;
+
 ClassImp(KVDataTransferBBFTP)
 ////////////////////////////////////////////////////////////////////////////////
 // File transfer between repositories using bbftp.

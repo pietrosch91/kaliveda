@@ -28,7 +28,7 @@ class KVIDGrid : public KVIDGraph
 protected:
 
     void init();
-    void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, ifstream& gridfile);
+    void ReadIdentifierFromAsciiFile(TString &name, TString &type, TString &cl, std::ifstream& gridfile);
 
 public:
 

@@ -12,6 +12,8 @@ $Date: 2007/05/31 09:59:21 $
 #include "KVSelector.h"
 #include "KVClassFactory.h"
 
+using namespace std;
+
 ClassImp(KVDataSelector)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

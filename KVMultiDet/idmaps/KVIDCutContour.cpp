@@ -10,6 +10,8 @@ $Date: 2009/03/03 13:36:00 $
 #include "KVIDCutContour.h"
 #include "KVIDGraph.h"
 
+using namespace std;
+
 ClassImp(KVIDCutContour)
 
 ////////////////////////////////////////////////////////////////////////////////

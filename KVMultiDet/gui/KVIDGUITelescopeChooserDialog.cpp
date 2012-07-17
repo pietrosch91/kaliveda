@@ -10,6 +10,8 @@ $Date: 2009/03/03 14:27:15 $
 #include "KVIDGUITelescopeChooserDialog.h"
 #include "TTimer.h"
 
+using namespace std;
+
 ClassImp(KVIDGUITelescopeChooserDialog)
 
 ////////////////////////////////////////////////////////////////////////////////

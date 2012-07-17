@@ -19,6 +19,8 @@ $Id: KVDBChIoPressures.cpp,v 1.3 2007/02/13 18:18:18 franklan Exp $
 #include "Riostream.h"
 
 
+using namespace std;
+
 ClassImp(KVDBChIoPressures);
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //             Class KVDBChIoPressures

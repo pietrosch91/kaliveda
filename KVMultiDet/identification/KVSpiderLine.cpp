@@ -1,6 +1,8 @@
 #include "KVSpiderLine.h"
 #include <TMath.h>
 
+using namespace std;
+
 ClassImp(KVSpiderLine)
 
 KVSpiderLine::KVSpiderLine(int z_)

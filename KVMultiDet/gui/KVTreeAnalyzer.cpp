@@ -15,6 +15,8 @@
 #include "TKey.h"
 #include "TROOT.h"
 
+using namespace std;
+
 ClassImp(KVTreeAnalyzer)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,7 +451,7 @@ void KVTreeAnalyzer::OpenGUI()
    histo_opts = new TGGroupFrame(fMain_histolist, "Fits", kHorizontalFrame);
    lab = new TGLabel(histo_opts,"Gumbel : ");
    histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,5,2));
-   G_fit1 = new TGTextButton(histo_opts, " 1st ");
+   G_fit1 = new TGTextButton(histo_opts, " 1 ");
    G_fit1->SetTextJustify(36);
    G_fit1->SetMargins(0,0,0,0);
    G_fit1->SetWrapLength(-1);
@@ -458,7 +460,7 @@ void KVTreeAnalyzer::OpenGUI()
    G_fit1->ChangeBackground(gura);
    G_fit1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum1()");
    histo_opts->AddFrame(G_fit1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit2 = new TGTextButton(histo_opts, " 2nd ");
+   G_fit2 = new TGTextButton(histo_opts, " 2 ");
    G_fit2->SetTextJustify(36);
    G_fit2->SetMargins(0,0,0,0);
    G_fit2->SetWrapLength(-1);
@@ -467,7 +469,7 @@ void KVTreeAnalyzer::OpenGUI()
    G_fit2->ChangeBackground(gurb);
    G_fit2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum2()");
    histo_opts->AddFrame(G_fit2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit3 = new TGTextButton(histo_opts, " 3rd ");
+   G_fit3 = new TGTextButton(histo_opts, " 3 ");
    G_fit3->SetTextJustify(36);
    G_fit3->SetMargins(0,0,0,0);
    G_fit3->SetWrapLength(-1);
@@ -484,25 +486,25 @@ void KVTreeAnalyzer::OpenGUI()
    G_fitGG1->SetWrapLength(-1);
    G_fitGG1->Resize();
    G_fitGG1->SetEnabled(kFALSE);
-   G_fitGG1->ChangeBackground(gurf);
+   G_fitGG1->ChangeBackground(gura);
    G_fitGG1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum1()");
    histo_opts->AddFrame(G_fitGG1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fitGG2 = new TGTextButton(histo_opts, " 1 ");
+   G_fitGG2 = new TGTextButton(histo_opts, " 2 ");
    G_fitGG2->SetTextJustify(36);
    G_fitGG2->SetMargins(0,0,0,0);
    G_fitGG2->SetWrapLength(-1);
    G_fitGG2->Resize();
    G_fitGG2->SetEnabled(kFALSE);
-   G_fitGG2->ChangeBackground(gurf);
+   G_fitGG2->ChangeBackground(gurb);
    G_fitGG2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum2()");
    histo_opts->AddFrame(G_fitGG2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fitGG3 = new TGTextButton(histo_opts, " 1 ");
+   G_fitGG3 = new TGTextButton(histo_opts, " 3 ");
    G_fitGG3->SetTextJustify(36);
    G_fitGG3->SetMargins(0,0,0,0);
    G_fitGG3->SetWrapLength(-1);
    G_fitGG3->Resize();
    G_fitGG3->SetEnabled(kFALSE);
-   G_fitGG3->ChangeBackground(gurf);
+   G_fitGG3->ChangeBackground(gurc);
    G_fitGG3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum3()");
    histo_opts->AddFrame(G_fitGG3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
    fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));

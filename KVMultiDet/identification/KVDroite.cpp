@@ -1,5 +1,7 @@
 #include "KVDroite.h"
 
+using namespace std;
+
 ClassImp(KVDroite)
 
 KVDroite::KVDroite()

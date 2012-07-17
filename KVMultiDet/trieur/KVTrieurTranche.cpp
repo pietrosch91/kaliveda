@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include "KVTrieurTranche.h"
 
+using namespace std;
+
 ClassImp(KVTrieurTranche)
 //////////////////////////////////////////////////////////////////////////////////
 //          *****       Class for a sorting with attached cells.      ******

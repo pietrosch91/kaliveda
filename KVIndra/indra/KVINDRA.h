@@ -139,6 +139,7 @@ class KVINDRA:public KVMultiDetArray {
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
    
    KVINDRATriggerInfo* GetTriggerInfo() { return fSelecteur; };
+	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
 
     ClassDef(KVINDRA, 6)        //class describing the materials and detectors etc. to build an INDRA multidetector array
 };
@@ -197,7 +198,7 @@ inline void KVINDRA::ShowSystem() const
 
    KVDBSystem *sys = GetSystem();
    if (sys) {
-      cout << sys->GetName() << endl;
+      std::cout << sys->GetName() << std::endl;
    } else {
       Warning("ShowSystem", "No system found for run");
    }

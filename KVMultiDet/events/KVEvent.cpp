@@ -23,6 +23,8 @@ $Id: KVEvent.cpp,v 1.41 2008/12/17 11:23:12 ebonnet Exp $
 #include "KVParticleCondition.h"
 #include "TClass.h"
 
+using namespace std;
+
 ClassImp(KVEvent);
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,8 @@ $Date: 2008/11/12 10:01:24 $
 #include "Analysisv_e494s.h"
 #include <cstdlib>
 
+using namespace std;
+
 ClassImp(Analysisv_e494s)
 
 ////////////////////////////////////////////////////////////////////////////////

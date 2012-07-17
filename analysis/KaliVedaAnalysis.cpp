@@ -9,6 +9,8 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDataAnalyser.h"
 
+using namespace std;
+
 int main(int argc, char *argv[])
 {
    //Set environment variable KVBATCHNAME with name of batch job before running

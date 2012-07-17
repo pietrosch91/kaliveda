@@ -14,6 +14,8 @@
 #define cPI_OVER_180 0.017453293
 #define c180_OVER_PI 57.295779506
 
+using namespace std;
+
 ClassImp(ReconstructionSeDv)
 
 ReconstructionSeDv::ReconstructionSeDv(LogFile *Log, SeD12v *SeD12)

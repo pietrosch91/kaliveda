@@ -7,6 +7,8 @@ $Author: franklan $
 
 #include "KVNewGridRRMDialog.h"
 
+using namespace std;
+
 ClassImp(KVNewGridRRMDialog)
 //////////////////////////////////////////
 // KVNewGridRRMDialog

@@ -26,6 +26,8 @@ $Id: KVDataBase.cpp,v 1.26 2009/01/22 13:55:00 franklan Exp $
 
 KVDataBase *gDataBase;
 
+using namespace std;
+
 ClassImp(KVDataBase)
 //_______________________________________________________________________
 //KVDataBase, along with KVDBKey, KVDBRecord and KVDBTable, are base classes for
