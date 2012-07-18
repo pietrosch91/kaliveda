@@ -27,6 +27,9 @@ class KVSimDir : public KVBase
    virtual void AnalyseDirectory();
    virtual void AnalyseFile(const Char_t* );
 
+   virtual const KVList* GetSimDataList() const { return &fSimData; };
+   virtual const KVList* GetFiltDataList() const { return &fFiltData; };
+   
    void ls(Option_t* opt="") const;
    
    ClassDef(KVSimDir,1)//Handle directory containing simulated and/or filtered simulated data

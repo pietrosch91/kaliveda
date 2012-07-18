@@ -87,7 +87,8 @@ void KVSimDir::AnalyseDirectory ()
    // If they inherit from KVSimEvent, we add the file to the list of simulated data.
    // If they inherit from KVReconstructedEvent, we add the file to the list of filtered data.
    
-	//loop over files in current directory
+   Info("AnalyseDirectory", "Analysing %s...", GetDirectory());
+   //loop over files in current directory
 	TSystemDirectory thisDir(".", GetDirectory());
 	TList* fileList=thisDir.GetListOfFiles();
 	TIter nextFile(fileList);
@@ -109,6 +110,7 @@ void KVSimDir::AnalyseDirectory ()
 
 void KVSimDir::AnalyseFile (const Char_t* filename)
 {
+   Info("AnalyseFile", "Analysing file %s...", filename);
    TString fullpath;
    AssignAndDelete(fullpath, gSystem->ConcatFileName(GetDirectory(),filename));
    TFile* file = TFile::Open(fullpath);

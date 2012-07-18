@@ -30,6 +30,7 @@ class KVSimFile : public KVBase
    const Char_t* GetDataSet() const { return fDataSet; };
    const Char_t* GetSystem() const { return fSystem; };
    Int_t GetRun() const { return fRunNumber; };
+   const Char_t* GetGeometry() const { return fGeoType; };
    
    void ls(Option_t* opt="") const;
 
