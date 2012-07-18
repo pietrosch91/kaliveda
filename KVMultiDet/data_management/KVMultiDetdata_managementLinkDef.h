@@ -23,4 +23,6 @@
 #pragma link C++ class KVDataSetManager+;
 #pragma link C++ class SRBDataRepository+;
 #pragma link C++ class SRBAvailableRunsFile+;
+#pragma link C++ class KVSimDir+;
+#pragma link C++ class KVSimFile+;
 #endif
