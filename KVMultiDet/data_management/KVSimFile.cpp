@@ -2,6 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVSimFile.h"
+#include "KVSimDir.h"
 #include <iostream>
 
 ClassImp(KVSimFile)
@@ -23,16 +24,16 @@ KVSimFile::KVSimFile()
    fFiltered=kFALSE;
 }
 
-KVSimFile::KVSimFile(const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries)
-      : KVBase(filename,treeinfo), fFiltered(kFALSE), fEvents(treeEntries)
+KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname)
+      : KVBase(filename,treeinfo), fSimDir(parent), fFiltered(kFALSE), fEvents(treeEntries), fTreeName(treename), fBranchName(branchname)
 {
    // Default constructor for simulated events file
 }
    
-KVSimFile::KVSimFile(const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries,
+KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname,
                         const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type)
-      : KVBase(filename,treeinfo), fFiltered(kTRUE), fEvents(treeEntries), fDataSet(dataset), fSystem(system),
-      fRunNumber(run_number), fGeoType(geo_type)
+      : KVBase(filename,treeinfo), fSimDir(parent), fFiltered(kTRUE), fEvents(treeEntries), fDataSet(dataset), fSystem(system),
+      fRunNumber(run_number), fGeoType(geo_type), fTreeName(treename), fBranchName(branchname)
 {
    // Default constructor for filtered (reconstructed) simulated events file
 }
@@ -74,6 +75,8 @@ void KVSimFile::ls(Option_t*) const
       TROOT::IndentLevel();
       if(!fFiltered) cout << "SIMULATED EVENTS FILE : " << GetName() <<endl;
       else cout << "FILTERED EVENTS FILE : " << GetName() <<endl;
+      cout << "--treename: " << GetTreeName() << endl;
+      cout << "--branchname: " << GetBranchName() << endl;
       cout << "--infos: " << GetTitle() << endl;
       cout << "--events: " << fEvents << endl;
       if(fFiltered){

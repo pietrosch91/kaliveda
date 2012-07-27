@@ -130,7 +130,7 @@ void KVSimDir::AnalyseFile (const Char_t* filename)
             TClass* branch_class = TClass::GetClass(branch_classname,kFALSE,kTRUE);
             if(branch_class && branch_class->InheritsFrom("KVEvent")){
                if(branch_class->InheritsFrom("KVSimEvent")){
-                  fSimData.Add( new KVSimFile(filename, tree->GetTitle(), tree->GetEntries()) );
+                  fSimData.Add( new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName()) );
                   delete file;
                   return;
                }
@@ -145,7 +145,7 @@ void KVSimDir::AnalyseFile (const Char_t* filename)
                   TString run; if(r) run = r->GetTitle();
                   TString geometry; if(g) geometry = g->GetTitle();
                   Int_t run_number = run.Atoi();
-                  fFiltData.Add( new KVSimFile(filename, tree->GetTitle(), tree->GetEntries(),
+                  fFiltData.Add( new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName(),
                         dataset, system, run_number, geometry) );
                   delete file;
                   delete ds;
