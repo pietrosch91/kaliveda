@@ -207,19 +207,19 @@ KVSimDirGUI::KVSimDirGUI()
    hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 250,2,2,2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,10,2));
    
-   hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
-   lab= new TGLabel(hf, "Output directory : ");
-   hf->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
-   fTEOutputDir = new TGTextEntry(hf, new TGTextBuffer(256));
-   fTEOutputDir->SetText(gSystem->pwd());
-   fTEOutputDir->Resize(650, fTEOutputDir->GetDefaultHeight());
-   hf->AddFrame(fTEOutputDir, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
-   change_class = new TGPictureButton(hf,gClient->GetPicture("bld_open.png"));
-   change_class->Resize(fTEOutputDir->GetDefaultHeight(),fTEOutputDir->GetDefaultHeight());
-   change_class->SetToolTipText("Change directory");
-   change_class->Connect("Clicked()", "KVSimDirGUI", this, "ChangeOutputDirectory()");
-   hf->AddFrame(change_class,new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));   
-   vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
+//    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
+//    lab= new TGLabel(hf, "Output directory : ");
+//    hf->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
+//    fTEOutputDir = new TGTextEntry(hf, new TGTextBuffer(256));
+//    fTEOutputDir->SetText(gSystem->pwd());
+//    fTEOutputDir->Resize(650, fTEOutputDir->GetDefaultHeight());
+//    hf->AddFrame(fTEOutputDir, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
+//    change_class = new TGPictureButton(hf,gClient->GetPicture("bld_open.png"));
+//    change_class->Resize(fTEOutputDir->GetDefaultHeight(),fTEOutputDir->GetDefaultHeight());
+//    change_class->SetToolTipText("Change directory");
+//    change_class->Connect("Clicked()", "KVSimDirGUI", this, "ChangeOutputDirectory()");
+//    hf->AddFrame(change_class,new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));   
+//    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
    
    fFiltTab->AddFrame(vf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2,2,2,2));
    
@@ -346,7 +346,8 @@ void KVSimDirGUI::RefreshSimDir()
    if(!togo) return;
    togo->AnalyseDirectory();
    fLVsimData->Display(togo->GetSimDataList());
-   fLVfiltData->Display(togo->GetFiltDataList());}
+   fLVfiltData->Display(togo->GetFiltDataList());
+}
 
 void KVSimDirGUI::RemSimDir()
 {
@@ -527,17 +528,17 @@ void KVSimDirGUI::SelectRun(const char* run)
    if(!fRun.IsDigit()) fRun="";
 }
 
-void KVSimDirGUI::ChangeOutputDirectory()
-{
-   static TString dir(".");
-   TGFileInfo fi;
-   fi.fIniDir = StrDup(dir);
-   new KVFileDialog(gClient->GetDefaultRoot(), MainFrame, kKVFDDirectory, &fi);
-   if (fi.fFilename) {
-      fTEOutputDir->SetText(fi.fIniDir);
-   }
-   dir = fi.fIniDir;
-}
+// void KVSimDirGUI::ChangeOutputDirectory()
+// {
+//    static TString dir(".");
+//    TGFileInfo fi;
+//    fi.fIniDir = StrDup(dir);
+//    new KVFileDialog(gClient->GetDefaultRoot(), MainFrame, kKVFDDirectory, &fi);
+//    if (fi.fFilename) {
+//       fTEOutputDir->SetText(fi.fIniDir);
+//    }
+//    dir = fi.fIniDir;
+// }
 
 
 void KVSimDirGUI::RunFilter()
@@ -586,7 +587,8 @@ void KVSimDirGUI::RunFilter()
    options.Form("BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s",
          ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
          fDataset.Data(),fSystem.Data(),geometry.Data(),filter.Data(),
-         fTEOutputDir->GetText());
+//         fTEOutputDir->GetText());
+         ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory());
    if(fRun!=""){
       TString r;
       r.Form(",Run=%s",fRun.Data());
@@ -595,6 +597,7 @@ void KVSimDirGUI::RunFilter()
    Info("RunFilter", "%s",options.Data());
    
    analysis_chain->Process("KVEventFiltering", options);
+   RefreshSimDir();
    
    delete analysis_chain;
    delete selected_sim_runs;

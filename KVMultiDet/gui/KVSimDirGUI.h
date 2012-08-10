@@ -67,7 +67,7 @@ class KVSimDirGUI : public KVBase
    };
    Int_t fFilterType;
    Int_t fGeoType;
-   TGTextEntry* fTEOutputDir;
+   //TGTextEntry* fTEOutputDir;
    
    TEnv fGuirc;
    
@@ -100,7 +100,7 @@ class KVSimDirGUI : public KVBase
    {
       fGeoType = i;
    };
-   void ChangeOutputDirectory();
+   //void ChangeOutputDirectory();
    void RunFilter();
    
    ClassDef(KVSimDirGUI,0)//GUI for simulated data
