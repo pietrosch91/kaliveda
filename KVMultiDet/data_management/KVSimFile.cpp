@@ -31,9 +31,9 @@ KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* tre
 }
    
 KVSimFile::KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname,
-                        const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type)
+                        const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type, const Char_t* orig_file)
       : KVBase(filename,treeinfo), fSimDir(parent), fFiltered(kTRUE), fEvents(treeEntries), fDataSet(dataset), fSystem(system),
-      fRunNumber(run_number), fGeoType(geo_type), fTreeName(treename), fBranchName(branchname)
+      fRunNumber(run_number), fGeoType(geo_type), fTreeName(treename), fBranchName(branchname), fOrigFile(orig_file)
 {
    // Default constructor for filtered (reconstructed) simulated events file
 }

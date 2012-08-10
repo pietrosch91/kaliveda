@@ -88,6 +88,8 @@ void KVSimDir::AnalyseDirectory ()
    // If they inherit from KVReconstructedEvent, we add the file to the list of filtered data.
    
    Info("AnalyseDirectory", "Analysing %s...", GetDirectory());
+   fSimData.Clear();
+   fFiltData.Clear();
    //loop over files in current directory
 	TSystemDirectory thisDir(".", GetDirectory());
 	TList* fileList=thisDir.GetListOfFiles();
@@ -135,18 +137,20 @@ void KVSimDir::AnalyseFile (const Char_t* filename)
                   return;
                }
                else if(branch_class->InheritsFrom("KVReconstructedEvent")){
-                  // filtered data. there must be TNamed called 'DataSet', 'System', & 'Run' in the file.
-                  TNamed* ds = (TNamed*)file->Get("DataSet");
+                  // filtered data. there must be TNamed called 'Dataset', 'System', & 'Run' in the file.
+                  TNamed* ds = (TNamed*)file->Get("Dataset");
+                  TNamed* orig = (TNamed*)file->Get("Origin");
                   TNamed* sys = (TNamed*)file->Get("System");
                   TNamed* r = (TNamed*)file->Get("Run");
                   TNamed* g = (TNamed*)file->Get("Geometry");
                   TString dataset; if(ds) dataset = ds->GetTitle();
                   TString system; if(sys) system = sys->GetTitle();
                   TString run; if(r) run = r->GetTitle();
+                  TString origin; if(orig) origin = orig->GetTitle();
                   TString geometry; if(g) geometry = g->GetTitle();
                   Int_t run_number = run.Atoi();
                   fFiltData.Add( new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName(),
-                        dataset, system, run_number, geometry) );
+                        dataset, system, run_number, geometry, origin) );
                   delete file;
                   delete ds;
                   delete sys;

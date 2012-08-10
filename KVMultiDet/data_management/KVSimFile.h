@@ -21,12 +21,13 @@ class KVSimFile : public KVBase
    TString fGeoType;//type of geometry used for filtering
    TString fTreeName;//name of TTree
    TString fBranchName;//name of branch containing events
+   TString fOrigFile;//name of simulated events file filtered to generate this file
    
    public:   
    KVSimFile();
    KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname);
    KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname,
-                        const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type);
+                        const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type, const Char_t* orig_file);
    KVSimFile (const KVSimFile&) ;
    virtual ~KVSimFile();
    void Copy (TObject&) const;
@@ -39,6 +40,7 @@ class KVSimFile : public KVBase
    const Char_t* GetGeometry() const { return fGeoType; };
    const Char_t* GetTreeName() const { return fTreeName; };
    const Char_t* GetBranchName() const { return fBranchName; };
+   const Char_t* GetOriginalFile() const { return fOrigFile; };
    
    void ls(Option_t* opt="") const;
 

@@ -16,6 +16,7 @@
 #pragma link C++ class KVDataAnalysisTask+;
 #pragma link C++ class KVDataAnalyser+;
 #pragma link C++ class KVEventSelector+;
+#pragma link C++ class KVEventFiltering+;
 #pragma link C++ class KVSimReader;
 #pragma link C++ class KVSimReader_HIPSE;
 #pragma link C++ class KVSimReader_HIPSE_asym;

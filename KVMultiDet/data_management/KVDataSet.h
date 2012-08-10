@@ -178,7 +178,17 @@ class KVDataSet:public KVBase {
 
    virtual Bool_t OpenDataSetFile(const Char_t* filename, std::ifstream& file);
 	virtual Bool_t DataBaseNeedsUpdate();
-
+   
+   virtual const Char_t* GetReconstructedEventClassName() const
+   {
+      // Returns the name of the class used to store reconstructed events for this dataset.
+      // This is defined by the value of environment variable
+      //        [dataset name].ReconstructedEventClassName:      [name of class]
+      // The default value (if no variable defined) is KVReconstructedEvent.
+   
+      return GetDataSetEnv("ReconstructedEventClassName", "KVReconstructedEvent");
+   };
+   
    ClassDef(KVDataSet, 2)       //Describes a set of experimental data which may be analysed with KaliVeda
 };
 
