@@ -32,15 +32,44 @@ class KVSimFile : public KVBase
    virtual ~KVSimFile();
    void Copy (TObject&) const;
    
-   KVSimDir* GetSimDir() const { return fSimDir; };
-   Long64_t GetEvents() const { return fEvents; };
-   const Char_t* GetDataSet() const { return fDataSet; };
-   const Char_t* GetSystem() const { return fSystem; };
-   Int_t GetRun() const { return fRunNumber; };
-   const Char_t* GetGeometry() const { return fGeoType; };
-   const Char_t* GetTreeName() const { return fTreeName; };
-   const Char_t* GetBranchName() const { return fBranchName; };
-   const Char_t* GetOriginalFile() const { return fOrigFile; };
+   KVSimDir* GetSimDir() const { 
+      // return pointer to KVSimDir dataset to which this file belongs
+      return fSimDir;
+   };
+   Long64_t GetEvents() const {
+      // return number of events in file
+      return fEvents;
+   };
+   const Char_t* GetDataSet() const {
+      // return name of dataset used to filter data 
+      return fDataSet; 
+   };
+   const Char_t* GetSystem() const {
+      // return name of experimental system used to filter data 
+      return fSystem; 
+   };
+   Int_t GetRun() const {
+      // return run number used to define experimental conditions for filtering data 
+      return fRunNumber;
+   };
+   const Char_t* GetGeometry() const {
+      // return type of geometry used to filter simulation:
+      // 'KV' = KaliVeda geometry and particle transport
+      // 'ROOT' = TGeometry description of detector geometry and particle transport
+      return fGeoType;
+   };
+   const Char_t* GetTreeName() const {
+      // name of TTree containing data
+      return fTreeName;
+   };
+   const Char_t* GetBranchName() const {
+      // name of TBranch containing data
+      return fBranchName;
+   };
+   const Char_t* GetOriginalFile() const {
+      // name of simulation file which was filtered to produce this filtered data file
+      return fOrigFile;
+   };
    
    void ls(Option_t* opt="") const;
 

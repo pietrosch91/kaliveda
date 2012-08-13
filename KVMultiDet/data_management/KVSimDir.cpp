@@ -22,6 +22,30 @@ ClassImp(KVSimDir)
 <h4>Handle directory containing simulated and/or filtered simulated data</h4>
 <!-- */
 // --> END_HTML
+// This class will read the contents of a directory and automatically list the simulated and/or
+// filtered simulated data it contains. To use:
+//
+//      KVSimDir sim("MySimultations", "/path/to/my/simulations");
+//      sim.AnalyseDirectory();
+//
+// When method AnalyseDirectory() is called, each ROOT file in the directory given to the
+// constructor will be opened and analysed in turn, by method AnalyseFile().
+// If there is a TTree in the file, then we look at all of its branches until we find one
+// containing objects which derive from KVEvent:
+//
+//   -- if they inherit from KVSimEvent, we add the file to the list of simulated data:
+//            * a KVSimFile is created. The title of the TTree where data were found will
+//               be used as 'Information' on the nature of the simulation.
+//   -- if they inherit from KVReconstructedEvent, we add the file to the list of filtered data.
+//            * a KVSimFile is created. Informations on the filtered data are extracted from
+//              TNamed objects in the file with names 'Dataset', 'System', 'Run', 'Geometry'
+//              (type of geometry used, 'ROOT' or 'KV'), 'Origin' (i.e. the name of the simulation
+//              file which was filtered). These objects are automatically created when data is
+//              filtered using KVEventFiltering.
+//
+// Analysis of the file stops after the first TTree with a branch satisfying one of the
+// two criteria is found (it is assumed that in each file there is only one TTree containing
+// either simulated or filtered data).
 ////////////////////////////////////////////////////////////////////////////////
 
 KVSimDir::KVSimDir()
@@ -81,11 +105,8 @@ void KVSimDir::Copy (TObject& obj) const
 
 void KVSimDir::AnalyseDirectory ()
 {
-   // Read contents of directory.
-   // Each ROOT file will be opened. If there is a TTree in the file, then we look at
-   // all of its branches until we find one containing objects which derive from KVEvent.
-   // If they inherit from KVSimEvent, we add the file to the list of simulated data.
-   // If they inherit from KVReconstructedEvent, we add the file to the list of filtered data.
+   // Read contents of directory given to ctor.
+   // Each ROOT file will be analysed by AnalyseFile().
    
    Info("AnalyseDirectory", "Analysing %s...", GetDirectory());
    fSimData.Clear();
@@ -112,6 +133,24 @@ void KVSimDir::AnalyseDirectory ()
 
 void KVSimDir::AnalyseFile (const Char_t* filename)
 {
+   // Analyse ROOT file given as argument.
+   // If there is a TTree in the file, then we look at all of its branches until we find one
+   // containing objects which derive from KVEvent:
+   //
+   //   -- if they inherit from KVSimEvent, we add the file to the list of simulated data:
+   //            * a KVSimFile is created. The title of the TTree where data were found will
+   //               be used as 'Information' on the nature of the simulation.
+   //   -- if they inherit from KVReconstructedEvent, we add the file to the list of filtered data.
+   //            * a KVSimFile is created. Informations on the filtered data are extracted from
+   //              TNamed objects in the file with names 'Dataset', 'System', 'Run', 'Geometry'
+   //              (type of geometry used, 'ROOT' or 'KV'), 'Origin' (i.e. the name of the simulation
+   //              file which was filtered). These objects are automatically created when data is
+   //              filtered using KVEventFiltering.
+   //
+   // Analysis of the file stops after the first TTree with a branch satisfying one of the
+   // two criteria is found (it is assumed that in each file there is only one TTree containing
+   // either simulated or filtered data).
+   
    Info("AnalyseFile", "Analysing file %s...", filename);
    TString fullpath;
    AssignAndDelete(fullpath, gSystem->ConcatFileName(GetDirectory(),filename));

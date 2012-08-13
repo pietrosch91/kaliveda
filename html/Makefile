@@ -101,7 +101,7 @@ install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc/js
 	-mkdir -p $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers
 	./$(MAKEHTML)
-#	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
+	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
 	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/
 	-ln -s -t$(KVROOT)/KaliVedaDoc $(VERSION_NUMBER)/incl $(VERSION_NUMBER)/inh $(VERSION_NUMBER)/inhmem $(VERSION_NUMBER)/src $(VERSION_NUMBER)/examples
 	-cp *.html $(KVROOT)/KaliVedaDoc/
@@ -111,3 +111,5 @@ install_html: $(MAKEHTML)
 	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
+	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/
+	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/

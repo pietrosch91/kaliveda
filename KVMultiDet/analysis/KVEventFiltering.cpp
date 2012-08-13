@@ -15,9 +15,40 @@ ClassImp(KVEventFiltering)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVEventFiltering</h2>
-<h4>event analysis class</h4>
+<h4>Filter simulated events with multidetector response</h4>
 <!-- */
 // --> END_HTML
+// Use this KVEventSelector on simulated data TTrees containing a branch with KVSimEvent-derived objects:
+//
+//    my_tree->Process("KVEventFiltering", "[options]");
+//
+// where "[options]" is the list of options in the form "BranchName=toto,Dataset=titi,System=tata, ...".
+//
+// The following options MUST be given:
+//
+//    BranchName: name of branch containing simulated events
+//    Dataset:    name of experimental dataset (defines multidetector array to use etc.)
+//    System:     name of experimental dataset system (defines collision kinematics etc.)
+//    Geometry:   type of geometry, either 'KV' (KaliVeda geometry) or 'ROOT' (ROOT TGeometry package)
+//    Filter:     type of filter, either 'Geo' (geometric filter), 'GeoThresh' (geometry + detector thresholds),
+//                or 'Full' (full simulation of detector response, including experimental identification
+//                and calibration routines)
+//    OutputDir:  directory path in which to write filtered data file
+//
+// The following is an optional option:
+//
+//    Run:        run number to use for detector status, setup, parameters, etc.
+//                if not given, first run of the given experimental system is used.
+//     
+// The filtered data will be written in the directory given as option "OutputDir".
+// The filename is built up from the original simulation filename and the values
+// of various options:
+//
+//       [simfile]_geo=[geometry]_filt=[filter-type]_[dataset]_[system]_run=[run-number].root
+//
+// The data will be stored in a TTree with name 'ReconstructedEvents', in a branch with name
+// 'ReconEvent'. The class used for reconstructed events depends on the dataset,
+// it is given by KVDataSet::GetReconstructedEventClassName().
 ////////////////////////////////////////////////////////////////////////////////
 
 KVEventFiltering::KVEventFiltering()
@@ -61,6 +92,11 @@ void KVEventFiltering::Copy (TObject& obj) const
    
 Bool_t KVEventFiltering::Analysis()
 {
+   // Event-by-event filtering of simulated data.
+   // Kinematics of event are transformed to laboratory frame using C.M. velocity calculated in InitAnalysis().
+   // Detection of particles in event is simulated with KVMultiDetArray::DetectEvent,
+   // then the reconstructed detected event is treated by the same identification and calibration
+   // procedures as for experimental data.
    GetEvent()->SetFrame("lab", fCMVelocity);
    gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
    fReconEvent->IdentifyEvent();
@@ -73,6 +109,7 @@ Bool_t KVEventFiltering::Analysis()
    
 void KVEventFiltering::EndAnalysis()
 {
+   // Write file containing filtered data to disk.
    fFile->Write();
    delete fFile;
 }
@@ -83,6 +120,21 @@ void KVEventFiltering::EndRun()
    
 void KVEventFiltering::InitAnalysis()
 {
+   // Select required dataset for filtering (option "Dataset")
+   // Build the associated multidetector geometry.
+   // Calculate C.M. velocity associated with required experimental collision
+   // kinematics (option "System").
+   //
+   // Set the parameters of the detectors according to the required run
+   // if given (option "Run"), or the first run of the given system otherwise.
+   // If ROOT/TGeo geometry is required (option "Geometry"="ROOT"),
+   // build the TGeometry representation of the detector array.
+   //
+   // Open file for filtered data (see KVEventFiltering::OpenOutputFile), which will
+   // be stored in a TTree with name 'ReconstructedEvents', in a branch with name
+   // 'ReconEvent'. The class used for reconstructed events depends on the dataset,
+   // it is given by KVDataSet::GetReconstructedEventClassName().
+   
    TString dataset = GetOpt("Dataset").Data();
    gDataSetManager->GetDataSet(dataset)->cd();
    if(gMultiDetArray) delete gMultiDetArray;
@@ -118,6 +170,23 @@ void KVEventFiltering::InitRun()
 
 void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
 {
+   // Open ROOT file for new filtered events TTree.
+   // The file will be written in the directory given as option "OutputDir".
+   // The filename is built up from the original simulation filename and the values
+   // of various options:
+   //
+   //       [simfile]_geo=[geometry]_filt=[filter-type]_[dataset]_[system]_run=[run-number].root
+   //
+   // In addition, informations on the filtered data are stored in the file as
+   // TNamed objects. These can be read by KVSimDir::AnalyseFile:
+   //
+   // KEY: TNamed	System;1	title=[full system name]
+   // KEY: TNamed	Dataset;1	title=[dataset name]
+   // KEY: TNamed	Run;1	title=[run-number]
+   // KEY: TNamed	Geometry;1	title=[geometry-type]
+   // KEY: TNamed	Filter;1	title=[filter-type]
+   // KEY: TNamed	Origin;1 title=[name of simulation file]
+   //      
    TString basefile = gSystem->BaseName(fChain->GetCurrentFile()->GetName());
    basefile.Remove(basefile.Index(".root"),5);
    TString outfile = basefile + "_geo=";
