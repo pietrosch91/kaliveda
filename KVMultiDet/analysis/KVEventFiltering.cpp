@@ -103,6 +103,7 @@ Bool_t KVEventFiltering::Analysis()
    fReconEvent->CalibrateEvent();
    fReconEvent->SecondaryIdentCalib();
    fTree->Fill();
+   fRawTree->Fill();
 
    return kTRUE;
 }
@@ -156,12 +157,28 @@ void KVEventFiltering::InitAnalysis()
       gMultiDetArray->SetROOTGeometry(kTRUE);
       gMultiDetArray->CreateGeoManager();
    }
+   else
+      gMultiDetArray->SetROOTGeometry(kFALSE);
    
    OpenOutputFile(sys,run);
+   
+   /* reconstructed events tree */
    fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();
    fTree->Branch("ReconEvent", reconevclass,&fReconEvent,10000000,0)->SetAutoDelete(kFALSE);
+   
+   /* raw data tree */
+   fRawTree = new TTree("RawData",  Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
+   TIter next_rawpar( gMultiDetArray->GetACQParams() );
+   KVACQParam* acqpar;
+   while( (acqpar = (KVACQParam*)next_rawpar()) ){
+      TString leaf;
+      leaf.Form("%s/S", acqpar->GetName());
+      // for parameters with <=8 bits only use 1 byte for storage
+      if(acqpar->GetNbBits()<=8) leaf += "1";
+      fRawTree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), leaf.Data() );
+   }
 }
    
 void KVEventFiltering::InitRun()
