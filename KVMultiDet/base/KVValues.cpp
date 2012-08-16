@@ -72,6 +72,8 @@ void KVValues::init_val()
 	
 	for (Int_t nn=kdeb;nn<kval_tot;nn+=1) 
 		values[nn]=0;
+		
+	kTimesFillVarIsCalled=0;
 }
 
 //___________________________________________________________________________________________
@@ -286,6 +288,7 @@ void KVValues::FillVar(Double_t val,Double_t weight)
 	}
 	for (Int_t nn=0;nn<=kordre_mom_max;nn+=1) values[nn+kdeb] += weight*TMath::Power(val,Double_t(nn));
 	kToBeRecalculated = kTRUE;
+	kTimesFillVarIsCalled+=1;
 }
 	
 //___________________________________________________________________________________________
@@ -294,6 +297,13 @@ Int_t KVValues::GetOrdreMax() const
 	
 	return kordre_mom_max; 
 	
+}
+//___________________________________________________________________________________________
+Int_t KVValues::GetNumberOfFilling() const
+{
+
+	return kTimesFillVarIsCalled;
+
 }
 //___________________________________________________________________________________________
 Int_t KVValues::GetShift() const
