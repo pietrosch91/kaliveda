@@ -72,6 +72,8 @@ public:
    virtual Double_t GetLinearMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
       
+   static void SetIgnoreEnergyLimits(Bool_t yes=kTRUE);
+   
    ClassDef(KVedaLoss, 1) //C++ implementation of VEDALOSS stopping power calculation
 };
 

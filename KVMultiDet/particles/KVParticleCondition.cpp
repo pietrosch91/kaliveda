@@ -15,6 +15,8 @@ $Date: 2007/03/26 10:14:56 $
 #include "KVClassFactory.h"
 #include "TPluginManager.h"
 
+using namespace std;
+
 ClassImp(KVParticleCondition)
 
 ////////////////////////////////////////////////////////////////////////////////

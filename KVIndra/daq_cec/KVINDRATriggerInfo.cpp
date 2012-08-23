@@ -18,6 +18,8 @@ $Id: KVINDRATriggerInfo.cpp,v 1.5 2006/10/19 14:32:43 franklan Exp $
 #include "KVINDRATriggerInfo.h"
 #include "Hexa_t.h"
 
+using namespace std;
+
 ClassImp(KVINDRATriggerInfo)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Utility class, holds values of the STAT_EVE, R_DEC and CONFIG parameters

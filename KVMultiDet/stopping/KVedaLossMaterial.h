@@ -17,6 +17,7 @@ class TGeoMaterial;
 #define ZMAX_VEDALOSS 100
 #define RTT  62.36367e+03  // cm^3.Torr.K^-1.mol^-1
 #define ZERO_KELVIN  273.15
+#define VERY_BIG_ENERGY  1.e+6
 
 class KVedaLossMaterial : public KVBase {
 
@@ -25,7 +26,7 @@ private:
 	Double_t RF_Z;
 	Double_t RF_A;
 	Double_t *par;
-	Double_t ran,adm,dleps,adn,riso,eps,DLEP;
+	Double_t ran,adm,dleps,adn,riso,eps,DLEP,drande;
 	Double_t thickness; // in g/cm**2
 	
 protected:
@@ -43,10 +44,14 @@ protected:
    TF1* fDeltaE; // function parameterising energy loss in material
    TF1* fEres; // function parameterising residual energy after crossing material
    TF1* fRange; // function parameterising range of charged particles in material
+   TF1* fStopping; // function parameterising stopping power of charged particles in material
 
    Double_t DeltaEFunc(Double_t*, Double_t*);
    Double_t EResFunc(Double_t*, Double_t*);
    Double_t RangeFunc(Double_t*, Double_t*);
+   Double_t StoppingFunc(Double_t*, Double_t*);
+   
+   static Bool_t fNoLimits;// if kTRUE, ignore max E limit for validity of calculation
 
 public:
    KVedaLossMaterial();
@@ -108,6 +113,7 @@ public:
    TF1* GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat = 0);
    TF1* GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
    TF1* GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_t isoAmat = 0);
+   TF1* GetStoppingFunction(Int_t Z, Int_t A, Double_t isoAmat = 0);
 
    void PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat = 0, Double_t units = KVUnits::cm, Double_t T = -1, Double_t P = -1);
 
@@ -148,6 +154,20 @@ public:
    virtual Double_t GetLinearMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
       
+   static void SetNoLimits(Bool_t on=kTRUE)
+   {
+      // Normally all range, dE, Eres functions are limited to range 0<=E<=Emax,
+      // where Emax is nominal max energy for which range tables are valid
+      // (usually 400MeV/u for Z<3, 250MeV/u for Z>3)
+      // if higher energies are required, call this static method in order to recalculate the Emax limits
+      // in such way that: 
+      //     range function is always monotonically increasing function of Einc
+      //     stopping power is concave (i.e. no minimum of stopping power followed by an increase)
+      // at the most, the new limit will be 1 GeV/nucleon.
+      // at the least, it will remain at the nominal (400 or 250 MeV/nucleon) level.
+      fNoLimits = on;
+   };
+   
    ClassDef(KVedaLossMaterial, 2) //Description of material properties used by KVedaLoss range calculation
 };
 

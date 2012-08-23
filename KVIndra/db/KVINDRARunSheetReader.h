@@ -66,7 +66,7 @@ class KVINDRARunSheetReader {
       return fMakeTree;
    };
    void SetMakeTree(Bool_t yes = kTRUE) {
-      cout << "SetMakeTree called with yes=" << yes << endl;
+      std::cout << "SetMakeTree called with yes=" << yes << std::endl;
       fMakeTree = yes;
    };
    void CreateTree();

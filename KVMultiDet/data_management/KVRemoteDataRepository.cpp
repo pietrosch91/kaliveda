@@ -11,6 +11,8 @@ $Date: 2007/11/21 11:34:41 $
 #include "KVRemoteDataSetManager.h"
 #include "TSocket.h"
 
+using namespace std;
+
 ClassImp(KVRemoteDataRepository)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--

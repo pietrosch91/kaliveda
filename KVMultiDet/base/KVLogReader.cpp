@@ -6,6 +6,8 @@ $Id: KVLogReader.cpp,v 1.13 2008/12/08 14:07:37 franklan Exp $
 #include "TObjArray.h"
 #include "TObjString.h"
 
+using namespace std;
+
 ClassImp(KVLogReader)
 //////////////////////////////
 //For reading CCIN2P3 log files

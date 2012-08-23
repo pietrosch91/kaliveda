@@ -10,6 +10,8 @@
 #include "TSystemDirectory.h"
 #include "TSystemFile.h"
 
+using namespace std;
+
 int main(int argc, char** argv)
 {
 	if(argc<2){

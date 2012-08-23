@@ -14,6 +14,8 @@ $Author: franklan $
 #include "TObjString.h"
 #include "TROOT.h"
 
+using namespace std;
+
 ClassImp(KVINDRARunSheetReader)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Read the run sheets produced by the standard INDRA acquisition control program.

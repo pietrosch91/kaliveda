@@ -19,6 +19,8 @@
 #include "KVDataRepositoryManager.h"
 #include "KVDBSystemDialog.h"
 
+using namespace std;
+
 ClassImp(KVINDRARunSheetGUI)
 
 //////////////////////////////////////////////////////////

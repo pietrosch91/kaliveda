@@ -162,6 +162,16 @@ class KVTreeAnalyzer : public TNamed
    
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
+   TGPopupMenu *fMenuFile;//!
+   enum {
+   		MH_OPEN_FILE,
+   		MH_SAVE_FILE,
+   		MH_QUIT
+   };
+   void HistoFileMenu_Open();
+   void HistoFileMenu_Save();
+   TGLayoutHints *fMenuBarItemLayout;//!
+   TGMenuBar *fMenuBar;//!
    KVListView* G_histolist;//! GUI list of histograms
    TGTextButton* G_histo_del;//!
    TGCheckButton* G_histo_same;//!
@@ -180,18 +190,18 @@ class KVTreeAnalyzer : public TNamed
    TGTextButton* G_fit1;//!
    TGTextButton* G_fit2;//!
    TGTextButton* G_fit3;//!
-   TGTextButton* G_fit4;//!
-   TGTextButton* G_fit5;//!
-   TGTextButton* G_fitGG;//!
+   TGTextButton* G_fitGG1;//!
+   TGTextButton* G_fitGG2;//!
+   TGTextButton* G_fitGG3;//!
    TGTextEntry* G_make_ip_selection;//!
    KVImpactParameter* ipscale;//!
    TGLabel* G_ip_histo;//!
    KVGumbelDistribution *GDfirst;//!
    KVGumbelDistribution *GDsecond;//!
    KVGumbelDistribution *GDthird;//!
-   KVGumbelDistribution *GD4;//!
-   KVGumbelDistribution *GD5;//!
-   KVGausGumDistribution *GausGum;//!
+   KVGausGumDistribution *GausGum1;//!
+   KVGausGumDistribution *GausGum2;//!
+   KVGausGumDistribution *GausGum3;//!
    
    /* selections */
    TGMainFrame *fMain_selectionlist;//! GUI for handling selections
@@ -214,17 +224,19 @@ class KVTreeAnalyzer : public TNamed
    void AddHisto(TH1*);
    void AddSelection(TEntryList*);
    void ReconnectTree();
-   void OpenGUI();
    
    void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel);
    void FillLeafList();
    
    public:
-   KVTreeAnalyzer(Bool_t nogui=kFALSE);
+   KVTreeAnalyzer(Bool_t nogui=kTRUE);
    KVTreeAnalyzer(TTree*,Bool_t nogui=kFALSE);
    virtual ~KVTreeAnalyzer();
    
+   void Copy(TObject& obj) const;
+   
    void SetTree(TTree*t);
+   void OpenGUI();
    TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0);
    TH1* RemakeHisto(TH1* h, const Char_t* expr);
    TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax);
@@ -254,6 +266,9 @@ class KVTreeAnalyzer : public TNamed
    void SetSelection(const Char_t*);
    
    static KVTreeAnalyzer* OpenFile(const Char_t* filename, Bool_t nogui=kFALSE);
+   void ReadFromFile(const Char_t* filename);
+   void ReadFromFile(TFile* f);
+   void OpenAnyFile(const Char_t* filepath);
    
    void DrawHisto(TObject*);
    void DrawLeaf(TObject*);
@@ -271,10 +286,11 @@ class KVTreeAnalyzer : public TNamed
    void FitGum1();
    void FitGum2();
    void FitGum3();
-   void FitGum4();
-   void FitGum5();
-   void FitGausGum();
+   void FitGausGum1();
+   void FitGausGum2();
+   void FitGausGum3();
    
+   void HandleHistoFileMenu(Int_t); 
    ClassDef(KVTreeAnalyzer,1)//KVTreeAnalyzer
 };
 

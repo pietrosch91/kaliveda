@@ -52,6 +52,8 @@ KVINDRADB *gIndraDB;
 //By default, KVINDRADB::Build() will read any or all of the standard format files Runlist.csv,
 //Systems.dat and ChIoPressures.dat which may be found in the dataset's directory.
 
+using namespace std;
+
 ClassImp(KVINDRADB)
 
 void KVINDRADB::init()

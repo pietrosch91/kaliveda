@@ -90,6 +90,8 @@ class KVMultiDetArray:public KVBase {
    
    Bool_t fSimMode;             //!=kTRUE in "simulation mode" (use for calculating response to simulated events)
 
+   Bool_t fROOTGeometry;//!=kTRUE if ROOT TGeo geometry and algorithms used for tracking/filtering
+   
    void SetGroups(KVLayer *, KVLayer *);
    void UpdateGroupsInRings(KVRing * r1, KVRing * r2);
    void AddToGroups(KVTelescope * kt1, KVTelescope * kt2);
@@ -184,9 +186,22 @@ class KVMultiDetArray:public KVBase {
    };
    virtual void SetArrayACQParams();
 
-	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event);
+	virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame="");
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
-   KVNameValueList* DetectParticle(KVNucleus * part);
+   KVNameValueList* DetectParticle_KV(KVNucleus * part);
+   KVNameValueList* DetectParticle_TGEO(KVNucleus * part);
+   KVNameValueList* DetectParticle(KVNucleus * part)
+   {
+      // Simulate detection of a charged particle by the array.
+      // The actual method called depends on the value of fROOTGeometry:
+      //   fROOTGeometry=kTRUE:  calls DetectParticle_TGEO, particle propagation performed using
+      //               TGeo description of array and algorithms from ROOT TGeo package
+      //   fROOTGeometry=kFALSE:  calls DetectParticle_KV, uses simple KaliVeda geometry
+      //                to simulate propagation of particle
+      //
+      // The default value is given in .kvrootrc by variable KVMultiDetArray.FilterUsesROOTGeometry
+      return (fROOTGeometry?DetectParticle_TGEO(part):DetectParticle_KV(part));
+   };
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
    KVIDTelescope *GetIDTelescope(const Char_t * name) const;
@@ -261,7 +276,7 @@ class KVMultiDetArray:public KVBase {
    void PrintStatusOfIDTelescopes();
    void PrintCalibStatusOfDetectors();
 
-	TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
+	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
    virtual void SetSimMode(Bool_t on = kTRUE)
    {
    	// Set simulation mode of array (and of all detectors in array)
@@ -281,6 +296,9 @@ class KVMultiDetArray:public KVBase {
 	virtual Double_t GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A);
 	virtual TGraph* DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
 	virtual TGraph* DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
+   
+   void SetROOTGeometry(Bool_t on=kTRUE) { fROOTGeometry=on; };
+   Bool_t IsROOTGeometry() const { return fROOTGeometry; };
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
 };

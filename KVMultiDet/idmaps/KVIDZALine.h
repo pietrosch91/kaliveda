@@ -29,8 +29,8 @@ protected:
    // redeclared as 'protected' method, to avoid users setting name
    // directly (name is generated from A & Z of line)
    virtual void SetName(const char *name){TGraph::SetName(name);};
-   virtual void WriteAsciiFile_extras(ofstream &, const Char_t * name_prefix ="");
-   virtual void ReadAsciiFile_extras(ifstream &);
+   virtual void WriteAsciiFile_extras(std::ofstream &, const Char_t * name_prefix ="");
+   virtual void ReadAsciiFile_extras(std::ifstream &);
 
 public:
 
@@ -49,7 +49,7 @@ public:
 
    virtual void Print(Option_t * opt = "") const;
 
-   void ReadAsciiFile_KVIDZLine(ifstream &);
+   void ReadAsciiFile_KVIDZLine(std::ifstream &);
 
    //virtual Int_t GetID() const { return GetA();}
 

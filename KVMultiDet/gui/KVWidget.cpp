@@ -26,6 +26,8 @@ $Id: KVWidget.cpp,v 1.7 2006/10/19 14:32:43 franklan Exp $
 #include "KVDBTable.h"
 #include "KVDataBase.h"
 
+using namespace std;
+
 ClassImp(KVWidget)
 //__________________________________________________________________________________________
     // Class holding all information relative to widgets in KVBrowser i.e. widget ID for

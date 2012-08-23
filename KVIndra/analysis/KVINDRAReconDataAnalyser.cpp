@@ -17,6 +17,8 @@ $Date: 2007/11/15 14:59:45 $
 #include "TChain.h"
 #include "KVAvailableRunsFile.h"
 
+using namespace std;
+
 ClassImp(KVINDRAReconDataAnalyser)
 ////////////////////////////////////////////////////////////////////////////////
 // For analysing reconstructed INDRA data
@@ -314,6 +316,9 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 	if(!theRawData) return;
 	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
 	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
+
+	gIndra->GetACQParams()->R__FOR_EACH(KVACQParam,Clear)();
+
 	theRawData->GetEntry(rawEntry);
 	for(int i=0; i<NbParFired; i++){
 		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());

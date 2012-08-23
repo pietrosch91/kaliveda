@@ -92,6 +92,8 @@ void KVNewGridDialog::_set_scale_y(Double_t i)
    scale_y = i;
 }
 
+using namespace std;
+
 ClassImp(KVNewGridDialog)
 //////////////////////////////////////////
 // KVNewGridDialog

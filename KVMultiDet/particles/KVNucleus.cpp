@@ -31,6 +31,8 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 Double_t KVNucleus::kAMU = 9.31494043e02;
 Double_t KVNucleus::kMe = 0.510988;
 
+using namespace std;
+
 ClassImp(KVNucleus);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -547,11 +549,8 @@ void KVNucleus::SetZandN(Int_t z, Int_t n)
 void KVNucleus::Print(Option_t * t) const
 {
 // Display nucleus parameters
-   cout << "KVNucleus Z=" << GetZ() << " A=" << GetA() << " KE=" <<
-       GetKE();
-   cout << " E*=" << GetExcitEnergy();
-   cout << " Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
-   GetParameters()->Print();
+   cout << "KVNucleus Z=" << GetZ() << " A=" << GetA()  << " E*=" << GetExcitEnergy()<<endl;
+   KVParticle::Print(t);
 }
 
 //___________________________________________________________________________________________

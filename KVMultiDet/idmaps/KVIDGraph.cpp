@@ -28,6 +28,8 @@ $Date: 2009/04/28 09:07:47 $
 #include "KVIdentificationResult.h"
 #include "KVIDGridEditor.h"
 
+using namespace std;
+
 ClassImp(KVIDGraph)
 
 ////////////////////////////////////////////////////////////////////////////////

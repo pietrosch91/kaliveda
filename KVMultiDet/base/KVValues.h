@@ -28,7 +28,7 @@ class KVValues : public KVNameValueList
 	
 	Int_t knbre_val_max;//nombre maximum de valeurs pouvant etre calculees (argument du constructeur)
 	Int_t kordre_mom_max;//ordre maximum pour le calcul des moments (argument du constructeur)
-	
+	Int_t kTimesFillVarIsCalled; //nombre de fois ou la methode FillVar est appelee
 	Double_t* values;	//[knbre_val_max]  tableau ou sont stockees les valeurs
 	
 	Bool_t kToBeRecalculated;
@@ -64,6 +64,7 @@ class KVValues : public KVNameValueList
 	void FillVar(Double_t val,Double_t weight);
 	
 	Int_t GetOrdreMax() const;
+	Int_t GetNumberOfFilling() const;
 	Int_t GetShift() const;
 	
 	Double_t GetValue(Int_t idx) const;

@@ -14,6 +14,8 @@ $Date: 2007/09/20 11:30:17 $
 #include "TObjArray.h"
 #include "TEnv.h"
 
+using namespace std;
+
 ClassImp(KVRemoteDataSetManager)
 ////////////////////////////////////////////////////////////////////////////////
 // Handles data sets in remote data repository

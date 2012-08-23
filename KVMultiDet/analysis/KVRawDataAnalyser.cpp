@@ -7,6 +7,8 @@
 #include "TH1.h"
 #include "TSystem.h"
 
+using namespace std;
+
 ClassImp(KVRawDataAnalyser)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +80,7 @@ void KVRawDataAnalyser::ProcessRun()
    fDetEv = new KVDetectorEvent;
 
    //loop over events in file
-	while( fRunFile->GetNextEvent() && nevents--)
+	while( (nevents-- ? fRunFile->GetNextEvent() : kFALSE) )
 	{
       //reconstruct hit groups
       KVSeqCollection* fired = fRunFile->GetFiredDataParameters();

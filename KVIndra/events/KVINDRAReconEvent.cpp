@@ -33,6 +33,8 @@
 #include "KVDataSet.h"
 #include "KVChIo.h"
 
+using namespace std;
+
 ClassImp(KVINDRAReconEvent);
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,8 @@
 #include "TMethodCall.h"
 #include "TRandom3.h"
 
+using namespace std;
+
 ClassImp(KVBreakUp)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +79,7 @@ void KVBreakUp::init(void)
 	tstart = tstop = tellapsed = 0;
 	
 	StorePartitions();
+	current_event = new KVEvent();
 }
 
 //_______________________________________________________
@@ -98,6 +101,8 @@ KVBreakUp::~KVBreakUp()
 	delete alea;
 	delete lhisto;
 	delete lobjects;
+	
+	//delete current_event;
 	
 	if (bound) delete [] bound;
 	delete [] size;
@@ -169,6 +174,14 @@ void KVBreakUp::SetBreakUpMethod(KVString bup_method)
 {
 	//Protected method	
 	BreakUpMethod=bup_method;
+
+}
+
+//_______________________________________________________
+void KVBreakUp::LinkEvent(KVEvent* evt){
+	
+	if (current_event) delete current_event;
+	current_event = evt;
 
 }
 
@@ -467,11 +480,23 @@ void KVBreakUp::TreatePartition()
 	hmt->Fill(Mtotal);
 	hzt->Fill(Ztotal);
 	
+	
+	partition = new KVIntegerList();
+	partition->Fill(size,Mtotal);
+	Int_t* tab = partition->CreateTableOfValues();
+	
+	current_event->Clear();
+	for (Int_t ii=0; ii<Mtotal; ii+=1)
+		current_event->AddParticle()->SetZ(tab[ii]);
+	
+	delete [] tab;
+	
 	if (TestBit(kStorePartitions)){
-		partition = new KVIntegerList();
-		partition->Fill(size,Mtotal);
-		
-		if (Fill(partition)) delete partition;
+		if (Fill(partition))
+			delete partition;
+	}
+	else {
+		delete partition;
 	}
 }
 	
@@ -556,6 +581,41 @@ void KVBreakUp::BreakNtimesOnGaussian(Int_t times,Double_t Ztot_moy,Double_t Zto
 	Stop();
 	Info("BreakNtimesOnGaussian","Temps ecoule en secondes : %d",GetDeltaTime());
 
+}
+
+//_______________________________________________________
+KVEvent* KVBreakUp::BreakOnGaussian(Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin)
+{
+	//On realise la cassure sur une double gaussienne
+	//
+	//les valeurs ztot et mtot sont tirees aleatoirement sur une gaussienne
+	//
+	//Plusieurs series de cassures peuvent etre ainsi realise
+	//
+	
+	TMethodCall meth;
+   meth.InitWithPrototype(this->IsA(), BreakUpMethod.Data(),"");
+	Long_t ret;
+	
+	if (meth.IsValid() && meth.ReturnType()==TMethodCall::kLong) {
+		Int_t zt = -1;
+		Int_t mt = -1;
+		while ( !(mt>0 && zt>0 && zt>=mt*zmin) ){
+			zt = TMath::Nint(alea->Gaus(Ztot_moy,Ztot_rms));
+			mt = TMath::Nint(alea->Gaus(Mtot_moy,Mtot_rms));
+		}
+		
+		SetConditions(zt,mt,zmin);
+		meth.Execute(this,"",ret);
+		if (ret==1){
+			TreatePartition();
+			return current_event;
+		}
+		else {
+			return 0;
+		}	
+	}
+	return 0;
 }
 
 //_______________________________________________________

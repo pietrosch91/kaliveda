@@ -38,6 +38,8 @@
 
 //#define KVDAL_DEBUG 
 
+using namespace std;
+
 ClassImp(KVGFileList)
 
 //__________________________________________

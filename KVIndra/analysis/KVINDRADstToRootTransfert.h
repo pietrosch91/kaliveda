@@ -104,7 +104,7 @@ class KVINDRADstToRootTransfert : public KVDataAnalyser
 	KVDetector* Code7(int ring, int mod);
 	KVDetector* Code4and5and6and8(int ring, int mod);
 	
-	void lire_evt(ifstream &f_in,KVINDRAReconEvent *evt);
+	void lire_evt(std::ifstream &f_in,KVINDRAReconEvent *evt);
    
 	Bool_t CheckDSTEventNumber(Int_t dstEvNo, KVINDRAReconEvent* EVENT, Int_t decal_index=0);
 	void CheckParams();

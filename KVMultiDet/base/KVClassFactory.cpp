@@ -10,6 +10,8 @@ $Date: 2009/01/21 08:04:20 $
 #include "KVBase.h"
 #include "TObjString.h"
 
+using namespace std;
+
 ClassImp(KVClassFactory)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Factory class for generating skeleton files for new classes.

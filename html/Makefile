@@ -110,4 +110,6 @@ install_html: $(MAKEHTML)
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
 	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
+	-cp -r kvedaloss_classdoc.html.LyXconv $(KVROOT)/KaliVedaDoc/
+	-cp -r kvedaloss_classdoc.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/

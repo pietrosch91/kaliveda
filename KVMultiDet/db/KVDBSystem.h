@@ -94,8 +94,8 @@ class KVDBSystem:public KVDBRecord {
    };
 
    virtual void GetRunList(KVNumberList&) const;
-   virtual void Save(ostream&) const;
-   virtual void Load(istream&);
+   virtual void Save(std::ostream&) const;
+   virtual void Load(std::istream&);
    
    Int_t Compare(const TObject *) const;
 
@@ -120,6 +120,7 @@ class KVDBSystem:public KVDBRecord {
    void AddRun(KVDBRecord*);
    void AddRun(Int_t);
    void RemoveAllRuns();
+   virtual const Char_t* GetBatchName();
    
    ClassDef(KVDBSystem, 2)      // System class
 };

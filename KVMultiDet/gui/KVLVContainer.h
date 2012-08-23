@@ -51,8 +51,8 @@ class KVLVColumnData
 		if(fMethod=="") fMethod.Form("Get%s", name);
 		fMethCall = new TMethodCall(cl, fMethod.Data(), "");
 		if( !fMethCall->IsValid() ){
-			cout << "Error in <KVLVColumnData::KVLVColumnData> : method " << fMethod.Data()
-				<< " is not valid" << endl;
+			std::cout << "Error in <KVLVColumnData::KVLVColumnData> : method " << fMethod.Data()
+				<< " is not valid" << std::endl;
 		}
 		fRetType = fMethCall->ReturnType();
 	};

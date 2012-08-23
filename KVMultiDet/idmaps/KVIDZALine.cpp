@@ -21,6 +21,8 @@ $Id: KVIDZALine.cpp,v 1.10 2009/05/05 15:57:52 franklan Exp $
 #include "Riostream.h"
 #include "TMath.h"
 
+using namespace std;
+
 ClassImp(KVIDZALine)
 /////////////////////////////////////////////////////////////////////////////////////////
 //KVIDZALine

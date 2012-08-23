@@ -26,6 +26,8 @@ $Id: KVLayer.cpp,v 1.17 2006/10/19 14:32:43 franklan Exp $
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 
+using namespace std;
+
 ClassImp(KVLayer)
 ////////////////////////////////////////////////////////////////////////////////////////
 //Begin_Html

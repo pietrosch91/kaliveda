@@ -47,6 +47,8 @@ extern "C" {
 bool AutoswBuf, Swbufon;
 Int_t BufSize;
 
+using namespace std;
+
 ClassImp ( GTGanilData )
 
 //////////////////////////////////////////////////////////////////////////

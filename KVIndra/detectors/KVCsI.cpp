@@ -28,6 +28,8 @@ $Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
 
+using namespace std;
+
 ClassImp(KVCsI);
 //_______________________________________________________________________________________
 //

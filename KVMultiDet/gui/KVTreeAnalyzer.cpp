@@ -4,6 +4,7 @@
 #include "KVTreeAnalyzer.h"
 #include "TString.h"
 #include "TDirectory.h"
+#include "TSystem.h"
 #include "TEntryList.h"
 #include "Riostream.h"
 #include "KVCanvas.h"
@@ -12,6 +13,10 @@
 #include "TPaveStats.h"
 #include "TSystem.h"
 #include "TPad.h"
+#include "TKey.h"
+#include "TROOT.h"
+
+using namespace std;
 
 ClassImp(KVTreeAnalyzer)
 
@@ -36,10 +41,10 @@ Int_t my_color_array[] = {
 };
    
 KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
-   : TNamed(), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
+   : TNamed("KVTreeAnalyzer", "KVTreeAnalyzer"), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
 {
    // Default constructor - used when loading from a file.
-   // The 'nogui' option (default=kFALSE) controls whether or not to
+   // The 'nogui' option (default=kTRUE) controls whether or not to
    // launch the graphical interface
    
    fMain_histolist=0;
@@ -55,10 +60,11 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
       GDfirst=new KVGumbelDistribution("Gum1",1);
       GDsecond=new KVGumbelDistribution("Gum2",2);
       GDthird=new KVGumbelDistribution("Gum3",3);
-      GD4=new KVGumbelDistribution("Gum4",4);
-      GD5=new KVGumbelDistribution("Gum5",5);
-      GausGum=new KVGausGumDistribution("GausGum");
+      GausGum1=new KVGausGumDistribution("GausGum1",1);
+      GausGum2=new KVGausGumDistribution("GausGum2",2);
+      GausGum3=new KVGausGumDistribution("GausGum3",3);
       fNoGui=nogui;
+      OpenGUI();
 }
 
 
@@ -85,9 +91,9 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
       GDfirst=new KVGumbelDistribution("Gum1",1);
       GDsecond=new KVGumbelDistribution("Gum2",2);
       GDthird=new KVGumbelDistribution("Gum3",3);
-      GD4=new KVGumbelDistribution("Gum4",4);
-      GD5=new KVGumbelDistribution("Gum5",5);
-      GausGum=new KVGausGumDistribution("GausGum");
+      GausGum1=new KVGausGumDistribution("GausGum1",1);
+      GausGum2=new KVGausGumDistribution("GausGum2",2);
+      GausGum3=new KVGausGumDistribution("GausGum3",3);
 }
 
 KVTreeAnalyzer::~KVTreeAnalyzer()
@@ -100,6 +106,29 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
    SafeDelete(fMain_histolist);
    SafeDelete(fMain_leaflist);
    SafeDelete(fMain_selectionlist);
+}
+
+//________________________________________________________________
+
+void KVTreeAnalyzer::Copy (TObject& obj) const
+{
+   // This method copies the current state of 'this' object into 'obj'
+   // You should add here any member variables, for example:
+   //    (supposing a member variable KVTreeAnalyzer::fToto)
+   //    CastedObj.fToto = fToto;
+   // or
+   //    CastedObj.SetToto( GetToto() );
+
+   TNamed::Copy(obj);
+   KVTreeAnalyzer& CastedObj = (KVTreeAnalyzer&)obj;
+   fSelections.Copy(CastedObj.fSelections);// list of TEntryList user selections
+   fHistolist.Copy(CastedObj.fHistolist);//list of generated histograms
+   CastedObj.fTreeName = fTreeName;//name of analyzed TTree
+   CastedObj.fTreeFileName = fTreeFileName;//name of file containing analyzed TTree
+   CastedObj.fHistoNumber=fHistoNumber;//used for automatic naming of histograms
+   CastedObj.fSelectionNumber=fSelectionNumber;//used for automatic naming of selections
+   CastedObj.fAliasNumber=fAliasNumber;//used for automatic naming of TTree aliases
+   fAliasList.Copy(CastedObj.fAliasList);//list of TTree aliases
 }
 
 void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, const Char_t* selection)
@@ -268,7 +297,7 @@ void KVTreeAnalyzer::FillLeafList()
    // all aliases defined by the user
    
    TList stuff;
-   stuff.AddAll(fTree->GetListOfLeaves());
+   if(fTree) stuff.AddAll(fTree->GetListOfLeaves());
    stuff.AddAll(&fAliasList);
    G_leaflist->Display(&stuff);   
 }
@@ -339,20 +368,27 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_leaflist->MapWindow();
    fMain_leaflist->Resize(lWidth,lHeight);
    FillLeafList();
-   // main frame
+   // histogram manager window
    fMain_histolist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    fMain_histolist->SetName("fMain_histolist");
    fMain_histolist->SetWindowName("HISTOS");
    UInt_t hWidth = 400, hHeight = 600;
-   TGTextButton* save = new TGTextButton(fMain_histolist,Form("SAVE Analysis_%s",gSystem->BaseName(fTreeFileName.Data())));
-   save->SetTextJustify(36);
-   save->SetMargins(0,0,0,0);
-   save->SetWrapLength(-1);
-   save->Resize(hWidth,save->GetDefaultHeight());
-   save->Connect("Clicked()", "KVTreeAnalyzer", this, "Save()");
-   save->SetEnabled(kTRUE);
-   save->ChangeBackground(yellow);
-   fMain_histolist->AddFrame(save, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+
+             /* menus */
+   fMenuFile = new TGPopupMenu(gClient->GetRoot());
+   fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
+   fMenuFile->AddSeparator();
+   fMenuFile->AddEntry("&Save as...", MH_SAVE_FILE);
+   fMenuFile->AddSeparator();
+   fMenuFile->AddEntry("&Quit", MH_QUIT);
+   fMenuFile->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleHistoFileMenu(Int_t)");
+   fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+   fMenuBar = new TGMenuBar(fMain_histolist, 1, 1, kHorizontalFrame);
+   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
+   fMain_histolist->AddFrame(fMenuBar,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
+   TGHorizontal3DLine *lh = new TGHorizontal3DLine(fMain_histolist);
+   fMain_histolist->AddFrame(lh, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+   
    G_histo_del = new TGTextButton(fMain_histolist,"DELETE HISTO!");
    G_histo_del->SetTextJustify(36);
    G_histo_del->SetMargins(0,0,0,0);
@@ -417,7 +453,7 @@ void KVTreeAnalyzer::OpenGUI()
    histo_opts = new TGGroupFrame(fMain_histolist, "Fits", kHorizontalFrame);
    lab = new TGLabel(histo_opts,"Gumbel : ");
    histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,5,2));
-   G_fit1 = new TGTextButton(histo_opts, " 1st ");
+   G_fit1 = new TGTextButton(histo_opts, " 1 ");
    G_fit1->SetTextJustify(36);
    G_fit1->SetMargins(0,0,0,0);
    G_fit1->SetWrapLength(-1);
@@ -426,7 +462,7 @@ void KVTreeAnalyzer::OpenGUI()
    G_fit1->ChangeBackground(gura);
    G_fit1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum1()");
    histo_opts->AddFrame(G_fit1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit2 = new TGTextButton(histo_opts, " 2nd ");
+   G_fit2 = new TGTextButton(histo_opts, " 2 ");
    G_fit2->SetTextJustify(36);
    G_fit2->SetMargins(0,0,0,0);
    G_fit2->SetWrapLength(-1);
@@ -435,7 +471,7 @@ void KVTreeAnalyzer::OpenGUI()
    G_fit2->ChangeBackground(gurb);
    G_fit2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum2()");
    histo_opts->AddFrame(G_fit2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit3 = new TGTextButton(histo_opts, " 3rd ");
+   G_fit3 = new TGTextButton(histo_opts, " 3 ");
    G_fit3->SetTextJustify(36);
    G_fit3->SetMargins(0,0,0,0);
    G_fit3->SetWrapLength(-1);
@@ -444,35 +480,35 @@ void KVTreeAnalyzer::OpenGUI()
    G_fit3->ChangeBackground(gurc);
    G_fit3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum3()");
    histo_opts->AddFrame(G_fit3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit4 = new TGTextButton(histo_opts, " 4th ");
-   G_fit4->SetTextJustify(36);
-   G_fit4->SetMargins(0,0,0,0);
-   G_fit4->SetWrapLength(-1);
-   G_fit4->Resize();
-   G_fit4->SetEnabled(kFALSE);
-   G_fit4->ChangeBackground(gurd);
-   G_fit4->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum4()");
-   histo_opts->AddFrame(G_fit4, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit5 = new TGTextButton(histo_opts, " 5th ");
-   G_fit5->SetTextJustify(36);
-   G_fit5->SetMargins(0,0,0,0);
-   G_fit5->SetWrapLength(-1);
-   G_fit5->Resize();
-   G_fit5->SetEnabled(kFALSE);
-   G_fit5->ChangeBackground(gure);
-   G_fit5->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum5()");
-   histo_opts->AddFrame(G_fit5, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   lab = new TGLabel(histo_opts,"GausGum : ");
+   lab = new TGLabel(histo_opts,"Gaus+Gum : ");
    histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,10,2,5,2));
-   G_fitGG = new TGTextButton(histo_opts, " 1 ");
-   G_fitGG->SetTextJustify(36);
-   G_fitGG->SetMargins(0,0,0,0);
-   G_fitGG->SetWrapLength(-1);
-   G_fitGG->Resize();
-   G_fitGG->SetEnabled(kFALSE);
-   G_fitGG->ChangeBackground(gurf);
-   G_fitGG->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum()");
-   histo_opts->AddFrame(G_fitGG, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+   G_fitGG1 = new TGTextButton(histo_opts, " 1 ");
+   G_fitGG1->SetTextJustify(36);
+   G_fitGG1->SetMargins(0,0,0,0);
+   G_fitGG1->SetWrapLength(-1);
+   G_fitGG1->Resize();
+   G_fitGG1->SetEnabled(kFALSE);
+   G_fitGG1->ChangeBackground(gura);
+   G_fitGG1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum1()");
+   histo_opts->AddFrame(G_fitGG1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+   G_fitGG2 = new TGTextButton(histo_opts, " 2 ");
+   G_fitGG2->SetTextJustify(36);
+   G_fitGG2->SetMargins(0,0,0,0);
+   G_fitGG2->SetWrapLength(-1);
+   G_fitGG2->Resize();
+   G_fitGG2->SetEnabled(kFALSE);
+   G_fitGG2->ChangeBackground(gurb);
+   G_fitGG2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum2()");
+   histo_opts->AddFrame(G_fitGG2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+   G_fitGG3 = new TGTextButton(histo_opts, " 3 ");
+   G_fitGG3->SetTextJustify(36);
+   G_fitGG3->SetMargins(0,0,0,0);
+   G_fitGG3->SetWrapLength(-1);
+   G_fitGG3->Resize();
+   G_fitGG3->SetEnabled(kFALSE);
+   G_fitGG3->ChangeBackground(gurc);
+   G_fitGG3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum3()");
+   histo_opts->AddFrame(G_fitGG3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
    fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
    
    /* histo list */
@@ -583,6 +619,7 @@ void KVTreeAnalyzer::ReconnectTree()
    // Reconnects a TTree for analysis using the stored
    // informations on the file name and TTree name
    
+   if(fTree) fTree->GetCurrentFile()->Close();
    TFile*f = TFile::Open(fTreeFileName);
    TTree *t = (TTree*)f->Get(fTreeName);
    SetTree(t);
@@ -604,6 +641,28 @@ KVTreeAnalyzer* KVTreeAnalyzer::OpenFile(const Char_t* filename, Bool_t nogui)
    anal->ReconnectTree();
    anal->OpenGUI();
    return anal;
+}
+
+void KVTreeAnalyzer::ReadFromFile(const Char_t* filename)
+{
+   // open a previously saved analysis session.
+   
+   TFile* f = TFile::Open(filename);
+   ReadFromFile(f);
+}
+
+void KVTreeAnalyzer::ReadFromFile(TFile* f)
+{
+   // open a previously saved analysis session.
+   
+   KVTreeAnalyzer* anal = (KVTreeAnalyzer*)f->Get("KVTreeAnalyzer");
+   delete f;
+   anal->Copy(*this);
+   delete anal;
+   ReconnectTree();
+   G_selectionlist->Display(&fSelections);
+   G_histolist->Display(&fHistolist);
+   FillLeafList();
 }
 
 void KVTreeAnalyzer::DrawHisto(TObject* obj)
@@ -676,7 +735,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    else
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
-      if(fNewCanvas) new KVCanvas;
+      if(fNewCanvas) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -936,7 +995,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
             histo = MakeHisto(expr, "", 500);
          }
       }
-      if(fNewCanvas) new KVCanvas;
+      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->Draw();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -949,7 +1008,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 //       GenerateHistoTitle(htit,expr,"");
 //       histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
       if(!histo) histo = MakeHisto(expr, "", 500);
-      if(fNewCanvas) new KVCanvas;
+      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->Draw();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -967,9 +1026,9 @@ void KVTreeAnalyzer::HistoSelectionChanged()
          G_histo_del->SetEnabled(kFALSE);
          G_fit2->SetEnabled(kFALSE);
          G_fit3->SetEnabled(kFALSE);
-         G_fit4->SetEnabled(kFALSE);
-         G_fit5->SetEnabled(kFALSE);
-         G_fitGG->SetEnabled(kFALSE);
+         G_fitGG1->SetEnabled(kFALSE);
+         G_fitGG2->SetEnabled(kFALSE);
+         G_fitGG3->SetEnabled(kFALSE);
    fSelectedHistos = G_histolist->GetSelectedObjects();
    if(fSelectedHistos && fSelectedHistos->GetEntries()==1)
    {
@@ -979,9 +1038,9 @@ void KVTreeAnalyzer::HistoSelectionChanged()
          G_fit1->SetEnabled(kTRUE);
          G_fit2->SetEnabled(kTRUE);
          G_fit3->SetEnabled(kTRUE);
-         G_fit4->SetEnabled(kTRUE);
-         G_fit5->SetEnabled(kTRUE);
-         G_fitGG->SetEnabled(kTRUE);
+         G_fitGG1->SetEnabled(kTRUE);
+         G_fitGG2->SetEnabled(kTRUE);
+         G_fitGG3->SetEnabled(kTRUE);
       }
    }
 }
@@ -1039,6 +1098,12 @@ void KVTreeAnalyzer::FitGum1()
    GDfirst->SetParameters(histo->GetMean(),histo->GetRMS());
    histo->Fit(GDfirst,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1053,6 +1118,12 @@ void KVTreeAnalyzer::FitGum2()
    GDsecond->SetParameters(histo->GetMean(),histo->GetRMS());
    histo->Fit(GDsecond,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1067,6 +1138,12 @@ void KVTreeAnalyzer::FitGum3()
    GDthird->SetParameters(histo->GetMean(),histo->GetRMS());
    histo->Fit(GDthird,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1074,13 +1151,19 @@ void KVTreeAnalyzer::FitGum3()
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
 }
-void KVTreeAnalyzer::FitGum4()
+void KVTreeAnalyzer::FitGausGum1()
 {
    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
    if(!histo) return;
-   GD4->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GD4,"EM");
+   GausGum1->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+   histo->Fit(GausGum1,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1088,13 +1171,20 @@ void KVTreeAnalyzer::FitGum4()
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
 }
-void KVTreeAnalyzer::FitGum5()
+   
+void KVTreeAnalyzer::FitGausGum2()
 {
    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
    if(!histo) return;
-   GD5->SetParameters(histo->GetMean(),histo->GetRMS());
-   histo->Fit(GD5,"EM");
+   GausGum2->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+   histo->Fit(GausGum2,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1102,13 +1192,20 @@ void KVTreeAnalyzer::FitGum5()
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
 }
-void KVTreeAnalyzer::FitGausGum()
+   
+void KVTreeAnalyzer::FitGausGum3()
 {
    TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
    if(!histo) return;
-   GausGum->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
-   histo->Fit(GausGum,"EM");
+   GausGum3->SetParameters(0.5,histo->GetMean()+histo->GetRMS(),1,histo->GetRMS(),1);
+   histo->Fit(GausGum3,"EM");
    TPaveStats* stats = (TPaveStats*)histo->FindObject("stats");
+   if(!stats){
+      histo->SetStats(1);
+      histo->Draw();
+      gPad->Update();
+      stats = (TPaveStats*)histo->FindObject("stats");
+   }
    stats->SetFitFormat("10.9g");
    stats->SetOptFit(111);
    histo->SetOption("e1");
@@ -1197,4 +1294,105 @@ void KVTreeAnalyzer::UpdateEntryLists()
       MakeSelection(old_el->GetTitle());
    }
    old_lists.Delete();
+}
+   
+void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
+{
+   switch(id){
+      case MH_OPEN_FILE:
+         HistoFileMenu_Open();
+         break;
+         
+      case MH_SAVE_FILE:
+         HistoFileMenu_Save();
+         break;
+      case MH_QUIT:
+         gROOT->ProcessLine(".q");
+         break;
+         
+      default:
+         break;
+   }
+}
+void KVTreeAnalyzer::HistoFileMenu_Open()
+{
+   static TString dir(".");
+   const char *filetypes[] = {
+      "ROOT files", "*.root",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDOpen, &fi);
+   if (fi.fFilename) {
+      OpenAnyFile(fi.fFilename);
+   }
+   dir = fi.fIniDir;
+}
+
+void KVTreeAnalyzer::HistoFileMenu_Save()
+{
+   static TString dir(".");
+   const char *filetypes[] = {
+      "ROOT files", "*.root",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   TString filename;
+   filename.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
+   fi.fFilename = StrDup(filename);
+   new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDSave, &fi);
+   if (fi.fFilename) {
+      //if no ".xxx" ending given, we add ".root"
+      TString filenam(fi.fFilename);
+      if (!filenam.Contains('.'))
+         filenam += ".root";
+      SaveAs(filenam);
+   }
+   dir = fi.fIniDir;
+}
+
+void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
+{
+   // assuming filepath is the URL of a ROOT file, open it and
+   // either
+   //   i) open the KVTreeAnalyzer object stored in it
+   // or ii) if no KVTreeAnalyzer object is found, open first TTree in file
+   
+   TFile* file = TFile::Open(filepath);
+   TObject*kvta = file->GetListOfKeys()->FindObject("KVTreeAnalyzer");
+   if(kvta){
+      ReadFromFile(file);
+   }
+   else
+   {
+      // look for first TTree in file
+      TIter next(file->GetListOfKeys());
+      while( (kvta=next()) ){
+         TString cn = ((TKey*)kvta)->GetClassName();
+         if(cn=="TTree"){
+            if(fTree) fTree->GetCurrentFile()->Close();
+            TTree* t=(TTree*)file->Get(kvta->GetName());
+            SetTitle(t->GetTitle());
+            SetTree(t);
+            fSelections.Clear();
+            fHistolist.Clear();
+            fAliasList.Clear();
+            fHistoNumber=1;
+            fSelectionNumber=1;
+            fAliasNumber=1;
+            fSameColorIndex=0;
+            fSelectedSelections=0;
+            fSelectedLeaves=0;
+            fSelectedHistos=0;
+            G_selectionlist->Display(&fSelections);
+            G_histolist->Display(&fHistolist);
+            FillLeafList();
+            break;
+         }
+      }
+   }
 }

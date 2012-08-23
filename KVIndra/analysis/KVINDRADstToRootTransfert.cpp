@@ -31,6 +31,8 @@
 
 typedef KVDetector* (KVINDRADstToRootTransfert::*FNMETHOD) ( int,int );
 
+using namespace std;
+
 ClassImp(KVINDRADstToRootTransfert)
 
 ////////////////////////////////////////////////////////////////////////////////

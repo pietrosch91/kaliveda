@@ -39,11 +39,11 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 
  private:
 
-   ifstream __ifpeaks;          //!ifstream for calibration peaks file
+   std::ifstream __ifpeaks;          //!ifstream for calibration peaks file
 
  protected:
 
-   Bool_t OpenCalibFile(const Char_t * type, ifstream & fs) const;
+   Bool_t OpenCalibFile(const Char_t * type, std::ifstream & fs) const;
 
    //General information
 
@@ -93,7 +93,7 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 	//calibration peaks database
    Bool_t OpenCalibrationPeakFile();
    void CloseCalibrationPeakFile();
-    ifstream & GetPeakFileStream() {
+    std::ifstream & GetPeakFileStream() {
       return __ifpeaks;
    };
 

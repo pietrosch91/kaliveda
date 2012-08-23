@@ -32,10 +32,10 @@ class KVINDRADB_e475s : public KVINDRADB
 
    virtual void Build();
 	void ReadCalibrations();
-	void ReadCalibFile(ifstream &fin,TString,TString);
+	void ReadCalibFile(std::ifstream &fin,TString,TString);
    
 	void ReadPedestalList();
-	void ReadPedestalFile(ifstream &fin,TString,TString);
+	void ReadPedestalFile(std::ifstream &fin,TString,TString);
 	
 	ClassDef(KVINDRADB_e475s,1)//Database for E475s experiment
 };

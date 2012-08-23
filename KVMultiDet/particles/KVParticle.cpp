@@ -28,6 +28,8 @@ $Id: KVParticle.cpp,v 1.50 2009/04/28 08:59:05 franklan Exp $
 
 Double_t KVParticle::kSpeedOfLight = TMath::C() * 1.e-07;
 
+using namespace std;
+
 ClassImp(KVParticle);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -224,6 +226,15 @@ void KVParticle::Print(Option_t * t) const
    cout << "KVParticle mass=" << M() <<
        " Theta=" << GetTheta() << " Phi=" << GetPhi()
        << " KE=" << GetKE() << endl;
+   if(fBoosted.GetEntries()){
+      TIter next(&fBoosted);
+      KVParticle* part;
+      while( (part=(KVParticle*)next()) ){
+         cout << "\t "<<part->GetFrameName()<<": "<<
+       " Theta=" << part->GetTheta() << " Phi=" <<part-> GetPhi()
+       << " KE=" << part->GetKE() << endl;
+      }
+   }
    GetParameters()->Print();
 }
 
@@ -290,7 +301,7 @@ void KVParticle::Clear(Option_t * opt)
    ResetBit(kIsDetected);
 	fParameters.Clear();
 	fGroups.Clear();	
-	fBoosted.Clear();
+	fBoosted.Delete();
 }
 
 //_________________________________________________________________________________________________________
@@ -326,7 +337,7 @@ KVParticle & KVParticle::operator=(const KVParticle & rhs)
    //KVParticle assignment operator.
 
    TLorentzVector::operator=((TLorentzVector &) rhs);
-   SetE0(rhs.GetPInitial());
+   if(rhs.GetPInitial()) SetE0(rhs.GetPInitial());
    return *this;
 }
 
@@ -626,7 +637,6 @@ void KVParticle::SetFrame(const Char_t * frame, TLorentzRotation & rot)
 		//if this frame has not already been defined, create a new particle
 		tmp = (KVParticle* )this->IsA()->New();
 		tmp->SetFrameName(frame);
-		tmp->SetBit(kCanDelete);
 		fBoosted.Add(tmp);
 	}
 	
