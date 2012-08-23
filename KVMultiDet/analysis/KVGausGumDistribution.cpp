@@ -23,7 +23,7 @@ KVGausGumDistribution::KVGausGumDistribution()
   SetLineColor(kBlack);
   SetNpx(2000);
   fkFac = 0.;
-   fkGaussNor = 1./sqrt(2*TMath::Pi());
+  fkGaussNor = 1./sqrt(2*TMath::Pi());
 }
 
 //________________________________________________________________
@@ -45,9 +45,9 @@ KVGausGumDistribution::KVGausGumDistribution(const Char_t* name, Int_t k, Double
    SetParName(4, "b_{m}");
    SetParLimits(0,0.,1.);
    SetParLimits(1,GetXmin(),GetXmax());
-   SetParLimits(2,0.01,20.);
-   SetParLimits(3,0.01,30.);
-   SetParLimits(4,0.01,20.);
+   SetParLimits(2,0.01,200.);
+   SetParLimits(3,0.01,GetXmax());
+   SetParLimits(4,0.01,200.);
   SetLineColor(kBlack);
   SetNpx(2000);
   
@@ -113,8 +113,9 @@ void KVGausGumDistribution::Paint(Option_t* option)
   fGumbelComp->SetLineColor(kRed);
   fGumbelComp->SetLineWidth(1.2);
   fGumbelComp->SetNpx(2000);
-  fGaussComp->Paint(option);
-  fGumbelComp->Paint(option);    
+  
+  fGaussComp->Paint("same");
+  fGumbelComp->Paint("same");    
 }
 
 //________________________________________________________________
