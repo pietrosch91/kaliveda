@@ -59,8 +59,10 @@ void KVSpiderIdentificator::Close()
 }
 
 
-void KVSpiderIdentificator::Clear()
+void KVSpiderIdentificator::Clear(Option_t* option)
 {
+  if(!strcmp(option,"ON EN A MARRE DES WARNING !!!!")) return;
+
   _hlist.Clear();
   _dlist.Clear();
   _llist.Clear("all");
@@ -149,6 +151,7 @@ void KVSpiderIdentificator::CalculateTheta()
 bool KVSpiderIdentificator::CheckPath(char* path_)
 {
   if(!gSystem->OpenDirectory(path_)) gSystem->MakeDirectory(path_);
+  return true;
 }
 
 
@@ -229,6 +232,7 @@ TH2F* KVSpiderIdentificator::CreateHistogram(double th_, double alpha_)
 {
   TList* ll = CreateHistograms(th_, th_, 1, true, alpha_);
   TH2F* h = (TH2F*)ll->At(0);
+  return h;
 }
 
 
@@ -390,10 +394,10 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
   
       double xx = xp*costh;
       double yy = ff->Eval(xx);
-      double yyp = _y0 + TMath::Sin(TMath::DegToRad()*(_otheta))*TMath::Cos(TMath::DegToRad()*(theta-_otheta))*TMath::Sqrt((xx-_x0)*(xx-_x0)+(yy-_y0)*(yy-_y0));
+//      double yyp = _y0 + TMath::Sin(TMath::DegToRad()*(_otheta))*TMath::Cos(TMath::DegToRad()*(theta-_otheta))*TMath::Sqrt((xx-_x0)*(xx-_x0)+(yy-_y0)*(yy-_y0));
       
       bool valid = true;
-      bool assoc = false;
+//      bool assoc = false;
       
       bool TrueAss = false;
       
@@ -467,14 +471,13 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
       if((create_!=0)&&(valid))
         {
         bool assoc = false;
-	bool empty = false;
+//	bool empty = false;
 	bool test  = false;
         int ii = -5;
 	
 	double d1 = 20000.;
 	double d2 = 0.;
 	
-        KVSpiderLine* zp = 0;
         KVSpiderLine* izp = 0;
         while((!assoc)&&(valid))
           {
@@ -487,8 +490,6 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
 	      if((d2>d1)||test)
 	        {
 		_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p+ii-1));
-		bool fifit = true;
-		if(create_>0) fifit = true;
 		if(_spline->TestPoint(xx,yy,-1.))
 		  {
 		  _spline->AddPoint(xx,yy);
@@ -497,23 +498,6 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
 		  assoc = true;
 		  valid = false;
 		  TrueAss = true;
-//                   if((ii>=2)&&(p>2)&&(false))
-// 	            {
-// 	            if(!(izp = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",OTZ))))
-// 		      {
-// 		      cout << "ERROR: FindSpiderLine(): Z = "<< p-1 << " so we have a problem...." << endl;
-// 		      return 1;
-// 		      }
-// 	            double xint = (izp->GetInterpolateX());
-// 	            double yint = (izp->GetInterpolateY());
-// 	            double dxint = (xx - (izp->GetInterpolateX()))/((ii)*1.0);
-// 	            double dyint = (yy - (izp->GetInterpolateY()))/((ii)*1.0);
-// 	            for(int k=1; k<ii; k++)
-// 		      {
-// 		      zp = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p+k-1));
-// 		      zp->AddInterpolatePoint(xint+k*dxint, yint+k*dyint);
-// 		      }
-// 	            }
 		  }
 		else
 		  {
@@ -522,7 +506,7 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
 		}      
 	      d1 = d2;
               }
-	    else empty = true;
+//	    else empty = true;
             }
           if(ii>=10) 
             {
@@ -564,256 +548,6 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
     
   return true;
 }
-
-
-
-bool KVSpiderIdentificator::SearchPeack2(TH1F* h1_, double theta_, int create_, double sigma_, double peakmin_, int rebin_, int smooth_, TString opt_)
-{
-  if(!TestHistogram(h1_)) return false;
-
-  _dtemp = (KVDroite*)_dlist.FindObject(Form("CUT_%06.3lf",theta_));
-  TF1* ff = _dtemp->GetFunction();
-    
-  h1_->Rebin(rebin_*_bfactor);
-  h1_->Smooth(smooth_);
-  
-  int nfound = _ss.Search(h1_,sigma_,opt_.Data(),(peakmin_/h1_->GetMaximum()));
-
-  double theta = _dtemp->GetTheta();
-  double costh = TMath::Cos(TMath::DegToRad()*theta);
-  
-  list<double> lx;  
-  Float_t* xpeaks = _ss.GetPositionX();
-  for(int p=0;p<nfound;p++) 
-    {
-    double xp = xpeaks[p];
-    lx.push_back(xp);
-    }
-  lx.sort();
-  
-  double ox   = 0.;
-  double oy   = 0.;
-  double dist = 0.;
-  int TrueZ   = 0;
-  int OTZ     = 0;
-  
-  int p  = 1;
-  int ok = 0;
-  
-  list<double>::iterator it;
-  for(it=lx.begin(); it!=lx.end(); ++it) 
-    {
-    if(p!=1)
-      {
-      Float_t xp = *it;
-  
-      double xx = xp*costh;
-      double yy = ff->Eval(xx);
-      double yyp = _y0 + TMath::Sin(TMath::DegToRad()*(_otheta))*TMath::Cos(TMath::DegToRad()*(theta-_otheta))*TMath::Sqrt((xx-_x0)*(xx-_x0)+(yy-_y0)*(yy-_y0));
-      bool valid = true;
-      
-      _invalid->SetPoint(_invalid->GetN(),xx,yy);
-      
-      double d = TMath::Sqrt((xx-ox)*(xx-ox)+(yy-oy)*(yy-oy));
-      if( (!(_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p)))) )
-        {
-        if(create_==0)
-	  {
-// 	  if((p>=10)&&(d>=1.3*dist)) 
-// 	    {
-// 	    valid = false;
-// 	    return true;
-// 	    }
-	  if(valid) 
-	    {
-	    _spline = new KVSpiderLine(p);
-            _llist.AddLast(_spline);
-	    }
-	  }
-	else valid = false;
-        }
-	
-      double caca = 0.6;
-      if(create_==0) caca = 0.6;
-
-      if((p>=4)&&(d<=caca*dist)&&(valid))
-        { 
-        valid = false;
-	//_llist.Remove(_spline);
-	
-        _spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-1));
-        double xmoy = (_spline->GetX()+xx)*0.5;
-        double ymoy = (_spline->GetY()+yy)*0.5;
-	_invalid->SetPoint(_invalid->GetN(),_spline->GetX(),_spline->GetY());
-	_invalid->SetPoint(_invalid->GetN(),xx,yy);
-        _spline->ReplaceLastPoint(xmoy, ymoy);
-	TrueZ = _spline->GetZ();
-        ok++;
-        p--;
-        }
-
-      if((p>=4)&&(valid))
-        {
-        if((yy>=4000.)||(xx>=4000.)) valid = false;
-        }
-
-      if((create_==0)&&(valid))
-        {
-	if((p>=10)&&(d>=1.7*dist)) 
-	  {
-	  valid = false;
-	  _llist.Remove(_spline);
-	  return true;
-	  }
-        _spline->AddPoint(xx,yy);
-	TrueZ = _spline->GetZ();
-        ok++;
-	if(p>=4) ox = ((KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-1)))->GetX();
-	if(p>=4) oy = ((KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-1)))->GetY();
-        }
-      else
-        {
-	_invalid->SetPoint(_invalid->GetN(),xx,yy);
-	}
-	
-      if((create_>0)&&valid)
-        {
-        if((p>=3))
-          {
-	  double deriv = (yy-_spline->GetY())/(xx-_spline->GetX());
-	  double deriv2 = (_spline->GetY()-_spline->GetY(_spline->GetN()-3))/(_spline->GetX()-_spline->GetX(_spline->GetN()-3));
-          if((yy<=_spline->GetInterpolateY()+10)&&(xx>_spline->GetInterpolateX())&&_spline->TestPoint(xx,yy)) 
-            {
-            valid = false;
-            _spline->AddPoint(xx,yy);
-            ok++;
-            }
-    	  else if(_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p+1)))
-	    {
-            if((yy<=_spline->GetInterpolateY()+10)&&(xx>_spline->GetInterpolateX())&&_spline->TestPoint(xx,yy,dist*0.5)) 
-              {
-              valid = false;
-              _spline->AddPoint(xx,yy);
-	      TrueZ = _spline->GetZ();
-              ok++;
-              }
-	    }
-          }
-        else if(_spline->TestPoint(xx,yy,dist*0.5))
-          {
-          valid = false;
-          _spline->AddPoint(xx,yy);
-	  TrueZ = _spline->GetZ();
-          ok++;
-	  }
-        }
-	     
-      if((create_<0)&&(valid))
-        {
-        bool assoc = false;
-	bool empty = false;
-        int ii = 1;
-	
-        KVSpiderLine* zp = 0;
-        KVSpiderLine* izp = 0;
-        while(!assoc)
-          {
-          if( (izp = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p+ii))))
-            {
-            if((izp->GetInterpolateN()!=0))
-              {
-              if((yy<=izp->GetInterpolateY()-dist*0.1)&&(xx<izp->GetInterpolateX()))
-        	{
-        	assoc = true;
-        	if(_spline->TestPoint(xx,yy,dist*0.5))
-        	  {
-        	  _spline->AddPoint(xx,yy);
-	          TrueZ = _spline->GetZ();
-        	  ok++;
-        	  }
-        	else _invalid->SetPoint(_invalid->GetN(),xx,yy);
-        	if((ii>=2)&&(p>2))
-        	  {
-        	  if(!(izp = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-1)))) 
-        	    {
-        	    cout << "ERROR: FindSpiderLine(): Z = "<< p-1 << " so we have a problem...." << endl;
-        	    return 1;
-        	    }
-        	  double xint = (izp->GetInterpolateX());
-        	  double yint = (izp->GetInterpolateY());
-        	  double dxint = (xx - (izp->GetInterpolateX()))/(ii*1.0);
-        	  double dyint = (yy - (izp->GetInterpolateY()))/(ii*1.0);
-        	  for(int k=1; k<ii; k++)
-        	    {
-        	    zp = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p+k-1));
-        	    zp->AddInterpolatePoint(xint+k*dxint, yint+k*dyint);
-        	    }
-        	  }
-        	}
-              else 
-        	{
-        	_spline = izp;
-        	}
-              }
-	    else empty = true;
-            }
-          else if((_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p)))||empty)
-            {
-            valid = true;
-            if(_spline->TestPoint(xx,yy,dist*0.5)) 
-              {
-	      double yyt = ((KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-1)))->GetInterpolateY();
-              if(xx<_spline->GetInterpolateX()&&(yy>yyt)) 
-	        {
-		if((yy<=yyt+0.5*dist)&&_spline->TestPoint(xx,yy)) _spline->AddPoint(xx,yy);
-	        TrueZ = _spline->GetZ();
-                ok++;
-		}
-              }
-            assoc=true;
-            }
-          if(ii>=5) 
-            {
-            valid = false;
-            assoc=true;
-            }
-          ii++;
-          }
-        p+=ii-2;
-        }     
-      if(!valid) 
-        {
-        _invalid->SetPoint(_invalid->GetN(),xx,yy);
-        }
-
-      if((_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",TrueZ)))&&(TrueZ!=OTZ))
-        {
-        xx = _spline->GetInterpolateX();
-        yy = _spline->GetInterpolateY();
-	
-        if((_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",TrueZ-1))))
-          {
-          ox = _spline->GetInterpolateX();
-          oy = _spline->GetInterpolateY();
-          }
-        else
-          {
-  	  ox = 0.;
-	  oy = 0.;
-	  }
-        dist = TMath::Sqrt((xx-ox)*(xx-ox)+(yy-oy)*(yy-oy));
-        ox = xx;
-	oy = yy;
-        }
-      OTZ = TrueZ;
-      }
-    p++;
-    _otheta = theta;   
-    }
-  return true;
-}
-
-
 
 
 bool KVSpiderIdentificator::ProcessIdentification()
@@ -920,8 +654,8 @@ bool KVSpiderIdentificator::GetLines(int npoints_, double alpha_)
     }
   _hlist.Clear();
       
-  if(npoints_==1)return true;
-  else npoints_;
+  if(npoints_==1) return false;
+//  else npoints_;
 
   CreateHistograms(_ftheta+1.,_ftheta+1.+npoints_,npoints_,true,alpha_);  
   _hlist.Sort();
@@ -940,39 +674,10 @@ bool KVSpiderIdentificator::GetLines(int npoints_, double alpha_)
 }
 
 
-bool KVSpiderIdentificator::TestPoint(double x_, double y_, KVSpiderLine* ll_)
-{
-//   if((p>=4)&&(d<=caca*dist)&&(valid))
-//     { 
-//     valid = false;
-//     _spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-1));
-//     double xmoy = (_spline->GetX()+xx)*0.5;
-//     double ymoy = (_spline->GetY()+yy)*0.5;
-//     _invalid->SetPoint(_invalid->GetN(),_spline->GetX(),_spline->GetY());
-//     _invalid->SetPoint(_invalid->GetN(),xx,yy);
-//     _spline->ReplaceLastPoint(xmoy, ymoy);
-// 
-//     // reculculer les distances de manière intéligente (...) //
-// 
-//     xx = _spline->GetX();
-//     yy = _spline->GetY();
-// 
-//     ox = ((KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-2)))->GetX();
-//     oy = ((KVSpiderLine*)_llist.FindObject(Form("Z=%d",p-2)))->GetY();
-// 
-//     dist = TMath::Sqrt((xx-ox)*(xx-ox)+(yy-oy)*(yy-oy));
-//     ox = xx;
-//     oy = yy;
-// 
-//     ok++;
-//     p--;
-//     }  
-}
-
-
 void KVSpiderIdentificator::Draw(Option_t* opt_)
 {
   TCanvas* cc = new TCanvas(Form("%s_C",_htot->GetName()),Form("%s_C",_htot->GetTitle()),800,800);
+  cc->cd()->SetLogz();
   TString option(opt_);
   
   _htot->SetStats(kFALSE);

@@ -11,6 +11,7 @@
 #include "TCutG.h"
 #include "TLeaf.h"
 #include "TPaveStats.h"
+#include "TSystem.h"
 #include "TPad.h"
 #include "TKey.h"
 #include "TROOT.h"
@@ -372,6 +373,7 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_histolist->SetName("fMain_histolist");
    fMain_histolist->SetWindowName("HISTOS");
    UInt_t hWidth = 400, hHeight = 600;
+
              /* menus */
    fMenuFile = new TGPopupMenu(gClient->GetRoot());
    fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
@@ -1085,7 +1087,7 @@ void KVTreeAnalyzer::SetSelection(const Char_t* sel)
 void KVTreeAnalyzer::Save()
 {
    TString filename;
-   filename.Form("Analysis_%s", fTreeFileName.Data());
+   filename.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
    SaveAs(filename);
 }
 
