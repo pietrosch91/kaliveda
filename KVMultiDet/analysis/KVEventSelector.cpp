@@ -8,6 +8,40 @@ using namespace std;
 
 ClassImp(KVEventSelector)
 
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVEventSelector</h2>
+<h4>General purpose analysis class for TTrees containing KVEvent objects</h4>
+<!-- */
+// --> END_HTML
+// Use this TSelector to analyse data in TTrees containing a branch with KVEvent-derived objects:
+//
+//    my_tree->Process("KVEventSelector", "[options]");
+//
+// where "[options]" is the list of options in the form "BranchName=toto, ...".
+//
+// The following options MUST be given:
+//
+//    BranchName:                name of branch containing the events
+//
+// The following is an optional option:
+//
+//    EventsReadInterval:     print info on analysis every N events instead of default value
+// 
+// Any other options can be defined by the user and parsed in her analysis class
+// with methods IsOptGiven(const Char_t*) and GetOpt(const Char_t*)
+//
+// If the user needs to define new reference frames for the data which must exist before global variables
+// are automatically calculated in the analysis loop, she can do so by overriding the method
+// SetAnalysisFrame(), like so:
+// MyAnalysis::SetAnalysisFrame()
+// {
+//     static TVector3 cmvelocity(0,0,3.0);
+//     GetEvent()->SetFrame("CM", cmvelocity);
+// }
+////////////////////////////////////////////////////////////////////////////////
+
 void KVEventSelector::Begin(TTree * /*tree*/)
 {
    // Analyse comma-separated list of options given (if any) and look for:
@@ -439,7 +473,7 @@ void KVEventSelector::SetOpt(const Char_t* option, const Char_t* value)
 
 Bool_t KVEventSelector::IsOptGiven(const Char_t* opt)
 {
-   //Returns kTRUE if the option 'opt' has been set
+   // Returns kTRUE if the option 'opt' has been set
    
    return fOptionList.HasParameter(opt);
 }
@@ -448,7 +482,8 @@ Bool_t KVEventSelector::IsOptGiven(const Char_t* opt)
 
 KVString& KVEventSelector::GetOpt(const Char_t* opt) const
 {
-   //Returns the value of the option
+   // Returns the value of the option
+   // Only use after checking existence of option with IsOptGiven(const Char_t* opt)
    
    return (KVString&)fOptionList.GetParameter(opt);
 }
@@ -457,7 +492,7 @@ KVString& KVEventSelector::GetOpt(const Char_t* opt) const
 
 void KVEventSelector::UnsetOpt(const Char_t* opt)
 {
-   //Removes the option 'opt' from the internal lists, as if it had never been set
+   // Removes the option 'opt' from the internal lists, as if it had never been set
    
    fOptionList.RemoveParameter(opt);
 }

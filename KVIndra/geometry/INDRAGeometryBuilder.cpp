@@ -26,6 +26,9 @@ ClassImp(INDRAGeometryBuilder)
 <h4>Build INDRA geometry from Huguet CAO infos</h4>
 <!-- */
 // --> END_HTML
+// N.B.1 - there are no 'etalon' telescopes in the geometry, no CAO information available
+// N.B.2 - the Ring 1 Si-CsI detectors are described using the same CAO as for the
+//            Ring 1 phoswich detectors
 ////////////////////////////////////////////////////////////////////////////////
 
 INDRAGeometryBuilder::INDRAGeometryBuilder()

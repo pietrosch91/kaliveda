@@ -47,7 +47,7 @@ class KVDataSetManager {
     KVDataSetManager();
     virtual ~ KVDataSetManager();
 
-   virtual Bool_t Init(KVDataRepository *);
+   virtual Bool_t Init(KVDataRepository * /*rep*/ = 0);
    virtual void CheckAvailability();
    virtual void Print(Option_t * opt = "") const;
    virtual KVDataSet *GetDataSet(Int_t) const;

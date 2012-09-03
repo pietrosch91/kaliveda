@@ -49,12 +49,12 @@ ClassImp(KVInputDialog)
    if (strcmp(tooltip, ""))
       fTextEntry->SetToolTipText(tooltip);
 
-   fTextEntry->Resize(260, fTextEntry->GetDefaultHeight());
+   fTextEntry->Resize(l->GetDefaultWidth(), fTextEntry->GetDefaultHeight());
    fMain->AddFrame(l,
                    new TGLayoutHints(kLHintsTop | kLHintsCenterX, 5, 5, 5,
                                      0));
    fMain->AddFrame(fTextEntry,
-                   new TGLayoutHints(kLHintsTop | kLHintsLeft, 5, 5, 5,
+                   new TGLayoutHints(kLHintsTop | kLHintsExpandX, 5, 5, 5,
                                      5));
 
    fMain->SetWindowName("KVInputDialog");
