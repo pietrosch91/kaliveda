@@ -1028,7 +1028,7 @@ KVNumberList KVINDRADstToRootTransfert::PrintAvailableRuns(KVString & datatype)
 void KVINDRADstToRootTransfert::CheckParams()
 {
 	Info("CheckParams", "Checking acquisition parameter indices");
-	TObjArray* params = (TObjArray*)rawtree->GetUserInfo()->At(0);
+
 	TIter next(gMultiDetArray->GetACQParams());
 	KVACQParam* acqpar;
 	while( (acqpar=(KVACQParam*)next()) ){
