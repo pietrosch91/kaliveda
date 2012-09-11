@@ -24,20 +24,13 @@ class TTree;
 class KVINDRADstToRootTransfert : public KVDataAnalyser
 {
 
-	Int_t fRawEventNumber;//!
-	Int_t fDSTnumberCorrected;//!
-	Int_t fDSTnumberOK;//!
-	Int_t fRawEventNotFound;//!
-	Int_t EventNumber;//!
+   protected:
+	Int_t fEventNumber;//!
 	Int_t NbParFired;//!
 	UShort_t ParVal[3000];//!
 	UInt_t ParNum[3000];//!
-	TObjArray* params;//!
-	Int_t STATEVE_index;//!
-	Long64_t fRawTreeEntries;//!
+	KVSeqCollection* params;//!
 	
-   protected:
-
    virtual KVNumberList PrintAvailableRuns(KVString & datatype);
    
 	Int_t mt;
@@ -67,17 +60,12 @@ class KVINDRADstToRootTransfert : public KVDataAnalyser
 	
 	void SetCampagneNumber(){
 		fCampNumber=-1;
-		KVString snom; snom.Form("%s",gDataSet->GetName());
-		KVString snom2;
-		if (snom.Sscanf("INDRA_camp%d")){
-			
-			KVNumberList nl = "1 2 4";
-			nl.Begin();
-			while (!nl.End()){
-				Int_t cc = nl.Next();
-				snom2.Form("INDRA_camp%d",cc);
-				if (snom==snom2) {fCampNumber=cc; break;}
-			}
+		KVString snom=gDataSet->GetName();
+   	KVNumberList nl = "1 2 4";
+   	nl.Begin();
+   	while (!nl.End()){
+   		Int_t cc = nl.Next();
+   		if(snom.EndsWith(Form("%d",cc))) {fCampNumber=cc; break;}
 		}
 		Info("SetCampagneNumber","%s -> Campagne numero %d",gDataSet->GetName(),fCampNumber);
 	}
@@ -106,9 +94,7 @@ class KVINDRADstToRootTransfert : public KVDataAnalyser
 	
 	void lire_evt(std::ifstream &f_in,KVINDRAReconEvent *evt);
    
-	Bool_t CheckDSTEventNumber(Int_t dstEvNo, KVINDRAReconEvent* EVENT, Int_t decal_index=0);
-	void CheckParams();
-	void CompareEvents(KVNumberList& e1, KVNumberList& e2);
+	void FillRawTree();
 	
 	ClassDef(KVINDRADstToRootTransfert,1)//Conversion of INDRA DST to KaliVeda ROOT format
 };
