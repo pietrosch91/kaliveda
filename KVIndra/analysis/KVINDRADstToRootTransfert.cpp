@@ -914,7 +914,9 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
 				//des codes 4 donc on les traite comme tels
 				
 				KVDetector* det_stop=0; identifying_telescope=0;
-				det_stop = (this->*CodeFunc[code])(icou,imod);
+				if (code==14)	det_stop = (this->*CodeFunc[4])(icou,imod);
+				else				det_stop = (this->*CodeFunc[code])(icou,imod); 
+				
 				if(!det_stop) {
 					cout << "det_stop=0: event#"<<num_ev<<" particle#"<<i<<"  icou="<<icou<<" imod="<<imod<<
 						" z="<<z<<" a="<<a<<" code="<<code<<" ecode="<<ecode<<endl;
