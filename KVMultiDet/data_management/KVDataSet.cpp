@@ -929,8 +929,8 @@ void KVDataSet::DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm)
    }
    //delete file
    //add a safety condition for raw files
-	if (!strcmp(type,"raw")) {
-		Error("DeleteRunFile","raw files cannot be deleted");
+	if (!strcmp(type,"raw") || !strcmp(type,"dst")) {
+		Error("DeleteRunFile","%s files cannot be deleted",type);
 		return;
 	}
 	fRepository->DeleteFile(this, type, filename.Data(), confirm);
