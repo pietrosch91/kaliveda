@@ -671,7 +671,10 @@ KVDetector* KVINDRADstToRootTransfert::Code4and5and6and8(Int_t ring, Int_t mod)
 // 	  toutes les particules qui s'arretent dans les modules suivants.
 // 	  Le Z individuel est donc surement faux mais cela permet
 // 	  d'avoir une assez bonne estimation du Z.total.
-
+//
+// 09/2012 pour la 2e campagne presence de code14 qui semble etre
+// des codes 4 donc on les traite comme tels
+				
 	if(ring==1 && camp2)
  	{
  		 //phoswich
@@ -899,13 +902,17 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
 				}
   			}
 	
-  			if(code<11 && icou>0 && imod>0 && icou<18 && imod<25){		
+  			if((code<11 || (camp2 && code==14)) && icou>0 && imod>0 && icou<18 && imod<25){		
 				//work out where particle stopped
 				//set up corresponding detectors with energy losses and raw data (canal)
 				//set stopping detector's marqueur de temps to the MT of the particle
 				//(the other Mt are not written on the DST's).
 				//then use KVINDRAReconNuc::Reconstruct to set up list of hit detectors,
 				//hit group and telescope for this particle
+				//
+				//pour la 2e campagne presence de code14 qui semble etre
+				//des codes 4 donc on les traite comme tels
+				
 				KVDetector* det_stop=0; identifying_telescope=0;
 				det_stop = (this->*CodeFunc[code])(icou,imod);
 				if(!det_stop) {

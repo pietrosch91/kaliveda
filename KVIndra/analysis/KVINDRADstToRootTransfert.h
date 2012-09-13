@@ -12,6 +12,7 @@ $Date: 2007/05/31 09:59:22 $
 
 #include "KVString.h"
 #include "KVNumberList.h"
+#include "KVIntegerList.h"
 #include "KVDataSet.h"
 #include "KVDataAnalyser.h"
 #include "TString.h"
