@@ -150,6 +150,8 @@ class KVDataSet:public KVBase {
    void UpdateAvailableRuns(const Char_t * type);
    TFile *NewRunfile(const Char_t * type, Int_t run);
    void CommitRunfile(const Char_t * type, Int_t run, TFile * file);
+   
+   void CopyRunfilesFromRepository(const Char_t * type, KVNumberList runs, const Char_t* destdir);
 
    void DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm=kTRUE);
    void DeleteRunfiles(const Char_t * type, KVNumberList lrun="", Bool_t confirm=kTRUE);

@@ -1693,3 +1693,21 @@ Bool_t KVDataSet::DataBaseNeedsUpdate()
 	gSystem->cd( pwd.Data() );
 	return (ret!=0);
 }
+
+//___________________________________________________________________________
+
+void KVDataSet::CopyRunfilesFromRepository(const Char_t * type, KVNumberList runs, const Char_t* destdir)
+{
+   // Copies the runfiles of given "type" into the local directory "destdir".
+   // Run numbers given as a list of type "1-10".
+   
+   KVDataRepository* repo = GetRepository();
+   runs.Begin();
+   while(!runs.End()){
+      int run = runs.Next();
+      TString filename = GetRunfileName(type,run);
+      TString destpath;
+      AssignAndDelete(destpath, gSystem->ConcatFileName(destdir,filename));
+      repo->CopyFileFromRepository(this, type, filename, destpath);
+   }
+}
