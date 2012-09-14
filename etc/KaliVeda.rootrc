@@ -435,7 +435,7 @@ Xterm.BatchSystem.JobSubCmd:   xterm
 Xterm.BatchSystem.JobScript: "$KVROOT/bin/KaliVedaAnalysis -b -n"&
 +BatchSystem:     Linux
 Linux.BatchSystem.Title:    Execute task in background with output stored in log file
-Linux.BatchSystem.DefaultJobOptions:   -b -n >& #JobName#.log &
+Linux.BatchSystem.DefaultJobOptions:   -b -n > #JobName#.log 2>&1 &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 #Plugins for batch systems
 Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
