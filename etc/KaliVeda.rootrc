@@ -567,8 +567,10 @@ INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
+INDRA_e503.INDRADB.Pedestals:                         PedestalsE503.dat
+INDRA_e503.INDRADB.GGtoPGFactors:                     ParamFitPG_GG.dat
+
 INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
-INDRA_e503.INDRADB.Pedestals:      PedestalsE503.dat
 INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
 
 # Default headers for runlist columns
@@ -691,6 +693,13 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
+
+################################################
++Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI    KVIndra "KVIDChIoCorrCsI()"
+###############################################
+
 # ===> Plugin pour FocalPlanVamos
 +Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
 
@@ -733,6 +742,11 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
+INDRA_e503.IdentificationParameterFile.SI-CSI:      SI_CSI_C4-9_autofit.dat
+INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.dat
+INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
+INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
+###############################################
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################
@@ -752,6 +766,7 @@ INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
 INDRA_e613.ActiveIdentifications:    CSI SI-CSI
+INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
