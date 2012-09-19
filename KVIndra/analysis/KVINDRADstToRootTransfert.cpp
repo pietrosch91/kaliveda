@@ -194,6 +194,10 @@ void KVINDRADstToRootTransfert::ProcessRun()
       TString raw_opt = "arrays";
 		
       KVGANILDataReader* raw_data = (KVGANILDataReader*)gDataSet->OpenRunfile("raw", fRunNumber);
+      if(!raw_data){
+	 Error("ProcessRun", "No RAW data file available for this run. ABORT!!");
+	 exit(1);
+      }
       raw_data->SetUserTree(rawtree,raw_opt.Data());
       Info("InitRun", "Created raw data tree (%s : %s). Format: %s",
             rawtree->GetName(), rawtree->GetTitle(), raw_opt.Data());

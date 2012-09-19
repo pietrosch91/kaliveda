@@ -42,8 +42,10 @@ export ROOTGANILTAPE = no
 endif
 
 ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+# before ROOT 5.32 xrootd libraries were in main ROOT installation
 XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
 else
+# since 5.32 xrootd is installed separately in $XRDSYS directory
 XRDPOSIX = -L$(XRDSYS)/lib -lXrdPosix
 endif
 
