@@ -735,7 +735,8 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    else
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
-      if(fNewCanvas) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+      // create a new canvas also if none exists
+      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
