@@ -1,0 +1,38 @@
+# Etalonnages canal -> volt pour silicium etalons INDRA_e494s 
+# sept 2012 fichier CREE pour DB, MAIS PAS D'ETALONNAGES !!!!!
+# Liste des parametres : 
+# a0, a1, a2 
+Run Range : 1 600 
+
+ SILI_10_PG    0.      1.       0.
+ SILI_11_PG    0.      1.       0.
+ SILI_12_PG    0.      1.       0.
+ SILI_13_PG    0.      1.       0.
+ SILI_14_PG    0.      1.       0.
+ SILI_15_PG    0.      1.       0.
+ SILI_16_PG    0.      1.       0.
+ SILI_17_PG    0.      1.       0.
+ SILI_10_GG    0.      1.       0.
+ SILI_11_GG    0.      1.       0.
+ SILI_12_GG    0.      1.       0.
+ SILI_13_GG    0.      1.       0.
+ SILI_14_GG    0.      1.       0.
+ SILI_15_GG    0.      1.       0.
+ SILI_16_GG    0.      1.       0.
+ SILI_17_GG    0.      1.       0.
+ SI75_10_PG    0.      1.       0.
+ SI75_11_PG    0.      1.       0.
+ SI75_12_PG    0.      1.       0.
+ SI75_13_PG    0.      1.       0.
+ SI75_14_PG    0.      1.       0.
+ SI75_15_PG    0.      1.       0.
+ SI75_16_PG    0.      1.       0.
+ SI75_17_PG    0.      1.       0.
+ SI75_10_GG    0.      1.       0.
+ SI75_11_GG    0.      1.       0.
+ SI75_12_GG    0.      1.       0.
+ SI75_13_GG    0.      1.       0.
+ SI75_14_GG    0.      1.       0.
+ SI75_15_GG    0.      1.       0.
+ SI75_16_GG    0.      1.       0.
+ SI75_17_GG    0.      1.       0.
