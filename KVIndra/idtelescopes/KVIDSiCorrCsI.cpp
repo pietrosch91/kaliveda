@@ -73,7 +73,7 @@ void KVIDSiCorrCsI::Initialize()
 
 Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
 {
-    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
+    opt = opt; // not used (keeps the compiler quiet)
 
     fCsILight = fCsI->GetLumiereTotale();
 
@@ -84,7 +84,7 @@ Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt)
 
 Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
 {
-    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
+    opt = opt; // not used (keeps the compiler quiet)
 
     fSiCorr = -5.;
 
@@ -117,8 +117,8 @@ Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt)
 
 Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
 {
-    Double_t xVar; xVar = x; // not used (Keeps the compiler quiet)
-    Double_t yVar; yVar = y; // not used
+    x = x; // not used (Keeps the compiler quiet)
+    y = y; // not used
 
     //Identification of particles using SiCorrelated-CsI matrices for E503/E494s
     //First of all, Z identification is attempted with KVIDSiCorrCsI::IdentZ.
@@ -284,6 +284,8 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
     int zmin = -1;
     int zmax = -1;
 
+	TString runs;
+
     Double_t param[10];
 
     int ring = -1;
@@ -306,6 +308,9 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
             idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(name.str().c_str());
         }
 
+		if(line.BeginsWith("Runs=")) line.ReplaceAll("Runs=","");
+		runs = line;
+		
         sscanf(line.Data(), "ZorA=%i", &zOrA); 
         sscanf(line.Data(), "ZMIN=%i ZMAX=%i", &zmin, &zmax);
 
@@ -344,7 +349,7 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
             _tgidZ->SetLTGParameters(param);
             _tgidA->SetLTGParameters(param);
 
-            KVNumberList runList("1-700");
+            KVNumberList runList(runs.Data());
 
             _tgidZ->SetValidRuns(runList);
             _tgidZ->AddIDTelescope(idt);

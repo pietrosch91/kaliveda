@@ -693,7 +693,13 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
-
+################################################
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI$        KVIDChIoSiCorr                KVIndra      "KVIDChIoSiCorr()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-CSI$       KVIDChIoCorrCsI_e494s         KVIndra      "KVIDChIoCorrCsI_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SI-CSI$       KVIDSiCorrCsI                 KVIndra      "KVIDSiCorrCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_camp5            KVIndra      "KVIDChIoSi75_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_camp5            KVIndra      "KVIDSi75SiLi_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_camp5             KVIndra      "KVIDSiLiCsI_camp5()"
 ################################################
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
@@ -747,6 +753,13 @@ INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.da
 INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
 ###############################################
+INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
+INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
+INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
+INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_Si75_SiLi.dat
+INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_SiLi_CsI.dat
+###############################################
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################
@@ -767,6 +780,7 @@ INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
 INDRA_e613.ActiveIdentifications:    CSI SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
+INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CI-SI75 SI75-SILI SILI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
