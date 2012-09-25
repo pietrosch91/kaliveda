@@ -11,6 +11,7 @@
 #include "TCutG.h"
 #include "TLeaf.h"
 #include "TPaveStats.h"
+#include "TSystem.h"
 #include "TPad.h"
 #include "TKey.h"
 #include "TROOT.h"
@@ -372,6 +373,7 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_histolist->SetName("fMain_histolist");
    fMain_histolist->SetWindowName("HISTOS");
    UInt_t hWidth = 400, hHeight = 600;
+
              /* menus */
    fMenuFile = new TGPopupMenu(gClient->GetRoot());
    fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
@@ -733,7 +735,8 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    else
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
-      if(fNewCanvas) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+      // create a new canvas also if none exists
+      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -1085,7 +1088,7 @@ void KVTreeAnalyzer::SetSelection(const Char_t* sel)
 void KVTreeAnalyzer::Save()
 {
    TString filename;
-   filename.Form("Analysis_%s", fTreeFileName.Data());
+   filename.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
    SaveAs(filename);
 }
 

@@ -841,10 +841,13 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	 //We add also different sub group :
 	 //	- For UNDETECTED particles : "DEAD ZONE", "STOPPED IN TARGET" and "THRESHOLD", the last one concerned particle
 	 //go through the first detection stage of the multidetector array but stopped in an absorber (ie an inactive layer)
-	 //	- For DETECTED particles : "INCOMPLETE" corrresponds to particle which cross all the materials in front of it 
-	 //     (high energy particle punh through), or which miss some detectors due to a non perfect overlap between defined telescope,
-	 //	  or particles which stopped in the first detection stage of the multidetector in a detector which can not give
-	 //		alone a clear identification, this correponds to status=3 or idcode=5 in INDRA data
+	 //	- For DETECTED particles : 
+	 //			"PUNCH THROUGH" corrresponds to particle which cross all the materials in front of it 
+	 //     		(high energy particle punh through), or which miss some detectors due to a non perfect 
+	 //			overlap between defined telescope,
+	 //	  		"INCOMPLETE"  corresponds to particles which stopped in the first detection stage of the multidetector 
+	 //			in a detector which can not give alone a clear identification, 
+	 //			this correponds to status=3 or idcode=5 in INDRA data
 	 //
 	 //After the filtered process, a reconstructed event are obtain from the fired groups corresponding
 	 //to detection group where at least one detector havec an active layer energy loss greater than zero
@@ -999,7 +1002,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					else {
 						
 						TList* lidtel = last_det->GetTelescopesForIdentification();
-						if (lidtel->GetEntries()==0 && last_det->GetEnergy()==0){
+						if (lidtel->GetEntries()==0 && last_det->GetEnergy()<=0){
 							//Arret dans un absorbeur (unactive layer, mylar pour les ChIo par ex)
 							det_stat->SetValue("UNDETECTED","THRESHOLD");
 							
@@ -1028,6 +1031,11 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							}
 							else {
 								Warning("DetectEvent","Cas non prevu ....");
+								printf("last_det->GetName()=%s, lidtel->GetEntries()=%d, last_det->GetEnergy()=%lf\n",
+									last_det->GetName(),
+									lidtel->GetEntries(),
+									last_det->GetEnergy()
+								);
 							}
 							
 							//Test d'une energie residuelle non nulle
@@ -1051,8 +1059,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 								//Pour ces deux cas
 								//on a une information incomplete
 								//pour la particule
-								part->AddGroup("INCOMPLETE");
-								det_stat->SetValue("DETECTED","INCOMPLETE");
+								part->AddGroup("PUNCH THROUGH");
+								det_stat->SetValue("DETECTED","PUNCH THROUGH");
 							}
 						}
 					}

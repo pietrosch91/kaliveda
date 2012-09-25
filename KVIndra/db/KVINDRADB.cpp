@@ -1722,16 +1722,18 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
                KVCsI *csi =
                    (KVCsI *) gIndra->GetDetectorByType(ring, mod, CsI_R);
                if (!csi) {
-                  Warning("ReadLightEnergyCsI()", "Cant find CsI %d.%d",
+                  Warning("ReadLightEnergyCsI()", "Read calibration for non-existent detector CSI_%02d%02d",
                           ring, mod);
-                  return;
                }
-               parset =
+               else
+               {
+                  parset =
                    new KVDBParameterSet(csi->GetName(), Form("Light-Energy CsI %s", zrange),
                                         4);
-               parset->SetParameters(a1, a2, a3, a4);
-               table->AddRecord(parset);
-               par_list->Add(parset);
+                  parset->SetParameters(a1, a2, a3, a4);
+                  table->AddRecord(parset);
+                  par_list->Add(parset);
+               }
             }                   //parameters correctly read
          }                      //data line
       }                         //if(fin.good

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="generator" content="http://www.nongnu.org/elyxer/"/>
+<meta name="create-date" content="2012-08-13"/>
+<link rel="stylesheet" href="http://elyxer.nongnu.org/lyx.css" type="text/css" media="all"/>
+<title>Converted document</title>
+</head>
+<body>
+<div id="globalWrapper">
+<h1 class="Section">
+<a class="toc" name="toc-Section-1">1</a> Overview
+</h1>
+<div class="Unindented">
+<i><a class="URL" href="../KVSimDirGUI.html">KVSimDirGUI</a></i> is a graphical interface which allows to manage simulated and filtered simulated data. It can be used to filter existing simulations with any known detector set-up, and to analyse both ’raw’ and filtered simulations. It is based on the classes <i><a class="URL" href="../KVSimDir.html">KVSimDir</a></i> and <a class="URL" href="../KVSimFile.html">KVSimFile</a>, which handle the directories containing the data. Different datasets can be managed, each one corresponding to a different directory containing data in ROOT trees. ROOT files in the dataset directories are automatically scanned to find TTrees with a branch containing objects either of a <a class="URL" href="../KVSimEvent.html">KVSimEvent</a>-derived class or of a <a class="URL" href="../KVReconstructedEvent.html">KVReconstructedEvent</a>-derived class. The former files will be considered as simulated data, and the latter as filtered simulated data. See <i><a class="URL" href="../KVSimDir.html">KVSimDir</a></i> for more details.
+</div>
+<div class="Indented">
+<div class="float">
+<a class="Label" name="fig:Overview-of-GUI"> </a><div class="figure">
+<img class="embedded" src="Pictures/Selection_011.png" alt="figure Pictures/Selection_011.png" style="width: 849px; max-width: 1132px; height: 570px; max-height: 760px;"/>
+<div class="caption">
+Figure 1 Overview of GUI, showing the data analysis tab
+</div>
+
+</div>
+
+</div>
+
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-2">2</a> Adding a dataset
+</h1>
+<div class="Unindented">
+Click on the ’Add dataset’ button (see Fig.<a class="Reference" href="#fig:Overview-of-GUI">1↑</a>). A file dialogue opens (Fig.<a class="Reference" href="#fig:File-dialogue-to">2↓</a>): navigate into the directory containing your simulation files and click the ’Open’ button.
+</div>
+<div class="Indented">
+<div class="float">
+<a class="Label" name="fig:File-dialogue-to"> </a><div class="figure">
+<img class="embedded" src="Choose directory..._012.png" alt="figure Choose directory..._012.png" style="width: 351px; max-width: 468px; height: 211px; max-height: 282px;"/>
+<div class="caption">
+Figure 2 File dialogue to choose new dataset directory
+</div>
+
+</div>
+
+</div>
+Next enter a name for your dataset in the dialogue box (Fig.<a class="Reference" href="#fig:Dialogue-box-name">3↓</a>) and click the ’OK’ button.
+</div>
+<div class="Indented">
+<div class="float">
+<a class="Label" name="fig:Dialogue-box-name"> </a><div class="figure">
+<img class="embedded" src="KVInputDialog_014.png" alt="figure KVInputDialog_014.png" style="width: 315px; max-width: 421px; height: 87px; max-height: 116px;"/>
+<div class="caption">
+Figure 3 Dialogue box to enter name of new dataset
+</div>
+
+</div>
+
+</div>
+The new dataset appears in the list of datasets, the lists of associated simulated and/or filtered data are displayed in the respective lists (Fig.<a class="Reference" href="#fig:New-dataset-appears">4↓</a>).
+</div>
+<div class="Indented">
+<div class="float">
+<a class="Label" name="fig:New-dataset-appears"> </a><div class="figure">
+<img class="embedded" src="Untitled window_015.png" alt="figure Untitled window_015.png" style="width: 678px; max-width: 904px; height: 565px; max-height: 754px;"/>
+<div class="caption">
+Figure 4 New dataset appears in GUI
+</div>
+
+</div>
+
+</div>
+
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-3">3</a> Analysing data
+</h1>
+<div class="Unindented">
+In the ’Analysis’ tab, click on the analysis class selection button (see Fig.<a class="Reference" href="#fig:Overview-of-GUI">1↑</a>). In the file dialogue box (Fig.<a class="Reference" href="#fig:choose-analysis-class">5↓</a>) navigate to the directory containing your analysis class files and select the appropriate header (’.h’) file. Note that in order to analyse simulated data, your analysis class must derive from <a class="URL" href="../KVEventSelector.html">KVEventSelector</a>.
+</div>
+<div class="Indented">
+<div class="float">
+<a class="Label" name="fig:choose-analysis-class"> </a><div class="figure">
+<img class="embedded" src="Open_016.png" alt="figure Open_016.png" style="width: 351px; max-width: 468px; height: 211px; max-height: 282px;"/>
+<div class="caption">
+Figure 5 Dialogue box for choosing analysis class header file
+</div>
+
+</div>
+
+</div>
+Adjust the number of events you want to analyse, or check ’All’ to analyse all events. Select one or more simulated or filtered data files in the corresponding list and click on the ’Run analysis’ button.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-4">4</a> Filtering data
+</h1>
+<div class="Unindented">
+<div class="float">
+<a class="Label" name="fig:Tab-for-filtering"> </a><div class="figure">
+<img class="embedded" src="Selection_017.png" alt="figure Selection_017.png" style="width: 666px; max-width: 888px; height: 129px; max-height: 172px;"/>
+<div class="caption">
+Figure 6 Tab for filtering simulated data
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="Indented">
+In the ’Filtering’ tab (Fig.<a class="Reference" href="#fig:Tab-for-filtering">6↑</a>), select the dataset and collision system which define the experimental conditions for which you want to filter your simulation. Optionally, you can choose a specific run number; if not, the first run corresponding to the chosen system will be used. Choose the type of filtering you want:
+</div>
+<ul>
+<li>
+Geometric - particles are considered detected if they hit at least one detector;
+</li>
+<li>
+Geometry+Thresholds - particles are considered detected if they cross at least one detector, particles which are stopped by the first detector of a telescope are rejected as unidentified;
+</li>
+<li>
+Full - full simulation of array response, inverted calibrations are used to generate pseudo-experimental raw data, which is then identified and calibrated using exactly the same experimental procedures.
+</li>
+
+</ul>
+<div class="Unindented">
+Choose the type of geometry description to use:
+</div>
+<ul>
+<li>
+KaliVeda - the simple detector geometry of <a class="URL" href="../KVMultiDetArray.html">KVMultiDetArray</a> is used (detector positions described by minimum and maximum polar and azimuthal angles), and particles are propagated using <a class="URL" href="../KVMultiDetArray.html#KVMultiDetArray:DetectParticle_KV">KVMultiDetArray::DetectParticle_KV</a> (find <a class="URL" href="../KVGroup.html">KVGroup</a> hit by particle based on <span class="formula">(<i>θ</i>, <i>φ</i>)</span>, then calculate energy losses in all detectors of the <a class="URL" href="../KVTelescope.html">KVTelescope</a> corresponding to this direction);
+</li>
+<li>
+ROOT - use the ROOT geometry package <a class="URL" href="http://root.cern.ch/root/html/GEOM_GEOM_Index.html">TGeo</a> to describe the detectors and calculate the particle propagation. The ROOT geometry is generated using method <a class="URL" href="../KVMultiDetArray.html#KVMultiDetArray:CreateGeoManager">KVMultiDetArray::CreateGeoManager</a> which by default translates the simple <a class="URL" href="../KVMultiDetArray.html">KVMultiDetArray</a> geometry into <a class="URL" href="http://root.cern.ch/root/html/GEOM_GEOM_Index.html">TGeo</a> classes, but may be overridden in child classes (see for example <a class="URL" href="../KVINDRA.html#KVINDRA:CreateGeoManager">KVINDRA::CreateGeoManager</a>).
+</li>
+
+</ul>
+<div class="Unindented">
+Select a simulated data file in the list and click on the ’Run filter’ button. The new file of filtered data will be written in the same directory as the simulated data file. Click on the ’Refresh dataset’ button (see Fig.<a class="Reference" href="#fig:Overview-of-GUI">1↑</a>) in order to reanalyse the directory: the new file will appear in the ’Filtered simulations’ list.
+</div>
+
+<hr class="footer"/>
+<div class="footer" id="generated-by">
+Document generated by <a href="http://elyxer.nongnu.org/">eLyXer 1.2.3 (2011-08-31)</a> on <span class="create-date">2012-08-13T16:26:14.052464</span>
+</div>
+</div>
+</body>
+</html>

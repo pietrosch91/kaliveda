@@ -20,23 +20,41 @@ ClassImp(KVedaLoss)
 /* -->
 <h2>KVedaLoss</h2>
 <h4>C++ implementation of VEDALOSS stopping power calculation</h4>
-<h3>Credits</h3>
-From the original documentation of vedaloss.f:<br>
-<pre>
- vedaloss.doc       MAJ 5/9/97   
- -------------
- Routines ecrites par E. de Filippo          
- Mise a jour :      19/12/96 par O. LOPEZ pour UNIX sur ANASTASIE.
- Mise a jour :      22/05/97 par J-L. Charvet (voir routine DELTA)
- Mise a jour :      27/10/97 par R. Dayras
- Mise a jour :      23/03/00 par R. Dayras (ajout Nobium)
-</pre>
+See documentation <a href="kvedaloss_classdoc.html.LyXconv/kvedaloss_classdoc.html">here</a>.
 <!-- */
 // --> END_HTML
+// Energy limits
+// Normally all range, dE, Eres functions are limited to range 0<=E<=Emax,
+// where Emax is nominal max energy for which range tables are valid
+// (usually 400MeV/u for Z<3, 250MeV/u for Z>3)
+// If higher energies are required, call static method KVedaLoss::SetIgnoreEnergyLimits()
+// BEFORE ANY MATERIALS ARE CREATED
+// in order to recalculate the Emax limits in such a way that: 
+//     range function is always monotonically increasing function of Einc
+//     stopping power is concave (i.e. no minimum of stopping power followed by an increase)
+// at the most, the new limit will be 1 GeV/nucleon.
+// at the least, it will remain at the nominal (400 or 250 MeV/nucleon) level.
 ////////////////////////////////////////////////////////////////////////////////
 
 KVHashList* KVedaLoss::fMaterials = 0x0;
 
+void KVedaLoss::SetIgnoreEnergyLimits(Bool_t yes)
+{
+   // Call this static method with yes=kTRUE in order to recalculate the nominal limits
+   // on incident ion energies for which the range tables are valid.
+   //
+   // Normally all range, dE, Eres functions are limited to range 0<=E<=Emax,
+   // where Emax is nominal max energy for which range tables are valid
+   // (usually 400MeV/u for Z<3, 250MeV/u for Z>3)
+   // If higher energies are required, call this static method in order to recalculate the Emax limits
+   // in such a way that: 
+   //     range function is always monotonically increasing function of Einc
+   //     stopping power is concave (i.e. no minimum of stopping power followed by an increase)
+   // at the most, the new limit will be 1 GeV/nucleon.
+   // at the least, it will remain at the nominal (400 or 250 MeV/nucleon) level.
+   KVedaLossMaterial::SetNoLimits(yes);
+};
+   
 KVedaLoss::KVedaLoss()
 {
    // Default constructor

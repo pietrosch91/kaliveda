@@ -397,7 +397,7 @@ class KVDetector:public KVMaterial {
 		return (fPresent && fDetecting);
 	}
 	
-	virtual void DeduceACQParameters(Int_t zz=-1,Int_t aa=-1){};
+	virtual void DeduceACQParameters(Int_t /*zz*/=-1,Int_t /*aa*/=-1){};
 	
 	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
