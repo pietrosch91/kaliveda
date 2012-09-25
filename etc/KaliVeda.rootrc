@@ -902,6 +902,9 @@ KVTGIDGrid.CutClass:  KVIDCutLine
 +KVTGIDGrid.CutClass:  KVIDCutContour
 KVTGIDGrid.DefaultCutClass:  KVIDCutLine
 KVTGIDGrid.IDClass:  KVIDZALine
+KVIDGChIoSi_e494s.CutClass:  KVIDCutLine  KVIDCutContour
+KVIDGChIoSi_e494s.DefaultCutClass:  KVIDCutLine
+KVIDGChIoSi_e494s.IDClass:  KVIDZALine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
