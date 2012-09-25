@@ -85,7 +85,9 @@ void KVIDGridEditor::StartViewer()
     fCanvas = new KVIDGridEditorCanvas(Form("%sCanvas",GetName()),Form("%sCanvas",GetName()),800,600);
     fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
     fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
-
+    // connect canvas' Closed() signal to method CanvasWasClosed().
+    // this way we always know if the canvas is closed by user closing the window
+    fCanvas->Connect("Closed()", "KVIDGridEditor", this, "CanvasWasClosed()");
     fPad = fCanvas->cd();
   
     if(!ready) init();
@@ -95,6 +97,14 @@ void KVIDGridEditor::StartViewer()
     }
     
   return;
+}
+
+void KVIDGridEditor::CanvasWasClosed()
+{
+   // Slot connected to the 'Closed()' signal of the canvas.
+   // If the user closes the canvas window this method gets called.
+   fCanvas=0;
+   fPad=0;
 }
 
 //________________________________________________________________
@@ -129,9 +139,7 @@ void KVIDGridEditor::SetDefault()
 //________________________________________________________________
 Bool_t KVIDGridEditor::IsClosed()
 {
-//  if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
-  if(fPad) return false;
-  else return true;
+   return (!fCanvas);
 }
 
 //________________________________________________________________
@@ -139,9 +147,11 @@ void KVIDGridEditor::Close()
 {
   if(!IsClosed())
     {
+    fCanvas->Disconnect("Closed()", this, "CanvasWasClosed()");
     fCanvas->Close();
     delete fCanvas;
     fCanvas = 0;
+    fPad=0;
     }
   return;
 }
@@ -570,6 +580,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   
   if(!IsClosed()&&(TheHisto))
     {
+       fPad = fCanvas->cd();//au cas ou il y a plusieurs canevas ouverts
     TheHisto->Draw("col");
     fPad->SetLogz(true);
     TheHisto->SetMinimum(1);
