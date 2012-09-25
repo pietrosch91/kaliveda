@@ -34,6 +34,9 @@ ClassImp(KVEventFiltering)
 //                or 'Full' (full simulation of detector response, including experimental identification
 //                and calibration routines)
 //    OutputDir:  directory path in which to write filtered data file
+//    Kinematics:  kinematical frame for simulation, either "cm" or "lab". if "cm", we use the c.m. velocity
+//                        of the selected System to transform events into the detector (laboratory) frame.
+//                         if "lab" no transformation is performed: simulated events are already in laboratory frame.
 //
 // The following is an optional option:
 //
@@ -54,6 +57,7 @@ ClassImp(KVEventFiltering)
 KVEventFiltering::KVEventFiltering()
 {
    // Default constructor
+   fTransformKinematics = kTRUE;
 }
 
 //________________________________________________________________
@@ -66,6 +70,7 @@ KVEventFiltering::KVEventFiltering (const KVEventFiltering& obj)  : KVEventSelec
    // implement it.
    // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
 
+   fTransformKinematics = kTRUE;
    obj.Copy(*this);
 }
 
@@ -93,12 +98,19 @@ void KVEventFiltering::Copy (TObject& obj) const
 Bool_t KVEventFiltering::Analysis()
 {
    // Event-by-event filtering of simulated data.
-   // Kinematics of event are transformed to laboratory frame using C.M. velocity calculated in InitAnalysis().
+   // If needed (fTransformKinematics = kTRUE), kinematics of event are transformed
+   // to laboratory frame using C.M. velocity calculated in InitAnalysis().
    // Detection of particles in event is simulated with KVMultiDetArray::DetectEvent,
    // then the reconstructed detected event is treated by the same identification and calibration
    // procedures as for experimental data.
-   GetEvent()->SetFrame("lab", fCMVelocity);
-   gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
+   
+   if(fTransformKinematics) {
+      GetEvent()->SetFrame("lab", fCMVelocity);
+      gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
+   }
+   else {
+      gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
+   }
    fReconEvent->IdentifyEvent();
    fReconEvent->CalibrateEvent();
    fReconEvent->SecondaryIdentCalib();
@@ -145,6 +157,9 @@ void KVEventFiltering::InitAnalysis()
    KVDBSystem* sys = (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system);
    fCMVelocity =  sys->GetKinematics()->GetCMVelocity();
    fCMVelocity*=-1.0;
+   
+   TString kine = GetOpt("Kinematics").Data();
+   if(kine=="lab") fTransformKinematics = kFALSE;
    
    Int_t run=0;
    if(IsOptGiven("Run")) run = GetOpt("Run").Atoi();

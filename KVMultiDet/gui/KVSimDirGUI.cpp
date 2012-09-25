@@ -201,6 +201,13 @@ KVSimDirGUI::KVSimDirGUI()
    radiob->SetState(kButtonDown);
    fGeoType=kGTROOT;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop|kLHintsLeft,20,2,2,2));
+   bgroup = new TGButtonGroup(hf,"Kinematics");
+   radiob = new TGRadioButton(bgroup, "CM");
+   radiob->SetState(kButtonDown);
+   radiob = new TGRadioButton(bgroup, "Lab");
+   bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "Kinematics(Int_t)");
+   fKine=kKCM;
+   hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop|kLHintsLeft,20,2,2,2));
    launch_analysis = new TGPictureButton(hf,gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunFilter()");
    launch_analysis->SetToolTipText("Run filter");
@@ -572,6 +579,9 @@ void KVSimDirGUI::RunFilter()
    TString geometry;
    if(fGeoType==kGTROOT) geometry = "ROOT";
    else geometry="KV";
+   TString kinema;
+   if(fKine==kKCM) kinema = "cm";
+   else kinema="lab";
    TString filter;
    switch(fFilterType){
       case kFTGeo:
@@ -585,11 +595,11 @@ void KVSimDirGUI::RunFilter()
    }
    
    TString options;
-   options.Form("BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s",
+   options.Form("BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
          ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
          fDataset.Data(),fSystem.Data(),geometry.Data(),filter.Data(),
 //         fTEOutputDir->GetText());
-         ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory());
+         ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory(),kinema.Data());
    if(fRun!=""){
       TString r;
       r.Form(",Run=%s",fRun.Data());

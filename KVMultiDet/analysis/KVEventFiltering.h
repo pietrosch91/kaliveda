@@ -28,6 +28,7 @@ class KVEventFiltering : public KVEventSelector
    TTree* fTree;
    KVReconstructedEvent* fReconEvent;
    TVector3 fCMVelocity;
+   Bool_t fTransformKinematics;//=kTRUE if simulation not in lab frame
    
    ClassDef(KVEventFiltering,1)//Filter simulated events with multidetector response
 };

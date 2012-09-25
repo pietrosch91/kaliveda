@@ -65,8 +65,13 @@ class KVSimDirGUI : public KVBase
       kGTKaliVeda=1,
       kGTROOT
    };
+   enum {
+      kKCM=1,
+      kKLab
+   };
    Int_t fFilterType;
    Int_t fGeoType;
+   Int_t fKine;
    //TGTextEntry* fTEOutputDir;
    
    TEnv fGuirc;
@@ -99,6 +104,10 @@ class KVSimDirGUI : public KVBase
    void GeoType(Int_t i)
    {
       fGeoType = i;
+   };
+   void Kinematics(Int_t i)
+   {
+      fKine = i;
    };
    //void ChangeOutputDirectory();
    void RunFilter();
