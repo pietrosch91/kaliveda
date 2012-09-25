@@ -32,9 +32,13 @@ Double_t KVIDChIoCorrCsI_e494s::GetIDMapY(Option_t *opt){
 	// The Y-coordinate is the ionisation chamber's current petit gain coder data minus the petit gain pedestal. If the grand gain coder 
 	// data is less than 3900 then the petit gain value is calculated
 	// from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
+	// We set the pedestal to zero in order to not cut the physics
+	// as the pedestal GG seems to be too high.
+	// PG-GG conversion has been calculated without ChIo GG pedestal.
 	
-     opt = opt; // not used (keeps the compiler quiet)
+    opt = opt; // not used (keeps the compiler quiet)
 
+	fChIo->SetPedestal("GG",0.);
     if(fChIo){
 
         if(fChIo->GetGG() < 3900.) return fChIo->GetPGfromGG() - fChIo->GetPedestal("PG");
