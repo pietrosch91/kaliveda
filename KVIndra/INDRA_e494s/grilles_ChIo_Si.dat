@@ -18483,8 +18483,8 @@ below
 <PARAMETER> IDTelescopes=CI_SI_0616
 OnlyZId
 +KVIDZALine
-ID:Z=1 A=1
-1	1
+ID:Z=2 A=4
+2	4
 8
 11.762   54.3981
 46.7302   44.213

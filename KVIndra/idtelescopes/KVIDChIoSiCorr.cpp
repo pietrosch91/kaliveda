@@ -51,13 +51,13 @@ Double_t KVIDChIoSiCorr::GetIDMapXY(KVINDRADetector *det, Option_t *opt){
 }
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y){
-
-	Bool_t identOK = KVIDChIoSi::Identify(IDR,x,y);
-
-	Int_t quality = ChIoSiGrid->GetQualityCode();
-	if(quality==KVIDGChIoSi_e494s::k_BelowSeuilChIo)
-		IDR->IDcode = kIDCode15;
-
-	return identOK;
-}
+//Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y){
+//
+//	Bool_t identOK = KVIDChIoSi::Identify(IDR,x,y);
+//
+//	Int_t quality = ChIoSiGrid->GetQualityCode();
+//	if(quality==KVIDGChIoSi_e494s::k_BelowSeuilChIo)
+//		IDR->IDcode = kIDCode15;
+//
+//	return identOK;
+//}

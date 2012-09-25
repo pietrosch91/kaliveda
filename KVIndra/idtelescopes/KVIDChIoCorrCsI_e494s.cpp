@@ -5,24 +5,24 @@
 
 ClassImp(KVIDChIoCorrCsI_e494s)
 
-////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
-<h2>KVIDChIoCorrCsI_e494s</h2>
-<h4>ChIo-CsI identification with grids for E494S</h4>
-<!-- */
-// --> END_HTML
-////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////
+	// BEGIN_HTML <!--
+	/* -->
+	   <h2>KVIDChIoCorrCsI_e494s</h2>
+	   <h4>ChIo-CsI identification with grids for E494S</h4>
+	   <!-- */
+	// --> END_HTML
+	////////////////////////////////////////////////////////////////////////////////
 
 KVIDChIoCorrCsI_e494s::KVIDChIoCorrCsI_e494s()
 {
-   // Default constructor
+   	// Default constructor
 }
 //________________________________________________________________
 
 KVIDChIoCorrCsI_e494s::~KVIDChIoCorrCsI_e494s()
 {
-   // Destructor
+   	// Destructor
 }
 //________________________________________________________________
 
@@ -35,17 +35,10 @@ Double_t KVIDChIoCorrCsI_e494s::GetIDMapY(Option_t *opt){
 	// We set the pedestal to zero in order to not cut the physics
 	// as the pedestal GG seems to be too high.
 	// PG-GG conversion has been calculated without ChIo GG pedestal.
-	
+
     opt = opt; // not used (keeps the compiler quiet)
 
 	fChIo->SetPedestal("GG",0.);
-    if(fChIo){
-
-        if(fChIo->GetGG() < 3900.) return fChIo->GetPGfromGG() - fChIo->GetPedestal("PG");
-
-		return fChIo->GetPG() - fChIo->GetPedestal("PG");
-
-    }
-
-	return 10000.;
+    if(fChIo->GetGG() < 3900.) return fChIo->GetPGfromGG() - fChIo->GetPedestal("PG");
+	return fChIo->GetPG() - fChIo->GetPedestal("PG");
 }

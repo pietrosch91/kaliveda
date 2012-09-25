@@ -29,7 +29,7 @@ class KVIDChIoSiCorr : public KVIDChIoSi
         Double_t GetIDMapX(Option_t * opt = "");
         Double_t GetIDMapY(Option_t * opt = "");
 
-		virtual	Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
+//		virtual	Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
 
         ClassDef(KVIDChIoSiCorr,2)
 };
