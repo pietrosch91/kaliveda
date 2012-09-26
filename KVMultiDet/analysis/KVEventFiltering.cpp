@@ -111,12 +111,13 @@ Bool_t KVEventFiltering::Analysis()
    else {
       gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
    }
-   fReconEvent->IdentifyEvent();
-   fReconEvent->CalibrateEvent();
-   fReconEvent->SecondaryIdentCalib();
    fTree->Fill();
 
-   return kTRUE;
+/*    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
+      memory_check.Check();
+   }
+ */   
+       return kTRUE;
 }
    
 void KVEventFiltering::EndAnalysis()
@@ -158,9 +159,6 @@ void KVEventFiltering::InitAnalysis()
    fCMVelocity =  sys->GetKinematics()->GetCMVelocity();
    fCMVelocity*=-1.0;
    
-   TString kine = GetOpt("Kinematics").Data();
-   if(kine=="lab") fTransformKinematics = kFALSE;
-   
    Int_t run=0;
    if(IsOptGiven("Run")) run = GetOpt("Run").Atoi();
    if(!run) run = ((KVDBRun*)sys->GetRuns()->First())->GetNumber();
@@ -170,7 +168,37 @@ void KVEventFiltering::InitAnalysis()
    if(geo=="ROOT"){
       gMultiDetArray->SetROOTGeometry(kTRUE);
       gMultiDetArray->CreateGeoManager();
+      Info("InitAnalysis", "Filtering with ROOT geometry");
    }
+   else
+   {
+      gMultiDetArray->SetROOTGeometry(kFALSE);
+      Info("InitAnalysis", "Filtering with KaliVeda geometry");
+   }
+   
+   TString filt = GetOpt("Filter").Data();
+   if(filt=="Geo"){
+      gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_Geo);
+      Info("InitAnalysis", "Geometric filter");
+   }
+   else if(filt=="GeoThresh"){
+      gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_GeoThresh);
+      Info("InitAnalysis", "Geometry + thresholds filter");
+   }
+   else if(filt=="Full"){
+      gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_Full);
+      Info("InitAnalysis", "Full simulation of detector response & calibration");
+   }
+   TString kine = GetOpt("Kinematics").Data();
+   if(kine=="lab") {
+      fTransformKinematics = kFALSE;
+      Info("InitAnalysis", "Simulation is in laboratory/detector frame");
+   }
+   else
+   {
+      Info("InitAnalysis", "Simulation will be transformed to laboratory/detector frame");
+   }
+   
    
    OpenOutputFile(sys,run);
    fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
@@ -180,7 +208,8 @@ void KVEventFiltering::InitAnalysis()
 }
    
 void KVEventFiltering::InitRun()
-{
+{ 
+//   memory_check.SetInitStatistics();
 }
 
 void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)

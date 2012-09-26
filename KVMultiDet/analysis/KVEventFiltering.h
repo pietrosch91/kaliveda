@@ -5,12 +5,14 @@
 #define __KVEventFiltering_H
 
 #include "KVEventSelector.h"
+#include "KVClassMonitor.h"
 #include "KVReconstructedEvent.h"
 
 class KVDBSystem;
 class KVEventFiltering : public KVEventSelector
 {
-
+   //KVClassMonitor memory_check;
+   
    public:
    KVEventFiltering();
    KVEventFiltering (const KVEventFiltering&) ;

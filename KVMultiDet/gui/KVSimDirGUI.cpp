@@ -95,13 +95,14 @@ KVSimDirGUI::KVSimDirGUI()
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY, 2,2,2,2));
    group = new TGGroupFrame(vf, "Filtered Simulations");
    fLVfiltData = new KVListView(KVSimFile::Class(), group, 550, 200);
-   fLVfiltData->SetDataColumns(6);
+   fLVfiltData->SetDataColumns(7);
    fLVfiltData->SetDataColumn(0, "Simulation", "GetOriginalFile");
    fLVfiltData->SetDataColumn(1, "DataSet");
    fLVfiltData->SetDataColumn(2, "System");
    fLVfiltData->SetDataColumn(3, "Run");
    fLVfiltData->SetDataColumn(4, "Geometry");
-   fLVfiltData->SetDataColumn(5, "Events");
+   fLVfiltData->SetDataColumn(5, "FilterType");
+   fLVfiltData->SetDataColumn(6, "Events");
    fLVfiltData->ActivateSortButtons();
    group->AddFrame(fLVfiltData, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY,5,5,10,10));
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY, 2,2,2,2));
@@ -451,16 +452,19 @@ void KVSimDirGUI::RunAnalysis()
    AssignAndDelete(fullclasspath, gSystem->ConcatFileName(fAnalClassDir,fAnalClassImp));
    fullclasspath+="+g";
    
+   Long64_t nevents = analysis_chain->GetEntries();
    Bool_t all_events = fCBAllEvents->IsDown();
    if(!all_events){
-      Long64_t nevents = (Long64_t)fNENumberEvents->GetNumber();
+      nevents = (Long64_t)fNENumberEvents->GetNumber();
       cout << "Processing " << nevents << " events" << endl;
       analysis_chain->Process(fullclasspath,
-            Form("BranchName=%s",((KVSimFile*)runs_to_analyse->First())->GetBranchName()), nevents);
+            Form("EventsReadInterval=%d,BranchName=%s",nevents/10,
+            ((KVSimFile*)runs_to_analyse->First())->GetBranchName()), nevents);
    }
    else
       analysis_chain->Process(fullclasspath,
-            Form("BranchName=%s",((KVSimFile*)runs_to_analyse->First())->GetBranchName()));
+            Form("EventsReadInterval=%d,BranchName=%s",nevents/10,
+            ((KVSimFile*)runs_to_analyse->First())->GetBranchName()));
    
    delete analysis_chain;
    delete selected_sim_runs;
@@ -595,7 +599,9 @@ void KVSimDirGUI::RunFilter()
    }
    
    TString options;
-   options.Form("BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
+   Long64_t nevents = analysis_chain->GetEntries();
+   options.Form("EventsReadInterval=%d,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
+         nevents/10,
          ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
          fDataset.Data(),fSystem.Data(),geometry.Data(),filter.Data(),
 //         fTEOutputDir->GetText());
