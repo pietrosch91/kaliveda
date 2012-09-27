@@ -766,6 +766,7 @@ INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.da
 INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
 INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
 INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CSI:        grilles_CsI_RL_e494s.dat
 INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
 INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_Si75_SiLi.dat
 INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_SiLi_CsI.dat
@@ -790,7 +791,7 @@ INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
 INDRA_e613.ActiveIdentifications:    CSI SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
-INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
