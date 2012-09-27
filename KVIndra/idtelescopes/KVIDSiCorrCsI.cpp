@@ -140,6 +140,8 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     IDR->SetIDType( GetType() );
     IDR->IDattempted = kTRUE;
+    IDR->IDquality = 15;
+    IDR->IDcode = kIDCode3;
 
     Double_t Z = -1.;
 
