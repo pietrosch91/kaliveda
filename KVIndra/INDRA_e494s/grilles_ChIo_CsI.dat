@@ -16844,7 +16844,7 @@ above
 1055.52   5.75397
 1484.67   0.727512
 +KVIDCutLine
-OK:Seuil_ChIo
+OK:Z higher
 below
 8
 3.06537   418.651
@@ -29544,6 +29544,7 @@ ID:Z=11 A=22
 2727.86   213.228
 +KVIDCutLine
 OK:Seuil_ChIo
+above
 4
 0.0953   24.7354
 221.049   15.4762
