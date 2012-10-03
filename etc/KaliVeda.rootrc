@@ -834,6 +834,11 @@ KVNDTManager.AbundanceTable:      KVAbundanceTable
 +Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
 
+# Atomic element & density table used by KVNDTManager
+KVNDTManager.ElementDensityTable:      KVElementDensityTable
++Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDet   "KVElementDensityTable()"
+ElementDensity.DataFile:	element_densities.data
+
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
 # if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula
 # the chosen mass formula is only available for KVINDRAReconNuc for this dataset

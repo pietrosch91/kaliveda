@@ -113,11 +113,12 @@ class KVNucleus:public KVParticle {
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
 	
-	void ChechZAndA(Int_t &z, Int_t&a) const;
+	void CheckZAndA(Int_t &z, Int_t&a) const;
 
    Double_t GetMassExcess(Int_t z = -1, Int_t a = -1) const;
 	Double_t GetExtraMassExcess(Int_t z = -1, Int_t a = -1) const;
    KVMassExcess* GetMassExcessPtr(Int_t z = -1, Int_t a = -1) const;
+   Double_t GetAtomicMass(Int_t zz = -1, Int_t aa = -1) const ;
    
 	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1) const;
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;

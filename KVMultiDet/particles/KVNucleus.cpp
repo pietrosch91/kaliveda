@@ -601,7 +601,7 @@ void KVNucleus::Copy(TObject & obj)
 }
 
 //________________________________________________________________________________________
-void  KVNucleus::ChechZAndA(Int_t &z, Int_t&a) const
+void  KVNucleus::CheckZAndA(Int_t &z, Int_t&a) const
 {
    if (z == -1)	z = GetZ();
    if (a == -1)	a = GetA();
@@ -618,7 +618,7 @@ Double_t KVNucleus::GetMassExcess(Int_t z, Int_t a) const
 	//If the nucleus is not included in the mass table, an extrapolated value
 	//using KVNucleus::LiquidDrop_BrackGuet is returned.
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	
 	Double_t val = gNDTManager->GetValue(z,a,"MassExcess");
 	if (val==-555) return GetExtraMassExcess(z,a);
@@ -634,9 +634,19 @@ Double_t KVNucleus::GetExtraMassExcess(Int_t z, Int_t a) const
 	//If optional arguments (z,a) are given we return the value for the
 	//required nucleus.	
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	return (LiquidDrop_BrackGuet(a, z) - a * kAMU);
 	
+}
+
+//_____________________________________________
+Double_t KVNucleus::GetAtomicMass(Int_t zz, Int_t aa) const 
+{
+   // Returns the mass of an isotope in unified atomic mass units
+   // (KVNucleus::u() MeV/c**2).
+   // This number is also the mass in grammes of 1 mole of this isotope.
+	CheckZAndA(zz,aa);
+   return aa + GetMassExcess(zz,aa)/u();
 }
 
 //________________________________________________________________________________________
@@ -647,7 +657,7 @@ KVMassExcess* KVNucleus::GetMassExcessPtr(Int_t z, Int_t a) const
 	//0 if the Z,A couple is not in the table
 	//If optional arguments (z,a) are given we return the value for the
 	//required nucleus.
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	return (KVMassExcess* )gNDTManager->GetData(z,a,"MassExcess");
 
 }
@@ -665,7 +675,7 @@ Double_t KVNucleus::GetLifeTime(Int_t z, Int_t a) const
 	//If optional arguments (z,a) are given we return the value for the
 	//required nucleus.
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	KVLifeTime* lf = GetLifeTimePtr(z,a);
    if(!lf) {
       if(GetAbundance(z,a)>0) return 1.e+100;
@@ -690,7 +700,7 @@ KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a) const
 	//If optional arguments (z,a) are given we return object for the
 	//required nucleus.
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	return (KVLifeTime* )gNDTManager->GetData(z,a,"LifeTime");
 
 }
@@ -703,7 +713,7 @@ Double_t KVNucleus::GetAbundance(Int_t z, Int_t a) const
 	//If optional arguments (z,a) are given we return the value for the
 	//required nucleus.
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	return gNDTManager->GetValue(z,a,"Abundance");
    
 }
@@ -717,7 +727,7 @@ KVAbundance* KVNucleus::GetAbundancePtr(Int_t z, Int_t a) const
 	//If optional arguments (z,a) are given we return the object for the
 	//required nucleus.
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	return (KVAbundance* )gNDTManager->GetData(z,a,"Abundance");
 
 }
@@ -731,7 +741,7 @@ Bool_t KVNucleus::IsKnown(int z, int a) const
 	//
 	//We kept it for backward compatibility :
 	
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	//return fMassTable->IsKnown(z,a);
 	return gNDTManager->IsInTable(z,a,"MassExcess");
 }
@@ -747,7 +757,7 @@ Double_t KVNucleus::GetBindingEnergy(Int_t z, Int_t a) const
 //If the nucleus is not included in the mass table, an extrapolated value
 //using KVNucleus::LiquidDrop_BrackGuet is returned.
 
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 
    return a ==
        0 ? 0. : (z * GetMassExcess(1, 1) + (a - z) * GetMassExcess(0, 1) -
@@ -760,7 +770,7 @@ Double_t KVNucleus::GetBindingEnergyPerNucleon(Int_t z, Int_t a) const
 {
 //Returns binding energy in MeV/A for this nucleus.
 
-	ChechZAndA(z,a);
+	CheckZAndA(z,a);
 	
 	if (a==0) return 0;
    return GetBindingEnergy(z,a)/a;
