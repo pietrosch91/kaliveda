@@ -19,6 +19,7 @@
 #include "KVMaterial.h"
 #include "KVNucleus.h"
 #include "KV2Body.h"
+#include "TString.h"
 
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"

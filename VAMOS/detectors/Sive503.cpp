@@ -364,7 +364,7 @@ void Sive503::Calibrate(void)
 	    //T[0]+= TOffset[E_Raw_Nr[i]];			//Add the offset to the TSi_HF depending on the Si detector
 	    Tfrag = TRef[E_Raw_Nr[i]] + Tpropre_el[E_Raw_Nr[i]] - T[0];
 	    
-	    L->Log<<"Tfrag avant	: "<<Tfrag<<endl;
+	    //L->Log<<"Tfrag avant	: "<<Tfrag<<endl;
 	    
       	    //=========================================================================
             //ToF offset according to the system and the run number
@@ -372,121 +372,121 @@ void Sive503::Calibrate(void)
 	    //System : 48Ca + 40Ca	    
 	    if(gIndra->GetCurrentRunNumber()>327 && gIndra->GetCurrentRunNumber()<333){
 	    Tfrag -= Offset328[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset328[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset328[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>332 && gIndra->GetCurrentRunNumber()<339){
 	    Tfrag -= Offset333[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset333[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset333[E_Raw_Nr[i]]<<endl;
 	    }	  
 	    if(gIndra->GetCurrentRunNumber()>338 && gIndra->GetCurrentRunNumber()<344){
 	    Tfrag -= Offset339[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset339[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset339[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>343 && gIndra->GetCurrentRunNumber()<348){
 	    Tfrag -= Offset344[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset344[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset344[E_Raw_Nr[i]]<<endl;
 	    }	    
 	    if(gIndra->GetCurrentRunNumber()>347 && gIndra->GetCurrentRunNumber()<351){
 	    Tfrag -= Offset348[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset348[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset348[E_Raw_Nr[i]]<<endl;
 	    }	    
 	    if(gIndra->GetCurrentRunNumber()>352 && gIndra->GetCurrentRunNumber()<355){
 	    Tfrag -= Offset353[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset353[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset353[E_Raw_Nr[i]]<<endl;
 	    }	 
 	    if(gIndra->GetCurrentRunNumber()>354 && gIndra->GetCurrentRunNumber()<361){
 	    Tfrag -= Offset355[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset355[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset355[E_Raw_Nr[i]]<<endl;
 	    }
       	    //=========================================================================	    	       
 	    //System : 48Ca + 48Ca	    
 	    if(gIndra->GetCurrentRunNumber()>378 && gIndra->GetCurrentRunNumber()<384){
 	    Tfrag -= Offset379[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset379[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset379[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>383 && gIndra->GetCurrentRunNumber()<390){
 	    Tfrag -= Offset384[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset384[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset384[E_Raw_Nr[i]]<<endl;
 	    }	  
 	    if(gIndra->GetCurrentRunNumber()>389 && gIndra->GetCurrentRunNumber()<398){
 	    Tfrag -= Offset390[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset390[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset390[E_Raw_Nr[i]]<<endl;
 	    }	    
 	    if(gIndra->GetCurrentRunNumber()>397 && gIndra->GetCurrentRunNumber()<403){
 	    Tfrag -= Offset398[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset398[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset398[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>402 && gIndra->GetCurrentRunNumber()<404){
 	    Tfrag -= Offset403[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset403[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset403[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()==404){
 	    Tfrag -= Offset404[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset404[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset404[E_Raw_Nr[i]]<<endl;
 	    }	    	    
 	    if(gIndra->GetCurrentRunNumber()>404 && gIndra->GetCurrentRunNumber()<407){
 	    Tfrag -= Offset405[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset405[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset405[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>406 && gIndra->GetCurrentRunNumber()<425){
 	    Tfrag -= Offset407[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset407[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset407[E_Raw_Nr[i]]<<endl;
 	    }	    	    
       	    //=========================================================================	    	    	    	      
 	    //System : 40Ca + 48Ca
 	    if(gIndra->GetCurrentRunNumber()>454 && gIndra->GetCurrentRunNumber()<466){
 	    Tfrag -= Offset455[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset455[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset455[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>465 && gIndra->GetCurrentRunNumber()<475){
 	    Tfrag -= Offset467[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset467[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset467[E_Raw_Nr[i]]<<endl;
 	    }	    
 	    if(gIndra->GetCurrentRunNumber()>474 && gIndra->GetCurrentRunNumber()<484){
 	    Tfrag -= Offset475[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset475[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset475[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>483 && gIndra->GetCurrentRunNumber()<490){
 	    Tfrag -= Offset484[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset484[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset484[E_Raw_Nr[i]]<<endl;
 	    }	    
 	    if(gIndra->GetCurrentRunNumber()>489 && gIndra->GetCurrentRunNumber()<494){
 	    Tfrag -= Offset490[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset490[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset490[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>493 && gIndra->GetCurrentRunNumber()<510){
 	    Tfrag -= Offset493[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset493[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset493[E_Raw_Nr[i]]<<endl;
 	    }	    
       	    //=========================================================================	    
 	    //System : 40Ca + 40Ca
 	    if(gIndra->GetCurrentRunNumber()>510 && gIndra->GetCurrentRunNumber()<525){
 	    Tfrag -= Offset511[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset511[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset511[E_Raw_Nr[i]]<<endl;
 	    }	    	
 	    if(gIndra->GetCurrentRunNumber()>524 && gIndra->GetCurrentRunNumber()<528){
 	    Tfrag -= Offset525[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset525[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset525[E_Raw_Nr[i]]<<endl;
 	    }
 	    if(gIndra->GetCurrentRunNumber()>527 && gIndra->GetCurrentRunNumber()<531){
 	    Tfrag -= Offset528[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset528[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset528[E_Raw_Nr[i]]<<endl;
 	    }	    	        	    
 	    if(gIndra->GetCurrentRunNumber()>530 && gIndra->GetCurrentRunNumber()<537){
 	    Tfrag -= Offset531[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset531[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset531[E_Raw_Nr[i]]<<endl;
 	    }	
 	    if(gIndra->GetCurrentRunNumber()>536 && gIndra->GetCurrentRunNumber()<543){
 	    Tfrag -= Offset537[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset537[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset537[E_Raw_Nr[i]]<<endl;
 	    }	    
 	    if(gIndra->GetCurrentRunNumber()>542 && gIndra->GetCurrentRunNumber()<548){
 	    Tfrag -= Offset543[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset543[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset543[E_Raw_Nr[i]]<<endl;
 	    }	
 	    if(gIndra->GetCurrentRunNumber()>547 && gIndra->GetCurrentRunNumber()<551){
 	    Tfrag -= Offset548[E_Raw_Nr[i]];
-	    L->Log<<"offset : "<<Offset548[E_Raw_Nr[i]]<<endl;
+	    //L->Log<<"offset : "<<Offset548[E_Raw_Nr[i]]<<endl;
 	    }		        
       	    //=========================================================================	    	    
 	    //L->Log<<"Tfrag apres	: "<<Tfrag<<endl;	    
@@ -583,9 +583,9 @@ void Sive503::outAttach(TTree *outT)
    
    //outT->Branch("SiERaw",&E_Raw[0],"SiERaw/S");
    //outT->Branch("SiERaw",SiRaw,"SiERaw[21]/S");
-   outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/s");
+   /*outT->Branch("TSI_HF_raw",T_Raw+0,"TSI_HF_raw/s");
    outT->Branch("TSi_HFpropre",&T[0],"TSi_HFpropre/D");
-   outT->Branch("Tfrag",&Tfrag,"Tfrag/D");
+   outT->Branch("Tfrag",&Tfrag,"Tfrag/D");*/
    outT->Branch("DetSi",&DetSi,"DetSi/I");
    //outT->Branch("TSi_SeD",&T[1],"TSi_SeD/F");
    //outT->Branch("TSeD_HF",&T[2],"TSeD_HF/F");

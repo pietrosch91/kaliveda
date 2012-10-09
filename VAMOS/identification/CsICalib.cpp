@@ -352,7 +352,7 @@ void CsICalib::Bisection(Int_t A, Double_t chan){	//UShort_t chan
     difference *= factor;	
     //L->Log<<"A right : "<<right<<" ESi measured : "<<eEnergySi<<" ESi calculated : "<<sEnergySi<<" difference : "<<difference<<" factor : "<<factor<<endl; 
     if(difference<0){
-    	L->Log<<"Bisection error"<<endl;
+    	//L->Log<<"Bisection error"<<endl;
     } 
 // === End test
     

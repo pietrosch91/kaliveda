@@ -14,6 +14,8 @@
 //Author: Maurycy Rejmund
 using namespace std;
 
+Bool_t DebugIDV = kFALSE;
+
 ClassImp(Identificationv)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,7 +338,7 @@ void Identificationv::GetFileCut()
 {	
 
 	if(llist->IsZombie()==0){
-		L->Log<<"reading cuts..."<<endl;	
+		//L->Log<<"reading cuts..."<<endl;	
 		//llist->Print();
 		
 		q20 = (TCutG *)llist->FindObject("q20");
@@ -355,26 +357,6 @@ void Identificationv::GetFileCut()
 		q7 = (TCutG *)llist->FindObject("q7");
 		q6 = (TCutG *)llist->FindObject("q6");
 		q5 = (TCutG *)llist->FindObject("q5");
-		
-		//cout<<"Q=20 : "<<endl;
-		//q20->Print();	
-							
-		/*q20=(TCutG *)ffcoup->Get("q20");
-		q19=(TCutG *)ffcoup->Get("q19");
-		q18=(TCutG *)ffcoup->Get("q18");
-		q17=(TCutG *)ffcoup->Get("q17");
-		q16=(TCutG *)ffcoup->Get("q16");  
-		q15=(TCutG *)ffcoup->Get("q15");
-		q14=(TCutG *)ffcoup->Get("q14");
-		q13=(TCutG *)ffcoup->Get("q13");
-		q12=(TCutG *)ffcoup->Get("q12");
-		q11=(TCutG *)ffcoup->Get("q11");
-		q10=(TCutG *)ffcoup->Get("q10");
-		q9=(TCutG *)ffcoup->Get("q9");
-		q8=(TCutG *)ffcoup->Get("q8"); 
-		q7=(TCutG *)ffcoup->Get("q7");
-		q6=(TCutG *)ffcoup->Get("q6");
-		q5=(TCutG *)ffcoup->Get("q5");*/
 
 	}
 	else{
@@ -468,11 +450,11 @@ Double_t Identificationv::GetEnergyLossCsI(Int_t number)
 	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
 
 	//Calcul de l'énergie perdue dans csi
-	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
-	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
+	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_realQ),ESi);
+	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_realQ),einc_isogap2);	
 	
-	einc_csi = GetGap2()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),eloss_isogap2);
-	eloss_csi = GetCsI()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
+	einc_csi = GetGap2()->GetEResFromDeltaE(int(Z_PID),int(M_realQ),eloss_isogap2);
+	eloss_csi = GetCsI()->GetDeltaE(int(Z_PID),int(M_realQ),einc_isogap2);	
 	GetSi()->Clear();
 	
 	return eloss_csi;
@@ -483,8 +465,8 @@ Double_t Identificationv::GetEnergyLossGap2(Int_t number)
 	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
 
 	//Calcul de l'énergie perdue dans isogap2
-	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
-	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);
+	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_realQ),ESi);
+	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_realQ),einc_isogap2);
 	
 	GetSi()->Clear();
 	
@@ -494,11 +476,11 @@ Double_t Identificationv::GetEnergyLossGap2(Int_t number)
 Double_t Identificationv::GetEnergyLossGap1(Int_t number)
 {
 	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);	
-	einc_si = GetSi()->GetIncidentEnergy(int(Z_PID),int(M_Q*Z_PID),ESi);
+	einc_si = GetSi()->GetIncidentEnergy(int(Z_PID),int(M_realQ),ESi);
 
 	//Calcul de l'énergie perdue dans isogap1
-	einc_isogap1 = GetGap1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
-	eloss_isogap1 = GetGap1()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
+	einc_isogap1 = GetGap1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_realQ),einc_si);
+	eloss_isogap1 = GetGap1()->GetDeltaEFromERes(int(Z_PID),int(M_realQ),einc_si);
 	
 	GetSi()->Clear();
 	
@@ -508,10 +490,10 @@ Double_t Identificationv::GetEnergyLossGap1(Int_t number)
 Double_t Identificationv::GetEnergyLossChio()	
 {
 	//Calcul de l'énergie perdue dans la chio
-	einc_ic = GetIC()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_isogap1);
+	einc_ic = GetIC()->GetIncidentEnergyFromERes(int(Z_PID),int(M_realQ),einc_isogap1);
 
 	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetA(int(M_realQ));
 	kvn->SetEnergy(einc_ic); 
     	KVMaterial *kvm_ic = 0; 
 	      
@@ -533,10 +515,10 @@ Double_t Identificationv::GetEnergyLossChio()
 Double_t Identificationv::GetEnergyLossDC2()
 {
 	//Calcul de l'énergie perdue dans la DC2
-	einc_dc2 = GetDC2()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_ic);
+	einc_dc2 = GetDC2()->GetIncidentEnergyFromERes(int(Z_PID),int(M_realQ),einc_ic);
 
 	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetA(int(M_realQ));
 	kvn->SetEnergy(einc_dc2); 
     	KVMaterial *kvm_dc2 = 0;  
 		     
@@ -559,10 +541,10 @@ Double_t Identificationv::GetEnergyLossSed()
 {
 	//Calcul de l'énergie perdue dans la SED    
 	TVector3 rot(0,1,-1); //45 deg 
-	einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
+	einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_realQ),einc_dc2);
 	
 	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetA(int(M_realQ));
 	kvn->SetEnergy(einc_sed);
 
     	GetSed()->DetectParticle(kvn,&rot);
@@ -579,10 +561,10 @@ Double_t Identificationv::GetEnergyLossSed()
 Double_t Identificationv::GetEnergyLossDC1()
 {
 	//Calcul de l'énergie perdue dans la DC1
-	einc_dc1 = GetDC1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_sed);
+	einc_dc1 = GetDC1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_realQ),einc_sed);
 
 	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetA(int(M_realQ));
 	kvn->SetEnergy(einc_dc1); 
     	KVMaterial *kvm_dc1 = 0;  
 		     
@@ -604,8 +586,8 @@ Double_t Identificationv::GetEnergyLossDC1()
 Double_t Identificationv::GetEnergyLossTarget()
 {
 	//Calcul de l'énergie perdue dans la cible
-	einc_tgt = GetTarget()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
-	eloss_tgt = GetTarget()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
+	einc_tgt = GetTarget()->GetIncidentEnergyFromERes(int(Z_PID),int(M_realQ),einc_dc1);
+	eloss_tgt = GetTarget()->GetDeltaEFromERes(int(Z_PID),int(M_realQ),einc_dc1);
 	
 	GetTarget()->Clear();
 	
@@ -643,12 +625,12 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
    				{				   
    				//L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
    				//L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
-  				//energytree->kvid->Print();
+  				
    				KVList *grid_list = 0;
    				id = new KVIdentificationResult();
    				char scope_name [256];
   				sprintf(scope_name, "null");
-   				sprintf(scope_name,"%s", energytree->kvid->GetName());
+   				sprintf(scope_name,"%s", energytree->kvid->GetName());//COMMENT THIS OUT TO AVOID SEG FAULT 17/09/12 Paola
 
    	   			if(gIDGridManager != 0){
    		   			grid_list = (KVList*) gIDGridManager->GetGrids();
@@ -662,18 +644,22 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
    					if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
 
                     				if(grd != 0 && double(Si->E_Raw[y])>0 && double(CsI->E_Raw[j])>0 ){
+                                 
+                                if(DebugIDV) 
 		    					energytree->CalculateESi(double(Si->E_Raw[y]));						//Si calibration (signal->energy)
 							//energytree->CalculateESi(5003.75);	
 														//Identification according to the grid (csi,si)
+                         	if(DebugIDV) cout<<"Now identify from kvid"<<endl<<flush;
 							energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
 							//energytree->kvid->Identify(3019.60, double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
-                        				A_PID = id->A;
+ 				if(DebugIDV) cout<<"Identify done"<<endl<<flush;
+                                             		A_PID = id->A;
                         				Z_PID = id->Z;
                        					PID = id->PID;
 							delete id;
 							
 							Int_t Z_PIDI = int(Z_PID);
-							L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
+							//L->Log<<"Z (INT)	= "<<Z_PIDI<<endl;					
 							energytree->SetFragmentZ(Z_PIDI);
 	      						energytree->GetResidualEnergyCsI(double(Si->E_Raw[y]),double(CsI->E_Raw[j]));		//Method called for guessing A value by bissection method and getting CsI energy
 
@@ -682,7 +668,6 @@ energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
 							EGap = energytree->eEnergyGap;
 			
 							AA = energytree->RetrieveA();													
-			
 							/*L->Log<<"==========================="<<endl;		
 							L->Log<<"Z	= "<<PID<<endl;
 							L->Log<<"A	= "<<AA<<endl;
@@ -748,8 +733,6 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
    	kin->SetOutgoing(kin->GetNucleus(1));
    	kin->CalculateKinematics();
 
- 	//L->Log<<"D	   = "<<D<<"	   V = "<<V<<"     Beta = "<<Beta<<"	   D/T = "<<D/T<<endl;
- 	//L->Log<<"TOF	   = "<<T<<endl;
     }
 
   if(Beta>0 && Rec->Brho>0 && Si->Present)	//Modification (2012-02-10) Original : Beta>0 && Rec->Brho>0 && Gamma>1. && Si->Present
@@ -769,23 +752,12 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
  	E_dc1 = GetEnergyLossDC1();
  	E_tgt = GetEnergyLossTarget();
 	
-	E += E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1;	//Correction on the total energy based on the Silicon energy
+	E += E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1;	//Correction on the total energy based on the Silicon energy (E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1)
 			
       //===============================================================
       
       M = 2.* E / (931.5016*TMath::Power(Beta,2.)); 
       Mass = M_Q*PID;     
-	                              
-      /*L->Log<<"===M/Q construction==="<<endl;
-      L->Log<<"Brho	= "<<Rec->Brho<<endl;
-      L->Log<<"Beta	= "<<Beta<<endl;
-      L->Log<<"===================="<<endl;
-      L->Log<<"===M construction==="<<endl;
-      L->Log<<"E	= "<<E<<endl;
-      L->Log<<"Beta	= "<<Beta<<endl;
-      L->Log<<"===================="<<endl;      
-      L->Log<<"M	= "<<M<<endl;
-      L->Log<<"M/Q	= "<<M_Q<<endl;*/
       
       Mr = (E/1000.)/931.5016/(Gamma-1.);
       M_Qr = Rec->Brho/3.105/Beta/Gamma;
@@ -795,8 +767,6 @@ T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added o
       Qr = (-1.036820+1.042380*Qr +0.4801678e-03*Qr*Qr);
       Qc = int(Qr+0.5);
       Mc = M_Qr*Qc;
-      
-      //L->Log<<"Q	= "<<Q<<endl;
       
    M_Qcorr = 0.0;
    M_corr_D2 = 0.0;
@@ -955,7 +925,7 @@ GetFileCut();
 // Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-4
 // Code_Vamos = 13 : Else
     
-  /*if(Z_corr>4 && Z_corr<21 && Qid>0){	// Flag les events pour Z = 5-20 et Qid>0
+  if(Z_corr>4 && Z_corr<21 && Qid>0 && M_realQ>0){	// Flag les events pour Z = 5-20 et Qid>0
     if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-4){
 		Code_Vamos = 1;
 	}
@@ -977,7 +947,7 @@ GetFileCut();
 	else{
 		Code_Vamos = 13;
 	}
-  }*/
+  }
 //====================================================================================================
 /*  
   Z1 = sqrt(dE1*E/pow(931.5016,2.))/pow(29.9792,2.)*100.;
@@ -1046,12 +1016,8 @@ void Identificationv::outAttach(TTree *outT)
   cout << "Attaching Identificationv variables" << endl;
 #endif
     outT->Branch("RunNumber", &runNumber, "runNumber/I");
-	//outT->Branch("A",&AA,"A/F");	
 	
-	//outT->Branch("A_bisec",&a_bisec,"a_bisec/D");
-	//outT->Branch("E_bisec",&e_bisec,"e_bisec/D");	
-	
-	outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
+	/*outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
 	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
 	
 	outT->Branch("E_tgt",&E_tgt,"E_tgt/D");	
@@ -1072,66 +1038,43 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");		
 	outT->Branch("Code_Vamos", &Code_Vamos, "Code_Vamos/I");
 	
-	outT->Branch("Z_PID",&Z_PID,"Z_PID/D");
-	outT->Branch("A_PID",&A_PID,"A_PID/D");
-	outT->Branch("PID",&PID,"PID/D");
-
-  	//outT->Branch("dE",&dE,"dE/F");
-  	//outT->Branch("dE1",&dE1,"dE1/F");
   	outT->Branch("E",&E,"E/F");
   	outT->Branch("E_corr",&E_corr,"E_corr/F");
   	outT->Branch("T",&T,"T/F");
-  	outT->Branch("V",&V,"V/F");
-  	outT->Branch("Vx",&Vx,"Vx/F");
-  	outT->Branch("Vy",&Vy,"Vy/F");
-  	outT->Branch("Vz",&Vz,"Vz/F"); 
-   
-  	outT->Branch("V_Etot",&V_Etot,"V_Etot/F");
-  	outT->Branch("T_FP",&T_FP,"T_FP/F");
-      
-	outT->Branch("V2",&V2,"V2/F");
+  	outT->Branch("V_VAMOS",&V,"V/F");
+
 	outT->Branch("D",&D,"D/F");
 	outT->Branch("Beta",&Beta,"Beta/F");
 	outT->Branch("Gamma",&Gamma,"Gamma/F");
-	outT->Branch("M_Q",&M_Q,"M_Q/F");  
+	outT->Branch("A_Q",&M_Q,"M_Q/F");  
 	outT->Branch("Q",&Q,"Q/F");
-	outT->Branch("M",&M,"M/F");
-	
-	/*outT->Branch("Mass",&Mass,"Mass/F");
-	outT->Branch("M_simul",&M_simul,"M_simul/F");
-	outT->Branch("M_Qr",&M_Qr,"M_Qr/F");
-	outT->Branch("Qr",&Qr,"Qr/F");
-	outT->Branch("Mr",&Mr,"Mr/F");
-	outT->Branch("Qc",&Qc,"Qc/F");
-	outT->Branch("Mc",&Mc,"Mc/F");*/
-  
-	outT->Branch("M_Qcorr", &M_Qcorr, "M_Qcorr/F");
-	outT->Branch("Z_corr", &Z_corr, "Z_corr/I");
-	outT->Branch("Q_corr", &Q_corr, "Q_corr/I");
-	outT->Branch("Q_corr_D", &Q_corr_D,"Q_corr_D/D");
-	outT->Branch("M_corr", &M_corr, "M_corr/D");
-	outT->Branch("M_corr_D", &M_corr_D,"M_corr_D/D");
-	outT->Branch("M_realQ", &M_realQ, "M_realQ/D");
-	outT->Branch("M_realQ_D", &M_realQ_D,"M_realQ_D/D");
-	//outT->Branch("realQ", &realQ,"realQ/I");
-	//outT->Branch("realQ_D", &realQ_D,"realQ/D");
-	outT->Branch("M_corr_D2", &M_corr_D2,"M_corr_D2/D");
-	outT->Branch("Q_corr_D2", &Q_corr_D2,"Q_corr_D2/D");
-	outT->Branch("Qid", &Qid, "Qid/I"); 
+	outT->Branch("A",&M,"M/F");*/
 
- 
-  /*
-  outT->Branch("Z1",&Z1,"Z1/F");
-  outT->Branch("Z2",&Z2,"Z2/F");
-  */
-/*  
-#ifdef FOLLOWPEAKS
-  outT->Branch("M_Qcorr",&M_Qcorr,"M_Qcorr/F");
-  outT->Branch("Mcorr",&Mcorr,"Mcorr/F");
-  outT->Branch("M_Qcorr1",&M_Qcorr1,"M_Qcorr1/F");
-  outT->Branch("Mcorr1",&Mcorr1,"Mcorr1/F");
-#endif
-*/
+	outT->Branch("ESi",&ESi,"ESi/D");
+	outT->Branch("ECsI",&ECsI,"ECsI/D");
+	outT->Branch("Brho_0",&Brho_mag,"Brho_mag/D");
+	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");
+	outT->Branch("Code_Vamos", &Code_Vamos, "Code_Vamos/I");
+	outT->Branch("E",&E,"E/F");
+	outT->Branch("T",&T,"T/F");
+	outT->Branch("V_VAMOS",&V,"V/F");
+	outT->Branch("Beta",&Beta,"Beta/F");
+	outT->Branch("AQ_VAMOS", &M_Qcorr, "M_Qcorr/F");
+	outT->Branch("RealZ_VAMOS",&PID,"PID/D");
+	outT->Branch("Z_VAMOS", &Z_corr, "Z_corr/I");
+	outT->Branch("A_VAMOS", &M_realQ, "M_realQ/D");
+	outT->Branch("Q_VAMOS", &Qid, "Qid/I");
+
+	/*outT->Branch("Q_corr", &Q_corr, "Q_corr/I");
+	outT->Branch("Q_corr_D", &Q_corr_D,"Q_corr_D/D");
+	outT->Branch("A_corr", &M_corr, "M_corr/D");
+	outT->Branch("A_corr_D", &M_corr_D,"M_corr_D/D");
+	outT->Branch("A_realQ", &M_realQ, "M_realQ/D");
+	outT->Branch("A_realQ_D", &M_realQ_D,"M_realQ_D/D");
+	outT->Branch("A_corr_D2", &M_corr_D2,"M_corr_D2/D");
+	outT->Branch("Q_corr_D2", &Q_corr_D2,"Q_corr_D2/D");
+	outT->Branch("Qid", &Qid, "Qid/I");*/ 
+
 }
 
 
