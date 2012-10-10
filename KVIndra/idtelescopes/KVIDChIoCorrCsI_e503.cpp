@@ -1,5 +1,5 @@
 /*
-$Id: KVIDChIoCorrCsI.cpp,v 1.2 2009/04/06 15:21:31 franklan Exp $
+$Id: KVIDChIoCorrCsI_e503.cpp,v 1.2 2009/04/06 15:21:31 franklan Exp $
 $Revision: 1.2 $
 $Date: 2009/04/06 15:21:31 $
 */
@@ -7,35 +7,35 @@ $Date: 2009/04/06 15:21:31 $
 //Created by KVClassFactory on Mon Mar 30 16:44:34 2009
 //Author: John Frankland,,,
 
-#include "KVIDChIoCorrCsI.h"
+#include "KVIDChIoCorrCsI_e503.h"
 #include "KVINDRA.h"
 #include "KVINDRAReconNuc.h"
 #include "KVIdentificationResult.h"
 
-ClassImp(KVIDChIoCorrCsI)
+ClassImp(KVIDChIoCorrCsI_e503)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVIDChIoCorrCsI</h2>
+<h2>KVIDChIoCorrCsI_e503</h2>
 <h4>ChIo-CsI identification with grids for E503/E494s </h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoCorrCsI::KVIDChIoCorrCsI() 
+KVIDChIoCorrCsI_e503::KVIDChIoCorrCsI_e503() 
 {
 
 }
 
-KVIDChIoCorrCsI::~KVIDChIoCorrCsI() 
+KVIDChIoCorrCsI_e503::~KVIDChIoCorrCsI_e503() 
 {
 
 }
 
 //___________________________________________________________________________________________
 
-void KVIDChIoCorrCsI::Initialize()
+void KVIDChIoCorrCsI_e503::Initialize()
 {
     // Initialize telescope for current run.
 
@@ -73,7 +73,7 @@ void KVIDChIoCorrCsI::Initialize()
 
 //___________________________________________________________________________________________
 
-Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt) 
+Double_t KVIDChIoCorrCsI_e503::GetIDMapX(Option_t * opt) 
 {
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
@@ -84,7 +84,7 @@ Double_t KVIDChIoCorrCsI::GetIDMapX(Option_t * opt)
 
 //__________________________________________________________________________//
 
-Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *opt) 
+Double_t KVIDChIoCorrCsI_e503::GetIDMapY(Option_t *opt) 
 {
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
@@ -120,7 +120,7 @@ Double_t KVIDChIoCorrCsI::GetIDMapY(Option_t *opt)
 
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoCorrCsI::Identify(KVIdentificationResult* idr, Double_t x, Double_t y) 
+Bool_t KVIDChIoCorrCsI_e503::Identify(KVIdentificationResult* idr, Double_t x, Double_t y) 
 {
     idr->SetIDType(GetType());
     idr->IDattempted = kTRUE;

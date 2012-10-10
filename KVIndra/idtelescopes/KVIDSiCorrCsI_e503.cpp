@@ -1,5 +1,5 @@
 /***************************************************************************
-                          KVIDSiCorrCsI.cpp  -  description
+                          KVIDSiCorrCsI_e503.cpp  -  description
                              -------------------
     begin                : Fri Feb 20 2004
     copyright            : (C) 2004 by J.D. Frankland
@@ -15,12 +15,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "KVIDSiCorrCsI.h"
+#include "KVIDSiCorrCsI_e503.h"
 
-ClassImp(KVIDSiCorrCsI)
+ClassImp(KVIDSiCorrCsI_e503)
 
 /////////////////////////////////////////////////////////////////////////////////////
-//KVIDSiCorrCsI
+//KVIDSiCorrCsI_e503
 //
 // Identification in SiCorrelated:CsI(total light) matrices for INDRA_E503. 
 // Each fit has an associated Zmin & ZMax (entered when generating the fit)
@@ -39,7 +39,7 @@ ClassImp(KVIDSiCorrCsI)
 
 //__________________________________________________________________________//
 
-void KVIDSiCorrCsI::Initialize() 
+void KVIDSiCorrCsI_e503::Initialize() 
 {
     // Initialisation of telescope before identification.
     // This method MUST be called once before any identification is attempted.
@@ -71,7 +71,7 @@ void KVIDSiCorrCsI::Initialize()
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
+Double_t KVIDSiCorrCsI_e503::GetIDMapX(Option_t * opt) 
 {
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
@@ -82,7 +82,7 @@ Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt)
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
+Double_t KVIDSiCorrCsI_e503::GetIDMapY(Option_t * opt) 
 {
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
@@ -115,13 +115,13 @@ Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt)
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
+Bool_t KVIDSiCorrCsI_e503::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
 {
     Double_t xVar; xVar = x; // not used (Keeps the compiler quiet)
     Double_t yVar; yVar = y; // not used
 
     //Identification of particles using SiCorrelated-CsI matrices for E503/E494s
-    //First of all, Z identification is attempted with KVIDSiCorrCsI::IdentZ.
+    //First of all, Z identification is attempted with KVIDSiCorrCsI_e503::IdentZ.
     //If successful, if this telescope has mass identification capabilities
     //(HasMassID()=kTRUE), then if the identified Z is not too large for the
     //GG grid Z&A identification, we identify the mass of the particle.
@@ -248,7 +248,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) 
+Bool_t KVIDSiCorrCsI_e503::SetIdentificationParameters(const KVMultiDetArray* MDA) 
 {
     //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     //kind (label) in the multidetector array. Therefore this method need only be called once, and not
@@ -289,7 +289,7 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
     int ring = -1;
     int module = -1;
 
-    KVIDSiCorrCsI *idt = 0;
+    KVIDSiCorrCsI_e503 *idt = 0;
 
     while(datfile.good()){
 
@@ -303,7 +303,7 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
             name << "SI_CSI_" << setfill('0') << setw(2) << ring 
                     << setfill('0') << setw(2) << module;
                 
-            idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(name.str().c_str());
+            idt = (KVIDSiCorrCsI_e503*) MDA->GetIDTelescope(name.str().c_str());
         }
 
         sscanf(line.Data(), "ZorA=%i", &zOrA); 
@@ -364,13 +364,13 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
     return kTRUE;
 }
 
-void KVIDSiCorrCsI::RemoveIdentificationParameters()
+void KVIDSiCorrCsI_e503::RemoveIdentificationParameters()
 {
    //Delete any KVTGID objects associated with this telescope
    RemoveAllTGID();
 }
 
-void KVIDSiCorrCsI::PrintFitParameters()
+void KVIDSiCorrCsI_e503::PrintFitParameters()
 {
     KVTGID *tgidPrint = 0;
 

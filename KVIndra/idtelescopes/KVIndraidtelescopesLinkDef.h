@@ -27,7 +27,7 @@
 #pragma link C++ class KVIDBlocking+;
 
 #pragma link C++ class KVIDChIoSiCorr+;
-#pragma link C++ class KVIDChIoCorrCsI+;
-#pragma link C++ class KVIDSiCorrCsI+;
+#pragma link C++ class KVIDChIoCorrCsI_e503+;
+#pragma link C++ class KVIDSiCorrCsI_e503+;
 
 #endif

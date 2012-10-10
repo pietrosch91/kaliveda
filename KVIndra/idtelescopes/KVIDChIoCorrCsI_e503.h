@@ -1,5 +1,5 @@
 /*
-$Id: KVIDChIoCorrCsI.h,v 1.2 2009/04/06 15:21:31 franklan Exp $
+$Id: KVIDChIoCorrCsI_e503.h,v 1.2 2009/04/06 15:21:31 franklan Exp $
 $Revision: 1.2 $
 $Date: 2009/04/06 15:21:31 $
 */
@@ -16,7 +16,7 @@ $Date: 2009/04/06 15:21:31 $
 #include "KVIDChIoCsI.h"
 #include "KVCsI.h"
 
-class KVIDChIoCorrCsI : public KVIDChIoCsI
+class KVIDChIoCorrCsI_e503 : public KVIDChIoCsI
 {
 
         KVIDZAGrid* fGrid;
@@ -36,8 +36,8 @@ class KVIDChIoCorrCsI : public KVIDChIoCsI
 
     public:
 
-        KVIDChIoCorrCsI();
-        virtual ~KVIDChIoCorrCsI();
+        KVIDChIoCorrCsI_e503();
+        virtual ~KVIDChIoCorrCsI_e503();
 
         virtual void Initialize(void);
 
@@ -58,7 +58,7 @@ class KVIDChIoCorrCsI : public KVIDChIoCsI
         //Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};
         //Double_t GetChIoPGPedestal(){return fChIoPGPedestal;};
 
-        ClassDef(KVIDChIoCorrCsI,2)
+        ClassDef(KVIDChIoCorrCsI_e503,2)
 };
 
 #endif

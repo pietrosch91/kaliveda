@@ -1,5 +1,5 @@
 /***************************************************************************
-                          KVIDSiCorrCsI.h  -  description
+                          KVIDSiCorrCsI_e503.h  -  description
                              -------------------
     begin                : Fri Feb 20 2004
     copyright            : (C) 2004 by J.D. Frankland
@@ -39,7 +39,7 @@
 
 class KVMultiDetArray;
 
-class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
+class KVIDSiCorrCsI_e503:public KVIDSiCsI, public KVTGIDManager{
 
         KVTGID *tgid;
         
@@ -58,8 +58,8 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
 
     public:
 
-        KVIDSiCorrCsI(){};
-        virtual ~KVIDSiCorrCsI(){};
+        KVIDSiCorrCsI_e503(){};
+        virtual ~KVIDSiCorrCsI_e503(){};
 
         virtual void Initialize();
 
@@ -85,7 +85,7 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
         //Double_t GetSiGGPedestal(){return fSiGGPedestal;};
         //Double_t GetSiPGPedestal(){return fSiPGPedestal;};
 
-        ClassDef(KVIDSiCorrCsI, 2)  
+        ClassDef(KVIDSiCorrCsI_e503, 2)  
 };
 
 #endif
