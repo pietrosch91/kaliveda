@@ -300,6 +300,10 @@ const Char_t *KVBatchSystem::GetJobName()
    //In multi-job mode, the job name is generated from the base name set by SetJobName()
    //plus the extension "_Rxxxx-yyyy" with "xxxx" and "yyyy" the number of the first and last run
    //which will be analysed by the current job.
+   //
+   // Depending on the batch system, some sanitization of the jobname may be required
+   // e.g. to remove "illegal" characters from the jobname. This is done by SanitizeJobName()
+   // before the jobname is returned.
 
    if(!fAnalyser){
       //stand-alone batch submission ?
@@ -316,6 +320,7 @@ const Char_t *KVBatchSystem::GetJobName()
           fCurrJobName += tmp;
       }
    }
+   SanitizeJobName();
    return fCurrJobName.Data();
 }
 

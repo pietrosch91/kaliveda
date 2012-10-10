@@ -510,7 +510,7 @@ void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 	
 	KVIDGCsI* idgcsi = (KVIDGCsI*)idcsi->GetIDGrid();
 	if (!idgcsi){
-		Warning("DeduceACQParameters","%s, No grid available",GetName());
+		//Warning("DeduceACQParameters","%s, No grid available",GetName());
 		return;
 	}
 	KVIDZALine* idline = (KVIDZALine*)idgcsi->GetIdentifier(zz,aa);

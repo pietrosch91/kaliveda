@@ -23,6 +23,7 @@ class KVSpiderIdentificator : public TNamed
   bool _is_initialized;
   bool _debug;
   bool _auto;
+  bool _sicsi;
   
   double _bfactor;
   double _ftheta;
@@ -59,18 +60,16 @@ class KVSpiderIdentificator : public TNamed
   
   void Init(TH2F* h_=0);
   void Close();
-  void Clear();
-  void SetMode(bool sicsi_=true){};
+  void Clear(Option_t* option = "");
+  void SetMode(bool sicsi_=true){_sicsi=sicsi_;};
   void SetParameters(double bining_=1.);
   
   void SetHistogram(TH2F* h_=0);
   TH1F* GetProjection(TH2F* h_, KVDroite* d_);
-  bool SearchPeack2(TH1F* h1_, double theta_, int create_, double sigma_=2., double peakmin_=1., int rebin_=10, int smooth_=5, TString opt_="goff");  
   bool SearchPeack(TH1F* h1_, double theta_, int create_, double sigma_=2., double peakmin_=1., int rebin_=10, int smooth_=5, TString opt_="goff");
   
   bool ProcessIdentification();
   bool GetLines(int npoints_=1, double alpha_=1.);
-  bool TestPoint(double x_, double y_, KVSpiderLine* ll_);
   
   TList* CreateHistograms(double thmin_, double thmax_, int nth_, bool cos_=true, double alpha_=-1.);
   TH2F* CreateHistogram(double th_, double alpha_=-1.);

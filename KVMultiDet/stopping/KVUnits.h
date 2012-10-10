@@ -9,6 +9,7 @@ namespace KVUnits {
    //   [L]   cm
    //   [M]  g
    //   [P]   Torr
+   //   [V]   cc/ml
    // lengths
 const long double cm = 1.0l;
 const long double um = 1.e-4l;
@@ -24,6 +25,11 @@ const long double torr = 1.0l;
 const long double atm = 760.l;
 const long double Pa = atm/101325.l;
 const long double mbar = 100.l*Pa;
+   // volumes
+const long double cc = 1.0l;
+const long double litre = 1.e+3l;
+const long double cl = 10.l*cc;
+const long double ml = cc;
 };
 
 #endif

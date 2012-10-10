@@ -102,6 +102,10 @@ class KVParticle:public TLorentzVector {
                           Double_t phmin, Double_t phmax,
                           Option_t * opt = "isotropic");
    virtual void Print(Option_t * t = "") const;
+   void SetE(Double_t a)
+   {
+      SetKE(a);
+   };
    void SetKE(Double_t ecin);
    void SetEnergy(Double_t e) {
       SetKE(e);

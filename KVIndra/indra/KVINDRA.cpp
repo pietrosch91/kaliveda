@@ -44,6 +44,7 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include "KVINDRAUpDater.h"
 #include "TEnv.h"
 #include "KVFileReader.h"
+#include "INDRAGeometryBuilder.h"
 
 using namespace std;
 
@@ -1422,6 +1423,25 @@ void KVINDRA::SetGGtoPGConversionFactors()
    	}                            //while( datfile.good()
    	datfile.close();
    }
+}
+
+//_________________________________________________________________________________
+
+TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
+{   
+   // Overrides KVMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
+   // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.
+   //
+   // The optional arguments (dx,dy,dz) are the half-lengths in centimetres of the "world"/"top" volume
+   // into which all the detectors of the array are placed. This should be big enough so that all detectors
+   // fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
+   // going from -500cm to +500cm on each axis).
+
+   if (!IsBuilt()) return NULL;
+   INDRAGeometryBuilder igb;
+   // build multidetector, but not the target. energy losses in target are handled
+   // by KVMultiDetArray::DetectEvent
+   return igb.Build(kFALSE);
 }
 
 
