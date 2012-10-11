@@ -21,12 +21,12 @@ class KVIDChIoCorrCsI_e503 : public KVIDChIoCsI
 
         KVIDZAGrid* fGrid;
 
-	    KVChIo* fChIo;
-	    KVCsI* fCsI;
+        KVChIo* fChIo;
+        KVCsI* fCsI;
 
         Double_t fCsILight;
-	    Double_t fCsIRPedestal;
-	    Double_t fCsILPedestal;
+        Double_t fCsIRPedestal;
+        Double_t fCsILPedestal;
 
         Double_t fChIoCorr;
         Double_t fChIoGG;

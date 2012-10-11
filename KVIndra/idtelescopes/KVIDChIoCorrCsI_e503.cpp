@@ -49,10 +49,10 @@ void KVIDChIoCorrCsI_e503::Initialize()
     fCsIRPedestal = -5.;
     fCsILPedestal = -5.;
 
-	fChIo = 0;
+    fChIo = 0;
     fChIo = (KVChIo *) GetDetector(1);
 
-	fCsI = 0;
+    fCsI = 0;
     fCsI = (KVCsI *) GetDetector(2);
 
     fGrid = 0;
@@ -124,7 +124,7 @@ Bool_t KVIDChIoCorrCsI_e503::Identify(KVIdentificationResult* idr, Double_t x, D
 {
     idr->SetIDType(GetType());
     idr->IDattempted = kTRUE;
-	
+    
     Double_t chIoCorr = GetIDMapY("");
     Double_t csiLight = GetIDMapX("");
 
