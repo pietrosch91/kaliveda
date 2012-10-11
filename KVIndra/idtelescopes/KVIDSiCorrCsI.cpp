@@ -46,71 +46,40 @@ void KVIDSiCorrCsI::Initialize()
     // IsReadyForID() will return kTRUE if KVTGID objects are associated
     // to this telescope for the current run.
 
-    fSi = 0;
     fSi = (KVSilicon*)GetDetector(1);
-
-    fSiCorr = -5.;
-    fSiPG = -5.;
-    fSiGG = -5.;
-    fSiPGPedestal = -5.;
-    fSiGGPedestal = -5.;
-
-    fCsI = 0;
     fCsI = (KVCsI*)GetDetector(2);
-    fCsILight = -5.;
-    fCsIRPedestal = -5.;
-    fCsILPedestal = -5.;
 
-    if(GetListOfIDFunctions().GetEntries()){
-        SetBit(kReadyForID);
-    }else{
-      ResetBit(kReadyForID);
-    }
+	Bool_t ok = fSi && fCsI && GetListOfIDFunctions().GetEntries();
 
+    SetBit(kReadyForID, ok);
 }
 
 //__________________________________________________________________________//
 
 Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
 {
+	// This method gives the X-coordinate in a 2D identification map
+	// associated whith the Si-CsI identification telescope.
+	// The X-coordinate is the total light of the CsI.
+	
     opt = opt; // not used (keeps the compiler quiet)
-
-    fCsILight = fCsI->GetLumiereTotale();
-
-    return fCsILight;
+    return fCsI->GetLumiereTotale();
 }
 
 //__________________________________________________________________________//
 
 Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
 {
+	// This method gives the Y-coordinate in a 2D identification map
+	// associated whith the Si-CsI identification telescope.
+	// The Y-coordinate is the silicon current petit gain coder data minus the petit gain pedestal. If the grand gain coder 
+	// data is less than 3900 then the petit gain value is calculated
+	// from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
+
     opt = opt; // not used (keeps the compiler quiet)
 
-    fSiCorr = -5.;
-
-    if(fSi != 0){
-
-        fSiPG = fSi->GetPG();
-        fSiPGPedestal = fSi->GetPedestal("PG");
-
-        fSiGG = fSi->GetGG();
-        fSiGGPedestal = fSi->GetPedestal("GG");
-
-        if(fSiGG < 3900.){
-
-            fSiCorr = fSi->GetPGfromGG(fSiGG) - fSiPGPedestal;
-
-        }else{
-
-            fSiCorr = fSiPG - fSiPGPedestal;
-        }
-    
-    }else{
-
-        return 10000.;
-    }
-
-    return fSiCorr;
+    if(fSi->GetGG() < 3900.) return fSi->GetPGfromGG() - fSi->GetPedestal("PG");
+    return fSi->GetPG() - fSi->GetPedestal("PG");
 }
 
 //__________________________________________________________________________//
@@ -263,16 +232,16 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
 
     if( filename == "" ){
         Warning("SetIdentificationParameters",
-            "No filename defined. Should be given by %s.IdentificationParameterFile.SI-CSI",
-            gDataSet->GetName());
+            	"No filename defined. Should be given by %s.IdentificationParameterFile.SI-CSI",
+            	gDataSet->GetName());
         return kFALSE;
     }
 
     TString path;
     if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
         Error("SetIdentificationParameters",
-            "File %s not found. Should be in $KVROOT/KVFiles/%s",
-            filename.Data(), gDataSet->GetName());
+            	"File %s not found. Should be in $KVROOT/KVFiles/%s",
+            	filename.Data(), gDataSet->GetName());
         return kFALSE;
     }
     Info("SetIdentificationParameters", "Using file %s", path.Data());
@@ -280,18 +249,13 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
     ifstream datfile;
     datfile.open(path.Data());
 
-    KVString line;
+    KVString line, runs, listOfIDTel;
 
     int zOrA = -1;
     int zmin = -1;
     int zmax = -1;
 
-	TString runs;
-
     Double_t param[10];
-
-    int ring = -1;
-    int module = -1;
 
     KVIDSiCorrCsI *idt = 0;
 
@@ -299,20 +263,28 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
 
         line.ReadLine(datfile);
 
-        if(line.BeginsWith("+")){
+		//        if(line.BeginsWith("+")){
+		//
+		//            sscanf(line.Data(), "++KVTGID::SI_CSI_%02d%02d_fit", &ring, &module);
+		//
+		//            stringstream name;
+		//            name << "SI_CSI_" << setfill('0') << setw(2) << ring 
+		//                    << setfill('0') << setw(2) << module;
+		//                
+		//            idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(name.str().c_str());
+		//        }
 
-            sscanf(line.Data(), "++KVTGID::SI_CSI_%02d%02d_fit", &ring, &module);
+		if(line.BeginsWith("Runs=")){
+ 			line.ReplaceAll("Runs=","");
+			runs = line;
+			continue;
+		}
+		if(line.BeginsWith("IDTelescopes=")){
+ 			line.ReplaceAll("IDTelescopes=","");
+			listOfIDTel = line;
+			continue;
+		}
 
-            stringstream name;
-            name << "SI_CSI_" << setfill('0') << setw(2) << ring 
-                    << setfill('0') << setw(2) << module;
-                
-            idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(name.str().c_str());
-        }
-
-		if(line.BeginsWith("Runs=")) line.ReplaceAll("Runs=","");
-		runs = line;
-		
         sscanf(line.Data(), "ZorA=%i", &zOrA); 
         sscanf(line.Data(), "ZMIN=%i ZMAX=%i", &zmin, &zmax);
 
@@ -354,15 +326,22 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
             KVNumberList runList(runs.Data());
 
             _tgidZ->SetValidRuns(runList);
-            _tgidZ->AddIDTelescope(idt);
+            _tgidZ->SetStringTelescopes(listOfIDTel.Data());
 
             _tgidA->SetValidRuns(runList);
-            _tgidA->AddIDTelescope(idt);
+            _tgidA->SetStringTelescopes(listOfIDTel.Data());
+
 
             //add identification object to telescope's ID manager
-            idt->AddTGID(_tgidZ);
-            idt->AddTGID(_tgidA);
-
+            listOfIDTel.Begin("/");
+			while(!listOfIDTel.End()){
+				idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(listOfIDTel.Next());
+				if(idt){
+            		idt->AddTGID(_tgidZ);
+            		idt->AddTGID(_tgidA);
+				}
+				else Error("SetIdentificationParameters","ID telescope not found in the multidetector");
+			}
         }
     }
 

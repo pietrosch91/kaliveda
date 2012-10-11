@@ -46,16 +46,6 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
         KVSilicon* fSi;
         KVCsI* fCsI;
 
-        Double_t fCsILight;
-        Double_t fCsIRPedestal;
-        Double_t fCsILPedestal;
-
-        Double_t fSiCorr;
-        Double_t fSiPG;
-        Double_t fSiGG;
-        Double_t fSiPGPedestal;
-        Double_t fSiGGPedestal;
-
     public:
 
         KVIDSiCorrCsI(){};
@@ -72,18 +62,6 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
         virtual void RemoveIdentificationParameters();
 
         void PrintFitParameters();
-
-        // Methods to check the pedestals etc.
-
-        //Double_t GetCsILight(){return fCsILight;};
-        //Double_t GetCsIRPedestal(){return fCsIRPedestal;};
-        //Double_t GetCsILPedestal(){return fCsILPedestal;};
-
-        //Double_t GetSiCorr(){return fSiCorr;};
-        //Double_t GetSiGG(){return fSiGG;};
-        //Double_t GetSiPG(){return fSiPG;};
-        //Double_t GetSiGGPedestal(){return fSiGGPedestal;};
-        //Double_t GetSiPGPedestal(){return fSiPGPedestal;};
 
         ClassDef(KVIDSiCorrCsI, 2)  
 };
