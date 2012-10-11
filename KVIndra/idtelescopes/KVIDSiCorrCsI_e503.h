@@ -58,8 +58,8 @@ class KVIDSiCorrCsI_e503:public KVIDSiCsI, public KVTGIDManager{
 
     public:
 
-        KVIDSiCorrCsI_e503(){};
-        virtual ~KVIDSiCorrCsI_e503(){};
+        KVIDSiCorrCsI_e503();
+        virtual ~KVIDSiCorrCsI_e503();
 
         virtual void Initialize();
 

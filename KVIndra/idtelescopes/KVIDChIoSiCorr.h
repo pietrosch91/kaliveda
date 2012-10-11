@@ -39,7 +39,7 @@ class KVIDChIoSiCorr : public KVIDChIoSi
         Double_t fSiPGPedestal;
         Double_t fSiGGPedestal;
 
-        KVIDGChIoSi* ChIoSiGrid;
+        KVIDGChIoSi* chioSiGrid;
 
     public:
 

@@ -23,7 +23,18 @@ ClassImp(KVIDChIoCorrCsI_e503)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoCorrCsI_e503::KVIDChIoCorrCsI_e503() 
+KVIDChIoCorrCsI_e503::KVIDChIoCorrCsI_e503() :
+        fGrid(0),
+        fChIo(0),
+        fCsI(0),
+        fCsILight(-5.),
+        fCsIRPedestal(-5.),
+        fCsILPedestal(-5.),
+        fChIoCorr(-5.),
+        fChIoGG(-5.),
+        fChIoPG(-5.),
+        fChIoGGPedestal(-5.),
+        fChIoPGPedestal(-5.)
 {
 
 }
@@ -58,14 +69,12 @@ void KVIDChIoCorrCsI_e503::Initialize()
     fGrid = 0;
     fGrid = (KVIDZAGrid*) GetIDGrid();
 
-    if (fGrid != 0) {
-
+    if(fGrid){
         fGrid->Initialize();
         fGrid->SetOnlyZId(kTRUE);
         SetBit(kReadyForID);
-
     }else{
-
+        // Should prevent identify proc and avoid segv below
         ResetBit(kReadyForID);
     }
 
@@ -77,7 +86,7 @@ Double_t KVIDChIoCorrCsI_e503::GetIDMapX(Option_t * opt)
 {
     Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
 
-    fCsILight = fCsI->GetLumiereTotale();
+    if(fCsI) fCsILight = fCsI->GetLumiereTotale();
 
     return fCsILight;
 }
@@ -90,7 +99,7 @@ Double_t KVIDChIoCorrCsI_e503::GetIDMapY(Option_t *opt)
 
     fChIoCorr = -5.;
 
-    if(fChIo != 0){
+    if(fChIo){
 
         fChIoPG = fChIo->GetPG();
         fChIoPGPedestal = fChIo->GetPedestal("PG");
@@ -122,12 +131,19 @@ Double_t KVIDChIoCorrCsI_e503::GetIDMapY(Option_t *opt)
 
 Bool_t KVIDChIoCorrCsI_e503::Identify(KVIdentificationResult* idr, Double_t x, Double_t y) 
 {
+
+    if(!idr){
+        std::cerr << "Error: KVIDChIoCorrCsI_e503::Identify: idr null pointer" << std::endl;
+        return kFALSE;
+    }
+
     idr->SetIDType(GetType());
     idr->IDattempted = kTRUE;
     
-    Double_t chIoCorr = GetIDMapY("");
-    Double_t csiLight = GetIDMapX("");
+    Double_t chIoCorr(GetIDMapY(""));
+    Double_t csiLight(GetIDMapX(""));
 
+    // The following is safe, will only get here if kReadyForID is set
     fGrid->Identify(csiLight, chIoCorr, idr);
 
     if(fGrid->GetQualityCode() > KVIDZAGrid::kICODE6 ){

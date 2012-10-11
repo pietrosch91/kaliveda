@@ -20,7 +20,21 @@ ClassImp(KVIDChIoSiCorr)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoSiCorr::KVIDChIoSiCorr() 
+KVIDChIoSiCorr::KVIDChIoSiCorr() :
+
+        fChIo(0),
+        fSi(0),
+        fChIoCorr(-5.),
+        fChIoGG(-5.),
+        fChIoPG(-5.),
+        fChIoGGPedestal(-5.),
+        fChIoPGPedestal(-5.),
+        fSiCorr(-5.),
+        fSiGG(-5.),
+        fSiPG(-5.),
+        fSiPGPedestal(-5.),
+        fSiGGPedestal(-5.),
+        chioSiGrid(0)
 {
 
 }
@@ -47,16 +61,16 @@ void KVIDChIoSiCorr::Initialize()
     fSiCorr = -5.;
 
     fChIo = 0;
-    fChIo = (KVChIo*)GetDetector(1);
+    fChIo = (KVChIo*) GetDetector(1);
 
     fSi = 0;
-    fSi = (KVSilicon*)GetDetector(2);
+    fSi = (KVSilicon*) GetDetector(2);
 
-    ChIoSiGrid = 0;
-    ChIoSiGrid = (KVIDGChIoSi*) GetIDGrid();
+    chioSiGrid = 0;
+    chioSiGrid = (KVIDGChIoSi*) GetIDGrid();
 
-    if (ChIoSiGrid != 0) {
-        ChIoSiGrid->Initialize();
+    if(chioSiGrid){
+        chioSiGrid->Initialize();
         SetBit(kReadyForID);
     }else{
         ResetBit(kReadyForID);
@@ -72,7 +86,7 @@ Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *opt)
 
     fSiCorr = -5.;
 
-    if(fSi != 0){
+    if(fSi){
 
         fSiPG = fSi->GetPG();
         fSiPGPedestal = fSi->GetPedestal("PG");
@@ -105,7 +119,7 @@ Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt)
 
     fChIoCorr = -5.;
 
-    if(fChIo != 0){
+    if(fChIo){
 
         fChIoPG = fChIo->GetPG();
         fChIoPGPedestal = fChIo->GetPedestal("PG");
@@ -138,17 +152,23 @@ Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt)
 
 Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y) 
 {
+    if(!IDR){
+        std::cerr << "Error: KVIDChIoSiCorr::Identify: IDR null pointer" << std::endl;
+        return kFALSE;
+    }
+
     IDR->SetIDType( GetType() );
     IDR->IDattempted = kTRUE;
 
-    Double_t chio = GetIDMapY("");
-    Double_t si = GetIDMapX("");
+    Double_t chio(GetIDMapY(""));
+    Double_t si(GetIDMapX(""));
 
-    if (ChIoSiGrid->IsIdentifiable(si,chio)){
-        ChIoSiGrid->Identify(si,chio,IDR);
+    // should be safe, as it will only be called when kReadyForID is set
+    if (chioSiGrid->IsIdentifiable(si,chio)){
+        chioSiGrid->Identify(si,chio,IDR);
     }
 
-    Int_t quality = ChIoSiGrid->GetQualityCode();
+    Int_t quality = chioSiGrid->GetQualityCode();
     IDR->IDquality = quality;
 
     // set general ID code
@@ -174,7 +194,8 @@ Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult * IDR, Double_t x, Double
         IDR->Z = fChIo->FindZmin();
         IDR->SetComment("point to identify left of Si threshold line (bruit/arret ChIo?)");
     }
-    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
+    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) 
+        IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
 
     return kTRUE;
 }
