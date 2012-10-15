@@ -130,7 +130,7 @@ void	KVValues::Clear(Option_t* option)
 void	KVValues::Print(Option_t* option) const
 {
 	//Info("Print","%s : %d values computed",GetName(),kval_tot);
-	printf("KVValues::Print_NVL\n%s : %d values computed",GetName(),kval_tot);
+	printf("KVValues::Print_NVL\n%s : %d values computed\n",GetName(),kval_tot);
 	for (Int_t nn=0; nn<kval_tot; nn+=1){
 		printf("- %d %s %lf\n",nn,GetNameAt(nn),GetValue(nn));
 	}
@@ -363,4 +363,20 @@ Int_t KVValues::GetNValues(KVString opt) const
 	if (opt=="base") 		return kval_base;
 	else if (opt=="add")	return kval_add;
 	else { return GetNpar(); }
+}
+
+//___________________________________________________________________________________________
+Bool_t KVValues::Add(KVValues* val)
+{
+	if (this->GetNValues("base")!=val->GetNValues("base")) return kFALSE;
+	if (this->GetValue("MIN")>val->GetValue("MIN"))
+		values[GetValuePosition("MIN")] = val->GetValue("MIN");
+	if (this->GetValue("MAX")<val->GetValue("MAX"))
+		values[GetValuePosition("MAX")] = val->GetValue("MAX");
+	
+	for (Int_t ii=kdeb;ii<this->GetNValues("base");ii+=1){
+		values[ii] += val->GetValue(ii);
+	}
+	kTimesFillVarIsCalled+=val->GetNumberOfFilling();
+	return kTRUE;
 }
