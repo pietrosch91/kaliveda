@@ -324,12 +324,8 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
             _tgidA->SetLTGParameters(param);
 
             KVNumberList runList(runs.Data());
-
             _tgidZ->SetValidRuns(runList);
-            _tgidZ->SetStringTelescopes(listOfIDTel.Data());
-
             _tgidA->SetValidRuns(runList);
-            _tgidA->SetStringTelescopes(listOfIDTel.Data());
 
 
             //add identification object to telescope's ID manager
@@ -337,6 +333,8 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
 			while(!listOfIDTel.End()){
 				idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(listOfIDTel.Next());
 				if(idt){
+            		_tgidZ->AddIDTelescope(idt);
+            		_tgidA->AddIDTelescope(idt);
             		idt->AddTGID(_tgidZ);
             		idt->AddTGID(_tgidA);
 				}
