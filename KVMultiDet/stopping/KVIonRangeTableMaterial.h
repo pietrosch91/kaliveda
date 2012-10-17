@@ -20,11 +20,13 @@ class KVIonRangeTableMaterial : public KVBase
    protected:
    const KVIonRangeTable* fTable;//parent range table
    TString fState;               // state of material = "solid", "liquid", "gas", "unknown"
-   KVList*   fComposition;      // composition of compound
+   KVList*   fComposition;      // composition of compound/mixture
+   Bool_t fCompound;
+   Bool_t fMixture;
    Double_t fDens;              // density of material in g/cm**3
    Double_t fZmat;              // effective atomic number of material
-   Double_t fAmat;              // effective atomic mass of material
-   Double_t fMoleWt;            // only used for gases - mass of one mole of gas in grammes
+   Double_t fAmat;              // effective mass number of material
+   Double_t fMoleWt;            // mass of one mole of substance in grammes
    
    TF1* fDeltaE; // function parameterising energy loss in material
    TF1* fEres; // function parameterising residual energy after crossing material
@@ -34,7 +36,7 @@ class KVIonRangeTableMaterial : public KVBase
    public:
    KVIonRangeTableMaterial();
    KVIonRangeTableMaterial(const KVIonRangeTable*,const Char_t* name, const Char_t* symbol, const Char_t* state,
-                     Double_t density, Double_t Z=-1, Double_t A=-1, Double_t MoleWt = 0.0);
+         Double_t density=-1, Double_t Z=-1, Double_t A=-1);
    KVIonRangeTableMaterial (const KVIonRangeTableMaterial&) ;
    virtual ~KVIonRangeTableMaterial();
    
@@ -42,17 +44,19 @@ class KVIonRangeTableMaterial : public KVBase
    const KVIonRangeTable* GetTable() const;
    
    void ls(Option_t* = "") const;
-   void Print(Option_t* = "") const {
-      ls();
-   };
-   virtual Float_t GetEmaxValid(Int_t Z, Int_t A) const {
+   void Print(Option_t* = "") const;
+   virtual Float_t GetEmaxValid(Int_t /* Z */, Int_t /* A */) const {
       return 1.e+4;
    };
-   virtual Float_t GetEminValid(Int_t Z, Int_t A) const {
+   virtual Float_t GetEminValid(Int_t /* Z */, Int_t /* A */) const {
       return 0.0;
    };
 
    void Copy (TObject&) const;
+   const Char_t* GetSymbol() const
+   {
+      return GetTitle();
+   };
    Double_t GetMass() const {
       return fAmat;
    };
@@ -69,22 +73,36 @@ class KVIonRangeTableMaterial : public KVBase
       // to define the temperature and pressure of the gas.
       return fDens;
    };
+   void SetDensity(Double_t d) {
+      // set density of material in g/cm**3.
+      // no effect for gaseous materials.
+      fDens=d;
+   };
    void SetTemperatureAndPressure(Double_t T, Double_t P) {
       // for a gaseous material, calculate density in g/cm**3 according to given
       // conditions of temperature (T, in degrees celsius) and pressure (P, in Torr)
 		if (IsGas() && P == 0) fDens = 0;
       if (IsGas() && T > 0 && P > 0) fDens = (fMoleWt * P) / ((T + ZERO_KELVIN) * RTT);
    };
-
+   void SetState(const Char_t* st)
+   {
+      // Set state of material: gas, liquid, solid, ...
+      fState=st;
+   };
    Bool_t IsGas() const {
       // returns kTRUE if material is in gaseous state
       return (fState == "gas");
    };
    
    Bool_t IsCompound() const {
-   	// returns kTRUE if material is a compound or mixture, kFALSE if it is an element
-   	return (fComposition!=NULL);
+   	// returns kTRUE if material is a compound, kFALSE if it is an element or a mixture
+   	return (fCompound);
    };
+   Bool_t IsMixture() const {
+   	// returns kTRUE if material is a mixture, kFALSE if it is an element or a compound
+   	return (fMixture);
+   };
+   
    KVList* GetComposition() const
    {
    	// return list of elements in compound material
@@ -139,7 +157,7 @@ class KVIonRangeTableMaterial : public KVBase
    virtual Double_t GetEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0.);
    virtual Double_t GetLinearMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
-
+   
    ClassDef(KVIonRangeTableMaterial,1)//Material for use in energy loss & range calculations
 };
 

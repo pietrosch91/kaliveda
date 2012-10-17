@@ -31,8 +31,8 @@ KVedaLossMaterial::KVedaLossMaterial()
 }
 
 KVedaLossMaterial::KVedaLossMaterial(const KVIonRangeTable*t,const Char_t* name, const Char_t* type, const Char_t* state,
-                                     Double_t density, Double_t Z, Double_t A, Double_t MoleWt)
-   : KVIonRangeTableMaterial(t,name,type,state,density,Z,A,MoleWt)
+                                     Double_t density, Double_t Z, Double_t A, Double_t)
+   : KVIonRangeTableMaterial(t,name,type,state,density,Z,A)
 {
    // create new material
    for (int i = 0; i < 100; i++) {

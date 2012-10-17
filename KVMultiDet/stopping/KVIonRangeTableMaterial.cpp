@@ -6,6 +6,8 @@
 #include "KVNucleus.h"
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
+#include "KVElementDensity.h"
+#include "KVNDTManager.h"
 
 ClassImp(KVIonRangeTableMaterial)
 
@@ -23,6 +25,8 @@ KVIonRangeTableMaterial::KVIonRangeTableMaterial()
    fTable(0),
    fState("unknown"),
    fComposition(0),
+   fCompound(kFALSE),
+   fMixture(kFALSE),
      fDens(0.),
      fZmat(0),
      fAmat(0),
@@ -36,15 +40,17 @@ KVIonRangeTableMaterial::KVIonRangeTableMaterial()
 }
 
 KVIonRangeTableMaterial::KVIonRangeTableMaterial(const KVIonRangeTable*tab,const Char_t* name, const Char_t* symbol,
-      const Char_t* state, Double_t density, Double_t Z, Double_t A, Double_t MoleWt)
+      const Char_t* state, Double_t density, Double_t Z, Double_t A)
    : KVBase(name,symbol),
       fTable(tab),
       fState(state),
       fComposition(0),
+   fCompound(kFALSE),
+   fMixture(kFALSE),
      fDens(density),
      fZmat(Z),
      fAmat(A),
-     fMoleWt(MoleWt),
+     fMoleWt(0),
      fDeltaE(0),
      fEres(0),
      fRange(0),
@@ -55,8 +61,21 @@ KVIonRangeTableMaterial::KVIonRangeTableMaterial(const KVIonRangeTable*tab,const
    //        e.g. silicon:    name="Silicon"  symbol="Si"
    //              C4H10:     name="Isobutane",  symbol="C4H10"
    // state="solid", "liquid", "gas"
-   // density in g/cm**3
-   // 
+   //
+   // Density [g/cm**3] must be given for solid compounds/mixtures.
+   // Densities of atomic elements are known (gNDTManager->GetValue(z, a, "ElementDensity")), they
+   // will be used automatically, unless a different value is given here.
+   // Densities of gases are calculated from the molar weight, temperature and pressure.
+   
+   if(Z>0 && density<0){
+      KVElementDensity*ed = (KVElementDensity*)gNDTManager->GetData(Z,A,"ElementDensity");
+      if(!ed){
+         Warning("KVIonRangeTableMaterial", 
+               "No element found in density table with Z=%f, density unknown",Z);
+      }
+      else
+         fDens = ed->GetValue();
+   }
 }
 
 //________________________________________________________________
@@ -65,6 +84,8 @@ KVIonRangeTableMaterial::KVIonRangeTableMaterial (const KVIonRangeTableMaterial&
    fTable(0),
       fState("unknown"),
    fComposition(0),
+   fCompound(kFALSE),
+   fMixture(kFALSE),
      fDens(0.),
      fZmat(0),
      fAmat(0),
@@ -115,6 +136,7 @@ void KVIonRangeTableMaterial::AddCompoundElement(Int_t Z, Int_t A, Int_t Natoms)
    //      toto.AddCompoundElement(6,12,3);
    //      toto.AddCompoundElement(9,19,8);
    
+   fCompound=kTRUE;
    KVNucleus n(Z,A);
    Int_t nel = 0;
    if(!fComposition) {fComposition=new KVList;}
@@ -123,8 +145,9 @@ void KVIonRangeTableMaterial::AddCompoundElement(Int_t Z, Int_t A, Int_t Natoms)
    l->SetValue("Z",Z);
    l->SetValue("A",A);
    l->SetValue("Ar", n.GetAtomicMass());
-   l->SetValue("Weight", (1.0*Natoms));
-   l->SetValue("Weight*Ar", n.GetAtomicMass()*(1.0*Natoms));
+   l->SetValue("Natoms", Natoms);
+   l->SetValue("Weight", Natoms);
+   l->SetValue("Ar*Weight", n.GetAtomicMass()*Natoms);
    fComposition->Add(l);
 }
 
@@ -136,6 +159,7 @@ void KVIonRangeTableMaterial::AddMixtureElement(Int_t Z, Int_t A, Int_t Natoms, 
    //      toto.AddMixtureElement(8,16, 2, 0.21);
    //      toto.AddMixtureElement(18, 40, 2, 0.01);
    
+   fMixture=kTRUE;
    KVNucleus n(Z,A);
    Int_t nel = 0;
    if(!fComposition) fComposition=new KVList;
@@ -144,36 +168,49 @@ void KVIonRangeTableMaterial::AddMixtureElement(Int_t Z, Int_t A, Int_t Natoms, 
    l->SetValue("Z",Z);
    l->SetValue("A",A);
    l->SetValue("Ar", n.GetAtomicMass());
-   l->SetValue("Weight", Natoms*Proportion);
-   l->SetValue("Weight*Ar", n.GetAtomicMass()*Proportion*Natoms);
+   l->SetValue("Natoms", Natoms);
+   l->SetValue("Proportion", Proportion);
+   l->SetValue("Weight", Proportion*Natoms);
+   l->SetValue("Ar*Weight", n.GetAtomicMass()*Proportion*Natoms);
    fComposition->Add(l);
 }
 
 void KVIonRangeTableMaterial::Initialize()
 {
    // Correctly initialize material ready for use
-   // For compound materials, calculate normalised weights of components
-   // and molar weight of substance
+   // For compound or mixed materials, calculate normalised weights of components,
+   // effective Z and A, and molar weight of substance
    
    fMoleWt=0.;
-   if(IsCompound()){
+   if(IsCompound()||IsMixture()){
+      // mixture or compound
+      // calculate molar weight and effective Z & A
+      fZmat=fAmat=0;
       TIter next(fComposition);
       KVNameValueList* nvl;
-      Double_t totW=0,totmW=0;
+      Double_t totW=0;
       while( (nvl = (KVNameValueList*)next()) ){
-         Double_t war = nvl->GetDoubleValue("Weight*Ar");
-         fMoleWt+=war;
-         Double_t prop = nvl->GetDoubleValue("Weight");
-         totmW+=war;
-         totW+=prop;
+         Double_t arw = nvl->GetDoubleValue("Ar*Weight");
+         Double_t poid = nvl->GetDoubleValue("Weight");
+         fMoleWt+=arw;
+         totW+=poid;
+         fZmat+=poid*nvl->GetIntValue("Z");
+         fAmat+=poid*nvl->GetIntValue("A");
       }
+      fZmat/=totW;
+      fAmat/=totW;
       next.Reset();
       while( (nvl = (KVNameValueList*)next()) ){
-         Double_t war = nvl->GetDoubleValue("Weight*Ar");
          Double_t prop = nvl->GetDoubleValue("Weight");
-         nvl->SetValue("NormWeight*Ar",war/totmW);
          nvl->SetValue("NormWeight",prop/totW);
       }
+   }
+   else
+   {
+      // isotopically-pure elemental material
+      // get mass of 1 mole of element
+      KVNucleus n(fZmat,fAmat);
+      fMoleWt=n.GetAtomicMass();
    }
 }
    
@@ -184,10 +221,30 @@ const KVIonRangeTable* KVIonRangeTableMaterial::GetTable() const
 
 void KVIonRangeTableMaterial::ls(Option_t*) const
 {
-   printf("%s::%s     Material type : %s    State : %s\n", ClassName(), GetName(), GetType(), fState.Data());
-   printf("\tZ=%f  A=%f  ", fZmat, fAmat);
-   if (IsGas()) printf(" Mole Weight = %f g.", fMoleWt);
-   if (fDens > 0) printf(" Density = %f g/cm**3", fDens);
+   printf("Material : %s (%s)   State : %s\n",
+         GetName(), GetSymbol(), fState.Data());
+}
+
+void KVIonRangeTableMaterial::Print(Option_t*) const
+{
+   printf("Material : %s (%s)   State : %s\n",
+         GetName(), GetSymbol(), fState.Data());
+   printf("\tEffective Z=%f, A=%f  ", fZmat, fAmat);
+   if (IsGas()) printf(" Molar Weight = %f g.", fMoleWt);
+   else printf(" Density = %f g/cm**3", fDens);
+   printf("\n");
+   if(IsCompound()) printf("\tCompound material:\n");
+   else if(IsMixture())  printf("\tMixed material:\n");
+   if(IsCompound()||IsMixture()) {
+      TIter next(fComposition);
+      KVNameValueList*nvl;
+      while( (nvl=(KVNameValueList*)next()) ){
+         KVNucleus n(nvl->GetIntValue("Z"),nvl->GetIntValue("A"));
+         printf("\t\tElement: %s   Ar=%f g.   Natoms=%d", n.GetSymbol(), n.GetAtomicMass(), nvl->GetIntValue("Natoms"));
+         if(IsMixture()) printf("   Proportion=%f", nvl->GetDoubleValue("Proportion"));
+         printf("\n");
+      }
+   }
    printf("\n\n");
 }
 

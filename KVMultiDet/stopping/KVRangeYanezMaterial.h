@@ -8,7 +8,7 @@
 
 class KVRangeYanezMaterial : public KVIonRangeTableMaterial
 {
-   static Int_t fTableType;//=0 for Northcliffe-Schilling (<12 MeV/u), =1 for Hubert et al (2.5<E/A<100 MeV)
+   Int_t fTableType;//=0 for Northcliffe-Schilling (<12 MeV/u), =1 for Hubert et al (2.5<E/A<500 MeV), =2 for interpolated (0<E/A<500 MeV)
    
    Int_t fNelem;                             //number of elements in material
    Int_t iabso;                                //value of iabso argument for function calls
@@ -22,7 +22,7 @@ class KVRangeYanezMaterial : public KVIonRangeTableMaterial
    Double_t error;                        //!calculated error in MeV
    
    protected:         
-   void PrepareRangeLibVariables(Int_t Z, Int_t A, Double_t isoAmat = 0);
+   void PrepareRangeLibVariables(Int_t Z, Int_t A);
    Double_t DeltaEFunc(Double_t*, Double_t*);
    Double_t RangeFunc(Double_t*, Double_t*);
    Double_t EResFunc(Double_t*, Double_t*);
@@ -33,7 +33,7 @@ class KVRangeYanezMaterial : public KVIonRangeTableMaterial
    KVRangeYanezMaterial();
    KVRangeYanezMaterial (const KVRangeYanezMaterial&) ;
    KVRangeYanezMaterial(const KVIonRangeTable*t, const Char_t* name, const Char_t* symbol, const Char_t* state,
-         Int_t Z, Int_t A, Double_t density);
+         Double_t density=-1, Int_t Z=-1, Int_t A=-1);
    virtual ~KVRangeYanezMaterial();
    void Copy (TObject&) const;
    void Initialize();
@@ -46,6 +46,8 @@ class KVRangeYanezMaterial : public KVIonRangeTableMaterial
       Warning("GetStoppingFunction", "Not available for Yanez Range tables");
       return 0;
    };
+   void SetTableType(int type) {fTableType=type;};
+   
    virtual Double_t GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t Eres, Double_t e, Double_t isoAmat = 0.);
    
    ClassDef(KVRangeYanezMaterial,1)//Description of absorber for the Range dE/dx and range library (Ricardo Yanez)

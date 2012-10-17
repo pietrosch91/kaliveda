@@ -10,7 +10,7 @@
 #include "Riostream.h"
 using namespace std;
 
-Int_t KVRangeYanezMaterial::fTableType = 1;//Hubert-Bimbot-Gauvin, valid for 2.5<E/A<100 MeV
+//Int_t KVRangeYanezMaterial::fTableType = 1;//Hubert-Bimbot-Gauvin, valid for 2.5<E/A<100 MeV
 
 ClassImp(KVRangeYanezMaterial)
 
@@ -29,12 +29,12 @@ KVRangeYanezMaterial::KVRangeYanezMaterial()
 }
 
 KVRangeYanezMaterial::KVRangeYanezMaterial(
-      const KVIonRangeTable*t, const Char_t* name, const Char_t* symbol, const Char_t* state,
-      Int_t Z, Int_t A, Double_t density)
+      const KVIonRangeTable*t, const Char_t* name, const Char_t* symbol, const Char_t* state, Double_t density,
+      Int_t Z, Int_t A)
       :    KVIonRangeTableMaterial(t,name,symbol,state,density,Z,A)
 {
    // Create material (single-element absorber)
-   
+   fTableType=2;
    fNelem=1;
    iabso=0;
    fAbsorb[0].z  = Z; fAbsorb[0].a = A; fAbsorb[0].w = A;
@@ -81,15 +81,15 @@ void KVRangeYanezMaterial::MakeFunctionObjects()
    fDeltaE = new TF1(Form("KVRangeYanezMaterial:%s:EnergyLoss", GetType()), this, 
          &KVRangeYanezMaterial::DeltaEFunc,
                      0., 1.e+03, 0, "KVRangeYanezMaterial", "DeltaEFunc");
-   fDeltaE->SetNpx(1000);
+   fDeltaE->SetNpx(100);
    fRange = new TF1(Form("KVRangeYanezMaterial:%s:Range", GetType()), this, 
          &KVRangeYanezMaterial::RangeFunc,
                      0., 1.e+03, 0, "KVRangeYanezMaterial", "RangeFunc");
-   fRange->SetNpx(1000);
+   fRange->SetNpx(100);
    fEres = new TF1(Form("KVRangeYanezMaterial:%s:ResidualEnergy", GetType()), this, 
          &KVRangeYanezMaterial::EResFunc,
                      0., 1.e+03, 0, "KVRangeYanezMaterial", "EResFunc");
-   fEres->SetNpx(1000);
+   fEres->SetNpx(100);
 }
 
 Double_t KVRangeYanezMaterial::DeltaEFunc(Double_t* E, Double_t*p)
@@ -98,8 +98,8 @@ Double_t KVRangeYanezMaterial::DeltaEFunc(Double_t* E, Double_t*p)
    // This is simply an interface to the passage() function of the Range C library.
    // The incident energy E[0] is given in MeV.
    // The energy loss is calculated in MeV.
-   // To avoid divergences as E->0, for any incident energy E<=1.e-6MeV (i.e. 1eV)
-   // we return dE=E i.e. all particles with E<=1eV are stopped.
+   // To avoid divergences as E->0, for any incident energy E<=1.e-3MeV (i.e. 1keV)
+   // we return dE=E i.e. all particles with E<=1keV are stopped.
 
    return (E[0]-EResFunc(E,p));
 }
@@ -110,10 +110,10 @@ Double_t KVRangeYanezMaterial::EResFunc(Double_t* E, Double_t*)
    // This is simply an interface to the passage() function of the Range C library.
    // The incident energy E[0] is given in MeV.
    // The residual energy is calculated in MeV.
-   // To avoid divergences as E->0, for any incident energy E<=1.e-6MeV (i.e. 1eV)
-   // we return Eres=0 i.e. all particles with E<=1eV are stopped.
+   // To avoid divergences as E->0, for any incident energy E<=1.e-3MeV (i.e. 1keV)
+   // we return Eres=0 i.e. all particles with E<=1keV are stopped.
 
-   if(E[0]<1.e-6) return 0.0;
+   if(E[0]<1.e-3) return 0.0;
    return passage(fTableType, Zp, Ap, iabso, fAbsorb[0].z, fAbsorb[0].a, E[0], thickness/KVUnits::mg, &error);
 }
 
@@ -123,22 +123,25 @@ Double_t KVRangeYanezMaterial::RangeFunc(Double_t* E, Double_t*)
    // This is simply an interface to the rangen() function of the Range C library.
    // The incident energy E[0] is given in MeV.
    // The range is calculated in g/cm**2.
-   // To avoid divergences as E->0, for any incident energy E<=1.e-6MeV (i.e. 1eV)
-   // we return range=0 i.e. all particles with E<=1eV are stopped.
+   // To avoid divergences as E->0, for any incident energy E<=1.e-3MeV (i.e. 1keV)
+   // we return range=0 i.e. all particles with E<=1keV are stopped.
 
-   if(E[0]<1.e-6) return 0.;
+   if(E[0]<1.e-3) return 0.;
    Double_t R = rangen(fTableType, Zp, Ap, iabso, fAbsorb[0].z, fAbsorb[0].a, E[0]);
    return (R*KVUnits::mg);
 }
 
-void KVRangeYanezMaterial::PrepareRangeLibVariables(Int_t Z, Int_t A, Double_t isoAmat)
+void KVRangeYanezMaterial::PrepareRangeLibVariables(Int_t Z, Int_t A)
 {
    nelem=fNelem;
-   if(fNelem>1){
+   is_gas=(int)IsGas();
+   if(iabso<0){
+      //cout << "nelem="<<nelem<<endl;
       for(register int k=0;k<fNelem;k++){
          absorb[k].z=fAbsorb[k].z;
          absorb[k].a=fAbsorb[k].a;
          absorb[k].w=fAbsorb[k].w;
+         //cout << k << " " << absorb[k].z << " " << absorb[k].a << " " << absorb[k].w << endl;
       }
    }
    Zp=Z;
@@ -149,9 +152,9 @@ TF1* KVRangeYanezMaterial::GetDeltaEFunction(Double_t e, Int_t Z, Int_t A, Doubl
 {
    // Return function giving energy loss (in MeV) as a function of incident energy (in MeV) for
    // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
-   // If required, the isotopic mass of the material can be given.
+   // isotopic mass isoAmat argument is not used.
 
-   PrepareRangeLibVariables(Z,A,isoAmat);
+   PrepareRangeLibVariables(Z,A);
    thickness = e;
    fDeltaE->SetRange(0, 400*Ap);
    return fDeltaE;
@@ -161,9 +164,9 @@ TF1* KVRangeYanezMaterial::GetEResFunction(Double_t e, Int_t Z, Int_t A, Double_
 {
    // Return function giving residual energy (in MeV) as a function of incident energy (in MeV) for
    // charged particles (Z,A) traversing (or not) the thickness e (in g/cm**2) of this material.
-   // If required, the isotopic mass of the material can be given.
+   // isotopic mass isoAmat argument is not used.
 
-   PrepareRangeLibVariables(Z,A,isoAmat);
+   PrepareRangeLibVariables(Z,A);
    thickness = e;
    fEres->SetRange(0, 400*Ap);
    return fEres;
@@ -173,9 +176,9 @@ TF1* KVRangeYanezMaterial::GetRangeFunction(Int_t Z, Int_t A, Double_t isoAmat)
 {
    // Return function giving range (in g/cm**2) as a function of incident energy (in MeV) for
    // charged particles (Z,A) traversing this material.
-   // If required, the isotopic mass of the material can be given.
+   // isotopic mass isoAmat argument is not used.
    
-   PrepareRangeLibVariables(Z,A,isoAmat);
+   PrepareRangeLibVariables(Z,A);
    // Yanez' range functions tend to have a (negative) minimum at very low energy,
    // below which the range diverges towards +infty at E=0.
    // Therefore we limit the range of the function to E>=Emin where Emin
@@ -196,7 +199,19 @@ void KVRangeYanezMaterial::Initialize()
       while( (nvl = (KVNameValueList*)next()) ){
          fAbsorb[fNelem].z = nvl->GetIntValue("Z");
          fAbsorb[fNelem].a = nvl->GetIntValue("A");
-         fAbsorb[fNelem].w = nvl->GetDoubleValue("Weight");
+         fAbsorb[fNelem].w = nvl->GetDoubleValue("Ar*Weight");
+         fNelem++;
+      }
+   }
+   else if(IsMixture()){
+      fNelem=0;
+      iabso=-1;
+      TIter next(fComposition);
+      KVNameValueList* nvl;
+      while( (nvl = (KVNameValueList*)next()) ){
+         fAbsorb[fNelem].z = nvl->GetIntValue("Z");
+         fAbsorb[fNelem].a = nvl->GetIntValue("A");
+         fAbsorb[fNelem].w = nvl->GetDoubleValue("Ar*Weight");
          fNelem++;
       }
    }
@@ -206,7 +221,7 @@ Double_t KVRangeYanezMaterial::GetEIncFromEResOfIon(Int_t Z, Int_t A, Double_t E
 {
    // Overrides KVIonRangeTableMaterial method to use the egassap() function of  the Range C library.
    // Calculates incident energy (in MeV) of an ion (Z,A) with residual energy Eres (MeV) after thickness e (in g/cm**2).
-   // Give Amat to change default (isotopic) mass of material
-   PrepareRangeLibVariables(Z,A,isoAmat);
+   // isotopic mass isoAmat argument is not used.
+   PrepareRangeLibVariables(Z,A);
    return egassap(fTableType, Zp, Ap, iabso, fAbsorb[0].z, fAbsorb[0].a, e/KVUnits::mg, Eres, &error);   
 }

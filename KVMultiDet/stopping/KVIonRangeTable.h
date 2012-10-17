@@ -23,13 +23,16 @@ public:
 
    static KVIonRangeTable* GetRangeTable(const Char_t* name);
    
-   virtual void AddElementalMaterial(Int_t z, Int_t a)
+   virtual void AddElementalMaterial(Int_t /*z*/, Int_t /*a*/=0)
    {
       // Adds a material composed of a single isotope of a chemical element.
+      // If the isotope (a) is not specified, we create a material containing the naturally
+      // occuring isotopes of the given element, weighted according to their abundance.
+      // If the element name is "X", this material will be called "natX", for "naturally-occuring X".
    };
    virtual void AddCompoundMaterial(
-         const Char_t* name, const Char_t* symbol,
-         Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t density=-1.0)
+         const Char_t* /*name*/, const Char_t* /* symbol */,
+         Int_t /* nelem */, Int_t* /* z */, Int_t* /* a */, Int_t* /* natoms */, Double_t /* density */=-1.0)
    {
       // Adds a compound material:
       //   nelem = number of elements in compound
@@ -37,13 +40,13 @@ public:
       //   if compound is a solid, give density in g/cm**3
    };
    virtual void AddMixedMaterial(
-         const Char_t* name, const Char_t* symbol,
-         Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t* proportion,
-         Double_t density=-1.0)
+         const Char_t* /* name */, const Char_t* /* symbol */,
+         Int_t /* nelem */, Int_t* /* z */, Int_t* /* a */, Int_t* /* natoms */, Double_t* /* proportion */,
+         Double_t /* density */=-1.0)
    {
       // Adds a material which is a mixture of either elements or compounds:
       //   nelem = number of elements in mixture
-      //   z[],a[],natoms[],weight[]: arrays with atomic number, mass, number of atoms
+      //   z[],a[],natoms[],proportion[]: arrays with atomic number, mass, number of atoms
       //            and proportion of each element
       //   if mixture is a solid, give density in g/cm**3
    };
