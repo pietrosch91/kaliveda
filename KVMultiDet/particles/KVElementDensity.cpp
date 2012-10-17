@@ -22,6 +22,14 @@ KVElementDensity::KVElementDensity()
 
 //________________________________________________________________
 
+KVElementDensity::KVElementDensity(const Char_t* name): KVNuclData(name)
+{
+   // Default constructor
+   fIsGas=kFALSE;
+}
+
+//________________________________________________________________
+
 KVElementDensity::KVElementDensity (const KVElementDensity& obj)  : KVNuclData()
 {
    // Copy constructor
@@ -52,4 +60,12 @@ void KVElementDensity::Copy (TObject& obj) const
    KVNuclData::Copy(obj);
    //KVElementDensity& CastedObj = (KVElementDensity&)obj;
 }
-
+   
+void KVElementDensity::Print(Option_t*) const
+{
+   printf("Atomic element: %s (%s) Z=%d. Density=%f g/cm**3",
+         GetElementSymbol(), GetElementName(), GetZ(), GetValue());
+   if(IsGas()) printf(" (gas)");
+   printf("\n");
+}
+   

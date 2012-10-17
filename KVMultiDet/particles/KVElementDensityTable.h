@@ -6,6 +6,8 @@
 
 #include "KVNuclDataTable.h"
 
+class KVElementDensity;
+
 class KVElementDensityTable : public KVNuclDataTable
 {
 
@@ -18,6 +20,9 @@ class KVElementDensityTable : public KVNuclDataTable
    void Copy (TObject&) const;
 	
    virtual void GiveIndexToNucleus(Int_t zz,Int_t aa,Int_t ntot);
+   
+   KVElementDensity* FindElementByName(const Char_t*) const;
+   KVElementDensity* FindElementBySymbol(const Char_t*) const;
 
 	virtual void Initialize();
 	

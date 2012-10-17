@@ -18,7 +18,7 @@ ClassImp(KVElementDensityTable)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVElementDensityTable::KVElementDensityTable():KVNuclDataTable("KVElementDensityTable")
+KVElementDensityTable::KVElementDensityTable():KVNuclDataTable("KVElementDensity")
 {
    // Default constructor
    SetName("ElementDensity");
@@ -123,7 +123,7 @@ void KVElementDensityTable::Initialize()
 			lf->SetValue(val*units);
          lf->SetElementSymbol(fr->GetReadPar(3));
          lf->SetElementName(fr->GetReadPar(2));
-						
+			lf->SetZ(fr->GetIntReadPar(4));
 			ntot+=1;
 		}
 	
@@ -153,3 +153,32 @@ NDT::value* KVElementDensityTable::getNDTvalue(Int_t zz, Int_t aa) const
 	return KVNuclDataTable::getNDTvalue(zz,aa); 
 }
 
+KVElementDensity* KVElementDensityTable::FindElementByName(const Char_t*X) const
+{
+   // Search table for an element with the given name. Case-insensitive.
+   TString x = X;
+   x.ToUpper();
+   TIter next(tobj);
+   KVElementDensity* elem;
+   while( (elem = (KVElementDensity*)next()) ){
+      TString el = elem->GetElementName();
+      el.ToUpper();
+      if(x==el) return elem;
+   }
+   return 0x0;
+}
+
+KVElementDensity* KVElementDensityTable::FindElementBySymbol(const Char_t*X) const
+{
+   // Search table for an element with the given symbol. Case-insensitive.
+   TString x = X;
+   x.ToUpper();
+   TIter next(tobj);
+   KVElementDensity* elem;
+   while( (elem = (KVElementDensity*)next()) ){
+      TString el = elem->GetElementSymbol();
+      el.ToUpper();
+      if(x==el) return elem;
+   }
+   return 0x0;
+}
