@@ -174,6 +174,31 @@ const Char_t *KVNucleus::GetSymbol(Option_t* opt) const
 	return symname.Data();
 }
 
+Int_t KVNucleus::IsMassGiven(const Char_t * isotope)
+{
+   // test if the given string corresponds to the name of an isotope/element,
+   // and whether or not a mass is specified.
+   // isotope = symbol for element isotope, "C", "natSn", "13N", etc.
+   // if the mass of the isotope is given ("13N", "233U") we return the given mass
+   // if this is a valid element but no mass is given we return 0
+   // if this is not a valid isotope/element, we return -1
+   
+   Int_t A;
+   Char_t name[5];
+   TString tmp(isotope);
+   if (tmp.BeginsWith("nat"))
+      tmp.Remove(0, 3);
+   if (sscanf(tmp.Data(), "%d%s", &A, name) == 2) {
+      //name given in form "208Pb"
+      Int_t z = GetZFromSymbol(name);
+      if(z<0) return z;
+      return A;
+   }
+   Int_t z = GetZFromSymbol(tmp);
+   if(z<0) return z;
+   return 0;
+}
+
 void KVNucleus::Set(const Char_t * isotope)
 {
    //Set nucleus' Z & A using chemical symbol e.g. Set("12C") or Set("233U") etc.
@@ -201,20 +226,16 @@ Int_t KVNucleus::GetZFromSymbol(const Char_t * sym)
          return i;
       }
    }
-   cout << "KVNucleus::GetZFromSymbol : " << sym << " is unknown" << endl;
    return -1;
 }
 
 void KVNucleus::SetZFromSymbol(const Char_t * sym)
 {
    //Set Z of nucleus with given symbol i.e. "C" => Z=6, "U" => Z=92
-   for (register int i = 0; i <= MAXZ_ELEMENT_SYMBOL; i++) {
-      if (!strcmp(sym, fElements[i])) {
-         SetZ(i);
-         return;
-      }
-   }
-   Error("SetZFromSymbol", "%s is unknown", sym);
+   
+   Int_t z=GetZFromSymbol(sym);
+   if(z>-1) SetZ(z);
+   else Error("SetZFromSymbol", "%s is unknown", sym);
 }
 
 //_________________________________________________________________________________
@@ -797,7 +818,7 @@ Double_t KVNucleus::GetAMeV()
 
 //________________________________________________________________________________________
 
-KVNumberList KVNucleus::GetKnownARange(Int_t zz)
+KVNumberList KVNucleus::GetKnownARange(Int_t zz) const
 {
 
 	if (zz==-1) zz=GetZ();	
@@ -1115,4 +1136,28 @@ Double_t KVNucleus::GetWidth() const
    // is indeed a resonance (IsResonance() returns kTRUE).
    KVLifeTime* ptr = GetLifeTimePtr();
    return ((ptr && ptr->IsAResonnance()) ? ptr->GetValue() : 0.0);
+}
+
+//_______________________________________________________________________________________
+   
+Double_t KVNucleus::GetNaturalA(Int_t Z) const
+{
+   // Calculate and return the effective mass number of element Z
+   // taking into account the abundance of naturally-occurring isotopes
+   
+   KVNumberList isotopes = GetKnownARange(Z);
+   isotopes.Begin();
+   Double_t Aeff=0, wtot=0;
+   while( !isotopes.End() ){
+      
+      int A = isotopes.Next();
+      Double_t abundance = GetAbundance(Z,A)/100.;
+      if(abundance>0.) {
+         Aeff+=A*abundance;
+         wtot+=abundance;
+      }
+      
+   }
+   if(wtot>0) Aeff/=wtot;
+   return Aeff;
 }
