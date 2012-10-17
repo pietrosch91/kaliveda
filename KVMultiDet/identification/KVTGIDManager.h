@@ -19,7 +19,7 @@ $Id: KVTGIDManager.h,v 1.10 2008/04/04 09:06:25 franklan Exp $
 class KVTGIDGrid;
 
 class KVTGIDManager {
- private:
+ protected:
    KVList fIDList;              //KVTGID objects for identifications
    Double_t fID_max;            //maximum ID of all TGID objects
    Int_t fStatus;               //! transient member used to hold status of last call to IdentZ/IdentA
@@ -39,10 +39,10 @@ class KVTGIDManager {
     KVTGIDManager();
     virtual ~ KVTGIDManager();
 
-   void AddTGID(KVTGID *);
+   virtual void AddTGID(KVTGID *);
    KVTGID *GetTGID(const Char_t * name);
-   void RemoveTGID(const Char_t * name);
-   void RemoveAllTGID();
+   virtual void RemoveTGID(const Char_t * name);
+   virtual void RemoveAllTGID();
    KVTGID *GetTGID(const Char_t * idt_name, const Char_t * id_type,
                    const Char_t * grid_type);
    const Char_t *GetTGIDName(const Char_t * idt_name,

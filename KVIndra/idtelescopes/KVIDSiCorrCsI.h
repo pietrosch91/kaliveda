@@ -19,7 +19,7 @@
 #define KVIDSICORRCSI_H
 
 #include "KVIDSiCsI.h"
-#include "KVTGIDManager.h"
+#include "KVRTGIDManager.h"
 #include "KVSilicon.h"
 #include "KVTGID.h"
 #include "KVCsI.h"
@@ -39,12 +39,10 @@
 
 class KVMultiDetArray;
 
-class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
+class KVIDSiCorrCsI:public KVIDSiCsI, public KVRTGIDManager{
 
-        KVTGID *tgid;
-        
-        KVSilicon* fSi;
-        KVCsI* fCsI;
+        KVSilicon  *fSi;    //!
+        KVCsI      *fCsI;   //!
 
     public:
 

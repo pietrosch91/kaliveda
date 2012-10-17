@@ -46,7 +46,7 @@ void KVIDSiCorrCsI::Initialize()
     // IsReadyForID() will return kTRUE if KVTGID objects are associated
     // to this telescope for the current run.
 
-    fSi = (KVSilicon*)GetDetector(1);
+    fSi  = (KVSilicon*)GetDetector(1);
     fCsI = (KVCsI*)GetDetector(2);
 
 	Bool_t ok = fSi && fCsI && GetListOfIDFunctions().GetEntries();
@@ -309,8 +309,15 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
             KVTGID *_tgidZ = 0;
             KVTGID *_tgidA = 0;
 
-            _tgidZ = KVTGID::MakeTGID(idt->GetTGIDName(idt->GetName(), "Z", ""), 1, 1, 1, KVNucleus::kEALResMass);
-            _tgidA = KVTGID::MakeTGID(idt->GetTGIDName(idt->GetName(), "A", ""), 1, 1, 0, KVNucleus::kEALResMass);
+			// First idtelescope name
+            listOfIDTel.Begin("/");
+			TString fidtname(listOfIDTel.Next());
+
+			// We use the name of the first idtelescope in the list
+			// for setting the name of the identification functions
+
+            _tgidZ = KVTGID::MakeTGID(GetTGIDName(fidtname.Data(), "Z", ""), 1, 1, 1, KVNucleus::kEALResMass);
+            _tgidA = KVTGID::MakeTGID(GetTGIDName(fidtname.Data(), "A", ""), 1, 1, 0, KVNucleus::kEALResMass);
             // 10 parameters, 1 = extended formula, 1 = CsI total light
 
             _tgidZ->SetIDmin((Double_t) zmin);
