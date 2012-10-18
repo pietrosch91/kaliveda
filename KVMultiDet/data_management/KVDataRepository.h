@@ -154,7 +154,7 @@ class KVDataRepository:public KVBase {
 
    void cd();
    static KVDataRepository *NewRepository(const Char_t* type);
-	KVAvailableRunsFile *NewAvailableRunsFile(const Char_t*, KVDataSet*);
+	virtual KVAvailableRunsFile *NewAvailableRunsFile(const Char_t*, KVDataSet*);
 
     ClassDef(KVDataRepository, 0)       //Base class handling files in data repository
 };

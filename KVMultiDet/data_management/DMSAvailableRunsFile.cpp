@@ -1,8 +1,8 @@
 //Created by KVClassFactory on Mon Jul 20 11:33:43 2009
 //Author: John Frankland
 
-#include "SRBAvailableRunsFile.h"
-#include "SRB.h"
+#include "DMSAvailableRunsFile.h"
+#include "KVDMS.h"
 #include "KVDataRepository.h"
 #include "KVDataSet.h"
 #include "KVDataBase.h"
@@ -15,37 +15,37 @@
 
 using namespace std;
 
-ClassImp(SRBAvailableRunsFile)
+ClassImp(DMSAvailableRunsFile)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>SRBAvailableRunsFile</h2>
-<h4>Handles list of available runs using SRB</h4>
+<h2>DMSAvailableRunsFile</h2>
+<h4>Handles list of available runs using DMS</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-SRBAvailableRunsFile::SRBAvailableRunsFile()
+DMSAvailableRunsFile::DMSAvailableRunsFile()
 {
    // Default constructor
 }
 
-SRBAvailableRunsFile::SRBAvailableRunsFile(const Char_t* type, KVDataSet* ds)
+DMSAvailableRunsFile::DMSAvailableRunsFile(const Char_t* type, KVDataSet* ds)
 		: KVAvailableRunsFile(type,ds)
 {
    // Constructor with data-type
 }
 
-SRBAvailableRunsFile::~SRBAvailableRunsFile()
+DMSAvailableRunsFile::~DMSAvailableRunsFile()
 {
    // Destructor
 }
 
 
-void SRBAvailableRunsFile::Update(Bool_t no_existing_file)
+void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
 {
-   //Examine the contents of the SRB container corresponding to this datatype
+   //Examine the contents of the DMS container corresponding to this datatype
    //for parent dataset fDataSet.
    //For each file found which was not already in the list of available runs and
    //which corresponds to a run in the database gDataBase,
@@ -82,13 +82,13 @@ void SRBAvailableRunsFile::Update(Bool_t no_existing_file)
       return;
 
    TIter next(dir_list);
-   SRBFile_t *objs;
+   DMSFile_t *objs;
    //progress bar
    Int_t ntot = dir_list->GetSize();
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
    KVDBTable *run_table = GetDataSet()->GetDataBase()->GetTable("Runs");
-   while ((objs = (SRBFile_t *) next())) {     // loop over all entries in directory
+   while ((objs = (DMSFile_t *) next())) {     // loop over all entries in directory
 
       Int_t run_num;
       //is this the correct name of a run in the repository ?
@@ -98,7 +98,7 @@ void SRBAvailableRunsFile::Update(Bool_t no_existing_file)
          if (run) {
                //runfile exists in repository
 					//check in case it is possible to extract a date from the name of the file
-					//the file may be much older than its SRB modtime (=date of SRB import)
+					//the file may be much older than its DMS modtime (=date of DMS import)
 					KVDatime filedate;
 					if(!ExtractDateFromFileName(objs->GetName(), filedate))
 						filedate=objs->GetModTime();
