@@ -111,6 +111,7 @@ Bool_t KVEventFiltering::Analysis()
    else {
       gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
    }
+   fReconEvent->SetNumber(fEVN++);
    fTree->Fill();
 
 /*    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
@@ -210,6 +211,7 @@ void KVEventFiltering::InitAnalysis()
 void KVEventFiltering::InitRun()
 { 
 //   memory_check.SetInitStatistics();
+   fEVN=0;
 }
 
 void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)

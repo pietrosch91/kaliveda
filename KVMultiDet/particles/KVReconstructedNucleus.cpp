@@ -51,6 +51,8 @@ void KVReconstructedNucleus::init()
     ResetBit(kIsIdentified);
     ResetBit(kIsCalibrated);
     ResetBit(kCoherency);
+    ResetBit(kZMeasured);
+    ResetBit(kAMeasured);
 }
 
 

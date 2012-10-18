@@ -48,3 +48,4 @@ changelog_*.txt
 ./fitltg-0.1/src/.libs
 ./fitltg-0.1/src/Makefile
 ./fitltg-0.1/stamp-h1
+./html/make_html_doc

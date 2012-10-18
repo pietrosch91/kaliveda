@@ -12,7 +12,7 @@ class KVDBSystem;
 class KVEventFiltering : public KVEventSelector
 {
    //KVClassMonitor memory_check;
-   
+   Long64_t fEVN;//event number counter
    public:
    KVEventFiltering();
    KVEventFiltering (const KVEventFiltering&) ;
