@@ -10,6 +10,7 @@ $Date: 2008/12/17 13:01:26 $
 #include "KVINDRAe503.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+#include"KVRTGIDManager.h"
 
 ClassImp(KVINDRAe503)
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +78,23 @@ void KVINDRAe503::PrototypeTelescopes()
 	kvt->SetDepth(2, 5.0);
    fTelescopes->Add(kvt);
 }
+//____________________________________________________________________________________
+void KVINDRAe503::SetGroupsAndIDTelescopes(){
+    //Find groups of telescopes in angular alignment placed on different layers.
+    //List is in fGroups.
+    //Also creates all ID telescopes in array and stores them in fIDTelescopes.
+    //Any previous groups/idtelescopes are deleted beforehand.
+   // As any ID grids stored in gIDGridManager and any ID functions stored in 
+   // KVRTGIDManger::fIDGlobalList will have been associated to the
+   // old ID telescopes (whose addresses now become obsolete), we clear the ID grid manager
+   // deleting all ID grids and the KVRTGIDManger::fIDGlobalList deleting all
+   // ID functions. You should therefore follow this with a call to
+   // SetIdentifications() in order to reinitialize all that.
 
+
+	KVRTGIDManager::Clear();
+	KVINDRA4::SetGroupsAndIDTelescopes();
+}
 //____________________________________________________________________________________
 
 void KVINDRAe503::BuildGeometry()

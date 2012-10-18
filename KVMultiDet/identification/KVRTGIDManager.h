@@ -24,7 +24,7 @@ class KVRTGIDManager : public KVTGIDManager
 
 		//------- static methods --------------------------//
 
-		static void    DeleteAllTGID();
+		static void    Clear();
 		static void    DeleteTGID(const Char_t * name);
    		static KVList *GetGlobalListOfIDFunctions(){return fIDGlobalList; };   
    		static void    SetIDFuncInTelescopes(UInt_t run);

@@ -68,7 +68,10 @@ void KVRTGIDManager::AddTGID(KVTGID * _tgid)
    // Add an identification object to the global list (fIDGlobalList).
    // The identification object is not added to the local list (fIDList) in this method anymore. To do that, see SetIDFunctionInTelescopes)
 	if(!_tgid) return;
-	if(!fIDGlobalList) fIDGlobalList = new KVList;
+	if(!fIDGlobalList){
+ 	   	fIDGlobalList = new KVList;
+		fIDGlobalList->SetCleanup();
+	}
 	fIDGlobalList->Add(_tgid);
 }
 //________________________________________________________________
@@ -117,7 +120,7 @@ void KVRTGIDManager::RemoveAllTGID(){
 }
 //________________________________________________________________
 
-void KVRTGIDManager::DeleteAllTGID(){
+void KVRTGIDManager::Clear(){
    //Delete the global list of identification objects. Since this
    //list is owner then all listed identification objects are deleted.
   
