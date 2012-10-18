@@ -31,7 +31,7 @@ class KVIDChIoSiCorr : public KVIDChIoSi
 
 //		virtual	Bool_t Identify(KVIdentificationResult *IDR, Double_t x=-1., Double_t y=-1.);
 
-        ClassDef(KVIDChIoSiCorr,2)
+        ClassDef(KVIDChIoSiCorr,2)//INDRA E503/E494s ChIo-Si identification
 };
 
 #endif

@@ -61,7 +61,7 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVRTGIDManager{
 
         void PrintFitParameters();
 
-        ClassDef(KVIDSiCorrCsI, 2)  
+        ClassDef(KVIDSiCorrCsI, 2)//Si-CsI identification with TGID functions for E494S/E503  
 };
 
 #endif
