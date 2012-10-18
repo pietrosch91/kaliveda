@@ -120,7 +120,17 @@ void KVINDRAe503::BuildGeometry()
    RemoveRing("SI-CSI", 2);
    RemoveRing("SI-CSI", 3);
    RemoveRing("CHIO", 2);
+
+   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
+   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
+   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
+   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
    
+   // We want to remove the ChIo CI_0417 but at this level
+   // the ChIo names are not correct (i.e. the method SetNamesChIo() is
+   // not called yet). This ChIo has the name
+   // CI_0409 (the right module number = module_number*2-1)
+   GetRing("CHIO", 4)->RemoveTelescope("CI_0409");
 }
 
 //_________________________________________________________________________________________
@@ -134,10 +144,10 @@ void KVINDRAe503::Build()
    SetName("INDRA");
    SetTitle("INDRA detector, INDRA-VAMOS configuration");
 
-   GetRing("CHIO", 4)->RemoveTelescope("CI_0417");
-   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
-   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
-   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
-   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
-   UpdateArray();
+//   GetRing("CHIO", 4)->RemoveTelescope("CI_0417");
+//   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0417");
+//   GetRing("SI-CSI", 4)->RemoveTelescope("SI_CSI_0418");
+//   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0517");
+//   GetRing("SI-CSI", 5)->RemoveTelescope("SI_CSI_0518");
+//   UpdateArray();
 }
