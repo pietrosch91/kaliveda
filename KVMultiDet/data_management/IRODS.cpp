@@ -122,12 +122,12 @@ Int_t IRODS::exit()
 void IRODS::ExtractFileInfos(TString& s, DMSFile_t* f) const
 {
    // extract info (name, size, modification date) from listing line
-	// such as :
-   //   nief        0 Lyon                    230663725 2008-12-19-15.21   run788.root.2006-10-30_08:03:15
+   // such as :
+   //  frankland         0 demoResc1                       0 2012-10-18.17:30 & CheckChIoSi_129Xe119Sn27_R8129.o5553080
 	TObjArray *fstats = s.Tokenize(" ");
-	f->SetName(((TObjString*)(*fstats)[5])->String().Remove(TString::kBoth,' ').Data());
+	f->SetName(((TObjString*)(*fstats)[6])->String().Remove(TString::kBoth,' ').Data());
 	f->SetSize((UInt_t)((TObjString*)(*fstats)[3])->String().Remove(TString::kBoth,' ').Atoi());
-	KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth,' ').Data(), KVDatime::kSRB);
+	KVDatime mt(((TObjString*)(*fstats)[4])->String().Remove(TString::kBoth,' ').Data(), KVDatime::kIRODS);
 	f->SetModTime(mt);
 	delete fstats;
 }

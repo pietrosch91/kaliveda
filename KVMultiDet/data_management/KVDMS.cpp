@@ -80,7 +80,7 @@ Bool_t KVDMS::IsContainer(TString&line) const
    // 'line' is a line in a directory listing
    // This method should return kTRUE if the line corresponds to a container
    
-   return (line.BeginsWith("C-/"));
+   return (line.BeginsWith("C-"));
 }
 
 TList *KVDMS::GetFullListing(const Char_t* directory)
