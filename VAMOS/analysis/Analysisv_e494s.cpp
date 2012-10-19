@@ -233,9 +233,9 @@ void Analysisv_e494s::Treat()
 {
 #ifdef DEBUG
   cout << "Analysisv_e494s::Treat " << endl;
+  cout<<endl<<"-- Nouvel evenement --"<<endl;
 #endif
 
-  cout<<endl<<"-- Nouvel evenement --"<<endl;
 
 #ifdef IONCHAMBER
   Ic->Treat();

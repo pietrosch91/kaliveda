@@ -210,8 +210,12 @@ void ReconstructionSeDv::Calculate(void)
 		Phit += Coef[2][i] *Vecp;
 		i++;
 	}
+
+#ifdef DEBUG
+	Info("ReconstructionSeDv::Calculate","construction calculated");
 	cout << i << " Xf:" << S12->Xf << "[mm] Thf:" << S12->Tf << "[mrad] Yf:" << S12->Yf << "[mm] Phf:" << S12->Pf <<"[mrad] " << endl; 
 	cout <<"Brhot:"<< Brhot << " Thetat:" << Thetat*c180_OVER_PI/1000. << "[deg] Phit:" << Phit*c180_OVER_PI/1000. << "[deg] Patht:" << Patht<< "[cm]" << endl;  
+#endif
 
 	if(Brhot>0.001 && Thetat>-300. && Thetat<300. && Phit>-300. && Phit<300. && Patht>0 && Patht<2000.)
 	{
@@ -268,7 +272,9 @@ void ReconstructionSeDv::Calculate(void)
  		Thetat  = -(theta+theta_offaxis)*1000.*PI/180.  ;		/* mrad		*/
  		Phit    = -phi*1000.*PI/180.    ;						/* mrad		*/
 
-		printf("\t %f %f \n",Thetat,Phit);
+#ifdef DEBUG
+		Info("ReconstructionSeDv::Calculate","Thetat %f, Phit %f",Thetat,Phit);
+#endif
 		}
 
 
@@ -388,10 +394,12 @@ void ReconstructionSeDv::Calculate(void)
 		
 		}
 
-     
+ #ifdef DEBUG
+	Info("ReconstructionSeDv::Calculate","");    
 		cout <<" BrhoRef:"<<BrhoRef<<" Brho:"<< Brho << " AngleVamos:"<<AngleVamos*c180_OVER_PI <<"[deg] "<< endl;
 		cout <<"Theta :"<< Theta*c180_OVER_PI/1000. << "[deg] Phi :" << Phi*c180_OVER_PI/1000.<<"[deg]" << endl;
 		cout <<"ThetaL:"<< ThetaL*c180_OVER_PI << "[deg] PhiL:" << PhiL*c180_OVER_PI<<"[deg]" << endl;
+#	endif
 	} 
 }
 

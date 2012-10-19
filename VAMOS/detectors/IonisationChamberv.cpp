@@ -181,16 +181,15 @@ void IonisationChamberv::Calibrate(void)
 				ETotal += E[E_Raw_Nr[i]];
 				EM++;
 			}
-/*
- *			Output control
- */
-			cout<<"  Telescope, ETotal, Echannel, Mult : "<<Number<<" , "<<ETotal<<" , "<<E_Raw[i]<<" , "<<E_RawM<<endl;  
+#	ifdef DEBUG
+			Info("IonisationChamberv::Calibrate","Telescope %d, ETotal %f, Echannel %d, Mult %d",Number,ETotal,E_Raw[i],E_RawM);
+#	endif
 		}
     }
-/*
- *	Output control
- */
-	if(E_RawM==0) cout<<"No signal "<<endl;  
+
+#	ifdef DEBUG
+	if(E_RawM==0) Info("IonisationChamberv::Calibrate","No signal");  
+#	endif
 
 	for(i=0;i<3;i++) if(ES[i] > 0) Counter[i+1]++;
   

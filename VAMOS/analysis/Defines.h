@@ -1,6 +1,7 @@
 #ifndef VAMOS_DEFINES_H
 #define VAMOS_DEFINES_H
 
+#include "TError.h"
 /*
  *Defines Multiplepeak rejection mode
  */

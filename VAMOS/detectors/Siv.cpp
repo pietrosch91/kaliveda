@@ -154,7 +154,10 @@ void Siv::Calibrate(void)
 	
 	for(i=0;i<E_RawM;i++)
 	{
-		cout << "  Telescope, Mult : "  << Number << " , "<< E_RawM << endl;  
+
+#	ifdef DEBUG
+		Info("Siv::Calibrate","Telescope %d, Mult %d", Number, E_RawM);
+#	endif
 		Rnd->Next();
 /*
  *		Calibration of silicon detectors	
@@ -171,7 +174,9 @@ void Siv::Calibrate(void)
 		h = (double)ECoef[E_Raw_Nr[i]][7] ;
 		
 		E[E_Raw_Nr[i]] = (Float_t)( ((a*(1./(exp(b*(x+c))+1.)-1.))+(d+e*x+f*x*x))*(g/h) );		
-		cout << "    ESi[ch], [MeV] : "<< E_Raw[i] << " , "  << E[E_Raw_Nr[i]] << endl;  
+#	ifdef DEBUG
+	Info("Siv::Calibrate","ESi %d [ch], %f [MeV]", E_Raw[i], E[E_Raw_Nr[i]]);
+#	endif
 		
 		if(E[E_Raw_Nr[i]] > 0)
 		{
@@ -193,7 +198,9 @@ void Siv::Calibrate(void)
 		t0= (double)TSi_HF_t0[E_Raw_Nr[i]] ;
 
 		T[0] = (Float_t)( t0 -(a+(b+(c+(d+(e+f*x)*x)*x)*x)*x)*x );	
-		cout << "    TSi_HF[ch], [ns] : "<< T_Raw[0] << " , "  << T[0] << endl;  
+#	ifdef DEBUG
+		Info("Siv::Calibrate","TSi_HF %d [ch], %f [ns]", T_Raw[0], T[0]);  
+#	endif
 /*
  *		Calibration of time of flight (TSi_SED1)
  *		T[ns]= t0 - (a*x+b*x*x+c*exp(d*x))
@@ -206,12 +213,12 @@ void Siv::Calibrate(void)
 		t0= (double)TSi_SED1_t0[E_Raw_Nr[i]] ;
 
 		T[1] = (Float_t)( t0 - (a*x+b*x*x+c*exp(d*x)) );	
-		cout << "    TSi_SED1[ch], [ns] : "<< T_Raw[1] << " , "  << T[1] << endl;  
+
+#	ifdef DEBUG
+		Info("Siv::Calibrate","TSi_SED1 %d [ch], %f [ns]", T_Raw[1], T[1]);  
+		if(E_RawM==0) Info("Siv::Calibrate","No signal");  
+#	endif
 	}
-/*
- *	Output control
- */
-	if(E_RawM==0) cout<<"No signal "<<endl;  
 
 	if(EM!=1) 
 	{

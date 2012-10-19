@@ -309,11 +309,10 @@ void SeDv::Calibrate(void)
 		m_run = 1./2.5 ;
 
 		T[0] = (Float_t)( -(a+(b+(c+(d+(e+f*x)*x)*x)*x)*x)*x*m_run+t0 );
-		
-/*
- *		Output control
- */
-		cout<<"  Traw[ch], TSED_HF[ns] : " <<T_Raw[0] << " , " <<T[0] <<endl;  
+#	ifdef DEBUG
+		Info("SeDv::Calibrate","Traw %d [ch], TSED_HF %f [ns]",T_Raw[0], T[0]);
+#	endif
+ 
 	}
 	
 	if(E[0] > 0.0) Counter[1]++;
@@ -445,11 +444,9 @@ void SeDv::Calibrate(void)
 			PresentStrips = true;
 			Counter[6]++;
 		}
-/*
- *		output control
- */
-		cout<<" accepted event          : " << Accepted_event   <<endl;  
- 		cout<<" maximum charge x,y      : " << Q_max[0]             <<" "<< Q_max[1]             <<endl;  
+#	ifdef DEBUG
+		Info("SeDv::Calibrate","Event %s",  Accepted_event ? "accepted" : "rejected");  
+		cout<<" maximum charge x,y      : " << Q_max[0]             <<" "<< Q_max[1]             <<endl;  
 		cout<<" maximum charge wire x,y : " << Q_max_Nr[0]          <<" "<< Q_max_Nr[1]          <<endl;  
 		cout<<" noise mean x,y          : " << noise_mean[0]        <<" "<< noise_mean[1]        <<endl;  
 		cout<<" noise variance x,y      : " << noise_variance[0]    <<" "<< noise_variance[1]    <<endl;  
@@ -458,6 +455,7 @@ void SeDv::Calibrate(void)
 		cout<<" max mean x,y            : " << max_mean[0]          <<" "<< max_mean[1]          <<endl;  
 		cout<<" max variance x,y        : " << max_variance[0]      <<" "<< max_variance[1]      <<endl;  
 		cout<<" max stdeviation         : " << max_stdeviation   <<endl;  
+#	endif
 	}
 }
 void SeDv::FocalSubseqX(void)
@@ -499,11 +497,13 @@ void SeDv::FocalSubseqX(void)
 /*
  *		Just a control
  */       
+#	ifdef DEBUG
 		if(NStrips != 3) 
 		{
 			cout << "NStrips != 3 but " << NStrips << " Program it first" << endl;
 			exit(EXIT_FAILURE);
 		}
+#	endif
 /*
  *		Looking for entire peak for weighted average. The Strips are ordered  0-128
  */
@@ -544,10 +544,11 @@ void SeDv::FocalSubseqX(void)
 			}		
 		}
 	}
-/*
- *	Output control
- */
-	cout << "  (X,Y)[ch] , (X,Y)[mm] : ("<< X[0]<< " , "  << X[1]<<")";
+
+#	ifdef DEBUG
+	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [ch]",X[0],X[1]);
+#	endif
+
 /*
  *	Recadrage. On utilise les fonctions de corrections pour recadrer l'image. Passage en cm on the SeD plane
  */
@@ -600,10 +601,9 @@ void SeDv::FocalSubseqX(void)
 		XWA[0] = X[0] = XWA[1] = X[1] = -500.;
 	else Counter1[i][2]++;
 	
-/*
- *	Output control
- */
-	cout << " , ("<< X[0]<< " , "  << X[1]<<")"<<  endl;
+#	ifdef DEBUG
+	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [mm]",X[0],X[1]);
+#	endif
 
 	if (X[0]>Borneminx_SED && X[0] <Bornemaxx_SED)	Counter[7]++;
 	if (X[1]>Borneminy_SED && X[1] <Bornemaxy_SED)	Counter[8]++;

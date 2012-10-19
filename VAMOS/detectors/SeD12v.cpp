@@ -182,7 +182,9 @@ void SeD12v::Calibrate(void)
 		t = (a * x + 2*exp( b * x)+ c * exp(d * (e + x))) + t0;	
 
 		T = (Float_t)t;
-		cout << "  TSED1_SED2[ch], T[ns]: " << T_Raw <<" "<< T << endl;
+#	ifdef DEBUG
+		Info("SeD12v::Calibrate","TSED1_SED2 %d [ch], T %f [ns]",T_Raw, T);
+#	endif
 	}
 }
 
