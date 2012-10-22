@@ -364,7 +364,7 @@ TVector3 KVPosition::GetDirection()
    //Returns a unit vector corresponding to the direction of fTheta, fPhi
    //i.e. the centre of the solid angle element.
 
-   TVector3 tmp(1.0);
+   TVector3 tmp(1.0,0.0,0.0);
    tmp.SetTheta(fTheta * TMath::Pi() / 180.);
    tmp.SetPhi(fPhi * TMath::Pi() / 180.);
    return tmp;

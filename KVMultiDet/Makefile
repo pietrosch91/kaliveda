@@ -51,10 +51,6 @@ ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg
 endif
 
-ifeq ($(SITE),CCIN2P3)
-KV_INC += -D__CCIN2P3_SRB
-endif
-
 ifeq ($(ROOTGANILTAPE),yes)
 LINK_LIB += -L$(KVROOT)/lib -lgan_tape
 RLIBMAPDEPS += libgan_tape.so
