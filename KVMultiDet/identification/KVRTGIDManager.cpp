@@ -2,7 +2,6 @@
 //Author: Dijon Aurore
 
 #include "KVRTGIDManager.h"
-#include "KVIDSiCorrCsI.h"
 
 ClassImp(KVRTGIDManager)
 
