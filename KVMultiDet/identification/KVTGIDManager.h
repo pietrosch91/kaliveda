@@ -61,6 +61,10 @@ class KVTGIDManager {
    virtual Double_t IdentA(KVIDTelescope * idt, Double_t & funLTG,
                            const Char_t * grid_type, const Char_t* signal_type, Int_t Z);
 
+   virtual KVTGIDGrid *GetTGIDGrid(KVTGID *tgid, Double_t xmax,
+           Double_t xmin = 0., Int_t ID_min =
+                                 0, Int_t ID_max = 0, Int_t npoints = 100, Bool_t logscale = kFALSE);
+
    virtual KVTGIDGrid *GetTGIDGrid(const Char_t * tgid_name, Double_t xmax,
                                  Double_t xmin = 0., Int_t ID_min =
                                  0, Int_t ID_max = 0, Int_t npoints = 100, Bool_t logscale = kFALSE);
