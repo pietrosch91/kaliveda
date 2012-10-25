@@ -2,6 +2,9 @@
 //Author: Dijon Aurore
 
 #include "KVRTGIDManager.h"
+#include "KVIDTelescope.h"
+#include "KVMultiDetArray.h"
+#include "KVTGIDZ.h"
 
 ClassImp(KVRTGIDManager)
 
@@ -75,6 +78,41 @@ void KVRTGIDManager::AddTGID(KVTGID * _tgid)
 }
 //________________________________________________________________
 
+KVTGID *KVRTGIDManager::GetTGID(const Char_t * idt_name,
+                               const Char_t * id_type,
+                               const Char_t * grid_type){
+   //Overrides the same method of KVTGIDManager. This method
+   //Retrieve the identification object using:
+   //      id_type   = type of identification ("Z", "A", "A_for_Z=3", etc.)
+   //      grid_type = type of identification grid ("GG", "PG1", etc.)
+   // but the name of ID telescope is not used anymore because identification
+   // object can be associated to several ID telescopes.
+   // If any object is found then it returns the first:
+   //      - KVTGIDZA object if id_type contains "A"
+   //      - KVTGIDZ  object else.
+
+	Char_t  cname[9] = "KVTGIDZ";
+	TString buff     = id_type;
+
+	if(buff.Contains("A")) strcpy(cname,"KVTGIDZA");
+
+	buff.Form("_%s_%s",id_type, grid_type);
+
+	TIter next(&fIDList);
+	KVTGID *tgid  = NULL;
+	KVTGID *tgid2 = NULL;
+	TString name;
+
+	while( (tgid = (KVTGID *)next()) ){
+		name = tgid->GetName();
+		if(name.Contains(buff)) return tgid;
+		if(!tgid2 && !strcmp(tgid->ClassName(),cname)) tgid2 = tgid;
+	}
+
+   return tgid2;
+}
+//________________________________________________________________
+
 void KVRTGIDManager::SetTGID(KVTGID * _tgid)
 
 {
@@ -110,6 +148,41 @@ void KVRTGIDManager::DeleteTGID(const Char_t * name)
    	if( !(tgid = (KVTGID*)fIDGlobalList->FindObject(name)) ) return;
    	fIDGlobalList->Remove(tgid);
 	delete tgid;
+}
+//________________________________________________________________
+
+Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
+
+ 	//Read file, create KVTGID fits corresponding to information in file.
+
+   	ifstream fitfile ( filename );
+   	if ( !fitfile.good() ) {
+      	Error ( "KVRTGIDManager::ReadAsciiFile", "File %s cannot be opened", filename );
+      	return kFALSE;
+   	}
+   	KVString s;
+   	while ( fitfile.good() ) {
+      	//read a line
+      	s.ReadLine ( fitfile );
+      	if ( s.BeginsWith ( "++" ) ) {
+         	//New fit
+         	//Get name of class by stripping off the '+' at the start of the line
+         	s.Remove ( 0, s.Index("::")+2 );
+
+			// Make new identification function
+			KVTGID *fit = NULL;
+         	fit = KVTGID::ReadFromAsciiFile(s.Data(),fitfile);
+			AddTGID(fit);
+
+			// when mass identification is possible, have to create a second 
+			// object for Z identification
+			if(!fit->GetZorA()){
+				AddTGID(new KVTGIDZ(*fit));
+			}
+      	}
+   	}
+   	fitfile.close();
+   	return kTRUE;
 }
 //________________________________________________________________
 

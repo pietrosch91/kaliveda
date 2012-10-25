@@ -19,6 +19,10 @@ class KVRTGIDManager : public KVTGIDManager
    		virtual ~KVRTGIDManager();
 
    		virtual void   AddTGID(KVTGID *);
+		virtual KVTGID *GetTGID(const Char_t * idt_name, const Char_t * id_type,
+                   const Char_t * grid_type);
+
+		virtual Bool_t ReadAsciiFile(const Char_t *filename);
    		virtual void   RemoveAllTGID();
    		virtual void   RemoveTGID(const Char_t * name);
 

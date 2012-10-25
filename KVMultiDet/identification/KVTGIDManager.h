@@ -43,7 +43,7 @@ class KVTGIDManager {
    KVTGID *GetTGID(const Char_t * name);
    virtual void RemoveTGID(const Char_t * name);
    virtual void RemoveAllTGID();
-   KVTGID *GetTGID(const Char_t * idt_name, const Char_t * id_type,
+   virtual KVTGID *GetTGID(const Char_t * idt_name, const Char_t * id_type,
                    const Char_t * grid_type);
    const Char_t *GetTGIDName(const Char_t * idt_name,
                              const Char_t * id_type,

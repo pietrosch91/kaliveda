@@ -216,7 +216,6 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     return kTRUE;
 }
-
 //__________________________________________________________________________//
 
 Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) 
@@ -228,138 +227,32 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
     //Parameters are read from the file with name given by the environment variable
     //INDRA_camp5.IdentificationParameterFile.SI-CSI:       [filename]
 
-    TString filename = gDataSet->GetDataSetEnv("IdentificationParameterFile.SI-CSI");
-
-    if( filename == "" ){
-        Warning("SetIdentificationParameters",
-            	"No filename defined. Should be given by %s.IdentificationParameterFile.SI-CSI",
-            	gDataSet->GetName());
-        return kFALSE;
-    }
-
-    TString path;
-    if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
-        Error("SetIdentificationParameters",
-            	"File %s not found. Should be in $KVROOT/KVFiles/%s",
-            	filename.Data(), gDataSet->GetName());
-        return kFALSE;
-    }
-    Info("SetIdentificationParameters", "Using file %s", path.Data());
-
-    ifstream datfile;
-    datfile.open(path.Data());
-
-    KVString line, runs, listOfIDTel;
-
-    int zOrA = -1;
-    int zmin = -1;
-    int zmax = -1;
-
-    Double_t param[10];
-
-    KVIDSiCorrCsI *idt = 0;
-
-    while(datfile.good()){
-
-        line.ReadLine(datfile);
-
-		//        if(line.BeginsWith("+")){
-		//
-		//            sscanf(line.Data(), "++KVTGID::SI_CSI_%02d%02d_fit", &ring, &module);
-		//
-		//            stringstream name;
-		//            name << "SI_CSI_" << setfill('0') << setw(2) << ring 
-		//                    << setfill('0') << setw(2) << module;
-		//                
-		//            idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(name.str().c_str());
-		//        }
-
-		if(line.BeginsWith("Runs=")){
- 			line.ReplaceAll("Runs=","");
-			runs = line;
-			continue;
-		}
-		if(line.BeginsWith("IDTelescopes=")){
- 			line.ReplaceAll("IDTelescopes=","");
-			listOfIDTel = line;
-			continue;
-		}
-
-        sscanf(line.Data(), "ZorA=%i", &zOrA); 
-        sscanf(line.Data(), "ZMIN=%i ZMAX=%i", &zmin, &zmax);
-
-        if(line.BeginsWith("ZMIN=")){
-
-            for(int i=0; i<10; i++){    // read 10 fit parameters 
-
-                line.ReadLine(datfile);
-                string thisLine = line.Data();
-
-                int equalsLocation = thisLine.find('=');
-                line.Remove(0, equalsLocation + 1);
-
-                param[i] = line.Atof();
-            }
-        }
-
-        if(line.BeginsWith("!")){
-            //create new Tassan-Got ID object for telescope
-
-            // tgidA and tgidZ have EXACTLY the same fit parameters.
-            KVTGID *_tgidZ = 0;
-            KVTGID *_tgidA = 0;
-
-			// First idtelescope name
-            listOfIDTel.Begin("/");
-			TString fidtname(listOfIDTel.Next());
-
-			// We use the name of the first idtelescope in the list
-			// for setting the name of the identification functions
-
-            _tgidZ = KVTGID::MakeTGID(GetTGIDName(fidtname.Data(), "Z", ""), 1, 1, 1, KVNucleus::kEALResMass);
-            _tgidA = KVTGID::MakeTGID(GetTGIDName(fidtname.Data(), "A", ""), 1, 1, 0, KVNucleus::kEALResMass);
-            // 10 parameters, 1 = extended formula, 1 = CsI total light
-
-            _tgidZ->SetIDmin((Double_t) zmin);
-            _tgidZ->SetIDmax((Double_t) zmax);
-
-            _tgidA->SetIDmin((Double_t) zmin);
-            _tgidA->SetIDmax((Double_t) zmax);
-
-            //read line with parameters on it from file
-            _tgidZ->SetLTGParameters(param);
-            _tgidA->SetLTGParameters(param);
-
-            KVNumberList runList(runs.Data());
-            _tgidZ->SetValidRuns(runList);
-            _tgidA->SetValidRuns(runList);
-
-
-            //add identification object to telescope's ID manager
-            listOfIDTel.Begin("/");
-			while(!listOfIDTel.End()){
-				idt = (KVIDSiCorrCsI*) MDA->GetIDTelescope(listOfIDTel.Next());
-				if(idt){
-            		_tgidZ->AddIDTelescope(idt);
-            		_tgidA->AddIDTelescope(idt);
-            		idt->AddTGID(_tgidZ);
-            		idt->AddTGID(_tgidA);
-				}
-				else Error("SetIdentificationParameters","ID telescope not found in the multidetector");
-			}
-        }
-    }
-
-    datfile.close();
-
-    return kTRUE;
+   TString filename = gDataSet->GetDataSetEnv( Form("IdentificationParameterFile.%s",GetLabel()) );
+   if( filename == "" ){
+      Warning("SetIdentificationParameters",
+            "No filename defined. Should be given by %s.IdentificationParameterFile.%s",
+            gDataSet->GetName(), GetLabel());
+      return kFALSE;
+   }
+   TString path;
+   if (!SearchKVFile(filename.Data(), path, gDataSet->GetName())){
+      Error("SetIdentificationParameters",
+            "File %s not found. Should be in $KVROOT/KVFiles/%s",
+            filename.Data(), gDataSet->GetName());
+      return kFALSE;
+   }
+   //read grids from file
+   Info("SetIdentificationParameters", "Using file %s", path.Data());
+  return ReadAsciiFile(path.Data());
 }
+//__________________________________________________________________________//
 
 void KVIDSiCorrCsI::RemoveIdentificationParameters()
 {
    //Delete any KVTGID objects associated with this telescope
    RemoveAllTGID();
 }
+//__________________________________________________________________________//
 
 void KVIDSiCorrCsI::PrintFitParameters()
 {
