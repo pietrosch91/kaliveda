@@ -112,6 +112,41 @@ KVTGID::KVTGID(const Char_t * name,
 
 //___________________________________________________________________________//
 
+KVTGID::KVTGID(const KVTGID &obj){
+	// copy constructor
+	init();
+	((KVTGID &)obj).Copy(*this);
+}
+
+//___________________________________________________________________________//
+void KVTGID::Copy(TObject &tgid) const{
+	// Copy this KVTGID function into the KVTGID object referenced by tgid 
+	TF1::Copy(tgid);
+	((KVTGID &) tgid).fID_min           = fID_min;
+	((KVTGID &) tgid).fID_max           = fID_max;
+	((KVTGID &) tgid).fTGIDFunctionName = fTGIDFunctionName;
+	((KVTGID &) tgid).fLambda           = fLambda;
+	((KVTGID &) tgid).fMu               = fMu;
+	((KVTGID &) tgid).fG                = fG;
+	((KVTGID &) tgid).fPdx              = fPdx;
+	((KVTGID &) tgid).fPdy              = fPdy;
+	((KVTGID &) tgid).fAlpha            = fAlpha;
+	((KVTGID &) tgid).fBeta             = fBeta;
+	((KVTGID &) tgid).fNu               = fNu;
+	((KVTGID &) tgid).fXi               = fXi;
+	((KVTGID &) tgid).fEta              = fEta;
+	((KVTGID &) tgid).fType             = fType; 
+	((KVTGID &) tgid).fLight            = fLight;
+	((KVTGID &) tgid).fZorA             = fZorA;
+	((KVTGID &) tgid).fMassFormula      = fMassFormula;
+	((KVTGID &) tgid).fRuns             = fRuns;
+	((KVTGID &) tgid).fVarX             = fVarX;
+	((KVTGID &) tgid).fVarY             = fVarY;
+	((KVTGID &) tgid).fTelescopes       = fTelescopes;
+}
+
+//___________________________________________________________________________//
+
 Double_t KVTGID::GetIdentification(Double_t ID_min, Double_t ID_max,
                                    Double_t & ID_quality, Double_t * par)
 {
@@ -538,7 +573,7 @@ void KVTGID::WriteToAsciiFile(ofstream & gridfile) const
     gridfile << "!" << endl << endl;
 }
 
-const Char_t* GetValue(KVString &l, char c)
+KVString  GetValue(KVString &l, char c)
 {
     l.Begin(c);
     l.Next();
@@ -575,16 +610,17 @@ KVTGID* KVTGID::ReadFromAsciiFile(const Char_t* name, ifstream & gridfile)
 
     line.ReadLine(gridfile); // skip "Functional=" line : name of functional not used
     line.ReadLine(gridfile);
-    LTGfit->SetValidRuns( GetValue(line, '=') );
+    LTGfit->SetValidRuns( KVNumberList(GetValue(line, '=').Data()) );
     line.ReadLine(gridfile);
     LTGfit->SetStringTelescopes( GetValue(line,'=') );
     line.ReadLine(gridfile);
-    Char_t v[50];
-    sscanf(line.Data(), "<VARX> %s", v);
-    LTGfit->SetVarX(v);
+	line.Remove(0,6);
+	line.Remove(KVString::kBoth,' ');
+    LTGfit->SetVarX(line.Data());
     line.ReadLine(gridfile);
-    sscanf(line.Data(), "<VARY> %s", v);
-    LTGfit->SetVarY(v);
+	line.Remove(0,6);
+	line.Remove(KVString::kBoth,' ');
+    LTGfit->SetVarY(line.Data());
     line.ReadLine(gridfile);
     Int_t zmin,zmax;
     sscanf(line.Data(), "ZMIN=%d ZMAX=%d", &zmin, &zmax);
@@ -641,7 +677,6 @@ TCollection* KVTGID::GetIDTelescopes()
     // Returns 0 if no telescopes are defined, or if gMultiDetArray object is not defined
     // (we search for the telescopes using their name and gMultiDetArray->GetIDTelescope()).
     // WARNING: DELETE this list after use !!!
-
     if (fTelescopes=="/" || !gMultiDetArray) return 0;
     TList* list = new TList;
     fTelescopes.Begin("/");
