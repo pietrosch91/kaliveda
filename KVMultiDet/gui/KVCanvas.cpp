@@ -45,9 +45,17 @@ KVCanvas::~KVCanvas()
 }
 
 //________________________________________________________________
-KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name,title,ww,wh)
+KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name, title, ww, wh)
 {
   fKeyHandler = new KVKeyHandler(this);
+  fAgeOfEmpire = false;
+  fModeVener   = false;
+}
+
+//________________________________________________________________
+KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(name, ww, wh, winid)
+{
+//  fKeyHandler = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
 }
@@ -505,6 +513,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       gPad = pad;
       if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
       if(fSelected->InheritsFrom("TH2")) DynamicZoom(sign,px,py);
+      else if(fSelected->InheritsFrom("TH1")) DynamicZoomTH1(sign,px,py);
       
       RunAutoExec();
       
@@ -539,6 +548,40 @@ void KVCanvas::ZoomSelected(TH2* TheHisto)
   if((ratio2-ratio1 > 0.05)) ax->SetRangeUser(ymin, ymax);
   
   xmax = xmin = ymax = ymin = 0.;
+  return;
+}
+
+//________________________________________________________________
+void KVCanvas::DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py)
+{
+   // Zoom in or out of histogram with mouse wheel
+   
+  if(!fSelected) return;
+  TH1* TheHisto = (TH1*) fSelected;
+
+  Double_t percent = 0.15-Sign*0.05;
+  
+  Int_t dX = 0;
+  
+  px = AbsPixeltoX(px);
+    
+  TAxis* ax = TheHisto->GetXaxis();
+  Int_t NbinsXtmp = ax->GetNbins();
+  Int_t X0tmp = ax->GetFirst();
+  Int_t X1tmp = ax->GetLast();
+  Int_t step = TMath::Min(TMath::Max(1, (Int_t)(percent*(X1tmp-X0tmp))),NbinsXtmp/2);
+  step*=Sign;
+  X0tmp = TMath::Min(TMath::Max(X0tmp+step,1),X1tmp-step);
+  X1tmp = TMath::Max(TMath::Min(X1tmp-step,NbinsXtmp),X0tmp);
+  if(X0tmp>=X1tmp) X0tmp=X1tmp-1;
+  if(Sign>0) dX = (Int_t) (X0tmp + (X1tmp-X0tmp)*0.5 - ax->FindBin(px));
+  if((X0tmp-dX)<0) ax->SetRange(0,X1tmp-X0tmp);
+  else if((X1tmp-dX)>ax->GetNbins()) ax->SetRange(ax->GetNbins()-(X1tmp-X0tmp),ax->GetNbins());
+  else ax->SetRange(X0tmp-dX,X1tmp-dX);
+  
+  
+  Modified();
+  Update();
   return;
 }
 

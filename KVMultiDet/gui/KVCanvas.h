@@ -29,12 +29,13 @@ friend class KVKeyHandler;
    Bool_t   fAgeOfEmpire;
    Bool_t   fModeVener;
 
-   TGFrame* fKeyHandler;         // handler for arrow keys
+   TGFrame* fKeyHandler;         // handler for keys
    
    public:
    KVCanvas();
 //   using TCanvas::TCanvas;
    KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh);
+   KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid);
    virtual ~KVCanvas();
    
    void HandleInput(EEventType event, Int_t px, Int_t py);
@@ -46,6 +47,7 @@ friend class KVKeyHandler;
    
    virtual Bool_t HandleKey(Event_t *event);
    void DynamicZoom(Int_t Sign, Int_t px, Int_t py);
+   void DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py);
    void RunAutoExec();
    void DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected);
    void ZoomSelected(TH2* TheHisto);
