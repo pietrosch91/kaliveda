@@ -85,11 +85,12 @@
 Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
 +Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
 +Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
++Plugin.KVDataRepository:    irods    IRODSDataRepository     KVMultiDet    "IRODSDataRepository()"
 #
 # Plugins for KVAvailableRunsFile
 Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
-+Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    dms    DMSAvailableRunsFile     KVMultiDet    "DMSAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
 # Different types of data which can be associated with datasets
 # KVDataSet.DataTypes: online raw dst recon ident root
@@ -822,6 +823,7 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 # Plugins for calculation of range & energy loss of charge particles in matter.
 # Each class must derive from KVIonRangeTable abstract base class.
 Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
++Plugin.KVIonRangeTable:   RANGE   KVRangeYanez   KVMultiDet   "KVRangeYanez()"
 
 # Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
 KVMaterial.IonRangeTable:   VEDALOSS
@@ -842,6 +844,9 @@ KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
 KVedaLoss.Range.Npx:         20
 KVedaLoss.EnergyLoss.Npx:         50
 KVedaLoss.ResidualEnergy.Npx:         20
+
+# Predefined compounds for Ricardo Yanez's Range energy loss library
+RANGE.PredefMaterials:          rangeyanez_compounds.data
 
 # KVDetector: TF1::fNpx parameter for TF1 energy loss, range & residual energy
 KVDetector.EnergyLoss.Npx:         20
@@ -864,6 +869,11 @@ MassExcess.DataFile:	massexcess_nudat2.data
 KVNDTManager.AbundanceTable:      KVAbundanceTable
 +Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
+
+# Atomic element & density table used by KVNDTManager
+KVNDTManager.ElementDensityTable:      KVElementDensityTable
++Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDet   "KVElementDensityTable()"
+ElementDensity.DataFile:	element_densities.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
 # if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula
@@ -953,4 +963,4 @@ KaliVedaGUI.MainGUIHeight:       600
 KaliVedaGUI.MaxColWidth:       500
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
-KVMultiDetArray.FilterUsesROOTGeometry:    yes
+KVMultiDetArray.FilterUsesROOTGeometry:    no

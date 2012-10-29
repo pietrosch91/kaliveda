@@ -22,12 +22,13 @@ class KVSimFile : public KVBase
    TString fTreeName;//name of TTree
    TString fBranchName;//name of branch containing events
    TString fOrigFile;//name of simulated events file filtered to generate this file
+   TString fFiltType;//type of filtering used (Geo, Geo+Thresh, or Full)
    
    public:   
    KVSimFile();
    KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname);
    KVSimFile(KVSimDir* parent, const Char_t* filename, const Char_t* treeinfo, Long64_t treeEntries, const Char_t* treename, const Char_t* branchname,
-                        const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type, const Char_t* orig_file);
+                        const Char_t* dataset, const Char_t* system, Int_t run_number, const Char_t* geo_type, const Char_t* orig_file, const Char_t* filt_type);
    KVSimFile (const KVSimFile&) ;
    virtual ~KVSimFile();
    void Copy (TObject&) const;
@@ -47,6 +48,10 @@ class KVSimFile : public KVBase
    const Char_t* GetSystem() const {
       // return name of experimental system used to filter data 
       return fSystem; 
+   };
+   const Char_t* GetFilterType() const {
+      // return type of filter used to filter data 
+      return fFiltType; 
    };
    Int_t GetRun() const {
       // return run number used to define experimental conditions for filtering data 

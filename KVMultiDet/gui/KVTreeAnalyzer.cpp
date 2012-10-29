@@ -1105,8 +1105,13 @@ void KVTreeAnalyzer::FitGum1()
       gPad->Update();
       stats = (TPaveStats*)histo->FindObject("stats");
    }
-   stats->SetFitFormat("10.9g");
-   stats->SetOptFit(111);
+   if(stats){
+      // if canvas's 'no stats' option has been set by user,
+      // there will still be no valid stats object,
+      // so this test is to avoid the ensuing seg fault
+      stats->SetFitFormat("10.9g");
+      stats->SetOptFit(111);
+   }
    histo->SetOption("e1");
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
@@ -1125,8 +1130,13 @@ void KVTreeAnalyzer::FitGum2()
       gPad->Update();
       stats = (TPaveStats*)histo->FindObject("stats");
    }
-   stats->SetFitFormat("10.9g");
-   stats->SetOptFit(111);
+   if(stats){
+      // if canvas's 'no stats' option has been set by user,
+      // there will still be no valid stats object,
+      // so this test is to avoid the ensuing seg fault
+      stats->SetFitFormat("10.9g");
+      stats->SetOptFit(111);
+   }
    histo->SetOption("e1");
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
@@ -1145,8 +1155,13 @@ void KVTreeAnalyzer::FitGum3()
       gPad->Update();
       stats = (TPaveStats*)histo->FindObject("stats");
    }
-   stats->SetFitFormat("10.9g");
-   stats->SetOptFit(111);
+   if(stats){
+      // if canvas's 'no stats' option has been set by user,
+      // there will still be no valid stats object,
+      // so this test is to avoid the ensuing seg fault
+      stats->SetFitFormat("10.9g");
+      stats->SetOptFit(111);
+   }
    histo->SetOption("e1");
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
@@ -1165,8 +1180,13 @@ void KVTreeAnalyzer::FitGausGum1()
       gPad->Update();
       stats = (TPaveStats*)histo->FindObject("stats");
    }
-   stats->SetFitFormat("10.9g");
-   stats->SetOptFit(111);
+   if(stats){
+      // if canvas's 'no stats' option has been set by user,
+      // there will still be no valid stats object,
+      // so this test is to avoid the ensuing seg fault
+      stats->SetFitFormat("10.9g");
+      stats->SetOptFit(111);
+   }
    histo->SetOption("e1");
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
@@ -1186,8 +1206,13 @@ void KVTreeAnalyzer::FitGausGum2()
       gPad->Update();
       stats = (TPaveStats*)histo->FindObject("stats");
    }
-   stats->SetFitFormat("10.9g");
-   stats->SetOptFit(111);
+   if(stats){
+      // if canvas's 'no stats' option has been set by user,
+      // there will still be no valid stats object,
+      // so this test is to avoid the ensuing seg fault
+      stats->SetFitFormat("10.9g");
+      stats->SetOptFit(111);
+   }
    histo->SetOption("e1");
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
@@ -1207,8 +1232,13 @@ void KVTreeAnalyzer::FitGausGum3()
       gPad->Update();
       stats = (TPaveStats*)histo->FindObject("stats");
    }
-   stats->SetFitFormat("10.9g");
-   stats->SetOptFit(111);
+   if(stats){
+      // if canvas's 'no stats' option has been set by user,
+      // there will still be no valid stats object,
+      // so this test is to avoid the ensuing seg fault
+      stats->SetFitFormat("10.9g");
+      stats->SetOptFit(111);
+   }
    histo->SetOption("e1");
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);

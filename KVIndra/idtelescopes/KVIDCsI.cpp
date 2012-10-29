@@ -43,6 +43,8 @@ ClassImp(KVIDCsI)
    SetSubCodeManager(4, 3);
    CsIGrid = 0;
 	fCsI = 0;
+   /* in principle all CsI R-L telescopes can identify mass & charge */
+   SetHasMassID(kTRUE);
 }
 
 KVIDCsI::~KVIDCsI()

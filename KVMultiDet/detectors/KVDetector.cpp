@@ -830,15 +830,15 @@ Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t
    if (e < 0.) e = GetEnergy();
    if( e <= 0 ) { SetEResAfterDetector(-1.); return 0; }
    
-   enum KVIonRangeTable::SolType solution = KVIonRangeTable::kEmax;
-   if(!transmission) solution = KVIonRangeTable::kEmin;
+   enum SolType solution = kEmax;
+   if(!transmission) solution = kEmin;
    
    Double_t EINC, ERES = GetEResAfterDetector();
    if(transmission && ERES>0.){
    	// if residual energy is known we use it to calculate EINC.
    	// if EINC < max of dE curve, we change solution
      	EINC = GetIncidentEnergyFromERes(z, a, ERES);
-     	if(EINC < GetEIncOfMaxDeltaE(z,a)) solution = KVIonRangeTable::kEmin;
+     	if(EINC < GetEIncOfMaxDeltaE(z,a)) solution = kEmin;
      	// we could keep the EINC value calculated using ERES, but then
      	// the corrected dE of this detector would not depend on the
      	// measured dE !
@@ -1415,7 +1415,7 @@ Double_t KVDetector::GetERes(Int_t Z, Int_t A, Double_t Einc)
    return eres;
 }
    
-Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum KVIonRangeTable::SolType type)
+Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum SolType type)
 {
    // Overrides KVMaterial::GetIncidentEnergy
    // Returns incident energy corresponding to energy loss delta_e in active layer of detector for a given nucleus.
@@ -1452,10 +1452,10 @@ Double_t KVDetector::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum 
    Double_t e1,e2;
    dE->GetRange(e1,e2);
    switch(type){
-      case KVIonRangeTable::kEmin:
+      case kEmin:
          e2=GetEIncOfMaxDeltaE(Z,A);
          break;
-      case KVIonRangeTable::kEmax:
+      case kEmax:
          e1=GetEIncOfMaxDeltaE(Z,A);
          break;
    }

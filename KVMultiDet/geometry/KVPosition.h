@@ -57,6 +57,7 @@ class KVPosition:public KVBase {
       SetAzimuthalMinMax(min, max);
    };
    TVector3 GetRandomDirection(Option_t * t = "isotropic");
+   TRotation GetRandomIsotropicRotation();
 	void GetRandomAngles(Double_t &th, Double_t &ph, Option_t * t = "isotropic");
    TVector3 GetDirection();
 

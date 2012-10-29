@@ -85,6 +85,9 @@ void KVINDRADstToRootTransfert::InitRun()
          printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
             pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
       }
+		else {
+			Warning("InitRun","pas d info disponible sur le bilan ressource");
+		}
 
 	
 	TDatime now2;
@@ -143,8 +146,19 @@ void KVINDRADstToRootTransfert::ProcessRun()
 	}
 	f_in.close();
 	
-	if (rn_verif != fRunNumber) return;
-	
+	if (rn_verif != fRunNumber) {
+		Error("ProcessRun","Le numero de run inscrit dans le fichier list_of_files (%d) est different du run courant (%d)",rn_verif,fRunNumber);
+		Error("ProcessRun","\t->analysis is going to stop");
+		
+		TString inst;
+		inst.Form(".! rm list_of_files");
+		gROOT->ProcessLine(inst.Data());
+
+		inst.Form(".! rm arbre_root_*.txt");
+		gROOT->ProcessLine(inst.Data());
+		
+		return;
+	}
 	Info("ProcessRun","Lecture de list_of_files :\n - nbre de fichiers a lire %d\n - nbre d evts a lire %d\n",nfiles,necrit);
 	
 	TDatime now1;
@@ -306,6 +320,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 
 	TDatime now2;
 	Info("ProcessRun","Fin Conversion format ROOT %s",now2.AsString());
+	
 	
 	inst.Form(".! rm list_of_files");
 	gROOT->ProcessLine(inst.Data());

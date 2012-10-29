@@ -1,13 +1,4 @@
 /***************************************************************************
-$Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
-                          kvsilicon.h  -  description
-                             -------------------
-    begin                : Fri Oct 4 2002
-    copyright            : (C) 2002 by A. Mignon & J.D. Frankland
-    email                : frankland@ganil.fr
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,6 +16,7 @@ $Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
 #include "KVChannelVolt.h"
 #include "KVPulseHeightDefect.h"
 #include "KVVoltEnergy.h"
+#include "KVUnits.h"
 
 class KVChIo;
 class KVDBParameterSet;

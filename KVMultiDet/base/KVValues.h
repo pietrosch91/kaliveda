@@ -79,6 +79,8 @@ class KVValues : public KVNameValueList
 	
 	void DefineAdditionalValue(KVString name,KVString expr);
 	
+	Bool_t Add(KVValues* val);
+	
 	ClassDef(KVValues,1)//Handle Operation on variable
 
 };

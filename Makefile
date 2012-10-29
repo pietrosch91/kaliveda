@@ -62,6 +62,10 @@ endif
 export WITH_GRU_LIB = no
 export GRU_DIR = /home/acqexp/GRU/GRUcurrent
 
+# for compilation with Ricardo Yanez's 'range' dE/dX and range library
+export WITH_RANGE_YANEZ = no
+export RANGE_YANEZ_DIR = /usr/local
+
 # GanTape library with RFIO or XROOTD
 # To compile the Ganil acquisition library using RFIO or XROOTD to
 # open and read the files. Uncomment one if required.

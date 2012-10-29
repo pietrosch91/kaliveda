@@ -7,6 +7,11 @@
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KVIonRangeTable+;
+#pragma link C++ class KVIonRangeTableMaterial+;
 #pragma link C++ class KVedaLossMaterial+;
 #pragma link C++ class KVedaLoss+;
+#ifdef WITH_RANGE_YANEZ
+#pragma link C++ class KVRangeYanez+;
+#pragma link C++ class KVRangeYanezMaterial+;
+#endif
 #endif
