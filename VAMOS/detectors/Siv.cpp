@@ -144,7 +144,7 @@ void Siv::Init(void)
 
 void Siv::Calibrate(void)
 {
-	Int_t i,j,k;
+	Int_t i,j;
 	double x,a,b,c,d,e,f,g,h,t0;
 
 	#ifdef DEBUG

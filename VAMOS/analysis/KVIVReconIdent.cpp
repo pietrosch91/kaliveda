@@ -61,7 +61,7 @@ void KVIVReconIdent::InitRun(void)
    
 
    ifstream in;   
-   Int_t  run1, run2;
+   UInt_t  run1, run2;
     
    //Float_t  thetavam,brho;
    //Float_t  brhorun = 0.;
@@ -87,7 +87,7 @@ void KVIVReconIdent::InitRun(void)
        if(!in.eof()){
 	   if (!sline.BeginsWith("#")){
 	     sscanf(sline.Data(),"%d %d %lf %lf", &run1, &run2, &brho, &thetavam);
-	     if((run1<gIndra->GetCurrentRunNumber() && gIndra->GetCurrentRunNumber()<run2) || gIndra->GetCurrentRunNumber()==run2 || gIndra->GetCurrentRunNumber()==run1)
+	     if( ( run1<=gIndra->GetCurrentRunNumber() ) && ( gIndra->GetCurrentRunNumber()<=run2 ) )
 	     	{
 		brhorun = double(brho);
 		thetavamrun = double(thetavam);

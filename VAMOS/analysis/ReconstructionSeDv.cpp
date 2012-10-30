@@ -161,7 +161,7 @@ void ReconstructionSeDv::Calculate(void)
 	
 	Double_t Brhot,Thetat,Phit,Patht;
 	Double_t Vec[5],Vecp;
-	Double_t theta_refVamos,x,y,z,x_,y_,hipot_rel;
+	Double_t x,y,z;
 	Double_t ThetaL_,PhiL_;
 
 
@@ -233,7 +233,7 @@ void ReconstructionSeDv::Calculate(void)
  *  	Superpose the border of a window, for test.
  */
 		int	drawgrid,method;
-		double t_min,t_max,t_cut,p_min,p_max,p_cut,r_target_window,theta,phi,theta_offaxis;
+		double t_min,t_max,t_cut,p_min,p_max/*,p_cut*/,r_target_window,theta,phi,theta_offaxis;
 
 		drawgrid=1;
 		if(drawgrid==1) if(drand48()>0.5)										/* abscissa */

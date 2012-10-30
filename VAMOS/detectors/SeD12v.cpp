@@ -23,14 +23,13 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
   
 	char line[255];
 	int len=255;
-	int i,j;
 
 	L = Log;
 	S1 = SeD1;
 	S2 = SeD2;
 
 
-	for(i=0;i<14;i++) Counter[i] = 0;
+	for(Int_t i=0;i<14;i++) Counter[i] = 0;
 
   	Rnd = new Random;
 
@@ -49,7 +48,7 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
  */
 		inf1.getline(line,len);
 		cout << line << endl; L->Log << line << endl;
-		for(i=0;i<2;i++)
+		for(Int_t i=0;i<2;i++)
 		{
 			inf1 >> XRef[i];
 			inf1 >> YRef[i];
@@ -62,7 +61,7 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
 /*
  *		Reading Focal position
  */
-		for(i=0;i<2;i++) inf1.getline(line,len);
+		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
 		cout << line << endl; L->Log << line << endl;
 		inf1 >> FocalPos;
 /*
@@ -73,9 +72,9 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
 /*
  *		Reading Focal Angle
  */
-		for(i=0;i<2;i++) inf1.getline(line,len);
+		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
 		cout << line << endl; L->Log << line << endl;
-		for(i=0;i<2;i++)
+		for(Int_t i=0;i<2;i++)
 		{
 			inf1 >> AngleFocal[i];
 /*
@@ -91,23 +90,23 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
  *		t0 is determined from file 44, where T-t0 = -79.75
  *		( with the condition: SIE_Nr==5 && EchiNr==4 && SeDX2> -50 && SeDY2 > -50 && SiE>487 && SiE<495 && Echi>7 && Echi<9 && SeDX1>-100 && SeDY1>-50)
  */
-		for(i=0;i<2;i++) inf1.getline(line,len);
+		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
 		cout << line << endl; L->Log << line << endl;
-		for(i=0;i<6;i++) inf1 >> TCoef[i];
+		for(Int_t i=0;i<6;i++) inf1 >> TCoef[i];
 /*
  *		Output control
  */
-		for(i=0;i<6;i++) printf("  %10.6g",TCoef[i]); cout << endl; 	
+		for(Int_t i=0;i<6;i++) printf("  %10.6g",TCoef[i]); cout << endl; 	
 /*
  *		Reading parameters for the linearisation procedure for the Time TSED1-SED2, 15 parameters Float_t
  */
-		for(i=0;i<2;i++) inf1.getline(line,len);
+		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
 		cout << line << endl; L->Log << line << endl;
-		for(i=0;i<15;i++) inf1 >> Tlinearise[i];
+		for(Int_t i=0;i<15;i++) inf1 >> Tlinearise[i];
 /*
  *		Output control
  */
-		for(i=0;i<15;i++) printf("  %10.6g",Tlinearise[i]); cout << endl; 	
+		for(Int_t i=0;i<15;i++) printf("  %10.6g",Tlinearise[i]); cout << endl; 	
 		
 		cout <<" fin de lecture"<< endl<<flush;
 		
@@ -162,7 +161,6 @@ void SeD12v::Calibrate(void)
 	cout << "SeD12v::Calibrate" << endl;
 #	endif
   
-	Int_t i,j;
 	double a,b,c,d,e,t0, x,t;
 	
 	Rnd->Next();

@@ -23,7 +23,6 @@ IonisationChamberv::IonisationChamberv(LogFile *Log)
 	char line[255];
 	int len=255;
 	int i,j,k;
-	Float_t tmp, tmp1;
 
 	L=Log;
 
@@ -139,7 +138,6 @@ void IonisationChamberv::Init(void)
 
 void IonisationChamberv::Calibrate(void)
 {
-	Int_t i,k;
 	double x,a,b,c,d;
 	int aa,bb;
 	int MRow[3];
@@ -150,7 +148,7 @@ void IonisationChamberv::Calibrate(void)
 
 	MRow[0] = MRow[1] = MRow[2] = 0;
 
-	for(i=0;i<E_RawM;i++)
+	for(Int_t i=0;i<E_RawM;i++)
 	{
 /*
  *		We only take the stage 2 because the others are not defined
@@ -191,7 +189,7 @@ void IonisationChamberv::Calibrate(void)
 	if(E_RawM==0) Info("IonisationChamberv::Calibrate","No signal");  
 #	endif
 
-	for(i=0;i<3;i++) if(ES[i] > 0) Counter[i+1]++;
+	for(Int_t i=0;i<3;i++) if(ES[i] > 0) Counter[i+1]++;
   
 	if(EM!=1)
 	{

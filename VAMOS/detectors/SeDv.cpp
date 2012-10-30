@@ -368,7 +368,7 @@ void SeDv::Calibrate(void)
 /*
  *			Study the surrounding of the maximum charge
  */			
-			if(Q_max_Nr[i]>=0) for(j=-Border;j<=Border;j++)
+			for(j=-Border;j<=Border;j++)
 			{
 				k = Q_max_Nr[i]+j; if(k<=48+i*128 && k>=0) 
 				{
@@ -638,14 +638,13 @@ void SeDv::Treat(void)
 void SeDv::inAttach(TTree *inT)
 {
 	char strnam[20];
-	Int_t i;
 
 #	ifdef DEBUG
 	cout << "SeDv::inAttach " << endl;
 	cout << "Attaching Sed variables" << endl;
 #	endif
 
-	/* for(i=0;i<3;i++)
+	/* for(Int_t i=0;i<3;i++)
 	{
 		sprintf(strnam,"QSED%1d_%1d",lnr,i+1);
 		inT->SetBranchAddress(strnam,&E_Raw[i]);
