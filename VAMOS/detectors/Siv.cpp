@@ -8,6 +8,8 @@
 #include "KVDataSet.h"
 #include <cmath>
 
+using namespace std;
+
 ClassImp(Siv)
 
 Siv::Siv(LogFile *Log)

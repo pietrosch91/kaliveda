@@ -13,6 +13,8 @@ $Date: 2007/11/21 11:22:59 $
 #include "KVBatchSystem.h"
 #include "KVDataSet.h"
 
+using namespace std;
+
 ClassImp(KVIVReconIdent)
 
 ////////////////////////////////////////////////////////////////////////////////

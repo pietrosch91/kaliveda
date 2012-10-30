@@ -6,6 +6,8 @@
 #include "KVMultiDetArray.h"
 #include "KVTGIDZ.h"
 
+using namespace std;
+
 ClassImp(KVRTGIDManager)
 
 ////////////////////////////////////////////////////////////////////////////////
