@@ -578,11 +578,15 @@ INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
-INDRA_e503.INDRADB.Pedestals:                         PedestalsE503.dat
-INDRA_e503.INDRADB.GGtoPGFactors:                     ParamFitPG_GG.dat
+INDRA_e503.INDRADB.Pedestals:               PedestalsE503.dat
+INDRA_e503.INDRADB.GGtoPGFactors:           ParamFitPG_GG.dat
 
-INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
-INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
+INDRA_e494s.INDRADB.Pedestals:                     PedestalsE494s.dat
+INDRA_e494s.INDRADB.GGtoPGFactors:                 ParamFitPG_GG.dat
+INDRA_e494s.INDRADB.ElectronicCalibration:         e494s_Channel_Volt.dat
+INDRA_e494s.INDRADB.ElectronicCalibration.Etalons: e494s_Channel_Volt_etalons.dat
+INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
+
 
 # Default headers for runlist columns
 INDRADB.Runlist.Run:    Run
