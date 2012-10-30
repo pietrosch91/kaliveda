@@ -515,7 +515,7 @@ nedit.languageModes: 	Ada:.ada .ad .ads .adb .a:::::::\n\
 	Yacc:.y::::::".,/\\`'!|@#%^&*()-=+{}[]"":;<>?~":\n\
 	CSS2:css::Auto:None:::".,/\\`'!|@#%^&*()=+{}[]"":;<>?~":
 nedit.styles: 	Plain:black:Plain\n\
-	Comment:magenta:Bold Italic\n\
+	Comment:Slate grey:Bold Italic\n\
 	Keyword:blue:Bold\n\
 	Operator:dark blue:Bold\n\
 	Bracket:dark blue:Bold\n\
