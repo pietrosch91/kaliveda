@@ -342,7 +342,7 @@ nedit.highlightPatterns: Ada:Default\n\
 		storage keyword:"<(class|typename|typeid|template|friend|virtual|inline|explicit|operator|public|private|protected|const|extern|auto|register|static|mutable|unsigned|signed|volatile|char|double|float|int|long|short|bool|wchar_t|void|typedef|struct|union|enum|asm|export)>":::Storage Type::D\n\
 		keyword:"<(new|delete|this|return|goto|if|else|case|default|switch|break|continue|while|do|for|try|catch|throw|sizeof|true|false|namespace|using|dynamic_cast|static_cast|reinterpret_cast|const_cast)>":::Keyword::D\n\
 		braces:"[{}]":::Keyword::D\n\
-		root storage:"<(Double_t|Int_t|Char_t|Option_t|Bool_t|Short_t|Long_t|Color_t|Float_t|UShort_t|ULong_t|UInt_t|UChar_t|Long64_t|ULong64_t)>":::Storage Type1::\n\
+		root storage:"<(Double_t|Int_t|Char_t|Option_t|Bool_t|Short_t|Long_t|Color_t|Float_t|UShort_t|ULong_t|UInt_t|UChar_t|Long64_t|ULong64_t|Byte_t)>":::Storage Type1::\n\
 		ROOT class:"<(T[A-Za-z0-9]*)>":::Class::\n\
 		KaliVeda class:"<(KV[A-Za-z0-9_]*)>":::Class2::\n\
 		FAZIA class:"<(FZ[A-Za-z0-9_]*)>":::FAZIA Class::\n\
