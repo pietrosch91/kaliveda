@@ -113,7 +113,7 @@ Type=1
 LightEnergyDependence=1
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs= 80-532
+Runs= 80-261
 IDTelescopes=/SI_CSI_0406/
 <VARX> 
 <VARY> 
@@ -128,6 +128,28 @@ G= 5.1761645078659e-01
 Pdx=-4.8387365341187e+00
 Pdy=-1.2353875637054e+00
 Eta= 2.2892611026764e+00
+!
+
+++KVTGID::SI_CSI_0406_fit
+Type=1
+LightEnergyDependence=1
+ZorA=0
+Functional=KVTGIDFunctions::fede
+Runs= 262-532
+IDTelescopes=/SI_CSI_0406/
+<VARX> 
+<VARY> 
+ZMIN=1  ZMAX=20
+Lambda= 23.93985
+Alpha= 1.30257
+Beta= 0.34130
+Mu= 1.08376
+Nu= 2.66725
+Xi= 2229.856486
+G= 0.285208
+Pdx=-8.0
+Pdy=-0.4 
+Eta= 9.462389
 !
 
 ++KVTGID::SI_CSI_0407_fit
@@ -707,21 +729,43 @@ Type=1
 LightEnergyDependence=1
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs= 80-532
+Runs= 80-261
 IDTelescopes=/SI_CSI_0514/
 <VARX> 
 <VARY> 
 ZMIN=1  ZMAX=20
-Lambda= 3.1207559585571e+01
-Alpha= 1.2063953876495e+00
-Beta= 4.2216980457306e-01
-Mu= 8.2782751321793e-01
-Nu= 2.1711454391479e+00
-Xi= 1.4290334472656e+03
-G= 4.5744860172272e-01
-Pdx=-3.5877161026001e+00
-Pdy= 2.1097187995911e+00
-Eta= 2.7275362014771e+00
+Lambda= 29.97201
+Alpha= 1.20624
+Beta= 0.45281
+Mu= 0.93743
+Nu= 2.11828
+Xi= 2239.896730
+G= 0.429669
+Pdx=-4.6
+Pdy= 2.2
+Eta= 9.692153
+!
+
+++KVTGID::SI_CSI_0514_fit
+Type=1
+LightEnergyDependence=1
+ZorA=0
+Functional=KVTGIDFunctions::fede
+Runs= 262-532
+IDTelescopes=/SI_CSI_0514/
+<VARX> 
+<VARY> 
+ZMIN=1  ZMAX=20
+Lambda= 29.86618
+Alpha= 1.25700
+Beta= 0.41789
+Mu= 0.89155
+Nu= 1.83585
+Xi= 1993.961213
+G= 0.550284
+Pdx=-5.6 
+Pdy= 2.8 
+Eta= 10.168609
 !
 
 ++KVTGID::SI_CSI_0515_fit
@@ -2621,7 +2665,30 @@ Type=1
 LightEnergyDependence=1
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs= 80-532
+Runs= 80-261
+IDTelescopes=/SI_CSI_0908/
+<VARX> 
+<VARY> 
+ZMIN=1  ZMAX=20
+Lambda= 44.49972
+Alpha= 1.22710
+Beta= 0.41528
+Mu= 1.93688
+Nu= 4.00000
+Xi= 348388.889593
+G= 0.053080
+Pdx=-472.6
+Pdy= -0.4
+Eta= 12.907350
+ eta = 12.907350
+!
+
+++KVTGID::SI_CSI_0908_fit
+Type=1
+LightEnergyDependence=1
+ZorA=0
+Functional=KVTGIDFunctions::fede
+Runs= 262-532
 IDTelescopes=/SI_CSI_0908/
 <VARX> 
 <VARY> 
@@ -2797,7 +2864,29 @@ Type=1
 LightEnergyDependence=1
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs= 80-532
+Runs= 80-261
+IDTelescopes=/SI_CSI_0916/
+<VARX> 
+<VARY> 
+ZMIN=1  ZMAX=20
+Lambda= 42.81397
+Alpha= 1.24867
+Beta= 0.45610
+Mu= 2.00000
+Nu= 3.93867
+Xi= 461187.875198
+G= 0.052949
+Pdx= -488.7
+Pdy= 2.0 
+Eta= 13.205158
+!
+
+++KVTGID::SI_CSI_0916_fit
+Type=1
+LightEnergyDependence=1
+ZorA=0
+Functional=KVTGIDFunctions::fede
+Runs= 262-532
 IDTelescopes=/SI_CSI_0916/
 <VARX> 
 <VARY> 
