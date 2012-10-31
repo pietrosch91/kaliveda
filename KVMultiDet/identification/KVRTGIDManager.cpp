@@ -156,6 +156,7 @@ void KVRTGIDManager::DeleteTGID(const Char_t * name)
 Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
 
  	//Read file, create KVTGID fits corresponding to information in file.
+ 	//Comment line beginning by '#' is skipped.
 
    	ifstream fitfile ( filename );
    	if ( !fitfile.good() ) {
@@ -166,6 +167,8 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
    	while ( fitfile.good() ) {
       	//read a line
       	s.ReadLine ( fitfile );
+
+      	if ( s.BeginsWith ( "#" ) ) continue;
       	if ( s.BeginsWith ( "++" ) ) {
          	//New fit
          	//Get name of class by stripping off the '+' at the start of the line
