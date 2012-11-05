@@ -495,6 +495,9 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    //If available runs file does not exist, Update() is called to create it.
    //
    //If no systems have been defined for the dataset, we return a list of available runs
+   //
+   //For any runs not associated with a system, we associate them with a new
+   //sytem with name "[unknown]"
 
    //does runlist exist ?
    if (!OpenAvailableRunsFile()) {
@@ -514,6 +517,12 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
    Bool_t noSystems = (!fDataSet->GetDataBase()->GetTable("Systems")->GetRecords()->GetSize());
 
+   KVDBSystem* unknown_system = (KVDBSystem*)fDataSet->GetDataBase()->GetTable("Systems")->GetRecord("[unknown]");
+   if(!unknown_system){
+      unknown_system = new KVDBSystem("[unknown]");
+      fDataSet->GetDataBase()->GetTable("Systems")->AddRecord(unknown_system);
+   }
+   
    while (fRunlist.good()) {
 
      TObjArray *toks = fLine.Tokenize('|');    // split into fields
@@ -537,9 +546,16 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
       KVDBSystem *sys = 0;
-      if (a_run && !noSystems)
+      if (a_run){
          sys = a_run->GetSystem();
-      if (!noSystems && !systol) {
+      }
+      if(!sys){
+         // run is not associated with any system
+         // associate it with system "[unknown]"
+         unknown_system->AddRun(a_run);
+         sys = unknown_system;
+      }
+      if (!systol) {
          //making a systems list
          if (!sys_list)
             sys_list = new TList;
