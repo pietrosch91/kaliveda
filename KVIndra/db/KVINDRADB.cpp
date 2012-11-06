@@ -248,37 +248,44 @@ void KVINDRADB::ReadSystemList()
    //Lines beginning '#' are comments.
 
 
-   // first of all we create an 'unknown' system and associate it to all runs
-   KVDBSystem* sys = new KVDBSystem("[unknown]");
-   AddSystem(sys);
-   TIter nextRun(GetRuns());
-   KVDBRun* run;
-   while ( (run = (KVDBRun*)nextRun()) ) sys->AddRun(run);
-   
    ifstream fin;
-   if (!OpenCalibFile("Systems", fin)) {
+   if (OpenCalibFile("Systems", fin)) {
+      Info("ReadSystemList()", "Reading Systems parameters ...");
+
+      TString line;
+
+      char next_char = fin.peek();
+      while( next_char!='+' && fin.good() ){
+         line.ReadLine(fin, kFALSE);
+         next_char = fin.peek();
+      }
+
+      while( fin.good() && !fin.eof() && next_char=='+' ){
+         KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
+         AddSystem(sys);
+         sys->Load(fin);
+       next_char = fin.peek();
+      }
+      fin.close();
+   }
+   else {
       Error("ReadSystemList()", "Could not open file %s",
             GetCalibFileName("Systems"));
-      return;
    }
-
-   Info("ReadSystemList()", "Reading Systems parameters ...");
-
-   TString line;
-
-   char next_char = fin.peek();
-   while( next_char!='+' && fin.good() ){
-      line.ReadLine(fin, kFALSE);
-      next_char = fin.peek();
+   // if any runs are not associated with any system
+   // we create an 'unknown' system and associate it to all runs
+   KVDBSystem* sys = 0;
+   TIter nextRun(GetRuns());
+   KVDBRun* run;
+   while ( (run = (KVDBRun*)nextRun()) ) {
+      if(!run->GetSystem()){
+         if(!sys) {
+            sys = new KVDBSystem("[unknown]");
+            AddSystem(sys);
+         }
+         sys->AddRun(run);
+      }
    }
-
-   while( fin.good() && !fin.eof() && next_char=='+' ){
-      sys = new KVDBSystem("NEW SYSTEM");
-      AddSystem(sys);
-      sys->Load(fin);
-      next_char = fin.peek();
-   }
-   fin.close();
 }
 
 //____________________________________________________________________________
