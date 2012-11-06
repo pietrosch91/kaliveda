@@ -247,6 +247,14 @@ void KVINDRADB::ReadSystemList()
    //
    //Lines beginning '#' are comments.
 
+
+   // first of all we create an 'unknown' system and associate it to all runs
+   KVDBSystem* sys = new KVDBSystem("[unknown]");
+   AddSystem(sys);
+   TIter nextRun(GetRuns());
+   KVDBRun* run;
+   while ( (run = (KVDBRun*)nextRun()) ) sys->AddRun(run);
+   
    ifstream fin;
    if (!OpenCalibFile("Systems", fin)) {
       Error("ReadSystemList()", "Could not open file %s",
@@ -257,7 +265,6 @@ void KVINDRADB::ReadSystemList()
    Info("ReadSystemList()", "Reading Systems parameters ...");
 
    TString line;
-   KVDBSystem* sys;
 
    char next_char = fin.peek();
    while( next_char!='+' && fin.good() ){
@@ -938,8 +945,10 @@ void KVINDRADB::WriteSystemsFile() const
    cout << GetDBEnv("Systems") << " file written by "
          << ClassName() << "::WriteSystemsFile on " << now.AsString() << endl;
    while( (sys = (KVDBSystem*)next()) ){
-      sys->Save(sysfile);
-      sysfile << endl;
+      if(strcmp(sys->GetName(),"[unknown]")){//do not write dummy 'unknown' system
+         sys->Save(sysfile);
+         sysfile << endl;
+      }
    }
    sysfile.close();
 }
