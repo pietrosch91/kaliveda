@@ -18,6 +18,7 @@ class KVINDRADB_e503 : public KVINDRADB
    protected:
    virtual void ReadVamosScalers () ;
    virtual void ReadVamosBrhoAndAngle () ;
+   virtual void ReadPedestalList () ;
 
    public:
    KVINDRADB_e503();

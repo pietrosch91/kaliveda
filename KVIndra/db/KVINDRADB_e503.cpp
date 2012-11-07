@@ -11,6 +11,9 @@ $Date: 2009/01/22 15:39:26 $
 //  it set the Vamos Brho's and angle.
 // The new method of this class is ReadVamosBrhoAndAngle ().
 
+// modified by M. F. Rivet november 2012 - separate files for pedestals Chio/Si
+// and for calibration telescopes
+
 #include "KVINDRADB_e503.h"
 
 using namespace std;
@@ -159,3 +162,69 @@ while (fin.good()) {         //reading the file
    fin.close();         
             
    }
+//----------------------------------------------------------------------------------
+void KVINDRADB_e503::ReadPedestalList()
+{
+//Read the names of pedestal files to use for each run range, found
+//in file with name defined by the environment variable:
+//   [dataset name].INDRADB.Pedestals:    ...
+
+   ifstream fin;
+   if (!OpenCalibFile("Pedestals", fin)) {
+      Error("ReadPedestalList()", "Could not open file %s",
+            GetCalibFileName("Pedestals"));
+      return;
+   }
+   Info("ReadPedestalList()", "Reading pedestal file list...");
+
+   KVString line;
+   Char_t filename_chio[80], filename_csi[80], filename_etalons[80];
+   UInt_t runlist[1][2];
+
+   while (fin.good()) {         //lecture du fichier
+
+// lecture des informations
+      line.ReadLine(fin);
+
+//recherche une balise '+'
+      if (line.BeginsWith('+')) {       //balise trouvee
+
+         line.Remove(0, 1);
+
+         if (sscanf
+             (line.Data(), "Run Range : %u %u", &runlist[0][0],
+              &runlist[0][1]) != 2) {
+            Warning("ReadPedestalList()", "Format problem in line \n%s",
+                    line.Data());
+         }
+
+         line.ReadLine(fin);
+         sscanf(line.Data(), "%s", filename_chio);
+
+         line.ReadLine(fin);
+         sscanf(line.Data(), "%s", filename_csi);
+
+	 line.ReadLine(fin);
+         sscanf(line.Data(), "%s", filename_etalons);
+
+         TList RRList;
+         KVDBRecord *dummy = 0;
+         dummy = new KVDBRecord(filename_chio, "ChIo/Si pedestals");
+         dummy->AddKey("Runs", "Runs for which to use this pedestal file");
+         fPedestals->AddRecord(dummy);
+         RRList.Add(dummy);
+         dummy = new KVDBRecord(filename_csi, "CsI pedestals");
+         dummy->AddKey("Runs", "Runs for which to use this pedestal file");
+         fPedestals->AddRecord(dummy);
+         RRList.Add(dummy);
+         dummy = new KVDBRecord(filename_etalons, "Si75/SiLi pedestals");
+         dummy->AddKey("Runs", "Runs for which to use this pedestal file");
+         fPedestals->AddRecord(dummy);
+         RRList.Add(dummy);
+         LinkListToRunRanges(&RRList, 1, runlist);
+      }                         // balise trouvee
+   }                            // lecture du fichier
+   fin.close();
+   cout << "Pedestals Read" << endl;
+}
+
