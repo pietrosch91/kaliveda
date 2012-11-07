@@ -15,6 +15,7 @@ $Date: 2009/01/22 15:39:26 $
 // and for calibration telescopes
 
 #include "KVINDRADB_e503.h"
+#include "KVDBParameterSet.h"
 
 using namespace std;
 
@@ -29,9 +30,14 @@ ClassImp(KVINDRADB_e503)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+void KVINDRADB_e503::init(){
+	fDeltaPed = NULL;
+}
+
 KVINDRADB_e503::KVINDRADB_e503()
 {
    // Default constructor
+   init();
 }
 
 KVINDRADB_e503::~KVINDRADB_e503()
@@ -50,6 +56,7 @@ void KVINDRADB_e503::Build ()
    KVINDRADB::Build();
    ReadVamosScalers();
    ReadVamosBrhoAndAngle ();
+   ReadPedestalCorrection();
 }
 
 //________________________________________________________________
@@ -126,42 +133,123 @@ void KVINDRADB_e503::ReadVamosScalers ()
 void KVINDRADB_e503::ReadVamosBrhoAndAngle () 
 {
 	TString sline; 
-      ifstream fin;
+    ifstream fin;
 
     if( !OpenCalibFile("VamosBrhoAngle", fin) ){
-         Warning("VamosBrhoAngle", "VAMOS Brho and angle file not found : %s",
-					GetCalibFileName("VamosBrhoAngle"));
-         return;
-   }
-   
-   Info("ReadVamosBrhoAngle", "Reading in VamosBrho and angle file : %s",
+        Warning("VamosBrhoAngle", "VAMOS Brho and angle file not found : %s",
+				GetCalibFileName("VamosBrhoAngle"));
+        return;
+   	}
+
+   	Info("ReadVamosBrhoAngle", "Reading in VamosBrho and angle file : %s",
 			GetCalibFileName("VamosBrhoAngle"));
-   
-   Int_t run = 0;
-   Float_t Brho = -1;
-   Float_t theta = -1.;
-while (fin.good()) {         //reading the file
-      sline.ReadLine(fin);
-      if (!fin.eof()) {          //fin du fichier
-		   if (sline.Sizeof() > 1 && !sline.BeginsWith("#") ){
-				 sscanf(sline.Data(), "%d %f %f ", &run, &Brho, &theta);
-              cout<<" run = "<<run<<", Brho = "<<Brho<<", Theta = "<<theta<<endl;
-               if(Brho==0){
-                  Brho = -1.;
-                  theta = -1.;
-               }
-               KVINDRADBRun * idb = GetRun(run);
-               if (idb){
-                  idb->Set("Brho",Brho);
-                  idb->Set("Theta",theta);
-                  }            
-      }
-   }
+
+   	Int_t run = 0;
+   	Float_t Brho = -1;
+   	Float_t theta = -1.;
+	while (fin.good()) {         //reading the file
+      	sline.ReadLine(fin);
+      	if (!fin.eof()) {          //fin du fichier
+		   	if (sline.Sizeof() > 1 && !sline.BeginsWith("#") ){
+				sscanf(sline.Data(), "%d %f %f ", &run, &Brho, &theta);
+              	cout<<" run = "<<run<<", Brho = "<<Brho<<", Theta = "<<theta<<endl;
+               	if(Brho==0){
+                  	Brho = -1.;
+                  	theta = -1.;
+               	}
+               	KVINDRADBRun * idb = GetRun(run);
+               	if (idb){
+                  	idb->Set("Brho",Brho);
+                  	idb->Set("Theta",theta);
+                }            
+      		}
+   		}
+	}
+
+   	fin.close();         
 }
-            
-   fin.close();         
-            
-   }
+//________________________________________________________________
+
+void KVINDRADB_e503::ReadPedestalCorrection(){
+	// Reading the pedestal correction (DeltaPed). DeltaPed depends on
+	// the run number but it is the same for all detectors connected to the
+	// same QDC. The corrected pedestal is given by the reference 
+	// pedestal + DeltaPed.  
+    ifstream fin;
+
+    if( !OpenCalibFile("PedestalCorrections", fin) ){
+        Warning("ReadPedestalCorrection", "Pedestal correction file not found : %s",
+				GetCalibFileName("PedestalCorrections"));
+        return;
+   	}
+   	Info("ReadPedestalCorrection", "Reading in pedestal correction file : %s",
+			GetCalibFileName("PedestalCorrections"));
+
+
+	TString sline; 
+ 	while (fin.good()) {         //reading the file
+      	sline.ReadLine(fin);
+	  	// Skip comment line
+	  	if(sline.BeginsWith("#")) continue;
+
+	  	if(sline.BeginsWith("+DeltaPed")) ReadDeltaPedestal(fin);
+	}			
+   	fin.close();         
+}
+//________________________________________________________________
+
+void KVINDRADB_e503::ReadDeltaPedestal(ifstream &ifile){
+	// Reading the pedestal correction (DeltaPed). Method called by  
+	// KVINDRADB_e503::ReadPedestalCorrection(). DeltaPed is equal to
+	// DeltaNoise for high gain coder data. For anyother coder data,
+	// DetaPed is given by DeltaGene if DeltaGene is less than 20 channels,
+	// otherwise it is given by DeltaNoise. DeltaGene (DeltaNoise) is the
+	// difference between pedestal positions from the generator (noise)
+	// of the current run and of the reference run.
+
+	fDeltaPed = AddTable("DeltaPedestal","Pedestal correction value of detectors");
+
+	KVString sline, signal, parname;
+	KVDBParameterSet *parset = NULL;
+	Int_t numQDC =-1;
+	KVNumberList runs;
+	Double_t Dped = -1., Dgene = -1., Dbruit = -1.;
+
+	while (ifile.good()) {         //reading the file
+      	sline.ReadLine(ifile);
+	  	// Skip comment line
+	  	if(sline.BeginsWith("#")) continue;
+		// End character
+	  	if(sline.BeginsWith("!")) return;
+
+		// QDC number
+	  	if(sline.BeginsWith("QDC=")){
+			sline.Remove(0,4);
+			numQDC = sline.Atof();
+			continue;
+   		}
+		// DeltaPed for each signal
+		Ssiz_t idx = sline.Index(":");
+		runs.SetList(TString(sline).Remove(idx));
+		sline.Remove(0,idx+1);
+		sline.Begin(" ");
+		while(!sline.End()){
+			signal = sline.Next(kTRUE);
+			Dgene  = sline.Next(kTRUE).Atof();
+			Dbruit = sline.Next(kTRUE).Atof();
+
+			// Marie-France's selection
+			Dped = ( (Dgene>20) || !strcmp(signal.Data(),"GG") ? Dbruit : Dgene );
+			if(Dped>20) Warning("ReadDeltaPedestal","DeltaPed>20 for runs %s, signal %s",runs.GetList(),signal.Data());
+
+			parname.Form("QDC%.2d",numQDC);
+			parset = new KVDBParameterSet(parname.Data(),signal.Data(),1);
+			parset->SetParameter(Dped);
+			fDeltaPed->AddRecord(parset);
+			LinkRecordToRunRange(parset,runs);
+		}
+	}
+}
 //----------------------------------------------------------------------------------
 void KVINDRADB_e503::ReadPedestalList()
 {
@@ -227,4 +315,3 @@ void KVINDRADB_e503::ReadPedestalList()
    fin.close();
    cout << "Pedestals Read" << endl;
 }
-

@@ -7,7 +7,8 @@
 #include "KVIDGridManager.h"
 #include "KVRTGIDManager.h"
 #include "KVDBParameterSet.h"
-#include "KVINDRADBRun.h"
+#include "KVINDRADetector.h"
+#include "KVINDRADB.h"
 #include "KVSilicon.h"
 
 ClassImp(KVINDRAUpDater_e494s)
@@ -59,7 +60,51 @@ void KVINDRAUpDater_e494s::SetIDGrids(UInt_t run){
     gIDGridManager->SetGridsInTelescopes(run);
 	KVRTGIDManager::SetIDFuncInTelescopes(run);
 }
-//----------------------------------------------------------------------------------
+//________________________________________________________________
+
+void KVINDRAUpDater_e494s::SetParameters(UInt_t run){
+
+	KVINDRAUpDater::SetParameters(run);
+	KVDBRun *kvrun = gIndraDB->GetRun(run);
+	if(!kvrun) return;
+   	SetPedestalCorrections(kvrun);
+}
+//________________________________________________________________
+
+void KVINDRAUpDater_e494s::SetPedestalCorrections(KVDBRun *run){
+	KVRList *dp_list = run->GetLinks("DeltaPedestal");
+	if(!dp_list) return;
+
+	KVDBParameterSet *dp = NULL;
+	TIter next_dp(dp_list);
+	TString QDCnum;
+
+	// Loop over INDRA detectors
+	KVINDRADetector *det = NULL;
+	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	while( (det = (KVINDRADetector *)next_det()) ){
+
+		// Initializing each ACQ parameter pedestal correction for
+		// all detectors
+		KVACQParam *acqpar = NULL;
+		TIter next_acqp(det->GetACQParamList());
+		while( (acqpar = (KVACQParam *)next_acqp()) )
+			acqpar->SetDeltaPedestal(0.);
+
+		// Set the pedestal correction if a value exists for
+		// the QDC associated to this detector
+		next_dp.Reset();
+		while( (dp = (KVDBParameterSet *)next_dp()) ){
+			QDCnum = dp->GetName();
+			QDCnum.Remove(0,3);
+			if(det->GetNumeroCodeur() == QDCnum.Atoi()){
+				acqpar = det->GetACQParam(dp->GetTitle());
+				acqpar->SetDeltaPedestal(dp->GetParameter());
+			}
+		}
+	}
+}
+//________________________________________________________________
 
 void KVINDRAUpDater_e494s::SetPedestals(KVDBRun * kvrun)
 {
@@ -71,8 +116,7 @@ void KVINDRAUpDater_e494s::SetPedestals(KVDBRun * kvrun)
     SetCsIPedestals(kvrun);
 
 }
-
-//______________________________________________________________________________
+//________________________________________________________________
 
 void KVINDRAUpDater_e494s::SetChIoSiPedestals(KVDBRun * kvrun)
 {
@@ -169,8 +213,7 @@ void KVINDRAUpDater_e494s::SetChIoSiPedestals(KVDBRun * kvrun)
     }
     file_pied_chiosi.close();
 }
-
-//______________________________________________________________________________
+//________________________________________________________________
 
 void KVINDRAUpDater_e494s::SetSi75SiLiPedestals(KVDBRun * kvrun)
 {
@@ -244,4 +287,3 @@ void KVINDRAUpDater_e494s::SetSi75SiLiPedestals(KVDBRun * kvrun)
 	 
     file_pied_etalons.close();
 }
-//______________________________________________________________________________

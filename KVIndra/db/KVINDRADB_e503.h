@@ -16,6 +16,12 @@ class KVINDRADB_e503 : public KVINDRADB
 {
 
    protected:
+
+	   KVDBTable *fDeltaPed;   //-> table of pedestal corrections
+
+   void init();
+   virtual void ReadPedestalCorrection();
+   virtual void ReadDeltaPedestal(ifstream &ifile);
    virtual void ReadVamosScalers () ;
    virtual void ReadVamosBrhoAndAngle () ;
    virtual void ReadPedestalList () ;
