@@ -582,6 +582,7 @@ INDRA_e503.INDRADB.Pedestals:               PedestalsE503.dat
 INDRA_e503.INDRADB.GGtoPGFactors:           ParamFitPG_GG.dat
 
 INDRA_e494s.INDRADB.Pedestals:                     PedestalsE494s.dat
+INDRA_e494s.INDRADB.PedestalCorrections:            DeltaPiedQDC10.dat
 INDRA_e494s.INDRADB.GGtoPGFactors:                 ParamFitPG_GG.dat
 INDRA_e494s.INDRADB.ElectronicCalibration:         e494s_Channel_Volt.dat
 INDRA_e494s.INDRADB.ElectronicCalibration.Etalons: e494s_Channel_Volt_etalons.dat
@@ -714,9 +715,9 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI$        KVIDChIoSiCorr                KVIndra      "KVIDChIoSiCorr()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-CSI$       KVIDChIoCorrCsI_e494s         KVIndra      "KVIDChIoCorrCsI_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SI-CSI$       KVIDSiCorrCsI                 KVIndra      "KVIDSiCorrCsI()"
-+Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_camp5            KVIndra      "KVIDChIoSi75_camp5()"
-+Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_camp5            KVIndra      "KVIDSi75SiLi_camp5()"
-+Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_camp5             KVIndra      "KVIDSiLiCsI_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
 ################################################
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
@@ -775,8 +776,8 @@ INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
 INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
 INDRA_e494s.IdentificationParameterFile.CSI:        grilles_CsI_RL_e494s.dat
 INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
-INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_Si75_SiLi.dat
-INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_SiLi_CsI.dat
+INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_fit_Si75_SiLi.dat
+INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_fit_SiLi_CsI.dat
 ###############################################
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
