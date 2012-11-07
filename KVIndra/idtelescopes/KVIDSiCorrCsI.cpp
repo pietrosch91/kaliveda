@@ -59,7 +59,7 @@ void KVIDSiCorrCsI::Initialize()
 Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
 {
 	// This method gives the X-coordinate in a 2D identification map
-	// associated whith the Si-CsI identification telescope.
+	// associated with the Si-CsI identification telescope.
 	// The X-coordinate is the total light of the CsI.
 	
     opt = opt; // not used (keeps the compiler quiet)
@@ -71,7 +71,7 @@ Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt)
 Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
 {
 	// This method gives the Y-coordinate in a 2D identification map
-	// associated whith the Si-CsI identification telescope.
+	// associated with the Si-CsI identification telescope.
 	// The Y-coordinate is the silicon current petit gain coder data minus the petit gain pedestal. If the grand gain coder 
 	// data is less than 3900 then the petit gain value is calculated
 	// from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
@@ -86,9 +86,6 @@ Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt)
 
 Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
 {
-    x = x; // not used (Keeps the compiler quiet)
-    y = y; // not used
-
     //Identification of particles using SiCorrelated-CsI matrices for E503/E494s
     //First of all, Z identification is attempted with KVIDSiCorrCsI::IdentZ.
     //If successful, if this telescope has mass identification capabilities
@@ -101,6 +98,9 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
     //
     // Note that optional arguments (x,y) for testing identification are not used.
 
+	Double_t X = ( x<0. ? GetIDMapX() : x );
+	Double_t Y = ( y<0. ? GetIDMapY() : y );
+
     Double_t funLTG_Z = -1;
     Double_t funLTG_A = -1;
     Double_t mass = -1;
@@ -110,19 +110,16 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
     IDR->SetIDType( GetType() );
     IDR->IDattempted = kTRUE;
     IDR->IDquality = 15;
-    IDR->IDcode = kIDCode3;
+
+	// set general ID code
+    IDR->IDcode = fIDCode;
 
     Double_t Z = -1.;
 
-    const Bool_t inRange = (GetIDMapY("") < 4090.) 
-                        && (GetIDMapY("") > 0.) 
-                        && (GetIDMapX("") > 0.);
+    const Bool_t inRange = (0. < X) && (0. < Y) && (Y < 4090.); 
 
-    if(inRange == 1){
-        Z = IdentZ(this, funLTG_Z, "", "");
-    }else{
-        return kFALSE;
-    }
+    if(inRange) Z = IdentZ(this, funLTG_Z, "", "");
+    else return kFALSE;
 
     //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
     IDR->IDquality = GetStatus();
@@ -210,9 +207,6 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
         IDR->Zident = kTRUE;
     
     }
-
-    // set general ID code
-    IDR->IDcode = kIDCode3;
 
     return kTRUE;
 }

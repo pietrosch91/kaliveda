@@ -21,23 +21,7 @@
 #include "KVIDSiCsI.h"
 #include "KVRTGIDManager.h"
 #include "KVSilicon.h"
-#include "KVTGID.h"
 #include "KVCsI.h"
-#include "KVChIo.h"
-#include "KVINDRA.h"
-#include "KVINDRAReconNuc.h"
-#include "Riostream.h"
-#include "KVDetector.h"
-#include "KVMultiDetArray.h"
-#include "KVDataSet.h"
-#include "KVTGIDZA.h"
-#include "TObjString.h"
-#include "KVIdentificationResult.h"
-#include "KVNumberList.h"
-
-#include <sstream>
-
-class KVMultiDetArray;
 
 class KVIDSiCorrCsI:public KVIDSiCsI, public KVRTGIDManager{
 
