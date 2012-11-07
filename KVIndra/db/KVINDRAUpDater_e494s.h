@@ -12,8 +12,11 @@ class KVINDRAUpDater_e494s : public KVINDRAUpDater
    public:
    KVINDRAUpDater_e494s();
    virtual ~KVINDRAUpDater_e494s();
-
-
+   
+   virtual void SetPedestals(KVDBRun *);
+   virtual void SetChIoSiPedestals(KVDBRun *);
+   virtual void SetSi75SiLiPedestals(KVDBRun *);
+   
    virtual void SetIDGrids(UInt_t);
 
    ClassDef(KVINDRAUpDater_e494s,1)//Class for setting INDRA-VAMOS parameter for each run (e494s/e503 experiment)
