@@ -39,7 +39,7 @@ class ScanClasses
    virtual void MakeClassCategoriesList();
    virtual void FillListOfClasses();
    virtual void AnalyseClasses();
-   virtual void WritePageHead(){;};
+   virtual void WritePageHead();
    virtual void WritePage();
    
    void SetFileName(const Char_t* output_filename){ fFilename = output_filename; };

@@ -120,6 +120,10 @@ BZR = $(shell which bzr)
 ifneq ($(BZR),)
 BZR_INFOS = KVBzrInfo.h
 BZR_LAST_REVISION = $(shell if [ -f .bzr/branch/last-revision ]; then echo '.bzr/branch/last-revision'; fi)
+BZR_BRANCH_NICK = $(shell bzr info | grep 'checkout of branch' | awk '{ print $$4 }')
+ifeq ($(BZR_BRANCH_NICK),)
+BZR_BRANCH_NICK = $(shell bzr info | grep 'parent branch' | awk '{ print $$3 }')
+endif
 else
 BZR_INFOS =
 BZR_LAST_REVISION =
@@ -173,8 +177,9 @@ $(ROOT_VERSION_TAG) :
 	else :; fi
 	
 $(BZR_INFOS) : $(BZR_LAST_REVISION)
-	bzr version-info --custom --template="#define BZR_REVISION_ID "\""{revision_id}"\"" \n#define BZR_REVISION_DATE "\""{date}"\"" \n#define BZR_REVISION_NUMBER {revno}\n#define BZR_BRANCH_NICK "\""{branch_nick}"\"" \n#define BZR_BRANCH_IS_CLEAN {clean}\n" \
+	@bzr version-info --custom --template="#define BZR_REVISION_ID "\""{revision_id}"\"" \n#define BZR_REVISION_DATE "\""{date}"\"" \n#define BZR_REVISION_NUMBER {revno}\n#define BZR_BRANCH_IS_CLEAN {clean}\n" \
 		> $@
+	@echo '#define BZR_BRANCH_NICK "$(BZR_BRANCH_NICK)"' >> $@
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386
