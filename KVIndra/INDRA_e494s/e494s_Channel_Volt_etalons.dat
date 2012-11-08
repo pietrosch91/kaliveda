@@ -4,7 +4,8 @@
 # type_ring_gain p0 p1 p2 xmin xmax nbre_de_pics canal E=0
 #
 # A noter pour le SILI_17 une calibration realisee sur une
-# gamme plus restreinte car pas de pics au dela du canal 500 PG.
+# gamme plus restreinte car on observe une saturation entre 0.33 et 0.5V,
+# au canal 480 environ.
 # Pour les Si75, le pic 0.005 V est dans le piedestal pas exploitable
 # pour les SiLi il n'y a pas de pic au piedestal sur ces runs
 #-------------------------------------------------------------------------
@@ -16,7 +17,7 @@ SILI_13_PG   -2.165e-01  1.276e-03   9.016e-09  172.13  3680.60  30 169.4
 SILI_14_PG   -2.203e-01  1.301e-03   8.492e-09  171.98  3842.44  31 169.1
 SILI_15_PG   -2.307e-01  1.344e-03   9.588e-09  174.04  3729.37  31 171.4
 SILI_16_PG   -2.151e-01  1.272e-03   9.374e-09  172.49  3686.97  30 168.8
-SILI_17_PG   -7.965e-02  2.458e-04   1.898e-06  179.19   480.40  15 150.1
+SILI_17_PG   -2.201e-01  1.316e-03  -1.402e-08  179.19   419.66  14 167.2
 SI75_10_PG   -1.831e-01  1.041e-03   3.281e-08  182.2   3771.62  24 174.82
 SI75_11_PG   -1.943e-01  1.100e-03   3.384e-08  185.09  3605.56  24 175.7
 SI75_12_PG    0.         0.          0.         0.      0.       10 0.
