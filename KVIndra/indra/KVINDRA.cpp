@@ -1428,10 +1428,9 @@ void KVINDRA::SetGGtoPGConversionFactors()
 //_________________________________________________________________________________
 
 TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
-{
-   
+{   
    // Overrides KVMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
-   // which builds the TGeometry representation of INDRA using the Y. Huguet CAO data.
+   // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.
    //
    // The optional arguments (dx,dy,dz) are the half-lengths in centimetres of the "world"/"top" volume
    // into which all the detectors of the array are placed. This should be big enough so that all detectors

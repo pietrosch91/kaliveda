@@ -213,20 +213,24 @@ void KVDataAnalyser::PrintSplashScreen()
    //Prints welcome message
       cout << "***********************************************************" <<
        endl;
+      cout << "*                    HI COQUINE !!!                       *" <<
+       endl;
       cout << "*                                                         *" <<
        endl;
-      cout << "*         W E L C O M E     to     K A L I V E D A        *" <<
+		cout << "*         W E L C O M E     to     K A L I V E D A        *" <<
        endl;
       cout << "*                                                         *" <<
        endl;
       printf( "*                   Version:%10s                    *\n", KVBase::GetKVVersion());
       cout << "*                                                         *" <<
        endl;
-      cout << "*              For help, see the Web site :               *" <<
+      cout << "*               For help, read the doc on :               *" <<
        endl;
       cout << "*           http://indra.in2p3.fr/KaliVedaDoc             *" <<
        endl;
       cout << "*                                                         *" <<
+       endl;
+		cout << "*                          ENJOY !!!                      *" <<
        endl;
       cout << "***********************************************************" <<
        endl << endl;
@@ -301,7 +305,7 @@ void KVDataAnalyser::RunMenus()
          ChooseRuns();
       else if (fSubmit){
          Run();
-         Reset();
+			Reset();
          PrintSplashScreen();
       }
    }
@@ -343,12 +347,13 @@ Bool_t KVDataAnalyser::CheckTaskVariables()
          ChooseUserClass();
       }
 
-      if (!CheckIfUserClassIsValid()) {
+      while (!CheckIfUserClassIsValid()) {
          cout << "============> Warning <=============" << endl;
          cout << GetUserClass() << " is not a valid " << fTask->GetUserBaseClass() << endl;
          cout << "Analysis aborted." << endl;
          cout << "====================================" << endl;
-         return kFALSE;
+         ChooseUserClass();
+			//return kFALSE;
       }
    }
 

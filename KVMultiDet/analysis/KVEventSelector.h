@@ -204,7 +204,7 @@ public:
    virtual KVString& GetOpt(const Char_t* option) const;
    virtual void UnsetOpt(const Char_t* opt);
    
-   ClassDef(KVEventSelector, 0);
+   ClassDef(KVEventSelector, 0)//General purpose analysis class for TTrees containing KVEvent objects
 };
 
 #endif

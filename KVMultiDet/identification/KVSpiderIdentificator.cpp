@@ -3,6 +3,7 @@
 #include <TCanvas.h>
 #include <TSystem.h>
 
+#include <KVCanvas.h>
 
 using namespace std;
 
@@ -85,6 +86,9 @@ void KVSpiderIdentificator::Init(TH2F* h_)
   double xm    = h_->GetXaxis()->GetXmax();
   double ym    = h_->GetYaxis()->GetXmax();
   
+  _xmax = xm;
+  _ymax = ym;
+  
   bool   foundx = false;
   bool   foundy = false;
   
@@ -156,21 +160,22 @@ bool KVSpiderIdentificator::CheckPath(char* path_)
 
 
 
-TH1F* KVSpiderIdentificator::GetProjection(TH2F* h_, KVDroite* d_)
+TH1F* KVSpiderIdentificator::GetProjection(TH2F* h_, KVDroite* d_, int rebin_)
 {  
   if(!TestHistogram(h_)) return 0;
 
   double a0    = d_->GetA0();
-  double costh = TMath::Cos(TMath::DegToRad()*d_->GetTheta());
-  double sinth = TMath::Sin(TMath::DegToRad()*d_->GetTheta());
+  double th    = d_->GetTheta();
+  double costh = TMath::Cos(TMath::DegToRad()*th);
+  double sinth = TMath::Sin(TMath::DegToRad()*th);
   double mma   = -1;
   
-  double thetam = TMath::ATan(h_->GetYaxis()->GetXmax()/h_->GetXaxis()->GetXmax())*TMath::RadToDeg();
+  double thetam = TMath::ATan(_ymax/_xmax)*TMath::RadToDeg();
   
-  if(d_->GetTheta()<=thetam) mma = h_->GetXaxis()->GetXmax()/costh; 
-  else mma = h_->GetYaxis()->GetXmax()/sinth;   
+  if(th<=thetam) mma = _xmax/costh; 
+  else mma = _ymax/sinth;   
   
-  int  mmb = (int)mma;
+  int  mmb = (int)mma/(rebin_*_bfactor);
   
   TH1F* h1 = new TH1F(Form("%s_proj",h_->GetName()),h_->GetTitle(),mmb,0,mma);
     
@@ -184,14 +189,14 @@ TH1F* KVSpiderIdentificator::GetProjection(TH2F* h_, KVDroite* d_)
     Double_t bminx = h_->GetXaxis()->GetBinLowEdge(x);
     Double_t bmaxx = h_->GetXaxis()->GetBinUpEdge(x);
     Double_t xx  = _alea.Uniform(bminx,bmaxx); 
-    if (xx==bmaxx) xx=bminx;
+    if(xx==bmaxx) xx=bminx;
     
     for(int y=0; y<=ybins; y++)
       {
-      Double_t bminy = h_->GetXaxis()->GetBinLowEdge(y);
-      Double_t bmaxy = h_->GetXaxis()->GetBinUpEdge(y);
+      Double_t bminy = h_->GetYaxis()->GetBinLowEdge(y);
+      Double_t bmaxy = h_->GetYaxis()->GetBinUpEdge(y);
       Double_t yy  = _alea.Uniform(bminy,bmaxy); 
-      if (yy==bmaxy) yy=bminy;
+      if(yy==bmaxy) yy=bminy;
       
       Double_t content = (Double_t) h_->GetBinContent(x,y);
       
@@ -321,7 +326,7 @@ TList* KVSpiderIdentificator::CreateHistograms(double thmin_, double thmax_, int
 	    {
 	    if(!(_htemp = (TH2F*)_hlist.FindObject(Form("CUT_%06.3lf",theta))))
 	      {
-	      _htemp = new TH2F(Form("CUT_%06.3lf",theta),Form("CUT_%06.3lf",theta),1024,0,4096,1024,0,4096);	      
+	      _htemp = new TH2F(Form("CUT_%06.3lf",theta),Form("CUT_%06.3lf",theta),1024,0,_xmax,1024,0,_ymax);	      
 	      _hlist.AddLast(_htemp);
 	      
 	      KVDroite* dd = new KVDroite(_x0,_y0,theta);
@@ -350,7 +355,7 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
   _dtemp = (KVDroite*)_dlist.FindObject(Form("CUT_%06.3lf",theta_));
   TF1* ff = _dtemp->GetFunction();
     
-  h1_->Rebin(rebin_*_bfactor);
+//  h1_->Rebin(rebin_*_bfactor);
   h1_->Smooth(smooth_);
   
     
@@ -561,7 +566,7 @@ bool KVSpiderIdentificator::ProcessIdentification()
   while((_htemp=(TH2F*)nexti()))
     {
     _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
-    TH1F* hh = GetProjection(_htemp,_dtemp);
+    TH1F* hh = GetProjection(_htemp,_dtemp,12);
     SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,12,5);        
     delete hh;
     }    
@@ -580,7 +585,7 @@ bool KVSpiderIdentificator::ProcessIdentification()
   while((_htemp=(TH2F*)next()))
     {
     _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
-    TH1F* hh = GetProjection(_htemp,_dtemp);
+    TH1F* hh = GetProjection(_htemp,_dtemp,17);
     SearchPeack(hh,_dtemp->GetTheta(),-1,2.,1.,17,5);
     delete hh;
     TIter nextl2(&_llist);
@@ -607,7 +612,7 @@ bool KVSpiderIdentificator::ProcessIdentification()
   while((_htemp=(TH2F*)nextt()))
     {
     _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
-    TH1F* hh = GetProjection(_htemp,_dtemp);
+    TH1F* hh = GetProjection(_htemp,_dtemp,15);
     SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,15,5);
     cre = 1;
     delete hh;
@@ -616,14 +621,14 @@ bool KVSpiderIdentificator::ProcessIdentification()
   
     
   cre = 1;
-  CreateHistograms(2,detail_angle-2,15,false,.5);  
+  CreateHistograms(0.7,detail_angle-2,17,false,.5);  
   
   _hlist.Sort(false);
   TIter nexttt(&_hlist);
   while((_htemp=(TH2F*)nexttt()))
     {
     _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
-    TH1F* hh = GetProjection(_htemp,_dtemp);
+    TH1F* hh = GetProjection(_htemp,_dtemp,17);
     SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,17,5);
     delete hh;
     }
@@ -676,7 +681,7 @@ bool KVSpiderIdentificator::GetLines(int npoints_, double alpha_)
 
 void KVSpiderIdentificator::Draw(Option_t* opt_)
 {
-  TCanvas* cc = new TCanvas(Form("%s_C",_htot->GetName()),Form("%s_C",_htot->GetTitle()),800,800);
+  KVCanvas* cc = new KVCanvas(Form("%s_C",_htot->GetName()),Form("%s_C",_htot->GetTitle()),800,800);
   cc->cd()->SetLogz();
   TString option(opt_);
   

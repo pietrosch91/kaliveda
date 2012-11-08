@@ -171,6 +171,7 @@ friend class KVIDGridEditorCanvas;
    void Clear(const Option_t* opt = "");			//nettoi l'interface ('all' enleve la grille et l'histo)
    void Close();						//ferme l'interface graphique
    Bool_t IsClosed();						//true si l'interface est fermee
+   void CanvasWasClosed();     // called when GUI is used to close the canvas
    void ForceUpdate();						//rafraichit toute l'interface de force
    void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
    

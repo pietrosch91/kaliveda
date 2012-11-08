@@ -48,6 +48,7 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 #include "KVHashList.h"
 #include "KVNameValueList.h"
 #include "KVUniqueNameList.h"
+#include "KVIonRangeTable.h"
 
 using namespace std;
 
@@ -193,6 +194,7 @@ void KVMultiDetArray::init()
 	 fSimMode = kFALSE;
     
     fROOTGeometry=gEnv->GetValue("KVMultiDetArray.FilterUsesROOTGeometry", "kTRUE");
+    fFilterType=kFilterType_Full;
 }
 
 //______________________________________________________________________________
@@ -219,6 +221,7 @@ KVMultiDetArray::~KVMultiDetArray()
         delete fBrowser;
         fBrowser = 0;
     }
+    SafeDelete(fHitGroups);
     //delete telescope prototypes
     fTelescopes->Delete();
     delete fTelescopes;
@@ -286,7 +289,6 @@ KVMultiDetArray::~KVMultiDetArray()
         delete fCalibStatusDets;
         fCalibStatusDets=0;
     }
-    SafeDelete(fHitGroups);
 }
 
 //_______________________________________________________________________________________
@@ -856,10 +858,24 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	 //
 	 //INFO to the user : 
 	 // - 	at this point the different PILE-UP, several particles going through same telescope, detector
-	 //		are not explicitely taken into account
-	 // - 	the simulated events are to be considered in the multi detector frame
+	 //		are only taken into account for filter type KVMultiDetArray::kFilterType_Full
 	 // -    specific cases correponding specific multi detectors are to be implemented in the child class
 	 //
+    // === FILTER TYPES ===
+    // Use gMultiDetArray->SetFilterType(...) with one of the following values:
+    //    KVMultiDetArray::kFilterType_Geo               geometric filter only, particles are kept if they hit detector in the array
+    //                                                                            energy losses are not calculated, particle energies are irrelevant
+    //    KVMultiDetArray::kFilterType_GeoThresh    particles are kept if they have enough energy to leave the target,
+    //                                                                            and enough energy to cross at least one detector of the array
+    //       ---> for these two cases, accepted particles are copied into the 'reconstructed' event with their
+    //             original simulated energy, charge and mass, although angles are randomized to reflect detector granularity
+    //
+    //    KVMultiDetArray::kFilterType_Full               full simulation of detection of particles by the array. the calibration parameters
+    //                                                                           for the chosen run (call to gMultiDetArray->SetParameters(...)) are inverted in order
+    //                                                                           to calculate pseudo-raw data from the calculated energy losses. the resulting pseudo-raw
+    //                                                                           event is then treated in exactly the same way as experimental data in order to reconstruct,
+    //                                                                           identify and calibrate any detected particles.
+    
 	 
 	if (!event) {
 		Error("DetectEvent","the KVEvent object pointer has to be valid");
@@ -882,14 +898,17 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
     	fHitGroups->Clear();
 	}
 	
-	KVNameValueList* un = new KVNameValueList(); 
 	TObjArray* toks = 0;
 	
 	// iterate through list of particles
 	KVNucleus *part,*_part;
 	KVNameValueList* det_stat = new KVNameValueList();
 	KVNameValueList* nvl = 0;
+   KVNameValueList* un = 0;
 	while ((part = event->GetNextParticle())) {  // loop over particles in required frame
+      
+      TList* lidtel = 0;
+      
 #ifdef KV_DEBUG
 		cout << "DetectEvent(): looking at particle---->" << endl;
 		part->Print();
@@ -898,8 +917,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		_part->SetE0();
 		det_stat->Clear();
 		Double_t eLostInTarget=0;
+				KVDetector* last_det = 0;
 		
-		if (_part->GetKE()==0) { 
+		if (_part->GetKE()<1.e-3) { 
 			det_stat->SetValue("UNDETECTED","NO ENERGY");
 			
 			part->AddGroup("UNDETECTED"); 
@@ -913,9 +933,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				fTarget->SetOutgoing(kTRUE);
 				//simulate passage through target material
 				Double_t ebef = _part->GetKE();
-				fTarget->DetectParticle(_part);
+				if(fFilterType != kFilterType_Geo) fTarget->DetectParticle(_part);
 				eLostInTarget = ebef-_part->GetKE();
-				if (_part->GetKE()==0) {
+				if (_part->GetKE()<1.e-3) {
 					det_stat->SetValue("UNDETECTED","STOPPED IN TARGET"); 
 					
 					part->AddGroup("UNDETECTED");
@@ -925,11 +945,11 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				fTarget->SetOutgoing(kFALSE);	
 			}
 		
-			if (_part->GetKE()==0) { 
-			
+			if ((fFilterType != kFilterType_Geo) && _part->GetKE()<1.e-3) { 
+			   // unless we are doing a simple geometric filter, particles which
+            // do not have the energy to leave the target are not detected
 			}
 			else {
-				//KVNameValueList* nvl = 0;
 				if ( !(nvl = DetectParticle(_part)) ) {
 					det_stat->SetValue("UNDETECTED","DEAD ZONE"); 
 					
@@ -948,7 +968,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				else {
 					Int_t nbre_nvl = nvl->GetNpar();
 					KVString LastDet(nvl->GetNameAt(nbre_nvl-1));
-					KVDetector* last_det = GetDetector(LastDet.Data());
+					last_det = GetDetector(LastDet.Data());
 					TList* ldet = last_det->GetAlignedDetectors();
 					TIter it1(ldet);
 				
@@ -1001,7 +1021,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 					}
 					else {
 						
-						TList* lidtel = last_det->GetTelescopesForIdentification();
+						lidtel = last_det->GetTelescopesForIdentification();
 						if (lidtel->GetEntries()==0 && last_det->GetEnergy()<=0){
 							//Arret dans un absorbeur (unactive layer, mylar pour les ChIo par ex)
 							det_stat->SetValue("UNDETECTED","THRESHOLD");
@@ -1040,21 +1060,21 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							
 							//Test d'une energie residuelle non nulle
 							//La particule n a pas ete arrete par le detecteur
-							if (_part->GetKE()>0){
+							if (_part->GetKE()>1.e-3){
 								if (nbre_nvl != Int_t(last_det->GetGroup()->GetNumberOfDetectorLayers())){
 									//----
 									// Fuite, 
 									// la particule a loupe des detecteurs normalement aligne
 									// avec le dernier par laquelle elle est passee
 									// (ceci peut etre du a un pb de definition de la geometrie)
-									//Warning("DetectEvent","Fuite ......");
+									Warning("DetectEvent","Fuite ......");
 								}
 								else {
 									//----
 									// Punch Through,
 									// La particule est trop energetique, elle a traversee
 									// tout l'appareillage de detection
-									//Warning("DetectEvent","Punch Through ......");
+									Warning("DetectEvent","Punch Through ......");
 								}
 								//Pour ces deux cas
 								//on a une information incomplete
@@ -1071,12 +1091,18 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		//On enregistre l eventuelle perte dans la cible
 		if (fTarget)
 			part->GetParameters()->SetValue("TARGET Out",eLostInTarget);
+		//On enregistre le detecteur ou la particule s'arrete
+      if(last_det) part->GetParameters()->SetValue("STOPPING DETECTOR", last_det->GetName());
+		//On enregistre le telescope d'identification
+      if(lidtel && lidtel->GetEntries()) part->GetParameters()->SetValue("IDENTIFYING TELESCOPE", lidtel->First()->GetName());
 		//On enregistre le statut de detection
 		for (Int_t ii=0;ii<det_stat->GetNpar();ii+=1){
 			part->GetParameters()->SetValue(det_stat->GetNameAt(ii),det_stat->GetStringValue(ii));
 		}
 		//On enregistre les differentes pertes d'energie dans les detecteurs
 		if (nvl){
+	      
+         if(fFilterType == kFilterType_Full) un = new KVNameValueList(); 
 				
 			for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
 				part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
@@ -1084,17 +1110,19 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				//Si il y a plusieurs particules, on somme les Z et A de celles ci
 				//Cela servira pour deduire les parametres d acquisition
 				//printf("%s %d %d\n",nvl->GetNameAt(ii),part->GetZ(),part->GetA());
-				if (un->HasParameter(nvl->GetNameAt(ii))){
-					TString a_z(un->GetStringValue(nvl->GetNameAt(ii)));
-					toks = a_z.Tokenize(" ");
-					Int_t zz  = part->GetZ()+((TObjString* )toks->At(0))->GetString().Atoi();
-					Int_t aa  = part->GetA()+((TObjString* )toks->At(1))->GetString().Atoi();
-					un->SetValue(nvl->GetNameAt(ii),Form("%d %d",zz,aa));
-					delete toks;
-				}
-				else {	
-					un->SetValue(nvl->GetNameAt(ii),Form("%d %d",part->GetZ(),part->GetA()));
-				}
+				if (fFilterType == kFilterType_Full){
+               if(un->HasParameter(nvl->GetNameAt(ii))){
+					   TString a_z(un->GetStringValue(nvl->GetNameAt(ii)));
+					   toks = a_z.Tokenize(" ");
+					   Int_t zz  = part->GetZ()+((TObjString* )toks->At(0))->GetString().Atoi();
+					   Int_t aa  = part->GetA()+((TObjString* )toks->At(1))->GetString().Atoi();
+					   un->SetValue(nvl->GetNameAt(ii),Form("%d %d",zz,aa));
+					   delete toks;
+				   }
+				   else {	
+					   un->SetValue(nvl->GetNameAt(ii),Form("%d %d",part->GetZ(),part->GetA()));
+				   }
+            }
 			}
 			delete nvl;
 			nvl = 0;
@@ -1105,6 +1133,90 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	
 	delete det_stat;
 	
+//    Info("DetectEvent", "Finished filtering event. Event status now:");
+//    event->Print();
+   
+   // EVENT RECONSTRUCTION FOR SIMPLE GEOMETRIC FILTER
+   /* 
+       We keep all particles EXCEPT those belonging to groups
+       "DEAD ZONE" or "GEOMETRY INCOHERENCY" 
+   */
+   if(fFilterType == kFilterType_Geo){
+	   while ((part = event->GetNextParticle())) {
+         if(part->BelongsToGroup("DETECTED") || 
+               (part->BelongsToGroup("UNDETECTED")&&
+                  !part->BelongsToGroup("DEAD ZONE")&&!part->BelongsToGroup("GEOMETRY INCOHERENCY"))
+            ){
+            KVDetector* last_det = 0;
+            if(part->GetParameters()->HasParameter("STOPPING DETECTOR"))
+               last_det = GetDetector(part->GetParameters()->GetStringValue("STOPPING DETECTOR"));
+            if(!last_det) continue;
+            KVReconstructedNucleus* recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
+            recon_nuc->Reconstruct(last_det);
+            recon_nuc->SetZandA(part->GetZ(),part->GetA());
+            recon_nuc->SetE(part->GetE());
+            recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
+            recon_nuc->SetIsIdentified();
+            recon_nuc->SetZMeasured();
+            recon_nuc->SetAMeasured();
+            recon_nuc->SetIsCalibrated();
+            if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
+               KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
+               if(idt){
+                  recon_nuc->SetIdentifyingTelescope(idt);
+                  recon_nuc->SetIDCode(idt->GetIDCode());
+                  recon_nuc->SetECode(idt->GetECode());
+               }
+            }
+            recon_nuc->GetAnglesFromTelescope();
+         }
+      }
+      return;
+   }
+   // EVENT RECONSTRUCTION FOR SIMPLE GEOMETRIC FILTER WITH THRESHOLDS
+   /* 
+       We keep all particles belonging to "DETECTED" group
+       Those in "INCOMPLETE" group are treated as Zmin particles
+   */
+   if(fFilterType == kFilterType_GeoThresh){
+	   while ((part = event->GetNextParticle())) {
+         if(part->BelongsToGroup("DETECTED"))
+            {
+            KVDetector* last_det = 0;
+            if(part->GetParameters()->HasParameter("STOPPING DETECTOR"))
+               last_det = GetDetector(part->GetParameters()->GetStringValue("STOPPING DETECTOR"));
+            if(!last_det) continue;
+            KVReconstructedNucleus* recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
+            recon_nuc->Reconstruct(last_det);
+            recon_nuc->SetZandA(part->GetZ(),part->GetA());
+            recon_nuc->SetE(part->GetE());
+            recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
+            recon_nuc->SetIsIdentified();
+            if(!part->BelongsToGroup("INCOMPLETE")){
+               recon_nuc->SetZMeasured();
+               recon_nuc->SetAMeasured();
+            }
+            recon_nuc->SetIsCalibrated();
+            if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
+               KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
+               if(idt){
+                  recon_nuc->SetIdentifyingTelescope(idt);
+                  if(!part->BelongsToGroup("INCOMPLETE")) recon_nuc->SetIDCode(idt->GetIDCode());
+                  else recon_nuc->SetIDCode(idt->GetZminCode());
+                  recon_nuc->SetECode(idt->GetECode());
+               }
+            }
+            else if(part->BelongsToGroup("INCOMPLETE")){
+               // for particles stopping in 1st member of a telescope, there is no "identifying telescope"
+               KVIDTelescope* idt = (KVIDTelescope*)last_det->GetIDTelescopes()->First();
+               if(idt) recon_nuc->SetIDCode(idt->GetZminCode());
+            }
+            recon_nuc->GetAnglesFromTelescope();
+         }
+      }
+      return;
+   }
+   
 	//On calcule les parametres d acquisition
 	//un->Print();
 	KVDetector* det = 0;
@@ -1131,9 +1243,16 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    while ((grp_tch = (KVGroup *) nxt_grp())) {
    	grp_tch->ClearHitDetectors();
    }
-	// reconstruct the event
+//    Info("DetectEvent", "Multidetector status before event reconstruction:");
+//    fHitGroups->Print();
+   
+	// reconstruct & identify the event
 	rec_event->ReconstructEvent(fHitGroups);
-
+   rec_event->IdentifyEvent();
+	// calculate particle energies
+   rec_event->CalibrateEvent();
+	// 'coherency'
+   rec_event->SecondaryIdentCalib();
 }
 //__________________________________________________________________________________
 KVNameValueList* KVMultiDetArray::DetectParticle_KV(KVNucleus * part)
@@ -1240,8 +1359,7 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
             part->SetIsDetected();
             //If this is the first absorber that the particle crosses, we set a "reminder" of its
             //initial energy
-            if (!part->GetPInitial())
-            part->SetE0();
+            if (!part->GetPInitial()) part->SetE0();
             Double_t eloss_old = curDet->GetEnergyLoss();
             curDet->SetEnergyLoss(eloss_old+de);
             NVL->SetValue(curDet->GetName(),TMath::Abs(de));

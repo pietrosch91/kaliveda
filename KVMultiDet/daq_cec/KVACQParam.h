@@ -85,6 +85,11 @@ class KVACQParam:public KVBase {
    UChar_t GetNbBits() const{
       return fNbBits;
    };
+   void UseInternalDataMember()
+   {
+      // Call this method to make the fChannel pointer reference the fData member
+      fChannel = &fData;
+   };
    
    ClassDef(KVACQParam, 4)      //Data acquisition parameters read from raw DLT's
 };

@@ -85,7 +85,9 @@ void KVIDGridEditor::StartViewer()
     fCanvas = new KVIDGridEditorCanvas(Form("%sCanvas",GetName()),Form("%sCanvas",GetName()),800,600);
     fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
     fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
-
+    // connect canvas' Closed() signal to method CanvasWasClosed().
+    // this way we always know if the canvas is closed by user closing the window
+    fCanvas->Connect("Closed()", "KVIDGridEditor", this, "CanvasWasClosed()");
     fPad = fCanvas->cd();
   
     if(!ready) init();
@@ -95,6 +97,14 @@ void KVIDGridEditor::StartViewer()
     }
     
   return;
+}
+
+void KVIDGridEditor::CanvasWasClosed()
+{
+   // Slot connected to the 'Closed()' signal of the canvas.
+   // If the user closes the canvas window this method gets called.
+   fCanvas=0;
+   fPad=0;
 }
 
 //________________________________________________________________
@@ -129,9 +139,7 @@ void KVIDGridEditor::SetDefault()
 //________________________________________________________________
 Bool_t KVIDGridEditor::IsClosed()
 {
-//  if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
-  if(fPad) return false;
-  else return true;
+   return (!fCanvas);
 }
 
 //________________________________________________________________
@@ -139,9 +147,11 @@ void KVIDGridEditor::Close()
 {
   if(!IsClosed())
     {
+    fCanvas->Disconnect("Closed()", this, "CanvasWasClosed()");
     fCanvas->Close();
     delete fCanvas;
     fCanvas = 0;
+    fPad=0;
     }
   return;
 }
@@ -570,6 +580,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   
   if(!IsClosed()&&(TheHisto))
     {
+       fPad = fCanvas->cd();//au cas ou il y a plusieurs canevas ouverts
     TheHisto->Draw("col");
     fPad->SetLogz(true);
     TheHisto->SetMinimum(1);
@@ -1199,8 +1210,8 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
     else return;
     }
          
-  double ScaleFactorX = 4096./(TheHisto->GetXaxis()->GetXmax());
-  double ScaleFactorY = 4096./(TheHisto->GetYaxis()->GetXmax());
+  double ScaleFactorX = TheHisto->GetNbinsX()*1./(TheHisto->GetXaxis()->GetXmax());
+  double ScaleFactorY = TheHisto->GetNbinsY()*1/(TheHisto->GetYaxis()->GetXmax());
   
   Double_t factor = fSpiderFactor;
   if(fSpiderZp>0) 
@@ -1212,7 +1223,7 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
   if(fDebug) cout << "DEBUG: KVIDGridEditor::SpiderIdentification(): " << fSpiderZp << " " << fSpiderFactor << endl;
   fSpiderZp = -1;
   
-  SetPivot(0.,0.);
+//  SetPivot(0.,0.);
   Unzoom();
   UpdateViewer();
   
@@ -1232,6 +1243,8 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
         
   tata->SetParameters(factor);        
   tata->ProcessIdentification();
+  
+//  tata->Draw("NLIDR");
   
   TList* ll = (TList*)tata->GetListOfLines();   
    
@@ -1276,13 +1289,16 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
      
   if(fDebug)Info("SpiderIdentification","last line generated : Z = %d.",zmax);
       
-  TF1 fx("fx12",Form("x/%lf",ScaleFactorX),0.,4096.);
-  TF1 fy("fy12",Form("x/%lf",ScaleFactorY),0.,4096.);
+  TF1 fx("fx12",Form("x/%lf",ScaleFactorX),0.,hh->GetNbinsX()*1.);
+  TF1 fy("fy12",Form("x/%lf",ScaleFactorY),0.,hh->GetNbinsY()*1.);
   TheGrid->Scale(&fx,&fy);
+  
+  SetPivot(tata->GetX0(),tata->GetY0());
   
   delete tata;
   delete hh;
   
+  fPad->cd();
   TheGrid->UnDraw();
   TheGrid->Draw();
   

@@ -19,8 +19,8 @@ class KVMassExcess : public KVNuclData
 	virtual ~KVMassExcess();
 	
 	const Char_t* GetUnit() const;
-
-	ClassDef(KVMassExcess,1)//Simple class for store life time information of nucleus
+   
+	ClassDef(KVMassExcess,1)//Simple class to store mass information of nucleus
 };
 
 #endif

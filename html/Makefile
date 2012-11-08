@@ -42,8 +42,10 @@ export ROOTGANILTAPE = no
 endif
 
 ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+# before ROOT 5.32 xrootd libraries were in main ROOT installation
 XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
 else
+# since 5.32 xrootd is installed separately in $XRDSYS directory
 XRDPOSIX = -L$(XRDSYS)/lib -lXrdPosix
 endif
 
@@ -101,7 +103,7 @@ install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc/js
 	-mkdir -p $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers
 	./$(MAKEHTML)
-#	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
+	-cp $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/*.html $(KVROOT)/KaliVedaDoc/
 	-cp css/ROOT.css $(KVROOT)/KaliVedaDoc/
 	-ln -s -t$(KVROOT)/KaliVedaDoc $(VERSION_NUMBER)/incl $(VERSION_NUMBER)/inh $(VERSION_NUMBER)/inhmem $(VERSION_NUMBER)/src $(VERSION_NUMBER)/examples
 	-cp *.html $(KVROOT)/KaliVedaDoc/
@@ -113,3 +115,5 @@ install_html: $(MAKEHTML)
 	-cp -r kvedaloss_classdoc.html.LyXconv $(KVROOT)/KaliVedaDoc/
 	-cp -r kvedaloss_classdoc.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
+	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/
+	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/

@@ -32,6 +32,8 @@ class KVSpiderIdentificator : public TNamed
   double _y0;
   double _xm;
   double _ym;
+  double _xmax;
+  double _ymax;
   double _alpha;
   
   TList  _llist;
@@ -65,7 +67,7 @@ class KVSpiderIdentificator : public TNamed
   void SetParameters(double bining_=1.);
   
   void SetHistogram(TH2F* h_=0);
-  TH1F* GetProjection(TH2F* h_, KVDroite* d_);
+  TH1F* GetProjection(TH2F* h_, KVDroite* d_, int rebin_=10);
   bool SearchPeack(TH1F* h1_, double theta_, int create_, double sigma_=2., double peakmin_=1., int rebin_=10, int smooth_=5, TString opt_="goff");
   
   bool ProcessIdentification();

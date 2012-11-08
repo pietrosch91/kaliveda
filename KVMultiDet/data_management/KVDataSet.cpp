@@ -551,7 +551,10 @@ void KVDataSet::CheckAvailable()
    //the current user's name (gSystem->GetUserInfo()->fUser) will be used to check if the
    //dataset is available. The user name must appear in the group defined by SetUserGroups.
 
-   SetAvailable(fRepository->CheckSubdirExists(GetDataPathSubdir()));
+   if(!fRepository)    // for a stand-alone KVDataSetManager not linked to a KVDataRepository,
+      SetAvailable();   // all known datasets are 'available'
+   else
+      SetAvailable(fRepository->CheckSubdirExists(GetDataPathSubdir()));
    if (!IsAvailable())
       return;
    //check subdirectories
@@ -566,7 +569,9 @@ void KVDataSet::CheckAvailable()
    data_types.Begin(" ");
    while( !data_types.End() ){
    		KVString type = data_types.Next(kTRUE);
-   		if (fRepository->CheckSubdirExists(GetDataPathSubdir(), GetDataTypeSubdir(type.Data()))){
+   		if (!fRepository ||
+               (fRepository && fRepository->CheckSubdirExists(GetDataPathSubdir(), GetDataTypeSubdir(type.Data()))) 
+               ){
    			AddAvailableDataType(type.Data());
    		}
    }
@@ -694,7 +699,7 @@ void KVDataSet::cd()
    //pointers, gDataRepository, gDataBase, etc. etc.)
 
    gDataSet = this;
-   fRepository->cd();
+   if(fRepository) fRepository->cd();
    GetDataBase()->cd();
 }
 
@@ -924,8 +929,8 @@ void KVDataSet::DeleteRunfile(const Char_t * type, Int_t run, Bool_t confirm)
    }
    //delete file
    //add a safety condition for raw files
-	if (!strcmp(type,"raw")) {
-		Error("DeleteRunFile","raw files cannot be deleted");
+	if (!strcmp(type,"raw") || !strcmp(type,"dst")) {
+		Error("DeleteRunFile","%s files cannot be deleted",type);
 		return;
 	}
 	fRepository->DeleteFile(this, type, filename.Data(), confirm);
@@ -1152,8 +1157,9 @@ Bool_t KVDataSet::CheckUserCanAccess()
    TIter next_name(toks);
    while ((group_name = (TObjString *) next_name())) {
       //for each group_name, we check if the user's name appears in the group
-      if (fRepository->GetDataSetManager()->
-          CheckUser(group_name->String().Data())) {
+      if (!fRepository || (fRepository && fRepository->GetDataSetManager()->
+          CheckUser(group_name->String().Data()))
+            ) {
          delete toks;
          return kTRUE;
       }
@@ -1686,4 +1692,22 @@ Bool_t KVDataSet::DataBaseNeedsUpdate()
 	Int_t ret = gSystem->Exec(cmd.Data());
 	gSystem->cd( pwd.Data() );
 	return (ret!=0);
+}
+
+//___________________________________________________________________________
+
+void KVDataSet::CopyRunfilesFromRepository(const Char_t * type, KVNumberList runs, const Char_t* destdir)
+{
+   // Copies the runfiles of given "type" into the local directory "destdir".
+   // Run numbers given as a list of type "1-10".
+   
+   KVDataRepository* repo = GetRepository();
+   runs.Begin();
+   while(!runs.End()){
+      int run = runs.Next();
+      TString filename = GetRunfileName(type,run);
+      TString destpath;
+      AssignAndDelete(destpath, gSystem->ConcatFileName(destdir,filename));
+      repo->CopyFileFromRepository(this, type, filename, destpath);
+   }
 }

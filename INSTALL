@@ -63,16 +63,33 @@ If you want to compile KaliVeda with the maximum of debugging information (to us
 
    make debug=yes
    
-2.3 Building GANIL acquisition library with Xrootd support
-----------------------------------------------------------
-In order to read raw GANIL acquisition data over the network using Xrootd, type:
+2.3 Optional extras
+===================
+   2.3.1 Building GANIL acquisition library with Xrootd support
+   ------------------------------------------------------------
+   In order to read raw GANIL acquisition data over the network using Xrootd, type:
    
-   make MAKE_GANTAPE_XRD=yes
+      make MAKE_GANTAPE_XRD=yes
 
-For ROOT version 5.32 and later, xrootd is no longer installed as a ROOT package,
-but as an external package. In this case, the XRDSYS variable must be defined
-and contain the path to the xrootd installation. 
+   For ROOT version 5.32 and later, xrootd is no longer installed as a ROOT package,
+   but as an external package. In this case, the XRDSYS variable must be defined
+   and contain the path to the xrootd installation. 
 
+   2.3.2 Use interface to Ricardo Yanez's 'Range' dE/dx and range library
+   ----------------------------------------------------------------------
+   The default KVedaLoss range and energy loss classes are limited to a restricted
+   list of "known" materials. If you want to calculate energy losses etc. for
+   materials which are not included in KVedaLoss, you need to install Ricardo Yanez's
+   'Range' library, which is available here: http://www.calel.org/range.html
+   
+   To build the KaliVeda interface classes to 'Range', you need to give the path
+   to the installation directory:
+   
+      make WITH_RANGE_YANEZ=yes RANGE_YANEZ_DIR=$HOME
+      
+   In this example, the library is installed in the $HOME directory: in this case,
+   the files $HOME/include/range.h and $HOME/lib/librange.so must exist.
+   
 3. Installing documentation
 ---------------------------
 If you want to install a local copy of the KaliVeda web site, including the full documentation of all classes,

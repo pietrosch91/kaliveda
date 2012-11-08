@@ -53,15 +53,20 @@ KVDatime::KVDatime(const Char_t * DateString, EKVDateFormat f)
    //Decodes GANIL acquisition (INDRA) run-sheet format date into a TDatime
    //Format of date string is:
    //      29-SEP-2005 09:42:17.00
-	//
+   //
    //if f = KVDatime::kSQL:
    //Decodes SQL format date into a TDatime (i.e. same format as returned
    //by TDatime::AsSQLString(): "2007-05-02 14:52:18")
    //
-	//if f = KVDatime::kSRB:
+   //if f = KVDatime::kSRB:
    //Decodes SRB format date into a TDatime
    //Format of date string is: 
-	//         2008-12-19-15.21
+   //         2008-12-19-15.21
+   //
+   //if f = KVDatime::kIRODS:
+   //Decodes IRODS format date into a TDatime
+   //Format of date string is: 
+   //         2008-12-19.15:21
    
    init();
    switch(f){
@@ -73,6 +78,9 @@ KVDatime::KVDatime(const Char_t * DateString, EKVDateFormat f)
          break;
       case kSRB:
          SetSRBDate(DateString);
+         break;
+      case kIRODS:
+         SetIRODSDate(DateString);
          break;
       default:
             Error(KV__ERROR(KVDatime), "Unknown date format");
@@ -107,6 +115,19 @@ void KVDatime::SetSRBDate(const Char_t * DateString)
 	
    Int_t Y,M,D,h,m,s;
    sscanf(DateString, "%4d-%02d-%02d-%02d.%02d",
+         &Y,&M,&D,&h,&m);
+	s=0;
+   Set(Y,M,D,h,m,s);
+}
+
+void KVDatime::SetIRODSDate(const Char_t * DateString)
+{
+   //Decodes IRODS format date into a TDatime
+   //Format of date string is: 
+   //         2008-12-19.15:21
+	
+   Int_t Y,M,D,h,m,s;
+   sscanf(DateString, "%4d-%02d-%02d.%02d:%02d",
          &Y,&M,&D,&h,&m);
 	s=0;
    Set(Y,M,D,h,m,s);
@@ -265,6 +286,17 @@ Bool_t KVDatime::IsSRBFormat(const Char_t* date)
 	
    Int_t Y,M,D,h,m;
    if(sscanf(date, "%4d-%02d-%02d-%02d.%02d",
+         &Y,&M,&D,&h,&m)!=5) return kFALSE;
+	return kTRUE;
+}
+
+Bool_t KVDatime::IsIRODSFormat(const Char_t* date)
+{
+	// Static method, returns kTRUE if 'date' is in IRODS format
+	// e.g. 2008-12-19.15:21
+	
+   Int_t Y,M,D,h,m;
+   if(sscanf(date, "%4d-%02d-%02d.%02d:%02d",
          &Y,&M,&D,&h,&m)!=5) return kFALSE;
 	return kTRUE;
 }

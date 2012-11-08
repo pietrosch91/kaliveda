@@ -85,11 +85,12 @@
 Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
 +Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
 +Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
++Plugin.KVDataRepository:    irods    IRODSDataRepository     KVMultiDet    "IRODSDataRepository()"
 #
 # Plugins for KVAvailableRunsFile
 Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
 +Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
-+Plugin.KVAvailableRunsFile:    srb    SRBAvailableRunsFile     KVMultiDet    "SRBAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    dms    DMSAvailableRunsFile     KVMultiDet    "DMSAvailableRunsFile(const Char_t*,KVDataSet*)"
 #
 # Different types of data which can be associated with datasets
 # KVDataSet.DataTypes: online raw dst recon ident root
@@ -128,22 +129,26 @@ DataSet:     INDRA_camp1
 INDRA_camp1.DataSet.Title:    1st INDRA campaign (1993)
 INDRA_camp1.DataSet.RepositoryDir:   campagne1
 INDRA_camp1.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_camp1.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_camp2
 INDRA_camp2.DataSet.Title:    2nd INDRA campaign (1994)
 INDRA_camp2.DataSet.RepositoryDir:   campagne2
 INDRA_camp2.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_camp2.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_camp4
 INDRA_camp4.DataSet.Title:    4th INDRA campaign (1998/9)
 INDRA_camp4.DataSet.RepositoryDir:   campagne4
 INDRA_camp4.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 INDRA_camp4.KVDataSet.DataType.Subdir.dst:  dst2
+INDRA_camp4.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_camp5
 INDRA_camp5.DataSet.Title:    5th INDRA campaign (2001)
 INDRA_camp5.DataSet.RepositoryDir:   campagne5
 INDRA_camp5.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_camp5.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_e416a
 INDRA_e416a.DataSet.Title:    Fission lifetimes of SHE (E416a) (2005)
@@ -151,6 +156,7 @@ INDRA_e416a.DataSet.RepositoryDir:   e416a
 INDRA_e416a.DataSet.UserGroup:   e416a
 INDRA_e416a.DataSet.RunFileName.raw:    Run%d%*
 INDRA_e416a.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_e416a.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_e475s
 INDRA_e475s.DataSet.Title:    Isospin dependence of the emission of complex fragments (E475S) (2006)
@@ -158,6 +164,7 @@ INDRA_e475s.DataSet.RepositoryDir:   e475s
 INDRA_e475s.DataSet.RunFileName.raw:    run_%04d.dat%*
 #INDRA_e475s.ReconIdent.DataAnalysisTask.UserClass.Base:     ReconIdent_e475s/TSelector
 INDRA_e475s.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+INDRA_e475s.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_e503
 INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
@@ -167,6 +174,7 @@ INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e503.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
@@ -176,6 +184,7 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e494s.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    VAMOS_e503
 VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
@@ -188,6 +197,7 @@ t10_02.DataSet.Title:    Test INDRA T10_02 (Nov.-Dec. 2010)
 t10_02.DataSet.RepositoryDir:   t10_02
 t10_02.DataSet.RunFileName.raw:    run_%04d.dat%*
 t10_02.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+t10_02.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:   INDRA_e613
 INDRA_e613.DataSet.Title:    The Last Experiment (Ever)
@@ -195,6 +205,7 @@ INDRA_e613.DataSet.RepositoryDir:   e613
 INDRA_e613.DataSet.RunFileName.raw:    run_%04d.dat%*
 INDRA_e613.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
 # INDRA_e613.OnlineAnalysis.DataAnalysisTask.UserClass.Base:     INDRAOnlineDataAnalyser
+INDRA_e613.ReconstructedEventClassName:   KVINDRAReconEvent
 # INDRA_e613.KVGRUNetClientGanilReader.ExpName:    e613
 
 # Default task list used by KVDataSetManager::Init()
@@ -425,7 +436,7 @@ Xterm.BatchSystem.JobSubCmd:   xterm
 Xterm.BatchSystem.JobScript: "$KVROOT/bin/KaliVedaAnalysis -b -n"&
 +BatchSystem:     Linux
 Linux.BatchSystem.Title:    Execute task in background with output stored in log file
-Linux.BatchSystem.DefaultJobOptions:   -b -n &> #JobName#.log &
+Linux.BatchSystem.DefaultJobOptions:   -b -n > #JobName#.log 2>&1 &
 Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
 #Plugins for batch systems
 Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
@@ -567,8 +578,10 @@ INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
+INDRA_e503.INDRADB.Pedestals:                         PedestalsE503.dat
+INDRA_e503.INDRADB.GGtoPGFactors:                     ParamFitPG_GG.dat
+
 INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
-INDRA_e503.INDRADB.Pedestals:      PedestalsE503.dat
 INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
 
 # Default headers for runlist columns
@@ -691,6 +704,13 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
+
+################################################
++Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI_e503      KVIndra "KVIDSiCorrCsI_e503()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI_e503    KVIndra "KVIDChIoCorrCsI_e503()"
+###############################################
+
 # ===> Plugin pour FocalPlanVamos
 +Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
 
@@ -733,6 +753,11 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
+INDRA_e503.IdentificationParameterFile.SI-CSI:      SI_CSI_C4-9_autofit.dat
+INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.dat
+INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
+INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
+###############################################
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################
@@ -752,6 +777,7 @@ INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
 INDRA_e613.ActiveIdentifications:    CSI SI-CSI
+INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
@@ -781,6 +807,7 @@ Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t
 # Plugins for calculation of range & energy loss of charge particles in matter.
 # Each class must derive from KVIonRangeTable abstract base class.
 Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
++Plugin.KVIonRangeTable:   RANGE   KVRangeYanez   KVMultiDet   "KVRangeYanez()"
 
 # Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
 KVMaterial.IonRangeTable:   VEDALOSS
@@ -801,6 +828,9 @@ KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
 KVedaLoss.Range.Npx:         20
 KVedaLoss.EnergyLoss.Npx:         50
 KVedaLoss.ResidualEnergy.Npx:         20
+
+# Predefined compounds for Ricardo Yanez's Range energy loss library
+RANGE.PredefMaterials:          rangeyanez_compounds.data
 
 # KVDetector: TF1::fNpx parameter for TF1 energy loss, range & residual energy
 KVDetector.EnergyLoss.Npx:         20
@@ -823,6 +853,11 @@ MassExcess.DataFile:	massexcess_nudat2.data
 KVNDTManager.AbundanceTable:      KVAbundanceTable
 +Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
+
+# Atomic element & density table used by KVNDTManager
+KVNDTManager.ElementDensityTable:      KVElementDensityTable
++Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDet   "KVElementDensityTable()"
+ElementDensity.DataFile:	element_densities.data
 
 # Mass Formula used in KVINDRAReconNuc to deduce A from Z nuclei
 # if DataSet is specified like DataSet.KVINDRAReconNuc.MassFormula

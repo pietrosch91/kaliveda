@@ -115,6 +115,8 @@ $Date: 2009/01/16 14:55:20 $
 #include "KVTarget.h"
 #include "KVInputDialog.h"
 #include "KVConfig.h"
+#include "KVUnits.h"
+#include "KVIonRangeTable.h"
 
 using namespace std;
 
