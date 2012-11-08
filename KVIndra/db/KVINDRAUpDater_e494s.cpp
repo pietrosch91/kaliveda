@@ -65,6 +65,7 @@ void KVINDRAUpDater_e494s::SetIDGrids(UInt_t run){
 void KVINDRAUpDater_e494s::SetParameters(UInt_t run){
 
 	KVINDRAUpDater::SetParameters(run);
+   	SetChVoltRefGains();
 	KVDBRun *kvrun = gIndraDB->GetRun(run);
 	if(!kvrun) return;
    	SetPedestalCorrections(kvrun);
@@ -72,6 +73,13 @@ void KVINDRAUpDater_e494s::SetParameters(UInt_t run){
 //________________________________________________________________
 
 void KVINDRAUpDater_e494s::SetPedestalCorrections(KVDBRun *run){
+	// For any detectors, having a pedestal correction  defined
+	// for their associated QDC and  one of their signals, will have 
+	// their correction corresponding to the signal, set to the value 
+	// for the run.
+
+	Info("KVINDRAUpDater_e494s::SetPedestalCorrections","Setting pedestal corrections");
+
 	KVRList *dp_list = run->GetLinks("DeltaPedestal");
 	if(!dp_list) return;
 
@@ -111,10 +119,11 @@ void KVINDRAUpDater_e494s::SetPedestals(KVDBRun * kvrun)
 //Set pedestals for this run   
 // modifie MFR nov 2012 : add specific reading for etalons
 
+	Info("KVINDRAUpDater_e494s::SetPedestals","Setting Pedestals");
+
     SetChIoSiPedestals(kvrun);
     SetSi75SiLiPedestals(kvrun);
     SetCsIPedestals(kvrun);
-
 }
 //________________________________________________________________
 
@@ -135,13 +144,12 @@ void KVINDRAUpDater_e494s::SetChIoSiPedestals(KVDBRun * kvrun)
             SearchAndOpenKVFile(kvrun->GetKey("Pedestals")->GetLinks()->At(0)->
                                 GetName(), file_pied_chiosi, fDataSet.Data()))
     {
-        Error("SetPedestals", "Problem opening file %s",
+        Error("KVINDRAUpDater_e494s::SetChIoSiPedestals", "Problem opening file %s",
               kvrun->GetKey("Pedestals")->GetLinks()->At(0)->GetName());
         return;
     }
-    cout << "--> Setting Pedestals" << endl;
-    cout << "    ChIo/Si/Etalons: " << kvrun->GetKey("Pedestals")->
-    GetLinks()->At(0)->GetName() << endl;
+	Info("KVINDRAUpDater_e494s::SetChIoSiPedestals","Setting ChIo/Si pedestals from file: %s",
+			kvrun->GetKey("Pedestals")->GetLinks()->At(0)->GetName());
 
     //skip first 5 lines - header
     TString line;
@@ -232,13 +240,13 @@ void KVINDRAUpDater_e494s::SetSi75SiLiPedestals(KVDBRun * kvrun)
             SearchAndOpenKVFile(kvrun->GetKey("Pedestals")->GetLinks()->At(2)->
                                 GetName(), file_pied_etalons, fDataSet.Data()))
     {
-        Error("SetPedestals", "Problem opening file %s",
+        Error("KVINDRAUpDater_e494s::SetSi75SiLiPedestals", "Problem opening file %s",
               kvrun->GetKey("Pedestals")->GetLinks()->At(2)->GetName());
         return;
     }
-    cout << "--> Setting Pedestals" << endl;
-    cout << "    Etalons: " << kvrun->GetKey("Pedestals")->
-    GetLinks()->At(2)->GetName() << endl;
+
+	Info("KVINDRAUpDater_e494s::SetSi75SiLiPedestals","Setting Si75/SiLi pedestals from file: %s",
+			kvrun->GetKey("Pedestals")->GetLinks()->At(2)->GetName());
 
     TString line;
 
@@ -252,7 +260,8 @@ void KVINDRAUpDater_e494s::SetSi75SiLiPedestals(KVDBRun * kvrun)
       if( (line.Sizeof() >1) && !(line.BeginsWith("#") ) )  {
 	if( sscanf(line.Data(),"%d %d %d %d %f %f %d %f %f", &cou, &mod, &type,
 	    &n_phys, &ave_phys, &sig_phys, &n_gene, &ave_gene, &sig_gene) !=9){
-	  Warning("ReadPedestalEtalons","Bad Format in line :\n%s\nUnable to read",
+	  Warning("KVINDRAUpDater_e494s::SetSi75SiLiPedestals"
+			  ,"Bad Format in line :\n%s\nUnable to read",
 		  line.Data());   
 	} else  {	
 	  KVDetector *det = gIndra->GetDetectorByType(cou, mod, type);
@@ -286,4 +295,23 @@ void KVINDRAUpDater_e494s::SetSi75SiLiPedestals(KVDBRun * kvrun)
     } // end while
 	 
     file_pied_etalons.close();
+}
+ //________________________________________________________________
+
+void KVINDRAUpDater_e494s::SetChVoltRefGains(){
+	// For any detector, the gain is already taken into account
+	// in the Channel->Volt calibration, then the reference gain of the
+	// calibrator (KVChannelVolt) must be equal to the gain. (see
+	// KVChannelVolt::Compute()).
+
+	Info("KVINDRAUpDater_e494s::SetChVoltRefGains","Setting channel->Volt calibrator reference gain = detector gain");
+
+	KVDetector *det = NULL;
+	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	KVSeqCollection *sublist = NULL;
+	while(( det = (KVDetector *)next_det() )){
+		sublist = det->GetListOfCalibrators()->GetSubListWithClass("KVChannelVolt");
+		sublist->R__FOR_EACH(KVChannelVolt,SetGainRef)(det->GetGain());
+		SafeDelete(sublist);
+	}
 }
