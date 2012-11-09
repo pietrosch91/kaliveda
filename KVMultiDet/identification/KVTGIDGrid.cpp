@@ -52,7 +52,7 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
 	SetName( name.Data() );
    if(original) original->GetCuts()->Copy((TObject &)*fCuts);  
    
-//    fPar->SetValue("HasTGID",1);
+    fPar->SetValue("HasTGID",1);
 //    
 //    fPar->SetValue("KVTGID::Name",fTGID->GetName());
 //    fPar->SetValue("KVTGID::Type",fTGID->GetFunctionalType());
@@ -100,8 +100,11 @@ void KVTGIDGrid::ReadFromAsciiFile(ifstream & gridfile)
 	// Read grid and parameters of LTG fit used to generate grid in gridfile.
     KVIDGraph::ReadFromAsciiFile(gridfile);
     KVString line;
-    line.ReadLine(gridfile);    
-    if(line.BeginsWith("++KVTGID"))  fTGID = KVTGID::ReadFromAsciiFile(GetName(), gridfile);
+    if(fPar->GetIntValue("HasTGID"))
+      {
+      line.ReadLine(gridfile);  
+      if(line.BeginsWith("++KVTGID"))  fTGID = KVTGID::ReadFromAsciiFile(GetName(), gridfile);
+      }
 }
 
 //___________________________________________________________________________//
