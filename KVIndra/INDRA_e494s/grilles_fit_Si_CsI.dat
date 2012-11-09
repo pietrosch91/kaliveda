@@ -113,7 +113,7 @@ Type=1
 LightEnergyDependence=1
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs= 80-261
+Runs= 80-334
 IDTelescopes=/SI_CSI_0406/
 <VARX> 
 <VARY> 
@@ -135,7 +135,7 @@ Type=1
 LightEnergyDependence=1
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=262-532
+Runs=335-532
 IDTelescopes=/SI_CSI_0406/
 <VARX> 
 <VARY> 
