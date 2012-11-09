@@ -65,6 +65,10 @@ export GRU_DIR = /home/acqexp/GRU/GRUcurrent
 # for compilation with Ricardo Yanez's 'range' dE/dX and range library
 export WITH_RANGE_YANEZ = no
 export RANGE_YANEZ_DIR = /usr/local
+# set this to 'yes' when using specially modified version of range library
+# with special treatment of gaseous materials and icor=2 interpolation
+# between NCS and HBG tables
+export WITH_MODIFIED_RANGE_YANEZ = no
 
 # GanTape library with RFIO or XROOTD
 # To compile the Ganil acquisition library using RFIO or XROOTD to
