@@ -5,6 +5,8 @@
 #include "KVIDTelescope.h"
 #include "KVMultiDetArray.h"
 #include "KVTGIDZ.h"
+#include "KVTGIDGrid.h"
+#include "KVIDGridManager.h"
 
 using namespace std;
 
@@ -71,12 +73,9 @@ void KVRTGIDManager::AddTGID(KVTGID * _tgid)
 {
    // Add an identification object to the global list (fIDGlobalList).
    // The identification object is not added to the local list (fIDList) in this method anymore. To do that, see SetIDFunctionInTelescopes)
-	if(!_tgid) return;
-	if(!fIDGlobalList){
- 	   	fIDGlobalList = new KVList;
-		fIDGlobalList->SetCleanup();
-	}
-	fIDGlobalList->Add(_tgid);
+   // This method just calls AddTGIDToGlobalList(KVTGID *);
+
+	AddTGIDToGlobalList(_tgid);
 }
 //________________________________________________________________
 
@@ -150,6 +149,7 @@ void KVRTGIDManager::DeleteTGID(const Char_t * name)
    	if( !(tgid = (KVTGID*)fIDGlobalList->FindObject(name)) ) return;
    	fIDGlobalList->Remove(tgid);
 	delete tgid;
+	if(!fIDGlobalList->GetEntries()) SafeDelete(fIDGlobalList);
 }
 //________________________________________________________________
 
@@ -177,12 +177,12 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
 			// Make new identification function
 			KVTGID *fit = NULL;
          	fit = KVTGID::ReadFromAsciiFile(s.Data(),fitfile);
-			AddTGID(fit);
+			AddTGIDToGlobalList(fit);
 
 			// when mass identification is possible, have to create a second 
 			// object for Z identification
 			if(!fit->GetZorA()){
-				AddTGID(new KVTGIDZ(*fit));
+				AddTGIDToGlobalList(new KVTGIDZ(*fit));
 			}
       	}
    	}
@@ -194,6 +194,73 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
 void KVRTGIDManager::RemoveAllTGID(){
    //Remove all identification objects of the local list.
    fIDList.Clear(); fID_max = 0.;
+}
+//________________________________________________________________
+
+void KVRTGIDManager::AddTGIDToGlobalList(KVTGID *tgid){
+ // Add an identification object to the global list (fIDGlobalList).
+ 
+	if(!tgid) return;
+	if(!fIDGlobalList){
+ 	   	fIDGlobalList = new KVList;
+		fIDGlobalList->SetCleanup();
+	}
+	fIDGlobalList->Add(tgid);
+}
+//________________________________________________________________
+
+void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Double_t xmax, Int_t ID_min, Int_t ID_max, Int_t npoints, Bool_t logscale){
+	// Build a grid (KVTGIDGrid) for all the identification functions
+	// of the global list. The new grids are automatically loaded in
+	// gIDGridManager and are visible in the Grid Manager GUI.
+	// If a function is already associated to a grid then a new grid
+	// is not built.
+	//
+	// Inputs:  idtype - type of the identification for which the 
+	//                   grids will be built (CI-SI, SI-CSI, CI-CSI,
+	//                   SI75-SILI, ...)
+	//          xmin
+	//          xmax
+	//          ID_min
+	//          ID_max
+	//          npoints
+	//          logscale - see KVTGIDGrid::Generate(...)
+	
+
+	// First make a sublist of TGID found in object inheriting
+	// from KVTGIDGrid in gIDGridManager
+	TList  tgid_list;
+	TIter  next_g(gIDGridManager->GetGrids());
+	TObject *obj  = NULL;
+	while( (obj = next_g()) ){
+		if( obj->InheritsFrom("KVTGIDGrid") ){
+			tgid_list.Add( const_cast <KVTGID *>( ((KVTGIDGrid *)obj)->GetTGID() ) );
+		}
+	}
+	// If the TGID of the global list is not in the sublist then
+	// build grid
+	TIter next(fIDGlobalList);
+	Bool_t IDtypeOK = strcmp(idtype,"");
+	KVTGID *tgid  = NULL;
+	while( (tgid = (KVTGID *)next()) ){
+		if(tgid_list.FindObject(tgid)) continue;
+
+		if(IDtypeOK){
+			KVBase *idt  = NULL;
+			TSeqCollection *idt_list = (TSeqCollection* )tgid->GetIDTelescopes();
+			if(!idt_list) continue;
+			if( !(idt = (KVBase *)idt_list->First()) ) continue;
+			SafeDelete(idt_list);
+			if( strcmp(idtype,idt->GetLabel()) ) continue;
+		}
+
+		KVTGIDGrid *grid = new KVTGIDGrid(tgid);
+		grid->SetOnlyZId((Bool_t)tgid->GetZorA());
+		if(tgid->GetZorA()) grid->SetMassFormula(tgid->GetMassFormula());
+		grid->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
+		Info("KVRTGIDManager::BuildGridForAllTGID","grid %s built from its TGID function",grid->GetName());
+	}
+	gIDGridManager->Modified();
 }
 //________________________________________________________________
 
