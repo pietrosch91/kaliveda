@@ -191,7 +191,7 @@ void KVIDGridManager::GetListOfIDTelescopeLabels ( KVString& list )
    KVString lab;
    while ( ( grid = ( KVIDGraph * ) next() ) ) {
       lab.Form ( "/%s/", grid->GetIDTelescopeLabel() );
-      if ( !list.Contains ( lab ) ) list.Append ( lab );
+      if ( (lab!="//") && (!list.Contains ( lab )) ) list.Append ( lab );
    }
    list.ReplaceAll("//",",");
    list.ReplaceAll("/","");
