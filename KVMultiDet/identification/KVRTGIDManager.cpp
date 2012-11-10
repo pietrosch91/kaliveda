@@ -163,7 +163,7 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
       	Error ( "KVRTGIDManager::ReadAsciiFile", "File %s cannot be opened", filename );
       	return kFALSE;
    	}
-   	KVString s;
+   	KVString s, cname;
    	while ( fitfile.good() ) {
       	//read a line
       	s.ReadLine ( fitfile );
@@ -172,19 +172,27 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
       	if ( s.BeginsWith ( "++" ) ) {
          	//New fit
          	//Get name of class by stripping off the '+' at the start of the line
-         	s.Remove ( 0, s.Index("::")+2 );
+         	s.Remove ( 0, 2 );
+         	cname = s; 
+         	cname.Remove(s.Index("::") );
+			cout<<"----> "<<cname.Data()<<endl;
+			TClass *cl = TClass::GetClass(cname.Data());
+			if( cl && cl->InheritsFrom("KVTGID") ){
 
-			// Make new identification function
-			KVTGID *fit = NULL;
-         	fit = KVTGID::ReadFromAsciiFile(s.Data(),fitfile);
-			AddTGIDToGlobalList(fit);
+         		s.Remove ( 0, s.Index("::")+2 );
 
-			// when mass identification is possible, make a copy 
-			// for Z identification 
-			if(!fit->GetZorA()){
-				KVTGIDZ *fitz = new KVTGIDZ(*fit);
-				fitz->SetTitle(Form("COPY %p", fit));
-				AddTGIDToGlobalList(fitz);
+				// Make new identification function
+				KVTGID *fit = NULL;
+         		fit = KVTGID::ReadFromAsciiFile(s.Data(),fitfile);
+				AddTGIDToGlobalList(fit);
+
+				// when mass identification is possible, make a copy 
+				// for Z identification 
+				if(!fit->GetZorA()){
+					KVTGIDZ *fitz = new KVTGIDZ(*fit);
+					fitz->SetTitle(Form("COPY from %p", fit));
+					AddTGIDToGlobalList(fitz);
+				}
 			}
       	}
    	}
@@ -230,6 +238,7 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 	//          npoints
 	//          logscale - see KVTGIDGrid::Generate(...)
 
+	if( !fIDGlobalList ) return;
 
 	// First make a sublist of TGID found in object inheriting
 	// from KVTGIDGrid in gIDGridManager
