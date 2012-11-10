@@ -179,10 +179,12 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
          	fit = KVTGID::ReadFromAsciiFile(s.Data(),fitfile);
 			AddTGIDToGlobalList(fit);
 
-			// when mass identification is possible, have to create a second 
-			// object for Z identification
+			// when mass identification is possible, make a copy 
+			// for Z identification 
 			if(!fit->GetZorA()){
-				AddTGIDToGlobalList(new KVTGIDZ(*fit));
+				KVTGIDZ *fitz = new KVTGIDZ(*fit);
+				fitz->SetTitle(Form("COPY %p", fit));
+				AddTGIDToGlobalList(fitz);
 			}
       	}
    	}
@@ -214,7 +216,8 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 	// of the global list. The new grids are automatically loaded in
 	// gIDGridManager and are visible in the Grid Manager GUI.
 	// If a function is already associated to a grid then a new grid
-	// is not built.
+	// is not built. No grid is built for copies of KVTGID's made in
+	// the method ReadAsciiFile(...).
 	//
 	// Inputs:  idtype - type of the identification for which the 
 	//                   grids will be built (CI-SI, SI-CSI, CI-CSI,
@@ -252,6 +255,18 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 	while( (tgid = (KVTGID *)next()) ){
 		if(tgid_list.FindObject(tgid)) continue;
 
+		// Not built grid for a KVTGID copy
+		TString tmp = tgid->GetTitle();
+		if(tmp.Contains("COPY")){
+			tmp.Remove(0, tmp.Index("0x"));	
+			KVTGID *tmp_tgid = reinterpret_cast<KVTGID *>((Int_t)tmp.Atof());
+			Warning("KVRTGIDManager::BuildGridForAllTGID","No grid built for %s (%s, %p) because it is a copy of %s (%s, %p)"
+					, tgid->GetName(), tgid->ClassName(), tgid
+					, tmp_tgid->GetName(), tmp_tgid->ClassName(), tmp_tgid);
+			continue;
+		}
+
+
 		if(IDtypeOK){
 			KVBase *idt  = NULL;
 			TSeqCollection *idt_list = (TSeqCollection* )tgid->GetIDTelescopes();
@@ -265,7 +280,8 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 		grid->SetOnlyZId((Bool_t)tgid->GetZorA());
 		if(tgid->GetZorA()) grid->SetMassFormula(tgid->GetMassFormula());
 		grid->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
-		Info("KVRTGIDManager::BuildGridForAllTGID","grid %s built from its TGID function",grid->GetName());
+		Info("KVRTGIDManager::BuildGridForAllTGID","grid built from its TGID function %s (%s, %p)"
+				, tgid->GetName(), tgid->ClassName(), tgid);
 	}
 	if( grid_list ) grid_list->Connect("Modified()","KVIDGridManager",gm,"Modified()");
 	gIDGridManager->Modified();
