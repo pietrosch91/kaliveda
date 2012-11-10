@@ -218,24 +218,31 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 	//
 	// Inputs:  idtype - type of the identification for which the 
 	//                   grids will be built (CI-SI, SI-CSI, CI-CSI,
-	//                   SI75-SILI, ...)
+	//                   SI75-SILI, ...). By default, all grids are
+	//                   built
 	//          xmin
 	//          xmax
 	//          ID_min
 	//          ID_max
 	//          npoints
 	//          logscale - see KVTGIDGrid::Generate(...)
-	
+
 
 	// First make a sublist of TGID found in object inheriting
 	// from KVTGIDGrid in gIDGridManager
 	TList  tgid_list;
-	TIter  next_g(gIDGridManager->GetGrids());
-	TObject *obj  = NULL;
-	while( (obj = next_g()) ){
-		if( obj->InheritsFrom("KVTGIDGrid") ){
-			tgid_list.Add( const_cast <KVTGID *>( ((KVTGIDGrid *)obj)->GetTGID() ) );
+	KVList *grid_list = NULL;
+	KVIDGridManager *gm = gIDGridManager;
+	if(gm){
+		grid_list = gm->GetGrids();
+		TIter  next_g(grid_list);
+		TObject *obj  = NULL;
+		while( (obj = next_g()) ){
+			if( obj->InheritsFrom("KVTGIDGrid") ){
+				tgid_list.Add( const_cast <KVTGID *>( ((KVTGIDGrid *)obj)->GetTGID() ) );
+			}
 		}
+		grid_list->Disconnect("Modified()",gm,"Modified()");
 	}
 	// If the TGID of the global list is not in the sublist then
 	// build grid
@@ -260,6 +267,7 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 		grid->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
 		Info("KVRTGIDManager::BuildGridForAllTGID","grid %s built from its TGID function",grid->GetName());
 	}
+	if( grid_list ) grid_list->Connect("Modified()","KVIDGridManager",gm,"Modified()");
 	gIDGridManager->Modified();
 }
 //________________________________________________________________
