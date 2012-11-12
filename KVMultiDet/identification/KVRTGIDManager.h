@@ -32,8 +32,11 @@ class KVRTGIDManager : public KVTGIDManager
 		static void    Clear();
 		static void    DeleteTGID(const Char_t * name);
    		static KVList *GetGlobalListOfIDFunctions(){return fIDGlobalList; };   
+   		static Bool_t  GetTGIDfromIDGridManager(TList *tgid_list);   
 		static Bool_t  ReadAsciiFile(const Char_t *filename);
    		static void    SetIDFuncInTelescopes(UInt_t run);
+		static Int_t  UpdateListFromIDGridManager();
+   		static Int_t WriteAsciiFile(const Char_t * filename, const TCollection *selection = 0, Bool_t update = kTRUE);
 
    		ClassDef(KVRTGIDManager,1)//Run-dependant KVTGIDManager
 };

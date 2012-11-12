@@ -153,6 +153,31 @@ void KVRTGIDManager::DeleteTGID(const Char_t * name)
 }
 //________________________________________________________________
 
+Bool_t KVRTGIDManager::GetTGIDfromIDGridManager(TList *tgid_list){
+	// Fill a sublist of TGID found in object inheriting
+	// from KVTGIDGrid in gIDGridManager.
+	// Return kFALSE if gIDGridManager is not defined.
+
+	if( !gIDGridManager ) return kFALSE;
+
+	tgid_list->SetOwner(kFALSE);
+	KVList *grid_list = NULL;
+	KVIDGridManager *gm = gIDGridManager;
+	grid_list = gm->GetGrids();
+	TIter  next_g(grid_list);
+	TObject *obj  = NULL;
+	KVTGID  *tgid = NULL;
+	while( (obj = next_g()) ){
+		if( obj->InheritsFrom("KVTGIDGrid") ){
+			tgid = const_cast <KVTGID *>( ((KVTGIDGrid *)obj)->GetTGID() );
+			if( tgid ) 
+				tgid_list->Add( tgid );
+		}
+	}
+	return kTRUE;
+}  	
+//________________________________________________________________
+
 Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
 
  	//Read file, create KVTGID fits corresponding to information in file.
@@ -175,7 +200,6 @@ Bool_t KVRTGIDManager::ReadAsciiFile(const Char_t *filename){
          	s.Remove ( 0, 2 );
          	cname = s; 
          	cname.Remove(s.Index("::") );
-			cout<<"----> "<<cname.Data()<<endl;
 			TClass *cl = TClass::GetClass(cname.Data());
 			if( cl && cl->InheritsFrom("KVTGID") ){
 
@@ -243,17 +267,11 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 	// First make a sublist of TGID found in object inheriting
 	// from KVTGIDGrid in gIDGridManager
 	TList  tgid_list;
+	GetTGIDfromIDGridManager(&tgid_list);   
+	KVIDGridManager *gm = gIDGridManager; 
 	KVList *grid_list = NULL;
-	KVIDGridManager *gm = gIDGridManager;
 	if(gm){
 		grid_list = gm->GetGrids();
-		TIter  next_g(grid_list);
-		TObject *obj  = NULL;
-		while( (obj = next_g()) ){
-			if( obj->InheritsFrom("KVTGIDGrid") ){
-				tgid_list.Add( const_cast <KVTGID *>( ((KVTGIDGrid *)obj)->GetTGID() ) );
-			}
-		}
 		grid_list->Disconnect("Modified()",gm,"Modified()");
 	}
 	// If the TGID of the global list is not in the sublist then
@@ -275,7 +293,6 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 			continue;
 		}
 
-
 		if(IDtypeOK){
 			KVBase *idt  = NULL;
 			TSeqCollection *idt_list = (TSeqCollection* )tgid->GetIDTelescopes();
@@ -293,7 +310,7 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 				, tgid->GetName(), tgid->ClassName(), tgid);
 	}
 	if( grid_list ) grid_list->Connect("Modified()","KVIDGridManager",gm,"Modified()");
-	gIDGridManager->Modified();
+	gm->Modified();
 }
 //________________________________________________________________
 
@@ -332,4 +349,78 @@ void KVRTGIDManager::SetIDFuncInTelescopes(UInt_t run){
 		}
 		delete lidtel;
 	}
+}
+//________________________________________________________________
+
+Int_t KVRTGIDManager::UpdateListFromIDGridManager(){
+	// Returns the number of identification functions found
+	// in grids of gIDGridManager which were missing in the
+	// the global list and updates this list. 
+
+	TList tgid_list;
+	if( !GetTGIDfromIDGridManager(&tgid_list) ) return 0;   
+
+	// If the TGID of tgid_list is not in the global list then
+	// add it
+	TIter next(&tgid_list);
+	KVTGID *tgid  = NULL;
+	Int_t ntgid   = 0;
+	while( (tgid = (KVTGID *)next()) ){
+		if( !fIDGlobalList ){
+ 			AddTGIDToGlobalList( tgid );
+			ntgid++;
+			continue;
+		}
+		if(fIDGlobalList->FindObject(tgid)) continue;
+ 		AddTGIDToGlobalList( tgid );
+		ntgid++;
+	}
+	return ntgid;
+}
+//________________________________________________________________
+
+Int_t KVRTGIDManager::WriteAsciiFile ( const Char_t * filename, const TCollection *selection, Bool_t update )
+{
+   	// Write identification functions  in file 'filename'.
+   	// If selection=0 (default), write all grids.
+   	// If update=true, call UpdateListFromIDGridManager() before writing
+   	// If selection!=0, write only grids in list.
+   	// Returns number of functions written in file.
+
+	if( update ) UpdateListFromIDGridManager();
+	if( !fIDGlobalList ){
+		Warning("KVRTGIDManager::WriteAsciiFile","No listed identification functions to write");
+ 	   	return 0;
+	}
+
+   	ofstream tgidfile ( filename );
+   	if( !tgidfile.is_open() ){
+	   	Error("KVRTGIDManager::WriteAsciiFile","No write permission for file %s", filename);
+	   	return 0;
+   	} 
+
+   	const TCollection *list_tgid = ( selection ? selection : fIDGlobalList );
+   	TIter next ( list_tgid );
+   	KVTGID *tgid    = NULL;
+   	Int_t   n_saved = 0;
+
+   	while ( ( tgid = (KVTGID *)next() ) ) {
+
+		// Not write a KVTGID copy
+		TString tmp = tgid->GetTitle();
+		if(tmp.Contains("COPY")){
+			tmp.Remove(0, tmp.Index("0x"));	
+			KVTGID *tmp_tgid = reinterpret_cast<KVTGID *>((Int_t)tmp.Atof());
+			Warning("KVRTGIDManager::WriteAsciiFile","The function %s (%s, %p) is not written because it is a copy of %s (%s, %p)"
+					, tgid->GetName(), tgid->ClassName(), tgid
+					, tmp_tgid->GetName(), tmp_tgid->ClassName(), tmp_tgid);
+			continue;
+		}
+      	tgid->WriteToAsciiFile ( tgidfile );
+      	Info( "KVRTGIDManager::WriteAsciiFile", "%s (%s, %p) saved", tgid->GetName(), tgid->ClassName(), tgid );
+      	n_saved++;
+   	}
+
+   	tgidfile.close();
+   	return n_saved;
 }
