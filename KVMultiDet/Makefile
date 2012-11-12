@@ -29,6 +29,8 @@ NOT_READY += daq_cec/KVGRUNetClientGanilReader.cpp
 endif
 ifeq ($(WITH_RANGE_YANEZ),yes)
 KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ
+else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
+KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ -DWITH_MODIFIED_RANGE_YANEZ
 else
 NOT_READY += stopping/KVRangeYanez.cpp stopping/KVRangeYanezMaterial.cpp
 endif
@@ -63,5 +65,7 @@ ifeq ($(WITH_GRU_LIB),yes)
 LINK_LIB += -L$(GRU_DIR)/linux -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
 endif
 ifeq ($(WITH_RANGE_YANEZ),yes)
+LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
+else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
 LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
 endif
