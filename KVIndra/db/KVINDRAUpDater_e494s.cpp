@@ -10,6 +10,7 @@
 #include "KVINDRADetector.h"
 #include "KVINDRADB.h"
 #include "KVSilicon.h"
+using namespace std;
 
 ClassImp(KVINDRAUpDater_e494s)
 
