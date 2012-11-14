@@ -282,6 +282,14 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 	while( (tgid = (KVTGID *)next()) ){
 		if(tgid_list.FindObject(tgid)) continue;
 
+		if(IDtypeOK){
+			KVBase *idt  = NULL;
+			TSeqCollection *idt_list = (TSeqCollection* )tgid->GetIDTelescopes();
+			if(!idt_list) continue;
+			if( !(idt = (KVBase *)idt_list->First()) ) continue;
+			SafeDelete(idt_list);
+			if( strcmp(idtype,idt->GetLabel()) ) continue;
+		}
 		// Not built grid for a KVTGID copy
 		TString tmp = tgid->GetTitle();
 		if(tmp.Contains("COPY")){
@@ -292,16 +300,6 @@ void KVRTGIDManager::BuildGridForAllTGID(const Char_t *idtype, Double_t xmin, Do
 					, tmp_tgid->GetName(), tmp_tgid->ClassName(), tmp_tgid);
 			continue;
 		}
-
-		if(IDtypeOK){
-			KVBase *idt  = NULL;
-			TSeqCollection *idt_list = (TSeqCollection* )tgid->GetIDTelescopes();
-			if(!idt_list) continue;
-			if( !(idt = (KVBase *)idt_list->First()) ) continue;
-			SafeDelete(idt_list);
-			if( strcmp(idtype,idt->GetLabel()) ) continue;
-		}
-
 		KVTGIDGrid *grid = new KVTGIDGrid(tgid);
 		grid->SetOnlyZId((Bool_t)tgid->GetZorA());
 		if(tgid->GetZorA()) grid->SetMassFormula(tgid->GetMassFormula());
