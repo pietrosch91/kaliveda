@@ -156,8 +156,8 @@ void IonisationChamberv::InitRaw(void)
   for(Int_t i=0;i<3;i++)
     for(Int_t j=0;j<8;j++)
       {
-	E_Raw[i*8+j] = 0;
-      	E_Raw_Nr[i*8+j] = 0;
+	E_Raw[j] = 0;		//E_Raw[i*8+j] = 0;
+      	E_Raw_Nr[j] = 0;	//E_Raw_Nr[i*8+j] = 0;
       }
   E_RawM = 0;
 }
@@ -169,14 +169,15 @@ void IonisationChamberv::Init(void)
 #endif
   Present = false; 
 
-  ETotal = 0.0;
+  ETotal = -10.0;
   EM = 0;
   eloss = 7.54; //Energy loss (MeV) for the elastic pic form the active zone of the IC
+  Number=-10;
   
   for(Int_t i=0;i<3;i++)
     for(Int_t j=0;j<8;j++)
       {
-	E[i*8+j] = 0.0;
+	E[j] = 0.0;		//E[i*8+j] = 0.0;  
       }
 
 /*
@@ -188,21 +189,31 @@ void IonisationChamberv::Init(void)
 void IonisationChamberv::Calibrate(void)
 {
   Int_t i,k;
+  int bb;
 
 #ifdef DEBUG
   cout << "IonisationChamberv::Calibrate" << endl;
 #endif
 
+//L->Log<<"E_RawM Chio"<<E_RawM<<endl;
+    
   for(i=0;i<E_RawM;i++)
     {
-    E[E_Raw_Nr[i]] = ((((Float_t) E_Raw[i] + Rnd->Value())*a[E_Raw_Nr[i]])+b[E_Raw_Nr[i]])*(eloss/Vnorm[E_Raw_Nr[i]]);	//The linear fit * k/Vnorm
-    ETotal = E[E_Raw_Nr[i]];
-    Number = int(E_Raw_Nr[i]);
-    //L->Log<<"IC		E_raw : "<<E_Raw[i]<<"	# : "<<Number<<"	E : "<<ETotal<<endl;    		
+    
+    //bb=((E_Raw_Nr[i]+1)%8)-1;
+    //cout<<"bb : "<<bb<<endl;
+    if(E_Raw[i]>160)	//Piedestal ~160
+	{	  
+	Rnd->Next();
+	E[E_Raw_Nr[i]] = ((((Float_t) E_Raw[i] + Rnd->Value())*a[E_Raw_Nr[i]])+b[E_Raw_Nr[i]])*(eloss/Vnorm[E_Raw_Nr[i]]);  //The linear fit * k/Vnorm
+	ETotal = E[E_Raw_Nr[i]];
+	Number = E_Raw_Nr[i]+1;
+ 		
     		//==Raw_signal class==
-    		IC_Raw = E_Raw[i];
+    		IC_Raw = E_Raw[i];		
     		//====================
-    EM++;
+        EM++;
+    	}
     }
 
 /*
@@ -241,13 +252,13 @@ void IonisationChamberv::Calibrate(void)
    // if(ES[i] > 0) Counter[i+1]++;
   
  // if(ES[0] > 0. &&  ETotal > 0.0 )//&& MRow[0] == 1 && MRow[1] ==1 )
- if(ETotal > 0.0)
+ /*if(ETotal > 0.0)
     {
       Present = true; 
       Counter[4]++;
     }
   else
-      Init();
+      Init();*/
 }
 
 void IonisationChamberv::Treat(void)
@@ -310,6 +321,8 @@ void IonisationChamberv::outAttach(TTree *outT)
   //outT->Branch("IcE",E,"IcE[24]/F");
   
   outT->Branch("IcNb",&Number,"IcNb/I");
+  //outT->Branch("IcNb",&Number,"IcNb/S" );
+
 
 }
 void IonisationChamberv::CreateHistograms(void)
@@ -341,7 +354,7 @@ void IonisationChamberv::Show_Raw(void)
   
 int a,b;
 
- cout << "EEawM: " << E_RawM << endl; 
+ cout << "ERawM: " << E_RawM << endl; 
   for(i=0;i<E_RawM;i++)
     {
       a=(E_Raw_Nr[i]+1)/8;
@@ -368,9 +381,9 @@ void IonisationChamberv::Show(void)
 
   cout.setf(ios::showpoint);
  
-  cout << "Present: " << Present << endl;
-  if(Present)
-    {
+  //cout << "Present: " << Present << endl;
+  //if(Present)
+    //{
       cout << "EM: " << EM << endl;
       for(i=0;i<24;i++)
 	{
@@ -388,7 +401,7 @@ void IonisationChamberv::Show(void)
       for(i=0;i<3;i++)
 	//cout << "SUM ROW:" << i << " " << ES[i] << endl;
       cout << "ETotal: " << ETotal << endl;
-    }
+    //}
 }
 
 

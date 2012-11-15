@@ -300,7 +300,7 @@ void Reconstructionv::Init(void)
 
   //BB = ttheta = 0;
   Brho = Theta = Phi = Path = -500;
-  ThetaL = PhiL = corr_pl = deltat = -500.;
+  ThetaL = PhiL = Thetadeg = Phideg = ThetaLdeg = PhiLdeg = corr_pl = deltat = -500.;
 }
 
 void Reconstructionv::Calculate(void)
@@ -424,6 +424,7 @@ void Reconstructionv::Calculate(void)
 
 //Warning : Correction (corr_pl) is applied for thetaL<0.12 rad and phiL between -1 and 1 rad.
 deltat = double(Brho / (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")));
+	//L->Log<<"Delta : "<<deltat<<endl;
 
 	for(Int_t j=0;j<450;j++){
 		if(Delta1[j]<deltat && deltat<Delta2[j] && Deg1[j]<ThetaLdeg && ThetaLdeg<Deg2[j]){
@@ -474,13 +475,13 @@ void Reconstructionv::outAttach(TTree *outT)
 #endif
 
   outT->Branch("Brho",&Brho,"Brho/F");
-  /*outT->Branch("Theta",&Theta,"Theta/F");
-  outT->Branch("Phi",&Phi,"Phi/F");
+  //outT->Branch("Theta",&Theta,"Theta/F");
+  //outT->Branch("Phi",&Phi,"Phi/F");
   outT->Branch("Thetadeg",&Thetadeg,"Thetadeg/F");
   outT->Branch("Phideg",&Phideg,"Phideg/F");  
-  outT->Branch("Path",&Path,"Path/F");
-  outT->Branch("ThetaL",&ThetaL,"ThetaL/F");
-  outT->Branch("PhiL",&PhiL,"PhiL/F");*/
+  //outT->Branch("Path",&Path,"Path/F"); 
+  //outT->Branch("ThetaL",&ThetaL,"ThetaL/F");
+  //outT->Branch("PhiL",&PhiL,"PhiL/F");*/
 
   outT->Branch("ThetaLdeg",&ThetaLdeg,"ThetaLdeg/F");
   outT->Branch("PhiLdeg",&PhiLdeg,"PhiLdeg/F");

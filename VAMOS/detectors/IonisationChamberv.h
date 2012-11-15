@@ -35,8 +35,8 @@ class IonisationChamberv
   Random *Rnd;
 
   //energy Raw
-  UShort_t E_Raw[3*8];
-  UShort_t E_Raw_Nr[3*8];
+  UShort_t E_Raw[7];		//UShort_t E_Raw[3*8]
+  UShort_t E_Raw_Nr[7];		//UShort_t E_Raw_Nr[3*8]
   Int_t E_RawM;
   UShort_t IC_Raw;
   
@@ -48,14 +48,18 @@ class IonisationChamberv
   //Float_t ECoef[3][7][3];
 
   //energy Calibrated
-  Float_t E[3*8];
-  UShort_t ENr[3*8];
+  Float_t E[7];			//Float_t E[3*8]
+  UShort_t ENr[3*8];		//UShort_t ENr[3*8]
   Int_t EM;
-  //Float_t ERef[3][2]; //Position & energy
-  //Float_t ES[3]; //Energy sum per row
-  Float_t ETotal;
+  
+  //Float_t ERef[3][2]; 	//Position & energy
+  //Float_t ES[3]; 		//Energy sum per row
+  
+  Float_t ETotal;	//Multiplicity
+  
   //Float_t ETresh[3];
-  Int_t Number;
+  
+  Int_t Number;	//Multiplicity
   Float_t eloss;
 
   //Counters

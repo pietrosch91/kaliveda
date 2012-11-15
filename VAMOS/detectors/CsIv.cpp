@@ -144,14 +144,14 @@ void CsIv::Calibrate(void)
   //cout << "CSI::Calibrate" << endl;
   // #endif
   
-    //cout<<"E_RawM "<<E_RawM<<endl;
+  //L->Log<<"E_RawM CsI"<<E_RawM<<endl;
   
   for(i=0;i<E_RawM;i++)
       {
 	//cout<<"CsI : E_Raw["<<i<<"] = "<<E_Raw[i]<<endl;
 	
 		//cout<<"E_Raw_Nr[i] "<<E_Raw_Nr[i]<<endl;
-	if(E_Raw > 0)
+	if(float(E_Raw[i]) > Ped[int(E_Raw_Nr[i])][0])
  	  {
 	    //cout<<"E_Raw "<<E_Raw[i]<<endl;    		
 	    
@@ -173,7 +173,7 @@ void CsIv::Treat(void)
   //cout << "CsIv::Treat" << endl;
   //#endif
   
-    //  Init();
+  Init();
   Calibrate();
 }
 
