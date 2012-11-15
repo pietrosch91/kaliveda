@@ -96,9 +96,14 @@ class CsICalib
 	KVDetector *kvd_si;
 	KVDetector *kvd_csi;
 		
-	KVDetector *kvd_gap;	
+	KVDetector *kvd_gap;
+		
 	KVList *list;
-        KVIDGraph *kvid;
+        KVIDGraph *kvid;		
+	KVList *list_chiosi;
+        KVIDGraph *kvid_chiosi;	
+	KVList *list_sitof;
+        KVIDGraph *kvid_sitof;		
 	
         KVDetector *gap;
 	KVDetector *si;
@@ -130,7 +135,9 @@ class CsICalib
 	KVDetector* GetTel3(void);	
 	 
 	void InitTelescope(Int_t, Int_t);
-        
+	void InitTelescopeChioSi(Int_t, Int_t);
+	void InitTelescopeSiTof(Int_t);
+		        
         void InitSiCsI(Int_t);  
         void SetCalSi(Float_t,Float_t,Float_t);
         void SetCsIPed(Float_t);

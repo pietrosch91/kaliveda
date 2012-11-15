@@ -311,6 +311,11 @@ void Analysisv_e503::SetFileCut(TList *list)
 	Id->SetFileCut(list);
 }
 
+void Analysisv_e503::SetFileCutChioSi(TList *list2)
+{
+	Id->SetFileCutChioSi(list2);
+}
+
 void Analysisv_e503::SetTarget(KVTarget *tgt)
 {
 	Id->SetTarget(tgt);
@@ -490,6 +495,7 @@ if(Id->Geometry(Si->Number,CsI->Number)==1) //&& si->E_RawM==1 && csi->E_RawM==1
 
 void Analysisv_e503::outAttach()
 {
+TString option;
 #ifdef DEBUG
   cout << "Analysisv_e503::outAttach " << endl;
 #endif

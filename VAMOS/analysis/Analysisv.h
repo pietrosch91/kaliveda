@@ -63,7 +63,8 @@ class Analysisv
   virtual void SetGap2(KVMaterial* isogap2)=0;   
   virtual void SetCsI(KVMaterial* ccsi)=0;
   
-  virtual void SetFileCut(TList* list)=0;  
+  virtual void SetFileCut(TList* list)=0;
+  virtual void SetFileCutChioSi(TList* list2)=0;    
      
   ClassDef(Analysisv,0)
 

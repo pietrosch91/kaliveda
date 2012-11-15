@@ -83,7 +83,9 @@ class Analysisv_e503 : public Analysisv
   void SetTel3(KVDetector *csi);
   
 TList *fcoup;
+TList *fcoup2;
 void SetFileCut(TList *list);
+void SetFileCutChioSi(TList *list2);
   
 void SetTarget(KVTarget *tgt);
 void SetDC1(KVDetector *dcv1);

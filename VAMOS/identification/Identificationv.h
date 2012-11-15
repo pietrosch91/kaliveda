@@ -41,6 +41,8 @@ class Identificationv
   CsICalib *energytree;
 
 	KVIdentificationResult*	id;
+	KVIdentificationResult*	id_chiosi;
+	KVIdentificationResult*	id_sitof;		
 	KV2Body *kin;
 		
 	KVNucleus *kvn;	
@@ -74,15 +76,15 @@ class Identificationv
   
   Int_t ZZ;
   Float_t AA;
-  Int_t DetCsI;
-  Int_t DetSi;
   Int_t CsIRaw;
+  Int_t DetCsI;
   Int_t SiRaw;
   
   Double_t a_bisec;  
   Double_t e_bisec; 
     
   Double_t initThickness;
+  Double_t EChio;
   Double_t EGap;
   Double_t ECsI;
   Double_t ECsI_corr;  
@@ -98,6 +100,7 @@ class Identificationv
 	Float_t Stat_Indra[600];  
   
 Double_t PID;
+Double_t PID_chiosi;
 Double_t Z_PID;
 Double_t A_PID;
 
@@ -108,7 +111,8 @@ Double_t A_PID;
   Double_t dif2[21];
   
 
-  Int_t geom[18][6]; 
+  Int_t geom[18][6];
+  Int_t geomchiosi[8][6];   
   Int_t i;  
   Int_t zt;
   Int_t aa;
@@ -128,8 +132,11 @@ Double_t A_PID;
   //void PrintCounters(void);
   
   void SetFileCut(TList *list);
-  void GetFileCut();  
+  void GetFileCut(); 
+  void SetFileCutChioSi(TList *list2);
+  void GetFileCutChioSi();    
   TList	*llist;
+  TList	*llist2;  
 //===================================================
 void SetTarget(KVTarget *tgt);
 void SetDC1(KVDetector *dcv1);
@@ -199,7 +206,8 @@ Double_t E_gap2;
 Double_t E_csi;
 //===================================================
 	
-  int Geometry(UShort_t, UShort_t);//temporary method to reconstruct VAMOS telescopes
+  int Geometry(UShort_t, UShort_t); //method to reconstruct VAMOS telescopes
+  int GeometryChioSi(UShort_t, UShort_t);   
   Random *Rnd;
 
   UShort_t T_Raw;
@@ -261,11 +269,24 @@ Double_t E_csi;
    Float_t 	P0_m[600][25];
    Float_t 	P1_m[600][25];
    
+   // Correction de M/Q Chio-Si
+   Float_t 	P0_mq_chiosi[600];
+   Float_t 	P1_mq_chiosi[600];
+         
+   // Correction de M Chio-Si
+   Float_t 	P0_m_chiosi[600][25];
+   Float_t 	P1_m_chiosi[600][25];   
+   
    // Tag des events	
 	Float_t Brho_min[25][60][10][600];
 	Float_t Brho_max[25][60][10][600];
-	Int_t Code_Vamos;  
-	        
+	Int_t Code_Vamos;
+	Int_t Code_Ident_Vamos;  
+	
+   // Correction de Tof pour identification Chio-Si
+   	Int_t 	Tof0[600];
+   	Int_t 	Esi0[600];	        
+
 TCutG *q21;
 TCutG *q20;
 TCutG *q19;
@@ -284,12 +305,32 @@ TCutG *q7;
 TCutG *q6;
 TCutG *q5;
 
+TCutG *q21cs;
+TCutG *q20cs;
+TCutG *q19cs;
+TCutG *q18cs;
+TCutG *q17cs;
+TCutG *q16cs;
+TCutG *q15cs;
+TCutG *q14cs;
+TCutG *q13cs;
+TCutG *q12cs;
+TCutG *q11cs;
+TCutG *q10cs;
+TCutG *q9cs;
+TCutG *q8cs;
+TCutG *q7cs;
+TCutG *q6cs;
+TCutG *q5cs;
+
+
    Double_t 	M_corr;
    Int_t 	Q_corr;
    Double_t	Q_corr_D;
    Double_t	M_corr_D; 
    Double_t	M_corr_D2;
    Double_t	Q_corr_D2;
+   Int_t	Q2;
         
    Int_t	Z_corr;
    Double_t 	Delta;

@@ -119,6 +119,123 @@ KVDetector* CsICalib::GetTel3(void)
 return ccsi;
 }
 
+void CsICalib::InitTelescopeSiTof(Int_t si_num)
+{
+
+    Char_t tel_name [128] = "null";
+    sprintf(tel_name, "SIE%i_TOF",si_num+1);	
+	
+    list_sitof = 0;        
+    KVList *grid_list = 0;
+    kvid_sitof = 0;
+    KVNumberList runList = 0;
+
+    list_sitof = (KVList*) gIDGridManager->GetGrids();
+		
+    if(list_sitof != 0){
+		Int_t entries = (Int_t) list_sitof->GetEntries();
+		Int_t kHasGrids = 0;
+
+		KVIDGrid *tmpGrid = 0;
+		Int_t nGridsForRun = 0;
+
+		for(Int_t i=0; i<entries; i++){
+    			tmpGrid = (KVIDGrid*) list_sitof->At(i);
+    			if(tmpGrid != 0){				
+				runList = (KVNumberList) tmpGrid->GetRuns();
+        			runList.Begin();
+        			while( !runList.End() ){
+            				UInt_t next_val = (UInt_t) runList.Next();
+            				if(next_val == gIndra->GetCurrentRunNumber()){
+						if(strcmp(tmpGrid->GetName(),tel_name)==0){
+							kvid_sitof = tmpGrid;
+							}
+						}
+					
+        				}
+    				}
+			} 
+			
+			      				
+		if(kvid_chiosi != 0){
+
+        }else{  
+	    printf("Error: 'kvid_sitof' assignment failed\n");
+	    cout<<"name : "<<tel_name<<endl; 	    
+        }
+    }else{
+        //printf("Error: 'list' assignment failed\n");   
+    }
+
+return;
+}
+
+void CsICalib::InitTelescopeChioSi(Int_t ci_num, Int_t si_num)
+{
+    
+    Char_t si_name [128] = "null";
+    Char_t ci_name [128] = "null";
+
+    sprintf(si_name, "SIE_%02i", si_num+1); 
+    sprintf(ci_name, "CI_%02i", ci_num);
+
+    Char_t tel_name [128] = "null";
+    //sprintf(tel_name, "CI_%02i_SIE_%02i", ci_num, si_num+1);
+    sprintf(tel_name, "CI_01_SIE_18");	//Similar grids (using energies) for all Chio-Si combinaisons
+    //cout<<"tel_name 1: "<<tel_name<<endl; 	
+	
+    list_chiosi = 0;        
+    KVList *grid_list = 0;
+    kvid_chiosi = 0;
+    KVNumberList runList = 0;
+
+    list_chiosi = (KVList*) gIDGridManager->GetGrids();
+		
+    if(list_chiosi != 0){
+		//cout<<"list_chiosi!=0"<<endl;
+		Int_t entries = (Int_t) list_chiosi->GetEntries();
+		Int_t kHasGrids = 0;
+
+		KVIDGrid *tmpGrid = 0;
+		Int_t nGridsForRun = 0;
+
+		for(Int_t i=0; i<entries; i++){
+    			tmpGrid = (KVIDGrid*) list_chiosi->At(i);
+    			if(tmpGrid != 0){
+				//cout<<"tmpGrid!=0"<<endl;				
+				runList = (KVNumberList) tmpGrid->GetRuns();
+        			runList.Begin();
+        			while( !runList.End() ){
+            				UInt_t next_val = (UInt_t) runList.Next();
+            				if(next_val == gIndra->GetCurrentRunNumber()){
+						//cout<<"next_val : "<<next_val<<endl;
+						//L->Log<<"name : "<<tmpGrid->GetName()<<endl;
+						if(strcmp(tmpGrid->GetName(),tel_name)==0){
+							//L->Log<<"tel_name 2 : "<<tmpGrid->GetName()<<endl;
+							//cout<<"tel_name 2: "<<tel_name<<endl;
+							kvid_chiosi = tmpGrid;
+							}
+						}
+					
+        				}
+    				}
+			} 
+			
+			      				
+		if(kvid_chiosi != 0){
+
+        }else{  
+	    printf("Error: 'kvid_chiosi' assignment failed\n");
+	    cout<<"ci_num : "<<ci_num<<" si_num : "<<si_num+1<<endl; 
+	    cout<<"name : "<<tel_name<<endl; 	    
+        }
+    }else{
+        //printf("Error: 'list' assignment failed\n");   
+    }
+
+return;
+}
+
 void CsICalib::InitTelescope(Int_t si_num ,Int_t csi_num)
 {
     
@@ -170,10 +287,6 @@ void CsICalib::InitTelescope(Int_t si_num ,Int_t csi_num)
 	    /*printf("Error: 'kvid' assignment failed\n");
 	    cout<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
 	    cout<<"name : "<<tel_name<<endl;*/ 	    
-	    
-	    //L->Log<<"Error: 'kvid' assignment failed"<<endl;
-	    //L->Log<<"si_num : "<<si_num<<" csi_num : "<<csi_num<<endl; 
-	    //L->Log<<"name : "<<tel_name<<endl; 
         }
     }else{
         //printf("Error: 'list' assignment failed\n");   
