@@ -202,7 +202,7 @@ right
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI75_1304
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=80-297 385-532
 OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
@@ -299,7 +299,7 @@ right
 <VARX> 
 <VARY> 
 <PARAMETER> IDTelescopes=CI_SI75_1503
-<PARAMETER> Runlist=
+<PARAMETER> Runlist=80-297 385-532
 OnlyZId 0
 +KVIDZALine
 ID:Z=2 A=4
