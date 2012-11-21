@@ -526,6 +526,8 @@ INDRADB.Runlist.Comment:       #
 INDRADB.Pressures:     ChIoPressures.dat
 # Default name for file containing correspondence run-pedestal file for each dataset.
 INDRADB.Pedestals:      Pedestals.dat
+# Default name for file containing pedestal corrections for each dataset.
+INDRADB.PedestalCorrections:            DeltaPied.dat
 # Default name for file containing calibration peaks for each dataset.
 INDRADB.CalibPeaks:        kvpeak_base.dat
 # Default name for file containing electronic calibration for ChIo & Si for each dataset.
