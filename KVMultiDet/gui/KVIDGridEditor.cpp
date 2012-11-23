@@ -1187,7 +1187,7 @@ void KVIDGridEditor::NewCut()
 }
 
 //________________________________________________________________
-void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
+void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor, Bool_t userAngle, Bool_t extandLines, Bool_t filterFit, Double_t pdx, Double_t pdy)
 {
   if(!TheGrid) return;
   if(!TheHisto) return;
@@ -1232,19 +1232,24 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
   TF1 RtLty("RtLty",Form("x*%lf",ScaleFactorY),0,TheHisto->GetXaxis()->GetXmax());
   TH2F* hh = (TH2F*)hm.ScaleHisto(TheHisto,&RtLt,&RtLty);
       
-  KVSpiderIdentificator* tata = new KVSpiderIdentificator(hh);
+  KVSpiderIdentificator* tata = 0;
+  if(userAngle) tata = new KVSpiderIdentificator(hh, x0*ScaleFactorX, y0*ScaleFactorY);
+  else tata = new KVSpiderIdentificator(hh);
   
   if((tata->GetX0()>100)||(tata->GetY0()>100))
     {
     tata->SetX0(0.);
     tata->SetY0(0.);
-    Warning("SpiderIdentification","piedestal has been set to (0,0).");
     }
-        
+  
+  if(pdx>=0.) tata->SetX0(pdx*ScaleFactorX);
+  if(pdy>=0.) tata->SetY0(pdy*ScaleFactorY);
+  
   tata->SetParameters(factor);        
+//  tata->UseFit(useFit);        
   tata->ProcessIdentification();
   
-//  tata->Draw("NLIDR");
+  tata->Draw("DR");
   
   TList* ll = (TList*)tata->GetListOfLines();   
    
@@ -1255,11 +1260,12 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
   TIter next_line(ll);
   while((spline = (KVSpiderLine*)next_line()))
     {
-    if((spline->GetN()>20)&&(spline->GetX(0)<=tata->GetX0()+200.))
+    if((spline->GetN()>10))//&&(spline->GetX(0)<=tata->GetX0()+200.))
       {
       TF1* ff1 = 0;
-      ff1 = spline->GetFunction(tata->GetX0(),tata->GetXm()*1.5);
-      if(ff1->GetParameter(1)>=3000.||(ff1->GetParameter(2)<=0.35)||(ff1->GetParameter(2)>=1.)) 
+      if(extandLines) ff1 = spline->GetFunction(tata->GetX0()*0.01,TMath::Min(hh->GetXaxis()->GetXmax()*0.99,spline->GetX(spline->GetN()-1)*1.5));
+      else ff1 = spline->GetFunction();
+      if(filterFit&&(ff1->GetParameter(1)>=3000.||(ff1->GetParameter(2)<=0.35)||(ff1->GetParameter(2)>=1.))) 
         {
         Info("SpiderIdentification","Z = %d has been rejected (fit parameters)",spline->GetZ()); 
         continue;
@@ -1293,10 +1299,10 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
   TF1 fy("fy12",Form("x/%lf",ScaleFactorY),0.,hh->GetNbinsY()*1.);
   TheGrid->Scale(&fx,&fy);
   
-  SetPivot(tata->GetX0(),tata->GetY0());
+//  SetPivot(tata->GetX0(),tata->GetY0());
   
-  delete tata;
-  delete hh;
+//  delete tata;
+//  delete hh;
   
   fPad->cd();
   TheGrid->UnDraw();

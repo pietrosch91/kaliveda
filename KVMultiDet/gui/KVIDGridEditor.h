@@ -193,7 +193,7 @@ friend class KVIDGridEditorCanvas;
    Int_t GetSpiderZp(){return fSpiderZp;};
    Double_t GetSpiderFactor(){return fSpiderFactor;};
    
-   void SpiderIdentification(int Zp, Double_t Factor);// *MENU* *ARGS={Zp=>fSpiderZp,Factor=>fSpiderFactor} 
+   void SpiderIdentification(int Zp, Double_t Factor, Bool_t userAngle=1, Bool_t extandLines=1, Bool_t filterFit=0, Double_t pdx=-1., Double_t pdy=-1.);// *MENU* *ARGS={Zp=>fSpiderZp,Factor=>fSpiderFactor} 
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };

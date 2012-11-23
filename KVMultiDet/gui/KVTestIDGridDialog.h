@@ -13,6 +13,7 @@
 #include <TGNumberEntry.h>
 #include <TGTextEntry.h>
 #include <TGProgressBar.h>
+#include "KVCanvas.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // KVTestIDGridDialog
@@ -74,6 +75,8 @@ class KVTestIDGridDialog {
    static Int_t hzrealbins;
    static Int_t hzrealxmin;
    static Int_t hzrealxmax;
+//    static Double_t harealxmin;
+//    static Double_t harealxmax;
    static Int_t hzvsexbins;
    static Double_t hzvsexmin;
    static Double_t hzvsexmax;
@@ -89,6 +92,7 @@ class KVTestIDGridDialog {
    void DoClose();
    void CloseWindow();
    void TestGrid();
+   void DrawChart(KVCanvas* cc, Int_t zmin, Int_t zmax, Int_t nmin, Int_t nmax);
 
    Bool_t CheckNameOK(const TString & name) {
       return (name != "");

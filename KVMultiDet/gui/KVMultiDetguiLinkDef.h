@@ -37,4 +37,5 @@
 #pragma link C++ class KVTreeAnalyzer+;
 #pragma link C++ class KVSimDirGUI+;
 #pragma link C++ class KVFileDialog+;
+#pragma link C++ class KVNuclearChart+;
 #endif

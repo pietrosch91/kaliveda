@@ -24,6 +24,7 @@ class KVSpiderIdentificator : public TNamed
   bool _debug;
   bool _auto;
   bool _sicsi;
+  bool _useFit;
   
   double _bfactor;
   double _ftheta;
@@ -57,16 +58,16 @@ class KVSpiderIdentificator : public TNamed
   public:
   
   KVSpiderIdentificator();
-  KVSpiderIdentificator(TH2F* h_);
+  KVSpiderIdentificator(TH2F* h_, Double_t Xm=-1, Double_t Ym=-1);
   virtual ~KVSpiderIdentificator();
   
-  void Init(TH2F* h_=0);
+  void Init(TH2F* h_=0, Double_t Xm=-1, Double_t Ym=-1);
   void Close();
   void Clear(Option_t* option = "");
   void SetMode(bool sicsi_=true){_sicsi=sicsi_;};
   void SetParameters(double bining_=1.);
   
-  void SetHistogram(TH2F* h_=0);
+  void SetHistogram(TH2F* h_=0, Double_t Xm=-1, Double_t Ym=-1);
   TH1F* GetProjection(TH2F* h_, KVDroite* d_, int rebin_=10);
   bool SearchPeack(TH1F* h1_, double theta_, int create_, double sigma_=2., double peakmin_=1., int rebin_=10, int smooth_=5, TString opt_="goff");
   
@@ -86,6 +87,7 @@ class KVSpiderIdentificator : public TNamed
   void SetY0(double y0_){_y0=y0_;};
   void SetXm(double xm_){_xm=xm_;};
   void SetYm(double ym_){_ym=ym_;};
+  void UseFit(bool fit){_useFit=fit;};
 
   double GetX0(){return _x0;};
   double GetY0(){return _y0;};

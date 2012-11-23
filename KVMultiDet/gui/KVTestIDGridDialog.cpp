@@ -10,7 +10,11 @@
 #include <TGLayout.h>
 #include <TCanvas.h>
 #include "KVConfig.h"
+#include "KVNucleus.h"
 #include "TStyle.h"
+#include "TBox.h"
+#include "TLine.h"
+#include "KVNuclearChart.h"
 
 TString KVTestIDGridDialog::fNameData = "htemp";
 TString KVTestIDGridDialog::fNameZreal = "hzreal";
@@ -43,6 +47,8 @@ ClassImp(KVTestIDGridDialog)
 	g->GetIdentifiers()->Sort(); // make sure lines are in order of increasing PID
 	hzrealxmin = ((KVIDentifier*)g->GetIdentifiers()->First())->GetPID() - 1.0;
 	hzrealxmax = ((KVIDentifier*)g->GetIdentifiers()->Last())->GetPID() + 1.0;
+// 	harealxmin = ((KVIDentifier*)g->GetIdentifiers()->First())->GetPID() - 1.0;
+// 	harealxmax = ((KVIDentifier*)g->GetIdentifiers()->Last())->GetPID() + 1.0;
 	hzvseymin = hzrealxmin;
 	hzvseymax = hzrealxmax;
 	
@@ -278,6 +284,9 @@ void KVTestIDGridDialog::TestGrid()
    hzvseybins = fHzvseYBinsEntry->GetIntNumber();
    hzvseymin = fHzvseYminEntry->GetIntNumber();
    hzvseymax = fHzvseYmaxEntry->GetIntNumber();
+   
+   Int_t hnmin = ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->First())->GetA() - ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->First())->GetZ() - 1.0;
+   Int_t hnmax = ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->Last())->GetA() - ((KVIDentifier*)fSelectedGrid->GetIdentifiers()->Last())->GetZ() + 1.0;   
 
    TH2F *hdata = (TH2F *) gROOT->FindObject(fNameData.Data());
    if (!hdata) {
@@ -305,6 +314,10 @@ void KVTestIDGridDialog::TestGrid()
    hzvse =
        new TH2F(fNameZvsE.Data(), "PID vs. E_{res}", hzvsexbins, hzvsexmin,
                 hzvsexmax, hzvseybins, hzvseymin, hzvseymax);
+		
+	// A vs Z map in caze of !IsOnlyZId()
+   TH2F *hazreal = 0;
+   if(!fSelectedGrid->IsOnlyZId()) hazreal = new TH2F("AZMap", "Z vs. A", hzrealbins, hnmin, hnmax, hzrealbins, hzrealxmin, hzrealxmax);
 
    //progress bar set up
    fProgressBar->SetRange(0, hdata->GetSum());
@@ -317,7 +330,7 @@ void KVTestIDGridDialog::TestGrid()
 #endif
    fTestButton->SetEnabled(kFALSE);
    fCloseButton->SetEnabled(kFALSE);
-   fSelectedGrid->TestIdentification(hdata, hzreal, hzvse);
+   fSelectedGrid->TestIdentification(hdata, hzreal, hzvse, hazreal);
    fTestButton->SetEnabled(kTRUE);
    fCloseButton->SetEnabled(kTRUE);
 #ifdef __WITHOUT_TGBUTTON_SETENABLED
@@ -343,7 +356,45 @@ void KVTestIDGridDialog::TestGrid()
    hzvse->SetStats(kFALSE);
    hzvse->Draw("zcol");
    
+   if(hazreal)
+     {
+     KVCanvas* cc = new KVCanvas;
+     cc->cd();
+     ((TPad*)gPad)->SetLogz();
+     TAxis* ax = 0;
+     ax = hazreal->GetXaxis();
+     ax->SetNdivisions(000);
+     
+     ax = hazreal->GetYaxis();
+     ax->SetNdivisions(000);
+     hazreal->Draw("col");
+     DrawChart(cc, (Int_t)hzrealxmin, (Int_t)hzrealxmax, (Int_t)hnmin, (Int_t)hnmax);
+     }
+      
    // close dialog
    DoClose();
 }
+
+void KVTestIDGridDialog::DrawChart(KVCanvas* cc, Int_t zmin, Int_t zmax, Int_t nmin, Int_t nmax)
+{
+  TPad* pp = (TPad*) cc->cd();
+  
+  Double_t marging = 0.001;
+  pp->SetTopMargin(marging);
+  pp->SetRightMargin(marging);
+  pp->SetBottomMargin(marging);
+  pp->SetLeftMargin(marging);
+
+  KVNuclearChart nucChar(nmin+1, nmax, zmin, zmax);
+  cout << nmin << " " << nmax << " " << zmin << " " << zmax << endl;
+  nucChar.Draw("same");
+    
+  return;
+}
+
+
+
+
+
+
 

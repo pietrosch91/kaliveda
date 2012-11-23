@@ -133,6 +133,7 @@
 #include "Riostream.h"
 #include "KVListView.h"
 #include "TTree.h"
+#include "TCutG.h"
 #include "TH1.h"
 #include "TEntryList.h"
 #include "KVUniqueNameList.h"
@@ -159,6 +160,14 @@ class KVTreeAnalyzer : public TNamed
    TNamed* fXLeaf;//!
    TNamed* fYLeaf;//!
    TGTextEntry* G_alias_text;//!
+   TGCheckButton* G_histo_bin;//!
+   Bool_t fUserBinning;//!
+   TGCheckButton* G_histo_weight;//!
+   Bool_t fUserWeight;//!
+   const char* fWeight;
+   
+   Int_t fNx,fNy;//
+   Double_t fXmin,fXmax,fYmin,fYmax;//
    
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
@@ -209,7 +218,9 @@ class KVTreeAnalyzer : public TNamed
    TGStatusBar* G_selection_status;//! status bar in selections GUI
    TGTextEntry* G_selection_text;//!
    TGTextButton* G_selection_but;//!
+   TGTextButton* G_selection_but_or;//!
    TGTextButton* G_update_but;//!
+   TGTextButton* G_delete_but;//!
    TList* fSelectedSelections;//!
    
    KVList fHistolist;//list of generated histograms
@@ -222,6 +233,7 @@ class KVTreeAnalyzer : public TNamed
    Bool_t fNoGui;//! =kTRUE if no graphical interface is required
    
    void AddHisto(TH1*);
+   void AddCut(TCutG*);
    void AddSelection(TEntryList*);
    void ReconnectTree();
    
@@ -253,13 +265,16 @@ class KVTreeAnalyzer : public TNamed
    void GenerateSelection();
    void MakeIPScale();
    void GenerateIPSelection();
-   void CombineSelections();
+   void CombineSelectionsAnd();
+   void CombineSelectionsOr();
+   void DeleteSelections();
    void SelectionChanged();
    void SetAlias(const Char_t* name, const Char_t* expr){ fAliasList.Add(new TNamed(name,expr));};
    void GenerateAlias();
    void ShowSelections() {fSelections.ls();};
    void ShowVariables() {fTree->GetListOfLeaves()->ls();};
    void ShowAliases() {fAliasList.ls();};
+   void ShowHistos() {fHistolist.ls();};
    void CurrentSelection();
    Bool_t IsCurrentSelection(const Char_t* sel);
    void SetSelection(TObject*);
@@ -270,10 +285,13 @@ class KVTreeAnalyzer : public TNamed
    void ReadFromFile(TFile* f);
    void OpenAnyFile(const Char_t* filepath);
    
-   void DrawHisto(TObject*);
+   void DrawHisto(TObject* o, Bool_t gen=kTRUE);
+   void DrawCut(TCutG*);
    void DrawLeaf(TObject*);
    void DrawLeafExpr();
-   
+   void SetUserBinning(Bool_t ub){fUserBinning = ub;};
+   void SetUserWeight(Bool_t uw){fUserWeight = uw;};
+
    void SetNormHisto(Bool_t yes=kTRUE){fNormHisto=yes;};
    void SetNewCanvas(Bool_t yes=kTRUE){fNewCanvas=yes;};
    void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;};
@@ -289,6 +307,18 @@ class KVTreeAnalyzer : public TNamed
    void FitGausGum1();
    void FitGausGum2();
    void FitGausGum3();
+   
+   Int_t GetNx(){return fNx;};
+   Int_t GetNy(){return fNy;};
+   Double_t GetXmin(){return fXmin;};
+   Double_t GetXmax(){return fXmax;};
+   Double_t GetYmin(){return fYmin;};
+   Double_t GetYmax(){return fYmax;};
+   const char* GetWeight(){return fWeight;};
+   
+   void DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax);// *MENU* *ARGS={Nx=>fNx,Ny=>fNy,Xmin=>fXmin,Xmax=>fXmax,Ymin=>fYmin,Ymax=>fYmax} 
+   void DefineWeight(const char* Weight);// *MENU* *ARGS={Weight=>fWeight} 
+   
    
    void HandleHistoFileMenu(Int_t); 
    ClassDef(KVTreeAnalyzer,1)//KVTreeAnalyzer

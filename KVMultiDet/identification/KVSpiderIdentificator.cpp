@@ -28,11 +28,11 @@ KVSpiderIdentificator::KVSpiderIdentificator()
   SetDefault();
 }
 
-KVSpiderIdentificator::KVSpiderIdentificator(TH2F* h_)
+KVSpiderIdentificator::KVSpiderIdentificator(TH2F* h_, Double_t Xm, Double_t Ym)
 {
   _is_initialized = false;
   SetDefault();
-  Init(h_);
+  Init(h_, Xm, Ym);
 }
 
 
@@ -44,8 +44,9 @@ KVSpiderIdentificator::~KVSpiderIdentificator()
 
 void KVSpiderIdentificator::SetDefault()
 {
-  _debug = false;
-  _auto  = true;
+  _debug  = false;
+  _auto   = true;
+  _useFit = true;
   _hlist.SetOwner();
   _dlist.SetOwner();
   _bfactor = 1.;
@@ -78,7 +79,7 @@ void KVSpiderIdentificator::SetParameters(double bining_)
 }
 
 
-void KVSpiderIdentificator::Init(TH2F* h_)
+void KVSpiderIdentificator::Init(TH2F* h_, Double_t Xm, Double_t Ym)
 {
   if(!TestHistogram(h_)) return;
   else _htot = h_;
@@ -136,6 +137,9 @@ void KVSpiderIdentificator::Init(TH2F* h_)
     }
   _xm = xm;
   _ym = ym;
+  
+  if(Xm>0.) _xm = Xm;
+  if(Ym>0.) _ym = Ym;
   
   CalculateTheta();
 
@@ -210,9 +214,9 @@ TH1F* KVSpiderIdentificator::GetProjection(TH2F* h_, KVDroite* d_, int rebin_)
 }
 
 
-void KVSpiderIdentificator::SetHistogram(TH2F* h_)
+void KVSpiderIdentificator::SetHistogram(TH2F* h_, Double_t Xm, Double_t Ym)
 {
-  Init(h_);
+  Init(h_, Xm, Ym);
   return;
 }
 
@@ -436,7 +440,7 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
         double xmoy = (_spline->GetX()*npp+xx)/(npp+1);
         double ymoy = (_spline->GetY()*npp+yy)/(npp+1);
 	
-	if(_spline->TestPoint(xmoy,ymoy,dist*0.3)) 
+	if(_spline->TestPoint(xmoy,ymoy,dist*0.3,_useFit)) 
 	  {
 	  _spline->ReplaceLastPoint(xmoy, ymoy);
 	  _spline->SetStatus(true);
@@ -495,7 +499,7 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
 	      if((d2>d1)||test)
 	        {
 		_spline = (KVSpiderLine*)_llist.FindObject(Form("Z=%d",p+ii-1));
-		if(_spline->TestPoint(xx,yy,-1.))
+		if(_spline->TestPoint(xx,yy,-1.,_useFit))
 		  {
 		  _spline->AddPoint(xx,yy);
 		  _spline->SetStatus(true);
