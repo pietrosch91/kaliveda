@@ -63,6 +63,7 @@ KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(na
   fAgeOfEmpire = false;
   fModeVener   = false;
   fHasDisabledClasses = false;
+  fHasDisabledObject = false;
   fDisabledClasses = "";
 }
 
@@ -101,6 +102,28 @@ void KVCanvas::DisableClass(const char* className)
   fHasDisabledClasses = true;
   fDisabledClasses += className;
   
+}
+
+//______________________________________________________________________________
+void KVCanvas::ResetDisabledClass()
+{
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
+}
+
+//______________________________________________________________________________
+void KVCanvas::ResetDisabledObject()
+{
+  fHasDisabledObject = true;
+  fDisabledObjects.Clear();
+}
+
+//______________________________________________________________________________
+void KVCanvas::DisableObject(TObject* obj)
+{
+  if(!obj) return;
+  fHasDisabledObject = true;
+  fDisabledObjects.AddLast(obj);
 }
 
 //______________________________________________________________________________
@@ -157,6 +180,11 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    if(fHasDisabledClasses&&fSelected)
      {
      if(fDisabledClasses.Contains(fSelected->ClassName())) sendOrder = false;
+     }
+     
+   if(fHasDisabledObject&&fSelected)
+     {
+     if(fDisabledObjects.Contains(fSelected)) sendOrder = false;
      }
    
    switch (event) {

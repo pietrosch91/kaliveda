@@ -41,16 +41,23 @@ KVNucleusBox::KVNucleusBox(Int_t Z, Int_t N, Double_t size): TBox(N-size,Z-size,
   else if(fNucleus->GetLifeTime()>pow(10,-6)) 
     {
     SetLineColor(kBlack);
-    SetFillColor(kGray+2);
+    SetFillColor(kGray+1);
     }
   else 
     {
     SetLineColor(kGray);
     SetFillColor(kGray);
     }
-  SetToolTipText(Form("%s (Z=%d,N=%d)",fNucleus->GetSymbol(),fZ,fN),250);
+//  SetToolTipText(Form("%s (Z=%d,N=%d)",fNucleus->GetSymbol(),fZ,fN),250);
    
 }
+
+void KVNucleusBox::EnableToolTip()
+{
+  SetToolTipText(Form("%s (Z=%d,N=%d)",fNucleus->GetSymbol(),fZ,fN),250);
+  return;
+}
+
 
 KVNucleusBox::KVNucleusBox(KVNucleus* nuc, Double_t size, Bool_t owner): TBox(nuc->GetN()-size,nuc->GetZ()-size,nuc->GetN()+size,nuc->GetZ()+size)
  {
@@ -58,6 +65,7 @@ KVNucleusBox::KVNucleusBox(KVNucleus* nuc, Double_t size, Bool_t owner): TBox(nu
    
   fNucleus = nuc;
   fOwnNucleus = owner;
+  fDrawSame = kFALSE;
   
   fZ = fNucleus->GetZ();
   fN = fNucleus->GetN();
@@ -72,7 +80,7 @@ KVNucleusBox::KVNucleusBox(KVNucleus* nuc, Double_t size, Bool_t owner): TBox(nu
   else if(fNucleus->GetLifeTime()>pow(10,-6)) 
     {
     SetLineColor(kBlack);
-    SetFillColor(kGray+2);
+    SetFillColor(kGray+1);
     }
   else 
     {
@@ -88,6 +96,7 @@ void KVNucleusBox::SetDrawMode(Bool_t DrawSame)
 {
   fDrawSame = DrawSame;
   if(fDrawSame) SetFillStyle(0);
+  else SetFillStyle(1);
 }
 
 

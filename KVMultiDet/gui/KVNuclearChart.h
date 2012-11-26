@@ -5,10 +5,11 @@
 #define __KVNUCLEARCHART_H
 
 #include "KVBase.h"
-#include "TH2F.h"
+#include "TH2.h"
 #include "KVList.h"
 #include "KVNucleus.h"
-#include "TPaveLabel.h"
+#include "TPaveText.h"
+#include "KVCanvas.h"
 
 class KVNuclearChart : public KVBase
 {
@@ -18,10 +19,14 @@ class KVNuclearChart : public KVBase
    Int_t fNmax;
    Int_t fZmin;
    Int_t fZmax;
-   TH2F* fHisto;
+   Bool_t fOwnHisto;
+   TH2* fHisto;
    KVList fNucleusBoxList;
+   KVList fMagicList;
    KVNucleus* fShownNucleus;
-   TPaveLabel* fSymbol;
+   TPaveText* fSymbol;
+   TPaveText* fInfo;
+   KVCanvas* fCanvas;
 
    public:
 //    KVNuclearChart();

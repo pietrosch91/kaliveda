@@ -1249,7 +1249,7 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor, Bool_t userAn
 //  tata->UseFit(useFit);        
   tata->ProcessIdentification();
   
-  tata->Draw("DR");
+//  tata->Draw("DR");
   
   TList* ll = (TList*)tata->GetListOfLines();   
    
@@ -1301,8 +1301,8 @@ void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor, Bool_t userAn
   
 //  SetPivot(tata->GetX0(),tata->GetY0());
   
-//  delete tata;
-//  delete hh;
+  delete tata;
+  delete hh;
   
   fPad->cd();
   TheGrid->UnDraw();

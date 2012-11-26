@@ -28,6 +28,7 @@ class KVNucleusBox : public TBox
    void ExecuteEvent(Int_t event, Int_t px, Int_t py);  
    void SetDrawMode(Bool_t DrawSame);
    void SetNuclearChart(KVNuclearChart* nuclearchart){fNuclearChart = nuclearchart;};
+   void EnableToolTip();
 
    ClassDef(KVNucleusBox,1)//A TBox representing a nucleus in a KVNuclearChart
 };

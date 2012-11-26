@@ -7,6 +7,7 @@
 #include "TCanvas.h"
 #include "TH2.h"
 #include "TGFrame.h"
+#include "TList.h"
 
 
 class KVCanvas : public TCanvas
@@ -30,6 +31,8 @@ friend class KVKeyHandler;
    Bool_t   fModeVener;
    Bool_t   fHasDisabledClasses;
    TString  fDisabledClasses;
+   Bool_t   fHasDisabledObject;
+   TList    fDisabledObjects;
 
    TGFrame* fKeyHandler;         // handler for keys
    
@@ -44,7 +47,11 @@ friend class KVKeyHandler;
    Bool_t IsLogz();
    Bool_t IsLogy();
    Bool_t IsLogx();
+   
    void DisableClass(const char* className);
+   void DisableObject(TObject* obj);
+   void ResetDisabledClass();
+   void ResetDisabledObject();
    
    protected:
    
