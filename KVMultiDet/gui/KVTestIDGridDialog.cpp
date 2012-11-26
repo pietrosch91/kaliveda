@@ -385,9 +385,8 @@ void KVTestIDGridDialog::DrawChart(KVCanvas* cc, Int_t zmin, Int_t zmax, Int_t n
   pp->SetBottomMargin(marging);
   pp->SetLeftMargin(marging);
 
-  KVNuclearChart nucChar(nmin+1, nmax, zmin, zmax);
-  cout << nmin << " " << nmax << " " << zmin << " " << zmax << endl;
-  nucChar.Draw("same");
+  KVNuclearChart* nucChar = new KVNuclearChart(nmin+1, nmax, zmin, zmax);
+  nucChar->Draw("same");
     
   return;
 }

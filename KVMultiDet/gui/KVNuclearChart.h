@@ -6,6 +6,9 @@
 
 #include "KVBase.h"
 #include "TH2F.h"
+#include "KVList.h"
+#include "KVNucleus.h"
+#include "TPaveLabel.h"
 
 class KVNuclearChart : public KVBase
 {
@@ -16,6 +19,9 @@ class KVNuclearChart : public KVBase
    Int_t fZmin;
    Int_t fZmax;
    TH2F* fHisto;
+   KVList fNucleusBoxList;
+   KVNucleus* fShownNucleus;
+   TPaveLabel* fSymbol;
 
    public:
 //    KVNuclearChart();
@@ -25,6 +31,7 @@ class KVNuclearChart : public KVBase
    void Copy (TObject&) const;
    
    void Draw(Option_t* option = "");
+   void ShowNucleusInfo(KVNucleus* nuc);
 
    ClassDef(KVNuclearChart,1)//Used to draw nuclear chart
 };

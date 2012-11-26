@@ -3,11 +3,13 @@
 
 #include "KVNuclearChart.h"
 #include "KVNucleus.h"
+#include "KVNucleusBox.h"
 #include "KVCanvas.h"
 #include "TStyle.h"
 #include "TBox.h"
 #include "TLine.h"
 #include "TString.h"
+#include "TLatex.h"
 
 ClassImp(KVNuclearChart)
 
@@ -30,13 +32,15 @@ ClassImp(KVNuclearChart)
 //    fHisto = 0;
 // }
 
-KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t zMax)
+KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t zMax):fNucleusBoxList(kTRUE)
 {
    fNmin = nMin;
    fNmax = nMax;
    fZmin = zMin;
    fZmax = zMax;
    fHisto = 0;
+   fShownNucleus = 0;
+   fSymbol = 0;
 }
 
 //________________________________________________________________
@@ -84,9 +88,22 @@ void KVNuclearChart::Draw(Option_t* option)
 
   TString opt(option);
   Bool_t DrawSame = opt.Contains("same");
-  if(!DrawSame)
+  if(DrawSame)
+    {
+    if(gPad->GetCanvas()->InheritsFrom("KVCanvas"))
+      {
+      KVCanvas* cc = (KVCanvas*) gPad->GetCanvas();
+      cc->DisableClass("TLine");
+      cc->DisableClass("KVNucleusBox");
+      cc->DisableClass("TLatex");
+      }
+    }
+  else
     {
     KVCanvas* cc = new KVCanvas;
+    cc->DisableClass("TLine");
+    cc->DisableClass("KVNucleusBox");
+    cc->DisableClass("TLatex");
     TPad* pp = (TPad*) cc->cd();
   
     Double_t marging = 0.001;
@@ -105,7 +122,6 @@ void KVNuclearChart::Draw(Option_t* option)
     fHisto->Draw();
     }
   
-  
   KVNucleus nuc;
   for(int zz=fZmin; zz<fZmax; zz++)
     {
@@ -118,38 +134,25 @@ void KVNuclearChart::Draw(Option_t* option)
       Int_t nn = aa - zz;
       if((nn>=fNmin)&&(nn<fNmax))
         {
-        TBox* bb = new TBox(nn-0.4,zz-0.4,nn+0.4,zz+0.4);
-        if(nuc.IsStable())           
+        if(nuc.IsStable()||nuc.GetLifeTime()>pow(10,-6))           
 	  {
-	  bb->SetLineColor(kBlack);
-	  bb->SetLineWidth(2);
-	  if(DrawSame) bb->SetFillStyle(0);
-	  else bb->SetFillColor(kBlack);
- 	  }
-        else if(nuc.GetLifeTime()>pow(10,-6)) 
-	  {
-	  bb->SetLineColor(kBlack);
-	  if(DrawSame) bb->SetFillStyle(0);
-	  else bb->SetFillColor(kGray+2);
+	  KVNucleusBox* nb = new KVNucleusBox(zz,nn);
+	  nb->SetNuclearChart(this);
+	  fNucleusBoxList.Add(nb);
+	  nb->SetDrawMode(DrawSame);
+	  nb->Draw();
 	  }
-	else 
-	  {
-	  delete bb;
-	  continue;
-	  }
-	bb->SetToolTipText(Form("%s%d",nuc.GetSymbol(),zz),250);
-        bb->Draw("same");
 	}
       }
     }
     
   Int_t mN[7] = {2,8,20,28,50,82,126};
   
-  Double_t mnMin[7] = {0.,2.,12.,18.,46.,93.,98.};
-  Double_t mnMax[7] = {9.,19.,40.,51.,90.,136.,126.*3};
+  Double_t mnMin[7] = {0.,1.,12.,18.,46.,93.,98.};
+  Double_t mnMax[7] = {10.,22.,40.,52.,90.,136.,126.*3};
   
-  Double_t mzMin[7] = {0.,0.,6.,11.,27.,44.,76.};
-  Double_t mzMax[7] = {5.,17.,29.,35.,53.,76.,95.};
+  Double_t mzMin[7] = {0.2,0.2,6.,10.,26.,44.,76.};
+  Double_t mzMax[7] = {9.,17.,30.,35.,53.,76.,95.};
   
   for(int i=0; i<7; i++)
     {
@@ -160,6 +163,14 @@ void KVNuclearChart::Draw(Option_t* option)
       TLine* ll2 = new TLine(num+0.5, TMath::Max(fZmin*1.,mzMin[i]), num+0.5, TMath::Min(fZmax*1.,mzMax[i]));
       ll1->Draw("same");
       ll2->Draw("same");
+      if(num>=20)
+        {
+	TLatex* label = new TLatex(num*1.,mzMin[i]-1.5,Form("N=%d",num));
+	label->SetTextAlign(23);
+	label->SetTextSize(0.025);
+	label->SetTextFont(42);
+	label->Draw("same");
+	}
       }
     }
     
@@ -172,13 +183,41 @@ void KVNuclearChart::Draw(Option_t* option)
       TLine* ll2 = new TLine(TMath::Max(fNmin*1.,mnMin[i]), num+0.5, TMath::Min(fNmax*1.,mnMax[i]), num+0.5);
       ll1->Draw("same");
       ll2->Draw("same");
+      if(num>=20)
+        {
+	TLatex* label = new TLatex(mnMin[i]-1.5,num*1.,Form("Z=%d",num));
+	label->SetTextAlign(32);
+	label->SetTextSize(0.025);
+	label->SetTextFont(42);
+	label->Draw("same");
+	}
       }
     }
     
   return;
 }
 
-
+void KVNuclearChart::ShowNucleusInfo(KVNucleus* nuc)
+{
+  if((fShownNucleus)&&(fShownNucleus==nuc))
+    {
+    delete fSymbol;
+    fSymbol = 0;
+    }
+  
+  fShownNucleus = nuc;
+  TString symbText = nuc->GetSymbol();
+  symbText.ReplaceAll(Form("%d",nuc->GetA()),Form("^{%d}",nuc->GetA()));
+  
+  if(!fSymbol) fSymbol = new TPaveLabel(0.7,0.16,0.8,0.01,"","NDC");
+  fSymbol->SetLabel(symbText.Data());
+  fSymbol->SetFillColor(kGray+2);
+  fSymbol->SetLineColor(kGray+2);
+  fSymbol->SetBorderSize(0);
+  fSymbol->Draw("same");
+  
+  
+}
 
 
 

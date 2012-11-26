@@ -35,6 +35,8 @@ KVCanvas::KVCanvas()
   fKeyHandler  = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
    // Default constructor
 }
 
@@ -50,6 +52,8 @@ KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCan
   fKeyHandler = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
 }
 
 //________________________________________________________________
@@ -58,6 +62,8 @@ KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(na
 //  fKeyHandler = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
 }
 
 //________________________________________________________________
@@ -87,6 +93,14 @@ void KVCanvas::RunAutoExec()
    if (!gPad) return;
    ((TPad*)gPad)->AutoExec();
    
+}
+
+//______________________________________________________________________________
+void KVCanvas::DisableClass(const char* className)
+{
+  fHasDisabledClasses = true;
+  fDisabledClasses += className;
+  
 }
 
 //______________________________________________________________________________
@@ -129,7 +143,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    TPad    *pad;
    TPad    *prevSelPad = (TPad*) fSelectedPad;
    TObject *prevSelObj = fSelected;
-
+    
    fPadSave = (TPad*)gPad;
    cd();        // make sure this canvas is the current canvas
 
@@ -138,6 +152,12 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    fEventY = py;
    
    Int_t sign = 0;
+   Bool_t sendOrder = true;
+   
+   if(fHasDisabledClasses&&fSelected)
+     {
+     if(fDisabledClasses.Contains(fSelected->ClassName())) sendOrder = false;
+     }
    
    switch (event) {
 
@@ -147,12 +167,12 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (!pad) return;
 
       EnterLeave(prevSelPad, prevSelObj);
-
+	
       gPad = pad;   // don't use cd() we will use the current
                     // canvas via the GetCanvas member and not via
                     // gPad->GetCanvas
 
-      fSelected->ExecuteEvent(event, px, py);
+      if(sendOrder) fSelected->ExecuteEvent(event, px, py);
 
       RunAutoExec();
       
@@ -276,7 +296,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         fSelected->ExecuteEvent(event, px, py);
+         if(sendOrder) fSelected->ExecuteEvent(event, px, py);
          gVirtualX->Update();
 
          if (!fSelected->InheritsFrom(TAxis::Class())) {
@@ -303,7 +323,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         fSelected->ExecuteEvent(event, px, py);
+         if(sendOrder) fSelected->ExecuteEvent(event, px, py);
 
          RunAutoExec();
 
@@ -446,7 +466,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         fSelected->ExecuteEvent(event, px, py);
+         if(sendOrder) fSelected->ExecuteEvent(event, px, py);
          RunAutoExec();
       }
       break;
@@ -465,7 +485,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       if (fContextMenu && !fSelected->TestBit(kNoContextMenu) &&
          !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu))
-         fContextMenu->Popup(px, py, fSelected, this, pad);
+         if(sendOrder) fContextMenu->Popup(px, py, fSelected, this, pad);
 
       break;
 
@@ -511,7 +531,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       sign = (event==kWheelUp ? 1:-1);
     
       gPad = pad;
-      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
+//      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
       if(fSelected->InheritsFrom("TH2")) DynamicZoom(sign,px,py);
       else if(fSelected->InheritsFrom("TH1")) DynamicZoomTH1(sign,px,py);
       

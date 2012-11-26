@@ -28,6 +28,8 @@ friend class KVKeyHandler;
    Bool_t   moved;
    Bool_t   fAgeOfEmpire;
    Bool_t   fModeVener;
+   Bool_t   fHasDisabledClasses;
+   TString  fDisabledClasses;
 
    TGFrame* fKeyHandler;         // handler for keys
    
@@ -42,6 +44,7 @@ friend class KVKeyHandler;
    Bool_t IsLogz();
    Bool_t IsLogy();
    Bool_t IsLogx();
+   void DisableClass(const char* className);
    
    protected:
    
