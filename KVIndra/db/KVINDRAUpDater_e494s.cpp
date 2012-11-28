@@ -152,74 +152,56 @@ void KVINDRAUpDater_e494s::SetChIoSiPedestals(KVDBRun * kvrun)
 	Info("KVINDRAUpDater_e494s::SetChIoSiPedestals","Setting ChIo/Si pedestals from file: %s",
 			kvrun->GetKey("Pedestals")->GetLinks()->At(0)->GetName());
 
-    //skip first 5 lines - header
     TString line;
-    for (int i = 5; i; i--)
-    {
-        line.ReadLine(file_pied_chiosi);
-    }
 
     int cou, mod, type, n_phys, n_gene;
     float ave_phys, sig_phys, ave_gene, sig_gene;
 
-    while (file_pied_chiosi.good())
-    {
+    while (file_pied_chiosi.good())  {
+      line.ReadLine(file_pied_chiosi);
 
-        file_pied_chiosi >> cou >> mod >> type >> n_phys >> ave_phys >>
-        sig_phys >> n_gene >> ave_gene >> sig_gene;
+      if( (line.Sizeof() >1) && !(line.BeginsWith("#") ) )  {
+	if( sscanf(line.Data(),"%d %d %d %d %f %f %d %f %f", &cou, &mod, &type,
+	    &n_phys, &ave_phys, &sig_phys, &n_gene, &ave_gene, &sig_gene) !=9){
+	  Warning("KVINDRAUpDater_e494s::SetChIoSiPedestals"
+			  ,"Bad Format in line :\n%s\nUnable to read",
+		  line.Data());   
+	} else  {	
+       
+	  KVDetector *det = gIndra->GetDetectorByType(cou, mod, type);
+	  if (det) {
+            switch (type)  {
 
-        KVDetector *det = gIndra->GetDetectorByType(cou, mod, type);
-        if (det)
-        {
-            switch (type)
-            {
-
-            case ChIo_GG:
-
-                det->SetPedestal("GG", ave_gene);
-                break;
-
-            case ChIo_PG:
-
-                det->SetPedestal("PG", ave_gene);
-                break;
-
-            case Si_GG:
+	     case ChIo_GG:
 
                 det->SetPedestal("GG", ave_gene);
                 break;
 
-            case Si_PG:
+	     case ChIo_PG:
 
                 det->SetPedestal("PG", ave_gene);
                 break;
 
-/*            case SiLi_GG:
+	     case Si_GG:
 
                 det->SetPedestal("GG", ave_gene);
                 break;
 
-            case SiLi_PG:
+	     case Si_PG:
 
                 det->SetPedestal("PG", ave_gene);
                 break;
 
-            case Si75_GG:
-
-                det->SetPedestal("GG", ave_gene);
-                break;
-
-            case Si75_PG:
-
-                det->SetPedestal("PG", ave_gene);
-                break;
-*/
-            default:
+	     default:
 
                 break;
-            }
-        }
-    }
+            } // end switch
+	  }   //end if det
+	}     // end if (line.Data) else
+      }       // end line.SizeOf
+    }         // end while
+  
+      
     file_pied_chiosi.close();
 }
 //________________________________________________________________
