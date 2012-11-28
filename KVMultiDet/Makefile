@@ -27,6 +27,13 @@ KV_INC_EXTRAS += -I$(GRU_DIR)/include -DWITH_GRULIB -DNET_LIB
 else
 NOT_READY += daq_cec/KVGRUNetClientGanilReader.cpp
 endif
+ifeq ($(WITH_RANGE_YANEZ),yes)
+KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ
+else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
+KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ -DWITH_MODIFIED_RANGE_YANEZ
+else
+NOT_READY += stopping/KVRangeYanez.cpp stopping/KVRangeYanezMaterial.cpp
+endif
 
 include ../Makefile.general
 RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
@@ -46,10 +53,6 @@ ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg
 endif
 
-ifeq ($(SITE),CCIN2P3)
-KV_INC += -D__CCIN2P3_SRB
-endif
-
 ifeq ($(ROOTGANILTAPE),yes)
 LINK_LIB += -L$(KVROOT)/lib -lgan_tape
 RLIBMAPDEPS += libgan_tape.so
@@ -60,4 +63,9 @@ endif
 endif
 ifeq ($(WITH_GRU_LIB),yes)
 LINK_LIB += -L$(GRU_DIR)/linux -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
+endif
+ifeq ($(WITH_RANGE_YANEZ),yes)
+LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
+else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
+LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
 endif

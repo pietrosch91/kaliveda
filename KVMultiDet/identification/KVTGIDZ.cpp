@@ -84,7 +84,23 @@ KVTGIDZ::KVTGIDZ(const Char_t * name, Int_t npar, Int_t type, Int_t light, Int_t
 	if(light) fEta = np;
 	SetLTGParameterNames();
 }
+//___________________________________________________________________________//
 
+KVTGIDZ::KVTGIDZ(const KVTGID &obj){
+	// Copy constructor. Can be used with any daughter class of KVTGID.
+	// The parameter ZorA is set to 1 (i.e. only Z idenfification) and 
+	// the Parameter 3 is the mass formula.
+	init();
+	((KVTGID &)obj).Copy(*this);
+
+	// Case where obj is a KVTGIDZA
+	if(!fZorA){
+	fZorA=1; //only Z identification
+	SetParameter(2,fZorA);
+	SetParameter(3,fMassFormula);
+	SetParName(3,"MassFormula");
+	}
+}
 //___________________________________________________________________________//
 
 void KVTGIDZ::SetIdent(KVIDLine * line, Double_t Z)

@@ -26,6 +26,7 @@
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
 #include "TGeoManager.h"
+#include "KVIonRangeTable.h"
 
 using namespace std;
 
@@ -59,6 +60,7 @@ void KVMaterial::init()
    if(!fIonRangeTable) {
       fIonRangeTable = KVIonRangeTable::GetRangeTable( gEnv->GetValue("KVMaterial.IonRangeTable", "VEDALOSS") );
    }
+   fAbsorberVolume = 0;
 }
 
 //
@@ -512,7 +514,7 @@ Double_t KVMaterial::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 
 //______________________________________________________________________________________//
 
-Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum KVIonRangeTable::SolType type)
+Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum SolType type)
 {
    // Calculate residual kinetic energy Eres (MeV) after the absorber from
    // energy loss in absorber for nucleus (Z,A). If dE is not given, the energy
@@ -537,7 +539,7 @@ Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum KVIon
 
 //__________________________________________________________________________________________
 
-Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum KVIonRangeTable::SolType type)
+Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum SolType type)
 {
    //Calculate incident energy of nucleus (Z,A) corresponding to the energy loss
    //in this absorber. If delta_e is not given, the energy loss in this absorber is used.
@@ -554,7 +556,8 @@ Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum 
    
    Double_t DE = (delta_e > 0 ? delta_e : GetEnergyLoss());
 
-   return fIonRangeTable->GetLinearEIncFromDeltaEOfIon(GetType(),Z,A,DE,GetThickness(),type,fAmasr,fTemp,fPressure);
+   return fIonRangeTable->GetLinearEIncFromDeltaEOfIon(GetType(),Z,A,DE,GetThickness(),
+         (enum KVIonRangeTable::SolType)type,fAmasr,fTemp,fPressure);
 }
 
 //______________________________________________________________________________________//
@@ -689,7 +692,9 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		else if( !strcmp(med_name, "Vacuum") ){
 			// create material
 			TGeoMaterial *gmat = new TGeoMaterial("Vacuum",0,0,0 );
+         gmat->SetTitle("Vacuum");
 			gmed = new TGeoMedium( "Vacuum", 0, gmat );
+         gmed->SetTitle("Vacuum");
 			return gmed;
 		}
 		return NULL;
@@ -698,11 +703,19 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 	// if object is a KVDetector, we return medium corresponding to the active layer
    if (GetActiveLayer()) return GetActiveLayer()->GetGeoMedium();
 	
-	TGeoMedium* gmed = gGeoManager->GetMedium( GetName() );
+   // for gaseous materials, the TGeoMedium/Material name is of the form
+   //      gasname_pressure
+   // e.g. C3F8_37.5 for C3F8 gas at 37.5 torr
+   // each gas with different pressure has to have a separate TGeoMaterial/Medium
+   TString medName;
+   if(IsGas()) medName.Form("%s_%f", GetName(), GetPressure());
+   else medName = GetName();
+   
+	TGeoMedium* gmed = gGeoManager->GetMedium( medName);
 	
 	if( gmed ) return gmed;
 		
-	TGeoMaterial *gmat = gGeoManager->GetMaterial( GetName() );
+	TGeoMaterial *gmat = gGeoManager->GetMaterial( medName);
 	
 	if( !gmat ){
 		// create material
@@ -710,11 +723,13 @@ TGeoMedium* KVMaterial::GetGeoMedium(const Char_t* med_name)
 		gmat->SetPressure( GetPressure() );
 		gmat->SetTemperature( GetTemperature() );
 		gmat->SetTransparency(0);
+      gmat->SetName(medName);
+      gmat->SetTitle(GetName());
 	}
 	
 	// create medium
 	static Int_t numed = 1; // static counter variable used to number media
-	gmed = new TGeoMedium( GetName(), numed, gmat );
+	gmed = new TGeoMedium( medName, numed, gmat );
 	numed+=1;
 	
 	return gmed;

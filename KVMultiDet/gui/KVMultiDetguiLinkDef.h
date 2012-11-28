@@ -35,4 +35,6 @@
 #pragma link C++ class KVIDGridEditorCanvas+;
 #pragma link C++ class KVIDGridEditor+;
 #pragma link C++ class KVTreeAnalyzer+;
+#pragma link C++ class KVSimDirGUI+;
+#pragma link C++ class KVFileDialog+;
 #endif

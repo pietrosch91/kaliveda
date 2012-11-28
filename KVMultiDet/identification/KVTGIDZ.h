@@ -25,6 +25,7 @@ class KVTGIDZ:public KVTGID {
            Double_t xmin, Double_t xmax, Int_t npar, Int_t x_par,
            Int_t y_par);
    KVTGIDZ(const Char_t * name, Int_t npar, Int_t type, Int_t light, Int_t mass);
+   KVTGIDZ(const KVTGID &);
    virtual ~ KVTGIDZ() {
    };
 

@@ -1,3 +1,3 @@
-fit_ede.lo fit_ede.o: fit_ede.c ../config.h
+fit_ede.lo: fit_ede.c ../config.h
 
 ../config.h:

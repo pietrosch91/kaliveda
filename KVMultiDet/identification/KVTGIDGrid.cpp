@@ -38,9 +38,13 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
     SetVarX( fTGID->GetVarX() );
     SetVarY( fTGID->GetVarY() );
     SetRuns( fTGID->GetValidRuns() );
-    TCollection* idtels = fTGID->GetIDTelescopes();
-    AddIDTelescopes( (const TList*)idtels );
+
+	TList   *idtels = (TList *)fTGID->GetIDTelescopes();
+	TObject *idt    = NULL;
+    TIter next_idt( idtels );
+	while( (idt = next_idt()) ) fTelescopes.Add( idt );
     delete idtels;
+
 	TString name(fTGID->GetName()); Int_t ver=1;
 	if( gIDGridManager->GetGrid( name.Data() ) ){
 		do

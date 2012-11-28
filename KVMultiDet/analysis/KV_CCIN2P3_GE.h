@@ -50,6 +50,7 @@ class KV_CCIN2P3_GE:public KVBatchSystem {
    
 	TString GE_Request(KVString value,KVString jobname="");
 	void qalter(const Char_t* job_base_name, const Char_t* new_ressources);
+   virtual void SanitizeJobName();
 	
    ClassDef(KV_CCIN2P3_GE, 1)  //Interface to CCIN2P3-GE batch job management system
 };

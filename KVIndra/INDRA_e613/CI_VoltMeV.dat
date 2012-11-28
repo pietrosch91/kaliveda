@@ -1,0 +1,39 @@
+#Coefficient Volt -> MeV issu du fit des pics alphas
+# Fonction polynome d ordre 1
+#
+#Couronne 2-3 rien pour le moment
+#Couronne 4-5 (50mbar) et 6-7 (30 mbar), runs alphas 1214 a 1230 ChIo 8-12 absentes, les autres gonflees
+#Couronne 8-12 13-17 rien pour le moment
+#
+#Fit 3 pics en coincidence avec les Silicium (Cour 4 et Cour 7)
+#
+#   valeur en keV des pics alphas dans les Chambres d'ionisation
+#		30 mbar		50 mbar
+#Pu : 784.931050 1357.044209  																																  
+#Am : 820.449739 1424.577601
+#Cm : 861.852005 1504.736908
+#
+#
+CI_0403:                                 pol1,0.000013,26.168981
+CI_0407:                                 pol1,-0.000224,25.899989
+CI_0409:                                 pol1,-0.000815,25.925548
+CI_0411:                                 pol1,-0.000517,25.749792
+CI_0413:                                 pol1,-0.000716,25.492552
+CI_0415:                                 pol1,-0.000635,25.576286
+CI_0417:                                 pol1,-0.000720,27.302426
+CI_0419:                                 pol1,-0.000433,26.675602
+CI_0421:                                 pol1,-0.000309,25.813454
+CI_0423:                                 pol1,-0.000428,24.063149
+#
+CI_0601:                                 pol1,-0.000345,38.674494
+CI_0603:                                 pol1,-0.000432,40.974334
+CI_0605:                                 pol1,-0.000327,40.971511
+CI_0607:                                 pol1,-0.000588,40.992645
+CI_0609:                                 pol1,-0.000475,40.086387
+CI_0611:                                 pol1,-0.000509,40.237672
+CI_0613:                                 pol1,-0.000533,41.169833
+CI_0615:                                 pol1,-0.000780,40.777591
+CI_0617:                                 pol1,-0.000695,41.443214
+CI_0619:                                 pol1,-0.000548,39.000815
+CI_0621:                                 pol1,-0.000638,39.382992
+CI_0623:                                 pol1,-0.000626,38.033611

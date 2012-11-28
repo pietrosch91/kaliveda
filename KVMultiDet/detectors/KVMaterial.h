@@ -26,11 +26,12 @@
 #include "TF1.h"
 #include "TVector3.h"
 #include "Riostream.h"
-#include "KVIonRangeTable.h"
+class KVIonRangeTable;
 
 class KVNucleus;
 class KVTelescope;
 class TGeoMedium;
+class TGeoVolume;
 
 class KVMaterial:public KVBase {
 
@@ -39,6 +40,8 @@ class KVMaterial:public KVBase {
    
    TVector3 fNormToMat;//!dummy vector for calculating normal to absorber
 
+   TGeoVolume* fAbsorberVolume;//!pointer to corresponding volume in ROOT geometry
+   
  public:
 
  private:
@@ -49,6 +52,10 @@ class KVMaterial:public KVBase {
    Double_t fELoss;             //total of energy lost by all particles traversing absorber
       
  public:
+   enum SolType {
+      kEmax,
+      kEmin
+   };
    KVMaterial();
    KVMaterial(const Char_t * type, const Double_t thick = 0.0);
    KVMaterial(const Char_t * gas, const Double_t thick, const Double_t pressure, const Double_t temperature = 19.0);
@@ -89,13 +96,13 @@ class KVMaterial:public KVBase {
 
    virtual Double_t GetEmaxValid(Int_t Z, Int_t A);
    virtual Double_t GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e =
-                              -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
+                              -1.0, enum SolType type = kEmax);
    virtual Double_t GetIncidentEnergyFromERes(Int_t Z, Int_t A, Double_t Eres);
    virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres);
    virtual Double_t GetERes(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE =
-                              -1.0, enum KVIonRangeTable::SolType type = KVIonRangeTable::kEmax);
+                              -1.0, enum SolType type = kEmax);
    virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetMaxDeltaE(Int_t Z, Int_t A);
    
@@ -127,7 +134,13 @@ class KVMaterial:public KVBase {
    };
 	
 	virtual TGeoMedium* GetGeoMedium(const Char_t* /*med_name*/="");
-	
+	virtual void SetAbsGeoVolume(TGeoVolume* v) { fAbsorberVolume = v; };
+	virtual TGeoVolume* GetAbsGeoVolume() const
+   {
+      // Returns pointer to volume representing this absorber in the ROOT geometry.
+      return fAbsorberVolume;
+   };
+   
 	virtual KVIonRangeTable* GetRangeTable() const { return fIonRangeTable; };
    
    ClassDef(KVMaterial, 6)      // Class describing physical materials used to construct detectors & targets

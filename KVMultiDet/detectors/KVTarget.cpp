@@ -1,15 +1,7 @@
-/***************************************************************************
-                          KVTarget.cpp  -  description
-                             -------------------
-    begin                : Fri May 7 2003
-    copyright            : (C) 2003 by Alexis Mignon
-    email                : mignon@ganil.fr
-    
-$Id: KVTarget.cpp,v 1.32 2009/04/06 11:54:54 franklan Exp $
- ***************************************************************************/
 #include "KVTarget.h"
 #include "KVEvent.h"
 #include "KVDetector.h"
+#include "KVUnits.h"
 #include "TMath.h"
 #include "Riostream.h"
 

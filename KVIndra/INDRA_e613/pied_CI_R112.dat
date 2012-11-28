@@ -1,19 +1,34 @@
+#EB 29/08/2012
+#Extraction des piedestaux des ChIo PG et GG
+#pour certains parametres GG de la couronne 2, les distributions
+#resultant des runs piedestaux avait une accumulation
+#à 0 correspondant à une partie de la distribution en négative
+#en utilisant la conservation du nombre de coups total
+#on arrive à reconstruire cette partie négative
+#permettant une meilleure estimation de la valeur moyenne piedestal
+#
+#Liste des paramètres:
+#CI_0205_GG
+#CI_0209_GG
+#CI_0211_GG
+#CI_0215_GG
+#
 RunRange: 2-112
 CI_0201_GG: 11.8355
 CI_0201_PG: 54.1522
 CI_0203_GG: 14.5897
 CI_0203_PG: 54.7882
-CI_0205_GG: 4.79591
+CI_0205_GG: 4.643663
 CI_0205_PG: 54.157
 CI_0207_GG: 21.9184
 CI_0207_PG: 52.6788
-CI_0209_GG: 6.11436
+CI_0209_GG: 5.999917
 CI_0209_PG: 53.7096
-CI_0211_GG: 6.7515
+CI_0211_GG: 6.654012
 CI_0211_PG: 55.1184
 CI_0213_GG: 15.6575
 CI_0213_PG: 54.0192
-CI_0215_GG: 1.92309
+CI_0215_GG: 1.308267
 CI_0215_PG: 55.0639
 CI_0217_GG: 31.1135
 CI_0217_PG: 53.728

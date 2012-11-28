@@ -11,6 +11,7 @@ $Date: 2009/04/06 15:21:31 $
 #define __KVIDCHIOCORRCSI_H
 
 #include "KVIDZAGrid.h"
+#include "KVIDGChIoSi_e494s.h"
 #include "KVINDRAIDTelescope.h"
 #include "KVChIo.h"
 #include "KVIDChIoCsI.h"
@@ -18,21 +19,11 @@ $Date: 2009/04/06 15:21:31 $
 
 class KVIDChIoCorrCsI : public KVIDChIoCsI
 {
+	protected:
 
         KVIDZAGrid* fGrid;
-
-	    KVChIo* fChIo;
-	    KVCsI* fCsI;
-
-        Double_t fCsILight;
-	    Double_t fCsIRPedestal;
-	    Double_t fCsILPedestal;
-
-        Double_t fChIoCorr;
-        Double_t fChIoGG;
-        Double_t fChIoPG;
-        Double_t fChIoGGPedestal;
-        Double_t fChIoPGPedestal;
+	    KVChIo*     fChIo;
+	    KVCsI*      fCsI;
 
     public:
 
@@ -46,19 +37,7 @@ class KVIDChIoCorrCsI : public KVIDChIoCsI
 
         Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 
-        // Methods to check the pedestals etc.
-
-        //Double_t GetCsILight(){return fCsILight;};
-        //Double_t GetCsIRPedestal(){return fCsIRPedestal;};
-        //Double_t GetCsILPedestal(){return fCsILPedestal;};
-
-        //Double_t GetChIoCorr(){return fChIoCorr;};
-        //Double_t GetChIoGG(){return fChIoGG;};
-        //Double_t GetChIoPG(){return fChIoPG;};
-        //Double_t GetChIoGGPedestal(){return fChIoGGPedestal;};
-        //Double_t GetChIoPGPedestal(){return fChIoPGPedestal;};
-
-        ClassDef(KVIDChIoCorrCsI,2)
+        ClassDef(KVIDChIoCorrCsI,2)//ChIo-CsI identification with grids for E503
 };
 
 #endif
