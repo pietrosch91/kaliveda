@@ -1,0 +1,18 @@
+####################################################################
+# Pression dans les ChIo pour la manip INDRA-VAMOS e503            #
+# non vérifiees, juste pour calculs pertes energie                 #
+# format du fichier :                                              #
+#  Run Range : first-last domaine de validite des parametres       #
+#   suivants                                                       #
+# detector name  pressure                                          #
+####################################################################
+Run Range : 1   700
+ChIos 2_3    0.0
+ChIos 4_5    50.0
+ChIos 6_7    50.0
+ChIos 8_12   30.0
+ChIos 13_17  30.0
+
+
+
+
