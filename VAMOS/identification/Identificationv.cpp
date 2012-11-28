@@ -10,6 +10,7 @@
 #include "KVIDGridManager.h" 
 #include "KVINDRADB_e503.h"
 #include "KVINDRAe503.h"
+#include "KVUnits.h"
 
 //Author: Maurycy Rejmund
 using namespace std;
@@ -95,7 +96,7 @@ TString sline;
       		sline.ReadLine(file);
       		if (!file.eof()) {          //fin du fichier
 			if (sline.Sizeof() > 1 && !sline.BeginsWith("#")){
-				sscanf(sline.Data(), "%u %f %f %f &f",
+				sscanf(sline.Data(), "%u %f %f %f %f",
             				&csi, &p0, &p1, &p2, &p3);
 				P0[csi] = p0;
 				P1[csi] = p1;
