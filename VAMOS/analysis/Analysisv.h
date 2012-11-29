@@ -64,7 +64,8 @@ class Analysisv
   virtual void SetCsI(KVMaterial* ccsi)=0;
   
   virtual void SetFileCut(TList* list)=0;
-  virtual void SetFileCutChioSi(TList* list2)=0;    
+  virtual void SetFileCutChioSi(TList* list2)=0;   
+  virtual void SetFileCutSiTof(TList* list3)=0;     
      
   ClassDef(Analysisv,0)
 

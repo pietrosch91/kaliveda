@@ -316,6 +316,11 @@ void Analysisv_e503::SetFileCutChioSi(TList *list2)
 	Id->SetFileCutChioSi(list2);
 }
 
+void Analysisv_e503::SetFileCutSiTof(TList *list3)
+{
+	Id->SetFileCutSiTof(list3);
+}
+
 void Analysisv_e503::SetTarget(KVTarget *tgt)
 {
 	Id->SetTarget(tgt);

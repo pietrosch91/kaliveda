@@ -157,7 +157,7 @@ void CsICalib::InitTelescopeSiTof(Int_t si_num)
 			} 
 			
 			      				
-		if(kvid_chiosi != 0){
+		if(kvid_sitof != 0){
 
         }else{  
 	    printf("Error: 'kvid_sitof' assignment failed\n");

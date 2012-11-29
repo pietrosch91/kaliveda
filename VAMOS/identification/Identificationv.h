@@ -134,9 +134,12 @@ Double_t A_PID;
   void SetFileCut(TList *list);
   void GetFileCut(); 
   void SetFileCutChioSi(TList *list2);
-  void GetFileCutChioSi();    
+  void GetFileCutChioSi();
+  void SetFileCutSiTof(TList *list3);
+  void GetFileCutSiTof();      
   TList	*llist;
-  TList	*llist2;  
+  TList	*llist2;
+  TList	*llist3;    
 //===================================================
 void SetTarget(KVTarget *tgt);
 void SetDC1(KVDetector *dcv1);
@@ -275,7 +278,15 @@ Double_t E_csi;
          
    // Correction de M Chio-Si
    Float_t 	P0_m_chiosi[600][25];
-   Float_t 	P1_m_chiosi[600][25];   
+   Float_t 	P1_m_chiosi[600][25]; 
+   
+   // Correction de M/Q Si-Tof
+   Float_t 	P0_mq_sitof[600];
+   Float_t 	P1_mq_sitof[600];
+         
+   // Correction de M Si-Tof
+   Float_t 	P0_m_sitof[600][25];
+   Float_t 	P1_m_sitof[600][25];      
    
    // Tag des events	
 	Float_t Brho_min[25][60][10][600];
@@ -323,6 +334,23 @@ TCutG *q7cs;
 TCutG *q6cs;
 TCutG *q5cs;
 
+TCutG *q21st;
+TCutG *q20st;
+TCutG *q19st;
+TCutG *q18st;
+TCutG *q17st;
+TCutG *q16st;
+TCutG *q15st;
+TCutG *q14st;
+TCutG *q13st;
+TCutG *q12st;
+TCutG *q11st;
+TCutG *q10st;
+TCutG *q9st;
+TCutG *q8st;
+TCutG *q7st;
+TCutG *q6st;
+TCutG *q5st;
 
    Double_t 	M_corr;
    Int_t 	Q_corr;
