@@ -19,7 +19,6 @@ $Date: 2007/11/21 11:22:59 $
 #include <sstream>
 #include <string>
 #include <string.h>
-#include "KVFocalPlanVamos.h"
 
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"
@@ -65,7 +64,7 @@ void KVIVReconIdent::InitAnalysis(void)
    //get VAMOS calibrator for current dataset
    fAnalyseV = Analysisv::NewAnalyser( gDataSet->GetName(), fLogV );
 
-   LoadGrids();
+   //LoadGrids();
    
    gIndra->SetIdentifications();
    gIndra->InitializeIDTelescopes();   
@@ -75,8 +74,6 @@ void KVIVReconIdent::InitAnalysis(void)
 void KVIVReconIdent::InitRun(void)
 {
    //Connect VAMOS branches in input and output trees  
-   
-   //fAnalyseV->SetRunFlag(0);
 
    KVINDRAReconIdent::InitRun();
    fAnalyseV->OpenOutputTree(fIdentTree);
@@ -88,20 +85,6 @@ void KVIVReconIdent::InitRun(void)
    ifstream in;   
    Int_t run1;
    TString sline;
-   
-    /*kvd_si = new KVSiliconVamos(530.*KVUnits::um);   
-    gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
-    kvd_csi = new KVCsIVamos(1.);*/
-    
-    kvd_si = new KVDetector("Si",530.*KVUnits::um);   
-    gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
-    kvd_csi = new KVDetector("CsI",1.*KVUnits::cm);
-    
-    gap->SetPressure(40.*KVUnits::mbar); 
-    
-    fAnalyseV->SetTel1(kvd_si);    
-    fAnalyseV->SetTel2(gap);        
-    fAnalyseV->SetTel3(kvd_csi);
             
     fIdentTree->Branch("M_INDRA",&M_INDRA,"M_INDRA/I");
     event=1;
@@ -124,26 +107,12 @@ Bool_t KVIVReconIdent::Analysis(void)
 
       GetEvent()->IdentifyEvent();
       GetEvent()->CalibrateEvent();      
-      
-      /*fLogV->Log<<"======"<<endl;
-      fLogV->Log<<"Mult. indra	: "<<GetEvent()->GetMult()<<endl;
-      fLogV->Log<<"======"<<endl;*/   	
-      M_INDRA = GetEvent()->GetMult();
-      while(part = GetEvent()->GetNextParticle("ok")){
-      
-        /*fLogV->Log<<"ring indra	: "<<part->GetRingNumber()<<endl;
-	fLogV->Log<<"module indra	: "<<part->GetModuleNumber()<<endl;
-      	fLogV->Log<<"Z indra		: "<<part->GetZ()<<endl; 
-	fLogV->Log<<"Telescope	: "<<part->GetIdentifyingTelescope()<<endl;
-	fLogV->Log<<"Bool		: "<<part->IsIdentified()<<endl;*/				
-	
-      } 
    }
 
 
 // Ident/Reconstruction of VAMOS data
    
-   fAnalyseV->Treat();
+   //fAnalyseV->Treat();
    		
    fIdentTree->Fill();
    fAnalyseV->FillHistograms();

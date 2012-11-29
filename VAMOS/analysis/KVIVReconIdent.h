@@ -20,7 +20,6 @@ $Date: 2007/06/08 15:49:10 $
 #include "KVCsIVamos.h"
 #include "KVDetector.h"
 
-#define ID_SWITCH -1
 #include "KVINDRAReconIdent.h"
 
 class Analysisv;
@@ -44,9 +43,6 @@ class KVIVReconIdent : public KVINDRAReconIdent
    Bool_t LoadGrids(); 
    Int_t event;
    Int_t M_INDRA;
-   Float_t  thetavam,brho;
-   Double_t  brhorun;
-   Double_t  thetavamrun;
    
    KVINDRAReconNuc *part;
    KVTelescope *kvt_sicsi;
