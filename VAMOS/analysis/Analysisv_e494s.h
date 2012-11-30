@@ -54,7 +54,24 @@ class Analysisv_e494s : public Analysisv
   void Treat(); // Treating data
   void CreateHistograms();
   void FillHistograms();
+
+  void SetTel1(KVDetector *si)       { si    = si;    };
+  void SetTel2(KVDetector *gap)      { gap   = gap;   };  
+  void SetTel3(KVDetector *csi)      { csi   = csi;   };
+  void SetFileCut(TList *list)       { list  = list;  };
+  void SetFileCutChioSi(TList *list2){ list2 = list2; };
   
+  void SetTarget(KVTarget *tgt)    { tgt     = tgt;     };
+  void SetDC1(KVDetector *dcv1)    { dcv1    = dcv1;    };
+  void SetSed(KVMaterial *sed)     { sed     = sed;     };
+  void SetDC2(KVDetector *dcv2)    { dcv2    = dcv2;    };
+  void SetIC(KVDetector *ic)       { ic      = ic;      };
+  void SetGap1(KVMaterial *isogap1){ isogap1 = isogap1; };
+  void SetSi(KVMaterial *ssi)      { ssi     = ssi;     };
+  void SetGap2(KVMaterial *isogap2){ isogap2 = isogap2; };
+  void SetCsI(KVMaterial *ccsi)    { ccsi    = ccsi;    }; 
+
+
   ClassDef(Analysisv_e494s,0)//VAMOS calibration for E494S
 
 };

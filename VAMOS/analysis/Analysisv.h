@@ -47,8 +47,6 @@ class Analysisv
   virtual void CreateHistograms()=0;
   virtual void FillHistograms()=0;
   
-  virtual void SetRunFlag(Int_t)=0; 
-  virtual Int_t GetRunFlag(void)=0;
   virtual void SetTel1(KVDetector *si)=0;
   virtual void SetTel2(KVDetector *gap)=0;  
   virtual void SetTel3(KVDetector *csi)=0; 	
