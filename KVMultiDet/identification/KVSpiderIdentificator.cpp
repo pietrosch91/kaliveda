@@ -28,11 +28,11 @@ KVSpiderIdentificator::KVSpiderIdentificator()
   SetDefault();
 }
 
-KVSpiderIdentificator::KVSpiderIdentificator(TH2F* h_, Double_t Xm, Double_t Ym)
+KVSpiderIdentificator::KVSpiderIdentificator(TH2F* h_, Double_t Xm, Double_t Ym, Double_t pdx, Double_t pdy)
 {
   _is_initialized = false;
   SetDefault();
-  Init(h_, Xm, Ym);
+  Init(h_, Xm, Ym, pdx, pdy);
 }
 
 
@@ -50,6 +50,9 @@ void KVSpiderIdentificator::SetDefault()
   _hlist.SetOwner();
   _dlist.SetOwner();
   _bfactor = 1.;
+  _nAngleUp = 20;
+  _nAngleDown =40;  
+  _alpha = 1.7;
 }
 
 
@@ -79,7 +82,7 @@ void KVSpiderIdentificator::SetParameters(double bining_)
 }
 
 
-void KVSpiderIdentificator::Init(TH2F* h_, Double_t Xm, Double_t Ym)
+void KVSpiderIdentificator::Init(TH2F* h_, Double_t Xm, Double_t Ym, Double_t pdx, Double_t pdy)
 {
   if(!TestHistogram(h_)) return;
   else _htot = h_;
@@ -96,11 +99,11 @@ void KVSpiderIdentificator::Init(TH2F* h_, Double_t Xm, Double_t Ym)
   TH1D* hx = _htot->ProjectionX();
   TH1D* hy = _htot->ProjectionY();
     
-  int x0;
-  int y0;
+  int x0 = pdx;
+  int y0 = pdy;
   int z0;
   
-  _htot->GetMaximumBin(x0,y0,z0);
+  if((pdx<0.)||(pdy<0.)) _htot->GetMaximumBin(x0,y0,z0);
   _x0 = x0;
   _y0 = y0;
   
@@ -141,8 +144,6 @@ void KVSpiderIdentificator::Init(TH2F* h_, Double_t Xm, Double_t Ym)
   if(Xm>0.) _xm = Xm;
   if(Ym>0.) _ym = Ym;
   
-  CalculateTheta();
-
   _invalid = new TGraph();
   
   _is_initialized = true;
@@ -420,7 +421,7 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
 	  {
 	  if(valid) 
 	    {
-	    _spline = new KVSpiderLine(p);
+	    _spline = new KVSpiderLine(p,GetY0());
             _llist.AddLast(_spline);
 	    }
 	  }
@@ -562,16 +563,21 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
 bool KVSpiderIdentificator::ProcessIdentification()
 {
   
-  double detail_angle = _ftheta*0.3;
+  CalculateTheta();
+//  double detail_angle = _ftheta*0.3;
+  Int_t angle_proc = 0;
   
   int cre = 0;
-  CreateHistograms(_ftheta,_ftheta,1,true,1.5);  
+  CreateHistograms(_ftheta,_ftheta,1,true,_alpha);  
   TIter nexti(&_hlist);
   while((_htemp=(TH2F*)nexti()))
     {
     _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
     TH1F* hh = GetProjection(_htemp,_dtemp,12);
-    SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,12,5);        
+    SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,12,5);
+    angle_proc += 1;
+    Increment((Float_t) angle_proc);      //sends signal to GUI progress bar
+         gSystem->ProcessEvents();
     delete hh;
     }    
   _hlist.Clear();
@@ -583,7 +589,7 @@ bool KVSpiderIdentificator::ProcessIdentification()
     else _spline->SetStatus(false);
     }  
 
-  CreateHistograms(_ftheta+1.,89.2,20.,true,.6);  
+  CreateHistograms(_ftheta+1.,89.2,_nAngleUp,true,_alpha*0.6/1.7);  
   _hlist.Sort();
   TIter next(&_hlist);
   while((_htemp=(TH2F*)next()))
@@ -597,6 +603,9 @@ bool KVSpiderIdentificator::ProcessIdentification()
       {
        _spline->SetStatus(false);
       }  
+    angle_proc += 1;
+    Increment((Float_t) angle_proc);      //sends signal to GUI progress bar
+         gSystem->ProcessEvents();
     }          
   _hlist.Clear();
 
@@ -609,7 +618,8 @@ bool KVSpiderIdentificator::ProcessIdentification()
 
   
   cre = 1;
-  CreateHistograms(detail_angle,_ftheta-1.,25,true,1.);  
+//  CreateHistograms(detail_angle,_ftheta-1.,25,true,1.);  
+  CreateHistograms(1.5,_ftheta-1.,_nAngleDown,true,_alpha*1./1.7);
   
   _hlist.Sort(false);
   TIter nextt(&_hlist);
@@ -620,23 +630,26 @@ bool KVSpiderIdentificator::ProcessIdentification()
     SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,15,5);
     cre = 1;
     delete hh;
+    angle_proc += 1;
+    Increment((Float_t) angle_proc);      //sends signal to GUI progress bar
+         gSystem->ProcessEvents();
     }
   _hlist.Clear();
   
     
-  cre = 1;
-  CreateHistograms(0.7,detail_angle-2,17,false,.5);  
-  
-  _hlist.Sort(false);
-  TIter nexttt(&_hlist);
-  while((_htemp=(TH2F*)nexttt()))
-    {
-    _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
-    TH1F* hh = GetProjection(_htemp,_dtemp,17);
-    SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,17,5);
-    delete hh;
-    }
-  _hlist.Clear();
+//   cre = 1;
+//   CreateHistograms(0.7,detail_angle-2,17,false,.5);  
+//   
+//   _hlist.Sort(false);
+//   TIter nexttt(&_hlist);
+//   while((_htemp=(TH2F*)nexttt()))
+//     {
+//     _dtemp = (KVDroite*)_dlist.FindObject(_htemp->GetName());
+//     TH1F* hh = GetProjection(_htemp,_dtemp,17);
+//     SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,17,5);
+//     delete hh;
+//     }
+//   _hlist.Clear();
   
       
   TIter nextli(&_llist);

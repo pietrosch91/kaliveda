@@ -5,7 +5,7 @@ using namespace std;
 
 ClassImp(KVSpiderLine)
 
-KVSpiderLine::KVSpiderLine(int z_)
+KVSpiderLine::KVSpiderLine(int z_, Double_t pdy)
 {
   SetName(Form("Z=%d",z_));
   _z      = z_;
@@ -19,6 +19,7 @@ KVSpiderLine::KVSpiderLine(int z_)
   _ff  = 0;
   _pow = 0;
   _fitStatus = 1;
+  _pdy = pdy;
 }
 
 KVSpiderLine::KVSpiderLine()
@@ -185,7 +186,7 @@ bool KVSpiderLine::TestPoint(double x_, double y_, double dy_, bool fit)
   if(dy_>0.) dy = dy_;
   else
     {
-    dy = (GetInterpolateY()/_z)*1.;
+    dy = ((GetInterpolateY()-_pdy)/_z)*1.;
     }
   
   if((GetN()>=10)&&(fit)) 

@@ -17,5 +17,6 @@
 #pragma link C++ class KVTGIDGrid+;
 #pragma link C++ class KVDroite+;
 #pragma link C++ class KVSpiderLine+;
+#pragma link C++ class KVSpiderPSALine+;
 #pragma link C++ class KVSpiderIdentificator+;
 #endif

@@ -22,10 +22,12 @@ class KVSpiderLine : public TNamed
   double  _pow;
   Int_t _fitStatus;
   
+  Double_t _pdy;
+  
   public:
   
   KVSpiderLine();
-  KVSpiderLine(int z_);
+  KVSpiderLine(int z_, Double_t pdy_=0.);
   virtual ~KVSpiderLine(){};
   
   bool AddPoint(double x_, double y_, bool test_=false, int n_=-1);
@@ -52,13 +54,13 @@ class KVSpiderLine : public TNamed
   
   TGraph* GetLine(){return _line;};
   TGraph* GetInterpolateLine(){return _iline;};
-  TF1* GetFunction(double min_=-1., double max_=-1.);
+  virtual TF1* GetFunction(double min_=-1., double max_=-1.);
   int GetZ(){return _z;};
   
   bool GetStatus();
   void SetStatus(bool filled_=true);
     
-  bool TestPoint(double x_, double y_, double dy_=-1., bool fit=true);
+  virtual bool TestPoint(double x_, double y_, double dy_=-1., bool fit=true);
   double GetDistance(double x_, double y_);
   bool CheckStatus()const;
   void Draw(Option_t* opt_ = "");

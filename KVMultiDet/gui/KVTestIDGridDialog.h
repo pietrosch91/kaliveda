@@ -75,8 +75,6 @@ class KVTestIDGridDialog {
    static Int_t hzrealbins;
    static Int_t hzrealxmin;
    static Int_t hzrealxmax;
-//    static Double_t harealxmin;
-//    static Double_t harealxmax;
    static Int_t hzvsexbins;
    static Double_t hzvsexmin;
    static Double_t hzvsexmax;
