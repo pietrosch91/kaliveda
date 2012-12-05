@@ -1,0 +1,60 @@
+//Created by KVClassFactory on Tue Dec  4 09:49:15 2012
+//Author: dgruyer
+
+#ifndef __KVZALINEFINDER_H
+#define __KVZALINEFINDER_H
+
+#include "KVBase.h"
+
+#include <TH2F.h>
+#include <TGraph.h>
+#include <TFile.h>
+#include <TMath.h>
+#include <TNamed.h>
+#include <TRandom3.h>
+#include <TSpectrum.h>
+#include <TROOT.h>
+
+#include <Riostream.h>
+#include <RQ_OBJECT.h>
+
+#include "KVIDZAGrid.h"
+#include "KVCanvas.h"
+
+
+class KVZALineFinder : public KVBase
+{
+   protected:
+   KVIDZAGrid* fGrid;
+   TH2*        fHisto;
+   
+   KVIDZAGrid* fGeneratedGrid;
+   TH2*        fLinearHisto;
+   KVCanvas*   fCanvas;
+
+   TSpectrum fSpectrum;
+   TGraph*   fPoints;
+   Int_t     fNPoints;
+   
+   TList*    fLines;
+   
+   public:
+   KVZALineFinder(KVIDZAGrid* gg, TH2* hh);
+   KVZALineFinder(const KVZALineFinder&) ;
+   virtual ~KVZALineFinder();
+   void Copy(TObject&) const;
+   
+   TH2* LinearizeHisto(Int_t nZbin=40);
+   void FindALine(Int_t zz, Int_t width=10);
+   void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");};
+   void ProcessIdentification(Int_t zmin, Int_t zmax);
+   
+   void SortLines(TList* Lines);
+   void MakeGrid();
+   void DrawGrid();
+   
+
+   ClassDef(KVZALineFinder,1)//(try to) find masse lines from charge lines
+};
+
+#endif

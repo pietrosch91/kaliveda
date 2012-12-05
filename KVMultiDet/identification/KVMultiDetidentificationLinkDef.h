@@ -19,4 +19,5 @@
 #pragma link C++ class KVSpiderLine+;
 #pragma link C++ class KVSpiderPSALine+;
 #pragma link C++ class KVSpiderIdentificator+;
+#pragma link C++ class KVZALineFinder+;
 #endif

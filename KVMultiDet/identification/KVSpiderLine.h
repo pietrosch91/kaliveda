@@ -18,6 +18,7 @@ class KVSpiderLine : public TNamed
   TGraph* _iline;
   TF1*    _ff;  
   int     _z;
+  int     _a;
   bool    _filled;
   double  _pow;
   Int_t _fitStatus;
@@ -28,6 +29,7 @@ class KVSpiderLine : public TNamed
   
   KVSpiderLine();
   KVSpiderLine(int z_, Double_t pdy_=0.);
+  KVSpiderLine(int z_, int a_);
   virtual ~KVSpiderLine(){};
   
   bool AddPoint(double x_, double y_, bool test_=false, int n_=-1);
@@ -37,6 +39,7 @@ class KVSpiderLine : public TNamed
   bool ReplaceLastPoint(double x_, double y_);
   void Sort(bool ascending_=true);
   void SetZ(int z_);
+  void SetA(int a_);
   void SetPower(double pow_){_pow = pow_;};
   
   double GetX(int n_)const;
@@ -56,6 +59,7 @@ class KVSpiderLine : public TNamed
   TGraph* GetInterpolateLine(){return _iline;};
   virtual TF1* GetFunction(double min_=-1., double max_=-1.);
   int GetZ(){return _z;};
+  int GetA(){return _a;};
   
   bool GetStatus();
   void SetStatus(bool filled_=true);

@@ -197,6 +197,9 @@ friend class KVIDGridEditorCanvas;
    void SetHisto(TH2* hh);					//donne l'histo a l'editeur
    void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
    void SetGrid(TString GridName);				//donne la grille a l'editeur par son nom
+
+   KVIDGraph* GetGrid(){return TheGrid;};
+   TH2*       GetHisto(){return TheHisto;};
    
    TCanvas* GetEditorCanvas(){return fCanvas;};
    

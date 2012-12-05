@@ -47,8 +47,6 @@ ClassImp(KVTestIDGridDialog)
 	g->GetIdentifiers()->Sort(); // make sure lines are in order of increasing PID
 	hzrealxmin = ((KVIDentifier*)g->GetIdentifiers()->First())->GetPID() - 1.0;
 	hzrealxmax = ((KVIDentifier*)g->GetIdentifiers()->Last())->GetPID() + 1.0;
-// 	harealxmin = ((KVIDentifier*)g->GetIdentifiers()->First())->GetPID() - 1.0;
-// 	harealxmax = ((KVIDentifier*)g->GetIdentifiers()->Last())->GetPID() + 1.0;
 	hzvseymin = hzrealxmin;
 	hzvseymax = hzrealxmax;
 	
