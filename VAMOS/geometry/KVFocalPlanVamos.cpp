@@ -15,6 +15,7 @@ $Date: 2009/01/21 08:04:20 $
 #include "KVTelescope.h"
 #include "KVDetector.h"
 #include "KVMaterial.h" 
+using namespace std;
 
 ClassImp(KVFocalPlanVamos)
 

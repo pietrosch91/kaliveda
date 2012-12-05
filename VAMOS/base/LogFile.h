@@ -7,6 +7,7 @@
 
 #include <string>
 #include <sstream>
+using namespace std;
 
 enum LogLevel{LOG_LOW, LOG_NORMAL, LOG_HIGH};
 
