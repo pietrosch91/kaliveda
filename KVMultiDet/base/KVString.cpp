@@ -494,6 +494,15 @@ void KVString::Begin(TString delim)
 	// First
 	//  Second
 	//  Third
+   //
+   // WARNING: If the delimiter character is not contained in the string,
+   // calling Next() will return the entire contents of the string, after
+   // which End() will return kTRUE. This allows to parse strings containing
+   // variable numbers of parameters separated by a delimiter which is only
+   // used with 2 or more parameters, i.e.:
+   //
+   //      "par1|par2|par3" -> "par1" "par2" "par3"
+   //      "par1"           -> "par1"
 	fEndList=kFALSE;
 	fIterIndex=0;
 	if (IsNull()) { fEndList=kTRUE;}
