@@ -122,6 +122,12 @@ Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Doub
     if (GetStatus() != KVTGIDManager::kStatus_OK) return kFALSE;   // no ID
 
     iz = TMath::Nint(Z);
+
+	if( iz < 1 ){
+    IDR->IDquality = KVTGIDManager::kStatus_ZtooSmall;
+	return kFALSE;
+	}
+
     IDR->IDOK = kTRUE;
 
     //is mass identification a possibility ?

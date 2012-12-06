@@ -124,15 +124,16 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
     //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
     IDR->IDquality = GetStatus();
 
-    if(GetStatus() == KVTGID::kStatus_NotBetween_IDMin_IDMax){
-        return kFALSE;
-    }
+    if(GetStatus() == KVTGID::kStatus_NotBetween_IDMin_IDMax) return kFALSE;
 
-    if (GetStatus() != KVTGIDManager::kStatus_OK){
-        return kFALSE;            // no ID
-    }
+    if (GetStatus() != KVTGIDManager::kStatus_OK) return kFALSE;  // no ID
 
     iz = TMath::Nint(Z);
+
+	if( iz < 1 ){
+    IDR->IDquality = KVTGIDManager::kStatus_ZtooSmall;
+	return kFALSE;
+	}
 
     IDR->IDOK = kTRUE;
 
