@@ -15,6 +15,7 @@
 #include "TPad.h"
 #include "TKey.h"
 #include "TROOT.h"
+#include "TGMsgBox.h"
 
 using namespace std;
 
@@ -229,7 +230,7 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    return h;
 }
    
-void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
+Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
 {
    // Generate a new user-selection (TEntryList) of events in the TTree
    // according to the given selection expression (valid TTreeFormula expression
@@ -249,7 +250,10 @@ void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    name.Form("el%d",fSelectionNumber);
    TString drawexp(name.Data());
    drawexp.Prepend(">>");
-   fTree->Draw(drawexp, selection, "entrylist");
+   if( fTree->Draw(drawexp, selection, "entrylist") < 0 ){
+	   new TGMsgBox(gClient->GetRoot(),0,"Warning","Mistake in your new selection!",kMBIconExclamation,kMBClose);
+	   return kFALSE;
+   }
    TEntryList*el = (TEntryList*)gDirectory->Get(name);
    if(fTree->GetEntryList()){
       TString _elist = fTree->GetEntryList()->GetTitle();
@@ -259,6 +263,7 @@ void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    }
    fSelectionNumber++;
    AddSelection(el);
+   return kTRUE;
 }
    
 void KVTreeAnalyzer::SetSelection(TObject* obj)
@@ -813,8 +818,7 @@ void KVTreeAnalyzer::GenerateSelection()
    
    TString selection = G_selection_text->GetText();
    if( selection.IsNull() ) return;
-   MakeSelection(selection);
-   G_selection_text->Clear();
+   if( MakeSelection(selection) ) G_selection_text->Clear();
 }
 
 void KVTreeAnalyzer::GenerateAlias()
