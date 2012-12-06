@@ -1323,6 +1323,7 @@ void KVTreeAnalyzer::UpdateEntryLists()
    while( (old_el = (TEntryList*)next()) ){
       cout << "REGENERATING SELECTION : " << old_el->GetTitle() << endl;
       MakeSelection(old_el->GetTitle());
+	  ((TEntryList *)fSelections.Last())->SetReapplyCut( old_el->GetReapplyCut() );
    }
    old_lists.Delete();
 }
