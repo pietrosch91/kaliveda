@@ -812,6 +812,7 @@ void KVTreeAnalyzer::GenerateSelection()
    // selection which is added to the GUI list of selections.
    
    TString selection = G_selection_text->GetText();
+   if( selection.IsNull() ) return;
    MakeSelection(selection);
    G_selection_text->Clear();
 }
