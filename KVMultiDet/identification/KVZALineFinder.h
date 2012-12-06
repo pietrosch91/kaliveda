@@ -47,7 +47,7 @@ class KVZALineFinder : public KVBase
    TH2* LinearizeHisto(Int_t nZbin=40);
    void FindALine(Int_t zz, Int_t width=10);
    void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");};
-   void ProcessIdentification(Int_t zmin, Int_t zmax);
+   void ProcessIdentification(Int_t zmin=-1, Int_t zmax=-1);
    
    void SortLines(TList* Lines);
    void MakeGrid();

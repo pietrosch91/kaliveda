@@ -136,27 +136,27 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
   Int_t xbmin = 0;//fLinearHisto->GetYaxis()->FindBin(lX);
   line->GetEndPoint(lX,lY);
   Int_t xbmax = fLinearHisto->GetXaxis()->FindBin(lX);
-  
-  cout << lX*1.5 << " " << xbmax << endl;
-  
+    
   // create lines
   TList Lines;
   KVSpiderLine* tmp = 0;
   
-  TH1* tmph = fLinearHisto->ProjectionX("tmph");
-  Int_t startBin = (Int_t)(tmph->GetMaximumBin()*0.8);
+  fLinearHisto->SetAxisRange(fLinearHisto->GetXaxis()->GetBinCenter(50),lX,"X");//fLinearHisto->GetXaxis()->GetXmax(),"X");
+  TH1* tmph = fLinearHisto->ProjectionX(Form("tmph%d",zz));
+  Int_t startBin = (Int_t)(tmph->GetMaximumBin()*0.95);
   delete tmph;
   
   TH1* projey = 0;
   if(startBin)
     {
-    projey = fLinearHisto->ProjectionY("ProjectionAfterLin",startBin-width*2,startBin+width*2);
-    int nfound = fSpectrum.Search(projey,0.05,"goff",0.02);
+    projey = fLinearHisto->ProjectionY("ProjectionAfterLin",startBin-width*3,startBin+width*3);
+    int nfound = fSpectrum.Search(projey,0.05,"goff",0.0001);
     Float_t* xpeaks = fSpectrum.GetPositionX();
     Float_t* ypeaks = fSpectrum.GetPositionY();
     for(int p=0;p<nfound;p++) 
       {
-      if(p>6) break;
+      if(p>8) break;
+      if(ypeaks[p]<10) continue;
       Double_t xline = fLinearHisto->GetBinCenter(startBin);
       Double_t yline = xpeaks[p];
       KVSpiderLine* tmp = 0;
@@ -177,23 +177,28 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
   
   Int_t nLines = Lines.GetSize();
   tmp = 0;
-  for(int xx=startBin-width/2; xx>xbmin+width/2; xx-=width)
+  for(int xx=startBin-width; xx>xbmin; xx-=width)
     {
     projey = fLinearHisto->ProjectionY("ProjectionAfterLin",xx-width/2,xx+width/2);
     int nfound = fSpectrum.Search(projey,0.05,"goff",0.02);
     Float_t* xpeaks = fSpectrum.GetPositionX();
+    Float_t* ypeaks = fSpectrum.GetPositionY();
     for(int p=0;p<nfound;p++) 
       {
-      if(p>=nLines) continue;
+      if(p>=nLines+1) continue;
+      if(ypeaks[p]<5) continue;
       Double_t xline = fLinearHisto->GetBinCenter(xx);
       Double_t yline = xpeaks[p];
       KVSpiderLine* tmp = 0;
       TIter next(&Lines);
       while((tmp=(KVSpiderLine*)next()))
 	{
-	if(TMath::Abs(tmp->GetY()-yline)<0.05) break;
+	if((TMath::Abs(tmp->GetY()-yline)<0.05)) break;
 	}
-      if(tmp) tmp->AddPoint(xline,yline);
+      if(tmp)
+        {
+        if((TMath::Abs(tmp->GetX()-xline)<10*width)) tmp->AddPoint(xline,yline);
+	}
       }
     if(projey) delete projey;
     }
@@ -202,14 +207,16 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
   while((tmp=(KVSpiderLine*)nextli()))tmp->Sort(true);
   
   tmp = 0;
-  for(int xx=startBin+width/2; xx<=xbmax-width/2; xx+=width)
+  for(int xx=startBin+width; xx<=xbmax-width/2; xx+=width)
     {
     projey = fLinearHisto->ProjectionY("ProjectionAfterLin",xx-width/2,xx+width/2);
     int nfound = fSpectrum.Search(projey,0.05,"goff",0.02);
     Float_t* xpeaks = fSpectrum.GetPositionX();
+    Float_t* ypeaks = fSpectrum.GetPositionY();
     for(int p=0;p<nfound;p++) 
       {
-      if(p>=nLines) continue;
+      if(p>=nLines+1) continue;
+      if(ypeaks[p]<5) continue;
       Double_t xline = fLinearHisto->GetBinCenter(xx);
       Double_t yline = xpeaks[p];
       KVSpiderLine* tmp = 0;
@@ -218,7 +225,10 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
 	{
 	if(TMath::Abs(tmp->GetY()-yline)<0.05) break;
 	}
-      if(tmp) tmp->AddPoint(xline,yline);
+      if(tmp)
+        {
+        if((TMath::Abs(tmp->GetX()-xline)<10*width)) tmp->AddPoint(xline,yline);
+	}
       }
     if(projey) delete projey;
     }
@@ -232,13 +242,31 @@ void KVZALineFinder::SortLines(TList* Lines)
   int nn = Lines->GetSize();
   if(!nn) return;
   
+  Int_t zz = ((KVSpiderLine*)Lines->At(0))->GetZ();
+  
   double* yy = new double[nn];
   Int_t*    ii = new int[nn];
   for(int i=0; i<nn; i++) yy[i] = ((KVSpiderLine*)Lines->At(i))->GetY(0);
   
-  Int_t zz = ((KVSpiderLine*)Lines->At(0))->GetZ();
+  KVNucleus nuc;
+  Int_t fAMostProb[9] = {1,4,7,9,11,12,14,16,19};
+
+  
   TMath::Sort(nn, yy, ii, kFALSE);
-  for(int i=0; i<nn; i++) ((KVSpiderLine*)Lines->At(ii[i]))->SetA(2*zz+i);
+  Int_t iMostProb;
+  for(int i=0; i<nn; i++){if(ii[i]==0) iMostProb=i;}
+    
+  Int_t aMostProb = 0;
+  if(zz<10) aMostProb = fAMostProb[zz-1];
+  else aMostProb = 2*zz+1;
+  
+  for(int i=0; i<nn; i++)
+    {
+    Int_t aa = aMostProb-(iMostProb-i);
+    nuc.SetZandA(zz,aa);
+    if((nuc.GetLifeTime()<pow(10,-6))) aa-=1;
+    ((KVSpiderLine*)Lines->At(ii[i]))->SetA(aa);
+    }
 
   return;
 }
@@ -255,9 +283,9 @@ void KVZALineFinder::MakeGrid()
   KVIDZALine* TheLine = 0;
   KVSpiderLine* spline = 0;
   TIter next_line(fLines);
-  while((spline = (KVSpiderLine*)next_line()))
+  while((spline = (KVSpiderLine*)next_line())) // generate KVLines from KVSpiderLines
     {
-    if((spline->GetN()>15))
+    if((spline->GetN()>5))
       {
       TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
       TheLine->SetZ(spline->GetZ());
@@ -267,12 +295,33 @@ void KVZALineFinder::MakeGrid()
 	TheLine->SetPoint(i, spline->GetX(i), spline->GetY(i));
 	}
       fGeneratedGrid->Add("ID",TheLine);
-      }
-    else
-      {
-      Info("SpiderIdentification","Z=%d, A=%d has been rejected !",spline->GetZ(),spline->GetA());
+      fLines->Remove(spline);
       }
     }	 
+
+  TheLine = 0;
+  spline = 0;
+  TIter next(fLines);
+  while((spline = (KVSpiderLine*)next())) // scan rejected lines
+    {
+    if(spline->GetZ()<4) continue;
+    int index = 0;
+    KVIDZALine* oldLine = 0;
+    if((oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()+1,index)))){}
+    else if((oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()-1,index)))){}
+    if(!oldLine) continue;
+    TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
+    TheLine->SetZ(spline->GetZ());
+    TheLine->SetA(spline->GetA());
+    Double_t dy = spline->GetY() - oldLine->Eval(spline->GetX());
+    for(int i=0; i<oldLine->GetN(); i++)
+      {
+      TheLine->SetPoint(i, (oldLine->GetX()[i]), (oldLine->GetY()[i])+dy);
+      }
+    fGeneratedGrid->Add("ID",TheLine);
+    }
+
+
 }
 
 
@@ -288,14 +337,19 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
 {
   LinearizeHisto(60);
   
+  if(zmin<0) zmin = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetZ();
+  if(zmax<0) zmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetZ();
+  
+  
   KVIDLine* line = 0;
   int ww = 10;
   for(int z=zmin; z<=zmax; z++)
     {
     if(!fGrid->GetIdentifier(z,2*z+1)) continue;
-    if(z>6)  ww = 20;
-    if(z>10) ww = 30;
-    if(z>12) ww = 40;
+    if(z>4)  ww = 20;
+    if(z>6)  ww = 30;
+    if(z>10) ww = 40;
+    if(z>12) ww = 50;
     FindALine(z, ww);
     Info("ProcessIdentification","Line Z=%d processed !",z);
     }

@@ -315,7 +315,7 @@ void KVTestIDGridDialog::TestGrid()
 		
 	// A vs Z map in caze of !IsOnlyZId()
    TH2F *hazreal = 0;
-   if(!fSelectedGrid->IsOnlyZId()) hazreal = new TH2F("AZMap", "Z vs. A", hzrealbins, hnmin, hnmax, hzrealbins, hzrealxmin, hzrealxmax);
+   if(!fSelectedGrid->IsOnlyZId()) hazreal = new TH2F("AZMap", "Z vs. A", 30*(hnmax-hnmin-1), hnmin, hnmax, 30*(hzrealxmax-hzrealxmin-1), hzrealxmin, hzrealxmax);
 
    //progress bar set up
    fProgressBar->SetRange(0, hdata->GetSum());
@@ -361,11 +361,16 @@ void KVTestIDGridDialog::TestGrid()
      ((TPad*)gPad)->SetLogz();
      TAxis* ax = 0;
      ax = hazreal->GetXaxis();
-     ax->SetNdivisions(000);
+     ax->SetNdivisions(004);
+     ax->SetLabelOffset(-0.04);
+     ax->SetTickLength(0);
      
      ax = hazreal->GetYaxis();
-     ax->SetNdivisions(000);
+     ax->SetNdivisions(004);
+     ax->SetLabelOffset(-0.03);
+     ax->SetTickLength(0);
      hazreal->Draw("col");
+     hazreal->SetMinimum(1);
      DrawChart(cc, (Int_t)hzrealxmin, (Int_t)hzrealxmax, (Int_t)hnmin, (Int_t)hnmax);
      }
       
