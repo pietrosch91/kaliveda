@@ -574,9 +574,11 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_selectionlist->AddFrame(G_update_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
    /* selection list */
    G_selectionlist = new KVListView(TEntryList::Class(), fMain_selectionlist, sWidth, sHeight);
-   G_selectionlist->SetDataColumns(2);
+   G_selectionlist->SetDataColumns(3);
    G_selectionlist->SetDataColumn(0, "Selection", "GetTitle");
-   G_selectionlist->SetDataColumn(1, "Events", "GetN", kTextRight);
+   G_selectionlist->SetDataColumn(1, "Reapply", "GetReapplyCut");
+   G_selectionlist->GetDataColumn(1)->SetIsBoolean();
+   G_selectionlist->SetDataColumn(2, "Events", "GetN", kTextRight);
    G_selectionlist->ActivateSortButtons();
    G_selectionlist->SetDoubleClickAction("KVTreeAnalyzer", this, "SetSelection(TObject*)");
    G_selectionlist->Connect("SelectionChanged()", "KVTreeAnalyzer", this, "SelectionChanged()");
@@ -864,6 +866,7 @@ void KVTreeAnalyzer::SelectionChanged()
    SafeDelete(fSelectedSelections);
    fSelectedSelections = G_selectionlist->GetSelectedObjects();
    if(fSelectedSelections && fSelectedSelections->GetEntries()>1) G_selection_but->SetEnabled(kTRUE);
+   else if(fSelectedSelections && fSelectedSelections->GetEntries()==0) G_selectionlist->Display(&fSelections);
    else G_selection_but->SetEnabled(kFALSE);
 }
 
@@ -1329,6 +1332,7 @@ void KVTreeAnalyzer::UpdateEntryLists()
       cout << "REGENERATING SELECTION : " << old_el->GetTitle() << endl;
       MakeSelection(old_el->GetTitle());
 	  ((TEntryList *)fSelections.Last())->SetReapplyCut( old_el->GetReapplyCut() );
+   	  G_selectionlist->Display(&fSelections);
    }
    old_lists.Delete();
 }
