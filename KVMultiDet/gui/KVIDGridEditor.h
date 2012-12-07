@@ -39,6 +39,7 @@
 #include "KVHistoManipulator.h"
 
 #include "KVSpiderIdentificator.h"
+#include "KVZALineFinder.h"
 
 #define FACTOR -1.
 
@@ -217,6 +218,7 @@ friend class KVIDGridEditorCanvas;
    Double_t GetSpiderFactor(){return fSpiderFactor;};
    
    void SpiderIdentification();
+   void FindZALines();
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };

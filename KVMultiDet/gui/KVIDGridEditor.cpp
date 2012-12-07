@@ -42,6 +42,7 @@ KVIDGridEditor::KVIDGridEditor()
   fDefaultMethod = "";
   
   AddMethod("SaveCurrentGrid");
+  AddMethod("FindZALines");
   AddMethod("SelectLinesByZ");
   AddMethod("MakeScaleX");
   AddMethod("MakeScaleY");
@@ -2266,6 +2267,19 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
   return;
 }
 
+void KVIDGridEditor::FindZALines()
+{
+  if((!TheHisto)||(!TheGrid)) return;
+  KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
+  toto.ProcessIdentification();
+  
+  Close();
+  StartViewer();
+  SetHisto(toto.GetHisto());
+  SetGrid(toto.GetGrid(),kFALSE);
+  UpdateViewer();
+}
+
 void KVIDGridEditor::AddMethod(const char* theMethod)
 {
   if(fListOfMethods.IsNull()) fDefaultMethod += theMethod;
@@ -2273,12 +2287,6 @@ void KVIDGridEditor::AddMethod(const char* theMethod)
   fListOfMethods += " ";
   return;
 }
-
-
-
-
-
-
 
 
 

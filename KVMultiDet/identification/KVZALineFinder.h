@@ -53,6 +53,9 @@ class KVZALineFinder : public KVBase
    void MakeGrid();
    void DrawGrid();
    
+   KVIDZAGrid* GetGrid(){return fGeneratedGrid;};
+   TH2* GetHisto(){return fLinearHisto;};
+   
 
    ClassDef(KVZALineFinder,1)//(try to) find masse lines from charge lines
 };

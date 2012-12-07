@@ -299,17 +299,30 @@ void KVZALineFinder::MakeGrid()
       }
     }	 
 
+  Int_t fAMostProb[9] = {1,4,7,9,11,12,14,16,19};
+  
   TheLine = 0;
   spline = 0;
   TIter next(fLines);
   while((spline = (KVSpiderLine*)next())) // scan rejected lines
     {
-    if(spline->GetZ()<4) continue;
+    Int_t zl = spline->GetZ();
+    if(zl<4) continue;
     int index = 0;
     KVIDZALine* oldLine = 0;
-    if((oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()+1,index)))){}
-    else if((oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()-1,index)))){}
-    if(!oldLine) continue;
+    oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),((zl<10)?fAMostProb[zl]:2*zl+1),index));
+//     if(!(oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()+1,index))))
+//       {
+//       if(!(oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()-1,index))))
+//         {
+//         oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()+2,index));
+//         }
+//       }
+    if(!oldLine)
+      {
+      Info("MakeGrid","No friend line for Z=%d,A=%d",spline->GetZ(),spline->GetA());
+      continue;
+      }
     TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
     TheLine->SetZ(spline->GetZ());
     TheLine->SetA(spline->GetA());
@@ -355,12 +368,12 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
     }
   
   MakeGrid();
-  DrawGrid();
+//  DrawGrid();
   
-  new KVCanvas;
-  fLinearHisto->Draw("col");
-  fLines->Execute("Draw","\"PLN\"");
-  fPoints->Draw("PL");
+//   new KVCanvas;
+//   fLinearHisto->Draw("col");
+//   fLines->Execute("Draw","\"PLN\"");
+//   fPoints->Draw("PL");
 }
 
 
