@@ -219,7 +219,7 @@ friend class KVIDGridEditorCanvas;
    Double_t GetSpiderFactor(){return fSpiderFactor;};
    
    void SpiderIdentification();
-   void FindZALines();
+   void FindZALines(const Char_t* A="1,4,7,9,11,12,14,16,19,21,23,25,27,30,31,34,37,40,41");
    void ChangeMasses(const Char_t* Zl, Int_t dA);
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.

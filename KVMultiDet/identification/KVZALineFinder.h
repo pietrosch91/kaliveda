@@ -21,6 +21,8 @@
 #include "KVIDZAGrid.h"
 #include "KVCanvas.h"
 
+#include <vector>
+
 
 class KVZALineFinder : public KVBase
 {
@@ -37,6 +39,7 @@ class KVZALineFinder : public KVBase
    Int_t     fNPoints;
    
    TList*    fLines;
+   std::vector<int> fAList;
    
    public:
    KVZALineFinder(KVIDZAGrid* gg, TH2* hh);
@@ -44,17 +47,20 @@ class KVZALineFinder : public KVBase
    virtual ~KVZALineFinder();
    void Copy(TObject&) const;
    
+   protected:
    TH2* LinearizeHisto(Int_t nZbin=40);
-   void FindALine(Int_t zz, Int_t width=10);
-   void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");};
-   void ProcessIdentification(Int_t zmin=-1, Int_t zmax=-1);
-   
+   void FindALine(Int_t zz, Int_t width=10);   
    void SortLines(TList* Lines);
    void MakeGrid();
    void DrawGrid();
    
+   public:
    KVIDZAGrid* GetGrid(){return fGeneratedGrid;};
    TH2* GetHisto(){return fLinearHisto;};
+   
+   void SetAList(const char* Alist);
+   void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");};
+   void ProcessIdentification(Int_t zmin=-1, Int_t zmax=-1);
    
 
    ClassDef(KVZALineFinder,1)//(try to) find masse lines from charge lines

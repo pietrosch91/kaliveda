@@ -33,6 +33,7 @@ KVZALineFinder::KVZALineFinder(KVIDZAGrid* gg, TH2* hh)
   fPoints->SetMarkerStyle(21);
   fNPoints = 0;
   fLines = new TList;
+  SetAList("1,4,7,9,11,12,14,16,19,21,23,25,27,29,31,34,37,40,41");
 }
 
 //________________________________________________________________
@@ -54,7 +55,6 @@ KVZALineFinder::~KVZALineFinder()
 }
 
 //________________________________________________________________
-
 void KVZALineFinder::Copy (TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
@@ -66,6 +66,19 @@ void KVZALineFinder::Copy (TObject& obj) const
 
    KVBase::Copy(obj);
    //KVZALineFinder& CastedObj = (KVZALineFinder&)obj;
+}
+
+//________________________________________________________________
+void KVZALineFinder::SetAList(const char* Alist)
+{
+  fAList.clear();
+  KVNumberList Al(Alist);
+  Al.Begin();
+  while(!Al.End())
+    {
+    Int_t A = Al.Next();
+    fAList.push_back(A);
+    }
 }
 
 //________________________________________________________________
@@ -116,8 +129,6 @@ TH2* KVZALineFinder::LinearizeHisto(Int_t nZbin)
     }
 
   delete idr;  
-//  if(!fCanvas) fCanvas = new KVCanvas;
-//  fLinearHisto->Draw("col");
   
   return fLinearHisto;
 }
@@ -249,7 +260,7 @@ void KVZALineFinder::SortLines(TList* Lines)
   for(int i=0; i<nn; i++) yy[i] = ((KVSpiderLine*)Lines->At(i))->GetY(0);
   
   KVNucleus nuc;
-  Int_t fAMostProb[9] = {1,4,7,9,11,12,14,16,19};
+//  Int_t fAMostProb[9] = {1,4,7,9,11,12,14,16,19};
 
   
   TMath::Sort(nn, yy, ii, kFALSE);
@@ -257,7 +268,7 @@ void KVZALineFinder::SortLines(TList* Lines)
   for(int i=0; i<nn; i++){if(ii[i]==0) iMostProb=i;}
     
   Int_t aMostProb = 0;
-  if(zz<10) aMostProb = fAMostProb[zz-1];
+  if(zz<=fAList.size()) aMostProb = fAList.at(zz-1);
   else aMostProb = 2*zz+1;
   
   for(int i=0; i<nn; i++)

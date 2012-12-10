@@ -1106,7 +1106,10 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
     {
     label->SetFillColor(kRed);
     UpdateViewer();
-    FindZALines();
+    TMethod* m = IsA()->GetMethodAllAny("FindZALines");
+    TContextMenu * cm = new TContextMenu("FindZALines", "KVIDGridEditor::FindZALines");
+    cm->Action(this,m);
+    delete cm;
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
@@ -2282,10 +2285,11 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
   return;
 }
 
-void KVIDGridEditor::FindZALines()
+void KVIDGridEditor::FindZALines(const Char_t* A)
 {
   if((!TheHisto)||(!TheGrid)) return;
   KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
+  toto.SetAList(A);
   toto.ProcessIdentification();
   
   Close();
