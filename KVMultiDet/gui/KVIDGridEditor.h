@@ -153,7 +153,8 @@ friend class KVIDGridEditorCanvas;
    void SetPiedestal(Double_t ppdx, Double_t ppdy);
    
    void SetEditable(TPaveLabel* label);
-   void SelectLines(TPaveLabel* label);
+//   void SelectLines(TPaveLabel* label);
+   void SelectLines(char* label);
    
    void NewLine ();						//'Line'
    void NewCut  ();						//'Cut'
@@ -219,6 +220,7 @@ friend class KVIDGridEditorCanvas;
    
    void SpiderIdentification();
    void FindZALines();
+   void ChangeMasses(const Char_t* Zl, Int_t dA);
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };

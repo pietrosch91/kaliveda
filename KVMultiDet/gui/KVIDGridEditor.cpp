@@ -42,7 +42,7 @@ KVIDGridEditor::KVIDGridEditor()
   fDefaultMethod = "";
   
   AddMethod("SaveCurrentGrid");
-  AddMethod("FindZALines");
+  AddMethod("ChangeMasses");
   AddMethod("SelectLinesByZ");
   AddMethod("MakeScaleX");
   AddMethod("MakeScaleY");
@@ -314,13 +314,13 @@ void KVIDGridEditor::init()
   AddTransformation("S_{C}");
   
   AddAction("#odot");
-  AddAction("0");
+//  AddAction("0");
   AddAction("#Leftarrow");
   AddAction("Lz");
   AddAction("Ly");
-//  AddAction("Lx");
+  AddAction("Lx");
   
-  AddGridOption("All",lplabel3);
+//  AddGridOption("All",lplabel3);
   AddGridOption("Select",lplabel3);
   
   AddGridOption("Edit",lplabel4);
@@ -329,6 +329,7 @@ void KVIDGridEditor::init()
   AddGridOption("Cut",lplabel4);
   AddGridOption("Fit",lplabel4);
   AddGridOption("Test",lplabel4);
+  AddGridOption("Finder",lplabel4);
   AddGridOption("Spider",lplabel4);
   AddGridOption("More",lplabel4);
     
@@ -773,7 +774,8 @@ void KVIDGridEditor::SelectLabel()
       lplabel3->Execute("SetFillColor","kWhite");
       if(color==kWhite) label->SetFillColor(kGreen);
       if(color==kGreen)  label->SetFillColor(kWhite);
-      SelectLines(label);
+//      SelectLines(label);
+      SelectLines("Select");
       UpdateViewer();
       }
     else if(lplabel5->Contains(label)&&(label!=modulator))
@@ -811,6 +813,15 @@ void KVIDGridEditor::SelectLabel()
       {
       label->SetFillColor(kGreen);
       ChangeStep(label->GetTitle(),100);
+      UpdateViewer();
+      }
+    else if(lplabel3->Contains(label))
+      {
+      lplabel3->Execute("SetFillColor","kGreen");
+//      if(color==kWhite) label->SetFillColor(kGreen);
+//      if(color==kGreen)  label->SetFillColor(kWhite);
+//      SelectLines(label);
+      SelectLines("All");
       UpdateViewer();
       }
     }
@@ -943,11 +954,12 @@ void KVIDGridEditor::MakeTransformation()
         {
         ListOfLines->Remove(line);
 	ResetColor(line);
-	TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->FindObject("All");
-	tmplabel->SetFillColor(kWhite);
-	tmplabel = (TPaveLabel*)lplabel3->FindObject("Select");
-	tmplabel->SetFillColor(kGreen);
-	SelectLines(tmplabel);
+//	TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->FindObject("All");
+//	tmplabel->SetFillColor(kWhite);
+//	TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->At(0);
+//	tmplabel->SetFillColor(kGreen);
+//	SelectLines(tmplabel);
+	SelectLines("Select");
 	UpdateViewer();
 	}
       }
@@ -1090,18 +1102,19 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
+  else if(commande.Contains("Finder"))
+    {
+    label->SetFillColor(kRed);
+    UpdateViewer();
+    FindZALines();
+    label->SetFillColor(kWhite);
+    UpdateViewer();
+    }
   else if(commande.Contains("Spider"))
     {
     label->SetFillColor(kRed);
     UpdateViewer();
-    
     SpiderIdentification();
-    
-//    TMethod* m = IsA()->GetMethodAllAny("SpiderIdentification");
-//    TContextMenu * cm = new TContextMenu("SpiderIdentification", Form("Context menu for KVIDGridEditor::%s","SpiderIdentification"));
-//    cm->Action(this,m);
-//    delete cm;
-    
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
@@ -1149,25 +1162,27 @@ void KVIDGridEditor::SetEditable(TPaveLabel* label)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::SelectLines(TPaveLabel* label)
+//void KVIDGridEditor::SelectLines(TPaveLabel* label)
+void KVIDGridEditor::SelectLines(char* label)
 {  
   if(!TheGrid) return;
-  TString title(label->GetTitle());
-  Int_t color = label->GetFillColor();
+//  TString title(label->GetTitle());
+  TString title(label);
+  Int_t color = ((TPaveLabel*)lplabel3->At(0))->GetFillColor();
   
   if(title.Contains("All"))
     {
-    if(color==kWhite) 
-      {
-      ResetColor(ListOfLines);
-      ListOfLines->Clear();
-      }
-    else if(color==kGreen) 
-      {
+//     if(color==kWhite) 
+//       {
+//       ResetColor(ListOfLines);
+//       ListOfLines->Clear();
+//       }
+//     else if(color==kGreen) 
+//       {
       ListOfLines->AddAll(TheGrid->GetIdentifiers());
       ListOfLines->AddAll(TheGrid->GetCuts());
       ListOfLines->R__FOR_EACH(KVIDentifier, SetLineColor) (SelectedColor);
-      }
+//      }
     selectmode = false;
     }
   if(title.Contains("Select"))
@@ -2147,23 +2162,23 @@ Bool_t KVIDGridEditor::HandleKey(Event_t *event)
             break;
 	    
          case kKey_a:
-	    label = (TPaveLabel*)lplabel3->FindObject("All");
-	    color = label->GetFillColor();
-            lplabel3->Execute("SetFillColor","kWhite");
-            if(color==kWhite) label->SetFillColor(kGreen);
-            if(color==kGreen)  label->SetFillColor(kWhite);
-	    SelectLines(label);
-	    UpdateViewer();
+// 	    label = (TPaveLabel*)lplabel3->FindObject("All");
+// 	    color = label->GetFillColor();
+//             lplabel3->Execute("SetFillColor","kWhite");
+//             if(color==kWhite) label->SetFillColor(kGreen);
+//             if(color==kGreen)  label->SetFillColor(kWhite);
+// 	    SelectLines(label);
+// 	    UpdateViewer();
             break;
 	    
          case kKey_z:
-	    label = (TPaveLabel*)lplabel3->FindObject("Select");
-	    color = label->GetFillColor();
-            lplabel3->Execute("SetFillColor","kWhite");
-            if(color==kWhite) label->SetFillColor(kGreen);
-            if(color==kGreen)  label->SetFillColor(kWhite);
-	    SelectLines(label);
-	    UpdateViewer();
+// 	    label = (TPaveLabel*)lplabel3->FindObject("Select");
+// 	    color = label->GetFillColor();
+//             lplabel3->Execute("SetFillColor","kWhite");
+//             if(color==kWhite) label->SetFillColor(kGreen);
+//             if(color==kGreen)  label->SetFillColor(kWhite);
+// 	    SelectLines(label);
+// 	    UpdateViewer();
             break;
 	    
          case kKey_w:
@@ -2274,10 +2289,32 @@ void KVIDGridEditor::FindZALines()
   toto.ProcessIdentification();
   
   Close();
-  StartViewer();
   SetHisto(toto.GetHisto());
   SetGrid(toto.GetGrid(),kFALSE);
+  StartViewer();
   UpdateViewer();
+}
+
+void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)
+{
+  Int_t found;
+  KVNumberList ZL(Zl);
+  ZL.Begin();
+  while(!ZL.End())
+    {
+    Int_t Z = ZL.Next();
+    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
+  
+    KVIDentifier* id = 0;
+    TIter next(ll);
+    while((id=(KVIDentifier*)next()))
+      {
+      Info("ChangeMasses","A=%d -> A=%d",id->GetA(),id->GetA()+dA);
+      id->SetA(id->GetA()+dA);
+      }
+    delete ll;
+    }
 }
 
 void KVIDGridEditor::AddMethod(const char* theMethod)
