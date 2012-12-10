@@ -248,7 +248,7 @@ class KVTreeAnalyzer : public TNamed
    void DeleteHisto(const Char_t* expr, const Char_t* selection);
    void DeleteSelectedHisto();
    
-   void MakeSelection(const Char_t* selection);
+   Bool_t MakeSelection(const Char_t* selection);
    void UpdateEntryLists();
    void GenerateSelection();
    void MakeIPScale();

@@ -367,7 +367,13 @@ bool KVSpiderIdentificator::SearchPeack(TH1F* h1_, double theta_, int create_, d
   double costh = TMath::Cos(TMath::DegToRad()*theta);
   
   list<double> lx;  
+
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,34,03)
+  Double_t* xpeaks = _ss.GetPositionX();
+#else
   Float_t* xpeaks = _ss.GetPositionX();
+#endif
+
   for(int p=0;p<nfound;p++) 
     {
     double xp = xpeaks[p];
