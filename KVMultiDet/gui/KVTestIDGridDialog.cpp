@@ -50,6 +50,12 @@ ClassImp(KVTestIDGridDialog)
 	hzvseymin = hzrealxmin;
 	hzvseymax = hzrealxmax;
 	
+        if(!g->IsOnlyZId()) 
+	  {
+	  hzrealbins = 150*(hzrealxmax-hzrealxmin);
+	  hzvseybins = hzrealbins;
+	  }
+	
    //Dialog box for testing identification grid
    fMain = new TGTransientFrame(p, main, w, h);
    fMain->Connect("CloseWindow()", "KVTestIDGridDialog", this,

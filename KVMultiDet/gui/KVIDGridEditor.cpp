@@ -329,7 +329,7 @@ void KVIDGridEditor::init()
   AddGridOption("Cut",lplabel4);
   AddGridOption("Fit",lplabel4);
   AddGridOption("Test",lplabel4);
-  AddGridOption("Finder",lplabel4);
+  AddGridOption("Mass",lplabel4);
   AddGridOption("Spider",lplabel4);
   AddGridOption("More",lplabel4);
     
@@ -1102,14 +1102,15 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
-  else if(commande.Contains("Finder"))
+  else if(commande.Contains("Mass"))
     {
     label->SetFillColor(kRed);
     UpdateViewer();
-    TMethod* m = IsA()->GetMethodAllAny("FindZALines");
-    TContextMenu * cm = new TContextMenu("FindZALines", "KVIDGridEditor::FindZALines");
-    cm->Action(this,m);
-    delete cm;
+//     TMethod* m = IsA()->GetMethodAllAny("FindZALines");
+//     TContextMenu * cm = new TContextMenu("FindZALines", "KVIDGridEditor::FindZALines");
+//     cm->Action(this,m);
+//     delete cm;
+    KVBase::OpenContextMenu("FindZALines",this);
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
@@ -2292,11 +2293,14 @@ void KVIDGridEditor::FindZALines(const Char_t* A)
   toto.SetAList(A);
   toto.ProcessIdentification();
   
-  Close();
+//  Close();
   SetHisto(toto.GetHisto());
+  Info("FindZALines","Histo set");
   SetGrid(toto.GetGrid(),kFALSE);
-  StartViewer();
+  Info("FindZALines","Grid set");
+//  StartViewer();
   UpdateViewer();
+  Info("FindZALines","Updated");
 }
 
 void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)

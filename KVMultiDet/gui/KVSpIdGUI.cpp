@@ -370,7 +370,7 @@ void KVSpIdGUI::SpiderIdentification()
       double step = TMath::Min((max-min)*0.05,20.);//20.;
       double stepmax = (max-min)*0.2;//800.;
       double x = 0.;
-      for(x=min+1; x<max+0.0001*step; x+=step)
+      for(x=min+1; x<max+step; x+=step)
 	{
         if(step<=stepmax) step*=1.3;
 	if(ff1->Eval(x)<4000) TheLine->SetPoint(TheLine->GetN(),x,ff1->Eval(x));

@@ -36,6 +36,7 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TGMimeTypes.h"
 #include "TGClient.h"
 #include "KVNDTManager.h"
+#include "TContextMenu.h"
 #ifdef WITH_GRULIB
 #include "GNetClientRoot.h"
 #endif
@@ -1012,3 +1013,22 @@ Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
 
     return false;
 }
+
+Bool_t KVBase::OpenContextMenu(const char* method, TObject* obj)
+{
+   TMethod* m = obj->IsA()->GetMethodAllAny(method);
+   if(!m)
+     {
+     obj->Warning("OpenContextMenu","%s is not a method of %s",method,obj->ClassName());
+     return kFALSE;
+     }
+   TContextMenu * cm = new TContextMenu(method, Form("%s::%s",obj->ClassName(),method));
+   cm->Action(obj,m);
+   delete cm;
+   return kTRUE;
+}
+
+
+
+
+
