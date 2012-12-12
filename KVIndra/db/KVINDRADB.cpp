@@ -247,31 +247,45 @@ void KVINDRADB::ReadSystemList()
    //
    //Lines beginning '#' are comments.
 
+
    ifstream fin;
-   if (!OpenCalibFile("Systems", fin)) {
+   if (OpenCalibFile("Systems", fin)) {
+      Info("ReadSystemList()", "Reading Systems parameters ...");
+
+      TString line;
+
+      char next_char = fin.peek();
+      while( next_char!='+' && fin.good() ){
+         line.ReadLine(fin, kFALSE);
+         next_char = fin.peek();
+      }
+
+      while( fin.good() && !fin.eof() && next_char=='+' ){
+         KVDBSystem* sys = new KVDBSystem("NEW SYSTEM");
+         AddSystem(sys);
+         sys->Load(fin);
+       next_char = fin.peek();
+      }
+      fin.close();
+   }
+   else {
       Error("ReadSystemList()", "Could not open file %s",
             GetCalibFileName("Systems"));
-      return;
    }
-
-   Info("ReadSystemList()", "Reading Systems parameters ...");
-
-   TString line;
-   KVDBSystem* sys;
-
-   char next_char = fin.peek();
-   while( next_char!='+' && fin.good() ){
-      line.ReadLine(fin, kFALSE);
-      next_char = fin.peek();
+   // if any runs are not associated with any system
+   // we create an 'unknown' system and associate it to all runs
+   KVDBSystem* sys = 0;
+   TIter nextRun(GetRuns());
+   KVDBRun* run;
+   while ( (run = (KVDBRun*)nextRun()) ) {
+      if(!run->GetSystem()){
+         if(!sys) {
+            sys = new KVDBSystem("[unknown]");
+            AddSystem(sys);
+         }
+         sys->AddRun(run);
+      }
    }
-
-   while( fin.good() && !fin.eof() && next_char=='+' ){
-      sys = new KVDBSystem("NEW SYSTEM");
-      AddSystem(sys);
-      sys->Load(fin);
-      next_char = fin.peek();
-   }
-   fin.close();
 }
 
 //____________________________________________________________________________
@@ -938,8 +952,10 @@ void KVINDRADB::WriteSystemsFile() const
    cout << GetDBEnv("Systems") << " file written by "
          << ClassName() << "::WriteSystemsFile on " << now.AsString() << endl;
    while( (sys = (KVDBSystem*)next()) ){
-      sys->Save(sysfile);
-      sysfile << endl;
+      if(strcmp(sys->GetName(),"[unknown]")){//do not write dummy 'unknown' system
+         sys->Save(sysfile);
+         sysfile << endl;
+      }
    }
    sysfile.close();
 }
@@ -1722,16 +1738,18 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
                KVCsI *csi =
                    (KVCsI *) gIndra->GetDetectorByType(ring, mod, CsI_R);
                if (!csi) {
-                  Warning("ReadLightEnergyCsI()", "Cant find CsI %d.%d",
+                  Warning("ReadLightEnergyCsI()", "Read calibration for non-existent detector CSI_%02d%02d",
                           ring, mod);
-                  return;
                }
-               parset =
+               else
+               {
+                  parset =
                    new KVDBParameterSet(csi->GetName(), Form("Light-Energy CsI %s", zrange),
                                         4);
-               parset->SetParameters(a1, a2, a3, a4);
-               table->AddRecord(parset);
-               par_list->Add(parset);
+                  parset->SetParameters(a1, a2, a3, a4);
+                  table->AddRecord(parset);
+                  par_list->Add(parset);
+               }
             }                   //parameters correctly read
          }                      //data line
       }                         //if(fin.good

@@ -349,3 +349,14 @@ void KV_CCIN2P3_GE::qalter(const Char_t* job_base_name, const Char_t* new_ressou
 		gSystem->Exec(cmd.Data());
 	}
 }
+         
+void KV_CCIN2P3_GE::SanitizeJobName()
+{
+   // Batch-system dependent sanitization of jobnames
+   // Grid Engine does not allow:
+   //   :
+   // Any such character appearing in the current jobname will be replaced
+   // with '_'
+   
+   fCurrJobName.ReplaceAll(":","_");
+}

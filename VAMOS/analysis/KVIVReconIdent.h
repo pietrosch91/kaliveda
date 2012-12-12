@@ -10,7 +10,6 @@ $Date: 2007/06/08 15:49:10 $
 #ifndef __KVIVRECONIDENT_H
 #define __KVIVRECONIDENT_H
 
-//#include "KVReconIdent.h"
 #include "KVIDGridManager.h"
 #include <string>
 #include <string.h>
@@ -21,6 +20,11 @@ $Date: 2007/06/08 15:49:10 $
 #include "KVDetector.h"
 
 #include "KVINDRAReconIdent.h"
+
+#include "KVCsI.h"
+#include "KVSilicon.h"
+#include "KVMaterial.h"
+#include "KVTarget.h"
 
 class Analysisv;
 class LogFile;
@@ -40,15 +44,89 @@ class KVIVReconIdent : public KVINDRAReconIdent
    Bool_t Analysis();
    void EndAnalysis();
    
-   Bool_t LoadGrids(); 
-   Int_t event;
-   Int_t M_INDRA;
+   //Grilles - E503
+   Bool_t LoadGrids_e503();
    
-   KVINDRAReconNuc *part;
-   KVTelescope *kvt_sicsi;
-   KVDetector *kvd_si;
-   KVDetector *kvd_csi;   
-   KVDetector *gap; 	  	
+   //Init - E503
+   void Init_e503();
+   
+	TFile*	fcoup;
+	TList* list;
+	TFile*	fcoup2;
+	TList* list2;
+	TFile*	fcoup3;
+	TList* list3;
+			
+TCutG *q21;
+TCutG *q20;
+TCutG *q19;
+TCutG *q18;
+TCutG *q17;
+TCutG *q16;
+TCutG *q15;
+TCutG *q14;
+TCutG *q13;
+TCutG *q12;
+TCutG *q11;
+TCutG *q10;
+TCutG *q9;
+TCutG *q8;
+TCutG *q7;
+TCutG *q6;
+TCutG *q5;
+
+TCutG *q21cs;
+TCutG *q20cs;
+TCutG *q19cs;
+TCutG *q18cs;
+TCutG *q17cs;
+TCutG *q16cs;
+TCutG *q15cs;
+TCutG *q14cs;
+TCutG *q13cs;
+TCutG *q12cs;
+TCutG *q11cs;
+TCutG *q10cs;
+TCutG *q9cs;
+TCutG *q8cs;
+TCutG *q7cs;
+TCutG *q6cs;
+TCutG *q5cs;
+
+TCutG *q21st;
+TCutG *q20st;
+TCutG *q19st;
+TCutG *q18st;
+TCutG *q17st;
+TCutG *q16st;
+TCutG *q15st;
+TCutG *q14st;
+TCutG *q13st;
+TCutG *q12st;
+TCutG *q11st;
+TCutG *q10st;
+TCutG *q9st;
+TCutG *q8st;
+TCutG *q7st;
+TCutG *q6st;
+TCutG *q5st;
+	
+	KVNucleus *kvn;
+	KVTarget *tgt;
+        KVDetector *dcv1;
+        KVMaterial *sed;
+        KVDetector *dcv2;
+        KVDetector *ic;
+        KVMaterial *isogap1;
+        KVMaterial *ssi;
+        KVMaterial *isogap2;
+        KVMaterial *ccsi;
+			
+	KVTelescope *kvt_sicsi;
+	KVDetector *kvd_si;
+   	KVDetector *kvd_csi;   
+   	KVDetector *gap;    
+    	  	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

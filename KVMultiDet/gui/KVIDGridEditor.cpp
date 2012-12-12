@@ -37,6 +37,20 @@ KVIDGridEditor::KVIDGridEditor()
   SetName("gIDGridEditor");
   SetDefault();
   
+  fListOfMethods = "";
+  fDefaultMethod = "";
+  
+  AddMethod("SaveCurrentGrid");
+  AddMethod("SelectLinesByZ");
+  AddMethod("MakeScaleX");
+  AddMethod("MakeScaleY");
+  AddMethod("SetSelectedColor");
+  AddMethod("SetVarXVarY");
+  AddMethod("SetRunList");
+  AddMethod("AddParameter");
+  AddMethod("SetXScaleFactor");
+  AddMethod("SetYScaleFactor");
+    
   ft  = new TF1("tranlation","(x+[0])",0,50000);
   fs  = new TF1("scale","(x-[0])*[1]+[0]",0,50000);
   fsy = new TF1("scale_y","(x-[0])*[1]+[0]",0,50000);
@@ -71,7 +85,9 @@ void KVIDGridEditor::StartViewer()
     fCanvas = new KVIDGridEditorCanvas(Form("%sCanvas",GetName()),Form("%sCanvas",GetName()),800,600);
     fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
     fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
-
+    // connect canvas' Closed() signal to method CanvasWasClosed().
+    // this way we always know if the canvas is closed by user closing the window
+    fCanvas->Connect("Closed()", "KVIDGridEditor", this, "CanvasWasClosed()");
     fPad = fCanvas->cd();
   
     if(!ready) init();
@@ -81,6 +97,14 @@ void KVIDGridEditor::StartViewer()
     }
     
   return;
+}
+
+void KVIDGridEditor::CanvasWasClosed()
+{
+   // Slot connected to the 'Closed()' signal of the canvas.
+   // If the user closes the canvas window this method gets called.
+   fCanvas=0;
+   fPad=0;
 }
 
 //________________________________________________________________
@@ -95,7 +119,6 @@ void KVIDGridEditor::SetDefault()
   
   fSpiderFactor = -1.;
   fSpiderZp = -1;
-   
   
   itrans = iact = iopt = 0;
   imod = 20;
@@ -116,9 +139,7 @@ void KVIDGridEditor::SetDefault()
 //________________________________________________________________
 Bool_t KVIDGridEditor::IsClosed()
 {
-//  if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
-  if(fPad) return false;
-  else return true;
+   return (!fCanvas);
 }
 
 //________________________________________________________________
@@ -126,9 +147,11 @@ void KVIDGridEditor::Close()
 {
   if(!IsClosed())
     {
+    fCanvas->Disconnect("Closed()", this, "CanvasWasClosed()");
     fCanvas->Close();
     delete fCanvas;
     fCanvas = 0;
+    fPad=0;
     }
   return;
 }
@@ -557,6 +580,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   
   if(!IsClosed()&&(TheHisto))
     {
+       fPad = fCanvas->cd();//au cas ou il y a plusieurs canevas ouverts
     TheHisto->Draw("col");
     fPad->SetLogz(true);
     TheHisto->SetMinimum(1);
@@ -1308,15 +1332,10 @@ void KVIDGridEditor::FitGrid()
 //________________________________________________________________
 void KVIDGridEditor::SuggestMoreAction()
 {  
-  TString Default = "SaveCurrentGrid";
-  TString Choices = Default;
-  Choices += " SelectLinesByZ";
-  Choices += " SetSelectedColor";
-  Choices += " SetVarXVarY";
-  Choices += " SetRunList";
-  Choices += " AddParameter";
-  Choices += " SetXScaleFactor";
-  Choices += " SetYScaleFactor";
+  if(fListOfMethods.EndsWith(" ")) fListOfMethods.Remove(fListOfMethods.Sizeof()-2);
+
+  TString Default = fDefaultMethod.Data();
+  TString Choices = fListOfMethods.Data();
   
   TString Answer;
   Bool_t okpressed;
@@ -1324,8 +1343,7 @@ void KVIDGridEditor::SuggestMoreAction()
   if(!okpressed) return;
       
   TMethod* m = 0;
-  if(!strcmp(Answer.Data(),"SaveCurrentGrid")) SaveCurrentGrid();
-  else if(!TheGrid) return;
+  if(!TheGrid) return;
   else if((m = TheGrid->IsA()->GetMethodAllAny(Answer.Data())))
     {  
     TContextMenu * cm = new TContextMenu(Answer.Data(), Form("Context menu for KVIDGridEditor::%s",Answer.Data()));
@@ -1685,6 +1703,41 @@ void KVIDGridEditor::RotateZ(Int_t Sign)
   return;
 }
 
+
+//________________________________________________________________
+void KVIDGridEditor::MakeScaleX(Double_t scaleFactor)
+{
+  if(!TheGrid) return;
+  if(!ListOfLines) return;
+  if(ListOfLines->IsEmpty()) return;
+
+  x0 = fPivot->GetX()[0];
+  
+  fs->SetParameters(x0,scaleFactor);
+  ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,0);
+  
+  UpdateViewer();
+  return;
+}
+
+
+//________________________________________________________________
+void KVIDGridEditor::MakeScaleY(Double_t scaleFactor)
+{
+  if(!TheGrid) return;
+  if(!ListOfLines) return;
+  if(ListOfLines->IsEmpty()) return;
+  
+  y0 = fPivot->GetY()[0];
+  
+  fs->SetParameters(y0,scaleFactor);
+  ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (0,fs);
+    
+  UpdateViewer();
+  return;
+}
+
+
 //________________________________________________________________
 void KVIDGridEditor::ScaleX(Int_t Sign)
 {
@@ -2040,8 +2093,13 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
   return;
 }
 
-
-
+void KVIDGridEditor::AddMethod(const char* theMethod)
+{
+  if(fListOfMethods.IsNull()) fDefaultMethod += theMethod;
+  fListOfMethods += theMethod;
+  fListOfMethods += " ";
+  return;
+}
 
 
 

@@ -66,7 +66,9 @@ KVGumbelDistribution::KVGumbelDistribution(const Char_t* name, Int_t k, Bool_t n
    fkFac = TMath::Power(k,k)/TMath::Factorial(k-1);
    fNormalised = norm;
    SetParName(0, "a_{m}");
+   SetParLimits(0, 0, 100);
    SetParName(1, "b_{m}");
+   SetParLimits(1, 0, 100);
    if(!norm) SetParName(2, "Integral");
 }
 

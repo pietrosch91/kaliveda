@@ -84,6 +84,17 @@ class KVString:public TString
 #ifdef __WITH_KVSTRING_ISWHITESPACE
    Bool_t IsWhitespace() const;
 #endif
+#ifdef __WITH_KVSTRING_ITOA
+   Bool_t       IsBin() const;
+   Bool_t       IsOct() const;
+   Bool_t       IsDec() const;
+   Bool_t       IsInBaseN(Int_t base) const;
+#endif
+   static KVString Itoa   (    Int_t value, Int_t base);  // Converts int to string with respect to the base specified (2-36)
+   static KVString UItoa  (   UInt_t value, Int_t base);
+   static KVString LLtoa  ( Long64_t value, Int_t base);
+   static KVString ULLtoa (ULong64_t value, Int_t base);
+   static KVString BaseConvert(const KVString& s_in, Int_t base_in, Int_t base_out);  // Converts string from base base_in to base base_out (supported bases 2-36)
 
    ClassDef(KVString, 1)        //TString wrapper compatible with ROOT versions 3.10/02 onwards
 };

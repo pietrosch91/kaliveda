@@ -13,6 +13,9 @@
 #pragma link C++ class KVRemoteAvailableRunsFile+;
 #pragma link C++ class KVDataSet+;
 #pragma link C++ class KVDataRepository+;
+#pragma link C++ class DMSFile_t+;
+#pragma link C++ class KVDMS+;
+#pragma link C++ class KVDMSDataRepository+;
 #pragma link C++ class KVDataTransfer+;
 #pragma link C++ class KVDataTransferSFTP+;
 #pragma link C++ class KVDataTransferBBFTP+;
@@ -21,6 +24,11 @@
 #pragma link C++ class KVRemoteDataSetManager+;
 #pragma link C++ class KVDataRepositoryManager+;
 #pragma link C++ class KVDataSetManager+;
+#pragma link C++ class SRB+;
+#pragma link C++ class IRODS+;
+#pragma link C++ class IRODSDataRepository+;
 #pragma link C++ class SRBDataRepository+;
-#pragma link C++ class SRBAvailableRunsFile+;
+#pragma link C++ class DMSAvailableRunsFile+;
+#pragma link C++ class KVSimDir+;
+#pragma link C++ class KVSimFile+;
 #endif

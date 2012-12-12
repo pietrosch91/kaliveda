@@ -19,7 +19,7 @@
 #define KVIDSICORRCSI_H
 
 #include "KVIDSiCsI.h"
-#include "KVTGIDManager.h"
+#include "KVRTGIDManager.h"
 #include "KVSilicon.h"
 #include "KVTGID.h"
 #include "KVCsI.h"
@@ -39,22 +39,10 @@
 
 class KVMultiDetArray;
 
-class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
+class KVIDSiCorrCsI:public KVIDSiCsI, public KVRTGIDManager{
 
-        KVTGID *tgid;
-        
-        KVSilicon* fSi;
-        KVCsI* fCsI;
-
-        Double_t fCsILight;
-        Double_t fCsIRPedestal;
-        Double_t fCsILPedestal;
-
-        Double_t fSiCorr;
-        Double_t fSiPG;
-        Double_t fSiGG;
-        Double_t fSiPGPedestal;
-        Double_t fSiGGPedestal;
+        KVSilicon  *fSi;    //!
+        KVCsI      *fCsI;   //!
 
     public:
 
@@ -73,19 +61,7 @@ class KVIDSiCorrCsI:public KVIDSiCsI, public KVTGIDManager{
 
         void PrintFitParameters();
 
-        // Methods to check the pedestals etc.
-
-        //Double_t GetCsILight(){return fCsILight;};
-        //Double_t GetCsIRPedestal(){return fCsIRPedestal;};
-        //Double_t GetCsILPedestal(){return fCsILPedestal;};
-
-        //Double_t GetSiCorr(){return fSiCorr;};
-        //Double_t GetSiGG(){return fSiGG;};
-        //Double_t GetSiPG(){return fSiPG;};
-        //Double_t GetSiGGPedestal(){return fSiGGPedestal;};
-        //Double_t GetSiPGPedestal(){return fSiPGPedestal;};
-
-        ClassDef(KVIDSiCorrCsI, 2)  
+        ClassDef(KVIDSiCorrCsI, 2)//Si-CsI identification with TGID functions for E494S/E503  
 };
 
 #endif

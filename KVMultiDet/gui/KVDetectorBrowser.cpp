@@ -5,6 +5,7 @@
 #include "KVWidget.h"
 #include "KVDetector.h"
 #include "KVWidgetList.h"
+#include "KVIonRangeTable.h"
 
 using namespace std;
 

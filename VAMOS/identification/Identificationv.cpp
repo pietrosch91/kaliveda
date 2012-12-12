@@ -1331,7 +1331,7 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==2 )
 	M_Qcorr = P0_mq_chiosi[runNumber] + (P1_mq_chiosi[runNumber]*M_Q);     
     }
     
-    if(Q>0 && llist2->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==10) )
+    if(Q>0 && llist2->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2) )
     {   		
 	// Correction de M en fonction du Brho et de l'état de charge Q
 	// M correction according the Brho value and the charge state Q

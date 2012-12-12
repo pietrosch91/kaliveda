@@ -90,6 +90,7 @@ class KVNucleus:public KVParticle {
    static Int_t GetZFromSymbol(const Char_t *);
    void SetZFromSymbol(const Char_t *);
    void Set(const Char_t *);
+   static Int_t IsMassGiven(const Char_t *);
 
    void SetZ(Int_t z, Char_t mt = -1);
    void SetA(Int_t a);
@@ -113,16 +114,18 @@ class KVNucleus:public KVParticle {
    Double_t GetEnergyPerNucleon();
    Double_t GetAMeV();
 	
-	void ChechZAndA(Int_t &z, Int_t&a) const;
+	void CheckZAndA(Int_t &z, Int_t&a) const;
 
    Double_t GetMassExcess(Int_t z = -1, Int_t a = -1) const;
 	Double_t GetExtraMassExcess(Int_t z = -1, Int_t a = -1) const;
    KVMassExcess* GetMassExcessPtr(Int_t z = -1, Int_t a = -1) const;
+   Double_t GetAtomicMass(Int_t zz = -1, Int_t aa = -1) const ;
+   Double_t GetNaturalA(Int_t zz = -1) const ;
    
 	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1) const;
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;
    
-	KVNumberList GetKnownARange(Int_t z=-1);
+	KVNumberList GetKnownARange(Int_t z=-1) const;
 	Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
 	
 	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);

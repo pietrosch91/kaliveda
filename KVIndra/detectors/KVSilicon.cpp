@@ -351,11 +351,9 @@ TF1* KVSilicon::GetELossFunction(Int_t Z, Int_t A)
    // If no PHD is set, we return the usual KVDetector::GetELossFunction
    // which calculates dE(E,Z,A)
    
-   if(fPHD && fPHD->GetStatus()) {
-      fELossF = fPHD->GetELossFunction(Z,A);
-      fELossF->SetRange(0., GetSmallestEmaxValid(Z,A));
-   }
-   return KVDetector::GetELossFunction(Z,A);
+   	if(fPHD && fPHD->GetStatus()) return fPHD->GetELossFunction(Z,A);
+
+   	return KVDetector::GetELossFunction(Z,A);
 }
 
 void KVSilicon::DeduceACQParameters(Int_t zz,Int_t aa)

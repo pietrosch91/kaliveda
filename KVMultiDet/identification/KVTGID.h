@@ -81,11 +81,13 @@ class KVTGID:public TF1 {
    };
 
     KVTGID();
+    KVTGID(const KVTGID &);
     KVTGID(const Char_t * name, const Char_t * function,
            Double_t xmin, Double_t xmax, Int_t npar, Int_t par_x,
            Int_t par_y);
     virtual ~ KVTGID() {};
 
+	virtual void Copy(TObject &tgid) const;
    void SetIDmax(Double_t x) {
       fID_max = x;
    };

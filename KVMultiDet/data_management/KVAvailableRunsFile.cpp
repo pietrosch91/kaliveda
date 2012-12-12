@@ -493,8 +493,6 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    //can be retrieved with KVDBSystem::GetNumberRuns()
    //
    //If available runs file does not exist, Update() is called to create it.
-   //
-   //If no systems have been defined for the dataset, we return a list of available runs
 
    //does runlist exist ?
    if (!OpenAvailableRunsFile()) {
@@ -512,8 +510,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    TDatime fDatime;
    TString kvversion, username;
    KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
-   Bool_t noSystems = (!fDataSet->GetDataBase()->GetTable("Systems")->GetRecords()->GetSize());
-
+   
    while (fRunlist.good()) {
 
      TObjArray *toks = fLine.Tokenize('|');    // split into fields
@@ -537,9 +534,10 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
 
       KVDBSystem *sys = 0;
-      if (a_run && !noSystems)
+      if (a_run){
          sys = a_run->GetSystem();
-      if (!noSystems && !systol) {
+      }
+      if (!systol) {
          //making a systems list
          if (!sys_list)
             sys_list = new TList;
@@ -568,7 +566,7 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
          }
       } else {
          //making a runlist
-         if (noSystems || (systol == sys)) {   //run belongs to same system
+         if (systol == sys) {   //run belongs to same system
             if (!sys_list)
                sys_list = new TList;
             //if(noSystems && a_run){

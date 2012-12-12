@@ -6,6 +6,7 @@
 #include <list>
 #include <stdlib.h>
 #include <ctype.h>
+#include <algorithm>
 
 #include "snprintf.h"
 #include "TBuffer.h"
@@ -568,4 +569,261 @@ Int_t KVString::GetNValues(TString delim)
 	Int_t nn=0;
 	Begin(delim); while (!End()) {KVString dummy=Next(); nn+=1;}
 	return nn;
+}
+#ifdef __WITH_KVSTRING_ITOA
+//______________________________________________________________________________
+Bool_t KVString::IsBin() const
+{
+   // Returns true if all characters in string are binary digits (0,1).
+   // Returns false in case string length is 0 or string contains other
+   // characters.
+
+   const char *cp = Data();
+   Ssiz_t len = Length();
+   if (len == 0) return kFALSE;
+   for (Ssiz_t i = 0; i < len; ++i)
+      if (cp[i] != '0' && cp[i] != '1')
+         return kFALSE;
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t KVString::IsOct() const
+{
+   // Returns true if all characters in string are octal digits (0-7).
+   // Returns false in case string length is 0 or string contains other
+   // characters.
+
+   const char *cp = Data();
+   Ssiz_t len = Length();
+   if (len == 0) return kFALSE;
+   for (Ssiz_t i = 0; i < len; ++i)
+      if (!isdigit(cp[i]) || cp[i]=='8' || cp[i]=='9')
+         return kFALSE;
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t KVString::IsDec() const
+{
+   // Returns true if all characters in string are decimal digits (0-9).
+   // Returns false in case string length is 0 or string contains other
+   // characters.
+
+   const char *cp = Data();
+   Ssiz_t len = Length();
+   if (len == 0) return kFALSE;
+   for (Ssiz_t i = 0; i < len; ++i)
+      if (!isdigit(cp[i]))
+         return kFALSE;
+   return kTRUE;
+}
+
+//______________________________________________________________________________
+Bool_t KVString::IsInBaseN(Int_t base) const
+{
+   // Returns true if all characters in string are expressed in the base
+   // specified (range=2-36), i.e. {0,1} for base 2, {0-9,a-f,A-F} for base 16,
+   // {0-9,a-z,A-Z} for base 36. Returns false in case string length is 0 or
+   // string contains other characters.
+
+   if (base < 2 || base > 36) {
+      Error("KVString::IsInBaseN", "base %d is not supported. Suppported bases are {2,3,...,36}.", base);
+      return kFALSE;
+   }
+   if (Length() == 0) {
+      Error("KVString::IsInBaseN", "input string is empty.") ;
+      return kFALSE;
+   }
+   KVString str = KVString(Data()) ;
+   str.ToUpper() ;
+   KVString str_ref0 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" ;
+   KVString str_ref = str_ref0 ;
+   str_ref.Remove(base) ;
+   Bool_t isInBase = kTRUE ;
+   for (Int_t k = 0; k < str.Length(); k++) {
+      if (! str_ref.Contains(str[k])) {
+         isInBase = kFALSE ;
+         break ;
+      }
+   }
+   return (isInBase);
+}
+#endif
+//______________________________________________________________________________
+KVString KVString::Itoa(Int_t value, Int_t base)
+{
+   // Converts an Int_t to a KVString with respect to the base specified (2-36).
+   // Thus it is an enhanced version of sprintf (adapted from versions 0.4 of
+   // http://www.jb.man.ac.uk/~slowe/cpp/itoa.html).
+   // Usage: the following statement produce the same output, namely "1111"
+   //   std::cout << KVString::Itoa(15,2) ;
+   //   std::cout << KVString::Itoa(0xF,2) ; /// 0x prefix to handle hex
+   //   std::cout << KVString::Itoa(017,2) ; /// 0  prefix to handle oct
+   // In case of error returns the "!" string.
+
+#ifdef __WITH_KVSTRING_ITOA
+   std::string buf;
+   // check that the base if valid
+   if (base < 2 || base > 36) {
+      Error("KVString::Itoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base) ;
+      return (KVString("!"));
+   }
+   buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
+   Int_t quotient = value;
+   // Translating number to string with base:
+   do {
+      buf += "0123456789abcdefghijklmnopqrstuvwxyz"[ TMath::Abs(quotient % base) ];
+      quotient /= base;
+   } while (quotient);
+   // Append the negative sign
+   if (value < 0) buf += '-';
+   std::reverse(buf.begin(), buf.end());
+   return (KVString(buf.data()));
+#else
+   return TString::Itoa(value, base);
+#endif
+}
+
+//______________________________________________________________________________
+KVString KVString::UItoa(UInt_t value, Int_t base)
+{
+   // Converts a UInt_t (twice the range of an Int_t) to a KVString with respect
+   // to the base specified (2-36). Thus it is an enhanced version of sprintf
+   // (adapted from versions 0.4 of http://www.jb.man.ac.uk/~slowe/cpp/itoa.html).
+   // In case of error returns the "!" string.
+
+#ifdef __WITH_KVSTRING_ITOA
+   std::string buf;
+   // check that the base if valid
+   if (base < 2 || base > 36) {
+      Error("KVString::UItoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base);
+      return (KVString("!"));
+   }
+   buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
+   UInt_t quotient = value;
+   // Translating number to string with base:
+   do {
+      buf += "0123456789abcdefghijklmnopqrstuvwxyz"[ quotient % base ];
+      quotient /= base;
+   } while (quotient);
+   std::reverse(buf.begin(), buf.end());
+   return (KVString(buf.data()));
+#else
+   return TString::UItoa(value, base);
+#endif
+}
+
+//______________________________________________________________________________
+KVString KVString::LLtoa(Long64_t value, Int_t base)
+{
+   // Converts a Long64_t to a KVString with respect to the base specified (2-36).
+   // Thus it is an enhanced version of sprintf (adapted from versions 0.4 of
+   // http://www.jb.man.ac.uk/~slowe/cpp/itoa.html).
+   // In case of error returns the "!" string.
+
+#ifdef __WITH_KVSTRING_ITOA
+   std::string buf;
+   // check that the base if valid
+   if (base < 2 || base > 36) {
+      Error("KVString::LLtoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base);
+      return (KVString("!"));
+   }
+   buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
+   Long64_t quotient = value;
+   // Translating number to string with base:
+   do {
+      buf += "0123456789abcdefghijklmnopqrstuvwxyz"[ TMath::Abs(quotient % base) ];
+      quotient /= base;
+   } while (quotient);
+   // Append the negative sign
+   if (value < 0) buf += '-';
+   std::reverse(buf.begin(), buf.end());
+   return (KVString(buf.data()));
+#else
+   return TString::LLtoa(value, base);
+#endif
+}
+
+//______________________________________________________________________________
+KVString KVString::ULLtoa(ULong64_t value, Int_t base)
+{
+   // Converts a ULong64_t (twice the range of an Long64_t) to a KVString with
+   // respect to the base specified (2-36). Thus it is an enhanced version of
+   // sprintf (adapted from versions 0.4 of http://www.jb.man.ac.uk/~slowe/cpp/itoa.html).
+   // In case of error returns the "!" string.
+
+#ifdef __WITH_KVSTRING_ITOA
+   std::string buf;
+   // check that the base if valid
+   if (base < 2 || base > 36) {
+      Error("KVString::ULLtoa", "base %d is not supported. Suppported bases are {2,3,...,36}.",base);
+      return (KVString("!"));
+   }
+   buf.reserve(35); // Pre-allocate enough space (35=kMaxDigits)
+   ULong64_t quotient = value;
+   // Translating number to string with base:
+   do {
+      buf += "0123456789abcdefghijklmnopqrstuvwxyz"[ quotient % base ];
+      quotient /= base;
+   } while (quotient);
+   std::reverse(buf.begin(), buf.end());
+   return (KVString(buf.data()));
+#else
+   return TString::ULLtoa(value, base);
+#endif
+}
+
+//______________________________________________________________________________
+KVString KVString::BaseConvert(const KVString& s_in, Int_t base_in, Int_t base_out)
+{
+   // Converts string from base base_in to base base_out. Supported bases
+   // are 2-36. At most 64 bit data can be converted.
+
+#ifdef __WITH_KVSTRING_ITOA
+   KVString s_out = "!" ;  // return value in case of issue
+   // checking base range
+   if (base_in < 2 || base_in > 36 || base_out < 2 || base_out > 36) {
+      Error("KVString::BaseConvert", "only bases 2-36 are supported (base_in=%d, base_out=%d).", base_in, base_out);
+      return (s_out);
+   }
+   // cleaning s_in
+   KVString s_in_ = s_in;
+   Bool_t isSigned = kFALSE;
+   if (s_in_[0] == '-') {
+      isSigned = kTRUE;
+      s_in_.Remove(0, 1);
+   }
+   if (!isSigned && s_in_[0] == '+') s_in_.Remove(0, 1);  // !isSigned to avoid strings beginning with "-+"
+   if (base_in == 16 && s_in_.BeginsWith("0x")) s_in_.Remove(0, 2);  // removing hex prefix if any
+   s_in_ = KVString(s_in_.Strip(KVString::kLeading, '0'));  // removing leading zeros (necessary for length comparison below)
+   // checking s_in_ is expressed in the mentionned base
+   if (!s_in_.IsInBaseN(base_in)) {
+      Error("KVString::BaseConvert", "s_in=\"%s\" is not in base %d", s_in.Data(), base_in);
+      return (s_out);
+   }
+   // checking s_in <= 64 bits
+   KVString s_max = KVString::ULLtoa(18446744073709551615ULL, base_in);
+   if (s_in_.Length() > s_max.Length()) {
+      // string comparison (s_in_>s_max) does not take care of length
+      Error("KVString::BaseConvert", "s_in=\"%s\" > %s = 2^64-1 in base %d.", s_in.Data(), s_max.Data(), base_in);
+      return (s_out);
+   } else if (s_in_.Length() == s_max.Length()) {
+      // if ( s_in_.Length() < s_max.Length() ) everything's fine
+      s_in_.ToLower();  // s_max is lower case
+      if (s_in_ > s_max) {
+         // string comparison
+         Error("KVString::BaseConvert", "s_in=\"%s\" > %s = 2^64-1 in base %d.", s_in.Data(), s_max.Data(), base_in);
+         return (s_out);
+      }
+   }
+
+   // computing s_out
+   ULong64_t i = ULong64_t(strtoull(s_in.Data(), 0, base_in));
+   s_out = KVString::ULLtoa(i, base_out);
+   if (isSigned) s_out.Prepend("-");
+   return (s_out);
+#else
+   return TString::BaseConvert(s_in, base_in, base_out);
+#endif
 }

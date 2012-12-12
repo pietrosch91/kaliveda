@@ -75,8 +75,8 @@ KVDataSetManager::~KVDataSetManager()
 Bool_t KVDataSetManager::Init(KVDataRepository * dr)
 {
    //Initialisation of dataset manager for the repository 'dr'.
-   //
-   //Read list of datasets then check availability of datasets in repository.
+   //If dr=0x0 (default) then all known datasets are 'available', otherwise
+   //we check availability of datasets based on data present in repository.
    //Initialise all possible data analysis tasks,
    //then set list of possible tasks for each available dataset.
    //
@@ -92,19 +92,21 @@ Bool_t KVDataSetManager::Init(KVDataRepository * dr)
       return kFALSE;
 
    //use caching for dataset availability ?
-   fCacheAvailable = gEnv->GetValue( Form("%s.DataRepository.CacheAvailable", dr->GetName()),
+   if(dr){
+      fCacheAvailable = gEnv->GetValue( Form("%s.DataRepository.CacheAvailable", dr->GetName()),
          kFALSE );
-   fMaxCacheTime = (UInt_t)gEnv->GetValue( Form("%s.DataRepository.MaxCacheTime", dr->GetName()),
+      fMaxCacheTime = (UInt_t)gEnv->GetValue( Form("%s.DataRepository.MaxCacheTime", dr->GetName()),
          0 );
+   }
    if(fCacheAvailable) Info("KVDataSetManager::Init",
       "Using available dataset cache file: MaxCacheTime = %u seconds",
       fMaxCacheTime);
    //name of cache file
-   fCacheFileName.Form("%s.available.datasets", dr->GetName());
+   if(dr) fCacheFileName.Form("%s.available.datasets", dr->GetName());
    
    //check which datasets are available
    CheckAvailability();
-   if(!GetNavailable() && dr->IsRemote()) return kFALSE;
+   if(!GetNavailable() && dr && dr->IsRemote()) return kFALSE;
 
    if (!ReadTaskList())
       return kFALSE;
@@ -115,6 +117,9 @@ Bool_t KVDataSetManager::Init(KVDataRepository * dr)
          GetAvailableDataSet(i)->SetAnalysisTasks(&fTasks);
    }
 
+   // stand-alone dataset manager: make it the default
+   if(!dr) gDataSetManager  = this;
+   
    return kTRUE;
 }
 
@@ -293,7 +298,7 @@ void KVDataSetManager::CheckAvailability()
       //if datasets are found, then we copy the temporary file to KVFiles directory,
       //overwriting any previous version. if no datasets were found, we try the cache
       //file (if it exists)
-      if(fNavailable){
+      if(fNavailable && fRepository){//if no repository is associated, no need to keep file
          TString runlist;
          AssignAndDelete(runlist,
                       gSystem->ConcatFileName(KVBase::GetKVFilesDir(),

@@ -101,7 +101,8 @@ void KVINDRAUpDater_e613::SetPedestals(KVDBRun * kvrun)
 	{
 		dbps = (KVDBParameterSet *) ped_list->At(i);
 		acq = gIndra->GetACQParam(dbps->GetName());
-	
+		if (!acq)
+			Error("SetPedestals","ACQ Parameter not defined %s",dbps->GetName());
 		oldped = acq->GetPedestal();
 		if ( oldped != Float_t(dbps->GetParameter(0)) ){
 			acq->SetPedestal(Float_t(dbps->GetParameter(0)));

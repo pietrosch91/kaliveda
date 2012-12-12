@@ -190,10 +190,11 @@ void KVIDGridManager::GetListOfIDTelescopeLabels ( KVString& list )
    KVIDGraph *grid = 0;
    KVString lab;
    while ( ( grid = ( KVIDGraph * ) next() ) ) {
-      lab.Form ( "%s,", grid->GetIDTelescopeLabel() );
+      lab.Form ( "/%s/", grid->GetIDTelescopeLabel() );
       if ( !list.Contains ( lab ) ) list.Append ( lab );
    }
-   list.Remove ( TString::kTrailing, ',' );
+   list.ReplaceAll("//",",");
+   list.ReplaceAll("/","");
 }
 
 void KVIDGridManager::Initialize ( Option_t* opt )

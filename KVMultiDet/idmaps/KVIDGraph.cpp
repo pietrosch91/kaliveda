@@ -96,12 +96,36 @@ void KVIDGraph::Browse(TBrowser* b)
    // Overrides default TGraph::Browse (which calls Draw()) in order to open
    // the grid in the KVIDGridEditor canvas (if one exists).
    // If no KVIDGridEditor exists, we perform the default action (Draw()).
+   //
+   // If a 2D-histogram is open in the active pad (gPad), and if this pad is NOT
+   // a KVIDGridEditorCanvas, we show the 2D-histo in the IDGridEditor canvas
+   // with the grid superimposed. This allows to work on grids using histograms
+   // which are e.g. generated on the fly from some TTree of data.
    
    if( gIDGridEditor ){
-      if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
       // avant d'editer la grille, on en fait une copie pour
       // pouvoir revenir en arriere
       UpdateLastSavedVersion();
+      // is there a non-IDGridEditor canvas already open with a 2D-histogram in it?
+      if(gPad && !gPad->InheritsFrom("KVIDGridEditorCanvas")){
+         TIter next_prim( gPad->GetListOfPrimitives() );
+         TH2* theHisto=0x0;
+         TObject* o;
+         while( (o=next_prim()) ){
+            if(o->InheritsFrom("TH2")){
+               theHisto=(TH2*)o;
+               break;
+            }
+         }
+         if(theHisto){
+            // we superpose the grid on the histogram we found in the grid editor canvas
+            gIDGridEditor->SetHisto(theHisto);
+            gIDGridEditor->SetGrid(this,kFALSE);
+            if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
+            return;
+         }
+      }
+      if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
       gIDGridEditor->SetGrid(this);
    }
    else

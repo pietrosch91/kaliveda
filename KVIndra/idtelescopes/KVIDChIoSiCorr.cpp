@@ -8,6 +8,7 @@ $Date: 2009/04/06 15:20:28 $
 //Author: franklan
 
 #include "KVIDChIoSiCorr.h"
+#include "KVINDRACodes.h"
 
 ClassImp(KVIDChIoSiCorr)
 
@@ -20,161 +21,54 @@ ClassImp(KVIDChIoSiCorr)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDChIoSiCorr::KVIDChIoSiCorr() 
-{
-
-}
-
-KVIDChIoSiCorr::~KVIDChIoSiCorr() 
-{
-
-}
-
-//________________________________________________________________________________________//
-
-void KVIDChIoSiCorr::Initialize() 
-{
-    fChIoGG = -5.;
-    fChIoPG = -5.;
-    fChIoGGPedestal = -5.;
-    fChIoPGPedestal = -5.;
-    fChIoCorr = -5.;
-
-    fSiGG = -5.;
-    fSiPG = -5.;
-    fSiGGPedestal = -5.;
-    fSiPGPedestal = -5.;
-    fSiCorr = -5.;
-
-    fChIo = 0;
-    fChIo = (KVChIo*)GetDetector(1);
-
-    fSi = 0;
-    fSi = (KVSilicon*)GetDetector(2);
-
-    ChIoSiGrid = 0;
-    ChIoSiGrid = (KVIDGChIoSi*) GetIDGrid();
-
-    if (ChIoSiGrid != 0) {
-        ChIoSiGrid->Initialize();
-        SetBit(kReadyForID);
-    }else{
-        ResetBit(kReadyForID);
-    }
-
-}
-
 //________________________________________________________________________________________//
 
 Double_t KVIDChIoSiCorr::GetIDMapX(Option_t *opt) 
 {
-    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
+	// This method gives the X-coordinate in a 2D identification map
+	// associated whith the ChIo-Si identification telescope.
+	// The X-coordinate is the silicon current petit gain coder data minus the petit gain pedestal. If the grand gain coder 
+	// data is less than 3900 then the petit gain value is calculated
+	// from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
 
-    fSiCorr = -5.;
-
-    if(fSi != 0){
-
-        fSiPG = fSi->GetPG();
-        fSiPGPedestal = fSi->GetPedestal("PG");
-
-        fSiGG = fSi->GetGG();
-        fSiGGPedestal = fSi->GetPedestal("GG");
-
-        if(fSiGG < 3900.){
-
-            fSiCorr = fSi->GetPGfromGG(fSiGG) - fSiPGPedestal;
-
-        }else{
-
-            fSiCorr = fSiPG - fSiPGPedestal;
-        }
-    
-    }else{
-
-        return 10000.;
-    }
-
-    return fSiCorr;
+	return GetIDMapXY( (KVINDRADetector *)fsi, opt);
 }
-
 //________________________________________________________________________________________//
 
 Double_t KVIDChIoSiCorr::GetIDMapY(Option_t *opt) 
 {
-    Option_t *tmp; tmp = opt; // not used (keeps the compiler quiet)
-
-    fChIoCorr = -5.;
-
-    if(fChIo != 0){
-
-        fChIoPG = fChIo->GetPG();
-        fChIoPGPedestal = fChIo->GetPedestal("PG");
-
-        fChIoGG = fChIo->GetGG();
-        fChIoGGPedestal = fChIo->GetPedestal("GG");
-
-        if(fChIoGG < 3900.){
-
-            fChIo->SetPedestal("GG", 0.);
-            fChIoGGPedestal = fChIo->GetPedestal("GG"); // Resets the stored value  
-        
-            fChIoCorr = fChIo->GetPGfromGG(fChIoGG) - fChIoPGPedestal;
-        
-        }else{
-        
-            fChIoCorr = fChIoPG - fChIoPGPedestal;
-        }
-    
-    }else{
-
-        return 10000.;
-    }
-
-    return fChIoCorr;
-
+	// This method gives the Y-coordinate in a 2D identification map
+	// associated whith the ChIo-Si identification telescope.
+	// The Y-coordinate is the ionisation chamber's current petit gain coder data minus the petit gain pedestal. If the grand gain coder 
+	// data is less than 3900 then the petit gain value is calculated
+	// from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
+	// We set the pedestal to zero in order to not cut the physics
+	// as the pedestal GG seems to be too high.
+	// PG-GG conversion has been calculated without ChIo GG pedestal.
+	
+	fchio->SetPedestal("GG",0.);
+	return GetIDMapXY( (KVINDRADetector *)fchio, opt);
 }
-
 //________________________________________________________________________________________//
 
-Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult * IDR, Double_t x, Double_t y) 
-{
-    IDR->SetIDType( GetType() );
-    IDR->IDattempted = kTRUE;
+Double_t KVIDChIoSiCorr::GetIDMapXY(KVINDRADetector *det, Option_t *opt){
+    opt = opt; // not used (keeps the compiler quiet)
 
-    Double_t chio = GetIDMapY("");
-    Double_t si = GetIDMapX("");
-
-    if (ChIoSiGrid->IsIdentifiable(si,chio)){
-        ChIoSiGrid->Identify(si,chio,IDR);
-    }
-
-    Int_t quality = ChIoSiGrid->GetQualityCode();
-    IDR->IDquality = quality;
-
-    // set general ID code
-    IDR->IDcode = kIDCode4;
-    //if point lies above Zmax line, we give Zmax as Z of particle (real Z is >= Zmax)
-    //general ID code = kIDCode5 (Zmin)
-    if (quality==KVIDZAGrid::kICODE7)
-    {
-        IDR->IDcode = kIDCode5;
-    }
-    //Identified particles with subcode kID_LeftOfBragg are given
-    //general ID code kIDCode5 (Zmin).
-    if (quality==KVIDGChIoSi::k_LeftOfBragg)
-    {
-        IDR->IDcode = kIDCode5;
-    }
-    //unidentifiable particles with subcode kID_BelowSeuilSi are given
-    //general ID code kIDCode5 (Zmin) and we estimate Zmin from energy
-    //loss in ChIo
-    if (quality==KVIDGChIoSi::k_BelowSeuilSi)
-    {
-        IDR->IDcode = kIDCode5;
-        IDR->Z = fChIo->FindZmin();
-        IDR->SetComment("point to identify left of Si threshold line (bruit/arret ChIo?)");
-    }
-    if(quality==KVIDGChIoSi::k_RightOfEmaxSi) IDR->SetComment("point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable");
-
-    return kTRUE;
+    if(det){
+        if(det->GetGG() < 3900.) return det->GetPGfromGG() - det->GetPedestal("PG");
+        return det->GetPG() - det->GetPedestal("PG");
+	}
+    return 10000.;
 }
+//________________________________________________________________________________________//
+
+//Bool_t KVIDChIoSiCorr::Identify(KVIdentificationResult *IDR, Double_t x, Double_t y){
+//
+//	Bool_t identOK = KVIDChIoSi::Identify(IDR,x,y);
+//
+//	Int_t quality = ChIoSiGrid->GetQualityCode();
+//	if(quality==KVIDGChIoSi_e494s::k_BelowSeuilChIo)
+//		IDR->IDcode = kIDCode15;
+//
+//	return identOK;
+//}
