@@ -32,13 +32,15 @@ class KVZALineFinder : public KVBase
    
    KVIDZAGrid* fGeneratedGrid;
    TH2*        fLinearHisto;
-   KVCanvas*   fCanvas;
+//   KVCanvas*   fCanvas;
 
    TSpectrum fSpectrum;
    TGraph*   fPoints;
    Int_t     fNPoints;
    
    TList*    fLines;
+   Int_t     fBinsByZ;
+    
    std::vector<int> fAList;
    
    public:
@@ -50,6 +52,7 @@ class KVZALineFinder : public KVBase
    protected:
    TH2* LinearizeHisto(Int_t nZbin=40);
    void FindALine(Int_t zz, Int_t width=10);   
+   void FindZLine(Int_t zz);   
    void SortLines(TList* Lines);
    void MakeGrid();
    void DrawGrid();
@@ -57,6 +60,7 @@ class KVZALineFinder : public KVBase
    public:
    KVIDZAGrid* GetGrid(){return fGeneratedGrid;};
    TH2* GetHisto(){return fLinearHisto;};
+   void SetNbinsByZ(Int_t binByZ){fBinsByZ=binByZ;};
    
    void SetAList(const char* Alist);
    void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");};

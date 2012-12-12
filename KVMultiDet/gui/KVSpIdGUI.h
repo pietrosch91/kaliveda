@@ -24,7 +24,7 @@
 
 class KVSpIdGUI
 {
-   RQ_OBJECT("KVTestIDGridDialog")
+   RQ_OBJECT("KVSpIdGUI")
    
    public:
    enum MatrixType

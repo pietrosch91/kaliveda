@@ -2286,12 +2286,13 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
   return;
 }
 
-void KVIDGridEditor::FindZALines(const Char_t* A)
+void KVIDGridEditor::FindZALines(const Char_t* A, Int_t binByZ, Int_t zmin, Int_t zmax)
 {
   if((!TheHisto)||(!TheGrid)) return;
   KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
   toto.SetAList(A);
-  toto.ProcessIdentification();
+  toto.SetNbinsByZ(binByZ);
+  toto.ProcessIdentification(zmin,zmax);
   
 //  Close();
   SetHisto(toto.GetHisto());
@@ -2320,6 +2321,28 @@ void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)
       {
       Info("ChangeMasses","A=%d -> A=%d",id->GetA(),id->GetA()+dA);
       id->SetA(id->GetA()+dA);
+      }
+    delete ll;
+    }
+}
+
+void KVIDGridEditor::ChangeCharges(const Char_t* Zl, Int_t dZ)
+{
+  Int_t found;
+  KVNumberList ZL(Zl);
+  ZL.Begin();
+  while(!ZL.End())
+    {
+    Int_t Z = ZL.Next();
+    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
+  
+    KVIDentifier* id = 0;
+    TIter next(ll);
+    while((id=(KVIDentifier*)next()))
+      {
+      Info("ChangeMasses","Z=%d -> Z=%d",id->GetZ(),id->GetZ()+dZ);
+      id->SetZ(id->GetZ()+dZ);
       }
     delete ll;
     }

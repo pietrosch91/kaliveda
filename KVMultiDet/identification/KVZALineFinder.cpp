@@ -27,13 +27,14 @@ KVZALineFinder::KVZALineFinder(KVIDZAGrid* gg, TH2* hh)
   
   fGeneratedGrid = 0;
   fLinearHisto   = 0;
-  fCanvas        = 0;
+//  fCanvas        = 0;
   
   fPoints  = new TGraph;
   fPoints->SetMarkerStyle(21);
   fNPoints = 0;
   fLines = new TList;
   SetAList("1,4,7,9,11,12,14,16,19,21,23,25,27,29,31,34,37,40,41");
+  fBinsByZ = 60;
 }
 
 //________________________________________________________________
@@ -71,14 +72,22 @@ void KVZALineFinder::Copy (TObject& obj) const
 //________________________________________________________________
 void KVZALineFinder::SetAList(const char* Alist)
 {
+  Int_t zmax  = (Int_t)(((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID()+1);
+  KVNucleus nuc;
+  
+  Int_t Z = 1;
   fAList.clear();
   KVNumberList Al(Alist);
   Al.Begin();
   while(!Al.End())
     {
     Int_t A = Al.Next();
+    if(A<=0) A = nuc.GetAFromZ(Z,fGrid->GetMassFormula());
     fAList.push_back(A);
+    Z++;
     }
+
+  for(int i=Z+1; i<=zmax; i++) fAList.push_back(nuc.GetAFromZ(i,fGrid->GetMassFormula()));
 }
 
 //________________________________________________________________
@@ -133,6 +142,48 @@ TH2* KVZALineFinder::LinearizeHisto(Int_t nZbin)
   return fLinearHisto;
 }
 
+//________________________________________________________________
+void KVZALineFinder::FindZLine(Int_t zz)
+{
+  fLinearHisto->SetAxisRange(zz-0.5,zz+0.5,"Y");
+
+  KVIDLine* line = (KVIDLine*)fGrid->GetIdentifier(zz,2*zz+1); // A=2*zz+1 : dummy, A is ignored in this case
+  if(!line)
+    {
+    int i=1;
+    while(!(line = (KVIDLine*)fGrid->GetIdentifier(zz+i,2*zz+1))) i++;
+    }
+  if(!line) return;
+  
+  Double_t lX, lY;
+  line->GetStartPoint(lX,lY);
+  Int_t xbmin = 1;
+  line->GetEndPoint(lX,lY);
+  Int_t xbmax = fLinearHisto->GetXaxis()->FindBin(lX);
+  Int_t width = (Int_t)((xbmax-xbmin)*1.0/30.);
+  
+  KVIDZALine* TheLine = 0;
+  TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
+  TheLine->SetZ(zz);
+  TheLine->SetA(fAList.at(zz-1));
+  
+  TH1* projey = 0;
+  Int_t i=0;
+  for(int xx=xbmin; xx<xbmax; xx+=width)
+    {
+    projey = fLinearHisto->ProjectionY("ProjectionAfterLin",TMath::Max(xx-width/2,xbmin),xx+width/2);
+    Double_t xline = fLinearHisto->GetBinCenter(xx);
+    Double_t yline = projey->GetMean();
+    if((yline>zz-0.5)&&(yline<zz+0.5)) 
+      {
+      TheLine->SetPoint(i, xline, yline);
+      i++;
+      }
+    delete projey;
+    }
+    
+  fGeneratedGrid->Add("ID",TheLine);
+}
 
 //________________________________________________________________
 void KVZALineFinder::FindALine(Int_t zz, Int_t width)
@@ -140,6 +191,11 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
   fLinearHisto->SetAxisRange(zz-0.5,zz+0.5,"Y");
 
   KVIDLine* line = (KVIDLine*)fGrid->GetIdentifier(zz,2*zz+1); // A=2*zz+1 : dummy, A is ignored in this case
+  if(!line)
+    {
+    int i=1;
+    while(!(line = (KVIDLine*)fGrid->GetIdentifier(zz+i,2*zz+1))) i++;
+    }
   if(!line) return;
   
   Double_t lX, lY;
@@ -247,7 +303,6 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
   fLines->AddAll(&Lines);
 }
 
-
 void KVZALineFinder::SortLines(TList* Lines)
 {
   int nn = Lines->GetSize();
@@ -259,17 +314,14 @@ void KVZALineFinder::SortLines(TList* Lines)
   Int_t*    ii = new int[nn];
   for(int i=0; i<nn; i++) yy[i] = ((KVSpiderLine*)Lines->At(i))->GetY(0);
   
-  KVNucleus nuc;
-//  Int_t fAMostProb[9] = {1,4,7,9,11,12,14,16,19};
-
-  
+  KVNucleus nuc;  
   TMath::Sort(nn, yy, ii, kFALSE);
   Int_t iMostProb;
   for(int i=0; i<nn; i++){if(ii[i]==0) iMostProb=i;}
     
-  Int_t aMostProb = 0;
-  if(zz<=fAList.size()) aMostProb = fAList.at(zz-1);
-  else aMostProb = 2*zz+1;
+  Int_t aMostProb =  fAList.at(zz-1);
+//   if(zz<=fAList.size()) aMostProb = fAList.at(zz-1);
+//   else aMostProb = 2*zz+1;
   
   for(int i=0; i<nn; i++)
     {
@@ -310,8 +362,6 @@ void KVZALineFinder::MakeGrid()
       }
     }	 
 
-  Int_t fAMostProb[9] = {1,4,7,9,11,12,14,16,19};
-  
   TheLine = 0;
   spline = 0;
   TIter next(fLines);
@@ -319,16 +369,12 @@ void KVZALineFinder::MakeGrid()
     {
     Int_t zl = spline->GetZ();
     if(zl<4) continue;
+    Int_t aMostProb = 0;
+    if(zl<=fAList.size()) aMostProb = fAList.at(zl-1);
+    else aMostProb = 2*zl+1;
     int index = 0;
     KVIDZALine* oldLine = 0;
-    oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),((zl<10)?fAMostProb[zl]:2*zl+1),index));
-//     if(!(oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()+1,index))))
-//       {
-//       if(!(oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()-1,index))))
-//         {
-//         oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),spline->GetA()+2,index));
-//         }
-//       }
+    oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),aMostProb,index));
     if(!oldLine)
       {
       Info("MakeGrid","No friend line for Z=%d,A=%d",spline->GetZ(),spline->GetA());
@@ -359,7 +405,7 @@ void KVZALineFinder::DrawGrid()
 
 void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
 {
-  LinearizeHisto(60);
+  LinearizeHisto(fBinsByZ);
   
   if(zmin<0) zmin = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetZ();
   if(zmax<0) zmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetZ();
@@ -369,7 +415,6 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
   int ww = 10;
   for(int z=zmin; z<=zmax; z++)
     {
-    if(!fGrid->GetIdentifier(z,2*z+1)) continue;
     if(z>4)  ww = 20;
     if(z>6)  ww = 30;
     if(z>10) ww = 40;
@@ -377,14 +422,13 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
     FindALine(z, ww);
     Info("ProcessIdentification","Line Z=%d processed !",z);
     }
-  
   MakeGrid();
-//  DrawGrid();
   
-//   new KVCanvas;
-//   fLinearHisto->Draw("col");
-//   fLines->Execute("Draw","\"PLN\"");
-//   fPoints->Draw("PL");
+  Double_t zmGrid  = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID();
+  if(zmax>=zmGrid) return;
+  
+  for(int z=zmax+1; z<=zmGrid; z++) FindZLine(z);
+  
 }
 
 
