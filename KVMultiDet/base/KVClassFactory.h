@@ -20,6 +20,7 @@ class KVClassMethod : public TNamed {
    Bool_t fVirtual;//kTRUE if method is 'virtual'
    Bool_t fConst;//kTRUE if method is 'const'
    Bool_t fConstructor;//kTRUE if method is a constructor
+   Bool_t fCopyCtor;//kTRUE if method is the copy constructor
    int fNargs;//counts arguments
    
    public:
@@ -29,7 +30,7 @@ class KVClassMethod : public TNamed {
    
    KVClassMethod(){
       fNargs = 0;
-      fVirtual = fConst = fConstructor = kFALSE;
+      fVirtual = fConst = fConstructor = fCopyCtor = kFALSE;
    };
    KVClassMethod(const KVClassMethod&);
    virtual ~KVClassMethod(){};
@@ -87,6 +88,10 @@ class KVClassMethod : public TNamed {
    void SetConstructor(Bool_t c = kTRUE) {
       fConstructor = c;
    };
+   void SetCopyCtor(Bool_t c = kTRUE)
+   {
+       fCopyCtor = c;
+   }
    
    Bool_t IsConst() const {
       return fConst;
@@ -97,7 +102,11 @@ class KVClassMethod : public TNamed {
    Bool_t IsConstructor() const {
       return fConstructor;
    };
-   
+   Bool_t IsCopyCtor() const
+   {
+       return fCopyCtor;
+   }
+
    void Print(Option_t* = "") const;
    
    void WriteDeclaration(KVString&);
@@ -120,7 +129,8 @@ class KVClassFactory : public TObject {
 
    KVString fClassName;   //name of class to generate
    KVString fClassDesc;   //class description
-   KVString fBaseClass;   //name of base class
+   KVString fBaseClassName;   //name of base class
+   TClass* fBaseClass; //! description of base class
    Bool_t fHasBaseClass; //kTRUE if class derived from another
    Bool_t fBaseClassTObject; //kTRUE if class derived from TObject
    KVString fAuthor;      //user who called ClassFactory to generate class
@@ -178,8 +188,9 @@ class KVClassFactory : public TObject {
    
    KVClassMethod* AddMethod(const Char_t* name, const Char_t* return_type, const Char_t* access = "public",
          Bool_t isVirtual = kFALSE, Bool_t isConst = kFALSE);
-	KVClassMethod* AddConstructor(const Char_t* argument_type,
+   KVClassMethod* AddConstructor(const Char_t* argument_type,
       const Char_t* argument_name = "", const Char_t* default_value = "", const Char_t* access = "public");
+   void AddAllBaseConstructors();
    void AddMethod(const KVClassMethod& kvcm);
    void AddMethodArgument(const Char_t* method_name, const Char_t* argument_type,
          const Char_t* argument_name = "", const Char_t* default_value = "");
@@ -197,16 +208,16 @@ class KVClassFactory : public TObject {
    void SetClassDesc(const Char_t* d) { fClassDesc = d; };
    const Char_t* GetClassDesc() const { return fClassDesc.Data(); };
    void SetBaseClass(const Char_t* b) {
-      fBaseClass = b;
-      fHasBaseClass = (fBaseClass != "");
+      fBaseClassName = b;
+      fHasBaseClass = (fBaseClassName != "");
       fBaseClassTObject=kFALSE;
       if(fHasBaseClass){
-         TClass* baseClass = TClass::GetClass(fBaseClass);
-         fBaseClassTObject=(baseClass && baseClass->InheritsFrom("TObject"));
+         fBaseClass = TClass::GetClass(fBaseClassName);
+         fBaseClassTObject=(fBaseClass && fBaseClass->InheritsFrom("TObject"));
       }
    };
-   const Char_t* GetBaseClass() const { return fBaseClass.Data(); };
-   Bool_t WithMultipleBaseClasses() const { return fBaseClass.Contains(","); };
+   const Char_t* GetBaseClass() const { return fBaseClassName.Data(); };
+   Bool_t WithMultipleBaseClasses() const { return fBaseClassName.Contains(","); };
    Bool_t WithTemplate() const { return fWithTemplate; };
    void SetTemplate(Bool_t temp, const Char_t* temp_file);
    const Char_t* GetTemplateBase() const { return fTemplateBase; };
