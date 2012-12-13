@@ -17,6 +17,7 @@
 #include "TROOT.h"
 #include "TGMsgBox.h"
 
+#define _TIMER_INTERVAL_ 800
 using namespace std;
 
 ClassImp(KVTreeAnalyzer)
@@ -58,6 +59,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    fSelectedLeaves=0;
    fSelectedHistos=0;
    ipscale=0;
+   fTimer=0;
       GDfirst=new KVGumbelDistribution("Gum1",1);
       GDsecond=new KVGumbelDistribution("Gum2",2);
       GDthird=new KVGumbelDistribution("Gum3",3);
@@ -83,6 +85,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fDrawSame = fDrawLog = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
    fNewCanvas = kTRUE;
    fNoGui=nogui;
+   fTimer=0;
    OpenGUI();
    fSameColorIndex=0;
    fSelectedSelections=0;
@@ -107,6 +110,7 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
    SafeDelete(fMain_histolist);
    SafeDelete(fMain_leaflist);
    SafeDelete(fMain_selectionlist);
+   SafeDelete(fTimer);
 }
 
 //________________________________________________________________
@@ -179,6 +183,7 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    // If normalisation of spectra is required (fNormHisto = kTRUE) the histogram
    // bin contents are divided by the integral (sum of weights).
    
+   InitProgressBar( G_hist_prog_bar );
    TString name;
    name.Form("h%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
@@ -188,7 +193,9 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    else
       histo.Form(">>%s(%d,0.,0.)", name.Data(), nX);
    drawexp += histo;
+   StartProgressBar();
    fTree->Draw(drawexp, selection, "goff");
+   StopProgressBar();
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
@@ -199,6 +206,7 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
       h->Sumw2();
       h->Scale(1./h->Integral());
    }
+   ResetProgressBar();
    return h;
 }
 
@@ -209,14 +217,16 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    // for all values of x.
    //
    // Histograms are automatically named 'Ih1', 'Ih2', etc. in order of creation.
-   
+   InitProgressBar( G_hist_prog_bar );
    TString name;
    name.Form("Ih%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
    GenerateHistoTitle(histotitle, expr, selection);
    histo.Form(">>%s(%d,%f,%f)", name.Data(), (Xmax-Xmin)+1, Xmin-0.5, Xmax+0.5);
    drawexp += histo;
+   StartProgressBar();
    fTree->Draw(drawexp, selection, "goff");
+   StopProgressBar();
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
@@ -227,6 +237,7 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
       h->Sumw2();
       h->Scale(1./h->Integral());
    }
+   ResetProgressBar();
    return h;
 }
    
@@ -245,15 +256,23 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    //    "[(active selection) && ](selection)"
    //
    // TEntryList objects are automatically named 'el1', 'el2', etc. in order of creation.
-   
+
+   InitProgressBar( G_sel_prog_bar );
    TString name;
    name.Form("el%d",fSelectionNumber);
    TString drawexp(name.Data());
    drawexp.Prepend(">>");
+   StartProgressBar();
    if( fTree->Draw(drawexp, selection, "entrylist") < 0 ){
+	   StopProgressBar();
+	   G_prog_bar->SetBarColor("#ff0000");
+	   G_prog_bar->SetPosition(100);
+   	   G_prog_bar->ShowPosition(kTRUE, kFALSE,"WARNING");
 	   new TGMsgBox(gClient->GetRoot(),0,"Warning","Mistake in your new selection!",kMBIconExclamation,kMBClose);
+	   ResetProgressBar();
 	   return kFALSE;
    }
+   StopProgressBar();
    TEntryList*el = (TEntryList*)gDirectory->Get(name);
    if(fTree->GetEntryList()){
       TString _elist = fTree->GetEntryList()->GetTitle();
@@ -263,6 +282,8 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    }
    fSelectionNumber++;
    AddSelection(el);
+   ResetProgressBar();
+
    return kTRUE;
 }
    
@@ -366,9 +387,8 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_leaflist->AddFrame(G_leaflist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
 				       5,5,5,5));
-  
+ 
    fMain_leaflist->MapSubwindows();
-
    fMain_leaflist->Resize(fMain_leaflist->GetDefaultSize());
    fMain_leaflist->MapWindow();
    fMain_leaflist->Resize(lWidth,lHeight);
@@ -527,13 +547,20 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_histolist->AddFrame(G_histolist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
 				       5,5,5,5));
-  
+   /* histo progression bar */
+   G_hist_prog_bar = new TGHProgressBar(fMain_histolist, TGProgressBar::kStandard, 300);
+   G_hist_prog_bar->SetBarColor("#00bb30");
+   G_hist_prog_bar->SetPosition(100);
+   G_hist_prog_bar->ShowPosition(kTRUE, kFALSE,"READY");
+   fMain_histolist->AddFrame(G_hist_prog_bar, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 5,5,2,2));
+
    fMain_histolist->MapSubwindows();
 
    fMain_histolist->Resize(fMain_histolist->GetDefaultSize());
    fMain_histolist->MapWindow();
    fMain_histolist->Resize(hWidth,hHeight);
    G_histolist->Display(&fHistolist);
+  
    // SELECTIONS main frame
    UInt_t sWidth = 600, sHeight = 360;
    fMain_selectionlist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
@@ -585,13 +612,21 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_selectionlist->AddFrame(G_selectionlist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
 				       5,5,5,5));
-   
+   /* selection progression bar */
+   G_sel_prog_bar = new TGHProgressBar(fMain_selectionlist, TGProgressBar::kStandard, 300);
+   G_sel_prog_bar->SetBarColor("#00bb30");
+   G_sel_prog_bar->SetPosition(100);
+   G_sel_prog_bar->ShowPosition(kTRUE, kFALSE,"READY");
+   fMain_selectionlist->AddFrame(G_sel_prog_bar, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 5,5,2,2));
+ 
    fMain_selectionlist->MapSubwindows();
 
    fMain_selectionlist->Resize(fMain_selectionlist->GetDefaultSize());
    fMain_selectionlist->MapWindow();
    fMain_selectionlist->Resize(sWidth,sHeight);
    G_selectionlist->Display(&fSelections);
+  
+   if( !fTimer ) fTimer = new TTimer(this, 20);
 }  
    
 void KVTreeAnalyzer::AddHisto(TH1*h)
@@ -916,6 +951,8 @@ void KVTreeAnalyzer::DrawLeafExpr()
    // If only one leaf/alias is selected, this actually calls DrawLeaf.
  
    if(fLeafExpr=="-") return;
+   InitProgressBar( G_hist_prog_bar );
+   
    if(fSelectedLeaves->GetEntries()==1){
       DrawLeaf(fSelectedLeaves->First());
       return;
@@ -962,7 +999,9 @@ void KVTreeAnalyzer::DrawLeafExpr()
    GenerateHistoTitle(histotitle, fLeafExpr, "");
    histo.Form(">>%s(%d,%f,%f,%d,%f,%f)", name.Data(), nx,xmin,xmax,ny,ymin,ymax);
    drawexp += histo;
+   StartProgressBar();
    fTree->Draw(drawexp, "", "goff");
+   StopProgressBar();
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
@@ -970,6 +1009,8 @@ void KVTreeAnalyzer::DrawLeafExpr()
    AddHisto(h);
    fHistoNumber++;
    DrawHisto(h);
+   ResetProgressBar();
+
 }
 
 
@@ -1437,3 +1478,48 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
       }
    }
 }
+
+
+Bool_t KVTreeAnalyzer::HandleTimer(TTimer *timer){
+// This function is called by the fTimer object.
+TEntryList *el = fTree->GetEntryList();
+Float_t first  = fTree->GetEntryNumber( 0 ) ;
+Float_t last   = (Float_t)( el ? el->GetEntry( el->GetN()-1 ) : fTree->GetEntries()-1 );
+Float_t current = (Float_t)fTree->GetReadEntry();
+Float_t percent = (current-first)/(last-first);
+G_prog_bar->SetPosition(100.*percent);
+//G_prog_bar->ShowPosition();
+timer->Reset();
+return kFALSE;
+}
+
+
+void KVTreeAnalyzer::InitProgressBar( TGHProgressBar *progbar){
+
+	G_prog_bar = progbar;
+	G_prog_bar->SetBarColor("#ffaa00"); // orange
+   	G_prog_bar->ShowPosition(kTRUE, kFALSE,"Processing...");
+	G_prog_bar->SetPosition(0);
+
+}
+
+void KVTreeAnalyzer::StartProgressBar(){
+	// InitProgressBar has to be called before.
+	fTree->SetTimerInterval( _TIMER_INTERVAL_ );
+   	fTimer->Start();
+   	G_prog_bar->ShowPosition(kTRUE, kFALSE,"Processing... %.f%%");
+}
+
+void KVTreeAnalyzer::StopProgressBar(){
+	// StartProgressBar has to be called before.
+	HandleTimer(fTimer);
+   	fTimer->Stop();
+   	fTree->SetTimerInterval(0);
+}
+
+void KVTreeAnalyzer::ResetProgressBar(){
+	G_prog_bar->SetBarColor("#00bb30"); // green
+   	G_prog_bar->SetPosition(100);
+   	G_prog_bar->ShowPosition(kTRUE, kFALSE,"READY");
+}
+

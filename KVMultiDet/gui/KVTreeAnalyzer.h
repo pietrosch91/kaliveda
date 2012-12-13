@@ -129,6 +129,9 @@
 #ifndef ROOT_TGHtmlBrowser
 #include "TGHtmlBrowser.h"
 #endif
+#ifndef ROOT_TGProgressBar
+#include "TGProgressBar.h"
+#endif
 
 #include "Riostream.h"
 #include "KVListView.h"
@@ -147,6 +150,7 @@ class KVTreeAnalyzer : public TNamed
 
    TTree* fTree;//! the analyzed TTree
    KVUniqueNameList fSelections;// list of TEntryList user selections
+   TTimer* fTimer;
    /* leaves */
    TGMainFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
    KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
@@ -159,6 +163,9 @@ class KVTreeAnalyzer : public TNamed
    TNamed* fXLeaf;//!
    TNamed* fYLeaf;//!
    TGTextEntry* G_alias_text;//!
+   TGHProgressBar* G_hist_prog_bar;//!
+   TGHProgressBar* G_sel_prog_bar;//!
+   TGHProgressBar* G_prog_bar;//!
    
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
@@ -227,7 +234,12 @@ class KVTreeAnalyzer : public TNamed
    
    void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel);
    void FillLeafList();
-   
+
+   void InitProgressBar( TGHProgressBar *progbar);
+   void StartProgressBar();
+   void StopProgressBar();
+   void ResetProgressBar();
+
    public:
    KVTreeAnalyzer(Bool_t nogui=kTRUE);
    KVTreeAnalyzer(TTree*,Bool_t nogui=kFALSE);
@@ -291,6 +303,8 @@ class KVTreeAnalyzer : public TNamed
    void FitGausGum3();
    
    void HandleHistoFileMenu(Int_t); 
+   Bool_t HandleTimer(TTimer *);                  //Handler timer
+
    ClassDef(KVTreeAnalyzer,1)//KVTreeAnalyzer
 };
 
