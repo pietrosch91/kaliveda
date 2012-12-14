@@ -40,6 +40,7 @@ export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
 export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
 export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 export ROOT_v5_32_00 = $(call get_root_version,5,32,0)
+export ROOT_v5_33_00 = $(call get_root_version,5,33,0)
 
 #By default, we use the system-dependent definitions contained in the ROOT
 #makefile found (for standard installations) in
@@ -65,6 +66,10 @@ export GRU_DIR = /home/acqexp/GRU/GRUcurrent
 # for compilation with Ricardo Yanez's 'range' dE/dX and range library
 export WITH_RANGE_YANEZ = no
 export RANGE_YANEZ_DIR = /usr/local
+# set this to 'yes' when using specially modified version of range library
+# with special treatment of gaseous materials and icor=2 interpolation
+# between NCS and HBG tables
+export WITH_MODIFIED_RANGE_YANEZ = no
 
 # GanTape library with RFIO or XROOTD
 # To compile the Ganil acquisition library using RFIO or XROOTD to
@@ -120,6 +125,10 @@ BZR = $(shell which bzr)
 ifneq ($(BZR),)
 BZR_INFOS = KVBzrInfo.h
 BZR_LAST_REVISION = $(shell if [ -f .bzr/branch/last-revision ]; then echo '.bzr/branch/last-revision'; fi)
+BZR_BRANCH_NICK = $(shell bzr info | grep 'checkout of branch' | awk '{ print $$4 }')
+ifeq ($(BZR_BRANCH_NICK),)
+BZR_BRANCH_NICK = $(shell bzr info | grep 'parent branch' | awk '{ print $$3 }')
+endif
 else
 BZR_INFOS =
 BZR_LAST_REVISION =
@@ -173,8 +182,9 @@ $(ROOT_VERSION_TAG) :
 	else :; fi
 	
 $(BZR_INFOS) : $(BZR_LAST_REVISION)
-	bzr version-info --custom --template="#define BZR_REVISION_ID "\""{revision_id}"\"" \n#define BZR_REVISION_DATE "\""{date}"\"" \n#define BZR_REVISION_NUMBER {revno}\n#define BZR_BRANCH_NICK "\""{branch_nick}"\"" \n#define BZR_BRANCH_IS_CLEAN {clean}\n" \
+	@bzr version-info --custom --template="#define BZR_REVISION_ID "\""{revision_id}"\"" \n#define BZR_REVISION_DATE "\""{date}"\"" \n#define BZR_REVISION_NUMBER {revno}\n#define BZR_BRANCH_IS_CLEAN {clean}\n" \
 		> $@
+	@echo '#define BZR_BRANCH_NICK "$(BZR_BRANCH_NICK)"' >> $@
 
 gan_tape : .init
 	cd GanTape && ./make_linux_i386

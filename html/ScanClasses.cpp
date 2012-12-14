@@ -147,8 +147,14 @@ void ScanClasses::FillListOfClasses()
       //add entry with name of each KaliVeda class in table
       TObjString* tos=new TObjString(gClassTable->Next());
       TString cl_name = tos->String();
-		if( cl_name.BeginsWith("KV") || cl_name.BeginsWith("Binary") || cl_name.BeginsWith("Hexa") 
-				|| cl_name.BeginsWith("GT") || cl_name.BeginsWith("SRB") || cl_name.BeginsWith("PACE2") ){
+      cout << cl_name << endl;
+      TClass* cc = TClass::GetClass(cl_name,kFALSE);
+      cout << cc << endl;
+      const char* libs = TClass::GetClass(cl_name)->GetSharedLibs();
+      cout << libs << endl;
+      TString shared_libs = "";
+      if(libs) shared_libs = libs;
+		if( shared_libs.Contains("libKVMultiDet.so") ){
          cnames->Add(tos);
       }
       else
@@ -175,7 +181,7 @@ void ScanClasses::AnalyseClasses()
 			nclasses++;
 			
 		    	//get class definition
-			TClass* cl = gROOT->GetClass( cl_name.Data() );
+			TClass* cl = TClass::GetClass( cl_name.Data() );
 			TString  dec_f( cl->GetDeclFileName() );
 			//extract subdirectory name from class declaration filename
 			TObjArray* toks = dec_f.Tokenize('/');
@@ -299,6 +305,16 @@ void ScanClasses::WritePage()
 	list_file.close();
 }
 
+void ScanClasses::WritePageHead()
+{
+   list_file << "<b>Last updated: ";
+   TDatime now;
+   list_file << now.AsString();
+   list_file << "</b><br>" << endl;
+   list_file << "Revision#" << KVBase::bzrRevisionNumber()<<"  ["<< KVBase::bzrRevisionDate() << "]<br>"<< endl;
+   list_file << "<I>"<<KVBase::bzrBranchNick()<<"</I><br><br>"<< endl;
+}
+
 //ClassImp(ScanExamples)
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
@@ -368,11 +384,11 @@ void ScanExamples::AnalyseClasses()
 			nclasses++;
 			
 		    	//get class definition
-			TClass* cl = gROOT->GetClass( cl_name.Data() );
+			TClass* cl = TClass::GetClass( cl_name.Data() );
          
          //get base class definition
          TList* bases = cl->GetListOfBases();
-         TClass *baseclass = gROOT->GetClass( bases->At(0)->GetName() );
+         TClass *baseclass = TClass::GetClass( bases->At(0)->GetName() );
          
 			//extract subdirectory name from base class declaration filename
 			TString  dec_f( baseclass->GetDeclFileName() );

@@ -174,7 +174,7 @@ class KVIDTelescope:public KVBase {
       // redefine in child classes; default returns 0.
       return 0;
    };
-
+   virtual Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus* /*ION*/, Double_t /*EINC*/ = 0.0);
 
 	ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };

@@ -19,6 +19,7 @@ class KVINDRAe503:public KVINDRA4 {
    virtual void BuildGeometry();
    virtual void MakeListOfDetectorTypes();
    virtual void PrototypeTelescopes();
+   virtual void SetGroupsAndIDTelescopes();
 
  public:
 

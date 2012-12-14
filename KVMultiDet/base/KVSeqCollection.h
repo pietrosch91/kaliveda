@@ -11,7 +11,7 @@
 
 class KVSeqCollection : public TSeqCollection
 {
-    RQ_OBJECT("KVList")
+    RQ_OBJECT("KVSeqCollection")
 
     enum
     {

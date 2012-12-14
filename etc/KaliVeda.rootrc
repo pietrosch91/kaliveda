@@ -404,10 +404,10 @@ RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
-+DataAnalysisTask:     DSTtoROOT
-DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
-DSTtoROOT.DataAnalysisTask.Prereq:     dst
-DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
+#+DataAnalysisTask:     DSTtoROOT
+#DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
+#DSTtoROOT.DataAnalysisTask.Prereq:     dst
+#DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
 
 #-------------------------------- Compiler options for user analysis classes
 #                                                              DEBUGGING
@@ -578,11 +578,15 @@ INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
-INDRA_e503.INDRADB.Pedestals:                         PedestalsE503.dat
-INDRA_e503.INDRADB.GGtoPGFactors:                     ParamFitPG_GG.dat
+INDRA_e503.INDRADB.Pedestals:               PedestalsE503.dat
+INDRA_e503.INDRADB.GGtoPGFactors:           ParamFitPG_GG.dat
 
-INDRA_e494s.INDRADB.Pedestals:      PedestalsE494s.dat
-INDRA_e494s.INDRADB.GGtoPGFactors:     ParamFitPG_GG.dat
+INDRA_e494s.INDRADB.Pedestals:                     PedestalsE494s.dat
+INDRA_e494s.INDRADB.GGtoPGFactors:                 ParamFitPG_GG.dat
+INDRA_e494s.INDRADB.ElectronicCalibration:         e494s_Channel_Volt.dat
+INDRA_e494s.INDRADB.ElectronicCalibration.Etalons: e494s_Channel_Volt_etalons.dat
+INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
+
 
 # Default headers for runlist columns
 INDRADB.Runlist.Run:    Run
@@ -662,6 +666,8 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
++Plugin.KVUpDater:    INDRA_e494s    KVINDRAUpDater_e494s     KVIndra    "KVINDRAUpDater_e494s()"
++Plugin.KVUpDater:    INDRA_e503     KVINDRAUpDater_e494s     KVIndra    "KVINDRAUpDater_e494s()"
 +Plugin.KVUpDater:    INDRA_e613    KVINDRAUpDater_e613     KVIndra    "KVINDRAUpDater_e613()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
@@ -704,11 +710,17 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
-
 ################################################
-+Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI_e503      KVIndra "KVIDSiCorrCsI_e503()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI$        KVIDChIoSiCorr                KVIndra      "KVIDChIoSiCorr()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-CSI$       KVIDChIoCorrCsI_e494s         KVIndra      "KVIDChIoCorrCsI_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SI-CSI$       KVIDSiCorrCsI                 KVIndra      "KVIDSiCorrCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_camp5            KVIndra      "KVIDChIoSi75_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_camp5            KVIndra      "KVIDSi75SiLi_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_camp5             KVIndra      "KVIDSiLiCsI_camp5()"
+################################################
++Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
-+Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI_e503    KVIndra "KVIDChIoCorrCsI_e503()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI    KVIndra "KVIDChIoCorrCsI()"
 ###############################################
 
 # ===> Plugin pour FocalPlanVamos
@@ -758,6 +770,14 @@ INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.da
 INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
 ###############################################
+INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
+INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
+INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CSI:        grilles_CsI_RL_e494s.dat
+INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
+INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_Si75_SiLi.dat
+INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_SiLi_CsI.dat
+###############################################
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################
@@ -778,6 +798,7 @@ INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:    SI-CSI
 INDRA_e613.ActiveIdentifications:    CSI SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
+INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
@@ -908,6 +929,9 @@ KVTGIDGrid.CutClass:  KVIDCutLine
 +KVTGIDGrid.CutClass:  KVIDCutContour
 KVTGIDGrid.DefaultCutClass:  KVIDCutLine
 KVTGIDGrid.IDClass:  KVIDZALine
+KVIDGChIoSi_e494s.CutClass:  KVIDCutLine  KVIDCutContour
+KVIDGChIoSi_e494s.DefaultCutClass:  KVIDCutLine
+KVIDGChIoSi_e494s.IDClass:  KVIDZALine
 
 # Plugins for identification graphs/grids
 # User can extend identification possibilities by adding plugins to list
@@ -917,6 +941,7 @@ Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDet   "KVIDZAGrid()"
 #+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDet   "KVIDZAMap()"
 +Plugin.KVIDGraph:   KVIDGCsI      KVIDGCsI      KVIndra      "KVIDGCsI()"
 +Plugin.KVIDGraph:   KVIDGChIoSi   KVIDGChIoSi   KVIndra      "KVIDGChIoSi()"
++Plugin.KVIDGraph:   KVIDGChIoSi_e494s  KVIDGChIoSi_e494s   KVIndra   "KVIDGChIoSi_e494s()"
 
 # Mime-types for GUI
 # These define the icons associated with different objects displayed in KVListView widgets.
@@ -943,4 +968,4 @@ KaliVedaGUI.MainGUIHeight:       600
 KaliVedaGUI.MaxColWidth:       500
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
-KVMultiDetArray.FilterUsesROOTGeometry:    yes
+KVMultiDetArray.FilterUsesROOTGeometry:    no

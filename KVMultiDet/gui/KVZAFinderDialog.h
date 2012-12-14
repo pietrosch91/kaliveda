@@ -34,8 +34,8 @@ class KVZAFinderDialog
    static Int_t fBinsByZ;
    static Int_t fStepsByLine;
    
-   
    TGTransientFrame *fMain;
+   
    TGGroupFrame* fInitFrame;
    TGHorizontalFrame* fZpFrame;
    TGLabel* fZminLabel;
@@ -48,7 +48,15 @@ class KVZAFinderDialog
    TGLabel* fALabel;
    TGTextEntry* fAEntry;
 
+   TGGroupFrame*   fLinearFrame;
+   TGHProgressBar* fLinearBar;
+   TGGroupFrame*   fProgressFrame;
+   TGHProgressBar* fProgressBar;
    
+   TGHorizontalFrame* fButtonsFrame;
+   TGTextButton* fTestButton;
+   TGTextButton* fCloseButton;
+  
    public:
    KVZAFinderDialog(KVIDGraph * g = 0, TH2* data_histo=0);
    KVZAFinderDialog (const KVZAFinderDialog&);

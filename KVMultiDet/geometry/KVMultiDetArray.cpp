@@ -1188,22 +1188,28 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             if(!last_det) continue;
             KVReconstructedNucleus* recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
             recon_nuc->Reconstruct(last_det);
-            recon_nuc->SetZandA(part->GetZ(),part->GetA());
-            recon_nuc->SetE(part->GetE());
             recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-            recon_nuc->SetIsIdentified();
-            if(!part->BelongsToGroup("INCOMPLETE")){
-               recon_nuc->SetZMeasured();
-               recon_nuc->SetAMeasured();
-            }
-            recon_nuc->SetIsCalibrated();
             if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
                if(idt){
                   recon_nuc->SetIdentifyingTelescope(idt);
-                  if(!part->BelongsToGroup("INCOMPLETE")) recon_nuc->SetIDCode(idt->GetIDCode());
-                  else recon_nuc->SetIDCode(idt->GetZminCode());
+                  recon_nuc->SetZ(part->GetZ());
+                  // for particles which are apprently well-identified, we
+                  // check that they are in fact sufficiently energetic to be identified
+                  if(!part->BelongsToGroup("INCOMPLETE")
+                     && !idt->CheckTheoreticalIdentificationThreshold(part)) part->AddGroup("INCOMPLETE");
+                  if(!part->BelongsToGroup("INCOMPLETE")) {
+                     recon_nuc->SetIDCode(idt->GetIDCode());
+                     recon_nuc->SetZMeasured();
+                     if(idt->HasMassID()) recon_nuc->SetAMeasured();
+                  }
+                  else {
+                     recon_nuc->SetIDCode(idt->GetZminCode());
+                  }
+                  recon_nuc->SetE(part->GetE());
                   recon_nuc->SetECode(idt->GetECode());
+                  recon_nuc->SetIsIdentified();
+                  recon_nuc->SetIsCalibrated();
                }
             }
             else if(part->BelongsToGroup("INCOMPLETE")){

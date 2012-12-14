@@ -253,6 +253,24 @@ Double_t KVTGIDManager::IdentA(KVIDTelescope * idt, Double_t & funLTG,
 
 //___________________________________________________________________________________________//
 
+KVTGIDGrid *KVTGIDManager::GetTGIDGrid(KVTGID *tgid,
+                                     Double_t xmax, Double_t xmin,
+                                     Int_t ID_min, Int_t ID_max,
+                                     Int_t npoints, Bool_t logscale)
+{
+   //Generates and returns a pointer to a KVIDGrid object permitting to visualise the effective
+   //identification lines represented by the Tassan-Got functional "tgid".
+   //The KVIDGrid object must be deleted by the user.
+   //See KVTGID::MakeIDGrid for meaning of other arguments.
+
+   if (!tgid)
+      return 0;
+   KVTGIDGrid* gr = new KVTGIDGrid(tgid);
+   gr->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
+   return gr;
+}
+//___________________________________________________________________________________________//
+
 KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
                                      Double_t xmax, Double_t xmin,
                                      Int_t ID_min, Int_t ID_max,
@@ -263,12 +281,7 @@ KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * tgid_name,
    //The KVIDGrid object must be deleted by the user.
    //See KVTGID::MakeIDGrid for meaning of other arguments.
 
-   KVTGID *_tg = GetTGID(tgid_name);
-   if (!_tg)
-      return 0;
-   KVTGIDGrid* gr = new KVTGIDGrid(_tg);
-   gr->Generate(xmax, xmin, ID_min, ID_max, npoints, logscale);
-   return gr;
+   return GetTGIDGrid(GetTGID(tgid_name), xmax, xmin, ID_min, ID_max, npoints, logscale);
 }
 
 //___________________________________________________________________________________________//
@@ -286,7 +299,7 @@ KVTGIDGrid *KVTGIDManager::GetTGIDGrid(const Char_t * idt_name,
    //The KVIDGrid object must be deleted by the user.
    //See KVTGID::MakeIDGrid for meaning of other arguments.
 
-   return GetTGIDGrid(GetTGIDName(idt_name, id_type, grid_type), xmax,
+   return GetTGIDGrid(GetTGID(idt_name, id_type, grid_type), xmax,
                       xmin, ID_min, ID_max, npoints, logscale);
 }
 

@@ -13,6 +13,7 @@
 #pragma link C++ class KVTGIDZ+;
 #pragma link C++ class KVTGIDZA+;
 #pragma link C++ class KVTGIDManager+;
+#pragma link C++ class KVRTGIDManager+;
 #pragma link C++ class KVTGIDFitter+;
 #pragma link C++ class KVTGIDGrid+;
 #pragma link C++ class KVDroite+;

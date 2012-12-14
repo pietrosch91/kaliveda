@@ -184,5 +184,12 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
 	echo '#define __WITHOUT_TCA_CONSTRUCTED_AT 1' >> $@; \
 	echo '' >> $@
 endif
+#--------TString::IsBin/Oct/Dec, Itoa, Ltoa etc. are in TString from ROOT v5.33 onwards
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_33_00)),1)
+	@echo '//--------TString::IsBin/Oct/Dec, Itoa, Ltoa etc. are in TString from ROOT v5.33 onwards' >> $@; \
+	echo '//SOLUTION:   use KVString instead of TString' >> $@; \
+	echo '#define __WITH_KVSTRING_ITOA 1' >> $@; \
+	echo '' >> $@
+endif
 	@echo '#endif' >> $@
 	-cp $@ $(KVINSTALLDIR)/include/

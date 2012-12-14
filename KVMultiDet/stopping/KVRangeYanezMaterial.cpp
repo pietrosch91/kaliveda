@@ -34,7 +34,11 @@ KVRangeYanezMaterial::KVRangeYanezMaterial(
       :    KVIonRangeTableMaterial(t,name,symbol,state,density,Z,A)
 {
    // Create material (single-element absorber)
-   fTableType=2;
+#ifdef WITH_MODIFIED_RANGE_YANEZ
+   fTableType=2;  // custom interpolation between Northcliffe and Hubert tables
+#else
+   fTableType=1;  // Hubert for E/A>2.5MeV, switches to Northcliffe for <2.5AMeV.
+#endif
    fNelem=1;
    iabso=0;
    fAbsorb[0].z  = Z; fAbsorb[0].a = A; fAbsorb[0].w = A;
@@ -134,7 +138,9 @@ Double_t KVRangeYanezMaterial::RangeFunc(Double_t* E, Double_t*)
 void KVRangeYanezMaterial::PrepareRangeLibVariables(Int_t Z, Int_t A)
 {
    nelem=fNelem;
-   is_gas=(int)IsGas();
+#ifdef WITH_MODIFIED_RANGE_YANEZ
+   is_gas=(int)IsGas();  // special treatment for effective charge in gases (M.F. Rivet, R. Bimbot et al)
+#endif
    if(iabso<0){
       //cout << "nelem="<<nelem<<endl;
       for(register int k=0;k<fNelem;k++){

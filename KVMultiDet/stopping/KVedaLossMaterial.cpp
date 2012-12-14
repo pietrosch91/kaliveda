@@ -435,12 +435,12 @@ Double_t KVedaLossMaterial::GetDeltaEOfIon(Int_t Z, Int_t A, Double_t E, Double_
 Double_t KVedaLossMaterial::GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t e,
                                          Double_t isoAmat)
 {
-   // Returns energy lost (in MeV) by ion (Z,A) with energy E (MeV) after thickness e (in g/cm**2).
+   // Returns residual energy (in MeV) of ion (Z,A) with energy E (MeV) after thickness e (in g/cm**2).
    // Give Amat to change default (isotopic) mass of material
    
-   if(E>GetEmaxValid(Z,A))
-      Warning("GetEResOfIon", "Incident energy of (%d,%d) > limit of validity of KVedaLoss (Emax=%f)",
-            Z,A,GetEmaxValid(Z,A));
+   if(E>(GetEmaxValid(Z,A)+0.1))
+      Warning("GetEResOfIon", "Incident energy of (%d,%d) %f MeV/A > limit of validity of KVedaLoss (Emax=%f MeV/A)",
+            Z,A,E/A,GetEmaxValid(Z,A)/A);
    TF1* f = GetEResFunction(e, Z, A, isoAmat);
    return f->Eval(E);
 }
