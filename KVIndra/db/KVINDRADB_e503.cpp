@@ -31,7 +31,7 @@ ClassImp(KVINDRADB_e503)
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVINDRADB_e503::init(){
-	fDeltaPed = NULL;
+	fDeltaPed = AddTable("DeltaPedestal","Pedestal correction value of detectors");
 }
 
 KVINDRADB_e503::KVINDRADB_e503()
@@ -207,7 +207,6 @@ void KVINDRADB_e503::ReadDeltaPedestal(ifstream &ifile){
 	// difference between pedestal positions from the generator (noise)
 	// of the current run and of the reference run.
 
-	fDeltaPed = AddTable("DeltaPedestal","Pedestal correction value of detectors");
 
 	KVString sline, signal, parname;
 	KVDBParameterSet *parset = NULL;
