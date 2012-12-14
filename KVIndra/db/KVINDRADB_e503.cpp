@@ -40,11 +40,19 @@ KVINDRADB_e503::KVINDRADB_e503()
    init();
 }
 
+//________________________________________________________________
+
+ KVINDRADB_e503::KVINDRADB_e503 (const Char_t * name) : KVINDRADB(name)
+{
+   init();
+}
+
+//________________________________________________________________
+
 KVINDRADB_e503::~KVINDRADB_e503()
 {
    // Destructor
 }
-
 
 //________________________________________________________________
 
@@ -57,12 +65,6 @@ void KVINDRADB_e503::Build ()
    ReadVamosScalers();
    ReadVamosBrhoAndAngle ();
    ReadPedestalCorrection();
-}
-
-//________________________________________________________________
-
- KVINDRADB_e503::KVINDRADB_e503 (const Char_t * name) : KVINDRADB(name)
-{
 }
 
 //________________________________________________________________
@@ -206,7 +208,6 @@ void KVINDRADB_e503::ReadDeltaPedestal(ifstream &ifile){
 	// otherwise it is given by DeltaNoise. DeltaGene (DeltaNoise) is the
 	// difference between pedestal positions from the generator (noise)
 	// of the current run and of the reference run.
-
 
 	KVString sline, signal, parname;
 	KVDBParameterSet *parset = NULL;
