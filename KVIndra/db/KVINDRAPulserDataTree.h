@@ -34,7 +34,7 @@ class KVINDRAPulserDataTree : public KVBase
 	TString GetDirectoryName(const Char_t*);
 	void CreateTree();
 	void ReadData();
-	void ReadData(Int_t);
+	Int_t ReadData(Int_t);
 	void ReadFile(std::ifstream&);
 	Bool_t OpenGeneData(Int_t , std::ifstream &);
 	Bool_t OpenPinData(Int_t , std::ifstream &);
