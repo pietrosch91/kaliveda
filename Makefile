@@ -41,6 +41,7 @@ export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
 export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 export ROOT_v5_32_00 = $(call get_root_version,5,32,0)
 export ROOT_v5_33_00 = $(call get_root_version,5,33,0)
+export ROOT_v5_33_02 = $(call get_root_version,5,33,2)
 
 #By default, we use the system-dependent definitions contained in the ROOT
 #makefile found (for standard installations) in
