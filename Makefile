@@ -245,11 +245,14 @@ install :
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.dst
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.dst
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2
