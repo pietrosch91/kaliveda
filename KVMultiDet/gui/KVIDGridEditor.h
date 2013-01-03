@@ -219,8 +219,8 @@ friend class KVIDGridEditorCanvas;
    Double_t GetSpiderFactor(){return fSpiderFactor;};
    
    void SpiderIdentification();
-   void FindZALines(const Char_t* A="1,4,7,9,11,12,15,16,19,21,23,25,27,30,31,34,37,40,41", 
-   Int_t binByZ=60, Int_t zmin=-1, Int_t zmax=-1);
+//   void FindZALines(const Char_t* A="1,4,7,9,11,12,15,16,19,21,23,25,27,30,31,34,37,40,41", 
+   void FindZALines();
    void ChangeMasses(const Char_t* Zl, Int_t dA);
    void ChangeCharges(const Char_t* Zl, Int_t dZ);
 

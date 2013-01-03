@@ -30,13 +30,14 @@ Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
 
 
 //________________________________________________________________
-KVCanvas::KVCanvas()
+KVCanvas::KVCanvas():TCanvas()
 {
   fKeyHandler  = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
   fHasDisabledClasses = false;
   fDisabledClasses = "";
+  fFreezed = kFALSE;
    // Default constructor
 }
 
@@ -54,6 +55,7 @@ KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCan
   fModeVener   = false;
   fHasDisabledClasses = false;
   fDisabledClasses = "";
+  fFreezed = kFALSE;
 }
 
 //________________________________________________________________
@@ -65,6 +67,7 @@ KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(na
   fHasDisabledClasses = false;
   fHasDisabledObject = false;
   fDisabledClasses = "";
+  fFreezed = kFALSE;
 }
 
 //________________________________________________________________
@@ -162,6 +165,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    // Handle Input Events.
    //
    //  Handle input events, like button up/down in current canvas.
+   
+   if(fFreezed) return;
 
    TPad    *pad;
    TPad    *prevSelPad = (TPad*) fSelectedPad;

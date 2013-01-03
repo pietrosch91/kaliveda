@@ -35,6 +35,7 @@ friend class KVKeyHandler;
    TList    fDisabledObjects;
 
    TGFrame* fKeyHandler;         // handler for keys
+   Bool_t   fFreezed;
    
    public:
    KVCanvas();
@@ -52,6 +53,8 @@ friend class KVKeyHandler;
    void DisableObject(TObject* obj);
    void ResetDisabledClass();
    void ResetDisabledObject();
+   
+   void FreezCavans(Bool_t freez){fFreezed = freez;};
    
    protected:
    

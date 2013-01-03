@@ -2,6 +2,7 @@
 //Author: dgruyer
 
 #include "KVZAFinderDialog.h"
+#include "KVIDGridEditor.h"
 
 Int_t   KVZAFinderDialog::fZmin  = -1;
 Int_t   KVZAFinderDialog::fZmax  = -1;
@@ -27,7 +28,7 @@ KVZAFinderDialog::KVZAFinderDialog(KVIDGraph * g, TH2* data_histo)
   fGrid  = g;
   fHisto = data_histo;
   if((fZmin<0)&&fGrid) fZmin = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetPID();
-  if((fZmax<0)&&fGrid) fZmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID() + 1.0;
+  if((fZmax<0)&&fGrid) fZmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID();
   
   //Dialog box for testing identification grid
   fMain = new TGTransientFrame(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), 10, 10);
@@ -79,17 +80,15 @@ KVZAFinderDialog::KVZAFinderDialog(KVIDGraph * g, TH2* data_histo)
   fProgressBar = new TGHProgressBar(fProgressFrame, TGProgressBar::kFancy, 300);
   fProgressBar->SetFillType(TGProgressBar::kBlockFill);
   fProgressBar->ShowPosition();
-  fProgressBar->SetBarColor("red");
+  fProgressBar->SetBarColor("green");
   fProgressFrame->AddFrame(fProgressBar,new TGLayoutHints(kLHintsExpandX | kLHintsTop,5,5,5,5));
   
        /************buttons***************/
   fButtonsFrame = new TGHorizontalFrame(fMain, 100, 50);
   fTestButton = new TGTextButton(fButtonsFrame, "&Process");
-  fTestButton->Connect("Clicked()", "KVZAFinderDialog", this,
-		       "ProcessIdentification()");
+  fTestButton->Connect("Clicked()", "KVZAFinderDialog", this,  "ProcessIdentification()");
   fCloseButton = new TGTextButton(fButtonsFrame, "&Close");
-  fCloseButton->Connect("Clicked()", "KVZAFinderDialog", this,
-			"DoClose()");
+  fCloseButton->Connect("Clicked()", "KVZAFinderDialog", this, "DoClose()");
 
   fButtonsFrame->AddFrame(fTestButton,
 			  new TGLayoutHints(kLHintsExpandX |
@@ -104,7 +103,6 @@ KVZAFinderDialog::KVZAFinderDialog(KVIDGraph * g, TH2* data_histo)
   fMain->AddFrame(fInitFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 10, 2));
   fMain->AddFrame(fLinearFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 2, 2));
   fMain->AddFrame(fProgressFrame, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX, 2, 2, 2, 2));
-//   fMain->AddFrame(fProgressBar, new TGLayoutHints(kLHintsCenterX | kLHintsTop, 5, 5, 5,5));
    fMain->AddFrame(fButtonsFrame, new TGLayoutHints(kLHintsCenterX | kLHintsTop, 2, 2, 2, 2));
 
   //layout and display window
@@ -146,11 +144,51 @@ void KVZAFinderDialog::DoClose()
 //________________________________________________________________
 void KVZAFinderDialog::CloseWindow()
 {
+   delete fMain;
    delete this;
 }
 
 //________________________________________________________________
 void KVZAFinderDialog::ProcessIdentification()
 {
+  fZmin  = fZminEntry->GetIntNumber();
+  fZmax  = fZmaxEntry->GetIntNumber();
+  fAList = fAEntry->GetText();
+  
+  Int_t zmin = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetPID();
+  if(fZmin<zmin) fZmin = zmin;
+  Int_t zmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID();
+  if(fZmax>zmax) fZmax = zmax;
 
+  KVZALineFinder toto((KVIDZAGrid*)fGrid, fHisto);
+  
+   fLinearBar->SetRange(0, ((TH2F*)fHisto)->GetSum());
+   fLinearBar->Reset();
+  toto.Connect("IncrementLinear(Float_t)","TGHProgressBar",
+                          fLinearBar, "SetPosition(Float_t)");
+   fProgressBar->SetRange(0, zmax-zmin);
+   fProgressBar->Reset();
+  toto.Connect("Increment(Float_t)","TGHProgressBar",
+                          fProgressBar, "SetPosition(Float_t)");
+  
+  toto.SetAList(fAList.Data());
+  toto.SetNbinsByZ(fBinsByZ);
+  toto.ProcessIdentification(fZmin,fZmax);
+
+  toto.Disconnect("IncrementLinear(Float_t)",
+                          fLinearBar, "SetPosition(Float_t)");
+  toto.Disconnect("Increment(Float_t)",
+                          fProgressBar, "SetPosition(Float_t)");
+ 
+  
+  if(!gIDGridEditor)
+    {
+    new KVIDGridEditor;
+    gIDGridEditor->StartViewer();
+    }
+    
+  gIDGridEditor->SetHisto(toto.GetHisto());
+  gIDGridEditor->SetGrid(toto.GetGrid(),kFALSE);
+  
+  DoClose();
 }

@@ -344,22 +344,6 @@ void KVTestIDGridDialog::TestGrid()
                              "SetPosition(Float_t)");
    fProgressBar->Reset();
    
-   // show results in canvas
-   TCanvas *C = new TCanvas;
-   C->SetTitle(Form("ID test : grid %s : histo %s", fSelectedGrid->GetName(), hdata->GetName()));
-   C->Divide(1,2);
-   C->cd(1);
-   gPad->SetGridx();
-   gPad->SetGridy();
-   hzreal->SetStats(kFALSE);
-   hzreal->Draw();
-   C->cd(2)->SetLogz(kTRUE);
-   gPad->SetGridx();
-   gPad->SetGridy();
-   gStyle->SetPalette(1);
-   hzvse->SetStats(kFALSE);
-   hzvse->Draw("zcol");
-   
    if(hazreal)
      {
      KVCanvas* cc = new KVCanvas;
@@ -379,6 +363,24 @@ void KVTestIDGridDialog::TestGrid()
      hazreal->SetMinimum(1);
      DrawChart(cc, (Int_t)hzrealxmin, (Int_t)hzrealxmax, (Int_t)hnmin, (Int_t)hnmax);
      }
+
+
+   // show results in canvas
+   TCanvas *C = new TCanvas;
+   C->SetTitle(Form("ID test : grid %s : histo %s", fSelectedGrid->GetName(), hdata->GetName()));
+   C->Divide(1,2);
+   C->cd(1);
+   gPad->SetGridx();
+   gPad->SetGridy();
+   hzreal->SetStats(kFALSE);
+   hzreal->Draw();
+   C->cd(2)->SetLogz(kTRUE);
+   gPad->SetGridx();
+   gPad->SetGridy();
+   gStyle->SetPalette(1);
+   hzvse->SetStats(kFALSE);
+   hzvse->Draw("zcol");
+   
       
    // close dialog
    DoClose();

@@ -9,6 +9,7 @@
 
 #include <KeySymbols.h>
 #include <KVSpIdGUI.h>
+#include <KVZAFinderDialog.h>
 
 using namespace std;
 
@@ -1106,11 +1107,7 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
     {
     label->SetFillColor(kRed);
     UpdateViewer();
-//     TMethod* m = IsA()->GetMethodAllAny("FindZALines");
-//     TContextMenu * cm = new TContextMenu("FindZALines", "KVIDGridEditor::FindZALines");
-//     cm->Action(this,m);
-//     delete cm;
-    KVBase::OpenContextMenu("FindZALines",this);
+    FindZALines();
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
@@ -2286,22 +2283,19 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
   return;
 }
 
-void KVIDGridEditor::FindZALines(const Char_t* A, Int_t binByZ, Int_t zmin, Int_t zmax)
+void KVIDGridEditor::FindZALines()
 {
   if((!TheHisto)||(!TheGrid)) return;
-  KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
-  toto.SetAList(A);
-  toto.SetNbinsByZ(binByZ);
-  toto.ProcessIdentification(zmin,zmax);
   
-//  Close();
-  SetHisto(toto.GetHisto());
-  Info("FindZALines","Histo set");
-  SetGrid(toto.GetGrid(),kFALSE);
-  Info("FindZALines","Grid set");
-//  StartViewer();
-  UpdateViewer();
-  Info("FindZALines","Updated");
+  new KVZAFinderDialog(TheGrid,TheHisto);
+//   KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
+//   toto.SetAList(A);
+//   toto.SetNbinsByZ(binByZ);
+//   toto.ProcessIdentification(zmin,zmax);
+//   
+//   SetHisto(toto.GetHisto());
+//   SetGrid(toto.GetGrid(),kFALSE);
+//   UpdateViewer();
 }
 
 void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)

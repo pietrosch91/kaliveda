@@ -6,6 +6,7 @@
 #include "KVIdentificationResult.h"
 #include "KVSpiderLine.h"
 #include "KVIDGridEditor.h"
+#include "TSystem.h"
 
 
 ClassImp(KVZALineFinder)
@@ -107,6 +108,7 @@ TH2* KVZALineFinder::LinearizeHisto(Int_t nZbin)
   KVIdentificationResult *idr = new KVIdentificationResult;  
   KVReconstructedNucleus nuc;
 
+  Int_t events_read = 0;
   for (int i=1; i<=fHisto->GetNbinsX(); i++) 
     {
     for (int j=1; j<=fHisto->GetNbinsY(); j++) 
@@ -133,6 +135,9 @@ TH2* KVZALineFinder::LinearizeHisto(Int_t nZbin)
 	  nuc.SetIdentification(idr);
           fLinearHisto->Fill(x, nuc.GetPID(), weight);
           }
+        events_read += (Int_t) weight;
+        IncrementLinear((Float_t) events_read);
+        gSystem->ProcessEvents();
         }
       }
     }
@@ -377,7 +382,6 @@ void KVZALineFinder::MakeGrid()
     oldLine=(fGeneratedGrid->GetZALine(spline->GetZ(),aMostProb,index));
     if(!oldLine)
       {
-      Info("MakeGrid","No friend line for Z=%d,A=%d",spline->GetZ(),spline->GetA());
       continue;
       }
     TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
@@ -420,14 +424,20 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
     if(z>10) ww = 40;
     if(z>12) ww = 50;
     FindALine(z, ww);
-    Info("ProcessIdentification","Line Z=%d processed !",z);
+    Increment(z-zmin);
+         gSystem->ProcessEvents();
     }
   MakeGrid();
   
   Double_t zmGrid  = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetPID();
   if(zmax>=zmGrid) return;
   
-  for(int z=zmax+1; z<=zmGrid; z++) FindZLine(z);
+  for(int z=zmax+1; z<=zmGrid; z++) 
+    {
+    FindZLine(z);
+    Increment(z-zmin);
+         gSystem->ProcessEvents();
+    }
   
 }
 

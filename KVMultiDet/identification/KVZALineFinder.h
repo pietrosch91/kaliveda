@@ -26,6 +26,8 @@
 
 class KVZALineFinder : public KVBase
 {
+  RQ_OBJECT("KVZALineFinder")
+
    protected:
    KVIDZAGrid* fGrid;
    TH2*        fHisto;
@@ -65,6 +67,15 @@ class KVZALineFinder : public KVBase
    void SetAList(const char* Alist);
    void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");};
    void ProcessIdentification(Int_t zmin=-1, Int_t zmax=-1);
+
+   void Increment(Float_t x)  // *SIGNAL*
+	{
+   	Emit("Increment(Float_t)", x);
+	};
+   void IncrementLinear(Float_t x)  // *SIGNAL*
+	{
+   	Emit("IncrementLinear(Float_t)", x);
+	};
    
 
    ClassDef(KVZALineFinder,1)//(try to) find masse lines from charge lines
