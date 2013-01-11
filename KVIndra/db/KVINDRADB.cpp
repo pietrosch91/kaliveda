@@ -813,7 +813,7 @@ Double_t KVINDRADB::GetEventCrossSection(const Char_t * system_name,
 {
    //Returns calculated average cross-section [mb] per event for all runs of the named system* with trigger multiplicity 'mul_trig'.
    //                                               *to see the list of all system names, use gIndraDB->GetSystems()->ls()
-   //See KVDBRun::GetNIncidentIons() for meaning of other arguments
+   //See KVINDRADBRun::GetNIncidentIons() for meaning of other arguments
 
    KVDBSystem *system = GetSystem(system_name);
    if (!system) {
@@ -854,7 +854,7 @@ Double_t KVINDRADB::GetTotalCrossSection(const Char_t * system_name,
 {
    //Returns calculated total cross-section [mb] for all events in all runs of the named system* with trigger multiplicity 'mul_trig'.
    //                                               *to see the list of all system names, use gIndraDB->GetSystems()->ls()
-   //See KVDBRun::GetNIncidentIons() for meaning of other arguments
+   //See KVINDRADBRun::GetNIncidentIons() for meaning of other arguments
 
    KVDBSystem *system = GetSystem(system_name);
    if (!system) {
