@@ -135,7 +135,7 @@ TH2* KVZALineFinder::LinearizeHisto(Int_t nZbin)
 	  nuc.SetIdentification(idr);
           fLinearHisto->Fill(x, nuc.GetPID(), weight);
           }
-        events_read += (Int_t) weight;
+        events_read += (Int_t) poids;
         IncrementLinear((Float_t) events_read);
         gSystem->ProcessEvents();
         }
@@ -165,7 +165,10 @@ void KVZALineFinder::FindZLine(Int_t zz)
   Int_t xbmin = 1;
   line->GetEndPoint(lX,lY);
   Int_t xbmax = fLinearHisto->GetXaxis()->FindBin(lX);
-  Int_t width = (Int_t)((xbmax-xbmin)*1.0/30.);
+  Int_t width = (Int_t)((xbmax-xbmin)*1.0/100.);
+  
+  
+  Int_t widthmax = (Int_t)((xbmax-xbmin)*1.0/30.);
   
   KVIDZALine* TheLine = 0;
   TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
@@ -174,6 +177,7 @@ void KVZALineFinder::FindZLine(Int_t zz)
   
   TH1* projey = 0;
   Int_t i=0;
+  Double_t lasty = zz;
   for(int xx=xbmin; xx<xbmax; xx+=width)
     {
     projey = fLinearHisto->ProjectionY("ProjectionAfterLin",TMath::Max(xx-width/2,xbmin),xx+width/2);
@@ -181,13 +185,19 @@ void KVZALineFinder::FindZLine(Int_t zz)
     Double_t yline = projey->GetMean();
     if((yline>zz-0.5)&&(yline<zz+0.5)) 
       {
-      TheLine->SetPoint(i, xline, yline);
-      i++;
+      if(i==0) lasty = yline;
+      if(TMath::Abs(yline-lasty)<0.2)
+        {
+        TheLine->SetPoint(i, xline, yline);
+	lasty = yline;
+        i++;
+        if(width<widthmax) width*=1.2;
+	}
       }
     delete projey;
     }
     
-  fGeneratedGrid->Add("ID",TheLine);
+  if(TheLine->GetN()>5) fGeneratedGrid->Add("ID",TheLine);
 }
 
 //________________________________________________________________
@@ -413,7 +423,6 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
   
   if(zmin<0) zmin = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetZ();
   if(zmax<0) zmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetZ();
-  
   
   KVIDLine* line = 0;
   int ww = 10;

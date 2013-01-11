@@ -592,7 +592,12 @@ bool KVSpiderIdentificator::ProcessIdentification()
   while((_spline=(KVSpiderLine*)nextl1()))
     {
     if(_spline->GetN()==0) _llist.Remove(_spline);
-    else _spline->SetStatus(false);
+    else
+      {
+       _spline->SetAcceptedPoints(2);
+       _spline->ResetCounter();
+       }
+//    else _spline->SetStatus(false);
     }  
 
   CreateHistograms(_ftheta+1.,89.2,_nAngleUp,true,_alpha*0.6/1.7);  
@@ -608,6 +613,7 @@ bool KVSpiderIdentificator::ProcessIdentification()
     while((_spline=(KVSpiderLine*)nextl2()))
       {
        _spline->SetStatus(false);
+       _spline->ResetCounter();
       }  
     angle_proc += 1;
     Increment((Float_t) angle_proc);      //sends signal to GUI progress bar
@@ -620,6 +626,7 @@ bool KVSpiderIdentificator::ProcessIdentification()
   while((_spline=(KVSpiderLine*)nextl()))
     {
      _spline->Sort(true);
+       _spline->ResetCounter();
     }  
 
   
@@ -636,6 +643,12 @@ bool KVSpiderIdentificator::ProcessIdentification()
     SearchPeack(hh,_dtemp->GetTheta(),cre,2.,1.,15,5);
     cre = 1;
     delete hh;
+    TIter nextl3(&_llist);
+    while((_spline=(KVSpiderLine*)nextl3()))
+      {
+       _spline->SetStatus(false);
+       _spline->ResetCounter();
+      }  
     angle_proc += 1;
     Increment((Float_t) angle_proc);      //sends signal to GUI progress bar
          gSystem->ProcessEvents();

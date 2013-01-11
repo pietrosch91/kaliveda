@@ -32,6 +32,8 @@ class KVZALineFinder : public KVBase
    KVIDZAGrid* fGrid;
    TH2*        fHisto;
    
+   
+   
    KVIDZAGrid* fGeneratedGrid;
    TH2*        fLinearHisto;
 //   KVCanvas*   fCanvas;

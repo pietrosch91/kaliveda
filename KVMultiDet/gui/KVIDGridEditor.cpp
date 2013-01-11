@@ -2163,23 +2163,19 @@ Bool_t KVIDGridEditor::HandleKey(Event_t *event)
             break;
 	    
          case kKey_a:
-// 	    label = (TPaveLabel*)lplabel3->FindObject("All");
-// 	    color = label->GetFillColor();
-//             lplabel3->Execute("SetFillColor","kWhite");
-//             if(color==kWhite) label->SetFillColor(kGreen);
-//             if(color==kGreen)  label->SetFillColor(kWhite);
-// 	    SelectLines(label);
-// 	    UpdateViewer();
+	    lplabel3->Execute("SetFillColor","kGreen");
+            SelectLines("All");
+            UpdateViewer();
             break;
 	    
          case kKey_z:
-// 	    label = (TPaveLabel*)lplabel3->FindObject("Select");
-// 	    color = label->GetFillColor();
-//             lplabel3->Execute("SetFillColor","kWhite");
-//             if(color==kWhite) label->SetFillColor(kGreen);
-//             if(color==kGreen)  label->SetFillColor(kWhite);
-// 	    SelectLines(label);
-// 	    UpdateViewer();
+	    label = (TPaveLabel*)lplabel3->FindObject("Select");
+	    color = label->GetFillColor();
+	    lplabel3->Execute("SetFillColor","kWhite");
+            if(color==kWhite) label->SetFillColor(kGreen);
+            if(color==kGreen)  label->SetFillColor(kWhite);
+            SelectLines("Select");
+            UpdateViewer();
             break;
 	    
          case kKey_w:

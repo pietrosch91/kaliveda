@@ -21,7 +21,9 @@ class KVSpiderLine : public TNamed
   int     _a;
   bool    _filled;
   double  _pow;
-  Int_t _fitStatus;
+  Int_t   _fitStatus;
+  Int_t   _nAcceptedPoints;
+  Int_t   _pointsCounter;
   
   Double_t _pdy;
   
@@ -41,6 +43,9 @@ class KVSpiderLine : public TNamed
   void SetZ(int z_);
   void SetA(int a_);
   void SetPower(double pow_){_pow = pow_;};
+  
+  void SetAcceptedPoints(Int_t n){_nAcceptedPoints = n;};
+  void ResetCounter(){_pointsCounter=0;};
   
   double GetX(int n_)const;
   double GetX()const;

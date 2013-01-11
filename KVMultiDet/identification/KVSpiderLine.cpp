@@ -21,6 +21,8 @@ KVSpiderLine::KVSpiderLine(int z_, Double_t pdy)
   _pow = 0;
   _fitStatus = 1;
   _pdy = pdy;
+  ResetCounter();
+  _nAcceptedPoints = 100000;
 }
 
 KVSpiderLine::KVSpiderLine(int z_, int a_)
@@ -39,12 +41,16 @@ KVSpiderLine::KVSpiderLine(int z_, int a_)
   _pow = 0;
   _fitStatus = 1;
   _pdy = 0;
+  ResetCounter();
+  _nAcceptedPoints = 100000;
 }
 
 KVSpiderLine::KVSpiderLine()
 {
   _line = 0;
   _iline = 0;
+  ResetCounter();
+  _nAcceptedPoints = 100000;
 }
 
 
@@ -82,6 +88,7 @@ bool KVSpiderLine::AddPoint(double x_, double y_, bool test_, int n_)
     _iline->SetPoint(_iline->GetN(), x_, y_);
     }
   
+  _pointsCounter++;
   return valid;
 }
 
@@ -200,6 +207,7 @@ TF1* KVSpiderLine::GetFunction(double min_, double max_)
 bool KVSpiderLine::TestPoint(double x_, double y_, double dy_, bool fit)
 {
   if(!CheckStatus()) return false;
+  if(_pointsCounter>=_nAcceptedPoints) return false;
   
   TF1* locf = 0;  
   if((GetN()>=10)&&(fit)) 

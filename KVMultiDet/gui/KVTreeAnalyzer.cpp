@@ -17,6 +17,8 @@
 #include "TROOT.h"
 #include "TGMsgBox.h"
 
+#include "KVDalitzPlot.h"
+
 using namespace std;
 
 ClassImp(KVTreeAnalyzer)
@@ -198,10 +200,19 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    name.Form("h%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
    GenerateHistoTitle(histotitle, expr, selection);
-   if(nY)
-      histo.Form(">>%s(%d,0.,0.,%d,0.,0.)", name.Data(), nX, nY);
-   else
-      histo.Form(">>%s(%d,0.,0.)", name.Data(), nX);
+   
+   if((!nY)&&(fUserBinning))
+     {
+     TMethod* m = IsA()->GetMethodAllAny("DefineUserBinning1F");
+     TContextMenu * cm = new TContextMenu("DefineUserBinning", "KVTreeAnalyzer::DefineUserBinning");
+     cm->Action(this,m);
+     Info("MakeHisto","%d",fNxF);
+     delete cm;
+     }
+
+   if(nY) histo.Form(">>%s(%d,0.,0.,%d,0.,0.)", name.Data(), nX, nY);
+   else histo.Form(">>%s(%d,%lf,%lf)", name.Data(), (fUserBinning ? fNxF : nX), (fUserBinning ? fXminF : 0.), (fUserBinning ?  fXmaxF: 0));
+   
    drawexp += histo;
    fTree->Draw(drawexp, selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
@@ -883,7 +894,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
       // create a new canvas also if none exists
-      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());c->SetWindowSize(600,600);}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -1091,13 +1102,24 @@ void KVTreeAnalyzer::LeafChanged()
             fYLeaf = (TNamed*)fSelectedLeaves->At(1);
             fXLeaf = (TNamed*)fSelectedLeaves->First();
          }
-         TString X,Y;
+        TString X,Y;
          X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
          Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
          fLeafExpr.Form("%s:%s", Y.Data(), X.Data());
          G_leaf_draw->SetEnabled(kTRUE);
       }
-      else{
+      else if(nleaf==3){
+         fXLeaf = (TNamed*)fSelectedLeaves->At(2);
+         fYLeaf = (TNamed*)fSelectedLeaves->At(1);
+         fZLeaf = (TNamed*)fSelectedLeaves->At(0);
+         TString X,Y,Z;
+         X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
+         Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
+         Z = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():  fZLeaf->GetTitle());
+         fLeafExpr.Form("%s:%s:%s", Z.Data(), Y.Data(), X.Data());
+         G_leaf_draw->SetEnabled(kTRUE);
+         }
+       else{
          fLeafExpr="-";
       }
    }
@@ -1115,6 +1137,13 @@ void KVTreeAnalyzer::DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double
   fYmax = Ymax;
 }
    
+void KVTreeAnalyzer::DefineUserBinning1F(Int_t Nx, Double_t Xmin, Double_t Xmax)
+{
+  fNxF = Nx;
+  fXminF = Xmin;
+  fXmaxF = Xmax;
+}
+   
 void KVTreeAnalyzer::DefineWeight(const char* Weight)
 {
   fWeight = Weight;
@@ -1124,6 +1153,16 @@ void KVTreeAnalyzer::DrawLeafExpr()
 {
    // Method called when user hits 'draw' button in TTree GUI.
    // If only one leaf/alias is selected, this actually calls DrawLeaf.
+   
+   if(fLeafExpr=="-")return;
+   if(fSelectedLeaves->GetEntries()==3){
+      DrawAsDalitz();
+      return;
+   }
+   if(fSelectedLeaves->GetEntries()==1){
+      DrawLeaf(fSelectedLeaves->First());
+      return;
+   }
    
    if(fUserBinning)
      {
@@ -1140,11 +1179,6 @@ void KVTreeAnalyzer::DrawLeafExpr()
      delete cm;
      }
  
-   if(fLeafExpr=="-") return;
-   if(fSelectedLeaves->GetEntries()==1){
-      DrawLeaf(fSelectedLeaves->First());
-      return;
-   }
    int nx=500,ny=500;
    double xmin,xmax,ymin,ymax;
    xmin=xmax=ymin=ymax=0;
@@ -1210,6 +1244,123 @@ void KVTreeAnalyzer::DrawLeafExpr()
 }
 
 
+void KVTreeAnalyzer::DrawAsDalitz()
+{
+   if((!fXLeaf->InheritsFrom("TLeaf"))||(!fYLeaf->InheritsFrom("TLeaf"))||(!fZLeaf->InheritsFrom("TLeaf"))) 
+     {
+     Warning("DrawAsDalitz", "Cannot be used with aliases !");
+     return;
+     }
+
+   TString Xexpr,Yexpr, Zexpr;
+   Xexpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():fXLeaf->GetTitle());
+   Yexpr = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():fYLeaf->GetTitle());
+   Zexpr = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():fZLeaf->GetTitle());
+   fLeafExpr.Form("%s:%s:%s", Xexpr.Data(), Yexpr.Data(), Zexpr.Data());
+   
+   TString xType(((TLeaf*)fXLeaf)->GetTypeName());
+   TString yType(((TLeaf*)fYLeaf)->GetTypeName());
+   TString zType(((TLeaf*)fZLeaf)->GetTypeName());
+   
+   if((!xType.Contains(yType.Data()))||(!yType.Contains(zType.Data())))
+     {
+     Warning("DrawAsDalitz", "Leaves %s must have the same type !", fLeafExpr.Data());
+     return;
+     }
+   
+   Double_t x, y, z;
+   Double_t var1, var2, var3;
+   Float_t  varf1, varf2, varf3;
+   Int_t    vari1, vari2, vari3;
+   Short_t  vars1, vars2, vars3;
+   Char_t   varc1, varc2, varc3;
+   
+   if(xType.Contains("Int_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&vari1);
+     fTree->SetBranchAddress(Yexpr.Data(),&vari2);
+     fTree->SetBranchAddress(Zexpr.Data(),&vari3);
+     }
+   else if(xType.Contains("Short_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&vars1);
+     fTree->SetBranchAddress(Yexpr.Data(),&vars2);
+     fTree->SetBranchAddress(Zexpr.Data(),&vars3);
+     }
+   else if(xType.Contains("Char_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&varc1);
+     fTree->SetBranchAddress(Yexpr.Data(),&varc2);
+     fTree->SetBranchAddress(Zexpr.Data(),&varc3);
+     }
+   else if(xType.Contains("Double_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&var1);
+     fTree->SetBranchAddress(Yexpr.Data(),&var2);
+     fTree->SetBranchAddress(Zexpr.Data(),&var3);
+     }
+   else if(xType.Contains("Float_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&varf1);
+     fTree->SetBranchAddress(Yexpr.Data(),&varf2);
+     fTree->SetBranchAddress(Zexpr.Data(),&varf3);
+     }
+   
+   KVDalitzPlot* h = new KVDalitzPlot(Form("h%d",fHistoNumber), fLeafExpr.Data());
+   KVBase::OpenContextMenu("SetOrdered",h);
+   fHistoNumber++;
+   
+   TEntryList* el = fTree->GetEntryList();
+   if(el) el->GetEntry(0);
+   Int_t nentries = fTree->GetEntries();
+   
+   if(el) nentries = el->GetN();
+   for(int i=0; i<nentries; i++)
+     {
+     Int_t  j = i;
+     if(el) j = el->Next();
+     fTree->GetEntry(j);
+     if(xType.Contains("Int_t"))
+       {
+       x = vari1;
+       y = vari2;
+       z = vari3;
+       }
+     else if(xType.Contains("Short_t"))
+       {
+       x = vars1;
+       y = vars2;
+       z = vars3;
+       }
+     else if(xType.Contains("Char_t"))
+       {
+       x = varc1;
+       y = varc2;
+       z = varc3;
+       }
+     else if(xType.Contains("Double_t"))
+       {
+       x = var1;
+       y = var2;
+       z = var3;
+       }
+     else if(xType.Contains("Float_t"))
+       {
+       x = varf1;
+       y = varf2;
+       z = varf3;
+       }
+     h->FillAsDalitz(x,y,z);
+     }
+
+   h->SetOption("col");
+   h->SetDirectory(0);
+   AddHisto(h);
+   DrawHisto(h);
+   fTree->ResetBranchAddresses();
+  
+}
+
 void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 {
    // Method called when user hits 'draw' button in TTree GUI and only one leaf/alias
@@ -1241,7 +1392,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
             histo = MakeHisto(expr, "", 500);
          }
       }
-      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle()); c->SetWindowSize(600,600);}
       histo->Draw();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);

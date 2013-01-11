@@ -162,7 +162,8 @@ void KVZAFinderDialog::ProcessIdentification()
 
   KVZALineFinder toto((KVIDZAGrid*)fGrid, fHisto);
   
-   fLinearBar->SetRange(0, ((TH2F*)fHisto)->GetSum());
+//   fLinearBar->SetRange(0, ((TH2F*)fHisto)->GetSum());
+   fLinearBar->SetRange(0, fHisto->GetNbinsX()*fHisto->GetNbinsY());
    fLinearBar->Reset();
   toto.Connect("IncrementLinear(Float_t)","TGHProgressBar",
                           fLinearBar, "SetPosition(Float_t)");
@@ -173,7 +174,13 @@ void KVZAFinderDialog::ProcessIdentification()
   
   toto.SetAList(fAList.Data());
   toto.SetNbinsByZ(fBinsByZ);
+  
+  fTestButton->SetEnabled(kFALSE);
+  fCloseButton->SetEnabled(kFALSE);
+
   toto.ProcessIdentification(fZmin,fZmax);
+  fTestButton->SetEnabled(kTRUE);
+  fCloseButton->SetEnabled(kTRUE);
 
   toto.Disconnect("IncrementLinear(Float_t)",
                           fLinearBar, "SetPosition(Float_t)");

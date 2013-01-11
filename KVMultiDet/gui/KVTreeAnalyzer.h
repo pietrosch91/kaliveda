@@ -159,6 +159,7 @@ class KVTreeAnalyzer : public TNamed
    TList* fSelectedLeaves;//!
    TNamed* fXLeaf;//!
    TNamed* fYLeaf;//!
+   TNamed* fZLeaf;//!
    TGTextEntry* G_alias_text;//!
    TGCheckButton* G_histo_bin;//!
    Bool_t fUserBinning;//!
@@ -168,6 +169,8 @@ class KVTreeAnalyzer : public TNamed
    
    Int_t fNx,fNy;//
    Double_t fXmin,fXmax,fYmin,fYmax;//
+   Int_t fNxF;//
+   Double_t fXminF,fXmaxF;//
    
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
@@ -289,6 +292,7 @@ class KVTreeAnalyzer : public TNamed
    void DrawCut(TCutG*);
    void DrawLeaf(TObject*);
    void DrawLeafExpr();
+   void DrawAsDalitz();
    void SetUserBinning(Bool_t ub){fUserBinning = ub;};
    void SetUserWeight(Bool_t uw){fUserWeight = uw;};
 
@@ -314,9 +318,15 @@ class KVTreeAnalyzer : public TNamed
    Double_t GetXmax(){return fXmax;};
    Double_t GetYmin(){return fYmin;};
    Double_t GetYmax(){return fYmax;};
+   
+   Int_t GetNxF(){return fNxF;};
+   Double_t GetXminF(){return fXminF;};
+   Double_t GetXmaxF(){return fXmaxF;};
+   
    const char* GetWeight(){return fWeight;};
    
    void DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax);// *MENU* *ARGS={Nx=>fNx,Ny=>fNy,Xmin=>fXmin,Xmax=>fXmax,Ymin=>fYmin,Ymax=>fYmax} 
+   void DefineUserBinning1F(Int_t NxF, Double_t XminF, Double_t XmaxF);// *MENU* *ARGS={NxF=>fNxF,XminF=>fXminF,XmaxF=>fXmaxF} 
    void DefineWeight(const char* Weight);// *MENU* *ARGS={Weight=>fWeight} 
    
    

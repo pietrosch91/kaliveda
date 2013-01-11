@@ -3,6 +3,8 @@
 
 #include "KVDalitzPlot.h"
 #include "TMath.h"
+#include "TPad.h"
+#include "TCanvas.h"
 
 ClassImp(KVDalitzPlot)
 
@@ -24,10 +26,10 @@ a2n -> distance with the left border	 /  \
 a3n -> distance with the right border	/____\ 
 */
 ////////////////////////////////////////////////////////////////////////////////
-KVDalitzPlot::KVDalitzPlot(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup) :
+KVDalitzPlot::KVDalitzPlot(const char* name, const char* title, Bool_t ordered, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup) :
 TH2F(name,title,nbinsx, xlow,xup,nbinsy,ylow,yup)
 {
-	
+  fOrdered = ordered;
 }
 
 
@@ -75,6 +77,20 @@ Int_t KVDalitzPlot::FillAsDalitz(Double_t a1,Double_t a2,Double_t a3)
 	//after normalized the sum to 1
 	//Info : the permutation is not done 
 	
+	if(!fOrdered) return FillMe(a1,a2,a3);
+
+	Int_t result = 0;
+	result += FillMe(a1,a2,a3);
+	result += FillMe(a2,a3,a1);
+	result += FillMe(a3,a1,a2);
+	result += FillMe(a1,a3,a2);
+	result += FillMe(a2,a1,a3);
+	result += FillMe(a3,a2,a1);
+	return result;
+}
+
+Int_t KVDalitzPlot::FillMe(Double_t a1,Double_t a2,Double_t a3)
+{
 	Double_t sum = a1+a2+a3;
 	if (sum>0){
 		Double_t a1n = a1/sum;
@@ -87,3 +103,56 @@ Int_t KVDalitzPlot::FillAsDalitz(Double_t a1,Double_t a2,Double_t a3)
 	}
 	return -1;
 }
+
+void  KVDalitzPlot::Draw(Option_t* opt)
+{
+   GetXaxis()->SetNdivisions(506);
+   GetXaxis()->SetLabelFont(42);
+   GetXaxis()->SetLabelSize(0.035);
+   GetXaxis()->SetTitleSize(0.035);
+   GetXaxis()->SetTickLength(0);
+   GetXaxis()->SetTitleFont(42);
+   GetXaxis()->SetAxisColor(0);
+   GetXaxis()->SetLabelColor(0);
+   
+   GetYaxis()->SetNdivisions(506);
+   GetYaxis()->SetLabelFont(42);
+   GetYaxis()->SetLabelSize(0.035);
+   GetYaxis()->SetTitleSize(0.035);
+   GetYaxis()->SetTickLength(0);
+   GetYaxis()->SetTitleFont(42);
+   GetYaxis()->SetAxisColor(0);
+   GetYaxis()->SetLabelColor(0);
+   
+   TH2F::Draw("col");
+   
+   TLine *l1 = new TLine(0.5758319,1.,0.,0.);
+   l1->SetLineWidth(2);
+   l1->Draw("same");
+   TLine *l2 = new TLine(0.5758319,1.,1.15,0.);
+   l2->SetLineWidth(2);
+   l2->Draw("same");
+   TLine *l3 = new TLine(0.,0.,1.15,0.);
+   l3->SetLineWidth(2);
+   l3->Draw("same");
+   
+   TLine *line = new TLine(0.575,1,0.575,0.352);
+   line->Draw();
+   line = new TLine(0,0,0.575,0.352);
+   line->Draw();
+   line = new TLine(0.575,0.352,1.15,0);
+   line->Draw();
+   
+   gPad->GetCanvas()->SetRightMargin(0.001);
+   gPad->GetCanvas()->SetTopMargin(0.001);
+//   gPad->GetCanvas()->SetLeftMargin(0.001);
+//   gPad->GetCanvas()->SetBottomMargin(0.001);
+   
+   gPad->SetBorderMode(0);
+   gPad->SetBorderSize(2);
+   gPad->SetLogz();
+   gPad->SetFrameBorderMode(0);
+   gPad->SetFrameLineColor(0);
+   gPad->Modified();
+   gPad->Update();
+ }
