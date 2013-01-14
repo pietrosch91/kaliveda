@@ -445,3 +445,12 @@ Double_t KVedaLossMaterial::GetEResOfIon(Int_t Z, Int_t A, Double_t E, Double_t 
    return f->Eval(E);
 }
 
+void KVedaLossMaterial::GetParameters(Int_t Zion, Int_t &Aion, Double_t *&rangepar)
+{
+    // For the given ion atomic number, give the reference mass used and the six
+    // parameters for the range function fit
+
+   rangepar = &fCoeff[Zion - 1][2];
+   Aion = fCoeff[Zion-1][1];
+}
+

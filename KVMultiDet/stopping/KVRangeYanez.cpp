@@ -43,13 +43,13 @@ KVRangeYanez::KVRangeYanez()
    
    KVString DataFilePaths = gEnv->GetValue("RANGE.PredefMaterials", "");
    DataFilePaths.Begin(" ");
-   KVString nextPath=DataFilePaths.Next();
-   KVString lastPath=nextPath;//check for double occurrence of last file : TEnv bug?
+   KVString nextPath;
+   KVString lastPath;
    while(!DataFilePaths.End()){
-      ReadPredefinedMaterials(nextPath);
       nextPath=DataFilePaths.Next();
-      if(nextPath==lastPath) break;
+      if(nextPath==lastPath) break;//check for double occurrence of last file : TEnv bug?
       lastPath=nextPath;
+      ReadPredefinedMaterials(nextPath);
    }
 }
 

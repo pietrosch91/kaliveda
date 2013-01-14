@@ -272,6 +272,26 @@ void KVIonRangeTableMaterial::PrintRangeTable(Int_t Z, Int_t A, Double_t isoAmat
    }
 }
 
+void KVIonRangeTableMaterial::PrintComposition(ostream &output) const
+{
+    // Print to stream the composition of this material, in a format compatible with the VEDALOSS parameter file.
+    if(IsCompound()) output << "COMPOUND";
+    else if(IsMixture()) output << "MIXTURE";
+    else output << "ELEMENT";
+    output << endl;
+    if(IsCompound()||IsMixture()) {
+        output << fComposition->GetEntries() << endl;
+       TIter next(fComposition);
+       KVNameValueList*nvl;
+       while( (nvl=(KVNameValueList*)next()) ){
+          KVNucleus n(nvl->GetIntValue("Z"),nvl->GetIntValue("A"));
+          output << n.GetZ() << " " << n.GetA() << " " << nvl->GetIntValue("Natoms");
+          if(IsMixture()) output << " " << nvl->GetDoubleValue("Proportion");
+          output << endl;
+       }
+    }
+}
+
 Double_t KVIonRangeTableMaterial::GetRangeOfIon(Int_t Z, Int_t A, Double_t E, Double_t isoAmat)
 {
    // Returns range (in g/cm**2) of ion (Z,A) with energy E (MeV) in material.
