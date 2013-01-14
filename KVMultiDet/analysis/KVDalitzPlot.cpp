@@ -5,6 +5,7 @@
 #include "TMath.h"
 #include "TPad.h"
 #include "TCanvas.h"
+#include "KVCanvas.h"
 
 ClassImp(KVDalitzPlot)
 
@@ -30,6 +31,10 @@ KVDalitzPlot::KVDalitzPlot(const char* name, const char* title, Bool_t ordered, 
 TH2F(name,title,nbinsx, xlow,xup,nbinsy,ylow,yup)
 {
   fOrdered = ordered;
+  fShowBorder = 1;
+  fShowCenter = 1;
+  lb1 = lb2 = lb3 = 0;
+  lc1 = lc2 = lc3 = 0;
 }
 
 
@@ -126,25 +131,15 @@ void  KVDalitzPlot::Draw(Option_t* opt)
    
    TH2F::Draw("col");
    
-   TLine *l1 = new TLine(0.5758319,1.,0.,0.);
-   l1->SetLineWidth(2);
-   l1->Draw("same");
-   TLine *l2 = new TLine(0.5758319,1.,1.15,0.);
-   l2->SetLineWidth(2);
-   l2->Draw("same");
-   TLine *l3 = new TLine(0.,0.,1.15,0.);
-   l3->SetLineWidth(2);
-   l3->Draw("same");
-   
-   TLine *line = new TLine(0.575,1,0.575,0.352);
-   line->Draw();
-   line = new TLine(0,0,0.575,0.352);
-   line->Draw();
-   line = new TLine(0.575,0.352,1.15,0);
-   line->Draw();
+   SetShowBorder(1);
+   SetShowCenter(1);   
    
    gPad->GetCanvas()->SetRightMargin(0.001);
    gPad->GetCanvas()->SetTopMargin(0.001);
+   
+   TCanvas* cc = gPad->GetCanvas();
+   if(cc->InheritsFrom("KVCanvas")) ((KVCanvas*)cc)->DisableClass("TLine");
+   
 //   gPad->GetCanvas()->SetLeftMargin(0.001);
 //   gPad->GetCanvas()->SetBottomMargin(0.001);
    
@@ -156,3 +151,62 @@ void  KVDalitzPlot::Draw(Option_t* opt)
    gPad->Modified();
    gPad->Update();
  }
+ 
+void KVDalitzPlot::SetShowBorder(Int_t value)
+{
+  fShowBorder = value;
+  
+  SafeDelete(lb1);
+  SafeDelete(lb2);
+  SafeDelete(lb3);
+  
+  if(fShowBorder)
+    {
+    lb1 = new TLine(0.5758319,1.,0.,0.);
+    lb1->SetLineWidth(2);
+    lb1->Draw("same");
+    lb2 = new TLine(0.5758319,1.,1.15,0.);
+    lb2->SetLineWidth(2);
+    lb2->Draw("same");
+    lb3 = new TLine(0.,0.,1.15,0.);
+    lb3->SetLineWidth(2);
+    lb3->Draw("same");
+    }
+  
+   gPad->SetFrameLineColor(0);
+   gPad->Modified();
+   gPad->Update();
+}
+
+void KVDalitzPlot::SetShowCenter(Int_t value)
+{
+  fShowCenter = value;
+  
+  SafeDelete(lc1);
+  SafeDelete(lc2);
+  SafeDelete(lc3);
+  
+  if(fShowCenter)
+    {
+    lc1 = new TLine(0.575,1,0.575,0.333);
+    lc1->SetLineWidth(2);
+    lc1->SetLineStyle(9);
+    lc1->Draw();
+    lc2 = new TLine(0,0,0.575,0.333);
+    lc2->SetLineWidth(2);
+    lc2->SetLineStyle(9);
+    lc2->Draw();
+    lc3 = new TLine(0.575,0.333,1.15,0);
+    lc3->SetLineWidth(2);
+    lc3->SetLineStyle(9);
+    lc3->Draw();
+    }
+  
+   gPad->SetFrameLineColor(0);
+   gPad->Modified();
+   gPad->Update();
+
+}
+
+
+

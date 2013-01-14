@@ -6,12 +6,19 @@
 
 #include "TH2F.h"
 #include "TLine.h"
+#include "Riostream.h"
 
 class KVDalitzPlot : public TH2F
 {
 
    protected:
    Bool_t fOrdered;
+   Int_t fShowBorder;
+   Int_t fShowCenter;
+   
+   TLine* lb1, *lb2, *lb3; //!
+   TLine* lc1, *lc2, *lc3; //!
+   
    Int_t FillMe(Double_t a1,Double_t a2,Double_t a3);
 
    public:
@@ -23,7 +30,11 @@ class KVDalitzPlot : public TH2F
 	
 	Int_t FillAsDalitz(Double_t a1,Double_t a2,Double_t a3);
 	void  Draw(Option_t* opt = "");
-	void  SetOrdered(Bool_t ordered=kTRUE){fOrdered=ordered;};// *MENU*
+	void  SetOrdered(Bool_t ordered=kTRUE){fOrdered=ordered;};
+	void  SetShowBorder(Int_t value=1);// *TOGGLE*
+	void  SetShowCenter(Int_t value=1);// *TOGGLE*
+	Int_t  GetShowBorder(){return fShowBorder;};
+	Int_t  GetShowCenter(){return fShowCenter;};
    
 	ClassDef(KVDalitzPlot,1)//Fill 3D observables in a dalitz plot
 };

@@ -172,6 +172,9 @@ class KVTreeAnalyzer : public TNamed
    Int_t fNxF;//
    Double_t fXminF,fXmaxF;//
    
+   Int_t fNxD, fNyD;//
+   Int_t fOrderedDalitz;//
+   
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
    TGPopupMenu *fMenuFile;//!
@@ -319,6 +322,10 @@ class KVTreeAnalyzer : public TNamed
    Double_t GetYmin(){return fYmin;};
    Double_t GetYmax(){return fYmax;};
    
+   Int_t GetNxD(){return fNxD;};
+   Int_t GetNyD(){return fNxD;};
+   Bool_t GetOrderedDalitz(){return fOrderedDalitz;};
+   
    Int_t GetNxF(){return fNxF;};
    Double_t GetXminF(){return fXminF;};
    Double_t GetXmaxF(){return fXmaxF;};
@@ -327,6 +334,7 @@ class KVTreeAnalyzer : public TNamed
    
    void DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax);// *MENU* *ARGS={Nx=>fNx,Ny=>fNy,Xmin=>fXmin,Xmax=>fXmax,Ymin=>fYmin,Ymax=>fYmax} 
    void DefineUserBinning1F(Int_t NxF, Double_t XminF, Double_t XmaxF);// *MENU* *ARGS={NxF=>fNxF,XminF=>fXminF,XmaxF=>fXmaxF} 
+   void DefineUserBinningD(Int_t NxD, Int_t NyD, Int_t ordered);// *MENU* *ARGS={NxD=>fNxD,NyD=>fNyD,ordered=>fOrderedDalitz}
    void DefineWeight(const char* Weight);// *MENU* *ARGS={Weight=>fWeight} 
    
    

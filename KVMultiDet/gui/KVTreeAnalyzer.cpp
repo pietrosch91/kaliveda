@@ -112,6 +112,12 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fNx = fNy = 500;
    fXmin = fXmax = fYmin = fYmax = -1.;
    fWeight = "1./(abs(vper))";
+   
+   fNxF = 200;
+   fXminF = fXmaxF = -1.;
+   
+   fNxD = fNyD = 120;
+   fOrderedDalitz = 0;
 }
 
 KVTreeAnalyzer::~KVTreeAnalyzer()
@@ -1144,6 +1150,13 @@ void KVTreeAnalyzer::DefineUserBinning1F(Int_t Nx, Double_t Xmin, Double_t Xmax)
   fXmaxF = Xmax;
 }
    
+void KVTreeAnalyzer::DefineUserBinningD(Int_t Nx, Int_t Ny, Int_t ordered)
+{
+  fNxD = Nx;
+  fNyD = Ny;
+  fOrderedDalitz = ordered;
+}
+   
 void KVTreeAnalyzer::DefineWeight(const char* Weight)
 {
   fWeight = Weight;
@@ -1306,8 +1319,14 @@ void KVTreeAnalyzer::DrawAsDalitz()
      fTree->SetBranchAddress(Zexpr.Data(),&varf3);
      }
    
-   KVDalitzPlot* h = new KVDalitzPlot(Form("h%d",fHistoNumber), fLeafExpr.Data());
-   KVBase::OpenContextMenu("SetOrdered",h);
+   if(fUserBinning) KVBase::OpenContextMenu("DefineUserBinningD",this);
+
+   TString histotitle;
+   GenerateHistoTitle(histotitle, fLeafExpr, "");
+   
+   KVDalitzPlot* h = 0;
+   if(fUserBinning) h = new KVDalitzPlot(Form("h%d",fHistoNumber),histotitle.Data(),fOrderedDalitz,fNxD,0.,1.2,fNyD,0.,1.2);
+   else             h = new KVDalitzPlot(Form("h%d",fHistoNumber),histotitle.Data());
    fHistoNumber++;
    
    TEntryList* el = fTree->GetEntryList();
@@ -1355,7 +1374,7 @@ void KVTreeAnalyzer::DrawAsDalitz()
 
    h->SetOption("col");
    h->SetDirectory(0);
-   AddHisto(h);
+   AddHisto((TH2F*)h);
    DrawHisto(h);
    fTree->ResetBranchAddresses();
   
