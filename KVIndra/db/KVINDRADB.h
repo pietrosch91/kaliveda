@@ -134,28 +134,28 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
                                Double_t peak_energy = -1.0);
 
    Double_t GetEventCrossSection(Int_t run, Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetTotalCrossSection(Int_t run, Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetEventCrossSection(Int_t run1, Int_t run2,
                                  Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetTotalCrossSection(Int_t run1, Int_t run2,
                                  Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetEventCrossSection(KVNumberList runs,
                                  Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetTotalCrossSection(KVNumberList runs,
                                  Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetEventCrossSection(const Char_t * system, Int_t Mult_trigger,
                                  Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
+                                 Double_t Coul_par_top = 10.e-10) const;
    Double_t GetTotalCrossSection(const Char_t * system, Int_t Mult_trigger,
                                  Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 1.e-10) const;
-   Double_t GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top = 1.e-10);
+                                 Double_t Coul_par_top = 10.e-10) const;
+   Double_t GetTotalCrossSection(TH1* events_histo, Double_t Q_apres_cible, Double_t Coul_par_top = 10.e-10);
 
    void WriteRunListFile() const;
    void ReadNewRunList();

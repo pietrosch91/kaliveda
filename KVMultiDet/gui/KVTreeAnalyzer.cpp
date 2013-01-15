@@ -15,6 +15,7 @@
 #include "TPad.h"
 #include "TKey.h"
 #include "TROOT.h"
+#include "TGMsgBox.h"
 
 using namespace std;
 
@@ -229,7 +230,7 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    return h;
 }
    
-void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
+Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
 {
    // Generate a new user-selection (TEntryList) of events in the TTree
    // according to the given selection expression (valid TTreeFormula expression
@@ -249,7 +250,10 @@ void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    name.Form("el%d",fSelectionNumber);
    TString drawexp(name.Data());
    drawexp.Prepend(">>");
-   fTree->Draw(drawexp, selection, "entrylist");
+   if( fTree->Draw(drawexp, selection, "entrylist") < 0 ){
+	   new TGMsgBox(gClient->GetRoot(),0,"Warning","Mistake in your new selection!",kMBIconExclamation,kMBClose);
+	   return kFALSE;
+   }
    TEntryList*el = (TEntryList*)gDirectory->Get(name);
    if(fTree->GetEntryList()){
       TString _elist = fTree->GetEntryList()->GetTitle();
@@ -259,6 +263,7 @@ void KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    }
    fSelectionNumber++;
    AddSelection(el);
+   return kTRUE;
 }
    
 void KVTreeAnalyzer::SetSelection(TObject* obj)
@@ -569,9 +574,11 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_selectionlist->AddFrame(G_update_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
    /* selection list */
    G_selectionlist = new KVListView(TEntryList::Class(), fMain_selectionlist, sWidth, sHeight);
-   G_selectionlist->SetDataColumns(2);
+   G_selectionlist->SetDataColumns(3);
    G_selectionlist->SetDataColumn(0, "Selection", "GetTitle");
-   G_selectionlist->SetDataColumn(1, "Events", "GetN", kTextRight);
+   G_selectionlist->SetDataColumn(1, "Reapply", "GetReapplyCut");
+   G_selectionlist->GetDataColumn(1)->SetIsBoolean();
+   G_selectionlist->SetDataColumn(2, "Events", "GetN", kTextRight);
    G_selectionlist->ActivateSortButtons();
    G_selectionlist->SetDoubleClickAction("KVTreeAnalyzer", this, "SetSelection(TObject*)");
    G_selectionlist->Connect("SelectionChanged()", "KVTreeAnalyzer", this, "SelectionChanged()");
@@ -812,8 +819,8 @@ void KVTreeAnalyzer::GenerateSelection()
    // selection which is added to the GUI list of selections.
    
    TString selection = G_selection_text->GetText();
-   MakeSelection(selection);
-   G_selection_text->Clear();
+   if( selection.IsNull() ) return;
+   if( MakeSelection(selection) ) G_selection_text->Clear();
 }
 
 void KVTreeAnalyzer::GenerateAlias()
@@ -859,6 +866,7 @@ void KVTreeAnalyzer::SelectionChanged()
    SafeDelete(fSelectedSelections);
    fSelectedSelections = G_selectionlist->GetSelectedObjects();
    if(fSelectedSelections && fSelectedSelections->GetEntries()>1) G_selection_but->SetEnabled(kTRUE);
+   else if(fSelectedSelections && fSelectedSelections->GetEntries()==0) G_selectionlist->Display(&fSelections);
    else G_selection_but->SetEnabled(kFALSE);
 }
 
@@ -1323,6 +1331,8 @@ void KVTreeAnalyzer::UpdateEntryLists()
    while( (old_el = (TEntryList*)next()) ){
       cout << "REGENERATING SELECTION : " << old_el->GetTitle() << endl;
       MakeSelection(old_el->GetTitle());
+	  ((TEntryList *)fSelections.Last())->SetReapplyCut( old_el->GetReapplyCut() );
+   	  G_selectionlist->Display(&fSelections);
    }
    old_lists.Delete();
 }

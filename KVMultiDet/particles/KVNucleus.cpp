@@ -585,7 +585,7 @@ Int_t KVNucleus::GetZ() const
 Int_t KVNucleus::GetN() const
 {
 	//Return the number of neutron
-   return (Int_t)(fA-fZ);
+    return (Int_t)(GetA()-GetZ());
 }
 
 //___________________________________________________________________________________________

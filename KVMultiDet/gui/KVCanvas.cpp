@@ -44,6 +44,12 @@ KVCanvas::~KVCanvas()
    // Destructor
 }
 
+KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t wimid):TCanvas(name,ww,wh,wimid)
+{
+  fAgeOfEmpire = false;
+  fModeVener   = false;
+}
+
 //________________________________________________________________
 KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name,title,ww,wh)
 {

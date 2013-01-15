@@ -35,6 +35,7 @@ friend class KVKeyHandler;
    KVCanvas();
 //   using TCanvas::TCanvas;
    KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh);
+   KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t wimid);
    virtual ~KVCanvas();
    
    void HandleInput(EEventType event, Int_t px, Int_t py);

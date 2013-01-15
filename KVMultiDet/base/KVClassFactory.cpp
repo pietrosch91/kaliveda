@@ -9,6 +9,10 @@ $Date: 2009/01/21 08:04:20 $
 #include "TSystemDirectory.h"
 #include "KVBase.h"
 #include "TObjString.h"
+#include "KVHashList.h"
+#include "TClass.h"
+#include "TMethod.h"
+#include "TMethodArg.h"
 
 using namespace std;
 
@@ -72,6 +76,7 @@ KVClassFactory::KVClassFactory()
 {
    fHasBaseClass = kFALSE;
       fBaseClassTObject=kFALSE;
+      fBaseClass = NULL;
 }
 
 KVClassFactory::KVClassFactory(const Char_t * classname,
@@ -109,6 +114,7 @@ KVClassFactory::KVClassFactory(const Char_t * classname,
    //      if templateFile="classTemplate" we look for classTemplate.h & classTemplate.cpp in $KVROOT/KVFiles, $HOME or $PWD directories.
    //      the dummy classname "classTemplate" will be replaced everywhere by 'classname'
 
+    fBaseClass = NULL;
    SetClassName(classname);
    SetClassDesc(classdesc);
    SetBaseClass(base_class);
@@ -174,6 +180,7 @@ void KVClassFactory::Copy(TObject & obj)
 KVClassFactory::KVClassFactory(const KVClassFactory& obj)
 {
    //ctor par copie
+    fBaseClass= NULL;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    obj.Copy(*this);
 #else
@@ -218,13 +225,13 @@ void KVClassFactory::WritePreProc(ofstream & file)
    //base class(es) ?
    if (fHasBaseClass) {
 		if(WithMultipleBaseClasses()){
-			fBaseClass.Begin(",");
-			while( !fBaseClass.End() )
-				file << "#include \"" << fBaseClass.Next(kTRUE) << ".h\"" << endl;
+			fBaseClassName.Begin(",");
+			while( !fBaseClassName.End() )
+				file << "#include \"" << fBaseClassName.Next(kTRUE) << ".h\"" << endl;
 			file << endl;
 		}
 		else
-      	file << "#include \"" << fBaseClass.Data() << ".h\"\n" << endl;
+	file << "#include \"" << fBaseClassName.Data() << ".h\"\n" << endl;
    }
    if( fHeadInc.GetSize() ){
       TIter next(&fHeadInc); TObjString* str;
@@ -246,12 +253,12 @@ void KVClassFactory::WriteClassDec(ofstream & file)
    if (fHasBaseClass) {
 		file << " : ";
 		if(WithMultipleBaseClasses()){
-			fBaseClass.Begin(",");
-			file << "public " << fBaseClass.Next(kTRUE);
-			while( !fBaseClass.End() ) file << ", public " << fBaseClass.Next(kTRUE);
+			fBaseClassName.Begin(",");
+			file << "public " << fBaseClassName.Next(kTRUE);
+			while( !fBaseClassName.End() ) file << ", public " << fBaseClassName.Next(kTRUE);
 		}
 		else
-      	file << "public " << fBaseClass.Data();
+	file << "public " << fBaseClassName.Data();
    }
    file << "\n{" << endl;
 
@@ -493,24 +500,22 @@ void KVClassFactory::GenerateCode()
       return;
    }
    
-      // check for base class which inherits from TObject
-      // if so, we add a skeleton Copy(const TObject&) method
-      // and use it in the copy ctor
-   if(fBaseClassTObject){
-      // check for base class which inherits from TObject
-      // if so, we add a skeleton Copy(const TObject&) method
-      // and use it in the copy ctor
-      AddTObjectCopyMethod();
-      AddCopyConstructor(kTRUE);
-   }
-   else
-      AddCopyConstructor(kFALSE);
    if (fWithTemplate) {
       WriteClassWithTemplateHeader();
       WriteClassWithTemplateImp();
    } else {
-      WriteClassHeader();
-      WriteClassImp();
+       if(fBaseClassTObject){
+          // check for base class which inherits from TObject
+          // if so, we add a skeleton Copy(const TObject&) method
+          // and use it in the copy ctor
+          AddTObjectCopyMethod();
+          AddCopyConstructor(kTRUE);
+       }
+       else
+          AddCopyConstructor(kFALSE);
+       AddAllBaseConstructors();
+       WriteClassHeader();
+       WriteClassImp();
    }
 }
 
@@ -835,7 +840,7 @@ KVClassMethod* KVClassFactory::AddConstructor(const Char_t* argument_type,
 	// use type of first argument as name of ctor method
    meth->SetName(argument_type);
    meth->SetClassName(fClassName);
-   if(fHasBaseClass) meth->SetBaseClass(fBaseClass);
+   if(fHasBaseClass) meth->SetBaseClass(fBaseClassName);
    meth->SetConstructor();
    meth->SetAccess(access);
 	meth->AddArgument( argument_type, argument_name, default_value );
@@ -909,7 +914,7 @@ void KVClassFactory::Print(Option_t*) const
    Info("Print", "object name = %s, address = %p", GetName(), this);
    cout << " * fClassName = " << fClassName.Data() << endl;
    cout << " * fClassDesc = " << fClassDesc.Data() << endl;
-   cout << " * fBaseClass = " << fBaseClass.Data() << endl;
+   cout << " * fBaseClass = " << fBaseClassName.Data() << endl;
    cout << " * fTemplateBase = " << fTemplateBase.Data() << endl;
    cout << "---------> Methods" << endl;
    fMethods.Print();
@@ -935,7 +940,7 @@ void KVClassFactory::AddTObjectCopyMethod()
    body+="   // or\n";
    body+="   //    CastedObj.SetToto( GetToto() );\n\n   ";
    // call Copy method for base class
-   body+=fBaseClass;
+   body+=fBaseClassName;
    body+="::Copy(obj);\n   //";
    body+=fClassName;
    body+="& CastedObj = (";
@@ -950,6 +955,7 @@ void KVClassFactory::AddCopyConstructor(Bool_t withTObjectCopy)
    // If class inherits from TObject, this just calls the Copy method
    
    KVClassMethod*ctor = AddConstructor(Form("const %s&", fClassName.Data()), "obj");
+   ctor->SetCopyCtor();
    KVString body = "   // Copy constructor\n";
    body+="   // This ctor is used to make a copy of an existing object (for example\n";
    body+="   // when a method returns an object), and it is always a good idea to\n";
@@ -980,17 +986,23 @@ void KVClassMethod::WriteDeclaration(KVString&decl)
    	decl += GetName();
 	}
 	else decl += GetClassName();
-   decl += " (";
+   decl += "(";
    for(int i = 1; i<=fNargs; i++){
       decl += fFields.GetParameter(Form("Arg_%d", i)).Data();
+      if( fFields.HasParameter( Form("Arg_%d_name", i)) ){
+         decl += " ";
+         decl += fFields.GetParameter(Form("Arg_%d_name", i)).Data();
+      }
+      else
+          decl += Form(" arg%d",i);
       if( fFields.HasParameter( Form("Arg_%d_default", i)) ){
          decl += " = ";
          decl += fFields.GetParameter(Form("Arg_%d_default", i)).Data();
       }
-      if( i < fNargs ) decl += " , ";
+      if( i < fNargs ) decl += ", ";
    }
-   decl += ") ";
-   if(fConst) decl += "const";
+   decl += ")";
+   if(fConst) decl += " const";
    decl += ";";
 }
 
@@ -1008,22 +1020,35 @@ void KVClassMethod::WriteImplementation(KVString&decl)
    	decl += GetName();
 	else
 		decl += GetClassName();
-   decl += " (";
+   decl += "(";
    for(int i = 1; i<=fNargs; i++){
       decl += fFields.GetParameter(Form("Arg_%d", i)).Data();
       if( fFields.HasParameter( Form("Arg_%d_name", i)) ){
          decl += " ";
          decl += fFields.GetParameter(Form("Arg_%d_name", i)).Data();
       }
-      if( i < fNargs ) decl += " , ";
+      else
+          decl += Form(" arg%d", i);
+      if( i < fNargs ) decl += ", ";
    }
-   decl += ") ";
-   if(fConst) decl += "const";
+   decl += ")";
+   if(fConst) decl += " const";
    if(IsConstructor() && fFields.HasParameter("BaseClass"))
    {
       decl+=" : ";
       decl+=fFields.GetParameter("BaseClass").Data();
-      decl+="()";
+      decl+="(";
+      if(!IsCopyCtor() && fNargs){
+          for(int i=1; i<=fNargs; i++){
+              if( fFields.HasParameter( Form("Arg_%d_name", i)) ){
+                 decl += fFields.GetParameter(Form("Arg_%d_name", i)).Data();
+              }
+              else
+                  decl += Form("arg%d",i);
+              if( i < fNargs ) decl += ", ";
+          }
+      }
+      decl+=")";
    }
    decl += "\n{\n";
    if( !strcmp(GetAccess(), "private") ) decl += "   // PRIVATE method\n";
@@ -1078,3 +1103,37 @@ void KVClassMethod::Print(Option_t* opt) const
    if(fVirtual) cout << "This method is VIRTUAL" << endl;
 }
 
+//__________________________________________________________________________________
+
+void KVClassFactory::AddAllBaseConstructors()
+{
+    // Add constructors with the same signature as all base class constructors
+    // (apart from the default ctor or any copy constructors, which are a special case)
+    // By default, all constructors are 'public'.
+
+    if(!fBaseClass) return;
+
+    KVHashList clist;
+    clist.AddAll(fBaseClass->GetListOfMethods());
+    KVSeqCollection* constructors = clist.GetSubListWithName(fBaseClassName);
+    TIter next_ctor(constructors);
+    TMethod* method;
+    while( (method = (TMethod*)next_ctor()) )
+    {
+        if(!method->GetNargs()) continue; // ignore default ctor
+        TList* args = method->GetListOfMethodArgs();
+        TMethodArg* arg = (TMethodArg*)args->First();
+        TString typenam=arg->GetFullTypeName();
+        if(typenam.Contains(fBaseClassName)) continue; // ignore copy ctor
+        KVClassMethod* ctor;
+        if(arg->GetDefault()) ctor = AddConstructor( typenam, arg->GetName(), arg->GetDefault() );
+        else ctor = AddConstructor(typenam, arg->GetName());
+        for(int i=1; i<method->GetNargs(); i++){
+            arg = (TMethodArg*)args->At(i);
+            if(arg->GetDefault()) ctor->AddArgument( arg->GetFullTypeName(), arg->GetName(), arg->GetDefault() );
+            else ctor->AddArgument(arg->GetFullTypeName(), arg->GetName());
+        }
+    }
+
+    delete constructors;
+}
