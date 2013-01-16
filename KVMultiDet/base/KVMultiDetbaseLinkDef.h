@@ -67,4 +67,5 @@
 #pragma link C++ class KVCVSUpdateChecker;
 #pragma link C++ class KVSystemFile+;
 #pragma link C++ class KVSystemDirectory+;
+#pragma link C++ class KVEnv+;
 #endif
