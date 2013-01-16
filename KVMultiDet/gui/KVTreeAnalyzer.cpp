@@ -17,6 +17,8 @@
 #include "TROOT.h"
 #include "TGMsgBox.h"
 
+#include "KVDalitzPlot.h"
+
 using namespace std;
 
 ClassImp(KVTreeAnalyzer)
@@ -51,7 +53,10 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
-   fDrawSame = fDrawLog = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
+   fDrawSame = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
+   fDrawLog = kTRUE;
+   fUserBinning = kFALSE;
+   fUserWeight = kFALSE;
    fNewCanvas = kTRUE;
    fSameColorIndex=0;
    fSelectedSelections=0;
@@ -65,6 +70,12 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
       GausGum2=new KVGausGumDistribution("GausGum2",2);
       GausGum3=new KVGausGumDistribution("GausGum3",3);
       fNoGui=nogui;
+      
+//    fNx = fNy = 0;
+//    fXmin = fXmax = fYmin = fYmax = 0.;
+//    fWeight = "";
+   fUserWeight = fUserBinning = kFALSE;
+   
       OpenGUI();
 }
 
@@ -80,7 +91,9 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fMain_selectionlist=0;
    fTreeName = t->GetName();
    fTreeFileName = t->GetCurrentFile()->GetName();
-   fDrawSame = fDrawLog = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
+   fDrawSame = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
+   fUserWeight = fUserBinning = kFALSE;
+   fDrawLog = kTRUE;
    fNewCanvas = kTRUE;
    fNoGui=nogui;
    OpenGUI();
@@ -95,6 +108,16 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
       GausGum1=new KVGausGumDistribution("GausGum1",1);
       GausGum2=new KVGausGumDistribution("GausGum2",2);
       GausGum3=new KVGausGumDistribution("GausGum3",3);
+      
+   fNx = fNy = 500;
+   fXmin = fXmax = fYmin = fYmax = -1.;
+   fWeight = "1./(abs(vper))";
+   
+   fNxF = 200;
+   fXminF = fXmaxF = -1.;
+   
+   fNxD = fNyD = 120;
+   fOrderedDalitz = 0;
 }
 
 KVTreeAnalyzer::~KVTreeAnalyzer()
@@ -183,10 +206,19 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    name.Form("h%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
    GenerateHistoTitle(histotitle, expr, selection);
-   if(nY)
-      histo.Form(">>%s(%d,0.,0.,%d,0.,0.)", name.Data(), nX, nY);
-   else
-      histo.Form(">>%s(%d,0.,0.)", name.Data(), nX);
+   
+   if((!nY)&&(fUserBinning))
+     {
+     TMethod* m = IsA()->GetMethodAllAny("DefineUserBinning1F");
+     TContextMenu * cm = new TContextMenu("DefineUserBinning", "KVTreeAnalyzer::DefineUserBinning");
+     cm->Action(this,m);
+     Info("MakeHisto","%d",fNxF);
+     delete cm;
+     }
+
+   if(nY) histo.Form(">>%s(%d,0.,0.,%d,0.,0.)", name.Data(), nX, nY);
+   else histo.Form(">>%s(%d,%lf,%lf)", name.Data(), (fUserBinning ? fNxF : nX), (fUserBinning ? fXminF : 0.), (fUserBinning ?  fXmaxF: 0));
+   
    drawexp += histo;
    fTree->Draw(drawexp, selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
@@ -246,6 +278,17 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    //
    // TEntryList objects are automatically named 'el1', 'el2', etc. in order of creation.
    
+   TObject* tmpObj = gROOT->FindObject(selection);
+   if(tmpObj) 
+     {
+     if(tmpObj->InheritsFrom("TCutG"))
+       {
+       TCutG* cut = (TCutG*) tmpObj;
+       cut->SetTitle(cut->GetName());
+       AddCut(cut);
+       }
+     }
+
    TString name;
    name.Form("el%d",fSelectionNumber);
    TString drawexp(name.Data());
@@ -330,7 +373,7 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_leaflist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    fMain_leaflist->SetName("fMain_leaflist");
    fMain_leaflist->SetWindowName("VARIABLES");
-   UInt_t lWidth = 200, lHeight = 500;
+   UInt_t lWidth = 400, lHeight = 500;
    /* leaf list */
    TGHorizontalFrame *fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
    G_leaf_draw = new TGPictureButton(fHorizontalFrame, "$ROOTSYS/icons/draw_t.xpm");
@@ -345,7 +388,18 @@ void KVTreeAnalyzer::OpenGUI()
    G_leaf_expr = new TGLabel(fHorizontalFrame, fLeafExpr.Data());
    G_leaf_expr->Resize();
    fHorizontalFrame->AddFrame(G_leaf_expr, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsCenterY,2,2,2,2));
+   
+   G_histo_weight = new TGCheckButton(fHorizontalFrame, "Weight");
+   G_histo_weight->SetToolTipText("User defined binning of th histogram");
+   G_histo_weight->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserWeight(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_weight, new TGLayoutHints(kLHintsTop|kLHintsRight|kLHintsCenterY,2,2,2,2));
+   
+   G_histo_bin = new TGCheckButton(fHorizontalFrame, "Bins");
+   G_histo_bin->SetToolTipText("User defined binning of th histogram");
+   G_histo_bin->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserBinning(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_bin, new TGLayoutHints(kLHintsTop|kLHintsRight|kLHintsCenterY,2,2,2,2));
    fMain_leaflist->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
+   
    /* make selection */
    fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
    TGLabel* lab = new TGLabel(fHorizontalFrame, "Make alias : ");
@@ -357,12 +411,14 @@ void KVTreeAnalyzer::OpenGUI()
    G_alias_text->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "GenerateAlias()");
    fHorizontalFrame->AddFrame(G_alias_text, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX,2,5,2,2));
    fMain_leaflist->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
+      
    G_leaflist = new KVListView(TNamed::Class(), fMain_leaflist, lWidth, lHeight);
    G_leaflist->SetDataColumns(1);
    G_leaflist->SetDataColumn(0, "Title");
    G_leaflist->ActivateSortButtons();
    G_leaflist->SetDoubleClickAction("KVTreeAnalyzer", this, "DrawLeaf(TObject*)");
    G_leaflist->Connect("SelectionChanged()", "KVTreeAnalyzer", this, "LeafChanged()");
+//   G_leaflist->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "ShowVar()");
    fMain_leaflist->AddFrame(G_leaflist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
 				       5,5,5,5));
@@ -423,6 +479,7 @@ void KVTreeAnalyzer::OpenGUI()
    fHorizontalFrame = new TGHorizontalFrame(histo_opts,hWidth,50,kHorizontalFrame);
    G_histo_log = new TGCheckButton(fHorizontalFrame, "Log scale");
    G_histo_log->SetToolTipText("Use log scale in Y (1D) or Z (2D)");
+   G_histo_log->SetEnabled(fDrawLog);
    G_histo_log->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetDrawLog(Bool_t)");
    fHorizontalFrame->AddFrame(G_histo_log, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
    G_histo_norm = new TGCheckButton(fHorizontalFrame, "Normalize");
@@ -517,7 +574,7 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
    
    /* histo list */
-   G_histolist = new KVListView(TH1::Class(), fMain_histolist, hWidth, hHeight);
+   G_histolist = new KVListView(TNamed::Class(), fMain_histolist, hWidth, hHeight);
    G_histolist->SetDataColumns(1);
    G_histolist->SetDataColumn(0, "Data", "GetTitle", kTextLeft);
    G_histolist->ActivateSortButtons();
@@ -554,16 +611,39 @@ void KVTreeAnalyzer::OpenGUI()
    G_selection_text->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "GenerateSelection()");
    fHorizontalFrame1614->AddFrame(G_selection_text, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX,2,5,2,2));
    fMain_selectionlist->AddFrame(fHorizontalFrame1614, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
-   G_selection_but = new TGTextButton(fMain_selectionlist,"Combine selections");
+   
+   TGHorizontalFrame *fHorizontalFrameSel = new TGHorizontalFrame(fMain_selectionlist,sWidth,36,kHorizontalFrame);
+   G_selection_but = new TGTextButton(fHorizontalFrameSel,"Combine (&and)");
    G_selection_but->SetTextJustify(36);
    G_selection_but->SetMargins(0,0,0,0);
    G_selection_but->SetWrapLength(-1);
    G_selection_but->Resize(sWidth,G_selection_but->GetDefaultHeight());
-   G_selection_but->Connect("Clicked()", "KVTreeAnalyzer", this, "CombineSelections()");
+   G_selection_but->Connect("Clicked()", "KVTreeAnalyzer", this, "CombineSelectionsAnd()");
    G_selection_but->SetEnabled(kFALSE);
    G_selection_but->ChangeBackground(cyan);
-   fMain_selectionlist->AddFrame(G_selection_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
-   G_update_but = new TGTextButton(fMain_selectionlist,"Update entry lists");
+   fHorizontalFrameSel->AddFrame(G_selection_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+   
+   G_selection_but_or = new TGTextButton(fHorizontalFrameSel,"Combine (&or)");
+   G_selection_but_or->SetTextJustify(36);
+   G_selection_but_or->SetMargins(0,0,0,0);
+   G_selection_but_or->SetWrapLength(-1);
+   G_selection_but_or->Resize(sWidth,G_selection_but_or->GetDefaultHeight());
+   G_selection_but_or->Connect("Clicked()", "KVTreeAnalyzer", this, "CombineSelectionsOr()");
+   G_selection_but_or->SetEnabled(kFALSE);
+   G_selection_but_or->ChangeBackground(cyan);
+   fHorizontalFrameSel->AddFrame(G_selection_but_or, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+   
+   G_delete_but = new TGTextButton(fHorizontalFrameSel,"&Delete");
+   G_delete_but->SetTextJustify(36);
+   G_delete_but->SetMargins(0,0,0,0);
+   G_delete_but->SetWrapLength(-1);
+   G_delete_but->Resize(sWidth,G_delete_but->GetDefaultHeight());
+   G_delete_but->Connect("Clicked()", "KVTreeAnalyzer", this, "DeleteSelections()");
+   G_delete_but->SetEnabled(kFALSE);
+   G_delete_but->ChangeBackground(red);
+   fHorizontalFrameSel->AddFrame(G_delete_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+   
+   G_update_but = new TGTextButton(fHorizontalFrameSel,"&Update");
    G_update_but->SetTextJustify(36);
    G_update_but->SetMargins(0,0,0,0);
    G_update_but->SetWrapLength(-1);
@@ -571,7 +651,9 @@ void KVTreeAnalyzer::OpenGUI()
    G_update_but->Connect("Clicked()", "KVTreeAnalyzer", this, "UpdateEntryLists()");
    G_update_but->SetEnabled(kTRUE);
    G_update_but->ChangeBackground(yellow);
-   fMain_selectionlist->AddFrame(G_update_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+   fHorizontalFrameSel->AddFrame(G_update_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
+   fMain_selectionlist->AddFrame(fHorizontalFrameSel, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
+
    /* selection list */
    G_selectionlist = new KVListView(TEntryList::Class(), fMain_selectionlist, sWidth, sHeight);
    G_selectionlist->SetDataColumns(3);
@@ -610,6 +692,15 @@ void KVTreeAnalyzer::AddSelection(TEntryList*e)
    
    fSelections.Add(e);
    G_selectionlist->Display(&fSelections);
+}
+
+void KVTreeAnalyzer::AddCut(TCutG* c)
+{
+   // Adds histogram to internal list of user histograms
+   // and updates GUI display
+   
+   fHistolist.Add(c);
+   G_histolist->Display(&fHistolist);
 }
 
 void KVTreeAnalyzer::SetTree(TTree* t)
@@ -672,7 +763,66 @@ void KVTreeAnalyzer::ReadFromFile(TFile* f)
    FillLeafList();
 }
 
-void KVTreeAnalyzer::DrawHisto(TObject* obj)
+void KVTreeAnalyzer::DrawCut(TCutG* cut)
+{
+  TString name = Form("%s:%s", cut->GetVarY(), cut->GetVarX());
+  KVList padList(kFALSE);
+  Bool_t testHisto = kFALSE;
+  
+  if(!gPad) testHisto = kTRUE;
+
+  if(!testHisto)
+    {
+    testHisto = kTRUE;
+    padList.AddAll(((TPad*)gPad)->GetListOfPrimitives());
+    TIter next(&padList);
+    TObject* o = 0;
+    while((o = next()))
+      {
+      if(o->InheritsFrom("TH1"))
+        {
+	TH1* hh = (TH1*) o;
+        TString hName = hh->GetTitle();
+	if(hName.Contains(name.Data())) 
+	  {
+	  cut->Draw("PL");
+	  gPad->Update();
+	  testHisto = kFALSE;
+	  }
+	}
+      }
+    }
+    
+  if(testHisto)
+    {
+    TIter next(&fHistolist);
+    TH1* hh = 0;
+    while((hh = (TH1*)next()))
+      {
+      TString hName = hh->GetTitle();
+      if(hName.Contains(name.Data())) 
+        {
+	DrawHisto(hh,kFALSE);
+        cut->Draw("PL");
+        gPad->Update();
+	break;
+        }
+      }
+    }
+//  else cut->Draw("PAL");
+  
+  
+//   TIter next(fHistoList);
+//   TH1* tmpHist = 0;
+//   while((tmpHisto = (TH1*)next()))
+//     {
+//     
+//     }
+
+  return;
+}
+
+void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
 {
    // Method called when a user double-clicks a histogram in the GUI list.
    //
@@ -694,13 +844,20 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    // Y (1-D) or Z (2-D) axis is automatically adjusted according to the 'log scale'
    // check box
    
+   if(obj->InheritsFrom("TCutG"))
+     {
+     TCutG* cut = dynamic_cast<TCutG*>(obj);
+     DrawCut(cut);
+     return;
+     }
+   
    if(!obj->InheritsFrom("TH1")) return;
    TH1* histo = dynamic_cast<TH1*>(obj);
    
    // if histogram is already displayed in active pad and if the pad also
    // contains a graphical contour (TCutG) object, we use the contour to define
    // a new data selection (TEntryList) which is added to the internal list.
-   if(gPad && gPad->GetListOfPrimitives()->FindObject(histo)){
+   if(gPad && gPad->GetListOfPrimitives()->FindObject(histo) && (gen)){
       TIter next(gPad->GetListOfPrimitives());
       TObject* o;
       while( (o = next()) ){
@@ -743,7 +900,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj)
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
       // create a new canvas also if none exists
-      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());c->SetWindowSize(600,600);}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -836,7 +993,7 @@ void KVTreeAnalyzer::GenerateAlias()
    G_alias_text->Clear();
 }
 
-void KVTreeAnalyzer::CombineSelections()
+void KVTreeAnalyzer::CombineSelectionsAnd()
 {
    // Method called when user hits 'combine selections' button in selections GUI.
    // Generates new selection which is the intersection (logical AND) of
@@ -859,15 +1016,70 @@ void KVTreeAnalyzer::CombineSelections()
    }
 }
 
+void KVTreeAnalyzer::CombineSelectionsOr()
+{
+   // Method called when user hits 'combine selections' button in selections GUI.
+   // Generates new selection which is the intersection (logical AND) of
+   // the currently selected selections.
+   
+   if(fSelectedSelections){
+      TEntryList* save_elist = fTree->GetEntryList();
+//      fTree->SetEntryList((TEntryList*)fSelectedSelections->First());
+      fTree->SetEntryList((TEntryList*)0);
+      TString newselect;
+      int nsel = fSelectedSelections->GetEntries();
+      for(int i=0; i<nsel; i++)
+      {
+         TString tmp; 
+	 TEntryList* el = (TEntryList*)fSelectedSelections->At(i);
+         tmp.Form("(%s)", el->GetTitle());
+         if(i>0) newselect += " || ";
+         newselect += tmp.Data();
+      }
+      MakeSelection(newselect);
+      fTree->SetEntryList(save_elist);
+   }
+}
+
+void KVTreeAnalyzer::DeleteSelections()
+{
+   // Method called when user hits 'combine selections' button in selections GUI.
+   // Generates new selection which is the intersection (logical AND) of
+   // the currently selected selections.
+   
+   if(fSelectedSelections){
+      int nsel = fSelectedSelections->GetEntries();
+      if(nsel<1) return;
+      for(int i=0; i<nsel; i++){
+	TEntryList* el = (TEntryList*)fSelectedSelections->At(i);
+	if(!el) continue;
+	fSelections.Remove(el);
+	delete el;
+	
+      }
+	G_selectionlist->Display(&fSelections);
+   }
+}
+
 void KVTreeAnalyzer::SelectionChanged()
 {
    // Method called whenever the selected selection in the GUI list changes
    
    SafeDelete(fSelectedSelections);
    fSelectedSelections = G_selectionlist->GetSelectedObjects();
-   if(fSelectedSelections && fSelectedSelections->GetEntries()>1) G_selection_but->SetEnabled(kTRUE);
-   else if(fSelectedSelections && fSelectedSelections->GetEntries()==0) G_selectionlist->Display(&fSelections);
-   else G_selection_but->SetEnabled(kFALSE);
+   if(fSelectedSelections && fSelectedSelections->GetEntries()>1) 
+     {
+     G_selection_but_or->SetEnabled(kTRUE);
+     G_selection_but->SetEnabled(kTRUE);
+     }
+   else 
+     {
+     G_selection_but_or->SetEnabled(kFALSE);
+     G_selection_but->SetEnabled(kFALSE);
+     }
+
+   if(fSelectedSelections && fSelectedSelections->GetEntries()>0) G_delete_but->SetEnabled(kTRUE);
+   else G_delete_but->SetEnabled(kFALSE);
 }
 
 void KVTreeAnalyzer::LeafChanged()
@@ -896,13 +1108,24 @@ void KVTreeAnalyzer::LeafChanged()
             fYLeaf = (TNamed*)fSelectedLeaves->At(1);
             fXLeaf = (TNamed*)fSelectedLeaves->First();
          }
-         TString X,Y;
+        TString X,Y;
          X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
          Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
          fLeafExpr.Form("%s:%s", Y.Data(), X.Data());
          G_leaf_draw->SetEnabled(kTRUE);
       }
-      else{
+      else if(nleaf==3){
+         fXLeaf = (TNamed*)fSelectedLeaves->At(2);
+         fYLeaf = (TNamed*)fSelectedLeaves->At(1);
+         fZLeaf = (TNamed*)fSelectedLeaves->At(0);
+         TString X,Y,Z;
+         X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
+         Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
+         Z = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():  fZLeaf->GetTitle());
+         fLeafExpr.Form("%s:%s:%s", Z.Data(), Y.Data(), X.Data());
+         G_leaf_draw->SetEnabled(kTRUE);
+         }
+       else{
          fLeafExpr="-";
       }
    }
@@ -910,16 +1133,65 @@ void KVTreeAnalyzer::LeafChanged()
    G_leaf_expr->Resize();
 }
 
+void KVTreeAnalyzer::DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax)
+{
+  fNx = Nx;
+  fNy = Ny;
+  fXmin = Xmin;
+  fXmax = Xmax;
+  fYmin = Ymin;
+  fYmax = Ymax;
+}
+   
+void KVTreeAnalyzer::DefineUserBinning1F(Int_t Nx, Double_t Xmin, Double_t Xmax)
+{
+  fNxF = Nx;
+  fXminF = Xmin;
+  fXmaxF = Xmax;
+}
+   
+void KVTreeAnalyzer::DefineUserBinningD(Int_t Nx, Int_t Ny, Int_t ordered)
+{
+  fNxD = Nx;
+  fNyD = Ny;
+  fOrderedDalitz = ordered;
+}
+   
+void KVTreeAnalyzer::DefineWeight(const char* Weight)
+{
+  fWeight = Weight;
+}
+   
 void KVTreeAnalyzer::DrawLeafExpr()
 {
    // Method called when user hits 'draw' button in TTree GUI.
    // If only one leaf/alias is selected, this actually calls DrawLeaf.
- 
-   if(fLeafExpr=="-") return;
+   
+   if(fLeafExpr=="-")return;
+   if(fSelectedLeaves->GetEntries()==3){
+      DrawAsDalitz();
+      return;
+   }
    if(fSelectedLeaves->GetEntries()==1){
       DrawLeaf(fSelectedLeaves->First());
       return;
    }
+   
+   if(fUserBinning)
+     {
+     TMethod* m = IsA()->GetMethodAllAny("DefineUserBinning");
+     TContextMenu * cm = new TContextMenu("DefineUserBinning", "KVTreeAnalyzer::DefineUserBinning");
+     cm->Action(this,m);
+     delete cm;
+     }
+   if(fUserWeight)
+     {
+     TMethod* m = IsA()->GetMethodAllAny("DefineWeight");
+     TContextMenu * cm = new TContextMenu("DefineWeight", "KVTreeAnalyzer::DefineWeight");
+     cm->Action(this,m);
+     delete cm;
+     }
+ 
    int nx=500,ny=500;
    double xmin,xmax,ymin,ymax;
    xmin=xmax=ymin=ymax=0;
@@ -955,6 +1227,16 @@ void KVTreeAnalyzer::DrawLeafExpr()
       Yexpr.Form("int(%s)",tmp.Data());
    }
    
+   if(fUserBinning)
+     {
+     nx = fNx;
+     ny = fNy;
+     xmin = fXmin;
+     xmax = fXmax;
+     ymin = fYmin;
+     ymax = fYmax;
+     }
+   
    fLeafExpr.Form("%s:%s", Yexpr.Data(), Xexpr.Data());
    TString name;
    name.Form("h%d",fHistoNumber);
@@ -962,7 +1244,9 @@ void KVTreeAnalyzer::DrawLeafExpr()
    GenerateHistoTitle(histotitle, fLeafExpr, "");
    histo.Form(">>%s(%d,%f,%f,%d,%f,%f)", name.Data(), nx,xmin,xmax,ny,ymin,ymax);
    drawexp += histo;
-   fTree->Draw(drawexp, "", "goff");
+   TString ww = "";
+   if(fUserWeight) ww += fWeight;
+   fTree->Draw(drawexp, ww.Data(), "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
@@ -972,6 +1256,129 @@ void KVTreeAnalyzer::DrawLeafExpr()
    DrawHisto(h);
 }
 
+
+void KVTreeAnalyzer::DrawAsDalitz()
+{
+   if((!fXLeaf->InheritsFrom("TLeaf"))||(!fYLeaf->InheritsFrom("TLeaf"))||(!fZLeaf->InheritsFrom("TLeaf"))) 
+     {
+     Warning("DrawAsDalitz", "Cannot be used with aliases !");
+     return;
+     }
+
+   TString Xexpr,Yexpr, Zexpr;
+   Xexpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():fXLeaf->GetTitle());
+   Yexpr = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():fYLeaf->GetTitle());
+   Zexpr = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():fZLeaf->GetTitle());
+   fLeafExpr.Form("%s:%s:%s", Xexpr.Data(), Yexpr.Data(), Zexpr.Data());
+   
+   TString xType(((TLeaf*)fXLeaf)->GetTypeName());
+   TString yType(((TLeaf*)fYLeaf)->GetTypeName());
+   TString zType(((TLeaf*)fZLeaf)->GetTypeName());
+   
+   if((!xType.Contains(yType.Data()))||(!yType.Contains(zType.Data())))
+     {
+     Warning("DrawAsDalitz", "Leaves %s must have the same type !", fLeafExpr.Data());
+     return;
+     }
+   
+   Double_t x, y, z;
+   Double_t var1, var2, var3;
+   Float_t  varf1, varf2, varf3;
+   Int_t    vari1, vari2, vari3;
+   Short_t  vars1, vars2, vars3;
+   Char_t   varc1, varc2, varc3;
+   
+   if(xType.Contains("Int_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&vari1);
+     fTree->SetBranchAddress(Yexpr.Data(),&vari2);
+     fTree->SetBranchAddress(Zexpr.Data(),&vari3);
+     }
+   else if(xType.Contains("Short_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&vars1);
+     fTree->SetBranchAddress(Yexpr.Data(),&vars2);
+     fTree->SetBranchAddress(Zexpr.Data(),&vars3);
+     }
+   else if(xType.Contains("Char_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&varc1);
+     fTree->SetBranchAddress(Yexpr.Data(),&varc2);
+     fTree->SetBranchAddress(Zexpr.Data(),&varc3);
+     }
+   else if(xType.Contains("Double_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&var1);
+     fTree->SetBranchAddress(Yexpr.Data(),&var2);
+     fTree->SetBranchAddress(Zexpr.Data(),&var3);
+     }
+   else if(xType.Contains("Float_t"))
+     {
+     fTree->SetBranchAddress(Xexpr.Data(),&varf1);
+     fTree->SetBranchAddress(Yexpr.Data(),&varf2);
+     fTree->SetBranchAddress(Zexpr.Data(),&varf3);
+     }
+   
+   if(fUserBinning) KVBase::OpenContextMenu("DefineUserBinningD",this);
+
+   TString histotitle;
+   GenerateHistoTitle(histotitle, fLeafExpr, "");
+   
+   KVDalitzPlot* h = 0;
+   if(fUserBinning) h = new KVDalitzPlot(Form("h%d",fHistoNumber),histotitle.Data(),fOrderedDalitz,fNxD,0.,1.2,fNyD,0.,1.2);
+   else             h = new KVDalitzPlot(Form("h%d",fHistoNumber),histotitle.Data());
+   fHistoNumber++;
+   
+   TEntryList* el = fTree->GetEntryList();
+   if(el) el->GetEntry(0);
+   Int_t nentries = fTree->GetEntries();
+   
+   if(el) nentries = el->GetN();
+   for(int i=0; i<nentries; i++)
+     {
+     Int_t  j = i;
+     if(el) j = el->Next();
+     fTree->GetEntry(j);
+     if(xType.Contains("Int_t"))
+       {
+       x = vari1;
+       y = vari2;
+       z = vari3;
+       }
+     else if(xType.Contains("Short_t"))
+       {
+       x = vars1;
+       y = vars2;
+       z = vars3;
+       }
+     else if(xType.Contains("Char_t"))
+       {
+       x = varc1;
+       y = varc2;
+       z = varc3;
+       }
+     else if(xType.Contains("Double_t"))
+       {
+       x = var1;
+       y = var2;
+       z = var3;
+       }
+     else if(xType.Contains("Float_t"))
+       {
+       x = varf1;
+       y = varf2;
+       z = varf3;
+       }
+     h->FillAsDalitz(x,y,z);
+     }
+
+   h->SetOption("col");
+   h->SetDirectory(0);
+   AddHisto((TH2F*)h);
+   DrawHisto(h);
+   fTree->ResetBranchAddresses();
+  
+}
 
 void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 {
@@ -1004,7 +1411,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
             histo = MakeHisto(expr, "", 500);
          }
       }
-      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle()); c->SetWindowSize(600,600);}
       histo->Draw();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else gPad->SetLogy(fDrawLog);
@@ -1309,10 +1716,10 @@ void KVTreeAnalyzer::DeleteHisto(const Char_t* expr, const Char_t* selection)
 
 void KVTreeAnalyzer::DeleteSelectedHisto()
 {
-   TH1* histo = dynamic_cast<TH1*>(fSelectedHistos->First());
+   TObject* histo = fSelectedHistos->First();
    if(!histo) return;
    fHistolist.Remove(histo);
-   delete histo;
+   if(histo->InheritsFrom("TH1")) delete histo;
    G_histolist->Display(&fHistolist);   
 }
 

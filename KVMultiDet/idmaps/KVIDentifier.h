@@ -117,7 +117,7 @@ class KVIDentifier : public TCutG
    virtual void        Delete(Option_t *option=""){TGraph::Delete(option);};
    virtual void        DrawClass() const {TGraph::DrawClass();};
    virtual TObject    *DrawClone(Option_t *option="") const {return TGraph::DrawClone(option);};
-   virtual void        CloneScaleStore(Int_t newzt,Double_t sy,Int_t newat=-1,Double_t sx=-1);  // *MENU*
+   virtual void        CloneScaleStore(Int_t newzt,Int_t newat, Double_t dy=0.,Double_t sx=1.,Double_t sy=1.);  // *MENU* *ARGS={newat=>fA,newzt=>fZ}
 	virtual void        Dump() const {TGraph::Dump();};
    virtual void        Inspect() const {TGraph::Inspect();};
    virtual void        SaveAs(const char *filename="",Option_t *option="") const {TGraph::SaveAs(filename,option);};

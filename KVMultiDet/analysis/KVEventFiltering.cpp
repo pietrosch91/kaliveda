@@ -203,6 +203,11 @@ void KVEventFiltering::InitAnalysis()
    
    OpenOutputFile(sys,run);
    fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
+
+//   fTree = fChain->CloneTree(0);
+//   fTree->SetName(Form("%s filtered with %s",fChain->GetTitle());
+//   fTree->SetTitle(sys->GetName());
+   
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();
    fTree->Branch("ReconEvent", reconevclass,&fReconEvent,10000000,0)->SetAutoDelete(kFALSE);

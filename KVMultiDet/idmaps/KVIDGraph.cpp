@@ -10,6 +10,7 @@ $Date: 2009/04/28 09:07:47 $
 #include "KVIDGraph.h"
 #include "TObjString.h"
 #include "TObjArray.h"
+#include "TRandom.h"
 #include "TClass.h"
 #include "KVReconstructedNucleus.h"
 #include "TCanvas.h"
@@ -940,7 +941,7 @@ void KVIDGraph::DrawAndAdd(const Char_t* Type, const Char_t* Classname)
 //___________________________________________________________________________________
 
 void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
-                                  TH2F * id_real_vs_e_res)
+                                  TH2F * id_real_vs_e_res, TH2F* z_a_real)
 {
    //This method allows to test the identification capabilities of the grid using data in a TH2F.
    //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
@@ -963,6 +964,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
    Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
    Float_t percent = 0., cumul = 10.;
+   Bool_t zaMap = (!IsOnlyZId())&&(z_a_real);
 
    //loop over data in histo
    for (int i = 1; i <= data->GetNbinsX(); i++) {
@@ -993,6 +995,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
                	nuc.SetIdentification(idr);
                   id_real->Fill(nuc.GetPID(), weight);
                   id_real_vs_e_res->Fill(x, nuc.GetPID(), weight);
+                  if(zaMap) z_a_real->Fill(nuc.GetRealA()-nuc.GetRealZ(), gRandom->Gaus(nuc.GetRealZ(),0.15), weight);
                }
 				}
          }
