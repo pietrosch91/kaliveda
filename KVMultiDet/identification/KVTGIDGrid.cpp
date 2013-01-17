@@ -11,6 +11,8 @@ $Date: 2009/03/03 14:27:15 $
 #include "KVTGID.h"
 #include "KVIDGridManager.h"
 
+using namespace std;
+
 ClassImp(KVTGIDGrid)
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,8 +23,8 @@ class KVTGIDGrid : public KVIDZAGrid
    KVTGIDGrid();
    KVTGIDGrid(KVTGID*, KVIDZAGrid* = 0);
    virtual ~KVTGIDGrid();
-	void WriteToAsciiFile(ofstream &);
-	void ReadFromAsciiFile(ifstream &);
+	void WriteToAsciiFile(std::ofstream &);
+	void ReadFromAsciiFile(std::ifstream &);
    virtual void Generate(Double_t xmax, Double_t xmin = 0.,
                                 Int_t ID_min = 0, Int_t ID_max =
                                 0, Int_t npoints = 50, Bool_t logscale = kTRUE);//  *MENU*	

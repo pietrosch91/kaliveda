@@ -9,6 +9,8 @@
 #include "KVElementDensity.h"
 #include "KVNDTManager.h"
 
+using namespace std;
+
 ClassImp(KVIonRangeTableMaterial)
 
 ////////////////////////////////////////////////////////////////////////////////

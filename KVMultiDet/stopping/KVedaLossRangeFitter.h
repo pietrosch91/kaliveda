@@ -35,8 +35,8 @@ protected:
    Int_t FitRangeTable(TGraph*);
    
    void DoFits(Int_t Zmin=1, Int_t Zmax=100);
-   void PrintFitParameters(Int_t, ostream&);
-   void PrintFitHeader(ostream &);
+   void PrintFitParameters(Int_t, std::ostream&);
+   void PrintFitHeader(std::ostream &);
 
    ClassDef(KVedaLossRangeFitter,1)//Fit a range table using the VEDALOSS functional
 };
