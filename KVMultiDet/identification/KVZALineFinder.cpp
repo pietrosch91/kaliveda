@@ -342,7 +342,7 @@ void KVZALineFinder::SortLines(TList* Lines)
     {
     Int_t aa = aMostProb-(iMostProb-i);
     nuc.SetZandA(zz,aa);
-    if((nuc.GetLifeTime()<pow(10,-6))) aa-=1;
+    if((nuc.GetLifeTime()<1.e-06)) aa-=1;
     ((KVSpiderLine*)Lines->At(ii[i]))->SetA(aa);
     }
 

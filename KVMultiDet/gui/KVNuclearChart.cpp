@@ -73,7 +73,7 @@ zMax):fNucleusBoxList(kTRUE),fMagicList(kTRUE)
       Int_t nn = aa - zz;
       if((nn>=fNmin)&&(nn<fNmax))
         {
-        if(nuc.IsStable()||nuc.GetLifeTime()>pow(10,-6))           
+        if(nuc.IsStable()||nuc.GetLifeTime()>1.e-06)           
 	  {
 	  KVNucleusBox* nb = new KVNucleusBox(zz,nn);
 	  nb->SetNuclearChart(this);
@@ -253,7 +253,7 @@ void KVNuclearChart::ShowNucleusInfo(KVNucleus* nuc)
   fShownNucleus = nuc;
   fInfo->Clear();
   fInfo->AddText(Form("Z = %d  N = %d", nuc->GetZ(), nuc->GetN()));
-  if(nuc->GetLifeTime()>pow(10,30)) fInfo->AddText("T_{1/2} > 1.00e+30 s");
+  if(nuc->GetLifeTime()>1.e+30) fInfo->AddText("T_{1/2} > 1.00e+30 s");
   else fInfo->AddText(Form("T_{1/2} = %3.2e s",nuc->GetLifeTime()));
   if(!fOwnHisto&&fHisto) 
     {

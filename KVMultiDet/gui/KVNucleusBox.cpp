@@ -38,7 +38,7 @@ KVNucleusBox::KVNucleusBox(Int_t Z, Int_t N, Double_t size): TBox(N-size,Z-size,
     SetLineWidth(2);
     SetFillColor(kBlack);
     }
-  else if(fNucleus->GetLifeTime()>pow(10,-6)) 
+  else if(fNucleus->GetLifeTime()>1.e-06) 
     {
     SetLineColor(kBlack);
     SetFillColor(kGray+1);
@@ -77,7 +77,7 @@ KVNucleusBox::KVNucleusBox(KVNucleus* nuc, Double_t size, Bool_t owner): TBox(nu
     SetLineWidth(2);
     SetFillColor(kBlack);
     }
-  else if(fNucleus->GetLifeTime()>pow(10,-6)) 
+  else if(fNucleus->GetLifeTime()>1.e-06) 
     {
     SetLineColor(kBlack);
     SetFillColor(kGray+1);
