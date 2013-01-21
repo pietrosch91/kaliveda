@@ -33,7 +33,7 @@ class KVSimReader : public KVFileReader
 	KVSimNucleus* nuc;//!
 	
 	Int_t nevt;
-	KVString tree_name,branch_name,root_file_name;
+	KVString tree_name,tree_title,branch_name,root_file_name;
 	Bool_t kmode;
 	
 	//infos ou objets specifiques a une simulation
@@ -98,6 +98,11 @@ class KVSimReader : public KVFileReader
 		return nevt;
 	}
 	
+   void SetTreeName(const Char_t* n) { tree_name = n; }
+   void SetTreeTitle(const Char_t* n) { tree_title = n; }
+   void SetROOTFileName(const Char_t* n) { root_file_name = n; }
+   void SetBranchName(const Char_t* n) { branch_name = n; }
+   
 	
    ClassDef(KVSimReader,1)	//Base class to read output files for simulation and create tree using KVEvent type class
 };

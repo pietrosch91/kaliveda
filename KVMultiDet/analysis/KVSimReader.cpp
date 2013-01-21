@@ -26,6 +26,7 @@ void KVSimReader::init()
 	nevt = 0;
 
 	tree_name = "SIMULATION_NAME";
+	tree_title = "SIMULATION";
 	root_file_name = "Output.root";
 	//ascii_file_name = "";
 	branch_name = "Simulated_evts";
@@ -51,7 +52,7 @@ KVSimReader::KVSimReader(KVString filename)
 	
 	if (!OpenFileToRead(filename)) return;
 	
-	Run();
+	Run(root_file_name);
 	
 	CloseFile();
 }
@@ -86,7 +87,7 @@ void KVSimReader::DeclareTree(KVString filename,Option_t* option)
 	root_file_name = filename;
 	file = new TFile(root_file_name.Data(),option);
 		
-	tree = new TTree(tree_name.Data(),"SIMULATION");
+	tree = new TTree(tree_name.Data(),tree_title.Data());
 	tree->Branch(branch_name.Data(), "KVSimEvent", &evt, 10000000, 0)->SetAutoDelete(kFALSE);
 
 }
