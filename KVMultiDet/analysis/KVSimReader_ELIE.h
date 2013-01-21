@@ -10,8 +10,10 @@ class KVSimReader_ELIE : public KVSimReader
 {
 
 	void init(){
-		tree_name = "HIPSE";
+		tree_name = "ELIE";
 	};
+   KVNucleus proj,targ;
+   Double_t ebeam;
    
    public:
    KVSimReader_ELIE();

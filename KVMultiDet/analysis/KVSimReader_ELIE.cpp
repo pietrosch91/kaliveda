@@ -27,7 +27,12 @@ KVSimReader_ELIE::KVSimReader_ELIE(KVString filename) : KVSimReader()
    // Write your code here
    init();
 	if (!OpenFileToRead(filename)) return;
-	Run();
+	if (!ReadHeader()) return;
+   SetROOTFileName(filename+".root");
+   tree_title.Form("ELIE events %s + %s %.1f MeV/nuc.",
+         proj.GetSymbol(),targ.GetSymbol(),ebeam);
+	Run(root_file_name);
+   SaveTree();
 	CloseFile();
 }
 
@@ -39,9 +44,6 @@ KVSimReader_ELIE::~KVSimReader_ELIE()
 
 void KVSimReader_ELIE::ReadFile()
 {
-
-	if (!ReadHeader()) return;
-
 	while (IsOK()){
 		while (ReadEvent()){
 			if (nevt && nevt%1000==0) Info("ReadFile","%d evts lus",nevt);
@@ -71,6 +73,9 @@ Bool_t KVSimReader_ELIE::ReadHeader()
 		AddInfo("Atarg",GetReadPar(3));
 		AddInfo("Ztarg",GetReadPar(2));
 		AddInfo("Ebeam",GetReadPar(4));
+      proj.SetZAandE(GetIntReadPar(0),GetIntReadPar(1),GetIntReadPar(1)*GetDoubleReadPar(4));
+      targ.SetZandA(GetIntReadPar(2),GetIntReadPar(3));
+      ebeam=GetDoubleReadPar(4);
 		break;
 	default:
 		return kFALSE;	
