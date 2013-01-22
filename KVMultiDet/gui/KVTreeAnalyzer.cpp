@@ -18,7 +18,7 @@
 #include "TGMsgBox.h"
 
 #include "KVDalitzPlot.h"
-
+#include "TEnv.h"
 using namespace std;
 
 ClassImp(KVTreeAnalyzer)
@@ -28,6 +28,16 @@ ClassImp(KVTreeAnalyzer)
 /* -->
 <h2>KVTreeAnalyzer</h2>
 <h4>KVTreeAnalyzer</h4>
+<h5>Configure initial state of interface</h5>
+In .kvrootrc file, user can configure the following options, corresponding to check boxes in the interface:<br>
+<pre>
+KVTreeAnalyzer.LogScale:         off
+KVTreeAnalyzer.UserBinning:           off
+KVTreeAnalyzer.UserWeight:       off
+KVTreeAnalyzer.NewCanvas:      off
+KVTreeAnalyzer.Normalize:      off
+</pre>
+Change value to 'on' if required.
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,14 +60,16 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    // The 'nogui' option (default=kTRUE) controls whether or not to
    // launch the graphical interface
    
+    KVBase::InitEnvironment();
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
-   fDrawSame = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
-   fDrawLog = kTRUE;
-   fUserBinning = kFALSE;
-   fUserWeight = kFALSE;
-   fNewCanvas = kTRUE;
+   fDrawSame = fApplySelection = fSwapLeafExpr = fProfileHisto = kFALSE;
+   fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
+   fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
+   fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
+   fNewCanvas = gEnv->GetValue("KVTreeAnalyzer.NewCanvas", kFALSE);
+   fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
    fSameColorIndex=0;
    fSelectedSelections=0;
    fSelectedLeaves=0;
@@ -74,7 +86,6 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
 //    fNx = fNy = 0;
 //    fXmin = fXmax = fYmin = fYmax = 0.;
 //    fWeight = "";
-   fUserWeight = fUserBinning = kFALSE;
    
       OpenGUI();
 }
@@ -86,15 +97,18 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    // Initialize analyzer for a given TTree.
    // If 'nogui' option (default=kFALSE) is kTRUE we do not launch the graphical interface.
    
+    KVBase::InitEnvironment();
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
    fTreeName = t->GetName();
    fTreeFileName = t->GetCurrentFile()->GetName();
-   fDrawSame = fApplySelection = fSwapLeafExpr = fNormHisto = kFALSE;
-   fUserWeight = fUserBinning = kFALSE;
-   fDrawLog = kTRUE;
-   fNewCanvas = kTRUE;
+   fDrawSame = fApplySelection = fSwapLeafExpr= fProfileHisto  = kFALSE;
+   fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
+   fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
+   fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
+   fNewCanvas = gEnv->GetValue("KVTreeAnalyzer.NewCanvas", kFALSE);
+   fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
    fNoGui=nogui;
    OpenGUI();
    fSameColorIndex=0;
@@ -170,6 +184,8 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
    //    "expr1[:expr2] {selection}"
    //    "expr1[:expr2] {active selection}"
    //    "expr1[:expr2] {(active selection) && (selection)}"
+    //
+    // For two-dimensional profile histograms, the title begins with "PROF"
    
    TString _selection(selection);
    TString _elist;
@@ -182,6 +198,7 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
       title.Form("%s {%s}", expr, _elist.Data());
    else
       title.Form("%s", expr);
+   if(fProfileHisto) title.Prepend("PROF ");
 }
 
 TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY)
@@ -219,15 +236,17 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    if(nY) histo.Form(">>%s(%d,0.,0.,%d,0.,0.)", name.Data(), nX, nY);
    else histo.Form(">>%s(%d,%lf,%lf)", name.Data(), (fUserBinning ? fNxF : nX), (fUserBinning ? fXminF : 0.), (fUserBinning ?  fXmaxF: 0));
    
-   drawexp += histo;
-   fTree->Draw(drawexp, selection, "goff");
+   Info("MakeHisto", "fProfileHisto=%d",fProfileHisto);
+   if(!fProfileHisto) drawexp += histo;
+   if(fProfileHisto) fTree->Draw(Form("%s>>%s",drawexp.Data(), name.Data()), selection, "prof,goff");
+   else  fTree->Draw(drawexp, selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
    AddHisto(h);
    fHistoNumber++;
-   if(fNormHisto){
+   if(fNormHisto && !fProfileHisto){
       h->Sumw2();
       h->Scale(1./h->Integral());
    }
@@ -388,17 +407,29 @@ void KVTreeAnalyzer::OpenGUI()
    G_leaf_expr = new TGLabel(fHorizontalFrame, fLeafExpr.Data());
    G_leaf_expr->Resize();
    fHorizontalFrame->AddFrame(G_leaf_expr, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsCenterY,2,2,2,2));
-   
-   G_histo_weight = new TGCheckButton(fHorizontalFrame, "Weight");
-   G_histo_weight->SetToolTipText("User defined binning of th histogram");
-   G_histo_weight->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserWeight(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_weight, new TGLayoutHints(kLHintsTop|kLHintsRight|kLHintsCenterY,2,2,2,2));
-   
-   G_histo_bin = new TGCheckButton(fHorizontalFrame, "Bins");
-   G_histo_bin->SetToolTipText("User defined binning of th histogram");
-   G_histo_bin->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserBinning(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_bin, new TGLayoutHints(kLHintsTop|kLHintsRight|kLHintsCenterY,2,2,2,2));
    fMain_leaflist->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
+
+   TGGroupFrame* histo_opts = new TGGroupFrame(fMain_leaflist, "Options", kVerticalFrame);
+   fHorizontalFrame = new TGHorizontalFrame(histo_opts,lWidth,36,kHorizontalFrame);
+   G_histo_prof = new TGCheckButton(fHorizontalFrame, "Profile");
+   G_histo_prof->SetToolTipText("Generate a profile histogram");
+   G_histo_prof->SetState((EButtonState) fProfileHisto );
+   G_histo_prof->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetProfileHisto(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_prof, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsCenterY,2,2,2,2));
+
+   G_histo_weight = new TGCheckButton(fHorizontalFrame, "Weight");
+   G_histo_weight->SetToolTipText("User defined binning of the histogram");
+   G_histo_weight->SetState((EButtonState) fUserWeight );
+   G_histo_weight->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserWeight(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_weight, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsCenterY,2,2,2,2));
+
+   G_histo_bin = new TGCheckButton(fHorizontalFrame, "Bins");
+   G_histo_bin->SetToolTipText("User defined binning of the histogram");
+   G_histo_bin->SetState((EButtonState) fUserBinning);
+   G_histo_bin->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserBinning(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_bin, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsCenterY,2,2,2,2));
+   histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsCenterX|kLHintsTop,2,2,2,2));
+   fMain_leaflist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandX,5,5,5,5));
    
    /* make selection */
    fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
@@ -460,12 +491,12 @@ void KVTreeAnalyzer::OpenGUI()
    G_histo_del->ChangeBackground(red);
    fMain_histolist->AddFrame(G_histo_del, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
    /* histo options */
-   TGGroupFrame* histo_opts = new TGGroupFrame(fMain_histolist, "Options", kVerticalFrame);
+   histo_opts = new TGGroupFrame(fMain_histolist, "Options", kVerticalFrame);
    fHorizontalFrame = new TGHorizontalFrame(histo_opts,hWidth,50,kHorizontalFrame);
    G_histo_new_can = new TGCheckButton(fHorizontalFrame, "New canvas");
    G_histo_new_can->SetToolTipText("Draw in a new canvas");
    G_histo_new_can->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNewCanvas(Bool_t)");
-   G_histo_new_can->SetState(kButtonDown);
+   G_histo_new_can->SetState((EButtonState)fNewCanvas);
    fHorizontalFrame->AddFrame(G_histo_new_can, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
    G_histo_same = new TGCheckButton(fHorizontalFrame, "Same");
    G_histo_same->SetToolTipText("Draw in same pad");
@@ -479,11 +510,12 @@ void KVTreeAnalyzer::OpenGUI()
    fHorizontalFrame = new TGHorizontalFrame(histo_opts,hWidth,50,kHorizontalFrame);
    G_histo_log = new TGCheckButton(fHorizontalFrame, "Log scale");
    G_histo_log->SetToolTipText("Use log scale in Y (1D) or Z (2D)");
-   G_histo_log->SetEnabled(fDrawLog);
+   G_histo_log->SetState((EButtonState)fDrawLog);
    G_histo_log->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetDrawLog(Bool_t)");
    fHorizontalFrame->AddFrame(G_histo_log, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
    G_histo_norm = new TGCheckButton(fHorizontalFrame, "Normalize");
    G_histo_norm->SetToolTipText("Generate normalized histogram with integral=1");
+   G_histo_norm->SetState((EButtonState) fNormHisto );
    G_histo_norm->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNormHisto(Bool_t)");
    fHorizontalFrame->AddFrame(G_histo_norm, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
    histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsCenterX|kLHintsTop,2,2,2,2));
@@ -1242,11 +1274,13 @@ void KVTreeAnalyzer::DrawLeafExpr()
    name.Form("h%d",fHistoNumber);
    TString drawexp(fLeafExpr), histo, histotitle;
    GenerateHistoTitle(histotitle, fLeafExpr, "");
-   histo.Form(">>%s(%d,%f,%f,%d,%f,%f)", name.Data(), nx,xmin,xmax,ny,ymin,ymax);
+   if(!fProfileHisto) histo.Form(">>%s(%d,%f,%f,%d,%f,%f)", name.Data(), nx,xmin,xmax,ny,ymin,ymax);
+   else histo.Form(">>%s", name.Data());
    drawexp += histo;
    TString ww = "";
    if(fUserWeight) ww += fWeight;
-   fTree->Draw(drawexp, ww.Data(), "goff");
+   if(!fProfileHisto) fTree->Draw(drawexp, ww.Data(), "goff");
+   else  fTree->Draw(drawexp, "", "prof,goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
@@ -1384,8 +1418,6 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 {
    // Method called when user hits 'draw' button in TTree GUI and only one leaf/alias
    // is selected.
-   // NB. contrary to RemakeHisto, this method will always generate a new histogram,
-   // even if a histogram for exactly the same leaf/alias and selection(s) exists.
    
    TH1* histo = 0;
    if(obj->InheritsFrom("TLeaf")){
@@ -1393,9 +1425,9 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
       TString expr = leaf->GetName();
       TString type = leaf->GetTypeName();
       // check histo not already in list
-//       TString htit;
-//       GenerateHistoTitle(htit,expr,"");
-//       histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
+       TString htit;
+       GenerateHistoTitle(htit,expr,"");
+       histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
       if(!histo){
          if(type=="Int_t"||type=="Char_t"||type=="Short_t"){
             Int_t xmin = fTree->GetMinimum(expr);
@@ -1420,9 +1452,9 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
    else{
       TString expr = obj->GetTitle();
       // check histo not already in list
-//       TString htit;
-//       GenerateHistoTitle(htit,expr,"");
-//       histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
+       TString htit;
+       GenerateHistoTitle(htit,expr,"");
+       histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
       if(!histo) histo = MakeHisto(expr, "", 500);
       if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
       histo->Draw();

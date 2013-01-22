@@ -161,6 +161,8 @@ class KVTreeAnalyzer : public TNamed
    TNamed* fYLeaf;//!
    TNamed* fZLeaf;//!
    TGTextEntry* G_alias_text;//!
+   TGCheckButton* G_histo_prof;//!
+   Bool_t fProfileHisto;//!
    TGCheckButton* G_histo_bin;//!
    Bool_t fUserBinning;//!
    TGCheckButton* G_histo_weight;//!
@@ -305,6 +307,7 @@ class KVTreeAnalyzer : public TNamed
    void SetDrawLog(Bool_t yes=kTRUE){fDrawLog=yes;};
    void SetApplySelection(Bool_t yes=kTRUE){fApplySelection=yes;};
    void SetSwapLeafExpr(Bool_t yes=kTRUE){fSwapLeafExpr=yes;LeafChanged();};
+   void SetProfileHisto(Bool_t yes=kTRUE){fProfileHisto=yes;};
    void LeafChanged();
    void HistoSelectionChanged();
    void Save();

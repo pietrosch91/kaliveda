@@ -969,3 +969,10 @@ KaliVedaGUI.MaxColWidth:       500
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    no
+
+# Controls which options are set at start up of KVTreeAnalyzer
+KVTreeAnalyzer.LogScale:         off
+KVTreeAnalyzer.UserBinning:           off
+KVTreeAnalyzer.UserWeight:       off
+KVTreeAnalyzer.NewCanvas:      off
+KVTreeAnalyzer.Normalize:      off
