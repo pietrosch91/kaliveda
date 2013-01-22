@@ -44,7 +44,9 @@ void KVZmax::init_KVZmax(void)
    fSorted = kFALSE;
 	//set up list of indices
 	for(register int i=1;i<=50;i++)
-		SetNameIndex( Form("Zmax%d",i), i );
+        SetNameIndex( Form("Zmax%d",i), i-1 );
+    fValueType='I'; // integer values
+    SetMaxNumBranches(3);
 }
 
 //_________________________________________________________________
@@ -219,21 +221,21 @@ KVNucleus *KVZmax::GetZmax(Int_t i)
 //_________________________________________________________________
 Double_t KVZmax::getvalue_int(Int_t i)
 {
-   //returns the Z of the i_th heaviest fragment
-	// i=1 : Zmax
-	// i=2 : Zmax2
+   //returns the Z of the (i+1)_th heaviest fragment
+    // i=0 : Zmax
+    // i=1 : Zmax2
 	// etc.
 	
-   if (!GetZmax(i))
+   if (!GetZmax(i+1))
       return -1.0;
-   return (Double_t) GetZmax(i)->GetZ();
+   return (Double_t) GetZmax(i+1)->GetZ();
 }
 
 //_________________________________________________________________
 Double_t KVZmax::getvalue_void(void) const
 {
    //Returns Z of heaviest fragment
-   return (const_cast < KVZmax * >(this)->getvalue_int(1));
+   return (const_cast < KVZmax * >(this)->getvalue_int(0));
 }
 
 //_________________________________________________________________
@@ -252,6 +254,6 @@ Double_t *KVZmax::GetValuePtr(void)
    }
    Double_t *v = new Double_t[size_event];
    for (UInt_t u = 0; u < size_event; u++)
-      v[u] = GetValue(u + 1);
+      v[u] = GetValue(u);
    return v;
 }

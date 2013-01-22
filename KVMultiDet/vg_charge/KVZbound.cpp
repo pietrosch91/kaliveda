@@ -78,6 +78,8 @@ void KVZbound::init_KVZbound(void)
 
    zmin = 3;
    zmax = 0;
+
+   fValueType='I'; //integer values
 }
 
 //_________________________________________________________________

@@ -33,6 +33,7 @@ void KVMultLeg::init_KVMultLeg(void)
    nb_crea++;
 
    zmax = 2;
+   fValueType='I';// integer values
 }
 
 //_________________________________________________________________

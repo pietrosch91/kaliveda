@@ -235,10 +235,10 @@ void KVGVList::MakeBranches(TTree* tree)
    //   GVname.ValueName
    
    if(!tree) return;
-   if(fNbBranch>=MAX_CAP_BRANCHES) return;
+   if(fNbIBranch>=MAX_CAP_BRANCHES && fNbBranch>=MAX_CAP_BRANCHES) return;
    
 	TIter next(this); TObject*ob;
-   while ((ob = next()) && fNbBranch<MAX_CAP_BRANCHES) {
+   while ((ob = next())) {
       
       if(((KVVarGlob*)ob)->GetNumberOfValues()>1){
       	// multi-valued variable
@@ -246,14 +246,30 @@ void KVGVList::MakeBranches(TTree* tree)
       		// replace any nasty mathematical symbols which could pose problems
       		// in names of TTree leaves/branches
       	   TString sane_name( ((KVVarGlob*)ob)->GetValueName(i) );
-      	   sane_name.ReplaceAll("*", "star");
-      		tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()),
-      			&fBranchVar[ fNbBranch++ ], Form("%s_%s/D", ob->GetName(), sane_name.Data()));
-      	}
+           sane_name.ReplaceAll("*", "star");
+           if(((KVVarGlob*)ob)->GetValueType(i)=='I')
+           {
+               if(fNbIBranch<MAX_CAP_BRANCHES)  tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()), &fIBranchVar[ fNbIBranch++ ], Form("%s.%s/I", ob->GetName(), sane_name.Data()) );
+           }
+           else
+           {
+                if(fNbBranch<MAX_CAP_BRANCHES)  tree->Branch( Form("%s.%s", ob->GetName(), sane_name.Data()), &fBranchVar[ fNbBranch++ ], Form("%s.%s/D", ob->GetName(), sane_name.Data()) );
+           }
+           if(fNbIBranch==MAX_CAP_BRANCHES) break;
+           if(fNbBranch==MAX_CAP_BRANCHES) break;
+        }
       }
       else
-      	tree->Branch( ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
-      
+      {
+          if(((KVVarGlob*)ob)->GetValueType(0)=='I')
+          {
+             if(fNbIBranch<MAX_CAP_BRANCHES)   tree->Branch( ob->GetName(), &fIBranchVar[ fNbIBranch++ ], Form("%s/I", ob->GetName()));
+          }
+          else
+          {
+               if(fNbBranch<MAX_CAP_BRANCHES)    tree->Branch( ob->GetName(), &fBranchVar[ fNbBranch++ ], Form("%s/D", ob->GetName()));
+          }
+      }
    }
 }
 
@@ -269,18 +285,21 @@ void KVGVList::FillBranches()
    
    if( !fNbBranch ) return; // MakeBranches has not been called
    
-   int i=0;
+   int INT_index=0;
+   int FLT_index=0;
 	TIter next(this); KVVarGlob*ob;
-   while ((ob = (KVVarGlob*)next()) && fNbBranch<MAX_CAP_BRANCHES) {
+   while ((ob = (KVVarGlob*)next())) {
             
-      if(((KVVarGlob*)ob)->GetNumberOfValues()>1){
+      if(ob->GetNumberOfValues()>1){
       	// multi-valued variable
-      	for(int j=0; j<((KVVarGlob*)ob)->GetNumberOfValues(); j++){
-      		fBranchVar[ i++ ] = ob->GetValue(j);
+        for(int j=0; j<ob->GetNumberOfValues(); j++){
+            if(ob->GetValueType(j)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue(j);
+            else fBranchVar[ FLT_index++ ] = ob->GetValue(j);
       	}
       }
-      else
-      	fBranchVar[ i++ ] = ob->GetValue();      
-		
+      else{
+          if(ob->GetValueType(0)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue();
+          else fBranchVar[ FLT_index++ ] = ob->GetValue();
+        }
    }
 }
