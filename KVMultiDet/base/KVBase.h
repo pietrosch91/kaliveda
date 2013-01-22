@@ -124,7 +124,7 @@ class KVBase:public TNamed {
    
    static Bool_t AreEqual(Double_t x, Double_t y, Long64_t maxdif=1);
    
-   static Bool_t OpenContextMenu(const char* method, TObject* obj);
+   static Bool_t OpenContextMenu(const char* method, TObject* obj, const char* alt_method_name = "");
 
    ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
 };

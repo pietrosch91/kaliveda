@@ -1014,15 +1014,25 @@ Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
     return false;
 }
 
-Bool_t KVBase::OpenContextMenu(const char* method, TObject* obj)
+Bool_t KVBase::OpenContextMenu(const char* method, TObject* obj, const char *alt_method_name)
 {
+    // Open context menu for given method of object *obj.
+    // By default title of menu is 'obj->ClassName()::method'
+    // You can give an alternative method name in 'alt_method_name'
+    // Returns kFALSE if the given method is not defined for the class of object in question.
+    //
+    // WARNING: even if this method returns kTRUE, this is no guarantee that the method
+    // has indeed been executed. The user may have pressed the 'Cancel' button...
+
    TMethod* m = obj->IsA()->GetMethodAllAny(method);
    if(!m)
      {
      obj->Warning("OpenContextMenu","%s is not a method of %s",method,obj->ClassName());
      return kFALSE;
      }
-   TContextMenu * cm = new TContextMenu(method, Form("%s::%s",obj->ClassName(),method));
+   TString Method=alt_method_name;
+   if(Method=="") Method=method;
+   TContextMenu * cm = new TContextMenu(Method, Form("%s::%s",obj->ClassName(),Method.Data()));
    cm->Action(obj,m);
    delete cm;
    return kTRUE;
