@@ -167,7 +167,7 @@ class KVTreeAnalyzer : public TNamed
    Bool_t fUserBinning;//!
    TGCheckButton* G_histo_weight;//!
    Bool_t fUserWeight;//!
-   const char* fWeight;
+   TString fWeight;//!
    
    Int_t fNx,fNy;//
    Double_t fXmin,fXmax,fYmin,fYmax;//
@@ -240,6 +240,11 @@ class KVTreeAnalyzer : public TNamed
    KVList fAliasList;//list of TTree aliases
    Bool_t fNoGui;//! =kTRUE if no graphical interface is required
    
+   Bool_t fMethodCalled;//! allows to know if context menu methods are called
+
+   void ResetMethodCalled() { fMethodCalled=kFALSE; }
+   Bool_t MethodNotCalled() { return !fMethodCalled; }
+
    void AddHisto(TH1*);
    void AddCut(TCutG*);
    void AddSelection(TEntryList*);
@@ -338,11 +343,11 @@ class KVTreeAnalyzer : public TNamed
    void DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax);// *MENU* *ARGS={Nx=>fNx,Ny=>fNy,Xmin=>fXmin,Xmax=>fXmax,Ymin=>fYmin,Ymax=>fYmax} 
    void DefineUserBinning1F(Int_t NxF, Double_t XminF, Double_t XmaxF);// *MENU* *ARGS={NxF=>fNxF,XminF=>fXminF,XmaxF=>fXmaxF} 
    void DefineUserBinningD(Int_t NxD, Int_t NyD, Int_t ordered);// *MENU* *ARGS={NxD=>fNxD,NyD=>fNyD,ordered=>fOrderedDalitz}
-   void DefineWeight(const char* Weight);// *MENU* *ARGS={Weight=>fWeight} 
+   void DefineWeight(const Char_t* Weight);// *MENU* *ARGS={Weight=>fWeight}
    
    
    void HandleHistoFileMenu(Int_t); 
-   ClassDef(KVTreeAnalyzer,1)//KVTreeAnalyzer
+   ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
 };
 
 #endif
