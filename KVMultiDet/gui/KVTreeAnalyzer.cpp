@@ -1912,6 +1912,7 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
           if(TClass::GetClass(akey->GetClassName())->InheritsFrom("TH1")){
              TH1*h=(TH1*)fHistolist.FindObject(akey->GetName());
              if(!h) h = (TH1*)file->Get(akey->GetName());
+             if(h->InheritsFrom("TH2")) h->SetOption("col");
              h->SetDirectory(0);
              fHistolist.Add(h);
          }
