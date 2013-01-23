@@ -41,6 +41,14 @@ class KVIDCsI:public KVINDRAIDTelescope {
    const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
 
    virtual void Initialize();
+   virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
+   {
+       // Used for filtering simulations
+       // Returns kTRUE if this telescope is theoretically capable of identifying a given nucleus,
+       // without considering thresholds etc.
+       // For INDRA CsI Rapide-Lente detectors, identification is possible up to Z=5
+       return (Z<6);
+   }
 
     ClassDef(KVIDCsI, 3)        //INDRA identification using CsI R-L matrices
 };

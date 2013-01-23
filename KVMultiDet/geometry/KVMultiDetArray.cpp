@@ -919,14 +919,21 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		Double_t eLostInTarget=0;
 				KVDetector* last_det = 0;
 		
-		if (_part->GetKE()<1.e-3) { 
-			det_stat->SetValue("UNDETECTED","NO ENERGY");
-			
-			part->AddGroup("UNDETECTED"); 
-			part->AddGroup("NO ENERGY"); 
-			
-		}
-		else {
+                if (part->GetZ()==0) {
+                    det_stat->SetValue("UNDETECTED","NEUTRAL");
+
+                    part->AddGroup("UNDETECTED");
+                    part->AddGroup("NEUTRAL");
+
+                }
+                else if (_part->GetKE()<1.e-3) {
+                    det_stat->SetValue("UNDETECTED","NO ENERGY");
+
+                    part->AddGroup("UNDETECTED");
+                    part->AddGroup("NO ENERGY");
+
+                }
+        else {
 		
 			//Double_t eLostInTarget=0;
 			if (fTarget){
@@ -1023,7 +1030,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 						
 						lidtel = last_det->GetTelescopesForIdentification();
 						if (lidtel->GetEntries()==0 && last_det->GetEnergy()<=0){
-							//Arret dans un absorbeur (unactive layer, mylar pour les ChIo par ex)
+                            //Arret dans un absorbeur
 							det_stat->SetValue("UNDETECTED","THRESHOLD");
 							
 							part->AddGroup("UNDETECTED");
@@ -1044,8 +1051,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							}
 							else if (last_det->GetEnergy()>0){
 								//Il n'y a pas de possibilite d'identification
-								//arret dans une ChIo ou  un Si qui sont le
-								//premier etage de detection 
+                                //arret dans le premier etage de detection
 								det_stat->SetValue("DETECTED","INCOMPLETE");
 								part->AddGroup("INCOMPLETE");
 							}
@@ -1061,26 +1067,30 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 							//Test d'une energie residuelle non nulle
 							//La particule n a pas ete arrete par le detecteur
 							if (_part->GetKE()>1.e-3){
-								if (nbre_nvl != Int_t(last_det->GetGroup()->GetNumberOfDetectorLayers())){
+                                //Pour ces deux cas
+                                //on a une information incomplete
+                                //pour la particule
+                                if (nbre_nvl != Int_t(last_det->GetGroup()->GetNumberOfDetectorLayers())){
 									//----
 									// Fuite, 
 									// la particule a loupe des detecteurs normalement aligne
 									// avec le dernier par laquelle elle est passee
 									// (ceci peut etre du a un pb de definition de la geometrie)
-									Warning("DetectEvent","Fuite ......");
+                                    det_stat->SetValue("UNDETECTED","GEOMETRY INCOHERENCY");
+
+                                    part->AddGroup("UNDETECTED");
+                                    part->AddGroup("GEOMETRY INCOHERENCY");
+                                    //Warning("DetectEvent","Fuite ......");
 								}
 								else {
 									//----
 									// Punch Through,
 									// La particule est trop energetique, elle a traversee
 									// tout l'appareillage de detection
-									Warning("DetectEvent","Punch Through ......");
-								}
-								//Pour ces deux cas
-								//on a une information incomplete
-								//pour la particule
-								part->AddGroup("PUNCH THROUGH");
-								det_stat->SetValue("DETECTED","PUNCH THROUGH");
+                                    //Warning("DetectEvent","Punch Through ......");
+                                    part->AddGroup("PUNCH THROUGH");
+                                    det_stat->SetValue("DETECTED","PUNCH THROUGH");
+                                }
 							}
 						}
 					}
@@ -1094,7 +1104,16 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		//On enregistre le detecteur ou la particule s'arrete
       if(last_det) part->GetParameters()->SetValue("STOPPING DETECTOR", last_det->GetName());
 		//On enregistre le telescope d'identification
-      if(lidtel && lidtel->GetEntries()) part->GetParameters()->SetValue("IDENTIFYING TELESCOPE", lidtel->First()->GetName());
+      if(lidtel && lidtel->GetEntries()) {
+          KVIDTelescope* theIDT=0;
+          TIter nextIDT(lidtel);
+          while( (theIDT = (KVIDTelescope*)nextIDT())){
+              if(theIDT->CanIdentify(part->GetZ(), part->GetA())){
+                  part->GetParameters()->SetValue("IDENTIFYING TELESCOPE", theIDT->GetName());
+                  break;
+              }
+          }
+      }
 		//On enregistre le statut de detection
 		for (Int_t ii=0;ii<det_stat->GetNpar();ii+=1){
 			part->GetParameters()->SetValue(det_stat->GetNameAt(ii),det_stat->GetStringValue(ii));
@@ -1145,7 +1164,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	   while ((part = event->GetNextParticle())) {
          if(part->BelongsToGroup("DETECTED") || 
                (part->BelongsToGroup("UNDETECTED")&&
-                  !part->BelongsToGroup("DEAD ZONE")&&!part->BelongsToGroup("GEOMETRY INCOHERENCY"))
+                  !part->BelongsToGroup("DEAD ZONE")&&!part->BelongsToGroup("GEOMETRY INCOHERENCY")&&!part->BelongsToGroup("NEUTRAL")&&!part->BelongsToGroup("NO ENERGY"))
             ){
             KVDetector* last_det = 0;
             if(part->GetParameters()->HasParameter("STOPPING DETECTOR"))
@@ -1154,7 +1173,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             KVReconstructedNucleus* recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
             recon_nuc->Reconstruct(last_det);
             recon_nuc->SetZandA(part->GetZ(),part->GetA());
-            recon_nuc->SetE(part->GetE());
+            recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
             recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
             recon_nuc->SetIsIdentified();
             recon_nuc->SetZMeasured();
@@ -1197,7 +1216,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                   // for particles which are apprently well-identified, we
                   // check that they are in fact sufficiently energetic to be identified
                   if(!part->BelongsToGroup("INCOMPLETE")
-                     && !idt->CheckTheoreticalIdentificationThreshold(part)) part->AddGroup("INCOMPLETE");
+                     && !idt->CheckTheoreticalIdentificationThreshold((KVNucleus*)part->GetFrame(detection_frame))) part->AddGroup("INCOMPLETE");
                   if(!part->BelongsToGroup("INCOMPLETE")) {
                      recon_nuc->SetIDCode(idt->GetIDCode());
                      recon_nuc->SetZMeasured();
@@ -1206,7 +1225,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                   else {
                      recon_nuc->SetIDCode(idt->GetZminCode());
                   }
-                  recon_nuc->SetE(part->GetE());
+                  recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
                   recon_nuc->SetECode(idt->GetECode());
                   recon_nuc->SetIsIdentified();
                   recon_nuc->SetIsCalibrated();

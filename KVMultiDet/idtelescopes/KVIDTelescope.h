@@ -175,6 +175,15 @@ class KVIDTelescope:public KVBase {
       return 0;
    };
    virtual Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus* /*ION*/, Double_t /*EINC*/ = 0.0);
+    virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
+    {
+        // Used for filtering simulations
+        // Returns kTRUE if this telescope is theoretically capable of identifying a given nucleus,
+        // without considering thresholds etc.
+        // By default this method returns true for Z>0, i.e. all KVIDTelescopes are in principle
+        // dE-E telescopes used to identify charged ions.
+        return (Z>0);
+    }
 
 	ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };
