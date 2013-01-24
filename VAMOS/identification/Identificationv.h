@@ -207,6 +207,8 @@ Double_t E_gap1;
 Double_t E_chio;
 Double_t E_gap2;
 Double_t E_csi;
+
+Float_t E_VAMOS;
 //===================================================
 	
   int Geometry(UShort_t, UShort_t); //method to reconstruct VAMOS telescopes

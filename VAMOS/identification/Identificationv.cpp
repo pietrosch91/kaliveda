@@ -60,13 +60,17 @@ for(Int_t i=0;i<600;i++){
 	P1_mq[i] = 0.;
 	P0_mq_chiosi[i] = 0.;
 	P1_mq_chiosi[i] = 0.;
+	P0_mq_sitof[i] = 0.;
+	P1_mq_sitof[i] = 0.;   
 	Tof0[i] = 0;
 	Esi0[i] = 0;	
 	for(Int_t j=0;j<25;j++){
 		P0_m[i][j] = 0.;
 		P1_m[i][j] = 0.;
 		P0_m_chiosi[i][j] = 0.;
-		P1_m_chiosi[i][j] = 0.;		
+		P1_m_chiosi[i][j] = 0.;	
+		P0_m_sitof[i][j] = 0.;
+		P1_m_sitof[i][j] = 0.;				
 		
 	}
 }
@@ -475,8 +479,8 @@ delete kvn;
 void Identificationv::Init(void)
 {
   Present = false; 
-
-  dE = dE1 = E = T = V = Vx = Vy = Vz = V2 = V_Etot = T_FP = M_Q = M = Mass = M_simul = Z1 = Z2 = Z_tot = Z_si = DetCsI = Beta = Q = D = -10;
+  DetCsI = -10;
+  dE = dE1 = E = E_VAMOS = T = V = Vx = Vy = Vz = V2 = V_Etot = T_FP = M_Q = M = Mass = M_simul = Z1 = Z2 = Z_tot = Z_si = Beta = Q = D = -10.0;
   M_Qr = Mr = Qr = -10.0;
   Qc = Mc = -10.0;
   Gamma = 1.; 
@@ -579,6 +583,8 @@ q10cs =NULL;
 q9cs =NULL;
 q8cs =NULL;
 q7cs =NULL;
+q6cs =NULL;
+q5cs =NULL;
 
 	if(llist2->IsZombie()==0){
 		//L->Log<<"reading cuts..."<<endl;	
@@ -598,6 +604,8 @@ q7cs =NULL;
 		if(((TCutG *)llist2->FindObject("q9"))!=0) q9cs = (TCutG *)llist2->FindObject("q9");
 		if(((TCutG *)llist2->FindObject("q8"))!=0) q8cs = (TCutG *)llist2->FindObject("q8");
 		if(((TCutG *)llist2->FindObject("q7"))!=0) q7cs = (TCutG *)llist2->FindObject("q7");
+		if(((TCutG *)llist2->FindObject("q6"))!=0) q6cs = (TCutG *)llist2->FindObject("q6");
+		if(((TCutG *)llist2->FindObject("q5"))!=0) q5cs = (TCutG *)llist2->FindObject("q5");		
 
 	}
 	else{
@@ -650,7 +658,7 @@ q6st =NULL;
 		if(((TCutG *)llist3->FindObject("q9"))!=0) q9st = (TCutG *)llist3->FindObject("q9");
 		if(((TCutG *)llist3->FindObject("q8"))!=0) q8st = (TCutG *)llist3->FindObject("q8");
 		if(((TCutG *)llist3->FindObject("q7"))!=0) q7st = (TCutG *)llist3->FindObject("q7");
-
+		if(((TCutG *)llist3->FindObject("q6"))!=0) q6st = (TCutG *)llist3->FindObject("q6");
 	}
 	else{
 		L->Log<<"not reading cuts (Chio-Si)..."<<endl;
@@ -1001,7 +1009,7 @@ if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(
 			energytree->CalculateESi(double(Si->E_Raw[y]));		
 			ESi = double(energytree->RetrieveEnergySi());	      
 	      		}
-			if(Geometry(Si->Number,CsI->Number)==1 && energytree->kvid != 0) // if csi is behind the si
+			if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(Si->Number==0 && CsI->Number==0)) && energytree->kvid != 0) // if csi is behind the si
    				{				   
    				//L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
    				//L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
@@ -1025,16 +1033,16 @@ if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(
 
                     				if(grd != 0 && double(Si->E_Raw[y])>0 && double(CsI->E_Raw[j])>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1){
                                  
-                                if(DebugIDV) 
+                                //if(DebugIDV) 
 		    					energytree->CalculateESi(double(Si->E_Raw[y]));						//Si calibration (signal->energy)
 							
 							//Identification according to the grid (csi,si)
-                         	if(DebugIDV) cout<<"Now identify from kvid"<<endl<<flush;
+                         	//if(DebugIDV) cout<<"Now identify from kvid"<<endl<<flush;
 							//L->Log<<"ECsIRaw_signal : "<<CsIRaw<<"	ESi : "<<energytree->eEnergySi<<endl;
 							if(energytree->kvid->IsIdentifiable(double(CsIRaw), double(energytree->eEnergySi) ) ){
 								Code_Ident_Vamos = 1;
 								energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
- 				if(DebugIDV) cout<<"Identify done"<<endl<<flush;
+ 				//if(DebugIDV) cout<<"Identify done"<<endl<<flush;
                                              			A_PID = id->A;
                         					Z_PID = id->Z;
                        						PID = id->PID;
@@ -1073,7 +1081,7 @@ if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(
     	}	//Si M
 //=================================================
 
-  if(Dr->E[0] > 0 && Dr->E[1] > 0 && Ic->ETotal > 0)
+  if( Ic->ETotal > 0 )	//Dr->E[0] > 0 && Dr->E[1] > 0 && 
     {
       //      dE += Dr->E[0];      
       //      dE += Dr->E[1];
@@ -1083,9 +1091,11 @@ if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(
       dE += dE*0.15;
 	if((dE1+ESi+ECsI)>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==1 || Code_Ident_Vamos==3) ){					//if(Si->ETotal > 0)
 		E = dE1 + ESi + EGap + ECsI;				//Total energy (MeV)	(ChIo, Si, estimated gap energy, CsI)
+		E_VAMOS = dE1 + ESi + EGap + ECsI;
 	}
 	if(CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==4 || Code_Ident_Vamos==10) ){
 		E = dE1 + ESi;
+		E_VAMOS = dE1 + ESi;
 	}
     }
 
@@ -1115,8 +1125,8 @@ if( Code_Ident_Vamos==4 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
  	//V_Etot = 1.39*sqrt(E/AA);
  	T_FP = ((Dr->FocalPos)/10.) / V_Etot;
 		   
- 	Vx = V*sin(Rec->ThetaL)*cos(Rec->PhiL);
- 	Vy = V*sin(Rec->ThetaL)*sin(Rec->PhiL);
+ 	Vx = V*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 	Vy = V*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
  	Vz = V*cos(Rec->ThetaL);
 
    	kin = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetSystem()->GetKinematics();
@@ -1145,10 +1155,11 @@ if( Code_Ident_Vamos==4 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
  		E_tgt = GetEnergyLossTarget();
 		
 		E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;	//Correction on the total energy based on the Silicon energy (E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1)
+		E_VAMOS += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;
 	}
 	// Correction on the total energy Chio-Si Identification
 	// A/Q and A corrections don't depend on corrected energy, but only on EChio+ESi
-	if( CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==10) ){ 
+	if( CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==4 || Code_Ident_Vamos==10) ){ 
 		E_csi = GetEnergyLossCsI(Si->Number+1);   		 
 		E_gap2 = GetEnergyLossGap2(Si->Number+1); //gap Si-CsI     
 		E_gap1 = GetEnergyLossGap1(Si->Number+1); //gap Chio-Si	
@@ -1158,7 +1169,11 @@ if( Code_Ident_Vamos==4 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
  		E_dc1 = GetEnergyLossDC1();
  		E_tgt = GetEnergyLossTarget();	
 		
-		E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1 + E_gap2 + E_csi;	
+		if(Code_Ident_Vamos==2)	 E_VAMOS += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;
+		if(Code_Ident_Vamos==10){
+			E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1 + E_gap2;
+			E_VAMOS += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1 + E_gap2;
+		}	
 	} 					
       //===============================================================
       
@@ -1206,10 +1221,11 @@ if( Code_Ident_Vamos==4 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
 //==========================================================================
 // Gates en Brho et état de charge pour la détermination des états de charges
 // Brho/Q gates to determine the charge state value (interger)
-// Identifications Si-CsI and Chio-Si
+// Identifications Si-CsI, Chio-Si and Si-ToF.
 
 GetFileCut();
 GetFileCutChioSi();
+GetFileCutSiTof();
  
 //====================================================================================================
 // Second Q correction, by correcting the M and M/Q value
@@ -1320,7 +1336,7 @@ GetFileCutChioSi();
 	}
 	
 	Q_corr_D2 = M_corr_D2 / M_Qcorr;
-	Q2 = TMath::Floor(Q_corr_D2+0.5);	
+	Q2 = int(TMath::Floor(Q_corr_D2+0.5));	
 	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;   	
     	}	            
 // End of the second Q correction : Si-CsI Identification
@@ -1335,8 +1351,22 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==2 )
     {   		
 	// Correction de M en fonction du Brho et de l'état de charge Q
 	// M correction according the Brho value and the charge state Q
-
-	if(q8cs!=NULL && q8cs->IsInside(Rec->Brho,Q)==1)
+	if(q5cs!=NULL && q5cs->IsInside(Rec->Brho,Q)==1)
+	{
+	Qid = 5;	
+	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
+	}
+	else if(q6cs!=NULL && q6cs->IsInside(Rec->Brho,Q)==1)
+	{
+	Qid = 6;	
+	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
+	}	
+	else if(q7cs!=NULL && q7cs->IsInside(Rec->Brho,Q)==1)
+	{
+	Qid = 7;	
+	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
+	}
+	else if(q8cs!=NULL && q8cs->IsInside(Rec->Brho,Q)==1)
 	{
 	Qid = 8;	
 	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
@@ -1413,7 +1443,7 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==2 )
 	}
 	
 	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
-	Q2 = TMath::Floor(Q_corr_D2+0.5);	
+	Q2 = int(TMath::Floor(Q_corr_D2+0.5));	
 	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;      
    	
     	}	
@@ -1426,7 +1456,7 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
 	M_Qcorr = P0_mq_sitof[runNumber] + (P1_mq_sitof[runNumber]*M_Q);     
     }
     
-    if(Q>0 && llist2->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
+    if(Q>0 && llist3->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
     {   		
 	// Correction de M en fonction du Brho et de l'état de charge Q
 	// M correction according the Brho value and the charge state Q
@@ -1517,7 +1547,7 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
 	}
 	
 	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
-	Q2 = TMath::Floor(Q_corr_D2+0.5);	
+	Q2 = int(TMath::Floor(Q_corr_D2+0.5));	
 	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;      
    	
     	}	
@@ -1527,31 +1557,31 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
 // Flag the events
 
 // Code_Vamos : 
-// Code_Vamos = 1 : Fragment à l'intérieur de la région d'intérêt et Q correct (Z-4<Q<Z+1)
+// Code_Vamos = 1 : Fragment à l'intérieur de la région d'intérêt et Q correct (Z-3<Q<Z+1)
 // Code_Vamos = 2 : Fragment à l'extérieur de la région d'intérêt, mais dont Q est correct
 // Code_Vamos = 3 : Fragment à l'intérieur de la région d'intérêt et Q>Z
-// Code_Vamos = 4 : Fragment à l'intérieur de la région d'intérêt et Q<Z-4
+// Code_Vamos = 4 : Fragment à l'intérieur de la région d'intérêt et Q<Z-3
 // Code_Vamos = 5 : Fragment à l'extérieur de la région d'intérêt et Q>Z
-// Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-4
+// Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-3
 // Code_Vamos = 13 : Else
     
   if(Z_corr>4 && Z_corr<21 && Qid>0 && M_realQ>0){	// Flag les events pour Z = 5-20 et Qid>0
-    if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-4){
+    if( Rec->Brho >= Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-3){
 		Code_Vamos = 1;
 	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid<Z_corr+1 && Qid>Z_corr-4){
+    else if( ((Rec->Brho < Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber])) && Qid<Z_corr+1 && Qid>Z_corr-3){
     		Code_Vamos = 2;
     	}	
-    else if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid>Z_corr){
+    else if( Rec->Brho >= Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Qid>Z_corr){
 		Code_Vamos = 3;
 	}
-    else if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr-4){
+    else if( Rec->Brho >= Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Qid<Z_corr-3){
     		Code_Vamos = 4;
     	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid>Z_corr){
+    else if( ((Rec->Brho < Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber])) && Qid>Z_corr){
 		Code_Vamos = 5;
 	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid<Z_corr-4 && Qid>0){
+    else if( ((Rec->Brho < Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber])) && Qid<Z_corr-3 && Qid>0){
     		Code_Vamos = 6;
     	}		
 	else{
@@ -1561,7 +1591,8 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
 //====================================================================================================
     
 NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
-DT = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT");
+//Correction du temps mort : 1.0 / (1.0-DT(%)) (/ 6.21295660000000000e+07 pour que correction soit de l'ordre de l'unité)
+DT = 1.0/(1.0 - (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT")/100.0) );
 FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
 Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho");   
 stat_tot = 0.;
@@ -1648,14 +1679,19 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("ESi",&ESi,"ESi/D");
 	outT->Branch("ECsI",&ECsI,"ECsI/D");
 	outT->Branch("Brho_0",&Brho_mag,"Brho_mag/D");
+	outT->Branch("DTcorr",&DT,"DT/D");
 	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");
 	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");
 	outT->Branch("Code_Vamos", &Code_Vamos, "Code_Vamos/I");
 	outT->Branch("Code_Ident_Vamos", &Code_Ident_Vamos, "Code_Ident_Vamos/I");	
-	outT->Branch("E",&E,"E/F");
+	//outT->Branch("E",&E,"E/F");
+	outT->Branch("E",&E_VAMOS,"E_VAMOS/F");
 	outT->Branch("T",&T,"T/F");	
 	outT->Branch("D",&D,"D/F");
 	outT->Branch("V_VAMOS",&V,"V/F");
+	outT->Branch("Vx_VAMOS",&Vx,"Vx/F");
+	outT->Branch("Vy_VAMOS",&Vy,"Vy/F");
+	outT->Branch("Vz_VAMOS",&Vz,"Vz/F");		
 	outT->Branch("Beta",&Beta,"Beta/F");
 	outT->Branch("AQ_VAMOS", &M_Qcorr, "M_Qcorr/F");
 	outT->Branch("RealZ_VAMOS",&PID,"PID/D");

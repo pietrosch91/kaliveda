@@ -497,7 +497,7 @@ void DriftChamberv::Calibrate(void)
   if(T[1] > 0.0) Counter[4]++;
 	//L->Log<<"E[0] : "<<E[0]<<" "<<"E[1] : "<<E[1]<<" "<<"T[0] : "<<T[0]<<" "<<"T[1] : "<<T[1]<<endl;
 	
-  if(E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0)	//E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
+  if(T[0] > 0.0 && T[1] > 0.0)	//E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
     {
     PresentWires = true;
     Counter[5]++;
@@ -978,7 +978,7 @@ void DriftChamberv::outAttach(TTree *outT)
   cout << "Attaching Drift variables" << endl;
 #endif
 
-  /*outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
+  outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
   outT->Branch("DcEWire2",&E[1],"DcEWire2/F");
   outT->Branch("DcTWire1",&T_DCfrag[0],"DcTWire1/F");
   outT->Branch("DcTWire2",&T_DCfrag[1],"DcTWire2/F");  
@@ -986,7 +986,7 @@ void DriftChamberv::outAttach(TTree *outT)
   outT->Branch("DcX1",&X[0],"DcX1/F");
   outT->Branch("DcX2",&X[1],"DcX2/F");
   outT->Branch("DcX3",&X[2],"DcX3/F");
-  outT->Branch("DcX4",&X[3],"DcX4/F");*/
+  outT->Branch("DcX4",&X[3],"DcX4/F");
 
   //  outT->Branch("DcXS1",&XS[0],"DcXS1/F");
   //  outT->Branch("DcXS2",&XS[1],"DcXS2/F");
@@ -998,13 +998,13 @@ void DriftChamberv::outAttach(TTree *outT)
   //  outT->Branch("DcXWA3",&XWA[2],"DcXWA3/F");
   //  outT->Branch("DcXWA4",&XWA[3],"DcXWA4/F");
 
-  /*outT->Branch("DcY1",&Y[0],"DcY1/F");
+  outT->Branch("DcY1",&Y[0],"DcY1/F");
   outT->Branch("DcY2",&Y[1],"DcY2/F");
 
   outT->Branch("Xf",&Xf,"Xf/F");
   outT->Branch("Tf",&Tf,"Tf/F");
   outT->Branch("Yf",&Yf,"Yf/F");
-  outT->Branch("Pf",&Pf,"Pf/F");*/
+  outT->Branch("Pf",&Pf,"Pf/F");
 
   //  outT->Branch("Xf1",&Xf1,"Xf1/F");
 
