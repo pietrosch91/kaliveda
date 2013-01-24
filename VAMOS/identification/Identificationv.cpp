@@ -1588,6 +1588,9 @@ if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
 		Code_Vamos = 13;
 	}
   }
+  else{
+		Code_Vamos = 0;
+ }
 //====================================================================================================
     
 NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
