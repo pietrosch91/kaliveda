@@ -48,6 +48,7 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
+   Double_t GetEnergyFromVolts(Double_t volts = 0.0);
    virtual Double_t GetEnergy();
 
    void SetACQParams();

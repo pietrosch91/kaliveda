@@ -271,6 +271,19 @@ Double_t KVChIo::GetVolts()
    return 0;
 }
 
+//____________________________________________________________________________________________
+
+Double_t KVChIo::GetEnergyFromVolts(Double_t volts){
+   	//Calculate energy in MeV from calibrated detector signal in 
+   	//Volts. If 'volts' is not given, the value in volt returned 
+   	//by GetVolts().
+
+   	if (fVoltE && fVoltE->GetStatus()){
+		if(!volts) volts = GetVolts();
+      	return fVoltE->Compute( volts );
+	}
+	return 0.;
+}
 
 //____________________________________________________________________________________________
 
