@@ -193,7 +193,7 @@ void KVMultiDetArray::init()
     fCalibStatusDets = 0;
 	 fSimMode = kFALSE;
     
-    fROOTGeometry=gEnv->GetValue("KVMultiDetArray.FilterUsesROOTGeometry", "kTRUE");
+    fROOTGeometry=gEnv->GetValue("KVMultiDetArray.FilterUsesROOTGeometry", kTRUE);
     fFilterType=kFilterType_Full;
 }
 
@@ -920,10 +920,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 				KVDetector* last_det = 0;
 		
                 if (part->GetZ()==0) {
-                    det_stat->SetValue("UNDETECTED","NEUTRAL");
+                    det_stat->SetValue("UNDETECTED","NEUTRON");
 
                     part->AddGroup("UNDETECTED");
-                    part->AddGroup("NEUTRAL");
+                    part->AddGroup("NEUTRON");
 
                 }
                 else if (_part->GetKE()<1.e-3) {
@@ -1198,6 +1198,17 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
        Those in "INCOMPLETE" group are treated as Zmin particles
    */
    if(fFilterType == kFilterType_GeoThresh){
+       // before reconstruction we have to clear the list of 'hits' of each detector
+       // (they currently hold the addresses of the simulated particles which were detected)
+       // which will be filled with the reconstructed particles, otherwise the number of hits
+       // in each detector will be 2x the real value, and coherency analysis of the reconstructed
+       // events will not work
+       KVGroup *grp_tch;
+       TIter nxt_grp(fHitGroups->GetGroups());
+      while ((grp_tch = (KVGroup *) nxt_grp())) {
+       grp_tch->ClearHitDetectors();
+      }
+       KVReconstructedNucleus* recon_nuc;
 	   while ((part = event->GetNextParticle())) {
          if(part->BelongsToGroup("DETECTED"))
             {
@@ -1205,9 +1216,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             if(part->GetParameters()->HasParameter("STOPPING DETECTOR"))
                last_det = GetDetector(part->GetParameters()->GetStringValue("STOPPING DETECTOR"));
             if(!last_det) continue;
-            KVReconstructedNucleus* recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
+            recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
             recon_nuc->Reconstruct(last_det);
-            recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
+           // recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
             if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
                if(idt){
@@ -1219,26 +1230,133 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                      && !idt->CheckTheoreticalIdentificationThreshold((KVNucleus*)part->GetFrame(detection_frame))) part->AddGroup("INCOMPLETE");
                   if(!part->BelongsToGroup("INCOMPLETE")) {
                      recon_nuc->SetIDCode(idt->GetIDCode());
-                     recon_nuc->SetZMeasured();
-                     if(idt->HasMassID()) recon_nuc->SetAMeasured();
+                     //recon_nuc->SetZMeasured();
+                     //if(idt->HasMassID()) recon_nuc->SetAMeasured();
                   }
                   else {
                      recon_nuc->SetIDCode(idt->GetZminCode());
                   }
                   recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
                   recon_nuc->SetECode(idt->GetECode());
-                  recon_nuc->SetIsIdentified();
-                  recon_nuc->SetIsCalibrated();
+                  //recon_nuc->SetIsIdentified();
+                  //recon_nuc->SetIsCalibrated();
                }
             }
             else if(part->BelongsToGroup("INCOMPLETE")){
                // for particles stopping in 1st member of a telescope, there is no "identifying telescope"
                KVIDTelescope* idt = (KVIDTelescope*)last_det->GetIDTelescopes()->First();
+               recon_nuc->SetZ(part->GetZ());
                if(idt) recon_nuc->SetIDCode(idt->GetZminCode());
             }
             recon_nuc->GetAnglesFromTelescope();
          }
       }
+       // analyse all groups & particles
+       while ((recon_nuc = rec_event->GetNextParticle())) {
+           if(recon_nuc->GetStatus()==99) recon_nuc->GetGroup()->AnalyseParticles();
+       }
+       while ((recon_nuc = rec_event->GetNextParticle())) {
+           if(!recon_nuc->IsIdentified()){
+                int dethits = recon_nuc->GetStoppingDetector()->GetHits()->GetEntries() ;
+                KVIDTelescope* idtelstop = ((KVIDTelescope*)recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification()->First());
+                Bool_t pileup=kFALSE;
+                if(dethits > 1){
+                    // if any of the other particles also stopped in the same detector, we assume identification
+                    // will be so false as to reject particle
+                    for(int j=0;j<dethits;j++){
+                        KVReconstructedNucleus*n=(KVReconstructedNucleus*)recon_nuc->GetStoppingDetector()->GetHits()->At(j);
+                        if(n!=recon_nuc && n->GetStoppingDetector() == recon_nuc->GetStoppingDetector()) pileup=kTRUE;
+                    }
+                }
+                if(pileup){
+                    recon_nuc->SetIsIdentified();//to stop looking anymore & to allow identification of other particles in same group
+                    if(idtelstop) recon_nuc->SetIDCode(idtelstop->GetBadIDCode());
+                    else recon_nuc->SetIsOK(kFALSE);
+                }
+                else if(recon_nuc->GetStatus()==3){
+                    //stopped in first member
+                    recon_nuc->SetIsIdentified();
+                }
+                else if(recon_nuc->GetStatus()==0){
+                    // try to "identify" the particle
+                    TIter nxtidt(recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification());
+                     idtelstop = (KVIDTelescope*)nxtidt();
+                    while(idtelstop){
+                        if(idtelstop->CanIdentify(recon_nuc->GetZ(),recon_nuc->GetA())){
+                            recon_nuc->SetIsIdentified();
+                            recon_nuc->SetIsCalibrated();
+                            recon_nuc->SetZMeasured();
+                            if(idtelstop->HasMassID()) recon_nuc->SetAMeasured();
+                            break;
+                        }
+                        else{
+                            Int_t nseg = recon_nuc->GetNSegDet();
+                            recon_nuc->SetNSegDet(TMath::Max(nseg - 1, 0));
+                            //if there are other unidentified particles in the group and NSegDet is < 2
+                            //then exact status depends on segmentation of the other particles : reanalyse
+                            if (recon_nuc->GetNSegDet() < 2 && recon_nuc->GetGroup()->GetNUnidentified() > 1){
+                                break;
+                            }
+                            //if NSegDet = 0 it's hopeless
+                            if (!recon_nuc->GetNSegDet()){
+                                break;
+                            }
+                        }
+                         idtelstop = (KVIDTelescope*)nxtidt();
+                    }
+                }
+                recon_nuc->GetGroup()->AnalyseParticles();
+            }
+       }
+       while ((recon_nuc = rec_event->GetNextParticle())) {
+            if(!recon_nuc->IsIdentified()){
+                int dethits = recon_nuc->GetStoppingDetector()->GetHits()->GetEntries() ;
+                KVIDTelescope* idtelstop = ((KVIDTelescope*)recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification()->First());
+                Bool_t pileup=kFALSE;
+                if(dethits > 1){
+                    // if any of the other particles also stopped in the same detector, we assume identification
+                    // will be so false as to reject particle
+                    for(int j=0;j<dethits;j++){
+                        KVReconstructedNucleus*n=(KVReconstructedNucleus*)recon_nuc->GetStoppingDetector()->GetHits()->At(j);
+                        if(n!=recon_nuc && n->GetStoppingDetector() == recon_nuc->GetStoppingDetector()) pileup=kTRUE;
+                    }
+                }
+                if(pileup){
+                    recon_nuc->SetIsIdentified();//to stop looking anymore & to allow identification of other particles in same group
+                    if(idtelstop) recon_nuc->SetIDCode(idtelstop->GetBadIDCode());
+                    recon_nuc->SetIsOK(kFALSE);
+                }
+                else if(recon_nuc->GetStatus()==0){
+                    // try to "identify" the particle
+                    TIter nxtidt(recon_nuc->GetStoppingDetector()->GetTelescopesForIdentification());
+                     idtelstop = (KVIDTelescope*)nxtidt();
+                    while(idtelstop){
+                        if(idtelstop->CanIdentify(recon_nuc->GetZ(),recon_nuc->GetA())){
+                            recon_nuc->SetIsIdentified();
+                            recon_nuc->SetIsCalibrated();
+                            recon_nuc->SetZMeasured();
+                            if(idtelstop->HasMassID()) recon_nuc->SetAMeasured();
+                            break;
+                        }
+                        else{
+                            Int_t nseg = recon_nuc->GetNSegDet();
+                            recon_nuc->SetNSegDet(TMath::Max(nseg - 1, 0));
+                            //if there are other unidentified particles in the group and NSegDet is < 2
+                            //then exact status depends on segmentation of the other particles : reanalyse
+                            if (recon_nuc->GetNSegDet() < 2 && recon_nuc->GetGroup()->GetNUnidentified() > 1){
+                                break;
+                            }
+                            //if NSegDet = 0 it's hopeless
+                            if (!recon_nuc->GetNSegDet()){
+                                break;
+                            }
+                        }
+                         idtelstop = (KVIDTelescope*)nxtidt();
+                    }
+                }
+                recon_nuc->GetGroup()->AnalyseParticles();
+            }
+       }
       return;
    }
    

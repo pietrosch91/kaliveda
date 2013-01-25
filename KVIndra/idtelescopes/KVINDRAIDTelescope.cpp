@@ -20,6 +20,12 @@ void KVINDRAIDTelescope::init()
    fZminCode = kIDCode_Zmin;                 //default
 }
 
+UShort_t KVINDRAIDTelescope::GetBadIDCode() {
+   // return a general identification code (can be a bitmask) for particles badly identified
+   // this corresponds to VEDA ID code 14
+   return kIDCode14;
+}
+
 KVINDRAIDTelescope::~KVINDRAIDTelescope()
 {
 }

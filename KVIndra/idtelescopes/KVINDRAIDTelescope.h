@@ -29,6 +29,7 @@ class KVINDRAIDTelescope:public KVIDTelescope, public KVIDSubCodeManager {
    UChar_t GetECode() {
       return fECode;
    };
+   virtual UShort_t GetBadIDCode();
 
    inline void SetSubCodeManager(UChar_t n_bits,
                                  UChar_t most_significant_bit) {
