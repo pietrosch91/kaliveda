@@ -19,6 +19,8 @@
 #include <iostream>
 using namespace std;
 
+#include "TProof.h"
+
 ClassImp(KVSimDirGUI)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +38,7 @@ KVSimDirGUI::KVSimDirGUI()
 {
    // Default constructor
    // main frame
+    fWithPROOF=kFALSE;
    MainFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    MainFrame->SetName("KaliVedaSim GUI");
    
@@ -134,11 +137,18 @@ KVSimDirGUI::KVSimDirGUI()
    hf->AddFrame(fCBAllEvents, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
    fNENumberEvents = new TGNumberEntry(hf, 1, 10, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMin, 1);
    hf->AddFrame(fNENumberEvents, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
+   TGPictureButton* proof_analysis = new TGPictureButton(hf,gClient->GetPicture("proof_base.xpm"));
+   proof_analysis->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
+   proof_analysis->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
+   proof_analysis->SetToolTipText("Enable PROOF");
+   proof_analysis->Resize(40,40);
+   proof_analysis->AllowStayDown(kTRUE);
+   hf->AddFrame(proof_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 400,2,2,2));
    TGPictureButton* launch_analysis = new TGPictureButton(hf,gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunAnalysis()");
    launch_analysis->SetToolTipText("Run analysis");
    launch_analysis->Resize(40,40);
-   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 400,2,2,2));
+   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 5,2,2,2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
    fCBAllEvents->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "EnableEventNumberEntry(Bool_t)");
    fCBAllEvents->SetState(kButtonDown,kTRUE);
@@ -454,6 +464,19 @@ void KVSimDirGUI::RunAnalysis()
    
    Long64_t nevents = analysis_chain->GetEntries();
    Bool_t all_events = fCBAllEvents->IsDown();
+
+   if(fWithPROOF){
+       TProof*p = TProof::Open("");
+       analysis_chain->SetProof();
+       // enable KaliVeda on PROOF cluster
+       if(p->EnablePackage("KaliVeda")!=0){
+           // first time, need to 'upload' package
+           TString fullpath;
+           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           p->UploadPackage(fullpath);
+           p->EnablePackage("KaliVeda");
+       }
+   }
    if(!all_events){
       nevents = (Long64_t)fNENumberEvents->GetNumber();
       cout << "Processing " << nevents << " events" << endl;

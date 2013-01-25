@@ -75,6 +75,8 @@ class KVSimDirGUI : public KVBase
    //TGTextEntry* fTEOutputDir;
    
    TEnv fGuirc;
+
+   Bool_t fWithPROOF;//=kTRUE when running with PROOF-lite
    
    public:
    KVSimDirGUI();
@@ -111,7 +113,9 @@ class KVSimDirGUI : public KVBase
    };
    //void ChangeOutputDirectory();
    void RunFilter();
-   
+   void EnableProof(){ fWithPROOF=kTRUE; }
+   void DisableProof(){ fWithPROOF=kFALSE; }
+
    ClassDef(KVSimDirGUI,0)//GUI for simulated data
 };
 

@@ -72,7 +72,7 @@ public:
 	TFile* writeFile;//!
    TProofOutputFile* mergeFile;//! for merging with PROOF
    TString tree_file_name;
-   Bool_t CreateTreeFile(const Char_t* filename);
+   Bool_t CreateTreeFile(const Char_t* filename = "");
 	
 	
 	KVEventSelector(TTree * /*tree*/ = 0) : gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
@@ -135,9 +135,6 @@ public:
 
    /* user entry points */
    virtual void InitAnalysis() {
-		// if CreateHistos() is implemented in the child class
-		// it has to be called here
-		//
       AbstractMethod("InitAnalysis");
    };
    virtual void InitRun() {
@@ -194,12 +191,11 @@ public:
 
    virtual void SetParticleConditions(const KVParticleCondition&);
 
-   virtual void CreateHistos();
-	void AddHisto(TH1* histo);
-   virtual void CreateTrees(const Char_t* filename=0);
+   void AddHisto(TH1* histo);
+   void AddTree(TTree* tree);
 
    void FillHisto(const Char_t* sname, Double_t one, Double_t two = 1, Double_t three = 1, Double_t four = 1);
-   void FillTree(const Char_t* sname = 0);
+   void FillTree(const Char_t* sname = "");
 
    KVHashList* GetHistoList() const;
    KVHashList* GetTreeList() const;
@@ -207,8 +203,7 @@ public:
 	TH1* GetHisto(const Char_t* name) const;
    TTree* GetTree(const Char_t* name) const;
 
-   virtual void WriteHistoToFile(const Char_t* filename = 0, Option_t* option = "recreate");
-   //virtual void WriteTreeToFile(KVString filename = "FileFromKVSelector.root", Option_t* option = "recreate");
+   virtual void SaveHistos(const Char_t* filename ="", Option_t* option = "recreate");
 
    virtual void SetOpt(const Char_t* option, const Char_t* value);   
    virtual Bool_t IsOptGiven(const Char_t* option);

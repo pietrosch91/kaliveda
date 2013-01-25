@@ -40,6 +40,39 @@ ClassImp(KVEventSelector)
 //     static TVector3 cmvelocity(0,0,3.0);
 //     GetEvent()->SetFrame("CM", cmvelocity);
 // }
+//
+// *** USE WITH PROOF ***
+// In order to use a KVEventSelector with PROOF:
+//
+// - declare any histograms with method AddHisto(TH1*)
+// e.g. in InitAnalysis:
+// void MySelector::InitAnalysis()
+// {
+//     AddHisto( new TH2F("toto", "tata", 100, 0, 0, 500, 0, 0) );
+// }
+// Histograms can also be declared 'on the fly' in Analysis() method in
+// the same way;
+//
+// - for TTrees, first call CreateTreeFile("...") with name of file for TTree(s)
+// (histograms and TTrees are written in different files), then
+// declare all trees using method AddTree(TTree*)
+// e.g. in InitAnalysis:
+// void MySelector::InitAnalysis()
+// {
+//     CreateTreeFile("MyTrees.root");
+//     TTree* aTree = new TTree("t1", "Some Tree");
+//     aTree->Branch(...) etc.
+//     AddTree(aTree);
+// }
+//
+// - if you want (not obligatory), you can use methods FillHisto(...) and
+//  FillTree(...) in your Analysis() method;
+//
+// - to save histograms to file in EndAnalysis(), call method
+//  SaveHistos(const Char_t* filename) in EndAnalysis()
+//
+// -  the file declared with CreateTreeFile will be automatically written
+// to disk at the end of the analysis.
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVEventSelector::Begin(TTree * /*tree*/)
@@ -67,8 +100,6 @@ void KVEventSelector::SlaveBegin(TTree * /*tree*/)
 
 	InitAnalysis();
 	
-	if (lhisto->GetEntries()>0)
-		fOutput->AddAll(lhisto);
 	if (ltree->GetEntries()>0)
 		for (Int_t ii=0;ii<ltree->GetEntries();ii+=1){
 			TTree* tt = (TTree* )ltree->At(ii);
@@ -79,11 +110,12 @@ void KVEventSelector::SlaveBegin(TTree * /*tree*/)
 }
 Bool_t KVEventSelector::CreateTreeFile(const Char_t* filename)
 {
-	//This method manage properly the merging of tree from in case 
-	//of PROOFLite session
+    // For PROOF:
+    // This method must be called before creating any user TTree in InitAnalysis().
+    // If no filename is given, default name="TreeFileFrom[name of selector class].root"
 	
-	if (!filename)
-		tree_file_name.Form("TreeFileFrom%s.root",GetName());
+    if (!strcmp(filename,""))
+        tree_file_name.Form("TreeFileFrom%s.root",ClassName());
 	else 
 		tree_file_name = filename;
 	
@@ -363,13 +395,17 @@ TH1* KVEventSelector::GetHisto(const Char_t* histo_name) const
 
 void KVEventSelector::AddHisto(TH1* histo)
 {
-	//Add new histo to the fOutput and lhisto lists
-	//This method has to be called ONLY in the Analysis method
-	//when the user want to create on the fly histograms
-	//	
-   lhisto->Add(histo);
-	fOutput->Add(histo);
+    // Declare a histogram to be used in analysis.
+    // This method must be called when using PROOF.
+    lhisto->Add(histo);
+    fOutput->Add(histo);
+}
 
+void KVEventSelector::AddTree(TTree *tree)
+{
+    // Declare a TTree to be used in analysis.
+    // This method must be called when using PROOF.
+    ltree->Add(tree);
 }
 
 //____________________________________________________________________________
@@ -444,41 +480,23 @@ void KVEventSelector::FillTH3(TH3* h3, Double_t one, Double_t two, Double_t thre
    h3->Fill(one, two, three, four);
 }
 
-
 //____________________________________________________________________________
 
-void KVEventSelector::CreateHistos()
+void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option)
 {
- 	//user method to create histo which will be fill
-	// the list of created histo is transferred to fOutput list
-	// in case of PROOF mode
-	//this method has to be called in InitAnalysis method
-   //
-	// See below an example how to do it:
+    // Write in file all histograms declared with AddHisto(TH1*)
+    // This method works with PROOF.
+    //
+    // If no filename is specified, set default name : HistoFileFrom[KVEvenSelector::GetName()].root
 	//
-	//	lhisto->Add(new TH2F("Eperp_Mult","Eperp_Mult",100,0.5,100.5,500,0,5000));
-	//
-	Warning("CreateHistos", "To be redefined child class");
+    // If a filename is specified, search in gROOT->GetListOfFiles() if
+    // this file has been already opened
+    //  - if yes write in it
+    //  - if not, create it with the corresponding option, write in it
+    // and close it just after
 
-}
-
-//____________________________________________________________________________
-
-void KVEventSelector::WriteHistoToFile(const Char_t* filename, Option_t* option)
-{
-	//write only derived TH1 object previously created
-	//in CreateHistos method
-	//
-   //If no filename is specified, set default name : HistoFileFrom[KVEvenSelector::GetName()].root
-	//
-	//If a filename is specified, search in gROOT->GetListOfFiles() if 
-	//this file has been already opened
-	// - if yes write in it
-	// - if not, create it with the corresponding option, write in it
-	//and close it just after
-	//
 	TString histo_file_name="";
-	if (!filename)
+    if (!strcmp(filename,""))
 		histo_file_name.Form("HistoFileFrom%s.root",GetName());
 	else 
 		histo_file_name = filename;
@@ -525,45 +543,17 @@ TTree* KVEventSelector::GetTree(const Char_t* tree_name) const
    return (TTree*)ltree->FindObject(tree_name);
 
 }
-//____________________________________________________________________________
-
-void KVEventSelector::CreateTrees(const Char_t* filename)
-{
- 	//user method to create tree(s) which will be filled in Analysis method
-	//the filename has to be set here
-	//
-	//If no filename is specified (filename=0), set default name : TreeFileFrom[KVEvenSelector::GetName()].root
-	//
-	//this method has to be called in InitAnalysis method
-   //
-	//It's essential that user called in this method the CreateTreeFile method
-	//in any case
-	//This method manage properly the merging of tree from in case 
-	//of PROOFLite session
-	//
-	// See below exmaple how to do it
-	//
-	// CreateTreeFile(filename);
-	// 
-	// TTree* tt = 0;
-	// tt = new TTree("FirstStep","FirstStep");
-	// tt->Branch("eperp",&eperp,"eperp/F");
-	// ltree->Add(tt);
-
-   Warning("CreateTrees", "To be redefined child class");
-
-}
 
 //____________________________________________________________________________
 
 void KVEventSelector::FillTree(const Char_t* tree_name)
 {
 	//Filltree method, the tree named tree_name
-	//has to be created in the CreateTrees method
+    //has to be declared with AddTTree(TTree*) method
 	//
 	//if no sname="", all trees in the list is filled
 	//
-   if (!tree_name) {
+    if (!strcmp(tree_name,"")) {
       ltree->Execute("Fill", "");
    } else {
       TTree* tt = 0;
@@ -576,32 +566,6 @@ void KVEventSelector::FillTree(const Char_t* tree_name)
 
 }
 
-/*
-//____________________________________________________________________________
-
-void KVEventSelector::WriteTreeToFile(KVString filename, Option_t* option)
-{
-	//Obsolete method
-   //If no filename is specified, assume that the current directory is writable
-
-   if (filename == "") {
-      GetTreeList()->Write();
-   } else {
-      TFile* file = 0;
-      TDirectory* pwd = gDirectory;
-      //if filename correspond to an already opened file, write in it
-      //if not open/create it, depending on the option ("recreate" by default)
-      //and write in it
-      if (!(file = (TFile*)gROOT->GetListOfFiles()->FindObject(filename.Data())))
-         file = new TFile(filename.Data(), option);
-      file->cd();
-      GetTreeList()->Write();
-      //file->Close();
-      pwd->cd();
-   }
-
-}
-*/
 void KVEventSelector::SetOpt(const Char_t* option, const Char_t* value)
 {
    //Set a value for an option
