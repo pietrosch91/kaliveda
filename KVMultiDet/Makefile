@@ -48,6 +48,10 @@ RLIBMAPDEPS += libGeom.so
 LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
 RLIBMAPDEPS += libSpectrum.so
 
+#required for use of TProof
+LINK_LIB += -L$(ROOTSYS)/lib -lProof
+RLIBMAPDEPS += libProof.so
+
 
 ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg
