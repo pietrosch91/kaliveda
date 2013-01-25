@@ -931,7 +931,20 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
       }
       ((TPad*) gPad)->BuildLegend();
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
-      else gPad->SetLogy(fDrawLog);
+      else {
+         gPad->SetLogy(fDrawLog);
+         // adjust y-scale to new histogram if needed
+         // find first histogram
+         TIter nxt(gPad->GetListOfPrimitives());
+         TObject* h;
+         while( (h=nxt()) ){
+            if(h->InheritsFrom("TH1")){
+               TH1* hh = (TH1*)h;
+               if(histo->GetMaximum()>hh->GetMaximum()) hh->SetMaximum(histo->GetMaximum()+1);
+               break;
+            }
+         }
+      }
       gPad->Modified();
       gPad->Update();
    }
@@ -942,7 +955,10 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
       if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());c->SetWindowSize(600,600);}
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
-      else gPad->SetLogy(fDrawLog);
+      else {
+         histo->SetMaximum(-1111);//in case maximum was changed to accomodate superimposition
+         gPad->SetLogy(fDrawLog);
+      }
       histo->Draw();
       gPad->Modified();gPad->Update();
    }
@@ -1443,8 +1459,7 @@ void KVTreeAnalyzer::DrawAsDalitz()
 
 void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 {
-   // Method called when user hits 'draw' button in TTree GUI and only one leaf/alias
-   // is selected.
+   // Method called when user double-clicks a leaf/alias in list
    
    TH1* histo = 0;
    if(obj->InheritsFrom("TLeaf")){
@@ -1471,11 +1486,12 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
          }
          if(!histo) return;
       }
-      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle()); c->SetWindowSize(600,600);}
-      histo->Draw();
-      if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
-      else gPad->SetLogy(fDrawLog);
-      gPad->Modified();gPad->Update();
+//       if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle()); c->SetWindowSize(600,600);}
+//       histo->Draw();
+//       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
+//       else gPad->SetLogy(fDrawLog);
+//       gPad->Modified();gPad->Update();
+      DrawHisto(histo);
    }
    else{
       TString expr = obj->GetTitle();
@@ -1485,11 +1501,12 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
        histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
       if(!histo) histo = MakeHisto(expr, "", 500);
       if(!histo) return;
-      if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
-      histo->Draw();
-      if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
-      else gPad->SetLogy(fDrawLog);
-      gPad->Modified();gPad->Update();
+//       if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
+//       histo->Draw();
+//       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
+//       else gPad->SetLogy(fDrawLog);
+//       gPad->Modified();gPad->Update();
+      DrawHisto(histo);
    }
 }
 
