@@ -469,6 +469,7 @@ void KVSimDirGUI::RunAnalysis()
       return;
    }
    TList *runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs : selected_filt_runs);
+   Bool_t filtered_analysis = (selected_filt_runs->GetEntries()>0) ;
    runs_to_analyse->ls();
    TChain* analysis_chain = BuildChain(runs_to_analyse);
    
@@ -492,23 +493,39 @@ void KVSimDirGUI::RunAnalysis()
            p->EnablePackage("KaliVeda");
        }
    }
+
    TString results_file_name;
-   results_file_name.Form("%s_%s", fAnalClassName.Data(), ((KVSimFile*)runs_to_analyse->First())->GetName());
+   KVSimFile* first_file = (KVSimFile*)runs_to_analyse->First();
+   results_file_name.Form("%s_%s", fAnalClassName.Data(), first_file->GetName());
+
    if(!all_events){
       nevents = (Long64_t)fNENumberEvents->GetNumber();
+   }
+
+   TString options;
+   if(filtered_analysis){
+       options.Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s,DataSet=%s,System=%s,Run=%d",
+                    nevents/10,
+               first_file->GetBranchName(),
+                    results_file_name.Data(),
+                    first_file->GetDataSet(),
+                    first_file->GetSystem(),
+                    first_file->GetRun()
+                    );
+   }
+   else {
+       options.Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
+                    nevents/10,
+               first_file->GetBranchName(),
+                    results_file_name.Data());
+   }
+
+   if(!all_events){
       cout << "Processing " << nevents << " events" << endl;
-      analysis_chain->Process(fullclasspath,
-            Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
-                 nevents/10,
-            ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
-                 results_file_name.Data()), nevents);
+      analysis_chain->Process(fullclasspath, options, nevents);
    }
    else
-      analysis_chain->Process(fullclasspath,
-            Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
-                 nevents/10,
-            ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
-                 results_file_name.Data()));
+      analysis_chain->Process(fullclasspath,options);
    
    delete analysis_chain;
    delete selected_sim_runs;

@@ -670,7 +670,11 @@ void KVEventSelector::ParseOptions()
       KVString opt = option.Next();
       opt.Begin("=");
       KVString param = opt.Next();
-      KVString val = opt.Next();
+      KVString val=opt.Next();
+      while(!opt.End()){
+          val+="=";
+          val+=opt.Next();
+      }
 
       SetOpt(param.Data(), val.Data());
    }
