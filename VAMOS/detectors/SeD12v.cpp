@@ -322,16 +322,16 @@ void SeD12v::Focal(void)
 #	ifdef DEBUG
 	cout << "SeD12v::Focal" << endl;
 #	endif
-	if(S1->Present) Counter[1]++;
-	if(S2->Present) Counter[2]++;
+	if(S1->fPresent) Counter[1]++;
+	if(S2->fPresent) Counter[2]++;
 
-	if(S1->Present && S2->Present) // have both SeDs
+	if(S1->fPresent && S2->fPresent) // have both SeDs
 	{
 		Counter[3]++;
-		X[0] = S1->X[0];
-		Y[0] = S1->X[1];
-		X[1] = S2->X[0];
-		Y[1] = S2->X[1];
+		X[0] = S1->fX[0];
+		Y[0] = S1->fX[1];
+		X[1] = S2->fX[0];
+		Y[1] = S2->fX[1];
 		
 		FocalX();
 		FocalY();
@@ -498,8 +498,8 @@ void SeD12v::Show(void)
 #	endif
 	cout.setf(ios::showpoint);
 
-	cout << "X1: " << S1->X[0] << " Y1: " << S1->X[1] << endl;
-	cout << "X2: " << S2->X[0] << " Y2: " << S2->X[1] << endl;
+	cout << "X1: " << S1->fX[0] << " Y1: " << S1->fX[1] << endl;
+	cout << "X2: " << S2->fX[0] << " Y2: " << S2->fX[1] << endl;
 
 	cout << "Xf: " << Xf << " Tf: " << Tf << endl;
 	cout << "Yf: " << Yf << " Pf: " << Pf << endl;

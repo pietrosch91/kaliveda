@@ -34,19 +34,18 @@
 
 class SeDv
 {
-	Bool_t Ready;
+	Bool_t fReady;     //kTRUE when if the calibration files are well read
    
 	public:
-	SeDv(LogFile *Log, short nr);
+	SeDv(LogFile *Log, Short_t nr);
 	virtual ~SeDv(void);
   
-	LogFile *L;
-	short lnr;   //SeD number locally
+	LogFile *fLogFile;
+	Short_t fSeDNum;   //SeD number locally
 
-	bool Present; //true if focal coordinates determined
-	bool PresentWires; //true if Wires are present
-	bool PresentStrips; //true if Strips are present and Wires are present
-	bool Accepted_event;
+	Bool_t fPresent; //true if focal coordinates determined
+	Bool_t fPresentWires; //true if Wires are present
+	Bool_t fPresentStrips; //true if Strips are present and Wires are present
 	
 	void Init(void); //Init for every event,focal variables go to -500. 
 	void InitRaw(void); 
@@ -62,67 +61,66 @@ class SeDv
 	void FillHistograms();
 	void PrintCounters(void);
 
-	Random *Rnd;
 /*
  *	Energy Wire
  */
-	UShort_t E_Raw[3];
+	UShort_t fE_Raw[3];
 /*
  *	Time Wire
  */
-	UShort_t T_Raw[1];
+	UShort_t fT_Raw[1];
 /*
  *	Calibration coeff
  */
-	Float_t ECoef[3][2];
-	Double_t TSED_HF_Coef[7];
+	Float_t fECoef[3][2];
+	Double_t fTSED_HF_Coef[7];
 /*
  *	Calibrated Energy Wire
  */
-	Float_t E[3];
+	Float_t fE[3];
 /*
  *	Calibrated Time Wire
  */
-	Float_t T[1];
+	Float_t fT[1];
 /*
  *	Charge Raw
  */
-	UShort_t Q_Raw[2*128];
-	UShort_t Q_Raw_Nr[2*128];
-	Int_t    Q_RawM[2];
+	UShort_t fQ_Raw[2*128];
+	UShort_t fQ_Raw_Nr[2*128];
+	Int_t    fQ_RawM[2];
 /*
  *	Calibration coeff
  */
-	Float_t QCoef[128][2][3];
+	Float_t fQCoef[128][2][3];
 /*
  *	Calibrated Charge
  */
-	UShort_t NStrips; 				//Number of strips considered
-	UShort_t N[128][2];
-	Float_t Q[128][2],QThresh[2]; 
+	UShort_t fNStrips; 				//Number of strips considered
+	UShort_t fN[128][2];
+	Float_t fQ[128][2],fQThresh[2]; 
 /*
  *	Multiplicity
  */
-	Int_t Mult[2];
+	Int_t fMult[2];
 /*
  *	Focal position Reference & Position
  */
-	Float_t XRef[2]; 
+	Float_t fXRef[2]; 
 /*
  *	Coefficients de recadrage du SED1
  */
-	Double_t RecadrageX_SED[2][5][5], RecadrageY_SED[2][5][5];
+	Double_t fRecadrageX_SED[2][5][5], fRecadrageY_SED[2][5][5];
 /*
  *	Focal position
  */
-	Float_t X[2]; //Subsequent X
-	Float_t XS[2]; //Subsequent XSech
-	Float_t XWA[2]; //Subsequent XWA
+	Float_t fX[2]; //Subsequent X
+	Float_t fXS[2]; //Subsequent XSech
+	Float_t fXWA[2]; //Subsequent XWA
 /*
  *	Counters
  */
-	Int_t Counter[14];
-	Int_t Counter1[4][5];
+	Int_t fCounter[14];
+	Int_t fCounter1[4][5];
 
 	ClassDef(SeDv,0)
 };
