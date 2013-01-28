@@ -126,6 +126,8 @@ class KVBase:public TNamed {
    
    static Bool_t OpenContextMenu(const char* method, TObject* obj, const char* alt_method_name = "");
 
+   static void CombineFiles(const Char_t* file1, const Char_t* file2, const Char_t* newfilename, Bool_t keep=kTRUE);
+
    ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
 };
 

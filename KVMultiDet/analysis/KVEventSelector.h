@@ -56,6 +56,7 @@ protected :
    KVHashList* ltree;            //->!
 
    Bool_t fNotifyCalled; // avoid multiple calls to Notify/InitRun
+   KVString fCombinedOutputFile;// optional name for single results file with trees and histos
    
    //parsed list of options given to TTree::Process
    KVParameterList<KVString> fOptionList;

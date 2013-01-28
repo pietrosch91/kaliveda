@@ -44,6 +44,7 @@ class KVSimDirGUI : public KVBase
    TGCompositeFrame* fAnalTab; // analysis tab
    TGCompositeFrame* fFiltTab; // filter tab
    TGTextEntry* fTEAnalysisClassFileName;
+   KVString fAnalClassName;
    KVString fAnalClassHeader;
    KVString fAnalClassImp;
    KVString fAnalClassDir;

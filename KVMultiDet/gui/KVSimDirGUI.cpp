@@ -38,7 +38,13 @@ KVSimDirGUI::KVSimDirGUI()
 {
    // Default constructor
    // main frame
+
     fWithPROOF=kFALSE;
+
+    // make Aclic create all *.so *.d files in separate temporary directories
+    //this is to avoid problems with KVParticleCondition when using PROOF
+    gSystem->SetBuildDir( gSystem->TempDirectory() );
+
    MainFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    MainFrame->SetName("KaliVedaSim GUI");
    
@@ -420,13 +426,14 @@ void KVSimDirGUI::SelectAnalysisClass()
    fi.fFileTypes = filetypes;
    new KVFileDialog(gClient->GetDefaultRoot(), MainFrame, kKVFDOpen, &fi);
    if (fi.fFilename) {
-      TString classname = fi.fFilename;
-      Int_t idot = classname.Index(".");
+      fAnalClassName = fi.fFilename;
+      Int_t idot = fAnalClassName.Index(".");
       if(idot<0) return;
-      classname.Remove(idot,2);
-      if(FindClassSourceFiles(gSystem->BaseName(classname), fAnalClassImp, fAnalClassHeader, fi.fIniDir))
+      fAnalClassName.Remove(idot,2);
+      if(FindClassSourceFiles(gSystem->BaseName(fAnalClassName), fAnalClassImp, fAnalClassHeader, fi.fIniDir))
       {
-         fTEAnalysisClassFileName->SetText(classname);
+         fTEAnalysisClassFileName->SetText(fAnalClassName);
+         fAnalClassName = gSystem->BaseName(fAnalClassName);
          fAnalClassDir = fi.fIniDir;
          cout << "Found class header " << fAnalClassHeader << " and implementation " << fAnalClassImp << " in " << fAnalClassDir << endl;
       }
@@ -475,6 +482,7 @@ void KVSimDirGUI::RunAnalysis()
    if(fWithPROOF){
        TProof*p = TProof::Open("");
        analysis_chain->SetProof();
+       p->ClearCache();//to avoid problems with compilation of KVParticleCondition
        // enable KaliVeda on PROOF cluster
        if(p->EnablePackage("KaliVeda")!=0){
            // first time, need to 'upload' package
@@ -484,17 +492,23 @@ void KVSimDirGUI::RunAnalysis()
            p->EnablePackage("KaliVeda");
        }
    }
+   TString results_file_name;
+   results_file_name.Form("%s_%s", fAnalClassName.Data(), ((KVSimFile*)runs_to_analyse->First())->GetName());
    if(!all_events){
       nevents = (Long64_t)fNENumberEvents->GetNumber();
       cout << "Processing " << nevents << " events" << endl;
       analysis_chain->Process(fullclasspath,
-            Form("EventsReadInterval=%d,BranchName=%s",nevents/10,
-            ((KVSimFile*)runs_to_analyse->First())->GetBranchName()), nevents);
+            Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
+                 nevents/10,
+            ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
+                 results_file_name.Data()), nevents);
    }
    else
       analysis_chain->Process(fullclasspath,
-            Form("EventsReadInterval=%d,BranchName=%s",nevents/10,
-            ((KVSimFile*)runs_to_analyse->First())->GetBranchName()));
+            Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
+                 nevents/10,
+            ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
+                 results_file_name.Data()));
    
    delete analysis_chain;
    delete selected_sim_runs;
@@ -648,6 +662,7 @@ void KVSimDirGUI::RunFilter()
    if(fWithPROOF){
        TProof*p = TProof::Open("");
        analysis_chain->SetProof();
+       p->ClearCache();//to avoid problems with compilation of KVParticleCondition
        // enable KaliVeda on PROOF cluster
        if(p->EnablePackage("KaliVeda")!=0){
            // first time, need to 'upload' package

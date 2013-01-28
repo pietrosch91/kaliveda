@@ -54,8 +54,8 @@ ClassImp(KVEventSelector)
 // the same way;
 //
 // - for TTrees, first call CreateTreeFile("...") with name of file for TTree(s)
-// (histograms and TTrees are written in different files), then
-// declare all trees using method AddTree(TTree*)
+// (by default, histograms and TTrees are written in different files - but see below),
+// then declare all trees using method AddTree(TTree*)
 // e.g. in InitAnalysis:
 // void MySelector::InitAnalysis()
 // {
@@ -73,12 +73,27 @@ ClassImp(KVEventSelector)
 //
 // -  the file declared with CreateTreeFile will be automatically written
 // to disk at the end of the analysis.
+//
+// HISTOS & TREES IN SAME FILE
+// If you want all results of your analysis to be written in a single file
+// containing both histos and trees, put the following in the list of options:
+//      CombinedOutputFile=myResults.root
+// do not call SaveHistos() in EndAnalysis(), and make
+// sure you call CreateTreeFile() without giving a name (the
+// resulting intermediate file will have a default name
+// allowing it to be found at the end of the analysis)
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVEventSelector::Begin(TTree * /*tree*/)
 {
-	//Useless method
-	//do nothing
+    // Need to parse options here for use in Terminate
+
+    ParseOptions();
+
+    if(IsOptGiven("CombinedOutputFile")) {
+        fCombinedOutputFile=GetOpt("CombinedOutputFile");
+        Info("Begin", "Output file name = %s", fCombinedOutputFile.Data());
+    }
 }
 
 void KVEventSelector::SlaveBegin(TTree * /*tree*/)
@@ -97,6 +112,11 @@ void KVEventSelector::SlaveBegin(TTree * /*tree*/)
 	// to manage it properly
 	
 	ParseOptions();
+
+    if(IsOptGiven("CombinedOutputFile")) {
+        fCombinedOutputFile=GetOpt("CombinedOutputFile");
+        Info("SlaveBegin", "Output file name = %s", fCombinedOutputFile.Data());
+    }
 
 	InitAnalysis();
 	
@@ -247,8 +267,36 @@ void KVEventSelector::Terminate()
 	//
 
 	TDatime now;
-   Info("Terminate", "Analysis ends at %s", now.AsString());
-   
+    Info("Terminate", "Analysis ends at %s", now.AsString());
+
+   if( fCombinedOutputFile!="" ){
+       Info("Terminate", "combine = %s", fCombinedOutputFile.Data());
+       // combine histograms and trees from analysis into one file
+       TString file1,file2;
+       file1.Form("HistoFileFrom%s.root", ClassName());
+       file2.Form("TreeFileFrom%s.root", ClassName());
+       if(GetOutputList()->FindObject("ThereAreHistos")){
+           if(GetOutputList()->FindObject(file2)){
+               Info("Terminate", "both");
+               SaveHistos();
+               KVBase::CombineFiles(file1,file2,fCombinedOutputFile,kFALSE);
+           }
+           else
+           {
+               // no trees - just rename histo file
+               Info("Terminate", "histo");
+               SaveHistos(fCombinedOutputFile);
+           }
+       }
+       else if(GetOutputList()->FindObject(file2)){
+           // no histos - just rename tree file
+           Info("Terminate", "tree");
+           gSystem->Rename(file2, fCombinedOutputFile);
+       }
+       else  Info("Terminate", "none");
+   }
+
+
 	EndAnalysis();               //user end of analysis routine
 	
 }
@@ -399,6 +447,7 @@ void KVEventSelector::AddHisto(TH1* histo)
     // This method must be called when using PROOF.
     lhisto->Add(histo);
     fOutput->Add(histo);
+    if(!fOutput->FindObject("ThereAreHistos")) fOutput->Add(new TNamed("ThereAreHistos", "...so save them!"));
 }
 
 void KVEventSelector::AddTree(TTree *tree)
