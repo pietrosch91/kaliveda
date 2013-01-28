@@ -56,8 +56,6 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
    
     fPar->SetValue("HasTGID",1);
 	FindAxisLimits();
-	
-   Info("KVTGIDGrid","Pdx = %lf",fXmin);
 }
 
 KVTGIDGrid::~KVTGIDGrid()
@@ -87,7 +85,6 @@ void KVTGIDGrid::ReadFromAsciiFile(ifstream & gridfile)
       if(line.BeginsWith("++KVTGID"))  fTGID = KVTGID::ReadFromAsciiFile(GetName(), gridfile);
       }
 	FindAxisLimits();
-   Info("ReadFromAsciiFile","Pdx = %lf",fXmin);
 }
 
 //___________________________________________________________________________//

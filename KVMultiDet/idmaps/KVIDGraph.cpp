@@ -861,8 +861,7 @@ void KVIDGraph::FindAxisLimits()
    fYmin = ymin;
    fXmax = xmax;
    fYmax = ymax;
-   Info("FindAxisLimits()", "Xmin=%f Ymin=%f Xmax=%f Ymax=%f", GetXmin(),
-        GetYmin(), GetXmax(), GetYmax());
+//   Info("FindAxisLimits()", "Xmin=%f Ymin=%f Xmax=%f Ymax=%f", GetXmin(), GetYmin(), GetXmax(), GetYmax());
 }
 
 //___________________________________________________________________________________
