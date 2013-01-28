@@ -240,7 +240,7 @@ install :
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
-        cd etc/proof && $(MAKE)
+	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
