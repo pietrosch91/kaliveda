@@ -992,6 +992,7 @@ Bool_t KVTreeAnalyzer::IsCurrentSelection(const Char_t* sel)
    // Returns kTRUE if "sel" corresponds to current active selection
    // (i.e. entry list of TTree)
    
+    if(!fTree) return kTRUE;
    TString test_sel(sel);
    TString tree_sel;TEntryList* el;
    if((el = fTree->GetEntryList())) tree_sel = el->GetTitle();
