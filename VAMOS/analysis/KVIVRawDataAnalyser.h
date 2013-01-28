@@ -24,6 +24,7 @@ class KVIVRawDataAnalyser : public KVINDRARawDataAnalyser
    virtual void postInitRun();
    static void Make(const Char_t * kvsname = "MyOwnRawDataAnalyser");
 
+   inline TTree *GetTree(){ return fBidonTree; }
    ClassDef(KVIVRawDataAnalyser,1)//Analysis of raw INDRA-VAMOS data
 };
 
