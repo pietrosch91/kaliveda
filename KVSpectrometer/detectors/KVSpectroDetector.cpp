@@ -1,0 +1,393 @@
+//Created by KVClassFactory on Thu Jul 19 20:50:06 2012
+//Author: Guilain ADEMARD
+
+#include "KVSpectroDetector.h"
+#include "KVIonRangeTable.h"
+
+ClassImp(KVSpectroDetector)
+
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVSpectroDetector</h2>
+<h4>Base class for the description of detectors in spectrometer</h4>
+<!-- */
+// --> END_HTML
+////////////////////////////////////////////////////////////////////////////////
+
+void KVSpectroDetector::init(){
+   	//default initialisations
+	Warning("init","To be implemented");
+	SetActiveLayer(-1); // Necessary to remove some warning with GetPressure and GetTemperature.   
+	fActiveVolumes = NULL;
+	fNabsorbers    = 0;
+	fTotThick      = 0;
+}
+//________________________________________________________________
+
+KVSpectroDetector::KVSpectroDetector()
+{
+   // Default constructor
+   //
+   // A "mother" volume is built to group all the absorber volumes.
+   // gGeoManager must point to current instance of geometry manager.
+
+   init();
+   
+   if(!gGeoManager) Warning("KVSpectroDetector","gGeoManager have to be built before to continue");
+}
+//________________________________________________________________
+
+KVSpectroDetector::KVSpectroDetector(const Char_t* type) : KVDetector(type){
+	// Create a new detector of a given material. 
+	init();
+	if(!gGeoManager) Warning("KVSpectroDetector","gGeoManager have to be built before to continue");
+}
+//________________________________________________________________
+
+KVSpectroDetector::KVSpectroDetector(const KVSpectroDetector& obj)  : KVDetector(((KVDetector& )obj))
+{
+   // Copy constructor
+   // This ctor is used to make a copy of an existing object.
+   init();
+   ((KVSpectroDetector&)obj).Copy(*this);
+}
+//________________________________________________________________
+
+KVSpectroDetector::~KVSpectroDetector()
+{
+   // Destructor
+   SafeDelete(fActiveVolumes);
+}
+//________________________________________________________________
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
+void KVSpectroDetector::Copy (TObject & obj) const
+#else
+void KVSpectroDetector::Copy (TObject & obj)
+#endif
+{
+   	// This method copies the current state of 'this' object into 'obj'
+
+
+   	// You should add here any member variables, for example:
+   	//    (supposing a member variable KVSpectroDetector::fToto)
+   	//    CastedObj.fToto = fToto;
+   	// or
+   	//    CastedObj.SetToto( GetToto() );
+
+//	KVDetector::Copy(obj);
+//	TGeoVolume::Copy(obj);
+   	((KVSpectroDetector&)obj).SetAbsGeoVolume(GetAbsGeoVolume());
+}
+//________________________________________________________________
+
+void KVSpectroDetector::AddAbsorber(KVMaterial* mat){
+   //  Obsolete method.
+	Warning("AddAbsorber","Obsolete method");	
+}
+//________________________________________________________________
+
+void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix, Bool_t active){
+	// Add an absorber material defined  as a daughter volume TGeoVolume.
+	// This volume is defined by its material and its shape.
+	// It is positioned by supplying a geometrical transformation, with
+	// respect to the local reference frame of the detector.
+	// By default the volume is referenced as "inactive".
+	// If the volume is not the first absorber or if the matrix is not null
+	// the volume is put in an assembly of volumes TGeoVolumeAssembly.
+	// 
+	// Input: material - material of the absorber. The list of available
+	//                   materials can be found with 
+	//                   det->GetRangeTable()->GetListOfMaterials()->ls()
+	//                   where det is a KVSpectroDetector or another
+	//                   object inheriting from KVMaterial.
+	//                   If material is empty, the name of the detector
+	//                   is used.
+	//        shape    - shape of the volume.
+	//        matrix   - matrix of the geometrical transformation.
+	//        active   - kTRUE if the absorber is active, kFALSE othewise.
+
+
+
+
+	static Int_t no_vol =1;
+	TString vol_name;	
+	vol_name.Form("%s_%d_%s",GetName(),no_vol,material);
+	TGeoVolume* vol = GetGeoVolume(vol_name.Data(), material, shape);
+	if(!vol){
+ 		Error("AddAbsorber","Impossible to build the volume");
+		return;
+	}
+	no_vol++;
+	AddAbsorber(vol,matrix,active);
+}
+//________________________________________________________________
+
+void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t active){
+	// Add an absorber material defined  as a daughter volume TGeoVolume
+	// and positioned by supplying a geometrical transformation matrix, with
+	// respect to the local reference frame of the detector.
+	// By default the volume is referenced as "inactive".
+	// If the volume is not the first absorber or if the matrix is not null
+	// the volume is put in an assembly of volumes TGeoVolumeAssembly.
+
+
+	if(active) SetActiveVolume(vol);
+
+
+	TGeoVolume* prev_vol = GetAbsGeoVolume();
+
+	if(!prev_vol && !matrix){	
+		// If there is not any absorber and any matrix
+		// the volume is considered as the volume of the detector 
+		Info("AddAbsorber","no previous volume and no matrix");
+		SetAbsGeoVolume(vol);
+		return;
+	}
+
+	TGeoVolume* vol_as = NULL;
+
+	// Case where we want to position with the matrix the absorber which
+	// is the first one of the detector
+	if(!prev_vol) vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_DET",GetName()));
+	else if(!prev_vol->InheritsFrom("TGeoVolumeAssembly")){
+		// build an assembly of volumes if the volume of the
+		// detector is not and put the absorbers inside
+
+		Info("AddAbsorber","First absorber is not a TGeoVolumeAssembly");
+		vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_DET",GetName()));
+		vol_as->AddNode(prev_vol,1);
+	}
+	else vol_as = prev_vol;
+
+	// Add the volume in the assembly of volumes
+		Info("AddAbsorber","Adding Node");
+	vol_as->AddNode(vol,1,matrix);
+	SetAbsGeoVolume(vol_as);
+}
+//________________________________________________________________
+
+void KVSpectroDetector::AddToTelescope(KVTelescope * T, const int){
+   //  Obsolete method.
+	Warning("AddToTelescope","Obsolete method");	
+
+}
+//________________________________________________________________
+
+   void KVSpectroDetector::BuildFromFile(const Char_t* filename, const Char_t* path){
+	   // Build the detector (i.e. the volumes) from a TEnv file
+	   // with the following structure:
+	   // .......
+	   //
+	   //  TO IMPLEMENTED
+	   //
+	   //  ......
+	   //
+	   // If the detector has already a volume, i.e. the detector is
+	   // already built then this method does nothing.
+	   // If the filename is not given, the method looks for
+	   // a file with name "GetName().cao".
+	   // If the path is not found in the given directory, this method looks
+	   // for in $KVROOT/KVFiles/<DataSet>/geometry
+	   if(GetAbsGeoVolume()){
+		   Error("BuildFromFile","Volume already existing");
+ 		   return; 
+ 	   }
+	   TString fname = filename;
+	   if(fname.IsNull()) fname.Form("%s.cao",GetName());
+	   TString fullpath;
+
+	   
+	   if(!SearchFile(fname.Data(),fullpath,1,path)){
+		   TString kvsubdir;
+ 		  if(gDataSet) kvsubdir.Form("%s/",gDataSet->GetName()); 
+		  kvsubdir+="geometry";
+		   if(!SearchKVFile(fname.Data(),fullpath,kvsubdir.Data())){
+	   	   	   Error("BuildFromFile","File %s not found in directory %s \n and in $KVROOT/KVFiles/%s",fname.Data(),path,kvsubdir.Data());
+			   return;
+		   }
+	   }
+
+	   Info("BuildFromFile","Building a %s from file %s in directory %s",ClassName(),fname.Data(),path);
+
+	  TEnv infos;
+ 	  infos.ReadFile(fullpath,kEnvAll); 
+
+	  Warning("BuildFromFile","Method to be finished");
+
+   }
+//________________________________________________________________
+
+void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * norm){
+	// To be implemented. See the same method in KVDetector
+	Warning("DetectParticle","To be implemented");
+}
+//________________________________________________________________
+
+Double_t KVSpectroDetector::GetELostByParticle(KVNucleus *, TVector3 * norm){
+	// To be implemented. See the same method in KVDetector
+	Warning("GetELostByParticle","To be implemented");
+
+	return 0;
+}
+//________________________________________________________________
+
+TGeoMedium* KVSpectroDetector::GetGeoMedium(const Char_t* mat_name){
+	// By default, return pointer to TGeoMedium corresponding to this KVMaterial.
+	// If argument "mat_name" is given, a pointer to a medium is return for this material.
+	// mat_name = "Vacuum" is a special case: if the "Vacuum" does not exist, we create it.
+	//
+	// Instance of geometry manager class TGeoManager must be created before calling this
+	// method, otherwise 0x0 will be returned.
+	// If the required TGeoMedium is not already available in the TGeoManager, we create
+	// a new TGeoMedium corresponding to the material given in argument.
+
+	if( !gGeoManager ) return NULL;
+
+
+   	TString medName, matName;
+	if( !strcmp(mat_name,"") ){
+   		// for gaseous materials, the TGeoMedium/Material name is of the form
+   		//      gasname_pressure
+   		// e.g. C3F8_37.5 for C3F8 gas at 37.5 torr
+   		// each gas with different pressure has to have a separate TGeoMaterial/Medium
+   		matName = GetName();
+   		if(IsGas()) medName.Form("%s_%f", matName.Data(), GetPressure());
+   		else medName = GetName();
+  	} 
+	else{
+		matName = mat_name;
+		medName = mat_name;
+ 	}
+
+	TGeoMedium* gmed = gGeoManager->GetMedium( medName);
+	if( gmed ) return gmed;
+
+	TGeoMaterial *gmat = gGeoManager->GetMaterial( medName);
+	if( !gmat ){
+ 		if( !strcmp(matName.Data(), "Vacuum") ){
+			// create material
+			gmat = new TGeoMaterial("Vacuum",0,0,0 );
+		}
+		else{
+			// create material
+			gmat = GetRangeTable()->GetTGeoMaterial(matName.Data());
+			if(!gmat){
+				Error("GetGeoMedium","Material %s is nowhere to be found in %s"
+						,matName.Data(),GetRangeTable()->GetName());
+				return NULL;
+			}
+			if(IsGas())	gmat->SetPressure( GetPressure() );
+			gmat->SetTemperature( GetTemperature() );
+			gmat->SetTransparency(0);
+      	}
+	}
+
+	// For the moment the names of material and medium do not
+	// depend on the temperature of the material.
+	gmat->SetName(medName);
+    gmat->SetTitle(matName);
+
+	// create medium
+	TGeoMedium* lastmed = (TGeoMedium*)gGeoManager->GetListOfMedia()->Last();
+	Int_t numed = (lastmed ? lastmed->GetId()+1 : 0); // static counter variable used to number media
+	gmed = new TGeoMedium( medName, numed, gmat );
+	numed+=1;
+
+	return gmed;
+}
+//________________________________________________________________
+
+TGeoVolume* KVSpectroDetector::GetGeoVolume(const Char_t* name,const Char_t* material, TGeoShape* shape){
+	// Construct a TGeoVolume shape which can be used to represent
+	// a detector in the current geometry managed by gGeoManager.
+	// If the argument material is empty, the name of the detector is used.
+	// Input: name - name given to the volume.
+	//        material - material of the volume. The list of available
+	//                   materials can be found with 
+	//                   det->GetRangeTable()->GetListOfMaterials()->ls()
+	//                   where det is a KVSpectroDetector or another
+	//                   object inheriting from KVMaterial.
+	//        shape - shape of the volume.
+
+	TGeoMedium *med = GetGeoMedium(material);
+	if(!med) return NULL;
+	TGeoVolume* vol =  new TGeoVolume(name,shape,med);
+	if(vol) vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
+	return vol;
+}
+//________________________________________________________________
+
+TGeoVolume* KVSpectroDetector::GetGeoVolume(const Char_t* name, const Char_t* material, const Char_t* shape_name, const Char_t* params){
+	// Construct a TGeoVolume shape which can be used to represent
+	// a detector in the current geometry managed by gGeoManager.
+	// If the argument material is empty, the name of the detector is used.
+	// Input: name - name given to the volume.
+	//        material - material of the volume. The list of available
+	//                   materials can be found with 
+	//                   det->GetRangeTable()->GetListOfMaterials()->ls()
+	//                   where det is a KVSpectroDetector or another
+	//                   object inheriting from KVMaterial.
+	//        shape_name - name of the shape associated to the volum
+	//                     (Box, Arb8, Cone, Sphere, ...),  given
+	//                     by the short name of the shape used in
+	//                     the methods XXX:
+	//                     TGeoManger::MakeXXX(...)
+
+
+	TGeoMedium *med = GetGeoMedium(material);
+	if(!med) return NULL;
+	TString method = Form("Make%s",shape_name);
+	TString  parameters = Form("%p,%p,%s",name,med,params);
+
+	Info("GetGeoVolume","Trying to run the command gGeoManager->%s(%s)",method.Data(),parameters.Data());
+
+	 gGeoManager->Execute(method.Data(),parameters.Data());
+	 TGeoVolume* vol = (TGeoVolume*)gGeoManager->GetListOfVolumes()->Last(); 
+	if(vol) vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
+	return vol;
+}
+//________________________________________________________________
+
+TGeoVolume* KVSpectroDetector::GetGeoVolume(){
+	// returns the TGeoVolume built when a volume is added by
+	// the method AddAbsorber;
+	return GetAbsGeoVolume();
+}
+//________________________________________________________________
+
+Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * norm){
+	// To be implemented. See the same method in KVDetector
+	Warning("GetParticleEIncFromERes","To be implemented");
+
+	return 0;
+}
+//________________________________________________________________
+
+UInt_t KVSpectroDetector::GetTelescopeNumber() const{
+	//  Obsolete method.
+	Warning("GetTelescopeNumber","Obsolete method");	
+
+	return 0;
+}
+//________________________________________________________________
+
+void KVSpectroDetector::GetVerticesInOwnFrame(TVector3* corners, Double_t depth, Double_t layer_thickness){
+	//  Obsolete method.
+	Warning("GetVerticesInOwnFrame","Obsolete method");	
+}
+//________________________________________________________________
+
+void KVSpectroDetector::SetActiveVolume(TGeoVolume* vol){
+	// Set the volume in the list of "active" volumes, i.e. detectors
+	// in which a signal is measured.
+	if(!fActiveVolumes) fActiveVolumes = new TList;
+	fActiveVolumes->Add(vol);
+}
+//________________________________________________________________
+
+void KVSpectroDetector::SetMaterial(const Char_t * type){
+	// Set the same material of all the active volumes.
+	Warning("SetMaterial","To be implemented");
+}

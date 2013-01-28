@@ -133,9 +133,9 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
+.PHONY : changelog MultiDet Indra Spectrometer gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra Spectrometer $(INDRAVAMOS) install analysis byebye
 
 doc : html byebye
 
@@ -198,6 +198,9 @@ MultiDet : .init
 Indra : .init
 	cd KVIndra && $(MAKE)
 
+Spectrometer : .init
+	cd KVSpectrometer && $(MAKE)
+
 analysis : .init
 	cd analysis && $(MAKE)
 	
@@ -217,6 +220,7 @@ clean :
 	cd KVMultiDet && $(MAKE) clean
 	cd fitltg-0.1 && make clean
 	cd KVIndra && $(MAKE) clean
+	cd KVSpectrometer && $(MAKE) clean
 ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
@@ -237,6 +241,7 @@ install :
 	-mkdir -p $(KVINSTALLDIR)/tools
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
+	cd KVSpectrometer && $(MAKE) install
 	cd VAMOS && $(MAKE) install
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
@@ -289,10 +294,12 @@ endif
 	cd KVMultiDet && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall-indra2root
+	cd KVSpectrometer && $(MAKE) uninstall
 	cd VAMOS && $(MAKE) uninstall
 	cd analysis && $(MAKE) uninstall
 	cd KVMultiDet && $(MAKE) removemoduledirs
 	cd KVIndra && $(MAKE) removemoduledirs
+	cd KVSpectrometer && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
@@ -300,6 +307,7 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	cd fitltg-0.1 && make dist
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
+	tar -czf libKVSpectrometer-$(VERSION_NUMBER).tgz KVSpectrometer
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
 	tar -czf html-$(VERSION_NUMBER).tgz html
@@ -327,12 +335,14 @@ unpack :
 	-tar zxf fitltg-0.1.tar.gz 
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
+	-tar zxf libKVSpectrometer-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
 	-tar zxf html-$(VERSION_NUMBER).tgz
 	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
+	-rm libKVSpectrometer-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
 	-rm html-$(VERSION_NUMBER).tgz
