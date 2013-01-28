@@ -41,6 +41,12 @@ class KVFunctionCal : public KVCalibrator
 	
 	void 	ChangeCalibParameters(KVDBParameterSet *kvdbps);
    void 	SetConversionType(TString from,TString to,TString signal);
+   void     SetExpFormula(const Char_t *formula, Double_t xmin=0, Double_t xmax=0);
+   void     SetParameter(UShort_t i, Float_t par_val){
+	   KVCalibrator::SetParameter(i,par_val);
+	   if(fcalibfunction) fcalibfunction->SetParameter(i,par_val);
+   };
+
    void 	WithPedestalCorrection(Bool_t yes) { fPedCorr = yes; }; 
 	TF1*  GetFunction() { return fcalibfunction; }
 	

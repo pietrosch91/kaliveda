@@ -120,6 +120,34 @@ void KVFunctionCal::SetConversionType(TString from,TString to,TString signal)
 	SetType(Form("%s->%s(%s)",from.Data(),to.Data(),signal.Data()));
 
 }
+//------------------------------
+void KVFunctionCal::SetExpFormula(const Char_t *formula, Double_t xmin, Double_t xmax)
+//------------------------------
+{
+	// Change the formula of the calibration function.
+	// 
+	// If the [xmin,xmax] range is not given and if a previous calibration
+	// function was already set then the same range is taken.
+	// The default range is [O,4096].
+
+	Double_t min=0., max=4096.;
+	if(xmin!=xmax){
+		min = xmin;
+		max = xmax;
+	}
+	if(fcalibfunction){
+		if(xmin==xmax) fcalibfunction->GetRange(min,max);
+		delete fcalibfunction;
+	}
+
+	if(!GetDetector()){
+		Warning("SetExpFormula","Detector has to be set before!");
+		return;
+	}
+
+	fcalibfunction = new TF1(GetDetector()->GetName(),formula,min,max);
+	SetNumberParams(fcalibfunction->GetNpar());
+}
 
 //------------------------------
 Double_t KVFunctionCal::Compute(Double_t from) const
