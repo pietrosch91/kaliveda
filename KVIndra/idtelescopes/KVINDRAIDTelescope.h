@@ -30,14 +30,16 @@ class KVINDRAIDTelescope:public KVIDTelescope, public KVIDSubCodeManager {
       return fECode;
    };
    virtual UShort_t GetBadIDCode();
-
+   virtual UShort_t GetCoherencyIDCode();
+  virtual  UShort_t GetMultiHitFirstStageIDCode();
    inline void SetSubCodeManager(UChar_t n_bits,
                                  UChar_t most_significant_bit) {
       SetNbits(n_bits);
       SetMSB(most_significant_bit);
    };
 
-	ClassDef(KVINDRAIDTelescope, 1)   //A delta-E - E identification telescope in INDRA
+   ClassDef(KVINDRAIDTelescope, 1)   //A delta-E - E identification telescope in INDRA
+
 };
 
 #endif

@@ -310,6 +310,7 @@ class KVMultiDetArray:public KVBase {
    Bool_t IsROOTGeometry() const { return fROOTGeometry; };
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
+   Int_t FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event);
 };
 
 //................  global variable

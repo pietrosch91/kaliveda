@@ -137,13 +137,13 @@ KVSimDirGUI::KVSimDirGUI()
    hf->AddFrame(fCBAllEvents, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
    fNENumberEvents = new TGNumberEntry(hf, 1, 10, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMin, 1);
    hf->AddFrame(fNENumberEvents, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
-   TGPictureButton* proof_analysis = new TGPictureButton(hf,gClient->GetPicture("proof_base.xpm"));
-   proof_analysis->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
-   proof_analysis->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
-   proof_analysis->SetToolTipText("Enable PROOF");
-   proof_analysis->Resize(40,40);
-   proof_analysis->AllowStayDown(kTRUE);
-   hf->AddFrame(proof_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 400,2,2,2));
+   proof_analysis_ana = new TGPictureButton(hf,gClient->GetPicture("proof_base.xpm"));
+   proof_analysis_ana->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
+   proof_analysis_ana->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
+   proof_analysis_ana->SetToolTipText("Enable PROOF");
+   proof_analysis_ana->Resize(40,40);
+   proof_analysis_ana->AllowStayDown(kTRUE);
+   hf->AddFrame(proof_analysis_ana, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 400,2,2,2));
    TGPictureButton* launch_analysis = new TGPictureButton(hf,gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunAnalysis()");
    launch_analysis->SetToolTipText("Run analysis");
@@ -152,7 +152,7 @@ KVSimDirGUI::KVSimDirGUI()
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
    fCBAllEvents->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "EnableEventNumberEntry(Bool_t)");
    fCBAllEvents->SetState(kButtonDown,kTRUE);
-   
+
    fAnalTab->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,2,2,2,2));
    
    /* Filter Tab */
@@ -219,11 +219,18 @@ KVSimDirGUI::KVSimDirGUI()
    bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "Kinematics(Int_t)");
    fKine=kKCM;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop|kLHintsLeft,20,2,2,2));
+   proof_analysis_filt = new TGPictureButton(hf,gClient->GetPicture("proof_base.xpm"));
+   proof_analysis_filt->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
+   proof_analysis_filt->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
+   proof_analysis_filt->SetToolTipText("Enable PROOF");
+   proof_analysis_filt->Resize(40,40);
+   proof_analysis_filt->AllowStayDown(kTRUE);
+   hf->AddFrame(proof_analysis_filt, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 250,2,2,2));
    launch_analysis = new TGPictureButton(hf,gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunFilter()");
    launch_analysis->SetToolTipText("Run filter");
    launch_analysis->Resize(40,40);
-   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 250,2,2,2));
+   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 5,2,2,2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,10,2));
    
 //    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
@@ -623,8 +630,10 @@ void KVSimDirGUI::RunFilter()
    
    TString options;
    Long64_t nevents = analysis_chain->GetEntries();
-   options.Form("EventsReadInterval=%d,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
+   options.Form("EventsReadInterval=%d,SimFileName=%s,SimTitle=%s,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
          nevents/10,
+                ((KVSimFile*)runs_to_analyse->First())->GetName(),
+                analysis_chain->GetTitle(),
          ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
          fDataset.Data(),fSystem.Data(),geometry.Data(),filter.Data(),
 //         fTEOutputDir->GetText());
@@ -635,7 +644,19 @@ void KVSimDirGUI::RunFilter()
       options+=r;
    }
    Info("RunFilter", "%s",options.Data());
-   
+
+   if(fWithPROOF){
+       TProof*p = TProof::Open("");
+       analysis_chain->SetProof();
+       // enable KaliVeda on PROOF cluster
+       if(p->EnablePackage("KaliVeda")!=0){
+           // first time, need to 'upload' package
+           TString fullpath;
+           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           p->UploadPackage(fullpath);
+           p->EnablePackage("KaliVeda");
+       }
+   }
    analysis_chain->Process("KVEventFiltering", options);
    RefreshSimDir();
    

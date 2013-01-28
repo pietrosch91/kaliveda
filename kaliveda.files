@@ -833,6 +833,8 @@ KVMultiDet/analysis/KVSimReader.cpp
 KVMultiDet/analysis/KVSimReader.h
 KVMultiDet/analysis/KVSimReader_HIPSE.cpp
 KVMultiDet/analysis/KVSimReader_HIPSE.h
+KVMultiDet/analysis/KVSimReader_ELIE.cpp
+KVMultiDet/analysis/KVSimReader_ELIE.h
 KVMultiDet/analysis/KVSimReader_HIPSE_asym.cpp
 KVMultiDet/analysis/KVSimReader_HIPSE_asym.h
 KVMultiDet/analysis/KVSimReader_MMM.cpp

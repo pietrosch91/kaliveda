@@ -75,7 +75,7 @@ public:
    Bool_t CreateTreeFile(const Char_t* filename = "");
 	
 	
-	KVEventSelector(TTree * /*tree*/ = 0) : gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
+    KVEventSelector(TTree * /*tree*/ = 0) : fChain(0), gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
       fEventsRead(0), fEventsReadInterval(100), fNotifyCalled(kFALSE) {
       lhisto = new KVHashList();
       ltree = new KVHashList();

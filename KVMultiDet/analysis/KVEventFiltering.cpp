@@ -8,6 +8,7 @@
 #include "KVDBSystem.h"
 #include "KVDBRun.h"
 #include "KVDataSetManager.h"
+#include <KVDataRepositoryManager.h>
 
 ClassImp(KVEventFiltering)
 
@@ -26,6 +27,8 @@ ClassImp(KVEventFiltering)
 //
 // The following options MUST be given:
 //
+//    SimFileName: name of file containing simulated events
+//    SimTitle: description of simulation
 //    BranchName: name of branch containing simulated events
 //    Dataset:    name of experimental dataset (defines multidetector array to use etc.)
 //    System:     name of experimental dataset system (defines collision kinematics etc.)
@@ -124,8 +127,8 @@ Bool_t KVEventFiltering::Analysis()
 void KVEventFiltering::EndAnalysis()
 {
    // Write file containing filtered data to disk.
-   fFile->Write();
-   delete fFile;
+   //fFile->Write();
+   //delete fFile;
 }
    
 void KVEventFiltering::EndRun()
@@ -150,6 +153,10 @@ void KVEventFiltering::InitAnalysis()
    // it is given by KVDataSet::GetReconstructedEventClassName().
    
    TString dataset = GetOpt("Dataset").Data();
+   if(!gDataSetManager) {
+       new KVDataRepositoryManager;
+       gDataRepositoryManager->Init();
+   }
    gDataSetManager->GetDataSet(dataset)->cd();
    if(gMultiDetArray) delete gMultiDetArray;
    gDataSet->BuildMultiDetector();
@@ -202,15 +209,13 @@ void KVEventFiltering::InitAnalysis()
    
    
    OpenOutputFile(sys,run);
-   fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
-
-//   fTree = fChain->CloneTree(0);
-//   fTree->SetName(Form("%s filtered with %s",fChain->GetTitle());
-//   fTree->SetTitle(sys->GetName());
+   fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() ,sys->GetName()));
    
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();
    fTree->Branch("ReconEvent", reconevclass,&fReconEvent,10000000,0)->SetAutoDelete(kFALSE);
+
+   AddTree(fTree);
 }
    
 void KVEventFiltering::InitRun()
@@ -238,7 +243,7 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
    // KEY: TNamed	Filter;1	title=[filter-type]
    // KEY: TNamed	Origin;1 title=[name of simulation file]
    //      
-   TString basefile = gSystem->BaseName(fChain->GetCurrentFile()->GetName());
+    TString basefile = GetOpt("SimFileName");
    basefile.Remove(basefile.Index(".root"),5);
    TString outfile = basefile + "_geo=";
    outfile += GetOpt("Geometry");
@@ -255,7 +260,11 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
       TString fullpath;
       AssignAndDelete(fullpath, gSystem->ConcatFileName(GetOpt("OutputDir").Data(),outfile.Data()));
    
-   fFile = new TFile(fullpath,"recreate");
+   //fFile = new TFile(fullpath,"recreate");
+   CreateTreeFile(fullpath);
+
+   TDirectory* curdir = gDirectory;
+   writeFile->cd();
    TNamed* system = new TNamed("System", S->GetName());
    system->Write();
    (new TNamed("Dataset",gDataSet->GetName()))->Write();
@@ -269,4 +278,5 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
    }
    (new TNamed("Filter",GetOpt("Filter").Data()))->Write();
    (new TNamed("Origin", (basefile+".root").Data()))->Write();
+   curdir->cd();
 }

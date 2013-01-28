@@ -46,8 +46,8 @@ class KVIDCsI:public KVINDRAIDTelescope {
        // Used for filtering simulations
        // Returns kTRUE if this telescope is theoretically capable of identifying a given nucleus,
        // without considering thresholds etc.
-       // For INDRA CsI Rapide-Lente detectors, identification is possible up to Z=5
-       return (Z<6);
+       // For INDRA CsI Rapide-Lente detectors, identification is possible up to Z=4
+       return (Z<5);
    }
 
     ClassDef(KVIDCsI, 3)        //INDRA identification using CsI R-L matrices

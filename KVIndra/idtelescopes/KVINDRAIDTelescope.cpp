@@ -26,6 +26,20 @@ UShort_t KVINDRAIDTelescope::GetBadIDCode() {
    return kIDCode14;
 }
 
+UShort_t KVINDRAIDTelescope::GetCoherencyIDCode() {
+   // return a general identification code (can be a bitmask) for particles identified
+    // with this type of ID telescope after coherency analysis
+    // this corresponds to VEDA ID code 6
+   return kIDCode6;
+}
+
+UShort_t KVINDRAIDTelescope::GetMultiHitFirstStageIDCode() {
+   // return a general identification code (can be a bitmask) for particles which cannot
+    // be identified correctly due to pile-up in a delta-E detector
+    // this corresponds to VEDA ID code 8
+   return kIDCode8;
+};
+
 KVINDRAIDTelescope::~KVINDRAIDTelescope()
 {
 }

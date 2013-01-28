@@ -162,6 +162,18 @@ class KVIDTelescope:public KVBase {
        // redefine in child classes; default returns 0.
        return 0;
     };
+    virtual UShort_t GetCoherencyIDCode() {
+       // return a general identification code (can be a bitmask) for particles identified
+       // with this type of ID telescope after coherency analysis
+       // redefine in child classes; default returns 0.
+       return 0;
+    };
+    virtual UShort_t GetMultiHitFirstStageIDCode() {
+       // return a general identification code (can be a bitmask) for particles which cannot
+        // be identified correctly due to pile-up in a delta-E detector
+       // redefine in child classes; default returns 0.
+       return 0;
+    };
     virtual UShort_t GetIDCode() {
        // return a general identification code (can be a bitmask) for particles correctly identified
        // with this type of ID telescope
