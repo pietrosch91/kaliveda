@@ -25,9 +25,9 @@ class KVTGIDGrid : public KVIDZAGrid
    virtual ~KVTGIDGrid();
 	void WriteToAsciiFile(std::ofstream &);
 	void ReadFromAsciiFile(std::ifstream &);
-   virtual void Generate(Double_t xmax, Double_t xmin = 0.,
-                                Int_t ID_min = 0, Int_t ID_max =
-                                0, Int_t npoints = 50, Bool_t logscale = kTRUE);//  *MENU*	
+   virtual void Generate(Double_t xmax, Double_t xmin,
+                                Int_t ID_min = 0, Int_t ID_max = 0, 
+				Int_t npoints = 50, Bool_t logscale = kTRUE);//  *MENU* *ARGS={xmax=>fXmax,xmin=>fXmin}
 	
 	const KVTGID* GetTGID() const;
    virtual void AddIdentifier(KVIDentifier *id);

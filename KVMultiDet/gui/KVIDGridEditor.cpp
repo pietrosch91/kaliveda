@@ -922,7 +922,7 @@ void KVIDGridEditor::MakeTransformation()
   
   if((event==kButton1Up)&&(dlmode)&&(select))
     {
-    if(select->InheritsFrom("KVIDZALine"))
+    if(select->InheritsFrom("KVIDentifier"))
       {
       DeleteLine((KVIDentifier*)select);
       }

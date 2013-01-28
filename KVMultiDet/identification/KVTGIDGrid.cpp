@@ -55,30 +55,9 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
    if(original) original->GetCuts()->Copy((TObject &)*fCuts);  
    
     fPar->SetValue("HasTGID",1);
-//    
-//    fPar->SetValue("KVTGID::Name",fTGID->GetName());
-//    fPar->SetValue("KVTGID::Type",fTGID->GetFunctionalType());
-//    fPar->SetValue("KVTGID::",fTGID->GetLightEnergyDependence());
-//    fPar->SetValue("KVTGID::ZorA",fTGID->GetZorA());
-//    if(fTGID->GetZorA()==1) fPar->SetValue("KVTGID::MassFormula",fTGID->GetMassFormula());
-//    fPar->SetValue("KVTGID::Functional",fTGID->GetFunctionName());
-//    fPar->SetValue("KVTGID::ZMIN",(Int_t)fTGID->GetIDmin());
-//    fPar->SetValue("KVTGID::ZMAX",(Int_t)fTGID->GetIDmin());
-//    
-//    Bool_t type1 = (fTGID->GetFunctionalType()==1);
-//    fPar->SetValue("KVTGID::Lambda",Form("%20.13e",fTGID->GetLambda()));
-//    if(type1) fPar->SetValue("KVTGID::Alpha",Form("%20.13e",fTGID->GetAlpha()));
-//    if(type1) fPar->SetValue("KVTGID::Beta",Form("%20.13e",fTGID->GetBeta()));
-//    fPar->SetValue("KVTGID::Mu",Form("%20.13e",fTGID->GetMu()));
-//    if(type1) fPar->SetValue("KVTGID::Nu",Form("%20.13e",fTGID->GetNu()));
-//    if(type1) fPar->SetValue("KVTGID::Xi",Form("%20.13e",fTGID->GetXi()));
-//    
-//    fPar->SetValue("KVTGID::G",Form("%20.13e",fTGID->GetG()));
-//    fPar->SetValue("KVTGID::Pdx",Form("%20.13e",fTGID->GetPdx()));
-//    fPar->SetValue("KVTGID::Pdy",Form("%20.13e",fTGID->GetPdy()));
-//    
-//    if(fTGID->GetLightEnergyDependence()==1) fPar->SetValue("KVTGID::Eta",Form("%20.13e",fTGID->GetEta()));
-      
+	FindAxisLimits();
+	
+   Info("KVTGIDGrid","Pdx = %lf",fXmin);
 }
 
 KVTGIDGrid::~KVTGIDGrid()
@@ -107,6 +86,8 @@ void KVTGIDGrid::ReadFromAsciiFile(ifstream & gridfile)
       line.ReadLine(gridfile);  
       if(line.BeginsWith("++KVTGID"))  fTGID = KVTGID::ReadFromAsciiFile(GetName(), gridfile);
       }
+	FindAxisLimits();
+   Info("ReadFromAsciiFile","Pdx = %lf",fXmin);
 }
 
 //___________________________________________________________________________//
@@ -137,7 +118,6 @@ void KVTGIDGrid::Generate(Double_t xmax, Double_t xmin, Int_t ID_min, Int_t ID_m
       Error("Generate","No parameter stored to initialize a functional !");
       return;
       }
-    
 
     ID_min = (ID_min ? ID_min : (Int_t) fTGID->GetIDmin());
     ID_max = (ID_max ? ID_max : (Int_t) fTGID->GetIDmax());
@@ -155,6 +135,7 @@ void KVTGIDGrid::Generate(Double_t xmax, Double_t xmin, Int_t ID_min, Int_t ID_m
         fTGID->AddLineToGrid(this, ID, npoints, xmin, xmax, logscale);
     }
 	if(was_drawn) {last_pad->cd(); Draw();}
+	FindAxisLimits();
 }
 
 //___________________________________________________________________________//

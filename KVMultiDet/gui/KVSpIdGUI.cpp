@@ -354,9 +354,9 @@ void KVSpIdGUI::SpiderIdentification()
     if((spline->GetN()>10))//&&(spline->GetX(0)<=fIdentificator->GetX0()+200.))
       {
       TF1* ff1 = 0;
-      if(type==kSiCsI) ff1 = spline->GetFunction(fPdx,TMath::Max(fScaledHisto->GetXaxis()->GetXmax()*0.98,spline->GetX(spline->GetN()-1)));
-      else if(type==kSiSi)  ff1 = spline->GetFunction(fPdx,TMath::Min(fScaledHisto->GetXaxis()->GetXmax()*0.99,spline->GetX(spline->GetN()-1)*1.5));
-      else if(type==kChIoSi)  ff1 = spline->GetFunction(fPdx,TMath::Min(fScaledHisto->GetXaxis()->GetXmax()*0.99,spline->GetX(spline->GetN()-1)*1.5));
+      if(type==kSiCsI) ff1 = spline->GetFunction(fPdx*fSfx,TMath::Max(fScaledHisto->GetXaxis()->GetXmax()*0.98,spline->GetX(spline->GetN()-1)));
+      else if(type==kSiSi)  ff1 = spline->GetFunction(fPdx*fSfx,TMath::Min(fScaledHisto->GetXaxis()->GetXmax()*0.99,spline->GetX(spline->GetN()-1)*1.5));
+      else if(type==kChIoSi)  ff1 = spline->GetFunction(fPdx*fSfx,TMath::Min(fScaledHisto->GetXaxis()->GetXmax()*0.99,spline->GetX(spline->GetN()-1)*1.5));
       else ff1 = spline->GetFunction();
       if((type==kSiCsI)&&(ff1->GetParameter(1)>=3000.||(ff1->GetParameter(2)<=0.35)||(ff1->GetParameter(2)>=1.))) 
         {
