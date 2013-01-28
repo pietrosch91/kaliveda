@@ -637,7 +637,8 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndra    "KVINDRAFNL()"
 +Plugin.KVMultiDetArray:    INDRA_e475s    KVINDRAe475s     KVIndra    "KVINDRAe475s()"
 +Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
-+Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
+#+Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
++Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     KVSpectrometer    "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
 +Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
@@ -972,3 +973,25 @@ KaliVedaGUI.MaxColWidth:       500
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    no
+
+# test for development of classes describing the VAMOS spectrometer
+#
+#--------------- List of detectors in the focal plan of VAMOS
+KVSpectrometer.DetectorList: KVHarpeeSi KVHarpeeIC KVDriftChamber KVSeD
+KVSpectrometer.KVHarpeeSi.Number: 1-18
+KVSpectrometer.KVHarpeeIC.Number: 1
+KVSpectrometer.KVDriftChamber.Number: 1-2
+KVSpectrometer.KVSeD.Number: 1
+# For INDRA_e494s dataset
+INDRA_e494s.KVSpectrometer.DetectorList: KVHarpeeSi KVHarpeeIC KVSeD
+INDRA_e494s.KVSpectrometer.KVSeD.Number: 1-2
+
+#-------------- List of ACQParameter 
+# for VAMOS
+KVSpectrometer.ACQParameterList: TSED1_HF TSED2_HF TSI_HF TSI_INDRA TSED1_SED2 TSI_SED1 TSED1_INDRA TSI_MCP TMCP_HF TSED1_MCP
+# for the detectors
+KVHarpeeSi.ACQParameterList:
+KVHarpeeIC.ACQParameterList:
+KVDriftChamber.ACQParameterList:
+KVSeD.ACQParameterList:
+
