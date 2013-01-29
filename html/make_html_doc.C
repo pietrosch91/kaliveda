@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 #ifndef __WITHOUT_THTML_SETPRODUCTNAME
    a.SetProductName("KaliVeda");
 #endif
-	a.SetInputDir("./examples:../KVMultiDet:../KVIndra:../VAMOS");
+	a.SetInputDir("./examples:../KVMultiDet:../KVIndra:../VAMOS:../KVSpectrometer");
 	a.SetOutputDir(Form("$(KVROOT)/KaliVedaDoc/%s", KVBase::GetKVVersion()));
    a.SetHomepage("http://indra.in2p3.fr/KaliVedaDoc");
    a.MakeAll();

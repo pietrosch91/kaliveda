@@ -15,20 +15,24 @@ bool MyPathDefinition::GetDocDir(const TString& module, TString& doc_dir) const
 	// ../VAMOS/module
 	// and finally
 	// html/examples/
-   if (module.Length()){
-      doc_dir = "../KVMultiDet/" + module;
-      doc_dir +="/";
-      if(gSystem->AccessPathName(doc_dir.Data())){
-      	doc_dir = "../KVIndra/" + module;
+   	if (module.Length()){
+      	doc_dir = "../KVMultiDet/" + module;
       	doc_dir +="/";
       	if(gSystem->AccessPathName(doc_dir.Data())){
-      		doc_dir = "../VAMOS/" + module;
+      		doc_dir = "../KVIndra/" + module;
       		doc_dir +="/";
       		if(gSystem->AccessPathName(doc_dir.Data())){
-       			doc_dir =  module + "/";
-     			}
+      			doc_dir = "../VAMOS/" + module;
+      			doc_dir +="/";
+      			if(gSystem->AccessPathName(doc_dir.Data())){
+      				doc_dir = "../KVSpectrometer/" + module;
+      				doc_dir +="/";
+      				if(gSystem->AccessPathName(doc_dir.Data())){
+       					doc_dir =  module + "/";
+     				}
+				}
+      		}
       	}
-      }
     }
     else
     {
