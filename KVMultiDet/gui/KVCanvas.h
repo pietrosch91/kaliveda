@@ -65,7 +65,7 @@ friend class KVKeyHandler;
    void DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected);
    void ZoomSelected(TH2* TheHisto);
 
-   ClassDef(KVCanvas,1)//bidouille
+   ClassDef(KVCanvas,1)//TCanvas with mouse-controlled dynamic zoom and pan & scan
 };
 
 #endif

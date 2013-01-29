@@ -25,7 +25,17 @@
 \bibtex_command default
 \index_command default
 \paperfontsize default
-\use_hyperref false
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -58,6 +68,19 @@
 \end_header
 
 \begin_body
+
+\begin_layout Title
+KVedaLoss Range and Stopping Tables
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
 
 \begin_layout Section
 Introduction
@@ -297,6 +320,14 @@ key "ncs,HBG"
 \end_inset
 
 .
+ They are extracted from 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Cassette"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
@@ -311,7 +342,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Selection_004.png
+	filename Selection_004.png
 
 \end_inset
 
@@ -363,7 +394,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Selection_005.png
+	filename Selection_005.png
 
 \end_inset
 
@@ -411,7 +442,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Selection_006.png
+	filename Selection_006.png
 
 \end_inset
 
@@ -492,7 +523,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Selection_007.png
+	filename Selection_007.png
 
 \end_inset
 
@@ -528,7 +559,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Selection_008.png
+	filename Selection_008.png
 
 \end_inset
 
@@ -707,6 +738,27 @@ Nucl.Instr.
 B107
 \series default
  (1996) 9
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Cassette"
+
+\end_inset
+
+S.
+ Cassette, Rapport de stage de deuxième année d'école d'ingénieur INPG Phelma
+ (Grenoble), 
+\begin_inset Quotes eld
+\end_inset
+
+Comparaison du pouvoir d'arrêt des ions lourds entre les simulations GEANT
+ et un calcul analytique aux énergies de 0.1 à 250 MeV/nucléon
+\begin_inset Quotes erd
+\end_inset
+
+ (2011)
 \end_layout
 
 \end_body

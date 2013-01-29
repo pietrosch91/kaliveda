@@ -20,7 +20,7 @@ ClassImp(KVIDGridEditor)
 /* -->
 <h2>KVIDGridEditor</h2>
 <h4>Editeur de grille d'identification</h4>
-
+<img alt="KVIDGridEditor" src="images/IDGridEditor.png"><br><br>
 Doc :  <a href="images/DocGridEditor.pdf"> DocGridEditor.pdf </a> (FR)
 Présentation de l'éditeur : <a href="images/JourneeAnalyse0312_1.pdf"> JourneeAnalyse0312_1.pdf </a> (FR)
 

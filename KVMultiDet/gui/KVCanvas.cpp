@@ -19,10 +19,14 @@ ClassImp(KVCanvas)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVCanvas</h2>
-Classe basée sur TCanvas avec surcharge de la méthode 'HandleInput'
-de manière à être sensible au mouvement de molette (kWheelUp/kWheelDown),
-et à suprimer la sensibilité des TPavaLabel.
-Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
+TCanvas with mouse-controlled dynamic zoom and pan & scan.<br>
+
+<img alt="KVCanvas" src="images/KVCanvas.png"><br><br>
+
+Dynamic zoom: left-click to draw rectangle around region of interest, release mouse button to zoom in<br>
+Zoom in: mouse wheel up<br>
+Zoom out: mouse wheel down<br>
+Pan: hold down mouse wheel (centre button) and move
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,8 @@ ClassImp(KVSimDirGUI)
 /* -->
 <h2>KVSimDirGUI</h2>
 <h4>GUI for simulated data</h4>
-See documentation <a href="ksimdirgui.html.LyXconv/ksimdirgui.html">here</a>.
+<img alt="KVSimDirGUI" src="images/KVSimDirGUI.png"><br><br>
+<h3>See documentation <a href="KVSimDirGUIDoc/KVSimDirGUI.html">here</a>.</h3>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////

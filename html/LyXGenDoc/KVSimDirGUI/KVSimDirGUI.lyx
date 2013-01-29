@@ -59,6 +59,19 @@
 
 \begin_body
 
+\begin_layout Title
+KVSimDirGUI - Filtering & Analysing Simulated Data using PROOF
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Overview
 \end_layout
@@ -100,7 +113,10 @@ target "../KVSimFile.html"
 \end_inset
 
 , which handle the directories containing the data.
- Different datasets can be managed, each one corresponding to a different
+\end_layout
+
+\begin_layout Standard
+Different datasets can be managed, each one corresponding to a different
  directory containing data in ROOT trees.
  ROOT files in the dataset directories are automatically scanned to find
  TTrees with a branch containing objects either of a 
@@ -145,7 +161,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../../../../../Pictures/Selection_011.png
+	filename Selection_011.png
 	scale 75
 
 \end_inset
@@ -157,7 +173,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Overview of GUI, showing the data analysis tab
+Overview of KVSimDirGUI
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Overview-of-GUI"
@@ -182,7 +198,36 @@ name "fig:Overview-of-GUI"
 \end_layout
 
 \begin_layout Section
+Opening the GUI
+\end_layout
+
+\begin_layout Standard
+In a ROOT interactive session, type
+\end_layout
+
+\begin_layout LyX-Code
+root[0] new KVSimDirGUI
+\end_layout
+
+\begin_layout Standard
+The graphical user interface (see Fig.
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Overview-of-GUI"
+
+\end_inset
+
+) opens.
+\end_layout
+
+\begin_layout Section
 Adding a dataset
+\end_layout
+
+\begin_layout Standard
+A dataset is a directory containing ROOT files with simulated and/or filtered
+ simulated data.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -213,7 +258,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Choose directory..._012.png
+	filename Choose directory..._012.png
 	scale 75
 
 \end_inset
@@ -260,7 +305,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/KVInputDialog_014.png
+	filename KVInputDialog_014.png
 	scale 75
 
 \end_inset
@@ -304,11 +349,11 @@ reference "fig:New-dataset-appears"
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Untitled window_015.png
+	filename Untitled window_015.png
 	scale 75
 
 \end_inset
@@ -387,7 +432,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Open_016.png
+	filename Open_016.png
 	scale 75
 
 \end_inset
@@ -438,8 +483,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/john/Pictures/Selection_017.png
-	scale 75
+	filename Selection_017.png
 
 \end_inset
 
@@ -450,7 +494,9 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Tab for filtering simulated data
+Tab for filtering simulated data.
+ In the bottom right-hand corner are the 'Enable PROOF' and 'Run filter'
+ buttons.
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Tab-for-filtering"
@@ -486,31 +532,66 @@ reference "fig:Tab-for-filtering"
  conditions for which you want to filter your simulation.
  Optionally, you can choose a specific run number; if not, the first run
  corresponding to the chosen system will be used.
- Choose the type of filtering you want:
-\end_layout
-
-\begin_layout Itemize
-Geometric - particles are considered detected if they hit at least one detector;
-\end_layout
-
-\begin_layout Itemize
-Geometry+Thresholds - particles are considered detected if they cross at
- least one detector, particles which are stopped by the first detector of
- a telescope are rejected as unidentified;
-\end_layout
-
-\begin_layout Itemize
-Full - full simulation of array response, inverted calibrations are used
- to generate pseudo-experimental raw data, which is then identified and
- calibrated using exactly the same experimental procedures.
 \end_layout
 
 \begin_layout Standard
-Choose the type of geometry description to use:
+Choose the 
+\noun on
+Filter type
+\noun default
+ you want (see 
+\begin_inset CommandInset href
+LatexCommand href
+name "KVMultiDetArray::DetectEvent"
+target "../KVMultiDetArray.html#KVMultiDetArray:DetectEvent"
+
+\end_inset
+
+ for more details):
 \end_layout
 
 \begin_layout Itemize
-KaliVeda - the simple detector geometry of 
+Geometric - particles are considered detected if they hit at least one detector
+ in the array;
+\end_layout
+
+\begin_layout Itemize
+Geometry+Thresholds - 
+\noun on
+(recommended) 
+\noun default
+charged particles must have sufficient energy to escape the experimental
+ target and overcome realistic identification thresholds in order to be
+ detected.
+ Moreover, particles which stop in the same detector are rejected as unidentifie
+d, while a pseudo-coherency analysis of the particles in each group is used
+ to decide whether they could be identified experimentally.
+\end_layout
+
+\begin_layout Itemize
+Full - 
+\noun on
+(experimental) 
+\noun default
+Full simulation of array response, inverted calibrations are used to generate
+ pseudo-experimental raw data, which is then identified and calibrated using
+ exactly the same experimental procedures.
+\end_layout
+
+\begin_layout Standard
+Choose the type of 
+\noun on
+geometry
+\noun default
+ description to use:
+\end_layout
+
+\begin_layout Itemize
+KaliVeda - 
+\noun on
+(default)
+\noun default
+ the simple detector geometry of 
 \begin_inset CommandInset href
 LatexCommand href
 name "KVMultiDetArray"
@@ -551,7 +632,11 @@ target "../KVTelescope.html"
 \end_layout
 
 \begin_layout Itemize
-ROOT - use the ROOT geometry package 
+ROOT - 
+\noun on
+(recommended)
+\noun default
+ use the ROOT geometry package 
 \begin_inset CommandInset href
 LatexCommand href
 name "TGeo"
@@ -596,18 +681,129 @@ target "../KVINDRA.html#KVINDRA:CreateGeoManager"
 \end_layout
 
 \begin_layout Standard
+Specify the 
+\noun on
+kinematics
+\noun default
+ of the simulated data:
+\end_layout
+
+\begin_layout Itemize
+CM - the simulated data was generated in the centre of mass frame.
+ Before detection simulation, the centre of mass velocity corresponding
+ to the selected experiment will be used to transform particle momenta into
+ the laboratory frame
+\end_layout
+
+\begin_layout Itemize
+Lab - the simulated data was generated in the laboratory frame, no transformatio
+n is required before filtering
+\end_layout
+
+\begin_layout Standard
 Select a simulated data file in the list and click on the 'Run filter' button.
- The new file of filtered data will be written in the same directory as
- the simulated data file.
- Click on the 'Refresh dataset' button (see Fig.
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:Overview-of-GUI"
+ The new file of reconstructed filtered data (pseudo-experimental data)
+ will be written in the same directory as the simulated data file: the new
+ file will appear in the 'Filtered simulations' list.
+\end_layout
+
+\begin_layout Section
+Using PROOF
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Untitled window_004.png
 
 \end_inset
 
-) in order to reanalyse the directory: the new file will appear in the 'Filtered
- simulations' list.
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Analysis tab showing 
+\begin_inset Quotes eld
+\end_inset
+
+Enable PROOF
+\begin_inset Quotes erd
+\end_inset
+
+ button
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Analysis-tab-showing"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If you have a multi-core (multi-CPU) computer, you can use the ROOT parallel
+ processing facility, PROOF, in order to accelerate your analyses.
+ This allows the 
+\begin_inset Formula $N$
+\end_inset
+
+ processors in your computer to be used simultaneously to treat data as
+ if they were separate machines.
+ PROOF can be used for filtering or analysing data with KVSimDirGUI.
+\end_layout
+
+\begin_layout Standard
+To use PROOF, just click the 'Enable PROOF' button on either the analysis
+ (see Fig.
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Analysis-tab-showing"
+
+\end_inset
+
+) or the filtering tab (see Fig.
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Tab-for-filtering"
+
+\end_inset
+
+) before running a task.
+\end_layout
+
+\begin_layout Standard
+For PROOF analysis to work, make sure you follow the guidelines given for
+ PROOF-compatible analysis classes (
+\begin_inset CommandInset href
+LatexCommand href
+name "KVEventSelector"
+target "../KVEventSelector.html"
+
+\end_inset
+
+).
 \end_layout
 
 \end_body
