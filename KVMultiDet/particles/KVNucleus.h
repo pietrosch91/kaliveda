@@ -23,6 +23,7 @@ class KVNumberList;
 class KVLifeTime;
 class KVMassExcess;
 class KVAbundance;
+class KVChargeRadius;
 
 class KVNucleus:public KVParticle {
 
@@ -51,6 +52,11 @@ class KVNucleus:public KVParticle {
       kEALMass,
 		kEALResMass,
 		kEPAXMass
+   };
+   enum {                       //determines how to calculate radius from Mass
+      kLDModel,
+      kEMPFunc,
+      kELTON,
    };
 
    static Double_t kAMU;        //atomic mass unit in MeV
@@ -156,6 +162,10 @@ class KVNucleus:public KVParticle {
 	
    Double_t GetAbundance(Int_t z = -1, Int_t a = -1) const;
 	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1) const;
+	
+   Double_t GetChargeRadius(Int_t z = -1, Int_t a = -1) const;
+	KVChargeRadius* GetChargeRadiusPtr(Int_t z = -1, Int_t a = -1) const;
+	Double_t GetExtraChargeRadius(Int_t z = -1, Int_t a = -1,Int_t rct=2) const;
 	
 	KVNucleus & operator=(const KVNucleus & rhs);
 	KVNucleus operator+(const KVNucleus & rhs);

@@ -863,6 +863,11 @@ KVNDTManager.LifeTimeTable:       KVLifeTimeTable
 Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
 LifeTime.DataFile:	lifetime_nudat2.data
 
+# ChargeRadius tables used by KVNDTManager
+KVNDTManager.ChargeRadiusTable:       KVChargeRadiusTable
++Plugin.KVNuclDataTable:   KVChargeRadiusTable    KVChargeRadiusTable    KVMultiDet   "KVChargeRadiusTable()"
+ChargeRadius.DataFile:	chargeradii_angeli.data
+
 # Mass Excess tables used by KVNDTManager
 KVNDTManager.MassExcessTable:      KVMassExcessTable
 +Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDet   "KVMassExcessTable()"

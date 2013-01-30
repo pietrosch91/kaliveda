@@ -25,6 +25,7 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 #include "KVLifeTime.h"
 #include "KVMassExcess.h"
 #include "KVAbundance.h"
+#include "KVChargeRadius.h"
 
 //Atomic mass unit in MeV
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
@@ -723,6 +724,92 @@ KVLifeTime* KVNucleus::GetLifeTimePtr(Int_t z, Int_t a) const
 	
 	CheckZAndA(z,a);
 	return (KVLifeTime* )gNDTManager->GetData(z,a,"LifeTime");
+
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::GetChargeRadius(Int_t z, Int_t a) const
+{
+	//Returns charge radius in fm for tabulated nuclei
+	//if not tabulated returns the extrapolated radius
+	//calculate in GetExtraChargeRadius
+   //If optional arguments (z,a) are given we return the value for the
+	//required nucleus.
+	
+	CheckZAndA(z,a);
+	KVChargeRadius* cr = GetChargeRadiusPtr(z,a);
+   if(!cr) {
+   	return GetExtraChargeRadius(z,a);
+	}	
+   return cr->GetValue();
+ 
+}
+
+//________________________________________________________________________________________
+
+Double_t KVNucleus::GetExtraChargeRadius(Int_t z, Int_t a,Int_t rct) const
+{
+	//Calculate the extrapoled charge radius
+	// Three formulae taken from Atomic Data and Nuclear Data Tables 87 (2004) 185-201 
+	// are proposed:
+	// rct=2 (kELTON)take into account the finite surfacethickness
+	//	This rct=2 is set by default because it has the best reproduction of exp data
+	//
+	// rct=1 (kEMPFunc) is a purely emperical function re*A**ee
+	// rct=0 (kLDModel) is the standard Liquid Drop model approximation
+	//
+	// Those formulae are valid for nuclei near the stability valley
+	// other parametrization for xotic nuclei are proposed in the same reference
+	// but needed extrapolation from given nuclei and I don't have time
+	// to do it now
+	//
+	// If optional arguments (z,a) are given we return the value for the
+	// required nucleus.	
+	
+	CheckZAndA(z,a);
+	Double_t R;
+	Double_t A = Double_t(a);
+   
+	Double_t rLD=0.9542; //for kLDModel
+	
+	Double_t re=1.153;	//for kEMPFunc
+	Double_t ee=0.2938;	//for kEMPFunc
+	
+	Double_t r0=0.9071;	//for kELTON
+   Double_t r1=1.105;
+   Double_t r2=-0.548;
+	
+	switch (rct) {
+
+   	case kLDModel:
+      	R = rLD*TMath::Power(A,1./3.);
+      break;
+
+   	case kEMPFunc:
+      	R = re*TMath::Power(A,ee);
+      break;
+
+   	case kELTON:
+      	R = (r0*TMath::Power(A,1./3.) + r1/TMath::Power(A,1./3.)+r2/A);
+      break;
+	
+	}
+
+   return R;
+
+}
+
+//________________________________________________________________________________________
+
+KVChargeRadius* KVNucleus::GetChargeRadiusPtr(Int_t z, Int_t a) const
+{
+	//Returns the pointeur of charge radius object associated to this nucleus
+	//If optional arguments (z,a) are given we return object for the
+	//required nucleus.
+	
+	CheckZAndA(z,a);
+	return (KVChargeRadius* )gNDTManager->GetData(z,a,"ChargeRadius");
 
 }
 
