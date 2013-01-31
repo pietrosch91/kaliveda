@@ -293,6 +293,7 @@ void KVINDRAUpDater_e494s::SetChVoltRefGains(){
 	TIter next_det(gMultiDetArray->GetListOfDetectors());
 	KVSeqCollection *sublist = NULL;
 	while(( det = (KVDetector *)next_det() )){
+		if( !det->GetListOfCalibrators() ) continue;
 		sublist = det->GetListOfCalibrators()->GetSubListWithClass("KVChannelVolt");
 		sublist->R__FOR_EACH(KVChannelVolt,SetGainRef)(det->GetGain());
 		SafeDelete(sublist);
