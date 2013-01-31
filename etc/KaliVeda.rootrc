@@ -542,6 +542,8 @@ INDRADB.CsILumCorr:          corrLum
 INDRADB.CsILumCorr.FileName:    run%d.corrLum
 # Run - gain correspondence for detectors
 INDRADB.Gains:    Gains.dat
+# VAMOS calibration file
+INDRADB.VamosCalibFile:  VAMOScalib.list
 # VAMOS scalers for INDRA-VAMOS experiments
 INDRADB.VamosScaler:    scalersVamos.dat
 # VAMOS Brho & angle for INDRA-VAMOS experiments
@@ -658,7 +660,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    INDRA_e475s    KVINDRADB_e475s     KVIndra    "KVINDRADB_e475s(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e494s    KVIVDB            KVSpectrometer    "KVIVDB(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e613    KVINDRADB_e613     KVIndra    "KVINDRADB_e613(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"

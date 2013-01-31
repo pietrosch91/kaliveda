@@ -9,23 +9,28 @@ using namespace std;
 
 class KVIVDB : public KVINDRADB
 {
-   protected:
-	   KVDBTable *fVAMOSCalib;        // Table of VAMOS detector calibration parameters
-   virtual void ReadVamosBrhoAndAngle () ;
-   virtual void ReadVamosCalibrations();
-   virtual void ReadVamosScalers () ;
-   virtual Bool_t ReadVamosCalibFile(ifstream &infile);
+   	protected:
+	   	KVDBTable *fDeltaPed;   //-> table of INDRA detector pedestal corrections
+	   	KVDBTable *fVAMOSCalib; //-> table of VAMOS detector calibration parameters
+
+   		virtual void   ReadDeltaPedestal(ifstream &ifile);
+	   	virtual void   ReadPedestalCorrection();
+   		virtual void   ReadPedestalList () ;
+   		virtual void   ReadVamosBrhoAndAngle () ;
+   		virtual Bool_t ReadVamosCalibFile(ifstream &ifile);
+   		virtual void   ReadVamosCalibrations();
+   		virtual void   ReadVamosScalers () ;
 
 
-   void init();
-   public:
-   KVIVDB();
-   KVIVDB(const Char_t *);
-   virtual ~KVIVDB();
+   		void init();
+   	public:
+   		KVIVDB();
+   		KVIVDB(const Char_t *);
+   		virtual ~KVIVDB();
 
-   void Build () ;
+   		void Build () ;
 
-   ClassDef(KVIVDB,1)//Database for e494s experiment coupling INDRA with VAMOS
+   		ClassDef(KVIVDB,1)//Database for e494s experiment coupling INDRA with VAMOS
 };
 
 #endif
