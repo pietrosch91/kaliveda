@@ -58,6 +58,7 @@ void KVFunctionCal::init()
 	fcalibfunction = 0;
 	fPedCorr=kTRUE;
 	fReady=kTRUE;
+	fACQpar = 0;
 }
 
 //------------------------------
@@ -147,6 +148,19 @@ void KVFunctionCal::SetExpFormula(const Char_t *formula, Double_t xmin, Double_t
 
 	fcalibfunction = new TF1(GetDetector()->GetName(),formula,min,max);
 	SetNumberParams(fcalibfunction->GetNpar());
+}
+
+//------------------------------
+Double_t KVFunctionCal::Compute() const
+//------------------------------
+{
+	// Give the calibration result for the ACQ parameter corresponding to
+	// this calibrator 
+	if (!fACQpar){
+		Error("Compute","No ACQ parameter corresponds to the calibrator %s", GetName());
+		return -666;
+ 	}	
+	return fcalibfunction->Eval( fACQpar->GetData() );
 }
 
 //------------------------------
