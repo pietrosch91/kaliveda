@@ -599,7 +599,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   
   if(!IsClosed()&&(TheHisto))
     {
-       fPad = fCanvas->cd();//au cas ou il y a plusieurs canevas ouverts
+       fPad = fCanvas->cd();//au cas ou il y a plusieurs canvas ouverts
     TheHisto->Draw("col");
     fPad->SetLogz(true);
     TheHisto->SetMinimum(1);
@@ -635,7 +635,7 @@ void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
 {
   if(!gg)
     {
-    cout << "ERROR: KVIDGridEditor::SetHisto(): invalid poInt_ter on the grid !" << endl;
+    cout << "ERROR: KVIDGridEditor::SetHisto(): invalid pointer on the grid !" << endl;
     return;
     }
   if((TheGrid)&&(!IsClosed())) TheGrid->UnDraw();
@@ -1873,17 +1873,17 @@ void KVIDGridEditor::RotateZ(Int_t Sign)
 //________________________________________________________________
 void KVIDGridEditor::MakeScaleX(Double_t scaleFactor)
 {
-  if(!TheGrid) return;
-  if(!ListOfLines) return;
-  if(ListOfLines->IsEmpty()) return;
+    if(!TheGrid) return;
+    if(!ListOfLines) return;
+    if(ListOfLines->IsEmpty()) return;
 
-  x0 = fPivot->GetX()[0];
-  
-  fs->SetParameters(x0,scaleFactor);
-  ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,0);
-  
-  UpdateViewer();
-  return;
+    x0 = fPivot->GetX()[0];
+
+    fs->SetParameters(x0,scaleFactor);
+    ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,0);
+
+            UpdateViewer();
+    return;
 }
 
 

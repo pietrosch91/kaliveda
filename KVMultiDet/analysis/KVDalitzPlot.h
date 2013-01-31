@@ -30,11 +30,11 @@ class KVDalitzPlot : public TH2F
 	
 	Int_t FillAsDalitz(Double_t a1,Double_t a2,Double_t a3);
 	void  Draw(Option_t* opt = "");
-	void  SetOrdered(Bool_t ordered=kTRUE){fOrdered=ordered;};
+        void  SetOrdered(Bool_t ordered=kTRUE){fOrdered=ordered;}
 	void  SetShowBorder(Int_t value=1);// *TOGGLE*
 	void  SetShowCenter(Int_t value=1);// *TOGGLE*
-	Int_t  GetShowBorder(){return fShowBorder;};
-	Int_t  GetShowCenter(){return fShowCenter;};
+        Int_t  GetShowBorder(){return fShowBorder;}
+        Int_t  GetShowCenter(){return fShowCenter;}
    
 	ClassDef(KVDalitzPlot,1)//Fill 3D observables in a dalitz plot
 };
