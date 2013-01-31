@@ -25,7 +25,7 @@ ClassImp(KVINDRADB_e503)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVINDRADB_e503</h2>
-<h4>Database for e503 & e494s experiments with VAMOS</h4>
+<h4>Database for e503 experiment with VAMOS</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
