@@ -23,6 +23,7 @@ class KVINDRA_VAMOS : public KVINDRAe503
    void init();
 
    virtual void Build();
+   virtual void Clear(Option_t *opt = "" );
 
 
 

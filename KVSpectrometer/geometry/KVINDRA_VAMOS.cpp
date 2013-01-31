@@ -57,3 +57,14 @@ void KVINDRA_VAMOS::Build(){
 	fDetectors->AddAll(fVamos->GetListOfDetectors());
 //	fIDTelescopes->AddAll(fVamos->GetListOfIDTelescopes());
 }
+//________________________________________________________________
+
+void KVINDRA_VAMOS::Clear(Option_t *opt ){
+	//Reset all groups (lists of detected particles etc.)
+    //and detectors in groups (energy losses, ACQparams etc. etc.)
+    //and the target if there is one
+    //and the VAMOS detectors
+
+	KVINDRAe503::Clear( opt );
+	if( fVamos ) fVamos->Clear( opt );
+}

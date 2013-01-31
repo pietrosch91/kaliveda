@@ -38,6 +38,7 @@ class KVVAMOS : public KVBase
 
    void AddACQParam(KVACQParam* par, Bool_t owner = kFALSE);
    virtual void Build();
+   virtual void Clear(Option_t *opt = "" );
    void Copy (TObject&) const;
 
    static KVVAMOS *MakeVAMOS(const Char_t* name);

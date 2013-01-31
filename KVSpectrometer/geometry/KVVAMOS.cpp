@@ -149,6 +149,15 @@ void KVVAMOS::Build(){
 }
 //________________________________________________________________
 
+void KVVAMOS::Clear(Option_t *opt ){
+	// Call "Clear" method of each and every detector in VAMOS,
+	// to reset energy loss and KVDetector::IsAnalysed() state
+	// plus ACQ parameters set to zero
+	
+	fDetectors->R__FOR_EACH(KVDetector,Clear)();	
+}
+//________________________________________________________________
+
 void KVVAMOS::Copy (TObject& obj) const
 {
    	// This method copies the current state of 'this' object into 'obj'
