@@ -232,52 +232,6 @@ void KVSeD::SetACQParams(){
 }
 //________________________________________________________________
 
-void KVSeD::SetCalibrators(){
-	// Setup the calibrators for this detector. Call once name
-	// has been set.
-	// The calibrators are KVFunctionCal.
-	// By default the all the calibration functions are first-degree
-	// polynomial function and the range [Xmin,Xmax]=[0,4096].
-	// Here the calibrator are not ready (KVFunctionCal::GetStatus()).
-	// You have to give the parameters and change the status
-	// (see KVFunctionCal::SetParameter(...) and KVFunctionCal::SetStatus(...))
-	
-	TIter nextpar(GetACQParamList());
-
-	KVACQParam    *par  = NULL;
-	KVFunctionCal *c    = NULL;
-	TF1           *func = NULL;
-	Double_t       maxch= 4096;
-
-	TString  calibtype("ERROR");
-
-	while((par = (KVACQParam *)nextpar())){
-
-		if(!strcmp(par->GetType(),"Q")){
- 			calibtype = "channel->Volt";
-			maxch     = 4096.;             // 12 bits
-		}
-		else if(!strcmp(par->GetType(),"T")){
- 			calibtype = "channel->ns";
-			maxch     = 16384.;           // 14 bits
-
-		}
-		else continue;
-
-		calibtype.Append(" ");
-		calibtype.Append(par->GetName());
-
-
-		func = new TF1(par->GetName(),"pol1",0.,maxch);
-		c = new KVFunctionCal(this, func);
-		c->SetType(calibtype.Data());
-		c->SetNumber( par->GetNumber() );
-		c->SetACQParam( par );
-		if(!AddCalibrator(c)) delete c;
-	}
-}
-//________________________________________________________________
-
 void KVSeD::ShowQrawHisto(const Char_t dir, Option_t *opt){
 	opt = opt; 
 	TH1F *hh = GetQrawHisto( dir );

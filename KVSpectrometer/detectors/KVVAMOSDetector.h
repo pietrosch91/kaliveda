@@ -16,6 +16,8 @@ class KVVAMOSDetector : public KVSpectroDetector
    virtual ~KVVAMOSDetector();
    void Copy (TObject&) const;
 
+   virtual void SetCalibrators();
+
    ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer
 };
 
