@@ -4,22 +4,23 @@
 #ifndef __KVVAMOS_H
 #define __KVVAMOS_H
 
-#include "KVBase.h"
+#include "KVDetector.h"
 #include "KVSeqCollection.h"
 
 class KVACQParam;
+class KVDetector;
 
 
-class KVVAMOS : public KVBase
+class KVVAMOS : public KVDetector //public KVBase
 {
 
 	private:
 
 	protected:
-		KVSeqCollection *fACQParams; // References to data acquisition parameters associated to detectors
+//		KVSeqCollection *fACQParams; // References to data acquisition parameters associated to detectors
 		TString fDataSet;            // Name of associated dataset, used with MakeVAMOS	
 		KVSeqCollection *fDetectors; // List of references to all detectors of VAMOS
-		KVSeqCollection *fVACQParams;// References ro data acquisition parameter belonging to VAMOS
+		KVSeqCollection *fVACQParams;// References to data acquisition parameter belonging to VAMOS
 
    virtual void BuildGeometry();
    virtual void MakeListOfDetectors();
@@ -47,13 +48,17 @@ class KVVAMOS : public KVBase
    
    // ----- inline methods -----------
 
-   inline KVACQParam* GetACQParam(const Char_t *name){
-	   return (KVACQParam*)fACQParams->FindObject(name);
+//   inline KVACQParam* GetACQParam(const Char_t *name){
+//	   return (KVACQParam*)fACQParams->FindObject(name);
+//   };
+   inline KVDetector* GetDetector(const Char_t *name){
+	   return (KVDetector*)fDetectors->FindObject(name);
    };
 
-   inline KVSeqCollection* GetACQParams()      { return fACQParams;  };
+
+//   inline KVSeqCollection* GetACQParams()      { return fACQParams;  };
    inline KVSeqCollection* GetListOfDetectors(){ return fDetectors;  };
-   inline KVSeqCollection* GetVACQParams()     { return fVACQParams; };
+   inline KVSeqCollection* GetVACQParamList()  { return fVACQParams; };
 
    ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };

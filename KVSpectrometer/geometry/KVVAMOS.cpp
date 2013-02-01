@@ -7,6 +7,8 @@
 #include "TClass.h"
 #include "KVDataSetManager.h"
 #include "KVUpDater.h"
+#include "KVFunctionCal.h"
+
 using namespace std;
 
 ClassImp(KVVAMOS)
@@ -50,7 +52,7 @@ void KVVAMOS::init()
 }
 //________________________________________________________________
 
-KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVBase()
+KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVDetector() //KVBase()
 {
    	// Copy constructor
    	// This ctor is used to make a copy of an existing object (for example
@@ -73,11 +75,11 @@ KVVAMOS::~KVVAMOS(){
 	fDetectors = NULL;
 
 	// Clear list of all acquisition parameters
-	if(fACQParams && fACQParams->TestBit(kNotDeleted)){
-		fACQParams->Delete();
-		delete fACQParams;
-	}
-	fACQParams = NULL;
+//	if(fACQParams && fACQParams->TestBit(kNotDeleted)){
+//		fACQParams->Delete();
+//		delete fACQParams;
+//	}
+//	fACQParams = NULL;
 
 	// Clear list of acquisition parameters belonging to VAMOS
 	if(fVACQParams && fVACQParams->TestBit(kNotDeleted)){
@@ -118,7 +120,7 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 
 	// Add ACQ param. in global list
 	if(!fACQParams){
-		fACQParams = new KVHashList;
+		fACQParams = new KVList;
 		fACQParams->SetName(Form("List of ACQ param. for detectors of %s",GetName()));
 		fACQParams->SetOwner(kFALSE);
 		fACQParams->SetCleanup(kTRUE);
@@ -132,6 +134,7 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 		fVACQParams->SetName(Form("List of ACQ param. belonging to %s",GetName()));
 		fVACQParams->SetCleanup(kTRUE);
 	}
+	par->SetDetector( this );
 	fVACQParams->Add(par);
 }
 //________________________________________________________________
@@ -154,7 +157,9 @@ void KVVAMOS::Clear(Option_t *opt ){
 	// to reset energy loss and KVDetector::IsAnalysed() state
 	// plus ACQ parameters set to zero
 	
+	KVDetector::Clear();
 	fDetectors->R__FOR_EACH(KVDetector,Clear)();	
+	
 }
 //________________________________________________________________
 
@@ -167,7 +172,8 @@ void KVVAMOS::Copy (TObject& obj) const
    	// or
    	//    CastedObj.SetToto( GetToto() );
 
-   	KVBase::Copy(obj);
+   	KVDetector::Copy(obj);
+//   	KVBase::Copy(obj);
    	//KVVAMOS& CastedObj = (KVVAMOS&)obj;
 }
 //________________________________________________________________
@@ -313,13 +319,42 @@ void KVVAMOS::SetArrayACQParams(){
 //________________________________________________________________
 
 void KVVAMOS::SetCalibrators(){
-	// Set up calibrators in all detectors of the spectrometer.
 	// Note that this only initialises the calibrators objects associated
-	// to each detector (defined in each detector class's SetCalibrators method),
-	// it does not set the parameters of the calibrations: this is done
+	// to each detector (defined in each detector class's SetCalibrators method) and to VAMOS.
+	// It does not set the parameters of the calibrations: this is done
 	// by SetParameters.
 	
 	GetListOfDetectors()->R__FOR_EACH(KVSpectroDetector,SetCalibrators)();
+
+
+	// For ACQ parameters belonging to VAMOS.
+	// We set only calibrators for time of flight ACQ parameters,
+	// we assume that their name begin with the character 'T'.
+	// Their calibrator will have 'channel->ns' type.
+
+	TString parname, calibtype;
+	KVACQParam    *par  = NULL;
+	KVFunctionCal *c    = NULL;
+	TF1           *func = NULL;
+
+	TIter nextpar( fVACQParams );
+	while((par = (KVACQParam *)nextpar())){
+		parname = par->GetName();
+
+		if( !parname.BeginsWith("T") ) continue;
+		calibtype = "channel->ns";
+		calibtype.Append(" ");
+		calibtype.Append( parname.Data() );
+
+		func = new TF1(par->GetName(),"pol1",0., 16384.);
+		c = new KVFunctionCal(this, func);
+		c->SetType( calibtype.Data() );
+		c->SetNumber( par->GetNumber() );
+		c->SetACQParam( par );
+		c->SetStatus( kFALSE );
+		if(!AddCalibrator(c)) delete c;
+	}
+
 }
 //________________________________________________________________
 
