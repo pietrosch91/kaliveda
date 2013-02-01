@@ -64,15 +64,15 @@ class SeDv
 /*
  *	Energy Wire
  */
-	UShort_t fE_Raw[3];
+	UShort_t fE_Raw[3];        // 3 energies
 /*
  *	Time Wire
  */
-	UShort_t fT_Raw[1];
+	UShort_t fT_Raw[1];        // TSED1_HF, TSED2_HF
 /*
  *	Calibration coeff
  */
-	Float_t fECoef[3][2];
+	Float_t fECoef[3][2];      // 2 coef. for 3 energies
 	Double_t fTSED_HF_Coef[7];
 /*
  *	Calibrated Energy Wire
@@ -81,11 +81,11 @@ class SeDv
 /*
  *	Calibrated Time Wire
  */
-	Float_t fT[1];
+	Float_t fT[1];            // calibrated TSED1_HF, TSED2_HF
 /*
  *	Charge Raw
  */
-	UShort_t fQ_Raw[2*128];
+	UShort_t fQ_Raw[2*128];   // SED1_X_{1-128}, SED1_Y_{1-48}
 	UShort_t fQ_Raw_Nr[2*128];
 	Int_t    fQ_RawM[2];
 /*

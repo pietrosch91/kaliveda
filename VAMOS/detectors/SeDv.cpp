@@ -133,6 +133,7 @@ SeDv::SeDv(LogFile *Log, Short_t nr)
 	inf.close();
 	fReady=kTRUE;
 }
+//___________________________________________________________________
 
 SeDv::~SeDv(void)
 {
@@ -141,6 +142,7 @@ SeDv::~SeDv(void)
 #	endif
 	PrintCounters();
 }
+//___________________________________________________________________
 
 void SeDv::PrintCounters(void)
 {
@@ -197,25 +199,21 @@ void SeDv::PrintCounters(void)
 	fLogFile->Log << "PresentSubseqY: " << fCounter[8] << endl;
 	fLogFile->Log << "Present: " << fCounter[9] << endl;
 }
+//___________________________________________________________________
 
 void SeDv::Zero(void)
 {
 #	ifdef DEBUG
 	cout << "SeDv::Zero" << endl;
 #	endif
-	fPresent = fPresentWires = fPresentStrips = false; 
-
-	fE[0] = fE[1] = fE[2] = fT[0] = 0.0;
-	fMult[0] = fMult[1] = 0; 
+	Init();
 	for(Int_t j=0;j<2;j++) for(Int_t i=0;i<128;i++)
 	{
 		fQ[i][j] = 0.0;
 		fN[i][j] = 0 ;
 	}
-	fX[0]   = fX[1]   = -500.0;
-	fXS[0]  = fXS[1]  = -500.0;
-	fXWA[0] = fXWA[1] = -500.0;
 }
+//___________________________________________________________________
 
 void SeDv::InitRaw(void)
 {
@@ -234,6 +232,7 @@ void SeDv::InitRaw(void)
 
 	for(Int_t j=0;j<2;j++) fQ_RawM[j] = 0;
 }
+//___________________________________________________________________
 
 void SeDv::Init(void)
 {
@@ -248,6 +247,7 @@ void SeDv::Init(void)
 	fXS[0]  = fXS[1]  = -500.0;
 	fXWA[0] = fXWA[1] = -500.0;
 }
+//___________________________________________________________________
 
 void SeDv::Calibrate(void)
 {
@@ -312,7 +312,7 @@ void SeDv::Calibrate(void)
 		fT[0] = (Float_t)( -(a+(b+(c+(d+(e+f*x)*x)*x)*x)*x)*x*m_run+t0 );
 
 #	ifdef DEBUG
-		Info("SeDv::Calibrate","Traw %d [ch], TSED_HF %f [ns]",T_Raw[0], T[0]);
+		Info("SeDv::Calibrate","Traw %d [ch], TSED_HF %f [ns]",fT_Raw[0], fT[0]);
 #	endif
  
 	}
@@ -461,6 +461,8 @@ void SeDv::Calibrate(void)
 #	endif
 	}
 }
+//___________________________________________________________________
+
 void SeDv::FocalSubseqX(void)
 {
 	Int_t i,j,k,m;
@@ -547,7 +549,7 @@ void SeDv::FocalSubseqX(void)
 	}
 
 #	ifdef DEBUG
-	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [ch]",X[0],X[1]);
+	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [ch]",fX[0],fX[1]);
 #	endif
 
 /*
@@ -603,7 +605,7 @@ void SeDv::FocalSubseqX(void)
 	else fCounter1[i][2]++;
 
 #	ifdef DEBUG
-	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [mm]",X[0],X[1]);
+	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [mm]",fX[0],fX[1]);
 #	endif
 
 
@@ -618,6 +620,7 @@ void SeDv::FocalSubseqX(void)
 	}
 	else for(i=0;i<2;i++) fX[i] = -500.0;
 }
+//___________________________________________________________________
 
 void SeDv::Treat(void)
 {
@@ -636,6 +639,7 @@ void SeDv::Treat(void)
 	Show();
 #	endif
 }
+//___________________________________________________________________
 
 void SeDv::inAttach(TTree *inT)
 {
@@ -666,6 +670,7 @@ void SeDv::inAttach(TTree *inT)
 	sprintf(strnam,"SEDNrY%1d",fSeDNum);
 	inT->SetBranchAddress(strnam,fQ_Raw_Nr+1*128);
 }
+//___________________________________________________________________
 
 void SeDv::outAttach(TTree *outT)
 {
@@ -712,6 +717,7 @@ void SeDv::outAttach(TTree *outT)
 	sprintf(strnam1,"SeDYWA%1d/F",fSeDNum);
 	outT->Branch(strnam,&fXWA[1],strnam1);
 }
+//___________________________________________________________________
 
 void SeDv::CreateHistograms(void)
 {
@@ -719,6 +725,7 @@ void SeDv::CreateHistograms(void)
 	cout << "SeDv::CreateHistograms " << endl;
 #	endif
 }
+//___________________________________________________________________
 
 void SeDv::FillHistograms(void)
 {
@@ -726,6 +733,7 @@ void SeDv::FillHistograms(void)
 	cout << "SeDv::FillHistograms " << endl;
 #	endif
 }
+//___________________________________________________________________
 
 void SeDv::Show_Raw(void)
 {
@@ -742,6 +750,7 @@ void SeDv::Show_Raw(void)
 		for(j=0;j<fQ_RawM[i];j++)	//loop over strips
 			cout << "STR: " << fQ_Raw_Nr[j+i*128] << " SED: " << i << " Q_Raw: " <<  fQ_Raw[j+i*128] << endl;
 }
+//___________________________________________________________________
 
 void SeDv::Show(void)
 {
