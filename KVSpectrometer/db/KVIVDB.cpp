@@ -315,8 +315,8 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	  	if( (idx = sline.Index(":")) < 0 ) continue;
 
 		name = sline;
-		name.Remove( idx ); 
-		sline.Remove( 0, idx +1 );
+		name.Remove( idx );        name.Remove(KVString::kBoth,' ');
+		sline.Remove( 0, idx +1 ); sline.Remove(KVString::kBoth,' ');
 
 		Int_t i;
 		for( i=0; i<3; i++)

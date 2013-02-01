@@ -1,0 +1,362 @@
+//Created by KVClassFactory on Thu Oct 11 18:23:43 2012
+//Author: Dijon Aurore
+
+#include "KVIVUpDater.h"
+#include "KVINDRA.h"
+#include "KVMultiDetArray.h"
+#include "KVIDGridManager.h"
+#include "KVRTGIDManager.h"
+#include "KVDBParameterSet.h"
+#include "KVINDRADetector.h"
+#include "KVINDRADB.h"
+#include "KVSilicon.h"
+#include "KVFunctionCal.h"
+
+using namespace std;
+
+ClassImp(KVIVUpDater)
+
+	////////////////////////////////////////////////////////////////////////////////
+	// BEGIN_HTML <!--
+	/* -->
+	   <h2>KVIVUpDater</h2>
+	   <h4>Class for setting INDRA-VAMOS parameter for each run (e494s/e503 experiment)</h4>
+	   <!-- */
+	// --> END_HTML
+	////////////////////////////////////////////////////////////////////////////////
+
+KVIVUpDater::KVIVUpDater()
+{
+   	// Default constructor
+}
+//________________________________________________________________
+
+KVIVUpDater::~KVIVUpDater()
+{
+   	// Destructor
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetIDGrids(UInt_t run){
+	// Set identification grid or identification function (KVTGID) 
+	// for all ID telescopes for this run. 
+    // The global ID grid manager gIDGridManager is used to set the
+    // grids. The static function KVRTGIDManager::SetIDFuncInTelescopes
+    //  is used to set the ID functions. First, any previously set grids/functions are removed.
+    // Then all grids/functions for current run are set in the associated ID telescopes.
+
+	Info("KVIVUpDater::SetIDGrids","Setting Identification Grids/Functions");
+    TIter next_idt(gMultiDetArray->GetListOfIDTelescopes());
+
+    KVIDTelescope  *idt    = NULL;
+	KVRTGIDManager *rtgidm = NULL;
+
+    while ((idt = (KVIDTelescope *) next_idt()))
+    {
+        idt->RemoveGrids();
+		if(idt->InheritsFrom("KVRTGIDManager")){
+ 			rtgidm = (KVRTGIDManager *)idt->IsA()->DynamicCast(KVRTGIDManager::Class(),idt);
+ 			rtgidm->RemoveAllTGID();
+		}
+
+    }
+    gIDGridManager->SetGridsInTelescopes(run);
+	KVRTGIDManager::SetIDFuncInTelescopes(run);
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetParameters(UInt_t run){
+
+	KVINDRAUpDater::SetParameters(run);
+   	SetChVoltRefGains();
+	KVDBRun *kvrun = gIndraDB->GetRun(run);
+	if(!kvrun) return;
+   	SetPedestalCorrections(kvrun);
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetPedestalCorrections(KVDBRun *run){
+	// For any detectors, having a pedestal correction  defined
+	// for their associated QDC and  one of their signals, will have 
+	// their correction corresponding to the signal, set to the value 
+	// for the run.
+
+	Info("KVIVUpDater::SetPedestalCorrections","Setting pedestal corrections");
+
+	KVRList *dp_list = run->GetLinks("DeltaPedestal");
+	if(!dp_list) return;
+
+	KVDBParameterSet *dp = NULL;
+	TIter next_dp(dp_list);
+	TString QDCnum;
+
+	// Loop over INDRA detectors
+	KVINDRADetector *det = NULL;
+	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	while( (det = (KVINDRADetector *)next_det()) ){
+
+		// Initializing each ACQ parameter pedestal correction for
+		// all detectors
+		KVACQParam *acqpar = NULL;
+		TIter next_acqp(det->GetACQParamList());
+		while( (acqpar = (KVACQParam *)next_acqp()) )
+			acqpar->SetDeltaPedestal(0.);
+
+		// Set the pedestal correction if a value exists for
+		// the QDC associated to this detector
+		next_dp.Reset();
+		while( (dp = (KVDBParameterSet *)next_dp()) ){
+			QDCnum = dp->GetName();
+			QDCnum.Remove(0,3);
+			if(det->GetNumeroCodeur() == QDCnum.Atoi()){
+				acqpar = det->GetACQParam(dp->GetTitle());
+				acqpar->SetDeltaPedestal(dp->GetParameter());
+			}
+		}
+	}
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetCalibParameters(KVDBRun * run){
+
+	KVINDRAUpDater::SetCalibParameters( run );
+	SetVamosCalibParameters( run );
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
+	// Set calibration parameters to the calibrators of the detectors
+	// placed at the focal plane of VAMOS (HarpeeSi, HarpeeIC, SeD, ...)
+
+	Info("KVIVUpDater::SetVamosCalibParameters","Setting VAMOS calibration parameters");
+
+//	if( !gVamos ){
+//		Warning("KVIVUpDater::SetVamosCalibParameters","VAMOS is not defined ( gVamos = NULL )");
+//		return;
+//	}
+
+	KVRList *list = run->GetLinks("VAMOS calibration");
+	if(!list) return;
+
+	KVDBParameterSet *par = NULL;
+	TIter next(list);
+	TString parname, partype;
+
+	while( (par = (KVDBParameterSet *)next()) ){
+		parname = par->GetName();
+
+		KVDetector *det = gIndra->GetDetector( parname.Data() );
+		if( !det ){
+
+			KVACQParam *acqpar = gIndra->GetACQParam( parname.Data() );
+			if( !acqpar ){
+				Warning("KVIVUpDater::SetVamosCalibParameters","Detector or ACQ parameter %s not found", parname.Data());
+				continue;
+			}
+			else if( !(det = acqpar->GetDetector()) ){
+				Warning("KVIVUpDater::SetVamosCalibParameters","No detector is associated with the ACQ parameter %s",acqpar->GetName());
+				continue;
+			}
+		}
+
+		partype.Form("%s %s", par->GetTitle(), par->GetName());
+		KVFunctionCal *cal = (KVFunctionCal *)det->GetCalibrator( partype.Data() );
+		if( !cal ){
+			Warning("KVIVUpDater::SetVamosCalibParameters","No calibrator of the detector %s corresponds to '%s'", det->GetName(), partype.Data());
+			continue;
+		}
+
+		cal->SetExpFormula( par->GetParamName(0) );
+		for(Int_t i=0; i<par->GetParameter(0); i++){
+			cal->SetParameter( i, par->GetParameter( i+1 ) );
+			cal->SetStatus( kTRUE );
+		}
+	}
+}
+
+//________________________________________________________________
+
+void KVIVUpDater::SetPedestals(KVDBRun * kvrun)
+{
+	//Set pedestals for this run   
+	// modifie MFR nov 2012 : add specific reading for etalons
+
+	Info("KVIVUpDater::SetPedestals","Setting Pedestals");
+
+    SetChIoSiPedestals(kvrun);
+    SetSi75SiLiPedestals(kvrun);
+    SetCsIPedestals(kvrun);
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetChIoSiPedestals(KVDBRun * kvrun)
+{
+	//read Chio-Si pedestals
+	// modified MFR november 2012 : suppress etalons from this reading list
+
+    if (!kvrun->GetKey("Pedestals"))
+        return;
+    if (!kvrun->GetKey("Pedestals")->GetLinks())
+        return;
+    if (!kvrun->GetKey("Pedestals")->GetLinks()->At(0))
+        return;
+
+    ifstream file_pied_chiosi;
+    if (!KVBase::
+            SearchAndOpenKVFile(kvrun->GetKey("Pedestals")->GetLinks()->At(0)->
+                GetName(), file_pied_chiosi, fDataSet.Data()))
+    {
+        Error("KVIVUpDater::SetChIoSiPedestals", "Problem opening file %s",
+              	kvrun->GetKey("Pedestals")->GetLinks()->At(0)->GetName());
+        return;
+    }
+	Info("KVIVUpDater::SetChIoSiPedestals","Setting ChIo/Si pedestals from file: %s",
+			kvrun->GetKey("Pedestals")->GetLinks()->At(0)->GetName());
+
+    TString line;
+
+    int cou, mod, type, n_phys, n_gene;
+    float ave_phys, sig_phys, ave_gene, sig_gene;
+
+    while (file_pied_chiosi.good())  {
+      	line.ReadLine(file_pied_chiosi);
+
+      	if( (line.Sizeof() >1) && !(line.BeginsWith("#") ) )  {
+			if( sscanf(line.Data(),"%d %d %d %d %f %f %d %f %f", &cou, &mod, &type,
+	    				&n_phys, &ave_phys, &sig_phys, &n_gene, &ave_gene, &sig_gene) !=9){
+	  			Warning("KVIVUpDater::SetChIoSiPedestals"
+			  			,"Bad Format in line :\n%s\nUnable to read",
+		  				line.Data());   
+			} else  {	
+
+	  			KVDetector *det = gIndra->GetDetectorByType(cou, mod, type);
+	  			if (det) {
+            		switch (type)  {
+
+	     				case ChIo_GG:
+
+                			det->SetPedestal("GG", ave_gene);
+                			break;
+
+	     				case ChIo_PG:
+
+                			det->SetPedestal("PG", ave_gene);
+                			break;
+
+	     				case Si_GG:
+
+                			det->SetPedestal("GG", ave_gene);
+                			break;
+
+	     				case Si_PG:
+
+                			det->SetPedestal("PG", ave_gene);
+                			break;
+
+	     				default:
+
+                			break;
+            		} // end switch
+	  			}   //end if det
+			}     // end if (line.Data) else
+      	}       // end line.SizeOf
+    }         // end while
+
+
+    file_pied_chiosi.close();
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetSi75SiLiPedestals(KVDBRun * kvrun)
+{
+	//read Etalons pedestals
+	// new method MFR november 2012 : reading etalons pedestals
+
+    if (!kvrun->GetKey("Pedestals"))
+        return;
+    if (!kvrun->GetKey("Pedestals")->GetLinks())
+        return;
+    if (!kvrun->GetKey("Pedestals")->GetLinks()->At(2))
+        return;
+
+    ifstream file_pied_etalons;
+    if (!KVBase::
+            SearchAndOpenKVFile(kvrun->GetKey("Pedestals")->GetLinks()->At(2)->
+                GetName(), file_pied_etalons, fDataSet.Data()))
+    {
+        Error("KVIVUpDater::SetSi75SiLiPedestals", "Problem opening file %s",
+              	kvrun->GetKey("Pedestals")->GetLinks()->At(2)->GetName());
+        return;
+    }
+
+	Info("KVIVUpDater::SetSi75SiLiPedestals","Setting Si75/SiLi pedestals from file: %s",
+			kvrun->GetKey("Pedestals")->GetLinks()->At(2)->GetName());
+
+    TString line;
+
+    int cou, mod, type, n_phys, n_gene;
+    float ave_phys, sig_phys, ave_gene, sig_gene;
+
+    while (file_pied_etalons.good())  {
+      	line.ReadLine(file_pied_etalons);
+		//      cout<<"ligne lue :"<<line.Data()<<endl;
+
+      	if( (line.Sizeof() >1) && !(line.BeginsWith("#") ) )  {
+			if( sscanf(line.Data(),"%d %d %d %d %f %f %d %f %f", &cou, &mod, &type,
+	    				&n_phys, &ave_phys, &sig_phys, &n_gene, &ave_gene, &sig_gene) !=9){
+	  			Warning("KVIVUpDater::SetSi75SiLiPedestals"
+			  			,"Bad Format in line :\n%s\nUnable to read",
+		  				line.Data());   
+			} else  {	
+	  			KVDetector *det = gIndra->GetDetectorByType(cou, mod, type);
+
+	  			if (det) {
+            		switch (type) {
+
+            			case SiLi_GG:
+                			det->SetPedestal("GG", ave_gene);
+                			break;
+
+            			case SiLi_PG:
+                			det->SetPedestal("PG", ave_gene);
+                			break;
+
+            			case Si75_GG:
+                			det->SetPedestal("GG", ave_gene);
+                			break;
+
+            			case Si75_PG:
+                			det->SetPedestal("PG", ave_gene);
+                			break;
+
+            			default:
+
+                			break;
+            		}  //end switch
+	  			} // end if det
+			} // end if line.Data else
+      	} // end line.Begins
+    } // end while
+
+    file_pied_etalons.close();
+}
+//________________________________________________________________
+
+void KVIVUpDater::SetChVoltRefGains(){
+	// For any detector, the gain is already taken into account
+	// in the Channel->Volt calibration, then the reference gain of the
+	// calibrator (KVChannelVolt) must be equal to the gain. (see
+	// KVChannelVolt::Compute()).
+
+	Info("KVIVUpDater::SetChVoltRefGains","Setting channel->Volt calibrator reference gain = detector gain");
+
+	KVDetector *det = NULL;
+	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	KVSeqCollection *sublist = NULL;
+	while(( det = (KVDetector *)next_det() )){
+		if( !det->GetListOfCalibrators() ) continue;
+		sublist = det->GetListOfCalibrators()->GetSubListWithClass("KVChannelVolt");
+		sublist->R__FOR_EACH(KVChannelVolt,SetGainRef)(det->GetGain());
+		SafeDelete(sublist);
+	}
+}

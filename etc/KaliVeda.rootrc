@@ -672,8 +672,8 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
-+Plugin.KVUpDater:    INDRA_e494s    KVINDRAUpDater_e494s     KVIndra    "KVINDRAUpDater_e494s()"
-+Plugin.KVUpDater:    INDRA_e503     KVINDRAUpDater_e494s     KVIndra    "KVINDRAUpDater_e494s()"
++Plugin.KVUpDater:    INDRA_e494s    KVIVUpDater              KVIndra    "KVIVUpDater()"
++Plugin.KVUpDater:    INDRA_e503     KVIVUpDater              KVIndra    "KVIVUpDater()"
 +Plugin.KVUpDater:    INDRA_e613    KVINDRAUpDater_e613     KVIndra    "KVINDRAUpDater_e613()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
