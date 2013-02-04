@@ -1,62 +1,96 @@
 //Created by KVClassFactory on Wed Jul 25 09:43:37 2012
 //Author: Guilain ADEMARD
 
+#include "Riostream.h"
 #include "KVVAMOSDetector.h"
 #include "KVFunctionCal.h"
+#include "KVVAMOS.h"
+using namespace std;
 
 ClassImp(KVVAMOSDetector)
 
-////////////////////////////////////////////////////////////////////////////////
-// BEGIN_HTML <!--
-/* -->
-<h2>KVVAMOSDetector</h2>
-<h4>Detectors of VAMOS spectrometer</h4>
-<!-- */
-// --> END_HTML
-////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////
+	// BEGIN_HTML <!--
+	/* -->
+	   <h2>KVVAMOSDetector</h2>
+	   <h4>Detectors of VAMOS spectrometer</h4>
+	   <!-- */
+	// --> END_HTML
+	////////////////////////////////////////////////////////////////////////////////
 
 KVVAMOSDetector::KVVAMOSDetector()
 {
-   // Default constructor
+   	// Default constructor
+   	init();
 }
 //________________________________________________________________
 
 KVVAMOSDetector::KVVAMOSDetector(UInt_t number, const Char_t* type) : KVSpectroDetector(type){
 	// create a new VAMOS detector of a given material.
 
+   	init();
 	SetNumber(number);
 }
 //________________________________________________________________
 
 KVVAMOSDetector::KVVAMOSDetector (const KVVAMOSDetector& obj)  : KVSpectroDetector()
 {
-   // Copy constructor
-   // This ctor is used to make a copy of an existing object (for example
-   // when a method returns an object), and it is always a good idea to
-   // implement it.
-   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
+   	// Copy constructor
+   	// This ctor is used to make a copy of an existing object (for example
+   	// when a method returns an object), and it is always a good idea to
+   	// implement it.
+   	// If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
 
-   obj.Copy(*this);
+   	init();
+   	obj.Copy(*this);
 }
+//________________________________________________________________
 
 KVVAMOSDetector::~KVVAMOSDetector()
 {
-   // Destructor
+   	// Destructor
 }
+//________________________________________________________________
 
+void KVVAMOSDetector::AddACQParam(KVACQParam* par){
+	// Add given acquisition parameter to this detector
+
+	KVSpectroDetector::AddACQParam( par );
+	if(!strcmp(par->GetType(),"T")) fTimeParam = par;
+}
 //________________________________________________________________
 
 void KVVAMOSDetector::Copy (TObject& obj) const
 {
-   // This method copies the current state of 'this' object into 'obj'
-   // You should add here any member variables, for example:
-   //    (supposing a member variable KVVAMOSDetector::fToto)
-   //    CastedObj.fToto = fToto;
-   // or
-   //    CastedObj.SetToto( GetToto() );
+   	// This method copies the current state of 'this' object into 'obj'
+   	// You should add here any member variables, for example:
+   	//    (supposing a member variable KVVAMOSDetector::fToto)
+   	//    CastedObj.fToto = fToto;
+   	// or
+   	//    CastedObj.SetToto( GetToto() );
 
-   KVSpectroDetector::Copy(obj);
-   //KVVAMOSDetector& CastedObj = (KVVAMOSDetector&)obj;
+   	KVSpectroDetector::Copy(obj);
+   	//KVVAMOSDetector& CastedObj = (KVVAMOSDetector&)obj;
+}
+//________________________________________________________________
+
+void KVVAMOSDetector::init(){
+	fTimeParam = NULL;
+}
+//________________________________________________________________
+
+Float_t KVVAMOSDetector::GetTimeHF() const{
+	// Access acquisition data value associated to the time of flight 
+	// recorded between the beam pulse and timing from this detector.
+	// Returns value as a floating-point number which is the raw channel number
+	// read from the coder plus a random number in the range [-0.5,+0.5].
+   	// If the detector has no ACQ parameter for time of flight,
+	// or if the raw channel number = 0, the value returned is -1
+
+	if( fTimeParam ) return fTimeParam->GetData(); 
+
+	Warning("KVVAMOSDetector::GetTimeHF","Time ACQ parameter not found for %s detector", GetName());
+	return -1;
 }
 //________________________________________________________________
 
@@ -70,11 +104,10 @@ void KVVAMOSDetector::SetCalibrators(){
 	// You have to give the parameters and change the status
 	// (see KVFunctionCal::SetParameter(...) and KVFunctionCal::SetStatus(...))
 	
+
 	TIter nextpar(GetACQParamList());
 
 	KVACQParam    *par   = NULL;
-	KVFunctionCal *c     = NULL;
-	TF1           *func  = NULL;
 	Double_t       maxch = 16384.;       // 14 bits
 
 	TString  calibtype("ERROR");
@@ -96,9 +129,8 @@ void KVVAMOSDetector::SetCalibrators(){
 		calibtype.Append(" ");
 		calibtype.Append(par->GetName());
 
-
-		func = new TF1(par->GetName(),"pol1",0.,maxch);
-		c = new KVFunctionCal(this, func);
+		TF1 *func        = new TF1(par->GetName(),"pol1",0.,maxch);
+		KVFunctionCal *c = new KVFunctionCal(this, func);
 		c->SetType(calibtype.Data());
 		c->SetNumber( par->GetNumber() );
 		c->SetACQParam( par );

@@ -8,13 +8,21 @@
 
 class KVVAMOSDetector : public KVSpectroDetector
 {
+	protected:
 
+		KVACQParam *fTimeParam;       // Time of flight (HF) ACQ parameter 
+
+
+		void init();
    public:
    KVVAMOSDetector();
    KVVAMOSDetector(UInt_t number, const Char_t* type);
    KVVAMOSDetector (const KVVAMOSDetector&) ;
    virtual ~KVVAMOSDetector();
+   void AddACQParam(KVACQParam*);
    void Copy (TObject&) const;
+
+   Float_t GetTimeHF() const;
 
    virtual void SetCalibrators();
 

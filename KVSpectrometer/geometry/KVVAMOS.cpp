@@ -278,10 +278,23 @@ void KVVAMOS::SetACQParams(){
 		}
 		// loop over acq params and add them to fACQParams list,
 		TIter next_par(l);
-		KVACQParam *par = NULL;
+		KVACQParam *par  = NULL;
 		while((par = (KVACQParam*)next_par())){
-			AddACQParam(par);
-			par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
+
+			// If a detector of VAMOS already has an ACQ parameter with
+			// the same name then 'par' is deleted and replaced by the
+			// already existing one.
+
+			KVACQParam *vpar = GetACQParam( par->GetName() );
+			if( vpar ){
+				l->Remove( par );
+				l->Add( vpar );
+				delete par;
+			}
+			else{
+				AddACQParam(par);
+				par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
+			}
 		}
 		//Set bitmask
 		det->SetFiredBitmask();
@@ -307,11 +320,13 @@ void KVVAMOS::SetArrayACQParams(){
 	Info("SetArrayACQParams","List of ACQ Parameters belonging to %s:",GetName());
 
 	// Loop over each detector of the spectrometer
+	KVACQParam *par = NULL;
 	while(  (obj = nextparam()) ){
 		const Char_t* param = obj->GetName();
 		cout<<param<<" ";
 		// VAMOS is the owner of the acq param. (kTRUE)
-		AddACQParam(new KVACQParam(param),kTRUE);
+		AddACQParam( par = new KVACQParam(param),kTRUE);
+		par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
 	}
 	cout<<endl;
 	delete tok;
@@ -323,9 +338,32 @@ void KVVAMOS::SetCalibrators(){
 	// to each detector (defined in each detector class's SetCalibrators method) and to VAMOS.
 	// It does not set the parameters of the calibrations: this is done
 	// by SetParameters.
-	
-	GetListOfDetectors()->R__FOR_EACH(KVSpectroDetector,SetCalibrators)();
 
+
+	TIter nextdet( fDetectors );
+	KVDetector *det = NULL;
+	while( (det = (KVDetector *)nextdet()) ){
+		det->SetCalibrators();
+
+		KVSeqCollection *l= det->GetListOfCalibrators();
+		TIter nextcal( l );
+		KVCalibrator *cal  = NULL;
+		while( (cal = (KVCalibrator *)nextcal()) ){
+
+			// If a detector of VAMOS already has the same  calibrator, 
+			// then remove it from the detector and replace it by
+			// the already existing one.
+
+			KVCalibrator *vcal = NULL;
+			if( fCalibrators ) vcal = (KVCalibrator *)fCalibrators->FindObject( cal );
+			if( vcal ){
+				l->Remove( cal );
+				l->Add( vcal );
+				delete cal;
+			}
+			else AddCalibrator(cal);
+		}
+	}
 
 	// For ACQ parameters belonging to VAMOS.
 	// We set only calibrators for time of flight ACQ parameters,
