@@ -984,6 +984,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	KVNameValueList* det_stat = new KVNameValueList();
 	KVNameValueList* nvl = 0;
    KVNameValueList* un = 0;
+   if(fFilterType == kFilterType_Full) un = new KVNameValueList();
+   
 	while ((part = event->GetNextParticle())) {  // loop over particles in required frame
       
       TList* lidtel = 0;
@@ -1199,9 +1201,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 		}
 		//On enregistre les differentes pertes d'energie dans les detecteurs
 		if (nvl){
-	      
-         if(fFilterType == kFilterType_Full) un = new KVNameValueList(); 
-				
+	      				
 			for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
 				part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
 				//On enregistre les detecteurs touches avec le Z et A de la particule
