@@ -163,8 +163,8 @@ void KVHarpeeIC::SetACQParams(){
 			name.Form("E%s_%c_%d",GetType(),idx[i],num);
 			par->SetName(name);
 			par->SetType("E");
+			par->SetNumber( 6000 + (i+1)*10 + num );
 			AddACQParam(par);
-//			Info("SetACQParams",name.Data());
 		}
 	}
 }

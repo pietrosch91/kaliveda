@@ -117,6 +117,14 @@ void KVHarpeeSi::SetACQParams(){
 	name.Form("%sE_%02d",GetType(),GetNumber());
 	par->SetName(name);
 	par->SetType("E");
+	par->SetNumber( 4000 + GetNumber() );
 	AddACQParam(par);
-//	Info("SetACQParams",name.Data());
+
+	// time ACQ parameter
+	par = new KVACQParam;
+	name.Form("T%s_HF",GetType());
+	par->SetName(name);
+	par->SetType("T");
+	par->SetNumber( 5000 + 1);
+	AddACQParam(par);
 }

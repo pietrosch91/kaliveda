@@ -222,13 +222,13 @@ void KVSeD::SetACQParams(){
 		fQ[i]->SetDirectory(0);
 	}
 
-//	// time ACQ parameter
-//	par = new KVACQParam;
-//	name.Form("T%s%d_HF",GetType(),GetNumber());
-//	par->SetName(name);
-//	par->SetType("T");
-//	par->SetNumber( 3000 + 1);
-//	AddACQParam(par);
+	// time ACQ parameter
+	par = new KVACQParam;
+	name.Form("T%s%d_HF",GetType(),GetNumber());
+	par->SetName(name);
+	par->SetType("T");
+	par->SetNumber( 3000 + 1);
+	AddACQParam(par);
 }
 //________________________________________________________________
 
