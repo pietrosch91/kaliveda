@@ -23,7 +23,6 @@
 #pragma link C++ class KVINDRAPulserDataTree+;
 #pragma link C++ class KVINDRAUpDater;
 #pragma link C++ class KVINDRAUpDater_e475s+;
-#pragma link C++ class KVIVUpDater;
 #pragma link C++ class KVDB_BIC_Pressures+;
 #pragma link C++ class KVINDRADB_e416a;
 #pragma link C++ class KVINDRAUpDater_e416a+;

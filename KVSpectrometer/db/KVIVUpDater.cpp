@@ -11,6 +11,7 @@
 #include "KVINDRADB.h"
 #include "KVSilicon.h"
 #include "KVFunctionCal.h"
+#include "KVVAMOS.h"
 
 using namespace std;
 
@@ -130,39 +131,23 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 
 	Info("KVIVUpDater::SetVamosCalibParameters","Setting VAMOS calibration parameters");
 
-//	if( !gVamos ){
-//		Warning("KVIVUpDater::SetVamosCalibParameters","VAMOS is not defined ( gVamos = NULL )");
-//		return;
-//	}
+	if( !gVamos ){
+		Error("KVIVUpDater::SetVamosCalibParameters","VAMOS is not found ( gVamos = NULL )");
+		return;
+	}
 
 	KVRList *list = run->GetLinks("VAMOS calibration");
 	if(!list) return;
 
 	KVDBParameterSet *par = NULL;
 	TIter next(list);
-	TString parname, partype;
+	TString partype;
 
 	while( (par = (KVDBParameterSet *)next()) ){
-		parname = par->GetName();
-
-		KVDetector *det = gIndra->GetDetector( parname.Data() );
-		if( !det ){
-
-			KVACQParam *acqpar = gIndra->GetACQParam( parname.Data() );
-			if( !acqpar ){
-				Warning("KVIVUpDater::SetVamosCalibParameters","Detector or ACQ parameter %s not found", parname.Data());
-				continue;
-			}
-			else if( !(det = acqpar->GetDetector()) ){
-				Warning("KVIVUpDater::SetVamosCalibParameters","No detector is associated with the ACQ parameter %s",acqpar->GetName());
-				continue;
-			}
-		}
-
 		partype.Form("%s %s", par->GetTitle(), par->GetName());
-		KVFunctionCal *cal = (KVFunctionCal *)det->GetCalibrator( partype.Data() );
+		KVFunctionCal *cal = (KVFunctionCal *)gVamos->GetCalibrator( partype.Data() );
 		if( !cal ){
-			Warning("KVIVUpDater::SetVamosCalibParameters","No calibrator of the detector %s corresponds to '%s'", det->GetName(), partype.Data());
+			Warning("KVIVUpDater::SetVamosCalibParameters","No calibrator corresponds to '%s' in VAMOS", partype.Data());
 			continue;
 		}
 
