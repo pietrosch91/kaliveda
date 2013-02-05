@@ -256,7 +256,6 @@ void SeDv::Calibrate(void)
 #	endif
 
 	Random Rnd;
-	Double_t x,a,b,c,d,e,f,t0,m_run;
 	Int_t i,j,k;
 	Float_t QTmp,QTmp_array[2][128], noise_mean[2],noise_variance[2],noise_stdeviation_[2],noise_stdeviation,noise_sum;
 	Float_t max_mean[2],max_variance[2],max_stdeviation,max_sum;
@@ -285,6 +284,7 @@ void SeDv::Calibrate(void)
 	{
 		Rnd.Next();
 
+		Double_t x,a,b,c,d,e,f,t0,m_run;
 		x = (Double_t)fT_Raw[0]+(Double_t)Rnd.Value() ;
 		a = (Double_t)fTSED_HF_Coef[0] ;
 		b = (Double_t)fTSED_HF_Coef[1] ;
@@ -388,7 +388,7 @@ void SeDv::Calibrate(void)
  			 */		
 			noise_mean[i] -= max_mean[i];
 			noise_variance[i] -= max_variance[i];
-			noise_sum -= noise_sum;
+			noise_sum -= max_sum;
 			/*
  			 *			Calculate statistical quntities related to the noise and fix the threshold
  			 *			as the mean of the noise + 1 time its standart deviation
@@ -737,7 +737,6 @@ void SeDv::FillHistograms(void)
 
 void SeDv::Show_Raw(void)
 {
-	Int_t i,j;
 #	ifdef DEBUG
 	cout << "SeDv::Show_Raw" << endl;
 #	endif
@@ -746,16 +745,14 @@ void SeDv::Show_Raw(void)
 	cout << "E1_Raw: " << fE_Raw[0] << " E2_Raw: " << fE_Raw[1] << " E3_Raw: " << fE_Raw[2] <<endl;
 	cout << "T1_Raw: " << fT_Raw[0] << endl;
 
-	for(i=0;i<2;i++)			//0) vertical, giving x. 1) vertical, giving y
-		for(j=0;j<fQ_RawM[i];j++)	//loop over strips
-			cout << "STR: " << fQ_Raw_Nr[j+i*128] << " SED: " << i << " Q_Raw: " <<  fQ_Raw[j+i*128] << endl;
+//	for(Int_t i=0;i<2;i++)			//0) vertical, giving x. 1) vertical, giving y
+//		for(Int_t j=0;j<fQ_RawM[i];j++)	//loop over strips
+//			cout << "STR: " << fQ_Raw_Nr[j+i*128] << " SED: " << i << " Q_Raw: " <<  fQ_Raw[j+i*128] << endl;
 }
 //___________________________________________________________________
 
 void SeDv::Show(void)
 {
-	Int_t i,j;
-
 #	ifdef DEBUG
 	cout << "SeDv::Show" << endl;
 #	endif
@@ -768,14 +765,14 @@ void SeDv::Show(void)
 		cout << "T1: " << fT[0] << endl;
 	}
 	cout << "PresentStrips: " << fPresentStrips << endl;
-	if(fPresentStrips) for(i=0;i<2;i++)						//0) vertical, giving x. 1) vertical, giving y
+	if(fPresentStrips) for(Int_t i=0;i<2;i++)						//0) vertical, giving x. 1) vertical, giving y
 	{
 		cout << " Mult " << i << ": " << fMult[i] << endl;
-		for(j=0;j<fMult[i];j++)								//loop over strips touched
-			cout << "STR: " << fN[j][i] << " SED: " << i << " Q: " <<  fQ[j][i] << endl;
+//		for(j=0;j<fMult[i];j++)								//loop over strips touched
+//			cout << "STR: " << fN[j][i] << " SED: " << i << " Q: " <<  fQ[j][i] << endl;
 	}
 	cout << "Xi: ";
-	for(i=0;i<2;i++) cout << fX[i] << " ";					//0) vertical, giving x. 1) vertical, giving y		
+	for(Int_t i=0;i<2;i++) cout << fX[i] << " ";					//0) vertical, giving x. 1) vertical, giving y		
 	cout << endl;
 	cout << "Present: " << fPresent << endl;
 }
