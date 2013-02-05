@@ -7,12 +7,21 @@ QSED1_1: 0 1
 QSED1_2: 0 1
 QSED1_3: 0 1
 
+
+
 # Time TSED1_HF in (ns)
-RUNS: 2-615
+# TAC: 200 ns/channel
+RUNS: 41-85
 TYPE: channel->ns
 FUNCTION: pol6
 
 TSED1_HF: 279.638 -0.00912496 -2.45448e-07 3.12192e-11 -2.15088e-15 7.6352e-20 -1.1036e-24
+
+# TAC: 500 ns/channel
+RUNS: 86-615
+TSED1_HF: 279.638 -0.0228124 -6.1362e-07 7.8048e-11 -5.3772e-15 1.9088e-19 -2.759e-24
+
+
 
 #Charge calibration Strip X
 RUNS: 2-615
