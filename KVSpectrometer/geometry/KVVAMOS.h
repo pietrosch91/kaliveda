@@ -23,6 +23,7 @@ class KVVAMOS : public KVDetector //public KVBase
 		KVSeqCollection *fVACQParams;// References to data acquisition parameter belonging to VAMOS
 
    virtual void BuildGeometry();
+   virtual void Initialize();
    virtual void MakeListOfDetectors();
    virtual void SetACQParams();
    virtual void SetArrayACQParams();

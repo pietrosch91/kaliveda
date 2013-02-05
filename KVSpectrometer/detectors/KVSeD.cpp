@@ -120,7 +120,7 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 	Int_t idx, num;
 	while((par = (KVACQParam *)next())){
 
-		if( !par->Fired() ) continue;
+		if( !par->Fired("P") ) continue;
 		idx = par->GetNumber()/1000-1;
 
 		if( i != idx ) continue;
@@ -128,7 +128,7 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 		Float_t data;
 		fQraw[idx]->SetBinContent( num, data = par->GetData() );
 		ok = kTRUE;
-Info("GetQrawHisto","%c position: %s, num= %d, Qraw= %f",dir, par->GetName(), num, data);
+//Info("GetQrawHisto","%c position: %s, num= %d, Qraw= %f",dir, par->GetName(), num, data);
 	}
 
 	if( !ok ) Warning("GetQrawHisto","No ACQ parameter fired for the %c position",dir);
@@ -155,7 +155,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	while((cal = (KVFunctionCal *)next())){
 
 		if( !cal->GetStatus() ) continue;
-		if( !cal->GetACQParam()->Fired() ) continue;
+		if( !cal->GetACQParam()->Fired("P") ) continue;
 
 		idx = cal->GetNumber()/1000-1;
  	   	if( i != idx ) continue;	

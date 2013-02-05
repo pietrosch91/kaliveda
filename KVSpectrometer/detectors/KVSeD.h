@@ -38,7 +38,9 @@ class KVSeD : public KVVAMOSDetector
 
 //   virtual void SetCalibrators(KVDBParameterSet *kvdbps);
 
-
+   inline Double_t GetTSED_HF(){
+	   return GetTimeHF();
+   };
 
 
    ClassDef(KVSeD,1)//Secondary Electron Detector, used at the focal plan of VAMOS

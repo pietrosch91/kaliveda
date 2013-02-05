@@ -3,7 +3,6 @@
 
 #include "Riostream.h"
 #include "KVVAMOSDetector.h"
-#include "KVFunctionCal.h"
 #include "KVVAMOS.h"
 using namespace std;
 
@@ -52,14 +51,6 @@ KVVAMOSDetector::~KVVAMOSDetector()
 }
 //________________________________________________________________
 
-void KVVAMOSDetector::AddACQParam(KVACQParam* par){
-	// Add given acquisition parameter to this detector
-
-	KVSpectroDetector::AddACQParam( par );
-	if(!strcmp(par->GetType(),"T")) fTimeParam = par;
-}
-//________________________________________________________________
-
 void KVVAMOSDetector::Copy (TObject& obj) const
 {
    	// This method copies the current state of 'this' object into 'obj'
@@ -76,6 +67,17 @@ void KVVAMOSDetector::Copy (TObject& obj) const
 
 void KVVAMOSDetector::init(){
 	fTimeParam = NULL;
+	fCh_ns     = NULL;
+}
+//________________________________________________________________
+
+Double_t KVVAMOSDetector::GetCalibTimeHF() const{
+	// Caculate time of flight in ns from coder value.
+	// Return 0 if calibration not ready or detector not fired
+	
+	if( IsTimeCalibrated() && fCh_ns->GetACQParam()->Fired("P"))
+		return fCh_ns->Compute();
+	else return 0;
 }
 //________________________________________________________________
 
@@ -87,10 +89,18 @@ Float_t KVVAMOSDetector::GetTimeHF() const{
    	// If the detector has no ACQ parameter for time of flight,
 	// or if the raw channel number = 0, the value returned is -1
 
-	if( fTimeParam ) return fTimeParam->GetData(); 
+	return ( fTimeParam ? fTimeParam->GetData() : -1 );
+}
+//________________________________________________________________
 
-	Warning("KVVAMOSDetector::GetTimeHF","Time ACQ parameter not found for %s detector", GetName());
-	return -1;
+void KVVAMOSDetector::Initialize(){
+	// Initialize the data members. Called by KVVAMOS::Initialize().
+	fTimeParam = (KVACQParam *)GetACQParamList()->FindObjectByType("T");
+	if( fTimeParam ){
+		TString acqname;
+		acqname.Form("channel->ns %s", fTimeParam->GetName());
+ 		fCh_ns =(KVFunctionCal *)GetCalibrator( acqname.Data() );
+	}
 }
 //________________________________________________________________
 

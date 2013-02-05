@@ -23,6 +23,9 @@ class KVHarpeeSi : public KVVAMOSDetector
 		virtual const Char_t* GetArrayName();
 		virtual void SetACQParams();
 
+		inline Double_t GetTSI_HF(){
+			return GetTimeHF();
+		};
    ClassDef(KVHarpeeSi,1)//Silicon detectors of Harpee, used at the focal plan of VAMOS
 };
 

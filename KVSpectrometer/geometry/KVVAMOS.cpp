@@ -3,7 +3,7 @@
 
 #include "KVVAMOS.h"
 #include "TPluginManager.h"
-#include "KVSpectroDetector.h"
+#include "KVVAMOSDetector.h"
 #include "TClass.h"
 #include "KVDataSetManager.h"
 #include "KVUpDater.h"
@@ -105,6 +105,13 @@ void KVVAMOS::BuildGeometry(){
 }
 //________________________________________________________________
 
+void KVVAMOS::Initialize(){
+	// Initialize data members of the VAMOS detectors and of VAMOS 
+	// itself.
+	fDetectors->R__FOR_EACH(KVVAMOSDetector,Initialize)();	
+}
+//________________________________________________________________
+
 void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 	// Add an acquisition parameter corresponding to a detector
 	// at the focal plan of the spectrometer. The fACQParams and fVACQParams
@@ -149,6 +156,7 @@ void KVVAMOS::Build(){
 	SetIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
+	Initialize();
 }
 //________________________________________________________________
 
