@@ -3,7 +3,7 @@
 # valide par Tomacz Twarog en 2012 
 # Liste des parametres : 
 # a0, a1, a2, Chi2 du fit, ecart max fit-points en mv 
-Run Range : 1 600 
+Run Range : 1 650 
  4  1 4  -3.1879e-03   2.4113e-05  -8.9578e-14   1.3302e+04  -1.5000e-01  
  4  2 4  -3.4747e-03   2.4621e-05   2.2731e-13   1.2949e+04  -1.5000e-01  
  4  3 4  -3.2631e-03   2.4486e-05   1.7920e-13   1.3110e+04  -1.5000e-01  
