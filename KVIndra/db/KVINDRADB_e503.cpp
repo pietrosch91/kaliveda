@@ -154,7 +154,7 @@ void KVINDRADB_e503::ReadVamosBrhoAndAngle ()
       	if (!fin.eof()) {          //fin du fichier
 		   	if (sline.Sizeof() > 1 && !sline.BeginsWith("#") ){
 				sscanf(sline.Data(), "%d %f %f ", &run, &Brho, &theta);
-              	cout<<" run = "<<run<<", Brho = "<<Brho<<", Theta = "<<theta<<endl;
+//              	cout<<" run = "<<run<<", Brho = "<<Brho<<", Theta = "<<theta<<endl;
                	if(Brho==0){
                   	Brho = -1.;
                   	theta = -1.;
@@ -225,7 +225,7 @@ void KVINDRADB_e503::ReadDeltaPedestal(ifstream &ifile){
 		// QDC number
 	  	if(sline.BeginsWith("QDC=")){
 			sline.Remove(0,4);
-			numQDC = sline.Atof();
+			numQDC = sline.Atoi();
 			continue;
    		}
 		// DeltaPed for each signal
