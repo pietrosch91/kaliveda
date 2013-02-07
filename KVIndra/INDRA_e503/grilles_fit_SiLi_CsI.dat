@@ -3,7 +3,7 @@ Type=1
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=80-532
+Runs=1-650
 IDTelescopes=/SILI_CSI_1002/
 <VARX> 
 <VARY> 
@@ -24,7 +24,7 @@ Type=1
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=80-532
+Runs=1-650
 IDTelescopes=/SILI_CSI_1102/
 <VARX> 
 <VARY> 
@@ -45,7 +45,7 @@ Type=0
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=80-532
+Runs=1-650
 IDTelescopes=/SILI_CSI_1304/
 <VARX> 
 <VARY> 
@@ -62,7 +62,7 @@ Type=0
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=80-532
+Runs=1-650
 IDTelescopes=/SILI_CSI_1403/
 <VARX> 
 <VARY> 
@@ -79,7 +79,7 @@ Type=0
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=80-532
+Runs=1-650
 IDTelescopes=/SILI_CSI_1503/
 <VARX> 
 <VARY> 
@@ -96,7 +96,7 @@ Type=0
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=80-532
+Runs=1-650
 IDTelescopes=/SILI_CSI_1702/
 <VARX> 
 <VARY> 
@@ -113,7 +113,7 @@ Type=0
 LightEnergyDependence=0
 ZorA=0
 Functional=KVTGIDFunctions::fede
-Runs=280-532
+Runs=21-650
 IDTelescopes=/SILI_CSI_1602/
 <VARX> 
 <VARY> 

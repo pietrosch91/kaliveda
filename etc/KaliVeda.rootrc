@@ -174,6 +174,7 @@ INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e503.IdentAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 INDRA_e503.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_e494s
@@ -184,6 +185,7 @@ INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 INDRA_e494s.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    VAMOS_e503
@@ -727,6 +729,9 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI    KVIndra "KVIDChIoCorrCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e503.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e503.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
 ###############################################
 
 # ===> Plugin pour FocalPlanVamos
@@ -775,6 +780,10 @@ INDRA_e503.IdentificationParameterFile.SI-CSI:      SI_CSI_C4-9_autofit.dat
 INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
+INDRA_e503.IdentificationParameterFile.CI-SI75:     grilles_ChIo_Si75.dat
+INDRA_e503.IdentificationParameterFile.SI75-SILI:   grilles_fit_Si75_SiLi.dat
+INDRA_e503.IdentificationParameterFile.SILI-CSI:    grilles_fit_SiLi_CsI.dat
+
 ###############################################
 INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
 INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
