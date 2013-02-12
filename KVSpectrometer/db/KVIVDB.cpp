@@ -260,7 +260,12 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	// TYPE: channel->Volt  (or channel->ns, Volt->MeV)
 	// FUNCTION: pol1       (or formula format of TF1)
 	// 
-	// this is the miminum of informations to give in the file.
+	// these tree infromations are the minimum to give in the file.
+	//
+	// If the FUNCTION is 'no' then it is assume that the calibrator
+	// is defined by a class inheriting from KVCalibrator different from
+	// KVFunctionCal.
+	//
 	// The following depends of the calibration type:
 	// - If the type contains 'channel' then the calibration
 	//   parameters have to be associated to an acquisition
@@ -268,6 +273,10 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	//   parameter has to be given first followed by ':' and the parameters.
 	// - else the  calibration parameters have to be 
 	//   associated to the corresponding detector.
+	// 
+	// The parameters can be add on a new line if the previous line end 
+	// with the character '\'
+	//
 	//
 	// The comment line begins with '#'.
 	//
@@ -294,8 +303,11 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	// FUNCTION: pol6
 	// TYPE: channel->ns
 	// SED1_HF: par0 par1 par2 par3 par4 par5 par6
-
-
+	//
+	// TYPE: position->cm
+	// SED1: par1 par2 par3 par4 par5 \.
+	//       par6 par7 par8 par8 par10
+	
 	KVString sline, name;
 	Int_t idx;
    	Int_t OKbit = 0;
@@ -308,6 +320,7 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	while (ifile.good()) {         //reading the file
       	sline.ReadLine(ifile);
 
+		if(sline.IsNull()) continue;
 	  	// Skip comment line
 	  	if(sline.BeginsWith("#")) continue;
 
@@ -338,22 +351,51 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 			return kFALSE;
 		}
 		else{
-			tok = sline.Tokenize(" ");
-			sline.Form("f%s", name.Data() );
-			TF1 f( sline.Data(), infos[2].Data() );
-			if( tok->GetEntries() != f.GetNpar() ){
-				Error("ReadVamosCalibFile","Different numbers of parameters:");
-				cout<<"- the function "<<f.GetExpFormula().Data()<<" ( "<< f.GetNpar()<<" parameters )"<<endl;
-				cout<<"- the calibrator of "<<name.Data()<<" ( "<< tok->GetEntries()<<" parameters )"<<endl;
-				delete tok;
-				return kFALSE;
+
+			if( sline.EndsWith("\\") ){
+				sline.Remove(KVString::kTrailing,'\\');
+				sline.Remove(KVString::kTrailing,' ');
+				KVString extra;
+				Bool_t next = kTRUE;
+				while( next ){
+				extra.ReadLine( ifile );
+	  			if(extra.BeginsWith("#")) continue;
+				if( extra.EndsWith("\\") ) extra.Remove(KVString::kTrailing,'\\');
+				else	next = kFALSE;
+				extra.Remove(KVString::kBoth,' ');
+				sline.Append(" ");
+				sline.Append(extra);
+				}
 			}
-			parset = new KVDBParameterSet(name.Data(),infos[1].Data(),f.GetNpar()+1);
-			parset->SetParamName( 0, f.GetExpFormula().Data() );
-			parset->SetParameter( 0, f.GetNpar() );
-			for( Int_t j=0; j< f.GetNpar(); j++ ){
-				parset->SetParamName( j+1, f.GetParName(j));
-				parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
+
+			tok = sline.Tokenize(" ");
+
+			if( infos[2].CompareTo("no") ){
+				// for calibrator with formula expression
+				sline.Form("f%s", name.Data() );
+				TF1 f( sline.Data(), infos[2].Data() );
+				if( tok->GetEntries() != f.GetNpar() ){
+					Error("ReadVamosCalibFile","Different numbers of parameters:");
+					cout<<"- the function "<<f.GetExpFormula().Data()<<" ( "<< f.GetNpar()<<" parameters )"<<endl;
+					cout<<"- the calibrator of "<<name.Data()<<" ( "<< tok->GetEntries()<<" parameters )"<<endl;
+					delete tok;
+					return kFALSE;
+				}
+				parset = new KVDBParameterSet(name.Data(),infos[1].Data(),f.GetNpar()+1);
+				parset->SetParamName( 0, f.GetExpFormula().Data() );
+				parset->SetParameter( 0, f.GetNpar() );
+				for( Int_t j=0; j< f.GetNpar(); j++ ){
+					parset->SetParamName( j+1, f.GetParName(j));
+					parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
+				}
+			}
+			else{
+				// for calibrator without formula expression
+				parset = new KVDBParameterSet(name.Data(),infos[1].Data(),tok->GetEntries());
+				for( Int_t j=0; j<tok->GetEntries() ; j++ ){
+					parset->SetParamName( j, Form("par%d",j) );
+					parset->SetParameter( j, ((TObjString *)tok->At(j))->GetString().Atof() );
+				}
 			}
 			delete tok;
 			fVAMOSCalib->AddRecord(parset);
