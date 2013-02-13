@@ -4,6 +4,8 @@
 #include "KVSeD.h"
 #include "KVFunctionCal.h"
 #include "TH1F.h"
+#include "TFitResult.h"
+#include "TMatrixD.h"
 
 ClassImp(KVSeD)
 
@@ -17,14 +19,20 @@ ClassImp(KVSeD)
 ////////////////////////////////////////////////////////////////////////////////
 void KVSeD::init(){
 	// Initialise non-persistent pointers
-	
-	fQraw = new TH1F*[2]; 
-	fQ    = new TH1F*[2];
 
-	for(Int_t i=0; i<2; i++){
-		fQraw[i] = NULL;
-		fQ[i]    = NULL;
+	fQ  = new TH1F**[3];
+	for(Int_t i=0; i<3; i++){  //[ raw, calibrated, clean ]
+		fQ[i] = new TH1F*[2];
+		for(Int_t j=0; j<2; j++){  //[ X, Y ]
+			fQ[i][j]      = NULL;
+		}
 	}
+
+	fPeakFunction = NULL;
+	fRawPos[0] = fRawPos[1] = -500;
+	fRefPos[0] = fRefPos[1] = 0;
+//	fSpectrum     = NULL;
+	fPosCalib = NULL;
 }
 //________________________________________________________________
 
@@ -52,13 +60,15 @@ KVSeD::KVSeD (const KVSeD& obj)  : KVVAMOSDetector()
 
 KVSeD::~KVSeD()
 {
-   // Destructor
-	for(Int_t i=0; i<2; i++){
-		SafeDelete( fQraw[i] );
-		SafeDelete( fQ[i] );
+   	// Destructor
+	for(Int_t i=0; i<3; i++){
+		for(Int_t j=0; j<2; j++){
+			SafeDelete( fQ[i][j] );
+		}
+		delete[] fQ[i];
 	}
-	delete[] fQraw;
 	delete[] fQ;
+	SafeDelete( fPeakFunction );
 }
 //________________________________________________________________
 
@@ -80,14 +90,8 @@ void  KVSeD::Clear(Option_t *option ){
 	// Set the energy losses etc. to zero and reset the histograms used
 	// to find the X,Y positions (Qraw and Q)
 
-	Info("Clear","IN");
 	KVVAMOSDetector::Clear( option );
-
-	for(Int_t i=0; i<2; i++){
-		if(fQraw[i]) fQraw[i]->Reset();
-		if(fQ[i])    fQ[i]->Reset();
-	}
-	Info("Clear","OUT");
+	ResetCalculatedData();
 }
 //________________________________________________________________
 
@@ -103,16 +107,93 @@ const Char_t* KVSeD::GetArrayName(){
 }
 //________________________________________________________________
    
+TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
+	// Retruns the X or Y position histogram with calibrated charges (Q)
+	// after the substration of noise.
+ 
+	Int_t i = IDX(dir);
+	if( (i<0) || (i>2) ) return NULL; 
+	if( !fQ[2][i] ) return NULL;
+	if(fQ[2][i]->GetEntries()) return fQ[2][i];
+
+	// Calculate the noise and Remove noise on strips for X and Y positions.
+	// The clean Q histogram obtained after removing the noise is built
+
+	//Study the noise and the maximum value for the charge.
+	//At this stage the quantities noise_*** contain also the signal!
+	Float_t QTmp, noise_mean, noise_var, noise_stdev, noise_sum;
+	Float_t Q_max; 
+	Q_max = noise_mean = noise_var = noise_sum = noise_stdev = 0.;
+	
+	UShort_t Q_max_Nr;
+	Q_max_Nr = 1000 ;	
+			
+		TH1F *hQcal = GetQHisto( dir );
+		for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
+			QTmp = hQcal->GetBinContent(j);
+			if(QTmp >0){
+				noise_mean += QTmp;
+				noise_var  += QTmp*QTmp;
+				noise_sum  += 1.;
+			}
+			if(QTmp > Q_max){
+				Q_max    = QTmp;
+				Q_max_Nr = j;
+			}
+		}
+
+		//Study the surrounding of the maximum charge
+		Float_t max_mean, max_var, max_sum;
+		max_mean = max_var = max_sum = 0.;
+		for(Int_t j=-Border;j<=Border;j++){
+			Int_t k = Q_max_Nr+j; 
+			if( (0<k) && (k<=hQcal->GetNbinsX()) ){
+				QTmp = hQcal->GetBinContent(k);
+				if (QTmp>0){
+					max_mean  += QTmp;
+					max_var   += QTmp*QTmp;
+					max_sum   += 1.;	
+				}
+			}
+		}
+ 		//The signal of the maximum charge is removed from the quantities noise_***
+		noise_mean -= max_mean;
+		noise_var  -= max_var;
+		noise_sum  -= max_sum;
+ 		//Calculate statistical quntities related to the noise and fix the threshold
+ 		//as the mean of the noise + 1 time its standart deviation
+		if(noise_sum<2. || noise_var==0) 
+		{
+			noise_mean = noise_var = 0;
+		}
+		else 
+		{
+			noise_mean /= noise_sum;
+			noise_var   = noise_var/noise_sum - noise_mean*noise_mean;
+			noise_stdev = TMath::Sqrt(noise_var);
+		}
+		Float_t threshold = noise_mean + noise_stdev;
+
+		for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
+			QTmp = hQcal->GetBinContent(j);
+			if(QTmp > threshold){
+					fQ[2][i]->SetBinContent(j,QTmp-threshold);
+				}
+			}
+
+	return fQ[2][i];
+}
+//________________________________________________________________
+   
 TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 	// Retruns the X or Y position histogram with raw charges (Q)
 	
-	Int_t i;
-	if( dir == 'X' ) i = 0; 
-	else if (dir == 'Y' ) i = 1;
-	else return NULL;
-
-	if( !fQraw[i] ) return NULL;
-	fQraw[i]->Reset();
+	Int_t i = IDX(dir);
+	if( (i<0) || (i>2) ) return NULL; 
+	if( !fQ[0][i] ) return NULL;
+	if(fQ[0][i]->GetEntries()) return fQ[0][i];
+	
+	fQ[0][i]->Reset();
 	TIter next(GetACQParamList());
 
 	Bool_t ok = kFALSE;
@@ -126,41 +207,42 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 		if( i != idx ) continue;
 		num =  par->GetNumber() - (idx+1)*1000;
 		Float_t data;
-		fQraw[idx]->SetBinContent( num, data = par->GetData() );
+		fQ[0][idx]->SetBinContent( num, data = par->GetData() );
 		ok = kTRUE;
 //Info("GetQrawHisto","%c position: %s, num= %d, Qraw= %f",dir, par->GetName(), num, data);
 	}
 
 	if( !ok ) Warning("GetQrawHisto","No ACQ parameter fired for the %c position",dir);
 
- 	return fQraw[i];
+ 	return fQ[0][i];
 }
 //________________________________________________________________
    
 TH1F *KVSeD::GetQHisto(const Char_t dir){
 	// Retruns the X or Y position histogram with calibrated charges (Q)
 
-	Int_t i;
-	if( dir == 'X' ) i = 0; 
-	else if (dir == 'Y' ) i = 1;
-	else return NULL;
+	Int_t i = IDX(dir);
+	if( (i<0) || (i>2) ) return NULL; 
+	if( !fQ[1][i] ) return NULL;
+	if(fQ[1][i]->GetEntries()) return fQ[1][i];
 
-	if( !fQ[i] ) return NULL;
-	fQ[i]->Reset();
+	fQ[1][i]->Reset();
 	TIter next(GetListOfCalibrators());
 
 	Bool_t ok = kFALSE;
-	KVFunctionCal *cal  = NULL;
+	KVCalibrator *cal  = NULL;
 	Int_t idx, num;
-	while((cal = (KVFunctionCal *)next())){
-
+	while((cal = (KVCalibrator *)next())){
+		
 		if( !cal->GetStatus() ) continue;
-		if( !cal->GetACQParam()->Fired("P") ) continue;
-
 		idx = cal->GetNumber()/1000-1;
  	   	if( i != idx ) continue;	
-		num =  cal->GetNumber() - (idx+1)*1000;
-		fQ[idx]->SetBinContent( num, cal->Compute() );
+
+		KVFunctionCal *calf = (KVFunctionCal *)cal;
+		if( !calf->GetACQParam()->Fired("P") ) continue;
+		
+		num =  calf->GetNumber() - (idx+1)*1000;
+		fQ[1][idx]->SetBinContent( num, calf->Compute() );
 		ok = kTRUE;
 	}
 
@@ -168,7 +250,122 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 		Error("GetQHisto","Impossible to calibrate correctly the charges for %c position, please check the calibrator status",dir);
 		return NULL;
 	}
- 	return fQ[i];
+ 	return fQ[1][i];
+}
+//________________________________________________________________
+
+//Bool_t KVSeD::RemoveNoise(){
+//	// Calculate the noise and Remove noise on strips for X and Y positions.
+//	// Return boolean equal to kTRUE if the measured event is accepted.
+//	// The clean Q histogram obtained after removing the noise is accessible
+//	// with the method GetCleanQHisto(...)
+//
+//	Float_t QTmp, noise_mean[2],noise_variance[2],noise_stdeviation_[2],noise_stdeviation,noise_sum;
+//	Float_t max_mean[2],max_variance[2],max_stdeviation,max_sum;
+//	UShort_t Q_max_Nr[2];
+//	Float_t noise_threshold[2],Q_max[2]; 
+//	Bool_t Accepted_event = kFALSE;
+//
+//	for(Int_t i=0; i<2; i++){	//0) vertical, giving x. 1) vertical, giving y
+//	
+//		// Initialization
+//		Q_max[i] = noise_mean[i] = noise_variance[i] = noise_sum = noise_stdeviation_[i] = noise_threshold[i] = 0.;
+//		max_mean[i] = max_variance[i] = max_sum = 0.;
+//		Q_max_Nr[i] = 1000 ;	
+//		//Study the noise and the maximum value for the charge.
+//		//At this stage the quantities noise_*** contain also the signal!
+// 	
+//		TH1F *hQcal = GetQHisto( DIRECTION(i) );
+//		for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
+//			QTmp = hQcal->GetBinContent(j);
+//			if(QTmp >0){
+//				noise_mean[i] += QTmp;
+//				noise_variance[i] += QTmp*QTmp;
+//				noise_sum += 1.;
+//			}
+//			if(QTmp > Q_max[i]){
+//				Q_max[i] = QTmp;
+//				Q_max_Nr[i] = j;
+//			}
+//		}
+//		//Study the surrounding of the maximum charge
+//		for(Int_t j=-Border;j<=Border;j++){
+//			Int_t k = Q_max_Nr[i]+j; 
+//			if( (0<k) && (k<=hQcal->GetNbinsX()) ){
+//				QTmp = hQcal->GetBinContent(k);
+//				if (QTmp>0){
+//					max_mean[i] += QTmp;
+//					max_variance[i] += QTmp*QTmp;
+//					max_sum += 1.;	
+//				}
+//			}
+//		}
+// 		//The signal of the maximum charge is removed from the quantities noise_***
+//		noise_mean[i] -= max_mean[i];
+//		noise_variance[i] -= max_variance[i];
+//		noise_sum -= max_sum;
+// 		//Calculate statistical quntities related to the noise and fix the threshold
+// 		//as the mean of the noise + 1 time its standart deviation
+//		if(noise_sum<2. || noise_variance[i]==0) 
+//		{
+//			noise_mean[i] = noise_variance[i] =0;
+//		}
+//		else 
+//		{
+//			noise_mean[i] /= noise_sum;
+//			noise_variance[i] = noise_variance[i]/noise_sum - noise_mean[i]*noise_mean[i];
+//			noise_stdeviation_[i] = sqrt(noise_variance[i]);
+//		}
+//		noise_threshold[i] = noise_mean[i] + noise_stdeviation_[i];
+//
+// 		//Calculate statistical quntities related to the maximum
+//		if(max_sum<2.){
+//			max_mean[i] = max_variance[i] =0;
+//		}
+//		else{
+//			max_mean[i] /= max_sum;
+//			max_variance[i] = max_variance[i]/max_sum - max_mean[i]*max_mean[i];
+//		}
+//	}
+//	max_stdeviation = sqrt(max_variance[0] + max_variance[1]); 
+//	noise_stdeviation = sqrt(noise_variance[0] + noise_variance[1]); 
+//
+//
+//	Accepted_event= kTRUE;
+//	for(Int_t i=0; i<2; i++){			//0) vertical, giving x. 1) vertical, giving y
+////		if( max_variance[i] == 0 ) Accepted_event = kFALSE;
+//	if(noise_variance[i] >= 2.*max_variance[i])	Accepted_event= kFALSE;
+//	}
+//	if(noise_stdeviation >= 2.*max_stdeviation)	Accepted_event= kFALSE;
+//
+////	if(Accepted_event){
+//		for(Int_t i=0; i<2; i++){			//0) vertical, giving x. 1) vertical, giving y
+//			TH1F *hQcal = GetQHisto( DIRECTION(i) );
+//			for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
+//			QTmp = hQcal->GetBinContent(j);
+//				if(QTmp > noise_threshold[i]){
+//					fQ[2][i]->SetBinContent(j,QTmp-noise_threshold[i]);
+//				}
+//			}
+//		}
+////	}
+//	return Accepted_event;
+//}
+//________________________________________________________________
+
+void KVSeD::ResetCalculatedData(){
+	// Reset all X or Y position histograms (raw, calibrated, clean)
+	// and raw positions.
+	// This method have to be called each time you read a new event (i.e.
+	// when the ACQ parameter change) otherwise certain methods 
+	// (such as GetPosition(), GetQrawHisto() ...) will not return 
+	// what you expect.
+	for(Int_t i=0; i<3; i++){
+		for(Int_t j=0; j<2; j++)
+			if(fQ[i][j])    fQ[i][j]->Reset();
+	}
+
+	fRawPos[0] = fRawPos[1] = -500;
 }
 //________________________________________________________________
 
@@ -194,32 +391,30 @@ void KVSeD::SetACQParams(){
 	// Charge ACQ parameters	
 	TString name, title;
 	KVACQParam *par = NULL;
-	Char_t idx[] = {'X','Y'};
+	Int_t Nstrips[] = { 128,  48 }; 
+	const Char_t *extraname[]  = {    "raw","calib",        "clean"};
+	const Char_t *extratitle[] = {       "",     "","without noise"};
+	const Char_t *units[]      = {"channel", "Volt",         "Volt"};
 	for(Int_t i=0; i<2; i++){
-		for(Int_t num =1; num<=(i? _SED_NY_ : _SED_NX_); num++){
+		for(Int_t num =1; num<=Nstrips[i]; num++){
 			par = new KVACQParam;
-			name.Form("%s_%c_%03d",GetArrayName(),idx[i],num);
+			name.Form("%s_%c_%03d",GetArrayName(),DIRECTION(i),num);
 			par->SetName(name);
 			par->SetType("Q");
 			par->SetNumber( (i+1)*1000 + num);
 			AddACQParam(par);
 		}
 
-		// build Qraw and Q histograms for X and Y position
-
-		// Qraw histogram
-		if(fQraw[i]) SafeDelete( fQraw[i] );
-			name.Form("Qraw_%s_%c",GetArrayName(),idx[i]);
-			title.Form("%c position for %s; Strip number; Qraw (channel)",idx[i],GetArrayName());
-		fQraw[i] = new TH1F( name.Data(), title.Data(), _SED_NX_, .5, _SED_NX_ +.5);
-		fQraw[i]->SetDirectory(0);
-
-		// Q histogram
-		if(fQ[i]) SafeDelete( fQ[i] );
-			name.Form("Q_%s_%c",GetArrayName(),idx[i]);
-			title.Form("%c position for %s; Strip number; Q (Volt)",idx[i],GetArrayName());
-		fQ[i] = new TH1F( name.Data(), title.Data(), _SED_NX_, .5, _SED_NX_ +.5);
-		fQ[i]->SetDirectory(0);
+		// build  Q histograms for X and Y position
+		for(Int_t j=0; j<3; j++){
+			// Qraw histogram
+			if(fQ[j][i]) SafeDelete( fQ[j][i] );
+			name.Form("Q%s_%s_%c",extraname[j],GetArrayName(),DIRECTION(i));
+			title.Form("%c position for %s %s; Strip number; Qraw (%s)",DIRECTION(i),extratitle[j],GetArrayName(),units[j]);
+			fQ[j][i] = new TH1F( name.Data(), title.Data(), Nstrips[i], .5, Nstrips[i] +.5);
+			fQ[j][i]->SetDirectory(0);
+			fQ[j][i]->SetLineColor(j+1);
+		}
 	}
 
 	// time ACQ parameter
@@ -232,15 +427,188 @@ void KVSeD::SetACQParams(){
 }
 //________________________________________________________________
 
+void KVSeD::SetCalibrators(){
+	// Setup the calibrators for this SeD detector. Call once name
+	// has been set.
+	// The calibrators are KVFunctionCal (see KVVAMOSDetector::SetCalibrators())
+	// except for the position calibration (position->cm) where a 
+	// KVSeDPositionCal object is used.
+
+	KVVAMOSDetector::SetCalibrators();
+	KVSeDPositionCal *c = new KVSeDPositionCal(this);
+	c->SetNumber( 3000 + 2);
+	if(!AddCalibrator(c)) delete c;
+	else fPosCalib = c;
+
+}
+//________________________________________________________________
+
+void KVSeD::ShowCleanQHisto(const Char_t dir, Option_t *opt){
+	TH1F *hh = GetCleanQHisto( dir );
+	if( hh ) hh->Draw(opt);
+}
+//________________________________________________________________
+
 void KVSeD::ShowQrawHisto(const Char_t dir, Option_t *opt){
-	opt = opt; 
 	TH1F *hh = GetQrawHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
 //________________________________________________________________
 
 void KVSeD::ShowQHisto(const Char_t dir, Option_t *opt){
-	opt = opt; 
 	TH1F *hh = GetQHisto( dir );
 	if( hh ) hh->Draw(opt);
+Info("ShowQHisto","Position for %c= %f",dir,GetRawPosition( dir ));
+}
+//________________________________________________________________
+
+Double_t KVSeD::GetRawPosition(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
+	// Return the position (strip) deduced from the histogram representing
+	// the calibrated charge versus strip number. First the method searchs 
+	// peaks. If there is to many peaks (>maxNpeaks) the method returns -1
+	// else the function 
+	//   f(x) = [0]*exp(-0.5*((x-[1])/[2])**2)+[3]
+	// is fitted to the histogram by setting initial parameters to 
+	// fit the main peak found. The position is given by the parameter[1].
+	// argument:  min_amp - acceptable minimum for the amplitude 
+	//                      parameter [0] 
+	//            min_sigma and max_sigma - acceptable minimum and maximum
+	//                                      for the sigma parameter [2]
+	//
+	// If these two parameter are not in the limits then the method returns -1.
+	Int_t idx = IDX(dir);
+	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
+	TH1F *hh = GetQHisto( dir );
+	if( !hh ) return fRawPos[ idx ]=-1;
+
+	///////////////////////////////////////////////////
+//	if( !fSpectrum ) fSpectrum = new TSpectrum(15);
+	if( !fPeakFunction ){
+		fPeakFunction = new TF1(Form("KVSeD:%s:PeakFunction",GetName()),"gaus+[3]",0,129);
+		fPeakFunction->SetNpx( 128 );
+		fPeakFunction->SetLineColor(kBlue);
+	}
+
+	Double_t par[4];
+	TFitResultPtr r = hh->Fit("pol0","QSNC");
+	if( !r.Get() ) return fRawPos[ idx ]=-1;
+	par[3] = r->Parameter(0);       // noise
+//	Int_t nfound = fSpectrum->Search(hh,2,"goff",0.2);
+//	if( (nfound<1) || (maxNpeaks< nfound) ) return -1;
+//	Double_t *xpeaks = fSpectrum->GetPositionX();
+//	Info("GetRawPosition","Number of peaks found: %d", nfound);
+	par[2] = 2.;                   // sigma
+	Int_t locmax = hh->GetMaximumBin();
+	Double_t max = hh->GetBinContent( locmax );
+	
+//	par[1] = xpeaks[0];            // position
+	par[1] = (Double_t)locmax;            // position
+	par[0] = TMath::Abs(max - par[3]); // amplitude
+	fPeakFunction->SetParameters( par );
+
+	fPeakFunction->SetParLimits(0,0.,max);
+	fPeakFunction->SetParLimits(1,1.,hh->GetNbinsX());
+	fPeakFunction->SetParLimits(2,0.5,max_sigma*1.1);
+	fPeakFunction->SetParLimits(3,0.,max);
+
+	fPeakFunction->SetParError(0,par[0]*0.2);
+	fPeakFunction->SetParError(1,1);
+	fPeakFunction->SetParError(2,0.5);
+	fPeakFunction->SetParError(3,max*.2);
+
+	hh->Fit(fPeakFunction,"QN","",locmax-Border,locmax+Border);
+//	hh->Fit(fPeakFunction,"","",locmax-Border,locmax+Border);
+
+	par[0] = fPeakFunction->GetParameter(0);
+	par[1] = fPeakFunction->GetParameter(1);
+	par[2] = fPeakFunction->GetParameter(2);
+
+	if( par[0] < min_amp ) return fRawPos[ idx ]=-1;
+	if( (par[2] < min_sigma) ||  (max_sigma < par[2]) ) return fRawPos[ idx ]=-1;
+	return fRawPos[ idx ]=par[1]; 
+}
+//________________________________________________________________
+
+Double_t KVSeD::GetRawPosition2(const Char_t dir){
+	// Return the position (strip) deduced from the histogram representing
+	// the calibrated charge versus strip number. Faster method compare to 
+	// the method GetRawPosition. The resolution is less good but sufficient. 
+
+	Int_t idx = IDX(dir);
+	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
+	TH1F *hh = GetCleanQHisto( dir );
+	if( !hh ) return fRawPos[ idx ]=-1;
+
+	Int_t NStrips = 3;
+	if(hh->GetEntries()< NStrips ) return fRawPos[ idx ]=-1;
+
+	///////////////////////////////////////////////////
+
+	Int_t binMax = hh->GetMaximumBin();
+	Int_t min;
+	for( min = binMax; min>1; min--){
+		Double_t deltaQ = hh->GetBinContent(min)-hh->GetBinContent(min-1);
+		if(deltaQ < 0 ) break;
+	}
+	Int_t max;
+	for( max = binMax; max<hh->GetNbinsX(); max++){
+		Double_t deltaQ = hh->GetBinContent(max)-hh->GetBinContent(max+1);
+		if(deltaQ < 0 ) break;
+	}
+
+	if( (max-min) < NStrips) return fRawPos[ idx ]=-1;
+
+	hh->GetXaxis()->SetRange(min,max);
+	Double_t mean = hh->GetMean();
+	hh->GetXaxis()->SetRange();
+	return fRawPos[ idx ] = mean;
+}
+//________________________________________________________________
+
+Double_t KVSeD::GetPosition(const Char_t dir){
+	// Return the calibrated and corrected position (in cm)
+	// for the direction 'dir'.
+	// The function returns -666 in case of an invalid request
+	Double_t X, Y;
+	if( !GetPosition(X,Y) ) return -666;
+	return ( IDX(dir) ? Y : X );
+}
+//________________________________________________________________
+
+Bool_t KVSeD::GetPosition(Double_t &X, Double_t &Y, Double_t xraw, Double_t yraw){
+	// Get calibrated and deviation-corrected positions X and Y (in cm)
+	// from the raw positions in channel obtained with GetRawPosition(...)
+	// if not given in argument.
+	// A second correction of Y is due to the 45-degree slope of the emissive 
+	// foil relative to the beam direction.
+	// The function returns kFALSE in case of an invalid request.
+	// See documentation of KVSeDPositionCal for more details about 
+	// calibration algorithm.
+
+	X = Y = -666;
+	if( !IsPositionCalibrated() ) return kFALSE;
+
+
+	Double_t Xraw = ( xraw < 0 ? GetRawPosition('X') : xraw );
+	Double_t Yraw = ( yraw < 0 ? GetRawPosition('Y') : yraw );
+//	Double_t Xraw = GetRawPosition2('X');
+//	Double_t Yraw = GetRawPosition2('Y');
+
+	// Calibration is performed with the calibrator KVSeDPositionCal
+	if( !(*fPosCalib)( Xraw, Yraw, X, Y ) ) return kFALSE;	
+
+	// Correction of the 45-degree slope of the emissive foil relative to
+	// the beam direction
+	// Ycor = Y * sin( 45 deg)
+	Y *= ONEOVERSQRTTWO;
+	
+	if ( !IS_IN_SED_WINDOW(X,Y) ){
+		X = Y  = -666.;
+		return kFALSE;
+	}
+
+	X -= GetRefX();
+	Y -= GetRefY();
+
+	return kTRUE;
 }
