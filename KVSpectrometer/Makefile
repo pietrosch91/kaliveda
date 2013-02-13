@@ -3,7 +3,7 @@
 
 PROJ_NAME = KVSpectrometer
 
-MODULES = detectors geometry db events particles
+MODULES = detectors geometry db events particles calibration
 
 #ETC_DATA = data
 #ETC_DATA += $(shell ls factory/*Template.[c,h]*)
