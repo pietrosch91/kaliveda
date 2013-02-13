@@ -153,7 +153,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
 
-   ClassDef(KVINDRAReconNuc, 9) //Nucleus identified by INDRA array
+   ClassDef(KVINDRAReconNuc, 10) //Nucleus identified by INDRA array
 };
 
 //____________________________________________________________________________________________//
