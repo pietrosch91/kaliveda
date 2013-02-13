@@ -262,9 +262,9 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	// 
 	// these tree infromations are the minimum to give in the file.
 	//
-	// If the FUNCTION is 'no' then it is assume that the calibrator
-	// is defined by a class inheriting from KVCalibrator different from
-	// KVFunctionCal.
+	// If the FUNCTION is 'no'( 'NO' or empty ) then it is assume that
+	// the calibrator is defined by a class inheriting from KVCalibrator
+	// different from KVFunctionCal.
 	//
 	// The following depends of the calibration type:
 	// - If the type contains 'channel' then the calibration
@@ -370,11 +370,12 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 
 			tok = sline.Tokenize(" ");
 
-			if( infos[2].CompareTo("no") ){
+			if( infos[2].CompareTo("no") && infos[2].CompareTo("NO") && !(infos[2].IsNull()) ){
 				// for calibrator with formula expression
 				sline.Form("f%s", name.Data() );
 				TF1 f( sline.Data(), infos[2].Data() );
 				if( tok->GetEntries() != f.GetNpar() ){
+					cout<<"info 2: "<<infos[2].Data()<<endl;
 					Error("ReadVamosCalibFile","Different numbers of parameters:");
 					cout<<"- the function "<<f.GetExpFormula().Data()<<" ( "<< f.GetNpar()<<" parameters )"<<endl;
 					cout<<"- the calibrator of "<<name.Data()<<" ( "<< tok->GetEntries()<<" parameters )"<<endl;
@@ -391,10 +392,12 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 			}
 			else{
 				// for calibrator without formula expression
-				parset = new KVDBParameterSet(name.Data(),infos[1].Data(),tok->GetEntries());
+				parset = new KVDBParameterSet(name.Data(),infos[1].Data(),tok->GetEntries()+1);
+				parset->SetParamName( 0, infos[2].Data()   );
+				parset->SetParameter( 0, tok->GetEntries() );
 				for( Int_t j=0; j<tok->GetEntries() ; j++ ){
-					parset->SetParamName( j, Form("par%d",j) );
-					parset->SetParameter( j, ((TObjString *)tok->At(j))->GetString().Atof() );
+					parset->SetParamName( j+1, Form("par%d",j) );
+					parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
 				}
 			}
 			delete tok;
