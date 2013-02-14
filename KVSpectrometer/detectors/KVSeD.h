@@ -41,8 +41,8 @@ class KVSeD : public KVVAMOSDetector
    virtual const Char_t* GetArrayName();
    virtual Double_t GetPosition(const Char_t dir = 'X');
    virtual Bool_t GetPosition(Double_t &X, Double_t &Y, Double_t xraw = -1., Double_t yraw = -1.);
-   virtual Double_t GetRawPosition(const Char_t dir = 'X', Double_t min_amp = 100, Double_t min_sigma = 0.5, Double_t max_sigma = 3., Int_t maxNpeaks=10);
-   virtual Double_t GetRawPosition2(const Char_t dir = 'X');
+   virtual Double_t GetRawPosition(const Char_t dir = 'X');
+   virtual Double_t GetRawPosition2(const Char_t dir = 'X', Double_t min_amp = 100, Double_t min_sigma = 0.5, Double_t max_sigma = 3., Int_t maxNpeaks=10);
    virtual TH1F *GetCleanQHisto(const Char_t dir = 'X');
    virtual TH1F *GetQrawHisto(const Char_t dir = 'X');
    virtual TH1F *GetQHisto(const Char_t dir = 'X');

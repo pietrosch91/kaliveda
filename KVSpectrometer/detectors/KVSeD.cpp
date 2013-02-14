@@ -232,24 +232,26 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	Bool_t ok = kFALSE;
 	KVCalibrator *cal  = NULL;
 	Int_t idx, num;
+
+	Int_t count_calOK = 0, count_fired = 0;
 	while((cal = (KVCalibrator *)next())){
 		
 		if( !cal->GetStatus() ) continue;
 		idx = cal->GetNumber()/1000-1;
  	   	if( i != idx ) continue;	
+		count_calOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
 		if( !calf->GetACQParam()->Fired("P") ) continue;
+		count_fired++;
 		
 		num =  calf->GetNumber() - (idx+1)*1000;
 		fQ[1][idx]->SetBinContent( num, calf->Compute() );
 		ok = kTRUE;
 	}
 
- 	if( !ok ){
-		Error("GetQHisto","Impossible to calibrate correctly the charges for %c position, please check the calibrator status",dir);
-		return NULL;
-	}
+ 	if( !ok ) Warning("GetQHisto","Impossible to calibrate correctly the charges for %c position of %s, %d calibrators are OK and %d fired ACQ parameters",dir, GetName(), count_calOK, count_fired);
+	
  	return fQ[1][i];
 }
 //________________________________________________________________
@@ -462,7 +464,7 @@ Info("ShowQHisto","Position for %c= %f",dir,GetRawPosition( dir ));
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
+Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. First the method searchs 
 	// peaks. If there is to many peaks (>maxNpeaks) the method returns -1
@@ -496,7 +498,7 @@ Double_t KVSeD::GetRawPosition(const Char_t dir, Double_t min_amp, Double_t min_
 //	Int_t nfound = fSpectrum->Search(hh,2,"goff",0.2);
 //	if( (nfound<1) || (maxNpeaks< nfound) ) return -1;
 //	Double_t *xpeaks = fSpectrum->GetPositionX();
-//	Info("GetRawPosition","Number of peaks found: %d", nfound);
+//	Info("GetRawPosition2","Number of peaks found: %d", nfound);
 	par[2] = 2.;                   // sigma
 	Int_t locmax = hh->GetMaximumBin();
 	Double_t max = hh->GetBinContent( locmax );
@@ -529,10 +531,10 @@ Double_t KVSeD::GetRawPosition(const Char_t dir, Double_t min_amp, Double_t min_
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition2(const Char_t dir){
+Double_t KVSeD::GetRawPosition(const Char_t dir){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. Faster method compare to 
-	// the method GetRawPosition. The resolution is less good but sufficient. 
+	// the method GetRawPosition2. The resolution is less good but sufficient. 
 
 	Int_t idx = IDX(dir);
 	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
@@ -591,8 +593,9 @@ Bool_t KVSeD::GetPosition(Double_t &X, Double_t &Y, Double_t xraw, Double_t yraw
 
 	Double_t Xraw = ( xraw < 0 ? GetRawPosition('X') : xraw );
 	Double_t Yraw = ( yraw < 0 ? GetRawPosition('Y') : yraw );
-//	Double_t Xraw = GetRawPosition2('X');
-//	Double_t Yraw = GetRawPosition2('Y');
+
+//	Double_t Xraw = ( xraw < 0 ? GetRawPosition2('X') : xraw );
+//	Double_t Yraw = ( yraw < 0 ? GetRawPosition2('Y') : yraw );
 
 	// Calibration is performed with the calibrator KVSeDPositionCal
 	if( !(*fPosCalib)( Xraw, Yraw, X, Y ) ) return kFALSE;	
