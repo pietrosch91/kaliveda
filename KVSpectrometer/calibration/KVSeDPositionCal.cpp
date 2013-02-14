@@ -12,6 +12,30 @@ ClassImp(KVSeDPositionCal)
 <h4>Position calibration for SeD detectors of VAMOS</h4>
 <!-- */
 // --> END_HTML
+//
+// Calibration object dedicated to handling the position calibration 
+// (conversion position in channel -> cm) and to correct the deviation of 
+// the position in SeD detectors of VAMOS. For this purpose, an aluminium
+// mask with calibrated holes of 5mm diameter is put in front of the emissive
+// foil. The positions are corrected with a bidimensional polynomial of 
+// order 4 (method of P. Napolitani and S. Leblond) in two rounds. Let X and Y
+// be the raw values (in channel) of positions. The calibration process is the 
+// following:
+// - First round
+// Begin_Latex X_{1} = #sum_{i=0}^{4} #sum_{j=0}^{4} C_{X1;i,j} X^{i}Y^{j} End_Latex Begin_Latex  Y_{1} = #sum_{i=0}^{4} #sum_{j=0}^{4} C_{Y1;i,j} X_{1}^{j}Y^{i} End_Latex
+// - Second round
+// Begin_Latex X_{2} = #sum_{i=0}^{4} #sum_{j=0}^{4} C_{X2;i,j} X_{1}^{i}Y_{1}^{j} End_Latex Begin_Latex Y_{2} = #sum_{i=0}^{4} #sum_{j=0}^{4} C_{Y2;i,j} X_{2}^{j}Y_{1}^{i} End_Latex
+// where Begin_Latex X_{2} End_Latex and Begin_Latex Y_{2} End_Latex are the calibrated positions obtained at the end
+// of the process. This calibrator has then 100 parameters:
+// - parameters 0 to 24 correspond to  Begin_Latex C_{X1;i,j} End_Latex 
+// - parameters 25 to 49 correspond to Begin_Latex C_{Y1;i,j} End_Latex 
+// - parameters 50 to 74 correspond to Begin_Latex C_{X2;i,j} End_Latex 
+// - parameters 75 to 99 correspond to Begin_Latex C_{Y2;i,j} End_Latex 
+//
+// The type of the calibrator is "position->cm Detector_name" if the detector
+// is set in the constructor or "position->cm" if not.
+//
+// Calibrator used for the INDRA_VAMOS experiment e494s.
 ////////////////////////////////////////////////////////////////////////////////
 
 KVSeDPositionCal::KVSeDPositionCal() : KVCalibrator(NPAR_SEDPOSCAL)
@@ -23,7 +47,7 @@ KVSeDPositionCal::KVSeDPositionCal() : KVCalibrator(NPAR_SEDPOSCAL)
 
 KVSeDPositionCal::KVSeDPositionCal(KVDetector *det) : KVCalibrator(NPAR_SEDPOSCAL)
 {
-    //Create a position calibration object for a specific detector (*det)
+    //Create a position calibration object for a specific detector (*det).
     //The calibrator takes the name of the detector.
    SetDetector( det );
    SetName( det->GetName() );
@@ -54,14 +78,15 @@ Double_t KVSeDPositionCal::operator() (Double_t chan){
 //________________________________________________________________
 
 Double_t KVSeDPositionCal::Invert(Double_t volts){
-	//Obsolete method, use Invert(Double_t Xcal, Double_t Ycal, Double_t &X, Double_t &Y).
+	//Obsolete method, too much difficult to invert this calibrator!
 	volts = volts;
-	Warning("Invert(Double_t volts)","Obsolete method, to much difficult to invert this calibrator!");
+	Warning("Invert(Double_t volts)","Obsolete method, too much difficult to invert this calibrator!");
 	return -1;
 }
 //________________________________________________________________
 
 Bool_t KVSeDPositionCal::Compute(Double_t X, Double_t Y, Double_t &Xcal, Double_t &Ycal){
+	//Calculate calibrated X and Y position (Xcal, Ycal) in cm for the given raw X and Y values.
 
 	Double_t Xtmp[2];
 	Xtmp[0]= X+1.; Xtmp[1]= Y+1.; // To have wires starting at 1
@@ -94,5 +119,14 @@ Bool_t KVSeDPositionCal::Compute(Double_t X, Double_t Y, Double_t &Xcal, Double_
 //________________________________________________________________
 
 Bool_t KVSeDPositionCal::operator() (Double_t X, Double_t Y, Double_t &Xcal, Double_t &Ycal){
+	// Overloading of "()" to allow syntax such as:
+	//
+    // KVSeDPositionCal calibrator;
+    // Double_t Xcal, Ycal;
+    // Bool_t isOK = calibrator(X,Y,Xcal,Ycal);
+    // 
+    // equivalently to:
+    //
+    // Bool_t isOK = calibrator.Compute(X,Y,Xcal,Ycal);
 	return Compute(X,Y,Xcal,Ycal);
 }
