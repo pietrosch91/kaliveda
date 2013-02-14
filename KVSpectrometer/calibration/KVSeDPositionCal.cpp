@@ -89,7 +89,7 @@ Bool_t KVSeDPositionCal::Compute(Double_t X, Double_t Y, Double_t &Xcal, Double_
 	//Calculate calibrated X and Y position (Xcal, Ycal) in cm for the given raw X and Y values.
 
 	Double_t Xtmp[2];
-	Xtmp[0]= X+1.; Xtmp[1]= Y+1.; // To have wires starting at 1
+	Xtmp[0]= X; Xtmp[1]= Y;
 
 	Xcal = Ycal = -666;
 	if(Xtmp[0]<=0 || Xtmp[1]<=0) return kFALSE;
