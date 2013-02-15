@@ -17,10 +17,10 @@ class KVVAMOS : public KVDetector //public KVBase
 	private:
 
 	protected:
-//		KVSeqCollection *fACQParams; // References to data acquisition parameters associated to detectors
 		TString fDataSet;            // Name of associated dataset, used with MakeVAMOS	
-		KVSeqCollection *fDetectors; // List of references to all detectors of VAMOS
-		KVSeqCollection *fVACQParams;// References to data acquisition parameter belonging to VAMOS
+		KVList *fDetectors; // List of references to all detectors of VAMOS
+		KVList *fVACQParams;// References to data acquisition parameter belonging to VAMOS
+		KVList *fVCalibrators;//References to calibrator belonging to VAMOS
 
    virtual void BuildGeometry();
    virtual void Initialize();
@@ -39,6 +39,7 @@ class KVVAMOS : public KVDetector //public KVBase
    void init();
 
    void AddACQParam(KVACQParam* par, Bool_t owner = kFALSE);
+   Bool_t AddCalibrator(KVCalibrator *cal, Bool_t owner = kFALSE);
    virtual void Build();
    virtual void Clear(Option_t *opt = "" );
    void Copy (TObject&) const;
@@ -49,17 +50,19 @@ class KVVAMOS : public KVDetector //public KVBase
    
    // ----- inline methods -----------
 
-//   inline KVACQParam* GetACQParam(const Char_t *name){
-//	   return (KVACQParam*)fACQParams->FindObject(name);
-//   };
+   inline KVCalibrator *GetVCalibrator(const Char_t * type) const{
+   if (fVCalibrators)
+      return (KVCalibrator *) fVCalibrators->FindObjectByType(type);
+   return 0;
+   }
+
    inline KVDetector* GetDetector(const Char_t *name){
 	   return (KVDetector*)fDetectors->FindObject(name);
    };
 
-
-//   inline KVSeqCollection* GetACQParams()      { return fACQParams;  };
-   inline KVSeqCollection* GetListOfDetectors(){ return fDetectors;  };
-   inline KVSeqCollection* GetVACQParamList()  { return fVACQParams; };
+   inline KVList* GetListOfDetectors()   { return fDetectors;  };
+   inline KVList* GetVACQParamList()     { return fVACQParams; };
+   inline KVList* GetListOfVCalibrators(){ return fVCalibrators; };
 
    ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };

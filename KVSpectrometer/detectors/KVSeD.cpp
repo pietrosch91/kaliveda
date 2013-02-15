@@ -100,10 +100,20 @@ const Char_t* KVSeD::GetArrayName(){
 	// SED1 SED2 ...
 	// to be compatible GANIL acquisition parameters
 	//
-	// The root of the name is the detector type.
+	// The root of the name is the detector type + number.
 	
 	fFName = Form("%s%d",GetType(),GetNumber());
 	return fFName.Data();
+}
+//________________________________________________________________
+
+const Char_t *KVSeD::GetTBaseName() const{
+	// Base name of the time of flight parameters used to be compatible
+	// GANIL acquisition parameters
+	//
+	// The root of the name is the detector name.
+	
+	return GetName();
 }
 //________________________________________________________________
    
@@ -209,7 +219,6 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 		Float_t data;
 		fQ[0][idx]->SetBinContent( num, data = par->GetData() );
 		ok = kTRUE;
-//Info("GetQrawHisto","%c position: %s, num= %d, Qraw= %f",dir, par->GetName(), num, data);
 	}
 
 	if( !ok ) Warning("GetQrawHisto","No ACQ parameter fired for the %c position",dir);
@@ -254,105 +263,6 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	
  	return fQ[1][i];
 }
-//________________________________________________________________
-
-//Bool_t KVSeD::RemoveNoise(){
-//	// Calculate the noise and Remove noise on strips for X and Y positions.
-//	// Return boolean equal to kTRUE if the measured event is accepted.
-//	// The clean Q histogram obtained after removing the noise is accessible
-//	// with the method GetCleanQHisto(...)
-//
-//	Float_t QTmp, noise_mean[2],noise_variance[2],noise_stdeviation_[2],noise_stdeviation,noise_sum;
-//	Float_t max_mean[2],max_variance[2],max_stdeviation,max_sum;
-//	UShort_t Q_max_Nr[2];
-//	Float_t noise_threshold[2],Q_max[2]; 
-//	Bool_t Accepted_event = kFALSE;
-//
-//	for(Int_t i=0; i<2; i++){	//0) vertical, giving x. 1) vertical, giving y
-//	
-//		// Initialization
-//		Q_max[i] = noise_mean[i] = noise_variance[i] = noise_sum = noise_stdeviation_[i] = noise_threshold[i] = 0.;
-//		max_mean[i] = max_variance[i] = max_sum = 0.;
-//		Q_max_Nr[i] = 1000 ;	
-//		//Study the noise and the maximum value for the charge.
-//		//At this stage the quantities noise_*** contain also the signal!
-// 	
-//		TH1F *hQcal = GetQHisto( DIRECTION(i) );
-//		for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
-//			QTmp = hQcal->GetBinContent(j);
-//			if(QTmp >0){
-//				noise_mean[i] += QTmp;
-//				noise_variance[i] += QTmp*QTmp;
-//				noise_sum += 1.;
-//			}
-//			if(QTmp > Q_max[i]){
-//				Q_max[i] = QTmp;
-//				Q_max_Nr[i] = j;
-//			}
-//		}
-//		//Study the surrounding of the maximum charge
-//		for(Int_t j=-Border;j<=Border;j++){
-//			Int_t k = Q_max_Nr[i]+j; 
-//			if( (0<k) && (k<=hQcal->GetNbinsX()) ){
-//				QTmp = hQcal->GetBinContent(k);
-//				if (QTmp>0){
-//					max_mean[i] += QTmp;
-//					max_variance[i] += QTmp*QTmp;
-//					max_sum += 1.;	
-//				}
-//			}
-//		}
-// 		//The signal of the maximum charge is removed from the quantities noise_***
-//		noise_mean[i] -= max_mean[i];
-//		noise_variance[i] -= max_variance[i];
-//		noise_sum -= max_sum;
-// 		//Calculate statistical quntities related to the noise and fix the threshold
-// 		//as the mean of the noise + 1 time its standart deviation
-//		if(noise_sum<2. || noise_variance[i]==0) 
-//		{
-//			noise_mean[i] = noise_variance[i] =0;
-//		}
-//		else 
-//		{
-//			noise_mean[i] /= noise_sum;
-//			noise_variance[i] = noise_variance[i]/noise_sum - noise_mean[i]*noise_mean[i];
-//			noise_stdeviation_[i] = sqrt(noise_variance[i]);
-//		}
-//		noise_threshold[i] = noise_mean[i] + noise_stdeviation_[i];
-//
-// 		//Calculate statistical quntities related to the maximum
-//		if(max_sum<2.){
-//			max_mean[i] = max_variance[i] =0;
-//		}
-//		else{
-//			max_mean[i] /= max_sum;
-//			max_variance[i] = max_variance[i]/max_sum - max_mean[i]*max_mean[i];
-//		}
-//	}
-//	max_stdeviation = sqrt(max_variance[0] + max_variance[1]); 
-//	noise_stdeviation = sqrt(noise_variance[0] + noise_variance[1]); 
-//
-//
-//	Accepted_event= kTRUE;
-//	for(Int_t i=0; i<2; i++){			//0) vertical, giving x. 1) vertical, giving y
-////		if( max_variance[i] == 0 ) Accepted_event = kFALSE;
-//	if(noise_variance[i] >= 2.*max_variance[i])	Accepted_event= kFALSE;
-//	}
-//	if(noise_stdeviation >= 2.*max_stdeviation)	Accepted_event= kFALSE;
-//
-////	if(Accepted_event){
-//		for(Int_t i=0; i<2; i++){			//0) vertical, giving x. 1) vertical, giving y
-//			TH1F *hQcal = GetQHisto( DIRECTION(i) );
-//			for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
-//			QTmp = hQcal->GetBinContent(j);
-//				if(QTmp > noise_threshold[i]){
-//					fQ[2][i]->SetBinContent(j,QTmp-noise_threshold[i]);
-//				}
-//			}
-//		}
-////	}
-//	return Accepted_event;
-//}
 //________________________________________________________________
 
 void KVSeD::ResetCalculatedData(){
@@ -418,14 +328,6 @@ void KVSeD::SetACQParams(){
 			fQ[j][i]->SetLineColor(j+1);
 		}
 	}
-
-	// time ACQ parameter
-	par = new KVACQParam;
-	name.Form("T%s%d_HF",GetType(),GetNumber());
-	par->SetName(name);
-	par->SetType("T");
-	par->SetNumber( 3000 + 1);
-	AddACQParam(par);
 }
 //________________________________________________________________
 

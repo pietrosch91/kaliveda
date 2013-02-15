@@ -10,28 +10,46 @@
 class KVVAMOSDetector : public KVSpectroDetector
 {
 	protected:
-
-		KVACQParam *fTimeParam;       //! Time of flight (HF) ACQ parameter 
-		KVFunctionCal *fCh_ns;         //! Volt-ns conversion 
-
+		
+		TList         *fT0list; //! list of T0 saved in a KVNamedParameter
 
 		void init();
+
    public:
+
    KVVAMOSDetector();
    KVVAMOSDetector(UInt_t number, const Char_t* type);
    KVVAMOSDetector (const KVVAMOSDetector&) ;
    virtual ~KVVAMOSDetector();
    void Copy (TObject&) const;
 
-   Double_t GetCalibTimeHF() const;
-   Float_t GetTimeHF() const;
-   void    Initialize();
+   virtual void   Initialize();
+   virtual void   SetCalibrators();
+   KVFunctionCal *GetTCalibrator(const Char_t *type) const;
 
-   virtual void SetCalibrators();
 
-   inline Bool_t IsTimeCalibrated() const{
-	   return ( fCh_ns && fCh_ns->GetStatus()  );
-   };
+   Double_t GetCalibT(const Char_t *type);
+   Double_t GetT0(const Char_t *type) const;
+   Bool_t   IsTCalibrated(const Char_t *type) const;
+   Bool_t   IsTfromThisDetector(const Char_t *type) const;
+   void     SetT0(const Char_t *type, Double_t t0 = 0.);
+
+   virtual const Char_t *GetTBaseName() const;
+   Double_t GetCalibT_HF();
+   Float_t  GetT_HF();
+   Double_t GetT0_HF() const;
+   Bool_t   IsTHFCalibrated() const;
+   void     SetT0_HF( Double_t t0 = 0.);
+
+   // -------- inline methods ---------------//
+
+   Float_t GetT(const Char_t *type){
+	   return  GetACQData( Form("T%s",type) );
+   }
+
+   inline TList *GetListOfT0() const{
+	   return fT0list;
+   }
 
    ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer
 };

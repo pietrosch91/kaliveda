@@ -45,8 +45,8 @@ void KVVAMOS::init()
 	fDetectors = new KVList;
 	fDetectors->SetCleanup(kTRUE);
 
-	fACQParams  = NULL;
-	fVACQParams = NULL;
+	fVACQParams   = NULL;
+	fVCalibrators = NULL;
 
 	Info("init","To be implemented");
 }
@@ -69,24 +69,18 @@ KVVAMOS::~KVVAMOS(){
    	
 	// Clear list of acquisition parameters
    	if(fDetectors && fDetectors->TestBit(kNotDeleted)){
-		fDetectors->Delete();
+		fDetectors->Clear();
 		delete fDetectors;
 	}
 	fDetectors = NULL;
 
-	// Clear list of all acquisition parameters
-//	if(fACQParams && fACQParams->TestBit(kNotDeleted)){
-//		fACQParams->Delete();
-//		delete fACQParams;
-//	}
-//	fACQParams = NULL;
-
 	// Clear list of acquisition parameters belonging to VAMOS
 	if(fVACQParams && fVACQParams->TestBit(kNotDeleted)){
-		fVACQParams->Delete();
+		fVACQParams->Clear();
 		delete fVACQParams;
 	}
 	fVACQParams = NULL;
+	SafeDelete( fVCalibrators );
 
 	if(gVamos == this) gVamos = NULL;
 }
@@ -143,6 +137,34 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 	}
 	par->SetDetector( this );
 	fVACQParams->Add(par);
+}
+//________________________________________________________________
+
+Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
+	//Associate a calibration with  VAMOS. owner = true means that
+	//the calibrator is associated to an ACQ Parameter belonging to VAMOS
+	//( for example all the calibrators of times of flight).
+	//owner = false means the calibrator is associate to an ACQ parameter
+	//belonging to a detector at the focal plan (Energies, charges, ...). 
+   //If the calibrator object has the same class and type
+   //as an existing object in the list (see KVCalibrator::IsEqual),
+   //it will not be added to the list
+   //(avoids duplicate calibrators) and the method returns kFALSE.
+   //
+   if (!fCalibrators){
+       fCalibrators = new KVList();
+	   fCalibrators->SetOwner(kFALSE);
+   }
+   if(fCalibrators->FindObject(cal)) return kFALSE;
+   fCalibrators->Add(cal);
+
+   if( !owner ) return kTRUE;
+   if (!fVCalibrators){
+       fVCalibrators = new KVList();
+   }
+   fVCalibrators->Add(cal);
+
+   return kTRUE;
 }
 //________________________________________________________________
 
@@ -287,23 +309,12 @@ void KVVAMOS::SetACQParams(){
 		// loop over acq params and add them to fACQParams list,
 		TIter next_par(l);
 		KVACQParam *par  = NULL;
+		TList lvpar, ldpar;
 		while((par = (KVACQParam*)next_par())){
-
-			// If a detector of VAMOS already has an ACQ parameter with
-			// the same name then 'par' is deleted and replaced by the
-			// already existing one.
-
-			KVACQParam *vpar = GetACQParam( par->GetName() );
-			if( vpar ){
-				l->Remove( par );
-				l->Add( vpar );
-				delete par;
-			}
-			else{
 				AddACQParam(par);
 				par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
-			}
 		}
+
 		//Set bitmask
 		det->SetFiredBitmask();
 	}
@@ -327,13 +338,15 @@ void KVVAMOS::SetArrayACQParams(){
 	TObject* obj = NULL;
 	Info("SetArrayACQParams","List of ACQ Parameters belonging to %s:",GetName());
 
-	// Loop over each detector of the spectrometer
 	KVACQParam *par = NULL;
+	Short_t num = 1;
 	while(  (obj = nextparam()) ){
-		const Char_t* param = obj->GetName();
-		cout<<param<<" ";
+		TString param( obj->GetName() );
+		cout<<param.Data()<<" ";
 		// VAMOS is the owner of the acq param. (kTRUE)
-		AddACQParam( par = new KVACQParam(param),kTRUE);
+		AddACQParam( par = new KVACQParam(param.Data()),kTRUE);
+		if( param.BeginsWith("T") ) par->SetType("T");
+		par->SetNumber( 7000 + num++);
 		par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
 	}
 	cout<<endl;
@@ -347,7 +360,6 @@ void KVVAMOS::SetCalibrators(){
 	// It does not set the parameters of the calibrations: this is done
 	// by SetParameters.
 
-
 	TIter nextdet( fDetectors );
 	KVDetector *det = NULL;
 	while( (det = (KVDetector *)nextdet()) ){
@@ -357,19 +369,8 @@ void KVVAMOS::SetCalibrators(){
 		TIter nextcal( l );
 		KVCalibrator *cal  = NULL;
 		while( (cal = (KVCalibrator *)nextcal()) ){
-
-			// If a detector of VAMOS already has the same  calibrator, 
-			// then remove it from the detector and replace it by
-			// the already existing one.
-
-			KVCalibrator *vcal = NULL;
-			if( fCalibrators ) vcal = (KVCalibrator *)fCalibrators->FindObject( cal );
-			if( vcal ){
-				l->Remove( cal );
-				l->Add( vcal );
-				delete cal;
-			}
-			else AddCalibrator(cal);
+			if(	!AddCalibrator(cal, kFALSE) )
+				Error("SetCalibrators","Duplicated calibrator %s of detector %s in VAMOS's list",cal->GetTitle(),det->GetName());
 		}
 	}
 
@@ -378,19 +379,17 @@ void KVVAMOS::SetCalibrators(){
 	// we assume that their name begin with the character 'T'.
 	// Their calibrator will have 'channel->ns' type.
 
-	TString parname, calibtype;
+	TString calibtype;
 	KVACQParam    *par  = NULL;
 	KVFunctionCal *c    = NULL;
 	TF1           *func = NULL;
 
 	TIter nextpar( fVACQParams );
 	while((par = (KVACQParam *)nextpar())){
-		parname = par->GetName();
-
-		if( !parname.BeginsWith("T") ) continue;
+		if(strcmp(par->GetType(),"T")) continue;
 		calibtype = "channel->ns";
 		calibtype.Append(" ");
-		calibtype.Append( parname.Data() );
+		calibtype.Append( par->GetName() );
 
 		func = new TF1(par->GetName(),"pol1",0., 16384.);
 		c = new KVFunctionCal(this, func);
@@ -398,9 +397,8 @@ void KVVAMOS::SetCalibrators(){
 		c->SetNumber( par->GetNumber() );
 		c->SetACQParam( par );
 		c->SetStatus( kFALSE );
-		if(!AddCalibrator(c)) delete c;
+		if( !AddCalibrator(c,kTRUE) ) delete c;
 	}
-
 }
 //________________________________________________________________
 

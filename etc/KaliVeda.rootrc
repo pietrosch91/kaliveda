@@ -992,7 +992,7 @@ INDRA_e494s.KVSpectrometer.KVSeD.Number: 1-2
 
 #-------------- List of ACQParameter 
 # for VAMOS
-KVSpectrometer.ACQParameterList: TSI_INDRA TSED1_SED2 TSI_SED1 TSED1_INDRA TSI_MCP TMCP_HF TSED1_MCP
+KVSpectrometer.ACQParameterList: TSED1_HF TSED2_HF TSED1_SED2 TSED1_INDRA TSED1_MCP TSI_HF TSI_SED1 TSI_INDRA TSI_MCP TMCP_HF
 # for the detectors
 KVHarpeeSi.ACQParameterList:
 KVHarpeeIC.ACQParameterList:

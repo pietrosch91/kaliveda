@@ -23,7 +23,7 @@ ClassImp(KVHarpeeSi)
 
 void KVHarpeeSi::init(){
 	// Initialise non-persistent pointers
-
+//	fT0SI_SED1 = fT0SI_INDRA = fT0SI_MCP = 0.;
 }
 //________________________________________________________________
 
@@ -99,7 +99,7 @@ const Char_t* KVHarpeeSi::GetArrayName(){
 	// SIE_01 SIE_02 ...
 	// to be compatible with GANIL acquisition parameters.
 	//
-	// The root of the name is the detector type + 'E'.
+	// The root of the name is the detector type + number.
 	
 	fFName = Form("%s_%02d",GetType(),GetNumber());
 	return fFName.Data();
@@ -111,20 +111,11 @@ void KVHarpeeSi::SetACQParams(){
 // This parameter has the name of the detector and has the type 'E' 
 // (for energy).
 // 
-
 	KVACQParam *par = new KVACQParam;
 	TString name;
 	name.Form("%sE_%02d",GetType(),GetNumber());
 	par->SetName(name);
 	par->SetType("E");
 	par->SetNumber( 4000 + GetNumber() );
-	AddACQParam(par);
-
-	// time ACQ parameter
-	par = new KVACQParam;
-	name.Form("T%s_HF",GetType());
-	par->SetName(name);
-	par->SetType("T");
-	par->SetNumber( 5000 + 1);
 	AddACQParam(par);
 }
