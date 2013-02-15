@@ -60,8 +60,8 @@ class KVSilicon:public KVINDRADetector {
 
    virtual void SetMoultonPHDParameters(Double_t a1, Double_t a2, Double_t b1, Double_t b2);
 
-   void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
-   Int_t GetZminPHD() { return fZminPHD; };
+   void SetZminPHD(Int_t zmin) { fZminPHD = zmin; }
+   Int_t GetZminPHD() { return fZminPHD; }
    virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
 

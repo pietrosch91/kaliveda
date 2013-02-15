@@ -823,7 +823,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA
          		}
       		}
 
-      		printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
+                if((!strcmp(det_eres->GetType(),"CSI"))&&(E2>5000)) E2=5000;
+                printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
 				KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
       		if (TMath::Even(zz)) line->SetLineColor(4);
 				line->SetZ(zz);
