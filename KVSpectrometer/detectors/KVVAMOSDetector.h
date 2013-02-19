@@ -25,15 +25,20 @@ class KVVAMOSDetector : public KVSpectroDetector
 
    virtual void   Initialize();
    virtual void   SetCalibrators();
+   virtual KVFunctionCal *GetECalibrator() const;
+   virtual Bool_t GetPositionInVamos(Double_t &X, Double_t &Y);
    KVFunctionCal *GetTCalibrator(const Char_t *type) const;
 
 
+   virtual Double_t GetCalibE();
    Double_t GetCalibT(const Char_t *type);
    Double_t GetT0(const Char_t *type) const;
+   virtual Bool_t IsECalibrated() const;
    Bool_t   IsTCalibrated(const Char_t *type) const;
    Bool_t   IsTfromThisDetector(const Char_t *type) const;
    void     SetT0(const Char_t *type, Double_t t0 = 0.);
 
+   virtual const Char_t *GetEBaseName() const;
    virtual const Char_t *GetTBaseName() const;
    Double_t GetCalibT_HF();
    Float_t  GetT_HF();

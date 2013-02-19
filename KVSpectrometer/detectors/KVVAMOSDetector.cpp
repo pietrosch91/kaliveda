@@ -140,6 +140,30 @@ void KVVAMOSDetector::SetCalibrators(){
 }
 //________________________________________________________________
 
+KVFunctionCal *KVVAMOSDetector::GetECalibrator() const{
+	// Returns the calibrator for the conversion channel->MeV of the energy
+	// signal. 
+	// The method assumes that the calibrator is an instance of the class
+	// KVFunctionCal.
+	
+	TString calname;
+	calname.Form("channel->MeV %s",GetEBaseName());
+ 	return (KVFunctionCal *)GetCalibrator( calname.Data() );
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSDetector::GetPositionInVamos(Double_t &X, Double_t &Y){
+	// Return a position X and Y of the particle track in the VAMOS
+	// reference frame from the fired acquisition parameters and from the 
+	// the location of the TGeoVolumes which defined the detector geometry.
+	// The position is randomized in the active volume.
+	
+	X = Y = -666;
+	Warning("GetPositionInVamos","To be implemented or overwritten in daughter classes");
+	return kFALSE;
+}
+//________________________________________________________________
+
 KVFunctionCal *KVVAMOSDetector::GetTCalibrator(const Char_t *type) const{
 	// Returns the calibrator for the conversion channel->ns of a time
 	// signal of type 'type' (for example SED_HF, SI_HF, SI_SED1, ...) if 
@@ -157,10 +181,25 @@ KVFunctionCal *KVVAMOSDetector::GetTCalibrator(const Char_t *type) const{
 }
 //________________________________________________________________
 
+Double_t KVVAMOSDetector::GetCalibE(){
+ 	// Calculate energy in MeV from coder values.
+   	// Returns 0 if calibration not ready or acquisition parameter not fired
+   	// (we require that the acquisition parameter has a value
+   	// greater than the current pedestal value)
+   	KVFunctionCal *cal = GetECalibrator();
+	if( cal && cal->GetStatus() && cal->GetACQParam()->Fired("P"))
+		return cal->Compute();
+	return 0;
+}
+//________________________________________________________________
+
 Double_t KVVAMOSDetector::GetCalibT(const Char_t *type){
-	// Returns the calibrated time (in ns) of type 'type' (SED_HF, SI_HF,
-	// SI_SED1, ...).
+	// Calculate calibrated time in ns of type 'type' (SED_HF, SI_HF,
+	// SI_SED1, ...) for coder values.
 	// Returns 0 if calibration not ready or time ACQ parameter not fired.
+	// (we require that the acquisition parameter has a value
+   	// greater than the current pedestal value)
+
 
 	KVFunctionCal *cal = GetTCalibrator( type );
 	if( cal && cal->GetStatus() && cal->GetACQParam()->Fired("P"))
@@ -176,6 +215,14 @@ Double_t KVVAMOSDetector::GetT0(const Char_t *type) const{
 	if( !fT0list ) return 0.;
 	KVNamedParameter *par = (KVNamedParameter *)fT0list->FindObject( Form("T%s",type) );
 	return ( par ? par->GetDouble() : 0 );
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSDetector::IsECalibrated() const{
+	// Returns true if the detector has been calibrated in energy.
+	
+	KVCalibrator *cal = GetECalibrator();
+	return ( cal && cal->GetStatus()  );
 }
 //________________________________________________________________
 
@@ -208,6 +255,16 @@ void KVVAMOSDetector::SetT0(const Char_t *type, Double_t t0){
 	KVNamedParameter *par = (KVNamedParameter *)fT0list->FindObject( Form("T%s",type) );
 	if( par ) par->Set( t0 );
 	else Error("SetT0","Impossible to set T0 for unknown time ACQ parameter %s",type);
+}
+//________________________________________________________________
+
+const Char_t *KVVAMOSDetector::GetEBaseName() const{
+	// Base name of the energy used to be compatible
+	// GANIL acquisition parameters
+	//
+	// The base name is "E<type><number>".
+	
+	return Form("E%s%d",GetType(),GetNumber());
 }
 //________________________________________________________________
 
