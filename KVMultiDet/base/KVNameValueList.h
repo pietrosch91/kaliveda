@@ -16,8 +16,10 @@ class KVNameValueList : public TNamed
 	
    virtual void SetValue_str(const Char_t* name,const Char_t* value);
 	virtual void SetValue_int(const Char_t* name,Int_t value);
-	virtual void SetValue_flt(const Char_t* name,Double_t value);
-	
+    virtual void SetValue_flt(const Char_t* name,Double_t value);
+    virtual void IncValue_flt(const Char_t* name,Double_t value);
+    virtual void IncValue_int(const Char_t* name,Int_t value);
+
 	public:
    
 	KVNameValueList();
@@ -41,7 +43,10 @@ class KVNameValueList : public TNamed
 	void SetValue(const Char_t* name,Int_t value);
 	void SetValue(const Char_t* name,Double_t value);
 	
-	Bool_t IsValue(const Char_t* name,const Char_t* value);
+    void IncrementValue(const Char_t* name,Double_t value);
+    void IncrementValue(const Char_t* name,Int_t value);
+
+    Bool_t IsValue(const Char_t* name,const Char_t* value);
 	Bool_t IsValue(const Char_t* name,Int_t value);
 	Bool_t IsValue(const Char_t* name,Double_t value);
    
@@ -64,6 +69,8 @@ class KVNameValueList : public TNamed
    
    virtual void ReadEnvFile(const Char_t* filename);
    virtual void WriteEnvFile(const Char_t* filename);
+
+    void Sort() { fList.Sort(); }
    
 	ClassDef(KVNameValueList,3)//A general-purpose list of parameters
 };
