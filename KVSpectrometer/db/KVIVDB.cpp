@@ -382,8 +382,11 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 					delete tok;
 					return kFALSE;
 				}
-				parset = new KVDBParameterSet(name.Data(),infos[1].Data(),f.GetNpar()+1);
-				parset->SetParamName( 0, f.GetExpFormula().Data() );
+				TString pname(infos[1]);
+				pname.Append(" f(x)=");
+				pname.Append( f.GetExpFormula() );
+				parset = new KVDBParameterSet(name.Data(),pname.Data(),f.GetNpar()+1);
+				parset->SetParamName( 0, "Npar" );
 				parset->SetParameter( 0, f.GetNpar() );
 				for( Int_t j=0; j< f.GetNpar(); j++ ){
 					parset->SetParamName( j+1, f.GetParName(j));
@@ -393,11 +396,12 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 			else{
 				// for calibrator without formula expression
 				parset = new KVDBParameterSet(name.Data(),infos[1].Data(),tok->GetEntries()+1);
-				parset->SetParamName( 0, infos[2].Data()   );
+				parset->SetParamName( 0, "Npar" );
 				parset->SetParameter( 0, tok->GetEntries() );
 				for( Int_t j=0; j<tok->GetEntries() ; j++ ){
-					parset->SetParamName( j+1, Form("par%d",j) );
-					parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
+//					parset->SetParamName( j+1, Form("par%d",j) );
+//					parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
+					parset->SetParamName( j+1, ((TObjString *)tok->At(j))->GetString().Data() );
 				}
 			}
 			delete tok;
@@ -446,7 +450,7 @@ void KVIVDB::ReadVamosCalibrations(){
 			continue;
 		}
 
-		Info("ReadVamosCalibrations","Reading %s",sline.Data());
+		Info("ReadVamosCalibrations","in file %s",sline.Data());
 		if(!ReadVamosCalibFile(inf2)) Error("ReadVamosCalibrations","Bad structure inside the file %s",sline.Data());
 
 		inf2.close();

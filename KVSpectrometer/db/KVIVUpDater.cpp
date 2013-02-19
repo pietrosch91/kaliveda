@@ -144,16 +144,23 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 	KVDetector *det = NULL;
 	KVDBParameterSet *par = NULL;
 	TIter next(list);
-	TString partype;
+	TString formula, partype;
 
 	while( (par = (KVDBParameterSet *)next()) ){
-
-		partype.Form("%s %s", par->GetTitle(), par->GetName());
+		formula = par->GetTitle();
+		partype = formula;
+		Int_t fidx = formula.Index("f(x)=");
+		if( fidx > 0 ){ 
+			formula.Remove(0, fidx+5 );
+			partype.Remove(fidx-1);
+		}
+		partype.Append(" ");
+		partype.Append(par->GetName());
 		KVCalibrator *cal = gVamos->GetCalibrator( partype.Data() );
 		// Case 1: parameter associated to a calibrator
 		if( cal ){
 			if(cal->InheritsFrom("KVFunctionCal") )
-				((KVFunctionCal *)cal)->SetExpFormula( par->GetParamName(0) );
+				((KVFunctionCal *)cal)->SetExpFormula( formula.Data() );
 
 			if( cal->GetNumberParams() != par->GetParameter(0) ){
 				Error("KVIVUpDater::SetVamosCalibParameters", 
@@ -171,7 +178,8 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 			TString meth, arg;
 			meth.Form("Set%s",par->GetTitle());
 			for(Int_t i=0; i<par->GetParameter(0); i++){
-				arg+=par->GetParameter( i+1 );
+//				arg+=par->GetParameter( i+1 );
+				arg+=par->GetParamName( i+1 );
 				arg+=",";
 			}
 			arg.Remove(TString::kTrailing,',');
@@ -183,12 +191,11 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 			continue;
 			}
 			det->Execute(meth.Data(), arg.Data());
-
  		}	
 		else{
 			Error("KVIVUpDater::SetVamosCalibParameters", 
-					"The parameter %s (%s) is not associated to an existing calibrator or detector",
-					par->GetName(), par->GetTitle());
+					"The parameter %s is not associated to an existing calibrator or detector",
+					partype.Data());
 			continue;
 		}
 	}
