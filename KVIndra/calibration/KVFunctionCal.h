@@ -51,7 +51,7 @@ class KVFunctionCal : public KVCalibrator
    void 	WithPedestalCorrection(Bool_t yes) { fPedCorr = yes; }; 
 	TF1*  GetFunction() { return fcalibfunction; }
 	
-	virtual Double_t Compute() const;
+	virtual Double_t Compute(Option_t *opt="") const;
 	virtual Double_t Compute(Double_t) const;
    virtual Double_t Invert(Double_t e);
 	virtual Double_t operator() (Double_t);

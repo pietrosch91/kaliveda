@@ -151,16 +151,19 @@ void KVFunctionCal::SetExpFormula(const Char_t *formula, Double_t xmin, Double_t
 }
 
 //------------------------------
-Double_t KVFunctionCal::Compute() const
+Double_t KVFunctionCal::Compute(Option_t *opt) const
 //------------------------------
 {
 	// Give the calibration result for the ACQ parameter corresponding to
-	// this calibrator 
+	// this calibrator.
+	// If opt = "P" then the currently set pedestal is removed from the 
+	// value of the acquisition parameter before the calculation.
 	if (!fACQpar){
 		Error("Compute","No ACQ parameter corresponds to the calibrator %s", GetName());
 		return -666;
  	}	
-	return fcalibfunction->Eval( fACQpar->GetData() );
+	Double_t ped = ( opt[0] ? fACQpar->GetPedestal() : 0. );
+	return fcalibfunction->Eval( fACQpar->GetData() - ped );
 }
 
 //------------------------------
