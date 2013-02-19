@@ -5,6 +5,7 @@
 #define __KVVAMOSDETECTOR_H
 
 #include "KVSpectroDetector.h"
+#include "KVVAMOS.h"
 #include "KVFunctionCal.h"
 
 class KVVAMOSDetector : public KVSpectroDetector
@@ -49,7 +50,8 @@ class KVVAMOSDetector : public KVSpectroDetector
    // -------- inline methods ---------------//
 
    Float_t GetT(const Char_t *type){
-	   return  GetACQData( Form("T%s",type) );
+	   if(!IsTfromThisDetector( type ) ) return -1;
+	   return  ( gVamos ? gVamos->GetACQData(Form("T%s",type)) : -1 );
    }
 
    inline TList *GetListOfT0() const{

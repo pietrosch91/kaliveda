@@ -3,7 +3,6 @@
 
 #include "Riostream.h"
 #include "KVVAMOSDetector.h"
-#include "KVVAMOS.h"
 #include "KVNamedParameter.h"
 using namespace std;
 

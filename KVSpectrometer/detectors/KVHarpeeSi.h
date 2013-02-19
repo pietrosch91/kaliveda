@@ -23,8 +23,14 @@ class KVHarpeeSi : public KVVAMOSDetector
 
 		virtual const Char_t* GetArrayName();
    		virtual const Char_t *GetEBaseName() const;
+		
 		virtual void SetACQParams();
 
+   		// -------- inline methods ---------------//
+
+		inline Float_t GetRawE(){
+	   		return  GetACQData( GetEBaseName() );
+		}
 
    ClassDef(KVHarpeeSi,1)//Silicon detectors of Harpee, used at the focal plan of VAMOS
 };
