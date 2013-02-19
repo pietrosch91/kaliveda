@@ -20,6 +20,13 @@ class KVHarpeeIC : public KVVAMOSDetector
    		void Copy (TObject&) const;
 
 		virtual const Char_t* GetArrayName();
+   		virtual const Char_t *GetEBaseName() const;
+
+   		virtual Double_t GetCalibE();
+		virtual Int_t    GetMult(Option_t *opt="");
+   		virtual Bool_t IsECalibrated() const;
+
+
 		virtual void SetACQParams();
 
    ClassDef(KVHarpeeIC,1)//Ionisiation chamber of Harpee, used at the focal plan of VAMOS

@@ -100,10 +100,7 @@ KVHarpeeIC::KVHarpeeIC(UInt_t number, Float_t pressure, Float_t temp, Float_t th
 		TGeoTranslation* tr = new TGeoTranslation(0.,0.,ztrans);
 		AddAbsorber(mat[i],shape,tr,active[i]);
 	}
-
-
 }
-
 //________________________________________________________________
 
 KVHarpeeIC::KVHarpeeIC (const KVHarpeeIC& obj)  : KVVAMOSDetector()
@@ -116,12 +113,12 @@ KVHarpeeIC::KVHarpeeIC (const KVHarpeeIC& obj)  : KVVAMOSDetector()
 
    obj.Copy(*this);
 }
+//________________________________________________________________
 
 KVHarpeeIC::~KVHarpeeIC()
 {
    // Destructor
 }
-
 //________________________________________________________________
 
 void KVHarpeeIC::Copy (TObject& obj) const
@@ -149,6 +146,98 @@ const Char_t* KVHarpeeIC::GetArrayName(){
 }
 //________________________________________________________________
 
+const Char_t *KVHarpeeIC::GetEBaseName() const{
+	// Base name of the energy used to be compatible
+	// GANIL acquisition parameters
+	//
+	// The base name is "E<type>".
+	
+	return Form("E%s",GetType());
+}
+//________________________________________________________________
+
+Double_t KVHarpeeIC::GetCalibE(){
+	// Calculate energy in MeV from coder values. Only the 7 segments B 
+	// are used to calculate calibrated energy.
+   	// Returns 0 if calibration not ready for fired acquisition parameters
+   	// or if no acquisition parameter is fired.
+   	// (we require that at least one acquisition parameter has a value
+   	// greater than the current pedestal value).
+
+
+	Bool_t ok    = kTRUE;
+	Double_t E   = 0;
+
+	TIter next( GetListOfCalibrators() );
+	KVFunctionCal *cal = NULL;
+	while( ok && (cal = (KVFunctionCal *)next()) ){
+		// numbers of calibrators for segments B are between 
+		// 6020 and 6029
+		Int_t num = cal->GetNumber();
+		if( ((num%100)/10) != 1 ) continue;
+
+		if( cal->GetACQParam()->Fired("P")){
+			if( cal->GetStatus() ){
+				E += cal->Compute();
+			}
+			else ok = kFALSE;
+ 		}
+	}
+	return ( ok ? E : 0. );
+}
+//________________________________________________________________
+
+Int_t KVHarpeeIC::GetMult(Option_t *opt){
+	// Returns the multiplicity of fired (value above the pedestal) 
+	// acquisition parameters if opt = "" (default).
+	// If opt = "root" returns the multiplicity of only fired acq. 
+	// parameters with GetName() containing "root". For example if
+	// you want the multiplicity of fired segments B call 
+	// GetMult("ECHI_B").
+
+	Int_t mult   = 0;
+
+	TString str( opt );
+	Bool_t withroot = !str.IsNull();
+
+	TIter next( GetACQParamList() );
+	KVACQParam *par = NULL;
+	while( (par = (KVACQParam *)next()) ){
+		if( withroot ){
+			str = par->GetName();
+			if( !str.Contains( opt ) ) continue;
+		}
+		if( par->Fired("P") ) mult++;
+	}
+	return mult;
+}
+//________________________________________________________________
+
+Bool_t KVHarpeeIC::IsECalibrated() const{
+	// Returns true if the detector has been calibrated in energy.
+	// The ionization chamber is considered as calibrated if the 
+	// The 7 segments B are calibrated.
+
+	Int_t Ncal = 0;
+	Bool_t ok  = kTRUE;
+
+	TIter next( GetListOfCalibrators() );
+	KVCalibrator *cal = NULL;
+	while( (cal = (KVCalibrator *)next()) ){
+		// numbers of calibrators for segments B are between 
+		// 6020 and 6029
+		Int_t num = cal->GetNumber();
+		if( ((num%100)/10) != 1 ) continue;
+		if( !cal->GetStatus() ){
+			ok = kFALSE;
+			break;
+		}
+		Ncal++;
+	}
+	return ok && (Ncal>6);
+}
+//________________________________________________________________
+
 void KVHarpeeIC::SetACQParams(){
 	// Setup acquisition parameters of this ionisation chamber.
 	// ACQ parameters with type 'E':
@@ -164,6 +253,7 @@ void KVHarpeeIC::SetACQParams(){
 			par->SetName(name);
 			par->SetType("E");
 			par->SetNumber( 6000 + (i+1)*10 + num );
+//			par->SetPedestal(200);
 			AddACQParam(par);
 		}
 	}
