@@ -28,7 +28,6 @@ class KVEventFiltering : public KVEventSelector
    
    TFile* fFile;
    TTree* fTree;
-   TTree* fRawTree;
    KVReconstructedEvent* fReconEvent;
    TVector3 fCMVelocity;
    Bool_t fTransformKinematics;//=kTRUE if simulation not in lab frame

@@ -404,10 +404,10 @@ RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
 
-+DataAnalysisTask:     DSTtoROOT
-DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
-DSTtoROOT.DataAnalysisTask.Prereq:     dst
-DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
+#+DataAnalysisTask:     DSTtoROOT
+#DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)
+#DSTtoROOT.DataAnalysisTask.Prereq:     dst
+#DSTtoROOT.DataAnalysisTask.Analyser:     INDRADstToRootTransfert
 
 #-------------------------------- Compiler options for user analysis classes
 #                                                              DEBUGGING
@@ -587,6 +587,7 @@ INDRA_e494s.INDRADB.ElectronicCalibration:         e494s_Channel_Volt.dat
 INDRA_e494s.INDRADB.ElectronicCalibration.Etalons: e494s_Channel_Volt_etalons.dat
 INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
 
+
 # Default headers for runlist columns
 INDRADB.Runlist.Run:    Run
 INDRADB.Runlist.Tape:    Tape
@@ -721,6 +722,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI    KVIndra "KVIDChIoCorrCsI()"
 ###############################################
+
 # ===> Plugin pour FocalPlanVamos
 +Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
 
@@ -861,6 +863,7 @@ KVDetector.Range.Npx:        20
 KVNDTManager.LifeTimeTable:       KVLifeTimeTable
 Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
 LifeTime.DataFile:	lifetime_nudat2.data
+
 # ChargeRadius tables used by KVNDTManager
 KVNDTManager.ChargeRadiusTable:       KVChargeRadiusTable
 +Plugin.KVNuclDataTable:   KVChargeRadiusTable    KVChargeRadiusTable    KVMultiDet   "KVChargeRadiusTable()"
@@ -877,6 +880,7 @@ MassExcess.DataFile:	massexcess_nudat2.data
 KVNDTManager.AbundanceTable:      KVAbundanceTable
 +Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
 Abundance.DataFile:	abundance_nudat2.data
+
 # Atomic element & density table used by KVNDTManager
 KVNDTManager.ElementDensityTable:      KVElementDensityTable
 +Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDet   "KVElementDensityTable()"
@@ -971,6 +975,7 @@ KaliVedaGUI.MaxColWidth:       500
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    no
+
 # Controls which options are set at start up of KVTreeAnalyzer
 KVTreeAnalyzer.LogScale:         off
 KVTreeAnalyzer.UserBinning:           off
