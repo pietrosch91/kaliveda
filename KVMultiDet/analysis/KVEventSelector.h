@@ -22,6 +22,7 @@
 #include <TH2.h>
 #include <TProfile2D.h>
 #include "KVParameterList.h"
+#include "TProofOutputFile.h"
 
 class KVEventSelector : public TSelector {
 
@@ -55,6 +56,7 @@ protected :
    KVHashList* ltree;            //->!
 
    Bool_t fNotifyCalled; // avoid multiple calls to Notify/InitRun
+   KVString fCombinedOutputFile;// optional name for single results file with trees and histos
    
    //parsed list of options given to TTree::Process
    KVParameterList<KVString> fOptionList;
@@ -68,7 +70,13 @@ protected :
    void ParseOptions();
 
 public:
-   KVEventSelector(TTree * /*tree*/ = 0) : gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
+	TFile* writeFile;//!
+   TProofOutputFile* mergeFile;//! for merging with PROOF
+   TString tree_file_name;
+   Bool_t CreateTreeFile(const Char_t* filename = "");
+	
+	
+    KVEventSelector(TTree * /*tree*/ = 0) : fChain(0), gvlist(0), fBranchName("data"), fPartCond(0), fFirstEvent(kTRUE),
       fEventsRead(0), fEventsReadInterval(100), fNotifyCalled(kFALSE) {
       lhisto = new KVHashList();
       ltree = new KVHashList();
@@ -184,26 +192,30 @@ public:
 
    virtual void SetParticleConditions(const KVParticleCondition&);
 
-   virtual void CreateHistos();
-   virtual void CreateTrees();
+   void AddHisto(TH1* histo);
+   void AddTree(TTree* tree);
 
-   void FillHisto(KVString sname, Double_t one, Double_t two = 1, Double_t three = 1, Double_t four = 1);
-   void FillTree(KVString sname = "");
+   void FillHisto(const Char_t* sname, Double_t one, Double_t two = 1, Double_t three = 1, Double_t four = 1);
+   void FillTree(const Char_t* sname = "");
 
-   KVHashList* GetHistoList();
-   KVHashList* GetTreeList();
+   KVHashList* GetHistoList() const;
+   KVHashList* GetTreeList() const;
 
-   TH1* GetHisto(const Char_t* name);
-   TTree* GetTree(const Char_t* name);
+	TH1* GetHisto(const Char_t* name) const;
+   TTree* GetTree(const Char_t* name) const;
 
-   virtual void WriteHistoToFile(KVString filename = "FileFromKVSelector.root", Option_t* option = "recreate");
-   virtual void WriteTreeToFile(KVString filename = "FileFromKVSelector.root", Option_t* option = "recreate");
+   virtual void SaveHistos(const Char_t* filename ="", Option_t* option = "recreate");
 
    virtual void SetOpt(const Char_t* option, const Char_t* value);   
    virtual Bool_t IsOptGiven(const Char_t* option);
    virtual KVString& GetOpt(const Char_t* option) const;
    virtual void UnsetOpt(const Char_t* opt);
    
+	virtual void SetAdditionalBranchAddress() {
+      //if user wants to read additional branches of the tree
+		//
+   };
+	
    ClassDef(KVEventSelector, 0)//General purpose analysis class for TTrees containing KVEvent objects
 };
 
@@ -219,8 +231,8 @@ void KVEventSelector::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
-
-   // Set object pointer
+	
+	// Set object pointer
    Event = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -230,10 +242,10 @@ void KVEventSelector::Init(TTree *tree)
    Info("Init", "Analysing data in branch : %s", GetBranchName());
    fChain->SetBranchAddress(GetBranchName() , &Event, &b_Event);
 
-   TDatime now;
-   Info("Init", "Analysis begins at %s", now.AsString());
-
-   InitAnalysis();              //user initialisations for analysis
+	//user additional branches addressing
+	SetAdditionalBranchAddress();
+	fEventsRead=0;
+	
 }
 
 Bool_t KVEventSelector::Notify()

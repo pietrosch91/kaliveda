@@ -97,12 +97,18 @@ void KVNuclDataTable::GiveIndexToNucleus(Int_t zz,Int_t aa,Int_t ntot){
 }
 
 //_____________________________________________
+NDT::value* KVNuclDataTable::getNDTvalue(Int_t zz, Int_t aa) const
+{
+	// Return NDT::value object pointer stored at map position (Z,A).
+	return (NDT::value*)nucMap->GetValue(Form("%d:%d",zz,aa));
+}
+
+//_____________________________________________
 Bool_t KVNuclDataTable::IsInTable(Int_t zz, Int_t aa) const
 {
 	// Returns kTRUE if there is a couple (Z,A) in the table.
 	
-	NDT::value* val = (NDT::value*)nucMap->GetValue(Form("%d:%d",zz,aa));
-	return (val!=0);
+	return (getNDTvalue(zz,aa)!=0);
 }
 
 //_____________________________________________
@@ -112,7 +118,7 @@ KVNuclData* KVNuclDataTable::GetData(Int_t zz, Int_t aa) const
 	// Don't need to test its presence
 	//returns 0 if no such object is present
 		
-	NDT::value* val = (NDT::value*)nucMap->GetValue(Form("%d:%d",zz,aa));
+	NDT::value* val = getNDTvalue(zz,aa);
 	if (val) return (KVNuclData* )tobj->At(val->Index());
 	return 0;
 

@@ -19,6 +19,8 @@
 #include <iostream>
 using namespace std;
 
+#include "TProof.h"
+
 ClassImp(KVSimDirGUI)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,8 @@ ClassImp(KVSimDirGUI)
 /* -->
 <h2>KVSimDirGUI</h2>
 <h4>GUI for simulated data</h4>
-See documentation <a href="ksimdirgui.html.LyXconv/ksimdirgui.html">here</a>.
+<img alt="KVSimDirGUI" src="images/KVSimDirGUI.png"><br><br>
+<h3>See documentation <a href="KVSimDirGUIDoc/KVSimDirGUI.html">here</a>.</h3>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +39,13 @@ KVSimDirGUI::KVSimDirGUI()
 {
    // Default constructor
    // main frame
+
+    fWithPROOF=kFALSE;
+
+    // make Aclic create all *.so *.d files in separate temporary directories
+    //this is to avoid problems with KVParticleCondition when using PROOF
+    gSystem->SetBuildDir( gSystem->TempDirectory() );
+
    MainFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
    MainFrame->SetName("KaliVedaSim GUI");
    
@@ -95,13 +105,14 @@ KVSimDirGUI::KVSimDirGUI()
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY, 2,2,2,2));
    group = new TGGroupFrame(vf, "Filtered Simulations");
    fLVfiltData = new KVListView(KVSimFile::Class(), group, 550, 200);
-   fLVfiltData->SetDataColumns(6);
+   fLVfiltData->SetDataColumns(7);
    fLVfiltData->SetDataColumn(0, "Simulation", "GetOriginalFile");
    fLVfiltData->SetDataColumn(1, "DataSet");
    fLVfiltData->SetDataColumn(2, "System");
    fLVfiltData->SetDataColumn(3, "Run");
    fLVfiltData->SetDataColumn(4, "Geometry");
-   fLVfiltData->SetDataColumn(5, "Events");
+   fLVfiltData->SetDataColumn(5, "FilterType");
+   fLVfiltData->SetDataColumn(6, "Events");
    fLVfiltData->ActivateSortButtons();
    group->AddFrame(fLVfiltData, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY,5,5,10,10));
    vf->AddFrame(group, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY, 2,2,2,2));
@@ -133,15 +144,22 @@ KVSimDirGUI::KVSimDirGUI()
    hf->AddFrame(fCBAllEvents, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
    fNENumberEvents = new TGNumberEntry(hf, 1, 10, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive, TGNumberFormat::kNELLimitMin, 1);
    hf->AddFrame(fNENumberEvents, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 2,2,2,2));
+   proof_analysis_ana = new TGPictureButton(hf,gClient->GetPicture("proof_base.xpm"));
+   proof_analysis_ana->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
+   proof_analysis_ana->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
+   proof_analysis_ana->SetToolTipText("Enable PROOF");
+   proof_analysis_ana->Resize(40,40);
+   proof_analysis_ana->AllowStayDown(kTRUE);
+   hf->AddFrame(proof_analysis_ana, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 400,2,2,2));
    TGPictureButton* launch_analysis = new TGPictureButton(hf,gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunAnalysis()");
    launch_analysis->SetToolTipText("Run analysis");
    launch_analysis->Resize(40,40);
-   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 400,2,2,2));
+   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 5,2,2,2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandY,2,2,2,2));
    fCBAllEvents->Connect("Toggled(Bool_t)", "KVSimDirGUI", this, "EnableEventNumberEntry(Bool_t)");
    fCBAllEvents->SetState(kButtonDown,kTRUE);
-   
+
    fAnalTab->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,2,2,2,2));
    
    /* Filter Tab */
@@ -201,11 +219,25 @@ KVSimDirGUI::KVSimDirGUI()
    radiob->SetState(kButtonDown);
    fGeoType=kGTROOT;
    hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop|kLHintsLeft,20,2,2,2));
+   bgroup = new TGButtonGroup(hf,"Kinematics");
+   radiob = new TGRadioButton(bgroup, "CM");
+   radiob->SetState(kButtonDown);
+   radiob = new TGRadioButton(bgroup, "Lab");
+   bgroup->Connect("Clicked(Int_t)", "KVSimDirGUI", this, "Kinematics(Int_t)");
+   fKine=kKCM;
+   hf->AddFrame(bgroup, new TGLayoutHints(kLHintsTop|kLHintsLeft,20,2,2,2));
+   proof_analysis_filt = new TGPictureButton(hf,gClient->GetPicture("proof_base.xpm"));
+   proof_analysis_filt->Connect("Pressed()", "KVSimDirGUI", this, "EnableProof()");
+   proof_analysis_filt->Connect("Released()", "KVSimDirGUI", this, "DisableProof()");
+   proof_analysis_filt->SetToolTipText("Enable PROOF");
+   proof_analysis_filt->Resize(40,40);
+   proof_analysis_filt->AllowStayDown(kTRUE);
+   hf->AddFrame(proof_analysis_filt, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 250,2,2,2));
    launch_analysis = new TGPictureButton(hf,gClient->GetPicture("query_submit.xpm"));
    launch_analysis->Connect("Clicked()", "KVSimDirGUI", this, "RunFilter()");
    launch_analysis->SetToolTipText("Run filter");
    launch_analysis->Resize(40,40);
-   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 250,2,2,2));
+   hf->AddFrame(launch_analysis, new TGLayoutHints(kLHintsCenterY|kLHintsLeft, 5,2,2,2));
    vf->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,10,2));
    
 //    hf = new TGHorizontalFrame(vf, 10, 10, kHorizontalFrame);
@@ -395,13 +427,14 @@ void KVSimDirGUI::SelectAnalysisClass()
    fi.fFileTypes = filetypes;
    new KVFileDialog(gClient->GetDefaultRoot(), MainFrame, kKVFDOpen, &fi);
    if (fi.fFilename) {
-      TString classname = fi.fFilename;
-      Int_t idot = classname.Index(".");
+      fAnalClassName = fi.fFilename;
+      Int_t idot = fAnalClassName.Index(".");
       if(idot<0) return;
-      classname.Remove(idot,2);
-      if(FindClassSourceFiles(gSystem->BaseName(classname), fAnalClassImp, fAnalClassHeader, fi.fIniDir))
+      fAnalClassName.Remove(idot,2);
+      if(FindClassSourceFiles(gSystem->BaseName(fAnalClassName), fAnalClassImp, fAnalClassHeader, fi.fIniDir))
       {
-         fTEAnalysisClassFileName->SetText(classname);
+         fTEAnalysisClassFileName->SetText(fAnalClassName);
+         fAnalClassName = gSystem->BaseName(fAnalClassName);
          fAnalClassDir = fi.fIniDir;
          cout << "Found class header " << fAnalClassHeader << " and implementation " << fAnalClassImp << " in " << fAnalClassDir << endl;
       }
@@ -437,6 +470,7 @@ void KVSimDirGUI::RunAnalysis()
       return;
    }
    TList *runs_to_analyse = (selected_sim_runs->GetEntries() ? selected_sim_runs : selected_filt_runs);
+   Bool_t filtered_analysis = (selected_filt_runs->GetEntries()>0) ;
    runs_to_analyse->ls();
    TChain* analysis_chain = BuildChain(runs_to_analyse);
    
@@ -444,16 +478,55 @@ void KVSimDirGUI::RunAnalysis()
    AssignAndDelete(fullclasspath, gSystem->ConcatFileName(fAnalClassDir,fAnalClassImp));
    fullclasspath+="+g";
    
+   Long64_t nevents = analysis_chain->GetEntries();
    Bool_t all_events = fCBAllEvents->IsDown();
+
+   if(fWithPROOF){
+       TProof*p = TProof::Open("");
+       analysis_chain->SetProof();
+       p->ClearCache();//to avoid problems with compilation of KVParticleCondition
+       // enable KaliVeda on PROOF cluster
+       if(p->EnablePackage("KaliVeda")!=0){
+           // first time, need to 'upload' package
+           TString fullpath;
+           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           p->UploadPackage(fullpath);
+           p->EnablePackage("KaliVeda");
+       }
+   }
+
+   TString results_file_name;
+   KVSimFile* first_file = (KVSimFile*)runs_to_analyse->First();
+   results_file_name.Form("%s_%s", fAnalClassName.Data(), first_file->GetName());
+
    if(!all_events){
-      Long64_t nevents = (Long64_t)fNENumberEvents->GetNumber();
+      nevents = (Long64_t)fNENumberEvents->GetNumber();
+   }
+
+   TString options;
+   if(filtered_analysis){
+       options.Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s,DataSet=%s,System=%s,Run=%d",
+                    nevents/10,
+               first_file->GetBranchName(),
+                    results_file_name.Data(),
+                    first_file->GetDataSet(),
+                    first_file->GetSystem(),
+                    first_file->GetRun()
+                    );
+   }
+   else {
+       options.Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
+                    nevents/10,
+               first_file->GetBranchName(),
+                    results_file_name.Data());
+   }
+
+   if(!all_events){
       cout << "Processing " << nevents << " events" << endl;
-      analysis_chain->Process(fullclasspath,
-            Form("BranchName=%s",((KVSimFile*)runs_to_analyse->First())->GetBranchName()), nevents);
+      analysis_chain->Process(fullclasspath, options, nevents);
    }
    else
-      analysis_chain->Process(fullclasspath,
-            Form("BranchName=%s",((KVSimFile*)runs_to_analyse->First())->GetBranchName()));
+      analysis_chain->Process(fullclasspath,options);
    
    delete analysis_chain;
    delete selected_sim_runs;
@@ -572,6 +645,9 @@ void KVSimDirGUI::RunFilter()
    TString geometry;
    if(fGeoType==kGTROOT) geometry = "ROOT";
    else geometry="KV";
+   TString kinema;
+   if(fKine==kKCM) kinema = "cm";
+   else kinema="lab";
    TString filter;
    switch(fFilterType){
       case kFTGeo:
@@ -585,18 +661,35 @@ void KVSimDirGUI::RunFilter()
    }
    
    TString options;
-   options.Form("BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s",
+   Long64_t nevents = analysis_chain->GetEntries();
+   options.Form("EventsReadInterval=%d,SimFileName=%s,SimTitle=%s,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
+         nevents/10,
+                ((KVSimFile*)runs_to_analyse->First())->GetName(),
+                analysis_chain->GetTitle(),
          ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
          fDataset.Data(),fSystem.Data(),geometry.Data(),filter.Data(),
 //         fTEOutputDir->GetText());
-         ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory());
+         ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory(),kinema.Data());
    if(fRun!=""){
       TString r;
       r.Form(",Run=%s",fRun.Data());
       options+=r;
    }
    Info("RunFilter", "%s",options.Data());
-   
+
+   if(fWithPROOF){
+       TProof*p = TProof::Open("");
+       analysis_chain->SetProof();
+       p->ClearCache();//to avoid problems with compilation of KVParticleCondition
+       // enable KaliVeda on PROOF cluster
+       if(p->EnablePackage("KaliVeda")!=0){
+           // first time, need to 'upload' package
+           TString fullpath;
+           KVBase::SearchKVFile("KaliVeda.par", fullpath);
+           p->UploadPackage(fullpath);
+           p->EnablePackage("KaliVeda");
+       }
+   }
    analysis_chain->Process("KVEventFiltering", options);
    RefreshSimDir();
    

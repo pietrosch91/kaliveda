@@ -8,6 +8,7 @@
 #include "KVDBSystem.h"
 #include "KVDBRun.h"
 #include "KVDataSetManager.h"
+#include <KVDataRepositoryManager.h>
 
 ClassImp(KVEventFiltering)
 
@@ -26,6 +27,8 @@ ClassImp(KVEventFiltering)
 //
 // The following options MUST be given:
 //
+//    SimFileName: name of file containing simulated events
+//    SimTitle: description of simulation
 //    BranchName: name of branch containing simulated events
 //    Dataset:    name of experimental dataset (defines multidetector array to use etc.)
 //    System:     name of experimental dataset system (defines collision kinematics etc.)
@@ -34,6 +37,9 @@ ClassImp(KVEventFiltering)
 //                or 'Full' (full simulation of detector response, including experimental identification
 //                and calibration routines)
 //    OutputDir:  directory path in which to write filtered data file
+//    Kinematics:  kinematical frame for simulation, either "cm" or "lab". if "cm", we use the c.m. velocity
+//                        of the selected System to transform events into the detector (laboratory) frame.
+//                         if "lab" no transformation is performed: simulated events are already in laboratory frame.
 //
 // The following is an optional option:
 //
@@ -54,6 +60,7 @@ ClassImp(KVEventFiltering)
 KVEventFiltering::KVEventFiltering()
 {
    // Default constructor
+   fTransformKinematics = kTRUE;
 }
 
 //________________________________________________________________
@@ -66,6 +73,7 @@ KVEventFiltering::KVEventFiltering (const KVEventFiltering& obj)  : KVEventSelec
    // implement it.
    // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
 
+   fTransformKinematics = kTRUE;
    obj.Copy(*this);
 }
 
@@ -93,26 +101,34 @@ void KVEventFiltering::Copy (TObject& obj) const
 Bool_t KVEventFiltering::Analysis()
 {
    // Event-by-event filtering of simulated data.
-   // Kinematics of event are transformed to laboratory frame using C.M. velocity calculated in InitAnalysis().
+   // If needed (fTransformKinematics = kTRUE), kinematics of event are transformed
+   // to laboratory frame using C.M. velocity calculated in InitAnalysis().
    // Detection of particles in event is simulated with KVMultiDetArray::DetectEvent,
    // then the reconstructed detected event is treated by the same identification and calibration
    // procedures as for experimental data.
-   GetEvent()->SetFrame("lab", fCMVelocity);
-   gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
-   fReconEvent->IdentifyEvent();
-   fReconEvent->CalibrateEvent();
-   fReconEvent->SecondaryIdentCalib();
+   
+   if(fTransformKinematics) {
+      GetEvent()->SetFrame("lab", fCMVelocity);
+      gMultiDetArray->DetectEvent(GetEvent(), fReconEvent, "lab");
+   }
+   else {
+      gMultiDetArray->DetectEvent(GetEvent(), fReconEvent);
+   }
+   fReconEvent->SetNumber(fEVN++);
    fTree->Fill();
-   fRawTree->Fill();
 
-   return kTRUE;
+/*    if (!(fEventsRead % fEventsReadInterval) && fEventsRead) {
+      memory_check.Check();
+   }
+ */   
+       return kTRUE;
 }
    
 void KVEventFiltering::EndAnalysis()
 {
    // Write file containing filtered data to disk.
-   fFile->Write();
-   delete fFile;
+   //fFile->Write();
+   //delete fFile;
 }
    
 void KVEventFiltering::EndRun()
@@ -137,6 +153,10 @@ void KVEventFiltering::InitAnalysis()
    // it is given by KVDataSet::GetReconstructedEventClassName().
    
    TString dataset = GetOpt("Dataset").Data();
+   if(!gDataSetManager) {
+       new KVDataRepositoryManager;
+       gDataRepositoryManager->Init();
+   }
    gDataSetManager->GetDataSet(dataset)->cd();
    if(gMultiDetArray) delete gMultiDetArray;
    gDataSet->BuildMultiDetector();
@@ -156,33 +176,52 @@ void KVEventFiltering::InitAnalysis()
    if(geo=="ROOT"){
       gMultiDetArray->SetROOTGeometry(kTRUE);
       gMultiDetArray->CreateGeoManager();
+      Info("InitAnalysis", "Filtering with ROOT geometry");
    }
    else
+   {
       gMultiDetArray->SetROOTGeometry(kFALSE);
+      Info("InitAnalysis", "Filtering with KaliVeda geometry");
+   }
+   
+   TString filt = GetOpt("Filter").Data();
+   if(filt=="Geo"){
+      gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_Geo);
+      Info("InitAnalysis", "Geometric filter");
+   }
+   else if(filt=="GeoThresh"){
+      gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_GeoThresh);
+      Info("InitAnalysis", "Geometry + thresholds filter");
+   }
+   else if(filt=="Full"){
+      gMultiDetArray->SetFilterType(KVMultiDetArray::kFilterType_Full);
+      Info("InitAnalysis", "Full simulation of detector response & calibration");
+   }
+   TString kine = GetOpt("Kinematics").Data();
+   if(kine=="lab") {
+      fTransformKinematics = kFALSE;
+      Info("InitAnalysis", "Simulation is in laboratory/detector frame");
+   }
+   else
+   {
+      Info("InitAnalysis", "Simulation will be transformed to laboratory/detector frame");
+   }
+   
    
    OpenOutputFile(sys,run);
+   fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() ,sys->GetName()));
    
-   /* reconstructed events tree */
-   fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();
    fTree->Branch("ReconEvent", reconevclass,&fReconEvent,10000000,0)->SetAutoDelete(kFALSE);
-   
-   /* raw data tree */
-   fRawTree = new TTree("RawData",  Form("%s filtered with %s",fChain->GetTitle(),sys->GetName()));
-   TIter next_rawpar( gMultiDetArray->GetACQParams() );
-   KVACQParam* acqpar;
-   while( (acqpar = (KVACQParam*)next_rawpar()) ){
-      TString leaf;
-      leaf.Form("%s/S", acqpar->GetName());
-      // for parameters with <=8 bits only use 1 byte for storage
-      if(acqpar->GetNbBits()<=8) leaf += "1";
-      fRawTree->Branch( acqpar->GetName(), *(acqpar->ConnectData()), leaf.Data() );
-   }
+
+   AddTree(fTree);
 }
    
 void KVEventFiltering::InitRun()
-{
+{ 
+//   memory_check.SetInitStatistics();
+   fEVN=0;
 }
 
 void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
@@ -204,7 +243,7 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
    // KEY: TNamed	Filter;1	title=[filter-type]
    // KEY: TNamed	Origin;1 title=[name of simulation file]
    //      
-   TString basefile = gSystem->BaseName(fChain->GetCurrentFile()->GetName());
+    TString basefile = GetOpt("SimFileName");
    basefile.Remove(basefile.Index(".root"),5);
    TString outfile = basefile + "_geo=";
    outfile += GetOpt("Geometry");
@@ -221,7 +260,11 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
       TString fullpath;
       AssignAndDelete(fullpath, gSystem->ConcatFileName(GetOpt("OutputDir").Data(),outfile.Data()));
    
-   fFile = new TFile(fullpath,"recreate");
+   //fFile = new TFile(fullpath,"recreate");
+   CreateTreeFile(fullpath);
+
+   TDirectory* curdir = gDirectory;
+   writeFile->cd();
    TNamed* system = new TNamed("System", S->GetName());
    system->Write();
    (new TNamed("Dataset",gDataSet->GetName()))->Write();
@@ -235,4 +278,5 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
    }
    (new TNamed("Filter",GetOpt("Filter").Data()))->Write();
    (new TNamed("Origin", (basefile+".root").Data()))->Write();
+   curdir->cd();
 }

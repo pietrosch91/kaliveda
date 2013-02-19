@@ -1,13 +1,4 @@
 /***************************************************************************
-$Id: KVChIo.h,v 1.32 2008/02/21 10:14:38 franklan Exp $
-                          kvchio.h  -  description
-                             -------------------
-    begin                : Fri Oct 4 2002
-    copyright            : (C) 2002 by A. Mignon & J.D. Frankland
-    email                : frankland@ganil.fr
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,6 +14,7 @@ $Id: KVChIo.h,v 1.32 2008/02/21 10:14:38 franklan Exp $
 #include "KVACQParam.h"
 #include "KVChannelVolt.h"
 #include "KVVoltEnergy.h"
+#include "KVUnits.h"
 
 class KVDBParameterSet;
 
@@ -51,6 +43,7 @@ class KVChIo:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
+   Double_t GetEnergyFromVolts(Double_t volts = 0.0);
    virtual Double_t GetEnergy();
 
    void SetACQParams();

@@ -102,7 +102,7 @@ Double_t KVINDRADBRun::GetNIncidentIons(Double_t Q_apres_cible,
    //      Note (from sect_effic.f):
    //**** Etalonnage de l'integrateur en 1993: voir cahier 4 page 87.
    //***  Si l'oscillateur interne du trigger est a 169 Hz, on a 10**(-10) Cb/top.
-   //***  si c'est 160 Hz, on a 1.0610**(-10).
+   //***  si c'est 160 Hz, on a 1.0610*(10**(-10)).
 
    return GetScaler("Faraday 1") * Coul_par_top / (TMath::Qe() * Q_apres_cible);
 }

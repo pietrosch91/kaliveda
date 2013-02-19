@@ -5,12 +5,14 @@
 #define __KVEventFiltering_H
 
 #include "KVEventSelector.h"
+#include "KVClassMonitor.h"
 #include "KVReconstructedEvent.h"
 
 class KVDBSystem;
 class KVEventFiltering : public KVEventSelector
 {
-
+   //KVClassMonitor memory_check;
+   Long64_t fEVN;//event number counter
    public:
    KVEventFiltering();
    KVEventFiltering (const KVEventFiltering&) ;
@@ -29,6 +31,7 @@ class KVEventFiltering : public KVEventSelector
    TTree* fRawTree;
    KVReconstructedEvent* fReconEvent;
    TVector3 fCMVelocity;
+   Bool_t fTransformKinematics;//=kTRUE if simulation not in lab frame
    
    ClassDef(KVEventFiltering,1)//Filter simulated events with multidetector response
 };

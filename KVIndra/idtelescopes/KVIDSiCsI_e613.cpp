@@ -42,8 +42,12 @@ void KVIDSiCsI_e613::Initialize()
    // "Natural" line widths are calculated for KVIDZAGrids.
 
   fSi  = (KVSilicon*) GetDetector(1);
+  fSiPGPedestal = fSi->GetPedestal("PG");
+  fSiGGPedestal = fSi->GetPedestal("GG");
   fCsI = (KVCsI*) GetDetector(2);
-  
+  fCsIRPedestal = fCsI->GetPedestal("R");
+  fCsILPedestal = fCsI->GetPedestal("L");
+   
   fGGgrid = fPGgrid = 0; 
    
   KVIDGraph* grid = 0;
@@ -86,15 +90,12 @@ Double_t KVIDSiCsI_e613::GetIDMapX(Option_t * opt)
 Double_t KVIDSiCsI_e613::GetIDMapY(Option_t * opt)
 {
    //Calculates current Y coordinate for identification.
-   //It is the ionisation chamber's current grand gain (if opt="GG") or petit gain (opt != "GG")
+   //It is the silicon's current grand gain (if opt="GG") or petit gain (opt != "GG")
    //coder data, without pedestal correction.
    Double_t si = -1.;
-   if(!strcmp(opt, "GG")) si = (Double_t)fSi->GetGG();
-   else if(!strcmp(opt, "PG")) si = (Double_t)fSi->GetPG();
-   else
-     {
-     cout << "WARNING: KVIDSiCsI_e613::GetIDMapY(): you must specify option 'GG' or 'PG' !" << endl;
-     }
+   if(!strcmp(opt, "GG")) si = (Double_t)fSi->GetGG()-fSiGGPedestal;
+   else if(!strcmp(opt, "PG")) si = (Double_t)fSi->GetPG()-fSiPGPedestal;
+   else si = (Double_t)fSi->GetGG();
 
    return si;
 }

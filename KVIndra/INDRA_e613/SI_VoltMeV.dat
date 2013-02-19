@@ -1,9 +1,9 @@
 #Coefficient Volt -> MeV issu du fit des pics alphas
 # Fonction polynome d ordre 1
 #
-#Couronne 1 a 3, runs alphas 114 a 121 ChIo absentes
-#Couronne 4 a 7, runs alphas 1214 a 1230 ChIo ???
-#Couronne 8 a 9, runs alphas 1270 a 1333 ChIo ???
+#Couronne 1 a 3 + SI_0807 runs alphas 114 a 121 ChIo presentes
+#Couronne 4 a 7, runs alphas 1214 a 1230 ChIo 8-12 absentes, les autres gonflees
+#Couronne 8 a 9, runs alphas 1270 a 1333 ChIo 8-12 absentes, les autres degonflees
 #
 #   valeur en keV des pics alphas dans les Siliciums
 #		Sans ChIo	0 mbar	   30 mbar		50 mbar
@@ -118,6 +118,8 @@ SI_0611:                                 pol1,0.279243,193.267451
 SI_0612:                                 pol1,0.288017,195.393241
 SI_0613:                                 pol1,0.284182,197.544329
 SI_0614:                                 pol1,0.260285,197.509101
+SI_0617:                                 pol1,0.303841,198.123573
+SI_0618:                                 pol1,0.275812,197.886447
 SI_0619:                                 pol1,0.262969,199.889460
 SI_0620:                                 pol1,0.277758,199.601692
 SI_0621:                                 pol1,0.247508,196.975264
@@ -138,6 +140,10 @@ SI_0711:                                 pol1,0.350920,192.378197
 SI_0712:                                 pol1,0.340086,195.775787
 SI_0713:                                 pol1,0.334225,195.576382
 SI_0714:                                 pol1,0.326416,198.429801
+SI_0715:                                 pol1,0.348782,195.437096
+SI_0716:                                 pol1,0.342914,197.769256
+SI_0717:                                 pol1,0.366452,196.070698
+SI_0718:                                 pol1,0.312166,199.081226
 SI_0719:                                 pol1,0.348159,196.097101
 SI_0720:                                 pol1,0.337311,199.421028
 SI_0721:                                 pol1,0.349832,194.277898
@@ -151,6 +157,7 @@ SI_0803:                                 pol1,0.279550,432.601324
 SI_0804:                                 pol1,0.299473,438.232547
 SI_0805:                                 pol1,0.290981,435.998264
 SI_0806:                                 pol1,0.288327,437.519068
+SI_0807:                                 pol1,0.382392,435.702936
 SI_0808:                                 pol1,0.485922,433.380998
 SI_0809:                                 pol1,0.392728,442.545443
 SI_0810:                                 pol1,0.388849,448.927563

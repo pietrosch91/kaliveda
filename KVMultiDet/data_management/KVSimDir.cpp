@@ -144,8 +144,8 @@ void KVSimDir::AnalyseFile (const Char_t* filename)
    //            * a KVSimFile is created. Informations on the filtered data are extracted from
    //              TNamed objects in the file with names 'Dataset', 'System', 'Run', 'Geometry'
    //              (type of geometry used, 'ROOT' or 'KV'), 'Origin' (i.e. the name of the simulation
-   //              file which was filtered). These objects are automatically created when data is
-   //              filtered using KVEventFiltering.
+   //              file which was filtered), 'Filter' (type of filter: Geo, GeoThresh or Full).
+   //              These objects are automatically created when data is filtered using KVEventFiltering.
    //
    // Analysis of the file stops after the first TTree with a branch satisfying one of the
    // two criteria is found (it is assumed that in each file there is only one TTree containing
@@ -182,18 +182,21 @@ void KVSimDir::AnalyseFile (const Char_t* filename)
                   TNamed* sys = (TNamed*)file->Get("System");
                   TNamed* r = (TNamed*)file->Get("Run");
                   TNamed* g = (TNamed*)file->Get("Geometry");
+                  TNamed* f = (TNamed*)file->Get("Filter");
                   TString dataset; if(ds) dataset = ds->GetTitle();
                   TString system; if(sys) system = sys->GetTitle();
                   TString run; if(r) run = r->GetTitle();
                   TString origin; if(orig) origin = orig->GetTitle();
                   TString geometry; if(g) geometry = g->GetTitle();
+                  TString filter; if(f) filter = f->GetTitle();
                   Int_t run_number = run.Atoi();
                   fFiltData.Add( new KVSimFile(this, filename, tree->GetTitle(), tree->GetEntries(), tree->GetName(), branch->GetName(),
-                        dataset, system, run_number, geometry, origin) );
+                        dataset, system, run_number, geometry, origin, filter) );
                   delete file;
                   delete ds;
                   delete sys;
                   delete r;
+                  delete f;
                   return;
                }
             }

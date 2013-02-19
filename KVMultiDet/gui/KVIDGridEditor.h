@@ -6,6 +6,7 @@
 
 #include "TCanvas.h"
 #include "TPaveLabel.h"
+#include "TPaveText.h"
 #include "TStyle.h"
 #include "TH2F.h"
 #include "TF1.h"
@@ -38,6 +39,7 @@
 #include "KVHistoManipulator.h"
 
 #include "KVSpiderIdentificator.h"
+#include "KVZALineFinder.h"
 
 #define FACTOR -1.
 
@@ -46,13 +48,28 @@ class KVIDGridEditor : public KVBase
 //friend class KeyHandler;
 friend class KVIDGridEditorCanvas;
 
+   public:
+   enum MatrixType
+     {
+     kSiCsI,
+     kSiSi,
+     kChIoSi,
+     kPSA
+     };
+
    protected:
    
    Bool_t fDebug;
+   Bool_t fSVGMode;
+   Int_t  fSVGIndex;
+   TPaveText* fKeyShow;
    
    KVIDGridEditorCanvas* fCanvas;
    TVirtualPad*          fPad;
    TGraph*               fPivot;
+   TGraph*               fPiedestal;
+   KVString              fListOfMethods;
+   KVString              fDefaultMethod;
    
    KVHashList* lplabel;			//contient la liste des TPaveLabel pour les transformations (rouge)
    KVHashList* lplabel2;		//contient la liste des TPaveLabel pour les actions (rouge)
@@ -96,10 +113,16 @@ friend class KVIDGridEditorCanvas;
    
    protected:
    
+   Double_t GetX0();
+   Double_t GetY0();
+   Double_t GetPdx();
+   Double_t GetPdy();
+   
    Bool_t HandleKey(Event_t *event);   
    void MoveHor(Int_t sign);
    void MoveVert(Int_t sign);
    
+   void AddMethod(const char* theMethod);
    void SelectTrans(TPaveLabel* label);
 
    void SetDefault();						//
@@ -117,19 +140,21 @@ friend class KVIDGridEditorCanvas;
    void ScaleXY    (Int_t Sign);
    void ScaleCurvature(Int_t Sign);
    
-   void DynamicZoom(Int_t Sign, Int_t px=0, Int_t py=0);	//zoom molette
+   void DynamicZoom (Int_t Sign, Int_t px=0, Int_t py=0);	//zoom molette
    void Unzoom      ();						//unzoom histo (accessible via l'interface : I)
    void ZoomSelected();						//zoom 'gnuplot'
    
    void SetLogz     ();						//echelle log sur Oz
    void SetLogy     ();						//echelle log sur Oy
    void SetLogx     ();						//echelle log sur Ox
-   void Undo       ();						//annule toute les opreation sur la grille courante (I)
+   void Undo        ();						//annule toute les operation sur la grille courante (I)
    
    void SetPivot    (Double_t xx0, Double_t yy0);
+   void SetPiedestal(Double_t ppdx, Double_t ppdy);
    
    void SetEditable(TPaveLabel* label);
-   void SelectLines(TPaveLabel* label);
+//   void SelectLines(TPaveLabel* label);
+   void SelectLines(char* label);
    
    void NewLine ();						//'Line'
    void NewCut  ();						//'Cut'
@@ -147,7 +172,6 @@ friend class KVIDGridEditorCanvas;
    void SuggestMoreAction();					//'More', modifier cette methode pour ajouter des fonctionnalites !!!
    void ChooseSelectedColor();					//'More' -> SetSelectedColor change la couleur des lignes selectionnes
    void OpenRootFile();						//pas implemente
-   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
       
    void DispatchOrder(TPaveLabel* label);			//methode qui distribue les ordres quand on clic sur un bouton
    void ChangeStep(const char* title, Int_t dstep=1);
@@ -168,11 +192,16 @@ friend class KVIDGridEditorCanvas;
    void Clear(const Option_t* opt = "");			//nettoi l'interface ('all' enleve la grille et l'histo)
    void Close();						//ferme l'interface graphique
    Bool_t IsClosed();						//true si l'interface est fermee
+   void CanvasWasClosed();     // called when GUI is used to close the canvas
    void ForceUpdate();						//rafraichit toute l'interface de force
+   void SaveCurrentGrid();					//'More' -> SaveCurrentGrid ouvre une boite de dialogue pour sauver la grille
    
    void SetHisto(TH2* hh);					//donne l'histo a l'editeur
    void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
    void SetGrid(TString GridName);				//donne la grille a l'editeur par son nom
+
+   KVIDGraph* GetGrid(){return TheGrid;};
+   TH2*       GetHisto(){return TheHisto;};
    
    TCanvas* GetEditorCanvas(){return fCanvas;};
    
@@ -182,11 +211,18 @@ friend class KVIDGridEditorCanvas;
    void SetSelectedColor(Int_t color){SelectedColor=color;};
    void SelectLinesByZ(const Char_t* ListOfZ);			//'More' -> 'SelectLinesByZ'
    void SetDebug(Bool_t debug){fDebug=debug;};
+   void SetSVGMode(){fSVGMode=!fSVGMode;};
+   void MakeScaleX(Double_t scaleFactor);
+   void MakeScaleY(Double_t scaleFactor);
    
    Int_t GetSpiderZp(){return fSpiderZp;};
    Double_t GetSpiderFactor(){return fSpiderFactor;};
    
-   void SpiderIdentification(int Zp, Double_t Factor);// *MENU* *ARGS={Zp=>fSpiderZp,Factor=>fSpiderFactor} 
+   void SpiderIdentification();
+//   void FindZALines(const Char_t* A="1,4,7,9,11,12,15,16,19,21,23,25,27,30,31,34,37,40,41", 
+   void FindZALines();
+   void ChangeMasses(const Char_t* Zl, Int_t dA);
+   void ChangeCharges(const Char_t* Zl, Int_t dZ);
 
    ClassDef(KVIDGridEditor,1)// outil de modification de grille.
 };

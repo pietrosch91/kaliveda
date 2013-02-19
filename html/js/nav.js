@@ -20,7 +20,7 @@ var links = new Array (
 var links_text = new Array (
   "Home",
   "Download",
-  "Build options",
+  "Install",
   "Configuration",
   "Data Analysis",
   "Examples",

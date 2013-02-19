@@ -7,6 +7,7 @@
 #include "TCanvas.h"
 #include "TH2.h"
 #include "TGFrame.h"
+#include "TList.h"
 
 
 class KVCanvas : public TCanvas
@@ -28,13 +29,19 @@ friend class KVKeyHandler;
    Bool_t   moved;
    Bool_t   fAgeOfEmpire;
    Bool_t   fModeVener;
+   Bool_t   fHasDisabledClasses;
+   TString  fDisabledClasses;
+   Bool_t   fHasDisabledObject;
+   TList    fDisabledObjects;
 
-   TGFrame* fKeyHandler;         // handler for arrow keys
+   TGFrame* fKeyHandler;         // handler for keys
+   Bool_t   fFreezed;
    
    public:
    KVCanvas();
 //   using TCanvas::TCanvas;
    KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh);
+   KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid);
    virtual ~KVCanvas();
    
    void HandleInput(EEventType event, Int_t px, Int_t py);
@@ -42,15 +49,23 @@ friend class KVKeyHandler;
    Bool_t IsLogy();
    Bool_t IsLogx();
    
+   void DisableClass(const char* className);
+   void DisableObject(TObject* obj);
+   void ResetDisabledClass();
+   void ResetDisabledObject();
+   
+   void FreezCavans(Bool_t freez){fFreezed = freez;};
+   
    protected:
    
    virtual Bool_t HandleKey(Event_t *event);
    void DynamicZoom(Int_t Sign, Int_t px, Int_t py);
+   void DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py);
    void RunAutoExec();
    void DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected);
    void ZoomSelected(TH2* TheHisto);
 
-   ClassDef(KVCanvas,1)//bidouille
+   ClassDef(KVCanvas,1)//TCanvas with mouse-controlled dynamic zoom and pan & scan
 };
 
 #endif

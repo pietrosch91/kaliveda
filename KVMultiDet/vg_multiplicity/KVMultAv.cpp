@@ -33,6 +33,7 @@ void KVMultAv::init_KVMultAv(void)
    nb++;
    nb_crea++;
    SetFrame("CM");
+   fValueType='I';//integer values
 }
 
 //_________________________________________________________________

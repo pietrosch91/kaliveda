@@ -44,6 +44,7 @@ class KVSimDirGUI : public KVBase
    TGCompositeFrame* fAnalTab; // analysis tab
    TGCompositeFrame* fFiltTab; // filter tab
    TGTextEntry* fTEAnalysisClassFileName;
+   KVString fAnalClassName;
    KVString fAnalClassHeader;
    KVString fAnalClassImp;
    KVString fAnalClassDir;
@@ -65,11 +66,19 @@ class KVSimDirGUI : public KVBase
       kGTKaliVeda=1,
       kGTROOT
    };
+   enum {
+      kKCM=1,
+      kKLab
+   };
    Int_t fFilterType;
    Int_t fGeoType;
+   Int_t fKine;
    //TGTextEntry* fTEOutputDir;
-   
+   TGPictureButton* proof_analysis_filt;
+   TGPictureButton* proof_analysis_ana;
    TEnv fGuirc;
+
+   Bool_t fWithPROOF;//=kTRUE when running with PROOF-lite
    
    public:
    KVSimDirGUI();
@@ -100,9 +109,30 @@ class KVSimDirGUI : public KVBase
    {
       fGeoType = i;
    };
+   void Kinematics(Int_t i)
+   {
+      fKine = i;
+   };
    //void ChangeOutputDirectory();
    void RunFilter();
-   
+   void EnableProof(){
+       if(fWithPROOF) return;
+       fWithPROOF=kTRUE;
+       // make sure both buttons are down - note use of SetState(kButtonEngaged), not SetDown(kTRUE)
+       // because if not, if button is set 'down' on one tab, and then we go to the other tab,
+       // the other button is 'down', but the first click on it does nothing! we have to click it twice
+       // to make it come up and call DisableProof. Using SetState(kButtonEngaged) avoids this.
+       if( !proof_analysis_ana->IsDown() ) {proof_analysis_ana->SetState( kButtonEngaged ); }
+       else{  proof_analysis_filt->SetState( kButtonEngaged ); }
+   }
+   void DisableProof(){
+       if(!fWithPROOF) return;
+       fWithPROOF=kFALSE;
+       // make sure both buttons are up
+       if( proof_analysis_ana->IsDown() ) proof_analysis_ana->SetDown(kFALSE);
+       else proof_analysis_filt->SetDown(kFALSE);
+   }
+
    ClassDef(KVSimDirGUI,0)//GUI for simulated data
 };
 

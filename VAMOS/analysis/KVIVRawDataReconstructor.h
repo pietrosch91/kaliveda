@@ -22,9 +22,9 @@ class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
    virtual ~KVIVRawDataReconstructor();
    virtual void postInitRun()
 	{
+	KVINDRARawDataReconstructor::postInitRun(); // initialise event counters
    	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( tree );
 	};
-   virtual Bool_t Analysis();
 
    ClassDef(KVIVRawDataReconstructor,1)//Reconstructs raw data from INDRA-VAMOS experiments
 };

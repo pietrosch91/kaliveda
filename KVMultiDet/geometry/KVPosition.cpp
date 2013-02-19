@@ -364,7 +364,7 @@ TVector3 KVPosition::GetDirection()
    //Returns a unit vector corresponding to the direction of fTheta, fPhi
    //i.e. the centre of the solid angle element.
 
-   TVector3 tmp(1.0);
+   TVector3 tmp(1.0,0.0,0.0);
    tmp.SetTheta(fTheta * TMath::Pi() / 180.);
    tmp.SetPhi(fPhi * TMath::Pi() / 180.);
    return tmp;
@@ -487,4 +487,26 @@ void KVPosition::GetWidthsFromDimension(Float_t lin_dim)
        TMath::RadToDeg() * lin_dim / (GetDistance() * GetSinTheta());
    SetPolarWidth(d__th);
    SetAzimuthalWidth(d__ph);
+}
+   
+TRotation KVPosition::GetRandomIsotropicRotation()
+{
+   // Generates a rotation which, if applied to a unit vector in the Z-direction,
+   // will transform it into an isotropically-distributed vector in this
+   // angular range.
+   
+    TRotation rr2;
+    Double_t a1min,a1max,a2min,a2max,a3min,a3max;
+    a1min=0;
+    a1max=2*TMath::Pi();
+    a2min=GetThetaMin()*TMath::DegToRad();
+    a2max=GetThetaMax()*TMath::DegToRad();
+    a3min=GetPhiMin()*TMath::DegToRad();
+    a3max=GetPhiMax()*TMath::DegToRad();
+    a3min+=TMath::Pi()/2.;
+    a3max+=TMath::Pi()/2.;
+    rr2.SetXEulerAngles(gRandom->Uniform(a1min,a1max),
+          TMath::ACos(gRandom->Uniform(cos(a2max),cos(a2min))),
+          gRandom->Uniform(a3min,a3max));
+    return rr2;
 }

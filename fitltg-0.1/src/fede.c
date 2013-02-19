@@ -312,5 +312,5 @@ void F77_FUNC(fitede,FITEDE)(int *npts, float *zd, float *ad, float *xd, float *
         printf(" g  =%12.6f\n", x[6]);
         printf(" pdx =%8.1f    pdy =%8.1f    \n", x[7],x[8]);
 	   }
-      if (*ih != 0) printf(" eta =%12.6f\n", x[para001.mm]);
+      if (*ih != 0) printf(" eta =%12.6f\n", x[para001.mm-1]);
 }	

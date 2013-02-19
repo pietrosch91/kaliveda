@@ -4,6 +4,7 @@
 #include "KVNDTManager.h"
 #include "KVNuclDataTable.h"
 #include "KVNuclData.h"
+#include "KVString.h"
 #include "Riostream.h"
 #include "TObjArray.h"
 
@@ -33,13 +34,20 @@ KVNDTManager::~KVNDTManager()
 
 void KVNDTManager::init()
 {
+   // Initialize Nuclear Data Table Manager
+   // We automatically instantiate a data table of each class which is
+   // declared as a "KVNuclDataTable" plugin
+   // If a new class is added to the .kvrootrc, there is no need to alter the code.
+   
 	Arange = 0;
 	Zrange = 0;
 	
-	Add((KVNuclDataTable* )TClass::GetClass("KVMassExcessTable")->New());
-	Add((KVNuclDataTable* )TClass::GetClass("KVAbundanceTable")->New());
-	Add((KVNuclDataTable* )TClass::GetClass("KVLifeTimeTable")->New());
-	
+   KVString plugins = KVBase::GetListOfPlugins("KVNuclDataTable");
+   plugins.Begin(" ");
+   while(!plugins.End()){
+	   Add((KVNuclDataTable* )TClass::GetClass(plugins.Next())->New());
+   }
+
 	Execute("Initialize","");
 
 }

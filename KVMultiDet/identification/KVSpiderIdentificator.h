@@ -12,17 +12,21 @@
 #include <TROOT.h>
 #include "KVDroite.h"
 #include "KVSpiderLine.h"
+#include <RQ_OBJECT.h>
 
 #include <Riostream.h>
 #include <list>
 
 class KVSpiderIdentificator : public TNamed
 {
+  RQ_OBJECT("KVSpiderIdentificator")
   protected:
   
   bool _is_initialized;
   bool _debug;
   bool _auto;
+  bool _sicsi;
+  bool _useFit;
   
   double _bfactor;
   double _ftheta;
@@ -31,7 +35,12 @@ class KVSpiderIdentificator : public TNamed
   double _y0;
   double _xm;
   double _ym;
+  double _xmax;
+  double _ymax;
   double _alpha;
+  
+  int    _nAngleUp;
+  int    _nAngleDown;
   
   TList  _llist;
   TList  _dlist;
@@ -54,23 +63,21 @@ class KVSpiderIdentificator : public TNamed
   public:
   
   KVSpiderIdentificator();
-  KVSpiderIdentificator(TH2F* h_);
+  KVSpiderIdentificator(TH2F* h_, Double_t Xm=-1, Double_t Ym=-1, Double_t pdx=-1, Double_t pdy=-1);
   virtual ~KVSpiderIdentificator();
   
-  void Init(TH2F* h_=0);
+  void Init(TH2F* h_=0, Double_t Xm=-1, Double_t Ym=-1, Double_t X0=-1, Double_t Y0=-1);
   void Close();
-  void Clear();
-  void SetMode(bool sicsi_=true){};
+  void Clear(Option_t* option = "");
+  void SetMode(bool sicsi_=true){_sicsi=sicsi_;};
   void SetParameters(double bining_=1.);
   
-  void SetHistogram(TH2F* h_=0);
-  TH1F* GetProjection(TH2F* h_, KVDroite* d_);
-  bool SearchPeack2(TH1F* h1_, double theta_, int create_, double sigma_=2., double peakmin_=1., int rebin_=10, int smooth_=5, TString opt_="goff");  
+  void SetHistogram(TH2F* h_=0, Double_t Xm=-1, Double_t Ym=-1);
+  TH1F* GetProjection(TH2F* h_, KVDroite* d_, int rebin_=10);
   bool SearchPeack(TH1F* h1_, double theta_, int create_, double sigma_=2., double peakmin_=1., int rebin_=10, int smooth_=5, TString opt_="goff");
   
   bool ProcessIdentification();
   bool GetLines(int npoints_=1, double alpha_=1.);
-  bool TestPoint(double x_, double y_, KVSpiderLine* ll_);
   
   TList* CreateHistograms(double thmin_, double thmax_, int nth_, bool cos_=true, double alpha_=-1.);
   TH2F* CreateHistogram(double th_, double alpha_=-1.);
@@ -85,6 +92,8 @@ class KVSpiderIdentificator : public TNamed
   void SetY0(double y0_){_y0=y0_;};
   void SetXm(double xm_){_xm=xm_;};
   void SetYm(double ym_){_ym=ym_;};
+  void SetAlpha(double aa_){_alpha=aa_;};
+  void UseFit(bool fit){_useFit=fit;};
 
   double GetX0(){return _x0;};
   double GetY0(){return _y0;};
@@ -92,6 +101,14 @@ class KVSpiderIdentificator : public TNamed
   double GetYm(){return _ym;};
   double GetTheta0(){return _ftheta;};
   void CalculateTheta();
+  void SetNangles(Int_t up, Int_t down){_nAngleUp=up;_nAngleDown=down;};
+  
+  void Increment(Float_t x)  // *SIGNAL*
+    {
+    // Used by SpiderIdentification and KVSpIdGUI to send
+    // signals to TGHProgressBar about the progress of the identification
+    Emit("Increment(Float_t)", x);
+    };
 
   protected :
   

@@ -11,6 +11,8 @@ $Date: 2009/03/03 14:27:15 $
 #include "KVTGID.h"
 #include "KVIDGridManager.h"
 
+using namespace std;
+
 ClassImp(KVTGIDGrid)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +53,9 @@ KVTGIDGrid::KVTGIDGrid(KVTGID *tgid,KVIDZAGrid*original)
 	}
 	SetName( name.Data() );
    if(original) original->GetCuts()->Copy((TObject &)*fCuts);  
+   
+    fPar->SetValue("HasTGID",1);
+	FindAxisLimits();
 }
 
 KVTGIDGrid::~KVTGIDGrid()
@@ -60,11 +65,27 @@ KVTGIDGrid::~KVTGIDGrid()
 
 //_______________________________________________________________________________________________//
 
-// void KVTGIDGrid::WriteToAsciiFile(ofstream & gridfile)
-// {
-// 	// Write parameters of LTG fit used to generate grid in file.
-//     fTGID->WriteToAsciiFile(gridfile);
-// }
+void KVTGIDGrid::WriteToAsciiFile(ofstream & gridfile)
+{
+	// Write parameters of LTG fit used to generate grid in gridfile.
+    KVIDGraph::WriteToAsciiFile(gridfile);
+    if(fTGID) fTGID->WriteToAsciiFile(gridfile);
+}
+
+//_______________________________________________________________________________________________//
+
+void KVTGIDGrid::ReadFromAsciiFile(ifstream & gridfile)
+{
+	// Read grid and parameters of LTG fit used to generate grid in gridfile.
+    KVIDGraph::ReadFromAsciiFile(gridfile);
+    KVString line;
+    if(fPar->GetIntValue("HasTGID"))
+      {
+      line.ReadLine(gridfile);  
+      if(line.BeginsWith("++KVTGID"))  fTGID = KVTGID::ReadFromAsciiFile(GetName(), gridfile);
+      }
+	FindAxisLimits();
+}
 
 //___________________________________________________________________________//
 
@@ -88,6 +109,12 @@ void KVTGIDGrid::Generate(Double_t xmax, Double_t xmin, Int_t ID_min, Int_t ID_m
     //
     // if logscale=kTRUE (default is kFALSE) lines are generated with more points at
     // the beginning of the lines than at the end.
+    
+    if(!GetTGID()) 
+      {
+      Error("Generate","No parameter stored to initialize a functional !");
+      return;
+      }
 
     ID_min = (ID_min ? ID_min : (Int_t) fTGID->GetIDmin());
     ID_max = (ID_max ? ID_max : (Int_t) fTGID->GetIDmax());
@@ -105,8 +132,17 @@ void KVTGIDGrid::Generate(Double_t xmax, Double_t xmin, Int_t ID_min, Int_t ID_m
         fTGID->AddLineToGrid(this, ID, npoints, xmin, xmax, logscale);
     }
 	if(was_drawn) {last_pad->cd(); Draw();}
+	FindAxisLimits();
 }
 
+//___________________________________________________________________________//
+const KVTGID* KVTGIDGrid::GetTGID() const
+{ 
+	// a completer mais j'ai la fleme...  
+  return fTGID;
+}
+
+//___________________________________________________________________________//
 void KVTGIDGrid::AddIdentifier(KVIDentifier *id)
 {
    id->SetLineColor(kGray+2);

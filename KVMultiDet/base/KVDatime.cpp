@@ -53,16 +53,26 @@ KVDatime::KVDatime(const Char_t * DateString, EKVDateFormat f)
    //Decodes GANIL acquisition (INDRA) run-sheet format date into a TDatime
    //Format of date string is:
    //      29-SEP-2005 09:42:17.00
-	//
+   //
    //if f = KVDatime::kSQL:
    //Decodes SQL format date into a TDatime (i.e. same format as returned
    //by TDatime::AsSQLString(): "2007-05-02 14:52:18")
    //
-	//if f = KVDatime::kSRB:
+   //if f = KVDatime::kSRB:
    //Decodes SRB format date into a TDatime
    //Format of date string is: 
-	//         2008-12-19-15.21
-   
+   //         2008-12-19-15.21
+    //
+    //if f = KVDatime::kIRODS:
+    //Decodes IRODS format date into a TDatime
+    //Format of date string is:
+    //         2008-12-19.15:21
+    //
+    //if f = KVDatime::kDMY:
+    //Decodes DMY format date into a TDatime
+    //Format of date string is:
+    //         19/12/2008
+
    init();
    switch(f){
       case kGANACQ:
@@ -74,6 +84,12 @@ KVDatime::KVDatime(const Char_t * DateString, EKVDateFormat f)
       case kSRB:
          SetSRBDate(DateString);
          break;
+   case kIRODS:
+      SetIRODSDate(DateString);
+      break;
+   case kDMY:
+      SetDMYDate(DateString);
+      break;
       default:
             Error(KV__ERROR(KVDatime), "Unknown date format");
    }
@@ -110,6 +126,27 @@ void KVDatime::SetSRBDate(const Char_t * DateString)
          &Y,&M,&D,&h,&m);
 	s=0;
    Set(Y,M,D,h,m,s);
+}
+
+void KVDatime::SetIRODSDate(const Char_t * DateString)
+{
+   //Decodes IRODS format date into a TDatime
+   //Format of date string is: 
+   //         2008-12-19.15:21
+	
+   Int_t Y,M,D,h,m,s;
+   sscanf(DateString, "%4d-%02d-%02d.%02d:%02d",
+         &Y,&M,&D,&h,&m);
+	s=0;
+    Set(Y,M,D,h,m,s);
+}
+
+void KVDatime::SetDMYDate(const Char_t *DMYString)
+{
+    // Set date from string in format "DD/MM/YYYY"
+    Int_t Y,M,D;
+    sscanf(DMYString, "%2d/%2d/%4d",&D,&M,&Y);
+    Set(Y,M,D,0,0,0);
 }
 
 void KVDatime::SetGanacq2010Date(const Char_t * GanacqDateString)
@@ -183,34 +220,34 @@ const Char_t *KVDatime::AsGanacqDateString() const
                Data(), GetYear(), GetHour(), GetMinute(), GetSecond());
 }
 
-/*
-const Char_t *KVDatime::AsGanacq2010DateString() const
+const Char_t *KVDatime::AsDMYDateString() const
 {
-	//Return date and time string with format "29Sep05 09h42m17s"
-   //Copy the string immediately if you want to reuse/keep it
-   return Form("%d%s%2d_%02dh%02dm%02ds",
-	            GetDay(),
-               ((TObjString *) fmonths->At(GetMonth() - 1))->String().
-               Data(), GetYear(), GetHour(), GetMinute(), GetSecond());
+    return Form("%02d/%02d/%4d",
+                GetDay(),
+                GetMonth(), GetYear());
 }
-*/
+
 const Char_t* KVDatime::String(EKVDateFormat fmt)
 {
 	// Returns date & time as a string in required format:
 	//  fmt = kCTIME (default)  :  ctime format e.g. Thu Apr 10 10:48:34 2008
 	//  fmt = kSQL              :  SQL format e.g. 1997-01-15 20:16:28
-	//  fmt = kGANACQ           :  GANIL acquisition format e.g. 29-SEP-2005 09:42:17.00
-	switch(fmt){
+    //  fmt = kGANACQ           :  GANIL acquisition format e.g. 29-SEP-2005 09:42:17.00
+    //  fmt = kDMY           :  DD/MM/YYYY
+    switch(fmt){
 		case kCTIME:
 			fStr = AsString();
 			break;
 		case kSQL:
 			fStr = AsSQLString();
 			break;
-		case kGANACQ:
-			fStr = AsGanacqDateString();
-			break;
-		default:
+    case kGANACQ:
+        fStr = AsGanacqDateString();
+        break;
+    case kDMY:
+        fStr = AsDMYDateString();
+        break;
+        default:
 			fStr = "";
 	}
 	return fStr.Data();
@@ -267,4 +304,20 @@ Bool_t KVDatime::IsSRBFormat(const Char_t* date)
    if(sscanf(date, "%4d-%02d-%02d-%02d.%02d",
          &Y,&M,&D,&h,&m)!=5) return kFALSE;
 	return kTRUE;
+}
+
+Bool_t KVDatime::IsIRODSFormat(const Char_t* date)
+{
+	// Static method, returns kTRUE if 'date' is in IRODS format
+	// e.g. 2008-12-19.15:21
+	
+   Int_t Y,M,D,h,m;
+   if(sscanf(date, "%4d-%02d-%02d.%02d:%02d",
+         &Y,&M,&D,&h,&m)!=5) return kFALSE;
+   return kTRUE;
+}
+
+const Char_t *KVDatime::Month(Int_t m)
+{
+    return ((TObjString *) fmonths->At(m - 1))->String().Data();
 }

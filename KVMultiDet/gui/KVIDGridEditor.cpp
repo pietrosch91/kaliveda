@@ -8,6 +8,8 @@
 #include <sstream>
 
 #include <KeySymbols.h>
+#include <KVSpIdGUI.h>
+#include <KVZAFinderDialog.h>
 
 using namespace std;
 
@@ -18,9 +20,9 @@ ClassImp(KVIDGridEditor)
 /* -->
 <h2>KVIDGridEditor</h2>
 <h4>Editeur de grille d'identification</h4>
-
+<img alt="KVIDGridEditor" src="images/IDGridEditor.png"><br><br>
 Doc :  <a href="images/DocGridEditor.pdf"> DocGridEditor.pdf </a> (FR)
-Présentation de l'éditeur : <a href="images/JourneeAnalyse0312_1.pdf"> JourneeAnalyse0312_1.pdf </a> (FR)
+Presentation de l'editeur : <a href="images/JourneeAnalyse0312_1.pdf"> JourneeAnalyse0312_1.pdf </a> (FR)
 
 <!-- */
 // --> END_HTML
@@ -37,6 +39,22 @@ KVIDGridEditor::KVIDGridEditor()
   SetName("gIDGridEditor");
   SetDefault();
   
+  fListOfMethods = "";
+  fDefaultMethod = "";
+  
+  AddMethod("SaveCurrentGrid");
+  AddMethod("ChangeMasses");
+  AddMethod("SelectLinesByZ");
+  AddMethod("MakeScaleX");
+  AddMethod("MakeScaleY");
+  AddMethod("SetSelectedColor");
+  AddMethod("SetVarXVarY");
+  AddMethod("SetRunList");
+  AddMethod("AddParameter");
+  AddMethod("SetXScaleFactor");
+  AddMethod("SetYScaleFactor");
+  AddMethod("SetSVGMode");
+    
   ft  = new TF1("tranlation","(x+[0])",0,50000);
   fs  = new TF1("scale","(x-[0])*[1]+[0]",0,50000);
   fsy = new TF1("scale_y","(x-[0])*[1]+[0]",0,50000);
@@ -71,7 +89,9 @@ void KVIDGridEditor::StartViewer()
     fCanvas = new KVIDGridEditorCanvas(Form("%sCanvas",GetName()),Form("%sCanvas",GetName()),800,600);
     fCanvas->AddExec("transform","gIDGridEditor->MakeTransformation()");
     fCanvas->AddExec("recommence","gIDGridEditor->SelectLabel()");
-
+    // connect canvas' Closed() signal to method CanvasWasClosed().
+    // this way we always know if the canvas is closed by user closing the window
+    fCanvas->Connect("Closed()", "KVIDGridEditor", this, "CanvasWasClosed()");
     fPad = fCanvas->cd();
   
     if(!ready) init();
@@ -83,19 +103,28 @@ void KVIDGridEditor::StartViewer()
   return;
 }
 
+void KVIDGridEditor::CanvasWasClosed()
+{
+   // Slot connected to the 'Closed()' signal of the canvas.
+   // If the user closes the canvas window this method gets called.
+   fCanvas=0;
+   fPad=0;
+}
+
 //________________________________________________________________
 void KVIDGridEditor::SetDefault()
 {
   TheHisto = 0;
   TheGrid  = 0;
   fPivot  = 0;
+  fPiedestal  = 0;
   fPad  = 0;
   x0 = y0 = 0.;
   fCanvas = 0;
-  
+  fKeyShow = 0; 
+   
   fSpiderFactor = -1.;
   fSpiderZp = -1;
-   
   
   itrans = iact = iopt = 0;
   imod = 20;
@@ -110,15 +139,16 @@ void KVIDGridEditor::SetDefault()
   fDebug     = false;
   ready      = false;
 
+  fSVGMode   = false;
+  fSVGIndex  = 0;
+  
   SelectedColor = kOrange+1;
 }
 
 //________________________________________________________________
 Bool_t KVIDGridEditor::IsClosed()
 {
-//  if(gROOT->FindObject(Form("%sCanvas",GetName()))) return false;
-  if(fPad) return false;
-  else return true;
+   return (!fCanvas);
 }
 
 //________________________________________________________________
@@ -126,9 +156,11 @@ void KVIDGridEditor::Close()
 {
   if(!IsClosed())
     {
+    fCanvas->Disconnect("Closed()", this, "CanvasWasClosed()");
     fCanvas->Close();
     delete fCanvas;
     fCanvas = 0;
+    fPad=0;
     }
   return;
 }
@@ -198,6 +230,14 @@ void KVIDGridEditor::UpdateViewer()
     {
     fPad->Modified();
     fPad->Update();
+    if(fSVGMode)
+      {
+      TString dir("$SVGDOC");
+      if(gSystem->ExpandPathName(dir)) dir = ".";
+      fCanvas->SaveAs(Form("%s/gIDGridEditorPrint-%d.png",dir.Data(),fSVGIndex));
+//      gROOT->ProcessLine(Form(".! import -window root %s/gIDGridEditorPrint-%d.png",dir.Data(),fSVGIndex));
+      if(!gSystem->AccessPathName(Form("%s/gIDGridEditorPrint-%d.png",dir.Data(),fSVGIndex))) fSVGIndex++;
+      }
     }
 }
 
@@ -275,13 +315,13 @@ void KVIDGridEditor::init()
   AddTransformation("S_{C}");
   
   AddAction("#odot");
-  AddAction("0");
+//  AddAction("0");
   AddAction("#Leftarrow");
   AddAction("Lz");
   AddAction("Ly");
-//  AddAction("Lx");
+  AddAction("Lx");
   
-  AddGridOption("All",lplabel3);
+//  AddGridOption("All",lplabel3);
   AddGridOption("Select",lplabel3);
   
   AddGridOption("Edit",lplabel4);
@@ -290,6 +330,7 @@ void KVIDGridEditor::init()
   AddGridOption("Cut",lplabel4);
   AddGridOption("Fit",lplabel4);
   AddGridOption("Test",lplabel4);
+  AddGridOption("Mass",lplabel4);
   AddGridOption("Spider",lplabel4);
   AddGridOption("More",lplabel4);
     
@@ -300,6 +341,7 @@ void KVIDGridEditor::init()
   fCanvas->Clear();
       
   SetPivot(0.,0.);
+  SetPiedestal(0.,0.);
   Clear("ALL");
   ready = true;
   
@@ -557,6 +599,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   
   if(!IsClosed()&&(TheHisto))
     {
+       fPad = fCanvas->cd();//au cas ou il y a plusieurs canvas ouverts
     TheHisto->Draw("col");
     fPad->SetLogz(true);
     TheHisto->SetMinimum(1);
@@ -575,8 +618,13 @@ void KVIDGridEditor::DrawAtt(Bool_t piv)
   lplabel3->Execute("Draw","");
   lplabel4->Execute("Draw","");
   lplabel5->Execute("Draw","");
+  
   if(!piv) SetPivot(0.,0.);
   else fPivot->Draw("P");
+  
+  if(!piv) SetPiedestal(0.,0.);
+  else fPivot->Draw("P");
+  
   
   UpdateViewer();
   return;
@@ -587,7 +635,7 @@ void KVIDGridEditor::SetGrid(KVIDGraph* gg, Bool_t histo)
 {
   if(!gg)
     {
-    cout << "ERROR: KVIDGridEditor::SetHisto(): invalid poInt_ter on the grid !" << endl;
+    cout << "ERROR: KVIDGridEditor::SetHisto(): invalid pointer on the grid !" << endl;
     return;
     }
   if((TheGrid)&&(!IsClosed())) TheGrid->UnDraw();
@@ -656,6 +704,21 @@ void KVIDGridEditor::SetPivot(Double_t xx0, Double_t yy0)
 }
 
 //________________________________________________________________
+void KVIDGridEditor::SetPiedestal(Double_t ppdx, Double_t ppdy)
+{
+// piedestal used during SpiderIdentification
+  if(!fPivot) 
+    {
+//    fPiedestal = new TGraph;
+    fPivot->SetMarkerStyle(2);
+    fPivot->SetMarkerSize(2);
+    fPivot->SetMarkerColor(kBlack);
+    fPivot->SetName("ThePiedestal");
+    }
+  else fPivot->SetPoint(1,ppdx,ppdy);
+}
+
+//________________________________________________________________
 void KVIDGridEditor::SelectLabel()
 {
   Int_t event = fPad->GetEvent();
@@ -663,7 +726,28 @@ void KVIDGridEditor::SelectLabel()
   TObject *select = fPad->GetSelected();
     
   if(!select) return;  
-  if(!select->InheritsFrom("TPaveLabel")) return;  
+  if(!select->InheritsFrom("TPaveLabel")) return;
+  
+  if(fSVGMode&&((event==kButton1Down)||(event==kButton1Double)||(event==kButton1Shift)))
+    {
+    TString tmpStr;
+    if(event==kButton1Down)        tmpStr = "click";
+    else if(event==kButton1Double) tmpStr = "double click";
+    else if(event==kButton1Shift)  tmpStr = "shift click";
+    
+    Int_t px = fPad->AbsPixeltoX(fPad->GetEventX());
+    Int_t py = fPad->AbsPixeltoY(fPad->GetEventY());
+    
+    TLatex* mouse = new TLatex(px,py,tmpStr.Data());
+    
+    if(mouse->GetX()>=0.5) mouse->SetTextAlign(32);
+    else       mouse->SetTextAlign(12);
+    
+    mouse->Draw();
+    UpdateViewer();
+    delete mouse;
+    mouse = 0;
+    }
   
   TPaveLabel* label = (TPaveLabel*)select;  
   if(event==kButton1Down)
@@ -691,7 +775,8 @@ void KVIDGridEditor::SelectLabel()
       lplabel3->Execute("SetFillColor","kWhite");
       if(color==kWhite) label->SetFillColor(kGreen);
       if(color==kGreen)  label->SetFillColor(kWhite);
-      SelectLines(label);
+//      SelectLines(label);
+      SelectLines("Select");
       UpdateViewer();
       }
     else if(lplabel5->Contains(label)&&(label!=modulator))
@@ -731,6 +816,15 @@ void KVIDGridEditor::SelectLabel()
       ChangeStep(label->GetTitle(),100);
       UpdateViewer();
       }
+    else if(lplabel3->Contains(label))
+      {
+      lplabel3->Execute("SetFillColor","kGreen");
+//      if(color==kWhite) label->SetFillColor(kGreen);
+//      if(color==kGreen)  label->SetFillColor(kWhite);
+//      SelectLines(label);
+      SelectLines("All");
+      UpdateViewer();
+      }
     }
 }
 
@@ -739,6 +833,30 @@ void KVIDGridEditor::MakeTransformation()
 {
   Int_t event = fPad->GetEvent();
   TObject *select = fPad->GetSelected();
+  
+  if(fSVGMode&&((event==kButton1Down)||(event==kButton1Double)||(event==kButton1Shift)||(event==kWheelUp)||(event==kWheelDown)))
+    {
+    TString tmpStr;
+    if(event==kButton1Down)        tmpStr = "click";
+    else if(event==kButton1Double) tmpStr = "double click";
+    else if(event==kButton1Shift)  tmpStr = "shift click";
+    else if(event==kWheelUp)       tmpStr = "wheel up";
+    else if(event==kWheelDown)     tmpStr = "wheel down";
+    
+    Int_t px = fPad->AbsPixeltoX(fPad->GetEventX());
+    Int_t py = fPad->AbsPixeltoY(fPad->GetEventY());
+    
+    TLatex* mouse = new TLatex(px,py,tmpStr.Data());
+    
+    if(mouse->GetX()>=0.5) mouse->SetTextAlign(32);
+    else       mouse->SetTextAlign(12);
+    
+    mouse->Draw();
+    UpdateViewer();
+    delete mouse;
+    mouse = 0;
+    UpdateViewer();
+    }
   
   if(((event==kMouseMotion)||(event==kButton1Motion))&&(TheHisto))
     {
@@ -804,7 +922,7 @@ void KVIDGridEditor::MakeTransformation()
   
   if((event==kButton1Up)&&(dlmode)&&(select))
     {
-    if(select->InheritsFrom("KVIDZALine"))
+    if(select->InheritsFrom("KVIDentifier"))
       {
       DeleteLine((KVIDentifier*)select);
       }
@@ -837,18 +955,19 @@ void KVIDGridEditor::MakeTransformation()
         {
         ListOfLines->Remove(line);
 	ResetColor(line);
-	TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->FindObject("All");
-	tmplabel->SetFillColor(kWhite);
-	tmplabel = (TPaveLabel*)lplabel3->FindObject("Select");
-	tmplabel->SetFillColor(kGreen);
-	SelectLines(tmplabel);
+//	TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->FindObject("All");
+//	tmplabel->SetFillColor(kWhite);
+//	TPaveLabel* tmplabel = (TPaveLabel*)lplabel3->At(0);
+//	tmplabel->SetFillColor(kGreen);
+//	SelectLines(tmplabel);
+	SelectLines("Select");
 	UpdateViewer();
 	}
       }
     }
   if((event==kButton1Shift)&&(select)&&(!dlmode))
     {
-    if(!select->InheritsFrom("KVIDZALine")||ListOfLines->IsEmpty()) return;
+    if(!select->InheritsFrom("KVIDZALine")||ListOfLines->IsEmpty());
     else
       {
       KVIDZALine* line = (KVIDZALine*)select;
@@ -887,6 +1006,21 @@ void KVIDGridEditor::MakeTransformation()
 //       label->SetFillColor(kGreen);
 //       SelectLines(label);
 //       }
+    UpdateViewer();
+    }
+  if((event==kButton1Shift)&&(!drawmode))
+    {
+    if(!select->InheritsFrom("KVIDentifier"))
+      {
+      Int_t xx = fPad->GetEventX();
+      Int_t yy = fPad->GetEventY();
+
+      x0 = fPad->AbsPixeltoX(xx);
+      y0 = fPad->AbsPixeltoY(yy);
+    
+      SetPiedestal(x0,y0);
+      fPivot->Draw("P");
+      }
     UpdateViewer();
     }
   if((event==kWheelUp)||(event==kWheelDown))
@@ -969,16 +1103,19 @@ void KVIDGridEditor::DispatchOrder(TPaveLabel* label)
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
+  else if(commande.Contains("Mass"))
+    {
+    label->SetFillColor(kRed);
+    UpdateViewer();
+    FindZALines();
+    label->SetFillColor(kWhite);
+    UpdateViewer();
+    }
   else if(commande.Contains("Spider"))
     {
     label->SetFillColor(kRed);
     UpdateViewer();
-    
-    TMethod* m = IsA()->GetMethodAllAny("SpiderIdentification");
-    TContextMenu * cm = new TContextMenu("SpiderIdentification", Form("Context menu for KVIDGridEditor::%s","SpiderIdentification"));
-    cm->Action(this,m);
-    delete cm;
-    
+    SpiderIdentification();
     label->SetFillColor(kWhite);
     UpdateViewer();
     }
@@ -1026,25 +1163,27 @@ void KVIDGridEditor::SetEditable(TPaveLabel* label)
 }
 
 //________________________________________________________________
-void KVIDGridEditor::SelectLines(TPaveLabel* label)
+//void KVIDGridEditor::SelectLines(TPaveLabel* label)
+void KVIDGridEditor::SelectLines(char* label)
 {  
   if(!TheGrid) return;
-  TString title(label->GetTitle());
-  Int_t color = label->GetFillColor();
+//  TString title(label->GetTitle());
+  TString title(label);
+  Int_t color = ((TPaveLabel*)lplabel3->At(0))->GetFillColor();
   
   if(title.Contains("All"))
     {
-    if(color==kWhite) 
-      {
-      ResetColor(ListOfLines);
-      ListOfLines->Clear();
-      }
-    else if(color==kGreen) 
-      {
+//     if(color==kWhite) 
+//       {
+//       ResetColor(ListOfLines);
+//       ListOfLines->Clear();
+//       }
+//     else if(color==kGreen) 
+//       {
       ListOfLines->AddAll(TheGrid->GetIdentifiers());
       ListOfLines->AddAll(TheGrid->GetCuts());
       ListOfLines->R__FOR_EACH(KVIDentifier, SetLineColor) (SelectedColor);
-      }
+//      }
     selectmode = false;
     }
   if(title.Contains("Select"))
@@ -1163,117 +1302,168 @@ void KVIDGridEditor::NewCut()
 }
 
 //________________________________________________________________
-void KVIDGridEditor::SpiderIdentification(int Zp, Double_t Factor)
+Double_t KVIDGridEditor::GetX0()
+{
+  return fPivot->GetX()[0];
+}
+
+//________________________________________________________________
+Double_t KVIDGridEditor::GetY0()
+{
+  return fPivot->GetY()[0];
+
+}
+
+//________________________________________________________________
+Double_t KVIDGridEditor::GetPdx()
+{
+  return fPivot->GetX()[1];
+
+}
+
+//________________________________________________________________
+Double_t KVIDGridEditor::GetPdy()
+{
+  return fPivot->GetY()[1];
+
+}
+
+//________________________________________________________________
+void KVIDGridEditor::SpiderIdentification()
 {
   if(!TheGrid) return;
   if(!TheHisto) return;
   
-  fSpiderFactor = Factor;
-  fSpiderZp = Zp;
+  x0 = GetX0();
+  y0 = GetY0();
   
-  if(TheGrid->GetIdentifiers()->GetSize()!=0)
-    {
-    
-    Int_t ret_val;
-    new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
-                  "This will delete all existing lines. Are you sure ?",
-                  kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-		
-    if (ret_val & kMBOk) 
-      {
-      TheGrid->Clear();
-      }
-    else return;
-    }
-         
-  double ScaleFactorX = 4096./(TheHisto->GetXaxis()->GetXmax());
-  double ScaleFactorY = 4096./(TheHisto->GetYaxis()->GetXmax());
+  Double_t pdx = GetPdx();
+  Double_t pdy = GetPdy();
   
-  Double_t factor = fSpiderFactor;
-  if(fSpiderZp>0) 
-    {
-    factor = TMath::Sqrt(x0*x0*(ScaleFactorX*ScaleFactorX)+y0*y0*(ScaleFactorY*ScaleFactorY))/(20.*fSpiderZp*12.);
-    fSpiderFactor = factor;
-    }
+//  TheGrid->UnDraw();
+//  TheGrid->Clear();
   
-  if(fDebug) cout << "DEBUG: KVIDGridEditor::SpiderIdentification(): " << fSpiderZp << " " << fSpiderFactor << endl;
-  fSpiderZp = -1;
+  new KVSpIdGUI(TheGrid,TheHisto,x0,y0,pdx,pdy);
   
-  SetPivot(0.,0.);
-  Unzoom();
-  UpdateViewer();
+//   fSpiderFactor = Factor;
+//   fSpiderZp = Zp;
+//   
+//   if(TheGrid->GetIdentifiers()->GetSize()!=0)
+//     {
+//     
+//     Int_t ret_val;
+//     new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
+//                   "This will delete all existing lines. Are you sure ?",
+//                   kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+// 		
+//     if (ret_val & kMBOk) 
+//       {
+//       TheGrid->Clear();
+//       }
+//     else return;
+//     }
+//          
+//   double ScaleFactorX = TheHisto->GetNbinsX()*1./(TheHisto->GetXaxis()->GetXmax());
+//   double ScaleFactorY = TheHisto->GetNbinsY()*1/(TheHisto->GetYaxis()->GetXmax());
+//   
+//   Double_t factor = fSpiderFactor;
+//   if(fSpiderZp>0) 
+//     {
+//     factor = TMath::Sqrt(x0*x0*(ScaleFactorX*ScaleFactorX)+y0*y0*(ScaleFactorY*ScaleFactorY))/(20.*fSpiderZp*12.);
+//     fSpiderFactor = factor;
+//     }
+//   
+//   if(fDebug) cout << "DEBUG: KVIDGridEditor::SpiderIdentification(): " << fSpiderZp << " " << fSpiderFactor << endl;
+//   fSpiderZp = -1;
+//   
+// //  SetPivot(0.,0.);
+//   Unzoom();
+//   UpdateViewer();
+//   
+//   KVHistoManipulator hm;
+//   TF1 RtLt("RtLt",Form("x*%lf",ScaleFactorX),0,TheHisto->GetXaxis()->GetXmax());
+//   TF1 RtLty("RtLty",Form("x*%lf",ScaleFactorY),0,TheHisto->GetXaxis()->GetXmax());
+//   TH2F* hh = (TH2F*)hm.ScaleHisto(TheHisto,&RtLt,&RtLty);
+//       
+//   KVSpiderIdentificator* tata = 0;
+//   tata = new KVSpiderIdentificator(hh, x0*ScaleFactorX, y0*ScaleFactorY);
+//   
+//   if((tata->GetX0()>100)||(tata->GetY0()>100))
+//     {
+//     tata->SetX0(0.);
+//     tata->SetY0(0.);
+//     }
+//   
+//   if(pdx>=0.) tata->SetX0(pdx*ScaleFactorX);
+//   if(pdy>=0.) tata->SetY0(pdy*ScaleFactorY);
+//   
+//   tata->SetParameters(factor);        
+// //  tata->UseFit(useFit);        
+//   tata->ProcessIdentification();
+//   
+//   if(debug) tata->Draw("DRLF");
+//   
+//   TList* ll = (TList*)tata->GetListOfLines();   
+//    
+//   KVIDZALine* TheLine = 0;
+//   int zmax = 0;
+// 
+//   KVSpiderLine* spline = 0;
+//   TIter next_line(ll);
+//   while((spline = (KVSpiderLine*)next_line()))
+//     {
+//     if((spline->GetN()>10))//&&(spline->GetX(0)<=tata->GetX0()+200.))
+//       {
+//       TF1* ff1 = 0;
+//       if(type==kSiCsI) ff1 =
+//       spline->GetFunction(tata->GetX0()*0.01,TMath::Max(hh->GetXaxis()->GetXmax()*0.95,spline->GetX(spline->GetN()-1)));
+//       if(type==kSiSi)  ff1 = spline->GetFunction(tata->GetX0()*0.01,TMath::Min(hh->GetXaxis()->GetXmax()*0.99,spline->GetX(spline->GetN()-1)*1.5));
+//       else ff1 = spline->GetFunction();
+//       if((type==kSiCsI)&&(ff1->GetParameter(1)>=3000.||(ff1->GetParameter(2)<=0.35)||(ff1->GetParameter(2)>=1.))) 
+//         {
+//         Info("SpiderIdentification","Z = %d has been rejected (fit parameters)",spline->GetZ()); 
+//         continue;
+//         }
+//       TheLine = (KVIDZALine*)((KVIDZAGrid*)TheGrid)->NewLine("ID");
+//       TheLine->SetZ(spline->GetZ());
+//       double min,max;
+//       ff1->GetRange(min,max);
+//       double step = 20.;
+//       double stepmax = 800.;
+//       double x = 0.;
+//       for(x=min+1; x<max+0.0001*step; x+=step)
+// 	{
+//         if(step<=stepmax) step*=1.3;
+// 	if(ff1->Eval(x)<4000) TheLine->SetPoint(TheLine->GetN(),x,ff1->Eval(x));
+// 	}
+//       if(max>x)TheLine->SetPoint(TheLine->GetN(),max,ff1->Eval(max));
+//         
+//       TheGrid->Add("ID",TheLine);
+//       if(spline->GetZ()>=zmax) zmax = spline->GetZ(); 
+//       }
+//     else
+//       {
+//       Info("SpiderIdentification","Z = %d has been rejected (too few points)",spline->GetZ());
+//       }
+//     }	 
+//      
+//   if(fDebug)Info("SpiderIdentification","last line generated : Z = %d.",zmax);
+//       
+//   TF1 fx("fx12",Form("x/%lf",ScaleFactorX),0.,hh->GetNbinsX()*1.);
+//   TF1 fy("fy12",Form("x/%lf",ScaleFactorY),0.,hh->GetNbinsY()*1.);
+//   TheGrid->Scale(&fx,&fy);
+//   
+// //  SetPivot(tata->GetX0(),tata->GetY0());
+//   
+//   if(!debug) delete tata;
+//   if(!debug) delete hh;
   
-  KVHistoManipulator hm;
-  TF1 RtLt("RtLt",Form("x*%lf",ScaleFactorX),0,TheHisto->GetXaxis()->GetXmax());
-  TF1 RtLty("RtLty",Form("x*%lf",ScaleFactorY),0,TheHisto->GetXaxis()->GetXmax());
-  TH2F* hh = (TH2F*)hm.ScaleHisto(TheHisto,&RtLt,&RtLty);
-      
-  KVSpiderIdentificator* tata = new KVSpiderIdentificator(hh);
+//  fPad->cd();
+//  TheGrid->UnDraw();
+//  TheGrid->Draw();
   
-  if((tata->GetX0()>100)||(tata->GetY0()>100))
-    {
-    tata->SetX0(0.);
-    tata->SetY0(0.);
-    Warning("SpiderIdentification","piedestal has been set to (0,0).");
-    }
-        
-  tata->SetParameters(factor);        
-  tata->ProcessIdentification();
-  
-  TList* ll = (TList*)tata->GetListOfLines();   
-   
-  KVIDZALine* TheLine = 0;
-  int zmax = 0;
-
-  KVSpiderLine* spline = 0;
-  TIter next_line(ll);
-  while((spline = (KVSpiderLine*)next_line()))
-    {
-    if((spline->GetN()>20)&&(spline->GetX(0)<=tata->GetX0()+200.))
-      {
-      TF1* ff1 = 0;
-      ff1 = spline->GetFunction(tata->GetX0(),tata->GetXm()*1.5);
-      if(ff1->GetParameter(1)>=3000.||(ff1->GetParameter(2)<=0.35)||(ff1->GetParameter(2)>=1.)) 
-        {
-        Info("SpiderIdentification","Z = %d has been rejected (fit parameters)",spline->GetZ()); 
-        continue;
-        }
-      TheLine = (KVIDZALine*)((KVIDZAGrid*)TheGrid)->NewLine("ID");
-      TheLine->SetZ(spline->GetZ());
-      double min,max;
-      ff1->GetRange(min,max);
-      double step = 20.;
-      double stepmax = 800.;
-      double x = 0.;
-      for(x=min+1; x<max+0.0001*step; x+=step)
-	{
-        if(step<=stepmax) step*=1.3;
-	if(ff1->Eval(x)<4000) TheLine->SetPoint(TheLine->GetN(),x,ff1->Eval(x));
-	}
-      if(max>x)TheLine->SetPoint(TheLine->GetN(),max,ff1->Eval(max));
-        
-      TheGrid->Add("ID",TheLine);
-      if(spline->GetZ()>=zmax) zmax = spline->GetZ(); 
-      }
-    else
-      {
-      Info("SpiderIdentification","Z = %d has been rejected (too few points)",spline->GetZ());
-      }
-    }	 
-     
-  if(fDebug)Info("SpiderIdentification","last line generated : Z = %d.",zmax);
-      
-  TF1 fx("fx12",Form("x/%lf",ScaleFactorX),0.,4096.);
-  TF1 fy("fy12",Form("x/%lf",ScaleFactorY),0.,4096.);
-  TheGrid->Scale(&fx,&fy);
-  
-  delete tata;
-  delete hh;
-  
-  TheGrid->UnDraw();
-  TheGrid->Draw();
-  
-  UpdateViewer();
+//  UpdateViewer();
+//  cout << "toto " << endl;
   
   return;
 }
@@ -1308,15 +1498,10 @@ void KVIDGridEditor::FitGrid()
 //________________________________________________________________
 void KVIDGridEditor::SuggestMoreAction()
 {  
-  TString Default = "SaveCurrentGrid";
-  TString Choices = Default;
-  Choices += " SelectLinesByZ";
-  Choices += " SetSelectedColor";
-  Choices += " SetVarXVarY";
-  Choices += " SetRunList";
-  Choices += " AddParameter";
-  Choices += " SetXScaleFactor";
-  Choices += " SetYScaleFactor";
+  if(fListOfMethods.EndsWith(" ")) fListOfMethods.Remove(fListOfMethods.Sizeof()-2);
+
+  TString Default = fDefaultMethod.Data();
+  TString Choices = fListOfMethods.Data();
   
   TString Answer;
   Bool_t okpressed;
@@ -1324,8 +1509,7 @@ void KVIDGridEditor::SuggestMoreAction()
   if(!okpressed) return;
       
   TMethod* m = 0;
-  if(!strcmp(Answer.Data(),"SaveCurrentGrid")) SaveCurrentGrid();
-  else if(!TheGrid) return;
+  if(!TheGrid) return;
   else if((m = TheGrid->IsA()->GetMethodAllAny(Answer.Data())))
     {  
     TContextMenu * cm = new TContextMenu(Answer.Data(), Form("Context menu for KVIDGridEditor::%s",Answer.Data()));
@@ -1455,16 +1639,16 @@ void KVIDGridEditor::DeleteLine(KVIDentifier* line)
   if(!line) return;
   if(!TheGrid->GetIdentifiers()->Contains(line)) return;
   
-  Int_t ret_val;
-  new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
-                Form("This will delete the line '%s'. Are you sure ?",line->GetName()),
-                kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-		
-  if (ret_val & kMBOk) 
-    {
+//   Int_t ret_val;
+//   new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
+//                 Form("This will delete the line '%s'. Are you sure ?",line->GetName()),
+//                 kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+// 		
+//   if (ret_val & kMBOk) 
+//     {
     if(ListOfLines->Contains(line)) ListOfLines->Remove(line);
     TheGrid->RemoveIdentifier(line);
-    }
+//    }
   return;
 }
 
@@ -1474,16 +1658,16 @@ void KVIDGridEditor::DeleteCut(KVIDentifier* cut)
   if(!TheGrid) return;
   if(!TheGrid->GetCuts()->Contains(cut)) return;
   
-  Int_t ret_val;
-  new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
-                Form("This will delete the cut '%s'. Are you sure ?",cut->GetName()),
-                kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
-		
-  if (ret_val & kMBOk) 
-    {
+//   Int_t ret_val;
+//   new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "ID Grid Editor",
+//                 Form("This will delete the cut '%s'. Are you sure ?",cut->GetName()),
+//                 kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+// 		
+//   if (ret_val & kMBOk) 
+//     {
     if(ListOfLines->Contains(cut)) ListOfLines->Remove(cut);
     TheGrid->RemoveCut(cut);
-    }
+//    }
   return;
 }
 
@@ -1685,6 +1869,41 @@ void KVIDGridEditor::RotateZ(Int_t Sign)
   return;
 }
 
+
+//________________________________________________________________
+void KVIDGridEditor::MakeScaleX(Double_t scaleFactor)
+{
+    if(!TheGrid) return;
+    if(!ListOfLines) return;
+    if(ListOfLines->IsEmpty()) return;
+
+    x0 = fPivot->GetX()[0];
+
+    fs->SetParameters(x0,scaleFactor);
+    ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (fs,0);
+
+            UpdateViewer();
+    return;
+}
+
+
+//________________________________________________________________
+void KVIDGridEditor::MakeScaleY(Double_t scaleFactor)
+{
+  if(!TheGrid) return;
+  if(!ListOfLines) return;
+  if(ListOfLines->IsEmpty()) return;
+  
+  y0 = fPivot->GetY()[0];
+  
+  fs->SetParameters(y0,scaleFactor);
+  ListOfLines->R__FOR_EACH(KVIDentifier, Scale) (0,fs);
+    
+  UpdateViewer();
+  return;
+}
+
+
 //________________________________________________________________
 void KVIDGridEditor::ScaleX(Int_t Sign)
 {
@@ -1836,12 +2055,25 @@ Bool_t KVIDGridEditor::HandleKey(Event_t *event)
 {
    // Handle keys
       
-   char tmp[2];
+   char tmp[3];
    UInt_t keysym;
-
    gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
    TPaveLabel* label = 0;
    Int_t color;
+   
+   if(fSVGMode)
+     {
+     TString tmpStr(tmp);
+     if((keysym>=4144)&&(keysym<=4155)) tmpStr.Form("f%d",keysym-4143);
+     tmpStr.ToUpper();
+     fKeyShow = new TPaveText(0.8,0.8,0.9,0.9,"brNDC");
+     fKeyShow->SetBorderSize(0);
+     fKeyShow->SetFillColor(kGray+3);
+     fKeyShow->SetTextColor(0);
+     fKeyShow->AddText(tmpStr.Data());
+     fKeyShow->Draw();
+     UpdateViewer();
+     }
    
    if (event->fType == kGKeyPress) {
       switch ((EKeySym)keysym) {
@@ -1913,6 +2145,11 @@ Bool_t KVIDGridEditor::HandleKey(Event_t *event)
 	    UpdateViewer();
             break;
 	    
+         case kKey_u:
+	    UpdateViewer();
+	    cout << "Force Update !" << endl;
+            break;
+	    
          case kKey_e:
 	    label = (TPaveLabel*)lplabel4->FindObject("Edit");
 	    SetEditable(label);
@@ -1926,23 +2163,19 @@ Bool_t KVIDGridEditor::HandleKey(Event_t *event)
             break;
 	    
          case kKey_a:
-	    label = (TPaveLabel*)lplabel3->FindObject("All");
-	    color = label->GetFillColor();
-            lplabel3->Execute("SetFillColor","kWhite");
-            if(color==kWhite) label->SetFillColor(kGreen);
-            if(color==kGreen)  label->SetFillColor(kWhite);
-	    SelectLines(label);
-	    UpdateViewer();
+	    lplabel3->Execute("SetFillColor","kGreen");
+            SelectLines("All");
+            UpdateViewer();
             break;
 	    
          case kKey_z:
 	    label = (TPaveLabel*)lplabel3->FindObject("Select");
 	    color = label->GetFillColor();
-            lplabel3->Execute("SetFillColor","kWhite");
+	    lplabel3->Execute("SetFillColor","kWhite");
             if(color==kWhite) label->SetFillColor(kGreen);
             if(color==kGreen)  label->SetFillColor(kWhite);
-	    SelectLines(label);
-	    UpdateViewer();
+            SelectLines("Select");
+            UpdateViewer();
             break;
 	    
          case kKey_w:
@@ -1985,6 +2218,12 @@ Bool_t KVIDGridEditor::HandleKey(Event_t *event)
             return kTRUE;
       }
    }
+   if(fSVGMode&&fKeyShow)
+     {
+     delete fKeyShow;
+     fKeyShow = 0;
+     UpdateViewer();
+     }
    return kTRUE;
 }
 
@@ -2040,14 +2279,72 @@ void KVIDGridEditor::SelectTrans(TPaveLabel* label)
   return;
 }
 
+void KVIDGridEditor::FindZALines()
+{
+  if((!TheHisto)||(!TheGrid)) return;
+  
+  new KVZAFinderDialog(TheGrid,TheHisto);
+//   KVZALineFinder toto((KVIDZAGrid*)TheGrid, TheHisto);
+//   toto.SetAList(A);
+//   toto.SetNbinsByZ(binByZ);
+//   toto.ProcessIdentification(zmin,zmax);
+//   
+//   SetHisto(toto.GetHisto());
+//   SetGrid(toto.GetGrid(),kFALSE);
+//   UpdateViewer();
+}
 
+void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)
+{
+  Int_t found;
+  KVNumberList ZL(Zl);
+  ZL.Begin();
+  while(!ZL.End())
+    {
+    Int_t Z = ZL.Next();
+    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
+  
+    KVIDentifier* id = 0;
+    TIter next(ll);
+    while((id=(KVIDentifier*)next()))
+      {
+      Info("ChangeMasses","A=%d -> A=%d",id->GetA(),id->GetA()+dA);
+      id->SetA(id->GetA()+dA);
+      }
+    delete ll;
+    }
+}
 
+void KVIDGridEditor::ChangeCharges(const Char_t* Zl, Int_t dZ)
+{
+  Int_t found;
+  KVNumberList ZL(Zl);
+  ZL.Begin();
+  while(!ZL.End())
+    {
+    Int_t Z = ZL.Next();
+    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
+  
+    KVIDentifier* id = 0;
+    TIter next(ll);
+    while((id=(KVIDentifier*)next()))
+      {
+      Info("ChangeMasses","Z=%d -> Z=%d",id->GetZ(),id->GetZ()+dZ);
+      id->SetZ(id->GetZ()+dZ);
+      }
+    delete ll;
+    }
+}
 
-
-
-
-
-
+void KVIDGridEditor::AddMethod(const char* theMethod)
+{
+  if(fListOfMethods.IsNull()) fDefaultMethod += theMethod;
+  fListOfMethods += theMethod;
+  fListOfMethods += " ";
+  return;
+}
 
 
 

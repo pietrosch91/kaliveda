@@ -823,7 +823,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA
          		}
       		}
 
-      		printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
+                if((!strcmp(det_eres->GetType(),"CSI"))&&(E2>5000)) E2=5000;
+                printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
 				KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
       		if (TMath::Even(zz)) line->SetLineColor(4);
 				line->SetZ(zz);
@@ -1102,4 +1103,24 @@ Double_t KVIDTelescope::GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A, Double_
         return -1.;
 	}
 	return idline->Eval(x);
+}
+
+//_________________________________________________________________________________________
+
+Bool_t KVIDTelescope::CheckTheoreticalIdentificationThreshold(KVNucleus*ION, Double_t EINC)
+{
+   // Return kTRUE if energy of ION is > minimum incident energy required for identification
+   // This theoretical limit is defined here to be the incident energy for which the
+   // dE in the first detector of a dE-E telescope is maximum.
+   // If EINC>0 it is assumed to be the energy of the ion just before the first detector
+   // (case where ion would have to pass other detectors before reaching this telescope).
+   //
+   // If this is not a dE-E telescope, we return kTRUE by default.
+   
+   if(GetSize()<2) return kTRUE;
+   
+   KVDetector* dEdet = GetDetector(1);
+   Double_t emin = dEdet->GetEIncOfMaxDeltaE(ION->GetZ(),ION->GetA());
+   if(EINC>0.0) return (EINC>emin);
+   return (ION->GetEnergy()>emin);
 }

@@ -960,8 +960,13 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	Double_t theta_max = 179.;
 	if( th1<theta_min) theta_min = th1;
 	if(th2>theta_max) theta_max=th2;
+
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
+	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2,fIntPrec)*TMath::DegToRad()*dphi;
+#else
 	const Double_t *para = 0;
 	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2,para,fIntPrec)*TMath::DegToRad()*dphi;
+#endif
 }
 
 //__________________________________________________________________________________________________

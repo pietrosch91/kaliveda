@@ -31,6 +31,7 @@ void KVZtot::init_KVZtot(void)
 //
    nb++;
    nb_crea++;
+   fValueType='I';//integer values
 }
 
 //_________________________________________________________________

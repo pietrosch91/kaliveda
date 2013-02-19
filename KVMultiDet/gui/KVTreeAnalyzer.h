@@ -133,6 +133,7 @@
 #include "Riostream.h"
 #include "KVListView.h"
 #include "TTree.h"
+#include "TCutG.h"
 #include "TH1.h"
 #include "TEntryList.h"
 #include "KVUniqueNameList.h"
@@ -158,7 +159,23 @@ class KVTreeAnalyzer : public TNamed
    TList* fSelectedLeaves;//!
    TNamed* fXLeaf;//!
    TNamed* fYLeaf;//!
+   TNamed* fZLeaf;//!
    TGTextEntry* G_alias_text;//!
+   TGCheckButton* G_histo_prof;//!
+   Bool_t fProfileHisto;//!
+   TGCheckButton* G_histo_bin;//!
+   Bool_t fUserBinning;//!
+   TGCheckButton* G_histo_weight;//!
+   Bool_t fUserWeight;//!
+   TString fWeight;//!
+   
+   Int_t fNx,fNy;//
+   Double_t fXmin,fXmax,fYmin,fYmax;//
+   Int_t fNxF;//
+   Double_t fXminF,fXmaxF;//
+   
+   Int_t fNxD, fNyD;//
+   Int_t fOrderedDalitz;//
    
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
@@ -209,7 +226,9 @@ class KVTreeAnalyzer : public TNamed
    TGStatusBar* G_selection_status;//! status bar in selections GUI
    TGTextEntry* G_selection_text;//!
    TGTextButton* G_selection_but;//!
+   TGTextButton* G_selection_but_or;//!
    TGTextButton* G_update_but;//!
+   TGTextButton* G_delete_but;//!
    TList* fSelectedSelections;//!
    
    KVList fHistolist;//list of generated histograms
@@ -221,7 +240,13 @@ class KVTreeAnalyzer : public TNamed
    KVList fAliasList;//list of TTree aliases
    Bool_t fNoGui;//! =kTRUE if no graphical interface is required
    
+   Bool_t fMethodCalled;//! allows to know if context menu methods are called
+
+   void ResetMethodCalled() { fMethodCalled=kFALSE; }
+   Bool_t MethodNotCalled() { return !fMethodCalled; }
+
    void AddHisto(TH1*);
+   void AddCut(TCutG*);
    void AddSelection(TEntryList*);
    void ReconnectTree();
    
@@ -248,18 +273,21 @@ class KVTreeAnalyzer : public TNamed
    void DeleteHisto(const Char_t* expr, const Char_t* selection);
    void DeleteSelectedHisto();
    
-   void MakeSelection(const Char_t* selection);
+   Bool_t MakeSelection(const Char_t* selection);
    void UpdateEntryLists();
    void GenerateSelection();
    void MakeIPScale();
    void GenerateIPSelection();
-   void CombineSelections();
+   void CombineSelectionsAnd();
+   void CombineSelectionsOr();
+   void DeleteSelections();
    void SelectionChanged();
    void SetAlias(const Char_t* name, const Char_t* expr){ fAliasList.Add(new TNamed(name,expr));};
    void GenerateAlias();
    void ShowSelections() {fSelections.ls();};
    void ShowVariables() {fTree->GetListOfLeaves()->ls();};
    void ShowAliases() {fAliasList.ls();};
+   void ShowHistos() {fHistolist.ls();};
    void CurrentSelection();
    Bool_t IsCurrentSelection(const Char_t* sel);
    void SetSelection(TObject*);
@@ -270,16 +298,21 @@ class KVTreeAnalyzer : public TNamed
    void ReadFromFile(TFile* f);
    void OpenAnyFile(const Char_t* filepath);
    
-   void DrawHisto(TObject*);
+   void DrawHisto(TObject* o, Bool_t gen=kTRUE);
+   void DrawCut(TCutG*);
    void DrawLeaf(TObject*);
    void DrawLeafExpr();
-   
+   void DrawAsDalitz();
+   void SetUserBinning(Bool_t ub){fUserBinning = ub;};
+   void SetUserWeight(Bool_t uw){fUserWeight = uw;};
+
    void SetNormHisto(Bool_t yes=kTRUE){fNormHisto=yes;};
    void SetNewCanvas(Bool_t yes=kTRUE){fNewCanvas=yes;};
    void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;};
    void SetDrawLog(Bool_t yes=kTRUE){fDrawLog=yes;};
    void SetApplySelection(Bool_t yes=kTRUE){fApplySelection=yes;};
    void SetSwapLeafExpr(Bool_t yes=kTRUE){fSwapLeafExpr=yes;LeafChanged();};
+   void SetProfileHisto(Bool_t yes=kTRUE){fProfileHisto=yes;};
    void LeafChanged();
    void HistoSelectionChanged();
    void Save();
@@ -290,8 +323,31 @@ class KVTreeAnalyzer : public TNamed
    void FitGausGum2();
    void FitGausGum3();
    
+   Int_t GetNx(){return fNx;};
+   Int_t GetNy(){return fNy;};
+   Double_t GetXmin(){return fXmin;};
+   Double_t GetXmax(){return fXmax;};
+   Double_t GetYmin(){return fYmin;};
+   Double_t GetYmax(){return fYmax;};
+   
+   Int_t GetNxD(){return fNxD;};
+   Int_t GetNyD(){return fNxD;};
+   Bool_t GetOrderedDalitz(){return fOrderedDalitz;};
+   
+   Int_t GetNxF(){return fNxF;};
+   Double_t GetXminF(){return fXminF;};
+   Double_t GetXmaxF(){return fXmaxF;};
+   
+   const char* GetWeight(){return fWeight;};
+   
+   void DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax);// *MENU* *ARGS={Nx=>fNx,Ny=>fNy,Xmin=>fXmin,Xmax=>fXmax,Ymin=>fYmin,Ymax=>fYmax} 
+   void DefineUserBinning1F(Int_t NxF, Double_t XminF, Double_t XmaxF);// *MENU* *ARGS={NxF=>fNxF,XminF=>fXminF,XmaxF=>fXmaxF} 
+   void DefineUserBinningD(Int_t NxD, Int_t NyD, Int_t ordered);// *MENU* *ARGS={NxD=>fNxD,NyD=>fNyD,ordered=>fOrderedDalitz}
+   void DefineWeight(const Char_t* Weight);// *MENU* *ARGS={Weight=>fWeight}
+   
+   
    void HandleHistoFileMenu(Int_t); 
-   ClassDef(KVTreeAnalyzer,1)//KVTreeAnalyzer
+   ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
 };
 
 #endif

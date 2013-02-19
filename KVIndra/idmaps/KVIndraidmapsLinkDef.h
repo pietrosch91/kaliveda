@@ -6,4 +6,5 @@
 #pragma link C++ class KVIDCsIRLLine+;
 #pragma link C++ class KVIDGCsI+;
 #pragma link C++ class KVIDGChIoSi-;
+#pragma link C++ class KVIDGChIoSi_e494s+;
 #endif

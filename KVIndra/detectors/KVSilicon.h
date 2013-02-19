@@ -1,13 +1,4 @@
 /***************************************************************************
-$Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
-                          kvsilicon.h  -  description
-                             -------------------
-    begin                : Fri Oct 4 2002
-    copyright            : (C) 2002 by A. Mignon & J.D. Frankland
-    email                : frankland@ganil.fr
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,6 +16,7 @@ $Id: KVSilicon.h,v 1.34 2008/02/21 10:14:38 franklan Exp $
 #include "KVChannelVolt.h"
 #include "KVPulseHeightDefect.h"
 #include "KVVoltEnergy.h"
+#include "KVUnits.h"
 
 class KVChIo;
 class KVDBParameterSet;
@@ -56,6 +48,7 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
+   Double_t GetEnergyFromVolts(Double_t volts = 0.0);
    virtual Double_t GetEnergy();
 
    void SetACQParams();
@@ -67,8 +60,8 @@ class KVSilicon:public KVINDRADetector {
 
    virtual void SetMoultonPHDParameters(Double_t a1, Double_t a2, Double_t b1, Double_t b2);
 
-   void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
-   Int_t GetZminPHD() { return fZminPHD; };
+   void SetZminPHD(Int_t zmin) { fZminPHD = zmin; }
+   Int_t GetZminPHD() { return fZminPHD; }
    virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
 

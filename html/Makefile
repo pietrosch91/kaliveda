@@ -42,8 +42,10 @@ export ROOTGANILTAPE = no
 endif
 
 ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
+# before ROOT 5.32 xrootd libraries were in main ROOT installation
 XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
 else
+# since 5.32 xrootd is installed separately in $XRDSYS directory
 XRDPOSIX = -L$(XRDSYS)/lib -lXrdPosix
 endif
 
@@ -77,6 +79,7 @@ SCANCLASSESO = ScanClasses.$(ObjSuf)
 
 clean:
 	-rm -f *.d $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML) MyPathDefinition_cxx.so examples/*.so examples/*.d
+	cd LyXGenDoc && $(MAKE) clean
         
 $(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO) MyPathDefinition_cxx.so 
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(LINK_LIBS) $(OutPutOpt)$@
@@ -91,7 +94,7 @@ $(MAKEHTMLO): $(MAKEHTMLS)
 
 $(SCANCLASSESO): $(SCANCLASSESS)
 	$(CXX) $(CXXFLAGS) -c $<
-
+	
 install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc
 	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)
@@ -111,5 +114,6 @@ install_html: $(MAKEHTML)
 	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
-	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/
-	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
+	cd LyXGenDoc && $(MAKE)
+	cd LyXGenDoc && $(MAKE) install VERSION_NUMBER=$(VERSION_NUMBER)
+        

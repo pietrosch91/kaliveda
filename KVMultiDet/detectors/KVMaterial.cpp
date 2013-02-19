@@ -26,6 +26,7 @@
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
 #include "TGeoManager.h"
+#include "KVIonRangeTable.h"
 
 using namespace std;
 
@@ -513,7 +514,7 @@ Double_t KVMaterial::GetDeltaEFromERes(Int_t Z, Int_t A, Double_t Eres)
 
 //______________________________________________________________________________________//
 
-Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum KVIonRangeTable::SolType type)
+Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum SolType type)
 {
    // Calculate residual kinetic energy Eres (MeV) after the absorber from
    // energy loss in absorber for nucleus (Z,A). If dE is not given, the energy
@@ -538,7 +539,7 @@ Double_t KVMaterial::GetEResFromDeltaE(Int_t Z, Int_t A, Double_t dE, enum KVIon
 
 //__________________________________________________________________________________________
 
-Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum KVIonRangeTable::SolType type)
+Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum SolType type)
 {
    //Calculate incident energy of nucleus (Z,A) corresponding to the energy loss
    //in this absorber. If delta_e is not given, the energy loss in this absorber is used.
@@ -555,7 +556,8 @@ Double_t KVMaterial::GetIncidentEnergy(Int_t Z, Int_t A, Double_t delta_e, enum 
    
    Double_t DE = (delta_e > 0 ? delta_e : GetEnergyLoss());
 
-   return fIonRangeTable->GetLinearEIncFromDeltaEOfIon(GetType(),Z,A,DE,GetThickness(),type,fAmasr,fTemp,fPressure);
+   return fIonRangeTable->GetLinearEIncFromDeltaEOfIon(GetType(),Z,A,DE,GetThickness(),
+         (enum KVIonRangeTable::SolType)type,fAmasr,fTemp,fPressure);
 }
 
 //______________________________________________________________________________________//

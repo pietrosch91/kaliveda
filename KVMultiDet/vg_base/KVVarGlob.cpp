@@ -144,6 +144,8 @@ void KVVarGlob::init(void)
    fSelection=0;
    // one-body variable by default
    fType = kOneBody;
+   fValueType='D';
+   fMaxNumBranches=0;
 }
 
 //_________________________________________________________________

@@ -27,6 +27,13 @@ KV_INC_EXTRAS += -I$(GRU_DIR)/include -DWITH_GRULIB -DNET_LIB
 else
 NOT_READY += daq_cec/KVGRUNetClientGanilReader.cpp
 endif
+ifeq ($(WITH_RANGE_YANEZ),yes)
+KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ
+else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
+KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ -DWITH_MODIFIED_RANGE_YANEZ
+else
+NOT_READY += stopping/KVRangeYanez.cpp stopping/KVRangeYanezMaterial.cpp
+endif
 
 include ../Makefile.general
 RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
@@ -41,13 +48,17 @@ RLIBMAPDEPS += libGeom.so
 LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
 RLIBMAPDEPS += libSpectrum.so
 
+#required for use of TProof
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_34_00)),1)
+LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer
+RLIBMAPDEPS += libProofPlayer.so
+else
+LINK_LIB += -L$(ROOTSYS)/lib -lProof
+RLIBMAPDEPS += libProof.so
+endif
 
 ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg
-endif
-
-ifeq ($(SITE),CCIN2P3)
-KV_INC += -D__CCIN2P3_SRB
 endif
 
 ifeq ($(ROOTGANILTAPE),yes)
@@ -60,4 +71,9 @@ endif
 endif
 ifeq ($(WITH_GRU_LIB),yes)
 LINK_LIB += -L$(GRU_DIR)/linux -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
+endif
+ifeq ($(WITH_RANGE_YANEZ),yes)
+LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
+else ifeq ($(WITH_MODIFIED_RANGE_YANEZ),yes)
+LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange
 endif

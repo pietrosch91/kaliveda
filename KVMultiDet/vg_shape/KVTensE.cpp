@@ -47,7 +47,7 @@ void KVTensE::Fill(KVNucleus * c)
    //check Z of particle
    if ((c->GetZ() >= GetZmin()) && ok) {
       Double_t poids = c->GetMass();
-      if(poids) poids = 1./(poids*(c->Gamma() + 1.));
+      if(poids) poids = 1./(poids*(c->GetFrame(fFrame.Data())->Gamma() + 1.));
       tenseurP->Fill(c->GetFrame(fFrame.Data())->GetMomentum(), poids);
    }
 }

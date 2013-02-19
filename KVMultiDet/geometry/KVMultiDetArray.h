@@ -91,6 +91,7 @@ class KVMultiDetArray:public KVBase {
    Bool_t fSimMode;             //!=kTRUE in "simulation mode" (use for calculating response to simulated events)
 
    Bool_t fROOTGeometry;//!=kTRUE if ROOT TGeo geometry and algorithms used for tracking/filtering
+   Int_t fFilterType;//! type of filtering (used by DetectEvent)
    
    void SetGroups(KVLayer *, KVLayer *);
    void UpdateGroupsInRings(KVRing * r1, KVRing * r2);
@@ -117,6 +118,14 @@ class KVMultiDetArray:public KVBase {
 	virtual void SetDetectorThicknesses();
 
  public:
+       // filter types. values of fFilterType
+   enum EFilterType
+   {
+      kFilterType_Geo,
+      kFilterType_GeoThresh,
+      kFilterType_Full
+   };
+   void SetFilterType(Int_t t){fFilterType=t;};
    KVMultiDetArray();
    virtual ~ KVMultiDetArray();
    void init();
@@ -301,6 +310,7 @@ class KVMultiDetArray:public KVBase {
    Bool_t IsROOTGeometry() const { return fROOTGeometry; };
    
    ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
+   Int_t FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event);
 };
 
 //................  global variable

@@ -156,6 +156,52 @@ class KVIDTelescope:public KVBase {
         kMeanDE_NoIdentifier   // No identifier found for Z or (Z,A)
     };
 	virtual Double_t GetMeanDEFromID(Int_t &status, Int_t Z, Int_t A=-1, Double_t Eres = -1.0);
+    virtual UShort_t GetBadIDCode() {
+       // return a general identification code (can be a bitmask) for particles badly identified
+       // with this type of ID telescope
+       // redefine in child classes; default returns 0.
+       return 0;
+    };
+    virtual UShort_t GetCoherencyIDCode() {
+       // return a general identification code (can be a bitmask) for particles identified
+       // with this type of ID telescope after coherency analysis
+       // redefine in child classes; default returns 0.
+       return 0;
+    };
+    virtual UShort_t GetMultiHitFirstStageIDCode() {
+       // return a general identification code (can be a bitmask) for particles which cannot
+        // be identified correctly due to pile-up in a delta-E detector
+       // redefine in child classes; default returns 0.
+       return 0;
+    };
+    virtual UShort_t GetIDCode() {
+       // return a general identification code (can be a bitmask) for particles correctly identified
+       // with this type of ID telescope
+       // redefine in child classes; default returns 0.
+       return 0;
+    };
+   virtual UShort_t GetZminCode() {
+      // return a general identification code (can be a bitmask) for particles partially identified
+      // with an estimated lower-limit for their charge with this type of ID telescope
+      // redefine in child classes; default returns 0.
+      return 0;
+   };
+   virtual UChar_t GetECode() {
+      // return a general calibration code (can be a bitmask) for particles correctly identified
+      // and calibrated with this type of ID telescope
+      // redefine in child classes; default returns 0.
+      return 0;
+   };
+   virtual Bool_t CheckTheoreticalIdentificationThreshold(KVNucleus* /*ION*/, Double_t /*EINC*/ = 0.0);
+    virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
+    {
+        // Used for filtering simulations
+        // Returns kTRUE if this telescope is theoretically capable of identifying a given nucleus,
+        // without considering thresholds etc.
+        // By default this method returns true for Z>0, i.e. all KVIDTelescopes are in principle
+        // dE-E telescopes used to identify charged ions.
+        return (Z>0);
+    }
 
 	ClassDef(KVIDTelescope, 5)   //A delta-E - E identification telescope
 };

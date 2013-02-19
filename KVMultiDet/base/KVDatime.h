@@ -25,7 +25,9 @@ class KVDatime:public TDatime {
 	 	kCTIME,
       kGANACQ,
       kSQL,
-      kSRB
+      kSRB,
+      kIRODS,
+       kDMY
    };
             
 	KVDatime();
@@ -51,9 +53,11 @@ class KVDatime:public TDatime {
    void SetGanacqDate(const Char_t * GanacqDateString);
    void SetGanacq2010Date(const Char_t * GanacqDateString);
    const Char_t *AsGanacqDateString() const;
-   //const Char_t *AsGanacq2010DateString() const;
+   const Char_t *AsDMYDateString() const;
    void SetSQLDate(const Char_t* SQLDateString);
    void SetSRBDate(const Char_t* SRBDateString);
+   void SetIRODSDate(const Char_t* IRODSDateString);
+   void SetDMYDate(const Char_t* DMYString);
 	
 	const Char_t* String(EKVDateFormat fmt = kCTIME);
 	
@@ -61,6 +65,9 @@ class KVDatime:public TDatime {
 	static Bool_t IsGANACQFormat(const Char_t* date);
 	static Bool_t IsGANACQ2010Format(const Char_t* date);
 	static Bool_t IsSRBFormat(const Char_t* date);
+	static Bool_t IsIRODSFormat(const Char_t* date);
+
+    static const Char_t* Month(Int_t m);
 
    ClassDef(KVDatime, 0)       //Extension of TDatime class
 };
