@@ -246,6 +246,7 @@ void SeDv::Init(void)
 	fX[0]   = fX[1]   = -500.0;
 	fXS[0]  = fXS[1]  = -500.0;
 	fXWA[0] = fXWA[1] = -500.0;
+	fx      = fy      = -500.0;
 }
 //___________________________________________________________________
 
@@ -261,7 +262,6 @@ void SeDv::Calibrate(void)
 	Float_t max_mean[2],max_variance[2],max_stdeviation,max_sum;
 	UShort_t Q_max_Nr[2];
 	Float_t noise_threshold[2],Q_max[2]; 
-	Bool_t Accepted_event; //true 
 	/*
  	 *	Initialisations
  	 */	
@@ -272,7 +272,7 @@ void SeDv::Calibrate(void)
 		Q_max[i] = noise_mean[i] = noise_variance[i] = noise_sum = noise_stdeviation_[i] = noise_threshold[i] = 0.;
 		max_mean[i] = max_variance[i] = max_sum = 0.;
 		Q_max_Nr[i] = 1000 ;
-		Accepted_event = false;
+		fAccepted_event = false;
 	}
 
 	for(i=0;i<3;i++) if(fE_Raw[i]>0)
@@ -388,7 +388,8 @@ void SeDv::Calibrate(void)
  			 */		
 			noise_mean[i] -= max_mean[i];
 			noise_variance[i] -= max_variance[i];
-			noise_sum -= max_sum;
+			noise_sum -= noise_sum;
+//			noise_sum -= max_sum;
 			/*
  			 *			Calculate statistical quntities related to the noise and fix the threshold
  			 *			as the mean of the noise + 1 time its standart deviation
@@ -420,14 +421,14 @@ void SeDv::Calibrate(void)
 		max_stdeviation = sqrt(max_variance[0] + max_variance[1]); 
 		noise_stdeviation = sqrt(noise_variance[0] + noise_variance[1]); 
 		if((noise_sum>3. && noise_stdeviation<2.*max_stdeviation) || (noise_sum<2. && max_sum>2.))
-			Accepted_event= true ;
+			fAccepted_event= true ;
  	}
 	/*
  	 *	Select the wires giving a signal above the threshold 
  	 */
 	if(!fPresentWires)
 	{	
-		if(Accepted_event)
+		if(fAccepted_event)
 			for(i=0;i<2;i++)			//0) vertical, giving x. 1) vertical, giving y
 				for(j=0;j<fQ_RawM[i];j++)	//loop over strips
 				{
@@ -448,7 +449,7 @@ void SeDv::Calibrate(void)
 		}
 
 #	ifdef DEBUG
-		Info("SeDv::Calibrate","Event %s",  Accepted_event ? "accepted" : "rejected");  
+		Info("SeDv::Calibrate","Event %s",  fAccepted_event ? "accepted" : "rejected");  
 		cout<<" maximum charge x,y      : " << Q_max[0]             <<" "<< Q_max[1]             <<endl;  
 		cout<<" maximum charge wire x,y : " << Q_max_Nr[0]          <<" "<< Q_max_Nr[1]          <<endl;  
 		cout<<" noise mean x,y          : " << noise_mean[0]        <<" "<< noise_mean[1]        <<endl;  
@@ -551,7 +552,9 @@ void SeDv::FocalSubseqX(void)
 #	ifdef DEBUG
 	Info("SeDv::FocalSubseqX","(X,Y)= (%f,%f) [ch]",fX[0],fX[1]);
 #	endif
+	fx = fX[0]; fy = fX[1];
 
+	
 /*
  *	Recadrage. On utilise les fonctions de corrections pour recadrer l'image. Passage en cm on the SeD plane
  */

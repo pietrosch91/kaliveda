@@ -116,11 +116,15 @@ class SeDv
 	Float_t fX[2]; //Subsequent X
 	Float_t fXS[2]; //Subsequent XSech
 	Float_t fXWA[2]; //Subsequent XWA
+	Float_t fx, fy;  // raw x an y
 /*
  *	Counters
  */
 	Int_t fCounter[14];
 	Int_t fCounter1[4][5];
+
+
+	Bool_t fAccepted_event; //true 
 
 	ClassDef(SeDv,0)
 };
