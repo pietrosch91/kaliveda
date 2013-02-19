@@ -22,6 +22,7 @@ class KVHarpeeSi : public KVVAMOSDetector
 
 
 		virtual const Char_t* GetArrayName();
+   		virtual const Char_t *GetEBaseName() const;
 		virtual void SetACQParams();
 
 

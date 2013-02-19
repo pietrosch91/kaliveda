@@ -77,7 +77,6 @@ KVHarpeeSi::~KVHarpeeSi()
 {
    // Destructor
 }
-
 //________________________________________________________________
 
 void KVHarpeeSi::Copy (TObject& obj) const
@@ -106,15 +105,23 @@ const Char_t* KVHarpeeSi::GetArrayName(){
 }
 //________________________________________________________________
 
+const Char_t *KVHarpeeSi::GetEBaseName() const{
+	// Base name of the energy used to be compatible
+	// GANIL acquisition parameters
+	//
+	// The base name is "E<type><number>".
+	
+	return Form("%sE_%.2d",GetType(),GetNumber());
+}
+//________________________________________________________________
+
 void KVHarpeeSi::SetACQParams(){
 // Setup the energy acquisition parameter for this silicon detector.
 // This parameter has the name of the detector and has the type 'E' 
 // (for energy).
 // 
 	KVACQParam *par = new KVACQParam;
-	TString name;
-	name.Form("%sE_%02d",GetType(),GetNumber());
-	par->SetName(name);
+	par->SetName( GetEBaseName() );
 	par->SetType("E");
 	par->SetNumber( 4000 + GetNumber() );
 	AddACQParam(par);
