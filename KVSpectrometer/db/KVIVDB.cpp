@@ -389,8 +389,9 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 				parset->SetParamName( 0, "Npar" );
 				parset->SetParameter( 0, f.GetNpar() );
 				for( Int_t j=0; j< f.GetNpar(); j++ ){
-					parset->SetParamName( j+1, f.GetParName(j));
-					parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
+//					parset->SetParamName( j+1, f.GetParName(j));
+//					parset->SetParameter( j+1, ((TObjString *)tok->At(j))->GetString().Atof() );
+					parset->SetParamName( j+1, ((TObjString *)tok->At(j))->GetString().Data() );
 				}
 			}
 			else{

@@ -169,7 +169,7 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 			}
 
 			for(Int_t i=0; i<par->GetParameter(0); i++){
-				cal->SetParameter( i, par->GetParameter( i+1 ) );
+				cal->SetParameter( i, TString(par->GetParamName( i+1 )).Atof() );
 				cal->SetStatus( kTRUE );
 			}
 		}
