@@ -10,6 +10,7 @@ class KVHarpeeSi : public KVVAMOSDetector
 {
 
 	protected:
+		static KVList *fHarpeeSiList;//! Global list of all KVHarpeeSi objects
 		
 		void init();
 
@@ -22,7 +23,9 @@ class KVHarpeeSi : public KVVAMOSDetector
 
 
 		virtual const Char_t* GetArrayName();
+   		virtual Double_t GetCalibT(const Char_t *type);
    		virtual const Char_t *GetEBaseName() const;
+		static KVHarpeeSi *GetFiredHarpeeSi(Option_t *opt="any");
 		
 		virtual void SetACQParams();
 

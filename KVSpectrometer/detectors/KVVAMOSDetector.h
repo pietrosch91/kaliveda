@@ -32,7 +32,7 @@ class KVVAMOSDetector : public KVSpectroDetector
 
 
    virtual Double_t GetCalibE();
-   Double_t GetCalibT(const Char_t *type);
+   virtual Double_t GetCalibT(const Char_t *type);
    Double_t GetT0(const Char_t *type) const;
    virtual Bool_t IsECalibrated() const;
    Bool_t   IsTCalibrated(const Char_t *type) const;

@@ -21,9 +21,17 @@ ClassImp(KVHarpeeSi)
 // Type of detector : "SI"
 ////////////////////////////////////////////////////////////////////////////////
 
+KVList *KVHarpeeSi::fHarpeeSiList = NULL;
+
+
 void KVHarpeeSi::init(){
 	// Initialise non-persistent pointers
-//	fT0SI_SED1 = fT0SI_INDRA = fT0SI_MCP = 0.;
+
+	if(!fHarpeeSiList){
+ 	   	fHarpeeSiList = new KVList( kFALSE );
+//		fHarpeeSiList->SetCleanup();
+	}
+	fHarpeeSiList->Add( this );
 }
 //________________________________________________________________
 
@@ -76,6 +84,8 @@ KVHarpeeSi::KVHarpeeSi (const KVHarpeeSi& obj)  : KVVAMOSDetector()
 KVHarpeeSi::~KVHarpeeSi()
 {
    // Destructor
+	fHarpeeSiList->Remove( this );
+	if( fHarpeeSiList && !fHarpeeSiList->GetEntries() ) SafeDelete( fHarpeeSiList );
 }
 //________________________________________________________________
 
@@ -105,6 +115,26 @@ const Char_t* KVHarpeeSi::GetArrayName(){
 }
 //________________________________________________________________
 
+Double_t KVHarpeeSi::GetCalibT(const Char_t *type){
+	// Calculate calibrated time in ns of type 'type' (SI_HF, SI_SED1,
+	// SI_INDRA, SI_MCP, ...) for coder values.
+	// Returns 0 if calibration not ready or time ACQ parameter not fired.
+	// (we require that the acquisition parameter has a value
+   	// greater than the current pedestal value).
+   	// The reference time T0 used for the calibration is the one of the
+   	// fired silicon detector of Harpee which stopped the time.
+
+
+	KVHarpeeSi *firedSi = GetFiredHarpeeSi();
+	if( !firedSi ) return 0;
+
+	KVFunctionCal *cal = GetTCalibrator( type );
+	if( cal && cal->GetStatus() && cal->GetACQParam()->Fired("P"))
+		return cal->Compute() + firedSi->GetT0( type );
+	return 0;
+}
+//________________________________________________________________
+
 const Char_t *KVHarpeeSi::GetEBaseName() const{
 	// Base name of the energy used to be compatible
 	// GANIL acquisition parameters
@@ -112,6 +142,20 @@ const Char_t *KVHarpeeSi::GetEBaseName() const{
 	// The base name is "E<type><number>".
 	
 	return Form("%sE_%.2d",GetType(),GetNumber());
+}
+//________________________________________________________________
+
+KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
+	// This static method returns the first fired detector found
+	// in the list of all the existing HarpeeSi detectors.
+	// See KVDetector::Fired() for more information about the option 'opt'.
+
+	TIter next( fHarpeeSiList );
+	KVHarpeeSi *si = NULL;
+	while( (si =(KVHarpeeSi *)next()) ){
+		if( si->Fired( opt ) ) return si;
+	}
+	return NULL;
 }
 //________________________________________________________________
 
