@@ -257,6 +257,10 @@ INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
 
+INDRA_e494s.KVDetector.Fired.ACQParameterList.SI: PG,GG,T,E
+INDRA_e494s.KVDetector.Fired.ACQParameterList.CHI: E
+INDRA_e494s.KVDetector.Fired.ACQParameterList.SED: Q
+
 VAMOS_e503.KVDetector.Fired.ACQParameterList.SI: E
 VAMOS_e503.KVDetector.Fired.ACQParameterList.CSI: E
 
