@@ -242,12 +242,16 @@ void KVHarpeeIC::SetACQParams(){
 	// Setup acquisition parameters of this ionisation chamber.
 	// ACQ parameters with type 'E':
 	// E[detector type]_[A,B,C]_[detector number]
+	//
+	// WARNING: actually only the acquisition parameters with indice 'A'
+	// are defined ('B' and 'C' were not coded in e494s and e503 experiment ).
 
 	TString name;
 	Char_t idx[]={'A','B','C'};
 
 	for(Int_t num = 1; num<=7; num++){
-		for(Int_t i = 0; i<3; i++){
+//		for(Int_t i = 0; i<3; i++){
+		for(Int_t i = 0; i<1; i++){
 			KVACQParam *par = new KVACQParam;
 			name.Form("E%s_%c_%d",GetType(),idx[i],num);
 			par->SetName(name);
