@@ -180,10 +180,14 @@ INDRA_e503.ReconstructedEventClassName:   KVINDRAReconEvent
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
 INDRA_e494s.DataSet.RepositoryDir:   e494s
 INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
-INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:       IVRawDataRecon
+INDRA_e494s.ReconIdent.DataAnalysisTask.Analyser:           IVReconData
 INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
-INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
-INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:    IVRawDataAnalyser
+INDRA_e494s.ReconAnalysis.DataAnalysisTask.Analyser:        IVReconData
+#INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
+INDRA_e494s.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
+#INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    VAMOS_e503
@@ -457,6 +461,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   INDRARawDataIdent      KVINDRARawIdent              KVIndra "KVINDRARawIdent()"
 +Plugin.KVDataAnalyser:   IVRawDataRecon         KVIVRawDataReconstructor     VAMOS   "KVIVRawDataReconstructor()"
 +Plugin.KVDataAnalyser:   IVRawDataAnalyser      KVIVRawDataAnalyser          VAMOS   "KVIVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   IVReconData            KVIVReconDataAnalyser     KVSpectrometer "KVIVReconDataAnalyser()"
 # +Plugin.KVDataAnalyser:   INDRAOnlineDataAnalyser   KVINDRAOnlineDataAnalyser     KVIndra     "KVINDRAOnlineDataAnalyser()"   
 # TSelector plugins for analysis of ROOT TTrees
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"

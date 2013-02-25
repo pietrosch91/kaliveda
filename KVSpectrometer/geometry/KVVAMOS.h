@@ -23,7 +23,6 @@ class KVVAMOS : public KVDetector //public KVBase
 		KVList *fVCalibrators;//References to calibrator belonging to VAMOS
 
    virtual void BuildGeometry();
-   virtual void Initialize();
    virtual void MakeListOfDetectors();
    virtual void SetACQParams();
    virtual void SetArrayACQParams();
@@ -43,7 +42,7 @@ class KVVAMOS : public KVDetector //public KVBase
    virtual void Build();
    virtual void Clear(Option_t *opt = "" );
    void Copy (TObject&) const;
-
+   virtual void Initialize();
    static KVVAMOS *MakeVAMOS(const Char_t* name);
    virtual void SetParameters(UShort_t run);
 

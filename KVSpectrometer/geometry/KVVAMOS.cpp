@@ -101,7 +101,8 @@ void KVVAMOS::BuildGeometry(){
 
 void KVVAMOS::Initialize(){
 	// Initialize data members of the VAMOS detectors and of VAMOS 
-	// itself.
+	// itself. This method has to be called each time you look at a
+	// new event.
 	fDetectors->R__FOR_EACH(KVVAMOSDetector,Initialize)();	
 }
 //________________________________________________________________

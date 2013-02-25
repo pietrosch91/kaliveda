@@ -265,6 +265,14 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 }
 //________________________________________________________________
 
+void KVSeD::Initialize(){
+	// Initialize the data members. Called by KVVAMOS::Initialize().
+	Info("Initialize","IN");
+	ResetCalculatedData();
+}
+
+//________________________________________________________________
+
 void KVSeD::ResetCalculatedData(){
 	// Reset all X or Y position histograms (raw, calibrated, clean)
 	// and raw positions.
