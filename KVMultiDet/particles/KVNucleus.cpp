@@ -31,6 +31,10 @@ $Id: KVNucleus.cpp,v 1.48 2009/04/02 09:32:55 ebonnet Exp $
 //Reference: 2002 CODATA recommended values Reviews of Modern Physics 77, 1-107 (2005)
 Double_t KVNucleus::kAMU = 9.31494043e02;
 Double_t KVNucleus::kMe = 0.510988;
+// hbar*c in MeV.fm = 197.33....
+Double_t KVNucleus::hbar = TMath::Hbarcgs()*TMath::Ccgs()/TMath::Qe();
+// e^2/(4.pi.epsilon_0) in MeV.fm = 1.44... = hbar*alpha (fine structure constant)
+Double_t KVNucleus::e2 = KVNucleus::hbar/137.035999074;
 
 using namespace std;
 
@@ -983,8 +987,8 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 	
 	Double_t etot = lhs.E() + rhs.E();
    TVector3 ptot = lhs.Vect() + rhs.Vect();
-	//Calcul de la masse du noyau composé
-	//celle ci inclut une éventuelle energie d'excitation
+    //Calcul de la masse du noyau compose
+    //celle ci inclut une eventuelle energie d'excitation
 	
 	Double_t Mcn = TMath::Sqrt(etot*etot-ptot.Mag()*ptot.Mag());
 	Double_t Excn = Mcn - CN.M();
@@ -1175,7 +1179,7 @@ Double_t KVNucleus::u(void)
 //_______________________________________________________________________________________
 
 Double_t KVNucleus::DeduceEincFromBrho(Double_t Brho,Int_t ChargeState){
-	//Retourne l'energie cintétique totale (MeV) du noyau pour
+    //Retourne l'energie cintetique totale (MeV) du noyau pour
 	//une valeur de Brho et d'etat de charge (Si 0-> Etat de charge=Z)
 	Double_t C_mparns = KVNucleus::C()*10;
    

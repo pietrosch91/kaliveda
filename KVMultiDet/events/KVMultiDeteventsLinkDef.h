@@ -19,4 +19,5 @@
 #pragma link C++ class KVPartitionFunction+;
 #pragma link C++ class KVCouple+;
 #pragma link C++ class KVPartitionGenerator+;
+#pragma link C++ class KVWilckeReactionParameters+;
 #endif
