@@ -1,0 +1,32 @@
+CHI.WIDTH: 40
+CHI.HEIGHT: 12
+
+# number of absorber (i.e. volumes)
+CHI.NABS: 4
+
+# thickness in cm
+
+# mylar
+CHI.ABS.1.MATERIAL: Myl
+CHI.ABS.1.THICK: 0.00015
+
+# section A
+CHI.ABS.2.MATERIAL: C4H10
+CHI.ABS.2.THICK: 0.0002068
+
+# section B
+CHI.ABS.3.MATERIAL:  C4H10
+CHI.ABS.3.THICK: 0.0010457
+
+# section C
+CHI.ABS.4.MATERIAL:  C4H10
+CHI.ABS.4.THICK: 0.0001278
+
+#active absorber (i.e. volume)
+CHI.ACTIVEABS: 3
+
+#reference position from focal plan
+# REF.Z= focal-plan position minus CHI position from target
+CHI.REF.X: 0
+CHI.REF.Y: 0
+CHI.REF.Z: 0

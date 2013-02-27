@@ -3,6 +3,7 @@
 
 #include "KVSpectroDetector.h"
 #include "KVIonRangeTable.h"
+#include "TGeoBBox.h"
 
 ClassImp(KVSpectroDetector)
 
@@ -15,9 +16,10 @@ ClassImp(KVSpectroDetector)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+Int_t KVSpectroDetector::fNumVol = 1;
+
 void KVSpectroDetector::init(){
    	//default initialisations
-	Warning("init","To be implemented");
 	SetActiveLayer(-1); // Necessary to remove some warning with GetPressure and GetTemperature.   
 	fActiveVolumes = NULL;
 	fNabsorbers    = 0;
@@ -29,7 +31,7 @@ KVSpectroDetector::KVSpectroDetector()
 {
    // Default constructor
    //
-   // A "mother" volume is built to group all the absorber volumes.
+   // A "mother" volume will be built to group all the absorber volumes.
    // gGeoManager must point to current instance of geometry manager.
 
    init();
@@ -111,15 +113,14 @@ void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TG
 
 
 
-	static Int_t no_vol =1;
 	TString vol_name;	
-	vol_name.Form("%s_%d_%s",GetName(),no_vol,material);
+	vol_name.Form("%s_%d_%s",GetName(),fNumVol,material);
 	TGeoVolume* vol = GetGeoVolume(vol_name.Data(), material, shape);
 	if(!vol){
  		Error("AddAbsorber","Impossible to build the volume");
 		return;
 	}
-	no_vol++;
+	fNumVol++;
 	AddAbsorber(vol,matrix,active);
 }
 //________________________________________________________________
@@ -150,13 +151,13 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 
 	// Case where we want to position with the matrix the absorber which
 	// is the first one of the detector
-	if(!prev_vol) vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_DET",GetName()));
+	if(!prev_vol) vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_%d",GetName(), fNumVol++));
 	else if(!prev_vol->InheritsFrom("TGeoVolumeAssembly")){
 		// build an assembly of volumes if the volume of the
 		// detector is not and put the absorbers inside
 
 		Info("AddAbsorber","First absorber is not a TGeoVolumeAssembly");
-		vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_DET",GetName()));
+		vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_%d",GetName(),fNumVol++));
 		vol_as->AddNode(prev_vol,1);
 	}
 	else vol_as = prev_vol;
@@ -175,48 +176,116 @@ void KVSpectroDetector::AddToTelescope(KVTelescope * T, const int){
 }
 //________________________________________________________________
 
-   void KVSpectroDetector::BuildFromFile(const Char_t* filename, const Char_t* path){
-	   // Build the detector (i.e. the volumes) from a TEnv file
-	   // with the following structure:
-	   // .......
-	   //
-	   //  TO IMPLEMENTED
-	   //
-	   //  ......
-	   //
-	   // If the detector has already a volume, i.e. the detector is
-	   // already built then this method does nothing.
-	   // If the filename is not given, the method looks for
-	   // a file with name "GetName().cao".
-	   // If the path is not found in the given directory, this method looks
-	   // for in $KVROOT/KVFiles/<DataSet>/geometry
-	   if(GetAbsGeoVolume()){
-		   Error("BuildFromFile","Volume already existing");
- 		   return; 
- 	   }
-	   TString fname = filename;
-	   if(fname.IsNull()) fname.Form("%s.cao",GetName());
-	   TString fullpath;
+Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
+	// Build the detector geometry (i.e. the volumes) from informations loaded
+	// in a TEnv object.
+	//
+	// If the detector has already a volume, i.e. the detector is
+	// already built then this method does nothing.
+	// The volumes will be placed inside the ref_vol if it is given in input.
 
-	   
-	   if(!SearchFile(fname.Data(),fullpath,1,path)){
-		   TString kvsubdir;
- 		  if(gDataSet) kvsubdir.Form("%s/",gDataSet->GetName()); 
-		  kvsubdir+="geometry";
-		   if(!SearchKVFile(fname.Data(),fullpath,kvsubdir.Data())){
-	   	   	   Error("BuildFromFile","File %s not found in directory %s \n and in $KVROOT/KVFiles/%s",fname.Data(),path,kvsubdir.Data());
-			   return;
-		   }
-	   }
+	if(GetAbsGeoVolume()){
+		Error("BuildGeoFromFile","Volume already existing");
+ 		return kFALSE; 
+ 	}
+	Info("BuildGeoFromFile","IN");
 
-	   Info("BuildFromFile","Building a %s from file %s in directory %s",ClassName(),fname.Data(),path);
+	const Char_t *infotype[] = {"NABS","WIDTH","HEIGHT","REF.X","REF.Y","REF.Z"};
+	Binary8_t errorbit;
+	Int_t Nbit = 0;
+	TString miss;
 
-	  TEnv infos;
- 	  infos.ReadFile(fullpath,kEnvAll); 
+	Int_t Nabs = GetDetectorEnv(infotype[Nbit++],-1,infos);
+	if(Nabs < 0 ) errorbit.SetBit(Nbit-1);
 
-	  Warning("BuildFromFile","Method to be finished");
+	Double_t width = GetDetectorEnv(infotype[Nbit++],-1.,infos);
+	if(width < 0 ) errorbit.SetBit(Nbit-1);
 
-   }
+	Double_t height = GetDetectorEnv(infotype[Nbit++],-1.,infos);
+	if(height < 0 ) errorbit.SetBit(Nbit-1);
+	
+	Double_t ref_pos[3]; // Xref, Yref, Zref
+    // reference positions have to be present if ref_vol is defined
+	if( ref_vol ){
+		for(Int_t i=0; i<3; i++){
+		ref_pos[i] = GetDetectorEnv(infotype[Nbit++],-666.,infos);
+		if( ref_pos[i] <= -666 ) errorbit.SetBit(Nbit-1);
+		}
+	}
+
+	// check if main informations are not missing
+	if(  errorbit.Value() ){
+		for(Int_t i=0; i<Nbit; i++){
+			if( !errorbit.TestBit(i) ) continue;
+			miss += ( miss.IsNull() ? "" : "; " );
+			miss += infotype[i];
+		}
+		Error("BuildGeoVolume","Missing geometry informations (%s) for detector %s", miss.Data(), GetName());
+		return kFALSE;
+	}
+
+
+	KVNumberList activeabs( GetDetectorEnv("ACTIVEABS","",infos) );
+	Double_t thick_tot = 0;
+	Double_t thick[Nabs];
+	TString  mat[Nabs], type;
+	miss = "";
+	// look at information concerning layers (thickness, material, ...)
+	for(Int_t i=0; i<Nabs; i++){ 
+		type.Form("ABS.%d.MATERIAL",i+1);
+		mat[i] = GetDetectorEnv(type.Data(),"",infos);
+		if(mat[i].IsNull() ){
+			miss += ( miss.IsNull() ? "" : "; " );
+			miss += type;
+ 		}
+
+		type.Form("ABS.%d.THICK",i+1);
+		thick[i] = GetDetectorEnv(type.Data(),-1.,infos);
+		if(thick[i] < 0 ) {
+			miss += ( miss.IsNull() ? "" : "; " );
+			miss += type;
+ 		}
+
+		thick_tot+= thick[i];
+	}
+	if( !miss.IsNull() ){
+		Error("BuildGeoVolume","Missing geometry informations (%s) for absorbers of detector %s", miss.Data(), GetName());
+		return kFALSE;
+	}
+
+	// build volumes
+	TGeoShape *shape = NULL;
+	for(Int_t i=0; i<Nabs; i++){
+
+		fTotThick+=thick[i];
+
+		// box shape of the absorber
+		shape  = new TGeoBBox( width/2, height/2, thick[i]/2 );
+
+		// build and position absorber in mother volume.
+		// Reference is the center of absorber
+		Double_t ztrans = (thick[i]-thick_tot)/2;
+		for(Int_t j=0; j<Nabs-1;j++) ztrans+= (j<i)*thick[j];
+		TGeoTranslation* tr = ( ztrans ? new TGeoTranslation(0.,0.,ztrans) : NULL );
+		AddAbsorber(mat[i].Data(),shape,tr, activeabs.Contains( i+1 ));
+	}
+
+	// incline of the detector around X axis
+	Double_t Xincline = GetDetectorEnv("INCLINE.X",0.,infos);
+	if( Xincline ){
+		TGeoVolume  *vol_as= gGeoManager->MakeVolumeAssembly(Form("%s_%d",GetName(),fNumVol++));
+		TGeoRotation *rot = new TGeoRotation();
+		rot->SetAngles(0,Xincline,0);
+		vol_as->AddNode( GetAbsGeoVolume(), 1, rot );
+		SetAbsGeoVolume( vol_as );
+	}
+
+	if( !ref_vol ) return kTRUE;
+
+	// place the detector in the reference volume 'ref_vol'
+	TGeoTranslation* ref_tr = new TGeoTranslation(ref_pos[0], ref_pos[1], ref_pos[2]);
+	ref_vol->AddNode( GetAbsGeoVolume(), 1, ref_tr );
+}
 //________________________________________________________________
 
 void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * norm){
@@ -391,3 +460,67 @@ void KVSpectroDetector::SetMaterial(const Char_t * type){
 	// Set the same material of all the active volumes.
 	Warning("SetMaterial","To be implemented");
 }
+//________________________________________________________________
+
+const Char_t *KVSpectroDetector::GetDetectorEnv(const Char_t * type, const Char_t* defval, TEnv *env) const
+{
+   //Will look for env->GetValue "name_of_detector.type" if defined or "type_of_detector.type" if not.
+   //If neither resource is defined, return the "defval" default value (="" by default).
+   //If env is null then it looks for in gEnv.
+
+	if( !env ) env = gEnv;
+
+   TString temp;
+   temp.Form("%s.%s", GetName(), type);
+   if( !env->Defined(temp.Data()) )  temp.Form("%s.%s", GetType(), type);
+   return env->GetValue(temp.Data(), defval);
+}
+//________________________________________________________________
+
+Double_t KVSpectroDetector::GetDetectorEnv(const Char_t * type, Double_t defval, TEnv *env) const
+{
+    //Will look for env->GetValue "name_of_detector.type" if defined or "type_of_detector.type" if not.
+   //If neither resource is defined, return the "defval" default value (="" by default).
+   //If env is null then it looks for in gEnv.
+
+	if( !env ) env = gEnv;
+
+   TString temp;
+   temp.Form("%s.%s", GetName(), type);
+   if( !env->Defined(temp.Data()) )  temp.Form("%s.%s", GetType(), type);
+   return env->GetValue(temp.Data(), defval);
+
+}
+//________________________________________________________________
+
+Int_t KVSpectroDetector::GetDetectorEnv(const Char_t * type, Int_t defval, TEnv *env) const
+{
+    //Will look for env->GetValue "name_of_detector.type" if defined or "type_of_detector.type" if not.
+   //If neither resource is defined, return the "defval" default value (="" by default).
+   //If env is null then it looks for in gEnv.
+
+	if( !env ) env = gEnv;
+
+   TString temp;
+   temp.Form("%s.%s", GetName(), type);
+   if( !env->Defined(temp.Data()) )  temp.Form("%s.%s", GetType(), type);
+   return env->GetValue(temp.Data(), defval);
+
+}
+//________________________________________________________________
+
+Bool_t KVSpectroDetector::GetDetectorEnv(const Char_t * type, Bool_t defval, TEnv *env) const
+{
+ //Will look for env->GetValue "name_of_detector.type" if defined or "type_of_detector.type" if not.
+   //If neither resource is defined, return the "defval" default value (="" by default).
+   //If env is null then it looks for in gEnv.
+
+	if( !env ) env = gEnv;
+
+   TString temp;
+   temp.Form("%s.%s", GetName(), type);
+   if( !env->Defined(temp.Data()) )  temp.Form("%s.%s", GetType(), type);
+   return env->GetValue(temp.Data(), defval);
+
+  }
+//________________________________________________________________

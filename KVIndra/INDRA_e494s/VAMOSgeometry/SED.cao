@@ -1,0 +1,26 @@
+SED.WIDTH: 1
+SED.HEIGHT: 1
+
+# number of absorber (i.e. volumes)
+SED.NABS: 1
+
+# thickness in cm
+
+# emissive foil
+SED.ABS.1.MATERIAL: Myl
+SED.ABS.1.THICK: 0.00009
+
+#active absorber (i.e. volume)
+SED.ACTIVEABS: 1
+
+# incline of the emissive foil which is the unique 
+# absorber of the detector = slope of the detector
+# 45-deg rotation around X axis 
+SED.INCLINE.X: 45
+
+#reference position from focal plan
+# REF.Z= focal-plan position minus SED position from target
+SED.REF.X: 0
+SED.REF.Y: 0
+SED1.REF.Z: 0
+SED2.REF.Z: 0

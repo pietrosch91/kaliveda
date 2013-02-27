@@ -16,14 +16,21 @@ class KVVAMOS : public KVDetector //public KVBase
 
 	private:
 
-	protected:
-		TString fDataSet;            // Name of associated dataset, used with MakeVAMOS	
-		KVList *fDetectors; // List of references to all detectors of VAMOS
-		KVList *fVACQParams;// References to data acquisition parameter belonging to VAMOS
-		KVList *fVCalibrators;//References to calibrator belonging to VAMOS
+		enum{
+			kIsBuilt = BIT(20)  // flag set when Build() is called
+		};
 
-   virtual void BuildGeometry();
+	protected:
+		TString fDataSet;      // Name of associated dataset, used with MakeVAMOS	
+		KVList *fDetectors;    // List of references to all detectors of VAMOS
+		KVList *fVACQParams;   // References to data acquisition parameter belonging to VAMOS
+		KVList *fVCalibrators; //References to calibrator belonging to VAMOS
+		TGeoVolume *fFPvolume; //! TGeoVolume centered on the focal plane
+
+   virtual void BuildFocalPlaneGeometry(TEnv *infos);
+   virtual void BuildVAMOSGeometry();
    virtual void MakeListOfDetectors();
+   virtual Int_t LoadGeoInfosIn(TEnv *infos);
    virtual void SetACQParams();
    virtual void SetArrayACQParams();
    virtual void SetCalibrators();
@@ -62,6 +69,7 @@ class KVVAMOS : public KVDetector //public KVBase
    inline KVList* GetListOfDetectors()   { return fDetectors;  };
    inline KVList* GetVACQParamList()     { return fVACQParams; };
    inline KVList* GetListOfVCalibrators(){ return fVCalibrators; };
+   inline Bool_t  IsBuilt()              { return TestBit(kIsBuilt); }
 
    ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };

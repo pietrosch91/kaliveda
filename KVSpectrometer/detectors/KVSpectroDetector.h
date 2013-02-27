@@ -14,6 +14,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 		TList *fActiveVolumes;
 		Int_t  fNabsorbers;      // Number of absobers
 		Double_t fTotThick;      // Total thickness of the detector
+		static Int_t fNumVol;    // used to set number to each new volume
 
    void AddAbsorber(TGeoVolume*, TGeoMatrix* matrix = 0, Bool_t active = kFALSE);
    public:
@@ -33,7 +34,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    void AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix= 0, Bool_t active= kFALSE);
    virtual void AddToTelescope(KVTelescope * T, const int =
                                KVD_RECPRC_CNXN);
-   virtual void BuildFromFile(const Char_t* filename="", const Char_t* path="");
+   virtual Bool_t BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol = 0);
    virtual void DetectParticle(KVNucleus *, TVector3 * norm = 0);
    virtual Double_t GetELostByParticle(KVNucleus *, TVector3 * norm = 0);
    TGeoMedium* GetGeoMedium(const Char_t* ="");
@@ -46,6 +47,10 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    void SetActiveVolume(TGeoVolume*);
 
 
+   const Char_t *GetDetectorEnv(const Char_t * type, const Char_t* defval="", TEnv *env=NULL) const;
+   Double_t GetDetectorEnv(const Char_t * type, Double_t defval, TEnv *env=NULL) const;
+   Int_t GetDetectorEnv(const Char_t * type, Int_t defval, TEnv *env=NULL) const;
+   Bool_t GetDetectorEnv(const Char_t * type, Bool_t defval, TEnv *env=NULL) const;
 
 
    virtual void SetMaterial(const Char_t * type);

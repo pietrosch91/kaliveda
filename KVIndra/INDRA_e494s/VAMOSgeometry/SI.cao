@@ -1,0 +1,37 @@
+SI.WIDTH: 1
+SI.HEIGHT: 1
+
+# number of absorber (i.e. volumes)
+SI.NABS: 1
+
+# thickness in cm
+
+# silicon
+SI.ABS.1.MATERIAL: Si
+SI.ABS.1.THICK: 0.05
+
+#active absorber (i.e. volume)
+SI.ACTIVEABS: 1
+
+#reference position from focal plan
+# REF.Z= focal-plan position minus SI position from target
+SI.REF.X: 0
+SI.REF.Y: 0
+SI_01.REF.Z: 0
+SI_02.REF.Z: 0
+SI_03.REF.Z: 0
+SI_04.REF.Z: 0
+SI_05.REF.Z: 0
+SI_06.REF.Z: 0
+SI_07.REF.Z: 0
+SI_08.REF.Z: 0
+SI_09.REF.Z: 0
+SI_10.REF.Z: 0
+SI_11.REF.Z: 0
+SI_12.REF.Z: 0
+SI_13.REF.Z: 0
+SI_14.REF.Z: 0
+SI_15.REF.Z: 0
+SI_16.REF.Z: 0
+SI_17.REF.Z: 0
+SI_18.REF.Z: 0

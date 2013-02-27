@@ -8,6 +8,7 @@
 #include "KVDataSetManager.h"
 #include "KVUpDater.h"
 #include "KVFunctionCal.h"
+#include "TSystemDirectory.h"
 
 using namespace std;
 
@@ -47,6 +48,7 @@ void KVVAMOS::init()
 
 	fVACQParams   = NULL;
 	fVCalibrators = NULL;
+	fFPvolume     = NULL;
 
 	Info("init","To be implemented");
 }
@@ -86,16 +88,59 @@ KVVAMOS::~KVVAMOS(){
 }
 //________________________________________________________________
 
-void KVVAMOS::BuildGeometry(){
-// Construction of the detector geometry at the focal plan of VAMOS for the
-// e494s experiment. All subsequent realistations derive from this
-// class and make modifications to this basic structure.
-// 
-//  WARNING: here only the geometry with TGeoManager is built.
-//  The assignment of detector for each volume will be done
-//  in MakeListOfDetectors.
-	
-	Warning("BuildGeometry","To be changed (see documentation)");
+void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
+	// Construction of the detector geometry at the focal plan of VAMOS for the.
+		if( !fFPvolume ) fFPvolume = gGeoManager->MakeVolumeAssembly("FocalPlanVAMOS");
+
+		fDetectors->R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
+}
+//________________________________________________________________
+
+void KVVAMOS::BuildVAMOSGeometry(){
+
+	// Construction of the geometry of VAMOS spectrometer.
+	// The informations used for building the VAMOS geometry are read in
+	// all the files with the .cao extension in $KVROOT/KVFiles/<DataSet>/VAMOSgeometry
+	// directory.
+	//
+	// This method will create an instance of TGeoManager (any previous existing geometry gGeoManager
+    // will be automatically deleted) and initialise it with the full geometry of VAMOS
+    //Every detector at the focal plan will be represented in the resulting geometry.
+    //
+    // For information on using the ROOT geometry package, see TGeoManager and related classes,
+    // as well as the chapter "The Geometry Package" in the ROOT Users' Guide.
+    //
+    // The half-lengths of the "world"/"top" volumei, into which all the detectors
+    //  are placed, are equal to 500 cm. This should be big enough so that all detectors.
+    // This "world" is a cube 1000cmx1000cmx1000cm (with sides going from -500cm to +500cm on each axis).
+
+	TEnv infos;
+	if( !LoadGeoInfosIn( &infos ) ){
+		Error("BuildVAMOSGeometry","No information found to build VAMOS geometry");
+		return;
+	}
+
+
+	if (gGeoManager){
+		Warning("BuildVAMOSGeometry","The existing geometry gGeoManager (%s, %s) is going to be deleted!!!", gGeoManager->GetName(), gGeoManager->GetTitle());
+ 	   	delete gGeoManager;
+	}
+
+   TGeoManager *geom = new TGeoManager("VAMOS", Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
+   TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+   matVacuum->SetTitle("Vacuum");
+   TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+   TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
+   geom->SetTopVolume(top);
+
+
+   BuildFocalPlaneGeometry( &infos );
+
+   Info("BuildVAMOSGeometry","Method to be completed");
+   // TO BE COMPLETED ////////////////////////////
+   top->AddNode(fFPvolume,1);
+   ///////////////////////////////////////////////
+   gGeoManager->CloseGeometry();
 }
 //________________________________________________________________
 
@@ -172,14 +217,17 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
 void KVVAMOS::Build(){
 	// Build the VAMOS spectrometer. 
 	
+	if( IsBuilt() ) return;
+
 	SetName("VAMOS");
-	SetTitle("VAMOS spectrometer for the e494s experiment");
-	BuildGeometry();
+	SetTitle("VAMOS spectrometer");
 	MakeListOfDetectors();
+	BuildVAMOSGeometry();
 	SetIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
 	Initialize();
+	SetBit(kIsBuilt);
 }
 //________________________________________________________________
 
@@ -214,48 +262,70 @@ void KVVAMOS::MakeListOfDetectors(){
 	// The detectors are defined and associated to their TGeoVolume's
 	// which compose it. 
 	
-	TString envname = "KVSpectrometer.DetectorList";
-	 //TString envname = Form("%s.DetectorList",ClassName());
+	 TString envname = Form("%s.DetectorList",ClassName());
 
-	cout<<envname<<endl;	
-	TString list = gDataSet->GetDataSetEnv(envname.Data());
-	TObjArray *tok = list.Tokenize(" ");
-	TIter nextdet(tok);
-	TObject* obj = NULL;
+	KVString list = gDataSet->GetDataSetEnv(envname.Data());
+	list.Begin(" ");
 	KVNumberList numlist;
 	// Loop over each detector of the spectrometer
-	while(  (obj = nextdet()) ){
-		const Char_t* detname = obj->GetName();
-		cout<<detname<<endl;
-		TClass* detcl = TClass::GetClass(detname);
+	while( !list.End() ){
+		KVString detname = list.Next( kTRUE );
+		TClass* detcl = TClass::GetClass(detname.Data());
 		if(!detcl){
- 			cout<<Form("ERROR: class %s not found in the dictionary",detname)<<endl;
+ 			cout<<Form("ERROR: class %s not found in the dictionary",detname.Data())<<endl;
 			continue;
 		}
 
-		// envname.Form("%s.%s.Number",ClassName(),detname);
-		envname.Form("KVSpectrometer.%s.Number",detname);
-		cout<<envname<<endl;	
-		list = gDataSet->GetDataSetEnv(envname.Data());
-		numlist.SetList(list.Data());
+		envname.Form("%s.%s.Number",ClassName(),detname.Data());
+		numlist.SetList( gDataSet->GetDataSetEnv(envname.Data()));
 		numlist.Begin();
 		// Loop over detectors with same type.
 		// Different by their number
 		while(!numlist.End()){
 			Int_t num = numlist.Next();
 
-			cout<<"Building "<<detcl->GetName()<<", number "<<num<<endl;
-
 			// Making the detector
 			KVSpectroDetector *det = (KVSpectroDetector*) detcl->New();
 			det->SetNumber(num);
 			det->SetName(det->GetArrayName());
-			det->BuildFromFile();
 			Warning("MakeListOfDetectors","The detector %s have to be assigned to TGeoVolume",det->GetName());
 			fDetectors->Add(det);
 		}
 	}
-	delete tok;
+}
+//________________________________________________________________
+
+Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
+	// Load in a TEnv object the informations concerning the geometry of VAMOS.
+	// These informations  are read in all the files with the .cao extension in 
+	// $KVROOT/KVFiles/<DataSet>/VAMOSgeometry directory.
+	// Returns the number of files read.
+
+	
+	// Reading geometry iformations in .cao files
+	const Char_t dirname[] = "VAMOSgeometry";
+	TString path( GetKVFilesDir() );
+	path += "/";
+	if( gDataSet ){
+		path += gDataSet->GetName();
+		path += "/";
+	}
+	path += dirname;
+	TSystemDirectory dir(dirname,path.Data());
+	TList *lfiles = dir.GetListOfFiles();
+	TIter nextfile( lfiles );
+	TSystemFile *file = NULL;
+	Int_t Nfiles = 0;
+	while( (file = (TSystemFile *)nextfile()) ){
+		path.Form("%s/%s",file->GetTitle(),file->GetName());
+		if( !path.EndsWith(".cao") ) continue;
+ 		infos->ReadFile(path.Data(),kEnvAll); 
+		Nfiles++;
+		Info("BuildFocalPlaneGeometry","Reading file %s",file->GetName());
+	}
+	infos->Print();
+	delete lfiles;
+	return Nfiles;
 }
 //________________________________________________________________
 
@@ -274,7 +344,7 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
 
     //check and load plugin library
     TPluginHandler *ph;
-    if (!(ph = LoadPlugin("KVSpectrometer", name)))
+    if (!(ph = LoadPlugin("KVVAMOS", name)))
         return 0;
 
     //execute constructor/macro for multidetector - assumed without arguments
@@ -326,11 +396,10 @@ void KVVAMOS::SetArrayACQParams(){
 	// Add acquisition parameters which are not
 	// associated to a detector. The list of ACQ parameters is 
 	// defined in environment variables such as
-	// [dataset name].KVSpectrometer.ACQParameterList: TSI_HF TSED1_SED2 ...
+	// [dataset name].KVVAMOS.ACQParameterList: TSI_HF TSED1_SED2 ...
 	// in the .kvrootrc file.
 
-	TString envname = "KVSpectrometer.ACQParameterList";
-	//TString envname = Form("%s.DetectorList",ClassName());
+	TString envname = Form("%s.ACQParameterList",ClassName());
 
 	cout<<envname<<endl;	
 	TString list = gDataSet->GetDataSetEnv(envname.Data());

@@ -249,7 +249,7 @@ void KVHarpeeIC::SetACQParams(){
 	TString name;
 	Char_t idx[]={'A','B','C'};
 
-	for(Int_t num = 1; num<=7; num++){
+	for(Int_t num = 1; num<=ARPEEIC_NSEG; num++){
 //		for(Int_t i = 0; i<3; i++){
 		for(Int_t i = 0; i<1; i++){
 			KVACQParam *par = new KVACQParam;

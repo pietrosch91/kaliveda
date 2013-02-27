@@ -3,6 +3,7 @@
 
 #ifndef __KVHARPEEIC_H
 #define __KVHARPEEIC_H
+#define ARPEEIC_NSEG  7
 
 #include "KVVAMOSDetector.h"
 #include "KVUnits.h"
