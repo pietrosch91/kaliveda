@@ -987,24 +987,17 @@ KVMultiDetArray.FilterUsesROOTGeometry:    no
 
 # test for development of classes describing the VAMOS spectrometer
 # 
-Plugin.KVSpectrometer:    INDRA_e494s    KVVAMOS     KVSpectrometer    "KVVAMOS()"
+Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     KVSpectrometer    "KVVAMOS()"
 
 #--------------- List of detectors in the focal plan of VAMOS
-KVSpectrometer.DetectorList: KVHarpeeSi KVHarpeeIC KVDriftChamber KVSeD
-KVSpectrometer.KVHarpeeSi.Number: 1-18
-KVSpectrometer.KVHarpeeIC.Number: 1
-KVSpectrometer.KVDriftChamber.Number: 1-2
-KVSpectrometer.KVSeD.Number: 1
+KVVAMOS.DetectorList: KVHarpeeSi KVHarpeeIC KVDriftChamber KVSeD
+KVVAMOS.KVHarpeeSi.Number: 1-18
+KVVAMOS.KVHarpeeIC.Number: 1
+KVVAMOS.KVDriftChamber.Number: 1-2
+KVVAMOS.KVSeD.Number: 1
 # For INDRA_e494s dataset
-INDRA_e494s.KVSpectrometer.DetectorList: KVHarpeeSi KVHarpeeIC KVSeD
-INDRA_e494s.KVSpectrometer.KVSeD.Number: 1-2
+INDRA_e494s.KVVAMOS.DetectorList: KVHarpeeSi KVHarpeeIC KVSeD
+INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
 
-#-------------- List of ACQParameter 
-# for VAMOS
-KVSpectrometer.ACQParameterList: TSED1_HF TSED2_HF TSED1_SED2 TSED1_INDRA TSED1_MCP TSI_HF TSI_SED1 TSI_INDRA TSI_MCP TMCP_HF
-# for the detectors
-KVHarpeeSi.ACQParameterList:
-KVHarpeeIC.ACQParameterList:
-KVDriftChamber.ACQParameterList:
-KVSeD.ACQParameterList:
-
+#-------------- List of ACQParameter  associated to VAMOS
+KVVAMOS.ACQParameterList: TSED1_HF TSED2_HF TSED1_SED2 TSED1_INDRA TSED1_MCP TSI_HF TSI_SED1 TSI_INDRA TSI_MCP TMCP_HF
