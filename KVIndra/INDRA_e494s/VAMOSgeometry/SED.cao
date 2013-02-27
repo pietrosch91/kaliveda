@@ -16,7 +16,7 @@ SED.ACTIVEABS: 1
 # incline of the emissive foil which is the unique 
 # absorber of the detector = slope of the detector
 # 45-deg rotation around X axis 
-SED.INCLINE.X: 45
+SED.INCLINE.X: -45
 
 #reference position from focal plan
 # REF.Z= focal-plan position minus SED position from target
