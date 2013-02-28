@@ -1,5 +1,6 @@
-SED.WIDTH: 1
-SED.HEIGHT: 1
+# size of the emissive foil
+SED.WIDTH: 40
+SED.HEIGHT: 15
 
 # number of absorber (i.e. volumes)
 SED.NABS: 1
@@ -18,9 +19,10 @@ SED.ACTIVEABS: 1
 # 45-deg rotation around X axis 
 SED.INCLINE.X: -45
 
-#reference position from focal plan
-# REF.Z= focal-plan position minus SED position from target
+#reference position from focal plan.
+# REF.Z= focal-plan position minus SED position from target.
+# distance between SED1-SED2 = DIST(SED1-SED2) = 88.5
 SED.REF.X: 0
 SED.REF.Y: 0
-SED1.REF.Z: 0
-SED2.REF.Z: 0
+SED1.REF.Z: -71.8
+SED2.REF.Z: 16.7

@@ -285,6 +285,8 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 	// place the detector in the reference volume 'ref_vol'
 	TGeoTranslation* ref_tr = new TGeoTranslation(ref_pos[0], ref_pos[1], ref_pos[2]);
 	ref_vol->AddNode( GetAbsGeoVolume(), 1, ref_tr );
+
+	return kTRUE;
 }
 //________________________________________________________________
 

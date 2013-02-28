@@ -55,6 +55,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 
    virtual void SetMaterial(const Char_t * type);
    inline TList *GetActiveVolumes() const{ return fActiveVolumes;}
+   inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return (TGeoVolume *)fActiveVolumes->At(i);}
    inline Double_t GetTotalThickness() const{ return fTotThick;}
 
 

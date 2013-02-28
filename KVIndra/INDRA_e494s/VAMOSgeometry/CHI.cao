@@ -12,21 +12,24 @@ CHI.ABS.1.THICK: 0.00015
 
 # section A
 CHI.ABS.2.MATERIAL: C4H10
-CHI.ABS.2.THICK: 0.0002068
+CHI.ABS.2.THICK: 2.068
 
 # section B
 CHI.ABS.3.MATERIAL:  C4H10
-CHI.ABS.3.THICK: 0.0010457
+CHI.ABS.3.THICK: 10.457
 
 # section C
 CHI.ABS.4.MATERIAL:  C4H10
-CHI.ABS.4.THICK: 0.0001278
+CHI.ABS.4.THICK: 1.278
 
 #active absorber (i.e. volume)
 CHI.ACTIVEABS: 3
 
 #reference position from focal plan
 # REF.Z= focal-plan position minus CHI position from target
+#      = SED2.REF.Z + CHI.THICK/2 + DIST(SED2-CHI)
+#      = 16.7 + (0.00015+2.068+10.457+1.278)/2 + 38
+#      where DIST(SED2-CHI) = 38 cm
 CHI.REF.X: 0
-CHI.REF.Y: 0
-CHI.REF.Z: 0
+CHI.REF.Y: -1.63636
+CHI.REF.Z: 61.6
