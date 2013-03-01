@@ -255,6 +255,7 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 
 	// build volumes
 	TGeoShape *shape = NULL;
+	TString tmp;
 	for(Int_t i=0; i<Nabs; i++){
 
 		fTotThick+=thick[i];
@@ -266,7 +267,8 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 		// Reference is the center of absorber
 		Double_t ztrans = (thick[i]-thick_tot)/2;
 		for(Int_t j=0; j<Nabs-1;j++) ztrans+= (j<i)*thick[j];
-		TGeoTranslation* tr = ( ztrans ? new TGeoTranslation(0.,0.,ztrans) : NULL );
+		tmp.Form( "%s_mat%d_tr", GetName(), i+1 );
+		TGeoTranslation* tr = ( ztrans ? new TGeoTranslation(tmp.Data(), 0.,0.,ztrans) : NULL );
 		AddAbsorber(mat[i].Data(),shape,tr, activeabs.Contains( i+1 ));
 	}
 
@@ -274,8 +276,8 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 	Double_t Xincline = GetDetectorEnv("INCLINE.X",0.,infos);
 	if( Xincline ){
 		TGeoVolume  *vol_as= gGeoManager->MakeVolumeAssembly(Form("%s_%d",GetName(),fNumVol++));
-		TGeoRotation *rot = new TGeoRotation();
-		rot->SetAngles(0,Xincline,0);
+		tmp.Form( "%s_rot_x", GetName() );
+		TGeoRotation *rot = new TGeoRotation( tmp.Data(), 0. , Xincline, 0. );
 		vol_as->AddNode( GetAbsGeoVolume(), 1, rot );
 		SetAbsGeoVolume( vol_as );
 	}
@@ -290,7 +292,8 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 	}
 
 	// place the detector in the reference volume 'ref_vol'
-	TGeoTranslation* ref_tr = new TGeoTranslation(pos[0], pos[1], pos[2]);
+	tmp.Form( "%s_tr", GetName() );
+	TGeoTranslation* ref_tr = new TGeoTranslation( tmp.Data(), pos[0], pos[1], pos[2] );
 	ref_vol->AddNode( GetAbsGeoVolume(), 1, ref_tr );
 
 	return kTRUE;

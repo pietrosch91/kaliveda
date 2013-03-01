@@ -9,6 +9,7 @@
 #include "KVUpDater.h"
 #include "KVFunctionCal.h"
 #include "TSystemDirectory.h"
+#include "TGeoBBox.h"
 
 using namespace std;
 
@@ -49,6 +50,7 @@ void KVVAMOS::init()
 	fVACQParams   = NULL;
 	fVCalibrators = NULL;
 	fFPvolume     = NULL;
+	fFocalPos     = 0; 
 
 	Info("init","To be implemented");
 }
@@ -96,6 +98,63 @@ void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
 }
 //________________________________________________________________
 
+Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
+	// Build all the other volumes wich are not associated to the focal
+	// plan detectors. Informations for the construction are read in
+	// the TEnv object 'infos' ( see BuildVAMOSGeometry() ).
+	//
+	// Example of volumes built here:
+	//              -volume of the stripping foil.
+	//              -vamos assembly volume
+	//              -dipole and quadrupole
+	//                  ....            
+
+	Info("BuildGeoVolume","Method to be completed");
+
+   	// TO BE COMPLETED ////////////////////////////
+
+	// this volume assembly allow the rotation of VAMOS around the 
+	// target
+	TGeoVolume *vamos = gGeoManager->MakeVolumeAssembly("VAMOS");
+	TGeoVolume *top   = gGeoManager->GetTopVolume();
+	top->AddNode( vamos, 1 );    // Matrix has to be added when the angle
+	                             // of VAMOS will be set
+
+	TGeoMatrix *matrix = NULL;
+	TGeoShape *shape   = NULL;
+
+	// Add a volume for the stripping foil if it is present
+	Double_t th    = infos->GetValue("VAMOS.STRIP.FOIL.THICK", 0.);
+	Double_t adens = infos->GetValue("VAMOS.STRIP.FOIL.AREA.DENSITY", 0.);
+	Double_t dis   = infos->GetValue("VAMOS.STRIP.FOIL.POS", 0.);
+	if( (th || adens) && dis ){
+		TString mat = infos->GetValue("VAMOS.STRIP.FOIL.MATERIAL", "C");
+		Double_t w  = infos->GetValue("VAMOS.STRIP.FOIL.WIDTH", 30.);
+		Double_t h  = infos->GetValue("VAMOS.STRIP.FOIL.HEIGHT", w );
+
+		KVMaterial kvmat( mat.Data(), th );
+		if( adens ) kvmat.SetAreaDensity( adens );
+
+		shape  = new TGeoBBox( w/2, h/2, kvmat.GetThickness()/2 );
+		TGeoMedium *med = kvmat.GetGeoMedium();
+		mat.Form("%s_foil",med->GetName());
+		TGeoVolume* vol =  new TGeoVolume(mat.Data(),shape,med);
+		vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
+		mat += "_pos";
+		matrix = new TGeoTranslation(mat.Data(), 0., 0., dis );
+		top->AddNode( vol, 1, matrix);
+	}
+
+	// place the focal plan from target
+   	fFocalPos =  infos->GetValue("VAMOS.FOCALPOS", 0.);
+	matrix    = new TGeoTranslation("focal_pos", 0., 0., fFocalPos/10+dis ); // TO BE CHANGED
+   	vamos->AddNode( fFPvolume, 1, matrix );
+   	///////////////////////////////////////////////
+
+	return kTRUE;
+}
+//________________________________________________________________
+
 void KVVAMOS::BuildVAMOSGeometry(){
 
 	// Construction of the geometry of VAMOS spectrometer.
@@ -126,7 +185,7 @@ void KVVAMOS::BuildVAMOSGeometry(){
  	   	delete gGeoManager;
 	}
 
-   TGeoManager *geom = new TGeoManager("VAMOS", Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
+   TGeoManager *geom = new TGeoManager(Form("GEO_%s", gDataSet->GetLabel()), Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
    TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
    matVacuum->SetTitle("Vacuum");
    TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
@@ -135,12 +194,40 @@ void KVVAMOS::BuildVAMOSGeometry(){
 
 
    BuildFocalPlaneGeometry( &infos );
+   BuildGeoVolume( &infos);
 
-   Info("BuildVAMOSGeometry","Method to be completed");
-   // TO BE COMPLETED ////////////////////////////
-   top->AddNode(fFPvolume,1);
-   ///////////////////////////////////////////////
-   gGeoManager->CloseGeometry();
+      // The option "i" is important to give unique ID for each existing
+   // Node. This is done in InitGeometry()
+   gGeoManager->CloseGeometry("i");
+
+  }
+//________________________________________________________________
+
+void KVVAMOS::InitGeometry(){
+	// Initialize the geometry of VAMOS and of the detectors  
+	// placed at the focal plan.
+
+   	TGeoNode   *node = NULL;
+   	TGeoVolume *vol  = NULL;
+   	TString     vname;
+
+   	// we give the unique ID for each node to simplify navigation
+   	// inside the geometry. We set the same ID for the volume
+   	// having the same name of the node (we assume that each
+   	// volume is associated to one node only)
+   	for(Int_t i=0; i<gGeoManager->GetNNodes(); i++){
+	   	gGeoManager->CdNode(i);
+	   	node = gGeoManager->GetCurrentNode();
+	   	node->SetUniqueID( gGeoManager->GetCurrentNodeId() );
+	   	vname = node->GetName();
+	   	vname.Remove( vname.Last('_') );
+	   	vol = gGeoManager->GetVolume( vname.Data() );
+	   	if( vol ) vol->SetUniqueID( gGeoManager->GetCurrentNodeId() );
+   	}
+
+	// Focal-plan to target matrix
+	gGeoManager->CdNode( fFPvolume->GetUniqueID() );
+	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
 }
 //________________________________________________________________
 
@@ -223,6 +310,7 @@ void KVVAMOS::Build(){
 	SetTitle("VAMOS spectrometer");
 	MakeListOfDetectors();
 	BuildVAMOSGeometry();
+    InitGeometry();
 	SetIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
@@ -492,4 +580,28 @@ void KVVAMOS::SetParameters(UShort_t run){
 	if(!ds) return;
 	ds->cd();
 	ds->GetUpDater()->SetParameters(run);
+}
+//________________________________________________________________
+
+void KVVAMOS::FocalToTarget(const Double_t *focal, Double_t *target){
+	// Convert the point coordinates from focal plan reference to target reference system.
+	fFocalToTarget.LocalToMaster( focal, target );
+}
+//________________________________________________________________
+
+void    KVVAMOS::TargetToFocal(const Double_t *target, Double_t *focal){
+	// Convert the point coordinates from  target reference to focal plan reference system.
+	fFocalToTarget.MasterToLocal( target, focal );
+}
+//________________________________________________________________
+
+void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
+	// Convert the vector coordinates from focal plan reference to target reference system.
+	fFocalToTarget.LocalToMasterVect( focal, target );
+}
+//________________________________________________________________
+
+void KVVAMOS::TargetToFocalVect(const Double_t *target, Double_t *focal){
+	// Convert the vector coordinates from  target reference to focal plan reference system.
+	fFocalToTarget.MasterToLocalVect( target, focal );
 }

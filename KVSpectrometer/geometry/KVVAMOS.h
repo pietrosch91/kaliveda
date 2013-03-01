@@ -6,6 +6,7 @@
 
 #include "KVDetector.h"
 #include "KVSeqCollection.h"
+#include "TGeoMatrix.h"
 
 class KVACQParam;
 class KVDetector;
@@ -26,11 +27,15 @@ class KVVAMOS : public KVDetector //public KVBase
 		KVList *fVACQParams;   // References to data acquisition parameter belonging to VAMOS
 		KVList *fVCalibrators; //References to calibrator belonging to VAMOS
 		TGeoVolume *fFPvolume; //! TGeoVolume centered on the focal plane
+		Double_t fFocalPos;    //! Position of the focal plan from target center (in cm)
+		TGeoHMatrix fFocalToTarget; //! focal-plan to target position transformation matrix
 
    virtual void BuildFocalPlaneGeometry(TEnv *infos);
+   virtual Bool_t BuildGeoVolume(TEnv *infos);
    virtual void BuildVAMOSGeometry();
-   virtual void MakeListOfDetectors();
+   virtual void InitGeometry();
    virtual Int_t LoadGeoInfosIn(TEnv *infos);
+   virtual void MakeListOfDetectors();
    virtual void SetACQParams();
    virtual void SetArrayACQParams();
    virtual void SetCalibrators();
@@ -53,8 +58,15 @@ class KVVAMOS : public KVDetector //public KVBase
    static KVVAMOS *MakeVAMOS(const Char_t* name);
    virtual void SetParameters(UShort_t run);
 
+
+   void FocalToTarget(const Double_t *focal, Double_t *target);
+   void TargetToFocal(const Double_t *target, Double_t *focal);
+   void FocalToTargetVect(const Double_t *focal, Double_t *target);
+   void TargetToFocalVect(const Double_t *target, Double_t *focal);
+
    
    // ----- inline methods -----------
+
 
    inline KVCalibrator *GetVCalibrator(const Char_t * type) const{
    if (fVCalibrators)
@@ -66,6 +78,7 @@ class KVVAMOS : public KVDetector //public KVBase
 	   return (KVDetector*)fDetectors->FindObject(name);
    };
 
+   inline TGeoHMatrix GetFocalToTargetMatrix() const { return fFocalToTarget; }
    inline KVList* GetListOfDetectors()   { return fDetectors;  };
    inline KVList* GetVACQParamList()     { return fVACQParams; };
    inline KVList* GetListOfVCalibrators(){ return fVCalibrators; };
