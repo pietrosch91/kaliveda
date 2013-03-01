@@ -25,11 +25,17 @@ CHI.ABS.4.THICK: 1.278
 #active absorber (i.e. volume)
 CHI.ACTIVEABS: 3
 
-#reference position from focal plan
-# REF.Z= focal-plan position minus CHI position from target
-#      = SED2.REF.Z + CHI.THICK/2 + DIST(SED2-CHI)
+# position from focal plan reference frame
+# Z= focal-plan position minus CHI position from target
+#      = SED2.Z + CHI.THICK/2 + DIST(SED2-CHI)
 #      = 16.7 + (0.00015+2.068+10.457+1.278)/2 + 38
 #      where DIST(SED2-CHI) = 38 cm
+CHI.X: 0
+CHI.Y: 0
+CHI.Z: 61.6
+
+# Position of the reference trajectory in the detector reference frame
+# CHI.REF.[X,Y] has to be equal  to SI.REF.[X,Y] since both are in HARPEE chamber
 CHI.REF.X: 0
-CHI.REF.Y: -1.63636
-CHI.REF.Z: 61.6
+CHI.REF.Y: 1.63636
+CHI.REF.Z: 0

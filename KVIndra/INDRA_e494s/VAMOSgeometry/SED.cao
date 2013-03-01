@@ -19,10 +19,19 @@ SED.ACTIVEABS: 1
 # 45-deg rotation around X axis 
 SED.INCLINE.X: -45
 
-#reference position from focal plan.
-# REF.Z= focal-plan position minus SED position from target.
+# Position from focal plan reference frame.
+# Z= focal-plan position minus SED position (from target).
 # distance between SED1-SED2 = DIST(SED1-SED2) = 88.5
-SED.REF.X: 0
-SED.REF.Y: 0
-SED1.REF.Z: -71.8
-SED2.REF.Z: 16.7
+SED.X: 0
+SED.Y: 0
+SED1.Z: -71.8
+SED2.Z: 16.7
+
+# Position of the reference trajectory in the detector reference frame
+SED1.REF.X: 0
+SED1.REF.Y: 0
+SED1.REF.Z: 0
+
+SED2.REF.X: 0
+SED2.REF.Y: 0
+SED2.REF.Z: 0

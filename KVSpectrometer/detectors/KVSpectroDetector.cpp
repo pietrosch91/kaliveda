@@ -190,7 +190,7 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
  	}
 	Info("BuildGeoFromFile","IN");
 
-	const Char_t *infotype[] = {"NABS","WIDTH","HEIGHT","REF.X","REF.Y","REF.Z"};
+	const Char_t *infotype[] = {"NABS","WIDTH","HEIGHT","X","Y","Z"};
 	Binary8_t errorbit;
 	Int_t Nbit = 0;
 	TString miss;
@@ -204,12 +204,12 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 	Double_t height = GetDetectorEnv(infotype[Nbit++],-1.,infos);
 	if(height < 0 ) errorbit.SetBit(Nbit-1);
 	
-	Double_t ref_pos[3]; // Xref, Yref, Zref
-    // reference positions have to be present if ref_vol is defined
+	Double_t pos[3]; // X, Y, Z of the detector origine in the reference volume
+    // This positions have to be present if ref_vol is defined
 	if( ref_vol ){
 		for(Int_t i=0; i<3; i++){
-		ref_pos[i] = GetDetectorEnv(infotype[Nbit++],-666.,infos);
-		if( ref_pos[i] <= -666 ) errorbit.SetBit(Nbit-1);
+		pos[i] = GetDetectorEnv(infotype[Nbit++],-666.,infos);
+		if( pos[i] <= -666 ) errorbit.SetBit(Nbit-1);
 		}
 	}
 
@@ -282,8 +282,15 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 
 	if( !ref_vol ) return kTRUE;
 
+	Double_t ref_pos[3]; // Xref, Yref, Zref
+	for(Int_t i=0; i<3; i++){
+		type.Form("REF.%c",'X'+i);
+		ref_pos[i] = GetDetectorEnv(type.Data(),0.,infos);
+		pos[i] -= ref_pos[i];
+	}
+
 	// place the detector in the reference volume 'ref_vol'
-	TGeoTranslation* ref_tr = new TGeoTranslation(ref_pos[0], ref_pos[1], ref_pos[2]);
+	TGeoTranslation* ref_tr = new TGeoTranslation(pos[0], pos[1], pos[2]);
 	ref_vol->AddNode( GetAbsGeoVolume(), 1, ref_tr );
 
 	return kTRUE;
