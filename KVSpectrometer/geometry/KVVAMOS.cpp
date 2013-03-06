@@ -228,6 +228,16 @@ void KVVAMOS::InitGeometry(){
 	// Focal-plan to target matrix
 	gGeoManager->CdNode( fFPvolume->GetUniqueID() );
 	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
+	fFocalToTarget.SetName("focal_to_target");
+
+
+	// Initialize the geometry of the detectors
+	TIter next_det(fDetectors);
+	KVVAMOSDetector *det = NULL;
+	while( (det = (KVVAMOSDetector *)next_det()) ){
+		det->SetFocalToTargetMatrix( &fFocalToTarget );
+		det->InitGeometry();	
+	}
 }
 //________________________________________________________________
 
