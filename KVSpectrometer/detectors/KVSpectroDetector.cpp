@@ -309,6 +309,21 @@ void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * norm){
 }
 //________________________________________________________________
 
+KVList *KVSpectroDetector::GetFiredACQParamList(Option_t *opt){
+	// Returns a list with all the fired acquisiton parameters of
+	// this detector. The option is set to the method KVACQParam::Fired;
+	//
+	// *** WARNING *** : DELETE the list returned by this method after using it !!!
+	TIter next( GetACQParamList() );
+	KVACQParam *par = NULL;
+	KVList *list = new KVList( kFALSE );
+	while( (par = (KVACQParam *)next()) ){
+		if( par->Fired( opt ) ) list->Add( par ); 
+	}
+	return list;
+}
+//________________________________________________________________
+
 TGeoHMatrix &KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i ) const{ 
 	// Returns the matrix which transforms coordinates form the reference
 	// frame of the active volume 'i' to the reference frame of the focal
@@ -453,6 +468,32 @@ TGeoVolume* KVSpectroDetector::GetGeoVolume(){
 }
 //________________________________________________________________
 
+Int_t KVSpectroDetector::GetMult(Option_t *opt){
+	// Returns the multiplicity of fired (value above the pedestal) 
+	// acquisition parameters if opt = "" (default).
+	// If opt = "root" returns the multiplicity of only fired acq. 
+	// parameters with GetName() containing "root". For example if
+	// you want the multiplicity of fired segments B of a child class
+	// KVHarpeeIC call GetMult("ECHI_B").
+
+	Int_t mult   = 0;
+
+	TString str( opt );
+	Bool_t withroot = !str.IsNull();
+
+	TIter next( GetACQParamList() );
+	KVACQParam *par = NULL;
+	while( (par = (KVACQParam *)next()) ){
+		if( withroot ){
+			str = par->GetName();
+			if( !str.Contains( opt ) ) continue;
+		}
+		if( par->Fired("P") ) mult++;
+	}
+	return mult;
+}
+//________________________________________________________________
+
 Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * norm){
 	// To be implemented. See the same method in KVDetector
 	Warning("GetParticleEIncFromERes","To be implemented");
@@ -461,11 +502,67 @@ Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * nor
 }
 //________________________________________________________________
 
+Double_t KVSpectroDetector::GetXf( Int_t idx ){
+	// Return the X coordinate (in cm)  by calling the
+	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
+	// in child classes; 
+	// The function returns -666 in case of an invalid request.
+	Double_t X[3];
+	if( !GetPosition( X, idx ) ) return -666;
+	return  X[0];
+}
+//________________________________________________________________
+
+Double_t KVSpectroDetector::GetYf( Int_t idx ){
+	// Return the Y coordinate (in cm)  by calling the
+	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
+	// in child classes; 
+	// The function returns -666 in case of an invalid request.
+	Double_t X[3];
+	if( !GetPosition( X, idx ) ) return -666;
+	return  X[1];
+}
+//________________________________________________________________
+
+Double_t KVSpectroDetector::GetZf( Int_t idx ){
+	// Return the Y coordinate (in cm)  by calling the
+	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
+	// in child classes; 
+	// The function returns -666 in case of an invalid request.
+	Double_t X[3];
+	if( !GetPosition( X, idx ) ) return -666;
+	return  X[2];
+}
+//________________________________________________________________
+
+Bool_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
+	// Return the coordinates (in cm) of a point randomly drawn in the 
+	// active volume with index 'idx'. We assume that the shape of this
+	// volume is a TGeoBBox. These coordinates are given in the reference frame of the focal plan. 
+	// The function returns -666 in case of an invalid request
+
+	TGeoVolume *vol = GetActiveVolume(idx);
+	if( !vol ) return kFALSE;
+   	const TGeoBBox *box = (TGeoBBox *)vol->GetShape();
+   	Double_t dx = box->GetDX();
+   	Double_t dy = box->GetDY();
+   	Double_t dz = box->GetDZ();
+   	Double_t ox = (box->GetOrigin())[0];
+   	Double_t oy = (box->GetOrigin())[1];
+   	Double_t oz = (box->GetOrigin())[2];
+   	Double_t xyz[3];
+  	xyz[0] = ox-dx+2*dx*gRandom->Rndm();
+   	xyz[1] = oy-dy+2*dy*gRandom->Rndm();
+   	xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+	return ActiveVolumeToFocal( xyz , XYZf, idx );
+}
+//________________________________________________________________
+
 UInt_t KVSpectroDetector::GetTelescopeNumber() const{
 	//  Obsolete method.
 	Warning("GetTelescopeNumber","Obsolete method");	
 
-	return 0;
+	return GetNumber();
 }
 //________________________________________________________________
 
@@ -585,50 +682,53 @@ Bool_t KVSpectroDetector::GetDetectorEnv(const Char_t * type, Bool_t defval, TEn
   }
 //________________________________________________________________
 
-void KVSpectroDetector::ActiveVolumeToFocal(const Double_t *volume, Double_t *focal, Int_t idx){
+Bool_t KVSpectroDetector::ActiveVolumeToFocal(const Double_t *volume, Double_t *focal, Int_t idx){
 	// Convert the point coordinates from active volume (with index 'idx') reference to focal plan reference system.
 
 	TGeoHMatrix *mat = NULL;
 	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
 		Error("ActiveVolumeToFocal","Conversion impossible!");
-		return;
+		return kFALSE;
 	}
 	mat->LocalToMaster( volume, focal );
+	return kTRUE;
 }
 //________________________________________________________________
 
-void KVSpectroDetector::FocalToActiveVolume(const Double_t *focal,  Double_t *volume, Int_t idx){
+Bool_t KVSpectroDetector::FocalToActiveVolume(const Double_t *focal,  Double_t *volume, Int_t idx){
 	// Convert the point coordinates from focal plan reference to active volume (with index 'idx') reference system.
 
 	TGeoHMatrix *mat = NULL;
 	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
 		Error("FocalToActiveVolume","Conversion impossible!");
-		return;
+		return kFALSE;
 	}
 	mat->MasterToLocal( focal, volume );
-
+	return kTRUE;
 }
 //________________________________________________________________
 
-void KVSpectroDetector::ActiveVolumeToFocalVect(const Double_t *volume, Double_t *focal, Int_t idx){
+Bool_t KVSpectroDetector::ActiveVolumeToFocalVect(const Double_t *volume, Double_t *focal, Int_t idx){
 	// Convert the vector coordinates from active volume (with index 'idx') reference to focal plan reference system.
 
 	TGeoHMatrix *mat = NULL;
 	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
 		Error("ActiveVolumeToFocalVect","Conversion impossible!");
-		return;
+		return kFALSE;
 	}
 	mat->LocalToMasterVect( volume, focal );
+	return kTRUE;
 }
 //________________________________________________________________
 
-void KVSpectroDetector::FocalToActiveVolumeVect(const Double_t *focal,  Double_t *volume, Int_t idx){
+Bool_t KVSpectroDetector::FocalToActiveVolumeVect(const Double_t *focal,  Double_t *volume, Int_t idx){
 // Convert the vector coordinates from focal plan reference to the active volume (with index 'idx') reference system.
 
 	TGeoHMatrix *mat = NULL;
 	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
 		Error("FocalToActiveVolumeVect","Conversion impossible!");
-		return;
+		return kFALSE;
 	}
 	mat->MasterToLocalVect( focal, volume );
+	return kTRUE;
 }

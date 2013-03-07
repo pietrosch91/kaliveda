@@ -147,7 +147,7 @@ const Char_t *KVHarpeeSi::GetEBaseName() const{
 
 KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
 	// This static method returns the first fired detector found
-	// in the list of all the existing HarpeeSi detectors.
+	// in the list of all the existing silicon detectors of HARPEE.
 	// See KVDetector::Fired() for more information about the option 'opt'.
 
 	TIter next( fHarpeeSiList );
@@ -159,6 +159,21 @@ KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
 }
 //________________________________________________________________
 
+Int_t KVHarpeeSi::GetMult(Option_t *opt){
+	// Returns the multiplicity of fired silicon detectors of HARPEE. 
+	// See KVDetector::Fired() for more information about the option 'opt'.
+
+	Int_t mult   = 0;
+
+	TIter next( fHarpeeSiList );
+	KVHarpeeSi *si = NULL;
+	while( (si = (KVHarpeeSi *)next()) ){
+		if( si->Fired( opt ) ) mult++;
+	}
+	return mult;
+}
+//________________________________________________________________
+
 void KVHarpeeSi::SetACQParams(){
 // Setup the energy acquisition parameter for this silicon detector.
 // This parameter has the name of the detector and has the type 'E' 
@@ -167,6 +182,7 @@ void KVHarpeeSi::SetACQParams(){
 	KVACQParam *par = new KVACQParam;
 	par->SetName( GetEBaseName() );
 	par->SetType("E");
-	par->SetNumber( 4000 + GetNumber() );
+	par->SetUniqueID( 4000 + GetNumber() );
+	par->SetNumber( GetNumber() );
 	AddACQParam(par);
 }

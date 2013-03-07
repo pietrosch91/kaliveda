@@ -26,6 +26,7 @@ class KVHarpeeSi : public KVVAMOSDetector
    		virtual Double_t GetCalibT(const Char_t *type);
    		virtual const Char_t *GetEBaseName() const;
 		static KVHarpeeSi *GetFiredHarpeeSi(Option_t *opt="any");
+   		virtual Int_t GetMult(Option_t *opt="");
 		
 		virtual void SetACQParams();
 

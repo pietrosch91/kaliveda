@@ -30,7 +30,6 @@ void KVSeD::init(){
 
 	fPeakFunction = NULL;
 	fRawPos[0] = fRawPos[1] = -500;
-	fRefPos[0] = fRefPos[1] = 0;
 //	fSpectrum     = NULL;
 	fPosCalib = NULL;
 }
@@ -208,16 +207,15 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 
 	Bool_t ok = kFALSE;
 	KVACQParam *par  = NULL;
-	Int_t idx, num;
+	Int_t idx;
 	while((par = (KVACQParam *)next())){
 
 		if( !par->Fired("P") ) continue;
-		idx = par->GetNumber()/1000-1;
+		idx = par->GetUniqueID()/1000-1;
 
 		if( i != idx ) continue;
-		num =  par->GetNumber() - (idx+1)*1000;
 		Float_t data;
-		fQ[0][idx]->SetBinContent( num, data = par->GetData() );
+		fQ[0][idx]->SetBinContent( par->GetNumber(), data = par->GetData() );
 		ok = kTRUE;
 	}
 
@@ -246,7 +244,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	while((cal = (KVCalibrator *)next())){
 		
 		if( !cal->GetStatus() ) continue;
-		idx = cal->GetNumber()/1000-1;
+		idx = cal->GetUniqueID()/1000-1;
  	   	if( i != idx ) continue;	
 		count_calOK++;
 
@@ -254,7 +252,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 		if( !calf->GetACQParam()->Fired("P") ) continue;
 		count_fired++;
 		
-		num =  calf->GetNumber() - (idx+1)*1000;
+		num =  calf->GetNumber();
 		fQ[1][idx]->SetBinContent( num, calf->Compute() );
 		ok = kTRUE;
 	}
@@ -267,7 +265,6 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 
 void KVSeD::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
-	Info("Initialize","IN");
 	ResetCalculatedData();
 }
 
@@ -321,7 +318,8 @@ void KVSeD::SetACQParams(){
 			name.Form("%s_%c_%03d",GetArrayName(),DIRECTION(i),num);
 			par->SetName(name);
 			par->SetType("Q");
-			par->SetNumber( (i+1)*1000 + num);
+			par->SetUniqueID( (i+1)*1000 + num);
+			par->SetNumber( num);
 			AddACQParam(par);
 		}
 
@@ -348,7 +346,7 @@ void KVSeD::SetCalibrators(){
 
 	KVVAMOSDetector::SetCalibrators();
 	KVSeDPositionCal *c = new KVSeDPositionCal(this);
-	c->SetNumber( 3000 + 2);
+	c->SetUniqueID( 3000 + 2);
 	if(!AddCalibrator(c)) delete c;
 	else fPosCalib = c;
 
@@ -477,51 +475,23 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetPosition(const Char_t dir){
-	// Return the calibrated and corrected position (in cm)
-	// for the direction 'dir'.
-	// The function returns -666 in case of an invalid request
-	Double_t X, Y;
-	if( !GetPosition(X,Y) ) return -666;
-	return ( IDX(dir) ? Y : X );
-}
-//________________________________________________________________
-
-Bool_t KVSeD::GetPosition(Double_t &X, Double_t &Y, Double_t xraw, Double_t yraw){
-	// Get calibrated and deviation-corrected positions X and Y (in cm)
-	// from the raw positions in channel obtained with GetRawPosition(...)
-	// if not given in argument.
-	// A second correction of Y is due to the 45-degree slope of the emissive 
-	// foil relative to the beam direction.
+Bool_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
+	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
+	// in the focal plan reference frame from the raw positions in channel
+	// obtained with GetRawPosition(...).
 	// The function returns kFALSE in case of an invalid request.
 	// See documentation of KVSeDPositionCal for more details about 
 	// calibration algorithm.
 
-	X = Y = -666;
+	XYZf[0] = XYZf[1] = XYZf[2] = -666;
 	if( !IsPositionCalibrated() ) return kFALSE;
 
-
-	Double_t Xraw = ( xraw < 0 ? GetRawPosition('X') : xraw );
-	Double_t Yraw = ( yraw < 0 ? GetRawPosition('Y') : yraw );
-
-//	Double_t Xraw = ( xraw < 0 ? GetRawPosition2('X') : xraw );
-//	Double_t Yraw = ( yraw < 0 ? GetRawPosition2('Y') : yraw );
+	Double_t Xraw = GetRawPosition('X');
+	Double_t Yraw = GetRawPosition('Y');
 
 	// Calibration is performed with the calibrator KVSeDPositionCal
-	if( !(*fPosCalib)( Xraw, Yraw, X, Y ) ) return kFALSE;	
+	if( !(*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ) ) return kFALSE;	
+	XYZf[2] = 0.;
 
-	// Correction of the 45-degree slope of the emissive foil relative to
-	// the beam direction
-	// Ycor = Y * sin( 45 deg)
-	Y *= ONEOVERSQRTTWO;
-	
-	if ( !IS_IN_SED_WINDOW(X,Y) ){
-		X = Y  = -666.;
-		return kFALSE;
-	}
-
-	X -= GetRefX();
-	Y -= GetRefY();
-
-	return kTRUE;
+	return ActiveVolumeToFocal( XYZf, XYZf );
 }

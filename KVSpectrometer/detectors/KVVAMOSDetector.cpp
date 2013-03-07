@@ -118,6 +118,7 @@ void KVVAMOSDetector::SetCalibrators(){
 		KVFunctionCal *c = new KVFunctionCal(this, func);
 		c->SetType(calibtype.Data());
 		c->SetNumber( par->GetNumber() );
+		c->SetUniqueID( par->GetUniqueID() );
 		c->SetACQParam( par );
 		c->SetStatus( kFALSE );
 		if(!AddCalibrator(c)) delete c;

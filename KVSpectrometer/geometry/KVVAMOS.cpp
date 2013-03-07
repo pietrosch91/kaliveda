@@ -514,7 +514,7 @@ void KVVAMOS::SetArrayACQParams(){
 		// VAMOS is the owner of the acq param. (kTRUE)
 		AddACQParam( par = new KVACQParam(param.Data()),kTRUE);
 		if( param.BeginsWith("T") ) par->SetType("T");
-		par->SetNumber( 7000 + num++);
+		par->SetUniqueID( 7000 + num++);
 		par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
 	}
 	cout<<endl;
@@ -562,7 +562,7 @@ void KVVAMOS::SetCalibrators(){
 		func = new TF1(par->GetName(),"pol1",0., 16384.);
 		c = new KVFunctionCal(this, func);
 		c->SetType( calibtype.Data() );
-		c->SetNumber( par->GetNumber() );
+		c->SetUniqueID( par->GetUniqueID() );
 		c->SetACQParam( par );
 		c->SetStatus( kFALSE );
 		if( !AddCalibrator(c,kTRUE) ) delete c;

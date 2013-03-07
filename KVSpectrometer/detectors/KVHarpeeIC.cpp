@@ -173,7 +173,7 @@ Double_t KVHarpeeIC::GetCalibE(){
 	while( ok && (cal = (KVFunctionCal *)next()) ){
 		// numbers of calibrators for segments B are between 
 		// 6020 and 6029
-		Int_t num = cal->GetNumber();
+		Int_t num = cal->GetUniqueID();
 		if( ((num%100)/10) != 1 ) continue;
 
 		if( cal->GetACQParam()->Fired("P")){
@@ -184,32 +184,6 @@ Double_t KVHarpeeIC::GetCalibE(){
  		}
 	}
 	return ( ok ? E : 0. );
-}
-//________________________________________________________________
-
-Int_t KVHarpeeIC::GetMult(Option_t *opt){
-	// Returns the multiplicity of fired (value above the pedestal) 
-	// acquisition parameters if opt = "" (default).
-	// If opt = "root" returns the multiplicity of only fired acq. 
-	// parameters with GetName() containing "root". For example if
-	// you want the multiplicity of fired segments B call 
-	// GetMult("ECHI_B").
-
-	Int_t mult   = 0;
-
-	TString str( opt );
-	Bool_t withroot = !str.IsNull();
-
-	TIter next( GetACQParamList() );
-	KVACQParam *par = NULL;
-	while( (par = (KVACQParam *)next()) ){
-		if( withroot ){
-			str = par->GetName();
-			if( !str.Contains( opt ) ) continue;
-		}
-		if( par->Fired("P") ) mult++;
-	}
-	return mult;
 }
 //________________________________________________________________
 
@@ -226,7 +200,7 @@ Bool_t KVHarpeeIC::IsECalibrated() const{
 	while( (cal = (KVCalibrator *)next()) ){
 		// numbers of calibrators for segments B are between 
 		// 6020 and 6029
-		Int_t num = cal->GetNumber();
+		Int_t num = cal->GetUniqueID();
 		if( ((num%100)/10) != 1 ) continue;
 		if( !cal->GetStatus() ){
 			ok = kFALSE;
@@ -256,7 +230,8 @@ void KVHarpeeIC::SetACQParams(){
 			name.Form("E%s_%c_%d",GetType(),idx[i],num);
 			par->SetName(name);
 			par->SetType("E");
-			par->SetNumber( 6000 + (i+1)*10 + num );
+			par->SetUniqueID( 6000 + (i+1)*10 + num );
+			par->SetNumber( num );
 //			par->SetPedestal(200);
 			AddACQParam(par);
 		}

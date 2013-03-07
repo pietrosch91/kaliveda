@@ -4,6 +4,9 @@
 #ifndef __KVSPECTRODETECTOR_H
 #define __KVSPECTRODETECTOR_H
 
+#define IDX( dir ) (Int_t)( dir -'X') 
+#define DIRECTION( idx ) (Char_t)('X'+idx) 
+
 #include "KVDetector.h"
 #include "TGeoVolume.h"
 #include "TGeoManager.h"
@@ -34,10 +37,10 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 #endif
 
 
-   void ActiveVolumeToFocal(const Double_t *volume, Double_t *focal, Int_t idx=0);
-   void FocalToActiveVolume(const Double_t *focal,  Double_t *volume, Int_t idx=0);
-   void ActiveVolumeToFocalVect(const Double_t *volume, Double_t *focal, Int_t idx=0);
-   void FocalToActiveVolumeVect(const Double_t *focal,  Double_t *volume, Int_t idx=0);
+   Bool_t  ActiveVolumeToFocal(const Double_t *volume, Double_t *focal, Int_t idx=0);
+   Bool_t FocalToActiveVolume(const Double_t *focal,  Double_t *volume, Int_t idx=0);
+   Bool_t ActiveVolumeToFocalVect(const Double_t *volume, Double_t *focal, Int_t idx=0);
+   Bool_t FocalToActiveVolumeVect(const Double_t *focal,  Double_t *volume, Int_t idx=0);
    
    void AddAbsorber(KVMaterial*);
    void AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix= 0, Bool_t active= kFALSE);
@@ -45,13 +48,17 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
                                KVD_RECPRC_CNXN);
    virtual Bool_t BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol = 0);
    virtual void DetectParticle(KVNucleus *, TVector3 * norm = 0);
+   virtual KVList *GetFiredACQParamList(Option_t *opt="P");
    TGeoHMatrix &GetActiveVolToFocalMatrix(Int_t i=0 ) const; 
    virtual Double_t GetELostByParticle(KVNucleus *, TVector3 * norm = 0);
    TGeoMedium* GetGeoMedium(const Char_t* ="");
    virtual TGeoVolume* GetGeoVolume();
    virtual TGeoVolume* GetGeoVolume(const Char_t*, const Char_t*, TGeoShape*);
    virtual TGeoVolume* GetGeoVolume(const Char_t* name, const Char_t* material, const Char_t* shape_name, const Char_t* params);
+   virtual Int_t    GetMult(Option_t *opt="");
    virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
+   virtual Bool_t GetPosition(Double_t *XYZf, Int_t idx = 0 );
+
    virtual UInt_t GetTelescopeNumber() const;
 	virtual void GetVerticesInOwnFrame(TVector3* /*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
    virtual void InitGeometry();
@@ -63,12 +70,23 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    Int_t GetDetectorEnv(const Char_t * type, Int_t defval, TEnv *env=NULL) const;
    Bool_t GetDetectorEnv(const Char_t * type, Bool_t defval, TEnv *env=NULL) const;
 
+   Double_t GetXf( Int_t idx = 0 );
+   Double_t GetYf( Int_t idx = 0 );
+   Double_t GetZf( Int_t idx = 0 );
+
 
    virtual void SetMaterial(const Char_t * type);
-      inline KVList *GetActiveVolumes() const{ return fActiveVolumes;}
+
+
+   //------------------ inline function members -----------//
+   
+   inline KVList *GetActiveVolumes() const{ return fActiveVolumes;}
    inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return (TGeoVolume *)fActiveVolumes->At(i);}
    inline Double_t GetTotalThickness() const{ return fTotThick;}
    inline void SetFocalToTargetMatrix( TGeoHMatrix *matrix ){ fFocalToTarget = matrix; };
+   inline Bool_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
+	   return GetPosition( XYZf, idx );
+   }
 
 
 //   virtual Double_t GetCorrectedEnergy(const KVNucleus*, Double_t e =
