@@ -86,7 +86,7 @@ KVWilckeReactionParameters::KVWilckeReactionParameters()
     init();
 }
 
-KVWilckeReactionParameters::KVWilckeReactionParameters(const KVNucleus &proj, KVNucleus &targ)
+KVWilckeReactionParameters::KVWilckeReactionParameters(const KVNucleus& proj, const KVNucleus& targ)
 {
     ZP = proj.GetZ();
     AP = proj.GetA();

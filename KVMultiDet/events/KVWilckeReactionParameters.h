@@ -65,7 +65,7 @@ class KVWilckeReactionParameters
 
    public:
     KVWilckeReactionParameters();
-    KVWilckeReactionParameters(KVNucleus const & proj, KVNucleus & targ);
+    KVWilckeReactionParameters(const KVNucleus& proj, const KVNucleus& targ);
    virtual ~KVWilckeReactionParameters();
 
    static Double_t InteractionRadius(Int_t aproj, Int_t atarg)
@@ -149,9 +149,10 @@ class KVWilckeReactionParameters
        // x[0] = r
        // p[1] = b (impact parameter)
        // p[0] = energy (mev/u)
-       //cout << "r=" << x[0] << " b=" << x[1] << " e/a=" << e[0] << endl;
-       Double_t l = AP*p[1]*sqrt(2.*mu_Wilcke*p[0])/KVNucleus::hbar;
-       //cout << "l=" << l << endl;
+
+       // angular momentum
+       Double_t l = p[1]*k(p[0]);
+
        Double_t R = TMath::Max(0.1,x[0]);
        Double_t Vcent = l*(l+1.)*pow(KVNucleus::hbar,2)/(2.*MU*mu_Wilcke*R);
        return ProxPot(&x[0],0)+VC(&x[0],0)+Vcent;
@@ -275,6 +276,18 @@ class KVWilckeReactionParameters
    }
 
    void Print() const;
+
+   Double_t GetMu() const
+   {
+       // reduced mass number
+       return MU;
+   }
+   Int_t GetAP() const { return AP; }
+   Int_t GetAT() const { return AT; }
+   Int_t GetAC() const { return AC; }
+   Double_t GetCP() const { return CP; }
+   Double_t GetCT() const { return CT; }
+   Double_t GetRint() const { return RINT; }
 
    ClassDef(KVWilckeReactionParameters,1)//Reaction parameters for heavy-ion collisions (Wilcke et al)
 };
