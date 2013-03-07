@@ -841,8 +841,6 @@ KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
 
 # KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
 KVPulseHeightDefect.EnergyLoss.Npx:        60
-# Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
-KVSilicon.ZminForPHDCorrection:        10
 
 # File containing range tables for calculation of energy losses in KVedaLoss
 KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
