@@ -200,26 +200,25 @@ friend class KVIDGridEditorCanvas;
    void SetGrid(KVIDGraph* gg, Bool_t histo=true);		//donne la grille a l'editeur
    void SetGrid(TString GridName);				//donne la grille a l'editeur par son nom
 
-   KVIDGraph* GetGrid(){return TheGrid;};
-   TH2*       GetHisto(){return TheHisto;};
+   KVIDGraph* GetGrid(){return TheGrid;}
+   TH2*       GetHisto(){return TheHisto;}
    
-   TCanvas* GetEditorCanvas(){return fCanvas;};
+   TCanvas* GetEditorCanvas(){return fCanvas;}
    
    void SelectLabel();						//methode ajouter a la liste des auto-exec du canvas : gere les bouton
    void MakeTransformation();					//methode ajouter a la liste des auto-exec du canvas : gere le reste
    
-   void SetSelectedColor(Int_t color){SelectedColor=color;};
+   void SetSelectedColor(Int_t color){SelectedColor=color;}
    void SelectLinesByZ(const Char_t* ListOfZ);			//'More' -> 'SelectLinesByZ'
-   void SetDebug(Bool_t debug){fDebug=debug;};
-   void SetSVGMode(){fSVGMode=!fSVGMode;};
+   void SetDebug(Bool_t debug){fDebug=debug;}
+   void SetSVGMode(){fSVGMode=!fSVGMode;}
    void MakeScaleX(Double_t scaleFactor);
    void MakeScaleY(Double_t scaleFactor);
    
-   Int_t GetSpiderZp(){return fSpiderZp;};
-   Double_t GetSpiderFactor(){return fSpiderFactor;};
+   Int_t GetSpiderZp(){return fSpiderZp;}
+   Double_t GetSpiderFactor(){return fSpiderFactor;}
    
    void SpiderIdentification();
-//   void FindZALines(const Char_t* A="1,4,7,9,11,12,15,16,19,21,23,25,27,30,31,34,37,40,41", 
    void FindZALines();
    void ChangeMasses(const Char_t* Zl, Int_t dA);
    void ChangeCharges(const Char_t* Zl, Int_t dZ);

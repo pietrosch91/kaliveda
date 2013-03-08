@@ -272,7 +272,7 @@ class KVWilckeReactionParameters
        GetNuclearProximityPotential()->Draw("same");
        Double_t min = GetNuclearProximityPotential()->GetMinimum()*1.2;
        totpot->GetHistogram()->GetYaxis()->SetRangeUser(min,max);
-       gPad->BuildLegend();
+       ((TPad*)gPad)->BuildLegend();
    }
 
    void Print() const;

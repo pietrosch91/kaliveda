@@ -108,24 +108,24 @@ void KVIDGraph::Browse(TBrowser* b)
       // pouvoir revenir en arriere
       UpdateLastSavedVersion();
       // is there a non-IDGridEditor canvas already open with a 2D-histogram in it?
-      if(gPad && !gPad->InheritsFrom("KVIDGridEditorCanvas")){
-         TIter next_prim( gPad->GetListOfPrimitives() );
-         TH2* theHisto=0x0;
-         TObject* o;
-         while( (o=next_prim()) ){
-            if(o->InheritsFrom("TH2")){
-               theHisto=(TH2*)o;
-               break;
-            }
-         }
-         if(theHisto){
-            // we superpose the grid on the histogram we found in the grid editor canvas
-            gIDGridEditor->SetHisto(theHisto);
-            gIDGridEditor->SetGrid(this,kFALSE);
-            if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
-            return;
-         }
-      }
+//      if(gPad && !gPad->InheritsFrom("KVIDGridEditorCanvas")){
+//         TIter next_prim( gPad->GetListOfPrimitives() );
+//         TH2* theHisto=0x0;
+//         TObject* o;
+//         while( (o=next_prim()) ){
+//            if(o->InheritsFrom("TH2")){
+//               theHisto=(TH2*)o;
+//               break;
+//            }
+//         }
+//         if(theHisto){
+//            // we superpose the grid on the histogram we found in the grid editor canvas
+//            gIDGridEditor->SetHisto(theHisto);
+//            gIDGridEditor->SetGrid(this,kFALSE);
+//            if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
+//            return;
+//         }
+//      }
       if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
       gIDGridEditor->SetGrid(this);
    }

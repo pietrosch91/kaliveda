@@ -88,6 +88,13 @@ KVChIo::~KVChIo()
 }
 
 //____________________________________________________________________________________________
+void KVChIo::SetMylarThicknesses(Float_t thickF, Float_t thickB)
+{
+    if(thickF>0.) ((KVMaterial*)fAbsorbers->At(0))->SetThickness(thickF*KVUnits::um);
+    if(thickF>0.) ((KVMaterial*)fAbsorbers->At(2))->SetThickness(thickB*KVUnits::um);
+}
+
+//____________________________________________________________________________________________
 Int_t KVChIo::GetCanalPGFromVolts(Float_t volts)
 {
    //Return raw PG channel number corresponding to a given detector signal in volts

@@ -69,14 +69,24 @@ KVCsI::KVCsI()
 }
 
 //______________________________________________________________________________
-KVCsI::KVCsI(Float_t thick):KVINDRADetector("CsI", thick)
+KVCsI::KVCsI(Float_t thick, Float_t thickAl):KVINDRADetector("CsI", thick)
 {
-   //Make a CsI detector "thick" cm long
-   //Set type of detector to "CSI"
-   //By default 'thick'=0
+    //Make a CsI detector "thick" cm long
+    //with a Al dead layer "thickAl" um long
+    //Set type of detector to "CSI"
+    //By default 'thick'=0
 
-   SetType("CSI");
-   init();
+    KVMaterial *mat = new KVMaterial("Al",thickAl*KVUnits::um);
+    fAbsorbers->AddFirst(mat);
+    SetActiveLayer(1);
+
+    SetType("CSI");
+    init();
+}
+
+void KVCsI::SetAlThickness(Float_t thickAl /* um */)
+{
+ GetAbsorber(0)->SetThickness(thickAl*KVUnits::um);
 }
 
 //____________________________________________________________________________________________

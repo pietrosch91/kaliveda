@@ -58,12 +58,14 @@ class KVChIo:public KVINDRADetector {
    {
       // Set pressure of gas in mbar
       GetActiveLayer()->SetPressure(P*KVUnits::mbar);
-   };
+   }
    virtual Double_t GetPressure() const /* mbar */
    {
       // Give pressure of gas in mbar
       return GetActiveLayer()->GetPressure()/KVUnits::mbar;
-   };
+   }
+
+   virtual void SetMylarThicknesses(Float_t thickF, Float_t thickB);
    
 	void DeduceACQParameters(Int_t zz=-1,Int_t a=-1);
    

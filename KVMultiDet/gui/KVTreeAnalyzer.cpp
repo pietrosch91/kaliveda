@@ -42,6 +42,7 @@ Change value to 'on' if required.
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+
 /* colours used for displaying several 1-D spectra on same plot */
 #define MAX_COLOR_INDEX 5
 Int_t my_color_array[] = {
@@ -53,6 +54,8 @@ Int_t my_color_array[] = {
    kViolet+2
 };
    
+KVTreeAnalyzer *gTreeAnalyzer = 0x0;
+
 KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    : TNamed("KVTreeAnalyzer", "KVTreeAnalyzer"), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
 {
@@ -60,7 +63,9 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    // The 'nogui' option (default=kTRUE) controls whether or not to
    // launch the graphical interface
    
-    KVBase::InitEnvironment();
+    gTreeAnalyzer = this;
+
+   KVBase::InitEnvironment();
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
@@ -96,6 +101,8 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    // Initialize analyzer for a given TTree.
    // If 'nogui' option (default=kFALSE) is kTRUE we do not launch the graphical interface.
    
+    gTreeAnalyzer = this;
+
     KVBase::InitEnvironment();
    fMain_histolist=0;
    fMain_leaflist=0;
@@ -143,6 +150,7 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
    SafeDelete(fMain_histolist);
    SafeDelete(fMain_leaflist);
    SafeDelete(fMain_selectionlist);
+   if(gTreeAnalyzer==this) gTreeAnalyzer=0x0;
 }
 
 //________________________________________________________________

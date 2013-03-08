@@ -10,6 +10,7 @@
 #include <KeySymbols.h>
 #include <KVSpIdGUI.h>
 #include <KVZAFinderDialog.h>
+#include "KVTreeAnalyzer.h"
 
 using namespace std;
 
@@ -451,32 +452,37 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
 
   TString HistosNames = "";
 
-  TList* KeyList = gFile->GetListOfKeys();
-
-  TKey* key = 0;
-  TIter nextkey(KeyList);
-  while((key=(TKey*)nextkey()))
-    {
-    TString classname = key->GetClassName();
-    if(classname.Contains("TH2"))
+  TFile *f;
+  TIter next(gROOT->GetListOfFiles());
+  while ((f = (TFile*)next())) {
+      TIter nextobj(f->GetList());
+      TObject* obj = 0;
+      while((obj=nextobj()))
       {
-      HistosNames += Form(" %s", key->GetName());
+          if(obj->InheritsFrom("TH2")) HistosNames += Form(" %s", ((TH2*)obj)->GetName());
       }
-    else if(classname.Contains("List"))
+      TIter nextkey(f->GetListOfKeys());
+      TKey* key = 0;
+      while((key=(TKey*)nextkey()))
       {
-      TList* sublist = (TList*)gFile->Get(key->GetName());
-      if(sublist->IsEmpty()) continue;
-      TObject* subobj = 0;
-      TIter nextobj(sublist);
-      while((subobj=(TObject*)nextobj()))
-	{
-	if(subobj->InheritsFrom("TH2"))
+          TString classname = key->GetClassName();
+          if(classname.Contains("TH2"))
           {
-          HistosNames += Form(" %s", subobj->GetName());
+              HistosNames += Form(" %s", key->GetName());
           }
-        }
       }
-    }
+  }
+
+  if(gTreeAnalyzer)
+  {
+      TIter nexthist(gTreeAnalyzer->GetHistoList());
+      TObject* obj = 0;
+      while((obj=nexthist()))
+      {
+          if(obj->InheritsFrom("TH2")) HistosNames += Form(" %s", ((TH2*)obj)->GetName());
+      }
+  }
+
   return HistosNames;
 }
 
@@ -535,10 +541,10 @@ void KVIDGridEditor::SetHisto(TH2* hh)
     TString Answer;
     Bool_t okpressed;
 
-    if (Choices.Contains(" ")) 
+    if(Choices.Contains(" "))
       {
       new KVDropDownDialog(gClient->GetDefaultRoot(), "Choose an histogram :", Choices.Data(), Default.Data(), &Answer, &okpressed);
-      if (!okpressed) 
+      if(!okpressed)
         {
 	Answer = "Current";
         return;
@@ -557,6 +563,8 @@ void KVIDGridEditor::SetHisto(TH2* hh)
       {
       TheHistoChoice = 0;
       if((TheHistoChoice=(TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
+      else if((TheHistoChoice=(TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
+      else if(gTreeAnalyzer&&(TheHistoChoice=(TH2*)gTreeAnalyzer->GetHistoList()->FindObject(Answer.Data()))) TheHisto = TheHistoChoice;
       else Answer = "Dummy";
       }
          
@@ -599,7 +607,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
   
   if(!IsClosed()&&(TheHisto))
     {
-       fPad = fCanvas->cd();//au cas ou il y a plusieurs canvas ouverts
+    fPad = fCanvas->cd();//au cas ou il y a plusieurs canvas ouverts
     TheHisto->Draw("col");
     fPad->SetLogz(true);
     TheHisto->SetMinimum(1);

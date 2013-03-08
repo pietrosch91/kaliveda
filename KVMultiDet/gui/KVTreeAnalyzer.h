@@ -265,7 +265,7 @@ class KVTreeAnalyzer : public TNamed
    TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0);
    TH1* RemakeHisto(TH1* h, const Char_t* expr);
    TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax);
-   const KVList* GetHistoList() const { return &fHistolist; };
+   const KVList* GetHistoList() const { return &fHistolist; }
    TList* GetHistosByData(const Char_t* expr);
    TList* GetHistosBySelection(const Char_t* expr);
    void ParseHistoTitle(const Char_t* title, TString& exp, TString& sel);
@@ -282,12 +282,12 @@ class KVTreeAnalyzer : public TNamed
    void CombineSelectionsOr();
    void DeleteSelections();
    void SelectionChanged();
-   void SetAlias(const Char_t* name, const Char_t* expr){ fAliasList.Add(new TNamed(name,expr));};
+   void SetAlias(const Char_t* name, const Char_t* expr){ fAliasList.Add(new TNamed(name,expr));}
    void GenerateAlias();
-   void ShowSelections() {fSelections.ls();};
-   void ShowVariables() {fTree->GetListOfLeaves()->ls();};
-   void ShowAliases() {fAliasList.ls();};
-   void ShowHistos() {fHistolist.ls();};
+   void ShowSelections() {fSelections.ls();}
+   void ShowVariables() {fTree->GetListOfLeaves()->ls();}
+   void ShowAliases() {fAliasList.ls();}
+   void ShowHistos() {fHistolist.ls();}
    void CurrentSelection();
    Bool_t IsCurrentSelection(const Char_t* sel);
    void SetSelection(TObject*);
@@ -303,16 +303,16 @@ class KVTreeAnalyzer : public TNamed
    void DrawLeaf(TObject*);
    void DrawLeafExpr();
    void DrawAsDalitz();
-   void SetUserBinning(Bool_t ub){fUserBinning = ub;};
-   void SetUserWeight(Bool_t uw){fUserWeight = uw;};
+   void SetUserBinning(Bool_t ub){fUserBinning = ub;}
+   void SetUserWeight(Bool_t uw){fUserWeight = uw;}
 
-   void SetNormHisto(Bool_t yes=kTRUE){fNormHisto=yes;};
-   void SetNewCanvas(Bool_t yes=kTRUE){fNewCanvas=yes;};
-   void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;};
-   void SetDrawLog(Bool_t yes=kTRUE){fDrawLog=yes;};
-   void SetApplySelection(Bool_t yes=kTRUE){fApplySelection=yes;};
-   void SetSwapLeafExpr(Bool_t yes=kTRUE){fSwapLeafExpr=yes;LeafChanged();};
-   void SetProfileHisto(Bool_t yes=kTRUE){fProfileHisto=yes;};
+   void SetNormHisto(Bool_t yes=kTRUE){fNormHisto=yes;}
+   void SetNewCanvas(Bool_t yes=kTRUE){fNewCanvas=yes;}
+   void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;}
+   void SetDrawLog(Bool_t yes=kTRUE){fDrawLog=yes;}
+   void SetApplySelection(Bool_t yes=kTRUE){fApplySelection=yes;}
+   void SetSwapLeafExpr(Bool_t yes=kTRUE){fSwapLeafExpr=yes;LeafChanged();}
+   void SetProfileHisto(Bool_t yes=kTRUE){fProfileHisto=yes;}
    void LeafChanged();
    void HistoSelectionChanged();
    void Save();
@@ -323,22 +323,22 @@ class KVTreeAnalyzer : public TNamed
    void FitGausGum2();
    void FitGausGum3();
    
-   Int_t GetNx(){return fNx;};
-   Int_t GetNy(){return fNy;};
-   Double_t GetXmin(){return fXmin;};
-   Double_t GetXmax(){return fXmax;};
-   Double_t GetYmin(){return fYmin;};
-   Double_t GetYmax(){return fYmax;};
+   Int_t GetNx(){return fNx;}
+   Int_t GetNy(){return fNy;}
+   Double_t GetXmin(){return fXmin;}
+   Double_t GetXmax(){return fXmax;}
+   Double_t GetYmin(){return fYmin;}
+   Double_t GetYmax(){return fYmax;}
    
-   Int_t GetNxD(){return fNxD;};
-   Int_t GetNyD(){return fNxD;};
-   Bool_t GetOrderedDalitz(){return fOrderedDalitz;};
+   Int_t GetNxD(){return fNxD;}
+   Int_t GetNyD(){return fNxD;}
+   Bool_t GetOrderedDalitz(){return fOrderedDalitz;}
    
-   Int_t GetNxF(){return fNxF;};
-   Double_t GetXminF(){return fXminF;};
-   Double_t GetXmaxF(){return fXmaxF;};
+   Int_t GetNxF(){return fNxF;}
+   Double_t GetXminF(){return fXminF;}
+   Double_t GetXmaxF(){return fXmaxF;}
    
-   const char* GetWeight(){return fWeight;};
+   const char* GetWeight(){return fWeight;}
    
    void DefineUserBinning(Int_t Nx, Int_t Ny, Double_t Xmin, Double_t Xmax, Double_t Ymin, Double_t Ymax);// *MENU* *ARGS={Nx=>fNx,Ny=>fNy,Xmin=>fXmin,Xmax=>fXmax,Ymin=>fYmin,Ymax=>fYmax} 
    void DefineUserBinning1F(Int_t NxF, Double_t XminF, Double_t XmaxF);// *MENU* *ARGS={NxF=>fNxF,XminF=>fXminF,XmaxF=>fXmaxF} 
@@ -349,5 +349,7 @@ class KVTreeAnalyzer : public TNamed
    void HandleHistoFileMenu(Int_t); 
    ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
 };
+//................  global variable
+R__EXTERN  KVTreeAnalyzer*gTreeAnalyzer;
 
 #endif
