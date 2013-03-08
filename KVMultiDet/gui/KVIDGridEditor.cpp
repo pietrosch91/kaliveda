@@ -448,7 +448,7 @@ void KVIDGridEditor::AddGridOption(TString label, KVHashList* thelist)
 //________________________________________________________________
 TString KVIDGridEditor::ListOfHistogramInMemory()
 {
-  if(!gFile) return "";
+//  if(!gFile) return "";
 
   TString HistosNames = "";
 
