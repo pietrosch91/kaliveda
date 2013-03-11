@@ -267,7 +267,18 @@ void KVSeD::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
 	ResetCalculatedData();
 }
+//________________________________________________________________
 
+Bool_t KVSeD::PositionIsOK(){
+	// Returns true if the position can be given by this SeD, i.e. the
+	// position is callibrated, the raw X and Y positions are well
+	// determined. In this case the position is given by the method 
+	// GetPosition(...).
+	if( !IsPositionCalibrated() ) return kFALSE;
+	if( GetRawPosition('X') < 0 ) return kFALSE;
+	if( GetRawPosition('Y') < 0 ) return kFALSE;
+	return kTRUE;
+}
 //________________________________________________________________
 
 void KVSeD::ResetCalculatedData(){
@@ -368,7 +379,6 @@ void KVSeD::ShowQrawHisto(const Char_t dir, Option_t *opt){
 void KVSeD::ShowQHisto(const Char_t dir, Option_t *opt){
 	TH1F *hh = GetQHisto( dir );
 	if( hh ) hh->Draw(opt);
-Info("ShowQHisto","Position for %c= %f",dir,GetRawPosition( dir ));
 }
 //________________________________________________________________
 
@@ -479,7 +489,9 @@ Bool_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plan reference frame from the raw positions in channel
 	// obtained with GetRawPosition(...).
-	// The function returns kFALSE in case of an invalid request.
+	// The function returns kFALSE in case of an invalid request: 
+	//    - no position calibration
+	//    - raw coordinates are <= 0
 	// See documentation of KVSeDPositionCal for more details about 
 	// calibration algorithm.
 
@@ -490,6 +502,8 @@ Bool_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	Double_t Yraw = GetRawPosition('Y');
 
 	// Calibration is performed with the calibrator KVSeDPositionCal
+	// The calibrator return kFALSE if at least one of the raw coordinates is
+	// less of equal to zero
 	if( !(*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ) ) return kFALSE;	
 	XYZf[2] = 0.;
 

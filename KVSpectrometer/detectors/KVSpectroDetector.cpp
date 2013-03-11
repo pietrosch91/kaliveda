@@ -542,7 +542,8 @@ Bool_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
 	// The function returns -666 in case of an invalid request
 
 	TGeoVolume *vol = GetActiveVolume(idx);
-	if( !vol ) return kFALSE;
+	if( !vol ||  !PositionIsOK() ) return kFALSE;
+
    	const TGeoBBox *box = (TGeoBBox *)vol->GetShape();
    	Double_t dx = box->GetDX();
    	Double_t dy = box->GetDY();
@@ -616,6 +617,15 @@ void KVSpectroDetector::SetActiveVolume(TGeoVolume* vol){
 void KVSpectroDetector::SetMaterial(const Char_t * type){
 	// Set the same material of all the active volumes.
 	Warning("SetMaterial","To be implemented");
+}
+//________________________________________________________________
+
+Bool_t KVSpectroDetector::PositionIsOK(){
+	// Returns kTRUE if all the conditions to access to the particle position
+	// are verified. In this case the position is given by the method 
+	// GetPosition(...). 
+	// Method to be overwritten in the child classes. 
+	return kTRUE;
 }
 //________________________________________________________________
 

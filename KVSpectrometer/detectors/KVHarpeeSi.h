@@ -8,9 +8,15 @@
 
 class KVHarpeeSi : public KVVAMOSDetector
 {
+	private:
+
+	enum {
+		kPosIsOK = BIT(20) //flag set when PositionIsOK method is called
+	};
 
 	protected:
-		static KVList *fHarpeeSiList;//! Global list of all KVHarpeeSi objects
+		static KVHarpeeSi *fSiForPosition;//! Si used to obtain particle position
+		static KVList     *fHarpeeSiList;//! Global list of all KVHarpeeSi objects
 		
 		void init();
 
@@ -25,8 +31,11 @@ class KVHarpeeSi : public KVVAMOSDetector
 		virtual const Char_t* GetArrayName();
    		virtual Double_t GetCalibT(const Char_t *type);
    		virtual const Char_t *GetEBaseName() const;
-		static KVHarpeeSi *GetFiredHarpeeSi(Option_t *opt="any");
-   		virtual Int_t GetMult(Option_t *opt="");
+		static KVHarpeeSi *GetFiredHarpeeSi(Option_t *opt="Pany");
+		static KVList *GetHarpeeSiList();
+   		virtual Int_t  GetMult(Option_t *opt="Pany");
+   		virtual void   Initialize();
+   		virtual Bool_t PositionIsOK();
 		
 		virtual void SetACQParams();
 

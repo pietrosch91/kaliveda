@@ -44,6 +44,7 @@ class KVSeD : public KVVAMOSDetector
    virtual TH1F *GetQrawHisto(const Char_t dir = 'X');
    virtual TH1F *GetQHisto(const Char_t dir = 'X');
    virtual void Initialize();
+   virtual Bool_t PositionIsOK();
    virtual void ResetCalculatedData();
    virtual void SetACQParams();
    virtual void SetCalibrators();

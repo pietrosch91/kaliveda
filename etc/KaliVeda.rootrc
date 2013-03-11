@@ -996,7 +996,7 @@ KVVAMOS.KVHarpeeIC.Number: 1
 KVVAMOS.KVDriftChamber.Number: 1-2
 KVVAMOS.KVSeD.Number: 1
 # For INDRA_e494s dataset
-INDRA_e494s.KVVAMOS.DetectorList: KVHarpeeSi KVHarpeeIC KVSeD
+INDRA_e494s.KVVAMOS.DetectorList: KVSeD KVHarpeeIC KVHarpeeSi
 INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
 
 #-------------- List of ACQParameter  associated to VAMOS

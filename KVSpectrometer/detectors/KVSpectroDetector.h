@@ -74,6 +74,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    Double_t GetYf( Int_t idx = 0 );
    Double_t GetZf( Int_t idx = 0 );
 
+   virtual Bool_t PositionIsOK();
 
    virtual void SetMaterial(const Char_t * type);
 

@@ -25,6 +25,7 @@ class KVHarpeeIC : public KVVAMOSDetector
 
    		virtual Double_t GetCalibE();
    		virtual Bool_t IsECalibrated() const;
+   		virtual Bool_t PositionIsOK();
 
 
 		virtual void SetACQParams();

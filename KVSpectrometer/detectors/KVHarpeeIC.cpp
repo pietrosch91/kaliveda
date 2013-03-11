@@ -212,6 +212,14 @@ Bool_t KVHarpeeIC::IsECalibrated() const{
 }
 //________________________________________________________________
 
+Bool_t KVHarpeeIC::PositionIsOK(){
+	// Check if all the conditions to access to the particle position
+	// are verified. For the moment the position can not be given by harpee 
+	// ionization chamber.
+	return kFALSE;
+}
+//________________________________________________________________
+
 void KVHarpeeIC::SetACQParams(){
 	// Setup acquisition parameters of this ionisation chamber.
 	// ACQ parameters with type 'E':

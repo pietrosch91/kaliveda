@@ -159,6 +159,12 @@ KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
 }
 //________________________________________________________________
 
+KVList *KVHarpeeSi::GetHarpeeSiList(){ 
+	//Returns the global list of all KVHarpeeSi objects.
+	return fHarpeeSiList;
+}
+//________________________________________________________________
+
 Int_t KVHarpeeSi::GetMult(Option_t *opt){
 	// Returns the multiplicity of fired silicon detectors of HARPEE. 
 	// See KVDetector::Fired() for more information about the option 'opt'.
@@ -171,6 +177,38 @@ Int_t KVHarpeeSi::GetMult(Option_t *opt){
 		if( si->Fired( opt ) ) mult++;
 	}
 	return mult;
+}
+//________________________________________________________________
+
+void KVHarpeeSi::Initialize(){
+	// Initialize the data members. Called by KVVAMOS::Initialize().
+	fSiForPosition = NULL;
+	ResetBit( kPosIsOK );
+}
+//________________________________________________________________
+
+Bool_t KVHarpeeSi::PositionIsOK(){
+	// Returns true if all the conditions to access to the particle position
+	// are verified. In this case the position is given by the method 
+	// GetPosition(...). 
+	// The conditions are:
+	//   -the multiplicity of fired Harpee Si detectors must be one;
+	//   -this detectector must be the fired detector.
+	
+	if( !TestBit( kPosIsOK ) ){
+		Int_t mult   = 0;
+		TIter next( fHarpeeSiList );
+		KVHarpeeSi *si = NULL;
+		while( (si = (KVHarpeeSi *)next()) ){
+			if( si->Fired( "Pany" ) ){
+				mult++;
+				fSiForPosition = si;
+ 			}
+		}
+		if( mult != 1 ) fSiForPosition = NULL;
+		SetBit( kPosIsOK );
+	}
+	return fSiForPosition == this;
 }
 //________________________________________________________________
 
