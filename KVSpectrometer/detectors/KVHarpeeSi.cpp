@@ -21,8 +21,8 @@ ClassImp(KVHarpeeSi)
 // Type of detector : "SI"
 ////////////////////////////////////////////////////////////////////////////////
 
-KVList *KVHarpeeSi::fHarpeeSiList = NULL;
-
+KVList     *KVHarpeeSi::fHarpeeSiList  = NULL;
+KVHarpeeSi *KVHarpeeSi::fSiForPosition = NULL;
 
 void KVHarpeeSi::init(){
 	// Initialise non-persistent pointers
@@ -192,7 +192,8 @@ Bool_t KVHarpeeSi::PositionIsOK(){
 	// are verified. In this case the position is given by the method 
 	// GetPosition(...). 
 	// The conditions are:
-	//   -the multiplicity of fired Harpee Si detectors must be one;
+	//   -the multiplicity of fired ( "Pany" option of Fired() ) Harpee Si 
+	//    detectors must be equal to one;
 	//   -this detectector must be the fired detector.
 	
 	if( !TestBit( kPosIsOK ) ){
