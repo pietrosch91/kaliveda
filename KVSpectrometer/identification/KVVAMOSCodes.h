@@ -33,10 +33,7 @@ class KVVAMOSCodes : public KVINDRACodes
 		UShort_t fFPMask;    //16-bit mask with Focal plan Position code
    	public:
    		KVVAMOSCodes();
-   		KVVAMOSCodes (const KVVAMOSCodes&) ;
    		virtual ~KVVAMOSCodes();
-   		void Copy (TObject&) const;
-
 
  		UShort_t GetFPMask() {
       		return fFPMask;

@@ -485,7 +485,7 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 }
 //________________________________________________________________
 
-Bool_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
+UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plan reference frame from the raw positions in channel
 	// obtained with GetRawPosition(...).
@@ -496,7 +496,8 @@ Bool_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	// calibration algorithm.
 
 	XYZf[0] = XYZf[1] = XYZf[2] = -666;
-	if( !IsPositionCalibrated() ) return kFALSE;
+	// Nothing is done if there is no calibrator for the position
+	if( !IsPositionCalibrated() ) return 0;
 
 	Double_t Xraw = GetRawPosition('X');
 	Double_t Yraw = GetRawPosition('Y');
@@ -504,8 +505,35 @@ Bool_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	// Calibration is performed with the calibrator KVSeDPositionCal
 	// The calibrator return kFALSE if at least one of the raw coordinates is
 	// less of equal to zero
-	if( !(*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ) ) return kFALSE;	
-	XYZf[2] = 0.;
+	
+	Bool_t  OK     = kFALSE;
+	UChar_t rvalue = 0;       // returned value;
+	XYZf[2]        = 0.;      // Z = 0 in the reference frame of the
+	                          // active volule
 
-	return ActiveVolumeToFocal( XYZf, XYZf );
+	if( Xraw && Yraw ){
+		OK = (OK && (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ));
+		OK = (OK && ActiveVolumeToFocal( XYZf, XYZf ));
+		rvalue = 7; // X,Y,Z are OK
+	}
+	else if( Xraw ){
+		Yraw = 24;  // we impose the center in Y (48/2) for the X calibration
+		OK = (OK && (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ));
+		OK = (OK && ActiveVolumeToFocal( XYZf, XYZf ));
+		XYZf[1] = -666;
+		rvalue = 5; // X and Z are OK
+	}
+	else if( Yraw ){
+		Xraw = 64;  // we impose the center in X (128/2) for the Y calibration
+		OK = (OK && (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ));
+		OK = (OK && ActiveVolumeToFocal( XYZf, XYZf ));
+		XYZf[0] = -666;
+		rvalue = 6; // Y and Z are OK
+	}
+
+	if(OK) return rvalue;
+
+	// No coordinates are OK
+	XYZf[0] = XYZf[1] = XYZf[2] = -666;
+	return 0;
 }

@@ -508,8 +508,8 @@ Double_t KVSpectroDetector::GetXf( Int_t idx ){
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
 	Double_t X[3];
-	if( !GetPosition( X, idx ) ) return -666;
-	return  X[0];
+	if( (GetPosition( X, idx ) & 1) ) return  X[0];
+	return -666;
 }
 //________________________________________________________________
 
@@ -519,8 +519,8 @@ Double_t KVSpectroDetector::GetYf( Int_t idx ){
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
 	Double_t X[3];
-	if( !GetPosition( X, idx ) ) return -666;
-	return  X[1];
+	if( (GetPosition( X, idx ) & 2) ) return  X[1];
+ 	return -666;
 }
 //________________________________________________________________
 
@@ -530,19 +530,25 @@ Double_t KVSpectroDetector::GetZf( Int_t idx ){
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
 	Double_t X[3];
-	if( !GetPosition( X, idx ) ) return -666;
-	return  X[2];
+	if( (GetPosition( X, idx ) & 4) ) return  X[2];
+ 	return -666;
 }
 //________________________________________________________________
 
-Bool_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
-	// Return the coordinates (in cm) of a point randomly drawn in the 
+UChar_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
+	// Return in the array 'XYZf', the coordinates (in cm) of a point randomly drawn in the 
 	// active volume with index 'idx'. We assume that the shape of this
 	// volume is a TGeoBBox. These coordinates are given in the reference frame of the focal plan. 
-	// The function returns -666 in case of an invalid request
+	// The function returns a binary code where:
+	//   - bit 0 = 1 if X is OK  (001);
+	//   - bit 1 = 1 if Y is OK  (010);
+	//   - bit 2 = 1 if Z is OK  (100);
+	//
+	//  If no coordinates are OK, the returned value is null (000) and if 
+	// X, Y and Z are OK then the returned value is equal 7 (111).
 
 	TGeoVolume *vol = GetActiveVolume(idx);
-	if( !vol ||  !PositionIsOK() ) return kFALSE;
+	if( !vol ||  !PositionIsOK() ) return 0;
 
    	const TGeoBBox *box = (TGeoBBox *)vol->GetShape();
    	Double_t dx = box->GetDX();
@@ -555,7 +561,8 @@ Bool_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
   	xyz[0] = ox-dx+2*dx*gRandom->Rndm();
    	xyz[1] = oy-dy+2*dy*gRandom->Rndm();
    	xyz[2] = oz-dz+2*dz*gRandom->Rndm();
-	return ActiveVolumeToFocal( xyz , XYZf, idx );
+	if( ActiveVolumeToFocal( xyz , XYZf, idx ) ) return 7;
+	return 0;
 }
 //________________________________________________________________
 
