@@ -54,6 +54,7 @@ class KVVAMOS : public KVDetector //public KVBase
    virtual void Build();
    virtual void Clear(Option_t *opt = "" );
    void Copy (TObject&) const;
+   virtual void GetFiredDetectors(KVList *list, Option_t *opt="Pany");
    virtual void Initialize();
    static KVVAMOS *MakeVAMOS(const Char_t* name);
    virtual void SetParameters(UShort_t run);

@@ -241,6 +241,21 @@ void KVVAMOS::InitGeometry(){
 }
 //________________________________________________________________
 
+
+void KVVAMOS::GetFiredDetectors(KVList *list,Option_t *opt){
+	//Fills 'list' with the fired detectors. The option 'opt' is 
+	//set to the method KVSpectroDetector::Fired( opt ) used to know
+	//if a detector is fired. The list is not the owner of its content.
+
+	list->SetOwner( kFALSE );
+	TIter next( fDetectors );
+	KVSpectroDetector *det = NULL;
+	while( (det = (KVSpectroDetector *)next()) ){
+		if( det->Fired( opt ) ) list->Add( det );
+	}
+}
+//________________________________________________________________
+
 void KVVAMOS::Initialize(){
 	// Initialize data members of the VAMOS detectors and of VAMOS 
 	// itself. This method has to be called each time you look at a
