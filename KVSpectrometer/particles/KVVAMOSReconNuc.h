@@ -5,17 +5,25 @@
 #define __KVVAMOSRECONNUC_H
 
 #include "KVReconstructedNucleus.h"
+#include "KVVAMOSCodes.h"
 
 class KVVAMOSReconNuc : public KVReconstructedNucleus
 {
+	private:
 
-   public:
-   KVVAMOSReconNuc();
-   KVVAMOSReconNuc (const KVVAMOSReconNuc&) ;
-   virtual ~KVVAMOSReconNuc();
-   void Copy (TObject&) const;
+		KVVAMOSCodes fCodes; //Focal plan Pos. recon., calib. and ident. codes
+   	public:
+   		KVVAMOSReconNuc();
+   		KVVAMOSReconNuc (const KVVAMOSReconNuc&) ;
+   		virtual ~KVVAMOSReconNuc();
+   		void Copy (TObject&) const;
 
-   ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
+
+		inline KVVAMOSCodes &GetCodes(){
+			return fCodes;
+		}
+
+   		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };
 
 #endif
