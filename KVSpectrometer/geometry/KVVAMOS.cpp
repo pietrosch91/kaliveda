@@ -312,7 +312,12 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
 //________________________________________________________________
 
 void KVVAMOS::Build(){
-	// Build the VAMOS spectrometer. 
+	// Build the VAMOS spectrometer: detectors, geometry, identification
+	// telescopes, acquisition parameters and calibrators. 
+	//
+	// After geometry building, the detectors are sorted in the 
+	// list fDetectors from the Z coordinate of their first active volume,
+	// in the focal Plan reference frame: from the lowest Z to the highest Z.
 	
 	if( IsBuilt() ) return;
 
@@ -321,6 +326,7 @@ void KVVAMOS::Build(){
 	MakeListOfDetectors();
 	BuildVAMOSGeometry();
     InitGeometry();
+	fDetectors->Sort();
 	SetIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
@@ -419,7 +425,7 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 		if( !path.EndsWith(".cao") ) continue;
  		infos->ReadFile(path.Data(),kEnvAll); 
 		Nfiles++;
-		Info("BuildFocalPlaneGeometry","Reading file %s",file->GetName());
+		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
 	}
 	infos->Print();
 	delete lfiles;

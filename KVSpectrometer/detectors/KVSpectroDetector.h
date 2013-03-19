@@ -47,6 +47,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    virtual void AddToTelescope(KVTelescope * T, const int =
                                KVD_RECPRC_CNXN);
    virtual Bool_t BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol = 0);
+   virtual Int_t  Compare(const TObject* obj) const;
    virtual void DetectParticle(KVNucleus *, TVector3 * norm = 0);
    virtual KVList *GetFiredACQParamList(Option_t *opt="P");
    TGeoHMatrix &GetActiveVolToFocalMatrix(Int_t i=0 ) const; 

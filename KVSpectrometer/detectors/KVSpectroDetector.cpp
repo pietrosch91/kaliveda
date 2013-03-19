@@ -303,6 +303,27 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 }
 //________________________________________________________________
 
+Int_t KVSpectroDetector::Compare(const TObject* obj) const{
+	//Compare two KVSpectroDetector objects from the Z coordinate of their
+	//first active volume in the Focal Plan reference frame. Returns 0 when Z
+	//is equal, -1 if this is smaller and +1 when bigger.
+
+	Double_t xyz[] = {0,0,0,0,0,0};
+	
+	Bool_t ok = kTRUE;
+	ok &= ((KVSpectroDetector *)obj )->ActiveVolumeToFocal( xyz, xyz );
+	ok &= ((KVSpectroDetector *)this)->ActiveVolumeToFocal( xyz+3, xyz+3 );
+	if( !ok ){
+		Warning("Compare","Impossible to compare both %s objects %s and %s",ClassName(),GetName(), obj->GetName());
+		return 0;
+	}
+	Double_t Delta = xyz[5] - xyz[2];
+	if( Delta == 0 ) return  0;
+	if( Delta <  0 ) return -1;
+	return 1;
+}
+//________________________________________________________________
+
 void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * norm){
 	// To be implemented. See the same method in KVDetector
 	Warning("DetectParticle","To be implemented");
