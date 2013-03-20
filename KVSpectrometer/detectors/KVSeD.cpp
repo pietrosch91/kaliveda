@@ -223,7 +223,7 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 	while((par = (KVACQParam *)next())){
 
 		if( !par->Fired("P") ) continue;
-		idx = par->GetUniqueID()/1000-1;
+		idx = (par->GetUniqueID()/10000)%10;
 
 		if( i != idx ) continue;
 		Float_t data;
@@ -257,7 +257,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	while((cal = (KVCalibrator *)next())){
 		
 		if( !cal->GetStatus() ) continue;
-		idx = cal->GetUniqueID()/1000-1;
+		idx = (cal->GetUniqueID()/10000)%10;
  	   	if( i != idx ) continue;	
 		count_calOK++;
 
@@ -344,7 +344,8 @@ void KVSeD::SetACQParams(){
 			name.Form("%s_%c_%03d",GetArrayName(),DIRECTION(i),num);
 			par->SetName(name);
 			par->SetType("Q");
-			par->SetUniqueID( (i+1)*1000 + num);
+			// det_num*1e6 + det_type*1e5 + pos_type*1e4 + acq_par_type*1e3 + acq_par_num
+			par->SetUniqueID( GetNumber()*1000000 +100000 + i*10000 + 1000 + num);
 			par->SetNumber( num);
 			AddACQParam(par);
 		}
@@ -372,7 +373,8 @@ void KVSeD::SetCalibrators(){
 
 	KVVAMOSDetector::SetCalibrators();
 	KVSeDPositionCal *c = new KVSeDPositionCal(this);
-	c->SetUniqueID( 3000 + 2);
+	// det_num*1e6 + det_type*1e5 + pos_type*1e4 + acq_par_type*1e3 + acq_par_num
+	c->SetUniqueID( GetNumber()*1000000 + 100000 + 30000 + 9000 + 1);
 	if(!AddCalibrator(c)) delete c;
 	else fPosCalib = c;
 

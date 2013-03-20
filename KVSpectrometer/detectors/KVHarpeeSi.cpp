@@ -221,7 +221,7 @@ void KVHarpeeSi::SetACQParams(){
 	KVACQParam *par = new KVACQParam;
 	par->SetName( GetEBaseName() );
 	par->SetType("E");
-	par->SetUniqueID( 4000 + GetNumber() );
+	par->SetUniqueID( GetNumber()*1000000 + 300000+ 90000 + 1 );
 	par->SetNumber( GetNumber() );
 	AddACQParam(par);
 }

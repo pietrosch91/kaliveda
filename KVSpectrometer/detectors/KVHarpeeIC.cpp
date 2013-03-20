@@ -238,7 +238,7 @@ void KVHarpeeIC::SetACQParams(){
 			name.Form("E%s_%c_%d",GetType(),idx[i],num);
 			par->SetName(name);
 			par->SetType("E");
-			par->SetUniqueID( 6000 + (i+1)*10 + num );
+			par->SetUniqueID( GetNumber()*1000000 + 200000 + 90000 + (i+1)*10 + num );
 			par->SetNumber( num );
 //			par->SetPedestal(200);
 			AddACQParam(par);
