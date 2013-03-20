@@ -34,6 +34,7 @@ class KVSeD : public KVVAMOSDetector
    virtual ~KVSeD();
    void Copy (TObject&) const;
 
+   virtual Float_t CalculateQThreshold(const Char_t dir);
    virtual void  Clear(Option_t *option = "" );
    virtual const Char_t* GetArrayName();
    virtual const Char_t *GetTBaseName() const;

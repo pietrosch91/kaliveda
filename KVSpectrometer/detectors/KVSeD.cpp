@@ -116,79 +116,91 @@ const Char_t *KVSeD::GetTBaseName() const{
 }
 //________________________________________________________________
    
-TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
-	// Retruns the X or Y position histogram with calibrated charges (Q)
-	// after the substration of noise.
- 
-	Int_t i = IDX(dir);
-	if( (i<0) || (i>2) ) return NULL; 
-	if( !fQ[2][i] ) return NULL;
-	if(fQ[2][i]->GetEntries()) return fQ[2][i];
-
-	// Calculate the noise and Remove noise on strips for X and Y positions.
-	// The clean Q histogram obtained after removing the noise is built
+Float_t KVSeD::CalculateQThreshold(const Char_t dir){
+	// Calculate the noise in order to remove it on strips for X and 
+	// Y positions.
 
 	//Study the noise and the maximum value for the charge.
 	//At this stage the quantities noise_*** contain also the signal!
 	Float_t QTmp, noise_mean, noise_var, noise_stdev, noise_sum;
 	Float_t Q_max; 
 	Q_max = noise_mean = noise_var = noise_sum = noise_stdev = 0.;
-	
+
 	UShort_t Q_max_Nr;
 	Q_max_Nr = 1000 ;	
-			
-		TH1F *hQcal = GetQHisto( dir );
-		for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
-			QTmp = hQcal->GetBinContent(j);
-			if(QTmp >0){
-				noise_mean += QTmp;
-				noise_var  += QTmp*QTmp;
-				noise_sum  += 1.;
-			}
-			if(QTmp > Q_max){
-				Q_max    = QTmp;
-				Q_max_Nr = j;
-			}
-		}
 
-		//Study the surrounding of the maximum charge
-		Float_t max_mean, max_var, max_sum;
-		max_mean = max_var = max_sum = 0.;
-		for(Int_t j=-Border;j<=Border;j++){
-			Int_t k = Q_max_Nr+j; 
-			if( (0<k) && (k<=hQcal->GetNbinsX()) ){
-				QTmp = hQcal->GetBinContent(k);
-				if (QTmp>0){
-					max_mean  += QTmp;
-					max_var   += QTmp*QTmp;
-					max_sum   += 1.;	
-				}
-			}
-		}
- 		//The signal of the maximum charge is removed from the quantities noise_***
-		noise_mean -= max_mean;
-		noise_var  -= max_var;
-		noise_sum  -= max_sum;
- 		//Calculate statistical quntities related to the noise and fix the threshold
- 		//as the mean of the noise + 1 time its standart deviation
-		if(noise_sum<2. || noise_var==0) 
-		{
-			noise_mean = noise_var = 0;
-		}
-		else 
-		{
-			noise_mean /= noise_sum;
-			noise_var   = noise_var/noise_sum - noise_mean*noise_mean;
-			noise_stdev = TMath::Sqrt(noise_var);
-		}
-		Float_t threshold = noise_mean + noise_stdev;
+	TH1F *hQcal = GetQHisto( dir );
+	if( !hQcal ) return 0;
 
-		for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
-			QTmp = hQcal->GetBinContent(j);
-			if(QTmp > threshold){
-					fQ[2][i]->SetBinContent(j,QTmp-threshold);
-				}
+	for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
+		QTmp = hQcal->GetBinContent(j);
+		if(QTmp >0){
+			noise_mean += QTmp;
+			noise_var  += QTmp*QTmp;
+			noise_sum  += 1.;
+		}
+		if(QTmp > Q_max){
+			Q_max    = QTmp;
+			Q_max_Nr = j;
+		}
+	}
+
+	//Study the surrounding of the maximum charge
+	Float_t max_mean, max_var, max_sum;
+	max_mean = max_var = max_sum = 0.;
+	for(Int_t j=-Border;j<=Border;j++){
+		Int_t k = Q_max_Nr+j; 
+		if( (0<k) && (k<=hQcal->GetNbinsX()) ){
+			QTmp = hQcal->GetBinContent(k);
+			if (QTmp>0){
+				max_mean  += QTmp;
+				max_var   += QTmp*QTmp;
+				max_sum   += 1.;	
 			}
+		}
+	}
+ 	//The signal of the maximum charge is removed from the quantities noise_***
+	noise_mean -= max_mean;
+	noise_var  -= max_var;
+	noise_sum  -= max_sum;
+ 	//Calculate statistical quntities related to the noise and fix the threshold
+ 	//as the mean of the noise + 1 time its standart deviation
+	if(noise_sum<2. || noise_var==0) 
+	{
+		noise_mean = noise_var = 0;
+	}
+	else 
+	{
+		noise_mean /= noise_sum;
+		noise_var   = noise_var/noise_sum - noise_mean*noise_mean;
+		noise_stdev = TMath::Sqrt(noise_var);
+	}
+	Float_t threshold = noise_mean + noise_stdev;
+
+	return threshold;
+}
+//________________________________________________________________
+
+TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
+	// Retruns the X or Y position histogram with calibrated charges (Q)
+	// after the substration of noise.
+
+	Int_t i = IDX(dir);
+	if( (i<0) || (i>2) ) return NULL; 
+	if( !fQ[2][i] ) return NULL;
+	if(fQ[2][i]->GetEntries()) return fQ[2][i];
+
+	TH1F *hQcal = GetQHisto( dir );
+	if( !hQcal ) return NULL;
+
+	Float_t threshold = CalculateQThreshold( dir );
+
+	for(Int_t j=1; j<=hQcal->GetNbinsX(); j++){	//loop over strips
+		Double_t QTmp = hQcal->GetBinContent(j);
+		if(QTmp > threshold){
+			fQ[2][i]->SetBinContent(j,QTmp-threshold);
+		}
+	}
 
 	return fQ[2][i];
 }
@@ -238,6 +250,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 
 	Bool_t ok = kFALSE;
 	KVCalibrator *cal  = NULL;
+	KVACQParam   *par  = NULL;
 	Int_t idx, num;
 
 	Int_t count_calOK = 0, count_fired = 0;
@@ -249,7 +262,8 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 		count_calOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
-		if( !calf->GetACQParam()->Fired("P") ) continue;
+		par = calf->GetACQParam();
+		if( !par->Fired("P") ) continue;
 		count_fired++;
 		
 		num =  calf->GetNumber();
@@ -289,8 +303,9 @@ void KVSeD::ResetCalculatedData(){
 	// (such as GetPosition(), GetQrawHisto() ...) will not return 
 	// what you expect.
 	for(Int_t i=0; i<3; i++){
-		for(Int_t j=0; j<2; j++)
-			if(fQ[i][j])    fQ[i][j]->Reset();
+		for(Int_t j=0; j<2; j++){
+			if(fQ[i][j]) fQ[i][j]->Reset();
+		}
 	}
 
 	fRawPos[0] = fRawPos[1] = -500;
