@@ -47,6 +47,7 @@ void KVVAMOS::init()
 	fDetectors = new KVList;
 	fDetectors->SetCleanup(kTRUE);
 
+	fFiredDets    = NULL;
 	fVACQParams   = NULL;
 	fVCalibrators = NULL;
 	fFPvolume     = NULL;
@@ -85,6 +86,7 @@ KVVAMOS::~KVVAMOS(){
 	}
 	fVACQParams = NULL;
 	SafeDelete( fVCalibrators );
+	SafeDelete( fFiredDets    );
 
 	if(gVamos == this) gVamos = NULL;
 }
@@ -242,17 +244,22 @@ void KVVAMOS::InitGeometry(){
 //________________________________________________________________
 
 
-void KVVAMOS::GetFiredDetectors(KVList *list,Option_t *opt){
+KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 	//Fills 'list' with the fired detectors. The option 'opt' is 
 	//set to the method KVSpectroDetector::Fired( opt ) used to know
 	//if a detector is fired. The list is not the owner of its content.
+	//It is a member variable fFiredDets of the class and will be deleted
+	//with this KVVAMOS object.
 
-	list->SetOwner( kFALSE );
+	if( fFiredDets ) fFiredDets->Clear();
+	else fFiredDets = new KVList( kFALSE );
+
 	TIter next( fDetectors );
 	KVSpectroDetector *det = NULL;
 	while( (det = (KVSpectroDetector *)next()) ){
-		if( det->Fired( opt ) ) list->Add( det );
+		if( det->Fired( opt ) ) fFiredDets->Add( det );
 	}
+	return fFiredDets;
 }
 //________________________________________________________________
 
@@ -341,7 +348,7 @@ void KVVAMOS::Build(){
 	MakeListOfDetectors();
 	BuildVAMOSGeometry();
     InitGeometry();
-	fDetectors->Sort();
+	fDetectors->Sort( kSortDescending );
 	SetIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
@@ -534,7 +541,10 @@ void KVVAMOS::SetArrayACQParams(){
 		cout<<param.Data()<<" ";
 		// VAMOS is the owner of the acq param. (kTRUE)
 		AddACQParam( par = new KVACQParam(param.Data()),kTRUE);
-		if( param.BeginsWith("T") ) par->SetType("T");
+		if( param.BeginsWith("T") ){
+			if( param.EndsWith("HF") ) par->SetType("T_HF");
+			else par->SetType("T");
+		}
 		par->SetUniqueID( 7000 + num++);
 		par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
 	}
@@ -575,7 +585,7 @@ void KVVAMOS::SetCalibrators(){
 
 	TIter nextpar( fVACQParams );
 	while((par = (KVACQParam *)nextpar())){
-		if(strcmp(par->GetType(),"T")) continue;
+		if( (*par->GetType()) != 'T' ) continue;
 		calibtype = "channel->ns";
 		calibtype.Append(" ");
 		calibtype.Append( par->GetName() );

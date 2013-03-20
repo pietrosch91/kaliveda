@@ -18,74 +18,75 @@ class KVVAMOS : public KVDetector //public KVBase
 	private:
 
 		enum{
-			kIsBuilt = BIT(20)  // flag set when Build() is called
+			kIsBuilt = BIT(20) //flag set when Build() is called
 		};
 
 	protected:
-		TString fDataSet;      // Name of associated dataset, used with MakeVAMOS	
+		TString fDataSet;      //Name of associated dataset, used with MakeVAMOS	
 		KVList *fDetectors;    // List of references to all detectors of VAMOS
-		KVList *fVACQParams;   // References to data acquisition parameter belonging to VAMOS
+		KVList *fFiredDets;    //!List of fired detectors of VAMOS
+		KVList *fVACQParams;   //References to data acquisition parameter belonging to VAMOS
 		KVList *fVCalibrators; //References to calibrator belonging to VAMOS
-		TGeoVolume *fFPvolume; //! TGeoVolume centered on the focal plane
-		Double_t fFocalPos;    //! Position of the focal plan from target center (in cm)
-		TGeoHMatrix fFocalToTarget; //! focal-plan to target position transformation matrix
+		TGeoVolume *fFPvolume; //!TGeoVolume centered on the focal plane
+		Double_t fFocalPos;    //!Position of the focal plan from target center (in cm)
+		TGeoHMatrix fFocalToTarget; //!focal-plan to target position transformation matrix
 
-   virtual void BuildFocalPlaneGeometry(TEnv *infos);
-   virtual Bool_t BuildGeoVolume(TEnv *infos);
-   virtual void BuildVAMOSGeometry();
-   virtual void InitGeometry();
-   virtual Int_t LoadGeoInfosIn(TEnv *infos);
-   virtual void MakeListOfDetectors();
-   virtual void SetACQParams();
-   virtual void SetArrayACQParams();
-   virtual void SetCalibrators();
-   virtual void SetIDTelescopes();
-   
-
-   public:
-   KVVAMOS();
-   KVVAMOS (const KVVAMOS&) ;
-   virtual ~KVVAMOS();
-
-   void init();
-
-   void AddACQParam(KVACQParam* par, Bool_t owner = kFALSE);
-   Bool_t AddCalibrator(KVCalibrator *cal, Bool_t owner = kFALSE);
-   virtual void Build();
-   virtual void Clear(Option_t *opt = "" );
-   void Copy (TObject&) const;
-   virtual void GetFiredDetectors(KVList *list, Option_t *opt="Pany");
-   virtual void Initialize();
-   static KVVAMOS *MakeVAMOS(const Char_t* name);
-   virtual void SetParameters(UShort_t run);
+   		virtual void   BuildFocalPlaneGeometry(TEnv *infos);
+   		virtual Bool_t BuildGeoVolume(TEnv *infos);
+   		virtual void   BuildVAMOSGeometry();
+   		virtual void   InitGeometry();
+   		virtual Int_t  LoadGeoInfosIn(TEnv *infos);
+   		virtual void   MakeListOfDetectors();
+   		virtual void   SetACQParams();
+   		virtual void   SetArrayACQParams();
+   		virtual void   SetCalibrators();
+   		virtual void   SetIDTelescopes();
 
 
-   void FocalToTarget(const Double_t *focal, Double_t *target);
-   void TargetToFocal(const Double_t *target, Double_t *focal);
-   void FocalToTargetVect(const Double_t *focal, Double_t *target);
-   void TargetToFocalVect(const Double_t *target, Double_t *focal);
+   	public:
+   		KVVAMOS();
+   		KVVAMOS (const KVVAMOS&) ;
+   		virtual ~KVVAMOS();
 
-   
-   // ----- inline methods -----------
+   		void init();
+
+   		void AddACQParam(KVACQParam* par, Bool_t owner = kFALSE);
+   		Bool_t AddCalibrator(KVCalibrator *cal, Bool_t owner = kFALSE);
+   		virtual void Build();
+   		virtual void Clear(Option_t *opt = "" );
+   		void Copy (TObject&) const;
+   		virtual KVList *GetFiredDetectors(Option_t *opt="Pany");
+   		virtual void Initialize();
+   		static KVVAMOS *MakeVAMOS(const Char_t* name);
+   		virtual void SetParameters(UShort_t run);
 
 
-   inline KVCalibrator *GetVCalibrator(const Char_t * type) const{
-   if (fVCalibrators)
-      return (KVCalibrator *) fVCalibrators->FindObjectByType(type);
-   return 0;
-   }
+   		void FocalToTarget(const Double_t *focal, Double_t *target);
+   		void TargetToFocal(const Double_t *target, Double_t *focal);
+   		void FocalToTargetVect(const Double_t *focal, Double_t *target);
+   		void TargetToFocalVect(const Double_t *target, Double_t *focal);
 
-   inline KVDetector* GetDetector(const Char_t *name){
-	   return (KVDetector*)fDetectors->FindObject(name);
-   };
 
-   inline TGeoHMatrix GetFocalToTargetMatrix() const { return fFocalToTarget; }
-   inline KVList* GetListOfDetectors()   { return fDetectors;  };
-   inline KVList* GetVACQParamList()     { return fVACQParams; };
-   inline KVList* GetListOfVCalibrators(){ return fVCalibrators; };
-   inline Bool_t  IsBuilt()              { return TestBit(kIsBuilt); }
+   		// ----- inline methods -----------
 
-   ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
+
+   		inline KVCalibrator *GetVCalibrator(const Char_t * type) const{
+   			if (fVCalibrators)
+      			return (KVCalibrator *) fVCalibrators->FindObjectByType(type);
+   			return 0;
+   		}
+
+   		inline KVDetector* GetDetector(const Char_t *name){
+	   		return (KVDetector*)fDetectors->FindObject(name);
+   		}
+
+   		inline TGeoHMatrix GetFocalToTargetMatrix() const { return fFocalToTarget; }
+   		inline KVList* GetListOfDetectors()   { return fDetectors;  }
+   		inline KVList* GetVACQParamList()     { return fVACQParams; }
+   		inline KVList* GetListOfVCalibrators(){ return fVCalibrators; }
+   		inline Bool_t  IsBuilt()              { return TestBit(kIsBuilt); }
+
+   		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };
 
 //................  global variable
