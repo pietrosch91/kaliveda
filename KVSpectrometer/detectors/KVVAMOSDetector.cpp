@@ -71,9 +71,36 @@ void KVVAMOSDetector::init(){
 }
 //________________________________________________________________
 
+Bool_t KVVAMOSDetector::Fired(Option_t * opt, Option_t * optP){
+
+	if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
+
+	Binary8_t event; // bitmask for event
+	TString type_list("|"), type;
+	TIter next(fACQParams);
+	KVACQParam* par; Int_t id = 0;
+	while( (par = (KVACQParam*)next()) ){
+
+		type.Form("|%s|", par->GetType());
+
+		if( type_list.Contains( type.Data() ) ) continue;
+		type_list += (type.Data()+1);
+
+	    if( par->Fired( optP ) ) event.SetBit(id);
+	    else event.ResetBit(id);
+	    id++;
+	}
+	Binary8_t ok = fFiredMask&event;
+	// "all" considered parameters fired if ok == mask
+	// "any" considered parameters fired if ok != 0
+	if (!strcmp(opt, "all")) 	return (ok == fFiredMask);
+	return (ok != "0");
+
+}
+//________________________________________________________________
+
 void KVVAMOSDetector::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
-
 }
 //________________________________________________________________
 
@@ -104,7 +131,7 @@ void KVVAMOSDetector::SetCalibrators(){
  			calibtype = "channel->Volt";
 			maxch     = 4096.;           // 12 bits
 		}
-		else if( par->IsType("T") ){
+		else if( (*par->GetType()) == 'T' ){
  			calibtype = "channel->ns";
 			if( !fT0list ) fT0list = new TList;
 			fT0list->Add(new KVNamedParameter( par->GetName() , 0. ));
@@ -130,7 +157,7 @@ void KVVAMOSDetector::SetCalibrators(){
 	if(gVamos){
 		TIter next_vacq( gVamos->GetVACQParamList() );
 		while(( par = (KVACQParam *)next_vacq() )){
-			if(par->IsType("T") && IsTfromThisDetector( par->GetName()+1 ) ){
+			if( ((*par->GetType()) == 'T') && IsTfromThisDetector( par->GetName()+1 ) ){
 				if( !fT0list ) fT0list = new TList;
 				fT0list->Add(new KVNamedParameter( par->GetName() , 0. ));
 			}
@@ -245,6 +272,67 @@ Bool_t KVVAMOSDetector::IsTfromThisDetector(const Char_t *type) const{
 	TString tmp(type);
 	if( tmp.BeginsWith( GetTBaseName() ) ) return kTRUE;
 	return kFALSE;
+}
+//________________________________________________________________
+void KVVAMOSDetector::SetFiredBitmask(){
+   	// Set bitmask used to determine which acquisition parameters are
+   	// taken into account by KVVAMOSDetector::Fired based on the environment variables
+   	//          [dataset].KVACQParam.[par name].Working:    NO
+   	//          [dataset].KVDetector.Fired.ACQParameterList.[type]: Q,T,T_HF,E,X,Y 
+   	// The first allows to define certain acquisition parameters as not functioning;
+   	// they will not be taken into account.
+   	// The second allows to "fine-tune" what is meant by "all" or "any" acquisition parameters
+   	// (i.e. when using Fired("all"), Fired("any"), Fired("Pall", etc.).
+   	// For each detector type, give a comma-separated list of the acquisition
+   	// parameter types to be taken into account in the KVDetector::Fired method.
+   	// Only those parameters which appear in the list will be considered:
+   	//  then "all" means => all parameters in the list
+   	//  and  "any" means => any of the parameters in the list
+   	// These lists are read during construction of VAMOS (KVVAMOS::Build),
+   	// the method KVVAMOS::SetACQParams uses them to define a mask for each detector
+   	// of the spectrometer.
+   	// Bits are set/reset in the order of different types of acquisition parameters
+   	// found in the list of parameters of the detector.
+   	// If no variable [dataset].KVDetector.Fired.ACQParameterList.[type] exists,
+   	// we set a bitmask authorizing all acquisition parameters of the detector, e.g.
+   	// if the detector has 3 types of acquisition parameters the bitmask will be "111"
+
+	KVString inst; inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s",GetType());
+	KVString lpar = gDataSet->GetDataSetEnv(inst);
+	TObjArray *toks = lpar.Tokenize(",");
+	TString type_list("|"), type;
+
+	TIter next(fACQParams);
+	Bool_t no_variable_defined = (toks->GetEntries()==0);
+	KVACQParam* par; Int_t id = 0;
+	while( (par = (KVACQParam*)next()) ){
+
+		type.Form("|%s|", par->GetType());
+
+		if( type_list.Contains( type.Data() ) ) continue;
+		type_list += (type.Data()+1);
+
+        if( no_variable_defined || toks->FindObject( par->GetType() ) ) fFiredMask.SetBit(id);
+	    else fFiredMask.ResetBit(id);
+
+	    id++;
+	}
+
+
+	TString extra[4] = {"T_HF","T","X","Y"};
+	for(Int_t i=0; i<4; i++){
+		type.Form("%s|", extra[i].Data());
+		type_list += type;
+
+        if( no_variable_defined || toks->FindObject( extra[i].Data() ) ) fFiredMask.SetBit(id);
+	    else fFiredMask.ResetBit(id);
+
+	    id++;
+	}
+	delete toks;
+	fFiredMask.SetNBits( id );
+	Info("SetFiredBitmask","Fired bitmask for %s: %s <-> %s (%s)",GetName(),type_list.Data(), fFiredMask.String(),lpar.Data());
+
 }
 //________________________________________________________________
 

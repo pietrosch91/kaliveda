@@ -15,6 +15,8 @@ class KVVAMOSDetector : public KVSpectroDetector
 		TList         *fT0list; //! list of T0 saved in a KVNamedParameter
 
 		void init();
+   		virtual Bool_t Fired(Option_t *opt, Option_t *optP);
+
 
    public:
 
@@ -23,7 +25,8 @@ class KVVAMOSDetector : public KVSpectroDetector
    KVVAMOSDetector (const KVVAMOSDetector&) ;
    virtual ~KVVAMOSDetector();
    void Copy (TObject&) const;
-
+   inline virtual Bool_t Fired(Option_t * opt = "any");
+   inline virtual Bool_t FiredP(Option_t * opt = "any");
    virtual void   Initialize();
    virtual void   SetCalibrators();
    virtual KVFunctionCal *GetECalibrator() const;
@@ -37,6 +40,7 @@ class KVVAMOSDetector : public KVSpectroDetector
    virtual Bool_t IsECalibrated() const;
    Bool_t   IsTCalibrated(const Char_t *type) const;
    Bool_t   IsTfromThisDetector(const Char_t *type) const;
+   void     SetFiredBitmask();
    void     SetT0(const Char_t *type, Double_t t0 = 0.);
 
    virtual const Char_t *GetEBaseName() const;
@@ -60,5 +64,50 @@ class KVVAMOSDetector : public KVSpectroDetector
 
    ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer
 };
+
+
+
+//________________________________________________________________
+Bool_t KVVAMOSDetector::Fired(Option_t * opt)
+{
+	// Returns kTRUE if detector was hit (fired) in an event
+	//
+	// The actual meaning of hit/fired depends on the context and the option string opt.
+	//
+   //opt="any" (default):
+   //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
+   //opt="all" :
+   //Returns true if ALL* of the working acquisition parameters associated with the detector were fired in an event
+   //opt="Pany" :
+   //Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //opt="Pall" :
+   //Returns true if ALL* of the working acquisition parameters associated with the detector were fired in an event
+   //and have a value greater than their pedestal value
+   //
+   // *the actual parameters taken into account can be fine tuned using environment variables such as
+   //          KVVAMOSDetector.Fired.ACQParameterList.[type]: Q,E,T,T_HF,X,Y
+   // See KVAMOSDetector::SetFiredBitmask() for more details.
+
+   if(opt[0]=='P') return FiredP(opt+1);
+   return Fired(opt,"");
+}
+//_________________________________________________________________________________
+
+Bool_t KVVAMOSDetector::FiredP(Option_t * opt)
+{
+   	//opt="any" :
+   	//Returns true if ANY* of the working acquisition parameters associated with the detector were fired in an event
+   	//and have a value greater than their pedestal value
+   	//opt="all" :
+   	//Returns true if ALL* of the working acquisition parameters associated with the detector were fired in an event
+   	//and have a value greater than their pedestal value
+   	//
+   	// *the actual parameters taken into account can be fine tuned using environment variables such as
+   	//          KVVAMOSDetector.Fired.ACQParameterList.[type]: Q,E,T,T_HF,X,Y
+   	// See KVAMOSDetector::SetFiredBitmask() for more details.
+
+	return Fired(opt,"P");
+}
 
 #endif
