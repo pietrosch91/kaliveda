@@ -2,6 +2,8 @@
 //Author: Guilain ADEMARD
 
 #include "KVIVReconEvent.h"
+#include "KVVAMOS.h"
+
 using namespace std;
 
 ClassImp(KVIVReconEvent)
@@ -198,6 +200,17 @@ void KVIVReconEvent::CalibrateAndIdentifyVAMOSEvent(){
 //________________________________________________________________
 
 void KVIVReconEvent::ReconstructVAMOSEvent(){
+
+	KVList *detl = gVamos->GetFiredDetectors( GetPartSeedCond() );
+
+	//If no fired detectors then no reconstruction
+	if( !detl->GetEntries() ) return;
+	//else a Nucleus can be recontructed in VAMOS
+	fNucInVAMOS = kTRUE;
+
+	fVAMOSnuc->ConstructFocalPlanTrajectory( detl );
+	fVAMOSnuc->Calibrate();
+	fVAMOSnuc->ConstructLabTrajectory();
 
 	Warning("ReconstructVAMOSEvent","TO BE IMPLEMENTED");
 }

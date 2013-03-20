@@ -12,11 +12,17 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 	private:
 
 		KVVAMOSCodes fCodes; //Focal plan Pos. recon., calib. and ident. codes
+
    	public:
+
    		KVVAMOSReconNuc();
    		KVVAMOSReconNuc (const KVVAMOSReconNuc&) ;
    		virtual ~KVVAMOSReconNuc();
    		void Copy (TObject&) const;
+
+		virtual void Calibrate();
+		virtual void ConstructFocalPlanTrajectory(KVList *detlist);
+		virtual void ConstructLabTrajectory();
 
 
 		inline KVVAMOSCodes &GetCodes(){
