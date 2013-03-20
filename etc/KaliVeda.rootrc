@@ -261,10 +261,6 @@ INDRA_e475s.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 INDRA_e475s.KVDetector.Fired.ACQParameterList.CSI: R,L
 
-INDRA_e494s.KVDetector.Fired.ACQParameterList.SI: PG,GG,T,E
-INDRA_e494s.KVDetector.Fired.ACQParameterList.CHI: E
-INDRA_e494s.KVDetector.Fired.ACQParameterList.SED: Q
-
 VAMOS_e503.KVDetector.Fired.ACQParameterList.SI: E
 VAMOS_e503.KVDetector.Fired.ACQParameterList.CSI: E
 
@@ -273,6 +269,21 @@ t10_02.KVDetector.Fired.ACQParameterList.SI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
+
+# Same thing for VAMOS's detectors. The list of acquisition parameters can contain 
+# Q, E, T, T_HF, X and Y. The last two types are not exactly acquisition parameter types
+# but the types of quantities (position) calculated from acquisition parameters with type 'Q'.
+# So if you set already X or Y types, setting Q in the list is useless.
+# For each detector type, give a comma-separated list to be taken into account in the 
+# KVVAMOSDetector::Fired method.
+# These lists are read during construction of VAMOS spectrometer (KVVAMOS:Build),
+# the method KVAMOS::SetACQParams uses them to define a mask for each detector
+# of the spectrometer.
+#
+KVVAMOSDetector.Fired.ACQParameterList.SI: T_HF,E
+KVVAMOSDetector.Fired.ACQParameterList.CHI: E
+KVVAMOSDetector.Fired.ACQParameterList.SED: T_HF,X,Y
+
 
 # Experience e613
 # The marqueuers de temps for silicon detectors from SI_0101 to SI_0324
