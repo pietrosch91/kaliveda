@@ -21,8 +21,26 @@ CsIv::CsIv(LogFile *Log)
 {
 
 	L=Log;
+	NbCsI = gEnv->GetValue("VAMOS.NbCsI",-1);
+	if(NbCsI<0){
+	  	cout<<"Not Reading VAMOS.NbCsI in CsIv Class"<<endl;
+	}
 	
-  InitRaw();
+  Ped = new Float_t[NbCsI];	    //CsI pedestal
+  ECoef = new Float_t*[NbCsI];  //CsI calibration coefficients 
+  for(Int_t i=0; i<NbCsI; i++){
+  	ECoef[i] = new Float_t[3];
+  }
+  
+  //energy Raw
+  E_Raw = new UShort_t[NbCsI];
+  CsIERaw = new Int_t[NbCsI];
+  E_Raw_Nr = new UShort_t[NbCsI];
+  
+  //energy time Calibrated
+  DetCsI = new Int_t[NbCsI];
+  	
+  InitSavedQuantities();
   Init();
    // Default constructor
 
@@ -30,7 +48,7 @@ CsIv::CsIv(LogFile *Log)
   //initialization of calibration parameter
   for(Int_t i=0;i<80;i++)
     {
-      Ped[i][0]=-1.;
+      Ped[i]=-1.;
     }
   for(Int_t j=0;j<80;j++)
     {
@@ -61,7 +79,7 @@ CsIv::CsIv(LogFile *Log)
        if(!in2.eof()){
 	   if (!sline.BeginsWith("#")){
 	     sscanf(sline.Data(),"%d %f %f %f %f", &num, &dummy1, &dummy2, &dummy3, &pied);
-	     Ped[num-1][0]=pied;
+	     Ped[num-1]=pied;
 	     	   }
          	}
        	}
@@ -75,7 +93,6 @@ CsIv::CsIv(LogFile *Log)
    Float_t a1=0., a2=0., a3=0.;
    ifstream in3;
 
-   //reading the CsI calibration parameters from P.Wigg work - 2010-10-04
    if(!gDataSet->OpenDataSetFile("CsI.cal",in3))
   {
      cout << "Could not open the calibration file CsI.cal !!!" << endl;
@@ -87,11 +104,12 @@ CsIv::CsIv(LogFile *Log)
 	while(!in3.eof()){
        sline.ReadLine(in3);
        if(!in3.eof()){
-	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
+	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|") && !sline.BeginsWith("#")){
 	     sscanf(sline.Data(),"%d %d %f %f %f %f %f", &num, &num2, &a1, &a2, &a3, &dummy1, &dummy2);
 	     ECoef[num2-1][0]=a1;
 	     ECoef[num2-1][1]=a2;
 	     ECoef[num2-1][2]=a3;
+	     //cout<<"a1 : "<<ECoef[num2-1][0]<<"	a2 : "<<ECoef[num2-1][1]<<"	a3 :"<<ECoef[num2-1][2]<<endl;
 	     	   }
        		}
      	}
@@ -102,79 +120,83 @@ CsIv::CsIv(LogFile *Log)
 
 CsIv::~CsIv()
 {
+  delete [] Ped;
+  delete [] ECoef;
+  
+  //energy Raw
+  delete [] E_Raw; 
+  delete [] CsIERaw;
+  delete [] E_Raw_Nr;
+  
+  //energy time Calibrated
+  delete [] DetCsI;
+	
    // Destructor
 }
 
 
-void CsIv::InitRaw(void)
+void CsIv::InitSavedQuantities(void)
 {
   //cout << "CsI::InitRaw" << endl;
 
-  for(Int_t i=0;i<80;i++)
+  for(Int_t i=0;i<NbCsI;i++)
     {
-      E_Raw[i] = 0;
-      E_Raw_Nr[i] = 0;
-      CsIRaw[i] = 0;
-    }
-  E_RawM = 0;
+      CsIERaw[i] = -10;      
+      DetCsI[i] = -10;
+    }  
+  EMCSI=0;
+  
 }
 
 
 void CsIv::Init()
 {
   //cout<<"Init()"<<endl;
+  
+E_RawM = -10;
 
-  //Initialization of calibrated parameter
-  for(Int_t i=0;i<80;i++)
+  //initialization of calibration parameter
+  for(Int_t i=0;i<NbCsI;i++)
     {
-      //E[i]=-100;
-      ENr[i]=-1;
+      Ped[i]=-10.0;
+      E_Raw[i] = -10;
+      E_Raw_Nr[i] = -10;
     }
-  EM=0;
-  ETotal=-1;
-  Number=-10;
-  DetCsI=0;
-}
-
-void CsIv::Calibrate(void)
-{
-  Int_t i,j,k;
-
-  // #ifdef DEBUG
-  //cout << "CSI::Calibrate" << endl;
-  // #endif
-  
-  //L->Log<<"E_RawM CsI"<<E_RawM<<endl;
-  
-  for(i=0;i<E_RawM;i++)
-      {
-	//cout<<"CsI : E_Raw["<<i<<"] = "<<E_Raw[i]<<endl;
-	
-		//cout<<"E_Raw_Nr[i] "<<E_Raw_Nr[i]<<endl;
-	if(float(E_Raw[i]) > Ped[int(E_Raw_Nr[i])][0])
- 	  {
-	    //cout<<"E_Raw "<<E_Raw[i]<<endl;    		
-	    
-	        //==Raw_signal class==
-    		CSI_Raw = E_Raw[i];
-    		//====================
-	    Number = E_Raw_Nr[i];	    
-	    DetCsI = int(Number)+1;	//numérotation 1-80
-	    EM++;
-	  }
-      }
-
-  
+  for(Int_t j=0;j<NbCsI;j++)
+    {
+      for(Int_t k=0;k<3;k++)
+	{
+	  ECoef[j][k]=-1.;
+	}
+    }
 }
 
 void CsIv::Treat(void)
 {
-  //#ifdef DEBUG
-  //cout << "CsIv::Treat" << endl;
-  //#endif
+InitSavedQuantities();
   
-  Init();
-  Calibrate();
+  for(Int_t i=0;i<E_RawM;i++)
+      {
+
+	//if(E_Raw[i]==0)cout<<"***********************************CsI Raw before : "<<E_Raw[i]<<" Pied : "<<Ped[int(E_Raw_Nr[i])]<<endl;
+	if(float(E_Raw[i]) > Ped[int(E_Raw_Nr[i])])
+ 	  {
+	  //if(E_Raw[i]==0)cout<<"***********************************CsI Raw after : "<<E_Raw[i]<<" Pied : "<<Ped[int(E_Raw_Nr[i])]<<endl;	
+	  //cout<<"CsI Raw after : "<<E_Raw[i]<<" Pied : "<<Ped[int(E_Raw_Nr[i])]<<endl;
+	    CsIERaw[EMCSI] = E_Raw[i];	    
+	    DetCsI[EMCSI] = E_Raw_Nr[i]+1;	//numérotation 1-80
+	    //cout<<"===CsI==="<<endl;	    
+	    //cout<<DetCsI[EMCSI]<<" "<<CsIERaw[EMCSI]<<endl;
+	    EMCSI++;
+
+	    
+	    
+	  }
+      }
+      
+      //cout<<"Mult CsI : "<<EMCSI<<endl;
+      //cout<<"====="<<endl;
+      
 }
 
 void CsIv::inAttach(TTree *inT)
@@ -205,13 +227,10 @@ void CsIv::outAttach(TTree *outT)
   cout << "Attaching CsI variables" << endl;
 #endif
 
-   outT->Branch("CsIEM",&EM,"CsIEM/I");	
-   outT->Branch("DetCsI",&DetCsI,"DetCsI/I");
-   //outT->Branch("CsIE",E,"CsIE[80]/F");
-   //outT->Branch("CsIET",&ETotal,"CsIET/F");
+   outT->Branch("CsIEM",&EMCSI,"EMCSI/I");
+   outT->Branch("CsIRaw",CsIERaw,"CsIERaw[EMCSI]/I");	
+   outT->Branch("DetCsI",DetCsI,"DetCsI[EMCSI]/I");
 
-   //outT->Branch("CSIERaw",&E_Raw[0],"CsIERaw/S");
-   //outT->Branch("CSIERaw",CsIRaw,"CsIERaw[80]/S");
 }
 
 void CsIv::CreateHistograms(void)
