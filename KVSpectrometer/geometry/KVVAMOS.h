@@ -21,6 +21,9 @@ class KVVAMOS : public KVDetector //public KVBase
 			kIsBuilt = BIT(20) //flag set when Build() is called
 		};
 
+		static TString fACQParamTypes;
+		static TString fPositionTypes;
+
 	protected:
 		TString fDataSet;      //Name of associated dataset, used with MakeVAMOS	
 		KVList *fDetectors;    // List of references to all detectors of VAMOS
@@ -85,6 +88,41 @@ class KVVAMOS : public KVDetector //public KVBase
    		inline KVList* GetVACQParamList()     { return fVACQParams; }
    		inline KVList* GetListOfVCalibrators(){ return fVCalibrators; }
    		inline Bool_t  IsBuilt()              { return TestBit(kIsBuilt); }
+
+
+		static const Char_t *GetACQParamTypes(){
+			return fACQParamTypes.Data();
+		}
+		static const Char_t *GetPositionTypes(){
+			return fPositionTypes.Data();
+		}
+		static UChar_t GetACQParamTypeIdx( const Char_t *type ){
+			Ssiz_t i = fACQParamTypes.Index( Form(":%s,", type) ); 
+			return (i<0 ? 9 : *(fACQParamTypes.Data()+i-1) - '0' );
+		}
+		static UChar_t GetPositionTypeIdx( const Char_t *type ){
+			Ssiz_t i = fPositionTypes.Index( Form(":%s,", type) ); 
+			return (i<0 ? 9 : *(fPositionTypes.Data()+i-1) - '0' );
+		}
+
+		static UInt_t CalculateUniqueID( KVBase *param, KVDetector *det = NULL){
+			UInt_t uid = param->GetNumber();
+			uid += 1000   * GetACQParamTypeIdx( param->GetType() );
+			uid += 10000  * GetPositionTypeIdx( param->GetLabel() );
+			if( !det ) return uid;
+
+			uid += 100000 * det->GetUniqueID();
+			return uid;
+		}
+
+		static UChar_t GetACQParamTypeIdxFromID( UInt_t id ){
+			return (id/1000)%10;
+		}
+		static UChar_t GetPositionTypeIdxFromID( UInt_t id ){
+			return (id/10000)%10;
+		}
+
+
 
    		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };

@@ -13,6 +13,7 @@ class KVVAMOSDetector : public KVSpectroDetector
 	protected:
 		
 		TList         *fT0list; //! list of T0 saved in a KVNamedParameter
+		TList         *fTlist;  //! list of Time ACQ parameters
 
 		void init();
    		virtual Bool_t Fired(Option_t *opt, Option_t *optP);
@@ -60,6 +61,10 @@ class KVVAMOSDetector : public KVSpectroDetector
 
    inline TList *GetListOfT0() const{
 	   return fT0list;
+   }
+
+   inline TList *GetTACQParamList() const{
+	   return fTlist;
    }
 
    ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer

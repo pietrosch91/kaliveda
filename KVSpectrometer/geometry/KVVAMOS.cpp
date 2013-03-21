@@ -26,6 +26,11 @@ ClassImp(KVVAMOS)
 
 KVVAMOS *gVamos;
 
+
+TString KVVAMOS::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
+TString KVVAMOS::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 4:XZ, 5:YZ, 6:XYZ, 9:NO_TYPE");
+
+
 KVVAMOS::KVVAMOS()
 {
    	// Default constructor
@@ -44,6 +49,7 @@ void KVVAMOS::init()
     //the ROOT automatic garbage collection to make sure that any object
     //deleted eslsewhere is removed automatically from this list.
 
+	SetUniqueID( 0 );
 	fDetectors = new KVList;
 	fDetectors->SetCleanup(kTRUE);
 
@@ -294,14 +300,17 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 	fACQParams->Add(par);
 
 	// Add ACQ param. in list of VAMOS if it is owner
-	if(!owner) return;
-   	if(!fVACQParams){
-		fVACQParams = new KVList;
-		fVACQParams->SetName(Form("List of ACQ param. belonging to %s",GetName()));
-		fVACQParams->SetCleanup(kTRUE);
+	if(owner){
+   		if(!fVACQParams){
+			fVACQParams = new KVList;
+			fVACQParams->SetName(Form("List of ACQ param. belonging to %s",GetName()));
+			fVACQParams->SetCleanup(kTRUE);
+		}
+		par->SetDetector( this );
+		fVACQParams->Add(par);
 	}
-	par->SetDetector( this );
-	fVACQParams->Add(par);
+
+	par->SetUniqueID( CalculateUniqueID( par, par->GetDetector() ) );
 }
 //________________________________________________________________
 
@@ -323,11 +332,12 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
    if(fCalibrators->FindObject(cal)) return kFALSE;
    fCalibrators->Add(cal);
 
-   if( !owner ) return kTRUE;
-   if (!fVCalibrators){
-       fVCalibrators = new KVList();
+   if( owner ){
+   	   if (!fVCalibrators){
+       	   fVCalibrators = new KVList();
+   	   }
+   	   fVCalibrators->Add(cal);
    }
-   fVCalibrators->Add(cal);
 
    return kTRUE;
 }
@@ -393,6 +403,7 @@ void KVVAMOS::MakeListOfDetectors(){
 	KVString list = gDataSet->GetDataSetEnv(envname.Data());
 	list.Begin(" ");
 	KVNumberList numlist;
+	Int_t det_class_num = 1;
 	// Loop over each detector of the spectrometer
 	while( !list.End() ){
 		KVString detname = list.Next( kTRUE );
@@ -413,10 +424,12 @@ void KVVAMOS::MakeListOfDetectors(){
 			// Making the detector
 			KVSpectroDetector *det = (KVSpectroDetector*) detcl->New();
 			det->SetNumber(num);
+			det->SetUniqueID( 10*num + (det_class_num) );
 			det->SetName(det->GetArrayName());
 			Warning("MakeListOfDetectors","The detector %s have to be assigned to TGeoVolume",det->GetName());
 			fDetectors->Add(det);
 		}
+		det_class_num++;
 	}
 }
 //________________________________________________________________
@@ -540,13 +553,17 @@ void KVVAMOS::SetArrayACQParams(){
 		TString param( obj->GetName() );
 		cout<<param.Data()<<" ";
 		// VAMOS is the owner of the acq param. (kTRUE)
-		AddACQParam( par = new KVACQParam(param.Data()),kTRUE);
+		par = new KVACQParam(param.Data());
+		par->SetNumber( num++);
 		if( param.BeginsWith("T") ){
-			if( param.EndsWith("HF") ) par->SetType("T_HF");
+			if( param.EndsWith("HF") ){
+				par->SetType("T_HF");
+				par->SetLabel("HF");
+ 			}	
 			else par->SetType("T");
 		}
-		par->SetUniqueID( 7000 + num++);
 		par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
+		AddACQParam( par , kTRUE);
 	}
 	cout<<endl;
 	delete tok;
@@ -593,6 +610,7 @@ void KVVAMOS::SetCalibrators(){
 		func = new TF1(par->GetName(),"pol1",0., 16384.);
 		c = new KVFunctionCal(this, func);
 		c->SetType( calibtype.Data() );
+		c->SetLabel( par->GetLabel() );
 		c->SetUniqueID( par->GetUniqueID() );
 		c->SetACQParam( par );
 		c->SetStatus( kFALSE );

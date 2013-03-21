@@ -42,6 +42,7 @@ KVSeDPositionCal::KVSeDPositionCal() : KVCalibrator(NPAR_SEDPOSCAL)
 {
    // Default constructor
    SetType("position->cm");
+   SetLabel("XY");
 }
 //________________________________________________________________
 
@@ -52,6 +53,7 @@ KVSeDPositionCal::KVSeDPositionCal(KVDetector *det) : KVCalibrator(NPAR_SEDPOSCA
    SetDetector( det );
    SetName( det->GetName() );
    SetType(Form("position->cm %s",GetName()));
+   SetLabel("XY");
 }
 //________________________________________________________________
 

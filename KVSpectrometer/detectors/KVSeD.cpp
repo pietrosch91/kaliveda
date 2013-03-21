@@ -219,15 +219,12 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 
 	Bool_t ok = kFALSE;
 	KVACQParam *par  = NULL;
-	Int_t idx;
 	while((par = (KVACQParam *)next())){
 
-		if( !par->Fired("P") ) continue;
-		idx = (par->GetUniqueID()/10000)%10;
+ 	   	if( (par->GetLabel()[0] != dir) || !par->Fired("P") ) continue;	
 
-		if( i != idx ) continue;
 		Float_t data;
-		fQ[0][idx]->SetBinContent( par->GetNumber(), data = par->GetData() );
+		fQ[0][i]->SetBinContent( par->GetNumber(), data = par->GetData() );
 		ok = kTRUE;
 	}
 
@@ -251,14 +248,13 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	Bool_t ok = kFALSE;
 	KVCalibrator *cal  = NULL;
 	KVACQParam   *par  = NULL;
-	Int_t idx, num;
+	Int_t num;
 
 	Int_t count_calOK = 0, count_fired = 0;
 	while((cal = (KVCalibrator *)next())){
 		
-		if( !cal->GetStatus() ) continue;
-		idx = (cal->GetUniqueID()/10000)%10;
- 	   	if( i != idx ) continue;	
+
+ 	   	if( !cal->GetStatus() || (KVVAMOS::GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
 		count_calOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
@@ -267,7 +263,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 		count_fired++;
 		
 		num =  calf->GetNumber();
-		fQ[1][idx]->SetBinContent( num, calf->Compute() );
+		fQ[1][i]->SetBinContent( num, calf->Compute() );
 		ok = kTRUE;
 	}
 
@@ -344,8 +340,7 @@ void KVSeD::SetACQParams(){
 			name.Form("%s_%c_%03d",GetArrayName(),DIRECTION(i),num);
 			par->SetName(name);
 			par->SetType("Q");
-			// det_num*1e6 + det_type*1e5 + pos_type*1e4 + acq_par_type*1e3 + acq_par_num
-			par->SetUniqueID( GetNumber()*1000000 +100000 + i*10000 + 1000 + num);
+			par->SetLabel( Form("%c", DIRECTION(i)) );
 			par->SetNumber( num);
 			AddACQParam(par);
 		}
@@ -373,8 +368,7 @@ void KVSeD::SetCalibrators(){
 
 	KVVAMOSDetector::SetCalibrators();
 	KVSeDPositionCal *c = new KVSeDPositionCal(this);
-	// det_num*1e6 + det_type*1e5 + pos_type*1e4 + acq_par_type*1e3 + acq_par_num
-	c->SetUniqueID( GetNumber()*1000000 + 100000 + 30000 + 9000 + 1);
+	c->SetUniqueID( KVVAMOS::CalculateUniqueID( c, this ) );
 	if(!AddCalibrator(c)) delete c;
 	else fPosCalib = c;
 

@@ -48,6 +48,7 @@ KVVAMOSDetector::KVVAMOSDetector (const KVVAMOSDetector& obj)  : KVSpectroDetect
 KVVAMOSDetector::~KVVAMOSDetector()
 {
    	// Destructor
+   	SafeDelete( fTlist  );
    	SafeDelete( fT0list );
 }
 //________________________________________________________________
@@ -67,6 +68,7 @@ void KVVAMOSDetector::Copy (TObject& obj) const
 //________________________________________________________________
 
 void KVVAMOSDetector::init(){
+	fTlist     = NULL;
 	fT0list    = NULL;
 }
 //________________________________________________________________
@@ -117,12 +119,13 @@ void KVVAMOSDetector::SetCalibrators(){
 
 	TIter nextpar(GetACQParamList());
 
-	KVACQParam    *par   = NULL;
-	Double_t       maxch = 16384.;       // 14 bits
+	KVACQParam *par   = NULL;
+	Double_t    maxch = 16384.;       // 14 bits
 
 	TString  calibtype("ERROR");
 
 	while((par = (KVACQParam *)nextpar())){
+		Bool_t isTparam = kFALSE;
 
 		if( par->IsType("E") ){
  			calibtype = "channel->MeV";
@@ -131,10 +134,9 @@ void KVVAMOSDetector::SetCalibrators(){
  			calibtype = "channel->Volt";
 			maxch     = 4096.;           // 12 bits
 		}
-		else if( (*par->GetType()) == 'T' ){
+		else if( par->GetType()[0] == 'T' ){
+			isTparam = kTRUE;
  			calibtype = "channel->ns";
-			if( !fT0list ) fT0list = new TList;
-			fT0list->Add(new KVNamedParameter( par->GetName() , 0. ));
 		}
 		else continue;
 
@@ -143,12 +145,19 @@ void KVVAMOSDetector::SetCalibrators(){
 
 		TF1 *func        = new TF1(par->GetName(),"pol1",0.,maxch);
 		KVFunctionCal *c = new KVFunctionCal(this, func);
-		c->SetType(calibtype.Data());
+		c->SetType( calibtype.Data() );
+		c->SetLabel( par->GetLabel() );
 		c->SetNumber( par->GetNumber() );
 		c->SetUniqueID( par->GetUniqueID() );
 		c->SetACQParam( par );
 		c->SetStatus( kFALSE );
 		if(!AddCalibrator(c)) delete c;
+		else if( isTparam ){
+			if( !fTlist ) fTlist = new TList;
+			fTlist->Add( par );
+			if( !fT0list ) fT0list = new TList;
+			fT0list->Add(new KVNamedParameter( par->GetName() , 0. ));
+		}
 	}
 
 	// Define and set to zero the T0 values for time of flight measurment
@@ -157,7 +166,9 @@ void KVVAMOSDetector::SetCalibrators(){
 	if(gVamos){
 		TIter next_vacq( gVamos->GetVACQParamList() );
 		while(( par = (KVACQParam *)next_vacq() )){
-			if( ((*par->GetType()) == 'T') && IsTfromThisDetector( par->GetName()+1 ) ){
+			if( (par->GetType()[0] == 'T') && IsTfromThisDetector( par->GetName()+1 ) ){
+				if( !fTlist ) fTlist = new TList;
+				fTlist->Add( par );
 				if( !fT0list ) fT0list = new TList;
 				fT0list->Add(new KVNamedParameter( par->GetName() , 0. ));
 			}
@@ -300,39 +311,35 @@ void KVVAMOSDetector::SetFiredBitmask(){
 	KVString inst; inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s",GetType());
 	KVString lpar = gDataSet->GetDataSetEnv(inst);
 	TObjArray *toks = lpar.Tokenize(",");
-	TString type_list("|"), type;
+	if( !toks->GetEntries() ){
+		fFiredMask.Set("11111111"); 
+		delete toks;
+		return;
+ 	}
 
-	TIter next(fACQParams);
-	Bool_t no_variable_defined = (toks->GetEntries()==0);
-	KVACQParam* par; Int_t id = 0;
-	while( (par = (KVACQParam*)next()) ){
+	if( toks->FindObject("X") ) fFiredMask.SetBit( 0 ); 
+	if( toks->FindObject("Y") ) fFiredMask.SetBit( 1 ); 
+	
+	UChar_t Nbits = 2;
 
-		type.Form("|%s|", par->GetType());
-
-		if( type_list.Contains( type.Data() ) ) continue;
-		type_list += (type.Data()+1);
-
-        if( no_variable_defined || toks->FindObject( par->GetType() ) ) fFiredMask.SetBit(id);
-	    else fFiredMask.ResetBit(id);
-
-	    id++;
-	}
-
-
-	TString extra[4] = {"T_HF","T","X","Y"};
-	for(Int_t i=0; i<4; i++){
-		type.Form("%s|", extra[i].Data());
-		type_list += type;
-
-        if( no_variable_defined || toks->FindObject( extra[i].Data() ) ) fFiredMask.SetBit(id);
-	    else fFiredMask.ResetBit(id);
-
-	    id++;
+	UChar_t idx_max = 0;
+	Bool_t  found   = kFALSE;
+	TIter next( toks );
+	TObject *obj = NULL;
+	while( (obj = next()) ){
+		UChar_t idx = KVVAMOS::GetACQParamTypeIdx( obj->GetName() );
+		if(idx<9){
+			found = kTRUE;
+ 		   	fFiredMask.SetBit(idx + Nbits);
+			if( idx > idx_max ) idx_max = idx;
+		}
 	}
 	delete toks;
-	fFiredMask.SetNBits( id );
-	Info("SetFiredBitmask","Fired bitmask for %s: %s <-> %s (%s)",GetName(),type_list.Data(), fFiredMask.String(),lpar.Data());
 
+	if( found ) Nbits += idx_max+1;
+
+	fFiredMask.SetNBits( Nbits );
+	Info("SetFiredBitmask","Fired bitmask for %s: %s <-> %s",GetName(), fFiredMask.String(),lpar.Data());
 }
 //________________________________________________________________
 

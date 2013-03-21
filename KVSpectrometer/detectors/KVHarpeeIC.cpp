@@ -171,10 +171,12 @@ Double_t KVHarpeeIC::GetCalibE(){
 	TIter next( GetListOfCalibrators() );
 	KVFunctionCal *cal = NULL;
 	while( ok && (cal = (KVFunctionCal *)next()) ){
-		// numbers of calibrators for segments B are between 
-		// 6020 and 6029
-		Int_t num = cal->GetUniqueID();
-		if( ((num%100)/10) != 1 ) continue;
+		
+		//Energy only coded in ACQParam with label 'A'
+		if( cal->GetLabel()[0] != 'A' ) continue;
+
+//		Int_t num = cal->GetUniqueID();
+//		if( ((num%100)/10) != 1 ) continue;
 
 		if( cal->GetACQParam()->Fired("P")){
 			if( cal->GetStatus() ){
@@ -198,10 +200,12 @@ Bool_t KVHarpeeIC::IsECalibrated() const{
 	TIter next( GetListOfCalibrators() );
 	KVCalibrator *cal = NULL;
 	while( (cal = (KVCalibrator *)next()) ){
-		// numbers of calibrators for segments B are between 
-		// 6020 and 6029
-		Int_t num = cal->GetUniqueID();
-		if( ((num%100)/10) != 1 ) continue;
+
+		//Energy only coded in ACQParam with label 'A'
+		if( cal->GetLabel()[0] != 'A' ) continue;
+
+//		Int_t num = cal->GetUniqueID();
+//		if( ((num%100)/10) != 1 ) continue;
 		if( !cal->GetStatus() ){
 			ok = kFALSE;
 			break;
@@ -238,7 +242,7 @@ void KVHarpeeIC::SetACQParams(){
 			name.Form("E%s_%c_%d",GetType(),idx[i],num);
 			par->SetName(name);
 			par->SetType("E");
-			par->SetUniqueID( GetNumber()*1000000 + 200000 + 90000 + (i+1)*10 + num );
+			par->SetLabel(Form("%c",idx[i]));
 			par->SetNumber( num );
 //			par->SetPedestal(200);
 			AddACQParam(par);
