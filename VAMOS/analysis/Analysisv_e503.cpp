@@ -452,8 +452,7 @@ void Analysisv_e503::CreateHistograms()
 }
 void Analysisv_e503::FillHistograms()
 {
-if(Id->Geometry(Si->Number,CsI->Number)==1) //&& si->E_RawM==1 && csi->E_RawM==1) 	
-   {
+
 #ifdef DEBUG
   cout << "Analysisv_e503::FillHistograms : " << endl;
 #endif
@@ -494,8 +493,7 @@ if(Id->Geometry(Si->Number,CsI->Number)==1) //&& si->E_RawM==1 && csi->E_RawM==1
 #ifdef CSI
   CsI->FillHistograms();
 #endif
-
-   }	
+	
 }
 
 void Analysisv_e503::outAttach()
