@@ -520,9 +520,11 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       if (!fDoubleBuffer) FeedbackMode(kFALSE);
 
-      if (fContextMenu && !fSelected->TestBit(kNoContextMenu) &&
-         !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu))
-         if(sendOrder) fContextMenu->Popup(px, py, fSelected, this, pad);
+      if (fContextMenu && !fSelected->TestBit(kNoContextMenu) && !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu))
+      {
+          if(sendOrder) fContextMenu->Popup(px, py, fSelected, this, pad);
+          else fSelected->ExecuteEvent(event, px, py);
+      }
 
       break;
 

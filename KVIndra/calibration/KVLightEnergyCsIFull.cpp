@@ -131,7 +131,7 @@ Double_t KVLightEnergyCsIFull::dLightIntegral( double *x , double *par )
 }
 
 //________________________________________________________________
-Double_t KVLightEnergyCsIFull::sp_e( double z, double a, double e)
+Double_t KVLightEnergyCsIFull::sp_e(double z, double a, double e)
 {
     if ( e<1.e-4 ) return 0.;
     Double_t se = fMaterialTable->GetStoppingFunction(z,a)->Eval(e);//-sp_n(z,a,e); // in units of MeV/(g/cm**2)

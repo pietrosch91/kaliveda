@@ -45,6 +45,7 @@ KVIDGridEditor::KVIDGridEditor()
   
   AddMethod("SaveCurrentGrid");
   AddMethod("ChangeMasses");
+  AddMethod("ChangeCharges");
   AddMethod("SelectLinesByZ");
   AddMethod("MakeScaleX");
   AddMethod("MakeScaleY");
@@ -482,6 +483,7 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
           if(obj->InheritsFrom("TH2")) HistosNames += Form(" %s", ((TH2*)obj)->GetName());
       }
   }
+  if(HistosNames.Contains("gIDGridEditorDefaultHistogram")) HistosNames.ReplaceAll("gIDGridEditorDefaultHistogram","");
 
   return HistosNames;
 }
@@ -2326,24 +2328,45 @@ void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)
 
 void KVIDGridEditor::ChangeCharges(const Char_t* Zl, Int_t dZ)
 {
-  Int_t found;
   KVNumberList ZL(Zl);
-  ZL.Begin();
-  while(!ZL.End())
-    {
-    Int_t Z = ZL.Next();
-    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
-    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
+
+  Int_t  n;
+  Int_t* ztab = ZL.GetArray(n);
+  if(!ztab||!n) return;
+
+  for(int i=n-1; i>0; i--)
+  {
+      Int_t Z = ztab[i];
+      KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+      Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
+
+      KVIDentifier* id = 0;
+      TIter next(ll);
+      while((id=(KVIDentifier*)next()))
+        {
+        Info("ChangeMasses","Z=%d -> Z=%d",id->GetZ(),id->GetZ()+dZ);
+        id->SetZ(id->GetZ()+dZ);
+        }
+      delete ll;
+
+  }
+
+//  ZL.Begin();
+//  while(!ZL.End())
+//    {
+//    Int_t Z = ZL.Next();
+//    KVList* ll = (KVList*) TheGrid->GetIdentifiers()->GetSubListWithMethod(Form("%d",Z),"GetZ");
+//    Info("ChangeMasses","%d lines found for Z=%d",ll->GetSize(),Z);
   
-    KVIDentifier* id = 0;
-    TIter next(ll);
-    while((id=(KVIDentifier*)next()))
-      {
-      Info("ChangeMasses","Z=%d -> Z=%d",id->GetZ(),id->GetZ()+dZ);
-      id->SetZ(id->GetZ()+dZ);
-      }
-    delete ll;
-    }
+//    KVIDentifier* id = 0;
+//    TIter next(ll);
+//    while((id=(KVIDentifier*)next()))
+//      {
+//      Info("ChangeMasses","Z=%d -> Z=%d",id->GetZ(),id->GetZ()+dZ);
+//      id->SetZ(id->GetZ()+dZ);
+//      }
+//    delete ll;
+//    }
 }
 
 void KVIDGridEditor::AddMethod(const char* theMethod)

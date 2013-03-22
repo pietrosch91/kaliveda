@@ -110,10 +110,28 @@ Int_t KVSilicon::GetCanalGGFromVolts(Float_t volts)
    //Returns GG calculated from PG if GG <-> Volts calibration is not available
 
       if (!fChVoltGG || !fChVoltGG->GetStatus()){
+//          Info("GetCanalGGFromVolts","%s no calibrator ready for GG...",GetName());
          return GetGGfromPG(GetCanalPGFromVolts(volts));
       }
       Int_t chan = TMath::Nint(fChVoltGG->Invert(volts) + GetPedestal("GG") - fChVoltGG->Invert(0));
       return chan;
+}
+
+//____________________________________________________________________________________________
+Double_t KVSilicon::GetCanalPGFromVoltsDouble(Float_t volts)
+{
+      if (!fChVoltPG || !fChVoltPG->GetStatus())
+         return -1;
+      return fChVoltPG->InvertDouble(volts) + GetPedestal("PG") - fChVoltPG->InvertDouble(0);
+}
+
+//____________________________________________________________________________________________
+Double_t KVSilicon::GetCanalGGFromVoltsDouble(Float_t volts)
+{
+      if (!fChVoltGG || !fChVoltGG->GetStatus()){
+         return GetGGfromPG(GetCanalPGFromVoltsDouble(volts));
+      }
+      return fChVoltGG->InvertDouble(volts) + GetPedestal("GG") - fChVoltGG->InvertDouble(0);
 }
 
 //____________________________________________________________________________________________

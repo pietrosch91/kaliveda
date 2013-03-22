@@ -351,12 +351,12 @@ void KVTestIDGridDialog::TestGrid()
      ((TPad*)gPad)->SetLogz();
      TAxis* ax = 0;
      ax = hazreal->GetXaxis();
-     ax->SetNdivisions(004);
+     ax->SetNdivisions(000);
      ax->SetLabelOffset(-0.04);
      ax->SetTickLength(0);
      
      ax = hazreal->GetYaxis();
-     ax->SetNdivisions(004);
+     ax->SetNdivisions(000);
      ax->SetLabelOffset(-0.03);
      ax->SetTickLength(0);
      hazreal->Draw("col");

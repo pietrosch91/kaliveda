@@ -909,7 +909,7 @@ Double_t KVNucleus::GetAMeV()
 
 //________________________________________________________________________________________
 
-KVNumberList KVNucleus::GetKnownARange(Int_t zz) const
+KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
 {
 
 	if (zz==-1) zz=GetZ();	
@@ -918,7 +918,7 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz) const
 	nla.Begin();
 	while (!nla.End()){
 		Int_t aa = nla.Next();
-		if (IsKnown(zz,aa)) nlb.Add(aa);
+                if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
 	}
 	return nlb;
 }
