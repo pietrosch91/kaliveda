@@ -10,10 +10,17 @@
 
 class KVHarpeeIC : public KVVAMOSDetector
 {
+	private:
+
+		static KVString fACQParamTypes; //!types of available Acquision parameters
+		static KVString fPositionTypes; //!types of available positions
+
 	protected:
+
 		void init();
 
    	public:
+
    		KVHarpeeIC();
    		KVHarpeeIC(UInt_t number, Float_t pressure, Float_t temp=19., Float_t thick = 10.457*KVUnits::cm);
    		KVHarpeeIC (const KVHarpeeIC&) ;
@@ -30,7 +37,16 @@ class KVHarpeeIC : public KVVAMOSDetector
 
 		virtual void SetACQParams();
 
-   ClassDef(KVHarpeeIC,1)//Ionisiation chamber of Harpee, used at the focal plan of VAMOS
+   // ------ inline functions ----------------------//
+
+		inline virtual KVString &GetACQParamTypes(){
+	   		return fACQParamTypes;
+   		}
+
+   		inline virtual KVString &GetPositionTypes(){
+	   		return fPositionTypes;
+   		}
+   		ClassDef(KVHarpeeIC,1)//Ionisiation chamber of Harpee, used at the focal plan of VAMOS
 };
 
 #endif

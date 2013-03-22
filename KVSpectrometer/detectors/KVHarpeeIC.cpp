@@ -16,6 +16,9 @@ ClassImp(KVHarpeeIC)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+KVString KVHarpeeIC::fACQParamTypes("0:E, 9:NO_TYPE");
+KVString KVHarpeeIC::fPositionTypes("9:NO_TYPE");
+
 void KVHarpeeIC::init(){
 	// Initialise non-persistent pointers
 

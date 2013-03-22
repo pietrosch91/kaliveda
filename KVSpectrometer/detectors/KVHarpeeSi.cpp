@@ -23,7 +23,9 @@ ClassImp(KVHarpeeSi)
 
 KVList     *KVHarpeeSi::fHarpeeSiList  = NULL;
 KVHarpeeSi *KVHarpeeSi::fSiForPosition = NULL;
-
+KVString    KVHarpeeSi::fACQParamTypes("0:E, 1:T_HF, 2:T, 9:NO_TYPE");
+KVString    KVHarpeeSi::fPositionTypes("9:NO_TYPE");
+	
 void KVHarpeeSi::init(){
 	// Initialise non-persistent pointers
 

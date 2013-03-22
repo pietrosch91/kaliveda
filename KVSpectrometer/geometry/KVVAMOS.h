@@ -9,7 +9,7 @@
 #include "TGeoMatrix.h"
 
 class KVACQParam;
-class KVDetector;
+class KVVAMOSDetector;
 
 
 class KVVAMOS : public KVDetector //public KVBase
@@ -21,10 +21,11 @@ class KVVAMOS : public KVDetector //public KVBase
 			kIsBuilt = BIT(20) //flag set when Build() is called
 		};
 
-		static TString fACQParamTypes;
-		static TString fPositionTypes;
+		static KVString fACQParamTypes; //!types of available Acquision parameters
+		static KVString fPositionTypes; //!types of available positions
 
 	protected:
+
 		TString fDataSet;      //Name of associated dataset, used with MakeVAMOS	
 		KVList *fDetectors;    // List of references to all detectors of VAMOS
 		KVList *fFiredDets;    //!List of fired detectors of VAMOS
@@ -47,6 +48,7 @@ class KVVAMOS : public KVDetector //public KVBase
 
 
    	public:
+
    		KVVAMOS();
    		KVVAMOS (const KVVAMOS&) ;
    		virtual ~KVVAMOS();
@@ -90,30 +92,17 @@ class KVVAMOS : public KVDetector //public KVBase
    		inline Bool_t  IsBuilt()              { return TestBit(kIsBuilt); }
 
 
-		static const Char_t *GetACQParamTypes(){
-			return fACQParamTypes.Data();
-		}
-		static const Char_t *GetPositionTypes(){
-			return fPositionTypes.Data();
-		}
-		static UChar_t GetACQParamTypeIdx( const Char_t *type ){
-			Ssiz_t i = fACQParamTypes.Index( Form(":%s,", type) ); 
-			return (i<0 ? 9 : *(fACQParamTypes.Data()+i-1) - '0' );
-		}
-		static UChar_t GetPositionTypeIdx( const Char_t *type ){
-			Ssiz_t i = fPositionTypes.Index( Form(":%s,", type) ); 
-			return (i<0 ? 9 : *(fPositionTypes.Data()+i-1) - '0' );
+		static KVString &GetACQParamTypes(){
+			return fACQParamTypes;
 		}
 
-		static UInt_t CalculateUniqueID( KVBase *param, KVDetector *det = NULL){
-			UInt_t uid = param->GetNumber();
-			uid += 1000   * GetACQParamTypeIdx( param->GetType() );
-			uid += 10000  * GetPositionTypeIdx( param->GetLabel() );
-			if( !det ) return uid;
-
-			uid += 100000 * det->GetUniqueID();
-			return uid;
+		static KVString &GetPositionTypes(){
+			return fPositionTypes;
 		}
+
+		static UChar_t GetACQParamTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );
+		static UChar_t GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );
+		static UInt_t CalculateUniqueID( KVBase *param, KVVAMOSDetector *det = NULL);
 
 		static UChar_t GetACQParamTypeIdxFromID( UInt_t id ){
 			return (id/1000)%10;

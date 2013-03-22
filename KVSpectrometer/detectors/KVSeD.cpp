@@ -17,6 +17,10 @@ ClassImp(KVSeD)
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+
+KVString KVSeD::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
+KVString KVSeD::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 9:NO_TYPE");
+	
 void KVSeD::init(){
 	// Initialise non-persistent pointers
 
@@ -254,7 +258,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	while((cal = (KVCalibrator *)next())){
 		
 
- 	   	if( !cal->GetStatus() || (KVVAMOS::GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
+ 	   	if( !cal->GetStatus() || (GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
 		count_calOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
@@ -368,7 +372,7 @@ void KVSeD::SetCalibrators(){
 
 	KVVAMOSDetector::SetCalibrators();
 	KVSeDPositionCal *c = new KVSeDPositionCal(this);
-	c->SetUniqueID( KVVAMOS::CalculateUniqueID( c, this ) );
+	c->SetUniqueID( CalculateUniqueID( c ) );
 	if(!AddCalibrator(c)) delete c;
 	else fPosCalib = c;
 
@@ -496,13 +500,27 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 }
 //________________________________________________________________
 
+UChar_t KVSeD::GetRawPosition(Double_t *XYZf){
+	// Returns in the 'XYZf' array the X and Y coordinates of the position (strip)
+	// deduced from the histogram representing the calibrated charge versus strip 
+	// number. The bit 0 (1) of the UChar_t returned value is set to 1 if
+	// the X (Y) position is correctly deduced. 
+
+	UChar_t rval = 3;
+	if( (XYZf[0]=GetRawPosition('X')) < 0 ) rval -= 1;
+	if( (XYZf[1]=GetRawPosition('Y')) < 0 ) rval -= 2;
+	return rval;
+}
+//________________________________________________________________
+
 UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plan reference frame from the raw positions in channel
-	// obtained with GetRawPosition(...).
-	// The function returns kFALSE in case of an invalid request: 
-	//    - no position calibration
-	//    - raw coordinates are <= 0
+	// obtained with GetRawPosition(...). The argument 'XYZf' has to be an 
+	// array of size 3 i.e. XYZf[3].
+	// The 3 first bits of the returned UChar_t value give an information about
+	// the coordinates well determined, calibrated and corrected. For example is the Y 
+	// coordinate, with the indice 1, is good then the bit 1 is set to 1. 
 	// See documentation of KVSeDPositionCal for more details about 
 	// calibration algorithm.
 
@@ -522,21 +540,21 @@ UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	XYZf[2]        = 0.;      // Z = 0 in the reference frame of the
 	                          // active volule
 
-	if( Xraw && Yraw ){
-		OK = (OK && (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ));
+	if( (Xraw>0) && (Yraw>0) ){
+		OK = (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] );
 		OK = (OK && ActiveVolumeToFocal( XYZf, XYZf ));
 		rvalue = 7; // X,Y,Z are OK
 	}
-	else if( Xraw ){
+	else if( Xraw>0 ){
 		Yraw = 24;  // we impose the center in Y (48/2) for the X calibration
-		OK = (OK && (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ));
+		OK = (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] );
 		OK = (OK && ActiveVolumeToFocal( XYZf, XYZf ));
 		XYZf[1] = -666;
 		rvalue = 5; // X and Z are OK
 	}
-	else if( Yraw ){
+	else if( Yraw>0 ){
 		Xraw = 64;  // we impose the center in X (128/2) for the Y calibration
-		OK = (OK && (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] ));
+		OK = (*fPosCalib)( Xraw, Yraw, XYZf[0], XYZf[1] );
 		OK = (OK && ActiveVolumeToFocal( XYZf, XYZf ));
 		XYZf[0] = -666;
 		rvalue = 6; // Y and Z are OK

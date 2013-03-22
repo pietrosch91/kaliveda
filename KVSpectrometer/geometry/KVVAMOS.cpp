@@ -2,8 +2,8 @@
 //Author: Guilain ADEMARD
 
 #include "KVVAMOS.h"
-#include "TPluginManager.h"
 #include "KVVAMOSDetector.h"
+#include "TPluginManager.h"
 #include "TClass.h"
 #include "KVDataSetManager.h"
 #include "KVUpDater.h"
@@ -27,8 +27,8 @@ ClassImp(KVVAMOS)
 KVVAMOS *gVamos;
 
 
-TString KVVAMOS::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
-TString KVVAMOS::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 4:XZ, 5:YZ, 6:XYZ, 9:NO_TYPE");
+KVString KVVAMOS::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
+KVString KVVAMOS::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 4:XZ, 5:YZ, 6:XYZ, 9:NO_TYPE");
 
 
 KVVAMOS::KVVAMOS()
@@ -308,9 +308,9 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 		}
 		par->SetDetector( this );
 		fVACQParams->Add(par);
+		par->SetUniqueID( CalculateUniqueID( par ) );
 	}
-
-	par->SetUniqueID( CalculateUniqueID( par, par->GetDetector() ) );
+	else par->SetUniqueID( CalculateUniqueID( par, (KVVAMOSDetector *)par->GetDetector() ) );
 }
 //________________________________________________________________
 
@@ -409,8 +409,11 @@ void KVVAMOS::MakeListOfDetectors(){
 		KVString detname = list.Next( kTRUE );
 		TClass* detcl = TClass::GetClass(detname.Data());
 		if(!detcl){
- 			cout<<Form("ERROR: class %s not found in the dictionary",detname.Data())<<endl;
+			Error("KVVAMOS","class %s not found in the dictionary",detname.Data());
 			continue;
+		}
+		else if( !detcl->InheritsFrom("KVVAMOSDetector") ){
+			Error("KVVAMOS","class %s does not inherits from KVVAMOSDetector",detname.Data());
 		}
 
 		envname.Form("%s.%s.Number",ClassName(),detname.Data());
@@ -540,7 +543,6 @@ void KVVAMOS::SetArrayACQParams(){
 
 	TString envname = Form("%s.ACQParameterList",ClassName());
 
-	cout<<envname<<endl;	
 	TString list = gDataSet->GetDataSetEnv(envname.Data());
 	TObjArray *tok = list.Tokenize(" ");
 	TIter nextparam(tok);
@@ -663,4 +665,39 @@ void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
 void KVVAMOS::TargetToFocalVect(const Double_t *target, Double_t *focal){
 	// Convert the vector coordinates from  target reference to focal plan reference system.
 	fFocalToTarget.MasterToLocalVect( target, focal );
+}
+//________________________________________________________________
+
+UChar_t KVVAMOS::GetACQParamTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
+	KVString *types;
+	if( det ) types = &(det->GetACQParamTypes());
+	else      types = &(GetACQParamTypes());
+
+	Ssiz_t i = types->Index( Form(":%s,", type) ); 
+	return (i<0 ? 9 : types->Data()[i-1] - '0' );
+}
+//________________________________________________________________
+
+UChar_t KVVAMOS::GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
+	KVString *types;
+	if( det ) types = &(det->GetPositionTypes());
+	else      types = &(GetPositionTypes());
+
+	Ssiz_t i = types->Index( Form(":%s,", type) ); 
+	return (i<0 ? 9 : types->Data()[i-1] - '0' );
+}
+//________________________________________________________________
+
+UInt_t KVVAMOS::CalculateUniqueID( KVBase *param, KVVAMOSDetector *det ){
+	UInt_t uid = param->GetNumber();
+	if( det ){
+		uid += 1000   * det->GetACQParamTypeIdx( param->GetType() );
+		uid += 10000  * det->GetPositionTypeIdx( param->GetLabel() );
+		uid += 100000 * det->GetUniqueID();
+	}
+	else{
+		uid += 1000   * GetACQParamTypeIdx( param->GetType() );
+		uid += 10000  * GetPositionTypeIdx( param->GetLabel() );
+	}
+	return uid;
 }

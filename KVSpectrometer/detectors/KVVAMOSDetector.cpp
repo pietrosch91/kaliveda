@@ -3,6 +3,7 @@
 
 #include "Riostream.h"
 #include "KVVAMOSDetector.h"
+#include "KVVAMOS.h"
 #include "KVNamedParameter.h"
 using namespace std;
 
@@ -16,6 +17,10 @@ ClassImp(KVVAMOSDetector)
 	   <!-- */
 	// --> END_HTML
 	////////////////////////////////////////////////////////////////////////////////
+
+KVString KVVAMOSDetector::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
+KVString KVVAMOSDetector::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 4:XZ, 5:YZ, 6:XYZ, 9:NO_TYPE");
+
 
 KVVAMOSDetector::KVVAMOSDetector()
 {
@@ -74,30 +79,74 @@ void KVVAMOSDetector::init(){
 //________________________________________________________________
 
 Bool_t KVVAMOSDetector::Fired(Option_t * opt, Option_t * optP){
+	//Returns kTRUE if detector was hit (fired) in an event
+	//
+	//The actual meaning of hit/fired depends on the context and the option string opt.
+	//
+   	//opt="any" (default) and optP="":
+   	//Returns true if at least one working acquisition parameter 
+   	//associated with the detector was fired in an event, for ANY of the types
+   	//in the list*.
+   	//
+   	//opt="all" and optP="" :
+   	//Returns true if at least one working acquisition parameter 
+   	//associated with the detector was fired in an event, for ALL of the types
+   	//in the list*.
+   	//
+   	//opt="any" and optP="P" :
+   	//Returns true if at least one working acquisition parameter 
+   	//associated with the detector was fired in an event and have a value 
+   	//greater than their pedestal value, for ANY of the types in the list*.
+   	//
+   	//opt="all" and optP="P":
+   	//Returns true if at least one working acquisition parameter 
+   	//associated with the detector was fired in an event and have a value 
+   	//greater than their pedestal value, for ALL of the types in the list*.
+   	//
+   	// *the actual parameters taken into account can be fine tuned using environment variables such as
+   	//          KVVAMOSDetector.Fired.ACQParameterList.[type]: Q,E,T,T_HF,X,Y
+   	// See KVAMOSDetector::SetFiredBitmask() for more details.
+
 
 	if (!IsDetecting()) return kFALSE; //detector not working, no answer at all
 
+	Bool_t opt_all = !strcmp(opt, "all");
 	Binary8_t event; // bitmask for event
-	TString type_list("|"), type;
-	TIter next(fACQParams);
-	KVACQParam* par; Int_t id = 0;
-	while( (par = (KVACQParam*)next()) ){
 
-		type.Form("|%s|", par->GetType());
-
-		if( type_list.Contains( type.Data() ) ) continue;
-		type_list += (type.Data()+1);
-
-	    if( par->Fired( optP ) ) event.SetBit(id);
-	    else event.ResetBit(id);
-	    id++;
+	// Look at the three first bits for XYZ positions
+	UChar_t xyz_mask = fFiredMask.Subvalue(2,3);
+	Info("Fired","Option %s, FiredBitmask %s, xyz_mask (%d)",opt,fFiredMask.String(), xyz_mask);
+	if(  xyz_mask ){
+		Double_t xyz[3];
+		UChar_t  xyz_res = GetRawPosition( xyz );
+		cout<<Form(" xyz_res (%d)",xyz_res)<<endl;
+		if ( opt_all && ( xyz_mask != xyz_res ) ) return kFALSE;
+		event.Set( xyz_res );
 	}
+	
+	// Look at the other bits for  ACQ Parameters
+	UChar_t Nbits = fFiredMask.GetNBits();
+	Binary8_t keep_up( fFiredMask.Subvalue( Nbits-1, Nbits-3 ) ); 
+	Info("Fired","keep_up %s",keep_up.String());
+	UChar_t id;
+	TIter next  ( GetACQParamList()  );
+	TIter next_t( GetTACQParamList() );
+	KVACQParam* par;
+	while( keep_up.Value() && ( (par = (KVACQParam*)next()) || (par = (KVACQParam*)next_t()) ) ){
+	    if( par->IsWorking() && par->Fired( optP ) ){
+			id = GetACQParamTypeIdxFromID( par->GetUniqueID() );
+			event.SetBit(id+3);
+			keep_up.ResetBit(id);
+ 		}
+	Info("Fired","%s is %s fired, keep_up %s",par->GetName(), par->Fired( optP ) ? "" : "NOT" ,keep_up.String());
+	}
+
 	Binary8_t ok = fFiredMask&event;
+	Info("Fired","ok %s", ok.String());
 	// "all" considered parameters fired if ok == mask
 	// "any" considered parameters fired if ok != 0
-	if (!strcmp(opt, "all")) 	return (ok == fFiredMask);
+	if ( opt_all ) 	return (ok == fFiredMask);
 	return (ok != "0");
-
 }
 //________________________________________________________________
 
@@ -202,6 +251,14 @@ Bool_t KVVAMOSDetector::GetPositionInVamos(Double_t &X, Double_t &Y){
 }
 //________________________________________________________________
 
+UChar_t KVVAMOSDetector::GetRawPosition(Double_t *XYZf){
+	// Method overwritten and useful in child classes describing detectors
+	// used to measured position for the reconstruction of  nucleus 
+	// trajectory. For example, see this same method in the class KVSeD.
+	return 0;
+}
+//________________________________________________________________
+
 KVFunctionCal *KVVAMOSDetector::GetTCalibrator(const Char_t *type) const{
 	// Returns the calibrator for the conversion channel->ns of a time
 	// signal of type 'type' (for example SED_HF, SI_HF, SI_SED1, ...) if 
@@ -243,6 +300,18 @@ Double_t KVVAMOSDetector::GetCalibT(const Char_t *type){
 	if( cal && cal->GetStatus() && cal->GetACQParam()->Fired("P"))
 		return cal->Compute() + GetT0( type );
 	return 0;
+}
+//________________________________________________________________
+
+Float_t KVVAMOSDetector::GetT(const Char_t *type){
+	// Returns the coder value of a time acquisition parameter (in channel)
+	//  of type 'type' (SED_HF, SI_HF, SI_SED1, ...).
+	// A time signal is always associated to an object KVVAMOS pointed by 
+	// gVamos, then gVamos has to be different to zero. If gVamos is null
+	// this method returns -1;
+
+	if(!IsTfromThisDetector( type ) ) return -1;
+	return  ( gVamos ? gVamos->GetACQData(Form("T%s",type)) : -1 );
 }
 //________________________________________________________________
 
@@ -297,16 +366,23 @@ void KVVAMOSDetector::SetFiredBitmask(){
    	// For each detector type, give a comma-separated list of the acquisition
    	// parameter types to be taken into account in the KVDetector::Fired method.
    	// Only those parameters which appear in the list will be considered:
-   	//  then "all" means => all parameters in the list
-   	//  and  "any" means => any of the parameters in the list
+   	// then "all" means => for each type in the list at least one acquisition
+   	//                     parameter has to be fired
+   	// and  "any" means => at least for one type of the list an acquisition parameter
+   	//                     has to be fired
    	// These lists are read during construction of VAMOS (KVVAMOS::Build),
    	// the method KVVAMOS::SetACQParams uses them to define a mask for each detector
    	// of the spectrometer.
-   	// Bits are set/reset in the order of different types of acquisition parameters
-   	// found in the list of parameters of the detector.
+   	// X, Y and Z types that we can set in a list are not associated to acquisition
+   	// parameters. In the bitmask, the 3 first bits are kept for these coordinates. 
+   	// If one of these 3 bits is 1 then the methode GetRawPosition(Double_t *) 
+   	// is called and the returned values is compared to these 3 bits.
    	// If no variable [dataset].KVDetector.Fired.ACQParameterList.[type] exists,
    	// we set a bitmask authorizing all acquisition parameters of the detector, e.g.
-   	// if the detector has 3 types of acquisition parameters the bitmask will be "111"
+   	// if the detector has 3 types of acquisition parameters which are fired byt
+   	// no position type then the bitmask will be "111000"
+
+	fFiredMask.Set("");
 
 	KVString inst; inst.Form("KVVAMOSDetector.Fired.ACQParameterList.%s",GetType());
 	KVString lpar = gDataSet->GetDataSetEnv(inst);
@@ -317,17 +393,23 @@ void KVVAMOSDetector::SetFiredBitmask(){
 		return;
  	}
 
-	if( toks->FindObject("X") ) fFiredMask.SetBit( 0 ); 
-	if( toks->FindObject("Y") ) fFiredMask.SetBit( 1 ); 
+	// 3 first bits for XYZ positions
+	UChar_t idx;
+	const Char_t *pos[3] = {"X","Y","Z"};
+	for(Int_t i=0; i<3; i++ ){
+		idx = GetPositionTypeIdx( pos[i] ) ;
+		if( (idx<9) && (toks->FindObject( pos[i] )) ) fFiredMask.SetBit( i ); 
+	}
 	
-	UChar_t Nbits = 2;
+	UChar_t Nbits = 3;
 
+	// other bits for Acquisition parameters
 	UChar_t idx_max = 0;
 	Bool_t  found   = kFALSE;
 	TIter next( toks );
 	TObject *obj = NULL;
 	while( (obj = next()) ){
-		UChar_t idx = KVVAMOS::GetACQParamTypeIdx( obj->GetName() );
+		idx = GetACQParamTypeIdx( obj->GetName() );
 		if(idx<9){
 			found = kTRUE;
  		   	fFiredMask.SetBit(idx + Nbits);

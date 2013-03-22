@@ -280,7 +280,7 @@ t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
 # the method KVAMOS::SetACQParams uses them to define a mask for each detector
 # of the spectrometer.
 #
-KVVAMOSDetector.Fired.ACQParameterList.SI: T_HF,E
+KVVAMOSDetector.Fired.ACQParameterList.SI: E
 KVVAMOSDetector.Fired.ACQParameterList.CHI: E
 KVVAMOSDetector.Fired.ACQParameterList.SED: T_HF,X,Y
 
