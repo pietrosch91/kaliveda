@@ -115,11 +115,11 @@ Bool_t KVVAMOSDetector::Fired(Option_t * opt, Option_t * optP){
 
 	// Look at the three first bits for XYZ positions
 	UChar_t xyz_mask = fFiredMask.Subvalue(2,3);
-	Info("Fired","Option %s, FiredBitmask %s, xyz_mask (%d)",opt,fFiredMask.String(), xyz_mask);
+//	Info("Fired","Option %s, FiredBitmask %s, xyz_mask (%d)",opt,fFiredMask.String(), xyz_mask);
 	if(  xyz_mask ){
 		Double_t xyz[3];
 		UChar_t  xyz_res = GetRawPosition( xyz );
-		cout<<Form(" xyz_res (%d)",xyz_res)<<endl;
+//		cout<<Form(" xyz_res (%d)",xyz_res)<<endl;
 		if ( opt_all && ( xyz_mask != xyz_res ) ) return kFALSE;
 		event.Set( xyz_res );
 	}
@@ -127,7 +127,7 @@ Bool_t KVVAMOSDetector::Fired(Option_t * opt, Option_t * optP){
 	// Look at the other bits for  ACQ Parameters
 	UChar_t Nbits = fFiredMask.GetNBits();
 	Binary8_t keep_up( fFiredMask.Subvalue( Nbits-1, Nbits-3 ) ); 
-	Info("Fired","keep_up %s",keep_up.String());
+//	Info("Fired","keep_up %s",keep_up.String());
 	UChar_t id;
 	TIter next  ( GetACQParamList()  );
 	TIter next_t( GetTACQParamList() );
@@ -138,11 +138,12 @@ Bool_t KVVAMOSDetector::Fired(Option_t * opt, Option_t * optP){
 			event.SetBit(id+3);
 			keep_up.ResetBit(id);
  		}
-	Info("Fired","%s is %s fired, keep_up %s",par->GetName(), par->Fired( optP ) ? "" : "NOT" ,keep_up.String());
+//	Info("Fired","%s is %s fired, keep_up %s",par->GetName(), par->Fired( optP ) ? "" : "NOT" ,keep_up.String());
 	}
 
 	Binary8_t ok = fFiredMask&event;
-	Info("Fired","ok %s", ok.String());
+//	Info("Fired","ok %s", ok.String());
+
 	// "all" considered parameters fired if ok == mask
 	// "any" considered parameters fired if ok != 0
 	if ( opt_all ) 	return (ok == fFiredMask);
@@ -421,7 +422,6 @@ void KVVAMOSDetector::SetFiredBitmask(){
 	if( found ) Nbits += idx_max+1;
 
 	fFiredMask.SetNBits( Nbits );
-	Info("SetFiredBitmask","Fired bitmask for %s: %s <-> %s",GetName(), fFiredMask.String(),lpar.Data());
 }
 //________________________________________________________________
 
