@@ -37,8 +37,6 @@ KVSpectroDetector::KVSpectroDetector()
    // gGeoManager must point to current instance of geometry manager.
 
    init();
-   
-   if(!gGeoManager) Warning("KVSpectroDetector","gGeoManager have to be built before to continue");
 }
 //________________________________________________________________
 
@@ -145,7 +143,6 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 	if(!prev_vol && !matrix){	
 		// If there is not any absorber and any matrix
 		// the volume is considered as the volume of the detector 
-		Info("AddAbsorber","no previous volume and no matrix");
 		SetAbsGeoVolume(vol);
 		return;
 	}
@@ -156,17 +153,15 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 	// is the first one of the detector
 	if(!prev_vol) vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_%d",GetName(), fNumVol++));
 	else if(!prev_vol->InheritsFrom("TGeoVolumeAssembly")){
+
 		// build an assembly of volumes if the volume of the
 		// detector is not and put the absorbers inside
-
-		Info("AddAbsorber","First absorber is not a TGeoVolumeAssembly");
 		vol_as = gGeoManager->MakeVolumeAssembly(Form("%s_%d",GetName(),fNumVol++));
 		vol_as->AddNode(prev_vol,1);
 	}
 	else vol_as = prev_vol;
 
 	// Add the volume in the assembly of volumes
-		Info("AddAbsorber","Adding Node");
 	vol_as->AddNode(vol,1,matrix);
 	SetAbsGeoVolume(vol_as);
 }
@@ -191,7 +186,6 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 		Error("BuildGeoFromFile","Volume already existing");
  		return kFALSE; 
  	}
-	Info("BuildGeoFromFile","IN");
 
 	const Char_t *infotype[] = {"NABS","WIDTH","HEIGHT","X","Y","Z"};
 	Binary8_t errorbit;

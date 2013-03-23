@@ -429,7 +429,6 @@ void KVVAMOS::MakeListOfDetectors(){
 			det->SetNumber(num);
 			det->SetUniqueID( 10*num + (det_class_num) );
 			det->SetName(det->GetArrayName());
-			Warning("MakeListOfDetectors","The detector %s have to be assigned to TGeoVolume",det->GetName());
 			fDetectors->Add(det);
 		}
 		det_class_num++;
