@@ -134,7 +134,6 @@ void ScanClasses::FillListOfClasses()
    // force loading of all libraries (KLUDGE!!!)
    gSystem->Load("libKVIndra");
    gSystem->Load("libVAMOS");
-   gSystem->Load("libKVSpectrometer");
 	//Initialise the class table, loading all classes defined in currently-loaded libraries
 	gClassTable->Init();
    //first fill TObjArray of TObjStrings containing all class names in class table

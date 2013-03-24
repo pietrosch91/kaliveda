@@ -66,7 +66,7 @@ KVHarpeeIC::KVHarpeeIC(UInt_t number, Float_t pressure, Float_t temp, Float_t th
 
 	// thickness of each absorber
 	Float_t th[] = {1.5*KVUnits::um,    2.068*KVUnits::cm
-	   	, thick*KVUnits::cm, 1.278*KVUnits::cm};
+	   	, Float_t(thick*KVUnits::cm), 1.278*KVUnits::cm};
 
 	// active absorber flag
 	Bool_t  active[] = { kFALSE, kFALSE, kTRUE, kFALSE};

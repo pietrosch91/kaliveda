@@ -556,9 +556,7 @@ void DriftChamberv::FocalSubseqX(void)
   Float_t QMax;
   Int_t NMax;
   Int_t FStrip[64];
-  Int_t StripsWA;
   bool Neighbours;
-  bool MultiplePeak;
   Float_t v[6];
 
 
@@ -584,7 +582,7 @@ void DriftChamberv::FocalSubseqX(void)
 	}
 
 #ifdef MULTIPLEPEAK 
-     MultiplePeak = false;
+  	  Bool_t MultiplePeak = false;
       for(j=0;j<FStrip[0]-1;j++)
 	if((Q[j][i] > Q[j+1][i]))
 	  if(Q[j][i] >= 0.4*Q[FStrip[0]][i])
@@ -656,7 +654,7 @@ void DriftChamberv::FocalSubseqX(void)
 		  //Looking for entire peak for W.A.
 		  //The Strips are ordered  0-64
 		  //Could be done earlier but ....
-		  StripsWA=0;
+  			Int_t StripsWA = 0;
 		  for(j=FStrip[0]-1;j>=0;j--)
 		    if(abs(N[j+1][i]-N[j][i]) == 1)
 		      {

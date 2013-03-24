@@ -29,7 +29,6 @@ class KVIVReconEvent : public KVINDRAReconEvent
    	public:
 
    		KVIVReconEvent(Int_t mult = 50, const char *classname = "KVINDRAReconNuc");
-   		KVIVReconEvent(const KVIVReconEvent& obj);
    		void init();
    		virtual ~KVIVReconEvent();
 

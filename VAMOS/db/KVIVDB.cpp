@@ -480,7 +480,6 @@ void KVIVDB::ReadVamosScalers ()
    	Int_t ScalerValue;
    	Char_t Crunnumber[40];
    	Char_t str[30];
-   	Bool_t runfound = kFALSE;
  	while (fin.good()) {         //reading the file
       	sline.ReadLine(fin);
       	if (!fin.eof()) {          //fin du fichier
@@ -489,7 +488,6 @@ void KVIVDB::ReadVamosScalers ()
                		sscanf(sline.Data(), "%30s %d ", Crunnumber, &irun); 
                		KVINDRADBRun * idb = GetRun(irun);
 			   		if (idb){
-						runfound = kTRUE;
                			for (Int_t i =0;i<5;i++) {       //retrouve dans les 4 prochaines lignes NormVamos,normSca etDT
 					   		sline.ReadLine(fin);
 

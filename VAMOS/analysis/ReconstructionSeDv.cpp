@@ -232,8 +232,9 @@ void ReconstructionSeDv::Calculate(void)
 /*
  *  	Superpose the border of a window, for test.
  */
-		int	drawgrid,method;
-		double t_min,t_max,t_cut,p_min,p_max/*,p_cut*/,r_target_window,theta,phi,theta_offaxis;
+		Int_t    drawgrid,method;
+		Double_t t_min,t_max,t_cut,p_min,p_max/*,p_cut*/,theta,phi,theta_offaxis;
+//		Double_t r_target_window;
 
 		drawgrid=1;
 		if(drawgrid==1) if(drand48()>0.5)										/* abscissa */
@@ -242,7 +243,7 @@ void ReconstructionSeDv::Calculate(void)
 		t_max = 			 2. ;									/* deg		*/
 		p_min = 			-17.2 ;									/* deg		*/
 		p_max = 			 17.2 ;									/* deg		*/
-		r_target_window =	 139. ;									/* cm		*/
+//		r_target_window =	 139. ;									/* cm		*/
 		theta_offaxis =		 0.6 ;									/* deg		*/
 		AngleVamos = -(GetAngleVamos());
 

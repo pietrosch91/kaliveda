@@ -25,11 +25,7 @@ bool MyPathDefinition::GetDocDir(const TString& module, TString& doc_dir) const
       			doc_dir = "../VAMOS/" + module;
       			doc_dir +="/";
       			if(gSystem->AccessPathName(doc_dir.Data())){
-      				doc_dir = "../KVSpectrometer/" + module;
-      				doc_dir +="/";
-      				if(gSystem->AccessPathName(doc_dir.Data())){
-       					doc_dir =  module + "/";
-     				}
+       				doc_dir =  module + "/";
 				}
       		}
       	}
