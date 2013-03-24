@@ -15,14 +15,14 @@ ClassImp(KVVAMOSReconNuc)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVVAMOSReconNuc::KVVAMOSReconNuc()
+KVVAMOSReconNuc::KVVAMOSReconNuc() : fCodes()
 {
    // Default constructor
 }
 
 //________________________________________________________________
 
-KVVAMOSReconNuc::KVVAMOSReconNuc (const KVVAMOSReconNuc& obj)  : KVReconstructedNucleus()
+KVVAMOSReconNuc::KVVAMOSReconNuc (const KVVAMOSReconNuc& obj)  : KVReconstructedNucleus(), fCodes()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example
@@ -36,6 +36,8 @@ KVVAMOSReconNuc::KVVAMOSReconNuc (const KVVAMOSReconNuc& obj)  : KVReconstructed
 KVVAMOSReconNuc::~KVVAMOSReconNuc()
 {
    // Destructor
+   init();
+   fCode.Clear();
 }
 //________________________________________________________________
 
@@ -50,6 +52,15 @@ void KVVAMOSReconNuc::Copy (TObject& obj) const
 
    KVReconstructedNucleus::Copy(obj);
    //KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
+}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::init()
+{
+	//default initialisations
+	if (gDataSet)
+		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
+	fXf = fYf = fThetaf = fPhif = 0.;
 }
 //________________________________________________________________
 
@@ -73,6 +84,15 @@ void KVVAMOSReconNuc::Calibrate(){
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::Clear(Option_t * t){
+	//Reset nucleus' properties
+	
+	KVReconstructedNucleus::Clear(t);
+   	init();
+   	fCodes.Clear();
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 
 	TIter next_det( detlist );
@@ -85,7 +105,7 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 
 
 	UChar_t res = 0;
-	Double_t xyzf[3];           // [3] => [X, Y, Z]
+	Double_t xyzf[3];          // [3] => [X, Y, Z]
 	Double_t XYZf[4][3];       // [4] => [Complete Det1, Complete Det2, Incomplete Det1, Incomplete Det2]
 	// [3] => [X, Y, Z]
 	Short_t Idx[4] = {-1, -1, -1, -1};// [4] => [Complete Det1, Complete Det2, Incomplete Det1, Incomplete Det2]

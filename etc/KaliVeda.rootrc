@@ -912,6 +912,9 @@ ElementDensity.DataFile:	element_densities.data
 KVINDRAReconNuc.MassFormula:        2
 INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
 
+# Mass Formula used in KVVAMOSReconNuc to deduce A from Z nuclei
+KVVAMOSReconNuc.MassFormula:        2
+
 #ROOT environment variables
 +ACLiC.IncludePaths:     -I$(KVROOT)/include
 Root.Html.Author:      //Author:

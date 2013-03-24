@@ -27,8 +27,10 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		KVVAMOSReconNuc (const KVVAMOSReconNuc&) ;
    		virtual ~KVVAMOSReconNuc();
    		void Copy (TObject&) const;
+		void init();
 
 		virtual void Calibrate();
+		virtual void Clear(Option_t * t = "");
 		virtual void ConstructFocalPlanTrajectory(KVList *detlist);
 		virtual void ConstructLabTrajectory();
 
