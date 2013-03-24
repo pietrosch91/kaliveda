@@ -23,11 +23,6 @@ Identificationv_e494s::Identificationv_e494s(LogFile *Log, ReconstructionSeDv *R
 #ifdef DEBUG
   cout << "Identificationv_e494s::Constructor" << endl;
 #endif
-  char line[255];
-  char name[10];
-  int len=255;
-  int i;
-  int tmp;
 
   L = Log;
   Rec = Recon;
@@ -35,7 +30,7 @@ Identificationv_e494s::Identificationv_e494s(LogFile *Log, ReconstructionSeDv *R
   Ic = IonCh;
   Si = SiD;
 
-  for(i=0;i<6;i++)
+  for(Int_t i=0;i<6;i++)
     Counter[i] = 0;
 
   Init();
@@ -156,10 +151,10 @@ void Identificationv_e494s::Calculate(void)
       //      T -= 3.;
     }
 
-  if(T >0 && Rec->Path>0 && Se->Present)
+  if(T >0 && Rec->Path>0 && Se->fPresent)
     {
-      D = Rec->Path + (-1.*(Se->Yf)/10.*sin(3.14159/4.)/
-	cos(3.14159/4. + fabs(Se->Pf/1000.)))/cos(Se->Tf/1000.);
+      D = Rec->Path + (-1.*(Se->fYf)/10.*sin(3.14159/4.)/
+	cos(3.14159/4. + fabs(Se->fPf/1000.)))/cos(Se->fTf/1000.);
       //            cout << Rec->Path << " " << (Se->Yf)/10. << " " <<
       //      	Rec->Phi/1000.*180/3.1415 << " " << D << endl;
       V = D/T;

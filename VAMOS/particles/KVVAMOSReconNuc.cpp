@@ -109,9 +109,9 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 	Double_t XYZf[4][3];       // [4] => [Complete Det1, Complete Det2, Incomplete Det1, Incomplete Det2]
 	// [3] => [X, Y, Z]
 	Short_t Idx[4] = {-1, -1, -1, -1};// [4] => [Complete Det1, Complete Det2, Incomplete Det1, Incomplete Det2]
-	UChar_t IncDetBitmask = 3;       // bits 11 => 3, first bit means missing X, second bit means missing Y
-	Bool_t inc1IsX;                  // true if the coordinate given by the first incomplete position is X ( false if Y)
-	UShort_t Ncomp = 0, Ninc = 0; // Number of Complete and Incomplete
+	UChar_t IncDetBitmask = 3;        // bits 11 => 3, first bit means missing X, second bit means missing Y
+	Bool_t inc1IsX = kTRUE;           // true if the coordinate given by the first incomplete position is X ( false if Y)
+	UShort_t Ncomp = 0, Ninc = 0;     // Number of Complete and Incomplete
 	// position measurments 
 
 	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."

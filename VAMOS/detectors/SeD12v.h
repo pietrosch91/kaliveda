@@ -9,16 +9,16 @@
 
 class SeD12v
 {
-	Bool_t Ready;
+	Bool_t fReady;
 	public:
 	SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2);
 	virtual ~SeD12v(void);
   
-	LogFile *L;
-	SeDv *S1;
-	SeDv *S2;
+	LogFile *fL;
+	SeDv *fS1;
+	SeDv *fS2;
 
-	bool Present; //true if focal coordinates determined
+	bool fPresent; //true if focal coordinates determined
 
 	void Init(void); //Init for every event, focal variables go to -500. 
 	void SetMatX(void); 
@@ -36,50 +36,50 @@ class SeD12v
 	void FillHistograms();
 	void PrintCounters(void);
 
-	Random *Rnd;
+	Random *fRnd;
 /*
  *	Focal position Reference & Position
  */
-	Double_t XRef[2]; 
-	Double_t YRef[2];
-	Double_t FocalPos; //Focal Plane position
-	Double_t MatX[2][2];
-	Double_t MatY[2][2];
-	Double_t AngleFocal[2];
-	Double_t TanFocal[2];
+	Double_t fXRef[2];//X reference position for SED1,2 (read in calib. file)
+	Double_t fYRef[2];//Y reference position for SED1,2 (read in calib. file)
+	Double_t fFocalPos; //Focal Plane position (read in calib. file)
+	Double_t fMatX[2][2];//2D Matrix for X (calculated in SetMatX)
+	Double_t fMatY[2][2];//2D Matrix for Y (calculated in SetMatY)
+	Double_t fAngleFocal[2];// Focal angle in X and Y direction in degree(read in calib file)
+	Double_t fTanFocal[2];//tan( fAngleFocal ) (calculated ind SetMatX,Y)
 /*
  *	Time TSED1-SED2
  */
-	UShort_t T_Raw;
+	UShort_t fT_Raw;
 /*
  *	Calibration coeff
  */
-	Float_t TCoef[6];
+	Float_t fTCoef[6];
 /*
  *	Linearisation coeff
  */
-	Float_t Tlinearise[15];
+	Float_t fTlinearise[15];// (read in calib. file)
 /*
  *	Calibrated Time TSED1-SED2
  */
-	Float_t T;
+	Float_t fT;
 /*
  *	Velocity cm/ns
  */
-	Float_t V;
+	Float_t fV; // Velocity at the focal plan
 /*
  *	Focal position
  */
-	Float_t X[2]; //Subsequent X
-	Float_t Y[2]; //Subsequent Y
-	Float_t Xf;
-	Float_t Yf;
-	Float_t Tf;
-	Float_t Pf;
+	Float_t fX[2]; //Subsequent X of SED1,2 (see Focal())
+	Float_t fY[2]; //Subsequent Y of SED1,2
+	Float_t fXf;   //X at the focal plan
+	Float_t fYf;   //Y at the focal plan
+	Float_t fTf;   //Theta at the focal plan (mrad)
+	Float_t fPf;   //Phi   at the focal plan (mrad)
 /*
  *	Counters
  */
-	Int_t Counter[14];
+	Int_t fCounter[14];
 /*
  *	Histograms
  */

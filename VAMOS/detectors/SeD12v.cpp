@@ -19,19 +19,19 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
 	cout << "SeD12v::Constructor" << endl;
 #	endif
   
-	Ready=kFALSE;
+	fReady=kFALSE;
   
 	char line[255];
 	int len=255;
 
-	L = Log;
-	S1 = SeD1;
-	S2 = SeD2;
+	fL = Log;
+	fS1 = SeD1;
+	fS2 = SeD2;
 
 
-	for(Int_t i=0;i<14;i++) Counter[i] = 0;
+	for(Int_t i=0;i<14;i++) fCounter[i] = 0;
 
-  	Rnd = new Random;
+  	fRnd = new Random;
 
   	ifstream inf1;
 	if(!gDataSet->OpenDataSetFile("SeD12Ref.cal",inf1))
@@ -42,48 +42,48 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
 	else
 	{
 		cout.setf(ios::showpoint);
-		cout << "Reading SeD12Ref.cal" << endl; L->Log << "Reading SeD12Ref.cal" << endl;
+		cout << "Reading SeD12Ref.cal" << endl; fL->Log << "Reading SeD12Ref.cal" << endl;
 /*
  *		Reading Reference position
  */
 		inf1.getline(line,len);
-		cout << line << endl; L->Log << line << endl;
+		cout << line << endl; fL->Log << line << endl;
 		for(Int_t i=0;i<2;i++)
 		{
-			inf1 >> XRef[i];
-			inf1 >> YRef[i];
+			inf1 >> fXRef[i];
+			inf1 >> fYRef[i];
 /*
  *			Output control
  */
-			cout << "  XRef: " << XRef[i] << "  YRef: " << YRef[i] << endl ;
+			cout << "  XRef: " << fXRef[i] << "  YRef: " << fYRef[i] << endl ;
 		}
 
 /*
  *		Reading Focal position
  */
 		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
-		cout << line << endl; L->Log << line << endl;
-		inf1 >> FocalPos;
+		cout << line << endl; fL->Log << line << endl;
+		inf1 >> fFocalPos;
 /*
  *		Output control
  */
-		cout <<"  "<< FocalPos << endl ;
+		cout <<"  "<< fFocalPos << endl ;
       
 /*
  *		Reading Focal Angle
  */
 		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
-		cout << line << endl; L->Log << line << endl;
+		cout << line << endl; fL->Log << line << endl;
 		for(Int_t i=0;i<2;i++)
 		{
-			inf1 >> AngleFocal[i];
+			inf1 >> fAngleFocal[i];
 /*
  *			Output control
  */
-			cout <<"  "<< AngleFocal[i] << " " ; L->Log <<"  "<< AngleFocal[i] << " " ;
+			cout <<"  "<< fAngleFocal[i] << " " ; fL->Log <<"  "<< fAngleFocal[i] << " " ;
 		}
 		cout << endl; 
-		L->Log << endl; 
+		fL->Log << endl; 
 /*
  *		Reading parameters for Time TSED1-SED2, 6 parameters Float_t, a,b,c,d,e,t0 :
  *		T = -(a * TSED1-SED2 + 2*exp( b * TSED1-SED2)+ c * exp(d * (e + TSED1-SED2))) + t0  [ns]
@@ -91,22 +91,22 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
  *		( with the condition: SIE_Nr==5 && EchiNr==4 && SeDX2> -50 && SeDY2 > -50 && SiE>487 && SiE<495 && Echi>7 && Echi<9 && SeDX1>-100 && SeDY1>-50)
  */
 		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
-		cout << line << endl; L->Log << line << endl;
-		for(Int_t i=0;i<6;i++) inf1 >> TCoef[i];
+		cout << line << endl; fL->Log << line << endl;
+		for(Int_t i=0;i<6;i++) inf1 >> fTCoef[i];
 /*
  *		Output control
  */
-		for(Int_t i=0;i<6;i++) printf("  %10.6g",TCoef[i]); cout << endl; 	
+		for(Int_t i=0;i<6;i++) printf("  %10.6g",fTCoef[i]); cout << endl; 	
 /*
  *		Reading parameters for the linearisation procedure for the Time TSED1-SED2, 15 parameters Float_t
  */
 		for(Int_t i=0;i<2;i++) inf1.getline(line,len);
-		cout << line << endl; L->Log << line << endl;
-		for(Int_t i=0;i<15;i++) inf1 >> Tlinearise[i];
+		cout << line << endl; fL->Log << line << endl;
+		for(Int_t i=0;i<15;i++) inf1 >> fTlinearise[i];
 /*
  *		Output control
  */
-		for(Int_t i=0;i<15;i++) printf("  %10.6g",Tlinearise[i]); cout << endl; 	
+		for(Int_t i=0;i<15;i++) printf("  %10.6g",fTlinearise[i]); cout << endl; 	
 		
 		cout <<" fin de lecture"<< endl<<flush;
 		
@@ -116,7 +116,7 @@ SeD12v::SeD12v(LogFile *Log, SeDv *SeD1, SeDv *SeD2)
 	SetMatX();
 	SetMatY();
 
-	Ready=kTRUE;
+	fReady=kTRUE;
 }
 
 SeD12v::~SeD12v(void)
@@ -125,6 +125,7 @@ SeD12v::~SeD12v(void)
 	cout << "SeD12v::Destructor" << endl;
 #	endif
 
+	SafeDelete( fRnd );
 	PrintCounters();
 }
 
@@ -136,23 +137,23 @@ void SeD12v::PrintCounters(void)
   
 	cout << endl;
 	cout << "SeD12v::PrintCounters" << endl;
-	cout << "Called: " << Counter[0] << endl;
-	cout << "SeD1 Present: " << Counter[1] << endl;
-	cout << "SeD2 Present: " << Counter[2] << endl;
-	cout << "Sed1 and SeD2 Present: " << Counter[3] << endl;
-	cout << "Tf: " << Counter[4] << " Xf: " << Counter[5] << endl;
-	cout << "Pf: " << Counter[6] << " Yf: " << Counter[7] << endl;
-	cout << "Present: " << Counter[8]; 
-	L->Log << endl;
-	L->Log << "SeD12v::PrintCounters" << endl;
-	L->Log << "Called: " << Counter[0] << endl;
-	L->Log << "SeD1 Present: " << Counter[1] << endl;
-	L->Log << "SeD2 Present: " << Counter[2] << endl;
-	L->Log << "Sed1 and SeD2 Present: " << Counter[3] << endl;
-	L->Log << "Tf: " << Counter[4] << endl;
-	L->Log << "Tf: " << Counter[4] << " Xf: " << Counter[5] << endl;
-	L->Log << "Pf: " << Counter[6] << " Yf: " << Counter[7] << endl;
-	L->Log << "Present: " << Counter[8]; 
+	cout << "Called: " << fCounter[0] << endl;
+	cout << "SeD1 Present: " << fCounter[1] << endl;
+	cout << "SeD2 Present: " << fCounter[2] << endl;
+	cout << "Sed1 and SeD2 Present: " << fCounter[3] << endl;
+	cout << "Tf: " << fCounter[4] << " Xf: " << fCounter[5] << endl;
+	cout << "Pf: " << fCounter[6] << " Yf: " << fCounter[7] << endl;
+	cout << "Present: " << fCounter[8]; 
+	fL->Log << endl;
+	fL->Log << "SeD12v::PrintCounters" << endl;
+	fL->Log << "Called: " << fCounter[0] << endl;
+	fL->Log << "SeD1 Present: " << fCounter[1] << endl;
+	fL->Log << "SeD2 Present: " << fCounter[2] << endl;
+	fL->Log << "Sed1 and SeD2 Present: " << fCounter[3] << endl;
+	fL->Log << "Tf: " << fCounter[4] << endl;
+	fL->Log << "Tf: " << fCounter[4] << " Xf: " << fCounter[5] << endl;
+	fL->Log << "Pf: " << fCounter[6] << " Yf: " << fCounter[7] << endl;
+	fL->Log << "Present: " << fCounter[8]; 
 }
 
 void SeD12v::Calibrate(void)
@@ -163,25 +164,25 @@ void SeD12v::Calibrate(void)
   
 	double a,b,c,d,e,t0, x,t;
 	
-	Rnd->Next();
-	x = (double)T_Raw + Rnd->Value();
-	a = (double)TCoef[0];
-	b = (double)TCoef[1];
-	c = (double)TCoef[2];
-	d = (double)TCoef[3];
-	e = (double)TCoef[4];
-	t0= (double)TCoef[5];
-	T = 0;
+	fRnd->Next();
+	x = (double)fT_Raw + fRnd->Value();
+	a = (double)fTCoef[0];
+	b = (double)fTCoef[1];
+	c = (double)fTCoef[2];
+	d = (double)fTCoef[3];
+	e = (double)fTCoef[4];
+	t0= (double)fTCoef[5];
+	fT = 0;
 /*
- *	T = (a * TSED1-SED2 + 2*exp( b * TSED1-SED2)+ c * exp(d * (e + TSED1-SED2))) + t0  [ns]
+ *	fT = (a * TSED1-SED2 + 2*exp( b * TSED1-SED2)+ c * exp(d * (e + TSED1-SED2))) + t0  [ns]
  */
-	if(T_Raw>0)
+	if(fT_Raw>0)
 	{
 		t = (a * x + 2*exp( b * x)+ c * exp(d * (e + x))) + t0;	
 
-		T = (Float_t)t;
+		fT = (Float_t)t;
 #	ifdef DEBUG
-		Info("SeD12v::Calibrate","TSED1_SED2 %d [ch], T %f [ns]",T_Raw, T);
+		Info("SeD12v::Calibrate","TSED1_SED2 %d [ch], T %f [ns]",fT_Raw, fT);
 #	endif
 	}
 }
@@ -194,33 +195,33 @@ void SeD12v::Linearise(void)
 
 	double c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,  tcorr, x,xx,xxx,xxxx,xxxxx;
 
-	x = Xf; xx=x*x; xxx=xx*x; xxxx=xxx*x; xxxxx=xxxx*x;
-	c1 = (double)Tlinearise[0];
-	c2 = (double)Tlinearise[1];
-	c3 = (double)Tlinearise[2];
-	c4 = (double)Tlinearise[3];
-	c5 = (double)Tlinearise[4];
-	c6 = (double)Tlinearise[5];
-	c7 = (double)Tlinearise[6];
-	c8 = (double)Tlinearise[7];
-	c9 = (double)Tlinearise[8];
-	c10= (double)Tlinearise[9];
-	c11= (double)Tlinearise[10];
-	c12= (double)Tlinearise[11];
-	c13= (double)Tlinearise[12];
-	c14= (double)Tlinearise[13]; 
-	c15= (double)Tlinearise[14];
+	x = fXf; xx=x*x; xxx=xx*x; xxxx=xxx*x; xxxxx=xxxx*x;
+	c1 = (double)fTlinearise[0];
+	c2 = (double)fTlinearise[1];
+	c3 = (double)fTlinearise[2];
+	c4 = (double)fTlinearise[3];
+	c5 = (double)fTlinearise[4];
+	c6 = (double)fTlinearise[5];
+	c7 = (double)fTlinearise[6];
+	c8 = (double)fTlinearise[7];
+	c9 = (double)fTlinearise[8];
+	c10= (double)fTlinearise[9];
+	c11= (double)fTlinearise[10];
+	c12= (double)fTlinearise[11];
+	c13= (double)fTlinearise[12];
+	c14= (double)fTlinearise[13]; 
+	c15= (double)fTlinearise[14];
 
 	tcorr = c1+c2*x+c3*xx+c4*xxx+c5*xxxx+c6*xxxxx 
 		+c7 *exp(-(x+c8) *(x+c8) /c9 )
 		+c10*exp(-(x+c11)*(x+c11)/c12)
 		+c13*exp(-(x+c14)*(x+c14)/c15) ;
 
-//	cout << "  before =====>>>> Xf,T: " << Xf <<" "<< T << endl;
+//	cout << "  before =====>>>> Xf,T: " << fXf <<" "<< fT << endl;
 
-	T -= tcorr ;
+	fT -= tcorr ;
   
-//	cout << "  after  =====>>>> Xf,T,tcorr: " << Xf <<" "<< T <<" "<< tcorr << endl;
+//	cout << "  after  =====>>>> Xf,T,tcorr: " << fXf <<" "<< fT <<" "<< tcorr << endl;
 }
 
 void SeD12v::SetMatX(void)
@@ -232,18 +233,18 @@ void SeD12v::SetMatX(void)
 	cout << "SeD12v::SetMatX" << endl;
 #	endif
 
-	if(fabs(AngleFocal[0]) > 0.000001)
-		TanFocal[0] = 1.0/tan(3.1415922654/180.*AngleFocal[0]);
+	if(fabs(fAngleFocal[0]) > 0.000001)
+		fTanFocal[0] = 1.0/tan(3.1415922654/180.*fAngleFocal[0]);
 	else
-	TanFocal[0] = 1.0e08;
+	fTanFocal[0] = 1.0e08;
 
 	for(i=0;i<2;i++) for(j=0;j<2;j++)
-		A[i][j] = MatX[i][j] = 0.;
+		A[i][j] = fMatX[i][j] = 0.;
       
 	for(i=0;i<2;i++)
 	{
-		A[0][0] += pow(XRef[i],2.);
-		A[0][1] += XRef[i];
+		A[0][0] += pow(fXRef[i],2.);
+		A[0][1] += fXRef[i];
 		A[1][1] += 1.0;
 	}
 	A[1][0] = A[0][1];
@@ -257,10 +258,10 @@ void SeD12v::SetMatX(void)
 	}
 	else
 	{
-		MatX[0][0] = A[1][1]/Det;
-		MatX[1][1] = A[0][0]/Det;
-		MatX[1][0] = -1.0*A[0][1]/Det;
-		MatX[0][1] = -1.0*A[1][0]/Det;
+		fMatX[0][0] = A[1][1]/Det;
+		fMatX[1][1] = A[0][0]/Det;
+		fMatX[1][0] = -1.0*A[0][1]/Det;
+		fMatX[0][1] = -1.0*A[1][0]/Det;
 	}
 }
 
@@ -273,18 +274,18 @@ void SeD12v::SetMatY(void)
 	cout << "SeD12v::SetMatY" << endl;
 #	endif
 
-	if(fabs(AngleFocal[1]) > 0.000001)
-	TanFocal[1] = 1.0/tan(3.1415922654/180.*AngleFocal[1]);
+	if(fabs(fAngleFocal[1]) > 0.000001)
+	fTanFocal[1] = 1.0/tan(3.1415922654/180.*fAngleFocal[1]);
 	else
-		TanFocal[1] = 1.0e08;
+		fTanFocal[1] = 1.0e08;
  
 	for(i=0;i<2;i++) for(j=0;j<2;j++)
-		A[i][j] = MatY[i][j] = 0.;
+		A[i][j] = fMatY[i][j] = 0.;
       
 	for(i=0;i<2;i++)
 	{
-		A[0][0] += pow(YRef[i],2.);
-		A[0][1] += YRef[i];
+		A[0][0] += pow(fYRef[i],2.);
+		A[0][1] += fYRef[i];
 		A[1][1] += 1.0;
 	}
 	A[1][0] = A[0][1];
@@ -298,10 +299,10 @@ void SeD12v::SetMatY(void)
 	}
 	else
 	{
-		MatY[0][0] = A[1][1]/Det;
-		MatY[1][1] = A[0][0]/Det;
-		MatY[0][1] = -1.0*A[1][0]/Det;
-		MatY[1][0] = -1.0*A[0][1]/Det;
+		fMatY[0][0] = A[1][1]/Det;
+		fMatY[1][1] = A[0][0]/Det;
+		fMatY[0][1] = -1.0*A[1][0]/Det;
+		fMatY[1][0] = -1.0*A[0][1]/Det;
 	}
 }
 
@@ -310,11 +311,11 @@ void SeD12v::Init(void)
 #	ifdef DEBUG
 	cout << "SeD12v::Init" << endl;
 #	endif
-	Present = false; 
+	fPresent = false; 
 
-	Xf = Yf = Tf = Pf = -500.0;
-	T=0.;
-	V=0;
+	fXf = fYf = fTf = fPf = -500.0;
+	fT=0.;
+	fV=0;
 }
 
 void SeD12v::Focal(void)
@@ -322,26 +323,26 @@ void SeD12v::Focal(void)
 #	ifdef DEBUG
 	cout << "SeD12v::Focal" << endl;
 #	endif
-	if(S1->fPresent) Counter[1]++;
-	if(S2->fPresent) Counter[2]++;
+	if(fS1->fPresent) fCounter[1]++;
+	if(fS2->fPresent) fCounter[2]++;
 
-	if(S1->fPresent && S2->fPresent) // have both SeDs
+	if(fS1->fPresent && fS2->fPresent) // have both SeDs
 	{
-		Counter[3]++;
-		X[0] = S1->fX[0];
-		Y[0] = S1->fX[1];
-		X[1] = S2->fX[0];
-		Y[1] = S2->fX[1];
+		fCounter[3]++;
+		fX[0] = fS1->fX[0];
+		fY[0] = fS1->fX[1];
+		fX[1] = fS2->fX[0];
+		fY[1] = fS2->fX[1];
 		
 		FocalX();
 		FocalY();
-		if( Xf > -500. && Tf > -500. && Yf > -500. && Pf > -500.)
+		if( fXf > -500. && fTf > -500. && fYf > -500. && fPf > -500.)
 		{
-			if(T!=0.) V = 100./(cos(0.001*Tf)*cos(0.001*Pf)*T) ;  
-			Present = true; 
-			Counter[8]++;
+			if(fT!=0.) fV = 100./(cos(0.001*fTf)*cos(0.001*fPf)*fT) ;  
+			fPresent = true; 
+			fCounter[8]++;
 		}
-		else Xf = Yf = Tf = Pf = -500.0;         
+		else fXf = fYf = fTf = fPf = -500.0;         
 	}
 }
 
@@ -358,25 +359,25 @@ void SeD12v::FocalX(void)
 
 	for(i=0;i<2;i++)
 	{
-		A[0] += ((Double_t) X[i])*XRef[i];
-		A[1] += (Double_t) X[i];
+		A[0] += ((Double_t) fX[i])*fXRef[i];
+		A[1] += (Double_t) fX[i];
 	}
-	B[0] =A[0]*MatX[0][0] + A[1]*MatX[0][1]; 
-	B[1] =A[0]*MatX[1][0] + A[1]*MatX[1][1];
+	B[0] =A[0]*fMatX[0][0] + A[1]*fMatX[0][1]; 
+	B[1] =A[0]*fMatX[1][0] + A[1]*fMatX[1][1];
 /*
  *	Tf in mrad
  */
- 	Tf = (Float_t) (1000.*atan(B[0]));
-	Counter[4]++;
+ 	fTf = (Float_t) (1000.*atan(B[0]));
+	fCounter[4]++;
 
-	if((TanFocal[0]-B[0]) != 0.)
+	if((fTanFocal[0]-B[0]) != 0.)
 	{
-		Xf = (Float_t) (B[0]*(TanFocal[0]*FocalPos+B[1])/(TanFocal[0]-B[0])+B[1]);
-		Counter[5]++;
+		fXf = (Float_t) (B[0]*(fTanFocal[0]*fFocalPos+B[1])/(fTanFocal[0]-B[0])+B[1]);
+		fCounter[5]++;
 	}
-	else  Xf = -500.0;
+	else  fXf = -500.0;
 
-//	cout << "C " << Tf << ' ' << Xf << endl;
+//	cout << "C " << fTf << ' ' << fXf << endl;
 }
 
 void SeD12v::FocalY(void)
@@ -393,24 +394,24 @@ void SeD12v::FocalY(void)
 
 	for(i=0;i<2;i++)
     {
-		A[0] += ((Double_t) Y[i])*YRef[i];
-		A[1] += Y[i];
+		A[0] += ((Double_t) fY[i])*fYRef[i];
+		A[1] += fY[i];
 	}
-	B[0] =A[0]*MatY[0][0] + A[1]*MatY[0][1]; 
-	B[1] =A[0]*MatY[1][0] + A[1]*MatY[1][1]; 
+	B[0] =A[0]*fMatY[0][0] + A[1]*fMatY[0][1]; 
+	B[1] =A[0]*fMatY[1][0] + A[1]*fMatY[1][1]; 
 
 /*
  *	Pf in mrad
  */
-	Pf = (Float_t) (1000.*atan(B[0]));
-	Counter[6]++;
+	fPf = (Float_t) (1000.*atan(B[0]));
+	fCounter[6]++;
 
-	if((TanFocal[1]-B[0]) != 0.)
+	if((fTanFocal[1]-B[0]) != 0.)
 	{    
-      Yf = (Float_t) (B[0]*(TanFocal[1]*FocalPos+B[1])/(TanFocal[1]-B[0])+B[1]);
-      Counter[7]++;
+      fYf = (Float_t) (B[0]*(fTanFocal[1]*fFocalPos+B[1])/(fTanFocal[1]-B[0])+B[1]);
+      fCounter[7]++;
 	}
-	else  Yf = -500.0;
+	else  fYf = -500.0;
 }
 
 void SeD12v::Treat(void)
@@ -419,8 +420,8 @@ void SeD12v::Treat(void)
 	cout << "SeD12v::Treat" << endl;
 #	endif
 
-	if(!Ready) return;
-	Counter[0]++;
+	if(!fReady) return;
+	fCounter[0]++;
 	Init();
 	Calibrate();
 	Focal();
@@ -450,12 +451,12 @@ void SeD12v::inAttach(TTree *inT)
 #	endif
 #	ifdef ACTIVEBRANCHES
 	cout << "Activating Branches: SeD12v" << endl;
-	L->Log << "Activating Branches: SeD12v" << endl;
+	fL->Log << "Activating Branches: SeD12v" << endl;
 
 	sprintf(strnam,"TSED1_SED2");
 	inT->SetBranchStatus(strnam,1);
 #	endif
-	inT->SetBranchAddress("TSED1_SED2",&T_Raw);
+	inT->SetBranchAddress("TSED1_SED2",&fT_Raw);
 }
 
 void SeD12v::outAttach(TTree *outT)
@@ -468,12 +469,12 @@ void SeD12v::outAttach(TTree *outT)
 	cout << "Attaching SeD12 variables" << endl;
 #	endif
 
-	outT->Branch("Xf",&Xf,"Xf/F");
-	outT->Branch("Tf",&Tf,"Tf/F");
-	outT->Branch("Yf",&Yf,"Yf/F");
-	outT->Branch("Pf",&Pf,"Pf/F");
-	outT->Branch("TSeD12",&T,"TSeD12/F");
-	outT->Branch("V",&V,"V/F");
+	outT->Branch("Xf",&fXf,"Xf/F");
+	outT->Branch("Tf",&fTf,"Tf/F");
+	outT->Branch("Yf",&fYf,"Yf/F");
+	outT->Branch("Pf",&fPf,"Pf/F");
+	outT->Branch("TSeD12",&fT,"TSeD12/F");
+	outT->Branch("V",&fV,"V/F");
 }
 
 void SeD12v::CreateHistograms(void)
@@ -498,9 +499,9 @@ void SeD12v::Show(void)
 #	endif
 	cout.setf(ios::showpoint);
 
-	cout << "X1: " << S1->fX[0] << " Y1: " << S1->fX[1] << endl;
-	cout << "X2: " << S2->fX[0] << " Y2: " << S2->fX[1] << endl;
+	cout << "X1: " << fS1->fX[0] << " Y1: " << fS1->fX[1] << endl;
+	cout << "X2: " << fS2->fX[0] << " Y2: " << fS2->fX[1] << endl;
 
-	cout << "Xf: " << Xf << " Tf: " << Tf << endl;
-	cout << "Yf: " << Yf << " Pf: " << Pf << endl;
+	cout << "Xf: " << fXf << " Tf: " << fTf << endl;
+	cout << "Yf: " << fYf << " Pf: " << fPf << endl;
 }

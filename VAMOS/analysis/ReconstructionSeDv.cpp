@@ -169,9 +169,9 @@ void ReconstructionSeDv::Calculate(void)
 
 	Brhot=Thetat=Phit = Patht = 0.00000;
 	Vec[0] = 1.000000;
-	Vec[1] =(Double_t) (-1. * (S12->Xf)/1000.);
+	Vec[1] =(Double_t) (-1. * (S12->fXf)/1000.);
 	Vec[2] =0.;//(Double_t) (-1. * (S12->Yf)/1000.);
-	Vec[3] =(Double_t) (-1. * (S12->Tf)/1000.);
+	Vec[3] =(Double_t) (-1. * (S12->fTf)/1000.);
 	Vec[4] =0.;//(Double_t) (-1. * atan(tan((S12->Pf)/1000.)*cos((S12->Tf)/1000.)));
 	//goes to zgoubi coordinates
 
@@ -192,10 +192,10 @@ void ReconstructionSeDv::Calculate(void)
 	}
 
 	Vec[0] = 1.000000;
-	Vec[1] =(Double_t) (-1. * (S12->Xf)/1000.);
-	Vec[2] =(Double_t) (-1. * (S12->Yf)/1000.);
-	Vec[3] =(Double_t) (-1. * (S12->Tf)/1000.);
-	Vec[4] =(Double_t) (-1. * atan(tan((S12->Pf)/1000.)*cos((S12->Tf)/1000.)));
+	Vec[1] =(Double_t) (-1. * (S12->fXf)/1000.);
+	Vec[2] =(Double_t) (-1. * (S12->fYf)/1000.);
+	Vec[3] =(Double_t) (-1. * (S12->fTf)/1000.);
+	Vec[4] =(Double_t) (-1. * atan(tan((S12->fPf)/1000.)*cos((S12->fTf)/1000.)));
 
 	i = 0;
 	for(j[0]=0;j[0]<5;j[0]++)
@@ -412,7 +412,7 @@ void ReconstructionSeDv::Treat(void)
 	if(!Ready) return;
   
 	Counter[0]++;
-	if(S12->Present)
+	if(S12->fPresent)
 	{
 		Counter[1]++;
 		Init();
