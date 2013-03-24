@@ -37,7 +37,7 @@ KVVAMOSReconNuc::~KVVAMOSReconNuc()
 {
    // Destructor
    init();
-   fCode.Clear();
+   fCodes.Clear();
 }
 //________________________________________________________________
 

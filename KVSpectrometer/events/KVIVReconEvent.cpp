@@ -44,7 +44,13 @@ void KVIVReconEvent::Streamer(TBuffer & R__b){
 
    	if (R__b.IsReading()) {
    		R__b.ReadClassBuffer(KVIVReconEvent::Class(), this);
-		if(fNucInVAMOS) R__b.StreamObject( fVAMOSnuc );
+		if(fNucInVAMOS){
+ 		   	R__b.StreamObject( fVAMOSnuc );
+			if (CheckVAMOSCodes(fVAMOSnuc->GetCodes()))
+            fVAMOSnuc->SetIsOK();
+         else
+            fVAMOSnuc->SetIsOK(kFALSE);
+		}
    	} else {
    		R__b.WriteClassBuffer(KVIVReconEvent::Class(), this);
 		if(fNucInVAMOS) R__b.StreamObject( fVAMOSnuc );
@@ -199,12 +205,12 @@ void KVIVReconEvent::CalibrateAndIdentifyVAMOSEvent(){
 }
 //________________________________________________________________
 
-void KVIVReconEvent::ReconstructVAMOSEvent(){
+Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
 
 	KVList *detl = gVamos->GetFiredDetectors( GetPartSeedCond() );
 
 	//If no fired detectors then no reconstruction
-	if( !detl->GetEntries() ) return;
+	if( !detl->GetEntries() ) return kFALSE;
 	//else a Nucleus can be recontructed in VAMOS
 	fNucInVAMOS = kTRUE;
 
@@ -213,4 +219,5 @@ void KVIVReconEvent::ReconstructVAMOSEvent(){
 	fVAMOSnuc->ConstructLabTrajectory();
 
 	Warning("ReconstructVAMOSEvent","TO BE IMPLEMENTED");
+	return kTRUE;
 }

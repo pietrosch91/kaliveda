@@ -44,8 +44,8 @@ class KVIVReconEvent : public KVINDRAReconEvent
 		virtual void     Print(Option_t * option = "") const;
 
 
-		virtual void CalibrateAndIdentifyVAMOSEvent();
-		virtual void ReconstructVAMOSEvent();
+		virtual void   CalibrateAndIdentifyVAMOSEvent();
+		virtual Bool_t ReconstructVAMOSEvent();
 
 		inline void AcceptECodesINDRA (UChar_t  code){ AcceptECodes( code ); }
 		inline void AcceptIDCodesINDRA(UShort_t code){ AcceptIDCodes( code ); }
