@@ -60,7 +60,9 @@ void KVVAMOSReconNuc::init()
 	//default initialisations
 	if (gDataSet)
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
-	fXf = fYf = fThetaf = fPhif = 0.;
+	fXf = fYf = -666;
+	fFPdir[0] = fFPdir[1] = 0;
+	fFPdir[2] = -1;
 }
 //________________________________________________________________
 
@@ -115,6 +117,7 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 	// position measurments 
 
 	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+	TVector3 FPdir(0, 0, 1);
 
 	const Char_t *FPdetName = NULL;
 	// Loop over detector name to be used for the Focal plan Position
@@ -153,51 +156,42 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 			if( Ncomp == 2 ){
 				//Case where the Focal plan Position is reconstructed from 2 complete position measurment.
 
-				// tan( Thetaf )   = (Xc2-Xc1)/(Zc2-Zc1)
-				Double_t TanThetaf = (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]);
-
-				// tan( Phif   )   = (Yc2-Yc1)/(Zc2-Zc1)
-				Double_t TanPhif   = (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]);
-
-				// Xf = Xc1      - Zc1*tan( Thetaf )
-				fXf = XYZf[0][0] - XYZf[0][2]*TanThetaf;
-
-				// Yf = Yc1      - Zc1*tan( Phif   )
-				fYf = XYZf[0][1] - XYZf[0][2]*TanPhif;
-
-				fThetaf = TMath::ATan( TanThetaf  )*TMath::RadToDeg();
-				fPhif   = TMath::ATan( TanPhif    )*TMath::RadToDeg();
-
+				FPdir.SetX( (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]) );
+				FPdir.SetY( (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]) );
 				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 			else if( (Ncomp == 1) && !IncDetBitmask ){
 				//Case where the Focal plan Position is reconstructed from 1 complete position measurment and 2 incomplete position measurment.
 
-				// tan( Thetaf )   = (Xi1-Xc1)/(Zi1-Zc1)
-				Double_t TanThetaf = (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]);
-
-				// tan( Phif   )   = (Xi2-Xc1)/(Zi2-Zc1)
-				Double_t TanPhif   = (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]);
-
-				// Xf = Xc1      - Zc1*tan( Thetaf )
-				fXf = XYZf[0][0] - XYZf[0][2]*TanThetaf;
-
-				// Yf = Yc1      - Zc1*tan( Phif   )
-				fYf = XYZf[0][1] - XYZf[0][2]*TanPhif;
-
-				fThetaf = TMath::ATan( TanThetaf  )*TMath::RadToDeg();
-				fPhif   = TMath::ATan( TanPhif    )*TMath::RadToDeg();
-
+				FPdir.SetX( (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]) );
+				FPdir.SetY( (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]) );
 				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 
 		}
 	}
+
+	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+
+	FPdir *= FPdir.Mag();
+	
+	// Xf = Xc1      - Zc1*tan( Thetaf )
+	fXf = XYZf[0][0] - XYZf[0][2]*FPdir.X()/FPdir.Z();
+	
+	// Yf = Yc1      - Zc1*tan( Phif   )
+	fYf = XYZf[0][1] - XYZf[0][2]*FPdir.Y()/FPdir.Z();
+
+	FPdir.GetXYZ( fFPdir );
 }
 //________________________________________________________________
 
 void KVVAMOSReconNuc::ConstructLabTrajectory(){
+
+
+	// No trajectory reconstruction in the lab if the reconstruction
+	// in the focal plan is not OK
+	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 //	Warning("ConstructLabTrajectory","TO BE IMPLEMENTED");
 }

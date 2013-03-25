@@ -15,11 +15,9 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 	protected:
 
-		Double_t fXf; //Horizontal position at the focal plan in cm
-		Double_t fYf; //Vertical position at the focal plan in cm
-		Double_t fThetaf; //Angle in the horizontal plan in deg
-		Double_t fPhif;   //Angle in the vertical plan in deg
-
+		Float_t fXf; //Horizontal position at the focal plan in cm
+		Float_t fYf; //Vertical position at the focal plan in cm
+		Float_t fFPdir[3];//direction from point (Xf,Yf) on the focal plan
 
    	public:
 
@@ -40,20 +38,20 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 			return fCodes;
 		}
 
-		inline Double_t GetXf() const{
+		inline Float_t GetXf() const{
 			return fXf;
 		}
 
-		inline Double_t GetYf() const{
+		inline Float_t GetYf() const{
 			return fYf;
 		}
 
-		inline Double_t GetThetaf() const{
-			return fThetaf;
+		inline Float_t GetThetaf() const{
+			return (TMath::RadToDeg()*fFPdir[0])/fFPdir[2];
 		}
 
-		inline Double_t GetPhif() const{
-			return fPhif;
+		inline Float_t GetPhif() const{
+			return (TMath::RadToDeg()*fFPdir[1])/fFPdir[2];
 		}
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
