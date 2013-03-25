@@ -42,6 +42,7 @@ void KVIVSelector::Make(const Char_t * kvsname)
    // Automatic generation of KVIVSelector-derived class for KaliVeda analysis
    KVClassFactory cf(kvsname,"User analysis class","KVIVSelector",kTRUE);
    cf.AddImplIncludeFile("KVINDRAReconNuc.h");
+   cf.AddImplIncludeFile("KVVAMOSReconNuc.h");
    cf.AddImplIncludeFile("KVBatchSystem.h");
    cf.AddImplIncludeFile("KVINDRA.h");
    cf.GenerateCode();

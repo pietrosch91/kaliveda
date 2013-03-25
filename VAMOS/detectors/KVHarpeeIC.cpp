@@ -247,7 +247,7 @@ void KVHarpeeIC::SetACQParams(){
 			par->SetType("E");
 			par->SetLabel(Form("%c",idx[i]));
 			par->SetNumber( num );
-//			par->SetPedestal(200);
+			par->SetPedestal(200);
 			AddACQParam(par);
 		}
 	}

@@ -185,9 +185,9 @@ INDRA_e494s.ReconIdent.DataAnalysisTask.Analyser:           IVReconData
 INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:    IVRawDataAnalyser
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.Analyser:        IVReconData
-#INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
+INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
-#INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
+INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    VAMOS_e503

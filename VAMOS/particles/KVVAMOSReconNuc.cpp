@@ -80,7 +80,7 @@ void KVVAMOSReconNuc::Calibrate(){
 //		Double_t E_tot = GetEnergy() + E_targ;
 //		SetEnergy( E_tot );
 
-	Warning("Calibrate","TO BE IMPLEMENTED");
+//	Warning("Calibrate","TO BE IMPLEMENTED");
 }
 //________________________________________________________________
 
@@ -199,5 +199,5 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 //________________________________________________________________
 
 void KVVAMOSReconNuc::ConstructLabTrajectory(){
-	Warning("ConstructLabTrajectory","TO BE IMPLEMENTED");
+//	Warning("ConstructLabTrajectory","TO BE IMPLEMENTED");
 }

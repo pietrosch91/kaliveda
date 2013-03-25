@@ -18,8 +18,9 @@ ClassImp(KVIVReconEvent)
 ////////////////////////////////////////////////////////////////////////////////
 void KVIVReconEvent::init(){
 	//Default initialisations
-	fVAMOSnuc = new KVVAMOSReconNuc;
-	fNucInVAMOS = kFALSE;
+	fVAMOSnuc      = new KVVAMOSReconNuc;
+	fNucInVAMOS    = kFALSE;
+	fVAMOSCodeMask = NULL;
 }
 //________________________________________________________________
 
@@ -218,6 +219,5 @@ Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
 	fVAMOSnuc->Calibrate();
 	fVAMOSnuc->ConstructLabTrajectory();
 
-	Warning("ReconstructVAMOSEvent","TO BE IMPLEMENTED");
 	return kTRUE;
 }
