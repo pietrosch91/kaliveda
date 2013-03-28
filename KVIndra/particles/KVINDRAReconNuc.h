@@ -42,9 +42,11 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	Float_t fESi;//si contribution to energy
 	Float_t fEChIo;//chio contribution to energy
    /* for PHD corrections */
+   Bool_t fCorrectPHD;//!set to kTRUE in Streamer if PHD needs correction
    Float_t fESi_old;//!silicon energy before PHD correction
    Float_t fEnergy_old;//!total energy before PHD correction, including target losses
 	void CheckCsIEnergy();
+   void CorrectPHD();
    
  public:
 
