@@ -113,6 +113,7 @@ void KVINDRAReconNuc::init()
 	fPileup=kFALSE;
 	fUseFullChIoEnergyForCalib=kTRUE;
 	fECsI=fESi=fEChIo=0.;
+   fESi_old=fEnergy_old=0.;
 }
 
 KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
@@ -939,3 +940,49 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
     return idtel->GetIDSubCodeString(code);
 }
 
+
+//______________________________________________________________________________
+
+void KVINDRAReconNuc::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVINDRAReconNuc.
+   // 
+   // Implements a 'rustine' for correction of PHD in silicon
+   // For KaliVeda < v1.8.10 (KVINDRAReconNuc class version < 11)
+   // the PHD was calculated incorrectly for transmitted ions,
+   // the Moulton formula was applied to the incident energy of the ion,
+   // instead of the energy loss of the ion in the silicon.
+   // In addition, for 5th campaign data, the PHD for ring 1 was not
+   // taken into account.
+   // Here we perform a 'correction' for all ions with Z>10
+   // which reach the CsI on rings 1-9 (no PHD correction was applied
+   // for ions with Z<=10). The 'correct' PHD correction
+   // is applied to the Si energy, leading to a new deduced total energy
+   // of the ion with a new correction for target energy losses. 
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      fESi_old=fEnergy_old=0.;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.ReadClassBuffer(KVINDRAReconNuc::Class(),this,R__v,R__s,R__c);
+      if( IsIdentified() && IsCalibrated()
+            && GetRingNumber()<10 && GetZ()>10 && StoppedInCsI() && R__v < 11 ) {
+         
+         Info("Streamer",
+               "PHD correction for: z=%d a=%d r=%d m=%d id=%d e=%d",
+               GetZ(),GetA(),GetRingNumber(),GetModuleNumber(),
+               (int)GetCodes().GetVedaIDCode(),(int)GetCodes().GetVedaECode());
+         fESi_old=GetEnergySi();
+         fEnergy_old=GetEnergy();
+         Info("Streamer",
+               "OLD : Etot = %f  Esi = %f  Etarg = %f",
+               fEnergy_old, fESi_old, GetTargetEnergyLoss());
+         Calibrate();
+         Info("Streamer",
+               "NEW : Etot = %f  Esi = %f  Etarg = %f ecod=%d\n",
+               GetEnergy(), GetEnergySi(), GetTargetEnergyLoss(),(int)GetCodes().GetVedaECode());
+      }
+   } else {
+      R__b.WriteClassBuffer(KVINDRAReconNuc::Class(),this);
+   }
+}
