@@ -808,6 +808,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         else
             fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
+           Info("Calib", "ECsI = %f",fECsI);
             SetECode(kECode15);// bad - no CsI energy
             return;
         }
@@ -831,7 +832,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
             }
             fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
          	if(fESi<=0) {
-         	  //Info("calib", "esi=%f",fESi);
+         	  Info("calib", "esi=%f",fESi);
             	SetECode(kECode15);// bad - no Si energy
             	return;
          	}
