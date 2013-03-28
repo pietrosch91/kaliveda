@@ -970,9 +970,8 @@ void KVINDRAReconNuc::Streamer(TBuffer &R__b)
             && GetRingNumber()<10 && GetZ()>10 && StoppedInCsI() && R__v < 11 ) {
          
          Info("Streamer",
-               "PHD correction for: z=%d a=%d r=%d m=%d id=%d e=%d",
-               GetZ(),GetA(),GetRingNumber(),GetModuleNumber(),
-               (int)GetCodes().GetVedaIDCode(),(int)GetCodes().GetVedaECode());
+               "PHD CORRECTION RUSTINE");
+         Print();
          fESi_old=GetEnergySi();
          fEnergy_old=GetEnergy();
          Info("Streamer",
