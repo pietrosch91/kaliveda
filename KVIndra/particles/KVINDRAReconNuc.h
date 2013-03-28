@@ -46,10 +46,10 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Float_t fESi_old;//!silicon energy before PHD correction
    Float_t fEnergy_old;//!total energy before PHD correction, including target losses
 	void CheckCsIEnergy();
-   void CorrectPHD();
    
  public:
 
+   void CorrectPHD();
    Int_t GetIDSubCode(const Char_t * id_tel_type,
                        KVIDSubCode & code) const;
     const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,

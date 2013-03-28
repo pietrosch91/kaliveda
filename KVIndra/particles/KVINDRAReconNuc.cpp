@@ -980,7 +980,7 @@ void KVINDRAReconNuc::CorrectPHD()
    // is applied to the Si energy, leading to a new deduced total energy
    // of the ion with a new correction for target energy losses.
    //
-   // This method is called by KVSelector::preAnalysis, so that fragments
+   // This method is called by KVSelector::Process, so that fragments
    // used in data analysis have correct energies
    
    if(!fCorrectPHD) return;
