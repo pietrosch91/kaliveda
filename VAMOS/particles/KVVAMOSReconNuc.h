@@ -6,6 +6,7 @@
 
 #include "KVReconstructedNucleus.h"
 #include "KVVAMOSCodes.h"
+#include "KVVAMOSReconTrajectory.h"
 
 class KVVAMOSReconNuc : public KVReconstructedNucleus
 {
@@ -15,16 +16,14 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 	protected:
 
-		Float_t fXf; //Horizontal position at the focal plan in cm
-		Float_t fYf; //Vertical position at the focal plan in cm
-		Float_t fFPdir[3];//direction from point (Xf,Yf) on the focal plan
+		KVVAMOSReconTrajectory fRT; //handles trajectory reconstruction data
 
    	public:
 
    		KVVAMOSReconNuc();
    		KVVAMOSReconNuc (const KVVAMOSReconNuc&) ;
    		virtual ~KVVAMOSReconNuc();
-   		void Copy (TObject&) const;
+   		virtual void Copy (TObject&) const;
 		void init();
 
 		virtual void Calibrate();
@@ -39,20 +38,37 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		}
 
 		inline Float_t GetXf() const{
-			return fXf;
+			return fRT.pointFP[0];
 		}
 
 		inline Float_t GetYf() const{
-			return fYf;
+			return fRT.pointFP[1];
 		}
 
-		inline Float_t GetThetaf() const{
-			return (TMath::RadToDeg()*fFPdir[0])/fFPdir[2];
+		inline Float_t GetThetaF() const{
+			return fRT.GetThetaF();
 		}
 
-		inline Float_t GetPhif() const{
-			return (TMath::RadToDeg()*fFPdir[1])/fFPdir[2];
+		inline Float_t GetPhiF() const{
+			return fRT.GetPhiF();
 		}
+
+		inline Float_t GetThetaV() const{
+			return fRT.GetThetaV();
+		}
+
+		inline Float_t GetPhiV() const{
+			return fRT.GetPhiV();
+		}
+
+		inline Float_t GetThetaL() const{
+			return fRT.GetThetaL();
+		}
+
+		inline Float_t GetPhiL() const{
+			return fRT.GetPhiL();
+		}
+
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };

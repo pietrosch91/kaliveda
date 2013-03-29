@@ -3,7 +3,7 @@
 
 PROJ_NAME = VAMOS
 
-MODULES = daq_cec analysis base identification detectors geometry db events particles calibration
+MODULES = daq_cec analysis base reconstruction identification detectors geometry db events particles calibration
 
 EXTRA_HEADERS = analysis/Defines.h
 

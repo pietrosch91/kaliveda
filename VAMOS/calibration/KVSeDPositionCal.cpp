@@ -13,7 +13,7 @@ ClassImp(KVSeDPositionCal)
 <!-- */
 // --> END_HTML
 //
-// Calibration object dedicated to handling the position calibration 
+// Calibration object dedicated to handle the position calibration 
 // (conversion position in channel -> cm) and to correct the deviation of 
 // the position in SeD detectors of VAMOS. For this purpose, an aluminium
 // mask with calibrated holes of 5mm diameter is put in front of the emissive

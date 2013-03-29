@@ -51,7 +51,9 @@ void KVVAMOSReconNuc::Copy (TObject& obj) const
    //    CastedObj.SetToto( GetToto() );
 
    KVReconstructedNucleus::Copy(obj);
-   //KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
+   KVVAMOSReconNuc& CastedObj = (KVVAMOSReconNuc&)obj;
+   CastedObj.fCodes = fCodes;
+   CastedObj.fRT    = fRT;
 }
 //________________________________________________________________
 
@@ -60,9 +62,6 @@ void KVVAMOSReconNuc::init()
 	//default initialisations
 	if (gDataSet)
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
-	fXf = fYf = -666;
-	fFPdir[0] = fFPdir[1] = 0;
-	fFPdir[2] = -1;
 }
 //________________________________________________________________
 
@@ -92,6 +91,7 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 	KVReconstructedNucleus::Clear(t);
    	init();
    	fCodes.Clear();
+	fRT.Reset();
 }
 //________________________________________________________________
 
@@ -117,7 +117,7 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 	// position measurments 
 
 	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
-	TVector3 FPdir(0, 0, 1);
+	fRT.dirFP.SetXYZ(0, 0, 1);
 
 	const Char_t *FPdetName = NULL;
 	// Loop over detector name to be used for the Focal plan Position
@@ -156,16 +156,16 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 			if( Ncomp == 2 ){
 				//Case where the Focal plan Position is reconstructed from 2 complete position measurment.
 
-				FPdir.SetX( (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]) );
-				FPdir.SetY( (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]) );
+				fRT.dirFP.SetX( (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]) );
+				fRT.dirFP.SetY( (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]) );
 				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 			else if( (Ncomp == 1) && !IncDetBitmask ){
 				//Case where the Focal plan Position is reconstructed from 1 complete position measurment and 2 incomplete position measurment.
 
-				FPdir.SetX( (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]) );
-				FPdir.SetY( (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]) );
+				fRT.dirFP.SetX( (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]) );
+				fRT.dirFP.SetY( (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]) );
 				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
@@ -175,15 +175,14 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 
-	FPdir *= FPdir.Mag();
+	fRT.dirFP *= fRT.dirFP.Mag();
 	
 	// Xf = Xc1      - Zc1*tan( Thetaf )
-	fXf = XYZf[0][0] - XYZf[0][2]*FPdir.X()/FPdir.Z();
+	fRT.pointFP[0] = XYZf[0][0] - XYZf[0][2]*fRT.dirFP.X()/fRT.dirFP.Z();
 	
 	// Yf = Yc1      - Zc1*tan( Phif   )
-	fYf = XYZf[0][1] - XYZf[0][2]*FPdir.Y()/FPdir.Z();
+	fRT.pointFP[1] = XYZf[0][1] - XYZf[0][2]*fRT.dirFP.Y()/fRT.dirFP.Z();
 
-	FPdir.GetXYZ( fFPdir );
 }
 //________________________________________________________________
 
