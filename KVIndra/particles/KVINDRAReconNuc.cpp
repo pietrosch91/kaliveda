@@ -104,6 +104,8 @@ ClassImp(KVINDRAReconNuc);
 //IN ALL CASES THE RETURNED VALUE OF GetA() IS POSITIVE
 //
 
+Bool_t KVINDRAReconNuc::PHDNeedCorrection = kFALSE;
+
 void KVINDRAReconNuc::init()
 {
 	//default initialisations
@@ -114,7 +116,7 @@ void KVINDRAReconNuc::init()
 	fUseFullChIoEnergyForCalib=kTRUE;
 	fECsI=fESi=fEChIo=0.;
    fESi_old=fEnergy_old=0.;
-   fNeedCorrectPHD=kFALSE;
+   fCorrectPHD=kFALSE;
 }
 
 KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
@@ -809,7 +811,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         else
             fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
-           Info("Calib", "ECsI = %f",fECsI);
+           //Info("Calib", "ECsI = %f",fECsI);
             SetECode(kECode15);// bad - no CsI energy
             return;
         }
@@ -833,7 +835,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
             }
             fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
          	if(fESi<=0) {
-         	  Info("calib", "esi=%f",fESi);
+         	  //Info("calib", "esi=%f",fESi);
             	SetECode(kECode15);// bad - no Si energy
             	return;
          	}
@@ -961,6 +963,10 @@ void KVINDRAReconNuc::Streamer(TBuffer &R__b)
       if( IsIdentified() && IsCalibrated()
             && GetRingNumber()<10 && GetZ()>10 && StoppedInCsI() && R__v < 11 ) {
          fCorrectPHD=kTRUE;
+         if(!PHDNeedCorrection){
+            Info("Streamer", "APPLYING PHD CORRECTION TO DATA WRITTEN WITH KALIVEDA <v1.8.10");
+            PHDNeedCorrection=kTRUE;
+         }
       }
    } else {
       R__b.WriteClassBuffer(KVINDRAReconNuc::Class(),this);
@@ -984,15 +990,19 @@ void KVINDRAReconNuc::CorrectPHD()
    // used in data analysis have correct energies
    
    if(!fCorrectPHD) return;
-   Info("CorrectPHD", "PHD CORRECTION RUSTINE");
-   Print();
+	KVTarget* t = gMultiDetArray->GetTarget();
+	if(t){
+		t->SetIncoming(kFALSE); t->SetOutgoing(kTRUE);
+	}
+   //Info("CorrectPHD", "PHD CORRECTION RUSTINE");
+   //Print();
    fESi_old=GetEnergySi();
    fEnergy_old=GetEnergy();
-   Info("CorrectPHD",
-         "OLD : Etot = %f  Esi = %f  Etarg = %f",
-         fEnergy_old, fESi_old, GetTargetEnergyLoss());
+   /*Info("CorrectPHD",
+         "OLD : Etot = %f  Echio = %f Esi = %f  Ecsi = %f Etarg = %f",
+         fEnergy_old, GetEnergyChIo(), fESi_old, GetEnergyCsI(), GetTargetEnergyLoss());*/
    Calibrate();
-   Info("CorrectPHD",
-         "NEW : Etot = %f  Esi = %f  Etarg = %f ecod=%d\n",
-         GetEnergy(), GetEnergySi(), GetTargetEnergyLoss(),(int)GetCodes().GetVedaECode());
+   /*Info("CorrectPHD",
+         "NEW : Etot = %f  Echio = %f Esi = %f  Ecsi = %f Etarg = %f ecod=%d\n",
+         GetEnergy(), GetEnergyChIo(), GetEnergySi(), GetEnergyCsI(), GetTargetEnergyLoss(),(int)GetCodes().GetVedaECode());*/
 }

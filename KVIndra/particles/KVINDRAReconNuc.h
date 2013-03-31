@@ -49,6 +49,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    
  public:
 
+   static Bool_t PHDNeedCorrection;//static flag set when PHD of analysed events need correcting
    void CorrectPHD();
    Int_t GetIDSubCode(const Char_t * id_tel_type,
                        KVIDSubCode & code) const;
