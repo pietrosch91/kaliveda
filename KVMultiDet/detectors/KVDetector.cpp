@@ -803,7 +803,7 @@ void KVDetector::GetAlignedIDTelescopes(TCollection * list)
 
 //______________________________________________________________________________//
 
-Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t transmission)
+Double_t KVDetector::GetCorrectedEnergy( KVNucleus *nuc, Double_t e, Bool_t transmission)
 {
    // Returns the total energy loss in the detector for a given nucleus
    // including inactive absorber layers.
@@ -833,6 +833,32 @@ Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t
    enum SolType solution = kEmax;
    if(!transmission) solution = kEmin;
    
+   // check that apparent energy loss in detector is compatible with a & z
+   // if it is too big, we will adjust first a, then z, until it is
+   if(e > GetMaxDeltaE(z,a)){
+       bool ok=kFALSE;
+       //Info("GetCorrectedEnergy", "Looking for solution for de=%f Z=%d A=%d",e,z,a);
+       for(int znew=z;znew<z+10;znew++){
+           //Info("GetCorrectedEnergy", "Try Z=%d",z);
+           if(znew>z) nuc->SetZ(znew);
+           KVNumberList arange = nuc->GetKnownARange();
+           arange.Begin();
+           while(!ok && !arange.End()){
+               int anew = arange.Next();
+               //Info("GetCorrectedEnergy", "Try A=%d?",anew);
+               if(z==znew && anew<=a) continue;
+               //Info("GetCorrectedEnergy", "ok try it",anew);
+               nuc->SetA(a=anew);
+               if(e<=GetMaxDeltaE(znew,a)){
+                   // check consistency with transmission status
+                   if(transmission||(!transmission && (e<GetPunchThroughEnergy(znew,a)))) ok=kTRUE;
+               }
+           }
+           if(ok) {z=znew; /*Info("GetCorrectedEnergy", "1.Found solution: Z=%d A=%d",z,a);*/break;}
+       }
+       //if(ok) Info("GetCorrectedEnergy", "2.Found solution: Z=%d A=%d",z,a);
+
+   }
    Double_t EINC, ERES = GetEResAfterDetector();
    if(transmission && ERES>0.){
    	// if residual energy is known we use it to calculate EINC.
@@ -843,44 +869,10 @@ Double_t KVDetector::GetCorrectedEnergy(const KVNucleus *nuc, Double_t e, Bool_t
      	// the corrected dE of this detector would not depend on the
      	// measured dE !
    }
-   EINC = GetIncidentEnergy(z, a, e, solution);//will be <0 if deltaE is too big
-        Bool_t einc_neg = kFALSE;   
-            if(EINC<0.){
-            	einc_neg=kTRUE;
-            	/*Info("GetCorrectedEnergy",
-            	   "%s : (%d,%d) dE=%f > max theoretical dE=%f",
-            	   GetName(),z,a,e,GetMaxDeltaE(z,a));*/
-            	// deltaE is bigger than max theoretical dE for (Z,A)
-            	// increase Z until we find a solution
-            	KVNucleus tmpnuc;
-            	tmpnuc.SetMassFormula(nuc->GetMassFormula());
-            	while(EINC<0. && z<(nuc->GetZ()+10)){
-            		tmpnuc.SetZ(++z);
-            		a = tmpnuc.GetA();
-            		EINC = GetIncidentEnergy(z,a,e,solution);
-            	}
-            	/*if(EINC>0){
-            		Info("GetCorrectedEnergy",
-            	   "%s : energy loss compatible with (%d,%d), Einc=%f",
-            	   GetName(),z,a,EINC);
-					}
-            	else
-					{
-             		Info("GetCorrectedEnergy",
-            	   "%s : still no solution found even with (%d,%d)",
-            	   GetName(),z,a);
-					}*/
-           }
-   
-//   ERES = GetERes(nuc->GetZ(),nuc->GetA(),EINC);
+   EINC = GetIncidentEnergy(z, a, e, solution);
    ERES = GetERes(z,a,EINC);
    
    SetEResAfterDetector(-1.);
-   //incident energy - residual energy = total real energy loss
-            	/*if(einc_neg && EINC>0)
-            	Info("GetCorrectedEnergy",
-            	   "%s : (%d,%d) dE=%f --> (%d,%d) corrected dE=%f",
-            	   GetName(),nuc->GetZ(),nuc->GetA(),e,z,a,EINC-ERES);*/
    return (EINC - ERES);
 }
 
@@ -1381,8 +1373,17 @@ Double_t KVDetector::GetEIncOfMaxDeltaE(Int_t Z, Int_t A)
    // Overrides KVMaterial::GetEIncOfMaxDeltaE
    // Returns incident energy corresponding to maximum energy loss in the
    // active layer of the detector, for a given nucleus.
-   
+
    return GetELossFunction(Z,A)->GetMaximumX();
+}
+
+Double_t KVDetector::GetMaxDeltaE(Int_t Z, Int_t A)
+{
+   // Overrides KVMaterial::GetMaxDeltaE
+   // Returns maximum energy loss in the
+   // active layer of the detector, for a given nucleus.
+
+   return GetELossFunction(Z,A)->GetMaximum();
 }
 
 Double_t KVDetector::GetDeltaE(Int_t Z, Int_t A, Double_t Einc)
