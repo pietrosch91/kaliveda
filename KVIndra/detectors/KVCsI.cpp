@@ -424,7 +424,7 @@ void KVCsI::Streamer(TBuffer &R__b)
 
 //______________________________________________________________________________
 
-Double_t KVCsI::GetCorrectedEnergy(const KVNucleus* nuc, Double_t lum, Bool_t trans)
+Double_t KVCsI::GetCorrectedEnergy(KVNucleus* nuc, Double_t lum, Bool_t trans)
 {
    // Calculate calibrated energy loss for a nucleus (Z,A) giving total light output "lum".
    // If "lum" is not given, the total light of the detector

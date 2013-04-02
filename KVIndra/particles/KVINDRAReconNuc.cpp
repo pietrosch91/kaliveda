@@ -104,6 +104,8 @@ ClassImp(KVINDRAReconNuc);
 //IN ALL CASES THE RETURNED VALUE OF GetA() IS POSITIVE
 //
 
+Bool_t KVINDRAReconNuc::PHDNeedCorrection = kFALSE;
+
 void KVINDRAReconNuc::init()
 {
 	//default initialisations
@@ -113,6 +115,8 @@ void KVINDRAReconNuc::init()
 	fPileup=kFALSE;
 	fUseFullChIoEnergyForCalib=kTRUE;
 	fECsI=fESi=fEChIo=0.;
+   fESi_old=fEnergy_old=0.;
+   fCorrectPHD=kFALSE;
 }
 
 KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
@@ -807,6 +811,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         else
             fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
+           //Info("Calib", "ECsI = %f",fECsI);
             SetECode(kECode15);// bad - no CsI energy
             return;
         }
@@ -939,3 +944,65 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
     return idtel->GetIDSubCodeString(code);
 }
 
+
+//______________________________________________________________________________
+
+void KVINDRAReconNuc::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVINDRAReconNuc.
+   // 
+   // Sets flag for correction of PHD for transmitted ions with Z>10
+   // which reach the CsI on rings 1-9 (see CorrectPHD)
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      fESi_old=fEnergy_old=0.;
+      fCorrectPHD=kFALSE;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.ReadClassBuffer(KVINDRAReconNuc::Class(),this,R__v,R__s,R__c);
+      if( IsIdentified() && IsCalibrated()
+            && GetRingNumber()<10 && GetZ()>10 && StoppedInCsI() && R__v < 11 ) {
+         fCorrectPHD=kTRUE;
+         if(!PHDNeedCorrection){
+            Info("Streamer", "APPLYING PHD CORRECTION TO DATA WRITTEN WITH KALIVEDA <v1.8.10");
+            PHDNeedCorrection=kTRUE;
+         }
+      }
+   } else {
+      R__b.WriteClassBuffer(KVINDRAReconNuc::Class(),this);
+   }
+}
+
+void KVINDRAReconNuc::CorrectPHD()
+{
+   // Implements a 'rustine' for correction of PHD in silicon
+   // For KaliVeda < v1.8.10 (KVINDRAReconNuc class version < 11)
+   // the PHD was calculated incorrectly for transmitted ions,
+   // the Moulton formula was applied to the incident energy of the ion,
+   // instead of the energy loss of the ion in the silicon.
+   // Here we perform a 'correction' for all ions with Z>10
+   // which reach the CsI on rings 1-9 (no PHD correction was applied
+   // for ions with Z<=10). The 'correct' PHD correction
+   // is applied to the Si energy, leading to a new deduced total energy
+   // of the ion with a new correction for target energy losses.
+   //
+   // This method is called by KVSelector::Process, so that fragments
+   // used in data analysis have correct energies
+   
+   if(!fCorrectPHD) return;
+	KVTarget* t = gMultiDetArray->GetTarget();
+	if(t){
+		t->SetIncoming(kFALSE); t->SetOutgoing(kTRUE);
+	}
+   //Info("CorrectPHD", "PHD CORRECTION RUSTINE");
+   //Print();
+   fESi_old=GetEnergySi();
+   fEnergy_old=GetEnergy();
+   /*Info("CorrectPHD",
+         "OLD : Etot = %f  Echio = %f Esi = %f  Ecsi = %f Etarg = %f",
+         fEnergy_old, GetEnergyChIo(), fESi_old, GetEnergyCsI(), GetTargetEnergyLoss());*/
+   Calibrate();
+   /*Info("CorrectPHD",
+         "NEW : Etot = %f  Echio = %f Esi = %f  Ecsi = %f Etarg = %f ecod=%d\n",
+         GetEnergy(), GetEnergyChIo(), GetEnergySi(), GetEnergyCsI(), GetTargetEnergyLoss(),(int)GetCodes().GetVedaECode());*/
+}

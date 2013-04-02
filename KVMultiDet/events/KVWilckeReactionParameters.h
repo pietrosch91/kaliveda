@@ -104,8 +104,8 @@ class KVWilckeReactionParameters
        // instead of (RCT**3+RCP**3)**1/3
        // The Wilcke formula gives negative V0 values and an incorrect form of potential.
        // The actual values in Wilcke correspond to the correct Bondorf formula
-       Double_t v0  = pow((zp+zt),2)/pow(pow(ChargeRadius_Myers(zt,at),3)+pow(ChargeRadius_Myers(zp,ap),3),THIRD);
-       v0 -= (pow(zt,2)/ChargeRadius_Myers(zt,at) + pow(zp,2)/ChargeRadius_Myers(zp,ap));
+       Double_t v0  = pow((zp+zt),2.)/pow(pow(ChargeRadius_Myers(zt,at),3.)+pow(ChargeRadius_Myers(zp,ap),3.),THIRD);
+       v0 -= (pow(zt,2.)/ChargeRadius_Myers(zt,at) + pow(zp,2.)/ChargeRadius_Myers(zp,ap));
        v0*=3.*e2_Wilcke/5.;
        return v0;
    }

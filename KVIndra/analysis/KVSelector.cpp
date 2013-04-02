@@ -349,8 +349,18 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
             pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
       }
    }   
+   
+   // read event
    fChain->GetTree()->GetEntry(fTreeEntry);
-	gDataAnalyser->preAnalysis();
+	// read raw data associated to event
+   gDataAnalyser->preAnalysis();
+   if(KVINDRAReconNuc::PHDNeedCorrection){
+      // correct PHD/silicon energies (rustine)
+      KVINDRAReconNuc* nn=0;
+      while( (nn = (KVINDRAReconNuc*)GetEvent()->GetNextParticle()) ){
+         nn->CorrectPHD();
+      }
+   }
 
    //additional selection criteria ?
    if(fPartCond){
