@@ -85,8 +85,8 @@ class KVIDTelescope:public KVBase {
    void SetGroup(KVGroup * kvg);
    UInt_t GetGroupNumber();
 
-   virtual TGraph *MakeIDLine(KVNucleus * nuc, Float_t Emin, Float_t Emax,
-                              Float_t Estep = 0.0);
+   virtual TGraph *MakeIDLine(KVNucleus * nuc, Double_t Emin, Double_t Emax,
+                              Double_t Estep = 0.0);
 
    virtual void Initialize(void) {
    // Default initialisation for ID telescopes. kReadyForID is set to kFALSE.
