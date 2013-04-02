@@ -269,6 +269,9 @@ void KVDataSetManager::CheckAvailability()
       }
    }
    
+   // print (repository-dependent) warning/informational message
+   if(fRepository) fRepository->PrintAvailableDatasetsUpdateWarning();
+   
    //open temporary file
    ofstream tmp_file;
    TString tmp_file_path = fCacheFileName;
