@@ -98,9 +98,6 @@ Bool_t KVDataSetManager::Init(KVDataRepository * dr)
       fMaxCacheTime = (UInt_t)gEnv->GetValue( Form("%s.DataRepository.MaxCacheTime", dr->GetName()),
          0 );
    }
-   if(fCacheAvailable) Info("KVDataSetManager::Init",
-      "Using available dataset cache file: MaxCacheTime = %u seconds",
-      fMaxCacheTime);
    //name of cache file
    if(dr) fCacheFileName.Form("%s.available.datasets", dr->GetName());
    
@@ -523,6 +520,7 @@ Bool_t KVDataSetManager::CheckCacheStatus()
    //less than fMaxCacheTime seconds ago.
    
    TString fullpath;
+   Info("KVDataSetManager::CheckCacheStatus", "Checking for available datasets cache file...");
    if( KVBase::SearchKVFile( fCacheFileName.Data(), fullpath ) ){
       
       // file exists - how old is it ?
@@ -531,8 +529,15 @@ Bool_t KVDataSetManager::CheckCacheStatus()
       TDatime file_date( file_info.fMtime );
       TDatime now;
       UInt_t file_age = now.Convert() - file_date.Convert();
-      Info("KVDataSetManager::CheckCacheStatus", "Cached file is %u seconds old", file_age);
-      if( file_age < fMaxCacheTime ) return kTRUE;
+      Info("KVDataSetManager::CheckCacheStatus", "...file found. It is %u seconds old", file_age);
+      if( file_age < fMaxCacheTime ) {
+         Info("KVDataSetManager::CheckCacheStatus", "Using cached file");
+         return kTRUE;
+      }
+      else
+         Info("KVDataSetManager::CheckCacheStatus", "File is too old (max time=%u). Update will be performed.", fMaxCacheTime);         
    }
+   else
+      Info("KVDataSetManager::CheckCacheStatus", "...no file found");
    return kFALSE;
 }
