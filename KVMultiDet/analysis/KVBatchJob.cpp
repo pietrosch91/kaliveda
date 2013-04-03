@@ -19,6 +19,8 @@ ClassImp(KVBatchJob)
 KVBatchJob::KVBatchJob()
 {
    // Default constructor
+    cpu_used=0;
+    mem_used="-";
 }
 
 

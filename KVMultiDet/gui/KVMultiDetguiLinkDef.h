@@ -42,4 +42,5 @@
 #pragma link C++ class KVNuclearChart+;
 #pragma link C++ class KVSpIdGUI+;
 #pragma link C++ class KVZAFinderDialog+;
+#pragma link C++ class KVBatchSystemGUI+;
 #endif
