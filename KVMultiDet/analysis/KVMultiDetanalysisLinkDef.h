@@ -9,6 +9,8 @@
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KVBatchSystem;
 #pragma link C++ class KVBatchSystemManager;
+#pragma link C++ class KVBatchJob;
+#pragma link C++ class KVGEBatchJob;
 #pragma link C++ class KV_CCIN2P3_BQS;
 #pragma link C++ class KV_CCIN2P3_GE;
 #pragma link C++ class KVRootBatch;

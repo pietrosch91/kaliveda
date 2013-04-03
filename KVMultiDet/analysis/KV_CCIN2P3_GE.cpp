@@ -6,6 +6,7 @@
 #include "TEnv.h"
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
+#include "KVBatchJob.h"
 
 using namespace std;
 
@@ -103,8 +104,9 @@ void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
 void KV_CCIN2P3_GE::PrintJobs(Option_t * opt)
 {
    //Print list of owner's jobs.
-   AnalyseQstatResponse();
-   joblist.Print();
+   KVList* j = GetListOfJobs();
+   j->ls();
+   delete j;
 }
 
 Bool_t KV_CCIN2P3_GE::CheckJobParameters()
@@ -290,65 +292,6 @@ TString KV_CCIN2P3_GE::GE_Request(KVString value,KVString jobname)
 	
 }	
 
-void KV_CCIN2P3_GE::AnalyseQstatResponse()
-{
-	// Analyse output of 'qstat -r' command
-	// Extract from it a list of jobnames with their job-ids and status
-	
-   TString reply = gSystem->GetFromPipe("qstat -r");
-   joblist.Clear();
-	TObjArray* lines = reply.Tokenize("\n");
-	Int_t nlines = lines->GetEntries();
-	for(Int_t line_number=0; line_number<nlines; line_number++){
-		TString thisLine = ((TObjString*)(*lines)[line_number])->String();
-		if(thisLine.Contains("Full jobname:")){
-			// previous line contains job-id and status
-			TString lastLine = ((TObjString*)(*lines)[line_number-1])->String();
-			TObjArray* bits = lastLine.Tokenize(" ");
-			Int_t jobid = ((TObjString*)(*bits)[0])->String().Atoi();
-			TString status = ((TObjString*)(*bits)[4])->String();
-         delete bits;
-         bits = thisLine.Tokenize(": ");
-         TString jobname =  ((TObjString*)(*bits)[2])->String();
-         delete bits;
-         KVBase* job = new KVBase(jobname.Data(), Form("status=%s", status.Data()));
-         job->SetNumber(jobid);
-         joblist.Add(job);
-		}
-	}
-	delete lines;
-}
-
-void KV_CCIN2P3_GE::qalter(const Char_t* job_base_name, const Char_t* new_ressources)
-{
-	// Will change ressources request for all jobs having 'job_base_name' as the root
-	// of their jobname.
-	// N.B.: in the new ressources, you must specify ALL ressources, including
-	// the ones which are not changed
-	
-	// get list of jobs
-	if(!joblist.GetEntries()) AnalyseQstatResponse();
-	
-	// build number list of job-ids corresponding to jobs with correct base name
-	TIter nextjob(&joblist);
-	KVNumberList jids;
-	KVBase* job;
-	while( (job = (KVBase*)nextjob()) ){
-		TString jobname = job->GetName();
-		if(jobname.BeginsWith(job_base_name)) {
-			Info("qalter", "Selected job %s (jid = %d)", jobname.Data(), job->GetNumber());
-			jids.Add(job->GetNumber());
-		}
-	}
-	TString cmd_base;
-	cmd_base.Form("qalter %s", new_ressources);
-	TString cmd;
-	jids.Begin();
-	while( !jids.End() ){
-		cmd.Form("%s %d", cmd_base.Data(), jids.Next());
-		gSystem->Exec(cmd.Data());
-	}
-}
          
 void KV_CCIN2P3_GE::SanitizeJobName()
 {
@@ -358,5 +301,77 @@ void KV_CCIN2P3_GE::SanitizeJobName()
    // Any such character appearing in the current jobname will be replaced
    // with '_'
    
-   fCurrJobName.ReplaceAll(":","_");
+    fCurrJobName.ReplaceAll(":","_");
+}
+
+KVList *KV_CCIN2P3_GE::GetListOfJobs()
+{
+    // Create and fill list with KVBatchJob objects describing current jobs
+    // Delete list after use
+
+    KVList* list_of_jobs = new KVList;
+
+    // use qstat -r to get list of job ids and jobnames
+    TString reply = gSystem->GetFromPipe("qstat -r");
+
+    TObjArray* lines = reply.Tokenize("\n");
+    Int_t nlines = lines->GetEntries();
+    for(Int_t line_number=0; line_number<nlines; line_number++){
+        TString thisLine = ((TObjString*)(*lines)[line_number])->String();
+        if(thisLine.Contains("Full jobname:")){
+            // previous line contains job-id and status
+            TString lastLine = ((TObjString*)(*lines)[line_number-1])->String();
+            TObjArray* bits = lastLine.Tokenize(" ");
+            Int_t jobid = ((TObjString*)(*bits)[0])->String().Atoi();
+            TString status = ((TObjString*)(*bits)[4])->String();
+            // date & time jobs started (running job) or submitted (queued job)
+            TString sdate = ((TObjString*)(*bits)[5])->String();// mm/dd/yyyy
+            TString stime = ((TObjString*)(*bits)[6])->String();// hh:mm:ss
+            Int_t dd,MM,yyyy,hh,mm,ss;
+            sscanf(sdate.Data(), "%d/%d/%d", &MM, &dd, &yyyy);
+            sscanf(stime.Data(), "%d:%d:%d", &hh, &mm, &ss);
+            KVDatime submitted(yyyy,MM,dd,hh,mm,ss);
+            delete bits;
+            bits = thisLine.Tokenize(": ");
+            TString jobname =  ((TObjString*)(*bits)[2])->String();
+            delete bits;
+
+            KVBatchJob* job = new KVBatchJob();
+            job->SetName(jobname);
+            job->SetJobID(jobid);
+            job->SetStatus(status);
+            job->SetSubmitted(submitted);
+            list_of_jobs->Add(job);
+        }
+    }
+    delete lines;
+
+    if(!list_of_jobs->GetEntries()) return list_of_jobs;
+
+    // for each running job, use qstat -j [jobid] to get cpu and memory used
+    TIter next_job(list_of_jobs);
+    KVBatchJob* job;
+    while( (job = (KVBatchJob*)next_job()) ){
+        if(!strcmp(job->GetStatus(),"r")){
+            reply = gSystem->GetFromPipe(Form("qstat -j %d", job->GetJobID()));
+            lines = reply.Tokenize("\n");
+            nlines = lines->GetEntries();
+            for(Int_t line_number=0; line_number<nlines; line_number++){
+                TString thisLine = ((TObjString*)(*lines)[line_number])->String();
+                if(thisLine.BeginsWith("usage")){
+                    TObjArray* bits = thisLine.Tokenize("=,");
+                    TString stime = ((TObjString*)(*bits)[1])->String();// h:mm:ss:xx
+                    Int_t h,m,s,x;
+                    sscanf(stime.Data(), "%d:%d:%d:%d", &h,&m,&s,&x);
+                    job->SetCPUusage(h*3600+m*60+s);
+                    TString smem = ((TObjString*)(*bits)[7])->String();// xxx.xxxxM
+                    job->SetMemUsed(smem);
+                    delete bits;
+                }
+            }
+            delete lines;
+        }
+    }
+
+    return list_of_jobs;
 }

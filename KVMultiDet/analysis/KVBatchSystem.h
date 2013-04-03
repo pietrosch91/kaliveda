@@ -105,6 +105,8 @@ class KVBatchSystem : public KVBase {
    virtual void SetJobDisk(const Char_t* = ""){};
    
    virtual void SanitizeJobName(){};
+
+   virtual KVList* GetListOfJobs();
    
 	ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
 };
