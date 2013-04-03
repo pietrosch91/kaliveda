@@ -76,7 +76,7 @@ class KVDetector:public KVMaterial {
    KVList *fParticles;         //!list of particles hitting detector in an event
    KVList *fAbsorbers;          //->list of absorbers making up the detector
    UShort_t fSegment;           //used in particle reconstruction
-   Float_t fGain;               //gain of amplifier
+   Double_t fGain;               //gain of amplifier
    Int_t fCalWarning;           //!just a counter so that missing calibrator warning is given only once
 
 	Double_t fTotThickness; //! used to store value calculated by GetTotalThicknessInCM
@@ -168,8 +168,8 @@ class KVDetector:public KVMaterial {
 
    void ConnectModule(KVModule *, const int fcon = KVD_RECPRC_CNXN);
 
-   void SetGain(Float_t gain);
-   Float_t GetGain() const;
+   void SetGain(Double_t gain);
+   Double_t GetGain() const;
 
    virtual Double_t GetEnergy()
    {
@@ -430,12 +430,12 @@ inline void KVDetector::SetSegment(UShort_t s)
    fSegment = s;
 }
 
-inline void KVDetector::SetGain(Float_t gain)
+inline void KVDetector::SetGain(Double_t gain)
 {
    fGain = gain;
 }
 
-inline Float_t KVDetector::GetGain() const
+inline Double_t KVDetector::GetGain() const
 {
    return fGain;
 }

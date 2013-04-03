@@ -49,7 +49,7 @@ void KVINDRAUpDater_e613::SetGains(KVDBRun * kvrun)
     
 	 Int_t nchange = 0;
 	 KVDetector* kvd=0;
-	 Float_t oldgain;
+	 Double_t oldgain;
 	 TString list;
 	 for (Int_t i = 0; i < ndets; i++)
     {
@@ -62,8 +62,8 @@ void KVINDRAUpDater_e613::SetGains(KVDBRun * kvrun)
 			  continue;
 		  }
         oldgain = kvd->GetGain();
-		  if ( oldgain != Float_t(dbps->GetParameter(0)) ){
-		  	  kvd->SetGain(Float_t(dbps->GetParameter(0)));
+		  if ( oldgain != dbps->GetParameter(0) ){
+		  	  kvd->SetGain(dbps->GetParameter(0));
            //cout << "            " << kvd->GetName() << " set gain from " << oldgain << " to G=" << kvd->GetGain() << endl;
 		  	  list += kvd->GetName();
 			  list += ",";
