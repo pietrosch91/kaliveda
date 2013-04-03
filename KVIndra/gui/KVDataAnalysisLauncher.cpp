@@ -30,6 +30,7 @@
 #include "KVBatchSystemManager.h"
 #include "TSystemDirectory.h"
 #include "KVInputDialog.h"
+#include "KVBatchSystemGUI.h"
 
 #define TTDELAY 750
 
@@ -1459,6 +1460,8 @@ else if(strcmp(task->GetUserBaseClass(), "")){
   }
  datan->Run();
  
+  if(IsBatch()) new KVBatchSystemGUI;
+  
  gSystem->SetIncludePath(oriIncludePath.Data());
 }
 

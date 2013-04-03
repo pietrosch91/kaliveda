@@ -44,8 +44,8 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     fLVJobs->SetDataColumn(5, "MemUsed");
     fLVJobs->ActivateSortButtons();
 
-    new KVBatchSystemManager;
-    gBatchSystemManager->GetDefaultBatchSystem()->cd();
+    if(!gBatchSystemManager) new KVBatchSystemManager;
+    if(!gBatchSystem) gBatchSystemManager->GetDefaultBatchSystem()->cd();
 
     selected_jobs = 0;
 
