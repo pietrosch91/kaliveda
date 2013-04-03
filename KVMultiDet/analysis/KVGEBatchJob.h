@@ -11,8 +11,9 @@ class KVGEBatchJob : public KVBatchJob
 
    public:
    KVGEBatchJob();
-   KVGEBatchJob(const KVGEBatchJob& obj);
    virtual ~KVGEBatchJob();
+
+   void DeleteJob();
 
    ClassDef(KVGEBatchJob,1)//Job handled by Grid Engine batch system
 };

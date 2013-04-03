@@ -2,6 +2,7 @@
 //Author: John Frankland,,,
 
 #include "KVGEBatchJob.h"
+#include "TSystem.h"
 
 ClassImp(KVGEBatchJob)
 
@@ -19,20 +20,15 @@ KVGEBatchJob::KVGEBatchJob()
    // Default constructor
 }
 
-//________________________________________________________________
-
-KVGEBatchJob::KVGEBatchJob(const KVGEBatchJob& obj) : KVBatchJob()
-{
-   // Copy constructor
-   // This ctor is used to make a copy of an existing object (for example
-   // when a method returns an object), and it is always a good idea to
-   // implement it.
-   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
-
-}
-
 KVGEBatchJob::~KVGEBatchJob()
 {
-   // Destructor
+    // Destructor
+}
+
+void KVGEBatchJob::DeleteJob()
+{
+    // delete this job:
+    //    qdel [jobid]
+    gSystem->Exec(Form("qdel %d", GetJobID()));
 }
 

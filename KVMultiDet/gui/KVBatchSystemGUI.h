@@ -14,7 +14,9 @@ class KVBatchSystemGUI : public KVBase
     RQ_OBJECT("KVBatchSystemGUI")
     TGMainFrame *MainFrame;
     TGPictureButton *BrefreshDir;
+    TGPictureButton *BremDir;
     KVListView* fLVJobs;
+    TList* selected_jobs;
 
    public:
    KVBatchSystemGUI();
@@ -22,6 +24,7 @@ class KVBatchSystemGUI : public KVBase
    virtual ~KVBatchSystemGUI();
 
    void Refresh();
+   void KillJobs();
 
    ClassDef(KVBatchSystemGUI,1)//GUI for batch system jobs
 };

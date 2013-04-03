@@ -28,6 +28,8 @@ class KVBatchJob : public KVBase
    void SetMemUsed(const Char_t* m) { mem_used = m; }
    const Char_t* GetMemUsed() const { return mem_used; }
 
+   virtual void DeleteJob() {;}
+
    void ls(Option_t* /*opt*/ = "") const;
 
    ClassDef(KVBatchJob,1)//Job handled by batch system

@@ -27,6 +27,11 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     BrefreshDir->Resize(40,40);
     BrefreshDir->SetToolTipText("Update");
     BrefreshDir->Connect("Clicked()", "KVBatchSystemGUI", this, "Refresh()");
+    BremDir = new TGPictureButton(hf,gClient->GetPicture("mb_stop_s.xpm"));
+    hf->AddFrame(BremDir, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+    BremDir->Resize(40,40);
+    BremDir->SetToolTipText("Kill job(s)");
+    BremDir->Connect("Clicked()", "KVSimDirGUI", this, "KillJobs()");
     MainFrame->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
     fLVJobs = new KVListView(KVBatchJob::Class(), MainFrame, 550, 200);
     fLVJobs->SetDataColumns(6);
@@ -41,6 +46,8 @@ KVBatchSystemGUI::KVBatchSystemGUI()
 
     new KVBatchSystemManager;
     gBatchSystemManager->GetDefaultBatchSystem()->cd();
+
+    selected_jobs = 0;
 
     Refresh();
 
@@ -57,6 +64,7 @@ KVBatchSystemGUI::KVBatchSystemGUI()
 KVBatchSystemGUI::~KVBatchSystemGUI()
 {
     // Destructor
+    SafeDelete(selected_jobs);
 }
 
 void KVBatchSystemGUI::Refresh()
@@ -65,3 +73,13 @@ void KVBatchSystemGUI::Refresh()
     fLVJobs->Display(jobs);
 }
 
+void KVBatchSystemGUI::KillJobs()
+{
+    SafeDelete(selected_jobs);
+    selected_jobs = fLVJobs->GetSelectedObjects();
+    if(!selected_jobs->GetEntries()) return;
+    TIter next(selected_jobs);
+    KVBatchJob* job;
+    while( (job = (KVBatchJob*)next())) job->DeleteJob();
+    Refresh();
+}
