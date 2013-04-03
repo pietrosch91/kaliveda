@@ -30,6 +30,7 @@ $Id: KVEvent.h,v 1.29 2008/12/17 11:23:12 ebonnet Exp $
 #include "TLorentzRotation.h"
 #include "KVParticleCondition.h"
 #include "KVNameValueList.h"
+#include "TMethodCall.h"
 
 class KVEvent:public KVBase {
 
@@ -58,7 +59,7 @@ class KVEvent:public KVBase {
 	KVNucleus *AddParticle();
    KVNucleus *GetParticle(Int_t npart) const;
    virtual Int_t GetMult(Option_t * opt = "");
-
+	virtual Double_t GetSum(const Char_t* KVNucleus_method,Option_t * opt = "");
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * t = "") const;
    virtual void ls(Option_t * t = "") const { Print(t); };
