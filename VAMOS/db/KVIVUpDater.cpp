@@ -121,24 +121,26 @@ void KVIVUpDater::SetPedestalCorrections(KVDBRun *run){
 void KVIVUpDater::SetCalibParameters(KVDBRun * run){
 
 	KVINDRAUpDater::SetCalibParameters( run );
-	SetVamosCalibParameters( run );
+	SetVamosCalibAndConfParams( run );
 }
 //________________________________________________________________
 
-void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
-	// Set calibration parameters to the calibrators of the detectors
-	// placed at the focal plane of VAMOS (HarpeeSi, HarpeeIC, SeD, ...)
-	// or set parameter of a detector by calling setter method of the
-	// detector.
+void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
+	// For a given run:
+	// - set calibration parameters to the calibrators of the detectors
+	//   placed at the focal plane of VAMOS (HarpeeSi, HarpeeIC, SeD, ...);
+	// - set parameter of a detector by calling setter method of the
+	//   detector.
+	// - set configuration parameters (Brho, rotation angle, ...) of VAMOS.
 
-	Info("KVIVUpDater::SetVamosCalibParameters","Setting VAMOS calibration parameters");
+	Info("KVIVUpDater::SetVamosCalibAndConfParams","Setting VAMOS calibration parameters");
 
 	if( !gVamos ){
-		Error("KVIVUpDater::SetVamosCalibParameters","VAMOS is not found ( gVamos = NULL )");
+		Error("KVIVUpDater::SetVamosCalibAndConfParams","VAMOS is not found ( gVamos = NULL )");
 		return;
 	}
 
-	KVRList *list = run->GetLinks("VAMOS calibration");
+	KVRList *list = run->GetLinks("VAMOS calib. & conf.");
 	if(!list) return;
 
 	KVDetector *det = NULL;
@@ -163,7 +165,7 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 				((KVFunctionCal *)cal)->SetExpFormula( formula.Data() );
 
 			if( cal->GetNumberParams() != par->GetParameter(0) ){
-				Error("KVIVUpDater::SetVamosCalibParameters", 
+				Error("KVIVUpDater::SetVamosCalibAndConfParams", 
 						"In the database, different number of parameters for the calibrator %s (%s)",cal->ClassName(), cal->GetType());
 				continue;
 			}
@@ -172,32 +174,38 @@ void KVIVUpDater::SetVamosCalibParameters(KVDBRun * run){
 				cal->SetParameter( i, TString(par->GetParamName( i+1 )).Atof() );
 				cal->SetStatus( kTRUE );
 			}
-		}
-		// Case 2: parameter associated to a setter method of a detector
-		else if( (det = gVamos->GetDetector(par->GetName())) ){
-			TString meth, arg;
-			meth.Form("Set%s",par->GetTitle());
-			for(Int_t i=0; i<par->GetParameter(0); i++){
-//				arg+=par->GetParameter( i+1 );
-				arg+=par->GetParamName( i+1 );
-				arg+=",";
-			}
-			arg.Remove(TString::kTrailing,',');
-			if ( !det->IsA()->GetMethod(meth.Data(),arg.Data()) ){
 
-			Error("KVIVUpDater::SetVamosCalibParameters", 
+			continue;
+		}
+
+
+		// Case 2: parameter associated to a setter method of a detector or of VAMOS
+		if( !(det = gVamos->GetDetector(par->GetName())) ){
+			if( !strcmp( gVamos->GetName() , par->GetName() ) ) det = gVamos;
+			else{
+				Error("KVIVUpDater::SetVamosCalibAndConfParams", 
+						"The parameter %s is not associated to an existing calibrator, detector or VAMOS",
+						partype.Data());
+				continue;
+			}
+		}
+
+		TString meth, arg;
+		meth.Form("Set%s",par->GetTitle());
+		for(Int_t i=0; i<par->GetParameter(0); i++){
+			//				arg+=par->GetParameter( i+1 );
+			arg+=par->GetParamName( i+1 );
+			arg+=",";
+		}
+		arg.Remove(TString::kTrailing,',');
+		if ( !det->IsA()->GetMethod(meth.Data(),arg.Data()) ){
+
+			Error("KVIVUpDater::SetVamosCalibAndConfParams", 
 					"Impossible to call %s::%s(%s) for detector %s",
 					det->ClassName(), meth.Data(), arg.Data(), det->GetName());
 			continue;
-			}
-			det->Execute(meth.Data(), arg.Data());
- 		}	
-		else{
-			Error("KVIVUpDater::SetVamosCalibParameters", 
-					"The parameter %s is not associated to an existing calibrator or detector",
-					partype.Data());
-			continue;
 		}
+		det->Execute(meth.Data(), arg.Data());
 	}
 }
 

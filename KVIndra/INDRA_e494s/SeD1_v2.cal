@@ -267,11 +267,3 @@ SED1: -20.766       0.066517   -0.0015625   2.3598e-05  0 \
         0.0018306   0.00012434 -1.5792e-05 -4.0335e-07  0 \
         8.562e-05   2.2178e-06 -6.3752e-07  0           0 \
         0           0           0           0           0
-
-
-# Reference position
-RUNS: 2-615
-TYPE: RefPosition 
-FUNCTION: no
-# 2 parameters: Xref and Yref
-SED1: 0. 0.

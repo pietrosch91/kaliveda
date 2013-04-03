@@ -2,9 +2,6 @@
 //Author: Ademard Guilain
 // Updated by A. Chbihi on 20/08/2009
 // In addition to set the VAMOS scalers in the data base using ReadVamosScalers ()  method
-//  it set the Vamos Brho's and angle.
-// The new method of this class is ReadVamosBrhoAndAngle ().
-
 
 
 #include "KVIVDB.h"
@@ -43,7 +40,7 @@ KVIVDB::~KVIVDB()
 void KVIVDB::init(){
 	// Default initialisations
 	fDeltaPed = AddTable("DeltaPedestal","Pedestal correction value of detectors");
-	fVAMOSCalib = AddTable("VAMOS calibration","Calibration parameters for detectors of VAMOS");
+	fVAMOSCalConf = AddTable("VAMOS calib. & conf.","Calibration and configuration parameters for VAMOS and its detectors");
 
 }
 //________________________________________________________________
@@ -51,12 +48,12 @@ void KVIVDB::init(){
 void KVIVDB::Build () 
 {
 	// Read runlist and systems list, then read VAMOS scalers
-   	// Read Brho and angle of Vamos for each run
+   	// Read calibration and configuration (Brho, angle, ...) parameters 
+   	// of VAMOS for each run.
 
    	KVINDRADB::Build();
    	ReadPedestalCorrection();
    	ReadVamosScalers();
-   	ReadVamosBrhoAndAngle();
 	ReadVamosCalibrations();
 }
 //________________________________________________________________
@@ -208,46 +205,6 @@ void KVIVDB::ReadPedestalList()
 }
 //________________________________________________________________
 
-void KVIVDB::ReadVamosBrhoAndAngle () 
-{
-	TString sline; 
-    ifstream fin;
-
-    if( !OpenCalibFile("VamosBrhoAngle", fin) ){
-        Warning("VamosBrhoAngle", "VAMOS Brho and angle file not found : %s",
-				GetCalibFileName("VamosBrhoAngle"));
-        return;
-   	}
-
-   	Info("ReadVamosBrhoAngle", "Reading in VamosBrho and angle file : %s",
-			GetCalibFileName("VamosBrhoAngle"));
-
-   	Int_t run = 0;
-   	Float_t Brho = -1;
-   	Float_t theta = -1.;
-	while (fin.good()) {         //reading the file
-      	sline.ReadLine(fin);
-      	if (!fin.eof()) {          //fin du fichier
-		   	if (sline.Sizeof() > 1 && !sline.BeginsWith("#") ){
-				sscanf(sline.Data(), "%d %f %f ", &run, &Brho, &theta);
-              	cout<<" run = "<<run<<", Brho = "<<Brho<<", Theta = "<<theta<<endl;
-               	if(Brho==0){
-                  	Brho = -1.;
-                  	theta = -1.;
-               	}
-               	KVINDRADBRun * idb = GetRun(run);
-               	if (idb){
-                  	idb->Set("Brho",Brho);
-                  	idb->Set("Theta",theta);
-                }            
-      		}
-   		}
-	}
-
-   	fin.close();         
-}
-//________________________________________________________________
-
 Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	// Reads the calibration file loaded in 'infile'.
 	// Retruns kTRUE if the mimimum of information is 
@@ -277,7 +234,6 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	// The parameters can be add on a new line if the previous line end 
 	// with the character '\'
 	//
-	//
 	// The comment line begins with '#'.
 	//
 	// You can change when you want the run list, or the
@@ -305,8 +261,23 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	// SED1_HF: par0 par1 par2 par3 par4 par5 par6
 	//
 	// TYPE: position->cm
+	// FUNCTION: no
 	// SED1: par1 par2 par3 par4 par5 \.
 	//       par6 par7 par8 par8 par10
+	//
+	//
+	// It is possible to set a parameter for a detector (or for VAMOS) if
+	// a Setter method exists for this parameter in the classe describing
+	// the detector (or VAMOS). In this case the name of the parameter has
+	// to be given in TYPE and FUNCTION has to be set to 'no' or null. For
+	// example to set the reference Brho 0.2 T.m to VAMOS for run 1 to 100
+	// write:
+	//
+	// RUNS: 1-100
+	// TYPE: BrhoRef
+	// FUNCTION: no
+	// VAMOS: 0.2
+
 	
 	KVString sline, name;
 	Int_t idx;
@@ -406,7 +377,7 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 				}
 			}
 			delete tok;
-			fVAMOSCalib->AddRecord(parset);
+			fVAMOSCalConf->AddRecord(parset);
 			LinkRecordToRunRange(parset,runs);
 
 //			cout<<parset->GetName()<<" "<<parset->GetTitle()<<" "<<runs.GetList()<<" "<<parset->GetParamName(0);

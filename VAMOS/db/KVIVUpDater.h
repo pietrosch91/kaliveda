@@ -14,7 +14,7 @@ class KVIVUpDater : public KVINDRAUpDater
    virtual ~KVIVUpDater();
 
    virtual void SetCalibParameters(KVDBRun *);
-   virtual void SetVamosCalibParameters(KVDBRun *);
+   virtual void SetVamosCalibAndConfParams(KVDBRun *);
    virtual void SetPedestals(KVDBRun *);
    virtual void SetChIoSiPedestals(KVDBRun *);
    virtual void SetSi75SiLiPedestals(KVDBRun *);

@@ -11,12 +11,11 @@ class KVIVDB : public KVINDRADB
 {
    	protected:
 	   	KVDBTable *fDeltaPed;   //-> table of INDRA detector pedestal corrections
-	   	KVDBTable *fVAMOSCalib; //-> table of VAMOS detector calibration parameters
+	   	KVDBTable *fVAMOSCalConf; //-> table of VAMOS detector calibration and configuration parameters
 
    		virtual void   ReadDeltaPedestal(ifstream &ifile);
 	   	virtual void   ReadPedestalCorrection();
    		virtual void   ReadPedestalList () ;
-   		virtual void   ReadVamosBrhoAndAngle () ;
    		virtual Bool_t ReadVamosCalibFile(ifstream &ifile);
    		virtual void   ReadVamosCalibrations();
    		virtual void   ReadVamosScalers () ;

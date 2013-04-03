@@ -58,6 +58,8 @@ void KVVAMOS::init()
 	fVCalibrators = NULL;
 	fFPvolume     = NULL;
 	fFocalPos     = 0; 
+	fAngle        = -1;
+	fBrhoRef      = -1;
 
 	Info("init","To be implemented");
 }
