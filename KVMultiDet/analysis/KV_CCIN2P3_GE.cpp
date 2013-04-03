@@ -6,7 +6,7 @@
 #include "TEnv.h"
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
-#include "KVBatchJob.h"
+#include "KVGEBatchJob.h"
 
 using namespace std;
 
@@ -336,7 +336,7 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
             TString jobname =  ((TObjString*)(*bits)[2])->String();
             delete bits;
 
-            KVBatchJob* job = new KVBatchJob();
+            KVGEBatchJob* job = new KVGEBatchJob();
             job->SetName(jobname);
             job->SetJobID(jobid);
             job->SetStatus(status);
