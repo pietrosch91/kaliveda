@@ -354,11 +354,12 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
    fChain->GetTree()->GetEntry(fTreeEntry);
 	// read raw data associated to event
    gDataAnalyser->preAnalysis();
-   if(KVINDRAReconNuc::PHDNeedCorrection){
-      // correct PHD/silicon energies (rustine)
+   
+   if(KVINDRAReconNuc::CalibNeedCorrection){
+      // correct particle energies from before v1.8.10 (rustine)
       KVINDRAReconNuc* nn=0;
       while( (nn = (KVINDRAReconNuc*)GetEvent()->GetNextParticle()) ){
-         nn->CorrectPHD();
+         nn->Recalibrate();
       }
    }
 

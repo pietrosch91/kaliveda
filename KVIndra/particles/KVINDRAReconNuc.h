@@ -41,16 +41,13 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	Float_t fECsI;//csi contribution to energy
 	Float_t fESi;//si contribution to energy
 	Float_t fEChIo;//chio contribution to energy
-   /* for PHD corrections */
-   Bool_t fCorrectPHD;//!set to kTRUE in Streamer if PHD needs correction
-   Float_t fESi_old;//!silicon energy before PHD correction
-   Float_t fEnergy_old;//!total energy before PHD correction, including target losses
+   Bool_t fCorrectCalib;//!set to kTRUE in Streamer if calibration needs correction
 	void CheckCsIEnergy();
    
  public:
 
-   static Bool_t PHDNeedCorrection;//static flag set when PHD of analysed events need correcting
-   void CorrectPHD();
+   static Bool_t CalibNeedCorrection;//static flag set when PHD of analysed events need correcting
+   void Recalibrate();
    Int_t GetIDSubCode(const Char_t * id_tel_type,
                        KVIDSubCode & code) const;
     const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
@@ -159,19 +156,6 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
 
-   Float_t GetOldSiliconEnergy() const
-   {
-      // If silicon energy is corrected by 'rustine' in Streamer method,
-      // this will return the energy before correction of PHD
-      return fESi_old;
-   }
-   Float_t GetOldTotalEnergy() const
-   {
-      // If silicon energy is corrected by 'rustine' in Streamer method,
-      // this will return the total energy (including target losses)
-      // before correction of PHD
-      return fEnergy_old;
-   }
    ClassDef(KVINDRAReconNuc, 11) //Nucleus identified by INDRA array
 };
 
