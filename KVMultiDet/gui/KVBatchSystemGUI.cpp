@@ -31,7 +31,7 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     hf->AddFrame(BremDir, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     BremDir->Resize(40,40);
     BremDir->SetToolTipText("Kill job(s)");
-    BremDir->Connect("Clicked()", "KVSimDirGUI", this, "KillJobs()");
+    BremDir->Connect("Clicked()", "KVBatchSystemGUI", this, "KillJobs()");
     MainFrame->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
     fLVJobs = new KVListView(KVBatchJob::Class(), MainFrame, 550, 200);
     fLVJobs->SetDataColumns(6);
