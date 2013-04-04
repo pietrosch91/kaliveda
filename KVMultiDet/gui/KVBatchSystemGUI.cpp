@@ -34,14 +34,17 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     BremDir->Connect("Clicked()", "KVBatchSystemGUI", this, "KillJobs()");
     MainFrame->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
     fLVJobs = new KVListView(KVBatchJob::Class(), MainFrame, 550, 200);
-    fLVJobs->SetDataColumns(6);
+    fLVJobs->SetDataColumns(9);
     fLVJobs->SetDataColumn(0, "JobID");
     fLVJobs->SetDataColumn(1, "Name");
     fLVJobs->SetDataColumn(2, "Status");
     fLVJobs->SetDataColumn(3, "Submitted");
     fLVJobs->GetDataColumn(3)->SetIsDateTime(KVDatime::kSQL);
     fLVJobs->SetDataColumn(4, "CPUusage");
-    fLVJobs->SetDataColumn(5, "MemUsed");
+    fLVJobs->SetDataColumn(5, "CPUmax");
+    fLVJobs->SetDataColumn(6, "MemUsed");
+    fLVJobs->SetDataColumn(7, "MemMax");
+    fLVJobs->SetDataColumn(8, "DiskMax");
     fLVJobs->ActivateSortButtons();
 
     if(!gBatchSystemManager) new KVBatchSystemManager;
@@ -86,5 +89,16 @@ void KVBatchSystemGUI::KillJobs()
     TIter next(selected_jobs);
     KVBatchJob* job;
     while( (job = (KVBatchJob*)next())) job->DeleteJob();
+    Refresh();
+}
+
+void KVBatchSystemGUI::AlterJobs()
+{
+    SafeDelete(selected_jobs);
+    selected_jobs = fLVJobs->GetSelectedObjects();
+    if(!selected_jobs->GetEntries()) return;
+    
+    gBatchSystem->AlterJobs(MainFrame, selected_jobs);
+    
     Refresh();
 }

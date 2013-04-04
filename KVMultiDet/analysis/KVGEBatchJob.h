@@ -21,6 +21,8 @@ class KVGEBatchJob : public KVBatchJob
    virtual Int_t GetCPUusage() const { return cpu_used/cpu_scaling_factor ; }
    void SetCPUscalingFactor(Double_t x) { cpu_scaling_factor = x; }
    
+   void AlterResources(TString r);
+   
    ClassDef(KVGEBatchJob,1)//Job handled by Grid Engine batch system
 };
 

@@ -9,6 +9,7 @@
 
 class KVBatchJob : public KVBase
 {
+   protected:
     KVDatime submitted;
     Int_t cpu_used;
     TString mem_used;

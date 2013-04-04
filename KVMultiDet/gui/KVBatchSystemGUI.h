@@ -26,6 +26,7 @@ class KVBatchSystemGUI : public KVBase
 
    void Refresh();
    void KillJobs();
+   void AlterJobs();
 
    ClassDef(KVBatchSystemGUI,1)//GUI for batch system jobs
 };

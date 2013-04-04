@@ -33,7 +33,7 @@ ClassImp(KVInputDialog)
    //The Bool_t variable will be set to kTRUE if "OK" is pressed (kFALSE otherwise)
    //Optional argument 'tooltip' will be displayed when mouse held over text entry widget
 
-   fMain = new TGTransientFrame(gClient->GetRoot(), main, 200, 100);
+   fMain = new TGTransientFrame(gClient->GetRoot(), main, 600, 150);
    fMain->Connect("CloseWindow()", "KVInputDialog", this, "DoClose()");
    fMain->DontCallClose();      // to avoid double deletions.
    // use hierarchical cleaning
