@@ -6,6 +6,7 @@
 #include "RQ_OBJECT.h"
 #include <KVBase.h>
 #include <TGFrame.h>
+#include <TTimer.h>
 #include <TGButton.h>
 #include "KVListView.h"
 
@@ -17,6 +18,7 @@ class KVBatchSystemGUI : public KVBase
     TGPictureButton *BremDir;
     KVListView* fLVJobs;
     TList* selected_jobs;
+    TTimer* fTimer;
 
    public:
    KVBatchSystemGUI();

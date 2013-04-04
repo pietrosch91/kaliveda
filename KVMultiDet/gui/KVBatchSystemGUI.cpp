@@ -50,6 +50,11 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     selected_jobs = 0;
 
     Refresh();
+    
+    // automatic update every 60 second
+    fTimer = new TTimer;
+	 fTimer->Connect("Timeout()", "KVBatchSystemGUI", this, "Refresh()");
+	 fTimer->Start(60000);
 
     MainFrame->AddFrame(fLVJobs, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY,5,5,10,10));
     MainFrame->SetMWMHints(kMWMDecorAll,
