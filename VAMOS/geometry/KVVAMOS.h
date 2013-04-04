@@ -7,6 +7,7 @@
 #include "KVDetector.h"
 #include "KVSeqCollection.h"
 #include "TGeoMatrix.h"
+#include "KVVAMOSTransferMatrix.h"
 
 class KVACQParam;
 class KVVAMOSDetector;
@@ -34,8 +35,9 @@ class KVVAMOS : public KVDetector //public KVBase
 		KVList *fVACQParams;   //References to data acquisition parameter belonging to VAMOS
 		KVList *fVCalibrators; //References to calibrator belonging to VAMOS
 		TGeoVolume *fFPvolume; //!TGeoVolume centered on the focal plane
-		Double_t fFocalPos;    //!Position of the focal plan from target center (in cm)
-		TGeoHMatrix fFocalToTarget; //!focal-plan to target position transformation matrix
+		Double_t fFocalPos;    //!Position of the focal plane from target center (in cm)
+		TGeoHMatrix fFocalToTarget; //!focal-plane to target position transformation matrix
+		KVVAMOSTransferMatrix *fTransMatrix; //!Transfer matrix for the reconstruction LAB<-->FP
 
    		virtual void   BuildFocalPlaneGeometry(TEnv *infos);
    		virtual Bool_t BuildGeoVolume(TEnv *infos);
@@ -63,9 +65,11 @@ class KVVAMOS : public KVDetector //public KVBase
    		virtual void Clear(Option_t *opt = "" );
    		void Copy (TObject&) const;
    		virtual KVList *GetFiredDetectors(Option_t *opt="Pany");
+		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void Initialize();
    		static KVVAMOS *MakeVAMOS(const Char_t* name);
    		virtual void SetParameters(UShort_t run);
+		void SetTransferMatrix( KVVAMOSTransferMatrix *mat );
 
 
    		void FocalToTarget(const Double_t *focal, Double_t *target);

@@ -393,7 +393,7 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 
 void KVIVDB::ReadVamosCalibrations(){
 	// All the calibration files of VAMOS have the same structure.
-	// This method lookfor the global file where the list of calibration
+	// This method look for the global file where the list of calibration
 	// files are written.
 	// This global file is given in the  environment variable
 	// 'VamosCalibFile' (see OpenCalibFile(...)).

@@ -53,13 +53,15 @@ void KVVAMOS::init()
 	fDetectors = new KVList;
 	fDetectors->SetCleanup(kTRUE);
 
-	fFiredDets    = NULL;
-	fVACQParams   = NULL;
-	fVCalibrators = NULL;
-	fFPvolume     = NULL;
-	fFocalPos     = 0; 
-	fAngle        = -1;
-	fBrhoRef      = -1;
+	fFiredDets     = NULL;
+	fVACQParams    = NULL;
+	fVCalibrators  = NULL;
+	fFPvolume      = NULL;
+	fFocalToTarget = NULL;
+	fTransMatrix   = NULL;
+	fFocalPos      = 0; 
+	fAngle         = -1;
+	fBrhoRef       = -1;
 
 	Info("init","To be implemented");
 }
@@ -95,13 +97,14 @@ KVVAMOS::~KVVAMOS(){
 	fVACQParams = NULL;
 	SafeDelete( fVCalibrators );
 	SafeDelete( fFiredDets    );
+	SafeDelete( fTransMatrix  );
 
 	if(gVamos == this) gVamos = NULL;
 }
 //________________________________________________________________
 
 void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
-	// Construction of the detector geometry at the focal plan of VAMOS for the.
+	// Construction of the detector geometry at the focal plane of VAMOS for the.
 		if( !fFPvolume ) fFPvolume = gGeoManager->MakeVolumeAssembly("FocalPlanVAMOS");
 
 		fDetectors->R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
@@ -110,7 +113,7 @@ void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
 
 Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	// Build all the other volumes wich are not associated to the focal
-	// plan detectors. Informations for the construction are read in
+	// plane detectors. Informations for the construction are read in
 	// the TEnv object 'infos' ( see BuildVAMOSGeometry() ).
 	//
 	// Example of volumes built here:
@@ -155,7 +158,7 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 		top->AddNode( vol, 1, matrix);
 	}
 
-	// place the focal plan from target
+	// place the focal plane from target
    	fFocalPos =  infos->GetValue("VAMOS.FOCALPOS", 0.);
 	matrix    = new TGeoTranslation("focal_pos", 0., 0., fFocalPos/10+dis ); // TO BE CHANGED
    	vamos->AddNode( fFPvolume, 1, matrix );
@@ -174,7 +177,7 @@ void KVVAMOS::BuildVAMOSGeometry(){
 	//
 	// This method will create an instance of TGeoManager (any previous existing geometry gGeoManager
     // will be automatically deleted) and initialise it with the full geometry of VAMOS
-    //Every detector at the focal plan will be represented in the resulting geometry.
+    //Every detector at the focal plane will be represented in the resulting geometry.
     //
     // For information on using the ROOT geometry package, see TGeoManager and related classes,
     // as well as the chapter "The Geometry Package" in the ROOT Users' Guide.
@@ -215,7 +218,7 @@ void KVVAMOS::BuildVAMOSGeometry(){
 
 void KVVAMOS::InitGeometry(){
 	// Initialize the geometry of VAMOS and of the detectors  
-	// placed at the focal plan.
+	// placed at the focal plane.
 
    	TGeoNode   *node = NULL;
    	TGeoVolume *vol  = NULL;
@@ -235,7 +238,7 @@ void KVVAMOS::InitGeometry(){
 	   	if( vol ) vol->SetUniqueID( gGeoManager->GetCurrentNodeId() );
    	}
 
-	// Focal-plan to target matrix
+	// Focal-plane to target matrix
 	gGeoManager->CdNode( fFPvolume->GetUniqueID() );
 	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
 	fFocalToTarget.SetName("focal_to_target");
@@ -271,6 +274,29 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 }
 //________________________________________________________________
 
+KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
+	//Returns the transformation matrix allowing to map the measured
+	//coordinates at the focal plane back to the target. If no matrix
+	//exists then a new matrix is built from coefficient files found
+	//in the directory of the current dataset ( see the method
+	//KVVAMOSTransferMatrix::ReadCoefInDataSet() ).
+	
+	if( fTransMatrix ) return fTransMatrix;
+	return (fTransMatrix = new KVVAMOSTransferMatrix( kTRUE ));
+}
+//________________________________________________________________
+
+void KVVAMOS::SetTransferMatrix( KVVAMOSTransferMatrix *mat ){
+	//Set the transformation matrix allowing to map the measured
+	//coordinates at the focal plane back to the target. If a matrix
+	//already exists then it is deleted first to set the new one.
+
+	if( !mat ) return;
+	if( fTransMatrix ) SafeDelete( fTransMatrix );
+	fTransMatrix = mat;
+}
+//________________________________________________________________
+
 void KVVAMOS::Initialize(){
 	// Initialize data members of the VAMOS detectors and of VAMOS 
 	// itself. This method has to be called each time you look at a
@@ -281,7 +307,7 @@ void KVVAMOS::Initialize(){
 
 void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 	// Add an acquisition parameter corresponding to a detector
-	// at the focal plan of the spectrometer. The fACQParams and fVACQParams
+	// at the focal plane of the spectrometer. The fACQParams and fVACQParams
 	// lists are added to the list of cleanups (gROOT->GetListOfCleanups).
 	// Each acqisition parameter has its kMustCleanup bit set.
 	// Thus, if this acq. parameter is deleted, it is automatically
@@ -321,7 +347,7 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
 	//the calibrator is associated to an ACQ Parameter belonging to VAMOS
 	//( for example all the calibrators of times of flight).
 	//owner = false means the calibrator is associate to an ACQ parameter
-	//belonging to a detector at the focal plan (Energies, charges, ...). 
+	//belonging to a detector at the focal plane (Energies, charges, ...). 
    //If the calibrator object has the same class and type
    //as an existing object in the list (see KVCalibrator::IsEqual),
    //it will not be added to the list
@@ -502,7 +528,7 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
 
 void KVVAMOS::SetACQParams(){
 	// Set up acquisition parameters in all detectors at the focal
-	// plan + any acquisition parameters which are not directly associated
+	// plane + any acquisition parameters which are not directly associated
 	// to a detector and we associate to the spectrometer.
 
 	if(fACQParams)  fACQParams->Clear();
@@ -646,25 +672,25 @@ void KVVAMOS::SetParameters(UShort_t run){
 //________________________________________________________________
 
 void KVVAMOS::FocalToTarget(const Double_t *focal, Double_t *target){
-	// Convert the point coordinates from focal plan reference to target reference system.
+	// Convert the point coordinates from focal plane reference to target reference system.
 	fFocalToTarget.LocalToMaster( focal, target );
 }
 //________________________________________________________________
 
 void    KVVAMOS::TargetToFocal(const Double_t *target, Double_t *focal){
-	// Convert the point coordinates from  target reference to focal plan reference system.
+	// Convert the point coordinates from  target reference to focal plane reference system.
 	fFocalToTarget.MasterToLocal( target, focal );
 }
 //________________________________________________________________
 
 void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
-	// Convert the vector coordinates from focal plan reference to target reference system.
+	// Convert the vector coordinates from focal plane reference to target reference system.
 	fFocalToTarget.LocalToMasterVect( focal, target );
 }
 //________________________________________________________________
 
 void KVVAMOS::TargetToFocalVect(const Double_t *target, Double_t *focal){
-	// Convert the vector coordinates from  target reference to focal plan reference system.
+	// Convert the vector coordinates from  target reference to focal plane reference system.
 	fFocalToTarget.MasterToLocalVect( target, focal );
 }
 //________________________________________________________________

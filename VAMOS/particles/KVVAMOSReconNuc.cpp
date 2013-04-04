@@ -3,6 +3,7 @@
 
 #include "KVVAMOSReconNuc.h"
 #include "KVVAMOSDetector.h"
+#include "KVVAMOSTransferMatrix.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -95,7 +96,7 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
+void KVVAMOSReconNuc::ReconstructFocalPlanTrajectory(KVList *detlist){
 
 	TIter next_det( detlist );
 	KVVAMOSDetector *d = NULL;
@@ -120,7 +121,7 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 	fRT.dirFP.SetXYZ(0, 0, 1);
 
 	const Char_t *FPdetName = NULL;
-	// Loop over detector name to be used for the Focal plan Position
+	// Loop over detector name to be used for the Focal plane Position
 	// reconstruction
 	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
 
@@ -154,7 +155,7 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 
 
 			if( Ncomp == 2 ){
-				//Case where the Focal plan Position is reconstructed from 2 complete position measurment.
+				//Case where the Focal plane Position is reconstructed from 2 complete position measurment.
 
 				fRT.dirFP.SetX( (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]) );
 				fRT.dirFP.SetY( (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]) );
@@ -162,7 +163,7 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 				break;
 			}
 			else if( (Ncomp == 1) && !IncDetBitmask ){
-				//Case where the Focal plan Position is reconstructed from 1 complete position measurment and 2 incomplete position measurment.
+				//Case where the Focal plane Position is reconstructed from 1 complete position measurment and 2 incomplete position measurment.
 
 				fRT.dirFP.SetX( (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]) );
 				fRT.dirFP.SetY( (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]) );
@@ -183,14 +184,19 @@ void KVVAMOSReconNuc::ConstructFocalPlanTrajectory(KVList *detlist){
 	// Yf = Yc1      - Zc1*tan( Phif   )
 	fRT.pointFP[1] = XYZf[0][1] - XYZf[0][2]*fRT.dirFP.Y()/fRT.dirFP.Z();
 
+	fRT.SetFPparamsReady();
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ConstructLabTrajectory(){
+void KVVAMOSReconNuc::ReconstructLabTrajectory(){
+	// Reconstruction of the trajectory at the target point, in the reference
+	// frame of the laboratory, from the trajectory at the focal plane.
+	// The method ReconstructFocalPlanTrajectory(KVList *detlist) has to be 
+	// call first.
 
-
-	// No trajectory reconstruction in the lab if the reconstruction
-	// in the focal plan is not OK
+	// No trajectory reconstruction in the laboratyr if the reconstruction
+	// in the focal plane is not OK.
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
-//	Warning("ConstructLabTrajectory","TO BE IMPLEMENTED");
+	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();
+	tm->ReconstructFPtoLab( &fRT );
 }

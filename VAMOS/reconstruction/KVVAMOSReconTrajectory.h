@@ -25,9 +25,9 @@ class KVVAMOSReconTrajectory : public KVBase
 
 
 	   Float_t pointFP[2];//point of intersection (Xf, Yf in cm) of the trajectory and the focal plane in its reference frame
-	   TVector3 dirFP;  //trajectory normalized direction in the focal plane reference frame 
+	   TVector3 dirFP;    //trajectory normalized direction in the focal plane reference frame 
 
-	   TVector3 dirLab; //trajectory normalized direction at the target point in the laboratory
+	   TVector3 dirLab;   //trajectory normalized direction at the target point in the laboratory
 	   Float_t Brho;      //magnetic rigidity in the laboratory (T.m)
 	   Float_t path;      //path of the nucleus, from the target to the focal plane (cm)
 
@@ -113,7 +113,7 @@ class KVVAMOSReconTrajectory : public KVBase
 
    inline Float_t GetPath() const{
 	   //Retruns the path of the particle between the target point to the
-	   //focal plan in cm
+	   //focal plane in cm
 	   return path;
    }
 

@@ -12,7 +12,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 {
 	private:
 
-		KVVAMOSCodes fCodes; //Focal plan Pos. recon., calib. and ident. codes
+		KVVAMOSCodes fCodes; //Focal plane Pos. recon., calib. and ident. codes
 
 	protected:
 
@@ -28,8 +28,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		virtual void Calibrate();
 		virtual void Clear(Option_t * t = "");
-		virtual void ConstructFocalPlanTrajectory(KVList *detlist);
-		virtual void ConstructLabTrajectory();
+		virtual void ReconstructFocalPlanTrajectory(KVList *detlist);
+		virtual void ReconstructLabTrajectory();
 
 		//-------------- inline methods -----------------//
 

@@ -1019,3 +1019,5 @@ KVVAMOS.ACQParameterList: TSED1_HF TSED2_HF TSED1_SED2 TSED1_INDRA TSED1_MCP TSI
 #-------------- List of Detectors used in the reconstruction of the nucleus focal plan position (Xf,Yf) in VAMOS
 KVVAMOSCodes.FocalPlanReconDetList: SED1 SED2 SI
 
+#file with list of files containing the coefficients of the functions used for the trajectory reconstruction in VAMOS
+KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
