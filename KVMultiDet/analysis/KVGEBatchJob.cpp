@@ -18,6 +18,7 @@ ClassImp(KVGEBatchJob)
 KVGEBatchJob::KVGEBatchJob()
 {
    // Default constructor
+   cpu_scaling_factor=9.2;
 }
 
 KVGEBatchJob::~KVGEBatchJob()

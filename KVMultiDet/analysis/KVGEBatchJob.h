@@ -9,6 +9,7 @@
 class KVGEBatchJob : public KVBatchJob
 {
    TString resources;
+   Double_t cpu_scaling_factor;
 
    public:
    KVGEBatchJob();
@@ -17,7 +18,8 @@ class KVGEBatchJob : public KVBatchJob
    void DeleteJob();
    void SetResources(TString r) { resources=r; }
    const Char_t* GetResources() const { return resources; }
-   virtual Int_t GetCPUusage() const { return cpu_used; }
+   virtual Int_t GetCPUusage() const { return cpu_used/cpu_scaling_factor ; }
+   void SetCPUscalingFactor(Double_t x) { cpu_scaling_factor = x; }
    
    ClassDef(KVGEBatchJob,1)//Job handled by Grid Engine batch system
 };
