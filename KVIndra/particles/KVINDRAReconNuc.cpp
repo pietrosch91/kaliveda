@@ -950,21 +950,18 @@ void KVINDRAReconNuc::Streamer(TBuffer &R__b)
 {
    // Stream an object of class KVINDRAReconNuc.
    // 
-   // Sets flag for correcting calibrations in data written with
-   // versions prior to 1.8.10
+   // Sets flag for correcting calibrations in 5th campaign data written with
+   // versions prior to 1.8.10 (see KVSelector)
+   // We correct only Z>10 on rings 1-9
 
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
       fCorrectCalib=kFALSE;
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
       R__b.ReadClassBuffer(KVINDRAReconNuc::Class(),this,R__v,R__s,R__c);
-      if(R__v<11){
-         if( IsIdentified() && IsCalibrated() && GetZ() && GetA() ) {
+      if(CalibNeedCorrection && R__v<11){
+         if( IsIdentified() && IsCalibrated() && GetZ()>10 && GetRingNumber()<10 ) {
             fCorrectCalib=kTRUE;
-            if(!CalibNeedCorrection){
-               Info("Streamer", "RECALIBRATING ALL PARTICLES : DATA WRITTEN WITH KALIVEDA <v1.8.10");
-               CalibNeedCorrection=kTRUE;
-            }
          }
       }
    } else {
@@ -982,13 +979,14 @@ void KVINDRAReconNuc::Recalibrate()
    // This method is called by KVSelector::Process, so that fragments
    // used in data analysis have correct energies
    
-   if(!fCorrectCalib) return;
-	KVTarget* t = gMultiDetArray->GetTarget();
-	if(t){
-      // make sure target is in correct state to calculate
-      // target energy losses of fragments
-		if(t->IsIncoming()) t->SetIncoming(kFALSE);
-      if(!t->IsOutgoing()) t->SetOutgoing(kTRUE);
-	}
-   Calibrate();//recalibrate particle
+   if(CalibNeedCorrection && fCorrectCalib){
+	   KVTarget* t = gMultiDetArray->GetTarget();
+	   if(t){
+         // make sure target is in correct state to calculate
+         // target energy losses of fragments
+		   if(t->IsIncoming()) t->SetIncoming(kFALSE);
+         if(!t->IsOutgoing()) t->SetOutgoing(kTRUE);
+	   }
+      Calibrate();//recalibrate particle
+   }
 }

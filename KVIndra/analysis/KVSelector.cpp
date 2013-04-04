@@ -20,6 +20,7 @@ selection, you will not be able to regenerate them."
 #include "TPluginManager.h"
 #include "KVClassFactory.h"
 #include "KVDataAnalyser.h"
+#include "KVDataAnalysisTask.h"
 #include "KVINDRAReconNuc.h"
 
 KVString KVSelector::fBranchName = "INDRAReconEvent";
@@ -276,6 +277,15 @@ Bool_t KVSelector::Notify()
           << endl;
    }
 
+   // Rustine for 5th campaign 'root' data written with version <= 1.8.9
+   // correct particle energies
+   KVINDRAReconNuc::CalibNeedCorrection =
+         (!strcmp(gDataSet->GetName(),"INDRA_camp5")
+         && !strcmp(gDataAnalyser->GetAnalysisTask()->GetPrereq(),"root"));
+   if(KVINDRAReconNuc::CalibNeedCorrection){
+      Info("Notify", "RUSTINE FOR 5th CAMPAIGN ROOT FILE WRITTEN WITH KALIVEDA <v1.8.10");
+      Info("Notify", "Particles with Z>10 and Ring<10 will be recalibrated for analysis");
+   }
 	gDataAnalyser->preInitRun();
    InitRun();                   //user initialisations for run
 	gDataAnalyser->postInitRun();
@@ -355,8 +365,9 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 	// read raw data associated to event
    gDataAnalyser->preAnalysis();
    
+   // Rustine for 5th campaign 'root' data written with version <= 1.8.9
+   // correct particle energies
    if(KVINDRAReconNuc::CalibNeedCorrection){
-      // correct particle energies from before v1.8.10 (rustine)
       KVINDRAReconNuc* nn=0;
       while( (nn = (KVINDRAReconNuc*)GetEvent()->GetNextParticle()) ){
          nn->Recalibrate();
