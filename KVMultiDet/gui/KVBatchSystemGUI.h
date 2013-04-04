@@ -20,7 +20,6 @@ class KVBatchSystemGUI : public KVBase
 
    public:
    KVBatchSystemGUI();
-   KVBatchSystemGUI(const KVBatchSystemGUI& obj);
    virtual ~KVBatchSystemGUI();
 
    void Refresh();

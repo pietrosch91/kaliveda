@@ -420,9 +420,6 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  TGLayoutHints *eXeY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
 				       1,1,1,1);
- TGLayoutHints *eXcY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
-                                       kLHintsExpandX|kLHintsCenterY,
-				       1,1,1,1);
  TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX,
 				       1,1,1,1);
