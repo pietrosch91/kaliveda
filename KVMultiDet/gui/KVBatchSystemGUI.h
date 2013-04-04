@@ -16,6 +16,7 @@ class KVBatchSystemGUI : public KVBase
     TGMainFrame *MainFrame;
     TGPictureButton *BrefreshDir;
     TGPictureButton *BremDir;
+    TGPictureButton *BalterJobs;
     KVListView* fLVJobs;
     TList* selected_jobs;
     TTimer* fTimer;

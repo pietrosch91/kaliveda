@@ -27,6 +27,11 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     BrefreshDir->Resize(40,40);
     BrefreshDir->SetToolTipText("Update");
     BrefreshDir->Connect("Clicked()", "KVBatchSystemGUI", this, "Refresh()");
+    BalterJobs = new TGPictureButton(hf,gClient->GetPicture("bld_edit_s.png"));
+    hf->AddFrame(BalterJobs, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+    BalterJobs->Resize(40,40);
+    BalterJobs->SetToolTipText("Alter job(s) resources");
+    BalterJobs->Connect("Clicked()", "KVBatchSystemGUI", this, "AlterJobs()");
     BremDir = new TGPictureButton(hf,gClient->GetPicture("mb_stop_s.xpm"));
     hf->AddFrame(BremDir, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
     BremDir->Resize(40,40);
@@ -73,6 +78,7 @@ KVBatchSystemGUI::~KVBatchSystemGUI()
 {
     // Destructor
     SafeDelete(selected_jobs);
+    delete fTimer;
 }
 
 void KVBatchSystemGUI::Refresh()

@@ -21,6 +21,7 @@ KVBatchJob::KVBatchJob()
    // Default constructor
     cpu_used=0;
     mem_used="-";
+    cpu_max=0;
 }
 
 

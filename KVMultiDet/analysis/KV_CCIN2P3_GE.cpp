@@ -326,7 +326,7 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
     TIter next_job(list_of_jobs);
     KVGEBatchJob* job;
     while( (job = (KVGEBatchJob*)next_job()) ){
-        if(!strcmp(job->GetStatus(),"r")){
+        //if(!strcmp(job->GetStatus(),"r")){
             reply = gSystem->GetFromPipe(Form("qstat -j %d", job->GetJobID()));
             lines = reply.Tokenize("\n");
             nlines = lines->GetEntries();
@@ -372,7 +372,7 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
                 }
             }
             delete lines;
-        }
+        //}
     }
 
     return list_of_jobs;
