@@ -12,6 +12,9 @@ class KVBatchJob : public KVBase
     KVDatime submitted;
     Int_t cpu_used;
     TString mem_used;
+    Int_t cpu_max;
+    TString mem_max;
+    TString disk_max;
 
    public:
    KVBatchJob();
@@ -23,11 +26,17 @@ class KVBatchJob : public KVBase
    void SetSubmitted(KVDatime&m) { submitted=m; }
    Int_t GetJobID() const { return GetNumber(); }
    void SetJobID(Int_t n) { SetNumber(n); }
-   void SetCPUusage(Int_t c) { cpu_used = c; }
-   Int_t GetCPUusage() const { return cpu_used; }
+   void SetCPUusage(Int_t m) { cpu_used = m; }
+   virtual Int_t GetCPUusage() const { return cpu_used; }
    void SetMemUsed(const Char_t* m) { mem_used = m; }
    const Char_t* GetMemUsed() const { return mem_used; }
-
+   void SetCPUmax(Int_t c) { cpu_max=c; }
+   Int_t GetCPUmax() const { return cpu_max; }
+   void SetMemMax(const Char_t* m) { mem_max = m; }
+   const Char_t* GetMemMax() const { return mem_max; }
+   void SetDiskMax(const Char_t* m) { disk_max = m; }
+   const Char_t* GetDiskMax() const { return disk_max; }
+   
    virtual void DeleteJob() {;}
 
    void ls(Option_t* /*opt*/ = "") const;

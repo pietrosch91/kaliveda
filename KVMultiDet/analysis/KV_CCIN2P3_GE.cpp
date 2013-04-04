@@ -264,34 +264,6 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 	}	
 }
 
-//_______________________________________________________________________________//
-TString KV_CCIN2P3_GE::GE_Request(KVString value,KVString jobname)
-{
-	//Permet d interroger un job vis la commande GE qselect
-	//sur differentes grandeurs (qselect -list -v)
-	/*
-	//Ici les commandes les plus utiles actuellement
-	//
-	bastacputime	//temps ecoule depuis le start
-	cpu_limit	//temps max
-	cpurate		//temps CPU
-	
-	req_scratch             requested scratch size (MB)
-	cur_scratch             current scratch size (MB)
-	max_scratch             max scratch size (MB)
-	
-	req_mem                 requested memory size (MB)
-	cur_mem                 current memory size (MB)
-	max_mem                 max memory size (MB)
-	*/
-	
-	if ( jobname == "" )
-		jobname.Form("%s",GetJobName());
-	KVString inst; inst.Form("qselect -N %s %s",jobname.Data(),value.Data());
-	return gSystem->GetFromPipe(inst.Data());
-	
-}	
-
          
 void KV_CCIN2P3_GE::SanitizeJobName()
 {
@@ -349,9 +321,10 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
     if(!list_of_jobs->GetEntries()) return list_of_jobs;
 
     // for each running job, use qstat -j [jobid] to get cpu and memory used
+    // and also the resource requests
     TIter next_job(list_of_jobs);
-    KVBatchJob* job;
-    while( (job = (KVBatchJob*)next_job()) ){
+    KVGEBatchJob* job;
+    while( (job = (KVGEBatchJob*)next_job()) ){
         if(!strcmp(job->GetStatus(),"r")){
             reply = gSystem->GetFromPipe(Form("qstat -j %d", job->GetJobID()));
             lines = reply.Tokenize("\n");
@@ -360,13 +333,41 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
                 TString thisLine = ((TObjString*)(*lines)[line_number])->String();
                 if(thisLine.BeginsWith("usage")){
                     TObjArray* bits = thisLine.Tokenize("=,");
-                    TString stime = ((TObjString*)(*bits)[1])->String();// h:mm:ss:xx
-                    Int_t h,m,s,x;
-                    sscanf(stime.Data(), "%d:%d:%d:%d", &h,&m,&s,&x);
-                    job->SetCPUusage(h*3600+m*60+s);
+                    TString stime = ((TObjString*)(*bits)[1])->String();// hh:mm:ss
+                    Int_t hh,mm,ss;
+                    sscanf(stime.Data(), "%2d:%2d:%2d", &hh,&mm,&ss);
+                    job->SetCPUusage(hh*3600+mm*60+ss);
                     TString smem = ((TObjString*)(*bits)[7])->String();// xxx.xxxxM
                     job->SetMemUsed(smem);
                     delete bits;
+                }
+                else if(thisLine.BeginsWith("hard resource_list:")){
+                    TObjArray* bits = thisLine.Tokenize(": ");
+                    TString res = ((TObjString*)(*bits)[2])->String();//os=sl5,xrootd=1,irods=1,s_vmem=1024M,s_fsize=50M,s_cpu=36000
+                    res.ReplaceAll("s_vmem","vmem");
+                    res.ReplaceAll("s_fsize","fsize");
+                    res.ReplaceAll("s_cpu","ct");
+                    job->SetResources(res);
+                    TObjArray* bbits = res.Tokenize(",");
+                    TIter next_res(bbits);
+                    TObjString* ss;
+                    while( (ss = (TObjString*)next_res()) ){
+                       TString g = ss->String();
+                       if(g.BeginsWith("ct=")){
+                          g.Remove(0,3);
+                           job->SetCPUmax(g.Atoi());
+                        }
+                        else if(g.BeginsWith("vmem=")){
+                           g.Remove(0,5);
+                           job->SetMemMax(g);
+                        }
+                        else if(g.BeginsWith("fsize=")){
+                           g.Remove(0,6);
+                           job->SetDiskMax(g);
+                        }
+                     }
+                     delete bits;
+                     delete bbits;
                 }
             }
             delete lines;

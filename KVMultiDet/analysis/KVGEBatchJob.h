@@ -8,13 +8,17 @@
 
 class KVGEBatchJob : public KVBatchJob
 {
+   TString resources;
 
    public:
    KVGEBatchJob();
    virtual ~KVGEBatchJob();
 
    void DeleteJob();
-
+   void SetResources(TString r) { resources=r; }
+   const Char_t* GetResources() const { return resources; }
+   virtual Int_t GetCPUusage() const { return cpu_used; }
+   
    ClassDef(KVGEBatchJob,1)//Job handled by Grid Engine batch system
 };
 
