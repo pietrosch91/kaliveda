@@ -16,9 +16,13 @@ ClassImp(KVBatchSystemGUI)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+Bool_t KVBatchSystemGUI::fOpen=kFALSE;
+
 KVBatchSystemGUI::KVBatchSystemGUI()
 {
    // Default constructor
+   fOpen=kTRUE;
+   
     MainFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
     MainFrame->SetName("BatchSystem GUI");
     TGHorizontalFrame *hf = new TGHorizontalFrame(MainFrame,10,10,kHorizontalFrame);
@@ -72,11 +76,15 @@ KVBatchSystemGUI::KVBatchSystemGUI()
 
     MainFrame->Resize(MainFrame->GetDefaultSize());
     MainFrame->MapWindow();
+    
+   MainFrame->Connect("CloseWindow()", "KVBatchSystemGUI", this, "DoClose()");
+   MainFrame->DontCallClose();      // to avoid double deletions.
 }
 
 KVBatchSystemGUI::~KVBatchSystemGUI()
 {
     // Destructor
+   fOpen=kFALSE;
     SafeDelete(selected_jobs);
     delete fTimer;
 }
@@ -108,3 +116,14 @@ void KVBatchSystemGUI::AlterJobs()
     
     Refresh();
 }
+
+void KVBatchSystemGUI::DoClose()
+{
+   TTimer::SingleShot(150, "KVBatchSystemGUI", this, "CloseWindow()");
+}
+
+void KVBatchSystemGUI::CloseWindow()
+{
+   delete this;
+}
+

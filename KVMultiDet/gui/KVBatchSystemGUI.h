@@ -20,10 +20,16 @@ class KVBatchSystemGUI : public KVBase
     KVListView* fLVJobs;
     TList* selected_jobs;
     TTimer* fTimer;
+    
+    static Bool_t fOpen;//kTRUE if GUI is already open
 
    public:
    KVBatchSystemGUI();
    virtual ~KVBatchSystemGUI();
+   void DoClose();
+   void CloseWindow();
+   
+   static Bool_t IsOpen() { return fOpen; }
 
    void Refresh();
    void KillJobs();
