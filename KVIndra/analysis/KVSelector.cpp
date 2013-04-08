@@ -22,6 +22,7 @@ selection, you will not be able to regenerate them."
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
 #include "KVINDRAReconNuc.h"
+#include "KVINDRAReconDataAnalyser.h"
 
 KVString KVSelector::fBranchName = "INDRAReconEvent";
    
@@ -357,6 +358,15 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
          cout <<"     ------------- Process infos -------------" << endl;
          printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
             pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+         // write in TEnv file in $HOME with name of batch job
+         // the number of events to read, number of events read, and disk used
+         if(gBatchSystem){
+            TEnv stats(gBatchSystem->GetJobName());
+            stats.SetValue("TotalEvents", (Int_t)((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetTotalEntriesToRead());
+            stats.SetValue("EventsRead", totentry);
+            stats.SetValue("DiskUsed", disk.Data());
+            stats.SaveLevel(kEnvUser);
+         }
       }
    }   
    

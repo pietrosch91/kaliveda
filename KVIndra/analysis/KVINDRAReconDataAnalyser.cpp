@@ -45,6 +45,7 @@ void KVINDRAReconDataAnalyser::Reset()
    ParVal=0;
    ParNum=0;
 	fSelector=0;
+   TotalEntriesToRead=0;
 }
 
 KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
@@ -118,7 +119,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
          }
       }
    }
-   
+   TotalEntriesToRead = theChain->GetEntries();
    TString option("");
    if (fDataSelector.Length()) {
       option.Form("DataSelector=%s", fDataSelector.Data());
