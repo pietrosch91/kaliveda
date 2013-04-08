@@ -87,6 +87,7 @@ KVBatchSystemGUI::~KVBatchSystemGUI()
    fOpen=kFALSE;
     SafeDelete(selected_jobs);
     delete fTimer;
+    delete MainFrame;
 }
 
 void KVBatchSystemGUI::Refresh()
