@@ -20,7 +20,7 @@ class KVINDRARawDataAnalyser : public KVRawDataAnalyser
    
    virtual KVNumberList PrintAvailableRuns(KVString & datatype);
       
-   public:
+ public:
 
    KVINDRARawDataAnalyser();
    virtual ~KVINDRARawDataAnalyser();
@@ -35,6 +35,8 @@ class KVINDRARawDataAnalyser : public KVRawDataAnalyser
    };
    
    static void Make(const Char_t * kvsname = "MyOwnINDRARawDataAnalyser");   
+   
+   virtual void CalculateTotalEventsToRead();
    
    ClassDef(KVINDRARawDataAnalyser,2)//Analysis of raw INDRA data
 };

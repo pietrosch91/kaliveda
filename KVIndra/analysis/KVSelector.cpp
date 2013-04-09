@@ -358,12 +358,15 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
          cout <<"     ------------- Process infos -------------" << endl;
          printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
             pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
-         // write in TEnv file in $HOME with name of batch job
+         // write in TEnv file in $HOME with name [jobname].status
          // the number of events to read, number of events read, and disk used
          if(gBatchSystem){
-            TEnv stats(gBatchSystem->GetJobName());
+            TEnv stats(Form("%s.status", gBatchSystem->GetJobName()));
             stats.SetValue("TotalEvents", (Int_t)((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetTotalEntriesToRead());
             stats.SetValue("EventsRead", totentry);
+            disk.Remove(TString::kTrailing, '\t');
+            disk.Remove(TString::kTrailing, ' ');
+            disk.Remove(TString::kTrailing, '\t');
             stats.SetValue("DiskUsed", disk.Data());
             stats.SaveLevel(kEnvUser);
          }

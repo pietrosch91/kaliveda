@@ -16,6 +16,9 @@ class KVBatchJob : public KVBase
     Int_t cpu_max;
     TString mem_max;
     TString disk_max;
+    TString disk_used;
+    Int_t events_total;
+    Int_t events_read;
 
    public:
    KVBatchJob();
@@ -37,8 +40,18 @@ class KVBatchJob : public KVBase
    const Char_t* GetMemMax() const { return mem_max; }
    void SetDiskMax(const Char_t* m) { disk_max = m; }
    const Char_t* GetDiskMax() const { return disk_max; }
-   
+   void SetDiskUsed(const Char_t* m) { disk_used = m; }
+   const Char_t* GetDiskUsed() const { return disk_used; }
+   void SetEventsTotal(Int_t c) { events_total=c; }
+   Int_t GetEventsTotal() const { return events_total; }
+   void SetEventsRead(Int_t c) { events_read=c; }
+   Int_t GetEventsRead() const { return events_read; }
+   Int_t GetPercentageComplete() const 
+   {
+      return (events_total ? Int_t(100*(1.*events_read)/(1.*events_total)) : 0);
+   }
    virtual void DeleteJob() {;}
+   virtual void UpdateDiskUsedEventsRead(); 
 
    void ls(Option_t* /*opt*/ = "") const;
 

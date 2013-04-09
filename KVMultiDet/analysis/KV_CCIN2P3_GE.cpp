@@ -321,12 +321,15 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
 
     if(!list_of_jobs->GetEntries()) return list_of_jobs;
 
-    // for each running job, use qstat -j [jobid] to get cpu and memory used
-    // and also the resource requests
+    // use qstat -j [jobid] to get cpu and memory used and also the resource requests
     TIter next_job(list_of_jobs);
     KVGEBatchJob* job;
     while( (job = (KVGEBatchJob*)next_job()) ){
-        //if(!strcmp(job->GetStatus(),"r")){
+       
+            // for running jobs, read in from [jobname].status file
+            // the number of events read/to read, disk used
+            if(!strcmp(job->GetStatus(),"r")) job->UpdateDiskUsedEventsRead();
+            
             reply = gSystem->GetFromPipe(Form("qstat -j %d", job->GetJobID()));
             lines = reply.Tokenize("\n");
             nlines = lines->GetEntries();

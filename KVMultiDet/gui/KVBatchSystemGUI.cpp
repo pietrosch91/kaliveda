@@ -3,6 +3,8 @@
 
 #include "KVBatchSystemGUI.h"
 #include <KVBatchJob.h>
+#include <KVDatime.h>
+#include <TEnv.h>
 #include <KVBatchSystemManager.h>
 
 ClassImp(KVBatchSystemGUI)
@@ -14,6 +16,27 @@ ClassImp(KVBatchSystemGUI)
 <h4>GUI for batch system jobs</h4>
 <!-- */
 // --> END_HTML
+//Graphical interface for monitoring, altering, and deleting batch jobs.
+//To run:
+//
+//  root[0]  new KVBatchSystemGUI
+//
+//It will automatically connect to the default batch system and display
+//all of the user's queued or running jobs along with information
+//on resource requests and consumption.
+//The buttons at the top of the GUI can be used to (manually) refresh
+//the informations (see Automatic refresh, below), alter the properties
+//of selected (queued) job(s), or delete selected (queued or running) job(s).
+//
+//Automatic refresh
+//The GUI automatically refreshes every N seconds, as defined by the
+//following environment variables (.kvrootrc):
+//
+//   KVBatchSystemGUI.AutoUpdate:       yes
+//   KVBatchSystemGUI.RefreshInterval:    30
+//
+//Change these variables in your .kvrootrc if you want to modify or
+//disable automatic refreshing.
 ////////////////////////////////////////////////////////////////////////////////
 
 Bool_t KVBatchSystemGUI::fOpen=kFALSE;
@@ -42,18 +65,20 @@ KVBatchSystemGUI::KVBatchSystemGUI()
     BremDir->SetToolTipText("Kill job(s)");
     BremDir->Connect("Clicked()", "KVBatchSystemGUI", this, "KillJobs()");
     MainFrame->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsExpandX,2,2,2,2));
-    fLVJobs = new KVListView(KVBatchJob::Class(), MainFrame, 550, 200);
-    fLVJobs->SetDataColumns(9);
+    fLVJobs = new KVListView(KVBatchJob::Class(), MainFrame, 900, 400);
+    fLVJobs->SetDataColumns(11);
     fLVJobs->SetDataColumn(0, "JobID");
     fLVJobs->SetDataColumn(1, "Name");
     fLVJobs->SetDataColumn(2, "Status");
     fLVJobs->SetDataColumn(3, "Submitted");
     fLVJobs->GetDataColumn(3)->SetIsDateTime(KVDatime::kSQL);
-    fLVJobs->SetDataColumn(4, "CPUusage");
-    fLVJobs->SetDataColumn(5, "CPUmax");
-    fLVJobs->SetDataColumn(6, "MemUsed");
-    fLVJobs->SetDataColumn(7, "MemMax");
-    fLVJobs->SetDataColumn(8, "DiskMax");
+    fLVJobs->SetDataColumn(4, "Complete [%]", "GetPercentageComplete");
+    fLVJobs->SetDataColumn(5, "CPUusage");
+    fLVJobs->SetDataColumn(6, "CPUmax");
+    fLVJobs->SetDataColumn(7, "MemUsed");
+    fLVJobs->SetDataColumn(8, "MemMax");
+    fLVJobs->SetDataColumn(9, "DiskUsed");
+    fLVJobs->SetDataColumn(10, "DiskMax");
     fLVJobs->ActivateSortButtons();
 
     if(!gBatchSystemManager) new KVBatchSystemManager;
@@ -63,10 +88,13 @@ KVBatchSystemGUI::KVBatchSystemGUI()
 
     Refresh();
     
-    // automatic update every 60 second
-    fTimer = new TTimer;
-	 fTimer->Connect("Timeout()", "KVBatchSystemGUI", this, "Refresh()");
-	 fTimer->Start(60000);
+    fTimer=0;
+    // automatic update every N second
+    if(gEnv->GetValue("KVBatchSystemGUI.AutoUpdate",kFALSE)){
+      fTimer = new TTimer;
+	   fTimer->Connect("Timeout()", "KVBatchSystemGUI", this, "Refresh()");
+	   fTimer->Start(1000*(gEnv->GetValue("KVBatchSystemGUI.RefreshInterval",30)));
+    }
 
     MainFrame->AddFrame(fLVJobs, new TGLayoutHints(kLHintsTop|kLHintsExpandX|kLHintsExpandY,5,5,10,10));
     MainFrame->SetMWMHints(kMWMDecorAll,
@@ -86,12 +114,16 @@ KVBatchSystemGUI::~KVBatchSystemGUI()
     // Destructor
    fOpen=kFALSE;
     SafeDelete(selected_jobs);
-    delete fTimer;
+    if(fTimer)delete fTimer;
     delete MainFrame;
 }
 
 void KVBatchSystemGUI::Refresh()
 {
+   KVDatime now;
+   Info("Refresh", Form("Updating... [%s]",now.AsSQLString()));
+    if(!gBatchSystemManager) new KVBatchSystemManager;
+    if(!gBatchSystem) gBatchSystemManager->GetDefaultBatchSystem()->cd();
     KVList* jobs = gBatchSystem->GetListOfJobs();
     fLVJobs->Display(jobs);
 }
