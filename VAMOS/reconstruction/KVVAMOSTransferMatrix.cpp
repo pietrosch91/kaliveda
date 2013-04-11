@@ -371,21 +371,22 @@ Bool_t KVVAMOSTransferMatrix::ReconstructFPtoLab( KVVAMOSReconTrajectory *traj){
 	Double_t *xytpf[4];
 		
 	// Xf, Yf, ThetaF and PhiF for the reconstruction of Brho, Theta and Path
-	XYTPf[0] = -1. *traj->pointFP[0]/KVUnits::m;          //Xf in m
-	XYTPf[1] =  0.;                                       //Yf in m
-	XYTPf[2] = -1. * traj->GetThetaF()*TMath::DegToRad(); //ThetaF in rad
-	XYTPf[3] =  0.;                                       //PhiF in rad
+	XYTPf[0] = -1.*traj->pointFP[0]/KVUnits::m;          //Xf in m
+	XYTPf[1] =  0.;                                      //Yf in m
+	XYTPf[2] = -1.*traj->GetThetaF()*TMath::DegToRad();  //ThetaF in rad
+	XYTPf[3] =  0.;                                      //PhiF in rad
 	xytpf[kBrho] = xytpf[kTheta] = xytpf[kPath] = XYTPf;
+
 
 	// Xf, Yf, ThetaF and PhiF for the reconstruction of Phi
 	XYTPf_phi[0] = XYTPf[0];                              //Xf in m
-	XYTPf_phi[1] = -1. *traj->pointFP[1]/KVUnits::m;      //Yf in m
+	XYTPf_phi[1] = -1.*traj->pointFP[1]/KVUnits::m;       //Yf in m
 	XYTPf_phi[2] = XYTPf[2];                              //ThetaF in rad
-	XYTPf_phi[3] = -1. * TMath::ATan( TMath::Tan( traj->GetPhiF()*TMath::DegToRad() )*TMath::Cos( XYTPf_phi[2] ));//PhiF in rad
+	XYTPf_phi[3] = -1.*traj->GetPhiF()*TMath::DegToRad(); //PhiF in rad
 	xytpf[kPhi]  = XYTPf_phi;
 
 
-	Double_t res[4];
+	Double_t res[4] = {0, 0, 0, 0};
 	UShort_t i,j,k,l;
 	for(UChar_t p=0; p<4; p++){//loop over parameters (Brho, theta, phi, path)
 
@@ -394,13 +395,14 @@ Bool_t KVVAMOSTransferMatrix::ReconstructFPtoLab( KVVAMOSReconTrajectory *traj){
 
 			Decode_ijkl( f_ijkl[p][c], i, j, k, l);
 
-			res[p] = fCoef[p][c]                //Cijkl
- 			   *TMath::Power( xytpf[p][0] , i ) //Xf^i
- 			   *TMath::Power( xytpf[p][1] , j ) //Yf^j
- 			   *TMath::Power( xytpf[p][2] , k ) //ThetaF^k
- 			   *TMath::Power( xytpf[p][3] , l );//PhiF^l
+			res[p] += fCoef[p][c]                //Cijkl
+ 			   	*TMath::Power( xytpf[p][0] , i ) //Xf^i
+ 			   	*TMath::Power( xytpf[p][1] , j ) //Yf^j
+ 			   	*TMath::Power( xytpf[p][2] , k ) //ThetaF^k
+ 			   	*TMath::Power( xytpf[p][3] , l );//PhiF^l
 		}
 	}
+
 					
 	traj->path = res[kPath];                        //in cm
 	traj->Brho = res[kBrho] * gVamos->GetBrhoRef(); //in Tm

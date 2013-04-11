@@ -33,6 +33,14 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		//-------------- inline methods -----------------//
 
+		inline Float_t GetBrho() const{
+			return fRT.Brho;
+		}
+
+		inline Float_t GetPath() const{
+			return fRT.path;
+		}
+
 		inline KVVAMOSCodes &GetCodes(){
 			return fCodes;
 		}

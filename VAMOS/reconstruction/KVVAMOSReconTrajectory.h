@@ -61,8 +61,7 @@ class KVVAMOSReconTrajectory : public KVBase
 	   //and its projection on the XZ plane (symmetry plane) in the focal plane
 	   //reference frame.
 
-	   return TMath::RadToDeg()*TMath::ASin( dirFP.X()/dirFP.Mag() ); 
-	   //return TMath::RadToDeg( TMath::ATan( dirFP.Y()/dirFP.Z() )); 
+	   return TMath::RadToDeg()*TMath::ASin( dirFP.Y()/dirFP.Mag() ); 
    }
 
 
@@ -82,8 +81,7 @@ class KVVAMOSReconTrajectory : public KVBase
 	   //velocity vector of the trajectory and its projection on the XZ plane
 	   //(symmetry plane) in the laboratory reference frame.
 
-	   return TMath::RadToDeg()*TMath::ASin( dirLab.X()/dirLab.Mag() ); 
-	   //return TMath::RadToDeg( TMath::ATan( dirLab.Y()/dirLab.Z() )); 
+	   return TMath::RadToDeg()*TMath::ASin( dirLab.Y()/dirLab.Mag() ); 
    }
 
 

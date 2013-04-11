@@ -10,6 +10,7 @@ ClassImp(KVVAMOSReconTrajectory)
 /* -->
 <h2>KVVAMOSReconTrajectory</h2>
 <h4>Handle data used to reconstruct the trajectory of a nucleus in VAMOS</h4>
+<img src="images/kvvamosrecontrajectory_refframes.png"><br>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
