@@ -45,6 +45,7 @@ KVBatchSystemGUI::KVBatchSystemGUI()
 {
    // Default constructor
    fOpen=kTRUE;
+   jobs=0;
    
     MainFrame = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
     MainFrame->SetName("BatchSystem GUI");
@@ -116,6 +117,7 @@ KVBatchSystemGUI::~KVBatchSystemGUI()
     SafeDelete(selected_jobs);
     if(fTimer)delete fTimer;
     delete MainFrame;
+    SafeDelete(jobs);
 }
 
 void KVBatchSystemGUI::Refresh()
@@ -124,8 +126,10 @@ void KVBatchSystemGUI::Refresh()
    Info("Refresh", Form("Updating... [%s]",now.AsSQLString()));
     if(!gBatchSystemManager) new KVBatchSystemManager;
     if(!gBatchSystem) gBatchSystemManager->GetDefaultBatchSystem()->cd();
-    KVList* jobs = gBatchSystem->GetListOfJobs();
-    fLVJobs->Display(jobs);
+    KVList* newjobs = gBatchSystem->GetListOfJobs();
+    fLVJobs->Display(newjobs);
+    SafeDelete(jobs);
+    jobs=newjobs;
 }
 
 void KVBatchSystemGUI::KillJobs()

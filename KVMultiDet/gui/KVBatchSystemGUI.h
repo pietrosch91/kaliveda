@@ -20,7 +20,7 @@ class KVBatchSystemGUI : public KVBase
     KVListView* fLVJobs;
     TList* selected_jobs;
     TTimer* fTimer;
-    
+    KVList* jobs;
     static Bool_t fOpen;//kTRUE if GUI is already open
 
    public:
