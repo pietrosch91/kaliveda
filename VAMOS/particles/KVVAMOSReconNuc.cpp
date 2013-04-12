@@ -26,10 +26,6 @@ KVVAMOSReconNuc::KVVAMOSReconNuc() : fCodes()
 KVVAMOSReconNuc::KVVAMOSReconNuc (const KVVAMOSReconNuc& obj)  : KVReconstructedNucleus(), fCodes()
 {
    // Copy constructor
-   // This ctor is used to make a copy of an existing object (for example
-   // when a method returns an object), and it is always a good idea to
-   // implement it.
-   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
 
    obj.Copy(*this);
 }
@@ -194,7 +190,7 @@ void KVVAMOSReconNuc::ReconstructLabTrajectory(){
 	// The method ReconstructFocalPlanTrajectory(KVList *detlist) has to be 
 	// call first.
 
-	// No trajectory reconstruction in the laboratyr if the reconstruction
+	// No trajectory reconstruction in the laboratory if the reconstruction
 	// in the focal plane is not OK.
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();

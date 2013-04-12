@@ -43,12 +43,12 @@ BEGIN_HTML
 (called INDRA coord. syst. in <a href="#FIG1">Fig1.</a>) has the target position for its 
 center. The beam direction defines the positive (+ve) Z-axis, with respect to which
 polar angles are measured. The +ve X-axis is taken to be vertical, and 
-azimuthal angles increase when going clockwise from the +ve X-axis, looking 
+azimuth angles increase when going clockwise from the +ve X-axis, looking 
 towards the +ve z direction. The angles in the INDRA spherical coord. syst. are named:
 END_HTML
 Begin_Latex( fontsize=20 )
 #theta     (polar angle)
-#phi     (azimuthal angle)
+#phi     (azimuth angle)
 End_Latex
 BEGIN_HTML
 theta varies between 0 and 180 degrees while phi varies between 0 and 359.999... degrees.
@@ -57,15 +57,15 @@ theta varies between 0 and 180 degrees while phi varies between 0 and 359.999...
 coord. syst. (calle VAMOS coord. syst. in <a href="#FIG1">Fig1.</a>) is  
 also centered at the target point but the +ve X-axis is taken to be horizontal 
 and the +ve Y-axis is taken to be vertical. The +ve Z-axis, polar angles and
-azimuthal angles are defined as previously. The angles in the VAMOS spherical coord. system are
+azimuth angles are defined as previously. The angles in the VAMOS spherical coord. system are
 named:
 END_HTML
 Begin_Latex( fontsize=20 )
 #theta_{l}     (polar angle)
-#phi_{l}     (azimuthal angle)
+#phi_{l}     (azimuth angle)
 End_Latex
 BEGIN_HTML
-Both angles vary between -90 to +90 degrees and are accessible by
+the polar angle varies between 0 to 180 degrees and the azimuth angle between -179.999... to 180 degrees. They are accessible by
 calling the methods <a href="#KVVAMOSReconTrajectory:GetThetaL">GetThetaL</a>
 and <a href="#KVVAMOSReconTrajectory:GetPhiL">GetPhiL</a>
 
@@ -101,7 +101,7 @@ BEGIN_HTML
  The origin of the direct coord. syst. is the center of the focal plane, 
  the +ve X-axis is taken to be horizontal and the +ve Y-axis is taken to be 
  vertical as for the VAMOS coord. syst. in the lab-frame. The +ve Z-axis 
- follows the reference trajectory, polar angles and azimuthal angles are defined as previously.
+ follows the reference trajectory, polar angles and azimuth angles are defined as previously.
 
 The relations between the cartesian coordinates of the velocity and the different angles used in the FP-frame of reference are:
 END_HTML 

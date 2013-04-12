@@ -14,7 +14,6 @@ class KVVAMOSReconTrajectory : public KVBase
 	friend class KVVAMOSTransferMatrix;
 
 	protected:
-
 		enum{
 			kFPisOK  = BIT(14), //flag set when FP parameters are set
 			kLabIsOK = BIT(15), //flag set when Lab parameters (direction end Brho) are set
@@ -86,7 +85,7 @@ class KVVAMOSReconTrajectory : public KVBase
    inline Double_t GetThetaL() const{
 	   //Returns the angle (in degree) between the Z-axis and the the velocity vector of the trajectory 
 	   //(i.e. polar angle in spherical coordinates) in the laboratory frame of reference and in the VAMOS coordinate system.
-	   //It varies between -90 to 90 degrees.
+	   //It varies between 0 to 180 degrees.
 
 	   return TMath::RadToDeg()*dirLab.Theta(); 
 
@@ -94,9 +93,9 @@ class KVVAMOSReconTrajectory : public KVBase
 
    inline Double_t GetPhiL() const{
 	   //Returns the angle (in degree) between the X-axis and the projection of the velocity vector of the trajectory
-	   //on the XY-plane (i.e. azimuthal angle in spherical coordinates) in the laboratory frame of reference
+	   //on the XY-plane (i.e. azimuth angle in spherical coordinates) in the laboratory frame of reference
 	   //and in the VAMOS coordinate system.
-	   //It varies between -90 to 90 degrees.
+	   //It varies between -179.999... to 180 degrees.
 
 	   return TMath::RadToDeg()*dirLab.Phi(); 
    }

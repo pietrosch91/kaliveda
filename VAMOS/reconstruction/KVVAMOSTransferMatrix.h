@@ -65,7 +65,7 @@ class KVVAMOSTransferMatrix : public KVBase
    Bool_t ReconstructFPtoLab( KVVAMOSReconTrajectory *traj);
    Bool_t ReconstructLabToFP( KVVAMOSReconTrajectory *traj);
 
-void SetCoef( EReconParam par, UShort_t i, UShort_t j, UShort_t k, UShort_t l, Double_t coef);
+   void SetCoef( EReconParam par, UShort_t i, UShort_t j, UShort_t k, UShort_t l, Double_t coef);
    Bool_t SetOrder( UChar_t order ); 
 
    //------------- inline methods ------------------------------//
