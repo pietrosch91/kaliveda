@@ -24,10 +24,10 @@ class KVVAMOSReconTrajectory : public KVBase
 		};
 
 
-	   Float_t pointFP[2];//point of intersection (Xf, Yf in cm) of the trajectory and the focal plane in its reference frame
-	   TVector3 dirFP;    //trajectory normalized direction in the focal plane reference frame 
+	   Float_t pointFP[2];//point of intersection (Xf, Yf in cm) of the trajectory and the focal plane in the FP-frame
+	   TVector3 dirFP;    //trajectory normalized direction in the FP-frame 
 
-	   TVector3 dirLab;   //trajectory normalized direction at the target point in the laboratory
+	   TVector3 dirLab;   //trajectory normalized direction at the target point in the lab-frame
 	   Float_t Brho;      //magnetic rigidity in the laboratory (T.m)
 	   Float_t path;      //path of the nucleus, from the target to the focal plane (cm)
 
@@ -46,60 +46,57 @@ class KVVAMOSReconTrajectory : public KVBase
 
 
    inline Double_t GetThetaF() const{
-	   //Returns ThetaF angle (in degree) of the trajectory in the focal plane reference
-	   //frame. This is the angle between the Z-axis and the projection of the 
-	   //velocity vector of the trajectory on the XZ plane (symmetry plane)
-	   //in the focal plane reference frame.
+	   //Returns the angle (in degree) between the Z-axis and the projection of the velocity vector
+	   //of the trajectory on the XZ plane (symmetry plane) in the focal-plane frame of reference.
+	   //It varies between -90 to 90 degrees.
 
 	   return TMath::RadToDeg()*TMath::ATan( dirFP.X()/dirFP.Z() ); 
 
    }
 
    inline Double_t GetPhiF() const{
-	   //Returns PhiF angle (in degree) of the trajectory in the focal plane reference
-	   //frame. This is the angle between the velocity vector of the trajectory
-	   //and its projection on the XZ plane (symmetry plane) in the focal plane
-	   //reference frame.
+	   //Returns the angle (in degree) between the velocity vector of the trajectory and its projection
+	   //on the XZ plane (symmetry plane) in the focal plane frame of reference.
+	   //It varies between -90 to 90 degrees.
 
 	   return TMath::RadToDeg()*TMath::ASin( dirFP.Y()/dirFP.Mag() ); 
    }
 
 
    inline Double_t GetThetaV() const{
-	   //Returns ThetaV angle (in degree) of the trajectory in the laboratory reference
-	   //frame (standard VAMOS coordinates). This is the angle between the 
-	   //Z-axis and the projection of the velocity vector of the trajectory
-	   //on the XZ plane (symmetry plane) in the laboratory reference frame.
+	   //Returns the angle (in degree) between the Z-axis and the projection of the velocity vector 
+	   //of the trajectory on the XZ plane (symmetry plane) in the laboratory frame of reference and in the 
+	   //VAMOS coordinate system.
+	   //It varies between -90 to 90 degrees.
 
 	   return TMath::RadToDeg()*TMath::ATan( dirLab.X()/dirLab.Z() ); 
 
    }
 
    inline Double_t GetPhiV() const{
-	   //Returns PhiV angle (in degree) of the trajectory in the focal plane reference
-	   //frame (standard VAMOS coordinates). This is the angle between the
-	   //velocity vector of the trajectory and its projection on the XZ plane
-	   //(symmetry plane) in the laboratory reference frame.
+	   //Returns the angle (in degree) between the velocity vector of the trajectory and its projection
+	   //on the XZ plane (symmetry plane) in the laboratory frame of reference and in the VAMOS coordinate system.
+	   //It varies between -90 to 90 degrees.
+
 
 	   return TMath::RadToDeg()*TMath::ASin( dirLab.Y()/dirLab.Mag() ); 
    }
 
 
    inline Double_t GetThetaL() const{
-	   //Returns ThetaL angle i.e. polar angle (in degree) of the trajectory 
-	   //in the laboratory reference frame (spherical coordinates). This is 
-	   //the angle between the Z-axis and the the velocity vector of the trajectory
-	   //in the laboratory reference frame.
+	   //Returns the angle (in degree) between the Z-axis and the the velocity vector of the trajectory 
+	   //(i.e. polar angle in spherical coordinates) in the laboratory frame of reference and in the VAMOS coordinate system.
+	   //It varies between -90 to 90 degrees.
 
 	   return TMath::RadToDeg()*dirLab.Theta(); 
 
    }
 
    inline Double_t GetPhiL() const{
-	   //Returns PhiL angle i.e. azimuth angle (in degree) of the trajectory
-	   //in the focal plane reference frame (spherical coordinates). This is
-	   //the angle between the X-axis and the projection of the velocity 
-	   //vector of the trajectory XY-plane in the laboratory reference frame.
+	   //Returns the angle (in degree) between the X-axis and the projection of the velocity vector of the trajectory
+	   //on the XY-plane (i.e. azimuthal angle in spherical coordinates) in the laboratory frame of reference
+	   //and in the VAMOS coordinate system.
+	   //It varies between -90 to 90 degrees.
 
 	   return TMath::RadToDeg()*dirLab.Phi(); 
    }
