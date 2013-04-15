@@ -172,7 +172,8 @@ void KVVAMOSReconNuc::ReconstructFocalPlanTrajectory(KVList *detlist){
 
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 
-	fRT.dirFP *= fRT.dirFP.Mag();
+	// normalize the direction vector dirFP
+	fRT.dirFP *= 1./fRT.dirFP.Mag();
 	
 	// Xf = Xc1      - Zc1*tan( Thetaf )
 	fRT.pointFP[0] = XYZf[0][0] - XYZf[0][2]*fRT.dirFP.X()/fRT.dirFP.Z();
