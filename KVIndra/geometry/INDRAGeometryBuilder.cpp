@@ -532,7 +532,7 @@ void INDRAGeometryBuilder::BuildTarget()
    }
 }
 
-TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget)
+TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget, Bool_t closeGeometry)
 {
    if (!gIndra) {
       Error("Build", "You must build the geometry with gDataSet->BuildMultiDetector() before calling this method");
@@ -562,7 +562,7 @@ TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget)
       }
    }
    if(withTarget) BuildTarget();
-   gGeoManager->CloseGeometry();
+   if(closeGeometry) gGeoManager->CloseGeometry();
    return gGeoManager;
 }
 void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors)
