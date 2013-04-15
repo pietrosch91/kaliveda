@@ -34,11 +34,7 @@ KVRangeYanezMaterial::KVRangeYanezMaterial(
       :    KVIonRangeTableMaterial(t,name,symbol,state,density,Z,A)
 {
    // Create material (single-element absorber)
-#ifdef WITH_MODIFIED_RANGE_YANEZ
-   fTableType=2;  // custom interpolation between Northcliffe and Hubert tables
-#else
    fTableType=1;  // Hubert for E/A>2.5MeV, switches to Northcliffe for <2.5AMeV.
-#endif
    fNelem=1;
    iabso=0;
    fAbsorb[0].z  = Z; fAbsorb[0].a = A; fAbsorb[0].w = A;

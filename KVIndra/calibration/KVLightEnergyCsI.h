@@ -22,6 +22,7 @@ $Id: KVLightEnergyCsI.h,v 1.3 2007/02/27 11:56:33 franklan Exp $
 
 class KVLightEnergyCsI:public KVCalibrator {
 
+ protected:
    UInt_t fZ;                   //!Z of nucleus to be calibrated
    UInt_t fA;                   //!A of nucleus to be calibrated
 

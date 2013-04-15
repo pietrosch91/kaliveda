@@ -71,6 +71,8 @@ public:
       // at the least, it will remain at the nominal (400 or 250 MeV/nucleon) level.
       fNoLimits = on;
    };
+
+   void GetParameters(Int_t Zion, Int_t& Aion, Double_t*& rangepar);
    
    ClassDef(KVedaLossMaterial, 3) //Description of material properties used by KVedaLoss range calculation
 };

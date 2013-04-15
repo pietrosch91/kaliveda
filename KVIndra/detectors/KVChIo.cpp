@@ -88,6 +88,13 @@ KVChIo::~KVChIo()
 }
 
 //____________________________________________________________________________________________
+void KVChIo::SetMylarThicknesses(Float_t thickF, Float_t thickB)
+{
+    if(thickF>0.) ((KVMaterial*)fAbsorbers->At(0))->SetThickness(thickF*KVUnits::um);
+    if(thickF>0.) ((KVMaterial*)fAbsorbers->At(2))->SetThickness(thickB*KVUnits::um);
+}
+
+//____________________________________________________________________________________________
 Int_t KVChIo::GetCanalPGFromVolts(Float_t volts)
 {
    //Return raw PG channel number corresponding to a given detector signal in volts
@@ -207,6 +214,20 @@ Double_t KVChIo::GetVoltsFromEnergy(Double_t e)
 
 //____________________________________________________________________________________________
 
+Double_t KVChIo::GetEnergyFromVolts(Double_t volts){
+        //Calculate energy in MeV from calibrated detector signal in
+        //Volts. If 'volts' is not given, the value in volt returned
+        //by GetVolts().
+
+        if (fVoltE && fVoltE->GetStatus()){
+                if(!volts) volts = GetVolts();
+        return fVoltE->Compute( volts );
+        }
+        return 0.;
+}
+
+//____________________________________________________________________________________________
+
 Double_t KVChIo::GetVoltsFromCanalPG(Double_t chan)
 {
    //Return calibrated detector signal in Volts calculated from PG channel number.
@@ -253,6 +274,8 @@ Double_t KVChIo::GetVoltsFromCanalGG(Double_t chan)
 
 }
 
+//____________________________________________________________________________________________
+
 Double_t KVChIo::GetVolts()
 {
    //Returns Volts for this detector calculated from current PG coder values.
@@ -269,20 +292,6 @@ Double_t KVChIo::GetVolts()
       }
 
    return 0;
-}
-
-//____________________________________________________________________________________________
-
-Double_t KVChIo::GetEnergyFromVolts(Double_t volts){
-   	//Calculate energy in MeV from calibrated detector signal in 
-   	//Volts. If 'volts' is not given, the value in volt returned 
-   	//by GetVolts().
-
-   	if (fVoltE && fVoltE->GetStatus()){
-		if(!volts) volts = GetVolts();
-      	return fVoltE->Compute( volts );
-	}
-	return 0.;
 }
 
 //____________________________________________________________________________________________

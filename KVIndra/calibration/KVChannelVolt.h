@@ -33,7 +33,8 @@ class KVChannelVolt:public KVCalibrator {
    virtual Double_t Compute(Double_t chan) const;
    virtual Double_t operator() (Double_t chan);
    virtual Double_t Invert(Double_t volts);
-	void SetGainRef(Double_t ref);
+   virtual Double_t InvertDouble(Double_t volts);
+        void SetGainRef(Double_t ref);
 	Double_t GetGainRef(void);
 
    virtual void SetSignal(const Char_t * signal);

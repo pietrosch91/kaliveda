@@ -6,6 +6,8 @@
 #include "TEnv.h"
 #include "KVDataAnalyser.h"
 #include "KVDataAnalysisTask.h"
+#include "KVGEBatchJob.h"
+#include "KVInputDialog.h"
 
 using namespace std;
 
@@ -103,8 +105,9 @@ void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
 void KV_CCIN2P3_GE::PrintJobs(Option_t * opt)
 {
    //Print list of owner's jobs.
-   AnalyseQstatResponse();
-   joblist.Print();
+   KVList* j = GetListOfJobs();
+   j->ls();
+   delete j;
 }
 
 Bool_t KV_CCIN2P3_GE::CheckJobParameters()
@@ -262,93 +265,6 @@ void KV_CCIN2P3_GE::ChangeDefJobOpt(KVDataAnalyser* da)
 	}	
 }
 
-//_______________________________________________________________________________//
-TString KV_CCIN2P3_GE::GE_Request(KVString value,KVString jobname)
-{
-	//Permet d interroger un job vis la commande GE qselect
-	//sur differentes grandeurs (qselect -list -v)
-	/*
-	//Ici les commandes les plus utiles actuellement
-	//
-	bastacputime	//temps ecoule depuis le start
-	cpu_limit	//temps max
-	cpurate		//temps CPU
-	
-	req_scratch             requested scratch size (MB)
-	cur_scratch             current scratch size (MB)
-	max_scratch             max scratch size (MB)
-	
-	req_mem                 requested memory size (MB)
-	cur_mem                 current memory size (MB)
-	max_mem                 max memory size (MB)
-	*/
-	
-	if ( jobname == "" )
-		jobname.Form("%s",GetJobName());
-	KVString inst; inst.Form("qselect -N %s %s",jobname.Data(),value.Data());
-	return gSystem->GetFromPipe(inst.Data());
-	
-}	
-
-void KV_CCIN2P3_GE::AnalyseQstatResponse()
-{
-	// Analyse output of 'qstat -r' command
-	// Extract from it a list of jobnames with their job-ids and status
-	
-   TString reply = gSystem->GetFromPipe("qstat -r");
-   joblist.Clear();
-	TObjArray* lines = reply.Tokenize("\n");
-	Int_t nlines = lines->GetEntries();
-	for(Int_t line_number=0; line_number<nlines; line_number++){
-		TString thisLine = ((TObjString*)(*lines)[line_number])->String();
-		if(thisLine.Contains("Full jobname:")){
-			// previous line contains job-id and status
-			TString lastLine = ((TObjString*)(*lines)[line_number-1])->String();
-			TObjArray* bits = lastLine.Tokenize(" ");
-			Int_t jobid = ((TObjString*)(*bits)[0])->String().Atoi();
-			TString status = ((TObjString*)(*bits)[4])->String();
-         delete bits;
-         bits = thisLine.Tokenize(": ");
-         TString jobname =  ((TObjString*)(*bits)[2])->String();
-         delete bits;
-         KVBase* job = new KVBase(jobname.Data(), Form("status=%s", status.Data()));
-         job->SetNumber(jobid);
-         joblist.Add(job);
-		}
-	}
-	delete lines;
-}
-
-void KV_CCIN2P3_GE::qalter(const Char_t* job_base_name, const Char_t* new_ressources)
-{
-	// Will change ressources request for all jobs having 'job_base_name' as the root
-	// of their jobname.
-	// N.B.: in the new ressources, you must specify ALL ressources, including
-	// the ones which are not changed
-	
-	// get list of jobs
-	if(!joblist.GetEntries()) AnalyseQstatResponse();
-	
-	// build number list of job-ids corresponding to jobs with correct base name
-	TIter nextjob(&joblist);
-	KVNumberList jids;
-	KVBase* job;
-	while( (job = (KVBase*)nextjob()) ){
-		TString jobname = job->GetName();
-		if(jobname.BeginsWith(job_base_name)) {
-			Info("qalter", "Selected job %s (jid = %d)", jobname.Data(), job->GetNumber());
-			jids.Add(job->GetNumber());
-		}
-	}
-	TString cmd_base;
-	cmd_base.Form("qalter %s", new_ressources);
-	TString cmd;
-	jids.Begin();
-	while( !jids.End() ){
-		cmd.Form("%s %d", cmd_base.Data(), jids.Next());
-		gSystem->Exec(cmd.Data());
-	}
-}
          
 void KV_CCIN2P3_GE::SanitizeJobName()
 {
@@ -358,5 +274,126 @@ void KV_CCIN2P3_GE::SanitizeJobName()
    // Any such character appearing in the current jobname will be replaced
    // with '_'
    
-   fCurrJobName.ReplaceAll(":","_");
+    fCurrJobName.ReplaceAll(":","_");
+}
+
+KVList *KV_CCIN2P3_GE::GetListOfJobs()
+{
+    // Create and fill list with KVBatchJob objects describing current jobs
+    // Delete list after use
+
+    KVList* list_of_jobs = new KVList;
+
+    // use qstat -r to get list of job ids and jobnames
+    TString reply = gSystem->GetFromPipe("qstat -r");
+
+    TObjArray* lines = reply.Tokenize("\n");
+    Int_t nlines = lines->GetEntries();
+    for(Int_t line_number=0; line_number<nlines; line_number++){
+        TString thisLine = ((TObjString*)(*lines)[line_number])->String();
+        if(thisLine.Contains("Full jobname:")){
+            // previous line contains job-id and status
+            TString lastLine = ((TObjString*)(*lines)[line_number-1])->String();
+            TObjArray* bits = lastLine.Tokenize(" ");
+            Int_t jobid = ((TObjString*)(*bits)[0])->String().Atoi();
+            TString status = ((TObjString*)(*bits)[4])->String();
+            // date & time jobs started (running job) or submitted (queued job)
+            TString sdate = ((TObjString*)(*bits)[5])->String();// mm/dd/yyyy
+            TString stime = ((TObjString*)(*bits)[6])->String();// hh:mm:ss
+            Int_t dd,MM,yyyy,hh,mm,ss;
+            sscanf(sdate.Data(), "%d/%d/%d", &MM, &dd, &yyyy);
+            sscanf(stime.Data(), "%d:%d:%d", &hh, &mm, &ss);
+            KVDatime submitted(yyyy,MM,dd,hh,mm,ss);
+            delete bits;
+            bits = thisLine.Tokenize(": ");
+            TString jobname =  ((TObjString*)(*bits)[2])->String();
+            delete bits;
+
+            KVGEBatchJob* job = new KVGEBatchJob();
+            job->SetName(jobname);
+            job->SetJobID(jobid);
+            job->SetStatus(status);
+            job->SetSubmitted(submitted);
+            list_of_jobs->Add(job);
+        }
+    }
+    delete lines;
+
+    if(!list_of_jobs->GetEntries()) return list_of_jobs;
+
+    // use qstat -j [jobid] to get cpu and memory used and also the resource requests
+    TIter next_job(list_of_jobs);
+    KVGEBatchJob* job;
+    while( (job = (KVGEBatchJob*)next_job()) ){
+       
+            // for running jobs, read in from [jobname].status file
+            // the number of events read/to read, disk used
+            if(!strcmp(job->GetStatus(),"r")) job->UpdateDiskUsedEventsRead();
+            
+            reply = gSystem->GetFromPipe(Form("qstat -j %d", job->GetJobID()));
+            lines = reply.Tokenize("\n");
+            nlines = lines->GetEntries();
+            for(Int_t line_number=0; line_number<nlines; line_number++){
+                TString thisLine = ((TObjString*)(*lines)[line_number])->String();
+                if(thisLine.BeginsWith("usage")){
+                    TObjArray* bits = thisLine.Tokenize("=,");
+                    TString stime = ((TObjString*)(*bits)[1])->String();// hh:mm:ss
+                    Int_t hh,mm,ss;
+                    sscanf(stime.Data(), "%2d:%2d:%2d", &hh,&mm,&ss);
+                    job->SetCPUusage(hh*3600+mm*60+ss);
+                    TString smem = ((TObjString*)(*bits)[7])->String();// xxx.xxxxM
+                    job->SetMemUsed(smem);
+                    delete bits;
+                }
+                else if(thisLine.BeginsWith("hard resource_list:")){
+                    TObjArray* bits = thisLine.Tokenize(": ");
+                    TString res = ((TObjString*)(*bits)[2])->String();//os=sl5,xrootd=1,irods=1,s_vmem=1024M,s_fsize=50M,s_cpu=36000
+                    res.ReplaceAll("s_vmem","vmem");
+                    res.ReplaceAll("s_fsize","fsize");
+                    res.ReplaceAll("s_cpu","ct");
+                    job->SetResources(res);
+                    TObjArray* bbits = res.Tokenize(",");
+                    TIter next_res(bbits);
+                    TObjString* ss;
+                    while( (ss = (TObjString*)next_res()) ){
+                       TString g = ss->String();
+                       if(g.BeginsWith("ct=")){
+                          g.Remove(0,3);
+                           job->SetCPUmax(g.Atoi());
+                        }
+                        else if(g.BeginsWith("vmem=")){
+                           g.Remove(0,5);
+                           job->SetMemMax(g);
+                        }
+                        else if(g.BeginsWith("fsize=")){
+                           g.Remove(0,6);
+                           job->SetDiskMax(g);
+                        }
+                     }
+                     delete bits;
+                     delete bbits;
+                }
+            }
+            delete lines;
+        //}
+    }
+
+    return list_of_jobs;
+}
+
+void KV_CCIN2P3_GE::AlterJobs(TGWindow* gui, TList* jobs)
+{
+   // Called by GUI in order to alter resources for jobs in list
+   
+   // get current resources of first job
+   KVGEBatchJob* j1 = (KVGEBatchJob*)jobs->First();
+   TString resources = j1->GetResources();
+   Bool_t ok=kFALSE;
+   new KVInputDialog(gui, "Modify the currently-set resources for theses jobs ?", &resources, &ok,
+         "Change the resources you want to modify; leave the other ones as they are");
+   if(ok){
+    TIter next(jobs);
+    KVGEBatchJob* job;
+    while( (job = (KVGEBatchJob*)next()) ) job->AlterResources(resources);
+   }
 }

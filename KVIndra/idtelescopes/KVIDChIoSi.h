@@ -45,6 +45,15 @@ protected:
    virtual void Initialize();
 
    const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
+   virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
+   {
+       // Used for filtering simulations
+       // Returns kTRUE if this telescope is theoretically capable of identifying a given nucleus,
+       // without considering thresholds etc.
+       // For INDRA ChIo-Si telescopes, identification is possible for Z>1
+       // (protons are difficult to distinguish from pedestal)
+       return (Z>1);
+   }
 
     ClassDef(KVIDChIoSi, 1)     //INDRA identification using ChIo-Si matrices
 };

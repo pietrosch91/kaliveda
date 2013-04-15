@@ -4,6 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ global gIDGridEditor;
+#pragma link C++ global gTreeAnalyzer;
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KVBrowser;
@@ -37,4 +38,9 @@
 #pragma link C++ class KVTreeAnalyzer+;
 #pragma link C++ class KVSimDirGUI+;
 #pragma link C++ class KVFileDialog+;
+#pragma link C++ class KVNucleusBox+;
+#pragma link C++ class KVNuclearChart+;
+#pragma link C++ class KVSpIdGUI+;
+#pragma link C++ class KVZAFinderDialog+;
+#pragma link C++ class KVBatchSystemGUI+;
 #endif

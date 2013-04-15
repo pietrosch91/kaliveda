@@ -15,7 +15,7 @@ ClassImp(KVedaLoss)
 /* -->
 <h2>KVedaLoss</h2>
 <h4>C++ implementation of VEDALOSS stopping power calculation</h4>
-See documentation <a href="kvedaloss_classdoc.html.LyXconv/kvedaloss_classdoc.html">here</a>.
+See documentation <a href="KVedaLossDoc/KVedaLoss.html">here</a>.
 <!-- */
 // --> END_HTML
 // Energy limits

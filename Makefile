@@ -40,6 +40,10 @@ export ROOT_v5_17_00 = $(call get_root_version,5,17,0)
 export ROOT_v5_20_00 = $(call get_root_version,5,20,0)
 export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 export ROOT_v5_32_00 = $(call get_root_version,5,32,0)
+export ROOT_v5_33_00 = $(call get_root_version,5,33,0)
+export ROOT_v5_33_02 = $(call get_root_version,5,33,2)
+export ROOT_v5_34_00 = $(call get_root_version,5,34,0)
+export ROOT_v5_99_00 = $(call get_root_version,5,99,0)
 
 #By default, we use the system-dependent definitions contained in the ROOT
 #makefile found (for standard installations) in
@@ -238,16 +242,20 @@ install :
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
+	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/available_runs.campagne2.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.dst
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp2/ccali.available_runs.campagne2.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/available_runs.campagne4.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.raw
+	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.dst2 $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.dst2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2 $(KVINSTALLDIR)/KVFiles/INDRA_camp4/ccali.available_runs.campagne4.root2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/available_runs.campagne5.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_camp5/ccali.available_runs.campagne5.recon2

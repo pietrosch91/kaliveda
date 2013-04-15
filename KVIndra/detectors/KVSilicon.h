@@ -29,7 +29,6 @@ class KVSilicon:public KVINDRADetector {
    KVChannelVolt* fChVoltPG;//!channel-volt conversion (PG)
    KVVoltEnergy* fVoltE;//!volt-energy conversion
    KVPulseHeightDefect* fPHD;//!pulse height defect
-   Int_t fZminPHD;//PHD correction applied to energy for Z>fZminPHD
 
    void init();
 
@@ -48,20 +47,21 @@ class KVSilicon:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
+   Double_t GetCanalPGFromVoltsDouble(Float_t volts);
+   Double_t GetCanalGGFromVoltsDouble(Float_t volts);
+
    Double_t GetEnergyFromVolts(Double_t volts = 0.0);
    virtual Double_t GetEnergy();
 
    void SetACQParams();
    void SetCalibrators();
 
-   Double_t GetPHD(Double_t Einc, UInt_t Z);
+   Double_t GetPHD(Double_t dE, UInt_t Z);
 
    inline Bool_t IsCalibrated() const;
 
    virtual void SetMoultonPHDParameters(Double_t a1, Double_t a2, Double_t b1, Double_t b2);
 
-   void SetZminPHD(Int_t zmin) { fZminPHD = zmin; };
-   Int_t GetZminPHD() { return fZminPHD; };
    virtual Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
    virtual TF1* GetELossFunction(Int_t Z, Int_t A);
 
@@ -77,7 +77,7 @@ class KVSilicon:public KVINDRADetector {
    };
 	void DeduceACQParameters(Int_t zz=-1,Int_t aa=-1);
    
-	ClassDef(KVSilicon, 8)       //INDRA forward-rings silicon detector
+    ClassDef(KVSilicon, 9)       //INDRA forward-rings silicon detector
 };
 
 //____________________________________________________________________________________________

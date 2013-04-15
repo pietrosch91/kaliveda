@@ -23,6 +23,7 @@ class KVNumberList;
 class KVLifeTime;
 class KVMassExcess;
 class KVAbundance;
+class KVChargeRadius;
 
 class KVNucleus:public KVParticle {
 
@@ -52,10 +53,17 @@ class KVNucleus:public KVParticle {
 		kEALResMass,
 		kEPAXMass
    };
+   enum {                       //determines how to calculate radius from Mass
+      kLDModel,
+      kEMPFunc,
+      kELTON,
+   };
 
    static Double_t kAMU;        //atomic mass unit in MeV
    static Double_t kMe;        //electron mass in MeV/c2
    static Double_t u(void);
+   static Double_t hbar;   // hbar*c in MeV.fm
+   static Double_t e2;    // e^2/(4.pi.epsilon_0) in MeV.fm
 
    inline void SetMassFormula(UChar_t mt);
    inline Int_t GetMassFormula() const { return (Int_t)fMassFormula;};
@@ -125,7 +133,7 @@ class KVNucleus:public KVParticle {
 	Double_t GetBindingEnergy(Int_t z = -1, Int_t a = -1) const;
    Double_t GetBindingEnergyPerNucleon(Int_t z = -1, Int_t a = -1) const;
    
-	KVNumberList GetKnownARange(Int_t z=-1) const;
+        KVNumberList GetKnownARange(Int_t z=-1, Double_t tmin=0) const;
 	Int_t GetAWithMaxBindingEnergy(Int_t z=-1);
 	
 	static Double_t LiquidDrop_BrackGuet(UInt_t A, UInt_t Z);
@@ -156,6 +164,10 @@ class KVNucleus:public KVParticle {
 	
    Double_t GetAbundance(Int_t z = -1, Int_t a = -1) const;
 	KVAbundance* GetAbundancePtr(Int_t z = -1, Int_t a = -1) const;
+	
+   Double_t GetChargeRadius(Int_t z = -1, Int_t a = -1) const;
+	KVChargeRadius* GetChargeRadiusPtr(Int_t z = -1, Int_t a = -1) const;
+	Double_t GetExtraChargeRadius(Int_t z = -1, Int_t a = -1,Int_t rct=2) const;
 	
 	KVNucleus & operator=(const KVNucleus & rhs);
 	KVNucleus operator+(const KVNucleus & rhs);

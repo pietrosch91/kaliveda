@@ -49,3 +49,10 @@ changelog_*.txt
 ./fitltg-0.1/src/Makefile
 ./fitltg-0.1/stamp-h1
 ./html/make_html_doc
+./etc/proof/KaliVeda.par
+kaliveda.config
+kaliveda.creator
+kaliveda.creator.user
+kaliveda.files
+kaliveda.includes
+*.pcm

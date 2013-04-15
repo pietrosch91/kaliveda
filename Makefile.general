@@ -136,6 +136,10 @@ rootlibmap :
 	@cat */*LinkDef.h > tmpLinkDef.h
 	@rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c tmpLinkDef.h
 	@-cp $(MY_ROOTMAP) $(KVINSTALLDIR)/lib/
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_99_00)),1)
+# for ROOT v5.99+ we have to copy all the *.pcm (Cling?) files into $KVROOT/lib
+	@-cp *.pcm $(KVINSTALLDIR)/lib/
+endif
 
 $(LIB_SO):        $(OBJECTS) $(DICT_OBJECTS)
 ifeq ($(PLATFORM),macosx)
@@ -175,6 +179,10 @@ clean :
 	@-rm -f $(PREREQ) $(OBJECTS) $(DICT_SOURCES) $(DICT_HEADERS) $(DICT_OBJECTS) lib$(PROJ_NAME)*.*
 	@-rm -f .copyheads .config .copysource
 	@-rm -f tmpLinkDef.h
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_99_00)),1)
+# for ROOT v5.99+ we have to clean all the *.pcm (Cling?) files
+	@-rm -f *.pcm
+endif
 
 .copyheads: $(HEADERS)
 	@-cp $? $(KVINSTALLDIR)/include/

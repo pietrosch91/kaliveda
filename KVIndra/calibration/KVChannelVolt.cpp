@@ -137,6 +137,38 @@ Double_t KVChannelVolt::Invert(Double_t volts)
 }
 
 //___________________________________________________________________________
+Double_t KVChannelVolt::InvertDouble(Double_t volts)
+{
+   Double_t gain = 1.;
+   KVDetector *det = GetDetector();
+   if (det)
+      gain = det->GetGain();
+   Double_t channel = 0;
+
+   if (fReady) {
+      if (fPar[2]) {
+         // quadratic transfer function
+         Double_t c;
+         c = fPar[1] * fPar[1] - 4. * fPar[2] * (fPar[0] - gain/gain_ref * volts);
+         if (c < 0.0)
+            return -1;
+         c = (-fPar[1] + TMath::Sqrt(c)) / (2.0 * fPar[2]);
+         if (c < 0.0
+             && ((-fPar[1] - TMath::Sqrt(c)) / (2.0 * fPar[2])) > 0.0) {
+            c = (-fPar[1] - TMath::Sqrt(c)) / (2.0 * fPar[2]);
+         }
+         channel = c;
+      } else {
+         // linear transfer function
+         channel = (gain/gain_ref * volts - fPar[0]) / fPar[1];
+      }
+   } else {
+      Warning("Compute", "Parameters not correctly initialized");
+   }
+   return (Double_t) channel;
+}
+
+//___________________________________________________________________________
 void KVChannelVolt::SetGainRef(Double_t ref)
 {
 	gain_ref =ref;

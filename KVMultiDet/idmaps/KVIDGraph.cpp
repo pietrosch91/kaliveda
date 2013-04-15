@@ -10,6 +10,7 @@ $Date: 2009/04/28 09:07:47 $
 #include "KVIDGraph.h"
 #include "TObjString.h"
 #include "TObjArray.h"
+#include "TRandom.h"
 #include "TClass.h"
 #include "KVReconstructedNucleus.h"
 #include "TCanvas.h"
@@ -107,24 +108,24 @@ void KVIDGraph::Browse(TBrowser* b)
       // pouvoir revenir en arriere
       UpdateLastSavedVersion();
       // is there a non-IDGridEditor canvas already open with a 2D-histogram in it?
-      if(gPad && !gPad->InheritsFrom("KVIDGridEditorCanvas")){
-         TIter next_prim( gPad->GetListOfPrimitives() );
-         TH2* theHisto=0x0;
-         TObject* o;
-         while( (o=next_prim()) ){
-            if(o->InheritsFrom("TH2")){
-               theHisto=(TH2*)o;
-               break;
-            }
-         }
-         if(theHisto){
-            // we superpose the grid on the histogram we found in the grid editor canvas
-            gIDGridEditor->SetHisto(theHisto);
-            gIDGridEditor->SetGrid(this,kFALSE);
-            if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
-            return;
-         }
-      }
+//      if(gPad && !gPad->InheritsFrom("KVIDGridEditorCanvas")){
+//         TIter next_prim( gPad->GetListOfPrimitives() );
+//         TH2* theHisto=0x0;
+//         TObject* o;
+//         while( (o=next_prim()) ){
+//            if(o->InheritsFrom("TH2")){
+//               theHisto=(TH2*)o;
+//               break;
+//            }
+//         }
+//         if(theHisto){
+//            // we superpose the grid on the histogram we found in the grid editor canvas
+//            gIDGridEditor->SetHisto(theHisto);
+//            gIDGridEditor->SetGrid(this,kFALSE);
+//            if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
+//            return;
+//         }
+//      }
       if(gIDGridEditor->IsClosed()) gIDGridEditor->StartViewer();
       gIDGridEditor->SetGrid(this);
    }
@@ -860,8 +861,7 @@ void KVIDGraph::FindAxisLimits()
    fYmin = ymin;
    fXmax = xmax;
    fYmax = ymax;
-   Info("FindAxisLimits()", "Xmin=%f Ymin=%f Xmax=%f Ymax=%f", GetXmin(),
-        GetYmin(), GetXmax(), GetYmax());
+//   Info("FindAxisLimits()", "Xmin=%f Ymin=%f Xmax=%f Ymax=%f", GetXmin(), GetYmin(), GetXmax(), GetYmax());
 }
 
 //___________________________________________________________________________________
@@ -940,7 +940,7 @@ void KVIDGraph::DrawAndAdd(const Char_t* Type, const Char_t* Classname)
 //___________________________________________________________________________________
 
 void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
-                                  TH2F * id_real_vs_e_res)
+                                  TH2F * id_real_vs_e_res, TH2F* z_a_real)
 {
    //This method allows to test the identification capabilities of the grid using data in a TH2F.
    //We assume that 'data' contains an identification map, whose 'x' and 'y' coordinates correspond
@@ -963,6 +963,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
    Int_t tot_events = (Int_t) data->GetSum();
    Int_t events_read = 0;
    Float_t percent = 0., cumul = 10.;
+   Bool_t zaMap = (!IsOnlyZId())&&(z_a_real);
 
    //loop over data in histo
    for (int i = 1; i <= data->GetNbinsX(); i++) {
@@ -993,6 +994,7 @@ void KVIDGraph::TestIdentification(TH2F * data, TH1F * id_real,
                	nuc.SetIdentification(idr);
                   id_real->Fill(nuc.GetPID(), weight);
                   id_real_vs_e_res->Fill(x, nuc.GetPID(), weight);
+                  if(zaMap) z_a_real->Fill(nuc.GetRealA()-nuc.GetRealZ(), gRandom->Gaus(nuc.GetRealZ(),0.15), weight);
                }
 				}
          }

@@ -248,6 +248,50 @@ Int_t KVEvent::GetMult(Option_t * opt)
    return fMultOK;
 }
 
+//__________________________________________________________________________________
+
+Double_t KVEvent::GetSum(const Char_t* KVNucleus_method,Option_t * opt)
+{
+   //Returns sum other particles of the observable given by the indicated KVNucleus_method
+   //for example
+   //if  the method is called this way GetSum("GetZ"), it returns the sum of the charge
+   //of particles in the current event
+   //
+   //If opt = "ok" only particles with IsOK()==kTRUE are considered.
+   //If opt = "name" only particles with GetName()=="name" are considered.
+   //
+   //IN ANY CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
+   //OVER THE EVENT USING GETNEXTPARTICLE() !!!
+
+   TString Opt(opt);
+   Opt.ToUpper();
+   Double_t fSum = 0;
+	KVNucleus *tmp = new KVNucleus();
+	TMethodCall mt;
+   mt.InitWithPrototype(tmp->IsA(), KVNucleus_method,"");
+   delete tmp;
+   
+   if (mt.IsValid()){
+   	ResetGetNextParticle();
+      if (mt.ReturnType()==TMethodCall::kLong){
+      	Long_t ret;
+         while ((tmp = GetNextParticle(Opt))){
+   			mt.Execute(tmp,"",ret);
+      	   fSum+=ret;
+   		}
+      }
+      else if (mt.ReturnType()==TMethodCall::kDouble){
+      	Double_t ret;
+         while ((tmp = GetNextParticle(Opt))){
+   			mt.Execute(tmp,"",ret);
+      	   fSum+=ret;
+   		}
+      }   
+   }
+   
+   return fSum;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 KVNucleus *KVEvent::GetNextParticle(Option_t * opt)

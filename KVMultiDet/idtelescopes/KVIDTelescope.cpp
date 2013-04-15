@@ -222,8 +222,8 @@ UInt_t KVIDTelescope::GetGroupNumber()
 
 //____________________________________________________________________________________
 
-TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
-                                  Float_t Emax, Float_t Estep)
+TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Double_t Emin,
+                                  Double_t Emax, Double_t Estep)
 {
    //For a given nucleus, generate a TGraph representing the line in the deltaE-E
    //plane of the telescope which can be associated with nuclei of this (A,Z) with total
@@ -242,8 +242,8 @@ TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
    if (nsteps < 1)
       return 0;
 
-   Float_t *y = new Float_t[nsteps];
-   Float_t *x = new Float_t[nsteps];
+   Double_t *y = new Double_t[nsteps];
+   Double_t *x = new Double_t[nsteps];
    Int_t step = 0;
 
    //get list of all detectors through which particle must pass in order to reach
@@ -254,28 +254,34 @@ TGraph *KVIDTelescope::MakeIDLine(KVNucleus * nuc, Float_t Emin,
    TIter next_det(detectors);
    //cout << "nsteps =" << nsteps << endl;
 
-   for (Float_t E = Emin; E <= Emax; E += Estep) {
+   for (Double_t E = Emin; E <= Emax; E += Estep) {
       //Set energy of nucleus
       nuc->SetEnergy(E);
-      // cout << "Einc=" << E << endl;
+      //cout << "Einc=" << E << endl;
 
       //Calculate energy loss in each member and stock in arrays x & y
       //first member
       KVDetector *det = 0;
+      x[step]=y[step]=-1;
       while ((det = (KVDetector *) next_det())) {
          //det->Print();
-         Float_t eloss = det->GetELostByParticle(nuc);
+         Double_t eloss = det->GetELostByParticle(nuc);
          if (det == GetDetector(1))
             y[step] = eloss;
          else if (det == GetDetector(2))
             x[step] = eloss;
-         //  cout << "Eloss=" << eloss << endl;
+         Double_t E1 = nuc->GetEnergy() - eloss;
+         nuc->SetEnergy(E1);
+         //cout << "Eloss=" << eloss << endl;
          //cout << "Enuc=" << nuc->GetEnergy() << endl;
+         if(E1<1.e-3) break;
       }
+
+      //cout << "step = " << step << " x = " << x[step] << " y = " << y[step] << endl;
 
       //make sure that some energy is lost in each member
       //otherwise miss a step and reduce number of points in graph
-      if (x[step] && y[step]) {
+      if (x[step]>0 && y[step]>0) {
          step++;
       } else {
          nsteps--;
@@ -713,17 +719,17 @@ const Char_t* KVIDTelescope::GetDefaultIDGridClass()
 //_____________________________________________________________________________________________________//
 KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA,Int_t npoints)
 {
-	//Genere une grille dE-E (perte d'energie - energie residuelle) pour une gamme en Z donnée
-	// - Zrange définit l'ensemble des charges pour lequel les lignes vont êtres calculées
-	// - deltaA permet de définir si à chaque Z n'est associée qu'un seul A (deltaA=0) ou plusieurs
+    //Genere une grille dE-E (perte d'energie - energie residuelle) pour une gamme en Z donnee
+    // - Zrange definit l'ensemble des charges pour lequel les lignes vont etre calculees
+    // - deltaA permet de definir si a chaque Z n'est associee qu'un seul A (deltaA=0) ou plusieurs
 	//Exemple :
-	//		deltaA=1 -> Aref-1, Aref et Aref+1 seront les masses associées a chaque Z et 
+    //		deltaA=1 -> Aref-1, Aref et Aref+1 seront les masses associees a chaque Z et
 	//		donc trois lignes de A par Z. le Aref pour chaque Z est determine par
 	//		la formule de masse par defaut (Aref = KVNucleus::GetA() voir le .kvrootrc)
 	//		deltaA=0 -> pour chaque ligne de Z le A associe sera celui de KVNucleus::GetA()
 	// - est le nombre de points par ligne
 	//	
-	//un noyau de A et Z donné n'est considéré que s'il retourne KVNucleus::IsKnown() = kTRUE
+    //un noyau de A et Z donne n'est considere que s'il retourne KVNucleus::IsKnown() = kTRUE
 	//
 	if (GetSize()<=1) return 0;
 
@@ -823,7 +829,8 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(const Char_t* Zrange,Int_t deltaA
          		}
       		}
 
-      		printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
+                if((!strcmp(det_eres->GetType(),"CSI"))&&(E2>5000)) E2=5000;
+                printf("z=%d a=%d E1=%lf E2=%lf\n",zz,aa,E1,E2);
 				KVIDZALine *line = (KVIDZALine *)idgrid->Add("ID", "KVIDZALine");
       		if (TMath::Even(zz)) line->SetLineColor(4);
 				line->SetZ(zz);
@@ -883,7 +890,7 @@ KVIDGrid* KVIDTelescope::CalculateDeltaE_EGrid(TH2* haa_zz,Bool_t Zonly,Int_t np
 	//- Si Zonly=kFALSE et que pour un Z donne il n'y a qu'un seul A associe, les lignes correspondants
 	//a A-1 et A+1 sont ajoutes
 	//- Si a un Z donne, il n'y a aucun A, pas de ligne tracee
-	//un noyau de A et Z donné n'est considéré que s'il retourne KVNucleus::IsKnown() = kTRUE
+    //un noyau de A et Z donne n'est considere que s'il retourne KVNucleus::IsKnown() = kTRUE
 	
 	if (GetSize()<=1) return 0;
 
