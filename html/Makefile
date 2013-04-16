@@ -79,6 +79,7 @@ SCANCLASSESO = ScanClasses.$(ObjSuf)
 
 clean:
 	-rm -f *.d $(MAKEHTMLO) $(SCANCLASSESO)  $(MAKEHTML) MyPathDefinition_cxx.so examples/*.so examples/*.d
+	cd LyXGenDoc && $(MAKE) clean
         
 $(MAKEHTML): $(SCANCLASSESO) $(MAKEHTMLO) MyPathDefinition_cxx.so 
 	$(LD) $(LDFLAGS) $^ $(LIBS) $(LINK_LIBS) $(OutPutOpt)$@
@@ -93,7 +94,7 @@ $(MAKEHTMLO): $(MAKEHTMLS)
 
 $(SCANCLASSESO): $(SCANCLASSESS)
 	$(CXX) $(CXXFLAGS) -c $<
-
+	
 install_html: $(MAKEHTML)
 	-mkdir -p $(KVROOT)/KaliVedaDoc
 	-mkdir -p $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)
@@ -112,8 +113,7 @@ install_html: $(MAKEHTML)
 	-cp js/* $(KVROOT)/KaliVedaDoc/js/
 	-cp images/* $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/images/
 	-cp images/* $(KVROOT)/KaliVedaDoc/images/
-	-cp -r kvedaloss_classdoc.html.LyXconv $(KVROOT)/KaliVedaDoc/
-	-cp -r kvedaloss_classdoc.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
 	-cp KaliVedaGUI_fichiers/* $(KVROOT)/KaliVedaDoc/KaliVedaGUI_fichiers/
-	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/
-	-cp -r ksimdirgui.html.LyXconv $(KVROOT)/KaliVedaDoc/$(VERSION_NUMBER)/
+	cd LyXGenDoc && $(MAKE)
+	cd LyXGenDoc && $(MAKE) install VERSION_NUMBER=$(VERSION_NUMBER)
+        

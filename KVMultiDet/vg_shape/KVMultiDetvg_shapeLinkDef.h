@@ -13,4 +13,5 @@
 #pragma link C++ class KVFoxH2;
 #pragma link C++ class KVRisoAv;
 #pragma link C++ class KVRelativeVelocity;
+#pragma link C++ class KVQuadMoment;
 #endif

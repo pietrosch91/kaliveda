@@ -87,7 +87,7 @@ class KVIDGraph : public TCutG
       // after calling KVIDGraph::SetAutoAdd(kFALSE), this mechanism is disabled 
       fAutoAddGridManager = yes;
    };
-   KVIDGraph* GetLastSavedVersion() const { return fLastSavedVersion; };
+   KVIDGraph* GetLastSavedVersion() const { return fLastSavedVersion; }
    void RevertToLastSavedVersion();
 	void UpdateLastSavedVersion();
 
@@ -100,7 +100,7 @@ class KVIDGraph : public TCutG
    void RemoveIdentifier(KVIDentifier*);
    void RemoveCut(KVIDentifier*);
    
-   TVirtualPad* GetPad() const { return fPad; };
+   TVirtualPad* GetPad() const { return fPad; }
 	
    void ReadAsciiFile(const Char_t * filename);
 	void AddIDTelescopes(const TList*);
@@ -150,7 +150,7 @@ class KVIDGraph : public TCutG
    virtual void DrawAndAdd(const Char_t* type="ID", const Char_t* classname="KVIDentifier");
    void Print(Option_t * opt = "") const;
    void TestIdentification(TH2F * data, TH1F * id_real,
-                           TH2F * id_real_vs_e_res);
+                           TH2F * id_real_vs_e_res, TH2F* z_a_real=0);
 	
    static KVIDGraph *AddGraphs(KVIDGraph * g1, Int_t id1_min, Int_t id1_max,
                              KVIDGraph * g2, Int_t id2_min, Int_t id2_max);
@@ -167,7 +167,7 @@ class KVIDGraph : public TCutG
    void SetPattern(TString pattern) { pattern.ReplaceAll(".","_"); fPattern = pattern;}	
    TString GetPattern(void) {return fPattern;}
 	
-	const TList* GetIDTelescopes() const { return &fTelescopes; };	
+        const TList* GetIDTelescopes() const { return &fTelescopes; };
    void Increment(Float_t x)  // *SIGNAL*
 	{
    	// Used by TestIdentification and KVTestIDGridDialog to send

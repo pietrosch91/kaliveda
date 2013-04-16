@@ -146,3 +146,14 @@ KVNumberList KVINDRARawDataAnalyser::PrintAvailableRuns(KVString & datatype)
    }
    return all_runs;
 }
+   
+void KVINDRARawDataAnalyser::CalculateTotalEventsToRead()
+{
+   //loop over runs and calculate total events
+   TotalEntriesToRead=0;
+   GetRunList().Begin();
+   while( !GetRunList().End() ){
+      Int_t r = GetRunList().Next();
+      TotalEntriesToRead+=gIndraDB->GetRun(r)->GetEvents();
+   }
+}

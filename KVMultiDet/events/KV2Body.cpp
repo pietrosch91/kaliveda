@@ -101,6 +101,7 @@ void KV2Body::init()
    	TETAMIN[i] = 0.;  
       fThetaLabVsThetaCM[i] = 0;
       fELabVsThetaCM[i] = 0;
+      fELabVsThetaLab[i] = 0;
    }
    fEDiss = 0.0;
    fDeleteTarget = kFALSE;
@@ -181,6 +182,7 @@ KV2Body::~KV2Body()
    {
       if(fThetaLabVsThetaCM[i]) delete fThetaLabVsThetaCM[i];
       if(fELabVsThetaCM[i]) delete fELabVsThetaCM[i];
+      if(fELabVsThetaLab[i]) delete fELabVsThetaLab[i];
    }
 }
 
@@ -677,9 +679,22 @@ Int_t KV2Body::GetThetaCM(Double_t ThetaLab, Int_t OfNucleus, Double_t &t1, Doub
 }
 
 //______________________________________________________________________________________________
+Double_t KV2Body::ELabVsThetaLab(Double_t* x, Double_t* par)
+{
+   // Function calculating lab energy of nucleus par[0] for any lab angle x[0]
+   
+    Double_t e1,e2;
+    Int_t nsol = GetELab((Int_t)par[0],x[0],(Int_t)par[0],e1,e2);
+    if(!nsol) return 0;
+    if(nsol>1) Warning("ELabVsThetaLab", "Two energies are possible for %f deg. : %f and %f",
+                       x[0],e1,e2);
+    return e1;
+}
+
+//______________________________________________________________________________________________
 Double_t KV2Body::ELabVsThetaCM(Double_t* x, Double_t* par)
 {
-   // Function calculating lab energy of nucleus par[0] for any CM angle
+   // Function calculating lab energy of nucleus par[0] for any CM angle x[0]
    
    Int_t OfNucleus = (Int_t)par[0];
    Double_t TCM = x[0] * TMath::DegToRad();
@@ -691,18 +706,47 @@ Double_t KV2Body::ELabVsThetaCM(Double_t* x, Double_t* par)
 }
 
 //______________________________________________________________________________________________
+Double_t KV2Body::ThetaLabVsThetaCM(Double_t *x, Double_t* par)
+{
+   // Calculate Lab angle of nucleus as function of CM angle x[0]
+   // par[0] = index of nucleus = 1, 2, 3, 4
+   
+	Double_t ThetaCM = x[0] * TMath::DegToRad();
+	Int_t OfNucleus = (Int_t)par[0];
+	Double_t TanThetaL = TMath::Sin(ThetaCM)/(K[OfNucleus] + TMath::Cos(ThetaCM))/GetCMGamma();
+	Double_t ThetaL = TMath::ATan(TanThetaL)*TMath::RadToDeg();
+	if(ThetaL < 0.) ThetaL += 180.;
+	return ThetaL;
+}
+
+//______________________________________________________________________________________________
 TF1* KV2Body::GetELabVsThetaCMFunc(Int_t OfNucleus)
 {
    // Return TF1 giving lab energy of nucleus as function of CM angle
    // OfNucleus = 1 or 2 (entrance channel) or 3 or 4 (exit channel)
-	
-	if(!fELabVsThetaCM[OfNucleus]){
+
+    if(!fELabVsThetaCM[OfNucleus]){
       fELabVsThetaCM[OfNucleus] = new TF1( Form("KV2Body:ELabVsThetaCM:%d",OfNucleus),
          this, &KV2Body::ELabVsThetaCM, 0, 180, 1, "KV2Body", "ELabVsThetaCM");
       fELabVsThetaCM[OfNucleus]->SetNpx(1000);
       fELabVsThetaCM[OfNucleus]->SetParameter(0, OfNucleus);
    }
-	return fELabVsThetaCM[OfNucleus];
+    return fELabVsThetaCM[OfNucleus];
+}
+
+//______________________________________________________________________________________________
+TF1* KV2Body::GetELabVsThetaLabFunc(Int_t OfNucleus)
+{
+   // Return TF1 giving lab energy of nucleus as function of its lab angle
+   // OfNucleus = 1 or 2 (entrance channel) or 3 or 4 (exit channel)
+
+    if(!fELabVsThetaLab[OfNucleus]){
+      fELabVsThetaLab[OfNucleus] = new TF1( Form("KV2Body:ELabVsThetaLab:%d",OfNucleus),
+         this, &KV2Body::ELabVsThetaLab, 0, 180, 1, "KV2Body", "ELabVsThetaLab");
+      fELabVsThetaLab[OfNucleus]->SetNpx(1000);
+      fELabVsThetaLab[OfNucleus]->SetParameter(0, OfNucleus);
+   }
+    return fELabVsThetaLab[OfNucleus];
 }
 
 //______________________________________________________________________________________________
@@ -752,20 +796,6 @@ Int_t KV2Body::GetThetaLab(Int_t OfNucleus,Double_t ThetaLab,Int_t AngleNucleus,
    t1 = GetThetaLab(TCM1, OfNucleus);
    if(nsol==2) t2 = GetThetaLab(TCM2, OfNucleus);
    return nsol;
-}
-
-//______________________________________________________________________________________________
-Double_t KV2Body::ThetaLabVsThetaCM(Double_t *x, Double_t* par)
-{
-   // Calculate Lab angle of nucleus as function of CM angle
-   // par[0] = index of nucleus = 1, 2, 3, 4
-   
-	Double_t ThetaCM = x[0] * TMath::DegToRad();
-	Int_t OfNucleus = (Int_t)par[0];
-	Double_t TanThetaL = TMath::Sin(ThetaCM)/(K[OfNucleus] + TMath::Cos(ThetaCM))/GetCMGamma();
-	Double_t ThetaL = TMath::ATan(TanThetaL)*TMath::RadToDeg();
-	if(ThetaL < 0.) ThetaL += 180.;
-	return ThetaL;
 }
 
 //______________________________________________________________________________________________
@@ -961,7 +991,7 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	if( th1<theta_min) theta_min = th1;
 	if(th2>theta_max) theta_max=th2;
 
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,34,03)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
 	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2,fIntPrec)*TMath::DegToRad()*dphi;
 #else
 	const Double_t *para = 0;

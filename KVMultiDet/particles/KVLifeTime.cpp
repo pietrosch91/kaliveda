@@ -47,8 +47,6 @@ void KVLifeTime::init()
 //_________________________________
 const Char_t* KVLifeTime::GetUnit() const{
 
-	TString unit="s";
-	if (IsAResonnance())	unit="MeV";
-	
-	return unit.Data();
+	if (IsAResonnance())	return "MeV";
+	else return "s";
 }

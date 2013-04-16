@@ -125,7 +125,7 @@ public:
       SaveAs();
    };
    void NewIDLine();
-   void NewIDContour() {};
+   void NewIDContour() {}
    void NewCut();
    void FitGrid();
    void TestGrid();

@@ -104,6 +104,8 @@ ClassImp(KVINDRAReconNuc);
 //IN ALL CASES THE RETURNED VALUE OF GetA() IS POSITIVE
 //
 
+Bool_t KVINDRAReconNuc::CalibNeedCorrection = kFALSE;
+
 void KVINDRAReconNuc::init()
 {
 	//default initialisations
@@ -113,8 +115,7 @@ void KVINDRAReconNuc::init()
 	fPileup=kFALSE;
 	fUseFullChIoEnergyForCalib=kTRUE;
 	fECsI=fESi=fEChIo=0.;
-	fCoherentChIoCsI=kTRUE;
-	fPileupChIo=kFALSE;
+   fCorrectCalib=kFALSE;
 }
 
 KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
@@ -170,17 +171,6 @@ void KVINDRAReconNuc::Print(Option_t * option) const
 		}
 		cout << endl;
 	}
-	else {
-		if(!fCoherentChIoCsI) {
-			cout << "    CsI-R/L & ChIo-CsI identifications is NOT COHERENT" << endl;
-		}
-		if (fPileupChIo){
-			cout << "    ChIo energy loss indicates PILEUP" << endl;
-		}
-		if (!fUseFullChIoEnergyForCalib){
-			cout << "MULTIPLE CHIO CONTRIBUTIONS" << endl;
-		}
-	}
 
    cout << "KVINDRAReconNuc: fRing=" << GetRingNumber() << " fModule=" <<
        GetModuleNumber() << endl;
@@ -200,10 +190,6 @@ void KVINDRAReconNuc::Print(Option_t * option) const
 		if(GetRingNumber()<10){
 			if(GetRingNumber()>1) {cout << "    EChIo = " << TMath::Abs(fEChIo) << " MeV"; if(fEChIo<0) cout << " (calculated)"; cout << endl;}
 			cout << "    ESi = " << TMath::Abs(fESi) << " MeV"; if(fESi<0) cout << " (calculated)"; cout << endl;
-			cout << "    ECsI = " << TMath::Abs(fECsI) << " MeV"; if(fECsI<0) cout << " (calculated)"; cout << endl;
-		}
-		else {
-			cout << "    EChIo = " << TMath::Abs(fEChIo) << " MeV"; if(fEChIo<0) cout << " (calculated)"; cout << endl;
 			cout << "    ECsI = " << TMath::Abs(fECsI) << " MeV"; if(fECsI<0) cout << " (calculated)"; cout << endl;
 		}
       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
@@ -588,147 +574,20 @@ Bool_t KVINDRAReconNuc::CoherencySiCsI(KVIdentificationResult& theID)
 				}
 				else {
 					fPileup = kTRUE;
-					IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
-					return kTRUE;
-				}
-			}
-		}
-		// in all other cases accept CsI identification
-		theID = *IDcsi;
-		return kTRUE;
+
+IDsicsi->SetComment("Second particle stopping in Si, identification ChIo-Si required");
+	return kTRUE;
+	}
+	}
+	}
+	 // in all other cases accept CsI identification
+	theID = *IDcsi;
+	return kTRUE;
 	}
 	return kFALSE;
-}
-
-//____________________________________________________________________________________________
-
-Bool_t KVINDRAReconNuc::CoherencyChIoCsI(KVIdentificationResult& theID)
-{
-	// Called by Identify() for particles stopping in CsI detectors on rings 10-17,
-	// which have a ChIo detector just in front of them.
-	//
-	// coherent = kFALSE if CsI-R/L and Si-CsI identifications are not coherent.
-	//                 this is a warning, the CsI identification is kept, either the Si signal
-	//                  was not good (particle hitting dead zone), or it actually corresponds
-	//                  to two particles reaching the CsI at the same time
-	// pileup = kTRUE means that the particle identified in CsI-R/L is correct,
-	//              and there is probably a second particle which stopped in the silicon
-	//              detector at the same time, to be identified in ChIo-Si after
-	//              subtraction of the Silicon contribution
-
-	KVIdentificationResult *IDcsi = GetIdentificationResult(1);
-	KVIdentificationResult *IDchiocsi = GetIdentificationResult(2);
-	fCoherentChIoCsI=kTRUE;
-	
-	// Unsuccessful/no CsI id attempt with successful Si-CsI id ?
-	// Then use Si-CsI identification result
-	if(IDchiocsi->IDOK && !IDcsi->IDOK){
-		theID = *IDchiocsi;
-		return kTRUE;
 	}
 
-	// check coherency of CsI-R/L and Si-CsI identifications
-	if(IDcsi->IDOK){
-		// gammas
-		if(IDcsi->IDcode == kIDCode0){
-			theID = *IDcsi;
-			return kTRUE;
-		}
-		// Neutrons have no energy loss in Si detector (pedestal), have a reaction in the CsI and create a Z=1
-		// or Z=2 which is identified in CsI R-L,  while they show up in Si-CsI maps as a horizontal
-		// band around the Si pedestal for low energies (energies where proton dE is significantly larger than
-        // the pedestal).
-        // First we check that we are in the domain where proton dE can be distinguished from pedestal.
-        // If so, if the measured dE is below [ped + factor*(dE_exp - ped)], then we label the particle as a neutron.
-		// 'factor' depends on the Si-CsI telescope: if it has mass identification, factor=0.3; if not, factor=0.1
-		if( (IDcsi->Z==1 || IDcsi->Z==2) && GetChIo() ){
-			KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( IDchiocsi->GetType() );
-			if(idt){
-				Double_t ped = idt->GetPedestalY();
-				Int_t status;
- 				Double_t dE_exp = idt->GetMeanDEFromID(status, 1, 1);
-				if(status==KVIDTelescope::kMeanDE_OK){ // proton/Z=1 line exists, and we are in its energy range
-					if(dE_exp>ped+5.){ // arbitrary choice, must have expected dE at least 5 channels above pedestal
-						// if ChIo-CsI has no isotopic identification, reduce factor
-						Double_t factor = (idt->HasMassID() ? 0.3 : 0.1);
-						if(idt->GetIDMapY() < (ped+factor*(dE_exp-ped))){
-							theID = *IDchiocsi;
-							theID.IDOK=kTRUE;
-							theID.Zident=kTRUE;
-							theID.Aident=kTRUE;
-							theID.Z=0;
-							theID.A=1;
-							theID.IDcode=kIDCode1; // general code for neutrons
-							return kTRUE;
-						}
-					}
-				}
-			}
-		}
-
-		// We check the coherency of the mass and charge identifications
-		// If a successful ChIo-CsI identification is available we check:
-		//   ChIo-CsI gives just Z - must have same Z
-		//						if Z smaller => incoherency : pile-up of two particles in CsI ?
-		//							or bad signal from Si detector (dead zones) ?
-		//             	if Z larger => CsI identification is good,
-		//							assume another particle stopped in Si (identify in ChIo-Si)
-		//
-		//
-		
-		if(IDchiocsi->IDOK){
-			theID = *IDcsi;
-			Int_t Zref = IDcsi->Z;
-			Int_t Aref = IDcsi->A;
-			// only Z identification from Si-CsI
-				
-			if(Zref==4 && Aref==8){
-				// traitement special 8Be
-				// we ask for Z to be equal 3 in ChIoCsI
-				
-				if (IDchiocsi->Z<3){
-					fCoherentChIoCsI = kFALSE;
-					IDchiocsi->SetComment("CsI-R/L & ChIo-CsI identifications not coherent");
-					return kTRUE;
-				}
-				else if(IDchiocsi->Z==3){
-					if (!fUseFullChIoEnergyForCalib)
-						Warning("CoherencyChIoCsI","Identification coherente mais apriori %d coups dans ChIo",GetChIo()->GetNHits());
-					return kTRUE;
-				}
-				else {
-					fPileupChIo = kTRUE;
-					IDchiocsi->SetComment("Second particle stopping in ChIo");
-					return kTRUE;
-				}
-			}
-			// everything else
-			if(IDchiocsi->Z==Zref){
-				/*
-				if (!fUseFullChIoEnergyForCalib)
-					Warning("CoherencyChIoCsI","Identification coherente mais apriori %d coups dans ChIo",GetChIo()->GetNHits());
-				*/
-				return kTRUE;
-			}
-			else if(IDchiocsi->Z<Zref){
-				fCoherentChIoCsI = kTRUE;
-				IDchiocsi->SetComment("CsI-R/L & ChIo-CsI identifications not coherent");
-				return kTRUE;
-			}
-			else {
-				fPileupChIo = kFALSE;
-				IDchiocsi->SetComment("Second particle stopping in ChIo");
-				return kTRUE;
-			}
-		}
-		
-		// in all other cases accept CsI identification
-		theID = *IDcsi;
-		return kTRUE;
-	}
-	return kFALSE;
-}
-//____________________________________________________________________________________________
+ //____________________________________________________________________________________________
 
 void KVINDRAReconNuc::Identify()
 {
@@ -788,51 +647,19 @@ void KVINDRAReconNuc::Identify()
     }
    else
    {
-		//On met de coté les étalons pour le moment
-		if (GetDetectorList()->FindObjectByType("SI75") || GetDetectorList()->FindObjectByType("SILI")){
-			
-			Int_t id_no = 1;
-			KVIdentificationResult *pid = GetIdentificationResult(id_no);
-			while( pid ){
-				if( pid->IDattempted && pid->IDOK ){
-					ok = kTRUE;
-					partID = *pid;
-					break;
-				}
-				++id_no;
-				pid = GetIdentificationResult(id_no);
+		 // for all others we take the first identification which gives IDOK==kTRUE
+		Int_t id_no = 1;
+		KVIdentificationResult *pid = GetIdentificationResult(id_no);
+		while( pid ){
+			if( pid->IDattempted && pid->IDOK ){
+				ok = kTRUE;
+				partID = *pid;
+				break;
 			}
-			
-		}
-		else {
-		//identification couronne 10 a 17
-			//Arret dans les CsI, coherence entre identifcation CsI RL et ChIo CsI
-			if (StoppedInCsI()){
-				
-				fUseFullChIoEnergyForCalib = ( GetChIo() && GetChIo()->GetNHits()==1 );
-				ok = CoherencyChIoCsI(partID);
-				
-			}
-			else {
-				Info("Identify","Ring 10 a 17, particule stoppee dans la ChIo, passe par l id");
-				// particle stopped in ChIo (=> Zmin)
-   			Int_t id_no = 1;
-   			KVIdentificationResult *pid = GetIdentificationResult(id_no);
-   			while( pid && pid->IDattempted ){
-   				if( pid->IDOK ){
-   					ok = kTRUE;
-   					partID = *pid;
-   					break;
-   				}
-   				++id_no;
-   				pid = GetIdentificationResult(id_no);
-   			}
-				partID.Print();
-				fUseFullChIoEnergyForCalib = !(GetChIo() && GetChIo()->GetNHits()>1);
-			}
+			++id_no;
+			pid = GetIdentificationResult(id_no);
 		}
 	}
-
    if(ok){
         SetIsIdentified();
         KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
@@ -895,34 +722,11 @@ void KVINDRAReconNuc::Calibrate()
    // Veda energy calibration code according to the result of KVIDTelescope::GetCalibStatus.
    // For particles in rings 1-9, we use the results of the ChIo-Si-CsI coherency tests in order
    // to calculate their energy.
-
-	if (GetDetectorList()->FindObjectByType("SI75") || GetDetectorList()->FindObjectByType("SILI")){
-	 
-   	KVReconstructedNucleus::Calibrate();
-   	KVIDTelescope* idt;
-   	if ( (idt = GetIdentifyingTelescope()) ){
-      	if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_OK )
-      	   SetECode( kECode1 );
-      	else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Calculated )
-      	   SetECode( kECode2 );
-      	else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Multihit )
-      	   SetECode( kECode2 );
-      	else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Coherency )
-      	   SetECode( kECode2 );
-      	else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_NoCalibrations )
-      	   SetECode( kECode0 );
-      	CheckCsIEnergy();
-		}
-	 
-	}
-	else {
-		if(GetRingNumber()<=9)
-			CalibrateRings1To9();
-		else 
-			CalibrateRings10To17();	
-		
+	
+	if(GetRingNumber()<10){
+		CalibrateRings1To9();
 		SetIsCalibrated();
-		//add correction for target energy loss - charged particles only
+		 //add correction for target energy loss - charged particles only
 		Double_t E_targ = 0.;
 		if(GetZ()) {
 			E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
@@ -930,10 +734,32 @@ void KVINDRAReconNuc::Calibrate()
 		}
 		Double_t E_tot = GetEnergy() + E_targ;
 		SetEnergy( E_tot );
-        // set particle momentum from telescope dimensions (random)
+	
+      // set particle momentum from telescope dimensions (random)
 		GetAnglesFromTelescope();        
 		CheckCsIEnergy();
+		return;
 	}
+
+ 	// rings 10-17
+	KVReconstructedNucleus::Calibrate();
+	KVIDTelescope* idt;
+	if ( (idt = GetIdentifyingTelescope()) ){
+		if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_OK )
+			SetECode( kECode1 );
+		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Calculated )
+			SetECode( kECode2 );
+		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Multihit )
+			SetECode( kECode2 );
+		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Coherency )
+			SetECode( kECode2 );
+		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_NoCalibrations )
+			SetECode( kECode0 );
+		CheckCsIEnergy();
+	}
+
+
+
 
 }
 
@@ -984,6 +810,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         else
             fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
+           //Info("Calib", "ECsI = %f",fECsI);
             SetECode(kECode15);// bad - no CsI energy
             return;
         }
@@ -1041,95 +868,6 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         }
     }
 	 SetEnergy( fECsI + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
-}
-
-//_________________________________________________________________________________
-void KVINDRAReconNuc::CalibrateRings10To17()
-{
-    // Special calibration for particles in rings 10 to 17
-    // We set the energy calibration code for the particle here
-    //    kECode0 = no calibration (e.g. gammas)
-    //    kECode1 = everything OK
-    //    kECode2 = small warning, for example if energy loss in a detector is calculated
-    //    kECode15 = bad, calibration is no good
-	// The contributions from ChIo, Si, and CsI are stored in member variables fEChIo, fESi, fECsI
-	// If the contribution is calculated rather than measured, it is stored as a negative value
-    
-	fECsI=fEChIo=0;
-	if(GetCodes().TestIDCode(kIDCode_Gamma)){
-		// no calibration for gammas
-		SetECode(kECode0);
-		SetEnergy(0.);
-		return;
-	}
-	
-	KVIdentificationResult *IDcsi = GetIdentificationResult(1);
-	if(GetCodes().TestIDCode(kIDCode_Neutron)){
-		// use energy of CsI calculated using the Z & A of the CsI identification
-		// to calculate the energy deposited by the neutron
-		KVNucleus tmp(IDcsi->Z, IDcsi->A);
-		fECsI = GetCsI()->GetCorrectedEnergy(&tmp, -1., kFALSE );
-		SetEnergy( fECsI );
-		SetECode(kECode2); // not a real energy measure
-		return;
-	}
-
-	SetECode(kECode1);
-	Bool_t stopped_in_chio=kTRUE;
-	if(GetCsI()){
-    	stopped_in_chio=kFALSE;
-		/* CSI ENERGY CALIBRATION */
-		if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){
-			// Beryllium-8 = 2 alpha particles of same energy
-			// We halve the total light output of the CsI to calculate the energy of 1 alpha
-			Double_t half_light = GetCsI()->GetLumiereTotale()*0.5;
-			KVNucleus tmp(2,4);
-			fECsI = 2.*GetCsI()->GetCorrectedEnergy(&tmp,half_light,kFALSE);
-			SetECode(kECode2);
-		}
-		else
-			fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
-		
-		if(fECsI<=0){
-			SetECode(kECode15);// bad - no CsI energy
-			return;
-		}
-    }
-    if(GetChIo()){
-    /* IONISATION CHAMBER ENERGY CONTRIBUTION */
-    // if fUseFullChIoEnergyForCalib = kTRUE, the ChIo energy appears to include a contribution from another particle
-    //     therefore we have to estimate the ChIo energy for this particle using the CsI energy
-    // if fCoherent = kFALSE, the ChIo energy is too small to be consistent with the CsI identification,
-    //     therefore we have to estimate the ChIo energy for this particle using the CsI energy
-		if(!fPileupChIo && fCoherentChIoCsI && GetChIo()->IsCalibrated()){
-			//Info("calib","all well");
-			// all is apparently well
-			Bool_t ci_transmission=kTRUE;
-			if(stopped_in_chio){
-				ci_transmission=kFALSE;
-			}
-			else{
-				GetChIo()->SetEResAfterDetector(fECsI);
-			}
-			fEChIo = GetChIo()->GetCorrectedEnergy(this,-1.,ci_transmission);
-         if(fEChIo<=0) {
-        		//Info("calib", "echio=%f",fEChIo);
-				SetECode(kECode15);// bad - no ChIo energy
-				return;
-			}
-		}
-		else{
-			Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),fECsI);
-			// calculated energy: negative
-			GetChIo()->SetEResAfterDetector(fECsI);
- 			fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
-			fEChIo = -TMath::Abs(fEChIo);
-			SetECode(kECode2);
-		}
-    }
-    
-	 
-	 SetEnergy( fECsI + TMath::Abs(fEChIo) );
 }
 
 //________________________________________________________________________________//
@@ -1205,3 +943,50 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
     return idtel->GetIDSubCodeString(code);
 }
 
+
+//______________________________________________________________________________
+
+void KVINDRAReconNuc::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVINDRAReconNuc.
+   // 
+   // Sets flag for correcting calibrations in 5th campaign data written with
+   // versions prior to 1.8.10 (see KVSelector)
+   // We correct only Z>10 on rings 1-9
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      fCorrectCalib=kFALSE;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.ReadClassBuffer(KVINDRAReconNuc::Class(),this,R__v,R__s,R__c);
+      if(CalibNeedCorrection && R__v<11){
+         if( IsIdentified() && IsCalibrated() && GetZ()>10 && GetRingNumber()<10 ) {
+            fCorrectCalib=kTRUE;
+         }
+      }
+   } else {
+      R__b.WriteClassBuffer(KVINDRAReconNuc::Class(),this);
+   }
+}
+
+void KVINDRAReconNuc::Recalibrate()
+{
+   // Implements a 'rustine' for correction of particle calibrations
+   // in previously written data.
+   // The particles are 'chosen' in KVINDRAReconNuc::Streamer as they
+   // are read in from the file.
+   //
+   // This method is called by KVSelector::Process, so that fragments
+   // used in data analysis have correct energies
+   
+   if(CalibNeedCorrection && fCorrectCalib){
+	   KVTarget* t = gMultiDetArray->GetTarget();
+	   if(t){
+         // make sure target is in correct state to calculate
+         // target energy losses of fragments
+		   if(t->IsIncoming()) t->SetIncoming(kFALSE);
+         if(!t->IsOutgoing()) t->SetOutgoing(kTRUE);
+	   }
+      Calibrate();//recalibrate particle
+   }
+}

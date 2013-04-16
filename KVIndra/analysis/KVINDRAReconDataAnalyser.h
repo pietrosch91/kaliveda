@@ -31,9 +31,13 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    TObjArray* parList;
    Long64_t Entry;
 	void ConnectRawDataTree();
+   
+   Long64_t TotalEntriesToRead;
 	
  public:
 
+   Long64_t GetTotalEntriesToRead() const { return TotalEntriesToRead; }
+ 
    KVINDRAReconDataAnalyser();
    virtual ~ KVINDRAReconDataAnalyser();
 

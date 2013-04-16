@@ -36,12 +36,12 @@ ClassImp(KVTensP)
 //      Name            Index                   Meaning
 //----------------------------------------------------------------------------
 //      ThetaFlot       0       (default)       Theta flow (in degrees between 0 and +90)
-//      PhiPlan         1                       Phi of the reaction plane (in degrees between 0 and 360)
-//      Vap1            2                       Value of the 1st eigenvalue
-//      Vap2            3                       Value of the 2nd eigenvalue
-//      Vap3            4                       Value of the 3rd eigenvalue
-//      Sphericite      5                       Sphericity
-//      Coplanarite     6                       Coplanarity
+//      Sphericite      1                       Sphericity
+//      Coplanarite     2                       Coplanarity
+//      PhiPlan         3                       Phi of the reaction plane (in degrees between 0 and 360)
+//      Vap1            4                       Value of the 1st eigenvalue
+//      Vap2            5                       Value of the 2nd eigenvalue
+//      Vap3            6                       Value of the 3rd eigenvalue
 //
 // All these values can be obtained by calling the GetValuePtr() method which
 // returns an array of Double_t containing the values.
@@ -58,7 +58,7 @@ ClassImp(KVTensP)
 // Double_t copla=ptens->GetValue("Coplanarite");--> Coplanarity
 //
 // Double_t *values=ptens->GetValuePtr();
-// Double_t s=values[5] --------------> Sphericity
+// Double_t s=values[1] --------------> Sphericity
 //          tf=values[0] -------------> Theta Flow
 //
 // Look at KVVarGlob class to have an example of use.
@@ -82,12 +82,14 @@ void KVTensP::init_KVTensP(void)
    SetZmin(3);
    fLabel = "";
    SetNameIndex("ThetaFlot", 0);
-   SetNameIndex("PhiPlan", 1);
-   SetNameIndex("Vap1", 2);
-   SetNameIndex("Vap2", 3);
-   SetNameIndex("Vap3", 4);
-   SetNameIndex("Sphericite", 5);
-   SetNameIndex("Coplanarite", 6);
+   SetNameIndex("Sphericite", 1);
+   SetNameIndex("Coplanarite", 2);
+   SetNameIndex("PhiPlan", 3);
+   SetNameIndex("Vap1", 4);
+   SetNameIndex("Vap2", 5);
+   SetNameIndex("Vap3", 6);
+
+   SetMaxNumBranches(3);
 }
 
 
@@ -256,72 +258,71 @@ Double_t KVTensP::getvalue_void(void) const
 //_________________________________________________________________
 Double_t *KVTensP::GetValuePtr(void)
 {
-// On retourne un tableau de valeurs. il est organise comme suit 
-//
-// Index  Meaning
-//--------------------------------------
-// 0      Theta flow
-// 1      Phi of the reaction plane
-// 2      Value of the 1st eigenvalue
-// 3      Value of the 2nd eigenvalue
-// 4      Value of the 3rd eigenvalue
-// 5      Sphericity
-// 6      Coplanarity
-//
+    // On retourne un tableau de valeurs. il est organise comme suit
+    //
+    // Index  Meaning
+    //--------------------------------------
+    // 0      Theta flow
+    // 1      Sphericity
+    // 2      Coplanarity
+    // 3      Phi of the reaction plane
+    // 4      Value of the 1st eigenvalue
+    // 5      Value of the 2nd eigenvalue
+    // 6      Value of the 3rd eigenvalue
+    //
 
    fVal[0] = tenseurP->GetThetaFlot();
-   fVal[1] = tenseurP->GetPhiPlan();
-   fVal[2] = tenseurP->GetVap(1);
-   fVal[3] = tenseurP->GetVap(2);
-   fVal[4] = tenseurP->GetVap(3);
-   fVal[5] = tenseurP->GetSphericite();
-   fVal[6] = tenseurP->GetCoplanarite();
+   fVal[3] = tenseurP->GetPhiPlan();
+   fVal[4] = tenseurP->GetVap(1);
+   fVal[5] = tenseurP->GetVap(2);
+   fVal[6] = tenseurP->GetVap(3);
+   fVal[1] = tenseurP->GetSphericite();
+   fVal[2] = tenseurP->GetCoplanarite();
    return fVal;
 }
 
 //_________________________________________________________________
 Double_t KVTensP::getvalue_int(Int_t i)
 {
-// on retourne la ieme valeur du tableau
-//
-// Index   Meaning
-//---------------------------------------
-// 0       Theta flow
-// 1       Phi of the reaction plane
-// 2       Value of the 1st eigenvalue
-// 3       Value of the 2nd eigenvalue
-// 4       Value of the 3rd eigenvalue
-// 5       Sphericity
-// 6       Coplanarity
-//
-//
+    // on retourne la ieme valeur du tableau
+    //
+    // Index   Meaning
+    //---------------------------------------
+    // 0       Theta flow
+    // 1       Sphericity
+    // 2       Coplanarity
+    // 3       Phi of the reaction plane
+    // 4       Value of the 1st eigenvalue
+    // 5       Value of the 2nd eigenvalue
+    // 6       Value of the 3rd eigenvalue
+
    Double_t rval = 0;
    switch (i) {
    case 0:
       rval = tenseurP->GetThetaFlot();
       break;
 
-   case 1:
+   case 3:
       rval = tenseurP->GetPhiPlan();
       break;
 
-   case 2:
+   case 4:
       rval = tenseurP->GetVap(1);
       break;
 
-   case 3:
+   case 5:
       rval = tenseurP->GetVap(2);
       break;
 
-   case 4:
+   case 6:
       rval = tenseurP->GetVap(3);
       break;
 
-   case 5:
+   case 1:
       rval = tenseurP->GetSphericite();
       break;
 
-   case 6:
+   case 2:
       rval = tenseurP->GetCoplanarite();
       break;
 

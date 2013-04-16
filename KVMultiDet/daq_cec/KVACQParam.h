@@ -65,13 +65,13 @@ class KVACQParam:public KVBase {
    Float_t GetPedestal() const {
       return fPied;
    };
-void SetDeltaPedestal(Float_t delta) {
+   void SetDeltaPedestal(Float_t delta) {
       fDeltaPied = delta;
    };
    Float_t GetDeltaPedestal() const {
       return fDeltaPied;
    };
-   UShort_t* GetDataAddress(){ return &fData; };
+   UShort_t* GetDataAddress(){ return &fData; }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;
@@ -80,7 +80,7 @@ void SetDeltaPedestal(Float_t delta) {
 #endif
    virtual void Print(Option_t * opt = "") const;
 
-   Bool_t IsWorking() const { return fWorks; };
+   Bool_t IsWorking() const { return fWorks; }
    void SetWorking(Bool_t on = kTRUE){
       if(!on) Info("SetWorking", "Acquisition parameter %s not working", GetName());
       fWorks = on;

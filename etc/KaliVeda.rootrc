@@ -794,6 +794,7 @@ INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
 INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_fit_Si75_SiLi.dat
 INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_fit_SiLi_CsI.dat
 ###############################################
+INDRA_e613.IdentificationParameterFile.CI-SI:        CI_SI_e613.dat
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################
@@ -814,9 +815,9 @@ INDRA_e475s.ActiveIdentifications:      CSI CI-CSI SI-CSI CI-SI
 VAMOS_e503.ActiveIdentifications:       SI-CSI
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
-INDRA_e613.ActiveIdentifications:    CSI SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
 INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
@@ -858,8 +859,6 @@ KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
 
 # KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
 KVPulseHeightDefect.EnergyLoss.Npx:        60
-# Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
-KVSilicon.ZminForPHDCorrection:        10
 
 # File containing range tables for calculation of energy losses in KVedaLoss
 KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
@@ -880,6 +879,11 @@ KVDetector.Range.Npx:        20
 KVNDTManager.LifeTimeTable:       KVLifeTimeTable
 Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
 LifeTime.DataFile:	lifetime_nudat2.data
+
+# ChargeRadius tables used by KVNDTManager
+KVNDTManager.ChargeRadiusTable:       KVChargeRadiusTable
++Plugin.KVNuclDataTable:   KVChargeRadiusTable    KVChargeRadiusTable    KVMultiDet   "KVChargeRadiusTable()"
+ChargeRadius.DataFile:	chargeradii_angeli.data
 
 # Mass Excess tables used by KVNDTManager
 KVNDTManager.MassExcessTable:      KVMassExcessTable
@@ -987,3 +991,14 @@ KaliVedaGUI.MaxColWidth:       500
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    no
+
+# Controls which options are set at start up of KVTreeAnalyzer
+KVTreeAnalyzer.LogScale:         off
+KVTreeAnalyzer.UserBinning:           off
+KVTreeAnalyzer.UserWeight:       off
+KVTreeAnalyzer.NewCanvas:      off
+KVTreeAnalyzer.Normalize:      off
+
+# Controls auto-update option and refresh interval (in seconds) for KVBatchSystemGUI
+KVBatchSystemGUI.AutoUpdate:       yes
+KVBatchSystemGUI.RefreshInterval:    30

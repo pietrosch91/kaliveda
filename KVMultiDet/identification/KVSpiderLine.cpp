@@ -5,10 +5,11 @@ using namespace std;
 
 ClassImp(KVSpiderLine)
 
-KVSpiderLine::KVSpiderLine(int z_)
+KVSpiderLine::KVSpiderLine(int z_, Double_t pdy)
 {
   SetName(Form("Z=%d",z_));
   _z      = z_;
+  _a      = -1;
   _filled = false;
   
   _line = new TGraph();
@@ -19,19 +20,53 @@ KVSpiderLine::KVSpiderLine(int z_)
   _ff  = 0;
   _pow = 0;
   _fitStatus = 1;
+  _pdy = pdy;
+  ResetCounter();
+  _nAcceptedPoints = 100000;
+}
+
+KVSpiderLine::KVSpiderLine(int z_, int a_)
+{
+  SetName(Form("Z=%d,A=%d",z_,a_));
+  _z      = z_;
+  _a      = a_;
+  _filled = false;
+  
+  _line = new TGraph();
+  _line->SetName(GetName());
+  _iline = new TGraph();
+  _iline->SetName(Form("I%s",GetName()));
+
+  _ff  = 0;
+  _pow = 0;
+  _fitStatus = 1;
+  _pdy = 0;
+  ResetCounter();
+  _nAcceptedPoints = 100000;
 }
 
 KVSpiderLine::KVSpiderLine()
 {
   _line = 0;
   _iline = 0;
+  ResetCounter();
+  _nAcceptedPoints = 100000;
 }
 
 
 void KVSpiderLine::SetZ(int z_)
 {
   SetName(Form("Z=%d",z_));
+  if(_a>0) SetName(Form("%s,A=%d",GetName(),_a));
   _z      = z_;
+  _line->SetName(GetName());
+  _iline->SetName(Form("I%s",GetName()));  
+}
+
+void KVSpiderLine::SetA(int a_)
+{
+  SetName(Form("Z=%d,A=%d",_z,a_));
+  _a      = a_;
   _line->SetName(GetName());
   _iline->SetName(Form("I%s",GetName()));  
 }
@@ -53,6 +88,7 @@ bool KVSpiderLine::AddPoint(double x_, double y_, bool test_, int n_)
     _iline->SetPoint(_iline->GetN(), x_, y_);
     }
   
+  _pointsCounter++;
   return valid;
 }
 
@@ -171,6 +207,7 @@ TF1* KVSpiderLine::GetFunction(double min_, double max_)
 bool KVSpiderLine::TestPoint(double x_, double y_, double dy_, bool fit)
 {
   if(!CheckStatus()) return false;
+  if(_pointsCounter>=_nAcceptedPoints) return false;
   
   TF1* locf = 0;  
   if((GetN()>=10)&&(fit)) 
@@ -185,7 +222,7 @@ bool KVSpiderLine::TestPoint(double x_, double y_, double dy_, bool fit)
   if(dy_>0.) dy = dy_;
   else
     {
-    dy = (GetInterpolateY()/_z)*1.;
+    dy = ((GetInterpolateY()-_pdy)/_z)*1.;
     }
   
   if((GetN()>=10)&&(fit)) 

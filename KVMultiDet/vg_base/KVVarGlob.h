@@ -53,6 +53,9 @@ class KVVarGlob:public KVBase {
    
    Int_t fType;   // type of variable global; = kOneBody, kTwoBody or kNBody
    
+   Char_t fValueType; // type (='I' integer or 'D' double) of global variable value
+   Int_t fMaxNumBranches;// max number of branches to create for multi-valued variable
+
    static void FillMethodBody(KVString& body, int type);
    static void AddInitMethod(const Char_t* classname, KVClassFactory &cf, KVString &body, int type);
    static void AddFillMethod(KVClassFactory &cf, int type);
@@ -199,20 +202,40 @@ class KVVarGlob:public KVBase {
    
    virtual Int_t GetNumberOfValues() const
    {
-   	// Returns number of values associated with global variable.
-   	// This is the number of indices defined using SetNameIndex method.
-   	return nameList.GetNPar();
+        // Returns number of values associated with global variable.
+        // This is the number of indices defined using SetNameIndex method,
+        // unless SetMaxNumBranches has been called with a different
+       // (smaller) value.
+       return (fMaxNumBranches ? fMaxNumBranches : nameList.GetNPar());
    };
    const Char_t* GetValueName(Int_t i) const
    {
-   	// Returns name of value associated with index 'i',
-   	// as defined by using SetNameIndex method.
-   	for(int j=0; j<GetNumberOfValues(); j++){
-   		if(nameList.GetParameter(j)->GetVal() == i) return nameList.GetParameter(j)->GetName();
-   	}
-   	return "unknown";
+    // Returns name of value associated with index 'i',
+    // as defined by using SetNameIndex method.
+    for(int j=0; j<GetNumberOfValues(); j++){
+        if(nameList.GetParameter(j)->GetVal() == i) return nameList.GetParameter(j)->GetName();
+    }
+    return "unknown";
    };
-   
-   ClassDef(KVVarGlob, 4)      // Base class for global variables
+   virtual Char_t GetValueType(Int_t) const
+   {
+       // Returns type of value associated with index i
+       // This can be either 'I' (integer values) or 'D' (floating-point/double).
+       // By default, this method returns the same type (value of member variable
+       // fValueType) for all values of i.
+       // This can be overridden in child classes.
+
+       return fValueType;
+   }
+   void SetMaxNumBranches(Int_t n)
+   {
+       // Used for automatic TTree branch creation for multi-valued variables
+       // Normally a branch will be created for each of the N values declared
+       // in the SetNameIndex method, but if this method is called before
+       // analysis begins with n<N, only the first n branches will be used.
+       fMaxNumBranches=n;
+   }
+
+   ClassDef(KVVarGlob, 5)      // Base class for global variables
 };
 #endif

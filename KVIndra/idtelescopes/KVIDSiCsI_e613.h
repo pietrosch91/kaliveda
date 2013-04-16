@@ -8,6 +8,8 @@
 #include "KVSilicon.h"
 #include "KVCsI.h"
 
+class KVMultiDetArray;
+
 class KVIDSiCsI_e613 : public KVIDSiCsI
 {
 
@@ -15,6 +17,11 @@ class KVIDSiCsI_e613 : public KVIDSiCsI
   KVIDZAGrid* fPGgrid;			//! grid used for Si(PG)-CsI(TotLight) charge identification
   KVSilicon* fSi;			//! the si
   KVCsI* fCsI;				//! the csi
+  
+  Double_t fCsIRPedestal;		//!CsI Rapide pedestal for current run
+  Double_t fCsILPedestal;		//!CsI Lente pedestal for current run
+  Double_t fSiPGPedestal;		//!Silicon PG pedestal for current run
+  Double_t fSiGGPedestal;		//!Silicon GG pedestal for current run
 
   public:
   KVIDSiCsI_e613();
@@ -23,6 +30,9 @@ class KVIDSiCsI_e613 : public KVIDSiCsI
   virtual void Initialize(void);
   virtual Double_t GetIDMapX(Option_t * opt = "");
   virtual Double_t GetIDMapY(Option_t * opt = "");
+  virtual Double_t GetPedestalX(Option_t * opt = ""){return 0.;};
+  virtual Double_t GetPedestalY(Option_t * opt = ""){return 0.;};
+  
   Bool_t Identify(KVIdentificationResult*, Double_t x=-1., Double_t y=-1.);
 
   ClassDef(KVIDSiCsI_e613,1) //Si-CsI id with grids for INDRA_e613

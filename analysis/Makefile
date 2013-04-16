@@ -147,18 +147,18 @@ PREREQ = $(PREQ:%.cpp=%.d)
 all: config $(ANALOG) $(DELOG) $(KVDTAN) $(KVRSRD) $(UPDRLT) $(KVANAL) $(KVGUI) install
 	
 $(ANALOG): $(ANALOGO)
-	$(LD) $(LDFLAGS) $^  $(LIBS) $(ANALOG_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^ $(ANALOG_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 $(ANALOGO): $(ANALOGS)
 	$(CXX) $(CXXFLAGS) -DGRIDENGINE_LOG_READER -c $<
 
 $(DELOG): $(DELOGO)
-	$(LD) $(LDFLAGS) $^  $(LIBS) $(DELOG_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^  $(DELOG_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 $(KVDTAN): $(KVDTANO)
-	$(LD) $(LDFLAGS) $^ $(LIBS) $(KVDTAN_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^ $(KVDTAN_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(KVDTANO): $(KVDTANS)
@@ -168,7 +168,7 @@ $(KVRSRD): $(KVRSRDO)
 ifeq ($(ARCH),win32)
 	$(LD) $(LDFLAGS) $^ $(LIBS) '$(ROOTSYS)\lib\libTreePlayer.lib' '$(ROOTSYS)\lib\libTreeViewer.lib' '$(ROOTSYS)\lib\libGed.lib' $(LINK_LIBS) $(OutPutOpt)$@
 else
-	$(LD) $(LDFLAGS) $^ $(LIBS) -lTreePlayer -lTreeViewer -lGed $(KVRSRD_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^ $(KVRSRD_LIBS) $(LIBS) -lTreePlayer -lTreeViewer -lGed $(OutPutOpt)$@
 endif
 	@echo "$@ done"
 
@@ -176,21 +176,21 @@ endif
 #	$(CXX) $(CXXFLAGS) -c $<
 
 $(UPDRLT): $(UPDRLTO)
-	$(LD) $(LDFLAGS) $^ $(LIBS) $(UPDRLT_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^ $(UPDRLT_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(UPDRLTO): $(UPDRLTS)
 #	$(CXX) $(CXXFLAGS) -c $<
 
 $(KVANAL): $(KVANALO)
-	$(LD) $(LDFLAGS) $^ $(LIBS) $(KVANAL_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^ $(KVANAL_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(KVANALO): $(KVANALS)
 #	$(CXX) $(CXXFLAGS) -c $<
 	
 $(KVGUI): $(KVGUIO)
-	$(LD) $(LDFLAGS) $^ $(LIBS) $(KVGUI_LIBS) $(OutPutOpt)$@
+	$(LD) $(LDFLAGS) $^ $(KVGUI_LIBS) $(LIBS) $(OutPutOpt)$@
 	@echo "$@ done"
 
 #$(KVGUIO): $(KVGUIS)

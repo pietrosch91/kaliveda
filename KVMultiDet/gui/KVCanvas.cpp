@@ -19,10 +19,14 @@ ClassImp(KVCanvas)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVCanvas</h2>
-Classe basée sur TCanvas avec surcharge de la méthode 'HandleInput'
-de manière à être sensible au mouvement de molette (kWheelUp/kWheelDown),
-et à suprimer la sensibilité des TPavaLabel.
-Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
+TCanvas with mouse-controlled dynamic zoom and pan & scan.<br>
+
+<img alt="KVCanvas" src="images/KVCanvas.png"><br><br>
+
+Dynamic zoom: left-click to draw rectangle around region of interest, release mouse button to zoom in<br>
+Zoom in: mouse wheel up<br>
+Zoom out: mouse wheel down<br>
+Pan: hold down mouse wheel (centre button) and move
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,11 +34,14 @@ Cette Classe à été créée pour être urilisée par la classe KVIDGridEditor.
 
 
 //________________________________________________________________
-KVCanvas::KVCanvas()
+KVCanvas::KVCanvas():TCanvas()
 {
   fKeyHandler  = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
+  fFreezed = kFALSE;
    // Default constructor
 }
 
@@ -44,18 +51,27 @@ KVCanvas::~KVCanvas()
    // Destructor
 }
 
-KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t wimid):TCanvas(name,ww,wh,wimid)
-{
-  fAgeOfEmpire = false;
-  fModeVener   = false;
-}
-
 //________________________________________________________________
-KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name,title,ww,wh)
+KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name, title, ww, wh)
 {
   fKeyHandler = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
+  fFreezed = kFALSE;
+}
+
+//________________________________________________________________
+KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(name, ww, wh, winid)
+{
+//  fKeyHandler = new KVKeyHandler(this);
+  fAgeOfEmpire = false;
+  fModeVener   = false;
+  fHasDisabledClasses = false;
+  fHasDisabledObject = false;
+  fDisabledClasses = "";
+  fFreezed = kFALSE;
 }
 
 //________________________________________________________________
@@ -85,6 +101,36 @@ void KVCanvas::RunAutoExec()
    if (!gPad) return;
    ((TPad*)gPad)->AutoExec();
    
+}
+
+//______________________________________________________________________________
+void KVCanvas::DisableClass(const char* className)
+{
+  fHasDisabledClasses = true;
+  fDisabledClasses += className;
+  
+}
+
+//______________________________________________________________________________
+void KVCanvas::ResetDisabledClass()
+{
+  fHasDisabledClasses = false;
+  fDisabledClasses = "";
+}
+
+//______________________________________________________________________________
+void KVCanvas::ResetDisabledObject()
+{
+  fHasDisabledObject = true;
+  fDisabledObjects.Clear();
+}
+
+//______________________________________________________________________________
+void KVCanvas::DisableObject(TObject* obj)
+{
+  if(!obj) return;
+  fHasDisabledObject = true;
+  fDisabledObjects.AddLast(obj);
 }
 
 //______________________________________________________________________________
@@ -123,11 +169,13 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    // Handle Input Events.
    //
    //  Handle input events, like button up/down in current canvas.
+   
+   if(fFreezed) return;
 
    TPad    *pad;
    TPad    *prevSelPad = (TPad*) fSelectedPad;
    TObject *prevSelObj = fSelected;
-
+    
    fPadSave = (TPad*)gPad;
    cd();        // make sure this canvas is the current canvas
 
@@ -136,6 +184,17 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
    fEventY = py;
    
    Int_t sign = 0;
+   Bool_t sendOrder = true;
+   
+   if(fHasDisabledClasses&&fSelected)
+     {
+     if(fDisabledClasses.Contains(fSelected->ClassName())) sendOrder = false;
+     }
+     
+   if(fHasDisabledObject&&fSelected)
+     {
+     if(fDisabledObjects.Contains(fSelected)) sendOrder = false;
+     }
    
    switch (event) {
 
@@ -145,12 +204,12 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (!pad) return;
 
       EnterLeave(prevSelPad, prevSelObj);
-
+	
       gPad = pad;   // don't use cd() we will use the current
                     // canvas via the GetCanvas member and not via
                     // gPad->GetCanvas
 
-      fSelected->ExecuteEvent(event, px, py);
+      if(sendOrder) fSelected->ExecuteEvent(event, px, py);
 
       RunAutoExec();
       
@@ -274,7 +333,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         fSelected->ExecuteEvent(event, px, py);
+         if(sendOrder) fSelected->ExecuteEvent(event, px, py);
          gVirtualX->Update();
 
          if (!fSelected->InheritsFrom(TAxis::Class())) {
@@ -301,7 +360,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         fSelected->ExecuteEvent(event, px, py);
+         if(sendOrder) fSelected->ExecuteEvent(event, px, py);
 
          RunAutoExec();
 
@@ -444,7 +503,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       if (fSelected) {
          gPad = fSelectedPad;
 
-         fSelected->ExecuteEvent(event, px, py);
+         if(sendOrder) fSelected->ExecuteEvent(event, px, py);
          RunAutoExec();
       }
       break;
@@ -461,9 +520,11 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
       if (!fDoubleBuffer) FeedbackMode(kFALSE);
 
-      if (fContextMenu && !fSelected->TestBit(kNoContextMenu) &&
-         !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu))
-         fContextMenu->Popup(px, py, fSelected, this, pad);
+      if (fContextMenu && !fSelected->TestBit(kNoContextMenu) && !pad->TestBit(kNoContextMenu) && !TestBit(kNoContextMenu))
+      {
+          if(sendOrder) fContextMenu->Popup(px, py, fSelected, this, pad);
+          else fSelected->ExecuteEvent(event, px, py);
+      }
 
       break;
 
@@ -509,8 +570,9 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       sign = (event==kWheelUp ? 1:-1);
     
       gPad = pad;
-      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
+//      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
       if(fSelected->InheritsFrom("TH2")) DynamicZoom(sign,px,py);
+      else if(fSelected->InheritsFrom("TH1")) DynamicZoomTH1(sign,px,py);
       
       RunAutoExec();
       
@@ -545,6 +607,40 @@ void KVCanvas::ZoomSelected(TH2* TheHisto)
   if((ratio2-ratio1 > 0.05)) ax->SetRangeUser(ymin, ymax);
   
   xmax = xmin = ymax = ymin = 0.;
+  return;
+}
+
+//________________________________________________________________
+void KVCanvas::DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py)
+{
+   // Zoom in or out of histogram with mouse wheel
+   
+  if(!fSelected) return;
+  TH1* TheHisto = (TH1*) fSelected;
+
+  Double_t percent = 0.15-Sign*0.05;
+  
+  Int_t dX = 0;
+  
+  px = AbsPixeltoX(px);
+    
+  TAxis* ax = TheHisto->GetXaxis();
+  Int_t NbinsXtmp = ax->GetNbins();
+  Int_t X0tmp = ax->GetFirst();
+  Int_t X1tmp = ax->GetLast();
+  Int_t step = TMath::Min(TMath::Max(1, (Int_t)(percent*(X1tmp-X0tmp))),NbinsXtmp/2);
+  step*=Sign;
+  X0tmp = TMath::Min(TMath::Max(X0tmp+step,1),X1tmp-step);
+  X1tmp = TMath::Max(TMath::Min(X1tmp-step,NbinsXtmp),X0tmp);
+  if(X0tmp>=X1tmp) X0tmp=X1tmp-1;
+  if(Sign>0) dX = (Int_t) (X0tmp + (X1tmp-X0tmp)*0.5 - ax->FindBin(px));
+  if((X0tmp-dX)<0) ax->SetRange(0,X1tmp-X0tmp);
+  else if((X1tmp-dX)>ax->GetNbins()) ax->SetRange(ax->GetNbins()-(X1tmp-X0tmp),ax->GetNbins());
+  else ax->SetRange(X0tmp-dX,X1tmp-dX);
+  
+  
+  Modified();
+  Update();
   return;
 }
 

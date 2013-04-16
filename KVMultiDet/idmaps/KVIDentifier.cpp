@@ -368,7 +368,7 @@ void KVIDentifier::ExtendLine(Double_t Limit, Option_t* Direction)
     gPad->Modified();
 }
 
-void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t sx)
+void KVIDentifier::CloneScaleStore(Int_t newzt,Int_t newar,Double_t dy,Double_t sx,Double_t sy)
 {
     // Create a new line from the selected one
     // with a new Z and A (optional)
@@ -382,16 +382,17 @@ void KVIDentifier::CloneScaleStore(Int_t newzt,Double_t sy,Int_t newar,Double_t 
     for (Int_t nn=0;nn<this->GetN();nn+=1)
     {
         this->GetPoint(nn,xx,yy);
-        idbis->SetPoint(nn,xx,yy);
+        idbis->SetPoint(nn,xx,yy+dy);
     }
 	 idbis->SetOnlyZId(OnlyZId());
     idbis->SetZ(newzt);
     idbis->SetMassFormula(GetMassFormula());
+    idbis->SetEditable(IsEditable());
     if (newar!=-1)
     {
         idbis->SetA(newar);
     }
-    idbis->Scale(sx,sy);
+    if((sx>0.)&&(sy>0.)) idbis->Scale(sx,sy);
     this->GetParent()->AddIdentifier(idbis);
 
     this->GetParent()->UnDraw();
