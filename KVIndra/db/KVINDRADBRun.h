@@ -36,14 +36,14 @@ private:
    void SetLogbook(const Char_t *log) { Set("Logbook", log); };
 
    Double_t GetEventCrossSection(Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 10.e-10) const;
+                                 Double_t Coul_par_top = 1.e-10) const;
    Double_t GetTotalCrossSection(Double_t Q_apres_cible,
-                                 Double_t Coul_par_top = 10.e-10) const;
+                                 Double_t Coul_par_top = 1.e-10) const;
 
    Double_t GetTempsMort() const;
    Double_t GetDeadTime() const { return GetTempsMort(); };
    Double_t GetNIncidentIons(Double_t Q_apres_cible,
-                             Double_t Coul_par_top = 10.e-10) const;
+                             Double_t Coul_par_top = 1.e-10) const;
 
    //The GENE DIRECT of INDRA Selector module is generated from an internal clock with a nominal
    //frequency of 160Hz, but which in reality (as measured by scaler) is approximately 185Hz (it actually

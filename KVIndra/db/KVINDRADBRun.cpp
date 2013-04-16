@@ -98,7 +98,7 @@ Double_t KVINDRADBRun::GetNIncidentIons(Double_t Q_apres_cible,
    //Calculate total number of incident beam particles during run, based on measured integrated beam current
    //Arguments:
    //      Q_apres_cible = (average) charge state of projectile ions AFTER passage through target
-   //      Coul_par_top = calibration of Faraday current integrator (default: 10.e-10 Coul/top)
+   //      Coul_par_top = calibration of Faraday current integrator (default: 1.e-10 Coul/top)
    //      Note (from sect_effic.f):
    //**** Etalonnage de l'integrateur en 1993: voir cahier 4 page 87.
    //***  Si l'oscillateur interne du trigger est a 169 Hz, on a 10**(-10) Cb/top.
