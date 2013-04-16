@@ -30,6 +30,7 @@
 #include "KVBatchSystemManager.h"
 #include "TSystemDirectory.h"
 #include "KVInputDialog.h"
+#include "KVBatchSystemGUI.h"
 
 #define TTDELAY 750
 
@@ -418,9 +419,6 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
 
  TGLayoutHints *eXeY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
-				       1,1,1,1);
- TGLayoutHints *eXcY=new TGLayoutHints(kLHintsLeft|kLHintsTop|
-                                       kLHintsExpandX|kLHintsCenterY,
 				       1,1,1,1);
  TGLayoutHints *eX=new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX,
@@ -1459,6 +1457,9 @@ else if(strcmp(task->GetUserBaseClass(), "")){
   }
  datan->Run();
  
+ //if no batch system GUI window is already open, open it
+  if(IsBatch() && !KVBatchSystemGUI::IsOpen()) new KVBatchSystemGUI;
+  
  gSystem->SetIncludePath(oriIncludePath.Data());
 }
 

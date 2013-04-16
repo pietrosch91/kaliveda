@@ -37,10 +37,12 @@ class KVString:public TString
    };
 	public:
          
-	KVString() : TString() { init(); };
-   KVString(const Char_t * s):TString(s) { init(); };
-   KVString(const TString & s):TString(s) { init(); };
-   KVString(const KVString & s):TString((const TString&)s) { init(); };
+        KVString() : TString() { init(); }
+   KVString(const Char_t * s):TString(s) { init(); }
+   KVString(const TString & s):TString(s) { init(); }
+   KVString(const KVString & s):TString((const TString&)s) { init(); }
+   KVString(Double_t value, Double_t error);
+
    virtual ~ KVString() {
    	if (kObjArr) delete kObjArr;
 	};

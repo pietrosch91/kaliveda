@@ -69,14 +69,24 @@ KVCsI::KVCsI()
 }
 
 //______________________________________________________________________________
-KVCsI::KVCsI(Float_t thick):KVINDRADetector("CsI", thick)
+KVCsI::KVCsI(Float_t thick, Float_t thickAl):KVINDRADetector("CsI", thick)
 {
-   //Make a CsI detector "thick" cm long
-   //Set type of detector to "CSI"
-   //By default 'thick'=0
+    //Make a CsI detector "thick" cm long
+    //with a Al dead layer "thickAl" um long
+    //Set type of detector to "CSI"
+    //By default 'thick'=0
 
-   SetType("CSI");
-   init();
+    KVMaterial *mat = new KVMaterial("Al",thickAl*KVUnits::um);
+    fAbsorbers->AddFirst(mat);
+    SetActiveLayer(1);
+
+    SetType("CSI");
+    init();
+}
+
+void KVCsI::SetAlThickness(Float_t thickAl /* um */)
+{
+ GetAbsorber(0)->SetThickness(thickAl*KVUnits::um);
 }
 
 //____________________________________________________________________________________________
@@ -414,7 +424,7 @@ void KVCsI::Streamer(TBuffer &R__b)
 
 //______________________________________________________________________________
 
-Double_t KVCsI::GetCorrectedEnergy(const KVNucleus* nuc, Double_t lum, Bool_t trans)
+Double_t KVCsI::GetCorrectedEnergy(KVNucleus* nuc, Double_t lum, Bool_t trans)
 {
    // Calculate calibrated energy loss for a nucleus (Z,A) giving total light output "lum".
    // If "lum" is not given, the total light of the detector

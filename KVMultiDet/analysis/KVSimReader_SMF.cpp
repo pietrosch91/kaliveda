@@ -15,12 +15,14 @@ ClassImp(KVSimReader_SMF)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+//________________________________________________________________
 KVSimReader_SMF::KVSimReader_SMF()
 {
    // Default constructor
 	init();
 }
 
+//________________________________________________________________
 KVSimReader_SMF::KVSimReader_SMF(KVString filename)
 {
    init();
@@ -29,13 +31,16 @@ KVSimReader_SMF::KVSimReader_SMF(KVString filename)
 	CloseFile();
 }
 
+//________________________________________________________________
 KVSimReader_SMF::~KVSimReader_SMF()
 {
    // Destructor
 }
 
 
-void KVSimReader_SMF::ReadFile(){
+//________________________________________________________________
+void KVSimReader_SMF::ReadFile()
+{
 
 	while (IsOK()){
 		if (ReadHeader() && ReadEvent()){
@@ -43,16 +48,12 @@ void KVSimReader_SMF::ReadFile(){
 			if (HasToFill()) FillTree();
 		}
 	}
-	
-	/*
-	Int_t netot = nv->GetEntries();
-	for (Int_t ne=0; ne<netot; ne+=1)	
-		AddObjectToBeWrittenWithTree(nv->RemoveAt(0));
-	*/
+
 }
 
-
-Bool_t KVSimReader_SMF::ReadHeader(){
+//________________________________________________________________
+Bool_t KVSimReader_SMF::ReadHeader()
+{
 
 	KVString snom;
 	Int_t res = ReadLineAndCheck(1," ");
@@ -73,9 +74,9 @@ Bool_t KVSimReader_SMF::ReadHeader(){
 
 }
 
-//-----------------------------------------
-
-Bool_t KVSimReader_SMF::ReadEvent(){
+//________________________________________________________________
+Bool_t KVSimReader_SMF::ReadEvent()
+{
 
 	evt->Clear();
 	
@@ -105,9 +106,9 @@ Bool_t KVSimReader_SMF::ReadEvent(){
 
 }
 
-//-----------------------------------------
-
-Bool_t KVSimReader_SMF::ReadNucleus(){
+//________________________________________________________________
+Bool_t KVSimReader_SMF::ReadNucleus()
+{
 
 	ReadLine(" ");
 	Int_t res = GetNparRead();

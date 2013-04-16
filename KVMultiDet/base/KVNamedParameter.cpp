@@ -198,3 +198,14 @@ void KVNamedParameter::ls(Option_t* opt) const
       }
    }
 }
+
+Int_t KVNamedParameter::Compare(const TObject *obj) const
+{
+    // Compares numerical parameters for sorting lists (such as KVNameValueList)
+    if(!IsNumber()) return 0;
+    const KVNamedParameter* other = dynamic_cast<const KVNamedParameter*>(obj);
+    if(!other || !other->IsNumber()) return 0;
+    // check for equality
+    if((*other)==(*this)) return 0;
+    return ((other->fNumber)>fNumber ? -1 : 1);
+}

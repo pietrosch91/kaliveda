@@ -57,16 +57,32 @@ KVKeyHandler::KVKeyHandler(KVCanvas* Canvas) : TGFrame(gClient->GetRoot(),0,0)
    main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F11), 0);
    main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_F12), 0);
    
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_s), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_z), 0);
    main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_a), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_e), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_d), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_w), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_l), 0);
-   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_v), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_b), 0);
    main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_c), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_d), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_e), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_f), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_g), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_h), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_i), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_j), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_k), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_l), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_m), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_n), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_o), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_p), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_q), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_r), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_s), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_t), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_u), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_v), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_w), 0);
    main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_x), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_y), 0);
+   main_frame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_z), 0);
    
    gVirtualX->SetKeyAutoRepeat(kTRUE);
 }
@@ -98,17 +114,33 @@ KVKeyHandler::~KVKeyHandler()
    main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F11), 0);
    main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_F12), 0);
    
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_s), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_z), 0);
    main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_a), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_e), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_d), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_w), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_l), 0);
-   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_v), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_b), 0);
    main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_c), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_d), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_e), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_f), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_g), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_h), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_i), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_j), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_k), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_l), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_m), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_n), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_o), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_p), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_q), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_r), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_s), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_t), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_u), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_v), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_w), 0);
    main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_x), 0);
-   
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_y), 0);
+   main_frame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_z), 0);
+      
    gVirtualX->SetKeyAutoRepeat(kTRUE);
 }
 

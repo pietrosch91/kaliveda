@@ -18,9 +18,11 @@
 
 class KVGVList:public KVList {
 
-   Double_t fBranchVar[MAX_CAP_BRANCHES];//! used for automatic creation & filling of TTree branches
-   Int_t fNbBranch;
-   
+    Double_t fBranchVar[MAX_CAP_BRANCHES];//! used for automatic creation & filling of TTree branches
+    Int_t fIBranchVar[MAX_CAP_BRANCHES];//! used for automatic creation & filling of TTree branches
+    Int_t fNbBranch;
+    Int_t fNbIBranch;
+
  public:
 // Champs Statiques:
    static Int_t nb;
@@ -70,6 +72,6 @@ class KVGVList:public KVList {
    virtual void MakeBranches(TTree*);
    virtual void FillBranches();
    
-    ClassDef(KVGVList, 2)       // List of global variables
+    ClassDef(KVGVList, 3)       // List of global variables
 };
 #endif

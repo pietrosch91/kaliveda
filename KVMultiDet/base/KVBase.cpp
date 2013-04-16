@@ -36,6 +36,9 @@ $Id: KVBase.cpp,v 1.57 2009/04/22 09:38:39 franklan Exp $
 #include "TGMimeTypes.h"
 #include "TGClient.h"
 #include "KVNDTManager.h"
+#include "TContextMenu.h"
+#include <TKey.h>
+#include "TTree.h"
 #ifdef WITH_GRULIB
 #include "GNetClientRoot.h"
 #endif
@@ -1012,3 +1015,88 @@ Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
 
     return false;
 }
+
+Bool_t KVBase::OpenContextMenu(const char* method, TObject* obj, const char *alt_method_name)
+{
+    // Open context menu for given method of object *obj.
+    // By default title of menu is 'obj->ClassName()::method'
+    // You can give an alternative method name in 'alt_method_name'
+    // Returns kFALSE if the given method is not defined for the class of object in question.
+    //
+    // WARNING: even if this method returns kTRUE, this is no guarantee that the method
+    // has indeed been executed. The user may have pressed the 'Cancel' button...
+
+   TMethod* m = obj->IsA()->GetMethodAllAny(method);
+   if(!m)
+     {
+     obj->Warning("OpenContextMenu","%s is not a method of %s",method,obj->ClassName());
+     return kFALSE;
+     }
+   TString Method=alt_method_name;
+   if(Method=="") Method=method;
+   TContextMenu * cm = new TContextMenu(Method, Form("%s::%s",obj->ClassName(),Method.Data()));
+   cm->Action(obj,m);
+   delete cm;
+   return kTRUE;
+}
+
+void KVBase::CombineFiles(const Char_t *file1, const Char_t *file2, const Char_t *newfilename, Bool_t keep)
+{
+    // STATIC method which allows to combine the contents of two ROOT files
+    // (file1 and file2) into a new ROOT file (newfilename).
+    // All objects from the two files will be written in the new file.
+    //
+    // if keep=kFALSE, the two files will be deleted after the operation
+
+    ::Info("KVBase::CombineFiles", "Copying all objects from %s and %s ===> into new file %s", file1, file2, newfilename);
+    TFile* f1 = TFile::Open(file1);
+    TList objL1;//list of objects in file 1
+    TList treeL1;//list of trees in file 1
+    TIter next(f1->GetListOfKeys());
+    TKey*key;
+    while( (key=(TKey*)next()) ){
+        if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TDirectory")){//avoid subdirectories!
+            if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TTree"))
+                objL1.Add(f1->Get(key->GetName()));
+            else
+                treeL1.Add(f1->Get(key->GetName()));
+        }
+    }
+    TFile* f2 = TFile::Open(file2);
+    TList objL2;//list of objects in file 2
+    TList treeL2;//list of trees in file 2
+    TIter next2(f2->GetListOfKeys());
+    while( (key=(TKey*)next2()) ){
+        if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TDirectory")){//avoid subdirectories!
+            if(!TClass::GetClass( key->GetClassName(), kFALSE, kTRUE )->InheritsFrom("TTree"))
+                objL2.Add(f2->Get(key->GetName()));
+            else
+                treeL2.Add(f2->Get(key->GetName()));
+        }
+    }
+    TFile* newfile = new TFile(newfilename, "recreate");
+    objL1.Execute("Write", "");
+    objL2.Execute("Write", "");
+    if(treeL1.GetEntries()){
+        TIter nxtT(&treeL1);
+        TTree* t;
+        while( (t = (TTree*)nxtT()) ) t->CloneTree(-1,"fast")->Write();
+    }
+    if(treeL2.GetEntries()){
+        TIter nxtT(&treeL2);
+        TTree* t;
+        while( (t = (TTree*)nxtT()) ) t->CloneTree(-1,"fast")->Write();
+    }
+    newfile->Close();
+    f1->Close();
+    f2->Close();
+    if(!keep){
+        gSystem->Unlink(file1);
+        gSystem->Unlink(file2);
+    }
+}
+
+
+
+
+

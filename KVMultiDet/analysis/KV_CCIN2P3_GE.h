@@ -16,10 +16,8 @@ class KV_CCIN2P3_GE:public KVBatchSystem {
    Bool_t fTimeSet;
    Bool_t fDiskSet;
    Bool_t fMemSet;
-   KVList joblist;
    
 	virtual void ChangeDefJobOpt(KVDataAnalyser*);
-	void AnalyseQstatResponse();
 	
  public:
 
@@ -48,9 +46,10 @@ class KV_CCIN2P3_GE:public KVBatchSystem {
    virtual void ReadBatchEnvFile(TEnv*);
    virtual void Print(Option_t* /*option*/ = "") const;
    
-	TString GE_Request(KVString value,KVString jobname="");
-	void qalter(const Char_t* job_base_name, const Char_t* new_ressources);
    virtual void SanitizeJobName();
+
+    virtual KVList* GetListOfJobs();
+   virtual void AlterJobs(TGWindow*, TList*);
 	
    ClassDef(KV_CCIN2P3_GE, 1)  //Interface to CCIN2P3-GE batch job management system
 };

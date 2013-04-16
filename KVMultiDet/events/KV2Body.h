@@ -56,6 +56,7 @@ class KV2Body:public TObject {
    void Set4thNucleus();
    Double_t ThetaLabVsThetaCM(Double_t *,Double_t *);
    Double_t ELabVsThetaCM(Double_t *,Double_t *);
+   Double_t ELabVsThetaLab(Double_t *,Double_t *);
 	Double_t XSecRuthLab(Double_t *,Double_t *);
 	Double_t XSecRuthLabInt(Double_t *,Double_t *);
    Double_t XSecRuthCM(Double_t *,Double_t *);
@@ -63,6 +64,7 @@ class KV2Body:public TObject {
    
    TF1* fThetaLabVsThetaCM[5];
    TF1* fELabVsThetaCM[5];
+   TF1* fELabVsThetaLab[5];
    
    TF1* fXSecRuthLabIntegral[5];
    TF1* fXSecRuthLab[5];
@@ -130,7 +132,8 @@ class KV2Body:public TObject {
 
 	TF1* GetThetaLabVsThetaCMFunc(Int_t OfNucleus);
    TF1* GetELabVsThetaCMFunc(Int_t OfNucleus);
-	
+   TF1 *GetELabVsThetaLabFunc(Int_t OfNucleus);
+
    Double_t GetThetaLab(Double_t ThetaCM, Int_t OfNucleus) const
    {
       // Calculate lab angle of nucleus OfNucleus (=1,2,3,4) as a function of CM angle
@@ -186,7 +189,7 @@ class KV2Body:public TObject {
 		fIntPrec = precision;
 	}
 	
-   ClassDef(KV2Body, 0)         //Relativistic binary kinematical calculation
+    ClassDef(KV2Body, 0)         //Relativistic binary kinematical calculation
 };
 
 #endif

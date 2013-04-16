@@ -29,7 +29,7 @@ KVAutoFit::KVAutoFit()
 	// doivent etre a 2D ou 1D
 	// par defaut is2D= kFALSE dans la methode init
 	
-	SetName("KVAutoFit");
+        SetName("KVAutoFit");
 	init();
 	Clear();
 	/*

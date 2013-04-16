@@ -36,6 +36,7 @@ class KVRungeKutta : public KVBase
     Double_t *ak2, *ak3, *ak4, *ak5, *ak6;
     Double_t dc1, dc3, dc4, dc6;
 	Bool_t fOK;
+   Bool_t fInitialDeriv;
 	virtual void rkqs (Double_t htry);
 	virtual void rkck (Double_t h);
 

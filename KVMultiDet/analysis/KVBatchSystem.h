@@ -17,6 +17,7 @@ $Date: 2008/04/03 07:35:45 $
 
 class KVDataAnalyser;
 class TEnv;
+class TGWindow;
 
 class KVBatchSystem : public KVBase {
 
@@ -104,7 +105,11 @@ class KVBatchSystem : public KVBase {
    virtual void SetJobMemory(const Char_t* = ""){}; 
    virtual void SetJobDisk(const Char_t* = ""){};
    
-   virtual void SanitizeJobName(){};
+   virtual void SanitizeJobName(){}
+
+   virtual KVList* GetListOfJobs();
+   
+   virtual void AlterJobs(TGWindow*, TList*) {;}
    
 	ClassDef(KVBatchSystem, 2)   //Base class for interface to batch job management system
 };

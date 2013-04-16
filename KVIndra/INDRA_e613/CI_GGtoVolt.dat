@@ -1,7 +1,7 @@
 #Detecteur ChIo
 #Fonction de conversion canal GG -> Volt
-#Si Couronne 2-6 Run 1238
-#Si Couronne 8 et 13 Run 1239,1240
+#ChIo Couronne 2 4 et 6 Run 1238
+#ChIo Couronne 8 et 13 Run 1239,1240
 #Fit des rampes genes apres soustraction des piedestaux (run 1236)
 #   EB 02/2012
 #

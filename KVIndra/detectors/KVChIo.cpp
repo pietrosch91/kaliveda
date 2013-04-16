@@ -88,6 +88,13 @@ KVChIo::~KVChIo()
 }
 
 //____________________________________________________________________________________________
+void KVChIo::SetMylarThicknesses(Float_t thickF, Float_t thickB)
+{
+    if(thickF>0.) ((KVMaterial*)fAbsorbers->At(0))->SetThickness(thickF*KVUnits::um);
+    if(thickF>0.) ((KVMaterial*)fAbsorbers->At(2))->SetThickness(thickB*KVUnits::um);
+}
+
+//____________________________________________________________________________________________
 Int_t KVChIo::GetCanalPGFromVolts(Float_t volts)
 {
    //Return raw PG channel number corresponding to a given detector signal in volts
@@ -203,6 +210,20 @@ Double_t KVChIo::GetVoltsFromEnergy(Double_t e)
       return (fVoltE->Invert( e ));
    }
    return 0;
+}
+
+//____________________________________________________________________________________________
+
+Double_t KVChIo::GetEnergyFromVolts(Double_t volts){
+        //Calculate energy in MeV from calibrated detector signal in
+        //Volts. If 'volts' is not given, the value in volt returned
+        //by GetVolts().
+
+        if (fVoltE && fVoltE->GetStatus()){
+                if(!volts) volts = GetVolts();
+        return fVoltE->Compute( volts );
+        }
+        return 0.;
 }
 
 //____________________________________________________________________________________________

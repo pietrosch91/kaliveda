@@ -42,6 +42,8 @@ export ROOT_v5_29_01 = $(call get_root_version,5,29,1)
 export ROOT_v5_32_00 = $(call get_root_version,5,32,0)
 export ROOT_v5_33_00 = $(call get_root_version,5,33,0)
 export ROOT_v5_33_02 = $(call get_root_version,5,33,2)
+export ROOT_v5_34_00 = $(call get_root_version,5,34,0)
+export ROOT_v5_99_00 = $(call get_root_version,5,99,0)
 
 #By default, we use the system-dependent definitions contained in the ROOT
 #makefile found (for standard installations) in
@@ -240,6 +242,7 @@ install :
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
+	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
 	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
