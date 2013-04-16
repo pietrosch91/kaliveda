@@ -265,22 +265,24 @@ void KVINDRAPulserDataTree::ReadFile(ifstream& fin)
 	fin.close();
 }
 
-void KVINDRAPulserDataTree::ReadData(Int_t run)
+UChar_t KVINDRAPulserDataTree::ReadData(Int_t run)
 {
 	// Read data for one run, fill tree
 
+	UChar_t msg = 0;
 	fRun = run;
 	if(fGeneDir->IsOK()){
 		ifstream f;
 		if( OpenGeneData(run,f) ) ReadFile(f);
-		else Warning("ReadData","Missing file : run%d.gene", run);
+		else msg = msg | 1; 
 	}
 	if(fPinDir->IsOK()){
 		ifstream f;
 		if( OpenPinData(run,f) ) ReadFile(f);
-		else Warning("ReadData","Missing file : run%d.[gene][laser]pin", run);
+		else msg = msg | 2; 
 	}
 	fArb->Fill();
+	return msg;
 }
 
 Bool_t KVINDRAPulserDataTree::OpenGeneData(Int_t run, ifstream &f)
@@ -328,12 +330,19 @@ void KVINDRAPulserDataTree::ReadData()
 	Info("ReadData", "Reading pulser and laser data for all runs");
 	TIter Nxt_r( fRunlist );
 	KVINDRADBRun* run = 0;
+	KVNumberList missing1, missing2;
 	while( (run = (KVINDRADBRun*)Nxt_r()) ){
 		Int_t run_num = run->GetNumber();
 		//reset all array members to -1
 		for(register int i=0;i<fTab_siz;i++) fVal[i]=-1.0;
-		ReadData(run_num);
+		UChar_t msg = ReadData(run_num);
+		if( msg & 1 ) missing1.Add( run_num );
+		if( msg & 2 ) missing2.Add( run_num );
 	}
+	if( missing1.GetEntries() )
+		Warning("ReadData","Missing file 'run[run_num].gene' for runs: %s", missing1.GetList() );
+	if( missing2.GetEntries() )
+		Warning("ReadData","Missing file 'run[run_num].[gene][laser]pin' for runs: %s", missing2.GetList() );
 }
 
 void KVINDRAPulserDataTree::ReadTree(TFile *file)
