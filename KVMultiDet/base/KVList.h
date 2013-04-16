@@ -18,6 +18,5 @@ public:
     };
 
     ClassDef(KVList, 3)//Extended version of ROOT TList
-
 };
 #endif

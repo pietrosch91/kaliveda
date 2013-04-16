@@ -1209,8 +1209,7 @@ const Char_t* KVIDGraph::GetName() const
 			tel_list.Begin(",");
 			const_cast<KVIDGraph*>(this)->fDyName = tel_list.Next();
 		}
-	}	
-
+	}
 	return fDyName;
 }
 
@@ -1414,7 +1413,7 @@ const Char_t* KVIDGraph::GetNamesOfIDTelescopes()
 			tel_list = fPar->GetStringValue("IDTelescopes");
 			return tel_list.Data();
 		}
-	}	
+	}
 	TIter next(&fTelescopes);
 	TObject* id = next();
 	if(id) tel_list = id->GetName();
