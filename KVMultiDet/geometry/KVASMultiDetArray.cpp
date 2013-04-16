@@ -1,6 +1,6 @@
 /***************************************************************************
-$Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
-                          kvmultidetarray.cpp  -  description
+$Id: KVASMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
+                          KVASMultiDetArray.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
     copyright            : (C) 2002 by J.D. Frankland
@@ -17,7 +17,7 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
  ***************************************************************************/
 #include "Riostream.h"
 #include "TROOT.h"
-#include "KVMultiDetArray.h"
+#include "KVASMultiDetArray.h"
 #include "KVDetector.h"
 #include "KVDetectorEvent.h"
 #include "KVReconstructedEvent.h"
@@ -52,12 +52,12 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 
 using namespace std;
 
-ClassImp(KVMultiDetArray)
+ClassImp(KVASMultiDetArray)
 //////////////////////////////////////////////////////////////////////////////////////
 //Begin_Html
-//<img src="images/kvmultidetarray_diag.gif"><br>
+//<img src="images/KVASMultiDetArray_diag.gif"><br>
 //
-//<h3>KVMultiDetArray: A charged particle multidetector array</h3>
+//<h3>KVASMultiDetArray: A charged particle multidetector array</h3>
 //End_Html
 //Base class for describing multidetector array geometries and manipulating their associated data.
 //
@@ -79,7 +79,7 @@ ClassImp(KVMultiDetArray)
 //is created, depending on the definitions given in GetIDTelescopes() for each possible couple of detectors. All aspects of particle identification are handled
 //by classes derived from KVIDTelescope.
 //
-//In KVMultiDetArray child classes corresponding to specific multidetector array descriptions, the following essential methods have to be implemented:
+//In KVASMultiDetArray child classes corresponding to specific multidetector array descriptions, the following essential methods have to be implemented:
 //Begin_Html
 //<ul>
 //<tt><li>MakeListOfDetectorTypes()
@@ -92,7 +92,7 @@ ClassImp(KVMultiDetArray)
 //<br>actually assembles the different telescopes, rings and layers of the array in the desired geometry.</tt>
 //</ul>
 //End_Html
-//In order to initialise the geometry of a KVMultiDetArray object, call the Build() method.
+//In order to initialise the geometry of a KVASMultiDetArray object, call the Build() method.
 //
 //The current multidetector array can be accessed through the gMultiDetArray global pointer.
 //
@@ -106,7 +106,7 @@ ClassImp(KVMultiDetArray)
 //Note that we do not take account of energy losses in the target in this method.
 //
 //Begin_Html
-//<img src="images/kvmultidetarray_detectparticle.gif"><br>
+//<img src="images/KVASMultiDetArray_detectparticle.gif"><br>
 //End_Html
 //A very useful method for calibrating detectors is DetectParticleIn(const Char_t* detname, KVNucleus* kvp). In this case, only the particle's energy needs to be
 //defined. The direction will be drawn at random within the angular acceptance of the named detector. Then DetectParticle() is used to calculate the energy losses.
@@ -139,15 +139,15 @@ ClassImp(KVMultiDetArray)
 //KVDetector::GetACQParamList(), and KVDetector::GetACQData(const Char_t* type).
 
 
-KVMultiDetArray *gMultiDetArray;
+KVASMultiDetArray *gMultiDetArray;
 
-KVMultiDetArray::KVMultiDetArray()
+KVASMultiDetArray::KVASMultiDetArray()
 {
     init();
     gMultiDetArray = this;
 }
 
-void KVMultiDetArray::init()
+void KVASMultiDetArray::init()
 {
     //Basic initialisation called by constructor.
     //Creates layers list fLayers, detector types list fDetectorTypes, detectors list fDetectors,
@@ -193,26 +193,26 @@ void KVMultiDetArray::init()
     fCalibStatusDets = 0;
 	 fSimMode = kFALSE;
     
-    fROOTGeometry=gEnv->GetValue("KVMultiDetArray.FilterUsesROOTGeometry", kTRUE);
+    fROOTGeometry=gEnv->GetValue("KVASMultiDetArray.FilterUsesROOTGeometry", kTRUE);
     fFilterType=kFilterType_Full;
 }
 
 //______________________________________________________________________________
-void KVMultiDetArray::Streamer(TBuffer & R__b)
+void KVASMultiDetArray::Streamer(TBuffer & R__b)
 {
     // Custom Streamer
 
     if (R__b.IsReading()) {
         UInt_t R__s, R__c;
         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-        KVMultiDetArray::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
+        KVASMultiDetArray::Class()->ReadBuffer(R__b, this, R__v, R__s, R__c);
     } else {
-        KVMultiDetArray::Class()->WriteBuffer(R__b, this);
+        KVASMultiDetArray::Class()->WriteBuffer(R__b, this);
     }
 }
 
 //___________________________________________________________________________________
-KVMultiDetArray::~KVMultiDetArray()
+KVASMultiDetArray::~KVASMultiDetArray()
 {
     //destroy (delete) the MDA and all the associated structure, detectors etc.
 
@@ -293,7 +293,7 @@ KVMultiDetArray::~KVMultiDetArray()
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::Build()
+void KVASMultiDetArray::Build()
 {
     //Set up the multidetector array and calculate the associated groups and ID telescopes,
     //associate acquisition parameters with detectors etc.
@@ -321,7 +321,7 @@ void KVMultiDetArray::Build()
 }
 
 //_______________________________________________________________________________________
-void KVMultiDetArray::UpdateArray()
+void KVASMultiDetArray::UpdateArray()
 {
     //must be called if modifications are made to array structure after initial Build or BuildGeometry...
     //can be redefined by specific (derived) detector array classes
@@ -340,13 +340,13 @@ void KVMultiDetArray::UpdateArray()
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
+void KVASMultiDetArray::GetIDTelescopes(KVDetector * de, KVDetector * e,
                                       TCollection * idtels)
 {
     //Create a KVIDTelescope from the two detectors and add it to the list.
     //
     //The different ID telescopes are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
-// # The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
+// # The KVASMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
 // # create KVIDTelescope instances adapted to the specific array geometry and detector types.
 // # For each pair of detectors we look for a plugin with one of the following names:
 // #    [name_of_dataset].de_detector_type[de detector thickness]-e_detector_type[de detector thickness]
@@ -507,7 +507,7 @@ if(de != e){
 	 
 }
 
-void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri)
+void KVASMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollection * idtels, KVIDTelescope *idt, TString& uri)
 {
     //Info("set_up_telescope","de det %s e det %s -> %s",de->GetName(),e->GetName(),uri.Data());
 
@@ -525,7 +525,7 @@ void KVMultiDetArray::set_up_telescope(KVDetector * de, KVDetector * e, TCollect
     }
 }
 
-void KVMultiDetArray::set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri)
+void KVASMultiDetArray::set_up_single_stage_telescope(KVDetector * det, TCollection * idtels, KVIDTelescope *idt, TString& uri)
 {
     idt->AddDetector(det);
     idt->SetGroup(det->GetGroup());
@@ -537,7 +537,7 @@ void KVMultiDetArray::set_up_single_stage_telescope(KVDetector * det, TCollectio
 }
 
 //_______________________________________________________________________________________
-void KVMultiDetArray::AddLayer()
+void KVASMultiDetArray::AddLayer()
 {
     //Create a new layer in the array. The properties of the layer will be set later.
 
@@ -548,7 +548,7 @@ void KVMultiDetArray::AddLayer()
 }
 
 //______________________________________________________________________________________
-void KVMultiDetArray::AddLayer(KVLayer * kvl)
+void KVASMultiDetArray::AddLayer(KVLayer * kvl)
 {
     //Add a previously defined layer to the array.
     kvl->SetNumber(++fCurrentLayerNumber);
@@ -557,7 +557,7 @@ void KVMultiDetArray::AddLayer(KVLayer * kvl)
 }
 
 //______________________________________________________________________________________
-void KVMultiDetArray::SetGroupsAndIDTelescopes()
+void KVASMultiDetArray::SetGroupsAndIDTelescopes()
 {
     //Find groups of telescopes in angular alignment placed on different layers.
     //List is in fGroups.
@@ -630,7 +630,7 @@ void KVMultiDetArray::SetGroupsAndIDTelescopes()
 }
 
 //_______________________________________________________________________________________
-void KVMultiDetArray::SetGroups(KVLayer * l1, KVLayer * l2)
+void KVASMultiDetArray::SetGroups(KVLayer * l1, KVLayer * l2)
 {
 //Update the list of groups in the detector array by comparing all telescopes in two layers.
 
@@ -660,7 +660,7 @@ void KVMultiDetArray::SetGroups(KVLayer * l1, KVLayer * l2)
 }
 
 //____________________________________________________________________________
-void KVMultiDetArray::UpdateGroupsInRings(KVRing * r1, KVRing * r2)
+void KVASMultiDetArray::UpdateGroupsInRings(KVRing * r1, KVRing * r2)
 {
 //Calculate groups by comparing two rings in different layers.
     TIter r1nxtele(r1->GetTelescopes());
@@ -678,7 +678,7 @@ void KVMultiDetArray::UpdateGroupsInRings(KVRing * r1, KVRing * r2)
 }
 
 //___________________________________________________________________________________
-void KVMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
+void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
 {
 // The two telescopes are in angular overlap.
 // a) if neither are in groups already, create a new group to which they both belong
@@ -729,7 +729,7 @@ void KVMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
 }
 
 //_______________________________________________________________________________________
-void KVMultiDetArray::MergeGroups(KVGroup * kg1, KVGroup * kg2)
+void KVASMultiDetArray::MergeGroups(KVGroup * kg1, KVGroup * kg2)
 {
     //Merge two existing groups into a new single group.
 
@@ -757,7 +757,7 @@ void KVMultiDetArray::MergeGroups(KVGroup * kg1, KVGroup * kg2)
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::RenumberGroups()
+void KVASMultiDetArray::RenumberGroups()
 {
     //Number groups according to position in list fGroups and set fGr counter to the number
     //of groups in the list
@@ -770,7 +770,7 @@ void KVMultiDetArray::RenumberGroups()
 }
 
 //_______________________________________________________________________________________
-void KVMultiDetArray::Print(Option_t * opt) const
+void KVASMultiDetArray::Print(Option_t * opt) const
 {
 //Print out the structure of the multidetector array.
 //If the option string "groups" is given, information is structured by KVGroup objects -
@@ -784,7 +784,7 @@ void KVMultiDetArray::Print(Option_t * opt) const
     if (!strcmp(opt, "groups")) {
         TIter next(fGroups);
         KVGroup *obj;
-        cout << "Structure of KVMultiDetArray object: ";
+        cout << "Structure of KVASMultiDetArray object: ";
         if (GetName())
             cout << GetName();
         cout << endl;
@@ -798,7 +798,7 @@ void KVMultiDetArray::Print(Option_t * opt) const
 // print out detailed structure of array
         TIter next(fLayers);
         KVLayer *obj;
-        cout << "Structure of KVMultiDetArray object: ";
+        cout << "Structure of KVASMultiDetArray object: ";
         if (GetName())
             cout << GetName();
         cout << endl;
@@ -813,7 +813,7 @@ void KVMultiDetArray::Print(Option_t * opt) const
 
 //__________________________________________________________________________________
 
-Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event)
+Int_t KVASMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event)
 {
     // Perform multi-hit and coherency analysis of filtered event.
     // round=1,2,... depending on number of times method has been called
@@ -892,7 +892,7 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
     return nchanged;
 }
 
-void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame)
+void KVASMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame)
 {
     //Simulate detection of event by multidetector array.
     //
@@ -902,7 +902,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    // you should create the 'laboratory' or 'detector' frame with KVEvent::SetFrame(...), and then give the
    // name of the 'LAB' or 'DET' frame as 3rd argument here.
     //
-    //For each particle in the event we calculate first its energy loss in the target (if the target has been defined, see KVMultiDetArray::SetTarget).
+    //For each particle in the event we calculate first its energy loss in the target (if the target has been defined, see KVASMultiDetArray::SetTarget).
     //By default these energy losses are calculated from a point half-way along the beam-direction through the target (taking into account the orientation
     //of the target), if you want random depths for each event call GetTarget()->SetRandomized() before using DetectEvent().
     //
@@ -937,19 +937,19 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	 //
 	 //INFO to the user : 
 	 // - 	at this point the different PILE-UP, several particles going through same telescope, detector
-	 //		are only taken into account for filter type KVMultiDetArray::kFilterType_Full
+	 //		are only taken into account for filter type KVASMultiDetArray::kFilterType_Full
 	 // -    specific cases correponding specific multi detectors are to be implemented in the child class
 	 //
     // === FILTER TYPES ===
     // Use gMultiDetArray->SetFilterType(...) with one of the following values:
-    //    KVMultiDetArray::kFilterType_Geo               geometric filter only, particles are kept if they hit detector in the array
+    //    KVASMultiDetArray::kFilterType_Geo               geometric filter only, particles are kept if they hit detector in the array
     //                                                                            energy losses are not calculated, particle energies are irrelevant
-    //    KVMultiDetArray::kFilterType_GeoThresh    particles are kept if they have enough energy to leave the target,
+    //    KVASMultiDetArray::kFilterType_GeoThresh    particles are kept if they have enough energy to leave the target,
     //                                                                            and enough energy to cross at least one detector of the array
     //       ---> for these two cases, accepted particles are copied into the 'reconstructed' event with their
     //             original simulated energy, charge and mass, although angles are randomized to reflect detector granularity
     //
-    //    KVMultiDetArray::kFilterType_Full               full simulation of detection of particles by the array. the calibration parameters
+    //    KVASMultiDetArray::kFilterType_Full               full simulation of detection of particles by the array. the calibration parameters
     //                                                                           for the chosen run (call to gMultiDetArray->SetParameters(...)) are inverted in order
     //                                                                           to calculate pseudo-raw data from the calculated energy losses. the resulting pseudo-raw
     //                                                                           event is then treated in exactly the same way as experimental data in order to reconstruct,
@@ -1391,7 +1391,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    rec_event->SecondaryIdentCalib();
 }
 //__________________________________________________________________________________
-KVNameValueList* KVMultiDetArray::DetectParticle_KV(KVNucleus * part)
+KVNameValueList* KVASMultiDetArray::DetectParticle_KV(KVNucleus * part)
 {
 // Simulate detection of a single particle (nucleus) by multidetector array.
 // We look for the group in the array that the particle will hit
@@ -1424,7 +1424,7 @@ KVNameValueList* KVMultiDetArray::DetectParticle_KV(KVNucleus * part)
 }
 
 //__________________________________________________________________________________
-KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
+KVNameValueList* KVASMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
 {
    // Use ROOT geometry to propagate particle through the array,
    // calculating its energy losses in all absorbers, and setting the
@@ -1514,7 +1514,7 @@ KVNameValueList* KVMultiDetArray::DetectParticle_TGEO(KVNucleus * part)
    return NVL;
 }
 //____________________________________________________________________________________________
-void KVMultiDetArray::ReplaceTelescope(const Char_t * name,
+void KVASMultiDetArray::ReplaceTelescope(const Char_t * name,
                                        KVTelescope * new_kvt)
 {
     //Replace (and destroy) the named telescope in the array with a telescope cloned
@@ -1536,7 +1536,7 @@ void KVMultiDetArray::ReplaceTelescope(const Char_t * name,
 }
 
 //____________________________________________________________________________________________
-void KVMultiDetArray::ReplaceDetector(const Char_t * name,
+void KVASMultiDetArray::ReplaceDetector(const Char_t * name,
                                       KVDetector * new_kvd)
 {
     //Replace (and destroy) the named detector in the array with a detector based on the prototype
@@ -1558,7 +1558,7 @@ void KVMultiDetArray::ReplaceDetector(const Char_t * name,
 
 //____________________________________________________________________________________________
 
-KVTelescope *KVMultiDetArray::GetTelescope(const Char_t * name) const
+KVTelescope *KVASMultiDetArray::GetTelescope(const Char_t * name) const
 {
     // Return pointer to telescope in array with name given by "name"
     if (!fLayers)
@@ -1582,7 +1582,7 @@ KVTelescope *KVMultiDetArray::GetTelescope(const Char_t * name) const
 }
 
 //____________________________________________________________________________________________
-KVDetector *KVMultiDetArray::GetDetector(const Char_t * name) const
+KVDetector *KVASMultiDetArray::GetDetector(const Char_t * name) const
 {
     // return pointer to array detector with "name"
 
@@ -1590,7 +1590,7 @@ KVDetector *KVMultiDetArray::GetDetector(const Char_t * name) const
 }
 
 //____________________________________________________________________________________________
-KVIDTelescope *KVMultiDetArray::GetIDTelescope(const Char_t * name) const
+KVIDTelescope *KVASMultiDetArray::GetIDTelescope(const Char_t * name) const
 {
 //Return pointer to DeltaE-E ID Telescope with "name"
 
@@ -1599,7 +1599,7 @@ KVIDTelescope *KVMultiDetArray::GetIDTelescope(const Char_t * name) const
 
 //_______________________________________________________________________________________
 
-KVGroup *KVMultiDetArray::GetGroup(Float_t theta, Float_t phi)
+KVGroup *KVASMultiDetArray::GetGroup(Float_t theta, Float_t phi)
 {
 // return pointer to group in array according to given polar coordinates
     if (!fGroups)
@@ -1615,7 +1615,7 @@ KVGroup *KVMultiDetArray::GetGroup(Float_t theta, Float_t phi)
 
 //_______________________________________________________________________________________
 
-KVGroup *KVMultiDetArray::GetGroup(const Char_t * name)
+KVGroup *KVASMultiDetArray::GetGroup(const Char_t * name)
 {
     //return pointer to group in array which contains detector or telescope
     //with name "name"
@@ -1635,7 +1635,7 @@ KVGroup *KVMultiDetArray::GetGroup(const Char_t * name)
 
 //_______________________________________________________________________________________
 
-TList *KVMultiDetArray::GetTelescopes(Float_t theta, Float_t phi)
+TList *KVASMultiDetArray::GetTelescopes(Float_t theta, Float_t phi)
 {
     //Create and fill list of telescopes at position (theta, phi) sorted
     //according to distance from target (closest first).
@@ -1649,7 +1649,7 @@ TList *KVMultiDetArray::GetTelescopes(Float_t theta, Float_t phi)
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::RemoveLayer(KVLayer * lay, Bool_t kDeleteLay)
+void KVASMultiDetArray::RemoveLayer(KVLayer * lay, Bool_t kDeleteLay)
 {
     //Remove layer from the MDA's list and delete the layer
     //(if kDeleteLay=kTRUE : default).
@@ -1670,7 +1670,7 @@ void KVMultiDetArray::RemoveLayer(KVLayer * lay, Bool_t kDeleteLay)
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::RemoveLayer(UInt_t num)
+void KVASMultiDetArray::RemoveLayer(UInt_t num)
 {
 
     //remove from the array and destroy the numbered layer given as argument
@@ -1682,7 +1682,7 @@ void KVMultiDetArray::RemoveLayer(UInt_t num)
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::RemoveLayer(const Char_t * name)
+void KVASMultiDetArray::RemoveLayer(const Char_t * name)
 {
 
     //remove from the array and destroy the named layer given as argument
@@ -1693,7 +1693,7 @@ void KVMultiDetArray::RemoveLayer(const Char_t * name)
 }
 
 //________________________________________________________________________________________
-void KVMultiDetArray::MakeListOfDetectors()
+void KVASMultiDetArray::MakeListOfDetectors()
 {
     // Set up list of all detectors in array
     // This method is called after array geometry has been defined.
@@ -1728,13 +1728,13 @@ void KVMultiDetArray::MakeListOfDetectors()
 }
 
 //________________________________________________________________________________________
-KVSeqCollection *KVMultiDetArray::GetListOfDetectors() const
+KVSeqCollection *KVASMultiDetArray::GetListOfDetectors() const
 {
     return fDetectors;
 }
 
 //________________________________________________________________________________________
-void KVMultiDetArray::StartBrowser()
+void KVASMultiDetArray::StartBrowser()
 {
 //Opens a graphical browser showing the layer/ring/telescope structure of the array.
 //In time this could also be used to configure an array.
@@ -1747,7 +1747,7 @@ void KVMultiDetArray::StartBrowser()
 }
 
 //________________________________________________________________________________________
-void KVMultiDetArray::CloseBrowser()
+void KVASMultiDetArray::CloseBrowser()
 {
 //close graphical configuration tool for the array
 
@@ -1759,14 +1759,14 @@ void KVMultiDetArray::CloseBrowser()
 }
 
 //_________________________________________________________________________________
-const KVMultiDetBrowser *KVMultiDetArray::GetBrowser()
+const KVMultiDetBrowser *KVASMultiDetArray::GetBrowser()
 {
 //get pointer to GUI
     return fBrowser;
 }
 
 //_________________________________________________________________________________
-void KVMultiDetArray::Clear(Option_t * opt)
+void KVASMultiDetArray::Clear(Option_t * opt)
 {
     //Reset all groups (lists of detected particles etc.)
     //and detectors in groups (energy losses, ACQparams etc. etc.)
@@ -1783,7 +1783,7 @@ void KVMultiDetArray::Clear(Option_t * opt)
 }
 
 //_________________________________________________________________________________________
-void KVMultiDetArray::AddACQParam(KVACQParam * par)
+void KVASMultiDetArray::AddACQParam(KVACQParam * par)
 {
     //Add an acquisition parameter corresponding to a detector of the array.
     //The fACQParams list is added to the list of cleanups (gROOT->GetListOfCleanups).
@@ -1805,7 +1805,7 @@ void KVMultiDetArray::AddACQParam(KVACQParam * par)
 
 //_________________________________________________________________________________________
 
-void KVMultiDetArray::SetACQParams()
+void KVASMultiDetArray::SetACQParams()
 {
     // Set up acquisition parameters in all detectors of the array + any acquisition parameters which are not
     // directly related to a detector.
@@ -1858,7 +1858,7 @@ void KVMultiDetArray::SetACQParams()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetArrayACQParams()
+void KVASMultiDetArray::SetArrayACQParams()
 {
     // Method called by SetACQParams() in order to define any acquisition parameters which are not
     // directly related to any detectors of the array.
@@ -1867,7 +1867,7 @@ void KVMultiDetArray::SetArrayACQParams()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetCalibrators()
+void KVASMultiDetArray::SetCalibrators()
 {
     //Set up calibrators in all detectors of the array
     //Note that this only initialises the calibrator objects associated to each
@@ -1880,9 +1880,9 @@ void KVMultiDetArray::SetCalibrators()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::UpdateCalibrators()
+void KVASMultiDetArray::UpdateCalibrators()
 {
-    //This method can be used to update the calibrations of the detectors of a KVMultiDetArray
+    //This method can be used to update the calibrations of the detectors of a KVASMultiDetArray
     //object which has been read back from a ROOT file, and was possibly written with an old
     //version of the class(es) which is now obsolete.
     //The existing calibrator objects (read in from the file) are first removed from the array's
@@ -1897,7 +1897,7 @@ void KVMultiDetArray::UpdateCalibrators()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params)
+void KVASMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params)
 {
     // First step in event reconstruction based on current status of detectors in array.
     // Fills the given KVDetectorEvent with the list of all groups which have fired.
@@ -1952,7 +1952,7 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* 
 //_________________________________________________________________________________
 
 
-void KVMultiDetArray::SetTarget(const Char_t * material,
+void KVASMultiDetArray::SetTarget(const Char_t * material,
                                 const Float_t thickness)
 {
     //Define the target used for a given experimental set-up. For material names, see KVMaterial.
@@ -1980,7 +1980,7 @@ void KVMultiDetArray::SetTarget(const Char_t * material,
     }
 }
 
-void KVMultiDetArray::SetTarget(KVTarget * targ)
+void KVASMultiDetArray::SetTarget(KVTarget * targ)
 {
     //Adopt KVTarget object for use as experimental target i.e. we make a clone of the object pointed to by 'targ'.
     //Therefore, any subsequent modifications to the target should be made to the object whose pointer is returned by GetTarget().
@@ -1997,7 +1997,7 @@ void KVMultiDetArray::SetTarget(KVTarget * targ)
     fTarget = (KVTarget *) targ->Clone();
 }
 
-void KVMultiDetArray::SetTargetMaterial(const Char_t * material)
+void KVASMultiDetArray::SetTargetMaterial(const Char_t * material)
 {
     //Define the target material used for a given experimental set-up.
     //For material names, see KVDetector.
@@ -2011,7 +2011,7 @@ void KVMultiDetArray::SetTargetMaterial(const Char_t * material)
     }
 }
 
-void KVMultiDetArray::SetTargetThickness(const Float_t thickness)
+void KVASMultiDetArray::SetTargetThickness(const Float_t thickness)
 {
     //Define the target thickness (mg/cm2) used for a given experimental set-up.
     //Need to define material first
@@ -2021,7 +2021,7 @@ void KVMultiDetArray::SetTargetThickness(const Float_t thickness)
     }
 }
 
-void KVMultiDetArray::RemoveGroup(KVGroup * grp)
+void KVASMultiDetArray::RemoveGroup(KVGroup * grp)
 {
     //Remove (i.e. destroy) all the telescopes belonging to a given group
     if (grp) {
@@ -2029,7 +2029,7 @@ void KVMultiDetArray::RemoveGroup(KVGroup * grp)
     }
 }
 
-void KVMultiDetArray::RemoveGroup(const Char_t * name)
+void KVASMultiDetArray::RemoveGroup(const Char_t * name)
 {
     //Remove (i.e. destroy) all the telescopes belonging to the group in array
     //which contains detector or telescope with name "name"
@@ -2039,7 +2039,7 @@ void KVMultiDetArray::RemoveGroup(const Char_t * name)
     }
 }
 
-KVRing *KVMultiDetArray::GetRing(const Char_t * layer,
+KVRing *KVASMultiDetArray::GetRing(const Char_t * layer,
                                  const Char_t * ring_name) const
 {
     //find named ring in named layer
@@ -2051,7 +2051,7 @@ KVRing *KVMultiDetArray::GetRing(const Char_t * layer,
     return ring;
 }
 
-KVRing *KVMultiDetArray::GetRing(const Char_t * layer, UInt_t ring_number) const
+KVRing *KVASMultiDetArray::GetRing(const Char_t * layer, UInt_t ring_number) const
 {
     //find numbered ring in named layer
     KVLayer *tmp = GetLayer(layer);
@@ -2062,7 +2062,7 @@ KVRing *KVMultiDetArray::GetRing(const Char_t * layer, UInt_t ring_number) const
     return ring;
 }
 
-KVRing *KVMultiDetArray::GetRing(UInt_t layer, const Char_t * ring_name) const
+KVRing *KVASMultiDetArray::GetRing(UInt_t layer, const Char_t * ring_name) const
 {
     //find named ring in numbered layer
     KVLayer *tmp = GetLayer(layer);
@@ -2073,7 +2073,7 @@ KVRing *KVMultiDetArray::GetRing(UInt_t layer, const Char_t * ring_name) const
     return ring;
 }
 
-KVRing *KVMultiDetArray::GetRing(UInt_t layer, UInt_t ring_number) const
+KVRing *KVASMultiDetArray::GetRing(UInt_t layer, UInt_t ring_number) const
 {
     //find numbered ring in numbered layer
     KVLayer *tmp = GetLayer(layer);
@@ -2084,7 +2084,7 @@ KVRing *KVMultiDetArray::GetRing(UInt_t layer, UInt_t ring_number) const
     return ring;
 }
 
-void KVMultiDetArray::RemoveRing(const Char_t * layer,
+void KVASMultiDetArray::RemoveRing(const Char_t * layer,
                                  const Char_t * ring_name)
 {
     //destroy named ring in named layer
@@ -2092,28 +2092,28 @@ void KVMultiDetArray::RemoveRing(const Char_t * layer,
         GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
 }
 
-void KVMultiDetArray::RemoveRing(const Char_t * layer, UInt_t ring_name)
+void KVASMultiDetArray::RemoveRing(const Char_t * layer, UInt_t ring_name)
 {
     //destroy named ring in named layer
     if (GetLayer(layer))
         GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
 }
 
-void KVMultiDetArray::RemoveRing(UInt_t layer, const Char_t * ring_name)
+void KVASMultiDetArray::RemoveRing(UInt_t layer, const Char_t * ring_name)
 {
     //destroy named ring in named layer
     if (GetLayer(layer))
         GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
 }
 
-void KVMultiDetArray::RemoveRing(UInt_t layer, UInt_t ring_name)
+void KVASMultiDetArray::RemoveRing(UInt_t layer, UInt_t ring_name)
 {
     //destroy named ring in named layer
     if (GetLayer(layer))
         GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
 }
 
-void KVMultiDetArray::RemoveRing(KVRing * ring)
+void KVASMultiDetArray::RemoveRing(KVRing * ring)
 {
     //search for ring in MDA and remove it
     if (ring->GetLayer()) {
@@ -2125,7 +2125,7 @@ void KVMultiDetArray::RemoveRing(KVRing * ring)
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::DetectParticleIn(const Char_t * detname,
+void KVASMultiDetArray::DetectParticleIn(const Char_t * detname,
                                        KVNucleus * kvp)
 {
     //Given the name of a detector, simulate detection of a given particle
@@ -2146,7 +2146,7 @@ void KVMultiDetArray::DetectParticleIn(const Char_t * detname,
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetPedestals(const Char_t * filename)
+void KVASMultiDetArray::SetPedestals(const Char_t * filename)
 {
     //Set pedestals for all acquisition parameters whose name appears in the file 'filename'
     //The file should contain a line for each parameter beginning with:
@@ -2188,7 +2188,7 @@ void KVMultiDetArray::SetPedestals(const Char_t * filename)
 
 //_________________________________________________________________________________
 
-KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
+KVASMultiDetArray *KVASMultiDetArray::MakeMultiDetector(const Char_t * name)
 {
     //Static function which will create and 'Build' the multidetector object corresponding to 'name'
     //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
@@ -2205,11 +2205,11 @@ KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
 
     //check and load plugin library
     TPluginHandler *ph;
-    if (!(ph = LoadPlugin("KVMultiDetArray", name)))
+    if (!(ph = LoadPlugin("KVASMultiDetArray", name)))
         return 0;
 
     //execute constructor/macro for multidetector - assumed without arguments
-    KVMultiDetArray *mda = (KVMultiDetArray *) ph->ExecPlugin(0);
+    KVASMultiDetArray *mda = (KVASMultiDetArray *) ph->ExecPlugin(0);
 
     mda->fDataSet = name;
     //call Build() method
@@ -2219,7 +2219,7 @@ KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetParameters(UShort_t run)
+void KVASMultiDetArray::SetParameters(UShort_t run)
 {
     //Set identification and calibration parameters for run.
     //This can only be done if gDataSet has been set i.e. a dataset has been chosen
@@ -2239,7 +2239,7 @@ void KVMultiDetArray::SetParameters(UShort_t run)
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetRunIdentificationParameters(UShort_t run)
+void KVASMultiDetArray::SetRunIdentificationParameters(UShort_t run)
 {
     //Set identification parameters for run.
     //This can only be done if gDataSet has been set i.e. a dataset has been chosen
@@ -2259,7 +2259,7 @@ void KVMultiDetArray::SetRunIdentificationParameters(UShort_t run)
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetRunCalibrationParameters(UShort_t run)
+void KVASMultiDetArray::SetRunCalibrationParameters(UShort_t run)
 {
     //Set calibration parameters for run.
     //This can only be done if gDataSet has been set i.e. a dataset has been chosen
@@ -2279,7 +2279,7 @@ void KVMultiDetArray::SetRunCalibrationParameters(UShort_t run)
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::SetIdentifications()
+void KVASMultiDetArray::SetIdentifications()
 {
     //Initialisation of all ACTIVE identification telescopes in the array, i.e. those appearing in a line
     //in the .kvrootrc file such as this:
@@ -2324,9 +2324,9 @@ void KVMultiDetArray::SetIdentifications()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::UpdateIdentifications()
+void KVASMultiDetArray::UpdateIdentifications()
 {
-    //This method can be used to update the identifications of a KVMultiDetArray
+    //This method can be used to update the identifications of a KVASMultiDetArray
     //object which has been read back from a ROOT file, and was possibly written with an old
     //version of the identification parameters which are now obsolete.
     //We remove/destroy the existing identification parameters and replace them with the current versions.
@@ -2342,9 +2342,9 @@ void KVMultiDetArray::UpdateIdentifications()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::UpdateIDTelescopes()
+void KVASMultiDetArray::UpdateIDTelescopes()
 {
-    //This method can be used to update the identification telescopes of a KVMultiDetArray
+    //This method can be used to update the identification telescopes of a KVASMultiDetArray
     //object which has been read back from a ROOT file, and was possibly written with an old
     //version of the classes which are now obsolete, or for which new KVIDTelescope classes
     //are now available.
@@ -2365,7 +2365,7 @@ void KVMultiDetArray::UpdateIDTelescopes()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::InitializeIDTelescopes()
+void KVASMultiDetArray::InitializeIDTelescopes()
 {
     // Calls Initialize() method of each identification telescope (see KVIDTelescope
     // and derived classes). This is essential before identification of particles is attempted.
@@ -2375,7 +2375,7 @@ void KVMultiDetArray::InitializeIDTelescopes()
 
 //_________________________________________________________________________________
 
-Double_t KVMultiDetArray::GetTotalSolidAngle(void) {
+Double_t KVASMultiDetArray::GetTotalSolidAngle(void) {
     // compute & return the total solid angle (msr) of the array
     // it is the sum of solid angles of all existing KVGroups
     Double_t ftotal_solid_angle=0.0;
@@ -2389,7 +2389,7 @@ Double_t KVMultiDetArray::GetTotalSolidAngle(void) {
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::PrintStatusOfIDTelescopes()
+void KVASMultiDetArray::PrintStatusOfIDTelescopes()
 {
     // Print full status report on ID telescopes in array, using informations stored in
     // fStatusIDTelescopes (see GetStatusOfIDTelescopes).
@@ -2447,14 +2447,14 @@ void KVMultiDetArray::PrintStatusOfIDTelescopes()
 
 //_________________________________________________________________________________
 
-TList* KVMultiDetArray::GetStatusOfIDTelescopes()
+TList* KVASMultiDetArray::GetStatusOfIDTelescopes()
 {
     // Fill and return pointer to list fStatusIDTelescopes which contains
     // a list for each type of ID telescope in the array, each list contains a list
     // "OK" with the ID telescopes which have IsReadyForID()=kTRUE, and
     // a list "NOT OK" with the others.
     //
-    // The returned TList object must not be deleted (it belongs to the KVMultiDetArray).
+    // The returned TList object must not be deleted (it belongs to the KVASMultiDetArray).
 
     if (!fStatusIDTelescopes){
         fStatusIDTelescopes = new TList;
@@ -2491,7 +2491,7 @@ TList* KVMultiDetArray::GetStatusOfIDTelescopes()
 
 //_________________________________________________________________________________
 
-KVList* KVMultiDetArray::GetIDTelescopeTypes()
+KVList* KVASMultiDetArray::GetIDTelescopeTypes()
 {
     // Create, fill and return pointer to a list of TObjString containing the name of each type
     // of ID telescope in the array.
@@ -2512,7 +2512,7 @@ KVList* KVMultiDetArray::GetIDTelescopeTypes()
 
 //_________________________________________________________________________________
 
-KVSeqCollection* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
+KVSeqCollection* KVASMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
 {
     // Create, fill and return pointer to a list of KVIDTelescopes with
     // the given type in the array.
@@ -2527,14 +2527,14 @@ KVSeqCollection* KVMultiDetArray::GetIDTelescopesWithType(const Char_t* type)
 
 //_________________________________________________________________________________
 
-TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
+TList* KVASMultiDetArray::GetCalibrationStatusOfDetectors()
 {
     // Fill and return pointer to list fCalibStatusDets which contains
     // a list for each type of detector in the array, each list contains a list
     // "OK" with the detectors which are calibrated, and
     // a list "NOT OK" with the others.
     //
-    // The returned TList object must not be deleted (it belongs to the KVMultiDetArray).
+    // The returned TList object must not be deleted (it belongs to the KVASMultiDetArray).
 
     if (!fCalibStatusDets){
         fCalibStatusDets = new TList;
@@ -2571,7 +2571,7 @@ TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
 
 //_________________________________________________________________________________
 
-void KVMultiDetArray::PrintCalibStatusOfDetectors()
+void KVASMultiDetArray::PrintCalibStatusOfDetectors()
 {
     // Print full status report on calibration of detectors in array, using informations stored in
     // fCalibStatusDets (see GetCalibrationStatusOfDetectors).
@@ -2617,7 +2617,7 @@ void KVMultiDetArray::PrintCalibStatusOfDetectors()
 
 //_________________________________________________________________________________
 
-Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* ion)
+Double_t KVASMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* ion)
 {
     // Calculate the energy loss in the current target of the multidetector
     // for the reconstructed charged particle 'ion', assuming that the current
@@ -2640,7 +2640,7 @@ Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* 
 
 //_________________________________________________________________________________
 
-TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
+TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
 {
     // This will create an instance of TGeoManager (any previous existing geometry gGeoManager
     // will be automatically deleted) and initialise it with the full geometry of the current multidetector
@@ -2674,13 +2674,13 @@ TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_
     return geom;
 }
 
-void KVMultiDetArray::SetDetectorThicknesses()
+void KVASMultiDetArray::SetDetectorThicknesses()
 {
 	// Look for a file in the dataset directory with the name given by .kvrootrc variable:
 	//
-	//    KVMultiDetArray.DetectorThicknesses:
+	//    KVASMultiDetArray.DetectorThicknesses:
 	// or
-	//    dataset.KVMultiDetArray.DetectorThicknesses:
+	//    dataset.KVASMultiDetArray.DetectorThicknesses:
 	//
 	// and, if it exists, we use it to set the real thicknesses of the detectors.
 	// Any detector which is not in the file will be left with its nominal thickness.
@@ -2700,9 +2700,9 @@ void KVMultiDetArray::SetDetectorThicknesses()
     // Multi-layer: Each layer is a KVMaterial object. The thickness MUST be given in centimetres
     //         (default thickness unit for KVMaterial).
 
-	TString filename = gDataSet->GetDataSetEnv("KVMultiDetArray.DetectorThicknesses", "");
+	TString filename = gDataSet->GetDataSetEnv("KVASMultiDetArray.DetectorThicknesses", "");
 	if(filename==""){
-		Error("SetDetectorThicknesses", "*.KVMultiDetArray.DetectorThicknesses not defined in .kvrootrc");
+		Error("SetDetectorThicknesses", "*.KVASMultiDetArray.DetectorThicknesses not defined in .kvrootrc");
 		return;
 	}
 	TString fullpath;
@@ -2745,7 +2745,7 @@ void KVMultiDetArray::SetDetectorThicknesses()
 	}
 }
 
-Double_t KVMultiDetArray::GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A)
+Double_t KVASMultiDetArray::GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A)
 {
 	// Calculate incident energy of particle (Z,A) required to punch through given detector,
 	// taking into account any detectors which the particle must first cross in order to reach it.
@@ -2767,7 +2767,7 @@ Double_t KVMultiDetArray::GetPunchThroughEnergy(const Char_t* detector, Int_t Z,
 	return E0;
 }
 
-TGraph* KVMultiDetArray::DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform)
+TGraph* KVASMultiDetArray::DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform)
 {
 	// Creates and fills a TGraph with the punch through energy in MeV vs. Z for the given detector,
 	// for Z=1-92. The mass of each nucleus is calculated according to the given mass formula
@@ -2785,7 +2785,7 @@ TGraph* KVMultiDetArray::DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t
 	return punch;
 }
 
-TGraph* KVMultiDetArray::DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform)
+TGraph* KVASMultiDetArray::DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform)
 {
 	// Creates and fills a TGraph with the punch through energy in MeV/nucleon vs. Z for the given detector,
 	// for Z=1-92. The mass of each nucleus is calculated according to the given mass formula

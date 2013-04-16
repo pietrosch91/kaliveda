@@ -1,11 +1,11 @@
 /***************************************************************************
-                          kvmultidetarray.h  -  description
+                          KVASMultiDetArray.h  -  description
                              -------------------
     begin                : Thu May 16 2002
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
+$Id: KVASMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -17,8 +17,8 @@ $Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
  *                                                                         *
  ***************************************************************************/
 
-#ifndef KVMULTIDETARRAY_H
-#define KVMULTIDETARRAY_H
+#ifndef KVASMultiDetArray_H
+#define KVASMultiDetArray_H
 
 #define KVGROUP_MERGE_NOT_IMPLEMENTED "Group merging not implemented yet. Your groups will not be correctly described"
 #define KVMDA_REPL_TEL_NOT_FOUND "Telescope %s not found among array telescopes"
@@ -50,7 +50,7 @@ class KVReconstructedEvent;
 class TGeoManager;
 class KVUniqueNameList;
 
-class KVMultiDetArray:public KVBase {
+class KVASMultiDetArray:public KVBase {
 
    friend class KVMultiDetBrowser;
 
@@ -126,8 +126,8 @@ class KVMultiDetArray:public KVBase {
       kFilterType_Full
    };
    void SetFilterType(Int_t t){fFilterType=t;};
-   KVMultiDetArray();
-   virtual ~ KVMultiDetArray();
+   KVASMultiDetArray();
+   virtual ~ KVASMultiDetArray();
    void init();
 
    virtual void Build();
@@ -208,7 +208,7 @@ class KVMultiDetArray:public KVBase {
       //   fROOTGeometry=kFALSE:  calls DetectParticle_KV, uses simple KaliVeda geometry
       //                to simulate propagation of particle
       //
-      // The default value is given in .kvrootrc by variable KVMultiDetArray.FilterUsesROOTGeometry
+      // The default value is given in .kvrootrc by variable KVASMultiDetArray.FilterUsesROOTGeometry
       return (fROOTGeometry?DetectParticle_TGEO(part):DetectParticle_KV(part));
    };
    void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
@@ -240,7 +240,7 @@ class KVMultiDetArray:public KVBase {
    virtual Bool_t IsBuilt() const {
       return TestBit(kIsBuilt);
    }
-   static KVMultiDetArray *MakeMultiDetector(const Char_t * name);
+   static KVASMultiDetArray *MakeMultiDetector(const Char_t * name);
 
    Bool_t IsBeingDeleted() {
       return TestBit(kIsBeingDeleted);
@@ -309,11 +309,11 @@ class KVMultiDetArray:public KVBase {
    void SetROOTGeometry(Bool_t on=kTRUE) { fROOTGeometry=on; };
    Bool_t IsROOTGeometry() const { return fROOTGeometry; };
    
-   ClassDef(KVMultiDetArray, 6) //Base class for describing multidetector arrays.
+   ClassDef(KVASMultiDetArray, 6) //Base class for describing multidetector arrays.
    Int_t FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event);
 };
 
 //................  global variable
-R__EXTERN KVMultiDetArray *gMultiDetArray;
+R__EXTERN KVASMultiDetArray *gMultiDetArray;
 
 #endif
