@@ -265,11 +265,11 @@ void KVINDRAPulserDataTree::ReadFile(ifstream& fin)
 	fin.close();
 }
 
-Int_t KVINDRAPulserDataTree::ReadData(Int_t run)
+UChar_t KVINDRAPulserDataTree::ReadData(Int_t run)
 {
 	// Read data for one run, fill tree
 
-	Int_t msg = 0;
+	UChar_t msg = 0;
 	fRun = run;
 	if(fGeneDir->IsOK()){
 		ifstream f;
@@ -335,7 +335,7 @@ void KVINDRAPulserDataTree::ReadData()
 		Int_t run_num = run->GetNumber();
 		//reset all array members to -1
 		for(register int i=0;i<fTab_siz;i++) fVal[i]=-1.0;
-		Int_t msg = ReadData(run_num);
+		UChar_t msg = ReadData(run_num);
 		if( msg & 1 ) missing1.Add( run_num );
 		if( msg & 2 ) missing2.Add( run_num );
 	}
