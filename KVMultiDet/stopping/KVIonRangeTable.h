@@ -9,6 +9,9 @@
 
 class TGeoMaterial;
 class KVIonRangeTableMaterial;
+class TGeoManager;
+class KVEvent;
+class TVector3;
 
 class KVIonRangeTable : public KVBase {
 
@@ -134,6 +137,8 @@ public:
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    
    virtual void Print(Option_t* = "") const;
+
+   virtual void DetectEvent(TGeoManager*, KVEvent*, TVector3* /*origin*/ = 0);
    
    ClassDef(KVIonRangeTable, 1) //Abstract base class for calculation of range & energy loss of charged particles in matter
 };
