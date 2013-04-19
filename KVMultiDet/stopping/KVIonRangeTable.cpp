@@ -387,7 +387,13 @@ void KVIonRangeTable::DetectEvent(TGeoManager* TheGeometry, KVEvent* TheEvent, T
                 //If this is the first absorber that the particle crosses, we set a "reminder" of its
                 //initial energy
                 if (!part->GetPInitial()) part->SetE0();
-                part->GetParameters()->SetValue(Form("DE_%s",lastVol->GetName()), de);
+                const Double_t* pos = TheGeometry->GetCurrentPoint();
+					 part->GetParameters()->SetValue(Form("DE_%s",lastVol->GetName()), de);
+                
+					 part->GetParameters()->SetValue(Form("X_%s",lastVol->GetName()), pos[0]);
+                part->GetParameters()->SetValue(Form("Y_%s",lastVol->GetName()), pos[1]);
+                part->GetParameters()->SetValue(Form("Z_%s",lastVol->GetName()), pos[2]);
+					 
             }
             lastVol = newVol;
             // stop when particle is stopped
