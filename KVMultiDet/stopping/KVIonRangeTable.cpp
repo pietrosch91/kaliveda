@@ -338,6 +338,14 @@ void KVIonRangeTable::DetectEvent(TGeoManager* TheGeometry, KVEvent* TheEvent, T
     // known by this range table, we calculate the energy loss of the particle,
     // and store it in the particle's list KVParticle::fParameters in the form
     //   "DE_[volume name]" = [energy lost in volume]
+    // We also store the coordinates (world-frame) of the particle's entry and exit
+    // in each volume:
+    //   "Xin_[volume name]" = [entry coordinates for volume]
+    //   "Yin_[volume name]"
+    //   "Zin_[volume name]"
+    //   "Xout_[volume name]" = [exit coordinates for volume]
+    //   "Yout_[volume name]"
+    //   "Zout_[volume name]"
 
     static Bool_t printit = kFALSE; /* debug */
 
@@ -361,14 +369,21 @@ void KVIonRangeTable::DetectEvent(TGeoManager* TheGeometry, KVEvent* TheEvent, T
         TGeoVolume* newVol = TheGeometry->GetCurrentVolume();
 
         Double_t e = part->GetKE(), de = 0;
+        Double_t X,Y,Z,XX,YY,ZZ;
+        XX=YY=ZZ=0.;
 
         // track particle until we leave the geometry
         while (!TheGeometry->IsOutside()) {
 
+            const Double_t* posi = TheGeometry->GetCurrentPoint();
+            X=XX;Y=YY;Z=ZZ;
+            XX=posi[0];YY=posi[1];ZZ=posi[2];
+
             if(printit){
-                std::cout << "   NOW IN VOLUME : " << lastVol->GetName() << std::endl;
+                std::cout << "ENTERING VOLUME : " << lastVol->GetName() << std::endl;
+                std::cout << "at position (" << X << "," << Y << "," << Z << ")" << std::endl;
                 std::cout << "will travel " << step << " cm in this material :";
-                std::cout << lastVol->GetMaterial()->GetTitle() << std::endl;
+                std::cout << lastVol->GetMaterial()->GetName() << "/" << lastVol->GetMaterial()->GetTitle() << std::endl;
             }
 
             de = 0;
@@ -387,13 +402,15 @@ void KVIonRangeTable::DetectEvent(TGeoManager* TheGeometry, KVEvent* TheEvent, T
                 //If this is the first absorber that the particle crosses, we set a "reminder" of its
                 //initial energy
                 if (!part->GetPInitial()) part->SetE0();
-                const Double_t* pos = TheGeometry->GetCurrentPoint();
-					 part->GetParameters()->SetValue(Form("DE_%s",lastVol->GetName()), de);
+                part->GetParameters()->SetValue(Form("DE_%s",lastVol->GetName()), de);
                 
-					 part->GetParameters()->SetValue(Form("X_%s",lastVol->GetName()), pos[0]);
-                part->GetParameters()->SetValue(Form("Y_%s",lastVol->GetName()), pos[1]);
-                part->GetParameters()->SetValue(Form("Z_%s",lastVol->GetName()), pos[2]);
-					 
+                part->GetParameters()->SetValue(Form("Xin_%s",lastVol->GetName()), X);
+                part->GetParameters()->SetValue(Form("Yin_%s",lastVol->GetName()), Y);
+                part->GetParameters()->SetValue(Form("Zin_%s",lastVol->GetName()), Z);
+                part->GetParameters()->SetValue(Form("Xout_%s",lastVol->GetName()), XX);
+                part->GetParameters()->SetValue(Form("Yout_%s",lastVol->GetName()), YY);
+                part->GetParameters()->SetValue(Form("Zout_%s",lastVol->GetName()), ZZ);
+
             }
             lastVol = newVol;
             // stop when particle is stopped
