@@ -1,38 +1,17 @@
-//Energy calibration Row A
-0. 1. 0. 1. 0.
-0. 1. 0. 1. 0.
-0. 1. 0. 5.4458 0.
-0. 1. 0. 1. 0.
-0. 1. 0. 1. 0.
-0. 1. 0. 1. 0.
-0. 1. 0. 1. 0.
-//Energy calibration Row B
-31.1589 0.821400 1.90419e-07 6.849 300.
-47.4695 0.921283 -8.59936e-08 5.252 300.
-1.23161 1.05132 -5.21583e-07 4.876 300.
-38.8275 1.02813 4.61363e-08 5.449 300.
-22.4961 0.963646 2.16673e-07 5.100 300.
-43.0687 0.881984 1.54579e-07 5.087 300.
-63.1339 0.888766 1.03260e-07 6.110 300.
-//Energy calibration Row C
-0.0 0.0 0.0 0.0 0.0
-0.0 0.0 0.0 0.0 0.0
-0.0 0.0 0.0 0.0 0.0
-0.0 0.0 0.0 0.0 0.0
-0.0 0.0 0.0 0.0 0.0
-0.0 0.0 0.0 0.0 0.0
-0.0 0.0 0.0 0.0 0.0
-//Position & Energy Loss A MeV
-1 1
-//Position & Energy Loss B MeV
-1 1
-//Position & Energy Loss C MeV
-1 1
-//Thresh A(Energy)
-0.
-//Thresh B(Energy)
-0.
-//Thresh C(Energy)
-0.
+#The ionisation chamber calibration is based on a linear fit, where we convert
+#the channel number into mV. We use the same linear fit as the e494s experiment.
+#After, we found the value in mV of the elastic pick and the final equation to
+#convert channel numbers into MeV is E[MeV] = f[ch] * k/Vnorm , where f is the
+#linear fit channel numbers->mV (mV = a*Echi[ch]+b), k (=7.54 MeV) is the energy loss for the elastic (20Ca) and
+#Vnorm is the value in mV from the channel number of the elastic pick. 
+#(October 13 2010) 
 
-
+#IC	a	b	Vnorm
+#
+0	0.83610	-32.319	1800.62496
+1	1.02660	-8.920	2434.88988
+2	0.94358	-13.210	2389.238918
+3	1.11820	-49.290	2383.9132
+4	0.99353	-54.920	2272.699875
+5	0.91974	-39.604	2335.587756
+6	0.73183	-79.590	1770.882234
