@@ -15,6 +15,9 @@
 // E.g. if you want to access informations on the INDRA multidetector
 // through the global pointer gIndra, you must AT LEAST add the line
 //   #include "KVINDRA.h"
+// Same thing to access information on the VAMOS spectrometer through the
+// global pointer gVamos, you must AT LEAST add the line 
+//   #include "KVVAMOS.h"
 
 void KVIVSelectorTemplate::InitAnalysis(void)
  {
@@ -26,8 +29,8 @@ void KVIVSelectorTemplate::InitAnalysis(void)
  //
  // Enter your code here
  //
- // To access some information about INDRA, use the global pointer gIndra
- // e.g. to access the list of silicon detetors
+ // To access some information about INDRA or VAMOS, use the global pointers 
+ // gIndra and gVamos e.g. to access the list of INDRA's silicon detetors
  //		KVList *sil_list = gIndra->GetListOfSi();
  //
  //When running in batch mode, the global pointer gBatchSystem gives access
@@ -38,7 +41,7 @@ void KVIVSelectorTemplate::InitAnalysis(void)
  //   if( gBatchSystem )  // running in batch
  //      my_file = new TFile( Form("%s.root", gBatchSystem->GetJobName()), "create");
  //   else  // interactive
- //      my_file = new TFile( "KVSelectorTemplate.root", "create");
+ //      my_file = new TFile( "KVIVSelectorTemplate.root", "create");
  }
 
 //_____________________________________
@@ -52,13 +55,20 @@ void KVIVSelectorTemplate::InitRun(void)
  //
  // Enter your code here
  //
- // To define which identification/calibration codes you want
+ // To define which identification/calibration codes for INDRA you want
  // to use in your analysis:
  //     GetEvent()->AcceptIDCodes(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//VEDA id-codes code(i)=2,3,4 and 6 accepted
  //     GetEvent()->AcceptECodes( kECode1|kECode2 );//VEDA ecode(i)=1&2 accepted
+ // To define which Focal plan Position reconstruction/identification/calibration
+ // codes for VAMOS you want to use in your analysis, the method is similar:
+ //     GetEvent()->AcceptIDCodesVAMOS(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);
+ //     GetEvent()->AcceptECodesVAMOS( kECode1|kECode2 );//ecode(i)=1&2 accepted
+ //     GetEvent()->AcceptFPCodesVAMOS( kFPCode1|kFPCode2 );//the better FP code is kFPCode1 
+ // The meaning of the available FP codes is shown by the static method 
+ //      KVVAMOSCodes::ShowAvailableFPCodes().
  //
  // If you want the angles of particles to be calculated using the
- // centre of each detector (instead of the randomised angles used by default):
+ // centre of each detector in INDRA (instead of the randomised angles used by default):
  //     GetEvent()->UseMeanAngles();
  //
  //The run number of the currently analysed run is given by
@@ -72,15 +82,26 @@ Bool_t KVIVSelectorTemplate::Analysis(void)
  // 
  // Analysis method.
  // The event pointer can be retrieved by a call to GetEvent().
- // See KVINDRAReconEvent documentation for the available methods.
+ // See KVIVReconEvent documentation for the available methods.
  //
- // In order to loop over all correctly identified particles in the event
+ // In order to loop over all correctly identified particles in the INDRA event
  // (assuming the corresponding code masks were set in InitRun):
  //		KVINDRAReconNuc* particle;
  //		while ( (particle = GetEvent()->GetNextParticle("ok")) ){
- //            int z = particle->GetZ();
+ //            Int_t z = particle->GetZ();
  //            ...etc. etc.
  //     }
+ //
+ // In order to look at the nucleus reconstructed and identified in VAMOS
+ // (assuming the corresponding code masks were set in InitRun), use the lines:
+ //     KVVAMOSReconNuc* nuc;
+ //     if( (nuc = GetEvent()->GetVAMOSNuc("ok")) ){
+ //
+ //           Int_t z       = nuc->GetZ();
+ //           Double_t Brho = nuc->GetBrho();
+ //           Double_t M    = nuc->GetMass();
+ // }
+ //
  //
  // The reconstructed VAMOS data can be accessed using the following variables:
  //

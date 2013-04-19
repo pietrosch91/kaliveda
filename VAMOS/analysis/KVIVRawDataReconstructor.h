@@ -13,20 +13,33 @@ $Date: 2009/01/14 15:59:11 $
 #include "KVINDRARawDataReconstructor.h"
 #include "GTGanilData.h"
 #include "KVGANILDataReader.h"
+#include "KVIVReconEvent.h"
 
 class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
 {
-   public:
 
-   KVIVRawDataReconstructor();
-   virtual ~KVIVRawDataReconstructor();
-   virtual void postInitRun()
-	{
-	KVINDRARawDataReconstructor::postInitRun(); // initialise event counters
-   	((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( tree );
-	};
+	protected: 
 
-   ClassDef(KVIVRawDataReconstructor,1)//Reconstructs raw data from INDRA-VAMOS experiments
+		KVIVReconEvent *fIVevent;
+		Int_t           fNbVAMOSrecon; //number of reconstructed VAMOS events
+
+
+   	public:
+
+   		KVIVRawDataReconstructor();
+   		virtual ~KVIVRawDataReconstructor();
+
+   		virtual void postInitRun()
+		{
+			KVINDRARawDataReconstructor::postInitRun(); // initialise event counters
+   			((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( tree );
+		};
+		virtual void InitRun();
+   		virtual void preAnalysis();
+		virtual Bool_t Analysis();
+		virtual void EndRun();
+
+   		ClassDef(KVIVRawDataReconstructor,1)//Reconstructs raw data from INDRA-VAMOS experiments
 };
 
 #endif

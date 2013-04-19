@@ -274,6 +274,8 @@ Double_t KVChIo::GetVoltsFromCanalGG(Double_t chan)
 
 }
 
+//____________________________________________________________________________________________
+
 Double_t KVChIo::GetVolts()
 {
    //Returns Volts for this detector calculated from current PG coder values.
@@ -291,7 +293,6 @@ Double_t KVChIo::GetVolts()
 
    return 0;
 }
-
 
 //____________________________________________________________________________________________
 
