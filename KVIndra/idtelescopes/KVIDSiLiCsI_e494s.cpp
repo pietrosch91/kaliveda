@@ -1,93 +1,86 @@
-/***************************************************************************
-                          KVIDSiCorrCsI.cpp  -  description
-                             -------------------
-    begin                : Fri Feb 20 2004
-    copyright            : (C) 2004 by J.D. Frankland
-    email                : frankland@ganil.fr
- ***************************************************************************/
+//Created by KVClassFactory on Fri Nov  2 15:30:21 2012
+//Author: Guilain ADEMARD
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+#include "KVIDSiLiCsI_e494s.h"
 
-#include "KVIDSiCorrCsI.h"
+ClassImp(KVIDSiLiCsI_e494s)
 
-ClassImp(KVIDSiCorrCsI)
+////////////////////////////////////////////////////////////////////////////////
+// BEGIN_HTML <!--
+/* -->
+<h2>KVIDSiLiCsI_e494s</h2>
+<h4>E503/E494S experiment INDRA identification using SiLi-CsI matrices</h4>
+<!-- */
+// --> END_HTML
+////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////////////
-//KVIDSiCorrCsI
-//
-// Identification in SiCorrelated:CsI(total light) matrices for INDRA_E503. 
-// Each fit has an associated Zmin & ZMax (entered when generating the fit)
-// Z identification is considered possible between max(Zmin-0.5, 0.5) and min(Zmax+0.5, 100.5)
-//
-// All of the grids were fitted using the LTG fit functional "fede" (10 fit parameters, extended functional, total light)
+KVIDSiLiCsI_e494s::KVIDSiLiCsI_e494s()
+{
+   // Default constructor
+}
 
-// ID SUB-CODES: (Standard KVTGIDManager Codes)
-// -------------
-// 0 KVTGIDManager::kStatus_OK            "ok",
-// 1 KVTGIDManager::kStatus_noTGID        "no KVTGID for requested identification",
-// 2 KVTGIDManager::kStatus_OutOfIDRange  "point to identify outside of identification range of function",
-// 3 KVTGIDManager::kStatus_ZtooSmall     "IdentA called with Z<1",
-// 4 KVTGIDManager::kStatus_ZtooLarge     "IdentA called with Z larger than max Z defined for KVTGIDZA isotopic identification object"
-/////////////////////////////////////////////////////////////////////////////////////
+//________________________________________________________________
 
-//__________________________________________________________________________//
+KVIDSiLiCsI_e494s::~KVIDSiLiCsI_e494s()
+{
+   // Destructor
+}
 
-void KVIDSiCorrCsI::Initialize() 
+//________________________________________________________________
+
+void KVIDSiLiCsI_e494s::Initialize() 
 {
     // Initialisation of telescope before identification.
     // This method MUST be called once before any identification is attempted.
     // IsReadyForID() will return kTRUE if KVTGID objects are associated
     // to this telescope for the current run.
 
-    fSi  = (KVSilicon*)GetDetector(1);
-    fCsI = (KVCsI*)GetDetector(2);
+    fSiLi  = (KVINDRADetector*)GetDetector(1);
+    fCsI   = (KVCsI*)GetDetector(2);
 
-	Bool_t ok = fSi && fCsI && GetListOfIDFunctions().GetEntries();
+	Bool_t ok = fSiLi && fCsI && GetListOfIDFunctions().GetEntries();
 
     SetBit(kReadyForID, ok);
 }
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapX(Option_t * opt) 
+Double_t KVIDSiLiCsI_e494s::GetIDMapX(Option_t * opt) 
 {
 	// This method gives the X-coordinate in a 2D identification map
-	// associated with the Si-CsI identification telescope.
+	// associated whith the SiLi-CsI identification telescope.
 	// The X-coordinate is the total light of the CsI.
 	
-    opt = opt; // not used (keeps the compiler quiet)
+	opt = opt; // not used (keeps the compiler quiet)
     return fCsI->GetLumiereTotale();
 }
 
 //__________________________________________________________________________//
 
-Double_t KVIDSiCorrCsI::GetIDMapY(Option_t * opt) 
+Double_t KVIDSiLiCsI_e494s::GetIDMapY(Option_t * opt) 
 {
 	// This method gives the Y-coordinate in a 2D identification map
-	// associated with the Si-CsI identification telescope.
-	// The Y-coordinate is the silicon current petit gain coder data minus the petit gain pedestal. If the grand gain coder 
-	// data is less than 3900 then the petit gain value is calculated
-	// from the current grand gain coder data (see KVINDRADetector::GetPGFromGG())
+	// associated with the SiLi-CsI identification telescope.
+	// The Y-coordinate is the SiLi current low gain coder data minus the
+	// low gain pedestal correction (see KVACQParam::GetDeltaPedestal()).
+	// If the high gain coder data is less than 3900 the the low gain value
+	// is calculated from the current high gain coder data minus the high
+	// gain pedestal correction (see KVINDRADetector::GetPGfromGG()).
 
-    opt = opt; // not used (keeps the compiler quiet)
+	opt = opt; // not used (keeps the compiler quiet)
 
-    if(fSi->GetGG() < 3900.) return fSi->GetPGfromGG() - fSi->GetPedestal("PG");
-    return fSi->GetPG() - fSi->GetPedestal("PG");
+	if( fSiLi->GetGG() <= 3900.5 )
+		return fSiLi->GetPGfromGG(fSiLi->GetGG() - fSiLi->GetACQParam("GG")->GetDeltaPedestal());
+
+	return fSiLi->GetPG() - fSiLi->GetACQParam("PG")->GetDeltaPedestal();
 }
 
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
+Bool_t KVIDSiLiCsI_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Double_t y) 
 {
     //Identification of particles using SiCorrelated-CsI matrices for E503/E494s
-    //First of all, Z identification is attempted with KVIDSiCorrCsI::IdentZ.
+    //First of all, Z identification is attempted with KVIDSiLiCsI_e494s::IdentZ.
     //If successful, if this telescope has mass identification capabilities
     //(HasMassID()=kTRUE), then if the identified Z is not too large for the
     //GG grid Z&A identification, we identify the mass of the particle.
@@ -98,25 +91,25 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
     //
     // Note that optional arguments (x,y) for testing identification are not used.
 
-	Double_t X = ( x<0. ? GetIDMapX() : x );
-	Double_t Y = ( y<0. ? GetIDMapY() : y );
+ 	Double_t X = ( x<0. ? GetIDMapX() : x );
+ 	Double_t Y = ( y<0. ? GetIDMapY() : y );
 
     Double_t funLTG_Z = -1;
     Double_t funLTG_A = -1;
-    Double_t mass = -1;
+    Double_t mass     = -1;
+    Double_t Z        = -1.;
+
     Int_t ia = -1;
     Int_t iz = -1;
 
     IDR->SetIDType( GetType() );
     IDR->IDattempted = kTRUE;
-    IDR->IDquality = 15;
+    IDR->IDquality   = 15;
 
-	// set general ID code
+    // set general ID code
     IDR->IDcode = fIDCode;
 
-    Double_t Z = -1.;
-
-    const Bool_t inRange = (0. < X) && (0. < Y) && (Y < 4090.); 
+    const Bool_t inRange = (0.<X) &&  (X<4090.) &&  (0.<Y) &&  (Y<4090.);
 
     if(inRange) Z = IdentZ(this, funLTG_Z, "", "");
     else return kFALSE;
@@ -126,7 +119,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     if(GetStatus() == KVTGID::kStatus_NotBetween_IDMin_IDMax) return kFALSE;
 
-    if (GetStatus() != KVTGIDManager::kStatus_OK) return kFALSE;  // no ID
+    if (GetStatus() != KVTGIDManager::kStatus_OK) return kFALSE;   // no ID
 
     iz = TMath::Nint(Z);
 
@@ -139,7 +132,7 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
 
     //is mass identification a possibility ?
     if(iz < 9){
-       
+
         mass = IdentA(this, funLTG_A, "", "", iz);
 
         if (GetStatus() != KVTGIDManager::kStatus_OK){     //mass ID not good ?
@@ -206,14 +199,14 @@ Bool_t KVIDSiCorrCsI::Identify(KVIdentificationResult* IDR, Double_t x, Double_t
         IDR->Z = iz;
         IDR->PID = Z;
         IDR->Zident = kTRUE;
-    
+
     }
 
     return kTRUE;
 }
 //__________________________________________________________________________//
 
-Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA) 
+Bool_t KVIDSiLiCsI_e494s::SetIdentificationParameters(const KVMultiDetArray* MDA) 
 {
     //Initialise the identification parameters (grids, etc.) of ALL identification telescopes of this
     //kind (label) in the multidetector array. Therefore this method need only be called once, and not
@@ -242,34 +235,9 @@ Bool_t KVIDSiCorrCsI::SetIdentificationParameters(const KVMultiDetArray* MDA)
 }
 //__________________________________________________________________________//
 
-void KVIDSiCorrCsI::RemoveIdentificationParameters()
+void KVIDSiLiCsI_e494s::RemoveIdentificationParameters()
 {
-   //Delete any KVTGID objects associated with this telescope
+   //Delete any KVTGID objects associated with this identification telescope
    RemoveAllTGID();
 }
-//__________________________________________________________________________//
 
-void KVIDSiCorrCsI::PrintFitParameters()
-{
-    KVTGID *tgidPrint = 0;
-
-    std::cout << "------------- TGID INFO [Z] ----------------" << std::endl;
-    tgidPrint = (KVTGID*) this->GetTGID(this->GetName(), "Z", "");
-    std::cout << "tgidPrint: " << tgidPrint << std::endl;
-    std::cout << "tgidLookup: " << GetTGIDName(this->GetName(), "Z", "") << std::endl;
-
-    if(tgidPrint != 0){
-        tgidPrint->Print();
-    }
-
-    std::cout << "------------- TGID INFO [A] ----------------" << std::endl;
-    tgidPrint = (KVTGID*) this->GetTGID(this->GetName(), "A", "");
-    std::cout << "tgidPrint: " << tgidPrint << std::endl;
-    std::cout << "tgidLookup: " << GetTGIDName(this->GetName(), "A", "") << std::endl;
-
-    if(tgidPrint != 0){
-        tgidPrint->Print();
-    }
-
-    std::cout << "----------------- END-----------------------" << std::endl;
-}
