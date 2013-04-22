@@ -9,6 +9,7 @@
 
 #include "KVDetector.h"
 #include "TGeoVolume.h"
+#include "TGeoMatrix.h"
 #include "TGeoManager.h"
 
 class KVSpectroDetector : public KVDetector//, public TGeoVolume
