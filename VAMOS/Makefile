@@ -3,7 +3,7 @@
 
 PROJ_NAME = VAMOS
 
-MODULES = daq_cec analysis base identification detectors geometry
+MODULES = daq_cec analysis base reconstruction identification detectors geometry db events particles calibration
 
 EXTRA_HEADERS = analysis/Defines.h
 
@@ -24,6 +24,11 @@ endif
 
 include ../Makefile.general
 
+
+#required for use of TGeo* classes in KVMaterial, KVDetector, etc.
+LINK_LIB += -L$(ROOTSYS)/lib -lGeom
+RLIBMAPDEPS += libGeom.so
+
 ifeq ($(ARCH),win32)
 LINK_LIB = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
@@ -35,3 +40,4 @@ ifeq ($(MAKE_GANTAPE_RFIO),yes)
 LINK_LIB += -L/usr/local/lib -lshift
 endif
 endif
+

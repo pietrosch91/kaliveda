@@ -20,7 +20,7 @@ Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-DriftChamberv::DriftChamberv(LogFile *Log, Siv *SiD)
+DriftChamberv::DriftChamberv(LogFile *Log, Sive503 *SiD)
 {
 #ifdef DEBUG
   cout << "DriftChamberv::Constructor" << endl;
@@ -49,7 +49,35 @@ DriftChamberv::DriftChamberv(LogFile *Log, Siv *SiD)
 
   L->Log << "Number of considered strips: " << NStrips << endl;
 
-  
+   Int_t  num; 
+   Float_t ref;
+   Float_t propre;  
+   TString sline;
+   
+   ifstream in2;
+
+   if(!gDataSet->OpenDataSetFile("DriftChamber_time.cal",in2))
+  {
+     cout << "Could not open the calibration file Offset.cal !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	cout<< "Reading DriftChamber_time.cal" <<endl;
+    L->Log << "Reading DriftChamber_time.cal" << endl;
+	while(!in2.eof()){
+       sline.ReadLine(in2);
+       if(!in2.eof()){
+	   if (!sline.BeginsWith("+")&&!sline.BeginsWith("|")){
+	     sscanf(sline.Data(),"%d %f %f",&num ,&ref, &propre );
+         	//L->Log << "SI_" << num << ": Ref : "<< ref << endl;  
+	     T_DCRef[num] = ref;
+	     T_DCpropre_el[num] = propre;
+	     	   }
+       		}
+     	}
+  }
+  in2.close();    
 
   ifstream inf1;
   if(!gDataSet->OpenDataSetFile("DriftChamberRef.cal",inf1))
@@ -304,7 +332,7 @@ void DriftChamberv::SetMatX(void)
 
 
   Det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
-
+	L->Log<<"Déterminant SetMatX"<<Det<<endl;
   if(Det == 0.0)
     {
       cout << "DriftChamberv::SetMatX: Det == 0 !" << endl;
@@ -317,6 +345,8 @@ void DriftChamberv::SetMatX(void)
       MatX[1][0] = -1.0*A[0][1]/Det;
       MatX[0][1] = -1.0*A[1][0]/Det;
    }
+   
+   L->Log<<"Det = "<<Det<<" "<<"MatX : "<<MatX[0][0]<<" "<<MatX[1][1]<<" "<<MatX[1][0]<<" "<<MatX[0][1]<<endl;
 
 }
 
@@ -361,6 +391,7 @@ void DriftChamberv::SetMatY(void)
       MatY[1][0] = -1.0*A[0][1]/Det;
    }
 
+   L->Log<<"Det = "<<Det<<" "<<"MatY : "<<MatY[0][0]<<" "<<MatY[1][1]<<" "<<MatY[1][0]<<" "<<MatY[0][1]<<endl;
 }
 
 
@@ -394,7 +425,7 @@ void DriftChamberv::InitRaw(void)
   cout << "DriftChamberv::InitRaw" << endl;
 #endif
   for(Int_t i=0;i<2;i++)
-    E_Raw[i] = T_Raw[i] = 0;
+    E_Raw[i] = T_Raw[i] = 0.0;				// = 0 !!!!
   for(Int_t i=0;i<64;i++)
     for(Int_t j=0;j<4;j++)
       {
@@ -431,10 +462,12 @@ void DriftChamberv::Calibrate(void)
   
   Int_t i,j,k;
   Float_t QTmp;
-
+//L->Log<<"E_raw : "<<E_Raw[0]<<" "<<E_Raw[1]<<endl;
+//L->Log<<"T_raw : "<<T_Raw[0]<<" "<<T_Raw[1]<<endl;
   for(i=0;i<2;i++)
     if(E_Raw[i]>0)
       {
+        //L->Log<<"E_raw : "<<E_Raw[i]<<endl;
 	Rnd->Next();
 	for(j=0;j<2;j++)
 	  E[i]+=powf((Float_t)E_Raw[i] + Rnd->Value(),
@@ -443,23 +476,28 @@ void DriftChamberv::Calibrate(void)
   for(i=0;i<2;i++)
     if(T_Raw[i]>0)
       {
+        //L->Log<<"T_raw : "<<T_Raw[i]<<endl;
 	Rnd->Next();
 	for(j=0;j<2;j++)
 	  T[i]+=powf((Float_t) T_Raw[i] + Rnd->Value(),
 		     (Float_t) j)*TCoef[i][j];
-	//	cout << i << " " << T[i] << " " << T_Raw[i] << endl;
+	  T_DCfrag[i] = T_DCRef[i] + T_DCpropre_el[i] - T[i];
 	if(Si->Present) 
 	  {
 	    //	    T[i] += Si->Offset[1] - Si->T[1];
 	  }
-      }
+      }	
+      
+        //L->Log << "T_DCRef[0] : " << T_DCRef[0] << " T_DCpropre_el[0] : "<<T_DCpropre_el[0]<<" T[0] : "<<T[0]<<" T_DCfrag[0] = "<<T_DCfrag[0]<<endl;	
+	//L->Log << "T_DCRef[1] : " << T_DCRef[1] << " T_DCpropre_el[1] : "<<T_DCpropre_el[1]<<" T[1] : "<<T[1]<<" T_DCfrag[1] = "<<T_DCfrag[1]<<endl;
 
   if(E[0] > 0.0) Counter[1]++;
   if(E[1] > 0.0) Counter[2]++;
   if(T[0] > 0.0) Counter[3]++;
   if(T[1] > 0.0) Counter[4]++;
-
-  if(E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0)
+	//L->Log<<"E[0] : "<<E[0]<<" "<<"E[1] : "<<E[1]<<" "<<"T[0] : "<<T[0]<<" "<<"T[1] : "<<T[1]<<endl;
+	
+  if(E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0)	//E[0] > 0.0 && E[1] > 0.0 && T[0] > 0.0 && T[1] > 0.0
     {
     PresentWires = true;
     Counter[5]++;
@@ -468,7 +506,9 @@ void DriftChamberv::Calibrate(void)
     {
       E[0] = E[1] = T[0] = T[1] = 0.0;
     }
-
+	//L->Log<<"PresentWires : ::Calibrate() : "<<PresentWires<<endl;
+	//L->Log<<"Q_RawM[0] : "<<Q_RawM[0]<<" "<<"Q_RawM[1] : "<<Q_RawM[1]<<" "<<"Q_RawM[2] : "<<Q_RawM[2]<<" "<<"Q_RawM[3] : "<<Q_RawM[3]<<endl;
+	
   if(PresentWires)
     {
       for(i=0;i<4;i++) //loop over Chambers
@@ -506,7 +546,7 @@ void DriftChamberv::Calibrate(void)
 		    }
 		}
 	  }
-      
+      //L->Log<<"QTmp : "<<QTmp<<endl;
       for(i=0;i<4;i++)
 	if(Mult[i] >= NStrips) Counter1[i][0]++;
 
@@ -515,6 +555,8 @@ void DriftChamberv::Calibrate(void)
 	  PresentStrips = true;
 	  Counter[6]++;
 	}
+	//L->Log<<"Mult[0] : "<<Mult[0]<<" "<<"Mult[1] : "<<Mult[1]<<" "<<"Mult[2] : "<<Mult[2]<<" "<<"Mult[3] : "<<Mult[3]<<endl;
+	//L->Log<<"PresentStrips : ::Calibrate() : "<<PresentStrips<<endl;
    }
 
   
@@ -526,13 +568,13 @@ void DriftChamberv::Focal(void)
 #ifdef DEBUG
   cout << "DriftChamberv::Focal" << endl;
 #endif
-
+	//L->Log<<"PresentStrips ::Focal(): "<<PresentStrips<<endl;
   if(PresentStrips) //PresentWires by definition
     {
       FocalSubseqX();
       FocalSubseqY();
     }
-
+	//L->Log<<"PresentSubseqX && PresentSubseqY ::Focal() : "<<PresentSubseqX<<" "<<PresentSubseqY<<endl;
   if(PresentSubseqX && PresentSubseqY) //PresentWires by definition
     {
       FocalX();
@@ -631,7 +673,7 @@ void DriftChamberv::FocalSubseqX(void)
       if(!MultiplePeak)
 	{
 #endif
-	  if(Neighbours)
+	  if(Neighbours)	//Because SECHIP is not defined here, Neighbours is always false...
 	    {
 	      v[0] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[2]][i]);
 	      v[1] = sqrtf(Q[FStrip[0]][i]/Q[FStrip[1]][i]);
@@ -651,7 +693,7 @@ void DriftChamberv::FocalSubseqX(void)
 	  else // the case of Weighted Average
 	    {
 #ifdef WEIGHTEDAVERAGE
-	      if(Mult[i] > NStrips)
+	      if(Mult[i] > NStrips)	
 		{
 		  //Looking for entire peak for W.A.
 		  //The Strips are ordered  0-64
@@ -715,6 +757,8 @@ void DriftChamberv::FocalSubseqX(void)
 	}
 #endif
     }
+  //L->Log<<"X[0] : "<<X[0]<<" "<<"X[1] : "<<X[1]<<" "<<"X[2] : "<<X[2]<<" "<<"X[3] : "<<X[3]<<endl;  
+ 
   if( X[0] > 0. && X[1] > 0. && X[2] > 0. && X[3] > 0.)
     {
       PresentSubseqX = true;
@@ -792,7 +836,7 @@ void DriftChamberv::FocalX(void)
   // Tf in mrad
   Tf = (Float_t) (1000.*atan(B[0]));
   Counter[9]++;
-
+	//L->Log<<"TanFocal[0] : "<<TanFocal[0]<<" "<<"B[0] : "<<B[0]<<endl;
   if((TanFocal[0]-B[0]) != 0.)
     {
     Xf = (Float_t) (B[0]*(TanFocal[0]*FocalPos+B[1])/(TanFocal[0]-B[0])+B[1]);
@@ -835,7 +879,7 @@ void DriftChamberv::FocalY(void)
   // Pf in mrad
   Pf = (Float_t) (1000.*atan(B[0]));
   Counter[11]++;
-
+	//L->Log<<"TanFocal[1] : "<<TanFocal[1]<<" "<<"B[0] : "<<B[0]<<endl;
   if((TanFocal[1]-B[0]) != 0.)
     {    
       Yf = (Float_t) (B[0]*(TanFocal[1]*FocalPos+B[1])/(TanFocal[1]-B[0])+B[1]);
@@ -934,15 +978,15 @@ void DriftChamberv::outAttach(TTree *outT)
   cout << "Attaching Drift variables" << endl;
 #endif
 
-  outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
+  /*outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
   outT->Branch("DcEWire2",&E[1],"DcEWire2/F");
-  outT->Branch("DcTWire1",&T[0],"DcTWire1/F");
-  outT->Branch("DcTWire2",&T[1],"DcTWire2/F");
+  outT->Branch("DcTWire1",&T_DCfrag[0],"DcTWire1/F");
+  outT->Branch("DcTWire2",&T_DCfrag[1],"DcTWire2/F");  
   
   outT->Branch("DcX1",&X[0],"DcX1/F");
   outT->Branch("DcX2",&X[1],"DcX2/F");
   outT->Branch("DcX3",&X[2],"DcX3/F");
-  outT->Branch("DcX4",&X[3],"DcX4/F");
+  outT->Branch("DcX4",&X[3],"DcX4/F");*/
 
   //  outT->Branch("DcXS1",&XS[0],"DcXS1/F");
   //  outT->Branch("DcXS2",&XS[1],"DcXS2/F");
@@ -954,13 +998,13 @@ void DriftChamberv::outAttach(TTree *outT)
   //  outT->Branch("DcXWA3",&XWA[2],"DcXWA3/F");
   //  outT->Branch("DcXWA4",&XWA[3],"DcXWA4/F");
 
-  outT->Branch("DcY1",&Y[0],"DcY1/F");
+  /*outT->Branch("DcY1",&Y[0],"DcY1/F");
   outT->Branch("DcY2",&Y[1],"DcY2/F");
 
   outT->Branch("Xf",&Xf,"Xf/F");
   outT->Branch("Tf",&Tf,"Tf/F");
   outT->Branch("Yf",&Yf,"Yf/F");
-  outT->Branch("Pf",&Pf,"Pf/F");
+  outT->Branch("Pf",&Pf,"Pf/F");*/
 
   //  outT->Branch("Xf1",&Xf1,"Xf1/F");
 

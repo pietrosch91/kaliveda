@@ -2,6 +2,7 @@
 //Author: dgruyer
 
 #include "KVLightEnergyCsIFull.h"
+using namespace std;
 
 ClassImp(KVLightEnergyCsIFull)
 
@@ -182,7 +183,14 @@ Double_t KVLightEnergyCsIFull::GetLight(double* x, double* par)
     double emax    = x[0];
     double epsilon = 1.;    //arbitrary set
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
+	// for compilation with latest ROOT svn trunk version called 5.99/01
+	fDlight->SetParameters(par+1);
+    return par[0]+fDlight->Integral(emin,emax,epsilon);
+#else
     return par[0]+fDlight->Integral(emin,emax,par+1,epsilon);
+#endif
+
 }
 
 //________________________________________________________________

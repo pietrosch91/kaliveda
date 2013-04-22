@@ -22,7 +22,9 @@
 #pragma link C++ class KVIDChIoSiCorr+;
 #pragma link C++ class KVIDChIoSi75_camp5+;
 #pragma link C++ class KVIDChIoCsI_camp5+;
+#pragma link C++ class KVIDChIoCorrCsI+;
 #pragma link C++ class KVIDSiCsI5+;
+#pragma link C++ class KVIDSiCorrCsI+;
 #pragma link C++ class KVIDSi75SiLi_camp5+;
 #pragma link C++ class KVIDSiLiCsI_camp5+;
 #pragma link C++ class KVIDBlocking+;

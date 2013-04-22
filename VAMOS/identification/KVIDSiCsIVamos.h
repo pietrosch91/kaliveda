@@ -18,20 +18,23 @@ $Date: 2009/01/21 08:04:20 $
 class KVIDSiCsIVamos : public KVIDSiCsI
 {
    
-   KVIDZAGrid* fgrid;//! grid used for Si-CsI charge identification of VAmos focal plan
+   KVIDZAGrid* fgrid;//! grid used for Si-CsI charge identification of Vamos focal plan
 	KVSiliconVamos* fSi;//!
 	KVCsIVamos* fCsI;//!
-
+   
    public:
    KVIDSiCsIVamos();
    virtual ~KVIDSiCsIVamos();
    
+   Double_t esi;
+   Double_t ecsi;
+   
    virtual void Initialize(void);
-   Bool_t Identify(KVIdentificationResult*);
+   Bool_t Identify(Double_t, Double_t, KVIdentificationResult*);
 
    const Char_t * GetName() const;
-	virtual Double_t GetIDMapX(Option_t * opt = "");
-	virtual Double_t GetIDMapY(Option_t * opt = "");
+	virtual Double_t GetIDMapX(Double_t, Option_t * opt = "");
+	virtual Double_t GetIDMapY(Double_t, Option_t * opt = "");
    ClassDef(KVIDSiCsIVamos,1)//Identification map SIE_xx-CSIyy of Vamos
 };
 

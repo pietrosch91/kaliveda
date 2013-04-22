@@ -10,6 +10,17 @@ $Date: 2007/06/08 15:49:10 $
 #ifndef __KVIVRECONIDENT_H
 #define __KVIVRECONIDENT_H
 
+//#include "KVReconIdent.h"
+#include "KVIDGridManager.h"
+#include <string>
+#include <string.h>
+
+#include "IonisationChamber.h"
+#include "KVSiliconVamos.h"
+#include "KVCsIVamos.h"
+#include "KVDetector.h"
+
+#define ID_SWITCH -1
 #include "KVINDRAReconIdent.h"
 
 class Analysisv;
@@ -18,7 +29,7 @@ class LogFile;
 class KVIVReconIdent : public KVINDRAReconIdent
 {
    Analysisv* fAnalyseV;//VAMOS calibration
-   LogFile* fLogV;//VAMOS calibration log
+   LogFile* fLogV;//VAMOS calibration log  
    
    public:
 
@@ -29,7 +40,19 @@ class KVIVReconIdent : public KVINDRAReconIdent
    void InitRun();
    Bool_t Analysis();
    void EndAnalysis();
-
+   
+   Bool_t LoadGrids(); 
+   Int_t event;
+   Int_t M_INDRA;
+   Float_t  thetavam,brho;
+   Double_t  brhorun;
+   Double_t  thetavamrun;
+   
+   KVINDRAReconNuc *part;
+   KVTelescope *kvt_sicsi;
+   KVDetector *kvd_si;
+   KVDetector *kvd_csi;   
+   KVDetector *gap; 	  	
    ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
 };
 

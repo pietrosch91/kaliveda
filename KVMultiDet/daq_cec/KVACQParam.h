@@ -32,6 +32,7 @@ class KVACQParam:public KVBase {
    KVDetector *fDet;            //Detector associated with this acquisition parameter
    UShort_t fData;              //!Dummy used when reading back events from a TTree etc.
    Float_t fPied;               //Pedestal value for the current run
+   Float_t fDeltaPied;          //Pedestal correction value for the current run
    Bool_t fWorks;            //kFALSE if acquisition parameter was not working
    UChar_t fNbBits;         //number of bits (<=16) actually used by parameter
 
@@ -63,6 +64,12 @@ class KVACQParam:public KVBase {
    };
    Float_t GetPedestal() const {
       return fPied;
+   };
+   void SetDeltaPedestal(Float_t delta) {
+      fDeltaPied = delta;
+   };
+   Float_t GetDeltaPedestal() const {
+      return fDeltaPied;
    };
    UShort_t* GetDataAddress(){ return &fData; }
 

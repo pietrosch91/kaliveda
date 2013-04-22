@@ -9,4 +9,7 @@ $Id: VAMOSLinkDef.h,v 1.4 2009/01/14 15:59:49 franklan Exp $
 #pragma link off all functions;
 #pragma link C++ class Identificationv+;
 #pragma link C++ class KVIDSiCsIVamos+;
+#pragma link C++ class CsICalib+;
+#pragma link C++ enum FocalPosCodes;
+#pragma link C++ class KVVAMOSCodes+;
 #endif
