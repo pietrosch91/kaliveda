@@ -62,6 +62,7 @@ void KVVAMOS::init()
 	fFocalPos      = 0; 
 	fAngle         = -1;
 	fBrhoRef       = -1;
+	fBeamHF        = -1;
 
 	Info("init","To be implemented");
 }

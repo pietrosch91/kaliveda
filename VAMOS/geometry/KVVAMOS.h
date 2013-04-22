@@ -27,8 +27,9 @@ class KVVAMOS : public KVDetector //public KVBase
 
 	protected:
 
-		Double_t fAngle;       //Angular rotation around the target (deg)
-		Double_t fBrhoRef;     //Reference magnetic rigidity (T.m)
+		Double_t fAngle;       //!Angular rotation around the target (deg)
+		Double_t fBrhoRef;     //!Reference magnetic rigidity (T.m)
+		Double_t fBeamHF;      //!High frequency of the beam (MHz)
 		TString fDataSet;      //Name of associated dataset, used with MakeVAMOS	
 		KVList *fDetectors;    // List of references to all detectors of VAMOS
 		KVList *fFiredDets;    //!List of fired detectors of VAMOS
@@ -117,11 +118,17 @@ class KVVAMOS : public KVDetector //public KVBase
 			return (id/10000)%10;
 		}
 
-		Double_t GetAngle()   const{ return fAngle;   }
-		Double_t GetBrhoRef() const{ return fBrhoRef; }
+		Double_t GetAngle()      const{ return fAngle;   }
+		Double_t GetBrhoRef()    const{ return fBrhoRef; }
+		Double_t GetBeamHF()     const{ return fBeamHF;  }
+		Double_t GetBeamPeriod() const{
+			//Return the beam period in ns
+ 		   	return 1.e3/fBeamHF;
+  	  	}
 
-		void SetAngle  ( Double_t angle ){ fAngle   = angle; }
-		void SetBrhoRef( Double_t Brho  ){ fBrhoRef = Brho;  }
+		void SetAngle  ( Double_t angle ){ fAngle    = angle; }
+		void SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho;  }
+		void SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;    }
 
 
    		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
