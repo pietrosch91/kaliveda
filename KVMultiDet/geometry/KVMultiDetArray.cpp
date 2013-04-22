@@ -2640,7 +2640,7 @@ Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* 
 
 //_________________________________________________________________________________
 
-TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
+TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bool_t closeGeometry)
 {
     // This will create an instance of TGeoManager (any previous existing geometry gGeoManager
     // will be automatically deleted) and initialise it with the full geometry of the current multidetector
@@ -2670,7 +2670,7 @@ TGeoManager* KVMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_
     while( (L = (KVLayer*)nxt_lay()) ){
     	L->AddToGeometry();
     }
-    geom->CloseGeometry();
+    if(closeGeometry) geom->CloseGeometry();
     return geom;
 }
 

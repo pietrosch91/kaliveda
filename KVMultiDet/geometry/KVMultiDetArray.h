@@ -285,7 +285,7 @@ class KVMultiDetArray:public KVBase {
    void PrintStatusOfIDTelescopes();
    void PrintCalibStatusOfDetectors();
 
-	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
+    virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500, Bool_t closeGeometry=kTRUE);
    virtual void SetSimMode(Bool_t on = kTRUE)
    {
    	// Set simulation mode of array (and of all detectors in array)

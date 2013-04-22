@@ -40,6 +40,10 @@ RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
 libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \
 libPhysics.so libMathCore.so libThread.so libGui.so 
 
+#required for use of TGLViewer in KVEventViewer
+LINK_LIB += -L$(ROOTSYS)/lib -lRGL
+RLIBMAPDEPS += libRGL.so
+
 #required for use of TGeo* classes in KVMaterial, KVDetector, etc.
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
 RLIBMAPDEPS += libGeom.so
