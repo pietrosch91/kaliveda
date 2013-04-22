@@ -175,7 +175,7 @@ void KVEventFiltering::InitAnalysis()
    TString geo = GetOpt("Geometry").Data();
    if(geo=="ROOT"){
       gMultiDetArray->SetROOTGeometry(kTRUE);
-      gMultiDetArray->CreateGeoManager();
+      gMultiDetArray->GetGeometry()->cd();
       Info("InitAnalysis", "Filtering with ROOT geometry");
    }
    else

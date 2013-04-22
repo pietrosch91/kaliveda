@@ -92,6 +92,8 @@ KVINDRA::KVINDRA()
    gIndra = this;
    fPHDSet=kFALSE;
    fSelecteur=0;
+   fDetectorTypes = new KVList;
+   fTelescopes = new KVList;
 }
 
 //_________________________________________________________________________________
@@ -122,6 +124,11 @@ KVINDRA::~KVINDRA()
    fPhoswich = 0;
    if(fSelecteur) delete fSelecteur;
    gIndra = 0;
+   //delete detector prototypes
+   fDetectorTypes->Delete();
+   delete fDetectorTypes;
+   fDetectorTypes = 0;
+
 }
 
 //_________________________________________________________________________________
@@ -897,24 +904,43 @@ void KVINDRA::BuildGeometry()
 
 void KVINDRA::Build()
 {
-   // Overrides KVMultiDetArray::Build in order to set the name of the detector.
-   // Correspondance between CsI detectors and pin lasers is set up if known.
-   // GG to PG conversion factors for Si and ChIo are set if known.
-	//Correspondance between Si and ChIo detectors and nunmber of the QDC is made
+    // Overrides KVASMultiDetArray::Build
+    // Correspondance between CsI detectors and pin lasers is set up if known.
+    // GG to PG conversion factors for Si and ChIo are set if known.
+    //Correspondance between Si and ChIo detectors and nunmber of the QDC is made
 
-   KVMultiDetArray::Build();
+    MakeListOfDetectorTypes();
 
-   SetName("INDRA");
-   SetTitle("1st & 2nd campaign INDRA multidetector");
-   
-   SetPinLasersForCsI();
-	SetGGtoPGConversionFactors();
-	LinkToCodeurs();
+    PrototypeTelescopes();
+
+    BuildGeometry();
+
+    MakeListOfDetectors();
+
+    SetGroupsAndIDTelescopes();
+
+    SetACQParams();
+
+    SetCalibrators();
+
+    SetIdentifications();
+
+    SetDetectorThicknesses();
+
+    //set flag to say Build() was called
+    SetBit(kIsBuilt);
+
+    SetName("INDRA");
+    SetTitle("1st & 2nd campaign INDRA multidetector");
+
+    SetPinLasersForCsI();
+    SetGGtoPGConversionFactors();
+    LinkToCodeurs();
 }
 
 void KVINDRA::SetArrayACQParams()
 {
-   // Overrides KVMultiDetArray::SetArrayACQParams() in order to
+   // Overrides KVASMultiDetArray::SetArrayACQParams() in order to
    // add the following acquisition parameters which are not associated to a detector:
    //
    // STAT_EVE
@@ -981,9 +1007,9 @@ void KVINDRA::SetArrayACQParams()
 
 void KVINDRA::MakeListOfDetectors()
 {
-   //Overrides KVMultiDetArray method to add FillListsOfDetectorsByType()
+   //Overrides KVASMultiDetArray method to add FillListsOfDetectorsByType()
 
-   KVMultiDetArray::MakeListOfDetectors();
+   KVASMultiDetArray::MakeListOfDetectors();
    FillListsOfDetectorsByType();
 }
 
@@ -1018,10 +1044,10 @@ void KVINDRA::FillListsOfDetectorsByType()
 void KVINDRA::UpdateArray()
 {
     // Updates pointer to chio layer if necessary (it may have been removed),
-    // then performs normal update KVMultiDetArray::UpdateArray()
+    // then performs normal update KVASMultiDetArray::UpdateArray()
 
 	fChIoLayer = GetLayer("CHIO");
-	KVMultiDetArray::UpdateArray();
+    KVASMultiDetArray::UpdateArray();
 }
 
 //_________________________________________________________________________________________
@@ -1069,7 +1095,7 @@ void KVINDRA::SetGroupsAndIDTelescopes()
    //Overrides KVMDA method to add INDRA-specific numbering of ChIo according to
    //smallest ring,module of csi behind the cell
 
-   KVMultiDetArray::SetGroupsAndIDTelescopes();
+   KVASMultiDetArray::SetGroupsAndIDTelescopes();
    SetNamesChIo();
 
 }
@@ -1174,10 +1200,10 @@ KVINDRADetector *KVINDRA::GetDetectorByType(UInt_t cou, UInt_t mod, UInt_t type)
 void KVINDRA::GetIDTelescopes(KVDetector * de, KVDetector * e,
                               TCollection * idtels)
 {
-   //Override KVMultiDetArray method for special case of "etalon" modules:
+   //Override KVASMultiDetArray method for special case of "etalon" modules:
    //we need to add ChIo-CsI identification telescope by hand
 
-   KVMultiDetArray::GetIDTelescopes(de, e, idtels);
+   KVASMultiDetArray::GetIDTelescopes(de, e, idtels);
 
    if (de->InheritsFrom("KVSiLi") && e->InheritsFrom("KVCsI")) {
       KVChIo *chio = (KVChIo*)((KVINDRADetector*)e)->GetChIo();
@@ -1185,7 +1211,7 @@ void KVINDRA::GetIDTelescopes(KVDetector * de, KVDetector * e,
          /*printf("chio=%p\n",(TObject*)chio);
          printf("chio-class=%s\n",((TObject*)chio)->ClassName());
          chio->Print("all");*/
-         KVMultiDetArray::GetIDTelescopes(chio, e, idtels);
+         KVASMultiDetArray::GetIDTelescopes(chio, e, idtels);
       }
    }
 
@@ -1360,13 +1386,13 @@ run_number)
 
 void KVINDRA::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params )
 {
-   // Overrides KVMultiDetArray::GetDetectorEvent.
+   // Overrides KVASMultiDetArray::GetDetectorEvent.
    // If the list of fired acquisition parameters is given (meaning we are reading raw data)
    // then we check that what we have read is in fact an INDRA event
    // (see KVINDRATriggerInfo::IsINDRAEvent()) : if not, we do not try to find the hit groups.
    
    if( fired_params && !GetTriggerInfo()->IsINDRAEvent() ) return;
-   KVMultiDetArray::GetDetectorEvent(detev,fired_params);
+   KVASMultiDetArray::GetDetectorEvent(detev,fired_params);
 }
 
 //_______________________________________________________________________________
@@ -1429,7 +1455,7 @@ void KVINDRA::SetGGtoPGConversionFactors()
 
 TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
 {   
-   // Overrides KVMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
+   // Overrides KVASMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
    // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.
    //
    // The optional arguments (dx,dy,dz) are the half-lengths in centimetres of the "world"/"top" volume
@@ -1440,8 +1466,9 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
    if (!IsBuilt()) return NULL;
    INDRAGeometryBuilder igb;
    // build multidetector, but not the target. energy losses in target are handled
-   // by KVMultiDetArray::DetectEvent
-   return igb.Build(kFALSE);
+   // by KVASMultiDetArray::DetectEvent
+   fGeoManager = igb.Build(kFALSE);
+   return fGeoManager;
 }
 
 

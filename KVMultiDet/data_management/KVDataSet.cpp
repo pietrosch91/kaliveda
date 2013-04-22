@@ -24,6 +24,7 @@ $Author: franklan $
 #include "KVAvailableRunsFile.h"
 #include "KVNumberList.h"
 #include "TPluginManager.h"
+#include "TClass.h"
 
 using namespace std;
 
