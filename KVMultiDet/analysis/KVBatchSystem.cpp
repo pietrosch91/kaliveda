@@ -382,7 +382,17 @@ void KVBatchSystem::Print(Option_t* option) const
       cout << " fDefOpt = " << fDefOpt.Data() << endl;
       fParList.Print();        //list of parameters/switches to be passed on job submission command line
    } else
-      KVBase::Print(option);
+       KVBase::Print(option);
+}
+
+KVList *KVBatchSystem::GetListOfJobs()
+{
+    // Create and fill list with KVBatchJob objects, one for each job currently
+    // handled by the batch system.
+    //
+    // Needs to be implemented for specific systems in child classes.
+    // This method returns 0x0.
+    return 0x0;
 }
 
 //_______________________________________________________________________________//

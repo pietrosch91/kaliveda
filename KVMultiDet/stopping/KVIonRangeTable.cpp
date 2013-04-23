@@ -5,6 +5,8 @@
 #include "KVIonRangeTableMaterial.h"
 #include <TPluginManager.h>
 #include <TError.h>
+#include "TGeoManager.h"
+#include "KVEvent.h"
 
 #define FIND_MAT_AND_EXEC(method,defval) \
     KVIonRangeTableMaterial* M = GetMaterial(mat); \
@@ -63,6 +65,15 @@ Double_t KVIonRangeTable::GetAtomicMass(const Char_t* material)
    return M->GetMass();
 }
 
+KVIonRangeTableMaterial *KVIonRangeTable::GetMaterial(TGeoMaterial *material)
+{
+    // Returns pointer to material for given TGeoMaterial
+    // We try both the name and the title of the TGeoMaterial
+    KVIonRangeTableMaterial *mat = GetMaterial(material->GetTitle());
+    if(!mat) mat = GetMaterial(material->GetName());
+    return mat;
+}
+
 //________________________________________________________________________________//
 
 Double_t KVIonRangeTable::GetZ(const Char_t* material)
@@ -86,6 +97,13 @@ Bool_t KVIonRangeTable::IsMaterialKnown(const Char_t* material)
    // Returns kTRUE if material of given name or type is in range table.
    KVIonRangeTableMaterial* M = GetMaterial(material);
    return (M != 0x0);
+}
+
+Bool_t KVIonRangeTable::IsMaterialKnown(TGeoMaterial *material)
+{
+    // Returns kTRUE if material corresponding to TGeoMaterial name or type is in range table.
+    KVIonRangeTableMaterial* M = GetMaterial(material);
+    return (M != 0x0);
 }
 
 //________________________________________________________________________________//
@@ -324,6 +342,6 @@ TGeoMaterial* KVIonRangeTable::GetTGeoMaterial(const Char_t* mat)
 
 void KVIonRangeTable::Print(Option_t*) const
 {
-   printf("%s::%s\n%s\n", ClassName(), GetName(), GetTitle());
+    printf("%s::%s\n%s\n", ClassName(), GetName(), GetTitle());
 }
-   
+

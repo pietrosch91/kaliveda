@@ -28,7 +28,11 @@ void MyClass::CalcDerivs(Double_t X, Double_t* Y, Double_t* DYDX)
 </code>
 </pre>
 This method must calculate and store the values of the derivatives DYDX[nvar]
-given the value of X and of the Y[nvar] independent variables.<br>
+given the value of X and of the Y[nvar] independent variables.
+This method will be called many times during each step of the integration.
+The member variable fInitialDeriv is set to kTRUE when the method is called for the
+first time of each step.
+<br>
 Then, after filling an array ystart[nvar] with the initial values of the independent variables,
 perform the integration from x1 to x2 like this:<br>
 <pre>
@@ -91,6 +95,8 @@ KVRungeKutta::KVRungeKutta(Int_t N, Double_t PREC, Double_t MINSTEP)
    dc3 = c3 - 18575.0 / 48384.0;
    dc4 = c4 - 13525.0 / 55296.0;
    dc6 = c6 - 0.25;
+   
+   fInitialDeriv = kFALSE;
 }
 
 KVRungeKutta::~KVRungeKutta()
@@ -127,8 +133,10 @@ void KVRungeKutta::Integrate(Double_t *ystart, Double_t x1, Double_t x2, Double_
    
    for (register int nstp = 1; nstp <= MAXSTP; nstp++ ) {//Take at most MAXSTP steps.
       
-      // calculate derivatives
+      // calculate derivatives before performing step
+      fInitialDeriv = kTRUE;
       CalcDerivs( x, y, dydx );
+      fInitialDeriv = kFALSE;
       
       for ( Int_t i = 0; i < nvar; i++ )
          yscal[i] = TMath::Abs( y[i] ) + TMath::Abs( dydx[i] * h ) + TINY;

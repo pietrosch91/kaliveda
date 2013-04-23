@@ -48,6 +48,9 @@ class KVReconstructedEvent:public KVEvent {
    virtual void ReconstructEvent(KVDetectorEvent * kvde);
    virtual Bool_t AnalyseGroup(KVGroup * kvg);
    virtual Bool_t AnalyseTelescopes(TList * kvtl);
+   virtual const Char_t *GetPartSeedCond() const{
+ 	   return fPartSeedCond; 
+   };
    virtual void SetPartSeedCond(const Char_t* cond)
    {
       fPartSeedCond = cond;

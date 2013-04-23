@@ -58,6 +58,7 @@ void KVFunctionCal::init()
 	fcalibfunction = 0;
 	fPedCorr=kTRUE;
 	fReady=kTRUE;
+	fACQpar = 0;
 }
 
 //------------------------------
@@ -119,6 +120,50 @@ void KVFunctionCal::SetConversionType(TString from,TString to,TString signal)
 	// It gives Channel->MeV(PG)
 	SetType(Form("%s->%s(%s)",from.Data(),to.Data(),signal.Data()));
 
+}
+//------------------------------
+void KVFunctionCal::SetExpFormula(const Char_t *formula, Double_t xmin, Double_t xmax)
+//------------------------------
+{
+	// Change the formula of the calibration function.
+	// 
+	// If the [xmin,xmax] range is not given and if a previous calibration
+	// function was already set then the same range is taken.
+	// The default range is [O,4096].
+
+	Double_t min=0., max=4096.;
+	if(xmin!=xmax){
+		min = xmin;
+		max = xmax;
+	}
+	if(fcalibfunction){
+		if(xmin==xmax) fcalibfunction->GetRange(min,max);
+		delete fcalibfunction;
+	}
+
+	if(!GetDetector()){
+		Warning("SetExpFormula","Detector has to be set before!");
+		return;
+	}
+
+	fcalibfunction = new TF1(GetDetector()->GetName(),formula,min,max);
+	SetNumberParams(fcalibfunction->GetNpar());
+}
+
+//------------------------------
+Double_t KVFunctionCal::Compute(Option_t *opt) const
+//------------------------------
+{
+	// Give the calibration result for the ACQ parameter corresponding to
+	// this calibrator.
+	// If opt = "P" then the currently set pedestal is removed from the 
+	// value of the acquisition parameter before the calculation.
+	if (!fACQpar){
+		Error("Compute","No ACQ parameter corresponds to the calibrator %s", GetName());
+		return -666;
+ 	}	
+	Double_t ped = ( opt[0] ? fACQpar->GetPedestal() : 0. );
+	return fcalibfunction->Eval( fACQpar->GetData() - ped );
 }
 
 //------------------------------

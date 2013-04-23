@@ -398,15 +398,13 @@ void KVINDRAUpDater::SetVoltEnergyChIoSiParameters(KVDBRun * kvrun)
     KVCalibrator *kvc;
     TIter next_ps(param_list);
 
-    TString str;
-
     // Setting Channel-Volts calibration parameters
     while ((kvps = (KVDBParameterSet *) next_ps()))      // boucle sur les parametres
     {
         kvd = gIndra->GetDetector(kvps->GetName());
         if (!kvd)
             Warning("SetVoltEnergyParameters(UInt_t)",
-                    "Dectector %s not found !", str.Data());
+                    "Dectector %s not found !", kvps->GetName());
         else                      // detector found
         {
             kvc = kvd->GetCalibrator(kvps->GetName(), kvps->GetTitle());

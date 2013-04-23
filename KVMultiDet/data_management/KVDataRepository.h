@@ -156,6 +156,8 @@ class KVDataRepository:public KVBase {
    static KVDataRepository *NewRepository(const Char_t* type);
 	virtual KVAvailableRunsFile *NewAvailableRunsFile(const Char_t*, KVDataSet*);
 
+   virtual void PrintAvailableDatasetsUpdateWarning() const { ; }
+
     ClassDef(KVDataRepository, 0)       //Base class handling files in data repository
 };
 

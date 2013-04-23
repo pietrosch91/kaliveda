@@ -41,10 +41,13 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 	Float_t fECsI;//csi contribution to energy
 	Float_t fESi;//si contribution to energy
 	Float_t fEChIo;//chio contribution to energy
+   Bool_t fCorrectCalib;//!set to kTRUE in Streamer if calibration needs correction
 	void CheckCsIEnergy();
    
  public:
 
+   static Bool_t CalibNeedCorrection;//static flag set when PHD of analysed events need correcting
+   void Recalibrate();
    Int_t GetIDSubCode(const Char_t * id_tel_type,
                        KVIDSubCode & code) const;
     const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
@@ -153,7 +156,7 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
 
-   ClassDef(KVINDRAReconNuc, 10) //Nucleus identified by INDRA array
+   ClassDef(KVINDRAReconNuc, 11) //Nucleus identified by INDRA array
 };
 
 //____________________________________________________________________________________________//

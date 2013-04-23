@@ -22,7 +22,10 @@ class KVRawDataAnalyser : public KVDataAnalyser
    virtual void ProcessRun();
    void clearallhistos(TCollection*);
 	
+   Long64_t TotalEntriesToRead;
    public:
+   Long64_t GetTotalEntriesToRead() const { return TotalEntriesToRead; }
+
    KVRawDataAnalyser();
    virtual ~KVRawDataAnalyser();
 
@@ -43,6 +46,8 @@ class KVRawDataAnalyser : public KVDataAnalyser
 	virtual void SaveSpectra(const Char_t* filename);
 	virtual void ClearAllHistos();
    TH1* FindHisto(const Char_t* path);
+   
+   virtual void CalculateTotalEventsToRead() {;}
    
    ClassDef(KVRawDataAnalyser,1)//Abstract base class for user analysis of raw data
 };

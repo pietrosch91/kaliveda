@@ -13,6 +13,7 @@
 #include "TError.h"
 #include "Bytes.h"
 #include "TClass.h"
+#include "TMath.h"
 #include <list>
 
 #ifdef R__GLOBALSTL
@@ -835,4 +836,113 @@ KVString KVString::BaseConvert(const KVString& s_in, Int_t base_in, Int_t base_o
 #else
    return TString::BaseConvert(s_in, base_in, base_out);
 #endif
+}
+
+
+KVString::KVString(Double_t value, Double_t error):TString("")
+{
+    Double_t y  = value;
+    Double_t ey = error;
+
+    TString sy = Format("%1.2e",y);
+    TString sey = Format("%1.1e",ey);
+
+    TString sy_dec,sy_exp,sey_dec,sey_exp;
+    Double_t y_dec,ey_dec;
+    Int_t y_exp,ey_exp;
+
+    //Recup de la valeur y
+    TObjArray *loa_y;
+
+    loa_y=sy.Tokenize("e");
+
+    TIter next_y(loa_y);
+    TObjString *os_y=0;
+    os_y=(TObjString *)next_y();
+    sy_dec = os_y->GetString();
+    os_y=(TObjString *)next_y();
+    sy_exp = os_y->GetString();
+
+    y_dec = sy_dec.Atof();
+    y_exp = sy_exp.Atoi();
+
+    //Recup de la valeur ey
+    TObjArray *loa_ey;
+
+    loa_ey=sey.Tokenize("e");
+
+    TIter next_ey(loa_ey);
+    TObjString *os_ey=0;
+
+    os_ey=(TObjString *)next_ey();
+    sey_dec = os_ey->GetString();
+
+    os_ey=(TObjString *)next_ey();
+    sey_exp = os_ey->GetString();
+
+    ey_dec = sey_dec.Atof();
+    ey_exp = sey_exp.Atoi();
+
+    Double_t err = ey_dec*TMath::Power(10.,ey_exp-y_exp);
+    TString s;
+
+    if(!((TString)Format("%1.2g",y_dec)).Contains(".")&&err>=1)
+    {
+
+        if(!((TString)Format("%1.2g",err)).Contains("."))
+        {
+            if(y_exp==ey_exp) s = Format("%1.2g.0(%g.0).10$^{%d}$",y_dec,ey_dec,y_exp);
+            else s = Format("%1.3g.0(%g.0).10$^{%d}$",y_dec,err,y_exp);
+        }
+        else if(((TString)Format("%1.2g",err))==((TString)Format("%1.1g",err))&&((TString)Format("%1.2g",err)).Contains("."))
+        {
+            if(y_exp==ey_exp) s = Format("%1.2g.0(%g0).10$^{%d}$",y_dec,ey_dec,y_exp);
+            else s = Format("%1.3g.0(%g0).10$^{%d}$",y_dec,err,y_exp);
+        }
+        else
+        {
+            if(y_exp==ey_exp) s = Format("%1.2g.0(%g).10$^{%d}$",y_dec,ey_dec,y_exp);
+            else s = Format("%1.3g.0(%g).10$^{%d}$",y_dec,err,y_exp);
+        }
+    }
+    else if(((TString)Format("%1.3g",y_dec))==((TString)Format("%1.2g",y_dec))&&((TString)Format("%1.2g",y_dec)).Contains(".")&&err<1)
+    {
+
+        if(!((TString)Format("%1.2g",err)).Contains("."))
+        {
+            if(y_exp==ey_exp) s = Format("%1.2g0(%g.0).10$^{%d}$",y_dec,ey_dec,y_exp);
+            else s = Format("%1.3g0(%g.0).10$^{%d}$",y_dec,err,y_exp);
+        }
+        else if(((TString)Format("%1.2g",err))==((TString)Format("%1.1g",err))&&((TString)Format("%1.2g",err)).Contains("."))
+        {
+            if(y_exp==ey_exp) s = Format("%1.2g0(%g0).10$^{%d}$",y_dec,ey_dec,y_exp);
+            else s = Format("%1.3g0(%g0).10$^{%d}$",y_dec,err,y_exp);
+        }
+        else
+        {
+            if(y_exp==ey_exp) s = Format("%1.2g0(%g).10$^{%d}$",y_dec,ey_dec,y_exp);
+            else s = Format("%1.3g0(%g).10$^{%d}$",y_dec,err,y_exp);
+        }
+    }
+    else if(!((TString)Format("%1.2g",err)).Contains("."))
+    {
+        if(y_exp==ey_exp) s = Format("%1.2g(%g.0).10$^{%d}$",y_dec,ey_dec,y_exp);
+        else s = Format("%1.3g(%g.0).10$^{%d}$",y_dec,err,y_exp);
+    }
+    else if(((TString)Format("%1.2g",err))==((TString)Format("%1.1g",err))&&((TString)Format("%1.2g",err)).Contains("."))
+    {
+        if(y_exp==ey_exp) s = Format("%1.2g(%g0).10$^{%d}$",y_dec,ey_dec,y_exp);
+        else s = Format("%1.3g(%g0).10$^{%d}$",y_dec,err,y_exp);
+    }
+    else
+    {
+        if(y_exp==ey_exp) s = Format("%1.2g(%g).10$^{%d}$",y_dec,ey_dec,y_exp);
+        else s = Format("%1.3g(%g).10$^{%d}$",y_dec,err,y_exp);;
+    }
+
+    s.ReplaceAll(".10$^{0}$","");
+    s.ReplaceAll("0)",")");
+
+    Form("%s",s.Data());
+
 }

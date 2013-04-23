@@ -15,7 +15,8 @@ public:
     {
         kExact,
         kApproxIntegral,
-        kApprox
+        kApprox,
+        kApproxSilicon
     };
 
 protected:
@@ -56,11 +57,14 @@ public:
     Double_t GetDeltaFraction(Double_t beta, Double_t beta_delta);
     Double_t GetLight(double* x, double* par);
     Double_t GetLightApprox(double* x, double* par);
+    Double_t GetLightApproxSilicon(double* x, double* par);
 
     void SetZ(UInt_t z) {fZ = z;}
     void SetA(UInt_t a) {fA = a;}
     UInt_t GetZ() const {return fZ;}
     UInt_t GetA() const {return fA;}
+
+    virtual void Print(Option_t* opt="");
 
 public:
     Double_t sp_e( double z, double a, double e);

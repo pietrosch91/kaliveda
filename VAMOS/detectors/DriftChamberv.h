@@ -5,18 +5,18 @@
 #include"Defines.h"
 #include"LogFile.h"
 #include"Random.h"
- #include "Siv.h"
+ #include "Sive503.h"
 #include "TH2.h"
 
 class DriftChamberv
 {
    Bool_t Ready;
  public:
-  DriftChamberv(LogFile *Log, Siv *SiD);
+  DriftChamberv(LogFile *Log, Sive503 *SiD);
   virtual ~DriftChamberv(void);
   
   LogFile *L;
-  Siv *Si;
+  Sive503 *Si;
 
   bool Present; //true if focal coordinates determined
   bool PresentWires; //true if Wires are present
@@ -63,7 +63,10 @@ class DriftChamberv
  
   //Calibrated Time Wire
   Float_t T[2];
- 
+  Float_t T_DCRef[2];
+  Float_t T_DCpropre_el[2];
+  Float_t T_DCfrag[2];
+   
   //Charge Raw
   UShort_t Q_Raw[4*64];
   UShort_t Q_Raw_Nr[4*64];

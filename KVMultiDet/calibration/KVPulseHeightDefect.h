@@ -18,7 +18,7 @@ class KVPulseHeightDefect : public KVCalibrator
    TF1* fMoulton;           //!Moulton formula for PHD =  f(E,Z)
    TF1* fDeltaEphd;           //!deltaE calculated including PHD
    Int_t fZ;                   //!Z of nucleus to be calibrated
-   
+   Bool_t wrong;//!
    public:
 
    void init();
@@ -40,7 +40,7 @@ class KVPulseHeightDefect : public KVCalibrator
    Double_t PHDMoulton(Double_t * x, Double_t * par);
    TF1* GetMoultonPHDFunction(Int_t Z);
    Double_t ELossActive(Double_t *x, Double_t *par);
-   TF1* GetELossFunction(Int_t Z, Int_t A);
+   TF1* GetELossFunction(Int_t Z, Int_t A, Bool_t Wrong=kFALSE);
    
    ClassDef(KVPulseHeightDefect,1)//Silicon PHD described by Moulton formula
 };

@@ -32,8 +32,7 @@ ClassImp(KVNuclearChart)
 //    fHisto = 0;
 // }
 
-KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t
-zMax):fNucleusBoxList(kTRUE),fMagicList(kTRUE)
+KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t zMax):fNucleusBoxList(kTRUE),fMagicList(kTRUE),fSymbolList(kTRUE)
 {
   fNmin = nMin;
   fNmax = nMax;
@@ -50,12 +49,13 @@ zMax):fNucleusBoxList(kTRUE),fMagicList(kTRUE)
   fHisto = 0;
   fShownNucleus = 0;
   fCanvas = 0;
-  
+  fShowMagicNumbers = kTRUE;
+  fShowSymbol = kFALSE;
+
   fSymbol = new TPaveText(0.65,0.16,0.75,0.01,"NDC");
   fSymbol->SetBorderSize(1);
   fInfo = new TPaveText(0.76,0.16,0.99,0.01,"NDC");
   fInfo->SetTextAlign(12);
-//  fInfo->SetTextFont(42);
   fInfo->SetFillColor(kWhite);
   fInfo->SetLineColor(kBlack);
   fInfo->SetTextColor(kBlack);
@@ -83,53 +83,13 @@ zMax):fNucleusBoxList(kTRUE),fMagicList(kTRUE)
       }
     }
     
-  Int_t mN[7] = {2,8,20,28,50,82,126};
+  fNm[0]=2;fNm[1]=8;fNm[2]=20;fNm[3]=28;fNm[4]=50;fNm[5]=82;fNm[6]=126;
   
-  Double_t mnMin[7] = {0.,1.,12.,18.,46.,93.,98.};
-  Double_t mnMax[7] = {10.,22.,40.,52.,90.,136.,126.*3};
+  fNmMin[0]=0.;fNmMin[1]=1.;fNmMin[2]=12.;fNmMin[3]=18.;fNmMin[4]=46.;fNmMin[5]=93.;fNmMin[6]=98.;
+  fNmMax[0]=10.;fNmMax[1]=22.;fNmMax[2]=40.;fNmMax[3]=52.;fNmMax[4]=90.;fNmMax[5]=136.;fNmMax[6]=126.*3;
   
-  Double_t mzMin[7] = {0.2,0.2,6.,10.,26.,44.,76.};
-  Double_t mzMax[7] = {9.,17.,30.,35.,53.,76.,95.};
-  
-  for(int i=0; i<7; i++)
-    {
-    Int_t num = mN[i];
-    if((num>=fNmin+1)&&(num<=fNmax-1)&&(mzMin[i]<fZmax))
-      {
-      TLine* ll1 = new TLine(num-0.5, TMath::Max(fZmin*1.,mzMin[i]), num-0.5, TMath::Min(fZmax*1.,mzMax[i]));
-      TLine* ll2 = new TLine(num+0.5, TMath::Max(fZmin*1.,mzMin[i]), num+0.5, TMath::Min(fZmax*1.,mzMax[i]));
-      fMagicList.AddLast(ll1);
-      fMagicList.AddLast(ll2);
-      if(num>=20)
-        {
-	TLatex* label = new TLatex(num*1.,mzMin[i]-1.5,Form("N=%d",num));
-	label->SetTextAlign(23);
-	label->SetTextSize(0.025);
-	label->SetTextFont(42);
-        fMagicList.AddLast(label);
-	}
-      }
-    }
-    
-  for(int i=0; i<7; i++)
-    {
-    Int_t num = mN[i];
-    if((num>=fZmin+1)&&(num<=fZmax-1)&&(mnMin[i]<fNmax))
-      {
-      TLine* ll1 = new TLine(TMath::Max(fNmin*1.,mnMin[i]), num-0.5, TMath::Min(fNmax*1.,mnMax[i]), num-0.5);
-      TLine* ll2 = new TLine(TMath::Max(fNmin*1.,mnMin[i]), num+0.5, TMath::Min(fNmax*1.,mnMax[i]), num+0.5);
-      fMagicList.AddLast(ll1);
-      fMagicList.AddLast(ll2);
-      if(num>=20)
-        {
-	TLatex* label = new TLatex(mnMin[i]-1.5,num*1.,Form("Z=%d",num));
-	label->SetTextAlign(32);
-	label->SetTextSize(0.025);
-	label->SetTextFont(42);
-        fMagicList.AddLast(label);
-	}
-      }
-    }
+  fZmMin[0]=0.2;fZmMin[1]=0.2;fZmMin[2]=6.;fZmMin[3]=10.;fZmMin[4]=26.;fZmMin[5]=44.;fZmMin[6]=76.;
+  fZmMax[0]=9.;fZmMax[1]=17.;fZmMax[2]=30.;fZmMax[3]=35.;fZmMax[4]=53.;fZmMax[5]=76.;fZmMax[6]=95.;
     
   return;
 }
@@ -231,7 +191,8 @@ void KVNuclearChart::Draw(Option_t* option)
    fNucleusBoxList.Execute("SetDrawMode",Form("%d",DrawSame));
    fNucleusBoxList.Execute("EnableToolTip","");
    fNucleusBoxList.Execute("Draw","");
-   fMagicList.Execute("Draw","");
+
+   ShowMagicNumbers();
       
   return;
 }
@@ -287,7 +248,109 @@ void KVNuclearChart::ShowNucleusInfo(KVNucleus* nuc)
   
 }
 
+void KVNuclearChart::SetShowSymbol(Int_t value)
+{
+    fShowSymbol = value;
+    ShowSymbol();
+}
 
+void KVNuclearChart::ShowSymbol()
+{
+   if(!fShowSymbol)
+   {
+      fSymbolList .Clear();
+      fCanvas->Modified();
+      fCanvas->Update();
+      return;
+    }
+
+    KVNucleus nuc;
+    for(int zz=fZmin; zz<fZmax; zz++)
+    {
+        nuc.SetZ(zz);
+        KVNumberList ll = nuc.GetKnownARange(zz, 1.e-6);
+        if(ll.IsEmpty()) continue;
+        Double_t xx = ll.First()- zz - (zz==1 ? 1 : 2);
+        Double_t yy = zz;
+
+        TLatex* label = new TLatex(xx,yy,nuc.GetSymbol("EL"));
+        label->SetTextAlign(22);
+        label->SetTextSize(0.025);
+        label->SetTextFont(42);
+
+        TLatex* last = (TLatex*)fSymbolList.Last();
+        if(last&&(last->GetX()>label->GetX())) last->SetX(label->GetX());
+
+        fSymbolList.AddLast(label);
+    }
+
+    TObject* obj = 0;
+    TIter it(&fSymbolList);
+    while((obj = it())) obj->Draw();
+
+    fCanvas->Modified();
+    fCanvas->Update();
+}
+
+void KVNuclearChart::SetShowMagicNumbers(Int_t value)
+{
+    fShowMagicNumbers = value;
+    ShowMagicNumbers();
+}
+
+void KVNuclearChart::ShowMagicNumbers()
+{
+    if((!fShowMagicNumbers)&&(fCanvas))
+    {
+    fMagicList.Clear();
+    fCanvas->Modified();
+    fCanvas->Update();
+    return;
+    }
+
+    for(int i=0; i<7; i++)
+    {
+        Int_t num = fNm[i];
+        if((num>=fNmin+1)&&(num<=fNmax-1)&&(fZmMin[i]<fZmax))
+        {
+            TLine* ll1 = new TLine(num-0.5, TMath::Max(fZmin*1.,fZmMin[i]), num-0.5, TMath::Min(fZmax*1.,fZmMax[i]));
+            TLine* ll2 = new TLine(num+0.5, TMath::Max(fZmin*1.,fZmMin[i]), num+0.5, TMath::Min(fZmax*1.,fZmMax[i]));
+            fMagicList.AddLast(ll1);
+            fMagicList.AddLast(ll2);
+            if(num>=20)
+            {
+                TLatex* label = new TLatex(num*1.,fZmMin[i]-1.5,Form("N=%d",num));
+                label->SetTextAlign(22);
+                label->SetTextSize(0.025);
+                label->SetTextFont(42);
+                fMagicList.AddLast(label);
+            }
+        }
+    }
+
+    for(int i=0; i<7; i++)
+    {
+        Int_t num = fNm[i];
+        if((num>=fZmin+1)&&(num<=fZmax-1)&&(fNmMin[i]<fNmax))
+        {
+            TLine* ll1 = new TLine(TMath::Max(fNmin*1.,fNmMin[i]), num-0.5, TMath::Min(fNmax*1.,fNmMax[i]), num-0.5);
+            TLine* ll2 = new TLine(TMath::Max(fNmin*1.,fNmMin[i]), num+0.5, TMath::Min(fNmax*1.,fNmMax[i]), num+0.5);
+            fMagicList.AddLast(ll1);
+            fMagicList.AddLast(ll2);
+            if(num>=20)
+            {
+                TLatex* label = new TLatex(fNmMin[i]-1.5,num*1.,Form("Z=%d",num));
+                label->SetTextAlign(32);
+                label->SetTextSize(0.025);
+                label->SetTextFont(42);
+                fMagicList.AddLast(label);
+            }
+        }
+    }
+
+    fMagicList.Execute("Draw","");
+
+}
 
 
 

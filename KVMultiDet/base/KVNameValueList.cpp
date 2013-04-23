@@ -176,7 +176,25 @@ void KVNameValueList::SetValue_flt(const Char_t* name,Double_t value)
 	//if the parameter is not in the list, it is added
 	//if it's in the list replace its value
    KVNamedParameter* par = FindParameter(name);
-	par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));	
+   par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));
+}
+
+void KVNameValueList::IncValue_flt(const Char_t *name, Double_t value)
+{
+    //increment a parameter (define by its name) by a value
+    //if the parameter is not in the list, it is added
+    //if it's in the list increment its value
+   KVNamedParameter* par = FindParameter(name);
+   par ? par->Set(value+par->GetDouble()) : fList.Add(new KVNamedParameter(name,value));
+}
+
+void KVNameValueList::IncValue_int(const Char_t *name, Int_t value)
+{
+    //increment a parameter (define by its name) by a value
+    //if the parameter is not in the list, it is added
+    //if it's in the list increment its value
+   KVNamedParameter* par = FindParameter(name);
+   par ? par->Set(value+par->GetInt()) : fList.Add(new KVNamedParameter(name,value));
 }
 
 //______________________________________________
@@ -204,7 +222,17 @@ void KVNameValueList::SetValue(const Char_t* name,Double_t value)
 	//associate a parameter (define by its name) and a value
 	//if the parameter is not in the list, it is added
 	//if it's in the list replace its value
-   SetValue_flt(name,value);
+    SetValue_flt(name,value);
+}
+
+void KVNameValueList::IncrementValue(const Char_t *name, Double_t value)
+{
+    IncValue_flt(name,value);
+}
+
+void KVNameValueList::IncrementValue(const Char_t *name, Int_t value)
+{
+    IncValue_int(name,value);
 }
 
 //______________________________________________

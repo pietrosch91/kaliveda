@@ -100,7 +100,7 @@ class KVIDGraph : public TCutG
    void RemoveIdentifier(KVIDentifier*);
    void RemoveCut(KVIDentifier*);
    
-   TVirtualPad* GetPad() const { return fPad; };
+   TVirtualPad* GetPad() const { return fPad; }
 	
    void ReadAsciiFile(const Char_t * filename);
 	void AddIDTelescopes(const TList*);

@@ -11,13 +11,21 @@ $Date: 2009/01/22 15:39:26 $
 #define __KVINDRADB_E503_H
 
 #include "KVINDRADB.h"
+using namespace std;
 
 class KVINDRADB_e503 : public KVINDRADB
 {
 
    protected:
+
+	   KVDBTable *fDeltaPed;   //-> table of pedestal corrections
+
+   void init();
+   virtual void ReadPedestalCorrection();
+   virtual void ReadDeltaPedestal(ifstream &ifile);
    virtual void ReadVamosScalers () ;
    virtual void ReadVamosBrhoAndAngle () ;
+   virtual void ReadPedestalList () ;
 
    public:
    KVINDRADB_e503();

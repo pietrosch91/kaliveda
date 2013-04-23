@@ -104,6 +104,8 @@ ClassImp(KVINDRAReconNuc);
 //IN ALL CASES THE RETURNED VALUE OF GetA() IS POSITIVE
 //
 
+Bool_t KVINDRAReconNuc::CalibNeedCorrection = kFALSE;
+
 void KVINDRAReconNuc::init()
 {
 	//default initialisations
@@ -113,6 +115,7 @@ void KVINDRAReconNuc::init()
 	fPileup=kFALSE;
 	fUseFullChIoEnergyForCalib=kTRUE;
 	fECsI=fESi=fEChIo=0.;
+   fCorrectCalib=kFALSE;
 }
 
 KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
@@ -807,6 +810,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         else
             fECsI = GetCsI()->GetCorrectedEnergy(this, -1., kFALSE);
         if(fECsI<=0){
+           //Info("Calib", "ECsI = %f",fECsI);
             SetECode(kECode15);// bad - no CsI energy
             return;
         }
@@ -939,3 +943,50 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
     return idtel->GetIDSubCodeString(code);
 }
 
+
+//______________________________________________________________________________
+
+void KVINDRAReconNuc::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class KVINDRAReconNuc.
+   // 
+   // Sets flag for correcting calibrations in 5th campaign data written with
+   // versions prior to 1.8.10 (see KVSelector)
+   // We correct only Z>10 on rings 1-9
+
+   UInt_t R__s, R__c;
+   if (R__b.IsReading()) {
+      fCorrectCalib=kFALSE;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.ReadClassBuffer(KVINDRAReconNuc::Class(),this,R__v,R__s,R__c);
+      if(CalibNeedCorrection && R__v<11){
+         if( IsIdentified() && IsCalibrated() && GetZ()>10 && GetRingNumber()<10 ) {
+            fCorrectCalib=kTRUE;
+         }
+      }
+   } else {
+      R__b.WriteClassBuffer(KVINDRAReconNuc::Class(),this);
+   }
+}
+
+void KVINDRAReconNuc::Recalibrate()
+{
+   // Implements a 'rustine' for correction of particle calibrations
+   // in previously written data.
+   // The particles are 'chosen' in KVINDRAReconNuc::Streamer as they
+   // are read in from the file.
+   //
+   // This method is called by KVSelector::Process, so that fragments
+   // used in data analysis have correct energies
+   
+   if(CalibNeedCorrection && fCorrectCalib){
+	   KVTarget* t = gMultiDetArray->GetTarget();
+	   if(t){
+         // make sure target is in correct state to calculate
+         // target energy losses of fragments
+		   if(t->IsIncoming()) t->SetIncoming(kFALSE);
+         if(!t->IsOutgoing()) t->SetOutgoing(kTRUE);
+	   }
+      Calibrate();//recalibrate particle
+   }
+}

@@ -233,7 +233,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
     {
     projey = fLinearHisto->ProjectionY("ProjectionAfterLin",startBin-width*3,startBin+width*3);
     int nfound = fSpectrum.Search(projey,0.05,"goff",0.0001);
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
     Double_t* xpeaks = fSpectrum.GetPositionX();
     Double_t* ypeaks = fSpectrum.GetPositionY();
 #else
@@ -268,7 +268,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
     {
     projey = fLinearHisto->ProjectionY("ProjectionAfterLin",xx-width/2,xx+width/2);
     int nfound = fSpectrum.Search(projey,0.05,"goff",0.02);
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
     Double_t* xpeaks = fSpectrum.GetPositionX();
     Double_t* ypeaks = fSpectrum.GetPositionY();
 #else
@@ -303,7 +303,7 @@ void KVZALineFinder::FindALine(Int_t zz, Int_t width)
     {
     projey = fLinearHisto->ProjectionY("ProjectionAfterLin",xx-width/2,xx+width/2);
     int nfound = fSpectrum.Search(projey,0.05,"goff",0.02);
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
     Double_t* xpeaks = fSpectrum.GetPositionX();
     Double_t* ypeaks = fSpectrum.GetPositionY();
 #else

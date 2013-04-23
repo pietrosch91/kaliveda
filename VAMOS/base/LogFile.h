@@ -5,6 +5,12 @@
 #include"Defines.h"
 #include "Riostream.h"
 
+#include <string>
+#include <sstream>
+using namespace std;
+
+enum LogLevel{LOG_LOW, LOG_NORMAL, LOG_HIGH};
+
 class LogFile
 {
  public:
@@ -16,6 +22,9 @@ class LogFile
   std::ofstream Log;
   void Open(char *LogFileName); 
   void Close();
+  
+    void Message(const char *location, const char *msg);
+    string GetTime();
 
   ClassDef(LogFile,0)
 };

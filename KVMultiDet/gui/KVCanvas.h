@@ -54,7 +54,7 @@ friend class KVKeyHandler;
    void ResetDisabledClass();
    void ResetDisabledObject();
    
-   void FreezCavans(Bool_t freez){fFreezed = freez;};
+   void FreezCavans(Bool_t freez){fFreezed = freez;}
    
    protected:
    

@@ -8,6 +8,7 @@ $Date: 2009/01/21 08:04:20 $
 //Author: Abdelouahao Chbihi
 
 #include "KVIDSiCsIVamos.h"
+#include "KVINDRAReconNuc.h"
 #include "KVIDGridManager.h"
 #include "KVIdentificationResult.h"
 
@@ -43,16 +44,20 @@ void KVIDSiCsIVamos::Initialize()
 	fSi = (KVSiliconVamos*)GetDetector(1);
 	fCsI = (KVCsIVamos*)GetDetector(2);
 	fgrid=0;
-	TIter next(fIDGrids); KVIDGrid*grid=0;
+	TIter next(fIDGrids); 
+	KVIDGrid*grid=0;
+	
 	while( (grid=(KVIDGrid*)next()) ){
         if( !strcmp(grid->GetVarY(),"SI") ) fgrid = (KVIDZAGrid*)grid;
 	}
    if( fgrid ){
       SetBit(kReadyForID);
       fgrid->Initialize();
+      fgrid->Print();
    }
    else
 		ResetBit(kReadyForID);
+      		//fgrid->Print();		
 }
 
 const Char_t *KVIDSiCsIVamos::GetName() const
@@ -66,17 +71,19 @@ const Char_t *KVIDSiCsIVamos::GetName() const
 	return TNamed::GetName();
 }
 
-Double_t KVIDSiCsIVamos::GetIDMapX(Option_t * opt)
+Double_t KVIDSiCsIVamos::GetIDMapX(Double_t eecsi, Option_t * opt)
 {
-	return (Double_t) fCsI->GetACQPar()->GetData();
+	//return (Double_t) fCsI->GetACQPar()->GetData();
+	return eecsi;
 }
 
-Double_t KVIDSiCsIVamos::GetIDMapY(Option_t * opt)
+Double_t KVIDSiCsIVamos::GetIDMapY(Double_t eesi, Option_t * opt)
 {
-	return (Double_t) fSi->GetEnergy();
+	//return (Double_t) fSi->GetEnergy();
+	return eesi;
 }
 
-Bool_t KVIDSiCsIVamos::Identify(KVIdentificationResult* idr)
+Bool_t KVIDSiCsIVamos::Identify(Double_t esi, Double_t ecsi, KVIdentificationResult* idr)
 {
    //Particle identification and code setting using identification grids.
 
@@ -86,8 +93,8 @@ Bool_t KVIDSiCsIVamos::Identify(KVIdentificationResult* idr)
 		idr->SetIDType( GetType() );
 		idr->IDattempted = kTRUE;
 	
-      Double_t si = GetIDMapY();
-      Double_t csi = GetIDMapX();
+      Double_t si = GetIDMapY(esi);
+      Double_t csi = GetIDMapX(ecsi);
 
       KVIDGrid* theIdentifyingGrid = 0;
 

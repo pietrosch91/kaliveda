@@ -11,7 +11,8 @@ class IRODSDataRepository : public KVDMSDataRepository
    public:
    IRODSDataRepository();
    virtual ~IRODSDataRepository();
-   
+   virtual void PrintAvailableDatasetsUpdateWarning() const;
+
    ClassDef(IRODSDataRepository,1)//Remote data repository using IRODS
 };
 

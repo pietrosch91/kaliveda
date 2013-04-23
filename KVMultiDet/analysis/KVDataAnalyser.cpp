@@ -270,10 +270,24 @@ void KVDataAnalyser::Run()
             //in the first list will be copied back to the launch directory
             CopyAnalysisResultsToLaunchDirectory();
          }
+         if(BatchMode() && fBatchSystem && !fParent){
+            // at end of batch jobs,
+            // remove .[jobname] and [jobname].status files from $HOME directory
+            // remove .[jobname].bak and [jobname].status.bak files from $HOME directory
+            TString ff;
+            AssignAndDelete(ff,gSystem->ConcatFileName(gSystem->Getenv("HOME"),Form(".%s",GetBatchName())));
+            gSystem->Unlink(ff);
+            AssignAndDelete(ff,gSystem->ConcatFileName(gSystem->Getenv("HOME"),Form(".%s.bak",GetBatchName())));
+            gSystem->Unlink(ff);
+            AssignAndDelete(ff,gSystem->ConcatFileName(gSystem->Getenv("HOME"),Form("%s.status",GetBatchName())));
+            gSystem->Unlink(ff);
+            AssignAndDelete(ff,gSystem->ConcatFileName(gSystem->Getenv("HOME"),Form("%s.status.bak",GetBatchName())));
+            gSystem->Unlink(ff);
+         }
       }
    }
    fChoozDataSet = kTRUE;
-   gBatchSystem=0;
+   fBatchSystem=0;
 }
 
 //_________________________________________________________________

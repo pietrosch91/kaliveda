@@ -19,9 +19,12 @@
 #pragma link C++ class KVIDChIoCsI+;
 #pragma link C++ class KVIDSi150CsI_camp5+;
 #pragma link C++ class KVIDChIoSi5+;
+#pragma link C++ class KVIDChIoSiCorr+;
 #pragma link C++ class KVIDChIoSi75_camp5+;
 #pragma link C++ class KVIDChIoCsI_camp5+;
+#pragma link C++ class KVIDChIoCorrCsI+;
 #pragma link C++ class KVIDSiCsI5+;
+#pragma link C++ class KVIDSiCorrCsI+;
 #pragma link C++ class KVIDSi75SiLi_camp5+;
 #pragma link C++ class KVIDSiLiCsI_camp5+;
 #pragma link C++ class KVIDBlocking+;
@@ -30,5 +33,8 @@
 #pragma link C++ class KVIDChIoCorrCsI+;
 #pragma link C++ class KVIDChIoCorrCsI_e494s+;
 #pragma link C++ class KVIDSiCorrCsI+;
+#pragma link C++ class KVIDChIoSi75_e494s+;
+#pragma link C++ class KVIDSi75SiLi_e494s+;
+#pragma link C++ class KVIDSiLiCsI_e494s+;
 
 #endif

@@ -20,8 +20,9 @@ $Date: 2009/03/23 11:30:54 $
 class KVFunctionCal : public KVCalibrator
 {
    
-	TF1*			fcalibfunction;//calibration function
-   Bool_t      fPedCorr;		//true if pedestal correction is required
+	TF1*		fcalibfunction;//calibration function
+   	Bool_t      fPedCorr;      //true if pedestal correction is required
+   KVACQParam*  fACQpar;       //! corresponding ACQ parameter
 	protected:
 	
 	void SetParametersWithFunction();
@@ -41,12 +42,22 @@ class KVFunctionCal : public KVCalibrator
 	
 	void 	ChangeCalibParameters(KVDBParameterSet *kvdbps);
    void 	SetConversionType(TString from,TString to,TString signal);
+   void     SetExpFormula(const Char_t *formula, Double_t xmin=0, Double_t xmax=0);
+   void     SetParameter(UShort_t i, Float_t par_val){
+	   KVCalibrator::SetParameter(i,par_val);
+	   if(fcalibfunction) fcalibfunction->SetParameter(i,par_val);
+   };
+
    void 	WithPedestalCorrection(Bool_t yes) { fPedCorr = yes; }; 
 	TF1*  GetFunction() { return fcalibfunction; }
 	
+	virtual Double_t Compute(Option_t *opt="") const;
 	virtual Double_t Compute(Double_t) const;
    virtual Double_t Invert(Double_t e);
 	virtual Double_t operator() (Double_t);
+
+	inline KVACQParam *GetACQParam() const { return fACQpar; };
+	inline void SetACQParam( KVACQParam *par ){ fACQpar = par; };
   
 	ClassDef(KVFunctionCal,1)//analytic function calibration E = f(channel)
 };

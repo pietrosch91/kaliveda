@@ -12,25 +12,34 @@ $Date: 2009/01/21 08:04:20 $
 
 #include "KVMultiDetArray.h"
 #include "KVList.h"
+#include "KVTelescope.h"
 
-class KVFocalPlanVamos : public KVMultiDetArray
+class KVFocalPlanVamos : public KVMultiDetArray 
 {
 
    public:
    KVFocalPlanVamos();
    virtual ~KVFocalPlanVamos();
    
+      inline KVList *GetListOfChIo() const {
+      return fChIo;
+   };
    inline KVList *GetListOfSi() const {
       return fSi;
    };
    inline KVList *GetListOfCsI() const {
       return fCsI;
    };
+      inline KVList *GetListOfGap() const {
+      return fGap;
+   };
    KVLayer *GetSiLayer();
    void SetNamesDetectors();
  protected:
    KVList *fSi;                 //->List of Si detectors of FocPlanVamos
    KVList *fCsI;                //->List of CsI detectors of FocPlanVamos
+   KVList *fGap;		//->List of gap detectors of FocPlanVamos
+   KVList *fChIo;               //->List of Ionisation Chambers of FocPlanVamos
 
    KVLayer *fSiLayer;	//reference to Si Layerof the Vamos FP 
       

@@ -1,11 +1,11 @@
 /***************************************************************************
-                          KVASMultiDetArray.h  -  description
+                          KVMultiDetArray.h  -  description
                              -------------------
     begin                : Thu May 16 2002
     copyright            : (C) 2002 by J.D. Frankland
     email                : frankland@ganil.fr
 
-$Id: KVASMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
+$Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
  ***************************************************************************/
 
 /***************************************************************************

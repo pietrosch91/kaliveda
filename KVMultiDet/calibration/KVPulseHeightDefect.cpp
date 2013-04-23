@@ -24,14 +24,16 @@ E and charge Z calculated according to Moulton's formula:
 </p>
 
 <p>
-log_10(PHD) = b(Z) + a(Z)*log_10(E)  for Z > Zmin,<br>
+log_10(PHD) = b(Z) + a(Z)*log_10(Ed)  for Z > 2,<br>
 PHD = 0  for Z <= Zmin<br>
  with  a(Z) = a_1*(Z**2/1000) + a_2<br>
          b(Z) = b_1*(100/Z) + b_2<br>
-           E = incident energy of particle
+           Ed = energy lost by particle in detector (=E if particle stops)
 </p>
-<p>The five parameters a_1, a_2, b_1, b_2, Zmin can be set using method<br>
-SetParameters(a_1,a_2,b_1,b_2, Zmin)
+<p>The five parameters (a_1, a_2, b_1, b_2) can be set using method<br>
+SetParameters(a_1,a_2,b_1,b_2).
+It should be noted that all the PHD of all INDRA silicon detectors
+is calibrated with the fixed values of a_1=0.0223 and a_2=0.5682.
 </p>
 <!-- */
 // --> END_HTML
@@ -47,19 +49,19 @@ Double_t KVPulseHeightDefect::PHDMoulton(Double_t * x, Double_t * par)
    //
    //  with  a(Z) = a_1*(Z**2/1000) + a_2
    //          b(Z) = b_1*(100/Z) + b_2
-   //            E = incident energy of particle
+   //            E = energy lost by particle in detector
    //
    // x[0] = E (MeV)
    // par[0] = Z
    
    Int_t      Z = par[0];
+   // by definition, no PHD for Z=2 or less
+   if(Z<3) return 0;
    Double_t a_1 = GetParameter(0);
    Double_t a_2 = GetParameter(1);
    Double_t b_1 = GetParameter(2);
    Double_t b_2 = GetParameter(3);
-   Int_t   Zmin = (Int_t)GetParameter(4);
 
-   if( Z <= Zmin ) return 0;
    Double_t a = a_1*Z*Z/1000. + a_2;
    Double_t b = b_1*100./Z + b_2;
    return (TMath::Power(10,b)*TMath::Power(x[0],a));
@@ -75,13 +77,13 @@ void KVPulseHeightDefect::init()
    fMoulton = fDeltaEphd = 0;
 }
 
-KVPulseHeightDefect::KVPulseHeightDefect():KVCalibrator(5)
+KVPulseHeightDefect::KVPulseHeightDefect():KVCalibrator(4)
 {
    //Default constructor
    init();
 }
 
-KVPulseHeightDefect::KVPulseHeightDefect(KVDetector*d):KVCalibrator(5)
+KVPulseHeightDefect::KVPulseHeightDefect(KVDetector*d):KVCalibrator(4)
 {
    //Associate PHD calculation to detector
    init();
@@ -99,7 +101,7 @@ KVPulseHeightDefect::~KVPulseHeightDefect()
 
 Double_t KVPulseHeightDefect::Compute(Double_t energy) const
 {
-   //Calculate the pulse height defect (in MeV) for a given incident energy
+   //Calculate the pulse height defect (in MeV) for a given energy loss in the detector
    //and a given Z (the Z  of the particle should be set first using method SetZ)
    //The Moulton formula is used:
    //
@@ -109,7 +111,7 @@ Double_t KVPulseHeightDefect::Compute(Double_t energy) const
    //
    //  with  a(Z) = a_1*(Z**2/1000) + a_2
    //          b(Z) = b_1*(100/Z) + b_2
-   //            E = incident energy of particle  
+   //            E = energy loss of particle
 
    return const_cast<KVPulseHeightDefect*>(this)->GetMoultonPHDFunction(GetZ())->Eval(energy);
 }
@@ -123,11 +125,18 @@ Double_t KVPulseHeightDefect::operator() (Double_t energy)
    return Compute(energy);
 }
 
-TF1* KVPulseHeightDefect::GetELossFunction(Int_t Z, Int_t A)
+TF1* KVPulseHeightDefect::GetELossFunction(Int_t Z, Int_t A, Bool_t Wrong)
 {
    // Return pointer to TF1 giving energy loss in active layer of detector minus
    // the pulse height defect for a given nucleus (Z,A).
-   
+    //
+    // If Wrong=kTRUE (default:kFALSE) this will be calculated incorrectly
+    // (if the particle does not stop in the detector) by using the Moulton formula
+    // with the incident energy of the particle instead of the calculated energy
+    // loss of the particle.
+
+    wrong=Wrong;
+
    if(!fDeltaEphd){
       fDeltaEphd = new TF1(Form("KVPulseHeightDefect:%s:ELossActive", GetDetector()->GetName()),
            this, &KVPulseHeightDefect::ELossActive, 0., 1.e+04, 2, "KVPulseHeightDefect", "ELossActive");
@@ -157,8 +166,10 @@ Double_t KVPulseHeightDefect::ELossActive(Double_t *x, Double_t *par)
    }
    // calculate energy loss in active layer
    Double_t dE = mat->GetDeltaE(par[0], par[1], e);
-   // calculate Moulton PHD corresponding to incident energy in active layer
-   Double_t phd = PHDMoulton(&e, par);
+   // calculate Moulton PHD corresponding to energy lost in active layer
+   Double_t phd;
+   if(wrong) phd = PHDMoulton(&e, par);//incorrect calculation using incident energy
+   else phd = PHDMoulton(&dE, par);
    
    return dE - phd; 
 }
@@ -182,7 +193,7 @@ Double_t KVPulseHeightDefect::Invert(Double_t energy)
 {
    //Given the PHD (in MeV) of a particle of charge Z
    //(set using SetZ() method), this method inverts the Moulton formula
-   //in order to find the incident energy of the particle.
+   //in order to find the energy loss of the particle in the detector.
 
    const_cast<KVPulseHeightDefect*>(this)->GetMoultonPHDFunction(GetZ());
 	Double_t xmin, xmax; fMoulton->GetRange(xmin,xmax);

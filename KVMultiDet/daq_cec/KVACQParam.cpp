@@ -43,6 +43,11 @@ ClassImp(KVACQParam)
 //Fired() returns true or false depending on if the parameter was 'fired' (i.e. if GetCoderData is > -1)
 //
 //GetPedestal() returns the current pedestal value associated to this parameter
+//Another possibility to access to the pedestal for the current run is to
+// set a constant pedestal value with SetPedestal() and load only the correction for the current run with SetDeltaPedestal(). Then the real pedestal is given
+// by GetPetestal()+GetDeltaPedestal(). This method can be usefull in the case where
+// the correction only depends from the QDC (i.e. all detectors of a same
+// QDC have the same pedestal correction).
 ///////////////////////////////////////////////////////////////////////////////
 
 void KVACQParam::init()
@@ -52,6 +57,7 @@ void KVACQParam::init()
    fData = (Short_t) - 1;
    fDet = 0;
    fPied = 0.;
+   fDeltaPied = 0.;
    fWorks = kTRUE;
    fNbBits = 16;
 }

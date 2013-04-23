@@ -63,3 +63,35 @@ void LogFile::Close(void)
   
 }
 
+void LogFile::Message(const char *location, const char *msg){ // Added by Peter (may be useful)
+
+    if(Log.good() == 1){
+        Log << "[" << this->GetTime() << "][" << location << "] " << msg << endl;
+    }else{
+        cerr << "Stream not good for I/O operations" << endl;
+    }
+}
+
+string LogFile::GetTime(){
+
+    string dateString;
+
+    struct tm *result = new struct tm;
+    time_t *t = new time_t;
+    time(t);
+
+    localtime_r((const time_t*)t, result);
+
+    stringstream dateStringStream;
+    dateStringStream
+            << setfill('0') << setw(2) << result->tm_hour << ":"
+            << setfill('0') << setw(2) << result->tm_min << ":"
+            << setfill('0') << setw(2) << result->tm_sec;
+
+    dateString = dateStringStream.str();
+
+    delete t;
+    delete result;
+
+    return dateString;
+}

@@ -48,6 +48,7 @@ Double_t CalculLumiere(Double_t * x, Double_t * par)
 
    Double_t Z = par[4];
    Double_t A = par[5];
+
    Double_t energie = x[0];
    Double_t c1 = par[0];
    Double_t c2 = Z * Z * A * par[1];
@@ -63,7 +64,7 @@ Double_t CalculLumiere(Double_t * x, Double_t * par)
       lumcalc = lumcalc - c1* c2 * TMath::Log(1. + energie / c2)+ c1 * c2 * c4_new * TMath::Log((energie + c2) /(c3 + c2)) + xm;
    }
        
-   return lumcalc;
+   return lumcalc; 
 }
 
 TF1 KVLightEnergyCsI::fLight("fLight_CsI", CalculLumiere, 0., 10000., 6);
@@ -109,7 +110,7 @@ Double_t KVLightEnergyCsI::Compute(Double_t light) const
    fLight.SetParameters(par);
    
    //invert light vs. energy function to find energy
-	Double_t xmin, xmax; fLight.GetRange(xmin,xmax);
+   Double_t xmin, xmax; fLight.GetRange(xmin,xmax);
    Double_t energy = fLight.GetX(light, xmin, xmax);
 
    return energy;

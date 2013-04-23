@@ -45,6 +45,7 @@ void KVINDRAReconDataAnalyser::Reset()
    ParVal=0;
    ParNum=0;
 	fSelector=0;
+   TotalEntriesToRead=0;
 }
 
 KVINDRAReconDataAnalyser::~KVINDRAReconDataAnalyser()
@@ -118,7 +119,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
          }
       }
    }
-   
+   TotalEntriesToRead = theChain->GetEntries();
    TString option("");
    if (fDataSelector.Length()) {
       option.Form("DataSelector=%s", fDataSelector.Data());
@@ -312,7 +313,6 @@ void KVINDRAReconDataAnalyser::preInitRun()
 void KVINDRAReconDataAnalyser::preAnalysis()
 {
 	// Read and set raw data for the current reconstructed event
-	
 	if(!theRawData) return;
 	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
 	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
@@ -322,7 +322,7 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 	theRawData->GetEntry(rawEntry);
 	for(int i=0; i<NbParFired; i++){
 		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
-		if(par) par->SetData(ParVal[i]);
+		if(par) {par->SetData(ParVal[i]);}
 	}
 }
 

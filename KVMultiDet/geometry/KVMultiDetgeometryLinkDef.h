@@ -13,4 +13,6 @@
 #pragma link C++ class KVASMultiDetArray+;
 #pragma link C++ class KVPosition+;
 #pragma link C++ class KVRing+;
+#pragma link C++ class KVGeoNavigator+;
+#pragma link C++ class KVRangeTableGeoNavigator+;
 #endif

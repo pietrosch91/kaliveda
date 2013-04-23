@@ -51,7 +51,6 @@ void KVSilicon::init()
    fChVoltPG=0;
    fVoltE=0;
    fPHD=0;
-   fZminPHD=10;
    fSegment = 1;
 }
 
@@ -111,10 +110,28 @@ Int_t KVSilicon::GetCanalGGFromVolts(Float_t volts)
    //Returns GG calculated from PG if GG <-> Volts calibration is not available
 
       if (!fChVoltGG || !fChVoltGG->GetStatus()){
+//          Info("GetCanalGGFromVolts","%s no calibrator ready for GG...",GetName());
          return GetGGfromPG(GetCanalPGFromVolts(volts));
       }
       Int_t chan = TMath::Nint(fChVoltGG->Invert(volts) + GetPedestal("GG") - fChVoltGG->Invert(0));
       return chan;
+}
+
+//____________________________________________________________________________________________
+Double_t KVSilicon::GetCanalPGFromVoltsDouble(Float_t volts)
+{
+      if (!fChVoltPG || !fChVoltPG->GetStatus())
+         return -1;
+      return fChVoltPG->InvertDouble(volts) + GetPedestal("PG") - fChVoltPG->InvertDouble(0);
+}
+
+//____________________________________________________________________________________________
+Double_t KVSilicon::GetCanalGGFromVoltsDouble(Float_t volts)
+{
+      if (!fChVoltGG || !fChVoltGG->GetStatus()){
+         return GetGGfromPG(GetCanalPGFromVoltsDouble(volts));
+      }
+      return fChVoltGG->InvertDouble(volts) + GetPedestal("GG") - fChVoltGG->InvertDouble(0);
 }
 
 //____________________________________________________________________________________________
@@ -147,26 +164,20 @@ void KVSilicon::SetCalibrators()
    fChVoltPG  =  (KVChannelVolt *) GetCalibrator("Channel-Volt PG");
    fChVoltGG  =  (KVChannelVolt *) GetCalibrator("Channel-Volt GG");
    fPHD  =  (KVPulseHeightDefect *) GetCalibrator("Pulse Height Defect");
-   fZminPHD = (Int_t)gDataSet->GetDataSetEnv("KVSilicon.ZminForPHDCorrection", 10.);
 }
 
 //__________________________________________________________________________________________
 
-Double_t KVSilicon::GetPHD(Double_t Einc, UInt_t Z)
+Double_t KVSilicon::GetPHD(Double_t dE, UInt_t Z)
 {
-   //Calculate Pulse Height Defect in MeV for a given incident energy Einc(MeV) and Z.
+   //Calculate Pulse Height Defect in MeV for a given energy loss dE(MeV) and Z.
    //The formula of Moulton is used (see class KVPulseHeightDefect).
-   //Returns 0 if Z <= ZminForPHDCorrection,
-   //which is defined by the following variables in .kvrootrc :
-   //
-   // (for a given dataset)   [dataset].KVSilicon.ZminForPHDCorrection:
-   // (for any dataset)         KVSilicon.ZminForPHDCorrection:
    //
    //Returns 0 if PHD is not defined.
 
    if(!fPHD || !fPHD->GetStatus()) return 0;
    fPHD->SetZ(Z);
-   return fPHD->Compute(Einc);
+   return fPHD->Compute(dE);
 }
 
 //__________________________________________________________________________________________
@@ -327,12 +338,12 @@ void KVSilicon::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1
    //
    //  with  a(Z) = a_1*(Z**2/1000) + a_2
    //          b(Z) = b_1*(100/Z) + b_2
-   //            E = incident energy of particle
+   //            E = energy lost by particle
    //
    //See class KVPulseHeightDefect
 
    if(fPHD){
-      fPHD->SetParameters(a_1, a_2, b_1, b_2, (Double_t)fZminPHD);
+      fPHD->SetParameters(a_1, a_2, b_1, b_2);
       fPHD->SetStatus(kTRUE);
    }
 }
@@ -359,9 +370,10 @@ TF1* KVSilicon::GetELossFunction(Int_t Z, Int_t A)
    // Overrides KVDetector::GetELossFunction
    // If the pulse height deficit (PHD) has been set for this detector,
    // we return an energy loss function which takes into account the PHD,
-   // i.e. for an incident energy E we calculate dEphd(E,Z,A) = dE(E,Z,A) - PHD(E',Z)
-   // (where E' is the energy just before the active layer, in case there are
-   // dead zones before it)
+   // i.e. for an incident energy E we calculate
+   //
+   //      dEphd(E,Z,A) = dE(E,Z,A) - PHD(dE,Z)
+   //
    // If no PHD is set, we return the usual KVDetector::GetELossFunction
    // which calculates dE(E,Z,A)
    

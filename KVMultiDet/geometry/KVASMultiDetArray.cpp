@@ -1,6 +1,6 @@
 /***************************************************************************
-$Id: KVASMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
-                          KVASMultiDetArray.cpp  -  description
+$Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
+                          KVMultiDetArray.cpp  -  description
                              -------------------
     begin                : Thu May 16 2002
     copyright            : (C) 2002 by J.D. Frankland
@@ -54,89 +54,13 @@ using namespace std;
 
 ClassImp(KVASMultiDetArray)
 //////////////////////////////////////////////////////////////////////////////////////
-//Begin_Html
-//<img src="images/KVASMultiDetArray_diag.gif"><br>
-//
-//<h3>KVASMultiDetArray: A charged particle multidetector array</h3>
-//End_Html
-//Base class for describing multidetector array geometries and manipulating their associated data.
-//
-//It plays a fundamental role in: reading raw data; calibrating data; analysing reduced data; simulating the response of the array to generated events (filtering).
-//
-//A multidetector array is basically a large collection of detectors arranged in a specific geometry. The KVDetector class describes all aspects related
-//to individual detectors (stopping power, data acquisition parameters), but not their spacial positioning. In order to place a detector in a multidetector geometry,
-//it must belong to a KVTelescope, which is a stack of detectors placed one behind the other with a common angular acceptance and position. The next step up in the
-//geometrical hierarchy is the KVRing axially-symmetric ring of telescopes all having the same type and angular dimensions, covering a given range of polar angles.
-//Finally, the different rings are assembled in to layers using the KVLayer class. These are used to define the hierarchy of detectors with respect to their distance
-//from the target, i.e. the order in which a particle leaving the target will pass through them (the target for a given experiment is described by an object of the KVTarget class).
-//
-//The geometry of the array is defined in the BuildGeometry() method. From this geometry are then deduced two other types of objects decribing relationships between
-//telescopes and detectors.
-//First, the notion of a "group" of telescopes is used to associate detectors in different layers (in principle with different geometries) through which
-//particles leaving the target may pass. This is essential for particle reconstruction in the case where the detectors in one layer of the array have a larger angular
-//acceptance than the others: the KVGroup contains all the detectors/telescopes which are either in front of or behind this "widest" detector.
-//Second, all possible ways of identifying particles detected by the array are deduced from the geometry and for each one an object derived from KVIDTelescope
-//is created, depending on the definitions given in GetIDTelescopes() for each possible couple of detectors. All aspects of particle identification are handled
-//by classes derived from KVIDTelescope.
-//
-//In KVASMultiDetArray child classes corresponding to specific multidetector array descriptions, the following essential methods have to be implemented:
-//Begin_Html
-//<ul>
-//<tt><li>MakeListOfDetectorTypes()
-//<br>creates prototype KVDetector objects for all the different detector types needed
-//  to build the telescopes of the array. The list of prototypes is in fDetectorTypes.</tt>
-//<tt><li>PrototypeTelescopes()
-// <br>creates prototype KVTelescope objects for all the different telescopes needed
-//  to build the array. The list of prototypes is in fTelescopes.</tt>
-//<tt><li>void BuildGeometry()
-//<br>actually assembles the different telescopes, rings and layers of the array in the desired geometry.</tt>
-//</ul>
-//End_Html
-//In order to initialise the geometry of a KVASMultiDetArray object, call the Build() method.
-//
-//The current multidetector array can be accessed through the gMultiDetArray global pointer.
-//
-//Begin_Html
-//<h3>Calculating energy losses &amp; filtering simulated events</h3>
-//End_html
-//To calculate the energy losses of a charged particle in the array, use DetectParticle(KVNucleus* part). The appropriate detectors in the array are first found
-//according to the particle's direction (it is assumed that the particle's momentum has been defined beforehand), and then its passage through them (in the order
-//defined by the KVLayer - KVTelescope structures : see figure below) is simulated. Afterwards the particle's energy will have been reduced by the total energy lost in all absorbers,
-//while the energy lost in the active part of each detector is available via the KVDetector::GetEnergy() method of each detector.
-//Note that we do not take account of energy losses in the target in this method.
-//
-//Begin_Html
-//<img src="images/KVASMultiDetArray_detectparticle.gif"><br>
-//End_Html
-//A very useful method for calibrating detectors is DetectParticleIn(const Char_t* detname, KVNucleus* kvp). In this case, only the particle's energy needs to be
-//defined. The direction will be drawn at random within the angular acceptance of the named detector. Then DetectParticle() is used to calculate the energy losses.
-//Note that the detector named in the method defines only the direction of the particle, not necessarily the detector in which the particle will stop, nor does it mean
-//that energy losses will only be calculated for the detector in question.
-//
-//Simulating the response of the detector array to an entire simulated event is realised using the method
-//DetectEvent(KVEvent* event,KVReconstructedEvent* rev_evt). 
-//In this case and if the a target is defined, the energy losses in it
-//of each particle are calculated first (see KVTarget::DetectEvent()). Particles which are not stopped in the target are then detected by the appropriate parts of the
-//array. 
-//The method needs :
-//	-	a valid pointer for the simulated event which will be filtered 
-//	-  KVReconstructedEvent pointer where user obtain, at the end, a list of KVReconstructedNucleus after the first step to reconstruction of the "filtered" event.
-//For each particles of the KVEvent input pointer a list of energy loss in each detector are associated.
-//the energy of these particles are the same as before the filter process.
-//Different tags using the KVNucleus::AddGroup method are set depending on the status of the particles.
-//The multi detector is cleared at the beginning of the method, to remove all traces of the precedent event
-//Begin_Html
-//<h3>Data acquisition &amp; reading raw data</h3>
-//End_html
-//The link between the detectors in the array and data acquisition parameters is realised by the KVACQParam class. Each detector has a list of the DAQ parameters
-//associated to it, i.e. a list of KVACQParam objects. The DAQ parameters for all the detectors in the array are set up when the Build() method is called, via the
-//method SetACQParams(). This tells each detector in turn to initialize its list of parameters. Additional DAQ parameters not directly associated to a detector may
-//be added by the user with AddACQParam().
-//The entire list of DAQ parameters associated with the array can be obtained using GetACQParams().
-//A specific parameter can be retrieved using its name and the GetACQParam(const Char_t* name) method (see specific KVDetector::SetACQParams() method
-//for how each detector names its DAQ parameters).
-//Of course, you can also obtain the DAQ parameters and their associated values directly from the detector: see KVDetector::GetACQParam(const Char_t* type),
-//KVDetector::GetACQParamList(), and KVDetector::GetACQData(const Char_t* type).
+// BEGIN_HTML <!--
+/* -->
+<h2>KVASMultiDetArray</h2>
+<h4>Axially-Symmetric multidetector array base class</h4>
+<!-- */
+// --> END_HTML
+//////////////////////////////////////////////////////////////////////////////////////
 
 
 KVASMultiDetArray::KVASMultiDetArray()

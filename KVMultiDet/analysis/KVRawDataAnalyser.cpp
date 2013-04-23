@@ -25,6 +25,7 @@ KVRawDataAnalyser::KVRawDataAnalyser()
    // Default constructor
    fRunFile = 0;
    fDetEv = 0;
+   TotalEntriesToRead = 0;
 }
 
 KVRawDataAnalyser::~KVRawDataAnalyser()
@@ -104,6 +105,18 @@ void KVRawDataAnalyser::ProcessRun()
             cout <<"     ------------- Process infos -------------" << endl;
             printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
                pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+         // write in TEnv file in $HOME with name [jobname].status
+         // the number of events to read, number of events read, and disk used
+         if(gBatchSystem){
+            TEnv stats(Form("%s.status", gBatchSystem->GetJobName()));
+            stats.SetValue("TotalEvents", (Int_t)GetTotalEntriesToRead());
+            stats.SetValue("EventsRead", (Int_t)fEventNumber);
+            disk.Remove(TString::kTrailing, '\t');
+            disk.Remove(TString::kTrailing, ' ');
+            disk.Remove(TString::kTrailing, '\t');
+            stats.SetValue("DiskUsed", disk.Data());
+            stats.SaveLevel(kEnvUser);
+         }
          }
       }
 		fEventNumber+=1;
@@ -146,6 +159,8 @@ void KVRawDataAnalyser::SubmitTask()
    InitAnalysis();
 	postInitAnalysis();
 
+   CalculateTotalEventsToRead();
+         
    //loop over runs
    GetRunList().Begin();
    while( !GetRunList().End() ){

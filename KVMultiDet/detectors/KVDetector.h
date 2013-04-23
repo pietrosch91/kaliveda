@@ -76,7 +76,7 @@ class KVDetector:public KVMaterial {
    KVList *fParticles;         //!list of particles hitting detector in an event
    KVList *fAbsorbers;          //->list of absorbers making up the detector
    UShort_t fSegment;           //used in particle reconstruction
-   Float_t fGain;               //gain of amplifier
+   Double_t fGain;               //gain of amplifier
    Int_t fCalWarning;           //!just a counter so that missing calibrator warning is given only once
 
 	Double_t fTotThickness; //! used to store value calculated by GetTotalThicknessInCM
@@ -168,8 +168,8 @@ class KVDetector:public KVMaterial {
 
    void ConnectModule(KVModule *, const int fcon = KVD_RECPRC_CNXN);
 
-   void SetGain(Float_t gain);
-   Float_t GetGain() const;
+   void SetGain(Double_t gain);
+   Double_t GetGain() const;
 
    virtual Double_t GetEnergy()
    {
@@ -192,7 +192,7 @@ class KVDetector:public KVMaterial {
    virtual void SetEnergyLoss(Double_t e) {
       SetEnergy(e);
    };
-   virtual Double_t GetCorrectedEnergy(const KVNucleus*, Double_t e =
+   virtual Double_t GetCorrectedEnergy(KVNucleus *, Double_t e =
                                        -1., Bool_t transmission=kTRUE);
    virtual Int_t FindZmin(Double_t ELOSS = -1., Char_t mass_formula = -1);
 
@@ -324,6 +324,7 @@ class KVDetector:public KVMaterial {
 		// detector implementations: this version just returns -1.
 		return -1;
 	};
+   virtual Double_t GetMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetEIncOfMaxDeltaE(Int_t Z, Int_t A);
    virtual Double_t GetDeltaE(Int_t Z, Int_t A, Double_t Einc);
    virtual Double_t GetTotalDeltaE(Int_t Z, Int_t A, Double_t Einc);
@@ -399,7 +400,7 @@ class KVDetector:public KVMaterial {
 	
 	virtual void DeduceACQParameters(Int_t /*zz*/=-1,Int_t /*aa*/=-1){};
 	
-	ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
+   ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
 
 inline KVCalibrator *KVDetector::GetCalibrator(const Char_t * name,
@@ -429,12 +430,12 @@ inline void KVDetector::SetSegment(UShort_t s)
    fSegment = s;
 }
 
-inline void KVDetector::SetGain(Float_t gain)
+inline void KVDetector::SetGain(Double_t gain)
 {
    fGain = gain;
 }
 
-inline Float_t KVDetector::GetGain() const
+inline Double_t KVDetector::GetGain() const
 {
    return fGain;
 }

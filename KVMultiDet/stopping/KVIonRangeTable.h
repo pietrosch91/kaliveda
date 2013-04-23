@@ -9,6 +9,9 @@
 
 class TGeoMaterial;
 class KVIonRangeTableMaterial;
+class TGeoManager;
+class KVEvent;
+class TVector3;
 
 class KVIonRangeTable : public KVBase {
 
@@ -77,9 +80,13 @@ public:
 
    // Returns pointer to material of given name or type.
    virtual KVIonRangeTableMaterial* GetMaterial(const Char_t* material)=0;
-   
+
+   virtual KVIonRangeTableMaterial* GetMaterial(TGeoMaterial*);
+
    // Return kTRUE if material is in range tables
    virtual Bool_t IsMaterialKnown(const Char_t*);
+
+   virtual Bool_t IsMaterialKnown(TGeoMaterial*);
 
    // Return kTRUE if material is gaseous
    virtual Bool_t IsMaterialGas(const Char_t*);

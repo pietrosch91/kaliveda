@@ -17,14 +17,27 @@ $Date: 2007/06/08 15:49:10 $
 #define DRIFT
 #define IONCHAMBER
 #define SI
+#define CSI
 
 #include"IonisationChamberv.h"
-#include"Siv.h"
+#include"Sive503.h"
+#include"CsIv.h"
 #include"DriftChamberv.h"
 #include"Reconstructionv.h"
 #include"Identificationv.h"
+#include"CsICalib.h"
 
-#include "Analysisv.h"
+#include"Analysisv.h"
+
+#include "KVTelescope.h"
+#include "KVSiliconVamos.h"
+#include "KVCsIVamos.h"
+#include "PlaneAbsorber.h"
+#include "KVDetector.h"
+#include "KVMaterial.h"
+
+#include "TTree.h"
+#include "TList.h"
 
 class Analysisv_e503 : public Analysisv
 {
@@ -34,8 +47,26 @@ class Analysisv_e503 : public Analysisv
   Reconstructionv *RC;
   Identificationv *Id;
   IonisationChamberv *Ic;
-  Siv *Si;
-
+  Sive503 *Si;
+  CsIv *CsI;
+  CsICalib *energytree;
+  
+  KVDetector *si;  
+  KVDetector *csi;
+  KVDetector *gap;
+  
+	KVTarget *tgt;
+        KVDetector *dcv1;
+        KVMaterial *sed;
+        KVDetector *dcv2;
+        KVDetector *ic;
+        KVMaterial *isogap1;
+        KVMaterial *ssi;
+        KVMaterial *isogap2;	
+        KVMaterial *ccsi;
+			 
+   TTree* t;
+   
   UShort_t T_Raw[10];
   
   Analysisv_e503(LogFile *Log);
@@ -47,6 +78,25 @@ class Analysisv_e503 : public Analysisv
   void CreateHistograms();
   void FillHistograms();
   
+  void SetTel1(KVDetector *si);
+  void SetTel2(KVDetector *gap);  
+  void SetTel3(KVDetector *csi);
+  
+TList *fcoup;
+TList *fcoup2;
+void SetFileCut(TList *list);
+void SetFileCutChioSi(TList *list2);
+  
+void SetTarget(KVTarget *tgt);
+void SetDC1(KVDetector *dcv1);
+void SetSed(KVMaterial *sed);
+void SetDC2(KVDetector *dcv2);
+void SetIC(KVDetector *ic);
+void SetGap1(KVMaterial *isogap1);
+void SetSi(KVMaterial *ssi);
+void SetGap2(KVMaterial *isogap2);
+void SetCsI(KVMaterial *ccsi); 
+
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 
 };

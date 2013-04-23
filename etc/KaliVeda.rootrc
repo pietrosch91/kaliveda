@@ -174,16 +174,21 @@ INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
 INDRA_e503.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
 INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
 INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e503.IdentAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
 INDRA_e503.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
 INDRA_e494s.DataSet.RepositoryDir:   e494s
 INDRA_e494s.DataSet.RunFileName.raw:    run_%04d.dat%*
-INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+INDRA_e494s.Reconstruction.DataAnalysisTask.Analyser:       IVRawDataRecon
+INDRA_e494s.ReconIdent.DataAnalysisTask.Analyser:           IVReconData
 INDRA_e494s.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
-INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
-INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
+INDRA_e494s.RawAnalysis.DataAnalysisTask.UserClass.Base:    IVRawDataAnalyser
+INDRA_e494s.ReconAnalysis.DataAnalysisTask.Analyser:        IVReconData
+INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
+INDRA_e494s.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
+INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.ReconstructedEventClassName:   KVINDRAReconEvent
 
 +DataSet:    VAMOS_e503
@@ -265,6 +270,21 @@ t10_02.KVDetector.Fired.ACQParameterList.SI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SILI: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.SI75: PG,GG
 t10_02.KVDetector.Fired.ACQParameterList.CSI: R,L
+
+# Same thing for VAMOS's detectors. The list of acquisition parameters can contain 
+# Q, E, T, T_HF, X and Y. The last two types are not exactly acquisition parameter types
+# but the types of quantities (position) calculated from acquisition parameters with type 'Q'.
+# So if you set already X or Y types, setting Q in the list is useless.
+# For each detector type, give a comma-separated list to be taken into account in the 
+# KVVAMOSDetector::Fired method.
+# These lists are read during construction of VAMOS spectrometer (KVVAMOS:Build),
+# the method KVAMOS::SetACQParams uses them to define a mask for each detector
+# of the spectrometer.
+#
+KVVAMOSDetector.Fired.ACQParameterList.SI: E
+KVVAMOSDetector.Fired.ACQParameterList.CHI: E
+KVVAMOSDetector.Fired.ACQParameterList.SED: T_HF,X,Y
+
 
 # Experience e613
 # The marqueuers de temps for silicon detectors from SI_0101 to SI_0324
@@ -453,6 +473,7 @@ Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVM
 +Plugin.KVDataAnalyser:   INDRARawDataIdent      KVINDRARawIdent              KVIndra "KVINDRARawIdent()"
 +Plugin.KVDataAnalyser:   IVRawDataRecon         KVIVRawDataReconstructor     VAMOS   "KVIVRawDataReconstructor()"
 +Plugin.KVDataAnalyser:   IVRawDataAnalyser      KVIVRawDataAnalyser          VAMOS   "KVIVRawDataAnalyser()"
++Plugin.KVDataAnalyser:   IVReconData            KVIVReconDataAnalyser     VAMOS "KVIVReconDataAnalyser()"
 # +Plugin.KVDataAnalyser:   INDRAOnlineDataAnalyser   KVINDRAOnlineDataAnalyser     KVIndra     "KVINDRAOnlineDataAnalyser()"   
 # TSelector plugins for analysis of ROOT TTrees
 +Plugin.TSelector:   INDRASelector          KVSelector                   KVIndra   "KVSelector()"
@@ -526,6 +547,8 @@ INDRADB.Runlist.Comment:       #
 INDRADB.Pressures:     ChIoPressures.dat
 # Default name for file containing correspondence run-pedestal file for each dataset.
 INDRADB.Pedestals:      Pedestals.dat
+# Default name for file containing pedestal corrections for each dataset.
+INDRADB.PedestalCorrections:            DeltaPied.dat
 # Default name for file containing calibration peaks for each dataset.
 INDRADB.CalibPeaks:        kvpeak_base.dat
 # Default name for file containing electronic calibration for ChIo & Si for each dataset.
@@ -540,6 +563,8 @@ INDRADB.CsILumCorr:          corrLum
 INDRADB.CsILumCorr.FileName:    run%d.corrLum
 # Run - gain correspondence for detectors
 INDRADB.Gains:    Gains.dat
+# VAMOS calibration file
+INDRADB.VamosCalibFile:  VAMOScalib.list
 # VAMOS scalers for INDRA-VAMOS experiments
 INDRADB.VamosScaler:    scalersVamos.dat
 # VAMOS Brho & angle for INDRA-VAMOS experiments
@@ -578,10 +603,15 @@ INDRA_e416a.INDRADB.BICPressures:     BICPressures.dat
 INDRA_e475s.INDRADB.Pedestals:      E475s_pedestal_file.list
 INDRA_e475s.INDRADB.CalibFile:     E475s_calibration_file.list
 # INDRA-VAMOS
-INDRA_e503.INDRADB.Pedestals:               PedestalsE503.dat
-INDRA_e503.INDRADB.GGtoPGFactors:           ParamFitPG_GG.dat
+INDRA_e503.INDRADB.ChIoSiVoltMeVCalib:     CalibMeVVoltChIoSi.dat
+INDRA_e503.INDRADB.ElectronicCalibration:    ChVolt.dat
+INDRA_e503.INDRADB.ElectronicCalibration.Etalons:    ChVolt_e503_etalons.dat
+INDRA_e503.INDRADB.Pedestals:                         PedestalsE503.dat
+INDRA_e503.INDRADB.PedestalCorrections:              DeltaPiedQDC10.dat
+INDRA_e503.INDRADB.GGtoPGFactors:                     ParamFitPG_GG.dat
 
 INDRA_e494s.INDRADB.Pedestals:                     PedestalsE494s.dat
+INDRA_e494s.INDRADB.PedestalCorrections:            DeltaPiedQDC10.dat
 INDRA_e494s.INDRADB.GGtoPGFactors:                 ParamFitPG_GG.dat
 INDRA_e494s.INDRADB.ElectronicCalibration:         e494s_Channel_Volt.dat
 INDRA_e494s.INDRADB.ElectronicCalibration.Etalons: e494s_Channel_Volt_etalons.dat
@@ -634,7 +664,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndra    "KVINDRAFNL()"
 +Plugin.KVMultiDetArray:    INDRA_e475s    KVINDRAe475s     KVIndra    "KVINDRAe475s()"
 +Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
-+Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRAe503     KVIndra    "KVINDRAe503()"
++Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
 +Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
@@ -654,7 +684,7 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 +Plugin.KVDataBase:    INDRA_e475s    KVINDRADB_e475s     KVIndra    "KVINDRADB_e475s(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
-+Plugin.KVDataBase:    INDRA_e494s    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
++Plugin.KVDataBase:    INDRA_e494s    KVIVDB            VAMOS    "KVIVDB(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e613    KVINDRADB_e613     KVIndra    "KVINDRADB_e613(const Char_t*)"
 +Plugin.KVDataBase:    INDRA*    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVDataBase:    t10_02   KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
@@ -666,8 +696,8 @@ Plugin.KVDataBase:    INDRA_camp1    KVINDRADB1     KVIndra    "KVINDRADB1(const
 # Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVUpDater:    INDRA_e416a    KVINDRAUpDater_e416a     KVIndra    "KVINDRAUpDater_e416a()"
 +Plugin.KVUpDater:    INDRA_e475s    KVINDRAUpDater_e475s     KVIndra    "KVINDRAUpDater_e475s()"
-+Plugin.KVUpDater:    INDRA_e494s    KVINDRAUpDater_e494s     KVIndra    "KVINDRAUpDater_e494s()"
-+Plugin.KVUpDater:    INDRA_e503     KVINDRAUpDater_e494s     KVIndra    "KVINDRAUpDater_e494s()"
++Plugin.KVUpDater:    INDRA_e494s    KVIVUpDater              VAMOS    "KVIVUpDater()"
++Plugin.KVUpDater:    INDRA_e503     KVIVUpDater              VAMOS    "KVIVUpDater()"
 +Plugin.KVUpDater:    INDRA_e613    KVINDRAUpDater_e613     KVIndra    "KVINDRAUpDater_e613()"
 +Plugin.KVUpDater:    INDRA*    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
 +Plugin.KVUpDater:    t10_02    KVINDRAUpDater     KVIndra    "KVINDRAUpDater()"
@@ -714,13 +744,16 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI$        KVIDChIoSiCorr                KVIndra      "KVIDChIoSiCorr()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-CSI$       KVIDChIoCorrCsI_e494s         KVIndra      "KVIDChIoCorrCsI_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SI-CSI$       KVIDSiCorrCsI                 KVIndra      "KVIDSiCorrCsI()"
-+Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_camp5            KVIndra      "KVIDChIoSi75_camp5()"
-+Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_camp5            KVIndra      "KVIDSi75SiLi_camp5()"
-+Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_camp5             KVIndra      "KVIDSiLiCsI_camp5()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
 ################################################
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-CSI$   KVIDChIoCorrCsI    KVIndra "KVIDChIoCorrCsI()"
++Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e503.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e503.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
 ###############################################
 
 # ===> Plugin pour FocalPlanVamos
@@ -769,14 +802,18 @@ INDRA_e503.IdentificationParameterFile.SI-CSI:      SI_CSI_C4-9_autofit.dat
 INDRA_e503.IdentificationParameterFile.CI-SI:       Grid_ChioSi_C4-9_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CI-CSI:      Grid_ChioCsI_C10-17_R322-606.dat
 INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.dat
+INDRA_e503.IdentificationParameterFile.CI-SI75:     grilles_ChIo_Si75.dat
+INDRA_e503.IdentificationParameterFile.SI75-SILI:   grilles_fit_Si75_SiLi.dat
+INDRA_e503.IdentificationParameterFile.SILI-CSI:    grilles_fit_SiLi_CsI.dat
+
 ###############################################
 INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
 INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
 INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
 INDRA_e494s.IdentificationParameterFile.CSI:        grilles_CsI_RL_e494s.dat
 INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
-INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_Si75_SiLi.dat
-INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_SiLi_CsI.dat
+INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_fit_Si75_SiLi.dat
+INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_fit_SiLi_CsI.dat
 ###############################################
 INDRA_e613.IdentificationParameterFile.CI-SI:        CI_SI_e613.dat
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
@@ -794,12 +831,14 @@ INDRA_camp5.KVACQParam.CSI_0714_T.Working:    NO
 # Format:
 #
 # [dataset name].ActiveIdentifications:    [type1]  [type2] ...
+INDRA_camp5.ActiveIdentifications:      CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e475s.ActiveIdentifications:      CSI CI-CSI SI-CSI CI-SI
+VAMOS_e503.ActiveIdentifications:       SI-CSI
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
-VAMOS_e503.ActiveIdentifications:    SI-CSI
-INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
 INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 
 #================================ Plugins for detectors
 #Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
@@ -841,8 +880,6 @@ KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
 
 # KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
 KVPulseHeightDefect.EnergyLoss.Npx:        60
-# Z limit for PHD correction for energy in silicon detectors. Correction is applied for Z > ZminForPHDCorrection
-KVSilicon.ZminForPHDCorrection:        10
 
 # File containing range tables for calculation of energy losses in KVedaLoss
 KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
@@ -891,6 +928,9 @@ ElementDensity.DataFile:	element_densities.data
 # the chosen mass formula is only available for KVINDRAReconNuc for this dataset
 KVINDRAReconNuc.MassFormula:        2
 INDRA_e475s.KVINDRAReconNuc.MassFormula:        3
+
+# Mass Formula used in KVVAMOSReconNuc to deduce A from Z nuclei
+KVVAMOSReconNuc.MassFormula:        2
 
 #ROOT environment variables
 +ACLiC.IncludePaths:     -I$(KVROOT)/include
@@ -982,3 +1022,33 @@ KVTreeAnalyzer.UserBinning:           off
 KVTreeAnalyzer.UserWeight:       off
 KVTreeAnalyzer.NewCanvas:      off
 KVTreeAnalyzer.Normalize:      off
+
+# Controls auto-update option and refresh interval (in seconds) for KVBatchSystemGUI
+KVBatchSystemGUI.AutoUpdate:       yes
+KVBatchSystemGUI.RefreshInterval:    30
+
+# Plugins for different datasets
+# Each dataset can have an associated VAMOS spectrometer.
+# There must be an entry here for each dataset
+# Syntax:
+# Plugin.KVVAMOS:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     VAMOS    "KVVAMOS()"
+
+# List of detectors in the focal plan of VAMOS
+KVVAMOS.DetectorList: KVHarpeeSi KVHarpeeIC KVDriftChamber KVSeD
+KVVAMOS.KVHarpeeSi.Number: 1-18
+KVVAMOS.KVHarpeeIC.Number: 1
+KVVAMOS.KVDriftChamber.Number: 1-2
+KVVAMOS.KVSeD.Number: 1
+
+INDRA_e494s.KVVAMOS.DetectorList: KVSeD KVHarpeeIC KVHarpeeSi
+INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
+
+# List of ACQParameter  associated to VAMOS
+KVVAMOS.ACQParameterList: TSED1_HF TSED2_HF TSED1_SED2 TSED1_INDRA TSED1_MCP TSI_HF TSI_SED1 TSI_INDRA TSI_MCP TMCP_HF
+
+# List of Detectors used in the reconstruction of the nucleus focal plan position (Xf,Yf) in VAMOS
+KVVAMOSCodes.FocalPlanReconDetList: SED1 SED2 SI
+
+# File with list of files containing the coefficients of the functions used for the trajectory reconstruction in VAMOS
+KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
