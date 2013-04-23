@@ -76,10 +76,10 @@ class KVHistoManipulator
 	
 	KVList* Give_ProjectionList(TH2 *hh,Double_t MinIntegral=-1,TString axis="X");
 
-	void DefinePattern(TH1* ob,TString titleX="22 0.08 0.8",TString titleY="22 0.07 1.2",TString labelX="22 0.05 0.005",TString labelY="22 0.05 0.006");
-	void DefinePattern(TGraph* ob,TString titleX="22 0.08 0.8",TString titleY="22 0.07 1.2",TString labelX="22 0.05 0.005",TString labelY="22 0.05 0.006");
-	void DefinePattern(TF1* ob,TString titleX="22 0.08 0.8",TString titleY="22 0.07 1.2",TString labelX="22 0.05 0.005",TString labelY="22 0.05 0.006");
-	void DefinePattern(TAxis* ax,TString title="22 0.08 0.8",TString label="22 0.05 0.005");
+	void DefinePattern(TH1* ob,TString titleX="42 0.08 0.8",TString titleY="42 0.07 1.2",TString labelX="42 0.05 0.005",TString labelY="42 0.05 0.006");
+	void DefinePattern(TGraph* ob,TString titleX="42 0.08 0.8",TString titleY="42 0.07 1.2",TString labelX="42 0.05 0.005",TString labelY="42 0.05 0.006");
+	void DefinePattern(TF1* ob,TString titleX="42 0.08 0.8",TString titleY="42 0.07 1.2",TString labelX="42 0.05 0.005",TString labelY="42 0.05 0.006");
+	void DefinePattern(TAxis* ax,TString title="42 0.08 0.8",TString label="42 0.05 0.005");
 
 	void DefineLineStyle(TAttLine* ob,TString line);
 	void DefineMarkerStyle(TAttMarker* ob,TString marker);
