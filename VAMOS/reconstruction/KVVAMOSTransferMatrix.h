@@ -54,7 +54,6 @@ class KVVAMOSTransferMatrix : public KVBase
    public:
 
    KVVAMOSTransferMatrix( Bool_t scan_ds = kFALSE);
-   KVVAMOSTransferMatrix(UChar_t order);
    KVVAMOSTransferMatrix (const KVVAMOSTransferMatrix&) ;
    virtual ~KVVAMOSTransferMatrix();
    virtual void Copy (TObject&) const;

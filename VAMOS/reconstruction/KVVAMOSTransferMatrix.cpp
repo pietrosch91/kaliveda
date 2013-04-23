@@ -52,13 +52,6 @@ KVVAMOSTransferMatrix::KVVAMOSTransferMatrix( Bool_t scan_ds ) : KVBase("VAMOSTr
 }
 //________________________________________________________________
 
-KVVAMOSTransferMatrix::KVVAMOSTransferMatrix(UChar_t order) : KVBase("VAMOSTransferMatrix","Transfer Matrix of VAMOS"){
-   // Default constructor
-   init();
-   SetOrder( order );
-}
-//________________________________________________________________
-
 KVVAMOSTransferMatrix::KVVAMOSTransferMatrix (const KVVAMOSTransferMatrix& obj)  : KVBase("VAMOSTransferMatrix","Transfer Matrix of VAMOS"){
    	// Copy constructor
    	// This ctor is used to make a copy of an existing object 
