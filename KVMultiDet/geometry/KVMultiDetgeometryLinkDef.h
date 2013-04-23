@@ -15,4 +15,5 @@
 #pragma link C++ class KVRing+;
 #pragma link C++ class KVGeoNavigator+;
 #pragma link C++ class KVRangeTableGeoNavigator+;
+#pragma link C++ class KVGeoImport+;
 #endif

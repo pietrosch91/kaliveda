@@ -9,9 +9,9 @@
 #include "TGraph.h"
 #include "TGeoManager.h"
 #include "KVNucleus.h"
+#include "KVDetector.h"
 class KVTarget;
 class KVTelescope;
-class KVDetector;
 class KVIDTelescope;
 class KVACQParam;
 class KVReconstructedEvent;
@@ -90,6 +90,10 @@ public:
 
     void SetFilterType(Int_t t){fFilterType=t;};
     void init();
+
+    void AddDetector(KVDetector* d){
+        fDetectors->Add(d);
+    }
 
     virtual void Build();
     virtual void SetGroupsAndIDTelescopes();
