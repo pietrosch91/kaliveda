@@ -14,8 +14,9 @@ class TGeoNode;
 
 class KVGeoNavigator : public KVBase
 {
-private:
+protected:
     TGeoManager* fGeometry;//geometry to navigate
+private:
     TGeoVolume* fCurrentVolume;//current volume
     TGeoNode* fCurrentNode;//current node
     Double_t fStepSize;//distance to travel in volume

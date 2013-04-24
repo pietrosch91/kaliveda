@@ -15,7 +15,8 @@ class KVGeoImport : public KVGeoNavigator
     KVMultiDetArray* fArray;
     KVIonRangeTable* fRangeTable;
 
-    KVDetector* BuildDetector(KVIonRangeTableMaterial*);
+    KVDetector* BuildDetector(TString det_name, TGeoVolume *det_vol);
+    void AddLayer(KVDetector*, TGeoVolume*);
 
    public:
    KVGeoImport(TGeoManager*, KVIonRangeTable*, KVMultiDetArray*);

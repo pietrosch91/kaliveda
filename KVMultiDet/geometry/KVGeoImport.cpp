@@ -37,26 +37,52 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
     //
     // Detector definition in geometry
     //==============================
-    // All detector volumes (TGeoVolume or daughter class objects) must have names which begin with "DET_"
+    // All detector volumes (TGeoVolume or TGeoVolumeAssembly) must have names which begin with "DET_"
     // They must be made of materials which are known by the range table fRangeTable.
     // The "thickness" of the detector will be taken as the size of the volume's shape along its Z-axis
     // (so make sure that you define your detector volumes in this way).
     // It is assumed that the natural length units of the geometry are centimetres.
     // The name of the KVDetector object created and added to the array will be taken
     // from the (unique) name of the node corresponding to the geometrical positioning of the detector.
+    // For multi-layer detectors, the "active" layer volume should have a name beginning with "ACTIVE_"
 
     TString volNom = GetCurrentVolume()->GetName();
-    if(!volNom.BeginsWith("DET_")) return;
-
-    TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
-    KVIonRangeTableMaterial* irmat=0;
-    if ( (irmat = fRangeTable->GetMaterial(material)) ) {
-        // Only known materials are imported
-        if(!fArray->GetDetector(GetCurrentNode()->GetName())){
-            KVDetector* det = BuildDetector(irmat);
-            if(det) fArray->AddDetector(det);
+    TString detector_name;
+    TGeoVolume* detector_volume=0;
+    if(volNom.BeginsWith("DET_")){
+        // simple detector
+        detector_name = GetCurrentNode()->GetName();
+        detector_volume = GetCurrentVolume();
+    }
+    else
+    {
+        // have we hit 1 layer of a multilayer detector?
+        TGeoVolume* mother_vol = GetCurrentNode()->GetMotherVolume();
+        if(mother_vol) {
+            TString mom = mother_vol->GetName();
+            if(mom.BeginsWith("DET_")){
+                // it *is* a multilayer detector (youpi! :-)
+                // this is the node corresponding to the whole detector,
+                // i.e. the one with the (unique) name of the detector
+                TGeoNode*mother_node = fGeometry->GetMother();// this is the node corresponding to the whole detector,
+                                                                                 // i.e. the one with the (unique) name of the detector
+                if(mother_node) {
+                    detector_name = mother_node->GetName();
+                    detector_volume = mother_vol;
+                }
+            }
         }
     }
+
+    // failed to identify current volume as part of a detector
+    if(!detector_volume) return;
+
+    // has detector already been built ? if not, do it now
+    if(!fArray->GetDetector(detector_name)) {
+        KVDetector* det = BuildDetector(detector_name, detector_volume);
+        if(det) fArray->AddDetector(det);
+    }
+
 }
 
 void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
@@ -87,25 +113,49 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     fArray->GetListOfDetectors()->ls();
 }
 
-KVDetector *KVGeoImport::BuildDetector(KVIonRangeTableMaterial *mat)
+KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
 {
-    // Create a detector for the current volume
-    // We use the width given by TGeoBBox::GetDZ() to define the thickness of the detector.
+    // Create a KVDetector with given name for the given volume
 
-    TGeoBBox* sh = dynamic_cast<TGeoBBox*>(GetCurrentVolume()->GetShape());
-    if(!sh) return 0x0; // just in case - for now, all shapes derive from TGeoBBox...
-    Double_t width = 2.*sh->GetDZ(); // thickness in centimetres
-    KVDetector* d;
-    if( mat->IsGas() ){
-        TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
-        Double_t p = material->GetPressure();
-        Double_t T = material->GetTemperature();
-        d = new KVDetector();
-        d->AddAbsorber(new KVMaterial(mat->GetType(), width, p, T) );
+    KVDetector* d = new KVDetector;
+    d->SetName(det_name);
+    Int_t nlayer = det_vol->GetNdaughters();
+    if(nlayer){
+        for(int i=0;i<nlayer;i++){
+            AddLayer(d, det_vol->GetNode(i)->GetVolume());
+        }
     }
     else
-        d = new KVDetector(mat->GetType(), width);
-    d->SetName( GetCurrentNode()->GetName() );
+        AddLayer(d, det_vol);
     return d;
+}
+
+void KVGeoImport::AddLayer(KVDetector *det, TGeoVolume *vol)
+{
+    TGeoMaterial* material = vol->GetMaterial();
+    KVIonRangeTableMaterial* irmat = fRangeTable->GetMaterial(material);
+    if(!irmat){
+        Warning("AddLayer", "Unknown material %s/%s used in layer %s of detector %s",
+                material->GetName(), material->GetTitle(), vol->GetName(), det->GetName());
+        return;
+    }
+    TGeoBBox* sh = dynamic_cast<TGeoBBox*>(vol->GetShape());
+    if(!sh) {
+        Warning("AddLayer", "Unknown shape class %s used in layer %s of detector %s",
+                vol->GetShape()->ClassName(), vol->GetName(), det->GetName());
+        return; // just in case - for now, all shapes derive from TGeoBBox...
+    }
+    Double_t width = 2.*sh->GetDZ(); // thickness in centimetres
+    KVMaterial* absorber;
+    if( irmat->IsGas() ){
+        Double_t p = material->GetPressure();
+        Double_t T = material->GetTemperature();
+        absorber = new KVMaterial(irmat->GetType(), width, p, T);
+    }
+    else
+        absorber = new KVMaterial(irmat->GetType(), width);
+    det->AddAbsorber(absorber);
+    TString vnom = vol->GetName();
+    if(vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer( det->GetListOfAbsorbers()->GetEntries()-1 );
 }
 
