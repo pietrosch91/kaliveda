@@ -33,13 +33,13 @@ class KVNameValueList;
 class KVReconstructedNucleus;
 class KVMultiDetArray;
 
-class KVGroup:public KVPosition {
+class KVGroup : public KVBase, public KVPosition {
    enum {
       kIsRemoving = BIT(14)     //flag set during call to RemoveTelescope
    };
  protected:
     KVList * fTelescopes;       //->Sorted list of telescopes belonging to the group.
-   KVList *fDetectors;          //!list of all detectors in group
+   KVList *fDetectors;          //->list of all detectors in group
    UInt_t fNumberOfLayers;      //number of different layers in group
    UInt_t fLayNumMin;           //minimum layer number (nearest to target)
    UInt_t fLayNumMax;           //maximum layer number (furthest from target)
@@ -51,20 +51,16 @@ class KVGroup:public KVPosition {
       kBackwards
    };
     KVGroup();
-    KVGroup(const KVGroup &);
    void init();
     virtual ~ KVGroup();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   void Copy(TObject & obj) const;
-#else
-   void Copy(TObject & obj);
-#endif
    virtual void SetNumber(UInt_t num) {
       // Setting number for group also sets name to "Group_n"
-      SetName( Form("Group_%ud", num) );
+      SetName( Form("Group_%u", num) );
       KVBase::SetNumber(num);
    };
-   void Add(KVTelescope *);
+   void AddDetector(KVDetector *);
+   void Add(KVDetector *);
+   void AddTelescope(KVTelescope *);
    Bool_t Contains(KVTelescope *) const;
    void Reset();
    virtual void Print(Option_t * t = "") const;
@@ -123,7 +119,7 @@ class KVGroup:public KVPosition {
       return TestBit(kIsRemoving);
    }
 
-   KVList *GetDetectors();
+   KVList *GetDetectors() const {return fDetectors; }
 
    void AnalyseParticles();
    inline Bool_t Fired(Option_t * opt = "any") const;

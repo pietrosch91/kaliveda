@@ -76,6 +76,7 @@ void KVGeoNavigator::ParticleEntersNewVolume(KVNucleus*)
 void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
 {
     // Propagate a particle through the geometry in the direction of its momentum
+    // Propagation will stop as soon as we encounter a volume whose name begins with "DEADZONE"
 
     // Define point of origin of particles
     if(TheOrigin) fGeometry->SetCurrentPoint(TheOrigin->X(),TheOrigin->Y(),TheOrigin->Z());
@@ -109,6 +110,9 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
         fEntryPoint.SetXYZ(XX,YY,ZZ);
         XX=posi[0];YY=posi[1];ZZ=posi[2];
         fExitPoint.SetXYZ(XX,YY,ZZ);
+
+        TString vn = GetCurrentVolume()->GetName();
+        if(vn.BeginsWith("DEADZONE")) break;
 
         ParticleEntersNewVolume(part);
 

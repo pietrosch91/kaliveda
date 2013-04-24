@@ -62,24 +62,12 @@ void KVGroup::init()
 
    fTelescopes = new KVList(kFALSE);
    fTelescopes->SetCleanup();
+   fDetectors = new KVList(kFALSE);
+   fDetectors->SetCleanup();
    fNumberOfLayers = 0;
    fLayNumMin = 0;
    fLayNumMax = 0;
    fReconstructedNuclei = 0;
-   fDetectors = 0;
-}
-
-//_________________________________________________________________________________
-
-KVGroup::KVGroup(const KVGroup & obj)
-{
-   //copy ctor
-   init();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   obj.Copy(*this);
-#else
-   ((KVGroup &) obj).Copy(*this);
-#endif
 }
 
 //_____________________________________________________________________________________
@@ -113,16 +101,41 @@ KVGroup::~KVGroup()
    }
 }
 
+void KVGroup::AddDetector(KVDetector *kvt)
+{
+    if (kvt) {
+       fDetectors->Add(kvt);
+       kvt->SetGroup(this);
+    } else
+        Warning("Add", KVGROUP_ADD_UNKNOWN_TELESCOPE);
+}
+
 //_____________________________________________________________________________________
 
-void KVGroup::Add(KVTelescope * kvt)
+void KVGroup::Add(KVDetector *kvt)
 {
-//Add a telescope to the current group.
-   if (kvt) {
-      fTelescopes->Add(kvt);
-      kvt->SetGroup(this);
-   } else
-      Warning("Add", KVGROUP_ADD_UNKNOWN_TELESCOPE);
+    //Add a detector or telescope to the current group.
+
+    if(kvt->InheritsFrom("KVTelescope"))
+        AddTelescope((KVTelescope*)kvt);
+    else
+        AddDetector(kvt);
+}
+
+void KVGroup::AddTelescope(KVTelescope *kvt)
+{
+    // add telescope & all detectors it contains to group
+
+    if (kvt) {
+       fTelescopes->Add(kvt);
+       kvt->SetGroup(this);
+       TIter ndet(kvt->GetDetectors());
+       KVDetector *det;
+       while ((det = (KVDetector *) ndet())) {
+          AddDetector(det);
+       }
+    } else
+        Warning("Add", KVGROUP_ADD_UNKNOWN_TELESCOPE);
 }
 
 Bool_t KVGroup::Contains(KVTelescope * tele) const
@@ -191,10 +204,10 @@ void KVGroup::Print(Option_t * opt) const
 //  --> KVGroup::Print("angles") prints out the ranges in theta and phi of the group.
 //  --> KVGroup::Print() just prints out all the detectors in the group.
 //  --> KVGroup::Print("fired") only print fired detectors (i.E. KVDetector::Fired()==kTRUE)
-   TIter next(fTelescopes);
-   KVTelescope *obj;
+   TIter next(fDetectors);
+   KVDetector *obj;
    if (!strcmp(opt, "fired")) {
-      while ((obj = (KVTelescope *) next())) {
+      while ((obj = (KVDetector *) next())) {
          obj->Print(opt);
       }
    } else {
@@ -218,7 +231,7 @@ void KVGroup::Print(Option_t * opt) const
              << " Phimin=" << GetPhiMin() << " Phimax=" << GetPhiMax() <<
              endl;
       }
-      while ((obj = (KVTelescope *) next())) {
+      while ((obj = (KVDetector *) next())) {
          obj->Print("        ");
       }
    }
@@ -339,20 +352,6 @@ void KVGroup::Reset()
    GetDetectors()->R__FOR_EACH(KVDetector, Clear)();
 }
 
-//_________________________________________________________________________________
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-void KVGroup::Copy(TObject & obj) const
-#else
-void KVGroup::Copy(TObject & obj)
-#endif
-{
-   //
-   //Copy this to obj
-   //
-   KVPosition::Copy(obj);
-   ((KVGroup &) obj).SetTelescopes(GetTelescopes());
-}
 
 //_________________________________________________________________________________
 
@@ -700,33 +699,6 @@ void KVGroup::RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope,
       if (fTelescopes->GetSize() == 0 && kDeleteEmptyGroup)
          Delete();
    }
-}
-
-//______________________________________________________________________________________//
-
-KVList *KVGroup::GetDetectors()
-{
-   //Fill and return a list of all the detectors in the group.
-   //The list is created and filled the first time the method is called,
-   //for subsequent calls we just return the pointer of the list.
-
-   if (!fDetectors) {
-      fDetectors = new KVList(kFALSE);
-      fDetectors->SetCleanup();
-
-      //fill the list
-      TIter ntel(fTelescopes);
-      KVTelescope *tel;
-      while ((tel = (KVTelescope *) ntel())) {
-         TIter ndet(tel->GetDetectors());
-         KVDetector *det;
-         while ((det = (KVDetector *) ndet())) {
-            fDetectors->Add(det);
-         }
-      }
-   }
-
-   return fDetectors;
 }
 
 //______________________________________________________________________________________//

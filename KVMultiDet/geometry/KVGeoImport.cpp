@@ -6,6 +6,7 @@
 #include <KVIonRangeTableMaterial.h>
 #include <TGeoBBox.h>
 #include <KVEvent.h>
+#include <KVGroup.h>
 
 ClassImp(KVGeoImport)
 
@@ -34,55 +35,39 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
 {
     // All detectors crossed by the particle's trajectory are added to the multidetector
     // and the groups (KVGroup) of aligned detectors are set up
-    //
-    // Detector definition in geometry
-    //==============================
-    // All detector volumes (TGeoVolume or TGeoVolumeAssembly) must have names which begin with "DET_"
-    // They must be made of materials which are known by the range table fRangeTable.
-    // The "thickness" of the detector will be taken as the size of the volume's shape along its Z-axis
-    // (so make sure that you define your detector volumes in this way).
-    // It is assumed that the natural length units of the geometry are centimetres.
-    // The name of the KVDetector object created and added to the array will be taken
-    // from the (unique) name of the node corresponding to the geometrical positioning of the detector.
-    // For multi-layer detectors, the "active" layer volume should have a name beginning with "ACTIVE_"
 
-    TString volNom = GetCurrentVolume()->GetName();
-    TString detector_name;
-    TGeoVolume* detector_volume=0;
-    if(volNom.BeginsWith("DET_")){
-        // simple detector
-        detector_name = GetCurrentNode()->GetName();
-        detector_volume = GetCurrentVolume();
+    KVDetector* detector = GetCurrentDetector();
+    if(!detector) return;
+    cout << detector->GetName() << " " << detector->GetGroup() << endl;
+    if(!fCurrentGroup){
+        cout << "no current group" << endl;
+        if(detector->GetGroup()) {
+            fCurrentGroup=detector->GetGroup();
+        }
+        else {
+            fCurrentGroup = new KVGroup;
+            fCurrentGroup->Add(detector);
+            fArray->AddGroup(fCurrentGroup);
+            cout << "new group : " << fCurrentGroup->GetName() << endl;
+        }
     }
     else
     {
-        // have we hit 1 layer of a multilayer detector?
-        TGeoVolume* mother_vol = GetCurrentNode()->GetMotherVolume();
-        if(mother_vol) {
-            TString mom = mother_vol->GetName();
-            if(mom.BeginsWith("DET_")){
-                // it *is* a multilayer detector (youpi! :-)
-                // this is the node corresponding to the whole detector,
-                // i.e. the one with the (unique) name of the detector
-                TGeoNode*mother_node = fGeometry->GetMother();// this is the node corresponding to the whole detector,
-                                                                                 // i.e. the one with the (unique) name of the detector
-                if(mother_node) {
-                    detector_name = mother_node->GetName();
-                    detector_volume = mother_vol;
-                }
-            }
+        cout << "current group : " << fCurrentGroup->GetName() << endl;
+        KVGroup* det_group = detector->GetGroup();
+        cout << det_group << endl;
+        if(!det_group) {
+            fCurrentGroup->Add(detector);
+            cout << detector->GetName() << " added to " << fCurrentGroup->GetName() << endl;
+        }
+        else {
+            if(det_group!=fCurrentGroup)
+                Warning("ParticleEntersNewVolume",
+                        "Detector %s : already belongs to %s, now seems to be in %s",
+                        detector->GetName(), det_group->GetName(),
+                        fCurrentGroup->GetName());
         }
     }
-
-    // failed to identify current volume as part of a detector
-    if(!detector_volume) return;
-
-    // has detector already been built ? if not, do it now
-    if(!fArray->GetDetector(detector_name)) {
-        KVDetector* det = BuildDetector(detector_name, detector_volume);
-        if(det) fArray->AddDetector(det);
-    }
-
 }
 
 void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
@@ -102,6 +87,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
         for(phi=PhiMin; phi<=PhiMax; phi+=dPhi){
                 nuc->SetTheta(theta);
                 nuc->SetPhi(phi);
+                fCurrentGroup = 0;
                 PropagateEvent(evt);
                 count++;
         }
@@ -113,9 +99,64 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     fArray->GetListOfDetectors()->ls();
 }
 
+KVDetector* KVGeoImport::GetCurrentDetector()
+{
+        // Returns pointer to KVDetector corresponding to current location
+        // in geometry. Detector is created and added to array if needed.
+
+        TString volNom = GetCurrentVolume()->GetName();
+        TString detector_name;
+        TGeoVolume* detector_volume=0;
+        if(volNom.BeginsWith("DET_")){
+            // simple detector
+            detector_name = GetCurrentNode()->GetName();
+            detector_volume = GetCurrentVolume();
+        }
+        else
+        {
+            // have we hit 1 layer of a multilayer detector?
+            TGeoVolume* mother_vol = GetCurrentNode()->GetMotherVolume();
+            if(mother_vol) {
+                TString mom = mother_vol->GetName();
+                if(mom.BeginsWith("DET_")){
+                    // it *is* a multilayer detector (youpi! :-)
+                    // this is the node corresponding to the whole detector,
+                    // i.e. the one with the (unique) name of the detector
+                    TGeoNode*mother_node = fGeometry->GetMother();// this is the node corresponding to the whole detector,
+                                                                                     // i.e. the one with the (unique) name of the detector
+                    if(mother_node) {
+                        detector_name = mother_node->GetName();
+                        detector_volume = mother_vol;
+                    }
+                }
+            }
+        }
+
+        // failed to identify current volume as part of a detector
+        if(!detector_volume) return 0;
+
+        // has detector already been built ? if not, do it now
+        KVDetector* det = fArray->GetDetector(detector_name);
+        if(!det) {
+            det = BuildDetector(detector_name, detector_volume);
+            if(det) fArray->AddDetector(det);
+        }
+        return det;
+}
+
 KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
 {
     // Create a KVDetector with given name for the given volume
+    // Detector definition in geometry
+    //==============================
+    // All detector volumes (TGeoVolume or TGeoVolumeAssembly) must have names which begin with "DET_"
+    // They must be made of materials which are known by the range table fRangeTable.
+    // The "thickness" of the detector will be taken as the size of the volume's shape along its Z-axis
+    // (so make sure that you define your detector volumes in this way).
+    // It is assumed that the natural length units of the geometry are centimetres.
+    // The name of the KVDetector object created and added to the array will be taken
+    // from the (unique) name of the node corresponding to the geometrical positioning of the detector.
+    // For multi-layer detectors, the "active" layer volume should have a name beginning with "ACTIVE_"
 
     KVDetector* d = new KVDetector;
     d->SetName(det_name);

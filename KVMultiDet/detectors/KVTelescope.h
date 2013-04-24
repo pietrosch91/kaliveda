@@ -20,30 +20,19 @@ $Id: KVTelescope.h,v 1.19 2008/12/17 13:01:26 franklan Exp $
 
 #ifndef KVTELESCOPE_H
 #define KVTELESCOPE_H
-
-#define KVTELESCOPE_ADD_UNKNOWN_DETECTOR "Attempt to add unknown or undefined detector"
-#define KVTELESCOPE_RANK_UNKNOWN_DETECTOR "Rank sought for detector not contained in this telescope"
-
-#include "KVPosition.h"
 #include "KVDetector.h"
 #include "KVList.h"
-#include "TRef.h"
 #include "KVNameValueList.h"
 
 class KVNucleus;
-class KVRing;
-class KVLayer;
-class KVGroup;
 class TGraph;
 
-class KVTelescope:public KVPosition {
+class KVTelescope:public KVDetector {
 
  protected:
    KVList * fDetectors;         //-> list of detectors in telescope
-   KVGroup *fGroup;             //group to which telescope belongs
-   KVRing *fRing;               //ring to which telescope belongs
    enum {
-      kIsRemoving = BIT(14)     //flag set during call to RemoveDetector
+      kIsRemoving = BIT(19)     //flag set during call to RemoveDetector
    };
    Int_t fNdets;                //number of detectors in telescope
    Float_t *fDepth;             //[fNdets] depth of each element starting from nearest target
@@ -86,22 +75,9 @@ class KVTelescope:public KVPosition {
       //returns number of detectors in telescope
       return (fDetectors ? fDetectors->GetSize() : 0);
    };
-   void AddToRing(KVRing * kvr, const int fcon = KVD_RECPRC_CNXN);
    virtual void DetectParticle(KVNucleus * kvp,KVNameValueList* nvl=0);
    virtual void Print(Option_t * opt = "") const;
    void ResetDetectors();
-
-   KVLayer *GetLayer() const;
-   KVRing *GetRing() const;
-   KVGroup *GetGroup() const;
-   void SetGroup(KVGroup * kvg);
-   UInt_t GetGroupNumber();
-
-   UInt_t GetRingNumber();
-   UInt_t GetLayerNumber();
-
-   const Char_t *GetRingName() const;
-   const Char_t *GetLayerName() const;
 
    Bool_t IsSortable() const {
       return kTRUE;

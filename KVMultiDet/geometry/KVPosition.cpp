@@ -104,17 +104,6 @@ KVPosition::KVPosition(Float_t thmin, Float_t thmax, Float_t phmin,
    SetDistance(dist);
 };
 
-//_____________________________________________________________________________
-KVPosition::KVPosition(const KVPosition & obj)
-{
-   //copy ctor
-   init();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   obj.Copy(*this);
-#else
-   ((KVPosition &) obj).Copy(*this);
-#endif
-}
 
 //_____________________________________________________________________________
 void KVPosition::SetPolarAngle(Float_t th)
@@ -368,20 +357,6 @@ TVector3 KVPosition::GetDirection()
    tmp.SetTheta(fTheta * TMath::Pi() / 180.);
    tmp.SetPhi(fPhi * TMath::Pi() / 180.);
    return tmp;
-}
-
-//___________________________________________________________________________
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-void KVPosition::Copy(TObject & obj) const
-#else
-void KVPosition::Copy(TObject & obj)
-#endif
-{
-   //Copy this to obj
-   KVBase::Copy(obj);
-   ((KVPosition &) obj).SetPolarMinMax(GetThetaMin(), GetThetaMax());
-   ((KVPosition &) obj).SetAzimuthalMinMax(GetPhiMin(), GetPhiMax());
-   ((KVPosition &) obj).SetDistance(GetDistance());
 }
 
 //___________________________________________________________________________

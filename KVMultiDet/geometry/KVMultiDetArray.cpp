@@ -156,6 +156,12 @@ KVMultiDetArray::~KVMultiDetArray()
 }
 
 //___________________________________________________________________________________
+void KVMultiDetArray::AddGroup(KVGroup *g)
+{
+    g->SetNumber(++fGr);
+    fGroups->Add(g);
+}
+
 void KVMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
 {
 // The two telescopes are in angular overlap.

@@ -1,34 +1,17 @@
-/***************************************************************************
-$Id: KVDetector.cpp,v 1.87 2009/03/03 14:27:15 franklan Exp $
-                          kvdetector.cpp  -  description
-                             -------------------
-    begin                : Thu May 16 2002
-    copyright            : (C) 2002 by J.D. Frankland
-    email                : frankland@ganil.fr
-
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+#include "KVDetector.h"
 #include "Riostream.h"
 #include "TROOT.h"
 #include "TRandom3.h"
 #include "TBuffer.h"
 #include "KVDetectorBrowser.h"
 #include "KVModule.h"
+#include "KVRing.h"
+#include "KVLayer.h"
 #include "KVGroup.h"
-#include "KVTelescope.h"
 #include "KVIDTelescope.h"
 #include "KVCalibrator.h"
 #include "KVACQParam.h"
 #include "KVMultiDetArray.h"
-#include "KVDetector.h"
 #include "TPluginManager.h"
 #include "TObjString.h"
                 /*** geometry ***/
@@ -113,6 +96,8 @@ void KVDetector::init()
 	fSimMode = kFALSE;
 	fPresent = kTRUE;
 	fDetecting = kTRUE;
+    fGroup = 0;
+    fRing = 0;
 }
 
 KVDetector::KVDetector()
@@ -191,6 +176,8 @@ KVDetector::~KVDetector()
    SafeDelete(fIDTele4Ident);
    SafeDelete(fAlignedDetectors[0]);
    SafeDelete(fAlignedDetectors[1]);
+   fGroup = 0;
+   fRing = 0;
 }
 
 //________________________________________________________________
@@ -207,7 +194,7 @@ void KVDetector::SetMaterial(const Char_t * type)
 }
 
 //________________________________________________________________
-void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
+void KVDetector::DetectParticle(KVNucleus * kvp, KVNameValueList* nvl)
 {
    //Calculate the energy loss of a charged particle traversing the detector,
    //the particle is slowed down, it is added to the list of all particles hitting the
@@ -215,55 +202,41 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    //detector is set.
    //Do nothing if particle has zero (or -ve) energy.
    //
-   //If the optional argument 'norm' is given, it is supposed to be a vector
-   //normal to the detector, oriented from the origin towards the detector.
-   //In this case the effective thicknesses of the detector's absorbers 'seen' by the particle
-   //depending on its direction of motion is used for the calculation.
-	
-	if (kvp->GetKE() <= 0.)
-      return;
+    //The KVNameValueList, if it's defined, allows to store
+    //the energy lost by the particle in the detector
+    //exemple : for a Silicon detector named SI_0401 , you will obtain:
+    //		{
+    //			KVNucleus nn(6,12); nn.SetKE(1000);
+    //			KVDetector* det = gMultiDetArray->GetDetector("SI_0401");
+    //			KVNameValueList* nvl = new KVNameValueList;
+    //			det->DetectParticle(&nn,nvl);
+    //			nvl->Print();
+    //		}
+    //		Collection name='KVNameValueList', class='KVNameValueList', size=1
+    //		 OBJ: TNamed	SI_0401	8.934231
+    //The recorded energy loss corresponds only to the active layer
 
-   AddHit(kvp);                 //add nucleus to list of particles hitting detector in the event
-   //set flag to say that particle has been slowed down
-   kvp->SetIsDetected();
-   //If this is the first absorber that the particle crosses, we set a "reminder" of its
-   //initial energy
-   if (!kvp->GetPInitial())
-      kvp->SetE0();
-      
-	Double_t* thickness;
-	if(norm){
-		// modify thicknesses of all layers according to orientation,
-		// and store original thicknesses in array
-      TVector3 p = kvp->GetMomentum();
-		thickness = new Double_t[fAbsorbers->GetEntries()];
-      KVMaterial *abs; int i=0;
-      TIter next(fAbsorbers);
-      while ((abs = (KVMaterial *) next())) {
-            thickness[i++] = abs->GetThickness();
-      		Double_t T = abs->GetEffectiveThickness((*norm), p);
-            abs->SetThickness(T);
-      }
-	}
-	Double_t eloss = GetTotalDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
-	Double_t dE = GetDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
-	if(norm){
-		// reset thicknesses of absorbers
-      KVMaterial *abs; int i=0;
-      TIter next(fAbsorbers);
-      while ((abs = (KVMaterial *) next())) {
-            abs->SetThickness(thickness[i++]);
-      }
-      delete [] thickness;
-	}
-   Double_t epart = kvp->GetEnergy() - eloss;
-   if (epart<1e-3) {
-		//printf("%s, pb d arrondi on met l energie de la particule a 0\n",GetName());
-		epart = 0.0;
-	}
-	kvp->SetEnergy(epart);
-   Double_t eloss_old = GetEnergyLoss();
-   SetEnergyLoss(eloss_old+dE);
+    if (kvp->GetKE() <= 0.)
+        return;
+
+    AddHit(kvp);  //add nucleus to list of particles hitting detector in the event
+    //set flag to say that particle has been slowed down
+    kvp->SetIsDetected();
+    //If this is the first absorber that the particle crosses, we set a "reminder" of its
+    //initial energy
+    if (!kvp->GetPInitial())
+        kvp->SetE0();
+
+    Double_t eloss = GetTotalDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
+    Double_t dE = GetDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
+    Double_t epart = kvp->GetEnergy() - eloss;
+    if (epart<1e-3) {
+        epart = 0.0;
+    }
+    kvp->SetEnergy(epart);
+    Double_t eloss_old = GetEnergyLoss();
+    SetEnergyLoss(eloss_old+dE);
+    if (nvl) nvl->SetValue(GetName(),TMath::Abs(dE));
 }
 
 //_______________________________________________________________________________
@@ -634,8 +607,10 @@ KVTelescope *KVDetector::GetTelescope() const
 void KVDetector::SetTelescope(KVTelescope * kvt)
 {
    //Set telescope to which detector belongs
-
+    //Copy the angular position/dimensions of the telescope
    fTelescope = kvt;
+   SetPolarMinMax(kvt->GetThetaMin(),kvt->GetThetaMax());
+   SetAzimuthalMinMax(kvt->GetPhiMin(),kvt->GetPhiMax());
 }
 
 KVMaterial *KVDetector::GetAbsorber(Int_t i) const
@@ -685,31 +660,6 @@ void KVDetector::RemoveCalibrators()
    //Removes all calibrations associated to this detector: in other words, we delete all
    //the KVCalibrator objects in list fCalibrators.
    if(fCalibrators) fCalibrators->Delete();
-}
-
-KVGroup *KVDetector::GetGroup() const
-{
-   //return pointer to KVGroup to which detector belongs
-   if (GetTelescope())
-      return GetTelescope()->GetGroup();
-   else
-      return 0;
-};
-
-Float_t KVDetector::GetTheta() const
-{
-   //get position of detector from parent telescope
-   if (GetTelescope())
-      return GetTelescope()->GetTheta();
-   return 0.0;
-}
-
-Float_t KVDetector::GetPhi() const
-{
-   //get position of detector from parent telescope
-   if (GetTelescope())
-      return GetTelescope()->GetPhi();
-   return 0.0;
 }
 
 //___________________________________________________________________________//
@@ -1081,10 +1031,7 @@ const TVector3& KVDetector::GetNormal()
    // Return unit vector normal to surface of detector. The vector points from the target (origin)
    // towards the detector's entrance window. It can be used with GetELostByParticle and
    // GetParticleEIncFromERes.
-   // The vector is generated from the theta & phi of the centre of the detector, obtained from
-   // the KVTelescope used to position the detector in a multidetector array.
-   // If this detector does not belong to a KVTelescope it will have no defined orientation
-   // and this method returns (0,0,1)
+   // The vector is generated from the theta & phi of the centre of the detector
 
    fNormToMat.SetMagThetaPhi(1, GetTheta()*TMath::DegToRad(), GetPhi()*TMath::DegToRad());
    return fNormToMat;
@@ -1108,8 +1055,15 @@ void KVDetector::GetVerticesInOwnFrame(TVector3 *corners, Double_t depth, Double
 	Double_t dist_to_back = depth + layer_thickness;
 
 	// get coordinates
-	fTelescope->GetCornerCoordinatesInOwnFrame(corners, depth);
-	fTelescope->GetCornerCoordinatesInOwnFrame(&corners[4], dist_to_back);
+    if(fTelescope) {
+        fTelescope->GetCornerCoordinatesInOwnFrame(corners, depth);
+        fTelescope->GetCornerCoordinatesInOwnFrame(&corners[4], dist_to_back);
+    }
+    else
+    {
+        GetCornerCoordinatesInOwnFrame(corners, depth);
+        GetCornerCoordinatesInOwnFrame(&corners[4], dist_to_back);
+    }
 }
 
 //____________________________________________________________________________________
@@ -1118,8 +1072,6 @@ TGeoVolume* KVDetector::GetGeoVolume()
 {
 	// Construct a TGeoVolume shape to represent this detector in the current
 	// geometry managed by gGeoManager.
-	// Positioning information is taken from the KVTelescope to which this detector
-	// belongs; if this is not the case, nothing will be done.
 	//
 	// Making the volume requires:
 	//    - to construct a 'mother' volume (TGeoArb8) defined by the (theta-min/max, phi-min/max)
@@ -1132,13 +1084,11 @@ TGeoVolume* KVDetector::GetGeoVolume()
 	//
 	// gGeoManager must point to current instance of geometry manager.
 
-	if(!fTelescope) return NULL;
-
 	if(!gGeoManager) return NULL;
 
 	if(fTotThickness == 0) GetTotalThicknessInCM(); // calculate sum of absorber thicknesses in centimetres
 	// get from telescope info on relative depth of detector i.e. depth inside telescope
-	if(fDepthInTelescope == 0)
+    if(fTelescope && fDepthInTelescope == 0)
 		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
 
 	TVector3 coords[8];
@@ -1194,8 +1144,6 @@ void KVDetector::AddToGeometry()
 {
 	// Construct and position a TGeoVolume shape to represent this detector in the current
 	// geometry managed by gGeoManager.
-	// Positioning information is taken from the KVTelescope to which this detector
-	// belongs; if this is not the case, nothing will be done.
 	//
 	// Adding the detector to the geometry requires:
 	//    - to construct a 'mother' volume (TGeoArb8) defined by the (theta-min/max, phi-min/max)
@@ -1206,21 +1154,19 @@ void KVDetector::AddToGeometry()
 	//
 	// gGeoManager must point to current instance of geometry manager.
 
-	if(!fTelescope) return;
-
 	if(!gGeoManager) return;
 
 	// get volume for detector
 	TGeoVolume* vol = GetGeoVolume();
 
 	// rotate detector to orientation corresponding to (theta,phi)
-	KVTelescope* tl=GetTelescope();
-	Double_t theta = tl->GetTheta(); Double_t phi = tl->GetPhi();
+    Double_t theta = GetTheta(); Double_t phi = GetPhi();
 	TGeoRotation rot1, rot2;
 	rot2.SetAngles(phi+90., theta, 0.);
 	rot1.SetAngles(-90., 0., 0.);
 	// distance to detector centre = distance to telescope + depth of detector in telescope + half total thickness of detector
-	Double_t dist = tl->GetDistance()/10. + fDepthInTelescope + fTotThickness/2.;
+    Double_t dist_telescope = (fTelescope ? fTelescope->GetDistance()/10. : 0.);
+    Double_t dist = dist_telescope + fDepthInTelescope + fTotThickness/2.;
 	// translate detector to correct distance from target (note: reference is CENTRE of detector)
 	Double_t trans_z = dist;
 
@@ -1281,14 +1227,13 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 {
 	// Return surface area of first layer of detector in mm2.
 
-	if(!fTelescope) return 0;
-
-	if(fDepthInTelescope == 0)
+    if(fTelescope && fDepthInTelescope == 0)
 		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
 
 	TVector3 coords[4];
 
-	fTelescope->GetCornerCoordinates(coords,fDepthInTelescope);
+    if(fTelescope) fTelescope->GetCornerCoordinates(coords,fDepthInTelescope);
+    else GetCornerCoordinates(coords,0);
 	cout << "DETECTOR COORDINATES (in cm):" <<endl;
 	cout << "=================================" << endl;
 	cout << " A : "; printvec(coords[0]); cout << endl;
@@ -1657,7 +1602,7 @@ void KVDetector::SetPresent(Bool_t present)
 	// 
 	// If present=kTRUE (default), detector is present
 	// If present=kFALSE, detector has been removed
-	// Cette methode ne fait rien si l etat demandé est l etat actuel
+    // This method does nothing is required state is already current state.
 	//
 	// Methode applicable seulement pour un detecteur
 	// etant le seul dans un telescope 
@@ -1675,7 +1620,7 @@ void KVDetector::SetPresent(Bool_t present)
 	//
 	if ( !fPresent ){
 		
-		//Le detecteur était l unique d un KVTelescope
+        //Le detecteur etait l unique d un KVTelescope
 		//on retire directement le KVTelescope
 		if (fTelescope->GetDetectors()->GetEntries()==1){
 			KVGroup* gr = fTelescope->GetGroup();
@@ -1688,14 +1633,14 @@ void KVDetector::SetPresent(Bool_t present)
 			
 		}
 		else {
-			Warning("SetPresent","Methode implémentée seulement dans le cas ou le detecteur retire est le seul du telescope");
+            Warning("SetPresent","Method implemented only in case detector is alone in telescope");
 		}
 	}
 	//On remet le detecteur dans le groupe auquel il appartenait
 	else {
 		
-		if (!fTelescope->GetGroup()){
-			KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
+        if (!GetGroup()){
+            KVGroup* gr = gMultiDetArray->GetGroup(GetTheta(), GetPhi());
 			
 			gr->PrepareModif(this);
 			
@@ -1718,9 +1663,9 @@ void KVDetector::SetDetecting(Bool_t detecting)
 	// 
 	// If detecting=kTRUE (default), detector is detecting
 	// If detecting=kFALSE, detector has been switch off or no gas or just dead
-	// Cette methode ne fait rien si :
-	// 	- si le detecteur est déjà marqué absent
-	//		- l etat demandé est l etat actuel
+    // Does nothing if:
+    // 	- detector already marked as absent
+    //		- required state is already current state
 
 	if (!IsPresent())
 		return;
@@ -1730,14 +1675,75 @@ void KVDetector::SetDetecting(Bool_t detecting)
 	
 	fDetecting = detecting;
 	if ( !fDetecting ){
-		KVGroup* gr = fTelescope->GetGroup();
+        KVGroup* gr = GetGroup();
 		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}		
 	else {
-		KVGroup* gr = gMultiDetArray->GetGroup(fTelescope->GetTheta(), fTelescope->GetPhi());
+        KVGroup* gr = gMultiDetArray->GetGroup(GetTheta(),GetPhi());
 		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}
 
+}
+//_____________________________________________________________________________
+void KVDetector::AddToRing(KVRing * kvr, const int fcon)
+{
+// add current detector to a ring
+   fRing = kvr;
+   if (fcon == KVD_RECPRC_CNXN)
+      kvr->AddTelescope(this, KVD_NORECPRC_CNXN);
+}
+//____________________________________________________________________________________
+KVLayer *KVDetector::GetLayer() const
+{
+   return (GetRing()? GetRing()->GetLayer() : NULL);
+}
+
+//_____________________________________________________________________________
+UInt_t KVDetector::GetLayerNumber()
+{
+   return (GetLayer()? GetLayer()->GetNumber() : 0);
+}
+
+//_____________________________________________________________________________
+UInt_t KVDetector::GetRingNumber()
+{
+   return (GetRing()? GetRing()->GetNumber() : 0);
+}
+
+//__________________________________________________________________________
+const Char_t *KVDetector::GetRingName() const
+{
+   return (GetRing()? GetRing()->GetName() : "");
+}
+
+//_____________________________________________________________________________
+const Char_t *KVDetector::GetLayerName() const
+{
+   return (GetLayer()? GetLayer()->GetName() : "");
+}
+
+//_________________________________________________________________________
+KVRing *KVDetector::GetRing() const
+{
+   return fRing;
+}
+
+//________________________________________________________________________
+KVGroup *KVDetector::GetGroup() const
+{
+   return fGroup;
+}
+
+//__________________________________________________________________________
+void KVDetector::SetGroup(KVGroup * kvg)
+{
+   fGroup = kvg;
+}
+
+//_________________________________________________________________________
+UInt_t KVDetector::GetGroupNumber()
+{
+   return (GetGroup()? GetGroup()->GetNumber() : 0);
 }

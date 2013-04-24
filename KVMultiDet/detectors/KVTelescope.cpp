@@ -1,26 +1,6 @@
-/***************************************************************************
-$Id: KVTelescope.cpp,v 1.29 2007/05/31 09:59:22 franklan Exp $
-                          kvtelescope.cpp  -  description
-                             -------------------
-    begin                : Thu May 16 2002
-    copyright            : (C) 2002 by J.D. Frankland
-    email                : frankland@ganil.fr
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 #include "KVTelescope.h"
 #include "KVDetector.h"
 #include "KVNucleus.h"
-#include "KVRing.h"
-#include "KVLayer.h"
-#include "KVGroup.h"
 #include "TGraph.h"
 #include "Riostream.h"
 #include "TString.h"
@@ -55,8 +35,6 @@ void KVTelescope::init()
    //the telescope owns its detectors and will delete them when deleted itself.
    fDetectors = new KVList;
    fDetectors->SetCleanup();
-   fGroup = 0;
-   fRing = 0;
    fNdets = 0;
    fDepth = 0;
 }
@@ -73,8 +51,6 @@ KVTelescope::~KVTelescope()
       delete fDetectors;
    }
    fDetectors = 0;
-   fGroup = 0;
-   fRing = 0;
    if (fDepth)
       delete[]fDepth;
    fDepth = 0;
@@ -112,7 +88,7 @@ void KVTelescope::AddDetector(KVDetector * d, const int fcon)
       if (fcon == KVD_RECPRC_CNXN)
          tmp->AddToTelescope(this, KVD_NORECPRC_CNXN);
    } else {
-      Warning("AddDetector", KVTELESCOPE_ADD_UNKNOWN_DETECTOR);
+       Warning("AddDetector", "Null pointer passed as argument");
    }
 }
 
@@ -130,18 +106,10 @@ void KVTelescope::Add(KVDetector * d, const int fcon)
       if (fcon == KVD_RECPRC_CNXN)
          d->AddToTelescope(this, KVD_NORECPRC_CNXN);
    } else {
-      Warning("AddDetector", KVTELESCOPE_ADD_UNKNOWN_DETECTOR);
+       Warning("AddDetector", "Null pointer passed as argument");
    }
 }
 
-//_____________________________________________________________________________
-void KVTelescope::AddToRing(KVRing * kvr, const int fcon)
-{
-// add current telescope to a ring
-   fRing = kvr;
-   if (fcon == KVD_RECPRC_CNXN)
-      kvr->AddTelescope(this, KVD_NORECPRC_CNXN);
-}
 
 //_________________________________________________________________________________
 
@@ -158,36 +126,28 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
    //      All particles impinging on the first detector of the telescope are assumed to pass through all subsequent detectors as in "c" 
 	//		(unless they stop in one of the detectors)
    //
-	//The KVNameValueList, if it's defined, allows to store
-	//the energy loss in the different detectors the particle goes through
-	//exemple : for a Silicon-CsI telescope named SI_CSI_0401 , you will obtain:   
-	//		{
-	//			KVNucleus nn(6,12); nn.SetKE(1000);
-	//			KVTelescope* tel = gMultiDetArray->GetTelescope("SI_CSI_0401");
-	//			KVNameValueList* nvl = new KVNameValueList;
-	//			tel->DetectParticle(&nn,nvl);
-	//			nvl->Print();
-	//		}
-	//		Collection name='KVNameValueList', class='KVNameValueList', size=2
-	//		 OBJ: TNamed	SI_0401	8.934231
-	//		 OBJ: TNamed	CSI_0401	991.065769
-	//The energy loss in each detector corresponds to those lost in active layer
-	//
-	//If an other particle went through the same telescope, we take it into account
-	//an substract its contribution to energy loss	
+    //The KVNameValueList, if it's defined, allows to store
+    //the energy loss in the different detectors the particle goes through
+    //exemple : for a Silicon-CsI telescope named SI_CSI_0401 , you will obtain:
+    //		{
+    //			KVNucleus nn(6,12); nn.SetKE(1000);
+    //			KVTelescope* tel = gMultiDetArray->GetTelescope("SI_CSI_0401");
+    //			KVNameValueList* nvl = new KVNameValueList;
+    //			tel->DetectParticle(&nn,nvl);
+    //			nvl->Print();
+    //		}
+    //		Collection name='KVNameValueList', class='KVNameValueList', size=2
+    //		 OBJ: TNamed	SI_0401	8.934231
+    //		 OBJ: TNamed	CSI_0401	991.065769
+    //The energy loss in each detector corresponds to those lost in active layer
 	
-	KVDetector *obj;
-   
-	TIter next(GetDetectors());
-   while ((obj = (KVDetector *) next())) {
-		Double_t ebefore = obj->GetEnergy();	//Energie dans le detecteur avant passage
-		obj->DetectParticle(kvp);					//Detection de la particule
-      ebefore -= obj->GetEnergy();				//la difference d energie avant et apres passage (donc l energie laissee par la particule)   
-		if (nvl)
-			nvl->SetValue(obj->GetName(),TMath::Abs(ebefore)); //Enregistrement de la perte d energie
-		if (kvp->GetEnergy() <= 0.0)			
-      	break;
-   }
+    KVDetector *obj;
+
+    TIter next(GetDetectors());
+    while ((obj = (KVDetector *) next())) {
+        obj->DetectParticle(kvp);
+        if (kvp->GetEnergy() <= 0.0) break;
+    }
 }
 
 //_______________________________________________________________________________
@@ -228,7 +188,7 @@ UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)
 {
    //returns position (1=front, 2=next, etc.) detector in the telescope structure
    if (kvd->GetTelescope() != this) {
-      Warning("GetDetectorRank", KVTELESCOPE_RANK_UNKNOWN_DETECTOR);
+       Warning("GetDetectorRank", "Detector does not belong to this telescope!");
       cout << endl;
       return 0;
    }
@@ -337,59 +297,6 @@ void KVTelescope::RemoveDetectors(const Char_t * type)
    }
 }
 
-//____________________________________________________________________________________
-KVLayer *KVTelescope::GetLayer() const
-{
-   return (GetRing()? GetRing()->GetLayer() : NULL);
-}
-
-//_____________________________________________________________________________
-UInt_t KVTelescope::GetLayerNumber()
-{
-   return (GetLayer()? GetLayer()->GetNumber() : 0);
-}
-
-//_____________________________________________________________________________
-UInt_t KVTelescope::GetRingNumber()
-{
-   return (GetRing()? GetRing()->GetNumber() : 0);
-}
-
-//__________________________________________________________________________
-const Char_t *KVTelescope::GetRingName() const
-{
-   return (GetRing()? GetRing()->GetName() : "");
-}
-
-//_____________________________________________________________________________
-const Char_t *KVTelescope::GetLayerName() const
-{
-   return (GetLayer()? GetLayer()->GetName() : "");
-}
-
-//_________________________________________________________________________
-KVRing *KVTelescope::GetRing() const
-{
-   return fRing;
-}
-
-//________________________________________________________________________
-KVGroup *KVTelescope::GetGroup() const
-{
-   return fGroup;
-}
-
-//__________________________________________________________________________
-void KVTelescope::SetGroup(KVGroup * kvg)
-{
-   fGroup = kvg;
-}
-
-//_________________________________________________________________________
-UInt_t KVTelescope::GetGroupNumber()
-{
-   return (GetGroup()? GetGroup()->GetNumber() : 0);
-}
 
 //___________________________________________________________________________
 

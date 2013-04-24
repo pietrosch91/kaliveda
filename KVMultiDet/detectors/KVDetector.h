@@ -28,12 +28,15 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #endif
 
 #include "KVMaterial.h"
+#include "KVPosition.h"
 #include "KVList.h"
 #include "KVNucleus.h"
 #include "KVACQParam.h"
 #include "Binary_t.h"
 
 class KVDetectorBrowser;
+class KVRing;
+class KVGroup;
 class KVModule;
 class KVTelescope;
 class KVCalibrator;
@@ -42,8 +45,9 @@ class KVIDTelescope;
 class TGeoVolume;
 class TTree;
 class TGraph;
+class KVLayer;
 
-class KVDetector:public KVMaterial {
+class KVDetector:public KVMaterial, public KVPosition {
 
    friend class KVDetectorBrowser;
 
@@ -69,6 +73,8 @@ class KVDetector:public KVMaterial {
 
  protected:
 
+   KVGroup *fGroup;             //group to which detector belongs
+   KVRing *fRing;               //ring to which detector belongs
    TString fFName;              //!dynamically generated full name of detector
    KVList *fModules;            //references to connected electronic modules (not implemented yet)
    KVList *fCalibrators;        //list of associated calibrator objects
@@ -155,7 +161,7 @@ class KVDetector:public KVMaterial {
          return GetActiveLayer()->GetName();
       return KVMaterial::GetName();
    };
-   virtual void DetectParticle(KVNucleus *, TVector3 * norm = 0);
+   virtual void DetectParticle(KVNucleus *, KVNameValueList *nvl = 0);
    virtual Double_t GetELostByParticle(KVNucleus *, TVector3 * norm = 0);
    virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
 
@@ -163,8 +169,6 @@ class KVDetector:public KVMaterial {
                                KVD_RECPRC_CNXN);
    KVTelescope *GetTelescope() const;
    void SetTelescope(KVTelescope * kvt);
-   Float_t GetTheta() const;
-   Float_t GetPhi() const;
 
    void ConnectModule(KVModule *, const int fcon = KVD_RECPRC_CNXN);
 
@@ -214,7 +218,6 @@ class KVDetector:public KVMaterial {
    KVList *GetListOfCalibrators() const {
       return fCalibrators;
    };
-   KVGroup *GetGroup() const;
    virtual Bool_t IsCalibrated() const;
 
    virtual void Clear(Option_t * opt = "");
@@ -399,7 +402,19 @@ class KVDetector:public KVMaterial {
 	}
 	
 	virtual void DeduceACQParameters(Int_t /*zz*/=-1,Int_t /*aa*/=-1){};
-	
+   KVLayer *GetLayer() const;
+   KVRing *GetRing() const;
+   KVGroup *GetGroup() const;
+   void SetGroup(KVGroup * kvg);
+   UInt_t GetGroupNumber();
+
+   UInt_t GetRingNumber();
+   UInt_t GetLayerNumber();
+
+   const Char_t *GetRingName() const;
+   const Char_t *GetLayerName() const;
+   void AddToRing(KVRing * kvr, const int fcon = KVD_RECPRC_CNXN);
+
    ClassDef(KVDetector, 8)      //Base class for the description of detectors in multidetector arrays
 };
 

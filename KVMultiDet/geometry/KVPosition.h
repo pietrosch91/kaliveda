@@ -24,7 +24,7 @@ $Id: KVPosition.h,v 1.20 2009/01/19 14:36:57 ebonnet Exp $
 #include "KVBase.h"
 #include "KVParticle.h"
 
-class KVPosition:public KVBase {
+class KVPosition {
  private:
    Float_t fTheta;              // polar angle in degrees with respect to beam axis, corresponds to centre of telescope
    Float_t fPhi;                // azimuthal angle in degrees with respect to 12 o'clock (=0 deg.), corresponds to centre of telescope 
@@ -39,14 +39,8 @@ class KVPosition:public KVBase {
     KVPosition(Float_t thmin, Float_t thmax, Float_t phmin, Float_t phmax,
                Float_t dist = 0.0);
    void init();
-    KVPosition(const KVPosition &);
     virtual ~ KVPosition() {
    };
-#if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
-   virtual void Copy(TObject & obj) const;
-#else
-   virtual void Copy(TObject & obj);
-#endif
    void SetAzimuthalAngle(Float_t ph);
    void SetPolarAngle(Float_t th);
    void SetPolarWidth(Float_t pw);

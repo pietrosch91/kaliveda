@@ -131,7 +131,7 @@ KVRing::~KVRing()
 }
 
 //_______________________________________________________________________________________
-void KVRing::AddTelescope(KVTelescope * tele, const int fcon)
+void KVRing::AddTelescope(KVDetector * tele, const int fcon)
 {
 // add detector telescope to current ring
    fTelescopes->Add(tele);

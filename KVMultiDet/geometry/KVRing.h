@@ -25,13 +25,13 @@ $Id: KVRing.h,v 1.15 2007/10/23 14:09:02 ebonnet Exp $
 #define KVR_NORCPRC_CNXN 0
 
 #include "KVPosition.h"
+#include "KVBase.h"
 #include "KVList.h"
 #include "KVTelescope.h"
-#include "TRef.h"
 
 class KVLayer;
 
-class KVRing:public KVPosition {
+class KVRing : public KVBase, public KVPosition {
  private:                      // Private attributes
    KVList * fTelescopes;        //-> list of telescopes belonging to the ring sorted by phi
    KVLayer *fLayer;             //layer to which the ring belongs
@@ -46,7 +46,7 @@ class KVRing:public KVPosition {
     KVRing();
    void init();
     virtual ~ KVRing();
-   void AddTelescope(KVTelescope * tele, const int fcon = KVD_RECPRC_CNXN);
+   void AddTelescope(KVDetector * tele, const int fcon = KVD_RECPRC_CNXN);
    void AddTelescope();
    void AddToLayer(KVLayer * kvl, UInt_t fcon = KVR_RCPRC_CNXN);
     KVRing(const UInt_t, const Float_t, const Float_t, const Float_t,

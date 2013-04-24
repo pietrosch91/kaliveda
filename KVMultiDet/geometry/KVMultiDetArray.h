@@ -78,6 +78,7 @@ protected:
 public:
     void SetGeometry(TGeoManager*);
     TGeoManager* GetGeometry() const;
+    virtual void AddGroup(KVGroup*);
     // filter types. values of fFilterType
     enum EFilterType
     {

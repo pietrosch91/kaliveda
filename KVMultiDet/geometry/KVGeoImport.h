@@ -9,12 +9,15 @@ class KVMultiDetArray;
 class KVIonRangeTable;
 class KVIonRangeTableMaterial;
 class KVDetector;
+class KVGroup;
 
 class KVGeoImport : public KVGeoNavigator
 {
     KVMultiDetArray* fArray;
     KVIonRangeTable* fRangeTable;
+    KVGroup* fCurrentGroup;
 
+    KVDetector *GetCurrentDetector();
     KVDetector* BuildDetector(TString det_name, TGeoVolume *det_vol);
     void AddLayer(KVDetector*, TGeoVolume*);
 
