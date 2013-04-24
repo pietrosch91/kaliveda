@@ -38,9 +38,7 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
 
     KVDetector* detector = GetCurrentDetector();
     if(!detector) return;
-    cout << detector->GetName() << " " << detector->GetGroup() << endl;
     if(!fCurrentGroup){
-        cout << "no current group" << endl;
         if(detector->GetGroup()) {
             fCurrentGroup=detector->GetGroup();
         }
@@ -48,17 +46,13 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
             fCurrentGroup = new KVGroup;
             fCurrentGroup->Add(detector);
             fArray->AddGroup(fCurrentGroup);
-            cout << "new group : " << fCurrentGroup->GetName() << endl;
         }
     }
     else
     {
-        cout << "current group : " << fCurrentGroup->GetName() << endl;
         KVGroup* det_group = detector->GetGroup();
-        cout << det_group << endl;
         if(!det_group) {
             fCurrentGroup->Add(detector);
-            cout << detector->GetName() << " added to " << fCurrentGroup->GetName() << endl;
         }
         else {
             if(det_group!=fCurrentGroup)
@@ -101,47 +95,22 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
 
 KVDetector* KVGeoImport::GetCurrentDetector()
 {
-        // Returns pointer to KVDetector corresponding to current location
-        // in geometry. Detector is created and added to array if needed.
+    // Returns pointer to KVDetector corresponding to current location
+    // in geometry. Detector is created and added to array if needed.
 
-        TString volNom = GetCurrentVolume()->GetName();
-        TString detector_name;
-        TGeoVolume* detector_volume=0;
-        if(volNom.BeginsWith("DET_")){
-            // simple detector
-            detector_name = GetCurrentNode()->GetName();
-            detector_volume = GetCurrentVolume();
-        }
-        else
-        {
-            // have we hit 1 layer of a multilayer detector?
-            TGeoVolume* mother_vol = GetCurrentNode()->GetMotherVolume();
-            if(mother_vol) {
-                TString mom = mother_vol->GetName();
-                if(mom.BeginsWith("DET_")){
-                    // it *is* a multilayer detector (youpi! :-)
-                    // this is the node corresponding to the whole detector,
-                    // i.e. the one with the (unique) name of the detector
-                    TGeoNode*mother_node = fGeometry->GetMother();// this is the node corresponding to the whole detector,
-                                                                                     // i.e. the one with the (unique) name of the detector
-                    if(mother_node) {
-                        detector_name = mother_node->GetName();
-                        detector_volume = mother_vol;
-                    }
-                }
-            }
-        }
+    TString detector_name;
+    Bool_t multilay;
+    TGeoVolume* detector_volume = GetCurrentDetectorNameAndVolume(detector_name,multilay);
+    // failed to identify current volume as part of a detector
+    if(!detector_volume) return 0;
 
-        // failed to identify current volume as part of a detector
-        if(!detector_volume) return 0;
-
-        // has detector already been built ? if not, do it now
-        KVDetector* det = fArray->GetDetector(detector_name);
-        if(!det) {
-            det = BuildDetector(detector_name, detector_volume);
-            if(det) fArray->AddDetector(det);
-        }
-        return det;
+    // has detector already been built ? if not, do it now
+    KVDetector* det = fArray->GetDetector(detector_name);
+    if(!det) {
+        det = BuildDetector(detector_name, detector_volume);
+        if(det) fArray->AddDetector(det);
+    }
+    return det;
 }
 
 KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)

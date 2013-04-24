@@ -74,13 +74,19 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus *part)
         //If this is the first absorber that the particle crosses, we set a "reminder" of its
         //initial energy
         if (!part->GetPInitial()) part->SetE0();
-        part->GetParameters()->SetValue(Form("DE_%s",GetCurrentNode()->GetName()), de);
-        part->GetParameters()->SetValue(Form("Xin_%s",GetCurrentNode()->GetName()), GetEntryPoint().X());
-        part->GetParameters()->SetValue(Form("Yin_%s",GetCurrentNode()->GetName()), GetEntryPoint().Y());
-        part->GetParameters()->SetValue(Form("Zin_%s",GetCurrentNode()->GetName()), GetEntryPoint().Z());
-        part->GetParameters()->SetValue(Form("Xout_%s",GetCurrentNode()->GetName()), GetExitPoint().X());
-        part->GetParameters()->SetValue(Form("Yout_%s",GetCurrentNode()->GetName()), GetExitPoint().Y());
-        part->GetParameters()->SetValue(Form("Zout_%s",GetCurrentNode()->GetName()), GetExitPoint().Z());
+
+        TString dname; Bool_t multi;
+        GetCurrentDetectorNameAndVolume(dname,multi);
+        TString absorber_name;
+        if(multi) absorber_name.Form("%s_%s", dname.Data(), GetCurrentNode()->GetName());
+        else absorber_name=dname;
+        part->GetParameters()->SetValue(Form("DE_%s",absorber_name.Data()), de);
+        part->GetParameters()->SetValue(Form("Xin_%s",absorber_name.Data()), GetEntryPoint().X());
+        part->GetParameters()->SetValue(Form("Yin_%s",absorber_name.Data()), GetEntryPoint().Y());
+        part->GetParameters()->SetValue(Form("Zin_%s",absorber_name.Data()), GetEntryPoint().Z());
+        part->GetParameters()->SetValue(Form("Xout_%s",absorber_name.Data()), GetExitPoint().X());
+        part->GetParameters()->SetValue(Form("Yout_%s",absorber_name.Data()), GetExitPoint().Y());
+        part->GetParameters()->SetValue(Form("Zout_%s",absorber_name.Data()), GetExitPoint().Z());
         part->SetEnergy(e);
     }
 }

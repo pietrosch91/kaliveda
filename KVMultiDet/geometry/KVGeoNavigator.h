@@ -14,11 +14,11 @@ class TGeoNode;
 
 class KVGeoNavigator : public KVBase
 {
-protected:
-    TGeoManager* fGeometry;//geometry to navigate
 private:
+    TGeoManager* fGeometry;//geometry to navigate
     TGeoVolume* fCurrentVolume;//current volume
     TGeoNode* fCurrentNode;//current node
+    TGeoNode* fMotherNode;//mother node of current node
     Double_t fStepSize;//distance to travel in volume
     TVector3 fEntryPoint;//position of particle on entering volume
     TVector3 fExitPoint;//position of particle on exiting volume
@@ -38,6 +38,7 @@ public:
     Double_t GetStepSize() const { return fStepSize; }
     const TVector3& GetEntryPoint() const { return fEntryPoint; }
     const TVector3& GetExitPoint() const { return fExitPoint; }
+    TGeoVolume* GetCurrentDetectorNameAndVolume(TString&, Bool_t&);
 
     Bool_t StopPropagation() const { return fStopPropagation; }
     void SetStopPropagation(Bool_t stop = kTRUE) { fStopPropagation = stop; }

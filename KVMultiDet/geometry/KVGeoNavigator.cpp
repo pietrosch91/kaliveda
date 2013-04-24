@@ -73,6 +73,39 @@ void KVGeoNavigator::ParticleEntersNewVolume(KVNucleus*)
     AbstractMethod("ParticleEntersNewVolume");
 }
 
+TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(TString &detector_name, Bool_t& multilayer)
+{
+    // Returns the name of the current detector (if we are inside a detector)
+    // and whether it is a multilayer or simple detector
+
+    multilayer=kFALSE;
+    TString volNom = GetCurrentVolume()->GetName();
+    TGeoVolume* detector_volume=0;
+    if(volNom.BeginsWith("DET_")){
+        // simple detector
+        detector_name = GetCurrentNode()->GetName();
+        detector_volume = GetCurrentVolume();
+    }
+    else
+    {
+        // have we hit 1 layer of a multilayer detector?
+        TGeoVolume* mother_vol = GetCurrentNode()->GetMotherVolume();
+        if(mother_vol) {
+            TString mom = mother_vol->GetName();
+            if(mom.BeginsWith("DET_")){
+                // it *is* a multilayer detector (youpi! :-)
+                if(fMotherNode) {// this is the node corresponding to the whole detector,
+                                             // i.e. the one with the (unique) name of the detector
+                    detector_name = fMotherNode->GetName();
+                    detector_volume = mother_vol;
+                    multilayer=kTRUE;
+                }
+            }
+        }
+    }
+    return detector_volume;
+}
+
 void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
 {
     // Propagate a particle through the geometry in the direction of its momentum
@@ -90,11 +123,13 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
 
     fCurrentVolume = fGeometry->GetCurrentVolume();
     fCurrentNode = fGeometry->GetCurrentNode();
+    fMotherNode = fGeometry->GetMother();
     // move along trajectory until we hit a new volume
     fGeometry->FindNextBoundaryAndStep();
     fStepSize = fGeometry->GetStep();
     TGeoVolume* newVol = fGeometry->GetCurrentVolume();
     TGeoNode* newNod = fGeometry->GetCurrentNode();
+    TGeoNode* newMom = fGeometry->GetMother();
 
     Double_t XX,YY,ZZ;
     XX=YY=ZZ=0.;
@@ -120,11 +155,14 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
 
         fCurrentVolume = newVol;
         fCurrentNode = newNod;
+        fMotherNode = newMom;
 
         // move on to next volume crossed by trajectory
         fGeometry->FindNextBoundaryAndStep();
         fStepSize = fGeometry->GetStep();
         newVol = fGeometry->GetCurrentVolume();
         newNod = fGeometry->GetCurrentNode();
+        newMom = fGeometry->GetMother();
     }
 }
+
