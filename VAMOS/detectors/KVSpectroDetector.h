@@ -7,9 +7,12 @@
 #define IDX( dir ) (Int_t)( dir -'X') 
 #define DIRECTION( idx ) (Char_t)('X'+idx) 
 
-#include "KVDetector.h"
+#include "KVDetector.h" 
 #include "TGeoVolume.h"
 #include "TGeoManager.h"
+#include "TGeoMedium.h"
+#include "TGeoMatrix.h"
+
 
 class KVSpectroDetector : public KVDetector//, public TGeoVolume
 {
