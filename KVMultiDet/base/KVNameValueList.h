@@ -43,6 +43,10 @@ class KVNameValueList : public TNamed
 	void SetValue(const Char_t* name,Int_t value);
 	void SetValue(const Char_t* name,Double_t value);
 	
+	void SetValueAt(const Char_t* name,Double_t value,Int_t idx);
+	void SetFirstValue(const Char_t* name,Double_t value);
+	void SetLastValue(const Char_t* name,Double_t value);
+
     void IncrementValue(const Char_t* name,Double_t value);
     void IncrementValue(const Char_t* name,Int_t value);
 

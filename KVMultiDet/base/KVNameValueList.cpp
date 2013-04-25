@@ -179,6 +179,7 @@ void KVNameValueList::SetValue_flt(const Char_t* name,Double_t value)
    par ? par->Set(value) : fList.Add(new KVNamedParameter(name,value));
 }
 
+//______________________________________________
 void KVNameValueList::IncValue_flt(const Char_t *name, Double_t value)
 {
     //increment a parameter (define by its name) by a value
@@ -188,6 +189,7 @@ void KVNameValueList::IncValue_flt(const Char_t *name, Double_t value)
    par ? par->Set(value+par->GetDouble()) : fList.Add(new KVNamedParameter(name,value));
 }
 
+//______________________________________________
 void KVNameValueList::IncValue_int(const Char_t *name, Int_t value)
 {
     //increment a parameter (define by its name) by a value
@@ -225,11 +227,70 @@ void KVNameValueList::SetValue(const Char_t* name,Double_t value)
     SetValue_flt(name,value);
 }
 
+//______________________________________________
+void KVNameValueList::SetValueAt(const Char_t* name,Double_t value,Int_t idx)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is inserted at 
+	//location idx in the list.
+	//if it's in the list replace its value and move it at
+	//location idx in the list.
+  	KVNamedParameter* par = FindParameter(name);
+	if(	par ){
+		par->Set(value);
+		if( fList.IndexOf(par) != idx ){
+			fList.GetCollection()->Remove(par);
+			fList.AddAt(par,idx);
+		}
+	}
+	else fList.AddAt(new KVNamedParameter(name,value),idx);
+}
+
+//______________________________________________
+void KVNameValueList::SetFirstValue(const Char_t* name,Double_t value)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is inserted at 
+	//the begining of the list.
+	//if it's in the list replace its value and move it at
+	//the begining of the list.
+  	KVNamedParameter* par = FindParameter(name);
+	if(	par ){
+		par->Set(value);
+		if( fList.First() != par ){
+			fList.GetCollection()->Remove(par);
+			fList.AddFirst(par);
+		}
+	}
+	else fList.AddFirst(new KVNamedParameter(name,value));
+}
+
+//______________________________________________
+void KVNameValueList::SetLastValue(const Char_t* name,Double_t value)
+{
+	//associate a parameter (define by its name) and a value
+	//if the parameter is not in the list, it is inserted at 
+	//the end of the list.
+	//if it's in the list replace its value and move it at
+	//the end of the list.
+  	KVNamedParameter* par = FindParameter(name);
+	if(	par ){
+		par->Set(value);
+		if( fList.Last() != par ){
+			fList.GetCollection()->Remove(par);
+			fList.AddLast(par);
+		}
+	}
+	else fList.AddLast(new KVNamedParameter(name,value));
+}
+
+//______________________________________________
 void KVNameValueList::IncrementValue(const Char_t *name, Double_t value)
 {
     IncValue_flt(name,value);
 }
 
+//______________________________________________
 void KVNameValueList::IncrementValue(const Char_t *name, Int_t value)
 {
     IncValue_int(name,value);
