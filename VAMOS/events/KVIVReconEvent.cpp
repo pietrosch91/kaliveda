@@ -217,6 +217,7 @@ Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
 
 	fVAMOSnuc->ReconstructFocalPlanTrajectory( detl );
 	fVAMOSnuc->ReconstructLabTrajectory();
+	fVAMOSnuc->RunTracking( detl );
 	//fVAMOSnuc->Calibrate();
 
 	return kTRUE;

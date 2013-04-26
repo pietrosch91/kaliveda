@@ -197,3 +197,145 @@ void KVVAMOSReconNuc::ReconstructLabTrajectory(){
 	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();
 	tm->ReconstructFPtoLab( &fRT );
 }
+//________________________________________________________________
+
+void KVVAMOSReconNuc::RunTracking(KVList *detlist){
+	// Run the tracking of this reconstructed nucleus in each volume (detectors)  that it has punched through.
+
+	// Tracking is impossible if the trajectory reconstruction
+	// in the focal plane is not OK.
+	fTrackRes.Clear();
+	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+
+//	cout<<endl<<"--------------------------------------------------"<<endl;
+//	Info("RunTracking","IN");
+//
+//	cout<<"FP CODE: "<<fCodes.GetFPStatus()<<endl;
+//	Info("RunTracking","List of fired detectors");
+//	detlist->ls();
+
+	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)detlist->First();
+	TGeoVolume *stopVol = (TGeoVolume *)stopdet->GetActiveVolumes()->Last();
+
+	// For gGeoManager the origin is the target point.
+	// Starting point has to be set from this origin.
+
+	// intersection point between reconstructed trajectory and the Focal
+	// Plane in the focal plane frame of reference
+	Double_t XYZ_FP[3] = { fRT.pointFP[0], fRT.pointFP[1], 0 };
+	// same intersection point in the frame of reference
+	// centered at the target point
+	gVamos->FocalToTarget( XYZ_FP, XYZ_FP );
+
+	//tracking direction
+   	Double_t dir[3];
+
+	TGeoVolume *FPvol = gVamos->GetFocalPlanVolume();
+//	//--------------------------------------------------
+//	Info("RunTracking","Runnig the Focal Plane backward Traking");
+//	//--------------------------------------------------
+   	//  direction of the tracking = direction of the trajectory at the focal plane
+   	fRT.dirFP.GetXYZ( dir );
+
+   	// Initializing tracking (i.e. setting both initial point and direction
+   	// and finding the state). Start from the FP intersection point
+   	gGeoManager->InitTrack( XYZ_FP, dir );
+
+   	TGeoVolume* curVol   = gGeoManager->GetCurrentVolume();
+   	TGeoVolume* prevVol  = NULL;
+
+   	// move along trajectory until we hit a new volume
+   	// Stop when the point is outside the Focal Plane volume or when it is
+   	// inside the stopping detector
+   	do{
+
+   	   	gGeoManager->FindNextBoundaryAndStep();
+
+	   	if( curVol != FPvol ){
+   	   	   	Double_t step = gGeoManager->GetStep();
+		   	fTrackRes.SetValue( curVol->GetName(), step );
+//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
+	   	}
+
+ 		if(curVol == stopVol) break;
+
+	   	prevVol = curVol;
+   	   	curVol  = gGeoManager->GetCurrentVolume();
+
+   	}
+   	while( (curVol != gGeoManager->GetTopVolume()) );
+
+//	//--------------------------------------------------
+//	Info("RunTracking","Runnig the Focal Plane forward Traking");
+//	//--------------------------------------------------
+   	//  direction of the tracking = inverse direction of the trajectory at the focal plane
+   	TVector3( -fRT.dirFP ).GetXYZ( dir );
+
+   	// Initializing tracking (i.e. setting both initial point and direction
+   	// and finding the state). Start from the FP intersection point
+   	gGeoManager->InitTrack( XYZ_FP, dir );
+
+   	curVol   = gGeoManager->GetCurrentVolume();
+   	prevVol  = NULL;
+
+   	// move along trajectory until we hit a new volume
+   	// Stop when the point is outside the Focal Plane volume
+   	do{
+
+   	   	gGeoManager->FindNextBoundaryAndStep();
+
+	   	if( curVol != FPvol ){
+   	   	   	Double_t step = gGeoManager->GetStep();
+		   	fTrackRes.SetFirstValue( curVol->GetName(), step );
+//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
+	   	}
+
+	   	prevVol = curVol;
+   	   	curVol  = gGeoManager->GetCurrentVolume();
+
+   	}
+   	while( (curVol != gGeoManager->GetTopVolume()) );
+
+
+	if( fRT.FPtoLabWasAttempted() ){
+//		//--------------------------------------------------
+//		Info("RunTracking","Runnig the LAB Traking from target point");
+//		//--------------------------------------------------
+		Double_t XYZ_target[3] = { 0., 0., 0. };
+   		//  direction of the tracking = direction of the trajectory at the target point (lab) 
+   		fRT.dirLab.GetXYZ( dir );
+
+   		// Initializing tracking (i.e. setting both initial point and direction
+   		// and finding the state). Start from the FP intersection point
+   		gGeoManager->InitTrack( XYZ_target, dir );
+
+   		curVol   = gGeoManager->GetCurrentVolume();
+   		prevVol  = NULL;
+
+   		// move along trajectory until we hit a new volume
+   		// Stop when the point is outside the top volume or
+   		// inside the Focal Plane volume
+   		Int_t idx = 0;
+   		do{
+
+   	   		gGeoManager->FindNextBoundaryAndStep();
+
+	   		if( curVol != gGeoManager->GetTopVolume() ){
+   	   	   		Double_t step = gGeoManager->GetStep();
+		   		fTrackRes.SetValueAt( curVol->GetName(), step, idx++ );
+//	   	   		cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
+	   		}
+
+	   		prevVol = curVol;
+   	   		curVol  = gGeoManager->GetCurrentVolume();
+
+   		}
+   		while( !gGeoManager->IsOutside() && (curVol != FPvol) );
+	}
+
+
+
+//   	fTrackRes.ls();
+//	Info("RunTracking","OUT");
+//	cout<<"--------------------------------------------------"<<endl<<endl;
+}

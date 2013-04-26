@@ -16,7 +16,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 	protected:
 
-		KVVAMOSReconTrajectory fRT; //handles trajectory reconstruction data
+		KVVAMOSReconTrajectory fRT;       //handles trajectory reconstruction data
+		KVNameValueList        fTrackRes; //list of tracking results with step for each crossed detector
 
    	public:
 
@@ -30,6 +31,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void Clear(Option_t * t = "");
 		virtual void ReconstructFocalPlanTrajectory(KVList *detlist);
 		virtual void ReconstructLabTrajectory();
+		virtual void RunTracking(KVList *detlist);
 
 		//-------------- inline methods -----------------//
 
@@ -77,6 +79,9 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 			return fRT.GetPhiL();
 		}
 
+		inline KVNameValueList *GetTrackingResults(){
+			return &fTrackRes;
+		}
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };
