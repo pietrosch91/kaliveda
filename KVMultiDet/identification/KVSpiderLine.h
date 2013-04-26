@@ -32,7 +32,7 @@ class KVSpiderLine : public TNamed
   KVSpiderLine();
   KVSpiderLine(int z_, Double_t pdy_=0.);
   KVSpiderLine(int z_, int a_);
-  virtual ~KVSpiderLine(){};
+  virtual ~KVSpiderLine(){}
   
   bool AddPoint(double x_, double y_, bool test_=false, int n_=-1);
   bool AddInterpolatePoint(double x_, double y_, bool test_=false, int n_=-1);
