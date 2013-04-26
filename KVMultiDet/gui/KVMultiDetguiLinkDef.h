@@ -10,7 +10,7 @@
 #pragma link C++ class KVBrowser;
 //#pragma link C++ class KVBrowserWidget;
 //#pragma link C++ class KVBrowserNameDialog;
-#pragma link C++ class KVDetectorBrowser;
+//#pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBaseBrowser;
 //#pragma link C++ class KVLayerBrowser;
 #pragma link C++ class KVListView;

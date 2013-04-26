@@ -62,6 +62,12 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
                         fCurrentGroup->GetName());
         }
     }
+    detector->GetNode()->SetName(detector->GetName());
+    if(fLastDetector && detector!=fLastDetector) {
+        fLastDetector->GetNode()->AddBehind(detector);
+        detector->GetNode()->AddInFront(fLastDetector);
+    }
+    fLastDetector = detector;
 }
 
 void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
@@ -82,15 +88,20 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
                 nuc->SetTheta(theta);
                 nuc->SetPhi(phi);
                 fCurrentGroup = 0;
+                fLastDetector = 0;
                 PropagateEvent(evt);
                 count++;
         }
     }
+    fArray->CreateIDTelescopesInGroups();
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",
          "Imported %d detectors into array:", fArray->GetListOfDetectors()->GetEntries());
     fArray->GetListOfDetectors()->ls();
+    Info("ImportGeometry",
+         "Created %d identification telescopes in array:", fArray->GetListOfIDTelescopes()->GetEntries());
+    fArray->GetListOfIDTelescopes()->ls();
 }
 
 KVDetector* KVGeoImport::GetCurrentDetector()

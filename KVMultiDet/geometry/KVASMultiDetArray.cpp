@@ -26,7 +26,7 @@ $Id: KVMultiDetArray.cpp,v 1.91 2009/04/06 11:54:54 franklan Exp $
 #include "KVLayer.h"
 #include "KVEvent.h"
 #include "KVNucleus.h"
-#include "KVGroup.h"
+#include "KVASGroup.h"
 #include "KVRing.h"
 #include "KVTelescope.h"
 #include "KVMaterial.h"
@@ -501,7 +501,7 @@ void KVASMultiDetArray::CalculateGroupsFromGeometry()
                     while ((tobj = (KVTelescope *) nxtscp())) {      // loop over telescopes
                         if (!tobj->GetGroup()) {      // orphan telescope
 
-                            KVGroup *kvg = new KVGroup();
+                            KVASGroup *kvg = new KVASGroup();
                             kvg->SetNumber(++fGr);
                             kvg->Add(tobj);
                             //group dimensions determined by detector dimensions
@@ -516,3 +516,156 @@ void KVASMultiDetArray::CalculateGroupsFromGeometry()
             }
         }
 }
+
+void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
+{
+// The two telescopes are in angular overlap.
+// a) if neither are in groups already, create a new group to which they both belong
+// b) if one of them is in a group already, add the orphan telescope to it
+// c) if both are in groups already, merge the two groups
+    KVASGroup *kvg;
+
+    if (!kt1->GetGroup() && !kt2->GetGroup()) {  // case a)
+#ifdef KV_DEBUG
+        cout << "Making new Group from " << kt1->
+        GetName() << " and " << kt2->GetName() << endl;
+#endif
+        kvg = new KVASGroup();
+        kvg->SetNumber(++fGr);
+        kvg->Add(kt1);
+        kvg->Add(kt2);
+        kvg->Sort();              // sort telescopes in list
+        kvg->SetDimensions(kt1, kt2);     // set group dimensions from telescopes
+        //add to list
+        fGroups->Add(kvg);
+    } else if ((kvg = (KVASGroup*)(kt1->GetGroup())) && !kt2->GetGroup()) {  // case b) - kt1 is already in a group
+#ifdef KV_DEBUG
+        cout << "Adding " << kt2->GetName() << " to group " << kvg->
+        GetNumber() << endl;
+#endif
+        //add kt2 to group
+        kvg->Add(kt2);
+        kvg->Sort();              // sort telescopes
+        kvg->SetDimensions(kvg, kt2);     //adjust dimensions depending on kt2
+    } else if ((kvg = (KVASGroup*)(kt2->GetGroup())) && !kt1->GetGroup()) {  // case b) - kt2 is already in a group
+#ifdef KV_DEBUG
+        cout << "Adding " << kt1->GetName() << " to group " << kvg->
+        GetNumber() << endl;
+#endif
+        //add kt1 to group
+        kvg->Add(kt1);
+        kvg->Sort();              // sort telescopes
+        kvg->SetDimensions(kvg, kt1);     //adjust dimensions depending on kt1
+    } else if (kt1->GetGroup() != kt2->GetGroup()) {     //both telescopes already in different groups
+#ifdef KV_DEBUG
+        cout << "Merging " << kt1->GetGroup()->
+        GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
+        cout << "because of " << kt1->GetName() << " and " << kt2->
+        GetName() << endl;
+#endif
+        MergeGroups((KVASGroup*)kt1->GetGroup(), (KVASGroup*)kt2->GetGroup());
+    }
+}
+//_______________________________________________________________________________________
+void KVASMultiDetArray::MergeGroups(KVASGroup * kg1, KVASGroup * kg2)
+{
+    //Merge two existing groups into a new single group.
+
+    //look through kg1 telescopes.
+    //set their "group" to kg2.
+    //if they are not already in kg2, add them to kg2.
+    KVTelescope *tel = 0;
+    TIter next(kg1->GetTelescopes());
+    while ((tel = (KVTelescope *) next())) {
+        if (kg2->Contains(tel)) {
+            tel->SetGroup(kg2);    //make sure telescope has right group pointer
+        } else {
+            kg2->Add(tel);
+        }
+    }
+    //remove kg1 from list and destroy it
+    fGroups->Remove(kg1);
+    delete kg1;
+    //sort merged group and calculate dimensions
+    kg2->Sort();
+    kg2->SetDimensions();
+    //renumber groups and reset group counter
+    RenumberGroups();
+}
+//__________________________________________________________________________________
+KVNameValueList* KVASMultiDetArray::DetectParticle_KV(KVNucleus * part)
+{
+// Simulate detection of a single particle (nucleus) by multidetector array.
+// We look for the group in the array that the particle will hit
+//
+// If a group is found the detection of this particle
+// by the different members of the group is simulated.
+// The detectors concerned have their fEloss members set to the energy lost by the
+// particle when it crosses them.
+//
+// Returns a list (KVNameValueList pointer) of the crossed detectors with their name and energy loss
+//	if particle hits detector in array, 0 if not (i.e. particle
+// in beam pipe or dead zone of the multidetector)
+// INFO User has to delete the KVNameValueList after its use
+//
+    //find group in array hit by particle
+    KVASGroup *grp_tch = (KVASGroup*)GetGroupWithAngles(part->GetTheta(), part->GetPhi());
+    if (grp_tch) {
+#ifdef KV_DEBUG
+        cout << "DetectParticle(): found hit group---->" << endl;
+        grp_tch->Print("angles");
+#endif
+        //simulate detection of particle by this group
+        KVNameValueList*nvl= grp_tch->DetectParticle(part);
+#ifdef KV_DEBUG
+        nvl->Print();
+ #endif
+       return nvl;
+    }
+    return 0;
+}
+
+//_______________________________________________________________________________________
+
+KVGroup *KVASMultiDetArray::GetGroupWithAngles(Float_t theta, Float_t phi)
+{
+    // return pointer to group in array according to given polar coordinates
+    if (!fGroups)
+        return 0;
+    TIter next(fGroups);
+    KVGroup *obj;
+    while ((obj = (KVGroup *) next())) { // loop over group list
+        if (((KVASGroup*)obj)->IsInPolarRange(theta)
+                && ((KVASGroup*)obj)->IsInPhiRange(phi))
+            return obj;
+    }
+    return 0;                    // no group found with these coordinates
+}
+//_______________________________________________________________________________________
+
+TList *KVASMultiDetArray::GetTelescopes(Float_t theta, Float_t phi)
+{
+    //Create and fill list of telescopes at position (theta, phi) sorted
+    //according to distance from target (closest first).
+    //User must delete list after use.
+    KVASGroup *gr = (KVASGroup*)GetGroupWithAngles(theta, phi);
+    TList *tmp = 0;
+    if (gr)
+        tmp = gr->GetTelescopesWithAngles(theta, phi);
+    return tmp;
+}
+
+//_________________________________________________________________________________
+
+Double_t KVASMultiDetArray::GetTotalSolidAngle(void) {
+    // compute & return the total solid angle (msr) of the array
+    // it is the sum of solid angles of all existing KVGroups
+    Double_t ftotal_solid_angle=0.0;
+    KVASGroup *grp;
+    TIter ngrp(fGroups);
+    while ((grp = (KVASGroup *) ngrp())) {
+        ftotal_solid_angle+=grp->GetSolidAngle(); // use the KVPosition::GetSolidAngle()
+    }
+    return ftotal_solid_angle;
+}
+

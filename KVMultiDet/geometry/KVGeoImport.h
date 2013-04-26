@@ -16,6 +16,7 @@ class KVGeoImport : public KVGeoNavigator
     KVMultiDetArray* fArray;
     KVIonRangeTable* fRangeTable;
     KVGroup* fCurrentGroup;
+    KVDetector* fLastDetector;
 
     KVDetector *GetCurrentDetector();
     KVDetector* BuildDetector(TString det_name, TGeoVolume *det_vol);

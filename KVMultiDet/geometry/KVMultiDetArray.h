@@ -59,8 +59,6 @@ protected:
 
     TGeoManager* fGeoManager;//! array geometry
 
-    virtual void AddToGroups(KVTelescope * kt1, KVTelescope * kt2);
-    virtual void MergeGroups(KVGroup * kg1, KVGroup * kg2);
     virtual void RenumberGroups();
     virtual void BuildGeometry() {
         AbstractMethod("BuildGeometry");
@@ -97,11 +95,7 @@ public:
     }
 
     virtual void Build();
-    virtual void SetGroupsAndIDTelescopes();
     virtual void CreateIDTelescopesInGroups();
-    virtual void CalculateGroupsFromGeometry();
-
-    virtual void UpdateArray();
 
     virtual void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 
@@ -110,12 +104,11 @@ public:
 
     virtual KVTelescope *GetTelescope(const Char_t * name) const;
     virtual KVDetector *GetDetector(const Char_t * name) const;
-    virtual KVGroup *GetGroup(Float_t theta, Float_t phi);
     virtual KVGroup *GetGroup(const Char_t *);
     KVSeqCollection *GetGroups() const {
         return fGroups;
     }
-    TList *GetTelescopes(Float_t theta, Float_t phi);
+    virtual KVGroup *GetGroupWithAngles(Float_t theta, Float_t phi) { return 0; }
     KVSeqCollection *GetListOfDetectors() const { return fDetectors; }
     void RemoveGroup(KVGroup *);
     void RemoveGroup(const Char_t *);
@@ -133,20 +126,11 @@ public:
     virtual void DetectEvent(KVEvent * event,KVReconstructedEvent* rec_event,const Char_t* detection_frame="");
     virtual Int_t FilteredEventCoherencyAnalysis(Int_t round, KVReconstructedEvent* rec_event);
     virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
-    KVNameValueList* DetectParticle_KV(KVNucleus * part);
     KVNameValueList* DetectParticle_TGEO(KVNucleus * part);
-    KVNameValueList* DetectParticle(KVNucleus * part)
+    virtual KVNameValueList* DetectParticle(KVNucleus * part)
     {
-        // Simulate detection of a charged particle by the array.
-        // The actual method called depends on the value of fROOTGeometry:
-        //   fROOTGeometry=kTRUE:  calls DetectParticle_TGEO, particle propagation performed using
-        //               TGeo description of array and algorithms from ROOT TGeo package
-        //   fROOTGeometry=kFALSE:  calls DetectParticle_KV, uses simple KaliVeda geometry
-        //                to simulate propagation of particle
-        //
-        // The default value is given in .kvrootrc by variable KVASMultiDetArray.FilterUsesROOTGeometry
-        return (fROOTGeometry?DetectParticle_TGEO(part):DetectParticle_KV(part));
-    };
+        return DetectParticle_TGEO(part);
+    }
     void DetectParticleIn(const Char_t * detname, KVNucleus * kvp);
 
     KVIDTelescope *GetIDTelescope(const Char_t * name) const;
@@ -203,7 +187,7 @@ public:
     virtual void UpdateIdentifications();
     virtual void UpdateCalibrators();
 
-    virtual Double_t GetTotalSolidAngle(void);
+    virtual Double_t GetTotalSolidAngle(void) { return 0; }
 
     TList* GetStatusOfIDTelescopes();
     TList* GetCalibrationStatusOfDetectors();

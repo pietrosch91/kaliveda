@@ -135,10 +135,14 @@ void KVIDTelescope::AddDetector(KVDetector * d)
 {
    //Add a detector to the telescope.
    //The first detector added is the "DeltaE" member, the second the "Eresidual" member.
+    //Update name of telescope to "ID_[name of DE]_[name of E]"
 
    if (d) {
       fDetectors->Add(d);
       d->AddIDTelescope(this);
+      if(GetSize()>1)
+          SetName( Form("ID_%s_%s", GetDetector(1)->GetName(), GetDetector(2)->GetName()) );
+      else SetName( Form("ID_%s", GetDetector(1)->GetName()) );
    }
 	else {
       Warning("AddDetector", "Called with null pointer");
@@ -454,7 +458,7 @@ void KVIDTelescope::SetLabelFromURI(const Char_t* uri)
    //Sets label of telescope based on URI of plugin describing child class for this telescope
 
    TString _uri(uri);
-   if(_uri.BeginsWith( gDataSet->GetName() )) _uri.Remove(0, strlen(gDataSet->GetName())+1);
+   if(gDataSet && _uri.BeginsWith( gDataSet->GetName() )) _uri.Remove(0, strlen(gDataSet->GetName())+1);
    SetLabel(_uri.Data());
 }
 

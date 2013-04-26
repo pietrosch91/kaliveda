@@ -1,22 +1,3 @@
-/***************************************************************************
-                          kvgroup.cpp  -  description
-                             -------------------
-    begin                : Fri May 24 2002
-    copyright            : (C) 2002 by J.D. Frankland
-    email                : frankland@ganil.fr
-
-$Id: KVGroup.cpp,v 1.35 2008/01/17 15:17:20 franklan Exp $
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
 #include "Riostream.h"
 #include "KVGroup.h"
 #include "KVNucleus.h"
@@ -64,9 +45,6 @@ void KVGroup::init()
    fTelescopes->SetCleanup();
    fDetectors = new KVList(kFALSE);
    fDetectors->SetCleanup();
-   fNumberOfLayers = 0;
-   fLayNumMin = 0;
-   fLayNumMax = 0;
    fReconstructedNuclei = 0;
 }
 
@@ -74,25 +52,21 @@ void KVGroup::init()
 
 KVGroup::~KVGroup()
 {
-
-   //Set all telescope group pointers to 0
-   KVTelescope *tel = 0;
-   if (fTelescopes && fTelescopes->TestBit(kNotDeleted)) {
-      TIter next(fTelescopes);
-      while ((tel = (KVTelescope *) next()))
-         tel->SetGroup(0);
-      fTelescopes->Clear();
-      delete fTelescopes;
-   }
-   fTelescopes = 0;
+    //Set all telescope group pointers to 0
+    KVTelescope *tel = 0;
+    if (fTelescopes && fTelescopes->TestBit(kNotDeleted)) {
+       TIter next(fTelescopes);
+       while ((tel = (KVTelescope *) next()))
+          tel->SetGroup(0);
+       fTelescopes->Clear();
+       delete fTelescopes;
+    }
+    fTelescopes = 0;
    if (fReconstructedNuclei && fReconstructedNuclei->TestBit(kNotDeleted)) {
       fReconstructedNuclei->Clear();
       delete fReconstructedNuclei;
       fReconstructedNuclei = 0;
    }
-   fNumberOfLayers = 0;
-   fLayNumMin = 0;
-   fLayNumMax = 0;
    fReconstructedNuclei = 0;
    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
       fDetectors->Clear();
@@ -138,61 +112,51 @@ void KVGroup::AddTelescope(KVTelescope *kvt)
         Warning("Add", KVGROUP_ADD_UNKNOWN_TELESCOPE);
 }
 
-Bool_t KVGroup::Contains(KVTelescope * tele) const
+Bool_t KVGroup::Contains(KVDetector * tele) const
 {
-   //kTRUE if telescope belongs to this group
+   //kTRUE if detector or telescope belongs to this group
 
-   if (fTelescopes->FindObject(tele))
-      return kTRUE;
+    if (fDetectors->FindObject(tele))
+       return kTRUE;
+    if (fTelescopes->FindObject(tele))
+       return kTRUE;
    return kFALSE;
 }
 
-//_____________________________________________________________________________________
-
-void KVGroup::SetDimensions()
+void KVGroup::Destroy()
 {
-   //Set dimensions of group according to dimensions of all its telescopes.
-   KVTelescope *tel, *tel1;
-   TIter next(fTelescopes);
-   tel = (KVTelescope *) next();
-   if (!tel)
-      return;
-   tel1 = (KVTelescope *) next();
-   if (!tel1)
-      return;
-   SetDimensions(tel, tel1);
-   while ((tel = (KVTelescope *) next())) {
-      SetDimensions(this, tel);
+   //This method will destroy all the telescopes of the group and then delete the group.
+   //Is that really what you want to do ?
+   if (fTelescopes) {
+      KVTelescope *tel = 0;
+      TIter next(fTelescopes);
+      while ((tel = (KVTelescope *) next())) {
+         RemoveTelescope(tel, kTRUE);
+      }
    }
 }
 
-//_____________________________________________________________________________________
-
-void KVGroup::SetDimensions(KVPosition * p1, KVPosition * p2)
+void KVGroup::RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope,
+                              Bool_t kDeleteEmptyGroup)
 {
-   //Adjust angular dimensions of group according to theta-min/max, phi-min/max
-   //of p1 and p2, where p1 and p2 are either two telescopes or a group (most
-   //probably this group) and a telescope.
-   //For theta-min/max, it is the smallest/largest angle which is used for the group dimension.
-   //For azimuthal/phi angles, all 4 combinations of "min" and "max" are tried and the one
-   //which gives the greatest azimuthal width to the group is kept.
+   //Remove telescope from the group's list and set its fGroup member pointer = 0.
+   //By default, this does not delete the telescope (kDeleteTelescope=kFALSE)
+   //A check is made if the telescope belongs to the group.
+   //If there are no more telescopes after this, delete the group
+   //(unless kDeleteEmptyRing=kFALSE)
 
-   Float_t theta_min = TMath::Min(p1->GetThetaMin(), p2->GetThetaMin());
-   Float_t theta_max = TMath::Max(p1->GetThetaMax(), p2->GetThetaMax());
-   SetPolarMinMax(theta_min, theta_max);
-
-   KVPosition *pp[2];           //array of pointers
-   pp[0] = p1;
-   pp[1] = p2;
-   Float_t max_width = 0.;
-   for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-         if (GetAzimuthalWidth(pp[i]->GetPhiMin(), pp[j]->GetPhiMax()) >
-             max_width) {
-            SetAzimuthalMinMax(pp[i]->GetPhiMin(), pp[j]->GetPhiMax());
-            max_width = GetAzimuthalWidth();
-         }
+   if (fTelescopes) {
+      if (fTelescopes->FindObject(tel)) {
+         fTelescopes->Remove(tel);
+         tel->SetGroup(0);
+         SetBit(kIsRemoving);   //////set flag tested in KVTelescope dtor
+         if (kDeleteTelescope)
+            delete tel;
+         ResetBit(kIsRemoving); //unset flag tested in KVTelescope dtor
       }
+      CountLayers();            //update
+      if (fTelescopes->GetSize() == 0 && kDeleteEmptyGroup)
+         Delete();
    }
 }
 
@@ -201,7 +165,6 @@ void KVGroup::SetDimensions(KVPosition * p1, KVPosition * p2)
 void KVGroup::Print(Option_t * opt) const
 {
 //Print out the characteristics of the group and its member telescopes.
-//  --> KVGroup::Print("angles") prints out the ranges in theta and phi of the group.
 //  --> KVGroup::Print() just prints out all the detectors in the group.
 //  --> KVGroup::Print("fired") only print fired detectors (i.E. KVDetector::Fired()==kTRUE)
    TIter next(fDetectors);
@@ -212,8 +175,7 @@ void KVGroup::Print(Option_t * opt) const
       }
    } else {
       cout << "\n";
-      if (strcmp(opt, "angles"))
-         cout << opt;
+      cout << opt;
       cout << "Structure of KVGroup object: ";
       if (strcmp(GetName(), "")) {
          cout << GetName();
@@ -221,102 +183,13 @@ void KVGroup::Print(Option_t * opt) const
          cout << GetNumber();
       }
       cout << endl;
-      if (strcmp(opt, "angles"))
-         cout << opt;
+      cout << opt;
       cout << "--------------------------------------------------------" <<
           endl;
-      if (!strcmp(opt, "angles")) {
-         cout << "Thetamin=" << GetThetaMin() << " Thetamax=" <<
-             GetThetaMax()
-             << " Phimin=" << GetPhiMin() << " Phimax=" << GetPhiMax() <<
-             endl;
-      }
       while ((obj = (KVDetector *) next())) {
          obj->Print("        ");
       }
    }
-}
-
-//_____________________________________________________________________________________
-
-void KVGroup::Sort()
-{
-   //Make sure telescopes are ordered by increasing layer number i.e. increasing distance from target.
-   //This is so that when simulating the energy losses of a charged particle passing
-   //through the telescopes of the group, we get it in the right order!
-
-   fTelescopes->Sort();
-}
-
-//_____________________________________________________________________________________
-
-KVNameValueList*  KVGroup::DetectParticle(KVNucleus * part)
-{
-   //Calculate energy losses of a charged particle traversing the telescopes of the group.
-	//This method return a list of TNamed where each detector which is throught in the particle
-	//are written with the corrresponding energy loss
-	//WARNING : this KVNameValueList has to be deleted by the user
-	//				after use
-	//return 0 if no telescope are on the path of the particle (DEAD zone)
-   TList *d = GetTelescopes(part->GetTheta(), part->GetPhi());
-   if (d) {
-      TIter nextd(d);
-      KVTelescope *t = 0;
-      KVNameValueList* nvl = new KVNameValueList();
-		while ((t = (KVTelescope *) nextd())) {
-         t->DetectParticle(part,nvl);
-         if (part->GetEnergy() <= 0.0){
-				delete d;
-				return nvl;
-			}	
-		}
-      delete d;
-   	return nvl;
-	}
-	return 0;
-}
-
-//_____________________________________________________________________________________
-
-TList *KVGroup::GetTelescopes(Float_t theta, Float_t phi) const
-{
-   //Create and fill list of telescopes in group at position (theta,phi),
-   //sorted according to distance from target (smallest layer number i.e. closest first).
-   //User must delete list after use.
-
-   TIter next(fTelescopes);
-   KVTelescope *t;
-   TList *list = 0;
-   while ((t = (KVTelescope *) next())) {
-      if (t->IsInPolarRange(theta) && t->IsInPhiRange(phi)) {
-         if (!list)
-            list = new TList;
-         list->Add(t);
-      }
-   }
-   if (list)
-      list->Sort();
-   return list;
-}
-
-//_____________________________________________________________________________________
-
-TList *KVGroup::GetTelescopesInLayer(UInt_t nlayer)
-{
-   //Create and fill list of telescopes belonging to Layer number nlayer in the group.
-   //User must delete list after use.
-
-   TIter next(fTelescopes);
-   KVTelescope *t;
-   TList *list = 0;
-   while ((t = (KVTelescope *) next())) {
-      if (t->GetLayerNumber() == nlayer) {
-         if (!list)
-            list = new TList;
-         list->Add(t);
-      }
-   }
-   return list;
 }
 
 //________________________________________________________________________________
@@ -325,7 +198,7 @@ KVDetector *KVGroup::GetDetector(const Char_t * name)
 {
    //find named detector in group
 
-   KVDetector *det = (KVDetector *) GetDetectors()->FindObjectByName(name);
+   KVDetector *det = (KVDetector *) fDetectors->FindObject(name);
    return det;
 }
 
@@ -391,182 +264,8 @@ void KVGroup::RemoveHit(KVReconstructedNucleus * kvd)
    }
 }
 
-//_________________________________________________________________________________
 
-void KVGroup::CountLayers()
-{
-   //Count the number of different layers to which telescopes in the group belong.
-   //This is based on different layers having different numbers.
-   //The layer closest to the target is assumed to have the smallest layer number,
-   //the layer furthest from the target is assumed to have the largest layer number.
-   fNumberOfLayers = 0;
-   fLayNumMin = 99;
-   fLayNumMax = 0;
-   if (fTelescopes) {
-      TIter ntel(fTelescopes);
-      KVTelescope *tel;
-      UInt_t laynums[10];
-      while ((tel = (KVTelescope *) ntel())) {
-         if (fNumberOfLayers) {
-            Bool_t found = kFALSE;
-            //Check to make sure layer number not already in array
-            for (UInt_t i = 0; i < fNumberOfLayers; i++) {
-               if (tel->GetLayerNumber() == laynums[i])
-                  found = kTRUE;
-            }
-            if (!found) {
-               laynums[fNumberOfLayers++] = tel->GetLayerNumber();
-               if (fNumberOfLayers > 9) {
-                  Warning("CountLayers", "Too many layers in group");
-               }
-               if (tel->GetLayerNumber() > fLayNumMax)
-                  fLayNumMax = tel->GetLayerNumber();
-               if (tel->GetLayerNumber() < fLayNumMin)
-                  fLayNumMin = tel->GetLayerNumber();
-            }
-         } else {
-            laynums[fNumberOfLayers++] = tel->GetLayerNumber();
-            if (fNumberOfLayers > 9) {
-               Warning("CountLayers", "Too many layers in group");
-            }
-            if (tel->GetLayerNumber() > fLayNumMax)
-               fLayNumMax = tel->GetLayerNumber();
-            if (tel->GetLayerNumber() < fLayNumMin)
-               fLayNumMin = tel->GetLayerNumber();
-         }
-      }
-   }
-}
 
-//_________________________________________________________________________________
-
-UInt_t KVGroup::GetLayerNearestTarget() const
-{
-   //
-   //Returns the layer number of the layer in the group which is nearest to the target
-   //i.e. the layer with the smallest layer number
-   //
-   if (!fLayNumMin)
-      ((KVGroup *) this)->CountLayers();
-   return fLayNumMin;
-}
-
-//_________________________________________________________________________________
-
-UInt_t KVGroup::GetLayerFurthestTarget() const
-{
-   //
-   //Returns the layer number of the layer in the group which is furthest from the target
-   //i.e. the layer with the largest layer number
-   //
-
-   if (!fLayNumMax)
-      ((KVGroup *) this)->CountLayers();
-   return fLayNumMax;
-}
-
-//_________________________________________________________________________________
-
-UInt_t KVGroup::GetNumberOfDetectorLayers()
-{
-   //Returns the total number of detector layers in the group,
-   //including counting the detectors inside the telescopes
-
-   UInt_t ndl = 0;
-   UInt_t imin = GetLayerNearestTarget();
-   UInt_t imax = GetLayerFurthestTarget();
-   for (UInt_t i = imin; i <= imax; i++) {
-      TList *list = GetTelescopesInLayer(i);
-      //note we take the max number of detectors in telescopes of layer i
-      Int_t max=0;
-		if (list) {
-      	TIter it(list);
-			KVTelescope* tel = 0;
-			while ( (tel = (KVTelescope* )it.Next()) )
-				if (max<tel->GetDetectors()->GetSize())
-					max = tel->GetDetectors()->GetSize();
-			ndl+= max;
-		//
-		//before it was assume that all telescopes in same layer are identically constructed
-		//	ndl += ((KVTelescope *) list->At(0))->GetDetectors()->GetSize();
-      //
-		   delete list;
-      }
-   }
-
-   return ndl;
-}
-
-//_________________________________________________________________________________
-
-TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
-{
-   //Creates and fills a list with all the detectors in the "detector layer"
-   //lay. Detector layers are always numbered from 1 (nearest target) to
-   //GetNumberOfDetectorLayers().
-   //Delete list after use.
-
-	if (lay < 1)
-      return 0;
-   UInt_t ndl = 0;
-   UInt_t imin = GetLayerNearestTarget();
-   UInt_t imax = GetLayerFurthestTarget();
-   for (UInt_t i = imin; i <= imax; i++) {
-      TList *tlist = GetTelescopesInLayer(i);
-      if (tlist) {
-         //note we take the max number of detectors in telescopes of layer i
-         Int_t max=0;
-			TIter it(tlist);
-			KVTelescope* tel = 0;
-			while ( (tel = (KVTelescope* )it.Next()) )
-				if (max<tel->GetDetectors()->GetSize())
-					max = tel->GetDetectors()->GetSize();
-			ndl += max;
-			//
-			//before it was assume that all telescopes in same layer are identically constructed
-			//ndl += ((KVTelescope *) tlist->At(0))->GetDetectors()->GetSize();
-         //
-			if (ndl >= lay) {
-            //the required detector layer is in the telescopes in the list
-
-            //calculate rank of detectors in telescopes
-            UInt_t rank = max - ndl + lay;
-				TIter next(tlist);
-            KVTelescope *tel;
-            TList *list = new TList;
-            while ((tel = (KVTelescope *) next())) {
-               if (rank<=tel->GetSize())
-						list->Add(tel->GetDetector(rank));
-            }
-            delete tlist;
-            return list;
-         }
-         delete tlist;
-      }
-   }
-   return 0;
-	
-}
-
-//_________________________________________________________________________________
-
-UInt_t KVGroup::GetDetectorLayer(KVDetector * det)
-{
-   //Find the "detector layer" to which this detector belongs
-
-   TList *list;
-   for (UInt_t i = 1; i <= GetNumberOfDetectorLayers(); i++) {
-      list = GetDetectorsInLayer(i);
-      if (list->FindObject(det)) {
-         delete list;
-         return i;
-      }
-      delete list;
-   }
-   return 0;
-}
-
-//_________________________________________________________________________________
 
 TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
 {
@@ -580,41 +279,28 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
 
    TList *tmp = new TList;
 
-   UInt_t last_layer = GetDetectorLayer(det);
-   UInt_t first_layer = 1;
-
-   if (dir == kForwards) {
-      for (UInt_t lay = first_layer; lay <= last_layer; lay++) {
-         TList *dets = GetDetectorsInLayer(lay);
-         if (dets) {
-            TIter next(dets);
-            KVDetector *d2;
-            while ((d2 = (KVDetector *) next())) {
-               if (d2->GetTelescope()->
-                   IsOverlappingWith(det->GetTelescope())) {
-                  tmp->Add(d2);
-               }
-				}
-            delete dets;
-         }
-      }
-   } else {
-      for (UInt_t lay = last_layer; lay >= first_layer; lay--) {
-         TList *dets = GetDetectorsInLayer(lay);
-         if (dets) {
-            TIter next(dets);
-            KVDetector *d2;
-            while ((d2 = (KVDetector *) next())) {
-               if (d2->GetTelescope()->
-                   IsOverlappingWith(det->GetTelescope())) {
-                  tmp->Add(d2);
-               }
-				}
-            delete dets;
-         }
-      }
+   while(det){
+       tmp->Add(det);
+       KVDetectorNode* node = det->GetNode();
+       KVSeqCollection* infront = node->GetDetectorsInFront();
+       if(!infront) break;
+       if(infront->GetEntries()>1){
+           Warning("GetAlignedDetectors",
+                   "No unique solution. There are %d detectors in front of %s.",
+                   infront->GetEntries(), det);
+           return 0;
+       }
+       else
+           det = (KVDetector*)infront->First();
    }
 
+   if (dir == kForwards) {
+       TIter next(tmp, kIterBackward );
+       TList* tmp2 = new TList;
+       while( (det = (KVDetector*)next()) ) tmp2->Add(det);
+       delete tmp;
+       tmp=tmp2;
+    }
    return tmp;
 }
 
@@ -627,78 +313,28 @@ void KVGroup::GetIDTelescopes(TCollection * tel_list)
    //the list pointed to by tel_list.
    //USER'S RESPONSIBILITY TO DELETE CONTENTS OF LIST!!
    //
-   //Starting from each detector in the "detector layer" furthest from the
-   //target, we build ID telescopes from all pairs of aligned detectors.
-   //We then continue up through the layers of the group
+   //Starting from each detector in the group,
+   //we build ID telescopes from all pairs of aligned detectors.
    //
    //For each pair of detectors, it is KVMultiDetArray::GetIDTelescopes
    //which determines which KVIDTelescope class to use (specialise this method
    //in KVMultiDetArray child classes). It must also make sure that
-   //each IDTelescope is added only once (i.e. check it is not already in the
-   //list).
+   //each IDTelescope is added only once (i.e. check it is not already in the list).
 
-   TList *det_lay;
-   for (int lay = GetNumberOfDetectorLayers(); lay > 0; lay--) {
-
-      det_lay = GetDetectorsInLayer(lay);
-      if (det_lay) {
-
-         TIter next_det(det_lay);
+         TIter next_det(fDetectors);
          KVDetector *det;
 			
          while ((det = (KVDetector *) next_det())) {
 				if ( det->IsOK() ){
 					//1st call: create ID telescopes, they will be added to the
             	//gMultiDetArray list of IDTelescopes
-            	det->GetAlignedIDTelescopes(tel_list);
+                det->GetAlignedIDTelescopes(tel_list);
             	//2nd call: set up in the detector a list of pointers to the
             	//ID telescopes made up of it and all aligned detectors in front
             	//of it
             	det->GetAlignedIDTelescopes(0);
 				}
 			}
-         delete det_lay;
-      }
-   }
-}
-
-//_________________________________________________________________________________
-
-void KVGroup::Destroy()
-{
-   //This method will destroy all the telescopes of the group and then delete the group.
-   //Is that really what you want to do ?
-   if (fTelescopes) {
-      KVTelescope *tel = 0;
-      TIter next(fTelescopes);
-      while ((tel = (KVTelescope *) next())) {
-         RemoveTelescope(tel, kTRUE);
-      }
-   }
-}
-
-void KVGroup::RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope,
-                              Bool_t kDeleteEmptyGroup)
-{
-   //Remove telescope from the group's list and set its fGroup member pointer = 0.
-   //By default, this does not delete the telescope (kDeleteTelescope=kFALSE)
-   //A check is made if the telescope belongs to the group.
-   //If there are no more telescopes after this, delete the group
-   //(unless kDeleteEmptyRing=kFALSE)
-
-   if (fTelescopes) {
-      if (fTelescopes->FindObject(tel)) {
-         fTelescopes->Remove(tel);
-         tel->SetGroup(0);
-         SetBit(kIsRemoving);   //////set flag tested in KVTelescope dtor
-         if (kDeleteTelescope)
-            delete tel;
-         ResetBit(kIsRemoving); //unset flag tested in KVTelescope dtor
-      }
-      CountLayers();            //update
-      if (fTelescopes->GetSize() == 0 && kDeleteEmptyGroup)
-         Delete();
-   }
 }
 
 //______________________________________________________________________________________//
@@ -835,27 +471,6 @@ void KVGroup::AnalyseParticles()
    Info("AnalyseGroups", "OK after analysis of particles in groups");
 #endif
 }
-
-#if defined(R__MACOSX)
-UInt_t KVGroup::GetNIdentified()
-{
-   //number of identified particles reconstructed in group
-   UInt_t n = 0;
-   if (GetHits()) {
-      TIter next(fReconstructedNuclei);
-      KVReconstructedNucleus *nuc = 0;
-      while ((nuc = (KVReconstructedNucleus *) next()))
-         n += (UInt_t) nuc->IsIdentified();
-   }
-   return n;
-};
-
-UInt_t KVGroup::GetNUnidentified()
-{
-   //number of unidentified particles reconstructed in group
-   return (GetHits() - GetNIdentified());
-};
-#endif
 
 void KVGroup::ClearHitDetectors()
 {

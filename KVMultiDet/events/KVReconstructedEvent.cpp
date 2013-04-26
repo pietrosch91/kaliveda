@@ -135,59 +135,7 @@ Bool_t KVReconstructedEvent::AnalyseGroup(KVGroup * kvg)
 {
    //loop over telescopes of group, from the last layers (furthest from target) inwards
 
-   if (!kvg)
-      Error("AnalyseGroup", "KVGroup pointer argument is null");
-
-   UInt_t nLayers = kvg->GetNumberOfLayers();
-
-   UInt_t initial_hits_in_group = kvg->GetHits();
-
-   if (nLayers > 1) {
-      //multilayer group
-      //Start with layer furthest from target and work inwards (but don't look at layer
-      //nearest to target)
-      for (UInt_t i = kvg->GetLayerFurthestTarget();
-           i > kvg->GetLayerNearestTarget(); i--) {
-         TList *teles = kvg->GetTelescopesInLayer(i);
-         if (teles) {
-            AnalyseTelescopes(teles);
-            delete teles;
-         }
-      }
-
-
-      //if nothing has been found, then check for particles stopping in layer nearest target
-      if (kvg->GetHits() == initial_hits_in_group) {
-         TList *teles =
-             kvg->GetTelescopesInLayer(kvg->GetLayerNearestTarget());
-         if (teles) {
-            AnalyseTelescopes(teles);
-            delete teles;
-         }
-      }
-
-   } else {
-      //single layer group
-#ifdef KV_DEBUG
-      Info("AnalyseGroup", "Single layer group");
-#endif
-      //for a single layer group we should have
-      //kvg->GetLayerNearestTarget() = kvg->GetLayerFurthestTarget()
-      //so we can use either one as argument for kvg->GetTelescopesInLayer
-      TList *teles =
-          kvg->GetTelescopesInLayer(kvg->GetLayerNearestTarget());
-      if (teles) {
-         AnalyseTelescopes(teles);
-         delete teles;
-      }
-   }
-
-#ifdef KV_DEBUG
-   Info("AnalyseGroup", "OK after analysis of hit groups");
-#endif
-
-   //perform first-order coherency analysis (set fAnalStatus for each particle)
-   kvg->AnalyseParticles();
+    kvg->AnalyseAndReconstruct(this);
 
    return kTRUE;
 }

@@ -1,23 +1,3 @@
-/***************************************************************************
-                          kvgroup.h  -  description
-                             -------------------
-    begin                : Fri May 24 2002
-    copyright            : (C) 2002 by J.D. Frankland
-    email                : frankland@ganil.fr
-
-$Id: KVGroup.h,v 1.25 2007/01/04 16:38:50 franklan Exp $
-
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
 #ifndef KVGROUP_H
 #define KVGROUP_H
 
@@ -30,19 +10,17 @@ $Id: KVGroup.h,v 1.25 2007/01/04 16:38:50 franklan Exp $
 class KVDetector;
 class KVNucleus;
 class KVNameValueList;
+class KVReconstructedEvent;
 class KVReconstructedNucleus;
 class KVMultiDetArray;
 
-class KVGroup : public KVBase, public KVPosition {
-   enum {
-      kIsRemoving = BIT(14)     //flag set during call to RemoveTelescope
-   };
+class KVGroup : public KVBase {
  protected:
-    KVList * fTelescopes;       //->Sorted list of telescopes belonging to the group.
+    enum {
+       kIsRemoving = BIT(14)     //flag set during call to RemoveTelescope
+    };
+   KVList * fTelescopes;       //->Sorted list of telescopes belonging to the group.
    KVList *fDetectors;          //->list of all detectors in group
-   UInt_t fNumberOfLayers;      //number of different layers in group
-   UInt_t fLayNumMin;           //minimum layer number (nearest to target)
-   UInt_t fLayNumMax;           //maximum layer number (furthest from target)
    KVList *fReconstructedNuclei;        //!Particles reconstructed in this group
 	
  public:
@@ -60,34 +38,17 @@ class KVGroup : public KVBase, public KVPosition {
    };
    void AddDetector(KVDetector *);
    void Add(KVDetector *);
-   void AddTelescope(KVTelescope *);
-   Bool_t Contains(KVTelescope *) const;
-   void Reset();
-   virtual void Print(Option_t * t = "") const;
    KVList *GetTelescopes() const {
       return fTelescopes;
    };
-   TList *GetTelescopes(Float_t theta, Float_t phi) const;
+   virtual UInt_t GetNumberOfDetectorLayers() { return 0; }
+   void AddTelescope(KVTelescope *);
    void SetTelescopes(KVList * list);
-   void SetDimensions(KVPosition *, KVPosition *);
-   void SetDimensions();
+   void Reset();
+   virtual void Print(Option_t * t = "") const;
    KVDetector *GetDetector(const Char_t * name);
    KVTelescope *GetTelescope(const Char_t * name);
-   void Sort();
-	KVNameValueList* DetectParticle(KVNucleus * part);
-   UInt_t GetNumberOfLayers() {
-      if (!fNumberOfLayers)
-         CountLayers();
-      return fNumberOfLayers;
-   };
-   void CountLayers();
-   UInt_t GetLayerNearestTarget() const;
-   UInt_t GetLayerFurthestTarget() const;
-   TList *GetTelescopesInLayer(UInt_t nlayer);
-   UInt_t GetNumberOfDetectorLayers();
-   TList *GetDetectorsInLayer(UInt_t lay);
-   TList *GetAlignedDetectors(KVDetector *, UChar_t dir = kBackwards);
-   UInt_t GetDetectorLayer(KVDetector * det);
+   virtual TList *GetAlignedDetectors(KVDetector *, UChar_t dir = kBackwards);
 
    inline UInt_t GetHits() {
       if (fReconstructedNuclei)
@@ -96,51 +57,47 @@ class KVGroup : public KVBase, public KVPosition {
          return 0;
    };
    void ClearHitDetectors();
-#if !defined(R__MACOSX)
    inline UInt_t GetNIdentified();
    inline UInt_t GetNUnidentified();
-#else
-   UInt_t GetNIdentified();
-   UInt_t GetNUnidentified();
-#endif
    KVList *GetParticles() {
       return fReconstructedNuclei;
    }
    void AddHit(KVReconstructedNucleus * kvd);
    void RemoveHit(KVReconstructedNucleus * kvd);
+   Bool_t Contains(KVDetector *) const;
 
-   void Destroy();
-   void RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope =
-                        kFALSE, Bool_t kDeleteEmptyGroup = kTRUE);
-
-   void GetIDTelescopes(TCollection *);
+  virtual void GetIDTelescopes(TCollection *);
 
    Bool_t IsRemoving() {
       return TestBit(kIsRemoving);
    }
+   virtual void Sort(){};
+   virtual void CountLayers(){};
 
    KVList *GetDetectors() const {return fDetectors; }
 
    void AnalyseParticles();
-   inline Bool_t Fired(Option_t * opt = "any") const;
-	void PrepareModif(KVDetector* );
-	
-	
-   ClassDef(KVGroup, 1)         //Group of telescopes in different layers having similar angular positions.
+   inline virtual Bool_t Fired(Option_t * opt = "any") const;
+    void PrepareModif(KVDetector* );
+    virtual void AnalyseAndReconstruct(KVReconstructedEvent *) { AbstractMethod("AnalyseAndReconstruct"); }
+   void Destroy();
+   void RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope =
+                        kFALSE, Bool_t kDeleteEmptyGroup = kTRUE);
+
+   ClassDef(KVGroup, 1)//Group of detectors having similar angular positions.
 };
 
 inline Bool_t KVGroup::Fired(Option_t * opt) const
 {
-   //returns kTRUE if at least one telescope in group has KVTelescope::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
-   KVTelescope *tel;
-   TIter nxt(fTelescopes);
-   while ((tel = (KVTelescope *) nxt()))
+   //returns kTRUE if at least one detector in group has KVDetector::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
+   KVDetector *tel;
+   TIter nxt(fDetectors);
+   while ((tel = (KVDetector *) nxt()))
       if (tel->Fired(opt))
          return kTRUE;
    return kFALSE;
 }
 
-#if !defined(R__MACOSX)
 #ifndef KVRECONSTRUCTEDNUCLEUS_H
 #include "KVReconstructedNucleus.h"
 #endif
@@ -161,6 +118,5 @@ inline UInt_t KVGroup::GetNUnidentified()
    //number of unidentified particles reconstructed in group
    return (GetHits() - GetNIdentified());
 };
-#endif
 
 #endif

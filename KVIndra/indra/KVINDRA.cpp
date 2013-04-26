@@ -1043,11 +1043,17 @@ void KVINDRA::FillListsOfDetectorsByType()
 //_______________________________________________________________________________________
 void KVINDRA::UpdateArray()
 {
+    //must be called if modifications are made to array structure after initial construction...
+    //can be redefined by specific (derived) detector array classes
     // Updates pointer to chio layer if necessary (it may have been removed),
-    // then performs normal update KVASMultiDetArray::UpdateArray()
 
 	fChIoLayer = GetLayer("CHIO");
-    KVASMultiDetArray::UpdateArray();
+    MakeListOfDetectors();
+    SetGroupsAndIDTelescopes();
+    SetACQParams();
+    SetCalibrators();
+    SetIdentifications();
+    SetDetectorThicknesses();
 }
 
 //_________________________________________________________________________________________
@@ -1092,12 +1098,15 @@ void KVINDRA::SetNamesChIo()
 
 void KVINDRA::SetGroupsAndIDTelescopes()
 {
-   //Overrides KVMDA method to add INDRA-specific numbering of ChIo according to
-   //smallest ring,module of csi behind the cell
+    //Find groups of telescopes in angular alignment placed on different layers.
+    //List is in fGroups.
+    //Also creates all ID telescopes in array and stores them in fIDTelescopes.
+    //Any previous groups/idtelescopes are deleted beforehand.
+    CalculateGroupsFromGeometry();
 
-   KVASMultiDetArray::SetGroupsAndIDTelescopes();
+    //now read list of groups and create list of ID telescopes
+    CreateIDTelescopesInGroups();
    SetNamesChIo();
-
 }
 
 KVChIo *KVINDRA::GetChIoOf(const Char_t * detname)

@@ -12,7 +12,7 @@ ETC_DATA = data
 ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVReg*.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
+NOT_READY := daq_cec/KVReg*.cpp gui/KVDetectorBrowser.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += daq_cec/GT*.cpp analysis/KVGANILDataReader.cpp analysis/KVRawDataAnalyser.cpp
 endif

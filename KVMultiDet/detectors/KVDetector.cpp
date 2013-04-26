@@ -71,7 +71,6 @@ void KVDetector::init()
    //default initialisations
    fModules = 0;
    fCalibrators = 0;
-   fBrowser = 0;
    fACQParams = 0;
    fParticles = 0;
    fSegment = 0;
@@ -163,7 +162,6 @@ KVDetector::~KVDetector()
    SafeDelete(fIDTelescopes);
    SafeDelete(fModules);
    SafeDelete(fCalibrators);
-   SafeDelete(fBrowser);
    SafeDelete(fParticles);
    delete fAbsorbers;
    SafeDelete(fACQParams);
@@ -432,32 +430,6 @@ Bool_t KVDetector::AddCalibrator(KVCalibrator * cal)
    if(fCalibrators->FindObject(cal)) return kFALSE;
    fCalibrators->Add(cal);
    return kTRUE;
-}
-
-//______________________________________________________________________________
-void KVDetector::StartBrowser()
-{
-//
-//open graphical configuration tool for this detector
-//
-   if (gROOT->IsBatch()) {
-      fprintf(stderr, "Browser cannot run in batch mode\n");
-   }
-   if (!fBrowser)
-      fBrowser = new KVDetectorBrowser(gClient->GetRoot(), this, 10, 10);
-}
-
-//______________________________________________________________________________
-void KVDetector::CloseBrowser()
-{
-//
-//close graphical configuration tool for this detector
-//
-   if (fBrowser) {
-      Warning("CloseBrowser", "Closing browser for %s", GetName());
-      delete fBrowser;
-      fBrowser = 0;
-   }
 }
 
 //_______________________________________________________________________________
@@ -1640,7 +1612,7 @@ void KVDetector::SetPresent(Bool_t present)
 	else {
 		
         if (!GetGroup()){
-            KVGroup* gr = gMultiDetArray->GetGroup(GetTheta(), GetPhi());
+            KVGroup* gr = gMultiDetArray->GetGroupWithAngles(GetTheta(), GetPhi());
 			
 			gr->PrepareModif(this);
 			
@@ -1680,7 +1652,7 @@ void KVDetector::SetDetecting(Bool_t detecting)
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}		
 	else {
-        KVGroup* gr = gMultiDetArray->GetGroup(GetTheta(),GetPhi());
+        KVGroup* gr = gMultiDetArray->GetGroupWithAngles(GetTheta(),GetPhi());
 		gr->PrepareModif(this);
 		gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 	}

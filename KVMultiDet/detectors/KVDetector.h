@@ -33,8 +33,8 @@ $Id: KVDetector.h,v 1.71 2009/05/22 14:45:40 ebonnet Exp $
 #include "KVNucleus.h"
 #include "KVACQParam.h"
 #include "Binary_t.h"
+#include <KVDetectorNode.h>
 
-class KVDetectorBrowser;
 class KVRing;
 class KVGroup;
 class KVModule;
@@ -49,11 +49,9 @@ class KVLayer;
 
 class KVDetector:public KVMaterial, public KVPosition {
 
-   friend class KVDetectorBrowser;
-
  private:
+    KVDetectorNode fNode;//positioning information relative to other detectors
  	static Int_t fDetCounter;
-    KVDetectorBrowser * fBrowser;       //! GUI for viewing and modifying characteristics
    Short_t fActiveLayer;        //The active absorber in the detector
    KVTelescope *fTelescope;     //reference to telescope to which detector belongs
    KVList *fIDTelescopes;       //->list of ID telescopes to which detector belongs
@@ -155,6 +153,7 @@ class KVDetector:public KVMaterial, public KVPosition {
 		while( (mat = (KVMaterial*)next()) ) fTotThickness += mat->GetThickness();
 		return fTotThickness;
 	};
+    KVDetectorNode* GetNode() { return &fNode; }
 
    const Char_t *GetMaterialName() const {
       if (GetActiveLayer())
@@ -225,9 +224,6 @@ class KVDetector:public KVMaterial, public KVPosition {
       Clear();
    };
    virtual void Print(Option_t * option = "") const;
-
-   virtual void StartBrowser();
-   virtual void CloseBrowser();
 
    void AddHit(KVNucleus * part)
    {

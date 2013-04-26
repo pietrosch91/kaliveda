@@ -23,6 +23,7 @@ $Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
 #include "KVMultiDetArray.h"
 #include "KVLayer.h"
 class KVRing;
+class KVASGroup;
 
 class KVASMultiDetArray : public KVMultiDetArray {
 
@@ -31,13 +32,30 @@ protected:
 
     KVSeqCollection *fLayers;             //-> list of layers in array sorted by layer number
 
+    virtual void AddToGroups(KVTelescope * kt1, KVTelescope * kt2);
     void SetGroups(KVLayer *, KVLayer *);
     void UpdateGroupsInRings(KVRing * r1, KVRing * r2);
     void MakeListOfDetectors();
+    virtual void MergeGroups(KVASGroup * kg1, KVASGroup * kg2);
+    KVNameValueList* DetectParticle_KV(KVNucleus * part);
 public:
     KVASMultiDetArray();
     virtual ~ KVASMultiDetArray();
     void init();
+    virtual KVGroup *GetGroupWithAngles(Float_t theta, Float_t phi);
+    TList *GetTelescopes(Float_t theta, Float_t phi);
+    virtual KVNameValueList* DetectParticle(KVNucleus * part)
+    {
+        // Simulate detection of a charged particle by the array.
+        // The actual method called depends on the value of fROOTGeometry:
+        //   fROOTGeometry=kTRUE:  calls DetectParticle_TGEO, particle propagation performed using
+        //               TGeo description of array and algorithms from ROOT TGeo package
+        //   fROOTGeometry=kFALSE:  calls DetectParticle_KV, uses simple KaliVeda geometry
+        //                to simulate propagation of particle
+        //
+        // The default value is given in .kvrootrc by variable KVASMultiDetArray.FilterUsesROOTGeometry
+        return (fROOTGeometry?DetectParticle_TGEO(part):DetectParticle_KV(part));
+    };
 
     void AddLayer();
     void AddLayer(KVLayer * kvl);
@@ -81,6 +99,7 @@ public:
 
     virtual void Print(Option_t * opt = "") const;
     TGeoManager *CreateGeoManager(Double_t dx, Double_t dy, Double_t dz);
+    virtual Double_t GetTotalSolidAngle(void);
 
     ClassDef(KVASMultiDetArray, 1) //Azimuthally-symmetric multidetector arrays
 };

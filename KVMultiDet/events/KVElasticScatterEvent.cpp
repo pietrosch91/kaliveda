@@ -9,8 +9,8 @@ $Date: 2009/01/14 15:35:50 $
 
 #include "KVElasticScatterEvent.h"
 #include "KVPosition.h"
-#include "KVMultiDetArray.h"
-#include "KVGroup.h"
+#include "KVASMultiDetArray.h"
+#include "KVASGroup.h"
 #include "KVDetector.h"
 #include "KVTelescope.h"
 #include "TH2F.h"
@@ -1019,14 +1019,14 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
 		pmin = pos_obj->GetPhiMin();
 		pmax = pos_obj->GetPhiMax();
 	}
-	else if (obj->InheritsFrom("KVMultiDetArray")){
-		KVMultiDetArray* pos_obj=(KVMultiDetArray* )obj;
+    else if (obj->InheritsFrom("KVASMultiDetArray")){
+        KVASMultiDetArray* pos_obj=(KVASMultiDetArray* )obj;
 		KVSeqCollection* ll = pos_obj->GetGroups();
-		KVGroup* gr=0;
+        KVASGroup* gr=0;
 		Double_t tmin2=180,tmax2=0;
 		Double_t pmin2=360,pmax2=0;
 		for (Int_t nl=0;nl<ll->GetEntries();nl+=1){
-			gr = (KVGroup* )ll->At(nl);
+            gr = (KVASGroup* )ll->At(nl);
 			if (gr->GetThetaMin()<tmin2) 	tmin2 = gr->GetThetaMin();
 			if (gr->GetThetaMax()>tmax2) 	tmax2 = gr->GetThetaMax();
 			if (gr->GetPhiMin()<pmin2) 	pmin2 = gr->GetPhiMin();
