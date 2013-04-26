@@ -27,6 +27,7 @@ class KVVAMOS : public KVDetector //public KVBase
 
 	protected:
 
+		TGeoRotation *fRotation;//!rotation matrix around the target
 		Double_t fAngle;       //!Angular rotation around the target (deg)
 		Double_t fBrhoRef;     //!Reference magnetic rigidity (T.m)
 		Double_t fBeamHF;      //!High frequency of the beam (MHz)
@@ -92,6 +93,7 @@ class KVVAMOS : public KVDetector //public KVBase
 	   		return (KVDetector*)fDetectors->FindObject(name);
    		}
 
+		inline TGeoVolume* GetFocalPlanVolume() const     { return fFPvolume;      }
    		inline TGeoHMatrix GetFocalToTargetMatrix() const { return fFocalToTarget; }
    		inline KVList* GetListOfDetectors()   { return fDetectors;  }
    		inline KVList* GetVACQParamList()     { return fVACQParams; }
@@ -118,18 +120,27 @@ class KVVAMOS : public KVDetector //public KVBase
 			return (id/10000)%10;
 		}
 
-		Double_t GetAngle()      const{ return fAngle;   }
-		Double_t GetBrhoRef()    const{ return fBrhoRef; }
-		Double_t GetBeamHF()     const{ return fBeamHF;  }
-		Double_t GetBeamPeriod() const{
+		inline Double_t GetAngle()      const{return fAngle;    }
+		inline Double_t GetBrhoRef()    const{ return fBrhoRef; }
+		inline Double_t GetBeamHF()     const{ return fBeamHF;  }
+		inline Double_t GetBeamPeriod() const{
 			//Return the beam period in ns
  		   	return 1.e3/fBeamHF;
   	  	}
 
-		void SetAngle  ( Double_t angle ){ fAngle    = angle; }
-		void SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho;  }
-		void SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;    }
-
+		inline void SetAngle  ( Double_t angle ){
+ 		   	fAngle = angle;
+			if( fRotation ){ 
+				fRotation->Clear();
+				fRotation->RotateY( angle ); 
+			}
+			else{
+ 			   	fRotation = new TGeoRotation( "VAMOSrotation" );
+				fRotation->RotateY( angle ); 
+			}
+		}
+		inline void SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho;  }
+		inline void SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;    }
 
    		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };

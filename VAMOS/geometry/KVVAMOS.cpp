@@ -59,10 +59,12 @@ void KVVAMOS::init()
 	fFPvolume      = NULL;
 	fFocalToTarget = NULL;
 	fTransMatrix   = NULL;
+	fRotation      = NULL;
 	fFocalPos      = 0; 
-	fAngle         = -1;
 	fBrhoRef       = -1;
 	fBeamHF        = -1;
+
+	SetAngle( fAngle = 0. );
 
 	Info("init","To be implemented");
 }
@@ -106,9 +108,25 @@ KVVAMOS::~KVVAMOS(){
 
 void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
 	// Construction of the detector geometry at the focal plane of VAMOS for the.
-		if( !fFPvolume ) fFPvolume = gGeoManager->MakeVolumeAssembly("FocalPlanVAMOS");
+	
+	if( !fFPvolume ){
+		//The FPvolume has the size of the the Focal plane detection chamber
+		TGeoMedium *Vacuum = gGeoManager->GetMedium( "Vacuum" );
 
-		fDetectors->R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
+		if( !Vacuum ){
+			TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+   			matVacuum->SetTitle("Vacuum");
+   			Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+		}
+
+		Double_t d  = infos->GetValue("VAMOS.FOCALCHAMBER.DEPTH" , 207.5 );
+		Double_t w  = infos->GetValue("VAMOS.FOCALCHAMBER.WIDTH" , d     );
+		Double_t h  = infos->GetValue("VAMOS.FOCALCHAMBER.HEIGHT", d     );
+
+		fFPvolume   = gGeoManager->MakeBox("FocalPlane", Vacuum,  w/2, h/2, d/2);
+	}
+
+	fDetectors->R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
 }
 //________________________________________________________________
 
@@ -125,14 +143,27 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 
 	Info("BuildGeoVolume","Method to be completed");
 
-   	// TO BE COMPLETED ////////////////////////////
+	TGeoVolume *top = gGeoManager->GetTopVolume();
+
+	//HERE ADD TARGET IN THE TOP VOLUME ASSEMBLY ////////////////
+	// For the moment target of vacuum :-)	
+	TGeoMedium *Vacuum = gGeoManager->GetMedium( "Vacuum" );
+	if( !Vacuum ){
+		TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+   		matVacuum->SetTitle("Vacuum");
+   		Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+	}
+	TGeoVolume *target = gGeoManager->MakeTube("DEF_TARGET", Vacuum, 0., 5.,0.01);
+	top->AddNode( target, 1 );
+	/////////////////////////////////////////
+
+
 
 	// this volume assembly allow the rotation of VAMOS around the 
 	// target
 	TGeoVolume *vamos = gGeoManager->MakeVolumeAssembly("VAMOS");
-	TGeoVolume *top   = gGeoManager->GetTopVolume();
-	top->AddNode( vamos, 1 );    // Matrix has to be added when the angle
-	                             // of VAMOS will be set
+	
+	top->AddNode( vamos, 1, fRotation );
 
 	TGeoMatrix *matrix = NULL;
 	TGeoShape *shape   = NULL;
@@ -156,12 +187,13 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 		vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
 		mat += "_pos";
 		matrix = new TGeoTranslation(mat.Data(), 0., 0., dis );
-		top->AddNode( vol, 1, matrix);
+		vamos->AddNode( vol, 1, matrix);
 	}
 
-	// place the focal plane from target
+	// place the focal plane detection chamber from target position.
    	fFocalPos =  infos->GetValue("VAMOS.FOCALPOS", 0.);
-	matrix    = new TGeoTranslation("focal_pos", 0., 0., fFocalPos/10+dis ); // TO BE CHANGED
+	// For the moment we place it juste after the strip foil
+	matrix    = new TGeoTranslation("focal_pos", 0., 0., dis+th+ ((TGeoBBox *)fFPvolume->GetShape())->GetDZ() ); // TO BE CHANGED
    	vamos->AddNode( fFPvolume, 1, matrix );
    	///////////////////////////////////////////////
 
@@ -203,7 +235,7 @@ void KVVAMOS::BuildVAMOSGeometry(){
    TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
    matVacuum->SetTitle("Vacuum");
    TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-   TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  500, 500, 500);
+   TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  1000, 1000, 1000);
    geom->SetTopVolume(top);
 
 
