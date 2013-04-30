@@ -49,8 +49,7 @@ ClassImp(KVIDGridManagerGUI)
 <!-- */
 // --> END_HTML
 //////////////////////////////////////////////////////////
-KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
-                                                         300)
+KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 300)
 {
    fFirstGrid = 0;
    fLastGrid = -1;

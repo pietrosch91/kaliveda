@@ -43,4 +43,5 @@
 #pragma link C++ class KVSpIdGUI+;
 #pragma link C++ class KVZAFinderDialog+;
 #pragma link C++ class KVBatchSystemGUI+;
+#pragma link C++ class KVLauncherGUI+;
 #endif
