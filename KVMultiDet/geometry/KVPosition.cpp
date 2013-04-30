@@ -21,6 +21,8 @@ $Id: KVPosition.cpp,v 1.21 2008/12/17 13:01:26 franklan Exp $
 #include "TRotation.h"
 #include "Riostream.h"
 #include "TMath.h"
+#include <TGeoMatrix.h>
+#include <TGeoBBox.h>
 
 ClassImp(KVPosition);
 
@@ -88,6 +90,16 @@ void KVPosition::init()
 
    fTheta = fPhi = -1.0;
    fTheta_min = fTheta_max = fPhi_min = fPhi_max = fDistance = 0.;
+   fMatrix = 0;
+   fShape = 0;
+}
+
+KVPosition::~KVPosition()
+{
+    if(fMatrix){
+        delete fMatrix;
+        fMatrix = 0;
+    }
 }
 
 KVPosition::KVPosition()
@@ -422,7 +434,7 @@ Double_t KVPosition::GetSolidAngle(void)
    //return values of the solid angle (in msr) seen by the geometric ensemble
 	
 	return (-1.*cos(GetThetaMax()*TMath::DegToRad())+cos(GetThetaMin()*TMath::DegToRad()))*(GetAzimuthalWidth()*TMath::DegToRad())*1.e3;
-	
+
 }
 
 //_________________________________________________________________________________________
@@ -485,3 +497,72 @@ TRotation KVPosition::GetRandomIsotropicRotation()
           gRandom->Uniform(a3min,a3max));
     return rr2;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+void KVPosition::SetMatrix(TGeoHMatrix *m)
+{
+    // * ROOT Geometry *
+    // Set the global transformation matrix for this detector
+    if(fMatrix) delete fMatrix;
+    fMatrix = new TGeoHMatrix(*m);
+}
+
+void KVPosition::SetShape(TGeoBBox *b)
+{
+    // * ROOT Geometry *
+    // Set the shape of this detector
+    fShape = b;
+}
+
+TGeoHMatrix *KVPosition::GetMatrix() const
+{
+    // * ROOT Geometry *
+    // Return global transformation matrix for this detector
+    return fMatrix;
+}
+
+TGeoBBox *KVPosition::GetShape() const
+{
+    // * ROOT Geometry *
+    // Return shape of this detector
+    return fShape;
+}
+
+TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
+{
+    // * ROOT Geometry *
+    // Generate a vector in the world (laboratory) frame from the origin
+    // to a random point on the entrance window of the detector.
+    //
+    // It is assumed that the detector volume was defined in such a way
+    // that the entrance window corresponds to the facet in the X-Y plane
+    // placed at -dZ.
+    //
+    // NOTE: we force the use of TGeoBBox::GetPointsOnFacet.
+    // For TGeoArb8, the method has been overridden and does nothing.
+    // We use the TGeoBBox method, and then use TGeoShape::Contains
+    // to check that the point does actually correspond to the TGeoArb8.
+
+    if(!fMatrix || !fShape){
+        ::Error("KVPosition::GetRandomPointOnEntranceWindow",
+                "ROOT Geometry has not been initialised");
+        return TVector3();
+    }
+    Double_t master[3];
+    Double_t points[3];
+    Bool_t ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,1,points);
+    Bool_t ok2 = GetShape()->Contains(points);
+    while(ok1 && !ok2){
+        ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,1,points);
+        ok2 = GetShape()->Contains(points);
+    }
+    if(!ok1){
+        ::Error("KVPosition::GetRandomPointOnEntranceWindow",
+                "TGeoBBox::GetPointsOnFacet returns kFALSE for shape %s", GetShape()->ClassName());
+        return TVector3();
+    }
+    GetMatrix()->LocalToMaster(points, master);
+    return TVector3(master);
+}
+

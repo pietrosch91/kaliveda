@@ -17,6 +17,14 @@ ClassImp(KVGeoImport)
 <h4>Import a ROOT geometry into a KVMultiDetArray object</h4>
 <!-- */
 // --> END_HTML
+//
+// To use:
+//      KVGeoImport geo(gGeoManager, new KVedaLoss, new KVMultiDetArray);
+//      gImp.ImportGeometry();
+//
+// Rules for building geometry:
+//
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray * m) : KVGeoNavigator(g)
@@ -97,11 +105,11 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",
-         "Imported %d detectors into array:", fArray->GetListOfDetectors()->GetEntries());
-    fArray->GetListOfDetectors()->ls();
+         "Imported %d detectors into array", fArray->GetListOfDetectors()->GetEntries());
     Info("ImportGeometry",
-         "Created %d identification telescopes in array:", fArray->GetListOfIDTelescopes()->GetEntries());
-    fArray->GetListOfIDTelescopes()->ls();
+         "Identified %d independent groups of detectors in array", fArray->GetGroups()->GetEntries());
+    Info("ImportGeometry",
+         "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries());
 }
 
 KVDetector* KVGeoImport::GetCurrentDetector()
@@ -119,7 +127,11 @@ KVDetector* KVGeoImport::GetCurrentDetector()
     KVDetector* det = fArray->GetDetector(detector_name);
     if(!det) {
         det = BuildDetector(detector_name, detector_volume);
-        if(det) fArray->AddDetector(det);
+        if(det) {
+            det->SetMatrix(GetCurrentMatrix());
+            det->SetShape((TGeoBBox*)detector_volume->GetShape());
+            fArray->AddDetector(det);
+        }
     }
     return det;
 }
@@ -127,19 +139,28 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
 {
     // Create a KVDetector with given name for the given volume
+    //
     // Detector definition in geometry
-    //==============================
-    // All detector volumes (TGeoVolume or TGeoVolumeAssembly) must have names which begin with "DET_"
-    // They must be made of materials which are known by the range table fRangeTable.
-    // The "thickness" of the detector will be taken as the size of the volume's shape along its Z-axis
-    // (so make sure that you define your detector volumes in this way).
-    // It is assumed that the natural length units of the geometry are centimetres.
-    // The name of the KVDetector object created and added to the array will be taken
-    // from the (unique) name of the node corresponding to the geometrical positioning of the detector.
-    // For multi-layer detectors, the "active" layer volume should have a name beginning with "ACTIVE_"
+    // ===============================
+    // 1.) All detector volumes (TGeoVolume or TGeoVolumeAssembly) must have names which begin with "DET_"
+    //
+    // 2.) They must be made of materials which are known by the range table fRangeTable.
+    //
+    // 3.) For multi-layer detectors, the "active" layer volume must have a name beginning with "ACTIVE_"
+    //
+    // 4.) The "thickness" of the detector or any layer inside a multilayer detector
+    //     will be taken as the size of the volume's shape along its Z-axis
+    //     (so make sure that you define your detector volumes in this way).
+    //
+    // 5.) It is assumed that the natural length units of the geometry are centimetres.
+    //
+    // 6.) The name of the KVDetector object created and added to the array will be taken
+    //     from the (unique) name of the node corresponding to the geometrical positioning
+    //     of the detector.
 
     KVDetector* d = new KVDetector;
     d->SetName(det_name);
+
     Int_t nlayer = det_vol->GetNdaughters();
     if(nlayer){
         for(int i=0;i<nlayer;i++){
@@ -153,6 +174,10 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
 
 void KVGeoImport::AddLayer(KVDetector *det, TGeoVolume *vol)
 {
+    // Add an absorber layer to the detector
+    // Volumes representing 'active' layers in detectors must have names
+    // which begin with "ACTIVE_"
+
     TGeoMaterial* material = vol->GetMaterial();
     KVIonRangeTableMaterial* irmat = fRangeTable->GetMaterial(material);
     if(!irmat){

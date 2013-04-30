@@ -24,6 +24,9 @@ $Id: KVPosition.h,v 1.20 2009/01/19 14:36:57 ebonnet Exp $
 #include "KVBase.h"
 #include "KVParticle.h"
 
+class TGeoHMatrix;
+class TGeoBBox;
+
 class KVPosition {
  private:
    Float_t fTheta;              // polar angle in degrees with respect to beam axis, corresponds to centre of telescope
@@ -34,13 +37,16 @@ class KVPosition {
    Float_t fPhi_max;            // azimuthal angle in degrees corresponding to most clockwise edge of telescope
    Float_t fDistance;           // distance in mm from centre of solid angle element to coordinate system origin (target)
 
+   /* ROOT Geometry */
+   TGeoHMatrix* fMatrix;        // transform world<->detector coordinates
+   TGeoBBox*    fShape;         // shape of detector volume
+
  public:
     KVPosition();
     KVPosition(Float_t thmin, Float_t thmax, Float_t phmin, Float_t phmax,
                Float_t dist = 0.0);
    void init();
-    virtual ~ KVPosition() {
-   };
+   virtual ~KVPosition();
    void SetAzimuthalAngle(Float_t ph);
    void SetPolarAngle(Float_t th);
    void SetPolarWidth(Float_t pw);
@@ -103,12 +109,19 @@ class KVPosition {
       return fDistance;
    };
    void GetCornerCoordinates(TVector3 *, Double_t /*depth*/=0);
-	void GetCornerCoordinatesInOwnFrame(TVector3 *, Double_t /*depth*/=0);
+   void GetCornerCoordinatesInOwnFrame(TVector3 *, Double_t /*depth*/=0);
    void GetWidthsFromDimension(Float_t lin_dim);
 	
 	virtual Double_t GetSolidAngle(void);
+
+   /* ROOT Geometry */
+   void SetMatrix(TGeoHMatrix*);
+   void SetShape(TGeoBBox*);
+   TGeoHMatrix* GetMatrix() const;
+   TGeoBBox* GetShape() const;
+   TVector3 GetRandomPointOnEntranceWindow() const;
 	
-   ClassDef(KVPosition, 1)      //Class for positioning elements of multidetector array
+   ClassDef(KVPosition, 1)//Class handling geometry of detectors in a multidetector array
 };
 
 #endif

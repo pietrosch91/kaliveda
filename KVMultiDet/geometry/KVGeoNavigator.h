@@ -6,11 +6,13 @@
 
 #include "KVBase.h"
 #include "TVector3.h"
+
 class KVNucleus;
 class KVEvent;
 class TGeoManager;
 class TGeoVolume;
 class TGeoNode;
+class TGeoHMatrix;
 
 class KVGeoNavigator : public KVBase
 {
@@ -18,6 +20,8 @@ private:
     TGeoManager* fGeometry;//geometry to navigate
     TGeoVolume* fCurrentVolume;//current volume
     TGeoNode* fCurrentNode;//current node
+    TGeoNode* fCurrentDetectorNode;//node for current detector
+    TGeoHMatrix* fCurrentMatrix;//current global transformation matrix
     TGeoNode* fMotherNode;//mother node of current node
     Double_t fStepSize;//distance to travel in volume
     TVector3 fEntryPoint;//position of particle on entering volume
@@ -35,15 +39,19 @@ public:
 
     TGeoVolume* GetCurrentVolume() const { return fCurrentVolume; }
     TGeoNode* GetCurrentNode() const { return fCurrentNode; }
+    TGeoHMatrix* GetCurrentMatrix() const;
     Double_t GetStepSize() const { return fStepSize; }
     const TVector3& GetEntryPoint() const { return fEntryPoint; }
     const TVector3& GetExitPoint() const { return fExitPoint; }
     TGeoVolume* GetCurrentDetectorNameAndVolume(TString&, Bool_t&);
+    TGeoNode* GetCurrentDetectorNode() const;
 
     Bool_t StopPropagation() const { return fStopPropagation; }
     void SetStopPropagation(Bool_t stop = kTRUE) { fStopPropagation = stop; }
 
     ClassDef(KVGeoNavigator,0)//Propagate particles of an event through a TGeo geometry
+    TGeoNode *FindPath(const Char_t *unique_name);
+    TGeoNode *ScanVolumes(TGeoNode *nfather, const Char_t *unique_name);
 };
 
 #endif
