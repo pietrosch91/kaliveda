@@ -180,23 +180,27 @@ void KVNameValueList::SetValue_flt(const Char_t* name,Double_t value)
 }
 
 //______________________________________________
-void KVNameValueList::IncValue_flt(const Char_t *name, Double_t value)
+Double_t KVNameValueList::IncValue_flt(const Char_t *name, Double_t value)
 {
     //increment a parameter (define by its name) by a value
     //if the parameter is not in the list, it is added
     //if it's in the list increment its value
+    //the new value of the parameter is returned
    KVNamedParameter* par = FindParameter(name);
-   par ? par->Set(value+par->GetDouble()) : fList.Add(new KVNamedParameter(name,value));
+   par ? par->Set(value += par->GetDouble()) : fList.Add(new KVNamedParameter(name,value));
+   return value;
 }
 
 //______________________________________________
-void KVNameValueList::IncValue_int(const Char_t *name, Int_t value)
+Int_t KVNameValueList::IncValue_int(const Char_t *name, Int_t value)
 {
     //increment a parameter (define by its name) by a value
     //if the parameter is not in the list, it is added
     //if it's in the list increment its value
+    //the new value of the parameter is returned
    KVNamedParameter* par = FindParameter(name);
-   par ? par->Set(value+par->GetInt()) : fList.Add(new KVNamedParameter(name,value));
+   par ? par->Set(value += par->GetInt()) : fList.Add(new KVNamedParameter(name,value));
+   return value;
 }
 
 //______________________________________________
@@ -285,15 +289,15 @@ void KVNameValueList::SetLastValue(const Char_t* name,Double_t value)
 }
 
 //______________________________________________
-void KVNameValueList::IncrementValue(const Char_t *name, Double_t value)
+Double_t KVNameValueList::IncrementValue(const Char_t *name, Double_t value)
 {
-    IncValue_flt(name,value);
+    return IncValue_flt(name,value);
 }
 
 //______________________________________________
-void KVNameValueList::IncrementValue(const Char_t *name, Int_t value)
+Int_t KVNameValueList::IncrementValue(const Char_t *name, Int_t value)
 {
-    IncValue_int(name,value);
+    return IncValue_int(name,value);
 }
 
 //______________________________________________
