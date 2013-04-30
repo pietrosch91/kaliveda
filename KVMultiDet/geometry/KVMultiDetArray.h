@@ -104,6 +104,7 @@ public:
 
     virtual KVTelescope *GetTelescope(const Char_t * name) const;
     virtual KVDetector *GetDetector(const Char_t * name) const;
+    virtual KVGroup *GetGroupWithDetector(const Char_t *);
     virtual KVGroup *GetGroup(const Char_t *);
     KVSeqCollection *GetGroups() const {
         return fGroups;

@@ -96,6 +96,22 @@ void KVGroup::Add(KVDetector *kvt)
         AddDetector(kvt);
 }
 
+UInt_t KVGroup::GetNumberOfDetectorLayers()
+{
+    // The number of detector layers is the maximum number of detectors in the
+    // group which are placed one in front of the other, i.e. we interrogate
+    // each detector as to how many detectors there are in front of it
+
+    UInt_t max = 0;
+    TIter next(GetDetectors());
+    KVDetector* d;
+    while( (d = (KVDetector*)next()) ){
+        UInt_t e = d->GetAlignedDetectors()->GetEntries();
+        if(e>max) max=e;
+    }
+    return max;
+}
+
 void KVGroup::AddTelescope(KVTelescope *kvt)
 {
     // add telescope & all detectors it contains to group
@@ -287,7 +303,7 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
        if(infront->GetEntries()>1){
            Warning("GetAlignedDetectors",
                    "No unique solution. There are %d detectors in front of %s.",
-                   infront->GetEntries(), det);
+                   infront->GetEntries(), det->GetName());
            return 0;
        }
        else

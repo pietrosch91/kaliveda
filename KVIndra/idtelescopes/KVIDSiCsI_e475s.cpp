@@ -185,7 +185,7 @@ void KVIDSiCsI_e475s::CalculateParticleEnergy(KVReconstructedNucleus * nuc)
     //einc is now the energy of the particle before crossing the first detector
     nuc->SetEnergy(Einc);
     //set angles from the dimensions of the telescope in which particle detected
-    nuc->GetAnglesFromTelescope();
+    nuc->GetAnglesFromStoppingDetector();
 
 }
 

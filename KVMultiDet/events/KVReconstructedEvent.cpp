@@ -88,9 +88,9 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
       	KVReconstructedNucleus *par;
       	while ((par = GetNextParticle())) {
          	if (HasMeanAngles())
-         	   par->GetAnglesFromTelescope("mean");
+               par->GetAnglesFromStoppingDetector("mean");
          	else
-            	par->GetAnglesFromTelescope("random");
+                par->GetAnglesFromStoppingDetector("random");
          	//reconstruct fAnalStatus information for KVReconstructedNucleus
          	if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
             	if (par->GetGroup())

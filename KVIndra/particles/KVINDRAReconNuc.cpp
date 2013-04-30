@@ -736,7 +736,7 @@ void KVINDRAReconNuc::Calibrate()
 		SetEnergy( E_tot );
 	
       // set particle momentum from telescope dimensions (random)
-		GetAnglesFromTelescope();        
+        GetAnglesFromStoppingDetector();
 		CheckCsIEnergy();
 		return;
 	}

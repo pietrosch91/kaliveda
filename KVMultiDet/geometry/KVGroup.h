@@ -41,7 +41,7 @@ class KVGroup : public KVBase {
    KVList *GetTelescopes() const {
       return fTelescopes;
    };
-   virtual UInt_t GetNumberOfDetectorLayers() { return 0; }
+   virtual UInt_t GetNumberOfDetectorLayers();
    void AddTelescope(KVTelescope *);
    void SetTelescopes(KVList * list);
    void Reset();

@@ -295,29 +295,27 @@ void KVReconstructedNucleus::Identify()
 
 //______________________________________________________________________________________________//
 
-void KVReconstructedNucleus::GetAnglesFromTelescope(Option_t * opt)
+void KVReconstructedNucleus::GetAnglesFromStoppingDetector(Option_t * opt)
 {
     //Calculate angles theta and phi for reconstructed nucleus based
-    //on position of telescope in which it was detected. The nucleus'
+    //on detector in which it stopped. The nucleus'
     //momentum is set using these angles, its mass and its kinetic energy.
     //The (optional) option string can be "random" or "mean".
     //If "random" (default) the angles are drawn at random between the
-    //min/max angles of the telescope.
-    //If "mean" the (theta,phi) position of the center of the telescope
+    //over the surface of the detector.
+    //If "mean" the (theta,phi) position of the centre of the detector
     //is used to fix the nucleus' direction.
 
     //don't try if particle has no correctly defined energy
     if (GetEnergy() <= 0.0)
         return;
-    if (!GetTelescope())
+    if (!GetStoppingDetector())
         return;
 
     if (!strcmp(opt, "random")) {
         //random angles
-        SetRandomMomentum(GetEnergy(), GetTelescope()->GetThetaMin(),
-                          GetTelescope()->GetThetaMax(),
-                          GetTelescope()->GetPhiMin(),
-                          GetTelescope()->GetPhiMax(), "random");
+        TVector3 dir = GetStoppingDetector()->GetRandomDirection("random");
+        SetMomentum(GetEnergy(), dir);
     } else {
         //middle of telescope
         TVector3 dir = GetTelescope()->GetDirection();
@@ -356,7 +354,7 @@ void KVReconstructedNucleus::Calibrate()
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
         // set particle momentum from telescope dimensions (random)
-        GetAnglesFromTelescope();
+        GetAnglesFromStoppingDetector();
     }
 }
 

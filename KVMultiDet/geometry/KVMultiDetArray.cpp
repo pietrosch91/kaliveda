@@ -876,7 +876,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                   recon_nuc->SetECode(idt->GetECode());
                }
             }
-            recon_nuc->GetAnglesFromTelescope();
+            recon_nuc->GetAnglesFromStoppingDetector();
          }
       }
       return;
@@ -935,7 +935,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                KVIDTelescope* idt = (KVIDTelescope*)last_det->GetIDTelescopes()->First();
                if(idt) recon_nuc->SetIDCode(idt->GetZminCode());
             }
-            recon_nuc->GetAnglesFromTelescope();
+            recon_nuc->GetAnglesFromStoppingDetector();
          }
       }
        // analyse all groups & particles
@@ -1139,7 +1139,7 @@ KVIDTelescope *KVMultiDetArray::GetIDTelescope(const Char_t * name) const
 
 //_______________________________________________________________________________________
 
-KVGroup *KVMultiDetArray::GetGroup(const Char_t * name)
+KVGroup *KVMultiDetArray::GetGroupWithDetector(const Char_t * name)
 {
     //return pointer to group in array which contains detector or telescope
     //with name "name"
@@ -1156,6 +1156,13 @@ KVGroup *KVMultiDetArray::GetGroup(const Char_t * name)
     }
     return grp;
 }
+
+KVGroup *KVMultiDetArray::GetGroup(const Char_t *name)
+{
+    // Return pointer to group with name
+    return (KVGroup*)GetGroups()->FindObject(name);
+}
+
 
 
 //________________________________________________________________________________________
@@ -1418,7 +1425,7 @@ void KVMultiDetArray::RemoveGroup(const Char_t * name)
 {
     //Remove (i.e. destroy) all the telescopes belonging to the group in array
     //which contains detector or telescope with name "name"
-    KVGroup *grp = GetGroup(name);
+    KVGroup *grp = GetGroupWithDetector(name);
     if (grp) {
         RemoveGroup(grp);
     }
