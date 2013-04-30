@@ -236,6 +236,7 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
 //	//--------------------------------------------------
    	//  direction of the tracking = direction of the trajectory at the focal plane
    	fRT.dirFP.GetXYZ( dir );
+	gVamos->FocalToTargetVect( dir, dir );
 
    	// Initializing tracking (i.e. setting both initial point and direction
    	// and finding the state). Start from the FP intersection point
@@ -270,6 +271,7 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
 //	//--------------------------------------------------
    	//  direction of the tracking = inverse direction of the trajectory at the focal plane
    	TVector3( -fRT.dirFP ).GetXYZ( dir );
+	gVamos->FocalToTargetVect( dir, dir );
 
    	// Initializing tracking (i.e. setting both initial point and direction
    	// and finding the state). Start from the FP intersection point
