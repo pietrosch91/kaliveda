@@ -93,7 +93,7 @@ class KVVAMOS : public KVDetector //public KVBase
 	   		return (KVDetector*)fDetectors->FindObject(name);
    		}
 
-		inline TGeoVolume* GetFocalPlanVolume() const     { return fFPvolume;      }
+		inline TGeoVolume* GetFocalPlaneVolume() const     { return fFPvolume;      }
    		inline TGeoHMatrix GetFocalToTargetMatrix() const { return fFocalToTarget; }
    		inline KVList* GetListOfDetectors()   { return fDetectors;  }
    		inline KVList* GetVACQParamList()     { return fVACQParams; }

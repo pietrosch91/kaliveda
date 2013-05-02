@@ -29,7 +29,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		virtual void Calibrate();
 		virtual void Clear(Option_t * t = "");
-		virtual void ReconstructFocalPlanTrajectory(KVList *detlist);
+		virtual void ReconstructFocalPlaneTrajectory(KVList *detlist);
 		virtual void ReconstructLabTrajectory();
 		virtual void RunTracking(KVList *detlist);
 
@@ -82,6 +82,10 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		inline KVNameValueList *GetTrackingResults(){
 			return &fTrackRes;
 		}
+
+   		inline TVector3 GetFocalPlaneDirection() const{ return fRT.dirFP;  }
+   		inline TVector3 GetLabDirection()        const{ return fRT.dirLab; }
+
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };

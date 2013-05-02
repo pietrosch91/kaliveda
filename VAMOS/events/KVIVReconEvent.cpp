@@ -215,7 +215,7 @@ Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
 	//else a Nucleus can be recontructed in VAMOS
 	fNucInVAMOS = kTRUE;
 
-	fVAMOSnuc->ReconstructFocalPlanTrajectory( detl );
+	fVAMOSnuc->ReconstructFocalPlaneTrajectory( detl );
 	fVAMOSnuc->ReconstructLabTrajectory();
 	fVAMOSnuc->RunTracking( detl );
 	//fVAMOSnuc->Calibrate();

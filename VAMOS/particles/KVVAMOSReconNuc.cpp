@@ -91,7 +91,7 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ReconstructFocalPlanTrajectory(KVList *detlist){
+void KVVAMOSReconNuc::ReconstructFocalPlaneTrajectory(KVList *detlist){
 
 	TIter next_det( detlist );
 	KVVAMOSDetector *d = NULL;
@@ -187,7 +187,7 @@ void KVVAMOSReconNuc::ReconstructFocalPlanTrajectory(KVList *detlist){
 void KVVAMOSReconNuc::ReconstructLabTrajectory(){
 	// Reconstruction of the trajectory at the target point, in the reference
 	// frame of the laboratory, from the trajectory at the focal plane.
-	// The method ReconstructFocalPlanTrajectory(KVList *detlist) has to be 
+	// The method ReconstructFocalPlaneTrajectory(KVList *detlist) has to be 
 	// call first.
 
 	// No trajectory reconstruction in the laboratory if the reconstruction
@@ -229,7 +229,7 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
 	//tracking direction
    	Double_t dir[3];
 
-	TGeoVolume *FPvol = gVamos->GetFocalPlanVolume();
+	TGeoVolume *FPvol = gVamos->GetFocalPlaneVolume();
 //	//--------------------------------------------------
 //	Info("RunTracking","Runnig the Focal Plane backward Traking");
 //	//--------------------------------------------------
