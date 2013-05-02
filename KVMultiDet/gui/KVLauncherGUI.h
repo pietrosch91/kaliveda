@@ -27,7 +27,8 @@ class KVLauncherGUI : public TGMainFrame
    KVLauncherGUI();
    virtual ~KVLauncherGUI();
    
-   virtual void AddButton(const char* name, const char* method, TObject* obj=0);
+   virtual void AddButtons();
+	virtual void AddButton(const char* name, const char* method, TObject* obj=0);
    TGTextButton* GetButton(const char* method);
    void SetEnabled(const char* method, Bool_t e=kTRUE);
    

@@ -39,7 +39,7 @@ void KVLauncherGUI::Build()
 //________________________________________________________________
 void KVLauncherGUI::MapAll()
 {
-    AddButton("Close","Close");
+    AddButtons();
     DontCallClose();
     ULong_t ucolor;        // will reflect user color changes
     gClient->GetColorByName("#ffffff",ucolor);
@@ -48,6 +48,13 @@ void KVLauncherGUI::MapAll()
     Resize(GetDefaultSize());
     SetWindowName(GetName());
     MapWindow();
+}
+
+//________________________________________________________________
+void KVLauncherGUI::AddButtons()
+{
+    AddButton("Close","Close");
+    
 }
 
 //________________________________________________________________
