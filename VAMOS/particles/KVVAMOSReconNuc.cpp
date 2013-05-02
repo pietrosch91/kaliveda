@@ -19,6 +19,7 @@ ClassImp(KVVAMOSReconNuc)
 KVVAMOSReconNuc::KVVAMOSReconNuc() : fCodes()
 {
    // Default constructor
+   init();
 }
 
 //________________________________________________________________
@@ -26,15 +27,13 @@ KVVAMOSReconNuc::KVVAMOSReconNuc() : fCodes()
 KVVAMOSReconNuc::KVVAMOSReconNuc (const KVVAMOSReconNuc& obj)  : KVReconstructedNucleus(), fCodes()
 {
    // Copy constructor
-
+   init();
    obj.Copy(*this);
 }
 
 KVVAMOSReconNuc::~KVVAMOSReconNuc()
 {
    // Destructor
-   init();
-   fCodes.Clear();
 }
 //________________________________________________________________
 
