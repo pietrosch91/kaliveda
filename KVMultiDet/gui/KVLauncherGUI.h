@@ -33,6 +33,7 @@ class KVLauncherGUI : public TGMainFrame
    
    Bool_t IsEnabled(const char* method);   
    void DummyMethod();
+   virtual void Close();
 
    ClassDef(KVLauncherGUI,1)//Generic GUI launcher
 };

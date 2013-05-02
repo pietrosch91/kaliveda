@@ -396,7 +396,7 @@ void KVZALineFinder::MakeGrid()
     while((spline = (KVSpiderLine*)next_line())) // generate KVLines from KVSpiderLines
     {
         spline->Sort();
-        if((spline->GetN()>2))
+        if((spline->GetN()>5))
         {
             TheLine = (KVIDZALine*)((KVIDZAGrid*)fGeneratedGrid)->NewLine("ID");
             TheLine->SetZ(spline->GetZ());

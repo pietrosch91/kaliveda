@@ -39,6 +39,11 @@ void KVLauncherGUI::Build()
 //________________________________________________________________
 void KVLauncherGUI::MapAll()
 {
+    AddButton("Close","Close");
+    DontCallClose();
+    ULong_t ucolor;        // will reflect user color changes
+    gClient->GetColorByName("#ffffff",ucolor);
+    ChangeBackground(ucolor);
     MapSubwindows();
     Resize(GetDefaultSize());
     SetWindowName(GetName());
@@ -62,10 +67,16 @@ void KVLauncherGUI::AddButton(const char* name, const char* method, TObject* obj
         return;
     }
 
+    ULong_t ucolor;
+    gClient->GetColorByName("#66ccff",ucolor);
+
     TGTextButton* fButton = new TGTextButton(this, name);
     fButton->Connect("Clicked()", classname, obj, Form("%s()",method));
     fButton->SetName(name);
-    AddFrame(fButton, new TGLayoutHints(kLHintsRight|kLHintsExpandX, 2, 2, 2, 2));
+    fButton->SetMargins(5,5,5,5);
+    fButton->ChangeBackground(ucolor);
+
+    AddFrame(fButton, new TGLayoutHints(kLHintsRight|kLHintsExpandX, 10, 10, 5, 5));
     fButtonList.AddLast(fButton);
 }
 
@@ -102,6 +113,11 @@ void KVLauncherGUI::DummyMethod()
     TGTextButton* fButton = GetButton("DummyMethod");
     Info("DummyMethod","%s !",fButton->GetName());
     SetEnabled("DummyMethod",!IsEnabled("DummyMethod"));
+}
+
+void KVLauncherGUI::Close()
+{
+    CloseWindow();
 }
 
 
