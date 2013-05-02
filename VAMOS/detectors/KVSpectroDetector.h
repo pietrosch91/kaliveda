@@ -17,7 +17,6 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 	protected:
 
 		KVList *fActiveVolumes;
-		KVList *fActiveVolToFocal;//! list of matrices to transform coordinates from Active volume to focal plan
 		TGeoHMatrix *fFocalToTarget;//! focal-plan to target position transformation matrix
 		Int_t  fNabsorbers;      // Number of absobers
 		Double_t fTotThick;      // Total thickness of the detector
