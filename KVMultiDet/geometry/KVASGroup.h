@@ -39,6 +39,7 @@ protected:
    void AnalyseAndReconstruct(KVReconstructedEvent *);
    void GetIDTelescopes(TCollection *);
    virtual void Print(Option_t * t = "") const;
+   void AnalyseTelescopes(KVReconstructedEvent *event, TList *kvtl);
 
    ClassDef(KVASGroup,1)//Group in axially-symmetric multidetector
 };

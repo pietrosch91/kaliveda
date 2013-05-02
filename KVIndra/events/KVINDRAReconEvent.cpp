@@ -325,7 +325,7 @@ void KVINDRAReconEvent::IdentifyEvent()
 	int ngamG = gammaGroups.GetEntries();
 	if(ngamG){
 		for(int i=0; i<ngamG; i++){
-			AnalyseGroup( (KVGroup*)gammaGroups.At(i) );
+            ((KVGroup*)gammaGroups.At(i))->AnalyseAndReconstruct(this);
 		}
 	}
 	if(GetMult()>mult) {

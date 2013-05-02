@@ -145,7 +145,62 @@ void KVReconstructedNucleus::Print(Option_t * option) const
         	if(idr && idr->IDattempted) idr->Print();
         }
     }
-    GetParameters()->Print();
+    if(GetStoppingDetector()) cout << "STOPPED IN : " <<
+                                      GetStoppingDetector()->GetName() << endl;
+    if (IsIdentified()) {
+       if(GetIdentifyingTelescope()) cout << "IDENTIFIED IN : " <<
+                GetIdentifyingTelescope()->GetName() << endl;
+       cout << " =======> ";
+       cout << " Z=" << GetZ() << " A=" << GetA();
+       if(IsAMeasured()) cout << " Areal=" << GetRealA();
+       else cout << " Zreal=" << GetRealZ();
+    } else {
+       cout << "(unidentified)" << endl;
+    }
+    if (IsCalibrated()) {
+       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
+       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
+    } else {
+       cout << "(uncalibrated)" << endl;
+    }
+    cout << "Reconstruction status : ";
+    switch (GetStatus()) {
+    case 0:
+        cout <<
+                "Particle alone in group, or identification independently of other"
+             << endl;
+        cout << "particles in group is directly possible." << endl;
+        break;
+
+    case 1:
+        cout <<
+                "Particle reconstructed after identification of others in group"
+             << endl;
+        cout <<
+                "and subtraction of their calculated energy losses in ChIo."
+             << endl;
+        break;
+
+    case 2:
+        cout <<
+                "Particle identification estimated after arbitrary sharing of"
+             << endl;
+        cout <<
+                "energy lost in ChIo between several reconstructed particles."
+             << endl;
+        break;
+
+    case 3:
+        cout <<
+                "Particle stopped in first stage of telescope. Estimation of minimum Z."
+             << endl;
+        break;
+
+    default:
+        cout << GetStatus() << endl;
+        break;
+    }
+    if(GetParameters()->GetNpar()) GetParameters()->Print();
 }
 
 //_______________________________________________________________________________
@@ -318,7 +373,7 @@ void KVReconstructedNucleus::GetAnglesFromStoppingDetector(Option_t * opt)
         SetMomentum(GetEnergy(), dir);
     } else {
         //middle of telescope
-        TVector3 dir = GetTelescope()->GetDirection();
+        TVector3 dir = GetStoppingDetector()->GetDirection();
         SetMomentum(GetEnergy(), dir);
     }
 }

@@ -158,8 +158,21 @@ void KVINDRAReconNuc::Copy(TObject & obj)
 void KVINDRAReconNuc::Print(Option_t * option) const
 {
 
-   KVReconstructedNucleus::Print(option);
-	if(GetRingNumber()<10){
+    cout << "KVReconstructedNucleus:" << endl;
+    int ndets=GetNumDet();
+    if (ndets) {
+
+        for (int i = ndets - 1; i >= 0; i--) {
+            KVDetector *det = GetDetector(i);
+            if(det) det->Print("data");
+        }
+        for(int i = 1; i<= IDRESULTS_DIM; i++){
+            KVIdentificationResult* idr = const_cast<KVINDRAReconNuc*>(this)->GetIdentificationResult(i);
+            if(idr && idr->IDattempted) idr->Print();
+        }
+    }
+    if(GetParameters()->GetNpar()) GetParameters()->Print();
+    if(GetRingNumber()<10){
 		cout << "  -- RESULTS OF COHERENCY TESTS (RINGS 1-9) -- " << endl;
 		if(fCoherent) cout << "    CsI-R/L & Si-CsI identifications COHERENT" << endl;
 		else cout << "    CsI-R/L & Si-CsI identifications NOT COHERENT" << endl;

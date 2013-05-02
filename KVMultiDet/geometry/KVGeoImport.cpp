@@ -102,6 +102,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
         }
     }
     fArray->CreateIDTelescopesInGroups();
+    fArray->SetGeometry(GetGeometry());
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",

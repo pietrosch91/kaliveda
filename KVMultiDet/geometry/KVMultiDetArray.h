@@ -21,6 +21,7 @@ class KVEvent;
 class KVNameValueList;
 class KVReconstructedNucleus;
 class KVList;
+class KVRangeTableGeoNavigator;
 
 class KVMultiDetArray : public KVBase
 {
@@ -58,6 +59,8 @@ protected:
     Int_t fFilterType;//! type of filtering (used by DetectEvent)
 
     TGeoManager* fGeoManager;//! array geometry
+
+    KVRangeTableGeoNavigator* fNavigator;//! for propagating particles through array geometry
 
     virtual void RenumberGroups();
     virtual void BuildGeometry() {

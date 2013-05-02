@@ -11,11 +11,13 @@
 #include "TROOT.h"
 #include "KVNameValueList.h"
 #include "KVIDGraph.h"
+#include <KVReconstructedEvent.h>
 
 using namespace std;
 
-ClassImp(KVGroup);
-/////////////////////////////////////////////////////////////////////
+ClassImp(KVGroup)
+
+////////////////////////////////////////////////////////////////////
 //KVGroup
 //
 //The notion of a "group" of telescopes is used to associate detectors in different layers (in principle with different geometries) through which
@@ -216,6 +218,21 @@ KVDetector *KVGroup::GetDetector(const Char_t * name)
 
    KVDetector *det = (KVDetector *) fDetectors->FindObject(name);
    return det;
+}
+
+TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
+{
+    // lay=1 : create and fill list with detectors closest to target
+    // lay=GetNumberOfDetectorLayers() : detectors furthest from target
+
+    TList* dets = new TList;
+    TIter next(GetDetectors());
+    KVDetector* d;
+
+    while( (d = (KVDetector*)next()) ){
+        if(lay == d->GetAlignedDetectors()->GetEntries()) dets->Add(d);
+    }
+    return dets;
 }
 
 //________________________________________________________________________________
@@ -451,8 +468,8 @@ void KVGroup::AnalyseParticles()
                //I wouldn't trust it as far as I can spit
                nuc->SetStatus( KVReconstructedNucleus::kStatusOKafterShare );
             }
-            //one possibility remains: the particle may actually have stopped e.g. in the Si member
-            //of a Ring 1 Si-CsI telescope, in which case AnalStatus = 3
+            //one possibility remains: the particle may actually have stopped e.g.
+            //in the DE detector of a DE-E telescope, in which case AnalStatus = 3
             if (nuc->GetIDTelescopes()->GetSize() == 0) {
                //no ID telescopes with which to identify particle
                nuc->SetStatus( KVReconstructedNucleus::kStatusStopFirstStage );
@@ -544,4 +561,18 @@ void KVGroup::PrepareModif(KVDetector* dd)
 	}
 	nv.Clear();
 
+}
+
+void KVGroup::AnalyseAndReconstruct(KVReconstructedEvent *event)
+{
+    // Loop over detectors in group, starting from the furthest from the target,
+    // and working inwards. Calls KVReconstructedEvent::AnalyseDetectors
+
+    for(Int_t il=GetNumberOfDetectorLayers(); il>0; il--){
+        TList* dets = GetDetectorsInLayer(il);
+        event->AnalyseDetectors(dets);
+        delete dets;
+    }
+    //perform first-order coherency analysis (set fAnalStatus for each particle)
+    AnalyseParticles();
 }

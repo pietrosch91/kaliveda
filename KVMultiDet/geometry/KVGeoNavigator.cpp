@@ -232,12 +232,12 @@ TGeoNode* KVGeoNavigator::ScanVolumes(TGeoNode* nfather,const Char_t* unique_nam
         TGeoNode* node = (TGeoNode* )arr->At(ii);
 
         if (!strcmp(node->GetName(),unique_name)){
-            printf("Mother Node %s %x\n",nfather->GetName(),nfather);
+            printf("Mother Node %s %p\n",nfather->GetName(),nfather);
             return node;
         }
         node =  ScanVolumes(node , unique_name);
         if (node){
-            printf("Mother Node %s %x\n",nfather->GetName(),nfather);
+            printf("Mother Node %s %p\n",nfather->GetName(),nfather);
             return node;
         }
     }

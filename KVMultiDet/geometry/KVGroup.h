@@ -47,6 +47,7 @@ class KVGroup : public KVBase {
    void Reset();
    virtual void Print(Option_t * t = "") const;
    KVDetector *GetDetector(const Char_t * name);
+   virtual TList *GetDetectorsInLayer(UInt_t lay);
    KVTelescope *GetTelescope(const Char_t * name);
    virtual TList *GetAlignedDetectors(KVDetector *, UChar_t dir = kBackwards);
 
@@ -79,7 +80,7 @@ class KVGroup : public KVBase {
    void AnalyseParticles();
    inline virtual Bool_t Fired(Option_t * opt = "any") const;
     void PrepareModif(KVDetector* );
-    virtual void AnalyseAndReconstruct(KVReconstructedEvent *) { AbstractMethod("AnalyseAndReconstruct"); }
+    virtual void AnalyseAndReconstruct(KVReconstructedEvent *);
    void Destroy();
    void RemoveTelescope(KVTelescope * tel, Bool_t kDeleteTelescope =
                         kFALSE, Bool_t kDeleteEmptyGroup = kTRUE);

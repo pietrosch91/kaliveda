@@ -28,15 +28,15 @@ private:
     TVector3 fExitPoint;//position of particle on exiting volume
     Bool_t fStopPropagation;//flag set by user when particle propagation should stop
 
-    void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);
-
 public:
     KVGeoNavigator(TGeoManager*);
     virtual ~KVGeoNavigator();
 
     void PropagateEvent(KVEvent*, TVector3 *TheOrigin=0);
+    void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);
     virtual void ParticleEntersNewVolume(KVNucleus *);
 
+    TGeoManager* GetGeometry() const { return fGeometry; }
     TGeoVolume* GetCurrentVolume() const { return fCurrentVolume; }
     TGeoNode* GetCurrentNode() const { return fCurrentNode; }
     TGeoHMatrix* GetCurrentMatrix() const;

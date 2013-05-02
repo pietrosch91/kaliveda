@@ -409,6 +409,37 @@ void KVASGroup::GetIDTelescopes(TCollection * tel_list)
 }
 //_________________________________________________________________________________
 
+void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
+{
+
+    KVTelescope *t;
+    TIter nxt_tel(kvtl);
+    //get max number of detectors in telescopes of layer
+    Int_t max=0;
+    TIter it(kvtl);
+    while ( (t = (KVTelescope* )it.Next()) )
+        if (max<t->GetDetectors()->GetSize())
+            max = t->GetDetectors()->GetSize();
+    //before, we assumed all telescopes to be same in layer:
+    //UInt_t ndet = ((KVTelescope *) (kvtl->First()))->GetSize();
+    UInt_t ndet=max;
+
+    for (register UInt_t i = ndet; i > 0; i--) {
+
+        TList detlist;
+
+        //start from last detectors and move inwards
+        while ((t = (KVTelescope *) nxt_tel())) {
+            //loop over detectors in each telescope
+            KVDetector *d = t->GetDetector(i);
+            detlist.Add(d);
+        }
+
+        event->AnalyseDetectors(&detlist);
+
+    }
+}
+
 
 void KVASGroup::AnalyseAndReconstruct(KVReconstructedEvent* event)
 {
@@ -423,21 +454,21 @@ void KVASGroup::AnalyseAndReconstruct(KVReconstructedEvent* event)
         //nearest to target)
         for (UInt_t i = GetLayerFurthestTarget();
              i > GetLayerNearestTarget(); i--) {
-            TList *teles = GetTelescopesInLayer(i);
-            if (teles) {
-                event->AnalyseTelescopes(teles);
-                delete teles;
+            TList *kvtl = GetTelescopesInLayer(i);
+            if (kvtl) {
+                AnalyseTelescopes(event,kvtl);
+                delete kvtl;
             }
         }
 
 
         //if nothing has been found, then check for particles stopping in layer nearest target
         if (GetHits() == initial_hits_in_group) {
-            TList *teles =
+            TList *kvtl =
                     GetTelescopesInLayer(GetLayerNearestTarget());
-            if (teles) {
-                event->AnalyseTelescopes(teles);
-                delete teles;
+            if (kvtl) {
+                AnalyseTelescopes(event,kvtl);
+                delete kvtl;
             }
         }
 
@@ -449,11 +480,11 @@ void KVASGroup::AnalyseAndReconstruct(KVReconstructedEvent* event)
         //for a single layer group we should have
         //kvg->GetLayerNearestTarget() = kvg->GetLayerFurthestTarget()
         //so we can use either one as argument for kvg->GetTelescopesInLayer
-        TList *teles =
+        TList *kvtl =
                 GetTelescopesInLayer(GetLayerNearestTarget());
-        if (teles) {
-            event->AnalyseTelescopes(teles);
-            delete teles;
+        if (kvtl) {
+            AnalyseTelescopes(event,kvtl);
+            delete kvtl;
         }
     }
 

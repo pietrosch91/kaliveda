@@ -632,15 +632,15 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
     Double_t points[3];
     Bool_t ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,1,points);
     Bool_t ok2 = GetShape()->Contains(points);
-    while(ok1 && !ok2){
-        ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,1,points);
-        ok2 = GetShape()->Contains(points);
-    }
     if(!ok1){
         ::Error("KVPosition::GetRandomPointOnEntranceWindow",
-                "TGeoBBox::GetPointsOnFacet returns kFALSE for shape %s", GetShape()->ClassName());
-        return TVector3();
+                "TGeoBBox::GetPointsOnFacet returns kFALSE for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
+        return GetCentreOfEntranceWindow();
     }
+//    if(!ok2){
+//        ::Warning("KVPosition::GetRandomPointOnEntranceWindow",
+//                "Point on detector entrance window is not contained within detector volume.");
+//    }
     GetMatrix()->LocalToMaster(points, master);
     return TVector3(master);
 }
