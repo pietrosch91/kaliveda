@@ -232,7 +232,7 @@ void KVBase::InitEnvironment()
 		
 		//read all nucl data table
 		gNDTManager = new KVNDTManager();
-		gNDTManager->Print();
+		//gNDTManager->Print();
    }
 }
 
