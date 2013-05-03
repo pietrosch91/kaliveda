@@ -42,14 +42,16 @@ public:
 
 	// status codes given to reconstructed particles by KVGroup::AnalyseParticles
 	enum {
-		kStatusOK,      // = 0 :   identification is, in principle at least, possible straight away
-		kStatusOKafterSub,   //= 1 :   identification is, in principle, possible after identification and subtraction
-		                                   //         of energy losses of other particles in the same group which have Status=0
-		kStatusOKafterShare,  // = 2 : the energy loss in the shared detector of the group must be shared
-                                           // (arbitrarily) between this and the other particle(s) with Status=2
-		kStatusStopFirstStage  // = 3 :   the particle has stopped in the first member of an identification
-                                           // telescope; a minimum Z could be estimated from the measured energy loss.
-	};
+        kStatusOK,           // = 0 :   identification is, in principle at least, possible straight away
+        kStatusOKafterSub,   // = 1 :   identification is, in principle, possible after identification and subtraction
+                             //         of energy losses of other particles in the same group which have Status=0
+        kStatusOKafterShare, // = 2 :   the energy loss in the shared detector of the group must be shared
+                             //         (arbitrarily) between this and the other particle(s) with Status=2
+        kStatusStopFirstStage,//= 3 :   the particle has stopped in the first member of an identification
+                             //         telescope; a minimum Z could be estimated from the measured energy loss.
+        kStatusPileupDE,     // = 4 :   only for filtered simulations: undetectable pile-up in DE detector
+        kStatusPileupGhost   // = 5 :   only for filtered simulations: undetectable particle
+    };
 
     KVReconstructedNucleus();
     KVReconstructedNucleus(const KVReconstructedNucleus &);
@@ -124,6 +126,8 @@ public:
         //  kStatusStopFirstStage (3) :   the particle has stopped in the first member of an identification
         //                         telescope; a minimum Z could be estimated from the measured energy loss.
         //                         (see KVDetector::FindZmin)
+        // kStatusPileupDE,     (4) :   only for filtered simulations: undetectable pile-up in DE detector
+        // kStatusPileupGhost   (5) :   only for filtered simulations: undetectable particle
         return fAnalStatus;
     };
 

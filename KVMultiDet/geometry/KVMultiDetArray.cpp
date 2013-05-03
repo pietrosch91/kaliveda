@@ -886,11 +886,6 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             recon_nuc->Reconstruct(last_det);
             recon_nuc->SetZandA(part->GetZ(),part->GetA());
             recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
-            //recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-            //recon_nuc->SetIsIdentified();
-            //recon_nuc->SetZMeasured();
-            //recon_nuc->SetAMeasured();
-            //recon_nuc->SetIsCalibrated();
             if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
                if(idt){
@@ -909,10 +904,26 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
        }
        KVReconstructedNucleus* recon_nuc;
        while ((recon_nuc = rec_event->GetNextParticle())) {
-           recon_nuc->SetIsIdentified();
-           recon_nuc->SetZMeasured();
-           recon_nuc->SetAMeasured();
-           recon_nuc->SetIsCalibrated();
+           // check for undetectable pile-ups
+           if(recon_nuc->GetStatus()==KVReconstructedNucleus::kStatusOK){
+               if(recon_nuc->GetStoppingDetector()->GetNHits()>1)
+                   recon_nuc->SetStatus(KVReconstructedNucleus::kStatusPileupGhost);
+               else
+               {
+                   KVIDTelescope* idt = recon_nuc->GetIdentifyingTelescope();
+                   KVDetector *de_det = idt->GetDetector(1);
+                   if(de_det->GetNHits()>1) recon_nuc->SetStatus( KVReconstructedNucleus::kStatusPileupDE );
+               }
+           }
+           if(recon_nuc->GetStatus()!=KVReconstructedNucleus::kStatusPileupGhost){
+               recon_nuc->SetIsIdentified();
+               recon_nuc->SetIsCalibrated();
+               if(recon_nuc->GetStatus()!=KVReconstructedNucleus::kStatusStopFirstStage){
+                   recon_nuc->SetIsOK();
+                   recon_nuc->SetZMeasured();
+                   recon_nuc->SetAMeasured();
+               }
+           }
        }
        return;
    }
@@ -2019,7 +2030,9 @@ void KVMultiDetArray::SetDetectorThicknesses()
 void KVMultiDetArray::SetGeometry(TGeoManager *g)
 {
     // Define the geometry of the array with a valid ROOT geometry (TGeoManager instance)
+    // The name and title of the TGeoManager object will be used for the array.
     fGeoManager = g;
+    SetNameTitle(g->GetName(),g->GetTitle());
 }
 
 Double_t KVMultiDetArray::GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A)

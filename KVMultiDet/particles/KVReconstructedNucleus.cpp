@@ -48,6 +48,7 @@ void KVReconstructedNucleus::init()
     fIDTelescope = 0;
     fNSegDet = 0;
     fAnalStatus = 99;
+    fTargetEnergyLoss = 0;
     ResetBit(kIsIdentified);
     ResetBit(kIsCalibrated);
     ResetBit(kCoherency);
@@ -162,38 +163,55 @@ void KVReconstructedNucleus::Print(Option_t * option) const
     } else {
        cout << "(uncalibrated)" << endl;
     }
-    cout << "Reconstruction status : ";
+    cout << "RECONSTRUCTION STATUS : " << endl;
     switch (GetStatus()) {
-    case 0:
+    case kStatusOK:
         cout <<
                 "Particle alone in group, or identification independently of other"
              << endl;
         cout << "particles in group is directly possible." << endl;
         break;
 
-    case 1:
+    case kStatusOKafterSub:
         cout <<
                 "Particle reconstructed after identification of others in group"
              << endl;
         cout <<
-                "and subtraction of their calculated energy losses in ChIo."
+                "and subtraction of their calculated energy losses in common detectors."
              << endl;
         break;
 
-    case 2:
+    case kStatusOKafterShare:
         cout <<
                 "Particle identification estimated after arbitrary sharing of"
              << endl;
         cout <<
-                "energy lost in ChIo between several reconstructed particles."
+                "energy lost in common detectors between several reconstructed particles."
              << endl;
         break;
 
-    case 3:
+    case kStatusStopFirstStage:
         cout <<
                 "Particle stopped in first stage of telescope. Estimation of minimum Z."
              << endl;
         break;
+
+    case kStatusPileupDE:
+        cout <<
+                "Undetectable pile-up in first member of identifying telesscope (apparent status=OK)."
+                << endl;
+        cout << "Would lead to incorrect identification by DE-E method (Z and/or A overestimated)."
+             << endl;
+        break;
+
+    case kStatusPileupGhost:
+        cout <<
+                "Undetectable ghost particle in filtered simulation."
+                << endl;
+        cout << "Another particle passed through all of the same detectors (pile-up)."
+             << endl;
+        break;
+
 
     default:
         cout << GetStatus() << endl;
