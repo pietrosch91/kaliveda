@@ -70,10 +70,22 @@ void KVDetectorNode::AddBehind(KVDetector* d)
 Bool_t KVDetectorNode::IsInFrontOf(KVDetector* d)
 {
     // return true if this node is directly in front of the detector
-    return (fBehind->FindObject(d)!=0);
+    return (fBehind && fBehind->FindObject(d)!=0);
 }
 Bool_t KVDetectorNode::IsBehind(KVDetector* d)
 {
     // return true if this node is directly behind the detector
-    return (fInFront->FindObject(d)!=0);
+    return (fInFront && fInFront->FindObject(d)!=0);
+}
+
+Int_t KVDetectorNode::GetNDetsInFront() const
+{
+    // Returns number of detectors directly in front of this one
+    return (fInFront ? fInFront->GetEntries() : 0);
+}
+
+Int_t KVDetectorNode::GetNDetsBehind() const
+{
+    // Returns number of detectors directly behind this one
+    return (fBehind ? fBehind->GetEntries() : 0);
 }

@@ -26,6 +26,8 @@ class KVDetectorNode : public KVBase
    Bool_t IsBehind(KVDetector*);
    KVSeqCollection* GetDetectorsInFront() const { return fInFront; }
    KVSeqCollection* GetDetectorsBehind() const { return fBehind; }
+   Int_t GetNDetsInFront() const;
+   Int_t GetNDetsBehind() const;
 
    void ls(Option_t *option="") const;
 

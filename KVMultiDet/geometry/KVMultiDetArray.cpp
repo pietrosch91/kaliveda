@@ -867,11 +867,17 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
        "DEAD ZONE" or "GEOMETRY INCOHERENCY"
    */
    if(fFilterType == kFilterType_Geo){
+       KVGroup *grp_tch;
+       TIter nxt_grp(fHitGroups->GetGroups());
+       while ((grp_tch = (KVGroup *) nxt_grp())) {
+           grp_tch->ClearHitDetectors();
+       }
        while ((part = event->GetNextParticle())) {
          if(part->BelongsToGroup("DETECTED") ||
                (part->BelongsToGroup("UNDETECTED")&&
                   !part->BelongsToGroup("DEAD ZONE")&&!part->BelongsToGroup("GEOMETRY INCOHERENCY")&&!part->BelongsToGroup("NEUTRAL")&&!part->BelongsToGroup("NO ENERGY"))
-            ){
+            )
+         {
             KVDetector* last_det = 0;
             if(part->GetParameters()->HasParameter("STOPPING DETECTOR"))
                last_det = GetDetector(part->GetParameters()->GetStringValue("STOPPING DETECTOR"));
@@ -880,11 +886,11 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             recon_nuc->Reconstruct(last_det);
             recon_nuc->SetZandA(part->GetZ(),part->GetA());
             recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
-            recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
-            recon_nuc->SetIsIdentified();
-            recon_nuc->SetZMeasured();
-            recon_nuc->SetAMeasured();
-            recon_nuc->SetIsCalibrated();
+            //recon_nuc->SetStatus(KVReconstructedNucleus::kStatusOK);
+            //recon_nuc->SetIsIdentified();
+            //recon_nuc->SetZMeasured();
+            //recon_nuc->SetAMeasured();
+            //recon_nuc->SetIsCalibrated();
             if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
                if(idt){
@@ -896,7 +902,19 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             recon_nuc->GetAnglesFromStoppingDetector();
          }
       }
-      return;
+       // analyse all groups & particles
+       nxt_grp.Reset();
+       while ((grp_tch = (KVGroup *) nxt_grp())) {
+           grp_tch->AnalyseParticles();
+       }
+       KVReconstructedNucleus* recon_nuc;
+       while ((recon_nuc = rec_event->GetNextParticle())) {
+           recon_nuc->SetIsIdentified();
+           recon_nuc->SetZMeasured();
+           recon_nuc->SetAMeasured();
+           recon_nuc->SetIsCalibrated();
+       }
+       return;
    }
    // EVENT RECONSTRUCTION FOR SIMPLE GEOMETRIC FILTER WITH THRESHOLDS
    /*
@@ -2062,3 +2080,19 @@ TGraph* KVMultiDetArray::DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t 
     return punch;
 }
 
+void KVMultiDetArray::CalculateDetectorSegmentationIndex()
+{
+    // *** Set 'segmentation' index of detectors ***
+    // This is essential for particle reconstruction, judging whether particles can be identified
+    // independently of any others in the same group etc.
+    // Basically, any detector with >1 detector placed directly behind it has a seg. index = 0
+    // if <=1 detector is directly behind, the seg. index = 1
+    // This method is used for arrays imported from ROOT geometries.
+
+    TIter next(GetListOfDetectors());
+    KVDetector* d;
+    while( (d = (KVDetector*)next() )){
+        if(d->GetNode()->GetNDetsBehind() >1) d->SetSegment(0);
+        else d->SetSegment(1);
+    }
+}

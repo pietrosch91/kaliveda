@@ -132,7 +132,6 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
 void KVReconstructedNucleus::Print(Option_t * option) const
 {
 
-    cout << "KVReconstructedNucleus:" << endl;
 	int ndets=GetNumDet();
     if (ndets) {
 

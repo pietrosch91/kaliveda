@@ -221,6 +221,7 @@ public:
 
     void SetROOTGeometry(Bool_t on=kTRUE) { fROOTGeometry=on; };
     Bool_t IsROOTGeometry() const { return fROOTGeometry; };
+    void CalculateDetectorSegmentationIndex();
 
     ClassDef(KVMultiDetArray,7)//Base class for multidetector arrays
 };

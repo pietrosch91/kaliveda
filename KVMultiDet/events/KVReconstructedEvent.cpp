@@ -173,17 +173,21 @@ void KVReconstructedEvent::Print(Option_t * option) const
    //Print out list of particles in the event.
    //If option="ok" only particles with IsOK=kTRUE are included.
 
+    cout << "     ***//***  RECONSTRUCTED EVENT #" << GetNumber() << "  ***//***" << endl;
    cout << GetTitle() << endl;  //system
    cout << GetName() << endl;   //run
-   cout << "Event number: " << GetNumber() << endl << endl;
    cout << "MULTIPLICITY = " << ((KVReconstructedEvent *) this)->
        GetMult(option) << endl << endl;
 
    KVReconstructedNucleus *frag = 0;
+   int i=0;
    while ((frag =
            ((KVReconstructedEvent *) this)->GetNextParticle(option))) {
+       cout << "RECONSTRUCTED PARTICLE #" << ++i << endl;
       frag->Print();
+      cout << endl;
    }
+
 }
 
 //____________________________________________________________________________
