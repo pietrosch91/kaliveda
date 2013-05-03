@@ -456,7 +456,7 @@ void KVPosition::GetCornerCoordinates(TVector3 * corners, Double_t depth)
 	for(register int i=0; i<4; i++){
 		Double_t t = corners[i] * normal_to_plane;
 		if( t <= 0.0 ) corners[i].SetXYZ(0,0,0);
-		else corners[i] *= (fDistance/10. + depth)/t;
+        else corners[i] *= (fDistance + depth)/t;
 	}
 }
 
@@ -471,7 +471,7 @@ void KVPosition::GetCornerCoordinatesInOwnFrame(TVector3 * corners, Double_t dep
     GetCornerCoordinates(corners,depth);
 	TRotation rot_to_frame;
 	rot_to_frame.SetYEulerAngles( -GetPhi()*TMath::DegToRad(), -GetTheta()*TMath::DegToRad(), 0. );
-	TVector3 displZ(0,0,fDistance/10.+depth);
+    TVector3 displZ(0,0,fDistance+depth);
 	for(register int i=0;i<4;i++){
 		corners[i] = rot_to_frame*corners[i] - displZ;
 	}
@@ -574,7 +574,7 @@ void KVPosition::SetMatrix(TGeoHMatrix *m)
         TVector3 centre = GetCentreOfEntranceWindow();
         SetTheta(centre.Theta()*TMath::RadToDeg());
         SetPhi(centre.Phi()*TMath::RadToDeg());
-        SetDistance(centre.Mag()/10.);
+        SetDistance(centre.Mag());
     }
 }
 
@@ -590,7 +590,7 @@ void KVPosition::SetShape(TGeoBBox *b)
         TVector3 centre = GetCentreOfEntranceWindow();
         SetTheta(centre.Theta()*TMath::RadToDeg());
         SetPhi(centre.Phi()*TMath::RadToDeg());
-        SetDistance(centre.Mag()/10.);
+        SetDistance(centre.Mag());
     }
 }
 

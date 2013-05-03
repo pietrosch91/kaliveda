@@ -1137,7 +1137,7 @@ void KVDetector::AddToGeometry()
 	rot2.SetAngles(phi+90., theta, 0.);
 	rot1.SetAngles(-90., 0., 0.);
 	// distance to detector centre = distance to telescope + depth of detector in telescope + half total thickness of detector
-    Double_t dist_telescope = (fTelescope ? fTelescope->GetDistance()/10. : 0.);
+    Double_t dist_telescope = (fTelescope ? fTelescope->GetDistance() : 0.);
     Double_t dist = dist_telescope + fDepthInTelescope + fTotThickness/2.;
 	// translate detector to correct distance from target (note: reference is CENTRE of detector)
 	Double_t trans_z = dist;

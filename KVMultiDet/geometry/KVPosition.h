@@ -35,7 +35,7 @@ private:
     Double_t fTheta_max;          // polar angle in degrees of the edge furthest from the beam axis
     Double_t fPhi_min;            // azimuthal angle in degrees corresponding to most anticlockwise edge of telescope
     Double_t fPhi_max;            // azimuthal angle in degrees corresponding to most clockwise edge of telescope
-    Double_t fDistance;           // distance in mm from centre of solid angle element to coordinate system origin (target)
+    Double_t fDistance;           // distance in cm from centre of solid angle element to coordinate system origin (target)
 
     /* ROOT Geometry */
     TGeoHMatrix* fMatrix;        // transform world<->detector coordinates

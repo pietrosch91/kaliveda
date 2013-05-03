@@ -506,7 +506,7 @@ void KVTelescope::AddToGeometry()
 	rot1.SetAngles(-90., 0., 0.);
 	Double_t tot_len_tel = GetTotalLengthInCM();
 	// distance to telescope centre = distance to telescope + half total lenght of telescope
-	Double_t dist = GetDistance()/10. + tot_len_tel/2.;
+    Double_t dist = GetDistance() + tot_len_tel/2.;
 	// translate telescope to correct distance from target (note: reference is CENTRE of telescope)
 	Double_t trans_z = dist;
 
