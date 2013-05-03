@@ -631,7 +631,7 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
     Double_t master[3];
     Double_t points[3];
     Bool_t ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,1,points);
-    Bool_t ok2 = GetShape()->Contains(points);
+//    Bool_t ok2 = GetShape()->Contains(points);
     if(!ok1){
         ::Error("KVPosition::GetRandomPointOnEntranceWindow",
                 "TGeoBBox::GetPointsOnFacet returns kFALSE for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
