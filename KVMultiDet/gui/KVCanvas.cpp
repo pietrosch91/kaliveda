@@ -52,9 +52,9 @@ KVCanvas::~KVCanvas()
 }
 
 //________________________________________________________________
-KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name, title, ww, wh)
+KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool_t keyHandler):TCanvas(name, title, ww, wh)
 {
-  fKeyHandler = new KVKeyHandler(this);
+  if(keyHandler) fKeyHandler = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
   fHasDisabledClasses = false;
