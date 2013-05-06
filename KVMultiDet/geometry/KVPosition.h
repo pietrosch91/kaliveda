@@ -40,6 +40,7 @@ private:
     /* ROOT Geometry */
     TGeoHMatrix* fMatrix;        // transform world<->detector coordinates
     TGeoBBox*    fShape;         // shape of detector volume
+    Double_t     fSolidAngle;    // solid angle = area of entrance window / distance**2
 
 public:
     KVPosition();

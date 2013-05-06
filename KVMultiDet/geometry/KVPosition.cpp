@@ -342,7 +342,7 @@ Bool_t KVPosition::IsInPolarRange(const Double_t theta)
 //_____________________________________________________________________________________
 Bool_t KVPosition::IsSmallerThan(KVPosition * pos)
 {
-   //kTRUE if "this" is entirely contained within "pos"
+   // kTRUE if "this" is entirely contained within "pos"
 
     ROOT_GEO_DO_NOT_USE("IsSmallerThan",kFALSE)
    return (pos->IsInPolarRange(GetThetaMin())
@@ -480,11 +480,18 @@ void KVPosition::GetCornerCoordinatesInOwnFrame(TVector3 * corners, Double_t dep
 //___________________________________________________________________________
 Double_t KVPosition::GetSolidAngle(void)
 {
-   //return values of the solid angle (in msr) seen by the geometric ensemble
+    // Return values of the solid angle (in msr) seen by the geometric ensemble
+    // For simple geometries defined by theta_min/max etc., this is exact.
+    // For ROOT geometries we calculate the area of the entrance window and divide
+    // it by the square of the distance to the detector.
 	
-    ROOT_GEO_DO_NOT_USE("GetSolidAngle",0.)
+    if(ROOTGeo()){
+        return fSolidAngle;
+    }
 
-    return (-1.*cos(GetThetaMax()*TMath::DegToRad())+cos(GetThetaMin()*TMath::DegToRad()))*(GetAzimuthalWidth()*TMath::DegToRad())*1.e3;
+    return (-1.*cos(GetThetaMax()*TMath::DegToRad())+
+            cos(GetThetaMin()*TMath::DegToRad()))
+            *(GetAzimuthalWidth()*TMath::DegToRad())*1.e3;
 
 }
 
@@ -575,6 +582,8 @@ void KVPosition::SetMatrix(TGeoHMatrix *m)
         SetTheta(centre.Theta()*TMath::RadToDeg());
         SetPhi(centre.Phi()*TMath::RadToDeg());
         SetDistance(centre.Mag());
+        Double_t area = GetShape()->GetFacetArea(1);
+        fSolidAngle = area/pow(GetDistance(),2.)*1.e3;
     }
 }
 
@@ -591,6 +600,8 @@ void KVPosition::SetShape(TGeoBBox *b)
         SetTheta(centre.Theta()*TMath::RadToDeg());
         SetPhi(centre.Phi()*TMath::RadToDeg());
         SetDistance(centre.Mag());
+        Double_t area = GetShape()->GetFacetArea(1);
+        fSolidAngle = area/pow(GetDistance(),2.)*1.e3;
     }
 }
 
