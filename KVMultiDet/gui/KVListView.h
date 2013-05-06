@@ -71,13 +71,19 @@ class KVListView : public TGListView
 	    // DELETE AFTER USE !!!
 	    return ((KVLVContainer*)GetContainer())->GetSelectedItems();
     };
-	TList* GetSelectedObjects() const
-	{
-	    // list of selected objects (derived from TObject)
-	    // DELETE AFTER USE !!!
-	    return ((KVLVContainer*)GetContainer())->GetSelectedObjects();
+    TList* GetSelectedObjects() const
+    {
+        // list of selected objects (derived from TObject)
+        // DELETE AFTER USE !!!
+        return ((KVLVContainer*)GetContainer())->GetSelectedObjects();
     };
-	TCollection* GetUserItems()
+    KVList* GetPickOrderedSelectedObjects() const
+    {
+        // list of selected objects (derived from TObject) in the order they were picked
+        // DO NOT DELETE!!!
+        return ((KVLVContainer*)GetContainer())->GetPickOrderedSelectedObjects();
+    };
+    TCollection* GetUserItems()
 	{
 		// return list of all objects (selected or unselected) in list view
 		return ((KVLVContainer*)GetContainer())->GetUserItems();
