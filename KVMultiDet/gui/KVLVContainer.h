@@ -85,6 +85,7 @@ class KVLVContainer : public TGLVContainer
 	Bool_t		fAllowContextMenu;	// can objects' context menu be opened with right-click ?
 	Bool_t		fAllowDoubleClick;	// do something when object double-clicked ?
 	Bool_t		fUserDoubleClickAction;	// user-defined double-click action instead of Browse() method
+    Bool_t      fControlClick;      // set to kTRUE when user ctrl-clicks an item
 	
 	Bool_t      fKeepUserItems;      // internal use only, do not clear list of user items in RemoveAll()
 	protected:
@@ -96,6 +97,7 @@ class KVLVContainer : public TGLVContainer
 	Int_t 				fNcols;			// number of data columns
 	TContextMenu		*fContextMenu; // used to display popup context menu for items
 	KVList 				*fUserItems;	// list of currently displayed items, used by Refresh()
+    KVList              *fPickOrderedObjects;// list of currently selected objects, in order of selection
 
 	virtual void FillList(const TCollection* = 0);
 	void DeleteColData();
@@ -147,6 +149,12 @@ class KVLVContainer : public TGLVContainer
 	TObject* GetLastInList();
 	TList* GetSelectedItems();
 	TList* GetSelectedObjects();
+    KVList* GetPickOrderedSelectedObjects() const
+    {
+        // Returns list of currently selected objects, in the order they were picked.
+        // Do NOT delete this list - it belongs to KVLVContainer.
+        return fPickOrderedObjects;
+    }
 	TCollection* GetUserItems()
 	{
 		// return list of all objects in list (regardless of selection)
@@ -174,6 +182,8 @@ class KVLVContainer : public TGLVContainer
 	virtual void RemoveAll();
    
    void DoubleClickAction(TObject*); /* SIGNAL */
+
+   Bool_t HandleButton(Event_t *event);
 
    ClassDef(KVLVContainer,0)//List view container class
 };

@@ -152,11 +152,9 @@ class KVTreeAnalyzer : public TNamed
    TGMainFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
    KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
    TGLabel* G_leaf_expr;//!
-   TGCheckButton* G_leaf_swap;//!
-   Bool_t fSwapLeafExpr;//!
    TGPictureButton *G_leaf_draw;//!
    TString fLeafExpr;//!
-   TList* fSelectedLeaves;//!
+   KVList* fSelectedLeaves;//!
    TNamed* fXLeaf;//!
    TNamed* fYLeaf;//!
    TNamed* fZLeaf;//!
@@ -311,7 +309,6 @@ class KVTreeAnalyzer : public TNamed
    void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;}
    void SetDrawLog(Bool_t yes=kTRUE){fDrawLog=yes;}
    void SetApplySelection(Bool_t yes=kTRUE){fApplySelection=yes;}
-   void SetSwapLeafExpr(Bool_t yes=kTRUE){fSwapLeafExpr=yes;LeafChanged();}
    void SetProfileHisto(Bool_t yes=kTRUE){fProfileHisto=yes;}
    void LeafChanged();
    void HistoSelectionChanged();

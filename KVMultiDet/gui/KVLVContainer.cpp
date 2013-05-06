@@ -295,6 +295,9 @@ void KVLVContainer::default_init()
 	fAllowDoubleClick = kTRUE;
 	fUserDoubleClickAction = kFALSE;
 	fKeepUserItems = kFALSE;
+
+    fPickOrderedObjects = new KVList(kFALSE);
+    fPickOrderedObjects->SetCleanup();
 }
 
 KVLVContainer::~KVLVContainer()
@@ -305,6 +308,8 @@ KVLVContainer::~KVLVContainer()
 	delete fContextMenu;
 	fUserItems->Clear();
 	delete fUserItems;
+    fPickOrderedObjects->Clear();
+    delete fPickOrderedObjects;
 }
 
 //____________________________________________________________________________//
@@ -597,6 +602,18 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
 	// Open context menu when user right-clicks an object in the list.
 	// Calling AllowContextMenu(kFALSE) will disable this.
 
+    if(but == kButton1){
+        if(!fControlClick) fPickOrderedObjects->Clear();
+        TGLVEntry *el = (TGLVEntry*)f;
+        TObject* ob = (TObject*)el->GetUserData();
+        if(ob){
+            Bool_t in_list = fPickOrderedObjects->FindObject(ob);
+            if(in_list) fPickOrderedObjects->Remove(ob);
+            else fPickOrderedObjects->AddLast(ob);
+        }
+        return;
+    }
+
 	if(!fAllowContextMenu) return;
 
 	if(but == kButton3){
@@ -722,5 +739,13 @@ void KVLVContainer::SetDoubleClickAction(const char* receiver_class, void* recei
    
 void KVLVContainer::DoubleClickAction(TObject*obj)
 {
-   Emit("DoubleClickAction(TObject*)", (Long_t)obj);
+    Emit("DoubleClickAction(TObject*)", (Long_t)obj);
+}
+
+Bool_t KVLVContainer::HandleButton(Event_t *event)
+{
+    // Override TGContainer method in order to set fControlClick flag
+    fControlClick=kFALSE;
+    if(event->fCode == kButton1 && (event->fState & kKeyControlMask)) fControlClick=kTRUE;
+    return TGLVContainer::HandleButton(event);
 }

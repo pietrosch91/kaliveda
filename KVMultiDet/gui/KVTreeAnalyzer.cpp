@@ -69,7 +69,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
-   fDrawSame = fApplySelection = fSwapLeafExpr = fProfileHisto = kFALSE;
+   fDrawSame = fApplySelection = fProfileHisto = kFALSE;
    fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
    fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
    fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
@@ -109,7 +109,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fMain_selectionlist=0;
    fTreeName = t->GetName();
    fTreeFileName = t->GetCurrentFile()->GetName();
-   fDrawSame = fApplySelection = fSwapLeafExpr= fProfileHisto  = kFALSE;
+   fDrawSame = fApplySelection = fProfileHisto  = kFALSE;
    fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
    fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
    fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
@@ -144,7 +144,6 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
 {
    // Destructor
    SafeDelete(fSelectedSelections);
-   SafeDelete(fSelectedLeaves);
    SafeDelete(fSelectedHistos);
    SafeDelete(ipscale);
    SafeDelete(fMain_histolist);
@@ -411,10 +410,6 @@ void KVTreeAnalyzer::OpenGUI()
    G_leaf_draw->SetEnabled(kFALSE);
    G_leaf_draw->Connect("Clicked()", "KVTreeAnalyzer", this, "DrawLeafExpr()");
    fHorizontalFrame->AddFrame(G_leaf_draw, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
-   G_leaf_swap = new TGCheckButton(fHorizontalFrame, "Swap");
-   G_leaf_swap->SetToolTipText("Swap axes");
-   G_leaf_swap->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetSwapLeafExpr(Bool_t)");
-   fHorizontalFrame->AddFrame(G_leaf_swap, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsCenterY,2,2,2,2));
    fLeafExpr="          ";
    G_leaf_expr = new TGLabel(fHorizontalFrame, fLeafExpr.Data());
    G_leaf_expr->Resize();
@@ -1159,46 +1154,39 @@ void KVTreeAnalyzer::LeafChanged()
    // Method called whenever the leaf/alias selection in the TTree GUI list changes.
    // Updates the names of the leaves/aliases displayed next to the 'draw' button.
    
-   SafeDelete(fSelectedLeaves);
-   fSelectedLeaves = G_leaflist->GetSelectedObjects();
+   fSelectedLeaves = G_leaflist->GetPickOrderedSelectedObjects();
    fLeafExpr="-";
    fXLeaf=fYLeaf=0;
    G_leaf_draw->SetEnabled(kFALSE);
-   if(fSelectedLeaves){
-      Int_t nleaf = fSelectedLeaves->GetEntries();
+   Int_t nleaf = fSelectedLeaves->GetEntries();
+   if(nleaf){
       if(nleaf==1){
          fXLeaf = (TNamed*)fSelectedLeaves->First();
          fLeafExpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle()); 
          G_leaf_draw->SetEnabled(kTRUE);
       }
       else if(nleaf==2){
-         if(fSwapLeafExpr){
-            fXLeaf = (TNamed*)fSelectedLeaves->At(1);
-            fYLeaf = (TNamed*)fSelectedLeaves->First();
-         }
-         else{
-            fYLeaf = (TNamed*)fSelectedLeaves->At(1);
-            fXLeaf = (TNamed*)fSelectedLeaves->First();
-         }
-        TString X,Y;
-         X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
-         Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
-         fLeafExpr.Form("%s:%s", Y.Data(), X.Data());
-         G_leaf_draw->SetEnabled(kTRUE);
+          fXLeaf = (TNamed*)fSelectedLeaves->At(1);
+          fYLeaf = (TNamed*)fSelectedLeaves->First();
+          TString X,Y;
+          X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
+          Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
+          fLeafExpr.Form("%s:%s", Y.Data(), X.Data());
+          G_leaf_draw->SetEnabled(kTRUE);
       }
       else if(nleaf==3){
-         fXLeaf = (TNamed*)fSelectedLeaves->At(2);
-         fYLeaf = (TNamed*)fSelectedLeaves->At(1);
-         fZLeaf = (TNamed*)fSelectedLeaves->At(0);
-         TString X,Y,Z;
-         X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
-         Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
-         Z = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():  fZLeaf->GetTitle());
-         fLeafExpr.Form("%s:%s:%s", Z.Data(), Y.Data(), X.Data());
-         G_leaf_draw->SetEnabled(kTRUE);
-         }
-       else{
-         fLeafExpr="-";
+          fXLeaf = (TNamed*)fSelectedLeaves->At(2);
+          fYLeaf = (TNamed*)fSelectedLeaves->At(1);
+          fZLeaf = (TNamed*)fSelectedLeaves->At(0);
+          TString X,Y,Z;
+          X = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
+          Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
+          Z = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():  fZLeaf->GetTitle());
+          fLeafExpr.Form("%s:%s:%s", Z.Data(), Y.Data(), X.Data());
+          G_leaf_draw->SetEnabled(kTRUE);
+      }
+      else{
+          fLeafExpr="-";
       }
    }
    G_leaf_expr->SetText(fLeafExpr);
@@ -1244,7 +1232,8 @@ void KVTreeAnalyzer::DrawLeafExpr()
    // If only one leaf/alias is selected, this actually calls DrawLeaf.
    
    if(fLeafExpr=="-")return;
-   if(fSelectedLeaves->GetEntries()==3){
+   Bool_t threeDexp = fSelectedLeaves->GetEntries()==3;
+   if(threeDexp && !fProfileHisto){
       DrawAsDalitz();
       return;
    }
@@ -1273,10 +1262,10 @@ void KVTreeAnalyzer::DrawLeafExpr()
    int nx=500,ny=500;
    double xmin,xmax,ymin,ymax;
    xmin=xmax=ymin=ymax=0;
-   TString Xexpr,Yexpr;
+   TString Xexpr,Yexpr,Zexpr;
    Xexpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():fXLeaf->GetTitle());
    Yexpr = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():fYLeaf->GetTitle());
-   
+   if(threeDexp) Zexpr = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():fZLeaf->GetTitle());
    
       xmin = fTree->GetMinimum(Xexpr);
       xmax = fTree->GetMaximum(Xexpr);
@@ -1315,7 +1304,8 @@ void KVTreeAnalyzer::DrawLeafExpr()
      ymax = fYmax;
      }
    
-   fLeafExpr.Form("%s:%s", Yexpr.Data(), Xexpr.Data());
+   if(threeDexp) fLeafExpr.Form("%s:%s:%s", Zexpr.Data(), Yexpr.Data(), Xexpr.Data());
+   else fLeafExpr.Form("%s:%s", Yexpr.Data(), Xexpr.Data());
    TString name;
    name.Form("h%d",fHistoNumber);
    TString drawexp(fLeafExpr), histo, histotitle;
