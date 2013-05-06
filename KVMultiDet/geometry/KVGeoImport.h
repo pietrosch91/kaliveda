@@ -28,7 +28,7 @@ class KVGeoImport : public KVGeoNavigator
 
    virtual void ParticleEntersNewVolume(KVNucleus *);
 
-   void ImportGeometry(Double_t dTheta=0.5/*degrees*/, Double_t dPhi=15.0/*degrees*/,
+   void ImportGeometry(Double_t dTheta=0.1/*degrees*/, Double_t dPhi=1.0/*degrees*/,
                        Double_t ThetaMin=0.0/*degrees*/, Double_t PhiMin=0.0/*degrees*/,
                        Double_t ThetaMax=180.0/*degrees*/, Double_t PhiMax=360.0/*degrees*/);
 

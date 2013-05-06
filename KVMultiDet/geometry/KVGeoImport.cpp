@@ -7,6 +7,7 @@
 #include <TGeoBBox.h>
 #include <KVEvent.h>
 #include <KVGroup.h>
+#include <TGeoPhysicalNode.h>
 
 ClassImp(KVGeoImport)
 
@@ -119,7 +120,7 @@ KVDetector* KVGeoImport::GetCurrentDetector()
     // Returns pointer to KVDetector corresponding to current location
     // in geometry. Detector is created and added to array if needed.
 
-    TString detector_name;
+    KVString detector_name;
     Bool_t multilay;
     TGeoVolume* detector_volume = GetCurrentDetectorNameAndVolume(detector_name,multilay);
     // failed to identify current volume as part of a detector
@@ -159,6 +160,7 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     // 6.) The name of the KVDetector object created and added to the array will be taken
     //     from the (unique) name of the node corresponding to the geometrical positioning
     //     of the detector.
+
 
     KVDetector* d = new KVDetector;
     d->SetName(det_name);

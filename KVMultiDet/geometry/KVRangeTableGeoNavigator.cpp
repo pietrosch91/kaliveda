@@ -134,11 +134,15 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus *part)
         //initial energy
         if (!part->GetPInitial()) part->SetE0();
 
-        TString dname; Bool_t multi;
-        GetCurrentDetectorNameAndVolume(dname,multi);
+        KVString dname; Bool_t multi;
         TString absorber_name;
-        if(multi) absorber_name.Form("%s/%s", dname.Data(), GetCurrentNode()->GetName());
-        else absorber_name=dname;
+        if(GetCurrentDetectorNameAndVolume(dname,multi)){
+            if(multi) absorber_name.Form("%s/%s", dname.Data(), GetCurrentNode()->GetName());
+            else absorber_name=dname;
+        }
+        else
+            absorber_name=irmat->GetName();
+
         part->GetParameters()->SetValue(Form("DE:%s",absorber_name.Data()), de);
         part->GetParameters()->SetValue(Form("Xin:%s",absorber_name.Data()), GetEntryPoint().X());
         part->GetParameters()->SetValue(Form("Yin:%s",absorber_name.Data()), GetEntryPoint().Y());

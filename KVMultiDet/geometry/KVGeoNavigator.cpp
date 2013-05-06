@@ -80,7 +80,7 @@ TGeoHMatrix *KVGeoNavigator::GetCurrentMatrix() const
     return fCurrentMatrix;
 }
 
-TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(TString &detector_name, Bool_t& multilayer)
+TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(KVString &detector_name, Bool_t& multilayer)
 {
     // Returns the name of the current detector (if we are inside a detector)
     // and whether it is a multilayer or simple detector.
@@ -88,6 +88,13 @@ TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(TString &detector_na
     //
     // N.B. the returned volume corresponds to the *whole* detector (even if it has several layers).
     // For a multilayer detector, GetCurrentVolume() returns the volume for the current layer.
+    //
+    // We analyse the current path in order to construct the full (unique) name
+    // of the detector, i.e. if the current path is
+    //
+    // /WORLD_1/STRUCT_BLOCK_2/CHIO_WALL_1/DET_CHIO_2/WINDOW_1
+    //
+    // then the name of the detector will be "BLOCK_2_CHIO_2"
 
     multilayer=kFALSE;
     fCurrentDetectorNode=0;
@@ -96,7 +103,6 @@ TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(TString &detector_na
     if(volNom.BeginsWith("DET_")){
         // simple detector
         fCurrentDetectorNode = GetCurrentNode();
-        detector_name = fCurrentDetectorNode->GetName();
         detector_volume = GetCurrentVolume();
     }
     else
@@ -108,15 +114,14 @@ TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(TString &detector_na
             if(mom.BeginsWith("DET_")){
                 // it *is* a multilayer detector (youpi! :-)
                 if(fMotherNode) {// this is the node corresponding to the whole detector,
-                                             // i.e. the one with the (unique) name of the detector
                     fCurrentDetectorNode = fMotherNode;
-                    detector_name = fCurrentDetectorNode->GetName();
                     detector_volume = mother_vol;
                     multilayer=kTRUE;
                 }
             }
         }
     }
+    if(detector_volume) ExtractDetectorNameFromPath(detector_name);
     return detector_volume;
 }
 
@@ -125,6 +130,32 @@ TGeoNode *KVGeoNavigator::GetCurrentDetectorNode() const
     // Returns the node corresponding to the current detector volume
     // N.B. the returned node corresponds to the *whole* detector (even if it has several layers).
     return fCurrentDetectorNode;
+}
+
+void KVGeoNavigator::ExtractDetectorNameFromPath(KVString &detname)
+{
+    // We analyse the current path in order to construct the full (unique) name
+    // of the detector, i.e. if the current path is
+    //
+    // /TOP_1/STRUCT_BLOCK_2/CHIO_WALL_1/DET_CHIO_2/WINDOW_1
+    //
+    // then the name of the detector will be "BLOCK_2_CHIO_2"
+
+    KVString path = GetCurrentPath();
+    path.Begin("/");
+    detname="";
+    while(!path.End()){
+        KVString elem = path.Next();
+        if(elem.BeginsWith("STRUCT_")){
+            // structure element. strip off "STRUCT_" and use rest as part of name
+            detname+=elem(7,elem.Length()-7);
+            detname+="_";
+        }
+        else if(elem.BeginsWith("DET_")){
+            // detector name. strip off "DET_" and use rest as part of name
+            detname+=elem(4,elem.Length()-4);
+        }
+    }
 }
 
 void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
@@ -147,6 +178,7 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
     fCurrentNode = fGeometry->GetCurrentNode();
     fMotherNode = fGeometry->GetMother();
     fCurrentMatrix = fGeometry->GetCurrentMatrix();
+    fCurrentPath = fGeometry->GetPath();
     // move along trajectory until we hit a new volume
     fGeometry->FindNextBoundaryAndStep();
     fStepSize = fGeometry->GetStep();
@@ -154,6 +186,7 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
     TGeoNode* newNod = fGeometry->GetCurrentNode();
     TGeoNode* newMom = fGeometry->GetMother();
     TGeoHMatrix* newMatx = fGeometry->GetCurrentMatrix();
+    TString newPath = fGeometry->GetPath();
 
     Double_t XX,YY,ZZ;
     XX=YY=ZZ=0.;
@@ -181,6 +214,7 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
         fCurrentNode = newNod;
         fMotherNode = newMom;
         fCurrentMatrix = newMatx;
+        fCurrentPath = newPath;
 
         // move on to next volume crossed by trajectory
         fGeometry->FindNextBoundaryAndStep();
@@ -189,59 +223,7 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
         newNod = fGeometry->GetCurrentNode();
         newMom = fGeometry->GetMother();
         newMatx = fGeometry->GetCurrentMatrix();
+        newPath = fGeometry->GetPath();
     }
 }
 
-TGeoNode* KVGeoNavigator::FindPath(const Char_t* unique_name)
-{
-
-    TGeoNode* top = fGeometry->GetNode(0);
-
-    TGeoVolume* vol = top->GetVolume();
-    TObjArray* arr = 0;
-    while ( (arr = vol->GetNodes()) ){
-
-        for (Int_t ii=0;ii<arr->GetEntries();ii+=1){
-            TGeoNode* node = (TGeoNode* )arr->At(ii);
-            if (!strcmp(node->GetName(),unique_name)){
-                printf("Mother Node %s\n",top->GetName());
-                return node;
-            }
-            TGeoNode* nfather = node;
-
-            node = ScanVolumes(nfather,unique_name);
-            if (node){
-                return node;
-            }
-            vol = node->GetVolume();
-        }
-    }
-
-    return 0;
-
-}
-
-
-TGeoNode* KVGeoNavigator::ScanVolumes(TGeoNode* nfather,const Char_t* unique_name)
-{
-
-    TObjArray* arr = nfather->GetVolume()->GetNodes();
-    if (!arr) return 0;
-
-    for (Int_t ii=0;ii<arr->GetEntries();ii+=1){
-        TGeoNode* node = (TGeoNode* )arr->At(ii);
-
-        if (!strcmp(node->GetName(),unique_name)){
-            printf("Mother Node %s %p\n",nfather->GetName(),nfather);
-            return node;
-        }
-        node =  ScanVolumes(node , unique_name);
-        if (node){
-            printf("Mother Node %s %p\n",nfather->GetName(),nfather);
-            return node;
-        }
-    }
-
-    return 0;
-
-}

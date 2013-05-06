@@ -22,6 +22,7 @@ private:
     TGeoNode* fCurrentNode;//current node
     TGeoNode* fCurrentDetectorNode;//node for current detector
     TGeoHMatrix* fCurrentMatrix;//current global transformation matrix
+    TString fCurrentPath;//current full path to physical node
     TGeoNode* fMotherNode;//mother node of current node
     Double_t fStepSize;//distance to travel in volume
     TVector3 fEntryPoint;//position of particle on entering volume
@@ -43,15 +44,16 @@ public:
     Double_t GetStepSize() const { return fStepSize; }
     const TVector3& GetEntryPoint() const { return fEntryPoint; }
     const TVector3& GetExitPoint() const { return fExitPoint; }
-    TGeoVolume* GetCurrentDetectorNameAndVolume(TString&, Bool_t&);
+    TGeoVolume* GetCurrentDetectorNameAndVolume(KVString &, Bool_t&);
     TGeoNode* GetCurrentDetectorNode() const;
+    TString GetCurrentPath() const { return fCurrentPath; }
 
     Bool_t StopPropagation() const { return fStopPropagation; }
     void SetStopPropagation(Bool_t stop = kTRUE) { fStopPropagation = stop; }
 
+    void ExtractDetectorNameFromPath(KVString&);
+
     ClassDef(KVGeoNavigator,0)//Propagate particles of an event through a TGeo geometry
-    TGeoNode *FindPath(const Char_t *unique_name);
-    TGeoNode *ScanVolumes(TGeoNode *nfather, const Char_t *unique_name);
 };
 
 #endif
