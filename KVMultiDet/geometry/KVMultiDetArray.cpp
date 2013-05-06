@@ -915,6 +915,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                    if(de_det->GetNHits()>1) recon_nuc->SetStatus( KVReconstructedNucleus::kStatusPileupDE );
                }
            }
+           recon_nuc->SetIsOK(kFALSE);
            if(recon_nuc->GetStatus()!=KVReconstructedNucleus::kStatusPileupGhost){
                recon_nuc->SetIsIdentified();
                recon_nuc->SetIsCalibrated();
