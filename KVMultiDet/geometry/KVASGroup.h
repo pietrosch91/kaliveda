@@ -34,7 +34,6 @@ protected:
    UInt_t GetNumberOfDetectorLayers();
    TList *GetDetectorsInLayer(UInt_t lay);
    UInt_t GetDetectorLayer(KVDetector * det);
-   inline Bool_t Fired(Option_t * opt = "any") const;
    TList *GetAlignedDetectors(KVDetector *, UChar_t dir = kBackwards);
    void AnalyseAndReconstruct(KVReconstructedEvent *);
    void GetIDTelescopes(TCollection *);
@@ -43,16 +42,5 @@ protected:
 
    ClassDef(KVASGroup,1)//Group in axially-symmetric multidetector
 };
-
-inline Bool_t KVASGroup::Fired(Option_t * opt) const
-{
-   //returns kTRUE if at least one telescope in group has KVTelescope::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
-   KVTelescope *tel;
-   TIter nxt(fTelescopes);
-   while ((tel = (KVTelescope *) nxt()))
-      if (tel->Fired(opt))
-         return kTRUE;
-   return kFALSE;
-}
 
 #endif

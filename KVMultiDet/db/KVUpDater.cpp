@@ -157,7 +157,7 @@ void KVUpDater::SetCalibrationParameters(UInt_t run)
         return;
     }
     //Reset all calibrators of all detectors first
-    TIter next(gMultiDetArray->GetListOfDetectors());
+    TIter next(gMultiDetArray->GetDetectors());
     KVDetector *kvd;
     KVCalibrator *kvc;
     while ((kvd = (KVDetector *) next()))

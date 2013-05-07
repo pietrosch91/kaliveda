@@ -107,7 +107,7 @@ KVRing::KVRing(const UInt_t ring, const Float_t thmin,
       kvt->SetNumber(counter);
       counter += step;
       kvt->SetDistance(dist);
-      AddTelescope(kvt);        //add telescope to ring
+      Add(kvt);        //add telescope to ring
    }
    SetType(proto->GetType());
 }
@@ -136,15 +136,14 @@ void KVRing::AddTelescope(KVDetector * tele, const int fcon)
 // add detector telescope to current ring
    fTelescopes->Add(tele);
    if (fcon == KVD_RECPRC_CNXN)
-      tele->AddToRing(this, KVD_NORECPRC_CNXN);
+      tele->AddParentStructure(this);
 }
 
 void KVRing::AddTelescope()
 {
 //create and add new detector telescope to current ring
    KVTelescope *tele = new KVTelescope;
-   fTelescopes->Add(tele);
-   tele->AddToRing(this, KVD_NORECPRC_CNXN);
+   Add(tele);
 }
 
 //_______________________________________________________________________________________
@@ -259,9 +258,8 @@ void KVRing::SetNumberTelescopes(UInt_t num)
       phi = phi2;
       kvt->SetNumber(counter);
       counter += fStep;
-      kvt->AddToRing(this, KVD_NORECPRC_CNXN);
       kvt->SetBit(kMustCleanup);
-      fTelescopes->Add(kvt);
+      Add(kvt);
    }
 }
 
@@ -292,8 +290,8 @@ void KVRing::ReplaceTelescope(KVTelescope * oldT, KVTelescope * newT)
    new_tel->SetNumber(number);
    new_tel->SetPolarMinMax(GetThetaMin(), GetThetaMax());
    //put new telescope in place of old one in ring
-   fTelescopes->AddAt(new_tel, index);
-   new_tel->AddToRing(this, KVD_NORECPRC_CNXN);
+   Warning("ReplaceTelescope", "need to implement KVGeoStrucElement::Replace(KVBase*)");
+   Add(new_tel);
 }
 
 void KVRing::RemoveTelescope(const Char_t * name)

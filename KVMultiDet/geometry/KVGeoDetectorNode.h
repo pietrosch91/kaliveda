@@ -8,7 +8,7 @@
 class KVSeqCollection;
 class KVDetector;
 
-class KVDetectorNode : public KVBase
+class KVGeoDetectorNode : public KVBase
 {
     KVSeqCollection* fInFront;//list of detectors in front
     KVSeqCollection* fBehind;//list of detectors behind
@@ -16,9 +16,9 @@ class KVDetectorNode : public KVBase
     void init();
 
    public:
-   KVDetectorNode();
-   KVDetectorNode(const Char_t* name);
-   virtual ~KVDetectorNode();
+   KVGeoDetectorNode();
+   KVGeoDetectorNode(const Char_t* name);
+   virtual ~KVGeoDetectorNode();
 
    void AddInFront(KVDetector*);
    void AddBehind(KVDetector*);
@@ -31,7 +31,7 @@ class KVDetectorNode : public KVBase
 
    void ls(Option_t *option="") const;
 
-   ClassDef(KVDetectorNode,1)//Stores lists of detectors in front and behind this node
+   ClassDef(KVGeoDetectorNode,1)//Stores lists of detectors in front and behind this node
 };
 
 #endif

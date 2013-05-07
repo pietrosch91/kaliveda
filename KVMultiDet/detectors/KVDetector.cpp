@@ -69,6 +69,7 @@ Int_t KVDetector::fDetCounter = 0;
 void KVDetector::init()
 {
    //default initialisations
+    fTelescope=0;
    fModules = 0;
    fCalibrators = 0;
    fACQParams = 0;
@@ -78,7 +79,6 @@ void KVDetector::init()
    fCalWarning = 0;
    fAbsorbers = new KVList;
    fActiveLayer = 0;
-   fTelescope = 0;
    fIDTelescopes = new KVList(kFALSE);
    fIDTelescopes->SetCleanup(kTRUE);
    fIDTelAlign = new KVList(kFALSE);
@@ -95,8 +95,6 @@ void KVDetector::init()
 	fSimMode = kFALSE;
 	fPresent = kTRUE;
 	fDetecting = kTRUE;
-    fGroup = 0;
-    fRing = 0;
 }
 
 KVDetector::KVDetector()
@@ -174,8 +172,6 @@ KVDetector::~KVDetector()
    SafeDelete(fIDTele4Ident);
    SafeDelete(fAlignedDetectors[0]);
    SafeDelete(fAlignedDetectors[1]);
-   fGroup = 0;
-   fRing = 0;
 }
 
 //________________________________________________________________
@@ -410,13 +406,6 @@ const Char_t *KVDetector::GetArrayName()
 }
 
 //_____________________________________________________________________________________
-UInt_t KVDetector::GetTelescopeNumber() const
-{
-    //The number of the detector's telescope in its ring.
-   return (GetTelescope()? GetTelescope()->GetNumber() : 0);
-}
-
-//_____________________________________________________________________________________
 Bool_t KVDetector::AddCalibrator(KVCalibrator * cal)
 {
    //Associate a calibration with this detector.
@@ -554,36 +543,6 @@ void KVDetector::SetActiveLayer(KVMaterial * mat)
    if( fAbsorbers->IndexOf(mat) > -1 ) SetActiveLayer((Short_t) (fAbsorbers->IndexOf(mat) ));
 }
 
-//_________________________________________________________________________________
-void KVDetector::AddToTelescope(KVTelescope * T, const int fcon)
-{
-//Add this detector to a telescope.
-//
-   if (T) {
-      SetTelescope(T);
-      if (fcon == KVD_RECPRC_CNXN)
-         T->AddDetector(this, KVD_NORECPRC_CNXN);
-   } else {
-      Warning("AddToTelescope", "Pointer to telescope is null");
-   }
-}
-
-//_____________________________________________________________________________________
-KVTelescope *KVDetector::GetTelescope() const
-{
-//The telescope to which the detector belongs.
-//
-   return fTelescope;
-}
-
-void KVDetector::SetTelescope(KVTelescope * kvt)
-{
-   //Set telescope to which detector belongs
-    //Copy the angular position/dimensions of the telescope
-   fTelescope = kvt;
-   SetPolarMinMax(kvt->GetThetaMin(),kvt->GetThetaMax());
-   SetAzimuthalMinMax(kvt->GetPhiMin(),kvt->GetPhiMax());
-}
 
 KVMaterial *KVDetector::GetAbsorber(Int_t i) const
 {
@@ -1595,12 +1554,12 @@ void KVDetector::SetPresent(Bool_t present)
         //Le detecteur etait l unique d un KVTelescope
 		//on retire directement le KVTelescope
 		if (fTelescope->GetDetectors()->GetEntries()==1){
-			KVGroup* gr = fTelescope->GetGroup();
+            KVGroup* gr = (KVGroup*)fTelescope->GetParentStructure("GROUP");
 			
 			gr->PrepareModif(this);
 			
-			gr->RemoveTelescope(fTelescope,kFALSE,kFALSE);
-			gr->GetDetectors()->Remove(this);
+            gr->Remove(fTelescope);
+            gr->Remove(this);
 			gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
 			
 		}
@@ -1617,7 +1576,7 @@ void KVDetector::SetPresent(Bool_t present)
 			gr->PrepareModif(this);
 			
 			gr->Add(fTelescope);
-			gr->GetDetectors()->Add(this);
+            gr->Add(this);
 			gr->Sort();
 			gr->CountLayers();
 			gr->GetIDTelescopes( gMultiDetArray->GetListOfIDTelescopes() );
@@ -1658,64 +1617,45 @@ void KVDetector::SetDetecting(Bool_t detecting)
 	}
 
 }
-//_____________________________________________________________________________
-void KVDetector::AddToRing(KVRing * kvr, const int fcon)
-{
-// add current detector to a ring
-   fRing = kvr;
-   if (fcon == KVD_RECPRC_CNXN)
-      kvr->AddTelescope(this, KVD_NORECPRC_CNXN);
-}
-//____________________________________________________________________________________
-KVLayer *KVDetector::GetLayer() const
-{
-   return (GetRing()? GetRing()->GetLayer() : NULL);
-}
 
-//_____________________________________________________________________________
-UInt_t KVDetector::GetLayerNumber()
-{
-   return (GetLayer()? GetLayer()->GetNumber() : 0);
-}
-
-//_____________________________________________________________________________
-UInt_t KVDetector::GetRingNumber()
-{
-   return (GetRing()? GetRing()->GetNumber() : 0);
-}
-
-//__________________________________________________________________________
-const Char_t *KVDetector::GetRingName() const
-{
-   return (GetRing()? GetRing()->GetName() : "");
-}
-
-//_____________________________________________________________________________
-const Char_t *KVDetector::GetLayerName() const
-{
-   return (GetLayer()? GetLayer()->GetName() : "");
-}
-
-//_________________________________________________________________________
-KVRing *KVDetector::GetRing() const
-{
-   return fRing;
-}
-
-//________________________________________________________________________
 KVGroup *KVDetector::GetGroup() const
 {
-   return fGroup;
+    return (KVGroup*)GetParentStructure("GROUP");
 }
 
 //__________________________________________________________________________
 void KVDetector::SetGroup(KVGroup * kvg)
 {
-   fGroup = kvg;
+   AddParentStructure(kvg);
 }
 
 //_________________________________________________________________________
 UInt_t KVDetector::GetGroupNumber()
 {
    return (GetGroup()? GetGroup()->GetNumber() : 0);
+}
+
+void KVDetector::AddParentStructure(KVGeoStrucElement*elem)
+{
+    fParentStrucList.Add(elem);
+}
+
+void KVDetector::RemoveParentStructure(KVGeoStrucElement*elem)
+{
+    fParentStrucList.Remove(elem);
+}
+
+KVGeoStrucElement* KVDetector::GetParentStructure(const Char_t* type, const Char_t* name) const
+{
+    // Get parent geometry structure element of given type.
+    // Give unique name of structure if more than one element of same type is possible.
+    KVGeoStrucElement* el=0;
+    if(strcmp(name,"")){
+        KVSeqCollection* strucs = fParentStrucList.GetSubListWithType(type);
+        el = (KVGeoStrucElement*)strucs->FindObject(name);
+        delete strucs;
+    }
+    else
+        el = (KVGeoStrucElement*)fParentStrucList.FindObjectByType(type);
+    return el;
 }

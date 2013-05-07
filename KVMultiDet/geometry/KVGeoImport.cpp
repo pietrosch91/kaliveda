@@ -85,8 +85,9 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
         }
         else {
             fCurrentGroup = new KVGroup;
+            fCurrentGroup->SetNumber(++fGroupNumber);
             fCurrentGroup->Add(detector);
-            fArray->AddGroup(fCurrentGroup);
+            fArray->Add(fCurrentGroup);
         }
     }
     else
@@ -124,6 +125,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     nuc->SetZAandE(1,1,1);
     Double_t theta,phi;
     Int_t count=0;
+    fGroupNumber=0;
     for(theta=ThetaMin; theta<=ThetaMax; theta+=dTheta){
         for(phi=PhiMin; phi<=PhiMax; phi+=dPhi){
                 nuc->SetTheta(theta);
@@ -134,15 +136,13 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
                 count++;
         }
     }
-    fArray->CreateIDTelescopesInGroups();
     fArray->SetGeometry(GetGeometry());
     fArray->CalculateDetectorSegmentationIndex();
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",
-         "Imported %d detectors into array", fArray->GetListOfDetectors()->GetEntries());
-    Info("ImportGeometry",
-         "Identified %d independent groups of detectors in array", fArray->GetGroups()->GetEntries());
+         "Imported %d detectors into array", fArray->GetDetectors()->GetEntries());
+    fArray->CreateIDTelescopesInGroups();
     Info("ImportGeometry",
          "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries());
 }
@@ -151,6 +151,7 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 {
     // Returns pointer to KVDetector corresponding to current location
     // in geometry. Detector is created and added to array if needed.
+    // We also set up any geometry structure elements (from nodes beginning with "STRUCT_")
 
     KVString detector_name;
     Bool_t multilay;
@@ -165,7 +166,25 @@ KVDetector* KVGeoImport::GetCurrentDetector()
         if(det) {
             det->SetMatrix(GetCurrentMatrix());
             det->SetShape((TGeoBBox*)detector_volume->GetShape());
-            fArray->AddDetector(det);
+            fArray->Add(det);
+            Int_t nstruc = CurrentStructures().GetEntries();
+            if(nstruc){
+                // Build and add geometry structure elements
+                KVGeoStrucElement* ELEM = fArray;
+                for(register int i=0;i<nstruc;i++){
+                    KVGeoStrucElement* elem = (KVGeoStrucElement*)CurrentStructures()[i];
+                    KVGeoStrucElement* nextELEM = ELEM->GetStructure(elem->GetName());
+                    if(!nextELEM){
+                        // make new structure
+                        nextELEM = new KVGeoStrucElement(elem->GetName(), elem->GetType());
+                        nextELEM->SetNumber(elem->GetNumber());
+                        ELEM->Add(nextELEM);
+                    }
+                    ELEM=nextELEM;
+                }
+                // add detector to last structure
+                ELEM->Add(det);
+            }
         }
     }
     return det;

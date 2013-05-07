@@ -78,10 +78,6 @@ void KVMultiDetArray::init()
     //We use the ROOT automatic garbage collection to make sure that any object deleted
     //elsewhere is removed automatically from these lists.
 
-    fDetectors = new KVHashList();
-    fDetectors->SetCleanup(kTRUE);
-    fGroups = new KVList;
-    fGroups->SetCleanup(kTRUE);
     fIDTelescopes = new KVHashList();
     fIDTelescopes->SetOwner(kTRUE); // owns its objects
     fIDTelescopes->SetCleanup(kTRUE);
@@ -116,26 +112,12 @@ KVMultiDetArray::~KVMultiDetArray()
     }
     fIDTelescopes = 0;
 
-    //destroy all groups
-    if (fGroups && fGroups->TestBit(kNotDeleted)) {
-        fGroups->Delete();
-        delete fGroups;
-    }
-    fGroups = 0;
-
     //clear list of acquisition parameters
     if (fACQParams && fACQParams->TestBit(kNotDeleted)) {
         fACQParams->Clear();
         delete fACQParams;
     }
     fACQParams = 0;
-
-    //clear list of detectors
-    if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
-        fDetectors->Clear();
-        delete fDetectors;
-    }
-    fDetectors = 0;
 
     if (fTarget) {
         delete fTarget;
@@ -157,13 +139,9 @@ KVMultiDetArray::~KVMultiDetArray()
 
     SafeDelete(fGeoManager);
     SafeDelete(fNavigator);
-}
 
-//___________________________________________________________________________________
-void KVMultiDetArray::AddGroup(KVGroup *g)
-{
-    g->SetNumber(++fGr);
-    fGroups->Add(g);
+    // Detectors belong to multidetector array. Our responsibility to delete.
+    fDetectors.Delete();
 }
 
 
@@ -383,10 +361,12 @@ void KVMultiDetArray::CreateIDTelescopesInGroups()
 {
     fIDTelescopes->Delete();     // clear out (delete) old identification telescopes
     KVGroup *grp;
+    KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
     TIter ngrp(fGroups);
     while ((grp = (KVGroup *) ngrp())) {
         grp->GetIDTelescopes(fIDTelescopes);
     }
+    delete fGroups;
 }
 
 //_______________________________________________________________________________________
@@ -395,34 +375,14 @@ void KVMultiDetArray::RenumberGroups()
 {
     //Number groups according to position in list fGroups and set fGr counter to the number
     //of groups in the list
-    fGr = 0;
+    Int_t fGr = 0;
     KVGroup *g = 0;
+    KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
     TIter next(fGroups);
     while ((g = (KVGroup *) next())) {
         g->SetNumber(++fGr);
     }
-}
-
-//_______________________________________________________________________________________
-void KVMultiDetArray::Print(Option_t * opt) const
-{
-//Print out the structure of the multidetector array.
-//If the option string "groups" is given, information is structured by KVGroup objects -
-//i.e. the details of all the telescopes of the array are given, grouped according to their
-//angular alignment.
-
-        TIter next(fGroups);
-        KVGroup *obj;
-        cout << "Structure of KVMultiDetArray object: ";
-        if (GetName())
-            cout << GetName();
-        cout << endl;
-        cout << "--------------------------------------------------------" <<
-        endl;
-        cout << fGroups->GetSize() << " Groups" << endl;
-        while ((obj = (KVGroup *) next())) {
-            obj->Print("    ");
-        }
+    delete fGroups;
 }
 
 //__________________________________________________________________________________
@@ -691,10 +651,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                             if (dd->GetHits()){
                                 if (dd->GetHits()->FindObject(_part)) ntrav+=1;
                                 else
-                                    if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
+                                    if (dd->IsSmallerThan(last_det)) ntrav+=1;
                             }
                             else {
-                                if (dd->GetTelescope()->IsSmallerThan(last_det->GetTelescope())) ntrav+=1;
+                                if (dd->IsSmallerThan(last_det)) ntrav+=1;
                             }
                         }
                     }
@@ -1114,18 +1074,19 @@ void KVMultiDetArray::ReplaceDetector(const Char_t * name,
     //Replace (and destroy) the named detector in the array with a detector based on the prototype
     //given by the pointer new_kvd.
 
-    KVDetector *kvd = GetDetector(name);
-    if (!kvd) {
-        Warning("ReplaceDetector", "Detector %s not found", name);
-        return;
-    }
-    //get telescope of detector, so we know where to put the replacement
-    KVTelescope *tel = kvd->GetTelescope();
-    if (!tel) {
-        Error("ReplaceDetector", "Detector %s is not in a telescope", name);
-        return;
-    }
-    tel->ReplaceDetector(kvd, new_kvd);
+//    KVDetector *kvd = GetDetector(name);
+//    if (!kvd) {
+//        Warning("ReplaceDetector", "Detector %s not found", name);
+//        return;
+//    }
+//    //get telescope of detector, so we know where to put the replacement
+//    KVTelescope *tel = kvd->GetTelescope();
+//    if (!tel) {
+//        Error("ReplaceDetector", "Detector %s is not in a telescope", name);
+//        return;
+//    }
+//    tel->ReplaceDetector(kvd, new_kvd);
+    Warning("ReplaceDetector", "Needs reimplementing");
 }
 
 //____________________________________________________________________________________________
@@ -1134,14 +1095,6 @@ KVTelescope *KVMultiDetArray::GetTelescope(const Char_t * name) const
 {
     // Return pointer to telescope in array with name given by "name"
     return 0;
-}
-
-//____________________________________________________________________________________________
-KVDetector *KVMultiDetArray::GetDetector(const Char_t * name) const
-{
-    // return pointer to array detector with "name"
-
-    return (KVDetector *) fDetectors->FindObject(name);
 }
 
 //____________________________________________________________________________________________
@@ -1176,7 +1129,7 @@ KVGroup *KVMultiDetArray::GetGroupWithDetector(const Char_t * name)
 KVGroup *KVMultiDetArray::GetGroup(const Char_t *name)
 {
     // Return pointer to group with name
-    return (KVGroup*)GetGroups()->FindObject(name);
+    return (KVGroup*)GetStructure("GROUP", name);
 }
 
 
@@ -1193,12 +1146,13 @@ void KVMultiDetArray::Clear(Option_t * opt)
     //Reset all groups (lists of detected particles etc.)
     //and detectors in groups (energy losses, ACQparams etc. etc.)
     //and the target if there is one
-    if (fGroups) {
-        TIter next(fGroups);
-        KVGroup *grp;
-        while ((grp = (KVGroup *) next())) {
-            grp->Reset();
-        }
+
+    KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+
+    TIter next(fGroups);
+    KVGroup *grp;
+    while ((grp = (KVGroup *) next())) {
+        grp->Reset();
     }
     if (GetTarget())
         GetTarget()->Clear();
@@ -1255,7 +1209,7 @@ void KVMultiDetArray::SetACQParams()
 
     SetArrayACQParams();
 
-    TIter next(GetListOfDetectors());
+    TIter next(GetDetectors());
     KVDetector *det;
     while ((det = (KVDetector *) next())) {
         KVSeqCollection *l = det->GetACQParamList();
@@ -1297,7 +1251,7 @@ void KVMultiDetArray::SetCalibrators()
     //it does not set the parameters of the calibrations: this is done by
     //SetParameters or SetRunCalibrationParameters
 
-    GetListOfDetectors()->R__FOR_EACH(KVDetector, SetCalibrators)();
+    const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, SetCalibrators)();
 }
 
 //_________________________________________________________________________________
@@ -1313,7 +1267,7 @@ void KVMultiDetArray::UpdateCalibrators()
     //In order to set the parameters of the new calibrators for a given run,
     //SetParameters or SetRunCalibrationParameters must be called after this method.
 
-    GetListOfDetectors()->R__FOR_EACH(KVDetector, RemoveCalibrators)();
+    const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector, RemoveCalibrators)();
     SetCalibrators();
 }
 
@@ -1357,6 +1311,8 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* 
     else
     {
         //loop over groups
+        KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+
           TIter next_grp(fGroups);
         KVGroup *grp;
         while ((grp = (KVGroup *) next_grp())) {
@@ -1367,6 +1323,7 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* 
                      detev->AddGroup(grp);
             }
         }
+        delete fGroups;
     }
 }
 
@@ -1432,9 +1389,10 @@ void KVMultiDetArray::SetTargetThickness(const Float_t thickness)
 void KVMultiDetArray::RemoveGroup(KVGroup * grp)
 {
     //Remove (i.e. destroy) all the telescopes belonging to a given group
-    if (grp) {
-        grp->Destroy();
-    }
+//    if (grp) {
+//        grp->Destroy();
+//    }
+    Warning("RemoveGroup","Needs reimplementing");
 }
 
 void KVMultiDetArray::RemoveGroup(const Char_t * name)
@@ -1458,10 +1416,10 @@ void KVMultiDetArray::DetectParticleIn(const Char_t * detname,
      KVDetector *kvd = GetDetector(detname);
     if (kvd) {
         KVNameValueList* nvl=0;
-          KVTelescope *tele = kvd->GetTelescope();
-        kvp->SetRandomMomentum(kvp->GetEnergy(), tele->GetThetaMin(),
-                               tele->GetThetaMax(), tele->GetPhiMin(),
-                               tele->GetPhiMax(), "random");
+
+        kvp->SetRandomMomentum(kvp->GetEnergy(), kvd->GetThetaMin(),
+                               kvd->GetThetaMax(), kvd->GetPhiMin(),
+                               kvd->GetPhiMax(), "random");
         if ( (nvl = DetectParticle(kvp)) ) delete nvl;
     } else {
         Error("DetectParticleIn", "Detector %s not found", detname);
@@ -1679,10 +1637,13 @@ void KVMultiDetArray::UpdateIDTelescopes()
     fIDTelescopes->Delete();
     //now read list of groups and create list of ID telescopes
     KVGroup *grp;
+    KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+
     TIter ngrp(fGroups);
     while ((grp = (KVGroup *) ngrp())) {
         grp->GetIDTelescopes(fIDTelescopes);
     }
+    delete fGroups;
     //reset identifications
     SetIdentifications();
 }
@@ -1854,8 +1815,8 @@ TList* KVMultiDetArray::GetCalibrationStatusOfDetectors()
     {
         fCalibStatusDets->Delete();
     }
-    if ( !fDetectors || !fDetectors->GetEntries() ) return fCalibStatusDets;
-    TIter next(fDetectors);
+    if ( !GetDetectors()->GetEntries() ) return fCalibStatusDets;
+    TIter next(GetDetectors());
     KVDetector* det = 0;
     while ( (det = (KVDetector*)next()) ){
 
@@ -1999,7 +1960,7 @@ void KVMultiDetArray::SetDetectorThicknesses()
         return;
     }
     Info("SetDetectorThicknesses", "Setting thicknesses of detectors from file %s", filename.Data());
-    TIter next( GetListOfDetectors() );
+    TIter next( GetDetectors() );
     KVDetector* det;
     while ( (det = (KVDetector*)next()) ){
         if( thickdat.Defined(det->GetName()) ){
@@ -2103,7 +2064,7 @@ void KVMultiDetArray::CalculateDetectorSegmentationIndex()
     // if <=1 detector is directly behind, the seg. index = 1
     // This method is used for arrays imported from ROOT geometries.
 
-    TIter next(GetListOfDetectors());
+    TIter next(GetDetectors());
     KVDetector* d;
     while( (d = (KVDetector*)next() )){
         if(d->GetNode()->GetNDetsBehind() >1) d->SetSegment(0);

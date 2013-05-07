@@ -1013,14 +1013,15 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
 		pmax = pos_obj->GetPhiMax();
 	}
 	else if (obj->InheritsFrom("KVDetector")){
-		KVTelescope* pos_obj=((KVDetector* )obj)->GetTelescope();
+        KVTelescope* pos_obj=(KVTelescope*)((KVDetector* )obj)->GetParentStructure("TELESCOPE");
 		tmin = pos_obj->GetThetaMin();
 		tmax = pos_obj->GetThetaMax();
 		pmin = pos_obj->GetPhiMin();
 		pmax = pos_obj->GetPhiMax();
 	}
     else if (obj->InheritsFrom("KVASMultiDetArray")){
-        KVASMultiDetArray* pos_obj=(KVASMultiDetArray* )obj;
+        Warning("DefineAngularRange(KVASMultiDetArray*)", "Needs reimplementing");
+        /*KVASMultiDetArray* pos_obj=(KVASMultiDetArray* )obj;
 		KVSeqCollection* ll = pos_obj->GetGroups();
         KVASGroup* gr=0;
 		Double_t tmin2=180,tmax2=0;
@@ -1035,7 +1036,7 @@ void KVElasticScatterEvent::DefineAngularRange(TObject* obj)
 		tmin = tmin2;
 		tmax = tmax2;
 		pmin = pmin2;
-		pmax = pmax2;
+        pmax = pmax2;*/
 	}
 	else {
 		printf("les objects de type %s ne sont pas implemente dans KVElasticScatterEvent::DefineAngularRange\n",obj->IsA()->GetName());

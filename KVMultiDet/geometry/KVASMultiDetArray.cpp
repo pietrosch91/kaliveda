@@ -176,47 +176,6 @@ void KVASMultiDetArray::UpdateGroupsInRings(KVRing * r1, KVRing * r2)
     }
 }
 
-//_______________________________________________________________________________________
-void KVASMultiDetArray::Print(Option_t * opt) const
-{
-//Print out the structure of the multidetector array.
-//If the option string "groups" is given, information is structured by KVGroup objects -
-//i.e. the details of all the telescopes of the array are given, grouped according to their
-//angular alignment.
-//Otherwise the structure is represented as follows:
-// - for each KVLayer, all KVRing objects are described
-// - for each KVRing object, all KVTelescope objects are described
-// - for each KVTelescope object, all KVDetector objects are described
-
-    if (!strcmp(opt, "groups")) {
-        TIter next(fGroups);
-        KVGroup *obj;
-        cout << "Structure of KVASMultiDetArray object: ";
-        if (GetName())
-            cout << GetName();
-        cout << endl;
-        cout << "--------------------------------------------------------" <<
-        endl;
-        cout << fGroups->GetSize() << " Groups" << endl;
-        while ((obj = (KVGroup *) next())) {
-            obj->Print("    ");
-        }
-    } else {
-// print out detailed structure of array
-        TIter next(fLayers);
-        KVLayer *obj;
-        cout << "Structure of KVASMultiDetArray object: ";
-        if (GetName())
-            cout << GetName();
-        cout << endl;
-        cout << "--------------------------------------------------------" <<
-        endl;
-        cout << fLayers->GetSize() << " Layers" << endl;
-        while ((obj = (KVLayer *) next())) {
-            obj->Print();
-        }
-    }
-}
 
 void KVASMultiDetArray::ReplaceTelescope(const Char_t * name,
                                        KVTelescope * new_kvt)
@@ -230,7 +189,7 @@ void KVASMultiDetArray::ReplaceTelescope(const Char_t * name,
         return;
     }
 
-    KVRing *ring = kvt->GetRing();
+    KVRing *ring = (KVRing*)kvt->GetParentStructure("RING");
     if (!ring) {
         Error("ReplaceTelescope", "Telescope %s does not belong to a Ring",
               name);
@@ -319,7 +278,7 @@ void KVASMultiDetArray::MakeListOfDetectors()
     // method (or overrides in child classes), as the name may depend on the
     // position in the final array geometry.
 
-    fDetectors->Clear();
+    fDetectors.Clear();
 
     TIter nextL(fLayers);
     KVLayer *k1;
@@ -335,7 +294,7 @@ void KVASMultiDetArray::MakeListOfDetectors()
                 while ((k4 = (KVDetector *) nextD())) {     // loop over detectors
                     if (k4->InheritsFrom("KVDetector"))
                         k4->SetName( k4->GetArrayName() );//set name of detector
-                    fDetectors->Add(k4);
+                        Add(k4);
                 }
             }
         }
@@ -467,10 +426,9 @@ TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Doubl
 
 void KVASMultiDetArray::CalculateGroupsFromGeometry()
 {
-    fGroups->Delete();           // clear out (delete) old groups
-
-   TIter nxtlay1(fLayers);
-   KVLayer *l1;
+    fStructures.Delete();           // clear out (delete) old groups
+    TIter nxtlay1(fLayers);
+    KVLayer *l1;
     if (fLayers->GetSize() > 1) {
         fGr = 0;                  // for numbering groups
         TIter nxtlay2(fLayers);
@@ -485,12 +443,12 @@ void KVASMultiDetArray::CalculateGroupsFromGeometry()
             }
             nxtlay2.Reset();
         }
-     }  //if(fLayers->GetSize()>1)
+    }  //if(fLayers->GetSize()>1)
 
-        // Finally, create groups for all orphan telescopes which are not in any existing
-        // group
+    // Finally, create groups for all orphan telescopes which are not in any existing
+    // group
 
-        nxtlay1.Reset();          // reset loop over layers
+    nxtlay1.Reset();          // reset loop over layers
         while ((l1 = (KVLayer *) nxtlay1())) {    // loop over layers
             if (l1->GetRings()) {
                 TIter nxtrng(l1->GetRings());
@@ -509,7 +467,7 @@ void KVASMultiDetArray::CalculateGroupsFromGeometry()
                                                 tobj->GetThetaMax());
                             kvg->SetAzimuthalMinMax(tobj->GetPhiMin(),
                                                     tobj->GetPhiMax());
-                            fGroups->Add(kvg);
+                            Add(kvg);
                         }
                             }
                 }
@@ -537,7 +495,7 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
         kvg->Sort();              // sort telescopes in list
         kvg->SetDimensions(kt1, kt2);     // set group dimensions from telescopes
         //add to list
-        fGroups->Add(kvg);
+        Add(kvg);
     } else if ((kvg = (KVASGroup*)(kt1->GetGroup())) && !kt2->GetGroup()) {  // case b) - kt1 is already in a group
 #ifdef KV_DEBUG
         cout << "Adding " << kt2->GetName() << " to group " << kvg->
@@ -574,23 +532,24 @@ void KVASMultiDetArray::MergeGroups(KVASGroup * kg1, KVASGroup * kg2)
     //look through kg1 telescopes.
     //set their "group" to kg2.
     //if they are not already in kg2, add them to kg2.
-    KVTelescope *tel = 0;
-    TIter next(kg1->GetTelescopes());
-    while ((tel = (KVTelescope *) next())) {
-        if (kg2->Contains(tel)) {
-            tel->SetGroup(kg2);    //make sure telescope has right group pointer
-        } else {
-            kg2->Add(tel);
-        }
-    }
-    //remove kg1 from list and destroy it
-    fGroups->Remove(kg1);
-    delete kg1;
-    //sort merged group and calculate dimensions
-    kg2->Sort();
-    kg2->SetDimensions();
-    //renumber groups and reset group counter
-    RenumberGroups();
+//    KVTelescope *tel = 0;
+//    TIter next(kg1->GetTelescopes());
+//    while ((tel = (KVTelescope *) next())) {
+//        if (kg2->Contains(tel)) {
+//            tel->SetGroup(kg2);    //make sure telescope has right group pointer
+//        } else {
+//            kg2->Add(tel);
+//        }
+//    }
+//    //remove kg1 from list and destroy it
+//    fGroups->Remove(kg1);
+//    delete kg1;
+//    //sort merged group and calculate dimensions
+//    kg2->Sort();
+//    kg2->SetDimensions();
+//    //renumber groups and reset group counter
+//    RenumberGroups();
+    Warning("KVASMultiDetArray", "Needs reimplementing");
 }
 //__________________________________________________________________________________
 KVNameValueList* KVASMultiDetArray::DetectParticle_KV(KVNucleus * part)
@@ -630,15 +589,16 @@ KVNameValueList* KVASMultiDetArray::DetectParticle_KV(KVNucleus * part)
 KVGroup *KVASMultiDetArray::GetGroupWithAngles(Float_t theta, Float_t phi)
 {
     // return pointer to group in array according to given polar coordinates
-    if (!fGroups)
-        return 0;
+    KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+
     TIter next(fGroups);
     KVGroup *obj;
     while ((obj = (KVGroup *) next())) { // loop over group list
         if (((KVASGroup*)obj)->IsInPolarRange(theta)
                 && ((KVASGroup*)obj)->IsInPhiRange(phi))
-            return obj;
+        { delete fGroups; return obj; }
     }
+    delete fGroups;
     return 0;                    // no group found with these coordinates
 }
 //_______________________________________________________________________________________
@@ -662,10 +622,13 @@ Double_t KVASMultiDetArray::GetTotalSolidAngle(void) {
     // it is the sum of solid angles of all existing KVGroups
     Double_t ftotal_solid_angle=0.0;
     KVASGroup *grp;
+    KVSeqCollection* fGroups = GetStructures()->GetSubListWithType("GROUP");
+
     TIter ngrp(fGroups);
     while ((grp = (KVASGroup *) ngrp())) {
         ftotal_solid_angle+=grp->GetSolidAngle(); // use the KVPosition::GetSolidAngle()
     }
+    delete fGroups;
     return ftotal_solid_angle;
 }
 

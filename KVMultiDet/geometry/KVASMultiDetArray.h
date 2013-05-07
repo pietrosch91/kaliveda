@@ -29,6 +29,7 @@ class KVASMultiDetArray : public KVMultiDetArray {
 
 protected:
     UInt_t fCurrentLayerNumber; //! used to number layers
+    UInt_t fGr;                 //!used to number groups
 
     KVSeqCollection *fLayers;             //-> list of layers in array sorted by layer number
 
@@ -97,7 +98,6 @@ public:
         return sol_ang;
     }
 
-    virtual void Print(Option_t * opt = "") const;
     TGeoManager *CreateGeoManager(Double_t dx, Double_t dy, Double_t dz);
     virtual Double_t GetTotalSolidAngle(void);
 

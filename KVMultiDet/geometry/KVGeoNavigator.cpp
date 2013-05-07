@@ -5,6 +5,7 @@
 #include "KVEvent.h"
 #include <TGeoManager.h>
 #include <TGeoMatrix.h>
+#include "KVGeoStrucElement.h"
 
 ClassImp(KVGeoNavigator)
 
@@ -32,9 +33,16 @@ ClassImp(KVGeoNavigator)
 // RULES FOR CREATION OF GEOMETRY
 // In order for KaliVeda to "understand" your geometry, a few simple rules need
 // to be followed.
+//
+// GEOMETRY STRUCTURE ELEMENTS
+// These are used to group detectors and/or other structures.
+// They are recognized by their node names, which should be of the form:
+//
+//     STRUCT_[type]_[number]
 ////////////////////////////////////////////////////////////////////////////////
 
 KVGeoNavigator::KVGeoNavigator(TGeoManager *g)
+    : fCurrentStructures("KVGeoStrucElement",50)
 {
     // Constructor. Call with pointer to geometry.
     fGeometry = g;
@@ -43,6 +51,7 @@ KVGeoNavigator::KVGeoNavigator(TGeoManager *g)
 KVGeoNavigator::~KVGeoNavigator()
 {
     // Destructor
+    fCurrentStructures.Delete();
 }
 
 void KVGeoNavigator::PropagateEvent(KVEvent *TheEvent, TVector3 *TheOrigin)
@@ -144,15 +153,32 @@ void KVGeoNavigator::ExtractDetectorNameFromPath(KVString &detname)
     // /TOP_1/STRUCT_BLOCK_2/CHIO_WALL_1/DET_CHIO_2/WINDOW_1
     //
     // then the name of the detector will be "BLOCK_2_CHIO_2"
+    //
+    // This method also fills the fCurrentStructures array with elements
+    // deduced from the path, e.g. if the path is
+    //
+    // /TOP_1/STRUCT_BLOCK_2/STRUCT_QUARTET_1/DET_SI1-T1
+    //
+    // then
+    //  fCurrentStructures[0] = KVGeoStrucElement(name = "BLOCK_2", type = "BLOCK", number = 2)
+    //  fCurrentStructures[1] = KVGeoStrucElement(name = "QUARTET_1", type = "QUARTET", number = 1)
+
 
     KVString path = GetCurrentPath();
     path.Begin("/");
     detname="";
+    fCurrentStructures.Clear("C");
+    register int i=0;
     while(!path.End()){
         KVString elem = path.Next();
         if(elem.BeginsWith("STRUCT_")){
             // structure element. strip off "STRUCT_" and use rest as part of name
-            detname+=elem(7,elem.Length()-7);
+            KVString struc_name(elem(7,elem.Length()-7));
+            detname+=struc_name;
+            struc_name.Begin("_");
+            KVGeoStrucElement* gel = (KVGeoStrucElement*)fCurrentStructures.ConstructedAt(i++);
+            gel->SetNameTitle(struc_name, struc_name.Next());
+            gel->SetNumber(struc_name.Next().Atoi());
             detname+="_";
         }
         else if(elem.BeginsWith("DET_")){

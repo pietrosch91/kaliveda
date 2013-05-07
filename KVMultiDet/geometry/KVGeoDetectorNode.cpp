@@ -1,28 +1,28 @@
 //Created by KVClassFactory on Fri Apr 26 12:45:15 2013
 //Author: John Frankland,,,
 
-#include "KVDetectorNode.h"
+#include "KVGeoDetectorNode.h"
 #include "KVDetector.h"
 #include "KVUniqueNameList.h"
 
-ClassImp(KVDetectorNode)
+ClassImp(KVGeoDetectorNode)
 
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>KVDetectorNode</h2>
+<h2>KVGeoDetectorNode</h2>
 <h4>Stores lists of detectors in front and behind this node</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-void KVDetectorNode::init()
+void KVGeoDetectorNode::init()
 {
     fInFront=0;
     fBehind=0;
 }
 
-KVDetectorNode::KVDetectorNode()
+KVGeoDetectorNode::KVGeoDetectorNode()
 {
    // Default constructor
     init();
@@ -30,20 +30,20 @@ KVDetectorNode::KVDetectorNode()
 
 //________________________________________________________________
 
-KVDetectorNode::KVDetectorNode(const Char_t* name) : KVBase(name, "Detector node")
+KVGeoDetectorNode::KVGeoDetectorNode(const Char_t* name) : KVBase(name, "Detector node")
 {
    // Write your code here
     init();
 }
 
-KVDetectorNode::~KVDetectorNode()
+KVGeoDetectorNode::~KVGeoDetectorNode()
 {
    // Destructor
     SafeDelete(fInFront);
     SafeDelete(fBehind);
 }
 
-void KVDetectorNode::ls(Option_t *option) const
+void KVGeoDetectorNode::ls(Option_t *option) const
 {
     std::cout << "Detector Node " << GetName() << std::endl;
     if(fInFront){
@@ -56,35 +56,35 @@ void KVDetectorNode::ls(Option_t *option) const
     }
 }
 
-void KVDetectorNode::AddInFront(KVDetector* d)
+void KVGeoDetectorNode::AddInFront(KVDetector* d)
 {
     if(!fInFront) fInFront = new KVUniqueNameList;
     fInFront->Add(d);
 }
 
-void KVDetectorNode::AddBehind(KVDetector* d)
+void KVGeoDetectorNode::AddBehind(KVDetector* d)
 {
     if(!fBehind) fBehind = new KVUniqueNameList;
     fBehind->Add(d);
 }
-Bool_t KVDetectorNode::IsInFrontOf(KVDetector* d)
+Bool_t KVGeoDetectorNode::IsInFrontOf(KVDetector* d)
 {
     // return true if this node is directly in front of the detector
     return (fBehind && fBehind->FindObject(d)!=0);
 }
-Bool_t KVDetectorNode::IsBehind(KVDetector* d)
+Bool_t KVGeoDetectorNode::IsBehind(KVDetector* d)
 {
     // return true if this node is directly behind the detector
     return (fInFront && fInFront->FindObject(d)!=0);
 }
 
-Int_t KVDetectorNode::GetNDetsInFront() const
+Int_t KVGeoDetectorNode::GetNDetsInFront() const
 {
     // Returns number of detectors directly in front of this one
     return (fInFront ? fInFront->GetEntries() : 0);
 }
 
-Int_t KVDetectorNode::GetNDetsBehind() const
+Int_t KVGeoDetectorNode::GetNDetsBehind() const
 {
     // Returns number of detectors directly behind this one
     return (fBehind ? fBehind->GetEntries() : 0);

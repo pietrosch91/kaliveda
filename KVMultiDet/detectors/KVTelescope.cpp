@@ -69,27 +69,27 @@ void KVTelescope::AddClone(KVDetector * d, const int fcon)
 //______________________________________________________________________________
 void KVTelescope::AddDetector(KVDetector * d, const int fcon)
 {
-//Add a "clone" of the detector prototype 'd' to the telescope.
-//The prototype can be used for several different telescopes and it is the
-//user's responsibility to delete it.
-//The order of adding the layers to the telescope is the order
-//in which any incident particle will see the detectors when traversing
-//the telescope.
+    //Add a "clone" of the detector prototype 'd' to the telescope.
+    //The prototype can be used for several different telescopes and it is the
+    //user's responsibility to delete it.
+    //The order of adding the layers to the telescope is the order
+    //in which any incident particle will see the detectors when traversing
+    //the telescope.
 
-   if (d) {
-      KVDetector *tmp = (KVDetector *) d->Clone();
-      if ((tmp ? tmp->IsZombie() : !tmp)) {
-         Fatal("AddDetector", "Cloning of detector failed");
-         d->Print();
-         return;
-      }
-      fDetectors->Add(tmp);
+    if (d) {
+        KVDetector *tmp = (KVDetector *) d->Clone();
+        if ((tmp ? tmp->IsZombie() : !tmp)) {
+            Fatal("AddDetector", "Cloning of detector failed");
+            d->Print();
+            return;
+        }
+        fDetectors->Add(tmp);
 
-      if (fcon == KVD_RECPRC_CNXN)
-         tmp->AddToTelescope(this, KVD_NORECPRC_CNXN);
-   } else {
-       Warning("AddDetector", "Null pointer passed as argument");
-   }
+        if (fcon == KVD_RECPRC_CNXN)
+            tmp->AddParentStructure(this);
+    } else {
+        Warning("AddDetector", "Null pointer passed as argument");
+    }
 }
 
 //______________________________________________________________________________
@@ -104,7 +104,7 @@ void KVTelescope::Add(KVDetector * d, const int fcon)
    if (d) {
       fDetectors->Add(d);
       if (fcon == KVD_RECPRC_CNXN)
-         d->AddToTelescope(this, KVD_NORECPRC_CNXN);
+         d->AddParentStructure(this);
    } else {
        Warning("AddDetector", "Null pointer passed as argument");
    }
@@ -187,7 +187,7 @@ void KVTelescope::Print(Option_t * opt) const
 UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)
 {
    //returns position (1=front, 2=next, etc.) detector in the telescope structure
-   if (kvd->GetTelescope() != this) {
+    if ((KVTelescope*)kvd->GetParentStructure("TELESCOPE") != this) {
        Warning("GetDetectorRank", "Detector does not belong to this telescope!");
       cout << endl;
       return 0;
@@ -223,43 +223,44 @@ Int_t KVTelescope::Compare(const TObject * obj) const
    // (ii) according to lower edge polar angle if they belong to the same layer
    // (iii) according to telescope number if they belong to the same ring
 
-   if (((KVTelescope *) this)->GetLayerNumber() !=
-       ((KVTelescope *) obj)->GetLayerNumber()) {
-// not in the same layer - sort according to layer number, smallest first
-//(closest to target)
-      if (((KVTelescope *) this)->GetLayerNumber() <
-          ((KVTelescope *) obj)->GetLayerNumber())
-         return -1;
-      else if (((KVTelescope *) this)->GetLayerNumber() >
-               ((KVTelescope *) obj)->GetLayerNumber())
-         return 1;
-      else
-         return 0;
-   }
-   if (((KVTelescope *) this)->GetRingNumber() !=
-       ((KVTelescope *) obj)->GetRingNumber()) {
-// not in the same ring - sort according to lower edge polar angle
-      if (((KVTelescope *) this)->GetThetaMin() <
-          ((KVTelescope *) obj)->GetThetaMin())
-         return -1;
-      else if (((KVTelescope *) this)->GetThetaMin() >
-               ((KVTelescope *) obj)->GetThetaMin())
-         return 1;
-      else
-         return 0;
-   }
-   if (((KVTelescope *) this)->GetRingNumber() ==
-       ((KVTelescope *) obj)->GetRingNumber()) {
-// same ring - sort according to telescope number
-      if (((KVTelescope *) this)->GetNumber() <
-          ((KVTelescope *) obj)->GetNumber())
-         return -1;
-      else if (((KVTelescope *) this)->GetNumber() >
-               ((KVTelescope *) obj)->GetNumber())
-         return 1;
-      else
-         return 0;
-   }
+//   if (((KVTelescope *) this)->GetLayerNumber() !=
+//       ((KVTelescope *) obj)->GetLayerNumber()) {
+//// not in the same layer - sort according to layer number, smallest first
+////(closest to target)
+//      if (((KVTelescope *) this)->GetLayerNumber() <
+//          ((KVTelescope *) obj)->GetLayerNumber())
+//         return -1;
+//      else if (((KVTelescope *) this)->GetLayerNumber() >
+//               ((KVTelescope *) obj)->GetLayerNumber())
+//         return 1;
+//      else
+//         return 0;
+//   }
+//   if (((KVTelescope *) this)->GetRingNumber() !=
+//       ((KVTelescope *) obj)->GetRingNumber()) {
+//// not in the same ring - sort according to lower edge polar angle
+//      if (((KVTelescope *) this)->GetThetaMin() <
+//          ((KVTelescope *) obj)->GetThetaMin())
+//         return -1;
+//      else if (((KVTelescope *) this)->GetThetaMin() >
+//               ((KVTelescope *) obj)->GetThetaMin())
+//         return 1;
+//      else
+//         return 0;
+//   }
+//   if (((KVTelescope *) this)->GetRingNumber() ==
+//       ((KVTelescope *) obj)->GetRingNumber()) {
+//// same ring - sort according to telescope number
+//      if (((KVTelescope *) this)->GetNumber() <
+//          ((KVTelescope *) obj)->GetNumber())
+//         return -1;
+//      else if (((KVTelescope *) this)->GetNumber() >
+//               ((KVTelescope *) obj)->GetNumber())
+//         return 1;
+//      else
+//         return 0;
+//   }
+    Warning("Compare", "Needs reimplementing");
    return 0;
 }
 
@@ -316,7 +317,7 @@ void KVTelescope::ReplaceDetector(KVDetector * kvd, KVDetector * new_kvd)
    KVDetector *new_det = (KVDetector *) new_kvd->Clone();
    //put new detector in place of old one in telescope
    fDetectors->AddAt(new_det, det_num);
-   new_det->AddToTelescope(this, KVD_NORECPRC_CNXN);
+   new_det->AddParentStructure(this);
 }
 
 void KVTelescope::ReplaceDetector(const Char_t * name,

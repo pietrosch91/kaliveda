@@ -3,6 +3,7 @@
 
 #include "KVASGroup.h"
 #include "KVReconstructedEvent.h"
+#include "KVTelescope.h"
 
 ClassImp(KVASGroup)
 
@@ -42,18 +43,19 @@ KVASGroup::~KVASGroup()
 void KVASGroup::SetDimensions()
 {
    //Set dimensions of group according to dimensions of all its telescopes.
-   KVTelescope *tel, *tel1;
-   TIter next(fTelescopes);
-   tel = (KVTelescope *) next();
-   if (!tel)
-      return;
-   tel1 = (KVTelescope *) next();
-   if (!tel1)
-      return;
-   SetDimensions(tel, tel1);
-   while ((tel = (KVTelescope *) next())) {
-      SetDimensions(this, tel);
-   }
+//   KVTelescope *tel, *tel1;
+//   TIter next(fTelescopes);
+//   tel = (KVTelescope *) next();
+//   if (!tel)
+//      return;
+//   tel1 = (KVTelescope *) next();
+//   if (!tel1)
+//      return;
+//   SetDimensions(tel, tel1);
+//   while ((tel = (KVTelescope *) next())) {
+//      SetDimensions(this, tel);
+//   }
+    Warning("SetDimensions()", "Needs reimplementing");
 }
 
 //_____________________________________________________________________________________
@@ -94,7 +96,8 @@ void KVASGroup::Sort()
    //This is so that when simulating the energy losses of a charged particle passing
    //through the telescopes of the group, we get it in the right order!
 
-   fTelescopes->Sort();
+   //fTelescopes->Sort();
+    Warning("Sort()", "Needs reimplementing");
 }
 //_____________________________________________________________________________________
 
@@ -132,19 +135,21 @@ TList *KVASGroup::GetTelescopesWithAngles(Float_t theta, Float_t phi) const
    //sorted according to distance from target (smallest layer number i.e. closest first).
    //User must delete list after use.
 
-   TIter next(fTelescopes);
-   KVTelescope *t;
-   TList *list = 0;
-   while ((t = (KVTelescope *) next())) {
-      if (t->IsInPolarRange(theta) && t->IsInPhiRange(phi)) {
-         if (!list)
-            list = new TList;
-         list->Add(t);
-      }
-   }
-   if (list)
-      list->Sort();
-   return list;
+//   TIter next(fTelescopes);
+//   KVTelescope *t;
+//   TList *list = 0;
+//   while ((t = (KVTelescope *) next())) {
+//      if (t->IsInPolarRange(theta) && t->IsInPhiRange(phi)) {
+//         if (!list)
+//            list = new TList;
+//         list->Add(t);
+//      }
+//   }
+//   if (list)
+//      list->Sort();
+//   return list;
+    Warning("GetTelescopesWithAngles", "Needs reimplementing");
+    return 0;
 }
 
 //_____________________________________________________________________________________
@@ -154,17 +159,19 @@ TList *KVASGroup::GetTelescopesInLayer(UInt_t nlayer)
    //Create and fill list of telescopes belonging to Layer number nlayer in the group.
    //User must delete list after use.
 
-   TIter next(fTelescopes);
-   KVTelescope *t;
-   TList *list = 0;
-   while ((t = (KVTelescope *) next())) {
-      if (t->GetLayerNumber() == nlayer) {
-         if (!list)
-            list = new TList;
-         list->Add(t);
-      }
-   }
-   return list;
+//   TIter next(fTelescopes);
+//   KVTelescope *t;
+//   TList *list = 0;
+//   while ((t = (KVTelescope *) next())) {
+//      if (t->GetLayerNumber() == nlayer) {
+//         if (!list)
+//            list = new TList;
+//         list->Add(t);
+//      }
+//   }
+//   return list;
+    Warning("GetTelescopesInLayer", "Needs reimplementing");
+    return 0;
 }
 //_________________________________________________________________________________
 
@@ -174,43 +181,44 @@ void KVASGroup::CountLayers()
    //This is based on different layers having different numbers.
    //The layer closest to the target is assumed to have the smallest layer number,
    //the layer furthest from the target is assumed to have the largest layer number.
-   fNumberOfLayers = 0;
-   fLayNumMin = 99;
-   fLayNumMax = 0;
-   if (fTelescopes) {
-      TIter ntel(fTelescopes);
-      KVTelescope *tel;
-      UInt_t laynums[10];
-      while ((tel = (KVTelescope *) ntel())) {
-         if (fNumberOfLayers) {
-            Bool_t found = kFALSE;
-            //Check to make sure layer number not already in array
-            for (UInt_t i = 0; i < fNumberOfLayers; i++) {
-               if (tel->GetLayerNumber() == laynums[i])
-                  found = kTRUE;
-            }
-            if (!found) {
-               laynums[fNumberOfLayers++] = tel->GetLayerNumber();
-               if (fNumberOfLayers > 9) {
-                  Warning("CountLayers", "Too many layers in group");
-               }
-               if (tel->GetLayerNumber() > fLayNumMax)
-                  fLayNumMax = tel->GetLayerNumber();
-               if (tel->GetLayerNumber() < fLayNumMin)
-                  fLayNumMin = tel->GetLayerNumber();
-            }
-         } else {
-            laynums[fNumberOfLayers++] = tel->GetLayerNumber();
-            if (fNumberOfLayers > 9) {
-               Warning("CountLayers", "Too many layers in group");
-            }
-            if (tel->GetLayerNumber() > fLayNumMax)
-               fLayNumMax = tel->GetLayerNumber();
-            if (tel->GetLayerNumber() < fLayNumMin)
-               fLayNumMin = tel->GetLayerNumber();
-         }
-      }
-   }
+//   fNumberOfLayers = 0;
+//   fLayNumMin = 99;
+//   fLayNumMax = 0;
+//   if (fTelescopes) {
+//      TIter ntel(fTelescopes);
+//      KVTelescope *tel;
+//      UInt_t laynums[10];
+//      while ((tel = (KVTelescope *) ntel())) {
+//         if (fNumberOfLayers) {
+//            Bool_t found = kFALSE;
+//            //Check to make sure layer number not already in array
+//            for (UInt_t i = 0; i < fNumberOfLayers; i++) {
+//               if (tel->GetLayerNumber() == laynums[i])
+//                  found = kTRUE;
+//            }
+//            if (!found) {
+//               laynums[fNumberOfLayers++] = tel->GetLayerNumber();
+//               if (fNumberOfLayers > 9) {
+//                  Warning("CountLayers", "Too many layers in group");
+//               }
+//               if (tel->GetLayerNumber() > fLayNumMax)
+//                  fLayNumMax = tel->GetLayerNumber();
+//               if (tel->GetLayerNumber() < fLayNumMin)
+//                  fLayNumMin = tel->GetLayerNumber();
+//            }
+//         } else {
+//            laynums[fNumberOfLayers++] = tel->GetLayerNumber();
+//            if (fNumberOfLayers > 9) {
+//               Warning("CountLayers", "Too many layers in group");
+//            }
+//            if (tel->GetLayerNumber() > fLayNumMax)
+//               fLayNumMax = tel->GetLayerNumber();
+//            if (tel->GetLayerNumber() < fLayNumMin)
+//               fLayNumMin = tel->GetLayerNumber();
+//         }
+//      }
+//   }
+    Warning("CountLayers", "Needs reimplementing");
 }
 //_________________________________________________________________________________
 
@@ -325,44 +333,46 @@ TList *KVASGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
    //
    //Delete TList after use.
 
-   TList *tmp = new TList;
+//   TList *tmp = new TList;
 
-   UInt_t last_layer = GetDetectorLayer(det);
-   UInt_t first_layer = 1;
+//   UInt_t last_layer = GetDetectorLayer(det);
+//   UInt_t first_layer = 1;
 
-   if (dir == kForwards) {
-      for (UInt_t lay = first_layer; lay <= last_layer; lay++) {
-         TList *dets = GetDetectorsInLayer(lay);
-         if (dets) {
-            TIter next(dets);
-            KVDetector *d2;
-            while ((d2 = (KVDetector *) next())) {
-               if (d2->GetTelescope()->
-                   IsOverlappingWith(det->GetTelescope())) {
-                  tmp->Add(d2);
-               }
-                }
-            delete dets;
-         }
-      }
-   } else {
-      for (UInt_t lay = last_layer; lay >= first_layer; lay--) {
-         TList *dets = GetDetectorsInLayer(lay);
-         if (dets) {
-            TIter next(dets);
-            KVDetector *d2;
-            while ((d2 = (KVDetector *) next())) {
-               if (d2->GetTelescope()->
-                   IsOverlappingWith(det->GetTelescope())) {
-                  tmp->Add(d2);
-               }
-                }
-            delete dets;
-         }
-      }
-   }
+//   if (dir == kForwards) {
+//      for (UInt_t lay = first_layer; lay <= last_layer; lay++) {
+//         TList *dets = GetDetectorsInLayer(lay);
+//         if (dets) {
+//            TIter next(dets);
+//            KVDetector *d2;
+//            while ((d2 = (KVDetector *) next())) {
+//               if (((KVTelescope*)d2->GetParentStructure("TELESCOPE"))->
+//                   IsOverlappingWith((KVTelescope*)det->GetParentStructure("TELESCOPE")) {
+//                  tmp->Add(d2);
+//               }
+//                }
+//            delete dets;
+//         }
+//      }
+//   } else {
+//      for (UInt_t lay = last_layer; lay >= first_layer; lay--) {
+//         TList *dets = GetDetectorsInLayer(lay);
+//         if (dets) {
+//            TIter next(dets);
+//            KVDetector *d2;
+//            while ((d2 = (KVDetector *) next())) {
+//               if (((KVTelescope*)d2->GetParentStructure("TELESCOPE"))->
+//                   IsOverlappingWith((KVTelescope*)det->GetParentStructure("TELESCOPE")) {
+//                  tmp->Add(d2);
+//               }
+//                }
+//            delete dets;
+//         }
+//      }
+//   }
 
-   return tmp;
+//   return tmp;
+    Warning("GetAlignedDetectors", "Needs reimplementing");
+    return 0;
 }
 //_________________________________________________________________________________
 
@@ -532,7 +542,7 @@ void KVASGroup::Print(Option_t * opt) const
     if (strcmp(opt, "angles")) KVGroup::Print(opt);
     else
     {
-        TIter next(fDetectors);
+        TIter next(GetDetectors());
         KVDetector *obj;
         cout << "\n";
         cout << "Structure of KVGroup object: ";

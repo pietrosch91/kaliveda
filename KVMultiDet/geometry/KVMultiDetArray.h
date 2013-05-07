@@ -4,7 +4,7 @@
 #ifndef __KVMultiDetArray_H
 #define __KVMultiDetArray_H
 
-#include "KVBase.h"
+#include "KVGeoStrucElement.h"
 #include "KVSeqCollection.h"
 #include "TGraph.h"
 #include "TGeoManager.h"
@@ -23,7 +23,7 @@ class KVReconstructedNucleus;
 class KVList;
 class KVRangeTableGeoNavigator;
 
-class KVMultiDetArray : public KVBase
+class KVMultiDetArray : public KVGeoStrucElement
 {
 
 protected:
@@ -41,12 +41,8 @@ protected:
     TList* fStatusIDTelescopes;//! used by GetStatusIDTelescopes
     TList* fCalibStatusDets;//! used by GetStatusIDTelescopes
 
-    UInt_t fGr;                  //! used to number groups
-
-    KVSeqCollection *fGroups;             //->list of groups of telescopes in array
     KVDetectorEvent *fHitGroups;          //!   list of hit groups in simulation
     KVSeqCollection *fIDTelescopes;       //->deltaE-E telescopes in groups
-    KVSeqCollection *fDetectors;          //->list of all detectors in array
     KVSeqCollection *fACQParams;          //list of data acquisition parameters associated to detectors
 
     TString fDataSet;            //!name of associated dataset, used with MakeMultiDetector()
@@ -79,7 +75,6 @@ protected:
 public:
     void SetGeometry(TGeoManager*);
     TGeoManager* GetGeometry() const;
-    virtual void AddGroup(KVGroup*);
     // filter types. values of fFilterType
     enum EFilterType
     {
@@ -93,27 +88,17 @@ public:
     void SetFilterType(Int_t t){fFilterType=t;};
     void init();
 
-    void AddDetector(KVDetector* d){
-        fDetectors->Add(d);
-    }
-
     virtual void Build();
     virtual void CreateIDTelescopesInGroups();
 
     virtual void GetIDTelescopes(KVDetector *, KVDetector *, TCollection *);
 
     virtual void Clear(Option_t * opt = "");
-    virtual void Print(Option_t * opt = "") const;
 
     virtual KVTelescope *GetTelescope(const Char_t * name) const;
-    virtual KVDetector *GetDetector(const Char_t * name) const;
     virtual KVGroup *GetGroupWithDetector(const Char_t *);
     virtual KVGroup *GetGroup(const Char_t *);
-    KVSeqCollection *GetGroups() const {
-        return fGroups;
-    }
     virtual KVGroup *GetGroupWithAngles(Float_t theta, Float_t phi) { return 0; }
-    KVSeqCollection *GetListOfDetectors() const { return fDetectors; }
     void RemoveGroup(KVGroup *);
     void RemoveGroup(const Char_t *);
     void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);
@@ -205,7 +190,7 @@ public:
         // If on=kTRUE (default), we are in simulation mode (calculation of energy losses etc.)
         // If on=kFALSE, we are analysing/reconstruction experimental data
         fSimMode = on;
-        GetListOfDetectors()->Execute("SetSimMode", Form("%d", (Int_t)on));
+        const_cast<KVSeqCollection*>(GetDetectors())->Execute("SetSimMode", Form("%d", (Int_t)on));
     };
     virtual Bool_t IsSimMode() const
     {

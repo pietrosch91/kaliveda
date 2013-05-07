@@ -958,7 +958,7 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(KVDetector* det,Int_t OfNucleus)
 	// 
 	//The returned value is in barns
 	
-	KVTelescope*tel=det->GetTelescope();
+    KVTelescope*tel=(KVTelescope*)det->GetParentStructure("TELESCOPE");
 	if(!det){
 	   Error("GetIntegratedXSecRuthLab(KVDetector*,Int_t)",
 	      "Detector has no parent telescope: it has not been positioned in a multidetector geometry");

@@ -6,7 +6,7 @@
 
 #include "KVBase.h"
 #include "TVector3.h"
-
+#include "TClonesArray.h"
 class KVNucleus;
 class KVEvent;
 class TGeoManager;
@@ -23,6 +23,7 @@ private:
     TGeoNode* fCurrentDetectorNode;//node for current detector
     TGeoHMatrix* fCurrentMatrix;//current global transformation matrix
     TString fCurrentPath;//current full path to physical node
+    TClonesArray fCurrentStructures;//list of current structures deduced from path
     TGeoNode* fMotherNode;//mother node of current node
     Double_t fStepSize;//distance to travel in volume
     TVector3 fEntryPoint;//position of particle on entering volume
@@ -52,6 +53,7 @@ public:
     void SetStopPropagation(Bool_t stop = kTRUE) { fStopPropagation = stop; }
 
     void ExtractDetectorNameFromPath(KVString&);
+    const TClonesArray& CurrentStructures() const { return fCurrentStructures; }
 
     ClassDef(KVGeoNavigator,0)//Propagate particles of an event through a TGeo geometry
 };

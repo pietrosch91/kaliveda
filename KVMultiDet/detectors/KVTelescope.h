@@ -20,6 +20,8 @@ $Id: KVTelescope.h,v 1.19 2008/12/17 13:01:26 franklan Exp $
 
 #ifndef KVTELESCOPE_H
 #define KVTELESCOPE_H
+#include "KVGeoStrucElement.h"
+#include "KVPosition.h"
 #include "KVDetector.h"
 #include "KVList.h"
 #include "KVNameValueList.h"
@@ -27,7 +29,7 @@ $Id: KVTelescope.h,v 1.19 2008/12/17 13:01:26 franklan Exp $
 class KVNucleus;
 class TGraph;
 
-class KVTelescope:public KVDetector {
+class KVTelescope:public KVGeoStrucElement, public KVPosition {
 
  protected:
    KVList * fDetectors;         //-> list of detectors in telescope
@@ -110,6 +112,8 @@ class KVTelescope:public KVDetector {
                                          
    virtual TGeoVolume* GetGeoVolume();
    virtual void AddToGeometry();
+
+   KVGroup* GetGroup() const { return (KVGroup*)GetParentStructure("GROUP"); }
 
    ClassDef(KVTelescope, 2)     //Multi-layered telescopes composed of different absorbers
 };
