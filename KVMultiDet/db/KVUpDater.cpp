@@ -69,6 +69,7 @@ void KVUpDater::SetParameters(UInt_t run)
     //      set calibration parameters for the run
     //      set identification parameters for the run
 
+    if(!gDataBase) return;
     cout << "Setting parameters of multidetector array for run " << run << ":" <<
     endl;
     KVDBRun *kvrun = dynamic_cast<KVDBRun*>(gDataBase->GetTable("Runs")->GetRecord(run));

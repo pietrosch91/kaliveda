@@ -22,7 +22,7 @@ protected:
 
 public:
     KVGeoStrucElement();
-    KVGeoStrucElement(const Char_t* name, const Char_t* title = "");
+    KVGeoStrucElement(const Char_t* name, const Char_t* type = "");
     virtual ~KVGeoStrucElement();
 
     virtual void Add(KVBase*);

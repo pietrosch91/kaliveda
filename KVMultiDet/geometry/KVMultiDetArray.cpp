@@ -879,11 +879,9 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
            if(recon_nuc->GetStatus()!=KVReconstructedNucleus::kStatusPileupGhost){
                recon_nuc->SetIsIdentified();
                recon_nuc->SetIsCalibrated();
-               if(recon_nuc->GetStatus()!=KVReconstructedNucleus::kStatusStopFirstStage){
-                   recon_nuc->SetIsOK();
-                   recon_nuc->SetZMeasured();
-                   recon_nuc->SetAMeasured();
-               }
+               recon_nuc->SetIsOK();
+               recon_nuc->SetZMeasured();
+               recon_nuc->SetAMeasured();
            }
        }
        return;
@@ -950,9 +948,6 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
       while ((grp_tch = (KVGroup *) nxt_grp())) {
        grp_tch->AnalyseParticles();
       }
-     //  while ((recon_nuc = rec_event->GetNextParticle())) {
-        //   if(recon_nuc->GetStatus()==99) recon_nuc->GetGroup()->AnalyseParticles();
-      // }
        // now perform mult-hit/coherency analysis until no further changes take place
        Int_t round=1, nchanged;
        //cout << "SIM: " << event->GetMult() << " REC: " << rec_event->GetMult() << endl;

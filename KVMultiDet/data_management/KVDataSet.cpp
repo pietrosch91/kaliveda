@@ -471,6 +471,11 @@ void KVDataSet::OpenDataBase(Option_t * opt)
       // make sure gDataSet is set & points to us
       gDataSet = this;
       fDataBase = KVDataBase::MakeDataBase(GetDBName());
+      if(!fDataBase){
+          // no database defined for dataset
+          Info("OpenDataBase", "No database defined for dataset");
+          return;
+      }
       SaveDataBase();
 		if(fDataBase && is_glob_db) fDataBase->cd();
    }
@@ -701,7 +706,8 @@ void KVDataSet::cd()
 
    gDataSet = this;
    if(fRepository) fRepository->cd();
-   GetDataBase()->cd();
+   KVDataBase* db = GetDataBase();
+   if(db) db->cd();
 }
 
 //__________________________________________________________________________________________________________________

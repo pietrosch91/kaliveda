@@ -44,9 +44,9 @@ KVGeoStrucElement::KVGeoStrucElement()
 
 //________________________________________________________________
 
-KVGeoStrucElement::KVGeoStrucElement(const Char_t* name, const Char_t* title) : KVBase(name, title)
+KVGeoStrucElement::KVGeoStrucElement(const Char_t* name, const Char_t* type) : KVBase(name, type)
 {
-   // Create a geometry structure element with name & title
+   // Create a geometry structure element with given name and type
     init();
 }
 
