@@ -28,6 +28,10 @@ ClassImp(KVGeoNavigator)
 //  while( nevents-- ) {
 //       nav.PropagateEvent( event );
 //  }
+//
+// RULES FOR CREATION OF GEOMETRY
+// In order for KaliVeda to "understand" your geometry, a few simple rules need
+// to be followed.
 ////////////////////////////////////////////////////////////////////////////////
 
 KVGeoNavigator::KVGeoNavigator(TGeoManager *g)
