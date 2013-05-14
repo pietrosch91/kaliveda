@@ -62,6 +62,10 @@ endif
 #
 #which will override the previous definition
 
+# WARNING - The following kludge should be handled by a configure script...
+# Test if ROOT is compiled with OpenGL support
+export WITH_OPENGL = $(shell root-config --has-opengl)
+
 # for compilation with gru lib
 export WITH_GRU_LIB = no
 export GRU_DIR = /home/acqexp/GRU/GRUcurrent
