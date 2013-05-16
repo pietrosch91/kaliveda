@@ -17,6 +17,7 @@ class KVLVEntry : public TGLVEntry
 {
 
 	protected:
+    Bool_t fEditMode;
 			
 	static Pixel_t fgBGColor;// current background color for items
 	static Pixel_t fgGreyPixel;// light grey color used to distinguish adjacent list items
@@ -33,7 +34,8 @@ class KVLVEntry : public TGLVEntry
 	
 	virtual void Refresh();
 	virtual void	DrawCopy(Handle_t id, Int_t x, Int_t y);
-	
+    void SetEditMode(Bool_t edit=kTRUE){fEditMode=edit;}
+
    ClassDef(KVLVEntry,0)//List view item class
 };
 

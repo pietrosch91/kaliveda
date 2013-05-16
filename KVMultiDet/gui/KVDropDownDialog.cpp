@@ -96,6 +96,7 @@ KVDropDownDialog::KVDropDownDialog(const TGWindow * main,
    ++nb;
    fCancelBut->Connect("Clicked()", "KVDropDownDialog", this, "DoClose()");
 
+
    // place buttons at the bottom
    l1 = new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 5, 5);
 
