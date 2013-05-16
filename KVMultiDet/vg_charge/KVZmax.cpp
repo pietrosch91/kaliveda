@@ -10,17 +10,18 @@
 
 ClassImp(KVZmax)
 //////////////////////////////////////////////////////////////////////////////////
-//   Global variable returning the charge of the i_th heaviest fragment
-//  and the pointer to the i_th heaviest fragment.
+//  Global variable returning the charge of the (i+1)th heaviest fragment
+//  and the pointer to the (i+1)th heaviest fragment, where i=0,1,...,M-1
+//  with M = total multiplicity of event.
 //  
-//  The fragments are sorted in descending order according to their charge
-//  (Z(1) > Z(2) > Z(3) > ... > Z(mult)) .
+//  All nuclei of the event are sorted in descending order according to their charge
+//  (Z(0) > Z(1) > Z(2) > ... > Z(M-1)) .
 //
 //  Simple interface "GetValue()" returns Z of heaviest fragment
 //  and "GetObject" returns pointer to this fragment.
 //
 //  All other fragments accessible via "GetValue(i)" and "GetZmax(i)", i ranging
-//  from 1 to the the total multiplicity. 
+//  from 0 to M-1 (M=total multiplicity)
 //  (the latter method returns a KVNucleus pointer directly).
 //
 //  Also GetValue("Zmax1"), GetValue("Zmax2"), ..., GetValue("Zmax50")
@@ -207,7 +208,7 @@ void KVZmax::Fill(KVNucleus * c)
 //_________________________________________________________________
 KVNucleus *KVZmax::GetZmax(Int_t i)
 {
-   //Pointer to i_th heaviest fragment (i=1 : Zmax, i=2 : Zmax2, etc.)
+   //Pointer to (i+1)th heaviest fragment (i=0 : Zmax, i=1 : Zmax2, etc.)
 
    if (!heaviest)
       return 0;
@@ -221,7 +222,7 @@ KVNucleus *KVZmax::GetZmax(Int_t i)
 //_________________________________________________________________
 Double_t KVZmax::getvalue_int(Int_t i)
 {
-   //returns the Z of the (i+1)_th heaviest fragment
+   //returns the Z of the (i+1)th heaviest fragment
     // i=0 : Zmax
     // i=1 : Zmax2
 	// etc.
