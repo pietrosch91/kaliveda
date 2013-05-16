@@ -26,7 +26,7 @@ class KVTextDialog
    public:
    KVTextDialog(const TGWindow * main, const Char_t * question,
                 const Char_t * default_value,
-                      TString * chosen, Bool_t * ok);
+                TString * chosen, Bool_t * ok, const char* unit="");
    virtual ~KVTextDialog();
 
    void ReadAnswer();

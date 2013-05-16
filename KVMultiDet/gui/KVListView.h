@@ -24,11 +24,11 @@ class KVListView : public TGListView
    KVListView(TClass* obj_class, const TGWindow *p, UInt_t w, UInt_t h,
               UInt_t options = kSunkenFrame | kDoubleBorder,
               Pixel_t back = GetDefaultFrameBackground());
-   virtual ~KVListView(){};
+   virtual ~KVListView(){}
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 	virtual void 	ActivateSortButtons();
-	virtual void SetMaxColumnSize(UInt_t width) { fMaxColumnSize=width; };
+    virtual void SetMaxColumnSize(UInt_t width) { fMaxColumnSize=width; }
    virtual void   SetDataColumns(Int_t ncolumns);
 	virtual void 	SetDataColumn	(Int_t index, const Char_t* name, const Char_t* method="",
 			Int_t mode = kTextCenterX);
@@ -37,7 +37,7 @@ class KVListView : public TGListView
 		return ((KVLVContainer*)GetContainer())->GetDataColumn(index);
 	};
 
-	virtual void Display(const TCollection *l) { ((KVLVContainer*)GetContainer())->Display(l); };
+    virtual void Display(const TCollection *l) { ((KVLVContainer*)GetContainer())->Display(l); }
 	virtual void Sort(Int_t column)
 	{
 	    // Sort list according to data in given column (=0, 1, ...)
