@@ -298,6 +298,8 @@ void KVLVContainer::default_init()
 
     fPickOrderedObjects = new KVList(kFALSE);
     fPickOrderedObjects->SetCleanup();
+
+    fContextMenuClassExceptions=0;
 }
 
 KVLVContainer::~KVLVContainer()
@@ -310,6 +312,8 @@ KVLVContainer::~KVLVContainer()
 	delete fUserItems;
     fPickOrderedObjects->Clear();
     delete fPickOrderedObjects;
+    if(fContextMenuClassExceptions) fContextMenuClassExceptions->Clear();
+    SafeDelete(fContextMenuClassExceptions);
 }
 
 //____________________________________________________________________________//
@@ -614,13 +618,19 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
         return;
     }
 
-	if(!fAllowContextMenu) return;
+    // context menus globally disabled and no exceptions defined
+    if(!fAllowContextMenu && !fContextMenuClassExceptions) return;
 
 	if(but == kButton3){
 		TGLVEntry *el = (TGLVEntry*)f;
 		TObject *ob = (TObject*)el->GetUserData();
 		if(ob) {
-			fContextMenu->Popup(x,y,ob);
+            // check class context menu status
+            if(fContextMenuClassExceptions){
+                if((!fAllowContextMenu && fContextMenuClassExceptions->FindObject(ob->ClassName()))
+                        || (fAllowContextMenu && !fContextMenuClassExceptions->FindObject(ob->ClassName())))
+                    fContextMenu->Popup(x,y,ob);
+            }
 		}
 	}
 }
@@ -718,6 +728,20 @@ TList* KVLVContainer::GetSelectedObjects()
       }
    }
    return ret;
+}
+
+void KVLVContainer::AddContextMenuClassException(TClass *cl)
+{
+    // The global context menu status (allowed or not allowed) is set by AllowContextMenu().
+    // If required, this can be overridden for specific classes by calling this
+    // method for each required class.
+    // In this case, any objects in the list of precisely this class (not derived classes)
+    // will have the opposite behaviour to that defined by AllowContextMenu(),
+    // i.e. if context menus are globally disabled, this method defines the classes for
+    // which a context menu is authorised, and vice-versa.
+
+    if(!fContextMenuClassExceptions) fContextMenuClassExceptions=new TList;
+    fContextMenuClassExceptions->Add(cl);
 }
 
 //______________________________________________________________________________

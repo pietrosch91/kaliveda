@@ -36,14 +36,8 @@
 #ifndef ROOT_TGComboBox
 #include "TGComboBox.h"
 #endif
-#ifndef ROOT_TGuiBldHintsEditor
-#include "TGuiBldHintsEditor.h"
-#endif
 #ifndef ROOT_TRootBrowser
 #include "TRootBrowser.h"
-#endif
-#ifndef ROOT_TGuiBldNameFrame
-#include "TGuiBldNameFrame.h"
 #endif
 #ifndef ROOT_TGFrame
 #include "TGFrame.h"
@@ -66,9 +60,6 @@
 #ifndef ROOT_TGFSContainer
 #include "TGFSContainer.h"
 #endif
-#ifndef ROOT_TGuiBldEditor
-#include "TGuiBldEditor.h"
-#endif
 #ifndef ROOT_TGColorSelect
 #include "TGColorSelect.h"
 #endif
@@ -86,9 +77,6 @@
 #endif
 #ifndef ROOT_TGView
 #include "TGView.h"
-#endif
-#ifndef ROOT_TRootGuiBuilder
-#include "TRootGuiBuilder.h"
 #endif
 #ifndef ROOT_TGFileBrowser
 #include "TGFileBrowser.h"
@@ -114,17 +102,11 @@
 #ifndef ROOT_TGListTree
 #include "TGListTree.h"
 #endif
-#ifndef ROOT_TGuiBldGeometryFrame
-#include "TGuiBldGeometryFrame.h"
-#endif
 #ifndef ROOT_TGToolTip
 #include "TGToolTip.h"
 #endif
 #ifndef ROOT_TGToolBar
 #include "TGToolBar.h"
-#endif
-#ifndef ROOT_TGuiBldDragManager
-#include "TGuiBldDragManager.h"
 #endif
 #ifndef ROOT_TGHtmlBrowser
 #include "TGHtmlBrowser.h"

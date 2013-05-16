@@ -83,7 +83,7 @@ KVHashList* KVNameValueList::GetList() const
 void KVNameValueList::Copy(TObject& nvl) const
 {
 	// Copy this to the nvl object.
-    // Any existing parmeters will be destroyed
+    // Any existing parameters will be destroyed
 
    TNamed::Copy(nvl);
    KVNameValueList& _obj = (KVNameValueList&)nvl;

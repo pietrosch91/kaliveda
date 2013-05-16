@@ -114,7 +114,8 @@ class KVListView : public TGListView
 		// Call with on=kFALSE to disable objects' context menus opening with mouse right-click
 		((KVLVContainer*)GetContainer())->AllowContextMenu(on);
    };
-	virtual void	SetDefaultColumnWidth(TGVFileSplitter* splitter);
+    void AddContextMenuClassException(TClass*);
+    virtual void	SetDefaultColumnWidth(TGVFileSplitter* splitter);
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
 

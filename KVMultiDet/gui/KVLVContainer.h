@@ -83,6 +83,7 @@ class KVLVContainer : public TGLVContainer
 	Bool_t 		fSort;
 
 	Bool_t		fAllowContextMenu;	// can objects' context menu be opened with right-click ?
+    TList*      fContextMenuClassExceptions; // list of classes for which we override value of fAllowContextMenu
 	Bool_t		fAllowDoubleClick;	// do something when object double-clicked ?
 	Bool_t		fUserDoubleClickAction;	// user-defined double-click action instead of Browse() method
     Bool_t      fControlClick;      // set to kTRUE when user ctrl-clicks an item
@@ -169,6 +170,7 @@ class KVLVContainer : public TGLVContainer
 		// Call with on=kFALSE to disable objects' context menus opening with mouse right-click
 		fAllowContextMenu=on;
 	};
+    void AddContextMenuClassException(TClass*);
 	void AllowBrowse(Bool_t on=kTRUE)
 	{
 		// Deprecated: use AllowDoubleClick

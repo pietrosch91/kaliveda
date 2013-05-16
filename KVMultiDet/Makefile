@@ -65,8 +65,8 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_34_00)),1)
 LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer
 RLIBMAPDEPS += libProofPlayer.so
 else
-LINK_LIB += -L$(ROOTSYS)/lib -lProof
-RLIBMAPDEPS += libProof.so
+LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer -lProof
+RLIBMAPDEPS += libProof.so libProofPlayer.so
 endif
 
 ifneq ($(ARCH),win32)
