@@ -631,6 +631,7 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
                         || (fAllowContextMenu && !fContextMenuClassExceptions->FindObject(ob->ClassName())))
                     fContextMenu->Popup(x,y,ob);
             }
+            else if(fAllowContextMenu)  fContextMenu->Popup(x,y,ob);
 		}
 	}
 }
