@@ -11,7 +11,7 @@ class KVHarpeeSi : public KVVAMOSDetector
 	private:
 
 	enum {
-		kPosIsOK = BIT(20) //flag set when PositionIsOK method is called
+		kPosIsOK = BIT(21) //flag set when PositionIsOK method is called
 	};
 		static KVString fACQParamTypes; //!types of available Acquision parameters
 		static KVString fPositionTypes; //!types of available positions

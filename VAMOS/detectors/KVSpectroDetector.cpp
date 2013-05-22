@@ -25,6 +25,9 @@ void KVSpectroDetector::init(){
 	fFocalToTarget    = NULL;
 	fNabsorbers    = 0;
 	fTotThick      = 0;
+
+	//use by default random position
+	SetBit( kRdmPos );
 }
 //________________________________________________________________
 
@@ -495,7 +498,7 @@ TGeoVolume* KVSpectroDetector::GetGeoVolume(const Char_t* name, const Char_t* ma
 //________________________________________________________________
 
 TGeoVolume* KVSpectroDetector::GetGeoVolume(){
-	// returns the TGeoVolume built when a volume is added by
+	// Returns the TGeoVolume built when a volume is added by
 	// the method AddAbsorber;
 	return GetAbsGeoVolume();
 }
@@ -536,7 +539,7 @@ Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * nor
 //________________________________________________________________
 
 Double_t KVSpectroDetector::GetXf( Int_t idx ){
-	// Return the X coordinate (in cm)  by calling the
+	// Returns the X coordinate (in cm)  by calling the
 	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
@@ -547,7 +550,7 @@ Double_t KVSpectroDetector::GetXf( Int_t idx ){
 //________________________________________________________________
 
 Double_t KVSpectroDetector::GetYf( Int_t idx ){
-	// Return the Y coordinate (in cm)  by calling the
+	// Returns the Y coordinate (in cm)  by calling the
 	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
@@ -558,7 +561,7 @@ Double_t KVSpectroDetector::GetYf( Int_t idx ){
 //________________________________________________________________
 
 Double_t KVSpectroDetector::GetZf( Int_t idx ){
-	// Return the Y coordinate (in cm)  by calling the
+	// Returns the Y coordinate (in cm)  by calling the
 	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
@@ -569,9 +572,10 @@ Double_t KVSpectroDetector::GetZf( Int_t idx ){
 //________________________________________________________________
 
 UChar_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
-	// Return in the array 'XYZf', the coordinates (in cm) of a point randomly drawn in the 
+	// Returns in the array 'XYZf', the coordinates (in cm) of a point randomly drawn in the 
 	// active volume with index 'idx'. We assume that the shape of this
-	// volume is a TGeoBBox. These coordinates are given in the reference frame of the focal plan. 
+	// volume is a TGeoBBox. These coordinates are given in the focal-plane
+	// of reference.
 	// The function returns a binary code where:
 	//   - bit 0 = 1 if X is OK  (001);
 	//   - bit 1 = 1 if Y is OK  (010);
@@ -591,11 +595,29 @@ UChar_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
    	Double_t oy = (box->GetOrigin())[1];
    	Double_t oz = (box->GetOrigin())[2];
    	Double_t xyz[3];
-  	xyz[0] = ox-dx+2*dx*gRandom->Rndm();
-   	xyz[1] = oy-dy+2*dy*gRandom->Rndm();
-   	xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+  	xyz[0] = ox-( TestBit(kRdmPos) ? dx+2*dx*gRandom->Rndm() : 0.);
+   	xyz[1] = oy-( TestBit(kRdmPos) ? dy+2*dy*gRandom->Rndm() : 0.);
+   	xyz[2] = oz-( TestBit(kRdmPos) ? dz+2*dz*gRandom->Rndm() : 0.);
 	if( ActiveVolumeToFocal( xyz , XYZf, idx ) ) return 7;
 	return 0;
+}
+//________________________________________________________________
+
+void KVSpectroDetector::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+	// Returns in the DXYZf array the errors of each coordinate of the position returned by
+	// GetPosition(...) in the focal-plane frame of reference.
+	//
+	// In this mother class, the surface of the detector is assumed to be perpendicular to the
+	// Z-axis. To be modified in the child classes.
+
+	DXYZf[0] =  DXYZf[1] =  DXYZf[2] = -1;
+	TGeoVolume *vol = GetActiveVolume(idx);
+	if( !vol ||  !PositionIsOK() ) return;
+
+   	const TGeoBBox *box = (TGeoBBox *)vol->GetShape();
+   	DXYZf[0] = box->GetDX();
+   	DXYZf[1] = box->GetDY();
+   	DXYZf[2] = box->GetDZ();
 }
 //________________________________________________________________
 

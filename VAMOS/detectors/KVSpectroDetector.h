@@ -16,6 +16,10 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 {
 	protected:
 
+		enum {
+			kRdmPos = BIT(20) //flag set when Random position is used
+		};
+
 		KVList *fActiveVolumes;
 		TGeoHMatrix *fFocalToTarget;//! focal-plan to target position transformation matrix
 		Int_t  fNabsorbers;      // Number of absobers
@@ -60,7 +64,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		virtual TGeoVolume* GetGeoVolume(const Char_t* name, const Char_t* material, const Char_t* shape_name, const Char_t* params);
    		virtual Int_t    GetMult(Option_t *opt="");
    		virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
-   		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0 );
+   		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
+   		virtual void GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
 
    		virtual UInt_t GetTelescopeNumber() const;
 		virtual void GetVerticesInOwnFrame(TVector3* /*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
@@ -88,9 +93,11 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return (TGeoVolume *)fActiveVolumes->At(i);}
    		inline Double_t GetTotalThickness() const{ return fTotThick;}
    		inline void SetFocalToTargetMatrix( TGeoHMatrix *matrix ){ fFocalToTarget = matrix; };
-   		inline Bool_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
+   		inline UChar_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
 	   		return GetPosition( XYZf, idx );
    		}
+
+		inline void UseRandomPosition( Bool_t rdm = kTRUE ){ SetBit( kRdmPos, rdm ); } 
 
 
 		//   virtual Double_t GetCorrectedEnergy(const KVNucleus*, Double_t e =
