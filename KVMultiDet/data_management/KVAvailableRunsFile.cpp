@@ -384,6 +384,15 @@ void KVAvailableRunsFile::GetRunInfos(Int_t run, KVList * dates,
 
          //found it
          TObjArray *toks = line.Tokenize('|');  // split into fields
+         // check date is not identical to a previous entry
+         // i.e. there are spurious duplicate entries
+         TObjString* rundate = (TObjString*)toks->At(1)->Clone();
+         if(dates->FindObject(rundate->GetName())){
+             delete toks;
+             delete rundate;
+             line.ReadLine(fRunlist);
+             continue;
+         }
          //add date string
          dates->Add(toks->At(1)->Clone());
 
