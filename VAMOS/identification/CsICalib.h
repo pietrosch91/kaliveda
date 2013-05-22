@@ -124,7 +124,7 @@ class CsICalib
         LogFile *L;
         virtual ~CsICalib();
         
-        Int_t ClearEvent(Int_t);	
+        //Int_t ClearEvent(Int_t);
 	string name;
           		
 	void SetTel1(KVDetector *si);
@@ -139,11 +139,11 @@ class CsICalib
 	void InitTelescopeSiTof(Int_t);
 		        
         void InitSiCsI(Int_t);  
-        void SetCalSi(Float_t,Float_t,Float_t);
-        void SetCsIPed(Float_t);
-        void SetCalCsI(Float_t,Float_t,Float_t);
+        //void SetCalSi(Float_t,Float_t,Float_t);
+        //void SetCsIPed(Float_t);
+        //void SetCalCsI(Float_t,Float_t,Float_t);
 	
-        void CalculateCanalCsI();
+        //void CalculateCanalCsI();
         
         void SetCalibration(Sive503*,CsIv*,Int_t,Int_t);
         
@@ -155,11 +155,11 @@ class CsICalib
 	
         void CalculateESi(Double_t);	//UShort_t
         void Bisection(Int_t,Double_t);	//UShort_t
-        void ECsIch(Double_t);
+        //void ECsIch(Double_t);
 	Double_t BisectionLight(Double_t , Double_t , Double_t);
         void CompleteSimulation(Double_t);	//UShort_t
-        void CalculateECsI();
-        void SimulateEvent();
+        //void CalculateECsI();
+        //void SimulateEvent();
 
         void Interpolate();
         Double_t GetInterpolationD(Double_t, Double_t, Double_t, Double_t, Double_t);
