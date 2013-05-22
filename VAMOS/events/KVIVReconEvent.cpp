@@ -207,18 +207,23 @@ void KVIVReconEvent::CalibrateAndIdentifyVAMOSEvent(){
 //________________________________________________________________
 
 Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
+	// The reconstruction of the VAMOS event is done if at least one
+	// detector of the focal plane is fired.
+
+//	cout<<"-------------------------------------------"<<endl;
+//	Info("ReconstructVAMOSEvent","Reconstructing event %d",GetNumber());
+//	cout<<"-------------------------------------------"<<endl;
 
 	KVList *detl = gVamos->GetFiredDetectors( GetPartSeedCond() );
+	detl->ls();
 
 	//If no fired detectors then no reconstruction
 	if( !detl->GetEntries() ) return kFALSE;
 	//else a Nucleus can be recontructed in VAMOS
 	fNucInVAMOS = kTRUE;
 
-	fVAMOSnuc->ReconstructFocalPlaneTrajectory( detl );
-	fVAMOSnuc->ReconstructLabTrajectory();
-	fVAMOSnuc->RunTracking( detl );
-	//fVAMOSnuc->Calibrate();
+	fVAMOSnuc->Reconstruct( detl );
 
+	
 	return kTRUE;
 }

@@ -29,9 +29,15 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		virtual void Calibrate();
 		virtual void Clear(Option_t * t = "");
-		virtual void ReconstructFocalPlaneTrajectory(KVList *detlist);
-		virtual void ReconstructLabTrajectory();
-		virtual void RunTracking(KVList *detlist);
+		virtual void Reconstruct( KVList *detl );
+		virtual void ReconstructFPtraj();
+//		virtual void ReconstructFPtrajByFitting();
+		virtual void ReconstructLabTraj();
+
+		virtual void RunTrackingAtFocalPlane();
+		virtual void RunTrackingAtTargetPoint();
+
+		virtual Bool_t CheckTrackingCoherence();
 
 		//-------------- inline methods -----------------//
 

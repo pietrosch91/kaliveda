@@ -91,15 +91,25 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ReconstructFocalPlaneTrajectory(KVList *detlist){
+void KVVAMOSReconNuc::Reconstruct( KVList *detl ){
 
-	TIter next_det( detlist );
+	TIter next_det( detl );
 	KVVAMOSDetector *d = NULL;
 	while( (d = (KVVAMOSDetector *)next_det()) ){
    		AddDetector(d);
         d->AddHit(this);  // add particle to list of particles hitting detector
         d->SetAnalysed(kTRUE);   //cannot be used to seed another particle
 	}
+
+	ReconstructFPtraj();
+	ReconstructLabTraj();
+	//Calibrate();
+}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::ReconstructFPtraj(){
+
+
 
 
 	UChar_t res = 0;
@@ -116,15 +126,16 @@ void KVVAMOSReconNuc::ReconstructFocalPlaneTrajectory(KVList *detlist){
 	fRT.dirFP.SetXYZ(0, 0, 1);
 
 	const Char_t *FPdetName = NULL;
+	KVVAMOSDetector *d = NULL;
 	// Loop over detector name to be used for the Focal plane Position
 	// reconstruction
 	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
 
-		// Look at only the detectors in 'detlist' with the name or
+		// Look at only the detectors in 'fDetList' with the name or
 		// type 'FPdetName' measuring a position.
 		if(
-				((d = (KVVAMOSDetector *)detlist->FindObject( FPdetName )) ||
- 		 		 (d = (KVVAMOSDetector *)detlist->FindObjectByType( FPdetName )))
+				((d = (KVVAMOSDetector *)GetDetectorList()->FindObject( FPdetName )) ||
+ 		 		 (d = (KVVAMOSDetector *)GetDetectorList()->FindObjectByType( FPdetName )))
 				&& (res = d->GetPosition(xyzf)) > 4 
 		  ){
 
@@ -179,41 +190,115 @@ void KVVAMOSReconNuc::ReconstructFocalPlaneTrajectory(KVList *detlist){
 	
 	// Yf = Yc1      - Zc1*tan( Phif   )
 	fRT.pointFP[1] = XYZf[0][1] - XYZf[0][2]*fRT.dirFP.Y()/fRT.dirFP.Z();
-
+	
+	RunTrackingAtFocalPlane();
+//	if( CheckTrackingCoherence() ) fRT.SetFPparamsReady();
+// 	else ReconstructFPtrajByFitting( GetDetectorList() );
 	fRT.SetFPparamsReady();
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ReconstructLabTrajectory(){
+//void KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
+//
+//	Info("ReconstructFPtrajByFitting","IN");
+//	UChar_t res = 0;
+//	Double_t xyzf [3];          // [3] => [X, Y, Z]
+//	Double_t dxyzf[3];          // [3] => [X, Y, Z]
+//	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+//
+//	static TGraphErrors graphX(4); // 4 is the max number of FPdetectors
+//	static TGraphErrors graphY(4); // 4 is the max number of FPdetectors
+//	Int_t NptX=0, NptY=0;         // Number of Points in X-Z and Y-Z plans
+//	const Char_t *FPdetName = NULL;
+//	KVVAMOSDetector *d = NULL;
+//	// Loop over detector name to be used for the Focal plane Position
+//	// reconstruction
+//	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
+//
+//		// Look at only the detectors in 'fDetList' with the name or
+//		// type 'FPdetName' measuring a position.
+//		if(
+//				((d = (KVVAMOSDetector *)GetDetectorList()->FindObject( FPdetName )) ||
+// 		 		 (d = (KVVAMOSDetector *)GetDetectorList()->FindObjectByType( FPdetName )))
+//				&& (res = d->GetPosition(xyzf)) > 4 
+//		  ){
+//
+//			d->GetDeltaXYZf( dxyzf );
+//
+//			if( res & 1 ){ // X position is OK
+//
+//				graphX.SetPoint     ( NptX, xyzf[2], xyzf [0]);
+//				graphX.SetPointError( NptX,      0 , dxyzf[0]>0.01 ? dxyzf[0] : 0.01);
+//				NptX++;
+//			}
+//			if( res & 2 ){ // Y position is OK
+//				graphY.SetPoint     ( NptY, xyzf[2], xyzf [1]);
+//				graphY.SetPointError( NptY,      0 , dxyzf[1]>0.01 ? dxyzf[1] : 0.01 );
+//				NptY++;
+//			}
+//
+//		}
+//	}
+//
+//	if( NptX>1 && NptY>1  ){
+//
+//		graphX.Set( NptX );
+//		graphY.Set( NptY );
+//
+//
+//		fRT.dirFP.SetXYZ(0, 0, 1);
+//		TF1 *ff = (TF1 *)gROOT->GetFunction("pol1");
+//
+//		//	graphX.Fit(ff,"QNC");
+//		graphX.Fit(ff,"QC");
+//		fRT.dirFP.SetX( ff->GetParameter(1) );
+//		fRT.pointFP[0] = ff->GetParameter(0);
+//
+//		//	graphY.Fit(ff,"QNC");
+//		graphY.Fit(ff,"QC");
+//		fRT.dirFP.SetY( ff->GetParameter(1) );
+//		fRT.pointFP[1] = ff->GetParameter(0);
+//
+//		// normalize the direction vector dirFP
+//		fRT.dirFP *= 1./fRT.dirFP.Mag();
+//
+//		// Set FPcode 31 for the reconstruction by fitting
+//		fCodes.SetFPCode( kFPCode31 );
+//      RunTrackingAtFocalPlane();
+//		if( CheckTrackingCoherence() ) {
+//			fRT.SetFPparamsReady();
+//			return;
+//		}
+//	}
+//
+// 	fTrackRes.Clear();
+//}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::ReconstructLabTraj(){
 	// Reconstruction of the trajectory at the target point, in the reference
 	// frame of the laboratory, from the trajectory at the focal plane.
-	// The method ReconstructFocalPlaneTrajectory(KVList *detlist) has to be 
-	// call first.
+	// The method ReconstructFPtraj() has to be call first.
 
 	// No trajectory reconstruction in the laboratory if the reconstruction
 	// in the focal plane is not OK.
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();
 	tm->ReconstructFPtoLab( &fRT );
+	RunTrackingAtTargetPoint();
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::RunTracking(KVList *detlist){
-	// Run the tracking of this reconstructed nucleus in each volume (detectors)  that it has punched through.
+void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
+	// Run the tracking of this reconstructed trajectory in each volume (detectors)  punched through at the focal plane.
 
 	// Tracking is impossible if the trajectory reconstruction
 	// in the focal plane is not OK.
 	fTrackRes.Clear();
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 
-//	cout<<endl<<"--------------------------------------------------"<<endl;
-//	Info("RunTracking","IN");
-//
-//	cout<<"FP CODE: "<<fCodes.GetFPStatus()<<endl;
-//	Info("RunTracking","List of fired detectors");
-//	detlist->ls();
 
-	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)detlist->First();
+	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetDetectorList()->First();
 	TGeoVolume *stopVol = (TGeoVolume *)stopdet->GetActiveVolumes()->Last();
 
 	// For gGeoManager the origin is the target point.
@@ -244,7 +329,7 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
    	TGeoVolume* curVol   = gGeoManager->GetCurrentVolume();
    	TGeoVolume* prevVol  = NULL;
 
-   	// move along trajectory until we hit a new volume
+   	// move along trajectory until a new volume is hit
    	// Stop when the point is outside the Focal Plane volume or when it is
    	// inside the stopping detector
    	do{
@@ -296,13 +381,22 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
 
    	}
    	while( (curVol != gGeoManager->GetTopVolume()) );
+}
+//________________________________________________________________
 
+void KVVAMOSReconNuc::RunTrackingAtTargetPoint(){
 
-	if( fRT.FPtoLabWasAttempted() ){
+	if( !fRT.FPtoLabWasAttempted() ) return;
 //		//--------------------------------------------------
 //		Info("RunTracking","Runnig the LAB Traking from target point");
 //		//--------------------------------------------------
 		Double_t XYZ_target[3] = { 0., 0., 0. };
+
+		//tracking direction
+   		Double_t dir[3];
+
+		TGeoVolume *FPvol = gVamos->GetFocalPlaneVolume();
+
    		//  direction of the tracking = direction of the trajectory at the target point (lab) 
    		fRT.dirLab.GetXYZ( dir );
 
@@ -310,8 +404,8 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
    		// and finding the state). Start from the FP intersection point
    		gGeoManager->InitTrack( XYZ_target, dir );
 
-   		curVol   = gGeoManager->GetCurrentVolume();
-   		prevVol  = NULL;
+   		TGeoVolume *curVol   = gGeoManager->GetCurrentVolume();
+   		TGeoVolume *prevVol  = NULL;
 
    		// move along trajectory until we hit a new volume
    		// Stop when the point is outside the top volume or
@@ -332,11 +426,35 @@ void KVVAMOSReconNuc::RunTracking(KVList *detlist){
 
    		}
    		while( !gGeoManager->IsOutside() && (curVol != FPvol) );
+
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
+	// Verifies the coherence between the tracking result and the list of
+	// fired detectors.
+	// If at least one active volum of each fired detector is
+	// inside the tracking result fTrackRes. Return kTRUE if this
+	// is OK.
+	
+	TIter nextdet( GetDetectorList() );
+	KVVAMOSDetector *det = NULL;
+	while( (det = (KVVAMOSDetector *)nextdet()) ){
+
+		Bool_t ok = kFALSE;
+
+		TIter nextvol( det->GetActiveVolumes() );
+		TGeoVolume *vol = NULL;
+		while( (vol = (TGeoVolume *)nextvol()) && !ok ){
+
+			TIter next_tr( fTrackRes.GetList());
+			TObject *tr = NULL;
+			while( (tr = next_tr()) && !ok ){
+				if( !strcmp( tr->GetName(), vol->GetName() ) ) ok = kTRUE; 
+			}
+		}
+
+		if( !ok ) return kFALSE;
 	}
-
-
-
-//   	fTrackRes.ls();
-//	Info("RunTracking","OUT");
-//	cout<<"--------------------------------------------------"<<endl<<endl;
+	return kTRUE;
 }
