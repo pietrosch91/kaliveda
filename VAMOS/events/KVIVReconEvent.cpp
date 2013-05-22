@@ -215,7 +215,6 @@ Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
 //	cout<<"-------------------------------------------"<<endl;
 
 	KVList *detl = gVamos->GetFiredDetectors( GetPartSeedCond() );
-	detl->ls();
 
 	//If no fired detectors then no reconstruction
 	if( !detl->GetEntries() ) return kFALSE;
