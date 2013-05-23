@@ -595,9 +595,9 @@ UChar_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
    	Double_t oy = (box->GetOrigin())[1];
    	Double_t oz = (box->GetOrigin())[2];
    	Double_t xyz[3];
-  	xyz[0] = ox-( TestBit(kRdmPos) ? dx+2*dx*gRandom->Rndm() : 0.);
-   	xyz[1] = oy-( TestBit(kRdmPos) ? dy+2*dy*gRandom->Rndm() : 0.);
-   	xyz[2] = oz-( TestBit(kRdmPos) ? dz+2*dz*gRandom->Rndm() : 0.);
+  	xyz[0] = ox+( TestBit(kRdmPos) ? dx*(2*gRandom->Rndm()-1) : 0.);
+   	xyz[1] = oy+( TestBit(kRdmPos) ? dy*(2*gRandom->Rndm()-1) : 0.);
+   	xyz[2] = oz+( TestBit(kRdmPos) ? dz*(2*gRandom->Rndm()-1) : 0.);
 	if( ActiveVolumeToFocal( xyz , XYZf, idx ) ) return 7;
 	return 0;
 }
