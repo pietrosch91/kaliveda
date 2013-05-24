@@ -350,9 +350,12 @@ TGeoHMatrix &KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i ) const{
 
 	TGeoVolume *vol = (TGeoVolume *)fActiveVolumes->At(i);
 
-	Int_t prev_id = gGeoManager->GetCurrentNodeId();
-
 	if( vol ){
+
+		Int_t prev_id = gGeoManager->GetCurrentNodeId();
+		// To be sure that the matrices will be calculated again
+		gGeoManager->CdTop();
+
 		gGeoManager->CdNode( vol->GetUniqueID() );
 
 		// matrix 'volume to target'
@@ -362,13 +365,13 @@ TGeoHMatrix &KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i ) const{
 		else                 mm = *vol_to_tgt;
 
 		mm.SetName( Form("%s_to_focal",vol->GetName()) );
+
+		// just to not create problems if this method is called during a tracking
+		gGeoManager->CdNode( prev_id );
 	}
 	else mm.SetName("Identity_matrix");
 
-	// just to not create problems if this method is called during a tracking
-	gGeoManager->CdNode( prev_id );
-
-	return mm;
+		return mm;
 }
 //________________________________________________________________
 
@@ -632,13 +635,6 @@ UInt_t KVSpectroDetector::GetTelescopeNumber() const{
 void KVSpectroDetector::GetVerticesInOwnFrame(TVector3* corners, Double_t depth, Double_t layer_thickness){
 	//  Obsolete method.
 	Warning("GetVerticesInOwnFrame","Obsolete method");	
-}
-//________________________________________________________________
-
-void KVSpectroDetector::InitGeometry(){
-	// Initialize the geometry of the detector once it is placed in the
-	// spectrometer (called for example in KVVAMOS::InitGeometry()).
-
 }
 //________________________________________________________________
 

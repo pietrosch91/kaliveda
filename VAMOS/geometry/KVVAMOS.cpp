@@ -57,14 +57,13 @@ void KVVAMOS::init()
 	fVACQParams    = NULL;
 	fVCalibrators  = NULL;
 	fFPvolume      = NULL;
-	fFocalToTarget = NULL;
 	fTransMatrix   = NULL;
 	fRotation      = NULL;
 	fFocalPos      = 0; 
+	fAngle         = 0;
 	fBrhoRef       = -1;
 	fBeamHF        = -1;
 
-	SetAngle( fAngle = 0. );
 
 	Info("init","To be implemented");
 }
@@ -162,7 +161,13 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	// this volume assembly allow the rotation of VAMOS around the 
 	// target
 	TGeoVolume *vamos = gGeoManager->MakeVolumeAssembly("VAMOS");
-	
+	SetAbsGeoVolume(vamos);
+
+	if( fRotation ) fRotation->Clear();
+	else{
+   		fRotation =  new TGeoRotation( "VAMOSrotation" );
+		fRotation->RotateY( GetAngle() ); 
+	}
 	top->AddNode( vamos, 1, fRotation );
 
 	TGeoMatrix *matrix = NULL;
@@ -271,19 +276,43 @@ void KVVAMOS::InitGeometry(){
 	   	if( vol ) vol->SetUniqueID( gGeoManager->GetCurrentNodeId() );
    	}
 
+	fFocalToTarget.SetName("focal_to_target");
+	GeoModified();
+	UpdateGeometry();
+
+}
+//________________________________________________________________
+
+void KVVAMOS::UpdateGeometry(){
+	// Update the geometry of VAMOS.
+	// This method has to be called when the geometry is modified and
+	// before using of methods giving information about geometry.
+	//
+	// The focal-plane to target matrix is calculated again and set
+	// to each detector.
+
+	
+	if( !IsGeoModified() || !IsBuilt() ) return;	
+	
+	Int_t prev_id = gGeoManager->GetCurrentNodeId();
+
+	// To be sure that the matrices will be calculated again
+	gGeoManager->CdTop();
 	// Focal-plane to target matrix
 	gGeoManager->CdNode( fFPvolume->GetUniqueID() );
 	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
-	fFocalToTarget.SetName("focal_to_target");
-
 
 	// Initialize the geometry of the detectors
 	TIter next_det(fDetectors);
 	KVVAMOSDetector *det = NULL;
 	while( (det = (KVVAMOSDetector *)next_det()) ){
 		det->SetFocalToTargetMatrix( &fFocalToTarget );
-		det->InitGeometry();	
 	}
+
+	ResetBit( kGeoModified );
+
+	// just to not create problems if this method is called during a tracking
+	gGeoManager->CdNode( prev_id );
 }
 //________________________________________________________________
 
@@ -304,6 +333,13 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 		if( det->Fired( opt ) ) fFiredDets->Add( det );
 	}
 	return fFiredDets;
+}
+//________________________________________________________________
+
+TGeoVolume* KVVAMOS::GetGeoVolume(){
+	// Returns the global TGeoVolume of VAMOS built when the method
+	// BuildVAMOSGeometry() is called.
+	return GetAbsGeoVolume();
 }
 //________________________________________________________________
 
@@ -706,25 +742,25 @@ void KVVAMOS::SetParameters(UShort_t run){
 
 void KVVAMOS::FocalToTarget(const Double_t *focal, Double_t *target){
 	// Convert the point coordinates from focal plane reference to target reference system.
-	fFocalToTarget.LocalToMaster( focal, target );
+	GetFocalToTargetMatrix().LocalToMaster( focal, target );
 }
 //________________________________________________________________
 
 void    KVVAMOS::TargetToFocal(const Double_t *target, Double_t *focal){
 	// Convert the point coordinates from  target reference to focal plane reference system.
-	fFocalToTarget.MasterToLocal( target, focal );
+	GetFocalToTargetMatrix().MasterToLocal( target, focal );
 }
 //________________________________________________________________
 
 void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
 	// Convert the vector coordinates from focal plane reference to target reference system.
-	fFocalToTarget.LocalToMasterVect( focal, target );
+	GetFocalToTargetMatrix().LocalToMasterVect( focal, target );
 }
 //________________________________________________________________
 
 void KVVAMOS::TargetToFocalVect(const Double_t *target, Double_t *focal){
 	// Convert the vector coordinates from  target reference to focal plane reference system.
-	fFocalToTarget.MasterToLocalVect( target, focal );
+	GetFocalToTargetMatrix().MasterToLocalVect( target, focal );
 }
 //________________________________________________________________
 

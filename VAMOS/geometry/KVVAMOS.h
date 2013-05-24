@@ -19,7 +19,9 @@ class KVVAMOS : public KVDetector //public KVBase
 	private:
 
 		enum{
-			kIsBuilt = BIT(20) //flag set when Build() is called
+			kIsBuilt     = BIT(20), //flag set when Build() is called
+			kGeoModified = BIT(21)  //flag set when the geometry is modified
+
 		};
 
 		static KVString fACQParamTypes; //!types of available Acquision parameters
@@ -51,6 +53,7 @@ class KVVAMOS : public KVDetector //public KVBase
    		virtual void   SetArrayACQParams();
    		virtual void   SetCalibrators();
    		virtual void   SetIDTelescopes();
+		virtual void   UpdateGeometry();
 
 
    	public:
@@ -67,6 +70,7 @@ class KVVAMOS : public KVDetector //public KVBase
    		virtual void Clear(Option_t *opt = "" );
    		void Copy (TObject&) const;
    		virtual KVList *GetFiredDetectors(Option_t *opt="Pany");
+   		virtual TGeoVolume* GetGeoVolume();
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void Initialize();
    		static KVVAMOS *MakeVAMOS(const Char_t* name);
@@ -80,8 +84,12 @@ class KVVAMOS : public KVDetector //public KVBase
    		void TargetToFocalVect(const Double_t *target, Double_t *focal);
 
 
+
    		// ----- inline methods -----------
 
+
+		inline void   GeoModified(){ SetBit( kGeoModified ); }
+		inline Bool_t IsGeoModified() const { return TestBit( kGeoModified ); }
 
    		inline KVCalibrator *GetVCalibrator(const Char_t * type) const{
    			if (fVCalibrators)
@@ -93,12 +101,15 @@ class KVVAMOS : public KVDetector //public KVBase
 	   		return (KVDetector*)fDetectors->FindObject(name);
    		}
 
-		inline TGeoVolume* GetFocalPlaneVolume() const     { return fFPvolume;      }
-   		inline TGeoHMatrix GetFocalToTargetMatrix() const { return fFocalToTarget; }
-   		inline KVList* GetListOfDetectors()   { return fDetectors;  }
-   		inline KVList* GetVACQParamList()     { return fVACQParams; }
-   		inline KVList* GetListOfVCalibrators(){ return fVCalibrators; }
-   		inline Bool_t  IsBuilt()              { return TestBit(kIsBuilt); }
+		inline TGeoVolume* GetFocalPlaneVolume() const    { return fFPvolume;      }
+   		inline TGeoHMatrix GetFocalToTargetMatrix(){ 
+			if( IsGeoModified() ) UpdateGeometry();
+			return fFocalToTarget; 
+		}
+   		inline KVList* GetListOfDetectors()   { return fDetectors;        }
+   		inline KVList* GetVACQParamList()     { return fVACQParams;       }
+   		inline KVList* GetListOfVCalibrators(){ return fVCalibrators;     }
+   		inline Bool_t  IsBuilt() const        { return TestBit(kIsBuilt); }
 
 
 		static KVString &GetACQParamTypes(){
@@ -120,7 +131,7 @@ class KVVAMOS : public KVDetector //public KVBase
 			return (id/10000)%10;
 		}
 
-		inline Double_t GetAngle()      const{return fAngle;    }
+		inline Double_t GetAngle()      const{ return fAngle;   }
 		inline Double_t GetBrhoRef()    const{ return fBrhoRef; }
 		inline Double_t GetBeamHF()     const{ return fBeamHF;  }
 		inline Double_t GetBeamPeriod() const{
@@ -129,15 +140,13 @@ class KVVAMOS : public KVDetector //public KVBase
   	  	}
 
 		inline void SetAngle  ( Double_t angle ){
+			if( fAngle == angle ) return;
  		   	fAngle = angle;
 			if( fRotation ){ 
 				fRotation->Clear();
 				fRotation->RotateY( angle ); 
 			}
-			else{
- 			   	fRotation = new TGeoRotation( "VAMOSrotation" );
-				fRotation->RotateY( angle ); 
-			}
+			GeoModified();
 		}
 		inline void SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho;  }
 		inline void SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;    }

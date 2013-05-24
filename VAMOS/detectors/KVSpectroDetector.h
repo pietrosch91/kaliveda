@@ -69,7 +69,6 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 
    		virtual UInt_t GetTelescopeNumber() const;
 		virtual void GetVerticesInOwnFrame(TVector3* /*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
-   		virtual void InitGeometry();
    		void SetActiveVolume(TGeoVolume*);
 
 
