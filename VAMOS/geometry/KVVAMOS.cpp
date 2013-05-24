@@ -161,6 +161,7 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	// this volume assembly allow the rotation of VAMOS around the 
 	// target
 	TGeoVolume *vamos = gGeoManager->MakeVolumeAssembly("VAMOS");
+//	TGeoVolume *vamos = gGeoManager->MakeBox("VAMOS", Vacuum,  200, 200, 500);//TO BE CHANGE
 	SetAbsGeoVolume(vamos);
 
 	if( fRotation ) fRotation->Clear();
@@ -198,7 +199,7 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	// place the focal plane detection chamber from target position.
    	fFocalPos =  infos->GetValue("VAMOS.FOCALPOS", 0.);
 	// For the moment we place it juste after the strip foil
-	matrix    = new TGeoTranslation("focal_pos", 0., 0., dis+th+ ((TGeoBBox *)fFPvolume->GetShape())->GetDZ() ); // TO BE CHANGED
+	matrix    = new TGeoTranslation("focal_pos", 0., 0., dis+th+10+((TGeoBBox *)fFPvolume->GetShape())->GetDZ() ); // TO BE CHANGED
    	vamos->AddNode( fFPvolume, 1, matrix );
    	///////////////////////////////////////////////
 

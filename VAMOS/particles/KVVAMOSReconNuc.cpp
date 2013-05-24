@@ -91,6 +91,23 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::MakeDetectorList()
+{
+    // Protected method, called when required to fill fDetList with pointers to
+    // the detectors whose names are stored in fDetNames.
+    // If gVamos=0x0, fDetList list will be empty.
+
+	fDetList.Clear();
+    if ( gVamos ){
+    	fDetNames.Begin("/");
+    	while ( !fDetNames.End() ) {
+    	    KVDetector* det = gVamos->GetDetector( fDetNames.Next(kTRUE) );
+    	    if ( det ) fDetList.Add(det);
+    	} 
+    }
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::Reconstruct( KVList *detl ){
 
 	TIter next_det( detl );
@@ -314,7 +331,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 	//tracking direction
    	Double_t dir[3];
 
-	TGeoVolume *FPvol = gVamos->GetFocalPlaneVolume();
+	TGeoVolume *FPvol    = gVamos->GetFocalPlaneVolume();
 //	//--------------------------------------------------
 //	Info("RunTracking","Runnig the Focal Plane backward Traking");
 //	//--------------------------------------------------
@@ -326,8 +343,11 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
    	// and finding the state). Start from the FP intersection point
    	gGeoManager->InitTrack( XYZ_FP, dir );
 
+	TGeoVolume *topVol   = gGeoManager->GetTopVolume();
+   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
    	TGeoVolume* curVol   = gGeoManager->GetCurrentVolume();
    	TGeoVolume* prevVol  = NULL;
+
 
    	// move along trajectory until a new volume is hit
    	// Stop when the point is outside the Focal Plane volume or when it is
@@ -348,7 +368,8 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
    	   	curVol  = gGeoManager->GetCurrentVolume();
 
    	}
-   	while( (curVol != gGeoManager->GetTopVolume()) );
+   	while( (curVol != topVol) && !gGeoManager->IsOutside() );
+//   	while( !gGeoManager->IsOutside() );
 
 //	//--------------------------------------------------
 //	Info("RunTracking","Runnig the Focal Plane forward Traking");
@@ -380,52 +401,52 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
    	   	curVol  = gGeoManager->GetCurrentVolume();
 
    	}
-   	while( (curVol != gGeoManager->GetTopVolume()) );
+   	while( (curVol != topVol) && !gGeoManager->IsOutside() );
 }
 //________________________________________________________________
 
 void KVVAMOSReconNuc::RunTrackingAtTargetPoint(){
 
 	if( !fRT.FPtoLabWasAttempted() ) return;
-//		//--------------------------------------------------
-//		Info("RunTracking","Runnig the LAB Traking from target point");
-//		//--------------------------------------------------
-		Double_t XYZ_target[3] = { 0., 0., 0. };
+	
+	Double_t XYZ_target[3] = { 0., 0., 0. };
 
-		//tracking direction
-   		Double_t dir[3];
+	//tracking direction
+   	Double_t dir[3];
 
-		TGeoVolume *FPvol = gVamos->GetFocalPlaneVolume();
+	TGeoVolume *FPvol = gVamos->GetFocalPlaneVolume();
 
-   		//  direction of the tracking = direction of the trajectory at the target point (lab) 
-   		fRT.dirLab.GetXYZ( dir );
+   	//  direction of the tracking = direction of the trajectory at the target point (lab) 
+   	fRT.dirLab.GetXYZ( dir );
 
-   		// Initializing tracking (i.e. setting both initial point and direction
-   		// and finding the state). Start from the FP intersection point
-   		gGeoManager->InitTrack( XYZ_target, dir );
+   	// Initializing tracking (i.e. setting both initial point and direction
+   	// and finding the state). Start from the FP intersection point
+   	gGeoManager->InitTrack( XYZ_target, dir );
 
-   		TGeoVolume *curVol   = gGeoManager->GetCurrentVolume();
-   		TGeoVolume *prevVol  = NULL;
+	TGeoVolume *topVol   = gGeoManager->GetTopVolume();
+   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
+   	TGeoVolume *curVol   = gGeoManager->GetCurrentVolume();
+   	TGeoVolume *prevVol  = NULL;
 
-   		// move along trajectory until we hit a new volume
-   		// Stop when the point is outside the top volume or
-   		// inside the Focal Plane volume
-   		Int_t idx = 0;
-   		do{
+   	// move along trajectory until we hit a new volume
+   	// Stop when the point is outside the top volume or
+   	// inside the Focal Plane volume
+   	Int_t idx = 0;
+   	do{
 
-   	   		gGeoManager->FindNextBoundaryAndStep();
+   	   	gGeoManager->FindNextBoundaryAndStep();
 
-	   		if( curVol != gGeoManager->GetTopVolume() ){
-   	   	   		Double_t step = gGeoManager->GetStep();
-		   		fTrackRes.SetValueAt( curVol->GetName(), step, idx++ );
-//	   	   		cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
-	   		}
+	   	if( (curVol != topVol) && (curVol != VAMOSvol) ){
+   	   	   	Double_t step = gGeoManager->GetStep();
+		   	fTrackRes.SetValueAt( curVol->GetName(), step, idx++ );
+//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
+	   	}
 
-	   		prevVol = curVol;
-   	   		curVol  = gGeoManager->GetCurrentVolume();
+	   	prevVol = curVol;
+   	   	curVol  = gGeoManager->GetCurrentVolume();
 
-   		}
-   		while( !gGeoManager->IsOutside() && (curVol != FPvol) );
+   	}
+   	while( !gGeoManager->IsOutside() && (curVol != FPvol) );
 
 }
 //________________________________________________________________
