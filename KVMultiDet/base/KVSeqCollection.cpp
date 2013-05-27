@@ -558,7 +558,7 @@ TObject* KVSeqCollection::FindObjectAny(const Char_t *att, const Char_t *keys, B
     return 0;
 }
 
-KVSeqCollection *KVSeqCollection::GetSubListWithClass(const TClass* _class)
+KVSeqCollection *KVSeqCollection::GetSubListWithClass(const TClass* _class) const
 {
     // Create and fill a (sub)list with objects in this list of the given class.
     // This new list will be of the same kind as this one.
@@ -572,7 +572,7 @@ KVSeqCollection *KVSeqCollection::GetSubListWithClass(const TClass* _class)
     return sublist;
 }
 
-void KVSeqCollection::_GetSubListWithClass(KVSeqCollection* outputList, TCollection* Col, const TClass* _class)
+void KVSeqCollection::_GetSubListWithClass(KVSeqCollection* outputList, TCollection* Col, const TClass* _class) const
 {
     if (_class)
     {
@@ -588,7 +588,7 @@ void KVSeqCollection::_GetSubListWithClass(KVSeqCollection* outputList, TCollect
 }
 
 //_______________________________________________________________________________
-KVSeqCollection *KVSeqCollection::GetSubListWithClass(const Char_t* class_name)
+KVSeqCollection *KVSeqCollection::GetSubListWithClass(const Char_t* class_name) const
 {
     // Recursively create and fill a (sub)list with objects in this list (and any sublists) of the given class.
     // This new list will be of the same kind as this one.
@@ -604,7 +604,7 @@ KVSeqCollection *KVSeqCollection::GetSubListWithClass(const Char_t* class_name)
 }
 
 //_______________________________________________________________________________
-KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method)
+KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,const Char_t* method) const
 {
     // Recursively create and fill a (sub)list with objects in this list (and any sublists) for which the
     // given method returns the given return value:
@@ -625,7 +625,7 @@ KVSeqCollection *KVSeqCollection::GetSubListWithMethod(const Char_t* retvalue,co
     return sublist;
 }
 
-void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollection* Col, const Char_t* retvalue,const Char_t* method)
+void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollection* Col, const Char_t* retvalue,const Char_t* method) const
 {
     if (retvalue && method)
     {
@@ -678,7 +678,7 @@ void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollec
 }
 
 //_______________________________________________________________________________
-KVSeqCollection *KVSeqCollection::GetSubListWithName(const Char_t* retvalue)
+KVSeqCollection *KVSeqCollection::GetSubListWithName(const Char_t* retvalue) const
 {
     // Create and fill a (sub)list with all objects in this list whose name
     // (i.e. string returned by GetName()) is "retvalue"
@@ -691,7 +691,7 @@ KVSeqCollection *KVSeqCollection::GetSubListWithName(const Char_t* retvalue)
 }
 
 //_______________________________________________________________________________
-KVSeqCollection *KVSeqCollection::GetSubListWithLabel(const Char_t* retvalue)
+KVSeqCollection *KVSeqCollection::GetSubListWithLabel(const Char_t* retvalue) const
 {
     // Create and fill a (sub)list with all objects in this list whose label
     // (i.e. string returned by GetLabel()) is "retvalue"
@@ -704,7 +704,7 @@ KVSeqCollection *KVSeqCollection::GetSubListWithLabel(const Char_t* retvalue)
 }
 
 //_______________________________________________________________________________
-KVSeqCollection *KVSeqCollection::GetSubListWithType(const Char_t* retvalue)
+KVSeqCollection *KVSeqCollection::GetSubListWithType(const Char_t* retvalue) const
 {
     // Create and fill a (sub)list with all objects in this list whose type
     // (i.e. string returned by GetType()) is "retvalue"

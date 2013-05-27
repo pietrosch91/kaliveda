@@ -34,8 +34,8 @@ protected:
     virtual void	PrintCollectionHeader(Option_t* option) const;
     virtual KVSeqCollection* NewCollectionLikeThisOne() const;
     virtual void SetCollection(const Char_t*);
-    virtual void _GetSubListWithMethod(KVSeqCollection*, TCollection*, const Char_t* ,const Char_t* );
-    void _GetSubListWithClass(KVSeqCollection*, TCollection*, const TClass* );
+    virtual void _GetSubListWithMethod(KVSeqCollection*, TCollection*, const Char_t* ,const Char_t* ) const;
+    void _GetSubListWithClass(KVSeqCollection*, TCollection*, const TClass* ) const;
 
 public:
     KVSeqCollection();
@@ -205,14 +205,14 @@ public:
                          Int_t * error = 0);
     virtual void Execute(TMethod * method, TObjArray * params,
                          Int_t * error = 0);
-    virtual KVSeqCollection *GetSubListWithMethod(const Char_t* retvalue,const Char_t* method);
+    virtual KVSeqCollection *GetSubListWithMethod(const Char_t* retvalue,const Char_t* method) const;
 
-    KVSeqCollection *GetSubListWithClass(const TClass* _class);
-    KVSeqCollection *GetSubListWithClass(const Char_t* class_name);
+    KVSeqCollection *GetSubListWithClass(const TClass* _class) const;
+    KVSeqCollection *GetSubListWithClass(const Char_t* class_name) const;
 
-    virtual KVSeqCollection *GetSubListWithName(const Char_t* retvalue);
-    virtual KVSeqCollection *GetSubListWithLabel(const Char_t* retvalue);
-    virtual KVSeqCollection *GetSubListWithType(const Char_t* retvalue);
+    virtual KVSeqCollection *GetSubListWithName(const Char_t* retvalue) const;
+    virtual KVSeqCollection *GetSubListWithLabel(const Char_t* retvalue) const;
+    virtual KVSeqCollection *GetSubListWithType(const Char_t* retvalue) const;
 
     static KVSeqCollection* MakeListFromFile(TFile *file);
     static KVSeqCollection* MakeListFromFileWithMethod(TFile *file,const Char_t* retvalue,const Char_t* method);

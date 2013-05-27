@@ -65,6 +65,15 @@ Double_t KVIonRangeTable::GetAtomicMass(const Char_t* material)
    return M->GetMass();
 }
 
+KVIonRangeTableMaterial *KVIonRangeTable::GetMaterial(TGeoMaterial *material)
+{
+    // Returns pointer to material for given TGeoMaterial
+    // We try both the name and the title of the TGeoMaterial
+    KVIonRangeTableMaterial *mat = GetMaterial(material->GetTitle());
+    if(!mat) mat = GetMaterial(material->GetName());
+    return mat;
+}
+
 //________________________________________________________________________________//
 
 Double_t KVIonRangeTable::GetZ(const Char_t* material)
@@ -88,6 +97,13 @@ Bool_t KVIonRangeTable::IsMaterialKnown(const Char_t* material)
    // Returns kTRUE if material of given name or type is in range table.
    KVIonRangeTableMaterial* M = GetMaterial(material);
    return (M != 0x0);
+}
+
+Bool_t KVIonRangeTable::IsMaterialKnown(TGeoMaterial *material)
+{
+    // Returns kTRUE if material corresponding to TGeoMaterial name or type is in range table.
+    KVIonRangeTableMaterial* M = GetMaterial(material);
+    return (M != 0x0);
 }
 
 //________________________________________________________________________________//
@@ -329,99 +345,3 @@ void KVIonRangeTable::Print(Option_t*) const
     printf("%s::%s\n%s\n", ClassName(), GetName(), GetTitle());
 }
 
-void KVIonRangeTable::DetectEvent(TGeoManager* TheGeometry, KVEvent* TheEvent, TVector3 *TheOrigin)
-{
-    // Given a valid ROOT geometry TheGeometry, we propagate the particles of TheEvent
-    // (starting from optional position TheOrigin; if not given, we assume particles
-    // are produced at (0,0,0) in the world coordinates) and, every time a particle
-    // traverses a volume made of a TGeoMaterial with a name corresponding to a material
-    // known by this range table, we calculate the energy loss of the particle,
-    // and store it in the particle's list KVParticle::fParameters in the form
-    //   "DE_[volume name]" = [energy lost in volume]
-    // We also store the coordinates (world-frame) of the particle's entry and exit
-    // in each volume:
-    //   "Xin_[volume name]" = [entry coordinates for volume]
-    //   "Yin_[volume name]"
-    //   "Zin_[volume name]"
-    //   "Xout_[volume name]" = [exit coordinates for volume]
-    //   "Yout_[volume name]"
-    //   "Zout_[volume name]"
-
-    static Bool_t printit = kFALSE; /* debug */
-
-    KVNucleus* part;
-    while( (part = TheEvent->GetNextParticle()) ){
-
-        // Define point of origin of particles
-        if(TheOrigin) TheGeometry->SetCurrentPoint(TheOrigin->X(),TheOrigin->Y(),TheOrigin->Z());
-        else TheGeometry->SetCurrentPoint(0., 0., 0.);
-
-        // unit vector in direction of particle's momentum
-        TVector3 v = part->GetMomentum().Unit();
-        // use particle's momentum direction
-        TheGeometry->SetCurrentDirection(v.x(), v.y(), v.z());
-        TheGeometry->FindNode();
-
-        TGeoVolume* lastVol = TheGeometry->GetCurrentVolume();
-        // move along trajectory until we hit a new volume
-        TheGeometry->FindNextBoundaryAndStep();
-        Double_t step = TheGeometry->GetStep();
-        TGeoVolume* newVol = TheGeometry->GetCurrentVolume();
-
-        Double_t e = part->GetKE(), de = 0;
-        Double_t X,Y,Z,XX,YY,ZZ;
-        XX=YY=ZZ=0.;
-
-        // track particle until we leave the geometry
-        while (!TheGeometry->IsOutside()) {
-
-            const Double_t* posi = TheGeometry->GetCurrentPoint();
-            X=XX;Y=YY;Z=ZZ;
-            XX=posi[0];YY=posi[1];ZZ=posi[2];
-
-            if(printit){
-                std::cout << "ENTERING VOLUME : " << lastVol->GetName() << std::endl;
-                std::cout << "at position (" << X << "," << Y << "," << Z << ")" << std::endl;
-                std::cout << "will travel " << step << " cm in this material :";
-                std::cout << lastVol->GetMaterial()->GetName() << "/" << lastVol->GetMaterial()->GetTitle() << std::endl;
-            }
-
-            de = 0;
-            // calculate energy losses in known materials
-            if (IsMaterialKnown(lastVol->GetMaterial()->GetTitle())) {
-                de = GetLinearDeltaEOfIon(
-                            lastVol->GetMaterial()->GetTitle(),
-                            part->GetZ(), part->GetA(), e, step, 0.,
-                            lastVol->GetMaterial()->GetTemperature(),
-                            lastVol->GetMaterial()->GetPressure());
-                if (printit) std::cout << "and lose " << de << "MeV" << std::endl;
-                e -= de;
-                if(e<=1.e-3) e=0.;
-                //set flag to say that particle has been slowed down
-                part->SetIsDetected();
-                //If this is the first absorber that the particle crosses, we set a "reminder" of its
-                //initial energy
-                if (!part->GetPInitial()) part->SetE0();
-                part->GetParameters()->SetValue(Form("DE_%s",lastVol->GetName()), de);
-                
-                part->GetParameters()->SetValue(Form("Xin_%s",lastVol->GetName()), X);
-                part->GetParameters()->SetValue(Form("Yin_%s",lastVol->GetName()), Y);
-                part->GetParameters()->SetValue(Form("Zin_%s",lastVol->GetName()), Z);
-                part->GetParameters()->SetValue(Form("Xout_%s",lastVol->GetName()), XX);
-                part->GetParameters()->SetValue(Form("Yout_%s",lastVol->GetName()), YY);
-                part->GetParameters()->SetValue(Form("Zout_%s",lastVol->GetName()), ZZ);
-
-            }
-            lastVol = newVol;
-            // stop when particle is stopped
-            if (e <= 1.e-3) break;
-            // move on to next volume crossed by trajectory
-            TheGeometry->FindNextBoundaryAndStep();
-            step = TheGeometry->GetStep();
-            newVol = TheGeometry->GetCurrentVolume();
-        }
-        // set final energy of particle
-        part->SetEnergy(e);
-    }
-}
-   

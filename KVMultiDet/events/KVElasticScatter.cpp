@@ -173,7 +173,7 @@ void KVElasticScatter::SetDetector(const Char_t * det)
 {
    //Set name of detector which will detect particle
    fDetector = gMultiDetArray->GetDetector(det);
-   fTelescope = fDetector->GetTelescope();
+   fTelescope = (KVTelescope*)fDetector->GetParentStructure("TELESCOPE");
    //get list of all detectors particle must pass through to get to required detector
    fAlignedDetectors =
        fDetector->GetAlignedDetectors(KVGroup::kForwards);

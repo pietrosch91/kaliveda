@@ -61,6 +61,9 @@ class KVMaterial:public KVBase {
    KVMaterial(const Char_t * gas, const Double_t thick, const Double_t pressure, const Double_t temperature = 19.0);
    KVMaterial(Double_t area_density, const Char_t * type);
    KVMaterial(const KVMaterial &);
+
+   static KVIonRangeTable* GetRangeTable();
+
    void init();
    virtual ~ KVMaterial();
    void SetMass(Double_t a);
@@ -140,9 +143,7 @@ class KVMaterial:public KVBase {
       // Returns pointer to volume representing this absorber in the ROOT geometry.
       return fAbsorberVolume;
    };
-   
-	virtual KVIonRangeTable* GetRangeTable() const { return fIonRangeTable; };
-   
+      
    ClassDef(KVMaterial, 6)      // Class describing physical materials used to construct detectors & targets
 };
 

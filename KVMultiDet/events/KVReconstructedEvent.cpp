@@ -88,9 +88,9 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
       	KVReconstructedNucleus *par;
       	while ((par = GetNextParticle())) {
          	if (HasMeanAngles())
-         	   par->GetAnglesFromTelescope("mean");
+               par->GetAnglesFromStoppingDetector("mean");
          	else
-            	par->GetAnglesFromTelescope("random");
+                par->GetAnglesFromStoppingDetector("random");
          	//reconstruct fAnalStatus information for KVReconstructedNucleus
          	if (par->GetStatus() == 99)        //AnalStatus has not been set for particles in group
             	if (par->GetGroup())
@@ -106,15 +106,15 @@ void KVReconstructedEvent::Streamer(TBuffer & R__b)
 
 void KVReconstructedEvent::ReconstructEvent(KVDetectorEvent * kvde)
 {
-//
-// Reconstruction of detected particles
-//
-// - loop over last stage of group telescopes
-// - if any detector is hit, construct "particle" from energy losses in all detectors
-//   directly in front of it.
-// - loop over next to last stage...if any detector hit NOT ALREADY IN A "PARTICLE"
-//   construct "particle" etc. etc.
-//
+    //
+    // Reconstruction of detected particles
+    //
+    // - loop over last stage of group telescopes
+    // - if any detector is hit, construct "particle" from energy losses in all detectors
+    //   directly in front of it.
+    // - loop over next to last stage...if any detector hit NOT ALREADY IN A "PARTICLE"
+    //   construct "particle" etc. etc.
+
    KVGroup *grp_tch;
 
 #ifdef KV_DEBUG
@@ -125,102 +125,33 @@ void KVReconstructedEvent::ReconstructEvent(KVDetectorEvent * kvde)
 
    TIter nxt_grp(kvde->GetGroups());
    while ((grp_tch = (KVGroup *) nxt_grp())) {
-      AnalyseGroup(grp_tch);
+      grp_tch->AnalyseAndReconstruct(this);
    }
-}
-
-//_______________________________________________________________________
-
-Bool_t KVReconstructedEvent::AnalyseGroup(KVGroup * kvg)
-{
-   //loop over telescopes of group, from the last layers (furthest from target) inwards
-
-   if (!kvg)
-      Error("AnalyseGroup", "KVGroup pointer argument is null");
-
-   UInt_t nLayers = kvg->GetNumberOfLayers();
-
-   UInt_t initial_hits_in_group = kvg->GetHits();
-
-   if (nLayers > 1) {
-      //multilayer group
-      //Start with layer furthest from target and work inwards (but don't look at layer
-      //nearest to target)
-      for (UInt_t i = kvg->GetLayerFurthestTarget();
-           i > kvg->GetLayerNearestTarget(); i--) {
-         TList *teles = kvg->GetTelescopesInLayer(i);
-         if (teles) {
-            AnalyseTelescopes(teles);
-            delete teles;
-         }
-      }
-
-
-      //if nothing has been found, then check for particles stopping in layer nearest target
-      if (kvg->GetHits() == initial_hits_in_group) {
-         TList *teles =
-             kvg->GetTelescopesInLayer(kvg->GetLayerNearestTarget());
-         if (teles) {
-            AnalyseTelescopes(teles);
-            delete teles;
-         }
-      }
-
-   } else {
-      //single layer group
-#ifdef KV_DEBUG
-      Info("AnalyseGroup", "Single layer group");
-#endif
-      //for a single layer group we should have
-      //kvg->GetLayerNearestTarget() = kvg->GetLayerFurthestTarget()
-      //so we can use either one as argument for kvg->GetTelescopesInLayer
-      TList *teles =
-          kvg->GetTelescopesInLayer(kvg->GetLayerNearestTarget());
-      if (teles) {
-         AnalyseTelescopes(teles);
-         delete teles;
-      }
-   }
-
-#ifdef KV_DEBUG
-   Info("AnalyseGroup", "OK after analysis of hit groups");
-#endif
-
-   //perform first-order coherency analysis (set fAnalStatus for each particle)
-   kvg->AnalyseParticles();
-
-   return kTRUE;
 }
 
 //___________________________________________________________________________
 
-Bool_t KVReconstructedEvent::AnalyseTelescopes(TList * kvtl)
+Bool_t KVReconstructedEvent::AnalyseDetectors(TList * kvtl)
 {
-   //Loop over detectors in telescopes, starting with the last detector of each
-   //if any detector has fired, start construction of new detected particle
-   //More precisely: If detector has fired,
-   //making sure fired detector hasn't already been used to reconstruct
-   //a particle, then we create and fill a new detected particle.
-   //In order to avoid creating spurious particles when reading data,
-   //by default we ask that ALL coder values be non-zero here i.e. data and time-marker.
-   //This can be changed by calling SetPartSeedCond("any"): in this case,
-   //particles will be reconstructed starting from detectors with at least 1 fired parameter.
+   // Loop over detectors in list
+   // if any detector has fired, start construction of new detected particle
+   // More precisely: If detector has fired,
+   // making sure fired detector hasn't already been used to reconstruct
+   // a particle, then we create and fill a new detected particle.
+   // In order to avoid creating spurious particles when reading data,
+   // by default we ask that ALL coder values be non-zero here i.e. data and time-marker.
+   // This can be changed by calling SetPartSeedCond("any"): in this case,
+   // particles will be reconstructed starting from detectors with at least 1 fired parameter.
 
-   KVTelescope *t;
-   TIter nxt_tel(kvtl);
-   //get size of first telescope, assume to be same for all
-   UInt_t ndet = ((KVTelescope *) (kvtl->First()))->GetSize();
-   for (register UInt_t i = ndet; i > 0; i--) {
-      //start from last detectors and move inwards
-      while ((t = (KVTelescope *) nxt_tel())) {
-         //loop over detectors in each telescope
-         KVDetector *d = t->GetDetector(i);
-/*
- If detector has fired,
-making sure fired detector hasn't already been used to reconstruct
-a particle, then we create and fill a new detected particle.
- */
-         if ( (d->Fired( fPartSeedCond.Data() ) && !d->IsAnalysed()) ) {
+    KVDetector *d;
+    TIter next(kvtl);
+    while( (d = (KVDetector*)next()) ){
+        /*
+            If detector has fired,
+            making sure fired detector hasn't already been used to reconstruct
+            a particle, then we create and fill a new detected particle.
+        */
+        if ( (d->Fired( fPartSeedCond.Data() ) && !d->IsAnalysed()) ) {
 
             KVReconstructedNucleus *kvdp = AddParticle();
             //add all active detector layers in front of this one
@@ -229,11 +160,10 @@ a particle, then we create and fill a new detected particle.
 
             //set detector state so it will not be used again
             d->SetAnalysed(kTRUE);
-         }
-      }
-      nxt_tel.Reset();
-   }
-   return kTRUE;
+        }
+    }
+
+    return kTRUE;
 }
 
 //______________________________________________________________________________
@@ -243,17 +173,21 @@ void KVReconstructedEvent::Print(Option_t * option) const
    //Print out list of particles in the event.
    //If option="ok" only particles with IsOK=kTRUE are included.
 
+    cout << "     ***//***  RECONSTRUCTED EVENT #" << GetNumber() << "  ***//***" << endl;
    cout << GetTitle() << endl;  //system
    cout << GetName() << endl;   //run
-   cout << "Event number: " << GetNumber() << endl << endl;
    cout << "MULTIPLICITY = " << ((KVReconstructedEvent *) this)->
        GetMult(option) << endl << endl;
 
    KVReconstructedNucleus *frag = 0;
+   int i=0;
    while ((frag =
            ((KVReconstructedEvent *) this)->GetNextParticle(option))) {
+       cout << "RECONSTRUCTED PARTICLE #" << ++i << endl;
       frag->Print();
+      cout << endl;
    }
+
 }
 
 //____________________________________________________________________________

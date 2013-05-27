@@ -48,6 +48,7 @@ void KVReconstructedNucleus::init()
     fIDTelescope = 0;
     fNSegDet = 0;
     fAnalStatus = 99;
+    fTargetEnergyLoss = 0;
     ResetBit(kIsIdentified);
     ResetBit(kIsCalibrated);
     ResetBit(kCoherency);
@@ -132,7 +133,6 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
 void KVReconstructedNucleus::Print(Option_t * option) const
 {
 
-    cout << "KVReconstructedNucleus:" << endl;
 	int ndets=GetNumDet();
     if (ndets) {
 
@@ -145,7 +145,79 @@ void KVReconstructedNucleus::Print(Option_t * option) const
         	if(idr && idr->IDattempted) idr->Print();
         }
     }
-    GetParameters()->Print();
+    if(GetStoppingDetector()) cout << "STOPPED IN : " <<
+                                      GetStoppingDetector()->GetName() << endl;
+    if (IsIdentified()) {
+       if(GetIdentifyingTelescope()) cout << "IDENTIFIED IN : " <<
+                GetIdentifyingTelescope()->GetName() << endl;
+       cout << " =======> ";
+       cout << " Z=" << GetZ() << " A=" << GetA();
+       if(IsAMeasured()) cout << " Areal=" << GetRealA();
+       else cout << " Zreal=" << GetRealZ();
+    } else {
+       cout << "(unidentified)" << endl;
+    }
+    if (IsCalibrated()) {
+       cout << " Total Energy = " << GetEnergy() << " MeV,  Theta=" << GetTheta() << " Phi=" << GetPhi() << endl;
+       cout << "    Target energy loss correction :  " << GetTargetEnergyLoss() << " MeV" << endl;
+    } else {
+       cout << "(uncalibrated)" << endl;
+    }
+    cout << "RECONSTRUCTION STATUS : " << endl;
+    switch (GetStatus()) {
+    case kStatusOK:
+        cout <<
+                "Particle alone in group, or identification independently of other"
+             << endl;
+        cout << "particles in group is directly possible." << endl;
+        break;
+
+    case kStatusOKafterSub:
+        cout <<
+                "Particle reconstructed after identification of others in group"
+             << endl;
+        cout <<
+                "and subtraction of their calculated energy losses in common detectors."
+             << endl;
+        break;
+
+    case kStatusOKafterShare:
+        cout <<
+                "Particle identification estimated after arbitrary sharing of"
+             << endl;
+        cout <<
+                "energy lost in common detectors between several reconstructed particles."
+             << endl;
+        break;
+
+    case kStatusStopFirstStage:
+        cout <<
+                "Particle stopped in first stage of telescope. Estimation of minimum Z."
+             << endl;
+        break;
+
+    case kStatusPileupDE:
+        cout <<
+                "Undetectable pile-up in first member of identifying telesscope (apparent status=OK)."
+                << endl;
+        cout << "Would lead to incorrect identification by DE-E method (Z and/or A overestimated)."
+             << endl;
+        break;
+
+    case kStatusPileupGhost:
+        cout <<
+                "Undetectable ghost particle in filtered simulation."
+                << endl;
+        cout << "Another particle passed through all of the same detectors (pile-up)."
+             << endl;
+        break;
+
+
+    default:
+        cout << GetStatus() << endl;
+        break;
+    }
+    if(GetParameters()->GetNpar()) GetParameters()->Print();
 }
 
 //_______________________________________________________________________________
@@ -295,32 +367,41 @@ void KVReconstructedNucleus::Identify()
 
 //______________________________________________________________________________________________//
 
-void KVReconstructedNucleus::GetAnglesFromTelescope(Option_t * opt)
+void KVReconstructedNucleus::GetAnglesFromStoppingDetector(Option_t * opt)
 {
-    //Calculate angles theta and phi for reconstructed nucleus based
-    //on position of telescope in which it was detected. The nucleus'
-    //momentum is set using these angles, its mass and its kinetic energy.
-    //The (optional) option string can be "random" or "mean".
-    //If "random" (default) the angles are drawn at random between the
-    //min/max angles of the telescope.
-    //If "mean" the (theta,phi) position of the center of the telescope
-    //is used to fix the nucleus' direction.
+    // Calculate angles theta and phi for reconstructed nucleus based
+    // on detector in which it stopped*. The nucleus'
+    // momentum is set using these angles, its mass and its kinetic energy.
+    // The (optional) option string can be "random" or "mean".
+    // If "random" (default) the angles are drawn at random between the
+    // over the surface of the detector.
+    // If "mean" the (theta,phi) position of the centre of the detector
+    // is used to fix the nucleus' direction.
+    //
+    // *unless the detector directly in front of the stopping detector has
+    //  a smaller solid angle, in which case we use that one (because the
+    //  particle had to pass through the smaller angular range defined by
+    //  the DE-detector)
 
     //don't try if particle has no correctly defined energy
     if (GetEnergy() <= 0.0)
         return;
-    if (!GetTelescope())
+    if (!GetStoppingDetector())
         return;
 
+    KVDetector* angle_det = GetStoppingDetector();
+    if(angle_det->GetNode()->GetNDetsInFront()){
+        KVDetector* d = (KVDetector*)angle_det->GetNode()->GetDetectorsInFront()->First();
+        if(d->GetSolidAngle() < angle_det->GetSolidAngle())
+            angle_det = d;
+    }
     if (!strcmp(opt, "random")) {
         //random angles
-        SetRandomMomentum(GetEnergy(), GetTelescope()->GetThetaMin(),
-                          GetTelescope()->GetThetaMax(),
-                          GetTelescope()->GetPhiMin(),
-                          GetTelescope()->GetPhiMax(), "random");
+        TVector3 dir = angle_det->GetRandomDirection("random");
+        SetMomentum(GetEnergy(), dir);
     } else {
         //middle of telescope
-        TVector3 dir = GetTelescope()->GetDirection();
+        TVector3 dir = angle_det->GetDirection();
         SetMomentum(GetEnergy(), dir);
     }
 }
@@ -356,7 +437,7 @@ void KVReconstructedNucleus::Calibrate()
         Double_t E_tot = GetEnergy() + E_targ;
         SetEnergy( E_tot );
         // set particle momentum from telescope dimensions (random)
-        GetAnglesFromTelescope();
+        GetAnglesFromStoppingDetector();
     }
 }
 

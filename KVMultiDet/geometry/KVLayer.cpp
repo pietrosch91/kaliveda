@@ -220,7 +220,7 @@ TGeoVolume* KVLayer::GetGeoVolume()
 	while( (det = (KVRing*)next()) ){
 		TGeoVolume* det_vol = det->GetGeoVolume();
 		// position ring in layer
-		TGeoTranslation* tr = new TGeoTranslation(0,0,det->GetDistance()/10.);//distance set in KVRing::GetGeoVolume()	
+        TGeoTranslation* tr = new TGeoTranslation(0,0,det->GetDistance());//distance set in KVRing::GetGeoVolume()
 		mother_vol->AddNode(det_vol, 1, tr);
 	}
 	return mother_vol;

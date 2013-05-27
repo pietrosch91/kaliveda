@@ -20,7 +20,7 @@ $Id: KVINDRA.h,v 1.43 2009/01/21 10:05:51 franklan Exp $
 #ifndef KVINDRA_H
 #define KVINDRA_H
 
-#include "KVMultiDetArray.h"
+#include "KVASMultiDetArray.h"
 #include "KVList.h"
 #include "KVHashList.h"
 #include "KVACQParam.h"
@@ -63,7 +63,7 @@ enum EBaseIndra_typePhos {
    Phos_T,                      //=3
 };
 
-class KVINDRA:public KVMultiDetArray {
+class KVINDRA:public KVASMultiDetArray {
 
  public:
    static Char_t SignalTypes[16][3];    //Use this static array to translate EBaseIndra_type signal type to a string giving the signal type
@@ -74,6 +74,8 @@ class KVINDRA:public KVMultiDetArray {
 
 
  protected:
+    KVSeqCollection *fDetectorTypes;      //-> list of detector types used to construct telescopes of array
+    KVSeqCollection *fTelescopes;         //-> list of telescope prototypes used to construct array
     KVHashList * fChIo;             //->List Of ChIo of INDRA
    KVHashList *fSi;                 //->List of Si detectors of INDRA
    KVHashList *fCsI;                //->List of CsI detectors of INDRA
@@ -86,6 +88,7 @@ class KVINDRA:public KVMultiDetArray {
    KVINDRATriggerInfo* fSelecteur;//infos from DAQ trigger (le Selecteur)
 
    virtual void MakeListOfDetectorTypes();
+   KVSeqCollection* GetDetectorTypes() const { return fDetectorTypes; }
    virtual void MakeListOfDetectors();
    virtual void PrototypeTelescopes();
    virtual void BuildGeometry();

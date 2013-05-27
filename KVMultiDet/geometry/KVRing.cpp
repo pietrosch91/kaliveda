@@ -107,7 +107,7 @@ KVRing::KVRing(const UInt_t ring, const Float_t thmin,
       kvt->SetNumber(counter);
       counter += step;
       kvt->SetDistance(dist);
-      AddTelescope(kvt);        //add telescope to ring
+      Add(kvt);        //add telescope to ring
    }
    SetType(proto->GetType());
 }
@@ -131,20 +131,19 @@ KVRing::~KVRing()
 }
 
 //_______________________________________________________________________________________
-void KVRing::AddTelescope(KVTelescope * tele, const int fcon)
+void KVRing::AddTelescope(KVDetector * tele, const int fcon)
 {
 // add detector telescope to current ring
    fTelescopes->Add(tele);
    if (fcon == KVD_RECPRC_CNXN)
-      tele->AddToRing(this, KVD_NORECPRC_CNXN);
+      tele->AddParentStructure(this);
 }
 
 void KVRing::AddTelescope()
 {
 //create and add new detector telescope to current ring
    KVTelescope *tele = new KVTelescope;
-   fTelescopes->Add(tele);
-   tele->AddToRing(this, KVD_NORECPRC_CNXN);
+   Add(tele);
 }
 
 //_______________________________________________________________________________________
@@ -259,9 +258,8 @@ void KVRing::SetNumberTelescopes(UInt_t num)
       phi = phi2;
       kvt->SetNumber(counter);
       counter += fStep;
-      kvt->AddToRing(this, KVD_NORECPRC_CNXN);
       kvt->SetBit(kMustCleanup);
-      fTelescopes->Add(kvt);
+      Add(kvt);
    }
 }
 
@@ -292,8 +290,8 @@ void KVRing::ReplaceTelescope(KVTelescope * oldT, KVTelescope * newT)
    new_tel->SetNumber(number);
    new_tel->SetPolarMinMax(GetThetaMin(), GetThetaMax());
    //put new telescope in place of old one in ring
-   fTelescopes->AddAt(new_tel, index);
-   new_tel->AddToRing(this, KVD_NORECPRC_CNXN);
+   Warning("ReplaceTelescope", "need to implement KVGeoStrucElement::Replace(KVBase*)");
+   Add(new_tel);
 }
 
 void KVRing::RemoveTelescope(const Char_t * name)
@@ -361,13 +359,13 @@ TGeoVolume* KVRing::GetGeoVolume()
 		rot1.SetAngles(-90., 0., 0.);
 		Double_t tot_len_tel = det->GetTotalLengthInCM();
 		// distance to telescope centre = distance to telescope + half total length of telescope
-		Double_t dist = det->GetDistance()/10. + tot_len_tel/2.;
+        Double_t dist = det->GetDistance() + tot_len_tel/2.;
 		// translate telescope to correct distance from target (note: reference is CENTRE of telescope)
 		Double_t trans_1 = dist;
 		// translate telescope so that centre of ring is on origin
 		Double_t trans_2 = dist*TMath::Cos(theta*TMath::DegToRad());
 		// set distance for ring = distance between origin and centre of ring
-		SetDistance(10.*trans_2);// distance in mm
+        SetDistance(trans_2);// distance in cm
 
 		TGeoTranslation tran1(0,0,trans_1);
 		TGeoTranslation tran2(0,0, -trans_2);
@@ -388,7 +386,7 @@ void KVRing::AddToGeometry()
 	TGeoVolume* vol = GetGeoVolume();
 
 	// translate ring to correct distance
-	TGeoTranslation* tr = new TGeoTranslation(0,0,GetDistance()/10.);//distance set in GetGeoVolume()	
+    TGeoTranslation* tr = new TGeoTranslation(0,0,GetDistance());//distance set in GetGeoVolume()
 
 	// add ring volume to geometry
 	gGeoManager->GetTopVolume()->AddNode(vol, 1, tr);

@@ -16,7 +16,7 @@ ifeq ($(ROOTGANILTAPE),yes)
 KV_INC_EXTRAS := -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
 endif
 
-NOT_READY :=
+NOT_READY := geometry/KVFocalPlanVamos.cpp
 
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += daq_cec/*.cpp analysis/KVIVRawDataReconstructor.cpp analysis/KVIVRawDataAnalyser.cpp

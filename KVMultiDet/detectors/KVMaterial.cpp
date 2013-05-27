@@ -57,9 +57,7 @@ void KVMaterial::init()
    fPressure = 1. * KVUnits::atm;
    fTemp = 19.0;
    // create default range table singleton if not already done
-   if(!fIonRangeTable) {
-      fIonRangeTable = KVIonRangeTable::GetRangeTable( gEnv->GetValue("KVMaterial.IonRangeTable", "VEDALOSS") );
-   }
+   GetRangeTable();
    fAbsorberVolume = 0;
 }
 
@@ -115,6 +113,16 @@ KVMaterial::KVMaterial(const KVMaterial & obj)
 #else
    ((KVMaterial &) obj).Copy(*this);
 #endif
+}
+
+KVIonRangeTable *KVMaterial::GetRangeTable()
+{
+    // Static method
+    // Return pointer to current default range table
+    if(!fIonRangeTable) {
+       fIonRangeTable = KVIonRangeTable::GetRangeTable( gEnv->GetValue("KVMaterial.IonRangeTable", "VEDALOSS") );
+    }
+    return fIonRangeTable;
 }
 
 //___________________________________________________________________________________
