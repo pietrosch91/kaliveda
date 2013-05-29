@@ -315,7 +315,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 	if( fCodes.TestFPCode( kFPCode0 ) ) return;
 
 
-	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetDetectorList()->First();
+	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
 	TGeoVolume *stopVol = (TGeoVolume *)stopdet->GetActiveVolumes()->Last();
 
 	// For gGeoManager the origin is the target point.

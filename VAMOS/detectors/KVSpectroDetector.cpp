@@ -4,6 +4,7 @@
 #include "KVSpectroDetector.h"
 #include "KVIonRangeTable.h"
 #include "TGeoBBox.h"
+#include "KVSpectroGroup.h"
 
 ClassImp(KVSpectroDetector)
 
@@ -20,8 +21,10 @@ Int_t KVSpectroDetector::fNumVol = 1;
 
 void KVSpectroDetector::init(){
    	//default initialisations
+
 	SetActiveLayer(-1); // Necessary to remove some warning with GetPressure and GetTemperature.   
 	fActiveVolumes    = NULL;
+	fGroups           = NULL;
 	fFocalToTarget    = NULL;
 	fNabsorbers    = 0;
 	fTotThick      = 0;
@@ -65,6 +68,7 @@ KVSpectroDetector::~KVSpectroDetector()
 {
    // Destructor
    SafeDelete(fActiveVolumes);
+   SafeDelete(fGroups);
 }
 //________________________________________________________________
 
@@ -76,12 +80,6 @@ void KVSpectroDetector::Copy (TObject & obj)
 {
    	// This method copies the current state of 'this' object into 'obj'
 
-
-   	// You should add here any member variables, for example:
-   	//    (supposing a member variable KVSpectroDetector::fToto)
-   	//    CastedObj.fToto = fToto;
-   	// or
-   	//    CastedObj.SetToto( GetToto() );
 
 //	KVDetector::Copy(obj);
 //	TGeoVolume::Copy(obj);
@@ -114,8 +112,6 @@ void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TG
 	//        shape    - shape of the volume.
 	//        matrix   - matrix of the geometrical transformation.
 	//        active   - kTRUE if the absorber is active, kFALSE othewise.
-
-
 
 
 	TString vol_name;	
@@ -168,6 +164,15 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 	// Add the volume in the assembly of volumes
 	vol_as->AddNode(vol,1,matrix);
 	SetAbsGeoVolume(vol_as);
+}
+//________________________________________________________________
+
+void KVSpectroDetector::AddGroup( KVSpectroGroup *group ){
+	// Add group to which detector belongs
+	
+	if( !group )return;
+	if( !fGroups ) fGroups = new KVList( kFALSE );
+	fGroups->Add( group );
 }
 //________________________________________________________________
 

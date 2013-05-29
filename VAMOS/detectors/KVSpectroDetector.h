@@ -12,6 +12,8 @@
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 
+class KVSpectroGroup;
+
 class KVSpectroDetector : public KVDetector//, public TGeoVolume
 {
 	protected:
@@ -21,7 +23,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 			kOKforID = BIT(21)  //flag set when the detector can be used for identification from ID telescope 
 		};
 
-		KVList *fActiveVolumes;
+		KVList *fActiveVolumes;  //
+		KVList *fGroups;         //! List of groups to which detector belongs
 		TGeoHMatrix *fFocalToTarget;//! focal-plan to target position transformation matrix
 		Int_t  fNabsorbers;      // Number of absobers
 		Double_t fTotThick;      // Total thickness of the detector
@@ -51,6 +54,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 
    		void AddAbsorber(KVMaterial*);
    		void AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix= 0, Bool_t active= kFALSE);
+		void AddGroup( KVSpectroGroup *group );
    		virtual void AddToTelescope(KVTelescope * T, const int =
                 KVD_RECPRC_CNXN);
    		virtual Bool_t BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol = 0);
@@ -90,7 +94,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		//------------------ inline function members -----------//
 
    		inline KVList *GetActiveVolumes() const{ return fActiveVolumes;}
-   		inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return (TGeoVolume *)fActiveVolumes->At(i);}
+   		inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return fActiveVolumes ? (TGeoVolume *)fActiveVolumes->At(i) : NULL;}
+		KVList *GetGroups() const{ return fGroups; }
    		inline Double_t GetTotalThickness() const{ return fTotThick;}
    		inline void SetFocalToTargetMatrix( TGeoHMatrix *matrix ){ fFocalToTarget = matrix; };
    		inline UChar_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
