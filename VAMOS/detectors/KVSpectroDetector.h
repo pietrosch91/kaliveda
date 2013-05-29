@@ -17,7 +17,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 	protected:
 
 		enum {
-			kRdmPos = BIT(20) //flag set when Random position is used
+			kRdmPos  = BIT(20), //flag set when Random position is used
+			kOKforID = BIT(21)  //flag set when the detector can be used for identification from ID telescope 
 		};
 
 		KVList *fActiveVolumes;
@@ -95,6 +96,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		inline UChar_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
 	   		return GetPosition( XYZf, idx );
    		}
+
+		inline Bool_t IsOKforID() const { return TestBit( kOKforID ); }
 
 		inline void UseRandomPosition( Bool_t rdm = kTRUE ){ SetBit( kRdmPos, rdm ); } 
 

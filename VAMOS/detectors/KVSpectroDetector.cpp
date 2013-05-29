@@ -28,6 +28,9 @@ void KVSpectroDetector::init(){
 
 	//use by default random position
 	SetBit( kRdmPos );
+
+	//a KVSpectroDetector can be used in a ID telescope
+	SetBit( kOKforID );
 }
 //________________________________________________________________
 

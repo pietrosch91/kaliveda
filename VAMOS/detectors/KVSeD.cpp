@@ -37,6 +37,9 @@ void KVSeD::init(){
 	fERawPos[0] = fERawPos[1] = -500;
 //	fSpectrum     = NULL;
 	fPosCalib = NULL;
+
+	//a KVSeD can not be used in a ID telescope
+	ResetBit( kOKforID );
 }
 //________________________________________________________________
 
