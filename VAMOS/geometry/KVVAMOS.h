@@ -36,6 +36,8 @@ class KVVAMOS : public KVDetector //public KVBase
 		TString fDataSet;      //Name of associated dataset, used with MakeVAMOS	
 		KVList *fDetectors;    // List of references to all detectors of VAMOS
 		KVList *fFiredDets;    //!List of fired detectors of VAMOS
+		UInt_t  fGr;           //!Used to number groups
+		KVList *fGroups;       //!List of groups (KVSpectroGroup) of detectors
 		KVList *fVACQParams;   //References to data acquisition parameter belonging to VAMOS
 		KVList *fVCalibrators; //References to calibrator belonging to VAMOS
 		TGeoVolume *fFPvolume; //!TGeoVolume centered on the focal plane
@@ -49,10 +51,11 @@ class KVVAMOS : public KVDetector //public KVBase
    		virtual void   InitGeometry();
    		virtual Int_t  LoadGeoInfosIn(TEnv *infos);
    		virtual void   MakeListOfDetectors();
+		virtual Bool_t ReadDetectorGroupFile( ifstream &ifile );
    		virtual void   SetACQParams();
    		virtual void   SetArrayACQParams();
    		virtual void   SetCalibrators();
-   		virtual void   SetIDTelescopes();
+   		virtual void   SetGroupsAndIDTelescopes();
 		virtual void   UpdateGeometry();
 
 
@@ -97,7 +100,7 @@ class KVVAMOS : public KVDetector //public KVBase
    			return 0;
    		}
 
-   		inline KVDetector* GetDetector(const Char_t *name){
+   		inline KVDetector* GetDetector(const Char_t *name) const {
 	   		return (KVDetector*)fDetectors->FindObject(name);
    		}
 
@@ -106,19 +109,16 @@ class KVVAMOS : public KVDetector //public KVBase
 			if( IsGeoModified() ) UpdateGeometry();
 			return fFocalToTarget; 
 		}
-   		inline KVList* GetListOfDetectors()   { return fDetectors;        }
-   		inline KVList* GetVACQParamList()     { return fVACQParams;       }
-   		inline KVList* GetListOfVCalibrators(){ return fVCalibrators;     }
-   		inline Bool_t  IsBuilt() const        { return TestBit(kIsBuilt); }
+
+		inline KVList* GetGroups() const            { return fGroups;           }
+   		inline KVList* GetListOfDetectors() const   { return fDetectors;        }
+   		inline KVList* GetVACQParamList() const     { return fVACQParams;       }
+   		inline KVList* GetListOfVCalibrators()const { return fVCalibrators;     }
+   		inline Bool_t  IsBuilt() const              { return TestBit(kIsBuilt); }
 
 
-		static KVString &GetACQParamTypes(){
-			return fACQParamTypes;
-		}
-
-		static KVString &GetPositionTypes(){
-			return fPositionTypes;
-		}
+		static KVString &GetACQParamTypes(){ return fACQParamTypes;	}
+		static KVString &GetPositionTypes(){ return fPositionTypes;	}
 
 		static UChar_t GetACQParamTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );
 		static UChar_t GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );

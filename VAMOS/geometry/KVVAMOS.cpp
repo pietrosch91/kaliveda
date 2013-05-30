@@ -10,6 +10,8 @@
 #include "KVFunctionCal.h"
 #include "TSystemDirectory.h"
 #include "TGeoBBox.h"
+#include "KVIDGridManager.h"
+#include "KVSpectroGroup.h"
 
 using namespace std;
 
@@ -53,6 +55,9 @@ void KVVAMOS::init()
 	fDetectors = new KVList;
 	fDetectors->SetCleanup(kTRUE);
 
+	fGroups = new KVList;
+	fGroups->SetCleanup(kTRUE);
+
 	fFiredDets     = NULL;
 	fVACQParams    = NULL;
 	fVCalibrators  = NULL;
@@ -63,6 +68,10 @@ void KVVAMOS::init()
 	fAngle         = 0;
 	fBrhoRef       = -1;
 	fBeamHF        = -1;
+
+	//initalise ID grid manager
+    if (!gIDGridManager)
+        new KVIDGridManager;
 
 
 	Info("init","To be implemented");
@@ -84,12 +93,19 @@ KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVDetector() //KVBase()
 KVVAMOS::~KVVAMOS(){
    	// Destructor
    	
-	// Clear list of acquisition parameters
+	// Clear list of detectors belonging to VAMOS 
    	if(fDetectors && fDetectors->TestBit(kNotDeleted)){
 		fDetectors->Clear();
 		delete fDetectors;
 	}
 	fDetectors = NULL;
+
+	//destroy all groups
+    if (fGroups && fGroups->TestBit(kNotDeleted)) {
+        fGroups->Delete();
+        delete fGroups;
+    }
+    fGroups = 0;
 
 	// Clear list of acquisition parameters belonging to VAMOS
 	if(fVACQParams && fVACQParams->TestBit(kNotDeleted)){
@@ -457,7 +473,7 @@ void KVVAMOS::Build(){
 	BuildVAMOSGeometry();
     InitGeometry();
 	fDetectors->Sort( kSortDescending );
-	SetIDTelescopes();
+	SetGroupsAndIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
 	Initialize();
@@ -718,10 +734,95 @@ void KVVAMOS::SetCalibrators(){
 }
 //________________________________________________________________
 
-void KVVAMOS::SetIDTelescopes(){
-	// Create all ID telescopes and stores them in fIDTelescopes.
+void KVVAMOS::SetGroupsAndIDTelescopes(){
+	//Build groups of detectors (KVSpectroGroup) from the file given by
+	//the environment variable:
+	//[dataset name]. KVVAMOS.DetectorGroupFile: ...
+	//( See ReadDetectorGroupFile(...) method )
+	//
+	//In each group, the list of detectors is sorted in order to list 
+	//them from the farest one to the closest one.
+	//
+    //Also creates all ID telescopes (DeltaE-E, Fast-Slow ) used for the Z-identification
+    //in VAMOS and stores them in fIDTelescopes.
+    //
+    //Any previous groups/idtelescopes are deleted beforehand.
+    //
+   	//As any ID grids stored in gIDGridManager will have been associated to the
+   	//old ID telescopes (whose addresses now become obsolete), make sure that
+   	//you deleted  all grids associated to VAMOS before to call this method.
+   	//You should therefore follow this with a call to SetIdentifications()
+   	//in order to reinitialize all that.
+
+	TString envname, filename;
+	envname.Form("%s.DetectorGroupFile",ClassName());
+	filename = gDataSet->GetDataSetEnv(envname.Data());
+	ifstream ifile;
+	if( !SearchAndOpenKVFile(filename.Data(), ifile, gDataSet->GetName())){
+		Error("SetGroupsAndIDTelescopes","Could not open file %s",filename.Data());
+		return;
+	}
+
+	Info("SetGroupsAndIDTelescopes","Reading file with the list of detector groups of VAMOS: %s",filename.Data());
+
+	if( !ReadDetectorGroupFile(ifile) ) Error("SetGroupsAndIDTelescopes","Bad structure inside the file %s",filename.Data());	
+
+	ifile.close();
+
+	// Sort the detector list of each group in order to have
+	// at the first position the farest detector
+	fGroups->R__FOR_EACH(KVSpectroGroup,Sort)(kSortDescending);	
+
+	// create list of ID telescopes from the new groups of detectors
 	
-	Warning("SetGIDTelescopes","To be implemented");
+}
+//________________________________________________________________
+
+Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
+	//Reads the groups of detectors to build for VAMOS from file loaded
+	//in ifile and stores them in fGroups.
+	//Before reading, all groups in fGroups are deleted. A number is set
+	//to each new group.
+	//
+	//The comment lines begin with '#'.
+	//
+	//Each line correspond to a new group and contains le name of each
+	//detector which compose it, separated by a space.
+	
+	fGroups->Delete();           // clear out (delete) old groups
+
+	KVString sline, detname; 
+	while (ifile.good()) {         //reading the file
+		sline.ReadLine( ifile );
+
+		if(sline.IsNull()) continue;
+	  	// Skip comment line
+	  	if(sline.BeginsWith("#")) continue;
+
+		KVSpectroGroup    *group = NULL;
+		KVSpectroDetector *det   = NULL;
+
+		sline.Begin(" ");
+   		while( !sline.End() ){
+
+			detname = sline.Next(kTRUE);
+			det     = (KVSpectroDetector *)GetDetector( detname.Data() );
+
+			if( det ){
+
+				if( !group ){
+
+					group = new KVSpectroGroup();
+					group->SetNumber(++fGr);
+					fGroups->Add( group );
+				}
+
+				group->Add( det );
+			}
+			else Error("ReadDetectorGroupFile","Detector %s not found",detname.Data());
+   		}
+	}
+	return kTRUE;
 }
 //________________________________________________________________
 
