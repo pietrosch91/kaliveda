@@ -45,6 +45,18 @@ KVVAMOS::KVVAMOS()
 }
 //________________________________________________________________
 
+KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVBase()
+{
+   	// Copy constructor
+   	// This ctor is used to make a copy of an existing object (for example
+   	// when a method returns an object), and it is always a good idea to
+   	// implement it.
+   	// If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
+
+   	obj.Copy(*this);
+}
+//________________________________________________________________
+
 void KVVAMOS::init()
 {
     //Basic initialisation called by constructor.
@@ -61,6 +73,10 @@ void KVVAMOS::init()
 
 	fGroups = new KVList;
 	fGroups->SetCleanup(kTRUE);
+
+	fIDTelescopes = new KVHashList();
+    fIDTelescopes->SetOwner(kTRUE); // owns its objects
+    fIDTelescopes->SetCleanup(kTRUE);
 
 	fFiredDets     = NULL;
 	fACQParams     = NULL;
@@ -85,18 +101,6 @@ void KVVAMOS::init()
 }
 //________________________________________________________________
 
-KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVBase()
-{
-   	// Copy constructor
-   	// This ctor is used to make a copy of an existing object (for example
-   	// when a method returns an object), and it is always a good idea to
-   	// implement it.
-   	// If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
-
-   	obj.Copy(*this);
-}
-//________________________________________________________________
-
 KVVAMOS::~KVVAMOS(){
    	// Destructor
    	
@@ -106,6 +110,13 @@ KVVAMOS::~KVVAMOS(){
 		delete fDetectors;
 	}
 	fDetectors = NULL;
+
+	//destroy all identification telescopes
+    if (fIDTelescopes && fIDTelescopes->TestBit(kNotDeleted)) {
+        fIDTelescopes->Delete();
+        delete fIDTelescopes;
+    }
+    fIDTelescopes = 0;
 
 	//destroy all groups
     if (fGroups && fGroups->TestBit(kNotDeleted)) {
@@ -268,22 +279,22 @@ void KVVAMOS::BuildVAMOSGeometry(){
  	   	delete gGeoManager;
 	}
 
-   TGeoManager *geom = new TGeoManager(Form("GEO_%s", gDataSet->GetLabel()), Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
-   TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-   matVacuum->SetTitle("Vacuum");
-   TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-   TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  1000, 1000, 1000);
-   geom->SetTopVolume(top);
+   	TGeoManager *geom = new TGeoManager(Form("GEO_%s", gDataSet->GetLabel()), Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
+   	TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+   	matVacuum->SetTitle("Vacuum");
+   	TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+   	TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  1000, 1000, 1000);
+   	geom->SetTopVolume(top);
 
 
-   BuildFocalPlaneGeometry( &infos );
-   BuildGeoVolume( &infos);
+   	BuildFocalPlaneGeometry( &infos );
+   	BuildGeoVolume( &infos);
 
-      // The option "i" is important to give unique ID for each existing
-   // Node. This is done in InitGeometry()
-   gGeoManager->CloseGeometry("i");
+    // The option "i" is important to give unique ID for each existing
+   	// Node. This is done in InitGeometry()
+   	gGeoManager->CloseGeometry("i");
 
-  }
+}
 //________________________________________________________________
 
 void KVVAMOS::InitGeometry(){
@@ -315,202 +326,37 @@ void KVVAMOS::InitGeometry(){
 }
 //________________________________________________________________
 
-void KVVAMOS::UpdateGeometry(){
-	// Update the geometry of VAMOS.
-	// This method has to be called when the geometry is modified and
-	// before using of methods giving information about geometry.
-	//
-	// The focal-plane to target matrix is calculated again and set
-	// to each detector.
+Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
+	// Load in a TEnv object the informations concerning the geometry of VAMOS.
+	// These informations  are read in all the files with the .cao extension in 
+	// $KVROOT/KVFiles/<DataSet>/VAMOSgeometry directory.
+	// Returns the number of files read.
 
 	
-	if( !IsGeoModified() || !IsBuilt() ) return;	
-	
-	Int_t prev_id = gGeoManager->GetCurrentNodeId();
-
-	// To be sure that the matrices will be calculated again
-	gGeoManager->CdTop();
-	// Focal-plane to target matrix
-	gGeoManager->CdNode( fFPvolume->GetUniqueID() );
-	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
-
-	// Initialize the geometry of the detectors
-	TIter next_det(fDetectors);
-	KVVAMOSDetector *det = NULL;
-	while( (det = (KVVAMOSDetector *)next_det()) ){
-		det->SetFocalToTargetMatrix( &fFocalToTarget );
+	// Reading geometry iformations in .cao files
+	const Char_t dirname[] = "VAMOSgeometry";
+	TString path( GetKVFilesDir() );
+	path += "/";
+	if( gDataSet ){
+		path += gDataSet->GetName();
+		path += "/";
 	}
-
-	ResetBit( kGeoModified );
-
-	// just to not create problems if this method is called during a tracking
-	gGeoManager->CdNode( prev_id );
-}
-//________________________________________________________________
-
-
-KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
-	//Fills 'list' with the fired detectors. The option 'opt' is 
-	//set to the method KVSpectroDetector::Fired( opt ) used to know
-	//if a detector is fired. The list is not the owner of its content.
-	//It is a member variable fFiredDets of the class and will be deleted
-	//with this KVVAMOS object.
-
-	if( fFiredDets ) fFiredDets->Clear();
-	else fFiredDets = new KVList( kFALSE );
-
-	TIter next( fDetectors );
-	KVSpectroDetector *det = NULL;
-	while( (det = (KVSpectroDetector *)next()) ){
-		if( det->Fired( opt ) ) fFiredDets->Add( det );
+	path += dirname;
+	TSystemDirectory dir(dirname,path.Data());
+	TList *lfiles = dir.GetListOfFiles();
+	TIter nextfile( lfiles );
+	TSystemFile *file = NULL;
+	Int_t Nfiles = 0;
+	while( (file = (TSystemFile *)nextfile()) ){
+		path.Form("%s/%s",file->GetTitle(),file->GetName());
+		if( !path.EndsWith(".cao") ) continue;
+ 		infos->ReadFile(path.Data(),kEnvAll); 
+		Nfiles++;
+		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
 	}
-	return fFiredDets;
-}
-//________________________________________________________________
-
-KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
-	//Returns the transformation matrix allowing to map the measured
-	//coordinates at the focal plane back to the target. If no matrix
-	//exists then a new matrix is built from coefficient files found
-	//in the directory of the current dataset ( see the method
-	//KVVAMOSTransferMatrix::ReadCoefInDataSet() ).
-	
-	if( fTransMatrix ) return fTransMatrix;
-	return (fTransMatrix = new KVVAMOSTransferMatrix( kTRUE ));
-}
-//________________________________________________________________
-
-void KVVAMOS::SetTransferMatrix( KVVAMOSTransferMatrix *mat ){
-	//Set the transformation matrix allowing to map the measured
-	//coordinates at the focal plane back to the target. If a matrix
-	//already exists then it is deleted first to set the new one.
-
-	if( !mat ) return;
-	if( fTransMatrix ) SafeDelete( fTransMatrix );
-	fTransMatrix = mat;
-}
-//________________________________________________________________
-
-void KVVAMOS::Initialize(){
-	// Initialize data members of the VAMOS detectors and of VAMOS 
-	// itself. This method has to be called each time you look at a
-	// new event.
-	fDetectors->R__FOR_EACH(KVVAMOSDetector,Initialize)();	
-}
-//________________________________________________________________
-
-void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
-	// Add an acquisition parameter corresponding to a detector
-	// at the focal plane of the spectrometer. The fACQParams and fVACQParams
-	// lists are added to the list of cleanups (gROOT->GetListOfCleanups).
-	// Each acqisition parameter has its kMustCleanup bit set.
-	// Thus, if this acq. parameter is deleted, it is automatically
-	// removed from the lists by ROOT.
-
-	if(!par){
-	Warning("AddACQParam","Null pointer passed as argument");
-	return;
-	}
-
-	// Add ACQ param. in global list
-	if(!fACQParams){
-		fACQParams = new KVHashList;
-		fACQParams->SetName(Form("List of ACQ param. for detectors of %s",GetName()));
-		fACQParams->SetOwner(kFALSE);
-		fACQParams->SetCleanup(kTRUE);
-	}
-	fACQParams->Add(par);
-
-	// Add ACQ param. in list of VAMOS if it is owner
-	if(owner){
-   		if(!fVACQParams){
-			fVACQParams = new KVList;
-			fVACQParams->SetName(Form("List of ACQ param. belonging to %s",GetName()));
-			fVACQParams->SetCleanup(kTRUE);
-		}
-//		par->SetDetector( this );
-		fVACQParams->Add(par);
-		par->SetUniqueID( CalculateUniqueID( par ) );
-	}
-	else par->SetUniqueID( CalculateUniqueID( par, (KVVAMOSDetector *)par->GetDetector() ) );
-}
-//________________________________________________________________
-
-Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
-	//Associate a calibration with  VAMOS. owner = true means that
-	//the calibrator is associated to an ACQ Parameter belonging to VAMOS
-	//( for example all the calibrators of times of flight).
-	//owner = false means the calibrator is associate to an ACQ parameter
-	//belonging to a detector at the focal plane (Energies, charges, ...). 
-   //If the calibrator object has the same class and type
-   //as an existing object in the list (see KVCalibrator::IsEqual),
-   //it will not be added to the list
-   //(avoids duplicate calibrators) and the method returns kFALSE.
-   //
-   if (!fCalibrators){
-       fCalibrators = new KVHashList();
-	   fCalibrators->SetOwner(kFALSE);
-   }
-   if(fCalibrators->FindObject(cal)) return kFALSE;
-   fCalibrators->Add(cal);
-
-   if( owner ){
-   	   if (!fVCalibrators){
-       	   fVCalibrators = new KVList();
-   	   }
-   	   fVCalibrators->Add(cal);
-   }
-
-   return kTRUE;
-}
-//________________________________________________________________
-
-void KVVAMOS::Build(){
-	// Build the VAMOS spectrometer: detectors, geometry, identification
-	// telescopes, acquisition parameters and calibrators. 
-	//
-	// After geometry building, the detectors are sorted in the 
-	// list fDetectors from the Z coordinate of their first active volume,
-	// in the focal Plan reference frame: from the lowest Z to the highest Z.
-	
-	if( IsBuilt() ) return;
-
-	SetName("VAMOS");
-	SetTitle("VAMOS spectrometer");
-	MakeListOfDetectors();
-	BuildVAMOSGeometry();
-    InitGeometry();
-	fDetectors->Sort( kSortDescending );
-	SetGroupsAndIDTelescopes();
-	SetACQParams();
-	SetCalibrators();
-	Initialize();
-	SetBit(kIsBuilt);
-}
-//________________________________________________________________
-
-void KVVAMOS::Clear(Option_t *opt ){
-	// Call "Clear" method of each and every detector in VAMOS,
-	// to reset energy loss and KVDetector::IsAnalysed() state
-	// plus ACQ parameters set to zero
-	
-//	KVDetector::Clear();
-	fDetectors->R__FOR_EACH(KVDetector,Clear)();	
-	
-}
-//________________________________________________________________
-
-void KVVAMOS::Copy (TObject& obj) const
-{
-   	// This method copies the current state of 'this' object into 'obj'
-   	// You should add here any member variables, for example:
-   	//    (supposing a member variable KVVAMOS::fToto)
-   	//    CastedObj.fToto = fToto;
-   	// or
-   	//    CastedObj.SetToto( GetToto() );
-
-   	KVBase::Copy(obj);
-   	//KVVAMOS& CastedObj = (KVVAMOS&)obj;
+	infos->Print();
+	delete lfiles;
+	return Nfiles;
 }
 //________________________________________________________________
 
@@ -557,65 +403,50 @@ void KVVAMOS::MakeListOfDetectors(){
 }
 //________________________________________________________________
 
-Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
-	// Load in a TEnv object the informations concerning the geometry of VAMOS.
-	// These informations  are read in all the files with the .cao extension in 
-	// $KVROOT/KVFiles/<DataSet>/VAMOSgeometry directory.
-	// Returns the number of files read.
-
+Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
+	//Reads the groups of detectors to build for VAMOS from file loaded
+	//in ifile and stores them in fGroups.
+	//Before reading, all groups in fGroups are deleted. A number is set
+	//to each new group.
+	//
+	//The comment lines begin with '#'.
+	//
+	//Each line correspond to a new group and contains le name of each
+	//detector which compose it, separated by a space.
 	
-	// Reading geometry iformations in .cao files
-	const Char_t dirname[] = "VAMOSgeometry";
-	TString path( GetKVFilesDir() );
-	path += "/";
-	if( gDataSet ){
-		path += gDataSet->GetName();
-		path += "/";
+
+	KVString sline, detname; 
+	while (ifile.good()) {         //reading the file
+		sline.ReadLine( ifile );
+
+		if(sline.IsNull()) continue;
+	  	// Skip comment line
+	  	if(sline.BeginsWith("#")) continue;
+
+		KVSpectroGroup    *group = NULL;
+		KVSpectroDetector *det   = NULL;
+
+		sline.Begin(" ");
+   		while( !sline.End() ){
+
+			detname = sline.Next(kTRUE);
+			det     = (KVSpectroDetector *)GetDetector( detname.Data() );
+
+			if( det ){
+
+				if( !group ){
+
+					group = new KVSpectroGroup();
+					group->SetNumber(++fGr);
+					fGroups->Add( group );
+				}
+
+				group->Add( det );
+			}
+			else Error("ReadDetectorGroupFile","Detector %s not found",detname.Data());
+   		}
 	}
-	path += dirname;
-	TSystemDirectory dir(dirname,path.Data());
-	TList *lfiles = dir.GetListOfFiles();
-	TIter nextfile( lfiles );
-	TSystemFile *file = NULL;
-	Int_t Nfiles = 0;
-	while( (file = (TSystemFile *)nextfile()) ){
-		path.Form("%s/%s",file->GetTitle(),file->GetName());
-		if( !path.EndsWith(".cao") ) continue;
- 		infos->ReadFile(path.Data(),kEnvAll); 
-		Nfiles++;
-		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
-	}
-	infos->Print();
-	delete lfiles;
-	return Nfiles;
-}
-//________________________________________________________________
-
-KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
-	// Static function which will create and 'Build' the VAMOS spectrometer
-	// object corresponding to 'name'.
-	// These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
-    //
-    //Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     KVVamos    "KVVAMOS()"
-    //+Plugin.KVVAMOS:    INDRA_e503    KVVAMOS_e503     KVVamos_e503    "KVVAMOS_e503()"
-    //
-    //The 'name' ("INDRA_e464s" etc.) corresponds to the name of a dataset in $KVROOT/KVFiles/manip.list
-    //The constructors/macros are always without arguments
-    //
-    //This name is stored in fDataSet
-
-    //check and load plugin library
-    TPluginHandler *ph;
-    if (!(ph = LoadPlugin("KVVAMOS", name)))
-        return 0;
-
-    //execute constructor/macro for multidetector - assumed without arguments
-    KVVAMOS *vamos = (KVVAMOS *) ph->ExecPlugin(0);
-
-    vamos->fDataSet = name;
-    //call Build() method
-    vamos->Build();
-    return vamos;
+	return kTRUE;
 }
 //________________________________________________________________
 
@@ -775,61 +606,241 @@ void KVVAMOS::SetGroupsAndIDTelescopes(){
 	if( !ReadDetectorGroupFile(ifile) ) Error("SetGroupsAndIDTelescopes","Bad structure inside the file %s",filename.Data());	
 
 	ifile.close();
-
+	
+	fGroups->Delete();       // clear out (delete) old groups
+ 	fIDTelescopes->Delete(); // clear out (delete) old identification telescopes
 	// Sort the detector list of each group in order to have
 	// at the first position the farest detector
 	fGroups->R__FOR_EACH(KVSpectroGroup,Sort)(kSortDescending);	
 
 	// create list of ID telescopes from the new groups of detectors
-	
+	fGroups->R__FOR_EACH(KVSpectroGroup,BuildIDTelescopes)(fIDTelescopes);	
 }
 //________________________________________________________________
 
-Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
-	//Reads the groups of detectors to build for VAMOS from file loaded
-	//in ifile and stores them in fGroups.
-	//Before reading, all groups in fGroups are deleted. A number is set
-	//to each new group.
+void KVVAMOS::UpdateGeometry(){
+	// Update the geometry of VAMOS.
+	// This method has to be called when the geometry is modified and
+	// before using of methods giving information about geometry.
 	//
-	//The comment lines begin with '#'.
-	//
-	//Each line correspond to a new group and contains le name of each
-	//detector which compose it, separated by a space.
+	// The focal-plane to target matrix is calculated again and set
+	// to each detector.
+
 	
-	fGroups->Delete();           // clear out (delete) old groups
+	if( !IsGeoModified() || !IsBuilt() ) return;	
+	
+	Int_t prev_id = gGeoManager->GetCurrentNodeId();
 
-	KVString sline, detname; 
-	while (ifile.good()) {         //reading the file
-		sline.ReadLine( ifile );
+	// To be sure that the matrices will be calculated again
+	gGeoManager->CdTop();
+	// Focal-plane to target matrix
+	gGeoManager->CdNode( fFPvolume->GetUniqueID() );
+	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
 
-		if(sline.IsNull()) continue;
-	  	// Skip comment line
-	  	if(sline.BeginsWith("#")) continue;
-
-		KVSpectroGroup    *group = NULL;
-		KVSpectroDetector *det   = NULL;
-
-		sline.Begin(" ");
-   		while( !sline.End() ){
-
-			detname = sline.Next(kTRUE);
-			det     = (KVSpectroDetector *)GetDetector( detname.Data() );
-
-			if( det ){
-
-				if( !group ){
-
-					group = new KVSpectroGroup();
-					group->SetNumber(++fGr);
-					fGroups->Add( group );
-				}
-
-				group->Add( det );
-			}
-			else Error("ReadDetectorGroupFile","Detector %s not found",detname.Data());
-   		}
+	// Initialize the geometry of the detectors
+	TIter next_det(fDetectors);
+	KVVAMOSDetector *det = NULL;
+	while( (det = (KVVAMOSDetector *)next_det()) ){
+		det->SetFocalToTargetMatrix( &fFocalToTarget );
 	}
-	return kTRUE;
+
+	ResetBit( kGeoModified );
+
+	// just to not create problems if this method is called during a tracking
+	gGeoManager->CdNode( prev_id );
+}
+//________________________________________________________________
+
+void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
+	// Add an acquisition parameter corresponding to a detector
+	// at the focal plane of the spectrometer. The fACQParams and fVACQParams
+	// lists are added to the list of cleanups (gROOT->GetListOfCleanups).
+	// Each acqisition parameter has its kMustCleanup bit set.
+	// Thus, if this acq. parameter is deleted, it is automatically
+	// removed from the lists by ROOT.
+
+	if(!par){
+	Warning("AddACQParam","Null pointer passed as argument");
+	return;
+	}
+
+	// Add ACQ param. in global list
+	if(!fACQParams){
+		fACQParams = new KVHashList;
+		fACQParams->SetName(Form("List of ACQ param. for detectors of %s",GetName()));
+		fACQParams->SetOwner(kFALSE);
+		fACQParams->SetCleanup(kTRUE);
+	}
+	fACQParams->Add(par);
+
+	// Add ACQ param. in list of VAMOS if it is owner
+	if(owner){
+   		if(!fVACQParams){
+			fVACQParams = new KVList;
+			fVACQParams->SetName(Form("List of ACQ param. belonging to %s",GetName()));
+			fVACQParams->SetCleanup(kTRUE);
+		}
+//		par->SetDetector( this );
+		fVACQParams->Add(par);
+		par->SetUniqueID( CalculateUniqueID( par ) );
+	}
+	else par->SetUniqueID( CalculateUniqueID( par, (KVVAMOSDetector *)par->GetDetector() ) );
+}
+//________________________________________________________________
+
+Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
+	//Associate a calibration with  VAMOS. owner = true means that
+	//the calibrator is associated to an ACQ Parameter belonging to VAMOS
+	//( for example all the calibrators of times of flight).
+	//owner = false means the calibrator is associate to an ACQ parameter
+	//belonging to a detector at the focal plane (Energies, charges, ...). 
+   //If the calibrator object has the same class and type
+   //as an existing object in the list (see KVCalibrator::IsEqual),
+   //it will not be added to the list
+   //(avoids duplicate calibrators) and the method returns kFALSE.
+   //
+   if (!fCalibrators){
+       fCalibrators = new KVHashList();
+	   fCalibrators->SetOwner(kFALSE);
+   }
+   if(fCalibrators->FindObject(cal)) return kFALSE;
+   fCalibrators->Add(cal);
+
+   if( owner ){
+   	   if (!fVCalibrators){
+       	   fVCalibrators = new KVList();
+   	   }
+   	   fVCalibrators->Add(cal);
+   }
+
+   return kTRUE;
+}
+//________________________________________________________________
+
+void KVVAMOS::Build(){
+	// Build the VAMOS spectrometer: detectors, geometry, identification
+	// telescopes, acquisition parameters and calibrators. 
+	//
+	// After geometry building, the detectors are sorted in the 
+	// list fDetectors from the Z coordinate of their first active volume,
+	// in the focal Plan reference frame: from the lowest Z to the highest Z.
+	
+	if( IsBuilt() ) return;
+
+	SetName("VAMOS");
+	SetTitle("VAMOS spectrometer");
+	MakeListOfDetectors();
+	BuildVAMOSGeometry();
+    InitGeometry();
+	fDetectors->Sort( kSortDescending );
+	SetGroupsAndIDTelescopes();
+	SetACQParams();
+	SetCalibrators();
+	Initialize();
+	SetBit(kIsBuilt);
+}
+//________________________________________________________________
+
+void KVVAMOS::Clear(Option_t *opt ){
+	// Call "Clear" method of each and every detector in VAMOS,
+	// to reset energy loss and KVDetector::IsAnalysed() state
+	// plus ACQ parameters set to zero
+	
+//	KVDetector::Clear();
+	fDetectors->R__FOR_EACH(KVDetector,Clear)();	
+}
+//________________________________________________________________
+
+void KVVAMOS::Copy (TObject& obj) const
+{
+   	// This method copies the current state of 'this' object into 'obj'
+   	// You should add here any member variables, for example:
+   	//    (supposing a member variable KVVAMOS::fToto)
+   	//    CastedObj.fToto = fToto;
+   	// or
+   	//    CastedObj.SetToto( GetToto() );
+
+   	KVBase::Copy(obj);
+   	//KVVAMOS& CastedObj = (KVVAMOS&)obj;
+}
+//________________________________________________________________
+
+void KVVAMOS::FocalToTarget(const Double_t *focal, Double_t *target){
+	// Convert the point coordinates from focal plane reference to target reference system.
+	GetFocalToTargetMatrix().LocalToMaster( focal, target );
+}
+//________________________________________________________________
+
+void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
+	// Convert the vector coordinates from focal plane reference to target reference system.
+	GetFocalToTargetMatrix().LocalToMasterVect( focal, target );
+}
+//________________________________________________________________
+
+KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
+	//Fills 'list' with the fired detectors. The option 'opt' is 
+	//set to the method KVSpectroDetector::Fired( opt ) used to know
+	//if a detector is fired. The list is not the owner of its content.
+	//It is a member variable fFiredDets of the class and will be deleted
+	//with this KVVAMOS object.
+
+	if( fFiredDets ) fFiredDets->Clear();
+	else fFiredDets = new KVList( kFALSE );
+
+	TIter next( fDetectors );
+	KVSpectroDetector *det = NULL;
+	while( (det = (KVSpectroDetector *)next()) ){
+		if( det->Fired( opt ) ) fFiredDets->Add( det );
+	}
+	return fFiredDets;
+}
+//________________________________________________________________
+
+KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
+	//Returns the transformation matrix allowing to map the measured
+	//coordinates at the focal plane back to the target. If no matrix
+	//exists then a new matrix is built from coefficient files found
+	//in the directory of the current dataset ( see the method
+	//KVVAMOSTransferMatrix::ReadCoefInDataSet() ).
+	
+	if( fTransMatrix ) return fTransMatrix;
+	return (fTransMatrix = new KVVAMOSTransferMatrix( kTRUE ));
+}
+//________________________________________________________________
+
+void KVVAMOS::Initialize(){
+	// Initialize data members of the VAMOS detectors and of VAMOS 
+	// itself. This method has to be called each time you look at a
+	// new event.
+	fDetectors->R__FOR_EACH(KVVAMOSDetector,Initialize)();	
+}
+//________________________________________________________________
+
+KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
+	// Static function which will create and 'Build' the VAMOS spectrometer
+	// object corresponding to 'name'.
+	// These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
+    //
+    //Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     KVVamos    "KVVAMOS()"
+    //+Plugin.KVVAMOS:    INDRA_e503    KVVAMOS_e503     KVVamos_e503    "KVVAMOS_e503()"
+    //
+    //The 'name' ("INDRA_e464s" etc.) corresponds to the name of a dataset in $KVROOT/KVFiles/manip.list
+    //The constructors/macros are always without arguments
+    //
+    //This name is stored in fDataSet
+
+    //check and load plugin library
+    TPluginHandler *ph;
+    if (!(ph = LoadPlugin("KVVAMOS", name)))
+        return 0;
+
+    //execute constructor/macro for multidetector - assumed without arguments
+    KVVAMOS *vamos = (KVVAMOS *) ph->ExecPlugin(0);
+
+    vamos->fDataSet = name;
+    //call Build() method
+    vamos->Build();
+    return vamos;
 }
 //________________________________________________________________
 
@@ -849,27 +860,42 @@ void KVVAMOS::SetParameters(UShort_t run){
 }
 //________________________________________________________________
 
-void KVVAMOS::FocalToTarget(const Double_t *focal, Double_t *target){
-	// Convert the point coordinates from focal plane reference to target reference system.
-	GetFocalToTargetMatrix().LocalToMaster( focal, target );
+void KVVAMOS::SetTransferMatrix( KVVAMOSTransferMatrix *mat ){
+	//Set the transformation matrix allowing to map the measured
+	//coordinates at the focal plane back to the target. If a matrix
+	//already exists then it is deleted first to set the new one.
+
+	if( !mat ) return;
+	if( fTransMatrix ) SafeDelete( fTransMatrix );
+	fTransMatrix = mat;
 }
 //________________________________________________________________
 
-void    KVVAMOS::TargetToFocal(const Double_t *target, Double_t *focal){
+void KVVAMOS::TargetToFocal( const Double_t *target, Double_t *focal ){
 	// Convert the point coordinates from  target reference to focal plane reference system.
 	GetFocalToTargetMatrix().MasterToLocal( target, focal );
 }
-//________________________________________________________________
 
-void KVVAMOS::FocalToTargetVect(const Double_t *focal, Double_t *target){
-	// Convert the vector coordinates from focal plane reference to target reference system.
-	GetFocalToTargetMatrix().LocalToMasterVect( focal, target );
-}
 //________________________________________________________________
 
 void KVVAMOS::TargetToFocalVect(const Double_t *target, Double_t *focal){
 	// Convert the vector coordinates from  target reference to focal plane reference system.
 	GetFocalToTargetMatrix().MasterToLocalVect( target, focal );
+}
+//________________________________________________________________
+
+UInt_t KVVAMOS::CalculateUniqueID( KVBase *param, KVVAMOSDetector *det ){
+	UInt_t uid = param->GetNumber();
+	if( det ){
+		uid += 1000   * det->GetACQParamTypeIdx( param->GetType() );
+		uid += 10000  * det->GetPositionTypeIdx( param->GetLabel() );
+		uid += 100000 * det->GetUniqueID();
+	}
+	else{
+		uid += 1000   * GetACQParamTypeIdx( param->GetType() );
+		uid += 10000  * GetPositionTypeIdx( param->GetLabel() );
+	}
+	return uid;
 }
 //________________________________________________________________
 
@@ -890,19 +916,4 @@ UChar_t KVVAMOS::GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
 
 	Ssiz_t i = types->Index( Form(":%s,", type) ); 
 	return (i<0 ? 9 : types->Data()[i-1] - '0' );
-}
-//________________________________________________________________
-
-UInt_t KVVAMOS::CalculateUniqueID( KVBase *param, KVVAMOSDetector *det ){
-	UInt_t uid = param->GetNumber();
-	if( det ){
-		uid += 1000   * det->GetACQParamTypeIdx( param->GetType() );
-		uid += 10000  * det->GetPositionTypeIdx( param->GetLabel() );
-		uid += 100000 * det->GetUniqueID();
-	}
-	else{
-		uid += 1000   * GetACQParamTypeIdx( param->GetType() );
-		uid += 10000  * GetPositionTypeIdx( param->GetLabel() );
-	}
-	return uid;
 }

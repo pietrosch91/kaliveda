@@ -26,6 +26,7 @@ class KVSpectroGroup : public KVBase
 
    		void init();
 		void Add( KVSpectroDetector *det );
+		void BuildIDTelescopes( TCollection *);
 		virtual const Char_t* GetTitle() const;
 		void SetDetectors( KVList *list );
 		virtual void SetNumber(UInt_t num);

@@ -80,6 +80,26 @@ void KVSpectroGroup::Add( KVSpectroDetector *det ){
 	else Warning("Add","Attempt to add undefined detector to group");
 }
 //________________________________________________________________
+
+void KVSpectroGroup::BuildIDTelescopes( TCollection *tel_list){
+	//Identify all the ways of identifying nuclei possible from the detectors
+   //in the group, create the appropriate KVIDTelescope objects and add them to
+   //the list pointed to by tel_list.
+   //USER'S RESPONSIBILITY TO DELETE CONTENTS OF LIST!!
+   //
+   //Starting from the first detector of the group (the furthest one),
+   //we build ID telescopes from all pairs of detectors.
+   //
+   //For each pair of detectors, it is KVSpectrometer::GetIDTelescopes
+   //which determines which KVIDTelescope class to use (specialise this method
+   //in KVSpectrometer child classes). It must also make sure that
+   //each IDTelescope is added only once (i.e. check it is not already in the
+   //list).
+
+
+	Warning("BuildIDTelescopes","TO BE IMPLEMENTED");
+}
+//________________________________________________________________
 		
 const Char_t* KVSpectroGroup::GetTitle() const{
 	// Returns the title which is the list of names of the detectors
