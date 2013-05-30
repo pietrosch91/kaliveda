@@ -3,15 +3,19 @@
 
 #include "KVVAMOS.h"
 #include "KVVAMOSDetector.h"
-#include "TPluginManager.h"
-#include "TClass.h"
+#include "KVSpectroGroup.h"
+#include "KVVAMOSTransferMatrix.h"
+
 #include "KVDataSetManager.h"
 #include "KVUpDater.h"
 #include "KVFunctionCal.h"
-#include "TSystemDirectory.h"
-#include "TGeoBBox.h"
 #include "KVIDGridManager.h"
-#include "KVSpectroGroup.h"
+
+#include "TSystemDirectory.h"
+#include "TPluginManager.h"
+#include "TClass.h"
+
+#include "TGeoBBox.h"
 
 using namespace std;
 
@@ -59,9 +63,12 @@ void KVVAMOS::init()
 	fGroups->SetCleanup(kTRUE);
 
 	fFiredDets     = NULL;
+	fACQParams     = NULL;
 	fVACQParams    = NULL;
+	fCalibrators   = NULL;
 	fVCalibrators  = NULL;
 	fFPvolume      = NULL;
+	fVAMOSvol      = NULL;
 	fTransMatrix   = NULL;
 	fRotation      = NULL;
 	fFocalPos      = 0; 
@@ -78,7 +85,7 @@ void KVVAMOS::init()
 }
 //________________________________________________________________
 
-KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVDetector() //KVBase()
+KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVBase()
 {
    	// Copy constructor
    	// This ctor is used to make a copy of an existing object (for example
@@ -107,12 +114,21 @@ KVVAMOS::~KVVAMOS(){
     }
     fGroups = 0;
 
+	// Clear list of all acquisition parameters
+ 	if(fACQParams && fACQParams->TestBit(kNotDeleted)){
+       	fACQParams->Delete();
+  		delete fACQParams;
+	}
+ 	fACQParams = NULL;
+
 	// Clear list of acquisition parameters belonging to VAMOS
 	if(fVACQParams && fVACQParams->TestBit(kNotDeleted)){
 		fVACQParams->Clear();
 		delete fVACQParams;
 	}
 	fVACQParams = NULL;
+
+	SafeDelete( fCalibrators  );
 	SafeDelete( fVCalibrators );
 	SafeDelete( fFiredDets    );
 	SafeDelete( fTransMatrix  );
@@ -176,16 +192,15 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 
 	// this volume assembly allow the rotation of VAMOS around the 
 	// target
-	TGeoVolume *vamos = gGeoManager->MakeVolumeAssembly("VAMOS");
-//	TGeoVolume *vamos = gGeoManager->MakeBox("VAMOS", Vacuum,  200, 200, 500);//TO BE CHANGE
-	SetAbsGeoVolume(vamos);
+	fVAMOSvol = gGeoManager->MakeVolumeAssembly("VAMOS");
+//	fVAMOSvol = gGeoManager->MakeBox("VAMOS", Vacuum,  200, 200, 500);//TO BE CHANGE
 
 	if( fRotation ) fRotation->Clear();
 	else{
    		fRotation =  new TGeoRotation( "VAMOSrotation" );
 		fRotation->RotateY( GetAngle() ); 
 	}
-	top->AddNode( vamos, 1, fRotation );
+	top->AddNode( fVAMOSvol, 1, fRotation );
 
 	TGeoMatrix *matrix = NULL;
 	TGeoShape *shape   = NULL;
@@ -209,14 +224,14 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 		vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
 		mat += "_pos";
 		matrix = new TGeoTranslation(mat.Data(), 0., 0., dis );
-		vamos->AddNode( vol, 1, matrix);
+		fVAMOSvol->AddNode( vol, 1, matrix);
 	}
 
 	// place the focal plane detection chamber from target position.
    	fFocalPos =  infos->GetValue("VAMOS.FOCALPOS", 0.);
 	// For the moment we place it juste after the strip foil
 	matrix    = new TGeoTranslation("focal_pos", 0., 0., dis+th+10+((TGeoBBox *)fFPvolume->GetShape())->GetDZ() ); // TO BE CHANGED
-   	vamos->AddNode( fFPvolume, 1, matrix );
+   	fVAMOSvol->AddNode( fFPvolume, 1, matrix );
    	///////////////////////////////////////////////
 
 	return kTRUE;
@@ -353,13 +368,6 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 }
 //________________________________________________________________
 
-TGeoVolume* KVVAMOS::GetGeoVolume(){
-	// Returns the global TGeoVolume of VAMOS built when the method
-	// BuildVAMOSGeometry() is called.
-	return GetAbsGeoVolume();
-}
-//________________________________________________________________
-
 KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
 	//Returns the transformation matrix allowing to map the measured
 	//coordinates at the focal plane back to the target. If no matrix
@@ -406,7 +414,7 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 
 	// Add ACQ param. in global list
 	if(!fACQParams){
-		fACQParams = new KVList;
+		fACQParams = new KVHashList;
 		fACQParams->SetName(Form("List of ACQ param. for detectors of %s",GetName()));
 		fACQParams->SetOwner(kFALSE);
 		fACQParams->SetCleanup(kTRUE);
@@ -420,7 +428,7 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 			fVACQParams->SetName(Form("List of ACQ param. belonging to %s",GetName()));
 			fVACQParams->SetCleanup(kTRUE);
 		}
-		par->SetDetector( this );
+//		par->SetDetector( this );
 		fVACQParams->Add(par);
 		par->SetUniqueID( CalculateUniqueID( par ) );
 	}
@@ -440,7 +448,7 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
    //(avoids duplicate calibrators) and the method returns kFALSE.
    //
    if (!fCalibrators){
-       fCalibrators = new KVList();
+       fCalibrators = new KVHashList();
 	   fCalibrators->SetOwner(kFALSE);
    }
    if(fCalibrators->FindObject(cal)) return kFALSE;
@@ -486,7 +494,7 @@ void KVVAMOS::Clear(Option_t *opt ){
 	// to reset energy loss and KVDetector::IsAnalysed() state
 	// plus ACQ parameters set to zero
 	
-	KVDetector::Clear();
+//	KVDetector::Clear();
 	fDetectors->R__FOR_EACH(KVDetector,Clear)();	
 	
 }
@@ -501,8 +509,7 @@ void KVVAMOS::Copy (TObject& obj) const
    	// or
    	//    CastedObj.SetToto( GetToto() );
 
-   	KVDetector::Copy(obj);
-//   	KVBase::Copy(obj);
+   	KVBase::Copy(obj);
    	//KVVAMOS& CastedObj = (KVVAMOS&)obj;
 }
 //________________________________________________________________
@@ -723,7 +730,7 @@ void KVVAMOS::SetCalibrators(){
 		calibtype.Append( par->GetName() );
 
 		func = new TF1(par->GetName(),"pol1",0., 16384.);
-		c = new KVFunctionCal(this, func);
+		c = new KVFunctionCal(func);
 		c->SetType( calibtype.Data() );
 		c->SetLabel( par->GetLabel() );
 		c->SetUniqueID( par->GetUniqueID() );

@@ -214,7 +214,7 @@ void KVVAMOSDetector::SetCalibrators(){
 	// from this detector. The time of flight acq parameters are associated
 	// to gVamos
 	if(gVamos){
-		TIter next_vacq( gVamos->GetVACQParamList() );
+		TIter next_vacq( gVamos->GetVACQParams() );
 		while(( par = (KVACQParam *)next_vacq() )){
 			if( (par->GetType()[0] == 'T') && IsTfromThisDetector( par->GetName()+1 ) ){
 				if( !fTlist ) fTlist = new TList;
@@ -309,10 +309,11 @@ Float_t KVVAMOSDetector::GetT(const Char_t *type){
 	//  of type 'type' (SED_HF, SI_HF, SI_SED1, ...).
 	// A time signal is always associated to an object KVVAMOS pointed by 
 	// gVamos, then gVamos has to be different to zero. If gVamos is null
-	// this method returns -1;
+	// or type is not correct, this method returns -1;
 
-	if(!IsTfromThisDetector( type ) ) return -1;
-	return  ( gVamos ? gVamos->GetACQData(Form("T%s",type)) : -1 );
+	if(!IsTfromThisDetector( type ) || !gVamos) return -1;
+	KVACQParam *par = gVamos->GetACQParam(Form("T%s",type));
+	return  ( par ? par->GetData() : -1 );
 }
 //________________________________________________________________
 

@@ -3,7 +3,10 @@
 
 #include "KVVAMOSTransferMatrix.h"
 #include "KVUnits.h"
+#include "KVDataSet.h"
 #include "KVVAMOS.h"
+
+#include "TEnv.h"
 
 ClassImp(KVVAMOSTransferMatrix)
 

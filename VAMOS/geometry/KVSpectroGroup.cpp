@@ -106,7 +106,7 @@ void KVSpectroGroup::SetDetectors( KVList *list ){
 
 void KVSpectroGroup::SetNumber(UInt_t num){
     // Setting number for group also sets name to "SpectroGroup_n"
-    SetName( Form("SpectroGroup_%ud", num) );
+    SetName( Form("SpectroGroup_%u", num) );
     KVBase::SetNumber(num);
 };
 

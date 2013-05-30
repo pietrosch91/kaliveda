@@ -4,16 +4,20 @@
 #ifndef __KVVAMOS_H
 #define __KVVAMOS_H
 
-#include "KVDetector.h"
-#include "KVSeqCollection.h"
+#include "KVBase.h"
+#include "KVList.h"
+#include "KVHashList.h"
 #include "TGeoMatrix.h"
-#include "KVVAMOSTransferMatrix.h"
 
 class KVACQParam;
 class KVVAMOSDetector;
+class TGeoVolume;
+class TEnv;
+class KVCalibrator;
+class KVDetector;
+class KVVAMOSTransferMatrix;
 
-
-class KVVAMOS : public KVDetector //public KVBase
+class KVVAMOS :  public KVBase
 {
 
 	private:
@@ -33,14 +37,17 @@ class KVVAMOS : public KVDetector //public KVBase
 		Double_t fAngle;       //!Angular rotation around the target (deg)
 		Double_t fBrhoRef;     //!Reference magnetic rigidity (T.m)
 		Double_t fBeamHF;      //!High frequency of the beam (MHz)
-		TString fDataSet;      //Name of associated dataset, used with MakeVAMOS	
+		TString  fDataSet;     //Name of associated dataset, used with MakeVAMOS	
 		KVList *fDetectors;    // List of references to all detectors of VAMOS
 		KVList *fFiredDets;    //!List of fired detectors of VAMOS
 		UInt_t  fGr;           //!Used to number groups
 		KVList *fGroups;       //!List of groups (KVSpectroGroup) of detectors
+		KVHashList *fACQParams;//References to data acquisition parameter associated to detectors
 		KVList *fVACQParams;   //References to data acquisition parameter belonging to VAMOS
+		KVHashList *fCalibrators;//References to calibrator associated to detectors
 		KVList *fVCalibrators; //References to calibrator belonging to VAMOS
 		TGeoVolume *fFPvolume; //!TGeoVolume centered on the focal plane
+		TGeoVolume *fVAMOSvol; //!TGeoVolume of VAMOS 
 		Double_t fFocalPos;    //!Position of the focal plane from target center (in cm)
 		TGeoHMatrix fFocalToTarget; //!focal-plane to target position transformation matrix
 		KVVAMOSTransferMatrix *fTransMatrix; //!Transfer matrix for the reconstruction LAB<-->FP
@@ -73,7 +80,6 @@ class KVVAMOS : public KVDetector //public KVBase
    		virtual void Clear(Option_t *opt = "" );
    		void Copy (TObject&) const;
    		virtual KVList *GetFiredDetectors(Option_t *opt="Pany");
-   		virtual TGeoVolume* GetGeoVolume();
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void Initialize();
    		static KVVAMOS *MakeVAMOS(const Char_t* name);
@@ -94,25 +100,40 @@ class KVVAMOS : public KVDetector //public KVBase
 		inline void   GeoModified(){ SetBit( kGeoModified ); }
 		inline Bool_t IsGeoModified() const { return TestBit( kGeoModified ); }
 
+   		inline KVHashList* GetACQParams() const { return fACQParams; }
+		inline KVCalibrator *GetCalibrator(const Char_t * type) const{
+   			if (fCalibrators)
+      			return (KVCalibrator *) fCalibrators->FindObjectByType(type);
+   			return 0;
+   		}
    		inline KVCalibrator *GetVCalibrator(const Char_t * type) const{
    			if (fVCalibrators)
       			return (KVCalibrator *) fVCalibrators->FindObjectByType(type);
    			return 0;
    		}
-
+ 		
+		inline KVACQParam* GetACQParam(const Char_t *name){
+           return (KVACQParam*)fACQParams->FindObject(name);
+		}
    		inline KVDetector* GetDetector(const Char_t *name) const {
 	   		return (KVDetector*)fDetectors->FindObject(name);
    		}
-
-		inline TGeoVolume* GetFocalPlaneVolume() const    { return fFPvolume;      }
+		inline TGeoVolume* GetFocalPlaneVolume() const{ return fFPvolume; }
    		inline TGeoHMatrix GetFocalToTargetMatrix(){ 
 			if( IsGeoModified() ) UpdateGeometry();
 			return fFocalToTarget; 
 		}
 
+   		inline TGeoVolume* GetGeoVolume() const{
+			// Returns the global TGeoVolume of VAMOS built when the method
+			// BuildVAMOSGeometry() is called.
+			return fVAMOSvol;
+		}
+
 		inline KVList* GetGroups() const            { return fGroups;           }
    		inline KVList* GetListOfDetectors() const   { return fDetectors;        }
-   		inline KVList* GetVACQParamList() const     { return fVACQParams;       }
+   		inline KVList* GetVACQParams() const        { return fVACQParams;       }
+   		inline KVHashList* GetListOfCalibrators()const  { return fCalibrators;      }
    		inline KVList* GetListOfVCalibrators()const { return fVCalibrators;     }
    		inline Bool_t  IsBuilt() const              { return TestBit(kIsBuilt); }
 
