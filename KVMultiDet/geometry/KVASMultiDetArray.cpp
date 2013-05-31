@@ -69,26 +69,7 @@ KVASMultiDetArray::KVASMultiDetArray()
 }
 
 void KVASMultiDetArray::init()
-{
-    //Basic initialisation called by constructor.
-    //Creates layers list fLayers, detector types list fDetectorTypes, detectors list fDetectors,
-    //telescope prototypes list fTelescopes, groups list fGroups, identification telescopes list
-    //fIDTelescopes, and creates (if not already existing) identification grid manager object, gIDGridManager.
-    //
-    //Cleanups
-    //The fDetectors and fACQParams lists contain references to objects which are
-    //referenced & owned by other objects. We use the ROOT automatic garbage collection
-    //to make sure that any object deleted elsewhere is removed automatically from these lists.
-    //
-    //The fLayers, fGroups & fIDTelescopes lists contain objects owned by the multidetector array,
-    //but which may be deleted by other objects (or as a result of the deletion of other
-    //objects: i.e. if all the detectors in a group are deleted, the group itself is destroyed).
-    //We use the ROOT automatic garbage collection to make sure that any object deleted
-    //elsewhere is removed automatically from these lists.
-
-    fLayers = new KVList;
-    fLayers->SetCleanup(kTRUE);
- 
+{ 
     fCurrentLayerNumber = 0;
 }
 
@@ -97,44 +78,16 @@ void KVASMultiDetArray::init()
 KVASMultiDetArray::~KVASMultiDetArray()
 {
     //destroy (delete) the MDA and all the associated structure, detectors etc.
-
-    //delete all layers
-    //this will in turn delete all rings, telescopes and detectors
-    if (fLayers && fLayers->TestBit(kNotDeleted)) {
-        fLayers->Delete();
-        delete fLayers;
-    }
-    fLayers = 0;
-
 }
 
-//_______________________________________________________________________________________
-void KVASMultiDetArray::AddLayer()
-{
-    //Create a new layer in the array. The properties of the layer will be set later.
-
-    KVLayer *kvl = new KVLayer();
-    kvl->SetNumber(++fCurrentLayerNumber);
-    kvl->SetArray(this);         // set reference in layer to the array
-    fLayers->Add(kvl);
-}
-
-//______________________________________________________________________________________
-void KVASMultiDetArray::AddLayer(KVLayer * kvl)
-{
-    //Add a previously defined layer to the array.
-    kvl->SetNumber(++fCurrentLayerNumber);
-    kvl->SetArray(this);         // set pointer in layer to the array
-    fLayers->Add(kvl);
-}
 
 //_______________________________________________________________________________________
 void KVASMultiDetArray::SetGroups(KVLayer * l1, KVLayer * l2)
 {
 //Update the list of groups in the detector array by comparing all telescopes in two layers.
 
-    TIter lay1_nextring(l1->GetRings());
-    TIter lay2_nextring(l2->GetRings());
+    TIter lay1_nextring(l1->GetStructures());
+    TIter lay2_nextring(l2->GetStructures());
     KVRing *kring1, *kring2;
     // loop over all pairs of rings in the two layers
     while ((kring1 = (KVRing *) lay1_nextring())) {
@@ -177,97 +130,33 @@ void KVASMultiDetArray::UpdateGroupsInRings(KVRing * r1, KVRing * r2)
 }
 
 
-void KVASMultiDetArray::ReplaceTelescope(const Char_t * name,
-                                       KVTelescope * new_kvt)
-{
-    //Replace (and destroy) the named telescope in the array with a telescope cloned
-    //from the prototype given by the pointer new_kvt.
-
-    KVTelescope *kvt = GetTelescope(name);
-    if (!kvt) {
-        Warning("ReplaceTelescope", "Telescope %s not found", name);
-        return;
-    }
-
-    KVRing *ring = (KVRing*)kvt->GetParentStructure("RING");
-    if (!ring) {
-        Error("ReplaceTelescope", "Telescope %s does not belong to a Ring",
-              name);
-        return;
-    }
-    ring->ReplaceTelescope(kvt, new_kvt);
-}
 
 //____________________________________________________________________________________________
 
 KVTelescope *KVASMultiDetArray::GetTelescope(const Char_t * name) const
 {
     // Return pointer to telescope in array with name given by "name"
-    if (!fLayers)
-        return 0;
+    KVSeqCollection* fLayers = GetStructureTypeList("LAYER");
     TIter nextL(fLayers);
     KVLayer *k1;
     KVRing *k2;
     KVTelescope *k3;
     while ((k1 = (KVLayer *) nextL())) { // loop over layers
-        TIter nextR(k1->GetRings());
+        TIter nextR(k1->GetStructures());
         while ((k2 = (KVRing *) nextR())) {       // loop over rings
             TIter nextT(k2->GetTelescopes());
             while ((k3 = (KVTelescope *) nextT())) {
                 if (!strcmp(k3->GetName(), name))
-                    return k3;
+                {delete fLayers;return k3;}
                 // search among telescopes of ring
             }
         }
     }
+    delete fLayers;
     return 0;
 }
 
 
-//_______________________________________________________________________________________
-
-void KVASMultiDetArray::RemoveLayer(KVLayer * lay, Bool_t kDeleteLay)
-{
-    //Remove layer from the MDA's list and delete the layer
-    //(if kDeleteLay=kTRUE : default).
-    //A check is made if the lay belongs to the MDA.
-    //If kDeleteLay=kFALSE layer is not deleted.
-
-    if (fLayers) {
-        if (fLayers->FindObject(lay)) {
-            fLayers->Remove(lay);
-            SetBit(kIsRemoving);   //////set flag tested in KVLayer dtor
-            if (kDeleteLay)
-                delete lay;
-            ResetBit(kIsRemoving); //unset flag tested in KVLayer dtor
-        }
-    }
-}
-
-
-//_______________________________________________________________________________________
-
-void KVASMultiDetArray::RemoveLayer(UInt_t num)
-{
-
-    //remove from the array and destroy the numbered layer given as argument
-
-    KVLayer *lay = GetLayer(num);
-    if (lay)
-        RemoveLayer(lay);
-}
-
-//_______________________________________________________________________________________
-
-void KVASMultiDetArray::RemoveLayer(const Char_t * name)
-{
-
-    //remove from the array and destroy the named layer given as argument
-
-    KVLayer *lay = GetLayer(name);
-    if (lay)
-        RemoveLayer(lay);
-}
 
 //________________________________________________________________________________________
 void KVASMultiDetArray::MakeListOfDetectors()
@@ -280,13 +169,14 @@ void KVASMultiDetArray::MakeListOfDetectors()
 
     fDetectors.Clear();
 
+    KVSeqCollection* fLayers = GetStructureTypeList("LAYER");
     TIter nextL(fLayers);
     KVLayer *k1;
     KVRing *k2;
     KVTelescope *k3;
     KVDetector *k4;
     while ((k1 = (KVLayer *) nextL())) { // loop over layers
-        TIter nextR(k1->GetRings());
+        TIter nextR(k1->GetStructures());
         while ((k2 = (KVRing *) nextR())) {       // loop over rings
             TIter nextT(k2->GetTelescopes());
             while ((k3 = (KVTelescope *) nextT())) {       // loop over telescopes
@@ -302,6 +192,7 @@ void KVASMultiDetArray::MakeListOfDetectors()
 #ifdef KV_DEBUG
     Info("MakeListOfDetectors", "Success");
 #endif
+    delete fLayers;
 }
 
 KVRing *KVASMultiDetArray::GetRing(const Char_t * layer,
@@ -311,7 +202,7 @@ KVRing *KVASMultiDetArray::GetRing(const Char_t * layer,
     KVLayer *tmp = GetLayer(layer);
     KVRing *ring = 0;
     if (tmp) {
-        ring = tmp->GetRing(ring_name);
+        ring = (KVRing*)tmp->GetStructure("RING",ring_name);
     }
     return ring;
 }
@@ -322,7 +213,7 @@ KVRing *KVASMultiDetArray::GetRing(const Char_t * layer, UInt_t ring_number) con
     KVLayer *tmp = GetLayer(layer);
     KVRing *ring = 0;
     if (tmp) {
-        ring = tmp->GetRing(ring_number);
+        ring = (KVRing*)tmp->GetStructure("RING", ring_number);
     }
     return ring;
 }
@@ -333,7 +224,7 @@ KVRing *KVASMultiDetArray::GetRing(UInt_t layer, const Char_t * ring_name) const
     KVLayer *tmp = GetLayer(layer);
     KVRing *ring = 0;
     if (tmp) {
-        ring = tmp->GetRing(ring_name);
+        ring = (KVRing*)tmp->GetStructure("RING", ring_name);
     }
     return ring;
 }
@@ -344,49 +235,11 @@ KVRing *KVASMultiDetArray::GetRing(UInt_t layer, UInt_t ring_number) const
     KVLayer *tmp = GetLayer(layer);
     KVRing *ring = 0;
     if (tmp) {
-        ring = tmp->GetRing(ring_number);
+        ring = (KVRing*)tmp->GetStructure("RING", ring_number);
     }
     return ring;
 }
 
-void KVASMultiDetArray::RemoveRing(const Char_t * layer,
-                                 const Char_t * ring_name)
-{
-    //destroy named ring in named layer
-    if (GetLayer(layer))
-        GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
-}
-
-void KVASMultiDetArray::RemoveRing(const Char_t * layer, UInt_t ring_name)
-{
-    //destroy named ring in named layer
-    if (GetLayer(layer))
-        GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
-}
-
-void KVASMultiDetArray::RemoveRing(UInt_t layer, const Char_t * ring_name)
-{
-    //destroy named ring in named layer
-    if (GetLayer(layer))
-        GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
-}
-
-void KVASMultiDetArray::RemoveRing(UInt_t layer, UInt_t ring_name)
-{
-    //destroy named ring in named layer
-    if (GetLayer(layer))
-        GetLayer(layer)->RemoveRing(GetRing(layer, ring_name));
-}
-
-void KVASMultiDetArray::RemoveRing(KVRing * ring)
-{
-    //search for ring in MDA and remove it
-    if (ring->GetLayer()) {
-        if (GetLayer(ring->GetLayer()->GetName())) {
-            ring->GetLayer()->RemoveRing(ring);
-        }
-    }
-}
 
 //_________________________________________________________________________________
 
@@ -416,17 +269,23 @@ TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Doubl
     TGeoMedium*Vacuum = new TGeoMedium("Vacuum",1, matVacuum);
     TGeoVolume *top = fGeoManager->MakeBox("WORLD", Vacuum,  dx, dy, dz);
     fGeoManager->SetTopVolume(top);
+    KVSeqCollection* fLayers = GetStructureTypeList("LAYER");
     TIter nxt_lay(fLayers); KVLayer* L;
     while( (L = (KVLayer*)nxt_lay()) ){
     	L->AddToGeometry();
     }
+    delete fLayers;
     fGeoManager->CloseGeometry();
     return fGeoManager;
 }
 
 void KVASMultiDetArray::CalculateGroupsFromGeometry()
 {
-    fStructures.Delete();           // clear out (delete) old groups
+    ClearStructures("GROUP");          // clear out (delete) old groups
+
+    const KVSeqCollection* fLayers = GetStructures();
+    ((KVUniqueNameList*)fLayers)->Sort();
+
     TIter nxtlay1(fLayers);
     KVLayer *l1;
     if (fLayers->GetSize() > 1) {
@@ -450,14 +309,14 @@ void KVASMultiDetArray::CalculateGroupsFromGeometry()
 
     nxtlay1.Reset();          // reset loop over layers
         while ((l1 = (KVLayer *) nxtlay1())) {    // loop over layers
-            if (l1->GetRings()) {
-                TIter nxtrng(l1->GetRings());
+            if (l1->GetStructures()) {
+                TIter nxtrng(l1->GetStructures());
                 KVRing *robj;
                 while ((robj = (KVRing *) nxtrng())) {      // loop over rings
                     TIter nxtscp(robj->GetTelescopes());
                     KVTelescope *tobj;
                     while ((tobj = (KVTelescope *) nxtscp())) {      // loop over telescopes
-                        if (!tobj->GetGroup()) {      // orphan telescope
+                        if (!tobj->GetParentStructure("GROUP")) {      // orphan telescope
 
                             KVASGroup *kvg = new KVASGroup();
                             kvg->SetNumber(++fGr);
@@ -483,7 +342,7 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
 // c) if both are in groups already, merge the two groups
     KVASGroup *kvg;
 
-    if (!kt1->GetGroup() && !kt2->GetGroup()) {  // case a)
+    if (!kt1->GetParentStructure("GROUP") && !kt2->GetParentStructure("GROUP")) {  // case a)
 #ifdef KV_DEBUG
         cout << "Making new Group from " << kt1->
         GetName() << " and " << kt2->GetName() << endl;
@@ -496,7 +355,8 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
         kvg->SetDimensions(kt1, kt2);     // set group dimensions from telescopes
         //add to list
         Add(kvg);
-    } else if ((kvg = (KVASGroup*)(kt1->GetGroup())) && !kt2->GetGroup()) {  // case b) - kt1 is already in a group
+    } else if ((kvg = (KVASGroup*)(kt1->GetParentStructure("GROUP")))
+               && !kt2->GetParentStructure("GROUP")) {  // case b) - kt1 is already in a group
 #ifdef KV_DEBUG
         cout << "Adding " << kt2->GetName() << " to group " << kvg->
         GetNumber() << endl;
@@ -505,7 +365,8 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
         kvg->Add(kt2);
         kvg->Sort();              // sort telescopes
         kvg->SetDimensions(kvg, kt2);     //adjust dimensions depending on kt2
-    } else if ((kvg = (KVASGroup*)(kt2->GetGroup())) && !kt1->GetGroup()) {  // case b) - kt2 is already in a group
+    } else if ((kvg = (KVASGroup*)(kt2->GetParentStructure("GROUP")))
+               && !kt1->GetParentStructure("GROUP")) {  // case b) - kt2 is already in a group
 #ifdef KV_DEBUG
         cout << "Adding " << kt1->GetName() << " to group " << kvg->
         GetNumber() << endl;
@@ -514,14 +375,14 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
         kvg->Add(kt1);
         kvg->Sort();              // sort telescopes
         kvg->SetDimensions(kvg, kt1);     //adjust dimensions depending on kt1
-    } else if (kt1->GetGroup() != kt2->GetGroup()) {     //both telescopes already in different groups
+    } else if (kt1->GetParentStructure("GROUP") != kt2->GetParentStructure("GROUP")) {     //both telescopes already in different groups
 #ifdef KV_DEBUG
         cout << "Merging " << kt1->GetGroup()->
         GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
         cout << "because of " << kt1->GetName() << " and " << kt2->
         GetName() << endl;
 #endif
-        MergeGroups((KVASGroup*)kt1->GetGroup(), (KVASGroup*)kt2->GetGroup());
+        MergeGroups((KVASGroup*)kt1->GetParentStructure("GROUP"), (KVASGroup*)kt2->GetParentStructure("GROUP"));
     }
 }
 //_______________________________________________________________________________________

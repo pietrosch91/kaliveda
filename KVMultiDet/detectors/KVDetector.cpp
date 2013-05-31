@@ -69,7 +69,6 @@ Int_t KVDetector::fDetCounter = 0;
 void KVDetector::init()
 {
    //default initialisations
-    fTelescope=0;
    fModules = 0;
    fCalibrators = 0;
    fACQParams = 0;
@@ -95,6 +94,7 @@ void KVDetector::init()
 	fSimMode = kFALSE;
 	fPresent = kTRUE;
 	fDetecting = kTRUE;
+    fParentStrucList.SetCleanup();
 }
 
 KVDetector::KVDetector()
@@ -391,7 +391,7 @@ void KVDetector::Print(Option_t * opt) const
 
 const Char_t *KVDetector::GetArrayName()
 {
-   // This method is called by KVMultiDetArray::MakeListOfDetectors
+   // This method is called by KVASMultiDetArray::MakeListOfDetectors
 	// after the array geometry has been defined (i.e. all detectors have
 	// been placed in the array). The string returned by this method
 	// is used to set the name of the detector.
@@ -986,6 +986,7 @@ void KVDetector::GetVerticesInOwnFrame(TVector3 *corners, Double_t depth, Double
 	Double_t dist_to_back = depth + layer_thickness;
 
 	// get coordinates
+    KVTelescope* fTelescope = (KVTelescope*)GetParentStructure("TELESCOPE");
     if(fTelescope) {
         fTelescope->GetCornerCoordinatesInOwnFrame(corners, depth);
         fTelescope->GetCornerCoordinatesInOwnFrame(&corners[4], dist_to_back);
@@ -1019,6 +1020,8 @@ TGeoVolume* KVDetector::GetGeoVolume()
 
 	if(fTotThickness == 0) GetTotalThicknessInCM(); // calculate sum of absorber thicknesses in centimetres
 	// get from telescope info on relative depth of detector i.e. depth inside telescope
+
+    KVTelescope* fTelescope = (KVTelescope*)GetParentStructure("TELESCOPE");
     if(fTelescope && fDepthInTelescope == 0)
 		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
 
@@ -1096,6 +1099,7 @@ void KVDetector::AddToGeometry()
 	rot2.SetAngles(phi+90., theta, 0.);
 	rot1.SetAngles(-90., 0., 0.);
 	// distance to detector centre = distance to telescope + depth of detector in telescope + half total thickness of detector
+    KVTelescope* fTelescope = (KVTelescope*)GetParentStructure("TELESCOPE");
     Double_t dist_telescope = (fTelescope ? fTelescope->GetDistance() : 0.);
     Double_t dist = dist_telescope + fDepthInTelescope + fTotThickness/2.;
 	// translate detector to correct distance from target (note: reference is CENTRE of detector)
@@ -1158,6 +1162,7 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 {
 	// Return surface area of first layer of detector in mm2.
 
+    KVTelescope* fTelescope = (KVTelescope*)GetParentStructure("TELESCOPE");
     if(fTelescope && fDepthInTelescope == 0)
 		fDepthInTelescope = fTelescope->GetDepthInCM( fTelescope->GetDetectorRank(this) );
 
@@ -1549,11 +1554,12 @@ void KVDetector::SetPresent(Bool_t present)
 	
 	//On passe l etat d un detecteur de present a absent
 	//
-	if ( !fPresent ){
+    KVTelescope* fTelescope = (KVTelescope*)GetParentStructure("TELESCOPE");
+    if ( !fPresent ){
 		
         //Le detecteur etait l unique d un KVTelescope
 		//on retire directement le KVTelescope
-		if (fTelescope->GetDetectors()->GetEntries()==1){
+        if (fTelescope->GetDetectors()->GetEntries()==1){
             KVGroup* gr = (KVGroup*)fTelescope->GetParentStructure("GROUP");
 			
 			gr->PrepareModif(this);
@@ -1621,12 +1627,6 @@ void KVDetector::SetDetecting(Bool_t detecting)
 KVGroup *KVDetector::GetGroup() const
 {
     return (KVGroup*)GetParentStructure("GROUP");
-}
-
-//__________________________________________________________________________
-void KVDetector::SetGroup(KVGroup * kvg)
-{
-   AddParentStructure(kvg);
 }
 
 //_________________________________________________________________________

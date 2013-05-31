@@ -87,7 +87,7 @@ const Char_t *KVPhoswich::GetArrayName()
    //Overrides KVDetector method.
    //Gives name of phoswich as PHOS_01, PHOS_02, etc.
 
-   fFName.Form("PHOS_%02d", GetTelescopeNumber());
+   fFName.Form("PHOS_%02d", GetTelescope()->GetNumber());
    return fFName.Data();
 }
 

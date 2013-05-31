@@ -1112,7 +1112,7 @@ KVGroup *KVMultiDetArray::GetGroupWithDetector(const Char_t * name)
     KVDetector *det = 0;
     KVGroup *grp = 0;
     if ((tel = GetTelescope(name))) {
-        grp = tel->GetGroup();
+        grp = (KVGroup*)tel->GetParentStructure("GROUP");
         return grp;
     }
     if ((det = GetDetector(name))) {

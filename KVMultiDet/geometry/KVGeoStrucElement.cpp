@@ -56,11 +56,46 @@ KVGeoStrucElement::~KVGeoStrucElement()
     Clear();
 }
 
+void KVGeoStrucElement::ClearDetectors(const Char_t *type)
+{
+    // Remove detectors of given type from this structure (default: all detectors)
+    // If they belong to the structure, they will be deleted.
+
+    TList dummy;
+    dummy.AddAll(&fDetectors);
+    TIter next(&dummy);
+    KVDetector* d;
+    while( (d = (KVDetector*)next())){
+        if(!strcmp(type,d->GetType()) || !strcmp(type,"")){
+            Remove(d);
+            if(fDetectors.IsOwner()) delete d;
+        }
+    }
+}
+
+void KVGeoStrucElement::ClearStructures(const Char_t *type)
+{
+    // Remove daughter structures of given type from this structure (default: all detectors)
+    // If they belong to the structure, they will be deleted.
+
+    TList dummy;
+    dummy.AddAll(&fStructures);
+    TIter next(&dummy);
+    KVGeoStrucElement* e;
+    while( (e = (KVGeoStrucElement*)next())){
+        if(!strcmp(type,e->GetType()) || !strcmp(type,"")){
+            Remove(e);
+            if(fStructures.IsOwner()) delete e;
+        }
+    }
+}
+
 void KVGeoStrucElement::Add(KVBase *element)
 {
     // Add a detector or a daughter structure to this structure.
-    // Note that daughter structures are owned by their mother and will be
-    // deleted by her destructor.
+    // Note that daughter structures are by defeault owned by their mother and will be
+    // deleted by her destructor. Call SetOwnsDaughters(kFALSE) to change.
+    // Detectors are not owned by default - call SetOwnsDetectors(kTRUE) to change.
 
     if(element->InheritsFrom(KVDetector::Class())){
         fDetectors.Add(element);
@@ -78,6 +113,7 @@ void KVGeoStrucElement::Add(KVBase *element)
 void KVGeoStrucElement::Remove(KVBase *element)
 {
     // Remove a detector or structure element from this structure
+    // User's responsibility to delete the detector or structure element.
 
     if(element->InheritsFrom(KVDetector::Class())){
         fDetectors.Remove(element);
@@ -94,15 +130,43 @@ void KVGeoStrucElement::Remove(KVBase *element)
 
 void KVGeoStrucElement::Clear(Option_t *opt)
 {
+    // Empty lists of detectors, daughter structures, and parent structures
     fDetectors.Clear();
     fStructures.Clear();
     fParentStrucList.Clear();
+}
+
+KVGeoStrucElement *KVGeoStrucElement::GetStructure(const Char_t *type, Int_t num) const
+{
+    // Get structure with type and number
+
+    KVSeqCollection* typelist = GetStructureTypeList(type);
+    KVGeoStrucElement* elem = (KVGeoStrucElement*)typelist->FindObjectByNumber(num);
+    delete typelist;
+    return elem;
 }
 
 KVGeoStrucElement *KVGeoStrucElement::GetStructure(const Char_t *type, const Char_t *name) const
 {
     // Get structure with type and name
     return (KVGeoStrucElement *)fStructures.FindObjectWithNameAndType(name,type);
+}
+
+KVSeqCollection* KVGeoStrucElement::GetStructureTypeList(const Char_t *type) const
+{
+    // Create and fill a list with all structures of given type which are daughters
+    // of this structure.
+    // DELETE LIST AFTER USE
+
+    return fStructures.GetSubListWithType(type);
+}
+
+KVSeqCollection *KVGeoStrucElement::GetDetectorTypeList(const Char_t *type) const
+{
+    // Create and fill a list with all detectors of given type in this structure.
+    // DELETE LIST AFTER USE
+
+    return fDetectors.GetSubListWithType(type);
 }
 
 KVGeoStrucElement* KVGeoStrucElement::GetParentStructure(const Char_t* type, const Char_t* name) const

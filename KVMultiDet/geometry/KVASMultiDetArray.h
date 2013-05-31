@@ -22,7 +22,7 @@ $Id: KVMultiDetArray.h,v 1.55 2009/03/03 14:27:15 franklan Exp $
 
 #include "KVMultiDetArray.h"
 #include "KVLayer.h"
-class KVRing;
+#include "KVRing.h"
 class KVASGroup;
 
 class KVASMultiDetArray : public KVMultiDetArray {
@@ -30,8 +30,6 @@ class KVASMultiDetArray : public KVMultiDetArray {
 protected:
     UInt_t fCurrentLayerNumber; //! used to number layers
     UInt_t fGr;                 //!used to number groups
-
-    KVSeqCollection *fLayers;             //-> list of layers in array sorted by layer number
 
     virtual void AddToGroups(KVTelescope * kt1, KVTelescope * kt2);
     void SetGroups(KVLayer *, KVLayer *);
@@ -58,34 +56,20 @@ public:
         return (fROOTGeometry?DetectParticle_TGEO(part):DetectParticle_KV(part));
     };
 
-    void AddLayer();
-    void AddLayer(KVLayer * kvl);
     void CalculateGroupsFromGeometry();
-    KVSeqCollection *GetLayers() const {
-        return fLayers;
-    };
     KVLayer *GetLayer(const Char_t * name) const {
         //find layer with name
-        return (KVLayer *) fLayers->FindObject(name);
+        return (KVLayer *)GetStructure("LAYER",name);
     }
-    KVLayer *GetLayer(UInt_t num) const {
+    KVLayer *GetLayer(Int_t num) const {
         //find layer with number
-        return (KVLayer *) fLayers->FindObjectByNumber(num);
+        return (KVLayer *)GetStructure("LAYER",num);
     }
     KVTelescope *GetTelescope(const Char_t *name) const;
     KVRing *GetRing(const Char_t * layer, const Char_t * ring_name) const;
     KVRing *GetRing(const Char_t * layer, UInt_t ring_number) const;
     KVRing *GetRing(UInt_t layer, const Char_t * ring_name) const;
     KVRing *GetRing(UInt_t layer, UInt_t ring_number) const;
-    void RemoveRing(const Char_t * layer, const Char_t * ring_name);
-    void RemoveRing(const Char_t * layer, UInt_t ring_number);
-    void RemoveRing(UInt_t layer, const Char_t * ring_name);
-    void RemoveRing(UInt_t layer, UInt_t ring_number);
-    void RemoveRing(KVRing * ring);
-    void RemoveLayer(KVLayer *, Bool_t kDeleteLay = kTRUE);
-    void RemoveLayer(const Char_t *);
-    void RemoveLayer(UInt_t);
-    void ReplaceTelescope(const Char_t *name, KVTelescope *new_kvt);
 
     virtual Double_t GetSolidAngleByLayerAndRing(const Char_t* layer,UInt_t ring_number) {
         // return the solid angle (msr) for a given KVRing conditioned by the chosen KVLayer
@@ -94,7 +78,7 @@ public:
     virtual Double_t GetSolidAngleByLayer(const Char_t* layer) {
         // return the solid angle (msr) of all the KVRing conditioned by the chosen KVLayer
         Double_t sol_ang=0;
-        KVRing *cou; TIter nxtcou(GetLayer(layer)->GetRings()); while ((cou = (KVRing *) nxtcou())) sol_ang+=cou->GetSolidAngle();
+        KVRing *cou; TIter nxtcou(GetLayer(layer)->GetStructures()); while ((cou = (KVRing *) nxtcou())) sol_ang+=cou->GetSolidAngle();
         return sol_ang;
     }
 

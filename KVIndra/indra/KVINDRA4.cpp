@@ -71,23 +71,23 @@ void KVINDRA4::BuildGeometry()
    //as a guess, use same prototype telescopes as for Ring 2
 
    KVINDRA::BuildGeometry();
-   KVTelescope *proto_cour_1 =
-       (KVTelescope *) fTelescopes->FindObjectByType("Si-CsI Ring2");
-	KVRing* rg = GetTelescope("PHOS_0101")->GetRing();
-	rg->SetTitle("Si-CsI Ring1");
-	rg->SetPrototype(proto_cour_1);
-   ReplaceTelescope("PHOS_0101", proto_cour_1);
-   ReplaceTelescope("PHOS_0102", proto_cour_1);
-   ReplaceTelescope("PHOS_0103", proto_cour_1);
-   ReplaceTelescope("PHOS_0104", proto_cour_1);
-   ReplaceTelescope("PHOS_0105", proto_cour_1);
-   ReplaceTelescope("PHOS_0106", proto_cour_1);
-   ReplaceTelescope("PHOS_0107", proto_cour_1);
-   ReplaceTelescope("PHOS_0108", proto_cour_1);
-   ReplaceTelescope("PHOS_0109", proto_cour_1);
-   ReplaceTelescope("PHOS_0110", proto_cour_1);
-   ReplaceTelescope("PHOS_0111", proto_cour_1);
-   ReplaceTelescope("PHOS_0112", proto_cour_1);
-	rg->GetTelescopes()->Execute("SetType","\"Si-CsI Ring1\"");
+//   KVTelescope *proto_cour_1 =
+//       (KVTelescope *) fTelescopes->FindObjectByType("Si-CsI Ring2");
+//    KVRing* rg = ((KVINDRATelescope*)GetTelescope("PHOS_0101"))->GetRing();
+//	rg->SetTitle("Si-CsI Ring1");
+//	rg->SetPrototype(proto_cour_1);
+//   ReplaceTelescope("PHOS_0101", proto_cour_1);
+//   ReplaceTelescope("PHOS_0102", proto_cour_1);
+//   ReplaceTelescope("PHOS_0103", proto_cour_1);
+//   ReplaceTelescope("PHOS_0104", proto_cour_1);
+//   ReplaceTelescope("PHOS_0105", proto_cour_1);
+//   ReplaceTelescope("PHOS_0106", proto_cour_1);
+//   ReplaceTelescope("PHOS_0107", proto_cour_1);
+//   ReplaceTelescope("PHOS_0108", proto_cour_1);
+//   ReplaceTelescope("PHOS_0109", proto_cour_1);
+//   ReplaceTelescope("PHOS_0110", proto_cour_1);
+//   ReplaceTelescope("PHOS_0111", proto_cour_1);
+//   ReplaceTelescope("PHOS_0112", proto_cour_1);
+//	rg->GetTelescopes()->Execute("SetType","\"Si-CsI Ring1\"");
 	
 }

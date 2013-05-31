@@ -6,6 +6,8 @@
 
 #include "KVTelescope.h"
 
+class KVRing;
+
 class KVINDRATelescope : public KVTelescope
 {
 
@@ -15,6 +17,13 @@ class KVINDRATelescope : public KVTelescope
 
    const Char_t *GetName() const;
    virtual const Char_t *GetArrayName();
+   Int_t GetRingNumber() const;
+   KVRing* GetRing() const;
+   KVGroup* GetGroup() const;
+   Bool_t IsSortable() const {
+      return kTRUE;
+   };
+   Int_t Compare(const TObject * obj) const;
 
    ClassDef(KVINDRATelescope,1)//A detector telescope in the INDRA array
 };

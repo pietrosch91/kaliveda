@@ -107,7 +107,7 @@ const Char_t *KVBIC::GetArrayName()
 {
    //Give name of detector as BIC_x with x=number of blocking telescope
 
-   fFName = TString("BIC_") + Form("%d", GetTelescopeNumber());
+   fFName = TString("BIC_") + Form("%d", GetTelescope()->GetNumber());
    return fFName.Data();
 }
 
@@ -124,7 +124,7 @@ void KVBIC::AddACQParam(const Char_t * type)
       fACQParams = new KVList();
    KVACQParam *par = new KVACQParam();
    TString name;
-   name.Form("CI_16%02d_%s", GetTelescopeNumber(), type);
+   name.Form("CI_16%02d_%s", GetTelescope()->GetNumber(), type);
    par->SetName(name);
    par->SetDetector(this);
    par->SetType(type);
@@ -144,7 +144,7 @@ KVACQParam *KVBIC::GetACQParam(const Char_t * type)
       return 0;
    }
    TString name;
-   name.Form("CI_16%02d_%s", GetTelescopeNumber(), type);
+   name.Form("CI_16%02d_%s", GetTelescope()->GetNumber(), type);
    return ((KVACQParam *) fACQParams->FindObjectWithNameAndType(name, type));
 }
 

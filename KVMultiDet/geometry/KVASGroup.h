@@ -5,6 +5,7 @@
 #define __KVASGROUP_H
 
 #include "KVGroup.h"
+#include "KVTelescope.h"
 
 class KVASGroup : public KVGroup, public KVPosition
 {
@@ -37,8 +38,11 @@ protected:
    TList *GetAlignedDetectors(KVDetector *, UChar_t dir = kBackwards);
    void AnalyseAndReconstruct(KVReconstructedEvent *);
    void GetIDTelescopes(TCollection *);
-   virtual void Print(Option_t * t = "") const;
    void AnalyseTelescopes(KVReconstructedEvent *event, TList *kvtl);
+
+   void Add(KVBase*);
+   Bool_t Contains(KVBase *name) const;
+   const KVSeqCollection* GetTelescopes() const { return GetStructures(); }
 
    ClassDef(KVASGroup,1)//Group in axially-symmetric multidetector
 };

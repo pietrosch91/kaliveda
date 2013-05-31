@@ -40,12 +40,12 @@ void KVINDRAe475s::MakeListOfDetectorTypes()
 {
    //Add Si150um detectors to standard INDRA list
 
-   KVINDRA4::MakeListOfDetectorTypes();
+//   KVINDRA4::MakeListOfDetectorTypes();
 
-	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 150.0);
-	//kvsi->SetThickness(150.0);
-	kvsi->SetLabel("SI150");
-	fDetectorTypes->Add(kvsi);
+//	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",gDataSet->GetName()), 150.0);
+//	//kvsi->SetThickness(150.0);
+//	kvsi->SetLabel("SI150");
+//	fDetectorTypes->Add(kvsi);
 }
 
 //____________________________________________________________________________________
@@ -54,29 +54,29 @@ void KVINDRAe475s::PrototypeTelescopes()
 {
    //Make Si150-Csixxcm telescope prototypes for rings 6 & 7
 
-   KVINDRA4::PrototypeTelescopes();
+//   KVINDRA4::PrototypeTelescopes();
 
-   // Si-CsI Ring 6
-   KVINDRATelescope *kvt = new KVINDRATelescope;
-   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-                    FindObjectByLabel("SI150"));
-   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
-   kvt->SetType("Si150-CsI Ring6");
-   kvt->SetAzimuthalWidth(14.29);
-	kvt->SetDepth(1, 0.0);
-	kvt->SetDepth(2, 5.0);
-   fTelescopes->Add(kvt);
+//   // Si-CsI Ring 6
+//   KVINDRATelescope *kvt = new KVINDRATelescope;
+//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
+//                    FindObjectByLabel("SI150"));
+//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
+//   kvt->SetType("Si150-CsI Ring6");
+//   kvt->SetAzimuthalWidth(14.29);
+//	kvt->SetDepth(1, 0.0);
+//	kvt->SetDepth(2, 5.0);
+//   fTelescopes->Add(kvt);
 
-   // Si-CsI Ring 7
-   kvt = new KVINDRATelescope;
-   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-                    FindObjectByLabel("SI150"));
-   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
-   kvt->SetType("Si150-CsI Ring7");
-   kvt->SetAzimuthalWidth(14.48);
-	kvt->SetDepth(1, 0.0);
-	kvt->SetDepth(2, 5.0);
-   fTelescopes->Add(kvt);
+//   // Si-CsI Ring 7
+//   kvt = new KVINDRATelescope;
+//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
+//                    FindObjectByLabel("SI150"));
+//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
+//   kvt->SetType("Si150-CsI Ring7");
+//   kvt->SetAzimuthalWidth(14.48);
+//	kvt->SetDepth(1, 0.0);
+//	kvt->SetDepth(2, 5.0);
+//   fTelescopes->Add(kvt);
 }
 
 //____________________________________________________________________________________
@@ -88,22 +88,22 @@ void KVINDRAe475s::BuildGeometry()
    //      - no ChIo after ring 12
    //      - all silicons on rings 6&7 are 150um thick
 
-   KVINDRA4::BuildGeometry();
-   // ring 6
-   for (int i = 1; i <= 24; i++)
-      ReplaceTelescope(Form("SI_CSI_06%02d", i),
-                       (KVTelescope *) fTelescopes->
-                       FindObjectByType("Si150-CsI Ring6"));
-   // ring 7
-   for (int i = 1; i <= 24; i++)
-      ReplaceTelescope(Form("SI_CSI_07%02d", i),
-                       (KVTelescope *) fTelescopes->
-                       FindObjectByType("Si150-CsI Ring7"));
+//   KVINDRA4::BuildGeometry();
+//   // ring 6
+//   for (int i = 1; i <= 24; i++)
+//      ReplaceTelescope(Form("SI_CSI_06%02d", i),
+//                       (KVTelescope *) fTelescopes->
+//                       FindObjectByType("Si150-CsI Ring6"));
+//   // ring 7
+//   for (int i = 1; i <= 24; i++)
+//      ReplaceTelescope(Form("SI_CSI_07%02d", i),
+//                       (KVTelescope *) fTelescopes->
+//                       FindObjectByType("Si150-CsI Ring7"));
 
-   RemoveRing("SI-CSI", 1);
-   RemoveRing("CHIO", 13);
-   RemoveRing("CHIO", 14);
-   RemoveRing("CHIO", 16);
+//   RemoveRing("SI-CSI", 1);
+//   RemoveRing("CHIO", 13);
+//   RemoveRing("CHIO", 14);
+//   RemoveRing("CHIO", 16);
 }
 
 //_________________________________________________________________________________________

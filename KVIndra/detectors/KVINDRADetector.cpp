@@ -26,7 +26,7 @@ KVINDRADetector::KVINDRADetector()
 
 KVINDRADetector::~KVINDRADetector()
 {
-   // Destructor
+    // Destructor
 }
 
 const Char_t *KVINDRADetector::GetArrayName()
@@ -148,7 +148,7 @@ KVINDRADetector*KVINDRADetector::FindChIo()
    if (GetTelescope()) {
       KVGroup *kvgr = GetTelescope()->GetGroup();
       if (kvgr) {
-         KVList *dets = kvgr->GetDetectors();
+         const KVSeqCollection *dets = kvgr->GetDetectors();
          TIter next_det(dets);
          KVINDRADetector *dd;
          while ((dd = (KVINDRADetector *) next_det())) {

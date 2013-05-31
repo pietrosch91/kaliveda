@@ -52,7 +52,6 @@ private:
     KVGeoDetectorNode fNode;//positioning information relative to other detectors
     static Int_t fDetCounter;
     Short_t fActiveLayer;        //The active absorber in the detector
-    KVTelescope* fTelescope;     //! (potentially) telescope in which detector is situated
     KVList *fIDTelescopes;       //->list of ID telescopes to which detector belongs
     KVList *fIDTelAlign;         //->list of ID telescopes made of this detector and all aligned detectors placed in front of it
     TList *fIDTele4Ident;  //!list of ID telescopes used for particle ID
@@ -62,7 +61,6 @@ private:
         kActiveSet = BIT(15),     //internal - flag set true when SetActiveLayer called
         kUnidentifiedParticle = BIT(16),  //set if detector is in an unidentified particle's list
         kIdentifiedParticle = BIT(17),    //set if detector is in an identified particle's list
-        kIsBeingDeleted = BIT(18) //set when clearing ID telescopes list in destructor
     };
 
     Int_t fIdentP;               //! temporary counters, determine state of identified/unidentified particle flags
@@ -292,10 +290,6 @@ public:
         return TestBit(kIdentifiedParticle);
     };
 
-    Bool_t IsBeingDeleted() {
-        return TestBit(kIsBeingDeleted);
-    };
-
     static KVDetector *MakeDetector(const Char_t * name, Float_t thick);
     const TVector3& GetNormal();
 
@@ -393,7 +387,6 @@ public:
     virtual void DeduceACQParameters(Int_t /*zz*/=-1,Int_t /*aa*/=-1){};
 
     KVGroup *GetGroup() const;
-    void SetGroup(KVGroup * kvg);
     UInt_t GetGroupNumber();
 
     void AddParentStructure(KVGeoStrucElement*elem);

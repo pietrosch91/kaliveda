@@ -15,14 +15,21 @@ ClassImp(KVTelescope)
 /////////////////////////////////////////////////////////////////////////
 // KVTelescope
 //
-//An assembly of one or more layers of detectors, all having the same angular position and acceptance constitutes a detector telescope.
-//Such a telescope can become part of a KVMultiDetArray by being placed in a KVRing inside one of the array's KVLayers.
+// An assembly of one or more layers of detectors, usually any particle
+// traversing the layer closest to the target will then traverse all
+// subsequent layers of the telescope (if it has sufficient energy).
 //
-//Begin_Html<H3>Inline Methods</H3>End_Html
-// inline Bool_t KVTelescope::Fired(Option_t* opt) const
-// {
-//      //returns kTRUE if at least one detector has KVDetector::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
-
+// Telescope structures own their detectors, and will delete them when
+// the telescope is deleted.
+//
+// As detectors are added, we automatically set the KVDetectorNode
+// information as they are supposed to be placed one behind the other.
+//
+// In imported ROOT geometries (see KVGeoImport), you can trigger the creation
+// of a KVTelescope structure by using a node name of the type
+//
+//     STRUCT_TELESCOPE_[number]
+//
     KVTelescope::KVTelescope()
 {
    init();
@@ -33,85 +40,40 @@ void KVTelescope::init()
 {
    //default initialisation. a KVList is created to hold telescope detectors.
    //the telescope owns its detectors and will delete them when deleted itself.
-   fDetectors = new KVList;
-   fDetectors->SetCleanup();
    fNdets = 0;
    fDepth = 0;
+   SetType("TELESCOPE");
+   SetOwnsDetectors();
 }
 
 //____________________________________________________________________________
 
 KVTelescope::~KVTelescope()
 {
-   //The detectors of a KVTelescope belong to it:
-   //therefore it destroys them when the dtor is called.
-
-   if (fDetectors && fDetectors->TestBit(kNotDeleted)) {
-      fDetectors->Delete();
-      delete fDetectors;
-   }
-   fDetectors = 0;
    if (fDepth)
       delete[]fDepth;
    fDepth = 0;
    fNdets = 0;
 }
 
-//______________________________________________________________________________
-void KVTelescope::AddClone(KVDetector * d, const int fcon)
-{
-   //Add a "clone" of the detector prototype 'd' to the telescope.
-   //For backwards compatibility, this is the same as 'AddDetector'.
-   //Use 'Add' if you want the 'prototype' to belong to the telescope.
-   AddDetector(d, fcon);
-}
-
-//______________________________________________________________________________
-void KVTelescope::AddDetector(KVDetector * d, const int fcon)
-{
-    //Add a "clone" of the detector prototype 'd' to the telescope.
-    //The prototype can be used for several different telescopes and it is the
-    //user's responsibility to delete it.
-    //The order of adding the layers to the telescope is the order
-    //in which any incident particle will see the detectors when traversing
-    //the telescope.
-
-    if (d) {
-        KVDetector *tmp = (KVDetector *) d->Clone();
-        if ((tmp ? tmp->IsZombie() : !tmp)) {
-            Fatal("AddDetector", "Cloning of detector failed");
-            d->Print();
-            return;
-        }
-        fDetectors->Add(tmp);
-
-        if (fcon == KVD_RECPRC_CNXN)
-            tmp->AddParentStructure(this);
-    } else {
-        Warning("AddDetector", "Null pointer passed as argument");
-    }
-}
-
-//______________________________________________________________________________
-void KVTelescope::Add(KVDetector * d, const int fcon)
-{
-//Add the detector 'd' to the telescope. This detector belongs to the telescope
-//and will be destroyed when the telescope is destroyed.
-//The order of adding the layers to the telescope is the order
-//in which any incident particle will see the detectors when traversing
-//the telescope.
-
-   if (d) {
-      fDetectors->Add(d);
-      if (fcon == KVD_RECPRC_CNXN)
-         d->AddParentStructure(this);
-   } else {
-       Warning("AddDetector", "Null pointer passed as argument");
-   }
-}
-
-
 //_________________________________________________________________________________
+void KVTelescope::Add(KVBase *element)
+{
+    // Add a detector or a daughter structure to this telescope.
+    // For detectors we set up the KVDetectorNode (in front of - behind
+    // relationships) information.
+
+    if(element->InheritsFrom(KVDetector::Class())){
+        Int_t ndets = GetSize();
+        if(ndets){
+            KVDetector* d=dynamic_cast<KVDetector*>(element);
+            KVDetector* ld=GetDetector(ndets);
+            ld->GetNode()->AddBehind(d);
+            d->GetNode()->AddInFront(ld);
+        }
+    }
+    KVGeoStrucElement::Add(element);
+}
 
 void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
 {
@@ -150,41 +112,8 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
     }
 }
 
-//_______________________________________________________________________________
-void KVTelescope::Print(Option_t * opt) const
-{
-// print out telescope structure
-//if opt="angles" the angular position is printed
-//if opt="fired" only fired detectors are printed
-
-   TIter next(fDetectors);
-   KVDetector *obj;
-   if (!strcmp(opt, "angles")) {
-      cout << "--> KVTelescope: Thetamin =" << GetThetaMin() <<
-          " Thetamax=" << GetThetaMax()
-          << " Phimin=" << GetPhiMin() << " Phimax=" << GetPhiMax() <<
-          endl;
-   } else if (!strcmp(opt, "fired")) {
-      while ((obj = (KVDetector *) next())) {
-
-         if (obj->Fired())
-            obj->Print("data");
-      }
-   } else {
-      cout << "\n" << opt << "Structure of KVTelescope object: " <<
-          ((KVTelescope *) this)->GetName() << " " << GetType() << endl;
-      cout << opt <<
-          "--------------------------------------------------------" <<
-          endl;
-      while ((obj = (KVDetector *) next())) {
-         cout << opt << "Detector: " << obj->GetName() << endl;
-      }
-   }
-}
-
-
 //_________________________________________________________________________
-UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)
+Int_t KVTelescope::GetDetectorRank(KVDetector * kvd)
 {
    //returns position (1=front, 2=next, etc.) detector in the telescope structure
     if ((KVTelescope*)kvd->GetParentStructure("TELESCOPE") != this) {
@@ -192,7 +121,7 @@ UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)
       cout << endl;
       return 0;
    }
-   TIter next(fDetectors);
+    TIter next(GetDetectors());
    KVDetector *d;
    UInt_t i = 1;
    while ((d = (KVDetector *) next())) {
@@ -203,168 +132,12 @@ UInt_t KVTelescope::GetDetectorRank(KVDetector * kvd)
    return 0;
 }
 
-//______________________________________________________________________
-KVDetector *KVTelescope::GetDetector(const Char_t * name) const
-{
-   //Return a pointer to the detector in the telescope with the name "name".
-   //
-   KVDetector *tmp = (KVDetector *) fDetectors->FindObjectByName(name);
-   if (!tmp)
-      Warning("GetDetector(const Char_t *name)",
-              "Detector %s not found in telescope %s", name, GetName());
-   return tmp;
-}
-
-//__________________________________________________________________________
-Int_t KVTelescope::Compare(const TObject * obj) const
-{
-   // telescopes are sorted
-   // (i) according to layer number if they are in different layers
-   // (ii) according to lower edge polar angle if they belong to the same layer
-   // (iii) according to telescope number if they belong to the same ring
-
-//   if (((KVTelescope *) this)->GetLayerNumber() !=
-//       ((KVTelescope *) obj)->GetLayerNumber()) {
-//// not in the same layer - sort according to layer number, smallest first
-////(closest to target)
-//      if (((KVTelescope *) this)->GetLayerNumber() <
-//          ((KVTelescope *) obj)->GetLayerNumber())
-//         return -1;
-//      else if (((KVTelescope *) this)->GetLayerNumber() >
-//               ((KVTelescope *) obj)->GetLayerNumber())
-//         return 1;
-//      else
-//         return 0;
-//   }
-//   if (((KVTelescope *) this)->GetRingNumber() !=
-//       ((KVTelescope *) obj)->GetRingNumber()) {
-//// not in the same ring - sort according to lower edge polar angle
-//      if (((KVTelescope *) this)->GetThetaMin() <
-//          ((KVTelescope *) obj)->GetThetaMin())
-//         return -1;
-//      else if (((KVTelescope *) this)->GetThetaMin() >
-//               ((KVTelescope *) obj)->GetThetaMin())
-//         return 1;
-//      else
-//         return 0;
-//   }
-//   if (((KVTelescope *) this)->GetRingNumber() ==
-//       ((KVTelescope *) obj)->GetRingNumber()) {
-//// same ring - sort according to telescope number
-//      if (((KVTelescope *) this)->GetNumber() <
-//          ((KVTelescope *) obj)->GetNumber())
-//         return -1;
-//      else if (((KVTelescope *) this)->GetNumber() >
-//               ((KVTelescope *) obj)->GetNumber())
-//         return 1;
-//      else
-//         return 0;
-//   }
-    Warning("Compare", "Needs reimplementing");
-   return 0;
-}
 
 //_______________________________________________________________________________
 void KVTelescope::ResetDetectors()
 {
    // Reset Energy losses to be ready for the next event
-   fDetectors->Execute("Clear", "");
-}
-
-//___________________________________________________________________________________________
-Bool_t KVTelescope::ContainsType(const Char_t * type) const
-{
-   //Returns kTRUE if the telescope contains a detector of given type (KVDetector::GetType())
-   TIter nextdet(fDetectors);
-   KVDetector *kvd;
-   while ((kvd = (KVDetector *) nextdet())) {
-      TString dtype(kvd->GetType());
-      if (dtype.Contains(type))
-         return kTRUE;
-   }
-   return kFALSE;
-}
-
-//___________________________________________________________________________________________
-void KVTelescope::RemoveDetectors(const Char_t * type)
-{
-   //Remove all detectors of given type (KVDetector::GetType())
-   TIter nextdet(fDetectors);
-   KVDetector *kvd;
-   while ((kvd = (KVDetector *) nextdet())) {
-      TString dtype(kvd->GetType());
-      if (dtype == type)
-         RemoveDetector(kvd);
-   }
-}
-
-
-//___________________________________________________________________________
-
-void KVTelescope::ReplaceDetector(KVDetector * kvd, KVDetector * new_kvd)
-{
-   //Replace (and destroy) given detector with a clone of the new prototype.
-
-   //get index of detector in telescope's list
-   Int_t det_num = fDetectors->IndexOf(kvd);
-   if (det_num < 0) {
-      Error("ReplaceDetector", "Detector %s not found", kvd->GetName());
-      return;
-   }
-   //now remove old detector
-   RemoveDetector(kvd, kTRUE, kFALSE);
-   //clone prototype
-   KVDetector *new_det = (KVDetector *) new_kvd->Clone();
-   //put new detector in place of old one in telescope
-   fDetectors->AddAt(new_det, det_num);
-   new_det->AddParentStructure(this);
-}
-
-void KVTelescope::ReplaceDetector(const Char_t * name,
-                                  KVDetector * new_kvd)
-{
-   //Replace (and destroy) named detector with a clone of the new prototype.
-
-   ReplaceDetector(GetDetector(name), new_kvd);
-}
-
-
-//____________________________________________________________________________
-
-void KVTelescope::RemoveDetector(const Char_t * name)
-{
-   //Remove and destroy the named detector.
-
-   KVDetector *det = 0;
-   if ((det = GetDetector(name))) {
-      RemoveDetector(det);
-   }
-}
-
-//____________________________________________________________________________
-
-void KVTelescope::RemoveDetector(KVDetector * det, Bool_t kDeleteDetector,
-                                 Bool_t kDeleteEmptyTelescope)
-{
-   //Remove detector from the telescope's list and delete the detector
-   //(if kDeleteDetector=kTRUE : default).
-   //A check is made if the detector belongs to the telescope.
-   //If kDeleteDetector=kFALSE detector is not deleted.
-   //If there are no more detectors after this, delete the telescope
-   //(unless kDeleteEmptyTelescope=kFALSE).
-
-   if (fDetectors) {
-      if (fDetectors->FindObject(det)) {
-         fDetectors->Remove(det);
-         SetBit(kIsRemoving);   //////set flag tested in KVDetector::~KVDetector
-         if (kDeleteDetector)
-            delete det;
-         ResetBit(kIsRemoving); //unset flag tested in KVDetector::~KVDetector
-      }
-      //destroy this telescope if there are no detectors left in it
-      if (fDetectors->GetSize() == 0 && kDeleteEmptyTelescope)
-         Delete();
-   }
+   const_cast<KVSeqCollection*>(GetDetectors())->Execute("Clear", "");
 }
 
 //__________________________________________________________________________________
@@ -392,7 +165,7 @@ void KVTelescope::SetDepth(UInt_t ndet, Float_t depth)
 
 //__________________________________________________________________________________
 
-Float_t KVTelescope::GetDepth(UInt_t ndet) const
+Float_t KVTelescope::GetDepth(Int_t ndet) const
 {
    //get depth of detector ndet(=1,2,...) in mm
    if (!fDepth) {
@@ -424,48 +197,6 @@ Float_t KVTelescope::GetDepth() const
    return sum;
 }
 
-//__________________________________________________________________________________
-
-void KVTelescope::SetDetectorThickness(const Char_t * detector,
-                                       Double_t thickness)
-{
-   //Set thickness of detector belonging to this telescope
-
-   KVDetector *det = GetDetector(detector);
-   if (det)
-      det->SetThickness(thickness);
-}
-
-//__________________________________________________________________________________
-
-void KVTelescope::SetDetectorTypeThickness(const Char_t * detector_type,
-                                           Double_t thickness)
-{
-   //Set thickness of all detectors of given type belonging to this telescope
-   TIter nextdet(fDetectors);
-   KVDetector *kvd;
-   while ((kvd = (KVDetector *) nextdet())) {
-      TString dtype(kvd->GetType());
-      if (dtype == detector_type)
-         kvd->SetThickness(thickness);
-   }
-}
-
-//___________________________________________________________________________________________
-
-KVDetector *KVTelescope::GetDetectorType(const Char_t * type) const
-{
-   //Returns first instance of a detector with given type (KVDetector::GetType()) belonging to telescope
-   TIter nextdet(fDetectors);
-   KVDetector *kvd;
-   while ((kvd = (KVDetector *) nextdet())) {
-      TString dtype(kvd->GetType());
-      if (dtype == type)
-         return kvd;
-   }
-   return 0;
-}
-
 //___________________________________________________________________________________________
 
 TGeoVolume* KVTelescope::GetGeoVolume()
@@ -481,7 +212,7 @@ TGeoVolume* KVTelescope::GetGeoVolume()
 	// total length of telescope = depth of last detector + thickness of last detector
 	Double_t tot_len_tel =  GetTotalLengthInCM();
 	//**** BUILD & ADD DETECTOR VOLUMES ****
-	TIter next(fDetectors); KVDetector *det;
+    TIter next(GetDetectors()); KVDetector *det;
 	while( (det = (KVDetector*)next()) ){
 		TGeoVolume* det_vol = det->GetGeoVolume();
 		// position detector in telescope	

@@ -15,7 +15,7 @@ class KVGeoStrucElement : public KVBase
 protected:
     KVUniqueNameList fDetectors;       //detectors in this structure element
     KVUniqueNameList fStructures;      //daughter structures
-    KVUniqueNameList fParentStrucList;         //parent structures
+    KVUniqueNameList fParentStrucList; //parent structures
 
     void AddParentStructure(KVGeoStrucElement*);
     void RemoveParentStructure(KVGeoStrucElement*);
@@ -24,6 +24,30 @@ public:
     KVGeoStrucElement();
     KVGeoStrucElement(const Char_t* name, const Char_t* type = "");
     virtual ~KVGeoStrucElement();
+
+    void SetOwnsDaughters(Bool_t yes = kTRUE)
+    {
+        // yes = kTRUE: all daughter structures will be deleted by this
+        // yes = kFALSE: daughter structures will not be deleted by this
+        fStructures.SetOwner(yes);
+    }
+
+    void SetOwnsDetectors(Bool_t yes = kTRUE)
+    {
+        // yes = kTRUE: all detectors will be deleted by this
+        // yes = kFALSE: detectors will not be deleted by this
+        fDetectors.SetOwner(yes);
+    }
+
+    void Sort(Bool_t order = kSortAscending)
+    {
+        SortStructures(order);
+        SortDetectors(order);
+    }
+    void SortStructures(Bool_t order = kSortAscending) { fStructures.Sort(order); }
+    void SortDetectors(Bool_t order = kSortAscending) { fDetectors.Sort(order); }
+    void ClearDetectors(const Char_t* type = "");
+    void ClearStructures(const Char_t* type = "");
 
     virtual void Add(KVBase*);
     virtual void Remove(KVBase*);
@@ -40,17 +64,25 @@ public:
         return (GetStructures()->FindObject(name)!=0);
     }
 
-    KVGeoStrucElement* GetStructure(const Char_t* name)
+    KVGeoStrucElement* GetStructure(const Char_t* name) const
     {
         // Return daughter structure with given name
         return (KVGeoStrucElement*)fStructures.FindObject(name);
     }
+    KVGeoStrucElement* GetStructure(const Char_t* type, Int_t num) const;
     KVGeoStrucElement* GetStructure(const Char_t *type, const Char_t *name) const;
+    KVSeqCollection* GetStructureTypeList(const Char_t *type) const;
     KVDetector* GetDetector(const Char_t* name) const
     {
         // Return detector in this structure with given name
         return (KVDetector*)fDetectors.FindObject(name);
     }
+    KVDetector* GetDetectorByType(const Char_t* type) const
+    {
+        // Return detector in this structure with given type
+        return (KVDetector*)fDetectors.FindObjectByType(type);
+    }
+    KVSeqCollection* GetDetectorTypeList(const Char_t *type) const;
     KVDetector* GetDetectorAny(const Char_t* name)
     {
         // Return detector in structure with given name.
@@ -80,7 +112,7 @@ public:
     {
         return &fParentStrucList;
     }
-    Bool_t Fired(Option_t* opt = "any") const
+    virtual Bool_t Fired(Option_t* opt = "any") const
     {
         // Returns kTRUE if any detector or structure element in this structure
         // has 'Fired' with the given option

@@ -2,7 +2,6 @@
 #include "KVGroup.h"
 #include "KVNucleus.h"
 #include "KVList.h"
-#include "KVTelescope.h"
 #include "KVDetector.h"
 #include "KVMultiDetArray.h"
 #include "KVLayer.h"
@@ -17,20 +16,6 @@ using namespace std;
 
 ClassImp(KVGroup)
 
-////////////////////////////////////////////////////////////////////
-//KVGroup
-//
-//The notion of a "group" of telescopes is used to associate detectors in different layers (in principle with different geometries) through which
-//particles leaving the target may pass. This is essential for particle reconstruction in the case where the detectors in one layer of the array have a larger angular
-//acceptance than the others: the KVGroup contains all the detectors/telescopes which are either in front of or behind this "widest" detector.
-//The KVGroup is the smallest unit of the multidetctor array structure which can be treated independently of all the rest, especially concerning particle reconstruction.
-//
-//Begin_Html<H3>Inline Methods</H3>End_Html
-// inline Bool_t KVGroup::Fired(Option_t* opt) const
-// {
-//      //returns kTRUE if at least one telescope has KVTelescope::Fired(opt) = kTRUE (see KVDetector::Fired() method for options)
-
-//_____________________________________________________________________________________
 
 KVGroup::KVGroup()
 {
@@ -41,10 +26,12 @@ KVGroup::KVGroup()
 
 void KVGroup::init()
 {
-   //Default initialisation
+    // Default initialisation
+    // KVGroup does not own the structures which it groups together
 
    fReconstructedNuclei = 0;
    SetType("GROUP");
+   SetOwnsDaughters(kFALSE);
 }
 
 //_____________________________________________________________________________________

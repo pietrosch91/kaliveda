@@ -142,11 +142,6 @@ public:
         return (GetStoppingDetector() ?  GetStoppingDetector()->GetGroup() : 0);
     };
 
-    KVTelescope *GetTelescope() const
-    {
-        //Return pointer to telescope (detector stack) in which the particle is detected
-        return (GetStoppingDetector() ?  (KVTelescope*)GetStoppingDetector()->GetParentStructure("TELESCOPE") : 0);
-    };
 
     void AddDetector(KVDetector *);
 
