@@ -657,17 +657,14 @@ INDRADB.Runlist.Log:      Cahier
 # There must be an entry here for each dataset
 # Syntax:
 # Plugin.KVMultiDetArray:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
-Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
-+Plugin.KVMultiDetArray:    INDRA_camp2    KVINDRA2     KVIndra    "KVINDRA2()"
-+Plugin.KVMultiDetArray:    INDRA_camp4    KVINDRA4     KVIndra    "KVINDRA4()"
-+Plugin.KVMultiDetArray:    INDRA_camp5    KVINDRA5     KVIndra    "KVINDRA5()"
-+Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndra    "KVINDRAFNL()"
+Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndra    "KVINDRAFNL()"
 +Plugin.KVMultiDetArray:    INDRA_e475s    KVINDRAe475s     KVIndra    "KVINDRAe475s()"
 +Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
 +Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
++Plugin.KVMultiDetArray:    INDRA*    KVINDRA     KVIndra    "KVINDRA()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
@@ -841,14 +838,14 @@ INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SIL
 INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 
 #================================ Plugins for detectors
-#Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
-Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t)"
+Plugin.KVDetector:      PHOS      KVPhoswich      KVIndra      "KVPhoswich(Float_t)"
++Plugin.KVDetector:      ^SI$      KVSilicon      KVIndra      "KVSilicon(Float_t)"
 +Plugin.KVDetector:      INDRA_e475s.SI      KVSilicon_e475s      KVIndra      "KVSilicon_e475s(Float_t)"
 +Plugin.KVDetector:      ^SILI$      KVSiLi      KVIndra      "KVSiLi(Float_t)"
 +Plugin.KVDetector:      ^SI75$      KVSi75      KVIndra      "KVSi75(Float_t)"
 #+Plugin.KVDetector:      ^SIB$      KVSiB      KVIndra      "KVSiB()"
-+Plugin.KVDetector:	CI                                      KVChIo                  KVIndra          "KVChIo(Float_t,Float_t)"
-+Plugin.KVDetector:	INDRA_e475s.CI                                      KVChIo_e475s                  KVIndra          "KVChIo_e475s(Float_t,Float_t)"
++Plugin.KVDetector:	CI             KVChIo      KVIndra      "KVChIo(Float_t,Float_t)"
++Plugin.KVDetector:	INDRA_e475s.CI   KVChIo_e475s    KVIndra      "KVChIo_e475s(Float_t,Float_t)"
 #+Plugin.KVDetector:   BIC                                      KVBIC                  KVIndra          "KVBIC()"
 +Plugin.KVDetector: CSI             KVCsI       KVIndra  "KVCsI(Float_t)"
 +Plugin.KVDetector: INDRA_e475s.CSI KVCsI_e475s KVIndra  "KVCsI_e475s(Float_t)"

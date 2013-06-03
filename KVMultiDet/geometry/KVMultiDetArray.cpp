@@ -97,6 +97,8 @@ void KVMultiDetArray::init()
 
     fGeoManager=0;
     fNavigator=0;
+    
+    if(!gIDGridManager) new KVIDGridManager;
 }
 
 //___________________________________________________________________________________
@@ -1470,15 +1472,11 @@ KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
     //Static function which will create and 'Build' the multidetector object corresponding to 'name'
     //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
     //
-    //Plugin.KVMultiDet:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
-    //+Plugin.KVMultiDet:    INDRA_camp2    KVINDRA2     KVIndra    "KVINDRA2()"
-    //+Plugin.KVMultiDet:    INDRA_camp4    KVINDRA4     KVIndra    "KVINDRA4()"
-    //+Plugin.KVMultiDet:    INDRA_camp5    KVINDRA5     KVIndra5    "KVINDRA5()"
+    //Plugin.KVMultiDet:    [dataset]    [classname]     [library]    "[constructor]()"
     //
-    //The 'name' ("INDRA_camp1" etc.) corresponds to the name of a dataset in $KVROOT/KVFiles/manip.list
     //The constructors/macros are always without arguments
     //
-    //This name is stored in fDataSet
+    //Dataset name is stored in fDataSet
 
     //check and load plugin library
     TPluginHandler *ph;

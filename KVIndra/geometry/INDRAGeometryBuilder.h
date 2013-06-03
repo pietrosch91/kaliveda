@@ -55,6 +55,7 @@ public:
    void PlaceFrame(Double_t phi);
    void PlaceDetector();
    void MakeRing(const Char_t* det, int ring);
+   void MakeEtalon(int RING);
    void ReflectPad(TVector3* orig, Double_t phicentre, TVector3* newpad);
    void CloseAndDraw();
 

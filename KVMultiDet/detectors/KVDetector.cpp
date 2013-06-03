@@ -5,8 +5,8 @@
 #include "TBuffer.h"
 #include "KVDetectorBrowser.h"
 #include "KVModule.h"
-#include "KVRing.h"
-#include "KVLayer.h"
+#include "KVUnits.h"
+#include "KVTelescope.h"
 #include "KVGroup.h"
 #include "KVIDTelescope.h"
 #include "KVCalibrator.h"
@@ -1043,6 +1043,8 @@ TGeoVolume* KVDetector::GetGeoVolume()
 		// get medium for absorber
 		med = abs->GetGeoMedium();
 		Double_t thick = abs->GetThickness();
+      // do not include layers with zero thickness
+      if(thick==0.0) continue;
 		GetVerticesInOwnFrame(coords, fDepthInTelescope+depth_in_det, thick);
 		for(register int i=0;i<8;i++){
 			vertices[2*i] = coords[i].X();

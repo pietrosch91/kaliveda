@@ -93,7 +93,7 @@ class KVINDRA:public KVASMultiDetArray {
 	void LinkToCodeurs();
     void BuildLayer(const Char_t* name);
     KVRing *BuildRing(Int_t number, const Char_t *prefix);
-    KVINDRATelescope *BuildTelescope(const Char_t *name);
+    KVINDRATelescope *BuildTelescope(const Char_t *prefix, Int_t mod);
 
  public:
     KVINDRA();
@@ -121,7 +121,6 @@ class KVINDRA:public KVASMultiDetArray {
    };
 
    virtual KVChIo *GetChIoOf(const Char_t * detname);
-   void SetNamesChIo();
    virtual void cd(Option_t * option = "");
    virtual KVINDRADetector *GetDetectorByType(UInt_t cou, UInt_t mod,
                                          UInt_t type) const;

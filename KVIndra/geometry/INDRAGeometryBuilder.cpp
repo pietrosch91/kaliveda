@@ -26,9 +26,9 @@ ClassImp(INDRAGeometryBuilder)
 <h4>Build INDRA geometry from Huguet CAO infos</h4>
 <!-- */
 // --> END_HTML
-// N.B.1 - there are no 'etalon' telescopes in the geometry, no CAO information available
-// N.B.2 - the Ring 1 Si-CsI detectors are described using the same CAO as for the
-//            Ring 1 phoswich detectors
+// N.B. - the Ring 1 Si-CsI detectors (>=INDRA_camp4) 
+//        are described using the same geometry as for the
+//        1st campaign phoswich detectors (no CAO data available)
 ////////////////////////////////////////////////////////////////////////////////
 
 INDRAGeometryBuilder::INDRAGeometryBuilder()
@@ -210,7 +210,7 @@ void INDRAGeometryBuilder::MakeFrame()
 
    Double_t dz = fTotalThickness / 2.;
    TString vol_name;
-   vol_name.Form("%s_FRAME", fDetName.Data());
+   vol_name.Form("DEADZONE_%s_FRAME", fDetName.Data());
    TGeoMedium* med = fFrameMat.GetGeoMedium();
    fFrameVolume = gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
    fFrameVolume->SetLineColor(med->GetMaterial()->GetDefaultColor());
@@ -391,7 +391,7 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
    Bool_t multi_layer = fLayers->GetSize() > 1;
 
    if (multi_layer) {
-      fDetVolume = gGeoManager->MakeVolumeAssembly(Form("%s_DET", fDetName.Data()));
+      fDetVolume = gGeoManager->MakeVolumeAssembly(Form("DET_%s", fDetName.Data()));
    }
    TVector3 frontPlane[4], backPlane[4], frontCentre, backCentre;
    // front plane of first absorber is front plane of detector
@@ -410,6 +410,8 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
       // get medium for absorber
       TGeoMedium* med = abs->GetGeoMedium();
       Double_t thick = abs->GetThickness();
+      
+      if(thick==0.0) continue; // ignore zero thickness layers
 
       // calculate coordinates of back plane
       CalculateBackPlaneCoordinates(frontPlane, frontCentre, thick, backPlane);
@@ -425,7 +427,7 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
 
       Double_t dz = thick / 2.;
       TString vol_name;
-      if (no_abs == fActiveLayer) vol_name = fDetName.Data();
+      if (no_abs == fActiveLayer) vol_name = Form("ACTIVE_%s_%d_%s",fDetName.Data(), no_abs, abs->GetType());
       else vol_name = Form("%s_%d_%s", fDetName.Data(), no_abs, abs->GetType());
       TGeoVolume *vol =
          gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
@@ -500,7 +502,8 @@ void INDRAGeometryBuilder::CloseAndDraw()
 {
    gGeoManager->CloseGeometry();
    //gGeoManager->GetTopVolume()->SetVisContainers();
-   gGeoManager->GetTopVolume()->Draw();
+   gGeoManager->DefaultColors();
+   gGeoManager->GetTopVolume()->Draw("ogl");
 }
 
 void INDRAGeometryBuilder::ReflectPad(TVector3* orig, Double_t phicentre, TVector3* newpad)
@@ -561,8 +564,12 @@ TGeoManager* INDRAGeometryBuilder::Build(Bool_t withTarget, Bool_t closeGeometry
          MakeRing("CSI", ring + 1);
       }
    }
+   for(int ring = 10; ring <= 17; ring++){
+      MakeEtalon(ring);
+   }
    if(withTarget) BuildTarget();
    if(closeGeometry) gGeoManager->CloseGeometry();
+   gGeoManager->DefaultColors();
    return gGeoManager;
 }
 void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors)
@@ -611,3 +618,78 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
    if (detectors.HasParameter("TARGET"))BuildTarget();
    CloseAndDraw();
 }
+
+void INDRAGeometryBuilder::MakeEtalon(int RING)
+{
+   // Build and add etalon telescope for ring
+Double_t theta[] = {51.075000,63.340000,79.435000,100.685000,118.235000,133.905000,149.790000,166.435000};
+Double_t phi[] = {37.500000,37.500000,37.500000,90.000000,78.750000,78.750000,90.000000,90.000000};
+Double_t dist[] = {17.4005,17.4005,17.4005,16.7005,16.7005,16.7005,17.4005,17.4005,};
+KVMaterial mat_si("Si");
+KVMaterial mat_li("Li");
+KVMaterial mat_al("Al");
+TGeoMedium *Silicon = mat_si.GetGeoMedium();
+TGeoMedium *Lithium = mat_li.GetGeoMedium();
+TGeoMedium *Alu = mat_al.GetGeoMedium();
+
+Double_t sili_diameter_total = 2.54;
+Double_t holder_thickness = 0.05;
+Double_t holder_length = 1.0;
+Double_t sili_diameter_active = 2.36;
+Double_t sili_silicon_thickness = 0.22;
+Double_t sili_lithium_thickness = 0.0044;
+Double_t si75_thickness = 0.008;
+Double_t si75_diameter_active = 2.2;
+
+TGeoVolumeAssembly* etalon = new TGeoVolumeAssembly("STRUCT_TELESCOPE");
+
+TGeoVolume* holder = gGeoManager->MakeTube("DEADZONE_HOLDER", Alu, 
+      (sili_diameter_total)/2., (sili_diameter_total+2*holder_thickness)/2., holder_length/2.);
+holder->SetLineColor(holder->GetMaterial()->GetDefaultColor());
+etalon->AddNode(holder, 1);
+
+Double_t w = sili_silicon_thickness + sili_lithium_thickness;
+TGeoVolume* sili_dz = gGeoManager->MakeTube("DEADZONE_SILI", Alu, 
+      sili_diameter_active/2., (sili_diameter_total)/2., w/2.);
+sili_dz->SetLineColor(sili_dz->GetMaterial()->GetDefaultColor());
+
+etalon->AddNode(sili_dz, 1, new TGeoTranslation(0,0,holder_length/4.));
+
+TGeoVolumeAssembly* sili = new TGeoVolumeAssembly("DET_SILI");      
+TGeoVolume* sili_si = gGeoManager->MakeTube("ACTIVE_SILI", Silicon, 
+      0., (sili_diameter_active)/2., (sili_silicon_thickness)/2.);
+TGeoVolume* sili_li = gGeoManager->MakeTube("SILI_LI", Lithium, 
+      0., (sili_diameter_active)/2., (sili_lithium_thickness)/2.);
+sili_si->SetLineColor(sili_si->GetMaterial()->GetDefaultColor());
+sili_li->SetLineColor(sili_li->GetMaterial()->GetDefaultColor());
+sili->AddNode(sili_si, 1, new TGeoTranslation(0,0,-(w/2.-sili_silicon_thickness/2.)));
+sili->AddNode(sili_li, 1, new TGeoTranslation(0,0,w/2.-sili_lithium_thickness/2.));
+etalon->AddNode(sili, 1, new TGeoTranslation(0,0,holder_length/4.));
+etalon->GetNode("DET_SILI_1")->SetName("DET_SILI");
+
+TGeoVolume* si75 = gGeoManager->MakeTube("DET_SI75", Silicon, 
+      0., (si75_diameter_active)/2., (si75_thickness)/2.);
+TGeoVolume* si75_dz = gGeoManager->MakeTube("DEADZONE_SI75", Alu, 
+      (si75_diameter_active)/2., (sili_diameter_total)/2., (si75_thickness)/2.);
+
+etalon->AddNode(si75_dz, 1);
+etalon->AddNode(si75, 1);
+etalon->GetNode("DET_SI75_1")->SetName("DET_SI75");
+
+TGeoTranslation trans;
+trans.SetDz(dist[RING-10]);
+TGeoRotation rot1,rot2;
+TGeoHMatrix h;
+TGeoHMatrix* ph=0;
+
+   rot2.SetAngles(phi[RING-10]+90., theta[RING-10], 0.);
+   rot1.SetAngles(-1.*phi[RING-10], 0., 0.);
+   if(RING==13){
+      TGeoTranslation p(4.5,0,0);
+      h = p * rot2 * trans * rot1;
+   }
+   else
+      h = rot2 * trans * rot1;
+   ph = new TGeoHMatrix(h);
+   gGeoManager->GetTopVolume()->AddNode(etalon,RING,ph);
+}   

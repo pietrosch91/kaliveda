@@ -40,16 +40,16 @@ KVPhoswich::KVPhoswich()
 }
 
 //______________________________________________________________________________
-KVPhoswich::KVPhoswich(Float_t thick_102, Float_t thick_115):KVINDRADetector("NE102",
-           thick_102)
+KVPhoswich::KVPhoswich(Float_t thick):KVINDRADetector("NE102",0.05)
 {
    //Build phoswich telescope from two layers of plastic - (NE102) and (NE115).
-   //"thick_102" is thickness of NE102 - 0.05cm for standard INDRA phoswich
-   //"thick_115" is thickness of NE115 - 25cm for standard INDRA phoswich
+   // 'thick' is a dummy argument, it is not used
+   //    thickness of NE102 = 0.05cm for standard INDRA phoswich
+   //    thickness of NE115 = 25cm for standard INDRA phoswich
    //Both layers are "active" - this requires redefinition of GetEnergy etc. methods
    //Type of detector is "PHOS"
 
-   KVMaterial *ne115 = new KVMaterial("NE102", thick_115);
+   KVMaterial *ne115 = new KVMaterial("NE102", 25);
    AddAbsorber(ne115);
 
    SetSegment(2);

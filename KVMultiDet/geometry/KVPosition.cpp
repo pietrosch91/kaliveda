@@ -639,20 +639,39 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
                 "ROOT Geometry has not been initialised");
         return TVector3();
     }
-    Double_t master[3];
-    Double_t points[3];
-    Bool_t ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,1,points);
-//    Bool_t ok2 = GetShape()->Contains(points);
+    Double_t master[3*50];
+    Double_t points[3*50];
+    Double_t dz = GetShape()->GetDZ();
+    // This will generate a point on the (-DZ) face of the bounding box of the shape
+    Bool_t ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,50,points);
+    // We move the point slightly inside the volume to test if it actually corresponds
+    // to a point on the shape's facet
+    points[2]+=dz/100.;
+    Bool_t ok2 = GetShape()->Contains(points);
     if(!ok1){
         ::Error("KVPosition::GetRandomPointOnEntranceWindow",
                 "TGeoBBox::GetPointsOnFacet returns kFALSE for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
         return GetCentreOfEntranceWindow();
     }
-//    if(!ok2){
-//        ::Warning("KVPosition::GetRandomPointOnEntranceWindow",
-//                "Point on detector entrance window is not contained within detector volume.");
-//    }
-    GetMatrix()->LocalToMaster(points, master);
+    Int_t np=0;
+    if(!ok2){
+       // try to find a point that works
+       np++;
+       while(np<50){
+          Double_t* npoint = points+3*np;
+          npoint[2]+=dz/100.;
+          if(GetShape()->Contains(npoint)) break;
+          np++;
+       }
+       if(np==50){
+        ::Error("KVPosition::GetRandomPointOnEntranceWindow",
+                "Cannot generate points for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
+        return GetCentreOfEntranceWindow();
+       }
+    }
+    Double_t* npoint = points+3*np;
+    npoint[2]-=dz/100.;
+    GetMatrix()->LocalToMaster(npoint, master);
     return TVector3(master);
 }
 

@@ -127,774 +127,23 @@ KVINDRA::~KVINDRA()
 
 //_________________________________________________________________________________
 
-//void KVINDRA::MakeListOfDetectorTypes()
-//{
-////Make list of all detector types needed to build INDRA array
-
-//   // Silicon detectors
-//	KVSilicon *kvsi = (KVSilicon* )KVDetector::MakeDetector(Form("%s.SI",fDataSet.Data()), 300.0);
-//	//kvsi->SetThickness(300.0);
-//	kvsi->SetLabel("SI300");
-//	fDetectorTypes->Add(kvsi);
-
-//	// Etalons - Si 80um
-//  	kvsi = new KVSi75(80);
-//   fDetectorTypes->Add(kvsi);
-
-//	// Etalons - Si(Li) 2mm
-//   kvsi = new KVSiLi(2000);
-//   fDetectorTypes->Add(kvsi);
-
-//	// Phoswich detectors
-//   KVPhoswich *kvph = new KVPhoswich(0.05, 25.0);
-//   kvph->SetLabel("PHOS");
-//   fDetectorTypes->Add(kvph);
-
-//   // Ionisation chambers
-//	Float_t press_chio[3]={50.0,30.0,20.0};
-//	KVChIo *kvch = NULL;
-//	for (Int_t ii=0;ii<3;ii+=1){
-//		kvch = (KVChIo* )KVDetector::MakeDetector(Form("%s.CI",fDataSet.Data()), press_chio[ii]);
-//		//kvch->SetPressure(press_chio[ii]);
-//		kvch->SetLabel(Form("CHIO%1.0f",press_chio[ii]));
-//		fDetectorTypes->Add(kvch);
-//	}
-//   // CsI scintillators
-//	Float_t thick_csi[7]={13.80,9.70,9.0,7.60,6.0,5.0,4.80};
-//	KVCsI *kvcsi = NULL;
-//	for (Int_t ii=0;ii<7;ii+=1){
-//		kvcsi = (KVCsI* )KVDetector::MakeDetector(Form("%s.CSI",fDataSet.Data()), thick_csi[ii]);
-//		//kvcsi->SetThickness(thick_csi[ii]);
-//		kvcsi->SetLabel(Form("CSI%1.0f",thick_csi[ii]*10));
-//		fDetectorTypes->Add(kvcsi);
-//	}
-//}
-
-////_________________________________________________________________________________
-//void KVINDRA::PrototypeTelescopes()
-//{
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Begin");
-//   GetDetectorTypes()->Print();
-//#endif
-
-//// create prototypes for all telescopes needed to build INDRA
-
-//   // Phoswich
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Phoswich - begin");
-//#endif
-//   KVINDRATelescope *kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVPhoswich *) GetDetectorTypes()->
-//                    FindObjectByLabel("PHOS"));
-//   kvt->SetType("Phoswich");
-//   kvt->SetAzimuthalWidth(30.0);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Phoswich - success");
-//#endif
-
-//   // Si-CsI Ring 2
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
-//   kvt->SetType("Si-CsI Ring2");
-//   kvt->SetAzimuthalWidth(27.51);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 2 - success");
-//#endif
-
-//   // Si-CsI Ring 3
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
-//   kvt->SetType("Si-CsI Ring3");
-//   kvt->SetAzimuthalWidth(14.15);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 3 - success");
-//#endif
-
-//   // Si-CsI Ring 4
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
-//   kvt->SetType("Si-CsI Ring4");
-//   kvt->SetAzimuthalWidth(14.01);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 4 - success");
-//#endif
-
-//   // Si-CsI Ring 5
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI138"));
-//   kvt->SetType("Si-CsI Ring5");
-//   kvt->SetAzimuthalWidth(14.29);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 5 - success");
-//#endif
-
-//   // Si-CsI Ring 6
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
-//   kvt->SetType("Si-CsI Ring6");
-//   kvt->SetAzimuthalWidth(14.29);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 6 - success");
-//#endif
-
-//   // Si-CsI Ring 7
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI97"));
-//   kvt->SetType("Si-CsI Ring7");
-//   kvt->SetAzimuthalWidth(14.48);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 7 - success");
-//#endif
-
-//   // Si-CsI Ring 8
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
-//   kvt->SetType("Si-CsI Ring8");
-//   kvt->SetAzimuthalWidth(14.18);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 8 - success");
-//#endif
-
-//   // Si-CsI Ring 9
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSilicon *) fDetectorTypes->
-//                    FindObjectByLabel("SI300"));
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI90"));
-//   kvt->SetType("Si-CsI Ring9");
-//   kvt->SetAzimuthalWidth(14.32);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 5.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Si300-CsI Ring 9 - success");
-//#endif
-
-//   // CsI Ring 10
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI76"));
-//   kvt->SetType("CsI Ring10");
-//   kvt->SetAzimuthalWidth(14.44);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 10 - success");
-//#endif
-
-//   //Ring 10 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring10");
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   kvt->SetAzimuthalWidth(14.44 / 2.);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 11
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI76"));
-//   kvt->SetType("CsI Ring11");
-//   kvt->SetAzimuthalWidth(14.52);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 11 - success");
-//#endif
-
-//   //Ring 11 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   kvt->SetType("Etalons Ring11");
-//   kvt->SetAzimuthalWidth(14.52 / 2.);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 12
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI48"));
-//   kvt->SetType("CsI Ring12");
-//   kvt->SetAzimuthalWidth(14.56);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 12 - success");
-//#endif
-
-//   //Ring 12 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring12");
-//   kvt->SetAzimuthalWidth(14.56 / 2.);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 13
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI60"));
-//   kvt->SetType("CsI Ring13");
-//   kvt->SetAzimuthalWidth(14.64);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 13 - success");
-//#endif
-
-//   //Ring 13 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring13");
-//   kvt->SetAzimuthalWidth(14.64 / 2.);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 14
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
-//   kvt->SetType("CsI Ring14");
-//   kvt->SetAzimuthalWidth(22.08);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 14 - success");
-//#endif
-
-//   //Ring 14 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring14");
-//   kvt->SetAzimuthalWidth(22.08 / 2.);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 15
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
-//   kvt->SetType("CsI Ring15");
-//   kvt->SetAzimuthalWidth(21.98);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 15 - success");
-//#endif
-
-//   //Ring 15 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring15");
-//   kvt->SetAzimuthalWidth(21.98 / 2.);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 16
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
-//   kvt->SetType("CsI Ring16");
-//   kvt->SetAzimuthalWidth(43.65);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 16 - success");
-//#endif
-
-//   //Ring 16 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring16");
-//   kvt->SetAzimuthalWidth(43.65 / 2.);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   fTelescopes->Add(kvt);
-
-//   // CsI Ring 17
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVCsI *) fDetectorTypes->FindObjectByLabel("CSI50"));
-//   kvt->SetType("CsI Ring17");
-//   kvt->SetAzimuthalWidth(39.99);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "CsI Ring 17 - success");
-//#endif
-
-//   //Ring 17 etalon telescope
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVSi75 *) fDetectorTypes->FindObjectByLabel("SI75"));
-//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-//   kvt->SetType("Etalons Ring17");
-//   kvt->SetAzimuthalWidth(39.99 / 2.);
-//	kvt->SetDepth(1, 0.0);
-//	kvt->SetDepth(2, 1.0);
-//   fTelescopes->Add(kvt);
-
-
-//   // ChIo 2-3
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO30"));
-//   kvt->SetType("ChIo Ring2");
-//   kvt->SetAzimuthalWidth(28.84);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 2 - success");
-//#endif
-
-//   // ChIo 4-5
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO30"));
-//   kvt->SetType("ChIo Ring4");
-//   kvt->SetAzimuthalWidth(29.10);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 4 - success");
-//#endif
-
-//   // ChIo 6-7
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO30"));
-//   kvt->SetType("ChIo Ring6");
-//   kvt->SetAzimuthalWidth(29.28);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 6 - success");
-//#endif
-
-//   // ChIo 8-9
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO20"));
-//   kvt->SetType("ChIo Ring8");
-//   kvt->SetAzimuthalWidth(29.03);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 8 - success");
-//#endif
-
-//   // ChIo 10-11
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO20"));
-//   kvt->SetType("ChIo Ring10");
-//   kvt->SetAzimuthalWidth(29.33);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 10 - success");
-//#endif
-
-//   // ChIo 12
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO20"));
-//   kvt->SetType("ChIo Ring12");
-//   kvt->SetAzimuthalWidth(29.44);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 12 - success");
-//#endif
-
-//   // ChIo 13
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO20"));
-//   kvt->SetType("ChIo Ring13");
-//   kvt->SetAzimuthalWidth(44.44);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 13 - success");
-//#endif
-
-//   // ChIo 14-15
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO20"));
-//   kvt->SetType("ChIo Ring14");
-//   kvt->SetAzimuthalWidth(44.26);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 14 - success");
-//#endif
-
-//   // ChIo 16-17
-//   kvt = new KVINDRATelescope;
-//   kvt->AddDetector((KVChIo *) fDetectorTypes->
-//                    FindObjectByLabel("CHIO20"));
-//   kvt->SetType("ChIo Ring16");
-//   kvt->SetAzimuthalWidth(41.54);
-//	kvt->SetDepth(1, 0.0);
-//   fTelescopes->Add(kvt);
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "ChIo Ring 16 - success");
-//#endif
-
-
-//#ifdef KV_DEBUG
-//   Info("PrototypeTelescopes", "Success");
-//#endif
-
-//}
-
-//_________________________________________________________________________________
 void KVINDRA::BuildGeometry()
 {
-   // Construction of 1st campaign INDRA detector array. All
-   // subsequent realisations derive from this class and make
-   // modifications to this basic structure
-   
-//   KVLayer *kvl = new KVLayer;    //Build ionisation chamber layer
-
-//   //Pressures correspond to Xe+Sn (should be replaced when SetParameters()
-//   //is called with values read from database corresponding to dataset)
-//   //1st Layer - Ionisation chamber
-
-//   kvl->
-//       AddRing(new
-//               KVRing(2, 3.13, 6.98, 30., 12, 655.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring2"), 2)
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(4, 7.21, 13.83, 30., 12, 385.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring4"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(6, 14.21, 26.74, 30., 12, 250.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring6"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(8, 27.84, 44.67, 30., 12, 120.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring8"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(10, 45.23, 69.69, 30., 12, 120.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring10"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(12, 70.25, 87.60, 30., 12, 120.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring12"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(13, 92.40, 109.76, 45., 8, 120.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring13"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(14, 110.31, 141.80, 45., 8, 120.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring14"))
-
-//       );
-
-//   kvl->
-//       AddRing(new
-//               KVRing(16, 142.38, 174.77, 45., 8, 120.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("ChIo Ring16"))
-
-//       );
-
-//   kvl->SetName("CHIO");
-
-//   AddLayer(kvl);
-
-//   fChIoLayer = kvl;
-
-
-
-//#ifdef KV_DEBUG
-
-//   Info("Build", "Made ChIo Layer");
-
-//#endif
-
-
-
-//   Float_t chio_depth = 50.005 ; // include mylar in total depth
-
-
-
-//   //Build Si75-SiLi etalons layer
-
-//   //As a first guess, these have 1/2 the phi-width of the corresponding CsI and
-
-//   //are placed at the centre of the CsI with 1/2 the polar width
-//	//etalons are placed 4 mm behind ChIo back window
-
-//   kvl = new KVLayer;
-
-//   Float_t th_width = 56.90 - 45.25;11.65
-
-//   kvl->
-//       AddRing(new
-//               KVRing(10, 45.25 + .25 * th_width, 56.90 - .25 * th_width,
-//                      37.5, 1, 120. + chio_depth + 4.,//=174.005
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring10"), 1, 2));
-
-//   th_width = 69.69 - 56.99;12.7
-
-//   kvl->
-//       AddRing(new
-//               KVRing(11, 56.99 + .25 * th_width, 69.69 - .25 * th_width,
-//                      37.5, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring11"), 1, 2));
-
-//   th_width = 88.59 - 70.28;18.31
-
-//   kvl->
-//       AddRing(new
-//               KVRing(12, 70.28 + .25 * th_width, 88.59 - .25 * th_width,
-//                      37.5, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring12"), 1, 2));
-
-//   th_width = 109.65 - 91.72;17.93
-
-//   kvl->
-//       AddRing(new
-//               KVRing(13, 91.72 + .25 * th_width, 109.65 - .25 * th_width,
-//                      75.0, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring13"), 1, 4));
-
-//   th_width = 126.03 - 110.44;15.59
-
-//   kvl->
-//       AddRing(new
-//               KVRing(14, 110.44 + .25 * th_width, 126.03 - .25 * th_width,
-//                      78.75, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring14"), 1, 3));
-
-//   th_width = -(126.12 - 141.69);15.57
-
-//   kvl->
-//       AddRing(new
-//               KVRing(15, 126.12 + .25 * th_width, 141.69 - .25 * th_width,
-//                      78.75, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring15"), 1, 3));
-
-//   th_width = -(142.50 - 157.08);14.58
-
-//   kvl->
-//       AddRing(new
-//               KVRing(16, 142.50 + .25 * th_width, 157.08 - .25 * th_width,
-//                      90.0, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring16"), 1, 2));
-
-//   th_width = -(157.17 - 175.70);18.53
-
-//   kvl->
-//       AddRing(new
-//               KVRing(17, 157.17 + .25 * th_width, 175.70 - .25 * th_width,
-//                      90.0, 1, 120. + chio_depth + 4.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Etalons Ring17"), 1, 2));
-
-//   kvl->SetName("Etalons");
-//   AddLayer(kvl);
-
-
-
-//   //Build Phoswich/Si-CsI/CsI layer
-
-
-
-//   kvl = new KVLayer;
-//   kvl->AddRing(new KVRing(1, 2., 3., 30., 12, 1300.,
-//                           (KVTelescope *) fTelescopes->
-//                           FindObjectByType("Phoswich")));
-//   kvl->
-//       AddRing(new
-//               KVRing(2, 3.06, 4.46, 30.0, 12, 655. + chio_depth +5.,//710.005
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring2"), 2));
-//   // note step=2 for si-csi modules on ring 2 ^^^^^^^
-//   kvl->
-//       AddRing(new
-//               KVRing(3, 4.48, 6.96, 22.50, 24, 655. + chio_depth +5.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring3"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(4, 7.16, 9.95, 22.50, 24, 385. + chio_depth +5.,//440.005
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring4"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(5, 9.99, 13.72, 22.50, 24, 385. + chio_depth +5.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring5"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(6, 14.23, 19.93, 22.50, 24, 250. + chio_depth +5.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring6"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(7, 19.98, 26.61, 22.50, 24, 250. + chio_depth +5.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring7"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(8, 27.62, 34.87, 22.50, 24, 120. + chio_depth +5.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring8"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(9, 34.96, 44.61, 22.50, 24, 120. + chio_depth +5.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("Si-CsI Ring9"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(10, 45.25, 56.90, 22.50, 24, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring10"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(11, 56.99, 69.69, 22.50, 24, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring11"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(12, 70.28, 88.59, 22.50, 24, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring12"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(13, 91.72, 109.65, 30.0, 24, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring13"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(14, 110.44, 126.03, 33.75, 16, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring14"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(15, 126.12, 141.69, 33.75, 16, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring15"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(16, 142.50, 157.08, 45.0, 8, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring16"))
-//       );
-//   kvl->
-//       AddRing(new
-//               KVRing(17, 157.17, 175.70, 45.0, 8, 120. + chio_depth + 10.,
-//                      (KVTelescope *) fTelescopes->
-//                      FindObjectByType("CsI Ring17"))
-//       );
-//   kvl->SetName("SI-CSI");
-//   AddLayer(kvl);
-
-//#ifdef KV_DEBUG
-//   Info("Build", "Made Phoswich/Si-CsI Layer");
-//#endif
+   // Construction of INDRA detector array.
+   // Uses infos in file $KVROOT/KVFiles/data/indra_struct.[dataset].env
+   //                 or $KVROOT/KVFiles/data/indra_struct.env
+   // if no dataset-specific file found
 
     TString path = Form("indra-struct.%s.env", fDataSet.Data() );
     SearchKVFile(path.Data(),path,"data");
+    if(path==""){
+       path = "indra-struct.env";
+       SearchKVFile(path.Data(),path,"data");
+    }
     fStrucInfos.ReadFile(path, kEnvAll);
+    
+    SetName(fStrucInfos.GetValue("INDRA.Name", ""));
+    SetTitle(fStrucInfos.GetValue("INDRA.Title", ""));
 
     KVString layers = fStrucInfos.GetValue("INDRA.Layers", "");
     layers.Begin(" ");
@@ -903,7 +152,7 @@ void KVINDRA::BuildGeometry()
 
 void KVINDRA::BuildLayer(const Char_t* name)
 {
-    // Build layer 'name' with infos in file "indra-struct.[dataset].env"
+    // Build layer 'name' with infos in file "$KVROOT/KVFiles/data/indra-struct.[dataset].env"
 
     KVLayer* layer = new KVLayer;
     Int_t number = fStrucInfos.GetValue(Form("INDRA.Layer.%s.Number",name), 0);
@@ -923,7 +172,7 @@ void KVINDRA::BuildLayer(const Char_t* name)
 
 KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
 {
-    // Build ring with infos in file "indra-struct.[dataset].env"
+    // Build ring with infos in file "$KVROOT/KVFiles/data/indra-struct.[dataset].env"
 
     KVRing* ring = new KVRing;
     Info("BuildRing", "Building ring %d (%s)",number,prefix);
@@ -938,7 +187,7 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
     Double_t dphi = fStrucInfos.GetValue(Form("%s.Dphi",prefix),-1.0);
 
     ring->SetPolarMinMax(thmin, thmax);
-    KVINDRATelescope* kvt = BuildTelescope(fStrucInfos.GetValue(Form("%s.Telescope",prefix),""));
+    KVINDRATelescope* kvt = BuildTelescope(prefix,num_first);
     Double_t phi_min = phi_0 - 0.5 * (kvt->GetAzimuthalWidth());
     phi_min = (phi_min < 0. ? phi_min + 360. : phi_min);
     dphi = (dphi < 0. ? 360. / ntel : dphi);
@@ -958,20 +207,30 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
        counter += step;
        kvt->SetDistance(dist);
        ring->Add(kvt);
-       if(i+1<ntel) kvt = BuildTelescope(fStrucInfos.GetValue(Form("%s.Telescope",prefix),""));
+       if(i+1<ntel) kvt = BuildTelescope(prefix,counter);
     }
     ring->SetName(Form("RING_%d",number));
     return ring;
 }
 
-KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* name)
+KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
 {
-    // Build telescope from infos in file "indra-struct.[dataset].env"
+    // Build telescope from infos in file "$KVROOT/KVFiles/data/indra-struct.[dataset].env"
     
-    Info("BuildTelescope", "Building telescope %s",name);
+    //Info("BuildTelescope", "Building telescope %s",name);
     KVINDRATelescope* kvt = new KVINDRATelescope;
-    KVString detectors = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Detectors",name),"");
-    Double_t aziwidth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.AziWidth",name),1.0);
+    KVString telescopes = fStrucInfos.GetValue(Form("%s.Telescope",prefix),"");
+    telescopes.Begin(" ");
+    KVString name;
+    while(!telescopes.End()){
+       name = telescopes.Next();
+       KVNumberList mods = fStrucInfos.GetValue(Form("%s.Telescope.%s.Modules",prefix,name.Data()),"1-100");
+       if(mods.Contains(module)) break;
+    }
+    Info("BuildTelescope", "Building telescope %s",name.Data());
+    
+    KVString detectors = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Detectors",name.Data()),"");
+    Double_t aziwidth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.AziWidth",name.Data()),1.0);
     kvt->SetAzimuthalWidth(aziwidth);
     detectors.Begin(" ");
     Int_t idet=1;
@@ -982,7 +241,7 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* name)
         Double_t detthick = detector.Next().Atof();
         KVDetector* det = KVDetector::MakeDetector(dettype,detthick);
         kvt->Add(det);
-        Double_t depth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Depth.%s",name,dettype.Data()), 0.);
+        Double_t depth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Depth.%s",name.Data(),dettype.Data()), 0.);
         kvt->SetDepth(idet,depth);
         idet++;
     }
@@ -997,10 +256,6 @@ void KVINDRA::Build()
     // Correspondance between CsI detectors and pin lasers is set up if known.
     // GG to PG conversion factors for Si and ChIo are set if known.
     //Correspondance between Si and ChIo detectors and nunmber of the QDC is made
-
-    //MakeListOfDetectorTypes();
-
-    //PrototypeTelescopes();
 
     BuildGeometry();
 
@@ -1018,9 +273,6 @@ void KVINDRA::Build()
 
     //set flag to say Build() was called
     SetBit(kIsBuilt);
-
-    SetName("INDRA");
-    SetTitle("1st & 2nd campaign INDRA multidetector");
 
     SetPinLasersForCsI();
     SetGGtoPGConversionFactors();
@@ -1144,47 +396,6 @@ void KVINDRA::UpdateArray()
     SetDetectorThicknesses();
 }
 
-//_________________________________________________________________________________________
-void KVINDRA::SetNamesChIo()
-{
-   // INDRA-specific numbering of ChIo according to smallest ring,module of csi behind
-   // the cell
-
-	if(!GetChIoLayer()) return; // chios have been removed ?
-	
-   TIter next_ring(GetChIoLayer()->GetStructures());
-   KVRing *robj;
-   while ((robj = (KVRing *) next_ring())) {
-      TIter next_tele(robj->GetTelescopes());
-      KVINDRATelescope *chio;
-      while ((chio = (KVINDRATelescope *) next_tele())) {    // loop over chio telescopes
-
-         TIter next_in_group(((KVASGroup*)chio->GetGroup())->GetTelescopes());
-         KVINDRATelescope *ttest;
-         Int_t rmin = 1000, tmin = 1000;
-         while ((ttest = (KVINDRATelescope *) next_in_group())) {    //loop over group members
-
-             TString ttyp = ttest->GetName();
-             ttyp.ToUpper();
-
-            if (ttyp.Contains("CSI")) {   // only look at si/csi
-               if ((ttest->GetRingNumber()) < rmin)
-                  rmin = (ttest->GetRingNumber());
-               if ((ttest->GetNumber()) < tmin)
-                  tmin = (ttest->GetNumber());
-            }
-         }
-         if(rmin<1000&&tmin<1000){
-            chio->SetNumber(tmin); // set module number
-            robj->SetNumber(rmin); // set ring number
-            chio->GetDetector(1)->SetName( chio->GetDetector(1)->GetArrayName() );
-         }
-      }
-   }
-   // need to rehash detector lists - names of chios have changed
-   fDetectors.Rehash();
-   ((KVHashList*)fChIo)->Rehash();
-}
 
 //_________________________________________________________________________________________
 
@@ -1198,7 +409,6 @@ void KVINDRA::SetGroupsAndIDTelescopes()
 
     //now read list of groups and create list of ID telescopes
     CreateIDTelescopesInGroups();
-   SetNamesChIo();
 }
 
 KVChIo *KVINDRA::GetChIoOf(const Char_t * detname)
