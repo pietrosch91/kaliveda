@@ -185,6 +185,7 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
     Int_t step = fStrucInfos.GetValue(Form("%s.Step",prefix),1);
     Int_t num_first = fStrucInfos.GetValue(Form("%s.Nfirst",prefix),1);
     Double_t dphi = fStrucInfos.GetValue(Form("%s.Dphi",prefix),-1.0);
+    KVNumberList absent = fStrucInfos.GetValue(Form("%s.Absent",prefix),"");
 
     ring->SetPolarMinMax(thmin, thmax);
     KVINDRATelescope* kvt = BuildTelescope(prefix,num_first);
@@ -204,9 +205,10 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
        kvt->SetPhi(phi);
        phi = (phi + dphi > 360. ? (phi + dphi - 360.) : (phi + dphi));
        kvt->SetNumber(counter);
-       counter += step;
        kvt->SetDistance(dist);
-       ring->Add(kvt);
+       if(!absent.Contains(counter)) ring->Add(kvt);
+       else delete kvt;
+       counter += step;
        if(i+1<ntel) kvt = BuildTelescope(prefix,counter);
     }
     ring->SetName(Form("RING_%d",number));
