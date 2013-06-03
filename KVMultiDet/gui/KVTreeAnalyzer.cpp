@@ -406,7 +406,7 @@ void KVTreeAnalyzer::OpenGUI()
    UInt_t lWidth = 400, lHeight = 500;
    /* leaf list */
    TGHorizontalFrame *fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
-   G_leaf_draw = new TGPictureButton(fHorizontalFrame, "$ROOTSYS/icons/draw_t.xpm");
+   G_leaf_draw = new TGPictureButton(fHorizontalFrame, "draw_t.xpm");
    G_leaf_draw->SetEnabled(kFALSE);
    G_leaf_draw->Connect("Clicked()", "KVTreeAnalyzer", this, "DrawLeafExpr()");
    fHorizontalFrame->AddFrame(G_leaf_draw, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
