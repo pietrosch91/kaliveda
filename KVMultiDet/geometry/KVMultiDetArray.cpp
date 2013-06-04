@@ -151,7 +151,6 @@ KVMultiDetArray::~KVMultiDetArray()
 
 void KVMultiDetArray::Build()
 {
-    AbstractMethod("Build");
 }
 
 //_______________________________________________________________________________________
