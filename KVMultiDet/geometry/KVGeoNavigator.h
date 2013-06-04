@@ -7,6 +7,7 @@
 #include "KVBase.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
+#include <KVNameValueList.h>
 class KVNucleus;
 class KVEvent;
 class TGeoManager;
@@ -24,15 +25,24 @@ private:
     TGeoHMatrix* fCurrentMatrix;//current global transformation matrix
     TString fCurrentPath;//current full path to physical node
     TClonesArray fCurrentStructures;//list of current structures deduced from path
+    Int_t fCurStrucNumber;//number of current parent structures
     TGeoNode* fMotherNode;//mother node of current node
     Double_t fStepSize;//distance to travel in volume
     TVector3 fEntryPoint;//position of particle on entering volume
     TVector3 fExitPoint;//position of particle on exiting volume
     Bool_t fStopPropagation;//flag set by user when particle propagation should stop
+protected:
+    KVNameValueList fStrucNameFmt;//list of user-defined formats for structure names
+    KVString fDetNameFmt;//user-defined format for detector names
+    void FormatStructureName(const Char_t* type, Int_t number, KVString& name);
+    void FormatDetectorName(const Char_t* basename, KVString& name);
 
 public:
     KVGeoNavigator(TGeoManager*);
     virtual ~KVGeoNavigator();
+
+    void SetStructureNameFormat(const Char_t* type, const Char_t* fmt);
+    void SetDetectorNameFormat(const Char_t* fmt) { fDetNameFmt=fmt; }
 
     void PropagateEvent(KVEvent*, TVector3 *TheOrigin=0);
     void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);

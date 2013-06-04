@@ -8,6 +8,8 @@
 #include <KVEvent.h>
 #include <KVGroup.h>
 #include <TGeoPhysicalNode.h>
+#include <KVRangeTableGeoNavigator.h>
+#include <KVNamedParameter.h>
 
 ClassImp(KVGeoImport)
 
@@ -137,6 +139,12 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
         }
     }
     fArray->SetGeometry(GetGeometry());
+    KVRangeTableGeoNavigator* nav = fArray->GetNavigator();
+    nav->SetDetectorNameFormat(fDetNameFmt);
+    for(register int i=0; i<fStrucNameFmt.GetEntries(); i++){
+        KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);
+        nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
+    }
     fArray->CalculateDetectorSegmentationIndex();
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);

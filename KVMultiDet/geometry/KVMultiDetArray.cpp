@@ -1911,6 +1911,11 @@ TGeoManager* KVMultiDetArray::GetGeometry() const
     return fGeoManager;
 }
 
+KVRangeTableGeoNavigator *KVMultiDetArray::GetNavigator() const
+{
+    return fNavigator;
+}
+
 void KVMultiDetArray::SetDetectorThicknesses()
 {
     // Look for a file in the dataset directory with the name given by .kvrootrc variable:
@@ -1988,6 +1993,7 @@ void KVMultiDetArray::SetGeometry(TGeoManager *g)
     // The name and title of the TGeoManager object will be used for the array.
     fGeoManager = g;
     SetNameTitle(g->GetName(),g->GetTitle());
+    SetROOTGeometry();
 }
 
 Double_t KVMultiDetArray::GetPunchThroughEnergy(const Char_t* detector, Int_t Z, Int_t A)
@@ -2046,6 +2052,22 @@ TGraph* KVMultiDetArray::DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t 
         punch->SetPoint(Z-1, Z, GetPunchThroughEnergy(detector,nuc.GetZ(),nuc.GetA())/nuc.GetA());
     }
     return punch;
+}
+
+void KVMultiDetArray::SetROOTGeometry(Bool_t on)
+{
+    // Call with on=kTRUE if array uses ROOT geometry for tracking
+    // Call SetGeometry(TGeoManager*) first with a valid geometry.
+
+    fROOTGeometry=on;
+    if(on && !fGeoManager){
+        Error("SetROOTGeometry", "ROOT geometry is requested, but has not been set: fGeoManager=0x0");
+        return;
+    }
+
+    // set up geometry navigator
+    if(on && !fNavigator) fNavigator=new KVRangeTableGeoNavigator(fGeoManager, KVMaterial::GetRangeTable());
+    else SafeDelete(fNavigator);
 }
 
 void KVMultiDetArray::CalculateDetectorSegmentationIndex()
