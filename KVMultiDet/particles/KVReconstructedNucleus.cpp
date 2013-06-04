@@ -92,11 +92,6 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
 {
     // Stream an object of class KVReconstructedNucleus.
     //Customized streamer.
-    //
-    //In order to reconstruct detailed information on the particle's reconstruction,
-    //fNSegDet is recalculated from the list of detectors. KVGroup::AddHit is
-    //called in order to permit (in KVReconstructedEvent::Streamer) the
-    //recalculation of fAnalStatus.
 
     UInt_t R__s, R__c;
     if (R__b.IsReading()) {
@@ -113,9 +108,9 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             TIter next_det(&fDetList);
             KVDetector *det;
             while ( (det = (KVDetector*)next_det()) ){
-                fNSegDet += det->GetSegment();
+                //fNSegDet += det->GetSegment(); => made persistent
                 det->AddHit(this);
-					 det->SetAnalysed();
+                det->SetAnalysed();
                 //modify detector's counters depending on particle's identification state
                 if (IsIdentified())
                     det->IncrementIdentifiedParticles();

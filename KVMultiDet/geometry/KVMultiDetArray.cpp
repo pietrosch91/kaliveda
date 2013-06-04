@@ -1910,7 +1910,7 @@ TGeoManager* KVMultiDetArray::GetGeometry() const
     return fGeoManager;
 }
 
-KVRangeTableGeoNavigator *KVMultiDetArray::GetNavigator() const
+KVGeoNavigator *KVMultiDetArray::GetNavigator() const
 {
     return fNavigator;
 }
@@ -2066,7 +2066,7 @@ void KVMultiDetArray::SetROOTGeometry(Bool_t on)
 
     // set up geometry navigator
     if(on && !fNavigator) fNavigator=new KVRangeTableGeoNavigator(fGeoManager, KVMaterial::GetRangeTable());
-    else SafeDelete(fNavigator);
+    else if(!on) SafeDelete(fNavigator);
 }
 
 void KVMultiDetArray::CalculateDetectorSegmentationIndex()

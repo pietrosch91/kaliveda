@@ -9,6 +9,7 @@
 #include "KVDBRun.h"
 #include "KVDataSetManager.h"
 #include <KVDataRepositoryManager.h>
+#include "KVGeoNavigator.h"
 
 ClassImp(KVEventFiltering)
 
@@ -161,6 +162,8 @@ void KVEventFiltering::InitAnalysis()
    if(gMultiDetArray) delete gMultiDetArray;
    gDataSet->BuildMultiDetector();
    gMultiDetArray->SetSimMode();
+
+   Info("InitAnalysis", "Detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
    
    TString system = GetOpt("System").Data();
    KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);

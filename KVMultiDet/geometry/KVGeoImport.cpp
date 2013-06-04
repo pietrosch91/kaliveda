@@ -139,7 +139,7 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
         }
     }
     fArray->SetGeometry(GetGeometry());
-    KVRangeTableGeoNavigator* nav = fArray->GetNavigator();
+    KVGeoNavigator* nav = fArray->GetNavigator();
     nav->SetDetectorNameFormat(fDetNameFmt);
     for(register int i=0; i<fStrucNameFmt.GetEntries(); i++){
         KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);

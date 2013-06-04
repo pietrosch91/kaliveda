@@ -43,6 +43,7 @@ public:
 
     void SetStructureNameFormat(const Char_t* type, const Char_t* fmt);
     void SetDetectorNameFormat(const Char_t* fmt) { fDetNameFmt=fmt; }
+    const Char_t* GetDetectorNameFormat() const { return fDetNameFmt.Data(); }
 
     void PropagateEvent(KVEvent*, TVector3 *TheOrigin=0);
     void PropagateParticle(KVNucleus*, TVector3 *TheOrigin=0);

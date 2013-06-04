@@ -27,8 +27,8 @@ protected:
         kAMeasured = BIT(22)   //the A attributed to this nucleus was measured
     };
 
-    Int_t fNSegDet;              //!number of segmented/independent detectors hit by particle
-    Int_t fAnalStatus;           //!status of particle after analysis of reconstructed event
+    Int_t fNSegDet;              //number of segmented/independent detectors hit by particle
+    Int_t fAnalStatus;           //status of particle after analysis of reconstructed event
     Float_t fRealZ;              //Z returned by identification routine
     Float_t fRealA;              //A returned by identification routine
     Double_t fTargetEnergyLoss;   //calculated energy lost in target
@@ -306,7 +306,7 @@ KVIdentificationResult* GetIdentificationResult(KVIDTelescope* idt)
 
 	virtual void SubtractEnergyFromAllDetectors();
 	
-    ClassDef(KVReconstructedNucleus, 15)  //Nucleus detected by multidetector array
+    ClassDef(KVReconstructedNucleus, 16)  //Nucleus detected by multidetector array
 };
 
 #endif

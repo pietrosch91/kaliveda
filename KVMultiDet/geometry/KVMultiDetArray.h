@@ -21,6 +21,7 @@ class KVEvent;
 class KVNameValueList;
 class KVReconstructedNucleus;
 class KVList;
+class KVGeoNavigator;
 class KVRangeTableGeoNavigator;
 
 class KVMultiDetArray : public KVGeoStrucElement
@@ -75,7 +76,7 @@ protected:
 public:
     void SetGeometry(TGeoManager*);
     TGeoManager* GetGeometry() const;
-    KVRangeTableGeoNavigator* GetNavigator() const;
+    KVGeoNavigator* GetNavigator() const;
 
     // filter types. values of fFilterType
     enum EFilterType
