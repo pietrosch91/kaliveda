@@ -6,6 +6,7 @@
 #include "KVSpectroGroup.h"
 #include "KVVAMOSTransferMatrix.h"
 
+#include "KVGroup.h"
 #include "KVDataSetManager.h"
 #include "KVUpDater.h"
 #include "KVFunctionCal.h"
@@ -45,7 +46,7 @@ KVVAMOS::KVVAMOS()
 }
 //________________________________________________________________
 
-KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVBase()
+KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVMultiDetArray()
 {
    	// Copy constructor
    	// This ctor is used to make a copy of an existing object (for example
@@ -68,18 +69,8 @@ void KVVAMOS::init()
     //deleted eslsewhere is removed automatically from this list.
 
 	SetUniqueID( 0 );
-	fDetectors = new KVList;
-	fDetectors->SetCleanup(kTRUE);
-
-	fGroups = new KVList;
-	fGroups->SetCleanup(kTRUE);
-
-	fIDTelescopes = new KVHashList();
-    fIDTelescopes->SetOwner(kTRUE); // owns its objects
-    fIDTelescopes->SetCleanup(kTRUE);
 
 	fFiredDets     = NULL;
-	fACQParams     = NULL;
 	fVACQParams    = NULL;
 	fCalibrators   = NULL;
 	fVCalibrators  = NULL;
@@ -104,34 +95,6 @@ void KVVAMOS::init()
 KVVAMOS::~KVVAMOS(){
    	// Destructor
    	
-	// Clear list of detectors belonging to VAMOS 
-   	if(fDetectors && fDetectors->TestBit(kNotDeleted)){
-		fDetectors->Clear();
-		delete fDetectors;
-	}
-	fDetectors = NULL;
-
-	//destroy all identification telescopes
-    if (fIDTelescopes && fIDTelescopes->TestBit(kNotDeleted)) {
-        fIDTelescopes->Delete();
-        delete fIDTelescopes;
-    }
-    fIDTelescopes = 0;
-
-	//destroy all groups
-    if (fGroups && fGroups->TestBit(kNotDeleted)) {
-        fGroups->Delete();
-        delete fGroups;
-    }
-    fGroups = 0;
-
-	// Clear list of all acquisition parameters
- 	if(fACQParams && fACQParams->TestBit(kNotDeleted)){
-       	fACQParams->Delete();
-  		delete fACQParams;
-	}
- 	fACQParams = NULL;
-
 	// Clear list of acquisition parameters belonging to VAMOS
 	if(fVACQParams && fVACQParams->TestBit(kNotDeleted)){
 		fVACQParams->Clear();
@@ -168,7 +131,7 @@ void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
 		fFPvolume   = gGeoManager->MakeBox("FocalPlane", Vacuum,  w/2, h/2, d/2);
 	}
 
-	fDetectors->R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
+	fDetectors.R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
 }
 //________________________________________________________________
 
@@ -396,7 +359,7 @@ void KVVAMOS::MakeListOfDetectors(){
 			det->SetNumber(num);
 			det->SetUniqueID( 10*num + (det_class_num) );
 			det->SetName(det->GetArrayName());
-			fDetectors->Add(det);
+			fDetectors.Add(det);
 		}
 		det_class_num++;
 	}
@@ -405,8 +368,8 @@ void KVVAMOS::MakeListOfDetectors(){
 
 Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	//Reads the groups of detectors to build for VAMOS from file loaded
-	//in ifile and stores them in fGroups.
-	//Before reading, all groups in fGroups are deleted. A number is set
+	//in ifile and stores them as a structure.
+	//Before reading, all old groups are deleted. A number is set
 	//to each new group.
 	//
 	//The comment lines begin with '#'.
@@ -414,6 +377,7 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	//Each line correspond to a new group and contains le name of each
 	//detector which compose it, separated by a space.
 	
+ 	ClearStructures("GROUP");          // clear out (delete) old groups
 
 	KVString sline, detname; 
 	while (ifile.good()) {         //reading the file
@@ -423,8 +387,9 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	  	// Skip comment line
 	  	if(sline.BeginsWith("#")) continue;
 
-		KVSpectroGroup    *group = NULL;
-		KVSpectroDetector *det   = NULL;
+		KVGroup           *group   = NULL;
+		KVSpectroDetector *det     = NULL;
+		KVSpectroDetector *lastDet = NULL;
 
 		sline.Begin(" ");
    		while( !sline.End() ){
@@ -435,53 +400,30 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 			if( det ){
 
 				if( !group ){
-
-					group = new KVSpectroGroup();
+ 					group = new KVGroup;
 					group->SetNumber(++fGr);
-					fGroups->Add( group );
 				}
 
 				group->Add( det );
+ 				det->GetNode()->SetName(det->GetName());
+
+    			if(lastDet && det!=lastDet) {
+        			lastDet->GetNode()->AddBehind(det);
+        			det->GetNode()->AddInFront(lastDet);
+    			}
+    			lastDet = det;
 			}
 			else Error("ReadDetectorGroupFile","Detector %s not found",detname.Data());
    		}
+
+		if( group ){
+			// Sort the detector list of each group
+			// from the farest one to the closest one.
+			group->SortDetectors(kSortDescending);
+			Add( group );
+		}
 	}
 	return kTRUE;
-}
-//________________________________________________________________
-
-void KVVAMOS::SetACQParams(){
-	// Set up acquisition parameters in all detectors at the focal
-	// plane + any acquisition parameters which are not directly associated
-	// to a detector and we associate to the spectrometer.
-
-	if(fACQParams)  fACQParams->Clear();
-	if(fVACQParams) fVACQParams->Clear();
-
-	SetArrayACQParams();
-
-	TIter next(GetListOfDetectors());
-	KVSpectroDetector *det;
-	while((det = (KVSpectroDetector*)next())){
-		KVSeqCollection *l= det->GetACQParamList();
-		if(!l){
-			//detector has no acq params
-			//set up acq params in detector
-			det->SetACQParams();
-			l= det->GetACQParamList();
-		}
-		// loop over acq params and add them to fACQParams list,
-		TIter next_par(l);
-		KVACQParam *par  = NULL;
-		TList lvpar, ldpar;
-		while((par = (KVACQParam*)next_par())){
-				AddACQParam(par);
-				par->SetWorking(gDataSet->GetDataSetEnv(Form("KVACQParam.%s.Working", par->GetName()), kTRUE));
-		}
-
-		//Set bitmask
-		det->SetFiredBitmask();
-	}
 }
 //________________________________________________________________
 
@@ -492,6 +434,7 @@ void KVVAMOS::SetArrayACQParams(){
 	// [dataset name].KVVAMOS.ACQParameterList: TSI_HF TSED1_SED2 ...
 	// in the .kvrootrc file.
 
+	if(fVACQParams) fVACQParams->Clear();
 	TString envname = Form("%s.ACQParameterList",ClassName());
 
 	TString list = gDataSet->GetDataSetEnv(envname.Data());
@@ -529,7 +472,7 @@ void KVVAMOS::SetCalibrators(){
 	// It does not set the parameters of the calibrations: this is done
 	// by SetParameters.
 
-	TIter nextdet( fDetectors );
+	TIter nextdet( GetDetectors() );
 	KVDetector *det = NULL;
 	while( (det = (KVDetector *)nextdet()) ){
 		det->SetCalibrators();
@@ -606,15 +549,9 @@ void KVVAMOS::SetGroupsAndIDTelescopes(){
 	if( !ReadDetectorGroupFile(ifile) ) Error("SetGroupsAndIDTelescopes","Bad structure inside the file %s",filename.Data());	
 
 	ifile.close();
-	
-	fGroups->Delete();       // clear out (delete) old groups
- 	fIDTelescopes->Delete(); // clear out (delete) old identification telescopes
-	// Sort the detector list of each group in order to have
-	// at the first position the farest detector
-	fGroups->R__FOR_EACH(KVSpectroGroup,Sort)(kSortDescending);	
 
-	// create list of ID telescopes from the new groups of detectors
-	fGroups->R__FOR_EACH(KVSpectroGroup,BuildIDTelescopes)(fIDTelescopes);	
+	//now read list of groups and create list of ID telescopes
+	CreateIDTelescopesInGroups();
 }
 //________________________________________________________________
 
@@ -638,7 +575,7 @@ void KVVAMOS::UpdateGeometry(){
 	fFocalToTarget = *gGeoManager->GetCurrentMatrix();
 
 	// Initialize the geometry of the detectors
-	TIter next_det(fDetectors);
+	TIter next_det( GetDetectors() );
 	KVVAMOSDetector *det = NULL;
 	while( (det = (KVVAMOSDetector *)next_det()) ){
 		det->SetFocalToTargetMatrix( &fFocalToTarget );
@@ -665,13 +602,7 @@ void KVVAMOS::AddACQParam(KVACQParam* par, Bool_t owner){
 	}
 
 	// Add ACQ param. in global list
-	if(!fACQParams){
-		fACQParams = new KVHashList;
-		fACQParams->SetName(Form("List of ACQ param. for detectors of %s",GetName()));
-		fACQParams->SetOwner(kFALSE);
-		fACQParams->SetCleanup(kTRUE);
-	}
-	fACQParams->Add(par);
+	KVMultiDetArray::AddACQParam( par );
 
 	// Add ACQ param. in list of VAMOS if it is owner
 	if(owner){
@@ -732,7 +663,7 @@ void KVVAMOS::Build(){
 	MakeListOfDetectors();
 	BuildVAMOSGeometry();
     InitGeometry();
-	fDetectors->Sort( kSortDescending );
+	fDetectors.Sort( kSortDescending );
 	SetGroupsAndIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
@@ -747,7 +678,7 @@ void KVVAMOS::Clear(Option_t *opt ){
 	// plus ACQ parameters set to zero
 	
 //	KVDetector::Clear();
-	fDetectors->R__FOR_EACH(KVDetector,Clear)();	
+	fDetectors.R__FOR_EACH(KVDetector,Clear)();	
 }
 //________________________________________________________________
 
@@ -760,7 +691,7 @@ void KVVAMOS::Copy (TObject& obj) const
    	// or
    	//    CastedObj.SetToto( GetToto() );
 
-   	KVBase::Copy(obj);
+   	KVMultiDetArray::Copy(obj);
    	//KVVAMOS& CastedObj = (KVVAMOS&)obj;
 }
 //________________________________________________________________
@@ -787,7 +718,7 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 	if( fFiredDets ) fFiredDets->Clear();
 	else fFiredDets = new KVList( kFALSE );
 
-	TIter next( fDetectors );
+	TIter next( &fDetectors );
 	KVSpectroDetector *det = NULL;
 	while( (det = (KVSpectroDetector *)next()) ){
 		if( det->Fired( opt ) ) fFiredDets->Add( det );
@@ -812,7 +743,7 @@ void KVVAMOS::Initialize(){
 	// Initialize data members of the VAMOS detectors and of VAMOS 
 	// itself. This method has to be called each time you look at a
 	// new event.
-	fDetectors->R__FOR_EACH(KVVAMOSDetector,Initialize)();	
+	fDetectors.R__FOR_EACH(KVVAMOSDetector,Initialize)();	
 }
 //________________________________________________________________
 

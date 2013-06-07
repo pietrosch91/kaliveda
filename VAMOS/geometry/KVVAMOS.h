@@ -4,6 +4,7 @@
 #ifndef __KVVAMOS_H
 #define __KVVAMOS_H
 
+#include "KVMultiDetArray.h"
 #include "KVBase.h"
 #include "KVList.h"
 #include "KVHashList.h"
@@ -17,13 +18,12 @@ class KVCalibrator;
 class KVDetector;
 class KVVAMOSTransferMatrix;
 
-class KVVAMOS :  public KVBase
+class KVVAMOS :  public KVMultiDetArray
 {
 
 	private:
 
 		enum{
-			kIsBuilt     = BIT(20), //flag set when Build() is called
 			kGeoModified = BIT(21)  //flag set when the geometry is modified
 		};
 
@@ -32,20 +32,15 @@ class KVVAMOS :  public KVBase
 
 	protected:
 
-		KVHashList *fACQParams;    //References to data acquisition parameter associated to detectors
 		Double_t    fAngle;        //!Angular rotation around the target (deg)
 		Double_t    fBrhoRef;      //!Reference magnetic rigidity (T.m)
 		Double_t    fBeamHF;       //!High frequency of the beam (MHz)
 		KVHashList *fCalibrators;  //References to calibrator associated to detectors
-		TString     fDataSet;      //Name of associated dataset, used with MakeVAMOS	
-		KVList     *fDetectors;    //->List of references to all detectors of VAMOS
 		KVList     *fFiredDets;    //!List of fired detectors of VAMOS
 		Double_t    fFocalPos;     //!Position of the focal plane from target center (in cm)
 		TGeoHMatrix fFocalToTarget;//!focal-plane to target position transformation matrix
 		TGeoVolume *fFPvolume;     //!TGeoVolume centered on the focal plane
 		UInt_t      fGr;           //!Used to number groups
-		KVList     *fGroups;       //->List of groups (KVSpectroGroup) of detectors
-		KVHashList *fIDTelescopes; //->deltaE-E telescopes in groups
 		TGeoRotation          *fRotation;   //!rotation matrix around the target
 		KVVAMOSTransferMatrix *fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
 		KVList      *fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
@@ -60,7 +55,6 @@ class KVVAMOS :  public KVBase
    		virtual Int_t  LoadGeoInfosIn( TEnv *infos );
    		virtual void   MakeListOfDetectors();
 		virtual Bool_t ReadDetectorGroupFile( ifstream &ifile );
-   		virtual void   SetACQParams();
    		virtual void   SetArrayACQParams();
    		virtual void   SetCalibrators();
    		virtual void   SetGroupsAndIDTelescopes();
@@ -75,7 +69,7 @@ class KVVAMOS :  public KVBase
 
    		void init();
 
-   		        void     AddACQParam  ( KVACQParam* par, Bool_t owner = kFALSE   );
+   		        void     AddACQParam  ( KVACQParam* par, Bool_t owner );
    		        Bool_t   AddCalibrator( KVCalibrator *cal, Bool_t owner = kFALSE );
    		virtual void     Build();
    		virtual void     Clear( Option_t *opt = "" );
@@ -94,8 +88,6 @@ class KVVAMOS :  public KVBase
    		// ----- inline methods
 
 		void          GeoModified();
-		KVACQParam   *GetACQParam( const Char_t *name );
-   		KVHashList   *GetACQParams()                        const;
 		Double_t      GetAngle()                            const;
 		Double_t      GetBeamHF()                           const;
 		Double_t      GetBeamPeriod()                       const;
@@ -105,13 +97,10 @@ class KVVAMOS :  public KVBase
 		TGeoVolume   *GetFocalPlaneVolume()                 const;
    		TGeoHMatrix   GetFocalToTargetMatrix();
    		TGeoVolume   *GetGeoVolume()                        const;
-		KVList       *GetGroups()                           const;
 		KVHashList   *GetListOfCalibrators()                const;
-   		KVList       *GetListOfDetectors()                  const;
    		KVList       *GetListOfVCalibrators()               const;
    		KVList       *GetVACQParams()                       const;
    		KVCalibrator *GetVCalibrator( const Char_t * type ) const;
-   		Bool_t        IsBuilt()                             const;
 		Bool_t        IsGeoModified()                       const;
 		void          SetAngle( Double_t angle );
 		void          SetBeamHF( Double_t hf );
@@ -135,12 +124,6 @@ class KVVAMOS :  public KVBase
 inline void KVVAMOS::GeoModified() { SetBit( kGeoModified ); }
 
 
-inline KVACQParam *KVVAMOS::GetACQParam( const Char_t *name ) {
-    return (KVACQParam *)fACQParams->FindObject( name );
-}
-
-
-inline KVHashList *KVVAMOS::GetACQParams()  const { return fACQParams; }
 inline Double_t    KVVAMOS::GetAngle()      const { return fAngle;     }
 inline Double_t    KVVAMOS::GetBeamHF()     const { return fBeamHF;    }
 
@@ -161,11 +144,6 @@ inline KVCalibrator *KVVAMOS::GetCalibrator( const Char_t * type ) const {
 }
 
 
-inline KVDetector *KVVAMOS::GetDetector( const Char_t *name ) const {
-	return (KVDetector *)fDetectors->FindObject( name );
-}
-
-
 inline TGeoVolume *KVVAMOS::GetFocalPlaneVolume() const { return fFPvolume; }
 
 
@@ -182,9 +160,7 @@ inline TGeoVolume *KVVAMOS::GetGeoVolume() const {
 }
 
 
-inline KVList     *KVVAMOS::GetGroups()              const { return fGroups;       }
 inline KVHashList *KVVAMOS::GetListOfCalibrators()   const { return fCalibrators;  }
-inline KVList     *KVVAMOS::GetListOfDetectors()     const { return fDetectors;    }
 inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrators; }
 inline KVList     *KVVAMOS::GetVACQParams()          const { return fVACQParams;   }
 
@@ -196,7 +172,6 @@ inline KVCalibrator *KVVAMOS::GetVCalibrator( const Char_t * type ) const{
 }
 
 
-inline Bool_t KVVAMOS::IsBuilt()       const { return TestBit( kIsBuilt );     }
 inline Bool_t KVVAMOS::IsGeoModified() const { return TestBit( kGeoModified ); }
 
 

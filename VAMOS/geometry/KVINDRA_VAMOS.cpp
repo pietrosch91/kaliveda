@@ -53,9 +53,9 @@ void KVINDRA_VAMOS::Build(){
 	Info("Build","Building VAMOS ...");
 	fVamos = KVVAMOS::MakeVAMOS(fDataSet.Data());
 
-	fACQParams->AddAll(fVamos->GetACQParams());
-	fDetectors.AddAll(fVamos->GetListOfDetectors());
-//	fIDTelescopes->AddAll(fVamos->GetListOfIDTelescopes());
+	fACQParams->AddAll( fVamos->GetACQParams() );
+	fDetectors.AddAll ( fVamos->GetDetectors() );
+	fIDTelescopes->AddAll(fVamos->GetListOfIDTelescopes());
 }
 //________________________________________________________________
 
