@@ -93,7 +93,7 @@ void KVIVUpDater::SetPedestalCorrections(KVDBRun *run){
 
 	// Loop over INDRA detectors
 	KVINDRADetector *det = NULL;
-	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	TIter next_det(gMultiDetArray->GetDetectors());
 	while( (det = (KVINDRADetector *)next_det()) ){
 
 		// Initializing each ACQ parameter pedestal correction for
@@ -386,7 +386,7 @@ void KVIVUpDater::SetChVoltRefGains(){
 	Info("KVIVUpDater::SetChVoltRefGains","Setting channel->Volt calibrator reference gain = detector gain");
 
 	KVDetector *det = NULL;
-	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	TIter next_det(gMultiDetArray->GetDetectors());
 	KVSeqCollection *sublist = NULL;
 	while(( det = (KVDetector *)next_det() )){
 		if( !det->GetListOfCalibrators() ) continue;
