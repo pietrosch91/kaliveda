@@ -20,7 +20,8 @@ $Id: KVINDRA.h,v 1.43 2009/01/21 10:05:51 franklan Exp $
 #ifndef KVINDRA_H
 #define KVINDRA_H
 
-#include "KVMultiDetArray.h"
+#include "TEnv.h"
+#include "KVASMultiDetArray.h"
 #include "KVList.h"
 #include "KVHashList.h"
 #include "KVACQParam.h"
@@ -63,7 +64,7 @@ enum EBaseIndra_typePhos {
    Phos_T,                      //=3
 };
 
-class KVINDRA:public KVMultiDetArray {
+class KVINDRA:public KVASMultiDetArray {
 
  public:
    static Char_t SignalTypes[16][3];    //Use this static array to translate EBaseIndra_type signal type to a string giving the signal type
@@ -72,27 +73,27 @@ class KVINDRA:public KVMultiDetArray {
  private:
     UChar_t fTrigger;           //multiplicity trigger used for acquisition
 
-
  protected:
     KVHashList * fChIo;             //->List Of ChIo of INDRA
    KVHashList *fSi;                 //->List of Si detectors of INDRA
    KVHashList *fCsI;                //->List of CsI detectors of INDRA
    KVHashList *fPhoswich;           //->List of NE102/NE115 detectors of INDRA
 
-   KVLayer *fChIoLayer;         //Reference to ChIo layer of INDRA
-
    Bool_t fPHDSet;//set to kTRUE if pulse height defect parameters are set
    
    KVINDRATriggerInfo* fSelecteur;//infos from DAQ trigger (le Selecteur)
 
-   virtual void MakeListOfDetectorTypes();
+   TEnv fStrucInfos;//! file containing structure of array
+
    virtual void MakeListOfDetectors();
-   virtual void PrototypeTelescopes();
    virtual void BuildGeometry();
    virtual void SetGroupsAndIDTelescopes();
    void FillListsOfDetectorsByType();
    void SetGGtoPGConversionFactors();
 	void LinkToCodeurs();
+    void BuildLayer(const Char_t* name);
+    KVRing *BuildRing(Int_t number, const Char_t *prefix);
+    KVINDRATelescope *BuildTelescope(const Char_t *prefix, Int_t mod);
 
  public:
     KVINDRA();
@@ -120,7 +121,6 @@ class KVINDRA:public KVMultiDetArray {
    };
 
    virtual KVChIo *GetChIoOf(const Char_t * detname);
-   void SetNamesChIo();
    virtual void cd(Option_t * option = "");
    virtual KVINDRADetector *GetDetectorByType(UInt_t cou, UInt_t mod,
                                          UInt_t type) const;
@@ -141,7 +141,9 @@ class KVINDRA:public KVMultiDetArray {
    KVINDRATriggerInfo* GetTriggerInfo() { return fSelecteur; };
 	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
 
-    ClassDef(KVINDRA, 6)        //class describing the materials and detectors etc. to build an INDRA multidetector array
+   const KVSeqCollection* GetListOfDetectors() const { return GetDetectors(); }
+
+   ClassDef(KVINDRA, 6)        //class describing the materials and detectors etc. to build an INDRA multidetector array
 };
 
 //................  global variable

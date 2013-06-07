@@ -73,31 +73,31 @@ void KVINDRAe613::PrototypeTelescopes()
 {
 	//Redefinition de la methode de KVINDRA
 	//pour la campagne e613
-	//les Si75 de la couronne 10 et 12 n'était physiquement pas présent
+    //les Si75 de la couronne 10 et 12 n'etait pas physiquement presents
 	//on les retire de gIndra
-	KVINDRA4::PrototypeTelescopes();
-	KVINDRATelescope* kvt=0;
+//	KVINDRA4::PrototypeTelescopes();
+//	KVINDRATelescope* kvt=0;
 	
-	kvt = (KVINDRATelescope* )fTelescopes->FindObjectByType("Etalons Ring10");
-	delete fTelescopes->Remove(kvt);
+//	kvt = (KVINDRATelescope* )fTelescopes->FindObjectByType("Etalons Ring10");
+//	delete fTelescopes->Remove(kvt);
 		
-   //Ring 10 etalon telescope
-   kvt = new KVINDRATelescope;
-   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-   kvt->SetType("Etalons Ring10");
-	kvt->SetDepth(1, 1.0);
-   kvt->SetAzimuthalWidth(14.44 / 2.);
-   fTelescopes->Add(kvt);
+//   //Ring 10 etalon telescope
+//   kvt = new KVINDRATelescope;
+//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
+//   kvt->SetType("Etalons Ring10");
+//	kvt->SetDepth(1, 1.0);
+//   kvt->SetAzimuthalWidth(14.44 / 2.);
+//   fTelescopes->Add(kvt);
 	
-	kvt = (KVINDRATelescope* )fTelescopes->FindObjectByType("Etalons Ring12");
-	delete fTelescopes->Remove(kvt);
+//	kvt = (KVINDRATelescope* )fTelescopes->FindObjectByType("Etalons Ring12");
+//	delete fTelescopes->Remove(kvt);
 		
-   //Ring 12 etalon telescope
-   kvt = new KVINDRATelescope;
-   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
-   kvt->SetType("Etalons Ring12");
-	kvt->SetDepth(1, 1.0);
-   kvt->SetAzimuthalWidth(14.56 / 2.);
-   fTelescopes->Add(kvt);
+//   //Ring 12 etalon telescope
+//   kvt = new KVINDRATelescope;
+//   kvt->AddDetector((KVSiLi *) fDetectorTypes->FindObjectByLabel("SILI"));
+//   kvt->SetType("Etalons Ring12");
+//	kvt->SetDepth(1, 1.0);
+//   kvt->SetAzimuthalWidth(14.56 / 2.);
+//   fTelescopes->Add(kvt);
 
 }

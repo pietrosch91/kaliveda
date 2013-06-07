@@ -195,6 +195,19 @@ void KVListView::SetDoubleClickAction(const char* receiver_class, void* receiver
    //       receiver_class::slot(TObject*)
    // The address of the selected (T)object is passed as argument.
    
-   ((KVLVContainer*)GetContainer())->SetDoubleClickAction(receiver_class, receiver, slot);
+    ((KVLVContainer*)GetContainer())->SetDoubleClickAction(receiver_class, receiver, slot);
+}
+
+void KVListView::AddContextMenuClassException(TClass *cl)
+{
+    // The global context menu status (allowed or not allowed) is set by AllowContextMenu().
+    // If required, this can be overridden for specific classes by calling this
+    // method for each required class.
+    // In this case, any objects in the list of precisely this class (not derived classes)
+    // will have the opposite behaviour to that defined by AllowContextMenu(),
+    // i.e. if context menus are globally disabled, this method defines the classes for
+    // which a context menu is authorised, and vice-versa.
+
+    ((KVLVContainer*)GetContainer())->AddContextMenuClassException(cl);
 }
    

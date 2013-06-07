@@ -61,7 +61,7 @@ const Char_t *KVIDCsI::GetArrayName()
    // The detectors are signified by their TYPE names i.e. KVDetector::GetType
 
    //in order to access angular dimensions of detectors, we need their KVTelescopes
-   KVTelescope *de_det = GetDetector(1)->GetTelescope();
+   KVINDRATelescope *de_det = dynamic_cast<KVINDRADetector*>(GetDetector(1))->GetTelescope();
    UInt_t ring, mod;
    ring = de_det->GetRingNumber();
    mod = de_det->GetNumber();

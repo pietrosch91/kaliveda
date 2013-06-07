@@ -22,7 +22,7 @@ $Id: KVINDRAReconNuc.h,v 1.39 2009/04/03 14:28:37 franklan Exp $
 
 
 #include "KVReconstructedNucleus.h"
-#include "KVDetector.h"
+#include "KVINDRADetector.h"
 #include "KVTelescope.h"
 #include "KVINDRACodes.h"
 #include "KVINDRAReconEvent.h"
@@ -155,6 +155,11 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
+   KVINDRATelescope *GetTelescope() const
+   {
+       //Return pointer to telescope (detector stack) in which the particle is detected
+       return (GetStoppingDetector() ?  dynamic_cast<KVINDRADetector*>(GetStoppingDetector())->GetTelescope() : 0);
+   }
 
    ClassDef(KVINDRAReconNuc, 11) //Nucleus identified by INDRA array
 };

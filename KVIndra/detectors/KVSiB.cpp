@@ -48,7 +48,7 @@ const Char_t *KVSiB::GetArrayName()
 {
    //Give name of detector as SIB_x with x=number of blocking telescope
 
-   fFName = TString("SIB_") + Form("%d", GetTelescopeNumber());
+   fFName = TString("SIB_") + Form("%d", GetTelescope()->GetNumber());
    return fFName.Data();
 }
 

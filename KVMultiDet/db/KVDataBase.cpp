@@ -287,7 +287,6 @@ KVDataBase *KVDataBase::MakeDataBase(const Char_t * name)
    //does plugin exist for given name ?
    TPluginHandler *ph;
    if (!(ph = KVBase::LoadPlugin("KVDataBase", name))) {
-      cout << "Plugin not loaded " << endl;
       return 0;
    }
    //execute constructor/macro for database

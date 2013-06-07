@@ -1,6 +1,8 @@
 #include "KVINDRAIDTelescope.h"
 #include "KVINDRACodeMask.h"
 #include "KVTelescope.h"
+#include <KVINDRATelescope.h>
+#include <KVINDRADetector.h>
 
 ClassImp(KVINDRAIDTelescope)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -62,10 +64,10 @@ const Char_t *KVINDRAIDTelescope::GetArrayName()
    // The detectors are signified by their TYPE names i.e. KVDetector::GetType
 
    //in order to access angular dimensions of detectors, we need their KVTelescopes
-   KVTelescope *de_det = GetDetector(1)->GetTelescope();
-   KVTelescope *e_det = 0;
+   KVINDRATelescope *de_det = dynamic_cast<KVINDRADetector*>(GetDetector(1))->GetTelescope();
+   KVINDRATelescope *e_det = 0;
    if (GetSize() > 1)
-      e_det = GetDetector(2)->GetTelescope();
+      e_det = dynamic_cast<KVINDRADetector*>(GetDetector(2))->GetTelescope();
    UInt_t ring, mod;
    if (!e_det || de_det->IsSmallerThan(e_det)) {
       ring = de_det->GetRingNumber();

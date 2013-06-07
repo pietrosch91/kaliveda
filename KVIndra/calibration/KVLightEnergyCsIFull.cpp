@@ -4,6 +4,8 @@
 #include "KVLightEnergyCsIFull.h"
 using namespace std;
 
+using namespace std;
+
 ClassImp(KVLightEnergyCsIFull)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,8 +138,8 @@ Double_t KVLightEnergyCsIFull::sp_e(double z, double a, double e)
 {
     if ( e<1.e-4 ) return 0.;
     Double_t se = fMaterialTable->GetStoppingFunction(z,a)->Eval(e);//-sp_n(z,a,e); // in units of MeV/(g/cm**2)
-    se*=1.e-3;                                                                   // in units of MeV/(mg/cm**2)
-    return se;
+    se*=1.e-3;                                                                      // in units of MeV/(mg/cm**2)
+    return se-sp_n(z,a,e);
 }
 
 //________________________________________________________________
@@ -183,7 +185,7 @@ Double_t KVLightEnergyCsIFull::GetLight(double* x, double* par)
     double emax    = x[0];
     double epsilon = 1.;    //arbitrary set
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
 	// for compilation with latest ROOT svn trunk version called 5.99/01
 	fDlight->SetParameters(par+1);
     return par[0]+fDlight->Integral(emin,emax,epsilon);

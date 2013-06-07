@@ -12,9 +12,12 @@ ETC_DATA = data
 ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVReg*.cpp
+NOT_READY := daq_cec/KVReg*.cpp gui/KVDetectorBrowser.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += daq_cec/GT*.cpp analysis/KVGANILDataReader.cpp analysis/KVRawDataAnalyser.cpp
+endif
+ifeq ($(WITH_OPENGL),no)
+NOT_READY += events/KVEventViewer.cpp
 endif
 
 NOT_ROOTCINT := base/KVError.h
@@ -34,15 +37,20 @@ KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ -DWITH_MODIFIED
 else
 NOT_READY += stopping/KVRangeYanez.cpp stopping/KVRangeYanezMaterial.cpp
 endif
+ifeq ($(WITH_OPENGL),yes)
+KV_INC_EXTRAS += -DWITH_OPENGL
+endif
 
 include ../Makefile.general
 RLIBMAPDEPS +=libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so \
 libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so \
 libPhysics.so libMathCore.so libThread.so libGui.so 
 
+ifeq ($(WITH_OPENGL),yes)
 #required for use of TGLViewer in KVEventViewer
 LINK_LIB += -L$(ROOTSYS)/lib -lRGL
 RLIBMAPDEPS += libRGL.so
+endif
 
 #required for use of TGeo* classes in KVMaterial, KVDetector, etc.
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
@@ -57,8 +65,8 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_34_00)),1)
 LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer
 RLIBMAPDEPS += libProofPlayer.so
 else
-LINK_LIB += -L$(ROOTSYS)/lib -lProof
-RLIBMAPDEPS += libProof.so
+LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer -lProof
+RLIBMAPDEPS += libProof.so libProofPlayer.so
 endif
 
 ifneq ($(ARCH),win32)

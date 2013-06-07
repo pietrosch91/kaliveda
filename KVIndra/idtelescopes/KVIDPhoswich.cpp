@@ -18,6 +18,8 @@
 #include "KVIDPhoswich.h"
 #include "KVTelescope.h"
 #include "KVINDRACodes.h"
+#include <KVINDRATelescope.h>
+#include <KVINDRADetector.h>
 
 ClassImp(KVIDPhoswich)
 ///////////////////////////////////////////////////////////////////////////
@@ -44,7 +46,7 @@ const Char_t *KVIDPhoswich::GetArrayName()
    // Name of telescope given in the form PHOS_R_L_Telescope-number
 
    //in order to access angular dimensions of detectors, we need their KVTelescopes
-   KVTelescope *de_det = GetDetector(1)->GetTelescope();
+   KVINDRATelescope *de_det = dynamic_cast<KVINDRADetector*>(GetDetector(1))->GetTelescope();
    UInt_t mod;
    mod = de_det->GetNumber();
    TString dummy;

@@ -46,8 +46,7 @@ class KVReconstructedEvent:public KVEvent {
    inline KVReconstructedNucleus *GetParticle(const Char_t * group_name) const;
    inline KVReconstructedNucleus *GetNextParticle(Option_t * opt = "");
    virtual void ReconstructEvent(KVDetectorEvent * kvde);
-   virtual Bool_t AnalyseGroup(KVGroup * kvg);
-   virtual Bool_t AnalyseTelescopes(TList * kvtl);
+   virtual Bool_t AnalyseDetectors(TList * kvtl);
    virtual const Char_t *GetPartSeedCond() const{
  	   return fPartSeedCond; 
    };

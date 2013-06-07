@@ -19,6 +19,7 @@ ClassImp(KVEventViewer)
 /* -->
 <h2>KVEventViewer</h2>
 <h4>Draw events in 3D using OpenGL</h4>
+<br><img src="images/kveventviewer.gif"><br>
 <!-- */
 // --> END_HTML
 // Any KVEvent object can be represented by using KVEventViewer::DrawEvent(KVEvent*, const Char_t* frame="").

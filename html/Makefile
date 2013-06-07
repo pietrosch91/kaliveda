@@ -28,7 +28,8 @@ CXXFLAGS += $(KV_INC)
 ifeq ($(ARCH),win32)
 LINK_LIBS = '$(KVROOT)\lib\libKVIndra.lib' '$(KVROOT)\lib\libKVMultiDet.lib'
 else
-LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
+#LINK_LIBS = -L$(KVROOT)/lib -lKVIndra -lKVMultiDet
+LINK_LIBS = -L$(KVROOT)/lib -lKVMultiDet
 endif
 
 #ganil libraries for reading raw data only build on linux systems

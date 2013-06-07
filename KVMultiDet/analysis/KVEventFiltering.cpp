@@ -9,6 +9,7 @@
 #include "KVDBRun.h"
 #include "KVDataSetManager.h"
 #include <KVDataRepositoryManager.h>
+#include "KVGeoNavigator.h"
 
 ClassImp(KVEventFiltering)
 
@@ -161,21 +162,23 @@ void KVEventFiltering::InitAnalysis()
    if(gMultiDetArray) delete gMultiDetArray;
    gDataSet->BuildMultiDetector();
    gMultiDetArray->SetSimMode();
+
+   Info("InitAnalysis", "Detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
    
    TString system = GetOpt("System").Data();
-   KVDBSystem* sys = (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system);
-   fCMVelocity =  sys->GetKinematics()->GetCMVelocity();
+   KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);
+   fCMVelocity =  (sys ? sys->GetKinematics()->GetCMVelocity() : TVector3(0,0,0));
    fCMVelocity*=-1.0;
    
    Int_t run=0;
    if(IsOptGiven("Run")) run = GetOpt("Run").Atoi();
-   if(!run) run = ((KVDBRun*)sys->GetRuns()->First())->GetNumber();
+   if(!run && sys) run = ((KVDBRun*)sys->GetRuns()->First())->GetNumber();
    gMultiDetArray->SetParameters( run );
    
    TString geo = GetOpt("Geometry").Data();
    if(geo=="ROOT"){
       gMultiDetArray->SetROOTGeometry(kTRUE);
-      gMultiDetArray->CreateGeoManager();
+      gMultiDetArray->GetGeometry()->cd();
       Info("InitAnalysis", "Filtering with ROOT geometry");
    }
    else
@@ -209,8 +212,9 @@ void KVEventFiltering::InitAnalysis()
    
    
    OpenOutputFile(sys,run);
-   fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() ,sys->GetName()));
-   
+   if(sys) fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s (%s)", GetOpt("SimTitle").Data() , gMultiDetArray->GetTitle(), sys->GetName()));
+   else fTree = new TTree("ReconstructedEvents", Form("%s filtered with %s", GetOpt("SimTitle").Data() ,gMultiDetArray->GetTitle()));
+
    TString reconevclass = gDataSet->GetReconstructedEventClassName();
    fReconEvent = (KVReconstructedEvent*)TClass::GetClass(reconevclass)->New();
    fTree->Branch("ReconEvent", reconevclass,&fReconEvent,10000000,0)->SetAutoDelete(kFALSE);
@@ -251,10 +255,12 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
    outfile += GetOpt("Filter");
    outfile+="_";
    outfile+=gDataSet->GetName();
-   outfile+="_";
-   outfile+=S->GetBatchName();
-   outfile+="_run=";
-   outfile+=Form("%d",run);
+   if(S){
+       outfile+="_";
+       outfile+=S->GetBatchName();
+       outfile+="_run=";
+       outfile+=Form("%d",run);
+   }
    outfile+=".root";
    
       TString fullpath;
@@ -265,10 +271,12 @@ void KVEventFiltering::OpenOutputFile(KVDBSystem*S,Int_t run)
 
    TDirectory* curdir = gDirectory;
    writeFile->cd();
+   if(S){
    TNamed* system = new TNamed("System", S->GetName());
    system->Write();
+   }
    (new TNamed("Dataset",gDataSet->GetName()))->Write();
-   (new TNamed("Run",Form("%d",run)))->Write();
+   if(S) (new TNamed("Run",Form("%d",run)))->Write();
    if(gMultiDetArray->IsROOTGeometry()){
       (new TNamed("Geometry", "ROOT"))->Write();
    }

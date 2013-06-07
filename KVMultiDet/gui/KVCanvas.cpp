@@ -29,6 +29,15 @@ Zoom out: mouse wheel down<br>
 Pan: hold down mouse wheel (centre button) and move
 <!-- */
 // --> END_HTML
+// KEYBOARD SHORTCUTS:
+//  F9  -  X axis log/lin
+//  F10 -  Y axis log/lin
+//  F11 -  Z axis log/lin
+//  F12 -  Zoom out (reset axes)
+//  g   -  Show/hide grid on X and Y axes
+//  l   -  Change log/lin mode for Y-axis (1D histo) or Z-axis (2D histo)
+//  w   -  Age of Empires mode
+//  v   -  Age of Empires vener mode
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -52,9 +61,9 @@ KVCanvas::~KVCanvas()
 }
 
 //________________________________________________________________
-KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh):TCanvas(name, title, ww, wh)
+KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool_t keyHandler):TCanvas(name, title, ww, wh)
 {
-  fKeyHandler = new KVKeyHandler(this);
+  if(keyHandler) fKeyHandler = new KVKeyHandler(this);
   fAgeOfEmpire = false;
   fModeVener   = false;
   fHasDisabledClasses = false;
@@ -757,12 +766,26 @@ Bool_t KVCanvas::HandleKey(Event_t *event)
 	      }
             break;
 	    
-         case kKey_s:
-            break;
-	    
-         case kKey_l:
-            break;
-	    
+      case kKey_g:
+          if(GetGridx()&&GetGridy())
+              SetGrid(0,0);
+          else
+              SetGrid();
+          Modified();
+          Update();
+          break;
+
+      case kKey_l:
+          if(fSelected){
+              if(fSelected->InheritsFrom("TH2"))
+                  SetLogz(!fLogz);
+              else if(fSelected->InheritsFrom("TH1"))
+                  SetLogy(!fLogy);
+          }
+          Modified();
+          Update();
+          break;
+
          case kKey_e:
             break;
 	    

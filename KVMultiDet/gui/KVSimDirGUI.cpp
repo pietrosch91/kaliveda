@@ -559,13 +559,16 @@ void KVSimDirGUI::SelectDataSet(const char* name)
       fSystem="";
       fRun="";
       ds->cd();
-      TList* systems = gDataBase->GetTable("Systems")->GetRecords();
+      TList* systems = 0;
+      if(gDataBase) systems = gDataBase->GetTable("Systems")->GetRecords();
       fCBsystem->RemoveAll();
       fCBsystem->AddEntry("Choose system...", 0);
-      TIter next(systems);
-      KVDBSystem* sys; int i=1;
-      while ( ( sys = (KVDBSystem*)next()) ){
-         fCBsystem->AddEntry(sys->GetName(),i++);
+      if(systems){
+          TIter next(systems);
+        KVDBSystem* sys; int i=1;
+        while ( ( sys = (KVDBSystem*)next()) ){
+            fCBsystem->AddEntry(sys->GetName(),i++);
+        }
       }
       fCBsystem->Layout();
       fCBsystem->Select(0,kFALSE);

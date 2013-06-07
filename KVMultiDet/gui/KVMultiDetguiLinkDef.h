@@ -8,17 +8,17 @@
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 #pragma link C++ class KVBrowser;
-#pragma link C++ class KVBrowserWidget;
-#pragma link C++ class KVBrowserNameDialog;
-#pragma link C++ class KVDetectorBrowser;
+//#pragma link C++ class KVBrowserWidget;
+//#pragma link C++ class KVBrowserNameDialog;
+//#pragma link C++ class KVDetectorBrowser;
 #pragma link C++ class KVDataBaseBrowser;
-#pragma link C++ class KVLayerBrowser;
+//#pragma link C++ class KVLayerBrowser;
 #pragma link C++ class KVListView;
 #pragma link C++ class KVLVContainer;
 #pragma link C++ class KVLVEntry;
 #pragma link C++ class KVLVColumnData;
-#pragma link C++ class KVMultiDetBrowser;
-#pragma link C++ class KVRingBrowser;
+//#pragma link C++ class KVMultiDetBrowser;
+//#pragma link C++ class KVRingBrowser;
 #pragma link C++ class KVWidget;
 #pragma link C++ class KVWidgetList;
 #pragma link C++ class KVMergeGridsDialog+;
@@ -43,4 +43,6 @@
 #pragma link C++ class KVSpIdGUI+;
 #pragma link C++ class KVZAFinderDialog+;
 #pragma link C++ class KVBatchSystemGUI+;
+#pragma link C++ class KVLauncherGUI+;
+#pragma link C++ class KVTextDialog+;
 #endif

@@ -295,6 +295,11 @@ void KVLVContainer::default_init()
 	fAllowDoubleClick = kTRUE;
 	fUserDoubleClickAction = kFALSE;
 	fKeepUserItems = kFALSE;
+
+    fPickOrderedObjects = new KVList(kFALSE);
+    fPickOrderedObjects->SetCleanup();
+
+    fContextMenuClassExceptions=0;
 }
 
 KVLVContainer::~KVLVContainer()
@@ -305,6 +310,10 @@ KVLVContainer::~KVLVContainer()
 	delete fContextMenu;
 	fUserItems->Clear();
 	delete fUserItems;
+    fPickOrderedObjects->Clear();
+    delete fPickOrderedObjects;
+    if(fContextMenuClassExceptions) fContextMenuClassExceptions->Clear();
+    SafeDelete(fContextMenuClassExceptions);
 }
 
 //____________________________________________________________________________//
@@ -597,13 +606,32 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
 	// Open context menu when user right-clicks an object in the list.
 	// Calling AllowContextMenu(kFALSE) will disable this.
 
-	if(!fAllowContextMenu) return;
+    if(but == kButton1){
+        if(!fControlClick) fPickOrderedObjects->Clear();
+        TGLVEntry *el = (TGLVEntry*)f;
+        TObject* ob = (TObject*)el->GetUserData();
+        if(ob){
+            Bool_t in_list = fPickOrderedObjects->FindObject(ob);
+            if(in_list) fPickOrderedObjects->Remove(ob);
+            else fPickOrderedObjects->AddLast(ob);
+        }
+        return;
+    }
+
+    // context menus globally disabled and no exceptions defined
+    if(!fAllowContextMenu && !fContextMenuClassExceptions) return;
 
 	if(but == kButton3){
 		TGLVEntry *el = (TGLVEntry*)f;
 		TObject *ob = (TObject*)el->GetUserData();
 		if(ob) {
-			fContextMenu->Popup(x,y,ob);
+            // check class context menu status
+            if(fContextMenuClassExceptions){
+                if((!fAllowContextMenu && fContextMenuClassExceptions->FindObject(ob->ClassName()))
+                        || (fAllowContextMenu && !fContextMenuClassExceptions->FindObject(ob->ClassName())))
+                    fContextMenu->Popup(x,y,ob);
+            }
+            else if(fAllowContextMenu)  fContextMenu->Popup(x,y,ob);
 		}
 	}
 }
@@ -703,6 +731,20 @@ TList* KVLVContainer::GetSelectedObjects()
    return ret;
 }
 
+void KVLVContainer::AddContextMenuClassException(TClass *cl)
+{
+    // The global context menu status (allowed or not allowed) is set by AllowContextMenu().
+    // If required, this can be overridden for specific classes by calling this
+    // method for each required class.
+    // In this case, any objects in the list of precisely this class (not derived classes)
+    // will have the opposite behaviour to that defined by AllowContextMenu(),
+    // i.e. if context menus are globally disabled, this method defines the classes for
+    // which a context menu is authorised, and vice-versa.
+
+    if(!fContextMenuClassExceptions) fContextMenuClassExceptions=new TList;
+    fContextMenuClassExceptions->Add(cl);
+}
+
 //______________________________________________________________________________
 
 void KVLVContainer::SetDoubleClickAction(const char* receiver_class, void* receiver, const char* slot)
@@ -722,5 +764,13 @@ void KVLVContainer::SetDoubleClickAction(const char* receiver_class, void* recei
    
 void KVLVContainer::DoubleClickAction(TObject*obj)
 {
-   Emit("DoubleClickAction(TObject*)", (Long_t)obj);
+    Emit("DoubleClickAction(TObject*)", (Long_t)obj);
+}
+
+Bool_t KVLVContainer::HandleButton(Event_t *event)
+{
+    // Override TGContainer method in order to set fControlClick flag
+    fControlClick=kFALSE;
+    if(event->fCode == kButton1 && (event->fState & kKeyControlMask)) fControlClick=kTRUE;
+    return TGLVContainer::HandleButton(event);
 }

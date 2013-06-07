@@ -56,6 +56,20 @@ void KVEnv::Copy(TObject& obj) const
    TEnv::Copy(obj);
    //KVEnv& CastedObj = (KVEnv&)obj;
 }
+//________________________________________________________________
+void KVEnv::CopyTable(TEnv& env)
+{
+   //Copy table of env to this
+	THashList* hl=0;
+	if ( (hl = env.GetTable()) ){
+		TIter next(hl);
+		TEnvRec* env_rec = 0;
+		while ( (env_rec = (TEnvRec* )next.Next()) ){
+			SetValue(env_rec->GetName(),env_rec->GetValue());
+		}
+	}
+
+}
 
 //________________________________________________________________
 void KVEnv::AddCommentLine(const Char_t* line)

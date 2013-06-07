@@ -18,6 +18,7 @@ class KVEnv : public TEnv
    KVEnv(const char* name = "");
    virtual ~KVEnv();
    void Copy(TObject& obj) const;
+	void CopyTable(TEnv& env);
 	
 	virtual Int_t	WriteFile(const char* fname, EEnvLevel level = kEnvAll);
    void AddCommentLine(const Char_t* line);

@@ -80,9 +80,13 @@ public:
 
    // Returns pointer to material of given name or type.
    virtual KVIonRangeTableMaterial* GetMaterial(const Char_t* material)=0;
-   
+
+   virtual KVIonRangeTableMaterial* GetMaterial(TGeoMaterial*);
+
    // Return kTRUE if material is in range tables
    virtual Bool_t IsMaterialKnown(const Char_t*);
+
+   virtual Bool_t IsMaterialKnown(TGeoMaterial*);
 
    // Return kTRUE if material is gaseous
    virtual Bool_t IsMaterialGas(const Char_t*);
@@ -137,8 +141,6 @@ public:
    virtual Double_t GetLinearEIncOfMaxDeltaEOfIon(const Char_t* mat, Int_t Z, Int_t A, Double_t e, Double_t isoAmat=0., Double_t T=-1., Double_t P=-1.);
    
    virtual void Print(Option_t* = "") const;
-
-   virtual void DetectEvent(TGeoManager*, KVEvent*, TVector3* /*origin*/ = 0);
    
    ClassDef(KVIonRangeTable, 1) //Abstract base class for calculation of range & energy loss of charged particles in matter
 };

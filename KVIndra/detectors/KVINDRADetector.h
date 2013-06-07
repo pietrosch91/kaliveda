@@ -5,7 +5,7 @@
 #define __KVINDRADETECTOR_H
 
 #include "KVDetector.h"
-#include "KVTelescope.h"
+#include "KVINDRATelescope.h"
 
 class KVINDRADetector : public KVDetector
 {
@@ -30,13 +30,20 @@ public:
 		NumeroCodeur = 0;
     };
 
+    KVINDRATelescope* GetTelescope() const
+    {
+        // Return pointer to telescope containing this detector
+        return (KVINDRATelescope*)GetParentStructure("TELESCOPE");
+    }
+
+
     const Char_t *GetArrayName();
-   virtual UInt_t GetRingNumber() const {
-   	return (GetTelescope() ? GetTelescope()->GetRingNumber() : 0);
-   	};
-   virtual UInt_t GetModuleNumber() const {
-      return GetTelescopeNumber();
-   };
+    virtual UInt_t GetRingNumber() const {
+        return (GetTelescope() ? GetTelescope()->GetRingNumber() : 0);
+    }
+    virtual UInt_t GetModuleNumber() const {
+        return (GetTelescope() ? GetTelescope()->GetNumber() : 0);
+    }
 
     virtual void AddACQParamType(const Char_t * type);
     virtual KVACQParam *GetACQParam(const Char_t*/*type*/);

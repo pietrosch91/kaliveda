@@ -28,9 +28,6 @@ $Date: 2009/03/03 14:27:15 $
 #ifndef ROOT_TGMdiMainFrame
 #include "TGMdiMainFrame.h"
 #endif
-#ifndef ROOT_TGuiBldHintsButton
-#include "TGuiBldHintsButton.h"
-#endif
 #ifndef ROOT_TRootBrowserLite
 #include "TRootBrowserLite.h"
 #endif
@@ -45,9 +42,6 @@ $Date: 2009/03/03 14:27:15 $
 #endif
 #ifndef ROOT_TGScrollBar
 #include "TGScrollBar.h"
-#endif
-#ifndef ROOT_TGuiBldHintsEditor
-#include "TGuiBldHintsEditor.h"
 #endif
 #ifndef ROOT_TGFrame
 #include "TGFrame.h"
@@ -70,9 +64,6 @@ $Date: 2009/03/03 14:27:15 $
 #ifndef ROOT_TGButton
 #include "TGButton.h"
 #endif
-#ifndef ROOT_TGuiBldEditor
-#include "TGuiBldEditor.h"
-#endif
 #ifndef ROOT_TGFSComboBox
 #include "TGFSComboBox.h"
 #endif
@@ -81,9 +72,6 @@ $Date: 2009/03/03 14:27:15 $
 #endif
 #ifndef ROOT_TGMsgBox
 #include "TGMsgBox.h"
-#endif
-#ifndef ROOT_TRootGuiBuilder
-#include "TRootGuiBuilder.h"
 #endif
 #ifndef ROOT_TGTab
 #include "TGTab.h"
@@ -105,9 +93,6 @@ $Date: 2009/03/03 14:27:15 $
 #endif
 #ifndef ROOT_TGToolBar
 #include "TGToolBar.h"
-#endif
-#ifndef ROOT_TGuiBldDragManager
-#include "TGuiBldDragManager.h"
 #endif
 
 #include "Riostream.h"

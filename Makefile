@@ -62,6 +62,10 @@ endif
 #
 #which will override the previous definition
 
+# WARNING - The following kludge should be handled by a configure script...
+# Test if ROOT is compiled with OpenGL support
+export WITH_OPENGL = $(shell root-config --has-opengl)
+
 # for compilation with gru lib
 export WITH_GRU_LIB = no
 export GRU_DIR = /home/acqexp/GRU/GRUcurrent
@@ -139,7 +143,8 @@ endif
 
 .PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
 
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra install analysis byebye
+#Indra $(INDRAVAMOS) install analysis byebye
 
 doc : html byebye
 

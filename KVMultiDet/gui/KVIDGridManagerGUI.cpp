@@ -22,7 +22,7 @@
 #include "KVIDCutLine.h"
 #include "KVIDCutContour.h"
 #include "KVVirtualIDFitter.h"
-//#include "KVIDTelescope.h"
+#include "TTree.h"
 
 using namespace std;
 
@@ -49,8 +49,7 @@ ClassImp(KVIDGridManagerGUI)
 <!-- */
 // --> END_HTML
 //////////////////////////////////////////////////////////
-KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500,
-                                                         300)
+KVIDGridManagerGUI::KVIDGridManagerGUI(): TGMainFrame(gClient->GetRoot(), 500, 300)
 {
    fFirstGrid = 0;
    fLastGrid = -1;

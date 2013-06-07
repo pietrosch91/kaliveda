@@ -249,7 +249,7 @@ void KVINDRADB_e613::ReadGainList()
 				//exemple  : Gain_SI_R07.dat
 				det_type = ((TObjString* )toks->At(1))->GetString();
 				//on recupere les detecteurs par type
-				sl = (KVList* )gIndra->GetListOfDetectors()->GetSubListWithType(det_type.Data());
+                sl = (KVList* )gIndra->GetDetectors()->GetSubListWithType(det_type.Data());
 				if (nt==2){
 					ring=0;
 				}	

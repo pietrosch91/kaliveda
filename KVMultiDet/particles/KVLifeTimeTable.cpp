@@ -122,9 +122,9 @@ void KVLifeTimeTable::Initialize()
 		Error("Initialize","No file found for %s",GetName());
 		return;
 	}	
-	else 
-		Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
-	
+	else {
+		//Info("Initialize","%s will be read",gEnv->GetValue(dfile.Data(),""));
+	}
 	SetTitle(gEnv->GetValue(dfile.Data(),""));
 
 	Int_t ntot=0;
@@ -153,7 +153,7 @@ void KVLifeTimeTable::Initialize()
 	
 	if ( !fr->PreparForReadingAgain() ) return;
 	
-	Info("Initialize","Set up map for %d nuclei", ntot);
+	//Info("Initialize","Set up map for %d nuclei", ntot);
 	CreateTable(ntot);
 	
 	KVLifeTime* lf = 0;
@@ -195,7 +195,7 @@ void KVLifeTimeTable::Initialize()
 	
 	}
 	
-	Info("Initialize","table initialised correctly for %d nuclei", ntot);
+	//Info("Initialize","table initialised correctly for %d nuclei", ntot);
 	fr->CloseFile();
 	delete fr;
 

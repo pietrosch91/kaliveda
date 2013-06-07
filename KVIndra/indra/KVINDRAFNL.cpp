@@ -55,12 +55,12 @@ KVINDRAFNL::~KVINDRAFNL()
 
 void KVINDRAFNL::MakeListOfDetectorTypes()
 {
-   //Add SIB and BIC detectors to KVINDRA4 list
-   KVINDRA4::MakeListOfDetectorTypes();
-   KVSiB *sib = new KVSiB(500.0);
-   fDetectorTypes->Add(sib);
-   KVBIC *bic = new KVBIC(30.); //BIC 30 Torr
-   fDetectorTypes->Add(bic);
+//   //Add SIB and BIC detectors to KVINDRA4 list
+//   KVINDRA4::MakeListOfDetectorTypes();
+//   KVSiB *sib = new KVSiB(500.0);
+//   fDetectorTypes->Add(sib);
+//   KVBIC *bic = new KVBIC(30.); //BIC 30 Torr
+//   fDetectorTypes->Add(bic);
 }
 
 //_________________________________________________________________________________
@@ -71,19 +71,19 @@ void KVINDRAFNL::PrototypeTelescopes()
    //Each of these replaces a ChIo cell and block of 4 Si/CsI, so we use the azimuthal
    //widths corresponding to the replaced ChIo in each case.
 
-   KVINDRA4::PrototypeTelescopes();
+//   KVINDRA4::PrototypeTelescopes();
 
-   //telescope blocking #1 : ring 4 12h
-   KVTelBlocking *tel = new KVTelBlocking(1);
-   fTelescopes->Add(tel);
-   tel->SetType("Blocking T1");
-   tel->SetAzimuthalWidth(29.10);
+//   //telescope blocking #1 : ring 4 12h
+//   KVTelBlocking *tel = new KVTelBlocking(1);
+//   fTelescopes->Add(tel);
+//   tel->SetType("Blocking T1");
+//   tel->SetAzimuthalWidth(29.10);
 
-   //telescope blocking #2 & #3 : ring 6 1h & 9h
-   tel = new KVTelBlocking(2);
-   fTelescopes->Add(tel);
-   tel->SetType("Blocking T2/3");
-   tel->SetAzimuthalWidth(29.28);
+//   //telescope blocking #2 & #3 : ring 6 1h & 9h
+//   tel = new KVTelBlocking(2);
+//   fTelescopes->Add(tel);
+//   tel->SetType("Blocking T2/3");
+//   tel->SetAzimuthalWidth(29.28);
 
 }
 
@@ -137,43 +137,43 @@ void KVINDRAFNL::Build()
    GetRing("SI-CSI", 7)->RemoveTelescope("SI_CSI_0718");
 
    //add blocking telescopes
-   KVLayer *B__lay = new KVLayer();     //blocking layer
+//   KVLayer *B__lay = new KVLayer();     //blocking layer
 
-   KVTelescope *B__tel =
-       (KVTelescope *) fTelescopes->FindObjectByType("Blocking T1");
-   //distance target->entrance of telescope.
-   //1224mm is distance to SIB, so have to subtract depth of SIB
-   Double_t dist = 1224. - B__tel->GetDepth(2);
-   B__lay->AddRing(new KVRing(4, 7.21, 13.83, 0., 1, dist, B__tel)
+//   KVTelescope *B__tel =
+//       (KVTelescope *) fTelescopes->FindObjectByType("Blocking T1");
+//   //distance target->entrance of telescope.
+//   //1224mm is distance to SIB, so have to subtract depth of SIB
+//   Double_t dist = 1224. - B__tel->GetDepth(2);
+//   B__lay->AddRing(new KVRing(4, 7.21, 13.83, 0., 1, dist, B__tel)
 
-       );
+//       );
 
-   B__tel = (KVTelescope *) fTelescopes->FindObjectByType("Blocking T2/3");
-   //distance target->entrance of telescope.
-   //1003mm is distance to SIB, so have to subtract depth of SIB
-   dist = 1003. - B__tel->GetDepth(2);
-   B__lay->
-       AddRing(new
-               KVRing(6, 14.21, 26.74, 30., 2, dist, B__tel, 1, 2, 240.)
+//   B__tel = (KVTelescope *) fTelescopes->FindObjectByType("Blocking T2/3");
+//   //distance target->entrance of telescope.
+//   //1003mm is distance to SIB, so have to subtract depth of SIB
+//   dist = 1003. - B__tel->GetDepth(2);
+//   B__lay->
+//       AddRing(new
+//               KVRing(6, 14.21, 26.74, 30., 2, dist, B__tel, 1, 2, 240.)
 
-       );
+//       );
 
-   B__lay->SetName("BLOCKING");
-   AddLayer(B__lay);
+//   B__lay->SetName("BLOCKING");
+//   AddLayer(B__lay);
 
-   UpdateArray();
+//   UpdateArray();
 
-   SetName("INDRA");
-   SetTitle("INDRA for FNL Experiments E416 & E416a");
+//   SetName("INDRA");
+//   SetTitle("INDRA for FNL Experiments E416 & E416a");
 
-   //set pedestals
-   Info("Build", "Setting pedestals for ChIo/Si detectors");
-   TString fullpath;
-   SearchKVFile(CHIO_SI_PIEDS, fullpath, fDataSet.Data());
-   SetPedestals(fullpath.Data());
-   Info("Build", "Setting pedestals for CsI detectors");
-   SearchKVFile(CSI_PIEDS, fullpath, fDataSet.Data());
-   SetPedestals(fullpath.Data());
+//   //set pedestals
+//   Info("Build", "Setting pedestals for ChIo/Si detectors");
+//   TString fullpath;
+//   SearchKVFile(CHIO_SI_PIEDS, fullpath, fDataSet.Data());
+//   SetPedestals(fullpath.Data());
+//   Info("Build", "Setting pedestals for CsI detectors");
+//   SearchKVFile(CSI_PIEDS, fullpath, fDataSet.Data());
+//   SetPedestals(fullpath.Data());
 }
 
 //_________________________________________________________________________________

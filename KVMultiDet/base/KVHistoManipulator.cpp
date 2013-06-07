@@ -481,7 +481,7 @@ TH1* 	KVHistoManipulator::CumulatedHisto(TH1* hh,TString direction,Int_t bmin,In
 	if(direction!="C"&&direction!="D"){
 		cout << "l option TString direction doit etre C ou D" << endl; return NULL;
 	}
-	if (TString(hh->ClassName()).Contains("TH1")){
+	if (hh->GetDimension()==1){
 		if (bmin<1) bmin=1;
 		if (bmax<1) bmax=hh->GetNbinsX();
 		TString hname; hname.Form("%s_cumulated",hh->GetName());
@@ -520,7 +520,7 @@ TH1* 	KVHistoManipulator::CumulatedHisto(TH1* hh,TString direction,Int_t bmin,In
 		return clone;
 	}
 	else {
-		cout << "cette methode n est pas prevue pour les TH2, TH3 ou TProfile" << endl;
+		cout << "cette methode n est pas prevue pour les TH2, TH3" << endl;
 		return NULL; 
 	}
 	
@@ -543,15 +543,14 @@ TH1* 	KVHistoManipulator::GetDerivative(TH1* hh,Int_t order){
 	
 	if (!hh) { cout << "pointeur histogramme nul" << endl; return NULL; }
 	if ( !(0<=order && order<=2) ) { cout << "ordre "<< order << "n est pas implemente" << endl; return NULL; }
-	if ( hh->GetDimension()==1 && !hh->InheritsFrom("TProfile")){
+	if ( hh->GetDimension()==1 ){
 		
 		TString hname; hname.Form("%s_derivated_%d",hh->GetName(),order);
 		TH1* clone = 0; 
-		/*
-		if (hh->InheritsFrom("TProfile"))	clone = (TProfile *)hh->Clone(hname.Data()); 
+		
+		if (hh->InheritsFrom("TProfile"))	clone = new TH1F(hname.Data(),hh->GetTitle(),hh->GetNbinsX(),hh->GetBinLowEdge(1),hh->GetBinLowEdge(hh->GetNbinsX()+1));
 		else 											clone = (TH1 *)hh->Clone(hname.Data()); 
-		*/
-		clone = (TH1 *)hh->Clone(hname.Data()); 
+		
 		clone->Reset();
 		
 		for (Int_t nx=3;nx<=hh->GetNbinsX()-2;nx+=1){

@@ -11,6 +11,7 @@ $Date: 2009/04/28 09:11:29 $
 #include "TInterpreter.h"
 #include "TGPicture.h"
 #include "TGResourcePool.h"
+#include "TGTextEntry.h"
 
 ClassImp(KVLVEntry)
 
@@ -72,7 +73,7 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 			TString(obj->ClassName()), 0, kVerticalFrame, GetWhitePixel())
 {
    // Default constructor
-	
+    fEditMode=kFALSE;
 	if( !fgGreyPixel ){
 		if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
 		fgBGColor = fgWhitePixel;
@@ -138,7 +139,7 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
 	// order to make the list easier to read.
 	// For columns with fBoolean[i]=kTRUE (set from KVLVColumnData::SetIsBoolean)
 
-	KVLVContainer *cnt = (KVLVContainer*)GetParent();
+    KVLVContainer *cnt = (KVLVContainer*)GetParent();
 	if(fBGColor == -1 || cnt->IsBeingSorted()){
 		fBGColor = fgBGColor;
 		if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
@@ -208,7 +209,6 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
          gVirtualX->FillRectangle(id, fNormGC, x + lx, y + ly, fCpos[0] - lx, fTHeight + 1);
          gVirtualX->SetForeground(fNormGC, fgBlackPixel);
       }
-
       TGString tmpTGString(tmpString);
       tmpTGString.Draw(id, fNormGC, x+lx, y+ly + max_ascent);
    } else {

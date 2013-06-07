@@ -24,7 +24,7 @@ $Id: KVPhoswich.h,v 1.9 2006/10/19 14:32:43 franklan Exp $
 class KVPhoswich:public KVINDRADetector {
  public:
    KVPhoswich();
-   KVPhoswich(Float_t, Float_t);
+   KVPhoswich(Float_t);
    virtual ~ KVPhoswich();
 
    const Char_t *GetArrayName();

@@ -630,10 +630,9 @@ void KV2Body::Print(Option_t * opt) const
          Double_t dtheta = GetLabGrazingAngle(1) / nsteps;
          for (int step = 0; step < nsteps; step++) {
             Double_t theta = dtheta * (step + 1);
-            Int_t nsol;
             Double_t elabP1, elabP2;
             Double_t tcm1, tcm2;
-            nsol = GetELab(3, theta, 3, elabP1, elabP2);
+            Int_t nsol = GetELab(3, theta, 3, elabP1, elabP2);
             GetThetaCM(theta, 3, tcm1, tcm2);
                printf
                 ("   %6.2f     %6.2f     %7.2f      %10.4g      %10.4g\n",
@@ -958,7 +957,7 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(KVDetector* det,Int_t OfNucleus)
 	// 
 	//The returned value is in barns
 	
-	KVTelescope*tel=det->GetTelescope();
+    KVTelescope*tel=(KVTelescope*)det->GetParentStructure("TELESCOPE");
 	if(!det){
 	   Error("GetIntegratedXSecRuthLab(KVDetector*,Int_t)",
 	      "Detector has no parent telescope: it has not been positioned in a multidetector geometry");
@@ -991,7 +990,7 @@ Double_t KV2Body::GetIntegratedXSecRuthLab(Float_t th1,Float_t th2,Float_t phi1,
 	if( th1<theta_min) theta_min = th1;
 	if(th2>theta_max) theta_max=th2;
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,01)
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,99,01)
 	return GetXSecRuthLabIntegralFunc(OfNucleus,theta_min,theta_max)->Integral(th1,th2,fIntPrec)*TMath::DegToRad()*dphi;
 #else
 	const Double_t *para = 0;

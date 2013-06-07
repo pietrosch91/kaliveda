@@ -442,7 +442,7 @@ KVDetector* KVINDRADstToRootTransfert::Code2and9and10(Int_t ring, Int_t mod)
 	//KVINDRAReconNuc::Reconstruct must be called.
 	//cout << "Code2and9and10" << endl;
  	 if(ring==1){
-	  if(!(gIndra->InheritsFrom("KVINDRA4")))
+	  if(!camp4)
  		 {
  		 //phoswich
  		 KVPhoswich *phos = 
@@ -548,7 +548,7 @@ KVDetector* KVINDRADstToRootTransfert::Code3(Int_t ring, Int_t mod)
 	//KVINDRAReconNuc::Reconstruct must be called.
 	
 	// First Ring if GSI Campaign
-	if(ring==1 && gIndra->InheritsFrom("KVINDRA4")){
+	if(ring==1 && camp4){
 		KVCsI *csi = (KVCsI*) gIndra->GetDetectorByType(ring,mod,CsI_R);
 		if(!csi) return 0;
 		KVSilicon *si = (KVSilicon*) gIndra->GetDetectorByType(ring,mod,Si_GG);
@@ -634,7 +634,7 @@ KVDetector* KVINDRADstToRootTransfert::Code0(Int_t ring, Int_t mod)
 // 	 - Signal codeur CsI/Phoswich rapide  --> de3(i)  canaux en negatif
 // 	 - Marqueur de temps --> Mt(i)	
 	
- 	if(ring==1 && !(gIndra->InheritsFrom("KVINDRA4")))
+ 	if(ring==1 && !camp4)
  	{
  		 //phoswich
  		 KVPhoswich *phos = (KVPhoswich*)gIndra->GetDetectorByType(ring,mod,Phos_R);

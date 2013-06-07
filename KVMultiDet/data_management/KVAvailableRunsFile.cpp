@@ -384,6 +384,15 @@ void KVAvailableRunsFile::GetRunInfos(Int_t run, KVList * dates,
 
          //found it
          TObjArray *toks = line.Tokenize('|');  // split into fields
+         // check date is not identical to a previous entry
+         // i.e. there are spurious duplicate entries
+         TObjString* rundate = (TObjString*)toks->At(1)->Clone();
+         if(dates->FindObject(rundate->GetName())){
+             delete toks;
+             delete rundate;
+             line.ReadLine(fRunlist);
+             continue;
+         }
          //add date string
          dates->Add(toks->At(1)->Clone());
 
@@ -443,24 +452,28 @@ Int_t KVAvailableRunsFile::Count(Int_t run)
    //Count the number of times a given run number appears in the file
    //If available runs file does not exist, Update() is called to create it.
 
-   //does runlist exist ?
-   if (!OpenAvailableRunsFile()) {
-      Error("Count", "Error opening available runs file");
-      return 0;
-   }
-   //loop over lines in runlist file
-   //look for line beginning with 'run|'
-   TString line;
-   Int_t occurs = 0;
-   line.ReadLine(fRunlist);
-   while (fRunlist.good()) {
-      if (line.BeginsWith(Form("%d|", run))) {
-         occurs++;
-      }
-      line.ReadLine(fRunlist);
-   }
-   CloseAvailableRunsFile();
-   return occurs;
+//    //does runlist exist ?
+//    if (!OpenAvailableRunsFile()) {
+//       Error("Count", "Error opening available runs file");
+//       return 0;
+//    }
+//    //loop over lines in runlist file
+//    //look for line beginning with 'run|'
+//    TString line;
+//    Int_t occurs = 0;
+//    line.ReadLine(fRunlist);
+//    while (fRunlist.good()) {
+//       if (line.BeginsWith(Form("%d|", run))) {
+//          occurs++;
+//       }
+//       line.ReadLine(fRunlist);
+//    }
+//    CloseAvailableRunsFile();
+//    return occurs;
+   ReadFile();
+   KVNameValueList* nvlrun = (KVNameValueList*)fAvailableRuns->FindObject(Form("%d",run));
+   if(nvlrun) return nvlrun->GetIntValue("Occurs");
+   return 0;
 }
 
 //__________________________________________________________________________________________________________________
@@ -892,43 +905,53 @@ KVNumberList KVAvailableRunsFile::CheckMultiRunfiles()
 {
    //Returns a list with all runs which occur more than once in the available runs file.
 
-   //does runlist exist ?
-   if (!OpenAvailableRunsFile()) {
-      Error("CheckMultiRunfiles", "Cannot open available runs file");
-      return 0;
-   }
-
-   TString fLine;
-   TList *run_list = new TList;
-   fLine.ReadLine(fRunlist);
-
+//    //does runlist exist ?
+//    if (!OpenAvailableRunsFile()) {
+//       Error("CheckMultiRunfiles", "Cannot open available runs file");
+//       return 0;
+//    }
+// 
+//    TString fLine;
+//    TList *run_list = new TList;
+//    fLine.ReadLine(fRunlist);
+// 
+//    KVNumberList multiruns;
+// 
+//    Int_t fRunNumber;
+//    KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
+// 
+//    while (fRunlist.good()) {
+// 
+//       TObjArray *toks = fLine.Tokenize('|');    // split into fields
+//       KVString kvs(((TObjString *) toks->At(0))->GetString());
+//       fRunNumber = kvs.Atoi();
+//       delete toks;
+// 
+//       KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
+// 
+//       if (!run_list->Contains(a_run)) {
+//          //first time that run appears
+//          run_list->Add(a_run);
+//       } else {
+//          //run appears >1 times
+//          multiruns.Add(fRunNumber);
+//       }
+// 
+//       fLine.ReadLine(fRunlist);
+//    }
+//    delete run_list;
+//    CloseAvailableRunsFile();
+// 
+//    return multiruns;
+   ReadFile();
    KVNumberList multiruns;
-
-   Int_t fRunNumber;
-   KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
-
-   while (fRunlist.good()) {
-
-      TObjArray *toks = fLine.Tokenize('|');    // split into fields
-      KVString kvs(((TObjString *) toks->At(0))->GetString());
-      fRunNumber = kvs.Atoi();
-      delete toks;
-
-      KVDBRun *a_run = (KVDBRun *) runs_table->GetRecord(fRunNumber);
-
-      if (!run_list->Contains(a_run)) {
-         //first time that run appears
-         run_list->Add(a_run);
-      } else {
-         //run appears >1 times
-         multiruns.Add(fRunNumber);
-      }
-
-      fLine.ReadLine(fRunlist);
+   TIter next(fAvailableRuns);
+   KVNameValueList* run;
+   while( (run = (KVNameValueList*)next()) ){
+      
+      if(run->GetIntValue("Occurs")>1) multiruns.Add(run->GetName());
+      
    }
-   delete run_list;
-   CloseAvailableRunsFile();
-
    return multiruns;
 }
 
@@ -1028,18 +1051,36 @@ void KVAvailableRunsFile::ReadFile()
 			toks->ls();
 			continue;
 		}
+      //get date string
+      KVString datestring(((TObjString *) toks->At(1))->GetString());
       
       // is run already in list ?
       KVNameValueList* NVL = (KVNameValueList*)fAvailableRuns->FindObject(kvs);
-      Int_t Occurs = (NVL ? NVL->GetIntValue("Occurs")+1 : 1);
+      Int_t Occurs = (NVL ? NVL->GetIntValue("Occurs") : 0);
       if(!NVL) {
          NVL = new KVNameValueList(kvs);
          fAvailableRuns->Add(NVL);
       }
+      else
+      {
+         // check date for run is different to any others
+         Bool_t ok = kTRUE;
+         for(Int_t ii=0;ii<Occurs;ii++){
+            KVString olddate = NVL->GetStringValue(Form("Date[%d]",ii));
+            if(olddate==datestring){               
+               ok=kFALSE;
+               break;
+            }
+         }
+         if(!ok){
+            delete toks;
+            fLine.ReadLine(fRunlist);
+            continue;
+         }
+      }
+      Occurs++;
       NVL->SetValue("Occurs", Occurs);
       
-      //get date string
-      KVString datestring(((TObjString *) toks->At(1))->GetString());
       NVL->SetValue(Form("Date[%d]",Occurs-1), datestring.Data());
 
       //backwards compatibility
