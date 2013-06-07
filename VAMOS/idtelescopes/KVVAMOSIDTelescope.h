@@ -18,7 +18,6 @@ class KVVAMOSIDTelescope : public KVINDRAIDTelescope
    	public:
 
    		KVVAMOSIDTelescope();
-   		KVVAMOSIDTelescope(const KVVAMOSIDTelescope& obj);
    		virtual ~KVVAMOSIDTelescope();
 
    		virtual const Char_t *GetArrayName();
