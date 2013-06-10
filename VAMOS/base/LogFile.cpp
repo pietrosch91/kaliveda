@@ -33,7 +33,7 @@ LogFile::~LogFile(void)
   Close();
 }
 
-void LogFile::Open(char *LogFileName)
+void LogFile::Open(const char *LogFileName)
 {
 #ifdef DEBUG
   cout << "LogFile::Open" << endl;

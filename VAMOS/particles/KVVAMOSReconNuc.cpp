@@ -344,7 +344,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
    	gGeoManager->InitTrack( XYZ_FP, dir );
 
 	TGeoVolume *topVol   = gGeoManager->GetTopVolume();
-   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
+//   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
    	TGeoVolume* curVol   = gGeoManager->GetCurrentVolume();
    	TGeoVolume* prevVol  = NULL;
 

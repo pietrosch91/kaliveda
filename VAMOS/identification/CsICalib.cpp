@@ -126,7 +126,7 @@ void CsICalib::InitTelescopeSiTof(Int_t si_num)
     sprintf(tel_name, "SIE%i_TOF",si_num+1);	
 	
     list_sitof = 0;        
-    KVList *grid_list = 0;
+//    KVList *grid_list = 0;
     kvid_sitof = 0;
     KVNumberList runList = 0;
 
@@ -134,10 +134,10 @@ void CsICalib::InitTelescopeSiTof(Int_t si_num)
 		
     if(list_sitof != 0){
 		Int_t entries = (Int_t) list_sitof->GetEntries();
-		Int_t kHasGrids = 0;
+//		Int_t kHasGrids = 0;
 
 		KVIDGrid *tmpGrid = 0;
-		Int_t nGridsForRun = 0;
+//		Int_t nGridsForRun = 0;
 
 		for(Int_t i=0; i<entries; i++){
     			tmpGrid = (KVIDGrid*) list_sitof->At(i);
@@ -185,7 +185,7 @@ void CsICalib::InitTelescopeChioSi(Int_t ci_num, Int_t si_num)
     //cout<<"tel_name 1: "<<tel_name<<endl; 	
 	
     list_chiosi = 0;        
-    KVList *grid_list = 0;
+//    KVList *grid_list = 0;
     kvid_chiosi = 0;
     KVNumberList runList = 0;
 
@@ -194,10 +194,10 @@ void CsICalib::InitTelescopeChioSi(Int_t ci_num, Int_t si_num)
     if(list_chiosi != 0){
 		//cout<<"list_chiosi!=0"<<endl;
 		Int_t entries = (Int_t) list_chiosi->GetEntries();
-		Int_t kHasGrids = 0;
+//		Int_t kHasGrids = 0;
 
 		KVIDGrid *tmpGrid = 0;
-		Int_t nGridsForRun = 0;
+//		Int_t nGridsForRun = 0;
 
 		for(Int_t i=0; i<entries; i++){
     			tmpGrid = (KVIDGrid*) list_chiosi->At(i);
@@ -249,7 +249,7 @@ void CsICalib::InitTelescope(Int_t si_num ,Int_t csi_num)
     sprintf(tel_name, "SIE_%02i_CSI%02i", si_num+1, csi_num+1);
 
     list = 0;        
-    KVList *grid_list = 0;
+//    KVList *grid_list = 0;
     kvid = 0;
     KVNumberList runList = 0;
 
@@ -258,10 +258,10 @@ void CsICalib::InitTelescope(Int_t si_num ,Int_t csi_num)
     if(list != 0){
 	
 		Int_t entries = (Int_t) list->GetEntries();
-		Int_t kHasGrids = 0;
+//		Int_t kHasGrids = 0;
 
 		KVIDGrid *tmpGrid = 0;
-		Int_t nGridsForRun = 0;
+//		Int_t nGridsForRun = 0;
 
 		for(Int_t i=0; i<entries; i++){
     			tmpGrid = (KVIDGrid*) list->At(i);

@@ -354,7 +354,6 @@ void SeDv::FocalSubseqX(void)
   Int_t FStrip[128];
   Int_t StripsWA;
   bool Neighbours;
-  bool MultiplePeak;
   Float_t v[6];
 
 
@@ -381,6 +380,7 @@ void SeDv::FocalSubseqX(void)
 	}
 
 #ifdef MULTIPLEPEAK 
+  	  bool MultiplePeak;
      MultiplePeak = false;
       for(j=0;j<FStrip[0]-1;j++)
 	if((Q[j][i] > Q[j+1][i]))

@@ -305,13 +305,12 @@ void Sive503::Init(void)
 
 void Sive503::Calibrate(void)
 {
-  Int_t i,j,k;
 
 #ifdef DEBUG
   cout << "Si::Calibrate" << endl;
 #endif
   
-  for(i=0;i<3;i++)
+  for(Int_t i=0;i<3;i++)
     {
       //if(T_Raw[i] > 200)
 	//for(j=0;j<2;j++)
@@ -332,13 +331,13 @@ void Sive503::Calibrate(void)
   	//L->Log<<"Sive503.cpp :	"<<"T_Raw[0] : "<<T_Raw[0]<<" "<<"T[0] : "<<T[0]<<endl;
 	//L->Log<<"TCoef[0][1] : "<<TCoef[0][1]<<" "<<"TCoef[0][2] : "<<TCoef[0][2]<<" "<<"TCoef[0][3] : "<<TCoef[0][3]<<" "<<"TCoef[0][4] : "<<TCoef[0][4]<<endl;
 
-  for(i=0;i<E_RawM;i++)
+  for(Int_t i=0;i<E_RawM;i++)
       {
 	//cout<<"Si : E_Raw["<<i<<"] = "<<E_Raw[i]<<endl;
 	//	Rnd->Next();
 	Rnd->SetSeed(clock());
 
-	for(k=0;k<3;k++)
+	for(Int_t k=0;k<3;k++)
 	  {
 // 	    E[E_Raw_Nr[i]] += powf((Float_t) E_Raw[i] + Rnd->Value(),
 // 			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];
@@ -502,7 +501,7 @@ void Sive503::Calibrate(void)
     {
       ETotal = 0.0;
       Number = 0;
-      for(k=0;k<2;k++)
+      for(Int_t k=0;k<2;k++)
 	Offset[k] = 0.0;
     }
       

@@ -600,7 +600,6 @@ void DriftChamberv::FocalSubseqX(void)
   Int_t FStrip[64];
   Int_t StripsWA;
   bool Neighbours;
-  bool MultiplePeak;
   Float_t v[6];
 
 
@@ -626,6 +625,7 @@ void DriftChamberv::FocalSubseqX(void)
 	}
 
 #ifdef MULTIPLEPEAK 
+  	  bool MultiplePeak;
      MultiplePeak = false;
       for(j=0;j<FStrip[0]-1;j++)
 	if((Q[j][i] > Q[j+1][i]))

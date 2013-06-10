@@ -86,7 +86,6 @@ void KVIVReconIdent::InitRun(void)
    fAnalyseV->inAttach();
 
    ifstream in;   
-   Int_t run1;
    TString sline;
    
     /*kvd_si = new KVSiliconVamos(530.*KVUnits::um);   
@@ -129,7 +128,7 @@ Bool_t KVIVReconIdent::Analysis(void)
       fLogV->Log<<"Mult. indra	: "<<GetEvent()->GetMult()<<endl;
       fLogV->Log<<"======"<<endl;*/   	
       M_INDRA = GetEvent()->GetMult();
-      while(part = GetEvent()->GetNextParticle("ok")){
+      while( (part = GetEvent()->GetNextParticle("ok")) ){
       
         /*fLogV->Log<<"ring indra	: "<<part->GetRingNumber()<<endl;
 	fLogV->Log<<"module indra	: "<<part->GetModuleNumber()<<endl;
