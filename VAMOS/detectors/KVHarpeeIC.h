@@ -30,6 +30,7 @@ class KVHarpeeIC : public KVVAMOSDetector
 		virtual const Char_t* GetArrayName();
    		virtual const Char_t *GetEBaseName() const;
 
+		virtual UInt_t GetFiredSegNumber(Option_t *opt = "P");
    		virtual Double_t GetCalibE();
    		virtual Bool_t IsECalibrated() const;
    		virtual Bool_t PositionIsOK();

@@ -138,15 +138,13 @@ void CsIv::Init()
 
 void CsIv::Calibrate(void)
 {
-  Int_t i,j,k;
-
   // #ifdef DEBUG
   //cout << "CSI::Calibrate" << endl;
   // #endif
   
   //L->Log<<"E_RawM CsI"<<E_RawM<<endl;
   
-  for(i=0;i<E_RawM;i++)
+  for(Int_t i=0;i<E_RawM;i++)
       {
 	//cout<<"CsI : E_Raw["<<i<<"] = "<<E_Raw[i]<<endl;
 	

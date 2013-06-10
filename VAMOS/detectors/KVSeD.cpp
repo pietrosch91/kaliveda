@@ -33,9 +33,13 @@ void KVSeD::init(){
 	}
 
 	fPeakFunction = NULL;
-	fRawPos[0] = fRawPos[1] = -500;
+	fRawPos [0] = fRawPos [1] = -500;
+	fERawPos[0] = fERawPos[1] = -500;
 //	fSpectrum     = NULL;
 	fPosCalib = NULL;
+
+	//a KVSeD can not be used in a ID telescope
+	ResetBit( kOKforID );
 }
 //________________________________________________________________
 
@@ -308,7 +312,8 @@ void KVSeD::ResetCalculatedData(){
 		}
 	}
 
-	fRawPos[0] = fRawPos[1] = -500;
+	fRawPos [0] = fRawPos [1]  = -500;
+	fERawPos[0] = fERawPos[1] = -500;
 }
 //________________________________________________________________
 
@@ -413,8 +418,10 @@ Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min
 	// If these two parameter are not in the limits then the method returns -1.
 	Int_t idx = IDX(dir);
 	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
+	fRawPos [ idx ] = -1;
+	fERawPos[ idx ] = -1;
 	TH1F *hh = GetQHisto( dir );
-	if( !hh ) return fRawPos[ idx ]=-1;
+	if( !hh ) return fRawPos[ idx ];
 
 	///////////////////////////////////////////////////
 //	if( !fSpectrum ) fSpectrum = new TSpectrum(15);
@@ -426,7 +433,7 @@ Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min
 
 	Double_t par[4];
 	TFitResultPtr r = hh->Fit("pol0","QSNC");
-	if( !r.Get() ) return fRawPos[ idx ]=-1;
+	if( !r.Get() ) return fRawPos[ idx ];
 	par[3] = r->Parameter(0);       // noise
 //	Int_t nfound = fSpectrum->Search(hh,2,"goff",0.2);
 //	if( (nfound<1) || (maxNpeaks< nfound) ) return -1;
@@ -458,9 +465,12 @@ Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min
 	par[1] = fPeakFunction->GetParameter(1);
 	par[2] = fPeakFunction->GetParameter(2);
 
-	if( par[0] < min_amp ) return fRawPos[ idx ]=-1;
-	if( (par[2] < min_sigma) ||  (max_sigma < par[2]) ) return fRawPos[ idx ]=-1;
-	return fRawPos[ idx ]=par[1]; 
+	if( par[0] < min_amp ) return fRawPos[ idx ];
+	if( (par[2] < min_sigma) ||  (max_sigma < par[2]) ) return fRawPos[ idx ];
+
+	fRawPos [ idx ] = par[1];
+	fERawPos[ idx ] = par[2]*1.2;
+	return fRawPos[ idx ]; 
 }
 //________________________________________________________________
 
@@ -471,11 +481,13 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 
 	Int_t idx = IDX(dir);
 	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
+	fRawPos [ idx ] = -1;
+	fERawPos[ idx ] = -1;
 	TH1F *hh = GetCleanQHisto( dir );
-	if( !hh ) return fRawPos[ idx ]=-1;
+	if( !hh ) return fRawPos[ idx ];
 
 	Int_t NStrips = 3;
-	if(hh->GetEntries()< NStrips ) return fRawPos[ idx ]=-1;
+	if(hh->GetEntries()< NStrips ) return fRawPos[ idx ];
 
 	///////////////////////////////////////////////////
 
@@ -491,12 +503,14 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 		if(deltaQ < 0 ) break;
 	}
 
-	if( (max-min) < NStrips) return fRawPos[ idx ]=-1;
+	if( (max-min) < NStrips) return fRawPos[ idx ];
 
 	hh->GetXaxis()->SetRange(min,max);
-	Double_t mean = hh->GetMean();
+
+	fRawPos [ idx ] = hh->GetMean();
+	fERawPos[ idx ] = hh->GetRMS()*1.2;
 	hh->GetXaxis()->SetRange();
-	return fRawPos[ idx ] = mean;
+	return fRawPos[ idx ];
 }
 //________________________________________________________________
 
@@ -509,6 +523,30 @@ UChar_t KVSeD::GetRawPosition(Double_t *XYZf){
 	UChar_t rval = 3;
 	if( (XYZf[0]=GetRawPosition('X')) < 0 ) rval -= 1;
 	if( (XYZf[1]=GetRawPosition('Y')) < 0 ) rval -= 2;
+	return rval;
+}
+//________________________________________________________________
+
+Double_t KVSeD::GetRawPositionError(const Char_t dir){
+	// Returns the error on the position (strip) returned by GetRawPosition( dir ).
+
+	Int_t idx = IDX(dir);
+	if( fERawPos[ idx ] > -500 ) return fERawPos[ idx ];
+
+	GetRawPosition( dir ); 
+	return fERawPos[ idx ];
+}
+//________________________________________________________________
+		
+UChar_t KVSeD::GetRawPositionError(Double_t *EXYZf){
+	// Returns in the 'EXYZf' array the errors of X and Y coordinates of the position
+	// returned by GetRawPosition(...).
+	// The bit 0 (1) of the UChar_t returned value is set to 1 if
+	// the X (Y) position is correctly deduced. 
+
+	UChar_t rval = 3;
+	if( (EXYZf[0]=GetRawPositionError('X')) < 0 ) rval -= 1;
+	if( (EXYZf[1]=GetRawPositionError('Y')) < 0 ) rval -= 2;
 	return rval;
 }
 //________________________________________________________________
@@ -565,4 +603,15 @@ UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 	// No coordinates are OK
 	XYZf[0] = XYZf[1] = XYZf[2] = -666;
 	return 0;
+}
+//________________________________________________________________
+
+void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+	// Returns in the DXYZf array the errors of each coordinate of the position returned by
+	// GetPosition(...) in the focal-plane frame of reference.
+
+	UChar_t  res = GetRawPositionError( DXYZf );
+	DXYZf[0] = ( res&1 ?  DXYZf[0] * 0.32 : -1 ); // width of stips:   0.32cm
+	DXYZf[1] = ( res&2 ?  DXYZf[1] * 0.32 : -1 ); // width of 3 wires: 0.32cm
+	DXYZf[2] = DXYZf[1];
 }

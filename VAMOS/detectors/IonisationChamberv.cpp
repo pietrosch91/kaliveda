@@ -24,15 +24,14 @@ IonisationChamberv::IonisationChamberv(LogFile *Log)
 #endif
   Ready=kFALSE;
   
-  char line[255];
-  int len=255;
-  int i,j,k;
-  Float_t tmp;
-  Float_t tmp1;
+//  char line[255];
+//  int len=255;
+//  Float_t tmp;
+//  Float_t tmp1;
 
   L=Log;
 
-  for(i=0;i<5;i++)
+  for(Int_t i=0;i<5;i++)
     Counter[i] = 0;
 
   InitRaw();
@@ -188,19 +187,16 @@ void IonisationChamberv::Init(void)
 
 void IonisationChamberv::Calibrate(void)
 {
-  Int_t i,k;
-  int bb;
-
 #ifdef DEBUG
   cout << "IonisationChamberv::Calibrate" << endl;
 #endif
 
 //L->Log<<"E_RawM Chio"<<E_RawM<<endl;
     
-  for(i=0;i<E_RawM;i++)
+  for(Int_t i=0;i<E_RawM;i++)
     {
     
-    //bb=((E_Raw_Nr[i]+1)%8)-1;
+    //Int_t bb=((E_Raw_Nr[i]+1)%8)-1;
     //cout<<"bb : "<<bb<<endl;
     if(E_Raw[i]>160)	//Piedestal ~160
 	{	  

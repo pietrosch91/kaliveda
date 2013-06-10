@@ -18,8 +18,12 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
 {
 	protected:
 
-		KVList *fActiveVolumes;
-		KVList *fActiveVolToFocal;//! list of matrices to transform coordinates from Active volume to focal plan
+		enum {
+			kRdmPos  = BIT(20), //flag set when Random position is used
+			kOKforID = BIT(21)  //flag set when the detector can be used for identification from ID telescope 
+		};
+
+		KVList *fActiveVolumes;  //
 		TGeoHMatrix *fFocalToTarget;//! focal-plan to target position transformation matrix
 		Int_t  fNabsorbers;      // Number of absobers
 		Double_t fTotThick;      // Total thickness of the detector
@@ -63,11 +67,11 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		virtual TGeoVolume* GetGeoVolume(const Char_t* name, const Char_t* material, const Char_t* shape_name, const Char_t* params);
    		virtual Int_t    GetMult(Option_t *opt="");
    		virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
-   		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0 );
+   		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
+   		virtual void GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
 
    		virtual UInt_t GetTelescopeNumber() const;
 		virtual void GetVerticesInOwnFrame(TVector3* /*corners[8]*/, Double_t /*depth*/, Double_t /*layer_thickness*/);
-   		virtual void InitGeometry();
    		void SetActiveVolume(TGeoVolume*);
 
 
@@ -88,12 +92,16 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		//------------------ inline function members -----------//
 
    		inline KVList *GetActiveVolumes() const{ return fActiveVolumes;}
-   		inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return (TGeoVolume *)fActiveVolumes->At(i);}
+   		inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return fActiveVolumes ? (TGeoVolume *)fActiveVolumes->At(i) : NULL;}
    		inline Double_t GetTotalThickness() const{ return fTotThick;}
    		inline void SetFocalToTargetMatrix( TGeoHMatrix *matrix ){ fFocalToTarget = matrix; };
-   		inline Bool_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
+   		inline UChar_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
 	   		return GetPosition( XYZf, idx );
    		}
+
+		inline Bool_t IsOKforID() const { return TestBit( kOKforID ); }
+
+		inline void UseRandomPosition( Bool_t rdm = kTRUE ){ SetBit( kRdmPos, rdm ); } 
 
 
 		//   virtual Double_t GetCorrectedEnergy(const KVNucleus*, Double_t e =

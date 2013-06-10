@@ -20,12 +20,18 @@ Int_t KVSpectroDetector::fNumVol = 1;
 
 void KVSpectroDetector::init(){
    	//default initialisations
+
 	SetActiveLayer(-1); // Necessary to remove some warning with GetPressure and GetTemperature.   
 	fActiveVolumes    = NULL;
-	fActiveVolToFocal = NULL;
 	fFocalToTarget    = NULL;
 	fNabsorbers    = 0;
 	fTotThick      = 0;
+
+	//use by default random position
+	SetBit( kRdmPos );
+
+	//a KVSpectroDetector can be used in a ID telescope
+	SetBit( kOKforID );
 }
 //________________________________________________________________
 
@@ -60,7 +66,6 @@ KVSpectroDetector::~KVSpectroDetector()
 {
    // Destructor
    SafeDelete(fActiveVolumes);
-   SafeDelete(fActiveVolToFocal);
 }
 //________________________________________________________________
 
@@ -72,12 +77,6 @@ void KVSpectroDetector::Copy (TObject & obj)
 {
    	// This method copies the current state of 'this' object into 'obj'
 
-
-   	// You should add here any member variables, for example:
-   	//    (supposing a member variable KVSpectroDetector::fToto)
-   	//    CastedObj.fToto = fToto;
-   	// or
-   	//    CastedObj.SetToto( GetToto() );
 
 //	KVDetector::Copy(obj);
 //	TGeoVolume::Copy(obj);
@@ -110,8 +109,6 @@ void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TG
 	//        shape    - shape of the volume.
 	//        matrix   - matrix of the geometrical transformation.
 	//        active   - kTRUE if the absorber is active, kFALSE othewise.
-
-
 
 
 	TString vol_name;	
@@ -343,11 +340,34 @@ TGeoHMatrix &KVSpectroDetector::GetActiveVolToFocalMatrix(Int_t i ) const{
 	// Returns the matrix which transforms coordinates form the reference
 	// frame of the active volume 'i' to the reference frame of the focal
 	// plan.
+	
 	static TGeoHMatrix mm;
 	mm.Clear();
-	if( fActiveVolToFocal && fActiveVolToFocal->At(i) )
-		mm =  (*(TGeoHMatrix *)fActiveVolToFocal->At(i));
-	return mm;
+
+	TGeoVolume *vol = (TGeoVolume *)fActiveVolumes->At(i);
+
+	if( vol ){
+
+		Int_t prev_id = gGeoManager->GetCurrentNodeId();
+		// To be sure that the matrices will be calculated again
+		gGeoManager->CdTop();
+
+		gGeoManager->CdNode( vol->GetUniqueID() );
+
+		// matrix 'volume to target'
+		TGeoMatrix *vol_to_tgt = gGeoManager->GetCurrentMatrix();
+
+		if( fFocalToTarget ) mm = fFocalToTarget->Inverse()*(*vol_to_tgt);
+		else                 mm = *vol_to_tgt;
+
+		mm.SetName( Form("%s_to_focal",vol->GetName()) );
+
+		// just to not create problems if this method is called during a tracking
+		gGeoManager->CdNode( prev_id );
+	}
+	else mm.SetName("Identity_matrix");
+
+		return mm;
 }
 //________________________________________________________________
 
@@ -477,7 +497,7 @@ TGeoVolume* KVSpectroDetector::GetGeoVolume(const Char_t* name, const Char_t* ma
 //________________________________________________________________
 
 TGeoVolume* KVSpectroDetector::GetGeoVolume(){
-	// returns the TGeoVolume built when a volume is added by
+	// Returns the TGeoVolume built when a volume is added by
 	// the method AddAbsorber;
 	return GetAbsGeoVolume();
 }
@@ -518,7 +538,7 @@ Double_t KVSpectroDetector::GetParticleEIncFromERes(KVNucleus * , TVector3 * nor
 //________________________________________________________________
 
 Double_t KVSpectroDetector::GetXf( Int_t idx ){
-	// Return the X coordinate (in cm)  by calling the
+	// Returns the X coordinate (in cm)  by calling the
 	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
@@ -529,7 +549,7 @@ Double_t KVSpectroDetector::GetXf( Int_t idx ){
 //________________________________________________________________
 
 Double_t KVSpectroDetector::GetYf( Int_t idx ){
-	// Return the Y coordinate (in cm)  by calling the
+	// Returns the Y coordinate (in cm)  by calling the
 	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
@@ -540,7 +560,7 @@ Double_t KVSpectroDetector::GetYf( Int_t idx ){
 //________________________________________________________________
 
 Double_t KVSpectroDetector::GetZf( Int_t idx ){
-	// Return the Y coordinate (in cm)  by calling the
+	// Returns the Y coordinate (in cm)  by calling the
 	// methode GetPosition(Double_t *Xf, Int_t idx), which can be overrided 
 	// in child classes; 
 	// The function returns -666 in case of an invalid request.
@@ -551,9 +571,10 @@ Double_t KVSpectroDetector::GetZf( Int_t idx ){
 //________________________________________________________________
 
 UChar_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
-	// Return in the array 'XYZf', the coordinates (in cm) of a point randomly drawn in the 
+	// Returns in the array 'XYZf', the coordinates (in cm) of a point randomly drawn in the 
 	// active volume with index 'idx'. We assume that the shape of this
-	// volume is a TGeoBBox. These coordinates are given in the reference frame of the focal plan. 
+	// volume is a TGeoBBox. These coordinates are given in the focal-plane
+	// of reference.
 	// The function returns a binary code where:
 	//   - bit 0 = 1 if X is OK  (001);
 	//   - bit 1 = 1 if Y is OK  (010);
@@ -573,11 +594,29 @@ UChar_t KVSpectroDetector::GetPosition( Double_t *XYZf, Int_t idx ){
    	Double_t oy = (box->GetOrigin())[1];
    	Double_t oz = (box->GetOrigin())[2];
    	Double_t xyz[3];
-  	xyz[0] = ox-dx+2*dx*gRandom->Rndm();
-   	xyz[1] = oy-dy+2*dy*gRandom->Rndm();
-   	xyz[2] = oz-dz+2*dz*gRandom->Rndm();
+  	xyz[0] = ox+( TestBit(kRdmPos) ? dx*(2*gRandom->Rndm()-1) : 0.);
+   	xyz[1] = oy+( TestBit(kRdmPos) ? dy*(2*gRandom->Rndm()-1) : 0.);
+   	xyz[2] = oz+( TestBit(kRdmPos) ? dz*(2*gRandom->Rndm()-1) : 0.);
 	if( ActiveVolumeToFocal( xyz , XYZf, idx ) ) return 7;
 	return 0;
+}
+//________________________________________________________________
+
+void KVSpectroDetector::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+	// Returns in the DXYZf array the errors of each coordinate of the position returned by
+	// GetPosition(...) in the focal-plane frame of reference.
+	//
+	// In this mother class, the surface of the detector is assumed to be perpendicular to the
+	// Z-axis. To be modified in the child classes.
+
+	DXYZf[0] =  DXYZf[1] =  DXYZf[2] = -1;
+	TGeoVolume *vol = GetActiveVolume(idx);
+	if( !vol ||  !PositionIsOK() ) return;
+
+   	const TGeoBBox *box = (TGeoBBox *)vol->GetShape();
+   	DXYZf[0] = box->GetDX();
+   	DXYZf[1] = box->GetDY();
+   	DXYZf[2] = box->GetDZ();
 }
 //________________________________________________________________
 
@@ -592,39 +631,6 @@ UInt_t KVSpectroDetector::GetTelescopeNumber() const{
 void KVSpectroDetector::GetVerticesInOwnFrame(TVector3* corners, Double_t depth, Double_t layer_thickness){
 	//  Obsolete method.
 	Warning("GetVerticesInOwnFrame","Obsolete method");	
-}
-//________________________________________________________________
-
-void KVSpectroDetector::InitGeometry(){
-	// Initialize the geometry of the detector once it is placed in the
-	// spectrometer (called for example in KVVAMOS::InitGeometry()).
-
-	if( !fActiveVolToFocal ) fActiveVolToFocal = new KVList();
-	else fActiveVolToFocal->Clear();
-
-	// Matrix for each active volum is created to transform coordinates
-	// from the reference frame of the volum to the reference frame of the
-	// focal plan
-	TIter next_vol(fActiveVolumes);	
-	TGeoVolume *vol = NULL;
-	TGeoHMatrix *vol_to_tgt = NULL;
-	TGeoHMatrix *vol_to_fcl = NULL;
-	while( (vol = (TGeoVolume *)next_vol()) ){
-
-		gGeoManager->CdNode( vol->GetUniqueID() );
-
-		// matrix 'volume to target'
-		vol_to_tgt = gGeoManager->GetCurrentMatrix();
-
-		// matrix 'volume to focal plan'
-		vol_to_fcl = new TGeoHMatrix;
-
-		if( fFocalToTarget ) *vol_to_fcl = fFocalToTarget->Inverse()*(*vol_to_tgt);
-		else                 *vol_to_fcl = *vol_to_tgt;
-
-		vol_to_fcl->SetName( Form("%s_to_focal",vol->GetName()) );
-		fActiveVolToFocal->Add( vol_to_fcl );
-	}
 }
 //________________________________________________________________
 
@@ -717,50 +723,34 @@ Bool_t KVSpectroDetector::GetDetectorEnv(const Char_t * type, Bool_t defval, TEn
 Bool_t KVSpectroDetector::ActiveVolumeToFocal(const Double_t *volume, Double_t *focal, Int_t idx){
 	// Convert the point coordinates from active volume (with index 'idx') reference to focal plan reference system.
 
-	TGeoHMatrix *mat = NULL;
-	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
-		Error("ActiveVolumeToFocal","Conversion impossible!");
-		return kFALSE;
-	}
-	mat->LocalToMaster( volume, focal );
-	return kTRUE;
+	TGeoHMatrix &mat = GetActiveVolToFocalMatrix( idx );
+	mat.LocalToMaster( volume, focal );
+	return !mat.IsIdentity();
 }
 //________________________________________________________________
 
 Bool_t KVSpectroDetector::FocalToActiveVolume(const Double_t *focal,  Double_t *volume, Int_t idx){
 	// Convert the point coordinates from focal plan reference to active volume (with index 'idx') reference system.
 
-	TGeoHMatrix *mat = NULL;
-	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
-		Error("FocalToActiveVolume","Conversion impossible!");
-		return kFALSE;
-	}
-	mat->MasterToLocal( focal, volume );
-	return kTRUE;
+	TGeoHMatrix &mat = GetActiveVolToFocalMatrix( idx );
+	mat.MasterToLocal( focal, volume );
+	return !mat.IsIdentity();
 }
 //________________________________________________________________
 
 Bool_t KVSpectroDetector::ActiveVolumeToFocalVect(const Double_t *volume, Double_t *focal, Int_t idx){
 	// Convert the vector coordinates from active volume (with index 'idx') reference to focal plan reference system.
 
-	TGeoHMatrix *mat = NULL;
-	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
-		Error("ActiveVolumeToFocalVect","Conversion impossible!");
-		return kFALSE;
-	}
-	mat->LocalToMasterVect( volume, focal );
-	return kTRUE;
+	TGeoHMatrix &mat = GetActiveVolToFocalMatrix( idx );
+	mat.LocalToMasterVect( volume, focal );
+	return !mat.IsIdentity();
 }
 //________________________________________________________________
 
 Bool_t KVSpectroDetector::FocalToActiveVolumeVect(const Double_t *focal,  Double_t *volume, Int_t idx){
 // Convert the vector coordinates from focal plan reference to the active volume (with index 'idx') reference system.
 
-	TGeoHMatrix *mat = NULL;
-	if( !fActiveVolToFocal || !(mat=(TGeoHMatrix *)fActiveVolToFocal->At(idx)) ){
-		Error("FocalToActiveVolumeVect","Conversion impossible!");
-		return kFALSE;
-	}
-	mat->MasterToLocalVect( focal, volume );
-	return kTRUE;
+	TGeoHMatrix &mat = GetActiveVolToFocalMatrix( idx );
+	mat.MasterToLocalVect( focal, volume );
+	return !mat.IsIdentity();
 }

@@ -147,7 +147,6 @@ void ReconstructionSeDv::Calculate(void)
   cout << "ReconstructionSeDv::Calculate" << endl;
 #endif
   Double_t Brhot,Thetat,Phit,Patht;
-  Double_t Brhot_y,Thetat_y,Patht_y;
   Double_t Vec[5],Vecp;
 
   Int_t i,j[10];

@@ -2,6 +2,8 @@
 //Author: Guilain ADEMARD
 
 #include "KVINDRA_VAMOS.h"
+#include "KVINDRAe503.h"
+#include "KVVAMOS.h"
 #include "TPluginManager.h"
 #include "KVSpectroDetector.h"
 
@@ -14,6 +16,23 @@ ClassImp(KVINDRA_VAMOS)
 	   <h4>INDRA + VAMOS experimental setup for the e494s and the e503 experiments performed at GANIL</h4>
 	   <!-- */
 	// --> END_HTML
+	//
+	// This class descibes the coupling of INDRA ( a KVINDRA object ) and 
+	// VAMOS ( a KVVAMOS object ) in a same KVMultiDetArray object.
+	// These two multidetectors are built in the method Build. After the call
+	// of this method the following global pointers correspond to:
+	//  gIndra         -->  INDRA
+	//  gVamos         -->  VAMOS
+	//  gMultiDetArray -->  INDRA_VAMOS
+	//
+	//  The method GetACQParams returns the list of ALL the acquisition parameters of 
+	//  INDRA and VAMOS. Idem for the list of detectors and the list of ID telescopes
+	//  with the methods GetDetectors and GetListOfIDTelescopes respectively.
+	//
+	//  To create a KVINDRA_VAMOS instance for a given dataset by using KVDataSet::BuildMultiDetector()
+	//  method change the Plugin.KVMultiDetArray plugin in the $KVROOT/KVFiles/.kvrootrc
+	//  configuration file:
+	//  +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
 	////////////////////////////////////////////////////////////////////////////////
 
 KVINDRA_VAMOS::KVINDRA_VAMOS()
@@ -26,15 +45,18 @@ void KVINDRA_VAMOS::init()
 {
     //Basic initialisation called by constructor.
 
-	Info("init","To be implemented");
-
+	fIndra = NULL;
 	fVamos = NULL;
+
+	fIDTelescopes->SetOwner( kFALSE );
+	SetOwnsDetectors( kFALSE );
 }
 //________________________________________________________________
 
 KVINDRA_VAMOS::~KVINDRA_VAMOS()
 {
    	// Destructor
+   	SafeDelete(fIndra);
    	SafeDelete(fVamos);
 }
 //________________________________________________________________
@@ -44,19 +66,36 @@ void KVINDRA_VAMOS::Build(){
 	// couple INDRA+VAMOS. Set up the geometry of INDRA and VAMOS,
 	// associate the acquistion parameters with detectors, etc...
 	
-	Info("Build","Building INDRA ...");
-	KVINDRAe503::Build();
 	SetName("INDRA_VAMOS");
 	SetTitle("INDRA+VAMOS  experimental setup");
+
+	// Build INDRA multidetector
+	Info("Build","Building INDRA ...");
+	fIndra = new KVINDRAe503;
+	((KVINDRAe503 *)fIndra)->SetDataSet( fDataSet );
+	fIndra->Build();
 
 	// Build VAMOS spectrometer
 	Info("Build","Building VAMOS ...");
 	fVamos = KVVAMOS::MakeVAMOS(fDataSet.Data());
 
-//	fACQParams->AddAll(fVamos->GetACQParams());
-	fACQParams->AddAll(fVamos->GetACQParamList());
-	fDetectors->AddAll(fVamos->GetListOfDetectors());
-//	fIDTelescopes->AddAll(fVamos->GetListOfIDTelescopes());
+	// Add the lists of ACQ parameters, detectors and ID telescopes of
+	// INDRA and VAMOS to INDRA_VAMOS
+	
+   	TIter next_i( fIndra->GetACQParams() );
+   	TIter next_v( fVamos->GetACQParams() );
+   	TObject *obj;
+   	 while ( (obj = next_i()) || (obj = next_v()) )
+      	 AddACQParam( (KVACQParam *)obj );
+   
+	fDetectors.AddAll ( fIndra->GetDetectors() );
+	fDetectors.AddAll ( fVamos->GetDetectors() );
+
+	fIDTelescopes->AddAll( fIndra->GetListOfIDTelescopes() );
+	fIDTelescopes->AddAll( fVamos->GetListOfIDTelescopes() );
+
+	// To be sure tha gMultiDetArray points on this object.
+	gMultiDetArray = this;	
 }
 //________________________________________________________________
 
@@ -66,6 +105,6 @@ void KVINDRA_VAMOS::Clear(Option_t *opt ){
     //and the target if there is one
     //and the VAMOS detectors
 
-	KVINDRAe503::Clear( opt );
+	if( fIndra ) fIndra->Clear( opt );
 	if( fVamos ) fVamos->Clear( opt );
 }

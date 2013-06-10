@@ -159,6 +159,28 @@ const Char_t *KVHarpeeIC::GetEBaseName() const{
 }
 //________________________________________________________________
 
+UInt_t KVHarpeeIC::GetFiredSegNumber(Option_t *opt){
+	// return the number of the fired segment of this Harpee ionisation chamber
+	// ( number between 1 to 7 ). Returns 0 if no segment or several segments
+	// are fired. A segment is considered as fired if at least one of its 3
+	// acquisition parameters (A, B and C) is fired (KVACQParam::Fired( opt )).
+	// Set the option opt = "P" to accept only the acquisition parameters with
+	// their value above the pedestal.
+
+	TIter next( GetACQParamList() );
+	KVACQParam *par = NULL;
+	UInt_t num = 0;
+
+	while( (par = (KVACQParam *)next()) ){
+		if( par->Fired( opt ) ){
+			if( num && (num != par->GetNumber()) ) return 0;
+			num = par->GetNumber();
+		}
+	}
+	return num;
+}
+//________________________________________________________________
+
 Double_t KVHarpeeIC::GetCalibE(){
 	// Calculate energy in MeV from coder values. Only the 7 segments B 
 	// are used to calculate calibrated energy.

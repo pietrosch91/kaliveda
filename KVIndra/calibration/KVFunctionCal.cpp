@@ -141,12 +141,7 @@ void KVFunctionCal::SetExpFormula(const Char_t *formula, Double_t xmin, Double_t
 		delete fcalibfunction;
 	}
 
-	if(!GetDetector()){
-		Warning("SetExpFormula","Detector has to be set before!");
-		return;
-	}
-
-	fcalibfunction = new TF1(GetDetector()->GetName(),formula,min,max);
+	fcalibfunction = new TF1(GetName(),formula,min,max);
 	SetNumberParams(fcalibfunction->GetNpar());
 }
 

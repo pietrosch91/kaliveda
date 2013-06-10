@@ -103,7 +103,6 @@ file.close();
 
 ifstream file2;	
 TString sline2;
-int tmp2=0;
 
 Float_t brho0;
 Int_t run1;

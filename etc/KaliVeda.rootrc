@@ -1040,6 +1040,9 @@ KVVAMOS.KVSeD.Number: 1
 INDRA_e494s.KVVAMOS.DetectorList: KVSeD KVHarpeeIC KVHarpeeSi
 INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
 
+# File with list of groups of detectors for VAMOS
+KVVAMOS.DetectorGroupFile: VAMOSDetectorGroups.dat
+
 # List of ACQParameter  associated to VAMOS
 KVVAMOS.ACQParameterList: TSED1_HF TSED2_HF TSED1_SED2 TSED1_INDRA TSED1_MCP TSI_HF TSI_SED1 TSI_INDRA TSI_MCP TMCP_HF
 

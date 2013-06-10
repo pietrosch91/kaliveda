@@ -14,11 +14,12 @@ class KVNameValueList : public TNamed
    protected:
 	KVHashList fList;//list of KVNamedParameter objects
 	
-   virtual void SetValue_str(const Char_t* name,const Char_t* value);
+   	virtual void SetValue_str(const Char_t* name,const Char_t* value);
 	virtual void SetValue_int(const Char_t* name,Int_t value);
     virtual void SetValue_flt(const Char_t* name,Double_t value);
-    virtual void IncValue_flt(const Char_t* name,Double_t value);
-    virtual void IncValue_int(const Char_t* name,Int_t value);
+
+    virtual Double_t IncValue_flt(const Char_t* name,Double_t value);
+    virtual Int_t    IncValue_int(const Char_t* name,Int_t value);
 
 	public:
    
@@ -43,8 +44,12 @@ class KVNameValueList : public TNamed
 	void SetValue(const Char_t* name,Int_t value);
 	void SetValue(const Char_t* name,Double_t value);
 	
-    void IncrementValue(const Char_t* name,Double_t value);
-    void IncrementValue(const Char_t* name,Int_t value);
+	void SetValueAt(const Char_t* name,Double_t value,Int_t idx);
+	void SetFirstValue(const Char_t* name,Double_t value);
+	void SetLastValue(const Char_t* name,Double_t value);
+
+    Double_t IncrementValue(const Char_t* name,Double_t value);
+    Int_t    IncrementValue(const Char_t* name,Int_t value);
 
     Bool_t IsValue(const Char_t* name,const Char_t* value);
 	Bool_t IsValue(const Char_t* name,Int_t value);

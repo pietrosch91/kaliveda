@@ -93,7 +93,7 @@ void KVIVUpDater::SetPedestalCorrections(KVDBRun *run){
 
 	// Loop over INDRA detectors
 	KVINDRADetector *det = NULL;
-	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	TIter next_det(gMultiDetArray->GetDetectors());
 	while( (det = (KVINDRADetector *)next_det()) ){
 
 		// Initializing each ACQ parameter pedestal correction for
@@ -143,7 +143,7 @@ void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
 	KVRList *list = run->GetLinks("VAMOS calib. & conf.");
 	if(!list) return;
 
-	KVDetector *det = NULL;
+	TObject *obj = NULL;
 	KVDBParameterSet *par = NULL;
 	TIter next(list);
 	TString formula, partype;
@@ -180,8 +180,8 @@ void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
 
 
 		// Case 2: parameter associated to a setter method of a detector or of VAMOS
-		if( !(det = gVamos->GetDetector(par->GetName())) ){
-			if( !strcmp( gVamos->GetName() , par->GetName() ) ) det = gVamos;
+		if( !(obj = gVamos->GetDetector(par->GetName())) ){
+			if( !strcmp( gVamos->GetName() , par->GetName() ) ) obj = gVamos;
 			else{
 				Error("KVIVUpDater::SetVamosCalibAndConfParams", 
 						"The parameter %s is not associated to an existing calibrator, detector or VAMOS",
@@ -198,14 +198,14 @@ void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
 			arg+=",";
 		}
 		arg.Remove(TString::kTrailing,',');
-		if ( !det->IsA()->GetMethod(meth.Data(),arg.Data()) ){
+		if ( !obj->IsA()->GetMethod(meth.Data(),arg.Data()) ){
 
 			Error("KVIVUpDater::SetVamosCalibAndConfParams", 
 					"Impossible to call %s::%s(%s) for detector %s",
-					det->ClassName(), meth.Data(), arg.Data(), det->GetName());
+					obj->ClassName(), meth.Data(), arg.Data(), obj->GetName());
 			continue;
 		}
-		det->Execute(meth.Data(), arg.Data());
+		obj->Execute(meth.Data(), arg.Data());
 	}
 }
 
@@ -386,7 +386,7 @@ void KVIVUpDater::SetChVoltRefGains(){
 	Info("KVIVUpDater::SetChVoltRefGains","Setting channel->Volt calibrator reference gain = detector gain");
 
 	KVDetector *det = NULL;
-	TIter next_det(gMultiDetArray->GetListOfDetectors());
+	TIter next_det(gMultiDetArray->GetDetectors());
 	KVSeqCollection *sublist = NULL;
 	while(( det = (KVDetector *)next_det() )){
 		if( !det->GetListOfCalibrators() ) continue;

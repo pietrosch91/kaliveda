@@ -3,7 +3,10 @@
 
 #include "KVVAMOSTransferMatrix.h"
 #include "KVUnits.h"
+#include "KVDataSet.h"
 #include "KVVAMOS.h"
+
+#include "TEnv.h"
 
 ClassImp(KVVAMOSTransferMatrix)
 
@@ -49,13 +52,6 @@ KVVAMOSTransferMatrix::KVVAMOSTransferMatrix( Bool_t scan_ds ) : KVBase("VAMOSTr
    // Default constructor
    init();
    if( scan_ds ) ReadCoefInDataSet();
-}
-//________________________________________________________________
-
-KVVAMOSTransferMatrix::KVVAMOSTransferMatrix(UChar_t order) : KVBase("VAMOSTransferMatrix","Transfer Matrix of VAMOS"){
-   // Default constructor
-   init();
-   SetOrder( order );
 }
 //________________________________________________________________
 

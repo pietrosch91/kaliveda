@@ -20,7 +20,7 @@ class LogFile
   
   Char_t LogFileName;
   std::ofstream Log;
-  void Open(char *LogFileName); 
+  void Open(const char *LogFileName); 
   void Close();
   
     void Message(const char *location, const char *msg);
