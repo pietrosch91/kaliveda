@@ -15,6 +15,7 @@ ClassImp(KVINDRA_VAMOS)
 	   <h2>KVINDRA_VAMOS</h2>
 	   <h4>INDRA + VAMOS experimental setup for the e494s and the e503 experiments performed at GANIL</h4>
 	   <!-- */
+	// --> END_HTML
 	//
 	// This class descibes the coupling of INDRA ( a KVINDRA object ) and 
 	// VAMOS ( a KVVAMOS object ) in a same KVMultiDetArray object.
@@ -32,7 +33,6 @@ ClassImp(KVINDRA_VAMOS)
 	//  method change the Plugin.KVMultiDetArray plugin in the $KVROOT/KVFiles/.kvrootrc
 	//  configuration file:
 	//  +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
-	// --> END_HTML
 	////////////////////////////////////////////////////////////////////////////////
 
 KVINDRA_VAMOS::KVINDRA_VAMOS()
