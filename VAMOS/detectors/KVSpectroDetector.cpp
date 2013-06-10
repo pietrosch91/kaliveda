@@ -4,7 +4,6 @@
 #include "KVSpectroDetector.h"
 #include "KVIonRangeTable.h"
 #include "TGeoBBox.h"
-#include "KVSpectroGroup.h"
 
 ClassImp(KVSpectroDetector)
 
@@ -24,7 +23,6 @@ void KVSpectroDetector::init(){
 
 	SetActiveLayer(-1); // Necessary to remove some warning with GetPressure and GetTemperature.   
 	fActiveVolumes    = NULL;
-	fGroups           = NULL;
 	fFocalToTarget    = NULL;
 	fNabsorbers    = 0;
 	fTotThick      = 0;
@@ -68,7 +66,6 @@ KVSpectroDetector::~KVSpectroDetector()
 {
    // Destructor
    SafeDelete(fActiveVolumes);
-   SafeDelete(fGroups);
 }
 //________________________________________________________________
 
@@ -164,15 +161,6 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 	// Add the volume in the assembly of volumes
 	vol_as->AddNode(vol,1,matrix);
 	SetAbsGeoVolume(vol_as);
-}
-//________________________________________________________________
-
-void KVSpectroDetector::AddGroup( KVSpectroGroup *group ){
-	// Add group to which detector belongs
-	
-	if( !group )return;
-	if( !fGroups ) fGroups = new KVList( kFALSE );
-	fGroups->Add( group );
 }
 //________________________________________________________________
 
