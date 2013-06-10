@@ -93,7 +93,6 @@ class KVVAMOS :  public KVMultiDetArray
 		Double_t      GetBeamPeriod()                       const;
 		Double_t      GetBrhoRef()                          const;
 		KVCalibrator *GetCalibrator( const Char_t * type )  const;
-   		KVDetector   *GetDetector( const Char_t *name )     const;
 		TGeoVolume   *GetFocalPlaneVolume()                 const;
    		TGeoHMatrix   GetFocalToTargetMatrix();
    		TGeoVolume   *GetGeoVolume()                        const;

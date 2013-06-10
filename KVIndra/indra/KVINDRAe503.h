@@ -17,6 +17,8 @@ class KVINDRAe503:public KVINDRA {
     KVINDRAe503();
     virtual ~ KVINDRAe503();
 
+	void SetDataSet( const Char_t *name ){ fDataSet = name; }
+
     ClassDef(KVINDRAe503, 1)   //Experimental configuration for INDRA-VAMOS experiments
 };
 

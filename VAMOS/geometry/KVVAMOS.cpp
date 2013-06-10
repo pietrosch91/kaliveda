@@ -3,7 +3,6 @@
 
 #include "KVVAMOS.h"
 #include "KVVAMOSDetector.h"
-#include "KVSpectroGroup.h"
 #include "KVVAMOSTransferMatrix.h"
 
 #include "KVGroup.h"
@@ -516,7 +515,7 @@ void KVVAMOS::SetCalibrators(){
 //________________________________________________________________
 
 void KVVAMOS::SetGroupsAndIDTelescopes(){
-	//Build groups of detectors (KVSpectroGroup) from the file given by
+	//Build groups of detectors (KVGroup) from the file given by
 	//the environment variable:
 	//[dataset name]. KVVAMOS.DetectorGroupFile: ...
 	//( See ReadDetectorGroupFile(...) method )
