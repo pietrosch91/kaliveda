@@ -159,6 +159,27 @@ const Char_t *KVHarpeeIC::GetEBaseName() const{
 }
 //________________________________________________________________
 
+Double_t KVHarpeeIC::GetEnergy()
+{
+   //Redefinition of KVDetector::GetEnergy().
+   //If energy lost in active (gas) volume is already set (e.g. by calculation of energy loss
+   //of charged particles), return its value.
+   //If not, we calculate it and set it using the values read from coders (if fired)
+   //and the calibrations, if present
+   //
+   //Returns 0 if (i) no calibration present (ii) calibration present but no data in acquisition parameters
+
+   //fELoss already set, return its value
+   Double_t ELoss = KVDetector::GetEnergy();
+   if(IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
+   if( ELoss > 0 ) return ELoss;
+   ELoss = GetCalibE();
+   if( ELoss < 0 ) ELoss = 0;
+   SetEnergy(ELoss);
+   return ELoss;
+}
+//________________________________________________________________
+
 UInt_t KVHarpeeIC::GetFiredSegNumber(Option_t *opt){
 	// return the number of the fired segment of this Harpee ionisation chamber
 	// ( number between 1 to 7 ). Returns 0 if no segment or several segments
