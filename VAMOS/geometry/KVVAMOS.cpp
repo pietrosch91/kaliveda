@@ -725,6 +725,109 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 	return fFiredDets;
 }
 //________________________________________________________________
+void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
+                                      TCollection * idtels){
+	//Overwrite the same method of KVMultiDetArray in order to use another
+	//format for the URI of the plugins associated to VAMOS.
+    //Create a KVIDTelescope from the two detectors and add it to the list.
+    //
+    // # For each pair of detectors we look for now a plugin with one of the following names:
+    // #    [name_of_dataset].name_of_vamos.de_detector_type[de detector thickness]-e_detector_type[de detector thickness]
+    // # Each characteristic in [] brackets may or may not be present in the name; first we test for names
+    // # with these characteristics, then all combinations where one or other of the characteristics is not present.
+    // # In addition, we first test all combinations which begin with [name_of_dataset].
+    // # The first plugin found in this order will be used.
+    // # In addition, if for one of the two detectors there is a plugin called
+    // #    [name_of_dataset].name_of_vamos.de_detector_type[de detector thickness]
+    // #    [name_of_dataset].name_of_vamos.e_detector_type[e detector thickness]
+    // # then we add also an instance of this 1-detector identification telescope.
+    //
+    //This method is called by KVGroup in order to set up all ID telescopes
+    //of the array.
+
+    if ( !(de->IsOK() && e->IsOK()) ) return;
+    
+	KVIDTelescope *idt = NULL;
+
+    if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
+
+    //first we look for ID telescopes specific to current dataset
+    //these are ID telescopes formed from two distinct detectors
+    TString uri;
+
+	// prefix of the URI
+	TString prefix[2];
+	prefix[0].Form("%s.%s.",fDataSet.Data(), GetName());
+	prefix[1].Form("%s."   , GetName());
+
+
+	//look for ID telescopes with only one of the two detectors
+	KVDetector *dets[3] = { de , e, NULL };
+	KVDetector *det     = NULL;
+
+    for( UChar_t i=0; (det=dets[i]);  i++){
+		for(UChar_t j=0; j<2; j++){
+
+			uri.Form("%s%s%d", prefix[j].Data(), det->GetType(),
+             		TMath::Nint(det->GetThickness()) );
+    		if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        		set_up_single_stage_telescope(det,idtels,idt,uri);
+				break;
+    		}
+
+    		uri.Form("%s%s", prefix[j].Data(), det->GetType());
+    		if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        		set_up_single_stage_telescope(det,idtels,idt,uri);
+				break;
+    		}
+
+        }
+    }
+
+    //look for ID telescopes with the two detectors
+	if(de == e) return;
+ 
+	Int_t de_thick = TMath::Nint(de->GetThickness());
+    Int_t e_thick  = TMath::Nint(e->GetThickness() );
+
+	for(UChar_t j=0; j<2; j++){
+
+        uri.Form("%s%s%d-%s%d", prefix[j].Data(), de->GetType(),
+                de_thick, e->GetType(), e_thick);
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+
+		uri.Form("%s%s%d-%s", prefix[j].Data(), de->GetType(),
+                de_thick, e->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+
+		uri.Form("%s%s-%s%d", prefix[j].Data(), de->GetType(), e->GetType(),
+                e_thick);
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+
+		uri.Form("%s%s-%s", prefix[j].Data(), de->GetType(), e->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+	}
+    
+	if( !idt ){
+    	// Make a generic de-e identification telescope
+    	uri.Form("%s-%s", de->GetType(), e->GetType());
+    	idt = new KVIDTelescope;
+    	set_up_telescope(de,e,idtels,idt,uri);
+	}
+}
+//________________________________________________________________
 
 KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
 	//Returns the transformation matrix allowing to map the measured

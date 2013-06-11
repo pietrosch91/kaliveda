@@ -77,6 +77,7 @@ class KVVAMOS :  public KVMultiDetArray
    		        void     FocalToTarget( const Double_t *focal, Double_t *target );
    		        void     FocalToTargetVect( const Double_t *focal, Double_t *target );
    		virtual KVList  *GetFiredDetectors( Option_t *opt="Pany" );
+		virtual void	 GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );

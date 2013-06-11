@@ -743,6 +743,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.VAMOS.CHI-SI$ KVVAMOSIDTelescope            VAMOS        "KVVAMOSIDTelescope()"
 ################################################
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
