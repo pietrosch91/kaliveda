@@ -1,0 +1,267 @@
+# Default environment configuration file for KaliVeda
+# To change the default configuration, put your own values in a .kvrootrc file in your
+# $HOME or working directory.
+#    *** DO NOT MAKE A COPY OF THE ENTIRE FILE, JUST THE PARTS YOU WANT TO CHANGE ***
+#    *** Newer versions of KaliVeda will change the contents of the default
+#    *** config file, which may then be in conflict with any local copy
+# The order of precedence for values in the different files is:
+#	local .kvrootrc  >>>  $HOME .kvrootrc  >>> $KVROOT/KVFiles/.kvrootrc
+# where ">>>" means "values in the files to the left take precedence over those in the file to the right".
+
+# KaliVeda Environment settings are handled via the class TEnv. To see
+# which values are active do: gEnv->Print().
+
+#DATA REPOSITORY CONFIGURATION
+#
+#Example of typical configuration (copy the appropriate lines to your .kvrootrc & uncomment them)
+#
+#Definition of default data repository
+#Only necessary if more than one repository is defined.
+#DataRepository.Default:  myrepo
+#
+#####################Case 1
+#User has data files on his machine or on a locally-mounted disk
+#
+#DataRepository: home
+#home.DataRepository.RootDir: $(HOME)/Data
+#
+####################################################################################################################
+#
+# Plugins for KVDataRepository
+Plugin.KVDataRepository:    local    KVDataRepository     KVMultiDet    "KVDataRepository()"
++Plugin.KVDataRepository:    remote    KVRemoteDataRepository     KVMultiDet    "KVRemoteDataRepository()"
++Plugin.KVDataRepository:    srb    SRBDataRepository     KVMultiDet    "SRBDataRepository()"
++Plugin.KVDataRepository:    irods    IRODSDataRepository     KVMultiDet    "IRODSDataRepository()"
+#
+# Plugins for KVAvailableRunsFile
+Plugin.KVAvailableRunsFile:    local    KVAvailableRunsFile     KVMultiDet    "KVAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    remote    KVRemoteAvailableRunsFile     KVMultiDet    "KVRemoteAvailableRunsFile(const Char_t*,KVDataSet*)"
++Plugin.KVAvailableRunsFile:    dms    DMSAvailableRunsFile     KVMultiDet    "DMSAvailableRunsFile(const Char_t*,KVDataSet*)"
+#
+# Different types of data which can be associated with datasets
+# KVDataSet.DataTypes: online raw dst recon ident root
+KVDataSet.DataTypes: raw dst recon ident root
+#
+# Names used for subdirectories containing data of different types
+# KVDataSet.DataType.Subdir.online:  raw
+KVDataSet.DataType.Subdir.raw:  raw
+KVDataSet.DataType.Subdir.dst:  dst
+KVDataSet.DataType.Subdir.recon:  recon2
+KVDataSet.DataType.Subdir.ident:  ident2
+KVDataSet.DataType.Subdir.root:  root2
+#
+# Default formats for runfile names (run number is used to replace integer format)
+# DataSet.RunFileName.online:    run%d.raw
+DataSet.RunFileName.raw:    run%d.raw
+DataSet.RunFileName.dst:    run%d.dst
+DataSet.RunFileName.recon:    run%d.recon.root
+DataSet.RunFileName.ident:    run%d.ident.root
+DataSet.RunFileName.root:    run%d.root
+#
+# Default base classes for reading runfiles of different types
+# DataSet.RunFileClass.online:    KVRawDataReader
+DataSet.RunFileClass.raw:    KVRawDataReader
+DataSet.RunFileClass.recon:    TFile
+DataSet.RunFileClass.ident:    TFile
+DataSet.RunFileClass.root:    TFile
+
+# Default name of database file containing informations on runs, systems, calibration parameters etc.
+DataSet.DatabaseFile:        DataBase.root
+# Default name of database object in file
+DataSet.DatabaseName:        DataBase
+
+# Default data analysis tasks
+DataAnalysisTask:     RawAnalysis
+RawAnalysis.DataAnalysisTask.Title:     Analysis of raw data
+RawAnalysis.DataAnalysisTask.Prereq:     raw
+RawAnalysis.DataAnalysisTask.Analyser:     UserClass
+RawAnalysis.DataAnalysisTask.UserClass:     yes
+RawAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+
+# +DataAnalysisTask:     OnlineAnalysis
+# OnlineAnalysis.DataAnalysisTask.Title:     On-line Analysis
+# OnlineAnalysis.DataAnalysisTask.Prereq:     online
+# OnlineAnalysis.DataAnalysisTask.Analyser:     UserClass
+# OnlineAnalysis.DataAnalysisTask.UserClass:     yes
+# OnlineAnalysis.DataAnalysisTask.UserClass.Base:     RawDataAnalyser
+# OnlineAnalysis.DataAnalysisTask.UserClass.ExtraACliCIncludes:     -DONLINE_ANALYSIS
+
+#-------------------------------- Compiler options for user analysis classes
+#                                                              DEBUGGING
+# Set this resource to "yes" or "true" for user analysis classes to be compiled with ACliC's debug option
+# i.e. will be compiled with ".L toto.cpp+g". N.B. if you previously compiled your class without the debugging
+# option you should delete the generated '.so' file so that it will be recompiled in debug mode, or set
+# the KVDataAnalyser.UserClass.ForceRecompile variable to "yes".
+KVDataAnalyser.UserClass.Debug:     no
+#                                                           OPTIMISATION
+# Set this resource to "yes" or "true" for user analysis classes to be compiled with ACliC's optimisation
+# i.e. will be compiled with ".L toto.cpp+O". N.B. if you previously compiled your class without the optimisation
+# option you should delete the generated '.so' file so that it will be recompiled in optimised mode, or set
+# the KVDataAnalyser.UserClass.ForceRecompile variable to "yes".
+KVDataAnalyser.UserClass.Optimise:     no
+#                                                        FORCE RECOMPILE
+# Set this resource to "yes" or "true" to force recompilation of user analysis classes every time that
+# an analysis is processed. Default is to only compile if the source code is more recent than the last
+# compiled version i.e. ACliC compilation with ".L toto.cpp+".
+KVDataAnalyser.UserClass.ForceRecompile:     no
+
+# Batch systems
+BatchSystem:     Xterm
+Xterm.BatchSystem.Title:    Execute task in an X-terminal window
+Xterm.BatchSystem.DefaultJobOptions:   -T #JobName# -e
+Xterm.BatchSystem.JobSubCmd:   xterm
+Xterm.BatchSystem.JobScript: "$KVROOT/bin/KaliVedaAnalysis -b -n"&
++BatchSystem:     Linux
+Linux.BatchSystem.Title:    Execute task in background with output stored in log file
+Linux.BatchSystem.DefaultJobOptions:   -b -n > #JobName#.log 2>&1 &
+Linux.BatchSystem.JobSubCmd:   KaliVedaAnalysis
+#Plugins for batch systems
+Plugin.KVBatchSystem:    Xterm    KVRootBatch     KVMultiDet    "KVRootBatch(const Char_t*)"
++Plugin.KVBatchSystem:    Linux    KVLinuxBatch     KVMultiDet    "KVLinuxBatch(const Char_t*)"
+
+# Plugins for data analysis
+# KVDataAnalyser can be tuned for different datasets/environments
+Plugin.KVDataAnalyser:   RawDataAnalyser        KVRawDataAnalyser            KVMultiDet "KVRawDataAnalyser()"
+
+# Plugins for data transfer between repositories
+# Used by KVDataTransfer::NewTransfer
+Plugin.KVDataTransfer:   sftp    KVDataTransferSFTP   KVMultiDet   "KVDataTransferSFTP()"
++Plugin.KVDataTransfer:   bbftp    KVDataTransferBBFTP   KVMultiDet   "KVDataTransferBBFTP()"
++Plugin.KVDataTransfer:   xrd    KVDataTransferXRD   KVMultiDet   "KVDataTransferXRD()"
+
+# Change handling of scaler buffers in GANIL data files
+KVGANILDataReader.ScalerBuffersManagement:    kSkipScaler
+
+
+# COHERENCE TOLERANCE PARAMETER
+# In KVIDTelescope::CalculateParticleEnergy, we compare the calculated and measured energy losses
+# of each particle in each of the detectors in front of the identifying telescope. If the measured
+# energy loss, dE_meas, is greater than (CoherencyTolerance)*dE_calc, we add the calculated energy
+# loss to the total energy of the particle, and this calculated energy is subtracted from the
+# measured energy loss in the detector in order to "reveal" an extra energy loss due to another
+# particle (pile-up).
+# The value of CoherencyTolerance can be set with this variable.
+# By default, the value is 1.05 i.e. we tolerate up to 5% difference between dE_calc and dE_meas.
+#
+# KVIDTelescope.CoherencyTolerance:   1.05
+
+# Plugins for calculation of range & energy loss of charge particles in matter.
+# Each class must derive from KVIonRangeTable abstract base class.
+Plugin.KVIonRangeTable:   VEDALOSS   KVedaLoss   KVMultiDet   "KVedaLoss()"
++Plugin.KVIonRangeTable:   RANGE   KVRangeYanez   KVMultiDet   "KVRangeYanez()"
+
+# Ion range table used by KVMaterial. You can change this to use a different plugin defined as above.
+KVMaterial.IonRangeTable:   VEDALOSS
+
+# Default name for TEnv-format file containing real thicknesses of detectors
+# in multidetector arrays defined for datasets.
+# See KVMultiDetArray::SetDetectorThicknesses for file format.
+KVMultiDetArray.DetectorThicknesses:	DetectorThicknesses.dat
+
+# KVPulseHeightDefect TF1::fNpx parameter for TF1 energy loss
+KVPulseHeightDefect.EnergyLoss.Npx:        60
+
+# File containing range tables for calculation of energy losses in KVedaLoss
+KVedaLoss.RangeTables:      $(KVROOT)/KVFiles/data/kvloss.data
+# TF1::fNpx parameter for TF1 range, energy loss, residual energy
+KVedaLoss.Range.Npx:         20
+KVedaLoss.EnergyLoss.Npx:         50
+KVedaLoss.ResidualEnergy.Npx:         20
+
+# Predefined compounds for Ricardo Yanez's Range energy loss library
+RANGE.PredefMaterials:          rangeyanez_compounds.data
+
+# KVDetector: TF1::fNpx parameter for TF1 energy loss, range & residual energy
+KVDetector.EnergyLoss.Npx:         20
+KVDetector.ResidualEnergy.Npx:         50
+KVDetector.Range.Npx:        20
+
+# LifeTime tables used by KVNDTManager
+KVNDTManager.LifeTimeTable:       KVLifeTimeTable
+Plugin.KVNuclDataTable:   KVLifeTimeTable    KVLifeTimeTable    KVMultiDet   "KVLifeTimeTable()"
+LifeTime.DataFile:	lifetime_nudat2.data
+
+# ChargeRadius tables used by KVNDTManager
+KVNDTManager.ChargeRadiusTable:       KVChargeRadiusTable
++Plugin.KVNuclDataTable:   KVChargeRadiusTable    KVChargeRadiusTable    KVMultiDet   "KVChargeRadiusTable()"
+ChargeRadius.DataFile:	chargeradii_angeli.data
+
+# Mass Excess tables used by KVNDTManager
+KVNDTManager.MassExcessTable:      KVMassExcessTable
++Plugin.KVNuclDataTable:   KVMassExcessTable    KVMassExcessTable    KVMultiDet   "KVMassExcessTable()"
+MassExcess.DataFile:	massexcess_nudat2.data
+#MassExcess.DataFile: audi_wapstra_2003.data
+#MassExcess.DataFile: pace2_2009.data
+
+# Abundance tables used by KVNDTManager
+KVNDTManager.AbundanceTable:      KVAbundanceTable
++Plugin.KVNuclDataTable:   KVAbundanceTable    KVAbundanceTable    KVMultiDet   "KVAbundanceTable()"
+Abundance.DataFile:	abundance_nudat2.data
+
+# Atomic element & density table used by KVNDTManager
+KVNDTManager.ElementDensityTable:      KVElementDensityTable
++Plugin.KVNuclDataTable:   KVElementDensityTable    KVElementDensityTable    KVMultiDet   "KVElementDensityTable()"
+ElementDensity.DataFile:	element_densities.data
+
+#ROOT environment variables
++ACLiC.IncludePaths:     -I$(KVROOT)/include
+Root.Html.Author:      //Author:
+Root.Html.Header:      header.html
+Root.Html.XWho:     http://www.slac.stanford.edu/spires/find/hepnames/www?rawcmd=find+name+
+
+# Classes for fitting identification grids
+# To change the default fitter class, change the value of the following variable:
+KVVirtualIDFitter.DefaultFitter:   KVTGIDFitter
+# and add your class to the list of KVVirtualIDFitter plugins:
+Plugin.KVVirtualIDFitter: KVTGIDFitter KVTGIDFitter KVMultiDet "KVTGIDFitter()"
+
+# Default identification grid classes for ID telescopes
+# Used by KVIDGridManagerGUI when creating new grids
+#
+# KVIDTelescope.DefaultGrid is used for all telescopes which do not define an alternative
+KVIDTelescope.DefaultGrid:              KVIDZAGrid
+
+# Default identification/cut classes for different ID graphs
+# Used by KVIDGridManagerGUI when creating new grids
+#
+KVIDZAGrid.CutClass:  KVIDCutLine
++KVIDZAGrid.CutClass:  KVIDCutContour
+KVIDZAGrid.DefaultCutClass:  KVIDCutLine
+KVIDZAGrid.IDClass:  KVIDZALine
+KVTGIDGrid.CutClass:  KVIDCutLine
++KVTGIDGrid.CutClass:  KVIDCutContour
+KVTGIDGrid.DefaultCutClass:  KVIDCutLine
+KVTGIDGrid.IDClass:  KVIDZALine
+
+# Plugins for identification graphs/grids
+# User can extend identification possibilities by adding plugins to list
+# Syntax:
+# Plugin.KVIDGraph:    name_of_class    name_of_class    name_of_plugin_library   constructor_to_call
+Plugin.KVIDGraph:    KVIDZAGrid    KVIDZAGrid    KVMultiDet   "KVIDZAGrid()"
+#+Plugin.KVIDGraph:   KVIDZAMap     KVIDZAMap     KVMultiDet   "KVIDZAMap()"
+
+# Mime-types for GUI
+# These define the icons associated with different objects displayed in KVListView widgets.
+KaliVeda.GUI.MimeTypes:   KVIDMap
+KaliVeda.GUI.MimeTypes.KVIDMap.Icon:   rootdb_t.xpm
++KaliVeda.GUI.MimeTypes:   KVIDZAGrid
+KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
++KaliVeda.GUI.MimeTypes:   KVTGIDGrid
+KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
++KaliVeda.GUI.MimeTypes:   KVDBRun
+KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
+
+# Control whether to use ROOT geometry & algorithms for particle trajectory simulation
+KVMultiDetArray.FilterUsesROOTGeometry:    yes
+
+# Controls which options are set at start up of KVTreeAnalyzer
+KVTreeAnalyzer.LogScale:         off
+KVTreeAnalyzer.UserBinning:           off
+KVTreeAnalyzer.UserWeight:       off
+KVTreeAnalyzer.NewCanvas:      off
+KVTreeAnalyzer.Normalize:      off
+
+# Controls auto-update option and refresh interval (in seconds) for KVBatchSystemGUI
+KVBatchSystemGUI.AutoUpdate:       yes
+KVBatchSystemGUI.RefreshInterval:    30
+

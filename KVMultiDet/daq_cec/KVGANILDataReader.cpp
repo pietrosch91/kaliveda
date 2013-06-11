@@ -406,8 +406,8 @@ GTGanilData* KVGANILDataReader::NewGanTapeInterface()
    if(gDataSet) dsname = gDataSet->GetName();
    TPluginHandler *ph=LoadPlugin("GTGanilData", dsname);
    if (!ph){
-      Error("NewGanTapeInterface", "No plugin handler found for : %s", dsname.Data());
-      return 0;
+   	// default: GTGanilData
+      return (new GTGanilData);
    }
 
    //execute constructor/macro for plugin

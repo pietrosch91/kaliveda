@@ -285,9 +285,9 @@ ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.recon2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.ident2
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_e613/ccali.available_runs.e613.root2 $(KVINSTALLDIR)/KVFiles/INDRA_e613/ccali.available_runs.e613.root2
-	-cat etc/KaliVeda.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/ccali.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 else
-	-cat etc/KaliVeda.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
+	-cat etc/kaliveda.rootrc etc/kaliveda-indra.rootrc etc/kaliveda-indravamos.rootrc etc/standard.rootrc > $(KVINSTALLDIR)/KVFiles/.kvrootrc
 endif
 	
 uninstall :
