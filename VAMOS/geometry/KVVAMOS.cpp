@@ -666,6 +666,7 @@ void KVVAMOS::Build(){
 	SetGroupsAndIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
+	SetIdentifications();
 	Initialize();
 	SetBit(kIsBuilt);
 }

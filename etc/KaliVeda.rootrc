@@ -804,13 +804,14 @@ INDRA_e503.IdentificationParameterFile.SI75-SILI:   grilles_fit_Si75_SiLi.dat
 INDRA_e503.IdentificationParameterFile.SILI-CSI:    grilles_fit_SiLi_CsI.dat
 
 ###############################################
-INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
-INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
-INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
-INDRA_e494s.IdentificationParameterFile.CSI:        grilles_CsI_RL_e494s.dat
-INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
-INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_fit_Si75_SiLi.dat
-INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_fit_SiLi_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CI-SI:          grilles_ChIo_Si.dat
+INDRA_e494s.IdentificationParameterFile.CI-CSI:         grilles_ChIo_CsI.dat
+INDRA_e494s.IdentificationParameterFile.SI-CSI:         grilles_fit_Si_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CSI:            grilles_CsI_RL_e494s.dat
+INDRA_e494s.IdentificationParameterFile.CI-SI75:        grilles_ChIo_Si75.dat
+INDRA_e494s.IdentificationParameterFile.SI75-SILI:      grilles_fit_Si75_SiLi.dat
+INDRA_e494s.IdentificationParameterFile.SILI-CSI:       grilles_fit_SiLi_CsI.dat
+INDRA_e494s.IdentificationParameterFile.VAMOS.CHI-SI:   grilles_VAMOS_IC_Si.dat
 ###############################################
 INDRA_e613.IdentificationParameterFile.CI-SI:        CI_SI_e613.dat
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
@@ -834,7 +835,7 @@ VAMOS_e503.ActiveIdentifications:       SI-CSI
 INDRA_camp5.ActiveIdentifications:    CSI SI-CSI SI150-CSI CI-SI CI-CSI CI-SI75 SI75-SILI SILI-CSI
 INDRA_e475s.ActiveIdentifications:    CSI CI-CSI SI-CSI CI-SI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
-INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI VAMOS.CHI-SI
 INDRA_e613.ActiveIdentifications:   CI-SI CSI SI-CSI
 
 #================================ Plugins for detectors
