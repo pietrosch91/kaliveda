@@ -316,7 +316,6 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 		Nfiles++;
 		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
 	}
-	infos->Print();
 	delete lfiles;
 	return Nfiles;
 }

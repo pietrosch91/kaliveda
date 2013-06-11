@@ -68,15 +68,22 @@ void KVINDRA_VAMOS::Build(){
 	
 	SetName("INDRA_VAMOS");
 	SetTitle("INDRA+VAMOS  experimental setup");
+	Info("Build","Building INDRA+VAMOS ...");
 
 	// Build INDRA multidetector
-	Info("Build","Building INDRA ...");
+	cout<<endl<<setw(20)<<""<<"********************************"<<endl;
+	cout      <<setw(20)<<""<<"*           INDRA              *"<<endl;
+	cout      <<setw(20)<<""<<"********************************"<<endl<<endl;
+
 	fIndra = new KVINDRAe503;
 	((KVINDRAe503 *)fIndra)->SetDataSet( fDataSet );
 	fIndra->Build();
 
 	// Build VAMOS spectrometer
-	Info("Build","Building VAMOS ...");
+	cout<<endl<<setw(20)<<""<<"********************************"<<endl;
+	cout      <<setw(20)<<""<<"*           VAMOS              *"<<endl;
+	cout      <<setw(20)<<""<<"********************************"<<endl<<endl;
+
 	fVamos = KVVAMOS::MakeVAMOS(fDataSet.Data());
 
 	// Add the lists of ACQ parameters, detectors and ID telescopes of
