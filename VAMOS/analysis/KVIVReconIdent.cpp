@@ -1,4 +1,5 @@
 #include "KVIVReconIdent.h"
+#include "KVIVReconEvent.h"
 #include "KVVAMOS.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -63,6 +64,9 @@ void KVIVReconIdent::InitRun(void){
       TBranch *recon_br = (TBranch *)fChain->GetListOfBranches()->First();
 	  fIdentTree->Branch(recon_br->GetName(), recon_br->GetClassName(), GetEventReference(), 10000000, 0)->SetAutoDelete(kFALSE);
 
+	 // set flag if this branch contains a KVIVReconEvent object
+	fIsIVevent = TClass::GetClass(recon_br->GetClassName())->InheritsFrom("KVIVReconEvent");
+
       Info("InitRun", "Created identified/calibrated data tree %s : %s", fIdentTree->GetName(), fIdentTree->GetTitle());
 
    // initialise identifications
@@ -85,7 +89,6 @@ void KVIVReconIdent::InitRun(void){
    // print status of calibrations
    gVamos->PrintCalibStatusOfDetectors();
 }
-
 //_____________________________________
 
 Bool_t KVIVReconIdent::Analysis(void){
@@ -93,42 +96,39 @@ Bool_t KVIVReconIdent::Analysis(void){
    //     perform primary event identification and calibration and fill tree
 
    fEventNumber = GetEvent()->GetNumber();
+
+   //Analyse INDRA event
    if (GetEvent()->GetMult() > 0) {
       GetEvent()->IdentifyEvent();
       GetEvent()->CalibrateEvent();
    }
+
+   //Analyse VAMOS event
+   if( fIsIVevent ){ // condition set for backwards compatibility with 
+	                 // old recon ROOT files
+
+	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
+
+	   // Z-identification
+	   IVevent->IdentifyVAMOSevent_Z();
+
+//	   // first calibration with only Z known and mean A from mass formula
+//	   IVevent->CalibrateVAMOSevent();
+//
+//	   // firt A-identification
+//	   IVevent->IdentifyVAMOSevent_A();
+//
+//	   // second calibration with Z and A known
+//	   IVevent->CalibrateVAMOSevent();
+//
+//	   //second A-identification
+//	   IVevent->IdentifyVAMOSevent_A();
+   }
+
+   //Fill Ident tree
    fIdentTree->Fill();
+
    return kTRUE;
-}
-//_____________________________________
-
-void KVIVReconIdent::EndRun(void){
-   //At the end of each run we:
-   //      write the tree into the new file
-   //      close the file
-   //      copy the file into the required repository (see InitRun)
-   //      update the available runlist
-
-   fIdentFile->cd();
-
-	gDataAnalyser->WriteBatchInfo(fIdentTree);
-
-    GetRawData()->CloneTree(-1,"fast"); //copy raw data tree to file
-    GetGeneData()->CloneTree(-1,"fast"); //copy pulser & laser (gene) tree to file
-
-    fIdentFile->Write();
-
-   //add file to repository
-   // get dataset to which we must associate new run
-   KVDataSet* OutputDataset =
-      gDataRepositoryManager->GetDataSet(
-         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
-         gDataSet->GetName() );
-
-   OutputDataset->CommitRunfile("ident", gIndra->GetCurrentRunNumber(),
-                           fIdentFile);
-   fIdentFile = 0;
-   fIdentTree = 0;
 }
 //_____________________________________
 

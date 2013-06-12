@@ -1,29 +1,23 @@
-#ifndef KVINDRAReconIdent_h
-#define KVINDRAReconIdent_h
+#ifndef KVIVReconIdent_h
+#define KVIVReconIdent_h
 
-#include "KVIVSelector.h"
+#include "KVINDRAReconIdent.h"
 
-class TFile;
-class TTree;
+class KVIVReconIdent: public KVINDRAReconIdent {
 
-class KVIVReconIdent: public KVIVSelector {
+	protected:
 
-   	protected:
-   		TFile *fIdentFile;           //new file
-   		TTree *fIdentTree;           //new tree
-   		Int_t fRunNumber;
-   		Int_t fEventNumber;
+		Bool_t fIsIVevent; // flag set when the event class inherits from KVIVReconEvent;
+
 
  	public:
-    	KVIVReconIdent() {
-      		fIdentFile = 0;
-      		fIdentTree = 0;
-   		};
-   		virtual ~ KVIVReconIdent() {
-   		};
+
+    	KVIVReconIdent() { 
+			fIsIVevent = kFALSE;
+ 	   	}
+   		virtual ~ KVIVReconIdent() {}
 
    		virtual void InitRun();
-   		virtual void EndRun();
    		virtual void InitAnalysis();
    		virtual Bool_t Analysis();
    		virtual void EndAnalysis();
