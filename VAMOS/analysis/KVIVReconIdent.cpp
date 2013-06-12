@@ -1,34 +1,12 @@
-/*
-$Id: KVIVReconIdent.cpp,v 1.3 2007/11/21 11:22:59 franklan Exp $
-$Revision: 1.3 $
-$Date: 2007/11/21 11:22:59 $
-*/
-
-//Created by KVClassFactory on Thu Jun  7 13:52:25 2007
-//Author: John Frankland
-
 #include "KVIVReconIdent.h"
-#include "Analysisv.h"
-#include "LogFile.h"
-#include "KVBatchSystem.h"
+#include "KVVAMOS.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "KVDataRepository.h"
 #include "KVDataSet.h"
-
-#include "Riostream.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <string.h>
-#include "KVFocalPlanVamos.h"
-
-#include "KVReconstructedNucleus.h"
-#include "KVINDRAReconNuc.h"
-#include "KVIdentificationResult.h"
-#include "KVCsI.h"
-#include "KVSilicon.h"
-
+#include "KVDataRepositoryManager.h"
+#include "KVDataAnalyser.h"
 using namespace std;
-
 
 ClassImp(KVIVReconIdent)
 
@@ -42,155 +20,117 @@ calibration and identification</h4>
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIVReconIdent::KVIVReconIdent()
-{
-   //Default constructor
+void KVIVReconIdent::InitAnalysis(void){
 }
+//_____________________________________
 
-KVIVReconIdent::~KVIVReconIdent()
-{
-   //Destructor
-}
+void KVIVReconIdent::InitRun(void){
+   //When each run is opened, we create a new ROOT file for the identified events we
+   //are going to generate from the reconstructed events we are reading.
+   // By default this file will be written in the same data repository as the recon data file we are reading.
+   // This can be changed by setting the environment variable(s):
+   //
+   //     ReconIdent.DataAnalysisTask.OutputRepository:     [name of repository]
+   //     [name of dataset].ReconIdent.DataAnalysisTask.OutputRepository:         [name of repository]
+   //
+   // If no value is set for the current dataset (second variable), the value of the
+   // first variable will be used. If neither is defined, the new file will be written in the same repository as
+   // the recon file (if possible, i.e. if repository is not remote).
 
-void KVIVReconIdent::InitAnalysis(void)
-{
-   //Create VAMOS Analysisv object
-   fLogV = new LogFile;
-   if( gBatchSystem ){
-   fLogV->Open( Form( "%s_vamos.log", gBatchSystem->GetJobName() ) );
-   }
-   else{ 
-   fLogV->Open("Calibration_vamos.log");
-   }
-   //get VAMOS calibrator for current dataset
-   fAnalyseV = Analysisv::NewAnalyser( gDataSet->GetName(), fLogV );
+   // get dataset to which we must associate new run
+   KVDataSet* OutputDataset =
+      gDataRepositoryManager->GetDataSet(
+         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
+         gDataSet->GetName() );
 
-   LoadGrids();
-   
-   gIndra->SetIdentifications();
-   gIndra->InitializeIDTelescopes();   
+   //create new ROOT file for identified events
+   fRunNumber = gIndra->GetCurrentRunNumber();
+   fIdentFile = OutputDataset->NewRunfile("ident", fRunNumber);
+
+
+		fIdentTree = new TTree("ReconstructedEvents", Form("%s : %s : ident events created from recon data",
+			 	gIndraDB->GetRun(fRunNumber)->GetName(),
+            gIndraDB->GetRun(fRunNumber)->GetTitle())
+            );
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,25,4)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,1)
+   // The TTree::OptimizeBaskets mechanism is disabled, as for ROOT versions < 5.26/00b
+   // this lead to a memory leak
+   fIdentTree->SetAutoFlush(0);
+#endif
+#endif
+      //leaves for reconstructed events
+      TBranch *recon_br = (TBranch *)fChain->GetListOfBranches()->First();
+	  fIdentTree->Branch(recon_br->GetName(), recon_br->GetClassName(), GetEventReference(), 10000000, 0)->SetAutoDelete(kFALSE);
+
+      Info("InitRun", "Created identified/calibrated data tree %s : %s", fIdentTree->GetName(), fIdentTree->GetTitle());
+
+   // initialise identifications
+   gIndra->InitializeIDTelescopes();
+   gVamos->InitializeIDTelescopes();
+ 
+   cout << endl <<setw(20)<<""<<"----------------------"<<endl;
+   cout         <<setw(20)<<""<<"|  STATUS FOR INDRA  |"<<endl;
+   cout         <<setw(20)<<""<<"----------------------"<<endl<<endl;
+   // print status of identifications
+   gIndra->PrintStatusOfIDTelescopes();
+   // print status of calibrations
+   gIndra->PrintCalibStatusOfDetectors();
+
+   cout << endl <<setw(20)<<""<<"----------------------"<<endl;
+   cout         <<setw(20)<<""<<"|  STATUS FOR VAMOS  |"<<endl;
+   cout         <<setw(20)<<""<<"----------------------"<<endl<<endl;
+   // print status of identifications
+   gVamos->PrintStatusOfIDTelescopes();
+   // print status of calibrations
+   gVamos->PrintCalibStatusOfDetectors();
 }
 
 //_____________________________________
-void KVIVReconIdent::InitRun(void)
-{
-   //Connect VAMOS branches in input and output trees  
-   
-   //fAnalyseV->SetRunFlag(0);
 
-   KVINDRAReconIdent::InitRun();
-   fAnalyseV->OpenOutputTree(fIdentTree);
-   fAnalyseV->outAttach();
-   fAnalyseV->CreateHistograms();
-   fAnalyseV->OpenInputTree(fChain->GetTree());
-   fAnalyseV->inAttach();
+Bool_t KVIVReconIdent::Analysis(void){
+   //For each event we:
+   //     perform primary event identification and calibration and fill tree
 
-   ifstream in;   
-   TString sline;
-   
-    /*kvd_si = new KVSiliconVamos(530.*KVUnits::um);   
-    gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
-    kvd_csi = new KVCsIVamos(1.);*/
-    
-    kvd_si = new KVDetector("Si",530.*KVUnits::um);   
-    gap = new KVDetector("C4H10", 136.5*KVUnits::mm);
-    kvd_csi = new KVDetector("CsI",1.*KVUnits::cm);
-    
-    gap->SetPressure(40.*KVUnits::mbar); 
-    
-    fAnalyseV->SetTel1(kvd_si);    
-    fAnalyseV->SetTel2(gap);        
-    fAnalyseV->SetTel3(kvd_csi);
-            
-    fIdentTree->Branch("M_INDRA",&M_INDRA,"M_INDRA/I");
-    event=1;
-}
-
-//_____________________________________
-Bool_t KVIVReconIdent::Analysis(void)
-{
-   //Identification of INDRA events and ident/reconstruction of VAMOS data
-   
-   //fLogV->Log<<"-----------"<<endl;
-   fLogV->Log<<"ev num vamos="<<event<<endl;
-   //fLogV->Log<<"GetMult		"<<GetEvent()->GetMult()<<endl;
-   //fLogV->Log<<"-----------"<<endl;
-
-// Identification of INDRA events
-      
    fEventNumber = GetEvent()->GetNumber();
    if (GetEvent()->GetMult() > 0) {
-
       GetEvent()->IdentifyEvent();
-      GetEvent()->CalibrateEvent();      
-      
-      /*fLogV->Log<<"======"<<endl;
-      fLogV->Log<<"Mult. indra	: "<<GetEvent()->GetMult()<<endl;
-      fLogV->Log<<"======"<<endl;*/   	
-      M_INDRA = GetEvent()->GetMult();
-      while( (part = GetEvent()->GetNextParticle("ok")) ){
-      
-        /*fLogV->Log<<"ring indra	: "<<part->GetRingNumber()<<endl;
-	fLogV->Log<<"module indra	: "<<part->GetModuleNumber()<<endl;
-      	fLogV->Log<<"Z indra		: "<<part->GetZ()<<endl; 
-	fLogV->Log<<"Telescope	: "<<part->GetIdentifyingTelescope()<<endl;
-	fLogV->Log<<"Bool		: "<<part->IsIdentified()<<endl;*/				
-	
-      } 
+      GetEvent()->CalibrateEvent();
    }
-
-
-// Ident/Reconstruction of VAMOS data
-   
-   fAnalyseV->Treat();
-   		
    fIdentTree->Fill();
-   fAnalyseV->FillHistograms();
-   
-	event++;
-    	
-    fLogV->Log<<"___________________________________________"<<endl;
-    fLogV->Log<<"___________________________________________"<<endl;
-      
-       return kTRUE;
+   return kTRUE;
 }
-
 //_____________________________________
-void KVIVReconIdent::EndAnalysis(void)
-{
-	
-   	fLogV->Close();
+
+void KVIVReconIdent::EndRun(void){
+   //At the end of each run we:
+   //      write the tree into the new file
+   //      close the file
+   //      copy the file into the required repository (see InitRun)
+   //      update the available runlist
+
+   fIdentFile->cd();
+
+	gDataAnalyser->WriteBatchInfo(fIdentTree);
+
+    GetRawData()->CloneTree(-1,"fast"); //copy raw data tree to file
+    GetGeneData()->CloneTree(-1,"fast"); //copy pulser & laser (gene) tree to file
+
+    fIdentFile->Write();
+
+   //add file to repository
+   // get dataset to which we must associate new run
+   KVDataSet* OutputDataset =
+      gDataRepositoryManager->GetDataSet(
+         gDataSet->GetDataSetEnv("ReconIdent.DataAnalysisTask.OutputRepository", gDataRepository->GetName()),
+         gDataSet->GetName() );
+
+   OutputDataset->CommitRunfile("ident", gIndra->GetCurrentRunNumber(),
+                           fIdentFile);
+   fIdentFile = 0;
+   fIdentTree = 0;
 }
+//_____________________________________
 
-
-Bool_t KVIVReconIdent::LoadGrids(){
-
-    const char *grid_map= "grid_vamos.dat";
-    
-    printf("Attempting to load grids from %s...\n", grid_map);
-    
-    if(gIDGridManager == 0){
-        printf("gIDGridManager not running\n");
-        return 1;
-    }
-
-    char ds_path[256];
-    sprintf(ds_path, "null");
-    
-    if(gDataSet->GetDataSetDir() == 0){
-        printf("Failed to retrieve data set dir string\n");  
-        return 1;
-    }
-
-    sprintf(ds_path, "%s/%s", gDataSet->GetDataSetDir(), grid_map);
-    
-    printf("Reading grid map: %s\n", grid_map);    
-    if(gIDGridManager->ReadAsciiFile(ds_path) != 0){
-        printf("All Grids from Vamos loaded\n");
-    }else{
-        return 1;
-    }
-
-    return 0;
+void KVIVReconIdent::EndAnalysis(void){
 }
-

@@ -1,59 +1,34 @@
-/*
-$Id: KVIVReconIdent.h,v 1.2 2007/06/08 15:49:10 franklan Exp $
-$Revision: 1.2 $
-$Date: 2007/06/08 15:49:10 $
-*/
+#ifndef KVINDRAReconIdent_h
+#define KVINDRAReconIdent_h
 
-//Created by KVClassFactory on Thu Jun  7 13:52:25 2007
-//Author: e_ivamos
+#include "KVIVSelector.h"
 
-#ifndef __KVIVRECONIDENT_H
-#define __KVIVRECONIDENT_H
+class TFile;
+class TTree;
 
-//#include "KVReconIdent.h"
-#include "KVIDGridManager.h"
-#include <string>
-#include <string.h>
+class KVIVReconIdent: public KVIVSelector {
 
-#include "IonisationChamber.h"
-#include "KVSiliconVamos.h"
-#include "KVCsIVamos.h"
-#include "KVDetector.h"
+   	protected:
+   		TFile *fIdentFile;           //new file
+   		TTree *fIdentTree;           //new tree
+   		Int_t fRunNumber;
+   		Int_t fEventNumber;
 
-#define ID_SWITCH -1
-#include "KVINDRAReconIdent.h"
+ 	public:
+    	KVIVReconIdent() {
+      		fIdentFile = 0;
+      		fIdentTree = 0;
+   		};
+   		virtual ~ KVIVReconIdent() {
+   		};
 
-class Analysisv;
-class LogFile;
+   		virtual void InitRun();
+   		virtual void EndRun();
+   		virtual void InitAnalysis();
+   		virtual Bool_t Analysis();
+   		virtual void EndAnalysis();
 
-class KVIVReconIdent : public KVINDRAReconIdent
-{
-   Analysisv* fAnalyseV;//VAMOS calibration
-   LogFile* fLogV;//VAMOS calibration log  
-   
-   public:
-
-   KVIVReconIdent();
-   virtual ~KVIVReconIdent();
-   
-   void InitAnalysis();
-   void InitRun();
-   Bool_t Analysis();
-   void EndAnalysis();
-   
-   Bool_t LoadGrids(); 
-   Int_t event;
-   Int_t M_INDRA;
-   Float_t  thetavam,brho;
-   Double_t  brhorun;
-   Double_t  thetavamrun;
-   
-   KVINDRAReconNuc *part;
-   KVTelescope *kvt_sicsi;
-   KVDetector *kvd_si;
-   KVDetector *kvd_csi;   
-   KVDetector *gap; 	  	
-   ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
+   		ClassDef(KVIVReconIdent, 0) //Identification and reconstruction of VAMOS and INDRA events from recon data 
 };
 
 #endif
