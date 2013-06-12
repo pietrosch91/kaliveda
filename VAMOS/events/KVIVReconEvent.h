@@ -33,18 +33,19 @@ class KVIVReconEvent : public KVINDRAReconEvent
    		virtual ~KVIVReconEvent();
 
 
-   		void AcceptECodesVAMOS (UChar_t  code);
-		void AcceptFPCodesVAMOS(UInt_t   code);
-		void AcceptIDCodesVAMOS(UShort_t code);
-
+   		        void     AcceptECodesVAMOS (UChar_t  code);
+		        void     AcceptFPCodesVAMOS(UInt_t   code);
+		        void     AcceptIDCodesVAMOS(UShort_t code);
+		virtual void     CalibrateVAMOSevent();
    		virtual void     Clear(Option_t * opt = "");
 		virtual Int_t    GetTotalMult(Option_t * opt = "");
    		KVVAMOSReconNuc *GetVAMOSNuc(Option_t *opt = "");
+		virtual void     IdentifyVAMOSevent_A();
+		virtual void     IdentifyVAMOSevent_Z();
 		virtual void     Print(Option_t * option = "") const;
+		virtual Bool_t   ReconstructVAMOSevent();
 
 
-		virtual void   CalibrateAndIdentifyVAMOSEvent();
-		virtual Bool_t ReconstructVAMOSEvent();
 
 		inline void AcceptECodesINDRA (UChar_t  code){ AcceptECodes( code ); }
 		inline void AcceptIDCodesINDRA(UShort_t code){ AcceptIDCodes( code ); }

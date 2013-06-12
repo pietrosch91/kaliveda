@@ -92,7 +92,7 @@ Bool_t KVIVRawDataReconstructor::Analysis()
 	// reconstructed by calling the Analysis method of the mother class
 	// KVINDRARawDataReconstructor;
 	
-	if( gVamos && fIVevent->ReconstructVAMOSEvent() ) fNbVAMOSrecon++;
+	if( gVamos && fIVevent->ReconstructVAMOSevent() ) fNbVAMOSrecon++;
    return  KVINDRARawDataReconstructor::Analysis();
 }
 //________________________________________________________________

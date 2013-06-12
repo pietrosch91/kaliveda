@@ -3,6 +3,7 @@
 
 #include "KVIVReconEvent.h"
 #include "KVVAMOS.h"
+#include "KVTarget.h"
 
 using namespace std;
 
@@ -141,6 +142,31 @@ void KVIVReconEvent::AcceptIDCodesVAMOS(UShort_t code){
 }
 //________________________________________________________________
 
+void KVIVReconEvent::CalibrateVAMOSevent(){
+	// Calculate and set energies of all identified particles in event.
+	//
+	// This will call the KVReconstructedNucleus::Calibrate() method of 
+	// the nuclus mesured in VAMOS is it is  uncalibrated (KVReconstructedNucleus::IsCalibrated() returns kFALSE).
+	//
+	// In order to make sure that target energy loss corrections are correctly
+	// calculated, we first set the state of the target in the current multidetector
+
+	KVTarget* t = gMultiDetArray->GetTarget();
+	if(t){
+		t->SetIncoming(kFALSE); t->SetOutgoing(kTRUE);
+	}
+
+   	KVVAMOSReconNuc *d = NULL;
+
+   	if((d = GetVAMOSNuc())){
+       	if (d->IsIdentified() && !d->IsCalibrated())
+           	d->Calibrate();
+   	}
+
+	Warning("CalibrateVAMOSevent","TO BE IMPLEMENTED");
+}
+//________________________________________________________________
+
 void KVIVReconEvent::Clear(Option_t * opt){
 	//Reset the event to zero ready for new event.
 
@@ -185,6 +211,29 @@ KVVAMOSReconNuc *KVIVReconEvent::GetVAMOSNuc(Option_t *opt){
 }
 //________________________________________________________________
 
+void KVIVReconEvent::IdentifyVAMOSevent_A(){
+
+	Warning("IdentifyVAMOSevent_A","TO BE IMPLEMENTED");
+}
+//________________________________________________________________
+
+void KVIVReconEvent::IdentifyVAMOSevent_Z(){
+	//If the nucleus measured in VAMOS has not been previously Z-identified (IsZidentified=kFALSE)
+	//it will be Z-identified.
+
+	KVVAMOSReconNuc *d = NULL;
+
+   	if((d = GetVAMOSNuc())){
+        if (!d->IsIdentified()){
+//         if(d->GetStatus() == KVReconstructedNucleus::kStatusOK){
+            // identifiable particles
+            d->Identify();
+//         }
+   		}
+	}
+}
+//________________________________________________________________
+
 void KVIVReconEvent::Print(Option_t * option) const
 {
    //Print out list of particles in the INDRA's event and nucleus reconstructed
@@ -200,13 +249,7 @@ void KVIVReconEvent::Print(Option_t * option) const
 }
 //________________________________________________________________
 
-void KVIVReconEvent::CalibrateAndIdentifyVAMOSEvent(){
-
-	Warning("CalibrateAndIdentifyVAMOSEvent","TO BE IMPLEMENTED");
-}
-//________________________________________________________________
-
-Bool_t KVIVReconEvent::ReconstructVAMOSEvent(){
+Bool_t KVIVReconEvent::ReconstructVAMOSevent(){
 	// The reconstruction of the VAMOS event is done if at least one
 	// detector of the focal plane is fired.
 
