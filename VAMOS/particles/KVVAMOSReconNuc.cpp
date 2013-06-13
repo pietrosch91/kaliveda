@@ -108,19 +108,12 @@ void KVVAMOSReconNuc::MakeDetectorList()
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::Reconstruct( KVList *detl ){
-
-	TIter next_det( detl );
-	KVVAMOSDetector *d = NULL;
-	while( (d = (KVVAMOSDetector *)next_det()) ){
-   		AddDetector(d);
-        d->AddHit(this);  // add particle to list of particles hitting detector
-        d->SetAnalysed(kTRUE);   //cannot be used to seed another particle
-	}
+void KVVAMOSReconNuc::ReconstructTrajectory(){
+	//Reconsturction of the trajectory at the focal plane and then at
+	//the target point.
 
 	ReconstructFPtraj();
 	ReconstructLabTraj();
-	//Calibrate();
 }
 //________________________________________________________________
 

@@ -85,14 +85,14 @@ void KVIVRawDataReconstructor::preAnalysis()
 
 Bool_t KVIVRawDataReconstructor::Analysis()
 {
-	// Analysis of event measured with the INDRA multidetector array and tge VAMOS
+	// Analysis of event measured with the INDRA multidetector array and the VAMOS
 	// spectrometer.
 	//
 	// First, the reconstruction of the VAMOS event is done and then the INDRA event is
 	// reconstructed by calling the Analysis method of the mother class
 	// KVINDRARawDataReconstructor;
 	
-	if( gVamos && fIVevent->ReconstructVAMOSevent() ) fNbVAMOSrecon++;
+//	if( gVamos && fIVevent->ReconstructVAMOSevent() ) fNbVAMOSrecon++;
    return  KVINDRARawDataReconstructor::Analysis();
 }
 //________________________________________________________________

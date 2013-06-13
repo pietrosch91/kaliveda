@@ -31,7 +31,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		virtual void Calibrate();
 		virtual void Clear(Option_t * t = "");
-		virtual void Reconstruct( KVList *detl );
+		virtual void ReconstructTrajectory();
 		virtual void ReconstructFPtraj();
 //		virtual void ReconstructFPtrajByFitting();
 		virtual void ReconstructLabTraj();

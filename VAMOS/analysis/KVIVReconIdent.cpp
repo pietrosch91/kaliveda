@@ -110,7 +110,7 @@ Bool_t KVIVReconIdent::Analysis(void){
 	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
 
 	   // Z-identification
-	   IVevent->IdentifyVAMOSevent_Z();
+//	   IVevent->IdentifyVAMOSevent_Z();
 
 //	   // first calibration with only Z known and mean A from mass formula
 //	   IVevent->CalibrateVAMOSevent();

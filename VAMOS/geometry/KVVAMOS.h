@@ -99,6 +99,7 @@ class KVVAMOS :  public KVMultiDetArray
    		TGeoVolume   *GetGeoVolume()                        const;
 		KVHashList   *GetListOfCalibrators()                const;
    		KVList       *GetListOfVCalibrators()               const;
+		Int_t         GetTrigger()                          const;
    		KVList       *GetVACQParams()                       const;
    		KVCalibrator *GetVCalibrator( const Char_t * type ) const;
 		Bool_t        IsGeoModified()                       const;
@@ -162,6 +163,7 @@ inline TGeoVolume *KVVAMOS::GetGeoVolume() const {
 
 inline KVHashList *KVVAMOS::GetListOfCalibrators()   const { return fCalibrators;  }
 inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrators; }
+inline Int_t       KVVAMOS::GetTrigger()             const { return 1;             }
 inline KVList     *KVVAMOS::GetVACQParams()          const { return fVACQParams;   }
 
 

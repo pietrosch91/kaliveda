@@ -2,6 +2,7 @@
 //Author: Guilain ADEMARD
 
 #include "KVIVReconEvent.h"
+#include "KVVAMOSReconEvent.h"
 #include "KVVAMOS.h"
 #include "KVTarget.h"
 
@@ -19,151 +20,32 @@ ClassImp(KVIVReconEvent)
 ////////////////////////////////////////////////////////////////////////////////
 void KVIVReconEvent::init(){
 	//Default initialisations
-	fVAMOSnuc      = new KVVAMOSReconNuc;
-	fNucInVAMOS    = kFALSE;
-	fVAMOSCodeMask = NULL;
+	fVAMOSevent    = NULL;
 }
 //________________________________________________________________
 
-KVIVReconEvent::KVIVReconEvent(Int_t mult, const char *classname)
-:KVINDRAReconEvent( mult, classname){
+KVIVReconEvent::KVIVReconEvent(Int_t mult_indra, const char *cl_name_indra, Int_t mult_vamos, const char *cl_name_vamos)
+:KVINDRAReconEvent( mult_indra, cl_name_indra){
    	// Default constructor
    	init();
+	fVAMOSevent = new KVVAMOSReconEvent( mult_vamos, cl_name_vamos );
 }
 //________________________________________________________________
 
 KVIVReconEvent::~KVIVReconEvent(){
    	// Destructor
-   	SafeDelete( fVAMOSnuc );
-   	SafeDelete( fVAMOSCodeMask );
+   	SafeDelete( fVAMOSevent );
 }
 //________________________________________________________________
 
 void KVIVReconEvent::Streamer(TBuffer & R__b){
-   	//Stream an object of class KVIVReconEvent. The KVVAMOSReconNuc member
-   	//object is streamed only if a nucleus is measured in VAMOS i.e.
-   	//fNucInVAMOS = true.
-
+   	//Stream an object of class KVIVReconEvent.
    	if (R__b.IsReading()) {
    		R__b.ReadClassBuffer(KVIVReconEvent::Class(), this);
-		if(fNucInVAMOS){
- 		   	R__b.StreamObject( fVAMOSnuc );
-			if (CheckVAMOSCodes(fVAMOSnuc->GetCodes()))
-            fVAMOSnuc->SetIsOK();
-         else
-            fVAMOSnuc->SetIsOK(kFALSE);
-		}
    	} else {
    		R__b.WriteClassBuffer(KVIVReconEvent::Class(), this);
-		if(fNucInVAMOS) R__b.StreamObject( fVAMOSnuc );
    	}
-}
-//________________________________________________________________
-
-void KVIVReconEvent::AcceptECodesVAMOS (UChar_t code){
-	//Define the calibration codes for VAMOS's detectors that you want to include 
-	//in your analysis.
-   	//Example: to keep only ecodes 1 and 2, use
-   	//        event.AcceptECodesVAMOS( kECode2 | kECode3 );
-   	//If the nucleus reconstructed in VAMOS have the correct E codes it will 
-   	//have IsOK() = kTRUE.
-   	//If this nucleus does not have IsOK() = kTRUE then the method GetVAMOSNuc("ok")
-   	//will return a null pointer.
-   	//
-   	//To remove any previously defined acceptable calibration codes, use AcceptECodesVAMOS(0).
-   	//
-   	//N.B. : this method is preferable to using directly the KVAMOSCodes pointer 
-   	//of the nucleus as the 'IsOK' status of this nucleus of the current event
-   	//is automatically updated when the code mask is changed using this method.
-   	
-	GetVAMOSCodeMask()->SetEMask(code);
-   	KVVAMOSReconNuc *nuc = GetVAMOSNuc();
-   	if( nuc ){
-	   	if (CheckVAMOSCodes(nuc->GetCodes()))
-         	nuc->SetIsOK();
-      	else
-         	nuc->SetIsOK(kFALSE);
-   	}
-}
-//________________________________________________________________
-
-void KVIVReconEvent::AcceptFPCodesVAMOS(UInt_t code){
-	//Define the VAMOS Focal plan Position reconstruction (FP) codes that you want
-	//to include in your analysis.
-   	//Example: to keep only codes 1 and 2, use
-   	//        event.AcceptECodesVAMOS( kFPCode2 | kFPCode3 );
-   	//If the nucleus reconstructed in VAMOS have the correct FP codes it will 
-   	//have IsOK() = kTRUE.
-   	//If this nucleus does not have IsOK() = kTRUE then the method GetVAMOSNuc("ok")
-   	//will return a null pointer.
-   	//
-   	//To remove any previously defined acceptable FP codes, use AcceptFPCodesVAMOS(0).
-   	//
-   	//N.B. : this method is preferable to using directly the KVAMOSCodes pointer 
-   	//of the nucleus as the 'IsOK' status of this nucleus of the current event
-   	//is automatically updated when the code mask is changed using this method.
-   	
-	GetVAMOSCodeMask()->SetFPMask(code);
-   	KVVAMOSReconNuc *nuc = GetVAMOSNuc();
-   	if( nuc ){
-	   	if (CheckVAMOSCodes(nuc->GetCodes()))
-         	nuc->SetIsOK();
-      	else
-         	nuc->SetIsOK(kFALSE);
-   	}
-
-}
-//________________________________________________________________
-
-void KVIVReconEvent::AcceptIDCodesVAMOS(UShort_t code){
-	//Define the identification codes for VAMOS's detectors that you want to include 
-	//in your analysis.
-   	//Example: to keep only ID codes 1 and 2, use
-   	//        event.AcceptIDCodesVAMOS( kIDCode2 | kIDCode3 );
-   	//If the nucleus reconstructed in VAMOS have the correct ID codes it will 
-   	//have IsOK() = kTRUE.
-   	//If this nucleus does not have IsOK() = kTRUE then the method GetVAMOSNuc("ok")
-   	//will return a null pointer.
-   	//
-   	//To remove any previously defined acceptable identification codes, use AcceptIDCodesVAMOS(0).
-   	//
-   	//N.B. : this method is preferable to using directly the KVAMOSCodes pointer 
-   	//of the nucleus as the 'IsOK' status of this nucleus of the current event
-   	//is automatically updated when the code mask is changed using this method.
-   	
-	GetVAMOSCodeMask()->SetIDMask(code);
-   	KVVAMOSReconNuc *nuc = GetVAMOSNuc();
-   	if( nuc ){
-	   	if (CheckVAMOSCodes(nuc->GetCodes()))
-         	nuc->SetIsOK();
-      	else
-         	nuc->SetIsOK(kFALSE);
-   	}
-}
-//________________________________________________________________
-
-void KVIVReconEvent::CalibrateVAMOSevent(){
-	// Calculate and set energies of all identified particles in event.
-	//
-	// This will call the KVReconstructedNucleus::Calibrate() method of 
-	// the nuclus mesured in VAMOS is it is  uncalibrated (KVReconstructedNucleus::IsCalibrated() returns kFALSE).
-	//
-	// In order to make sure that target energy loss corrections are correctly
-	// calculated, we first set the state of the target in the current multidetector
-
-	KVTarget* t = gMultiDetArray->GetTarget();
-	if(t){
-		t->SetIncoming(kFALSE); t->SetOutgoing(kTRUE);
-	}
-
-   	KVVAMOSReconNuc *d = NULL;
-
-   	if((d = GetVAMOSNuc())){
-       	if (d->IsIdentified() && !d->IsCalibrated())
-           	d->Calibrate();
-   	}
-
-	Warning("CalibrateVAMOSevent","TO BE IMPLEMENTED");
+	Warning("Streamer","TO BE IMPLEMENTED");
 }
 //________________________________________________________________
 
@@ -171,10 +53,7 @@ void KVIVReconEvent::Clear(Option_t * opt){
 	//Reset the event to zero ready for new event.
 
 	KVINDRAReconEvent::Clear( opt );
-	if(fNucInVAMOS){
-		fVAMOSnuc->Clear();
-		fNucInVAMOS = kFALSE;
-	}
+	fVAMOSevent->Clear( opt );
 }
 //________________________________________________________________
 
@@ -190,82 +69,19 @@ Int_t KVIVReconEvent::GetTotalMult(Option_t * opt)
    //BE CAREFUL: the method GetMult(Option_t *) does not return the total
    //multiplicity but only the multiplicity in INDRA.
 
-   return GetMult( opt ) + ( GetVAMOSNuc( opt ) != NULL ) ;
+	Warning("GetTotalMult","TO BE IMPLEMENTED");
+   return GetMult( opt );
 }
 //________________________________________________________________
 
-KVVAMOSReconNuc *KVIVReconEvent::GetVAMOSNuc(Option_t *opt){
-//Returns the nucleus reconstructed in the VAMOS event.
-//Returns a NULL pointer if no nucleus is reconstructed.
-//
-//If opt="ok" the nucleus will be returned if FP codes, ID codes and E codes correspond to those set using AcceptFPCodesVAMOS, AcceptIDCodesVAMOS and
-//AcceptECodesVAMOS.
-
-	if( !fNucInVAMOS ) return NULL;
-
-	TString Opt( opt );
-	Opt.ToUpper();
-	if( Opt == "OK" ) return ( fVAMOSnuc->IsOK() ? fVAMOSnuc : NULL );
-
-	return fVAMOSnuc;
-}
-//________________________________________________________________
-
-void KVIVReconEvent::IdentifyVAMOSevent_A(){
-
-	Warning("IdentifyVAMOSevent_A","TO BE IMPLEMENTED");
-}
-//________________________________________________________________
-
-void KVIVReconEvent::IdentifyVAMOSevent_Z(){
-	//If the nucleus measured in VAMOS has not been previously Z-identified (IsZidentified=kFALSE)
-	//it will be Z-identified.
-
-	KVVAMOSReconNuc *d = NULL;
-
-   	if((d = GetVAMOSNuc())){
-        if (!d->IsIdentified()){
-//         if(d->GetStatus() == KVReconstructedNucleus::kStatusOK){
-            // identifiable particles
-            d->Identify();
-//         }
-   		}
-	}
-}
-//________________________________________________________________
-
-void KVIVReconEvent::Print(Option_t * option) const
-{
-   //Print out list of particles in the INDRA's event and nucleus reconstructed
+void KVIVReconEvent::Print(Option_t * option) const{
+   //Print out list of particles in the INDRA's event and list of nuclei reconstructed
    //in VAMOS.
-   //If option="ok" only particles and nucleus with IsOK=kTRUE are included.
+   //If option="ok" only particles and nuclei with IsOK=kTRUE are included.
 
+	cout<<"------------- In INDRA --------------------"<<endl;
 	KVINDRAReconEvent::Print( option );
 
-	cout<<"------------- In VAMOS spectrometer --------------------"<<endl;
-   KVVAMOSReconNuc *nuc = ((KVIVReconEvent *)this)->GetVAMOSNuc( option );
-   if( nuc ) nuc->Print();
-   else cout<<"NO NUCLEUS"<<endl;
-}
-//________________________________________________________________
-
-Bool_t KVIVReconEvent::ReconstructVAMOSevent(){
-	// The reconstruction of the VAMOS event is done if at least one
-	// detector of the focal plane is fired.
-
-//	cout<<"-------------------------------------------"<<endl;
-//	Info("ReconstructVAMOSEvent","Reconstructing event %d",GetNumber());
-//	cout<<"-------------------------------------------"<<endl;
-
-	KVList *detl = gVamos->GetFiredDetectors( GetPartSeedCond() );
-
-	//If no fired detectors then no reconstruction
-	if( !detl->GetEntries() ) return kFALSE;
-	//else a Nucleus can be recontructed in VAMOS
-	fNucInVAMOS = kTRUE;
-
-	fVAMOSnuc->Reconstruct( detl );
-
-	
-	return kTRUE;
+	cout<<"------------- In VAMOS --------------------"<<endl;
+	fVAMOSevent->Print( option );
 }
