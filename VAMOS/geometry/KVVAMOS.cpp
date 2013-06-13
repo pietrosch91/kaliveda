@@ -416,8 +416,8 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 
 		if( group ){
 			// Sort the detector list of each group
-			// from the farest one to the closest one.
-			group->SortDetectors(kSortDescending);
+			// from the the closest from the target to the furthest.
+			group->SortDetectors(kSortAscending);
 			Add( group );
 		}
 	}

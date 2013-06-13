@@ -20,7 +20,7 @@ ClassImp(KVIVReconEvent)
 ////////////////////////////////////////////////////////////////////////////////
 void KVIVReconEvent::init(){
 	//Default initialisations
-	fVAMOSevent    = NULL;
+	fVAMOSev = NULL;
 }
 //________________________________________________________________
 
@@ -28,13 +28,13 @@ KVIVReconEvent::KVIVReconEvent(Int_t mult_indra, const char *cl_name_indra, Int_
 :KVINDRAReconEvent( mult_indra, cl_name_indra){
    	// Default constructor
    	init();
-	fVAMOSevent = new KVVAMOSReconEvent( mult_vamos, cl_name_vamos );
+	fVAMOSev = new KVVAMOSReconEvent( mult_vamos, cl_name_vamos );
 }
 //________________________________________________________________
 
 KVIVReconEvent::~KVIVReconEvent(){
    	// Destructor
-   	SafeDelete( fVAMOSevent );
+   	SafeDelete( fVAMOSev );
 }
 //________________________________________________________________
 
@@ -53,7 +53,7 @@ void KVIVReconEvent::Clear(Option_t * opt){
 	//Reset the event to zero ready for new event.
 
 	KVINDRAReconEvent::Clear( opt );
-	fVAMOSevent->Clear( opt );
+	fVAMOSev->Clear( opt );
 }
 //________________________________________________________________
 
@@ -83,5 +83,5 @@ void KVIVReconEvent::Print(Option_t * option) const{
 	KVINDRAReconEvent::Print( option );
 
 	cout<<"------------- In VAMOS --------------------"<<endl;
-	fVAMOSevent->Print( option );
+	fVAMOSev->Print( option );
 }
