@@ -12,11 +12,6 @@ class KVVAMOS;
 class KVINDRA_VAMOS : public KVMultiDetArray
 {
 
-	protected:
-
-		KVINDRA *fIndra; //! INDRA multidetector
-		KVVAMOS *fVamos; //! VAMOS spectrometer coupled to INDRA
-
    public:
    KVINDRA_VAMOS();
    virtual ~KVINDRA_VAMOS();
@@ -28,8 +23,8 @@ class KVINDRA_VAMOS : public KVMultiDetArray
 
 
 
-  inline KVVAMOS* GetVAMOS(){return fVamos;} 
-  inline KVINDRA* GetINDRA(){return fIndra;} 
+  inline KVVAMOS* GetVAMOS(){ return (KVVAMOS *)GetStructure("VAMOS"); } 
+  inline KVINDRA* GetINDRA(){ return (KVINDRA *)GetStructure("INDRA"); } 
 
    ClassDef(KVINDRA_VAMOS,1)//INDRA + VAMOS experimental setup for the e494s and the e503 experiments performed at GANIL
 };

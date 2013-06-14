@@ -45,9 +45,6 @@ void KVINDRA_VAMOS::init()
 {
     //Basic initialisation called by constructor.
 
-	fIndra = NULL;
-	fVamos = NULL;
-
 	fIDTelescopes->SetOwner( kFALSE );
 	SetOwnsDetectors( kFALSE );
 }
@@ -56,8 +53,6 @@ void KVINDRA_VAMOS::init()
 KVINDRA_VAMOS::~KVINDRA_VAMOS()
 {
    	// Destructor
-   	SafeDelete(fIndra);
-   	SafeDelete(fVamos);
 }
 //________________________________________________________________
 
@@ -75,33 +70,35 @@ void KVINDRA_VAMOS::Build(){
 	cout      <<setw(20)<<""<<"*           INDRA              *"<<endl;
 	cout      <<setw(20)<<""<<"********************************"<<endl<<endl;
 
-	fIndra = new KVINDRAe503;
-	((KVINDRAe503 *)fIndra)->SetDataSet( fDataSet );
-	fIndra->Build();
+	KVINDRA *indra = new KVINDRAe503;
+	((KVINDRAe503 *)indra)->SetDataSet( fDataSet );
+	indra->Build();
+	Add( indra );
 
 	// Build VAMOS spectrometer
 	cout<<endl<<setw(20)<<""<<"********************************"<<endl;
 	cout      <<setw(20)<<""<<"*           VAMOS              *"<<endl;
 	cout      <<setw(20)<<""<<"********************************"<<endl<<endl;
 
-	fVamos = KVVAMOS::MakeVAMOS(fDataSet.Data());
+	KVVAMOS *vamos = KVVAMOS::MakeVAMOS(fDataSet.Data());
+	Add( vamos );
 
 	// Add the lists of ACQ parameters, detectors and ID telescopes of
 	// INDRA and VAMOS to INDRA_VAMOS
 	
-   	TIter next_i( fIndra->GetACQParams() );
-   	TIter next_v( fVamos->GetACQParams() );
+   	TIter next_i( indra->GetACQParams() );
+   	TIter next_v( vamos->GetACQParams() );
    	TObject *obj;
    	 while ( (obj = next_i()) || (obj = next_v()) )
       	 AddACQParam( (KVACQParam *)obj );
    
-	fDetectors.AddAll ( fIndra->GetDetectors() );
-	fDetectors.AddAll ( fVamos->GetDetectors() );
+	fDetectors.AddAll ( indra->GetDetectors() );
+	fDetectors.AddAll ( vamos->GetDetectors() );
 
-	fIDTelescopes->AddAll( fIndra->GetListOfIDTelescopes() );
-	fIDTelescopes->AddAll( fVamos->GetListOfIDTelescopes() );
+	fIDTelescopes->AddAll( indra->GetListOfIDTelescopes() );
+	fIDTelescopes->AddAll( vamos->GetListOfIDTelescopes() );
 
-	// To be sure tha gMultiDetArray points on this object.
+	// To be sure that gMultiDetArray points on this object.
 	gMultiDetArray = this;	
 }
 //________________________________________________________________
@@ -110,8 +107,7 @@ void KVINDRA_VAMOS::Clear(Option_t *opt ){
 	//Reset all groups (lists of detected particles etc.)
     //and detectors in groups (energy losses, ACQparams etc. etc.)
     //and the target if there is one
-    //and the VAMOS detectors
-
-	if( fIndra ) fIndra->Clear( opt );
-	if( fVamos ) fVamos->Clear( opt );
+    //for INDRA and VAMOS
+	
+	const_cast<KVSeqCollection*>(GetStructures())->R__FOR_EACH(KVGeoStrucElement,Clear)(opt);
 }
