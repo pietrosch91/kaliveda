@@ -111,3 +111,14 @@ void KVINDRA_VAMOS::Clear(Option_t *opt ){
 	
 	const_cast<KVSeqCollection*>(GetStructures())->R__FOR_EACH(KVGeoStrucElement,Clear)(opt);
 }
+//________________________________________________________________
+
+void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params){
+
+	// This method is obsolete. To have access to the detector events of INDRA
+	// and VAMOS prefer using:
+	//   gIndra->GetDetectorEvent( detev, fired_params )
+	//   gVamos->GetDetectorEvent( detev, fired_params )
+	// separately.
+	Info("GetDetectorEvent","Empty method");
+}
