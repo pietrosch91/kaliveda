@@ -26,7 +26,9 @@ ClassImp(KVIVRawDataReconstructor)
 KVIVRawDataReconstructor::KVIVRawDataReconstructor()
 {
    //Default constructor
-	fIVevent = NULL;
+	fIVevent    = NULL;
+	fINDRADetEv = NULL;
+	fVAMOSDetEv = NULL;
 	fNbVAMOSrecon = 0;
 }
 //________________________________________________________________
@@ -69,22 +71,39 @@ void KVIVRawDataReconstructor::InitRun()
 	branches->Compress();
 	tree->Branch("IVReconEvent", "KVIVReconEvent", &fIVevent, 10000000, 0)->SetAutoDelete(kFALSE);
 
-  //initialise number of reconstructed VAMOS events
+	//Detector events for INDRA and VAMOS
+	fINDRADetEv = new KVDetectorEvent;
+	fVAMOSDetEv = new KVDetectorEvent;
+
+  	//initialise number of reconstructed VAMOS events
 	fNbVAMOSrecon = 0;
 }
 //________________________________________________________________
 
-void KVIVRawDataReconstructor::preAnalysis()
-{
-	// Initialize VAMOS spectrometer before starting the analysis
-	// of the new event.
+void KVIVRawDataReconstructor::preAnalysis(){
+	// Before the reconstruction of a new event:
+	//  - Fill the detector events for INDRA and VAMOS.
+	//  - Initialize VAMOS spectrometer
+
 	KVINDRARawDataReconstructor::preAnalysis();
-	if( gVamos ) gVamos->Initialize();
+
+	KVSeqCollection* fired = fRunFile->GetFiredDataParameters();
+    gIndra->GetDetectorEvent(fINDRADetEv, fired);
+    gVamos->GetDetectorEvent(fVAMOSDetEv, fired);
+
+	// INDRA event reconstruction
+	// Exchange fDetEv with fINDRADetEv in order that GetDetectorEvent()
+	// returns the INDRA event for KVINDRARawDataReconstructor::Analysis()
+	KVDetectorEvent *tmp = fDetEv;
+	fDetEv = fINDRADetEv;
+	fINDRADetEv = tmp;
+
+
+	gVamos->Initialize();
 }
 //________________________________________________________________
 
-Bool_t KVIVRawDataReconstructor::Analysis()
-{
+Bool_t KVIVRawDataReconstructor::Analysis(){
 	// Analysis of event measured with the INDRA multidetector array and the VAMOS
 	// spectrometer.
 	//
@@ -92,14 +111,33 @@ Bool_t KVIVRawDataReconstructor::Analysis()
 	// reconstructed by calling the Analysis method of the mother class
 	// KVINDRARawDataReconstructor;
 	
-//	if( gVamos && fIVevent->ReconstructVAMOSevent() ) fNbVAMOSrecon++;
-   return  KVINDRARawDataReconstructor::Analysis();
+	// VAMOS event reconstruction
+	if( fVAMOSDetEv->GetMult()>0){
+ 		fIVevent->ReconstructVAMOSEvent( fVAMOSDetEv );
+ 		fNbVAMOSrecon++;
+	}
+
+	// INDRA event reconstruction
+   	return  KVINDRARawDataReconstructor::Analysis();
 }
 //________________________________________________________________
 
-void KVIVRawDataReconstructor::EndRun()
-{
-	fIVevent = NULL;
+void  KVIVRawDataReconstructor::postAnalysis(){
+	// Clear the detector events of INDRA and VAMOS. It is very
+	// important to do that in postAnalysis and not in the preAnalysis
+	// method because calling KVDetectorEvent::Clear() will also clear
+	// the ACQ parameters of the detectors of this event.
+	fINDRADetEv->Clear();
+	fVAMOSDetEv->Clear();
+}
+
+
+//________________________________________________________________
+
+void KVIVRawDataReconstructor::EndRun(){
+	fIVevent    = NULL;
+	SafeDelete( fINDRADetEv );
+	SafeDelete( fVAMOSDetEv );
    
    cout << endl << " *** Number of reconstructed VAMOS events : "
             << fNbVAMOSrecon << " ***" << endl;
