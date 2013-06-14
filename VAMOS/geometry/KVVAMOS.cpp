@@ -372,8 +372,10 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	//
 	//The comment lines begin with '#'.
 	//
-	//Each line correspond to a new group and contains le name of each
-	//detector which compose it, separated by a space.
+	//Each line correspond to a list with the name of each detector which
+	//can be punshed through by a same trajectory. Each name is
+	//separated by a space.
+	//A detector can only belong to one group.
 	
  	ClearStructures("GROUP");          // clear out (delete) old groups
 
@@ -385,9 +387,10 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	  	// Skip comment line
 	  	if(sline.BeginsWith("#")) continue;
 
-		KVGroup           *group   = NULL;
-		KVSpectroDetector *det     = NULL;
-		KVSpectroDetector *lastDet = NULL;
+		KVGroup           *cur_grp  = NULL;
+		KVGroup           *det_grp  = NULL;
+		KVSpectroDetector *det      = NULL;
+		KVSpectroDetector *lastDet  = NULL;
 
 		sline.Begin(" ");
    		while( !sline.End() ){
@@ -396,13 +399,26 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 			det     = (KVSpectroDetector *)GetDetector( detname.Data() );
 
 			if( det ){
+				det_grp = det->GetGroup();
 
-				if( !group ){
- 					group = new KVGroup;
-					group->SetNumber(++fGr);
+				if( !cur_grp ){
+					if( det_grp ) cur_grp = det_grp;
+					else{
+						cur_grp = new KVGroup;
+						cur_grp->SetNumber(++fGr);
+						cur_grp->Add( det );
+						Add( cur_grp );
+					}
+				}
+				else{
+					if( det_grp && det_grp != cur_grp ) 
+						Warning("ReadDetectorGroupFile",
+                        		"Detector %s : already belongs to %s, now seems to be in %s",
+                        		det->GetName(), det_grp->GetName(),
+                        		cur_grp->GetName());
+					else cur_grp->Add( det );
 				}
 
-				group->Add( det );
  				det->GetNode()->SetName(det->GetName());
 
     			if(lastDet && det!=lastDet) {
@@ -410,16 +426,13 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
         			det->GetNode()->AddInFront(lastDet);
     			}
     			lastDet = det;
+
+				// Sort the detector list of each group
+				// from the the closest from the target to the furthest.
+				cur_grp->SortDetectors(kSortAscending);
 			}
 			else Error("ReadDetectorGroupFile","Detector %s not found",detname.Data());
    		}
-
-		if( group ){
-			// Sort the detector list of each group
-			// from the the closest from the target to the furthest.
-			group->SortDetectors(kSortAscending);
-			Add( group );
-		}
 	}
 	return kTRUE;
 }
