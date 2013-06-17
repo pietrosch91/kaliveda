@@ -108,9 +108,9 @@ Bool_t KVIVReconIdent::Analysis(void){
 	                 // old recon ROOT files
 
 	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
-
+	   Info("Analysis","Z-identification of event %d",fEventNumber);
 	   // Z-identification
-//	   IVevent->IdentifyVAMOSevent_Z();
+	   IVevent->IdentifyVAMOSEvent_Z();
 
 //	   // first calibration with only Z known and mean A from mass formula
 //	   IVevent->CalibrateVAMOSevent();
