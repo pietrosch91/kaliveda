@@ -6,6 +6,7 @@
 
 #include "KVHashList.h"
 #include "TNamed.h"
+#include "TRegexp.h"
 
 class KVNamedParameter;
 
@@ -31,6 +32,7 @@ class KVNameValueList : public TNamed
 	KVHashList* GetList() const;
 
 	virtual void Clear(Option_t* opt = "");
+    virtual void ClearSelection(TRegexp&);
 	virtual void Print(Option_t* opt = "") const;
 	virtual void ls(Option_t* opt = "") const { Print(opt); };
    
