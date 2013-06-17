@@ -17,6 +17,63 @@ ClassImp(KVIVReconEvent)
 <h4>Event reconstructed from energy losses in INDRA array and VAMOS spectrometer</h4>
 <!-- */
 // --> END_HTML
+// 
+//
+//
+//    1) METHODS FOR INDRA
+//
+//      GetParticle(Int_t i)       -  returns ith reconstructed particle of event (i=1,...,GetINDRAMult())
+//      GetParticleWithName(const Char_t*)    -  returns the first particle with given name
+//      GetParticle(const Char_t*)				 -  returns the first particle belonging to a given group
+//      UseMeanAngles()      - particle's theta & phi are taken from mean theta & phi of detectors
+//      UseRandomAngles()      - particle's theta & phi are randomized within theta & phi limits of detectors
+//      HasMeanAngles()/HasRandomAngles()   -  indicate in which of the two previous cases we find ourselves
+//
+//      GetNextParticle(Option_t* opt)  -
+//              Use this method to iterate over the list of particles in the INDRA event
+//              To make sure you begin at the start of the list, call ResetGetNextParticle()
+//              before beginning the iteration.
+//              After the last particle GetNextParticle() returns a null pointer and
+//              resets itself ready for a new iteration over the particle list:
+//
+//              Example: (supposing "KVIVReconEvent* event" points to a valid event)
+//              KVINDRAReconNuc* indra_part; event->ResetGetNextParticle();
+//              while( (indra_part = event->GetNextParticle()) ){
+//                      ...
+//              }
+//
+//              If opt="ok" only particles with KVReconstructedNucleus::IsOK() = kTRUE
+//              are included in the iteration.
+//
+//
+//    2) METHODS FOR VAMOS
+//
+//      GetNucleus(Int_t i)       -  returns ith reconstructed nucleuis of VAMOS event (i=1,...,GetVAMOSMult())
+//      GetNucleus(const Char_t*)				 -  returns the first nucleus belonging to a given group
+//
+//      GetNextNucleus(Option_t* opt)  -
+//              Use this method to iterate over the list of nuclei in the VAMOS event
+//              To make sure you begin at the start of the list, call ResetGetNextNucleus()
+//              before beginning the iteration.
+//              After the last nucleus GetNextNucleus() returns a null pointer and
+//              resets itself ready for a new iteration over the nucleus list:
+//
+//              Example: (supposing "KVIVReconEvent* event" points to a valid event)
+//              KVVAMOSReconNuc* vamos_nuc; event->ResetGetNextNucleus();
+//              while( (vamos_nuc = event->GetNextNucleus()) ){
+//                      ...
+//              }
+//
+//              If opt="ok" only nuclei with KVReconstructedNucleus::IsOK() = kTRUE
+//              are included in the iteration.
+//
+//   Normally the VAMOS event is composed by only one nucleus.
+//
+//
+//   The "OK" status of particles/nuclei is defined by setting acceptable identification and calibration (reconstruction)
+//   codes using AcceptIDCodes_INDRA, AcceptECodes_INDRA/ AcceptIDCodes_VAMOS, AcceptECodes_VAMOS ... 
+//   The comparison of each particle/nucleus codes with the "acceptable" codes then determines whether 
+//   KVParticle::IsOK() is set or not.
 ////////////////////////////////////////////////////////////////////////////////
 void KVIVReconEvent::init(){
 	//Default initialisations
@@ -38,17 +95,6 @@ KVIVReconEvent::~KVIVReconEvent(){
 }
 //________________________________________________________________
 
-void KVIVReconEvent::Streamer(TBuffer & R__b){
-   	//Stream an object of class KVIVReconEvent.
-   	if (R__b.IsReading()) {
-   		R__b.ReadClassBuffer(KVIVReconEvent::Class(), this);
-   	} else {
-   		R__b.WriteClassBuffer(KVIVReconEvent::Class(), this);
-   	}
-	Warning("Streamer","TO BE IMPLEMENTED");
-}
-//________________________________________________________________
-
 void KVIVReconEvent::Clear(Option_t * opt){
 	//Reset the event to zero ready for new event.
 
@@ -60,17 +106,17 @@ void KVIVReconEvent::Clear(Option_t * opt){
 Int_t KVIVReconEvent::GetTotalMult(Option_t * opt)
 {
    //Returns total multiplicity (number of particles in INDRA + nucleus in VAMOS) of event.
-   //If opt = "" (default), returns number of particles in TClonesArray* fParticles + one if nucleus is reconstructed in VAMOS
-   //If opt = "ok" only particles and VAMOS's nucleus  with IsOK()==kTRUE are included.
+   //If opt = "" (default), returns number of particles in TClonesArray* fParticles (INDRA) + fVAMOSev->fParticles (VAMOS).
+   //If opt = "ok" only particles and nuclei  with IsOK()==kTRUE are included.
    //
    //IN THE LATTER CASE, YOU MUST NOT USE THIS METHOD INSIDE A LOOP
-   //OVER THE INDRA'S EVENT USING GETNEXTPARTICLE() !!!
+   //OVER THE INDRA'S EVENT USING GETNEXTPARTICLE() OR OVER THE VAMOS'S
+   //EVENT USING GETNEXTNUCLEUS!!!
    //
    //BE CAREFUL: the method GetMult(Option_t *) does not return the total
    //multiplicity but only the multiplicity in INDRA.
 
-	Warning("GetTotalMult","TO BE IMPLEMENTED");
-   return GetMult( opt );
+   return GetINDRAMult( opt ) + GetVAMOSMult( opt );
 }
 //________________________________________________________________
 

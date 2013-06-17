@@ -57,8 +57,8 @@ void KVIVSelectorTemplate::InitRun(void)
  //
  // To define which identification/calibration codes for INDRA you want
  // to use in your analysis:
- //     GetEvent()->AcceptIDCodes(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//VEDA id-codes code(i)=2,3,4 and 6 accepted
- //     GetEvent()->AcceptECodes( kECode1|kECode2 );//VEDA ecode(i)=1&2 accepted
+ //     GetEvent()->AcceptIDCodesINDRA(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//VEDA id-codes code(i)=2,3,4 and 6 accepted
+ //     GetEvent()->AcceptECodesINDRA( kECode1|kECode2 );//VEDA ecode(i)=1&2 accepted
  // To define which Focal plan Position reconstruction/identification/calibration
  // codes for VAMOS you want to use in your analysis, the method is similar:
  //     GetEvent()->AcceptIDCodesVAMOS(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);
@@ -92,92 +92,15 @@ Bool_t KVIVSelectorTemplate::Analysis(void)
  //            ...etc. etc.
  //     }
  //
- // In order to look at the nucleus reconstructed and identified in VAMOS
- // (assuming the corresponding code masks were set in InitRun), use the lines:
+ // In order to loop over all correctly reconstructed and identified nuclei in the 
+ // VAMOS event (assuming the corresponding code masks were set in InitRun), use the lines:
  //     KVVAMOSReconNuc* nuc;
- //     if( (nuc = GetEvent()->GetVAMOSNuc("ok")) ){
+ //     while ( (nuc = GetEvent()->GetNextNucleus("ok")) ){
  //
  //           Int_t z       = nuc->GetZ();
  //           Double_t Brho = nuc->GetBrho();
  //           Double_t M    = nuc->GetMass();
- // }
- //
- //
- // The reconstructed VAMOS data can be accessed using the following variables:
- //
-//    Int_t           EchiM;
-//    UShort_t        Echi[];   //[EchiM]
-//    UShort_t        EchiNr[];   //[EchiM]
-//    Int_t           STRM1;
-//    Int_t           STRM2;
-//    Int_t           STRM3;
-//    Int_t           STRM4;
-//    UShort_t        STR1[];   //[STRM1]
-//    UShort_t        STR2[];   //[STRM2]
-//    UShort_t        STR3[];   //[STRM3]
-//    UShort_t        STR4[];   //[STRM4]
-//    UShort_t        STRNr1[];   //[STRM1]
-//    UShort_t        STRNr2[];   //[STRM2]
-//    UShort_t        STRNr3[];   //[STRM3]
-//    UShort_t        STRNr4[];   //[STRM4]
-//    Int_t           SIEM;
-//    UShort_t        SIE[];   //[SIEM]
-//    UShort_t        SIENr[];   //[SIEM]
-//    Int_t           WCSIEM;
-//    UShort_t        WCSIE[];   //[WCSIEM]
-//    UShort_t        WCSIENr[];   //[WCSIEM]
-//    Int_t           ICSILM;
-//    UShort_t        ICSIL[];   //[ICSILM]
-//    UShort_t        ICSILNr[];   //[ICSILM]
-//    Int_t           ICSIRM;
-//    UShort_t        ICSIR[];   //[ICSIRM]
-//    UShort_t        ICSIRNr[];   //[ICSIRM]
-//    Int_t           ICSITM;
-//    UShort_t        ICSIT[];   //[ICSITM]
-//    UShort_t        ICSITNr[];   //[ICSITM]
-//    Int_t           ISILM;
-//    UShort_t        ISIL[];   //[ISILM]
-//    UShort_t        ISILNr[];   //[ISILM]
-//    Int_t           ISIHM;
-//    UShort_t        ISIH[];   //[ISIHM]
-//    UShort_t        ISIHNr[];   //[ISIHM]
-//    Int_t           ISITM;
-//    UShort_t        ISIT[];   //[ISITM]
-//    UShort_t        ISITNr[];   //[ISITM]
-//    Int_t           ICILM;
-//    UShort_t        ICIL[];   //[ICILM]
-//    UShort_t        ICILNr[];   //[ICILM]
-//    Int_t           ICIHM;
-//    UShort_t        ICIH[];   //[ICIHM]
-//    UShort_t        ICIHNr[];   //[ICIHM]
-//    Int_t           ICITM;
-//    UShort_t        ICIT[];   //[ICITM]
-//    UShort_t        ICITNr[];   //[ICITM]
-//    UShort_t        INCONF;
-//    UShort_t        GATCONF;
-//    UShort_t        INV_SIE_05;
-//    UShort_t        INV_SIE_06;
-//    UShort_t        INV_SIE_08;
-//    UShort_t        ADC1_4;
-//    UShort_t        ADC1_5;
-//    UShort_t        ADC1_6;
-//    UShort_t        SI_IND_61;
-//    UShort_t        CSI_IND_1224;
-//    UShort_t        EFIL_1;
-//    UShort_t        EFIL_2;
-//    UShort_t        TFIL_1;
-//    UShort_t        TFIL_2;
-//    UShort_t        TSI_HF;
-//    UShort_t        TINDRA_SI;
-//    UShort_t        TCSI_HF;
-//    UShort_t        TINDRA_CSI;
-//    UShort_t        TINDRA_HF;
-//    UShort_t        TSI_MCP;
-//    UShort_t        TMCP_HF;
-//    UShort_t        TINDRA_MCP;
-//
-// For the arrays, the variable in between [] in the adjacent comment field
-// gives the number of entries in the array for each event.
+ //     }
 
  //
  // Enter your code here

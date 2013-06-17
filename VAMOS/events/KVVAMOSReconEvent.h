@@ -43,13 +43,15 @@ class KVVAMOSReconEvent : public KVReconstructedEvent
 		virtual void     ReconstructEvent(KVDetectorEvent * kvde);
 
 
-		inline Bool_t CheckCodes(KVVAMOSCodes & code) {
+		inline Bool_t CheckCodes(KVVAMOSCodes & code){
       		//returns kTRUE if "code" is compatible with VAMOS event's code mask.
       		//If no code mask set for event, returns kTRUE in all cases
       		if (!fCodeMask)
          		return kTRUE;
       		return ((*fCodeMask) & code);
    		}
+
+		inline void ResetGetNextNucleus(){ ResetGetNextParticle(); }
 
 
    		ClassDef(KVVAMOSReconEvent,1)//Event reconstructed from energy losses in VAMOS spectrometer

@@ -120,5 +120,4 @@ void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fi
 	//   gIndra->GetDetectorEvent( detev, fired_params )
 	//   gVamos->GetDetectorEvent( detev, fired_params )
 	// separately.
-	Info("GetDetectorEvent","Empty method");
 }
