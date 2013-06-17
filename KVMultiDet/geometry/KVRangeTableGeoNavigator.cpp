@@ -115,6 +115,12 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus *part)
 
     Double_t de = 0;
     Double_t e = part->GetEnergy();
+    if(e<=fCutOffEnergy) {
+        e=0.;
+        SetStopPropagation();//propagation will stop after this step
+        return;
+    }
+
     // calculate energy losses in known materials
     TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
     KVIonRangeTableMaterial* irmat=0;
