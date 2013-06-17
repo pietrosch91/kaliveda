@@ -890,22 +890,6 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
 }
 //________________________________________________________________
 
-void KVVAMOS::SetParameters(UShort_t run){
-	// Set identification and calibration parameters for run;
-	// This can only be done if gDataSet has been set i.e. a
-	// dataset has been chosen.
-
-	KVDataSet *ds = gDataSet;
-	if(!ds){
-		if(!gDataSetManager) return;
-		ds = gDataSetManager->GetDataSet(fDataSet.Data());
-	}
-	if(!ds) return;
-	ds->cd();
-	ds->GetUpDater()->SetParameters(run);
-}
-//________________________________________________________________
-
 void KVVAMOS::SetTransferMatrix( KVVAMOSTransferMatrix *mat ){
 	//Set the transformation matrix allowing to map the measured
 	//coordinates at the focal plane back to the target. If a matrix

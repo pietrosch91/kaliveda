@@ -81,7 +81,6 @@ class KVVAMOS :  public KVMultiDetArray
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );
-   		virtual void     SetParameters( UShort_t run );
 		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );
    		        void     TargetToFocal( const Double_t *target, Double_t *focal );
    		        void     TargetToFocalVect( const Double_t *target, Double_t *focal );
@@ -106,6 +105,7 @@ class KVVAMOS :  public KVMultiDetArray
 		void          SetAngle( Double_t angle );
 		void          SetBeamHF( Double_t hf );
 		void          SetBrhoRef( Double_t Brho );
+		void          SetCurrentRunNumber( UInt_t run );
 
 		//----- static methods
 
@@ -190,6 +190,7 @@ inline void KVVAMOS::SetAngle ( Double_t angle ){
 
 inline void KVVAMOS::SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;   }
 inline void KVVAMOS::SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho; }
+inline void KVVAMOS::SetCurrentRunNumber( UInt_t run ){ fCurrentRun = run; }
 
 
 //................  global variable

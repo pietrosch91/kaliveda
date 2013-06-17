@@ -121,3 +121,14 @@ void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fi
 	//   gVamos->GetDetectorEvent( detev, fired_params )
 	// separately.
 }
+//________________________________________________________________
+
+void KVINDRA_VAMOS::SetParameters(UShort_t n){
+	//Set identification and calibration parameters for run.
+    //This can only be done if gDataSet has been set i.e. a dataset has been chosen
+    //Otherwise this just has the effect of setting the current run number
+
+	GetINDRA()->SetParameters( n );
+	GetVAMOS()->SetCurrentRunNumber( n );
+	fCurrentRun = n;
+}

@@ -21,7 +21,7 @@ class KVINDRA_VAMOS : public KVMultiDetArray
    virtual void Build();
    virtual void Clear(Option_t *opt = "" );
    virtual void	GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
-
+   virtual void	SetParameters(UShort_t n);
 
   inline KVVAMOS* GetVAMOS(){ return (KVVAMOS *)GetStructure("VAMOS"); } 
   inline KVINDRA* GetINDRA(){ return (KVINDRA *)GetStructure("INDRA"); } 
