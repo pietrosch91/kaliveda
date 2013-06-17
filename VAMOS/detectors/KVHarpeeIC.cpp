@@ -290,6 +290,7 @@ void KVHarpeeIC::SetACQParams(){
 			par->SetType("E");
 			par->SetLabel(Form("%c",idx[i]));
 			par->SetNumber( num );
+			par->SetUniqueID( CalculateUniqueID( par ) );
 			par->SetPedestal(200);
 			AddACQParam(par);
 		}
