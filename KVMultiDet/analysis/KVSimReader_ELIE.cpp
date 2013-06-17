@@ -120,6 +120,7 @@ Bool_t KVSimReader_ELIE::ReadEvent()
 		evt->SetNumber(GetIntReadPar(0));
       mult=GetIntReadPar(1);
 		evt->GetParameters()->SetValue("b",GetDoubleReadPar(2));
+		evt->GetParameters()->SetValue("mult",mult);
 		break;
 	default:		
 		return kFALSE;	

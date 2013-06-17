@@ -954,6 +954,14 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
     //                                                                           to calculate pseudo-raw data from the calculated energy losses. the resulting pseudo-raw
     //                                                                           event is then treated in exactly the same way as experimental data in order to reconstruct,
     //                                                                           identify and calibrate any detected particles.
+    //
+    // SIMULATED EVENT PARAMETERS
+    // ==========================
+    // The event given as input to the method may contain extra information in its parameter
+    // list concerning the simulation. The parameter list of the event is copied into that of the
+    // reconstructed event, therefore these informations can be accessed from the reconstructed
+    // event using the method
+    //     rec_event->GetParameters()
     
 	 
 	if (!event) {
@@ -967,6 +975,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 	
 	//Clear the KVReconstructed pointer before a new filter process
 	rec_event->Clear();
+	//Copy any parameters associated with simulated event into the reconstructed event
+	event->GetParameters()->Copy(*(rec_event->GetParameters()));
 	if (!fHitGroups){
 		//Create the list where fired groups will be stored
 		//for reconstruction
