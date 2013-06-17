@@ -14,6 +14,7 @@ class KVIVReconDataAnalyser : public KVINDRAReconDataAnalyser
    virtual ~KVIVReconDataAnalyser();
 
    void preAnalysis();
+   void preInitRun();
 
    ClassDef(KVIVReconDataAnalyser,1)//For analysing reconstructed INDRA+VAMOS data
 };

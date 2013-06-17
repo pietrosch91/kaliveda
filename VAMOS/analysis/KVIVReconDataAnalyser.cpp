@@ -27,6 +27,17 @@ KVIVReconDataAnalyser::~KVIVReconDataAnalyser()
 }
 //________________________________________________________________
 
+void KVIVReconDataAnalyser::preInitRun(){
+	// Called by currently-processed KVSelector when a new file in the TChain is opened.
+	// We call gMultiDetArray->SetParameters for the current run.
+
+	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
+	gMultiDetArray->SetParameters(run);
+	ConnectRawDataTree();
+	PrintTreeInfos();
+}
+//________________________________________________________________
+
 void KVIVReconDataAnalyser::preAnalysis()
 {
 	// Read and set raw data for the current reconstructed event.
