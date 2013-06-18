@@ -157,7 +157,15 @@ void KVGeoNavigator::FormatDetectorName(const Char_t *basename, KVString &name)
                     KVString itbit = bit.Next();
                     if(itbit=="det"){
                         itbit=bit.Next();
-                        if(itbit=="name") name+=basename;
+                        if(itbit.BeginsWith("name")){
+                            Ssiz_t ind = itbit.Index("%");
+                            if(ind>-1) {
+                                itbit.Remove(0,ind);
+                                name+=Form(itbit.Data(),basename);
+                            }
+                            else
+                                name+=basename;
+                        }
                     }
                     else if(itbit=="struc"){
                         KVString struc_typ=bit.Next();
@@ -169,7 +177,7 @@ void KVGeoNavigator::FormatDetectorName(const Char_t *basename, KVString &name)
                         if(el){
                             itbit=bit.Next();
                             if(itbit.BeginsWith("name")){
-                                Ssiz_t ind = bit.Index("%");
+                                Ssiz_t ind = itbit.Index("%");
                                 if(ind>-1) {
                                     itbit.Remove(0,ind);
                                     name+=Form(itbit.Data(),el->GetName());
