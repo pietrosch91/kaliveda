@@ -34,6 +34,11 @@ void KVHarpeeSi::init(){
 //		fHarpeeSiList->SetCleanup();
 	}
 	fHarpeeSiList->Add( this );
+
+	// fSegment is set to 1 because this silicon detector is
+	// an independant detector (see KVGroup::AnalyseParticles for
+	// more information)
+	fSegment = 1;
 }
 //________________________________________________________________
 
