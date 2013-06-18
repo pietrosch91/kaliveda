@@ -108,7 +108,6 @@ void KVVAMOSReconNuc::Identify()
    	//UNIDENTIFIED NUCLEI
    	//Unidentified nuclei receive the general ID code for non-identified particles (kIDCode14)
 
-	Info("Identify","IN");
    	KVReconstructedNucleus::Identify();
 
    	KVIdentificationResult partID;
@@ -137,14 +136,12 @@ void KVVAMOSReconNuc::Identify()
         }
         SetIdentifyingTelescope(  idt );
         SetIdentification( &partID );
-		Info("Identify","identified in %s",idt->GetName());
    	}
 	else{
       	/******* UNIDENTIFIED PARTICLES *******/
 
       	/*** general ID code for non-identified particles ***/
       	SetIDCode( kIDCode14 );
-		Info("Identify","unidentified");
    	}
 }
 //________________________________________________________________

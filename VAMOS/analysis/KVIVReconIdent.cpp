@@ -108,7 +108,6 @@ Bool_t KVIVReconIdent::Analysis(void){
 	                 // old recon ROOT files
 
 	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
-	   Info("Analysis","Z-identification of event %d",fEventNumber);
 	   // Z-identification
 	   IVevent->IdentifyVAMOSEvent_Z();
 

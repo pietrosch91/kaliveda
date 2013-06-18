@@ -835,9 +835,10 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
     
 	if( !idt ){
     	// Make a generic de-e identification telescope
-    	uri.Form("%s-%s", de->GetType(), e->GetType());
+        uri.Form("%s%s-%s", prefix[1].Data(), de->GetType(), e->GetType());
     	idt = new KVIDTelescope;
     	set_up_telescope(de,e,idtels,idt,uri);
+		idt->SetLabel( uri );
 	}
 }
 //________________________________________________________________
