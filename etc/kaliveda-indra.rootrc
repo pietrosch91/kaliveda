@@ -444,7 +444,7 @@ Plugin.KVMultiDetArray:    INDRA_camp1    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e475s    KVINDRA     KVIndra    "KVINDRA()"
 +Plugin.KVMultiDetArray:    INDRA_e416a    KVINDRAFNL     KVIndra    "KVINDRAFNL()"
 +Plugin.KVMultiDetArray:    t10_02    KVINDRA4     KVIndra    "KVINDRA4()"
-+Plugin.KVMultiDetArray:    INDRA_e613    KVINDRAe613     KVIndra    "KVINDRAe613()"
++Plugin.KVMultiDetArray:    INDRA_e613    KVINDRA     KVIndra    "KVINDRA()"
 
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
