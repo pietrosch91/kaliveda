@@ -800,9 +800,9 @@ void KVIDGridManagerGUI::UpdateTabs()
    TabSelect(ntabs);
       return;		
 	}
-	if(labels==""){
+        if(labels==""){
 		// no known idtelescopes referenced by grids (maybe we don't have a KVMultiDetArray?)
-		// update "Grids" tab
+                // update "Grids" tab
          TGCompositeFrame*cf = fGridListTabs->GetTabContainer("Grids");
          if (!cf) {
             cout << "cf = 0x0 : label=Grids tab name=" <<

@@ -60,7 +60,13 @@ KVEventViewer::KVEventViewer(Int_t protoncolor, Int_t neutroncolor, Int_t highli
    ivol=0;
 
    geom = 0;
-   
+
+   fMaxVelocity = -1.;
+   fFixSeed = kFALSE;
+   fRefresh = 0;
+   fSeed = 863167;
+   fXYMode = kFALSE;
+
    fSavePicture=kFALSE;
    textInput=kFALSE;
    theEvent=0;
@@ -146,6 +152,7 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    }
    // scale down
    maxV*=0.5;
+   if(fMaxVelocity>0) maxV = fMaxVelocity;
    
    TGeoVolume * box  = geom->MakeSphere("box",  Box,  0.99*maxV, maxV); 
    box->SetLineColor(kBlack);
@@ -154,6 +161,12 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    
    // set volume (nucleon) counter to 0
    ivol=0;
+
+   if(fFixSeed)
+   {
+       if(!(event->GetNumber()%fRefresh)) fSeed+=7;
+       gRandom->SetSeed(fSeed);
+   }
    
    while ( (nuc = event->GetNextParticle("ok")) ) DrawNucleus(nuc, frame);
 
@@ -174,8 +187,10 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    view->GetLightSet()->SetLight(TGLLightSet::kLightSpecular,1);
    view->SetCurrentCamera(TGLViewer::kCameraOrthoZOY);
    ((TGLOrthoCamera&)view->CurrentCamera()).SetEnableRotate(kTRUE);
-   view->SetOrthoCamera(TGLViewer::kCameraOrthoZOY,0.9,0,0,TMath::Pi()/8.,TMath::Pi()/8.);
-   if(fSavePicture) view->SavePicture(Form("Event%d.gif",event->GetNumber()));
+   if(fXYMode) view->SetOrthoCamera(TGLViewer::kCameraOrthoZOY,0.9,0,0,0,TMath::Pi()/2.);//TMath::Pi()/8.,TMath::Pi()/8.);
+   else view->SetOrthoCamera(TGLViewer::kCameraOrthoZOY,0.9,0,0,TMath::Pi()/8.,TMath::Pi()/8.);
+//   if(fSavePicture) view->SavePicture(Form("Event%d.gif",event->GetNumber()));
+   if(fSavePicture) view->SavePicture(Form("Event-%d.png",event->GetNumber()));
 }
 
 void KVEventViewer::SetInput(TBranch *eventbranch)
