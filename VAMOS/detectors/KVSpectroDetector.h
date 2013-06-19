@@ -87,6 +87,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		virtual Bool_t PositionIsOK();
 
    		virtual void SetMaterial(const Char_t * type);
+		void UpdateVolumeAndNodeNames();
 
 
    		//------------------ inline function members -----------//

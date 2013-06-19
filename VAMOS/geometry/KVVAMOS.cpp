@@ -275,10 +275,7 @@ void KVVAMOS::InitGeometry(){
 	   	gGeoManager->CdNode(i);
 	   	node = gGeoManager->GetCurrentNode();
 	   	node->SetUniqueID( gGeoManager->GetCurrentNodeId() );
-	   	vname = node->GetName();
-	   	vname.Remove( vname.Last('_') );
-	   	vol = gGeoManager->GetVolume( vname.Data() );
-	   	if( vol ) vol->SetUniqueID( gGeoManager->GetCurrentNodeId() );
+	   	node->GetVolume()->SetUniqueID( gGeoManager->GetCurrentNodeId() );
    	}
 
 	fFocalToTarget.SetName("focal_to_target");

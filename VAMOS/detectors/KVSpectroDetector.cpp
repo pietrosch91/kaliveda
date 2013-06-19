@@ -112,13 +112,12 @@ void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TG
 
 
 	TString vol_name;	
-	vol_name.Form("%s_%d_%s",GetName(),fNumVol,material);
+	vol_name.Form("%s_%d_%s",GetName(),fNumVol++,material);
 	TGeoVolume* vol = GetGeoVolume(vol_name.Data(), material, shape);
 	if(!vol){
  		Error("AddAbsorber","Impossible to build the volume");
 		return;
 	}
-	fNumVol++;
 	AddAbsorber(vol,matrix,active);
 }
 //________________________________________________________________
@@ -275,6 +274,8 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 		vol_as->AddNode( GetAbsGeoVolume(), 1, rot );
 		SetAbsGeoVolume( vol_as );
 	}
+
+	UpdateVolumeAndNodeNames();
 
 	if( !ref_vol ) return kTRUE;
 
@@ -642,18 +643,49 @@ void KVSpectroDetector::SetActiveVolume(TGeoVolume* vol){
 }
 //________________________________________________________________
 
-void KVSpectroDetector::SetMaterial(const Char_t * type){
-	// Set the same material of all the active volumes.
-	Warning("SetMaterial","To be implemented");
-}
-//________________________________________________________________
-
 Bool_t KVSpectroDetector::PositionIsOK(){
 	// Returns kTRUE if all the conditions to access to the particle position
 	// are verified. In this case the position is given by the method 
 	// GetPosition(...). 
 	// Method to be overwritten in the child classes. 
 	return kTRUE;
+}
+//________________________________________________________________
+
+void KVSpectroDetector::SetMaterial(const Char_t * type){
+	// Set the same material of all the active volumes.
+	Warning("SetMaterial","To be implemented");
+}
+//________________________________________________________________
+
+void KVSpectroDetector::UpdateVolumeAndNodeNames(){
+	// Update the names of Volumes and the names of the Nodes of this
+	// detector.
+	// The name of the volume representing the detector (returned
+	// by GetAbsGeoVolume()) is DET_<detector name>. 
+	// The name of the active volumes is ACTIVE_<detector name>_<material name>.
+	// The name of the other volumes is <detector name>_<material name>.
+
+	GetAbsGeoVolume()->SetName( Form("DET_%s", GetName() ) );
+	TObjArray  *nodes = GetAbsGeoVolume()->GetNodes();
+	TGeoNode   *node  = NULL;
+	TGeoVolume *vol   = NULL;
+
+	TIter next( nodes );
+	while( (node = (TGeoNode *)next()) ){
+		TString name, nname;
+		vol = node->GetVolume();
+		name.Form("%s_%s", GetName(), vol->GetMaterial()->GetName());
+		if( GetActiveVolumes()->Contains( vol ) )
+			name.Prepend("ACTIVE_");
+		vol->SetName( name.Data() );
+		nname = name;
+		Int_t i=0;
+		while( nodes->FindObject( nname.Data() ) )
+			nname.Form("%s_%d",name.Data(), ++i);
+		node->SetName( nname.Data() );
+		node->SetNumber( i );
+	}
 }
 //________________________________________________________________
 
