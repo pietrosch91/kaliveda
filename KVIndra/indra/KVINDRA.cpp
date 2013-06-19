@@ -46,6 +46,7 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include "INDRAGeometryBuilder.h"
 #include <KVASGroup.h>
 #include "TROOT.h"
+#include "KVGeoNavigator.h"
 
 using namespace std;
 
@@ -181,7 +182,6 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
     Double_t thmax = fStrucInfos.GetValue(Form("%s.ThMax",prefix),0.0);
     Double_t phi_0 = fStrucInfos.GetValue(Form("%s.Phi0",prefix),0.0);
     Int_t ntel = fStrucInfos.GetValue(Form("%s.Ntel",prefix),0);
-    Double_t dist = fStrucInfos.GetValue(Form("%s.Dist",prefix),0.0);
     Int_t step = fStrucInfos.GetValue(Form("%s.Step",prefix),1);
     Int_t num_first = fStrucInfos.GetValue(Form("%s.Nfirst",prefix),1);
     Double_t dphi = fStrucInfos.GetValue(Form("%s.Dphi",prefix),-1.0);
@@ -205,7 +205,6 @@ KVRing* KVINDRA::BuildRing(Int_t number, const Char_t* prefix)
        kvt->SetPhi(phi);
        phi = (phi + dphi > 360. ? (phi + dphi - 360.) : (phi + dphi));
        kvt->SetNumber(counter);
-       kvt->SetDistance(dist);
        if(!absent.Contains(counter)) ring->Add(kvt);
        else delete kvt;
        counter += step;
@@ -232,7 +231,8 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
     
     KVString detectors = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Detectors",name.Data()),"");
     Double_t aziwidth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.AziWidth",name.Data()),1.0);
-    kvt->SetAzimuthalWidth(aziwidth);
+    Double_t dist = fStrucInfos.GetValue(Form("%s.Dist",prefix),0.0);
+    kvt->SetDistance(dist);
     detectors.Begin(" ");
     Int_t idet=1;
     while(!detectors.End()){
@@ -246,6 +246,7 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
         kvt->SetDepth(idet,depth);
         idet++;
     }
+    kvt->SetAzimuthalWidth(aziwidth);
     return kvt;
 }
 
@@ -779,7 +780,12 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
    INDRAGeometryBuilder igb;
    // build multidetector, but not the target. energy losses in target are handled
    // by KVASMultiDetArray::DetectEvent
-   fGeoManager = igb.Build(kFALSE);
+   SetGeometry(igb.Build(kFALSE));
+   // This is just for the etalon detectors!
+   // They are in structures like:
+   //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
+   // We need the name to be like "SILI_10"
+   GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
    return fGeoManager;
 }
 

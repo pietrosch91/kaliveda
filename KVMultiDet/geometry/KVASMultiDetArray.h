@@ -53,7 +53,7 @@ public:
         //                to simulate propagation of particle
         //
         // The default value is given in .kvrootrc by variable KVASMultiDetArray.FilterUsesROOTGeometry
-        return (fROOTGeometry?DetectParticle_TGEO(part):DetectParticle_KV(part));
+        return (IsROOTGeometry()?DetectParticle_TGEO(part):DetectParticle_KV(part));
     };
 
     void CalculateGroupsFromGeometry();

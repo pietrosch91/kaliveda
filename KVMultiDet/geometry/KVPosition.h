@@ -47,12 +47,12 @@ public:
     KVPosition(Double_t thmin, Double_t thmax, Double_t phmin, Double_t phmax,Double_t dist = 0.0);
     void init();
     virtual ~KVPosition();
-    void SetAzimuthalAngle(Double_t ph);
-    void SetPolarAngle(Double_t th);
-    void SetPolarWidth(Double_t pw);
-    void SetPolarMinMax(Double_t min, Double_t max);
-    void SetAzimuthalWidth(Double_t aw);
-    void SetAzimuthalMinMax(Double_t min, Double_t max);
+    virtual void SetAzimuthalAngle(Double_t ph);
+    virtual void SetPolarAngle(Double_t th);
+    virtual void SetPolarWidth(Double_t pw);
+    virtual void SetPolarMinMax(Double_t min, Double_t max);
+    virtual void SetAzimuthalWidth(Double_t aw);
+    virtual void SetAzimuthalMinMax(Double_t min, Double_t max);
     void SetPhiMinMax(Double_t min, Double_t max) {
         SetAzimuthalMinMax(min, max);
     };

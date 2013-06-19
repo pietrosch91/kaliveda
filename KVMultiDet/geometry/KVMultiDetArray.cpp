@@ -897,8 +897,10 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                 else
                 {
                     KVIDTelescope* idt = recon_nuc->GetIdentifyingTelescope();
-                    KVDetector *de_det = idt->GetDetector(1);
-                    if(de_det->GetNHits()>1) recon_nuc->SetStatus( KVReconstructedNucleus::kStatusPileupDE );
+                    if(idt){
+                        KVDetector *de_det = idt->GetDetector(1);
+                        if(de_det->GetNHits()>1) recon_nuc->SetStatus( KVReconstructedNucleus::kStatusPileupDE );
+                    }
                 }
             }
             recon_nuc->SetIsOK(kFALSE);
@@ -1439,14 +1441,12 @@ void KVMultiDetArray::DetectParticleIn(const Char_t * detname,
 {
     //Given the name of a detector, simulate detection of a given particle
     //by the complete corresponding group. The particle's theta and phi are set
-    //at random within the limits of the telescope to which the detector belongs
-     KVDetector *kvd = GetDetector(detname);
+    //at random within the limits of detector entrance window
+
+    KVDetector *kvd = GetDetector(detname);
     if (kvd) {
         KVNameValueList* nvl=0;
-
-        kvp->SetRandomMomentum(kvp->GetEnergy(), kvd->GetThetaMin(),
-                               kvd->GetThetaMax(), kvd->GetPhiMin(),
-                               kvd->GetPhiMax(), "random");
+        kvp->SetMomentum(kvp->GetEnergy(), kvd->GetRandomDirection("random"));
         if ( (nvl = DetectParticle(kvp)) ) delete nvl;
     } else {
         Error("DetectParticleIn", "Detector %s not found", detname);
@@ -1936,8 +1936,7 @@ Double_t KVMultiDetArray::GetTargetEnergyLossCorrection(KVReconstructedNucleus* 
 
 TGeoManager* KVMultiDetArray::GetGeometry() const
 {
-    // Return pointer to the geometry of the array.
-    if(!fGeoManager) const_cast<KVMultiDetArray*>(this)->CreateGeoManager();
+    // Return pointer to the (ROOT) geometry of the array.
     return fGeoManager;
 }
 
@@ -2021,6 +2020,7 @@ void KVMultiDetArray::SetGeometry(TGeoManager *g)
 {
     // Define the geometry of the array with a valid ROOT geometry (TGeoManager instance)
     // The name and title of the TGeoManager object will be used for the array.
+    // ROOT geometry will be used by default from now on.
     fGeoManager = g;
     SetNameTitle(g->GetName(),g->GetTitle());
     SetROOTGeometry();

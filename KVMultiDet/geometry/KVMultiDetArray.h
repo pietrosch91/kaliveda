@@ -208,7 +208,7 @@ public:
     virtual TGraph* DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
 
     void SetROOTGeometry(Bool_t on=kTRUE);
-    Bool_t IsROOTGeometry() const { return fROOTGeometry; };
+    Bool_t IsROOTGeometry() const { return (fROOTGeometry&&fGeoManager); };
     void CalculateDetectorSegmentationIndex();
 
     ClassDef(KVMultiDetArray,7)//Base class for multidetector arrays
