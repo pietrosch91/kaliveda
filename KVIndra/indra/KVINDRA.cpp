@@ -229,7 +229,6 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
        KVNumberList mods = fStrucInfos.GetValue(Form("%s.Telescope.%s.Modules",prefix,name.Data()),"1-100");
        if(mods.Contains(module)) break;
     }
-    Info("BuildTelescope", "Building telescope %s",name.Data());
     
     KVString detectors = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Detectors",name.Data()),"");
     Double_t aziwidth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.AziWidth",name.Data()),1.0);
