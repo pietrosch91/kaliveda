@@ -1,6 +1,7 @@
 #include "KVTelescope.h"
 #include "KVDetector.h"
 #include "KVNucleus.h"
+#include "KVUnits.h"
 #include "TGraph.h"
 #include "Riostream.h"
 #include "TString.h"
@@ -161,6 +162,7 @@ void KVTelescope::SetDepth(UInt_t ndet, Float_t depth)
    if (!fDepth)
       fDepth = new Float_t[fNdets];
    fDepth[ndet - 1] = depth;
+   GetDetector(ndet)->SetDistance(GetDistance()+depth*KVUnits::mm);
 }
 
 //__________________________________________________________________________________

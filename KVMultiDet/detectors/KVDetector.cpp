@@ -18,6 +18,7 @@
 #include "TGeoVolume.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "TGeoBBox.h"
 
 using namespace std;
 
@@ -1162,7 +1163,12 @@ void KVDetector::SetFiredBitmask()
 
 Double_t KVDetector::GetEntranceWindowSurfaceArea()
 {
-	// Return surface area of first layer of detector in mm2.
+    // Return surface area of first layer of detector in cm2.
+    // For ROOT geometries, this is the area of the rectangular bounding box
+    // containing the detector shape. If the detector is not rectangular,
+    // the area will be too large (see TGeoBBox::GetFacetArea).
+
+    if(GetShape()) return GetShape()->GetFacetArea(1);
 
     KVTelescope* fTelescope = (KVTelescope*)GetParentStructure("TELESCOPE");
     if(fTelescope && fDepthInTelescope == 0)
@@ -1179,12 +1185,12 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 	cout << " C : "; printvec(coords[2]); cout << endl;
 	cout << " D : "; printvec(coords[3]); cout << endl;
 
-	cout << "DETECTOR DIMENSIONS (in mm):" << endl;
+    cout << "DETECTOR DIMENSIONS (in cm):" << endl;
 	cout << "================================" << endl;
-	Double_t c = 10*(coords[0]-coords[1]).Mag();
-	Double_t b = 10*(coords[1]-coords[2]).Mag();
-	Double_t d = 10*(coords[2]-coords[3]).Mag();
-	Double_t a = 10*(coords[0]-coords[3]).Mag();
+    Double_t c = (coords[0]-coords[1]).Mag();
+    Double_t b = (coords[1]-coords[2]).Mag();
+    Double_t d = (coords[2]-coords[3]).Mag();
+    Double_t a = (coords[0]-coords[3]).Mag();
 	cout << " AB = " << c << endl;
 	cout << " BC = " << b << endl;
 	cout << " CD = " << d << endl;
@@ -1192,8 +1198,8 @@ Double_t KVDetector::GetEntranceWindowSurfaceArea()
 
 	cout << "DETECTOR SURFACE AREA = ";
 	Double_t surf = pow((a+b),2.0)*(a-b+2.0*c)*(b-a+2.0*c);
-	surf = sqrt(surf)/4.0;
-	cout << surf << " mm2" << endl;
+    surf = sqrt(surf)/400.0;
+    cout << surf << " cm2" << endl;
 
 	return surf;
 }

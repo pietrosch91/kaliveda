@@ -75,6 +75,14 @@ class KVTelescope:public KVGeoStrucElement, public KVPosition {
    virtual TGeoVolume* GetGeoVolume();
    virtual void AddToGeometry();
 
+   // override KVPosition methods to apply to all detectors
+   virtual void SetAzimuthalAngle(Double_t ph) { KVPosition::SetAzimuthalAngle(ph); const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector,SetAzimuthalAngle)(ph); }
+   virtual void SetPolarAngle(Double_t th) { KVPosition::SetPolarAngle(th); const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector,SetPolarAngle)(th); }
+   virtual void SetPolarWidth(Double_t pw) { KVPosition::SetPolarWidth(pw); const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector,SetPolarWidth)(pw); }
+   virtual void SetPolarMinMax(Double_t min, Double_t max) { KVPosition::SetPolarMinMax(min,max); const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector,SetPolarMinMax)(min,max); }
+   virtual void SetAzimuthalWidth(Double_t aw) { KVPosition::SetAzimuthalWidth(aw); const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector,SetAzimuthalWidth)(aw); }
+   virtual void SetAzimuthalMinMax(Double_t min, Double_t max) { KVPosition::SetAzimuthalMinMax(min,max); const_cast<KVSeqCollection*>(GetDetectors())->R__FOR_EACH(KVDetector,SetAzimuthalMinMax)(min,max); }
+
    ClassDef(KVTelescope, 3)     //Multi-layered telescopes composed of different absorbers
 };
 

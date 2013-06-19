@@ -27,6 +27,12 @@ class KVEventViewer : public KVBase
    Double_t nucleon_radius;//radius of nucleons in nuclei
    Double_t nuclear_radius_parameter;//to calculate radii of nuclei
 
+   Double_t fMaxVelocity;
+   Bool_t fFixSeed;
+   Int_t fRefresh;
+   Int_t fSeed;
+   Bool_t fXYMode;
+
    Int_t ivol;//geovolume counter
    Bool_t fSavePicture;//kTRUE to save in GIF file
    
@@ -73,6 +79,10 @@ class KVEventViewer : public KVBase
    void SetHighlightProtonColor(Int_t c) { fProton_color=c; }
    void SetHighlightNeutronColor(Int_t c) { fNeutron_color=c; }
    void SetSavePicture(Bool_t yes=kTRUE) { fSavePicture=yes; }
+
+   void SetMaxVelocity(Int_t vel) { fMaxVelocity=vel; }
+   void SetFixSeed(Bool_t fix, Int_t refresh=1) { fFixSeed=fix; fRefresh = refresh;}
+   void SetXYMode(Bool_t mode) { fXYMode=mode; }
 
    void DrawNucleus(KVNucleus*, const Char_t* frame="");
    void DrawEvent(KVEvent*, const Char_t *frame="");

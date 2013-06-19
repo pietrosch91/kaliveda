@@ -261,6 +261,7 @@ void INDRAGeometryBuilder::PlaceDetector()
    // position detector inside frame
 
    fFrameVolume->AddNode(fDetVolume, 1);
+   fFrameVolume->GetNode(Form("DET_%s_1", fDetName.Data()))->SetName(Form("DET_%s", fDetName.Data()));
 }
 //________________________________________________________________
 
@@ -427,8 +428,12 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
 
       Double_t dz = thick / 2.;
       TString vol_name;
-      if (no_abs == fActiveLayer) vol_name = Form("ACTIVE_%s_%d_%s",fDetName.Data(), no_abs, abs->GetType());
-      else vol_name = Form("%s_%d_%s", fDetName.Data(), no_abs, abs->GetType());
+      if(multi_layer){
+        if (no_abs == fActiveLayer) vol_name = Form("ACTIVE_%s_%d_%s",fDetName.Data(), no_abs, abs->GetType());
+        else vol_name = Form("%s_%d_%s", fDetName.Data(), no_abs, abs->GetType());
+      }
+      else
+          vol_name = Form("DET_%s", fDetName.Data());
       TGeoVolume *vol =
          gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
       vol->SetLineColor(med->GetMaterial()->GetDefaultColor());

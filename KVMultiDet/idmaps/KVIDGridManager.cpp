@@ -195,6 +195,7 @@ void KVIDGridManager::GetListOfIDTelescopeLabels ( KVString& list )
    }
    list.ReplaceAll("//",",");
    list.ReplaceAll("/","");
+   if(list.EqualTo(",")) list = "";
 }
 
 void KVIDGridManager::Initialize ( Option_t* opt )

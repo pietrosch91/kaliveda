@@ -95,7 +95,28 @@ void KVNameValueList::Clear(Option_t* opt)
 {
 	//Clear all the stored parameters
    //Deletes the parameter objects if owner & opt!="nodelete"
-	fList.Clear(opt);
+    fList.Clear(opt);
+}
+
+void KVNameValueList::ClearSelection(TRegexp &sel)
+{
+    // Remove from list all parameters whose name matches the regular expression
+    // Examples:
+    //  remove all parameters starting with "toto": TRegexp sel("^toto")
+    //  remove all parameters with "toto" in name:  TRegexp sel("toto")
+
+    TList toBeRemoved;
+    Int_t np1 = GetNpar();
+    for (Int_t ii=0;ii<np1;ii+=1){
+        TString name = GetParameter(ii)->GetName();
+        if(name.Contains(sel)) toBeRemoved.Add(new TNamed(name.Data(),""));
+    }
+    if(toBeRemoved.GetEntries()){
+        TIter next(&toBeRemoved);
+        TNamed* tbr;
+        while( (tbr = (TNamed*)next()) ) RemoveParameter(tbr->GetName());
+        toBeRemoved.Delete();
+    }
 }
 
 //______________________________________________

@@ -416,6 +416,7 @@ void KVZALineFinder::MakeGrid()
             }
 
             TheZLine = (KVIDZALine*)fGrid->GetIdentifier(TheLine->GetZ(),200);
+            if(!TheZLine) continue;
             Double_t x0 = TheLine->GetX()[0];
             Double_t x0ref = TheZLine->GetX()[0];
             Double_t x1ref = TheZLine->GetX()[TheZLine->GetN()-1];

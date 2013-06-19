@@ -10,7 +10,7 @@ ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 MANIP_DIRS = INDRA_camp1 INDRA_camp2 INDRA_camp4 INDRA_camp5 INDRA_e475s INDRA_e503 INDRA_e494s t10_02 INDRA_e613
 
 #list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVS*.cpp indra/KVINDRAFNL.cpp indra/KVINDRAe613.cpp
+NOT_READY := daq_cec/KVS*.cpp indra/KVINDRAFNL.cpp
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += analysis/KVINDRARawDataAnalyser.cpp analysis/KVINDRARawDataReconstructor.cpp analysis/KVINDRARawIdent.cpp 
 endif

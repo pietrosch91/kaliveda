@@ -241,6 +241,9 @@ void KVGeoImport::AddLayer(KVDetector *det, TGeoVolume *vol)
     // Volumes representing 'active' layers in detectors must have names
     // which begin with "ACTIVE_"
 
+    TString vnom = vol->GetName();
+    // exclude dead zone layers
+    if(vnom.BeginsWith("DEADZONE")) return;
     TGeoMaterial* material = vol->GetMaterial();
     KVIonRangeTableMaterial* irmat = fRangeTable->GetMaterial(material);
     if(!irmat){
@@ -264,7 +267,6 @@ void KVGeoImport::AddLayer(KVDetector *det, TGeoVolume *vol)
     else
         absorber = new KVMaterial(irmat->GetType(), width);
     det->AddAbsorber(absorber);
-    TString vnom = vol->GetName();
     if(vnom.BeginsWith("ACTIVE_")) det->SetActiveLayer( det->GetListOfAbsorbers()->GetEntries()-1 );
 }
 
