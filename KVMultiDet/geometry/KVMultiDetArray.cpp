@@ -1333,7 +1333,7 @@ void KVMultiDetArray::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* 
         KVGroup* grp = 0;
         while ( (par = (KVACQParam*)next_par()) ){
             if ( (det = par->GetDetector()) ){
-                if ( (grp = det->GetGroup()) ) detev->AddGroup(grp);
+                if ( (grp = det->GetGroup()) && grp->GetParents()->Contains( this) ) detev->AddGroup(grp);
             }
         }
     }
