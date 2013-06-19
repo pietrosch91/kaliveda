@@ -25,29 +25,29 @@ class KVHarpeeIC : public KVVAMOSDetector
    		KVHarpeeIC(UInt_t number, Float_t pressure, Float_t temp=19., Float_t thick = 10.457*KVUnits::cm);
    		KVHarpeeIC (const KVHarpeeIC&) ;
    		virtual ~KVHarpeeIC();
+
    		void Copy (TObject&) const;
 
-		virtual const Char_t* GetArrayName();
-   		virtual const Char_t *GetEBaseName() const;
+		virtual const Char_t   *GetArrayName();
+   		virtual const Char_t   *GetEBaseName() const;
 
-		virtual UInt_t GetFiredSegNumber(Option_t *opt = "P");
-   		virtual Double_t GetCalibE();
-   		virtual Bool_t IsECalibrated() const;
-   		virtual Bool_t PositionIsOK();
+   		virtual Double_t  GetCalibE();
+		virtual Double_t  GetEnergy();
+		virtual UInt_t    GetFiredSegNumber(Option_t *opt = "P");
+   		virtual Bool_t    IsECalibrated() const;
+   		virtual Bool_t    PositionIsOK();
+		virtual void      SetACQParams();
 
+   		// ------ inline functions ----------------------//
 
-		virtual void SetACQParams();
+		virtual KVString &GetACQParamTypes();
+   		virtual KVString &GetPositionTypes();
 
-   // ------ inline functions ----------------------//
-
-		inline virtual KVString &GetACQParamTypes(){
-	   		return fACQParamTypes;
-   		}
-
-   		inline virtual KVString &GetPositionTypes(){
-	   		return fPositionTypes;
-   		}
-   		ClassDef(KVHarpeeIC,1)//Ionisiation chamber of Harpee, used at the focal plan of VAMOS
+		ClassDef(KVHarpeeIC,1)//Ionisiation chamber of Harpee, used at the focal plan of VAMOS
 };
+//_________________________________________________________________________
+
+inline  KVString &KVHarpeeIC::GetACQParamTypes(){ return fACQParamTypes; }
+inline  KVString &KVHarpeeIC::GetPositionTypes(){ return fPositionTypes; }
 
 #endif

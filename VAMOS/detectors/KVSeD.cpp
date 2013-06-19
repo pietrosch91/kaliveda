@@ -351,6 +351,7 @@ void KVSeD::SetACQParams(){
 			par->SetType("Q");
 			par->SetLabel( Form("%c", DIRECTION(i)) );
 			par->SetNumber( num);
+			par->SetUniqueID( CalculateUniqueID( par ) );
 			AddACQParam(par);
 		}
 

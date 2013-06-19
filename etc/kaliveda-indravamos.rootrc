@@ -45,8 +45,16 @@ VAMOS_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelect
 # acquisition parameters must be fired in order for a particle to be reconstructed from the detector:
 INDRA_e494s.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
 INDRA_e503.Reconstruction.DataAnalysisTask.ParticleSeedCond:     any
-# (For these two datasets, there are many runs for which no 'marqueur de temps' is present,
-# due to a bad configuration of the trigger)
+
+# You can "fine-tune" what is meant by "all" acquisition parameters using the following
+# variables. For each detector type, give a comma-separated list of the acquisition
+# parameter types to be taken into account in the KVDetector::Fired method.
+# Only those parameters which appear in the list will be considered:
+#  then "all" means => all parameters in the list
+#  and  "any" means => any of the parameters in the list
+# These lists are read during construction of multidetector arrays (KVMultiDetArray::Build),
+# the method KVMultiDetArray::SetACQParams uses them to define a mask for each detector
+# of the array.
 VAMOS_e503.KVDetector.Fired.ACQParameterList.SI: E
 VAMOS_e503.KVDetector.Fired.ACQParameterList.CSI: E
 
@@ -90,6 +98,7 @@ Plugin.GTGanilData:    INDRA_e503      GTGanilDataVAMOS      VAMOS     "GTGanilD
 +Plugin.GTGanilData:   INDRA_e494s     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 +Plugin.GTGanilData:   VAMOS_e503     GTGanilDataVAMOS     VAMOS     "GTGanilDataVAMOS()"
 
+# Dataset-specific parameter files
 # INDRA-VAMOS
 INDRA_e503.INDRADB.ChIoSiVoltMeVCalib:     CalibMeVVoltChIoSi.dat
 INDRA_e503.INDRADB.ElectronicCalibration:    ChVolt.dat
@@ -109,24 +118,35 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
 # Each dataset has an associated multidetector array describing the experimental setup.
 # There must be an entry here for each dataset
 # Syntax:
+# Plugin.KVMultiDetArray:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 +Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
 +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 
+# Plugins for different datasets
+# Each dataset has an associated database of informations on runs, calibration parameters, etc.
 +Plugin.KVDataBase:    INDRA_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e494s    KVIVDB            VAMOS    "KVIVDB(const Char_t*)"
 
+#================================ Plugins for different datasets
+# Each multidetector array has an associated 'KVUpDater' object used to set run parameters.
+# If there is no entry here for a dataset, an object of the default KVUpDater class will be used.
+# Syntax:
+# Plugin.KVUpDater:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 +Plugin.KVUpDater:    INDRA_e494s    KVIVUpDater              VAMOS    "KVIVUpDater()"
 +Plugin.KVUpDater:    INDRA_e503     KVIVUpDater              VAMOS    "KVIVUpDater()"
 
-################################################
+#============================== Plugins for identification telescopes
+# The KVMultiDetArray::GetIDTelescopes(KVDetector*de, KVDetector*e) method uses these plugins to
+# create KVIDTelescope instances adapted to the specific array geometry and detector types.
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI$        KVIDChIoSiCorr                KVIndra      "KVIDChIoSiCorr()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-CSI$       KVIDChIoCorrCsI_e494s         KVIndra      "KVIDChIoCorrCsI_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SI-CSI$       KVIDSiCorrCsI                 KVIndra      "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e494s.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e494s.VAMOS.CHI-SI$ KVVAMOSIDTelescope            VAMOS        "KVVAMOSIDTelescope()"
 ################################################
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI-CSI$   KVIDSiCorrCsI      KVIndra "KVIDSiCorrCsI()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI$    KVIDChIoSiCorr     KVIndra "KVIDChIoSiCorr()"
@@ -157,20 +177,21 @@ INDRA_e503.IdentificationParameterFile.SI75-SILI:   grilles_fit_Si75_SiLi.dat
 INDRA_e503.IdentificationParameterFile.SILI-CSI:    grilles_fit_SiLi_CsI.dat
 
 ###############################################
-INDRA_e494s.IdentificationParameterFile.CI-SI:      grilles_ChIo_Si.dat
-INDRA_e494s.IdentificationParameterFile.CI-CSI:     grilles_ChIo_CsI.dat
-INDRA_e494s.IdentificationParameterFile.SI-CSI:     grilles_fit_Si_CsI.dat
-INDRA_e494s.IdentificationParameterFile.CSI:        grilles_CsI_RL_e494s.dat
-INDRA_e494s.IdentificationParameterFile.CI-SI75:    grilles_ChIo_Si75.dat
-INDRA_e494s.IdentificationParameterFile.SI75-SILI:  grilles_fit_Si75_SiLi.dat
-INDRA_e494s.IdentificationParameterFile.SILI-CSI:   grilles_fit_SiLi_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CI-SI:          grilles_ChIo_Si.dat
+INDRA_e494s.IdentificationParameterFile.CI-CSI:         grilles_ChIo_CsI.dat
+INDRA_e494s.IdentificationParameterFile.SI-CSI:         grilles_fit_Si_CsI.dat
+INDRA_e494s.IdentificationParameterFile.CSI:            grilles_CsI_RL_e494s.dat
+INDRA_e494s.IdentificationParameterFile.CI-SI75:        grilles_ChIo_Si75.dat
+INDRA_e494s.IdentificationParameterFile.SI75-SILI:      grilles_fit_Si75_SiLi.dat
+INDRA_e494s.IdentificationParameterFile.SILI-CSI:       grilles_fit_SiLi_CsI.dat
+INDRA_e494s.IdentificationParameterFile.VAMOS.CHI-SI:   grilles_VAMOS_IC_Si.dat
 ###############################################
 # pour FocalPlanVamos 
 VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
 
 VAMOS_e503.ActiveIdentifications:       SI-CSI
 INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
-INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI
+INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI VAMOS.CHI-SI
 
 #================================ Plugins for detectors
 +Plugin.KVDetector:    VAMOS_e503.CSI             KVCsIVamos     VAMOS     "KVCsIVamos(Float_t)"

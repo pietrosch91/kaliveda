@@ -275,10 +275,7 @@ void KVVAMOS::InitGeometry(){
 	   	gGeoManager->CdNode(i);
 	   	node = gGeoManager->GetCurrentNode();
 	   	node->SetUniqueID( gGeoManager->GetCurrentNodeId() );
-	   	vname = node->GetName();
-	   	vname.Remove( vname.Last('_') );
-	   	vol = gGeoManager->GetVolume( vname.Data() );
-	   	if( vol ) vol->SetUniqueID( gGeoManager->GetCurrentNodeId() );
+	   	node->GetVolume()->SetUniqueID( gGeoManager->GetCurrentNodeId() );
    	}
 
 	fFocalToTarget.SetName("focal_to_target");
@@ -316,7 +313,6 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 		Nfiles++;
 		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
 	}
-	infos->Print();
 	delete lfiles;
 	return Nfiles;
 }
@@ -373,8 +369,10 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	//
 	//The comment lines begin with '#'.
 	//
-	//Each line correspond to a new group and contains le name of each
-	//detector which compose it, separated by a space.
+	//Each line correspond to a list with the name of each detector which
+	//can be punshed through by a same trajectory. Each name is
+	//separated by a space.
+	//A detector can only belong to one group.
 	
  	ClearStructures("GROUP");          // clear out (delete) old groups
 
@@ -386,9 +384,10 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 	  	// Skip comment line
 	  	if(sline.BeginsWith("#")) continue;
 
-		KVGroup           *group   = NULL;
-		KVSpectroDetector *det     = NULL;
-		KVSpectroDetector *lastDet = NULL;
+		KVGroup           *cur_grp  = NULL;
+		KVGroup           *det_grp  = NULL;
+		KVSpectroDetector *det      = NULL;
+		KVSpectroDetector *lastDet  = NULL;
 
 		sline.Begin(" ");
    		while( !sline.End() ){
@@ -397,13 +396,26 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 			det     = (KVSpectroDetector *)GetDetector( detname.Data() );
 
 			if( det ){
+				det_grp = det->GetGroup();
 
-				if( !group ){
- 					group = new KVGroup;
-					group->SetNumber(++fGr);
+				if( !cur_grp ){
+					if( det_grp ) cur_grp = det_grp;
+					else{
+						cur_grp = new KVGroup;
+						cur_grp->SetNumber(++fGr);
+						cur_grp->Add( det );
+						Add( cur_grp );
+					}
+				}
+				else{
+					if( det_grp && det_grp != cur_grp ) 
+						Warning("ReadDetectorGroupFile",
+                        		"Detector %s : already belongs to %s, now seems to be in %s",
+                        		det->GetName(), det_grp->GetName(),
+                        		cur_grp->GetName());
+					else cur_grp->Add( det );
 				}
 
-				group->Add( det );
  				det->GetNode()->SetName(det->GetName());
 
     			if(lastDet && det!=lastDet) {
@@ -411,16 +423,13 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
         			det->GetNode()->AddInFront(lastDet);
     			}
     			lastDet = det;
+
+				// Sort the detector list of each group
+				// from the the closest from the target to the furthest.
+				cur_grp->SortDetectors(kSortAscending);
 			}
 			else Error("ReadDetectorGroupFile","Detector %s not found",detname.Data());
    		}
-
-		if( group ){
-			// Sort the detector list of each group
-			// from the farest one to the closest one.
-			group->SortDetectors(kSortDescending);
-			Add( group );
-		}
 	}
 	return kTRUE;
 }
@@ -666,6 +675,7 @@ void KVVAMOS::Build(){
 	SetGroupsAndIDTelescopes();
 	SetACQParams();
 	SetCalibrators();
+	SetIdentifications();
 	Initialize();
 	SetBit(kIsBuilt);
 }
@@ -725,6 +735,110 @@ KVList *KVVAMOS::GetFiredDetectors(Option_t *opt){
 	return fFiredDets;
 }
 //________________________________________________________________
+void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
+                                      TCollection * idtels){
+	//Overwrite the same method of KVMultiDetArray in order to use another
+	//format for the URI of the plugins associated to VAMOS.
+    //Create a KVIDTelescope from the two detectors and add it to the list.
+    //
+    // # For each pair of detectors we look for now a plugin with one of the following names:
+    // #    [name_of_dataset].name_of_vamos.de_detector_type[de detector thickness]-e_detector_type[de detector thickness]
+    // # Each characteristic in [] brackets may or may not be present in the name; first we test for names
+    // # with these characteristics, then all combinations where one or other of the characteristics is not present.
+    // # In addition, we first test all combinations which begin with [name_of_dataset].
+    // # The first plugin found in this order will be used.
+    // # In addition, if for one of the two detectors there is a plugin called
+    // #    [name_of_dataset].name_of_vamos.de_detector_type[de detector thickness]
+    // #    [name_of_dataset].name_of_vamos.e_detector_type[e detector thickness]
+    // # then we add also an instance of this 1-detector identification telescope.
+    //
+    //This method is called by KVGroup in order to set up all ID telescopes
+    //of the array.
+
+    if ( !(de->IsOK() && e->IsOK()) ) return;
+    
+	KVIDTelescope *idt = NULL;
+
+    if ( fDataSet == "" && gDataSet ) fDataSet = gDataSet->GetName();
+
+    //first we look for ID telescopes specific to current dataset
+    //these are ID telescopes formed from two distinct detectors
+    TString uri;
+
+	// prefix of the URI
+	TString prefix[2];
+	prefix[0].Form("%s.%s.",fDataSet.Data(), GetName());
+	prefix[1].Form("%s."   , GetName());
+
+
+	//look for ID telescopes with only one of the two detectors
+	KVDetector *dets[3] = { de , e, NULL };
+	KVDetector *det     = NULL;
+
+    for( UChar_t i=0; (det=dets[i]);  i++){
+		for(UChar_t j=0; j<2; j++){
+
+			uri.Form("%s%s%d", prefix[j].Data(), det->GetType(),
+             		TMath::Nint(det->GetThickness()) );
+    		if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        		set_up_single_stage_telescope(det,idtels,idt,uri);
+				break;
+    		}
+
+    		uri.Form("%s%s", prefix[j].Data(), det->GetType());
+    		if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+        		set_up_single_stage_telescope(det,idtels,idt,uri);
+				break;
+    		}
+
+        }
+    }
+
+    //look for ID telescopes with the two detectors
+	if(de == e) return;
+ 
+	Int_t de_thick = TMath::Nint(de->GetThickness());
+    Int_t e_thick  = TMath::Nint(e->GetThickness() );
+
+	for(UChar_t j=0; j<2; j++){
+
+        uri.Form("%s%s%d-%s%d", prefix[j].Data(), de->GetType(),
+                de_thick, e->GetType(), e_thick);
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+
+		uri.Form("%s%s%d-%s", prefix[j].Data(), de->GetType(),
+                de_thick, e->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+
+		uri.Form("%s%s-%s%d", prefix[j].Data(), de->GetType(), e->GetType(),
+                e_thick);
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+
+		uri.Form("%s%s-%s", prefix[j].Data(), de->GetType(), e->GetType());
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_telescope(de,e,idtels,idt,uri);
+			break;
+        }
+	}
+    
+	if( !idt ){
+    	// Make a generic de-e identification telescope
+        uri.Form("%s%s-%s", prefix[1].Data(), de->GetType(), e->GetType());
+    	idt = new KVIDTelescope;
+    	set_up_telescope(de,e,idtels,idt,uri);
+		idt->SetLabel( uri );
+	}
+}
+//________________________________________________________________
 
 KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
 	//Returns the transformation matrix allowing to map the measured
@@ -771,22 +885,6 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
     //call Build() method
     vamos->Build();
     return vamos;
-}
-//________________________________________________________________
-
-void KVVAMOS::SetParameters(UShort_t run){
-	// Set identification and calibration parameters for run;
-	// This can only be done if gDataSet has been set i.e. a
-	// dataset has been chosen.
-
-	KVDataSet *ds = gDataSet;
-	if(!ds){
-		if(!gDataSetManager) return;
-		ds = gDataSetManager->GetDataSet(fDataSet.Data());
-	}
-	if(!ds) return;
-	ds->cd();
-	ds->GetUpDater()->SetParameters(run);
 }
 //________________________________________________________________
 

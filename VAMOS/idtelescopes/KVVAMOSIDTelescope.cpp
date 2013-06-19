@@ -36,26 +36,24 @@ KVVAMOSIDTelescope::~KVVAMOSIDTelescope()
 //________________________________________________________________
    
 const Char_t *KVVAMOSIDTelescope::GetArrayName(){
- 	// Name of identification telescope given in the form Det1_Det2.
+ 	// Name of identification telescope given in the form IDV_Det1_Det2.
+ 	// Prefix VID for Vamos IDentification.
    	// The detectors are signified by their names i.e. KVDetector::GetName
 
-	if( !GetSize() ){
+	if( GetSize() ){
 		KVDetector *DEdet = GetDetector( 1 );
 		KVDetector *Edet  = GetDetector( 2 );
 
-		SetName( DEdet->GetName() );
-		SetType( DEdet->GetType() );
-
 		if( Edet ){
-			fName.Append("_");
-			fTitle.Append("_");
-
-			fName.Append( Edet->GetName() );
-			fTitle.Append( Edet->GetType() );
-
+			SetName( Form("VID_%s_%s", DEdet->GetName(), Edet->GetName()) );
+			SetType( Form("%s_%s"    , DEdet->GetName(), Edet->GetName()) );
+		}
+		else{
+			SetName( Form("VID_%s", DEdet->GetName()) );
+			SetType( Form("%s"    , DEdet->GetName()) );
 		}
 	}
-	else fName = "EMPTY_IDTel";
+	else SetName( "VID_EMPTY" );
 
 	return fName.Data();
 }

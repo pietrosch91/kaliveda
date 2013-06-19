@@ -83,27 +83,22 @@ class KVVAMOSDetector : public KVSpectroDetector
 
    		inline UChar_t GetACQParamTypeIdx( const Char_t *type ){
 	   		return KVVAMOS::GetACQParamTypeIdx( type, this );
-			return 0;
    		}
 
    		inline UChar_t GetPositionTypeIdx( const Char_t *type ){
 	   		return KVVAMOS::GetPositionTypeIdx( type, this );
-			return 0;
    		}
 
    		inline UInt_t CalculateUniqueID( KVBase *param){
 	   		return	KVVAMOS::CalculateUniqueID( param, this );
-			return 0;
    		}
 
    		inline UChar_t GetACQParamTypeIdxFromID( UInt_t id ){
 	   		return KVVAMOS::GetACQParamTypeIdxFromID( id );
-  			return 0; 
    		}
 
    		inline UChar_t GetPositionTypeIdxFromID( UInt_t id ){
 	   		return KVVAMOS::GetPositionTypeIdxFromID( id );
-			return 0;
    		}
 
    		ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer

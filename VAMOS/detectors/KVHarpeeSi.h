@@ -10,9 +10,9 @@ class KVHarpeeSi : public KVVAMOSDetector
 {
 	private:
 
-	enum {
-		kPosIsOK = BIT(22) //flag set when PositionIsOK method is called
-	};
+		enum {
+			kPosIsOK = BIT(22) //flag set when PositionIsOK method is called
+		};
 		static KVString fACQParamTypes; //!types of available Acquision parameters
 		static KVString fPositionTypes; //!types of available positions
 
@@ -21,7 +21,7 @@ class KVHarpeeSi : public KVVAMOSDetector
 
 		static KVHarpeeSi *fSiForPosition;//! Si used to obtain particle position
 		static KVList     *fHarpeeSiList;//! Global list of all KVHarpeeSi objects
-		
+
 		void init();
 
    	public:
@@ -32,33 +32,30 @@ class KVHarpeeSi : public KVVAMOSDetector
    		virtual ~KVHarpeeSi();
    		void Copy (TObject&) const;
 
-
-		virtual const Char_t* GetArrayName();
-   		virtual Double_t GetCalibT(const Char_t *type);
+		virtual const Char_t *GetArrayName();
    		virtual const Char_t *GetEBaseName() const;
-		static KVHarpeeSi *GetFiredHarpeeSi(Option_t *opt="Pany");
-		static KVList *GetHarpeeSiList();
-   		virtual Int_t  GetMult(Option_t *opt="Pany");
-   		virtual void   Initialize();
-   		virtual Bool_t PositionIsOK();
-		
-		virtual void SetACQParams();
+
+   		virtual Double_t    GetCalibT(const Char_t *type);
+		virtual Double_t    GetEnergy();
+		static  KVHarpeeSi *GetFiredHarpeeSi(Option_t *opt="Pany");
+		static  KVList     *GetHarpeeSiList();
+   		virtual Int_t       GetMult(Option_t *opt="Pany");
+   		virtual void        Initialize();
+   		virtual Bool_t      PositionIsOK();
+		virtual void        SetACQParams();
 
    		// -------- inline methods ---------------//
 
-		inline virtual KVString &GetACQParamTypes(){
-	   		return fACQParamTypes;
-   		}
-
-   		inline virtual KVString &GetPositionTypes(){
-	   		return fPositionTypes;
-   		}
-
-		inline Float_t GetRawE(){
-	   		return  GetACQData( GetEBaseName() );
-		}
+		virtual KVString &GetACQParamTypes();
+		virtual KVString &GetPositionTypes();
+                Float_t  GetRawE();
 
    		ClassDef(KVHarpeeSi,1)//Silicon detectors of Harpee, used at the focal plan of VAMOS
 };
+//_________________________________________________________________________
+
+inline KVString &KVHarpeeSi::GetACQParamTypes(){ return fACQParamTypes; }
+inline KVString &KVHarpeeSi::GetPositionTypes(){ return fPositionTypes; }
+inline Float_t   KVHarpeeSi::GetRawE()         {return GetACQData( GetEBaseName() ); }
 
 #endif

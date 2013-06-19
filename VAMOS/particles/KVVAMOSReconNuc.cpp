@@ -91,6 +91,61 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::Identify()
+{
+   	// VAMOS-specific Z identification.
+   	// Here we attribute the general identification codes depending on the
+   	// result of KVReconstructedNucleus::Identify and the subcodes from the different
+   	// identification algorithms:
+   	// If the particle's mass A was NOT measured, we make sure that it is calculated
+   	// from the measured Z using the mass formula defined by default
+   	//
+   	//IDENTIFIED NUCLEI
+   	//Identified nuclei with ID code = 2 with subcodes 4 & 5
+   	//(masse hors limite superieure/inferieure) are relabelled
+   	//with kIDCode10 (identification entre les lignes CsI)
+   	//
+   	//UNIDENTIFIED NUCLEI
+   	//Unidentified nuclei receive the general ID code for non-identified particles (kIDCode14)
+
+   	KVReconstructedNucleus::Identify();
+
+   	KVIdentificationResult partID;
+   	Bool_t ok = kFALSE;
+
+   	// for all nuclei we take the first identification which gives IDOK==kTRUE
+   	Int_t id_no = 1;
+   	KVIdentificationResult *pid = GetIdentificationResult(id_no);
+   	while( pid ){
+	   	if( pid->IDattempted && pid->IDOK ){
+		   	ok = kTRUE;
+		   	partID = *pid;
+		   	break;
+	   	}
+	   	++id_no;
+	   	pid = GetIdentificationResult(id_no);
+   	}
+
+   	if(ok){
+       	SetIsIdentified();
+       	KVIDTelescope* idt = (KVIDTelescope*)GetIDTelescopes()->FindObjectByType( partID.GetType() );
+        if( !idt ){
+        	Warning("Identify", "cannot find ID telescope with type %s", partID.GetType());
+        	GetIDTelescopes()->ls();
+        	partID.Print();
+        }
+        SetIdentifyingTelescope(  idt );
+        SetIdentification( &partID );
+   	}
+	else{
+      	/******* UNIDENTIFIED PARTICLES *******/
+
+      	/*** general ID code for non-identified particles ***/
+      	SetIDCode( kIDCode14 );
+   	}
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::MakeDetectorList()
 {
     // Protected method, called when required to fill fDetList with pointers to
@@ -108,19 +163,12 @@ void KVVAMOSReconNuc::MakeDetectorList()
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::Reconstruct( KVList *detl ){
-
-	TIter next_det( detl );
-	KVVAMOSDetector *d = NULL;
-	while( (d = (KVVAMOSDetector *)next_det()) ){
-   		AddDetector(d);
-        d->AddHit(this);  // add particle to list of particles hitting detector
-        d->SetAnalysed(kTRUE);   //cannot be used to seed another particle
-	}
+void KVVAMOSReconNuc::ReconstructTrajectory(){
+	//Reconsturction of the trajectory at the focal plane and then at
+	//the target point.
 
 	ReconstructFPtraj();
 	ReconstructLabTraj();
-	//Calibrate();
 }
 //________________________________________________________________
 

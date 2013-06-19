@@ -34,6 +34,11 @@ void KVHarpeeSi::init(){
 //		fHarpeeSiList->SetCleanup();
 	}
 	fHarpeeSiList->Add( this );
+
+	// fSegment is set to 1 because this silicon detector is
+	// an independant detector (see KVGroup::AnalyseParticles for
+	// more information)
+	fSegment = 1;
 }
 //________________________________________________________________
 
@@ -147,6 +152,27 @@ const Char_t *KVHarpeeSi::GetEBaseName() const{
 }
 //________________________________________________________________
 
+Double_t KVHarpeeSi::GetEnergy()
+{
+   //Redefinition of KVDetector::GetEnergy().
+   //If energy lost in active volume is already set (e.g. by calculation of energy loss
+   //of charged particles), return its value.
+   //If not, we calculate it and set it using the values read from coders (if fired)
+   //and the calibrations, if present
+   //
+   //Returns 0 if (i) no calibration present (ii) calibration present but no data in acquisition parameters
+
+   //fELoss already set, return its value
+   Double_t ELoss = KVDetector::GetEnergy();
+   if(IsSimMode()) return ELoss; // in simulation mode, return calculated energy loss in active layer
+   if( ELoss > 0 ) return ELoss;
+   ELoss = GetCalibE();
+   if( ELoss < 0 ) ELoss = 0;
+   SetEnergy(ELoss);
+   return ELoss;
+}
+//________________________________________________________________
+
 KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
 	// This static method returns the first fired detector found
 	// in the list of all the existing silicon detectors of HARPEE.
@@ -224,5 +250,6 @@ void KVHarpeeSi::SetACQParams(){
 	par->SetName( GetEBaseName() );
 	par->SetType("E");
 	par->SetNumber( GetNumber() );
+	par->SetUniqueID( CalculateUniqueID( par ) );
 	AddACQParam(par);
 }

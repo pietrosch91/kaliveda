@@ -20,9 +20,10 @@ class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
 
 	protected: 
 
-		KVIVReconEvent *fIVevent;
-		Int_t           fNbVAMOSrecon; //number of reconstructed VAMOS events
-
+		KVDetectorEvent *fINDRADetEv;  //list of hit group for INDRA event
+		KVDetectorEvent *fVAMOSDetEv;  //list of hit group for VAMOS event
+		KVIVReconEvent  *fIVevent;
+		Int_t            fNbVAMOSrecon;//number of reconstructed VAMOS events
 
    	public:
 
@@ -34,12 +35,13 @@ class KVIVRawDataReconstructor : public KVINDRARawDataReconstructor
 			KVINDRARawDataReconstructor::postInitRun(); // initialise event counters
    			((KVGANILDataReader*)fRunFile)->GetGanTapeInterface()->SetUserTree( tree );
 		};
-		virtual void InitRun();
-   		virtual void preAnalysis();
+		virtual void   InitRun();
+   		virtual void   preAnalysis();
 		virtual Bool_t Analysis();
-		virtual void EndRun();
+		virtual void   postAnalysis();
+		virtual void   EndRun();
 
-   		ClassDef(KVIVRawDataReconstructor,1)//Reconstructs raw data from INDRA-VAMOS experiments
-};
+   			ClassDef(KVIVRawDataReconstructor,1)//Reconstructs raw data from INDRA-VAMOS experiments
+		};
 
 #endif

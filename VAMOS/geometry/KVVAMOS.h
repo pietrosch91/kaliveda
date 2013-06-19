@@ -77,10 +77,10 @@ class KVVAMOS :  public KVMultiDetArray
    		        void     FocalToTarget( const Double_t *focal, Double_t *target );
    		        void     FocalToTargetVect( const Double_t *focal, Double_t *target );
    		virtual KVList  *GetFiredDetectors( Option_t *opt="Pany" );
+		virtual void	 GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );
-   		virtual void     SetParameters( UShort_t run );
 		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );
    		        void     TargetToFocal( const Double_t *target, Double_t *focal );
    		        void     TargetToFocalVect( const Double_t *target, Double_t *focal );
@@ -98,12 +98,14 @@ class KVVAMOS :  public KVMultiDetArray
    		TGeoVolume   *GetGeoVolume()                        const;
 		KVHashList   *GetListOfCalibrators()                const;
    		KVList       *GetListOfVCalibrators()               const;
+		Int_t         GetTrigger()                          const;
    		KVList       *GetVACQParams()                       const;
    		KVCalibrator *GetVCalibrator( const Char_t * type ) const;
 		Bool_t        IsGeoModified()                       const;
 		void          SetAngle( Double_t angle );
 		void          SetBeamHF( Double_t hf );
 		void          SetBrhoRef( Double_t Brho );
+		void          SetCurrentRunNumber( UInt_t run );
 
 		//----- static methods
 
@@ -161,6 +163,7 @@ inline TGeoVolume *KVVAMOS::GetGeoVolume() const {
 
 inline KVHashList *KVVAMOS::GetListOfCalibrators()   const { return fCalibrators;  }
 inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrators; }
+inline Int_t       KVVAMOS::GetTrigger()             const { return 1;             }
 inline KVList     *KVVAMOS::GetVACQParams()          const { return fVACQParams;   }
 
 
@@ -187,6 +190,7 @@ inline void KVVAMOS::SetAngle ( Double_t angle ){
 
 inline void KVVAMOS::SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;   }
 inline void KVVAMOS::SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho; }
+inline void KVVAMOS::SetCurrentRunNumber( UInt_t run ){ fCurrentRun = run; }
 
 
 //................  global variable

@@ -3,6 +3,7 @@
 
 #include "KVSpectroDetector.h"
 #include "KVIonRangeTable.h"
+#include "KVIonRangeTableMaterial.h"
 #include "TGeoBBox.h"
 
 ClassImp(KVSpectroDetector)
@@ -84,12 +85,6 @@ void KVSpectroDetector::Copy (TObject & obj)
 }
 //________________________________________________________________
 
-void KVSpectroDetector::AddAbsorber(KVMaterial* mat){
-   //  Obsolete method.
-	Warning("AddAbsorber","Obsolete method");	
-}
-//________________________________________________________________
-
 void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix, Bool_t active){
 	// Add an absorber material defined  as a daughter volume TGeoVolume.
 	// This volume is defined by its material and its shape.
@@ -112,13 +107,12 @@ void KVSpectroDetector::AddAbsorber(const Char_t* material, TGeoShape* shape, TG
 
 
 	TString vol_name;	
-	vol_name.Form("%s_%d_%s",GetName(),fNumVol,material);
+	vol_name.Form("%s_%d_%s",GetName(),fNumVol++,material);
 	TGeoVolume* vol = GetGeoVolume(vol_name.Data(), material, shape);
 	if(!vol){
  		Error("AddAbsorber","Impossible to build the volume");
 		return;
 	}
-	fNumVol++;
 	AddAbsorber(vol,matrix,active);
 }
 //________________________________________________________________
@@ -134,6 +128,7 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 
 	if(active) SetActiveVolume(vol);
 
+	AddAbsorberLayer( vol, active );
 
 	TGeoVolume* prev_vol = GetAbsGeoVolume();
 
@@ -164,10 +159,36 @@ void KVSpectroDetector::AddAbsorber(TGeoVolume* vol, TGeoMatrix* matrix, Bool_t 
 }
 //________________________________________________________________
 
-void KVSpectroDetector::AddToTelescope(KVTelescope * T, const int){
-   //  Obsolete method.
-	Warning("AddToTelescope","Obsolete method");	
+void KVSpectroDetector::AddAbsorberLayer( TGeoVolume *vol, Bool_t active){
+ 	// Add an absorber layer to the detector made from the shape of the
+ 	// volume.
+    // If active = kTRUE the layer is set active.
 
+    TGeoMaterial* material = vol->GetMaterial();
+    KVIonRangeTableMaterial* irmat = KVMaterial::GetRangeTable()->GetMaterial(material);
+    if(!irmat){
+        Warning("AddAbsorberLayer", "Unknown material %s/%s used in layer %s of detector %s",
+                material->GetName(), material->GetTitle(), vol->GetName(), GetName());
+        return;
+    }
+    TGeoBBox* sh = dynamic_cast<TGeoBBox*>(vol->GetShape());
+    if(!sh) {
+        Warning("AddAbsorberLayer", "Unknown shape class %s used in layer %s of detector %s",
+                vol->GetShape()->ClassName(), vol->GetName(), GetName());
+        return; // just in case - for now, all shapes derive from TGeoBBox...
+    }
+    Double_t width = 2.*sh->GetDZ(); // thickness in centimetres
+    KVMaterial* absorber;
+    if( irmat->IsGas() ){
+        Double_t p = material->GetPressure();
+        Double_t T = material->GetTemperature();
+        absorber = new KVMaterial(irmat->GetType(), width, p, T);
+    }
+    else
+        absorber = new KVMaterial(irmat->GetType(), width);
+	KVDetector::AddAbsorber(absorber);
+	ClearHits();
+    if( active ) SetActiveLayer( GetListOfAbsorbers()->GetEntries()-1 );
 }
 //________________________________________________________________
 
@@ -275,6 +296,8 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 		vol_as->AddNode( GetAbsGeoVolume(), 1, rot );
 		SetAbsGeoVolume( vol_as );
 	}
+
+	UpdateVolumeAndNodeNames();
 
 	if( !ref_vol ) return kTRUE;
 
@@ -620,31 +643,11 @@ void KVSpectroDetector::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
 }
 //________________________________________________________________
 
-UInt_t KVSpectroDetector::GetTelescopeNumber() const{
-	//  Obsolete method.
-	Warning("GetTelescopeNumber","Obsolete method");	
-
-	return GetNumber();
-}
-//________________________________________________________________
-
-void KVSpectroDetector::GetVerticesInOwnFrame(TVector3* corners, Double_t depth, Double_t layer_thickness){
-	//  Obsolete method.
-	Warning("GetVerticesInOwnFrame","Obsolete method");	
-}
-//________________________________________________________________
-
 void KVSpectroDetector::SetActiveVolume(TGeoVolume* vol){
 	// Set the volume in the list of "active" volumes, i.e. detectors
 	// in which a signal is measured.
 	if(!fActiveVolumes) fActiveVolumes = new KVList( kFALSE );
 	fActiveVolumes->Add(vol);
-}
-//________________________________________________________________
-
-void KVSpectroDetector::SetMaterial(const Char_t * type){
-	// Set the same material of all the active volumes.
-	Warning("SetMaterial","To be implemented");
 }
 //________________________________________________________________
 
@@ -654,6 +657,37 @@ Bool_t KVSpectroDetector::PositionIsOK(){
 	// GetPosition(...). 
 	// Method to be overwritten in the child classes. 
 	return kTRUE;
+}
+//________________________________________________________________
+
+void KVSpectroDetector::UpdateVolumeAndNodeNames(){
+	// Update the names of Volumes and the names of the Nodes of this
+	// detector.
+	// The name of the volume representing the detector (returned
+	// by GetAbsGeoVolume()) is DET_<detector name>. 
+	// The name of the active volumes is ACTIVE_<detector name>_<material name>.
+	// The name of the other volumes is <detector name>_<material name>.
+
+	GetAbsGeoVolume()->SetName( Form("DET_%s", GetName() ) );
+	TObjArray  *nodes = GetAbsGeoVolume()->GetNodes();
+	TGeoNode   *node  = NULL;
+	TGeoVolume *vol   = NULL;
+
+	TIter next( nodes );
+	while( (node = (TGeoNode *)next()) ){
+		TString name, nname;
+		vol = node->GetVolume();
+		name.Form("%s_%s", GetName(), vol->GetMaterial()->GetName());
+		if( GetActiveVolumes()->Contains( vol ) )
+			name.Prepend("ACTIVE_");
+		vol->SetName( name.Data() );
+		nname = name;
+		Int_t i=0;
+		while( nodes->FindObject( nname.Data() ) )
+			nname.Form("%s_%d",name.Data(), ++i);
+		node->SetName( nname.Data() );
+		node->SetNumber( i );
+	}
 }
 //________________________________________________________________
 

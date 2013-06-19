@@ -31,7 +31,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		virtual void Calibrate();
 		virtual void Clear(Option_t * t = "");
-		virtual void Reconstruct( KVList *detl );
+ 		virtual void Identify();
+		virtual void ReconstructTrajectory();
 		virtual void ReconstructFPtraj();
 //		virtual void ReconstructFPtrajByFitting();
 		virtual void ReconstructLabTraj();
@@ -94,8 +95,24 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		inline TVector3 GetFocalPlaneDirection() const{ return fRT.dirFP;  }
    		inline TVector3 GetLabDirection()        const{ return fRT.dirLab; }
 
+ 		inline virtual void SetIDCode(UShort_t code_mask);
+   		inline virtual void SetECode(UChar_t code_mask);
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };
+//____________________________________________________________________________________________//
 
+inline void KVVAMOSReconNuc::SetIDCode(UShort_t code_mask)
+{
+   //Sets code for identification
+   GetCodes().SetIDCode(code_mask);
+}
+
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetECode(UChar_t code_mask)
+{
+   //Sets code for energy calibration
+   GetCodes().SetECode(code_mask);
+}
 #endif

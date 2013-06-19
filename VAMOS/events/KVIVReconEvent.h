@@ -5,63 +5,66 @@
 #define __KVIVRECONEVENT_H
 
 #include "KVINDRAReconEvent.h"
-#include "KVVAMOSReconNuc.h"
-#include "KVVAMOSCodes.h"
+#include "KVVAMOSReconEvent.h"
 
 class KVIVReconEvent : public KVINDRAReconEvent
 {
-	private:
-
-		KVVAMOSCodes *fVAMOSCodeMask; //!codes accepted for "good" VAMOS nucleus (IsOK)
-		inline KVVAMOSCodes *GetVAMOSCodeMask(){
-      		if (!fVAMOSCodeMask)
-         		fVAMOSCodeMask = new KVVAMOSCodes;
-      		return fVAMOSCodeMask;
-   		};
-
 
 	protected:
 
-		KVVAMOSReconNuc *fVAMOSnuc; //!VAMOS nucleus of this event
-		Bool_t fNucInVAMOS;         //flag set when  a nucleus reconstructed in VAMOS
-
+		KVVAMOSReconEvent *fVAMOSev; //->VAMOS event
 
    	public:
 
-   		KVIVReconEvent(Int_t mult = 50, const char *classname = "KVINDRAReconNuc");
-   		void init();
+   		KVIVReconEvent(Int_t mult_indra = 50, const char *cl_name_indra = "KVINDRAReconNuc", Int_t mult_vamos = 5, const char *cl_name_vamos = "KVVAMOSReconNuc");
+   	
+		void init();
    		virtual ~KVIVReconEvent();
-
-
-   		void AcceptECodesVAMOS (UChar_t  code);
-		void AcceptFPCodesVAMOS(UInt_t   code);
-		void AcceptIDCodesVAMOS(UShort_t code);
 
    		virtual void     Clear(Option_t * opt = "");
 		virtual Int_t    GetTotalMult(Option_t * opt = "");
-   		KVVAMOSReconNuc *GetVAMOSNuc(Option_t *opt = "");
 		virtual void     Print(Option_t * option = "") const;
 
 
-		virtual void   CalibrateAndIdentifyVAMOSEvent();
-		virtual Bool_t ReconstructVAMOSEvent();
+		void AcceptECodesINDRA (UChar_t  code){ AcceptECodes( code ); }
+		void AcceptECodesVAMOS (UChar_t  code){ fVAMOSev->AcceptECodes ( code ); }
+		void AcceptFPCodesVAMOS(UInt_t code  ){ fVAMOSev->AcceptFPCodes( code ); }
+		void AcceptIDCodesINDRA(UShort_t code){ AcceptIDCodes( code ); }
+		void AcceptIDCodesVAMOS(UShort_t code){ fVAMOSev->AcceptIDCodes( code ); }
 
-		inline void AcceptECodesINDRA (UChar_t  code){ AcceptECodes( code ); }
-		inline void AcceptIDCodesINDRA(UShort_t code){ AcceptIDCodes( code ); }
-
-		inline Bool_t CheckINDRACodes(KVINDRACodeMask & code) {
+		Bool_t CheckINDRACodes(KVINDRACodeMask & code) {
       		//returns kTRUE if "code" is compatible with INDRA event's code mask
       		//if no code mask set for event, returns kTRUE in all cases
          	return CheckCodes( code );
    		}
 
-		inline Bool_t CheckVAMOSCodes(KVVAMOSCodes & code) {
+		Bool_t CheckVAMOSCodes(KVVAMOSCodes & code) {
       		//returns kTRUE if "code" is compatible with VAMOS event's code mask.
       		//If no code mask set for event, returns kTRUE in all cases
-      		if (!fVAMOSCodeMask)
-         		return kTRUE;
-      		return ((*fVAMOSCodeMask) & code);
+      		return fVAMOSev->CheckCodes( code );
    		}
+
+ 		KVVAMOSReconNuc *GetNextNucleus(Option_t * opt = ""){ return fVAMOSev->GetNextNucleus( opt ); }
+		
+     	KVVAMOSReconNuc *GetNucleus(Int_t n_nuc) const{ return fVAMOSev->GetNucleus( n_nuc ); }
+
+		Int_t GetINDRAMult(Option_t * opt = ""){ return KVINDRAReconEvent::GetMult( opt ); }
+
+		Int_t GetVAMOSMult(Option_t * opt = ""){ return fVAMOSev->GetMult( opt ); }
+		void  IdentifyVAMOSEvent_A(){ fVAMOSev->IdentifyEvent_A(); }
+
+		void  IdentifyVAMOSEvent_Z(){ fVAMOSev->IdentifyEvent_Z(); }
+
+		void ResetGetNextNucleus(){ fVAMOSev->ResetGetNextNucleus(); }
+
+		void  ReconstructVAMOSEvent(KVDetectorEvent *kvde){ fVAMOSev->ReconstructEvent( kvde ); }
+
+		virtual void SetNumber( UInt_t num ){ KVINDRAReconEvent::SetNumber( num ); fVAMOSev->SetNumber( num ); }
+
+		virtual void SetPartSeedCond(const Char_t* cond){
+			KVINDRAReconEvent::SetPartSeedCond( cond );
+			fVAMOSev->SetPartSeedCond( cond );
+		}
 
    		ClassDef(KVIVReconEvent,1)//Event reconstructed from energy losses in INDRA array and VAMOS spectrometer
 };

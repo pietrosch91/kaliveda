@@ -1,59 +1,39 @@
-/*
-$Id: KVIVReconIdent.h,v 1.2 2007/06/08 15:49:10 franklan Exp $
-$Revision: 1.2 $
-$Date: 2007/06/08 15:49:10 $
-*/
+#ifndef KVIVReconIdent_h
+#define KVIVReconIdent_h
 
-//Created by KVClassFactory on Thu Jun  7 13:52:25 2007
-//Author: e_ivamos
-
-#ifndef __KVIVRECONIDENT_H
-#define __KVIVRECONIDENT_H
-
-//#include "KVReconIdent.h"
-#include "KVIDGridManager.h"
-#include <string>
-#include <string.h>
-
-#include "IonisationChamber.h"
-#include "KVSiliconVamos.h"
-#include "KVCsIVamos.h"
-#include "KVDetector.h"
-
-#define ID_SWITCH -1
 #include "KVINDRAReconIdent.h"
 
-class Analysisv;
-class LogFile;
+class KVIVReconIdent: public KVINDRAReconIdent {
 
-class KVIVReconIdent : public KVINDRAReconIdent
-{
-   Analysisv* fAnalyseV;//VAMOS calibration
-   LogFile* fLogV;//VAMOS calibration log  
-   
-   public:
+	protected:
 
-   KVIVReconIdent();
-   virtual ~KVIVReconIdent();
-   
-   void InitAnalysis();
-   void InitRun();
-   Bool_t Analysis();
-   void EndAnalysis();
-   
-   Bool_t LoadGrids(); 
-   Int_t event;
-   Int_t M_INDRA;
-   Float_t  thetavam,brho;
-   Double_t  brhorun;
-   Double_t  thetavamrun;
-   
-   KVINDRAReconNuc *part;
-   KVTelescope *kvt_sicsi;
-   KVDetector *kvd_si;
-   KVDetector *kvd_csi;   
-   KVDetector *gap; 	  	
-   ClassDef(KVIVReconIdent,1)//Identification and reconstruction of VAMOS and INDRA events from recon data
+		Bool_t fIsIVevent; // flag set when the event class inherits from KVIVReconEvent;
+
+
+ 	public:
+
+    	KVIVReconIdent() { 
+			fIsIVevent = kFALSE;
+ 	   	}
+   		virtual ~ KVIVReconIdent() {}
+
+   		virtual void InitRun();
+   		virtual void InitAnalysis();
+   		virtual Bool_t Analysis();
+   		virtual void EndAnalysis();
+
+		virtual void Init( TTree *tree){
+			//Before to call KVINDRAReconIdent::Init change the name of 
+			//the branch of reconstructed events which will be read  if 
+			//its class is a KVIVReconEvent and not a KVINDRAReconEvent
+			if(!tree) return;
+			TBranch *br = (TBranch *)tree->GetListOfBranches()->First();
+			if( TClass::GetClass(br->GetClassName())->InheritsFrom("KVINDRAReconEvent") )
+				SetINDRAReconEventBranchName( br->GetName() );
+			KVINDRAReconIdent::Init(tree);
+		}
+
+   		ClassDef(KVIVReconIdent, 0) //Identification and reconstruction of VAMOS and INDRA events from recon data 
 };
 
 #endif
