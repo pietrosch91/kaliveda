@@ -291,7 +291,9 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 	// $KVROOT/KVFiles/<DataSet>/VAMOSgeometry directory.
 	// Returns the number of files read.
 
-	
+	// keep the current workind directory 
+	TString old_dir = gSystem->WorkingDirectory();
+
 	// Reading geometry iformations in .cao files
 	const Char_t dirname[] = "VAMOSgeometry";
 	TString path( GetKVFilesDir() );
@@ -311,9 +313,14 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 		if( !path.EndsWith(".cao") ) continue;
  		infos->ReadFile(path.Data(),kEnvAll); 
 		Nfiles++;
-		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
 	}
 	delete lfiles;
+
+	// The call of TSystemDirectory::GetListOfFiles() can
+	// change the working directory then we come back to the
+	// previous one
+	gSystem->ChangeDirectory( old_dir.Data() );
+
 	return Nfiles;
 }
 //________________________________________________________________
