@@ -641,12 +641,15 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
     }
     Double_t master[3*50];
     Double_t points[3*50];
+    const Double_t* origin = GetShape()->GetOrigin();
     Double_t dz = GetShape()->GetDZ();
     // This will generate a point on the (-DZ) face of the bounding box of the shape
     Bool_t ok1 = GetShape()->TGeoBBox::GetPointsOnFacet(1,50,points);
     // We move the point slightly inside the volume to test if it actually corresponds
     // to a point on the shape's facet
     points[2]+=dz/100.;
+    // Correct for offset of centre of shape
+    for(int i=0;i<3;i++) points[i]+=origin[i];
     Bool_t ok2 = GetShape()->Contains(points);
     if(!ok1){
         ::Error("KVPosition::GetRandomPointOnEntranceWindow",
@@ -660,10 +663,13 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
        while(np<50){
           Double_t* npoint = points+3*np;
           npoint[2]+=dz/100.;
-          if(GetShape()->Contains(npoint)) break;
+          // Correct for offset of centre of shape
+          for(int i=0;i<3;i++) npoint[i]+=origin[i];
+          ok2=GetShape()->Contains(npoint);
+          if(ok2) break;
           np++;
        }
-       if(np==50){
+       if(!ok2){
         ::Error("KVPosition::GetRandomPointOnEntranceWindow",
                 "Cannot generate points for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
         return GetCentreOfEntranceWindow();
@@ -691,7 +697,8 @@ TVector3 KVPosition::GetCentreOfEntranceWindow() const
         return TVector3();
     }
     Double_t master[3];
-    Double_t points[]={0,0,-GetShape()->GetDZ()};
+    const Double_t* origin = GetShape()->GetOrigin();
+    Double_t points[]={origin[0],origin[1],origin[2]-GetShape()->GetDZ()};
     GetMatrix()->LocalToMaster(points, master);
     return TVector3(master);
 }

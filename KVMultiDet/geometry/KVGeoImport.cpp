@@ -62,9 +62,11 @@ ClassImp(KVGeoImport)
 // (the "STRUCT_" and "DET_" parts are stripped off).
 ////////////////////////////////////////////////////////////////////////////////
 
-KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray * m) : KVGeoNavigator(g)
+KVGeoImport::KVGeoImport(TGeoManager* g, KVIonRangeTable* r, KVMultiDetArray * m, Bool_t create) : KVGeoNavigator(g), fCreateArray(create)
 {
    // Import geometry described by TGeoManager into KVMultiDetArray object
+    // if create=kFALSE, we do not create any detectors etc., but just set up
+    // the required links between the geometry and the existing array detectors
     fArray = m;
     fRangeTable = r;
 }
@@ -81,29 +83,31 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
 
     KVDetector* detector = GetCurrentDetector();
     if(!detector) return;
-    if(!fCurrentGroup){
-        if(detector->GetGroup()) {
-            fCurrentGroup=detector->GetGroup();
+    if(fCreateArray){
+        if(!fCurrentGroup){
+            if(detector->GetGroup()) {
+                fCurrentGroup=detector->GetGroup();
+            }
+            else {
+                fCurrentGroup = new KVGroup;
+                fCurrentGroup->SetNumber(++fGroupNumber);
+                fCurrentGroup->Add(detector);
+                fArray->Add(fCurrentGroup);
+            }
         }
-        else {
-            fCurrentGroup = new KVGroup;
-            fCurrentGroup->SetNumber(++fGroupNumber);
-            fCurrentGroup->Add(detector);
-            fArray->Add(fCurrentGroup);
-        }
-    }
-    else
-    {
-        KVGroup* det_group = detector->GetGroup();
-        if(!det_group) {
-            fCurrentGroup->Add(detector);
-        }
-        else {
-            if(det_group!=fCurrentGroup)
-                Warning("ParticleEntersNewVolume",
-                        "Detector %s : already belongs to %s, now seems to be in %s",
-                        detector->GetName(), det_group->GetName(),
-                        fCurrentGroup->GetName());
+        else
+        {
+            KVGroup* det_group = detector->GetGroup();
+            if(!det_group) {
+                fCurrentGroup->Add(detector);
+            }
+            else {
+                if(det_group!=fCurrentGroup)
+                    Warning("ParticleEntersNewVolume",
+                            "Detector %s : already belongs to %s, now seems to be in %s",
+                            detector->GetName(), det_group->GetName(),
+                            fCurrentGroup->GetName());
+            }
         }
     }
     detector->GetNode()->SetName(detector->GetName());
@@ -138,21 +142,30 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
                 count++;
         }
     }
-    fArray->SetGeometry(GetGeometry());
-    KVGeoNavigator* nav = fArray->GetNavigator();
-    nav->SetDetectorNameFormat(fDetNameFmt);
-    for(register int i=0; i<fStrucNameFmt.GetEntries(); i++){
-        KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);
-        nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
+    if(fCreateArray){
+        fArray->SetGeometry(GetGeometry());
+        KVGeoNavigator* nav = fArray->GetNavigator();
+        nav->SetDetectorNameFormat(fDetNameFmt);
+        for(register int i=0; i<fStrucNameFmt.GetEntries(); i++){
+            KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);
+            nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
+        }
+        fArray->CalculateDetectorSegmentationIndex();
     }
-    fArray->CalculateDetectorSegmentationIndex();
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",
          "Imported %d detectors into array", fArray->GetDetectors()->GetEntries());
-    fArray->CreateIDTelescopesInGroups();
-    Info("ImportGeometry",
-         "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries());
+    if(fCreateArray){
+        fArray->CreateIDTelescopesInGroups();
+        Info("ImportGeometry",
+             "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries());
+    }
+}
+
+void KVGeoImport::SetLastDetector(KVDetector *d)
+{
+    fLastDetector=d;
 }
 
 KVDetector* KVGeoImport::GetCurrentDetector()
@@ -169,7 +182,14 @@ KVDetector* KVGeoImport::GetCurrentDetector()
 
     // has detector already been built ? if not, do it now
     KVDetector* det = fArray->GetDetector(detector_name);
-    if(!det) {
+    if(!fCreateArray){
+        if(det){
+            // link existing detector matrix and shape
+            det->SetMatrix(GetCurrentMatrix());
+            det->SetShape((TGeoBBox*)detector_volume->GetShape());
+        }
+    }
+    else if(!det) {
         det = BuildDetector(detector_name, detector_volume);
         if(det) {
             det->SetMatrix(GetCurrentMatrix());
