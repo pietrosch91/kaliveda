@@ -264,7 +264,6 @@ void KVVAMOS::InitGeometry(){
 	// placed at the focal plane.
 
    	TGeoNode   *node = NULL;
-   	TGeoVolume *vol  = NULL;
    	TString     vname;
 
    	// we give the unique ID for each node to simplify navigation
@@ -567,6 +566,12 @@ void KVVAMOS::SetGroupsAndIDTelescopes(){
 
 	//now read list of groups and create list of ID telescopes
 	CreateIDTelescopesInGroups();
+
+	//Set uniqueID for each ID telescopes
+	TIter next(GetListOfIDTelescopes());
+	TObject *idt = NULL;
+	Int_t     id = 0;
+	while( (idt = next()) ) idt->SetUniqueID( id++ );
 }
 //________________________________________________________________
 
