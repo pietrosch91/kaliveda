@@ -44,6 +44,8 @@ class KVIVReconEvent : public KVINDRAReconEvent
       		return fVAMOSev->CheckCodes( code );
    		}
 
+		void  CalibrateVAMOSEvent(){ fVAMOSev->CalibrateEvent(); }
+
  		KVVAMOSReconNuc *GetNextNucleus(Option_t * opt = ""){ return fVAMOSev->GetNextNucleus( opt ); }
 		
      	KVVAMOSReconNuc *GetNucleus(Int_t n_nuc) const{ return fVAMOSev->GetNucleus( n_nuc ); }
