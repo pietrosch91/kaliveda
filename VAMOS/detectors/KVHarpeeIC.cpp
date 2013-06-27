@@ -296,3 +296,30 @@ void KVHarpeeIC::SetACQParams(){
 		}
 	}
 }
+//________________________________________________________________
+
+void KVHarpeeIC::SetPressure(Double_t p){
+  	// Set the same  pressure for each gas layer (in torr)
+
+   	if(!IsGas()) return;
+
+   	KVMaterial *abs = NULL;
+   	TIter next( GetListOfAbsorbers() ); 
+   	while( ( abs = (KVMaterial *)next()) ){
+   		if(abs->IsGas()) abs->SetPressure(p);
+   	}
+}
+//________________________________________________________________
+
+void KVHarpeeIC::SetTemperature(Double_t t){
+	// Set the same temperature for each gaz layer.
+   	// The units are: degrees celsius
+
+   	if(!IsGas()) return;
+
+   	KVMaterial *abs = NULL;
+   	TIter next( GetListOfAbsorbers() ); 
+   	while( ( abs = (KVMaterial *)next()) ){
+   		if(abs->IsGas()) abs->SetTemperature(t);
+   	}
+}

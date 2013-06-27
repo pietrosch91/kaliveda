@@ -37,7 +37,8 @@ class KVHarpeeIC : public KVVAMOSDetector
    		virtual Bool_t    IsECalibrated() const;
    		virtual Bool_t    PositionIsOK();
 		virtual void      SetACQParams();
-
+ 		virtual void      SetPressure(Double_t);
+   		virtual void      SetTemperature(Double_t);
    		// ------ inline functions ----------------------//
 
 		virtual KVString &GetACQParamTypes();
