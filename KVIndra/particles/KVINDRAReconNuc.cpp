@@ -726,9 +726,9 @@ void KVINDRAReconNuc::Calibrate()
 	if(GetRingNumber()<10){
 		CalibrateRings1To9();
 		SetIsCalibrated();
-		 //add correction for target energy loss - charged particles only
+         //add correction for target energy loss - moving charged particles only!
 		Double_t E_targ = 0.;
-		if(GetZ()) {
+        if(GetZ() && GetEnergy()>0) {
 			E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
 			SetTargetEnergyLoss( E_targ );
 		}
