@@ -298,15 +298,15 @@ void KVHarpeeIC::SetACQParams(){
 }
 //________________________________________________________________
 
-void KVHarpeeIC::SetPressure(Double_t p){
-  	// Set the same  pressure for each gas layer (in torr)
+void KVHarpeeIC::SetPressure(Double_t p /* mbar */){
+  	// Set the same  pressure for each gas layer (in mbar)
 
    	if(!IsGas()) return;
 
    	KVMaterial *abs = NULL;
    	TIter next( GetListOfAbsorbers() ); 
    	while( ( abs = (KVMaterial *)next()) ){
-   		if(abs->IsGas()) abs->SetPressure(p);
+   		if(abs->IsGas()) abs->SetPressure(p*KVUnits::mbar);
    	}
 }
 //________________________________________________________________
