@@ -752,6 +752,8 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
 	//Overwrite the same method of KVMultiDetArray in order to use another
 	//format for the URI of the plugins associated to VAMOS.
     //Create a KVIDTelescope from the two detectors and add it to the list.
+    //If no detector is segmented (i.e. KVDetector::GetSegment()<1) then no
+    //KVIDTelescope is created.
     //
     // # For each pair of detectors we look for now a plugin with one of the following names:
     // #    [name_of_dataset].name_of_vamos.de_detector_type[de detector thickness]-e_detector_type[de detector thickness]
@@ -768,6 +770,8 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //of the array.
 
     if ( !(de->IsOK() && e->IsOK()) ) return;
+
+	if( (de->GetSegment()<1) &&  (e->GetSegment()<1) ) return;
     
 	KVIDTelescope *idt = NULL;
 
