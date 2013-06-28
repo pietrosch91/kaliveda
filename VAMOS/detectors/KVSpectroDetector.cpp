@@ -422,7 +422,8 @@ TGeoMedium* KVSpectroDetector::GetGeoMedium(const Char_t* mat_name){
    		// e.g. C3F8_37.5 for C3F8 gas at 37.5 torr
    		// each gas with different pressure has to have a separate TGeoMaterial/Medium
    		matName = GetName();
-   		if(IsGas()) medName.Form("%s_%f", matName.Data(), GetPressure());
+    	KVIonRangeTableMaterial* irmat = KVMaterial::GetRangeTable()->GetMaterial(matName.Data());
+   		if(irmat->IsGas()) medName.Form("%s_%f", matName.Data(), GetPressure());
    		else medName = GetName();
   	} 
 	else{
@@ -447,7 +448,7 @@ TGeoMedium* KVSpectroDetector::GetGeoMedium(const Char_t* mat_name){
 						,matName.Data(),GetRangeTable()->GetName());
 				return NULL;
 			}
-			if(IsGas())	gmat->SetPressure( GetPressure() );
+			gmat->SetPressure( GetPressure() );
 			gmat->SetTemperature( GetTemperature() );
 			gmat->SetTransparency(0);
       	}

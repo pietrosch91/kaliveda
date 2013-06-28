@@ -308,6 +308,8 @@ void KVHarpeeIC::SetPressure(Double_t p /* mbar */){
    	while( ( abs = (KVMaterial *)next()) ){
    		if(abs->IsGas()) abs->SetPressure(p*KVUnits::mbar);
    	}
+
+	KVDetector::SetPressure( p*KVUnits::mbar );
 }
 //________________________________________________________________
 

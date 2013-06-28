@@ -53,6 +53,6 @@ inline  KVString &KVHarpeeIC::GetACQParamTypes(){ return fACQParamTypes; }
 inline  KVString &KVHarpeeIC::GetPositionTypes(){ return fPositionTypes; }
 inline  Double_t KVHarpeeIC::GetPressure() const /* mbar */ {
     // Give pressure of gas in mbar
-    return GetActiveLayer()->GetPressure()/KVUnits::mbar;
+    return KVDetector::GetPressure()/KVUnits::mbar;
 }
 #endif
