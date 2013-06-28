@@ -101,6 +101,10 @@ class KVVAMOSDetector : public KVSpectroDetector
 	   		return KVVAMOS::GetPositionTypeIdxFromID( id );
    		}
 
+		inline Bool_t IsUsedToMeasure( const Char_t *type ){
+			return KVVAMOS::IsUsedToMeasure( type, this );
+		}
+
    		ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer
 };
 

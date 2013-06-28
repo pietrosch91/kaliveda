@@ -944,20 +944,31 @@ UInt_t KVVAMOS::CalculateUniqueID( KVBase *param, KVVAMOSDetector *det ){
 //________________________________________________________________
 
 UChar_t KVVAMOS::GetACQParamTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
-	KVString *types;
-	if( det ) types = &(det->GetACQParamTypes());
-	else      types = &(GetACQParamTypes());
-
+	KVString *types = det ? &det->GetACQParamTypes() : &GetACQParamTypes();
 	Ssiz_t i = types->Index( Form(":%s,", type) ); 
 	return (i<0 ? 9 : types->Data()[i-1] - '0' );
 }
 //________________________________________________________________
 
 UChar_t KVVAMOS::GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
-	KVString *types;
-	if( det ) types = &(det->GetPositionTypes());
-	else      types = &(GetPositionTypes());
-
+	KVString *types = det ? &det->GetPositionTypes() : &GetPositionTypes();
 	Ssiz_t i = types->Index( Form(":%s,", type) ); 
 	return (i<0 ? 9 : types->Data()[i-1] - '0' );
+}
+//________________________________________________________________
+
+Bool_t KVVAMOS::IsUsedToMeasure( const Char_t *type, KVVAMOSDetector *det){
+	// Returns true if VAMOS (det=NULL) or if a detector (det) is used
+	// for the measurment of a quantity (time, position, energy ...).
+	// 'type' can be: E, T, T_HF, Q, X, Y, ...
+	// The quantities measured by VAMOS/detector are given by
+	// GetACQParamTypes or GetPositionTypes
+	
+	KVString *types = det ? &det->GetACQParamTypes() : &GetACQParamTypes();
+	Ssiz_t i = types->Index( Form(":%s,", type) ); 
+	if( i >= 0 ) return kTRUE;
+
+	types = det ? &det->GetPositionTypes() : &GetPositionTypes();
+	i = types->Index( Form(":%s,", type) ); 
+	return i >= 0; 
 }

@@ -116,6 +116,7 @@ class KVVAMOS :  public KVMultiDetArray
 		static UChar_t   GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det = NULL );
 		static UChar_t   GetPositionTypeIdxFromID( UInt_t id ){ return (id/10000)%10;	}
 		static KVString &GetPositionTypes(){ return fPositionTypes;	}
+		static Bool_t    IsUsedToMeasure( const Char_t *type, KVVAMOSDetector *det = NULL );
 
    		ClassDef(KVVAMOS,1)//VAMOS: variable mode spectrometer at GANIL
 };
