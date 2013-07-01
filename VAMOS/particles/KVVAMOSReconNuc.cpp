@@ -58,49 +58,54 @@ void KVVAMOSReconNuc::init()
 	//default initialisations
 	if (gDataSet)
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
+
+	fStripFoilEloss = 0;
 }
 //________________________________________________________________
 
 void KVVAMOSReconNuc::Calibrate(){
- //Calculate and set the energy of a (previously identified) reconstructed particle,
-    //including an estimate of the energy loss in the target.
+ //Calculate and set the energy of a (previously identified) reconstructed nucleus,
+    //including an estimate of the energy loss in the stripping foil and in the target.
     //
-    //Starting from the detector in which the particle stopped, we add up the
+    //Starting from the detector in which the nucleus stopped, we add up the
     //'corrected' energy losses in all of the detectors through which it passed.
     //Whenever possible, for detectors which are not calibrated or not working,
-    //we calculate the energy loss. Measured & calculated energy losses are also
-    //compared for each detector, and may lead to new particles being seeded for
-    //subsequent identification. This is done by KVIDTelescope::CalculateParticleEnergy().
+    //we calculate the energy loss. 
     //
-    //For particles whose energy before hitting the first detector in their path has been
-    //calculated after this step we then add the calculated energy loss in the target,
-    //using gMultiDetArray->GetTargetEnergyLossCorrection().
-//	Info("Calibrate","IN");
+    //For nuclei whose energy before hitting the first detector in their path has been
+    //calculated after this step we then add the calculated energy loss in stripping foil and in the target,
+    //using:
+    //   gVamos->GetStripFoilEnergyLossCorrection();
+    //   gMultiDetArray->GetTargetEnergyLossCorrection().
+
+	
+	//	Info("Calibrate","IN");
 
 	if( 1 ) CalibrateFromDetList();
 	else    CalibrateFromTracking();
 
     if ( IsCalibrated() && GetEnergy()>0 ){
+
+ 	   	// set angles of momentum from trajectory reconstruction
+        SetTheta( GetThetaL() );
+        SetPhi  ( GetPhiL() - 90 );
+
         if(GetZ()) {
 
  			Double_t E_tot = GetEnergy();
 			Double_t E_sfoil = 0.;
         	Double_t E_targ  = 0.;
 
-			//add correction for strip foil energy loss - moving charged particles only
-//			E_sfoil = gVamos->GetStripFoilEnergyLossCorrection(this);
-//        	SetStripFoilEnergyLoss( E_sfoil );
-//			SetEnergy( E_tot += E_sfoil );
+			//add correction for stripping foil energy loss - moving charged particles only
+			E_sfoil = gVamos->GetStripFoilEnergyLossCorrection(this);
+        	SetStripFoilEnergyLoss( E_sfoil );
+			SetEnergy( E_tot += E_sfoil );
 
         	//add correction for target energy loss - moving charged particles only
-        	E_targ = gVamos->GetTargetEnergyLossCorrection(this);
+        	E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
         	SetTargetEnergyLoss( E_targ );
 			SetEnergy( E_tot += E_targ );
         }
-
-        // set angles of momentum from trajectory reconstruction
-        SetTheta( GetThetaL() );
-        SetPhi  ( GetPhiL() - 90 );
     }
 
 //	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",GetEnergy(), GetTheta(), GetPhi());
