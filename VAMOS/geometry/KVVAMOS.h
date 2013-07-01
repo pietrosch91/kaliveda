@@ -17,6 +17,7 @@ class TEnv;
 class KVCalibrator;
 class KVDetector;
 class KVVAMOSTransferMatrix;
+class KVReconstructedNucleus;
 
 class KVVAMOS :  public KVMultiDetArray
 {
@@ -42,6 +43,7 @@ class KVVAMOS :  public KVMultiDetArray
 		TGeoVolume *fFPvolume;     //!TGeoVolume centered on the focal plane
 		UInt_t      fGr;           //!Used to number groups
 		TGeoRotation          *fRotation;   //!rotation matrix around the target
+		KVMaterial            *fStripFoil; //strip foil used in experiment
 		KVVAMOSTransferMatrix *fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
 		KVList      *fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
 		TGeoVolume  *fVAMOSvol;    //!TGeoVolume of VAMOS 
@@ -78,9 +80,12 @@ class KVVAMOS :  public KVMultiDetArray
    		        void     FocalToTargetVect( const Double_t *focal, Double_t *target );
    		virtual KVList  *GetFiredDetectors( Option_t *opt="Pany" );
 		virtual void	 GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
+ 		virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );
+		        void     SetStripFoil( KVMaterial *foil );
+		        void     SetStripFoil( const Char_t *material, const Float_t area_density );
 		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );
    		        void     TargetToFocal( const Double_t *target, Double_t *focal );
    		        void     TargetToFocalVect( const Double_t *target, Double_t *focal );
@@ -98,6 +103,7 @@ class KVVAMOS :  public KVMultiDetArray
    		TGeoVolume   *GetGeoVolume()                        const;
 		KVHashList   *GetListOfCalibrators()                const;
    		KVList       *GetListOfVCalibrators()               const;
+		KVMaterial   *GetStripFoil()                        const;
 		Int_t         GetTrigger()                          const;
    		KVList       *GetVACQParams()                       const;
    		KVCalibrator *GetVCalibrator( const Char_t * type ) const;
@@ -164,6 +170,8 @@ inline TGeoVolume *KVVAMOS::GetGeoVolume() const {
 
 inline KVHashList *KVVAMOS::GetListOfCalibrators()   const { return fCalibrators;  }
 inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrators; }
+
+inline KVMaterial *KVVAMOS::GetStripFoil()           const { return fStripFoil;    }
 inline Int_t       KVVAMOS::GetTrigger()             const { return 1;             }
 inline KVList     *KVVAMOS::GetVACQParams()          const { return fVACQParams;   }
 
