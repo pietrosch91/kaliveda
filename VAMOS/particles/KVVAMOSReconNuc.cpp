@@ -75,35 +75,124 @@ void KVVAMOSReconNuc::Calibrate(){
     //For particles whose energy before hitting the first detector in their path has been
     //calculated after this step we then add the calculated energy loss in the target,
     //using gMultiDetArray->GetTargetEnergyLossCorrection().
+//	Info("Calibrate","IN");
 
-    KVIDTelescope* idt = GetIdentifyingTelescope();
-    idt->CalculateParticleEnergy(this);
-    if ( idt->GetCalibStatus() != KVIDTelescope::kCalibStatus_NoCalibrations ){
-        SetIsCalibrated();
-        //add correction for target energy loss - charged particles only
-        Double_t E_targ = 0.;
+	if( 1 ) CalibrateFromDetList();
+	else    CalibrateFromTracking();
+
+    if ( IsCalibrated() && GetEnergy()>0 ){
         if(GetZ()) {
+
+ 			Double_t E_tot = GetEnergy();
+			Double_t E_sfoil = 0.;
+        	Double_t E_targ  = 0.;
+
+			//add correction for strip foil energy loss - moving charged particles only
+//			E_sfoil = gVamos->GetStripFoilEnergyLossCorrection(this);
+//        	SetStripFoilEnergyLoss( E_sfoil );
+//			SetEnergy( E_tot += E_sfoil );
+
+        	//add correction for target energy loss - moving charged particles only
         	E_targ = gVamos->GetTargetEnergyLossCorrection(this);
         	SetTargetEnergyLoss( E_targ );
+			SetEnergy( E_tot += E_targ );
         }
-        Double_t E_tot = GetEnergy() + E_targ;
-        SetEnergy( E_tot );
 
-		// Set Energy codes
-		if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_OK )
-			SetECode( kECode1 );
-		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Calculated )
-			SetECode( kECode2 );
-		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Multihit )
-			SetECode( kECode2 );
-		else if( idt->GetCalibStatus() == KVIDTelescope::kCalibStatus_Coherency )
-			SetECode( kECode2 );
-
-        // set angles of the nucleus momentum from trajectory reconstruction
+        // set angles of momentum from trajectory reconstruction
         SetTheta( GetThetaL() );
         SetPhi  ( GetPhiL() - 90 );
     }
-	else SetECode( kECode0 );
+
+//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",GetEnergy(), GetTheta(), GetPhi());
+//cout<<endl;
+}
+//________________________________________________________________
+		
+void KVVAMOSReconNuc::CalibrateFromDetList(){
+   	// The energy of each particle is calculated as follows:
+   	//
+   	//      E = dE_1 + dE_2 + ... + dE_N
+   	//
+   	// dE_1, dE_2, ... = energy losses measured in each detector through which
+   	//                          the particle has passed (or stopped, in the case of dE_N).
+   	//                         These energy losses are corrected for (Z,A)-dependent effects
+   	//                          such as pulse-heigth defect in silicon detectors, losses in
+   	//                          windows of gas detectors, etc.
+   	//
+   	// If none of the detectors of the detector list is calibrated, the particle's energy cannot be calculated &
+   	// the code will be kECode0.
+	// Whenever possible, the energy loss for fired detectors which are uncalibrated
+   	// or not functioning is calculated.
+   	// If the detectors used to measured energy are not calibrated or not fired, or multihit, the
+   	// energy code will be kECode2.
+   	// Otherwise, the code will be kECode1.
+   	// The flag returned by IsCalibrated will be true is the energy code is different from kECode0.
+
+   	//status code
+
+	SetECode( kECode0 );
+
+   	//uncharged particles
+   	if(GetZ()==0) return;
+
+ 	SetECode( kECode1 );
+	SetIsCalibrated();
+
+	Double_t Etot = 0;
+	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
+	KVVAMOSDetector *det     = NULL;
+	TIter next( GetDetectorList() );
+	while( (det = (KVVAMOSDetector *)next()) ){
+
+		// transmission=kFALSE if particle stop in det
+		Bool_t transmission = ( det != stopdet );
+		Double_t Edet = (det->IsECalibrated() ? det->GetEnergy() : -1);
+
+		// The stopping detector has to be calibrated, hit by only one
+		// particle and its energy has to be positive
+		if( !transmission && ((det->GetNHits() != 1) || (Edet <= 0)) ){
+ 			SetECode( kECode0 );
+			SetIsUncalibrated();
+//			Info("CalibrateFromDetList","Stopping detector not calibrated");
+			return;
+		}
+
+		// Detector is calibrated and hit by only one particle
+		if( Edet > 0 &&  det->GetNHits() == 1  ){
+			det->SetEResAfterDetector( Etot );
+			Edet  = det->GetCorrectedEnergy( this, -1, transmission );
+			Etot += Edet;
+//			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s", Edet, det->GetName());
+			continue;
+		}
+
+		// Detector is uncalibrated/unfired/multihit. Calculate energy loss.
+        // calculate energy of particle before detector from energy after 
+        // detector
+
+		Edet = det->GetDeltaEFromERes( GetZ(), GetA(), Etot);
+        if( Edet< 0.0 ) Edet = 0.0;
+
+		if( det->GetNHits() > 1 ){
+            if(!( det->Fired() && det->IsECalibrated()) )
+                det->SetEnergyLoss(Edet + det->GetEnergy());// sum up calculated energy losses in uncalibrated detector
+//			Info("CalibrateFromDetList","MultiHit in %s", det->GetName());
+        }
+        else if( !det->Fired() || !det->IsECalibrated() )
+            det->SetEnergyLoss( Edet );
+
+        det->SetEResAfterDetector( Etot );
+        Edet  = det->GetCorrectedEnergy( this, Edet, transmission);
+        Etot += Edet;
+		if( det->IsUsedToMeasure("E") ) SetECode( kECode2 );
+//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s", Edet, det->GetName());
+	}
+	SetEnergy( Etot );
+}
+//________________________________________________________________
+		
+void KVVAMOSReconNuc::CalibrateFromTracking(){
+	Warning("CalibrateFromTracking","TO BE IMPLEMENTED");
 }
 //________________________________________________________________
 

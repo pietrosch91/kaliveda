@@ -19,6 +19,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		KVVAMOSReconTrajectory fRT;       //handles trajectory reconstruction data
 		KVNameValueList        fTrackRes; //list of tracking results with step for each crossed detector
 
+		virtual void CalibrateFromDetList();
+		virtual void CalibrateFromTracking();
 		virtual void MakeDetectorList();
 
    	public:
