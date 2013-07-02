@@ -8,6 +8,7 @@
 #include "TVector3.h"
 #include "KVMaterial.h"
 #include "TGeoVolume.h"
+#include "TGeoMatrix.h"
 #include "KVNumberList.h"
 #include "KVNameValueList.h"
 
@@ -35,6 +36,8 @@ class INDRAGeometryBuilder : public KVBase {
    Int_t fInnerModmin, fOuterModmin;
    Int_t fModmax;
    Double_t fRingCentreDistance;
+   TGeoTranslation* fDetectorPosition;
+   TGeoTranslation* CorrectCoordinates(Double_t*);
 
 public:
    INDRAGeometryBuilder();

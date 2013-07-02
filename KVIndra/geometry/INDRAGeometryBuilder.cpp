@@ -31,6 +31,25 @@ ClassImp(INDRAGeometryBuilder)
 //        1st campaign phoswich detectors (no CAO data available)
 ////////////////////////////////////////////////////////////////////////////////
 
+TGeoTranslation* INDRAGeometryBuilder::CorrectCoordinates(Double_t *coo)
+{
+    // calculate offset in X and Y
+    // correct coordinates for offset
+    // return offset TGeoTranslation
+    Double_t offX,offY;
+    offX=offY=0;
+    for(int i=0;i<8;i++){
+        offX+=coo[2*i];
+        offY+=coo[2*i+1];
+    }
+    offX/=8.;offY/=8.;
+    for(int i=0;i<8;i++){
+        coo[2*i]-=offX;
+        coo[2*i+1]-=offY;
+    }
+    return new TGeoTranslation(offX,offY,0);
+}
+
 INDRAGeometryBuilder::INDRAGeometryBuilder()
 {
    // Default constructor
@@ -153,8 +172,7 @@ void INDRAGeometryBuilder::ReadDetCAO(const Char_t* detname, Int_t ring)
                            fFrameFront);
    // calculate centre of frame = direction of detector
    CalculateCentre(fFrameFront, fFrameCentre);
-   //fFrameMat.SetMaterial(infos.GetValue("FRAME.MATERIAL", "Al"));
-   fFrameMat.SetMaterial("Pb");//! frame should stop all charged particles in short distance!
+   fFrameMat.SetMaterial(infos.GetValue("FRAME.MATERIAL", "Al"));
 
    fInnerPads = infos.GetValue("INNER.PADS", 1);
    fOuterPads = infos.GetValue("OUTER.PADS", 0);
@@ -208,13 +226,17 @@ void INDRAGeometryBuilder::MakeFrame()
       vertices[2 * i + 1] = corners[i].Y();
    }
 
-   Double_t dz = fTotalThickness / 2.;
+   Double_t dz = 0.99*fTotalThickness / 2.;
    TString vol_name;
-   vol_name.Form("DEADZONE_%s_FRAME", fDetName.Data());
+   vol_name.Form("%s_FRAME", fDetName.Data());
+   fFrameVolume = gGeoManager->MakeVolumeAssembly(vol_name);
+   vol_name.Form("DEADZONE_%s", fDetName.Data());
    TGeoMedium* med = fFrameMat.GetGeoMedium();
-   fFrameVolume = gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
-   fFrameVolume->SetLineColor(med->GetMaterial()->GetDefaultColor());
-   fFrameVolume->SetVisContainers();
+   TGeoTranslation* offset = CorrectCoordinates(vertices);
+   TGeoVolume* frame = gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
+   frame->SetLineColor(med->GetMaterial()->GetDefaultColor());
+   fFrameVolume->AddNode(frame,1,offset);
+//   fFrameVolume->SetVisContainers();
 }
 
 //________________________________________________________________
@@ -260,7 +282,7 @@ void INDRAGeometryBuilder::PlaceDetector()
 {
    // position detector inside frame
 
-   fFrameVolume->AddNode(fDetVolume, 1);
+   fFrameVolume->AddNode(fDetVolume, 1, fDetectorPosition);
    fFrameVolume->GetNode(Form("DET_%s_1", fDetName.Data()))->SetName(Form("DET_%s", fDetName.Data()));
 }
 //________________________________________________________________
@@ -412,7 +434,7 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
       TGeoMedium* med = abs->GetGeoMedium();
       Double_t thick = abs->GetThickness();
       
-      if(thick==0.0) continue; // ignore zero thickness layers
+      if(thick==0.0) {no_abs++; continue;} // ignore zero thickness layers
 
       // calculate coordinates of back plane
       CalculateBackPlaneCoordinates(frontPlane, frontCentre, thick, backPlane);
@@ -434,6 +456,7 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
       }
       else
           vol_name = Form("DET_%s", fDetName.Data());
+      fDetectorPosition = CorrectCoordinates(vertices);
       TGeoVolume *vol =
          gGeoManager->MakeArb8(vol_name.Data(), med, dz, vertices);
       vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
@@ -447,7 +470,7 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
          fDetVolume = vol;
       }
       // set reference to volume in absorber
-      detWeMake->GetAbsorber(no_abs-1)->SetAbsGeoVolume(vol);
+      //detWeMake->GetAbsorber(no_abs-1)->SetAbsGeoVolume(vol);
       
       depth_in_det += thick;
       no_abs++;
@@ -590,6 +613,8 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
    //
    // Possible detector types are "CI", "SI", "CSI", "PHOS"
    // If you want to see the target in the previous example, use dets.SetValue("TARGET",1)
+    //
+    // Call with ring+100 to build etalon telescopes
 
    if (!gIndra) {
       Error("Build", "You must build the geometry with gDataSet->BuildMultiDetector() before calling this method");
@@ -620,6 +645,10 @@ void INDRAGeometryBuilder::Build(KVNumberList& rings, KVNameValueList& detectors
          if (rings.Contains(ring + 1) && detectors.HasParameter("CSI"))MakeRing("CSI", ring + 1);
       }
    }
+   for(int ring = 10; ring <= 17; ring++){
+      if(rings.Contains(ring+100)) MakeEtalon(ring);
+   }
+   if(rings.Contains(18))
    if (detectors.HasParameter("TARGET"))BuildTarget();
    CloseAndDraw();
 }

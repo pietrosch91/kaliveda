@@ -47,6 +47,7 @@ $Id: KVINDRA.cpp,v 1.68 2009/01/21 10:05:51 franklan Exp $
 #include <KVASGroup.h>
 #include "TROOT.h"
 #include "KVGeoNavigator.h"
+#include <KVGeoImport.h>
 
 using namespace std;
 
@@ -786,6 +787,25 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
    //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
    // We need the name to be like "SILI_10"
    GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+
+   // set up shape & matrix pointers in detectors
+   Info("CreateGeoManager", "Scanning geometry shapes and matrices...");
+   KVGeoImport gimp(fGeoManager, KVMaterial::GetRangeTable(), this, kFALSE);
+   gimp.SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+   KVEvent* evt = new KVEvent();
+   KVNucleus* nuc = evt->AddParticle();
+   nuc->SetZAandE(1,1,1);
+   KVDetector* det;
+   TIter next(GetDetectors());
+   Int_t nrootgeo=0;
+   while( (det = (KVDetector*)next()) ){
+       nuc->SetTheta(det->GetTheta());
+       nuc->SetPhi(det->GetPhi());
+       gimp.SetLastDetector(0);
+       gimp.PropagateEvent(evt);
+       nrootgeo+=(det->GetShape()&&det->GetMatrix());
+   }
+   Info("CreateGeoManager", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
    return fGeoManager;
 }
 
