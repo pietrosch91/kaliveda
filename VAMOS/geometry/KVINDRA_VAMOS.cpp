@@ -33,6 +33,18 @@ ClassImp(KVINDRA_VAMOS)
 	//  method change the Plugin.KVMultiDetArray plugin in the $KVROOT/KVFiles/.kvrootrc
 	//  configuration file:
 	//  +Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
+	//
+	//  TARGET
+	//
+	//  The target has to be set to the main multidetector pointed by gMultiDetArray as it is done in KVIVUpdater::SetTarget.
+	//  The target is handled with gMultiDetArray then the following commands
+	//    gIndra->GetTarget()
+	//    gVamos->GetTarget()
+	//
+	//    gIndra->GetTargetEnergyLoss(...)
+	//    gVamos->GetTargetEnergyLoss(...) 
+	//
+	//    will return zero. 
 	////////////////////////////////////////////////////////////////////////////////
 
 KVINDRA_VAMOS::KVINDRA_VAMOS()

@@ -18,7 +18,7 @@ ClassImp(KVSeD)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVString KVSeD::fACQParamTypes("0:E, 1:Q, 2:T_HF, 3:T, 9:NO_TYPE");
+KVString KVSeD::fACQParamTypes("0:Q, 1:T_HF, 2:T, 9:NO_TYPE");
 KVString KVSeD::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 9:NO_TYPE");
 	
 void KVSeD::init(){

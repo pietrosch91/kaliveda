@@ -34,10 +34,12 @@ class KVHarpeeIC : public KVVAMOSDetector
    		virtual Double_t  GetCalibE();
 		virtual Double_t  GetEnergy();
 		virtual UInt_t    GetFiredSegNumber(Option_t *opt = "P");
+		virtual Double_t  GetPressure() const;
    		virtual Bool_t    IsECalibrated() const;
    		virtual Bool_t    PositionIsOK();
 		virtual void      SetACQParams();
-
+ 		virtual void      SetPressure(Double_t);
+   		virtual void      SetTemperature(Double_t);
    		// ------ inline functions ----------------------//
 
 		virtual KVString &GetACQParamTypes();
@@ -49,5 +51,8 @@ class KVHarpeeIC : public KVVAMOSDetector
 
 inline  KVString &KVHarpeeIC::GetACQParamTypes(){ return fACQParamTypes; }
 inline  KVString &KVHarpeeIC::GetPositionTypes(){ return fPositionTypes; }
-
+inline  Double_t KVHarpeeIC::GetPressure() const /* mbar */ {
+    // Give pressure of gas in mbar
+    return KVDetector::GetPressure()/KVUnits::mbar;
+}
 #endif

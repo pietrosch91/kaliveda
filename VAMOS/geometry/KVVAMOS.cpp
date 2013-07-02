@@ -10,6 +10,7 @@
 #include "KVUpDater.h"
 #include "KVFunctionCal.h"
 #include "KVIDGridManager.h"
+#include "KVUnits.h"
 
 #include "TSystemDirectory.h"
 #include "TPluginManager.h"
@@ -28,6 +29,25 @@ ClassImp(KVVAMOS)
 	   <h4>VAMOS: variable mode spectrometer at GANIL</h4>
 	   <!-- */
 	// --> END_HTML
+	//
+	// STRIPPING FOIL
+	//
+	// A stripping foil located at the entrance of VAMOS is used to equilibrate the
+	// ions charge state distribution. To define and set the stripping foil for your 
+	// experiment use the following commands:
+	//
+	//   KVMaterial C_foil( 70*KVUnits::ug, "C" );
+	//   gVamos->SetStripFoil( &C_foil );
+	//
+	// or directly
+	//   
+	//   gVamos->SetStripFoil( "C", 70 ); 
+	//
+	// In this example, the stripping foil is a Carbon foil with an area density equal
+	// to 70 ug/cm**2.
+	//
+	// If the stripping foil is defined, the calibrated energy of nuclei reconstructed 
+	// in VAMOS will be corrected on the energy loss in this foil (see GetStripFoilEnergyLossCorrection(...)).
 	////////////////////////////////////////////////////////////////////////////////
 
 KVVAMOS *gVamos;
@@ -75,6 +95,7 @@ void KVVAMOS::init()
 	fVCalibrators  = NULL;
 	fFPvolume      = NULL;
 	fVAMOSvol      = NULL;
+	fStripFoil     = NULL;
 	fTransMatrix   = NULL;
 	fRotation      = NULL;
 	fFocalPos      = 0; 
@@ -104,6 +125,7 @@ KVVAMOS::~KVVAMOS(){
 	SafeDelete( fCalibrators  );
 	SafeDelete( fVCalibrators );
 	SafeDelete( fFiredDets    );
+	SafeDelete( fStripFoil    );
 	SafeDelete( fTransMatrix  );
 
 	if(gVamos == this) gVamos = NULL;
@@ -140,7 +162,6 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	// the TEnv object 'infos' ( see BuildVAMOSGeometry() ).
 	//
 	// Example of volumes built here:
-	//              -volume of the stripping foil.
 	//              -vamos assembly volume
 	//              -dipole and quadrupole
 	//                  ....            
@@ -148,20 +169,6 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	Info("BuildGeoVolume","Method to be completed");
 
 	TGeoVolume *top = gGeoManager->GetTopVolume();
-
-	//HERE ADD TARGET IN THE TOP VOLUME ASSEMBLY ////////////////
-	// For the moment target of vacuum :-)	
-	TGeoMedium *Vacuum = gGeoManager->GetMedium( "Vacuum" );
-	if( !Vacuum ){
-		TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-   		matVacuum->SetTitle("Vacuum");
-   		Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-	}
-	TGeoVolume *target = gGeoManager->MakeTube("DEF_TARGET", Vacuum, 0., 5.,0.01);
-	top->AddNode( target, 1 );
-	/////////////////////////////////////////
-
-
 
 	// this volume assembly allow the rotation of VAMOS around the 
 	// target
@@ -175,37 +182,12 @@ Bool_t KVVAMOS::BuildGeoVolume(TEnv *infos){
 	}
 	top->AddNode( fVAMOSvol, 1, fRotation );
 
-	TGeoMatrix *matrix = NULL;
-	TGeoShape *shape   = NULL;
-
-	// Add a volume for the stripping foil if it is present
-	Double_t th    = infos->GetValue("VAMOS.STRIP.FOIL.THICK", 0.);
-	Double_t adens = infos->GetValue("VAMOS.STRIP.FOIL.AREA.DENSITY", 0.);
-	Double_t dis   = infos->GetValue("VAMOS.STRIP.FOIL.POS", 0.);
-	if( (th || adens) && dis ){
-		TString mat = infos->GetValue("VAMOS.STRIP.FOIL.MATERIAL", "C");
-		Double_t w  = infos->GetValue("VAMOS.STRIP.FOIL.WIDTH", 30.);
-		Double_t h  = infos->GetValue("VAMOS.STRIP.FOIL.HEIGHT", w );
-
-		KVMaterial kvmat( mat.Data(), th );
-		if( adens ) kvmat.SetAreaDensity( adens );
-
-		shape  = new TGeoBBox( w/2, h/2, kvmat.GetThickness()/2 );
-		TGeoMedium *med = kvmat.GetGeoMedium();
-		mat.Form("%s_foil",med->GetName());
-		TGeoVolume* vol =  new TGeoVolume(mat.Data(),shape,med);
-		vol->SetLineColor(med->GetMaterial()->GetDefaultColor());
-		mat += "_pos";
-		matrix = new TGeoTranslation(mat.Data(), 0., 0., dis );
-		fVAMOSvol->AddNode( vol, 1, matrix);
-	}
-
 	// place the focal plane detection chamber from target position.
    	fFocalPos =  infos->GetValue("VAMOS.FOCALPOS", 0.);
-	// For the moment we place it juste after the strip foil
-	matrix    = new TGeoTranslation("focal_pos", 0., 0., dis+th+10+((TGeoBBox *)fFPvolume->GetShape())->GetDZ() ); // TO BE CHANGED
+
+	// For the moment we place it 10cm just after the target
+	TGeoMatrix *matrix = new TGeoTranslation("focal_pos", 0., 0., 10+((TGeoBBox *)fFPvolume->GetShape())->GetDZ() ); // TO BE CHANGED
    	fVAMOSvol->AddNode( fFPvolume, 1, matrix );
-   	///////////////////////////////////////////////
 
 	return kTRUE;
 }
@@ -264,7 +246,6 @@ void KVVAMOS::InitGeometry(){
 	// placed at the focal plane.
 
    	TGeoNode   *node = NULL;
-   	TGeoVolume *vol  = NULL;
    	TString     vname;
 
    	// we give the unique ID for each node to simplify navigation
@@ -291,7 +272,9 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 	// $KVROOT/KVFiles/<DataSet>/VAMOSgeometry directory.
 	// Returns the number of files read.
 
-	
+	// keep the current workind directory 
+	TString old_dir = gSystem->WorkingDirectory();
+
 	// Reading geometry iformations in .cao files
 	const Char_t dirname[] = "VAMOSgeometry";
 	TString path( GetKVFilesDir() );
@@ -311,9 +294,14 @@ Int_t KVVAMOS::LoadGeoInfosIn(TEnv *infos){
 		if( !path.EndsWith(".cao") ) continue;
  		infos->ReadFile(path.Data(),kEnvAll); 
 		Nfiles++;
-		Info("LoadGeoInfosIn","Loading file %s",file->GetName());
 	}
 	delete lfiles;
+
+	// The call of TSystemDirectory::GetListOfFiles() can
+	// change the working directory then we come back to the
+	// previous one
+	gSystem->ChangeDirectory( old_dir.Data() );
+
 	return Nfiles;
 }
 //________________________________________________________________
@@ -560,6 +548,12 @@ void KVVAMOS::SetGroupsAndIDTelescopes(){
 
 	//now read list of groups and create list of ID telescopes
 	CreateIDTelescopesInGroups();
+
+	//Set uniqueID for each ID telescopes
+	TIter next(GetListOfIDTelescopes());
+	TObject *idt = NULL;
+	Int_t     id = 0;
+	while( (idt = next()) ) idt->SetUniqueID( id++ );
 }
 //________________________________________________________________
 
@@ -740,6 +734,8 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
 	//Overwrite the same method of KVMultiDetArray in order to use another
 	//format for the URI of the plugins associated to VAMOS.
     //Create a KVIDTelescope from the two detectors and add it to the list.
+    //If no detector is segmented (i.e. KVDetector::GetSegment()<1) then no
+    //KVIDTelescope is created.
     //
     // # For each pair of detectors we look for now a plugin with one of the following names:
     // #    [name_of_dataset].name_of_vamos.de_detector_type[de detector thickness]-e_detector_type[de detector thickness]
@@ -756,6 +752,8 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
     //of the array.
 
     if ( !(de->IsOK() && e->IsOK()) ) return;
+
+	if( (de->GetSegment()<1) &&  (e->GetSegment()<1) ) return;
     
 	KVIDTelescope *idt = NULL;
 
@@ -840,6 +838,24 @@ void KVVAMOS::GetIDTelescopes(KVDetector * de, KVDetector * e,
 }
 //________________________________________________________________
 
+Double_t KVVAMOS::GetStripFoilEnergyLossCorrection(KVReconstructedNucleus* nuc){
+	// Calculate the energy loss in the stripping foil 
+    // for the reconstructed charged nucleus 'nuc', assuming that the current
+    // energy and momentum of this nucleus correspond to its state on
+    // leaving the foil.
+    //
+    // The stripping foil is assumed to be placed vertically i.e. the vector normal
+    // to the surface of the foil is oriented towards the beam axis ( Z-axis ).
+    //
+    // The returned value is the energy lost in the stripping foil in MeV.
+    // The energy/momentum of 'nuc' are not affected.
+
+	TVector3 norm(0,0,1);
+    if (fStripFoil && nuc) return (fStripFoil->GetParticleEIncFromERes(nuc, &norm) - nuc->GetEnergy());
+    return 0;
+}
+//________________________________________________________________
+
 KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
 	//Returns the transformation matrix allowing to map the measured
 	//coordinates at the focal plane back to the target. If no matrix
@@ -888,6 +904,41 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
 }
 //________________________________________________________________
 
+void  KVVAMOS::SetStripFoil( KVMaterial *foil ){
+ 	//Adopt KVMaterial object for use as stripping foil i.e. we make a clone of the object
+ 	//pointed to by 'foil'.
+    //Therefore, any subsequent modifications to the stripping foil should be made to the object whose
+    //pointer is returned by GetStripFoil().
+    //This object will be deleted with the detector array, or when the stripping foil is changed.
+    //
+    //Calling SetStripFoil(0) will remove any existing stripping foil.
+    //
+    //The stripping foil is assumed to be placed vertically behind the target and we suppose that
+    // all the nuclei measured in VAMOS have punched through this foil.
+
+    if (fStripFoil){
+        delete fStripFoil;
+        fStripFoil = 0;
+    }
+    if (!foil)
+        return;
+    fStripFoil = (KVMaterial *) foil->Clone();
+}
+//________________________________________________________________
+
+void KVVAMOS::SetStripFoil( const Char_t *material, const Float_t area_density ){
+	//Define the stripping foil used for a given experimental set-up. For material names, see KVMaterial.
+    //The area density is in ug/cm2.
+    //Use SetStripFoil(0) to remove the existing stripping foil.
+
+	if( !material ) SetStripFoil( 0 );
+	else{
+		KVMaterial foil( area_density*KVUnits::ug, material );
+		SetStripFoil( &foil );
+	}
+}
+//________________________________________________________________
+
 void KVVAMOS::SetTransferMatrix( KVVAMOSTransferMatrix *mat ){
 	//Set the transformation matrix allowing to map the measured
 	//coordinates at the focal plane back to the target. If a matrix
@@ -928,20 +979,31 @@ UInt_t KVVAMOS::CalculateUniqueID( KVBase *param, KVVAMOSDetector *det ){
 //________________________________________________________________
 
 UChar_t KVVAMOS::GetACQParamTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
-	KVString *types;
-	if( det ) types = &(det->GetACQParamTypes());
-	else      types = &(GetACQParamTypes());
-
+	KVString *types = det ? &det->GetACQParamTypes() : &GetACQParamTypes();
 	Ssiz_t i = types->Index( Form(":%s,", type) ); 
 	return (i<0 ? 9 : types->Data()[i-1] - '0' );
 }
 //________________________________________________________________
 
 UChar_t KVVAMOS::GetPositionTypeIdx( const Char_t *type, KVVAMOSDetector *det ){
-	KVString *types;
-	if( det ) types = &(det->GetPositionTypes());
-	else      types = &(GetPositionTypes());
-
+	KVString *types = det ? &det->GetPositionTypes() : &GetPositionTypes();
 	Ssiz_t i = types->Index( Form(":%s,", type) ); 
 	return (i<0 ? 9 : types->Data()[i-1] - '0' );
+}
+//________________________________________________________________
+
+Bool_t KVVAMOS::IsUsedToMeasure( const Char_t *type, KVVAMOSDetector *det){
+	// Returns true if VAMOS (det=NULL) or if a detector (det) is used
+	// for the measurment of a quantity (time, position, energy ...).
+	// 'type' can be: E, T, T_HF, Q, X, Y, ...
+	// The quantities measured by VAMOS/detector are given by
+	// GetACQParamTypes or GetPositionTypes
+	
+	KVString *types = det ? &det->GetACQParamTypes() : &GetACQParamTypes();
+	Ssiz_t i = types->Index( Form(":%s,", type) ); 
+	if( i >= 0 ) return kTRUE;
+
+	types = det ? &det->GetPositionTypes() : &GetPositionTypes();
+	i = types->Index( Form(":%s,", type) ); 
+	return i >= 0; 
 }
