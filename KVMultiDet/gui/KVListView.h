@@ -116,6 +116,9 @@ class KVListView : public TGListView
    };
     void AddContextMenuClassException(TClass*);
     virtual void	SetDefaultColumnWidth(TGVFileSplitter* splitter);
+    void AllowMultipleSelection(Bool_t yes=kTRUE) { ((TGLVContainer*)GetContainer())->SetMultipleSelection(yes); }
+    Bool_t GetMultipleSelection() const { return ((TGLVContainer*)GetContainer())->GetMultipleSelection(); }
+
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
 
