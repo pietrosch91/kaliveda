@@ -121,8 +121,10 @@ protected:
 	TGComboBox *cbRepository;
 	TGComboBox *cbTask;
 	TGComboBox *cbDataSet;
-	TGComboBox *cbSystem;
-	TGComboBox *cbTrigger;
+    //TGComboBox *cbSystem;
+    KVListView *lvSystems;
+    KVDBSystem *lastSelectedSystem;
+    //TGComboBox *cbTrigger;
 	//TGListBox  *lbRuns;
 	KVListView *lvRuns;
 	TGLabel    *selectedRuns;
@@ -184,29 +186,26 @@ public:
 	virtual void SetDataSetList(Char_t *s);
 	virtual void SetTaskList(Char_t *s);
 	virtual void SetSystemList(Int_t s);
-	virtual void SetTriggersList(Int_t s);
-	virtual void SetTriggerRunsList(Int_t t);
-	virtual void SetRunsList(Int_t s,Int_t t=0);
-	virtual void SetListOfRuns(Int_t s);
+    virtual void SetRunsList();
    void UserClassSelected(char *);
 	virtual void SelectAll(void);
 	virtual void DeselectAll(void);
 	virtual void Process(void);
 	virtual void EnterRunlist(void);
+
+   void SystemSelectionChanged();
 	
 	virtual const Char_t *GetRepository(void);
 	virtual const Char_t *GetDataSet(void);
 	virtual const Char_t *GetTask(void);
 	virtual const Char_t *GetSystem(void);
-	virtual const Char_t *GetTrigger(void);
 	virtual const Char_t *GetRuns(void);
 	
-	virtual void SetRepository(const Char_t *r=0);
-	virtual void SetDataSet(const Char_t *ds=0);
-	virtual void SetTask(const Char_t *t=0);
-	virtual void SetSystem(const Char_t *s=0);
-	virtual void SetTrigger(const Char_t *s=0);
-	virtual void SetRuns(const Char_t *s=0);
+   virtual void SetRepository(const Char_t *r="");
+   virtual void SetDataSet(const Char_t *ds="");
+   virtual void SetTask(const Char_t *t="");
+   virtual void SetSystem(const Char_t *s="");
+   virtual void SetRuns(const Char_t *s="");
 	
 	virtual Bool_t IsBatch(void)
 	       {return !rbInteractive->IsDown();}

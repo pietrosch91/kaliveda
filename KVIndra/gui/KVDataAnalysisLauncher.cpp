@@ -487,65 +487,85 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(cbTask,LHtopleft);
  cfSelect->AddFrame(cf,centerX);
 
- cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
+// cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du systeme
- lab=new TGLabel(cf,"SYSTEM : ");
- lab->SetTextJustify(justMode);
- lab->Resize(150,20);
- cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    1,1,1,1)); 
+// lab=new TGLabel(cf,"SYSTEM : ");
+// lab->SetTextJustify(justMode);
+// lab->Resize(150,20);
+// cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+//                                    1,1,1,1));
 // ComboBox du systeme
- cbSystem=new TGComboBox(cf,CB_System);
- cbSystem->Select(-1);
- cbSystem->Resize(250,20);
- cbSystem->Connect("Selected(int)",
-                       "KVDataAnalysisLauncher",
-		       this,
-		       "SetTriggersList(int)");
+// cbSystem=new TGComboBox(cf,CB_System);
+// cbSystem->Select(-1);
+// cbSystem->Resize(250,20);
+// cbSystem->Connect("Selected(int)",
+//                       "KVDataAnalysisLauncher",
+//		       this,
+//		       "SetTriggersList(int)");
 //  cbSystem->Connect("Selected(int)",
 //                        "KVDataAnalysisLauncher",
 // 		       this,
 // 		       "SetRunsList(int)");
- cf->AddFrame(cbSystem,LHtopleft);
+// cf->AddFrame(cbSystem,LHtopleft);
 // cfSelect->AddFrame(cf,eX);
 
 // cf=new TGCompositeFrame(cfSelect,fMainGuiWidth,350,kHorizontalFrame);
 // Label du Trigger
- lab=new TGLabel(cf,"TRIGGER : ");
- lab->SetTextJustify(justMode);
- lab->Resize(150,20);
- cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
-                                    20,1,1,1)); 
+// lab=new TGLabel(cf,"TRIGGER : ");
+// lab->SetTextJustify(justMode);
+// lab->Resize(150,20);
+// cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+//                                    20,1,1,1));
 // ComboBox du systeme
- cbTrigger=new TGComboBox(cf,CB_Trigger);
- cbTrigger->Select(-1);
- cbTrigger->Resize(100,20);
- cbTrigger->Connect("Selected(int)",
-                       "KVDataAnalysisLauncher",
-		       this,
-		       "SetTriggerRunsList(int)");
- cf->AddFrame(cbTrigger,LHtopleft);
+// cbTrigger=new TGComboBox(cf,CB_Trigger);
+// cbTrigger->Select(-1);
+// cbTrigger->Resize(100,20);
+// cbTrigger->Connect("Selected(int)",
+//                       "KVDataAnalysisLauncher",
+//		       this,
+//		       "SetTriggerRunsList(int)");
+// cf->AddFrame(cbTrigger,LHtopleft);
+// /* disable trigger selection */
+// cbTrigger->SetEnabled(kFALSE);
  cfSelect->AddFrame(cf,centerX);
 
 
- this->AddFrame(cfSelect,new TGLayoutHints(kLHintsLeft|kLHintsTop
+ AddFrame(cfSelect,new TGLayoutHints(kLHintsLeft|kLHintsTop
                                          |kLHintsRight|kLHintsExpandX,
                                     10,10,1,1));
- 
+    // Systems list
+    lvSystems = new KVListView(KVDBSystem::Class(), this, fMainGuiWidth, 250);
+    lvSystems->SetDataColumns(5);
+    lvSystems->SetDataColumn(1, "Zproj");
+    lvSystems->SetDataColumn(2, "Ztarget");
+    lvSystems->SetDataColumn(3, "Ebeam");
+    lvSystems->GetDataColumn(3)->SetDataFormat("%4.1lf");
+    lvSystems->SetDataColumn(4, "#Runs", "GetNumberRuns");
+    lvSystems->SetDataColumn(0, "Name");
+    lvSystems->ActivateSortButtons();
+    // disable context menu, Browse & multi-select functions
+    lvSystems->AllowBrowse(kFALSE);
+    lvSystems->AllowContextMenu(kFALSE);
+    lvSystems->AllowMultipleSelection(kFALSE);
+    lvSystems->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "SystemSelectionChanged()");
+    AddFrame(lvSystems, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,
+                               10,10,15,15));
+
 // Frame pour la liste des runs
  TGCompositeFrame *cfRuns=new TGCompositeFrame(this,fMainGuiWidth,350,kVerticalFrame);
 	lvRuns = new KVListView(KVINDRADBRun::Class(), cfRuns, fMainGuiWidth, 250);
-	lvRuns->SetDataColumns(8);
+    lvRuns->SetDataColumns(7);
 	lvRuns->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
-	lvRuns->SetDataColumn(0, "Run", "GetNumber");
-	lvRuns->SetDataColumn(1, "System", "GetSystemName");
-	lvRuns->SetDataColumn(2, "Trigger", "GetTriggerString");
-	lvRuns->SetDataColumn(3, "Events", "", kTextRight);
-	lvRuns->SetDataColumn(4, "File written", "GetDatime");
-	lvRuns->GetDataColumn(4)->SetIsDateTime();
-	lvRuns->SetDataColumn(5, "Comments", "", kTextLeft);
-	lvRuns->SetDataColumn(6, "Version", "GetKVVersion");
-	lvRuns->SetDataColumn(7, "User", "GetUserName");
+    int iicc=0;
+    lvRuns->SetDataColumn(iicc++, "Run", "GetNumber");
+    //lvRuns->SetDataColumn(iicc++, "System", "GetSystemName");
+    lvRuns->SetDataColumn(iicc++, "Trigger", "GetTriggerString");
+    lvRuns->SetDataColumn(iicc++, "Events", "", kTextRight);
+    lvRuns->SetDataColumn(iicc, "File written", "GetDatime");
+    lvRuns->GetDataColumn(iicc++)->SetIsDateTime();
+    lvRuns->SetDataColumn(iicc++, "Comments", "", kTextLeft);
+    lvRuns->SetDataColumn(iicc++, "Version", "GetKVVersion");
+    lvRuns->SetDataColumn(iicc++, "User", "GetUserName");
 	lvRuns->ActivateSortButtons();
 	// disable context menu & Browse functions
 	lvRuns->AllowBrowse(kFALSE);
@@ -585,7 +605,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  selectedRuns=new TGLabel(cfRuns,"Selected Runs :");
  cfRuns->AddFrame(selectedRuns,eX); 
   
- this->AddFrame(cfRuns,eXeY);
+ AddFrame(cfRuns,eXeY);
   
 // UserClass and DataSelector et nombre d'evenements
  cfAnalysis=new TGCompositeFrame(this,fMainGuiWidth,20,kVerticalFrame);
@@ -979,8 +999,7 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t *dataset)
   GetDataAnalyser()->SetDataSet(gDataSet);
   //no systems defined for dataset ?
   noSystems=(!gIndraDB->GetSystems()->GetSize());
-  if(noSystems) cbSystem->SetEnabled(kFALSE);
-  else cbSystem->SetEnabled(kTRUE);
+  if(noSystems) lvSystems->RemoveAll();
   
   Int_t i=0;
   while(i<nbt)
@@ -1025,9 +1044,8 @@ KVDataAnalyser* KVDataAnalysisLauncher::GetDataAnalyser(KVDataAnalysisTask* task
 //__________________________________________
 void KVDataAnalysisLauncher::SetSystemList(Int_t itask)
 {
-// Sets the list of all possible systems in the system combo box
-   //Info("SetSystemList", "Called with itask = %d", itask);
-   // Called every time a task is selected
+    // Sets the list of all possible systems in the system list
+    // Called every time a task is selected
    
   KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(itask+1);
   
@@ -1063,288 +1081,97 @@ void KVDataAnalysisLauncher::SetSystemList(Int_t itask)
   cfAnalysis->Layout();
   
   TString ds= GetSavedResource("System","");
-  
-#ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbSystem);
-#else
-  cbSystem->RemoveAll();
-#endif
-  cbSystem->Select(-1);
-
-if(!noSystems){
-   TList *sys_list = gDataSet->GetListOfAvailableSystems(task);
-   TIter next(sys_list);
-   TObject *o=0;
-   Int_t i=1;
-   // we put the 'All' option at the top of the list, with 'tag' = 0
-   cbSystem->AddEntry("All",0);
-   while((o=next())) cbSystem->AddEntry(o->GetName(),i++);
-   //pad the list in case less than 6 systems are known
-   while( i<6 ) cbSystem->AddEntry("",i++);
-   cbSystem->Layout();
-   delete sys_list;
-}
-if(ds.Length())
-{
-   SetSystem(ds.Data());
-}
-else
-{
-   SetRuns();
-}
-   
-//if no systems are defined for dataset, need to set list of triggers now
-  if(noSystems) SetTriggersList(0);
-}
-
-//__________________________________________
-void KVDataAnalysisLauncher::SetTriggersList(Int_t isystem)
-{
-   // Sets the list of all possible triggers in the triggers combo box
-   // Called every time a new system is selected.
-   // isystem = index of selected system in drop-down list
-   // BUT : because we added "All" as first entry in this list (with index = 0),
-   // we have to subtract 1 from isystem in order to get the index of the system
-   // in the database list of systems, gDataSet->GetListOfAvailableSystems(task)
-
-   isystem-=1;
-      
-   //Info("SetTriggersList", "Called with isystem = %d", isystem);
-  
-#ifdef KVDAL_DEBUG 
-  cout << "Task : " <<  cbTask->GetSelected() << endl;
-  cout << "System : " <<  isystem << endl;
-#endif
-  KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
-#ifdef KVDAL_DEBUG 
-  cout << task->GetName() << endl;
-#endif
-  KVDBSystem *system=0;
-  if(!noSystems && isystem>-1) {
-     // case where systems are defined for dataset and user has
-     // selected a specific system (not "All" i.e. -1)
-     TList* sys_list = gDataSet->GetListOfAvailableSystems(task);
-     system = (KVDBSystem *)(sys_list->At(isystem));
-     delete sys_list;
+  lastSelectedSystem=0;
+  if(!noSystems){
+      TList *sys_list = gDataSet->GetListOfAvailableSystems(task);
+      lvSystems->Display(sys_list);
+      delete sys_list;
   }
-  GetDataAnalyser()->SetSystem(system);
-  
-  KVNumberList run_list = gDataSet->GetRunList(task->GetPrereq(), system);
-  KVINDRADBRun *dbrun=0;
-
-  //first read list and find what triggers are available
-  Int_t triggers[10], n_trigs = 0;
-  run_list.Begin();
-  while ( !run_list.End() ) {
-      dbrun = (KVINDRADBRun *)gDataSet->GetDataBase()->GetTable("Runs")->GetRecord(run_list.Next());
-     if (!KVBase::
-  	 ArrContainsValue(n_trigs, triggers, dbrun->GetTrigger())) {
-  	triggers[n_trigs++] = dbrun->GetTrigger();
-     }
+  if(ds.Length())
+  {
+      SetSystem(ds.Data());
   }
-  //sort triggers in ascending order
-  Int_t ord_trig[10];
-  TMath::Sort(n_trigs, triggers, ord_trig, kFALSE);
-
-#ifdef KVDAL_DEBUG 
-  cout << n_trigs << " triggers found " << endl;
-#endif
-  
-  //Set the items of the combobox' pull-down menu
-#ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbTrigger);
-#else
-  cbTrigger->RemoveAll();
-#endif
-  cbTrigger->Select(-1);
-  cbTrigger->AddEntry("All",0);
-  for(Int_t i=0;i<n_trigs;i++) 
-   {
-   Int_t trig=triggers[ord_trig[i]];
-   TString trigName=Form("M > %d",trig);
-#ifdef KVDAL_DEBUG 
-   cout << "Adding \"" << trigName.Data() << "\" to the triggers list." << endl;
-#endif
-   cbTrigger->AddEntry(trigName.Data(),trig);
-   }
-    
-  cbTrigger->Layout();
-
-  // look for saved resource for current repository, dataset & system
-  TString trig=GetSavedResource("Trigger","All");
-  
-#ifdef KVDAL_DEBUG 
-  cout << "Ressource trigger for " << 
-   Form("KVDataAnalysisLauncher.Trigger.%s",SystemBatchName()) 
-   << " : " << trig.Data() << endl;
-#endif
-  if(cbTrigger->FindEntry(trig.Data()))
-   {
-   SetTrigger(trig.Data());
-   }
   else
-   {
-   SetTrigger("All");
-   }
-  
-}
-
-//__________________________________________
-void KVDataAnalysisLauncher::SetTriggerRunsList(Int_t itrig)
-{
-// Sets the list of all possible runs in the runs list box for a specific
-// trigger
-   // Called when a trigger is selected in dropdown list.
-   // Also called by SetTrigger
-
-   //Info("SetTriggerRunsList", "Called with itrig = %d", itrig);
-   
-  Int_t isystem=-1;
-  if(!noSystems) isystem = cbSystem->GetSelected() - 1;
-  SetResource("Trigger", GetTrigger());
-  SetRunsList(isystem,itrig);
-}
-
-//__________________________________________
-void KVDataAnalysisLauncher::SetRunsList(Int_t isystem, Int_t itrig)
-{
-// Sets the list of all possible runs in the runs list box
-  
-   //Info("SetRunsList", "Called with isystem = %d, itrig = %d", isystem, itrig);
-   
-#ifdef KVDAL_DEBUG 
-  cout << "Remove all runs" << endl;
-#endif
-  listOfRuns.Clear();
-  listOfSystemRuns.Clear();
-  if(entryMax>-1) 
-   {
-		lvRuns->RemoveAll();
-   	entryMax=-1;
-   }
-#ifdef KVDAL_DEBUG 
-  cout << "Task    : " <<  cbTask->GetSelected() << endl;
-  cout << "System  : " <<  isystem << endl;
-  cout << "Trigger : " <<  itrig << endl;
-#endif
-  KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
-#ifdef KVDAL_DEBUG 
-  cout << task->GetName() << endl;
-#endif
-  KVDBSystem *system=0;
-  if( !noSystems && isystem>-1) {
-     // case where systems are defined for dataset and user has
-     // selected a specific system (not "All" i.e. -1)
-     TList* sys_list = gDataSet->GetListOfAvailableSystems(task);
-     system = (KVDBSystem *)(sys_list->At(isystem));
-     delete sys_list;
-}  
-#ifdef KVDAL_DEBUG 
-  cout << "System : " << SystemBatchName() << " -> " << system << endl;
-#endif
-	
-  if(IsBatchNameAuto())
-   {
-   SetAutoBatchName();
-   }	      
-
-   //Setting name of system in ressources file
-   if(!noSystems){
-      // dataset with defined systems
-      if(system){
-         // user has chosen a system
-         SetResource("System",system->GetName());
-      }
-      else{
-         // user chose "All" for system
-         SetResource("System","All");
-      }
-   }
-   else
-   {
-      // no systems defined for dataset
-      SetResource("System", "Unknown");
-   }
-
-  KVNumberList run_list = gDataSet->GetRunList(task->GetPrereq(), system);
-  KVDBRun *dbrun=0;
-  Int_t i=0;
-  
-  run_list.Begin();
-  TList list_of_runs;//list of runs to display
-  while ( !run_list.End() ) {
-      dbrun = (KVDBRun *)gDataSet->GetDataBase()->GetTable("Runs")->GetRecord(run_list.Next());
-   Bool_t addRun=kTRUE;
-
-	if(dbrun->InheritsFrom("KVINDRADBRun"))
-    {
-    if(itrig && ((KVINDRADBRun *)dbrun)->GetTrigger() != itrig)
-     {
-     addRun=kFALSE;
-     }
-    }
-    // if systems are defined for dataset & user chose "All" for the system,
-    // we write the name of the system next to each run
-//    if( !noSystems && !system ){
-//       if(dbrun->GetSystem()) srun += Form(" {%s} ", dbrun->GetSystem()->GetName());
-//    }
-   if(addRun)
-    list_of_runs.Add(dbrun);
-   entryMax=i;
-   i++;
-   }
-  listOfSystemRuns=run_list;
-  lvRuns->Display(&list_of_runs);
-
-  //TString ds=GetRuns();
-   TString ds=GetSavedResource("RunsList","");
-   SetRuns(ds.Data());
-
-   // Set saved user class, data selector, number of events for current
-   // repository, dataset, task, system, trigger & runs
- ds = GetSavedResource("UserClass", "");
- SetUserClass( ds.Data() );
- ds=GetSavedResource("KVDataSelector","");
-  teDataSelector->SetText(ds.Data());
- ds=GetSavedResource("NbEventsToRead","");
-  teNbToRead->SetIntNumber(ds.Atoi());
-        
-}
-
-//__________________________________________
-void KVDataAnalysisLauncher::SetListOfRuns(Int_t irun)
-{
-   // Sets the list of all possible repositories in the repository combo box
- 
-   //Info("SetListOfRuns", "Called with irun = %d", irun);
-   
- KVDBRun *dbrun=(KVDBRun *)gDataSet->GetDataBase()->GetTable("Runs")->GetRecord(listOfSystemRuns[irun]);
-//  if(lbRuns->GetSelection(irun))
-//   {
-//   listOfRuns.Add(dbrun->GetNumber());
-//   }
-//  else
   {
-  Int_t nv=0;
-  Int_t *lor=listOfRuns.GetArray(nv);
-  listOfRuns.SetList("");
-  for(Int_t i=0;i<nv;i++)
-   {
-   if(lor[i] != dbrun->GetNumber())
-    {
-    listOfRuns.Add(lor[i]);
-    }
-   }
-  delete [] lor;
+      //Info("SetSystemList","no selected system");
+      SetRunsList();
   }
- if(listOfRuns.GetNValues())
-  {
-  SetResource("RunsList",listOfRuns.AsString());
-  }
- selectedRuns->SetText(Form(" Selected Runs : %s",listOfRuns.AsString(MAX_LENGTH_SELECTED_RUNS)));
- selectedRuns->Layout();
-  
 }
+
+//__________________________________________
+void KVDataAnalysisLauncher::SetRunsList()
+{
+    // Sets the list of all available runs in the runs list box
+
+    SetResource("Trigger", "All");
+    listOfRuns.Clear();
+    listOfSystemRuns.Clear();
+    if(entryMax>-1)
+    {
+        lvRuns->RemoveAll();
+        entryMax=-1;
+    }
+    KVDataAnalysisTask *task=gDataSet->GetAnalysisTask(cbTask->GetSelected()+1);
+    KVDBSystem *system=0;
+    if( !noSystems ) {
+        // case where systems are defined for dataset and user has
+        // selected a specific system
+        system = lastSelectedSystem;
+        GetDataAnalyser()->SetSystem(system);
+        if(!system){
+            // no system selected
+            // clear runs list
+            SetRuns();
+            return;
+        }
+    }
+    //Info("SetRunsList","system=%p",system);
+
+    if(IsBatchNameAuto())
+    {
+        SetAutoBatchName();
+    }
+
+    //Setting name of system in ressources file
+    if(!noSystems){
+        // dataset with defined systems
+        if(system){
+            // user has chosen a system
+            SetResource("System",system->GetName());
+        }
+        else{
+            // user chose "All" for system
+            SetResource("System","All");
+        }
+    }
+    else
+    {
+        // no systems defined for dataset
+        SetResource("System", "Unknown");
+    }
+
+    KVNumberList run_list = gDataSet->GetRunList(task->GetPrereq(), system);
+    TList* list_of_runs = gDataSet->GetListOfAvailableSystems(task, system);
+    entryMax=list_of_runs->GetEntries();
+    listOfSystemRuns=run_list;
+    lvRuns->Display(list_of_runs);
+    delete list_of_runs;
+
+    TString ds=GetSavedResource("RunsList","");
+    //Info("SetRunsList", "SetRuns");
+    SetRuns(ds.Data());
+
+    // Set saved user class, data selector, number of events for current
+    // repository, dataset, task, system, trigger & runs
+    ds = GetSavedResource("UserClass", "");
+    SetUserClass( ds.Data() );
+    ds=GetSavedResource("KVDataSelector","");
+    teDataSelector->SetText(ds.Data());
+    ds=GetSavedResource("NbEventsToRead","");
+    teNbToRead->SetIntNumber(ds.Atoi());
+
+}
+
 
 //__________________________________________
 void KVDataAnalysisLauncher::SelectAll(void)
@@ -1506,28 +1333,13 @@ const Char_t *KVDataAnalysisLauncher::GetTask(void)
 const Char_t *KVDataAnalysisLauncher::GetSystem(void)
  {
     if(noSystems) return "";
- if(TGTextLBEntry *e=(TGTextLBEntry *)cbSystem->GetSelectedEntry())
-  {
-  return e->GetText()->GetString();
-  }
- else
-  {
-  return "";
-  }
+    KVDBSystem* sys = (KVDBSystem*)lvSystems->GetLastSelectedObject();
+    if(sys)
+        return sys->GetName();
+    else
+        return "";
  }
 
-//__________________________________________
-const Char_t *KVDataAnalysisLauncher::GetTrigger(void)
- {
- if(TGTextLBEntry *e=(TGTextLBEntry *)cbTrigger->GetSelectedEntry())
-  {
-  return e->GetText()->GetString();
-  }
- else
-  {
-  return "";
-  }
- }
 
 //__________________________________________
 const Char_t *KVDataAnalysisLauncher::GetRuns(void)
@@ -1557,191 +1369,144 @@ void KVDataAnalysisLauncher::SetRepository(const Char_t *r)
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetDataSet(const Char_t *r)
- {
- if(!r)
-  {
-     //remove all datasets because no repository has been chosen yet
+{
+    if(!strcmp(r,""))
+    {
+        //remove all datasets because no repository has been chosen yet
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbDataSet);
+        RemoveAll(cbDataSet);
 #else
-  cbDataSet->RemoveAll();
+        cbDataSet->RemoveAll();
 #endif
-  cbDataSet->Select(-1);
-    SetResource("Repository","");
-  SetTask();
-  }
- else
-  {
-  TGLBEntry *e=0;
-  if((e=cbDataSet->FindEntry(r)))
-   {
-   Int_t i=e->EntryId();
+        cbDataSet->Select(-1);
+        SetResource("Repository","");
+        SetTask();
+    }
+    else
+    {
+        TGLBEntry *e=0;
+        if((e=cbDataSet->FindEntry(r)))
+        {
+            Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-   cbDataSet->Select(i);
+            cbDataSet->Select(i);
 #else
-   cbDataSet->Select(i,kFALSE);
+            cbDataSet->Select(i,kFALSE);
 #endif
-   SetTaskList((Char_t *)r);
-   }
-  else
-   {
-   SetTask();
-   }
-  }
- }
+            SetTaskList((Char_t *)r);
+        }
+        else
+        {
+            SetTask();
+        }
+    }
+}
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetTask(const Char_t *r)
- {
- if(!r)
-  {
-     //remove all tasks from list because no dataset chosen yet
+{
+    if(!strcmp(r,""))
+    {
+        //remove all tasks from list because no dataset chosen yet
 #ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbTask);
+        RemoveAll(cbTask);
 #else
-  cbTask->RemoveAll();
+        cbTask->RemoveAll();
 #endif
-  cbTask->Select(-1);
-    SetResource("DataSet","");
-  SetSystem();
-  }
- else
-  {
-  TGLBEntry *e=0;
-  if((e=cbTask->FindEntry(r)))
-   {
-   Int_t i=e->EntryId();
+        cbTask->Select(-1);
+        SetResource("DataSet","");
+        SetSystem();
+    }
+    else
+    {
+        TGLBEntry *e=0;
+        if((e=cbTask->FindEntry(r)))
+        {
+            Int_t i=e->EntryId();
 #ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbTask->Select(i);
+            cbTask->Select(i);
 #else
-   cbTask->Select(i,kFALSE);
+            cbTask->Select(i,kFALSE);
 #endif
-   SetSystemList(i);
-   }
-  else
-   {
-   SetSystem();
-   } 
-  }
- }
- 
-//__________________________________________
-void KVDataAnalysisLauncher::SetSystem(const Char_t *r)
- {
-   //Info("SetSystem", "Called with system = %s", r);
-   
-// if((!r) || noSystems)
- if( !r )
-  {
-     //remove all systems from list because no task chosen yet
-#ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbSystem);
-#else
-    cbSystem->RemoveAll();
-#endif
-    cbSystem->Select(-1);
-  //if( !noSystems ) SetTrigger();
-    SetResource("Task","");
-    //empty list of analysis classes and disable it
-    DisableUserClassList();
-     SetTrigger();
-  }
- else
-  {
-  TGLBEntry *e=0;
-  if((e=cbSystem->FindEntry(r)))
-   {
-   Int_t i=e->EntryId();
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbSystem->Select(i);
-#else
-   cbSystem->Select(i,kFALSE);
-#endif
-   SetTriggersList(i);
-   }
-  else
-   {
-   SetTrigger();
-   }
-  }
- }
+            SetSystemList(i);
+        }
+        else
+        {
+            SetSystem();
+        }
+    }
+}
 
 //__________________________________________
-void KVDataAnalysisLauncher::SetTrigger(const Char_t *r)
- {
-   //Info("SetTrigger", "Called with trigger = %s", r);
- if(!r)
-  {
-     //remove all triggers from list because no systems chosen yet
-#ifdef __WITHOUT_TGCOMBOBOX_REMOVEALL
-     RemoveAll(cbTrigger);
-#else
-  cbTrigger->RemoveAll();
-#endif
-  cbTrigger->Select(-1);
-  SetResource("System","");
-  SetRuns();
-  }
- else
-  {
-#ifdef KVDAL_DEBUG 
-  cout << "Setting trigger " << r << endl;
-#endif
-  TGLBEntry *e=0;
-  if((e=cbTrigger->FindEntry(r)))
-   {
-   Int_t i=e->EntryId();
-#ifdef __WITHOUT_TGCOMBOBOX_SELECT_BOOL_T
-    cbTrigger->Select(i);
-#else
-   cbTrigger->Select(i,kFALSE);
-#endif
-   SetTriggerRunsList(i);
-   }
-  else
-   {
-   SetRuns();
-   }
-  }
- }
+void KVDataAnalysisLauncher::SetSystem(const Char_t *r)
+{
+    //Info("SetSystem","system=%s",r);
+    if( !strcmp(r,"") )
+    {
+        //remove all systems from list because no task chosen yet
+        lvSystems->RemoveAll();
+        //if( !noSystems ) SetTrigger();
+        SetResource("Task","");
+        //empty list of analysis classes and disable it
+        DisableUserClassList();
+        //Info("SetSystem","SetRuns()");
+        SetRuns();
+    }
+    else
+    {
+        lvSystems->ActivateItemWithColumnData("Name",r);
+        SystemSelectionChanged();
+    }
+}
+
+void KVDataAnalysisLauncher::SystemSelectionChanged()
+{
+    KVDBSystem* system = (KVDBSystem*)lvSystems->GetLastSelectedObject();
+    //Info("SystemSelectionChanged","system=%p lastSelectedSystem=%p",system,lastSelectedSystem);
+    if(system==lastSelectedSystem) return;
+    lastSelectedSystem=system;
+    GetDataAnalyser()->SetSystem(system);
+    SetRunsList();
+}
 
 //__________________________________________
 void KVDataAnalysisLauncher::SetRuns(const Char_t *r)
- {
-   //Info("SetRuns", "Called with runs = %s", r);
- if(!r)
-  {
-      //remove all runs from list because no trigger chosen yet
-	   lvRuns->RemoveAll();
-	   ClearListOfSelectedRuns();
-   	SetResource("Trigger","");
-   	SetResource("RunsList","");
-  }
- else
-  {
-  listOfRuns.SetList(r);
-  Int_t nbr=0;
-  Int_t *lor=listOfRuns.GetArray(nbr);
-  ClearListOfSelectedRuns();
-  for(Int_t i=0;i<nbr;i++)
-   {
-   if( listOfSystemRuns.Contains( lor[i] ) )
+{
+    //Info("SetRuns", "Called with runs = %s", r);
+    if(!strcmp(r,""))
     {
-    Int_t index=0;
-    while( lor[i] != listOfSystemRuns[index] ) index++;
-	 
-	 lvRuns->ActivateItemWithColumnData("Run", (Long_t)lor[i]);
-//    SetListOfRuns(index);
+        ClearListOfSelectedRuns();
+        SetResource("Trigger","All");
+        SetResource("RunsList","");
     }
-   }
- if(listOfRuns.GetNValues())
-  {
-  SetResource("RunsList",listOfRuns.AsString());
-  }
-  delete [] lor;
-  }
- }
- 
+    else
+    {
+        listOfRuns.SetList(r);
+        Int_t nbr=0;
+        Int_t *lor=listOfRuns.GetArray(nbr);
+        //Info("SetRuns", "1. listOfRuns=%s", listOfRuns.AsString());
+        ClearListOfSelectedRuns();
+        for(Int_t i=0;i<nbr;i++)
+        {
+            if( listOfSystemRuns.Contains( lor[i] ) )
+            {
+                Int_t index=0;
+                while( lor[i] != listOfSystemRuns[index] ) index++;
+
+                lvRuns->ActivateItemWithColumnData("Run", (Long_t)lor[i]);
+                //    SetListOfRuns(index);
+            }
+        }
+        //Info("SetRuns", "2. listOfRuns=%s", listOfRuns.AsString());
+        if(listOfRuns.GetNValues())
+        {
+            //Info("SetRuns", "set RunsList = %s", listOfRuns.AsString());
+            SetResource("RunsList",listOfRuns.AsString());
+        }
+        delete [] lor;
+    }
+}
+
 //__________________________________________
 void KVDataAnalysisLauncher::SetBatch(void)
 {
@@ -2290,6 +2055,7 @@ void KVDataAnalysisLauncher::UpdateListOfSelectedRuns()
 	// Called when the selected runs in TGListView lvRuns change.
 	// We update the KVNumberList listOfRuns according to the current selection
 	// we modify the limits of the 'runs per job' widget
+
 	listOfRuns.Clear();
 	TList* novolist = lvRuns->GetSelectedObjects();
 	if( novolist->GetEntries() > 0 ){
