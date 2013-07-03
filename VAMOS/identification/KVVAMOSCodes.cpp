@@ -12,20 +12,24 @@ ClassImp(KVVAMOSCodes)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVVAMOSCodes</h2>
-<h4>Status for calibration, trajectory reconstruction and identification in VAMOS</h4>
+<h4>Status for calibration, trajectory reconstruction, identification and time of flight in VAMOS</h4>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
 KVDataSet *KVVAMOSCodes::fDataSet        = NULL;
 UChar_t    KVVAMOSCodes::fNFPdets        = 0;
+UChar_t    KVVAMOSCodes::fNToF           = 0;
 Char_t   **KVVAMOSCodes::fFPdetNames     = NULL;
+Char_t   **KVVAMOSCodes::fToFNames       = NULL;
 Char_t   **KVVAMOSCodes::fCodeGenFPRecon = NULL;
+Char_t   **KVVAMOSCodes::fCodeGenToF     = NULL;
 
 KVVAMOSCodes::KVVAMOSCodes(){
    	// Default constructor
    	fFPMask = 0;
-   	RefreshFPCodes();
+	fTMask  = 0;
+   	RefreshCodes();
 }
 
 //________________________________________________________________
@@ -33,6 +37,7 @@ KVVAMOSCodes::KVVAMOSCodes(){
 KVVAMOSCodes::~KVVAMOSCodes(){
    	// Destructor
    	fFPMask = 0;
+   	fTMask  = 0;
 }
 //________________________________________________________________
 
@@ -45,9 +50,33 @@ Bool_t KVVAMOSCodes::TestFPCode(UInt_t code){
 }
 //________________________________________________________________
 
+Bool_t KVVAMOSCodes::TestTCode(UShort_t code){
+   	//check Time of Flight code against code mask
+   	//always kTRUE if no mask set (fTMask==0)
+   	if (!fTMask)
+      	return kTRUE;
+   	return (Bool_t) ((fTMask & code) != 0);
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSCodes::RefreshCodes(){
+	//Refresh the Focal Plan Position reconstruction codes and the
+	//Time of Flight codes if the dataset has changed
+
+	if(!gDataSet){
+		cout<<"Error in <KVVAMOSCodes::RefreshCodes>: dataset not found"<<endl;
+		return kFALSE;
+	}
+
+	if( fDataSet == gDataSet ) return kTRUE;
+	
+	fDataSet = gDataSet;
+	return RefreshFPCodes() && RefreshTCodes();
+}
+//________________________________________________________________
+
 Bool_t KVVAMOSCodes::RefreshFPCodes(){
-	//Refresh the Focal Plan Position reconstruction codes if the
-	//dataset has changed. In this case the list of detectors
+	//Refresh the Focal Plan Position reconstruction code. Te list of detectors
 	//chosen for the reconstruction is read to build codes for each
 	//combination of detectors. This list is given by the environment
 	//variable KVVAMOSCodes.FocalPlanReconDetList. At least 2 detectors
@@ -63,21 +92,14 @@ Bool_t KVVAMOSCodes::RefreshFPCodes(){
 	//See BuildFPReconCodes() method for more informations about
 	//combinations.
 
-	if(!gDataSet){
-		cout<<"Error in <KVVAMOSCodes::RefreshCodes>: dataset not found"<<endl;
-		return kFALSE;
-	}
-
-	if( fDataSet == gDataSet ) return kTRUE;
-
 	DeleteFPReconCodes();
 
 	TString envname("KVVAMOSCodes.FocalPlanReconDetList");
-	TString str( gDataSet->GetDataSetEnv( envname.Data() ) );
+	TString str( fDataSet->GetDataSetEnv( envname.Data() ) );
 	TObjArray *tok = str.Tokenize(" ");
 	fNFPdets = ( tok->GetEntries()>4 ? 4 : tok->GetEntries() );
 	if( fNFPdets<2 ){
-		cout<<"Error in <KVVAMOSCodes::RefreshCodes>: ";
+		cout<<"Error in <KVVAMOSCodes::RefreshFPCodes>: ";
 		cout<<"Set at least 2 detectors in the environment variable"
    			<< envname.Data() <<"used in the reconstruction of the position at the focal plan (Xf,Yf)"<<endl;
 		fNFPdets = 0;
@@ -97,7 +119,7 @@ Bool_t KVVAMOSCodes::RefreshFPCodes(){
 	delete tok;
 
 	BuildFPReconCodes();
-	fDataSet = gDataSet;
+	
 	return kTRUE;
 }
 //________________________________________________________________
@@ -149,7 +171,7 @@ void KVVAMOSCodes::BuildFPReconCodes(){
 	//then the available codes are the following:
 	//
 	// idx                FP-Status FocalPosCodes
-	//   0    no FP position recon.      kFPCode0
+	//   0         no position (XY)      kFPCode0
 	//   1            D1(XY)-D2(XY)      kFPCode1
 	//   2       D1(XY)-D2(X)-D3(Y)      kFPCode2
 	//   3       D1(XY)-D2(Y)-D3(X)      kFPCode3
@@ -258,12 +280,139 @@ void KVVAMOSCodes::BuildFPReconCodes(){
 }
 //________________________________________________________________
 
+Bool_t KVVAMOSCodes::RefreshTCodes(){
+	//Refresh the Time of Flight codes. The list of ACQ parameters
+	//chosen for the Time of Flight calculation of the nuclei reconsturction
+	//in VAMOS is read to build codes. This list is given by the environment
+	//variable KVVAMOSCodes.ACQParamListForToF. At least 1 ACQ parameter
+	//(name) has to be set in this list with a maximum of 15. 
+	//This list can be set for a specific dataset.
+	//For example:
+	//
+	// INDRA_e494s.KVVAMOSCodes.ACQParamListForToF: TSED2_HF TSED1_HF 
+	//
+	//The ACQ parameters have to be listed from the more appropriate (with
+	// the best resolution) for a ToF measurement.
+
+	DeleteTimeOfFlightCodes();
+
+	TString envname("KVVAMOSCodes.ACQParamListForToF");
+	TString str( fDataSet->GetDataSetEnv( envname.Data() ) );
+	TObjArray *tok = str.Tokenize(" ");
+	fNToF = ( tok->GetEntries()>15 ? 15 : tok->GetEntries() );
+	if( fNToF<1 ){
+		cout<<"Error in <KVVAMOSCodes::RefreshTCodes>: ";
+		cout<<"Set at least 1 ACQ parameter in the environment variable"
+   			<< envname.Data() <<"to use for the Time of Flight of the nuclei reconstructed in VAMOS(Xf,Yf)"<<endl;
+		fNToF = 0;
+		return kFALSE;
+	}
+
+	fToFNames = new Char_t*[fNToF];
+	TObjString *ostr = NULL;
+	for(Int_t i=0; i<fNToF; i++){
+
+		ostr = (TObjString *)tok->At(i);
+		str  = ostr->GetString();
+		Int_t size = str.Sizeof();
+		fToFNames[i] = new Char_t[ size ];
+		strcpy( fToFNames[i], str.Data() );
+	}
+	delete tok;
+	
+	BuildTimeOfFlightCodes();
+
+	return kTRUE;
+}
+//________________________________________________________________
+
+void KVVAMOSCodes::DeleteTimeOfFlightCodes(){
+	// Deletes codes, status, names used for the Time of Flight of the
+	// nuclei reconstructed in VAMOS. Called by RefreshTCodes() method.
+
+	//Remove previous codes
+	if( fCodeGenToF ){
+		Int_t Ncodes = GetNTCodes();
+		for(Int_t i=0; i<Ncodes; i++)
+			delete[] fCodeGenToF[i];
+		delete[] fCodeGenToF;
+		fCodeGenToF = NULL;
+	}
+
+	//Remove array of ToF names
+	if( fNToF ){
+		for(Int_t i=0; i<fNToF; i++)
+			delete[] fToFNames[i];
+		delete[] fToFNames;
+		fToFNames = NULL;
+		fNToF     = 0;
+	}
+}
+//________________________________________________________________
+
+void KVVAMOSCodes::BuildTimeOfFlightCodes(){
+	//Builds the codes and corresponding status for the Time of Flight 
+	//used in the reconstructed nuclei in VAMOS from the list of acq. parameter 
+	//given by the environment variable KVVAMOSCodes.ACQParamListForToF. 
+	//At least 1 ACQ parameter(name) has to be set in this list with a maximum of 15. 
+	//This list can be set for a specific dataset.
+	//For example:
+	//
+	// INDRA_e494s.KVVAMOSCodes.ACQParamListForToF: TSED2_HF TSED1_HF 
+	//
+	//The ACQ parameters have to be listed from the more appropriate (with
+	// the best resolution) for a ToF measurement.
+	//
+	//For example, for the following liste
+	//
+	//KVVAMOSCodes.ACQParamListForToF: TSED1_HF TSED1_HF TSI_HF TSED1_SED2
+	//
+	//then the available codes are the following:
+	//
+	// idx               ToF-Status   TimeOfFlightCodes
+   	//   0        NO Time of Flight             kTCode0
+    //   1    ToF given by TSED1_HF             kTCode1
+    //   2    ToF given by TSED2_HF             kTCode2
+    //   3      ToF given by TSI_HF             kTCode3
+    //   4  ToF given by TSED1_SED2             kTCode4
+	//
+	//where 'idx' is the index of the code. The second column gives
+	//the status, and the third column gives the TimeOfFlightCodes enumerate 
+	//element corresponding to each code. 
+	//Code 0 corresponds to the cas where no Time Of Flight can be set to the
+	//nucleus. 
+	//From the code 1, the codes are sorted from the more 
+	//appropriate case to the less appropriate. 
+
+	//Build new code for each combination
+	fCodeGenToF = new Char_t*[ GetNTCodes() ];
+	TString str;
+	Int_t size, idx = 0;
+
+	//Code 0 for no ToF set to the nucleus 
+	str = "NO Time of Flight";
+	size = str.Sizeof();
+	fCodeGenToF[idx] = new Char_t[ size ];
+	strcpy( fCodeGenToF[idx], str.Data() );
+	idx++;
+
+	//The other codes for each combinations of detectors
+	for(Int_t i=0; i<fNToF; i++){
+		str.Form("ToF given by %s", fToFNames[i]);
+		size = str.Sizeof();
+		fCodeGenToF[idx] = new Char_t[ size ];
+		strcpy( fCodeGenToF[idx], str.Data() );
+		idx++;
+	}
+}
+//________________________________________________________________
+
 void KVVAMOSCodes::ShowAvailableFPCodes(){
 	//Static method which shows the available codes for Focal plan
 	//position reconstruction built for the current dataset
 	//(gDataSet) by the method BuildFPReconCodes().
 
-	if( !RefreshFPCodes() ) return;
+	if( !RefreshCodes() ) return;
 	Int_t Ncodes = GetNFPCodes();
 	cout<<setw(4)<<"idx"<<setw(25)<<"FP-Status"<<setw(14)<<"FocalPosCodes"<<endl;
 	for(Int_t i=0; i<Ncodes; i++)
@@ -271,15 +420,41 @@ void KVVAMOSCodes::ShowAvailableFPCodes(){
 }
 //________________________________________________________________
 
+void KVVAMOSCodes::ShowAvailableTCodes(){
+	//Static method which shows the available codes for the 
+	//Time of Flight to be used for the nuclei reconstructed in VAMOS 
+	//for the current dataset (gDataSet).
+
+	if( !RefreshCodes() ) return;
+	Int_t Ncodes = GetNTCodes();
+	cout<<setw(4)<<"idx"<<setw(25)<<"ToF-Status"<<setw(20)<<"TimeOfFlightCodes"<<endl;
+	for(Int_t i=0; i<Ncodes; i++)
+		cout<<setw(4)<< i <<setw(25)<< fCodeGenToF[i] <<setw(20)<< Form("kTCode%d",i) <<endl;
+}
+//________________________________________________________________
+
 const Char_t *KVVAMOSCodes::GetFPStatus(){
 	//Give an explanation for the Focal Plan position reconstruction code.
-	if( !RefreshFPCodes() ) return NULL;
+	if( !RefreshCodes() ) return NULL;
 
 	UChar_t idx = GetFPCodeIndex();
 	if( idx < GetNFPCodes() )
 		return fCodeGenFPRecon[ idx ];
 
 	Error("GetFPStatus","The FP-code index is out of the number of available codes");
+	return NULL;
+}
+//________________________________________________________________
+
+const Char_t *KVVAMOSCodes::GetTStatus(){
+	//Give an explanation for the current Time of Flight code.
+	if( !RefreshCodes() ) return NULL;
+
+	UChar_t idx = GetTCodeIndex();
+	if( idx < GetNTCodes() )
+		return fCodeGenToF[ idx ];
+
+	Error("GetTStatus","The T-code index is out of the number of available codes");
 	return NULL;
 }
 //________________________________________________________________
@@ -292,6 +467,14 @@ UInt_t KVVAMOSCodes::GetFPCode(){
 }
 //________________________________________________________________
 
+UShort_t KVVAMOSCodes::GetTCode(){
+	//Returns code corresponding to the Time Of Flight used in the form
+	//of TimeOfFlightCodes bitmask.
+
+	return GetTMask();
+}
+//________________________________________________________________
+
 void KVVAMOSCodes::SetFPCode(UInt_t mask){
 	//Set Focal plan Position reconstruction code - the argument
 	//given is one of the FocalPlanCodes bitmasks.
@@ -300,8 +483,33 @@ void KVVAMOSCodes::SetFPCode(UInt_t mask){
 }
 //________________________________________________________________
 
+void KVVAMOSCodes::SetTCode(UShort_t mask){
+	//Set Time of Flight code - the argument
+	//given is one of the TimeOfFlightCodes bitmasks.
+
+	SetTMask( mask ); 
+}
+//________________________________________________________________
+
+void KVVAMOSCodes::SetTCode(const Char_t *parnam){
+	//this method allows to set the T-code from the name of the acquisition 
+	//parameter used for the time of flight of the nucleus reconstructed in VAMOS.
+	//
+	//for example:
+	//   vamos_code->SetTCode( "TSED1_HF" );
+
+	for(Int_t i=0; i<fNToF; i++){
+		if( !strcmp(parnam, fToFNames[i]) ){
+			SetTCodeFromIndex( i+1 );
+			return;
+		}
+	}
+	SetTCode( kTCode0 );
+}
+//________________________________________________________________
+
 void KVVAMOSCodes::SetFPCode(Int_t nc1, Int_t nc2, Int_t ni1, Int_t ni2, Bool_t ni1x){
-	//This method allow to set the code from the index in the list
+	//This method allows to set the code from the index in the list
 	//of FP detectors (given in the environment variable 
 	//KVVAMOSCodes.FocalPlanReconDetList):
 	// nc1  - index of the 1st det. with complet position (XY)
@@ -322,7 +530,7 @@ void KVVAMOSCodes::SetFPCode(Int_t nc1, Int_t nc2, Int_t ni1, Int_t ni2, Bool_t 
 	//i.e. "no position (XY)".
 
 	Int_t idx = 0;
-	if( RefreshFPCodes() && (-1 < nc1) && (nc1 < fNFPdets) ){
+	if( RefreshCodes() && (-1 < nc1) && (nc1 < fNFPdets) ){
 
 		idx = ( (nc1+1)*(2*(fNFPdets-1)*(fNFPdets-1)-nc1))/2;
 
@@ -358,10 +566,32 @@ UChar_t KVVAMOSCodes::GetFPCodeIndex(UInt_t mask){
 }
 //________________________________________________________________
 
+UChar_t KVVAMOSCodes::GetTCodeIndex(UShort_t mask){
+	//Argument is a 16-bit-mask representing particle T code.
+	//Returns the number of the bit whick is set to 1 (right-most
+	//bit is 0).
+
+	Int_t i=0;
+	if( !mask ) return 0;
+	do {
+		mask = ( mask >> 1 );
+		i++;
+	} while( mask );
+	return i-1;
+}
+//________________________________________________________________
+
 UChar_t KVVAMOSCodes::GetFPCodeIndex(){
 	//Returns index of the Focal plan Position reconstruction code.
 
 	return GetFPCodeIndex( GetFPMask() );
+}
+//________________________________________________________________
+
+UChar_t KVVAMOSCodes::GetTCodeIndex(){
+	//Returns index of the Time of Flight code.
+
+	return GetTCodeIndex( GetTMask() );
 }
 //________________________________________________________________
 
@@ -373,4 +603,15 @@ void KVVAMOSCodes::SetFPCodeFromIndex(UChar_t idx){
 
 	if( idx < 0 ) SetFPMask( 0 );
 	else SetFPMask( 1 << idx );
+}
+//________________________________________________________________
+
+void KVVAMOSCodes::SetTCodeFromIndex(UChar_t idx){
+	//Set Time of Flight code - the argument
+	//given is the index of the codes. Call the static method 
+	//KVVAMOSCodes::ShowAvailbleTCodes() to have the correspondence 
+	//between index and code.
+
+	if( idx < 0 ) SetTMask( 0 );
+	else SetTMask( 1 << idx );
 }

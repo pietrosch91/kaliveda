@@ -307,14 +307,14 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 	UShort_t Ncomp = 0, Ninc = 0;     // Number of Complete and Incomplete
 	// position measurments 
 
-	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+	SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
 	fRT.dirFP.SetXYZ(0, 0, 1);
 
 	const Char_t *FPdetName = NULL;
 	KVVAMOSDetector *d = NULL;
 	// Loop over detector name to be used for the Focal plane Position
 	// reconstruction
-	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
+	for( Short_t i=0; (FPdetName = GetCodes().GetFPdetName(i)); i++ ){
 
 		// Look at only the detectors in 'fDetList' with the name or
 		// type 'FPdetName' measuring a position.
@@ -350,7 +350,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 
 				fRT.dirFP.SetX( (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]) );
 				fRT.dirFP.SetY( (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]) );
-				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
+				GetCodes().SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 			else if( (Ncomp == 1) && !IncDetBitmask ){
@@ -358,14 +358,14 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 
 				fRT.dirFP.SetX( (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]) );
 				fRT.dirFP.SetY( (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]) );
-				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
+				GetCodes().SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 
 		}
 	}
 
-	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 
 	// normalize the direction vector dirFP
 	fRT.dirFP *= 1./fRT.dirFP.Mag();
@@ -389,7 +389,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //	UChar_t res = 0;
 //	Double_t xyzf [3];          // [3] => [X, Y, Z]
 //	Double_t dxyzf[3];          // [3] => [X, Y, Z]
-//	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+//	SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
 //
 //	static TGraphErrors graphX(4); // 4 is the max number of FPdetectors
 //	static TGraphErrors graphY(4); // 4 is the max number of FPdetectors
@@ -398,7 +398,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //	KVVAMOSDetector *d = NULL;
 //	// Loop over detector name to be used for the Focal plane Position
 //	// reconstruction
-//	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
+//	for( Short_t i=0; (FPdetName = GetCodes().GetFPdetName(i)); i++ ){
 //
 //		// Look at only the detectors in 'fDetList' with the name or
 //		// type 'FPdetName' measuring a position.
@@ -448,7 +448,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //		fRT.dirFP *= 1./fRT.dirFP.Mag();
 //
 //		// Set FPcode 31 for the reconstruction by fitting
-//		fCodes.SetFPCode( kFPCode31 );
+//		SetFPCode( kFPCode31 );
 //      RunTrackingAtFocalPlane();
 //		if( CheckTrackingCoherence() ) {
 //			fRT.SetFPparamsReady();
@@ -467,7 +467,7 @@ void KVVAMOSReconNuc::ReconstructLabTraj(){
 
 	// No trajectory reconstruction in the laboratory if the reconstruction
 	// in the focal plane is not OK.
-	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();
 	tm->ReconstructFPtoLab( &fRT );
 	RunTrackingAtTargetPoint();
@@ -480,7 +480,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 	// Tracking is impossible if the trajectory reconstruction
 	// in the focal plane is not OK.
 	fTrackRes.Clear();
-	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 
 
 	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();

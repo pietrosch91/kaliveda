@@ -64,6 +64,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		        TVector3         GetLabDirection()                   const;
  		virtual void             SetIDCode(UShort_t code_mask);
    		virtual void             SetECode(UChar_t code_mask);
+   		virtual void             SetFPCode(UInt_t code_mask);
+   		virtual void             SetTCode(UShort_t code_mask);
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
@@ -150,6 +152,20 @@ inline void KVVAMOSReconNuc::SetECode(UChar_t code_mask)
 {
    	//Sets code for energy calibration
    	GetCodes().SetECode(code_mask);
+}
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetFPCode(UInt_t code_mask)
+{
+   	//Sets code for energy calibration
+   	GetCodes().SetFPCode(code_mask);
+}
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetTCode(UShort_t code_mask)
+{
+   	//Sets code for energy calibration
+   	GetCodes().SetTCode(code_mask);
 }
 //____________________________________________________________________________________________//
 
