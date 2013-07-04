@@ -212,21 +212,44 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 }
 //________________________________________________________________
 
-Double_t KVVAMOSReconNuc::GetAoverQ() const{
+Double_t KVVAMOSReconNuc::GetRealA() const{
+	// Returns the real value of the mass number calculated for the 
+	// measured energy and the measured time of flight.
+	// Begin_Latex 
+	// A = #frac{E}{(#gamma-1)u}
+	// End_Latex
+	// where 
+	//   E     : corrected kinetic energy in (MeV)
+	//   u     : atomic mass unit in MeV/c^2
+	//   gamma : Lorentz factor calculated from the velocity
+	//           deduced from the time of flight measurment
+	//
+	//This method overrides the same method in the mother class.
+
+	Double_t gamma = GetGammaFromToF();
+	return gamma==1 ? 0 : GetEnergy()/((gamma-1)*u());
+
+}
+//________________________________________________________________
+
+Double_t KVVAMOSReconNuc::GetRealAoverQ() const{
 	// returns the ratio between the mass number A and the charge state Q
 	// calculated from the measurment of the Time of Flight of the nucleus.
-	// The returned value is real.
+	// The returned value is real. Returns zero if the time of flight is
+	// not correct.
 	// Begin_Latex 
 	// #frac{A}{Q} = #frac{C}{10 u} #frac{B_{#rho}}{ #gamma #beta}
 	// End_Latex
+	// where
 	//   u             : atomic mass unit in MeV/c^2
 	//   C             : speed of light in vacuum in cm/ns 
-	//   Beta and Gamma: relativistic quantities calculated from the velocity
-	//                   deduced from the Time of Flight measurment
+	//   beta and gamma: relativistic quantities calculated from the velocity
+	//                   deduced from the time of flight measurment
 	
-	Double_t A_Q = C()/( u()*10. );
-	A_Q *= GetBrho()/( GetBetaFromToF()*GetGammaFromToF() );
-	return A_Q;
+	Double_t tmp = ( GetBetaFromToF()*GetGammaFromToF() );
+	if( tmp == 0 ) return 0;
+
+	return GetBrho()*C()/( u()*10.*tmp );
 }
 //________________________________________________________________
 

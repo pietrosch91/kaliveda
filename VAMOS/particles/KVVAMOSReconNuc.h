@@ -34,19 +34,20 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		virtual void Copy (TObject&) const;
 		void init();
 
-		virtual void Calibrate();
-		virtual void Clear(Option_t * t = "");
-		virtual Double_t GetAoverQ() const;
- 		virtual void Identify();
-		virtual void ReconstructTrajectory();
-		virtual void ReconstructFPtraj();
-//		virtual void ReconstructFPtrajByFitting();
-		virtual void ReconstructLabTraj();
+		virtual void     Calibrate();
+		virtual void     Clear(Option_t * t = "");
+		        Double_t GetRealA()        const;
+		        Double_t GetRealAoverQ()   const;
+ 		virtual void     Identify();
+		virtual void     ReconstructTrajectory();
+		virtual void     ReconstructFPtraj();
+//		virtual void     ReconstructFPtrajByFitting();
+		virtual void     ReconstructLabTraj();
 
-		virtual void RunTrackingAtFocalPlane();
-		virtual void RunTrackingAtTargetPoint();
+		virtual void     RunTrackingAtFocalPlane();
+		virtual void     RunTrackingAtTargetPoint();
 
-		virtual Bool_t CheckTrackingCoherence();
+		virtual Bool_t   CheckTrackingCoherence();
 
 		//-------------- inline methods -----------------//
 
