@@ -60,6 +60,7 @@ void KVVAMOSReconNuc::init()
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
 
 	fStripFoilEloss = 0;
+	fToF = fFlightDist = 0;
 }
 //________________________________________________________________
 
@@ -208,6 +209,24 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
    	init();
    	fCodes.Clear();
 	fRT.Reset();
+}
+//________________________________________________________________
+
+Double_t KVVAMOSReconNuc::GetAoverQ() const{
+	// returns the ratio between the mass number A and the charge state Q
+	// calculated from the measurment of the Time of Flight of the nucleus.
+	// The returned value is real.
+	// Begin_Latex 
+	// #frac{A}{Q} = #frac{C}{10 u} #frac{B_{#rho}}{ #gamma #beta}
+	// End_Latex
+	//   u             : atomic mass unit in MeV/c^2
+	//   C             : speed of light in vacuum in cm/ns 
+	//   Beta and Gamma: relativistic quantities calculated from the velocity
+	//                   deduced from the Time of Flight measurment
+	
+	Double_t A_Q = C()/( u()*10. );
+	A_Q *= GetBrho()/( GetBetaFromToF()*GetGammaFromToF() );
+	return A_Q;
 }
 //________________________________________________________________
 
