@@ -278,16 +278,21 @@ Bool_t KVSelector::Notify()
           << endl;
    }
 
-   // Rustine for 5th campaign 'root' data written with version <= 1.8.9
+	gDataAnalyser->preInitRun();
+   // Rustine for 5th campaign 'root' data written with version < 1.8.10
    // correct particle energies
+   Info("Notify", "Data written with series %s, release %d",
+         ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataSeries().Data(),
+         ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataReleaseNumber());
    KVINDRAReconNuc::CalibNeedCorrection =
          (!strcmp(gDataSet->GetName(),"INDRA_camp5")
-         && !strcmp(gDataAnalyser->GetAnalysisTask()->GetPrereq(),"root"));
+         && !strcmp(gDataAnalyser->GetAnalysisTask()->GetPrereq(),"root")
+         && ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataSeries()=="1.8"
+         && ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataReleaseNumber()<10);
    if(KVINDRAReconNuc::CalibNeedCorrection){
       Info("Notify", "RUSTINE FOR 5th CAMPAIGN ROOT FILE WRITTEN WITH KALIVEDA <v1.8.10");
       Info("Notify", "Particles with Z>10 and Ring<10 will be recalibrated for analysis");
    }
-	gDataAnalyser->preInitRun();
    InitRun();                   //user initialisations for run
 	gDataAnalyser->postInitRun();
    return kTRUE;

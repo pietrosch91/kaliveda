@@ -359,14 +359,15 @@ TEnv* KVINDRAReconDataAnalyser::GetReconDataTreeInfos() const
 	return (TEnv*)theChain->GetTree()->GetUserInfo()->FindObject("TEnv");
 }
 
-void KVINDRAReconDataAnalyser::PrintTreeInfos() const
+void KVINDRAReconDataAnalyser::PrintTreeInfos()
 {
 	// Print informations on currently analysed TTree
 	TEnv* treeInfos = GetReconDataTreeInfos();
 	if(!treeInfos) return;
 	cout << endl << "----------------------------------------------------------------------------------------------------" << endl;
 	        cout << "INFORMATIONS ON VERSION OF KALIVEDA USED TO GENERATE FILE:" << endl << endl;
-cout << "version = " << treeInfos->GetValue("KVBase::GetKVVersion()","(unknown)")<< endl ;
+           fDataVersion = treeInfos->GetValue("KVBase::GetKVVersion()","(unknown)");
+cout << "version = " << fDataVersion << endl ;
 cout << "build date = " << treeInfos->GetValue("KVBase::GetKVBuildDate()","(unknown)")<< endl ;
 cout << "source directory = " << treeInfos->GetValue("KVBase::GetKVSourceDir()","(unknown)")<< endl ;
 cout << "KVROOT = " << treeInfos->GetValue("KVBase::GetKVRoot()","(unknown)")<< endl ;
@@ -382,4 +383,20 @@ cout << "Job submitted from : " << treeInfos->GetValue("LaunchDirectory","(unkno
 cout << "Runs : " << treeInfos->GetValue("Runs","(unknown)")<< endl ;
 cout << "Number of events requested : " << treeInfos->GetValue("NbToRead","(unknown)")<< endl ;
 	cout << endl << "----------------------------------------------------------------------------------------------------" << endl;
+
+   // if possible, parse fDataVersion into series and release number
+   // e.g. if fDataVersion = "1.8.10":
+   //     => fDataSeries = "1.8"   fDataReleaseNum = 10
+   Int_t a,b,c;
+   if(fDataVersion!="(unknown)"){
+      if(sscanf(fDataVersion.Data(), "%d.%d.%d", &a, &b, &c) == 3){
+         fDataSeries.Form("%d.%d",a,b);
+         fDataReleaseNum=c;
+      }
+   }
+   else
+   {
+      fDataSeries="";
+      fDataReleaseNum=-1;
+   }
 }
