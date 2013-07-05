@@ -105,6 +105,7 @@ class KVVAMOS :  public KVMultiDetArray
    		KVList       *GetListOfVCalibrators()               const;
 		KVMaterial   *GetStripFoil()                        const;
 		Int_t         GetTrigger()                          const;
+ 		KVACQParam   *GetVACQParam(const Char_t * name);
    		KVList       *GetVACQParams()                       const;
    		KVCalibrator *GetVCalibrator( const Char_t * type ) const;
 		Bool_t        IsGeoModified()                       const;
@@ -173,7 +174,12 @@ inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrator
 
 inline KVMaterial *KVVAMOS::GetStripFoil()           const { return fStripFoil;    }
 inline Int_t       KVVAMOS::GetTrigger()             const { return 1;             }
-inline KVList     *KVVAMOS::GetVACQParams()          const { return fVACQParams;   }
+
+inline KVACQParam *KVVAMOS::GetVACQParam(const Char_t * name){
+    return (KVACQParam *) fVACQParams->FindObject(name);
+}
+
+inline KVList *KVVAMOS::GetVACQParams() const { return fVACQParams; }
 
 
 inline KVCalibrator *KVVAMOS::GetVCalibrator( const Char_t * type ) const{
