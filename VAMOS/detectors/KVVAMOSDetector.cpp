@@ -216,7 +216,7 @@ void KVVAMOSDetector::SetCalibrators(){
 	if(gVamos){
 		TIter next_vacq( gVamos->GetVACQParams() );
 		while(( par = (KVACQParam *)next_vacq() )){
-			if( (par->GetType()[0] == 'T') && IsTfromThisDetector( par->GetName()+1 ) ){
+			if( (par->GetType()[0] == 'T') && IsStartForT( par->GetName()+1 ) ){
 				if( !fTlist ) fTlist = new TList;
 				fTlist->Add( par );
 				if( !fT0list ) fT0list = new TList;
@@ -270,7 +270,7 @@ KVFunctionCal *KVVAMOSDetector::GetTCalibrator(const Char_t *type) const{
 	// gVamos, then gVamos has to be different to zero;
 	
 	if(!gVamos) return NULL;
-	if(!IsTfromThisDetector( type ) ) return NULL;
+	if(!IsStartForT( type ) ) return NULL;
 	TString calname;
 	calname.Form("channel->ns T%s", type);
  	return (KVFunctionCal *)gVamos->GetVCalibrator( calname.Data() );
@@ -311,7 +311,7 @@ Float_t KVVAMOSDetector::GetT(const Char_t *type){
 	// gVamos, then gVamos has to be different to zero. If gVamos is null
 	// or type is not correct, this method returns -1;
 
-	if(!IsTfromThisDetector( type ) || !gVamos) return -1;
+	if(!IsStartForT( type ) || !gVamos) return -1;
 	KVACQParam *par = gVamos->GetACQParam(Form("T%s",type));
 	return  ( par ? par->GetData() : -1 );
 }
@@ -346,13 +346,24 @@ Bool_t KVVAMOSDetector::IsTCalibrated(const Char_t *type) const{
 }
 //________________________________________________________________
 
-Bool_t KVVAMOSDetector::IsTfromThisDetector(const Char_t *type) const{
-	// Returns true if the time of flight of type 'type' is measured
-	// from this detector i.e. the type begins with the time base-name
+Bool_t KVVAMOSDetector::IsStartForT(const Char_t *type) const{
+	// Returns true if the detector is used as start for the time of flight
+	// of type 'type' i.e. the type begins with the time base-name
 	// (GetTBaseName()).
 	
 	TString tmp(type);
 	if( tmp.BeginsWith( GetTBaseName() ) ) return kTRUE;
+	return kFALSE;
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSDetector::IsStopForT(const Char_t *type) const{
+	// Returns true if the detector is used as stop for the time of flight
+	// of type 'type' i.e. the type ends with the time base-name
+	// (GetTBaseName()).
+	
+	TString tmp(type);
+	if( tmp.EndsWith( GetTBaseName() ) ) return kTRUE;
 	return kFALSE;
 }
 //________________________________________________________________
