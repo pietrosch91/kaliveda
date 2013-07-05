@@ -110,7 +110,7 @@ class KVVAMOSCodes : public KVINDRACodes
 		void     SetFPCode(UInt_t);
 		void     SetFPCode(Int_t nc1, Int_t nc2, Int_t ni1=-1, Int_t ni2=-1, Bool_t ni1x=kTRUE);
 		void     SetTCode(UShort_t);
-		void     SetTCode(const Char_t *parnam);
+		void     SetTCode(const Char_t *);
 		UChar_t  GetFPCodeIndex(UInt_t);
 		UChar_t  GetTCodeIndex(UShort_t);
 		UChar_t  GetFPCodeIndex();

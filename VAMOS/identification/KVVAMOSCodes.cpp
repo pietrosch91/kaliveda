@@ -498,10 +498,12 @@ void KVVAMOSCodes::SetTCode(const Char_t *parnam){
 	//for example:
 	//   vamos_code->SetTCode( "TSED1_HF" );
 
-	for(Int_t i=0; i<fNToF; i++){
-		if( !strcmp(parnam, fToFNames[i]) ){
-			SetTCodeFromIndex( i+1 );
-			return;
+	if( parnam ){
+		for(Int_t i=0; i<fNToF; i++){
+			if( !strcmp(parnam, fToFNames[i]) ){
+				SetTCodeFromIndex( i+1 );
+				return;
+			}
 		}
 	}
 	SetTCode( kTCode0 );
