@@ -689,3 +689,101 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	}
 	return kTRUE;
 }
+//________________________________________________________________
+
+void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
+	// Set the best calibrated time of flight (ToF) and correct the path to 
+	// set the distance associated to this ToF. The best ToF is found from
+	// the list of time acquisition parameters set in the environment variable
+	// KVVAMOSCodes.ACQParamListForToF
+	// and from the list (fDetList) of detector punched through by the nucleus.
+	// The first calibrated and fired acq. parameter belonging both to
+	// the start detector and to the stop detector (only to the start detector 
+	// for an HF-time)  of the list fDetList will be chosen, and the total flight distance
+	// will be equal to:
+	//  - the path (from target point to focal plan) corrected on the distance
+	//    covered between the focal plan and the start detector for HF-time. 
+	//  - the distance between the two detectors.
+
+	Warning("SetFlightDistanceAndTime","TO BE IMPLEMENTED");
+
+	TIter next_det( GetDetectorList() );
+	KVVAMOSDetector *det   = NULL;
+	KVVAMOSDetector *stop  = NULL;
+	const Char_t *t_type   = NULL;
+	const Char_t *par_name = NULL;
+	KVACQParam *par        = NULL;
+	Bool_t ok              = kFALSE;
+	Double_t calibT        = 0; 
+
+	// loop over the time acquisition parameters
+	for( Short_t i=0; !ok && (par_name = GetCodes().GetToFName(i)); i++ ){
+
+		par = gVamos->GetVACQParam( par_name );
+		if( !par ) continue;
+
+		t_type = par_name+1;
+		Bool_t isT_HF = !strcmp("HF",par->GetLabel());
+		
+		next_det.Reset();
+		while( (det = (KVVAMOSDetector *)next_det()) ){
+
+			// for HF time we only need the stast detector
+			if( isT_HF ){
+			 	if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
+					ok = kTRUE;
+					break;
+ 				}
+			}
+			// otherwise we nedd start and stop detectors
+			else{
+ 				if( !stop && det->IsStopForT( t_type ) ){
+					stop = det;
+				}
+				else if( stop && det->IsStartForT( t_type )  && (calibT = det->GetCalibT( t_type ))>0 ){
+					ok = kTRUE;
+					break;
+				}
+			}
+		}
+	}
+
+	if( !ok ){ 
+		SetTCode( kTCode0 );
+		return;
+	}
+
+	ok &= SetCorrectedToF( calibT );
+	ok &= SetFlightDistance( det, stop );
+	SetTCode(( ok ? par->GetName() : "") );
+
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSReconNuc::SetCorrectedToF( Double_t tof ){
+	// Correct the calibrated time of flight (tof) and set it to the nucleus
+	//
+	// For now, no correction is done
+	//
+	
+	fToF = tof;
+	return kTRUE;
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop){
+	
+	Warning("SetFlightDistance","TO BE IMPLEMENTED");
+	
+	if( !start ) return kFALSE;
+
+	if( stop ){
+		// fFlightDist = dist_stop - dist_star
+	}
+	else if( GetPath()>0 ){
+		// fFlightDist = GetPath() - dist_start
+	}
+	else return kFALSE;
+
+	return kTRUE;
+}

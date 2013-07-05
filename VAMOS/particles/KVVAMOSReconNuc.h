@@ -8,6 +8,8 @@
 #include "KVVAMOSCodes.h"
 #include "KVVAMOSReconTrajectory.h"
 
+class KVVAMOSDetector;
+
 class KVVAMOSReconNuc : public KVReconstructedNucleus
 {
 	private:
@@ -25,6 +27,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void CalibrateFromDetList();
 		virtual void CalibrateFromTracking();
 		virtual void MakeDetectorList();
+		virtual Bool_t SetCorrectedToF( Double_t tof );
+		virtual Bool_t SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
 
    	public:
 
@@ -35,6 +39,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		void init();
 
 		virtual void     Calibrate();
+		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");
 		        Double_t GetRealA()        const;
 		        Double_t GetRealAoverQ()   const;
@@ -46,8 +51,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 		virtual void     RunTrackingAtFocalPlane();
 		virtual void     RunTrackingAtTargetPoint();
+		virtual void     SetFlightDistanceAndTime();
 
-		virtual Bool_t   CheckTrackingCoherence();
 
 		//-------------- inline methods -----------------//
 

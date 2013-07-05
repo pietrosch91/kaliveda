@@ -137,6 +137,38 @@ void KVVAMOSReconEvent::AcceptIDCodes(UShort_t code){
 }
 //________________________________________________________________
 
+void KVVAMOSReconEvent::CalibrateEvent(){
+   	// First, calculate and set energies of all identified nuclei in event.
+   	// This is done by calling the KVReconstructeEvent::CalibrateEvent() method.
+   	//
+   	// Secondly, calculate and set the time and the distance of flight of the 
+   	// the appropriate nucleus of the event.
+   	// If the multiplicity Mult=1 then time and distance is calculated
+   	// for the unique nucleus of the event, else if M>1 they are claculated
+   	// for the first identified and calibrated nucleus found in the event. 
+   	//
+   	// The treatment of this last case has to be improved.
+
+	// Energy calibration
+	KVReconstructedEvent::CalibrateEvent();
+	
+	// Time/Distance of Flight calibration
+	if( GetMult() == 1 ) GetNextNucleus()->SetFlightDistanceAndTime();
+	else{
+		// for event with mult>1 set time/distance of flight to the
+		// first identified and calibrated nucleus
+		KVVAMOSReconNuc *nuc = NULL;
+		while( (nuc = GetNextNucleus()) ){
+			if( nuc->IsIdentified() && nuc->IsCalibrated() ){
+				nuc->SetFlightDistanceAndTime();
+				break;
+			}
+		}
+		ResetGetNextNucleus();
+	}
+}
+//________________________________________________________________
+
 KVVAMOSReconNuc *KVVAMOSReconEvent::GetNextNucleus(Option_t * opt){
  	//Use this method to iterate over the list of nuclei in the event.
    	//
@@ -230,13 +262,13 @@ void KVVAMOSReconEvent::ReconstructEvent(KVDetectorEvent * kvde){
 	KVReconstructedEvent::ReconstructEvent( kvde );
 
  	KVVAMOSReconNuc *nuc = NULL;
-	UChar_t Nnuc = 0;
+//	UChar_t Nnuc = 0;
    	while ((nuc = GetNextNucleus())) {
-		if( Nnuc > 1 ){
-			Warning("ReconstrucEvent","Ambiguous trajectory reconstruction,  more than one nucleus in event %d", GetNumber());
-			break;
-		}
+//		if( Nnuc > 1 ){
+//			Warning("ReconstrucEvent","Ambiguous trajectory reconstruction,  more than one nucleus in event %d", GetNumber());
+//			break;
+//		}
 		nuc->ReconstructTrajectory();
-		Nnuc++;
+//		Nnuc++;
    	}
 }
