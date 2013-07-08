@@ -31,6 +31,7 @@ class KVIVReconEvent : public KVINDRAReconEvent
 		void AcceptFPCodesVAMOS(UInt_t code  ){ fVAMOSev->AcceptFPCodes( code ); }
 		void AcceptIDCodesINDRA(UShort_t code){ AcceptIDCodes( code ); }
 		void AcceptIDCodesVAMOS(UShort_t code){ fVAMOSev->AcceptIDCodes( code ); }
+		void AcceptTCodesVAMOS (UShort_t code){ fVAMOSev->AcceptTCodes( code ); }
 
 		Bool_t CheckINDRACodes(KVINDRACodeMask & code) {
       		//returns kTRUE if "code" is compatible with INDRA event's code mask

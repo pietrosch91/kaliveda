@@ -114,7 +114,7 @@ void KVVAMOSReconEvent::AcceptIDCodes(UShort_t code){
 	//Define the Z-identification codes that you want to include 
 	//in your analysis.
    	//Example: to keep only ID codes 1 and 2, use
-   	//        event.AcceptIDCodes( kIDCode2 | kIDCode3 );
+   	//        event.AcceptIDCodes( kIDCode1 | kIDCode2 );
    	//If the nucleus reconstructed in VAMOS have the correct ID codes it will 
    	//have IsOK() = kTRUE.
    	//If this nucleus does not have IsOK() = kTRUE then the method GetNextNucleus("ok")
@@ -127,6 +127,33 @@ void KVVAMOSReconEvent::AcceptIDCodes(UShort_t code){
    	//is automatically updated when the code mask is changed using this method.
    	
 	GetCodeMask()->SetIDMask(code);
+ 	KVVAMOSReconNuc *nuc = NULL;
+   	while ((nuc = GetNextNucleus())) {
+      	if (CheckCodes(nuc->GetCodes()))
+         	nuc->SetIsOK();
+      	else
+         	nuc->SetIsOK(kFALSE);
+   	}
+}
+//________________________________________________________________
+
+void KVVAMOSReconEvent::AcceptTCodes(UShort_t code){
+	//Define the Time of Flight codes that you want to include 
+	//in your analysis.
+   	//Example: to keep only T codes 1 and 2, use
+   	//        event.AcceptTCodes( kTCode1 | kTCode2 );
+   	//If the nucleus reconstructed in VAMOS have the correct ID codes it will 
+   	//have IsOK() = kTRUE.
+   	//If this nucleus does not have IsOK() = kTRUE then the method GetNextNucleus("ok")
+   	//will return a null pointer.
+   	//
+   	//To remove any previously defined acceptable Time of Flight codes, use AcceptTCodes(0).
+   	//
+   	//N.B. : this method is preferable to using directly the KVAMOSCodes pointer 
+   	//of the nucleus as the 'IsOK' status of this nucleus of the current event
+   	//is automatically updated when the code mask is changed using this method.
+   	
+	GetCodeMask()->SetTMask(code);
  	KVVAMOSReconNuc *nuc = NULL;
    	while ((nuc = GetNextNucleus())) {
       	if (CheckCodes(nuc->GetCodes()))
