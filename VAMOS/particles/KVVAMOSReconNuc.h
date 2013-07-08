@@ -60,9 +60,9 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
                 Float_t          GetBrho()                           const;
                 KVVAMOSCodes    &GetCodes();
 				Float_t          GetFlightDistance()                 const;
-   		        TVector3         GetFocalPlaneDirection()            const;
+   		const   TVector3        &GetFocalPlaneDirection()            const;
 				Double_t         GetGammaFromToF()                   const;
-   		        TVector3         GetLabDirection()                   const;
+   		const   TVector3        &GetLabDirection()                   const;
                 Float_t          GetPath()                           const;
                 Float_t          GetPhiF()                           const;
 	            Float_t          GetPhiL()                           const;
@@ -82,6 +82,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
  		virtual void             SetIDCode(UShort_t code_mask);
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
    		virtual void             SetTCode(UShort_t code_mask);
+   		virtual void             SetTCode(const Char_t *parname);
 
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };
@@ -109,7 +110,7 @@ inline Float_t KVVAMOSReconNuc::GetFlightDistance() const{
 }
 //____________________________________________________________________________________________//
 
-inline TVector3 KVVAMOSReconNuc::GetFocalPlaneDirection() const{
+inline const TVector3 &KVVAMOSReconNuc::GetFocalPlaneDirection() const{
 	return fRT.dirFP;
 }
 //____________________________________________________________________________________________//
@@ -120,7 +121,7 @@ inline Double_t KVVAMOSReconNuc::GetGammaFromToF() const{
 }
 //____________________________________________________________________________________________//
 
-inline TVector3 KVVAMOSReconNuc::GetLabDirection() const{
+inline const TVector3 &KVVAMOSReconNuc::GetLabDirection() const{
 	return fRT.dirLab;
 }
 //____________________________________________________________________________________________//
@@ -227,5 +228,11 @@ inline void KVVAMOSReconNuc::SetTCode(UShort_t code_mask)
 {
    	//Sets code for energy calibration
    	GetCodes().SetTCode(code_mask);
+}
+//____________________________________________________________________________________________//
+inline void KVVAMOSReconNuc::SetTCode(const Char_t *parname){
+   	//Sets code for energy calibration from the name of the acquisition 
+	//parameter used for the time of flight of the nucleus
+   	GetCodes().SetTCode(parname);
 }
 #endif

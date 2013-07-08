@@ -772,18 +772,40 @@ Bool_t KVVAMOSReconNuc::SetCorrectedToF( Double_t tof ){
 //________________________________________________________________
 
 Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop){
+	// Corrects and sets the flight distance from the start detector to 
+	// the stop detector.
+	// If stop=NULL then the corresponding time of flight 
+	// is assumed to be measured from the beam HF and the distance will be
+	// equal to the reconstructed path (GetPath) plus (or minus) the distance between
+	// the trajectory position at the focal plan (FP) and the trajectory position
+	// at the start detector if this detector is localised behinds the FP (or
+	// forwards the FP).
+	// If the stop detector is given, the flight distance is equal to the trajectory
+	// distance between the start detector and the stop detector. 
 	
-	Warning("SetFlightDistance","TO BE IMPLEMENTED");
-	
+	fFlightDist = 0;
+
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
 	if( !start ) return kFALSE;
+	if( !stop && GetPath()<=0 ) return kFALSE;
+	
+	const TVector3 &dir = GetFocalPlaneDirection();
+	Double_t X[] = {0,0,0};
+	start->ActiveVolumeToFocal(X, X);
+	X[0] = X[2]*dir.X()/dir.Z();
+	X[1] = X[2]*dir.Y()/dir.Z();
 
 	if( stop ){
-		// fFlightDist = dist_stop - dist_star
+		Double_t Xstop [] = {0,0,0};
+		stop->ActiveVolumeToFocal (Xstop,  Xstop );
+		X[0] -= Xstop[2]*dir.X()/dir.Z();
+		X[1] -= Xstop[2]*dir.Y()/dir.Z();
+		X[2] -= Xstop[2];
+		X[2]  = TMath::Abs( X[2] );
 	}
-	else if( GetPath()>0 ){
-		// fFlightDist = GetPath() - dist_start
-	}
-	else return kFALSE;
+	else fFlightDist = GetPath();
+
+	fFlightDist += TMath::Sign(1.,X[2])*TMath::Sqrt( X[0]*X[0] + X[1]*X[1] + X[2]*X[2] );
 
 	return kTRUE;
 }
