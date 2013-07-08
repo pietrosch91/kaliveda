@@ -22,7 +22,6 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		Double_t               fStripFoilEloss; // calculated energy lost in the stripping foil
 		Float_t                fToF;            //Time of Flight value in ns
 		Float_t                fFlightDist;     //Flight distance in cm
-		KVNameValueList        fTrackRes;       //list of tracking results with step for each crossed detector
 
 		virtual void CalibrateFromDetList();
 		virtual void CalibrateFromTracking();
@@ -173,11 +172,6 @@ inline Float_t KVVAMOSReconNuc::GetTimeOfFlight() const{
 
 inline Float_t KVVAMOSReconNuc::GetToF() const{
 	return GetTimeOfFlight();
-}
-//____________________________________________________________________________________________//
-
-inline KVNameValueList *KVVAMOSReconNuc::GetTrackingResults(){
-	return &fTrackRes;
 }
 //____________________________________________________________________________________________//
 

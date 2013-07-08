@@ -498,7 +498,6 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //		}
 //	}
 //
-// 	fTrackRes.Clear();
 //}
 //________________________________________________________________
 
@@ -520,7 +519,6 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 
 	// Tracking is impossible if the trajectory reconstruction
 	// in the focal plane is not OK.
-	fTrackRes.Clear();
 	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 
 
@@ -567,7 +565,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 
 	   	if( curVol != FPvol ){
    	   	   	Double_t step = gGeoManager->GetStep();
-		   	fTrackRes.SetValue( curVol->GetName(), step );
+		   	GetParameters()->SetValue( curVol->GetName(), step );
 //	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
 	   	}
 
@@ -602,7 +600,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 
 	   	if( curVol != FPvol ){
    	   	   	Double_t step = gGeoManager->GetStep();
-		   	fTrackRes.SetFirstValue( curVol->GetName(), step );
+		   	GetParameters()->SetFirstValue( curVol->GetName(), step );
 //	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
 	   	}
 
@@ -618,9 +616,11 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	// Verifies the coherence between the tracking result and the list of
 	// fired detectors.
 	// If at least one active volum of each fired detector is
-	// inside the tracking result fTrackRes. Return kTRUE if this
+	// inside the tracking result (saved in fParameters list). Return kTRUE if this
 	// is OK.
 	
+	Warning("CheckTrackingCoherence","TO BE MODIFIED, fTrackingRes -> fParameters with new format");
+
 	TIter nextdet( GetDetectorList() );
 	KVVAMOSDetector *det = NULL;
 	while( (det = (KVVAMOSDetector *)nextdet()) ){
@@ -631,7 +631,7 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 		TGeoVolume *vol = NULL;
 		while( (vol = (TGeoVolume *)nextvol()) && !ok ){
 
-			TIter next_tr( fTrackRes.GetList());
+			TIter next_tr( GetParameters()->GetList());
 			TObject *tr = NULL;
 			while( (tr = next_tr()) && !ok ){
 				if( !strcmp( tr->GetName(), vol->GetName() ) ) ok = kTRUE; 
