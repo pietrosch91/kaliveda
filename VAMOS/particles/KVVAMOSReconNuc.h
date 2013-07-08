@@ -50,7 +50,6 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void     ReconstructLabTraj();
 
 		virtual void     RunTrackingAtFocalPlane();
-		virtual void     RunTrackingAtTargetPoint();
 		virtual void     SetFlightDistanceAndTime();
 
 
