@@ -51,7 +51,8 @@ class Identificationv
 	KVIdentificationResult*	id_chiosi;
 	KVIdentificationResult*	id_sitof;
 	KVIdentificationResult*	id_chiov2;
-	KVIdentificationResult*	id_qaq;				
+	KVIdentificationResult*	id_qaq;	
+	KVIdentificationResult*	id_qaq_chiosi;					
 	KV2Body *kin;
 		
 	KVNucleus *kvn;	
@@ -131,6 +132,9 @@ Int_t *FragDetSi;
 Int_t *FragSignalSi;
 Float_t *FragESi;
 Double_t *FragTfinal;
+Double_t *Off_chiosi;
+Double_t *Off_dc1dc2;
+Double_t *TOF_chiosi;
 
 Int_t *FragSignalCsI; 
 Int_t *FragDetCsI;
@@ -165,7 +169,7 @@ KVIDGraph *grd;
   //void PrintCounters(void);
 //===================================================
 // Q Regions  
-  void SetFileCut(TList *list);
+/*  void SetFileCut(TList *list);
   void GetFileCut(); 
   void SetFileCutChioSi(TList *list2);
   void GetFileCutChioSi();
@@ -173,7 +177,7 @@ KVIDGraph *grd;
   void GetFileCutSiTof();      
   TList	*llist;
   TList	*llist2;
-  TList	*llist3;    
+  TList	*llist3;  */  
 //===================================================
 // Total Energy Approximation
 void SetTarget(KVTarget *tgt);
@@ -236,6 +240,9 @@ void ReadStatIndra();
 void ReadStraightAQ();
 void ReadDoublingCorrection();
 
+void ReadOffsetsChiosi();
+Float_t *Offset_relativiste_chiosi;	//(MAXRUN)
+
 void LoadGridForCode2Cuts();
   
 //===================================================  
@@ -282,54 +289,11 @@ Float_t E_VAMOS;
   Float_t D;
   Float_t dE;
   Float_t dE1;
-  Float_t *E;
+  Float_t *Etot;
   Float_t E_corr;
   Float_t T;
   Float_t T_straightpaola;
-  
-  Float_t T_wooff_nostraight;
-  Float_t T_off_nostraight;
-  Float_t T_wooff_straight;
-  Float_t T_off_straight;
-  Float_t T_relativiste_off_straight;
-  
-  Float_t Beta_wooff_nostraight;
-  Float_t Beta_off_nostraight;
-  Float_t Beta_wooff_straight;
-  Float_t Beta_off_straight; 
-  Float_t Beta_relativiste_off_straight;   
-   
-  Float_t AQ_relativiste_wooff_nostraight;
-  Float_t AQ_relativiste_off_nostraight;
-  Float_t AQ_relativiste_wooff_straight;
-  Float_t AQ_relativiste_off_straight; 
-  
-  Float_t Q_relativiste_wooff_nostraight;
-  Float_t Q_relativiste_off_nostraight;
-  Float_t Q_relativiste_wooff_straight;
-  Float_t Q_relativiste_off_straight;
-  
-  Float_t A_relativiste_wooff_nostraight;
-  Float_t A_relativiste_off_nostraight;
-  Float_t A_relativiste_wooff_straight;
-  Float_t A_relativiste_off_straight;	  
-  
-  Float_t AQ_classic_wooff_nostraight;
-  Float_t AQ_classic_off_nostraight;
-  Float_t AQ_classic_wooff_straight;
-  Float_t AQ_classic_off_straight;
-  
-  Float_t Q_classic_wooff_nostraight;
-  Float_t Q_classic_off_nostraight;
-  Float_t Q_classic_wooff_straight;
-  Float_t Q_classic_off_straight;   
-  
-  Float_t A_classic_wooff_nostraight;
-  Float_t A_classic_off_nostraight;
-  Float_t A_classic_wooff_straight;
-  Float_t A_classic_off_straight;  
-  
-      
+        
   Float_t *V;
   Float_t *Vx;  
   Float_t *Vy;
@@ -350,6 +314,11 @@ Float_t E_VAMOS;
   Float_t *RealQ_straight;
   Float_t *M_straight;
   Int_t *Q_straight;
+  
+  Float_t *Beta_chiosi;
+  Float_t *M_Q_chiosi;
+  Float_t *Q_chiosi;  
+  Float_t *M_chiosi;    
   
   Float_t Mr;
   Float_t M_Qr;
@@ -395,9 +364,11 @@ Float_t E_VAMOS;
    Float_t 	**P1_m_sitof;	   
    
    // Tag des events	
-	Float_t ****Brho_min;
-	Float_t ****Brho_max;
-	Int_t Code_Vamos;
+	Float_t *Brho_min;
+	Float_t *Brho_max;		
+	//Float_t ****Brho_min;
+	//Float_t ****Brho_max;
+	Int_t *Code_Vamos;
 	Int_t *Code_Ident_Vamos;  
 	
    // Correction de Tof pour identification Chio-Si
@@ -425,7 +396,11 @@ Float_t E_VAMOS;
 	Float_t *P1_aq_straight;    
 	Float_t *P2_aq_straight;
 	
-TCutG *q21;
+	Float_t *P0_aq_straight_chiosi;
+	Float_t *P1_aq_straight_chiosi;    
+	Float_t *P2_aq_straight_chiosi;	
+	
+/*TCutG *q21;
 TCutG *q20;
 TCutG *q19;
 TCutG *q18;
@@ -477,7 +452,7 @@ TCutG *q9st;
 TCutG *q8st;
 TCutG *q7st;
 TCutG *q6st;
-TCutG *q5st;
+TCutG *q5st;*/
 
    Double_t 	M_corr;
    Int_t 	Q_corr;

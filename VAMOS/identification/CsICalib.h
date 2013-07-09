@@ -108,7 +108,8 @@ class CsICalib
         KVIDGraph *kvid_sitof;	
         KVIDGraph *kvid_cutscode2;
         KVIDGraph *kvid_chiov2;	
-        KVIDGraph *kvid_qaq;					
+        KVIDGraph *kvid_qaq;
+	KVIDGraph *kvid_qaq_chiosi;					
 	
         KVDetector *gap;
 	KVDetector *si;
@@ -145,6 +146,7 @@ class CsICalib
 	void InitCode2Cuts(Float_t);
 	void InitChioV2(Int_t);
 	void InitQStraight(Int_t);
+	void InitQStraight_chiosi(Int_t);	
 		        
         void InitSiCsI(Int_t);  
         

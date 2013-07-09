@@ -12,6 +12,10 @@
 #include "KVINDRAe503.h"
 #include "KVUnits.h"
 
+#include "KVMaterial.h"
+#include "KVIonRangeTable.h"
+#include "KVIonRangeTableMaterial.h"
+
 //Author: Maurycy Rejmund
 using namespace std;
 
@@ -23,12 +27,96 @@ ClassImp(Identificationv)
 // BEGIN_HTML <!--
 /* -->
 <h2>Identificationv</h2>
-<p>
-Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL).
-</p>
+<p>Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL).</p>
+<body>
+
+
+</body>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
+
+
+class  MyFunctionObject {
+ public:
+
+ TF1* dedx;
+ Int_t fZ, fA;
+ Double_t fRho;
+ Double_t fEi;
+ Double_t fEres;
+ Double_t fDeltaE;
+ MyFunctionObject(Int_t z, Int_t a, Int_t option)
+ {
+	 fZ = z;
+	 fA = a;
+	 //fEi = ei;
+	 //fDeltaE = deltaE;
+	 
+Float_t pressure; 
+KVMaterial *gas;
+
+if(option==0){	//case DC1-DC2
+	pressure = 13.;
+	gas = new KVMaterial("C4H10",2.*13.0);		//en cm - 2DC
+	gas->SetPressure(pressure*KVUnits::mbar);
+}
+else if(option==1){	//case Chio
+	pressure = 40.;
+	gas = new KVMaterial("C4H10",13.8);		//en cm
+	gas->SetPressure(pressure*KVUnits::mbar);
+}
+	
+KVIonRangeTable* t = gas->GetRangeTable();
+KVIonRangeTableMaterial* mat = t->GetMaterial("C4H10");
+mat->SetTemperatureAndPressure(19.,pressure*KVUnits::mbar);
+
+fRho = mat->GetDensity();
+dedx = mat->GetStoppingFunction(z,a);
+	 
+ }
+
+// use constructor to customize your function object
+double operator() (double *x, double *p) {
+	   
+	   // z:fZ a:fA
+	   
+double e = *x;	
+double result = 1./(e*dedx->Eval(e));
+
+return result;	
+}
+ 
+ Double_t GetRho(){return fRho;}
+ Double_t GetDeltaE(){return fDeltaE;}
+ Double_t GetEres(){return fEres;}
+ Double_t GetEi(){return fEi;}
+ Int_t GetA(){return fA;}
+ Int_t GetZ(){return fZ;}
+ 
+};
+
+Double_t DrawDeDx(Int_t z, Int_t a, Int_t option, Double_t Einc, Double_t Eres)
+{
+   MyFunctionObject * fobj;
+   TF1 * f;
+	   
+     fobj = new MyFunctionObject(z,a,option);       // create the function object
+     f = new TF1("f",fobj,1e-5,2000,0,"MyFunctionObject");    // create TF1 class.
+     f->SetNpx(10000);
+   
+     double rho = fobj->GetRho();
+     double fact = TMath::Sqrt(0.7192*(double)fobj->GetA())*1./rho;
+     //Double_t Einc = fobj->GetEi();
+     //Double_t Eres = fobj->GetEres();
+     double timeNS = fact*f->Integral(Eres,Einc);
+     
+     //cout<<"timeNS : "<<timeNS<<endl;
+     delete fobj;
+     delete f;
+
+return timeNS;     
+}
 
 Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
 				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, CsICalib *Ecsicalibrated)
@@ -120,7 +208,9 @@ if(NbCsI<0){
       
    
    // Tag des events
-   	Brho_min = new Float_t***[25];
+   	Brho_min =  new Float_t[MaxRun];
+   	Brho_max =  new Float_t[MaxRun];	
+   	/*Brho_min = new Float_t***[25];
 	Brho_max = new Float_t***[25];
 	for(Int_t i=0; i<25; i++){
 		Brho_min[i] = new Float_t**[60];
@@ -134,9 +224,10 @@ if(NbCsI<0){
 			}
 		}
 		
-	}	
+	}*/	
 
-	Code_Ident_Vamos = new Int_t[NbCsI];  
+	Code_Ident_Vamos = new Int_t[NbCsI];
+	Code_Vamos = new Int_t[NbCsI];	  
 	
    // Correction de Tof pour identification Chio-Si
    	 	Tof0 = new Float_t[MaxRun];
@@ -176,16 +267,24 @@ if(NbCsI<0){
 				
 	// Correction Offet relativiste
 	Offset_rela = new Float_t[MaxRun];
-	
+  	Offset_relativiste_chiosi = new Float_t[MaxRun];
+		
 	// Redressement des distributions A/Q
 	P0_aq_straight = new Float_t[NbSilicon];
 	P1_aq_straight = new Float_t[NbSilicon];	
-	P2_aq_straight = new Float_t[NbSilicon]; 
+	P2_aq_straight = new Float_t[NbSilicon];
+	
+	P0_aq_straight_chiosi = new Float_t[7];
+	P1_aq_straight_chiosi = new Float_t[7];	
+	P2_aq_straight_chiosi = new Float_t[7];	 
 	 
 FragDetSi = new Int_t[NbCsI];
 FragSignalSi = new Int_t[NbCsI];
 FragESi = new Float_t[NbCsI];
 FragTfinal = new Double_t[NbCsI];
+Off_chiosi = new Double_t[NbCsI];
+Off_dc1dc2 = new Double_t[NbCsI];
+TOF_chiosi = new Double_t[NbCsI];
 
 FragSignalCsI = new Int_t[NbCsI]; 
 FragDetCsI = new Int_t[NbCsI];
@@ -201,9 +300,14 @@ Vz = new Float_t[NbCsI];
 
 Beta = new Float_t[NbCsI];
 M_Q = new Float_t[NbCsI];
-E = new Float_t[NbCsI];
+Etot = new Float_t[NbCsI];
 M = new Float_t[NbCsI];
 Q  = new Float_t[NbCsI];
+
+Beta_chiosi = new Float_t[NbCsI];
+M_Q_chiosi = new Float_t[NbCsI];
+M_chiosi = new Float_t[NbCsI];
+Q_chiosi  = new Float_t[NbCsI];
 
 RealQ_straight = new  Float_t[NbCsI];
 Q_straight = new  Int_t[NbCsI];
@@ -251,6 +355,7 @@ ReadToFCorrectionCode1();
 ReadStatIndra();
 ReadStraightAQ();
 ReadDoublingCorrection();
+ReadOffsetsChiosi();
 
 event_number=0;
 
@@ -319,7 +424,8 @@ Identificationv::~Identificationv(void)
    	delete []Brho_min;
 	delete []Brho_max;	
 
-	delete []Code_Ident_Vamos;  
+	delete []Code_Ident_Vamos;
+	delete []Code_Vamos;  
 	
    // Correction de Tof pour identification Chio-Si
    	 delete []Tof0;
@@ -342,11 +448,16 @@ Identificationv::~Identificationv(void)
 				
 	// Correction Offet relativiste
 	delete []Offset_rela;
+	delete []Offset_relativiste_chiosi;
 	
 	// Redressement des distributions A/Q
 	delete []P0_aq_straight;
 	delete []P1_aq_straight;       
-	delete []P2_aq_straight; 
+	delete []P2_aq_straight;
+	
+	delete []P0_aq_straight_chiosi;
+	delete []P1_aq_straight_chiosi;       
+	delete []P2_aq_straight_chiosi;	 
 	 
 delete []FragDetSi;
 delete []FragSignalSi;
@@ -357,7 +468,12 @@ delete []FragDetCsI;
 
 delete []FragDetChio; 
 delete []FragSignalChio;
-delete []FragEChio; 
+delete []FragEChio;
+
+delete []FragTfinal;
+delete []Off_chiosi;
+delete []Off_dc1dc2; 
+delete []TOF_chiosi;
 
 delete []V;
 delete []Vx;
@@ -366,9 +482,15 @@ delete []Vz;
 
 delete []Beta;
 delete []M_Q;
-delete []E;
+delete []Etot;
 delete []M;
 delete []Q;
+
+delete []Beta_chiosi;
+delete []M_Q_chiosi;
+delete []M_chiosi;
+delete []Q_chiosi;
+
 
 delete []RealQ_straight;
 delete []Q_straight;
@@ -423,7 +545,7 @@ for(Int_t i=0;i<600;i++){
 	}
 }
 
-for(Int_t i=0;i<25;i++){
+/*for(Int_t i=0;i<25;i++){
 	for(Int_t j=0;j<60;j++){
 		for(Int_t k=0;k<10;k++){
 			for(Int_t l=0;l<MaxRun;l++){
@@ -432,17 +554,27 @@ for(Int_t i=0;i<25;i++){
 			}
 		}
 	}
-}
+}*/
 
 for(Int_t i=0;i<MaxRun;i++){
 	Stat_Indra[i] = -10.0;
 	Stat_Indra[i] = -10.0;
+	
+	Brho_min[i] = -10.0;
+	Brho_max[i] = -10.0;
+	
+	Offset_relativiste_chiosi[i] = 0.0;   	
 }
 
 for(Int_t i=0; i<18; i++){
 	P0_aq_straight[i] = 0.0;
 	P1_aq_straight[i] = 0.0;
 	P2_aq_straight[i] = 0.0;
+}
+for(Int_t i=0; i<7; i++){
+	P0_aq_straight_chiosi[i] = 0.0;
+	P1_aq_straight_chiosi[i] = 0.0;
+	P2_aq_straight_chiosi[i] = 0.0;
 }
 
 for(Int_t i=0; i<25; i++){
@@ -467,23 +599,10 @@ void Identificationv::Init(void)
   Present = false; 
   dE = dE1 = V_Etot = T_FP = Mass = M_simul = Z1 = Z2 = Z_tot = Z_si = D = -10.0;
   M_Qr = Mr = Qr = -10.0;
-  Qc = Mc = -10.0;
-  
-  AQ_relativiste_wooff_nostraight = AQ_relativiste_off_nostraight = AQ_relativiste_wooff_straight = AQ_relativiste_off_straight = -10.0;
-  Q_relativiste_wooff_nostraight = Q_relativiste_off_nostraight = Q_relativiste_wooff_straight = Q_relativiste_off_straight = -10.0;  
-  A_relativiste_wooff_nostraight = A_relativiste_off_nostraight = A_relativiste_wooff_straight = A_relativiste_off_straight = -10.0; 
-    
-  AQ_classic_wooff_nostraight = AQ_classic_off_nostraight = AQ_classic_wooff_straight = AQ_classic_off_straight = -10.0;
-  Q_classic_wooff_nostraight = Q_classic_off_nostraight = Q_classic_wooff_straight = Q_classic_off_straight = -10.0; 
-  A_classic_wooff_nostraight = A_classic_off_nostraight = A_classic_wooff_straight = A_classic_off_straight = -10.0;  
-      
-  T_wooff_nostraight = T_off_nostraight = T_wooff_straight = T_off_straight = T_relativiste_off_straight = -10.0;
-  Beta_wooff_nostraight = Beta_off_nostraight = Beta_wooff_straight = Beta_off_straight = Beta_relativiste_off_straight = -10.0;   
+  Qc = Mc = -10.0;  
   
   Gamma = 1.; 
  initThickness=0.;      
-
-Code_Vamos = -10;	//Flag on Brho distributions
 
 einc_si = einc_isogap1 = eloss_isogap1 = einc_ic = eloss_ic = einc_dc2 = eloss_dc2 = einc_sed = eloss_sed = einc_dc1 = eloss_dc1 = einc_tgt = eloss_tgt = 0.0;
 E_tgt = E_dc1 = E_dc2 = E_sed = E_gap1 = E_chio = 0.0;
@@ -501,7 +620,10 @@ for(Int_t i=0; i<NbCsI; i++){
  		FragSignalSi[i] = -10;
  		FragESi[i] = -10.0;
 		FragTfinal[i] = -10.0;
-		
+		Off_chiosi[i] = -10.0;		
+		Off_dc1dc2[i] = -10.0;
+		TOF_chiosi[i] = -10.0;
+				
 		FragSignalCsI[i] = -10;
 		FragDetCsI[i] = -10;
 		
@@ -524,16 +646,21 @@ for(Int_t i=0; i<NbCsI; i++){
 		AA[i] = -10.0;
 		
 		Code_Ident_Vamos[i] = -10;
-		
+		Code_Vamos[i] = -10;
 		V[i] = -10.0;
 		Vx[i] = -10.0;
 		Vy[i] = -10.0;
 		Vz[i] = -10.0;
 		Beta[i] = -10.0;
 		M_Q[i] = -10.0;
-		E[i] = -10.0;
+		Etot[i] = -10.0;
 		M[i] = -10.0;
 		Q[i] = -10.0;
+		
+		Beta_chiosi[i] = -10.0;
+		M_Q_chiosi[i] = -10.0;
+		M_chiosi[i] = -10.0;
+		Q_chiosi[i] = -10.0;		
 		
 		RealQ_straight[i] = -10.0;
 		Q_straight[i] = -10;
@@ -556,7 +683,10 @@ for(Int_t i=0; i<NbCsI; i++){
  	FragSignalSi[i] = -10;
  	FragESi[i] = -10.0;
 	FragTfinal[i] = -10.0;
-		
+	Off_chiosi[i] = -10.0;	
+	Off_dc1dc2[i] = -10.0;
+	TOF_chiosi[i] = -10.0;		
+			
 	FragSignalCsI[i] = -10;
 	FragDetCsI[i] = -10;
 		
@@ -1064,7 +1194,7 @@ if(Code_good_event==-8){
 								PID_sitof[y] = id_sitof->PID;
                         	        			Z_PID_sitof[y] = id_sitof->Z;
 				        			Z_corr_sitof[y] = int(Z_PID_sitof[y]);
-								if( (id_sitof->PID>=(PID[y]-0.7)) && (id_sitof->PID<=(PID[y]+0.7)) ){
+								if( (id_sitof->PID>=(PID[y]-0.5)) && (id_sitof->PID<=(PID[y]+0.5)) ){
 									Code_Ident_Vamos[y]=1;
 								}
 								else{
@@ -1210,7 +1340,7 @@ if((Code_good_event==-10  && Si->EMSI==1) || (Code_good_event==-8)){
                         	        	Z_PID_chiov2[y] = (id_chiov2->Z);
 				        	Z_corr_chiov2[y] = int(Z_PID_chiov2[y]);
 						//cout<<"PID chiov2 : "<<PID_chiov2[y]<<endl;
-						if( (PID_chiov2[y]>=(PID[y]-0.7)) && (PID_chiov2[y]<=(PID[y]+0.7)) ){
+						if( (PID_chiov2[y]>=(PID[y]-0.5)) && (PID_chiov2[y]<=(PID[y]+0.5)) ){
 							//cout<<"diff : "<<id_chiov2->PID+1.-PID[y]<<endl;
 							Code_Ident_Vamos[y]=2;
 						}
@@ -1242,6 +1372,15 @@ Double_t Gamma = 0.0;
 
 	for(Int_t y=0;y< MaxM ;y++){
 		if(FragDetSi[y]<0)	continue;
+	
+	Code_Vamos[y] = -10;
+	if( (Code_Ident_Vamos[y]==1 || Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22) &&  Rec->Brho>=Brho_min[runNumber] && Rec->Brho<=Brho_max[runNumber]){
+		Code_Vamos[y]=1;
+	}
+	else{
+		Code_Vamos[y]=0;
+	}
+	
 		
  	V[y] = D/FragTfinal[y];	   //Velocity given in cm/ns
 	//cout<<"V : "<<V[y]<<endl; 	
@@ -1268,8 +1407,20 @@ Double_t Gamma = 0.0;
  			Beta[y] = V[y]/29.9792458;
         		x_aq = TMath::Sqrt((1-(Beta[y]*Beta[y]) )) / Beta[y];
         		M_Q[y] = ((1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec))-(P0_aq_straight[FragDetSi[y]]+(P1_aq_straight[FragDetSi[y]]*PID[y])+(P2_aq_straight[FragDetSi[y]]*TMath::Power(PID[y],2) ) );	
-	
+			Code_Ident_Vamos[y]=50;
 		}
+	}
+	else if(Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22){
+      			FragTfinal[y] = FragTfinal[y]+Offset_relativiste_chiosi[runNumber];
+		 	V[y] = D/FragTfinal[y];	   //Velocity given in cm/ns 	
+			Vx[y] = V[y]*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 			Vy[y] = V[y]*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 			Vz[y] = V[y]*cos(Rec->ThetaL);	 
+	 
+ 			Beta[y] = V[y]/29.9792458;
+        		x_aq = TMath::Sqrt((1-(Beta[y]*Beta[y]) )) / Beta[y];
+        		M_Q[y] = ((1./AMU)*((Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec))-(P0_aq_straight_chiosi[FragDetChio[y]]+(P1_aq_straight_chiosi[FragDetChio[y]]*PID[y])+(P2_aq_straight_chiosi[FragDetChio[y]]*TMath::Power(PID[y],2) ) );	
+	
 	}
 	
 	//cout<<"Code : "<<Code_good_event<<endl;
@@ -1287,20 +1438,48 @@ Double_t Gamma = 0.0;
 		
 		if(Code_Ident_Vamos[y]==1 || Code_Ident_Vamos[y]==38 || Code_Ident_Vamos[y]==39 || Code_Ident_Vamos[y]==40){	//Identification Si-CsI
 			if(FragEChio[y]<=0)	FragEChio[y] = E_chio;
+			if(FragEGap[y]<=0)	FragEGap[y] = 0.0;
+			if(FragECsI[y]<=0)	FragECsI[y] = 0.0;				
 			
-			E[y] = FragEChio[y] + FragESi[y] + FragEGap[y] + FragECsI[y];	
+			Etot[y] = float(FragEChio[y] + FragESi[y] + FragEGap[y] + FragECsI[y]);
+			//cout<<"EChio : "<<FragEChio[y]<<"	ESi : "<<FragESi[y]<<"	Egap : "<<FragEGap[y]<<"	ECsI : "<<FragECsI[y]<<endl;
 		}
 		else if(Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22){	//Identification Chio-Si
-			E[y] = FragEChio[y] + FragESi[y];
+			Etot[y] = FragEChio[y] + FragESi[y];
 		}
 
-			E[y]+=E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;	
-
+			Etot[y]+=float(E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1);
+			//cout<<"Etot : "<<Etot[y]<<endl;	
+			
       Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta[y],2.)); 
-      M[y] = E[y]/(AMU*(Gamma-1));		
-      Q[y] = M[y]/M_Q[y];
+      M[y] = Etot[y]/(AMU*(Gamma-1));		
+      Q[y] = M[y]/M_Q[y];			
+			
+		if(( (Code_Ident_Vamos[y]==2) && Code_good_event==-10 && Si->EMSI==1) ){
+			//DrawDeDx(Z_VAMOS[y], int(AQ[y]*Z_VAMOS[y]), FragEChio[y]);
+			//cout<<"Z : "<<Z_corr[y]<<" A : "<<M_Q[y]*Z_corr[y]<<" DeltaE Chio : "<<FragEChio[y]<<endl;
+
+			Off_chiosi[y] = DrawDeDx(Z_corr[y], int(M_Q[y]*Z_corr[y]),1,FragESi[y]+E_gap1+FragEChio[y],E_gap1+FragESi[y]);
+			//cout<<"offset chio-si : "<<Off_chiosi[y]<<endl;
+
+			Off_dc1dc2[y] = DrawDeDx(Z_corr[y], int(M_Q[y]*Z_corr[y]),0,FragESi[y]+E_gap1+FragEChio[y]+E_dc1 + E_dc2 + E_sed,FragESi[y]+E_gap1+FragEChio[y]);
+			//cout<<"offset dc1-dc2 : "<<Off_dc1dc2[y]<<endl;
+			//cout<<"================="<<endl;
+			
+			TOF_chiosi[y] = FragTfinal[y] - Off_chiosi[y] - Off_dc1dc2[y] ;
+			
+			if(TOF_chiosi[y]>0){
+				Beta_chiosi[y] = (D/TOF_chiosi[y])/29.9792458;
+  				x_aq = TMath::Sqrt((1-(Beta_chiosi[y]*Beta_chiosi[y]) )) / Beta_chiosi[y];   
+				//M_Q_chiosi[y] = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec);
+				M_Q_chiosi[y] = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec)-(P0_aq_straight[FragDetSi[y]]+(P1_aq_straight[FragDetSi[y]]*PID[y])+(P2_aq_straight[FragDetSi[y]]*TMath::Power(PID[y],2) ) );
+				Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta_chiosi[y],2.)); 
+      				M_chiosi[y] = Etot[y]/(AMU*(Gamma-1));
+				Q_chiosi[y] = M_chiosi[y] / M_Q_chiosi[y];		
+			}
+		}
       
-      if(Code_Ident_Vamos[y]==1){
+      if(Code_Ident_Vamos[y]==1 || Code_Ident_Vamos[y]==40 || Code_Ident_Vamos[y]==50){
 			//Redressement des distributions en Q			
 			id_qaq = new KVIdentificationResult();   					
 			char scope_name_qaq [256];			
@@ -1333,645 +1512,45 @@ Double_t Gamma = 0.0;
 			}
 			delete 	id_qaq;      
       
-      }//Code_Ident_Vamos[y]=1						
+      }//Code_Ident_Vamos[y]=1
+     else if(Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22){
+			//Redressement des distributions en Q			
+			id_qaq_chiosi = new KVIdentificationResult();   					
+			char scope_name_qaq_chiosi [256];			
+			sprintf(scope_name_qaq_chiosi, "null");
+			
+			energytree->InitQStraight_chiosi(FragDetChio[y]);					
+			if(energytree->kvid_qaq_chiosi==NULL){
+				RealQ_straight[y] = Q[y];
+                        	Q_straight[y] = int(TMath::Floor(Q[y]+0.5));
+				M_straight[y] = Q_straight[y]*M_Q[y];				
+				Code_Ident_Vamos[y] = 55;
+			}
+			else{
+				sprintf(scope_name_qaq_chiosi,"%s", energytree->kvid_qaq_chiosi->GetName());
+				if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_qaq_chiosi)) != 0){
+					
+					if(energytree->kvid_qaq_chiosi->IsIdentifiable(double(M_Q[y]),double(Q[y]) ) ){	
+						energytree->kvid_qaq_chiosi->Identify(double(M_Q[y]),double(Q[y]), id_qaq_chiosi);
+						
+						//cout<<"Redressement"<<endl;
+						RealQ_straight[y] = (id_qaq_chiosi->PID);
+                        	        	Q_straight[y] = int(id_qaq_chiosi->Z);
+						M_straight[y] = Q_straight[y]*M_Q[y];
+							
+					}
+					else{
+						Code_Ident_Vamos[y]=56;
+					}
+				}
+			}
+			delete 	id_qaq_chiosi;      
+     }//Code_Ident_Vamos[y]=2 
+      						
 		
 	}//Loop MaxM
 }					
 
-if(print){
-   cout<<"DetCsI : "<<CsI->DetCsI[0]<<endl;
-   cout<<"ESi : "<<Si->E[0]<<"     Tof : "<<Si->T_final[0]<<"	   CsICanal : "<<CsI->CsIERaw[0]<<endl;
-   cout<<"Z : "<<PID[0]<<" ECsI : "<<FragECsI[0]<<endl;
-}
-				
-//==========================================================================================
-
-/*  if( Ic->ETotal > 0 )	//Dr->E[0] > 0 && Dr->E[1] > 0 && 
-    {
-      //      dE += Dr->E[0];      
-      //      dE += Dr->E[1];
-      dE = dE1 = Ic->ETotal;
-      if(Dr->Present) dE1 = dE1 / cos(Dr->Tf/1000.);
-      dE /= 0.614;
-      dE += dE*0.15;
-	if((dE1+ESi+ECsI)>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==1 || Code_Ident_Vamos==3) ){	//if(Si->ETotal > 0)
-		E = dE1 + ESi + EGap + ECsI;				//Total energy (MeV)	(ChIo, Si, estimated gap energy, CsI)
-		E_VAMOS = dE1 + ESi + EGap + ECsI;
-	}
-	if(CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==4 || Code_Ident_Vamos==10) ){
-		E = dE1 + ESi;
-		E_VAMOS = dE1 + ESi;
-	}
-    }
-*/
-//=================================================
-
-
-/*	//T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added on the ToF distribution to get a straight M/Q=2 distribution 
-	//T_straightpaola = Si->Tfrag*( (125.42/((-0.18343*PID)+127.9573)) + (1-(125.42/((-0.18343*20.0)+127.9573))) );
-      
-      T_wooff_nostraight = Si->TRef[Si->DetSi-1] + Si->Tpropre_el[Si->DetSi-1] - Si->T[0];
-      T_off_nostraight = T_wooff_nostraight+Offset_rela[runNumber];
-      T = T_off_nostraight;
-      
-      T_wooff_straight =  (T_wooff_nostraight* ( ((125.42/((-0.18343*PID)+127.9573))) + 1-((125.42/((-0.18343*20.0)+127.9573))) )); 
-      T_off_straight =  (T_wooff_nostraight* ( ((125.42/((-0.18343*PID)+127.9573))) + 1-((125.42/((-0.18343*20.0)+127.9573))) ));
-      T_relativiste_off_straight =  (T_wooff_nostraight* ( ((125.42/((-0.18343*PID)+127.9573))) + 1-((125.42/((-0.18343*20.0)+127.9573))) ));	
-
-// ToF correction for Chio-Si Identification
-// Correction tof pour identification chio-si
-if( Code_Ident_Vamos==2 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
-	T+=116.69;
-}
-if( Code_Ident_Vamos==4 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
-	T+=113.69;
-}*/
-//================================================= 
-
-//=================================================     
-  /*if(T>0 && Rec->Path>0 && Dr->Present)
-    {
- 	//Distance between silicon and the target in cm		    
- 	D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (((Rec->DSI-Dr->FocalPos)/10.)/TMath::Cos(Dr->Tf/1000.)));   //Distance : 9423mm(si layer position) - 8702.5mm(focal plane position) = 720.50 mm
-
- 	V = D/T;	   //Velocity given in cm/ns	  
- 	//V2 = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));
-		   
- 	Beta = V/29.9792458; 
- 	Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
- 	//V_Etot = 1.39*sqrt(E/AA);
- 	T_FP = ((Dr->FocalPos)/10.) / V_Etot;
-		   
- 	Vx = V*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
- 	Vy = V*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
- 	Vz = V*cos(Rec->ThetaL);
-
-   	kin = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetSystem()->GetKinematics();
-   	kin->SetOutgoing(kin->GetNucleus(1));
-   	kin->CalculateKinematics();
-
-    }*/
-//=================================================
-
-
-/*  if(Beta>0 && Rec->Brho>0 && Si->Present)	//Modification (2012-02-10) Original : Beta>0 && Rec->Brho>0 && Gamma>1. && Si->Present
-    {
-      
-      Double_t AMU = 931.494061;
-      Double_t m_elec = 0.510998928;
-      Double_t cte_tesla = (1.660538921E-27 * 299792458) / 1.602176565E-19;
-      
-       M_Q = Rec->Brho/(cte_tesla*Beta);     
-      
-      Beta_wooff_nostraight = (D/T_wooff_nostraight)/29.9792458;
-      Beta_off_nostraight = (D/T_off_nostraight)/29.9792458;		  
-      Beta_wooff_straight = (D/T_wooff_straight)/29.9792458;
-      Beta_off_straight = (D/T_off_straight)/29.9792458;
-      Beta_relativiste_off_straight = (D/T_relativiste_off_straight)/29.9792458; 
-                 
-      Double_t x_wooff_nostraight = TMath::Sqrt((1-(Beta_wooff_nostraight*Beta_wooff_nostraight) )) / Beta_wooff_nostraight;
-      Double_t x_off_nostraight = TMath::Sqrt((1-(Beta_off_nostraight*Beta_off_nostraight) )) / Beta_off_nostraight;
-      //Double_t x_wooff_straight = TMath::Sqrt((1-(Beta_wooff_straight*Beta_wooff_straight) )) / Beta_wooff_straight;
-      //Double_t x_off_straight = TMath::Sqrt((1-(Beta_relativiste_off_straight*Beta_relativiste_off_straight) )) / Beta_relativiste_off_straight;
-                  
-      AQ_relativiste_wooff_nostraight = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_wooff_nostraight)+m_elec);
-      AQ_relativiste_off_nostraight = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_off_nostraight)+m_elec);	     
-      
-      AQ_relativiste_wooff_straight = AQ_relativiste_wooff_nostraight-(P0_aq_straight[Si->DetSi]+(P1_aq_straight[Si->DetSi]*PID)+(P2_aq_straight[Si->DetSi]*TMath::Power(PID,2) ) );
-      AQ_relativiste_off_straight = AQ_relativiste_off_nostraight-(P0_aq_straight[Si->DetSi]+(P1_aq_straight[Si->DetSi]*PID)+(P2_aq_straight[Si->DetSi]*TMath::Power(PID,2) ) );
-      
-      //AQ_relativiste_wooff_straight = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_wooff_straight)+m_elec);
-      //AQ_relativiste_off_straight = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_off_straight)+m_elec);  
-      
-      AQ_classic_wooff_nostraight = Rec->Brho/(cte_tesla*Beta_wooff_nostraight);
-      AQ_classic_off_nostraight = Rec->Brho/(cte_tesla*Beta_off_nostraight);		   
-      AQ_classic_wooff_straight = Rec->Brho/(cte_tesla*Beta_wooff_straight);
-      AQ_classic_off_straight = Rec->Brho/(cte_tesla*Beta_off_straight);
-      
-      A_classic_wooff_nostraight = 2.* E / (AMU*TMath::Power(Beta_wooff_nostraight,2.));
-      A_classic_off_nostraight = 2.* E / (AMU*TMath::Power(Beta_off_nostraight,2.));		   
-      A_classic_wooff_straight = 2.* E / (AMU*TMath::Power(Beta_wooff_straight,2.));
-      A_classic_off_straight = 2.* E / (AMU*TMath::Power(Beta_off_straight,2.));
-      
-      Q_classic_wooff_nostraight = A_classic_wooff_nostraight/AQ_classic_wooff_nostraight;
-      Q_classic_off_nostraight = A_classic_off_nostraight/AQ_classic_off_nostraight;
-      Q_classic_wooff_straight = A_classic_wooff_straight/AQ_classic_wooff_straight;
-      Q_classic_off_straight = A_classic_off_straight/AQ_classic_off_straight;
-      
-      Double_t Gamma_relativiste_wooff_nostraight = 1./TMath::Sqrt(1.-TMath::Power(Beta_wooff_nostraight,2.));
-      Double_t Gamma_relativiste_off_nostraight = 1./TMath::Sqrt(1.-TMath::Power(Beta_off_nostraight,2.));      
-      Double_t Gamma_relativiste_wooff_straight = 1./TMath::Sqrt(1.-TMath::Power(Beta_wooff_straight,2.));
-      Double_t Gamma_relativiste_off_straight = 1./TMath::Sqrt(1.-TMath::Power(Beta_off_straight,2.)); 
-      
-      A_relativiste_wooff_nostraight = E/(AMU*(Gamma_relativiste_wooff_nostraight-1));
-      A_relativiste_off_nostraight = E/(AMU*(Gamma_relativiste_off_nostraight-1));
-      A_relativiste_wooff_straight = E/(AMU*(Gamma_relativiste_wooff_straight-1));
-      A_relativiste_off_straight =   E/(AMU*(Gamma_relativiste_off_straight-1));   
-      
-      Q_relativiste_wooff_nostraight = A_relativiste_wooff_nostraight/AQ_relativiste_wooff_nostraight;
-      Q_relativiste_off_nostraight = A_relativiste_off_nostraight/AQ_relativiste_off_nostraight;
-      Q_relativiste_wooff_straight = A_relativiste_wooff_straight/AQ_relativiste_wooff_straight;
-      Q_relativiste_off_straight = A_relativiste_off_straight/AQ_relativiste_off_straight;*/                            
-
-//Correction to remove double peak from ToF dsitributions  
-/*if( (M_Q>Fit1[Z_corr][0][runNumber] && M_Q<Fit1[Z_corr][1][runNumber]) || (M_Q>Fit2[Z_corr][0][runNumber] && M_Q<Fit2[Z_corr][1][runNumber]) ||
-   	(M_Q>Fit3[Z_corr][0][runNumber] && M_Q<Fit3[Z_corr][1][runNumber]) || (M_Q>Fit4[Z_corr][0][runNumber] && M_Q<Fit4[Z_corr][1][runNumber]) ||
-	(M_Q>Fit5[Z_corr][0][runNumber] && M_Q<Fit5[Z_corr][1][runNumber]) || (M_Q>Fit6[Z_corr][0][runNumber] && M_Q<Fit6[Z_corr][1][runNumber]) || 
-	(M_Q>Fit7[Z_corr][0][runNumber] && M_Q<Fit7[Z_corr][1][runNumber]) ){   
-      	
-	if(runNumber>542 && runNumber<548){	
-		T -= 1.2350;
-      		M_Q = (Rec->Brho*(T)*29.98)/(3.105*D);
-		V = D/T; 	
-		Vx = V*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
- 		Vy = V*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
- 		Vz = V*cos(Rec->ThetaL);
-		
-	}
-	else if(runNumber==548){
-		
-	
-	}
-	else if(runNumber>536 && runNumber<543){
-		T = ((Si->Tfrag*(125.42/((-0.16*PID)+127.9573)))+1.5);
-      		M_Q = (Rec->Brho*((Si->Tfrag*(125.42/((-0.16*PID)+127.9573)))+1.5)*29.98)/(3.105*D);
-		V = D/T; 	
-		Vx = V*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
- 		Vy = V*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
- 		Vz = V*cos(Rec->ThetaL);
-				
-	}
-}*/
-            
-/*      //===============================================================
-      // Correction on the total energy Si-CsI Identification
-	if( CsI->EM==1 && Si->E_RawM==1 && (Code_Ident_Vamos==1 || Code_Ident_Vamos==3) ){      
-		E_csi = GetEnergyLossCsI(Si->Number+1);      
-		E_gap2 = GetEnergyLossGap2(Si->Number+1); //gap Si-CsI     
-		E_gap1 = GetEnergyLossGap1(Si->Number+1); //gap Chio-Si	
-		E_chio = GetEnergyLossChio();
-		E_dc2 = GetEnergyLossDC2();
- 		E_sed = GetEnergyLossSed();
- 		E_dc1 = GetEnergyLossDC1();
- 		E_tgt = GetEnergyLossTarget();
-		
-		E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;	//Correction on the total energy based on the Silicon energy (E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1)
-		E_VAMOS += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;
-	}
-	// Correction on the total energy Chio-Si Identification
-	// A/Q and A corrections don't depend on corrected energy, but only on EChio+ESi
-	if( CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==4 || Code_Ident_Vamos==10) ){ 
-		E_csi = GetEnergyLossCsI(Si->Number+1);   		 
-		E_gap2 = GetEnergyLossGap2(Si->Number+1); //gap Si-CsI     
-		E_gap1 = GetEnergyLossGap1(Si->Number+1); //gap Chio-Si	
-		E_chio = GetEnergyLossChio();
-		E_dc2 = GetEnergyLossDC2();
- 		E_sed = GetEnergyLossSed();
- 		E_dc1 = GetEnergyLossDC1();
- 		E_tgt = GetEnergyLossTarget();	
-		
-		if(Code_Ident_Vamos==2)	 E_VAMOS += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;
-		if(Code_Ident_Vamos==10){
-			E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1 + E_gap2;
-			E_VAMOS += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1 + E_gap2;
-		}	
-	} 					
-      //===============================================================
-           
-      A_classic_wooff_nostraight = 2.* E / (AMU*TMath::Power(Beta_wooff_nostraight,2.));
-      A_classic_off_nostraight = 2.* E / (AMU*TMath::Power(Beta_off_nostraight,2.));		   
-      A_classic_wooff_straight = 2.* E / (AMU*TMath::Power(Beta_wooff_straight,2.));
-      A_classic_off_straight = 2.* E / (AMU*TMath::Power(Beta_off_straight,2.));
-      
-      Q_classic_wooff_nostraight = A_classic_wooff_nostraight/AQ_classic_wooff_nostraight;
-      Q_classic_off_nostraight = A_classic_off_nostraight/AQ_classic_off_nostraight;
-      Q_classic_wooff_straight = A_classic_wooff_straight/AQ_classic_wooff_straight;
-      Q_classic_off_straight = A_classic_off_straight/AQ_classic_off_straight;
-      
-      A_relativiste_wooff_nostraight = E/(AMU*(Gamma_relativiste_wooff_nostraight-1));
-      A_relativiste_off_nostraight = E/(AMU*(Gamma_relativiste_off_nostraight-1));
-      A_relativiste_wooff_straight = E/(AMU*(Gamma_relativiste_wooff_straight-1));
-      A_relativiste_off_straight =   E/(AMU*(Gamma_relativiste_off_straight-1));   
-      
-      Q_relativiste_wooff_nostraight = A_relativiste_wooff_nostraight/AQ_relativiste_wooff_nostraight;
-      Q_relativiste_off_nostraight = A_relativiste_off_nostraight/AQ_relativiste_off_nostraight;
-      Q_relativiste_wooff_straight = A_relativiste_wooff_straight/AQ_relativiste_wooff_straight;
-      Q_relativiste_off_straight = A_relativiste_off_straight/AQ_relativiste_off_straight;            
-      
-      M = A_relativiste_off_nostraight;
-      Q = M/AQ_relativiste_off_straight;
-      
-      //M = 2.* E / (931.5016*TMath::Power(Beta_relativiste_off_straight,2.));
-      //Q = M/AQ_relativiste_off_straight;
-      
-      //M = 2.* E / (931.5016*TMath::Power(Beta,2.));
-      //Q = M/M_Q;
-            
-      //Mass = M_Q*PID;           
-      //Mr = (E/1000.)/931.5016/(Gamma-1.);
-      //M_Qr = Rec->Brho/3.105/Beta/Gamma;
-      //Qr = Mr/M_Qr;
-      //Qr = (-1.036820+1.042380*Qr +0.4801678e-03*Qr*Qr);
-      //Qc = int(Qr+0.5);
-      //Mc = M_Qr*Qc;
-      
-   M_Qcorr = 0.0;
-   M_corr_D2 = 0.0;
-   Q_corr = 0;
-   Q_corr_D = 0.0;
-   realQ = 0;
-   realQ_D = 0;
-   Qid = 0;
-   Q2 = 0;
-      
-   }
-//====================================================================================================
-// Première fonction de correction de Q
-// First Q correction, according to the CsI detector (Si-CsI Identification)
-	if( CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==1){   
-		DetCsI = int(CsI->Number)+1;   
-		Q_corr = int(TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5));
-		Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
-
-	}
-// End of the fisrt Q correction       
-//====================================================================================================
-
-//==========================================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identifications Si-CsI, Chio-Si and Si-ToF.
-
-GetFileCut();
-GetFileCutChioSi();
-GetFileCutSiTof();
- 
-//====================================================================================================
-// Second Q correction, by correcting the M and M/Q value
-// Case Si-CsI Identification
-    if(Q_corr>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==1)	
-    {                 
-	M_corr = Q_corr*M_Q;
-	M_corr_D = Q_corr_D*M_Q;
-	
-	// Correction de M/Q en fonction du Brho
-	// M/Q correction according to the Brho		
-	M_Qcorr = P0_mq[runNumber] + (P1_mq[runNumber]*M_Q); 
-    }	
-    if(Q_corr>0 && llist->IsZombie()==0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==1)
-    {   		
-	// Correction de M en fonction du Brho et de l'état de charge Q
-	// M correction according the Brho value and the charge state Q
-
-	if(q5!=NULL && q5->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 5;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);
-	}
-	else if(q6!=NULL && q6->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 6;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q7!=NULL && q7->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 7;	
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q8!=NULL && q8->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 8;	
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q9!=NULL && q9->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 9;	
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}	
-	else if(q10!=NULL && q10->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 10;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}
-	else if(q11!=NULL && q11->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 11;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q12!=NULL && q12->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 12;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q13!=NULL && q13->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 13;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}
-	else if(q14!=NULL && q14->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 14;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}	
-	else if(q15!=NULL && q15->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 15;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);
-	}
-	else if(q16!=NULL && q16->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 16;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}	
-	else if(q17!=NULL && q17->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 17;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 
-	}
-	else if(q18!=NULL && q18->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 18;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q19!=NULL && q19->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 19;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q20!=NULL && q20->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 20;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q21!=NULL && q21->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 21;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}	
-	else 
-	{
-	Qid = 0;
-	M_corr_D2 = 0.0;
-	}
-	
-	Q_corr_D2 = M_corr_D2 / M_Qcorr;
-	Q2 = int(TMath::Floor(Q_corr_D2+0.5));	
-	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;   	
-    	}	            
-// End of the second Q correction : Si-CsI Identification
-//====================================================================================================
-// Second Q correction : Chio-Si Identification    
-if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==2 )	
-    { 
-	M_Qcorr = P0_mq_chiosi[runNumber] + (P1_mq_chiosi[runNumber]*M_Q);     
-    }
-    
-    if(Q>0 && llist2->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2) )
-    {   		
-	// Correction de M en fonction du Brho et de l'état de charge Q
-	// M correction according the Brho value and the charge state Q
-	if(q5cs!=NULL && q5cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 5;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}
-	else if(q6cs!=NULL && q6cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 6;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}	
-	else if(q7cs!=NULL && q7cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 7;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}
-	else if(q8cs!=NULL && q8cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 8;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}
-	else if(q9cs!=NULL && q9cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 9;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}	
-	else if(q10cs!=NULL && q10cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 10;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q11cs!=NULL && q11cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 11;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q12cs!=NULL && q12cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 12;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}
-	else if(q13cs!=NULL && q13cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 13;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q14cs!=NULL && q14cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 14;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}	
-	else if(q15cs!=NULL && q15cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 15;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);
-	}
-	else if(q16cs!=NULL && q16cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 16;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}	
-	else if(q17cs!=NULL && q17cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 17;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M); 
-	}
-	else if(q18cs!=NULL && q18cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 18;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q19cs!=NULL && q19cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 19;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q20cs!=NULL && q20cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 20;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q21cs!=NULL && q21cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 21;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		
-	}
-	else 
-	{
-	Qid = 0;
-	M_corr_D2 = 0.0;
-	}
-	
-	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
-	Q2 = int(TMath::Floor(Q_corr_D2+0.5));	
-	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;      
-   	
-    	}	
-//====================================================================================================
-
-//====================================================================================================
-// Second Q correction : Si-Tof Identification    
-if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )	
-    { 
-	M_Qcorr = P0_mq_sitof[runNumber] + (P1_mq_sitof[runNumber]*M_Q);     
-    }
-    
-    if(Q>0 && llist3->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==10 )
-    {   		
-	// Correction de M en fonction du Brho et de l'état de charge Q
-	// M correction according the Brho value and the charge state Q
-	if(q6st!=NULL && q6st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 6;	
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);	 
-	}	
-	else if(q7st!=NULL && q7st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 7;	
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);	 
-	}	
-	else if(q8st!=NULL && q8st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 8;	
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);	 
-	}
-	else if(q9st!=NULL && q9st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 9;	
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);	 
-	}	
-	else if(q10st!=NULL && q10st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 10;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}
-	else if(q11st!=NULL && q11st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 11;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}
-	else if(q12st!=NULL && q12st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 12;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);	 
-	}
-	else if(q13st!=NULL && q13st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 13;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}
-	else if(q14st!=NULL && q14st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 14;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}	
-	else if(q15st!=NULL && q15st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 15;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);
-	}
-	else if(q16st!=NULL && q16st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 16;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);	 
-	}	
-	else if(q17st!=NULL && q17st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 17;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M); 
-	}
-	else if(q18st!=NULL && q18st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 18;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}
-	else if(q19st!=NULL && q19st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 19;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}
-	else if(q20st!=NULL && q20st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 20;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		 
-	}
-	else if(q21st!=NULL && q21st->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 21;
-	M_corr_D2 = P0_m_sitof[runNumber][Qid] + (P1_m_sitof[runNumber][Qid]*M);		
-	}
-	else 
-	{
-	Qid = 0;
-	M_corr_D2 = 0.0;
-	}
-	
-	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
-	Q2 = int(TMath::Floor(Q_corr_D2+0.5));	
-	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;      
-   	
-    	}	
-//====================================================================================================
-
-//====================================================================================================
-// Flag the events
-
-// Code_Vamos : 
-// Code_Vamos = 1 : Fragment à l'intérieur de la région d'intérêt et Q correct (Z-3<Q<Z+1)
-// Code_Vamos = 2 : Fragment à l'extérieur de la région d'intérêt, mais dont Q est correct
-// Code_Vamos = 3 : Fragment à l'intérieur de la région d'intérêt et Q>Z
-// Code_Vamos = 4 : Fragment à l'intérieur de la région d'intérêt et Q<Z-3
-// Code_Vamos = 5 : Fragment à l'extérieur de la région d'intérêt et Q>Z
-// Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-3
-// Code_Vamos = 13 : Else
-    
-  if(Z_corr>4 && Z_corr<21 && Qid>0 && M_realQ>0){	// Flag les events pour Z = 5-20 et Qid>0
-    if( Rec->Brho >= Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-3){
-		Code_Vamos = 1;
-	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber])) && Qid<Z_corr+1 && Qid>Z_corr-3){
-    		Code_Vamos = 2;
-    	}	
-    else if( Rec->Brho >= Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Qid>Z_corr){
-		Code_Vamos = 3;
-	}
-    else if( Rec->Brho >= Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber] && Qid<Z_corr-3){
-    		Code_Vamos = 4;
-    	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber])) && Qid>Z_corr){
-		Code_Vamos = 5;
-	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(TMath::Floor(M_realQ+0.5))][Qid][runNumber])) && Qid<Z_corr-3 && Qid>0){
-    		Code_Vamos = 6;
-    	}		
-	else{
-		Code_Vamos = 13;
-	}
-  }
-  else{
-		Code_Vamos = 0;
- }
-//====================================================================================================
-*/    
 NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
 //Correction du temps mort : 1.0 / (1.0-DT(%)) (/ 6.21295660000000000e+07 pour que correction soit de l'ordre de l'unité)
 DT = 1.0/(1.0 - (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT")/100.0) );
@@ -1979,12 +1558,6 @@ FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
 Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho");   
 stat_tot = 0.;
 stat_tot = Stat_Indra[gIndra->GetCurrentRunNumber()]; 
-   
-  if( T > 0 && V > 0 && M_Q > 0 && M > 0 && Z1 > 0 && Z2 > 0 && Beta > 0 && Gamma > 1.0) 
-    {
-      Present=true;
-      Counter[2]++;
-    }
 
 }
 
@@ -2053,7 +1626,6 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("EGap",&EGap,"EGap/D");
 	outT->Branch("ECsI",&ECsI,"ECsI/D");
 	outT->Branch("ECsI_corr",&ECsI_corr,"ECsI_corr/D");
-	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");	
 	outT->Branch("DT",&DT,"DT/D");
 	outT->Branch("Brho_mag",&Brho_mag,"Brho_mag/D");		
 	outT->Branch("FC_Indra",&FC_Indra,"FC_Indra/D");
@@ -2088,48 +1660,12 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("DTcorr",&DT,"DT/D");
 	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");
 	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");
-	outT->Branch("Code_Vamos", &Code_Vamos, "Code_Vamos/I");
+	outT->Branch("Code_Vamos", Code_Vamos, "Code_Vamos[MaxM]/I");
 	outT->Branch("Code_Ident_Vamos", Code_Ident_Vamos, "Code_Ident_Vamos[MaxM]/I");
 		
-	outT->Branch("E",E,"E[MaxM]/F");
+	outT->Branch("E_VAMOS",Etot,"Etot[MaxM]/F");
 	//outT->Branch("E",&E_VAMOS,"E_VAMOS/F");
-	//outT->Branch("T",&T,"T/F");
-		
-	/*outT->Branch("T_straightpaola",&T_straightpaola,"T_straightpaola/F");
-	outT->Branch("T_wooff_nostraight",&T_wooff_nostraight,"T_wooff_nostraight/F");
-	outT->Branch("T_off_nostraight",&T_off_nostraight,"T_off_nostraight/F");
-	outT->Branch("T_wooff_straight",&T_wooff_straight,"T_wooff_straight/F");
-	outT->Branch("T_off_straight",&T_off_straight,"T_off_straight/F");
-	
-	outT->Branch("AQ_relativiste_wooff_nostraight",&AQ_relativiste_wooff_nostraight,"AQ_relativiste_wooff_nostraight/F");
-	outT->Branch("AQ_relativiste_off_nostraight",&AQ_relativiste_off_nostraight,"AQ_relativiste_off_nostraight/F");
-	outT->Branch("AQ_relativiste_wooff_straight",&AQ_relativiste_wooff_straight,"AQ_relativiste_wooff_straight/F");
-	outT->Branch("AQ_relativiste_off_straight",&AQ_relativiste_off_straight,"AQ_relativiste_off_straight/F");
-	
-	outT->Branch("A_relativiste_wooff_nostraight",&A_relativiste_wooff_nostraight,"A_relativiste_wooff_nostraight/F");
-	outT->Branch("A_relativiste_off_nostraight",&A_relativiste_off_nostraight,"A_relativiste_off_nostraight/F");
-	outT->Branch("A_relativiste_wooff_straight",&A_relativiste_wooff_straight,"A_relativiste_wooff_straight/F");
-	outT->Branch("A_relativiste_off_straight",&A_relativiste_off_straight,"A_relativiste_off_straight/F");
-		
-	outT->Branch("Q_relativiste_wooff_nostraight",&Q_relativiste_wooff_nostraight,"Q_relativiste_wooff_nostraight/F");
-	outT->Branch("Q_relativiste_off_nostraight",&Q_relativiste_off_nostraight,"Q_relativiste_off_nostraight/F");
-	outT->Branch("Q_relativiste_wooff_straight",&Q_relativiste_wooff_straight,"Q_relativiste_wooff_straight/F");
-	outT->Branch("Q_relativiste_off_straight",&Q_relativiste_off_straight,"Q_relativiste_off_straight/F");       
-	
-	outT->Branch("AQ_classic_wooff_nostraight",&AQ_classic_wooff_nostraight,"AQ_classic_wooff_nostraight/F");
-	outT->Branch("AQ_classic_off_nostraight",&AQ_classic_off_nostraight,"AQ_classic_off_nostraight/F");
-	outT->Branch("AQ_classic_wooff_straight",&AQ_classic_wooff_straight,"AQ_classic_wooff_straight/F");
-	outT->Branch("AQ_classic_off_straight",&AQ_classic_off_straight,"AQ_classic_off_straight/F");
-	
-	outT->Branch("A_classic_wooff_nostraight",&A_classic_wooff_nostraight,"A_classic_wooff_nostraight/F");
-	outT->Branch("A_classic_off_nostraight",&A_classic_off_nostraight,"A_classic_off_nostraight/F");
-	outT->Branch("A_classic_wooff_straight",&A_classic_wooff_straight,"A_classic_wooff_straight/F");
-	outT->Branch("A_classic_off_straight",&A_classic_off_straight,"A_classic_off_straight/F");   
-	
-	outT->Branch("Q_classic_wooff_nostraight",&Q_classic_wooff_nostraight,"Q_classic_wooff_nostraight/F");
-	outT->Branch("Q_classic_off_nostraight",&Q_classic_off_nostraight,"Q_classic_off_nostraight/F");
-	outT->Branch("Q_classic_wooff_straight",&Q_classic_wooff_straight,"Q_classic_wooff_straight/F");
-	outT->Branch("Q_classic_off_straight",&Q_classic_off_straight,"Q_classic_off_straight/F"); */  
+	//outT->Branch("T",&T,"T/F"); 
 								
 	outT->Branch("D",&D,"D/F");
 	outT->Branch("V_VAMOS",V,"V[MaxM]/F");
@@ -2154,18 +1690,15 @@ void Identificationv::outAttach(TTree *outT)
 	outT->Branch("AQ", M_Q, "M_Q[MaxM]/F");		
 	outT->Branch("Q",Q,"Q[MaxM]/F");
 	outT->Branch("A",M,"M[MaxM]/F");
+		
+	outT->Branch("AQ_chiosi", M_Q_chiosi, "M_Q_chiosi[MaxM]/F");		
+	outT->Branch("Q_chiosi",Q_chiosi,"Q_chiosi[MaxM]/F");
+	outT->Branch("A_chiosi",M_chiosi,"M_chiosi[MaxM]/F");	
+	outT->Branch("Off_chiosi",Off_chiosi,"Off_chiosi[MaxM]/D");
+	outT->Branch("Off_dc1dc2",Off_dc1dc2,"Off_dc1dc2[MaxM]/D");	
+	
 	
 	outT->Branch("Abisec",AA,"AA[MaxM]/F");
-		
-	/*outT->Branch("Q_corr", &Q_corr, "Q_corr/I");
-	outT->Branch("Q_corr_D", &Q_corr_D,"Q_corr_D/D");
-	outT->Branch("A_corr", &M_corr, "M_corr/D");
-	outT->Branch("A_corr_D", &M_corr_D,"M_corr_D/D");*/
-	/*outT->Branch("A_realQ", &M_realQ, "M_realQ/D");
-	outT->Branch("A_realQ_D", &M_realQ_D,"M_realQ_D/D");
-	outT->Branch("A_corr_D2", &M_corr_D2,"M_corr_D2/D");
-	outT->Branch("Q_corr_D2", &Q_corr_D2,"Q_corr_D2/D");
-	outT->Branch("Qid", &Qid, "Qid/I");*/
 
 }
 
@@ -2637,24 +2170,23 @@ if(!gDataSet->OpenDataSetFile("Flag_CodeVamos.dat",file4))
 		sline4.ReadLine(file4);
 			if (!file4.eof()) {          //fin du fichier
 				if (sline4.Sizeof() > 1 && !sline4.BeginsWith("#")){
-					sscanf(sline4.Data(), "%u %u %u %f %u %u %f %f",
-    					&z,&a,&q,&brho0,&run1,&run2,&brhomin,&brhomax);
-					//cout<<"z : "<<z<<" a : "<<a<<" q : "<<q<<" i: "<<run1<<" "<<run2<<" "<<brhomin<<endl;
+					sscanf(sline4.Data(), "%f %u %u %f %f",
+    					&brho0,&run1,&run2,&brhomin,&brhomax);
 					for(Int_t i=run1; i<run2+1; i++){			
-						Brho_min[z][a][q][i] = brhomin;
-						Brho_max[z][a][q][i] = brhomax;			
+						Brho_min[i] = brhomin;
+						Brho_max[i] = brhomax;  	       
 						}
 					if(run1==run2)
 						{
-						Brho_min[z][a][q][run1] = brhomin;
-						Brho_max[z][a][q][run2] = brhomax;					
+						Brho_min[run1] = brhomin;
+						Brho_max[run2] = brhomax;				       
 						}
 					if(TMath::Abs(run2-run1)==1)
 						{
-						Brho_min[z][a][q][run1] = brhomin;
-						Brho_max[z][a][q][run1] = brhomax;
-						Brho_min[z][a][q][run2] = brhomin;
-						Brho_max[z][a][q][run2] = brhomax;										
+						Brho_min[run1] = brhomin;
+						Brho_max[run1] = brhomax;
+						Brho_min[run2] = brhomin;
+						Brho_max[run2] = brhomax;									       
 						}				
 														
 					}
@@ -2662,6 +2194,8 @@ if(!gDataSet->OpenDataSetFile("Flag_CodeVamos.dat",file4))
 			}
 	}
 	//cout<<"Done Reading Flag_CodeVamos.dat"<<endl;
+	// Brho_min[z][a][q][i] = brhomin;
+	// Brho_max[z][a][q][i] = brhomax;
 file4.close();
 //==========================================================================
 
@@ -2869,12 +2403,52 @@ file6.close();
 return;
 }
 
+void Identificationv::ReadOffsetsChiosi()
+{
+
+   TString sline3;   
+   ifstream in3;
+   Float_t brho0,aq,sig_aq,off_relativiste;
+   Int_t run1,run2;
+   
+   
+  //ToF Offset for each run
+   if(!gDataSet->OpenDataSetFile("Offset_relativiste_chiosi.dat",in3))
+  {
+     cout << "Could not open the calibration file Offset_relativiste.cal !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	cout<< "Reading Offset_relativiste.dat" <<endl;
+    L->Log << "Reading Offset_relativiste.dat" << endl;
+	while(!in3.eof()){
+       sline3.ReadLine(in3);
+       if(!in3.eof()){
+	   if (!sline3.BeginsWith("+")&&!sline3.BeginsWith("#")){
+	     sscanf(sline3.Data(),"%f %d %d %f %f %f",&brho0, &run1, &run2, &off_relativiste, &aq, &sig_aq);
+	     		for(Int_t i=run1; i<run2+1; i++) { 
+				Offset_relativiste_chiosi[i] = off_relativiste;
+				//cout<<"offset relativiste : "<<i<<"	"<<Offset_relativiste[i]<<endl;
+			}
+	     	   }
+       		}
+     	}
+  }
+  in3.close();
+
+
+return;
+}
+
 void Identificationv::ReadStraightAQ()
 {
 
 //==========================================================================
 ifstream file8;	
 TString sline8;
+ifstream file80;	
+TString sline80;
 
 Int_t si;
 Float_t p0, err_p0;
@@ -2906,176 +2480,32 @@ while (file8.good()) {         //reading the file
 		}
 	}
 file8.close();
+
+if(!gDataSet->OpenDataSetFile("straight_fct_chiosi.dat",file80))
+  {	
+     L->Log<< "Could not open the calibration file  straight_fct_chiosi!!!" << endl;
+     return;
+  }
+  else 
+  {
+while (file80.good()) {         //reading the file
+      sline80.ReadLine(file80);
+      if (!file80.eof()) {          //fin du fichier
+		if (sline80.Sizeof() > 0 && !sline80.BeginsWith("#")){
+			sscanf(sline80.Data(), "%u %f %f %f %f %f %f",&si,&p0,&err_p0,&p1,&err_p1,&p2,&err_p2);
+				P0_aq_straight_chiosi[si] = p0; 
+				P1_aq_straight_chiosi[si] = p1;
+				P2_aq_straight_chiosi[si] = p2;					
+				}
+			}
+		}
+	}
+file80.close();
 //==========================================================================
 
 
 return;
 }
-
-
-//===================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identification Si-CsI
-void Identificationv::SetFileCut(TList *list)
-{
-	llist = list;	
-}
-void Identificationv::GetFileCut()
-{	
-q21 =NULL;
-q20 =NULL;
-q19 =NULL;
-q18 =NULL;
-q17 =NULL;
-q16 =NULL;
-q15 =NULL;
-q14 =NULL;
-q13 =NULL;
-q12 =NULL;
-q11 =NULL;
-q10 =NULL;
-q9 =NULL;
-q8 =NULL; 
-q7 =NULL; 
-q6 =NULL; 
-q5 =NULL; 
-
-	if(llist->IsZombie()==0){
-		//L->Log<<"reading cuts..."<<endl;	
-		//llist->Print();
-		q21 = (TCutG *)llist->FindObject("q21");		
-		q20 = (TCutG *)llist->FindObject("q20");
-		q19 = (TCutG *)llist->FindObject("q19");
-		q18 = (TCutG *)llist->FindObject("q18");
-		q17 = (TCutG *)llist->FindObject("q17");
-		q16 = (TCutG *)llist->FindObject("q16");
-		q15 = (TCutG *)llist->FindObject("q15");
-		q14 = (TCutG *)llist->FindObject("q14");
-		q13 = (TCutG *)llist->FindObject("q13");				
-		q12 = (TCutG *)llist->FindObject("q12");
-		q11 = (TCutG *)llist->FindObject("q11");
-		q10 = (TCutG *)llist->FindObject("q10");
-		q9 = (TCutG *)llist->FindObject("q9");
-		q8 = (TCutG *)llist->FindObject("q8");
-		q7 = (TCutG *)llist->FindObject("q7");
-		q6 = (TCutG *)llist->FindObject("q6");
-		q5 = (TCutG *)llist->FindObject("q5");
-
-	}
-	else{
-		L->Log<<"not reading cuts (Si-CsI)..."<<endl;
-	}
-}
-//===================================================
-
-//===================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identification Chio-Si
-void Identificationv::SetFileCutChioSi(TList *list2)
-{
-	llist2 = list2;	
-}
-void Identificationv::GetFileCutChioSi()
-{
-q20cs =NULL;
-q19cs =NULL;
-q18cs =NULL;
-q17cs =NULL;
-q16cs =NULL;
-q15cs =NULL;
-q14cs =NULL;
-q13cs =NULL;
-q12cs =NULL;
-q11cs =NULL;
-q10cs =NULL;
-q9cs =NULL;
-q8cs =NULL;
-q7cs =NULL;
-q6cs =NULL;
-q5cs =NULL;
-
-	if(llist2->IsZombie()==0){
-		//L->Log<<"reading cuts..."<<endl;	
-		//llist->Print();
-		
-		if(((TCutG *)llist2->FindObject("q20"))!=0) q20cs = (TCutG *)llist2->FindObject("q20");
-		if(((TCutG *)llist2->FindObject("q19"))!=0) q19cs = (TCutG *)llist2->FindObject("q19");
-		if(((TCutG *)llist2->FindObject("q18"))!=0) q18cs = (TCutG *)llist2->FindObject("q18");
-		if(((TCutG *)llist2->FindObject("q17"))!=0) q17cs = (TCutG *)llist2->FindObject("q17");
-		if(((TCutG *)llist2->FindObject("q16"))!=0) q16cs = (TCutG *)llist2->FindObject("q16");
-		if(((TCutG *)llist2->FindObject("q15"))!=0) q15cs = (TCutG *)llist2->FindObject("q15");
-		if(((TCutG *)llist2->FindObject("q14"))!=0) q14cs = (TCutG *)llist2->FindObject("q14");
-		if(((TCutG *)llist2->FindObject("q13"))!=0) q13cs = (TCutG *)llist2->FindObject("q13");				
-		if(((TCutG *)llist2->FindObject("q12"))!=0) q12cs = (TCutG *)llist2->FindObject("q12");
-		if(((TCutG *)llist2->FindObject("q11"))!=0) q11cs = (TCutG *)llist2->FindObject("q11");
-		if(((TCutG *)llist2->FindObject("q10"))!=0) q10cs = (TCutG *)llist2->FindObject("q10");
-		if(((TCutG *)llist2->FindObject("q9"))!=0) q9cs = (TCutG *)llist2->FindObject("q9");
-		if(((TCutG *)llist2->FindObject("q8"))!=0) q8cs = (TCutG *)llist2->FindObject("q8");
-		if(((TCutG *)llist2->FindObject("q7"))!=0) q7cs = (TCutG *)llist2->FindObject("q7");
-		if(((TCutG *)llist2->FindObject("q6"))!=0) q6cs = (TCutG *)llist2->FindObject("q6");
-		if(((TCutG *)llist2->FindObject("q5"))!=0) q5cs = (TCutG *)llist2->FindObject("q5");		
-
-	}
-	else{
-		L->Log<<"not reading cuts (Chio-Si)..."<<endl;
-	}
-}
-//===================================================
-
-//===================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identification Si-Tof
-void Identificationv::SetFileCutSiTof(TList *list3)
-{
-	llist3 = list3;	
-}
-void Identificationv::GetFileCutSiTof()
-{
-q20st =NULL;
-q19st =NULL;
-q18st =NULL;
-q17st =NULL;
-q16st =NULL;
-q15st =NULL;
-q14st =NULL;
-q13st =NULL;
-q12st =NULL;
-q11st =NULL;
-q10st =NULL;
-q9st =NULL;
-q8st =NULL;
-q7st =NULL;
-q6st =NULL;
-
-	if(llist3->IsZombie()==0){
-		//L->Log<<"reading cuts..."<<endl;	
-		//llist->Print();
-		
-		if(((TCutG *)llist3->FindObject("q20"))!=0) q20st = (TCutG *)llist3->FindObject("q20");
-		if(((TCutG *)llist3->FindObject("q19"))!=0) q19st = (TCutG *)llist3->FindObject("q19");
-		if(((TCutG *)llist3->FindObject("q18"))!=0) q18st = (TCutG *)llist3->FindObject("q18");
-		if(((TCutG *)llist3->FindObject("q17"))!=0) q17st = (TCutG *)llist3->FindObject("q17");
-		if(((TCutG *)llist3->FindObject("q16"))!=0) q16st = (TCutG *)llist3->FindObject("q16");
-		if(((TCutG *)llist3->FindObject("q15"))!=0) q15st = (TCutG *)llist3->FindObject("q15");
-		if(((TCutG *)llist3->FindObject("q14"))!=0) q14st = (TCutG *)llist3->FindObject("q14");
-		if(((TCutG *)llist3->FindObject("q13"))!=0) q13st = (TCutG *)llist3->FindObject("q13");			    
-		if(((TCutG *)llist3->FindObject("q12"))!=0) q12st = (TCutG *)llist3->FindObject("q12");
-		if(((TCutG *)llist3->FindObject("q11"))!=0) q11st = (TCutG *)llist3->FindObject("q11");
-		if(((TCutG *)llist3->FindObject("q10"))!=0) q10st = (TCutG *)llist3->FindObject("q10");
-		if(((TCutG *)llist3->FindObject("q9"))!=0) q9st = (TCutG *)llist3->FindObject("q9");
-		if(((TCutG *)llist3->FindObject("q8"))!=0) q8st = (TCutG *)llist3->FindObject("q8");
-		if(((TCutG *)llist3->FindObject("q7"))!=0) q7st = (TCutG *)llist3->FindObject("q7");
-		if(((TCutG *)llist3->FindObject("q6"))!=0) q6st = (TCutG *)llist3->FindObject("q6");
-	}
-	else{
-		L->Log<<"not reading cuts (Chio-Si)..."<<endl;
-	}
-}
-//===================================================
-
 
 //===================================================
 void Identificationv::SetTarget(KVTarget *tgt)
@@ -3305,156 +2735,4 @@ Double_t Identificationv::GetEnergyLossTarget(Int_t Z, Double_t AQ)
 	return einc_tgt-einc_dc1;
 	//return eloss_tgt;
 }
-
-
-
-/*Double_t Identificationv::GetEnergyLossCsI(Int_t number)
-{
-	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
-
-	//Calcul de l'énergie perdue dans csi
-	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
-	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
-	
-	einc_csi = GetGap2()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),eloss_isogap2);
-	eloss_csi = GetCsI()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
-	GetSi()->Clear();
-	
-	return eloss_csi;
-}
-
-Double_t Identificationv::GetEnergyLossGap2(Int_t number)
-{
-	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
-
-	//Calcul de l'énergie perdue dans isogap2
-	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
-	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);
-	
-	GetSi()->Clear();
-	
-	return eloss_isogap2;
-}
-
-Double_t Identificationv::GetEnergyLossGap1(Int_t number)
-{
-	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);	
-	einc_si = GetSi()->GetIncidentEnergy(int(Z_PID),int(M_Q*Z_PID),ESi);
-
-	//Calcul de l'énergie perdue dans isogap1
-	einc_isogap1 = GetGap1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
-	eloss_isogap1 = GetGap1()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
-	
-	GetSi()->Clear();
-	
-	return eloss_isogap1;
-}
-
-Double_t Identificationv::GetEnergyLossChio()	
-{
-	//Calcul de l'énergie perdue dans la chio
-	einc_ic = GetIC()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_isogap1);
-
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
-	kvn->SetEnergy(einc_ic); 
-    	KVMaterial *kvm_ic = 0; 
-	      
-    for(Int_t i=0; i<2; i++){	//Take account only the first two layers, because the calibration gives the energy for the active layer, which is the last layer...
-    	fELosLayer_ic[i] = 0.;
-	kvm_ic = (KVMaterial*) GetIC()->GetAbsorber(i);
-        kvm_ic->DetectParticle(kvn);
-	
-        fELosLayer_ic[i] = kvm_ic->GetEnergyLoss();
-        eloss_ic += fELosLayer_ic[i];	
-	}
-	
-	kvn->Clear();
-	GetIC()->Clear();
-	
-	return eloss_ic;
-}
-
-Double_t Identificationv::GetEnergyLossDC2()
-{
-	//Calcul de l'énergie perdue dans la DC2
-	einc_dc2 = GetDC2()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_ic);
-
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
-	kvn->SetEnergy(einc_dc2); 
-    	KVMaterial *kvm_dc2 = 0;  
-		     
-    for(Int_t i=0; i<3; i++){
-    	fELosLayer_dc2[i] = 0.;
-	kvm_dc2 = (KVMaterial*) GetDC2()->GetAbsorber(i);
-        kvm_dc2->DetectParticle(kvn);
-	
-        fELosLayer_dc2[i] = kvm_dc2->GetEnergyLoss();
-        eloss_dc2 += fELosLayer_dc2[i];	
-	}
-	
-	kvn->Clear();
-	GetDC2()->Clear();
-	
-	return eloss_dc2;
-}
-
-Double_t Identificationv::GetEnergyLossSed()
-{
-	//Calcul de l'énergie perdue dans la SED    
-	TVector3 rot(0,1,-1); //45 deg 
-	einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
-	
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
-	kvn->SetEnergy(einc_sed);
-
-    	GetSed()->DetectParticle(kvn,&rot);
-    	eloss_sed = GetSed()->GetEnergyLoss();
-	
-	//einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
-	//eloss_sed = GetSed()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
-
-	GetSed()->Clear();
-	
-	return eloss_sed;
-}
-
-Double_t Identificationv::GetEnergyLossDC1()
-{
-	//Calcul de l'énergie perdue dans la DC1
-	einc_dc1 = GetDC1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_sed);
-
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
-	kvn->SetEnergy(einc_dc1); 
-    	KVMaterial *kvm_dc1 = 0;  
-		     
-    for(Int_t i=0; i<3; i++){
-    	fELosLayer_dc1[i] = 0.;
-	kvm_dc1 = (KVMaterial*)GetDC1()->GetAbsorber(i);
-        kvm_dc1->DetectParticle(kvn);
-	
-        fELosLayer_dc1[i] = kvm_dc1->GetEnergyLoss();
-        eloss_dc1 += fELosLayer_dc1[i];	
-	}
-	
-	kvn->Clear();
-	GetDC1()->Clear();
-	
-	return eloss_dc1;
-}
-
-Double_t Identificationv::GetEnergyLossTarget()
-{
-	//Calcul de l'énergie perdue dans la cible
-	einc_tgt = GetTarget()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
-	eloss_tgt = GetTarget()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
-	
-	GetTarget()->Clear();
-	
-	return einc_tgt-einc_dc1;
-	//return eloss_tgt;
-}*/
 

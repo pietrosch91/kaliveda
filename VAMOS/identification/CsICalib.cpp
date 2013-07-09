@@ -175,6 +175,52 @@ void CsICalib::InitChioV2(Int_t ci_num)
 
 }
 
+void CsICalib::InitQStraight_chiosi(Int_t chionum)
+{
+
+    Char_t tel_name [128] = "null";
+    sprintf(tel_name, "Q_AQ_CI%02d",chionum);	
+
+    kvid_qaq_chiosi = 0;
+    KVNumberList runList = 0;   
+     
+    if(list != 0){
+
+		tmpGrid = 0;
+
+		for(Int_t i=0; i<entries; i++){
+    			tmpGrid = (KVIDGrid*) list->At(i);
+    			if(tmpGrid != 0){				
+				runList = (KVNumberList) tmpGrid->GetRuns();
+        			runList.Begin();
+        			while( !runList.End() ){
+            				UInt_t next_val = (UInt_t) runList.Next();
+            				if(next_val == gIndra->GetCurrentRunNumber()){
+						//cout<<"tel name : "<<tmpGrid->GetName()<<endl;
+						if(strcmp(tmpGrid->GetName(),tel_name)==0){							
+							kvid_qaq_chiosi = tmpGrid;
+							break;
+							}
+						}
+					
+        				}
+    				}
+			} 
+			
+			      				
+		if(kvid_qaq_chiosi== 0){
+ 
+	    printf("Error: 'kvid_qaq_chiosi' assignment failed\n");
+	    cout<<"name : "<<tel_name<<endl; 	    
+        }    	
+    
+    
+    }
+
+
+return;
+}
+
 void CsICalib::InitQStraight(Int_t csinum)
 {
 
