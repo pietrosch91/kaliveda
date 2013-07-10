@@ -246,15 +246,26 @@ void KVIDGChIoSi::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) 
     if(fICode<KVIDZAGrid::kICODE4)
 	 {
 		 //identified particles below (left of) Bragg line : Z is a Zmin
-    	 if (fBragg && fBragg->WhereAmI(x, y, "left")){
-			  const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;idr->SetComment("Point to identify below Bragg curve. Z given is a Zmin");
-			  }
-    	 //if a particle is well-identified (i.e. not too far from the identification lines)
-	 	 //but it lies below the 'Punch_through' line, we give it a warning code
-    	 if (fPunch && fPunch->WhereAmI(x, y, "below")){
-			  const_cast<KVIDGChIoSi*>(this)->fICode = k_BelowPunchThrough;
-			  idr->SetComment("warning: point below punch-through line");
-			  }
-		 idr->IDquality = fICode;
-	 }
+        if (fBragg && fBragg->WhereAmI(x, y, "left")){
+            const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;idr->SetComment("Point to identify below Bragg curve. Z given is a Zmin");
+        }
+        //if a particle is well-identified (i.e. not too far from the identification lines)
+        //but it lies below the 'Punch_through' line, we give it a warning code
+        if (fPunch && fPunch->WhereAmI(x, y, "below")){
+            const_cast<KVIDGChIoSi*>(this)->fICode = k_BelowPunchThrough;
+            idr->SetComment("warning: point below punch-through line");
+        }
+        idr->IDquality = fICode;
+    }
+    else if(fICode==KVIDZAGrid::kICODE7)
+    {
+        // for particles above last line in grid, check if we are in fact in the Bragg zone
+        if (fBragg && fBragg->WhereAmI(x, y, "left")){
+            const_cast<KVIDGChIoSi*>(this)->fICode = k_LeftOfBragg;
+            idr->SetComment("Point to identify below Bragg curve. Z given is a Zmin");
+            idr->IDOK=kTRUE;
+            idr->IDquality=fICode;
+        }
+
+    }
 }
