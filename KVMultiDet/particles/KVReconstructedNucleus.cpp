@@ -258,34 +258,34 @@ void KVReconstructedNucleus::Identify()
         TIter next(idt_list);
         Int_t idnumber = 1;
         while ((idt = (KVIDTelescope *) next())) {
-			KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
-			
+            KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
+
             if ( IDR ){
-					if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
-				
-						IDR->IDattempted = kTRUE;
-						idt->Identify( IDR );
-					}
-					else
-						IDR->IDattempted = kFALSE;
-					
-					if((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK)){
-						// the particle is less identifiable than initially thought
-						// we may have to wait for secondary identification
-						Int_t nseg = GetNSegDet();
-						SetNSegDet(TMath::Max(nseg - 1, 0));
-						//if there are other unidentified particles in the group and NSegDet is < 2
-               	//then exact status depends on segmentation of the other particles : reanalyse
-               	if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1){
-							GetGroup()->AnalyseParticles();
-                  	return;
-                  }
-               	//if NSegDet = 0 it's hopeless
-               	if (!GetNSegDet()){
-							GetGroup()->AnalyseParticles();
-                     return;
-                  }
-					}
+                if(idt->IsReadyForID() ) { // is telescope able to identify for this run ?
+
+                    IDR->IDattempted = kTRUE;
+                    idt->Identify( IDR );
+                }
+                else
+                    IDR->IDattempted = kFALSE;
+
+                if((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK)){
+                    // the particle is less identifiable than initially thought
+                    // we may have to wait for secondary identification
+                    Int_t nseg = GetNSegDet();
+                    SetNSegDet(TMath::Max(nseg - 1, 0));
+                    //if there are other unidentified particles in the group and NSegDet is < 2
+                    //then exact status depends on segmentation of the other particles : reanalyse
+                    if (GetNSegDet() < 2 && GetGroup()->GetNUnidentified() > 1){
+                        GetGroup()->AnalyseParticles();
+                        return;
+                    }
+                    //if NSegDet = 0 it's hopeless
+                    if (!GetNSegDet()){
+                        GetGroup()->AnalyseParticles();
+                        return;
+                    }
+                }
             }
 
         }

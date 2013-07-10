@@ -1210,32 +1210,32 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 			part->GetParameters()->SetValue(det_stat->GetNameAt(ii),det_stat->GetStringValue(ii));
 		}
 		//On enregistre les differentes pertes d'energie dans les detecteurs
-		if (nvl){
-	      				
-			for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
-				part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
-				//On enregistre les detecteurs touches avec le Z et A de la particule
-				//Si il y a plusieurs particules, on somme les Z et A de celles ci
-				//Cela servira pour deduire les parametres d acquisition
-				//printf("%s %d %d\n",nvl->GetNameAt(ii),part->GetZ(),part->GetA());
-				if (fFilterType == kFilterType_Full){
-               if(un->HasParameter(nvl->GetNameAt(ii))){
-					   TString a_z(un->GetStringValue(nvl->GetNameAt(ii)));
-					   toks = a_z.Tokenize(" ");
-					   Int_t zz  = part->GetZ()+((TObjString* )toks->At(0))->GetString().Atoi();
-					   Int_t aa  = part->GetA()+((TObjString* )toks->At(1))->GetString().Atoi();
-					   un->SetValue(nvl->GetNameAt(ii),Form("%d %d",zz,aa));
-					   delete toks;
-				   }
-				   else {	
-					   un->SetValue(nvl->GetNameAt(ii),Form("%d %d",part->GetZ(),part->GetA()));
-				   }
+        if (nvl){
+
+            for (Int_t ii=0;ii<nvl->GetNpar();ii+=1){
+                part->GetParameters()->SetValue(nvl->GetNameAt(ii),nvl->GetDoubleValue(ii));
+                //On enregistre les detecteurs touches avec le Z et A de la particule
+                //Si il y a plusieurs particules, on somme les Z et A de celles ci
+                //Cela servira pour deduire les parametres d acquisition
+                //printf("%s %d %d\n",nvl->GetNameAt(ii),part->GetZ(),part->GetA());
+                if (fFilterType == kFilterType_Full){
+                    if(un->HasParameter(nvl->GetNameAt(ii))){
+                        TString a_z(un->GetStringValue(nvl->GetNameAt(ii)));
+                        toks = a_z.Tokenize(" ");
+                        Int_t zz  = part->GetZ()+((TObjString* )toks->At(0))->GetString().Atoi();
+                        Int_t aa  = part->GetA()+((TObjString* )toks->At(1))->GetString().Atoi();
+                        un->SetValue(nvl->GetNameAt(ii),Form("%d %d",zz,aa));
+                        delete toks;
+                    }
+                    else {
+                        un->SetValue(nvl->GetNameAt(ii),Form("%d %d",part->GetZ(),part->GetA()));
+                    }
+                }
             }
-			}
-			delete nvl;
-			nvl = 0;
-		}
-		_part->SetMomentum(*_part->GetPInitial());
+            delete nvl;
+            nvl = 0;
+        }
+        _part->SetMomentum(*_part->GetPInitial());
 
 	} 	//fin de loop over particles
 	
@@ -1394,11 +1394,11 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
    
 	// reconstruct & identify the event
 	rec_event->ReconstructEvent(fHitGroups);
-   rec_event->IdentifyEvent();
+    rec_event->IdentifyEvent();
 	// calculate particle energies
-   rec_event->CalibrateEvent();
+    rec_event->CalibrateEvent();
 	// 'coherency'
-   rec_event->SecondaryIdentCalib();
+    rec_event->SecondaryIdentCalib();
 }
 //__________________________________________________________________________________
 KVNameValueList* KVMultiDetArray::DetectParticle_KV(KVNucleus * part)
@@ -2141,10 +2141,11 @@ void KVMultiDetArray::DetectParticleIn(const Char_t * detname,
     //Given the name of a detector, simulate detection of a given particle
     //by the complete corresponding group. The particle's theta and phi are set
     //at random within the limits of the telescope to which the detector belongs
-	 KVDetector *kvd = GetDetector(detname);
+
+    KVDetector *kvd = GetDetector(detname);
     if (kvd) {
         KVNameValueList* nvl=0;
-		  KVTelescope *tele = kvd->GetTelescope();
+        KVTelescope *tele = kvd->GetTelescope();
         kvp->SetRandomMomentum(kvp->GetEnergy(), tele->GetThetaMin(),
                                tele->GetThetaMax(), tele->GetPhiMin(),
                                tele->GetPhiMax(), "random");
