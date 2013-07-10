@@ -512,7 +512,7 @@ Plugin.KVIDTelescope:      ^PHOS$                                  KVIDPhoswich 
 +Plugin.KVIDTelescope:    ^INDRA_e475s.CI-CSI$        KVIDChIoCsI_e475s              KVIndra      "KVIDChIoCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e475s.SI-CSI$        KVIDSiCsI_e475s              KVIndra      "KVIDSiCsI_e475s()"
 +Plugin.KVIDTelescope:    ^INDRA_e613.SI-CSI$         KVIDSiCsI_e613               KVIndra      "KVIDSiCsI_e613()"
-
++Plugin.KVIDTelescope:    ^INDRA_e613.CI-SI$         KVIDChIoSi_e613               KVIndra      "KVIDChIoSi_e613()"
 #======================= Identification parameter files for different datasets
 # Format is
 #

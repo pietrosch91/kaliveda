@@ -63,6 +63,7 @@ void KVIDSiCsI_e613::Initialize()
     SetBit(kReadyForID);
     fGGgrid->Initialize();
     if(fPGgrid) fPGgrid->Initialize();
+    fPIEDESTAL = (KVIDCutLine*)fGGgrid->GetCut("PIEDESTAL");
     }
   else ResetBit(kReadyForID);
    
@@ -72,16 +73,10 @@ void KVIDSiCsI_e613::Initialize()
 Double_t KVIDSiCsI_e613::GetIDMapX(Option_t * opt)
 {
   //Calculates current X coordinate for identification.
-  //It is the CsI detector's total light output calculated from current values of 'R' and 'L'
-  //raw data without pedestal correction (because identification maps were drawn without
-  //correcting).
+  //It is the CsI detector's total light output calculated from current values of 'R' and 'L'.
   //'opt' has no effect.
   
-  Double_t y = fCsI->GetLumiereTotale();
-  
-  if(!strcmp(opt, "R"))      y = fCsI->GetR();
-  else if(!strcmp(opt, "L")) y = fCsI->GetL();
-  
+  Double_t y = fCsI->GetLumiereTotale();  
   return y;
 }
 
@@ -91,12 +86,10 @@ Double_t KVIDSiCsI_e613::GetIDMapY(Option_t * opt)
 {
    //Calculates current Y coordinate for identification.
    //It is the silicon's current grand gain (if opt="GG") or petit gain (opt != "GG")
-   //coder data, without pedestal correction.
+   //coder data, with pedestal correction.
    Double_t si = -1.;
    if(!strcmp(opt, "GG")) si = (Double_t)fSi->GetGG()-fSiGGPedestal;
    else if(!strcmp(opt, "PG")) si = (Double_t)fSi->GetPG()-fSiPGPedestal;
-   else si = (Double_t)fSi->GetGG();
-
    return si;
 }
 
@@ -104,8 +97,9 @@ Double_t KVIDSiCsI_e613::GetIDMapY(Option_t * opt)
 
 Bool_t KVIDSiCsI_e613::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
 {
-   //Particle identification and code setting using identification grids.
-   //perform identification in Si(GG) - CsI(H) map
+    // Particle identification and code setting using identification grids.
+    // perform identification in Si(GG) - CsI(H) map
+    // Sets idr->deltaEpedestal according to position in GG map
 
   idr->SetIDType(GetType());
   idr->IDattempted = kTRUE;
@@ -116,6 +110,14 @@ Bool_t KVIDSiCsI_e613::Identify(KVIdentificationResult* idr, Double_t x, Double_
   KVIDGrid* TheGrid = 0;
 
   fGGgrid->Identify(lumtot, sigg, idr);
+  // check if silicon-GG is in pedestal region (possible neutron)
+  if(fPIEDESTAL){
+      if(fPIEDESTAL->TestPoint(lumtot,sigg)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
+      else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
+  }
+  else
+      idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
+
   TheGrid = (KVIDGrid*) fGGgrid;
 
   if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ) //we have to try PG grid (if there is one)
