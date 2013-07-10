@@ -17,9 +17,10 @@ class TEnv;
 class KVCalibrator;
 class KVDetector;
 class KVVAMOSTransferMatrix;
+class KVVAMOSReconGeoNavigator;
 class KVReconstructedNucleus;
 
-class KVVAMOS :  public KVMultiDetArray
+class KVVAMOS : public KVMultiDetArray
 {
 
 	private:
@@ -44,6 +45,7 @@ class KVVAMOS :  public KVMultiDetArray
 		UInt_t      fGr;           //!Used to number groups
 		TGeoRotation          *fRotation;   //!rotation matrix around the target
 		KVMaterial            *fStripFoil; //strip foil used in experiment
+		KVVAMOSReconGeoNavigator *fReconNavigator;//! navigator used to reconstruct nuclei in VAMOS
 		KVVAMOSTransferMatrix *fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
 		KVList      *fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
 		TGeoVolume  *fVAMOSvol;    //!TGeoVolume of VAMOS 
@@ -81,6 +83,7 @@ class KVVAMOS :  public KVMultiDetArray
    		virtual KVList  *GetFiredDetectors( Option_t *opt="Pany" );
 		virtual void	 GetIDTelescopes(KVDetector*, KVDetector*, TCollection*);
  		virtual Double_t GetStripFoilEnergyLossCorrection(KVReconstructedNucleus*);
+		KVVAMOSReconGeoNavigator *GetReconNavigator();
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );

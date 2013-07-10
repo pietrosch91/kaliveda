@@ -7,15 +7,16 @@
 #include "KVReconstructedNucleus.h"
 #include "KVVAMOSCodes.h"
 #include "KVVAMOSReconTrajectory.h"
+#include "KVVAMOS.h"
 
 class KVVAMOSDetector;
+class KVVAMOSReconGeoNavigator;
 
 class KVVAMOSReconNuc : public KVReconstructedNucleus
 {
 	private:
 
 		KVVAMOSCodes fCodes; //Focal plane Pos. recon., calib. and ident. codes
-
 	protected:
 
 		KVVAMOSReconTrajectory fRT;             //handles trajectory reconstruction data
@@ -28,6 +29,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void MakeDetectorList();
 		virtual Bool_t SetCorrectedToF( Double_t tof );
 		virtual Bool_t SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
+		KVVAMOSReconGeoNavigator *GetNavigator();
 
    	public:
 
@@ -71,7 +73,6 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
                 Float_t          GetThetaV()                         const;
 				Float_t          GetTimeOfFlight()                   const;
 				Float_t          GetToF()                            const;
-		        KVNameValueList *GetTrackingResults();
 				Double_t         GetVelocityFromToF()                const;
                 Float_t          GetXf()                             const;
 	            Float_t          GetYf()                             const;
@@ -121,6 +122,11 @@ inline Double_t KVVAMOSReconNuc::GetGammaFromToF() const{
 
 inline const TVector3 &KVVAMOSReconNuc::GetLabDirection() const{
 	return fRT.dirLab;
+}
+//____________________________________________________________________________________________//
+
+inline KVVAMOSReconGeoNavigator *KVVAMOSReconNuc::GetNavigator(){
+	return gVamos->GetReconNavigator();
 }
 //____________________________________________________________________________________________//
 

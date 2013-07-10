@@ -4,6 +4,7 @@
 #include "KVVAMOSReconNuc.h"
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
+#include "KVVAMOSReconGeoNavigator.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -335,9 +336,9 @@ void KVVAMOSReconNuc::ReconstructTrajectory(){
 //________________________________________________________________
 
 void KVVAMOSReconNuc::ReconstructFPtraj(){
-
-
-
+	// Reconstruct the Focal-Plane trajectory and set the appropriate 
+	// FPCode. If the reconstruction is well carried out (i.e. FPCode>kFPCode0)
+	// then the tracking along this trajectory is runned.
 
 	UChar_t res = 0;
 	Double_t xyzf[3];          // [3] => [X, Y, Z]
@@ -519,96 +520,17 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 
 	// Tracking is impossible if the trajectory reconstruction
 	// in the focal plane is not OK.
-	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
+	//
+	// The tracking is done by KVVAMOSReconGeoNavigator::PropagateNucleus();
+	
+	GetNavigator()->PropagateNucleus( this );
 
-
-	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
-	TGeoVolume *stopVol = (TGeoVolume *)stopdet->GetActiveVolumes()->Last();
-
-	// For gGeoManager the origin is the target point.
-	// Starting point has to be set from this origin.
-
-	// intersection point between reconstructed trajectory and the Focal
-	// Plane in the focal plane frame of reference
-	Double_t XYZ_FP[3] = { fRT.pointFP[0], fRT.pointFP[1], 0 };
-	// same intersection point in the frame of reference
-	// centered at the target point
-	gVamos->FocalToTarget( XYZ_FP, XYZ_FP );
-
-	//tracking direction
-   	Double_t dir[3];
-
-	TGeoVolume *FPvol    = gVamos->GetFocalPlaneVolume();
-//	//--------------------------------------------------
-//	Info("RunTracking","Runnig the Focal Plane backward Traking");
-//	//--------------------------------------------------
-   	//  direction of the tracking = direction of the trajectory at the focal plane
-   	fRT.dirFP.GetXYZ( dir );
-	gVamos->FocalToTargetVect( dir, dir );
-
-   	// Initializing tracking (i.e. setting both initial point and direction
-   	// and finding the state). Start from the FP intersection point
-   	gGeoManager->InitTrack( XYZ_FP, dir );
-
-	TGeoVolume *topVol   = gGeoManager->GetTopVolume();
-//   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
-   	TGeoVolume* curVol   = gGeoManager->GetCurrentVolume();
-   	TGeoVolume* prevVol  = NULL;
-
-
-   	// move along trajectory until a new volume is hit
-   	// Stop when the point is outside the Focal Plane volume or when it is
-   	// inside the stopping detector
-   	do{
-
-   	   	gGeoManager->FindNextBoundaryAndStep();
-
-	   	if( curVol != FPvol ){
-   	   	   	Double_t step = gGeoManager->GetStep();
-		   	GetParameters()->SetValue( curVol->GetName(), step );
-//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
-	   	}
-
- 		if(curVol == stopVol) break;
-
-	   	prevVol = curVol;
-   	   	curVol  = gGeoManager->GetCurrentVolume();
-
-   	}
-   	while( (curVol != topVol) && !gGeoManager->IsOutside() );
-//   	while( !gGeoManager->IsOutside() );
-
-//	//--------------------------------------------------
-//	Info("RunTracking","Runnig the Focal Plane forward Traking");
-//	//--------------------------------------------------
-   	//  direction of the tracking = inverse direction of the trajectory at the focal plane
-   	TVector3( -fRT.dirFP ).GetXYZ( dir );
-	gVamos->FocalToTargetVect( dir, dir );
-
-   	// Initializing tracking (i.e. setting both initial point and direction
-   	// and finding the state). Start from the FP intersection point
-   	gGeoManager->InitTrack( XYZ_FP, dir );
-
-   	curVol   = gGeoManager->GetCurrentVolume();
-   	prevVol  = NULL;
-
-   	// move along trajectory until we hit a new volume
-   	// Stop when the point is outside the Focal Plane volume
-   	do{
-
-   	   	gGeoManager->FindNextBoundaryAndStep();
-
-	   	if( curVol != FPvol ){
-   	   	   	Double_t step = gGeoManager->GetStep();
-		   	GetParameters()->SetFirstValue( curVol->GetName(), step );
-//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
-	   	}
-
-	   	prevVol = curVol;
-   	   	curVol  = gGeoManager->GetCurrentVolume();
-
-   	}
-   	while( (curVol != topVol) && !gGeoManager->IsOutside() );
+//	if( !CheckTrackingCoherence() ){
+//		Info("ReconstructTrajectory","NO tracking coherence");
+//		GetDetectorList()->ls();
+//		GetParameters()->Print();
+//		cout<<endl;
+//	}
 }
 //________________________________________________________________
 
@@ -619,23 +541,18 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	// inside the tracking result (saved in fParameters list). Return kTRUE if this
 	// is OK.
 	
-	Warning("CheckTrackingCoherence","TO BE MODIFIED, fTrackingRes -> fParameters with new format");
-
+	TString str;
 	TIter nextdet( GetDetectorList() );
 	KVVAMOSDetector *det = NULL;
 	while( (det = (KVVAMOSDetector *)nextdet()) ){
 
 		Bool_t ok = kFALSE;
 
-		TIter nextvol( det->GetActiveVolumes() );
-		TGeoVolume *vol = NULL;
-		while( (vol = (TGeoVolume *)nextvol()) && !ok ){
-
-			TIter next_tr( GetParameters()->GetList());
-			TObject *tr = NULL;
-			while( (tr = next_tr()) && !ok ){
-				if( !strcmp( tr->GetName(), vol->GetName() ) ) ok = kTRUE; 
-			}
+		TIter next_tr( GetParameters()->GetList());
+		TObject *tr = NULL;
+		while( (tr = next_tr()) && !ok ){
+			str = tr->GetName();
+			if( str.BeginsWith( Form("DPATH:%s",det->GetName()) ) ) ok = kTRUE; 
 		}
 
 		if( !ok ) return kFALSE;

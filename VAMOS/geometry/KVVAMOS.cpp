@@ -4,6 +4,7 @@
 #include "KVVAMOS.h"
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
+#include "KVVAMOSReconGeoNavigator.h"
 
 #include "KVGroup.h"
 #include "KVDataSetManager.h"
@@ -73,6 +74,7 @@ KVVAMOS::KVVAMOS (const KVVAMOS& obj)  : KVMultiDetArray()
    	// implement it.
    	// If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
 
+	init();
    	obj.Copy(*this);
 }
 //________________________________________________________________
@@ -97,6 +99,7 @@ void KVVAMOS::init()
 	fVAMOSvol      = NULL;
 	fStripFoil     = NULL;
 	fTransMatrix   = NULL;
+	fReconNavigator= NULL;
 	fRotation      = NULL;
 	fFocalPos      = 0; 
 	fAngle         = 0;
@@ -122,11 +125,12 @@ KVVAMOS::~KVVAMOS(){
 	}
 	fVACQParams = NULL;
 
-	SafeDelete( fCalibrators  );
-	SafeDelete( fVCalibrators );
-	SafeDelete( fFiredDets    );
-	SafeDelete( fStripFoil    );
-	SafeDelete( fTransMatrix  );
+	SafeDelete( fCalibrators    );
+	SafeDelete( fVCalibrators   );
+	SafeDelete( fFiredDets      );
+	SafeDelete( fStripFoil      );
+	SafeDelete( fTransMatrix    );
+	SafeDelete( fReconNavigator );
 
 	if(gVamos == this) gVamos = NULL;
 }
@@ -137,19 +141,20 @@ void KVVAMOS::BuildFocalPlaneGeometry(TEnv *infos){
 	
 	if( !fFPvolume ){
 		//The FPvolume has the size of the the Focal plane detection chamber
-		TGeoMedium *Vacuum = gGeoManager->GetMedium( "Vacuum" );
-
-		if( !Vacuum ){
-			TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-   			matVacuum->SetTitle("Vacuum");
-   			Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-		}
-
-		Double_t d  = infos->GetValue("VAMOS.FOCALCHAMBER.DEPTH" , 207.5 );
-		Double_t w  = infos->GetValue("VAMOS.FOCALCHAMBER.WIDTH" , d     );
-		Double_t h  = infos->GetValue("VAMOS.FOCALCHAMBER.HEIGHT", d     );
-
-		fFPvolume   = gGeoManager->MakeBox("FocalPlane", Vacuum,  w/2, h/2, d/2);
+//		TGeoMedium *Vacuum = gGeoManager->GetMedium( "Vacuum" );
+//
+//		if( !Vacuum ){
+//			TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+//   			matVacuum->SetTitle("Vacuum");
+//   			Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+//		}
+//
+//		Double_t d  = infos->GetValue("VAMOS.FOCALCHAMBER.DEPTH" , 207.5 );
+//		Double_t w  = infos->GetValue("VAMOS.FOCALCHAMBER.WIDTH" , d     );
+//		Double_t h  = infos->GetValue("VAMOS.FOCALCHAMBER.HEIGHT", d     );
+//
+//		fFPvolume   = gGeoManager->MakeBox("FocalPlane", Vacuum,  w/2, h/2, d/2);
+		fFPvolume = gGeoManager->MakeVolumeAssembly("FocalPlane");
 	}
 
 	fDetectors.R__FOR_EACH(KVVAMOSDetector,BuildGeoVolume)(infos,fFPvolume);
@@ -223,12 +228,13 @@ void KVVAMOS::BuildVAMOSGeometry(){
  	   	delete gGeoManager;
 	}
 
-   	TGeoManager *geom = new TGeoManager(Form("GEO_%s", gDataSet->GetLabel()), Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
+   	fGeoManager = new TGeoManager(Form("GEO_%s", gDataSet->GetLabel()), Form("VAMOS geometry for dataset %s", gDataSet->GetName()));
+	SetROOTGeometry();
    	TGeoMaterial*matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
    	matVacuum->SetTitle("Vacuum");
    	TGeoMedium*Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
-   	TGeoVolume *top = geom->MakeBox("WORLD", Vacuum,  1000, 1000, 1000);
-   	geom->SetTopVolume(top);
+   	TGeoVolume *top = fGeoManager->MakeBox("WORLD", Vacuum,  1000, 1000, 1000);
+   	fGeoManager->SetTopVolume(top);
 
 
    	BuildFocalPlaneGeometry( &infos );
@@ -854,6 +860,16 @@ Double_t KVVAMOS::GetStripFoilEnergyLossCorrection(KVReconstructedNucleus* nuc){
     if (fStripFoil && nuc) return (fStripFoil->GetParticleEIncFromERes(nuc, &norm) - nuc->GetEnergy());
     return 0;
 }
+//________________________________________________________________
+
+KVVAMOSReconGeoNavigator *KVVAMOS::GetReconNavigator(){
+	//Returns the geometry navigator used to progate nuclei for their
+	//reconstruction in VAMOS. Method used by KVVAMOSReconNuc;
+	
+	if( !fReconNavigator ) fReconNavigator = new KVVAMOSReconGeoNavigator( GetGeometry(), KVMaterial::GetRangeTable() );
+	return fReconNavigator;
+}
+
 //________________________________________________________________
 
 KVVAMOSTransferMatrix *KVVAMOS::GetTransferMatrix(){
