@@ -797,6 +797,10 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult &theID)
         }
         else if(haveChIoCsI){
             theID = *IDcicsi;
+            // fragment identified in ChIo-CsI
+            // therefore it did not cross the etalon telescopes
+            // (only Z=1 & 2 pass through SiLi)
+            fIncludeEtalonsInCalibration=kFALSE;
             return kTRUE;
         }
     }
