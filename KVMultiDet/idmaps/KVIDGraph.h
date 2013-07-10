@@ -314,6 +314,12 @@ class KVIDGraph : public TCutG
 	};
 	void ResetPad();
 	void ClearPad(TVirtualPad*);
+    TVirtualPad* IsDrawn() const
+    {
+        // Returns pointer to pad currently displaying this graph.
+        // Returns 0x0 if graph is not drawn.
+        return fPad;
+    }
 	
 	const Char_t* GetNamesOfIDTelescopes();
 	
