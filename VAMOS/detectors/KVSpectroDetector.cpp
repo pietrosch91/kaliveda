@@ -312,6 +312,10 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 	tmp.Form( "%s_tr", GetName() );
 	TGeoTranslation* ref_tr = new TGeoTranslation( tmp.Data(), pos[0], pos[1], pos[2] );
 	ref_vol->AddNode( GetAbsGeoVolume(), 1, ref_tr );
+	// Set at this last node the name of the volume
+	// otherwise the detector name returned by a KVGeoNavigator will have an
+	// extra number at the end (corresponding to the number of the node)
+	((TGeoNodeMatrix* )ref_vol->GetNodes()->Last())->SetName( GetAbsGeoVolume()->GetName() );
 
 	return kTRUE;
 }
