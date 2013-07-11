@@ -42,6 +42,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void     Calibrate();
 		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");
+		        Float_t  GetDeltaPath( KVVAMOSDetector *det ) const;
 		        Double_t GetRealA()        const;
 		        Double_t GetRealAoverQ()   const;
  		virtual void     Identify();

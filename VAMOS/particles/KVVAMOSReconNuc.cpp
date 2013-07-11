@@ -5,6 +5,7 @@
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
 #include "KVVAMOSReconGeoNavigator.h"
+#include "KVNamedParameter.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -575,8 +576,6 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 	//    covered between the focal plan and the start detector for HF-time. 
 	//  - the distance between the two detectors.
 
-	Warning("SetFlightDistanceAndTime","TO BE IMPLEMENTED");
-
 	TIter next_det( GetDetectorList() );
 	KVVAMOSDetector *det   = NULL;
 	KVVAMOSDetector *stop  = NULL;
@@ -605,7 +604,7 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 					break;
  				}
 			}
-			// otherwise we nedd start and stop detectors
+			// otherwise we need start and stop detectors
 			else{
  				if( !stop && det->IsStopForT( t_type ) ){
 					stop = det;
@@ -626,7 +625,6 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 	ok &= SetCorrectedToF( calibT );
 	ok &= SetFlightDistance( det, stop );
 	SetTCode(( ok ? par->GetName() : "") );
-
 }
 //________________________________________________________________
 
@@ -659,23 +657,63 @@ Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetect
 	if( !start ) return kFALSE;
 	if( !stop && GetPath()<=0 ) return kFALSE;
 	
-	const TVector3 &dir = GetFocalPlaneDirection();
-	Double_t X[] = {0,0,0};
-	start->ActiveVolumeToFocal(X, X);
-	X[0] = X[2]*dir.X()/dir.Z();
-	X[1] = X[2]*dir.Y()/dir.Z();
+	Bool_t ok = kTRUE;
+	Float_t DeltaPath = GetDeltaPath( start );
+	if( DeltaPath == 0 ) ok = kFALSE;
 
 	if( stop ){
-		Double_t Xstop [] = {0,0,0};
-		stop->ActiveVolumeToFocal (Xstop,  Xstop );
-		X[0] -= Xstop[2]*dir.X()/dir.Z();
-		X[1] -= Xstop[2]*dir.Y()/dir.Z();
-		X[2] -= Xstop[2];
-		X[2]  = TMath::Abs( X[2] );
+	 	fFlightDist = DeltaPath;
+		DeltaPath   = GetDeltaPath( stop );
+		if( DeltaPath == 0 ){
+ 		   	ok = kFALSE;
+			fFlightDist = 0;
+		}
+		else fFlightDist  = TMath::Abs( DeltaPath - fFlightDist );
 	}
-	else fFlightDist = GetPath();
+	else fFlightDist = GetPath() + DeltaPath;
+//	else fFlightDist = GetPath()/TMath::Cos( GetPhiV()*TMath::DetToRad() ) + DeltaPath;
 
-	fFlightDist += TMath::Sign(1.,X[2])*TMath::Sqrt( X[0]*X[0] + X[1]*X[1] + X[2]*X[2] );
+	if( !ok ){
+		TString warn;
+		if( stop ) warn.Form("detectors %s and %s",start->GetName(), stop->GetName());
+		else  warn.Form("target point and detector %s",start->GetName());
+		Warning("SetFlightDistance","Impossible to set flight distance between %s; FPCode%d (%s)",warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
+		cout<<endl;
+	}
 
-	return kTRUE;
+	return ok;
+}
+//________________________________________________________________
+
+Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
+	//returns the DeltaPath value associated to the detector 'det' used to correct
+	//the flight distance.
+	//Its value is given by a parameter stored in fParameters with the name
+	//DPATH:<det_name>. If this parameter is not found then we take the parameter
+	//with the name begining by DPATH:<det_time_base_name>. Otherwise zero is
+	//returned with a warning message.
+	//
+	// This method has to be called once the tracking has been runned since
+	// the DPATH parameter is calculated for each detector crossed by the nucleus
+	// at this step (see RunTrackingAtFocalPlane).
+	
+	// Find the parameter with the name DPATH:<detector_name>
+	KVNamedParameter *par = GetParameters()->FindParameter( Form("DPATH:%s",det->GetName()) );
+	if( par ) return par->GetDouble();
+
+	// Find the parameter with the name begining by DPATH:<detector_time_base_name>
+	TString tmp;
+	TIter next( GetParameters()->GetList() );
+	while( (par = (KVNamedParameter *)next()) ){
+		tmp = par->GetName();
+		if( tmp.BeginsWith( Form("DPATH:%s",det->GetTBaseName()) ) ){
+			Info("GetDeltaPath","DeltaPath for the detector %s is given by %s",det->GetName(), par->GetName() );
+ 		   	return par->GetDouble(); 
+		}
+	}
+
+	// No parameter found
+	Warning("GetDeltaPath","DeltaPath not found for the detector %s",det->GetName());
+
+	return 0;
 }
