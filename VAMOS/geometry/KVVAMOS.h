@@ -44,7 +44,8 @@ class KVVAMOS : public KVMultiDetArray
 		TGeoVolume *fFPvolume;     //!TGeoVolume centered on the focal plane
 		UInt_t      fGr;           //!Used to number groups
 		TGeoRotation          *fRotation;   //!rotation matrix around the target
-		KVMaterial            *fStripFoil; //strip foil used in experiment
+		KVMaterial            *fStripFoil; //stripping foil used in experiment
+		Double_t               fStripFoilPos; // distance between the target point and the stripping foil
 		KVVAMOSReconGeoNavigator *fReconNavigator;//! navigator used to reconstruct nuclei in VAMOS
 		KVVAMOSTransferMatrix *fTransMatrix;//!Transfer matrix for the reconstruction LAB<-->FP
 		KVList      *fVACQParams;  //->References to data acquisition parameter belonging to VAMOS
@@ -87,8 +88,8 @@ class KVVAMOS : public KVMultiDetArray
 		KVVAMOSTransferMatrix *GetTransferMatrix();
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );
-		        void     SetStripFoil( KVMaterial *foil );
-		        void     SetStripFoil( const Char_t *material, const Float_t area_density );
+		        void     SetStripFoil( KVMaterial *foil, Double_t pos=0 );
+		        void     SetStripFoil( const Char_t *material, const Float_t area_density, Double_t pos  );
 		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );
    		        void     TargetToFocal( const Double_t *target, Double_t *focal );
    		        void     TargetToFocalVect( const Double_t *target, Double_t *focal );
@@ -101,12 +102,14 @@ class KVVAMOS : public KVMultiDetArray
 		Double_t      GetBeamPeriod()                       const;
 		Double_t      GetBrhoRef()                          const;
 		KVCalibrator *GetCalibrator( const Char_t * type )  const;
+		Double_t      GetFocalPlanePosition()               const;
 		TGeoVolume   *GetFocalPlaneVolume()                 const;
    		TGeoHMatrix   GetFocalToTargetMatrix();
    		TGeoVolume   *GetGeoVolume()                        const;
 		KVHashList   *GetListOfCalibrators()                const;
    		KVList       *GetListOfVCalibrators()               const;
 		KVMaterial   *GetStripFoil()                        const;
+		Double_t      GetStripFoilPosition()                const;
 		Int_t         GetTrigger()                          const;
  		KVACQParam   *GetVACQParam(const Char_t * name);
    		KVList       *GetVACQParams()                       const;
@@ -155,7 +158,7 @@ inline KVCalibrator *KVVAMOS::GetCalibrator( const Char_t * type ) const {
    	return 0;
 }
 
-
+inline Double_t KVVAMOS::GetFocalPlanePosition()  const { return fFocalPos; }
 inline TGeoVolume *KVVAMOS::GetFocalPlaneVolume() const { return fFPvolume; }
 
 
@@ -176,6 +179,7 @@ inline KVHashList *KVVAMOS::GetListOfCalibrators()   const { return fCalibrators
 inline KVList     *KVVAMOS::GetListOfVCalibrators()  const { return fVCalibrators; }
 
 inline KVMaterial *KVVAMOS::GetStripFoil()           const { return fStripFoil;    }
+inline Double_t KVVAMOS::GetStripFoilPosition()      const { return fStripFoilPos; }
 inline Int_t       KVVAMOS::GetTrigger()             const { return 1;             }
 
 inline KVACQParam *KVVAMOS::GetVACQParam(const Char_t * name){

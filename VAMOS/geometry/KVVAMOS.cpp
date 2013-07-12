@@ -105,6 +105,7 @@ void KVVAMOS::init()
 	fAngle         = 0;
 	fBrhoRef       = -1;
 	fBeamHF        = -1;
+	fStripFoilPos  = 0;
 
 	//initalise ID grid manager
     if (!gIDGridManager)
@@ -920,7 +921,7 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
 }
 //________________________________________________________________
 
-void  KVVAMOS::SetStripFoil( KVMaterial *foil ){
+void  KVVAMOS::SetStripFoil( KVMaterial *foil, Double_t pos  ){
  	//Adopt KVMaterial object for use as stripping foil i.e. we make a clone of the object
  	//pointed to by 'foil'.
     //Therefore, any subsequent modifications to the stripping foil should be made to the object whose
@@ -929,28 +930,30 @@ void  KVVAMOS::SetStripFoil( KVMaterial *foil ){
     //
     //Calling SetStripFoil(0) will remove any existing stripping foil.
     //
-    //The stripping foil is assumed to be placed vertically behind the target and we suppose that
-    // all the nuclei measured in VAMOS have punched through this foil.
+    //The stripping foil is assumed to be placed vertically behind the target,
+    //at the distance 'pos' (in cm) from the target point and we suppose that
+    //all the nuclei measured in VAMOS have punched through this foil.
 
     if (fStripFoil){
         delete fStripFoil;
         fStripFoil = 0;
     }
-    if (!foil)
-        return;
-    fStripFoil = (KVMaterial *) foil->Clone();
+    if(foil) fStripFoil = (KVMaterial *) foil->Clone();
+	if( fStripFoil && pos )	fStripFoilPos = pos;
+	else fStripFoilPos = 0;
 }
 //________________________________________________________________
 
-void KVVAMOS::SetStripFoil( const Char_t *material, const Float_t area_density ){
+void KVVAMOS::SetStripFoil( const Char_t *material, const Float_t area_density, Double_t pos  ){
 	//Define the stripping foil used for a given experimental set-up. For material names, see KVMaterial.
     //The area density is in ug/cm2.
+    //The foil is placed vertically behin the target at the distance 'pos' (in cm).
     //Use SetStripFoil(0) to remove the existing stripping foil.
 
 	if( !material ) SetStripFoil( 0 );
 	else{
 		KVMaterial foil( area_density*KVUnits::ug, material );
-		SetStripFoil( &foil );
+		SetStripFoil( &foil, pos );
 	}
 }
 //________________________________________________________________
