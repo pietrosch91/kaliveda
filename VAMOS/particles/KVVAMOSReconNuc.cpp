@@ -229,7 +229,7 @@ Double_t KVVAMOSReconNuc::GetRealA() const{
 	//This method overrides the same method in the mother class.
 
 	Double_t gamma = GetGammaFromToF();
-	return gamma==1 ? 0 : GetEnergy()/((gamma-1)*u());
+	return gamma==1 ? 0 : GetEnergyBeforeVAMOS()/((gamma-1)*u());
 
 }
 //________________________________________________________________
@@ -671,7 +671,6 @@ Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetect
 		else fFlightDist  = TMath::Abs( DeltaPath - fFlightDist );
 	}
 	else fFlightDist = GetPath() + DeltaPath;
-//	else fFlightDist = GetPath()/TMath::Cos( GetPhiV()*TMath::DetToRad() ) + DeltaPath;
 
 	if( !ok ){
 		TString warn;

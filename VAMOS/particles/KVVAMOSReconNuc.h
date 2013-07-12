@@ -60,6 +60,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		        Double_t         GetBetaFromToF()                    const;
                 Float_t          GetBrho()                           const;
                 KVVAMOSCodes    &GetCodes();
+				Double_t         GetEnergyBeforeVAMOS()              const;
 				Float_t          GetFlightDistance()                 const;
    		const   TVector3        &GetFocalPlaneDirection()            const;
 				Double_t         GetGammaFromToF()                   const;
@@ -104,6 +105,11 @@ inline KVVAMOSCodes &KVVAMOSReconNuc::GetCodes(){
 	return fCodes;
 }
 //____________________________________________________________________________________________//
+inline Double_t KVVAMOSReconNuc::GetEnergyBeforeVAMOS() const{
+	// Kinetic energy of the nucleus prior to entering VAMOS
+	return GetEnergy() - GetStripFoilEnergyLoss() - GetTargetEnergyLoss();
+}
+//____________________________________________________________________________________________//
 
 inline Float_t KVVAMOSReconNuc::GetFlightDistance() const{
 	return fFlightDist;
@@ -133,6 +139,9 @@ inline KVVAMOSReconGeoNavigator *KVVAMOSReconNuc::GetNavigator(){
 
 inline Float_t KVVAMOSReconNuc::GetPath() const{
 	return fRT.path;
+	// This line is the correction proposed by M. Camano if the reconstruction
+	// returns the projection of the real path on the horizontal plane
+//	return fRT.path/TMath::Cos( GetPhiV()*TMath::DetToRad() );
 }
 //____________________________________________________________________________________________//
 
