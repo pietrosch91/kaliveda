@@ -6,6 +6,7 @@
 #include "KVVAMOSTransferMatrix.h"
 #include "KVVAMOSReconGeoNavigator.h"
 #include "KVNamedParameter.h"
+#include "KVTarget.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -622,26 +623,137 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 		return;
 	}
 
-	ok &= SetCorrectedToF( calibT );
-	ok &= SetFlightDistance( det, stop );
+	// FIRST METHODE
+//	fToF = calibT;
+//	ok &= SetFlightDistance( det, stop );
+
+	// SECOND METHODE
+	ok &= SetCorrectedFlightDistanceAndTime( calibT, det, stop );
+
 	SetTCode(( ok ? par->GetName() : "") );
 }
 //________________________________________________________________
 
-Bool_t KVVAMOSReconNuc::SetCorrectedToF( Double_t tof ){
-	// Correct the calibrated time of flight (tof) and set it to the nucleus
+Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop){
+	// Set the corrected flight distance/time  which will give the real velocity
+	// of the nucleus prior to entering VAMOS. It is the distance/time between the nucleus's
+	// exit in the stripping foil, if this nucleus loses energy inside this foil,
+	// otherwise in the target, and the entry in the first crossed detector.
 	//
-	// For now, no correction is done
-	//
+	// WARNING: this method has to be called after the energy calibration.
+
+	fFlightDist = 0.;
+	fToF        = 0.;
+
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
+	if( GetPath()<=0. ) return kFALSE;
 	
-	fToF = tof;
+
+	//Find the first crossed detector and its DeltaPath
+	Double_t DeltaPath = 0.;	
+	KVVAMOSDetector *cros_det = NULL;
+	Int_t Ndet = GetDetectorList()->GetEntries() ;
+	for( Int_t i=Ndet-1; i>=0; i-- ){
+		cros_det = (KVVAMOSDetector *)GetDetectorList()->At(i);
+		DeltaPath = GetDeltaPath( cros_det );
+		if( DeltaPath != 0. ) break;
+	}
+
+	if( !cros_det ){ 
+		Error("SetCorrectedFlightDistance","First crossed detector not found");
+		return kFALSE;
+	}
+
+
+	fFlightDist = GetPath();
+	fToF        = tof;
+
+	cout<<endl;
+	Info("SetCorrectedFlightDistance","Initial Path= %f cm, and ToF= %f ns", fFlightDist, fToF);
+	
+	static KVNucleus nuc;
+	nuc.SetZandA( GetZ(), GetA() );
+
+	Double_t Zlab     = TMath::Abs( GetLabDirection().Z() );
+	Bool_t   isT_HF   = ( stop ? kFALSE : kTRUE );
+
+	if( Zlab ){
+
+		//Calculate the effective thickness of the target in cm
+		Double_t targ_thick = 0.; //in cm
+		TIter next( gMultiDetArray->GetTarget()->GetLayers() );
+		KVMaterial *mat = NULL;
+   		while ((mat = (KVMaterial *) next())){
+      		targ_thick += mat->GetThickness();
+   		}
+		targ_thick = targ_thick/Zlab/2.;
+
+		//Calculate the distance between target point-stripping foil 
+		Double_t strip_foil_dist  = gVamos->GetStripFoilPosition()/Zlab;
+
+		//Calculate the effective thickness of the stripping foil 
+		Double_t strip_foil_thick = gVamos->GetStripFoil()->GetThickness()/Zlab;
+
+		if( isT_HF ){
+			//TIME: remove the DeltaT in the target
+			nuc.SetEnergy( GetEnergy() );
+			fToF -= targ_thick/nuc.GetV().Mag();
+			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(target)= %f ns", targ_thick/nuc.GetV().Mag());
+
+			//TIME: remove the TOF between the target and the stripping foil
+			nuc.SetEnergy( GetEnergy() - GetTargetEnergyLoss() );
+			fToF -= ( strip_foil_dist - targ_thick )/nuc.GetV().Mag();
+			Info("SetCorrectedFlightDistance","TIME: removing T(target-strip_foil)= %f ns", ( strip_foil_dist - targ_thick )/nuc.GetV().Mag());
+
+			//TIME: remove the DeltaT in the stripping foil
+			fToF -= strip_foil_thick/nuc.GetV().Mag();
+			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(strip_foil)= %f ns",strip_foil_thick/nuc.GetV().Mag());
+		}
+
+		if( GetStripFoilEnergyLoss()>0. ){
+
+			//DISTANCE: remove the distance between target-stripping foil
+			fFlightDist -= strip_foil_dist;
+			Info("SetCorrectedFlightDistance","DISTANCE: removing StripFoilPosition= %f cm", strip_foil_dist);
+
+			//DISTANCE: remove the stripping foil effective thickness
+			fFlightDist -= strip_foil_thick;
+			Info("SetCorrectedFlightDistance","DISTANCE: removing StripFoilThickness= %f cm", strip_foil_thick);
+		}
+		else{
+			//DISTANCE: remove the half of the target effective thickness
+			fFlightDist -= targ_thick;
+			Info("SetCorrectedFlightDistance","DISTANCE: removing Thick_Target= %f cm", targ_thick);
+		}
+	}
+
+
+	//DISTANCE: remove the DeltaPath of the first crossed detector
+	fFlightDist += DeltaPath;
+	Info("SetCorrectedFlightDistance","adding DeltaPath(%s)= %f cm: final FlightDist= %f cm", cros_det->GetName(), DeltaPath, fFlightDist);
+
+
+	if( isT_HF ){
+		//TIME: remove DeltaT/ToF in/between layers placed before the active
+		//layer of the first crossed detector
+		KVVAMOSDetector *det = NULL;
+		for( Int_t i=Ndet-1; i>=0; i-- ){
+			det = (KVVAMOSDetector *)GetDetectorList()->At(i);
+			// I STOP HERE
+			// I STOP HERE
+			// I STOP HERE
+			// I STOP HERE
+		}
+	}
+
+	//TIME CORRECTION FOR NOT T_HF IS NOT IMPLEMENTED
+
 	return kTRUE;
 }
 //________________________________________________________________
 
 Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop){
-	// Corrects and sets the flight distance from the start detector to 
-	// the stop detector.
+	// Sets the flight distance from the start detector to the stop detector.
 	// If stop=NULL then the corresponding time of flight 
 	// is assumed to be measured from the beam HF and the distance will be
 	// equal to the reconstructed path (GetPath) plus (or minus) the distance between

@@ -27,7 +27,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void CalibrateFromDetList();
 		virtual void CalibrateFromTracking();
 		virtual void MakeDetectorList();
-		virtual Bool_t SetCorrectedToF( Double_t tof );
+		virtual Bool_t SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
 		virtual Bool_t SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
 		KVVAMOSReconGeoNavigator *GetNavigator();
 
@@ -117,6 +117,8 @@ inline Float_t KVVAMOSReconNuc::GetFlightDistance() const{
 //____________________________________________________________________________________________//
 
 inline const TVector3 &KVVAMOSReconNuc::GetFocalPlaneDirection() const{
+	// Returns the trajectory normalized direction in the focal-plane frame
+	// of reference
 	return fRT.dirFP;
 }
 //____________________________________________________________________________________________//
@@ -128,6 +130,8 @@ inline Double_t KVVAMOSReconNuc::GetGammaFromToF() const{
 //____________________________________________________________________________________________//
 
 inline const TVector3 &KVVAMOSReconNuc::GetLabDirection() const{
+	// Returns the trajectory normalized direction at the target point in the
+	// laboratory frame of reference.
 	return fRT.dirLab;
 }
 //____________________________________________________________________________________________//
