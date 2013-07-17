@@ -46,6 +46,7 @@ KVHarpeeSi::KVHarpeeSi(){
    	// Default constructor.
 	init();
 	SetType("SI");
+	SetLabel("SI");
    	SetName(GetArrayName());
 }
 //________________________________________________________________
@@ -53,10 +54,12 @@ KVHarpeeSi::KVHarpeeSi(){
 KVHarpeeSi::KVHarpeeSi(UInt_t number, Float_t thick) : KVVAMOSDetector(number, "Si")
 {
    // Make a silicon detector of Harpee.
-   // Type of detector: "SI"
+   // Type of detector:  "SI"
+   // Label of detector: "SI"
 
    init();
    SetType("SI");
+   SetLabel("SI");
    SetName(GetArrayName());
 
 	Float_t w  = 1.;                // width

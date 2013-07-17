@@ -48,6 +48,7 @@ KVSeD::KVSeD()
    // Default constructor
    init();
    SetType("SED");
+   SetLabel("SED");
    SetName(GetArrayName());
 
 }
@@ -109,7 +110,11 @@ const Char_t* KVSeD::GetArrayName(){
 	//
 	// The root of the name is the detector type + number.
 	
-	fFName = Form("%s%d",GetType(),GetNumber());
+	if( GetNumber()>0 ){
+		fFName  = Form("%s%d",GetType(),GetNumber());
+		SetLabel( fFName.Data() );
+	}
+	else fFName = GetType();
 	return fFName.Data();
 }
 //________________________________________________________________

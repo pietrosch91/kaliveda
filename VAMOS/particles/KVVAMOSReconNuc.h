@@ -24,6 +24,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		Float_t                fToF;            //Time of Flight value in ns
 		Float_t                fFlightDist;     //Flight distance in cm
 
+		Float_t               *fDetE;           //!array with the corrected energy lost in each detector of fDetList
+
 		virtual void CalibrateFromDetList();
 		virtual void CalibrateFromTracking();
 		virtual void MakeDetectorList();
@@ -43,6 +45,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");
 		        Float_t  GetDeltaPath( KVVAMOSDetector *det ) const;
+				Float_t  GetEnergy( const Char_t *det_label ) const;
 		        Double_t GetRealA()        const;
 		        Double_t GetRealAoverQ()   const;
  		virtual void     Identify();
@@ -60,6 +63,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		        Double_t         GetBetaFromToF()                    const;
                 Float_t          GetBrho()                           const;
                 KVVAMOSCodes    &GetCodes();
+				Float_t          GetEnergy( Int_t idx_det )          const;
 				Double_t         GetEnergyBeforeVAMOS()              const;
 				Float_t          GetFlightDistance()                 const;
    		const   TVector3        &GetFocalPlaneDirection()            const;
@@ -105,9 +109,16 @@ inline KVVAMOSCodes &KVVAMOSReconNuc::GetCodes(){
 	return fCodes;
 }
 //____________________________________________________________________________________________//
+inline Float_t  KVVAMOSReconNuc::GetEnergy( Int_t idx_det ) const{
+	// Returns the calculated contribution of each detector to the 
+	// nucleus' energy from their index in fDetList. GetEnergy(0) returns
+	// the contribution of the stopping detector.
+	return ( fDetE && idx_det<GetDetectorList()->GetEntries() ? fDetE[idx_det] : -1 );
+}
+//____________________________________________________________________________________________//
 inline Double_t KVVAMOSReconNuc::GetEnergyBeforeVAMOS() const{
 	// Kinetic energy of the nucleus prior to entering VAMOS
-	return GetEnergy() - GetStripFoilEnergyLoss() - GetTargetEnergyLoss();
+	return KVReconstructedNucleus::GetEnergy() - GetStripFoilEnergyLoss() - GetTargetEnergyLoss();
 }
 //____________________________________________________________________________________________//
 

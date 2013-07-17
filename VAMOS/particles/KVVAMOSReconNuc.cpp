@@ -64,6 +64,7 @@ void KVVAMOSReconNuc::init()
 
 	fStripFoilEloss = 0;
 	fToF = fFlightDist = 0;
+	fDetE = NULL;
 }
 //________________________________________________________________
 
@@ -88,7 +89,7 @@ void KVVAMOSReconNuc::Calibrate(){
 	if( 1 ) CalibrateFromDetList();
 	else    CalibrateFromTracking();
 
-    if ( IsCalibrated() && GetEnergy()>0 ){
+    if ( IsCalibrated() && KVReconstructedNucleus::GetEnergy()>0 ){
 
  	   	// set angles of momentum from trajectory reconstruction
         SetTheta( GetThetaL() );
@@ -96,7 +97,7 @@ void KVVAMOSReconNuc::Calibrate(){
 
         if(GetZ()) {
 
- 			Double_t E_tot = GetEnergy();
+ 			Double_t E_tot = KVReconstructedNucleus::GetEnergy();
 			Double_t E_sfoil = 0.;
         	Double_t E_targ  = 0.;
 
@@ -112,7 +113,7 @@ void KVVAMOSReconNuc::Calibrate(){
         }
     }
 
-//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",GetEnergy(), GetTheta(), GetPhi());
+//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",KVReconstructedNucleus::GetEnergy(), GetTheta(), GetPhi());
 //cout<<endl;
 }
 //________________________________________________________________
@@ -151,8 +152,10 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
 	KVVAMOSDetector *det     = NULL;
 	TIter next( GetDetectorList() );
+	if( !fDetE ) fDetE = new Float_t[ GetDetectorList()->GetEntries() ];
+	Int_t idx = -1;
 	while( (det = (KVVAMOSDetector *)next()) ){
-
+		fDetE[++idx] = 0.;
 		// transmission=kFALSE if particle stop in det
 		Bool_t transmission = ( det != stopdet );
 		Double_t Edet = (det->IsECalibrated() ? det->GetEnergy() : -1);
@@ -171,6 +174,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 			det->SetEResAfterDetector( Etot );
 			Edet  = det->GetCorrectedEnergy( this, -1, transmission );
 			Etot += Edet;
+			fDetE[idx] = Edet;
 //			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s", Edet, det->GetName());
 			continue;
 		}
@@ -193,6 +197,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
         det->SetEResAfterDetector( Etot );
         Edet  = det->GetCorrectedEnergy( this, Edet, transmission);
         Etot += Edet;
+		fDetE[idx] = Edet;
 		if( det->IsUsedToMeasure("E") ) SetECode( kECode2 );
 //		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s", Edet, det->GetName());
 	}
@@ -209,6 +214,9 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 	//Reset nucleus' properties
 	
 	KVReconstructedNucleus::Clear(t);
+
+	if( fDetE ) delete[] fDetE;
+
    	init();
    	fCodes.Clear();
 	fRT.Reset();
@@ -657,6 +665,7 @@ Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMO
 		cros_det = (KVVAMOSDetector *)GetDetectorList()->At(i);
 		DeltaPath = GetDeltaPath( cros_det );
 		if( DeltaPath != 0. ) break;
+		cros_det = NULL;
 	}
 
 	if( !cros_det ){ 
@@ -696,12 +705,12 @@ Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMO
 
 		if( isT_HF ){
 			//TIME: remove the DeltaT in the target
-			nuc.SetEnergy( GetEnergy() );
+			nuc.SetEnergy( KVReconstructedNucleus::GetEnergy() );
 			fToF -= targ_thick/nuc.GetV().Mag();
 			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(target)= %f ns", targ_thick/nuc.GetV().Mag());
 
 			//TIME: remove the TOF between the target and the stripping foil
-			nuc.SetEnergy( GetEnergy() - GetTargetEnergyLoss() );
+			nuc.SetEnergy( KVReconstructedNucleus::GetEnergy() - GetTargetEnergyLoss() );
 			fToF -= ( strip_foil_dist - targ_thick )/nuc.GetV().Mag();
 			Info("SetCorrectedFlightDistance","TIME: removing T(target-strip_foil)= %f ns", ( strip_foil_dist - targ_thick )/nuc.GetV().Mag());
 
@@ -742,7 +751,8 @@ Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMO
 			// I STOP HERE
 			// I STOP HERE
 			// I STOP HERE
-			// I STOP HERE
+		
+			if( det == cros_det ) break;
 		}
 	}
 
@@ -827,4 +837,21 @@ Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	Warning("GetDeltaPath","DeltaPath not found for the detector %s",det->GetName());
 
 	return 0;
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
+	// Returns the calculated contribution of each detector to the 
+	// nucleus' energy from their label ("CHI","SI","SED1","SED2",...). 
+ 
+	if( !fDetE ) return -1.;
+	TIter next( GetDetectorList() );
+    KVBase *obj;
+	Int_t idx = 0;
+    while ( (obj = (KVBase *)next()) ){
+            if ( !strcmp(obj->GetLabel(), det_label ) ) break;
+			idx++;
+    }
+	if( idx < GetDetectorList()->GetEntries() ) return fDetE[idx];
+	return -1.;
 }
