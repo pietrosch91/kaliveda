@@ -653,11 +653,11 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 	}
 
 	// FIRST METHODE
-//	fToF = calibT;
-//	ok &= SetFlightDistance( det, stop );
+	fToF = calibT;
+	ok &= SetFlightDistance( det, stop );
 
 	// SECOND METHODE
-	ok &= SetCorrectedFlightDistanceAndTime( calibT, det, stop );
+//	ok &= SetCorrectedFlightDistanceAndTime( calibT, det, stop );
 
 	SetTCode(( ok ? par->GetName() : "") );
 }
