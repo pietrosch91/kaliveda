@@ -40,6 +40,27 @@ KVVAMOSReconNuc::~KVVAMOSReconNuc()
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::Streamer(TBuffer &R__b)
+{
+   	// Stream an object of class KVVAMOSReconNuc. The array (fDetE) of the contributions
+   	// of each detectors to the nucleus' energy is written/read if the nucleus
+   	// is calibrated.
+
+   	if (R__b.IsReading()) {
+      	R__b.ReadClassBuffer(KVVAMOSReconNuc::Class(),this);
+	  	if( IsCalibrated() ){
+		  	Int_t N = GetDetectorList()->GetEntries();
+		  	fDetE = new Float_t[ N ];
+		  	R__b.ReadFastArray( fDetE, N);
+		}
+	}
+    else {
+      	R__b.WriteClassBuffer(KVVAMOSReconNuc::Class(),this);
+	  	if( IsCalibrated() ) R__b.WriteFastArray( fDetE, GetDetectorList()->GetEntries() );
+   	}
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::Copy (TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
@@ -89,7 +110,7 @@ void KVVAMOSReconNuc::Calibrate(){
 	if( 1 ) CalibrateFromDetList();
 	else    CalibrateFromTracking();
 
-    if ( IsCalibrated() && KVReconstructedNucleus::GetEnergy()>0 ){
+    if ( IsCalibrated() && GetEnergy()>0 ){
 
  	   	// set angles of momentum from trajectory reconstruction
         SetTheta( GetThetaL() );
@@ -97,7 +118,7 @@ void KVVAMOSReconNuc::Calibrate(){
 
         if(GetZ()) {
 
- 			Double_t E_tot = KVReconstructedNucleus::GetEnergy();
+ 			Double_t E_tot = GetEnergy();
 			Double_t E_sfoil = 0.;
         	Double_t E_targ  = 0.;
 
@@ -113,7 +134,7 @@ void KVVAMOSReconNuc::Calibrate(){
         }
     }
 
-//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",KVReconstructedNucleus::GetEnergy(), GetTheta(), GetPhi());
+//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",GetEnergy(), GetTheta(), GetPhi());
 //cout<<endl;
 }
 //________________________________________________________________
@@ -705,12 +726,12 @@ Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMO
 
 		if( isT_HF ){
 			//TIME: remove the DeltaT in the target
-			nuc.SetEnergy( KVReconstructedNucleus::GetEnergy() );
+			nuc.SetEnergy( GetEnergy() );
 			fToF -= targ_thick/nuc.GetV().Mag();
 			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(target)= %f ns", targ_thick/nuc.GetV().Mag());
 
 			//TIME: remove the TOF between the target and the stripping foil
-			nuc.SetEnergy( KVReconstructedNucleus::GetEnergy() - GetTargetEnergyLoss() );
+			nuc.SetEnergy( GetEnergy() - GetTargetEnergyLoss() );
 			fToF -= ( strip_foil_dist - targ_thick )/nuc.GetV().Mag();
 			Info("SetCorrectedFlightDistance","TIME: removing T(target-strip_foil)= %f ns", ( strip_foil_dist - targ_thick )/nuc.GetV().Mag());
 
