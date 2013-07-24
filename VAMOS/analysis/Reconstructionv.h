@@ -67,6 +67,11 @@ class Reconstructionv
   Float_t PhiLdeg; 
   Float_t Thetadeg;
   Float_t Phideg;
+  
+  Float_t Brho_always;
+  Float_t Theta_always;  
+  Float_t Phi_always;  
+  Float_t Path_always;
     
   //Counters
   Int_t Counter[6];

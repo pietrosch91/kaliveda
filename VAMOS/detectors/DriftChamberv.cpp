@@ -424,17 +424,20 @@ void DriftChamberv::InitRaw(void)
 #ifdef DEBUG
   cout << "DriftChamberv::InitRaw" << endl;
 #endif
-  for(Int_t i=0;i<2;i++)
-    E_Raw[i] = T_Raw[i] = 0.0;				// = 0 !!!!
-  for(Int_t i=0;i<64;i++)
+  for(Int_t i=0;i<2;i++){
+    E_Raw[i] = 0;
+    T_Raw[i] = 0;
+    }				// = 0 !!!!
+  for(Int_t i=0;i<64;i++){
     for(Int_t j=0;j<4;j++)
       {
 	Q_Raw[j*64+i] = 0;
 	Q_Raw_Nr[j*64+i] = 0;
       }
-  for(Int_t j=0;j<4;j++)
+     }
+  for(Int_t j=0;j<4;j++){
     Q_RawM[j] = 0;
-
+	}
 }
 
 void DriftChamberv::Init(void)
@@ -978,6 +981,18 @@ void DriftChamberv::outAttach(TTree *outT)
   cout << "Attaching Drift variables" << endl;
 #endif
 
+//==============================================
+// Test des charges des DC
+  outT->Branch("STRM1",Q_RawM+0,"Q_RawM+0/I");
+  outT->Branch("STRM2",Q_RawM+1,"Q_RawM+0/I");
+  outT->Branch("STRM3",Q_RawM+2,"Q_RawM+0/I");
+  outT->Branch("STRM4",Q_RawM+3,"Q_RawM+0/I");
+
+  outT->Branch("STR1",Q_Raw+0*64,"Q_Raw+0*64/S");
+  outT->Branch("STR2",Q_Raw+1*64,"Q_Raw+1*64/S");  
+  outT->Branch("STR3",Q_Raw+2*64,"Q_Raw+2*64/S");
+  outT->Branch("STR4",Q_Raw+3*64,"Q_Raw+3*64/S");   
+//==============================================
   outT->Branch("DcEWire1",&E[0],"DcEWire1/F");
   outT->Branch("DcEWire2",&E[1],"DcEWire2/F");
   outT->Branch("DcTWire1",&T_DCfrag[0],"DcTWire1/F");

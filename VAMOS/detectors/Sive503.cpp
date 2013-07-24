@@ -13,10 +13,18 @@ ClassImp(Sive503)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
-<h2>Siv</h2>
+<h2>Sive503</h2>
 <p>
 Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL).
 </p>
+<body>
+Energy and Tof calibrations for the Silicon detectors:
+	<ul>
+		<li> A loop is done on raw Si multiplicity, even if the signal is in the pedestal.
+		<li> If the signal is above the pedestal, the energy is calculated and the Tof offset is applied.
+		<li> The multiplcity (above the pedestal) is also calculated
+	</ul>
+</body>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +210,7 @@ Sive503::Sive503(LogFile *Log)
        		}
      	}
   }
-  in2.close();    
+  in3.close();    
 
    Int_t  numm;
    Int_t thi=0;
@@ -389,7 +397,7 @@ Float_t run_offset = fTofOffset;
 	if( E_Raw[i] > si_ped[E_Raw_Nr[i]] ){	//if the signal is above the pedestal. 
 						//We save the channel value, the detector number, the calibrated energy, the ToF and increase the multiplicty of hit Si.
 		E[EMSI] = 0.0;
-		for(k=0;k<3;k++)	//energy calibration. Pedestal is taken into accoutn in the formula
+		for(k=0;k<3;k++)	//energy calibration. Pedestal is taken into account in the formula
 	  	{
 	    	E[EMSI] += powf((Float_t) E_Raw[i] +	Rnd->Uniform(0,1),	
 			  (Float_t) k)*ECoef[E_Raw_Nr[i]][k];			

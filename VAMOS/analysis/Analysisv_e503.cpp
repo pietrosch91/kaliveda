@@ -306,7 +306,7 @@ void Analysisv_e503::SetTel3(KVDetector *csi)
 	energytree->SetTel3(csi);
 }
 
-void Analysisv_e503::SetFileCut(TList *list)
+/*void Analysisv_e503::SetFileCut(TList *list)
 {
 	Id->SetFileCut(list);
 }
@@ -319,7 +319,7 @@ void Analysisv_e503::SetFileCutChioSi(TList *list2)
 void Analysisv_e503::SetFileCutSiTof(TList *list3)
 {
 	Id->SetFileCutSiTof(list3);
-}
+}*/
 
 void Analysisv_e503::SetTarget(KVTarget *tgt)
 {

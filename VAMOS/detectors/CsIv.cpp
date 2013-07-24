@@ -13,6 +13,14 @@ ClassImp(CsIv)
 /* -->
 <h2>CsIv</h2>
 <h4>CsI VAMOS</h4>
+<body>
+For the CsIv class : 
+	<ul>
+		<li> Signals over the pedestal are collected
+		<li> Multiplicity is calculated
+	</ul>
+
+</body>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
