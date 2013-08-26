@@ -79,12 +79,12 @@ void KVIVUpDater::SetParameters(UInt_t run){
     //      set identification parameters for the run
     //
     //For VAMOS, this will reset and set:
-    //      set the rotation angle of VAMOS around the target for the run
-    //      set the high frequency of the beam for the run
-    //      set the position and the type of the stripping foil for the run
-    //      set reference magnetic rigidity for the run
-    //      set calibration parameters for the run
-    //      set identification parameters for the run
+    //      the rotation angle of VAMOS around the target for the run
+    //      the high frequency of the beam for the run
+    //      the position and the type of the stripping foil for the run
+    //      reference magnetic rigidity for the run
+    //      calibration parameters for the run
+    //      identification parameters for the run
 	
 	KVINDRAUpDater::SetParameters(run);
    	SetChVoltRefGains();
@@ -144,7 +144,7 @@ void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
 	// - set calibration parameters to the calibrators of the detectors
 	//   placed at the focal plane of VAMOS (HarpeeSi, HarpeeIC, SeD, ...);
 	// - set parameter of a detector by calling setter method of the
-	//   detector.
+	//   detector (pedestal, Moulton PHD parameters, ...).
 	// - set configuration parameters (Brho, rotation angle, ...) of VAMOS.
 
 	Info("KVIVUpDater::SetVamosCalibAndConfParams","Setting VAMOS calibration parameters");
