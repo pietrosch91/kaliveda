@@ -926,6 +926,30 @@ KVVAMOS *KVVAMOS::MakeVAMOS(const Char_t* name){
 }
 //________________________________________________________________
 
+void KVVAMOS::ResetParameters(){
+	// Reset all the calibration parameters and the configuration parameters
+	// which could depend on the run.
+	//
+	// This will reset:
+    //      the angle of VAMOS around the target (default: 0)
+    //      the high frequency of the beam (default: -1)
+    //      remove the stripping foil
+    //      the reference magnetic rigidity (default: -1)
+    //      the calibration parameters
+
+	//Reset all calibrators of all detectors and of VAMOS 
+
+	KVCalibrator *kvc = NULL;
+	TIter next_cal( GetListOfCalibrators() );
+    while ((kvc = (KVCalibrator *) next_cal())) kvc->Reset();
+
+	SetAngle( 0 );
+	SetBrhoRef( -1 );
+	SetBeamHF( -1);
+	SetStripFoil( 0 );
+}
+//________________________________________________________________
+
 void  KVVAMOS::SetStripFoil( KVMaterial *foil, Double_t pos  ){
  	//Adopt KVMaterial object for use as stripping foil i.e. we make a clone of the object
  	//pointed to by 'foil'.
