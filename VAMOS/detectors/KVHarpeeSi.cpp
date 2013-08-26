@@ -4,6 +4,8 @@
 #include "KVHarpeeSi.h"
 #include "TGeoBBox.h"
 #include "KVUnits.h"
+#include "KVPulseHeightDefect.h"
+#include "TClass.h"
 
 ClassImp(KVHarpeeSi)
 
@@ -34,6 +36,8 @@ void KVHarpeeSi::init(){
 //		fHarpeeSiList->SetCleanup();
 	}
 	fHarpeeSiList->Add( this );
+
+	fPHD = NULL; 
 
 	// fSegment is set to 1 because this silicon detector is
 	// an independant detector (see KVGroup::AnalyseParticles for
@@ -153,6 +157,24 @@ const Char_t *KVHarpeeSi::GetEBaseName() const{
 	
 	return Form("%sE_%.2d",GetType(),GetNumber());
 }
+//______________________________________________________________________________
+
+TF1* KVHarpeeSi::GetELossFunction(Int_t Z, Int_t A)
+{
+   // Overrides KVDetector::GetELossFunction
+   // If the pulse height deficit (PHD) has been set for this detector,
+   // we return an energy loss function which takes into account the PHD,
+   // i.e. for an incident energy E we calculate
+   //
+   //      dEphd(E,Z,A) = dE(E,Z,A) - PHD(dE,Z)
+   //
+   // If no PHD is set, we return the usual KVDetector::GetELossFunction
+   // which calculates dE(E,Z,A)
+   
+   	if(fPHD && fPHD->GetStatus()) return fPHD->GetELossFunction(Z,A);
+
+   	return KVDetector::GetELossFunction(Z,A);
+}
 //________________________________________________________________
 
 Double_t KVHarpeeSi::GetEnergy()
@@ -211,6 +233,19 @@ Int_t KVHarpeeSi::GetMult(Option_t *opt){
 }
 //________________________________________________________________
 
+Double_t KVHarpeeSi::GetPHD(Double_t dE, UInt_t Z)
+{
+   //Calculate Pulse Height Defect in MeV for a given energy loss dE(MeV) and Z.
+   //The formula of Moulton is used (see class KVPulseHeightDefect).
+   //
+   //Returns 0 if PHD is not defined.
+
+   if(!fPHD || !fPHD->GetStatus()) return 0.;
+   fPHD->SetZ(Z);
+   return fPHD->Compute(dE);
+}
+//________________________________________________________________
+
 void KVHarpeeSi::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
 	fSiForPosition = NULL;
@@ -255,4 +290,49 @@ void KVHarpeeSi::SetACQParams(){
 	par->SetNumber( GetNumber() );
 	par->SetUniqueID( CalculateUniqueID( par ) );
 	AddACQParam(par);
+}
+//________________________________________________________________
+
+void KVHarpeeSi::SetCalibrators(){
+	// Pulse Height Defect calibrator as well as the calibrators of
+	// KVVAMOSDetector.
+
+	KVVAMOSDetector::SetCalibrators();
+
+	KVCalibrator *c = new KVPulseHeightDefect(this);
+   	if( !AddCalibrator(c) ) delete c;
+   	fPHD = (KVPulseHeightDefect *) GetCalibrator("Pulse Height Defect");
+}
+//________________________________________________________________
+
+void KVHarpeeSi::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1, Double_t b_2)
+{
+   //Sets parameters of Moulton formula used to calculate PHD for particles
+   //stopping in this detector. The parameters are as in the following:
+   //
+   // log_10(PHD) = b(Z) + a(Z)*log_10(E)
+   //
+   //  with  a(Z) = a_1*(Z**2/1000) + a_2
+   //          b(Z) = b_1*(100/Z) + b_2
+   //            E = energy lost by particle
+   //
+   //See class KVPulseHeightDefect
+
+   if(fPHD){
+      fPHD->SetParameters(a_1, a_2, b_1, b_2);
+      fPHD->SetStatus(kTRUE);
+   }
+}
+//________________________________________________________________
+
+void KVHarpeeSi::Streamer(TBuffer &R__b){
+   // Stream an object of class KVHarpeeSi.
+   // We set the pointers to the calibrator objects
+
+   if (R__b.IsReading()) {
+      KVHarpeeSi::Class()->ReadBuffer(R__b, this);
+      fPHD  =  (KVPulseHeightDefect *) GetCalibrator("Pulse Height Defect");
+   } else {
+      KVHarpeeSi::Class()->WriteBuffer(R__b, this);
+   }
 }
