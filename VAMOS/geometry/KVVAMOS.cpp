@@ -687,8 +687,13 @@ void KVVAMOS::Clear(Option_t *opt ){
 	// to reset energy loss and KVDetector::IsAnalysed() state
 	// plus ACQ parameters set to zero
 	
-//	KVDetector::Clear();
 	fDetectors.R__FOR_EACH(KVDetector,Clear)();	
+
+	if (fVACQParams) {
+      TIter next(fVACQParams);
+      KVACQParam *par = NULL;
+      while ((par = (KVACQParam *) next())) par->Clear();
+   }
 }
 //________________________________________________________________
 
