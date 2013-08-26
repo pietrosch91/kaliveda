@@ -61,6 +61,6 @@ class KVHarpeeSi : public KVVAMOSDetector
 
 inline KVString &KVHarpeeSi::GetACQParamTypes(){ return fACQParamTypes; }
 inline KVString &KVHarpeeSi::GetPositionTypes(){ return fPositionTypes; }
-inline Float_t   KVHarpeeSi::GetRawE()         {return GetACQData( GetEBaseName() ); }
+inline Float_t   KVHarpeeSi::GetRawE()         { return GetACQData( GetEBaseName() ); }
 
 #endif

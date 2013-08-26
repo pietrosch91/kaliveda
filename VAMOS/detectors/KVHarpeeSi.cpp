@@ -299,9 +299,19 @@ void KVHarpeeSi::SetCalibrators(){
 
 	KVVAMOSDetector::SetCalibrators();
 
-	KVCalibrator *c = new KVPulseHeightDefect(this);
+	// Set PHD calibrator only if the detector has an acq. parameter
+	// with type 'E'
+	TObject *par = GetACQParamList()->FindObjectByType("E");
+	if( !par ) return;
+
+	KVPulseHeightDefect *c = new KVPulseHeightDefect(this);
+	TString type( c->GetType() );
+	type.Append(" ");
+	type.Append( par->GetName() );
+	c->SetType( type.Data() );
    	if( !AddCalibrator(c) ) delete c;
-   	fPHD = (KVPulseHeightDefect *) GetCalibrator("Pulse Height Defect");
+
+	fPHD = (KVPulseHeightDefect *)GetCalibrator( type.Data() );
 }
 //________________________________________________________________
 
