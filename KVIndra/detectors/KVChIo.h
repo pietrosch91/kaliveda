@@ -43,6 +43,9 @@ class KVChIo:public KVINDRADetector {
    Int_t GetCanalPGFromVolts(Float_t volts);
    Int_t GetCanalGGFromVolts(Float_t volts);
 
+   Double_t GetCanalPGFromVoltsDouble(Float_t volts);
+   Double_t GetCanalGGFromVoltsDouble(Float_t volts);
+
    Double_t GetEnergyFromVolts(Double_t volts = 0.0);
    virtual Double_t GetEnergy();
 
