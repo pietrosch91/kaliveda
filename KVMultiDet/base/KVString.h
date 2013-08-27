@@ -45,7 +45,7 @@ class KVString:public TString
 
    virtual ~ KVString() {
    	if (kObjArr) delete kObjArr;
-	};
+        }
 
 #ifdef __WITHOUT_TSTRING_TOKENIZE
    TObjArray *Tokenize(const TString & delim) const;

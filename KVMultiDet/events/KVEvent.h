@@ -45,7 +45,7 @@ class KVEvent:public KVBase {
 #endif
  public:
 
-   KVNameValueList* GetParameters() const { return (KVNameValueList*)&fParameters; };
+   KVNameValueList* GetParameters() const { return (KVNameValueList*)&fParameters; }
    
     KVEvent(Int_t mult = 50, const char *classname = "KVNucleus");
     virtual ~ KVEvent();
@@ -62,7 +62,7 @@ class KVEvent:public KVBase {
 	virtual Double_t GetSum(const Char_t* KVNucleus_method,Option_t * opt = "");
    virtual void Clear(Option_t * opt = "");
    virtual void Print(Option_t * t = "") const;
-   virtual void ls(Option_t * t = "") const { Print(t); };
+   virtual void ls(Option_t * t = "") const { Print(t); }
    KVNucleus *GetParticleWithName(const Char_t * name) const;
    KVNucleus *GetParticle(const Char_t * group_name) const;
    KVNucleus *GetNextParticle(Option_t * opt = "");

@@ -163,7 +163,7 @@ void KVEventFiltering::InitAnalysis()
    gDataSet->BuildMultiDetector();
    gMultiDetArray->SetSimMode();
 
-   Info("InitAnalysis", "Detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
+//   Info("InitAnalysis", "Detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
    
    TString system = GetOpt("System").Data();
    KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);

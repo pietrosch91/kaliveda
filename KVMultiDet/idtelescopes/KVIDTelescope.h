@@ -114,7 +114,7 @@ class KVIDTelescope:public KVBase {
    virtual KVIDGraph *GetIDGrid();
    virtual KVIDGraph *GetIDGrid(Int_t);
    virtual KVIDGraph *GetIDGrid(const Char_t*);
-   virtual KVList* GetListOfIDGrids() const { return fIDGrids; };
+   virtual KVList* GetListOfIDGrids() const { return fIDGrids; }
 
    virtual void RemoveGrids();
 

@@ -32,7 +32,7 @@ ClassImp(KVNuclearChart)
 //    fHisto = 0;
 // }
 
-KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t zMax):fNucleusBoxList(kTRUE),fMagicList(kTRUE),fSymbolList(kTRUE)
+KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t zMax, Double_t life):fNucleusBoxList(kTRUE),fMagicList(kTRUE),fSymbolList(kTRUE)
 {
   fNmin = nMin;
   fNmax = nMax;
@@ -73,7 +73,7 @@ KVNuclearChart::KVNuclearChart(Int_t nMin, Int_t nMax, Int_t zMin, Int_t zMax):f
       Int_t nn = aa - zz;
       if((nn>=fNmin)&&(nn<fNmax))
         {
-        if(nuc.IsStable()||nuc.GetLifeTime()>1.e-06)           
+        if(nuc.IsStable()||nuc.GetLifeTime()>life)
 	  {
 	  KVNucleusBox* nb = new KVNucleusBox(zz,nn);
 	  nb->SetNuclearChart(this);

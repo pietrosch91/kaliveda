@@ -34,6 +34,8 @@
 #pragma link C++ class KVGumbelDistribution+;
 #pragma link C++ class KVGausGumDistribution+;
 #pragma link C++ class KVGumGumDistribution+;
+#pragma link C++ class KVGraph+;
+#pragma link C++ class KVGaxis+;
 #ifdef ROOTGANILTAPE
 #pragma link C++ class KVRawDataAnalyser+;
 #endif

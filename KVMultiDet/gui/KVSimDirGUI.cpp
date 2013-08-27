@@ -671,8 +671,22 @@ void KVSimDirGUI::RunFilter()
                 analysis_chain->GetTitle(),
          ((KVSimFile*)runs_to_analyse->First())->GetBranchName(),
          fDataset.Data(),fSystem.Data(),geometry.Data(),filter.Data(),
-//         fTEOutputDir->GetText());
          ((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory(),kinema.Data());
+
+   Info("RunFilter", "old : %s",options.Data());
+
+   options  = Form("EventsReadInterval=%d,",(nevents>10?nevents/10:1));
+   options += Form("SimFileName=%s,",((KVSimFile*)runs_to_analyse->First())->GetName());
+   options += Form("SimTitle=%s,",analysis_chain->GetTitle());
+   options += Form("BranchName=%s,",((KVSimFile*)runs_to_analyse->First())->GetBranchName());
+   options += Form("Dataset=%s,",fDataset.Data());
+   options += Form("System=%s,",fSystem.Data());
+   options += Form("Geometry=%s,",geometry.Data());
+   options += Form("Filter=%s,",filter.Data());
+   options += Form("OutputDir=%s,",((KVSimFile*)runs_to_analyse->First())->GetSimDir()->GetDirectory());
+   options += Form("Kinematics=%s",kinema.Data());
+
+
    if(fRun!=""){
       TString r;
       r.Form(",Run=%s",fRun.Data());

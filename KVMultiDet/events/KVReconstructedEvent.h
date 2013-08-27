@@ -49,11 +49,11 @@ class KVReconstructedEvent:public KVEvent {
    virtual Bool_t AnalyseDetectors(TList * kvtl);
    virtual const Char_t *GetPartSeedCond() const{
  	   return fPartSeedCond; 
-   };
+   }
    virtual void SetPartSeedCond(const Char_t* cond)
    {
       fPartSeedCond = cond;
-   };
+   }
    virtual void IdentifyEvent();
    virtual void CalibrateEvent();
 
@@ -61,22 +61,22 @@ class KVReconstructedEvent:public KVEvent {
 
    inline void UseMeanAngles() {
       fMeanAngles = kTRUE;
-   };
+   }
    inline void UseRandomAngles() {
       fMeanAngles = kFALSE;
-   };
+   }
    inline Bool_t HasMeanAngles() {
       return fMeanAngles;
-   };
+   }
    inline Bool_t HasRandomAngles() {
       return !fMeanAngles;
-   };
+   }
    
    virtual void SecondaryIdentCalib()
    {
    	// Perform identifications and calibrations of particles not included
    	// in first round (methods IdentifyEvent() and CalibrateEvent()).
-   };
+   }
 
    ClassDef(KVReconstructedEvent, 2)    //Base class for reconstructed experimental multiparticle events
 };

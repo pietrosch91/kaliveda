@@ -34,7 +34,7 @@ class KVNameValueList : public TNamed
 	virtual void Clear(Option_t* opt = "");
     virtual void ClearSelection(TRegexp&);
 	virtual void Print(Option_t* opt = "") const;
-	virtual void ls(Option_t* opt = "") const { Print(opt); };
+        virtual void ls(Option_t* opt = "") const { Print(opt); }
    
 	void SetOwner(Bool_t enable = kTRUE);
 	Bool_t IsOwner() const;
@@ -64,7 +64,7 @@ class KVNameValueList : public TNamed
 	Int_t GetNameIndex(const Char_t* name);
 	const Char_t* GetNameAt(Int_t idx) const;
 	Int_t GetNpar() const;
-	Int_t GetEntries() const { return GetNpar(); };
+        Int_t GetEntries() const { return GetNpar(); }
 	
 	Int_t GetIntValue(const Char_t* name) const;
 	Double_t GetDoubleValue(const Char_t* name) const;
