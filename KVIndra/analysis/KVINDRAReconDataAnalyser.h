@@ -33,6 +33,9 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
 	void ConnectRawDataTree();
    
    Long64_t TotalEntriesToRead;
+   KVString fDataVersion;//KV version used to write analysed data
+   KVString fDataSeries;//KV series used to write analysed data
+   Int_t fDataReleaseNum;//KV release number used to write analysed data
 	
  public:
 
@@ -61,8 +64,12 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    void preAnalysis();
    void preInitRun();
 	virtual void RegisterUserClass(TObject*obj) {fSelector=(KVSelector*)obj;};
-	void PrintTreeInfos() const;
+	void PrintTreeInfos();
    TEnv* GetReconDataTreeInfos() const;
+   
+   KVString GetDataVersion() const { return fDataVersion; }
+   KVString GetDataSeries() const { return fDataSeries; }
+   Int_t GetDataReleaseNumber() const { return fDataReleaseNum; }
 	
    ClassDef(KVINDRAReconDataAnalyser, 0) //For analysing reconstructed INDRA data
 };

@@ -767,7 +767,7 @@ void KVINDRA::SetGGtoPGConversionFactors()
 
 //_________________________________________________________________________________
 
-TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
+TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bool_t closegeo)
 {   
    // Overrides KVASMultiDetArray::CreateGeoManager in order to use INDRAGeometryBuilder
    // which builds the TGeo representation of INDRA using the Y. Huguet CAO data.

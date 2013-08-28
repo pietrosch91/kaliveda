@@ -61,6 +61,11 @@ class KVBase:public TNamed {
       // Returns true if GetType() returns the given type name
       return (fTitle==typ);
    };
+   virtual Bool_t IsCalled(const Char_t* name) const
+   {
+       // Returns true if object has given name (test value returned by GetName())
+       return !strcmp(GetName(),name);
+   }
    void SetLabel(const Char_t * lab);
    const Char_t *GetLabel() const;
    virtual void Print(Option_t * option = "") const;

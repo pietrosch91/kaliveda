@@ -61,13 +61,8 @@ LINK_LIB += -L$(ROOTSYS)/lib -lSpectrum
 RLIBMAPDEPS += libSpectrum.so
 
 #required for use of TProof
-ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_34_00)),1)
-LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer
-RLIBMAPDEPS += libProofPlayer.so
-else
 LINK_LIB += -L$(ROOTSYS)/lib -lProofPlayer -lProof
-RLIBMAPDEPS += libProof.so libProofPlayer.so
-endif
+RLIBMAPDEPS += libProof.so  libProofPlayer.so
 
 ifneq ($(ARCH),win32)
 LINK_LIB += -L$(KVROOT)/lib -lfitltg

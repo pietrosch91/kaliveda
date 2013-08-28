@@ -81,8 +81,10 @@ void KVIdentificationResult::Print(Option_t* opt) const
 	else printf("   => FAILURE\n");
 	printf("  Quality code = %d (%s)\n", IDquality, GetLabel());
 	if(Zident) printf("  Z identified = %d", Z);
+    else printf("  Z returned = %d", Z);
 	if(Aident) printf("    A identified = %d", A);
-	if(Zident||Aident) printf("    PID = %f\n", PID);
+    else printf("  A returned = %d", A);
+    if(Zident||Aident) printf("    PID = %f\n", PID);
     printf("  delta-E pedestal : ");
     switch(deltaEpedestal){
 

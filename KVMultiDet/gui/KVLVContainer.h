@@ -34,6 +34,7 @@ class KVLVColumnData
 	KVDatime::EKVDateFormat  fFmt; 		// format for presenting date & time
 	Bool_t			fIsKVDatime;	// kTRUE if date & time is in KVDatime object, TDatime if not
 	Bool_t			fIsBoolean;	// kTRUE if column data is a boolean (i.e. 1 or 0, kTRUE or kFALSE)
+    TString         fDataFormat;// format for displaying data
 
 	enum {
 		kDatimeRef = TMethodCall::kNone+1,
@@ -55,6 +56,19 @@ class KVLVColumnData
 				<< " is not valid" << std::endl;
 		}
 		fRetType = fMethCall->ReturnType();
+        fDataFormat = "";
+        switch(fRetType){
+            case TMethodCall::kLong :
+            fDataFormat="%ld";
+            break;
+
+            case TMethodCall::kDouble :
+            fDataFormat="%lf";
+            break;
+
+        default:
+            break;
+        }
 	};
 	virtual ~KVLVColumnData()
 	{
@@ -62,6 +76,12 @@ class KVLVColumnData
 	};
 	virtual void SetIsDateTime(KVDatime::EKVDateFormat fmt=KVDatime::kCTIME, Bool_t with_reference=kTRUE);
 	virtual void SetIsBoolean(Bool_t isit = kTRUE){ fIsBoolean=isit; };
+    virtual void SetDataFormat(const Char_t* fmt)
+    {
+        // Override default formatting for integer ("%ld") or double ("%lf") data types
+        fDataFormat=fmt;
+    }
+
 	virtual Bool_t IsBoolean() const { return fIsBoolean; };
 	const Char_t* GetDataString(TObject*);
 	void GetData(TObject*,Long_t&);
@@ -186,6 +206,8 @@ class KVLVContainer : public TGLVContainer
    void DoubleClickAction(TObject*); /* SIGNAL */
 
    Bool_t HandleButton(Event_t *event);
+
+   virtual void SelectAll(); /* SIGNAL */
 
    ClassDef(KVLVContainer,0)//List view container class
 };

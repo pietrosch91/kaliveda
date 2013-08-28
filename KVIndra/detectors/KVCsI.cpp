@@ -27,6 +27,8 @@ $Id: KVCsI.cpp,v 1.38 2009/04/09 09:25:43 ebonnet Exp $
 #include "KVIDGCsI.h"
 #include "KVIDZALine.h"
 #include "KVIDCutLine.h"
+#include <TCanvas.h>
+#include "TMarker.h"
 
 using namespace std;
 
@@ -505,17 +507,17 @@ Double_t KVCsI::GetLightFromEnergy(Int_t Z, Int_t A, Double_t E)
 void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 {
 
-	GetACQParam("R")->SetData(0);
-	GetACQParam("L")->SetData(0);
-	GetACQParam("T")->SetData(0);
+    GetACQParam("R")->SetData(-1);
+    GetACQParam("L")->SetData(-1);
+    GetACQParam("T")->SetData(-1);
 	if (zz==-1 || aa==-1){ return; }
 		
 	UShort_t Mt = 110;
 	Double_t Xlen = 0;
 	Double_t Yrap = 0;
 	Double_t lumiere = GetLightFromEnergy(zz,aa);
+    //Info("DeduceACQParameters", "z=%d a=%d e=%f h=%f",zz,aa,GetEnergy(),lumiere);
 	
-	//KVIDTelescope *idcsi=(KVIDTelescope*)GetIDTelescopes()->FindObject(Form("CSI_R_L_%02d%02d",GetRingNumber(),GetModuleNumber()));
 	KVIDTelescope *idcsi=(KVIDTelescope*)GetIDTelescopes()->At(0);
 	
 	KVIDGCsI* idgcsi = (KVIDGCsI*)idcsi->GetIDGrid();
@@ -524,18 +526,55 @@ void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 		return;
 	}
 	KVIDZALine* idline = (KVIDZALine*)idgcsi->GetIdentifier(zz,aa);
-	
-	GetACQParam("T")->SetData(Mt);
-	
+    if(!idline && zz <= idgcsi->GetZmax()){
+        // Z within limits of grid, but we don't have the isotope
+        // Look for line with closest mass
+        Int_t closest_a=1000;Int_t closest_index=-1;
+        Int_t nids = idgcsi->GetNumberOfIdentifiers();
+        for(Int_t iid=0; iid<nids; iid++){
+            KVIDZALine* ll = (KVIDZALine*)idgcsi->GetIdentifierAt(iid);
+            if(ll->GetZ()==zz){
+                if(TMath::Abs(ll->GetA()-aa)<TMath::Abs(closest_a-aa)){
+                    closest_index=iid;
+                    closest_a=ll->GetA();
+                }
+            }
+        }
+        idline = (KVIDZALine*)idgcsi->GetIdentifierAt(closest_index);
+    }
+		
 	if(idline){ 
 		Double_t  Yrap1,Yrap2,Xlen1,Xlen2;
 		idline->GetStartPoint(Xlen1,Yrap1);
 		idline->GetEndPoint(Xlen2,Yrap2);
-		
+        Double_t  lumcalc1 = Calculate(kLumiere, Yrap1,Xlen1);
+        Double_t  lumcalc2 = Calculate(kLumiere, Yrap2,Xlen2);
+        if(lumiere<lumcalc1) {
+            Xlen2=Xlen1;
+            Yrap2=Yrap1;
+            lumcalc2=lumcalc1;
+            Xlen1=GetPedestal("L");
+            Yrap1=idline->Eval(Xlen1,0,"S");
+            lumcalc1 = Calculate(kLumiere, Yrap1,Xlen1);
+            //cout << "Extrapolating before start of ID line" << endl;
+        }
+        else if(lumiere>lumcalc2) {
+            Xlen1=Xlen2;
+            Yrap1=Yrap2;
+            lumcalc1=lumcalc2;
+            Xlen2=4095;
+            Yrap2=idline->Eval(Xlen2,0,"S");
+            lumcalc2=Calculate(kLumiere,Yrap2,Xlen2);
+            //cout << "Extrapolating after end of ID line" << endl;
+        }
+        //cout << "Xlen1=" << Xlen1 << " Yrap1="<<Yrap1<< "  Lum_min = " << lumcalc1 << endl;
+        //cout << "Xlen2=" << Xlen2 << " Yrap2=" << Yrap2<< "  Lum_max = " << lumcalc2 << endl;
+
 		Xlen = (Xlen1+Xlen2)/2.;
-		Yrap = idline->Eval(Xlen);
-		Double_t  lumcalc = GetLumiereTotale(Yrap,Xlen);
-		
+        Yrap = idline->Eval(Xlen,0,"S");
+        Double_t  lumcalc = Calculate(kLumiere, Yrap,Xlen);
+        //cout << "-1 : Rapide = " << Yrap << " Lente = " << Xlen << " lumcalc = " << lumcalc << endl;
+
 		Int_t niter=0;
 		while(niter<20&&TMath::Abs(lumcalc-lumiere)/lumiere > 0.01){
 			if(lumcalc>lumiere){
@@ -545,28 +584,60 @@ void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 				Xlen1=Xlen;
 			}
 			Xlen = (Xlen1+Xlen2)/2.;
-			Yrap = idline->Eval(Xlen);
-			lumcalc = GetLumiereTotale(Yrap,Xlen);
-			niter++;
+            Yrap = idline->Eval(Xlen,0,"S");
+            lumcalc = Calculate(kLumiere,Yrap,Xlen);
+            //cout << niter << " : Rapide = " << Yrap << " Lente = " << Xlen << " lumcalc = " << lumcalc << endl;
+            niter++;
 			
 		}
+//        TMarker *mrk = new TMarker(Xlen,Yrap,2);
+//        mrk->SetMarkerSize(2);
+//        mrk->SetMarkerColor(kRed);
+//        if(idgcsi->IsDrawn()) idgcsi->IsDrawn()->cd();
+//        else {new TCanvas; idgcsi->Draw();}
+//        mrk->Draw();
 	}
 	else
 	{
 		KVIDCutLine*imf_line = (KVIDCutLine*)idgcsi->GetCut("IMF_line");
 		if (!imf_line){
-			Warning("DeduceACQParameters","%s, No IMF_line defined",GetName());
+            //Warning("DeduceACQParameters","%s, No IMF_line defined",GetName());
 			return;
 		}
 		else {
 			Double_t  Yrap1,Yrap2,Xlen1,Xlen2;
 			imf_line->GetStartPoint(Xlen1,Yrap1);
 			imf_line->GetEndPoint(Xlen2,Yrap2);
-			
+            Yrap1+=10.;//au-dessus de la ligne fragment
+            Yrap2+=10.;//au-dessus de la ligne fragment
+            Double_t  lumcalc1 = Calculate(kLumiere, Yrap1,Xlen1);
+            Double_t  lumcalc2 = Calculate(kLumiere, Yrap2,Xlen2);
+            if(lumiere<lumcalc1) {
+                Xlen2=Xlen1;
+                Yrap2=Yrap1;
+                lumcalc2=lumcalc1;
+                Xlen1=GetPedestal("L");
+                Yrap1=imf_line->Eval(Xlen1,0,"S")+10.;
+                lumcalc1 = Calculate(kLumiere, Yrap1,Xlen1);
+                //cout << "Extrapolating before start of IMF line" << endl;
+            }
+            else if(lumiere>lumcalc2) {
+                Xlen1=Xlen2;
+                Yrap1=Yrap2;
+                lumcalc1=lumcalc2;
+                Xlen2=4095;
+                Yrap2=imf_line->Eval(Xlen2,0,"S")+10.;
+                lumcalc2=Calculate(kLumiere,Yrap2,Xlen2);
+                //cout << "Extrapolating after end of IMF line" << endl;
+            }
+            //cout << "Xlen1=" << Xlen1 << " Yrap1="<<Yrap1<< "  Lum_min = " << lumcalc1 << endl;
+            //cout << "Xlen2=" << Xlen2 << " Yrap2=" << Yrap2<< "  Lum_max = " << lumcalc2 << endl;
+
 			Xlen = (Xlen1+Xlen2)/2.;
 			Yrap = imf_line->Eval(Xlen) + 10.;//au-dessus de la ligne fragment
-			Double_t  lumcalc = GetLumiereTotale(Yrap,Xlen);
-		
+            Double_t  lumcalc = Calculate(kLumiere,Yrap,Xlen);
+            //cout << "-1 : Rapide = " << Yrap << " Lente = " << Xlen << " lumcalc = " << lumcalc << endl;
+
 			Int_t niter=0;
 			while(niter<20 && TMath::Abs(lumcalc-lumiere)/lumiere > 0.01){
 				if(lumcalc>lumiere){
@@ -577,16 +648,22 @@ void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 				}
 				Xlen = (Xlen1+Xlen2)/2.;
 				Yrap = imf_line->Eval(Xlen) + 10.;//au-dessus de la ligne fragment
-				lumcalc = GetLumiereTotale(Yrap,Xlen);
-				//cout << niter++ << " : Xlen = " << Xlen << " lumcalc = " << lumcalc << endl;
+                lumcalc = Calculate(kLumiere,Yrap,Xlen);
+                //cout << niter << " : Rapide = " << Yrap << " Lente = " << Xlen << " lumcalc = " << lumcalc << endl;
 				niter++;
 			}
 			if (niter==20){
-				Xlen=0;
-				Yrap=0;
-				Mt=0;
+                Xlen=-1;
+                Yrap=-1;
+                Mt=-1;
 			}
-		}
+//            TMarker *mrk = new TMarker(Xlen,Yrap,2);
+//            mrk->SetMarkerSize(2);
+//            mrk->SetMarkerColor(kBlue);
+//            if(idgcsi->IsDrawn()) idgcsi->IsDrawn()->cd();
+//            else {new TCanvas; idgcsi->Draw();}
+//            mrk->Draw();
+        }
 		
 	}
 	GetACQParam("R")->SetData((UShort_t)Yrap);
