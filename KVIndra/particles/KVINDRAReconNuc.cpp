@@ -1086,6 +1086,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
                 //calculate & set energy loss in CsI
                 fECsI = GetSi()->GetEResFromDeltaE(GetZ(),GetA());
                 si_de_deja_fait = kTRUE; // don't recalculate silicon energy
+                SetECode(kECode2);
             }
         }
         if(fECsI<=0){
