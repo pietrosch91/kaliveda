@@ -221,7 +221,7 @@ INDRA_e613.KVACQParam.SI_0324.T:    TOF
 # first variable will be used. If neither is defined, the new file will be written in the same repository as
 # the raw file (if possible, i.e. if repository is not remote).
 
-+DataAnalysisTask:     ReconIdent
+#+DataAnalysisTask:     ReconIdent
 ReconIdent.DataAnalysisTask.Title:     Identification of reconstructed events (recon->ident)
 ReconIdent.DataAnalysisTask.Prereq:     recon
 ReconIdent.DataAnalysisTask.Analyser:     INDRAReconData
@@ -239,7 +239,7 @@ ReconIdent.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
 # first variable will be used. If neither is defined, the new file will be written in the same repository as
 # the recon file (if possible, i.e. if repository is not remote).
 
-+DataAnalysisTask:     IdentRoot
+#+DataAnalysisTask:     IdentRoot
 IdentRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (ident->root)
 IdentRoot.DataAnalysisTask.Prereq:     ident
 IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
