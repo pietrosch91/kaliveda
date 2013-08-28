@@ -602,7 +602,7 @@ void KVCalorimetry::SumUp()
 		// conservation du AsurZ du systeme --> multiplicite moyenne des neutrons	
 		Double_t Mneutron = Double_t(TMath::Nint(GetParValue("AsurZ")*GetIngValue("Zsum") - GetIngValue("Asum"))); 	
 		if (Mneutron<0) {
-			Warning("SumUp","Nombre de neutrons déduits négatif : %1.0lf -> on le met à zéro",Mneutron);
+            //Warning("SumUp","Nombre de neutrons déduits négatif : %1.0lf -> on le met à zéro",Mneutron);
 			Mneutron = 0;
 		}
 		SetIngValue("Aneu",Mneutron);

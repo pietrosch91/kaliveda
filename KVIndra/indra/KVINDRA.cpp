@@ -809,4 +809,15 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
    return fGeoManager;
 }
 
+void KVINDRA::SetROOTGeometry(Bool_t on)
+{
+    // Override base class method
+    // If ROOT geometry is requested but has not been built, we create it
+
+    if(on && !GetGeometry()){
+        CreateGeoManager();
+    }
+    KVASMultiDetArray::SetROOTGeometry(on);
+}
+
 
