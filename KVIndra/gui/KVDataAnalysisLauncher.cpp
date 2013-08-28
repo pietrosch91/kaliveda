@@ -534,8 +534,9 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
                                          |kLHintsRight|kLHintsExpandX,
                                     10,10,1,1));
     // Systems list
-    lvSystems = new KVListView(KVDBSystem::Class(), this, fMainGuiWidth, 250);
+    lvSystems = new KVListView(KVDBSystem::Class(), this, fMainGuiWidth, 150);
     lvSystems->SetDataColumns(5);
+	lvSystems->SetMaxColumnSize(gEnv->GetValue("KaliVedaGUI.MaxColWidth",200));
     lvSystems->SetDataColumn(1, "Zproj");
     lvSystems->SetDataColumn(2, "Ztarget");
     lvSystems->SetDataColumn(3, "Ebeam");
@@ -548,7 +549,7 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
     lvSystems->AllowContextMenu(kFALSE);
     lvSystems->AllowMultipleSelection(kFALSE);
     lvSystems->Connect("SelectionChanged()", "KVDataAnalysisLauncher", this, "SystemSelectionChanged()");
-    AddFrame(lvSystems, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,
+    AddFrame(lvSystems, new TGLayoutHints(kLHintsExpandX,
                                10,10,15,15));
 
 // Frame pour la liste des runs
