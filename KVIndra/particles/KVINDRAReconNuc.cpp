@@ -1021,6 +1021,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
     //     no pile-up suspected in silicon
     
 		fECsI=fESi=fEChIo=0;
+        Bool_t si_de_deja_fait = kFALSE;
 		
     if(GetCodes().TestIDCode(kIDCode_Gamma)){
         // no calibration for gammas
@@ -1068,6 +1069,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
                 }
                 //calculate & set energy loss in CsI
                 fECsI = GetSi()->GetEResFromDeltaE(GetZ(),GetA());
+                si_de_deja_fait = kTRUE; // don't recalculate silicon energy
             }
         }
         if(fECsI<=0){
@@ -1082,8 +1084,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
-        if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
-        //Info("calib","all well");
+        if(!fPileup && fCoherent && GetSi()->IsCalibrated() && !si_de_deja_fait){
             // all is apparently well
             Bool_t si_transmission=kTRUE;
             if(stopped_in_silicon){
