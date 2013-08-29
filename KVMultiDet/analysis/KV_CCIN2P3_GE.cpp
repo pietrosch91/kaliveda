@@ -337,10 +337,14 @@ KVList *KV_CCIN2P3_GE::GetListOfJobs()
                 TString thisLine = ((TObjString*)(*lines)[line_number])->String();
                 if(thisLine.BeginsWith("usage")){
                     TObjArray* bits = thisLine.Tokenize("=,");
-                    TString stime = ((TObjString*)(*bits)[1])->String();// hh:mm:ss
-                    Int_t hh,mm,ss;
-                    sscanf(stime.Data(), "%2d:%2d:%2d", &hh,&mm,&ss);
-                    job->SetCPUusage(hh*3600+mm*60+ss);
+                    TString stime = ((TObjString*)(*bits)[1])->String();// hh:mm:ss or d:hh:mm:ss
+                    Int_t dd,hh,mm,ss;
+                    TObjArray* tmp = stime.Tokenize(":");
+                    dd=0;
+                    if(tmp->GetEntries()==4) sscanf(stime.Data(), "%d:%2d:%2d:%2d", &dd,&hh,&mm,&ss);
+                    else sscanf(stime.Data(), "%2d:%2d:%2d", &hh,&mm,&ss);
+                    delete tmp;
+                    job->SetCPUusage((dd*24+hh)*3600+mm*60+ss);
                     TString smem = ((TObjString*)(*bits)[7])->String();// xxx.xxxxM
                     job->SetMemUsed(smem);
                     delete bits;
