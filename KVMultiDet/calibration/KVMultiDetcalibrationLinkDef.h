@@ -8,4 +8,5 @@
 #pragma link C++ class KVCalibrator-;//customised streamer
 #pragma link C++ class KVLinCal+;
 #pragma link C++ class KVPulseHeightDefect+;
+#pragma link C++ class KVRecombination+;
 #endif
