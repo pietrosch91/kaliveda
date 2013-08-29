@@ -4,7 +4,7 @@
 #include "KVHarpeeSi.h"
 #include "TGeoBBox.h"
 #include "KVUnits.h"
-#include "KVPulseHeightDefect.h"
+#include "KVRecombination.h"
 #include "TClass.h"
 
 ClassImp(KVHarpeeSi)
@@ -37,7 +37,8 @@ void KVHarpeeSi::init(){
 	}
 	fHarpeeSiList->Add( this );
 
-	fPHD = NULL; 
+	fCanalE = NULL;
+	fPHD    = NULL; 
 
 	// fSegment is set to 1 because this silicon detector is
 	// an independant detector (see KVGroup::AnalyseParticles for
@@ -149,6 +150,17 @@ Double_t KVHarpeeSi::GetCalibT(const Char_t *type){
 }
 //________________________________________________________________
 
+Double_t KVHarpeeSi::GetCanalFromEnergy( Double_t e ){
+	// Inverts calibration, i.e. calculates the channel value associated
+	// to a given energy (in MeV). If the energy is not given, the value
+	// returned by GetEnergy() is used.
+
+	if( e<0 ) e = GetEnergy();
+	if( fCanalE && fCanalE->GetStatus() ) return fCanalE->Invert( e );
+	return -1.;
+}
+//________________________________________________________________
+
 const Char_t *KVHarpeeSi::GetEBaseName() const{
 	// Base name of the energy used to be compatible
 	// GANIL acquisition parameters
@@ -198,6 +210,20 @@ Double_t KVHarpeeSi::GetEnergy()
 }
 //________________________________________________________________
 
+Double_t KVHarpeeSi::GetEnergyFromCanal( Double_t c){
+	// Calculates the calibrated energy in MeV from the channel value.
+	// If the channel is not given, the coder value of the acq. parameter
+	// associated to the calibrator channel->MeV is used.
+
+	if( !fCanalE ) Error("GetEnergyFromCanal","fCanalE not found");
+	if( fCanalE && fCanalE->GetStatus() ){
+		if( c<0 ) return fCanalE->Compute();
+		else      return fCanalE->Compute( c );
+	}
+	return 0.;
+}
+//________________________________________________________________
+
 KVHarpeeSi *KVHarpeeSi::GetFiredHarpeeSi(Option_t *opt){
 	// This static method returns the first fired detector found
 	// in the list of all the existing silicon detectors of HARPEE.
@@ -233,15 +259,15 @@ Int_t KVHarpeeSi::GetMult(Option_t *opt){
 }
 //________________________________________________________________
 
-Double_t KVHarpeeSi::GetPHD(Double_t dE, UInt_t Z)
+Double_t KVHarpeeSi::GetPHD(Double_t dE, UInt_t Z, UInt_t A)
 {
    //Calculate Pulse Height Defect in MeV for a given energy loss dE(MeV) and Z.
-   //The formula of Moulton is used (see class KVPulseHeightDefect).
+   //The formula of Parlog is used (see class KVRecombination).
    //
    //Returns 0 if PHD is not defined.
 
    if(!fPHD || !fPHD->GetStatus()) return 0.;
-   fPHD->SetZ(Z);
+   fPHD->SetZandA(Z,A);
    return fPHD->Compute(dE);
 }
 //________________________________________________________________
@@ -304,32 +330,36 @@ void KVHarpeeSi::SetCalibrators(){
 	TObject *par = GetACQParamList()->FindObjectByType("E");
 	if( !par ) return;
 
-	KVPulseHeightDefect *c = new KVPulseHeightDefect(this);
-	TString type( c->GetType() );
+	TString type("channel->MeV ");
+	type.Append( par->GetName() );
+	fCanalE = (KVFunctionCal *)GetCalibrator( type.Data() );
+
+	if( !fCanalE ) Error("SetCalibrators","channel->MeV calibrator not found");
+
+	KVRecombination *c = new KVRecombination(this);
+	type = c->GetType();
 	type.Append(" ");
 	type.Append( par->GetName() );
 	c->SetType( type.Data() );
    	if( !AddCalibrator(c) ) delete c;
 
-	fPHD = (KVPulseHeightDefect *)GetCalibrator( type.Data() );
+	fPHD = (KVRecombination *)GetCalibrator( type.Data() );
 }
 //________________________________________________________________
 
-void KVHarpeeSi::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1, Double_t b_2)
+void KVHarpeeSi::SetParlogPHDParameter(Double_t a)
 {
-   //Sets parameters of Moulton formula used to calculate PHD for particles
+   //Sets parameter of Parlog formula used to calculate PHD for particles
    //stopping in this detector. The parameters are as in the following:
    //
-   // log_10(PHD) = b(Z) + a(Z)*log_10(E)
+   //      PHD(E) = 1/2 * Ed *( 1-1/X * ln|1+X| + X * ln|1+1/X| )
+   // with X      = a*A*Z**2/Ed
+   //      Ed     = energy lost by particle in detector (=E if particle stops)
    //
-   //  with  a(Z) = a_1*(Z**2/1000) + a_2
-   //          b(Z) = b_1*(100/Z) + b_2
-   //            E = energy lost by particle
-   //
-   //See class KVPulseHeightDefect
+   //See class KVRecombination
 
    if(fPHD){
-      fPHD->SetParameters(a_1, a_2, b_1, b_2);
+      fPHD->SetParameters(a);
       fPHD->SetStatus(kTRUE);
    }
 }
@@ -341,7 +371,14 @@ void KVHarpeeSi::Streamer(TBuffer &R__b){
 
    if (R__b.IsReading()) {
       KVHarpeeSi::Class()->ReadBuffer(R__b, this);
-      fPHD  =  (KVPulseHeightDefect *) GetCalibrator("Pulse Height Defect");
+	  TIter next( GetListOfCalibrators() );
+	  TObject *cal = NULL;
+	  while( ( cal = next() ) ){
+		  if( cal->InheritsFrom("KVRecombination") )
+      		  fPHD  =  (KVRecombination *)cal;
+		  else if( cal->InheritsFrom("KVFunctionCal") )
+			  fCanalE = (KVFunctionCal *)cal;
+	  }
    } else {
       KVHarpeeSi::Class()->WriteBuffer(R__b, this);
    }
