@@ -108,7 +108,7 @@ void KVReconstructedNucleus::Streamer(TBuffer & R__b)
             TIter next_det(&fDetList);
             KVDetector *det;
             while ( (det = (KVDetector*)next_det()) ){
-                //fNSegDet += det->GetSegment(); => made persistent
+                if( R__v < 16 ) fNSegDet += det->GetSegment(); // fNSegDet non-persistent before v.16
                 det->AddHit(this);
                 det->SetAnalysed();
                 //modify detector's counters depending on particle's identification state
