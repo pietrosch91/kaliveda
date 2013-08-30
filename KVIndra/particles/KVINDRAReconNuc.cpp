@@ -1084,12 +1084,12 @@ void KVINDRAReconNuc::CalibrateRings1To9()
                    return;
                 }
                 //calculate & set energy loss in CsI
-                fECsI = GetSi()->GetEResFromDeltaE(GetZ(),GetA());
+                fECsI = -TMath::Abs(GetSi()->GetEResFromDeltaE(GetZ(),GetA()));
                 si_de_deja_fait = kTRUE; // don't recalculate silicon energy
                 SetECode(kECode2);
             }
         }
-        if(fECsI<=0){
+        if(!si_de_deja_fait && (fECsI<=0)){
            //Info("Calib", "ECsI = %f",fECsI);
             SetECode(kECode15);// bad - no CsI energy
             return;
@@ -1101,31 +1101,33 @@ void KVINDRAReconNuc::CalibrateRings1To9()
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
-        if(!fPileup && fCoherent && GetSi()->IsCalibrated() && !si_de_deja_fait){
-            // all is apparently well
-            Bool_t si_transmission=kTRUE;
-            if(stopped_in_silicon){
-            	si_transmission=kFALSE;
+        if(!si_de_deja_fait){
+            if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
+                // all is apparently well
+                Bool_t si_transmission=kTRUE;
+                if(stopped_in_silicon){
+                    si_transmission=kFALSE;
+                }
+                else
+                {
+                    GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
+                }
+                fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
+                if(fESi<=0) {
+                    //Info("calib", "esi=%f",fESi);
+                    SetECode(kECode15);// bad - no Si energy
+                    return;
+                }
             }
             else
             {
+                Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fECsI));
+                // calculated energy: negative
                 GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
+                fESi = GetSi()->GetCorrectedEnergy(this,e0);
+                fESi = -TMath::Abs(fESi);
+                SetECode(kECode2);
             }
-            fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
-         	if(fESi<=0) {
-         	  //Info("calib", "esi=%f",fESi);
-            	SetECode(kECode15);// bad - no Si energy
-            	return;
-         	}
-        }
-        else
-        {
-            Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fECsI));
-				// calculated energy: negative
-                GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
-            fESi = GetSi()->GetCorrectedEnergy(this,e0);
-            fESi = -TMath::Abs(fESi);
-            SetECode(kECode2);
         }
     }
     if(GetChIo()){
