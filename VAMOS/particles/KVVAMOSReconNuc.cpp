@@ -90,7 +90,7 @@ void KVVAMOSReconNuc::init()
 //________________________________________________________________
 
 void KVVAMOSReconNuc::Calibrate(){
- //Calculate and set the energy of a (previously identified) reconstructed nucleus,
+ 	//Calculate and set the energy of a (previously identified) reconstructed nucleus,
     //including an estimate of the energy loss in the stripping foil and in the target.
     //
     //Starting from the detector in which the nucleus stopped, we add up the
@@ -104,7 +104,7 @@ void KVVAMOSReconNuc::Calibrate(){
     //   gVamos->GetStripFoilEnergyLossCorrection();
     //   gMultiDetArray->GetTargetEnergyLossCorrection().
 
-	
+
 	//	Info("Calibrate","IN");
 
 	if( 1 ) CalibrateFromDetList();
@@ -118,7 +118,7 @@ void KVVAMOSReconNuc::Calibrate(){
 
         if(GetZ()) {
 
- 			Double_t E_tot = GetEnergy();
+ 			Double_t E_tot   = GetEnergy();
 			Double_t E_sfoil = 0.;
         	Double_t E_targ  = 0.;
 
@@ -134,8 +134,8 @@ void KVVAMOSReconNuc::Calibrate(){
         }
     }
 
-//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",GetEnergy(), GetTheta(), GetPhi());
-//cout<<endl;
+//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f, momentum= %f",GetEnergy(), GetTheta(), GetPhi(), GetMomentum().Mag());
+//    cout<<endl;
 }
 //________________________________________________________________
 		
@@ -244,6 +244,16 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
    	init();
    	fCodes.Clear();
 	fRT.Reset();
+}
+//________________________________________________________________
+ 		
+void KVVAMOSReconNuc::GetAnglesFromStoppingDetector(Option_t *){
+	// Overwrites the same method of the mother class. This method is obsolete
+	// for a nucleus reconstructed in VAMOS because angles are set by the 
+	// reconstruction.
+	// Overwriting is important because this method is called in the Streamer
+	// method of KVReconstructedEvent to calculate again the angles.
+	return;
 }
 //________________________________________________________________
 
@@ -876,7 +886,6 @@ Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
             if ( !strcmp(obj->GetLabel(), det_label ) ) break;
 			idx++;
     }
-	Info("GetEnergy","Energy(%s)= %f; idx= %d, entries= %d",det_label, idx < GetDetectorList()->GetEntries() ? fDetE[idx] : -1, idx, GetDetectorList()->GetEntries());
 	if( idx < GetDetectorList()->GetEntries() ) return fDetE[idx];
 	return -1.;
 }

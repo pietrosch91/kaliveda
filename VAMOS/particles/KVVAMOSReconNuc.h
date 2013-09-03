@@ -44,6 +44,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void     Calibrate();
 		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");
+ 		virtual void     GetAnglesFromStoppingDetector(Option_t * opt = "random");
 		        Float_t  GetDeltaPath( KVVAMOSDetector *det ) const;
 				using    KVReconstructedNucleus::GetEnergy;
 				Float_t  GetEnergy( const Char_t *det_label ) const;
