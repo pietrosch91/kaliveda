@@ -170,6 +170,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 	SetIsCalibrated();
 
 	Double_t Etot = 0;
+	Bool_t stopdetOK = kTRUE;
 	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
 	KVVAMOSDetector *det     = NULL;
 	TIter next( GetDetectorList() );
@@ -177,6 +178,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 	Int_t idx = -1;
 	while( (det = (KVVAMOSDetector *)next()) ){
 		fDetE[++idx] = 0.;
+		if( !stopdetOK ) continue;
 		// transmission=kFALSE if particle stop in det
 		Bool_t transmission = ( det != stopdet );
 		Double_t Edet = (det->IsECalibrated() ? det->GetEnergy() : -1);
@@ -186,6 +188,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 		if( !transmission && ((det->GetNHits() != 1) || (Edet <= 0)) ){
  			SetECode( kECode0 );
 			SetIsUncalibrated();
+			stopdetOK = kFALSE;
 //			Info("CalibrateFromDetList","Stopping detector not calibrated");
 			return;
 		}
@@ -196,7 +199,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 			Edet  = det->GetCorrectedEnergy( this, -1, transmission );
 			Etot += Edet;
 			fDetE[idx] = Edet;
-//			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s", Edet, det->GetName());
+//			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
 			continue;
 		}
 
@@ -220,7 +223,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
         Etot += Edet;
 		fDetE[idx] = Edet;
 		if( det->IsUsedToMeasure("E") ) SetECode( kECode2 );
-//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s", Edet, det->GetName());
+//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
 	}
 	SetEnergy( Etot );
 }
@@ -873,6 +876,7 @@ Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
             if ( !strcmp(obj->GetLabel(), det_label ) ) break;
 			idx++;
     }
+	Info("GetEnergy","Energy(%s)= %f; idx= %d, entries= %d",det_label, idx < GetDetectorList()->GetEntries() ? fDetE[idx] : -1, idx, GetDetectorList()->GetEntries());
 	if( idx < GetDetectorList()->GetEntries() ) return fDetE[idx];
 	return -1.;
 }

@@ -45,7 +45,7 @@ Double_t KVRecombination::PHDParlog(Double_t * x, Double_t * par){
    	Int_t    Z = par[0];
    	Int_t    A = par[1];
    	Double_t a = GetParameter(0);
-   	Double_t E = x[0];
+   	Double_t E = x[0] > 0 ? x[0] : 0.000001;
    	Double_t X = a*A*Z*Z/E;
 
    	return ( 1. - 1./X*TMath::Log( TMath::Abs(1.+X) )
@@ -105,7 +105,7 @@ TF1* KVRecombination::GetELossFunction(Int_t Z, Int_t A, Bool_t Wrong){
    	// the pulse height defect for a given nucleus (Z,A).
     //
     // If Wrong=kTRUE (default:kFALSE) this will be calculated incorrectly
-    // (if the particle does not stop in the detector) by using the Moulton formula
+    // (if the particle does not stop in the detector) by using the Parlog formula
     // with the incident energy of the particle instead of the calculated energy
     // loss of the particle.
 
@@ -140,7 +140,7 @@ Double_t KVRecombination::ELossActive(Double_t *x, Double_t *par){
    	}
    	// calculate energy loss in active layer
    	Double_t dE = mat->GetDeltaE(par[0], par[1], e);
-   	// calculate Moulton PHD corresponding to energy lost in active layer
+   	// calculate Parlog PHD corresponding to energy lost in active layer
    	Double_t phd;
    	if(wrong) phd = PHDParlog(&e, par);//incorrect calculation using incident energy
    	else phd = PHDParlog(&dE, par);

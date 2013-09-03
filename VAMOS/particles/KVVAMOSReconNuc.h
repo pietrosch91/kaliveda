@@ -110,6 +110,7 @@ inline KVVAMOSCodes &KVVAMOSReconNuc::GetCodes(){
 	return fCodes;
 }
 //____________________________________________________________________________________________//
+
 inline Float_t  KVVAMOSReconNuc::GetEnergy( Int_t idx_det ) const{
 	// Returns the calculated contribution of each detector to the 
 	// nucleus' energy from their index in fDetList. GetEnergy(0) returns
@@ -117,6 +118,7 @@ inline Float_t  KVVAMOSReconNuc::GetEnergy( Int_t idx_det ) const{
 	return ( fDetE && idx_det<GetDetectorList()->GetEntries() ? fDetE[idx_det] : -1 );
 }
 //____________________________________________________________________________________________//
+
 inline Double_t KVVAMOSReconNuc::GetEnergyBeforeVAMOS() const{
 	// Kinetic energy of the nucleus prior to entering VAMOS
 	return KVReconstructedNucleus::GetEnergy() - GetStripFoilEnergyLoss() - GetTargetEnergyLoss();
@@ -255,6 +257,7 @@ inline void KVVAMOSReconNuc::SetTCode(UShort_t code_mask)
    	GetCodes().SetTCode(code_mask);
 }
 //____________________________________________________________________________________________//
+
 inline void KVVAMOSReconNuc::SetTCode(const Char_t *parname){
    	//Sets code for energy calibration from the name of the acquisition 
 	//parameter used for the time of flight of the nucleus
