@@ -34,6 +34,8 @@ class KVVAMOSReconEvent : public KVReconstructedEvent
    		        void     AcceptECodes (UChar_t  code);
 		        void     AcceptFPCodes(UInt_t   code);
 		        void     AcceptIDCodes(UShort_t code);
+		        void     AcceptTCodes (UShort_t code);
+	    virtual void     CalibrateEvent();
      KVVAMOSReconNuc    *GetNextNucleus(Option_t * opt = "");
      KVVAMOSReconNuc    *GetNucleus(Int_t n_nuc) const;
 		virtual void     IdentifyEvent_A();

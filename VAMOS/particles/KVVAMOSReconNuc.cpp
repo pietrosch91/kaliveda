@@ -4,6 +4,9 @@
 #include "KVVAMOSReconNuc.h"
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
+#include "KVVAMOSReconGeoNavigator.h"
+#include "KVNamedParameter.h"
+#include "KVTarget.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -37,6 +40,27 @@ KVVAMOSReconNuc::~KVVAMOSReconNuc()
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::Streamer(TBuffer &R__b)
+{
+   	// Stream an object of class KVVAMOSReconNuc. The array (fDetE) of the contributions
+   	// of each detectors to the nucleus' energy is written/read if the nucleus
+   	// is calibrated.
+
+   	if (R__b.IsReading()) {
+      	R__b.ReadClassBuffer(KVVAMOSReconNuc::Class(),this);
+	  	if( IsCalibrated() ){
+		  	Int_t N = GetDetectorList()->GetEntries();
+		  	fDetE = new Float_t[ N ];
+		  	R__b.ReadFastArray( fDetE, N);
+		}
+	}
+    else {
+      	R__b.WriteClassBuffer(KVVAMOSReconNuc::Class(),this);
+	  	if( IsCalibrated() ) R__b.WriteFastArray( fDetE, GetDetectorList()->GetEntries() );
+   	}
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::Copy (TObject& obj) const
 {
    // This method copies the current state of 'this' object into 'obj'
@@ -60,11 +84,13 @@ void KVVAMOSReconNuc::init()
 		SetMassFormula(UChar_t(gDataSet->GetDataSetEnv("KVVAMOSReconNuc.MassFormula",Double_t(kEALMass))));
 
 	fStripFoilEloss = 0;
+	fToF = fFlightDist = 0;
+	fDetE = NULL;
 }
 //________________________________________________________________
 
 void KVVAMOSReconNuc::Calibrate(){
- //Calculate and set the energy of a (previously identified) reconstructed nucleus,
+ 	//Calculate and set the energy of a (previously identified) reconstructed nucleus,
     //including an estimate of the energy loss in the stripping foil and in the target.
     //
     //Starting from the detector in which the nucleus stopped, we add up the
@@ -78,7 +104,7 @@ void KVVAMOSReconNuc::Calibrate(){
     //   gVamos->GetStripFoilEnergyLossCorrection();
     //   gMultiDetArray->GetTargetEnergyLossCorrection().
 
-	
+
 	//	Info("Calibrate","IN");
 
 	if( 1 ) CalibrateFromDetList();
@@ -92,7 +118,7 @@ void KVVAMOSReconNuc::Calibrate(){
 
         if(GetZ()) {
 
- 			Double_t E_tot = GetEnergy();
+ 			Double_t E_tot   = GetEnergy();
 			Double_t E_sfoil = 0.;
         	Double_t E_targ  = 0.;
 
@@ -108,8 +134,8 @@ void KVVAMOSReconNuc::Calibrate(){
         }
     }
 
-//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f",GetEnergy(), GetTheta(), GetPhi());
-//cout<<endl;
+//	Info("Calibrate","OUT: E= %f, theta= %f, phi= %f, momentum= %f",GetEnergy(), GetTheta(), GetPhi(), GetMomentum().Mag());
+//    cout<<endl;
 }
 //________________________________________________________________
 		
@@ -144,11 +170,15 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 	SetIsCalibrated();
 
 	Double_t Etot = 0;
+	Bool_t stopdetOK = kTRUE;
 	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
 	KVVAMOSDetector *det     = NULL;
 	TIter next( GetDetectorList() );
+	if( !fDetE ) fDetE = new Float_t[ GetDetectorList()->GetEntries() ];
+	Int_t idx = -1;
 	while( (det = (KVVAMOSDetector *)next()) ){
-
+		fDetE[++idx] = 0.;
+		if( !stopdetOK ) continue;
 		// transmission=kFALSE if particle stop in det
 		Bool_t transmission = ( det != stopdet );
 		Double_t Edet = (det->IsECalibrated() ? det->GetEnergy() : -1);
@@ -158,6 +188,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 		if( !transmission && ((det->GetNHits() != 1) || (Edet <= 0)) ){
  			SetECode( kECode0 );
 			SetIsUncalibrated();
+			stopdetOK = kFALSE;
 //			Info("CalibrateFromDetList","Stopping detector not calibrated");
 			return;
 		}
@@ -167,7 +198,8 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 			det->SetEResAfterDetector( Etot );
 			Edet  = det->GetCorrectedEnergy( this, -1, transmission );
 			Etot += Edet;
-//			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s", Edet, det->GetName());
+			fDetE[idx] = Edet;
+//			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
 			continue;
 		}
 
@@ -189,8 +221,9 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
         det->SetEResAfterDetector( Etot );
         Edet  = det->GetCorrectedEnergy( this, Edet, transmission);
         Etot += Edet;
+		fDetE[idx] = Edet;
 		if( det->IsUsedToMeasure("E") ) SetECode( kECode2 );
-//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s", Edet, det->GetName());
+//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
 	}
 	SetEnergy( Etot );
 }
@@ -205,9 +238,63 @@ void KVVAMOSReconNuc::Clear(Option_t * t){
 	//Reset nucleus' properties
 	
 	KVReconstructedNucleus::Clear(t);
+
+	if( fDetE ) delete[] fDetE;
+
    	init();
    	fCodes.Clear();
 	fRT.Reset();
+}
+//________________________________________________________________
+ 		
+void KVVAMOSReconNuc::GetAnglesFromStoppingDetector(Option_t *){
+	// Overwrites the same method of the mother class. This method is obsolete
+	// for a nucleus reconstructed in VAMOS because angles are set by the 
+	// reconstruction.
+	// Overwriting is important because this method is called in the Streamer
+	// method of KVReconstructedEvent to calculate again the angles.
+	return;
+}
+//________________________________________________________________
+
+Double_t KVVAMOSReconNuc::GetRealA() const{
+	// Returns the real value of the mass number calculated for the 
+	// measured energy and the measured time of flight.
+	// Begin_Latex 
+	// A = #frac{E}{(#gamma-1)u}
+	// End_Latex
+	// where 
+	//   E     : corrected kinetic energy in (MeV)
+	//   u     : atomic mass unit in MeV/c^2
+	//   gamma : Lorentz factor calculated from the velocity
+	//           deduced from the time of flight measurment
+	//
+	//This method overrides the same method in the mother class.
+
+	Double_t gamma = GetGammaFromToF();
+	return gamma==1 ? 0 : GetEnergyBeforeVAMOS()/((gamma-1)*u());
+
+}
+//________________________________________________________________
+
+Double_t KVVAMOSReconNuc::GetRealAoverQ() const{
+	// returns the ratio between the mass number A and the charge state Q
+	// calculated from the measurment of the Time of Flight of the nucleus.
+	// The returned value is real. Returns zero if the time of flight is
+	// not correct.
+	// Begin_Latex 
+	// #frac{A}{Q} = #frac{C}{10 u} #frac{B_{#rho}}{ #gamma #beta}
+	// End_Latex
+	// where
+	//   u             : atomic mass unit in MeV/c^2
+	//   C             : speed of light in vacuum in cm/ns 
+	//   beta and gamma: relativistic quantities calculated from the velocity
+	//                   deduced from the time of flight measurment
+	
+	Double_t tmp = ( GetBetaFromToF()*GetGammaFromToF() );
+	if( tmp == 0 ) return 0;
+
+	return GetBrho()*C()/( u()*10.*tmp );
 }
 //________________________________________________________________
 
@@ -293,9 +380,9 @@ void KVVAMOSReconNuc::ReconstructTrajectory(){
 //________________________________________________________________
 
 void KVVAMOSReconNuc::ReconstructFPtraj(){
-
-
-
+	// Reconstruct the Focal-Plane trajectory and set the appropriate 
+	// FPCode. If the reconstruction is well carried out (i.e. FPCode>kFPCode0)
+	// then the tracking along this trajectory is runned.
 
 	UChar_t res = 0;
 	Double_t xyzf[3];          // [3] => [X, Y, Z]
@@ -307,14 +394,14 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 	UShort_t Ncomp = 0, Ninc = 0;     // Number of Complete and Incomplete
 	// position measurments 
 
-	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+	SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
 	fRT.dirFP.SetXYZ(0, 0, 1);
 
 	const Char_t *FPdetName = NULL;
 	KVVAMOSDetector *d = NULL;
 	// Loop over detector name to be used for the Focal plane Position
 	// reconstruction
-	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
+	for( Short_t i=0; (FPdetName = GetCodes().GetFPdetName(i)); i++ ){
 
 		// Look at only the detectors in 'fDetList' with the name or
 		// type 'FPdetName' measuring a position.
@@ -350,7 +437,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 
 				fRT.dirFP.SetX( (XYZf[1][0] - XYZf[0][0])/( XYZf[1][2] - XYZf[0][2]) );
 				fRT.dirFP.SetY( (XYZf[1][1] - XYZf[0][1])/( XYZf[1][2] - XYZf[0][2]) );
-				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
+				GetCodes().SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 			else if( (Ncomp == 1) && !IncDetBitmask ){
@@ -358,14 +445,14 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 
 				fRT.dirFP.SetX( (XYZf[3-inc1IsX][0] - XYZf[0][0])/( XYZf[3-inc1IsX][2] - XYZf[0][2]) );
 				fRT.dirFP.SetY( (XYZf[2+inc1IsX][1] - XYZf[0][1])/( XYZf[2+inc1IsX][2] - XYZf[0][2]) );
-				fCodes.SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
+				GetCodes().SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 				break;
 			}
 
 		}
 	}
 
-	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 
 	// normalize the direction vector dirFP
 	fRT.dirFP *= 1./fRT.dirFP.Mag();
@@ -389,7 +476,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //	UChar_t res = 0;
 //	Double_t xyzf [3];          // [3] => [X, Y, Z]
 //	Double_t dxyzf[3];          // [3] => [X, Y, Z]
-//	fCodes.SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+//	SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
 //
 //	static TGraphErrors graphX(4); // 4 is the max number of FPdetectors
 //	static TGraphErrors graphY(4); // 4 is the max number of FPdetectors
@@ -398,7 +485,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //	KVVAMOSDetector *d = NULL;
 //	// Loop over detector name to be used for the Focal plane Position
 //	// reconstruction
-//	for( Short_t i=0; (FPdetName = fCodes.GetFPdetName(i)); i++ ){
+//	for( Short_t i=0; (FPdetName = GetCodes().GetFPdetName(i)); i++ ){
 //
 //		// Look at only the detectors in 'fDetList' with the name or
 //		// type 'FPdetName' measuring a position.
@@ -448,7 +535,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //		fRT.dirFP *= 1./fRT.dirFP.Mag();
 //
 //		// Set FPcode 31 for the reconstruction by fitting
-//		fCodes.SetFPCode( kFPCode31 );
+//		SetFPCode( kFPCode31 );
 //      RunTrackingAtFocalPlane();
 //		if( CheckTrackingCoherence() ) {
 //			fRT.SetFPparamsReady();
@@ -456,7 +543,6 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 //		}
 //	}
 //
-// 	fTrackRes.Clear();
 //}
 //________________________________________________________________
 
@@ -467,10 +553,9 @@ void KVVAMOSReconNuc::ReconstructLabTraj(){
 
 	// No trajectory reconstruction in the laboratory if the reconstruction
 	// in the focal plane is not OK.
-	if( fCodes.TestFPCode( kFPCode0 ) ) return;
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();
 	tm->ReconstructFPtoLab( &fRT );
-	RunTrackingAtTargetPoint();
 }
 //________________________________________________________________
 
@@ -479,143 +564,17 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 
 	// Tracking is impossible if the trajectory reconstruction
 	// in the focal plane is not OK.
-	fTrackRes.Clear();
-	if( fCodes.TestFPCode( kFPCode0 ) ) return;
-
-
-	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
-	TGeoVolume *stopVol = (TGeoVolume *)stopdet->GetActiveVolumes()->Last();
-
-	// For gGeoManager the origin is the target point.
-	// Starting point has to be set from this origin.
-
-	// intersection point between reconstructed trajectory and the Focal
-	// Plane in the focal plane frame of reference
-	Double_t XYZ_FP[3] = { fRT.pointFP[0], fRT.pointFP[1], 0 };
-	// same intersection point in the frame of reference
-	// centered at the target point
-	gVamos->FocalToTarget( XYZ_FP, XYZ_FP );
-
-	//tracking direction
-   	Double_t dir[3];
-
-	TGeoVolume *FPvol    = gVamos->GetFocalPlaneVolume();
-//	//--------------------------------------------------
-//	Info("RunTracking","Runnig the Focal Plane backward Traking");
-//	//--------------------------------------------------
-   	//  direction of the tracking = direction of the trajectory at the focal plane
-   	fRT.dirFP.GetXYZ( dir );
-	gVamos->FocalToTargetVect( dir, dir );
-
-   	// Initializing tracking (i.e. setting both initial point and direction
-   	// and finding the state). Start from the FP intersection point
-   	gGeoManager->InitTrack( XYZ_FP, dir );
-
-	TGeoVolume *topVol   = gGeoManager->GetTopVolume();
-//   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
-   	TGeoVolume* curVol   = gGeoManager->GetCurrentVolume();
-   	TGeoVolume* prevVol  = NULL;
-
-
-   	// move along trajectory until a new volume is hit
-   	// Stop when the point is outside the Focal Plane volume or when it is
-   	// inside the stopping detector
-   	do{
-
-   	   	gGeoManager->FindNextBoundaryAndStep();
-
-	   	if( curVol != FPvol ){
-   	   	   	Double_t step = gGeoManager->GetStep();
-		   	fTrackRes.SetValue( curVol->GetName(), step );
-//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
-	   	}
-
- 		if(curVol == stopVol) break;
-
-	   	prevVol = curVol;
-   	   	curVol  = gGeoManager->GetCurrentVolume();
-
-   	}
-   	while( (curVol != topVol) && !gGeoManager->IsOutside() );
-//   	while( !gGeoManager->IsOutside() );
-
-//	//--------------------------------------------------
-//	Info("RunTracking","Runnig the Focal Plane forward Traking");
-//	//--------------------------------------------------
-   	//  direction of the tracking = inverse direction of the trajectory at the focal plane
-   	TVector3( -fRT.dirFP ).GetXYZ( dir );
-	gVamos->FocalToTargetVect( dir, dir );
-
-   	// Initializing tracking (i.e. setting both initial point and direction
-   	// and finding the state). Start from the FP intersection point
-   	gGeoManager->InitTrack( XYZ_FP, dir );
-
-   	curVol   = gGeoManager->GetCurrentVolume();
-   	prevVol  = NULL;
-
-   	// move along trajectory until we hit a new volume
-   	// Stop when the point is outside the Focal Plane volume
-   	do{
-
-   	   	gGeoManager->FindNextBoundaryAndStep();
-
-	   	if( curVol != FPvol ){
-   	   	   	Double_t step = gGeoManager->GetStep();
-		   	fTrackRes.SetFirstValue( curVol->GetName(), step );
-//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
-	   	}
-
-	   	prevVol = curVol;
-   	   	curVol  = gGeoManager->GetCurrentVolume();
-
-   	}
-   	while( (curVol != topVol) && !gGeoManager->IsOutside() );
-}
-//________________________________________________________________
-
-void KVVAMOSReconNuc::RunTrackingAtTargetPoint(){
-
-	if( !fRT.FPtoLabWasAttempted() ) return;
+	//
+	// The tracking is done by KVVAMOSReconGeoNavigator::PropagateNucleus();
 	
-	Double_t XYZ_target[3] = { 0., 0., 0. };
+	GetNavigator()->PropagateNucleus( this );
 
-	//tracking direction
-   	Double_t dir[3];
-
-	TGeoVolume *FPvol = gVamos->GetFocalPlaneVolume();
-
-   	//  direction of the tracking = direction of the trajectory at the target point (lab) 
-   	fRT.dirLab.GetXYZ( dir );
-
-   	// Initializing tracking (i.e. setting both initial point and direction
-   	// and finding the state). Start from the FP intersection point
-   	gGeoManager->InitTrack( XYZ_target, dir );
-
-	TGeoVolume *topVol   = gGeoManager->GetTopVolume();
-   	TGeoVolume* VAMOSvol = gVamos->GetGeoVolume();
-   	TGeoVolume *curVol   = gGeoManager->GetCurrentVolume();
-   	TGeoVolume *prevVol  = NULL;
-
-   	// move along trajectory until we hit a new volume
-   	// Stop when the point is outside the top volume or
-   	// inside the Focal Plane volume
-   	Int_t idx = 0;
-   	do{
-
-   	   	gGeoManager->FindNextBoundaryAndStep();
-
-	   	if( (curVol != topVol) && (curVol != VAMOSvol) ){
-   	   	   	Double_t step = gGeoManager->GetStep();
-		   	fTrackRes.SetValueAt( curVol->GetName(), step, idx++ );
-//	   	   	cout<<"Step = "<<setw(15)<< step <<" cm in "<<curVol->GetName()<<"( "<<curVol->GetTitle()<<" )"<<endl;
-	   	}
-
-	   	prevVol = curVol;
-   	   	curVol  = gGeoManager->GetCurrentVolume();
-
-   	}
-   	while( !gGeoManager->IsOutside() && (curVol != FPvol) );
-
+//	if( !CheckTrackingCoherence() ){
+//		Info("ReconstructTrajectory","NO tracking coherence");
+//		GetDetectorList()->ls();
+//		GetParameters()->Print();
+//		cout<<endl;
+//	}
 }
 //________________________________________________________________
 
@@ -623,27 +582,310 @@ Bool_t KVVAMOSReconNuc::CheckTrackingCoherence(){
 	// Verifies the coherence between the tracking result and the list of
 	// fired detectors.
 	// If at least one active volum of each fired detector is
-	// inside the tracking result fTrackRes. Return kTRUE if this
+	// inside the tracking result (saved in fParameters list). Return kTRUE if this
 	// is OK.
 	
+	TString str;
 	TIter nextdet( GetDetectorList() );
 	KVVAMOSDetector *det = NULL;
 	while( (det = (KVVAMOSDetector *)nextdet()) ){
 
 		Bool_t ok = kFALSE;
 
-		TIter nextvol( det->GetActiveVolumes() );
-		TGeoVolume *vol = NULL;
-		while( (vol = (TGeoVolume *)nextvol()) && !ok ){
-
-			TIter next_tr( fTrackRes.GetList());
-			TObject *tr = NULL;
-			while( (tr = next_tr()) && !ok ){
-				if( !strcmp( tr->GetName(), vol->GetName() ) ) ok = kTRUE; 
-			}
+		TIter next_tr( GetParameters()->GetList());
+		TObject *tr = NULL;
+		while( (tr = next_tr()) && !ok ){
+			str = tr->GetName();
+			if( str.BeginsWith( Form("DPATH:%s",det->GetName()) ) ) ok = kTRUE; 
 		}
 
 		if( !ok ) return kFALSE;
 	}
 	return kTRUE;
+}
+//________________________________________________________________
+
+void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
+	// Set the best calibrated time of flight (ToF) and correct the path to 
+	// set the distance associated to this ToF. The best ToF is found from
+	// the list of time acquisition parameters set in the environment variable
+	// KVVAMOSCodes.ACQParamListForToF
+	// and from the list (fDetList) of detector punched through by the nucleus.
+	// The first calibrated and fired acq. parameter belonging both to
+	// the start detector and to the stop detector (only to the start detector 
+	// for an HF-time)  of the list fDetList will be chosen, and the total flight distance
+	// will be equal to:
+	//  - the path (from target point to focal plan) corrected on the distance
+	//    covered between the focal plan and the start detector for HF-time. 
+	//  - the distance between the two detectors.
+
+	TIter next_det( GetDetectorList() );
+	KVVAMOSDetector *det   = NULL;
+	KVVAMOSDetector *stop  = NULL;
+	const Char_t *t_type   = NULL;
+	const Char_t *par_name = NULL;
+	KVACQParam *par        = NULL;
+	Bool_t ok              = kFALSE;
+	Double_t calibT        = 0; 
+
+	// loop over the time acquisition parameters
+	for( Short_t i=0; !ok && (par_name = GetCodes().GetToFName(i)); i++ ){
+
+		par = gVamos->GetVACQParam( par_name );
+		if( !par ) continue;
+
+		t_type = par_name+1;
+		Bool_t isT_HF = !strcmp("HF",par->GetLabel());
+		
+		next_det.Reset();
+		while( (det = (KVVAMOSDetector *)next_det()) ){
+
+			// for HF time we only need the stast detector
+			if( isT_HF ){
+			 	if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
+					ok = kTRUE;
+					break;
+ 				}
+			}
+			// otherwise we need start and stop detectors
+			else{
+ 				if( !stop && det->IsStopForT( t_type ) ){
+					stop = det;
+				}
+				else if( stop && det->IsStartForT( t_type )  && (calibT = det->GetCalibT( t_type ))>0 ){
+					ok = kTRUE;
+					break;
+				}
+			}
+		}
+	}
+
+	if( !ok ){ 
+		SetTCode( kTCode0 );
+		return;
+	}
+
+	// FIRST METHODE
+	fToF = calibT;
+	ok &= SetFlightDistance( det, stop );
+
+	// SECOND METHODE
+//	ok &= SetCorrectedFlightDistanceAndTime( calibT, det, stop );
+
+	SetTCode(( ok ? par->GetName() : "") );
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSReconNuc::SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop){
+	// Set the corrected flight distance/time  which will give the real velocity
+	// of the nucleus prior to entering VAMOS. It is the distance/time between the nucleus's
+	// exit in the stripping foil, if this nucleus loses energy inside this foil,
+	// otherwise in the target, and the entry in the first crossed detector.
+	//
+	// WARNING: this method has to be called after the energy calibration.
+
+	fFlightDist = 0.;
+	fToF        = 0.;
+
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
+	if( GetPath()<=0. ) return kFALSE;
+	
+
+	//Find the first crossed detector and its DeltaPath
+	Double_t DeltaPath = 0.;	
+	KVVAMOSDetector *cros_det = NULL;
+	Int_t Ndet = GetDetectorList()->GetEntries() ;
+	for( Int_t i=Ndet-1; i>=0; i-- ){
+		cros_det = (KVVAMOSDetector *)GetDetectorList()->At(i);
+		DeltaPath = GetDeltaPath( cros_det );
+		if( DeltaPath != 0. ) break;
+		cros_det = NULL;
+	}
+
+	if( !cros_det ){ 
+		Error("SetCorrectedFlightDistance","First crossed detector not found");
+		return kFALSE;
+	}
+
+
+	fFlightDist = GetPath();
+	fToF        = tof;
+
+	cout<<endl;
+	Info("SetCorrectedFlightDistance","Initial Path= %f cm, and ToF= %f ns", fFlightDist, fToF);
+	
+	static KVNucleus nuc;
+	nuc.SetZandA( GetZ(), GetA() );
+
+	Double_t Zlab     = TMath::Abs( GetLabDirection().Z() );
+	Bool_t   isT_HF   = ( stop ? kFALSE : kTRUE );
+
+	if( Zlab ){
+
+		//Calculate the effective thickness of the target in cm
+		Double_t targ_thick = 0.; //in cm
+		TIter next( gMultiDetArray->GetTarget()->GetLayers() );
+		KVMaterial *mat = NULL;
+   		while ((mat = (KVMaterial *) next())){
+      		targ_thick += mat->GetThickness();
+   		}
+		targ_thick = targ_thick/Zlab/2.;
+
+		//Calculate the distance between target point-stripping foil 
+		Double_t strip_foil_dist  = gVamos->GetStripFoilPosition()/Zlab;
+
+		//Calculate the effective thickness of the stripping foil 
+		Double_t strip_foil_thick = gVamos->GetStripFoil()->GetThickness()/Zlab;
+
+		if( isT_HF ){
+			//TIME: remove the DeltaT in the target
+			nuc.SetEnergy( GetEnergy() );
+			fToF -= targ_thick/nuc.GetV().Mag();
+			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(target)= %f ns", targ_thick/nuc.GetV().Mag());
+
+			//TIME: remove the TOF between the target and the stripping foil
+			nuc.SetEnergy( GetEnergy() - GetTargetEnergyLoss() );
+			fToF -= ( strip_foil_dist - targ_thick )/nuc.GetV().Mag();
+			Info("SetCorrectedFlightDistance","TIME: removing T(target-strip_foil)= %f ns", ( strip_foil_dist - targ_thick )/nuc.GetV().Mag());
+
+			//TIME: remove the DeltaT in the stripping foil
+			fToF -= strip_foil_thick/nuc.GetV().Mag();
+			Info("SetCorrectedFlightDistance","TIME: removing DeltaT(strip_foil)= %f ns",strip_foil_thick/nuc.GetV().Mag());
+		}
+
+		if( GetStripFoilEnergyLoss()>0. ){
+
+			//DISTANCE: remove the distance between target-stripping foil
+			fFlightDist -= strip_foil_dist;
+			Info("SetCorrectedFlightDistance","DISTANCE: removing StripFoilPosition= %f cm", strip_foil_dist);
+
+			//DISTANCE: remove the stripping foil effective thickness
+			fFlightDist -= strip_foil_thick;
+			Info("SetCorrectedFlightDistance","DISTANCE: removing StripFoilThickness= %f cm", strip_foil_thick);
+		}
+		else{
+			//DISTANCE: remove the half of the target effective thickness
+			fFlightDist -= targ_thick;
+			Info("SetCorrectedFlightDistance","DISTANCE: removing Thick_Target= %f cm", targ_thick);
+		}
+	}
+
+
+	//DISTANCE: remove the DeltaPath of the first crossed detector
+	fFlightDist += DeltaPath;
+	Info("SetCorrectedFlightDistance","adding DeltaPath(%s)= %f cm: final FlightDist= %f cm", cros_det->GetName(), DeltaPath, fFlightDist);
+
+
+	if( isT_HF ){
+		//TIME: remove DeltaT/ToF in/between layers placed before the active
+		//layer of the first crossed detector
+		KVVAMOSDetector *det = NULL;
+		for( Int_t i=Ndet-1; i>=0; i-- ){
+			det = (KVVAMOSDetector *)GetDetectorList()->At(i);
+			// I STOP HERE
+			// I STOP HERE
+			// I STOP HERE
+		
+			if( det == cros_det ) break;
+		}
+	}
+
+	//TIME CORRECTION FOR NOT T_HF IS NOT IMPLEMENTED
+
+	return kTRUE;
+}
+//________________________________________________________________
+
+Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop){
+	// Sets the flight distance from the start detector to the stop detector.
+	// If stop=NULL then the corresponding time of flight 
+	// is assumed to be measured from the beam HF and the distance will be
+	// equal to the reconstructed path (GetPath) plus (or minus) the distance between
+	// the trajectory position at the focal plan (FP) and the trajectory position
+	// at the start detector if this detector is localised behinds the FP (or
+	// forwards the FP).
+	// If the stop detector is given, the flight distance is equal to the trajectory
+	// distance between the start detector and the stop detector. 
+	
+	fFlightDist = 0;
+
+	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
+	if( !start ) return kFALSE;
+	if( !stop && GetPath()<=0 ) return kFALSE;
+	
+	Bool_t ok = kTRUE;
+	Float_t DeltaPath = GetDeltaPath( start );
+	if( DeltaPath == 0 ) ok = kFALSE;
+
+	if( stop ){
+	 	fFlightDist = DeltaPath;
+		DeltaPath   = GetDeltaPath( stop );
+		if( DeltaPath == 0 ){
+ 		   	ok = kFALSE;
+			fFlightDist = 0;
+		}
+		else fFlightDist  = TMath::Abs( DeltaPath - fFlightDist );
+	}
+	else fFlightDist = GetPath() + DeltaPath;
+
+	if( !ok ){
+		TString warn;
+		if( stop ) warn.Form("detectors %s and %s",start->GetName(), stop->GetName());
+		else  warn.Form("target point and detector %s",start->GetName());
+		Warning("SetFlightDistance","Impossible to set flight distance between %s; FPCode%d (%s)",warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
+		cout<<endl;
+	}
+
+	return ok;
+}
+//________________________________________________________________
+
+Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
+	//returns the DeltaPath value associated to the detector 'det' used to correct
+	//the flight distance.
+	//Its value is given by a parameter stored in fParameters with the name
+	//DPATH:<det_name>. If this parameter is not found then we take the parameter
+	//with the name begining by DPATH:<det_time_base_name>. Otherwise zero is
+	//returned with a warning message.
+	//
+	// This method has to be called once the tracking has been runned since
+	// the DPATH parameter is calculated for each detector crossed by the nucleus
+	// at this step (see RunTrackingAtFocalPlane).
+	
+	// Find the parameter with the name DPATH:<detector_name>
+	KVNamedParameter *par = GetParameters()->FindParameter( Form("DPATH:%s",det->GetName()) );
+	if( par ) return par->GetDouble();
+
+	// Find the parameter with the name begining by DPATH:<detector_time_base_name>
+	TString tmp;
+	TIter next( GetParameters()->GetList() );
+	while( (par = (KVNamedParameter *)next()) ){
+		tmp = par->GetName();
+		if( tmp.BeginsWith( Form("DPATH:%s",det->GetTBaseName()) ) ){
+			Info("GetDeltaPath","DeltaPath for the detector %s is given by %s",det->GetName(), par->GetName() );
+ 		   	return par->GetDouble(); 
+		}
+	}
+
+	// No parameter found
+	Warning("GetDeltaPath","DeltaPath not found for the detector %s",det->GetName());
+
+	return 0;
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
+	// Returns the calculated contribution of each detector to the 
+	// nucleus' energy from their label ("CHI","SI","SED1","SED2",...). 
+ 
+	if( !fDetE ) return -1.;
+	TIter next( GetDetectorList() );
+    KVBase *obj;
+	Int_t idx = 0;
+    while ( (obj = (KVBase *)next()) ){
+            if ( !strcmp(obj->GetLabel(), det_label ) ) break;
+			idx++;
+    }
+	if( idx < GetDetectorList()->GetEntries() ) return fDetE[idx];
+	return -1.;
 }

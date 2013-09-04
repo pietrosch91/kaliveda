@@ -114,7 +114,7 @@ void KVVAMOSReconEvent::AcceptIDCodes(UShort_t code){
 	//Define the Z-identification codes that you want to include 
 	//in your analysis.
    	//Example: to keep only ID codes 1 and 2, use
-   	//        event.AcceptIDCodes( kIDCode2 | kIDCode3 );
+   	//        event.AcceptIDCodes( kIDCode1 | kIDCode2 );
    	//If the nucleus reconstructed in VAMOS have the correct ID codes it will 
    	//have IsOK() = kTRUE.
    	//If this nucleus does not have IsOK() = kTRUE then the method GetNextNucleus("ok")
@@ -134,6 +134,65 @@ void KVVAMOSReconEvent::AcceptIDCodes(UShort_t code){
       	else
          	nuc->SetIsOK(kFALSE);
    	}
+}
+//________________________________________________________________
+
+void KVVAMOSReconEvent::AcceptTCodes(UShort_t code){
+	//Define the Time of Flight codes that you want to include 
+	//in your analysis.
+   	//Example: to keep only T codes 1 and 2, use
+   	//        event.AcceptTCodes( kTCode1 | kTCode2 );
+   	//If the nucleus reconstructed in VAMOS have the correct ID codes it will 
+   	//have IsOK() = kTRUE.
+   	//If this nucleus does not have IsOK() = kTRUE then the method GetNextNucleus("ok")
+   	//will return a null pointer.
+   	//
+   	//To remove any previously defined acceptable Time of Flight codes, use AcceptTCodes(0).
+   	//
+   	//N.B. : this method is preferable to using directly the KVAMOSCodes pointer 
+   	//of the nucleus as the 'IsOK' status of this nucleus of the current event
+   	//is automatically updated when the code mask is changed using this method.
+   	
+	GetCodeMask()->SetTMask(code);
+ 	KVVAMOSReconNuc *nuc = NULL;
+   	while ((nuc = GetNextNucleus())) {
+      	if (CheckCodes(nuc->GetCodes()))
+         	nuc->SetIsOK();
+      	else
+         	nuc->SetIsOK(kFALSE);
+   	}
+}
+//________________________________________________________________
+
+void KVVAMOSReconEvent::CalibrateEvent(){
+   	// First, calculate and set energies of all identified nuclei in event.
+   	// This is done by calling the KVReconstructeEvent::CalibrateEvent() method.
+   	//
+   	// Secondly, calculate and set the time and the distance of flight of the 
+   	// the appropriate nucleus of the event.
+   	// If the multiplicity Mult=1 then time and distance is calculated
+   	// for the unique nucleus of the event, else if M>1 they are claculated
+   	// for the first identified and calibrated nucleus found in the event. 
+   	//
+   	// The treatment of this last case has to be improved.
+
+	// Energy calibration
+	KVReconstructedEvent::CalibrateEvent();
+	
+	// Time/Distance of Flight calibration
+	if( GetMult() == 1 ) GetNextNucleus()->SetFlightDistanceAndTime();
+	else{
+		// for event with mult>1 set time/distance of flight to the
+		// first identified and calibrated nucleus
+		KVVAMOSReconNuc *nuc = NULL;
+		while( (nuc = GetNextNucleus()) ){
+			if( nuc->IsIdentified() && nuc->IsCalibrated() ){
+				nuc->SetFlightDistanceAndTime();
+				break;
+			}
+		}
+		ResetGetNextNucleus();
+	}
 }
 //________________________________________________________________
 
@@ -230,13 +289,13 @@ void KVVAMOSReconEvent::ReconstructEvent(KVDetectorEvent * kvde){
 	KVReconstructedEvent::ReconstructEvent( kvde );
 
  	KVVAMOSReconNuc *nuc = NULL;
-	UChar_t Nnuc = 0;
+//	UChar_t Nnuc = 0;
    	while ((nuc = GetNextNucleus())) {
-		if( Nnuc > 1 ){
-			Warning("ReconstrucEvent","Ambiguous trajectory reconstruction,  more than one nucleus in event %d", GetNumber());
-			break;
-		}
+//		if( Nnuc > 1 ){
+//			Warning("ReconstrucEvent","Ambiguous trajectory reconstruction,  more than one nucleus in event %d", GetNumber());
+//			break;
+//		}
 		nuc->ReconstructTrajectory();
-		Nnuc++;
+//		Nnuc++;
    	}
 }

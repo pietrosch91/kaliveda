@@ -59,13 +59,16 @@ void KVIVSelectorTemplate::InitRun(void)
  // to use in your analysis:
  //     GetEvent()->AcceptIDCodesINDRA(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);//VEDA id-codes code(i)=2,3,4 and 6 accepted
  //     GetEvent()->AcceptECodesINDRA( kECode1|kECode2 );//VEDA ecode(i)=1&2 accepted
- // To define which Focal plan Position reconstruction/identification/calibration
+ // To define which Focal plan Position reconstruction/identification/calibration/Time of Flight
  // codes for VAMOS you want to use in your analysis, the method is similar:
  //     GetEvent()->AcceptIDCodesVAMOS(kIDCode2 | kIDCode3 | kIDCode4 | kIDCode6);
  //     GetEvent()->AcceptECodesVAMOS( kECode1|kECode2 );//ecode(i)=1&2 accepted
  //     GetEvent()->AcceptFPCodesVAMOS( kFPCode1|kFPCode2 );//the better FP code is kFPCode1 
- // The meaning of the available FP codes is shown by the static method 
+ //     GetEvent()->AcceptTCodesVAMOS( kTCode1|kTCode2 );//the better T code is kTCode1 
+ //
+ // The meaning of the available FP/T codes is shown by the static methods
  //      KVVAMOSCodes::ShowAvailableFPCodes().
+ //      KVVAMOSCodes::ShowAvailableTCodes().
  //
  // If you want the angles of particles to be calculated using the
  // centre of each detector in INDRA (instead of the randomised angles used by default):

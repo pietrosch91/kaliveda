@@ -22,6 +22,37 @@ SIE_16:      110     5.95  -0.0035  -60.839   1.0338 3.4767e-07 0.0405718
 SIE_17:      108     5.88  -0.0035   -49.78   0.9983 4.1402e-07 0.0402854
 SIE_18:      115      6.4   -0.004  -75.854  0.99478 4.2867e-07 0.0402075
 
+# Moulton parameters for the Pulse Height Defect. 
+# Using KVHarpeeSi::SetMoultonPHDParameters(Double_t a_1, Double_t a_2, Double_t b_1, Double_t b_2)
+#
+# The parameters a_1 and a_2 are taken equal to 0.0223 and 0.5682 (see Phys. Rev. A 428 (1999) 379)
+# The parameters b_1 and b_2 are obtained by a fitting process over the DelteE-E ID grid (IC-Si) by 
+# fitting also the parameters of the calibration function.
+# 
+#     TO BE UPDATED
+#
+RUNS: 2-615
+TYPE: MoultonPHDParameters
+FUNCTION:
+
+SI_01: 0.0223 0.5682 -0.07898 0.452411
+SI_02: 0.0223 0.5682 -0.07898 0.452411
+SI_03: 0.0223 0.5682 -0.07898 0.452411
+SI_04: 0.0223 0.5682 -0.07898 0.452411
+SI_05: 0.0223 0.5682 -0.07898 0.452411
+SI_06: 0.0223 0.5682 -0.07898 0.452411
+SI_07: 0.0223 0.5682 -0.07898 0.452411
+SI_08: 0.0223 0.5682 -0.07898 0.452411
+SI_09: 0.0223 0.5682 -0.07898 0.452411
+SI_10: 0.0223 0.5682 -0.07898 0.452411
+SI_11: 0.0223 0.5682 -0.07898 0.452411
+SI_12: 0.0223 0.5682 -0.07898 0.452411
+SI_13: 0.0223 0.5682 -0.07898 0.452411
+SI_14: 0.0223 0.5682 -0.07898 0.452411
+SI_15: 0.0223 0.5682 -0.07898 0.452411
+SI_16: 0.0223 0.5682 -0.07898 0.452411
+SI_17: 0.0223 0.5682 -0.07898 0.452411
+SI_18: 0.0223 0.5682 -0.07898 0.452411
 
 # Time TSI_HF channel->ns: 7 parameters
 RUNS: 2-615

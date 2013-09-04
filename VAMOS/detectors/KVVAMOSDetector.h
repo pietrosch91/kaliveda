@@ -49,7 +49,8 @@ class KVVAMOSDetector : public KVSpectroDetector
    		Double_t GetT0(const Char_t *type) const;
    		virtual Bool_t IsECalibrated() const;
    		Bool_t   IsTCalibrated(const Char_t *type) const;
-   		Bool_t   IsTfromThisDetector(const Char_t *type) const;
+   		Bool_t   IsStartForT(const Char_t *type) const;
+   		Bool_t   IsStopForT(const Char_t *type) const;
    		void     SetFiredBitmask();
    		void     SetT0(const Char_t *type, Double_t t0 = 0.);
 

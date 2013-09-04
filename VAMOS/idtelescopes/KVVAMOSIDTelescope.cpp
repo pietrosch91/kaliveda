@@ -3,6 +3,7 @@
 
 #include "KVVAMOSIDTelescope.h"
 #include "KVIdentificationResult.h"
+#include "KVVAMOSCodes.h"
 
 ClassImp(KVVAMOSIDTelescope)
 
@@ -26,6 +27,11 @@ ClassImp(KVVAMOSIDTelescope)
 KVVAMOSIDTelescope::KVVAMOSIDTelescope() : fDEdet(NULL), fEdet(NULL), fGrid(NULL)
 {
    // Default constructor
+
+   // For now, the codes corresponding to correct identification/calibration
+   // are code 1, they do not depend on the detectors in the IDTelescope.
+   fIDCode = kIDCode1;
+   fECode  = kECode1;
 }
 //________________________________________________________________
 

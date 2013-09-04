@@ -34,6 +34,7 @@ KVHarpeeIC::KVHarpeeIC()
    	// the first argument of KVHarpeeIC(Float_t, Float_t).
    	init();
    	SetType("CHI");
+   	SetLabel("CHI");
 	SetName(GetArrayName());
 }
 //________________________________________________________________
@@ -56,6 +57,7 @@ KVHarpeeIC::KVHarpeeIC(UInt_t number, Float_t pressure, Float_t temp, Float_t th
 
 	init();
 	SetType("CHI");
+   	SetLabel("CHI");
 	SetName(GetArrayName());
 
 	// number of absorber
@@ -291,7 +293,6 @@ void KVHarpeeIC::SetACQParams(){
 			par->SetLabel(Form("%c",idx[i]));
 			par->SetNumber( num );
 			par->SetUniqueID( CalculateUniqueID( par ) );
-			par->SetPedestal(200);
 			AddACQParam(par);
 		}
 	}

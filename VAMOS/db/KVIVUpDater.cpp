@@ -67,12 +67,33 @@ void KVIVUpDater::SetIDGrids(UInt_t run){
 //________________________________________________________________
 
 void KVIVUpDater::SetParameters(UInt_t run){
-
+ 	//Set the parameters of INDRA and VAMOS for this run.
+ 	//
+    //For INDRA, this will:
+    //      set the multiplicity trigger of gIndra using the database value for the run
+    //      set special detector gains for run (if any)
+    //      set the target corresponding to the run
+    //      set the ChIo pressures for the run
+    //      set calibration parameters for the run
+    //      set the correction of pedestals
+    //      set identification parameters for the run
+    //
+    //For VAMOS, this will reset and set:
+    //      the rotation angle of VAMOS around the target for the run
+    //      the high frequency of the beam for the run
+    //      the position and the type of the stripping foil for the run
+    //      reference magnetic rigidity for the run
+    //      calibration parameters for the run
+    //      identification parameters for the run
+	
 	KVINDRAUpDater::SetParameters(run);
    	SetChVoltRefGains();
 	KVDBRun *kvrun = gIndraDB->GetRun(run);
 	if(!kvrun) return;
    	SetPedestalCorrections(kvrun);
+
+	gVamos->ResetParameters();
+	SetVamosCalibAndConfParams( kvrun );
 }
 //________________________________________________________________
 
@@ -118,19 +139,12 @@ void KVIVUpDater::SetPedestalCorrections(KVDBRun *run){
 }
 //________________________________________________________________
 
-void KVIVUpDater::SetCalibParameters(KVDBRun * run){
-
-	KVINDRAUpDater::SetCalibParameters( run );
-	SetVamosCalibAndConfParams( run );
-}
-//________________________________________________________________
-
 void KVIVUpDater::SetVamosCalibAndConfParams(KVDBRun * run){
 	// For a given run:
 	// - set calibration parameters to the calibrators of the detectors
 	//   placed at the focal plane of VAMOS (HarpeeSi, HarpeeIC, SeD, ...);
 	// - set parameter of a detector by calling setter method of the
-	//   detector.
+	//   detector (pedestal, Moulton PHD parameters, ...).
 	// - set configuration parameters (Brho, rotation angle, ...) of VAMOS.
 
 	Info("KVIVUpDater::SetVamosCalibAndConfParams","Setting VAMOS calibration parameters");
