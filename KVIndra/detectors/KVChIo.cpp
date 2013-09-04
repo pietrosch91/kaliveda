@@ -129,6 +129,22 @@ Int_t KVChIo::GetCanalGGFromVolts(Float_t volts)
       return chan;
 }
 
+//____________________________________________________________________________________________
+Double_t KVChIo::GetCanalPGFromVoltsDouble(Float_t volts)
+{
+      if (!fChVoltPG || !fChVoltPG->GetStatus())
+         return -1;
+      return fChVoltPG->InvertDouble(volts) + GetPedestal("PG") - fChVoltPG->InvertDouble(0);
+}
+
+//____________________________________________________________________________________________
+Double_t KVChIo::GetCanalGGFromVoltsDouble(Float_t volts)
+{
+      if (!fChVoltGG || !fChVoltGG->GetStatus()){
+         return GetGGfromPG(GetCanalPGFromVoltsDouble(volts));
+      }
+      return fChVoltGG->InvertDouble(volts) + GetPedestal("GG") - fChVoltGG->InvertDouble(0);
+}
 
 //___________________________________________________________________________________________
 
