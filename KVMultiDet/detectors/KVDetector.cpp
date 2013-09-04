@@ -702,9 +702,18 @@ Double_t KVDetector::GetCorrectedEnergy( KVNucleus *nuc, Double_t e, Bool_t tran
    //   correction may be false for particles which are just above the punch-through energy.
    //
    // WARNING 2: if measured energy loss in detector active layer is greater than
-   // maximum possible theoretical value for given nucleus, we return a value calculated
-   // for the first nucleus with Z > nuc->GetZ() for which the theoretical energy loss
-   // is sufficient
+   // maximum possible theoretical value for given nucleus' Z & A, this may be because
+   // the A was not measured but calculated from Z and hence could be false, or perhaps
+    // there was an (undetected) pile-up of two or more particles in the detector.
+    // In this case we return the uncorrected energy measured in the active layer
+    // and we add the following parameters to the particle (in nuc->GetParameters()):
+    //
+    // GetCorrectedEnergy.Warning = 1
+    // GetCorrectedEnergy.Detector = [name]
+    // GetCorrectedEnergy.MeasuredDE = [value]
+    // GetCorrectedEnergy.MaxDE = [value]
+    // GetCorrectedEnergy.Transmission = 0 or 1
+    // GetCorrectedEnergy.ERES = [value]
 
 	Int_t z = nuc->GetZ();
 	Int_t a = nuc->GetA();
@@ -716,32 +725,18 @@ Double_t KVDetector::GetCorrectedEnergy( KVNucleus *nuc, Double_t e, Bool_t tran
    if(!transmission) solution = kEmin;
    
    // check that apparent energy loss in detector is compatible with a & z
-   // if it is too big, we will adjust first a, then z, until it is
-   if(e > GetMaxDeltaE(z,a)){
-       bool ok=kFALSE;
-       //Info("GetCorrectedEnergy", "Looking for solution for de=%f Z=%d A=%d",e,z,a);
-       for(int znew=z;znew<z+10;znew++){
-           //Info("GetCorrectedEnergy", "Try Z=%d",z);
-           if(znew>z) nuc->SetZ(znew);
-           KVNumberList arange = nuc->GetKnownARange();
-           arange.Begin();
-           while(!ok && !arange.End()){
-               int anew = arange.Next();
-               //Info("GetCorrectedEnergy", "Try A=%d?",anew);
-               if(z==znew && anew<=a) continue;
-               //Info("GetCorrectedEnergy", "ok try it",anew);
-               nuc->SetA(a=anew);
-               if(e<=GetMaxDeltaE(znew,a)){
-                   // check consistency with transmission status
-                   if(transmission||(!transmission && (e<GetPunchThroughEnergy(znew,a)))) ok=kTRUE;
-               }
-           }
-           if(ok) {z=znew; /*Info("GetCorrectedEnergy", "1.Found solution: Z=%d A=%d",z,a);*/break;}
-       }
-       //if(ok) Info("GetCorrectedEnergy", "2.Found solution: Z=%d A=%d",z,a);
+   Double_t maxDE = GetMaxDeltaE(z,a);
+   Double_t EINC, ERES = GetEResAfterDetector();
+   if(e > maxDE){
+       nuc->GetParameters()->SetValue("GetCorrectedEnergy.Warning",1);
+       nuc->GetParameters()->SetValue("GetCorrectedEnergy.Detector", GetName());
+       nuc->GetParameters()->SetValue("GetCorrectedEnergy.MeasuredDE", e);
+       nuc->GetParameters()->SetValue("GetCorrectedEnergy.MaxDE", maxDE);
+       nuc->GetParameters()->SetValue("GetCorrectedEnergy.Transmission", (Int_t)transmission);
+       nuc->GetParameters()->SetValue("GetCorrectedEnergy.ERES", ERES);
+       return e;
 
    }
-   Double_t EINC, ERES = GetEResAfterDetector();
    if(transmission && ERES>0.){
    	// if residual energy is known we use it to calculate EINC.
    	// if EINC < max of dE curve, we change solution
@@ -786,13 +781,12 @@ Int_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
    UInt_t zmin, zmax;
    zmin = 1;
    zmax = 92;
-   Double_t difference, last_difference;
+   Double_t difference;
    UInt_t last_positive_difference_z = 1;
    KVNucleus particle;
    if (mass_formula>-1)
 		particle.SetMassFormula((UChar_t)mass_formula);
 
-   last_difference = 1.e+07;
    difference = 0.;
 
    while (zmax > zmin + 1) {
@@ -811,7 +805,6 @@ Int_t KVDetector::FindZmin(Double_t ELOSS, Char_t mass_formula)
          zmax = z;
          last_positive_difference_z = z;
          z -= (UInt_t) ((z - zmin) / 2 + 0.5);
-         last_difference = difference;
 
       }
    }

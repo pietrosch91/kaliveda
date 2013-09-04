@@ -7,6 +7,7 @@
 #include "KVIDZAGrid.h"
 #include "KVSilicon.h"
 #include "KVCsI.h"
+#include "KVIDCutLine.h"
 
 class KVMultiDetArray;
 
@@ -15,6 +16,7 @@ class KVIDSiCsI_e613 : public KVIDSiCsI
 
   KVIDZAGrid* fGGgrid;			//! grid used for Si(GG)-CsI(TotLight) charge identification
   KVIDZAGrid* fPGgrid;			//! grid used for Si(PG)-CsI(TotLight) charge identification
+  KVIDCutLine* fPIEDESTAL;      //! Si pedestal zone in GG
   KVSilicon* fSi;			//! the si
   KVCsI* fCsI;				//! the csi
   

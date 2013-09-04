@@ -40,7 +40,7 @@ class KVNuclearChart : public KVBase
 
    public:
 //    KVNuclearChart();
-   KVNuclearChart(Int_t nMin=-1, Int_t nMax=-1, Int_t zMin=-1, Int_t zMax=-1);
+   KVNuclearChart(Int_t nMin=-1, Int_t nMax=-1, Int_t zMin=-1, Int_t zMax=-1, Double_t life=1.e-06);
    KVNuclearChart (const KVNuclearChart&) ;
    virtual ~KVNuclearChart();
    void Copy (TObject&) const;

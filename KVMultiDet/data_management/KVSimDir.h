@@ -21,14 +21,14 @@ class KVSimDir : public KVBase
    virtual ~KVSimDir();
    void Copy (TObject&) const;
    
-   virtual void SetDirectory(const Char_t* d) { SetTitle(d); };
-   virtual const Char_t* GetDirectory() const { return GetTitle(); };
+   virtual void SetDirectory(const Char_t* d) { SetTitle(d); }
+   virtual const Char_t* GetDirectory() const { return GetTitle(); }
    
    virtual void AnalyseDirectory();
    virtual void AnalyseFile(const Char_t* );
 
-   virtual const KVList* GetSimDataList() const { return &fSimData; };
-   virtual const KVList* GetFiltDataList() const { return &fFiltData; };
+   virtual const KVList* GetSimDataList() const { return &fSimData; }
+   virtual const KVList* GetFiltDataList() const { return &fFiltData; }
    
    void ls(Option_t* opt="") const;
    

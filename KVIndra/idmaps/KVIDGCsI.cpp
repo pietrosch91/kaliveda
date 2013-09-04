@@ -100,6 +100,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult * idr) co
         idr->Z = 0;
         idr->A = 0;
         idr->IDOK = kTRUE;
+        idr->SetComment("gamma");
         return;
     }
     if (!const_cast<KVIDGCsI*>(this)->FindFourEmbracingLines(x,y,"above"))
@@ -107,6 +108,7 @@ void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult * idr) co
         //no lines corresponding to point were found
         const_cast < KVIDGCsI * >(this)->fICode = kICODE8;        // Z indetermine ou (x,y) hors limites
         idr->IDquality = fICode;
+        idr->SetComment("no identification: (x,y) out of range covered by grid");
         return;
     }
     Int_t Z;
@@ -116,6 +118,21 @@ void KVIDGCsI::Identify(Double_t x, Double_t y, KVIdentificationResult * idr) co
     idr->A = Aint;
     idr->PID = A;
     idr->IDquality = fICode;
+    switch(fICode){
+
+    case kICODE0:  idr->SetComment("ok"); break;
+    case kICODE1: idr->SetComment("Z ok, mass may be greater than A"); break;
+    case kICODE2:  idr->SetComment("Z ok, mass may be smaller than A"); break;
+    case kICODE3:  idr->SetComment("Z ok, mass may be greater or smaller than A"); break;
+    case kICODE4:  idr->SetComment("Z ok, mass out of range, >=A"); break;
+    case kICODE5:  idr->SetComment("Z ok, mass out of range, <=A"); break;
+    case kICODE6:  idr->SetComment("point above IMF line, Z is a minimum value"); break;
+    case kICODE7:  idr->SetComment("point is left of IMF line, Z is the most probable lower limit"); break;
+    case kICODE8:  idr->SetComment("no identification: (x,y) out of range covered by grid"); break;
+    case kICODE9:  idr->SetComment("no identification for this module"); break;
+    default:   idr->SetComment("no identification: (x,y) out of range covered by grid");
+    }
+
     if(fICode<kICODE4){
     	idr->IDOK = kTRUE;
     	idr->Zident = kTRUE;

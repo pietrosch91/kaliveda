@@ -163,8 +163,6 @@ void KVEventFiltering::InitAnalysis()
    gDataSet->BuildMultiDetector();
    gMultiDetArray->SetSimMode();
 
-   Info("InitAnalysis", "Detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
-   
    TString system = GetOpt("System").Data();
    KVDBSystem* sys = (gDataBase ? (KVDBSystem*)gDataBase->GetTable("Systems")->GetRecord(system) : 0);
    fCMVelocity =  (sys ? sys->GetKinematics()->GetCMVelocity() : TVector3(0,0,0));
@@ -178,8 +176,8 @@ void KVEventFiltering::InitAnalysis()
    TString geo = GetOpt("Geometry").Data();
    if(geo=="ROOT"){
       gMultiDetArray->SetROOTGeometry(kTRUE);
-      gMultiDetArray->GetGeometry()->cd();
       Info("InitAnalysis", "Filtering with ROOT geometry");
+      Info("InitAnalysis", "Navigator detector name format = %s", gMultiDetArray->GetNavigator()->GetDetectorNameFormat());
    }
    else
    {

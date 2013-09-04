@@ -207,7 +207,7 @@ public:
     virtual TGraph* DrawPunchThroughEnergyVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
     virtual TGraph* DrawPunchThroughEsurAVsZ(const Char_t* detector, Int_t massform=KVNucleus::kBetaMass);
 
-    void SetROOTGeometry(Bool_t on=kTRUE);
+    virtual void SetROOTGeometry(Bool_t on=kTRUE);
     Bool_t IsROOTGeometry() const { return (fROOTGeometry&&fGeoManager); };
     void CalculateDetectorSegmentationIndex();
 

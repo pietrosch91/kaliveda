@@ -139,9 +139,10 @@ class KVINDRA:public KVASMultiDetArray {
    virtual void GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params = 0);
    
    KVINDRATriggerInfo* GetTriggerInfo() { return fSelecteur; };
-	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500);
+	virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500, Bool_t /*closegeo*/ = kTRUE);
 
    const KVSeqCollection* GetListOfDetectors() const { return GetDetectors(); }
+   virtual void SetROOTGeometry(Bool_t on=kTRUE);
 
    ClassDef(KVINDRA, 6)        //class describing the materials and detectors etc. to build an INDRA multidetector array
 };

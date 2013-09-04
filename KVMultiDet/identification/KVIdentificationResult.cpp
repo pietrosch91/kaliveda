@@ -28,6 +28,7 @@ The informations stored are:
 <li>Bool_t Aident : (=kTRUE if particle's A was determined by the identification)</li>
 <li>Int_t Z : the Z given by the identification attempt if Zident==kTRUE</li>
 <li>Int_t A : the A given by the identification attempt if Aident==kTRUE</li>
+<li>Int_t deltaEpedestal : tells if particle is in pedestal region of delta-E</li>
 </ul>
 Note that, apart from GetIDType() and GetComment() methods, all other informations are public member variables
 which can be accessed directly.
@@ -49,6 +50,7 @@ void KVIdentificationResult::Copy(TObject& obj) const
 	id.Z = Z;
 	id.A = A;
 	id.PID = PID;
+    id.deltaEpedestal = deltaEpedestal;
 }
 
 void KVIdentificationResult::Reset()
@@ -65,6 +67,7 @@ void KVIdentificationResult::Reset()
 	Z = -1;
 	A = -1;
 	PID = -1.0;
+    deltaEpedestal = deltaEpedestal_UNKNOWN;
 }
 
 void KVIdentificationResult::Print(Option_t* opt) const
@@ -78,6 +81,24 @@ void KVIdentificationResult::Print(Option_t* opt) const
 	else printf("   => FAILURE\n");
 	printf("  Quality code = %d (%s)\n", IDquality, GetLabel());
 	if(Zident) printf("  Z identified = %d", Z);
+    else printf("  Z returned = %d", Z);
 	if(Aident) printf("    A identified = %d", A);
-	if(Zident||Aident) printf("    PID = %f\n", PID);
+    else printf("  A returned = %d", A);
+    if(Zident||Aident) printf("    PID = %f\n", PID);
+    printf("  delta-E pedestal : ");
+    switch(deltaEpedestal){
+
+        case deltaEpedestal_NO:
+        printf("NO\n");
+        break;
+
+        case deltaEpedestal_YES:
+        printf("YES\n");
+        break;
+
+        default:
+        case deltaEpedestal_UNKNOWN:
+        printf("UNKNOWN\n");
+        break;
+    }
 }
