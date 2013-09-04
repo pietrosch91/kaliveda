@@ -243,3 +243,7 @@ KVVAMOSCodes.ACQParamListForToF: TSED2_HF TSED1_HF TSI_HF TSI_SED1 TSED1_SED2
 
 # File with list of files containing the coefficients of the functions used for the trajectory reconstruction in VAMOS
 KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
+
+# Data of multidetectors (INDRA/VAMOS) to be used in the recon->ident analysis using the user class "KVIVReconIdent". 
+KVIVReconIdent.DataToAnalyse: INDRA VAMOS
+INDRA_e494s.KVIVReconIdent.DataToAnalyse: VAMOS

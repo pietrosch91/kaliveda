@@ -22,6 +22,17 @@ calibration and identification</h4>
 ////////////////////////////////////////////////////////////////////////////////
 
 void KVIVReconIdent::InitAnalysis(void){
+
+	TString dt;
+	dt = gDataSet->GetDataSetEnv("KVIVReconIdent.DataToAnalyse","INDRA VAMOS");
+	dt.ToLower();
+	SetBit( kVAMOSdata | kINDRAdata );
+	Info("InitAnalysis","Analysing data of %s",dt.Data());
+	if( !dt.Contains("indra") ) ResetBit( kINDRAdata );
+	if( !dt.Contains("vamos") ) ResetBit( kVAMOSdata );
+
+	if( TestBit(kINDRAdata ) ) cout<<"INDRA"<<endl;
+	if( TestBit(kVAMOSdata ) ) cout<<"VAMOS"<<endl;
 }
 //_____________________________________
 
@@ -69,25 +80,32 @@ void KVIVReconIdent::InitRun(void){
 
       Info("InitRun", "Created identified/calibrated data tree %s : %s", fIdentTree->GetName(), fIdentTree->GetTitle());
 
-   // initialise identifications
-   gIndra->InitializeIDTelescopes();
-   gVamos->InitializeIDTelescopes();
- 
-   cout << endl <<setw(20)<<""<<"----------------------"<<endl;
-   cout         <<setw(20)<<""<<"|  STATUS FOR INDRA  |"<<endl;
-   cout         <<setw(20)<<""<<"----------------------"<<endl<<endl;
-   // print status of identifications
-   gIndra->PrintStatusOfIDTelescopes();
-   // print status of calibrations
-   gIndra->PrintCalibStatusOfDetectors();
+	  if( TestBit( kINDRAdata ) ){
+   		  // initialise INDRA identifications
+   		  gIndra->InitializeIDTelescopes();
 
-   cout << endl <<setw(20)<<""<<"----------------------"<<endl;
-   cout         <<setw(20)<<""<<"|  STATUS FOR VAMOS  |"<<endl;
-   cout         <<setw(20)<<""<<"----------------------"<<endl<<endl;
-   // print status of identifications
-   gVamos->PrintStatusOfIDTelescopes();
-   // print status of calibrations
-   gVamos->PrintCalibStatusOfDetectors();
+   		  cout << endl <<setw(20)<<""<<"----------------------"<<endl;
+   		  cout         <<setw(20)<<""<<"|  STATUS FOR INDRA  |"<<endl;
+   		  cout         <<setw(20)<<""<<"----------------------"<<endl<<endl;
+   		  // print status of identifications
+   		  gIndra->PrintStatusOfIDTelescopes();
+   		  // print status of calibrations
+   		  gIndra->PrintCalibStatusOfDetectors();
+   	  }
+
+
+	  if( TestBit( kVAMOSdata ) ){
+   		  // initialise VAMOS identifications
+   		  gVamos->InitializeIDTelescopes();
+
+   		  cout << endl <<setw(20)<<""<<"----------------------"<<endl;
+   		  cout         <<setw(20)<<""<<"|  STATUS FOR VAMOS  |"<<endl;
+   		  cout         <<setw(20)<<""<<"----------------------"<<endl<<endl;
+   		  // print status of identifications
+   		  gVamos->PrintStatusOfIDTelescopes();
+   		  // print status of calibrations
+   		  gVamos->PrintCalibStatusOfDetectors();
+   	  }
 }
 //_____________________________________
 
@@ -98,30 +116,34 @@ Bool_t KVIVReconIdent::Analysis(void){
    fEventNumber = GetEvent()->GetNumber();
 
    //Analyse INDRA event
-   if (GetEvent()->GetMult() > 0) {
-      GetEvent()->IdentifyEvent();
-      GetEvent()->CalibrateEvent();
+   if( TestBit( kINDRAdata ) ){
+   	   if (GetEvent()->GetMult() > 0) {
+      	   GetEvent()->IdentifyEvent();
+      	   GetEvent()->CalibrateEvent();
+   	   }
    }
 
    //Analyse VAMOS event
-   if( fIsIVevent ){ // condition set for backwards compatibility with 
-	                 // old recon ROOT files
+   if( TestBit( kVAMOSdata ) ){
+   	   if( fIsIVevent ){ // condition set for backwards compatibility with 
+	       // old recon ROOT files
 
-	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
-	   // Z-identification
-	   IVevent->IdentifyVAMOSEvent_Z();
+	   	   KVIVReconEvent *IVevent = (KVIVReconEvent *)GetEvent();
+	   	   // Z-identification
+	   	   IVevent->IdentifyVAMOSEvent_Z();
 
-	   // first calibration with only Z known and mean A from mass formula
-	   IVevent->CalibrateVAMOSEvent();
-//
-//	   // firt A-identification
-//	   IVevent->IdentifyVAMOSevent_A();
-//
-//	   // second calibration with Z and A known
-//	   IVevent->CalibrateVAMOSevent();
-//
-//	   //second A-identification
-//	   IVevent->IdentifyVAMOSevent_A();
+	   	   // first calibration with only Z known and mean A from mass formula
+	   	   IVevent->CalibrateVAMOSEvent();
+		   //
+		   //	   // firt A-identification
+		   //	   IVevent->IdentifyVAMOSevent_A();
+		   //
+		   //	   // second calibration with Z and A known
+		   //	   IVevent->CalibrateVAMOSevent();
+		   //
+		   //	   //second A-identification
+		   //	   IVevent->IdentifyVAMOSevent_A();
+   	   }
    }
 
    //Fill Ident tree
