@@ -176,9 +176,9 @@ void KVCalibrator::SetParameters(Double_t val, ...)
    va_start(ap, val);
 
    int arg_n = 0;
-   fPar[arg_n++] = val;
+   SetParameter( arg_n++, val );
    while (arg_n < fParamNumber) {
-      fPar[arg_n] = (Double_t) va_arg(ap, Double_t);
+      SetParameter( arg_n, (Double_t) va_arg(ap, Double_t) );
       arg_n++;
    }
 
