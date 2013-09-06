@@ -1122,6 +1122,7 @@ void KVTreeAnalyzer::DeleteSelections()
 	if(!el) continue;
 	fSelections.Remove(el);
 	delete el;
+	G_delete_but->SetEnabled(kFALSE);
 	
       }
 	G_selectionlist->Display(&fSelections);
