@@ -573,7 +573,7 @@ void KVVAMOS::UpdateGeometry(){
 	// to each detector.
 
 	
-	if( !IsGeoModified() || !IsBuilt() ) return;	
+	if( !IsGeoModified() ) return;	
 	
 	Int_t prev_id = gGeoManager->GetCurrentNodeId();
 

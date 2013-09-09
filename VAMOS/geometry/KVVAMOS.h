@@ -63,7 +63,6 @@ class KVVAMOS : public KVMultiDetArray
    		virtual void   SetArrayACQParams();
    		virtual void   SetCalibrators();
    		virtual void   SetGroupsAndIDTelescopes();
-		virtual void   UpdateGeometry();
 
 
    	public:
@@ -94,6 +93,7 @@ class KVVAMOS : public KVMultiDetArray
 		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );
    		        void     TargetToFocal( const Double_t *target, Double_t *focal );
    		        void     TargetToFocalVect( const Double_t *target, Double_t *focal );
+		virtual void     UpdateGeometry();
 
    		// ----- inline methods
 
