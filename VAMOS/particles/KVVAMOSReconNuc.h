@@ -85,6 +85,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
                 Float_t          GetXf()                             const;
 	            Float_t          GetYf()                             const;
    		virtual	void             SetECode(UChar_t code_mask);
+		virtual void             SetFlightDistanceAndTime(Float_t dist, Float_t time);
+		virtual Bool_t           SetFlightDistanceAndTime(Float_t time, KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL);
    		virtual void             SetFPCode(UInt_t code_mask);
  		virtual void             SetIDCode(UShort_t code_mask);
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
@@ -229,6 +231,27 @@ inline void KVVAMOSReconNuc::SetECode(UChar_t code_mask)
 {
    	//Sets code for energy calibration
    	GetCodes().SetECode(code_mask);
+}
+//____________________________________________________________________________________________//
+		
+inline void KVVAMOSReconNuc::SetFlightDistanceAndTime(Float_t dist, Float_t time){
+	//Sets flight distance in cm and the time of flight in ns;
+	//This will change the TCode ( kTCode0 )
+	fFlightDist = dist;
+	fToF = time;
+	SetTCode( kTCode0 );
+}
+//____________________________________________________________________________________________//
+		
+inline Bool_t KVVAMOSReconNuc::SetFlightDistanceAndTime(Float_t time, KVVAMOSDetector *start, KVVAMOSDetector *stop){
+	//Sets flight distance from the start and the stop detector, and sets the time 
+	//of flight in ns;
+	//This will change the TCode ( kTCode0 ) and return kTRUE if the distance
+	//can be calculated by the reconstructed trajectory between start and stop
+	//detectors
+	fToF = time;
+	SetTCode( kTCode0 );
+	return SetFlightDistance( start, stop );
 }
 //____________________________________________________________________________________________//
 
