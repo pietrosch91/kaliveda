@@ -26,7 +26,8 @@ RUNS: 2-615
 TYPE: T0_HF
 FUNCTION:
 
-SED2: 267.458
+#corrected by M-F 16/04/13
+SED2: 449.16
 
 
 
