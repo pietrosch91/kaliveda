@@ -81,6 +81,12 @@ void KVIDGChIoSi_e494s::Identify(Double_t x, Double_t y, KVIdentificationResult 
 			const_cast<KVIDGChIoSi_e494s*>(this)->fICode = k_BelowSeuilChIo;
 			idr->SetComment("warning: point below ChIo threshold line");
 		}
+		Int_t ZValidityvalue=-1;
+		ZValidityvalue=const_cast<KVIDGChIoSi_e494s*>(this)->GetParameters()->GetIntValue("ZValidity");
+		if(ZValidityvalue>-1 && idr->Z>ZValidityvalue)
+		  {
+		    const_cast<KVIDGChIoSi_e494s*>(this)->fICode =kICODE9;
+		  }
 		idr->IDquality = fICode;
 	}
 }
