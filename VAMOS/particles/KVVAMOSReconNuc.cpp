@@ -195,6 +195,35 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 
 		// Detector is calibrated and hit by only one particle
 		if( Edet > 0 &&  det->GetNHits() == 1  ){
+
+			// if Edet is greater than the maximal possible theoretical value
+			// this may be because Z or A are underestimated and one of both
+			// has to be increased (see KVDetector::GetCorrectedEnergy)
+			if( Edet > det->GetMaxDeltaE( GetZ(), GetA() ) ){
+				Int_t z   = GetZ();
+				Int_t a   = GetA();
+				Bool_t isOK = kFALSE;
+
+				Warning("CalibrateFromDetList","MeasuredDE>MaxDE in %s, Z= %d, A=%d, MeasuredDE= %f MeV",det->GetName(), z, a, Edet);
+
+				while( !isOK ){
+					//first, increase A if it is not measured
+					if( !IsAMeasured() ){
+						while( !isOK && (++a < 4*z) ){
+						 	if( IsKnown(z,a) && ( GetLifeTime(z,a) > 0. ) )
+							 	isOK  = ( Edet <= det->GetMaxDeltaE( z, a ) );
+						}
+						if( isOK ) break;
+						a = z+1;
+					}
+					//increase Z
+					++z;
+					isOK  = ( Edet <= det->GetMaxDeltaE( z, a ) );
+				}
+				Info("CalibrateFromDetList","MeasuredDE<MaxDE in %s by changing Z: %d->%d, A: %d->%d \n",det->GetName(), GetZ(),z, GetA(),a);
+				SetZandA( z, a );
+			}
+
 			det->SetEResAfterDetector( Etot );
 			Edet  = det->GetCorrectedEnergy( this, -1, transmission );
 			Etot += Edet;
