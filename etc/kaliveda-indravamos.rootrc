@@ -246,4 +246,3 @@ KVVAMOSTransferMatrix.CoefficientFile: VAMOStransMatrixCoef.list
 
 # Data of multidetectors (INDRA/VAMOS) to be used in the recon->ident analysis using the user class "KVIVReconIdent". 
 KVIVReconIdent.DataToAnalyse: INDRA VAMOS
-INDRA_e494s.KVIVReconIdent.DataToAnalyse: VAMOS
