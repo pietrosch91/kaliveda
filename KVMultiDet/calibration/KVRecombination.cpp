@@ -17,7 +17,7 @@ E, charge Z and Mass A calculated according to Parlog's formula (see Phys. Res. 
 </p>
 
 <p>
-      PHD(E) = 1/2 * Ed *( 1-1/X * ln|1+X| + X * ln|1+1/X| )
+      PHD(Ed) = 1/2 * Ed *( 1-1/X * ln|1+X| + X * ln|1+1/X| )
  with X      = a*A*Z**2/Ed
       Ed     = energy lost by particle in detector (=E if particle stops)
 </p>
