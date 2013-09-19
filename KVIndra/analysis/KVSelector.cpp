@@ -357,7 +357,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
       ProcInfo_t pid;
       if(gSystem->GetProcInfo(&pid)==0){
          TString du = gSystem->GetFromPipe("du -hs");
-         TObjArray* toks = du.Tokenize(" .");
+         TObjArray* toks = du.Tokenize("\t");
          TString disk = ((TObjString*)toks->At(0))->String();
          delete toks;
          cout <<"     ------------- Process infos -------------" << endl;
