@@ -221,6 +221,8 @@ TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
    
 TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 	// Retruns the X or Y position histogram with raw charges (Q)
+	// If the histogram is empty then no acquisition parameter
+	// was fired.
 	
 	Int_t i = IDX(dir);
 	if( (i<0) || (i>2) ) return NULL; 
@@ -230,7 +232,6 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 	fQ[0][i]->Reset();
 	TIter next(GetACQParamList());
 
-	Bool_t ok = kFALSE;
 	KVACQParam *par  = NULL;
 	while((par = (KVACQParam *)next())){
 
@@ -238,10 +239,7 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 
 		Float_t data;
 		fQ[0][i]->SetBinContent( par->GetNumber(), data = par->GetData() );
-		ok = kTRUE;
 	}
-
-	if( !ok ) Warning("GetQrawHisto","No ACQ parameter fired for the %c position",dir);
 
  	return fQ[0][i];
 }
@@ -258,29 +256,26 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 	fQ[1][i]->Reset();
 	TIter next(GetListOfCalibrators());
 
-	Bool_t ok = kFALSE;
 	KVCalibrator *cal  = NULL;
 	KVACQParam   *par  = NULL;
 	Int_t num;
 
-	Int_t count_calOK = 0, count_fired = 0;
+	Int_t NcalOK = 0;
 	while((cal = (KVCalibrator *)next())){
 		
 
  	   	if( !cal->GetStatus() || (GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
-		count_calOK++;
+		NcalOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
 		par = calf->GetACQParam();
 		if( !par->Fired("P") ) continue;
-		count_fired++;
 		
 		num =  calf->GetNumber();
 		fQ[1][i]->SetBinContent( num, calf->Compute() );
-		ok = kTRUE;
 	}
 
- 	if( !ok ) Warning("GetQHisto","Impossible to calibrate correctly the charges for %c position of %s, %d calibrators are OK and %d fired ACQ parameters",dir, GetName(), count_calOK, count_fired);
+ 	if( NcalOK < 4 ) Warning("GetQHisto","Impossible to calibrate correctly the charges for %c position of %s, %d calibrators are OK",dir, GetName(), NcalOK);
 	
  	return fQ[1][i];
 }

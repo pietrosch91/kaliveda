@@ -1,14 +1,3 @@
-#Energy Wire calib (Sept 2004)
-RUNS: 2-615
-TYPE: channel->MeV
-FUNCTION: pol1
-
-QSED1_1: 0 1
-QSED1_2: 0 1
-QSED1_3: 0 1
-
-
-
 # Time TSED1_HF in (ns)
 # TAC: 200 ns/channel
 RUNS: 41-85
