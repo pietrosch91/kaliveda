@@ -431,8 +431,7 @@ void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
     TIter nxt_tel(kvtl);
     //get max number of detectors in telescopes of layer
     Int_t max=0;
-    TIter it(kvtl);
-    while ( (t = (KVTelescope* )it.Next()) )
+    while ( (t = (KVTelescope* )nxt_tel()) )
         if (max<t->GetDetectors()->GetSize())
             max = t->GetDetectors()->GetSize();
     //before, we assumed all telescopes to be same in layer:
@@ -441,6 +440,7 @@ void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
 
     for (register UInt_t i = ndet; i > 0; i--) {
 
+        nxt_tel.Reset();
         TList detlist;
 
         //start from last detectors and move inwards
