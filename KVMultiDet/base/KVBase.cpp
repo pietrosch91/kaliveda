@@ -996,19 +996,26 @@ Bool_t KVBase::AreEqual(Double_t A, Double_t B, Long64_t maxdif)
    union converter {
       Double_t f;
       Long64_t i;
-   } val1, val2;
+   } zero, val1, val2;
    
    assert( maxdif > 0 );
    
-    if (A == B) return true;
-    
+   if (A == B) return true;
+   
+   /* rustine to obtain the (64-bit) constant value 0x8000000000000000
+      even on 32-bit machines (there is probably an easier way!)      */
+   zero.i = 1;
+   zero.f = -zero.f;
+   zero.i -= 1;
+   
    val1.f = A;
    val2.f = B;
    Long64_t Aint, Bint;
    Aint = val1.i;
    Bint = val2.i;
-   if(Aint < 0) Aint = 0x8000000000000000 - Aint;
-   if(Bint < 0) Bint = 0x8000000000000000 - Bint;
+   if(Aint < 0) Aint = zero.i - Aint;
+   if(Bint < 0) Bint = zero.i - Bint;
+   
    Long64_t intDiff = abs(val1.i - val2.i);
 
     if (intDiff <= maxdif) return true;

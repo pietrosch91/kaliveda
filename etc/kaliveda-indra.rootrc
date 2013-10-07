@@ -623,8 +623,8 @@ KaliVeda.GUI.MimeTypes.KVINDRADBRun.Icon:   tree_t.xpm
 
 # User-configurable options for KaliVedaGUI analysis launcher
 # Width & height of main window
-KaliVedaGUI.MainGUIWidth:       700
-KaliVedaGUI.MainGUIHeight:       600
+KaliVedaGUI.MainGUIWidth:       900
+KaliVedaGUI.MainGUIHeight:       700
 # Max width (number of characters) of runlist columns
 KaliVedaGUI.MaxColWidth:       500
 

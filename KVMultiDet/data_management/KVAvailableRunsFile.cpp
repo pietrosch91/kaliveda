@@ -507,6 +507,8 @@ TList *KVAvailableRunsFile::GetListOfAvailableSystems(const KVDBSystem *
    //
    //If available runs file does not exist, Update() is called to create it.
 
+    ReadFile(); // this will sanitize the file if necessary (remove duplicates)
+
    //does runlist exist ?
    if (!OpenAvailableRunsFile()) {
       Error("GetListOfAvailableSystems",
@@ -1031,7 +1033,10 @@ void KVAvailableRunsFile::ReadFile()
    fAvailableRuns->SetOwner(kTRUE);
    
    TString fLine;
+   Int_t line_number=1;
    fLine.ReadLine(fRunlist);
+
+   KVNumberList duplicate_lines;
 
    Int_t fRunNumber;
 
@@ -1047,7 +1052,7 @@ void KVAvailableRunsFile::ReadFile()
       KVString kvs(((TObjString *) toks->At(0))->GetString());
       fRunNumber = kvs.Atoi();
       if(nfields<2){
-			Warning("ReadFile", "Less than 2 fields in entry for run %d???",fRunNumber);
+            Warning("ReadFile", "Less than 2 fields in entry for run %d (line:%d)???",fRunNumber,line_number);
 			toks->ls();
 			continue;
 		}
@@ -1069,11 +1074,13 @@ void KVAvailableRunsFile::ReadFile()
             KVString olddate = NVL->GetStringValue(Form("Date[%d]",ii));
             if(olddate==datestring){               
                ok=kFALSE;
+               duplicate_lines.Add(line_number);
                break;
             }
          }
          if(!ok){
             delete toks;
+             line_number++;
             fLine.ReadLine(fRunlist);
             continue;
          }
@@ -1103,10 +1110,17 @@ void KVAvailableRunsFile::ReadFile()
       }
       delete toks;
 
+      line_number++;
       fLine.ReadLine(fRunlist);
    }
 
    CloseAvailableRunsFile();
+
+   if(duplicate_lines.GetNValues()){
+       Info("ReadFile", "There were %d duplicate entries in available runs file, they will be removed", duplicate_lines.GetNValues());
+       RemoveDuplicateLines(duplicate_lines);
+   }
+
 }
    
 KVNameValueList* KVAvailableRunsFile::RunHasFileWithDateAndName(Int_t run, const Char_t* filename, TDatime modtime, Int_t& OccNum)
@@ -1147,3 +1161,64 @@ Bool_t KVAvailableRunsFile::InfosNeedUpdate(Int_t run, const Char_t * filename)
    }
    return kFALSE;   
 }
+
+//__________________________________________________________________________________________________________________
+
+void KVAvailableRunsFile::RemoveDuplicateLines(KVNumberList lines_to_be_removed)
+{
+   // Remove from available runs file all lines whose numbers are in the list
+
+   //does runlist exist ?
+   if (!OpenAvailableRunsFile()) {
+      Error("Remove", "Error opening available runs file");
+      return;
+   }
+   //open temporary file
+   TString tmp_file_path(GetFileName());
+   ofstream tmp_file;
+   KVBase::OpenTempFile(tmp_file_path, tmp_file);
+
+   //loop over lines in fRunlist file
+   //all lines which are not in list are directly copied to temp file
+   TString line;
+   Int_t line_number=1;
+   line.ReadLine(fRunlist);
+
+   lines_to_be_removed.Begin();
+   Int_t next_line_to_remove = 0;
+   if(!lines_to_be_removed.End()) next_line_to_remove = lines_to_be_removed.Next();
+
+   while (fRunlist.good()) {
+
+       if(line_number!=next_line_to_remove)
+           tmp_file << line.Data() << endl;
+       else {
+           if(!lines_to_be_removed.End()) next_line_to_remove = lines_to_be_removed.Next();
+       }
+       line_number++;
+       line.ReadLine(fRunlist);
+
+   }
+
+   CloseAvailableRunsFile();
+   TString fRunlist_path;
+   AssignAndDelete(fRunlist_path,
+                   gSystem->ConcatFileName(fDataSet->GetDataSetDir(),
+                                           GetFileName()));
+   //keep lock on runsfile
+   if( !runlist_lock.Lock( fRunlist_path.Data() ) ) return;
+
+   //close temp file
+   tmp_file.close();
+
+   //copy temporary file to KVFiles directory, overwrite previous
+   gSystem->CopyFile(tmp_file_path, fRunlist_path, kTRUE);
+   //set access permissions to 664
+   gSystem->Chmod(fRunlist_path.Data(), CHMODE(6,6,4));
+   //delete temp file
+   gSystem->Unlink(tmp_file_path);
+   //unlock runsfile
+   runlist_lock.Release();
+}
+
+//__________________________________________________________________________________________________________________

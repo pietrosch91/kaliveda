@@ -75,6 +75,7 @@ class KVAvailableRunsFile:public KVBase {
    virtual void SetDataSet(KVDataSet*);
 
    KVNumberList CheckMultiRunfiles();
+   void RemoveDuplicateLines(KVNumberList lines_to_be_removed);
 
    ClassDef(KVAvailableRunsFile, 1)     //Handles text files containing list of available runs for different datasets and types of data
 };
