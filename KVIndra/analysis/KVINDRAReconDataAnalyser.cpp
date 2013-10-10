@@ -91,6 +91,7 @@ void KVINDRAReconDataAnalyser::SubmitTask()
    //make the chosen dataset the active dataset ( = gDataSet; note this also opens database
    //and positions gDataBase & gIndraDB).
    fDataSet->cd();
+   fSelector = 0;
    
    theChain = new TChain("ReconstructedEvents");
    theChain->SetDirectory(0); // we handle delete
@@ -112,10 +113,20 @@ void KVINDRAReconDataAnalyser::SubmitTask()
          // update run infos in available runs file if necessary
          KVAvailableRunsFile* ARF = gDataSet->GetAvailableRunsFile(fDataType.Data());
          if( ARF->InfosNeedUpdate(run, gSystem->BaseName( fullPathToRunfile )) ){
-	            TEnv*treeInfos = (TEnv*)((TTree*)f->Get("ReconstructedEvents"))->GetUserInfo()->FindObject("TEnv");
-               TString kvversion = treeInfos->GetValue("KVBase::GetKVVersion()","");
-               TString username = treeInfos->GetValue("gSystem->GetUserInfo()->fUser","");
-               if(kvversion!="") ARF->UpdateInfos(run, gSystem->BaseName( fullPathToRunfile ), kvversion, username);
+				if ( !((TTree*)f->Get("ReconstructedEvents")) ){
+            	Error("SubmitTask","No tree named ReconstructedEvents is present in the current file");
+            	delete theChain;
+               return;
+            }
+            TEnv*treeInfos = (TEnv*)((TTree*)f->Get("ReconstructedEvents"))->GetUserInfo()->FindObject("TEnv");
+				if (treeInfos){
+            	TString kvversion = treeInfos->GetValue("KVBase::GetKVVersion()","");
+            	TString username = treeInfos->GetValue("gSystem->GetUserInfo()->fUser","");
+           		if(kvversion!="") ARF->UpdateInfos(run, gSystem->BaseName( fullPathToRunfile ), kvversion, username);
+         	}
+            else{
+            	Info("SubmitTask","No TEnv object associated to the tree");
+            }
          }
       }
    }

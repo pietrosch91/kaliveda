@@ -748,7 +748,7 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult &theID)
 
     // Etalon telescope Si75/SiLi not concerned, only ChIo and CsI.
     // Use standard coherency for rings 10-17
-    if((!GetSiLi() || !GetSiLi()->Fired("Pany")) && !GetSi75()->Fired("Pany"))
+    if( (!GetSiLi() || !GetSiLi()->Fired("Pany")) && (!GetSi75() || !GetSi75()->Fired("Pany")) )
         return CoherencyChIoCsI(theID);
 
     // Treat cases where particle hit etalon telescope

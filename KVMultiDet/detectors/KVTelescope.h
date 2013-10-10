@@ -46,8 +46,8 @@ class KVTelescope:public KVGeoStrucElement, public KVPosition {
    KVDetector *GetDetector(Int_t n) const {
       //returns the nth detector in the telescope structure
       if (n > GetSize() || n < 1) {
-         Error("GetDetector(UInt_t n)", "n must be between 1 and %u",
-               GetSize());
+         Error("GetDetector(UInt_t n)", "%s n must be between 1 and %u",
+               GetName(),GetSize());
          return 0;
       }
       KVDetector *d = (KVDetector *) GetDetectors()->At((n - 1));
