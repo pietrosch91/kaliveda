@@ -153,11 +153,7 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 
 void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc){
 	// Propagates the VAMOS reconstructed nucleus along its focal plane
-	// direction in the focal-plane detection area. It is possible only if 
-	// this direction is well reconstructed i.e. the FPCode of the nucleus
-	// is different from kFPCode0.
-
-	if( nuc->GetCodes().TestFPCode( kFPCode0 ) ) return;
+	// direction in the focal-plane detection area.
 
 	// reminder of the momentum
 	TVector3 p( nuc->GetMomentum() );

@@ -47,14 +47,18 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
  		virtual void     GetAnglesFromStoppingDetector(Option_t * opt = "random");
 		        Float_t  GetDeltaPath( KVVAMOSDetector *det ) const;
 				using    KVReconstructedNucleus::GetEnergy;
-				Float_t  GetEnergy( const Char_t *det_label ) const;
-		        Double_t GetRealA()        const;
-		        Double_t GetRealAoverQ()   const;
+				Int_t    GetDetectorIndex( const Char_t *det_label ) const;
+				Float_t  GetEnergy( const Char_t *det_label )        const;
+				Float_t  GetEnergyAfter( const Char_t *det_label )   const;
+				Float_t  GetEnergyBefore( const Char_t *det_label )  const;
+		        Double_t GetRealA()                                  const;
+		        Double_t GetRealAoverQ()                             const;
  		virtual void     Identify();
 		virtual void     ReconstructTrajectory();
 		virtual void     ReconstructFPtraj();
 //		virtual void     ReconstructFPtrajByFitting();
 		virtual void     ReconstructLabTraj();
+		virtual void     CalculateCalibration();
 
 		virtual void     RunTrackingAtFocalPlane();
 		virtual void     SetFlightDistanceAndTime();

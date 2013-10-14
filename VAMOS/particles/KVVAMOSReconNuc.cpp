@@ -113,8 +113,11 @@ void KVVAMOSReconNuc::Calibrate(){
     if ( IsCalibrated() && GetEnergy()>0 ){
 
  	   	// set angles of momentum from trajectory reconstruction
-        SetTheta( GetThetaL() );
-        SetPhi  ( GetPhiL() - 90 );
+
+    	if( fRT.FPtoLabWasAttempted() ){
+        	SetTheta( GetThetaL() );
+        	SetPhi  ( GetPhiL() - 90 );
+		}
 
         if(GetZ()) {
 
@@ -128,6 +131,8 @@ void KVVAMOSReconNuc::Calibrate(){
 			SetEnergy( E_tot += E_sfoil );
 
         	//add correction for target energy loss - moving charged particles only
+        	gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
+          	gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
         	E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
         	SetTargetEnergyLoss( E_targ );
 			SetEnergy( E_tot += E_targ );
@@ -585,6 +590,69 @@ void KVVAMOSReconNuc::ReconstructLabTraj(){
 }
 //________________________________________________________________
 
+void KVVAMOSReconNuc::CalculateCalibration(){
+	// Calculate the calibration for a well know calibration
+	// nucleus (Z, A, E) i.e. energy losses in each crossed detector, in the 
+	// stripping foil and in the target (if it exists) as well as  
+	// times of flight are calculated. We assume that you have set Z, A 
+	// and energy of the nucleus before calling this method (see SetZandA(...) 
+	// and SetEnergy(...) ). 
+	//
+	// The calculated quantites are stored  in the nucleus's list KVParticle::fParameters in the form
+	//    "[name of time of flight]" = [value in ns]
+	//    
+	//    for example:
+	//    TSED1_HF = 200
+
+	static KVNucleus nuc;
+	nuc.SetZandA( GetZ(), GetA() );
+	nuc.SetMomentum( GetMomentum() );
+	Double_t E  = GetEnergy();
+	Double_t DE = 0.;
+	nuc.SetEnergy( E );
+
+	//target 
+	if( (E>0) && gMultiDetArray->GetTarget() ){
+		gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
+        gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
+		DE = gMultiDetArray->GetTarget()->GetELostByParticle( &nuc );
+		E -= DE;
+		nuc.SetEnergy( E );
+		GetParameters()->SetValue(Form("DE:TARGET_%s",gMultiDetArray->GetTarget()->GetName()),DE);
+	}
+
+	//target to stripping foil
+		
+	//stripping foil
+	if( (E>0) && gVamos->GetStripFoil() ){
+		DE = gVamos->GetStripFoil()->GetELostByParticle( &nuc );
+		E -= DE;
+		nuc.SetEnergy( E );
+		GetParameters()->SetValue(Form("DE:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),DE);
+	}
+
+	//detectors at the focal plane
+	TString tmp;
+	KVNamedParameter *par = NULL;
+	TIter next( GetParameters()->GetList() );
+	while( (par = (KVNamedParameter *)next()) ){
+		tmp = par->GetName();
+		if( tmp.BeginsWith("STEP:") ){
+			//calculate DE
+			// TO BE IMPLEMENTED
+			// TO BE IMPLEMENTED
+			// TO BE IMPLEMENTED
+		}
+		else if( tmp.BeginsWith("DPATH:") ){
+			//calculate TOF from target to active layer
+			// TO BE IMPLEMENTED
+			// TO BE IMPLEMENTED
+			// TO BE IMPLEMENTED
+		}
+	}
+}
+//________________________________________________________________
+
 void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 	// Run the tracking of this reconstructed trajectory in each volume (detectors)  punched through at the focal plane.
 
@@ -903,8 +971,51 @@ Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
 	// Returns the calculated contribution of each detector to the 
 	// nucleus' energy from their label ("CHI","SI","SED1","SED2",...). 
+	// Retruns -1 if no detector is found or if yet no contribution has
+	// been determined ( done by methods Calibrate or InverseCalibration ).
  
 	if( !fDetE ) return -1.;
+	Int_t idx = GetDetectorIndex( det_label );
+	return idx < 0 ? -1. : fDetE[idx];
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetEnergyBefore( const Char_t *det_label ) const{
+ 	// Returns the kinetic energy of the nucleus prior to entering in 
+ 	// detector with label 'det_label' ("CHI","SI","SED1","SED2",...). 
+	// Retruns -1 if no detector is found or if yet no contribution has
+	// been determined ( done by methods Calibrate or InverseCalibration ).
+
+	if( !fDetE ) return -1.;
+	Int_t idx = GetDetectorIndex( det_label );
+	if( idx < 0 ) return -1.;
+	Float_t E = 0.;
+	while( idx > -1  ) E+= fDetE[idx--];
+	return E;
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetEnergyAfter( const Char_t *det_label ) const{
+ 	// Returns the kinetic energy of the nucleus prior to entering in 
+ 	// detector with label 'det_label' ("CHI","SI","SED1","SED2",...). 
+	// Retruns -1 if no detector is found or if yet no contribution has
+	// been calculated ( done by methods Calibrate or InverseCalibration ).
+
+	if( !fDetE ) return -1.;
+	Int_t idx = GetDetectorIndex( det_label );
+	if( idx < 0 ) return -1.;
+	idx--;
+	Float_t E = 0.;
+	while( idx > -1  ) E+= fDetE[idx--];
+	return E;
+}
+//________________________________________________________________
+
+Int_t KVVAMOSReconNuc::GetDetectorIndex( const Char_t *det_label ) const{
+	// Returns the index of the detector in the list of detectors (fDetList)
+	// through which particle passed, from its label ("CHI","SI","SED1","SED2",...).
+	// Returns -1 if no detector found.
+	
 	TIter next( GetDetectorList() );
     KVBase *obj;
 	Int_t idx = 0;
@@ -912,6 +1023,5 @@ Float_t KVVAMOSReconNuc::GetEnergy( const Char_t *det_label ) const{
             if ( !strcmp(obj->GetLabel(), det_label ) ) break;
 			idx++;
     }
-	if( idx < GetDetectorList()->GetEntries() ) return fDetE[idx];
-	return -1.;
+	return  idx < GetDetectorList()->GetEntries() ? idx : -1;
 }
