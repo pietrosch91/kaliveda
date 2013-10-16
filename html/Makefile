@@ -46,7 +46,7 @@ ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_32_00)),1)
 XRDPOSIX = -L$(ROOTSYS)/lib -lXrdPosix
 else
 # since 5.32 xrootd is installed separately in $XRDSYS directory
-XRDPOSIX = -L$(XRDSYS)/lib -lXrdPosix
+XRDPOSIX = -L$(XRDSYS)/lib64 -lXrdPosixPreload
 endif
 
 ifeq ($(MAKE_GANTAPE_XRD),yes)
