@@ -73,7 +73,7 @@ Int_t IRODS::put(const Char_t* source, const Char_t* target)
 	// put a new file into IRODS space.
 	
 	TString args; args.Form("%s %s",source,target);
-	buildCommand("iput",args.Data());
+	buildCommand("iput",args.Data(),"-N0");
 	return execCommand();
 }
 
