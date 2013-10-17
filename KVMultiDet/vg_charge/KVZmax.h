@@ -49,7 +49,7 @@ class KVZmax:public KVVarGlob1 {
    // pointeur.
    virtual TObject *GetObject(void) {
 		// Retourne le pointeur du fragment le plus lourd.
-      return (TObject *) GetZmax(1);
+      return (TObject *) GetZmax(0);
    };
 	
    KVNucleus *GetZmax(Int_t i);
