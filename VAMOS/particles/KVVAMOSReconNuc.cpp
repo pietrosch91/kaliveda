@@ -895,46 +895,75 @@ Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetect
 	// If stop=NULL then the corresponding time of flight 
 	// is assumed to be measured from the beam HF and the distance will be
 	// equal to the reconstructed path (GetPath) plus (or minus) the distance between
-	// the trajectory position at the focal plan (FP) and the trajectory position
+	// the trajectory position at the focal plane (FP) and the trajectory position
 	// at the start detector if this detector is localised behinds the FP (or
 	// forwards the FP).
-	// If the stop detector is given, the flight distance is equal to the trajectory
-	// distance between the start detector and the stop detector. 
-	
+
 	fFlightDist = 0;
 
 	if( GetCodes().TestFPCode( kFPCode0 ) ) return kFALSE;
-	if( !start ) return kFALSE;
-	if( !stop && GetPath()<=0 ) return kFALSE;
-	
-	Bool_t ok = kTRUE;
-	Float_t DeltaPath = GetDeltaPath( start );
-	if( DeltaPath == 0 ) ok = kFALSE;
+	fFlightDist = GetPath( start, stop );
 
-	if( stop ){
-	 	fFlightDist = DeltaPath;
-		DeltaPath   = GetDeltaPath( stop );
-		if( DeltaPath == 0 ){
- 		   	ok = kFALSE;
-			fFlightDist = 0;
-		}
-		else fFlightDist  = TMath::Abs( DeltaPath - fFlightDist );
-	}
-	else fFlightDist = GetPath() + DeltaPath;
+	if( fFlightDist > 0. ) return kTRUE;
 
-	if( !ok ){
-		TString warn;
-		if( stop ) warn.Form("detectors %s and %s",start->GetName(), stop->GetName());
-		else  warn.Form("target point and detector %s",start->GetName());
-		Warning("SetFlightDistance","Impossible to set flight distance between %s; FPCode%d (%s)",warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
-		cout<<endl;
-	}
+	TString warn;
+	if( stop ) warn.Form("detectors %s and %s",start->GetName(), stop->GetName());
+	else  warn.Form("target point and detector %s",start->GetName());
+	Warning("SetFlightDistance","Impossible to set flight distance between %s; FPCode%d (%s)",warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
+	cout<<endl;
 
-	return ok;
+	return kFALSE;
 }
 //________________________________________________________________
 
-Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
+Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) const{
+	// Returns the flight distance travelled by the nucleus from the start detector to the stop detector.
+	// If stop=NULL, returns the distance from the target point to the start detector, 
+	// i.e. distance corresponding to a time of flight  measured from the beam HF then the distance will be
+	// equal to the reconstructed path (GetPath) plus (or minus) the distance between
+	// the trajectory position at the focal plane (FP) and the trajectory position
+	// at the start detector if this detector is localised behinds the FP (or
+	// forwards the FP).
+	//
+	// Returns zero if DeltaPath is not found for the detectors.
+	
+	Float_t dp_start = GetDeltaPath( start );
+	if( dp_start ){
+		// case where stop signal is given by HF i.e. 'stop' is null
+		if( stop ){
+			Float_t dp_stop = GetDeltaPath( stop );
+			if( dp_stop ) return TMath::Abs( dp_stop - dp_start );
+			else return 0.;
+ 		}	
+		// case where stop signal is given by detector i.e. 'stop' not null
+		else if( GetPath() ) return GetPath() + dp_start;
+	}
+	return 0.;
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetPath(const Char_t *start_label, const Char_t *stop_label) const{
+	// Returns the flight distance travelled by the nucleus from the start detector to the stop detector.
+	// If stop=NULL, returns the distance from the target point to the start detector, 
+	// i.e. distance corresponding to a time of flight  measured from the beam HF then the distance will be
+	// equal to the reconstructed path (GetPath) plus (or minus) the distance between
+	// the trajectory position at the focal plane (FP) and the trajectory position
+	// at the start detector if this detector is localised behinds the FP (or
+	// forwards the FP).
+	//
+	// Returns zero if DeltaPath is not found for the detectors.
+	//
+	// Inputs - labels of start and stop detectors
+
+	KVVAMOSDetector *start = (KVVAMOSDetector *)GetDetectorList()->FindObjectByLabel( start_label );
+
+	if( !strcmp( stop_label, "") ) return GetPath( start );
+	KVVAMOSDetector *stop = (KVVAMOSDetector *)GetDetectorList()->FindObjectByLabel( stop_label );
+	return GetPath( start, stop );
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	//returns the DeltaPath value associated to the detector 'det' used to correct
 	//the flight distance.
 	//Its value is given by a parameter stored in fParameters with the name
@@ -946,6 +975,7 @@ Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	// the DPATH parameter is calculated for each detector crossed by the nucleus
 	// at this step (see RunTrackingAtFocalPlane).
 	
+	if( !det ) return 0.;
 	// Find the parameter with the name DPATH:<detector_name>
 	KVNamedParameter *par = GetParameters()->FindParameter( Form("DPATH:%s",det->GetName()) );
 	if( par ) return par->GetDouble();
@@ -964,7 +994,7 @@ Float_t  KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	// No parameter found
 	Warning("GetDeltaPath","DeltaPath not found for the detector %s",det->GetName());
 
-	return 0;
+	return 0.;
 }
 //________________________________________________________________
 

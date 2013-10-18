@@ -51,6 +51,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 				Float_t  GetEnergy( const Char_t *det_label )        const;
 				Float_t  GetEnergyAfter( const Char_t *det_label )   const;
 				Float_t  GetEnergyBefore( const Char_t *det_label )  const;
+                Float_t  GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL)      const;
+                Float_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
 		        Double_t GetRealA()                                  const;
 		        Double_t GetRealAoverQ()                             const;
  		virtual void     Identify();
