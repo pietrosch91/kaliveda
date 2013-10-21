@@ -900,7 +900,7 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
       TIter next(gPad->GetListOfPrimitives());
       TObject* o;
       while( (o = next()) ){
-         if(o->IsA() == TCutG::Class()){
+         if((o->IsA() == TCutG::Class()) && !(fHistolist.FindObject(o))){
             MakeSelection(o->GetName());
             return;
          }
