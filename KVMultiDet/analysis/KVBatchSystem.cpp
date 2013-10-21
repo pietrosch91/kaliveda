@@ -88,6 +88,7 @@ KVBatchSystem::KVBatchSystem(const Char_t* name)
    //
    // If RunsPerJob is not defined, we use 1 as default value
 
+   fAnalyser = NULL;
    //set title of batch system
    SetTitle( gEnv->GetValue(Form("%s.BatchSystem.Title", name), "") );
    //command for job submission
@@ -188,7 +189,7 @@ void KVBatchSystem::SubmitJob()
    gSystem->Setenv("KVBATCHNAME", GetJobName());
    gSystem->Setenv("KVLAUNCHDIR", gSystem->WorkingDirectory());
    cout << GetJobSubCmdLine() << endl;
-   fAnalyser->WriteBatchEnvFile( GetJobName() );
+   if( fAnalyser ) fAnalyser->WriteBatchEnvFile( GetJobName() );
    gSystem->Exec( GetJobSubCmdLine() );
 }
 
