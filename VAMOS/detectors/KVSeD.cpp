@@ -38,6 +38,8 @@ void KVSeD::init(){
 //	fSpectrum     = NULL;
 	fPosCalib = NULL;
 
+	fNstripsOK = (Int_t)gDataSet->GetDataSetEnv("KVSeD.NumberOfStripsOK", 3.);
+
 	//a KVSeD can not be used in a ID telescope
 	ResetBit( kOKforID );
 }
@@ -487,24 +489,31 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 	TH1F *hh = GetCleanQHisto( dir );
 	if( !hh ) return fRawPos[ idx ];
 
-	Int_t NStrips = 3;
-	if(hh->GetEntries()< NStrips ) return fRawPos[ idx ];
+	if(hh->GetEntries()< fNstripsOK ) return fRawPos[ idx ];
 
 	///////////////////////////////////////////////////
 
 	Int_t binMax = hh->GetMaximumBin();
 	Int_t min;
-	for( min = binMax; min>1; min--){
+	for( min = binMax-1; min>1; min--){
+		if( hh->GetBinContent(min) <= 0. ){
+			min++;
+			break;
+		}
 		Double_t deltaQ = hh->GetBinContent(min)-hh->GetBinContent(min-1);
 		if(deltaQ < 0 ) break;
 	}
 	Int_t max;
-	for( max = binMax; max<hh->GetNbinsX(); max++){
+	for( max = binMax+1; max<hh->GetNbinsX(); max++){
+		if( hh->GetBinContent(max) <= 0. ){
+			max--;
+			break;
+		}
 		Double_t deltaQ = hh->GetBinContent(max)-hh->GetBinContent(max+1);
 		if(deltaQ < 0 ) break;
 	}
 
-	if( (max-min) < NStrips) return fRawPos[ idx ];
+	if( (max-min+1) < fNstripsOK) return fRawPos[ idx ];
 
 	hh->GetXaxis()->SetRange(min,max);
 

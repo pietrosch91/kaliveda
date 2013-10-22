@@ -228,6 +228,9 @@ KVVAMOS.KVSeD.Number: 1
 INDRA_e494s.KVVAMOS.DetectorList: KVSeD KVHarpeeIC KVHarpeeSi
 INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
 
+#Minimum number of fired strips required to extract a valid position measurement in KVSeD
+KVSeD.NumberOfStripsOK: 3
+
 # File with list of groups of detectors for VAMOS
 KVVAMOS.DetectorGroupFile: VAMOSDetectorGroups.dat
 

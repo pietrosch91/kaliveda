@@ -22,6 +22,7 @@ class KVSeD : public KVVAMOSDetector
 
 		static KVString fACQParamTypes; //!types of available Acquision parameters
 		static KVString fPositionTypes; //!types of available positions
+		static Int_t    fNstripsOK;     //!minimum. numbers of strips for a good position measurement 
 
 
 	protected:
