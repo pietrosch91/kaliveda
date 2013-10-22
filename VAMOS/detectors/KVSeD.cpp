@@ -20,6 +20,7 @@ ClassImp(KVSeD)
 
 KVString KVSeD::fACQParamTypes("0:Q, 1:T_HF, 2:T, 9:NO_TYPE");
 KVString KVSeD::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 9:NO_TYPE");
+Int_t    KVSeD::fNstripsOK = 3;
 	
 void KVSeD::init(){
 	// Initialise non-persistent pointers
