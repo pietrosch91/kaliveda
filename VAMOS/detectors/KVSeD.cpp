@@ -241,7 +241,7 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
  	   	if( (par->GetLabel()[0] != dir) || !par->Fired("P") ) continue;	
 
 		Float_t data;
-		fQ[0][i]->SetBinContent( par->GetNumber(), data = par->GetData() );
+		fQ[0][i]->SetBinContent( par->GetNumber(), data = par->GetCoderData() );
 	}
 
  	return fQ[0][i];
@@ -275,7 +275,7 @@ TH1F *KVSeD::GetQHisto(const Char_t dir){
 		if( !par->Fired("P") ) continue;
 		
 		num =  calf->GetNumber();
-		fQ[1][i]->SetBinContent( num, calf->Compute() );
+		fQ[1][i]->SetBinContent( num, calf->Compute( (Double_t)calf->GetACQParam()->GetCoderData() ) );
 	}
 
  	if( NcalOK < 4 ) Warning("GetQHisto","Impossible to calibrate correctly the charges for %c position of %s, %d calibrators are OK",dir, GetName(), NcalOK);
@@ -363,7 +363,7 @@ void KVSeD::SetACQParams(){
 			// Qraw histogram
 			if(fQ[j][i]) SafeDelete( fQ[j][i] );
 			name.Form("Q%s_%s_%c",extraname[j],GetArrayName(),DIRECTION(i));
-			title.Form("%c position for %s %s; Strip number; Qraw (%s)",DIRECTION(i),extratitle[j],GetArrayName(),units[j]);
+			title.Form("%c position in %s %s; Strip number; Q%s (%s)",DIRECTION(i),GetArrayName(),extratitle[j],extraname[j],units[j]);
 			fQ[j][i] = new TH1F( name.Data(), title.Data(), Nstrips[i], .5, Nstrips[i] +.5);
 			fQ[j][i]->SetDirectory(0);
 			fQ[j][i]->SetLineColor(j+1);
