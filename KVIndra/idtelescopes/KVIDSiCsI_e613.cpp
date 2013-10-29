@@ -97,36 +97,56 @@ Double_t KVIDSiCsI_e613::GetIDMapY(Option_t * opt)
 
 Bool_t KVIDSiCsI_e613::Identify(KVIdentificationResult* idr, Double_t x, Double_t y)
 {
-    // Particle identification and code setting using identification grids.
-    // perform identification in Si(GG) - CsI(H) map
-    // Sets idr->deltaEpedestal according to position in GG map
+	// Particle identification and code setting using identification grids.
+	// perform identification in Si(GG) - CsI(H) map
+	// Sets idr->deltaEpedestal according to position in GG map
 
-  idr->SetIDType(GetType());
-  idr->IDattempted = kTRUE;
+	idr->SetIDType(GetType());
+	idr->IDattempted = kTRUE;
 	
-  Double_t sigg = (y<0. ? GetIDMapY("GG") : y);
-  Double_t lumtot = (x<0. ? GetIDMapX() : x);
+	Double_t sigg = (y<0. ? GetIDMapY("GG") : y);
+	Double_t lumtot = (x<0. ? GetIDMapX() : x);
 
-  KVIDGrid* TheGrid = 0;
+	KVIDZAGrid* TheGrid = 0;
 
-  fGGgrid->Identify(lumtot, sigg, idr);
-  // check if silicon-GG is in pedestal region (possible neutron)
-  if(fPIEDESTAL){
-      if(fPIEDESTAL->TestPoint(lumtot,sigg)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
-      else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
-  }
-  else
+	fGGgrid->Identify(lumtot, sigg, idr);
+	// check if silicon-GG is in pedestal region (possible neutron)
+	if(fPIEDESTAL){
+		if(fPIEDESTAL->TestPoint(lumtot,sigg)) idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_NO;
+		else idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_YES;
+	}
+	else {
       idr->deltaEpedestal = KVIdentificationResult::deltaEpedestal_UNKNOWN;
+	}
+   
+	TheGrid = (KVIDZAGrid*) fGGgrid;
 
-  TheGrid = (KVIDGrid*) fGGgrid;
-
-  if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ) //we have to try PG grid (if there is one)
-    { 
-    Double_t sipg = (y<0. ? GetIDMapY("PG") : y);
-    fPGgrid->Identify(lumtot, sipg, idr);
-    TheGrid = (KVIDGrid*) fPGgrid;
-    }
-
+	//Info("Identify","OK=%d Z=%d Zmax=%d GG=%d\n",idr->IDOK,idr->Z,TheGrid->GetZmax(),TMath::Nint(sigg));
+   if ( idr->IDOK && idr->Z==TheGrid->GetZmax() ){
+		//Gestion des saturations GG
+		//on teste l identification PG
+		Int_t Zgg = idr->Z;
+      if (fPGgrid){
+			Double_t sipg = (y<0. ? GetIDMapY("PG") : y);
+			fPGgrid->Identify(lumtot, sipg, idr);
+			Int_t Zpg = idr->Z;
+         //on garde l identification PG si celle ci renvoie un code
+			//de 0 a 4 ou 7
+			if ( idr->Zident ){
+         	//Info("Identify","On passe de %d a %d",Zgg,Zpg);
+				TheGrid = (KVIDZAGrid*) fPGgrid;
+			}
+		}
+	}
+	
+	if ( TheGrid==fGGgrid ){
+		if( fGGgrid->GetQualityCode() > KVIDZAGrid::kICODE6 && fPGgrid ) //we have to try PG grid (if there is one)
+		{ 
+			Double_t sipg = (y<0. ? GetIDMapY("PG") : y);
+			fPGgrid->Identify(lumtot, sipg, idr);
+			TheGrid = (KVIDZAGrid*) fPGgrid;
+		}
+	}
   if(TheGrid->GetQualityCode() == KVIDZAGrid::kICODE8)
     {
     // only if the final quality code is kICODE8 do we consider that it is
