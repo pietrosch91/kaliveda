@@ -77,7 +77,9 @@ void KVINDRADB_e613::Build()
    ReadVoltEnergyChIoSi();
    ReadCalibCsI();
    ReadAbsentDetectors();
+	ReadOoOACQParams();
 	ReadOoODetectors();
+	
 
 	// read all available mean pulser data and store in tree
 	if( !fPulserData ) fPulserData = new KVINDRAPulserDataTree;

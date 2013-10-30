@@ -84,6 +84,7 @@ void KVINDRADB::init()
 	fGains = 0;
 	fAbsentDet = 0;
 	fOoODet = 0;
+	fOoOACQPar = 0;
 
 	fPulserData = 0;
 }
@@ -1051,6 +1052,7 @@ void KVINDRADB::Build()
    ReadCalibCsI();
    ReadPedestalList();
 	ReadAbsentDetectors();
+	ReadOoOACQParams();
 	ReadOoODetectors();
 
 	// read all available mean pulser data and store in tree
@@ -1930,6 +1932,49 @@ void KVINDRADB::ReadOoODetectors()
 			dbrec = new KVDBRecord(rec->GetName(),"OoO Detector");
 			dbrec->AddKey("Runs", "List of Runs");
 			fOoODet->AddRecord(dbrec);
+			LinkRecordToRunRange(dbrec,nl);
+		}
+	}
+
+}
+
+//____________________________________________________________________________
+void KVINDRADB::ReadOoOACQParams()
+{
+
+	//Lit le fichier ou sont listés les parametres d acquisition ne marchant plus au cours 
+	//de la manip
+	TString fp;
+	if (!KVBase::SearchKVFile(GetCalibFileName("OoOACQPar"), fp, fDataSet.Data())){
+		Error("ReadNotWorkingACQParams","Fichier %s, inconnu au bataillon",GetCalibFileName("OoOACQPar"));
+		return;
+	}
+	Info("ReadNotWorkingACQParams()", "Lecture des parametres d acq hors service ...");
+	fOoOACQPar = AddTable("OoO ACQPars", "Name of not working acq parameters");
+	
+	KVDBRecord* dbrec = 0;
+	TEnv env;
+	TEnvRec* rec = 0;
+	env.ReadFile(fp.Data(),kEnvAll);
+	TIter it(env.GetTable());
+	
+	while ( (rec = (TEnvRec* )it.Next()) ){
+		KVString srec(rec->GetName());
+		KVNumberList nl(rec->GetValue());
+		cout << rec->GetValue() << endl;
+		if ( srec.Contains(",") ){
+			srec.Begin(",");
+			while (!srec.End()){
+				dbrec = new KVDBRecord(srec.Next(),"OoO ACQPar");
+				dbrec->AddKey("Runs", "List of Runs");
+				fOoOACQPar->AddRecord(dbrec);
+				LinkRecordToRunRange(dbrec,nl);
+			}
+		}
+		else {
+			dbrec = new KVDBRecord(rec->GetName(),"OoO ACQPar");
+			dbrec->AddKey("Runs", "List of Runs");
+			fOoOACQPar->AddRecord(dbrec);
 			LinkRecordToRunRange(dbrec,nl);
 		}
 	}

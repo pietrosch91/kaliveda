@@ -374,6 +374,8 @@ INDRADB.Codeurs:    Codeurs.dat
 INDRADB.AbsentDet:	AbsentDetectors.dat
 # liste des detecteurs ne marchant pas ou éteints (out of order)
 INDRADB.OoODet:    OoODetectors.dat
+# liste des parametres d acquisition ne marchant pas (-1 sur l ensemble d un run)
+INDRADB.OoOACQPar:    OoOACQParameters.dat
 
 # Default dataset subdirectory containing files with mean pulser data for each run
 KVINDRAPulserDataTree.GeneDetDir:   gene_detecteurs

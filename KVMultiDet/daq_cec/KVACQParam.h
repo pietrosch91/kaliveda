@@ -82,7 +82,7 @@ class KVACQParam:public KVBase {
 
    Bool_t IsWorking() const { return fWorks; }
    void SetWorking(Bool_t on = kTRUE){
-      if(!on) Info("SetWorking", "Acquisition parameter %s not working", GetName());
+      //if(!on) Info("SetWorking", "Acquisition parameter %s not working", GetName());
       fWorks = on;
    };
    

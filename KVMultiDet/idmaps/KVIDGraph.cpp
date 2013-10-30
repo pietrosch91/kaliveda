@@ -361,8 +361,9 @@ void KVIDGraph::FillListOfIDTelescopes()
 			KVIDTelescope* idt = gMultiDetArray->GetIDTelescope( tel_name.Data() ) ;
 			if( idt ) fTelescopes.Add( idt );
 			else {
-				Warning("FillListOfIDTelescopes", "Cannot find ID telescope %s in gMultiDetArray %p",
+				/*Warning("FillListOfIDTelescopes", "Cannot find ID telescope %s in gMultiDetArray %p",
 					tel_name.Data(), gMultiDetArray);
+				*/
 			}
 		}
 	}

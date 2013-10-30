@@ -63,6 +63,7 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
    KVDBTable *fLitEnerCsIZ1;		//->CsI light-energy calibration for Z=1
    KVDBTable *fAbsentDet;			//(optional) Liste les detecteurs absents 
    KVDBTable *fOoODet;				//(optional) Liste les detecteurs hors service
+   KVDBTable *fOoOACQPar;		//(optional) Liste des parametres d acquisition ne marchant pas
 
 	KVINDRAPulserDataTree *fPulserData;  //! mean values of pulsers for all detectors & runs
 
@@ -88,6 +89,7 @@ class KVINDRADB:public KVDataBase, public KVINDRARunListReader {
 	
 	virtual void ReadAbsentDetectors();
 	virtual void ReadOoODetectors();
+   virtual void ReadOoOACQParams();
    
 	
 	//calibration peaks database
