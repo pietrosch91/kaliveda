@@ -63,7 +63,6 @@ class KVAutoFit : public KVBase
 	
 	void NextHisto();
 	Bool_t IsKnown(const Char_t*);
-	
    
 	
 	public:
@@ -76,6 +75,7 @@ class KVAutoFit : public KVBase
 	
 	void Clear(Option_t* opt = "");
 	void Print(Option_t* opt = "") const;
+	KVHashList* GetFunctions() const;
 	
 	virtual void SetHistos(KVHashList* lh,TString option="");
 	virtual void SetHisto(TH1* hh);
