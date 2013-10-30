@@ -810,6 +810,147 @@ KVList* KVHistoManipulator::Give_ProjectionList(TH2* hh,Double_t MinIntegral, TS
 	
 }
 
+//-------------------------------------------------
+KVNumberList* KVHistoManipulator::Saucisson(TH1* hh,Int_t ntranches){
+//-------------------------------------------------
+	// Donne les valeurs permettant de decouper l'integral
+	// d'un histograme en tranche de 10% de la stat total 
+	// retourne une KVNumberList indiquant les delimitation des tranches
+	//
+	// L'utilisateur doit effacer cette liste apres utilisation
+	// 
+	
+	if (!hh) { cout << "pointeur histogramme nul" << endl; return NULL; }
+	
+	TString proj_name;
+	Double_t integral=0;
+	for (Int_t nx=1;nx<=hh->GetXaxis()->GetNbins();nx+=1){
+		integral += hh->GetBinContent(nx);
+	}
+	
+	KVNumberList* nl = new KVNumberList();
+	
+	Double_t tranche = 0;
+	printf("integral du spectre %lf -> tranche de %lf\n",integral,integral/ntranches);
+	
+	Int_t nt=0;
+	for (Int_t nx = hh->GetXaxis()->GetNbins();nx>=1;nx-=1){
+		tranche+=hh->GetBinContent(nx);
+		//printf("nx=%d, nt=%d, tranche[nt]=%lf -> %lf\n",nx,nt,tranche,integral/ntranches);
+		if (tranche>=integral/ntranches){
+			
+			nt+=1;
+			//printf("\tnouvelle tranche %d %d\n",nx,nt);
+			nl->Add(nx);
+			tranche=0;
+		
+		}
+	}
+	
+	//Verif
+	/*
+	Int_t sup=1;
+	Int_t inf = 1;
+	nl->Begin();
+	while (!nl->End()){
+		sup = nl->Next();
+		printf("%d %d - %lf -> %lf\n",inf,sup,hh->Integral(inf,sup),hh->Integral(inf,sup)/integral*100);	
+		inf = sup+1;
+	}
+	sup = hh->GetXaxis()->GetNbins();
+	printf("%d %d - %lf -> %lf\n",inf,sup,hh->Integral(inf,sup),hh->Integral(inf,sup)/integral*100);
+	*/
+	return nl;
+}
+
+//-------------------------------------------------
+TH2* KVHistoManipulator::PermuteAxis(TH2* hh){
+//-------------------------------------------------
+	// Cree un histo 2D en intervertissant les axes
+	//
+	// L'utilisateur doit effacer cet histo apres utilisation
+	// 
+	
+	if (!hh) { cout << "pointeur histogramme nul" << endl; return NULL; }
+	if (!hh->InheritsFrom("TH2")){
+		Error("PermuteAxis","methode definie uniquement pour les classes TH2 et filles");
+	}
+	Int_t nx = hh->GetNbinsX();
+	Int_t ny = hh->GetNbinsY();
+	
+	TH2F* gg = new TH2F(
+		Form("%s_perm",hh->GetName()),
+		hh->GetTitle(),
+		ny,
+		hh->GetYaxis()->GetBinLowEdge(1),
+		hh->GetYaxis()->GetBinLowEdge(ny+1),
+		nx,
+		hh->GetXaxis()->GetBinLowEdge(1),
+		hh->GetXaxis()->GetBinLowEdge(nx+1)
+	);
+	
+	for (Int_t xx=1;xx<=nx;xx+=1){
+		for (Int_t yy=1;yy<=ny;yy+=1){
+		
+			gg->SetBinContent(yy,xx,hh->GetBinContent(xx,yy));
+		
+		}
+	}
+	return gg;
+}
+
+//-------------------------------------------------
+TGraph* KVHistoManipulator::PermuteAxis(TGraph* gr){
+//-------------------------------------------------
+	// Cree un TGraph en intervertissant les axes
+	//
+	// L'utilisateur doit effacer ce graph apres utilisation
+	// 
+	
+	if (!gr) { cout << "pointeur graph nul" << endl; return NULL; }
+	if (!gr->InheritsFrom("TGraph")){
+		Error("PermuteAxis","methode definie uniquement pour les classes TGraph et filles");
+	}
+	
+	TGraphErrors* gr2 = new TGraphErrors();
+	for (Int_t nn=0;nn<gr->GetN();nn+=1){
+		Double_t px,py;
+		gr->GetPoint(nn,px,py);
+		gr2->SetPoint(nn,py,px);
+		if (gr->InheritsFrom("TGraphErrors")){
+			gr2->SetPointError(nn,((TGraphErrors* )gr)->GetErrorY(nn),((TGraphErrors* )gr)->GetErrorX(nn));
+		}
+	}
+	
+	return gr2;
+}
+
+//-------------------------------------------------
+TGraphErrors* KVHistoManipulator::MakeGraphFrom(TProfile* pf,Bool_t Error){
+//-------------------------------------------------
+	// Cree un graph à partir d un histo
+	//
+	// L'utilisateur doit effacer ce TGraph apres utilisation
+	// 
+	
+	if (!pf) { cout << "pointeur histogramme nul" << endl; return NULL; }
+	if (!pf->InheritsFrom("TProfile")){
+		//Error("MakeGraphFrom","methode definie uniquement pour les classes TProfile et filles");
+	}
+	Int_t nx = pf->GetNbinsX();
+	
+	TGraphErrors* gr = new TGraphErrors();
+	for (Int_t xx=1;xx<=nx;xx+=1){
+		if (pf->GetBinEntries(xx)>0){
+			gr->SetPoint(gr->GetN(),pf->GetBinCenter(xx),pf->GetBinContent(xx));
+			if (Error)
+				gr->SetPointError(gr->GetN()-1,pf->GetBinWidth(xx)/2,pf->GetBinError(xx));
+		}
+	}
+	
+	return gr;
+}
+
 //###############################################################################################################"
 //-------------------------------------------------
 void KVHistoManipulator::DefinePattern(TH1* ob,TString titleX,TString titleY,TString labelX,TString labelY){
