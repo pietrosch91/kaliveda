@@ -26,8 +26,9 @@ class KVNumberList : public TObject {
    Int_t fIterIndex;//! used by Next() to iterate over list
    Bool_t fEndList;//! used by Next() & End() to iterate over list
    Int_t* fValues;//! used by Next() to iterate over list
+   TString   fName;//name of the list
    
-   void init_numberlist();
+	void init_numberlist();
    void ParseList();
    void AddLimits(Int_t min, Int_t max);
    void AddLimits(TString & string);
@@ -35,12 +36,17 @@ class KVNumberList : public TObject {
 
  public:
 
-    KVNumberList();
-    KVNumberList(const KVNumberList &);
-    KVNumberList(const Char_t *);
-    virtual ~ KVNumberList();
-
-   void SetList(TString &);
+	KVNumberList();
+	KVNumberList(const KVNumberList &);
+	KVNumberList(const Char_t *);
+	virtual ~ KVNumberList();
+	
+	virtual void     SetName(const char *name);
+	virtual const char *GetName() const{
+		return fName.Data();
+	}
+   
+	void SetList(TString &);
    void SetList(const Char_t *);
 
    void Add(Int_t);
@@ -95,7 +101,7 @@ class KVNumberList : public TObject {
 	   // Type conversion
    operator const char*() const { return const_cast<KVNumberList*>(this)->GetList(); }
 
-   ClassDef(KVNumberList, 2)    //Strings used to represent a set of ranges of values
+   ClassDef(KVNumberList, 3)    //Strings used to represent a set of ranges of values
 };
 
 #endif
