@@ -405,6 +405,21 @@ void KVSeD::ShowQHisto(const Char_t dir, Option_t *opt){
 }
 //________________________________________________________________
 
+void KVSeD::SetRawPosition(Double_t *XYf){
+	// Set the value of the raw position (strip) measured in SeD.
+	// XYf is an array of two elements: X and Y.
+	// Once you set raw position, the getter method to access to this position
+	// will return these new values i.e. the acquisition parameters will
+	// not be read anymore for calculating the raw  position until the next
+	// call of Initialize().
+	
+	if( XYf ){
+		fRawPos[0] = XYf[0];
+		fRawPos[1] = XYf[1];
+	}
+}
+//________________________________________________________________
+
 Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. First the method searchs 

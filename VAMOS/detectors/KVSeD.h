@@ -65,6 +65,7 @@ class KVSeD : public KVVAMOSDetector
    		virtual void ShowCleanQHisto(const Char_t dir = 'X', Option_t *opt = "");
    		virtual void ShowQrawHisto(const Char_t dir = 'X', Option_t *opt = "");
    		virtual void ShowQHisto(const Char_t dir = 'X', Option_t *opt = "");
+   		virtual void SetRawPosition(Double_t *XYf);
 
 
 
