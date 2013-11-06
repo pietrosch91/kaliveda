@@ -297,8 +297,13 @@ TList *KVASGroup::GetDetectorsInLayer(UInt_t lay)
             KVTelescope *tel;
             TList *list = new TList;
             while ((tel = (KVTelescope *) next())) {
-               if (rank<=tel->GetSize())
-                        list->Add(tel->GetDetector(rank));
+               if (rank<=tel->GetSize()){
+                	KVDetector* ddd = tel->GetDetector(rank);
+                  if (ddd)
+                  	list->Add(ddd);
+                  else
+                  	Warning("GetDetectorsInLayer","pb d index pour GetDetector");  
+            	}
             }
             delete tlist;
             return list;
@@ -435,6 +440,7 @@ void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
         if (max<t->GetDetectors()->GetSize())
             max = t->GetDetectors()->GetSize();
     //before, we assumed all telescopes to be same in layer:
+    //	but in fact it's not true
     //UInt_t ndet = ((KVTelescope *) (kvtl->First()))->GetSize();
     UInt_t ndet=max;
 
@@ -446,8 +452,13 @@ void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
         //start from last detectors and move inwards
         while ((t = (KVTelescope *) nxt_tel())) {
             //loop over detectors in each telescope
-            KVDetector *d = t->GetDetector(i);
-            detlist.Add(d);
+            if (t->GetDetectors()->GetSize()>=i){
+            	KVDetector *d = t->GetDetector(i);
+            	if (d)
+            		detlist.Add(d);
+        			else
+            		Warning("AnalyseTelescopes","pointeur KVDetector NULL");
+        		}	
         }
 
         event->AnalyseDetectors(&detlist);

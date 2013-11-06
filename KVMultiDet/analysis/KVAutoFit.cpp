@@ -203,8 +203,19 @@ void KVAutoFit::NextHisto()
 //________________________________________________________________
 void KVAutoFit::Print(Option_t* opt) const
 {
-	Info("Print","Liste des fonctions pour l'histogram %s",hfit->GetName());
+	if (hfit)
+		Info("Print","Liste des fonctions pour l'histogram %s  :",hfit->GetName());
+	else 
+		Info("Print","Liste des fonctions :");
 	lfunc->Print();
+
+}
+
+//________________________________________________________________
+KVHashList* KVAutoFit::GetFunctions() const
+{
+
+	return lfunc;
 
 }
 

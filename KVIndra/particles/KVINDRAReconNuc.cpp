@@ -748,7 +748,7 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult &theID)
 
     // Etalon telescope Si75/SiLi not concerned, only ChIo and CsI.
     // Use standard coherency for rings 10-17
-    if((!GetSiLi() || !GetSiLi()->Fired("Pany")) && !GetSi75()->Fired("Pany"))
+    if( (!GetSiLi() || !GetSiLi()->Fired("Pany")) && (!GetSi75() || !GetSi75()->Fired("Pany")) )
         return CoherencyChIoCsI(theID);
 
     // Treat cases where particle hit etalon telescope
@@ -1077,6 +1077,18 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         {
             /* USE SILICON DE TO CALCULATE CSI ENERGY */
             if(GetSi() && GetSi()->IsCalibrated() && !fPileup && fCoherent){
+                if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){
+                	//Info("CalibrateRings1To9","Traitement des 8Be sans calibration CsI");
+                  // Beryllium-8 = 2 alpha particles of same energy
+                	// We halve the total light output of the CsI to calculate the energy of 1 alpha
+                	Double_t half_de = GetSi()->GetEnergy()*0.5;
+                	KVNucleus tmp(2,4);
+                	fECsI = -2.* TMath::Abs(GetSi()->GetEResFromDeltaE(tmp.GetZ(),tmp.GetA(),half_de));
+                  si_de_deja_fait = kTRUE; // don't recalculate silicon energy
+                	SetECode(kECode2);
+            	}
+                else{
+                
                 fESi = GetSi()->GetCorrectedEnergy(this);// total energy loss in silicon including correction of PHD in transmission
                 if( fESi <= 0.0 ){
                    // can't do anything...
@@ -1087,6 +1099,7 @@ void KVINDRAReconNuc::CalibrateRings1To9()
                 fECsI = -TMath::Abs(GetSi()->GetEResFromDeltaE(GetZ(),GetA()));
                 si_de_deja_fait = kTRUE; // don't recalculate silicon energy
                 SetECode(kECode2);
+                }
             }
         }
         if(!si_de_deja_fait && (fECsI<=0)){
@@ -1130,25 +1143,46 @@ void KVINDRAReconNuc::CalibrateRings1To9()
             }
         }
     }
+    else{
+    	stopped_in_silicon = kFALSE;
+    }
     if(GetChIo()){
     /* CHIO ENERGY CONTRIBUTION */
     // if fUseFullChIoEnergyForCalib = kFALSE, we have to estimate the ChIo energy for this particle
         if(fUseFullChIoEnergyForCalib && GetChIo()->IsCalibrated()){
-            // all is apparently well
-            GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
-            fEChIo = GetChIo()->GetCorrectedEnergy(this);
+            //all is apparently well
+            if (stopped_in_silicon && !GetSi()->IsCalibrated() ){
+            	fEChIo = GetChIo()->GetCorrectedEnergy(this);
+            	if (GetCodes().TestIDCode( kIDCode4 ))
+               	fESi = GetChIo()->GetEResFromDeltaE(GetZ(),GetA(),-1,KVMaterial::kEmax);
+               else if (GetCodes().TestIDCode( kIDCode5 ))
+               	fESi = GetChIo()->GetEResFromDeltaE(GetZ(),GetA(),-1,KVMaterial::kEmin);
+               else
+               	Info("CalibrateRings1To9","Test IDCode dans le cas de Si non calibre : Cas non gere");   
+            }
+            else {
+               GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
+            	fEChIo = GetChIo()->GetCorrectedEnergy(this);
+        		}
         }
         else
         {
-            Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+TMath::Abs(fECsI));
-				// calculated energy: negative
-            GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
-            fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
-            fEChIo = -TMath::Abs(fEChIo);
-            SetECode(kECode2);
+            if ( stopped_in_silicon && !GetSi()->IsCalibrated() ){
+            	//Pile Up dans la ChIo sans possibilite de deduire l energie a partir du Si
+               //
+               SetECode(kECode15);
+            }
+            else{
+            	Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+TMath::Abs(fECsI));
+					// calculated energy: negative
+            	GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
+            	fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
+            	fEChIo = -TMath::Abs(fEChIo);
+            	SetECode(kECode2);
+        		}	
         }
     }
-     SetEnergy( TMath::Abs(fECsI) + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
+		SetEnergy( TMath::Abs(fECsI) + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
 }
 
 //_________________________________________________________________________________

@@ -916,28 +916,38 @@ void KVDataAnalyser::SetUserLibraries(const Char_t *libs)
 // Load the user's libraries
 // the libraries have to be separated by a white space
 
-    fLibraries="";
-    if(!libs)
-     {
-     return;
-     }
-    TString tmp=libs;
-    TObjArray *oa=tmp.Tokenize(" ");
-    oa->SetOwner(kTRUE);
-    TIter next(oa);
-    TObjString *st=0;
-    while((st=(TObjString *)next()))
-     {
-     TString id=st->GetString();
-     if(id.Length())
-      {
-      fLibraries+=id.Data();
-      fLibraries+=" ";
-      cout << "Library \"" << id.Data() << "\" added." << endl;
-      gSystem->Load(id.Data());
-      }
-     }
-    delete oa;
+	fLibraries="";
+	if(!libs)
+	{
+		return;
+	}
+	KVString tmp=libs;
+	KVString slib = gSystem->GetLibraries("","D");
+    
+	tmp.Begin(" ");
+	while ( !tmp.End() ){
+		
+		KVString id=tmp.Next();
+		
+      Bool_t loaded=kFALSE;
+		slib.Begin(" ");
+		while ( !slib.End() && !loaded){
+			KVString ss = slib.Next();
+			if (ss==id){
+				Info("SetUserLibraries","%s already load",id.Data());
+				loaded=kTRUE;
+         }
+			else{
+			}
+		}
+      if (!loaded){
+      	Info("SetUserLibraries","Library \"%s\"added.",id.Data());
+         gSystem->Load(id.Data());
+		}
+		fLibraries+=id.Data();
+		fLibraries+=" ";
+	}
+  
 }
 
 //__________________________________________________________________________________//

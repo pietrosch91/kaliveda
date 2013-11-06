@@ -22,6 +22,7 @@ $Date: 2009/04/07 14:54:15 $
 #include "TMath.h"
 
 class TCanvas;
+class KVNumberList;
 
 class KVHistoManipulator
 {
@@ -75,7 +76,11 @@ class KVHistoManipulator
 	TGraph* LinkGraphs(TGraph* grx,TGraph* gry);
 	
 	KVList* Give_ProjectionList(TH2 *hh,Double_t MinIntegral=-1,TString axis="X");
-
+	KVNumberList* Saucisson(TH1* hh,Int_t ntranches=10);
+	TH2* PermuteAxis(TH2* hh);
+	TGraph* PermuteAxis(TGraph* gr);
+	TGraphErrors* MakeGraphFrom(TProfile* pf,Bool_t Error=kTRUE);
+	
 	void DefinePattern(TH1* ob,TString titleX="42 0.08 0.8",TString titleY="42 0.07 1.2",TString labelX="42 0.05 0.005",TString labelY="42 0.05 0.006");
 	void DefinePattern(TGraph* ob,TString titleX="42 0.08 0.8",TString titleY="42 0.07 1.2",TString labelX="42 0.05 0.005",TString labelY="42 0.05 0.006");
 	void DefinePattern(TF1* ob,TString titleX="42 0.08 0.8",TString titleY="42 0.07 1.2",TString labelX="42 0.05 0.005",TString labelY="42 0.05 0.006");

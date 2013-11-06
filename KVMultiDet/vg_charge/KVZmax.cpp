@@ -216,7 +216,7 @@ KVNucleus *KVZmax::GetZmax(Int_t i)
       heaviest->Sort();
       fSorted = kTRUE;
    }
-   return (KVNucleus *) heaviest->At(i - 1);
+   return (KVNucleus *) heaviest->At(i);
 }
 
 //_________________________________________________________________
@@ -227,9 +227,9 @@ Double_t KVZmax::getvalue_int(Int_t i)
     // i=1 : Zmax2
 	// etc.
 	
-   if (!GetZmax(i+1))
+   if (!GetZmax(i))
       return -1.0;
-   return (Double_t) GetZmax(i+1)->GetZ();
+   return (Double_t) GetZmax(i)->GetZ();
 }
 
 //_________________________________________________________________

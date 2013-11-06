@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	a.SetOutputDir(Form("$(KVROOT)/KaliVedaDoc/%s", KVBase::GetKVVersion()));
    a.SetHomepage("http://indra.in2p3.fr/KaliVedaDoc");
    a.MakeAll();
-   a.Convert( Form("%s/etc/KaliVeda.rootrc", source_dir.Data()) , "KaliVeda configuration script $KVROOT/KVFiles/.kvrootrc");
+   a.Convert( Form("%s/etc/kaliveda.rootrc", source_dir.Data()) , "KaliVeda configuration script $KVROOT/KVFiles/.kvrootrc");
    
    delete myapp;
 

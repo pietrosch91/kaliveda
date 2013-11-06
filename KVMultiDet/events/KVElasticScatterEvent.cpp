@@ -295,8 +295,10 @@ void KVElasticScatterEvent::SetDetectionOn(Bool_t On)
 
 	if ( gMultiDetArray ){
 		gMultiDetArray->SetSimMode(On);
+		gMultiDetArray->SetFilterType( KVMultiDetArray::kFilterType_Geo );
 		SetBit(kIsDetectionOn,On);
 		ResetBit(kIsUpdated);
+		
 	}
 	else {
 		if (On)
@@ -739,6 +741,7 @@ void KVElasticScatterEvent::Filter()
 	//if it is not valid do nothing
 	
 	gMultiDetArray->DetectEvent(sim_evt,rec_evt);
+	
 
 }
 
@@ -764,9 +767,11 @@ void KVElasticScatterEvent::TreateEvent()
 	// Generation des correlation Energie Cinetique (Ek) vs Angle de diffusion (theta)
 	// pour tous les cas de détection
 	
-	TTree* tt = (TTree* )ltree->FindObject("ElasticScatter");
-	tt->Fill();
-	
+	if (rec_evt->GetMult()>0){
+		TTree* tt = (TTree* )ltree->FindObject("ElasticScatter");
+		tt->Fill();
+	}
+	/*
 	TString snom,stit;
 	KVNamedParameter* nm = 0;
 	
@@ -840,7 +845,8 @@ void KVElasticScatterEvent::TreateEvent()
 			hh->Fill(knuc->GetTheta(),knuc->GetKE());
 	}
 	}	
-
+	*/
+	
 }
 
 //_______________________________________________________________________

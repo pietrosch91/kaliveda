@@ -14,6 +14,24 @@
 #Cm : 0.862 	1.504
 #
 #
+# Extraction de l energie moyenne de la source alpha
+# obtenu avec un fit sur l ensemble des modules calibrés
+# 
+# 5.41383   +/-   0.000173529
+# Depot d energie dans le gaz d'une ChIo de 50 mbar : 1.439 MeV
+# Reference pour calibrer la ChIo 2-3
+#
+CI_0203: 								pol1,0.0,51.9212
+CI_0205: 								pol1,0.0,51.6567
+CI_0207: 								pol1,0.0,47.3226
+CI_0211: 								pol1,0.0,49.9836
+CI_0213: 								pol1,0.0,47.1635
+CI_0215: 								pol1,0.0,51.2519
+CI_0217: 								pol1,0.0,49.6361
+CI_0219: 								pol1,0.0,51.4825
+CI_0221: 								pol1,0.0,49.3856
+CI_0223: 								pol1,0.0,52.3983
+#
 CI_0403:                                 pol1,0.000046,26.159879
 CI_0407:                                 pol1,-0.000193,25.891007
 CI_0409:                                 pol1,-0.000786,25.916616

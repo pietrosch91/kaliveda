@@ -57,9 +57,7 @@ void KVINDRAUpDater::SetParameters(UInt_t run)
     SetTrigger(kvrun);
     SetTarget(kvrun);
     
-	 //Ne pas changer l'ordre des deux routines suivantes
-	 SetAbsentDetectors(kvrun);
-	 SetOoODetectors(kvrun);
+    CheckStatusOfDetectors(kvrun);
 	 
 	 SetGains(kvrun);
 	 SetChIoPressures(kvrun);
@@ -158,60 +156,87 @@ void KVINDRAUpDater::SetTrigger(KVDBRun * kvrun)
     cout << "      M>=" << gIndra->GetTrigger() << endl;
 }
 
+
 //_______________________________________________________________//
-void KVINDRAUpDater::SetAbsentDetectors(KVDBRun * kvrun)
+void KVINDRAUpDater::CheckStatusOfDetectors(KVDBRun * kvrun)
 {
-	//mark detectors which are absent for the current run
-	//si pas de detecteurs absents pour ce run
-	//on met tous le monde a present SetPresent(kTRUE)
-	
+
 	KVRList *absdet = kvrun->GetLinks("Absent Detectors");
-	
+	KVRList *oooacq = kvrun->GetLinks("OoO ACQPars");
+	KVRList *ooodet = kvrun->GetLinks("OoO Detectors");
+
 	TIter next(gIndra->GetListOfDetectors());
   	KVDetector *det;
-	if (!absdet){
-		while ( (det = (KVDetector*)next()) )
+	KVACQParam* acq;
+	
+	Int_t ndet_absent=0;
+	Int_t ndet_ooo=0;
+	Int_t nacq_ooo=0;
+	
+	while ( (det = (KVDetector*)next()) ){
+		//Test de la presence ou non du detecteur
+		if (!absdet){
 			det->SetPresent();
-		return;
-	}
-	else {
-		Info("SetAbsentDetectors","%d detecteurs absents",absdet->GetSize());
-		while (( det = (KVDetector*)next()) ){
-			if ( absdet->FindObject(det->GetName(), "Absent Detector") )
+		}
+		else{
+			if ( absdet->FindObject(det->GetName(), "Absent Detector") ){
 				det->SetPresent(kFALSE);
-			else 
+				ndet_absent+=1;
+			}	
+			else {
 				det->SetPresent();	
-		}
+			}
+		}	
+		if (det->IsPresent()){
+			//Test du bon fonctionnement ou non du detecteur
+			if (!ooodet){
+				det->SetDetecting();
+			}
+			else {
+				if ( ooodet->FindObject(det->GetName(), "OoO Detector") ){
+					det->SetDetecting(kFALSE);
+					ndet_ooo+=1;
+				}
+				else{ 
+					det->SetDetecting();	
+				}
+			}
+			//Test du bon fonctionnement ou non des parametres d acquisition
+			if (det->IsDetecting()){
+				TIter next_acq(det->GetACQParamList());
+				if (!oooacq){
+					while ( (acq = (KVACQParam*)next_acq()) ){
+						acq->SetWorking();
+					}
+				}
+				else{
+					Int_t noff=0;
+					while ( (acq = (KVACQParam*)next_acq()) ){
+						if ( oooacq->FindObject(acq->GetName(), "OoO ACQPar") ){
+							acq->SetWorking(kFALSE);
+							noff+=1;
+							nacq_ooo+=1;
+						}
+						else{ 
+							acq->SetWorking();
+						}
+					}
+					if (noff==3){
+						det->SetDetecting(kFALSE);
+						ndet_ooo+=1;
+						nacq_ooo-=3;
+					}
+				}
+			}
+		}	
 	}
-
-}
-//_______________________________________________________________//
-void KVINDRAUpDater::SetOoODetectors(KVDBRun * kvrun)
-{
-
-	//mark detectors which are out of order for the current run
-	//si pas de detecteurs hors service pour ce run
-	//on met tous le monde en marche SetDetecting(kTRUE)
 	
-	KVRList *absdet = kvrun->GetLinks("OoO Detectors");
+	Info("KVINDRAUpDater","%d detecteurs absents",ndet_absent);
+	Info("KVINDRAUpDater","%d detecteurs ne fonctionnent pas",ndet_ooo);
+	Info("KVINDRAUpDater","%d parametres d acquisition ne fonctionnent pas",nacq_ooo);
 	
-	TIter next(gIndra->GetListOfDetectors());
-  	KVDetector *det;
-	if (!absdet){
-		while ( (det = (KVDetector*)next()) )
-			det->SetDetecting();
-		return;
-	}
-	else {
-		Info("SetOoODetectors","%d detecteurs HS",absdet->GetSize());
-		while ( (det = (KVDetector*)next()) ){
-			if ( absdet->FindObject(det->GetName(), "OoO Detector") )
-				det->SetDetecting(kFALSE);
-			else 
-				det->SetDetecting();	
-		}
-	}
-
+	
+	
 }
 //_______________________________________________________________//
 

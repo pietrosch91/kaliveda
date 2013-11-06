@@ -750,12 +750,12 @@ if( gBatchSystemManager->GetDefaultBatchSystem()->IsA()->GetMethodAllAny("SetJob
  cf->AddFrame(fBatchTimeLab,eX);
  cfBatchPar->AddFrame(cf,eX); 
  cf=new TGCompositeFrame(cfBatchPar,fMainGuiWidth,20,kHorizontalFrame);
- teBatchMemory=new TGTextEntry(cf,"256MB");
- teBatchMemory->SetToolTipText("Enter max memory per job (xKB/xMB/xGB)",TTDELAY);
+ teBatchMemory=new TGTextEntry(cf,"1G");
+ teBatchMemory->SetToolTipText("Enter max memory per job (xK/xM/xG)",TTDELAY);
  teBatchMemory->SetAlignment(kTextRight);
  cf->AddFrame(teBatchMemory,eX);
  teBatchDisk=new TGTextEntry(cf,"200MB");
- teBatchDisk->SetToolTipText("Enter max scratch disk per job (xKB/xMB/xGB)",TTDELAY);
+ teBatchDisk->SetToolTipText("Enter max scratch disk per job (xK/xM/xG)",TTDELAY);
  teBatchDisk->SetAlignment(kTextRight);
  cf->AddFrame(teBatchDisk,eX);
 #ifdef USE_KVTIMEENTRY
@@ -836,8 +836,8 @@ else
   runsPerJob->SetNumber(GUIenv->GetValue("KVDataAnalysisLauncher.RunsPerJob", 1));
  
  if(withBatchParams){
-   teBatchMemory->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchMemory","256MB"));
-   teBatchDisk->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchDisk","200MB"));
+   teBatchMemory->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchMemory","1G"));
+   teBatchDisk->SetText(GUIenv->GetValue("KVDataAnalysisLauncher.BatchDisk","200M"));
    teBatchTime->SetIntNumber(GUIenv->GetValue("KVDataAnalysisLauncher.BatchTime",9000));
 }
 
