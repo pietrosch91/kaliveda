@@ -314,7 +314,7 @@ Double_t KVVAMOSReconNuc::GetRealAoverQ() const{
 	// The returned value is real. Returns zero if the time of flight is
 	// not correct.
 	// Begin_Latex 
-	// #frac{A}{Q} = #frac{C}{10 u} #frac{B_{#rho}}{ #gamma #beta}
+	// #frac{A}{Q} = #frac{10 C}{u} #frac{B_{#rho}}{ #gamma #beta}
 	// End_Latex
 	// where
 	//   u             : atomic mass unit in MeV/c^2
@@ -325,7 +325,7 @@ Double_t KVVAMOSReconNuc::GetRealAoverQ() const{
 	Double_t tmp = ( GetBetaFromToF()*GetGammaFromToF() );
 	if( tmp == 0 ) return 0;
 
-	return GetBrho()*C()/( u()*10.*tmp );
+	return GetBrho()*C()*10./( u()*tmp );
 }
 //________________________________________________________________
 
