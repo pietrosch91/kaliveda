@@ -51,6 +51,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 				Float_t  GetEnergy( const Char_t *det_label )        const;
 				Float_t  GetEnergyAfter( const Char_t *det_label )   const;
 				Float_t  GetEnergyBefore( const Char_t *det_label )  const;
+		        Double_t GetMassOverQ()                              const;
                 Float_t  GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL)      const;
                 Float_t  GetPath(const Char_t *start_label, const Char_t *stop_label="") const;
 		        Double_t GetRealA()                                  const;
@@ -67,7 +68,10 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 
 
 		//-------------- inline methods -----------------//
-
+		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Float_t Brho );
+		static  Double_t         CalculateEnergy( Int_t Z, Int_t A, Double_t beta );
+		static  Double_t         CalculateMassOverQ( Float_t Brho, Double_t beta );
+		static  Double_t         CalculateRealA( Int_t Z,Double_t E, Double_t beta );
 		        Double_t         GetBetaFromToF()                    const;
                 Float_t          GetBrho()                           const;
                 KVVAMOSCodes    &GetCodes();
@@ -99,10 +103,103 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		virtual void             SetTCode(UShort_t code_mask);
    		virtual void             SetTCode(const Char_t *parname);
 
+		
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
 };
 
+//____________________________________________________________________________________________//
 
+inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Z, Int_t A, Int_t Q, Float_t Brho ){
+	// Calculates kinetic energy (E) in MeV.
+	// Begin_Latex 
+	// E = #sqrt{M^{2}+100 c^{2} B#rho^{2} Q^{2}}- M
+	// End_Latex
+	// where 
+	//   M     : mass deduced from Z and A, in MeV/c^2
+	//   c     : speed of light in cm/ns
+	//   Brho  : magnetic rigidity in T.m
+	//   Q     : charge state
+	//
+	// If Z is set lower or equal 0 then the mass excess is null to calculate
+	// M (i.e. M = A*u)
+
+
+	Double_t M = 0.;
+	if( Z > 0 ){
+		static KVNucleus nuc;
+		nuc.SetZandA( Z, A );
+		M = nuc.GetMass();
+	}
+	else  M = A*u();
+	return TMath::Sqrt( M*M + 100.*TMath::Power(C()*Brho*Q,2))-M;
+}
+//____________________________________________________________________________________________//
+
+inline Double_t KVVAMOSReconNuc::CalculateEnergy( Int_t Z, Int_t A, Double_t beta ){
+	// Calculates kinetic energy in MeV.
+	// Begin_Latex 
+	// E = (#gamma-1)M
+	// End_Latex
+	// where 
+	//   M     : mass deduced from Z and A in, MeV/c^2
+	//   gamma : Lorentz factor calculated from beta (velocity/c)
+	//
+	// If Z is set lower or equal 0 then the mass excess is null to calculate
+	// M (i.e. M = A*u)
+
+	Double_t M = 0.;
+	if( Z > 0 ){
+		static KVNucleus nuc;
+		nuc.SetZandA( Z, A );
+		M = nuc.GetMass();
+	}
+	else  M = A*u();
+	Double_t gamma = 1.0/TMath::Sqrt( 1 - beta*beta );
+return (gamma-1)*M ;
+}
+//____________________________________________________________________________________________//
+
+inline Double_t KVVAMOSReconNuc::CalculateRealA( Int_t Z, Double_t E, Double_t beta ){
+	// Calculates the real value of the mass number deduced from the 
+	// energy E and and beta (i.e. velocity/c).
+	// Begin_Latex 
+	// A = #frac{E}{(#gamma-1)u}
+	// End_Latex
+	// where 
+	//   u     : atomic mass unit in MeV/c^2
+	//   gamma : Lorentz factor calculated from beta 
+
+	Double_t gamma = 1.0/TMath::Sqrt( 1 - beta*beta );
+	if( gamma==1 ) return 0.;
+	Double_t realA = E/((gamma-1)*u());
+	if ( Z > 0 ){
+		static KVNucleus nuc;
+		nuc.SetZandA( Z, TMath::Nint(realA) );
+		realA -= nuc.GetMassExcess()/u();
+	}
+	return realA;
+}
+//____________________________________________________________________________________________//
+
+inline Double_t KVVAMOSReconNuc::CalculateMassOverQ( Float_t Brho, Double_t beta ){
+	// Calculates the ratio between the mass (MeV/c^2) and the charge state Q
+	// calculated from the magnetic rigitidy Brho and the relativistic beta
+	// (i.e. velocity/c).
+	// The returned value is real.
+	// Begin_Latex 
+	// #frac{A}{Q} = #frac{10 C}{u} #frac{B_{#rho}}{ #gamma #beta}
+	// End_Latex
+	// where
+	//   Brho  : magnetic rigidity in T.m
+	//   u     : atomic mass unit in MeV/c^2
+	//   C     : speed of light in vacuum in cm/ns 
+	//   gamma : Lorentz factor calculated from beta
+	
+	Double_t gamma = 1.0/TMath::Sqrt( 1 - beta*beta );
+	Double_t tmp = beta*gamma;
+	if( tmp == 0 ) return 0;
+	return Brho*C()*10./tmp;
+}
 //____________________________________________________________________________________________//
 
 inline Double_t KVVAMOSReconNuc::GetBetaFromToF() const{
