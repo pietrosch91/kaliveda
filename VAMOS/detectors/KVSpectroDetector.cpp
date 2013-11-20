@@ -295,6 +295,14 @@ Bool_t KVSpectroDetector::BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol){
 		TGeoRotation *rot = new TGeoRotation( tmp.Data(), 0. , Xincline, 0. );
 		vol_as->AddNode( GetAbsGeoVolume(), 1, rot );
 		SetAbsGeoVolume( vol_as );
+		//update thickness of absorbers;
+		TIter next( GetListOfAbsorbers() );
+		KVMaterial *abs = NULL;
+		while( (abs = (KVMaterial *)next()) ){
+			Double_t tmptick = abs->GetThickness();
+			tmptick /= TMath::Cos( TMath::DegToRad()*Xincline );
+			abs->SetThickness( tmptick );
+		}
 	}
 
 	UpdateVolumeAndNodeNames();
