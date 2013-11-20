@@ -119,7 +119,7 @@ void KVVAMOSReconNuc::Calibrate(){
         	SetPhi  ( GetPhiL() - 90 );
 		}
 
-        if(GetZ()) {
+        if(GetZ()){
 
  			Double_t E_tot   = GetEnergy();
 			Double_t E_sfoil = 0.;
@@ -131,11 +131,13 @@ void KVVAMOSReconNuc::Calibrate(){
 			SetEnergy( E_tot += E_sfoil );
 
         	//add correction for target energy loss - moving charged particles only
-        	gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
-          	gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
-        	E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
-        	SetTargetEnergyLoss( E_targ );
-			SetEnergy( E_tot += E_targ );
+        	if( gMultiDetArray->GetTarget() ){
+				gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
+          		gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
+				E_targ = gMultiDetArray->GetTargetEnergyLossCorrection(this);
+        		SetTargetEnergyLoss( E_targ );
+				SetEnergy( E_tot += E_targ );
+			}
         }
     }
 
