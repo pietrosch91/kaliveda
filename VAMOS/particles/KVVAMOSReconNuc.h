@@ -187,7 +187,7 @@ inline Double_t KVVAMOSReconNuc::CalculateMassOverQ( Float_t Brho, Double_t beta
 	// (i.e. velocity/c).
 	// The returned value is real.
 	// Begin_Latex 
-	// #frac{A}{Q} = #frac{10 C}{u} #frac{B_{#rho}}{ #gamma #beta}
+	// #frac{M}{Q} = 10 C #frac{B_{#rho}}{ #gamma #beta}
 	// End_Latex
 	// where
 	//   Brho  : magnetic rigidity in T.m
