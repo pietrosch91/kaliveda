@@ -41,6 +41,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
    		virtual void Copy (TObject&) const;
 		void init();
 
+		virtual Float_t  GetCorrectedT_HF( Float_t tof, Float_t dist);
 		virtual void     Calibrate();
 		virtual Bool_t   CheckTrackingCoherence();
 		virtual void     Clear(Option_t * t = "");

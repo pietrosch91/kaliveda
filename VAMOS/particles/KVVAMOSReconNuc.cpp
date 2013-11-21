@@ -735,6 +735,7 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 	KVACQParam *par        = NULL;
 	Bool_t ok              = kFALSE;
 	Double_t calibT        = 0; 
+	Bool_t isT_HF          = kFALSE;
 
 	// loop over the time acquisition parameters
 	for( Short_t i=0; !ok && (par_name = GetCodes().GetToFName(i)); i++ ){
@@ -743,7 +744,7 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 		if( !par ) continue;
 
 		t_type = par_name+1;
-		Bool_t isT_HF = !strcmp("HF",par->GetLabel());
+		isT_HF = !strcmp("HF",par->GetLabel());
 		
 		next_det.Reset();
 		while( (det = (KVVAMOSDetector *)next_det()) ){
@@ -773,14 +774,30 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 		return;
 	}
 
+
 	// FIRST METHODE
-	fToF = calibT;
 	ok &= SetFlightDistance( det, stop );
+ 	fToF = ( isT_HF ? GetCorrectedT_HF( calibT, fFlightDist ) : calibT );
 
 	// SECOND METHODE
 //	ok &= SetCorrectedFlightDistanceAndTime( calibT, det, stop );
 
 	SetTCode(( ok ? par->GetName() : "") );
+}
+//________________________________________________________________
+
+Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist){
+// Returns the corrected time of flight obtained from beam pulse HF, by 
+// removing or adding N times the beam pulse period. N is fitted by 
+// minimizing the difference between the measured energy and the energy deduced
+// from the velocity 'tof/dist'.  
+//
+// parameters :
+//    tof  - initial time of flight in ns
+//    dist - flight distance in cm
+
+	Warning("GetCorrectedT_HF","TO BE IMPLEMENTED");
+	return tof;
 }
 //________________________________________________________________
 
