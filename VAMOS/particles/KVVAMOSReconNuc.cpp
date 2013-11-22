@@ -787,17 +787,37 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 //________________________________________________________________
 
 Float_t KVVAMOSReconNuc::GetCorrectedT_HF( Float_t tof, Float_t dist){
-// Returns the corrected time of flight obtained from beam pulse HF, by 
-// removing or adding N times the beam pulse period. N is fitted by 
-// minimizing the difference between the measured energy and the energy deduced
-// from the velocity 'tof/dist'.  
-//
-// parameters :
-//    tof  - initial time of flight in ns
-//    dist - flight distance in cm
+	// Returns the corrected time of flight obtained from beam pulse HF, by 
+	// removing or adding N times the beam pulse period. N is fitted by 
+	// minimizing the difference between the measured energy (Emeas) and the energy (E) deduced
+	// from the velocity. The procedure is as follows:
+	//
+	//    - let Begin_Latex T_{f} = T_{i} + #DeltaT End_Latex be the corrected time of flight 
+	//      where Begin_Latex T_{i} End_Latex is the initial time of flight set as an argument;
+	//    - Begin_Latex #Delta T End_Latex is deduced by minimizing the quantity
+	//      Begin_Latex #chi = (E-E_{meas})^{2} End_Latex
+	//      i.e. we resolve the equation 
+	//      Begin_Latex #frac{d#chi}{d#DeltaT} = 0 End_Latex.
+	//      The solution is 
+	//      Begin_Latex #DeltaT = #frac{D}{c#sqrt{1-#gamma^{2}}} - T_{i} End_Latex where Begin_Latex #gamma = #frac{1}{#frac{E_{cal}}{mc^{2}}+1} End_Latex,
+	//      D is the flight distance, m is the mass returned by GetMass() and c is the speed of light in the vacuum;
+	//    - N if given by the rounded value of  Begin_Latex #DeltaT/period_{HF} End_Latex
+	//
+	//    This procedure can be applied only if the nucleus is identified and calibrated (i.e. IsCalibrated = true ).
+	//    Otherwise this method returns the initial tof.
+	//
+	// Arguments :
+	//         tof  - initial time of flight in ns
+	//         dist - flight distance in cm
 
-	Warning("GetCorrectedT_HF","TO BE IMPLEMENTED");
-	return tof;
+	if( !IsCalibrated() || (GetEnergy()<=0) ) return tof;
+	if( gVamos->GetBeamPeriod()<0 ){
+		Warning("GetCorrectedT_HF","No correction because the beam pulse period is unknown");
+		return tof;
+	}
+	Double_t alpha = 1./(GetEnergy()/GetMass()+1.);
+	Int_t n = TMath::Nint((dist/(C()*TMath::Sqrt(1.-alpha*alpha))-tof)/gVamos->GetBeamPeriod());
+	return tof + n*gVamos->GetBeamPeriod();
 }
 //________________________________________________________________
 
