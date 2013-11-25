@@ -976,7 +976,7 @@ Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) 
 	// at the start detector if this detector is localised behinds the FP (or
 	// forwards the FP).
 	//
-	// Returns zero if DeltaPath is not found for the detectors.
+	// Returns zero if DeltaPath is not found for the detectors or if the reconstructed path is negative.
 	
 	Float_t dp_start = GetDeltaPath( start );
 	if( dp_start ){
@@ -987,7 +987,7 @@ Float_t KVVAMOSReconNuc::GetPath(KVVAMOSDetector *start, KVVAMOSDetector *stop) 
 			else return 0.;
  		}	
 		// case where stop signal is given by detector i.e. 'stop' not null
-		else if( GetPath() ) return GetPath() + dp_start;
+		else if( GetPath()>0 ) return GetPath() + dp_start;
 	}
 	return 0.;
 }
@@ -1037,7 +1037,7 @@ Float_t KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	while( (par = (KVNamedParameter *)next()) ){
 		tmp = par->GetName();
 		if( tmp.BeginsWith( Form("DPATH:%s",det->GetTBaseName()) ) ){
-			Info("GetDeltaPath","DeltaPath for the detector %s is given by %s",det->GetName(), par->GetName() );
+//			Info("GetDeltaPath","DeltaPath for the detector %s is given by %s",det->GetName(), par->GetName() );
  		   	return par->GetDouble(); 
 		}
 	}
