@@ -1,0 +1,265 @@
+CSI.WIDTH: 2.50
+CSI.HEIGHT: 2.50
+
+# number of absorber (i.e. volumes)
+CSI.NABS: 1
+
+# thickness in cm
+
+# silicon
+CSI.ABS.1.MATERIAL: CsI
+CSI.ABS.1.THICK: 1.0
+
+#active absorber (i.e. volume)
+CSI.ACTIVEABS: 1
+
+# position from focal plan reference frame
+# Z= focal-plan position minus CSI position from target
+#      = CHI.Z + CHI.THICK/2 + SI.THICK/2
+#      = 61.6 + 6.902 + 0.025
+CSI.Z: 
+
+# X and Y reference positions
+# En posant une dimension de 2.5cm X 2.5cm
+
+CSI_01.X: -21.250 
+CSI_01.Y: 6.250
+
+CSI_02.X: -18.750 
+CSI_02.Y: 6.250
+
+CSI_03.X: -16.250
+CSI_03.Y: 6.250
+
+CSI_04.X: -13.750
+CSI_04.Y: 6.250
+
+CSI_05.X: -11.250
+CSI_05.Y: 6.250
+
+CSI_06.X: -8.750
+CSI_06.Y: 6.250
+
+CSI_07.X: -6.250
+CSI_07.Y: 6.250
+
+CSI_08.X: -3.750
+CSI_08.Y: 6.250
+
+CSI_09.X: -1.250 
+CSI_09.Y: 6.250
+
+CSI_10.X: 1.250 
+CSI_10.Y: 6.250
+
+CSI_11.X: 3.750 
+CSI_11.Y: 6.250
+
+CSI_12.X: 6.250 
+CSI_12.Y: 6.250
+
+CSI_13.X: -21.250 
+CSI_13.Y: 3.750
+
+CSI_14.X: -18.750 
+CSI_14.Y: 3.750
+
+CSI_15.X: -16.250
+CSI_15.Y: 3.750
+
+CSI_16.X: -13.750
+CSI_16.Y: 3.750
+
+CSI_17.X: -11.250
+CSI_17.Y: 3.750
+
+CSI_18.X: -8.750
+CSI_18.Y: 3.750
+
+CSI_19.X: -6.250
+CSI_19.Y: 3.750
+
+CSI_20.X: -3.750
+CSI_20.Y: 3.750
+
+CSI_21.X: -1.250 
+CSI_21.Y: 3.750
+
+CSI_22.X: 1.250 
+CSI_22.Y: 3.750
+
+CSI_23.X: 3.750 
+CSI_23.Y: 3.750
+
+CSI_24.X: 6.250 
+CSI_24.Y: 3.750
+
+CSI_25.X: -21.250 
+CSI_25.Y: 1.250
+
+CSI_26.X: -18.750 
+CSI_26.Y: 1.250
+
+CSI_27.X: -16.250 
+CSI_27.Y: 1.250
+
+CSI_28.X: -13.750
+CSI_28.Y: 1.250
+
+CSI_29.X: -11.250
+CSI_29.Y: 1.250
+
+CSI_30.X: -8.750
+CSI_30.Y: 1.250
+
+CSI_31.X: -6.250
+CSI_31.Y: 1.250
+
+CSI_32.X: -3.750
+CSI_32.Y: 1.250
+
+CSI_33.X: -1.250 
+CSI_33.Y: 1.250
+
+CSI_34.X: 1.250 
+CSI_34.Y: 1.250
+
+CSI_35.X: 3.750 
+CSI_35.Y: 1.250
+
+CSI_36.X: 6.250 
+CSI_36.Y: 1.250
+
+CSI_37.X: 8.750 
+CSI_37.Y: 1.250
+
+CSI_38.X: 11.250 
+CSI_38.Y: 1.250
+
+CSI_39.X: 13.750 
+CSI_39.Y: 1.250
+
+CSI_40.X: 16.250 
+CSI_40.Y: 1.250
+
+CSI_41.X: -21.250 
+CSI_41.Y: -1.250
+
+CSI_42.X: -18.750 
+CSI_42.Y: -1.250
+
+CSI_43.X: -16.250 
+CSI_43.Y: -1.250
+
+CSI_44.X: -13.750 
+CSI_44.Y: -1.250
+
+CSI_45.X: -11.250 
+CSI_45.Y: -1.250
+
+CSI_46.X: -8.750 
+CSI_46.Y: -1.250
+
+CSI_47.X: -6.250 
+CSI_47.Y: -1.250
+
+CSI_48.X: -3.750 
+CSI_48.Y: -1.250
+
+CSI_49.X: -1.250 
+CSI_49.Y: -1.250
+
+CSI_50.X: 1.250 
+CSI_50.Y: -1.250
+
+CSI_51.X: 3.750 
+CSI_51.Y: -1.250
+
+CSI_52.X: 6.250 
+CSI_52.Y: -1.250
+
+CSI_53.X: 8.750 
+CSI_53.Y: -1.250
+
+CSI_54.X: 11.250 
+CSI_54.Y: -1.250
+
+CSI_55.X: 13.750 
+CSI_55.Y: -1.250
+
+CSI_56.X: 16.250 
+CSI_56.Y: -1.250
+
+CSI_57.X: -21.250 
+CSI_57.Y: -3.750
+
+CSI_58.X: -18.750 
+CSI_58.Y: -3.750
+
+CSI_59.X: -16.250 
+CSI_59.Y: -3.750
+
+CSI_60.X: -13.750 
+CSI_60.Y: -3.750
+
+CSI_61.X: -11.250 
+CSI_61.Y: -3.750
+
+CSI_62.X: -8.750 
+CSI_62.Y: -3.750
+
+CSI_63.X: -6.250 
+CSI_63.Y: -3.750
+
+CSI_64.X: -3.750 
+CSI_64.Y: -3.750
+
+CSI_65.X: -1.250 
+CSI_65.Y: -3.750
+
+CSI_66.X: 1.250 
+CSI_66.Y: -3.750
+
+CSI_67.X: 3.750 
+CSI_67.Y: -3.750
+
+CSI_68.X: 6.250 
+CSI_68.Y: -3.750
+
+CSI_69.X: -21.250 
+CSI_69.Y: -6.250
+
+CSI_70.X: -18.750 
+CSI_70.Y: -6.250
+
+CSI_71.X: -16.250 
+CSI_71.Y: -6.250
+
+CSI_72.X: -13.750 
+CSI_72.Y: -6.250
+
+CSI_73.X: -11.250 
+CSI_73.Y: -6.250
+
+CSI_74.X: -8.750 
+CSI_74.Y: -6.250
+
+CSI_75.X: -6.250 
+CSI_75.Y: -6.250
+
+CSI_76.X: -3.750 
+CSI_76.Y: -6.250
+
+CSI_77.X: -1.250 
+CSI_77.Y: -6.250
+
+CSI_78.X: 1.250 
+CSI_78.Y: -6.250
+
+CSI_79.X: 3.750 
+CSI_79.Y: -6.250
+
+CSI_80.X: 6.250 
+CSI_80.Y: -6.250
+
+

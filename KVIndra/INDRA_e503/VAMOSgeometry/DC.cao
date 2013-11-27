@@ -1,0 +1,24 @@
+# size of the emissive foil
+DC.WIDTH: 41
+DC.HEIGHT: 11
+
+# number of absorber (i.e. volumes)
+DC.NABS: 1
+
+# thickness in cm
+
+# emissive foil
+DC.ABS.1.MATERIAL: Myl
+DC.ABS.1.THICK: 0.00015
+
+#active absorber (i.e. volume)
+DC.ACTIVEABS: 1
+
+# Position of the reference trajectory in the detector reference frame
+DC1.REF.X: 0
+DC1.REF.Y: 0
+DC1.REF.Z: 0
+
+DC2.REF.X: 0
+DC2.REF.Y: 0
+DC2.REF.Z: 0
