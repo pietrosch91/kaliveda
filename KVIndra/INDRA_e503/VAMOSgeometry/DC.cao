@@ -14,6 +14,11 @@ DC.ABS.1.THICK: 0.00015
 #active absorber (i.e. volume)
 DC.ACTIVEABS: 1
 
+DC.X: 0
+DC.Y: 0
+DC1.Z: -56.65
+DC2.Z: 29.65
+
 # Position of the reference trajectory in the detector reference frame
 DC1.REF.X: 0
 DC1.REF.Y: 0
