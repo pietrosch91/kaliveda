@@ -81,6 +81,7 @@ void KVIVDB::ReadDeltaPedestal(ifstream &ifile){
 		// End character
 	  	if(sline.BeginsWith("!")) return;
 
+		sline.ReplaceAll("\t"," ");
 		// QDC number
 	  	if(sline.BeginsWith("QDC=")){
 			sline.Remove(0,4);
@@ -133,6 +134,7 @@ void KVIVDB::ReadPedestalCorrection(){
 	  	// Skip comment line
 	  	if(sline.BeginsWith("#")) continue;
 
+		sline.ReplaceAll("\t"," ");
 	  	if(sline.BeginsWith("+DeltaPed")) ReadDeltaPedestal(fin);
 	}			
    	fin.close();         
@@ -295,6 +297,7 @@ Bool_t KVIVDB::ReadVamosCalibFile(ifstream &ifile){
 	  	// Skip comment line
 	  	if(sline.BeginsWith("#")) continue;
 
+		sline.ReplaceAll("\t"," ");
 		// Mandatory character ':'
 	  	if( (idx = sline.Index(":")) < 0 ) continue;
 
