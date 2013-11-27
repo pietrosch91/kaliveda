@@ -119,8 +119,8 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
 # There must be an entry here for each dataset
 # Syntax:
 # Plugin.KVMultiDetArray:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
-+Plugin.KVMultiDetArray:    INDRA_e503    KVINDRAe503     KVIndra    "KVINDRAe503()"
-+Plugin.KVMultiDetArray:    INDRA_e494s    KVINDRA_VAMOS     VAMOS    "KVINDRA_VAMOS()"
++Plugin.KVMultiDetArray:    INDRA_e503    KVINDRA_VAMOS        VAMOS    "KVINDRA_VAMOS()"
++Plugin.KVMultiDetArray:    INDRA_e494s   KVINDRA_VAMOS        VAMOS    "KVINDRA_VAMOS()"
 +Plugin.KVMultiDetArray:    VAMOS_e503    KVFocalPlanVamos     VAMOS    "KVFocalPlanVamos()"
 
 # Plugins for different datasets
@@ -217,6 +217,7 @@ KVIDGChIoSi_e494s.IDClass:  KVIDZALine
 # Syntax:
 # Plugin.KVVAMOS:    name_of_dataset    name_of_class    name_of_plugin_library   constructor_to_call
 Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     VAMOS    "KVVAMOS()"
++Plugin.KVVAMOS:    INDRA_e503    KVVAMOS     VAMOS    "KVVAMOS()"
 
 # List of detectors in the focal plan of VAMOS
 KVVAMOS.DetectorList: KVHarpeeSi KVHarpeeIC KVDriftChamber KVSeD
@@ -228,8 +229,14 @@ KVVAMOS.KVSeD.Number: 1
 INDRA_e494s.KVVAMOS.DetectorList: KVSeD KVHarpeeIC KVHarpeeSi
 INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
 
+INDRA_e503.KVVAMOS.DetectorList: KVDriftChamber KVHarpeeIC KVHarpeeSi
+
 #Minimum number of fired strips required to extract a valid position measurement in KVSeD
 KVSeD.NumberOfStripsOK: 3
+
+#Minimum number of fired strips required to extract a valid position measurement in KVDriftChamber
+KVDriftChamber.NumberOfStripsOK: 3
+
 
 # File with list of groups of detectors for VAMOS
 KVVAMOS.DetectorGroupFile: VAMOSDetectorGroups.dat
