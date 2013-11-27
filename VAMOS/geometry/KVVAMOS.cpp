@@ -384,6 +384,7 @@ Bool_t KVVAMOS::ReadDetectorGroupFile( ifstream &ifile ){
 		KVSpectroDetector *det      = NULL;
 		KVSpectroDetector *lastDet  = NULL;
 
+		sline.ReplaceAll("\t"," ");
 		sline.Begin(" ");
    		while( !sline.End() ){
 
