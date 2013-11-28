@@ -270,7 +270,7 @@ TH1F *KVDriftChamber::GetQHisto( Int_t c_num ){
 	while((cal = (KVCalibrator *)next())){
 		
 
- 	   	if( (!cal->GetStatus() || cal->GetLabel()[0] != 'X') ) continue;	
+ 	   	if( !cal->GetStatus() || (GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
 		NcalOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
