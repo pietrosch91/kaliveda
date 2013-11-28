@@ -186,7 +186,7 @@ void KVDriftChamber::SetACQParams(){
 			name.Form("STR_%d%d_%02d",GetNumber(),c_num,num);
 			par->SetName(name);
 			par->SetType("Q");
-			par->SetLabel( Form("C%d", c_num) );
+			par->SetLabel("X");
 			par->SetNumber( num );
 			par->SetUniqueID( CalculateUniqueID( par ) );
 			AddACQParam(par);
@@ -270,7 +270,7 @@ TH1F *KVDriftChamber::GetQHisto( Int_t c_num ){
 	while((cal = (KVCalibrator *)next())){
 		
 
- 	   	if( !cal->GetStatus() || (GetPositionTypeIdxFromID( cal->GetUniqueID() ) != i) ) continue;	
+ 	   	if( !cal->GetStatus() || cal->GetLabel()[0] != 'X') ) continue;	
 		NcalOK++;
 
 		KVFunctionCal *calf = (KVFunctionCal *)cal;
