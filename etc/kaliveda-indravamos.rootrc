@@ -154,6 +154,8 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
 +Plugin.KVIDTelescope:    ^INDRA_e503.CI-SI75$      KVIDChIoSi75_e494s            KVIndra      "KVIDChIoSi75_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.SI75-SILI$    KVIDSi75SiLi_e494s            KVIndra      "KVIDSi75SiLi_e494s()"
 +Plugin.KVIDTelescope:    ^INDRA_e503.SILI-CSI$     KVIDSiLiCsI_e494s             KVIndra      "KVIDSiLiCsI_e494s()"
++Plugin.KVIDTelescope:    ^INDRA_e503.VAMOS.SI-CSI$ KVVAMOSIDTelescope            VAMOS        "KVVAMOSIDTelescope()"
++Plugin.KVIDTelescope:    ^INDRA_e503.VAMOS.CHI-SI$ KVVAMOSIDTelescope            VAMOS        "KVVAMOSIDTelescope()"
 ###############################################
 # ===> Plugin pour FocalPlanVamos
 +Plugin.KVIDTelescope:    ^VAMOS_e503.SI-CSI$   KVIDSiCsIVamos        VAMOS        "KVIDSiCsIVamos()"
@@ -175,7 +177,8 @@ INDRA_e503.IdentificationParameterFile.CSI:         IDGridManager_E503_CSI_RL.da
 INDRA_e503.IdentificationParameterFile.CI-SI75:     grilles_ChIo_Si75.dat
 INDRA_e503.IdentificationParameterFile.SI75-SILI:   grilles_fit_Si75_SiLi.dat
 INDRA_e503.IdentificationParameterFile.SILI-CSI:    grilles_fit_SiLi_CsI.dat
-
+INDRA_e503.IdentificationParameterFile.VAMOS.CHI-SI:   grid_chio_si_vamos.dat
+INDRA_e503.IdentificationParameterFile.VAMOS.SI-CSI:   grid_vamos.dat
 ###############################################
 INDRA_e494s.IdentificationParameterFile.CI-SI:          grilles_ChIo_Si.dat
 INDRA_e494s.IdentificationParameterFile.CI-CSI:         grilles_ChIo_CsI.dat
@@ -190,7 +193,7 @@ INDRA_e494s.IdentificationParameterFile.VAMOS.CHI-SI:   grilles_VAMOS_IC_Si.dat
 VAMOS_e503.IdentificationParameterFile.SI-CSI:       Si_CsI_zline.dat
 
 VAMOS_e503.ActiveIdentifications:       SI-CSI
-INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI
+INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI VAMOS.CHI-SI VAMOS.SI-CSI
 INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI VAMOS.CHI-SI
 
 #================================ Plugins for detectors
@@ -223,13 +226,14 @@ Plugin.KVVAMOS:    INDRA_e494s    KVVAMOS     VAMOS    "KVVAMOS()"
 KVVAMOS.DetectorList: KVHarpeeSi KVHarpeeIC KVDriftChamber KVSeD
 KVVAMOS.KVHarpeeSi.Number: 1-18
 KVVAMOS.KVHarpeeIC.Number: 1
-KVVAMOS.KVDriftChamber.Number: 1-2
 KVVAMOS.KVSeD.Number: 1
 
 INDRA_e494s.KVVAMOS.DetectorList: KVSeD KVHarpeeIC KVHarpeeSi
 INDRA_e494s.KVVAMOS.KVSeD.Number: 1-2
 
-INDRA_e503.KVVAMOS.DetectorList: KVDriftChamber KVHarpeeIC KVHarpeeSi
+INDRA_e503.KVVAMOS.DetectorList: KVDriftChamber KVHarpeeIC KVHarpeeSi KVHarpeeCsI
+INDRA_e503.KVVAMOS.KVDriftChamber.Number: 1-2
+INDRA_e503.KVVAMOS.KVHarpeeCsI.Number: 1-80
 
 #Minimum number of fired strips required to extract a valid position measurement in KVSeD
 KVSeD.NumberOfStripsOK: 3
