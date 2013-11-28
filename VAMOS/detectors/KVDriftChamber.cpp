@@ -33,6 +33,7 @@ void KVDriftChamber::init(){
 	fERawPos[0] = fERawPos[1] = -500;
 
 	fNstripsOK = (Int_t)gDataSet->GetDataSetEnv("KVDriftChamber.NumberOfStripsOK", 3.);
+	fDriftV    = gDataSet->GetDataSetEnv("KVDriftChamber.DriftVelocity", 4.84);  // in cm/us
 
 	fTfilPar = NULL;
 
@@ -466,3 +467,4 @@ Double_t KVDriftChamber::GetRawPositionError(const Char_t dir){
 	GetRawPosition( dir ); 
 	return fERawPos[ idx ];
 }
+

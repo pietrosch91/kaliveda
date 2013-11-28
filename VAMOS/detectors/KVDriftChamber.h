@@ -24,6 +24,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		Double_t   fRawPos[2]; //! Measured X raw position for both Chambers
 		Double_t   fERawPos[2]; //! Error of measured X raw position for both Chambers
 		KVACQParam *fTfilPar;   //! TFIL acquisition parameter
+		Float_t     fDriftV;    //! Electron drift velocity in cm/us
 
 		void init();
 
@@ -44,8 +45,7 @@ class KVDriftChamber : public KVVAMOSDetector
    using KVVAMOSDetector::GetRawPositionError;
    virtual Double_t GetRawPositionError(const Char_t dir = 'X');
 
-   virtual void  Initialize();
-   virtual const Char_t *GetArrayName();
+   virtual void  Initialize(); virtual const Char_t *GetArrayName();
    virtual const Char_t *GetEBaseName();
    virtual void  ResetCalculatedData();
    virtual void  SetACQParams();
@@ -59,6 +59,8 @@ class KVDriftChamber : public KVVAMOSDetector
 
    virtual KVString &GetACQParamTypes();
    virtual KVString &GetPositionTypes();
+           Float_t   GetDriftVelocity() const;
+           void      SetDriftVelocity( Float_t v );
 
    ClassDef(KVDriftChamber,1)//Drift Chamber, used at the focal plan of VAMOS
 };
@@ -72,6 +74,13 @@ inline KVString &KVDriftChamber::GetACQParamTypes(){
 inline KVString &KVDriftChamber::GetPositionTypes(){
 	return fPositionTypes;
 }
+//________________________________________________________________
+
+inline Float_t KVDriftChamber::GetDriftVelocity() const{ return fDriftV; }
+//________________________________________________________________
+
+inline void KVDriftChamber::SetDriftVelocity( Float_t v ){ fDriftV = v; }
+
 
 
 #endif
