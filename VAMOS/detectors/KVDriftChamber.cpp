@@ -34,6 +34,8 @@ void KVDriftChamber::init(){
 
 	fNstripsOK = (Int_t)gDataSet->GetDataSetEnv("KVDriftChamber.NumberOfStripsOK", 3.);
 
+	fTfilPar = NULL;
+
 	//a KVDriftChamber can not be used in a ID telescope
 	ResetBit( kOKforID );
 }
@@ -204,6 +206,7 @@ void KVDriftChamber::SetACQParams(){
 	par->SetNumber( GetNumber() );
 	par->SetUniqueID( CalculateUniqueID( par ) );
 	AddACQParam(par);
+	fTfilPar = par;
 }
 //________________________________________________________________
    
@@ -213,7 +216,7 @@ TH1F *KVDriftChamber::GetQrawHisto( Int_t c_num ){
 	// If the histogram is empty then no acquisition parameter
 	// was fired.
 	
-	Int_t i = c_num;
+	Int_t i = c_num-1;
 	if( (i<0) || (i>1) ) return NULL; 
 	if( !fQ[0][i] ) return NULL;
 	if(fQ[0][i]->GetEntries()) return fQ[0][i];
@@ -376,4 +379,90 @@ void KVDriftChamber::ShowQrawHisto(Int_t c_num, Option_t *opt){
 void KVDriftChamber::ShowQHisto(Int_t c_num, Option_t *opt){
 	TH1F *hh = GetQHisto( c_num );
 	if( hh ) hh->Draw(opt);
+}
+//________________________________________________________________
+
+Double_t KVDriftChamber::GetRawPosition(const Char_t dir){
+	// Returns the position (strip for X and electron-drift-time canal for Y) deduced from the histogram representing
+	// the calibrated charge versus strip number for X direction or returns the electron drift time for Y position.
+	Int_t idx = IDX(dir);
+	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
+	fRawPos [ idx ] = -1;
+	fERawPos[ idx ] = -1;
+
+	if( idx == 0 ){   // for X direction
+
+		fRawPos [ idx ] = 0.;
+		fERawPos[ idx ] = 0.;
+		Double_t sum    = 0.;
+
+		for( Int_t c=1; c<3; c++ ){ //loop over both chambers
+			
+			TH1F *hh = GetCleanQHisto( c );
+			if( !hh ) continue;
+
+			if(hh->GetEntries()< fNstripsOK ) continue;
+
+			///////////////////////////////////////////////////
+
+			Int_t binMax = hh->GetMaximumBin();
+			Int_t min;
+			for( min = binMax-1; min>1; min--){
+				if( hh->GetBinContent(min) <= 0. ){
+					min++;
+					break;
+				}
+				Double_t deltaQ = hh->GetBinContent(min)-hh->GetBinContent(min-1);
+				if(deltaQ < 0 ) break;
+			}
+			Int_t max;
+			for( max = binMax+1; max<hh->GetNbinsX(); max++){
+				if( hh->GetBinContent(max) <= 0. ){
+					max--;
+					break;
+				}
+				Double_t deltaQ = hh->GetBinContent(max)-hh->GetBinContent(max+1);
+				if(deltaQ < 0 ) break;
+			}
+
+			if( (max-min+1) < fNstripsOK) continue;
+
+			hh->GetXaxis()->SetRange(min,max);
+
+			Double_t intgl   = hh->Integral();
+			sum             += intgl;
+			fRawPos [ idx ] += intgl*hh->GetMean();
+			fERawPos[ idx ] += intgl*hh->GetRMS()*1.2;
+
+			hh->GetXaxis()->SetRange();
+		}
+
+		if( sum ){
+			fRawPos [ idx ] /= sum;
+			fERawPos[ idx ] /= sum;
+		}
+		else{
+			fRawPos [ idx ] = -1;
+			fERawPos[ idx ] = -1;
+		}
+	}
+	else if( idx==1 ){ // for Y direction returns the acq parameter
+		// of TFIL
+
+		fRawPos [ idx ] =  ( fTfilPar ? fTfilPar->GetData() : fRawPos[idx] );
+		fERawPos[ idx ] = 0.;
+	}
+
+	return fRawPos[ idx ];
+}
+//________________________________________________________________
+
+Double_t KVDriftChamber::GetRawPositionError(const Char_t dir){
+	// Returns the error on the position (strip for X and channel for Y) returned by GetRawPosition( dir ).
+
+	Int_t idx = IDX(dir);
+	if( fERawPos[ idx ] > -500 ) return fERawPos[ idx ];
+
+	GetRawPosition( dir ); 
+	return fERawPos[ idx ];
 }

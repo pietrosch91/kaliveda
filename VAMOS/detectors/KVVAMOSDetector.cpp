@@ -252,10 +252,44 @@ Bool_t KVVAMOSDetector::GetPositionInVamos(Double_t &X, Double_t &Y){
 //________________________________________________________________
 
 UChar_t KVVAMOSDetector::GetRawPosition(Double_t *XYZf){
+	// Returns in the 'XYZf' array the X and Y coordinates of the position (strip)
+	// deduced from the histogram representing the calibrated charge versus strip 
+	// number. The bit 0 (1) of the UChar_t returned value is set to 1 if
+	// the X (Y) position is correctly deduced. 
+
+	UChar_t rval = 3;
+	if( (XYZf[0]=GetRawPosition('X')) < 0 ) rval -= 1;
+	if( (XYZf[1]=GetRawPosition('Y')) < 0 ) rval -= 2;
+	return rval;
+}
+//________________________________________________________________
+
+Double_t KVVAMOSDetector::GetRawPosition(const Char_t dir){
 	// Method overwritten and useful in child classes describing detectors
-	// used to measured position for the reconstruction of  nucleus 
+	// used to measured position in the direction 'dir' for the reconstruction of  nucleus 
 	// trajectory. For example, see this same method in the class KVSeD.
-	return 0;
+ return -500.;
+}
+//________________________________________________________________
+		
+UChar_t KVVAMOSDetector::GetRawPositionError(Double_t *EXYZf){
+	// Returns in the 'EXYZf' array the errors of X and Y coordinates of the position
+	// returned by GetRawPosition(...).
+	// The bit 0 (1) of the UChar_t returned value is set to 1 if
+	// the X (Y) position is correctly deduced. 
+
+	UChar_t rval = 3;
+	if( (EXYZf[0]=GetRawPositionError('X')) < 0 ) rval -= 1;
+	if( (EXYZf[1]=GetRawPositionError('Y')) < 0 ) rval -= 2;
+	return rval;
+}
+//________________________________________________________________
+
+Double_t KVVAMOSDetector::GetRawPositionError(const Char_t dir){
+	// Method overwritten and useful in child classes describing detectors
+	// which returns the error of the measured position in the direction 'dir' for the reconstruction of  nucleus 
+	// trajectory. For example, see this same method in the class KVSeD.
+	return -500.;
 }
 //________________________________________________________________
 

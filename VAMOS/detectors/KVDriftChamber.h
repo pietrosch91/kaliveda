@@ -23,6 +23,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		TH1F    ***fQ;     //! array of TH1F for calibrated charge [raw, calibrated, clean][Chamber 1, Chamber 2] 
 		Double_t   fRawPos[2]; //! Measured X raw position for both Chambers
 		Double_t   fERawPos[2]; //! Error of measured X raw position for both Chambers
+		KVACQParam *fTfilPar;   //! TFIL acquisition parameter
 
 		void init();
 
@@ -35,9 +36,13 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual Float_t CalculateQThreshold( Int_t c_num );
    virtual void  Clear( Option_t *option = "" );
 
-   virtual TH1F *GetCleanQHisto( Int_t c_num );
-   virtual TH1F *GetQHisto( Int_t c_num );
-   virtual TH1F *GetQrawHisto( Int_t c_num );
+   virtual TH1F    *GetCleanQHisto( Int_t c_num );
+   virtual TH1F    *GetQHisto( Int_t c_num );
+   virtual TH1F    *GetQrawHisto( Int_t c_num );
+   using KVVAMOSDetector::GetRawPosition;
+   virtual Double_t GetRawPosition(const Char_t dir = 'X');
+   using KVVAMOSDetector::GetRawPositionError;
+   virtual Double_t GetRawPositionError(const Char_t dir = 'X');
 
    virtual void  Initialize();
    virtual const Char_t *GetArrayName();

@@ -539,19 +539,6 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 }
 //________________________________________________________________
 
-UChar_t KVSeD::GetRawPosition(Double_t *XYZf){
-	// Returns in the 'XYZf' array the X and Y coordinates of the position (strip)
-	// deduced from the histogram representing the calibrated charge versus strip 
-	// number. The bit 0 (1) of the UChar_t returned value is set to 1 if
-	// the X (Y) position is correctly deduced. 
-
-	UChar_t rval = 3;
-	if( (XYZf[0]=GetRawPosition('X')) < 0 ) rval -= 1;
-	if( (XYZf[1]=GetRawPosition('Y')) < 0 ) rval -= 2;
-	return rval;
-}
-//________________________________________________________________
-
 Double_t KVSeD::GetRawPositionError(const Char_t dir){
 	// Returns the error on the position (strip) returned by GetRawPosition( dir ).
 
@@ -560,19 +547,6 @@ Double_t KVSeD::GetRawPositionError(const Char_t dir){
 
 	GetRawPosition( dir ); 
 	return fERawPos[ idx ];
-}
-//________________________________________________________________
-		
-UChar_t KVSeD::GetRawPositionError(Double_t *EXYZf){
-	// Returns in the 'EXYZf' array the errors of X and Y coordinates of the position
-	// returned by GetRawPosition(...).
-	// The bit 0 (1) of the UChar_t returned value is set to 1 if
-	// the X (Y) position is correctly deduced. 
-
-	UChar_t rval = 3;
-	if( (EXYZf[0]=GetRawPositionError('X')) < 0 ) rval -= 1;
-	if( (EXYZf[1]=GetRawPositionError('Y')) < 0 ) rval -= 2;
-	return rval;
 }
 //________________________________________________________________
 
