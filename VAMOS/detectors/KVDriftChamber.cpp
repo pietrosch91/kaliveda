@@ -16,7 +16,7 @@ ClassImp(KVDriftChamber)
 ////////////////////////////////////////////////////////////////////////////////
 
 KVString KVDriftChamber::fACQParamTypes("0:Q, 1:E, 2:T, 9:NO_TYPE");
-KVString KVDriftChamber::fPositionTypes("0:X, 1:Y, 2:Z, 3:XY, 9:NO_TYPE");
+KVString KVDriftChamber::fPositionTypes("0:X1, 1:X2, , 2:Y, 3:Z, 4:XY, 9:NO_TYPE");
 Int_t    KVDriftChamber::fNstripsOK = 3;
 	
 void KVDriftChamber::init(){
@@ -186,7 +186,7 @@ void KVDriftChamber::SetACQParams(){
 			name.Form("STR_%d%d_%02d",GetNumber(),c_num,num);
 			par->SetName(name);
 			par->SetType("Q");
-			par->SetLabel("X");
+			par->SetLabel(Form("X%d",c_num));
 			par->SetNumber( num );
 			par->SetUniqueID( CalculateUniqueID( par ) );
 			AddACQParam(par);
