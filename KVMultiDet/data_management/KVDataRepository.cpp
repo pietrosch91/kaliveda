@@ -536,7 +536,7 @@ void KVDataRepository::MakeSubdirectory(KVDataSet* dataset,
 
 //___________________________________________________________________________
 
-TList *KVDataRepository::GetDirectoryListing(KVDataSet* dataset,
+KVUniqueNameList *KVDataRepository::GetDirectoryListing(KVDataSet* dataset,
                                               const Char_t * datatype)
 {
    //Use the access protocol defined by DataRepository.AccessProtocol (=local by default)
@@ -565,7 +565,7 @@ TList *KVDataRepository::GetDirectoryListing(KVDataSet* dataset,
       return 0;
    }
 
-   TList *dirlist = new TList;
+   KVUniqueNameList *dirlist = new KVUniqueNameList(kTRUE);
 	dirlist->SetOwner(kTRUE);
 
    TObjString *direntry = new TObjString(gSystem->GetDirEntry(dirp));

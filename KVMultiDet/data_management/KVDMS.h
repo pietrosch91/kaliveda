@@ -7,6 +7,8 @@
 #include "KVBase.h"
 #include "KVDatime.h"
 
+class KVUniqueNameList;
+
 class DMSFile_t : public KVBase
 {
 	KVDatime fModTime; // last modification
@@ -66,7 +68,7 @@ class KVDMS : public KVBase
    KVDMS(const Char_t* name="DMS", const Char_t* title="Data Management System");
    virtual ~KVDMS();
 
-	virtual TList* GetFullListing(const Char_t* directory="");
+	virtual KVUniqueNameList* GetFullListing(const Char_t* directory="");
 	virtual TList* GetListing(const Char_t* directory="");
 	virtual Bool_t DirectoryContains(const Char_t* name, const Char_t* directory="");
 	virtual Bool_t GetPathInfo(const Char_t* path, DMSFile_t& fs);

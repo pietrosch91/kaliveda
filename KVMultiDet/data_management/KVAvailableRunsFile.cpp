@@ -231,7 +231,7 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
 
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
-   TList *dir_list =
+   KVUniqueNameList *dir_list =
        repository->GetDirectoryListing(fDataSet, GetDataType());
    if (!dir_list)
       return;
@@ -242,11 +242,18 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
    Int_t ntot = dir_list->GetSize();
    Int_t n5pc = TMath::Max(ntot / 20, 1);
    Int_t ndone = 0;
-   KVDBTable *run_table = fDataSet->GetDataBase()->GetTable("Runs");
+   KVDBTable *run_table = 0;
+   KVDataBase* db = fDataSet->GetDataBase();
+   if (!db){
+   	db = new KVDataBase();
+   	db->AddTable("Runs","List of Runs");
+   }
+   run_table = db->GetTable("Runs");
    while ((objs = (KVBase *) next())) {     // loop over all entries in directory
 
       Int_t run_num;
       //is this the correct name of a run in the repository ?
+      Info("Update","%s %d\n",objs->GetName(),IsRunFileName(objs->GetName()));
       if ((run_num = IsRunFileName(objs->GetName()))) {
 
          KVDBRun *run = (KVDBRun *) run_table->GetRecord(run_num);
@@ -282,6 +289,19 @@ void KVAvailableRunsFile::Update(Bool_t no_existing_file)
                   tmp_file << run->GetNumber() << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
                }
             }
+         }
+         else{
+         	Info("Update","the current run [%s] is not in database",objs->GetName());
+            FileStat_t fs;
+            if (repository->GetFileInfo(fDataSet, GetDataType(),objs->GetName(), fs))
+            {
+               TDatime modt(fs.fMtime);
+            	// New Entry in a new file - write in temporary runlist file '[run number]|[date of modification]|[name of file]
+            	tmp_file << run_num  << '|' << modt.AsSQLString() << '|' << objs->GetName() << endl;
+            }	
+            else{
+               Warning("Update","%s GetFileInfo return kFALSE",objs->GetName());
+         	}
          }
       }
 
@@ -977,7 +997,15 @@ KVNumberList KVAvailableRunsFile::GetRunList(const KVDBSystem * sys)
    fLine.ReadLine(fRunlist);
 
    Int_t fRunNumber;
-   KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
+   KVDBTable *runs_table = 0;
+   KVDataBase* db = fDataSet->GetDataBase();
+   if (!db){
+   	db = new KVDataBase();
+   	db->AddTable("Runs","List of Runs");
+   }
+   runs_table = db->GetTable("Runs");
+   
+   //KVDBTable *runs_table = fDataSet->GetDataBase()->GetTable("Runs");
 
    while (fRunlist.good()) {
 

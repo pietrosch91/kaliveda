@@ -8,6 +8,7 @@
 #include "KVDataBase.h"
 #include "KVDBTable.h"
 #include "KVDBRun.h"
+#include "KVUniqueNameList.h"
 
 //macro converting octal filemode to decimal value
 //to convert e.g. 664 (=u+rw, g+rw, o+r) use CHMODE(6,6,4)
@@ -76,7 +77,7 @@ void DMSAvailableRunsFile::Update(Bool_t no_existing_file)
 
    cout << endl << "Updating runlist : " << flush;
    //get directory listing from repository
-   TList *dir_list =
+   KVUniqueNameList *dir_list =
        repository->GetDirectoryListing(GetDataSet(), GetDataType());
    if (!dir_list)
       return;
