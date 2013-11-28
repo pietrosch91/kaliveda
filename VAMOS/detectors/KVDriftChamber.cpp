@@ -277,7 +277,7 @@ TH1F *KVDriftChamber::GetQHisto( Int_t c_num ){
 		par = calf->GetACQParam();
 		if( !par->Fired("P") ) continue;
 		
-		num =  calf->GetNumber();
+		num =  (i==0 ? calf->GetNumber() : 65-calf->GetNumber());
 		fQ[1][i]->SetBinContent( num, calf->Compute( (Double_t)calf->GetACQParam()->GetCoderData() ) );
 	}
 
