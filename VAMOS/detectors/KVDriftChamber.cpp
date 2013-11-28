@@ -36,6 +36,7 @@ void KVDriftChamber::init(){
 	fDriftV    = gDataSet->GetDataSetEnv("KVDriftChamber.DriftVelocity", 4.84);  // in cm/us
 
 	fTfilPar = NULL;
+	fTfilCal = NULL;
 
 	//a KVDriftChamber can not be used in a ID telescope
 	ResetBit( kOKforID );
@@ -203,7 +204,8 @@ void KVDriftChamber::SetACQParams(){
 	// Electron drift time ACQ Parameters
 	par = new KVACQParam;
 	par->SetName( Form("TFIL_%d",GetNumber()) );
-	par->SetType("T");
+	par->SetType("T_FIL");
+	par->SetLabel("T_FIL");
 	par->SetNumber( GetNumber() );
 	par->SetUniqueID( CalculateUniqueID( par ) );
 	AddACQParam(par);

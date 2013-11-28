@@ -25,6 +25,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		Double_t   fERawPos[2]; //! Error of measured X raw position for both Chambers
 		KVACQParam *fTfilPar;   //! TFIL acquisition parameter
 		Float_t     fDriftV;    //! Electron drift velocity in cm/us
+		KVFunctionCal *fTfilCal;//! Calibrator of the  TFIL acquisition parameter
 
 		void init();
 
@@ -61,6 +62,7 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual KVString &GetPositionTypes();
            Float_t   GetDriftVelocity() const;
            void      SetDriftVelocity( Float_t v );
+		   KVFunctionCal *GetDriftTimeCalibrator() const;
 
    ClassDef(KVDriftChamber,1)//Drift Chamber, used at the focal plan of VAMOS
 };
@@ -80,7 +82,17 @@ inline Float_t KVDriftChamber::GetDriftVelocity() const{ return fDriftV; }
 //________________________________________________________________
 
 inline void KVDriftChamber::SetDriftVelocity( Float_t v ){ fDriftV = v; }
+//________________________________________________________________
 
+inline KVFunctionCal *KVDriftChamber::GetDriftTimeCalibrator() const{
+	// Returns the calibrator used to calibrate the electron-drift
+	// time (canal->ns).
 
+	if( fTfilCal ) return fTfilCal;
+	TObject *obj =  GetListOfCalibrators()->FindObjectByLabel("T_FIL");
+	if( obj->InheritsFrom( KVFunctionCal::Class() ) )
+		return const_cast<KVDriftChamber *>(this)->fTfilCal = (KVFunctionCal *)obj;
+	return NULL;
+}
 
 #endif
