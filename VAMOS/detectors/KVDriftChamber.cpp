@@ -243,7 +243,8 @@ TH1F *KVDriftChamber::GetQrawHisto( Int_t c_num ){
 
  	   	if( (par->GetLabel()[1] != Char_t('1'+i) ) || !par->Fired("P") ) continue;	
 
-		fQ[0][i]->SetBinContent( par->GetNumber(), (Double_t)par->GetCoderData() );
+		Int_t num =  (i==0 ? par->GetNumber() : 65-par->GetNumber());
+		fQ[0][i]->SetBinContent( num, (Double_t)par->GetCoderData() );
 	}
 
  	return fQ[0][i];
