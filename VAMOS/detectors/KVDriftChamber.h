@@ -26,6 +26,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		KVACQParam *fTfilPar;   //! TFIL acquisition parameter
 		Float_t     fDriftV;    //! Electron drift velocity in cm/us
 		KVFunctionCal *fTfilCal;//! Calibrator of the  TFIL acquisition parameter
+		Float_t     fStripWidth;//! X-Strip width
 
 		void init();
 
@@ -48,12 +49,16 @@ class KVDriftChamber : public KVVAMOSDetector
 
    virtual void  Initialize(); virtual const Char_t *GetArrayName();
    virtual const Char_t *GetEBaseName();
+   virtual Bool_t PositionIsOK();
    virtual void  ResetCalculatedData();
    virtual void  SetACQParams();
 
    virtual void ShowCleanQHisto(Int_t c_num=1, Option_t *opt = "");
    virtual void ShowQrawHisto(Int_t c_num=1, Option_t *opt = "");
    virtual void ShowQHisto(Int_t c_num=1 , Option_t *opt = "");
+
+   virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
+   virtual void    GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
 
 
    // ------ inline functions ----------------------//
@@ -63,6 +68,8 @@ class KVDriftChamber : public KVVAMOSDetector
            Float_t   GetDriftVelocity() const;
            void      SetDriftVelocity( Float_t v );
 		   KVFunctionCal *GetDriftTimeCalibrator() const;
+		   Float_t   GetStripWidth() const;
+		   Bool_t    IsPositionCalibrated() const;
 
    ClassDef(KVDriftChamber,1)//Drift Chamber, used at the focal plan of VAMOS
 };
@@ -93,6 +100,14 @@ inline KVFunctionCal *KVDriftChamber::GetDriftTimeCalibrator() const{
 	if( obj->InheritsFrom( KVFunctionCal::Class() ) )
 		return const_cast<KVDriftChamber *>(this)->fTfilCal = (KVFunctionCal *)obj;
 	return NULL;
+}
+//________________________________________________________________
+
+inline Float_t KVDriftChamber::GetStripWidth() const{ return fStripWidth; }
+//________________________________________________________________
+
+inline Bool_t KVDriftChamber::IsPositionCalibrated() const{
+	return GetDriftTimeCalibrator() && GetDriftTimeCalibrator()->GetStatus();
 }
 
 #endif

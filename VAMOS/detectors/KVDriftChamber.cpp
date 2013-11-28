@@ -34,6 +34,7 @@ void KVDriftChamber::init(){
 
 	fNstripsOK = (Int_t)gDataSet->GetDataSetEnv("KVDriftChamber.NumberOfStripsOK", 3.);
 	fDriftV    = gDataSet->GetDataSetEnv("KVDriftChamber.DriftVelocity", 4.84);  // in cm/us
+	fStripWidth = gDataSet->GetDataSetEnv("KVDriftChamber.StripWidth", 0.63);  // in cm
 
 	fTfilPar = NULL;
 	fTfilCal = NULL;
@@ -103,6 +104,16 @@ void  KVDriftChamber::Clear(Option_t *option ){
 void KVDriftChamber::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
 	ResetCalculatedData();
+}
+//________________________________________________________________
+
+Bool_t KVDriftChamber::PositionIsOK(){
+	// Returns true if the position can be given by this DriftChamber, i.e. the
+	// position is calibrated, the raw X and Y positions are well
+	// determined. In this case the position is given by the method 
+	// GetPosition(...).
+
+	return IsPositionCalibrated() && (GetRawPosition('X')>=0) && (GetRawPosition('Y')>=0);
 }
 //________________________________________________________________
 
@@ -452,7 +463,7 @@ Double_t KVDriftChamber::GetRawPosition(const Char_t dir){
 	else if( idx==1 ){ // for Y direction returns the acq parameter
 		// of TFIL
 
-		fRawPos [ idx ] =  ( fTfilPar ? fTfilPar->GetData() : fRawPos[idx] );
+		fRawPos [ idx ] =  ( fTfilPar && fTfilPar->Fired("P") ? fTfilPar->GetData() : fRawPos[idx] );
 		fERawPos[ idx ] = 0.;
 	}
 
@@ -469,4 +480,58 @@ Double_t KVDriftChamber::GetRawPositionError(const Char_t dir){
 	GetRawPosition( dir ); 
 	return fERawPos[ idx ];
 }
+//________________________________________________________________
 
+UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Int_t idx){
+	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
+	// in the focal plane reference frame from the raw positions in channel
+	// obtained with GetRawPosition(...). The argument 'XYZf' has to be an 
+	// array of size 3 i.e. XYZf[3].
+	// The 3 first bits of the returned UChar_t value give an information about
+	// the coordinates well determined, calibrated and corrected. For example is the Y 
+	// coordinate, with the indice 1, is good then the bit 1 is set to 1. 
+
+	XYZf[0] = XYZf[1] = XYZf[2] = 0.;
+	// Nothing is done if there is no calibrator for the position
+	if( !IsPositionCalibrated() ) return 0;
+
+	UChar_t rvalue = 0;       // returned value;
+	
+	Double_t Xraw = GetRawPosition('X');
+	Double_t Yraw = GetRawPosition('Y');
+	
+	if( Xraw >= 0 ){ // Calibrate X
+		XYZf[0] = Xraw * GetStripWidth();
+		rvalue += 1;
+	}
+	if( (Yraw >= 0) && GetDriftTimeCalibrator()){ //Calibrate Y
+		XYZf[1] = GetDriftTimeCalibrator()->Compute(Yraw)*GetDriftVelocity()/1000.; // the velocity is in cm/um 
+		rvalue += 2;
+	}
+	
+	// Set the coordinate in the focal plane frame of reference
+	if( rvalue &&  ActiveVolumeToFocal( XYZf, XYZf ) ){
+		if( !(rvalue & 1) ) XYZf[0] = -666;
+		else if( !(rvalue & 2) ) XYZf[1] = -666;
+		else rvalue += 4;
+		return rvalue;
+	}
+
+	// No coordinates are OK
+	XYZf[0] = XYZf[1] = XYZf[2] = -666;
+	return 0;
+}
+//________________________________________________________________
+
+void KVDriftChamber::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+	// Returns in the DXYZf array the errors (in cm) of each coordinate of the position returned by
+	// GetPosition(...) in the focal-plane frame of reference.
+	//
+	// For the drift chamber the Y and Z errors are not calculated and
+	// set to 0.
+
+	UChar_t  res = GetRawPositionError( DXYZf );
+	DXYZf[0] = ( res&1 ?  DXYZf[0] * GetStripWidth() : -1 );
+	DXYZf[1] = ( res&2 ?  0 : -1 );
+	DXYZf[2] = 0;
+}
