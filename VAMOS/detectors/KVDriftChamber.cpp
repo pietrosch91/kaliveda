@@ -43,6 +43,13 @@ void KVDriftChamber::init(){
 	fNmeasX = 2; // the 2 chambers of the Drift Chamber give to measurment
 	             // of the X position (X1 and X2)
 
+	// Initial values of Z offsets for X1, X2 and Y position measurements
+	// are given by the position in the detector of :
+	//   - the first  line of pads of the cathode ( -2.5 cm ) for X1
+	//   - the second line of pads of the cathode ( +2.5 cm ) for X2
+	//   - the middle of the detector ( 0 cm ) for Y
+	SetZOffsets();
+
 	//a KVDriftChamber can not be used in a ID telescope
 	ResetBit( kOKforID );
 }
@@ -402,7 +409,7 @@ void KVDriftChamber::ShowQHisto(Int_t c_num, Option_t *opt){
 }
 //________________________________________________________________
 
-Double_t KVDriftChamber::GetRawPosition(const Char_t dir, Int_t num){
+Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
 	// Returns the position (strip for X and electron-drift-time canal for Y) deduced from the histogram representing
 	// the calibrated charge versus strip number for X direction or returns the electron drift time for Y position.
 	// Argument 'num' is used to specified the X position to be returned:
@@ -417,7 +424,7 @@ Double_t KVDriftChamber::GetRawPosition(const Char_t dir, Int_t num){
 		case 0: // for X direction
 			{
 
-				if( num<1 || num > 2 ) num = 0;
+				if( num<0 || num > 2 ) num = 0;
 				if( fRawPosX[ num ] > -500 ) return fRawPosX[ num ];
 
 				fRawPosX [ 0 ] = 0;
@@ -461,10 +468,14 @@ Double_t KVDriftChamber::GetRawPosition(const Char_t dir, Int_t num){
 
 					Double_t intgl  = hh->Integral();
 					sum            += intgl;
-					fRawPosX [ c ]  = intgl*hh->GetMean();
-					fERawPosX[ c ]  = intgl*hh->GetRMS()*1.2;
-					fRawPosX [ 0 ] += fRawPosX [ c ];
-					fERawPosX[ 0 ] += fERawPosX[ c ];
+
+					// The two cathode plans are offset by half a strip to
+					// reduce the non linearity of the position measurement
+					// in between the strips
+					fRawPosX [ c ]  = hh->GetMean() - ( c%2 ? 0. : 0.5 );
+					fERawPosX[ c ]  = hh->GetRMS()*1.2;
+					fRawPosX [ 0 ] += intgl*fRawPosX [ c ];
+					fERawPosX[ 0 ] += intgl*fERawPosX[ c ];
 
 					hh->GetXaxis()->SetRange();
 				}
@@ -497,7 +508,7 @@ Double_t KVDriftChamber::GetRawPosition(const Char_t dir, Int_t num){
 }
 //________________________________________________________________
 
-Double_t KVDriftChamber::GetRawPositionError(const Char_t dir, Int_t num){
+Double_t KVDriftChamber::GetRawPositionError(Char_t dir, Int_t num){
 	// Returns the error on the position (strip for X and channel for Y) returned by GetRawPosition( dir, num ).
 
 	Int_t idx = IDX(dir);
@@ -505,6 +516,7 @@ Double_t KVDriftChamber::GetRawPositionError(const Char_t dir, Int_t num){
 	switch( idx ){
 		case 0: // X 
 
+			if( num<0 || num > 2 ) num = 0;
 			if( fERawPosX[ num ] > -500 ) return fERawPosX[ num ];
 			GetRawPosition( dir, num ); 
 			return fERawPosX[ num ];
@@ -521,7 +533,7 @@ Double_t KVDriftChamber::GetRawPositionError(const Char_t dir, Int_t num){
 }
 //________________________________________________________________
 
-UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Int_t idx){
+UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Char_t dir , Int_t num){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plane reference frame from the raw positions in channel
 	// obtained with GetRawPosition(...). The argument 'XYZf' has to be an 
@@ -530,13 +542,18 @@ UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Int_t idx){
 	// the coordinates well determined, calibrated and corrected. For example is the Y 
 	// coordinate, with the indice 1, is good then the bit 1 is set to 1. 
 
-	XYZf[0] = XYZf[1] = XYZf[2] = 0.;
 	// Nothing is done if there is no calibrator for the position
 	if( !IsPositionCalibrated() ) return 0;
 
+	// num will contain info about dir and num
+	//  X1 --> num=0
+	//  X2 --> num=1
+	//  else num = 2
+	num = ( dir=='X' && (num==1 || num==2) ? num : 0 );
+
 	UChar_t rvalue = 0;       // returned value;
 	
-	Double_t Xraw = GetRawPosition('X');
+	Double_t Xraw = GetRawPosition('X',num);
 	Double_t Yraw = GetRawPosition('Y');
 	
 	if( Xraw >= 0 ){ // Calibrate X
@@ -548,6 +565,9 @@ UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Int_t idx){
 		rvalue += 2;
 	}
 	
+	// Set the Z offset
+	XYZf[2] = fOffsetZ[ num ];
+
 	// Set the coordinate in the focal plane frame of reference
 	if( rvalue &&  ActiveVolumeToFocal( XYZf, XYZf ) ){
 		if( !(rvalue & 1) ) XYZf[0] = -666;
@@ -562,15 +582,17 @@ UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Int_t idx){
 }
 //________________________________________________________________
 
-void KVDriftChamber::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+void KVDriftChamber::GetDeltaXYZf(Double_t *DXYZf, Char_t /* dir */, Int_t num ){
 	// Returns in the DXYZf array the errors (in cm) of each coordinate of the position returned by
 	// GetPosition(...) in the focal-plane frame of reference.
 	//
-	// For the drift chamber the Y and Z errors are not calculated and
-	// set to 0.
+	// The Y error is fixed to 1mm (resolution given in NIM A 593 (2008) 343).
+	// For the drift chamber the error of Z is unkown and fixed to 0.
 
-	UChar_t  res = GetRawPositionError( DXYZf );
-	DXYZf[0] = ( res&1 ?  DXYZf[0] * GetStripWidth() : -1 );
-	DXYZf[1] = ( res&2 ?  0 : -1 );
+	if( num<0 || num > 2 ) num = 0;
+
+	UChar_t res = GetRawPositionError( DXYZf );
+	DXYZf[0] = ( res&1 ?  fERawPosX[num] * GetStripWidth() : -1 );
+	DXYZf[1] = 0.1;
 	DXYZf[2] = 0;
 }

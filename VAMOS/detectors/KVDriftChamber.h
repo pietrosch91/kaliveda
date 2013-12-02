@@ -29,6 +29,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		Float_t     fDriftV;    //! Electron drift velocity in cm/us
 		KVFunctionCal *fTfilCal;//! Calibrator of the  TFIL acquisition parameter
 		Float_t     fStripWidth;//! X-Strip width
+		Float_t     fOffsetZ[3];// Z offset in cm for Y, X1 and X2 measurements
 
 		void init();
 
@@ -45,9 +46,9 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual TH1F    *GetQHisto( Int_t c_num );
    virtual TH1F    *GetQrawHisto( Int_t c_num );
    using KVVAMOSDetector::GetRawPosition;
-   virtual Double_t GetRawPosition(const Char_t dir = 'X', Int_t num = 0);
+   virtual Double_t GetRawPosition(Char_t dir = 'X', Int_t num = 0);
    using KVVAMOSDetector::GetRawPositionError;
-   virtual Double_t GetRawPositionError(const Char_t dir = 'X', Int_t num = 0);
+   virtual Double_t GetRawPositionError(Char_t dir = 'X', Int_t num = 0);
 
    virtual void  Initialize(); virtual const Char_t *GetArrayName();
    virtual const Char_t *GetEBaseName();
@@ -59,8 +60,8 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual void ShowQrawHisto(Int_t c_num=1, Option_t *opt = "");
    virtual void ShowQHisto(Int_t c_num=1 , Option_t *opt = "");
 
-   virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
-   virtual void    GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
+   virtual UChar_t GetPosition(Double_t *XYZf, Char_t dir = 0, Int_t num = 0);
+   virtual void    GetDeltaXYZf(Double_t *XYZf, Char_t dir = 0, Int_t num = 0);
 
 
    // ------ inline functions ----------------------//
@@ -72,6 +73,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		   KVFunctionCal *GetDriftTimeCalibrator() const;
 		   Float_t   GetStripWidth() const;
 		   Bool_t    IsPositionCalibrated() const;
+           void      SetZOffsets( Float_t X1 = -2.5, Float_t X2 = 2.5, Float_t Y= 0 );
 
    ClassDef(KVDriftChamber,1)//Drift Chamber, used at the focal plan of VAMOS
 };
@@ -111,5 +113,17 @@ inline Float_t KVDriftChamber::GetStripWidth() const{ return fStripWidth; }
 inline Bool_t KVDriftChamber::IsPositionCalibrated() const{
 	return GetDriftTimeCalibrator() && GetDriftTimeCalibrator()->GetStatus();
 }
+//________________________________________________________________
 
+inline void KVDriftChamber::SetZOffsets( Float_t X1, Float_t X2, Float_t Y){
+	// Sets the values of Z offsets for X1, X2 and Y position measurements.
+	// By default these offsets are given by the position in the detector of :
+	//   - the first  line of pads of the cathode ( -2.5 cm ) for X1
+	//   - the second line of pads of the cathode ( +2.5 cm ) for X2
+	//   - the center of the detector ( 0 cm ) for Y
+
+	fOffsetZ[0] = Y;
+	fOffsetZ[1] = X1;
+	fOffsetZ[2] = X2;
+}
 #endif

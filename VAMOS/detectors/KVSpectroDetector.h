@@ -65,8 +65,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		virtual TGeoVolume* GetGeoVolume(const Char_t* name, const Char_t* material, const Char_t* shape_name, const Char_t* params);
    		virtual Int_t    GetMult(Option_t *opt="");
    		virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
-   		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
-   		virtual void GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
+   		virtual UChar_t GetPosition(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0);
+   		virtual void GetDeltaXYZf(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0);
 
    		void SetActiveVolume(TGeoVolume*);
 

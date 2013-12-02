@@ -132,7 +132,7 @@ const Char_t *KVSeD::GetTBaseName() const{
 }
 //________________________________________________________________
    
-Float_t KVSeD::CalculateQThreshold(const Char_t dir){
+Float_t KVSeD::CalculateQThreshold(Char_t dir){
 	// Calculate the noise in order to remove it on strips for X and 
 	// Y positions.
 
@@ -197,7 +197,7 @@ Float_t KVSeD::CalculateQThreshold(const Char_t dir){
 }
 //________________________________________________________________
 
-TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
+TH1F *KVSeD::GetCleanQHisto(Char_t dir){
 	// Retruns the X or Y position histogram with calibrated charges (Q)
 	// after the substration of noise.
 
@@ -222,7 +222,7 @@ TH1F *KVSeD::GetCleanQHisto(const Char_t dir){
 }
 //________________________________________________________________
    
-TH1F *KVSeD::GetQrawHisto(const Char_t dir){
+TH1F *KVSeD::GetQrawHisto(Char_t dir){
 	// Retruns the X or Y position histogram with raw charges (Q)
 	// If the histogram is empty then no acquisition parameter
 	// was fired.
@@ -247,7 +247,7 @@ TH1F *KVSeD::GetQrawHisto(const Char_t dir){
 }
 //________________________________________________________________
    
-TH1F *KVSeD::GetQHisto(const Char_t dir){
+TH1F *KVSeD::GetQHisto(Char_t dir){
 	// Retruns the X or Y position histogram with calibrated charges (Q)
 
 	Int_t i = IDX(dir);
@@ -387,19 +387,19 @@ void KVSeD::SetCalibrators(){
 }
 //________________________________________________________________
 
-void KVSeD::ShowCleanQHisto(const Char_t dir, Option_t *opt){
+void KVSeD::ShowCleanQHisto(Char_t dir, Option_t *opt){
 	TH1F *hh = GetCleanQHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
 //________________________________________________________________
 
-void KVSeD::ShowQrawHisto(const Char_t dir, Option_t *opt){
+void KVSeD::ShowQrawHisto(Char_t dir, Option_t *opt){
 	TH1F *hh = GetQrawHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
 //________________________________________________________________
 
-void KVSeD::ShowQHisto(const Char_t dir, Option_t *opt){
+void KVSeD::ShowQHisto(Char_t dir, Option_t *opt){
 	TH1F *hh = GetQHisto( dir );
 	if( hh ) hh->Draw(opt);
 }
@@ -420,7 +420,7 @@ void KVSeD::SetRawPosition(Double_t *XYf){
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
+Double_t KVSeD::GetRawPosition2(Char_t dir, Double_t min_amp, Double_t min_sigma, Double_t max_sigma, Int_t maxNpeaks){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. First the method searchs 
 	// peaks. If there is to many peaks (>maxNpeaks) the method returns -1
@@ -492,7 +492,7 @@ Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition(const Char_t dir, Int_t /* num */){
+Double_t KVSeD::GetRawPosition(Char_t dir, Int_t /* num */){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. Faster method compare to 
 	// the method GetRawPosition2. The resolution is less good but sufficient. 
@@ -539,7 +539,7 @@ Double_t KVSeD::GetRawPosition(const Char_t dir, Int_t /* num */){
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPositionError(const Char_t dir, Int_t /* num */){
+Double_t KVSeD::GetRawPositionError(Char_t dir, Int_t /* num */){
 	// Returns the error on the position (strip) returned by GetRawPosition( dir ).
 
 	Int_t idx = IDX(dir);
@@ -550,7 +550,7 @@ Double_t KVSeD::GetRawPositionError(const Char_t dir, Int_t /* num */){
 }
 //________________________________________________________________
 
-UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
+UChar_t KVSeD::GetPosition(Double_t *XYZf, Char_t /* dir */, Int_t /* idx */){
 	// Get calibrated and deviation-corrected positions Xf, Yf and Zf (in cm)
 	// in the focal plan reference frame from the raw positions in channel
 	// obtained with GetRawPosition(...). The argument 'XYZf' has to be an 
@@ -605,7 +605,7 @@ UChar_t KVSeD::GetPosition(Double_t *XYZf, Int_t idx){
 }
 //________________________________________________________________
 
-void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Int_t idx){
+void KVSeD::GetDeltaXYZf(Double_t *DXYZf, Char_t /* dir */, Int_t /* idx */){
 	// Returns in the DXYZf array the errors of each coordinate of the position returned by
 	// GetPosition(...) in the focal-plane frame of reference.
 

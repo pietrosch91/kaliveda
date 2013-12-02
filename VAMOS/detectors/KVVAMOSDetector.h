@@ -42,9 +42,9 @@ class KVVAMOSDetector : public KVSpectroDetector
    		virtual KVFunctionCal *GetECalibrator() const;
    		virtual Bool_t GetPositionInVamos(Double_t &X, Double_t &Y);
    		virtual UChar_t  GetRawPosition(Double_t *XYZf);
-   		virtual Double_t GetRawPosition(const Char_t dir = 'X', Int_t num=0);
+   		virtual Double_t GetRawPosition(Char_t dir = 'X', Int_t num=0);
 		virtual UChar_t GetRawPositionError(Double_t *EXYZf);
-   		virtual Double_t GetRawPositionError(const Char_t dir = 'X', Int_t num=0);
+   		virtual Double_t GetRawPositionError(Char_t dir = 'X', Int_t num=0);
 
    		KVFunctionCal *GetTCalibrator(const Char_t *type) const;
 

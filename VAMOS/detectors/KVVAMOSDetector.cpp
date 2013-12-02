@@ -266,7 +266,7 @@ UChar_t KVVAMOSDetector::GetRawPosition(Double_t *XYZf){
 }
 //________________________________________________________________
 
-Double_t KVVAMOSDetector::GetRawPosition(const Char_t dir, Int_t num){
+Double_t KVVAMOSDetector::GetRawPosition(Char_t dir, Int_t num){
 	// Method overwritten and useful in child classes describing detectors
 	// used to measured position in the direction 'dir' for the reconstruction of  nucleus 
 	// trajectory. For example, see this same method in the class KVSeD.
@@ -291,7 +291,7 @@ UChar_t KVVAMOSDetector::GetRawPositionError(Double_t *EXYZf){
 }
 //________________________________________________________________
 
-Double_t KVVAMOSDetector::GetRawPositionError(const Char_t dir, Int_t num ){
+Double_t KVVAMOSDetector::GetRawPositionError(Char_t dir, Int_t num ){
 	// Method overwritten and useful in child classes describing detectors
 	// which returns the error of the measured position in the direction 'dir' for the reconstruction of  nucleus 
 	// trajectory. For example, see this same method in the class KVSeD.
