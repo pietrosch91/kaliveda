@@ -50,10 +50,10 @@ class KVSeD : public KVVAMOSDetector
    		virtual UChar_t GetPosition(Double_t *XYZf, Int_t idx = 0);
    		virtual void    GetDeltaXYZf(Double_t *XYZf, Int_t idx = 0);
 		using KVVAMOSDetector::GetRawPosition;
-   		virtual Double_t GetRawPosition(const Char_t dir = 'X');
+   		virtual Double_t GetRawPosition(const Char_t dir = 'X', Int_t num = 0);
    		virtual Double_t GetRawPosition2(const Char_t dir = 'X', Double_t min_amp = 100, Double_t min_sigma = 0.5, Double_t max_sigma = 3., Int_t maxNpeaks=10);
 		using KVVAMOSDetector::GetRawPositionError;
-   		virtual Double_t GetRawPositionError(const Char_t dir = 'X');
+   		virtual Double_t GetRawPositionError(const Char_t dir = 'X', Int_t num = 0);
    		virtual TH1F *GetCleanQHisto(const Char_t dir = 'X');
    		virtual TH1F *GetQrawHisto(const Char_t dir = 'X');
    		virtual TH1F *GetQHisto(const Char_t dir = 'X');

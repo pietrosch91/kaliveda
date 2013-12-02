@@ -492,7 +492,7 @@ Double_t KVSeD::GetRawPosition2(const Char_t dir, Double_t min_amp, Double_t min
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPosition(const Char_t dir){
+Double_t KVSeD::GetRawPosition(const Char_t dir, Int_t /* num */){
 	// Return the position (strip) deduced from the histogram representing
 	// the calibrated charge versus strip number. Faster method compare to 
 	// the method GetRawPosition2. The resolution is less good but sufficient. 
@@ -539,7 +539,7 @@ Double_t KVSeD::GetRawPosition(const Char_t dir){
 }
 //________________________________________________________________
 
-Double_t KVSeD::GetRawPositionError(const Char_t dir){
+Double_t KVSeD::GetRawPositionError(const Char_t dir, Int_t /* num */){
 	// Returns the error on the position (strip) returned by GetRawPosition( dir ).
 
 	Int_t idx = IDX(dir);

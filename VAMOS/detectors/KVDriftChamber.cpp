@@ -29,8 +29,9 @@ void KVDriftChamber::init(){
 		}
 	}
 
-	fRawPos [0] = fRawPos [1] = -500;
-	fERawPos[0] = fERawPos[1] = -500;
+	fRawPosX [0] = fRawPosX [1] = fRawPosX [2] = -500;
+	fERawPosX[0] = fERawPosX[1] = fERawPosX[2] = -500;
+	fRawPosY = fERawPosY = -500;
 
 	fNstripsOK = (Int_t)gDataSet->GetDataSetEnv("KVDriftChamber.NumberOfStripsOK", 3.);
 	fDriftV    = gDataSet->GetDataSetEnv("KVDriftChamber.DriftVelocity", 4.84);  // in cm/us
@@ -38,6 +39,9 @@ void KVDriftChamber::init(){
 
 	fTfilPar = NULL;
 	fTfilCal = NULL;
+
+	fNmeasX = 2; // the 2 chambers of the Drift Chamber give to measurment
+	             // of the X position (X1 and X2)
 
 	//a KVDriftChamber can not be used in a ID telescope
 	ResetBit( kOKforID );
@@ -130,8 +134,9 @@ void KVDriftChamber::ResetCalculatedData(){
 		}
 	}
 
-	fRawPos [0] = fRawPos [1]  = -500;
-	fERawPos[0] = fERawPos[1] = -500;
+	fRawPosX [0] = fRawPosX [1] = fRawPosX [2] = -500;
+	fERawPosX[0] = fERawPosX[1] = fERawPosX[2] = -500;
+	fRawPosY = fERawPosY = -500;
 }
 //________________________________________________________________
 
@@ -397,89 +402,122 @@ void KVDriftChamber::ShowQHisto(Int_t c_num, Option_t *opt){
 }
 //________________________________________________________________
 
-Double_t KVDriftChamber::GetRawPosition(const Char_t dir){
+Double_t KVDriftChamber::GetRawPosition(const Char_t dir, Int_t num){
 	// Returns the position (strip for X and electron-drift-time canal for Y) deduced from the histogram representing
 	// the calibrated charge versus strip number for X direction or returns the electron drift time for Y position.
+	// Argument 'num' is used to specified the X position to be returned:
+	//  dir = 'X' and num = 0  --> return the mean value between X1 and X2
+	//  dir = 'X' and num = 1  --> return X1
+	//  dir = 'X' and num = 2  --> return X2
+
 	Int_t idx = IDX(dir);
-	if( fRawPos[ idx ] > -500 ) return fRawPos[ idx ];
-	fRawPos [ idx ] = -1;
-	fERawPos[ idx ] = -1;
 
-	if( idx == 0 ){   // for X direction
+	switch ( idx ){
 
-		fRawPos [ idx ] = 0.;
-		fERawPos[ idx ] = 0.;
-		Double_t sum    = 0.;
+		case 0: // for X direction
+			{
 
-		for( Int_t c=1; c<3; c++ ){ //loop over both chambers
-			
-			TH1F *hh = GetCleanQHisto( c );
-			if( !hh ) continue;
+				if( num<1 || num > 2 ) num = 0;
+				if( fRawPosX[ num ] > -500 ) return fRawPosX[ num ];
 
-			if(hh->GetEntries()< fNstripsOK ) continue;
+				fRawPosX [ 0 ] = 0;
+				fERawPosX[ 0 ] = 0.;
+				Double_t sum          = 0.;
 
-			///////////////////////////////////////////////////
+				for( Int_t c=1; c<3; c++ ){ //loop over both chambers
+					fRawPosX [ c ] = -1;
+					fERawPosX[ c ] = -1;
 
-			Int_t binMax = hh->GetMaximumBin();
-			Int_t min;
-			for( min = binMax-1; min>1; min--){
-				if( hh->GetBinContent(min) <= 0. ){
-					min++;
-					break;
+					TH1F *hh = GetCleanQHisto( c );
+					if( !hh ) continue;
+
+					if(hh->GetEntries()< fNstripsOK ) continue;
+
+					///////////////////////////////////////////////////
+
+					Int_t binMax = hh->GetMaximumBin();
+					Int_t min;
+					for( min = binMax-1; min>1; min--){
+						if( hh->GetBinContent(min) <= 0. ){
+							min++;
+							break;
+						}
+						Double_t deltaQ = hh->GetBinContent(min)-hh->GetBinContent(min-1);
+						if(deltaQ < 0 ) break;
+					}
+					Int_t max;
+					for( max = binMax+1; max<hh->GetNbinsX(); max++){
+						if( hh->GetBinContent(max) <= 0. ){
+							max--;
+							break;
+						}
+						Double_t deltaQ = hh->GetBinContent(max)-hh->GetBinContent(max+1);
+						if(deltaQ < 0 ) break;
+					}
+
+					if( (max-min+1) < fNstripsOK) continue;
+
+					hh->GetXaxis()->SetRange(min,max);
+
+					Double_t intgl  = hh->Integral();
+					sum            += intgl;
+					fRawPosX [ c ]  = intgl*hh->GetMean();
+					fERawPosX[ c ]  = intgl*hh->GetRMS()*1.2;
+					fRawPosX [ 0 ] += fRawPosX [ c ];
+					fERawPosX[ 0 ] += fERawPosX[ c ];
+
+					hh->GetXaxis()->SetRange();
 				}
-				Double_t deltaQ = hh->GetBinContent(min)-hh->GetBinContent(min-1);
-				if(deltaQ < 0 ) break;
-			}
-			Int_t max;
-			for( max = binMax+1; max<hh->GetNbinsX(); max++){
-				if( hh->GetBinContent(max) <= 0. ){
-					max--;
-					break;
+
+				if( sum ){
+					fRawPosX [ 0 ] /= sum;
+					fERawPosX[ 0 ] /= sum;
 				}
-				Double_t deltaQ = hh->GetBinContent(max)-hh->GetBinContent(max+1);
-				if(deltaQ < 0 ) break;
+				else{
+					fRawPosX [ 0 ] = -1;
+					fERawPosX[ 0 ] = -1;
+				}
+
+				return fRawPosX[ num ];
+
+
+			}
+		case 1: // for Y direction returns the acq parameter of TFIL
+			{
+
+				fRawPosY  =  ( fTfilPar && fTfilPar->Fired("P") ? fTfilPar->GetData() : -1 );
+				fERawPosY = 0.;
+
+				return fRawPosY;
 			}
 
-			if( (max-min+1) < fNstripsOK) continue;
-
-			hh->GetXaxis()->SetRange(min,max);
-
-			Double_t intgl   = hh->Integral();
-			sum             += intgl;
-			fRawPos [ idx ] += intgl*hh->GetMean();
-			fERawPos[ idx ] += intgl*hh->GetRMS()*1.2;
-
-			hh->GetXaxis()->SetRange();
-		}
-
-		if( sum ){
-			fRawPos [ idx ] /= sum;
-			fERawPos[ idx ] /= sum;
-		}
-		else{
-			fRawPos [ idx ] = -1;
-			fERawPos[ idx ] = -1;
-		}
-	}
-	else if( idx==1 ){ // for Y direction returns the acq parameter
-		// of TFIL
-
-		fRawPos [ idx ] =  ( fTfilPar && fTfilPar->Fired("P") ? fTfilPar->GetData() : fRawPos[idx] );
-		fERawPos[ idx ] = 0.;
 	}
 
-	return fRawPos[ idx ];
+	return -1;
 }
 //________________________________________________________________
 
-Double_t KVDriftChamber::GetRawPositionError(const Char_t dir){
-	// Returns the error on the position (strip for X and channel for Y) returned by GetRawPosition( dir ).
+Double_t KVDriftChamber::GetRawPositionError(const Char_t dir, Int_t num){
+	// Returns the error on the position (strip for X and channel for Y) returned by GetRawPosition( dir, num ).
 
 	Int_t idx = IDX(dir);
-	if( fERawPos[ idx ] > -500 ) return fERawPos[ idx ];
 
-	GetRawPosition( dir ); 
-	return fERawPos[ idx ];
+	switch( idx ){
+		case 0: // X 
+
+			if( fERawPosX[ num ] > -500 ) return fERawPosX[ num ];
+			GetRawPosition( dir, num ); 
+			return fERawPosX[ num ];
+
+		case 1: // Y
+
+			if( fERawPosY > -500 ) return fERawPosY;
+			GetRawPosition( dir, num ); 
+			return fERawPosY;
+
+	}
+
+	return -1;
 }
 //________________________________________________________________
 

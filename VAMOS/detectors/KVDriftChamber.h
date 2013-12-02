@@ -21,8 +21,10 @@ class KVDriftChamber : public KVVAMOSDetector
 	protected:
 		
 		TH1F    ***fQ;     //! array of TH1F for calibrated charge [raw, calibrated, clean][Chamber 1, Chamber 2] 
-		Double_t   fRawPos[2]; //! Measured X raw position for both Chambers
-		Double_t   fERawPos[2]; //! Error of measured X raw position for both Chambers
+		Double_t   fRawPosX[3]; //! Measured X raw position for both Chambers
+		Double_t   fERawPosX[3]; //! Error of measured X raw position for both Chambers
+		Double_t   fRawPosY; //!  Measured Y raw position
+		Double_t   fERawPosY; //! Error of measured Y raw position
 		KVACQParam *fTfilPar;   //! TFIL acquisition parameter
 		Float_t     fDriftV;    //! Electron drift velocity in cm/us
 		KVFunctionCal *fTfilCal;//! Calibrator of the  TFIL acquisition parameter
@@ -43,9 +45,9 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual TH1F    *GetQHisto( Int_t c_num );
    virtual TH1F    *GetQrawHisto( Int_t c_num );
    using KVVAMOSDetector::GetRawPosition;
-   virtual Double_t GetRawPosition(const Char_t dir = 'X');
+   virtual Double_t GetRawPosition(const Char_t dir = 'X', Int_t num = 0);
    using KVVAMOSDetector::GetRawPositionError;
-   virtual Double_t GetRawPositionError(const Char_t dir = 'X');
+   virtual Double_t GetRawPositionError(const Char_t dir = 'X', Int_t num = 0);
 
    virtual void  Initialize(); virtual const Char_t *GetArrayName();
    virtual const Char_t *GetEBaseName();
