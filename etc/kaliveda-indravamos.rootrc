@@ -5,12 +5,15 @@
 INDRA_e503.DataSet.Title:    Symmetry energy of nuclear EOS (E503) (2007)
 INDRA_e503.DataSet.RepositoryDir:   e503
 INDRA_e503.DataSet.RunFileName.raw:    run_%04d.dat%*
-INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:     IVRawDataRecon
+INDRA_e503.Reconstruction.DataAnalysisTask.Analyser:       IVRawDataRecon
+INDRA_e503.ReconIdent.DataAnalysisTask.Analyser:           IVReconData
 INDRA_e503.ReconIdent.DataAnalysisTask.UserClass.Base:     IVReconIdent/TSelector
-INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:     IVRawDataAnalyser
-INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
-INDRA_e503.IdentAnalysis.DataAnalysisTask.UserClass.Base:     IVSelector/TSelector
-INDRA_e503.ReconstructedEventClassName:   KVINDRAReconEvent
+INDRA_e503.RawAnalysis.DataAnalysisTask.UserClass.Base:    IVRawDataAnalyser
+INDRA_e503.ReconAnalysis.DataAnalysisTask.Analyser:        IVReconData
+INDRA_e503.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
+INDRA_e503.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
+INDRA_e503.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
+INDRA_e503.ReconstructedEventClassName:   KVIVReconEvent
 
 +DataSet:    INDRA_e494s
 INDRA_e494s.DataSet.Title:   Isospin dependence of level density parameter (E494S) (2007)
@@ -24,7 +27,7 @@ INDRA_e494s.ReconAnalysis.DataAnalysisTask.Analyser:        IVReconData
 INDRA_e494s.ReconAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
 INDRA_e494s.IdentAnalysis.DataAnalysisTask.Analyser:        IVReconData
 INDRA_e494s.IdentAnalysis.DataAnalysisTask.UserClass.Base:  IVSelector/TSelector
-INDRA_e494s.ReconstructedEventClassName:   KVINDRAReconEvent
+INDRA_e494s.ReconstructedEventClassName:   KVIVReconEvent
 
 +DataSet:    VAMOS_e503
 VAMOS_e503.DataSet.Title:    Focal plane VAMOS (e503)
