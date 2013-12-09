@@ -12,6 +12,10 @@
 #include "KVINDRAe503.h"
 #include "KVUnits.h"
 
+#include "KVMaterial.h"
+#include "KVIonRangeTable.h"
+#include "KVIonRangeTableMaterial.h"
+
 //Author: Maurycy Rejmund
 using namespace std;
 
@@ -23,15 +27,99 @@ ClassImp(Identificationv)
 // BEGIN_HTML <!--
 /* -->
 <h2>Identificationv</h2>
-<p>
-Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL).
-</p>
+<p>Part of the VAMOS analysis package kindly contributed by Maurycy Rejmund (GANIL).</p>
+<body>
+
+
+</body>
 <!-- */
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+
+class  MyFunctionObject {
+ public:
+
+ TF1* dedx;
+ Int_t fZ, fA;
+ Double_t fRho;
+ Double_t fEi;
+ Double_t fEres;
+ Double_t fDeltaE;
+ MyFunctionObject(Int_t z, Int_t a, Int_t option)
+ {
+	 fZ = z;
+	 fA = a;
+	 //fEi = ei;
+	 //fDeltaE = deltaE;
+	 
+Float_t pressure; 
+KVMaterial *gas;
+
+if(option==0){	//case DC1-DC2
+	pressure = 13.;
+	gas = new KVMaterial("C4H10",2.*13.0);		//en cm - 2DC
+	gas->SetPressure(pressure*KVUnits::mbar);
+}
+else if(option==1){	//case Chio
+	pressure = 40.;
+	gas = new KVMaterial("C4H10",13.8);		//en cm
+	gas->SetPressure(pressure*KVUnits::mbar);
+}
+	
+KVIonRangeTable* t = gas->GetRangeTable();
+KVIonRangeTableMaterial* mat = t->GetMaterial("C4H10");
+mat->SetTemperatureAndPressure(19.,pressure*KVUnits::mbar);
+
+fRho = mat->GetDensity();
+dedx = mat->GetStoppingFunction(z,a);
+	 
+ }
+
+// use constructor to customize your function object
+double operator() (double *x, double *p) {
+	   
+	   // z:fZ a:fA
+	   
+double e = *x;	
+double result = 1./(e*dedx->Eval(e));
+
+return result;	
+}
+ 
+ Double_t GetRho(){return fRho;}
+ Double_t GetDeltaE(){return fDeltaE;}
+ Double_t GetEres(){return fEres;}
+ Double_t GetEi(){return fEi;}
+ Int_t GetA(){return fA;}
+ Int_t GetZ(){return fZ;}
+ 
+};
+
+Double_t DrawDeDx(Int_t z, Int_t a, Int_t option, Double_t Einc, Double_t Eres)
+{
+   MyFunctionObject * fobj;
+   TF1 * f;
+	   
+     fobj = new MyFunctionObject(z,a,option);       // create the function object
+     f = new TF1("f",fobj,1e-5,2000,0,"MyFunctionObject");    // create TF1 class.
+     f->SetNpx(10000);
+   
+     double rho = fobj->GetRho();
+     double fact = TMath::Sqrt(0.7192*(double)fobj->GetA())*1./rho;
+     //Double_t Einc = fobj->GetEi();
+     //Double_t Eres = fobj->GetEres();
+     double timeNS = fact*f->Integral(Eres,Einc);
+     
+     //cout<<"timeNS : "<<timeNS<<endl;
+     delete fobj;
+     delete f;
+
+return timeNS;     
+}
+
 Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
-				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, CsICalib *E)
+				 DriftChamberv *Drift, IonisationChamberv *IonCh, Sive503 *SiD, CsIv *CsID, CsICalib *Ecsicalibrated)
 {
   L = Log;
   Rec = Recon;
@@ -40,17 +128,396 @@ Identificationv::Identificationv(LogFile *Log, Reconstructionv *Recon,
   Si = SiD;
   CsI=CsID;
   
-  energytree = E;
-  	
+  energytree = Ecsicalibrated;
+  
+  debug = kFALSE;	
   //for(i=0;i<6;i++)
     //Counter[i] = 0;
-  
-  Init();
 
+	NbSilicon =  gEnv->GetValue("VAMOS.NbSilicon",-1);
+	NbCsI   = gEnv->GetValue("VAMOS.NbCsI",-1);
+	MaxRun = gEnv->GetValue("VAMOS.MaxRun",-1);
+  if(NbSilicon<0){
+  	cout<<"Not Reading VAMOS.NbSilicon in Siv Class"<<endl;
+  }
+  if(MaxRun<0){
+  	cout<<"Not Reading VAMOS.MaxRun in Siv Class"<<endl;
+  }
+if(NbCsI<0){
+	  cout<<"Not Reading VAMOS.NbCsI in CsIv Class"<<endl;
+}
+  	
   Rnd = new Random;
   kvn = new KVNucleus();
   
-for(Int_t i=0;i<80;i++){
+ //======================================= 
+  AA = new Float_t[NbCsI];
+  FragECsI = new Double_t[NbCsI];
+  FragEGap = new Double_t[NbCsI];  
+  Stat_Indra= new Float_t[MaxRun];  
+  
+ PID = new Double_t[NbCsI];
+ Z_PID = new Double_t[NbCsI];
+ A_PID = new Double_t[NbCsI];   
+ Z_corr = new Int_t[NbCsI];
+ PID_sitof = new Double_t[NbCsI]; 
+ Z_PID_sitof = new Double_t[NbCsI];   
+ Z_corr_sitof = new Int_t[NbCsI];
+ PID_chiov2 = new Double_t[NbCsI]; 
+ Z_PID_chiov2 = new Double_t[NbCsI];   
+ Z_corr_chiov2 = new Int_t[NbCsI];  
+ 
+   //Q Correction Function according to the CsI detector
+    	P0 = new Float_t[NbCsI];
+    	P1 = new Float_t[NbCsI];      
+    	P2 = new Float_t[NbCsI];
+    	P3 = new Float_t[NbCsI];      
+   
+   // Correction de M/Q
+    	P0_mq = new Float_t[MaxRun];
+    	P1_mq = new Float_t[MaxRun];
+         
+   // Correction de M
+    	P0_m = new Float_t*[MaxRun];
+    	P1_m = new Float_t*[MaxRun];   
+	
+// Correction de M Chio-Si
+    	P0_m_chiosi= new Float_t*[MaxRun];
+    	P1_m_chiosi= new Float_t*[MaxRun];
+   
+   // Correction de M Si-Tof
+    	P0_m_sitof= new Float_t*[MaxRun];
+    	P1_m_sitof= new Float_t*[MaxRun];
+      
+   for(Int_t i=0; i<MaxRun; i++){
+   	P0_m[i] = new Float_t[25];
+	P1_m[i] = new Float_t[25];
+   	P0_m_chiosi[i] = new Float_t[25];
+	P1_m_chiosi[i] = new Float_t[25];   	
+	P0_m_sitof[i] = new Float_t[25];
+	P1_m_sitof[i] = new Float_t[25];	
+   }
+   
+   // Correction de M/Q Chio-Si
+    	P0_mq_chiosi = new Float_t [MaxRun];
+    	P1_mq_chiosi = new Float_t [MaxRun]; 
+   
+   // Correction de M/Q Si-Tof
+    	P0_mq_sitof = new Float_t [MaxRun];
+    	P1_mq_sitof = new Float_t [MaxRun];
+      
+   
+   // Tag des events
+   	Brho_min =  new Float_t[MaxRun];
+   	Brho_max =  new Float_t[MaxRun];	
+   	/*Brho_min = new Float_t***[25];
+	Brho_max = new Float_t***[25];
+	for(Int_t i=0; i<25; i++){
+		Brho_min[i] = new Float_t**[60];
+		Brho_max[i] = new Float_t**[60];
+		for(Int_t j=0; j<60; j++){
+			Brho_min[i][j] = new Float_t*[21];
+			Brho_max[i][j] = new Float_t*[21];
+			for(Int_t k=0; k<21; k++){
+				Brho_min[i][j][k] = new Float_t[MaxRun];
+				Brho_max[i][j][k] = new Float_t[MaxRun];
+			}
+		}
+		
+	}*/	
+
+	Code_Ident_Vamos = new Int_t[NbCsI];
+	Code_Vamos = new Int_t[NbCsI];	  
+	
+   // Correction de Tof pour identification Chio-Si
+   	 	Tof0 = new Float_t[MaxRun];
+   	 	Esi0 = new Float_t[MaxRun];
+		Brho0 = new Float_t[MaxRun];
+   // Correction de Tof pour identification Si-CsI	
+   	 	Tof0_code1 = new Float_t[MaxRun];
+		Deltat_code1 = new Float_t[MaxRun];  		        
+	
+	// Correction Double tof Pics
+	
+	Fit1 = new Float_t **[25];
+	Fit2 = new Float_t **[25];	
+	Fit3 = new Float_t **[25];
+	Fit4 = new Float_t **[25];
+	Fit5 = new Float_t **[25];	
+	Fit6 = new Float_t **[25];	
+	Fit7 = new Float_t **[25];
+	for(Int_t i=0; i<25; i++){
+		Fit1[i] = new Float_t *[2];
+		Fit2[i] = new Float_t *[2];
+		Fit3[i] = new Float_t *[2];
+		Fit4[i] = new Float_t *[2];		
+		Fit5[i] = new Float_t *[2];
+		Fit6[i] = new Float_t *[2];		
+		Fit7[i] = new Float_t *[2];				
+		for(Int_t j=0; j<2 ;j++){
+			Fit1[i][j] = new Float_t [MaxRun];
+			Fit2[i][j] = new Float_t [MaxRun];
+			Fit3[i][j] = new Float_t [MaxRun];
+			Fit4[i][j] = new Float_t [MaxRun];
+			Fit5[i][j] = new Float_t [MaxRun];
+			Fit6[i][j] = new Float_t [MaxRun];
+			Fit7[i][j] = new Float_t [MaxRun];										
+		}
+	}
+				
+	// Correction Offet relativiste
+	Offset_rela = new Float_t[MaxRun];
+  	Offset_relativiste_chiosi = new Float_t[MaxRun];
+		
+	// Redressement des distributions A/Q
+	P0_aq_straight = new Float_t[NbSilicon];
+	P1_aq_straight = new Float_t[NbSilicon];	
+	P2_aq_straight = new Float_t[NbSilicon];
+	
+	P0_aq_straight_chiosi = new Float_t[7];
+	P1_aq_straight_chiosi = new Float_t[7];	
+	P2_aq_straight_chiosi = new Float_t[7];	 
+	 
+FragDetSi = new Int_t[NbCsI];
+FragSignalSi = new Int_t[NbCsI];
+FragESi = new Float_t[NbCsI];
+FragTfinal = new Double_t[NbCsI];
+Off_chiosi = new Double_t[NbCsI];
+Off_dc1dc2 = new Double_t[NbCsI];
+TOF_chiosi = new Double_t[NbCsI];
+
+FragSignalCsI = new Int_t[NbCsI]; 
+FragDetCsI = new Int_t[NbCsI];
+
+FragDetChio = new Int_t[NbCsI]; 
+FragSignalChio = new Int_t[NbCsI];
+FragEChio = new Float_t[NbCsI];
+
+V = new Float_t[NbCsI];
+Vx = new Float_t[NbCsI]; 
+Vy = new Float_t[NbCsI];
+Vz = new Float_t[NbCsI]; 
+
+Beta = new Float_t[NbCsI];
+M_Q = new Float_t[NbCsI];
+Etot = new Float_t[NbCsI];
+M = new Float_t[NbCsI];
+Q  = new Float_t[NbCsI];
+
+Beta_chiosi = new Float_t[NbCsI];
+M_Q_chiosi = new Float_t[NbCsI];
+M_chiosi = new Float_t[NbCsI];
+Q_chiosi  = new Float_t[NbCsI];
+
+RealQ_straight = new  Float_t[NbCsI];
+Q_straight = new  Int_t[NbCsI];
+M_straight = new  Float_t[NbCsI];  
+
+  geom = new Int_t*[NbSilicon];
+  geom_cross = new Int_t*[NbSilicon];  
+  geomchiosi = new Int_t*[NbSilicon];
+  geomchiocsi = new Int_t*[NbCsI];    
+  
+  for(Int_t i=0; i<NbSilicon; i++){
+  	geom[i] = new Int_t[6];
+  	geom_cross[i] = new Int_t[4];	
+	geomchiosi[i] = new Int_t[2];
+  }
+  for(Int_t i=0; i<NbCsI; i++){
+  	geomchiocsi[i] = new Int_t[2];
+  }
+  
+  
+   //======================================= 
+  InitReadVariables();
+  Geometry();
+  GeometryChioSi();
+  GeometryChioCsI();
+  GeometrySiCsICross();
+  
+grid_list = 0;
+
+ if(gIDGridManager != 0){
+   	grid_list = (KVList*) gIDGridManager->GetGrids();
+	if(grid_list == 0)	printf("Error: gIDGridManager->GetGrids() failed\n");
+}	
+else{
+	cout<<"gIDGridManager NULL"<<endl;
+}
+ 
+//Reading Files : 
+ReadQCorrection();
+ReadAQCorrection();
+ReadACorrection();
+ReadFlagVamos();
+ReadToFCorrectionChioSi();
+ReadToFCorrectionCode1();
+ReadStatIndra();
+ReadStraightAQ();
+ReadDoublingCorrection();
+ReadOffsetsChiosi();
+
+event_number=0;
+
+}
+
+void Identificationv::LoadGridForCode2Cuts()
+{
+
+cout<<"run : "<<gIndra->GetCurrentRunNumber()<<" Brho0 : "<<Brho0[int(gIndra->GetCurrentRunNumber())]<<endl;
+energytree->InitCode2Cuts(Brho0[int(gIndra->GetCurrentRunNumber())]);
+
+return;
+}
+
+
+Identificationv::~Identificationv(void)
+{
+
+  delete [] AA ;
+  delete [] FragECsI;
+  delete [] FragEGap;  
+  delete [] Stat_Indra;  
+  
+ delete [] PID;
+ delete [] PID_sitof;
+ delete [] PID_chiov2; 
+ delete [] Z_PID;
+ delete [] A_PID;   
+ delete [] Z_corr;
+ delete [] Z_PID_sitof;   
+ delete [] Z_corr_sitof; 
+ delete [] Z_PID_chiov2;   
+ delete [] Z_corr_chiov2;  
+   //Q Correction Function according to the CsI detector
+    	delete [] P0;
+    	delete [] P1;	   
+    	delete [] P2;
+    	delete [] P3;	   
+   
+   // Correction de M/Q
+    	delete [] P0_mq;
+    	delete [] P1_mq;
+         
+   // Correction de M
+    	delete [] P0_m;
+    	delete [] P1_m;   
+	
+// Correction de M Chio-Si
+    	delete [] P0_m_chiosi;
+    	delete [] P1_m_chiosi;
+   
+   // Correction de M Si-Tof
+    	delete [] P0_m_sitof;
+    	delete [] P1_m_sitof;
+
+   // Correction de M/Q Chio-Si
+    	delete [] P0_mq_chiosi;
+    	delete [] P1_mq_chiosi; 
+   
+   // Correction de M/Q Si-Tof
+    	delete []P0_mq_sitof;
+    	delete []P1_mq_sitof;
+      
+   
+   // Tag des events
+   	delete []Brho_min;
+	delete []Brho_max;	
+
+	delete []Code_Ident_Vamos;
+	delete []Code_Vamos;  
+	
+   // Correction de Tof pour identification Chio-Si
+   	 delete []Tof0;
+   	 delete []Esi0;  
+	 delete []Brho0;
+	 
+   // Correction de Tof pour identification Si-CsI
+   	delete []Tof0_code1;
+	delete []Deltat_code1;	 	    
+	
+	// Correction Double tof Pics
+	
+	delete []Fit1;
+	delete []Fit2;     
+	delete []Fit3;
+	delete []Fit4;
+	delete []Fit5;     
+	delete []Fit6;     
+	delete []Fit7;
+				
+	// Correction Offet relativiste
+	delete []Offset_rela;
+	delete []Offset_relativiste_chiosi;
+	
+	// Redressement des distributions A/Q
+	delete []P0_aq_straight;
+	delete []P1_aq_straight;       
+	delete []P2_aq_straight;
+	
+	delete []P0_aq_straight_chiosi;
+	delete []P1_aq_straight_chiosi;       
+	delete []P2_aq_straight_chiosi;	 
+	 
+delete []FragDetSi;
+delete []FragSignalSi;
+delete []FragESi;
+
+delete []FragSignalCsI; 
+delete []FragDetCsI;
+
+delete []FragDetChio; 
+delete []FragSignalChio;
+delete []FragEChio;
+
+delete []FragTfinal;
+delete []Off_chiosi;
+delete []Off_dc1dc2; 
+delete []TOF_chiosi;
+
+delete []V;
+delete []Vx;
+delete []Vy;
+delete []Vz;
+
+delete []Beta;
+delete []M_Q;
+delete []Etot;
+delete []M;
+delete []Q;
+
+delete []Beta_chiosi;
+delete []M_Q_chiosi;
+delete []M_chiosi;
+delete []Q_chiosi;
+
+
+delete []RealQ_straight;
+delete []Q_straight;
+delete []M_straight;
+  
+ delete [] geom;
+ delete [] geom_cross;
+ delete [] geomchiosi;
+ delete [] geomchiocsi;    
+
+delete Rnd;
+delete id;
+delete kvn;
+}
+
+void Identificationv::InitReadVariables(void)
+{
+
+
+for(Int_t i=0; i<18; i++){
+	for(Int_t j=0; j<6; j++){
+		geom[i][j] = -1;
+	if(j<3)	geomchiosi[i][j] = -1;
+	}
+}
+
+for(Int_t i=0;i<NbCsI;i++){
 	P0[i] = 0.;
 	P1[i] = 0.;
 	P2[i] = 0.;
@@ -60,17 +527,1417 @@ for(Int_t i=0;i<600;i++){
 	P1_mq[i] = 0.;
 	P0_mq_chiosi[i] = 0.;
 	P1_mq_chiosi[i] = 0.;
-	Tof0[i] = 0;
-	Esi0[i] = 0;	
+	P0_mq_sitof[i] = 0.;
+	P1_mq_sitof[i] = 0.;   
+	Tof0[i] = 0.;
+	Esi0[i] = 0.;
+	Brho0[i] = 0.;
+	Tof0_code1[i] = 0.;
+	Deltat_code1[i] = 0.;	
 	for(Int_t j=0;j<25;j++){
 		P0_m[i][j] = 0.;
 		P1_m[i][j] = 0.;
 		P0_m_chiosi[i][j] = 0.;
-		P1_m_chiosi[i][j] = 0.;		
+		P1_m_chiosi[i][j] = 0.;	
+		P0_m_sitof[i][j] = 0.;
+		P1_m_sitof[i][j] = 0.;				
 		
 	}
 }
 
+/*for(Int_t i=0;i<25;i++){
+	for(Int_t j=0;j<60;j++){
+		for(Int_t k=0;k<10;k++){
+			for(Int_t l=0;l<MaxRun;l++){
+				Brho_min[i][j][k][l] = -10.0;
+				Brho_max[i][j][k][l] = -10.0;
+			}
+		}
+	}
+}*/
+
+for(Int_t i=0;i<MaxRun;i++){
+	Stat_Indra[i] = -10.0;
+	Stat_Indra[i] = -10.0;
+	
+	Brho_min[i] = -10.0;
+	Brho_max[i] = -10.0;
+	
+	Offset_relativiste_chiosi[i] = 0.0;   	
+}
+
+for(Int_t i=0; i<18; i++){
+	P0_aq_straight[i] = 0.0;
+	P1_aq_straight[i] = 0.0;
+	P2_aq_straight[i] = 0.0;
+}
+for(Int_t i=0; i<7; i++){
+	P0_aq_straight_chiosi[i] = 0.0;
+	P1_aq_straight_chiosi[i] = 0.0;
+	P2_aq_straight_chiosi[i] = 0.0;
+}
+
+for(Int_t i=0; i<25; i++){
+	for(Int_t j=0; j<2; j++){
+		for(Int_t k=0; k<MaxRun; k++){
+		Fit1[i][j][k]=-1000.0;
+		Fit2[i][j][k]=-1000.0;		
+		Fit3[i][j][k]=-1000.0;
+		Fit4[i][j][k]=-1000.0;
+		Fit5[i][j][k]=-1000.0;		
+		Fit6[i][j][k]=-1000.0;
+		Fit7[i][j][k]=-1000.0;
+		}					
+	}
+}
+
+return;
+}
+
+void Identificationv::Init(void)
+{
+  Present = false; 
+  dE = dE1 = V_Etot = T_FP = Mass = M_simul = Z1 = Z2 = Z_tot = Z_si = D = -10.0;
+  M_Qr = Mr = Qr = -10.0;
+  Qc = Mc = -10.0;  
+  
+  Gamma = 1.; 
+ initThickness=0.;      
+
+einc_si = einc_isogap1 = eloss_isogap1 = einc_ic = eloss_ic = einc_dc2 = eloss_dc2 = einc_sed = eloss_sed = einc_dc1 = eloss_dc1 = einc_tgt = eloss_tgt = 0.0;
+E_tgt = E_dc1 = E_dc2 = E_sed = E_gap1 = E_chio = 0.0;
+
+for(Int_t i=0; i<3; i++){
+ fELosLayer_dc1[i]= 0.0;
+ fELosLayer_dc2[i]= 0.0;
+ fELosLayer_ic[i]= 0.0;
+}
+    runNumber = 0;
+    runNumber = (Int_t)gIndra->GetCurrentRunNumber();
+	
+for(Int_t i=0; i<NbCsI; i++){
+		FragDetSi[i] = -10; 
+ 		FragSignalSi[i] = -10;
+ 		FragESi[i] = -10.0;
+		FragTfinal[i] = -10.0;
+		Off_chiosi[i] = -10.0;		
+		Off_dc1dc2[i] = -10.0;
+		TOF_chiosi[i] = -10.0;
+				
+		FragSignalCsI[i] = -10;
+		FragDetCsI[i] = -10;
+		
+		FragDetChio[i] = -10;
+		FragSignalChio[i] = -10;
+		FragEChio[i] = -10.0;
+		
+		A_PID[i] = -10.0;
+		Z_PID[i] = -10.0;
+		PID[i] = -10.0;
+		PID_sitof[i] = -10.0;
+		PID_chiov2[i] = -10.0;		
+		Z_corr[i] = -10;
+		Z_PID_sitof[i] = -10.0;
+		Z_corr_sitof[i] = -10;	
+		Z_PID_chiov2[i] = -10.0;
+		Z_corr_chiov2[i] = -10;				
+		FragECsI[i] = -10.0;
+		FragEGap[i] = -10.0;
+		AA[i] = -10.0;
+		
+		Code_Ident_Vamos[i] = -10;
+		Code_Vamos[i] = -10;
+		V[i] = -10.0;
+		Vx[i] = -10.0;
+		Vy[i] = -10.0;
+		Vz[i] = -10.0;
+		Beta[i] = -10.0;
+		M_Q[i] = -10.0;
+		Etot[i] = -10.0;
+		M[i] = -10.0;
+		Q[i] = -10.0;
+		
+		Beta_chiosi[i] = -10.0;
+		M_Q_chiosi[i] = -10.0;
+		M_chiosi[i] = -10.0;
+		Q_chiosi[i] = -10.0;		
+		
+		RealQ_straight[i] = -10.0;
+		Q_straight[i] = -10;
+		M_straight[i] = -10.0;
+						
+}
+MaxM = 0;
+fMultiplicity_case = -10;
+Code_good_event = -10;
+print = kFALSE;
+
+return;
+}
+
+void Identificationv::InitSavedQuantities(void)
+{
+	
+for(Int_t i=0; i<NbCsI; i++){
+	FragDetSi[i] = -10; 
+ 	FragSignalSi[i] = -10;
+ 	FragESi[i] = -10.0;
+	FragTfinal[i] = -10.0;
+	Off_chiosi[i] = -10.0;	
+	Off_dc1dc2[i] = -10.0;
+	TOF_chiosi[i] = -10.0;		
+			
+	FragSignalCsI[i] = -10;
+	FragDetCsI[i] = -10;
+		
+	FragDetChio[i] = -10;
+	FragSignalChio[i] = -10;
+	FragEChio[i] = -10.0;
+					
+}
+
+return;
+}
+//===================================================
+
+Int_t Identificationv::GetMaxMultiplicity(void)
+{
+if(Rec->Brho<0){
+	fMultiplicity_case = -3;
+	Code_good_event = 3;
+	return 0;
+}
+if(Si->EMSI>=Ic->EMIC && Si->EMSI>=CsI->EMCSI){
+	fMultiplicity_case = 1;
+	return Si->EMSI;
+}
+else if(CsI->EMCSI>Si->EMSI && CsI->EMCSI>=Ic->EMIC){
+	fMultiplicity_case = 2;
+	return CsI->EMCSI;
+}
+else if(Ic->EMIC>Si->EMSI && Ic->EMIC>CsI->EMCSI){
+	fMultiplicity_case = 0;
+	return Ic->EMIC;	
+}
+else{
+	fMultiplicity_case = -10;
+	cout<<"Not suppose to enter here GetMaxMultiplicty()"<<endl;
+	return 0;
+}
+
+}
+
+void Identificationv::FragPropertiesInOrder(void)
+{
+
+Int_t nhit_sicsi=0;
+Int_t nhit_chiosi=0;
+Int_t nhit_chiocsi=0;
+MaxM = GetMaxMultiplicity();
+Code_good_event = 0;
+
+bool used_silicon[Si->EMSI];
+bool not_recoverable = kFALSE;
+for(Int_t i=0; i<Si->EMSI; i++){
+	used_silicon[i] = kFALSE;
+}
+
+InitSavedQuantities();
+
+if(debug)cout<<"fMultiplicity_case : "<<fMultiplicity_case<<endl;
+if(debug)cout<<"code good event : "<<Code_good_event<<endl;
+	for(Int_t i=0; i<GetMaxMultiplicity(); i++){
+		if(debug)cout<<"Chio before : "<<FragDetChio[i]<<"	"<<FragSignalChio[i]<<"	"<<FragEChio[i]<<endl;
+		if(debug)cout<<"Si before : "<<FragDetSi[i]<<"	"<<FragSignalSi[i]<<"	"<<FragESi[i]<<endl;
+		if(debug)cout<<"CsI before : "<<FragDetCsI[i]<<"	"<<FragSignalCsI[i]<<endl;
+	}
+if(fMultiplicity_case==1){	//Si->EMSI greater or equal to the other multiplicities
+	Code_good_event=-10;
+	for(Int_t i=0; i<Si->EMSI; i++){
+	
+		if(Si->EMSI==1){
+			if(Si->DetSi[i]==16){
+				if(Si->E[i]>((4.36*Si->T_final[i])-311.) ){
+					if( (CsI->DetCsI[i]==45 && Si->E[i]<((-0.0548*CsI->CsIERaw[i])+384.) &&  Si->E[i]>((-0.0556*CsI->CsIERaw[i])+340.)) ||
+					(CsI->DetCsI[i]==46 && Si->E[i]<((-0.0328*CsI->CsIERaw[i])+365.) &&  Si->E[i]>((-0.0353*CsI->CsIERaw[i])+345.))){
+			
+					cout<<"DetCsI : "<<CsI->DetCsI[i]<<endl;
+					cout<<"ESi : "<<Si->E[i]<<"	Tof : "<<Si->T_final[i]<<"	CsICanal : "<<CsI->CsIERaw[i]<<endl;
+					print = kTRUE;
+					}
+				}
+			}
+		}
+		
+		FragDetSi[i] = Si->DetSi[i];
+		FragSignalSi[i] = Si->SiERaw[i];
+		FragESi[i] = Si->E[i];
+		FragTfinal[i] = Si->T_final[i];
+		
+		if(debug)cout<<"i : "<<i<<" FragDetSi[i] : "<<FragDetSi[i]<<" FragSignalSi[i] : "<<FragSignalSi[i]<<" FragESi[i] : "<<FragESi[i]<<"	FragTfinal : "<<FragTfinal[i]<<endl;
+				
+		for(Int_t j=0; j<CsI->EMCSI; j++){
+			if(debug)cout<<"j : "<<j<<" "<<CsI->DetCsI[j]<<" "<<CsI->CsIERaw[j]<<endl;
+			if(debug)cout<<"geometry sicsi : "<<IsSiCsITelescope(Si->DetSi[i]-1,CsI->DetCsI[j]-1)<<endl;
+			if(CsI->CsIERaw[j]>0 && IsSiCsITelescope(Si->DetSi[i]-1,CsI->DetCsI[j]-1)==1){
+				if(nhit_sicsi>0){
+					if(debug)cout<<"Double Hit In SiCsI"<<endl;
+				}				
+				FragSignalCsI[i] = CsI->CsIERaw[j];
+				FragDetCsI[i] = CsI->DetCsI[j];
+				nhit_sicsi++;
+				
+			} //IsSiCsITelescope
+		} //Multiplicity CsI
+		
+		for(Int_t k=0; k<Ic->EMIC; k++){
+			if(debug)cout<<"k : "<<k<<" "<<Ic->DetChio[k]<<" "<<Ic->E[k]<<endl;
+			if(debug)cout<<"geometry chiosi : "<<IsChioSiTelescope(Ic->DetChio[k]-1,Si->DetSi[i]-1)<<endl;
+			if(Ic->E[k]>0 && IsChioSiTelescope(Ic->DetChio[k]-1,Si->DetSi[i]-1)==1){
+				if(nhit_chiosi>0){
+					if(debug)cout<<"Double Hit In ChioSi"<<endl;
+				}			
+				FragSignalChio[i] = Ic->IcRaw[k];
+				FragDetChio[i] = Ic->DetChio[k];
+				FragEChio[i] = Ic->E[k];
+				nhit_chiosi++;
+							
+			} //IsChioSiTelescope
+		} //Multiplicity IC
+		
+		if(nhit_sicsi>1 || nhit_chiosi>1){
+			Code_good_event = 4;
+			break;
+		}
+		nhit_sicsi=0;
+		nhit_chiosi=0;
+		
+	} //Multiplicity Si		
+	
+	if(Si->EMSI==CsI->EMCSI && Si->EMSI==1){	//We restrict to events with multiplicity = 1, because after we analyze only mulitplicity 1 events
+		if(FragDetCsI[0]==-10){
+			if(IsCsISiCrossTelescope(FragDetSi[0]-1,CsI->DetCsI[0]-1)==1){
+				Code_good_event=6;	//Fragment hit one Si and enters in the CsI behind a neighbour Si. We can't identify those events in Chio-Si, 
+							//because the ptcle. is not stopped in Si				
+				}
+			else{
+				Code_good_event=7;	//No relation between the Si and the CsI. Possible? Chio-Si identification if there's a chio, but we lose the information about the CsI. 
+			}
+				
+			}
+		}
+}
+
+else if(fMultiplicity_case==2){
+	for(Int_t i=0; i<CsI->EMCSI; i++){
+		FragSignalCsI[i] = CsI->CsIERaw[i];
+		FragDetCsI[i] = CsI->DetCsI[i];	
+				
+		for(Int_t j=0; j<Si->EMSI; j++){
+			if(Si->E[j]>0 && IsSiCsITelescope(Si->DetSi[j]-1,CsI->DetCsI[i]-1)==1){
+				if(used_silicon[j] == kTRUE){
+					not_recoverable = kTRUE;
+					if(debug)cout<<"2 CsI behind the same Si"<<endl;
+				}	
+				if(nhit_sicsi>0){
+					if(debug)cout<<"Double Hit In SiCsI"<<endl;
+				}
+				used_silicon[j] = kTRUE;				
+				FragDetSi[i] = Si->DetSi[j];
+				FragSignalSi[i] = Si->SiERaw[j];
+				FragESi[i] = Si->E[j];		
+				FragTfinal[i] = Si->T_final[j];
+				nhit_sicsi++;
+				
+			} //IsSiCsITelescope
+		} //Multiplicity Si
+		
+		for(Int_t k=0; k<Ic->EMIC; k++){
+			if(Ic->E[k]>0 && IsChioCsITelescope(Ic->DetChio[k]-1,CsI->DetCsI[i]-1)==1){
+				if(nhit_chiocsi>0){
+					if(debug)cout<<"Double Hit In ChioCsI"<<endl;
+				}			
+				FragSignalChio[i] = Ic->IcRaw[k];
+				FragDetChio[i] = Ic->DetChio[k];
+				FragEChio[i] = Ic->E[k];
+				nhit_chiocsi++;
+							
+			} //IsChioSiTelescope
+		} //Multiplicity IC
+		
+		if(nhit_sicsi>1 || nhit_chiocsi>1 || not_recoverable== kTRUE){
+		//if(nhit_sicsi>1 || nhit_chiocsi>1 ){
+			Code_good_event = 4;
+			break;
+		}
+		nhit_sicsi=0;
+		nhit_chiocsi=0;
+	} //Multiplicity Si
+	
+	//if(((CsI->EMCSI==2 && Si->EMSI==1) ||  (CsI->EMCSI==3 && Si->EMSI==1)) && FragDetSi[0]>0){
+	if( (CsI->EMCSI==2 && Si->EMSI==1) && ((FragDetSi[0]>0) ^ (FragDetSi[1]>0))  ){
+		Code_good_event = -8;
+	}
+	else{
+		Code_good_event = 9;
+	}	
+	if( (CsI->EMCSI==3 && Si->EMSI==1) && ((FragDetSi[0]>0) ^ (FragDetSi[1]>0) ^ (FragDetSi[2]>0))  ){
+		Code_good_event = -8;
+	}
+	else{
+		Code_good_event = 9;
+	}	
+	if(CsI->EMCSI==2 && Si->EMSI==1 && FragDetSi[0]==-10 ){	//We restrict to events with multiplicity = 1, because after we analyze only mulitplicity 1 events
+		for(Int_t i=0; i<CsI->EMCSI; i++){		
+			if(IsCsISiCrossTelescope(Si->DetSi[0]-1,CsI->DetCsI[i]-1)==1){
+				Code_good_event=6;	//Fragment hit one Si and enters in the CsI behind a neighbour Si. We can't identify those events in Chio-Si, 
+							//because the ptcle. is not stopped in Si				
+				}
+		}
+		if(Code_good_event==0){
+			Code_good_event=9;
+		
+		}			
+	}
+		
+}
+		
+else if(fMultiplicity_case==0){
+		Code_good_event=10;
+	for(Int_t i=0; i<Ic->EMIC; i++){
+		FragSignalChio[i] = Ic->IcRaw[i];
+		FragDetChio[i] = Ic->DetChio[i];
+		FragEChio[i] = Ic->E[i];
+		
+		for(Int_t j=0; j<Si->EMSI; j++){
+			if(Si->E[j]>0 && IsChioSiTelescope(Ic->DetChio[i]-1,Si->DetSi[j]-1)==1){
+				if(nhit_chiosi>0){
+					if(debug)cout<<"Double Hit In ChioSi"<<endl;
+				}				
+				FragDetSi[i] = Si->DetSi[j];
+				FragSignalSi[i] = Si->SiERaw[j];
+				FragESi[i] = Si->E[j];
+				FragTfinal[i] = Si->T_final[j];
+				nhit_chiosi++;
+				
+			} //IsSiCsITelescope
+		} //Multiplicity Si
+		
+		for(Int_t j=0; j<CsI->EMCSI; j++){
+			if(CsI->CsIERaw[j]>0 && IsChioCsITelescope(Ic->DetChio[i]-1,CsI->DetCsI[j]-1)==1){
+				if(nhit_chiocsi>0){
+					if(debug)cout<<"Double Hit In ChioCsI"<<endl;
+				}				
+				FragSignalCsI[i] = CsI->CsIERaw[j];
+				FragDetCsI[i] = CsI->DetCsI[j];
+				nhit_chiocsi++;
+				
+			} //IsSiCsITelescope
+		} //Multiplicity CsI		
+		
+		if(nhit_sicsi>1 || nhit_chiocsi>1){
+			Code_good_event = 4;
+			break;
+		}
+		nhit_chiosi=0;
+		nhit_chiocsi=0;		
+	}	
+}
+
+else{
+	Code_good_event=4;
+	if(debug)cout<<"Should not happen FragPropertiesInOrder()"<<endl;	
+}
+if(debug)cout<<"Code good event at the end : "<<Code_good_event<<endl;
+
+if(Code_good_event==4){
+	if(debug)cout<<"Reset everything"<<endl;
+	for(Int_t i=0; i<GetMaxMultiplicity(); i++){
+		FragDetSi[i] = -10; 
+ 		FragSignalSi[i] = -10;
+ 		FragESi[i] = -10.0;
+		FragTfinal[i] = -10.0;
+		
+		FragSignalCsI[i] = -10;
+		FragDetCsI[i] = -10;
+		
+		FragDetChio[i] = -10;
+		FragSignalChio[i] = -10;
+		FragEChio[i] = -10.0;
+	}	
+}
+if(debug){
+	for(Int_t i=0; i<GetMaxMultiplicity(); i++){
+		cout<<"Chio : "<<FragDetChio[i]<<"	"<<FragSignalChio[i]<<"	"<<FragEChio[i]<<endl;
+		cout<<"Si : "<<FragDetSi[i]<<"	"<<FragSignalSi[i]<<"	"<<FragESi[i]<<endl;
+		cout<<"CsI : "<<FragDetCsI[i]<<"	"<<FragSignalCsI[i]<<endl;
+		cout<<"Tof : "<<FragTfinal[i]<<endl;
+	}
+}
+
+return;
+}
+
+
+void Identificationv::Calculate(void)
+{
+
+//=================================================
+// Z Identification
+bool identified = kFALSE;
+
+if(Code_good_event==-10  && Si->EMSI==1){
+	for(Int_t y=0;y< Si->EMSI ;y++){
+		identified = kFALSE;
+		if(FragSignalCsI[y]>0){	// if the channel is above the pedestal
+			//IdentificationSi-CsI		
+			energytree->InitTelescope(FragDetSi[y]-1,FragDetCsI[y]-1);
+			energytree->InitSiCsI(FragDetSi[y]);
+			energytree->SetCalibration(Si,CsI,FragDetSi[y]-1,FragDetCsI[y]-1);
+			id = new KVIdentificationResult();
+			id_sitof = new KVIdentificationResult();
+   			char scope_name [256];
+			char scope_name_sitof [256];
+  			sprintf(scope_name, "null");
+			sprintf(scope_name_sitof, "null");
+			if(energytree->kvid==NULL){	
+				if(debug)cout<<"See you!!"<<endl<<flush;
+				Code_Ident_Vamos[y] = 31;	//ID failed because no Si-CsI grid
+				if(debug)cout<<"Code 31 : "<<Code_Ident_Vamos[y]<<endl;
+				identified = kTRUE;
+				}
+			else{
+   			sprintf(scope_name,"%s", energytree->kvid->GetName());
+			if(debug)cout<<"Si-CsI name : "<<energytree->kvid->GetName()<<endl;
+			grd = 0;
+			if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
+				if(energytree->kvid->IsIdentifiable(double(FragSignalCsI[y]), double(FragESi[y])) ){
+					//Code_Ident_Vamos[y]=1;
+					//if(debug)cout<<"Code1 : "<<Code_Ident_Vamos[y]<<endl;
+				        energytree->kvid->Identify(double(FragSignalCsI[y]), double(FragESi[y]), id);	       //energytree->kvid : KVIDGraph  Identify(x,y)
+                                        A_PID[y] = id->A;
+                        	        Z_PID[y] = id->Z;
+				        Z_corr[y] = int(Z_PID[y]);
+                       		        PID[y] = id->PID;
+				        energytree->SetFragmentZ(Z_corr[y]);
+				        energytree->GetResidualEnergyCsI(double(FragESi[y]),double(FragSignalCsI[y]));	       //Method called for guessing A value by bissection method and getting CsI energy
+					if(energytree->good_bisection==kFALSE)	Code_Ident_Vamos[y] = 37;
+	        			FragECsI[y] = energytree->RetrieveEnergyCsI();
+					FragEGap[y] = energytree->eEnergyGap;
+			
+					AA[y] = energytree->RetrieveA();																		
+					identified = kTRUE;
+					
+					energytree->InitTelescopeSiTof(FragDetSi[y]-1);					
+					if(energytree->kvid_sitof==NULL){
+						Code_Ident_Vamos[y] = 38;
+						
+					}
+					else{
+						sprintf(scope_name_sitof,"%s", energytree->kvid_sitof->GetName());
+						if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_sitof)) != 0){
+							if(energytree->kvid_sitof->IsIdentifiable(double(FragTfinal[y]),double(FragESi[y])) ){
+								//cout<<"Identifiable"<<endl;	
+								energytree->kvid_sitof->Identify(double(FragTfinal[y]),double(FragESi[y]), id_sitof);
+								PID_sitof[y] = id_sitof->PID;
+                        	        			Z_PID_sitof[y] = id_sitof->Z;
+				        			Z_corr_sitof[y] = int(Z_PID_sitof[y]);
+								if( (id_sitof->PID>=(PID[y]-0.7)) && (id_sitof->PID<=(PID[y]+0.7)) ){
+									Code_Ident_Vamos[y]=1;
+									//cout<<"Good Z. Youppi!"<<endl;	
+									
+								}
+								else{
+									Code_Ident_Vamos[y]=39;
+									//cout<<"Bad Z. Bou!"<<endl;
+									//cout<<"TOF : "<<FragTfinal[y]<<"	ESI : "<<FragESi[y]<<"	DetSi : "<<FragDetSi[y]<<"	Z Si-CsI : "<<PID[y]<<
+									//"	Z Chio-Si : "<<id_sitof->PID<<endl;
+								}							
+							}
+							else{
+								Code_Ident_Vamos[y]=40;
+								//cout<<"Non identifiable Si-TOF"<<endl;
+								//cout<<"TOF : "<<FragTfinal[y]<<"	ESI : "<<FragESi[y]<<"	DetSi : "<<FragDetSi[y]<<"	Z Si-CsI : "<<PID[y]<<endl;
+							}
+							
+						}
+						else{
+							cout<<"grd NULL, but I don't know why!!!"<<endl;
+						}
+						
+						
+					}
+					
+					if(print){
+						cout<<"DetCsI : "<<CsI->DetCsI[y]<<endl;
+						cout<<"ESi : "<<Si->E[y]<<"	Tof : "<<Si->T_final[y]<<"	CsICanal : "<<CsI->CsIERaw[y]<<endl;
+						cout<<"Z : "<<PID[y]<<"	ECsI : "<<FragECsI[y]<<endl;
+					}
+				
+					}	//Is Identifiable
+				else{
+					Code_Ident_Vamos[y] = 35;	//Signal in CsI, but noise...
+					identified = kTRUE;
+					}
+				}
+				else{
+					Code_Ident_Vamos[y] = 37;	//Signal in CsI, but noise...
+					identified = kTRUE;
+				}
+				
+				delete id;
+				delete id_sitof;
+				
+			}							
+		} //Signal CsI>piedestal
+		
+		if(FragEChio[y]>0 && FragSignalCsI[y]<=0){
+					//Identification Chio-Si
+					energytree->InitTelescopeChioSi(FragDetChio[y],FragDetSi[y]-1);	//Ic->Number (1-7), Si->Number(0,17)
+   					id_chiosi = new KVIdentificationResult();
+   					char scope_name_chiosi [256];
+  					sprintf(scope_name_chiosi, "null");
+					if(energytree->kvid_chiosi==NULL){
+						if(debug)cout<<"See you Baby!!"<<endl;
+						Code_Ident_Vamos[y] = 32;	//ID failed because no Chio-Si grid
+						identified = kTRUE;					
+					}
+					else{
+   					sprintf(scope_name_chiosi,"%s", energytree->kvid_chiosi->GetName());
+					if(debug)cout<<"Chio-Si name : "<<energytree->kvid_chiosi->GetName()<<endl;
+					grd=0;
+   					if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_chiosi)) != 0){
+						if(energytree->kvid_chiosi->IsIdentifiable(FragESi[y], FragEChio[y]) ){
+									Code_Ident_Vamos[y] = 2;
+									energytree->kvid_chiosi->Identify(FragESi[y],FragEChio[y] , id_chiosi);		//energytree->kvid : KVIDGraph	Identify(x,y)
+                                        				A_PID[y] = id_chiosi->A;
+
+                        						Z_PID[y] = (id_chiosi->Z);
+									Z_corr[y] = int(Z_PID[y]);
+                       							PID[y] = (id_chiosi->PID);
+					
+													
+									identified = kTRUE;
+																		
+									}	//IsIdentificable
+						else{
+							Code_Ident_Vamos[y] = 36;	//Signal in Chio, but noise...
+							identified = kTRUE;
+							}
+								}	//grid exist 
+							delete id_chiosi;		
+					}
+		} //identified==kFALSE && FragEChio[y]>0
+		if(identified==kFALSE){
+			Code_Ident_Vamos[y]=3;
+		}
+	} //Multiplicity Si
+		
+	for(Int_t y=0;y< Si->EMSI ;y++){
+		if(Code_Ident_Vamos[y]<0 ){
+			if(debug)cout<<"**************Code_Ident_Vamos=-10 OUT**************"<<endl;
+		
+		}
+	}
+} //good event
+
+if(Code_good_event==-8){
+	for(Int_t y=0;y< CsI->EMCSI ;y++){
+		identified = kFALSE;
+		if(FragESi[y]>0){	// if the channel is above the pedestal
+			//IdentificationSi-CsI		
+			energytree->InitTelescope(FragDetSi[y]-1,FragDetCsI[y]-1);
+			energytree->InitSiCsI(FragDetSi[y]);
+			energytree->SetCalibration(Si,CsI,FragDetSi[y]-1,FragDetCsI[y]-1);
+			id = new KVIdentificationResult();			
+			id_sitof = new KVIdentificationResult();
+   			char scope_name [256];			
+			char scope_name_sitof [256];
+  			sprintf(scope_name, "null");			
+			sprintf(scope_name_sitof, "null");
+			if(energytree->kvid==NULL){	
+				if(debug)cout<<"See you!!"<<endl<<flush;
+				Code_Ident_Vamos[y] = 31;	//ID failed because no Si-CsI grid
+				if(debug)cout<<"Code 31 : "<<Code_Ident_Vamos[y]<<endl;
+				}
+			else{
+   			sprintf(scope_name,"%s", energytree->kvid->GetName());
+			if(debug)cout<<"Si-CsI name : "<<energytree->kvid->GetName()<<endl;
+			grd = 0;
+			if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
+				if(energytree->kvid->IsIdentifiable(double(FragSignalCsI[y]), double(FragESi[y])) ){
+					Code_Ident_Vamos[y]=1;
+					if(debug)cout<<"Code1 : "<<Code_Ident_Vamos[y]<<endl;
+				        energytree->kvid->Identify(double(FragSignalCsI[y]), double(FragESi[y]), id);	       //energytree->kvid : KVIDGraph  Identify(x,y)
+                                        A_PID[y] = id->A;
+                        	        Z_PID[y] = id->Z;
+				        Z_corr[y] = int(Z_PID[y]);
+                       		        PID[y] = id->PID;
+				        energytree->SetFragmentZ(Z_corr[y]);
+				        energytree->GetResidualEnergyCsI(double(FragSignalSi[y]),double(FragSignalCsI[y]));	       //Method called for guessing A value by bissection method and getting CsI energy
+					if(energytree->good_bisection==kFALSE)	Code_Ident_Vamos[y] = 37;
+	        			FragECsI[y] = energytree->RetrieveEnergyCsI();
+					FragEGap[y] = energytree->eEnergyGap;
+			
+					AA[y] = energytree->RetrieveA();																		
+					identified = kTRUE;
+					
+					energytree->InitTelescopeSiTof(FragDetSi[y]-1);					
+					if(energytree->kvid_sitof==NULL){
+						Code_Ident_Vamos[y] = 38;
+					}
+					else{
+						sprintf(scope_name_sitof,"%s", energytree->kvid_sitof->GetName());
+						if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_sitof)) != 0){
+							if(energytree->kvid_sitof->IsIdentifiable(double(FragTfinal[y]),double(FragESi[y])) ){	
+								energytree->kvid_sitof->Identify(double(FragTfinal[y]),double(FragESi[y]), id_sitof);
+								PID_sitof[y] = id_sitof->PID;
+                        	        			Z_PID_sitof[y] = id_sitof->Z;
+				        			Z_corr_sitof[y] = int(Z_PID_sitof[y]);
+								if( (id_sitof->PID>=(PID[y]-0.5)) && (id_sitof->PID<=(PID[y]+0.5)) ){
+									Code_Ident_Vamos[y]=1;
+								}
+								else{
+									Code_Ident_Vamos[y]=39;
+								}							
+							}
+							else{
+								Code_Ident_Vamos[y]=40;
+							}
+						}
+					}					
+				
+					}	//Is Identifiable
+				else{
+					Code_Ident_Vamos[y]=36;
+				}	
+
+				}
+				else{
+					if(debug)cout<<"**************************************************************************************************************************"<<endl;
+				}
+				delete id;
+				delete id_sitof;
+			}							
+		} //Energy Si
+		else{
+			Code_Ident_Vamos[y] = 34;
+			if(debug)cout<<"Code 34 : "<<Code_Ident_Vamos[y]<<endl;
+		}
+		/*if(identified == kFALSE){
+			Code_Ident_Vamos[y]=3;
+			cout<<"Code Ident : "<<Code_Ident_Vamos[y]<<endl;
+		}*/
+	}//CsI Multiplicity
+	
+	for(Int_t y=0;y< CsI->EMCSI ;y++){
+		if(Code_Ident_Vamos[y]<0 ){
+			if(debug)cout<<"**************Code_Ident_Vamos=-10 OUT**************"<<endl;
+		
+		}		
+	}	
+	
+}// Code good event
+
+//==========================================================================================
+// Offset for Si-CsI events (Code_Ident_Vamos=1).
+// We observe a shift of 40ns that we can't understand...Shift them back!
+
+D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (((Rec->DSI-Dr->FocalPos)/10.)/TMath::Cos(Dr->Tf/1000.)));   //Distance : 9423mm(si layer position) - 8702.5mm(focal plane position) = 720.50 mm
+
+if((Code_good_event==-10  && Si->EMSI==1) || (Code_good_event==-8)){
+	for(Int_t y=0;y< MaxM ;y++){
+		if(Code_Ident_Vamos[y]==1){
+			if(FragTfinal[y]<Tof0_code1[runNumber]){
+				FragTfinal[y] = FragTfinal[y]+ Deltat_code1[runNumber];
+				Code_Ident_Vamos[y]=40;
+			}
+		}
+	}
+}
+
+
+// Reconstruct Tof for Chio-si events adding the RF period
+// Frequency for the two beams : 8.5500 MHz
+
+if((Code_good_event==-10  && Si->EMSI==1) || (Code_good_event==-8)){
+	for(Int_t y=0;y< MaxM ;y++){
+		if(Code_Ident_Vamos[y]==2){
+			if(energytree->kvid_cutscode2==NULL){
+				cout<<"kvid_cutscode2 NULL"<<endl;
+			}
+			else{
+				if((runNumber>510 && runNumber<515) || runNumber==424 || runNumber==420 || runNumber==423 || runNumber==360 || runNumber==516 || runNumber==517 || 
+					(runNumber>501 && runNumber<507) ){	//Runs with a cut line, nothing to reject 
+					
+					if(energytree->kvid_cutscode2->IsIdentifiable(FragTfinal[y], FragESi[y])){
+						if(runNumber==360){	
+							FragTfinal[y] = FragTfinal[y]+(2.*(10.0E+09/(8.5500*10.0E06)));
+							Code_Ident_Vamos[y]=22;
+							if(Z_corr[y]<10)	Code_Ident_Vamos[y]=41;	
+						}
+						else{	
+							FragTfinal[y] = FragTfinal[y]+(10.0E+09/(8.5500*10.0E06));
+							Code_Ident_Vamos[y]=22;
+							if(runNumber==424 || runNumber==420 || runNumber==423 || runNumber==360 || runNumber==516 || runNumber==517){
+								if(Z_corr[y]<10)	Code_Ident_Vamos[y]=41;
+							}
+							else if((runNumber>501 && runNumber<505)){
+								if(Z_corr[y]<7)	Code_Ident_Vamos[y]=41;
+							}
+							else if((runNumber>504 && runNumber<507)){
+								if(Z_corr[y]<9)	Code_Ident_Vamos[y]=41;
+							}							
+						}
+					}
+					else{
+						if(runNumber==360)	FragTfinal[y] = FragTfinal[y]+(10.0E+09/(8.5500*10.0E06));	
+						else	FragTfinal[y] = FragTfinal[y];
+					}
+				}	//runs with a cut line, nothing to reject
+				else{	//runs where we reject something, we don't understand...
+					if(energytree->kvid_cutscode2->IsIdentifiable(FragTfinal[y], FragESi[y]) ){
+						if(runNumber>516 && runNumber<520 && FragTfinal[y]>Tof0[runNumber]){
+							//FragTfinal[y] = FragTfinal[y]-(10.0E+09/(8.5500*10.0E06));
+							FragTfinal[y] = FragTfinal[y];
+							Code_Ident_Vamos[y]=22;
+						}	//for those 2 runs, we have to substract the HF period, check done on Total Energy-ToF spectras
+						else{
+							if(FragTfinal[y]<Tof0[runNumber]){
+								FragTfinal[y] = FragTfinal[y]+(10.0E+09/(8.5500*10.0E06));
+								Code_Ident_Vamos[y]=22;
+							}
+						}				
+					}	//fragment identifiable, good fragments!
+					else{
+						FragTfinal[y] = FragTfinal[y]+ Deltat_code1[runNumber];
+						Code_Ident_Vamos[y] = 40;	//Rejected, Si-ToF we don't understand
+					}	// if not identifiable, fragment inside the contour
+				}	//runs where we reject something			
+			}	//grid not NULL
+			
+			
+			//Comparaison de l'identification en Z pour l'identification Chio-Si (Code_Ident_Vamos=2)			
+			id_chiov2 = new KVIdentificationResult();   					
+			char scope_name_chiov2 [256];			
+			sprintf(scope_name_chiov2, "null");
+			
+			energytree->InitChioV2(FragDetChio[y]);					
+			if(energytree->kvid_chiov2==NULL){
+				Code_Ident_Vamos[y] = 38;
+			}
+			else{
+				sprintf(scope_name_chiov2,"%s", energytree->kvid_chiov2->GetName());
+				if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_chiov2)) != 0){
+					/*cout<<"DetChio : "<<FragDetChio[y]<<endl;
+					cout<<"Echio : "<<FragEChio[y]<<endl;
+					cout<<"V2 : "<<double((D/FragTfinal[y])*(D/FragTfinal[y]))<<endl;*/
+					
+					if(energytree->kvid_chiov2->IsIdentifiable(double((D/FragTfinal[y])*(D/FragTfinal[y])),double(FragEChio[y])) ){	
+						energytree->kvid_chiov2->Identify(double((D/FragTfinal[y])*(D/FragTfinal[y])),double(FragEChio[y]), id_chiov2);
+						
+						PID_chiov2[y] = (id_chiov2->PID);
+                        	        	Z_PID_chiov2[y] = (id_chiov2->Z);
+				        	Z_corr_chiov2[y] = int(Z_PID_chiov2[y]);
+						//cout<<"PID chiov2 : "<<PID_chiov2[y]<<endl;
+						if( (PID_chiov2[y]>=(PID[y]-0.5)) && (PID_chiov2[y]<=(PID[y]+0.5)) ){
+							//cout<<"diff : "<<id_chiov2->PID+1.-PID[y]<<endl;
+							Code_Ident_Vamos[y]=2;
+						}
+						else{
+							Code_Ident_Vamos[y]=39;
+						}							
+					}
+					else{
+						Code_Ident_Vamos[y]=40;
+					}
+				}
+			}
+			delete 	id_chiov2;					
+			
+		}	//code_ident_vamos==2
+	}	//for MaxM	
+}	//code_good_event
+
+//==========================================================================================      
+// V, A/Q, A and Q definitions for both cases
+      Double_t AMU = 931.494061;
+      Double_t m_elec = 0.510998928;
+      Double_t cte_tesla = (1.660538921E-27 * 299792458) / 1.602176565E-19;
+
+if((Code_good_event==-10  && Si->EMSI==1) || (Code_good_event==-8)){
+
+Double_t x_aq = 0.0;
+Double_t Gamma = 0.0;     
+
+	for(Int_t y=0;y< MaxM ;y++){
+		if(FragDetSi[y]<0)	continue;
+	
+	Code_Vamos[y] = -10;
+	if( (Code_Ident_Vamos[y]==1 || Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22) &&  Rec->Brho>=Brho_min[runNumber] && Rec->Brho<=Brho_max[runNumber]){
+		Code_Vamos[y]=1;
+	}
+	else{
+		Code_Vamos[y]=0;
+	}
+	
+		
+ 	V[y] = D/FragTfinal[y];	   //Velocity given in cm/ns
+	//cout<<"V : "<<V[y]<<endl; 	
+	Vx[y] = V[y]*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 	Vy[y] = V[y]*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 	Vz[y] = V[y]*cos(Rec->ThetaL);	 
+	 
+ 	Beta[y] = V[y]/29.9792458;
+        x_aq = TMath::Sqrt((1-(Beta[y]*Beta[y]) )) / Beta[y];
+        M_Q[y] = ((1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec))-(P0_aq_straight[FragDetSi[y]]+(P1_aq_straight[FragDetSi[y]]*PID[y])+(P2_aq_straight[FragDetSi[y]]*TMath::Power(PID[y],2) ) );	
+	
+	if(Code_Ident_Vamos[y]==1){
+		if( (M_Q[y]>Fit1[Z_corr[y]][0][runNumber] && M_Q[y]<Fit1[Z_corr[y]][1][runNumber]) || (M_Q[y]>Fit2[Z_corr[y]][0][runNumber] && M_Q[y]<Fit2[Z_corr[y]][1][runNumber]) ||
+   			(M_Q[y]>Fit3[Z_corr[y]][0][runNumber] && M_Q[y]<Fit3[Z_corr[y]][1][runNumber]) || (M_Q[y]>Fit4[Z_corr[y]][0][runNumber] && M_Q[y]<Fit4[Z_corr[y]][1][runNumber]) ||
+			(M_Q[y]>Fit5[Z_corr[y]][0][runNumber] && M_Q[y]<Fit5[Z_corr[y]][1][runNumber]) || (M_Q[y]>Fit6[Z_corr[y]][0][runNumber] && M_Q[y]<Fit6[Z_corr[y]][1][runNumber]) || 
+			(M_Q[y]>Fit7[Z_corr[y]][0][runNumber] && M_Q[y]<Fit7[Z_corr[y]][1][runNumber]) ){
+		   
+      			FragTfinal[y] = FragTfinal[y]+1.235;
+		 	V[y] = D/FragTfinal[y];	   //Velocity given in cm/ns 	
+			Vx[y] = V[y]*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 			Vy[y] = V[y]*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 			Vz[y] = V[y]*cos(Rec->ThetaL);	 
+	 
+ 			Beta[y] = V[y]/29.9792458;
+        		x_aq = TMath::Sqrt((1-(Beta[y]*Beta[y]) )) / Beta[y];
+        		M_Q[y] = ((1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec))-(P0_aq_straight[FragDetSi[y]]+(P1_aq_straight[FragDetSi[y]]*PID[y])+(P2_aq_straight[FragDetSi[y]]*TMath::Power(PID[y],2) ) );	
+			Code_Ident_Vamos[y]=50;
+		}
+	}
+	else if(Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22){
+      			FragTfinal[y] = FragTfinal[y]+Offset_relativiste_chiosi[runNumber];
+		 	V[y] = D/FragTfinal[y];	   //Velocity given in cm/ns 	
+			Vx[y] = V[y]*sin(Rec->ThetaL)*cos( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 			Vy[y] = V[y]*sin(Rec->ThetaL)*sin( (Rec->PhiL)+(270.*(TMath::Pi()/180.)) );
+ 			Vz[y] = V[y]*cos(Rec->ThetaL);	 
+	 
+ 			Beta[y] = V[y]/29.9792458;
+        		x_aq = TMath::Sqrt((1-(Beta[y]*Beta[y]) )) / Beta[y];
+        		M_Q[y] = ((1./AMU)*((Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec))-(P0_aq_straight_chiosi[FragDetChio[y]]+(P1_aq_straight_chiosi[FragDetChio[y]]*PID[y])+(P2_aq_straight_chiosi[FragDetChio[y]]*TMath::Power(PID[y],2) ) );	
+	
+	}
+	
+	//cout<<"Code : "<<Code_good_event<<endl;
+	//cout<<"PID : "<<PID[y]<<endl;
+	//cout<<"DetSi : "<<FragDetSi[y]<<"	"<<P0_aq_straight[FragDetSi[y]]<<"	"<<P1_aq_straight[FragDetSi[y]]<<"	"<<P2_aq_straight[FragDetSi[y]]<<endl;
+	//cout<<"Brho : "<<Rec->Brho<<" V : "<<V[y]<<" D : "<<D<<" T : "<<FragTfinal[y]<<" AQ : "<<	M_Q[y]<<endl;		
+		E_csi = GetEnergyLossCsI(FragDetSi[y],Z_corr[y],M_Q[y],FragESi[y]);      
+		E_gap2 = GetEnergyLossGap2(FragDetSi[y],Z_corr[y],M_Q[y],FragESi[y]); //gap Si-CsI     
+		E_gap1 = GetEnergyLossGap1(FragDetSi[y],Z_corr[y],M_Q[y],FragESi[y]); //gap Chio-Si	
+		E_chio = GetEnergyLossChio(Z_corr[y],M_Q[y]);
+		E_dc2 = GetEnergyLossDC2(Z_corr[y],M_Q[y]);
+ 		E_sed = GetEnergyLossSed(Z_corr[y],M_Q[y]);
+ 		E_dc1 = GetEnergyLossDC1(Z_corr[y],M_Q[y]);
+ 		E_tgt = GetEnergyLossTarget(Z_corr[y],M_Q[y]);		
+		
+		if(Code_Ident_Vamos[y]==1 || Code_Ident_Vamos[y]==38 || Code_Ident_Vamos[y]==39 || Code_Ident_Vamos[y]==40){	//Identification Si-CsI
+			if(FragEChio[y]<=0)	FragEChio[y] = E_chio;
+			if(FragEGap[y]<=0)	FragEGap[y] = 0.0;
+			if(FragECsI[y]<=0)	FragECsI[y] = 0.0;				
+			
+			Etot[y] = float(FragEChio[y] + FragESi[y] + FragEGap[y] + FragECsI[y]);
+			//cout<<"EChio : "<<FragEChio[y]<<"	ESi : "<<FragESi[y]<<"	Egap : "<<FragEGap[y]<<"	ECsI : "<<FragECsI[y]<<endl;
+		}
+		else if(Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22){	//Identification Chio-Si
+			Etot[y] = FragEChio[y] + FragESi[y];
+		}
+
+			Etot[y]+=float(E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1);
+			//cout<<"Etot : "<<Etot[y]<<endl;	
+			
+      Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta[y],2.)); 
+      M[y] = Etot[y]/(AMU*(Gamma-1));		
+      Q[y] = M[y]/M_Q[y];			
+			
+		if(( (Code_Ident_Vamos[y]==2) && Code_good_event==-10 && Si->EMSI==1) ){
+			//DrawDeDx(Z_VAMOS[y], int(AQ[y]*Z_VAMOS[y]), FragEChio[y]);
+			//cout<<"Z : "<<Z_corr[y]<<" A : "<<M_Q[y]*Z_corr[y]<<" DeltaE Chio : "<<FragEChio[y]<<endl;
+
+			Off_chiosi[y] = DrawDeDx(Z_corr[y], int(M_Q[y]*Z_corr[y]),1,FragESi[y]+E_gap1+FragEChio[y],E_gap1+FragESi[y]);
+			//cout<<"offset chio-si : "<<Off_chiosi[y]<<endl;
+
+			Off_dc1dc2[y] = DrawDeDx(Z_corr[y], int(M_Q[y]*Z_corr[y]),0,FragESi[y]+E_gap1+FragEChio[y]+E_dc1 + E_dc2 + E_sed,FragESi[y]+E_gap1+FragEChio[y]);
+			//cout<<"offset dc1-dc2 : "<<Off_dc1dc2[y]<<endl;
+			//cout<<"================="<<endl;
+			
+			TOF_chiosi[y] = FragTfinal[y] - Off_chiosi[y] - Off_dc1dc2[y] ;
+			
+			if(TOF_chiosi[y]>0){
+				Beta_chiosi[y] = (D/TOF_chiosi[y])/29.9792458;
+  				x_aq = TMath::Sqrt((1-(Beta_chiosi[y]*Beta_chiosi[y]) )) / Beta_chiosi[y];   
+				//M_Q_chiosi[y] = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec);
+				M_Q_chiosi[y] = (1./AMU)*( (Rec->Brho*(AMU/cte_tesla)*x_aq)+m_elec)-(P0_aq_straight[FragDetSi[y]]+(P1_aq_straight[FragDetSi[y]]*PID[y])+(P2_aq_straight[FragDetSi[y]]*TMath::Power(PID[y],2) ) );
+				Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta_chiosi[y],2.)); 
+      				M_chiosi[y] = Etot[y]/(AMU*(Gamma-1));
+				Q_chiosi[y] = M_chiosi[y] / M_Q_chiosi[y];		
+			}
+		}
+      
+      if(Code_Ident_Vamos[y]==1 || Code_Ident_Vamos[y]==40 || Code_Ident_Vamos[y]==50){
+			//Redressement des distributions en Q			
+			id_qaq = new KVIdentificationResult();   					
+			char scope_name_qaq [256];			
+			sprintf(scope_name_qaq, "null");
+			
+			energytree->InitQStraight(FragDetCsI[y]);					
+			if(energytree->kvid_qaq==NULL){
+				RealQ_straight[y] = Q[y];
+                        	Q_straight[y] = int(TMath::Floor(Q[y]+0.5));
+				M_straight[y] = Q_straight[y]*M_Q[y];				
+				Code_Ident_Vamos[y] = 45;
+			}
+			else{
+				sprintf(scope_name_qaq,"%s", energytree->kvid_qaq->GetName());
+				if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_qaq)) != 0){
+					
+					if(energytree->kvid_qaq->IsIdentifiable(double(M_Q[y]),double(Q[y]) ) ){	
+						energytree->kvid_qaq->Identify(double(M_Q[y]),double(Q[y]), id_qaq);
+						
+						//cout<<"Redressement"<<endl;
+						RealQ_straight[y] = (id_qaq->PID);
+                        	        	Q_straight[y] = int(id_qaq->Z);
+						M_straight[y] = Q_straight[y]*M_Q[y];
+							
+					}
+					else{
+						Code_Ident_Vamos[y]=46;
+					}
+				}
+			}
+			delete 	id_qaq;      
+      
+      }//Code_Ident_Vamos[y]=1
+     else if(Code_Ident_Vamos[y]==2 || Code_Ident_Vamos[y]==22){
+			//Redressement des distributions en Q			
+			id_qaq_chiosi = new KVIdentificationResult();   					
+			char scope_name_qaq_chiosi [256];			
+			sprintf(scope_name_qaq_chiosi, "null");
+			
+			energytree->InitQStraight_chiosi(FragDetChio[y]);					
+			if(energytree->kvid_qaq_chiosi==NULL){
+				RealQ_straight[y] = Q[y];
+                        	Q_straight[y] = int(TMath::Floor(Q[y]+0.5));
+				M_straight[y] = Q_straight[y]*M_Q[y];				
+				Code_Ident_Vamos[y] = 55;
+			}
+			else{
+				sprintf(scope_name_qaq_chiosi,"%s", energytree->kvid_qaq_chiosi->GetName());
+				if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name_qaq_chiosi)) != 0){
+					
+					if(energytree->kvid_qaq_chiosi->IsIdentifiable(double(M_Q[y]),double(Q[y]) ) ){	
+						energytree->kvid_qaq_chiosi->Identify(double(M_Q[y]),double(Q[y]), id_qaq_chiosi);
+						
+						//cout<<"Redressement"<<endl;
+						RealQ_straight[y] = (id_qaq_chiosi->PID);
+                        	        	Q_straight[y] = int(id_qaq_chiosi->Z);
+						M_straight[y] = Q_straight[y]*M_Q[y];
+							
+					}
+					else{
+						Code_Ident_Vamos[y]=56;
+					}
+				}
+			}
+			delete 	id_qaq_chiosi;      
+     }//Code_Ident_Vamos[y]=2 
+      						
+		
+	}//Loop MaxM
+}					
+
+NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
+//Correction du temps mort : 1.0 / (1.0-DT(%)) (/ 6.21295660000000000e+07 pour que correction soit de l'ordre de l'unité)
+DT = 1.0/(1.0 - (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT")/100.0) );
+FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
+Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho");   
+stat_tot = 0.;
+stat_tot = Stat_Indra[gIndra->GetCurrentRunNumber()]; 
+
+}
+
+
+void Identificationv::Treat(void)
+{
+#ifdef DEBUG
+  cout << "Identificationv::Treat" << endl;
+#endif
+
+  //Counter[0]++;
+  //if(Rec->Present) Counter[1]++;		//Non commenter
+  
+  //cout<<"******************"<<endl;
+  //cout<<"Event Number : "<<event_number<<endl;
+  Init();
+  FragPropertiesInOrder();
+  Calculate();
+  
+	event_number++; 
+  //#ifdef DEBUG
+  //Show();
+  //#endif
+  
+}
+void Identificationv::inAttach(TTree *inT)
+{
+#ifdef DEBUG
+  cout << "Identificationv::inAttach " << endl;
+#endif
+
+#ifdef DEBUG
+  cout << "Attaching Identification variables" << endl;
+#endif
+#ifdef ACTIVEBRANCHES
+  cout << "Activating Branches: Identificationv" << endl;
+  L->Log << "Activating Branches: Identificationv" << endl;
+
+#endif
+
+}
+
+void Identificationv::outAttach(TTree *outT)
+{
+
+#ifdef DEBUG
+  cout << "Identificationv::outAttach " << endl;
+#endif
+
+#ifdef DEBUG
+  cout << "Attaching Identificationv variables" << endl;
+#endif
+    outT->Branch("RunNumber", &runNumber, "runNumber/I");
+	
+	/*outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
+	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
+	
+	outT->Branch("E_tgt",&E_tgt,"E_tgt/D");	
+	outT->Branch("E_dc1",&E_dc1,"E_dc1/D");	
+	outT->Branch("E_sed",&E_sed,"E_sed/D");
+	outT->Branch("E_dc2",&E_dc2,"E_dc2/D");
+	outT->Branch("E_chio",&E_chio,"E_chio/D");
+	outT->Branch("E_gap1",&E_gap1,"E_gap1/D");						
+	
+	outT->Branch("ESi",&ESi,"ESi/D");
+	outT->Branch("EGap",&EGap,"EGap/D");
+	outT->Branch("ECsI",&ECsI,"ECsI/D");
+	outT->Branch("ECsI_corr",&ECsI_corr,"ECsI_corr/D");
+	outT->Branch("DT",&DT,"DT/D");
+	outT->Branch("Brho_mag",&Brho_mag,"Brho_mag/D");		
+	outT->Branch("FC_Indra",&FC_Indra,"FC_Indra/D");
+
+  	outT->Branch("E_corr",&E_corr,"E_corr/F");
+
+	outT->Branch("Gamma",&Gamma,"Gamma/F");*/
+	
+	//outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
+	//outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
+	//outT->Branch("ESi",&ESi,"ESi/D");
+	
+	outT->Branch("event_number",&event_number,"event_number/L");	
+	outT->Branch("MaxM",&MaxM,"MaxM/I");
+	
+	outT->Branch("FragDetChio",FragDetChio,"FragDetChio[MaxM]/I");
+	outT->Branch("FragSignalChio",FragSignalChio,"FragSignalChio[MaxM]/I");
+	outT->Branch("FragEChio",FragEChio,"FragEChio[MaxM]/F");	
+		
+	outT->Branch("FragDetSi",FragDetSi,"FragDetSi[MaxM]/I");
+	outT->Branch("FragSignalSi",FragSignalSi,"FragSignalSi[MaxM]/I");
+	outT->Branch("FragESi",FragESi,"FragESi[MaxM]/F");
+	outT->Branch("FragTfinal",FragTfinal,"FragTfinal[MaxM]/D");		
+			
+	outT->Branch("FragDetCsI",FragDetCsI,"FragDetCsI[MaxM]/I");
+	outT->Branch("FragSignalCsI",FragSignalCsI,"FragSignalCsI[MaxM]/I");	
+	outT->Branch("FragECsI",FragECsI,"FragECsI[MaxM]/D");
+	outT->Branch("Code_good_event",&Code_good_event,"Code_good_event/I");
+	outT->Branch("fMultiplicity_case",&fMultiplicity_case,"fMultiplicity_case/I");		
+
+	outT->Branch("Brho_0",&Brho_mag,"Brho_mag/D");
+	outT->Branch("DTcorr",&DT,"DT/D");
+	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");
+	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");
+	outT->Branch("Code_Vamos", Code_Vamos, "Code_Vamos[MaxM]/I");
+	outT->Branch("Code_Ident_Vamos", Code_Ident_Vamos, "Code_Ident_Vamos[MaxM]/I");
+		
+	outT->Branch("E_VAMOS",Etot,"Etot[MaxM]/F");
+	//outT->Branch("E",&E_VAMOS,"E_VAMOS/F");
+	//outT->Branch("T",&T,"T/F"); 
+								
+	outT->Branch("D",&D,"D/F");
+	outT->Branch("V_VAMOS",V,"V[MaxM]/F");
+	outT->Branch("Vx_VAMOS",Vx,"Vx[MaxM]/F");
+	outT->Branch("Vy_VAMOS",Vy,"Vy[MaxM]/F");
+	outT->Branch("Vz_VAMOS",Vz,"Vz[MaxM]/F");		
+	outT->Branch("Beta",Beta,"Beta[MaxM]/F");
+	
+	//outT->Branch("AQ_VAMOS", &M_Qcorr, "M_Qcorr/F");
+	
+	outT->Branch("RealZ_VAMOS",PID,"PID[MaxM]/D");
+	outT->Branch("Z_VAMOS", Z_corr, "Z_corr[MaxM]/I");
+	outT->Branch("RealZ_VAMOS_sitof",PID_sitof,"PID_sitof[MaxM]/D");
+	outT->Branch("Z_VAMOS_sitof", Z_corr_sitof, "Z_corr_sitof[MaxM]/I");
+	outT->Branch("RealZ_VAMOS_chiov2",PID_chiov2,"PID_chiov2[MaxM]/D");
+	outT->Branch("Z_VAMOS_chiov2", Z_corr_chiov2, "Z_corr_chiov2[MaxM]/I");		
+	
+	outT->Branch("A_VAMOS", M_straight, "M_straight[MaxM]/F");
+	outT->Branch("Q_VAMOS", Q_straight, "Q_straight[MaxM]/I");
+	outT->Branch("RealQ_VAMOS", RealQ_straight,"RealQ_straight[MaxM]/F");
+		
+	outT->Branch("AQ", M_Q, "M_Q[MaxM]/F");		
+	outT->Branch("Q",Q,"Q[MaxM]/F");
+	outT->Branch("A",M,"M[MaxM]/F");
+		
+	outT->Branch("AQ_chiosi", M_Q_chiosi, "M_Q_chiosi[MaxM]/F");		
+	outT->Branch("Q_chiosi",Q_chiosi,"Q_chiosi[MaxM]/F");
+	outT->Branch("A_chiosi",M_chiosi,"M_chiosi[MaxM]/F");	
+	outT->Branch("Off_chiosi",Off_chiosi,"Off_chiosi[MaxM]/D");
+	outT->Branch("Off_dc1dc2",Off_dc1dc2,"Off_dc1dc2[MaxM]/D");	
+	
+	
+	outT->Branch("Abisec",AA,"AA[MaxM]/F");
+
+}
+
+
+void Identificationv::CreateHistograms(void)
+{
+
+#ifdef DEBUG
+  cout << "Identificationv::CreateHistograms " << endl;
+#endif
+}
+void Identificationv::FillHistograms(void)
+{
+#ifdef DEBUG
+  cout << "Identificationv::FillHistograms " << endl;
+#endif
+
+}
+
+
+void Identificationv::Show(void)
+{
+ #ifdef DEBUG
+  cout << "Identificationv::Show__prova" << endl;
+ #endif
+  cout.setf(ios::showpoint);
+ 
+}
+//=========================================================================
+Int_t* Identificationv::GetListOfCsICrossFromSi(Int_t sinum)
+{
+
+
+return geom_cross[sinum];
+}
+
+
+void Identificationv::GeometrySiCsICross()
+{
+   Int_t  num;
+   Int_t csi1=0, csi2=0, csi3=0, csi4=0;
+   ifstream in;
+   TString sline;
+   
+   if(!gDataSet->OpenDataSetFile("geom_sicsi_biggercsi.dat",in))
+  {
+     cout << "Could not open the calibration file geom_sicsi_biggercsi.dat !!!" << endl;
+     return;
+  }
+  else 
+  {
+	while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %d %d %d", &num, &csi1, &csi2, &csi3, &csi4);
+	     geom_cross[num][0]=csi1;
+	     geom_cross[num][1]=csi2;
+	     geom_cross[num][2]=csi3;
+	     geom_cross[num][3]=csi4;
+
+	     	   }
+       		}
+     	}
+  }
+  in.close();
+  
+return;
+}
+
+Int_t Identificationv::IsCsISiCrossTelescope(Int_t sinum,Int_t csinum){
+
+for(int i=0;i<4;i++)
+    {
+      if(geom_cross[sinum][i]==csinum)return 1;
+    }
+  return 0;
+
+}
+
+//=========================================================================
+Int_t* Identificationv::GetListOfChioFromSi(Int_t sinum)
+{
+
+
+return geomchiosi[sinum];
+}
+
+//method to reconstruct VAMOS telescopes
+void Identificationv::GeometryChioSi()
+{
+   Int_t  num;
+   Int_t chio1=0, chio2=0;
+   ifstream in;
+   TString sline;
+   
+   if(!gDataSet->OpenDataSetFile("geom_chiosi.dat",in))
+  {
+     cout << "Could not open the calibration file geom_chiosi.dat !!!" << endl;
+     return;
+  }
+  else 
+  {
+	while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %d", &num, &chio1, &chio2);
+	     geomchiosi[num][0]=chio1;
+	     geomchiosi[num][1]=chio2;	     
+	     	   }
+       		}
+     	}
+  }
+  in.close();
+
+	return;
+
+}
+
+Int_t Identificationv::IsChioSiTelescope(Int_t cinum,Int_t sinum){
+
+for(int i=0;i<2;i++)
+    {
+      if(geomchiosi[sinum][i]==cinum)return 1;
+    }
+  return 0;
+
+}
+
+//=========================================================================
+Int_t* Identificationv::GetListOfChioFromCsI(Int_t csinum)
+{
+
+return geomchiocsi[csinum];
+}
+
+void Identificationv::GeometryChioCsI()
+{
+   Int_t  num;
+   Int_t chio1=0, chio2=0;
+   ifstream in;
+   TString sline;
+   
+   if(!gDataSet->OpenDataSetFile("geom_chiocsi.dat",in))
+  {
+     cout << "Could not open the calibration file geom_chiocsi.dat !!!" << endl;
+     return;
+  }
+  else 
+  {
+	while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %d", &num, &chio1, &chio2);
+	     geomchiocsi[num][0]=chio1;
+	     geomchiocsi[num][1]=chio2;	     
+	     	   }
+       		}
+     	}
+  }
+  in.close();
+   
+
+return;
+}
+
+Int_t Identificationv::IsChioCsITelescope(Int_t chionum, Int_t csinum){
+
+for(int i=0;i<2;i++)
+    {
+      if(geomchiocsi[csinum][i]==chionum)return 1;
+    }
+  return 0;
+}
+
+//=========================================================================
+Int_t* Identificationv::GetListOfCsIFromSi(Int_t sinum)
+{
+
+
+return geom[sinum];
+}
+
+void Identificationv::Geometry()
+{  
+   Int_t  num;
+   Int_t csi1=0, csi2=0, csi3=0, csi4=0, csi5=0, csi6=0;
+   ifstream in;
+   TString sline;
+   
+   if(!gDataSet->OpenDataSetFile("geom.dat",in))
+  {
+     cout << "Could not open the calibration file geom.dat !!!" << endl;
+     return;
+  }
+  else 
+  {
+	while(!in.eof()){
+       sline.ReadLine(in);
+       if(!in.eof()){
+	   if (!sline.BeginsWith("#")){
+	     sscanf(sline.Data(),"%d %d %d %d %d %d %d", &num, &csi1, &csi2, &csi3, &csi4, &csi5, &csi6);
+	     geom[num][0]=csi1;
+	     geom[num][1]=csi2;
+	     geom[num][2]=csi3;
+	     geom[num][3]=csi4;
+	     geom[num][4]=csi5;
+	     geom[num][5]=csi6;
+	     /*for(Int_t i=0; i<6; i++){
+	     	cout<<"geom Si-CsI : "<<geom[num][i]<<" num : "<<num<<endl;
+	     }*/
+
+	     	   }
+       		}
+     	}
+  }
+  in.close();
+
+  return;
+}
+
+Int_t Identificationv::IsSiCsITelescope(Int_t sinum,Int_t csinum){
+//cout<<"IsSiCsITelescope : "<<sinum<<" "<<csinum<<endl;
+
+for(int i=0;i<6;i++)
+    {
+      //cout<<"geom : "<<geom[sinum][i]<<endl;
+      if(geom[sinum][i]==csinum)return 1;
+      
+    }
+  return 0;
+
+}
+
+
+void Identificationv::ReadQCorrection()
+{
 //==========================================================================
 // Correction de l'état de charge en fonction du détecteur CsI
 // Charge state correction according to the CsI detector
@@ -107,7 +1974,13 @@ TString sline;
 			}
 		}
   }
-file.close();   
+file.close();  
+
+return;
+}
+
+void Identificationv::ReadAQCorrection()
+{
 //==========================================================================
 
 Int_t run1=0;
@@ -116,9 +1989,6 @@ Float_t brho=0.;
 Float_t chi2=0.;
 Float_t p0mq=0.;
 Float_t p1mq=0.;
-Float_t p0m=0.;
-Float_t p1m=0.;
-Int_t q=0;
 
 //==========================================================================
 // Correction du rapport M/Q en fonction du Brho (ou RunNumber...)
@@ -187,13 +2057,25 @@ TString sline22;
 file22.close();
 //==========================================================================
 
+return;
+}
 
+void Identificationv::ReadACorrection()
+{
 //==========================================================================
 // Correction de la masse en fonction du Brho (ou RunNumber...) et de l'état de charge entier Q
 // Mass correction according to the Brho value et charge state value Q (which is an interger in that case...) 
 // Identification Si-CsI
 ifstream file3;	
-TString sline3;   
+TString sline3;
+   
+Int_t q;
+Float_t brho;
+Int_t run1;
+Int_t run2;
+Float_t p0m;
+Float_t p1m;
+Float_t chi2;
 
 if(!gDataSet->OpenDataSetFile("m_function.dat",file3))
   {	
@@ -230,7 +2112,7 @@ TString sline33;
 
 if(!gDataSet->OpenDataSetFile("m_function_chiosi.dat",file33))
   {	
-     L->Log<< "Could not open the calibration file m_function !!!" << endl;
+     L->Log<< "Could not open the calibration file m_function_chiosi !!!" << endl;
      return;
   }
   else 
@@ -253,6 +2135,11 @@ if(!gDataSet->OpenDataSetFile("m_function_chiosi.dat",file33))
  }
 file33.close();
 //==========================================================================
+return;
+}
+
+void Identificationv::ReadFlagVamos()
+{
 
 //==========================================================================
 // Tag the event according to the fragment identification (Z,A,Q),
@@ -260,24 +2147,12 @@ file33.close();
 
 Int_t z;
 Int_t a;
-//Int_t q;
+Int_t q;
 Float_t brho0;
-//Int_t run1;
-//Int_t run2;
+Int_t run1;
+Int_t run2;
 Float_t brhomin;
 Float_t brhomax;
-
-for(Int_t i=0;i<25;i++){
-	for(Int_t j=0;j<60;j++){
-		for(Int_t k=0;k<10;k++){
-			for(Int_t l=0;l<600;l++){
-				Brho_min[i][j][k][l] = -10.0;
-				Brho_max[i][j][k][l] = -10.0;
-			}
-		}
-	}
-}
-
 
 ifstream file4;	
 TString sline4;
@@ -289,39 +2164,116 @@ if(!gDataSet->OpenDataSetFile("Flag_CodeVamos.dat",file4))
   }
   else 
   {
-  	L->Log<< "Reading Flag_CodeVamos" <<endl; 
+  	//L->Log<< "Reading Flag_CodeVamos" <<endl;
+	 cout<< "Reading Flag_CodeVamos" <<endl;
 	while (file4.good()) {         //reading the file
 		sline4.ReadLine(file4);
 			if (!file4.eof()) {          //fin du fichier
 				if (sline4.Sizeof() > 1 && !sline4.BeginsWith("#")){
-					sscanf(sline4.Data(), "%u %u %u %f %u %u %f %f",
-    					&z,&a,&q,&brho0,&run1,&run2,&brhomin,&brhomax);
+					sscanf(sline4.Data(), "%f %u %u %f %f",
+    					&brho0,&run1,&run2,&brhomin,&brhomax);
 					for(Int_t i=run1; i<run2+1; i++){			
-						Brho_min[z][a][q][i] = brhomin;
-						Brho_max[z][a][q][i] = brhomax;			
+						Brho_min[i] = brhomin;
+						Brho_max[i] = brhomax;  	       
 						}
 					if(run1==run2)
 						{
-						Brho_min[z][a][q][run1] = brhomin;
-						Brho_max[z][a][q][run2] = brhomax;					
+						Brho_min[run1] = brhomin;
+						Brho_max[run2] = brhomax;				       
 						}
 					if(TMath::Abs(run2-run1)==1)
 						{
-						Brho_min[z][a][q][run1] = brhomin;
-						Brho_max[z][a][q][run1] = brhomax;
-						Brho_min[z][a][q][run2] = brhomin;
-						Brho_max[z][a][q][run2] = brhomax;										
+						Brho_min[run1] = brhomin;
+						Brho_max[run1] = brhomax;
+						Brho_min[run2] = brhomin;
+						Brho_max[run2] = brhomax;									       
 						}				
 														
 					}
 				}
 			}
 	}
+	//cout<<"Done Reading Flag_CodeVamos.dat"<<endl;
+	// Brho_min[z][a][q][i] = brhomin;
+	// Brho_max[z][a][q][i] = brhomax;
 file4.close();
 //==========================================================================
 
+return;
+}
+
+void Identificationv::ReadDoublingCorrection()
+{
+//==========================================================================
+Int_t z;
+Int_t system, run1, run2;
+Float_t min1,max1;
+Float_t min2,max2;
+Float_t min3,max3;
+Float_t min4,max4;
+Float_t min5,max5;
+Float_t min6,max6;
+Float_t min7,max7;
+
+ifstream file5;	
+TString sline5;
+
+cout<<"Reading doublepeak_mins.dat"<<endl;
+
+if(!gDataSet->OpenDataSetFile("doublepeak_mins.dat",file5) )
+  {	
+     L->Log<< "Could not open the calibration file doublepeak_mins.dat !!!" << endl;
+     return;
+  }
+else{
+	while (file5.good()) {         //reading the file
+		sline5.ReadLine(file5);
+			if (!file5.eof()) {          //fin du fichier
+				if (sline5.Sizeof() > 1 && !sline5.BeginsWith("#")){
+					sscanf(sline5.Data(), "%u %u %u %u %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+    					&system, &z,&run1,&run2,&min1,&max1,&min2,&max2,&min3,&max3,&min4,&max4,&min5,&max5,&min6,&max6,&min7,&max7);
+					
+					for(Int_t i=run1; i<run2+1; i++){				
+						Fit1[z][0][i]=min1;
+						Fit1[z][1][i]=max1;
+					
+						Fit2[z][0][i]=min2;
+						Fit2[z][1][i]=max2;
+					
+						Fit3[z][0][i]=min3;
+						Fit3[z][1][i]=max3;
+					
+						Fit4[z][0][i]=min4;
+						Fit4[z][1][i]=max4;
+																				
+						Fit5[z][0][i]=min5;
+						Fit5[z][1][i]=max5;
+					
+						Fit6[z][0][i]=min6;
+						Fit6[z][1][i]=max6;
+					
+						Fit7[z][0][i]=min7;
+						Fit7[z][1][i]=max7;
+						}														
+					}
+				}
+			}
+	}
+file5.close();
+cout<<"End Reading doublepeak_mins.dat"<<endl;
+//==========================================================================
+
+return;
+}
+
+
+void Identificationv::ReadToFCorrectionChioSi()
+{
 //==========================================================================
 // Correction du temps de vol pour les events Chio-Si (Code_Ident_Vamos==2)
+Float_t brho0;
+Int_t run1;
+Int_t run2;
 Int_t t0;
 Int_t esi0;
 
@@ -341,6 +2293,7 @@ else{
 				sscanf(sline5.Data(), "%f %u %u %u %u",
             				&brho0, &run1, &run2, &t0, &esi0);
 					for(Int_t i=run1; i<run2+1; i++){
+						Brho0[i] = brho0;
 						Tof0[i] = t0;
 						Esi0[i] = esi0;
 						}									
@@ -348,21 +2301,72 @@ else{
 				}
 			}
   }
+  /*for(Int_t i=0; i<MaxRun; i++){
+	cout<<"i : "<<i<<" Brho0 : "<<Brho0[i]<<endl;
+  }*/
+  
+file5.close();
+//==========================================================================
+return;
+}
+
+void Identificationv::ReadToFCorrectionCode1()
+{
+
+//==========================================================================
+// Correction du temps de vol pour les events Si-CsI (Code_Ident_Vamos=1)
+Int_t run1;
+Int_t run2;
+Int_t system;
+Float_t t0,biny1,biny2,toflow,err_toflow,tofgood,err_tofgood,deltat; 
+
+ifstream file5;	
+TString sline5;
+
+if(!gDataSet->OpenDataSetFile("Tof_corr_code1.dat",file5) )
+  {	
+     L->Log<< "Could not open the calibration file Tof_corr_code1.dat !!!" << endl;
+     return;
+  }
+else{
+	while (file5.good()) {         //reading the file
+		sline5.ReadLine(file5);
+      		if (!file5.eof()) {          //fin du fichier
+			if (sline5.Sizeof() > 1 && !sline5.BeginsWith("#")){
+				sscanf(sline5.Data(), "%d %d %d %f %f %f %f %f %f %f %f",
+            				&run1, &run2, &system, &t0,&biny1,&biny2,&toflow,&err_toflow,&tofgood,&err_tofgood,&deltat );
+					for(Int_t i=run1; i<run2+1; i++){
+						Tof0_code1[i] = t0;
+						Deltat_code1[i] = deltat;
+
+						}									
+					}
+				}
+			}
+  }
+  /*for(Int_t i=0; i<MaxRun; i++){
+	cout<<"i : "<<i<<" Brho0 : "<<Brho0[i]<<endl;
+  }*/
+  
 file5.close();
 //==========================================================================
 
+
+}
+
+void Identificationv::ReadStatIndra()
+{
 //==========================================================================
 // Calculate the total statistic for each nominal Brho.
+Float_t brho0;
+Int_t run1;
+Int_t run2;
 
 //Float_t brho0;
 ifstream file6;	
 TString sline6;
 
 stat_indra = -10.0;
-for(Int_t i=0;i<600;i++){
-	Stat_Indra[i] = -10.0;
-	Stat_Indra[i] = -10.0;
-}
 
 if(!gDataSet->OpenDataSetFile("Stat_Indra.dat",file6))
   {	
@@ -396,149 +2400,112 @@ if(!gDataSet->OpenDataSetFile("Stat_Indra.dat",file6))
 }
 file6.close();				
 //==========================================================================  
+return;
 }
 
-Identificationv::~Identificationv(void)
+void Identificationv::ReadOffsetsChiosi()
 {
 
-delete Rnd;
-delete id;
-delete kvn;
+   TString sline3;   
+   ifstream in3;
+   Float_t brho0,aq,sig_aq,off_relativiste;
+   Int_t run1,run2;
+   
+   
+  //ToF Offset for each run
+   if(!gDataSet->OpenDataSetFile("Offset_relativiste_chiosi.dat",in3))
+  {
+     cout << "Could not open the calibration file Offset_relativiste.cal !!!" << endl;
+     return;
+  }
+  else 
+  {
+  	cout<< "Reading Offset_relativiste.dat" <<endl;
+    L->Log << "Reading Offset_relativiste.dat" << endl;
+	while(!in3.eof()){
+       sline3.ReadLine(in3);
+       if(!in3.eof()){
+	   if (!sline3.BeginsWith("+")&&!sline3.BeginsWith("#")){
+	     sscanf(sline3.Data(),"%f %d %d %f %f %f",&brho0, &run1, &run2, &off_relativiste, &aq, &sig_aq);
+	     		for(Int_t i=run1; i<run2+1; i++) { 
+				Offset_relativiste_chiosi[i] = off_relativiste;
+				//cout<<"offset relativiste : "<<i<<"	"<<Offset_relativiste[i]<<endl;
+			}
+	     	   }
+       		}
+     	}
+  }
+  in3.close();
+
+
+return;
 }
 
-void Identificationv::Init(void)
+void Identificationv::ReadStraightAQ()
 {
-  Present = false; 
 
-  dE = dE1 = E = T = V = Vx = Vy = Vz = V2 = V_Etot = T_FP = M_Q = M = Mass = M_simul = Z1 = Z2 = Z_tot = Z_si = DetCsI = Beta = Q = D = -10;
-  M_Qr = Mr = Qr = -10.0;
-  Qc = Mc = -10.0;
-  Gamma = 1.; 
- initThickness=0.;      
-zt = ZZ  = CsIRaw = SiRaw = i =  -10;
-ESi = ECsI = ECsI_corr = E_corr = EEtot  = AA =  ZR = -10.0;
-PID = PID_chiosi = Z_PID = A_PID = -10.0;
+//==========================================================================
+ifstream file8;	
+TString sline8;
+ifstream file80;	
+TString sline80;
 
-Code_Vamos = -10;	//Flag on Brho distributions
-Code_Ident_Vamos = -10;	//Vamos Identification Code : Chio-Si, Si-CsI, other...
+Int_t si;
+Float_t p0, err_p0;
+Float_t p1, err_p1;
+Float_t p2, err_p2;
 
-einc_si = einc_isogap1 = eloss_isogap1 = einc_ic = eloss_ic = einc_dc2 = eloss_dc2 = einc_sed = eloss_sed = einc_dc1 = eloss_dc1 = einc_tgt = eloss_tgt = 0.0;
-E_tgt = E_dc1 = E_dc2 = E_sed = E_gap1 = E_chio = 0.0;
+si=0;
+p0 = err_p0 = 0.0;
+p1 = err_p1 = 0.0;
+p2 = err_p2 = 0.0;
 
-for(Int_t i=0; i<3; i++){
- fELosLayer_dc1[i]= 0.0;
- fELosLayer_dc2[i]= 0.0;
- fELosLayer_ic[i]= 0.0;
-}
-    runNumber = 0;
-    runNumber = (Int_t)gIndra->GetCurrentRunNumber();
-}
-
-//===================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identification Si-CsI
-void Identificationv::SetFileCut(TList *list)
-{
-	llist = list;	
-}
-void Identificationv::GetFileCut()
-{	
-q20 =NULL;
-q19 =NULL;
-q18 =NULL;
-q17 =NULL;
-q16 =NULL;
-q15 =NULL;
-q14 =NULL;
-q13 =NULL;
-q12 =NULL;
-q11 =NULL;
-q10 =NULL;
-q9 =NULL;
-q8 =NULL; 
-q7 =NULL; 
-q6 =NULL; 
-q5 =NULL; 
-
-	if(llist->IsZombie()==0){
-		//L->Log<<"reading cuts..."<<endl;	
-		//llist->Print();
-		
-		q20 = (TCutG *)llist->FindObject("q20");
-		q19 = (TCutG *)llist->FindObject("q19");
-		q18 = (TCutG *)llist->FindObject("q18");
-		q17 = (TCutG *)llist->FindObject("q17");
-		q16 = (TCutG *)llist->FindObject("q16");
-		q15 = (TCutG *)llist->FindObject("q15");
-		q14 = (TCutG *)llist->FindObject("q14");
-		q13 = (TCutG *)llist->FindObject("q13");				
-		q12 = (TCutG *)llist->FindObject("q12");
-		q11 = (TCutG *)llist->FindObject("q11");
-		q10 = (TCutG *)llist->FindObject("q10");
-		q9 = (TCutG *)llist->FindObject("q9");
-		q8 = (TCutG *)llist->FindObject("q8");
-		q7 = (TCutG *)llist->FindObject("q7");
-		q6 = (TCutG *)llist->FindObject("q6");
-		q5 = (TCutG *)llist->FindObject("q5");
-
+if(!gDataSet->OpenDataSetFile("straight_fct.dat",file8))
+  {	
+     L->Log<< "Could not open the calibration file  straight_fct!!!" << endl;
+     return;
+  }
+  else 
+  {
+while (file8.good()) {         //reading the file
+      sline8.ReadLine(file8);
+      if (!file8.eof()) {          //fin du fichier
+		if (sline8.Sizeof() > 0 && !sline8.BeginsWith("#")){
+			sscanf(sline8.Data(), "%u %f %f %f %f %f %f",&si,&p0,&err_p0,&p1,&err_p1,&p2,&err_p2);
+				P0_aq_straight[si] = p0; 
+				P1_aq_straight[si] = p1;
+				P2_aq_straight[si] = p2;					
+				}
+			}
+		}
 	}
-	else{
-		L->Log<<"not reading cuts (Si-CsI)..."<<endl;
-	}
-}
-//===================================================
+file8.close();
 
-//===================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identification Chio-Si
-void Identificationv::SetFileCutChioSi(TList *list2)
-{
-	llist2 = list2;	
-}
-void Identificationv::GetFileCutChioSi()
-{
-q20cs =NULL;
-q19cs =NULL;
-q18cs =NULL;
-q17cs =NULL;
-q16cs =NULL;
-q15cs =NULL;
-q14cs =NULL;
-q13cs =NULL;
-q12cs =NULL;
-q11cs =NULL;
-q10cs =NULL;
-q9cs =NULL;
-q8cs =NULL;
-q7cs =NULL;
-
-	if(llist2->IsZombie()==0){
-		//L->Log<<"reading cuts..."<<endl;	
-		//llist->Print();
-		
-		if(((TCutG *)llist2->FindObject("q20"))!=0) q20cs = (TCutG *)llist2->FindObject("q20");
-		if(((TCutG *)llist2->FindObject("q19"))!=0) q19cs = (TCutG *)llist2->FindObject("q19");
-		if(((TCutG *)llist2->FindObject("q18"))!=0) q18cs = (TCutG *)llist2->FindObject("q18");
-		if(((TCutG *)llist2->FindObject("q17"))!=0) q17cs = (TCutG *)llist2->FindObject("q17");
-		if(((TCutG *)llist2->FindObject("q16"))!=0) q16cs = (TCutG *)llist2->FindObject("q16");
-		if(((TCutG *)llist2->FindObject("q15"))!=0) q15cs = (TCutG *)llist2->FindObject("q15");
-		if(((TCutG *)llist2->FindObject("q14"))!=0) q14cs = (TCutG *)llist2->FindObject("q14");
-		if(((TCutG *)llist2->FindObject("q13"))!=0) q13cs = (TCutG *)llist2->FindObject("q13");				
-		if(((TCutG *)llist2->FindObject("q12"))!=0) q12cs = (TCutG *)llist2->FindObject("q12");
-		if(((TCutG *)llist2->FindObject("q11"))!=0) q11cs = (TCutG *)llist2->FindObject("q11");
-		if(((TCutG *)llist2->FindObject("q10"))!=0) q10cs = (TCutG *)llist2->FindObject("q10");
-		if(((TCutG *)llist2->FindObject("q9"))!=0) q9cs = (TCutG *)llist2->FindObject("q9");
-		if(((TCutG *)llist2->FindObject("q8"))!=0) q8cs = (TCutG *)llist2->FindObject("q8");
-		if(((TCutG *)llist2->FindObject("q7"))!=0) q7cs = (TCutG *)llist2->FindObject("q7");
-
+if(!gDataSet->OpenDataSetFile("straight_fct_chiosi.dat",file80))
+  {	
+     L->Log<< "Could not open the calibration file  straight_fct_chiosi!!!" << endl;
+     return;
+  }
+  else 
+  {
+while (file80.good()) {         //reading the file
+      sline80.ReadLine(file80);
+      if (!file80.eof()) {          //fin du fichier
+		if (sline80.Sizeof() > 0 && !sline80.BeginsWith("#")){
+			sscanf(sline80.Data(), "%u %f %f %f %f %f %f",&si,&p0,&err_p0,&p1,&err_p1,&p2,&err_p2);
+				P0_aq_straight_chiosi[si] = p0; 
+				P1_aq_straight_chiosi[si] = p1;
+				P2_aq_straight_chiosi[si] = p2;					
+				}
+			}
+		}
 	}
-	else{
-		L->Log<<"not reading cuts (Chio-Si)..."<<endl;
-	}
+file80.close();
+//==========================================================================
+
+
+return;
 }
-//===================================================
 
 //===================================================
 void Identificationv::SetTarget(KVTarget *tgt)
@@ -620,56 +2587,55 @@ KVMaterial* Identificationv::GetCsI()
 
 
 //===================================================
-
-Double_t Identificationv::GetEnergyLossCsI(Int_t number)
+Double_t Identificationv::GetEnergyLossCsI(Int_t number, Int_t Z, Double_t AQ, Double_t ESi)
 {
 	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
 
 	//Calcul de l'énergie perdue dans csi
-	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
-	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
+	einc_isogap2 = GetSi()->GetEResFromDeltaE(Z,int(Z*AQ),ESi);
+	eloss_isogap2 = GetGap2()->GetDeltaE(Z,int(Z*AQ),einc_isogap2);	
 	
-	einc_csi = GetGap2()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),eloss_isogap2);
-	eloss_csi = GetCsI()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);	
+	einc_csi = GetGap2()->GetEResFromDeltaE(Z,int(Z*AQ),eloss_isogap2);
+	eloss_csi = GetCsI()->GetDeltaE(Z,int(Z*AQ),einc_isogap2);	
 	GetSi()->Clear();
 	
 	return eloss_csi;
 }
 
-Double_t Identificationv::GetEnergyLossGap2(Int_t number)
+Double_t Identificationv::GetEnergyLossGap2(Int_t number, Int_t Z, Double_t AQ, Double_t ESi)
 {
 	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);		
 
 	//Calcul de l'énergie perdue dans isogap2
-	einc_isogap2 = GetSi()->GetEResFromDeltaE(int(Z_PID),int(M_Q*Z_PID),ESi);
-	eloss_isogap2 = GetGap2()->GetDeltaE(int(Z_PID),int(M_Q*Z_PID),einc_isogap2);
+	einc_isogap2 = GetSi()->GetEResFromDeltaE(Z,int(Z*AQ),ESi);
+	eloss_isogap2 = GetGap2()->GetDeltaE(Z,int(Z*AQ),einc_isogap2);	
 	
 	GetSi()->Clear();
 	
 	return eloss_isogap2;
 }
 
-Double_t Identificationv::GetEnergyLossGap1(Int_t number)
+Double_t Identificationv::GetEnergyLossGap1(Int_t number, Int_t Z, Double_t AQ, Double_t ESi)
 {
 	GetSi()->SetThickness(Si->si_thick[number]*KVUnits::um);	
-	einc_si = GetSi()->GetIncidentEnergy(int(Z_PID),int(M_Q*Z_PID),ESi);
+	einc_si = GetSi()->GetIncidentEnergy(Z,int(Z*AQ),ESi);
 
 	//Calcul de l'énergie perdue dans isogap1
-	einc_isogap1 = GetGap1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
-	eloss_isogap1 = GetGap1()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_si);
+	einc_isogap1 = GetGap1()->GetIncidentEnergyFromERes(Z,int(Z*AQ),einc_si);
+	eloss_isogap1 = GetGap1()->GetDeltaEFromERes(Z,int(Z*AQ),einc_si);
 	
 	GetSi()->Clear();
 	
 	return eloss_isogap1;
 }
 
-Double_t Identificationv::GetEnergyLossChio()	
+Double_t Identificationv::GetEnergyLossChio(Int_t Z, Double_t AQ)	
 {
 	//Calcul de l'énergie perdue dans la chio
-	einc_ic = GetIC()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_isogap1);
+	einc_ic = GetIC()->GetIncidentEnergyFromERes(Z,int(Z*AQ),einc_isogap1);
 
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetZ(Z);
+	kvn->SetA(int(AQ*Z));
 	kvn->SetEnergy(einc_ic); 
     	KVMaterial *kvm_ic = 0; 
 	      
@@ -687,14 +2653,13 @@ Double_t Identificationv::GetEnergyLossChio()
 	
 	return eloss_ic;
 }
-
-Double_t Identificationv::GetEnergyLossDC2()
+Double_t Identificationv::GetEnergyLossDC2(Int_t Z, Double_t AQ)
 {
 	//Calcul de l'énergie perdue dans la DC2
-	einc_dc2 = GetDC2()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_ic);
+	einc_dc2 = GetDC2()->GetIncidentEnergyFromERes(Z,int(AQ*Z),einc_ic);
 
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetZ(Z);
+	kvn->SetA(int(AQ*Z));
 	kvn->SetEnergy(einc_dc2); 
     	KVMaterial *kvm_dc2 = 0;  
 		     
@@ -713,14 +2678,14 @@ Double_t Identificationv::GetEnergyLossDC2()
 	return eloss_dc2;
 }
 
-Double_t Identificationv::GetEnergyLossSed()
+Double_t Identificationv::GetEnergyLossSed(Int_t Z, Double_t AQ)
 {
 	//Calcul de l'énergie perdue dans la SED    
 	TVector3 rot(0,1,-1); //45 deg 
-	einc_sed = GetSed()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc2);
+	einc_sed = GetSed()->GetIncidentEnergyFromERes(Z,int(AQ*Z),einc_dc2);
 	
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetZ(Z);
+	kvn->SetA(int(AQ*Z));
 	kvn->SetEnergy(einc_sed);
 
     	GetSed()->DetectParticle(kvn,&rot);
@@ -734,13 +2699,13 @@ Double_t Identificationv::GetEnergyLossSed()
 	return eloss_sed;
 }
 
-Double_t Identificationv::GetEnergyLossDC1()
+Double_t Identificationv::GetEnergyLossDC1(Int_t Z, Double_t AQ)
 {
 	//Calcul de l'énergie perdue dans la DC1
-	einc_dc1 = GetDC1()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_sed);
+	einc_dc1 = GetDC1()->GetIncidentEnergyFromERes(Z,int(AQ*Z),einc_sed);
 
-	kvn->SetZ(int(Z_PID));
-	kvn->SetA(int(M_Q*Z_PID));
+	kvn->SetZ(int(Z));
+	kvn->SetA(int(AQ*Z));
 	kvn->SetEnergy(einc_dc1); 
     	KVMaterial *kvm_dc1 = 0;  
 		     
@@ -759,811 +2724,15 @@ Double_t Identificationv::GetEnergyLossDC1()
 	return eloss_dc1;
 }
 
-Double_t Identificationv::GetEnergyLossTarget()
+Double_t Identificationv::GetEnergyLossTarget(Int_t Z, Double_t AQ)
 {
 	//Calcul de l'énergie perdue dans la cible
-	einc_tgt = GetTarget()->GetIncidentEnergyFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
-	eloss_tgt = GetTarget()->GetDeltaEFromERes(int(Z_PID),int(M_Q*Z_PID),einc_dc1);
+	einc_tgt = GetTarget()->GetIncidentEnergyFromERes(Z,int(AQ*Z),einc_dc1);
+	eloss_tgt = GetTarget()->GetDeltaEFromERes(Z,int(AQ*Z),einc_dc1);
 	
 	GetTarget()->Clear();
 	
 	return einc_tgt-einc_dc1;
 	//return eloss_tgt;
-}
-
-//===================================================
-
-void Identificationv::Calculate(void)
-{
-	
-//=================================================
-// Identification Chio-Si
-
-if(CsI->EM==0 && (GeometryChioSi(Ic->Number,Si->Number)==1 && ((Ic->Number!=0 && Si->Number!=0) ||(Ic->Number==0 && Ic->Number==0))) ){ // if si is behind the ic
-	energytree->InitTelescopeChioSi(Ic->Number,Si->Number);	//Ic->Number (1-7), Si->Number(0,17)
-	//L->Log<<"====="<<endl;
-	//L->Log<<"IC Number : "<<Ic->Number<<"	SI Number : "<<Si->Number<<endl;
-	//L->Log<<"IC M : "<<Ic->EM<<"	SI M : "<<Si->E_RawM<<"	CSI M : "<<CsI->EM<<endl;		    
-
- for(Int_t y=0;y< Si->E_RawM ;y++)	 
- 	{
-	for(Int_t j=0;j< Ic->EM;j++)		
-		{	
-   		KVList *grid_list_chiosi = 0;
-   		id_chiosi = new KVIdentificationResult();
-		id_sitof = new KVIdentificationResult();
-   		char scope_name_chiosi [256];
-  		sprintf(scope_name_chiosi, "null");
-   		sprintf(scope_name_chiosi,"%s", energytree->kvid_chiosi->GetName());
-   		char scope_name_sitof [256];
-  		sprintf(scope_name_sitof, "null");
-   		sprintf(scope_name_sitof,"SIE%d_TOF", Si->Number+1);
-		
-   	   	if(gIDGridManager != 0){
-   			grid_list_chiosi = (KVList*) gIDGridManager->GetGrids();
-
-   			if(grid_list_chiosi == 0)	printf("Error: gIDGridManager->GetGrids() failed\n");
-			
-			else{
-				KVIDGraph *grd = 0;
-
-   			if( (grd = (KVIDGraph*) grid_list_chiosi->FindObjectByName(scope_name_chiosi)) != 0){
-
-                		if(grd != 0 && double(Si->E_Raw[y])>0 && double(Ic->E_Raw[j])>0 && Si->E_RawM==1 && Ic->EM==1){
-					ESi = Si->ETotal;
-					EChio = Ic->ETotal;
-					//L->Log<<"EChio : "<<EChio<<" ESi : "<<ESi<<endl;
-					if(energytree->kvid_chiosi->IsIdentifiable(ESi, EChio) ){
-						Code_Ident_Vamos = 2;
-						energytree->kvid_chiosi->Identify(ESi, EChio, id_chiosi);		//energytree->kvid : KVIDGraph	Identify(x,y)
-                                        	A_PID = id_chiosi->A;
-                        			Z_PID = id_chiosi->Z;
-                       				PID = id_chiosi->PID;
-
-						//L->Log<<"PID : "<<id_chiosi->PID<<endl;     
-						//L->Log<<"====="<<endl;
-						delete id_chiosi;
-							}	//IsIdentifiable
-					else{	//Punch-through region.
-						Code_Ident_Vamos = 4;
-						
-						if(grid_list_chiosi == 0)	printf("Error: gIDGridManager->GetGrids() failed\n");
-	
-						else{
-							energytree->InitTelescopeSiTof(Si->Number);	//Si->Number(0,17)	
-							if( (grd = (KVIDGraph*) grid_list_chiosi->FindObjectByName(scope_name_sitof)) != 0){
-
-								if(grd != 0 && energytree->kvid_sitof->IsIdentifiable(Si->Tfrag, ESi) ){	//T Correspondant au tof sans correction du pid
-									energytree->kvid_sitof->Identify(Si->Tfrag, ESi, id_sitof);		//energytree->kvid : KVIDGraph	Identify(x,y)
-                        						A_PID = id_sitof->A;
-        								Z_PID = id_sitof->Z;
-       									PID = id_sitof->PID;
-									Code_Ident_Vamos=10;
-									//Verification Reconstruction
-									/*L->Log<<"=================================="<<endl;
-									L->Log<<"Code_Ident_Vamos : "<<Code_Ident_Vamos<<endl;
-									L->Log<<"Brho : "<<Rec->Brho<<endl;
-									L->Log<<"Thetadeg : "<<Rec->Thetadeg<<"	Phideg : "<<Rec->Phideg<<endl;
-									L->Log<<"ThetaLdeg : "<<Rec->ThetaLdeg<<"	PhiLdeg : "<<Rec->PhiLdeg<<endl;
-									L->Log<<"=================================="<<endl;*/
-				
-									delete id_sitof;
-								}	//IsIdentifiable
-							else{	//Punch-through region.
-									Code_Ident_Vamos=11;
-								}							
-
-							}	//grd !=0
-						}	//else							
-						
-					}						
-					/*L->Log<<"PID : "<<id_chiosi->PID<<endl;
-					L->Log<<"Code_Ident_Vamos : "<<Code_Ident_Vamos<<endl;     
-					L->Log<<"====="<<endl;*/
-						}	//grd!=0 && Signals>0
-					}	//grd !=0
-				}	//else	
-			}	//gIDGridManager!=0
-		}	//Ic M
-	}	//Si M
-}	//Geometry
-//=================================================
-
-
-//================================================= 
-// Identification Si-CsI
-
-if(Geometry(Si->Number,CsI->Number)==1 && ((Si->Number!=0 && CsI->Number!=0) ||(Si->Number==0 && CsI->Number==0))){ // if csi is behind the si
-	energytree->InitTelescope(Si->Number,CsI->Number);
-	energytree->InitSiCsI(Si->Number+1);
-	energytree->SetCalibration(Si,CsI,Si->Number,CsI->Number);
-}
-
- for(Int_t y=0;y< Si->E_RawM ;y++)	 
- 	{
-	for(Int_t j=0;j< CsI->E_RawM;j++)	
-		{		      
-		CsIRaw = int(CsI->E_Raw[j]);
-		SiRaw = int(Si->E_Raw[y]);
-		if(SiRaw>0){
-			energytree->CalculateESi(double(Si->E_Raw[y]));		
-			ESi = double(energytree->RetrieveEnergySi());	      
-	      		}
-			if(Geometry(Si->Number,CsI->Number)==1 && energytree->kvid != 0) // if csi is behind the si
-   				{				   
-   				//L->Log<<"name : "<<energytree->kvid->GetName()<<endl;
-   				//L->Log<<"Runs : "<<energytree->kvid->GetRuns()<<endl;
-  				
-   				KVList *grid_list = 0;
-   				id = new KVIdentificationResult();
-   				char scope_name [256];
-  				sprintf(scope_name, "null");
-   				sprintf(scope_name,"%s", energytree->kvid->GetName());//COMMENT THIS OUT TO AVOID SEG FAULT 17/09/12 Paola
-
-   	   			if(gIDGridManager != 0){
-   		   			grid_list = (KVList*) gIDGridManager->GetGrids();
-
-   		   			if(grid_list == 0){
-			   			printf("Error: gIDGridManager->GetGrids() failed\n");
-   		   				}
-					else{
-			   			KVIDGraph *grd = 0;
-
-   					if( (grd = (KVIDGraph*) grid_list->FindObjectByName(scope_name)) != 0){
-
-                    				if(grd != 0 && double(Si->E_Raw[y])>0 && double(CsI->E_Raw[j])>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1){
-                                 
-                                if(DebugIDV) 
-		    					energytree->CalculateESi(double(Si->E_Raw[y]));						//Si calibration (signal->energy)
-							
-							//Identification according to the grid (csi,si)
-                         	if(DebugIDV) cout<<"Now identify from kvid"<<endl<<flush;
-							//L->Log<<"ECsIRaw_signal : "<<CsIRaw<<"	ESi : "<<energytree->eEnergySi<<endl;
-							if(energytree->kvid->IsIdentifiable(double(CsIRaw), double(energytree->eEnergySi) ) ){
-								Code_Ident_Vamos = 1;
-								energytree->kvid->Identify(double(CsIRaw), double(energytree->eEnergySi), id);		//energytree->kvid : KVIDGraph
- 				if(DebugIDV) cout<<"Identify done"<<endl<<flush;
-                                             			A_PID = id->A;
-                        					Z_PID = id->Z;
-                       						PID = id->PID;
-								delete id;
-							
-								Int_t Z_PIDI = int(Z_PID);					
-								energytree->SetFragmentZ(Z_PIDI);
-	      							energytree->GetResidualEnergyCsI(double(Si->E_Raw[y]),double(CsI->E_Raw[j]));		//Method called for guessing A value by bissection method and getting CsI energy
-
-	        						ECsI = energytree->RetrieveEnergyCsI();
-								ESi = energytree->RetrieveEnergySi();
-								EGap = energytree->eEnergyGap;
-			
-								AA = energytree->RetrieveA();													
-								a_bisec = energytree->BisectionLight(PID,AA,ECsI);
-								e_bisec = (ECsI*a_bisec)/AA;
-								}	//IsIdentifiable
-							else{
-								Code_Ident_Vamos = 3;
-							}	
-							/*L->Log<<"IC Number : "<<Ic->Number<<"	SI Number : "<<Si->Number+1<<"	CSI Number : "<<CsI->Number+1<<endl;
-							L->Log<<"IC M : "<<Ic->EM<<"	SI M : "<<Si->E_RawM<<"	CSI M : "<<CsI->EM<<endl;					
-							L->Log<<"PID : "<<id->PID<<endl;
-							L->Log<<"Code_Ident_Vamos : "<<Code_Ident_Vamos<<endl;     
-							L->Log<<"====="<<endl;*/
-										
-                    						}	//grd!=0 && Signals>0 && Multiplicities=1
-                				}	//grd!=0
-						else{  
-                    					//printf("No object named %s in grid list\n", scope_name);
-                				}
-            				}
-        			}	//gIDGridManager != 0
-	    		}	//geometry
-		}	//CsI M
-    	}	//Si M
-//=================================================
-
-  if(Dr->E[0] > 0 && Dr->E[1] > 0 && Ic->ETotal > 0)
-    {
-      //      dE += Dr->E[0];      
-      //      dE += Dr->E[1];
-      dE = dE1 = Ic->ETotal;
-      if(Dr->Present) dE1 = dE1 / cos(Dr->Tf/1000.);
-      dE /= 0.614;
-      dE += dE*0.15;
-	if((dE1+ESi+ECsI)>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==1 || Code_Ident_Vamos==3) ){					//if(Si->ETotal > 0)
-		E = dE1 + ESi + EGap + ECsI;				//Total energy (MeV)	(ChIo, Si, estimated gap energy, CsI)
-	}
-	if(CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==4 || Code_Ident_Vamos==10) ){
-		E = dE1 + ESi;
-	}
-    }
-
-//=================================================
-// ToF correction for Chio-Si Identification
-T = Si->Tfrag*(125.42/((-0.18343*PID)+127.9573));		// ToF * a Correction added on the ToF distribution to get a straight M/Q=2 distribution
-
-// Correction tof pour identification chio-si
-if( Code_Ident_Vamos==2 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
-	T+=116.69;
-}
-if( Code_Ident_Vamos==4 && T<Tof0[runNumber] && ESi<Esi0[runNumber] ){
-	T+=113.69;
-}
-//================================================= 
-
-//=================================================     
-  if(T >0 && Rec->Path>0 && Dr->Present)
-    {
- 	//Distance between silicon and the target in cm		    
- 	D = (1/TMath::Cos(Dr->Pf/1000.))*(Rec->Path + (((Rec->DSI-Dr->FocalPos)/10)/TMath::Cos(Dr->Tf/1000.)));   //Distance : 9423mm(si layer position) - 8702.5mm(focal plane position) = 720.50 mm
-
- 	V = D/T;	   //Velocity given in cm/ns	  
- 	//V2 = V + V*(1.-(TMath::Cos(Dr->Tf/1000.)*TMath::Cos(Dr->Pf/1000.)));	   
- 	Beta = V/29.9792458; 
- 	Gamma = 1./TMath::Sqrt(1.-TMath::Power(Beta,2.));
- 	//V_Etot = 1.39*sqrt(E/AA);
- 	T_FP = ((Dr->FocalPos)/10.) / V_Etot;
-		   
- 	Vx = V*sin(Rec->ThetaL)*cos(Rec->PhiL);
- 	Vy = V*sin(Rec->ThetaL)*sin(Rec->PhiL);
- 	Vz = V*cos(Rec->ThetaL);
-
-   	kin = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetSystem()->GetKinematics();
-   	kin->SetOutgoing(kin->GetNucleus(1));
-   	kin->CalculateKinematics();
-
-    }
-//=================================================
-
-
-  if(Beta>0 && Rec->Brho>0 && Si->Present)	//Modification (2012-02-10) Original : Beta>0 && Rec->Brho>0 && Gamma>1. && Si->Present
-    {
-             
-      M_Q = Rec->Brho/(3.105*Beta);
-            
-      //===============================================================
-      // Correction on the total energy Si-CsI Identification
-	if( CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==1 || Code_Ident_Vamos==3) ){      
-		E_csi = GetEnergyLossCsI(Si->Number+1);      
-		E_gap2 = GetEnergyLossGap2(Si->Number+1); //gap Si-CsI     
-		E_gap1 = GetEnergyLossGap1(Si->Number+1); //gap Chio-Si	
-		E_chio = GetEnergyLossChio();
-		E_dc2 = GetEnergyLossDC2();
- 		E_sed = GetEnergyLossSed();
- 		E_dc1 = GetEnergyLossDC1();
- 		E_tgt = GetEnergyLossTarget();
-		
-		E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1;	//Correction on the total energy based on the Silicon energy (E_tgt + E_dc1 + E_dc2 + E_sed + E_chio + E_gap1)
-	}
-	// Correction on the total energy Chio-Si Identification
-	// A/Q and A corrections don't depend on corrected energy, but only on EChio+ESi
-	/*if( CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==4 || Code_Ident_Vamos==10) ){  
-		E_gap2 = GetEnergyLossGap2(Si->Number+1); //gap Si-CsI     
-		E_gap1 = GetEnergyLossGap1(Si->Number+1); //gap Chio-Si	
-		E_chio = GetEnergyLossChio();
-		E_dc2 = GetEnergyLossDC2();
- 		E_sed = GetEnergyLossSed();
- 		E_dc1 = GetEnergyLossDC1();
- 		E_tgt = GetEnergyLossTarget();	
-		
-		E += E_tgt + E_dc1 + E_dc2 + E_sed + E_gap1 + E_gap2;	
-	}*/ 					
-      //===============================================================
-      
-      M = 2.* E / (931.5016*TMath::Power(Beta,2.));
-      Q = M/M_Q; 
-      
-      /*if(Ic->EM==1 && Si->E_RawM==1 && CsI->EM==0 ){
-      	L->Log<<"M_Q Raw: "<<M_Q<<endl;
-	L->Log<<"M Raw: "<<M<<endl;
-	L->Log<<"Q Raw: "<<Q<<endl;
-      }*/
-            
-      //Mass = M_Q*PID;           
-      //Mr = (E/1000.)/931.5016/(Gamma-1.);
-      //M_Qr = Rec->Brho/3.105/Beta/Gamma;
-      //Qr = Mr/M_Qr;
-      //Qr = (-1.036820+1.042380*Qr +0.4801678e-03*Qr*Qr);
-      //Qc = int(Qr+0.5);
-      //Mc = M_Qr*Qc;
-      
-   M_Qcorr = 0.0;
-   M_corr_D2 = 0.0;
-   Q_corr = 0;
-   Q_corr_D = 0.0;
-   realQ = 0;
-   realQ_D = 0;
-   Qid = 0;
-   Q2 = 0;
-   Z_corr=0;
-   
-   Z_corr = int(TMath::Floor(PID+0.5));      
-   }
-//====================================================================================================
-// Première fonction de correction de Q
-// First Q correction, according to the CsI detector (Si-CsI Identification)
-	if( CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==1){   
-		DetCsI = int(CsI->Number)+1;   
-		Q_corr = int(TMath::Floor((P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q))+0.5));
-		Q_corr_D = P0[DetCsI]+(P1[DetCsI]*Q)+(P2[DetCsI]*Q*Q)+(P3[DetCsI]*Q*Q*Q);
-
-	}
-// End of the fisrt Q correction       
-//====================================================================================================
-
-//==========================================================================
-// Gates en Brho et état de charge pour la détermination des états de charges
-// Brho/Q gates to determine the charge state value (interger)
-// Identifications Si-CsI and Chio-Si
-
-GetFileCut();
-GetFileCutChioSi();
- 
-//====================================================================================================
-// Second Q correction, by correcting the M and M/Q value
-// Case Si-CsI Identification
-    if(Q_corr>0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==1)	
-    {                 
-	M_corr = Q_corr*M_Q;
-	M_corr_D = Q_corr_D*M_Q;
-	
-	// Correction de M/Q en fonction du Brho
-	// M/Q correction according to the Brho		
-	M_Qcorr = P0_mq[runNumber] + (P1_mq[runNumber]*M_Q); 
-    }	
-    if(Q_corr>0 && llist->IsZombie()==0 && CsI->EM==1 && Si->E_RawM==1 && Ic->EM==1 && Code_Ident_Vamos==1)
-    {   		
-	// Correction de M en fonction du Brho et de l'état de charge Q
-	// M correction according the Brho value and the charge state Q
-
-	if(q5!=NULL && q5->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 5;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);
-	}
-	else if(q6!=NULL && q6->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 6;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q7!=NULL && q7->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 7;	
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q8!=NULL && q8->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 8;	
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q9!=NULL && q9->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 9;	
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}	
-	else if(q10!=NULL && q10->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 10;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}
-	else if(q11!=NULL && q11->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 11;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q12!=NULL && q12->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 12;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}
-	else if(q13!=NULL && q13->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 13;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}
-	else if(q14!=NULL && q14->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 14;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}	
-	else if(q15!=NULL && q15->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 15;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);
-	}
-	else if(q16!=NULL && q16->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 16;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);	
-	}	
-	else if(q17!=NULL && q17->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 17;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 
-	}
-	else if(q18!=NULL && q18->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 18;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q19!=NULL && q19->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 19;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q20!=NULL && q20->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 20;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D); 		
-	}
-	else if(q21!=NULL && q21->IsInside(Rec->Brho,Q_corr_D)==1)
-	{
-	Qid = 21;
-	M_corr_D2 = P0_m[runNumber][Qid] + (P1_m[runNumber][Qid]*M_corr_D);		
-	}	
-	else 
-	{
-	Qid = 0;
-	M_corr_D2 = 0.0;
-	}
-	
-	Q_corr_D2 = M_corr_D2 / M_Qcorr;
-	Q2 = TMath::Floor(Q_corr_D2+0.5);	
-	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;   	
-    	}	            
-// End of the second Q correction : Si-CsI Identification
-//====================================================================================================
-// Second Q correction : Chio-Si Identification    
-if(Q>0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==10) )	
-    { 
-	M_Qcorr = P0_mq_chiosi[runNumber] + (P1_mq_chiosi[runNumber]*M_Q);     
-    }
-    
-    if(Q>0 && llist2->IsZombie()==0 && CsI->EM==0 && Si->E_RawM==1 && Ic->EM==1 && (Code_Ident_Vamos==2 || Code_Ident_Vamos==10) )
-    {   		
-	// Correction de M en fonction du Brho et de l'état de charge Q
-	// M correction according the Brho value and the charge state Q
-
-	if(q8cs!=NULL && q8cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 8;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}
-	else if(q9cs!=NULL && q9cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 9;	
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}	
-	else if(q10cs!=NULL && q10cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 10;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q11cs!=NULL && q11cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 11;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q12cs!=NULL && q12cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 12;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}
-	else if(q13cs!=NULL && q13cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 13;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q14cs!=NULL && q14cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 14;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}	
-	else if(q15cs!=NULL && q15cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 15;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);
-	}
-	else if(q16cs!=NULL && q16cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 16;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);	 
-	}	
-	else if(q17cs!=NULL && q17cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 17;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M); 
-	}
-	else if(q18cs!=NULL && q18cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 18;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q19cs!=NULL && q19cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 19;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q20cs!=NULL && q20cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 20;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		 
-	}
-	else if(q21cs!=NULL && q21cs->IsInside(Rec->Brho,Q)==1)
-	{
-	Qid = 21;
-	M_corr_D2 = P0_m_chiosi[runNumber][Qid] + (P1_m_chiosi[runNumber][Qid]*M);		
-	}
-	else 
-	{
-	Qid = 0;
-	M_corr_D2 = 0.0;
-	}
-	
-	Q_corr_D2 = M_corr_D2 / M_Qcorr;	
-	Q2 = TMath::Floor(Q_corr_D2+0.5);	
-	M_realQ = TMath::Floor(Q_corr_D2+0.5)*M_Qcorr;      
-   	
-    	}	
-
-//====================================================================================================
-
-//====================================================================================================
-// Flag the events
-
-// Code_Vamos : 
-// Code_Vamos = 1 : Fragment à l'intérieur de la région d'intérêt et Q correct (Z-4<Q<Z+1)
-// Code_Vamos = 2 : Fragment à l'extérieur de la région d'intérêt, mais dont Q est correct
-// Code_Vamos = 3 : Fragment à l'intérieur de la région d'intérêt et Q>Z
-// Code_Vamos = 4 : Fragment à l'intérieur de la région d'intérêt et Q<Z-4
-// Code_Vamos = 5 : Fragment à l'extérieur de la région d'intérêt et Q>Z
-// Code_Vamos = 6 : Fragment à l'extérieur de la région d'intérêt et Q<Z-4
-// Code_Vamos = 13 : Else
-    
-  if(Z_corr>4 && Z_corr<21 && Qid>0 && M_realQ>0){	// Flag les events pour Z = 5-20 et Qid>0
-    if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr+1 && Qid>Z_corr-4){
-		Code_Vamos = 1;
-	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid<Z_corr+1 && Qid>Z_corr-4){
-    		Code_Vamos = 2;
-    	}	
-    else if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid>Z_corr){
-		Code_Vamos = 3;
-	}
-    else if( Rec->Brho >= Brho_min[Z_corr][int(M_realQ)][Qid][runNumber] && Rec->Brho <= Brho_max[Z_corr][int(M_realQ)][Qid][runNumber] && Qid<Z_corr-4){
-    		Code_Vamos = 4;
-    	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid>Z_corr){
-		Code_Vamos = 5;
-	}
-    else if( ((Rec->Brho < Brho_min[Z_corr][int(M_realQ)][Qid][runNumber]) || (Rec->Brho > Brho_max[Z_corr][int(M_realQ)][Qid][runNumber])) && Qid<Z_corr-4 && Qid>0){
-    		Code_Vamos = 6;
-    	}		
-	else{
-		Code_Vamos = 13;
-	}
-  }
-//====================================================================================================
-    
-NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
-DT = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT");
-FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
-Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho");   
-stat_tot = 0.;
-stat_tot = Stat_Indra[gIndra->GetCurrentRunNumber()]; 
-   
-  if( T > 0 && V > 0 && M_Q > 0 && M > 0 && Z1 > 0 && Z2 > 0 && Beta > 0 && Gamma > 1.0) 
-    {
-      Present=true;
-      Counter[2]++;
-    }
-
-}
-
-
-void Identificationv::Treat(void)
-{
-#ifdef DEBUG
-  cout << "Identificationv::Treat" << endl;
-#endif
-
-  //Counter[0]++;
-  Init();
-  //if(Rec->Present) Counter[1]++;		//Non commenter
-  Calculate();
-  //#ifdef DEBUG
-  //Show();
-  //#endif
-  
-}
-void Identificationv::inAttach(TTree *inT)
-{
-#ifdef DEBUG
-  cout << "Identificationv::inAttach " << endl;
-#endif
-
-#ifdef DEBUG
-  cout << "Attaching Identification variables" << endl;
-#endif
-#ifdef ACTIVEBRANCHES
-  cout << "Activating Branches: Identificationv" << endl;
-  L->Log << "Activating Branches: Identificationv" << endl;
-
-#endif
-
-}
-
-void Identificationv::outAttach(TTree *outT)
-{
-
-#ifdef DEBUG
-  cout << "Identificationv::outAttach " << endl;
-#endif
-
-#ifdef DEBUG
-  cout << "Attaching Identificationv variables" << endl;
-#endif
-    outT->Branch("RunNumber", &runNumber, "runNumber/I");
-	
-	/*outT->Branch("ESiRaw",&SiRaw,"SiRaw/I");
-	outT->Branch("ECsIRaw",&CsIRaw,"CsIRaw/I");
-	
-	outT->Branch("E_tgt",&E_tgt,"E_tgt/D");	
-	outT->Branch("E_dc1",&E_dc1,"E_dc1/D");	
-	outT->Branch("E_sed",&E_sed,"E_sed/D");
-	outT->Branch("E_dc2",&E_dc2,"E_dc2/D");
-	outT->Branch("E_chio",&E_chio,"E_chio/D");
-	outT->Branch("E_gap1",&E_gap1,"E_gap1/D");						
-	
-	outT->Branch("ESi",&ESi,"ESi/D");
-	outT->Branch("EGap",&EGap,"EGap/D");
-	outT->Branch("ECsI",&ECsI,"ECsI/D");
-	outT->Branch("ECsI_corr",&ECsI_corr,"ECsI_corr/D");
-	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");	
-	outT->Branch("DT",&DT,"DT/D");
-	outT->Branch("Brho_mag",&Brho_mag,"Brho_mag/D");		
-	outT->Branch("FC_Indra",&FC_Indra,"FC_Indra/D");
-
-  	outT->Branch("E_corr",&E_corr,"E_corr/F");
-
-	outT->Branch("Gamma",&Gamma,"Gamma/F");*/
-	
-	outT->Branch("ESi",&ESi,"ESi/D");
-	outT->Branch("ECsI",&ECsI,"ECsI/D");
-	outT->Branch("Brho_0",&Brho_mag,"Brho_mag/D");
-	outT->Branch("Stat_Indra", &stat_tot, "Stat_Indra/F");
-	outT->Branch("NormVamos",&NormVamos,"NormVamos/D");
-	outT->Branch("Code_Vamos", &Code_Vamos, "Code_Vamos/I");
-	outT->Branch("Code_Ident_Vamos", &Code_Ident_Vamos, "Code_Ident_Vamos/I");	
-	outT->Branch("E",&E,"E/F");
-	outT->Branch("T",&T,"T/F");	
-	outT->Branch("D",&D,"D/F");
-	outT->Branch("V_VAMOS",&V,"V/F");
-	outT->Branch("Beta",&Beta,"Beta/F");
-	outT->Branch("AQ_VAMOS", &M_Qcorr, "M_Qcorr/F");
-	outT->Branch("RealZ_VAMOS",&PID,"PID/D");
-	outT->Branch("Z_VAMOS", &Z_corr, "Z_corr/I");
-	outT->Branch("A_VAMOS", &M_realQ, "M_realQ/D");
-	outT->Branch("Q_VAMOS", &Q2, "Q2/I");
-	outT->Branch("RealQ_VAMOS", &Q_corr_D2,"Q_corr_D2/D");
-		
-	outT->Branch("AQ", &M_Q, "M_Q/F");	
-	outT->Branch("Q",&Q,"Q/F");
-	outT->Branch("A",&M,"M/F");
-	/*outT->Branch("Q_corr", &Q_corr, "Q_corr/I");
-	outT->Branch("Q_corr_D", &Q_corr_D,"Q_corr_D/D");
-	outT->Branch("A_corr", &M_corr, "M_corr/D");
-	outT->Branch("A_corr_D", &M_corr_D,"M_corr_D/D");*/
-	/*outT->Branch("A_realQ", &M_realQ, "M_realQ/D");
-	outT->Branch("A_realQ_D", &M_realQ_D,"M_realQ_D/D");
-	outT->Branch("A_corr_D2", &M_corr_D2,"M_corr_D2/D");
-	outT->Branch("Q_corr_D2", &Q_corr_D2,"Q_corr_D2/D");
-	outT->Branch("Qid", &Qid, "Qid/I");*/
-
-}
-
-
-void Identificationv::CreateHistograms(void)
-{
-
-#ifdef DEBUG
-  cout << "Identificationv::CreateHistograms " << endl;
-#endif
-}
-void Identificationv::FillHistograms(void)
-{
-#ifdef DEBUG
-  cout << "Identificationv::FillHistograms " << endl;
-#endif
-
-}
-
-
-void Identificationv::Show(void)
-{
- #ifdef DEBUG
-  cout << "Identificationv::Show__prova" << endl;
- #endif
-  cout.setf(ios::showpoint);
- 
-}
-
-//method to reconstruct VAMOS telescopes
-int Identificationv::GeometryChioSi(UShort_t cinum, UShort_t sinum)
-{
-   Int_t  num;
-   Int_t si1=0, si2=0, si3=0, si4=0, si5=0, si6=0;
-   ifstream in;
-   TString sline;
-   
-   if(!gDataSet->OpenDataSetFile("geom_chiosi.dat",in))
-  {
-     cout << "Could not open the calibration file geom_chiosi.dat !!!" << endl;
-     return 0;
-  }
-  else 
-  {
-	while(!in.eof()){
-       sline.ReadLine(in);
-       if(!in.eof()){
-	   if (!sline.BeginsWith("#")){
-	     sscanf(sline.Data(),"%d %d %d %d %d %d %d", &num, &si1, &si2, &si3, &si4, &si5, &si6);
-	     geomchiosi[num][0]=si1;
-	     geomchiosi[num][1]=si2;
-	     geomchiosi[num][2]=si3;
-	     geomchiosi[num][3]=si4;
-	     geomchiosi[num][4]=si5;
-	     geomchiosi[num][5]=si6;	     
-	     	   }
-       		}
-     	}
-  }
-  in.close();
-
-  for(int i=0;i<6;i++)
-    {
-      if(geomchiosi[cinum][i]==sinum)return 1;
-    }
-  return 0;
-
-
-
-}
-
-int Identificationv::Geometry(UShort_t sinum, UShort_t csinum)
-{  
-   Int_t  num;
-   Int_t csi1=0, csi2=0, csi3=0, csi4=0, csi5=0, csi6=0;
-   ifstream in;
-   TString sline;
-   
-   if(!gDataSet->OpenDataSetFile("geom.dat",in))
-  {
-     cout << "Could not open the calibration file geom.dat !!!" << endl;
-     return 0;
-  }
-  else 
-  {
-	while(!in.eof()){
-       sline.ReadLine(in);
-       if(!in.eof()){
-	   if (!sline.BeginsWith("#")){
-	     sscanf(sline.Data(),"%d %d %d %d %d %d %d", &num, &csi1, &csi2, &csi3, &csi4, &csi5, &csi6);
-	     geom[num][0]=csi1;
-	     geom[num][1]=csi2;
-	     geom[num][2]=csi3;
-	     geom[num][3]=csi4;
-	     geom[num][4]=csi5;
-	     geom[num][5]=csi6;
-	     	   }
-       		}
-     	}
-  }
-  in.close();
-
-  for(int i=0;i<6;i++)
-    {
-      if(geom[sinum][i]==csinum)return 1;
-    }
-  return 0;
 }
 

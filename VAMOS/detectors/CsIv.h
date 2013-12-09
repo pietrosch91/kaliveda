@@ -12,6 +12,8 @@
 #include"Random.h"
 #include"TRandom3.h"
 
+//const int MAX_CSI=80;
+
 class CsIv
 {
 
@@ -21,42 +23,37 @@ class CsIv
    
    LogFile *L;
    
+   Int_t NbCsI;
+   
    void Init(void);
-   void InitRaw(void);
-   void Calibrate(void);
+   void InitSavedQuantities(void);
    void Treat(void);
    void inAttach(TTree *inT);
    void outAttach(TTree *outT);
    void CreateHistograms();
    void FillHistograms();
   
-  Float_t  Ped[80][1];       //CsI pedestal
-  Float_t  ECoef[80][3];  //CsI calibration coefficients
+  Float_t  *Ped;       //CsI pedestal
+  Float_t  **ECoef;  //CsI calibration coefficients
 
   TRandom3 *Rnd;
   
   
   //energy Raw
-  UShort_t E_Raw[80];
-  UShort_t CsIRaw[80];
-  //Float_t E_Raw[80];
-  UShort_t E_Raw_Nr[80];
+  UShort_t *E_Raw;
+  Int_t *CsIERaw;
+  UShort_t *E_Raw_Nr;
   Int_t E_RawM;
   
-  UShort_t CSI_Raw;
-  
   //energy time Calibrated
-  Int_t   EM;
-  //Float_t E[80];
-  UShort_t ENr[80];
-  Float_t ETotal;
-  UShort_t Number;
-  Int_t DetCsI;
+  Int_t   EMCSI;
+  Int_t *DetCsI;
+ 
   
 
 
 
-   ClassDef(CsIv,1)//VAMOS CsI
+   ClassDef(CsIv,2)//VAMOS CsI
 };
 
 #endif

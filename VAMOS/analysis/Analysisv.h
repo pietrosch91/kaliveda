@@ -46,7 +46,7 @@ class Analysisv
   virtual void Treat()=0; // Treating data
   virtual void CreateHistograms()=0;
   virtual void FillHistograms()=0;
-  
+ 
   virtual void SetTel1(KVDetector *si)=0;
   virtual void SetTel2(KVDetector *gap)=0;  
   virtual void SetTel3(KVDetector *csi)=0; 	
@@ -62,7 +62,8 @@ class Analysisv
   virtual void SetCsI(KVMaterial* ccsi)=0;
   
   virtual void SetFileCut(TList* list)=0;
-  virtual void SetFileCutChioSi(TList* list2)=0;    
+  virtual void SetFileCutChioSi(TList* list2)=0;   
+  virtual void SetFileCutSiTof(TList* list3)=0;     
      
   ClassDef(Analysisv,0)
 
