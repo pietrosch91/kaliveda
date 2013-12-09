@@ -60,7 +60,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
  		virtual void     Identify();
 		virtual void     ReconstructTrajectory();
 		virtual void     ReconstructFPtraj();
-//		virtual void     ReconstructFPtrajByFitting();
+		virtual void     ReconstructFPtrajByFitting();
 		virtual void     ReconstructLabTraj();
 		virtual void     CalculateCalibration();
 

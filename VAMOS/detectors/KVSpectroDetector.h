@@ -91,8 +91,8 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		inline TGeoVolume *GetActiveVolume(Int_t i=0) const{ return fActiveVolumes ? (TGeoVolume *)fActiveVolumes->At(i) : NULL;}
    		inline Double_t GetTotalThickness() const{ return fTotThick;}
    		inline void SetFocalToTargetMatrix( TGeoHMatrix *matrix ){ fFocalToTarget = matrix; };
-   		inline UChar_t GetXYZf(Double_t *XYZf, Int_t idx = 0 ){
-	   		return GetPosition( XYZf, idx );
+   		inline UChar_t GetXYZf(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0 ){
+	   		return GetPosition( XYZf, dir, idx );
    		}
 
 		inline Bool_t IsOKforID() const { return TestBit( kOKforID ); }

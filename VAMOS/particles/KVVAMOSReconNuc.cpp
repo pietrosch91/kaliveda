@@ -7,6 +7,8 @@
 #include "KVVAMOSReconGeoNavigator.h"
 #include "KVNamedParameter.h"
 #include "KVTarget.h"
+#include "TGraphErrors.h"
+#include "TROOT.h"
 
 ClassImp(KVVAMOSReconNuc)
 
@@ -419,7 +421,8 @@ void KVVAMOSReconNuc::ReconstructTrajectory(){
 	//Reconsturction of the trajectory at the focal plane and then at
 	//the target point.
 
-	ReconstructFPtraj();
+//	ReconstructFPtraj();
+	ReconstructFPtrajByFitting();
 	ReconstructLabTraj();
 }
 //________________________________________________________________
@@ -510,85 +513,150 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 	
 	RunTrackingAtFocalPlane();
 //	if( CheckTrackingCoherence() ) fRT.SetFPparamsReady();
-// 	else ReconstructFPtrajByFitting( GetDetectorList() );
 	fRT.SetFPparamsReady();
+
+//		Info("ReconstructFPtraj","\n    Xf= %f, Yf= %f, Thetaf= %f, Phif= %f\n    FPCode%d %s", GetXf(), GetYf(),GetThetaF(),GetPhiF(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
 }
 //________________________________________________________________
 
-//void KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
-//
-//	Info("ReconstructFPtrajByFitting","IN");
-//	UChar_t res = 0;
-//	Double_t xyzf [3];          // [3] => [X, Y, Z]
-//	Double_t dxyzf[3];          // [3] => [X, Y, Z]
-//	SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
-//
-//	static TGraphErrors graphX(4); // 4 is the max number of FPdetectors
-//	static TGraphErrors graphY(4); // 4 is the max number of FPdetectors
-//	Int_t NptX=0, NptY=0;         // Number of Points in X-Z and Y-Z plans
-//	const Char_t *FPdetName = NULL;
-//	KVVAMOSDetector *d = NULL;
-//	// Loop over detector name to be used for the Focal plane Position
-//	// reconstruction
-//	for( Short_t i=0; (FPdetName = GetCodes().GetFPdetName(i)); i++ ){
-//
-//		// Look at only the detectors in 'fDetList' with the name or
-//		// type 'FPdetName' measuring a position.
-//		if(
-//				((d = (KVVAMOSDetector *)GetDetectorList()->FindObject( FPdetName )) ||
-// 		 		 (d = (KVVAMOSDetector *)GetDetectorList()->FindObjectByType( FPdetName )))
-//				&& (res = d->GetPosition(xyzf)) > 4 
-//		  ){
-//
-//			d->GetDeltaXYZf( dxyzf );
-//
-//			if( res & 1 ){ // X position is OK
-//
-//				graphX.SetPoint     ( NptX, xyzf[2], xyzf [0]);
-//				graphX.SetPointError( NptX,      0 , dxyzf[0]>0.01 ? dxyzf[0] : 0.01);
-//				NptX++;
-//			}
-//			if( res & 2 ){ // Y position is OK
-//				graphY.SetPoint     ( NptY, xyzf[2], xyzf [1]);
-//				graphY.SetPointError( NptY,      0 , dxyzf[1]>0.01 ? dxyzf[1] : 0.01 );
-//				NptY++;
-//			}
-//
-//		}
-//	}
-//
-//	if( NptX>1 && NptY>1  ){
-//
-//		graphX.Set( NptX );
-//		graphY.Set( NptY );
-//
-//
-//		fRT.dirFP.SetXYZ(0, 0, 1);
-//		TF1 *ff = (TF1 *)gROOT->GetFunction("pol1");
-//
-//		//	graphX.Fit(ff,"QNC");
-//		graphX.Fit(ff,"QC");
-//		fRT.dirFP.SetX( ff->GetParameter(1) );
-//		fRT.pointFP[0] = ff->GetParameter(0);
-//
-//		//	graphY.Fit(ff,"QNC");
-//		graphY.Fit(ff,"QC");
-//		fRT.dirFP.SetY( ff->GetParameter(1) );
-//		fRT.pointFP[1] = ff->GetParameter(0);
-//
-//		// normalize the direction vector dirFP
-//		fRT.dirFP *= 1./fRT.dirFP.Mag();
-//
-//		// Set FPcode 31 for the reconstruction by fitting
-//		SetFPCode( kFPCode31 );
-//      RunTrackingAtFocalPlane();
-//		if( CheckTrackingCoherence() ) {
-//			fRT.SetFPparamsReady();
-//			return;
-//		}
-//	}
-//
-//}
+void KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
+	// Reconstruct the Focal-Plane trajectory and set the appropriate 
+	// FPCode. If the reconstruction is well carried out (i.e. FPCode>kFPCode0)
+	// then the tracking along this trajectory is runned.
+	// In this method, the reconstruction of the FP trajectory is done by
+	// fitting a first-order polynomial on the positions measured by the
+	// detector listed in the the environment variable: KVVAMOSCodes.FocalPlanReconDetList
+
+	UChar_t res = 0;
+	Double_t xyzf [3];          // [3] => [X, Y, Z]
+	Double_t dxyzf[3];          // [3] => [X, Y, Z]
+
+	Short_t Idx[4] = {-1, -1, -1, -1};// [4] => [Complete Det1, Complete Det2, Incomplete Det1, Incomplete Det2]
+	UChar_t IncDetBitmask = 3;        // bits 11 => 3, first bit means missing X, second bit means missing Y
+	Bool_t inc1IsX = kTRUE;           // true if the coordinate given by the first incomplete position is X ( false if Y)
+	UShort_t Ncomp = 0, Ninc = 0;     // Number of Complete and Incomplete
+
+	SetFPCode( kFPCode0 ); // Initialize FP codes to code 0 "no FP position recon."
+
+	static TGraphErrors graphX(4); // 4 is the max number of FPdetectors
+	static TGraphErrors graphY(4); // 4 is the max number of FPdetectors
+	Int_t NptX=0, NptY=0;         // Number of Points in X-Z and Y-Z plans
+	const Char_t *FPdetName = NULL;
+	KVVAMOSDetector *d = NULL;
+	// Loop over the detector names to be used for the Focal plane Position
+	// reconstruction
+	for( Short_t i=0; (FPdetName = GetCodes().GetFPdetName(i)) && i<4; i++ ){
+
+		// Look at only the detectors in 'fDetList' with the name or
+		// type 'FPdetName' measuring a position.
+		if(
+				((d = (KVVAMOSDetector *)GetDetectorList()->FindObject( FPdetName )) ||
+ 		 		 (d = (KVVAMOSDetector *)GetDetectorList()->FindObjectByType( FPdetName )))
+		  ){
+
+			// initializing the result
+			res = 0;	
+
+			// X position
+			if( d->GetNMeasuredX()<2 ){// case where only one X position is measurable
+				if( (d->GetPosition(xyzf,'X') & 5) == 5 ){
+					d->GetDeltaXYZf( dxyzf,'X');
+					graphX.SetPoint     ( NptX, xyzf[2], xyzf [0]);
+					graphX.SetPointError( NptX,      0 , dxyzf[0]>0.01 ? dxyzf[0] : 0.01);
+					NptX++;
+					res |= 5;
+				}
+			}
+			else{// case where several X positions are measurable
+				for( Int_t j=1; j<=d->GetNMeasuredX(); j++ ){
+					// look at only well measured X position with its Z 
+					if( (d->GetPosition(xyzf,'X',j) & 5) == 5 ){
+						d->GetDeltaXYZf( dxyzf,'X', j );
+						graphX.SetPoint     ( NptX, xyzf[2], xyzf [0]);
+						graphX.SetPointError( NptX,      0 , dxyzf[0]>0.01 ? dxyzf[0] : 0.01);
+						NptX++;
+						res |= 5;
+					}
+				}
+			}
+
+			// Y position
+			if( d->GetNMeasuredY()<2 ){// case where only one Y position is measurable
+				if( (d->GetPosition(xyzf,'Y') & 6) == 6 ){
+					d->GetDeltaXYZf( dxyzf,'Y');
+					graphY.SetPoint     ( NptY, xyzf[2], xyzf [1]);
+					graphY.SetPointError( NptY,      0 , dxyzf[1]>0.01 ? dxyzf[1] : 0.01);
+					NptY++;
+					res |= 6;
+				}
+			}
+			else{// case where several Y positions are measurable
+				for( Int_t j=1; j<=d->GetNMeasuredY(); j++ ){
+					// look at only well measured Y position with its Z 
+					if( (d->GetPosition(xyzf,'Y',j) & 6) == 6 ){
+						d->GetDeltaXYZf( dxyzf,'Y', j );
+						graphY.SetPoint     ( NptY, xyzf[2], xyzf [1]);
+						graphY.SetPointError( NptY,      0 , dxyzf[1]>0.01 ? dxyzf[1] : 0.01);
+						NptY++;
+						res |= 6;
+					}
+				}
+			}
+
+
+			if( res <= 4 ) continue; // look at only case with Z well determined
+			else if( (res & 7) == 7 ){
+				// if X, Y and Z are well measured, bits 111 => 7
+				// Complete position (XYZ)
+
+				Idx[ Ncomp ] = i;
+				Ncomp++;
+ 			}
+			else if ( IncDetBitmask&res ){
+				// look at only incomplete position measurment (XZ or YZ)
+				// if it is not found yet
+
+				Idx[ 2+Ninc ] = i;
+				if( Ninc == 0 ) inc1IsX = res&1;
+				Ninc++;
+				IncDetBitmask = (IncDetBitmask | 4)^res;
+			}
+
+
+			if( (Ncomp == 2) || ((Ncomp == 1) && !IncDetBitmask) ){
+				// we break the look if:
+				//    - the Focal plane Position is reconstructed from 2 complete position measurment
+				// or if:
+				//    - the Focal plane Position is reconstructed from 1 complete position measurment and 2 incomplete position measurment.
+
+				graphX.Set( NptX );
+				graphY.Set( NptY );
+
+				fRT.dirFP.SetXYZ(0, 0, 1);
+				TF1 *ff = (TF1 *)gROOT->GetFunction("pol1");
+
+				graphX.Fit(ff,"QNC");
+				fRT.dirFP.SetX( ff->GetParameter(1) );
+				fRT.pointFP[0] = ff->GetParameter(0);
+
+				graphY.Fit(ff,"QNC");
+				fRT.dirFP.SetY( ff->GetParameter(1) );
+				fRT.pointFP[1] = ff->GetParameter(0);
+
+				// normalize the direction vector dirFP
+				fRT.dirFP *= 1./fRT.dirFP.Mag();
+
+				GetCodes().SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
+
+				RunTrackingAtFocalPlane();
+				fRT.SetFPparamsReady();
+
+//				Info("ReconstructFPtrajByFitting","\n    Xf= %f, Yf= %f, Thetaf= %f, Phif= %f\n    FPCode%d %s", GetXf(), GetYf(),GetThetaF(),GetPhiF(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
+				return;
+			}
+		}
+	}
+}
 //________________________________________________________________
 
 void KVVAMOSReconNuc::ReconstructLabTraj(){
