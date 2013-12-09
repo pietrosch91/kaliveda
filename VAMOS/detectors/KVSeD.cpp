@@ -504,13 +504,13 @@ Double_t KVSeD::GetRawPosition(Char_t dir, Int_t /* num */){
 	TH1F *hh = GetCleanQHisto( dir );
 	if( !hh ) return fRawPos[ idx ];
 
-	if(hh->GetEntries()< fNstripsOK ) return fRawPos[ idx ];
+	if(!hh->GetEntries()) return fRawPos[ idx ];
 
 	///////////////////////////////////////////////////
 
 	Int_t binMax = hh->GetMaximumBin();
 	Int_t min;
-	for( min = binMax-1; min>1; min--){
+	for( min = binMax; min>1; min--){
 		if( hh->GetBinContent(min) <= 0. ){
 			min++;
 			break;
@@ -519,7 +519,7 @@ Double_t KVSeD::GetRawPosition(Char_t dir, Int_t /* num */){
 		if(deltaQ < 0 ) break;
 	}
 	Int_t max;
-	for( max = binMax+1; max<hh->GetNbinsX(); max++){
+	for( max = binMax; max<hh->GetNbinsX(); max++){
 		if( hh->GetBinContent(max) <= 0. ){
 			max--;
 			break;
