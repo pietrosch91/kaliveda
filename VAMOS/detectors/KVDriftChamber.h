@@ -4,8 +4,10 @@
 #ifndef __KVDRIFTCHAMBER_H
 #define __KVDRIFTCHAMBER_H
 #define Border 5
+#define _DC_N_STRIPS_ 64
 
 #include "KVVAMOSDetector.h"
+#include "KVUnits.h"
 
 class TH1F;
 
@@ -30,6 +32,7 @@ class KVDriftChamber : public KVVAMOSDetector
 		KVFunctionCal *fTfilCal;//! Calibrator of the  TFIL acquisition parameter
 		Float_t     fStripWidth;//! X-Strip width
 		Float_t     fOffsetZ[3];// Z offset in cm for Y, X1 and X2 measurements
+		Float_t     fOffsetX[2];// X1 and X2 offset in fraction of the strip width
 
 		void init();
 
@@ -55,6 +58,8 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual Bool_t PositionIsOK();
    virtual void  ResetCalculatedData();
    virtual void  SetACQParams();
+   virtual void  SetPressure(Double_t);
+   virtual void  SetTemperature(Double_t);
 
    virtual void ShowCleanQHisto(Int_t c_num=1, Option_t *opt = "");
    virtual void ShowQrawHisto(Int_t c_num=1, Option_t *opt = "");
@@ -71,9 +76,11 @@ class KVDriftChamber : public KVVAMOSDetector
            Float_t   GetDriftVelocity() const;
            void      SetDriftVelocity( Float_t v );
 		   KVFunctionCal *GetDriftTimeCalibrator() const;
+   virtual Double_t  GetPressure() const;
 		   Float_t   GetStripWidth() const;
 		   Bool_t    IsPositionCalibrated() const;
            void      SetZOffsets( Float_t X1 = -2.5, Float_t X2 = 2.5, Float_t Y= 0 );
+           void      SetXOffsets( Float_t X1 = 0., Float_t X2 = 0. );
 
    ClassDef(KVDriftChamber,1)//Drift Chamber, used at the focal plan of VAMOS
 };
@@ -107,6 +114,12 @@ inline KVFunctionCal *KVDriftChamber::GetDriftTimeCalibrator() const{
 }
 //________________________________________________________________
 
+inline  Double_t KVDriftChamber::GetPressure() const /* mbar */ {
+    // Give pressure of gas in mbar
+    return KVDetector::GetPressure()/KVUnits::mbar;
+}
+//________________________________________________________________
+
 inline Float_t KVDriftChamber::GetStripWidth() const{ return fStripWidth; }
 //________________________________________________________________
 
@@ -125,5 +138,22 @@ inline void KVDriftChamber::SetZOffsets( Float_t X1, Float_t X2, Float_t Y){
 	fOffsetZ[0] = Y;
 	fOffsetZ[1] = X1;
 	fOffsetZ[2] = X2;
+}
+//________________________________________________________________
+
+inline void KVDriftChamber::SetXOffsets( Float_t X1, Float_t X2){
+	// Sets the values of X1 and X2 offsets in fraction of the strip width.
+	// By default the  The two cathode plans are offset by half a strip to
+	// reduce the non linearity of the position measurement in between the 
+	// strips. The center of the detector is at the middle of the strip 32
+	// of the range 2 and between strips 32 and 33 of the range 1 (offsets 0,0).
+	// With this command you can change the strip position with respect to
+	// the center of the detector for each plan.
+	//
+	// For example, if you want to move the plan 2 in order to have its strip
+	// 35 at the center and keep the range 1 at its default position then use
+	// SetXOffsets( 0., 3.);
+	fOffsetX[0] = X1;
+	fOffsetX[1] = X2;
 }
 #endif

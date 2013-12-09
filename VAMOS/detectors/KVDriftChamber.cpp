@@ -49,6 +49,10 @@ void KVDriftChamber::init(){
 	//   - the second line of pads of the cathode ( +2.5 cm ) for X2
 	//   - the middle of the detector ( 0 cm ) for Y
 	SetZOffsets();
+	
+	// The center of the detector is at the middle of the strip 32
+	// of the range 2 and between strips 32 and 33 of the range 1 (offsets 0,0).
+	SetXOffsets();
 
 	//a KVDriftChamber can not be used in a ID telescope
 	ResetBit( kOKforID );
@@ -187,7 +191,7 @@ void KVDriftChamber::SetACQParams(){
 	// Charge ACQ parameters	
 	TString name, title;
 	KVACQParam *par = NULL;
-	Int_t Nstrips =  64;
+	Int_t Nstrips =  _DC_N_STRIPS_;
 	const Char_t *extraname[]  = {    "raw","calib",        "clean"};
 	const Char_t *extratitle[] = {       "",     "","without noise"};
 	const Char_t *units[]      = {"channel", "Volt",         "Volt"};
@@ -235,6 +239,35 @@ void KVDriftChamber::SetACQParams(){
 	fTfilPar = par;
 }
 //________________________________________________________________
+
+void KVDriftChamber::SetPressure(Double_t p /* mbar */){
+  	// Set the same  pressure for each gas layer (in mbar)
+
+   	if(!IsGas()) return;
+
+   	KVMaterial *abs = NULL;
+   	TIter next( GetListOfAbsorbers() ); 
+   	while( ( abs = (KVMaterial *)next()) ){
+   		if(abs->IsGas()) abs->SetPressure(p*KVUnits::mbar);
+   	}
+
+	KVDetector::SetPressure( p*KVUnits::mbar );
+}
+//________________________________________________________________
+
+void KVDriftChamber::SetTemperature(Double_t t){
+	// Set the same temperature for each gaz layer.
+   	// The units are: degrees celsius
+
+   	if(!IsGas()) return;
+
+   	KVMaterial *abs = NULL;
+   	TIter next( GetListOfAbsorbers() ); 
+   	while( ( abs = (KVMaterial *)next()) ){
+   		if(abs->IsGas()) abs->SetTemperature(t);
+   	}
+}
+//________________________________________________________________
    
 TH1F *KVDriftChamber::GetQrawHisto( Int_t c_num ){
 	// Retruns the X position histogram with raw charges (Q) for 
@@ -255,7 +288,7 @@ TH1F *KVDriftChamber::GetQrawHisto( Int_t c_num ){
 
  	   	if( (par->GetLabel()[1] != Char_t('1'+i) ) || !par->Fired("P") ) continue;	
 
-		Int_t num =  (i==0 ? par->GetNumber() : 65-par->GetNumber());
+		Int_t num = ( c_num%2 ? par->GetNumber() : _DC_N_STRIPS_+1-par->GetNumber() );
 		fQ[0][i]->SetBinContent( num, (Double_t)par->GetCoderData() );
 	}
 
@@ -277,7 +310,6 @@ TH1F *KVDriftChamber::GetQHisto( Int_t c_num ){
 
 	KVCalibrator *cal  = NULL;
 	KVACQParam   *par  = NULL;
-	Int_t num;
 
 	Int_t NcalOK = 0;
 	while((cal = (KVCalibrator *)next())){
@@ -290,7 +322,7 @@ TH1F *KVDriftChamber::GetQHisto( Int_t c_num ){
 		par = calf->GetACQParam();
 		if( !par->Fired("P") ) continue;
 		
-		num =  (i==0 ? calf->GetNumber() : 65-calf->GetNumber());
+		Int_t num = ( c_num%2 ? calf->GetNumber() : _DC_N_STRIPS_+1-calf->GetNumber() );
 		fQ[1][i]->SetBinContent( num, calf->Compute( (Double_t)calf->GetACQParam()->GetCoderData() ) );
 	}
 
@@ -410,12 +442,22 @@ void KVDriftChamber::ShowQHisto(Int_t c_num, Option_t *opt){
 //________________________________________________________________
 
 Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
-	// Returns the position (strip for X and electron-drift-time canal for Y) deduced from the histogram representing
+	// Returns the raw position (strip for X and electron-drift-time canal for Y) with respect to
+	// the center of the detector. The value is deduced from the histogram representing
 	// the calibrated charge versus strip number for X direction or returns the electron drift time for Y position.
 	// Argument 'num' is used to specified the X position to be returned:
 	//  dir = 'X' and num = 0  --> return the mean value between X1 and X2
 	//  dir = 'X' and num = 1  --> return X1
 	//  dir = 'X' and num = 2  --> return X2
+	//
+	// The two cathode plans are offset by half a strip to reduce the non linearity of the position measurement
+	// in between the strips. The center of the detector  is by default at the middle of the strip 32 of the 
+	// range 2 and between strips 32 and 33 of the range 1.
+	// You can apply an X offset to change the strip position with respect to
+	// the center of the detector by calling SetXOffsets.
+	//
+	// If the raw position in not calculable, the value -666 is returned.
+
 
 	Int_t idx = IDX(dir);
 
@@ -425,26 +467,26 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
 			{
 
 				if( num<0 || num > 2 ) num = 0;
-				if( fRawPosX[ num ] > -500 ) return fRawPosX[ num ];
+				if( fERawPosX[ num ] > -500 ) return fRawPosX[ num ];
 
 				fRawPosX [ 0 ] = 0;
 				fERawPosX[ 0 ] = 0.;
-				Double_t sum          = 0.;
+				Double_t sum   = 0.;
 
 				for( Int_t c=1; c<3; c++ ){ //loop over both chambers
-					fRawPosX [ c ] = -1;
+					fRawPosX [ c ] = -666;
 					fERawPosX[ c ] = -1;
 
 					TH1F *hh = GetCleanQHisto( c );
 					if( !hh ) continue;
 
-					if(hh->GetEntries()< fNstripsOK ) continue;
+					if(!hh->GetEntries()) continue;
 
 					///////////////////////////////////////////////////
 
 					Int_t binMax = hh->GetMaximumBin();
 					Int_t min;
-					for( min = binMax-1; min>1; min--){
+					for( min = binMax; min>1; min--){
 						if( hh->GetBinContent(min) <= 0. ){
 							min++;
 							break;
@@ -453,7 +495,7 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
 						if(deltaQ < 0 ) break;
 					}
 					Int_t max;
-					for( max = binMax+1; max<hh->GetNbinsX(); max++){
+					for( max = binMax; max<hh->GetNbinsX(); max++){
 						if( hh->GetBinContent(max) <= 0. ){
 							max--;
 							break;
@@ -471,8 +513,10 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
 
 					// The two cathode plans are offset by half a strip to
 					// reduce the non linearity of the position measurement
-					// in between the strips
-					fRawPosX [ c ]  = hh->GetMean() - ( c%2 ? 0. : 0.5 );
+					// in between the strips. The center of the detector
+					// is at the middle of the strip 32 of the range 2
+					// and between strips 32 and 33 of the range 1.
+					fRawPosX [ c ]  = hh->GetMean() - ( c%2 ? 32.5+fOffsetX[0] : 32+fOffsetX[1] );
 					fERawPosX[ c ]  = hh->GetRMS()*1.2;
 					fRawPosX [ 0 ] += intgl*fRawPosX [ c ];
 					fERawPosX[ 0 ] += intgl*fERawPosX[ c ];
@@ -485,7 +529,7 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
 					fERawPosX[ 0 ] /= sum;
 				}
 				else{
-					fRawPosX [ 0 ] = -1;
+					fRawPosX [ 0 ] = -666;
 					fERawPosX[ 0 ] = -1;
 				}
 
@@ -496,7 +540,7 @@ Double_t KVDriftChamber::GetRawPosition(Char_t dir, Int_t num){
 		case 1: // for Y direction returns the acq parameter of TFIL
 			{
 
-				fRawPosY  =  ( fTfilPar && fTfilPar->Fired("P") ? fTfilPar->GetData() : -1 );
+				fRawPosY  =  ( fTfilPar && fTfilPar->Fired("P") ? fTfilPar->GetData() : -666 );
 				fERawPosY = 0.;
 
 				return fRawPosY;
@@ -556,11 +600,11 @@ UChar_t KVDriftChamber::GetPosition(Double_t *XYZf, Char_t dir , Int_t num){
 	Double_t Xraw = GetRawPosition('X',num);
 	Double_t Yraw = GetRawPosition('Y');
 	
-	if( Xraw >= 0 ){ // Calibrate X
+	if( Xraw >= -500 ){ // Calibrate X
 		XYZf[0] = Xraw * GetStripWidth();
 		rvalue += 1;
 	}
-	if( (Yraw >= 0) && GetDriftTimeCalibrator()){ //Calibrate Y
+	if( (Yraw >= -500) && GetDriftTimeCalibrator()){ //Calibrate Y
 		XYZf[1] = GetDriftTimeCalibrator()->Compute(Yraw)*GetDriftVelocity()/1000.; // the velocity is in cm/um 
 		rvalue += 2;
 	}
