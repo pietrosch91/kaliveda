@@ -54,7 +54,7 @@ class KVDriftChamber : public KVVAMOSDetector
    virtual Double_t GetRawPositionError(Char_t dir = 'X', Int_t num = 0);
 
    virtual void  Initialize(); virtual const Char_t *GetArrayName();
-   virtual const Char_t *GetEBaseName();
+   virtual const Char_t *GetEBaseName() const;
    virtual Bool_t PositionIsOK();
    virtual void  ResetCalculatedData();
    virtual void  SetACQParams();

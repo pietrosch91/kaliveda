@@ -55,6 +55,7 @@ class KVSpectroDetector : public KVDetector//, public TGeoVolume
    		void AddAbsorber(const Char_t* material, TGeoShape* shape, TGeoMatrix* matrix= 0, Bool_t active= kFALSE);
    		virtual Bool_t BuildGeoVolume(TEnv *infos, TGeoVolume *ref_vol = 0);
    		virtual Int_t  Compare(const TObject* obj) const;
+		using KVDetector::DetectParticle;
    		virtual void DetectParticle(KVNucleus *, TVector3 * norm = 0);
    		virtual KVList *GetFiredACQParamList(Option_t *opt="P");
    		TGeoHMatrix &GetActiveVolToFocalMatrix(Int_t i=0 ) const; 

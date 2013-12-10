@@ -166,7 +166,7 @@ const Char_t* KVDriftChamber::GetArrayName(){
 }
 //________________________________________________________________
 
-const Char_t *KVDriftChamber::GetEBaseName(){
+const Char_t *KVDriftChamber::GetEBaseName() const{
 	// Base name of the energy used to be compatible 
 	// GANIL acquisition parameters 
 	//
