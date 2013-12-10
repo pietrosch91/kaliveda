@@ -476,6 +476,8 @@ TCutG *q5st;*/
   //Counters
   Int_t Counter[6];
 
+  void SetBrhoRef( Float_t brho ){ Brho_mag= brho; };
+
 ClassDef(Identificationv,1)
 
 };

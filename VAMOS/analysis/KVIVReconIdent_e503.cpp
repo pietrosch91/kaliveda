@@ -11,6 +11,7 @@
 #include <string>
 #include <string.h>
 
+#include "KVVAMOS.h"
 #include "KVReconstructedNucleus.h"
 #include "KVINDRAReconNuc.h"
 #include "KVIdentificationResult.h"
@@ -76,6 +77,10 @@ void KVIVReconIdent_e503::InitRun(void)
    fAnalyseV->OpenInputTree(fChain->GetTree());
    fAnalyseV->inAttach();
    
+   //Set Brho_ref and angle of VAMOS
+   fAnalyseV->SetBrhoRef( gVamos->GetBrhoRef() );
+   fAnalyseV->SetAngleVamos( gVamos->GetAngle() );
+
    //Chargement des cuts graphiques, détecteurs
    Init_e503();
 

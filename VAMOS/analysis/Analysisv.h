@@ -64,6 +64,10 @@ class Analysisv
   virtual void SetFileCut(TList* list)=0;
   virtual void SetFileCutChioSi(TList* list2)=0;   
   virtual void SetFileCutSiTof(TList* list3)=0;     
+
+
+  virtual void SetAngleVamos(Float_t angle)=0;     
+  virtual void SetBrhoRef(Float_t brho)=0;     
      
   ClassDef(Analysisv,0)
 

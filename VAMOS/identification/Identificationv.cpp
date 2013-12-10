@@ -1555,7 +1555,6 @@ NormVamos = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("NormVamos");
 //Correction du temps mort : 1.0 / (1.0-DT(%)) (/ 6.21295660000000000e+07 pour que correction soit de l'ordre de l'unité)
 DT = 1.0/(1.0 - (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("DT")/100.0) );
 FC_Indra = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->GetScaler("INDRA");
-Brho_mag = gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho");   
 stat_tot = 0.;
 stat_tot = Stat_Indra[gIndra->GetCurrentRunNumber()]; 
 

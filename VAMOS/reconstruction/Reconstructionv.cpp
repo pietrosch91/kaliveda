@@ -384,10 +384,10 @@ void Reconstructionv::Calculate(void)
 	//L->Log<<"-----------"<<endl;
   //  cout << i << " " << Dr->Xf/10. << " " << Dr->Tf << " " << Dr->Yf/10. << " " << Dr->Pf << endl;
   
-  //cout<<"Brho : "<<(gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho"))*((Float_t) Brhot)<<endl;
+  //cout<<"Brho : "<<BrhoRef*((Float_t) Brhot)<<endl;
   //cout<<"Brhot : "<<Brhot <<" Thetat : "<< Thetat<<" Phit : "<<Phit<<" Patht : "<<Patht<<endl;
 
-	Brho_always = (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho"))*((Float_t) Brhot);
+	Brho_always = BrhoRef*((Float_t) Brhot);
 	Theta_always = (Float_t) ((Thetat*-1.)/1000.)*TMath::RadToDeg();
 	Phi_always = (Float_t) ((Phit*-1.)/1000.)*TMath::RadToDeg();
 	Path_always = (Float_t) Patht;
@@ -398,13 +398,13 @@ void Reconstructionv::Calculate(void)
     {
       Counter[2]++;
       Present = true;
-      Brho = (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho"))*((Float_t) Brhot);
+      Brho = BrhoRef*((Float_t) Brhot);
       Theta = (Float_t) Thetat*-1;
       Phi = (Float_t) Phit*-1;
       Path = (Float_t) Patht + PathOffset;
 
       TVector3 myVec(sin(Theta/1000.)*cos(Phi/1000.),sin(Phi/1000.),cos(Theta/1000.)*cos(Phi/1000.));
-      myVec.RotateY((gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Theta"))*TMath::DegToRad());
+      myVec.RotateY(AngleVamos*TMath::DegToRad());
       ThetaL = myVec.Theta();
       PhiL = myVec.Phi();
       Thetadeg = (Theta/1000.)*TMath::RadToDeg();
@@ -441,7 +441,7 @@ void Reconstructionv::Calculate(void)
 
 
 //Warning : Correction (corr_pl) is applied for thetaL<0.12 rad and phiL between -1 and 1 rad.
-deltat = double(Brho / (gIndraDB->GetRun(gIndra->GetCurrentRunNumber())->Get("Brho")));
+deltat = double(Brho / BrhoRef);
 	//L->Log<<"Delta : "<<deltat<<endl;
 
 	for(Int_t j=0;j<450;j++){

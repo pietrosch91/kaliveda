@@ -99,6 +99,15 @@ void SetSi(KVMaterial *ssi);
 void SetGap2(KVMaterial *isogap2);
 void SetCsI(KVMaterial *ccsi); 
 
+virtual void SetAngleVamos(Float_t angle){
+	if( RC ) RC->SetAngleVamos( angle );
+};     
+virtual void SetBrhoRef(Float_t brho){
+	if( RC ) RC->SetBrhoRef( brho );
+	if( Id ) Id->SetBrhoRef( brho );
+};     
+
+
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 
 };
