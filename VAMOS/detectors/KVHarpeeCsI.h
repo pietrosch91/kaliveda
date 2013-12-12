@@ -49,7 +49,6 @@ class KVHarpeeCsI : public KVVAMOSDetector
 
 		virtual KVString &GetACQParamTypes();
 		virtual KVString &GetPositionTypes();
-                Float_t  GetRawE();
 		
    		ClassDef(KVHarpeeCsI,1)//CsI detectors of Harpee, used at the focal plan of VAMOS
 };
@@ -57,6 +56,5 @@ class KVHarpeeCsI : public KVVAMOSDetector
 
 inline KVString &KVHarpeeCsI::GetACQParamTypes(){ return fACQParamTypes; }
 inline KVString &KVHarpeeCsI::GetPositionTypes(){ return fPositionTypes; }
-inline Float_t   KVHarpeeCsI::GetRawE()         { return GetACQData( GetEBaseName() ); }
 
 #endif

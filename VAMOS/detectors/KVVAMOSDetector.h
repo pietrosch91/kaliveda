@@ -115,6 +115,8 @@ class KVVAMOSDetector : public KVSpectroDetector
 		inline Int_t GetNMeasuredX() const{ return fNmeasX; }
 		inline Int_t GetNMeasuredY() const{ return fNmeasY; }
 
+		inline Float_t  GetRawE(){ return GetACQData( GetEBaseName() ); }
+
    		ClassDef(KVVAMOSDetector,1)//Detectors of VAMOS spectrometer
 };
 
