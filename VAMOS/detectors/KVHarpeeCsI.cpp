@@ -37,8 +37,6 @@ void KVHarpeeCsI::init(){
 	
 	fCal = NULL;
 
-	//fCanalE = NULL;
-
 	// fSegment is set to 1 because this CsI detector is
 	// an independant detector (see KVGroup::AnalyseParticles for
 	// more information)
@@ -154,23 +152,70 @@ const Char_t *KVHarpeeCsI::GetEBaseName() const{
 	// Base name of the energy used to be compatible
 	// GANIL acquisition parameters
 	//
-	// The base name is "E<type><number>".
+	// The base name is "<type><number>".
 	
 	return Form("%s%.2d",GetType(),GetNumber());
 }
 //______________________________________________________________________________
 void KVHarpeeCsI::SetCalibrators(){
-	// Pulse Height Defect calibrator as well as the calibrators of
-	// KVVAMOSDetector.
+	// Build and set to the list of calibrators the Total light calibrator.
+	// This calibrator has the type "Light->MeV <name>"
+	if( fCal ) return;	
 	fCal = new KVLightEnergyCsIVamos(this);
 	fCal->SetType( Form("Light->MeV %s",GetName() ) );
-	AddCalibrator(fCal);
-	
+	if(AddCalibrator(fCal)) return;
+	KVLightEnergyCsIVamos *tmp = fCal;
+	fCal = (KVLightEnergyCsIVamos *)fCalibrators->FindObject( tmp );
+	delete tmp;
 }
 //________________________________________________________________
 
 void KVHarpeeCsI::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
-
+	fCsIForPosition = NULL;
+	ResetBit( kPosIsOK );
 }
 //________________________________________________________________
+
+Bool_t KVHarpeeCsI::PositionIsOK(){
+	// Returns true if all the conditions to access to the particle position
+	// are verified. In this case the position is given by the method 
+	// GetPosition(...). 
+	// The conditions are:
+	//   -the multiplicity of fired ( "Pany" option of Fired() ) Harpee CsI 
+	//    detectors must be equal to one;
+	//   -this detectector must be the fired detector.
+	
+	if( !TestBit( kPosIsOK ) ){
+		Int_t mult   = 0;
+		TIter next( fHarpeeCsIList );
+		KVHarpeeCsI *csi = NULL;
+		while( (csi = (KVHarpeeCsI *)next()) ){
+			if( csi->Fired( "Pany" ) ){
+				mult++;
+				fCsIForPosition = csi;
+ 			}
+		}
+		if( mult != 1 ) fCsIForPosition = NULL;
+		SetBit( kPosIsOK );
+	}
+	return fCsIForPosition == this;
+}
+//________________________________________________________________
+
+void KVHarpeeCsI::Streamer(TBuffer &R__b){
+   // Stream an object of class KVHarpeeCsI.
+   // We set the pointers to the calibrator objects
+
+   if (R__b.IsReading()) {
+      KVHarpeeCsI::Class()->ReadBuffer(R__b, this);
+	  TIter next( GetListOfCalibrators() );
+	  TObject *cal = NULL;
+	  while( !fCal && ( cal = next() ) ){
+		  if( cal->InheritsFrom(KVLightEnergyCsIVamos::Class()) )
+      		  fCal  =  (KVLightEnergyCsIVamos *)cal;
+	  }
+   } else {
+      KVHarpeeCsI::Class()->WriteBuffer(R__b, this);
+   }
+}

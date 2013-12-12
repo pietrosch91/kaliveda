@@ -30,7 +30,6 @@ class KVHarpeeCsI : public KVVAMOSDetector
    	public:
 
    		KVHarpeeCsI();
-		KVHarpeeCsI(UInt_t number, Float_t thick /* um */);
    		KVHarpeeCsI (const KVHarpeeCsI&) ;
    		virtual ~KVHarpeeCsI();
    		void Copy (TObject&) const;
@@ -42,6 +41,7 @@ class KVHarpeeCsI : public KVVAMOSDetector
 		static  KVList      *GetHarpeeCsIList();
    		virtual Int_t       GetMult(Option_t *opt="Pany");
    		virtual void        Initialize();
+   		virtual Bool_t      PositionIsOK();
 		virtual void        SetACQParams();		
 		virtual void        SetCalibrators();
 
