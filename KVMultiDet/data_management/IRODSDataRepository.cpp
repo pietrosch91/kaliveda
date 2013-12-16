@@ -43,8 +43,12 @@ void IRODSDataRepository::PrintAvailableDatasetsUpdateWarning() const
     cout << "    2). You have not authenticated your account for use with IRODS" << endl;
     cout << "       SOLUTION : see https://bugs.launchpad.net/kaliveda/+bug/1131725" << endl << endl;
     cout << "  We will now test if IRODS is functioning (for you)." << endl;
-    cout << "  If everything is OK, on the next line you should see '/indra/home/indramgr:' :" << endl << endl;
-    cout << "  If you DON'T see '/indra/home/indramgr:' then this is probably the last" << endl;
+    cout << "  If everything is OK, at the end of this message you should see a listing like this :" << endl << endl;
+    cout << "    /indra:" << endl;
+    cout << "      C- /indra/campagne1" << endl;
+    cout << "      C- /indra/campagne2" << endl;
+    cout << "      etc. etc." << endl << endl;
+    cout << "  If you DON'T see the listing then this is probably the last" << endl;
     cout << "  bit of activity you'll be seeing from KaliVeda for a while... :D" << endl << endl;
     gSystem->Exec("echo '\n' | ils");
     cout << endl;
