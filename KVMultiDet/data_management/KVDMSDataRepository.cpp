@@ -31,7 +31,7 @@ KVDMSDataRepository::~KVDMSDataRepository()
    SafeDelete(fDMS);
 }
 
-TList *KVDMSDataRepository::GetDirectoryListing(KVDataSet* ds,
+KVUniqueNameList *KVDMSDataRepository::GetDirectoryListing(KVDataSet* ds,
                                               const Char_t * datatype)
 {
    //Use the DMS catalogue in order to examine the directory

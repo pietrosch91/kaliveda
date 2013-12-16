@@ -17,7 +17,7 @@ class KVDMSDataRepository : public KVDataRepository
    KVDMSDataRepository();
    virtual ~KVDMSDataRepository();
 
-   virtual TList *GetDirectoryListing(KVDataSet*,
+   virtual KVUniqueNameList *GetDirectoryListing(KVDataSet*,
                                        const Char_t * datatype = "");
    virtual Bool_t CheckSubdirExists(const Char_t * dir,
                                     const Char_t * subdir = 0);
