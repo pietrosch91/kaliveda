@@ -5,7 +5,7 @@ ccali.DataRepository.Type: irods
 ccali.DataRepository.RootDir:       /indra
 ccali.DataRepository.ReadProtocol:     root
 ccali.DataRepository.CacheAvailable: yes
-ccali.DataRepository.MaxCacheTime: 86400
+ccali.DataRepository.MaxCacheTime: 604800
 ccali.DataRepository.CanWrite: NO
 ccali.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
 ccali.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/indra
