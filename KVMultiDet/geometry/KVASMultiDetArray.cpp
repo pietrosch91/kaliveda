@@ -377,10 +377,10 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
         kvg->SetDimensions(kvg, kt1);     //adjust dimensions depending on kt1
     } else if (kt1->GetParentStructure("GROUP") != kt2->GetParentStructure("GROUP")) {     //both telescopes already in different groups
 #ifdef KV_DEBUG
-        cout << "Merging " << kt1->GetGroup()->
-        GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
-        cout << "because of " << kt1->GetName() << " and " << kt2->
-        GetName() << endl;
+//         cout << "Merging " << kt1->GetGroup()->
+//         GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
+//         cout << "because of " << kt1->GetName() << " and " << kt2->
+//         GetName() << endl;
 #endif
         MergeGroups((KVASGroup*)kt1->GetParentStructure("GROUP"), (KVASGroup*)kt2->GetParentStructure("GROUP"));
     }
@@ -431,15 +431,8 @@ KVNameValueList* KVASMultiDetArray::DetectParticle_KV(KVNucleus * part)
     //find group in array hit by particle
     KVASGroup *grp_tch = (KVASGroup*)GetGroupWithAngles(part->GetTheta(), part->GetPhi());
     if (grp_tch) {
-#ifdef KV_DEBUG
-        cout << "DetectParticle(): found hit group---->" << endl;
-        grp_tch->Print("angles");
-#endif
         //simulate detection of particle by this group
         KVNameValueList*nvl= grp_tch->DetectParticle(part);
-#ifdef KV_DEBUG
-        nvl->Print();
- #endif
        return nvl;
     }
     return 0;

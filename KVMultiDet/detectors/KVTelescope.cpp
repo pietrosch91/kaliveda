@@ -108,7 +108,7 @@ void KVTelescope::DetectParticle(KVNucleus * kvp,KVNameValueList* nvl)
 
     TIter next(GetDetectors());
     while ((obj = (KVDetector *) next())) {
-        obj->DetectParticle(kvp);
+        obj->DetectParticle(kvp,nvl);
         if (kvp->GetEnergy() <= 0.0) break;
     }
 }
