@@ -880,14 +880,14 @@ void KVIDGridEditor::MakeTransformation()
     Int_t px = fPad->GetEventX();
     Int_t py = fPad->GetEventY();
     
-    px = fPad->AbsPixeltoX(px);
-    py = fPad->AbsPixeltoY(py);
+    Double_t ppx = fPad->AbsPixeltoX(px);
+    Double_t ppy = fPad->AbsPixeltoY(py);
   
     TAxis* ax = TheHisto->GetXaxis();    
     Int_t X0 = ax->GetFirst();
     Int_t X1 = ax->GetLast();
     Int_t NbinsX = ax->GetNbins();
-    px = ax->FindBin(px);
+    px = ax->FindBin(ppx);
     
     Double_t ddX   = (X1+X0)*0.5 - px;
     Double_t distX = TMath::Abs(ddX)/(X1-X0);
@@ -897,7 +897,7 @@ void KVIDGridEditor::MakeTransformation()
     Int_t Y0 = ay->GetFirst();
     Int_t Y1 = ay->GetLast();
     Int_t NbinsY = ay->GetNbins();
-    py = ay->FindBin(py);
+    py = ay->FindBin(ppy);
      
     Double_t ddY   = (Y1+Y0)*0.5 - py;
     Double_t distY = TMath::Abs(ddY)/(Y1-Y0);
