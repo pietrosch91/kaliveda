@@ -10,6 +10,7 @@
 #include "TGWindow.h"
 #include "KVKeyHandler.h"
 #include <KeySymbols.h>
+#include "TMath.h"
 
 #include <Riostream.h>
 
@@ -231,15 +232,15 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         Int_t dX = 0;
         Int_t dY = 0;
       
-        px = AbsPixeltoX(px);
-        py = AbsPixeltoY(py);
+        Double_t ppx = AbsPixeltoX(px);
+        Double_t ppy = AbsPixeltoY(py);
   
         TAxis* ax = TheHisto->GetXaxis();    
         Int_t X0 = ax->GetFirst();
         Int_t X1 = ax->GetLast();
         Int_t NbinsX = ax->GetNbins();
-        px = ax->FindBin(px);
-      
+        px = ax->FindBin(ppx);
+
         Double_t ddX   = (X1+X0)*0.5 - px;
         Double_t distX = TMath::Abs(ddX)/(X1-X0);
         if(distX>=0.5) return;
@@ -248,16 +249,20 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         Int_t Y0 = ay->GetFirst();
         Int_t Y1 = ay->GetLast();
         Int_t NbinsY = ay->GetNbins();
-        py = ay->FindBin(py);
+        py = ay->FindBin(ppy);
      
         Double_t ddY   = (Y1+Y0)*0.5 - py;
         Double_t distY = TMath::Abs(ddY)/(Y1-Y0);
         if(distY>=0.5) return;
        
         if((distX<=size)&&(distY<=size)) return;
-        dX = (Int_t)ddX*(0.05 + 0.05*fModeVener);
-        dY = (Int_t)ddY*(0.05 + 0.05*fModeVener);
-    
+        dX = TMath::Nint(ddX*(0.05 + 0.05*fModeVener));
+        dY = TMath::Nint(ddY*(0.05 + 0.05*fModeVener));
+
+        if(TMath::Abs(dX)<1) dX = TMath::Sign(1.,ddX);
+        if(TMath::Abs(dY)<1) dY = TMath::Sign(1.,ddY);
+
+
         Bool_t up = false;
         if((X0-dX>0)&&(X1-dX<NbinsX)) 
           {
@@ -579,10 +584,11 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
       sign = (event==kWheelUp ? 1:-1);
     
       gPad = pad;
-//      if(!fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
-      if(fSelected->InheritsFrom("TH2")) DynamicZoom(sign,px,py);
-      else if(fSelected->InheritsFrom("TH1")) DynamicZoomTH1(sign,px,py);
-      
+      if(fSelected->InheritsFrom("TAxis")) fSelected->ExecuteEvent(event, px, py);
+      else if(fSelected->InheritsFrom("TH2")) DynamicZoom(sign,px,py);
+//      else if(fSelected->InheritsFrom("TH1")) DynamicZoomTH1(sign,px,py);
+//      else if(fSelected->InheritsFrom("T")) DynamicZoomTH1(sign,px,py);
+
       RunAutoExec();
       
       break;

@@ -19,7 +19,7 @@ class KVNucleusBox : public TBox
    KVNuclearChart* fNuclearChart;
 
    public:
-   KVNucleusBox(Int_t Z, Int_t N, Double_t size=0.4);
+   KVNucleusBox(Int_t Z, Int_t N, Double_t size=0.4, Int_t colStable=kBlack, Int_t colRadio=kGray+1);
    KVNucleusBox(KVNucleus* nuc, Double_t size=0.4, Bool_t owner=kTRUE);
    
    KVNucleusBox (const KVNucleusBox&) ;

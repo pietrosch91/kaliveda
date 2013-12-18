@@ -71,7 +71,7 @@ protected:
 
     virtual void SetCalibrators();
     virtual void SetDetectorThicknesses();
-    virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500){ return 0; };
+    virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500){ return 0; }
 
 public:
     void SetGeometry(TGeoManager*);

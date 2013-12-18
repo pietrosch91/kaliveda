@@ -110,11 +110,11 @@ KVNuclearChart::KVNuclearChart (const KVNuclearChart& obj)  : KVBase()
 KVNuclearChart::~KVNuclearChart()
 {
    // Destructor
-   if(fCanvas)
-     {
-     fCanvas->ResetDisabledClass();
-     fCanvas->ResetDisabledObject();
-     }
+//   if(fCanvas)
+//     {
+//     fCanvas->ResetDisabledClass();
+//     fCanvas->ResetDisabledObject();
+//     }
    if((fHisto)&&(fOwnHisto)) delete fHisto;
    if(fSymbol) delete fSymbol;
    if(fInfo) delete fInfo;

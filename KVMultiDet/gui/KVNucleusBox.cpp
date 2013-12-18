@@ -21,7 +21,7 @@ ClassImp(KVNucleusBox)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVNucleusBox::KVNucleusBox(Int_t Z, Int_t N, Double_t size): TBox(N-size,Z-size,N+size,Z+size)
+KVNucleusBox::KVNucleusBox(Int_t Z, Int_t N, Double_t size, Int_t colStable, Int_t colRadio): TBox(N-size,Z-size,N+size,Z+size)
 {
     // Constructor with Z,N of a Nucleus
 
@@ -37,17 +37,17 @@ KVNucleusBox::KVNucleusBox(Int_t Z, Int_t N, Double_t size): TBox(N-size,Z-size,
     {
         SetLineColor(kBlack);
         SetLineWidth(2);
-        SetFillColor(kBlack);
+        SetFillColor(colStable);
     }
     else if(fNucleus->GetLifeTime()>1.e-06)
     {
         SetLineColor(kBlack);
-        SetFillColor(kGray+1);
+        SetFillColor(colRadio);
     }
     else
     {
-        SetLineColor(kGray);
-        SetFillColor(kGray);
+        SetLineColor(kBlack);
+        SetFillColor(colRadio);
     }
     //  SetToolTipText(Form("%s (Z=%d,N=%d)",fNucleus->GetSymbol(),fZ,fN),250);
 

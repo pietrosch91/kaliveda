@@ -110,7 +110,7 @@ Double_t e1 = xx[1];
 
 Double_t E2 	= 	para[0];
 Double_t sigE2	=	para[1];
-Double_t E1		= 	para[2];
+Double_t E1	= 	para[2];
 Double_t sigE1	=	para[3];
 Double_t rho 	= 	para[4];
 Double_t norm 	=	para[5];

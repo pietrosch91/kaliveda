@@ -905,9 +905,12 @@ void KVIDGridEditor::MakeTransformation()
        
     if((distX<=size)&&(distY<=size)) return;
         
-    dX = (Int_t)ddX*(0.05 + 0.05*venermode);
-    dY = (Int_t)ddY*(0.05 + 0.05*venermode);
-    
+    dX = TMath::Nint(ddX*(0.05 + 0.05*venermode));
+    dY = TMath::Nint(ddY*(0.05 + 0.05*venermode));
+
+    if(TMath::Abs(dX)<1) dX = TMath::Sign(1.,ddX);
+    if(TMath::Abs(dY)<1) dY = TMath::Sign(1.,ddY);
+
     Bool_t up = false;
         
     if((X0-dX>0)&&(X1-dX<NbinsX)) 
