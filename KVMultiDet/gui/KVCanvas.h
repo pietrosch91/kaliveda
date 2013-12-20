@@ -33,6 +33,7 @@ friend class KVKeyHandler;
    TString  fDisabledClasses;
    Bool_t   fHasDisabledObject;
    TList    fDisabledObjects;
+   TList    fShortCuts;
 
    TGFrame* fKeyHandler;         //! handler for keys
    Bool_t   fFreezed;
@@ -55,15 +56,23 @@ friend class KVKeyHandler;
    void ResetDisabledObject();
    
    void FreezCavans(Bool_t freez){fFreezed = freez;}
+   void ShowShortcutsInfo(); // *MENU*
    
    protected:
    
-   virtual Bool_t HandleKey(Event_t *event);
+   virtual Bool_t HandleKey(Event_t *event){return kTRUE;}
+   virtual Bool_t HandleKey(Int_t px, Int_t py);
    void DynamicZoom(Int_t Sign, Int_t px, Int_t py);
    void DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py);
    void RunAutoExec();
    void DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected);
    void ZoomSelected(TH2* TheHisto);
+
+   void MoveAxis(TAxis* ax, Int_t sign);
+   void ProfileX(TH2* hh);
+
+   void InitInfos();
+   void AddShortcutsInfo(const char* cut, const char* desc);
 
    ClassDef(KVCanvas,1)//TCanvas with mouse-controlled dynamic zoom and pan & scan
 };
