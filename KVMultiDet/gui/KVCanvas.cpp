@@ -11,6 +11,8 @@
 #include "KVKeyHandler.h"
 #include <KeySymbols.h>
 #include "TMath.h"
+#include "KVHistoManipulator.h"
+#include "TProfile.h"
 
 #include <Riostream.h>
 
@@ -52,6 +54,7 @@ KVCanvas::KVCanvas():TCanvas()
     fHasDisabledClasses = false;
     fDisabledClasses = "";
     fFreezed = kFALSE;
+    fPPressed = kFALSE;
     InitInfos();
 
     // Default constructor
@@ -66,12 +69,13 @@ KVCanvas::~KVCanvas()
 //________________________________________________________________
 KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool_t keyHandler):TCanvas(name, title, ww, wh)
 {
-//    if(keyHandler) fKeyHandler = new KVKeyHandler(this);
+    //    if(keyHandler) fKeyHandler = new KVKeyHandler(this);
     fAgeOfEmpire = false;
     fModeVener   = false;
     fHasDisabledClasses = false;
     fDisabledClasses = "";
     fFreezed = kFALSE;
+    fPPressed = kFALSE;
     InitInfos();
 }
 
@@ -85,6 +89,7 @@ KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(na
     fHasDisabledObject = false;
     fDisabledClasses = "";
     fFreezed = kFALSE;
+    fPPressed = kFALSE;
     InitInfos();
 }
 
@@ -218,7 +223,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         if (!pad) return;
 
         EnterLeave(prevSelPad, prevSelObj);
-	
+
         gPad = pad;   // don't use cd() we will use the current
         // canvas via the GetCanvas member and not via
         // gPad->GetCanvas
@@ -283,7 +288,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
                 Modified();
                 Update();
             }
-        } 
+        }
 
         break;
 
@@ -305,7 +310,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         fSelectedPad  = spad;
         if (!fDoubleBuffer) FeedbackMode(kFALSE);
     }
-    break;
+        break;
 
     case kButton1Double:
         // triggered on the second button down within 350ms and within
@@ -459,10 +464,10 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
             tc->Update();
     }
 
-    /*if (pad->GetGLDevice() != -1 && fSelected)
+        /*if (pad->GetGLDevice() != -1 && fSelected)
          fSelected->ExecuteEvent(event, px, py);*/
 
-    break;   // don't want fPadSave->cd() to be executed at the end
+        break;   // don't want fPadSave->cd() to be executed at the end
 
     case kButton2Motion:
         //was empty!
@@ -571,37 +576,6 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         fSelected->ExecuteEvent(event, px, py);
 
         HandleKey(px,py);
-
-        //        Info("HandleInput","Key pressed: %d %d",px,py);
-
-        //        if(fSelected->InheritsFrom("TAxis"))
-        //        {
-        //            TAxis* ax = (TAxis*)fSelected;
-        //            if(py==kKey_Left||py==kKey_Down)
-        //            {
-        //                Int_t first = ax->GetFirst();
-        //                Int_t last  = ax->GetLast();
-        //                if((first-2>=0))
-        //                {
-        //                    ax->SetRange(first-2,last-2);
-        //                    Modified();
-        //                    Update();
-        //                }
-        //            }
-        //            if(py==kKey_Right||py==kKey_Up)
-        //            {
-        //                Int_t nBins = ax->GetNbins();
-        //                Int_t first = ax->GetFirst();
-        //                Int_t last  = ax->GetLast();
-        //                if((last+2<nBins))
-        //                {
-        //                    ax->SetRange(first+2,last+2);
-        //                    Modified();
-        //                    Update();
-        //                }
-        //            }
-        //        }
-
         RunAutoExec();
 
         break;
@@ -706,7 +680,7 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
 {
     // Zoom in or out of histogram with mouse wheel
 
-//    Info("DynamicZoom","px=%d py=%d",px,py);
+    //    Info("DynamicZoom","px=%d py=%d",px,py);
 
     if(!fSelected) return;
     TH2* TheHisto = (TH2*) fSelected;
@@ -757,154 +731,176 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
 {
     // Handle keys
 
-    //    char tmp[2];
-    //    UInt_t keysym;
+//    Info("HandleKey","key pressed : %d %d",px,py);
 
-    //    gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
-
-    //    if (event->fType == kGKeyPress)
-    {
-        //        switch ((EKeySym)keysym) {
-        switch ((EKeySym)py) {
-        case kKey_F1:
-            break;    
-	    
-        case kKey_F2:
-            break;    
-	    
-        case kKey_F3:
-            break;    
-	    
-        case kKey_F4:
-            break;    
-	    
-        case kKey_F5:
-            break;
-	    
-        case kKey_F6:
-            break;
-	    
-        case kKey_F7:
-            break;
-	    
-        case kKey_F8:
-            break;
-	    
-        case kKey_F9:
-	    SetLogx(!fLogx);
-	    Modified();
-	    Update();
-            break;
-	    
-        case kKey_F10:
-	    SetLogy(!fLogy);
-	    Modified();
-	    Update();
-            break;
-	    
-        case kKey_F11:
-	    SetLogz(!fLogz);
-	    Modified();
-	    Update();
-            break;
-	    
-        case kKey_F12:
-            if(fSelected->InheritsFrom("TH1"))
-            {
-                ((TH1*)fSelected)->GetXaxis()->UnZoom();
-                ((TH1*)fSelected)->GetYaxis()->UnZoom();
-                Modified();
-                Update();
-            }
-            else if(fSelected->InheritsFrom("TAxis"))
-            {
-                ((TAxis*)fSelected)->UnZoom();
-                Modified();
-                Update();
-            }
-            break;
-	    
-        case kKey_a:
-            break;
-
-        case kKey_g:
-            if(GetGridx()&&GetGridy())SetGrid(0,0);
-            else SetGrid();
-            Modified();
-            Update();
-            break;
-
-        case kKey_l:
-            if(fSelected){
-                if(fSelected->InheritsFrom("TH2"))
-                    SetLogz(!fLogz);
-                else if(fSelected->InheritsFrom("TH1"))
-                    SetLogy(!fLogy);
-            }
-            Modified();
-            Update();
-            break;
-
-        case kKey_p:
-            if(fSelected->InheritsFrom("TH2")) ProfileX((TH2*)fSelected);
-            break;
-
-        case kKey_v:
-            fModeVener = !fModeVener;
-            break;
-
-        case kKey_w:
-	    fAgeOfEmpire = !fAgeOfEmpire;
-            break;
-	    	    	    
-        case kKey_x:
-            break;
-	    
-        case kKey_Left:
-            if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,-1);
-            else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetXaxis(),-1);
+    switch ((EKeySym)py) {
+    case kKey_F1:
         break;
 
-        case kKey_Down:
-            if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,-1);
-            else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetYaxis(),-1);
+    case kKey_F2:
         break;
 
-        case kKey_Right:
-            if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,1);
-            else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetXaxis(),1);
-            break;
+    case kKey_F3:
+        break;
 
-        case kKey_Up:
-            if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,1);
-            else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetYaxis(),1);
-            break;
-	    
-        case kKey_Plus:
-            if(fSelected->InheritsFrom("TH2"))
-            {
-                ((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum()+1);
-                Modified();
-                Update();
-            }
-            break;
-	    
-        case kKey_Minus:
-            if(fSelected->InheritsFrom("TH2"))
-            {
-                if(((TH1*)fSelected)->GetMinimum()>0) ((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum()-1);
-                Modified();
-                Update();
-            }
-            break;
+    case kKey_F4:
+        break;
 
-        case kKey_Space:
-            break;
+    case kKey_F5:
+        break;
 
-        default:
-            return kTRUE;
+    case kKey_F6:
+        break;
+
+    case kKey_F7:
+        break;
+
+    case kKey_F8:
+        break;
+
+    case kKey_F9:
+        SetLogx(!fLogx);
+        Modified();
+        Update();
+        break;
+
+    case kKey_F10:
+        SetLogy(!fLogy);
+        Modified();
+        Update();
+        break;
+
+    case kKey_F11:
+        SetLogz(!fLogz);
+        Modified();
+        Update();
+        break;
+
+    case kKey_F12:
+        if(fSelected->InheritsFrom("TH1"))
+        {
+            ((TH1*)fSelected)->GetXaxis()->UnZoom();
+            ((TH1*)fSelected)->GetYaxis()->UnZoom();
+            Modified();
+            Update();
         }
+        else if(fSelected->InheritsFrom("TAxis"))
+        {
+            ((TAxis*)fSelected)->UnZoom();
+            Modified();
+            Update();
+        }
+        break;
+
+    case kKey_a:
+        break;
+
+    case kKey_b:
+//        GetCanvasImp()->ShowStatusBar(!GetCanvasImp()->HasStatusBar());
+        break;
+
+    case kKey_e:
+        GetCanvasImp()->ShowEditor(!GetCanvasImp()->HasEditor());
+        break;
+
+    case kKey_g:
+        if(GetGridx()&&GetGridy())SetGrid(0,0);
+        else SetGrid();
+        Modified();
+        Update();
+        break;
+
+    case kKey_i:
+        ShowShortcutsInfos();
+        break;
+
+
+    case kKey_l:
+        if(fSelected){
+            if(fSelected->InheritsFrom("TH2"))
+                SetLogz(!fLogz);
+            else if(fSelected->InheritsFrom("TH1"))
+                SetLogy(!fLogy);
+        }
+        Modified();
+        Update();
+        break;
+
+    case kKey_p:
+        fPPressed = kTRUE;
+        return kTRUE;
+        break;
+
+    case kKey_s:
+        SaveCanvasAs();
+        break;
+
+    case kKey_t:
+//        GetCanvasImp()->ShowToolBar(!GetCanvasImp()->HasToolBar());
+        break;
+
+    case kKey_v:
+        fModeVener = !fModeVener;
+        break;
+
+    case kKey_w:
+        fAgeOfEmpire = !fAgeOfEmpire;
+        break;
+
+    case kKey_x:
+        if(fPPressed&&fSelected->InheritsFrom("TH2")) ProfileX((TH2*)fSelected);
+        break;
+
+    case kKey_y:
+        if(fPPressed&&fSelected->InheritsFrom("TH2")) ProfileY((TH2*)fSelected);
+        break;
+
+    case kKey_Left:
+        if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,-1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetXaxis(),-1);
+        break;
+
+    case kKey_Down:
+        if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,-1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetYaxis(),-1);
+        break;
+
+    case kKey_Right:
+        if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetXaxis(),1);
+        break;
+
+    case kKey_Up:
+        if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetYaxis(),1);
+        break;
+
+    case kKey_Plus:
+        if(fSelected->InheritsFrom("TH2"))
+        {
+            ((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum()+1);
+            Modified();
+            Update();
+        }
+        break;
+
+    case kKey_Minus:
+        if(fSelected->InheritsFrom("TH2"))
+        {
+            if(((TH1*)fSelected)->GetMinimum()>0) ((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum()-1);
+            Modified();
+            Update();
+        }
+        break;
+
+    case kKey_Space:
+        break;
+
+    default:
+        fPPressed = kFALSE;
+        return kTRUE;
     }
+    fPPressed = kFALSE;
     return kTRUE;
 }
 
@@ -936,29 +932,116 @@ void KVCanvas::AddShortcutsInfo(const char *cut, const char *desc)
     fShortCuts.AddLast(new TNamed(cut,desc));
 }
 
-void KVCanvas::ShowShortcutsInfo()
+void KVCanvas::ShowShortcutsInfos()
 {
-    cout << endl << "Shortcuts infos:" << endl;
+    cout << endl << endl;
     TNamed* info = 0;
     TIter it(&fShortCuts);
     while((info=(TNamed*)it()))
     {
-        cout << info->GetName() << "   " << info->GetTitle() << endl;
+        cout << Form("%20s",info->GetName()) << "   " << info->GetTitle() << endl;
     }
+    cout << endl;
 }
 
 void KVCanvas::InitInfos()
 {
+    AddShortcutsInfo("<crtl> e","show editor");
     AddShortcutsInfo("<crtl> g","set/unset grid on X and Y axes");
+    AddShortcutsInfo("<crtl> i","show shortcuts infos");
     AddShortcutsInfo("<crtl> l","set/unset log scale on Y axis (TH1) or Z axis (TH2)");
-    AddShortcutsInfo("<crtl> p","profile X (TH2)");
+    AddShortcutsInfo("<crtl> p x","draw profile X (TH2)");
+    AddShortcutsInfo("<crtl> p y","draw profile Y (TH2)");
+    AddShortcutsInfo("<crtl> s","save canvas as");
+    AddShortcutsInfo("<crtl> v","set/unset 'vener' mode (TH2)");
+    AddShortcutsInfo("<crtl> w","set/unset 'Age Of Empire' mode (TH2)");
+    AddShortcutsInfo("<crtl> +","set minimum +1 (TH2)");
+    AddShortcutsInfo("<crtl> -","set minimum -1 (TH2)");
+    AddShortcutsInfo("F9","set/unset log scale on X axis");
+    AddShortcutsInfo("F10","set/unset log scale on X axis");
+    AddShortcutsInfo("F11","set/unset log scale on X axis");
+    AddShortcutsInfo("F12","unzoom");
+    AddShortcutsInfo("Arrows","move on histogram (TH2) or axis (TAxis)");
 }
 
 void KVCanvas::ProfileX(TH2 *hh)
 {
+    TObject* pfx = 0;
+    if((pfx=FindObject(Form("%s_pfx",hh->GetName())))) pfx->Delete();
     hh->ProfileX("_pfx", 1, -1, "i,d,same");
     Modified();
     Update();
+}
+
+void KVCanvas::ProfileY(TH2 *hh)
+{
+    TObject* obj = 0;
+    if((obj=gROOT->FindObject(Form("%s_pfy",hh->GetName())))) obj->Delete();
+    TProfile* pfy = hh->ProfileY("_pfy", 1, -1, "i");
+    TGraphErrors* gr = gHistoManipulator->MakeGraphFrom(pfy);
+    pfy->Delete();
+    TGraph* gg = gHistoManipulator->PermuteAxis(gr);
+    gr->Delete();
+    gg->SetName(Form("%s_pfy",hh->GetName()));
+    gg->Draw("PEZ");
+    Modified();
+    Update();
+}
+
+void KVCanvas::SaveCanvasAs()
+{
+    const char *SaveAsTypes[] = { "PostScript",   "*.ps",
+                                          "Encapsulated PostScript", "*.eps",
+                                          "PDF",          "*.pdf",
+                                          "SVG",          "*.svg",
+                                          "TeX",          "*.tex",
+                                          "GIF",          "*.gif",
+                                          "ROOT macros",  "*.C",
+                                          "ROOT files",   "*.root",
+                                          "XML",          "*.xml",
+                                          "PNG",          "*.png",
+                                          "XPM",          "*.xpm",
+                                          "JPEG",         "*.jpg",
+                                          "TIFF",         "*.tiff",
+                                          "XCF",          "*.xcf",
+                                          "All files",    "*",
+                                          0,              0 };
+
+    TString workdir = gSystem->WorkingDirectory();
+    static TString dir(".");
+    static Int_t typeidx = 0;
+    static Bool_t overwr = kFALSE;
+    TGFileInfo fi;
+    fi.fFileTypes   = SaveAsTypes;
+    fi.fIniDir      = StrDup(dir);
+    fi.fFileTypeIdx = typeidx;
+    fi.fOverwrite = overwr;
+    new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDSave, &fi);
+    gSystem->ChangeDirectory(workdir.Data());
+    if (!fi.fFilename) return;
+    TString fn = fi.fFilename;
+    dir     = fi.fIniDir;
+    typeidx = fi.fFileTypeIdx;
+    overwr  = fi.fOverwrite;
+    if (fn.EndsWith(".root") ||
+            fn.EndsWith(".ps")   ||
+            fn.EndsWith(".eps")  ||
+            fn.EndsWith(".pdf")  ||
+            fn.EndsWith(".svg")  ||
+            fn.EndsWith(".tex")  ||
+            fn.EndsWith(".gif")  ||
+            fn.EndsWith(".xml")  ||
+            fn.EndsWith(".xpm")  ||
+            fn.EndsWith(".jpg")  ||
+            fn.EndsWith(".png")  ||
+            fn.EndsWith(".xcf")  ||
+            fn.EndsWith(".tiff")) {
+        fCanvas->SaveAs(fn);
+    } else if (fn.EndsWith(".C"))
+        fCanvas->SaveSource(fn);
+    else {
+        Warning("ProcessMessage", "file %s cannot be saved with this extension", fi.fFilename);
+    }
 }
 
 

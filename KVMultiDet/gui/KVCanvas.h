@@ -8,7 +8,9 @@
 #include "TH2.h"
 #include "TGFrame.h"
 #include "TList.h"
-
+#include "TGFileDialog.h"
+#include "TSystem.h"
+#include "TGClient.h"
 
 class KVCanvas : public TCanvas
 {
@@ -27,11 +29,13 @@ friend class KVKeyHandler;
    Int_t Xf1,Xl1,Yf1,Yl1; 		//! last modification to axis limits
    
    Bool_t   moved;
+   Bool_t   fPPressed;
    Bool_t   fAgeOfEmpire;
    Bool_t   fModeVener;
    Bool_t   fHasDisabledClasses;
    TString  fDisabledClasses;
    Bool_t   fHasDisabledObject;
+
    TList    fDisabledObjects;
    TList    fShortCuts;
 
@@ -56,7 +60,7 @@ friend class KVKeyHandler;
    void ResetDisabledObject();
    
    void FreezCavans(Bool_t freez){fFreezed = freez;}
-   void ShowShortcutsInfo(); // *MENU*
+   void ShowShortcutsInfos(); // *MENU*
    
    protected:
    
@@ -70,7 +74,8 @@ friend class KVKeyHandler;
 
    void MoveAxis(TAxis* ax, Int_t sign);
    void ProfileX(TH2* hh);
-
+   void ProfileY(TH2* hh);
+   void SaveCanvasAs();
    void InitInfos();
    void AddShortcutsInfo(const char* cut, const char* desc);
 
