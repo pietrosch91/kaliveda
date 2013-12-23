@@ -13,6 +13,7 @@
 #include "TMath.h"
 #include "KVHistoManipulator.h"
 #include "TProfile.h"
+#include "TF1.h"
 
 #include <Riostream.h>
 
@@ -33,14 +34,25 @@ Pan: hold down mouse wheel (centre button) and move
 <!-- */
 // --> END_HTML
 // KEYBOARD SHORTCUTS:
-//  F9  -  X axis log/lin
-//  F10 -  Y axis log/lin
-//  F11 -  Z axis log/lin
-//  F12 -  Zoom out (reset axes)
-//  g   -  Show/hide grid on X and Y axes
-//  l   -  Change log/lin mode for Y-axis (1D histo) or Z-axis (2D histo)
-//  w   -  Age of Empires mode
-//  v   -  Age of Empires vener mode
+//<crtl> e   show editor
+//<crtl> f   start fit panel (TH1)
+//<crtl> g   set/unset grid on X and Y axes
+//<crtl> i   show shortcuts infos
+//<crtl> l   set/unset log scale on Y axis (TH1) or Z axis (TH2)
+//<crtl> n   normalize drawn histogram to its integral
+//<crtl> p x   draw profile X (TH2)
+//<crtl> p y   draw profile Y (TH2)
+//<crtl> s   save canvas as
+//<crtl> u   update canvas
+//<crtl> v   set/unset 'vener' mode (TH2)
+//<crtl> w   set/unset 'Age Of Empire' mode (TH2)
+//<crtl> +   set minimum +1 (TH2)
+//<crtl> -   set minimum -1 (TH2)
+//      F9   set/unset log scale on X axis
+//     F10   set/unset log scale on X axis
+//     F11   set/unset log scale on X axis
+//     F12   unzoom
+//  Arrows   move on histogram or axis
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -393,7 +405,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
                 gPad     = this;
                 fPadSave = this;
             }
-            if(fSelected->InheritsFrom("TH2")&&moved){
+            if(fSelected->InheritsFrom("TH2")&&moved&& !fSelected->InheritsFrom("TH3")){
                 xmax = AbsPixeltoX(GetEventX());
                 ymax = AbsPixeltoY(GetEventY());
                 Double_t toto = 0;
@@ -429,7 +441,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         if(!fSelected->InheritsFrom("TH1")) fSelected->Pop();           	// pop object to foreground
         pad->cd();                  					// and make its pad the current pad
 
-        if(fSelected->InheritsFrom("TH2")){
+        if(fSelected->InheritsFrom("TH2")&& !fSelected->InheritsFrom("TH3")){
             // implement pan & scan
             X0 = px; Y0 = py;  // u clikd here
             theXaxis = ((TH2*)fSelected)->GetXaxis();
@@ -471,7 +483,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
     case kButton2Motion:
         //was empty!
-        if(fSelected && fSelected->InheritsFrom("TH2")){
+        if(fSelected && fSelected->InheritsFrom("TH2")&& !fSelected->InheritsFrom("TH3")){
             // implement pan & scan
             Int_t dX = px - X0; // how far have i moved ?
             Int_t dY = py - Y0;
@@ -690,8 +702,8 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
     Int_t dX = 0;
     Int_t dY = 0;
 
-    px = AbsPixeltoX(px);
-    py = AbsPixeltoY(py);
+    Double_t ppx = AbsPixeltoX(px);
+    Double_t ppy = AbsPixeltoY(py);
     
     TAxis* ax = TheHisto->GetXaxis();
     Int_t NbinsXtmp = ax->GetNbins();
@@ -702,7 +714,7 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
     X0tmp = TMath::Min(TMath::Max(X0tmp+step,1),X1tmp-step);
     X1tmp = TMath::Max(TMath::Min(X1tmp-step,NbinsXtmp),X0tmp);
     if(X0tmp>=X1tmp) X0tmp=X1tmp-1;
-    if(Sign>0) dX = (Int_t) (X0tmp + (X1tmp-X0tmp)*0.5 - ax->FindBin(px));
+    if(Sign>0) dX = (Int_t) (X0tmp + (X1tmp-X0tmp)*0.5 - ax->FindBin(ppx));
     if((X0tmp-dX)<0) ax->SetRange(0,X1tmp-X0tmp);
     else if((X1tmp-dX)>ax->GetNbins()) ax->SetRange(ax->GetNbins()-(X1tmp-X0tmp),ax->GetNbins());
     else ax->SetRange(X0tmp-dX,X1tmp-dX);
@@ -716,7 +728,7 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
     Y0tmp = TMath::Min(TMath::Max(Y0tmp+step,1),Y1tmp-step);
     Y1tmp = TMath::Max(TMath::Min(Y1tmp-step,NbinsYtmp),Y0tmp);
     if(Y0tmp>=Y1tmp) Y0tmp=Y1tmp-1;
-    if(Sign>0) dY = (Int_t) (Y0tmp + (Y1tmp-Y0tmp)*0.5 - ax->FindBin(py));
+    if(Sign>0) dY = (Int_t) (Y0tmp + (Y1tmp-Y0tmp)*0.5 - ax->FindBin(ppy));
     if((Y0tmp-dY)<0) ax->SetRange(0,Y1tmp-Y0tmp);
     else if((Y1tmp-dY)>ax->GetNbins()) ax->SetRange(ax->GetNbins()-(Y1tmp-Y0tmp),ax->GetNbins());
     else ax->SetRange(Y0tmp-dY,Y1tmp-dY);
@@ -732,6 +744,9 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
     // Handle keys
 
 //    Info("HandleKey","key pressed : %d %d",px,py);
+
+    if(fSelected->InheritsFrom("TFrame")) fSelected = FindHisto();
+    if(!fSelected) return kTRUE;
 
     switch ((EKeySym)py) {
     case kKey_F1:
@@ -796,11 +811,14 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         break;
 
     case kKey_b:
-//        GetCanvasImp()->ShowStatusBar(!GetCanvasImp()->HasStatusBar());
         break;
 
     case kKey_e:
         GetCanvasImp()->ShowEditor(!GetCanvasImp()->HasEditor());
+        break;
+
+    case kKey_f:
+        if(fSelected->InheritsFrom("TH1")) ((TH1*)fSelected)->FitPanel();
         break;
 
     case kKey_g:
@@ -814,13 +832,18 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         ShowShortcutsInfos();
         break;
 
-
     case kKey_l:
-        if(fSelected){
-            if(fSelected->InheritsFrom("TH2"))
-                SetLogz(!fLogz);
-            else if(fSelected->InheritsFrom("TH1"))
-                SetLogy(!fLogy);
+        if(fSelected->InheritsFrom("TH2"))         SetLogz(!fLogz);
+        else if(fSelected->InheritsFrom("TH1"))    SetLogy(!fLogy);
+        Modified();
+        Update();
+        break;
+
+    case kKey_n:
+        if(fSelected->InheritsFrom("TH1"))
+        {
+            ((TH1*)fSelected)->Sumw2();
+            ((TH1*)fSelected)->Scale(1./((TH1*)fSelected)->Integral());
         }
         Modified();
         Update();
@@ -831,12 +854,24 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         return kTRUE;
         break;
 
+    case kKey_r:
+        if(ExpandFunctionRange())
+        {
+            Modified();
+            Update();
+        }
+        break;
+
     case kKey_s:
         SaveCanvasAs();
         break;
 
     case kKey_t:
-//        GetCanvasImp()->ShowToolBar(!GetCanvasImp()->HasToolBar());
+        break;
+
+    case kKey_u:
+        Modified();
+        Update();
         break;
 
     case kKey_v:
@@ -882,12 +917,46 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
             Modified();
             Update();
         }
+        else if(fSelected->InheritsFrom("TF1"))
+        {
+            ((TF1*)fSelected)->SetNpx(((TF1*)fSelected)->GetNpx()+50);
+            Modified();
+            Update();
+        }
+        else if(fSelected->InheritsFrom("TH1"))
+        {
+//            TH1* hh = FindHisto();
+//            Info("HandleKey","Searching for an histo...");
+//            if(!hh) break;
+//            Info("HandleKey","Histo found...");
+            TObject* obj = 0;
+            TIter it(((TH1*)fSelected)->GetListOfFunctions());
+            while((obj=it())) {((TF1*)obj)->SetNpx(((TF1*)obj)->GetNpx()+50);}
+            Modified();
+            Update();
+        }
         break;
 
     case kKey_Minus:
         if(fSelected->InheritsFrom("TH2"))
         {
             if(((TH1*)fSelected)->GetMinimum()>0) ((TH2*)fSelected)->SetMinimum(((TH1*)fSelected)->GetMinimum()-1);
+            Modified();
+            Update();
+        }
+        else if(fSelected->InheritsFrom("TF1"))
+        {
+            ((TF1*)fSelected)->SetNpx(((TF1*)fSelected)->GetNpx()-50);
+            Modified();
+            Update();
+        }
+        else if(fSelected->InheritsFrom("TH1"))
+        {
+//            TH1* hh = FindHisto();
+//            if(!hh) break;
+            TObject* obj = 0;
+            TIter it(((TH1*)fSelected)->GetListOfFunctions());
+            while((obj=it())) ((TF1*)obj)->SetNpx(((TF1*)obj)->GetNpx()-50);
             Modified();
             Update();
         }
@@ -947,12 +1016,15 @@ void KVCanvas::ShowShortcutsInfos()
 void KVCanvas::InitInfos()
 {
     AddShortcutsInfo("<crtl> e","show editor");
+    AddShortcutsInfo("<crtl> f","start fit panel (TH1)");
     AddShortcutsInfo("<crtl> g","set/unset grid on X and Y axes");
     AddShortcutsInfo("<crtl> i","show shortcuts infos");
     AddShortcutsInfo("<crtl> l","set/unset log scale on Y axis (TH1) or Z axis (TH2)");
+    AddShortcutsInfo("<crtl> n","normalize drawn histogram to its integral");
     AddShortcutsInfo("<crtl> p x","draw profile X (TH2)");
     AddShortcutsInfo("<crtl> p y","draw profile Y (TH2)");
     AddShortcutsInfo("<crtl> s","save canvas as");
+    AddShortcutsInfo("<crtl> u","update canvas");
     AddShortcutsInfo("<crtl> v","set/unset 'vener' mode (TH2)");
     AddShortcutsInfo("<crtl> w","set/unset 'Age Of Empire' mode (TH2)");
     AddShortcutsInfo("<crtl> +","set minimum +1 (TH2)");
@@ -961,7 +1033,7 @@ void KVCanvas::InitInfos()
     AddShortcutsInfo("F10","set/unset log scale on X axis");
     AddShortcutsInfo("F11","set/unset log scale on X axis");
     AddShortcutsInfo("F12","unzoom");
-    AddShortcutsInfo("Arrows","move on histogram (TH2) or axis (TAxis)");
+    AddShortcutsInfo("Arrows","move on histogram or axis");
 }
 
 void KVCanvas::ProfileX(TH2 *hh)
@@ -969,6 +1041,7 @@ void KVCanvas::ProfileX(TH2 *hh)
     TObject* pfx = 0;
     if((pfx=FindObject(Form("%s_pfx",hh->GetName())))) pfx->Delete();
     hh->ProfileX("_pfx", 1, -1, "i,d,same");
+    if((pfx=FindObject(Form("%s_pfx",hh->GetName())))) ((TProfile*)pfx)->SetLineColor(kBlack);
     Modified();
     Update();
 }
@@ -983,6 +1056,7 @@ void KVCanvas::ProfileY(TH2 *hh)
     TGraph* gg = gHistoManipulator->PermuteAxis(gr);
     gr->Delete();
     gg->SetName(Form("%s_pfy",hh->GetName()));
+    gg->SetLineColor(kBlack);
     gg->Draw("PEZ");
     Modified();
     Update();
@@ -1042,6 +1116,33 @@ void KVCanvas::SaveCanvasAs()
     else {
         Warning("ProcessMessage", "file %s cannot be saved with this extension", fi.fFilename);
     }
+}
+
+TH1 * KVCanvas::FindHisto()
+{
+    TObject* hh = 0;
+    TIter it(GetListOfPrimitives());
+    while((hh=(TObject*)it()))
+    {
+        if(hh->InheritsFrom("TH1")) return (TH1*) hh;
+    }
+    return 0;
+}
+
+Bool_t KVCanvas::ExpandFunctionRange()
+{
+    Bool_t up = kFALSE;
+    TH1* hh = FindHisto();
+    if(!hh) return up;
+    TObject* obj = 0;
+    TIter it(hh->GetListOfFunctions());
+    while((obj=it()))
+    {
+           ((TF1*)obj)->SetRange(hh->GetXaxis()->GetXmin(),hh->GetXaxis()->GetXmax());
+            up = kTRUE;
+    }
+
+    return up;
 }
 
 

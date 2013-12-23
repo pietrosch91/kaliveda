@@ -66,6 +66,7 @@ friend class KVKeyHandler;
    
    virtual Bool_t HandleKey(Event_t *event){return kTRUE;}
    virtual Bool_t HandleKey(Int_t px, Int_t py);
+
    void DynamicZoom(Int_t Sign, Int_t px, Int_t py);
    void DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py);
    void RunAutoExec();
@@ -76,6 +77,9 @@ friend class KVKeyHandler;
    void ProfileX(TH2* hh);
    void ProfileY(TH2* hh);
    void SaveCanvasAs();
+   Bool_t ExpandFunctionRange();
+   TH1* FindHisto();
+
    void InitInfos();
    void AddShortcutsInfo(const char* cut, const char* desc);
 
