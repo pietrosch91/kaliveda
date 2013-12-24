@@ -1132,19 +1132,38 @@ void KVTreeAnalyzer::DeleteSelections()
 void KVTreeAnalyzer::SelectionChanged()
 {
    // Method called whenever the selected selection in the GUI list changes
-   
-   SafeDelete(fSelectedSelections);
-   fSelectedSelections = G_selectionlist->GetSelectedObjects();
-   if(fSelectedSelections && fSelectedSelections->GetEntries()>1) 
-     {
-     G_selection_but_or->SetEnabled(kTRUE);
-     G_selection_but->SetEnabled(kTRUE);
-     }
-   else 
-     {
-     G_selection_but_or->SetEnabled(kFALSE);
-     G_selection_but->SetEnabled(kFALSE);
-     }
+
+    SafeDelete(fSelectedSelections);
+    fSelectedSelections = G_selectionlist->GetSelectedObjects();
+    Bool_t resetSel = kTRUE;
+
+    if(!fSelectedSelections || fSelectedSelections->GetEntries()==0)
+    {
+        G_selection_but_or->SetEnabled(kFALSE);
+        G_selection_but->SetEnabled(kFALSE);
+    }
+    else if(fSelectedSelections->GetEntries()==1)
+    {
+        KVSeqCollection* tmp = fSelections.GetSubListWithMethod(G_selection_text->GetText(),"GetTitle");
+        if(tmp->GetSize()!=0||!strcmp("",G_selection_text->GetText()))
+        {
+            G_selection_text->SetText(((TNamed*)fSelectedSelections->At(0))->GetTitle());
+            resetSel = kFALSE;
+        }
+        delete tmp;
+    }
+    else if(fSelectedSelections->GetEntries()>1)
+    {
+        G_selection_but_or->SetEnabled(kTRUE);
+        G_selection_but->SetEnabled(kTRUE);
+    }
+
+    if(resetSel)
+    {
+        KVSeqCollection* tmp = fSelections.GetSubListWithMethod(G_selection_text->GetText(),"GetTitle");
+        if(tmp->GetSize()!=0) G_selection_text->SetText("");
+        delete tmp;
+    }
 
    if(fSelectedSelections && fSelectedSelections->GetEntries()>0) G_delete_but->SetEnabled(kTRUE);
    else G_delete_but->SetEnabled(kFALSE);
@@ -1158,13 +1177,34 @@ void KVTreeAnalyzer::LeafChanged()
    fSelectedLeaves = G_leaflist->GetPickOrderedSelectedObjects();
    fLeafExpr="-";
    fXLeaf=fYLeaf=0;
+//   Bool_t resetSel = kTRUE;
    G_leaf_draw->SetEnabled(kFALSE);
    Int_t nleaf = fSelectedLeaves->GetEntries();
    if(nleaf){
       if(nleaf==1){
-         fXLeaf = (TNamed*)fSelectedLeaves->First();
-         fLeafExpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle()); 
-         G_leaf_draw->SetEnabled(kTRUE);
+          fXLeaf = (TNamed*)fSelectedLeaves->First();
+          fLeafExpr = (fXLeaf->InheritsFrom("TLeaf") ? fXLeaf->GetName():  fXLeaf->GetTitle());
+          G_leaf_draw->SetEnabled(kTRUE);
+
+          KVSeqCollection* tmp =  ((KVList*)((KVLVContainer*)G_leaflist->GetContainer())->GetUserItems())->GetSubListWithMethod(G_alias_text->GetText(),"GetName");
+          KVSeqCollection* tmp1 = ((KVList*)((KVLVContainer*)G_leaflist->GetContainer())->GetUserItems())->GetSubListWithMethod(G_alias_text->GetText(),"GetTitle");
+          if(tmp->GetSize()!=0||tmp1->GetSize()!=0||!strcmp("",G_alias_text->GetText()))
+          {
+              G_alias_text->SetText(fLeafExpr.Data()); //resetSel = kFALSE;
+          }
+          else if(strcmp(fLeafExpr.Data(),G_leaf_expr->GetTitle()))
+          {
+              TString tmps = G_alias_text->GetText();
+              Int_t pos = G_alias_text->MaxMark();
+              if(pos>=tmps.Sizeof()) pos = G_alias_text->MinMark();
+              if(pos>=tmps.Sizeof()) pos = tmps.Sizeof()-1;
+              tmps.Insert(pos,fLeafExpr.Data());
+              G_alias_text->SetText(tmps.Data());
+              G_alias_text->SetCursorPosition(pos+fLeafExpr.Sizeof());
+          }
+          delete tmp;
+          delete tmp1;
+
       }
       else if(nleaf==2){
           fXLeaf = (TNamed*)fSelectedLeaves->At(1);
@@ -1174,6 +1214,7 @@ void KVTreeAnalyzer::LeafChanged()
           Y = (fYLeaf->InheritsFrom("TLeaf") ? fYLeaf->GetName():  fYLeaf->GetTitle());
           fLeafExpr.Form("%s:%s", Y.Data(), X.Data());
           G_leaf_draw->SetEnabled(kTRUE);
+          G_alias_text->SetText("");
       }
       else if(nleaf==3){
           fXLeaf = (TNamed*)fSelectedLeaves->At(2);
@@ -1185,11 +1226,18 @@ void KVTreeAnalyzer::LeafChanged()
           Z = (fZLeaf->InheritsFrom("TLeaf") ? fZLeaf->GetName():  fZLeaf->GetTitle());
           fLeafExpr.Form("%s:%s:%s", Z.Data(), Y.Data(), X.Data());
           G_leaf_draw->SetEnabled(kTRUE);
+          G_alias_text->SetText("");
       }
       else{
           fLeafExpr="-";
+          G_alias_text->SetText("");
       }
    }
+   else{
+       fLeafExpr="-";
+       G_alias_text->SetText("");
+   }
+
    G_leaf_expr->SetText(fLeafExpr);
    G_leaf_expr->Resize();
 }
@@ -1937,3 +1985,24 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
       G_histolist->Display(&fHistolist);
    }
 }
+
+void KVTreeAnalyzer::SetAlias(const Char_t *name, const Char_t *expr)
+{
+    TString exp = expr;
+    exp.ReplaceAll("d2r","TMath::DegToRad()");
+    exp.ReplaceAll("r2d","TMath::RadToDeg()");
+    fAliasList.Add(new TNamed(name,exp.Data()));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -745,6 +745,8 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
 
 //    Info("HandleKey","key pressed : %d %d",px,py);
 
+    if(!fEnabledShortcuts) return kTRUE;
+
     if(fSelected->InheritsFrom("TFrame")) fSelected = FindHisto();
     if(!fSelected) return kTRUE;
 
@@ -1015,6 +1017,7 @@ void KVCanvas::ShowShortcutsInfos()
 
 void KVCanvas::InitInfos()
 {
+    fEnabledShortcuts = 1;
     AddShortcutsInfo("<crtl> e","show editor");
     AddShortcutsInfo("<crtl> f","start fit panel (TH1)");
     AddShortcutsInfo("<crtl> g","set/unset grid on X and Y axes");
@@ -1143,6 +1146,11 @@ Bool_t KVCanvas::ExpandFunctionRange()
     }
 
     return up;
+}
+
+void KVCanvas::SetEnabledShortcuts(Int_t value)
+{
+    fEnabledShortcuts = value;
 }
 
 

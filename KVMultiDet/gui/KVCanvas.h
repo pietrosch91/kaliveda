@@ -38,6 +38,7 @@ friend class KVKeyHandler;
 
    TList    fDisabledObjects;
    TList    fShortCuts;
+   Int_t    fEnabledShortcuts;
 
    TGFrame* fKeyHandler;         //! handler for keys
    Bool_t   fFreezed;
@@ -61,6 +62,8 @@ friend class KVKeyHandler;
    
    void FreezCavans(Bool_t freez){fFreezed = freez;}
    void ShowShortcutsInfos(); // *MENU*
+   void SetEnabledShortcuts(Int_t value=1);// *TOGGLE*
+   Int_t GetEnabledShortcuts(){return fEnabledShortcuts;}
    
    protected:
    

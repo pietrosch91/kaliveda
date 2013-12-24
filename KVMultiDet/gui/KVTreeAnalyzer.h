@@ -262,7 +262,7 @@ class KVTreeAnalyzer : public TNamed
    void CombineSelectionsOr();
    void DeleteSelections();
    void SelectionChanged();
-   void SetAlias(const Char_t* name, const Char_t* expr){ fAliasList.Add(new TNamed(name,expr));}
+   void SetAlias(const Char_t* name, const Char_t* expr);
    void GenerateAlias();
    void ShowSelections() {fSelections.ls();}
    void ShowVariables() {fTree->GetListOfLeaves()->ls();}
