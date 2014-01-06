@@ -31,7 +31,7 @@ friend class KVKeyHandler;
    Bool_t   moved;
    Bool_t   fPPressed;
    Bool_t   fAgeOfEmpire;
-   Bool_t   fModeVener;
+   Bool_t   fVenerMode;
    Bool_t   fHasDisabledClasses;
    TString  fDisabledClasses;
    Bool_t   fHasDisabledObject;
@@ -62,9 +62,13 @@ friend class KVKeyHandler;
    
    void FreezCavans(Bool_t freez){fFreezed = freez;}
    void ShowShortcutsInfos(); // *MENU*
+
+   void SetVenerMode(Int_t value=1);// *TOGGLE*
+   Int_t GetVenerMode(){return fVenerMode;}
+
    void SetEnabledShortcuts(Int_t value=1);// *TOGGLE*
    Int_t GetEnabledShortcuts(){return fEnabledShortcuts;}
-   
+
    protected:
    
    virtual Bool_t HandleKey(Event_t *event){return kTRUE;}
@@ -88,5 +92,8 @@ friend class KVKeyHandler;
 
    ClassDef(KVCanvas,1)//TCanvas with mouse-controlled dynamic zoom and pan & scan
 };
+
+//................  global variable
+R__EXTERN TObject *gCopyObject;
 
 #endif

@@ -1195,6 +1195,72 @@ Double_t KVNucleus::DeduceEincFromBrho(Double_t Brho,Int_t ChargeState){
 
 }
 
+Double_t KVNucleus::GetRelativeVelocity(KVNucleus *nuc)
+{
+    // Return the reltive velocity between nuc and this in cm/ns.
+    if(!nuc) return 0.;
+    return (GetVelocity()-nuc->GetVelocity()).Mag();
+}
+
+Double_t KVNucleus::GetViolaVelocity(KVNucleus *nuc, Int_t formula)
+{
+    // Relative velocity expected for fission from the Viola systematics (in cm/ns).
+    // If nuc=0, this method returns the relative velocity expected for the symetric fission of this nucleus.
+    // Else, it returns the expected relative velocity considering that nuc and the current nucleus arise
+    // from the fisison of a compound nucleus.
+    // - kDefaultFormula:
+    //   - if nuc=0 : kViola1985
+    //   - else     : kHinde1987
+    // - kHinde1987: D. Hinde, J. Leigh, J. Bokhorst, J. Newton, R. Walsh, and J. Boldeman, Nuclear Physics A 472, 318 (1987).
+    // - kViola1985: V. E. Viola, K. Kwiatkowski, and M. Walker, Physical Review C 31, 1550 (1985).
+    // - kViola1966: V. E. Viola, Jr. , Nucl. Data Tables Al, 391 (1966).
+
+    Double_t vViola = 0.;
+
+    switch(formula)
+    {
+    case kDefaultFormula:
+        if(nuc) vViola = vrelHinde1987(GetA(),GetZ(),nuc->GetA(),nuc->GetZ());
+        else    vViola = vrelViola1985(GetA(),GetZ());
+        break;
+
+    case kHinde1987:
+        if(nuc) vViola = vrelHinde1987(GetA(),GetZ(),nuc->GetA(),nuc->GetZ());
+        else    vViola = vrelHinde1987(GetA()*0.5,GetZ()*0.5,GetA()*0.5,GetZ()*0.5);
+        break;
+
+    case kViola1985:
+        if(nuc) vViola = vrelViola1985(GetA()+nuc->GetA(),GetZ()+nuc->GetZ());
+        else    vViola = vrelViola1985(GetA(),GetZ());
+        break;
+
+    case kViola1966:
+        if(nuc) vViola = vrelViola1966(GetA()+nuc->GetA(),GetZ()+nuc->GetZ());
+        else    vViola = vrelViola1966(GetA(),GetZ());
+        break;
+    }
+
+    return vViola;
+}
+
+Double_t KVNucleus::vrelHinde1987(Double_t z1, Double_t a1, Double_t z2, Double_t a2)
+{
+    // from: D. Hinde, J. Leigh, J. Bokhorst, J. Newton, R. Walsh, and J. Boldeman, Nuclear Physics A 472, 318 (1987).
+    return TMath::Sqrt(2./(KVNucleus::u()*a1*a2/(a1+a2))*(0.755*z1*z2/(pow(a1,1/3.)+pow(a2,1/3.))+7.3))*29.9792458;
+}
+
+Double_t KVNucleus::vrelViola1985(Double_t z, Double_t a)
+{
+    // from: V. E. Viola, K. Kwiatkowski, and M. Walker, Physical Review C 31, 1550 (1985).
+    return TMath::Sqrt(8./(u()*a)*(0.1189*z*z/(pow(a,1/3.))+7.3))*29.9792458;
+}
+
+Double_t KVNucleus::vrelViola1966(Double_t z, Double_t a)
+{
+    // from: V. E. Viola, Jr. , Nucl. Data Tables Al, 391 (1966).
+    return TMath::Sqrt(8./(u()*a)*(0.1071*z*z/(pow(a,1/3.))+22.2))*29.9792458;
+}
+
 //_______________________________________________________________________________________
 
 Bool_t KVNucleus::IsStable(Double_t min_lifetime) const

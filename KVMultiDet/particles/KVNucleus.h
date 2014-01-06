@@ -44,7 +44,7 @@ class KVNucleus:public KVParticle {
 
  protected:
 	virtual void AddGroup_Withcondition(const Char_t* groupname, KVParticleCondition*);
-		 
+
  public:
    enum {                       //determines how to calculate mass from Z
       kBetaMass,
@@ -56,8 +56,16 @@ class KVNucleus:public KVParticle {
    enum {                       //determines how to calculate radius from Mass
       kLDModel,
       kEMPFunc,
-      kELTON,
+      kELTON
    };
+
+   enum {                       //determines how to calculate radius from Mass
+      kDefaultFormula,
+      kHinde1987,
+      kViola1985,
+      kViola1966
+   };
+
 
    static Double_t kAMU;        //atomic mass unit in MeV
    static Double_t kMe;        //electron mass in MeV/c2
@@ -66,7 +74,7 @@ class KVNucleus:public KVParticle {
    static Double_t e2;    // e^2/(4.pi.epsilon_0) in MeV.fm
 
    inline void SetMassFormula(UChar_t mt);
-   inline Int_t GetMassFormula() const { return (Int_t)fMassFormula;};
+   inline Int_t GetMassFormula() const { return (Int_t)fMassFormula;}
    
    void init();
     KVNucleus();
@@ -177,7 +185,13 @@ class KVNucleus:public KVParticle {
 	
 //	TH2F* GetKnownNucleiChart(KVString method="GetBindingEnergyPerNucleon");
 	Double_t DeduceEincFromBrho(Double_t Brho,Int_t ChargeState=0);
-	
+    Double_t GetRelativeVelocity(KVNucleus* nuc);
+    Double_t GetViolaVelocity(KVNucleus* nuc=0, Int_t formula=kDefaultFormula /* kHinde1987 kViola1985 kViola1966 */);
+
+    static Double_t vrelHinde1987(Double_t z1, Double_t a1, Double_t z2, Double_t a2);
+    static Double_t vrelViola1985(Double_t z, Double_t a);
+    static Double_t vrelViola1966(Double_t z, Double_t a);
+
     ClassDef(KVNucleus, 5)      //Class describing atomic nuclei
 };
 

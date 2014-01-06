@@ -1235,7 +1235,15 @@ void KVTreeAnalyzer::LeafChanged()
    }
    else{
        fLeafExpr="-";
-       G_alias_text->SetText("");
+//       G_alias_text->SetText("");
+       KVSeqCollection* tmp =  ((KVList*)((KVLVContainer*)G_leaflist->GetContainer())->GetUserItems())->GetSubListWithMethod(G_alias_text->GetText(),"GetName");
+       KVSeqCollection* tmp1 = ((KVList*)((KVLVContainer*)G_leaflist->GetContainer())->GetUserItems())->GetSubListWithMethod(G_alias_text->GetText(),"GetTitle");
+       if(tmp->GetSize()!=0||tmp1->GetSize()!=0)
+       {
+           G_alias_text->SetText(""); //resetSel = kFALSE;
+       }
+       delete tmp;
+       delete tmp1;
    }
 
    G_leaf_expr->SetText(fLeafExpr);
@@ -1370,6 +1378,8 @@ void KVTreeAnalyzer::DrawLeafExpr()
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
+   if(h->InheritsFrom("TH1")) h->GetXaxis()->SetTitle(fXLeaf->GetTitle());
+   if(h->InheritsFrom("TH2")||h->InheritsFrom("TProfile")) h->GetYaxis()->SetTitle(fYLeaf->GetTitle());
    AddHisto(h);
    fHistoNumber++;
    DrawHisto(h);
@@ -1527,10 +1537,12 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
                expr=tmp.Data();
             }
             histo = MakeIntHisto(expr, "", xmin, xmax);
+            histo->GetXaxis()->SetTitle(leaf->GetName());
          }
          else
          {
             histo = MakeHisto(expr, "", 500);
+            histo->GetXaxis()->SetTitle(leaf->GetName());
          }
          if(!histo) return;
       }
@@ -1549,6 +1561,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
        histo = (TH1*)fHistolist.FindObjectWithMethod(htit,"GetTitle");
       if(!histo) histo = MakeHisto(expr, "", 500);
       if(!histo) return;
+      histo->GetXaxis()->SetTitle(obj->GetTitle());
 //       if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
 //       histo->Draw();
 //       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);

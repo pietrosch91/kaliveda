@@ -19,6 +19,8 @@
 
 ClassImp(KVCanvas)
 
+TObject *gCopyObject = 0x0;
+
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN_HTML <!--
 /* -->
@@ -62,7 +64,7 @@ KVCanvas::KVCanvas():TCanvas()
 {
     fKeyHandler  = new KVKeyHandler(this);
     fAgeOfEmpire = false;
-    fModeVener   = false;
+    fVenerMode   = false;
     fHasDisabledClasses = false;
     fDisabledClasses = "";
     fFreezed = kFALSE;
@@ -75,6 +77,7 @@ KVCanvas::KVCanvas():TCanvas()
 //________________________________________________________________
 KVCanvas::~KVCanvas()
 {
+    gCopyObject = 0;
     // Destructor
 }
 
@@ -83,7 +86,7 @@ KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool
 {
     //    if(keyHandler) fKeyHandler = new KVKeyHandler(this);
     fAgeOfEmpire = false;
-    fModeVener   = false;
+    fVenerMode   = false;
     fHasDisabledClasses = false;
     fDisabledClasses = "";
     fFreezed = kFALSE;
@@ -96,7 +99,7 @@ KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(na
 {
     //  fKeyHandler = new KVKeyHandler(this);
     fAgeOfEmpire = false;
-    fModeVener   = false;
+    fVenerMode   = false;
     fHasDisabledClasses = false;
     fHasDisabledObject = false;
     fDisabledClasses = "";
@@ -246,9 +249,9 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
 
         if(fAgeOfEmpire&&(fSelected->InheritsFrom("TH2")))
         {
-            TH2* TheHisto = (TH2*) fSelected;
+            TH2* TheHisto = (TH2*) FindHisto();//fSelected;
 
-            Double_t size = 0.4-0.35*fModeVener;
+            Double_t size = 0.4-0.35*fVenerMode;
 
             Int_t dX = 0;
             Int_t dY = 0;
@@ -277,8 +280,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
             if(distY>=0.5) return;
 
             if((distX<=size)&&(distY<=size)) return;
-            dX = TMath::Nint(ddX*(0.05 + 0.05*fModeVener));
-            dY = TMath::Nint(ddY*(0.05 + 0.05*fModeVener));
+            dX = TMath::Nint(ddX*(0.05 + 0.05*fVenerMode));
+            dY = TMath::Nint(ddY*(0.05 + 0.05*fVenerMode));
 
             if(TMath::Abs(dX)<1) dX = TMath::Sign(1.,ddX);
             if(TMath::Abs(dY)<1) dY = TMath::Sign(1.,ddY);
@@ -419,7 +422,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
                     ymax = ymin;
                     ymin = toto;
                 }
-                ZoomSelected((TH2*)fSelected);
+                ZoomSelected((TH2*)FindHisto());
+//                ZoomSelected((TH2*)fSelected);
                 moved = false;
             }
             Update();    // before calling update make sure gPad is reset
@@ -659,7 +663,7 @@ void KVCanvas::DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py)
     // Zoom in or out of histogram with mouse wheel
 
     if(!fSelected) return;
-    TH1* TheHisto = (TH1*) fSelected;
+    TH1* TheHisto = (TH1*) FindHisto();//fSelected;
 
     Double_t percent = 0.15-Sign*0.05;
 
@@ -695,7 +699,7 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
     //    Info("DynamicZoom","px=%d py=%d",px,py);
 
     if(!fSelected) return;
-    TH2* TheHisto = (TH2*) fSelected;
+    TH2* TheHisto = (TH2*) FindHisto();//fSelected;
 
     Double_t percent = 0.15-Sign*0.05;
 
@@ -796,6 +800,7 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
     case kKey_F12:
         if(fSelected->InheritsFrom("TH1"))
         {
+            gPad->cd();
             ((TH1*)fSelected)->GetXaxis()->UnZoom();
             ((TH1*)fSelected)->GetYaxis()->UnZoom();
             Modified();
@@ -813,6 +818,27 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         break;
 
     case kKey_b:
+        break;
+
+    case kKey_c:
+        if(gCopyObject)
+        {
+            gCopyObject->Delete();
+            gCopyObject = 0;
+        }
+        if(fSelected) gCopyObject = fSelected->Clone();
+//        gCopyObject = fSelected;
+        break;
+
+    case kKey_d:
+        if(fSelected->InheritsFrom("TF1"))
+        {
+            TH1* hh = 0;
+            if((hh=FindHisto())) hh->GetListOfFunctions()->Remove(fSelected);
+        }
+        else GetListOfPrimitives()->Remove(fSelected);
+        Modified();
+        Update();
         break;
 
     case kKey_e:
@@ -877,7 +903,18 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         break;
 
     case kKey_v:
-        fModeVener = !fModeVener;
+        if(gCopyObject)
+        {
+            cd();
+            Modified();
+            Update();
+            TString option = "";
+            if(FindHisto()) option += "same";
+            gCopyObject->Draw(option.Data());
+            Modified();
+            Update();
+            gCopyObject = 0;
+        }
         break;
 
     case kKey_w:
@@ -886,6 +923,13 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
 
     case kKey_x:
         if(fPPressed&&fSelected->InheritsFrom("TH2")) ProfileX((TH2*)fSelected);
+        if(!fPPressed)
+        {
+            gCopyObject = fSelected;
+            GetListOfPrimitives()->Remove(gCopyObject);
+            Modified();
+            Update();
+        }
         break;
 
     case kKey_y:
@@ -894,22 +938,22 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
 
     case kKey_Left:
         if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,-1);
-        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetXaxis(),-1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(FindHisto()->GetXaxis(),-1);
         break;
 
     case kKey_Down:
         if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,-1);
-        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetYaxis(),-1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(FindHisto()->GetYaxis(),-1);
         break;
 
     case kKey_Right:
         if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,1);
-        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetXaxis(),1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(FindHisto()->GetXaxis(),1);
         break;
 
     case kKey_Up:
         if(fSelected->InheritsFrom("TAxis"))    MoveAxis((TAxis*)fSelected,1);
-        else if(fSelected->InheritsFrom("TH1")) MoveAxis(((TH1*)fSelected)->GetYaxis(),1);
+        else if(fSelected->InheritsFrom("TH1")) MoveAxis(FindHisto()->GetYaxis(),1);
         break;
 
     case kKey_Plus:
@@ -927,10 +971,6 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         }
         else if(fSelected->InheritsFrom("TH1"))
         {
-//            TH1* hh = FindHisto();
-//            Info("HandleKey","Searching for an histo...");
-//            if(!hh) break;
-//            Info("HandleKey","Histo found...");
             TObject* obj = 0;
             TIter it(((TH1*)fSelected)->GetListOfFunctions());
             while((obj=it())) {((TF1*)obj)->SetNpx(((TF1*)obj)->GetNpx()+50);}
@@ -954,8 +994,6 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         }
         else if(fSelected->InheritsFrom("TH1"))
         {
-//            TH1* hh = FindHisto();
-//            if(!hh) break;
             TObject* obj = 0;
             TIter it(((TH1*)fSelected)->GetListOfFunctions());
             while((obj=it())) ((TF1*)obj)->SetNpx(((TF1*)obj)->GetNpx()-50);
@@ -1015,9 +1053,16 @@ void KVCanvas::ShowShortcutsInfos()
     cout << endl;
 }
 
+void KVCanvas::SetVenerMode(Int_t value)
+{
+    fVenerMode = value;
+}
+
 void KVCanvas::InitInfos()
 {
     fEnabledShortcuts = 1;
+    AddShortcutsInfo("<crtl> c","copy the object under cursor");
+    AddShortcutsInfo("<crtl> d","undraw the object under cursor (object not deleted)");
     AddShortcutsInfo("<crtl> e","show editor");
     AddShortcutsInfo("<crtl> f","start fit panel (TH1)");
     AddShortcutsInfo("<crtl> g","set/unset grid on X and Y axes");
@@ -1028,8 +1073,10 @@ void KVCanvas::InitInfos()
     AddShortcutsInfo("<crtl> p y","draw profile Y (TH2)");
     AddShortcutsInfo("<crtl> s","save canvas as");
     AddShortcutsInfo("<crtl> u","update canvas");
-    AddShortcutsInfo("<crtl> v","set/unset 'vener' mode (TH2)");
+    AddShortcutsInfo("<crtl> v","paste");
+//    AddShortcutsInfo("<crtl> v","set/unset 'vener' mode (TH2)");
     AddShortcutsInfo("<crtl> w","set/unset 'Age Of Empire' mode (TH2)");
+    AddShortcutsInfo("<crtl> x","cut the object under cursor");
     AddShortcutsInfo("<crtl> +","set minimum +1 (TH2)");
     AddShortcutsInfo("<crtl> -","set minimum -1 (TH2)");
     AddShortcutsInfo("F9","set/unset log scale on X axis");
