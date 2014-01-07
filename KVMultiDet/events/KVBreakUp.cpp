@@ -499,7 +499,16 @@ void KVBreakUp::TreatePartition()
 		delete partition;
 	}
 }
-	
+
+
+//_______________________________________________________
+KVEvent* KVBreakUp::GetCurrentEvent()
+{
+
+	return current_event;
+
+}
+
 //_______________________________________________________
 void KVBreakUp::BreakNtimes(Int_t times)
 {
