@@ -59,7 +59,7 @@ class KVNucleus:public KVParticle {
       kELTON
    };
 
-   enum {                       //determines how to calculate radius from Mass
+   enum {
       kDefaultFormula,
       kHinde1987,
       kViola1985,

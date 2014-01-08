@@ -14,6 +14,7 @@
 #include "KVHistoManipulator.h"
 #include "TProfile.h"
 #include "TF1.h"
+#include "TGMsgBox.h"
 
 #include <Riostream.h>
 
@@ -448,8 +449,8 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         if(fSelected->InheritsFrom("TH2")&& !fSelected->InheritsFrom("TH3")){
             // implement pan & scan
             X0 = px; Y0 = py;  // u clikd here
-            theXaxis = ((TH2*)fSelected)->GetXaxis();
-            theYaxis = ((TH2*)fSelected)->GetYaxis();
+            theXaxis = ((TH2*)FindHisto())->GetXaxis();
+            theYaxis = ((TH2*)FindHisto())->GetYaxis();
             NXbins = theXaxis->GetNbins();  // maximum bin number in X
             NYbins = theYaxis->GetNbins();  // maximum bin number in Y
             Xf1 = Xfirst0 = theXaxis->GetFirst(); // initial displayed bin range in X
@@ -752,6 +753,7 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
     if(!fEnabledShortcuts) return kTRUE;
 
     if(fSelected->InheritsFrom("TFrame")) fSelected = FindHisto();
+    if(fSelected->InheritsFrom("TH2"))    fSelected = FindHisto();
     if(!fSelected) return kTRUE;
 
     switch ((EKeySym)py) {
@@ -881,6 +883,11 @@ Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
         fPPressed = kTRUE;
         return kTRUE;
         break;
+
+//    case kKey_q:
+//        Close();
+//        return kTRUE;
+//        break;
 
     case kKey_r:
         if(ExpandFunctionRange())
@@ -1061,6 +1068,8 @@ void KVCanvas::SetVenerMode(Int_t value)
 void KVCanvas::InitInfos()
 {
     fEnabledShortcuts = 1;
+    fSavedAs = "";
+
     AddShortcutsInfo("<crtl> c","copy the object under cursor");
     AddShortcutsInfo("<crtl> d","undraw the object under cursor (object not deleted)");
     AddShortcutsInfo("<crtl> e","show editor");
@@ -1074,14 +1083,13 @@ void KVCanvas::InitInfos()
     AddShortcutsInfo("<crtl> s","save canvas as");
     AddShortcutsInfo("<crtl> u","update canvas");
     AddShortcutsInfo("<crtl> v","paste");
-//    AddShortcutsInfo("<crtl> v","set/unset 'vener' mode (TH2)");
     AddShortcutsInfo("<crtl> w","set/unset 'Age Of Empire' mode (TH2)");
     AddShortcutsInfo("<crtl> x","cut the object under cursor");
     AddShortcutsInfo("<crtl> +","set minimum +1 (TH2)");
     AddShortcutsInfo("<crtl> -","set minimum -1 (TH2)");
     AddShortcutsInfo("F9","set/unset log scale on X axis");
-    AddShortcutsInfo("F10","set/unset log scale on X axis");
-    AddShortcutsInfo("F11","set/unset log scale on X axis");
+    AddShortcutsInfo("F10","set/unset log scale on Y axis");
+    AddShortcutsInfo("F11","set/unset log scale on Z axis");
     AddShortcutsInfo("F12","unzoom");
     AddShortcutsInfo("Arrows","move on histogram or axis");
 }
@@ -1114,22 +1122,41 @@ void KVCanvas::ProfileY(TH2 *hh)
 
 void KVCanvas::SaveCanvasAs()
 {
-    const char *SaveAsTypes[] = { "PostScript",   "*.ps",
-                                          "Encapsulated PostScript", "*.eps",
-                                          "PDF",          "*.pdf",
-                                          "SVG",          "*.svg",
-                                          "TeX",          "*.tex",
-                                          "GIF",          "*.gif",
-                                          "ROOT macros",  "*.C",
-                                          "ROOT files",   "*.root",
-                                          "XML",          "*.xml",
-                                          "PNG",          "*.png",
-                                          "XPM",          "*.xpm",
-                                          "JPEG",         "*.jpg",
-                                          "TIFF",         "*.tiff",
-                                          "XCF",          "*.xcf",
-                                          "All files",    "*",
-                                          0,              0 };
+
+    if(strcmp("",fSavedAs))
+    {
+        Int_t ret_val;
+        TString file = fSavedAs.Data();
+        file.ReplaceAll(gSystem->DirName(fSavedAs.Data()),"");
+        file.ReplaceAll("/","");
+        new TGMsgBox(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), "File name exist",
+                     Form("File name '%s' already exists, OK to owerwrite it?",file.Data()),
+                     kMBIconExclamation, kMBOk | kMBCancel, &ret_val);
+
+        if (ret_val & kMBOk)
+        {
+            fCanvas->SaveAs(fSavedAs);
+            return;
+        }
+    }
+
+    const char *SaveAsTypes[] = {
+        "PDF",          "*.pdf",
+        "PostScript",   "*.ps",
+        "Encapsulated PostScript", "*.eps",
+        "SVG",          "*.svg",
+        "TeX",          "*.tex",
+        "GIF",          "*.gif",
+        "ROOT macros",  "*.C",
+        "ROOT files",   "*.root",
+        "XML",          "*.xml",
+        "PNG",          "*.png",
+        "XPM",          "*.xpm",
+        "JPEG",         "*.jpg",
+        "TIFF",         "*.tiff",
+        "XCF",          "*.xcf",
+        "All files",    "*",
+        0,              0 };
 
     TString workdir = gSystem->WorkingDirectory();
     static TString dir(".");
@@ -1139,7 +1166,7 @@ void KVCanvas::SaveCanvasAs()
     fi.fFileTypes   = SaveAsTypes;
     fi.fIniDir      = StrDup(dir);
     fi.fFileTypeIdx = typeidx;
-    fi.fOverwrite = overwr;
+    fi.fOverwrite   = overwr;
     new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDSave, &fi);
     gSystem->ChangeDirectory(workdir.Data());
     if (!fi.fFilename) return;
@@ -1147,25 +1174,8 @@ void KVCanvas::SaveCanvasAs()
     dir     = fi.fIniDir;
     typeidx = fi.fFileTypeIdx;
     overwr  = fi.fOverwrite;
-    if (fn.EndsWith(".root") ||
-            fn.EndsWith(".ps")   ||
-            fn.EndsWith(".eps")  ||
-            fn.EndsWith(".pdf")  ||
-            fn.EndsWith(".svg")  ||
-            fn.EndsWith(".tex")  ||
-            fn.EndsWith(".gif")  ||
-            fn.EndsWith(".xml")  ||
-            fn.EndsWith(".xpm")  ||
-            fn.EndsWith(".jpg")  ||
-            fn.EndsWith(".png")  ||
-            fn.EndsWith(".xcf")  ||
-            fn.EndsWith(".tiff")) {
-        fCanvas->SaveAs(fn);
-    } else if (fn.EndsWith(".C"))
-        fCanvas->SaveSource(fn);
-    else {
-        Warning("ProcessMessage", "file %s cannot be saved with this extension", fi.fFilename);
-    }
+    fCanvas->SaveAs(fn);
+    fSavedAs = fn;
 }
 
 TH1 * KVCanvas::FindHisto()
@@ -1199,6 +1209,7 @@ void KVCanvas::SetEnabledShortcuts(Int_t value)
 {
     fEnabledShortcuts = value;
 }
+
 
 
 

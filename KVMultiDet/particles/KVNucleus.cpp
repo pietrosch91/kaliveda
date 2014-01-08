@@ -1220,23 +1220,23 @@ Double_t KVNucleus::GetViolaVelocity(KVNucleus *nuc, Int_t formula)
     switch(formula)
     {
     case kDefaultFormula:
-        if(nuc) vViola = vrelHinde1987(GetA(),GetZ(),nuc->GetA(),nuc->GetZ());
-        else    vViola = vrelViola1985(GetA(),GetZ());
+        if(nuc) vViola = vrelHinde1987(GetZ(),GetA(),nuc->GetZ(),nuc->GetA());
+        else    vViola = vrelViola1985(GetZ(),GetA());
         break;
 
     case kHinde1987:
-        if(nuc) vViola = vrelHinde1987(GetA(),GetZ(),nuc->GetA(),nuc->GetZ());
-        else    vViola = vrelHinde1987(GetA()*0.5,GetZ()*0.5,GetA()*0.5,GetZ()*0.5);
+        if(nuc) vViola = vrelHinde1987(GetZ(),GetA(),nuc->GetZ(),nuc->GetA());
+        else    vViola = vrelHinde1987(GetZ()*0.5,GetA()*0.5,GetZ()*0.5,GetA()*0.5);
         break;
 
     case kViola1985:
-        if(nuc) vViola = vrelViola1985(GetA()+nuc->GetA(),GetZ()+nuc->GetZ());
-        else    vViola = vrelViola1985(GetA(),GetZ());
+        if(nuc) vViola = vrelViola1985(GetZ()+nuc->GetZ(),GetA()+nuc->GetA());
+        else    vViola = vrelViola1985(GetZ(),GetA());
         break;
 
     case kViola1966:
-        if(nuc) vViola = vrelViola1966(GetA()+nuc->GetA(),GetZ()+nuc->GetZ());
-        else    vViola = vrelViola1966(GetA(),GetZ());
+        if(nuc) vViola = vrelViola1966(GetZ()+nuc->GetZ(),GetA()+nuc->GetA());
+        else    vViola = vrelViola1966(GetZ(),GetA());
         break;
     }
 

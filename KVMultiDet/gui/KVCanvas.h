@@ -39,6 +39,7 @@ friend class KVKeyHandler;
    TList    fDisabledObjects;
    TList    fShortCuts;
    Int_t    fEnabledShortcuts;
+   TString  fSavedAs;
 
    TGFrame* fKeyHandler;         //! handler for keys
    Bool_t   fFreezed;
