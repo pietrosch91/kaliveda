@@ -16,7 +16,7 @@
 #include "TKey.h"
 #include "TROOT.h"
 #include "TGMsgBox.h"
-
+#include "KVFileDialog.h"
 #include "KVDalitzPlot.h"
 #include "TEnv.h"
 using namespace std;
@@ -36,6 +36,7 @@ KVTreeAnalyzer.UserBinning:           off
 KVTreeAnalyzer.UserWeight:       off
 KVTreeAnalyzer.NewCanvas:      off
 KVTreeAnalyzer.Normalize:      off
+KVTreeAnalyzer.Stats:      off
 </pre>
 Change value to 'on' if required.
 <!-- */
@@ -75,6 +76,8 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
    fNewCanvas = gEnv->GetValue("KVTreeAnalyzer.NewCanvas", kFALSE);
    fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
+   fStatsHisto = gEnv->GetValue("KVTreeAnalyzer.Stats", kFALSE);
+   fAutoSaveHisto = kFALSE;
    fSameColorIndex=0;
    fSelectedSelections=0;
    fSelectedLeaves=0;
@@ -115,6 +118,8 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
    fNewCanvas = gEnv->GetValue("KVTreeAnalyzer.NewCanvas", kFALSE);
    fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
+   fStatsHisto = gEnv->GetValue("KVTreeAnalyzer.Stats", kFALSE);
+   fAutoSaveHisto = kFALSE;
    fNoGui=nogui;
    OpenGUI();
    fSameColorIndex=0;
@@ -375,7 +380,10 @@ void KVTreeAnalyzer::FillLeafList()
    // all aliases defined by the user
    
    TList stuff;
-   if(fTree) stuff.AddAll(fTree->GetListOfLeaves());
+   if(fTree) {
+      stuff.AddAll(fTree->GetListOfLeaves());
+      stuff.AddAll(fTree->GetListOfAliases());
+   }
    stuff.AddAll(&fAliasList);
    G_leaflist->Display(&stuff);   
 }
@@ -525,6 +533,16 @@ void KVTreeAnalyzer::OpenGUI()
    G_histo_norm->SetState((EButtonState) fNormHisto );
    G_histo_norm->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNormHisto(Bool_t)");
    fHorizontalFrame->AddFrame(G_histo_norm, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
+   G_histo_stats = new TGCheckButton(fHorizontalFrame, "Stats");
+   G_histo_stats->SetToolTipText("Display histogram statistics box");
+   G_histo_stats->SetState((EButtonState) fStatsHisto );
+   G_histo_stats->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetStatsHisto(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_stats, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
+   G_histo_autosave = new TGCheckButton(fHorizontalFrame, "AutoSave");
+   G_histo_autosave->SetToolTipText("Automatically generate histo image files");
+   G_histo_autosave->SetState((EButtonState) fAutoSaveHisto );
+   G_histo_autosave->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetAutoSaveHisto(Bool_t)");
+   fHorizontalFrame->AddFrame(G_histo_autosave, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
    histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsCenterX|kLHintsTop,2,2,2,2));
    fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandX,5,5,5,5));
    /* ip scale */
@@ -955,15 +973,20 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
    {
       // if 'new canvas' is active the histogram is displayed in a new KVCanvas
       // create a new canvas also if none exists
-      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());c->SetWindowSize(600,600);}
+      if(fNewCanvas || !gPad) {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());c->SetWindowSize(700,700);}
+      else if(gPad) { // update title of existing canvas
+         gPad->GetCanvas()->SetTitle(histo->GetTitle());
+      }
       histo->SetLineColor(my_color_array[0]);
       if(histo->InheritsFrom("TH2")) gPad->SetLogz(fDrawLog);
       else {
          histo->SetMaximum(-1111);//in case maximum was changed to accomodate superimposition
          gPad->SetLogy(fDrawLog);
       }
+      histo->SetStats(fStatsHisto);//show/hide stat box according to check-box
       histo->Draw();
       gPad->Modified();gPad->Update();
+      if(fAutoSaveHisto) AutoSaveHisto(histo);
    }
 }
    
@@ -2007,8 +2030,60 @@ void KVTreeAnalyzer::SetAlias(const Char_t *name, const Char_t *expr)
     fAliasList.Add(new TNamed(name,exp.Data()));
 }
 
+static const char *gSaveAsTypes[] = { "PostScript",   "*.ps",
+                                      "Encapsulated PostScript", "*.eps",
+                                      "PDF",          "*.pdf",
+                                      "SVG",          "*.svg",
+                                      "TeX",          "*.tex",
+                                      "GIF",          "*.gif",
+                                      "ROOT files",   "*.root",
+                                      "XML",          "*.xml",
+                                      "PNG",          "*.png",
+                                      "XPM",          "*.xpm",
+                                      "JPEG",         "*.jpg",
+                                      "TIFF",         "*.tiff",
+                                      "XCF",          "*.xcf",
+                                      0,              0 };
+                                      
+void KVTreeAnalyzer::SetUpHistoAutoSave()
+{
+   // Open file dialog box for user to choose directory and
+   // image file-type for generating picture files of all
+   // histos as they are drawn
+   
+   Info("SetUpHistoAutoSave", "Select image filetype and directory");
+   TString workdir = gSystem->WorkingDirectory();
+   static TString dir(".");
+   static Int_t typeidx = 0;
+   static Bool_t overwr = kFALSE;
+   TGFileInfo fi;
+   fi.fFileTypes   = gSaveAsTypes;
+   fi.fIniDir      = StrDup(dir);
+   fi.fFileTypeIdx = typeidx;
+   fi.fOverwrite = overwr;
+   new KVFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kKVFDDirectory, &fi);
+   gSystem->ChangeDirectory(workdir.Data());
+   TString ft = fi.fFileTypes[fi.fFileTypeIdx+1];
+   dir     = fi.fIniDir;
+   typeidx = fi.fFileTypeIdx;
+   overwr  = fi.fOverwrite;
+   fAutoSaveDir = dir.Data();
+   fAutoSaveType = ft(1,ft.Length()).Data();
+   Info("SetUpHistoAutoSave", "file-type:%s directory:%s", fAutoSaveType.Data(), fAutoSaveDir.Data());
+}
 
-
+void KVTreeAnalyzer::AutoSaveHisto(TH1* h)
+{
+   // Save currently displayed histo as an image file
+   
+   TString title = h->GetTitle();
+   title.ReplaceAll(" ", "_");
+   title.Append(fAutoSaveType);
+   title.Prepend("/");
+   title.Prepend(fAutoSaveDir);
+   Info("AutoSaveHisto", "Saved as: %s", title.Data());
+   gPad->SaveAs(title);
+}
 
 
 

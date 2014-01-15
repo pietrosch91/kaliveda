@@ -176,12 +176,18 @@ class KVTreeAnalyzer : public TNamed
    TGCheckButton* G_histo_log;//!
    TGCheckButton* G_histo_new_can;//!
    TGCheckButton* G_histo_norm;//!
+   TGCheckButton* G_histo_stats;//!
+   TGCheckButton* G_histo_autosave;//!
    Bool_t fDrawSame;//! =kTRUE: draw histograms in same plot
    Int_t fSameColorIndex;//!
    Bool_t fDrawLog;//! =kTRUE: draw histograms with log-Y (1-D) or log-Z (2-D) scale
    Bool_t fApplySelection;//! =kTRUE: apply current selection to existing histogram
    Bool_t fNewCanvas;//! =kTRUE: draw each histogram in a new canvas
    Bool_t fNormHisto;//! =kTRUE: generate normalised histograms
+   Bool_t fStatsHisto;//! =kTRUE: display histo stats box
+   Bool_t fAutoSaveHisto;//! =kTRUE: on draw, generate image file of current displayed histo
+   TString fAutoSaveDir;//! directory for autosaving histos
+   TString fAutoSaveType;//! filetype for autosaving histos
    TList* fSelectedHistos;//!
    TGTextButton* G_make_ip_scale;//!
    TGTextButton* G_fit1;//!
@@ -286,6 +292,8 @@ class KVTreeAnalyzer : public TNamed
    void SetUserBinning(Bool_t ub){fUserBinning = ub;}
    void SetUserWeight(Bool_t uw){fUserWeight = uw;}
 
+   void SetAutoSaveHisto(Bool_t yes=kTRUE){fAutoSaveHisto=yes; if(yes) SetUpHistoAutoSave();}
+   void SetStatsHisto(Bool_t yes=kTRUE){fStatsHisto=yes;}
    void SetNormHisto(Bool_t yes=kTRUE){fNormHisto=yes;}
    void SetNewCanvas(Bool_t yes=kTRUE){fNewCanvas=yes;}
    void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;}
@@ -324,8 +332,11 @@ class KVTreeAnalyzer : public TNamed
    void DefineUserBinningD(Int_t NxD, Int_t NyD, Int_t ordered);// *MENU* *ARGS={NxD=>fNxD,NyD=>fNyD,ordered=>fOrderedDalitz}
    void DefineWeight(const Char_t* Weight);// *MENU* *ARGS={Weight=>fWeight}
    
+   void SetUpHistoAutoSave();
    
    void HandleHistoFileMenu(Int_t); 
+   void AutoSaveHisto(TH1* h);
+   
    ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
 };
 //................  global variable
