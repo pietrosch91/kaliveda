@@ -131,7 +131,7 @@ class KVTreeAnalyzer : public TNamed
    TTree* fTree;//! the analyzed TTree
    KVUniqueNameList fSelections;// list of TEntryList user selections
    /* leaves */
-   TGMainFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
+   TGGroupFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
    KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
    TGLabel* G_leaf_expr;//!
    TGPictureButton *G_leaf_draw;//!
@@ -160,17 +160,23 @@ class KVTreeAnalyzer : public TNamed
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
    TGPopupMenu *fMenuFile;//!
+   TGPopupMenu *fMenuSelections;//!
+   TGPopupMenu *fSelCombMenu;//!
    enum {
    		MH_OPEN_FILE,
    		MH_SAVE_FILE,
-   		MH_QUIT
+        MH_QUIT,
+       SEL_COMB_AND,
+       SEL_COMB_OR,
+       SEL_UPDATE,
+       SEL_DELETE
    };
    void HistoFileMenu_Open();
    void HistoFileMenu_Save();
    TGLayoutHints *fMenuBarItemLayout;//!
    TGMenuBar *fMenuBar;//!
    KVListView* G_histolist;//! GUI list of histograms
-   TGTextButton* G_histo_del;//!
+   TGPictureButton* G_histo_del;//!
    TGCheckButton* G_histo_same;//!
    TGCheckButton* G_histo_app_sel;//!
    TGCheckButton* G_histo_log;//!
@@ -207,14 +213,10 @@ class KVTreeAnalyzer : public TNamed
    KVGausGumDistribution *GausGum3;//!
    
    /* selections */
-   TGMainFrame *fMain_selectionlist;//! GUI for handling selections
+   TGGroupFrame *fMain_selectionlist;//! GUI for handling selections
    KVListView* G_selectionlist;//! GUI list of TEntryList selections
    TGStatusBar* G_selection_status;//! status bar in selections GUI
    TGTextEntry* G_selection_text;//!
-   TGTextButton* G_selection_but;//!
-   TGTextButton* G_selection_but_or;//!
-   TGTextButton* G_update_but;//!
-   TGTextButton* G_delete_but;//!
    TList* fSelectedSelections;//!
    
    KVList fHistolist;//list of generated histograms
@@ -334,7 +336,8 @@ class KVTreeAnalyzer : public TNamed
    
    void SetUpHistoAutoSave();
    
-   void HandleHistoFileMenu(Int_t); 
+   void HandleHistoFileMenu(Int_t);
+   void HandleSelectionsMenu(Int_t);
    void AutoSaveHisto(TH1* h);
    
    ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer

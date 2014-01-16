@@ -19,6 +19,7 @@
 #include "KVFileDialog.h"
 #include "KVDalitzPlot.h"
 #include "TEnv.h"
+#include "TColor.h"
 using namespace std;
 
 ClassImp(KVTreeAnalyzer)
@@ -341,6 +342,7 @@ Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
    }
    fSelectionNumber++;
    AddSelection(el);
+   SelectionChanged();
    return kTRUE;
 }
    
@@ -407,57 +409,66 @@ void KVTreeAnalyzer::OpenGUI()
    gClient->GetColorByName("#b54cfe",gure);
    gClient->GetColorByName("#a325ef",gurf);
 
-   // main frame
-   fMain_leaflist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
-   fMain_leaflist->SetName("fMain_leaflist");
-   fMain_leaflist->SetWindowName("VARIABLES");
-   UInt_t lWidth = 400, lHeight = 500;
+   /********* MAIN WINDOW **************/
+   //
+   fMain_histolist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
+   fMain_histolist->SetName("fMain_histolist");
+   if(!fTree)
+       fMain_histolist->SetWindowName("Tree Analyzer");
+   else
+       fMain_histolist->SetWindowName(Form("%s (%s)", fTree->GetTitle(), fTreeFileName.Data()));
+   fMain_histolist->SetIconName("TreeAnalyzer");
+   fMain_histolist->SetIconPixmap("root_s.xpm");
+   UInt_t hWidth = 400, hHeight = 400;
+
+             /* menus */
+   fMenuFile = new TGPopupMenu(gClient->GetRoot());
+   fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
+   fMenuFile->AddSeparator();
+   fMenuFile->AddEntry("&Save analysis...", MH_SAVE_FILE);
+   fMenuFile->AddSeparator();
+   fMenuFile->AddEntry("&Quit", MH_QUIT);
+   fMenuFile->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleHistoFileMenu(Int_t)");
+   fMenuSelections = new TGPopupMenu(gClient->GetRoot());
+   fSelCombMenu = new TGPopupMenu(gClient->GetRoot());
+   fSelCombMenu->AddEntry("AND (&&)",SEL_COMB_AND);
+   fSelCombMenu->AddEntry("OR (||)",SEL_COMB_OR);
+   fMenuSelections->AddPopup("Combine...", fSelCombMenu);
+   fSelCombMenu->DisableEntry(SEL_COMB_AND);
+   fSelCombMenu->DisableEntry(SEL_COMB_OR);
+   fMenuSelections->AddEntry("Update", SEL_UPDATE);
+   fMenuSelections->AddEntry("Delete", SEL_DELETE);
+   fMenuSelections->DisableEntry(SEL_DELETE);
+   fMenuSelections->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleSelectionsMenu(Int_t)");
+   fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+   fMenuBar = new TGMenuBar(fMain_histolist, 1, 1, kHorizontalFrame);
+   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
+   fMenuBar->AddPopup("&Selections", fMenuSelections, fMenuBarItemLayout);
+   fMain_histolist->AddFrame(fMenuBar,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
+   TGHorizontal3DLine *lh = new TGHorizontal3DLine(fMain_histolist);
+   fMain_histolist->AddFrame(lh, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+
+   // Horizontal frame to contain the VARIABLES list (left) and SELECTIONS list (right)
+   TGHorizontalFrame* hf = new TGHorizontalFrame(fMain_histolist);
+
+   /*********  VARIABLES **************/
+   // Group frame for TTree variables/aliases
+   fMain_leaflist = new TGGroupFrame(hf, "VARIABLES");
+   UInt_t lWidth = 300, lHeight = 300;
    /* leaf list */
-   TGHorizontalFrame *fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
-   G_leaf_draw = new TGPictureButton(fHorizontalFrame, "draw_t.xpm");
-   G_leaf_draw->SetEnabled(kFALSE);
-   G_leaf_draw->Connect("Clicked()", "KVTreeAnalyzer", this, "DrawLeafExpr()");
-   fHorizontalFrame->AddFrame(G_leaf_draw, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
-   fLeafExpr="          ";
-   G_leaf_expr = new TGLabel(fHorizontalFrame, fLeafExpr.Data());
-   G_leaf_expr->Resize();
-   fHorizontalFrame->AddFrame(G_leaf_expr, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsCenterY,2,2,2,2));
-   fMain_leaflist->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
 
-   TGGroupFrame* histo_opts = new TGGroupFrame(fMain_leaflist, "Options", kVerticalFrame);
-   fHorizontalFrame = new TGHorizontalFrame(histo_opts,lWidth,36,kHorizontalFrame);
-   G_histo_prof = new TGCheckButton(fHorizontalFrame, "Profile");
-   G_histo_prof->SetToolTipText("Generate a profile histogram");
-   G_histo_prof->SetState((EButtonState) fProfileHisto );
-   G_histo_prof->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetProfileHisto(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_prof, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsCenterY,2,2,2,2));
-
-   G_histo_weight = new TGCheckButton(fHorizontalFrame, "Weight");
-   G_histo_weight->SetToolTipText("User defined binning of the histogram");
-   G_histo_weight->SetState((EButtonState) fUserWeight );
-   G_histo_weight->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserWeight(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_weight, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsCenterY,2,2,2,2));
-
-   G_histo_bin = new TGCheckButton(fHorizontalFrame, "Bins");
-   G_histo_bin->SetToolTipText("User defined binning of the histogram");
-   G_histo_bin->SetState((EButtonState) fUserBinning);
-   G_histo_bin->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserBinning(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_bin, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsCenterY,2,2,2,2));
-   histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsCenterX|kLHintsTop,2,2,2,2));
-   fMain_leaflist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandX,5,5,5,5));
-   
    /* make selection */
-   fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
+   TGHorizontalFrame* fHorizontalFrame = new TGHorizontalFrame(fMain_leaflist,lWidth,36,kHorizontalFrame);
    TGLabel* lab = new TGLabel(fHorizontalFrame, "Make alias : ");
    fHorizontalFrame->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2));
    G_alias_text = new TGTextEntry(fHorizontalFrame, new TGTextBuffer(50));
    G_alias_text->SetMaxLength(4096);
    G_alias_text->SetAlignment(kTextLeft);
-   G_alias_text->Resize(500,G_alias_text->GetDefaultHeight());
+   G_alias_text->Resize(lWidth-100,G_alias_text->GetDefaultHeight());
    G_alias_text->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "GenerateAlias()");
    fHorizontalFrame->AddFrame(G_alias_text, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX,2,5,2,2));
    fMain_leaflist->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
-      
+
    G_leaflist = new KVListView(TNamed::Class(), fMain_leaflist, lWidth, lHeight);
    G_leaflist->SetDataColumns(1);
    G_leaflist->SetDataColumn(0, "Title");
@@ -467,192 +478,20 @@ void KVTreeAnalyzer::OpenGUI()
 //   G_leaflist->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "ShowVar()");
    fMain_leaflist->AddFrame(G_leaflist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
-				       5,5,5,5));
-  
-   fMain_leaflist->MapSubwindows();
+                       5,5,5,5));
+
+   //fMain_leaflist->MapSubwindows();
 
    fMain_leaflist->Resize(fMain_leaflist->GetDefaultSize());
-   fMain_leaflist->MapWindow();
+   //fMain_leaflist->MapWindow();
    fMain_leaflist->Resize(lWidth,lHeight);
    FillLeafList();
-   // histogram manager window
-   fMain_histolist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
-   fMain_histolist->SetName("fMain_histolist");
-   fMain_histolist->SetWindowName("HISTOS");
-   UInt_t hWidth = 400, hHeight = 600;
+   /*********end of VARIABLES **************/
+   hf->AddFrame(fMain_leaflist, new TGLayoutHints(kLHintsLeft,5,5,5,5));
 
-             /* menus */
-   fMenuFile = new TGPopupMenu(gClient->GetRoot());
-   fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
-   fMenuFile->AddSeparator();
-   fMenuFile->AddEntry("&Save as...", MH_SAVE_FILE);
-   fMenuFile->AddSeparator();
-   fMenuFile->AddEntry("&Quit", MH_QUIT);
-   fMenuFile->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleHistoFileMenu(Int_t)");
-   fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
-   fMenuBar = new TGMenuBar(fMain_histolist, 1, 1, kHorizontalFrame);
-   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
-   fMain_histolist->AddFrame(fMenuBar,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
-   TGHorizontal3DLine *lh = new TGHorizontal3DLine(fMain_histolist);
-   fMain_histolist->AddFrame(lh, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
-   
-   G_histo_del = new TGTextButton(fMain_histolist,"DELETE HISTO!");
-   G_histo_del->SetTextJustify(36);
-   G_histo_del->SetMargins(0,0,0,0);
-   G_histo_del->SetWrapLength(-1);
-   G_histo_del->Resize(hWidth,G_histo_del->GetDefaultHeight());
-   G_histo_del->Connect("Clicked()", "KVTreeAnalyzer", this, "DeleteSelectedHisto()");
-   G_histo_del->SetEnabled(kFALSE);
-   G_histo_del->ChangeBackground(red);
-   fMain_histolist->AddFrame(G_histo_del, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
-   /* histo options */
-   histo_opts = new TGGroupFrame(fMain_histolist, "Options", kVerticalFrame);
-   fHorizontalFrame = new TGHorizontalFrame(histo_opts,hWidth,50,kHorizontalFrame);
-   G_histo_new_can = new TGCheckButton(fHorizontalFrame, "New canvas");
-   G_histo_new_can->SetToolTipText("Draw in a new canvas");
-   G_histo_new_can->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNewCanvas(Bool_t)");
-   G_histo_new_can->SetState((EButtonState)fNewCanvas);
-   fHorizontalFrame->AddFrame(G_histo_new_can, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   G_histo_same = new TGCheckButton(fHorizontalFrame, "Same");
-   G_histo_same->SetToolTipText("Draw in same pad");
-   G_histo_same->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetDrawSame(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_same, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   G_histo_app_sel = new TGCheckButton(fHorizontalFrame, "Apply selection");
-   G_histo_app_sel->SetToolTipText("Apply current selection to generate new histo");
-   G_histo_app_sel->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetApplySelection(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_app_sel, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsCenterX|kLHintsTop,2,2,2,2));
-   fHorizontalFrame = new TGHorizontalFrame(histo_opts,hWidth,50,kHorizontalFrame);
-   G_histo_log = new TGCheckButton(fHorizontalFrame, "Log scale");
-   G_histo_log->SetToolTipText("Use log scale in Y (1D) or Z (2D)");
-   G_histo_log->SetState((EButtonState)fDrawLog);
-   G_histo_log->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetDrawLog(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_log, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   G_histo_norm = new TGCheckButton(fHorizontalFrame, "Normalize");
-   G_histo_norm->SetToolTipText("Generate normalized histogram with integral=1");
-   G_histo_norm->SetState((EButtonState) fNormHisto );
-   G_histo_norm->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNormHisto(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_norm, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   G_histo_stats = new TGCheckButton(fHorizontalFrame, "Stats");
-   G_histo_stats->SetToolTipText("Display histogram statistics box");
-   G_histo_stats->SetState((EButtonState) fStatsHisto );
-   G_histo_stats->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetStatsHisto(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_stats, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   G_histo_autosave = new TGCheckButton(fHorizontalFrame, "AutoSave");
-   G_histo_autosave->SetToolTipText("Automatically generate histo image files");
-   G_histo_autosave->SetState((EButtonState) fAutoSaveHisto );
-   G_histo_autosave->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetAutoSaveHisto(Bool_t)");
-   fHorizontalFrame->AddFrame(G_histo_autosave, new TGLayoutHints(kLHintsLeft|kLHintsCenterX,2,2,2,2));
-   histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsCenterX|kLHintsTop,2,2,2,2));
-   fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandX,5,5,5,5));
-   /* ip scale */
-   histo_opts = new TGGroupFrame(fMain_histolist, "Impact parameter", kHorizontalFrame);
-   G_make_ip_scale = new TGTextButton(histo_opts,"Make scale");
-   G_make_ip_scale->SetTextJustify(36);
-   G_make_ip_scale->SetMargins(0,0,0,0);
-   G_make_ip_scale->SetWrapLength(-1);
-   G_make_ip_scale->Resize();
-   G_make_ip_scale->SetEnabled(kFALSE);
-   G_make_ip_scale->Connect("Clicked()","KVTreeAnalyzer",this,"MakeIPScale()");
-   G_make_ip_scale->ChangeBackground(green);
-   histo_opts->AddFrame(G_make_ip_scale, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,10,2));
-   lab = new TGLabel(histo_opts,"b <");
-   histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,5,2,12,2));
-   G_make_ip_selection = new TGTextEntry(histo_opts, new TGTextBuffer(5));
-   G_make_ip_selection->SetMaxLength(10);
-   G_make_ip_selection->SetAlignment(kTextLeft);
-   G_make_ip_selection->Resize(50,G_make_ip_selection->GetDefaultHeight());
-   G_make_ip_selection->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "GenerateIPSelection()");
-   G_make_ip_selection->SetEnabled(kFALSE);
-   histo_opts->AddFrame(G_make_ip_selection, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,10,2));
-   G_ip_histo = new TGLabel(histo_opts,"-");
-   histo_opts->AddFrame(G_ip_histo, new TGLayoutHints(kLHintsLeft|kLHintsTop,5,2,12,2));
-   fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
-   /* ip scale */
-   histo_opts = new TGGroupFrame(fMain_histolist, "Fits", kHorizontalFrame);
-   lab = new TGLabel(histo_opts,"Gumbel : ");
-   histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,5,2));
-   G_fit1 = new TGTextButton(histo_opts, " 1 ");
-   G_fit1->SetTextJustify(36);
-   G_fit1->SetMargins(0,0,0,0);
-   G_fit1->SetWrapLength(-1);
-   G_fit1->Resize();
-   G_fit1->SetEnabled(kFALSE);
-   G_fit1->ChangeBackground(gura);
-   G_fit1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum1()");
-   histo_opts->AddFrame(G_fit1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit2 = new TGTextButton(histo_opts, " 2 ");
-   G_fit2->SetTextJustify(36);
-   G_fit2->SetMargins(0,0,0,0);
-   G_fit2->SetWrapLength(-1);
-   G_fit2->Resize();
-   G_fit2->SetEnabled(kFALSE);
-   G_fit2->ChangeBackground(gurb);
-   G_fit2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum2()");
-   histo_opts->AddFrame(G_fit2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fit3 = new TGTextButton(histo_opts, " 3 ");
-   G_fit3->SetTextJustify(36);
-   G_fit3->SetMargins(0,0,0,0);
-   G_fit3->SetWrapLength(-1);
-   G_fit3->Resize();
-   G_fit3->SetEnabled(kFALSE);
-   G_fit3->ChangeBackground(gurc);
-   G_fit3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum3()");
-   histo_opts->AddFrame(G_fit3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   lab = new TGLabel(histo_opts,"Gaus+Gum : ");
-   histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,10,2,5,2));
-   G_fitGG1 = new TGTextButton(histo_opts, " 1 ");
-   G_fitGG1->SetTextJustify(36);
-   G_fitGG1->SetMargins(0,0,0,0);
-   G_fitGG1->SetWrapLength(-1);
-   G_fitGG1->Resize();
-   G_fitGG1->SetEnabled(kFALSE);
-   G_fitGG1->ChangeBackground(gura);
-   G_fitGG1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum1()");
-   histo_opts->AddFrame(G_fitGG1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fitGG2 = new TGTextButton(histo_opts, " 2 ");
-   G_fitGG2->SetTextJustify(36);
-   G_fitGG2->SetMargins(0,0,0,0);
-   G_fitGG2->SetWrapLength(-1);
-   G_fitGG2->Resize();
-   G_fitGG2->SetEnabled(kFALSE);
-   G_fitGG2->ChangeBackground(gurb);
-   G_fitGG2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum2()");
-   histo_opts->AddFrame(G_fitGG2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   G_fitGG3 = new TGTextButton(histo_opts, " 3 ");
-   G_fitGG3->SetTextJustify(36);
-   G_fitGG3->SetMargins(0,0,0,0);
-   G_fitGG3->SetWrapLength(-1);
-   G_fitGG3->Resize();
-   G_fitGG3->SetEnabled(kFALSE);
-   G_fitGG3->ChangeBackground(gurc);
-   G_fitGG3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum3()");
-   histo_opts->AddFrame(G_fitGG3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
-   fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
-   
-   /* histo list */
-   G_histolist = new KVListView(TNamed::Class(), fMain_histolist, hWidth, hHeight);
-   G_histolist->SetDataColumns(1);
-   G_histolist->SetDataColumn(0, "Data", "GetTitle", kTextLeft);
-   G_histolist->ActivateSortButtons();
-   G_histolist->SetMaxColumnSize(500);
-   G_histolist->SetDoubleClickAction("KVTreeAnalyzer", this, "DrawHisto(TObject*)");
-   G_histolist->Connect("SelectionChanged()","KVTreeAnalyzer",this,"HistoSelectionChanged()");
-   fMain_histolist->AddFrame(G_histolist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
-                                       kLHintsExpandX|kLHintsExpandY,
-				       5,5,5,5));
-  
-   fMain_histolist->MapSubwindows();
-
-   fMain_histolist->Resize(fMain_histolist->GetDefaultSize());
-   fMain_histolist->MapWindow();
-   fMain_histolist->Resize(hWidth,hHeight);
-   G_histolist->Display(&fHistolist);
-   // SELECTIONS main frame
-   UInt_t sWidth = 600, sHeight = 360;
-   fMain_selectionlist = new TGMainFrame(gClient->GetRoot(),10,10,kMainFrame | kVerticalFrame);
-   fMain_selectionlist->SetName("fMain_selectionlist");
-   fMain_selectionlist->SetWindowName("SELECTIONS");
+   /******* SELECTIONS *********/
+   UInt_t sWidth = 600, sHeight = lHeight;
+   fMain_selectionlist = new TGGroupFrame(hf,"SELECTIONS");
    /* current selection */
    G_selection_status = new TGStatusBar(fMain_selectionlist, sWidth, 10);
    G_selection_status->SetText("CURRENT SELECTION:",0);
@@ -664,52 +503,10 @@ void KVTreeAnalyzer::OpenGUI()
    G_selection_text = new TGTextEntry(fHorizontalFrame1614, new TGTextBuffer(50));
    G_selection_text->SetMaxLength(4096);
    G_selection_text->SetAlignment(kTextLeft);
-   G_selection_text->Resize(500,G_selection_text->GetDefaultHeight());
+   G_selection_text->Resize(sWidth-100,G_selection_text->GetDefaultHeight());
    G_selection_text->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "GenerateSelection()");
    fHorizontalFrame1614->AddFrame(G_selection_text, new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX,2,5,2,2));
    fMain_selectionlist->AddFrame(fHorizontalFrame1614, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
-   
-   TGHorizontalFrame *fHorizontalFrameSel = new TGHorizontalFrame(fMain_selectionlist,sWidth,36,kHorizontalFrame);
-   G_selection_but = new TGTextButton(fHorizontalFrameSel,"Combine (&and)");
-   G_selection_but->SetTextJustify(36);
-   G_selection_but->SetMargins(0,0,0,0);
-   G_selection_but->SetWrapLength(-1);
-   G_selection_but->Resize(sWidth,G_selection_but->GetDefaultHeight());
-   G_selection_but->Connect("Clicked()", "KVTreeAnalyzer", this, "CombineSelectionsAnd()");
-   G_selection_but->SetEnabled(kFALSE);
-   G_selection_but->ChangeBackground(cyan);
-   fHorizontalFrameSel->AddFrame(G_selection_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
-   
-   G_selection_but_or = new TGTextButton(fHorizontalFrameSel,"Combine (&or)");
-   G_selection_but_or->SetTextJustify(36);
-   G_selection_but_or->SetMargins(0,0,0,0);
-   G_selection_but_or->SetWrapLength(-1);
-   G_selection_but_or->Resize(sWidth,G_selection_but_or->GetDefaultHeight());
-   G_selection_but_or->Connect("Clicked()", "KVTreeAnalyzer", this, "CombineSelectionsOr()");
-   G_selection_but_or->SetEnabled(kFALSE);
-   G_selection_but_or->ChangeBackground(cyan);
-   fHorizontalFrameSel->AddFrame(G_selection_but_or, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
-   
-   G_delete_but = new TGTextButton(fHorizontalFrameSel,"&Delete");
-   G_delete_but->SetTextJustify(36);
-   G_delete_but->SetMargins(0,0,0,0);
-   G_delete_but->SetWrapLength(-1);
-   G_delete_but->Resize(sWidth,G_delete_but->GetDefaultHeight());
-   G_delete_but->Connect("Clicked()", "KVTreeAnalyzer", this, "DeleteSelections()");
-   G_delete_but->SetEnabled(kFALSE);
-   G_delete_but->ChangeBackground(red);
-   fHorizontalFrameSel->AddFrame(G_delete_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
-   
-   G_update_but = new TGTextButton(fHorizontalFrameSel,"&Update");
-   G_update_but->SetTextJustify(36);
-   G_update_but->SetMargins(0,0,0,0);
-   G_update_but->SetWrapLength(-1);
-   G_update_but->Resize(sWidth,G_update_but->GetDefaultHeight());
-   G_update_but->Connect("Clicked()", "KVTreeAnalyzer", this, "UpdateEntryLists()");
-   G_update_but->SetEnabled(kTRUE);
-   G_update_but->ChangeBackground(yellow);
-   fHorizontalFrameSel->AddFrame(G_update_but, new TGLayoutHints(kLHintsLeft | kLHintsTop| kLHintsExpandX,2,2,2,2));
-   fMain_selectionlist->AddFrame(fHorizontalFrameSel, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
 
    /* selection list */
    G_selectionlist = new KVListView(TEntryList::Class(), fMain_selectionlist, sWidth, sHeight);
@@ -723,14 +520,214 @@ void KVTreeAnalyzer::OpenGUI()
    G_selectionlist->Connect("SelectionChanged()", "KVTreeAnalyzer", this, "SelectionChanged()");
    fMain_selectionlist->AddFrame(G_selectionlist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
                                        kLHintsExpandX|kLHintsExpandY,
-				       5,5,5,5));
-   
-   fMain_selectionlist->MapSubwindows();
+                       5,5,5,5));
+
+   //fMain_selectionlist->MapSubwindows();
 
    fMain_selectionlist->Resize(fMain_selectionlist->GetDefaultSize());
-   fMain_selectionlist->MapWindow();
+   //fMain_selectionlist->MapWindow();
    fMain_selectionlist->Resize(sWidth,sHeight);
    G_selectionlist->Display(&fSelections);
+   /******end of SELECTIONS *********/
+   hf->AddFrame(fMain_selectionlist, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
+   fMain_histolist->AddFrame(hf, new TGLayoutHints(kLHintsTop|kLHintsCenterX|kLHintsExpandX));
+
+
+   /**** Histo creation group ********/
+   TGGroupFrame* histo_opts = new TGGroupFrame(fMain_histolist, "CREATE HISTO", kHorizontalFrame);
+   fHorizontalFrame = new TGHorizontalFrame(histo_opts,lWidth,36,kHorizontalFrame);
+   G_leaf_draw = new TGPictureButton(fHorizontalFrame, "draw_t.xpm");
+   G_leaf_draw->SetEnabled(kFALSE);
+   G_leaf_draw->Connect("Clicked()", "KVTreeAnalyzer", this, "DrawLeafExpr()");
+   fHorizontalFrame->AddFrame(G_leaf_draw, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
+   fLeafExpr="          ";
+   G_leaf_expr = new TGLabel(fHorizontalFrame, fLeafExpr.Data());
+   G_leaf_expr->Resize();
+   fHorizontalFrame->AddFrame(G_leaf_expr, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsCenterY,2,2,2,2));
+   histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,1,1));
+
+   G_histo_prof = new TGCheckButton(histo_opts, "Profile");
+   G_histo_prof->SetToolTipText("Generate a profile histogram");
+   G_histo_prof->SetState((EButtonState) fProfileHisto );
+   G_histo_prof->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetProfileHisto(Bool_t)");
+   histo_opts->AddFrame(G_histo_prof, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+
+   G_histo_norm = new TGCheckButton(histo_opts, "Normalize");
+   G_histo_norm->SetToolTipText("Generate normalized histogram with integral=1");
+   G_histo_norm->SetState((EButtonState) fNormHisto );
+   G_histo_norm->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNormHisto(Bool_t)");
+   histo_opts->AddFrame(G_histo_norm, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+
+   G_histo_weight = new TGCheckButton(histo_opts, "Weight");
+   G_histo_weight->SetToolTipText("User defined binning of the histogram");
+   G_histo_weight->SetState((EButtonState) fUserWeight );
+   G_histo_weight->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserWeight(Bool_t)");
+   histo_opts->AddFrame(G_histo_weight, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+
+   G_histo_bin = new TGCheckButton(histo_opts, "Bins");
+   G_histo_bin->SetToolTipText("User defined binning of the histogram");
+   G_histo_bin->SetState((EButtonState) fUserBinning);
+   G_histo_bin->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetUserBinning(Bool_t)");
+   histo_opts->AddFrame(G_histo_bin, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsCenterX|kLHintsExpandX,5,5,5,5));
+
+   /******** HISTOGRAMS *****************/
+   hWidth = lWidth + sWidth + 20;
+   TGGroupFrame* histo_group = new TGGroupFrame(fMain_histolist, "HISTOGRAMS");
+   /* ip scale */
+//   histo_opts = new TGGroupFrame(histo_group, "Impact parameter", kHorizontalFrame);
+//   G_make_ip_scale = new TGTextButton(histo_opts,"Make scale");
+//   G_make_ip_scale->SetTextJustify(36);
+//   G_make_ip_scale->SetMargins(0,0,0,0);
+//   G_make_ip_scale->SetWrapLength(-1);
+//   G_make_ip_scale->Resize();
+//   G_make_ip_scale->SetEnabled(kFALSE);
+//   G_make_ip_scale->Connect("Clicked()","KVTreeAnalyzer",this,"MakeIPScale()");
+//   G_make_ip_scale->ChangeBackground(green);
+//   histo_opts->AddFrame(G_make_ip_scale, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,10,2));
+//   lab = new TGLabel(histo_opts,"b <");
+//   histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,5,2,12,2));
+//   G_make_ip_selection = new TGTextEntry(histo_opts, new TGTextBuffer(5));
+//   G_make_ip_selection->SetMaxLength(10);
+//   G_make_ip_selection->SetAlignment(kTextLeft);
+//   G_make_ip_selection->Resize(50,G_make_ip_selection->GetDefaultHeight());
+//   G_make_ip_selection->Connect("ReturnPressed()", "KVTreeAnalyzer", this, "GenerateIPSelection()");
+//   G_make_ip_selection->SetEnabled(kFALSE);
+//   histo_opts->AddFrame(G_make_ip_selection, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,10,2));
+//   G_ip_histo = new TGLabel(histo_opts,"-");
+//   histo_opts->AddFrame(G_ip_histo, new TGLayoutHints(kLHintsLeft|kLHintsTop,5,2,12,2));
+//   histo_group->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
+//   /* ip scale */
+//   histo_opts = new TGGroupFrame(histo_group, "Fits", kHorizontalFrame);
+//   lab = new TGLabel(histo_opts,"Gumbel : ");
+//   histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,5,2));
+//   G_fit1 = new TGTextButton(histo_opts, " 1 ");
+//   G_fit1->SetTextJustify(36);
+//   G_fit1->SetMargins(0,0,0,0);
+//   G_fit1->SetWrapLength(-1);
+//   G_fit1->Resize();
+//   G_fit1->SetEnabled(kFALSE);
+//   G_fit1->ChangeBackground(gura);
+//   G_fit1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum1()");
+//   histo_opts->AddFrame(G_fit1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+//   G_fit2 = new TGTextButton(histo_opts, " 2 ");
+//   G_fit2->SetTextJustify(36);
+//   G_fit2->SetMargins(0,0,0,0);
+//   G_fit2->SetWrapLength(-1);
+//   G_fit2->Resize();
+//   G_fit2->SetEnabled(kFALSE);
+//   G_fit2->ChangeBackground(gurb);
+//   G_fit2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum2()");
+//   histo_opts->AddFrame(G_fit2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+//   G_fit3 = new TGTextButton(histo_opts, " 3 ");
+//   G_fit3->SetTextJustify(36);
+//   G_fit3->SetMargins(0,0,0,0);
+//   G_fit3->SetWrapLength(-1);
+//   G_fit3->Resize();
+//   G_fit3->SetEnabled(kFALSE);
+//   G_fit3->ChangeBackground(gurc);
+//   G_fit3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGum3()");
+//   histo_opts->AddFrame(G_fit3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+//   lab = new TGLabel(histo_opts,"Gaus+Gum : ");
+//   histo_opts->AddFrame(lab, new TGLayoutHints(kLHintsLeft|kLHintsTop,10,2,5,2));
+//   G_fitGG1 = new TGTextButton(histo_opts, " 1 ");
+//   G_fitGG1->SetTextJustify(36);
+//   G_fitGG1->SetMargins(0,0,0,0);
+//   G_fitGG1->SetWrapLength(-1);
+//   G_fitGG1->Resize();
+//   G_fitGG1->SetEnabled(kFALSE);
+//   G_fitGG1->ChangeBackground(gura);
+//   G_fitGG1->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum1()");
+//   histo_opts->AddFrame(G_fitGG1, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+//   G_fitGG2 = new TGTextButton(histo_opts, " 2 ");
+//   G_fitGG2->SetTextJustify(36);
+//   G_fitGG2->SetMargins(0,0,0,0);
+//   G_fitGG2->SetWrapLength(-1);
+//   G_fitGG2->Resize();
+//   G_fitGG2->SetEnabled(kFALSE);
+//   G_fitGG2->ChangeBackground(gurb);
+//   G_fitGG2->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum2()");
+//   histo_opts->AddFrame(G_fitGG2, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+//   G_fitGG3 = new TGTextButton(histo_opts, " 3 ");
+//   G_fitGG3->SetTextJustify(36);
+//   G_fitGG3->SetMargins(0,0,0,0);
+//   G_fitGG3->SetWrapLength(-1);
+//   G_fitGG3->Resize();
+//   G_fitGG3->SetEnabled(kFALSE);
+//   G_fitGG3->ChangeBackground(gurc);
+//   G_fitGG3->Connect("Clicked()", "KVTreeAnalyzer", this, "FitGausGum3()");
+//   histo_opts->AddFrame(G_fitGG3, new TGLayoutHints(kLHintsLeft|kLHintsTop,2,2,2,2));
+//   histo_group->AddFrame(histo_opts, new TGLayoutHints(kLHintsLeft|kLHintsExpandX,5,5,5,5));
+
+   /* histo list */
+   G_histolist = new KVListView(TNamed::Class(), histo_group, hWidth, hHeight);
+   G_histolist->SetDataColumns(1);
+   G_histolist->SetDataColumn(0, "Data", "GetTitle", kTextLeft);
+   G_histolist->ActivateSortButtons();
+   G_histolist->SetMaxColumnSize(500);
+   G_histolist->SetDoubleClickAction("KVTreeAnalyzer", this, "DrawHisto(TObject*)");
+   G_histolist->Connect("SelectionChanged()","KVTreeAnalyzer",this,"HistoSelectionChanged()");
+   histo_group->AddFrame(G_histolist, new TGLayoutHints(kLHintsLeft|kLHintsTop|
+                                       kLHintsExpandX|kLHintsExpandY,
+                       5,5,5,5));
+
+   fMain_histolist->AddFrame(histo_group, new TGLayoutHints(kLHintsCenterX|kLHintsExpandX|kLHintsExpandY, 5,5,5,5));
+   G_histolist->Display(&fHistolist);
+   /* histo options */
+   histo_opts = new TGGroupFrame(fMain_histolist, "OPTIONS", kHorizontalFrame);
+
+   fHorizontalFrame = new TGHorizontalFrame(histo_opts,150,36,kHorizontalFrame);
+   G_histo_del = new TGPictureButton(fHorizontalFrame, "sm_delete.xpm");
+   G_histo_del->SetEnabled(kFALSE);
+   G_histo_del->Connect("Clicked()", "KVTreeAnalyzer", this, "DeleteSelectedHisto()");
+   fHorizontalFrame->AddFrame(G_histo_del, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
+   lab = new TGLabel(fHorizontalFrame, "DELETE");
+   lab->Resize();
+   fHorizontalFrame->AddFrame(lab, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsCenterY,2,2,2,2));
+   histo_opts->AddFrame(fHorizontalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,50,1,1));
+
+   G_histo_new_can = new TGCheckButton(histo_opts, "New canvas");
+   G_histo_new_can->SetToolTipText("Draw in a new canvas");
+   G_histo_new_can->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetNewCanvas(Bool_t)");
+   G_histo_new_can->SetState((EButtonState)fNewCanvas);
+   histo_opts->AddFrame(G_histo_new_can, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   G_histo_same = new TGCheckButton(histo_opts, "Same");
+   G_histo_same->SetToolTipText("Draw in same pad");
+   G_histo_same->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetDrawSame(Bool_t)");
+   histo_opts->AddFrame(G_histo_same, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   G_histo_app_sel = new TGCheckButton(histo_opts, "Apply selection");
+   G_histo_app_sel->SetToolTipText("Apply current selection to generate new histo");
+   G_histo_app_sel->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetApplySelection(Bool_t)");
+   histo_opts->AddFrame(G_histo_app_sel, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   G_histo_log = new TGCheckButton(histo_opts, "Log scale");
+   G_histo_log->SetToolTipText("Use log scale in Y (1D) or Z (2D)");
+   G_histo_log->SetState((EButtonState)fDrawLog);
+   G_histo_log->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetDrawLog(Bool_t)");
+   histo_opts->AddFrame(G_histo_log, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   G_histo_stats = new TGCheckButton(histo_opts, "Stats");
+   G_histo_stats->SetToolTipText("Display histogram statistics box");
+   G_histo_stats->SetState((EButtonState) fStatsHisto );
+   G_histo_stats->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetStatsHisto(Bool_t)");
+   histo_opts->AddFrame(G_histo_stats, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   G_histo_autosave = new TGCheckButton(histo_opts, "AutoSave");
+   G_histo_autosave->SetToolTipText("Automatically generate histo image files");
+   G_histo_autosave->SetState((EButtonState) fAutoSaveHisto );
+   G_histo_autosave->Connect("Toggled(Bool_t)", "KVTreeAnalyzer", this, "SetAutoSaveHisto(Bool_t)");
+   histo_opts->AddFrame(G_histo_autosave, new TGLayoutHints(kLHintsLeft,15,2,8,2));
+   fMain_histolist->AddFrame(histo_opts, new TGLayoutHints(kLHintsCenterX,5,5,5,5));
+
+   fMain_histolist->MapSubwindows();
+
+   fMain_histolist->Resize(fMain_histolist->GetDefaultSize());
+   fMain_histolist->MapWindow();
+
+   hHeight = hHeight + lHeight + 50;
+
+   fMain_histolist->Resize(hWidth,hHeight);
+   /********* end of HISTOGRAMS *************/
+
+
+
 }  
    
 void KVTreeAnalyzer::AddHisto(TH1*h)
@@ -767,6 +764,7 @@ void KVTreeAnalyzer::SetTree(TTree* t)
    fTree = t;
    fTreeName = t->GetName();
    fTreeFileName = t->GetCurrentFile()->GetName();
+   if(fMain_histolist) fMain_histolist->SetWindowName(Form("%s (%s)",t->GetTitle(),fTreeFileName.Data()));
 }
    
 void KVTreeAnalyzer::ReconnectTree()
@@ -1133,23 +1131,21 @@ void KVTreeAnalyzer::CombineSelectionsOr()
 
 void KVTreeAnalyzer::DeleteSelections()
 {
-   // Method called when user hits 'combine selections' button in selections GUI.
-   // Generates new selection which is the intersection (logical AND) of
-   // the currently selected selections.
+   // Delete the currently selected selection(s)
    
-   if(fSelectedSelections){
-      int nsel = fSelectedSelections->GetEntries();
-      if(nsel<1) return;
-      for(int i=0; i<nsel; i++){
-	TEntryList* el = (TEntryList*)fSelectedSelections->At(i);
-	if(!el) continue;
-	fSelections.Remove(el);
-	delete el;
-	G_delete_but->SetEnabled(kFALSE);
-	
-      }
-	G_selectionlist->Display(&fSelections);
-   }
+    if(fSelectedSelections){
+        int nsel = fSelectedSelections->GetEntries();
+        if(nsel<1) return;
+        for(int i=0; i<nsel; i++){
+            TEntryList* el = (TEntryList*)fSelectedSelections->At(i);
+            if(!el) continue;
+            fSelections.Remove(el);
+            delete el;
+        }
+        G_selectionlist->Display(&fSelections);
+    }
+    fMenuSelections->DisableEntry(SEL_DELETE);
+
 }
 
 void KVTreeAnalyzer::SelectionChanged()
@@ -1159,14 +1155,16 @@ void KVTreeAnalyzer::SelectionChanged()
     SafeDelete(fSelectedSelections);
     fSelectedSelections = G_selectionlist->GetSelectedObjects();
     Bool_t resetSel = kTRUE;
+    fSelCombMenu->DisableEntry(SEL_COMB_AND);
+    fSelCombMenu->DisableEntry(SEL_COMB_OR);
+    fMenuSelections->DisableEntry(SEL_DELETE);
 
     if(!fSelectedSelections || fSelectedSelections->GetEntries()==0)
     {
-        G_selection_but_or->SetEnabled(kFALSE);
-        G_selection_but->SetEnabled(kFALSE);
     }
     else if(fSelectedSelections->GetEntries()==1)
     {
+        fMenuSelections->EnableEntry(SEL_DELETE);
         KVSeqCollection* tmp = fSelections.GetSubListWithMethod(G_selection_text->GetText(),"GetTitle");
         if(tmp->GetSize()!=0||!strcmp("",G_selection_text->GetText()))
         {
@@ -1177,8 +1175,9 @@ void KVTreeAnalyzer::SelectionChanged()
     }
     else if(fSelectedSelections->GetEntries()>1)
     {
-        G_selection_but_or->SetEnabled(kTRUE);
-        G_selection_but->SetEnabled(kTRUE);
+        fMenuSelections->EnableEntry(SEL_DELETE);
+        fSelCombMenu->EnableEntry(SEL_COMB_AND);
+        fSelCombMenu->EnableEntry(SEL_COMB_OR);
     }
 
     if(resetSel)
@@ -1187,9 +1186,6 @@ void KVTreeAnalyzer::SelectionChanged()
         if(tmp->GetSize()!=0) G_selection_text->SetText("");
         delete tmp;
     }
-
-   if(fSelectedSelections && fSelectedSelections->GetEntries()>0) G_delete_but->SetEnabled(kTRUE);
-   else G_delete_but->SetEnabled(kFALSE);
 }
 
 void KVTreeAnalyzer::LeafChanged()
@@ -1598,29 +1594,31 @@ void KVTreeAnalyzer::HistoSelectionChanged()
 {
    // Method called when user histo selection changes in GUI histogram list
    
-   SafeDelete(fSelectedHistos);
-   G_make_ip_scale->SetEnabled(kFALSE);
-         G_fit1->SetEnabled(kFALSE);
-         G_histo_del->SetEnabled(kFALSE);
-         G_fit2->SetEnabled(kFALSE);
-         G_fit3->SetEnabled(kFALSE);
-         G_fitGG1->SetEnabled(kFALSE);
-         G_fitGG2->SetEnabled(kFALSE);
-         G_fitGG3->SetEnabled(kFALSE);
-   fSelectedHistos = G_histolist->GetSelectedObjects();
-   if(fSelectedHistos && fSelectedHistos->GetEntries()==1)
-   {
-         G_histo_del->SetEnabled(kTRUE);
-      if(fSelectedHistos->First()->IsA()==TH1F::Class()){
-         G_make_ip_scale->SetEnabled(kTRUE);
-         G_fit1->SetEnabled(kTRUE);
-         G_fit2->SetEnabled(kTRUE);
-         G_fit3->SetEnabled(kTRUE);
-         G_fitGG1->SetEnabled(kTRUE);
-         G_fitGG2->SetEnabled(kTRUE);
-         G_fitGG3->SetEnabled(kTRUE);
-      }
-   }
+    SafeDelete(fSelectedHistos);
+    G_histo_del->SetEnabled(kFALSE);
+//    G_make_ip_scale->SetEnabled(kFALSE);
+//    G_fit1->SetEnabled(kFALSE);
+//    G_fit2->SetEnabled(kFALSE);
+//    G_fit3->SetEnabled(kFALSE);
+//    G_fitGG1->SetEnabled(kFALSE);
+//    G_fitGG2->SetEnabled(kFALSE);
+//    G_fitGG3->SetEnabled(kFALSE);
+    fSelectedHistos = G_histolist->GetSelectedObjects();
+    if(fSelectedHistos){
+        if(fSelectedHistos->GetEntries()>0)
+        {
+            G_histo_del->SetEnabled(kTRUE);
+            if(fSelectedHistos->GetEntries()==1 && fSelectedHistos->First()->IsA()==TH1F::Class()){
+//                G_make_ip_scale->SetEnabled(kTRUE);
+//                G_fit1->SetEnabled(kTRUE);
+//                G_fit2->SetEnabled(kTRUE);
+//                G_fit3->SetEnabled(kTRUE);
+//                G_fitGG1->SetEnabled(kTRUE);
+//                G_fitGG2->SetEnabled(kTRUE);
+//                G_fitGG3->SetEnabled(kTRUE);
+            }
+        }
+    }
 }
 
 void KVTreeAnalyzer::GenerateIPSelection()
@@ -1878,11 +1876,18 @@ void KVTreeAnalyzer::DeleteHisto(const Char_t* expr, const Char_t* selection)
 
 void KVTreeAnalyzer::DeleteSelectedHisto()
 {
-   TObject* histo = fSelectedHistos->First();
-   if(!histo) return;
-   fHistolist.Remove(histo);
-   if(histo->InheritsFrom("TH1")) delete histo;
-   G_histolist->Display(&fHistolist);   
+    // Delete all currently selected histograms
+    if(fSelectedHistos){
+        Int_t nsel = fSelectedHistos->GetEntries();
+        if(nsel<1) return;
+        for(int i=0; i<nsel; i++){
+            TObject* obj = fSelectedHistos->At(i);
+            fHistolist.Remove(obj);
+            if(obj->InheritsFrom("TH1")) delete obj;
+        }
+        G_histolist->Display(&fHistolist);
+    }
+    HistoSelectionChanged();
 }
 
 
@@ -1924,6 +1929,30 @@ void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
          break;
    }
 }
+void KVTreeAnalyzer::HandleSelectionsMenu(Int_t id)
+{
+   switch(id){
+   case SEL_COMB_AND:
+       CombineSelectionsAnd();
+       break;
+
+   case SEL_COMB_OR:
+       CombineSelectionsOr();
+       break;
+
+   case SEL_DELETE:
+       DeleteSelections();
+       break;
+
+   case SEL_UPDATE:
+       UpdateEntryLists();
+       break;
+
+   default:
+       break;
+   }
+}
+
 void KVTreeAnalyzer::HistoFileMenu_Open()
 {
    static TString dir(".");
