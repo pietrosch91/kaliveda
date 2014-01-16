@@ -424,8 +424,8 @@ void KVTreeAnalyzer::OpenGUI()
              /* menus */
    fMenuFile = new TGPopupMenu(gClient->GetRoot());
    fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
-   fMenuFile->AddSeparator();
    fMenuFile->AddEntry("&Save analysis...", MH_SAVE_FILE);
+   fMenuFile->AddEntry("&Apply analysis...", MH_APPLY_ANALYSIS);
    fMenuFile->AddSeparator();
    fMenuFile->AddEntry("&Quit", MH_QUIT);
    fMenuFile->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleHistoFileMenu(Int_t)");
@@ -1917,7 +1917,9 @@ void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
       case MH_OPEN_FILE:
          HistoFileMenu_Open();
          break;
-         
+   case MH_APPLY_ANALYSIS:
+       HistoFileMenu_Apply();
+       break;
       case MH_SAVE_FILE:
          HistoFileMenu_Save();
          break;
@@ -1966,6 +1968,22 @@ void KVTreeAnalyzer::HistoFileMenu_Open()
    new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDOpen, &fi);
    if (fi.fFilename) {
       OpenAnyFile(fi.fFilename);
+   }
+   dir = fi.fIniDir;
+}
+void KVTreeAnalyzer::HistoFileMenu_Apply()
+{
+   static TString dir(".");
+   const char *filetypes[] = {
+      "ROOT files", "*.root",
+      0, 0
+   };
+   TGFileInfo fi;
+   fi.fFileTypes = filetypes;
+   fi.fIniDir = StrDup(dir);
+   new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDOpen, &fi);
+   if (fi.fFilename) {
+      ReapplyAnyFile(fi.fFilename);
    }
    dir = fi.fIniDir;
 }
@@ -2050,6 +2068,29 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
       G_histolist->Display(&fHistolist);
    }
 }
+void KVTreeAnalyzer::ReapplyAnyFile(const Char_t* filepath)
+{
+   // assuming filepath is the URL of a ROOT file, open it and,
+   // if no KVTreeAnalyzer object is found, open first TTree in file
+    // and apply all selections and generate all histograms which
+    // were made for this analysis.
+    // Any histograms in the file are added to the list of histograms
+
+   TFile* file = TFile::Open(filepath);
+   TObject*kvta = file->GetListOfKeys()->FindObject("KVTreeAnalyzer");
+   if(kvta){
+       Info("ReapplyAnyFile","For the moment, can only apply analysis to TTree");
+       return;
+   }
+   else
+   {
+       delete file;
+       KVTreeAnalyzer* applyAnal = new KVTreeAnalyzer(kFALSE);
+       applyAnal->OpenAnyFile(filepath);
+       applyAnal->GenerateAllSelections(&fSelections);
+       applyAnal->GenerateAllHistograms(&fHistolist);
+   }
+}
 
 void KVTreeAnalyzer::SetAlias(const Char_t *name, const Char_t *expr)
 {
@@ -2107,11 +2148,46 @@ void KVTreeAnalyzer::AutoSaveHisto(TH1* h)
    
    TString title = h->GetTitle();
    title.ReplaceAll(" ", "_");
+   title.ReplaceAll("/", "#");
    title.Append(fAutoSaveType);
    title.Prepend("/");
    title.Prepend(fAutoSaveDir);
    Info("AutoSaveHisto", "Saved as: %s", title.Data());
    gPad->SaveAs(title);
+}
+
+void KVTreeAnalyzer::GenerateAllSelections(TCollection *list)
+{
+    // We take the title of every object in 'list'
+    // and generate the corresponding selection
+
+    TIter nextSel(list);
+    TObject* sel;
+    while( (sel = nextSel()) ) {
+        Info("GenerateAllSelections","Generating selection: %s", sel->GetTitle());
+        MakeSelection(sel->GetTitle());
+    }
+}
+
+void KVTreeAnalyzer::GenerateAllHistograms(TCollection *list)
+{
+    // For every histogram in the list, we generate histograms for
+    // the same expression and the same selection
+    TIter nextHist(list);
+    TObject* obj;
+    TH1* hist;
+    while( (obj = nextHist()) ){
+        if(obj->InheritsFrom("TH1")){
+            hist = dynamic_cast<TH1*>(obj);
+            // get expression & selection from title
+            TString exp,sel;
+            ParseHistoTitle(hist->GetTitle(),exp,sel);
+            // set selection
+            Info("GenerateAllHistograms","Generating histogram: %s", hist->GetTitle());
+            SetSelection(sel);
+            RemakeHisto(hist,exp);
+        }
+    }
 }
 
 

@@ -166,6 +166,7 @@ class KVTreeAnalyzer : public TNamed
    		MH_OPEN_FILE,
    		MH_SAVE_FILE,
         MH_QUIT,
+       MH_APPLY_ANALYSIS,
        SEL_COMB_AND,
        SEL_COMB_OR,
        SEL_UPDATE,
@@ -339,7 +340,13 @@ class KVTreeAnalyzer : public TNamed
    void HandleHistoFileMenu(Int_t);
    void HandleSelectionsMenu(Int_t);
    void AutoSaveHisto(TH1* h);
-   
+
+   // For applying existing analysis to new data
+   void GenerateAllSelections(TCollection*);
+   void GenerateAllHistograms(TCollection*);
+   void HistoFileMenu_Apply();
+   void ReapplyAnyFile(const Char_t *filepath);
+
    ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
 };
 //................  global variable
