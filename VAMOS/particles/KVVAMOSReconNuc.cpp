@@ -424,6 +424,7 @@ void KVVAMOSReconNuc::ReconstructTrajectory(){
 //	ReconstructFPtraj();
 	ReconstructFPtrajByFitting();
 	ReconstructLabTraj();
+	if( !GetCodes().TestFPCode( kFPCode0 ) ) Propagate();
 }
 //________________________________________________________________
 
@@ -511,8 +512,6 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 	// Yf = Yc1      - Zc1*tan( Phif   )
 	fRT.pointFP[1] = XYZf[0][1] - XYZf[0][2]*fRT.dirFP.Y()/fRT.dirFP.Z();
 	
-	RunTrackingAtFocalPlane();
-//	if( CheckTrackingCoherence() ) fRT.SetFPparamsReady();
 	fRT.SetFPparamsReady();
 
 //		Info("ReconstructFPtraj","\n    Xf= %f, Yf= %f, Thetaf= %f, Phif= %f\n    FPCode%d %s", GetXf(), GetYf(),GetThetaF(),GetPhiF(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
@@ -648,7 +647,6 @@ void KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
 
 				GetCodes().SetFPCode( Idx[0], Idx[1], Idx[2], Idx[3], inc1IsX );
 
-				RunTrackingAtFocalPlane();
 				fRT.SetFPparamsReady();
 
 //				Info("ReconstructFPtrajByFitting","\n    Xf= %f, Yf= %f, Thetaf= %f, Phif= %f\n    FPCode%d %s", GetXf(), GetYf(),GetThetaF(),GetPhiF(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
@@ -672,70 +670,7 @@ void KVVAMOSReconNuc::ReconstructLabTraj(){
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::CalculateCalibration(){
-	// Calculate the calibration for a well know calibration
-	// nucleus (Z, A, E) i.e. energy losses in each crossed detector, in the 
-	// stripping foil and in the target (if it exists) as well as  
-	// times of flight are calculated. We assume that you have set Z, A 
-	// and energy of the nucleus before calling this method (see SetZandA(...) 
-	// and SetEnergy(...) ). 
-	//
-	// The calculated quantites are stored  in the nucleus's list KVParticle::fParameters in the form
-	//    "[name of time of flight]" = [value in ns]
-	//    
-	//    for example:
-	//    TSED1_HF = 200
-
-	static KVNucleus nuc;
-	nuc.SetZandA( GetZ(), GetA() );
-	nuc.SetMomentum( GetMomentum() );
-	Double_t E  = GetEnergy();
-	Double_t DE = 0.;
-	nuc.SetEnergy( E );
-
-	//target 
-	if( (E>0) && gMultiDetArray->GetTarget() ){
-		gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
-        gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
-		DE = gMultiDetArray->GetTarget()->GetELostByParticle( &nuc );
-		E -= DE;
-		nuc.SetEnergy( E );
-		GetParameters()->SetValue(Form("DE:TARGET_%s",gMultiDetArray->GetTarget()->GetName()),DE);
-	}
-
-	//target to stripping foil
-		
-	//stripping foil
-	if( (E>0) && gVamos->GetStripFoil() ){
-		DE = gVamos->GetStripFoil()->GetELostByParticle( &nuc );
-		E -= DE;
-		nuc.SetEnergy( E );
-		GetParameters()->SetValue(Form("DE:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),DE);
-	}
-
-	//detectors at the focal plane
-	TString tmp;
-	KVNamedParameter *par = NULL;
-	TIter next( GetParameters()->GetList() );
-	while( (par = (KVNamedParameter *)next()) ){
-		tmp = par->GetName();
-		if( tmp.BeginsWith("STEP:") ){
-			//calculate DE
-			// TO BE IMPLEMENTED
-			// TO BE IMPLEMENTED
-			// TO BE IMPLEMENTED
-		}
-		else if( tmp.BeginsWith("DPATH:") ){
-			//calculate TOF from target to active layer
-			// TO BE IMPLEMENTED
-			// TO BE IMPLEMENTED
-			// TO BE IMPLEMENTED
-		}
-	}
-}
-//________________________________________________________________
-
-void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
+void KVVAMOSReconNuc::Propagate(){
 	// Run the tracking of this reconstructed trajectory in each volume (detectors)  punched through at the focal plane.
 
 	// Tracking is impossible if the trajectory reconstruction
@@ -746,7 +681,7 @@ void KVVAMOSReconNuc::RunTrackingAtFocalPlane(){
 	GetNavigator()->PropagateNucleus( this );
 
 //	if( !CheckTrackingCoherence() ){
-//		Info("ReconstructTrajectory","NO tracking coherence");
+//		Info("Propagate","NO tracking coherence");
 //		GetDetectorList()->ls();
 //		GetParameters()->Print();
 //		cout<<endl;
@@ -1092,7 +1027,7 @@ Float_t KVVAMOSReconNuc::GetDeltaPath( KVVAMOSDetector *det ) const{
 	//
 	// This method has to be called once the tracking has been runned since
 	// the DPATH parameter is calculated for each detector crossed by the nucleus
-	// at this step (see RunTrackingAtFocalPlane).
+	// at this step (see Propagate).
 	
 	if( !det ) return 0.;
 	// Find the parameter with the name DPATH:<detector_name>

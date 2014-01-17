@@ -62,9 +62,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void     ReconstructFPtraj();
 		virtual void     ReconstructFPtrajByFitting();
 		virtual void     ReconstructLabTraj();
-		virtual void     CalculateCalibration();
 
-		virtual void     RunTrackingAtFocalPlane();
+		virtual void     Propagate();
 		virtual void     SetFlightDistanceAndTime();
 
 
@@ -76,6 +75,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		        Double_t         GetBetaFromToF()                    const;
                 Float_t          GetBrho()                           const;
                 KVVAMOSCodes    &GetCodes();
+				using    KVReconstructedNucleus::GetDetector;
+				KVDetector      *GetDetector( const Char_t *det_label );
 				Float_t          GetEnergy( Int_t idx_det )          const;
 				Double_t         GetEnergyBeforeVAMOS()              const;
 				Float_t          GetFlightDistance()                 const;
@@ -103,6 +104,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void             SetStripFoilEnergyLoss( Double_t e);
    		virtual void             SetTCode(UShort_t code_mask);
    		virtual void             SetTCode(const Char_t *parname);
+		        void             SetXYf(Float_t x, Float_t y);
 
 		
    		ClassDef(KVVAMOSReconNuc,1)//Nucleus identified by VAMOS spectrometer
@@ -215,6 +217,14 @@ inline Float_t KVVAMOSReconNuc::GetBrho() const{
 
 inline KVVAMOSCodes &KVVAMOSReconNuc::GetCodes(){
 	return fCodes;
+}
+//____________________________________________________________________________________________//
+
+inline KVDetector *KVVAMOSReconNuc::GetDetector( const Char_t *det_label ){
+	// Returns the detector in the list of detectors (fDetList)
+	// through which particle passed, from its label ("CHI","SI","SED1","SED2",...).
+
+	return GetDetector( GetDetectorIndex( det_label ) );
 }
 //____________________________________________________________________________________________//
 
@@ -391,4 +401,13 @@ inline void KVVAMOSReconNuc::SetTCode(const Char_t *parname){
 	//parameter used for the time of flight of the nucleus
    	GetCodes().SetTCode(parname);
 }
+//____________________________________________________________________________________________//
+
+inline void KVVAMOSReconNuc::SetXYf(Float_t x, Float_t y){
+	//Sets the coordinates of the point of intersection (Xf, Yf) of the trajectory
+	//and the focal plane in the FP-frame ( in cm ). 
+	fRT.pointFP[0] = x;
+	fRT.pointFP[1] = y;
+}
+
 #endif
