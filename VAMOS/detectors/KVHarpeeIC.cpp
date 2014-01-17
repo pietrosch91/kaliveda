@@ -237,6 +237,17 @@ Double_t KVHarpeeIC::GetCalibE(){
 }
 //________________________________________________________________
 
+Double_t KVHarpeeIC::GetCalibE( Int_t seg_num ){
+	// Calculate energy in MeV from the coder value of the acquisition parameter
+	// with number 'seg_num' (i.e. segment number) and its corresponding calibrator.
+	// Returns 0 if calibration not ready for the acquisition parameter.
+
+	KVFunctionCal *cal = (KVFunctionCal *)GetListOfCalibrators()->FindObjectWithMethod(Form("%d",seg_num),"GetNumber");
+	if( cal && cal->GetStatus() && cal->GetACQParam()->Fired("P") ) return cal->Compute();
+	return 0.;
+}
+//________________________________________________________________
+
 Bool_t KVHarpeeIC::IsECalibrated() const{
 	// Returns true if the detector has been calibrated in energy.
 	// The ionization chamber is considered as calibrated if the 
