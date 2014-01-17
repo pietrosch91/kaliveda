@@ -307,7 +307,11 @@ void KVHarpeeIC::SetPressure(Double_t p /* mbar */){
    	KVMaterial *abs = NULL;
    	TIter next( GetListOfAbsorbers() ); 
    	while( ( abs = (KVMaterial *)next()) ){
-   		if(abs->IsGas()) abs->SetPressure(p*KVUnits::mbar);
+   		if(abs->IsGas()){
+ 		   	abs->SetPressure(p*KVUnits::mbar);
+			if(abs->GetAbsGeoVolume())
+				abs->GetAbsGeoVolume()->GetMaterial()->SetPressure(p*KVUnits::mbar);
+		}
    	}
 
 	KVDetector::SetPressure( p*KVUnits::mbar );
@@ -323,6 +327,10 @@ void KVHarpeeIC::SetTemperature(Double_t t){
    	KVMaterial *abs = NULL;
    	TIter next( GetListOfAbsorbers() ); 
    	while( ( abs = (KVMaterial *)next()) ){
-   		if(abs->IsGas()) abs->SetTemperature(t);
+   		if(abs->IsGas()){
+			abs->SetTemperature(t);
+			if(abs->GetAbsGeoVolume())
+				abs->GetAbsGeoVolume()->GetMaterial()->SetTemperature(t);
+ 		}
    	}
 }

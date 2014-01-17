@@ -187,6 +187,7 @@ void KVSpectroDetector::AddAbsorberLayer( TGeoVolume *vol, Bool_t active){
     else
         absorber = new KVMaterial(irmat->GetType(), width);
 	KVDetector::AddAbsorber(absorber);
+	absorber->SetAbsGeoVolume( vol );
 	ClearHits();
     if( active ) SetActiveLayer( GetListOfAbsorbers()->GetEntries()-1 );
 }
