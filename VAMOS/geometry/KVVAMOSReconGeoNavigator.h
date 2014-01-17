@@ -11,20 +11,34 @@ class KVIonRangeTable;
 
 class KVVAMOSReconGeoNavigator : public KVGeoNavigator
 {
+	public:
 
-	Bool_t fForward; // 'true/false' for forward/backward propagation
-	TVector3 fOrigine;// Origine of the propagation i.e. coord. intersection point of the trajectory and the focal plan
- 	KVIonRangeTable* fRangeTable;
+		enum ECalib{ 
+			kNoCalib  = 0,
+ 		   	kECalib   = BIT(0),
+			kTCalib   = BIT(1),
+ 		   	kFullCalib = kECalib | kTCalib
+		};
 
-   public:
-   KVVAMOSReconGeoNavigator(TGeoManager*, KVIonRangeTable*);
-   virtual ~KVVAMOSReconGeoNavigator();
+	protected:
 
-   void ParticleEntersNewVolume(KVNucleus *nuc);
+		Bool_t fDoNothing;// true if nothing has to be done when nucleus enters in new volume
+		ECalib fCalib; // 0: No calib., 1: E calib., 2: T calib., 3: full calib.
+		TVector3 fOrigine;// Origine of the initial propagation i.e. coord. intersection point of the trajectory and the focal plane
+		TVector3 fFOrigine;// Origine of the forward propagation i.e. coord. of a point before the first detector at the focal plane
+		Double_t fE; // Energy of the propagated nucleus
+ 		KVIonRangeTable* fRangeTable;
 
-   void PropagateNucleus(KVVAMOSReconNuc*);
+	public:
 
-   ClassDef(KVVAMOSReconGeoNavigator,1)//Propagate nuclei through the geometry of VAMOS for their reconstruction/calibrate/identification
+      	KVVAMOSReconGeoNavigator(TGeoManager*, KVIonRangeTable*);
+   		virtual ~KVVAMOSReconGeoNavigator();
+
+   		void ParticleEntersNewVolume(KVNucleus *nuc);
+
+   		void PropagateNucleus(KVVAMOSReconNuc*, ECalib cal = kNoCalib);
+
+   		ClassDef(KVVAMOSReconGeoNavigator,1)//Propagate nuclei through the geometry of VAMOS for their reconstruction/calibrate/identification
 };
 
 #endif

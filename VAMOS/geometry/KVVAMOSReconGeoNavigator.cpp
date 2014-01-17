@@ -5,6 +5,7 @@
 #include "KVVAMOSReconNuc.h"
 #include "KVVAMOSDetector.h"
 #include "KVIonRangeTableMaterial.h"
+#include "KVTarget.h"
 
 ClassImp(KVVAMOSReconGeoNavigator)
 
@@ -78,7 +79,9 @@ ClassImp(KVVAMOSReconGeoNavigator)
 KVVAMOSReconGeoNavigator::KVVAMOSReconGeoNavigator(TGeoManager* g, KVIonRangeTable* r) : KVGeoNavigator( g )
 {
 	fRangeTable = r;
-	fForward    = kTRUE;
+	fDoNothing  = kFALSE;
+	fCalib      = kNoCalib;
+	fE          = 0.;
 }
 //________________________________________________________________
 
@@ -102,11 +105,22 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 
 	KVVAMOSReconNuc *rnuc = (KVVAMOSReconNuc *)nuc;
 
-	TGeoVolume *stopVol = (TGeoVolume *)((KVVAMOSDetector *)rnuc->GetStoppingDetector())->GetActiveVolumes()->Last();
-
 	// stop the propagation if the current volume is the stopping detector
 	// of the nucleus but after the process of this volume
-	if( GetCurrentVolume() == stopVol ) SetStopPropagation();
+	if( rnuc->GetStoppingDetector() ){
+		TGeoVolume *stopVol = (TGeoVolume *)((KVVAMOSDetector *)rnuc->GetStoppingDetector())->GetActiveVolumes()->Last();
+
+		if( GetCurrentVolume() == stopVol ) SetStopPropagation();
+	}
+
+
+//	Info("ParticleEntersNewVolume","Current volume: %s",GetCurrentVolume()->GetName());
+//	cout<<"ENTRY POINT: "; GetEntryPoint().Print();
+//	cout<<"EXIT  POINT: "; GetExitPoint().Print();
+
+
+	if( fDoNothing ) return;
+
 
  	TGeoMaterial* material = GetCurrentVolume()->GetMaterial();
     KVIonRangeTableMaterial* irmat=0;
@@ -134,29 +148,61 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 		Double_t Y = GetEntryPoint().Y()-fOrigine.Y();
 		Double_t Z = GetEntryPoint().Z()-fOrigine.Z();
 
-		// Norm of this vector. The signe gives an infomation about the detectir position
+		// Norm of this vector. The signe gives an infomation about the detector position
 		// (1: behind; -1: in front of) with respect to the focal plane.
-		Double_t Delta = ( fForward ? 1. : -1. );
-		Delta *= TMath::Sqrt( X*X + Y*Y + Z*Z );
+		Double_t Delta = TMath::Sign( 1., Z ) * TMath::Sqrt( X*X + Y*Y + Z*Z );
 
-		if( fForward ){
-        	nuc->GetParameters()->SetValue(Form("STEP:%s",absorber_name.Data()), GetStepSize());
-        	if( is_active )	nuc->GetParameters()->SetValue(Form("DPATH:%s",dname.Data()), Delta);
-		}
-		else{
-        	if( is_active )	nuc->GetParameters()->SetFirstValue(Form("DPATH:%s",dname.Data()), Delta);
-			nuc->GetParameters()->SetFirstValue(Form("STEP:%s",absorber_name.Data()), GetStepSize());
-		}
-    }
+        nuc->GetParameters()->SetValue(Form("STEP:%s",absorber_name.Data()), GetStepSize());
+        if( is_active )	nuc->GetParameters()->SetValue(Form("DPATH:%s",dname.Data()), Delta);
+
+
+
+		if( (fCalib & kECalib) || (fCalib & kTCalib) ){
+
+			if( fE>1e-3 ){
+				Double_t DE = irmat->GetLinearDeltaEOfIon(
+                    	nuc->GetZ(), nuc->GetA(), fE, GetStepSize(), 0.,
+                    	material->GetTemperature(),
+                    	material->GetPressure());
+        		fE -= DE;
+
+				//set flag to say that particle has been slowed down
+        		nuc->SetIsDetected();
+        		
+        		nuc->SetEnergy(fE);
+
+        		if( fCalib & kECalib ) nuc->GetParameters()->SetValue(Form("DE:%s",absorber_name.Data()), DE);
+			}
+    	}
+	}
 }
 //________________________________________________________________
 
-void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc){
+void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal){
 	// Propagates the VAMOS reconstructed nucleus along its focal plane
 	// direction in the focal-plane detection area.
+	// Calculate the calibration for a well know calibration
+	// nucleus (Z, A, E) i.e. energy losses in each crossed detector, in the 
+	// stripping foil and in the target (if it exists) as well as  
+	// times of flight are calculated. We assume that you have set Z, A 
+	// and energy of the nucleus before calling this method (see SetZandA(...) 
+	// and SetEnergy(...) ). 
+	//
+	// The calculated quantites are stored  in the nucleus's list KVParticle::fParameters in the form
+	//    "[name of time of flight]" = [value in ns]
+	//    
+	//    for example:
+	//    TSED1_HF = 200
 
-	// reminder of the momentum
-	TVector3 p( nuc->GetMomentum() );
+
+
+	//Set the calibration choice
+	fCalib = cal;
+
+	//If this is the first absorber that the particle crosses, we set a "reminder" of its
+    //initial energy
+    if (!nuc->GetPInitial()) nuc->SetE0();
+	fE =  nuc->GetEnergy();
 
 	// For gGeoManager the origin is the target point.
 	// Starting point has to be set from this origin.
@@ -174,17 +220,57 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc){
 	gVamos->FocalToTargetVect( XYZ, XYZ );
 	TVector3 direction( XYZ );
 
-	// Forward propagation
-	fForward  = kTRUE;
-	nuc->SetMomentum ( direction );
-	PropagateParticle( nuc, &fOrigine );
-
-	// Backward propagation
-	fForward  = kFALSE;
+	// Backward propagation to find the second origine point located
+	// just before the first detector on this direction
+	fDoNothing = kTRUE;
 	direction = -direction;
 	nuc->SetMomentum ( direction );
 	PropagateParticle( nuc, &fOrigine );
 
-	//set the initial momentum to the nucleus
-	nuc->SetMomentum ( p );
+
+	// Calculate energy losses in target and in tripping foil if the option
+	// kECalib or kFullCalib is chosen
+	if( (fCalib & kECalib) || (fCalib & kTCalib) ){
+		Info("PropagateNucleus","Calibration quantities will be calculated %d",fCalib);
+
+		nuc->SetEnergy( fE );
+		Double_t DE = 0.;
+
+		//target 
+		if( (fE>1e-3) && gMultiDetArray->GetTarget() ){
+			gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
+        	gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
+			DE = gMultiDetArray->GetTarget()->GetELostByParticle( nuc );
+			fE -= DE;
+			nuc->SetEnergy( fE );
+			if( fCalib & kECalib ) nuc->GetParameters()->SetValue(Form("DE:TARGET_%s",gMultiDetArray->GetTarget()->GetName()),DE);
+		}
+
+		//target to stripping foil
+
+		//stripping foil
+		if( (fE>1e-3) && gVamos->GetStripFoil() ){
+			DE = gVamos->GetStripFoil()->GetELostByParticle( nuc );
+			fE -= DE;
+			nuc->SetEnergy( fE );
+			if( fCalib & kECalib ) nuc->GetParameters()->SetValue(Form("DE:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),DE);
+		}
+	}
+
+	// Forward propagation
+	fDoNothing = kFALSE;
+	direction = -direction;
+
+	nuc->SetMomentum (fE, direction );
+	const Double_t* posi = GetGeometry()->GetCurrentPoint();
+	XYZ[0] = (posi[0]+GetExitPoint().X())/2.;
+	XYZ[1] = (posi[1]+GetExitPoint().Y())/2.;
+	XYZ[2] = (posi[2]+GetExitPoint().Z())/2.;
+    fFOrigine.SetXYZ( XYZ[0], XYZ[1], XYZ[2] );
+//	Info("PropagateNucleus","FOrigine vol. name: %s",GetCurrentVolume()->GetName());
+//	cout<<"FORIGINE POINT: "; fFOrigine.Print();
+	PropagateParticle( nuc, &fFOrigine );
+
+	//set the initial momentum/energy  to the nucleus
+	nuc->ResetEnergy();
 }
