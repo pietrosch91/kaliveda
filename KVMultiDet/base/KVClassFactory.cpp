@@ -509,10 +509,10 @@ void KVClassFactory::GenerateCode()
           // if so, we add a skeleton Copy(const TObject&) method
           // and use it in the copy ctor
           AddTObjectCopyMethod();
-          AddCopyConstructor(kTRUE);
+          //AddCopyConstructor(kTRUE);
        }
-       else
-          AddCopyConstructor(kFALSE);
+//       else
+//          AddCopyConstructor(kFALSE);
        AddAllBaseConstructors();
        WriteClassHeader();
        WriteClassImp();
