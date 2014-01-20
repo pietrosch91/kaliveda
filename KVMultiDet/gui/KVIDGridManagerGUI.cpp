@@ -365,18 +365,18 @@ void KVIDGridManagerGUI::HandleGridsMenu(Int_t id)
 
       case M_GRIDS_SAVE_SEL:
          // save current selection of grids in file
-         SaveAs(fSelectedEntries);
+         SaveGridsAs(fSelectedEntries);
          break;
 
       case M_GRIDS_SAVE_TAB:
          // save all grids in current tab in file
-         SaveAs(GetAllGridsInTab());
+         SaveGridsAs(GetAllGridsInTab());
          break;
 
       case M_GRIDS_SAVE_ALL:
 
          //save all grids in file - ask user to confirm or change filename/path
-         SaveAs();
+         SaveGridsAs();
          break;
 
       case M_GRIDS_DEL_SEL:
@@ -647,7 +647,7 @@ void KVIDGridManagerGUI::MergeGrids()
    //new KVMergeGridsDialog(g1, g2, fClient->GetDefaultRoot(), this, 10, 10);
 }
 
-void KVIDGridManagerGUI::SaveAs(const TCollection *selection)
+void KVIDGridManagerGUI::SaveGridsAs(const TCollection *selection)
 {
    // Opens dialog to choose filename in which to save grids.
    // If selection=0 (default), all grids are saved
@@ -751,7 +751,7 @@ void KVIDGridManagerGUI::CreateAndFillTabs()
 
 }
 
-void KVIDGridManagerGUI::TabSelect(Int_t tab)
+void KVIDGridManagerGUI::TabSelect(Int_t )
 {
    //called when a new tab is selected
 

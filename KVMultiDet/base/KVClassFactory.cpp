@@ -177,7 +177,7 @@ void KVClassFactory::Copy(TObject & obj)
    if( fImpInc.GetEntries() ) fImpInc.Copy( ((KVClassFactory&)obj).fImpInc );
 }
 
-KVClassFactory::KVClassFactory(const KVClassFactory& obj)
+KVClassFactory::KVClassFactory(const KVClassFactory& obj) : TObject()
 {
    //ctor par copie
     fBaseClass= NULL;
@@ -1069,7 +1069,7 @@ void KVClassMethod::WriteImplementation(KVString&decl)
 
 //__________________________________________________________________________________
 
-KVClassMethod::KVClassMethod(const KVClassMethod& obj)
+KVClassMethod::KVClassMethod(const KVClassMethod& obj) : TNamed()
 {
    //ctor par copie
    obj.Copy(*this);
@@ -1093,7 +1093,7 @@ void KVClassMethod::Copy(TObject & obj)
 }
 
 //__________________________________________________________________________________
-void KVClassMethod::Print(Option_t* opt) const
+void KVClassMethod::Print(Option_t* ) const
 {
    // print the KVClass method
    cout << "KVClassMethod object -----> " << GetName() << endl;

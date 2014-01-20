@@ -18,7 +18,7 @@ class KVPartition : public KVIntegerList
 	KVValues* fValues;	//!-> Object permettant de gerer les moments ou autre
 	
 	void Update();
-	virtual void init(Int_t mommax=5);
+    void init(Int_t mommax=5);
 	
 	void add_values(Int_t val,Int_t freq);
 	Bool_t remove_values(Int_t val,Int_t freq);

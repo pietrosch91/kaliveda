@@ -34,39 +34,12 @@ KVSystemFile::KVSystemFile(const Char_t* filename, const Char_t* dirname)
    fUserInfo = gSystem->GetUserInfo(fFileInfos.fUid);
 }
 
-//________________________________________________________________
-
-KVSystemFile::KVSystemFile (const KVSystemFile& obj)  : TSystemFile()
-{
-   // Copy constructor
-   // This ctor is used to make a copy of an existing object (for example
-   // when a method returns an object), and it is always a good idea to
-   // implement it.
-   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
-
-   obj.Copy(*this);
-}
-
 KVSystemFile::~KVSystemFile()
 {
    // Destructor
    SafeDelete(fUserInfo);
 }
 
-//________________________________________________________________
-
-void KVSystemFile::Copy (TObject& obj) const
-{
-   // This method copies the current state of 'this' object into 'obj'
-   // You should add here any member variables, for example:
-   //    (supposing a member variable KVSystemFile::fToto)
-   //    CastedObj.fToto = fToto;
-   // or
-   //    CastedObj.SetToto( GetToto() );
-
-   TSystemFile::Copy(obj);
-   //KVSystemFile& CastedObj = (KVSystemFile&)obj;
-}
 
 void KVSystemFile::ls(Option_t*) const
 {

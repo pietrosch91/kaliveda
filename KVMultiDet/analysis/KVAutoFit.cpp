@@ -105,7 +105,7 @@ void KVAutoFit::Copy (TObject& obj) const
 }
 
 //________________________________________________________________
-void KVAutoFit::Clear(Option_t* opt)
+void KVAutoFit::Clear(Option_t*)
 {
    //Efface les fonctions de fit
 	//et le contenu du canvas
@@ -201,7 +201,7 @@ void KVAutoFit::NextHisto()
 }
 
 //________________________________________________________________
-void KVAutoFit::Print(Option_t* opt) const
+void KVAutoFit::Print(Option_t*) const
 {
 	if (hfit)
 		Info("Print","Liste des fonctions pour l'histogram %s  :",hfit->GetName());
@@ -274,7 +274,7 @@ TF1* KVAutoFit::ReloadFunction_2D(const Char_t*, Int_t)
 }
 
 //________________________________________________________________
-Double_t	KVAutoFit::f2D(Double_t *xx,Double_t *para)
+Double_t	KVAutoFit::f2D(Double_t *,Double_t *)
 {
 	//userdefined = kTRUE;
 	return 0;
@@ -282,7 +282,7 @@ Double_t	KVAutoFit::f2D(Double_t *xx,Double_t *para)
 }
 
 //________________________________________________________________
-Double_t	KVAutoFit::f1D(Double_t *xx,Double_t *para)
+Double_t	KVAutoFit::f1D(Double_t *,Double_t *)
 {
 
 	//userdefined = kTRUE;

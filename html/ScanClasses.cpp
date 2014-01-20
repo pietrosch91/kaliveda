@@ -59,10 +59,12 @@ void ScanClasses::Process()
 {
    //Call this method after SetFileName and SetPageTitle in order to
    //analyse the classes and write the HTML page.
+   cout << "================in ScanClasses::Process()" << endl;
    MakeClassCategoriesList();
    FillListOfClasses();
    AnalyseClasses();
    WritePage();
+   cout << "==================end of ScanClasses::Process()" << endl;
 }
 
 const Char_t* ScanClasses::HTMLFileName(const Char_t* classname)
@@ -131,6 +133,7 @@ void ScanClasses::FillListOfClasses()
 {
    //Fill 'cnames' with names of all classes to be processed
    
+   cout << "======================ScanClasses::FillListOfClasses" << endl;
    // force loading of all libraries (KLUDGE!!!)
    gSystem->Load("libKVIndra");
    gSystem->Load("libVAMOS");
@@ -143,25 +146,26 @@ void ScanClasses::FillListOfClasses()
    int SizeClassTable = gClassTable->Classes();
    cnames=new TObjArray(SizeClassTable);
    cnames->SetOwner();
+   cout << "======================SizeClassTable="<<SizeClassTable << endl;
    for (int i = 0; i < SizeClassTable; i++) {
       //add entry with name of each KaliVeda class in table
       TObjString* tos=new TObjString(gClassTable->Next());
       TString cl_name = tos->String();
-      cout << cl_name << endl;
-      TClass* cc = TClass::GetClass(cl_name,kFALSE);
-      cout << cc << endl;
+      //TClass* cc = TClass::GetClass(cl_name,kFALSE);
       const char* libs = TClass::GetClass(cl_name)->GetSharedLibs();
-      cout << libs << endl;
       TString shared_libs = "";
       if(libs) shared_libs = libs;
 		if( shared_libs.Contains("libKVMultiDet.so") ){
          cnames->Add(tos);
+         //cout << cl_name << ",";
       }
       else
       {
          delete tos;
       }
    }
+   //cout << endl;
+   cout << "======================END OF ScanClasses::FillListOfClasses" << endl;
 }
 
 void ScanClasses::AnalyseClasses()
@@ -335,6 +339,9 @@ void ScanExamples::FillListOfClasses()
    TSystemDirectory ex_dir("ex_dir", "examples");
    TList *file_list = ex_dir.GetListOfFiles();
    
+   cout << "List of files found in examples directory:" << endl;
+   file_list->ls();
+   
    TIter next_file(file_list);
    TNamed* filename;
    if(cnames) delete cnames;
@@ -348,18 +355,23 @@ void ScanExamples::FillListOfClasses()
          
          //strip '.h' = classname
          name.Remove( name.Index('.'), 2 );
-         
+         cout << "Looking for : " << name << endl;
+         cout << "I am in : " << gSystem->WorkingDirectory() << endl;
          //make sure we have implementation & header file for class
          KVString ImpFile, DecFile;
-         if( KVBase::FindClassSourceFiles( name.Data(), ImpFile, DecFile ) ){
+         if( KVBase::FindClassSourceFiles( name.Data(), ImpFile, DecFile, "examples" ) ){
+            cout << "found source files for " << name << endl;
             
             //OK: compile the class
-            if( !gROOT->LoadMacro( Form("%s+", ImpFile.Data()) ) ){
+            if( !gROOT->LoadMacro( Form("examples/%s+", ImpFile.Data()) ) ){
+               cout << "compilation ok for " << name << endl;
                
                cnames->Add( new TObjString( name.Data() ) );
                
             }
+            else cout << "compilation not ok for " << name << endl;
          }
+         else cout << "no source files for " << name << endl;
       }
    }
    

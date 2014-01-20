@@ -33,7 +33,7 @@ class KVFileReader : public KVBase
 	
 	KVString GetFileName() {return file_name;}
 	
-	void Clear(Option_t* opt = ""){
+    void Clear(Option_t* /*opt*/ = ""){
 		if (toks) delete toks;
 		init();
 	}

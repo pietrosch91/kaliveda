@@ -646,7 +646,7 @@ void KVLVContainer::OpenContextMenu(TGFrame* f,Int_t but,Int_t x,Int_t y)
 
 //______________________________________________________________________________
 
-void KVLVContainer::DoDoubleClick(TGFrame* f,Int_t but,Int_t x,Int_t y)
+void KVLVContainer::DoDoubleClick(TGFrame* f,Int_t but,Int_t ,Int_t )
 {
     // Perform 'default' action when user double-left-clicks an object in the list.
     // By default, this calls the Browse(TBrowser*) method of the object (defined for TObject,

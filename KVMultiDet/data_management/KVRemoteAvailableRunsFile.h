@@ -28,7 +28,7 @@ class KVRemoteAvailableRunsFile:public KVAvailableRunsFile {
     KVRemoteAvailableRunsFile(const Char_t * type, KVDataSet * ds);
     virtual ~ KVRemoteAvailableRunsFile();
 
-   void Remove(Int_t) {
+   void Remove(Int_t, const Char_t * /*filename*/ = "") {
       Info("Remove", "Not possible for remote available runs files");
    };
    void Update(Bool_t /*no_existing_file*/ = kFALSE) {

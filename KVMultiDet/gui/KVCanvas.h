@@ -72,8 +72,8 @@ friend class KVKeyHandler;
 
    protected:
    
-   virtual Bool_t HandleKey(Event_t *event){return kTRUE;}
-   virtual Bool_t HandleKey(Int_t px, Int_t py);
+   virtual Bool_t HandleKey(Event_t* /*event*/){return kTRUE;}
+   virtual Bool_t HandleKeyAt(Int_t px, Int_t py);
 
    void DynamicZoom(Int_t Sign, Int_t px, Int_t py);
    void DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py);

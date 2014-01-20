@@ -3,6 +3,7 @@
 #include "KVString.h"
 #include "Riostream.h"
 #include "TObjString.h"
+#include "TObjArray.h"
 #include <list>
 #include <stdlib.h>
 #include <ctype.h>
@@ -67,6 +68,11 @@ ClassImp(KVString)
 // Third
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+KVString::~KVString()
+{
+   if (kObjArr) delete kObjArr;
+}
 
 #ifdef __WITHOUT_TSTRING_TOKENIZE
 TObjArray *KVString::Tokenize(const TString & delim) const

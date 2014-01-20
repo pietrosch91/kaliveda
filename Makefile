@@ -198,7 +198,7 @@ gan_tape : .init
 	cp GanTape/i386-linux_lib/libgan_tape.so $(KVINSTALLDIR)/lib/
 
 ltgfit : .init
-	cd fitltg-0.1 && make && make install
+	cd fitltg-0.1 && make FFLAGS=-w && make install
 		
 MultiDet : .init
 	cd KVMultiDet && $(MAKE)

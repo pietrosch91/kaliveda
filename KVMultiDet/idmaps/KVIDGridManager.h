@@ -48,10 +48,10 @@ class KVIDGridManager:public KVBase {
    Bool_t ReadAsciiFile(const Char_t * filename);
    Int_t WriteAsciiFile(const Char_t * filename, const TCollection *selection = 0);
 
-   void Print(Option_t * opt = "") const {
+   void Print(Option_t * /*opt*/ = "") const {
       ls();
    };
-   void ls(Option_t * opt = "") const {
+   void ls(Option_t * /*opt*/ = "") const {
       fGrids->ls();
    };
 

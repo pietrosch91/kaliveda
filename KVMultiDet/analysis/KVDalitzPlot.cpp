@@ -45,7 +45,7 @@ KVDalitzPlot::KVDalitzPlot()
 
 //________________________________________________________________
 
-KVDalitzPlot::KVDalitzPlot (const KVDalitzPlot& obj) 
+KVDalitzPlot::KVDalitzPlot (const KVDalitzPlot& obj) : TH2F()
 {
     // Copy constructor
     // This ctor is used to make a copy of an existing object (for example
@@ -109,7 +109,7 @@ Int_t KVDalitzPlot::FillMe(Double_t a1,Double_t a2,Double_t a3)
     return -1;
 }
 
-void  KVDalitzPlot::Draw(Option_t* opt)
+void  KVDalitzPlot::Draw(Option_t*)
 {
     GetXaxis()->SetNdivisions(506);
     GetXaxis()->SetLabelFont(42);

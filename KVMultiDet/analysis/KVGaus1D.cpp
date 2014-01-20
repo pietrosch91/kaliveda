@@ -22,7 +22,7 @@ KVGaus1D::KVGaus1D()
 }
 
 //________________________________________________________________
-KVGaus1D::KVGaus1D (const KVGaus1D& obj)  : KVAutoFit()
+KVGaus1D::KVGaus1D (const KVGaus1D&)  : KVAutoFit()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example

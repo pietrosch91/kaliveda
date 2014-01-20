@@ -768,7 +768,7 @@ TSystem *KVDataRepository::FindHelper(const char *path, void *dirptr)
           h->LoadPlugin() == 0)
          helper = (TSystem*) h->ExecPlugin(0);
       else
-         ; // no default helper yet
+         {;} // no default helper yet
    } else if ((h = gROOT->GetPluginManager()->FindHandler("TSystem", path))) {
       if (h->LoadPlugin() == -1)
          return 0;

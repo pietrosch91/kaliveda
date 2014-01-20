@@ -18,10 +18,10 @@ class KVIDCutContour : public KVIDContour
 			
 	Bool_t   fExclusive;//set to kTRUE if want to accept points OUTSIDE the contour
 	
-   virtual void SetZ(Int_t atnum){ ; };
-   virtual void SetA(Int_t atnum){ ; };
-   virtual void SetAandZ(Int_t atnum,Int_t ztnum){;};
-   virtual void SetMassFormula(Int_t mf){ ; };
+   virtual void SetZ(Int_t /*atnum*/){ ; };
+   virtual void SetA(Int_t /*atnum*/){ ; };
+   virtual void SetAandZ(Int_t /*atnum*/,Int_t /*ztnum*/){;};
+   virtual void SetMassFormula(Int_t /*mf*/){ ; };
 	
    virtual void WriteAsciiFile_extras(std::ofstream &, const Char_t * name_prefix ="");
    virtual void ReadAsciiFile_extras(std::ifstream &);

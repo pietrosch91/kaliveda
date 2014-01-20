@@ -20,7 +20,7 @@ class KVIntegerList : public TNamed
 	Int_t fMult;//!				Nombre d'éléments dans la liste
 	Ssiz_t fLength; //!			Longueur du nom de la liste/partition usilisée dans Compare
 	
-	virtual void init();
+    void init();
 	Bool_t ToBeUpdated();
 	virtual void Update();
 	virtual void ResetRegle();

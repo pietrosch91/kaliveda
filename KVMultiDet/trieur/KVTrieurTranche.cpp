@@ -296,7 +296,7 @@ void KVTrieurTranche::SetXmin(Int_t i, Double_t x)
 }
 
 //_____________________________________________________
-const Double_t KVTrieurTranche::GetXmin(Int_t i)
+Double_t KVTrieurTranche::GetXmin(Int_t i)
 {
 //
 // On retourne la valeur de xmin
@@ -314,7 +314,7 @@ void KVTrieurTranche::SetXmax(Int_t i, Double_t x)
 }
 
 //_____________________________________________________
-const Double_t KVTrieurTranche::GetXmax(Int_t i)
+Double_t KVTrieurTranche::GetXmax(Int_t i)
 {
 //
 // On retourne la vaelur de xmin

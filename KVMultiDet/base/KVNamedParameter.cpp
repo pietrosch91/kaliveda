@@ -170,7 +170,7 @@ Bool_t KVNamedParameter::operator== (const KVNamedParameter& other) const
    return kFALSE;
 }
 
-void KVNamedParameter::Print(Option_t* opt) const
+void KVNamedParameter::Print(Option_t* ) const
 {
    if (IsString()) {
       Info("Print", "Name = %s type = string value = %s", GetName(), GetTitle());
@@ -178,7 +178,7 @@ void KVNamedParameter::Print(Option_t* opt) const
       Info("Print", "Name = %s type = %s value = %f", GetName(), GetTitle(), fNumber);
 }
 
-void KVNamedParameter::ls(Option_t* opt) const
+void KVNamedParameter::ls(Option_t* ) const
 {
    TROOT::IndentLevel();
    if (IsString()) {

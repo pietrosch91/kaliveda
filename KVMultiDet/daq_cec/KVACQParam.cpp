@@ -79,7 +79,7 @@ KVACQParam::KVACQParam(const Char_t * parname)
 }
 
 //
-KVACQParam::KVACQParam(const KVACQParam & obj)
+KVACQParam::KVACQParam(const KVACQParam & obj) : KVBase()
 {
    //Copy ctor
    init();

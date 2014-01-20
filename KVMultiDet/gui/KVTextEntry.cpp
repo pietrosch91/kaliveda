@@ -21,7 +21,7 @@ ClassImp(KVTextEntry)
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void KVTextEntry::SetText(const char *text)
+void KVTextEntry::SetText(const char *text, Bool_t emit)
 {
    // Sets text entry to text, clears the selection and moves
    // the cursor to the end of the line.
@@ -35,7 +35,7 @@ void KVTextEntry::SetText(const char *text)
 
    End(kFALSE);
    if (oldText != GetText()) {
-      TextChanged();            // emit signal
+      if(emit) TextChanged();            // emit signal
       fClient->NeedRedraw(this);
    }
 }

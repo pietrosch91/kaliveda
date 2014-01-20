@@ -489,9 +489,9 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
 }
 
 //________________________________________________________________
-TString KVIDGridEditor::PreselectHistogram(TString ListOfName, Int_t ipert)
+TString KVIDGridEditor::PreselectHistogram(TString ListOfName, Int_t )
 {
-  ipert = 2;
+
   if(!TheGrid) return "";
   TString result = "";
   TString Iter;
@@ -1177,7 +1177,7 @@ void KVIDGridEditor::SetEditable(TPaveLabel* label)
 
 //________________________________________________________________
 //void KVIDGridEditor::SelectLines(TPaveLabel* label)
-void KVIDGridEditor::SelectLines(char* label)
+void KVIDGridEditor::SelectLines(const Char_t* label)
 {  
   if(!TheGrid) return;
 //  TString title(label->GetTitle());
@@ -2309,7 +2309,7 @@ void KVIDGridEditor::FindZALines()
 
 void KVIDGridEditor::ChangeMasses(const Char_t* Zl, Int_t dA)
 {
-  Int_t found;
+
   KVNumberList ZL(Zl);
   ZL.Begin();
   while(!ZL.End())

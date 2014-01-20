@@ -31,7 +31,7 @@ class KVWidgetList:public KVList {
    KVWidgetList();
    virtual ~ KVWidgetList();
    KVWidget *GetWidget(Long_t id);
-   virtual void Print(Option_t * opt = "") const;
+   virtual void PrintWidgets() const;
 
     ClassDef(KVWidgetList, 0)   // list container for KVWidgets
 };

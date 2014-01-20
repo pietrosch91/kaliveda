@@ -251,7 +251,7 @@ KVBase::KVBase(const Char_t * name, const Char_t * type):TNamed(name, type)
 }
 
 //______________________
-KVBase::KVBase(const KVBase & obj)
+KVBase::KVBase(const KVBase & obj) : TNamed()
 {
    //copy ctor
    init();
@@ -294,7 +294,7 @@ void KVBase::Copy(TObject & obj)
 }
 
 //____________________________________________________________________________________
-void KVBase::Print(Option_t * option) const
+void KVBase::Print(Option_t * ) const
 {
    cout << "KVBase object: Name=" << GetName() << " Type=" << GetType();
    if (fSLabel != "")

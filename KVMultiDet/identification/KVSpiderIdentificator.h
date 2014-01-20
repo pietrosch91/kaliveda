@@ -83,7 +83,7 @@ class KVSpiderIdentificator : public TNamed
   TH2F* CreateHistogram(double th_, double alpha_=-1.);
   
   void Draw(Option_t* opt_ = "");
-  void SaveAsPdf(Option_t* opt_="", char* path_=".");
+  void SaveAsPdf(Option_t* opt_="", const Char_t* path_=".");
   
   TList* GetListOfLines();
   KVSpiderLine* GetLine(int z_);
@@ -114,7 +114,7 @@ class KVSpiderIdentificator : public TNamed
   
   void SetDefault();
   bool TestHistogram(TH1* h_=0);
-  bool CheckPath(char* path_);
+  bool CheckPath(const Char_t *path_);
       
   ClassDef(KVSpiderIdentificator,1) // a faire !  
 };

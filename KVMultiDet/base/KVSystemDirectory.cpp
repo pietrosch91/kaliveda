@@ -47,17 +47,6 @@ KVSystemDirectory::KVSystemDirectory(const Char_t* dirname, const Char_t* path)
 
 //________________________________________________________________
 
-KVSystemDirectory::KVSystemDirectory (const KVSystemDirectory& obj)  : TSystemDirectory()
-{
-   // Copy constructor
-   // This ctor is used to make a copy of an existing object (for example
-   // when a method returns an object), and it is always a good idea to
-   // implement it.
-   // If your class allocates memory in its constructor(s) then it is ESSENTIAL :-)
-
-   obj.Copy(*this);
-}
-
 KVSystemDirectory::~KVSystemDirectory()
 {
    // Destructor
@@ -65,20 +54,6 @@ KVSystemDirectory::~KVSystemDirectory()
    SafeDelete(fSubdirs);
 }
 
-//________________________________________________________________
-
-void KVSystemDirectory::Copy (TObject& obj) const
-{
-   // This method copies the current state of 'this' object into 'obj'
-   // You should add here any member variables, for example:
-   //    (supposing a member variable KVSystemDirectory::fToto)
-   //    CastedObj.fToto = fToto;
-   // or
-   //    CastedObj.SetToto( GetToto() );
-
-   TSystemDirectory::Copy(obj);
-   //KVSystemDirectory& CastedObj = (KVSystemDirectory&)obj;
-}
 //______________________________________________________________________________
 TList *KVSystemDirectory::GetListOfFiles() const
 {

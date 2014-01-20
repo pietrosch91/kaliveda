@@ -17,9 +17,7 @@ class KVSystemDirectory : public TSystemDirectory
    public:
    KVSystemDirectory();
    KVSystemDirectory(const Char_t* dirname, const Char_t* path);
-   KVSystemDirectory (const KVSystemDirectory&) ;
    virtual ~KVSystemDirectory();
-   void Copy (TObject&) const;
 	virtual TList*	GetListOfFiles() const;
 	virtual TList*	GetListOfDirectories() const;
 	Long64_t GetTotalFiles() const

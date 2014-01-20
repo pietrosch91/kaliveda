@@ -107,7 +107,7 @@ void KVIntegerList::ResetRegle(){
 }
 
 //___________________________________________________________________________________________
-void KVIntegerList::Clear(Option_t* option)
+void KVIntegerList::Clear(Option_t*)
 { 	
 //Classe dérivée de TNamed, Reinitialisation de l'object
 	TNamed::Clear();
@@ -128,7 +128,7 @@ void KVIntegerList::Copy(TObject& obj) const
 }
 
 //___________________________________________________________________________________________
-void KVIntegerList::Print(Option_t* option) const
+void KVIntegerList::Print(Option_t* ) const
 {
 //Classe dérivée de TNamed, Imprime la liste formattée et la population associée
 	Info("Print","%s : population %d",GetName(),GetPopulation());

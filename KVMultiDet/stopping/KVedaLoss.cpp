@@ -145,7 +145,7 @@ Bool_t KVedaLoss::init_materials() const
 
 //________________________________________________________________________________//
 
-KVIonRangeTableMaterial* KVedaLoss::GetMaterial(const Char_t* material)
+KVIonRangeTableMaterial* KVedaLoss::GetMaterialWithNameOrType(const Char_t* material)
 {
    // Returns pointer to material of given name or type.
    KVIonRangeTableMaterial* M = (KVIonRangeTableMaterial*)fMaterials->FindObject(material);

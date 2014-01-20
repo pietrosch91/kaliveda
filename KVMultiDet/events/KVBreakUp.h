@@ -113,7 +113,7 @@ class KVBreakUp:public KVPartitionList
 	
 	virtual void SaveHistos(KVString filename="",KVString suff="",Option_t* option="recreate");
    
-	void	Print(Option_t* option = "") const;
+    void	PrintConfig() const;
 	Int_t GetDeltaTime();
 	
 	

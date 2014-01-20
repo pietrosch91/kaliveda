@@ -271,7 +271,7 @@ void KVSeqCollection::RecursiveRemove(TObject *obj)
 	fCollection->RecursiveRemove(obj);
 }
 
-void	KVSeqCollection::PrintCollectionHeader(Option_t* option) const
+void	KVSeqCollection::PrintCollectionHeader(Option_t* ) const
 {
     // Overrides TCollection::PrintCollectionHeader to show the class name of the embedded list
     TROOT::IndentLevel();

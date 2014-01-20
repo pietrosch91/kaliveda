@@ -118,11 +118,11 @@ public:
 
    void ActivateToolbarButtons();
 
-   void SaveAs(const TCollection* /*selected*/ = 0);
+   void SaveGridsAs(const TCollection* /*selected*/ = 0);
 
    void OpenFile();
    void SaveCurrent() {
-      SaveAs();
+      SaveGridsAs();
    };
    void NewIDLine();
    void NewIDContour() {}

@@ -18,12 +18,12 @@ class KVedaLoss : public KVIonRangeTable {
       if (!fMaterials) return init_materials();
       return kTRUE;
    };
+   KVIonRangeTableMaterial* GetMaterialWithNameOrType(const Char_t* material);
 
 public:
    KVedaLoss();
    virtual ~KVedaLoss();
 
-   KVIonRangeTableMaterial* GetMaterial(const Char_t* material);
    
    void Print(Option_t* = "") const;
    TObjArray* GetListOfMaterials();

@@ -14,12 +14,13 @@ $Id: KVBase.h,v 1.42 2009/03/12 13:59:40 franklan Exp $
 #include "TRandom3.h"
 #include "TNamed.h"
 #include "RVersion.h"
-#include "KVString.h"
+#include "TString.h"
 #include "KVLockfile.h"
 #include "Riostream.h"
 
 #define KVROOT_NOT_DEFINED "Define KVROOT environment variable before using"
 
+class KVString;
 class TPluginHandler;
 
 class KVBase:public TNamed {

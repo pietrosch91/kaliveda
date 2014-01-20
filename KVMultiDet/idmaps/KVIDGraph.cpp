@@ -190,7 +190,7 @@ KVIDGraph::KVIDGraph() : fRunList(""), fDyName(""), fPattern("")
 
 //________________________________________________________________________________
 
-KVIDGraph::KVIDGraph(const KVIDGraph & grid) : fRunList(""), fDyName(""), fPattern("")
+KVIDGraph::KVIDGraph(const KVIDGraph & grid) : TCutG(), fRunList(""), fDyName(""), fPattern("")
 {
    //Copy constructor
    init();

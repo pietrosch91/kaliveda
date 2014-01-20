@@ -505,7 +505,7 @@ void KVSimDirGUI::RunAnalysis()
 
    TString options;
    if(filtered_analysis){
-       options.Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s,DataSet=%s,System=%s,Run=%d",
+       options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s,DataSet=%s,System=%s,Run=%d",
                     (nevents>10?nevents/10:1),
                first_file->GetBranchName(),
                     results_file_name.Data(),
@@ -515,7 +515,7 @@ void KVSimDirGUI::RunAnalysis()
                     );
    }
    else {
-       options.Form("EventsReadInterval=%d,BranchName=%s,CombinedOutputFile=%s",
+       options.Form("EventsReadInterval=%lld,BranchName=%s,CombinedOutputFile=%s",
                     (nevents>10?nevents/10:1),
                first_file->GetBranchName(),
                     results_file_name.Data());
@@ -665,7 +665,7 @@ void KVSimDirGUI::RunFilter()
    
    TString options;
    Long64_t nevents = analysis_chain->GetEntries();
-   options.Form("EventsReadInterval=%d,SimFileName=%s,SimTitle=%s,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
+   options.Form("EventsReadInterval=%lld,SimFileName=%s,SimTitle=%s,BranchName=%s,Dataset=%s,System=%s,Geometry=%s,Filter=%s,OutputDir=%s,Kinematics=%s",
          (nevents>10?nevents/10:1),
                 ((KVSimFile*)runs_to_analyse->First())->GetName(),
                 analysis_chain->GetTitle(),
@@ -675,7 +675,7 @@ void KVSimDirGUI::RunFilter()
 
    Info("RunFilter", "old : %s",options.Data());
 
-   options  = Form("EventsReadInterval=%d,",(nevents>10?nevents/10:1));
+   options  = Form("EventsReadInterval=%lld,",(nevents>10?nevents/10:1));
    options += Form("SimFileName=%s,",((KVSimFile*)runs_to_analyse->First())->GetName());
    options += Form("SimTitle=%s,",analysis_chain->GetTitle());
    options += Form("BranchName=%s,",((KVSimFile*)runs_to_analyse->First())->GetBranchName());

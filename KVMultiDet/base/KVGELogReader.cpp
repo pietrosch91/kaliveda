@@ -4,6 +4,7 @@
 #include "KVGELogReader.h"
 #include "TObjString.h"
 #include "Riostream.h"
+#include <TObjArray.h>
 
 ClassImp(KVGELogReader)
 
@@ -115,7 +116,7 @@ void KVGELogReader::ReadCPULimit(TString & line)
    delete toks;
 }
 
-void KVGELogReader::ReadScratchUsed(TString & line)
+void KVGELogReader::ReadScratchUsed(TString & )
 {
 	// this just sets fScratcKB=0 because there is no information on
 	// scratch disk usage in the GE logfiles

@@ -88,7 +88,7 @@ KVCalibrator::~KVCalibrator()
 }
 
 //
-KVCalibrator::KVCalibrator(const KVCalibrator & obj)
+KVCalibrator::KVCalibrator(const KVCalibrator & obj) : KVBase()
 {
    //copy ctor
    init();

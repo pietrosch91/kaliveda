@@ -83,7 +83,7 @@ KVCanvas::~KVCanvas()
 }
 
 //________________________________________________________________
-KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool_t keyHandler):TCanvas(name, title, ww, wh)
+KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool_t ):TCanvas(name, title, ww, wh)
 {
     //    if(keyHandler) fKeyHandler = new KVKeyHandler(this);
     fAgeOfEmpire = false;
@@ -592,7 +592,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         // we will only use its coordinate system
         fSelected->ExecuteEvent(event, px, py);
 
-        HandleKey(px,py);
+        HandleKeyAt(px,py);
         RunAutoExec();
 
         break;
@@ -659,7 +659,7 @@ void KVCanvas::ZoomSelected(TH2* TheHisto)
 }
 
 //________________________________________________________________
-void KVCanvas::DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py)
+void KVCanvas::DynamicZoomTH1(Int_t Sign, Int_t px, Int_t )
 {
     // Zoom in or out of histogram with mouse wheel
 
@@ -744,7 +744,7 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
 }
 
 //________________________________________________________________
-Bool_t KVCanvas::HandleKey(Int_t px, Int_t py)
+Bool_t KVCanvas::HandleKeyAt(Int_t , Int_t py)
 {
     // Handle keys
 

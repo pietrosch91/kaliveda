@@ -101,7 +101,7 @@ public:
     virtual KVTelescope *GetTelescope(const Char_t * name) const;
     virtual KVGroup *GetGroupWithDetector(const Char_t *);
     virtual KVGroup *GetGroup(const Char_t *);
-    virtual KVGroup *GetGroupWithAngles(Float_t theta, Float_t phi) { return 0; }
+    virtual KVGroup *GetGroupWithAngles(Float_t /*theta*/, Float_t /*phi*/) { return 0; }
     void RemoveGroup(KVGroup *);
     void RemoveGroup(const Char_t *);
     void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);
