@@ -297,7 +297,7 @@ TList *KVASGroup::GetDetectorsInLayer(UInt_t lay)
             KVTelescope *tel;
             TList *list = new TList;
             while ((tel = (KVTelescope *) next())) {
-               if (rank<=tel->GetSize()){
+               if (rank<=(UInt_t)tel->GetSize()){
                 	KVDetector* ddd = tel->GetDetector(rank);
                   if (ddd)
                   	list->Add(ddd);
@@ -452,7 +452,7 @@ void KVASGroup::AnalyseTelescopes(KVReconstructedEvent* event, TList* kvtl)
         //start from last detectors and move inwards
         while ((t = (KVTelescope *) nxt_tel())) {
             //loop over detectors in each telescope
-            if (t->GetDetectors()->GetSize()>=i){
+            if ((UInt_t)t->GetDetectors()->GetSize()>=i){
             	KVDetector *d = t->GetDetector(i);
             	if (d)
             		detlist.Add(d);

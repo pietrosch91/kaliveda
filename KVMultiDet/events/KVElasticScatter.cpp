@@ -350,8 +350,8 @@ void KVElasticScatter::CalculateScattering(Int_t N)
       //WARNING: for inverse kinematics reactions, their are two energies for
       //each angle below the maximum scattering angle.
       //We only use the highest energy corresponding to the most forward CM angle.
-      Int_t nsol; Double_t e1, e2;
-      nsol = fKinematics->GetELab(3, fProj->GetTheta(), 3, e1, e2);
+      Double_t e1, e2;
+      fKinematics->GetELab(3, fProj->GetTheta(), 3, e1, e2);
       fProj->SetEnergy( TMath::Max(e1,e2) );
       xsec = TMath::Abs(fKinematics->GetXSecRuthLab(fProj->GetTheta()));
       fTheta->Fill(fProj->GetTheta(), xsec);

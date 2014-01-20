@@ -188,7 +188,7 @@ KVTrieurBloc::KVTrieurBloc(Int_t nbcases, Char_t * nom):KVTrieur(nbcases,
 }
 
 //_____________________________________________________
-KVTrieurBloc::KVTrieurBloc(const KVTrieurBloc & a)
+KVTrieurBloc::KVTrieurBloc(const KVTrieurBloc & a) : KVTrieur()
 {
 // 
 // Contructeur par copie

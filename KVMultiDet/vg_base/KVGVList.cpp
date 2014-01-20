@@ -88,7 +88,7 @@ KVGVList::KVGVList(void):KVList()
 
 
 //_________________________________________________________________
-KVGVList::KVGVList(const KVGVList & a)
+KVGVList::KVGVList(const KVGVList & a) : KVList()
 {
 // 
 // Contructeur par Copy

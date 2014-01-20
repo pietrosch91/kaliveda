@@ -113,7 +113,7 @@ KVZbound::KVZbound(Char_t * nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVZbound::KVZbound(const KVZbound & a)
+KVZbound::KVZbound(const KVZbound & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

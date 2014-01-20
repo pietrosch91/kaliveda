@@ -131,7 +131,7 @@ void KVParticle::init()
 }
 
 //_________________________________________________________
-KVParticle::KVParticle(const KVParticle & obj)
+KVParticle::KVParticle(const KVParticle & obj) : TLorentzVector()
 {
    //copy ctor
    init();

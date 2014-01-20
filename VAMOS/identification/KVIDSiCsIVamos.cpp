@@ -71,19 +71,8 @@ const Char_t *KVIDSiCsIVamos::GetName() const
 	return TNamed::GetName();
 }
 
-Double_t KVIDSiCsIVamos::GetIDMapX(Double_t eecsi, Option_t * opt)
-{
-	//return (Double_t) fCsI->GetACQPar()->GetData();
-	return eecsi;
-}
 
-Double_t KVIDSiCsIVamos::GetIDMapY(Double_t eesi, Option_t * opt)
-{
-	//return (Double_t) fSi->GetEnergy();
-	return eesi;
-}
-
-Bool_t KVIDSiCsIVamos::Identify(Double_t esi, Double_t ecsi, KVIdentificationResult* idr)
+Bool_t KVIDSiCsIVamos::Identify(KVIdentificationResult* idr, Double_t csi, Double_t si)
 {
    //Particle identification and code setting using identification grids.
 
@@ -93,9 +82,6 @@ Bool_t KVIDSiCsIVamos::Identify(Double_t esi, Double_t ecsi, KVIdentificationRes
 		idr->SetIDType( GetType() );
 		idr->IDattempted = kTRUE;
 	
-      Double_t si = GetIDMapY(esi);
-      Double_t csi = GetIDMapX(ecsi);
-
       KVIDGrid* theIdentifyingGrid = 0;
 
       fgrid->Identify(csi, si, idr);

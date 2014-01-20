@@ -72,7 +72,7 @@ TList *KVGroup::GetDetectorsInLayer(UInt_t lay)
     KVDetector* d;
 
     while( (d = (KVDetector*)next()) ){
-        if(lay == d->GetAlignedDetectors()->GetEntries()) dets->Add(d);
+        if(lay == (UInt_t)d->GetAlignedDetectors()->GetEntries()) dets->Add(d);
     }
     return dets;
 }

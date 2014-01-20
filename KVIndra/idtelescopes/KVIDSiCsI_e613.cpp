@@ -125,11 +125,9 @@ Bool_t KVIDSiCsI_e613::Identify(KVIdentificationResult* idr, Double_t x, Double_
    if ( idr->IDOK && idr->Z==TheGrid->GetZmax() ){
 		//Gestion des saturations GG
 		//on teste l identification PG
-		Int_t Zgg = idr->Z;
       if (fPGgrid){
 			Double_t sipg = (y<0. ? GetIDMapY("PG") : y);
 			fPGgrid->Identify(lumtot, sipg, idr);
-			Int_t Zpg = idr->Z;
          //on garde l identification PG si celle ci renvoie un code
 			//de 0 a 4 ou 7
 			if ( idr->Zident ){

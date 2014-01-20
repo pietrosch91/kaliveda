@@ -60,7 +60,7 @@ KVEtrans::KVEtrans(Char_t * nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVEtrans::KVEtrans(const KVEtrans & a)
+KVEtrans::KVEtrans(const KVEtrans & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

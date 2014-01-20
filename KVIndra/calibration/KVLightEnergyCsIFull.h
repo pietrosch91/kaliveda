@@ -64,13 +64,13 @@ public:
     UInt_t GetZ() const {return fZ;}
     UInt_t GetA() const {return fA;}
 
-    virtual void Print(Option_t* opt="");
+    virtual void Print(Option_t* opt="") const;
 
 public:
     Double_t sp_e( double z, double a, double e);
     Double_t sp_n( double z, double a, double e);
 
-    ClassDef(KVLightEnergyCsIFull,1)//Light-energy calibration for CsI detectors using the full expression of Marian
+    ClassDef(KVLightEnergyCsIFull,1)//Light-energy calibration for CsI detectors using the full expression of Marian Parlog
 };
 
 #endif

@@ -221,7 +221,7 @@ void KVGANILDataReader::SetUserTree(TTree* T, Option_t* opt)
 	
 	// TObjArray has to be as big as the largest parameter number in the list
 	// of raw data parameters. So first loop over parameters to find max param number.
-	Int_t maxpar = 0;
+    UInt_t maxpar = 0;
    TIter next(GetRawDataParameters());
    KVACQParam* par;
 	while( (par=(KVACQParam*)next()) ) if (par->GetNumber()>maxpar) maxpar=par->GetNumber();

@@ -131,7 +131,7 @@ Double_t  KVSilicon_e475s::GetCalibratedEnergy()
 }
 
 //------------------------------
-Double_t KVSilicon_e475s::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e, Bool_t trn)
+Double_t KVSilicon_e475s::GetCorrectedEnergy(KVNucleus *, Double_t e, Bool_t trn)
 //------------------------------
 {
    //Do nothing more

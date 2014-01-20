@@ -113,7 +113,7 @@ KVPtot::KVPtot(Char_t * nom, const Char_t * frm):KVVarGlob(nom)
 }
 
 //_________________________________________________________________
-KVPtot::KVPtot(const KVPtot & a)
+KVPtot::KVPtot(const KVPtot & a) : KVVarGlob()
 {
 // 
 // Contructeur par Copy

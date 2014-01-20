@@ -632,7 +632,7 @@ void KV2Body::Print(Option_t * opt) const
             Double_t theta = dtheta * (step + 1);
             Double_t elabP1, elabP2;
             Double_t tcm1, tcm2;
-            Int_t nsol = GetELab(3, theta, 3, elabP1, elabP2);
+            GetELab(3, theta, 3, elabP1, elabP2);
             GetThetaCM(theta, 3, tcm1, tcm2);
                printf
                 ("   %6.2f     %6.2f     %7.2f      %10.4g      %10.4g\n",

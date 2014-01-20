@@ -268,7 +268,7 @@ KVNucleus::KVNucleus()
    init();
 }
 
-KVNucleus::KVNucleus(const KVNucleus & obj)
+KVNucleus::KVNucleus(const KVNucleus & obj) : KVParticle()
 {
    //copy ctor
    init();
@@ -348,8 +348,6 @@ KVNucleus::KVNucleus(Int_t z, Int_t a, TVector3 p)
 KVNucleus::~KVNucleus()
 {
    fNb_nuc--;
-   if (fNb_nuc < 0)
-      cout << "fNb_nuc = " << fNb_nuc << endl;
    fZ = fA = 0;
    fExx = 0.;
 }

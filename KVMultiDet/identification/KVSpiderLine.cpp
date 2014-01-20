@@ -169,7 +169,7 @@ TF1* KVSpiderLine::GetFunction(double min_, double max_)
   double ytest = GetY();
   if(GetY(0)>GetY()) ytest = GetY(0);
   
-  double p0 = TMath::Power(xtest,0.4)*GetY();
+  double p0 = TMath::Power(xtest,0.4)*ytest;
    
   if(min_==-1.) 
     {

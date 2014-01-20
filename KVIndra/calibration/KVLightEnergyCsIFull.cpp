@@ -317,7 +317,7 @@ void KVLightEnergyCsIFull::init()
     }
 }
 
-void KVLightEnergyCsIFull::Print(Option_t* opt)
+void KVLightEnergyCsIFull::Print(Option_t* opt) const
 {
 cout << "Formula : " << fLightFormula << endl;
 KVCalibrator::Print(opt);

@@ -136,7 +136,7 @@ KVTensP::KVTensP(Char_t * nom, const Char_t * frame):KVVarGlob(nom)
 }
 
 //_________________________________________________________________
-KVTensP::KVTensP(const KVTensP & a)
+KVTensP::KVTensP(const KVTensP & a) : KVVarGlob()
 {
 // 
 // Contructeur par Copy

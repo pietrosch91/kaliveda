@@ -186,7 +186,7 @@ KVTrieurTranche::KVTrieurTranche(Int_t nbcases, Char_t * nom):KVTrieur(nbcases,
 }
 
 //_____________________________________________________
-KVTrieurTranche::KVTrieurTranche(const KVTrieurTranche & a)
+KVTrieurTranche::KVTrieurTranche(const KVTrieurTranche & a) : KVTrieur()
 {
 // 
 // Contructeur par copie

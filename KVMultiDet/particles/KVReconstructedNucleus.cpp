@@ -63,9 +63,8 @@ KVReconstructedNucleus::KVReconstructedNucleus()
     init();
 }
 
-KVReconstructedNucleus::
-KVReconstructedNucleus(const KVReconstructedNucleus &
-                       obj)
+KVReconstructedNucleus::KVReconstructedNucleus(const KVReconstructedNucleus &obj)
+    : KVNucleus()
 {
     //copy ctor
     init();

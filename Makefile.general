@@ -111,8 +111,12 @@ ifeq ($(ARCH),win32)
 CXXFLAGS := $(CXXFLAGS_NOOPT)
 endif
 
-ALL_CXXFLAGS = $(CXXFLAGS) $(KV_INC)
-ALL_CXXFLAGS_NOOPT = $(CXXFLAGS_NOOPT) $(KV_INC)
+STRICT_WARNINGS = -Wall -Wextra \
+	-Werror=overloaded-virtual -Werror=non-virtual-dtor -Werror=type-limits \
+	-Werror=sign-compare -Werror=unused-but-set-variable \
+	-Wno-format-security -Wno-unused-parameter -Wunused-but-set-parameter -Wunused-variable
+ALL_CXXFLAGS = $(STRICT_WARNINGS) $(CXXFLAGS) $(KV_INC)
+ALL_CXXFLAGS_NOOPT = $(STRICT_WARNINGS) $(CXXFLAGS_NOOPT) $(KV_INC)
 
 #Location of KaliVeda project sources root directory relative to subprojects which 'include' this Makefile
 #Override in project's Makefile if it is not simply a subdirectory of KaliVeda
@@ -129,7 +133,8 @@ all : .config dictionaries $(LIB_SO) rootlibmap $(EXTRAS) .copyheads
 
 dictionaries:
 	@for module in $(MODULES); do \
-		make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$$module LIBNAME=$(PROJ_NAME) INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)" ; \
+		make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$$module LIBNAME=$(PROJ_NAME) INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)"; \
+#		[ $$? -eq 2 ] && exit 1 ; \
 	done
 
 rootlibmap :

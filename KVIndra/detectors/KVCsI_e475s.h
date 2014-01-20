@@ -43,9 +43,9 @@ class KVCsI_e475s : public KVCsI
 	Double_t	GetEnergy();
  
  	Double_t GetLightFromEnergy(UInt_t Z, UInt_t A, Double_t E = -1.){return -1;};
-	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
+    Double_t GetCorrectedEnergy(KVNucleus*, Double_t e = -1., Bool_t transmission=kTRUE);
 
-   Short_t GetCalcACQParam(KVACQParam*) const;
+   Short_t GetCalcACQParam(KVACQParam*, Double_t) const;
 
 	ClassDef(KVCsI_e475s,1)//derivation of KVCsI class for E475s experiment
 };

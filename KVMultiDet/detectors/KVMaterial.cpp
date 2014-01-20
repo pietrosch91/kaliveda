@@ -104,7 +104,7 @@ KVMaterial::KVMaterial(const Char_t * gas, const Double_t thick, const Double_t 
 }
 
 //
-KVMaterial::KVMaterial(const KVMaterial & obj)
+KVMaterial::KVMaterial(const KVMaterial & obj) : KVBase()
 {
    //Copy ctor
    init();

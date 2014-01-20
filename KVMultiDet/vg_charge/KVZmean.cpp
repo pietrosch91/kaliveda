@@ -63,7 +63,7 @@ KVZmean::KVZmean(Char_t * nom):KVVarGlobMean(nom)
 }
 
 //_________________________________________________________________
-KVZmean::KVZmean(const KVZmean & a)
+KVZmean::KVZmean(const KVZmean & a) : KVVarGlobMean()
 {
 // 
 // Contructeur par Copy

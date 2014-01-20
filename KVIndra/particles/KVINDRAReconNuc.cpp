@@ -128,7 +128,8 @@ KVINDRAReconNuc::KVINDRAReconNuc():fCodes()
    init();
 }
 
-KVINDRAReconNuc::KVINDRAReconNuc(const KVINDRAReconNuc & obj):fCodes()
+KVINDRAReconNuc::KVINDRAReconNuc(const KVINDRAReconNuc & obj):
+    KVReconstructedNucleus(), fCodes()
 {
    //copy ctor
    init();

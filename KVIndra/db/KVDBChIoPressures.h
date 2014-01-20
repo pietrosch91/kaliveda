@@ -43,13 +43,13 @@ class KVDBChIoPressures:public KVDBRecord {
     KVDBChIoPressures(KVDBChIoPressures & chiopres);
    ~KVDBChIoPressures();
 
-   virtual Float_t GetChIoPressures(UInt_t chio_number);
-   virtual Float_t *GetChIoPressures();
+   Float_t GetChIoPressures(UInt_t chio_number);
+   Float_t *GetChIoPressures();
    virtual Float_t GetPressure(UInt_t chio_number);
    virtual Float_t *GetPressures();
-   virtual void SetPressures(Float_t p1=0, Float_t p2=0, Float_t p3=0,
+   void SetPressures(Float_t p1=0, Float_t p2=0, Float_t p3=0,
                              Float_t p4=0, Float_t p5=0);
-   virtual void SetPressures(Float_t *pressures);
+   void SetPressures(Float_t *pressures);
    virtual void SetPressure(UInt_t n, Float_t pressure);
 
    virtual void Print(Option_t * option = "") const;

@@ -65,7 +65,7 @@ KVZtot::KVZtot(char *nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVZtot::KVZtot(const KVZtot & a)
+KVZtot::KVZtot(const KVZtot & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

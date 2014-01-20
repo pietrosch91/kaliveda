@@ -170,7 +170,7 @@ Double_t KVBIC::GetELossMylar(UInt_t z, UInt_t a, Double_t egas)
 
 //__________________________________________________________________________________________________________________________
 
-Double_t KVBIC::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas)
+Double_t KVBIC::GetCorrectedEnergy(KVNucleus *nuc, Double_t e, Bool_t transmit)
 {
    //For a particle which passes through the BIC (i.e. is stopped in SIB behind it)
    //this will give the total energy loss of the particle in the BIC, i.e. including all
@@ -180,23 +180,25 @@ Double_t KVBIC::GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas)
    //this function should not be called.
    //If argument 'egas' not given, KVBIC::GetEnergy() is used
 
-   egas = ((egas < 0.) ? GetEnergy() : egas);
+    if(!transmit) return 0.;
 
-   if (egas <= 0.)
+   e = ((e < 0.) ? GetEnergy() : e);
+
+   if (e <= 0.)
       return 0.0;               //check measured (calibrated) energy in gas is reasonable (>0)
 
    Bool_t maxDE = kFALSE;
 
    //egas > max possible ?
-   if (egas > GetMaxDeltaE(z, a)) {
-      egas = GetMaxDeltaE(z, a);
+   if (e > GetMaxDeltaE(nuc->GetZ(),nuc->GetA())) {
+       e = GetMaxDeltaE(nuc->GetZ(),nuc->GetA());
       maxDE = kTRUE;
    }
    //calculate incident energy
-   Double_t e_inc = GetIncidentEnergy(z, a, egas);
+   Double_t e_inc = GetIncidentEnergy(nuc->GetZ(),nuc->GetA(), e);
 
    //calculate residual energy
-   Double_t e_res = GetERes(z, a, e_inc);
+   Double_t e_res = GetERes(nuc->GetZ(),nuc->GetA(), e_inc);
 
    Double_t eloss = e_inc - e_res;
    if (maxDE)
@@ -228,7 +230,7 @@ void KVBIC::SetPressure(Float_t x)
 
 //__________________________________________________________________________________________________________________________
 
-void KVBIC::SetTemperature(Float_t x)
+void KVBIC::SetTemperature(Double_t x)
 {
    //Changes temperature of all 3 gas-filled zones in the BIC
    GetAbsorber(1)->SetTemperature(x);
