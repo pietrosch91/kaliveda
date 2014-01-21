@@ -722,7 +722,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                         }
                         else {
                             part->AddGroup("DETECTED");
-                            det_stat->SetValue("DETECTED","");
+                            det_stat->SetValue("DETECTED","OK");
                             fHitGroups->AddGroup( last_det->GetGroup() );
 
                             if (lidtel->GetEntries()>0){

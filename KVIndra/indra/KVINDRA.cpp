@@ -816,10 +816,21 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
     // Override base class method
     // If ROOT geometry is requested but has not been built, we create it
 
-    if(on && !GetGeometry()){
-        CreateGeoManager();
+    if(on){
+        if(!GetGeometry()) CreateGeoManager();
+        else {
+            // ROOT geometry already exists, we need to set up the navigator
+            KVASMultiDetArray::SetROOTGeometry(on);
+            // This is just for the etalon detectors!
+            // They are in structures like:
+            //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
+            // We need the name to be like "SILI_10"
+            GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+        }
     }
-    KVASMultiDetArray::SetROOTGeometry(on);
+    else
+        KVASMultiDetArray::SetROOTGeometry(on);
+
 }
 
 
