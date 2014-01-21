@@ -56,3 +56,9 @@ kaliveda.creator.user
 kaliveda.files
 kaliveda.includes
 *.pcm
+*.LyXconv
+*.config
+*.creator
+*.files
+*.includes
+*.user
