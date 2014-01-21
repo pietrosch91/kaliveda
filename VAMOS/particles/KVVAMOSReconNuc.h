@@ -7,10 +7,10 @@
 #include "KVReconstructedNucleus.h"
 #include "KVVAMOSCodes.h"
 #include "KVVAMOSReconTrajectory.h"
+#include "KVVAMOSReconGeoNavigator.h"
 #include "KVVAMOS.h"
 
 class KVVAMOSDetector;
-class KVVAMOSReconGeoNavigator;
 
 class KVVAMOSReconNuc : public KVReconstructedNucleus
 {
@@ -63,7 +63,7 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		virtual void     ReconstructFPtrajByFitting();
 		virtual void     ReconstructLabTraj();
 
-		virtual void     Propagate();
+		virtual void     Propagate(ECalib cal = kNoCalib);
 		virtual void     SetFlightDistanceAndTime();
 
 

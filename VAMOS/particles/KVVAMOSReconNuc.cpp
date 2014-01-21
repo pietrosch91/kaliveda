@@ -4,7 +4,6 @@
 #include "KVVAMOSReconNuc.h"
 #include "KVVAMOSDetector.h"
 #include "KVVAMOSTransferMatrix.h"
-#include "KVVAMOSReconGeoNavigator.h"
 #include "KVNamedParameter.h"
 #include "KVTarget.h"
 #include "TGraphErrors.h"
@@ -670,15 +669,18 @@ void KVVAMOSReconNuc::ReconstructLabTraj(){
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::Propagate(){
-	// Run the tracking of this reconstructed trajectory in each volume (detectors)  punched through at the focal plane.
+void KVVAMOSReconNuc::Propagate(ECalib cal){
+	// Propagate the nucleus along the reconstructed trajectory tocalculate
+	// some quantities from each volume (detectors)  punched through at the
+	// focal plane.
 
-	// Tracking is impossible if the trajectory reconstruction
-	// in the focal plane is not OK.
+	// The propagation will be incoherent if the trajectory reconstruction
+	// in the focal plane is not OK (i.e. the list of detectors in fDetList
+	// could be different of the one in fParameters).
 	//
-	// The tracking is done by KVVAMOSReconGeoNavigator::PropagateNucleus();
+	// The propagation is done by KVVAMOSReconGeoNavigator::PropagateNucleus();
 	
-	GetNavigator()->PropagateNucleus( this );
+	GetNavigator()->PropagateNucleus( this, cal );
 
 //	if( !CheckTrackingCoherence() ){
 //		Info("Propagate","NO tracking coherence");

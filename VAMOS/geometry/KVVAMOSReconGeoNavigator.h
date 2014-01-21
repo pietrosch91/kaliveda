@@ -9,16 +9,16 @@
 class KVVAMOSReconNuc;
 class KVIonRangeTable;
 
+enum ECalib{ 
+	kNoCalib  = 0,
+ 	kECalib   = BIT(0),
+	kTCalib   = BIT(1),
+ 	kFullCalib = kECalib | kTCalib
+};
+
+
 class KVVAMOSReconGeoNavigator : public KVGeoNavigator
 {
-	public:
-
-		enum ECalib{ 
-			kNoCalib  = 0,
- 		   	kECalib   = BIT(0),
-			kTCalib   = BIT(1),
- 		   	kFullCalib = kECalib | kTCalib
-		};
 
 	protected:
 
@@ -27,6 +27,8 @@ class KVVAMOSReconGeoNavigator : public KVGeoNavigator
 		TVector3 fOrigine;// Origine of the initial propagation i.e. coord. intersection point of the trajectory and the focal plane
 		TVector3 fFOrigine;// Origine of the forward propagation i.e. coord. of a point before the first detector at the focal plane
 		Double_t fE; // Energy of the propagated nucleus
+		Double_t fStartPath; // path of the current start point from the Focal Plane reference frame
+		Double_t fTOF; // total time of flight
  		KVIonRangeTable* fRangeTable;
 
 	public:
