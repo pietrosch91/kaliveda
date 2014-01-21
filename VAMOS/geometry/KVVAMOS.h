@@ -120,6 +120,7 @@ class KVVAMOS : public KVMultiDetArray
 		void          SetBeamHF( Double_t hf );
 		void          SetBrhoRef( Double_t Brho );
 		void          SetCurrentRunNumber( UInt_t run );
+		void          SetFocalPlanePosition( Double_t pos);
 
 		//----- static methods
 
@@ -214,6 +215,7 @@ inline void KVVAMOS::SetAngle ( Double_t angle ){
 inline void KVVAMOS::SetBeamHF ( Double_t hf    ){ fBeamHF   = hf;   }
 inline void KVVAMOS::SetBrhoRef( Double_t Brho  ){ fBrhoRef  = Brho; }
 inline void KVVAMOS::SetCurrentRunNumber( UInt_t run ){ fCurrentRun = run; }
+inline void KVVAMOS::SetFocalPlanePosition( Double_t pos){ fFocalPos = pos; }
 
 
 //................  global variable
