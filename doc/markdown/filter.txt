@@ -1,0 +1,38 @@
+% KaliVeda User's Guide
+
+# Simulating detector response (Filtering) #
+
+We can "filter" simulated data either in order to establish the geometrical (or other)
+efficiency of a given experimental set-up, or to make a comparison between
+theoretical predictions and measured data which includes the biases and distortions
+introduced by the experimental apparatus. 
+
+In the KaliVeda framework, a complete
+description of some experimental set-up is given by an instance of the
+[`KVMultiDetArray`{.cpp}][KVMultiDetArray] class; theoretical or simulated data are
+stored in collections of [`KVSimEvent`{.cpp}][KVSimEvent] objects; and experimental
+data reconstructed from measured energy losses *etc.* are handled by
+[`KVReconstructedEvent`{.cpp}][KVReconstructedEvent] objects.^[Note that both of the latter
+classes inherit the common base class [`KVEvent`{.cpp}][KVEvent]]
+The method which simulates the detection and reconstruction of simulated heavy-ion
+collisions is
+
+~~~~~~~{.cpp}
+void KVMultiDetArray::DetectEvent(KVEvent* input, KVReconstructedEvent* output, const char* det_frame = "")
+~~~~~~~
+
+where 
+
+* `KVEvent* input`{.cpp} is the simulated data event to be treated;
+* `KVReconstructedEvent* output`{.cpp} is the reconstructed event which will be filled with the
+   result of the detection and reconstruction; 
+* `const char* det_frame`{.cpp} is an optional argument which can be used to indicate the name of
+   the kinematical reference frame to be used for calculating particles' energy losses in
+	detectors, in case their default reference frame does not coincide with the laboratory/detector
+	frame (see [Kinematics]). 
+
+[KVMultiDetArray]: http://indra.in2p3.fr/KaliVedaDoc/KVMultiDetArray.html
+[KVSimEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVSimEvent.html
+[KVReconstructedEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVReconstructedEvent.html
+[KVEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVEvent.html
+[Kinematics]: kinematics.html#defining-kinematical-reference-frames
