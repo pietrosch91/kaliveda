@@ -31,6 +31,37 @@ where
 	detectors, in case their default reference frame does not coincide with the laboratory/detector
 	frame (see [Kinematics]). 
 
+## Options controlling filter behaviour ##
+### Filter type ###
+
+There are many possible replies to the question 'What does a filter do?'.
+Three of them are implemented as types of filter which can be chosen by calling
+method
+
+~~~~~~~{.cpp}
+void KVMultiDetArray::SetFilterType(Int_t)
+~~~~~~~~
+
+with one of these values:
+
+`KVMultiDetArray::kFilterType_Geo`{.cpp}
+
+:   Geometric filter only, all charged particles with non-zero kinetic energy in the
+    detector reference frame are kept if their initial trajectory would hit at least
+	 1 detector in the array. Each such particle is copied into the reconstructed
+	 'detected' event with its simulated $Z$, $A$, and kinetic energy, but given a
+	 direction drawn at random within the acceptance of the hit detector.
+
+`KVMultiDetArray::kFilterType_GeoThresh`{.cpp}
+
+:   Geometric filter with thresholds.particles are kept if they have enough energy to leave the target,
+    and enough energy to cross at least one detector of the array.
+
+`KVMultiDetArray::kFilterType_Full`{.cpp}
+
+:   Full simulation of detection of particles by the array. the calibration parameters
+    for the chosen run are inverted in order to calculate raw acquisition data.
+	 
 [KVMultiDetArray]: http://indra.in2p3.fr/KaliVedaDoc/KVMultiDetArray.html
 [KVSimEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVSimEvent.html
 [KVReconstructedEvent]: http://indra.in2p3.fr/KaliVedaDoc/KVReconstructedEvent.html
