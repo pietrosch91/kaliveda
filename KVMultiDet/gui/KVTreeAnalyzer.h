@@ -130,6 +130,10 @@ class KVTreeAnalyzer : public TNamed
 
    TTree* fTree;//! the analyzed TTree
    KVUniqueNameList fSelections;// list of TEntryList user selections
+
+   TString fSaveAnalysisFileName;//!
+   Bool_t  fAnalysisModifiedSinceLastSave;//!
+
    /* leaves */
    TGGroupFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
    KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
@@ -164,7 +168,8 @@ class KVTreeAnalyzer : public TNamed
    TGPopupMenu *fSelCombMenu;//!
    enum {
    		MH_OPEN_FILE,
-   		MH_SAVE_FILE,
+       MH_SAVE_FILE,
+       MH_SAVE,
         MH_QUIT,
        MH_APPLY_ANALYSIS,
        SEL_COMB_AND,
@@ -241,6 +246,9 @@ class KVTreeAnalyzer : public TNamed
    
    void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel);
    void FillLeafList();
+
+   void AnalysisSaveCheck();
+   void SetAnalysisModifiedSinceLastSave(Bool_t);
    
    public:
    KVTreeAnalyzer(Bool_t nogui=kTRUE);
@@ -348,6 +356,7 @@ class KVTreeAnalyzer : public TNamed
    void ReapplyAnyFile(const Char_t *filepath);
 
    ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
+   void SetTreeFileName(TTree* t);
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer*gTreeAnalyzer;

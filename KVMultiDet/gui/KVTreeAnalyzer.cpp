@@ -71,6 +71,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
+   fMenuFile=0;
    fDrawSame = fApplySelection = fProfileHisto = kFALSE;
    fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
    fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
@@ -94,7 +95,7 @@ KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
 //    fNx = fNy = 0;
 //    fXmin = fXmax = fYmin = fYmax = 0.;
 //    fWeight = "";
-   
+   SetAnalysisModifiedSinceLastSave(kFALSE);
       OpenGUI();
 }
 
@@ -111,8 +112,11 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
+   fMenuFile=0;
    fTreeName = t->GetName();
-   fTreeFileName = t->GetCurrentFile()->GetName();
+   SetTreeFileName(t);
+   SetAnalysisModifiedSinceLastSave(kFALSE);
+
    fDrawSame = fApplySelection = fProfileHisto  = kFALSE;
    fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
    fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
@@ -387,7 +391,53 @@ void KVTreeAnalyzer::FillLeafList()
       stuff.AddAll(fTree->GetListOfAliases());
    }
    stuff.AddAll(&fAliasList);
-   G_leaflist->Display(&stuff);   
+   G_leaflist->Display(&stuff);
+}
+
+void KVTreeAnalyzer::AnalysisSaveCheck()
+{
+    // if analysis has been modified since last save,
+    // open an invite to ask if user wants to save with current default filename
+
+    if(!fAnalysisModifiedSinceLastSave) return;
+
+    if(fNoGui){
+        // text-only interface
+        cout << "Analysis has been modified. Save before continuing? [y] : " << flush;
+        char reply;
+        cin.get(reply);
+        cout << endl;
+        if(reply=='n' || reply=='N') return;
+        cout << "Give name of file [" << fSaveAnalysisFileName << "] : " << flush;
+        char filename[256];
+        cin.get(filename,256);
+        if(filename[0]!=0) fSaveAnalysisFileName=filename;
+        Save();
+    }
+    else{
+        Int_t ret_code;
+        new TGMsgBox(gClient->GetDefaultRoot(), fMain_histolist, "Save Analysis ?",
+                     "Analysis has been modified. Save before continuing?", kMBIconStop,
+                     kMBYes|kMBNo, &ret_code);
+        if(ret_code==kMBNo) return;
+        HistoFileMenu_Save();
+    }
+}
+
+void KVTreeAnalyzer::SetAnalysisModifiedSinceLastSave(Bool_t x)
+{
+    fAnalysisModifiedSinceLastSave=x;
+    if(fMenuFile){
+        if(x){
+            fMenuFile->EnableEntry(MH_SAVE);
+            fMenuFile->EnableEntry(MH_SAVE_FILE);
+        }
+        else
+        {
+            fMenuFile->DisableEntry(MH_SAVE);
+            fMenuFile->DisableEntry(MH_SAVE_FILE);
+        }
+    }
 }
 
 void KVTreeAnalyzer::OpenGUI()
@@ -423,11 +473,13 @@ void KVTreeAnalyzer::OpenGUI()
 
              /* menus */
    fMenuFile = new TGPopupMenu(gClient->GetRoot());
-   fMenuFile->AddEntry("&Open...", MH_OPEN_FILE);
-   fMenuFile->AddEntry("&Save analysis...", MH_SAVE_FILE);
-   fMenuFile->AddEntry("&Apply analysis...", MH_APPLY_ANALYSIS);
+   fMenuFile->AddEntry("Open...", MH_OPEN_FILE);
+   fMenuFile->AddEntry("Save analysis", MH_SAVE);
+   fMenuFile->AddEntry("Save as...", MH_SAVE_FILE);
+   fMenuFile->AddEntry("Apply analysis...", MH_APPLY_ANALYSIS);
+   SetAnalysisModifiedSinceLastSave(fAnalysisModifiedSinceLastSave);
    fMenuFile->AddSeparator();
-   fMenuFile->AddEntry("&Quit", MH_QUIT);
+   fMenuFile->AddEntry("Quit", MH_QUIT);
    fMenuFile->Connect("Activated(Int_t)", "KVTreeAnalyzer", this, "HandleHistoFileMenu(Int_t)");
    fMenuSelections = new TGPopupMenu(gClient->GetRoot());
    fSelCombMenu = new TGPopupMenu(gClient->GetRoot());
@@ -735,6 +787,7 @@ void KVTreeAnalyzer::AddHisto(TH1*h)
    // Adds histogram to internal list of user histograms
    // and updates GUI display
    
+    SetAnalysisModifiedSinceLastSave(kTRUE);//new histogram needs saving
    fHistolist.Add(h);
    G_histolist->Display(&fHistolist);
 }
@@ -744,6 +797,7 @@ void KVTreeAnalyzer::AddSelection(TEntryList*e)
    // Adds selection to internal list of user histograms
    // and updates GUI display
    
+    SetAnalysisModifiedSinceLastSave(kTRUE);//new selection needs saving
    fSelections.Add(e);
    G_selectionlist->Display(&fSelections);
 }
@@ -753,8 +807,15 @@ void KVTreeAnalyzer::AddCut(TCutG* c)
    // Adds histogram to internal list of user histograms
    // and updates GUI display
    
+    SetAnalysisModifiedSinceLastSave(kTRUE);//new selection needs saving
    fHistolist.Add(c);
    G_histolist->Display(&fHistolist);
+}
+
+void KVTreeAnalyzer::SetTreeFileName(TTree* t)
+{
+    fTreeFileName = t->GetCurrentFile()->GetName();
+    fSaveAnalysisFileName.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
 }
 
 void KVTreeAnalyzer::SetTree(TTree* t)
@@ -763,7 +824,7 @@ void KVTreeAnalyzer::SetTree(TTree* t)
    
    fTree = t;
    fTreeName = t->GetName();
-   fTreeFileName = t->GetCurrentFile()->GetName();
+   SetTreeFileName(t);
    if(fMain_histolist) fMain_histolist->SetWindowName(Form("%s (%s)",t->GetTitle(),fTreeFileName.Data()));
 }
    
@@ -1141,6 +1202,7 @@ void KVTreeAnalyzer::DeleteSelections()
             if(!el) continue;
             fSelections.Remove(el);
             delete el;
+            SetAnalysisModifiedSinceLastSave(kTRUE);
         }
         G_selectionlist->Display(&fSelections);
     }
@@ -1662,9 +1724,8 @@ void KVTreeAnalyzer::SetSelection(const Char_t* sel)
 
 void KVTreeAnalyzer::Save()
 {
-   TString filename;
-   filename.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
-   SaveAs(filename);
+   SaveAs(fSaveAnalysisFileName);
+   SetAnalysisModifiedSinceLastSave(kFALSE);
 }
 
 void KVTreeAnalyzer::FitGum1()
@@ -1691,6 +1752,7 @@ void KVTreeAnalyzer::FitGum1()
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
+   SetAnalysisModifiedSinceLastSave(kTRUE);
 }
 void KVTreeAnalyzer::FitGum2()
 {
@@ -1716,6 +1778,7 @@ void KVTreeAnalyzer::FitGum2()
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
+   SetAnalysisModifiedSinceLastSave(kTRUE);
 }
 void KVTreeAnalyzer::FitGum3()
 {
@@ -1741,6 +1804,7 @@ void KVTreeAnalyzer::FitGum3()
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
+   SetAnalysisModifiedSinceLastSave(kTRUE);
 }
 void KVTreeAnalyzer::FitGausGum1()
 {
@@ -1766,6 +1830,7 @@ void KVTreeAnalyzer::FitGausGum1()
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
+   SetAnalysisModifiedSinceLastSave(kTRUE);
 }
    
 void KVTreeAnalyzer::FitGausGum2()
@@ -1792,6 +1857,7 @@ void KVTreeAnalyzer::FitGausGum2()
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
+   SetAnalysisModifiedSinceLastSave(kTRUE);
 }
    
 void KVTreeAnalyzer::FitGausGum3()
@@ -1818,6 +1884,7 @@ void KVTreeAnalyzer::FitGausGum3()
    histo->SetMarkerStyle(24);
    histo->SetMarkerColor(kBlue+2);
    gPad->Modified();gPad->Update();
+   SetAnalysisModifiedSinceLastSave(kTRUE);
 }
    
 TList* KVTreeAnalyzer::GetHistosByData(const Char_t* expr)
@@ -1870,6 +1937,7 @@ void KVTreeAnalyzer::DeleteHisto(const Char_t* expr, const Char_t* selection)
       cout << "Deleting histo " << h->GetName() << endl;
       fHistolist.Remove(h);
       delete h;
+      SetAnalysisModifiedSinceLastSave(kTRUE);
    }
    G_histolist->Display(&fHistolist);
 }
@@ -1884,6 +1952,7 @@ void KVTreeAnalyzer::DeleteSelectedHisto()
             TObject* obj = fSelectedHistos->At(i);
             fHistolist.Remove(obj);
             if(obj->InheritsFrom("TH1")) delete obj;
+            SetAnalysisModifiedSinceLastSave(kTRUE);
         }
         G_histolist->Display(&fHistolist);
     }
@@ -1920,10 +1989,14 @@ void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
    case MH_APPLY_ANALYSIS:
        HistoFileMenu_Apply();
        break;
-      case MH_SAVE_FILE:
-         HistoFileMenu_Save();
-         break;
+   case MH_SAVE_FILE:
+      HistoFileMenu_Save();
+      break;
+   case MH_SAVE:
+      Save();
+      break;
       case MH_QUIT:
+       AnalysisSaveCheck();
          gROOT->ProcessLine(".q");
          break;
          
@@ -1962,6 +2035,7 @@ void KVTreeAnalyzer::HistoFileMenu_Open()
       "ROOT files", "*.root",
       0, 0
    };
+   AnalysisSaveCheck();
    TGFileInfo fi;
    fi.fFileTypes = filetypes;
    fi.fIniDir = StrDup(dir);
@@ -1998,16 +2072,16 @@ void KVTreeAnalyzer::HistoFileMenu_Save()
    TGFileInfo fi;
    fi.fFileTypes = filetypes;
    fi.fIniDir = StrDup(dir);
-   TString filename;
-   filename.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
-   fi.fFilename = StrDup(filename);
+   fi.fFilename = StrDup(fSaveAnalysisFileName);
    new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDSave, &fi);
    if (fi.fFilename) {
       //if no ".xxx" ending given, we add ".root"
       TString filenam(fi.fFilename);
       if (!filenam.Contains('.'))
          filenam += ".root";
-      SaveAs(filenam);
+      // update name of file to autosave analysis in
+      fSaveAnalysisFileName = filenam;
+      Save();
    }
    dir = fi.fIniDir;
 }
@@ -2020,6 +2094,8 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
    // or ii) if no KVTreeAnalyzer object is found, open first TTree in file
     // Any histograms in the file are added to the list of histograms
    
+    AnalysisSaveCheck();
+
    TFile* file = TFile::Open(filepath);
    TObject*kvta = file->GetListOfKeys()->FindObject("KVTreeAnalyzer");
    if(kvta){
@@ -2050,6 +2126,7 @@ void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)
          fSelectedSelections=0;
          fSelectedLeaves=0;
          fSelectedHistos=0;
+         SetAnalysisModifiedSinceLastSave(kFALSE);
          G_selectionlist->Display(&fSelections);
          FillLeafList();
       }
@@ -2098,6 +2175,7 @@ void KVTreeAnalyzer::SetAlias(const Char_t *name, const Char_t *expr)
     exp.ReplaceAll("d2r","TMath::DegToRad()");
     exp.ReplaceAll("r2d","TMath::RadToDeg()");
     fAliasList.Add(new TNamed(name,exp.Data()));
+    SetAnalysisModifiedSinceLastSave(kTRUE);
 }
 
 static const char *gSaveAsTypes[] = { "PostScript",   "*.ps",
@@ -2189,10 +2267,6 @@ void KVTreeAnalyzer::GenerateAllHistograms(TCollection *list)
         }
     }
 }
-
-
-
-
 
 
 
