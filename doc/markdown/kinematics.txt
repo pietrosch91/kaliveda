@@ -1,5 +1,9 @@
 % KaliVeda User's Guide
 
-# Particle Kinematics #
+# Massive Particle Kinematics (`KVParticle`{.cpp} base class)#
 
 ## Defining kinematical reference frames ##
+
+## Labelling & sorting particles ('groups') ##
+
+## Storing/retrieving *ad hoc* information with particles ##
