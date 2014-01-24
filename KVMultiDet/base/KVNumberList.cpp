@@ -67,6 +67,7 @@ void KVNumberList::init_numberlist()
    fLastValue = -99999999;
    fNValues = 0;
    fValues = 0;
+	fName = ClassName();
 }
 
 //____________________________________________________________________________________________//
@@ -128,6 +129,17 @@ void KVNumberList::Clear(Option_t*)
    fFirstValue = 99999999;
    fLastValue = -99999999;
    fNValues = 0;
+}
+
+//____________________________________________________________________________________________//
+
+void KVNumberList::SetName(const char *name)
+{
+	// Change (i.e. set) the name of the KVNumberList.
+   // WARNING: if the object is a member of a THashTable or THashList container
+   // the container must be Rehash()'ed after SetName(). For example the list
+   // of objects in the current directory is a THashList.  //Empty number list, reset it to initial state.
+   fName = name;
 }
 
 //____________________________________________________________________________________________//
