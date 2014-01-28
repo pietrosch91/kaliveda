@@ -1787,7 +1787,8 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
    // System                    KVDataAnalysisLauncher.System
    // Trigger                    KVDataAnalysisLauncher.Trigger
    // RunsList                  KVDataAnalysisLauncher.RunsList
-   // UserClass               KVDataAnalysisLauncher.UserClass
+    // UserClass               KVDataAnalysisLauncher.UserClass
+    // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions
    // KVDataSelector      KVDataAnalysisLauncher.KVDataSelector
    // NbEventsToRead    KVDataAnalysisLauncher.NbEventsToRead
    //
@@ -1801,6 +1802,7 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
    // Trigger                    KVDataAnalysisLauncher.Trigger.[repository].[dataset].[task].[system]
    // RunsList                  KVDataAnalysisLauncher.RunsList.[repository].[dataset].[task].[system].[trigger]
    // UserClass               KVDataAnalysisLauncher.UserClass.[repository].[dataset].[task].[system].[trigger]
+    // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions.[repository].[dataset].[task].[system].[trigger].[class]
    // KVDataSelector      KVDataAnalysisLauncher.KVDataSelector.[repository].[dataset].[task].[system].[trigger]
    // NbEventsToRead    KVDataAnalysisLauncher.NbEventsToRead.[repository].[dataset].[task].[system].[trigger]
    //
@@ -1872,6 +1874,10 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
          res.Form( ".%s", GetResource(resource->GetName()) );
       }
       saved_res += res;
+   }
+   if(!strcmp(name,"UserClassOptions")){
+       if(strcmp("",GetResource("UserClass",""))) saved_res += Form(".%s",GetResource("UserClass",""));
+       else ok=kFALSE;
    }
    
    if( !ok ) saved_res="";
@@ -1955,7 +1961,10 @@ void KVDataAnalysisLauncher::UserClassSelected(char *class_name)
    if(IsBatchNameAuto()) SetAutoBatchName();
    
    // save resource
+   SetResource( "UserClassOptions", teUserOptions->GetText() );
    SetResource( "UserClass", class_name );
+   teUserOptions->SetText( GetSavedResource("UserClassOptions","") );
+   SetResource( "UserClassOptions", teUserOptions->GetText() );
 }
 
 //__________________________________________
@@ -1981,8 +1990,11 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
 #else
       cbUserClass->Select(i,kFALSE);
 #endif      
+              // save current user class options
+              //SetResource( "UserClassOptions", teUserOptions->GetText() );
       // save current user class
       SetResource( "UserClass", class_name );
+      teUserOptions->SetText( GetSavedResource("UserClassOptions", ""));
    }
    
    else
