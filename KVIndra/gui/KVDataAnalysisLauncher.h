@@ -136,7 +136,8 @@ protected:
 	//TGTextEntry   *teSelector;
    TGComboBox *cbUserClass;
    TGLabel         *fUserClassLabel;
-	TGTextEntry   *teDataSelector;
+   TGTextEntry   *teDataSelector;
+   TGTextEntry   *teUserOptions;
    TGLabel         *fDataSelectorLabel;
 	TGNumberEntry *teNbToRead;
 	
