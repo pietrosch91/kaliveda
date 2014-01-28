@@ -1956,7 +1956,7 @@ void KVDataAnalysisLauncher::UserClassSelected(char *class_name)
    // Called when a user class is selected in the combo box.
    // Updates batch name if 'auto batch name' is selected.
    
-   Info("UserClassSelected", "User class selected : %s", class_name);
+   //Info("UserClassSelected", "User class selected : %s", class_name);
    
    if(IsBatchNameAuto()) SetAutoBatchName();
    
@@ -1975,7 +1975,7 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
    // Updates batch name if 'auto batch name' is selected.
    // We update the resource corresponding to the current state of the interface.
    
-   Info("SetUserClass", "Set user class : %s", class_name);
+   //Info("SetUserClass", "Set user class : %s", class_name);
    
    // look for user class in list
    TGLBEntry* e = cbUserClass->FindEntry( class_name );
