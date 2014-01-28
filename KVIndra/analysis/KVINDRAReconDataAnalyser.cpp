@@ -125,6 +125,12 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       option.Form("DataSelector=%s", fDataSelector.Data());
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
+
+   // Add any user-defined options
+   if(GetUserClassOptions()!=""){
+       option += ",";
+       option += GetUserClassOptions();
+   }
    
    fSelector = (KVSelector*)GetInstanceOfUserClass();
    

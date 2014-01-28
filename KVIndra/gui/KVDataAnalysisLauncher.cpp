@@ -658,6 +658,18 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cfAnalysis->AddFrame(cf,eX);
 
  this->AddFrame(cfAnalysis,eX);
+// user analysis class options
+ cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+ lab=new TGLabel(cf,"User class options : ");
+ lab->SetTextJustify(justMode);
+ lab->Resize(150,20);
+ cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+                                    1,1,1,1));
+ teUserOptions=new TGTextEntry(cf,"");
+ //teDataSelector->Resize(233,20);
+ teUserOptions->SetToolTipText("Comma-separated list of options for user analysis class: PAR1=VAL1,PAR2=VAL2,etc.",TTDELAY);
+ cf->AddFrame(teUserOptions,eX);
+ AddFrame(cf,new TGLayoutHints(kLHintsCenterX|kLHintsExpandX, 10,10,2,2));
 
  cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
  // Frame for the user's libraries
@@ -1242,6 +1254,7 @@ TString kvs( GetUserClass() );
    {
       datan->SetUserClass(kvs.Data());
       if(checkCompilation) checkCompilation=kFALSE;
+      datan->SetUserClassOptions( teUserOptions->GetText());
    }
    else
    {
@@ -2014,6 +2027,7 @@ void KVDataAnalysisLauncher::DisableUserClassList()
   cbUserClass->Select(-1);
   cbUserClass->SetEnabled(kFALSE);
   //cbUserClass->EnableTextInput(kFALSE);
+  teUserOptions->SetEnabled(kFALSE);
 }
 
 //__________________________________________
@@ -2030,6 +2044,7 @@ void KVDataAnalysisLauncher::EnableUserClassList()
   SetUserClass( GetSavedResource( "UserClass", "" ) );
   //cbUserClass->EnableTextInput(kTRUE);
   cbUserClass->SetEnabled(kTRUE);
+  teUserOptions->SetEnabled(kTRUE);
 }
 
 //__________________________________________

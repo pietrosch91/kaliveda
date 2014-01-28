@@ -27,6 +27,7 @@
 #include "KVConfig.h"
 #include "KVDataAnalyser.h"
 #include "KVHashList.h"
+#include "KVParameterList.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -91,7 +92,11 @@ class KVSelector:public TSelector {
  
    TTree* fGeneData; //!pointer to tree containing pulser and laser data for run
    TTree* fRawData; //!pointer to tree containing raw data for run
-   
+
+   //parsed list of options given to TTree::Process
+   KVParameterList<KVString> fOptionList;
+   void ParseOptions();
+
    KVINDRAReconEvent **GetEventReference() {
       return &data;
    };
@@ -222,7 +227,12 @@ class KVSelector:public TSelector {
 	
 	virtual void WriteHistoToFile(KVString filename="FileFromKVSelector.root",Option_t* option="recreate");
 	virtual void WriteTreeToFile(KVString filename="FileFromKVSelector.root",Option_t* option="recreate");
-	
+
+    virtual void SetOpt(const Char_t* option, const Char_t* value);
+    virtual Bool_t IsOptGiven(const Char_t* option);
+    virtual KVString& GetOpt(const Char_t* option) const;
+    virtual void UnsetOpt(const Char_t* opt);
+
 	ClassDef(KVSelector, 0);     //Analysis class for TChains of KVINDRAReconEvents
 };
 
