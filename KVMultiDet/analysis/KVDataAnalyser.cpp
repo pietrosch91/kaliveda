@@ -1147,8 +1147,7 @@ void KVDataAnalyser::SetUserClass(const Char_t * kvs, Bool_t check)
 
    fUserClass = kvs;
    if(check){
-      fUserClassIsOK=kFALSE;
-      CheckIfUserClassIsValid();
+      fUserClassIsOK=CheckIfUserClassIsValid();
    } else {
       fUserClassIsOK = kTRUE;
    }

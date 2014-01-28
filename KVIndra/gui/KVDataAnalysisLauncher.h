@@ -135,7 +135,8 @@ protected:
 	TGCompositeFrame *cfAnalysis;
 	//TGTextEntry   *teSelector;
    TGComboBox *cbUserClass;
-   TGLabel         *fUserClassLabel;
+    TGPictureButton* btEditClass;
+    TGLabel         *fUserClassLabel;
    TGTextEntry   *teDataSelector;
    TGTextEntry   *teUserOptions;
    TGLabel         *fDataSelectorLabel;
@@ -176,6 +177,7 @@ protected:
 	
 	UInt_t fMainGuiWidth;//width of main window in pixels
 	UInt_t fMainGuiHeight;//heigth of main window in pixels 
+
    
 public:
 	KVDataAnalysisLauncher(const TGWindow *p=0,UInt_t w=200,UInt_t h=400);
@@ -227,7 +229,8 @@ public:
 	virtual void WarningBox(const char *title="Warning", const char *msg="Warning");
 	void UpdateListOfSelectedRuns();
 	void ClearListOfSelectedRuns();
-    
+    void EditUserClassFiles();
+
       ClassDef(KVDataAnalysisLauncher,0)//Graphical interface for launching analysis tasks: KaliVedaGUI
 };
 
