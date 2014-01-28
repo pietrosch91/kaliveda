@@ -77,6 +77,7 @@ class KVDataAnalyser : public TObject {
    virtual const Char_t *GetUserClass() {
       return fUserClass.Data();
    };
+    Bool_t IsUserClassValid() const { return fUserClassIsOK; }
 
    virtual void Run();
    virtual void RunMenus();
