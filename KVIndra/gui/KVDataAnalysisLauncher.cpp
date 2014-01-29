@@ -411,8 +411,8 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
    if(gDataRepositoryManager->GetListOfRepositories()->GetEntries()==0){
       exit(1);
    }
-   
- ia = new KVDataAnalyser;//this will set up gBatchSystemManager 
+   ia=0;
+ GetDataAnalyser();//this will set up gBatchSystemManager
 
 // Creation de l'environnement d'affichage et ajout des 2 boutons a cet
 // environnement 
@@ -831,7 +831,6 @@ else
  SetWMSize(fMainGuiWidth,fMainGuiHeight);
  
  SetRepositoryList();
- ia=0;
  
  FillListOfUserClasses();
  //fill drop down list of user classes in working directory
@@ -1265,7 +1264,7 @@ TString kvs( GetUserClass() );
       else
       {
           // compilation failed. abort processing.
-          delete datan;
+          delete ia; ia=0;
           checkCompilation=kTRUE;
           WarningBox("Compilation failed", "Please correct mistakes in user analysis class");
           EditUserClassFiles();
@@ -1283,7 +1282,7 @@ else if(strcmp(task->GetUserBaseClass(), "")){
       datan->SetUserClass(task->GetUserBaseClass(),kFALSE);   
 }
  if(datan->InheritsFrom("KVINDRAReconDataAnalyser"))
-    ((KVINDRAReconDataAnalyser*)ia)->SetKVDataSelector(teDataSelector->GetText());
+    ((KVINDRAReconDataAnalyser*)datan)->SetKVDataSelector(teDataSelector->GetText());
  datan->SetNbEventToRead((Long64_t)teNbToRead->GetIntNumber());
  SetResource("RunsList", listOfRuns.AsString());
  SetResource("UserClassOptions", teUserOptions->GetText() );
