@@ -420,10 +420,10 @@ void KVVAMOSReconNuc::ReconstructTrajectory(){
 	//Reconsturction of the trajectory at the focal plane and then at
 	//the target point.
 
-//	ReconstructFPtraj();
-	ReconstructFPtrajByFitting();
-	ReconstructLabTraj();
-	if( !GetCodes().TestFPCode( kFPCode0 ) ) Propagate();
+	if( ReconstructFPtrajByFitting() ){
+		if( ReconstructLabTraj() ) Propagate();
+		else SetFPCode( kFPCode0 );
+	}
 }
 //________________________________________________________________
 
@@ -517,7 +517,7 @@ void KVVAMOSReconNuc::ReconstructFPtraj(){
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
+Bool_t KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
 	// Reconstruct the Focal-Plane trajectory and set the appropriate 
 	// FPCode. If the reconstruction is well carried out (i.e. FPCode>kFPCode0)
 	// then the tracking along this trajectory is runned.
@@ -649,23 +649,23 @@ void KVVAMOSReconNuc::ReconstructFPtrajByFitting(){
 				fRT.SetFPparamsReady();
 
 //				Info("ReconstructFPtrajByFitting","\n    Xf= %f, Yf= %f, Thetaf= %f, Phif= %f\n    FPCode%d %s", GetXf(), GetYf(),GetThetaF(),GetPhiF(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
-				return;
+				break;
 			}
 		}
 	}
+	return !GetCodes().TestFPCode( kFPCode0 );
 }
 //________________________________________________________________
 
-void KVVAMOSReconNuc::ReconstructLabTraj(){
+Bool_t KVVAMOSReconNuc::ReconstructLabTraj(){
 	// Reconstruction of the trajectory at the target point, in the reference
 	// frame of the laboratory, from the trajectory at the focal plane.
 	// The method ReconstructFPtraj() has to be call first.
 
 	// No trajectory reconstruction in the laboratory if the reconstruction
 	// in the focal plane is not OK.
-	if( GetCodes().TestFPCode( kFPCode0 ) ) return;
 	KVVAMOSTransferMatrix *tm = gVamos->GetTransferMatrix();
-	tm->ReconstructFPtoLab( &fRT );
+	return tm->ReconstructFPtoLab( &fRT );
 }
 //________________________________________________________________
 

@@ -60,8 +60,8 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
  		virtual void     Identify();
 		virtual void     ReconstructTrajectory();
 		virtual void     ReconstructFPtraj();
-		virtual void     ReconstructFPtrajByFitting();
-		virtual void     ReconstructLabTraj();
+		virtual Bool_t   ReconstructFPtrajByFitting();
+		virtual Bool_t   ReconstructLabTraj();
 
 		virtual void     Propagate(ECalib cal = kNoCalib);
 		virtual void     SetFlightDistanceAndTime();

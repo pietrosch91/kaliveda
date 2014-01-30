@@ -238,7 +238,7 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 		XYZ[0] = XYZ[1] = XYZ[2] = 0.;
 		XYZdir[0] = XYZdir[1] = 0.;
  		XYZdir[2] = 1.; 
-		Warning("PropagateNucleus","A central trajectory is used to propagate the nucleus");
+		Warning("PropagateNucleus","A central trajectory is used to propagate the nucleus (FPCode%d, path= %f cm)",nuc->GetCodes().GetFPCodeIndex(), nuc->GetPath());
 	}
 	// intersection point between reconstructed trajectory and the Focal
 	// Plane in the frame of reference centered at the target point
