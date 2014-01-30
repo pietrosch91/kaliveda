@@ -124,12 +124,6 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 		if( GetCurrentVolume() == stopVol ) SetStopPropagation();
 	}
 
-
-	//	Info("ParticleEntersNewVolume","Current volume: %s",GetCurrentVolume()->GetName());
-	//	cout<<"ENTRY POINT: "; GetEntryPoint().Print();
-	//	cout<<"EXIT  POINT: "; GetExitPoint().Print();
-
-
 	if( fDoNothing ) return;
 
 
@@ -296,6 +290,12 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 		}
 	}
 
+	// stop the E and T calculation if the nucleus does not have energy anymore
+	// but continue the propagation
+	if( fE<1e-3 ){
+		fCalib = kNoCalib;
+		fE = 1; // set a non null energy to continue the propagation
+	}
 
    	// Backward propagation to find the second origine point located
 	// just before the first detector on this direction
