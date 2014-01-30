@@ -128,6 +128,7 @@ void KVINDRADstToRootTransfert::ProcessRun()
 	KVString line="";
 	
     Int_t nfiles,necrit,rn_verif;
+    nfiles=necrit=rn_verif=0;
 	TObjArray* toks=0;
 	while (f_in.good()){
 		line.ReadLine(f_in);
