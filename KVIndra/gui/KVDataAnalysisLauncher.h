@@ -226,7 +226,7 @@ public:
 	virtual void SetUserLibraries(void);
 	virtual void SetUserIncludes(void);
 
-	virtual void WarningBox(const char *title="Warning", const char *msg="Warning");
+    virtual Bool_t WarningBox(const char *title="Warning", const char *msg="Warning", Bool_t confirm=kFALSE);
 	void UpdateListOfSelectedRuns();
 	void ClearListOfSelectedRuns();
     void EditUserClassFiles();

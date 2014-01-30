@@ -17,6 +17,8 @@
 #pragma link C++ class KVLinuxBatch;
 #pragma link C++ class KVDataAnalysisTask+;
 #pragma link C++ class KVDataAnalyser+;
+#pragma link C++ class KVDataPatch+;
+#pragma link C++ class KVDataPatchList+;
 #pragma link C++ class KVEventSelector+;
 #pragma link C++ class KVEventFiltering+;
 #pragma link C++ class KVSimReader;

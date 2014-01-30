@@ -123,7 +123,11 @@ ClassImp(KVCalorimetry)
 //		Mn =  [AsurZ]*Zsum - Asum	(methode SumUp)
 //		Asum/[LevelDensityParameter] * T*T + Qi - \Sigma Ek - [NeutronMeanEnergyFactor]*Mn*T - \Sigma Q = 0	(methode Calculate)
 //		Exci = Asum/[LevelDensityParameter] * T*T
-//		
+//
+//			A NOTER : Dans le cas ou le calcul de la multiplicité de neutrons retourne un nombre négatif (Mneu<0), le
+//			multiplicité de neutrons est mise à zéro (Mneu=0) et on rajoute un paramètre Aexcess = TMath::Abs(Mneu)
+//			La calorimétrie se fait en considérant aucun neutrons libres
+//				
 //		Dans la liste des ingrédients, sont ajoutés les contributions relatives aux neutrons et les paramètres choisis
 //		sont également enregistrés
 //			root [31] ca.Print("ing");			//Exemple d'output avec cette methode
@@ -153,6 +157,7 @@ ClassImp(KVCalorimetry)
 //
 // Pour Resume, 
 //		IL EST INDISPENSABLE D APPELER LA METHODE Calculate() avant d'utiliser les variables calculées dans KVCalorimetry
+//		Cette méthode renvoie un booléen indiquant si tout c'est bien passé (kTRUE)
 //		les methodes :
 //			void UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor);
 //			void DeduceTemperature(Double_t LevelDensityParameter);
@@ -602,7 +607,8 @@ void KVCalorimetry::SumUp()
 		// conservation du AsurZ du systeme --> multiplicite moyenne des neutrons	
 		Double_t Mneutron = Double_t(TMath::Nint(GetParValue("AsurZ")*GetIngValue("Zsum") - GetIngValue("Asum"))); 	
 		if (Mneutron<0) {
-            //Warning("SumUp","Nombre de neutrons déduits négatif : %1.0lf -> on le met à zéro",Mneutron);
+			//Warning("SumUp","Nombre de neutrons déduits négatif : %1.0lf -> on le met à zéro",Mneutron);
+         SetIngValue("Aexcess",TMath::Abs(Mneutron));
 			Mneutron = 0;
 		}
 		SetIngValue("Aneu",Mneutron);
@@ -622,12 +628,14 @@ void KVCalorimetry::SumUp()
 }
 
 //________________________________________________________________
-void 	KVCalorimetry::Calculate(void)
+Bool_t 	KVCalorimetry::Calculate(void)
 {
 	//Réalisation de la calorimétrie
 	//Calcul de l'énergie d'excitation, température (optionnel), de l'énergie moyenne des neutrons (optionnel)
 	//appel de SumUp() 
-	//
+	//Cette méthore retourne kTRUE si tout s'est bien passée, kFALSE si il y a un problème dans la résolution
+   //du polynome d'ordre 2
+   // 
 	// Deux modes de calcul:
 	//------------------
 	// - mode normal (par defaut)
@@ -648,7 +656,7 @@ void 	KVCalorimetry::Calculate(void)
 	
 	//Info("Calculate","Debut");
 	
-	if (!kIsModified) return;
+	if (!kIsModified) return kTRUE;
 	kIsModified=kFALSE;
 	// premier calcul depuis le dernier remplissage par Fill
 	SumUp();
@@ -674,9 +682,8 @@ void 	KVCalorimetry::Calculate(void)
 			//SetIngValue("Tmin",kracine_min); // la deuxieme solution de l'eq en T2
 		}
 		else {
-			Warning("Calculate","La resolution du polynome d ordre 2 a posé pb");
-		}
-		//printf("Ekneu = %lf/%lf, Eksum=%lf apres neutrons ds calculate\n",coefB*GetIngValue("Temp"),GetIngValue("Ekneu"),GetIngValue("Eksum"));
+			return kFALSE;
+      }
 	
 	}
 	else {
@@ -689,7 +696,7 @@ void 	KVCalorimetry::Calculate(void)
 		}
 	
 	}
-	//Info("Calculate","Fin");
+	return kTRUE;
 }
 
 //________________________________________________________________
@@ -704,21 +711,21 @@ Bool_t 	KVCalorimetry::RootSquare(Double_t aa,Double_t bb,Double_t cc)
 	//		=0 2 racines reelles distinctes
 	//		=1 2 racines reelles egales (aa==0)
 	//			 
-	// kroot<0 les deux racines sont mises a zero la fonction retourne kFALSE
+	// kroot_status<0 les deux racines sont mises a zero la fonction retourne kFALSE
 	//		=-1 2 racines imaginaires (Delta<0)
-	//		=-2 aa=bb=0 
+	//		=-2 aa=bb=0   							
+	// le calcul n'est alors pas poursuivi, la méthode Calculate() retournera kFALSE
+   // la cause peut être discriminée en appelant la méthode GetValue("RootStatus")
 	//
-	kracine_max=0,kracine_min=0;
+   kracine_max=0,kracine_min=0;
 	Double_t x1,x2;
 	kroot_status=0;
 	if (aa!=0) {
 		Double_t Delta=TMath::Power(bb,2.)-4.*aa*cc;
 		if (Delta<0) {
-			//printf("solutions imaginaires dans Fonctions::Racines() %lf %lf %lf\n",aa,bb,cc);
-			//cout << "Delta<0 - Solutions imaginaires" << endl; min=-666; max=-666; 
-			//printf("%lf %lf %lf\n",a,b,c);
-			Warning("RootSquare","Delta<0 - Solutions imaginaires");
+			//Warning("RootSquare","Delta<0 - Solutions imaginaires");
 			kroot_status=-1;
+         SetIngValue("RootStatus",kroot_status);
 		}
 		else {
 			Double_t racDelta = TMath::Sqrt(Delta); 
@@ -737,10 +744,15 @@ Bool_t 	KVCalorimetry::RootSquare(Double_t aa,Double_t bb,Double_t cc)
 		else {
 			kroot_status=-2;
 			kracine_max = kracine_min = 0;
-			Warning("SumUp","aa = bb = 0");
+         SetIngValue("RootStatus",kroot_status);
 		}
 	}
-
-	return (kroot_status>=0);
+	if (kroot_status<0){
+   	SetIngValue("RootStatus",kroot_status);
+      return kFALSE;
+   }
+   else{
+   	return kTRUE;
+   }
 
 }

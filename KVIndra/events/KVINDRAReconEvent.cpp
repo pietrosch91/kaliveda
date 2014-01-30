@@ -108,22 +108,18 @@ void KVINDRAReconEvent::Streamer(TBuffer & R__b)
 {
    //Stream an object of class KVINDRAReconEvent.
    //We loop over the newly-read particles in order to set their
-   //IsOK() status by comparison with the event's code mask
+   //IsOK() status by comparison with the event's code mask.
 
-   if (R__b.IsReading()) {
-   		R__b.ReadClassBuffer(KVINDRAReconEvent::Class(), this);
-      KVINDRAReconNuc *par;
-      while ((par = GetNextParticle())) {
-         if (CheckCodes(par->GetCodes()))
-            par->SetIsOK();
-         else
-            par->SetIsOK(kFALSE);
-      }
-   } else {
-   		R__b.WriteClassBuffer(KVINDRAReconEvent::Class(), this);
-   }
+    if (R__b.IsReading()) {
+        R__b.ReadClassBuffer(KVINDRAReconEvent::Class(), this);
+        KVINDRAReconNuc *par;
+        while ((par = GetNextParticle())) {
+            par->SetIsOK(CheckCodes(par->GetCodes()));
+        }
+    } else {
+        R__b.WriteClassBuffer(KVINDRAReconEvent::Class(), this);
+    }
 }
-
 
 //______________________________________________________________________________
 void KVINDRAReconEvent::Print(Option_t * option) const

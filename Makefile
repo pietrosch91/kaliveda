@@ -124,6 +124,7 @@ INDRAVAMOS =
 endif
 
 export KV_BUILD_DATE = $(shell date +%F)
+export KV_BUILD_TIME = $(shell date +%T)
 DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
@@ -168,8 +169,10 @@ fitltg-0.1/configure: fitltg-0.1/configure.ac
 KVVersion.h : VERSION $(DATE_RECORD_FILE)
 	@echo '#define KV_VERSION "$(VERSION_NUMBER)"' > $@;\
 	echo '#define KV_BUILD_DATE "$(KV_BUILD_DATE)"' >> $@;\
+	echo '#define KV_BUILD_TIME "$(KV_BUILD_TIME)"' >> $@;\
 	echo '#define KV_BUILD_USER "$(USER)"' >> $@;\
-	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> $@
+	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> $@;\
+	echo '#define KV_MAKEFLAGS "$(MAKEFLAGS)"' >> $@
 
 $(DATE_RECORD_FILE) :
 	@if test ! -f $@; then \

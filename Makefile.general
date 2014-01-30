@@ -83,6 +83,7 @@ endif
 #without this we cannot use NamespaceImp (in e.g. KVTGIDFunctions)
 OPT = -O
 OPT2 = -O2 
+OPT3 = -O3 
 TMPFLAGS := $(filter-out $(OPT2),$(CXXFLAGS))
 CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
 
@@ -90,8 +91,11 @@ CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
 ifeq ($(PLATFORM),linux)
 ifeq ($(debug),yes)
 CXXFLAGS_NOOPT += -g
-CXXFLAGS := $(CXXFLAGS_NOOPT)
-LDFLAGS += -g
+CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT)
+LDFLAGS := $(ROOTLDFLAGS) -g $(OPT)
+else
+CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT3)
+LDFLAGS := $(ROOTLDFLAGS) $(OPT3)
 endif
 ifeq ($(memcheck),yes)
 CXXFLAGS_NOOPTS += -g -fno-inline

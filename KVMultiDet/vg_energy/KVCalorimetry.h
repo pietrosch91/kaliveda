@@ -81,7 +81,7 @@ class KVCalorimetry:public KVVarGlob
 	void IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter);
 	
 	void 	Fill(KVNucleus*);
-   void 	Calculate(void);
+   Bool_t Calculate(void);
 	
 	ClassDef(KVCalorimetry,1)//compute calorimetry
 	

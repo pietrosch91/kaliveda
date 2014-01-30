@@ -1257,7 +1257,7 @@ TString kvs( GetUserClass() );
     if(kvs.Length())
    {
       datan->SetUserClassOptions( teUserOptions->GetText());
-      Info("Process","setting user class now for analyser %s check=%d", datan->ClassName(),checkCompilation);
+      //Info("Process","setting user class now for analyser %s check=%d", datan->ClassName(),checkCompilation);
       datan->SetUserClass(kvs.Data(),checkCompilation);
       if(datan->IsUserClassValid())
           checkCompilation=kFALSE;
@@ -1273,6 +1273,8 @@ TString kvs( GetUserClass() );
    }
    else
    {
+        delete ia; ia=0;
+        checkCompilation=kTRUE;
       WarningBox("No User Class","Please enter the user analysis class name.");
       return;
    }
@@ -1283,6 +1285,17 @@ else if(strcmp(task->GetUserBaseClass(), "")){
 }
  if(datan->InheritsFrom("KVINDRAReconDataAnalyser"))
     ((KVINDRAReconDataAnalyser*)datan)->SetKVDataSelector(teDataSelector->GetText());
+ Long64_t nbEventRead = (Long64_t)teNbToRead->GetIntNumber();
+ // if in batch and nbEventRead>0, ask confirmation
+ if(IsBatch() && nbEventRead){
+     if(!WarningBox("Read all events in batch mode?",
+                "This will submit batch jobs which will not read all events.\nAre you sure that is what you want?",
+                kTRUE))
+     {
+         delete ia; ia=0;
+         return;
+     }
+ }
  datan->SetNbEventToRead((Long64_t)teNbToRead->GetIntNumber());
  SetResource("RunsList", listOfRuns.AsString());
  SetResource("UserClassOptions", teUserOptions->GetText() );
@@ -1645,14 +1658,23 @@ checkCompilation=ori.CompareTo(fUserIncludes);
 
 
 //__________________________________________
-void KVDataAnalysisLauncher::WarningBox(const char *title, const char *msg)
+Bool_t KVDataAnalysisLauncher::WarningBox(const char *title, const char *msg, Bool_t confirm)
 {
-// Warning box in case of problems
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,0,0)
-new TGMsgBox(0,this,title,msg,kMBIconExclamation);
-#else
-new TGMsgBox(gClient->GetRoot(),this,title,msg,kMBIconExclamation);
-#endif
+    // Warning box in case of problems
+    // if confirm=kTRUE we ask for a yes/no answer from the user:
+    //     if 'yes' is pressed, we return kTRUE, if 'no', kFALSE.
+    // by default, only a 'dismiss' button is shown, and this method always returns kTRUE.
+
+    Bool_t reply = kTRUE;
+    if(!confirm)
+        new TGMsgBox(gClient->GetRoot(),this,title,msg,kMBIconExclamation);
+    else
+    {
+        Int_t ret_code=0;
+        new TGMsgBox(gClient->GetRoot(), this, title,msg,kMBIconExclamation, kMBYes|kMBNo, &ret_code);
+        reply = (ret_code&kMBYes);
+    }
+    return reply;
 }
 
 //__________________________________________

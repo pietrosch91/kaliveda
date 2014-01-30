@@ -68,6 +68,9 @@ ClassImp(KVSelector)
 //template for your analysis class with the correct declarations for the above
 //methods. MySelector.C and MySelector.h will be generated.
 //
+//Using Options
+//=============
+//
 //Using Global Variables
 //======================
 //Many of the most frequently used global variables have been implemented as
@@ -187,7 +190,15 @@ KVSelector::~KVSelector()
 void KVSelector::Init(TTree * tree)
 {
        if(fChain) return;//Init has already been called
-       
+
+       if(gBatchSystem){//delete any status file from previous job with same name from $HOME directory
+          TString stats = Form("$(HOME)/%s.status", gBatchSystem->GetJobName());
+          gSystem->ExpandPathName(stats);
+          gSystem->Unlink(stats);
+          stats+=".bak";
+          gSystem->Unlink(stats);
+       }
+
     if(!tree) return;
        
 	//   Set branch addresses
@@ -279,20 +290,10 @@ Bool_t KVSelector::Notify()
    }
 
 	gDataAnalyser->preInitRun();
-   // Rustine for 5th campaign 'root' data written with version < 1.8.10
-   // correct particle energies
    Info("Notify", "Data written with series %s, release %d",
          ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataSeries().Data(),
          ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataReleaseNumber());
-   KVINDRAReconNuc::CalibNeedCorrection =
-         (!strcmp(gDataSet->GetName(),"INDRA_camp5")
-         && !strcmp(gDataAnalyser->GetAnalysisTask()->GetPrereq(),"root")
-         && ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataSeries()=="1.8"
-         && ((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetDataReleaseNumber()<10);
-   if(KVINDRAReconNuc::CalibNeedCorrection){
-      Info("Notify", "RUSTINE FOR 5th CAMPAIGN ROOT FILE WRITTEN WITH KALIVEDA <v1.8.10");
-      Info("Notify", "Particles with Z>10 and Ring<10 will be recalibrated for analysis");
-   }
+
    InitRun();                   //user initialisations for run
 	gDataAnalyser->postInitRun();
    return kTRUE;
@@ -379,15 +380,6 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 	// read raw data associated to event
    gDataAnalyser->preAnalysis();
    
-   // Rustine for 5th campaign 'root' data written with version <= 1.8.9
-   // correct particle energies
-   if(KVINDRAReconNuc::CalibNeedCorrection){
-      KVINDRAReconNuc* nn=0;
-      while( (nn = (KVINDRAReconNuc*)GetEvent()->GetNextParticle()) ){
-         nn->Recalibrate();
-      }
-   }
-
    //additional selection criteria ?
    if(fPartCond){
       KVNucleus* part=0;
@@ -490,6 +482,14 @@ void KVSelector::Terminate()
 	gDataAnalyser->preEndAnalysis();
    EndAnalysis();               //user end of analysis routine
 	gDataAnalyser->postEndAnalysis();
+
+    if(gBatchSystem){//delete job status file from $HOME directory
+       TString stats = Form("$(HOME)/%s.status", gBatchSystem->GetJobName());
+       gSystem->ExpandPathName(stats);
+       gSystem->Unlink(stats);
+       stats+=".bak";
+       gSystem->Unlink(stats);
+    }
 }
 
 void KVSelector::Make(const Char_t * kvsname)
