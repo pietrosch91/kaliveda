@@ -88,6 +88,7 @@ class KVVAMOS : public KVMultiDetArray
    		virtual void     Initialize();
    		static  KVVAMOS *MakeVAMOS( const Char_t* name );
 		virtual void     ResetParameters();
+		virtual void     SetPedestal(const Char_t *name, Float_t ped);
 		        void     SetStripFoil( KVMaterial *foil, Double_t pos=0 );
 		        void     SetStripFoil( const Char_t *material, const Float_t area_density, Double_t pos  );
 		        void     SetTransferMatrix( KVVAMOSTransferMatrix *mat );

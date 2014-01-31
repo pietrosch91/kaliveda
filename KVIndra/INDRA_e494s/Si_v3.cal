@@ -115,3 +115,14 @@ SI_15: "SI_SED1" 0
 SI_16: "SI_SED1" 0
 SI_17: "SI_SED1" 0
 SI_18: "SI_SED1" 0
+
+
+
+#Time Pedestals (in canal) 31/01/14 
+RUNS: 2-615
+TYPE: Pedestal
+FUNCTION:
+
+VAMOS: "TSI_SED1"  120
+VAMOS: "TSI_INDRA" 150
+

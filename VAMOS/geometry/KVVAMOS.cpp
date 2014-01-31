@@ -950,6 +950,15 @@ void KVVAMOS::ResetParameters(){
 	SetStripFoil( 0 );
 }
 //________________________________________________________________
+void KVVAMOS::SetPedestal(const Char_t *name, Float_t ped){
+	// Set value of pedestal associated to parameter with given name.
+
+   	KVACQParam *par = GetACQParam(name);
+   	if (par) {
+      	par->SetPedestal(ped);
+   	}
+}
+//________________________________________________________________
 
 void  KVVAMOS::SetStripFoil( KVMaterial *foil, Double_t pos  ){
  	//Adopt KVMaterial object for use as stripping foil i.e. we make a clone of the object

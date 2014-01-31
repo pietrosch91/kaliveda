@@ -37,6 +37,13 @@ SED1: "SED1_SED2" -61.6534
 
 
 
+#Time Pedestals (in canal) 31/01/14 
+RUNS: 2-615
+TYPE: Pedestal
+FUNCTION:
+
+VAMOS: "TSED1_HF" 200
+VAMOS: "TSED1_SED2" 200
 
 
 #Charge calibration Strip X

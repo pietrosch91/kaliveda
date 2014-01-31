@@ -20,6 +20,14 @@ RUNS: 80-615
 SED2: 449.16
 
 
+#Time Pedestals (in canal) 31/01/14
+RUNS: 2-615
+TYPE: Pedestal
+FUNCTION:
+
+VAMOS: "TSED2_HF" 200
+
+
 
 #Charge calibration Strip X
 RUNS: 2-615
