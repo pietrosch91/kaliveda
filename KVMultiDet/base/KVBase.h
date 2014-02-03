@@ -134,6 +134,8 @@ class KVBase:public TNamed {
 
    static void CombineFiles(const Char_t* file1, const Char_t* file2, const Char_t* newfilename, Bool_t keep=kTRUE);
 
+   virtual TObject* GetObject();
+
    ClassDef(KVBase, 3)          //Base class for all KaliVeda objects
 };
 

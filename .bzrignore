@@ -62,3 +62,5 @@ kaliveda.includes
 *.files
 *.includes
 *.user
+*.asc
+ar-lib

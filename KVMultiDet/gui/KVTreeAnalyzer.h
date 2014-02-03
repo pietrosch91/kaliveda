@@ -265,7 +265,6 @@ class KVTreeAnalyzer : public TNamed
    const KVList* GetHistoList() const { return &fHistolist; }
    TList* GetHistosByData(const Char_t* expr);
    TList* GetHistosBySelection(const Char_t* expr);
-   void ParseHistoTitle(const Char_t* title, TString& exp, TString& sel);
    TH1* GetHisto(const Char_t* expr, const Char_t* selection);
    void DeleteHisto(const Char_t* expr, const Char_t* selection);
    void DeleteSelectedHisto();
@@ -354,9 +353,9 @@ class KVTreeAnalyzer : public TNamed
    void GenerateAllHistograms(TCollection*);
    void HistoFileMenu_Apply();
    void ReapplyAnyFile(const Char_t *filepath);
-
-   ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
    void SetTreeFileName(TTree* t);
+
+   ClassDef(KVTreeAnalyzer,4)//KVTreeAnalyzer
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer*gTreeAnalyzer;

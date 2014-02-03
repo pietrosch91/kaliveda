@@ -250,6 +250,10 @@ KaliVeda.GUI.MimeTypes.KVIDZAGrid.Icon:   draw_t.xpm
 KaliVeda.GUI.MimeTypes.KVTGIDGrid.Icon:   f2_t.xpm
 +KaliVeda.GUI.MimeTypes:   KVDBRun
 KaliVeda.GUI.MimeTypes.KVDBRun.Icon:   tree_t.xpm
++KaliVeda.GUI.MimeTypes:   TCutG
+KaliVeda.GUI.MimeTypes.TCutG.Icon:   cut_t.xpm
++KaliVeda.GUI.MimeTypes:   TEntryList
+KaliVeda.GUI.MimeTypes.TEntryList.Icon:   rootdb_t.xpm
 
 # Control whether to use ROOT geometry & algorithms for particle trajectory simulation
 KVMultiDetArray.FilterUsesROOTGeometry:    yes

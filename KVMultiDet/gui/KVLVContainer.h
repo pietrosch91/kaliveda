@@ -122,6 +122,8 @@ class KVLVContainer : public TGLVContainer
 
     TClass* fObjClass;
 
+    Bool_t fUseObjLabelAsRealClass; // if kTRUE, object's classname read from KVBase::GetLabel() (objects must be KVBase-derived!)
+
 	virtual void FillList(const TCollection* = 0);
 	void DeleteColData();
 	void default_init();
@@ -212,6 +214,8 @@ class KVLVContainer : public TGLVContainer
    void AddDataColumn(const char* columnName); // *MENU*
 //   void SetNewColumnName(const char* columnName);
    virtual void SelectAll(); /* SIGNAL */
+
+   void SetUseObjLabelAsRealClass(Bool_t on = kTRUE) { fUseObjLabelAsRealClass = on; }
 
    ClassDef(KVLVContainer,0)//List view container class
 };

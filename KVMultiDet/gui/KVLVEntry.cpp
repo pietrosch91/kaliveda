@@ -107,7 +107,51 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 	if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
 		gInterpreter->Execute(obj, obj->IsA(), "Connect",
 				Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
-	}
+    }
+}
+
+KVLVEntry::KVLVEntry(TObject *obj, const Char_t *objclass, const KVLVContainer *cnt, UInt_t ncols, KVLVColumnData **coldata)
+    : TGLVEntry(cnt, TString(coldata[0]->GetDataString(obj)),
+    TString(objclass), 0, kVerticalFrame, GetWhitePixel())
+{
+    // Exactly same as default constructor, but class of object used by TGLVEntry is given separately,
+    // not neccessarily the same as obj->ClassName()
+
+     fEditMode=kFALSE;
+     if( !fgGreyPixel ){
+         if( !fClient->GetColorByName("#f0f0f0", fgGreyPixel) ) fgGreyPixel=0;
+         fgBGColor = fgWhitePixel;
+     }
+     fBGColor = -1;
+
+     fUserData = obj;
+     fSubnames = new TGString* [ncols];
+     fBoolean = new Bool_t [ncols];
+     for(int i=0; i<(int)ncols-1; i++){
+         fSubnames[i] = new TGString( coldata[i+1]->GetDataString(obj) );
+         fBoolean[i] = coldata[i+1]->IsBoolean();
+     }
+     fSubnames[ncols-1] = 0;
+     fBoolean[ncols-1] = kFALSE;
+     int j;
+    for (j = 0; fSubnames[j] != 0; ++j)
+       ;
+    fCtw = new int[j+1];
+    fCtw[j] = 0;
+    for (int i = 0; fSubnames[i] != 0; ++i)
+       fCtw[i] = gVirtualX->TextWidth(fFontStruct, fSubnames[i]->GetString(),
+                                      fSubnames[i]->GetLength());
+    SetWindowName();
+
+     // to update display of object characteristics when object is changed,
+     // the object must have a "Connect" method (for signals-slots) and a "Modified"
+     // method which emits the "Modified" signal when object is changed.
+     // N.B. the object does not have to inherit from TQObject (can use RQ_OBJECT macro)
+     // the "Modified" signal is connected to the KVLVEntry::Refresh method
+     if( obj->IsA()->GetMethodAllAny("Modified") && obj->IsA()->GetMethodAllAny("Connect") ){
+         gInterpreter->Execute(obj, obj->IsA(), "Connect",
+                 Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
+     }
 }
 
 void KVLVEntry::Refresh()

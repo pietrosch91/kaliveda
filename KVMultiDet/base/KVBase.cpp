@@ -1103,6 +1103,17 @@ void KVBase::CombineFiles(const Char_t *file1, const Char_t *file2, const Char_t
     }
 }
 
+TObject *KVBase::GetObject()
+{
+    // Dummy method (returns NULL).
+    // This method may be used in 'container' classes used with KVListView.
+    // In order to open the context menu of the 'contained' object,
+    // GetLabel() should return the real class of the object,
+    // and this method should return its address.
+    // Then call KVListView::SetUseObjLabelAsRealClass(kTRUE).
+    return NULL;
+}
+
 
 
 

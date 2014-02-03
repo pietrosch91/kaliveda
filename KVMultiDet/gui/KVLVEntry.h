@@ -26,8 +26,10 @@ class KVLVEntry : public TGLVEntry
 	Bool_t *fBoolean;//'IsBoolean' attribute of each column
 	
    public:
-   KVLVEntry(TObject* obj, const KVLVContainer *cnt,
-			UInt_t ncols, KVLVColumnData **coldata);
+    KVLVEntry(TObject* obj, const KVLVContainer *cnt,
+             UInt_t ncols, KVLVColumnData **coldata);
+    KVLVEntry(TObject* obj, const Char_t* objclass, const KVLVContainer *cnt,
+             UInt_t ncols, KVLVColumnData **coldata);
    virtual ~KVLVEntry(){
 		delete [] fBoolean;
 	};

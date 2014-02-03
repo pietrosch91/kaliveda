@@ -68,4 +68,5 @@
 #pragma link C++ class KVSystemFile+;
 #pragma link C++ class KVSystemDirectory+;
 #pragma link C++ class KVEnv+;
+#pragma link C++ class KVHistogram+;
 #endif

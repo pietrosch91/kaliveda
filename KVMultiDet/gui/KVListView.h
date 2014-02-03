@@ -121,6 +121,8 @@ class KVListView : public TGListView
     void AllowMultipleSelection(Bool_t yes=kTRUE) { ((TGLVContainer*)GetContainer())->SetMultipleSelection(yes); }
     Bool_t GetMultipleSelection() const { return ((TGLVContainer*)GetContainer())->GetMultipleSelection(); }
 
+    void SetUseObjLabelAsRealClass(Bool_t yes = kTRUE);
+
    ClassDef(KVListView,0)//Slightly modified TGListView
 };
 
