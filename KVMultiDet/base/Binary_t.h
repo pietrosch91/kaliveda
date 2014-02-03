@@ -472,7 +472,7 @@ template < class T > void Binary_t < T >::WriteSubvalue(const T val,
    Set(fDumString.Data());
 }
 
-template < class T > void Binary_t < T >::Print(Option_t * opt) const
+template < class T > void Binary_t < T >::Print(Option_t*) const
 {
    std::cout << "Binary number : " << const_cast<Binary_t<T>*>(this)->String() << " : fNBits=" << (int) fNBits
        << " fNBitsRep=" << (int) fNBitsRep << " fVal=" << (Long64_t)

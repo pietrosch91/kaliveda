@@ -111,7 +111,7 @@ KVTrieur::KVTrieur(Int_t nbcases, Char_t * nom)
 }
 
 //________________________________________________________
-KVTrieur::KVTrieur(const KVTrieur & a)
+KVTrieur::KVTrieur(const KVTrieur & a) : KVBase()
 {
 // 
 // Contructeur par Copie

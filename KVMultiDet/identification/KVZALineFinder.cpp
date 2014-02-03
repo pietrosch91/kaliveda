@@ -511,7 +511,6 @@ void KVZALineFinder::ProcessIdentification(Int_t zmin, Int_t zmax)
     if(zmin<0) zmin = ((KVIDentifier*)fGrid->GetIdentifiers()->First())->GetZ();
     if(zmax<0) zmax = ((KVIDentifier*)fGrid->GetIdentifiers()->Last())->GetZ();
 
-    KVIDLine* line = 0;
     int ww = 10;
     for(int z=zmin; z<=zmax; z++)
     {

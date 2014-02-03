@@ -12,6 +12,7 @@ $Date: 2007/05/31 09:59:22 $
 
 #include "KVDataAnalyser.h"
 #include "KVSelector.h"
+#include <KVDataPatchList.h>
 class TChain;
 
 class KVINDRAReconDataAnalyser:public KVDataAnalyser {
@@ -36,6 +37,8 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    KVString fDataVersion;//KV version used to write analysed data
    KVString fDataSeries;//KV series used to write analysed data
    Int_t fDataReleaseNum;//KV release number used to write analysed data
+
+   KVDataPatchList fRustines;//patches to be applied to correct data before analysis
 	
  public:
 
@@ -63,8 +66,8 @@ class KVINDRAReconDataAnalyser:public KVDataAnalyser {
    void preInitAnalysis();
    void preAnalysis();
    void preInitRun();
-	virtual void RegisterUserClass(TObject*obj) {fSelector=(KVSelector*)obj;};
-	void PrintTreeInfos();
+   virtual void RegisterUserClass(TObject*obj) {fSelector=(KVSelector*)obj;};
+   void PrintTreeInfos();
    TEnv* GetReconDataTreeInfos() const;
    
    KVString GetDataVersion() const { return fDataVersion; }

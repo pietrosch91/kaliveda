@@ -12,7 +12,8 @@ class KVRangeYanez : public KVIonRangeTable
    static KVHashList* fMaterials;// static list of all currently defined materials
    void CheckMaterialsList();
    void ReadPredefinedMaterials(const Char_t* filename);
-   
+   KVIonRangeTableMaterial* GetMaterialWithNameOrType(const Char_t* material);
+
    public:
    
    KVRangeYanez();
@@ -28,7 +29,6 @@ class KVRangeYanez : public KVIonRangeTable
          const Char_t* name, const Char_t* symbol,
          Int_t nelem, Int_t* z, Int_t* a, Int_t* natoms, Double_t* weight, Double_t density=-1.0);
    KVIonRangeTableMaterial* MakeNaturallyOccuringElementMixture(Int_t z);
-   KVIonRangeTableMaterial* GetMaterial(const Char_t* material);   
    void Print(Option_t* = "") const;
    TObjArray* GetListOfMaterials();
    

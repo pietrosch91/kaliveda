@@ -86,7 +86,7 @@ void KVRangeYanez::Copy (TObject& obj) const
    //KVRangeYanez& CastedObj = (KVRangeYanez&)obj;
 }
 
-KVIonRangeTableMaterial* KVRangeYanez::GetMaterial(const Char_t* material)
+KVIonRangeTableMaterial* KVRangeYanez::GetMaterialWithNameOrType(const Char_t* material)
 {
    // Returns pointer to material of given name or type.
    // Note that any request for an element of the periodic table will cause

@@ -71,7 +71,8 @@ protected:
 
     virtual void SetCalibrators();
     virtual void SetDetectorThicknesses();
-    virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500){ return 0; };
+    virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500,
+                                          Bool_t /*closegeo*/ = kTRUE){ return 0; }
 
 public:
     void SetGeometry(TGeoManager*);
@@ -101,7 +102,7 @@ public:
     virtual KVTelescope *GetTelescope(const Char_t * name) const;
     virtual KVGroup *GetGroupWithDetector(const Char_t *);
     virtual KVGroup *GetGroup(const Char_t *);
-    virtual KVGroup *GetGroupWithAngles(Float_t theta, Float_t phi) { return 0; }
+    virtual KVGroup *GetGroupWithAngles(Float_t /*theta*/, Float_t /*phi*/) { return 0; }
     void RemoveGroup(KVGroup *);
     void RemoveGroup(const Char_t *);
     void ReplaceDetector(const Char_t * name, KVDetector * new_kvd);

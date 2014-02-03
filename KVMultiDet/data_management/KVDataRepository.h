@@ -17,6 +17,7 @@ $Date: 2007/12/11 12:45:47 $
 #include "TEnv.h"
 
 class KVList;
+class KVUniqueNameList;
 class TFile;
 class KVDataSet;
 class KVDataSetManager;
@@ -103,7 +104,7 @@ class KVDataRepository:public KVBase {
    {
       return fCanWrite;
    }
-   virtual TList *GetDirectoryListing(KVDataSet* dataset,
+   virtual KVUniqueNameList *GetDirectoryListing(KVDataSet* dataset,
                                        const Char_t * datatype = "");
 
    virtual void CopyFileFromRepository(KVDataSet* dataset,

@@ -37,7 +37,7 @@ class KVBIC:public KVChIo {
    KVACQParam *GetACQParam(const Char_t * type);
 
    void SetPressure(Float_t);
-   void SetTemperature(Float_t t);
+   void SetTemperature(Double_t t);
    void SetBombage(Float_t x);
    Float_t GetBombage() const {
       return fBomb;
@@ -45,7 +45,7 @@ class KVBIC:public KVChIo {
    Float_t GetEffectiveEntryThickness() const;
 
    Double_t GetELossMylar(UInt_t z, UInt_t a, Double_t egas = -1.0);
-   Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t egas = -1.0);
+   Double_t GetCorrectedEnergy(KVNucleus*, Double_t e = -1.0, Bool_t transmit = kTRUE);
 
    void SetCalibrators();
    

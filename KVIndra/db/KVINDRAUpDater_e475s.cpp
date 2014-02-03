@@ -64,7 +64,6 @@ void KVINDRAUpDater_e475s::SetCalibrationParameters(UInt_t run){
     //Reset all calibrators of all detectors first
     TIter next(gIndra->GetListOfDetectors());
     KVDetector *kvd;
-    KVCalibrator *kvc;
     while ((kvd = (KVDetector *) next()))
     {
       if (kvd->InheritsFrom("KVSiLi") || kvd->InheritsFrom("KVSi75")){
@@ -103,7 +102,6 @@ void KVINDRAUpDater_e475s::SetCalibParameters(KVDBRun* kvrun)
 
    //KVDetector *kvd;
    KVDBParameterSet *kvps;
-   KVCalibrator *kvc;
    TIter next_ps(param_list);
    TString str;
 

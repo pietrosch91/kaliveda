@@ -120,7 +120,7 @@ KVDetector::KVDetector(const Char_t * type,
 }
 
 //_______________________________________________________________
-KVDetector::KVDetector(const KVDetector & obj)
+KVDetector::KVDetector(const KVDetector & obj) : KVMaterial(), KVPosition()
 {
 //copy ctor
    init();
@@ -189,7 +189,7 @@ void KVDetector::SetMaterial(const Char_t * type)
 }
 
 //________________________________________________________________
-void KVDetector::DetectParticle(KVNucleus * kvp, KVNameValueList* nvl)
+void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
 {
    //Calculate the energy loss of a charged particle traversing the detector,
    //the particle is slowed down, it is added to the list of all particles hitting the
@@ -197,41 +197,55 @@ void KVDetector::DetectParticle(KVNucleus * kvp, KVNameValueList* nvl)
    //detector is set.
    //Do nothing if particle has zero (or -ve) energy.
    //
-    //The KVNameValueList, if it's defined, allows to store
-    //the energy lost by the particle in the detector
-    //exemple : for a Silicon detector named SI_0401 , you will obtain:
-    //		{
-    //			KVNucleus nn(6,12); nn.SetKE(1000);
-    //			KVDetector* det = gMultiDetArray->GetDetector("SI_0401");
-    //			KVNameValueList* nvl = new KVNameValueList;
-    //			det->DetectParticle(&nn,nvl);
-    //			nvl->Print();
-    //		}
-    //		Collection name='KVNameValueList', class='KVNameValueList', size=1
-    //		 OBJ: TNamed	SI_0401	8.934231
-    //The recorded energy loss corresponds only to the active layer
+   //If the optional argument 'norm' is given, it is supposed to be a vector
+   //normal to the detector, oriented from the origin towards the detector.
+   //In this case the effective thicknesses of the detector's absorbers 'seen' by the particle
+   //depending on its direction of motion is used for the calculation.
 
     if (kvp->GetKE() <= 0.)
-        return;
+      return;
 
-    AddHit(kvp);  //add nucleus to list of particles hitting detector in the event
-    //set flag to say that particle has been slowed down
-    kvp->SetIsDetected();
-    //If this is the first absorber that the particle crosses, we set a "reminder" of its
-    //initial energy
-    if (!kvp->GetPInitial())
-        kvp->SetE0();
+   AddHit(kvp);                 //add nucleus to list of particles hitting detector in the event
+   //set flag to say that particle has been slowed down
+   kvp->SetIsDetected();
+   //If this is the first absorber that the particle crosses, we set a "reminder" of its
+   //initial energy
+   if (!kvp->GetPInitial())
+      kvp->SetE0();
 
+    Double_t* thickness;
+    if(norm){
+        // modify thicknesses of all layers according to orientation,
+        // and store original thicknesses in array
+      TVector3 p = kvp->GetMomentum();
+        thickness = new Double_t[fAbsorbers->GetEntries()];
+      KVMaterial *abs; int i=0;
+      TIter next(fAbsorbers);
+      while ((abs = (KVMaterial *) next())) {
+            thickness[i++] = abs->GetThickness();
+            Double_t T = abs->GetEffectiveThickness((*norm), p);
+            abs->SetThickness(T);
+      }
+    }
     Double_t eloss = GetTotalDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
     Double_t dE = GetDeltaE(kvp->GetZ(), kvp->GetA(), kvp->GetEnergy());
-    Double_t epart = kvp->GetEnergy() - eloss;
-    if (epart<1e-3) {
+    if(norm){
+        // reset thicknesses of absorbers
+      KVMaterial *abs; int i=0;
+      TIter next(fAbsorbers);
+      while ((abs = (KVMaterial *) next())) {
+            abs->SetThickness(thickness[i++]);
+      }
+      delete [] thickness;
+    }
+   Double_t epart = kvp->GetEnergy() - eloss;
+   if (epart<1e-3) {
+        //printf("%s, pb d arrondi on met l energie de la particule a 0\n",GetName());
         epart = 0.0;
     }
     kvp->SetEnergy(epart);
-    Double_t eloss_old = GetEnergyLoss();
-    SetEnergyLoss(eloss_old+dE);
-    if (nvl) nvl->SetValue(GetName(),TMath::Abs(dE));
+   Double_t eloss_old = GetEnergyLoss();
+   SetEnergyLoss(eloss_old+dE);
 }
 
 //_______________________________________________________________________________
@@ -1461,7 +1475,7 @@ TList* KVDetector::GetAlignedDetectors(UInt_t direction)
 	// 
 	// See KVGroup::GetAlignedDetectors for more details.
 	
-	if(!GetGroup() || direction<0 || direction>1) return 0x0;
+    if(!GetGroup() || direction>1) return 0x0;
 	if(fAlignedDetectors[direction]) return fAlignedDetectors[direction];
 	return (fAlignedDetectors[direction] = GetGroup()->GetAlignedDetectors(this,direction));
 }
@@ -1470,7 +1484,7 @@ TList* KVDetector::GetAlignedDetectors(UInt_t direction)
 
 void KVDetector::ResetAlignedDetectors(UInt_t direction)
 {
-	if(!GetGroup() || direction<0 || direction>1) return;
+    if(!GetGroup() || direction>1) return;
 	if(fAlignedDetectors[direction]) fAlignedDetectors[direction] = 0;
 }
 

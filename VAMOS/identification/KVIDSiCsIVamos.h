@@ -30,11 +30,9 @@ class KVIDSiCsIVamos : public KVIDSiCsI
    Double_t ecsi;
    
    virtual void Initialize(void);
-   Bool_t Identify(Double_t, Double_t, KVIdentificationResult*);
+   Bool_t Identify(KVIdentificationResult*, Double_t csi=-1., Double_t si=-1);
 
    const Char_t * GetName() const;
-	virtual Double_t GetIDMapX(Double_t, Option_t * opt = "");
-	virtual Double_t GetIDMapY(Double_t, Option_t * opt = "");
    ClassDef(KVIDSiCsIVamos,1)//Identification map SIE_xx-CSIyy of Vamos
 };
 

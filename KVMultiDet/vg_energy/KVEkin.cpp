@@ -61,7 +61,7 @@ KVEkin::KVEkin(Char_t * nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVEkin::KVEkin(const KVEkin & a)
+KVEkin::KVEkin(const KVEkin & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

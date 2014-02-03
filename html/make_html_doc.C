@@ -15,11 +15,14 @@ int main(int argc, char *argv[])
    
    TString source_dir(gSystem->DirName(gSystem->pwd()) );
    //make 'Class Reference' page
+   cout << "*************Make the ClassReference page" << endl;
    ScanClasses categories;
    categories.SetFileName(Form("ClassCategories_%s.html", KVBase::GetKVVersion()));
    categories.SetPageTitle(Form("KaliVeda v%s Reference Guide", KVBase::GetKVVersion()));
    categories.Process();
+   cout << "*************FINSHED ClassReference page" << endl;
    //make 'Examples' page
+   cout << "*************Make the Examples page" << endl;
    ScanExamples examples;
    examples.SetFileName("Examples.html");
    examples.SetPageTitle("Example Classes");

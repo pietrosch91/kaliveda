@@ -57,7 +57,7 @@ KVNameValueList::KVNameValueList(const Char_t* name, const Char_t* title)
 }
 
 //______________________________________________
-KVNameValueList::KVNameValueList(const KVNameValueList& NVL)
+KVNameValueList::KVNameValueList(const KVNameValueList& NVL) : TNamed()
 {
    // Copy constructor
 	NVL.Copy(*this);
@@ -120,7 +120,7 @@ void KVNameValueList::ClearSelection(TRegexp &sel)
 }
 
 //______________________________________________
-void KVNameValueList::Print(Option_t* opt) const
+void KVNameValueList::Print(Option_t* ) const
 {
 	//Print stored parameters (name, and value)
    

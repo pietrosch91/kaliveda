@@ -28,7 +28,7 @@ KVGaus2D::KVGaus2D()
 
 //________________________________________________________________
 
-KVGaus2D::KVGaus2D (const KVGaus2D& obj)  : KVAutoFit()
+KVGaus2D::KVGaus2D (const KVGaus2D&)  : KVAutoFit()
 {
    // Copy constructor
    // This ctor is used to make a copy of an existing object (for example
@@ -110,7 +110,7 @@ Double_t e1 = xx[1];
 
 Double_t E2 	= 	para[0];
 Double_t sigE2	=	para[1];
-Double_t E1		= 	para[2];
+Double_t E1	= 	para[2];
 Double_t sigE1	=	para[3];
 Double_t rho 	= 	para[4];
 Double_t norm 	=	para[5];

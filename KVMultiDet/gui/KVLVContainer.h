@@ -120,6 +120,8 @@ class KVLVContainer : public TGLVContainer
 	KVList 				*fUserItems;	// list of currently displayed items, used by Refresh()
     KVList              *fPickOrderedObjects;// list of currently selected objects, in order of selection
 
+    TClass* fObjClass;
+
 	virtual void FillList(const TCollection* = 0);
 	void DeleteColData();
 	void default_init();
@@ -134,9 +136,9 @@ class KVLVContainer : public TGLVContainer
    virtual ~KVLVContainer();
 
 				void  	AddFrame 		(TGFrame *f, TGLayoutHints *l=0);
-				void  	Sort				(int column);
+                void  	Sort				(int column); // *MENU*
 	virtual  void  	Display			(const TCollection* = 0);
-	virtual  void  	Refresh			();
+    virtual  void  	Refresh			();
 	virtual  void  	SetDataColumns (Int_t ncols);
 	virtual  void  	SetDataColumn	(Int_t index, TClass *cl, const Char_t* name, const Char_t* method="");
 	virtual	KVLVColumnData*		GetDataColumn	(Int_t index) const
@@ -204,9 +206,11 @@ class KVLVContainer : public TGLVContainer
 	virtual void RemoveAll();
    
    void DoubleClickAction(TObject*); /* SIGNAL */
-
    Bool_t HandleButton(Event_t *event);
 
+   void SetObjClass(TClass* cN){fObjClass=cN;}
+   void AddDataColumn(const char* columnName); // *MENU*
+//   void SetNewColumnName(const char* columnName);
    virtual void SelectAll(); /* SIGNAL */
 
    ClassDef(KVLVContainer,0)//List view container class

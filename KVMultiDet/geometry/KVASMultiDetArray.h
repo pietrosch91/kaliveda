@@ -82,7 +82,7 @@ public:
         return sol_ang;
     }
 
-    TGeoManager *CreateGeoManager(Double_t dx, Double_t dy, Double_t dz);
+    virtual TGeoManager* CreateGeoManager(Double_t /*dx*/ = 500, Double_t /*dy*/ = 500, Double_t /*dz*/ = 500, Bool_t /*closegeo*/ = kTRUE);
     virtual Double_t GetTotalSolidAngle(void);
 
     ClassDef(KVASMultiDetArray, 1) //Azimuthally-symmetric multidetector arrays

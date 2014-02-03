@@ -630,3 +630,8 @@ KaliVedaGUI.MainGUIHeight:       700
 # Max width (number of characters) of runlist columns
 KaliVedaGUI.MaxColWidth:       500
 
+# RUSTINES
+# Plugin classes which implement patches to correct reconstructed/calibrated data
+# written on disk with previous (bugged) versions. See KVDataPatch & KVDataPatchList.
+Plugin.KVDataPatch:   INDRA_camp5_PHDcorrection  KVDataPatch_INDRA_camp5_PHDcorrection  KVIndra  "KVDataPatch_INDRA_camp5_PHDcorrection()"
++Plugin.KVDataPatch:   CorrectEtalonModuleIDCode  KVDataPatch_CorrectEtalonModuleIDCode  KVIndra  "KVDataPatch_CorrectEtalonModuleIDCode()"

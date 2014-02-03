@@ -411,8 +411,8 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
    if(gDataRepositoryManager->GetListOfRepositories()->GetEntries()==0){
       exit(1);
    }
-   
- ia = new KVDataAnalyser;//this will set up gBatchSystemManager 
+   ia=0;
+ GetDataAnalyser();//this will set up gBatchSystemManager
 
 // Creation de l'environnement d'affichage et ajout des 2 boutons a cet
 // environnement 
@@ -634,7 +634,12 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cf->AddFrame(cbUserClass,eX);
  cbUserClass->Connect("Selected(char*)", "KVDataAnalysisLauncher", this,
        "UserClassSelected(char*)");
- 
+ btEditClass = new TGPictureButton(cf, "query_new.xpm");
+ btEditClass->SetEnabled(kFALSE);
+ btEditClass->Connect("Clicked()", "KVDataAnalysisLauncher", this, "EditUserClassFiles()");
+ btEditClass->SetToolTipText(Form("Open analysis class source files in %s",gSystem->Getenv("EDITOR")), TTDELAY);
+ cf->AddFrame(btEditClass, new TGLayoutHints(kLHintsTop|kLHintsLeft,2,2,2,2));
+
  teDataSelector=new TGTextEntry(cf,"");
  //teDataSelector->Resize(233,20);
  teDataSelector->SetToolTipText("Enter the KVDataSelector class name.",TTDELAY);
@@ -658,6 +663,18 @@ KVDataAnalysisLauncher::KVDataAnalysisLauncher(const TGWindow *p,UInt_t w,UInt_t
  cfAnalysis->AddFrame(cf,eX);
 
  this->AddFrame(cfAnalysis,eX);
+// user analysis class options
+ cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
+ lab=new TGLabel(cf,"User class options : ");
+ lab->SetTextJustify(justMode);
+ lab->Resize(150,20);
+ cf->AddFrame(lab,new TGLayoutHints(kLHintsLeft|kLHintsTop,
+                                    1,1,1,1));
+ teUserOptions=new TGTextEntry(cf,"");
+ //teDataSelector->Resize(233,20);
+ teUserOptions->SetToolTipText("Comma-separated list of options for user analysis class: PAR1=VAL1,PAR2=VAL2,etc.",TTDELAY);
+ cf->AddFrame(teUserOptions,eX);
+ AddFrame(cf,new TGLayoutHints(kLHintsCenterX|kLHintsExpandX, 10,10,2,2));
 
  cf=new TGCompositeFrame(this,fMainGuiWidth,20,kHorizontalFrame);
  // Frame for the user's libraries
@@ -814,12 +831,12 @@ else
  SetWMSize(fMainGuiWidth,fMainGuiHeight);
  
  SetRepositoryList();
- ia=0;
  
  FillListOfUserClasses();
  //fill drop down list of user classes in working directory
  SetUserClassList();
- 
+ checkCompilation=kFALSE;
+
  // Reset last known state of interface
  TString tmp(GetResource("Repository",""));
  SetRepository(tmp.Data());
@@ -843,7 +860,6 @@ else
 
  fUserLibraries=GUIenv->GetValue("KVDataAnalysisLauncher.UserLibraries","");
  fUserIncludes=GUIenv->GetValue("KVDataAnalysisLauncher.UserIncludes","");
- checkCompilation=kFALSE;
 
 // Connections are made when all the other widgets are mapped
  //teSelector->Connect("TextChanged(const char*)",
@@ -1240,11 +1256,25 @@ TString kvs( GetUserClass() );
     //read user's class name from input box
     if(kvs.Length())
    {
-      datan->SetUserClass(kvs.Data());
-      if(checkCompilation) checkCompilation=kFALSE;
+      datan->SetUserClassOptions( teUserOptions->GetText());
+      //Info("Process","setting user class now for analyser %s check=%d", datan->ClassName(),checkCompilation);
+      datan->SetUserClass(kvs.Data(),checkCompilation);
+      if(datan->IsUserClassValid())
+          checkCompilation=kFALSE;
+      else
+      {
+          // compilation failed. abort processing.
+          delete ia; ia=0;
+          checkCompilation=kTRUE;
+          WarningBox("Compilation failed", "Please correct mistakes in user analysis class");
+          EditUserClassFiles();
+          return;
+      }
    }
    else
    {
+        delete ia; ia=0;
+        checkCompilation=kTRUE;
       WarningBox("No User Class","Please enter the user analysis class name.");
       return;
    }
@@ -1254,10 +1284,21 @@ else if(strcmp(task->GetUserBaseClass(), "")){
       datan->SetUserClass(task->GetUserBaseClass(),kFALSE);   
 }
  if(datan->InheritsFrom("KVINDRAReconDataAnalyser"))
-    ((KVINDRAReconDataAnalyser*)ia)->SetKVDataSelector(teDataSelector->GetText());
+    ((KVINDRAReconDataAnalyser*)datan)->SetKVDataSelector(teDataSelector->GetText());
+ Long64_t nbEventRead = (Long64_t)teNbToRead->GetIntNumber();
+ // if in batch and nbEventRead>0, ask confirmation
+ if(IsBatch() && nbEventRead){
+     if(!WarningBox("Read all events in batch mode?",
+                "This will submit batch jobs which will not read all events.\nAre you sure that is what you want?",
+                kTRUE))
+     {
+         delete ia; ia=0;
+         return;
+     }
+ }
  datan->SetNbEventToRead((Long64_t)teNbToRead->GetIntNumber());
  SetResource("RunsList", listOfRuns.AsString());
- //SetResource("UserClass", GetUserClass() );
+ SetResource("UserClassOptions", teUserOptions->GetText() );
  SetResource("KVDataSelector",teDataSelector->GetText());
  SetResource("NbEventsToRead", Form("%.0f", teNbToRead->GetNumber()));
  GUIenv->SetValue("KVDataAnalysisLauncher.BatchName",teBatchName->GetText());
@@ -1617,14 +1658,23 @@ checkCompilation=ori.CompareTo(fUserIncludes);
 
 
 //__________________________________________
-void KVDataAnalysisLauncher::WarningBox(const char *title, const char *msg)
+Bool_t KVDataAnalysisLauncher::WarningBox(const char *title, const char *msg, Bool_t confirm)
 {
-// Warning box in case of problems
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,0,0)
-new TGMsgBox(0,this,title,msg,kMBIconExclamation);
-#else
-new TGMsgBox(gClient->GetRoot(),this,title,msg,kMBIconExclamation);
-#endif
+    // Warning box in case of problems
+    // if confirm=kTRUE we ask for a yes/no answer from the user:
+    //     if 'yes' is pressed, we return kTRUE, if 'no', kFALSE.
+    // by default, only a 'dismiss' button is shown, and this method always returns kTRUE.
+
+    Bool_t reply = kTRUE;
+    if(!confirm)
+        new TGMsgBox(gClient->GetRoot(),this,title,msg,kMBIconExclamation);
+    else
+    {
+        Int_t ret_code=0;
+        new TGMsgBox(gClient->GetRoot(), this, title,msg,kMBIconExclamation, kMBYes|kMBNo, &ret_code);
+        reply = (ret_code&kMBYes);
+    }
+    return reply;
 }
 
 //__________________________________________
@@ -1774,7 +1824,8 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
    // System                    KVDataAnalysisLauncher.System
    // Trigger                    KVDataAnalysisLauncher.Trigger
    // RunsList                  KVDataAnalysisLauncher.RunsList
-   // UserClass               KVDataAnalysisLauncher.UserClass
+    // UserClass               KVDataAnalysisLauncher.UserClass
+    // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions
    // KVDataSelector      KVDataAnalysisLauncher.KVDataSelector
    // NbEventsToRead    KVDataAnalysisLauncher.NbEventsToRead
    //
@@ -1788,6 +1839,7 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
    // Trigger                    KVDataAnalysisLauncher.Trigger.[repository].[dataset].[task].[system]
    // RunsList                  KVDataAnalysisLauncher.RunsList.[repository].[dataset].[task].[system].[trigger]
    // UserClass               KVDataAnalysisLauncher.UserClass.[repository].[dataset].[task].[system].[trigger]
+    // UserClassOptions        KVDataAnalysisLauncher.UserClassOptions.[repository].[dataset].[task].[system].[trigger].[class]
    // KVDataSelector      KVDataAnalysisLauncher.KVDataSelector.[repository].[dataset].[task].[system].[trigger]
    // NbEventsToRead    KVDataAnalysisLauncher.NbEventsToRead.[repository].[dataset].[task].[system].[trigger]
    //
@@ -1860,6 +1912,10 @@ void KVDataAnalysisLauncher::BuildResourceName(const Char_t* name, TString &cur_
       }
       saved_res += res;
    }
+   if(!strcmp(name,"UserClassOptions")){
+       if(strcmp("",GetResource("UserClass",""))) saved_res += Form(".%s",GetResource("UserClass",""));
+       else ok=kFALSE;
+   }
    
    if( !ok ) saved_res="";
 }
@@ -1922,9 +1978,10 @@ void KVDataAnalysisLauncher::SetUserClassList()
   
   Int_t nbcl=UserClassNames->GetEntries();
   Int_t i=0;
-  while(i<nbcl)
+  cbUserClass->AddEntry( "" , i++ );
+  while(i<nbcl+1)
    {
-      cbUserClass->AddEntry( UserClassNames->At(i)->GetName() , i );
+      cbUserClass->AddEntry( UserClassNames->At(i-1)->GetName() , i );
       i++;
    }
    cbUserClass->Layout();
@@ -1942,7 +1999,13 @@ void KVDataAnalysisLauncher::UserClassSelected(char *class_name)
    if(IsBatchNameAuto()) SetAutoBatchName();
    
    // save resource
+   SetResource( "UserClassOptions", teUserOptions->GetText() );
    SetResource( "UserClass", class_name );
+   teUserOptions->SetText( GetSavedResource("UserClassOptions","") );
+   SetResource( "UserClassOptions", teUserOptions->GetText() );
+   if(strcmp("",class_name)) btEditClass->SetEnabled(kTRUE);
+   else btEditClass->SetEnabled(kFALSE);
+   checkCompilation=kTRUE;
 }
 
 //__________________________________________
@@ -1968,8 +2031,12 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
 #else
       cbUserClass->Select(i,kFALSE);
 #endif      
+              // save current user class options
+              //SetResource( "UserClassOptions", teUserOptions->GetText() );
       // save current user class
       SetResource( "UserClass", class_name );
+      teUserOptions->SetText( GetSavedResource("UserClassOptions", ""));
+      btEditClass->SetEnabled(kTRUE);
    }
    
    else
@@ -1978,8 +2045,10 @@ void KVDataAnalysisLauncher::SetUserClass(const Char_t *class_name)
       //Info("SetUserClass", "Class not found in list");
       cbUserClass->Select(-1);
       SetResource( "UserClass", "" );
+
+      btEditClass->SetEnabled(kFALSE);
    }
-   
+   checkCompilation=kTRUE;
   //cbUserClass->EnableTextInput(kTRUE);
 }
 
@@ -2014,6 +2083,7 @@ void KVDataAnalysisLauncher::DisableUserClassList()
   cbUserClass->Select(-1);
   cbUserClass->SetEnabled(kFALSE);
   //cbUserClass->EnableTextInput(kFALSE);
+  teUserOptions->SetEnabled(kFALSE);
 }
 
 //__________________________________________
@@ -2030,6 +2100,22 @@ void KVDataAnalysisLauncher::EnableUserClassList()
   SetUserClass( GetSavedResource( "UserClass", "" ) );
   //cbUserClass->EnableTextInput(kTRUE);
   cbUserClass->SetEnabled(kTRUE);
+  teUserOptions->SetEnabled(kTRUE);
+}
+
+void KVDataAnalysisLauncher::EditUserClassFiles()
+{
+    // If environment variable $EDITOR is set, and if the currently selected
+    // user class has available source files, we open them in the
+    // user's favourite editor
+
+    TString editor = gSystem->Getenv("EDITOR");
+    if(editor=="") return;
+    TString uclass = GetUserClass();
+    if(uclass=="") return;
+    KVString imp, dec;
+    if( !KVBase::FindClassSourceFiles(uclass, imp, dec ) ) return;
+    gSystem->Exec(Form("%s %s %s &",editor.Data(),imp.Data(),dec.Data()));
 }
 
 //__________________________________________

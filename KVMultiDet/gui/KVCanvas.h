@@ -8,7 +8,9 @@
 #include "TH2.h"
 #include "TGFrame.h"
 #include "TList.h"
-
+#include "TGFileDialog.h"
+#include "TSystem.h"
+#include "TGClient.h"
 
 class KVCanvas : public TCanvas
 {
@@ -27,12 +29,17 @@ friend class KVKeyHandler;
    Int_t Xf1,Xl1,Yf1,Yl1; 		//! last modification to axis limits
    
    Bool_t   moved;
+   Bool_t   fPPressed;
    Bool_t   fAgeOfEmpire;
-   Bool_t   fModeVener;
+   Bool_t   fVenerMode;
    Bool_t   fHasDisabledClasses;
    TString  fDisabledClasses;
    Bool_t   fHasDisabledObject;
+
    TList    fDisabledObjects;
+   TList    fShortCuts;
+   Int_t    fEnabledShortcuts;
+   TString  fSavedAs;
 
    TGFrame* fKeyHandler;         //! handler for keys
    Bool_t   fFreezed;
@@ -55,17 +62,39 @@ friend class KVKeyHandler;
    void ResetDisabledObject();
    
    void FreezCavans(Bool_t freez){fFreezed = freez;}
-   
+   void ShowShortcutsInfos(); // *MENU*
+
+   void SetVenerMode(Int_t value=1);// *TOGGLE*
+   Int_t GetVenerMode(){return fVenerMode;}
+
+   void SetEnabledShortcuts(Int_t value=1);// *TOGGLE*
+   Int_t GetEnabledShortcuts(){return fEnabledShortcuts;}
+
    protected:
    
-   virtual Bool_t HandleKey(Event_t *event);
+   virtual Bool_t HandleKey(Event_t* /*event*/){return kTRUE;}
+   virtual Bool_t HandleKeyAt(Int_t px, Int_t py);
+
    void DynamicZoom(Int_t Sign, Int_t px, Int_t py);
    void DynamicZoomTH1(Int_t Sign, Int_t px, Int_t py);
    void RunAutoExec();
    void DrawEventStatus(Int_t event, Int_t px, Int_t py, TObject *selected);
    void ZoomSelected(TH2* TheHisto);
 
+   void MoveAxis(TAxis* ax, Int_t sign);
+   void ProfileX(TH2* hh);
+   void ProfileY(TH2* hh);
+   void SaveCanvasAs();
+   Bool_t ExpandFunctionRange();
+   TH1* FindHisto();
+
+   void InitInfos();
+   void AddShortcutsInfo(const char* cut, const char* desc);
+
    ClassDef(KVCanvas,1)//TCanvas with mouse-controlled dynamic zoom and pan & scan
 };
+
+//................  global variable
+R__EXTERN TObject *gCopyObject;
 
 #endif

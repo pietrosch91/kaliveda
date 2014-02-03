@@ -100,6 +100,7 @@ class KVBreakUp:public KVPartitionList
 	void BreakFromHisto(TH2F* hh_zt_VS_mt,Int_t zmin=1);
 	
 	KVEvent* BreakOnGaussian(Double_t Ztot_moy,Double_t Ztot_rms,Double_t Mtot_moy,Double_t Mtot_rms,Int_t zmin);
+	KVEvent* GetCurrentEvent();
 	
 	virtual void DrawPanel();
 	
@@ -112,7 +113,7 @@ class KVBreakUp:public KVPartitionList
 	
 	virtual void SaveHistos(KVString filename="",KVString suff="",Option_t* option="recreate");
    
-	void	Print(Option_t* option = "") const;
+    void	PrintConfig() const;
 	Int_t GetDeltaTime();
 	
 	

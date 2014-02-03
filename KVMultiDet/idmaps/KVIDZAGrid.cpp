@@ -1582,7 +1582,7 @@ void KVIDZAGrid::MakeEDeltaEZGrid(Int_t Zmin, Int_t Zmax, Int_t npoints, Double_
                 ErDet->DetectParticle(&part);
                 Eres = ErDet->GetEnergy();
 
-            line->SetPoint(npoints_added, ErDet->GetEnergy(), dEDet->GetEnergy());
+            line->SetPoint(npoints_added, Eres, dEDet->GetEnergy());
             npoints_added++;
         }
     }

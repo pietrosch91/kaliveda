@@ -112,7 +112,8 @@ KVTGID::KVTGID(const Char_t * name,
 
 //___________________________________________________________________________//
 
-KVTGID::KVTGID(const KVTGID &obj){
+KVTGID::KVTGID(const KVTGID &obj) : TF1()
+{
 	// copy constructor
 	init();
 	((KVTGID &)obj).Copy(*this);

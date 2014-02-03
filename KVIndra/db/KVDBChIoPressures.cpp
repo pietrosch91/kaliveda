@@ -57,7 +57,7 @@ KVDBChIoPressures::KVDBChIoPressures(Float_t pressure[5])
 }
 
 //____________________________________________________________________________
-KVDBChIoPressures::KVDBChIoPressures(KVDBChIoPressures & chiopres)
+KVDBChIoPressures::KVDBChIoPressures(KVDBChIoPressures & chiopres) : KVDBRecord()
 {
    InitCommon();
    SetPressures(chiopres.GetChIoPressures());

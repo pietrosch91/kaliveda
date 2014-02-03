@@ -47,6 +47,7 @@ class KVDataAnalyser : public TObject {
    KVString fUserClassImp;    //user's analysis class implementation file
    KVString fUserClassDec;    //user's analysis class header file
    Bool_t fUserClassIsOK;  //set once user class has been validated
+   KVString fUserClassOptions;   //options to be passed to user analysis class
 
    KVDataAnalyser* fParent;   //holds address of parent analyser which created this one
 
@@ -76,6 +77,7 @@ class KVDataAnalyser : public TObject {
    virtual const Char_t *GetUserClass() {
       return fUserClass.Data();
    };
+    Bool_t IsUserClassValid() const { return fUserClassIsOK; }
 
    virtual void Run();
    virtual void RunMenus();
@@ -174,6 +176,9 @@ class KVDataAnalyser : public TObject {
 	virtual Int_t GetRunNumberFromFileName(const Char_t*);
 	
 	virtual void RegisterUserClass(TObject*) {};
+
+   void SetUserClassOptions(const Char_t* o = "") { fUserClassOptions=o; }
+   const KVString& GetUserClassOptions() const { return fUserClassOptions; }
 	
    ClassDef(KVDataAnalyser, 0)  //For submitting & performing data analysis tasks
 };

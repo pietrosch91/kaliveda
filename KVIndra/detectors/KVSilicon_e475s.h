@@ -46,7 +46,7 @@ class KVSilicon_e475s : public KVSilicon
 	Double_t	GetCalibratedEnergy();
 	Double_t	GetEnergy();
    
-	Double_t GetCorrectedEnergy(UInt_t z, UInt_t a, Double_t e = -1., Bool_t transmission=kTRUE);
+    Double_t GetCorrectedEnergy(KVNucleus*, Double_t e = -1., Bool_t transmission=kTRUE);
 
 	Short_t GetCalcACQParam(KVACQParam*,Double_t) const;
 

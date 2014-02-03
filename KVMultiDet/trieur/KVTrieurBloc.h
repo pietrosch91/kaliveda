@@ -57,8 +57,8 @@ class KVTrieurBloc:public KVTrieur {
    virtual void SetXmin(Int_t i, Double_t x);
    virtual void SetXmax(Int_t i, Double_t x);
    virtual const Char_t *GetNomVar(void);
-   virtual const Double_t GetXmin(Int_t i);
-   virtual const Double_t GetXmax(Int_t i);
+   virtual Double_t GetXmin(Int_t i);
+   virtual Double_t GetXmax(Int_t i);
    virtual void SetNbCases(Int_t n);    // ajuste le nombre de cases.
 
     ClassDef(KVTrieurBloc, 1)   // Class for sorting with detached cells

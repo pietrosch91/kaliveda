@@ -405,8 +405,6 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
       fDetName.Form("%s_%02d", det, mod);
    else
       fDetName.Form("%s_%02d%02d", det, ring, mod);
-
-   KVDetector* detWeMake = gMultiDetArray->GetDetector(fDetName);
    
    TVector3 corners[8]; // 8 vertices of the volume
    Double_t vertices[16];
@@ -469,8 +467,6 @@ void INDRAGeometryBuilder::MakeDetector(const Char_t* det, int ring, int mod, TV
          // single absorber: mother is absorber is detector is mother is ...
          fDetVolume = vol;
       }
-      // set reference to volume in absorber
-      //detWeMake->GetAbsorber(no_abs-1)->SetAbsGeoVolume(vol);
       
       depth_in_det += thick;
       no_abs++;

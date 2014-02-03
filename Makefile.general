@@ -83,6 +83,7 @@ endif
 #without this we cannot use NamespaceImp (in e.g. KVTGIDFunctions)
 OPT = -O
 OPT2 = -O2 
+OPT3 = -O3 
 TMPFLAGS := $(filter-out $(OPT2),$(CXXFLAGS))
 CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
 
@@ -90,8 +91,11 @@ CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
 ifeq ($(PLATFORM),linux)
 ifeq ($(debug),yes)
 CXXFLAGS_NOOPT += -g
-CXXFLAGS := $(CXXFLAGS_NOOPT)
-LDFLAGS += -g
+CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT)
+LDFLAGS := $(ROOTLDFLAGS) -g $(OPT)
+else
+CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT3)
+LDFLAGS := $(ROOTLDFLAGS) $(OPT3)
 endif
 ifeq ($(memcheck),yes)
 CXXFLAGS_NOOPTS += -g -fno-inline
@@ -111,8 +115,12 @@ ifeq ($(ARCH),win32)
 CXXFLAGS := $(CXXFLAGS_NOOPT)
 endif
 
-ALL_CXXFLAGS = $(CXXFLAGS) $(KV_INC)
-ALL_CXXFLAGS_NOOPT = $(CXXFLAGS_NOOPT) $(KV_INC)
+STRICT_WARNINGS = -Wall -Wextra \
+	-Werror=overloaded-virtual -Werror=non-virtual-dtor -Werror=type-limits \
+	-Werror=sign-compare -Werror=unused-but-set-variable \
+	-Wno-format-security -Wno-unused-parameter -Wunused-but-set-parameter -Wunused-variable
+ALL_CXXFLAGS = $(STRICT_WARNINGS) $(CXXFLAGS) $(KV_INC)
+ALL_CXXFLAGS_NOOPT = $(STRICT_WARNINGS) $(CXXFLAGS_NOOPT) $(KV_INC)
 
 #Location of KaliVeda project sources root directory relative to subprojects which 'include' this Makefile
 #Override in project's Makefile if it is not simply a subdirectory of KaliVeda
@@ -129,7 +137,8 @@ all : .config dictionaries $(LIB_SO) rootlibmap $(EXTRAS) .copyheads
 
 dictionaries:
 	@for module in $(MODULES); do \
-		make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$$module LIBNAME=$(PROJ_NAME) INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)" ; \
+		make -f $(KVPROJ_ROOT)/MakeDict.mk MODULE=$$module LIBNAME=$(PROJ_NAME) INCLUDE="$(KV_INC)" EXCLUDE="$(ALL_NOT_READY_H) $(ALL_NOT_ROOTCINT)" DICT_COMPILE_FLAGS="$(ALL_CXXFLAGS_NOOPT)"; \
+#		[ $$? -eq 2 ] && exit 1 ; \
 	done
 
 rootlibmap :

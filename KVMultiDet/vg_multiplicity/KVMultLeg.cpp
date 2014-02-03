@@ -67,7 +67,7 @@ KVMultLeg::KVMultLeg(Char_t * nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVMultLeg::KVMultLeg(const KVMultLeg & a)
+KVMultLeg::KVMultLeg(const KVMultLeg & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

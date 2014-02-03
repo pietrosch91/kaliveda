@@ -102,7 +102,7 @@ void KV_CCIN2P3_GE::SetJobDisk(const Char_t * diks)
    fDiskSet = kTRUE;
 }
 
-void KV_CCIN2P3_GE::PrintJobs(Option_t * opt)
+void KV_CCIN2P3_GE::PrintJobs(Option_t *)
 {
    //Print list of owner's jobs.
    KVList* j = GetListOfJobs();

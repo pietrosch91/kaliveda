@@ -155,7 +155,7 @@ public:
             return GetActiveLayer()->GetName();
         return KVMaterial::GetName();
     };
-    virtual void DetectParticle(KVNucleus *, KVNameValueList *nvl = 0);
+    virtual void DetectParticle(KVNucleus *, TVector3* norm = 0);
     virtual Double_t GetELostByParticle(KVNucleus *, TVector3 * norm = 0);
     virtual Double_t GetParticleEIncFromERes(KVNucleus * , TVector3 * norm = 0);
 

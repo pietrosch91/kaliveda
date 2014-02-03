@@ -776,12 +776,14 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bo
    // into which all the detectors of the array are placed. This should be big enough so that all detectors
    // fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
    // going from -500cm to +500cm on each axis).
+    //
+    // If closegeo=kFALSE we leave the geometry open for other structures to be added.
 
    if (!IsBuilt()) return NULL;
    INDRAGeometryBuilder igb;
    // build multidetector, but not the target. energy losses in target are handled
    // by KVASMultiDetArray::DetectEvent
-   SetGeometry(igb.Build(kFALSE));
+   SetGeometry(igb.Build(kFALSE,closegeo));
    // This is just for the etalon detectors!
    // They are in structures like:
    //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
@@ -814,10 +816,21 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
     // Override base class method
     // If ROOT geometry is requested but has not been built, we create it
 
-    if(on && !GetGeometry()){
-        CreateGeoManager();
+    if(on){
+        if(!GetGeometry()) CreateGeoManager();
+        else {
+            // ROOT geometry already exists, we need to set up the navigator
+            KVASMultiDetArray::SetROOTGeometry(on);
+            // This is just for the etalon detectors!
+            // They are in structures like:
+            //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
+            // We need the name to be like "SILI_10"
+            GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+        }
     }
-    KVASMultiDetArray::SetROOTGeometry(on);
+    else
+        KVASMultiDetArray::SetROOTGeometry(on);
+
 }
 
 

@@ -65,7 +65,17 @@ Double_t KVIonRangeTable::GetAtomicMass(const Char_t* material)
    return M->GetMass();
 }
 
-KVIonRangeTableMaterial *KVIonRangeTable::GetMaterial(TGeoMaterial *material)
+KVIonRangeTableMaterial *KVIonRangeTable::GetMaterial(const Char_t *material)
+{
+    return GetMaterialWithNameOrType(material);
+}
+
+KVIonRangeTableMaterial *KVIonRangeTable::GetMaterial(TGeoMaterial *mat)
+{
+    return GetMaterialWithPointer(mat);
+}
+
+KVIonRangeTableMaterial *KVIonRangeTable::GetMaterialWithPointer(TGeoMaterial *material)
 {
     // Returns pointer to material for given TGeoMaterial
     // We try both the name and the title of the TGeoMaterial

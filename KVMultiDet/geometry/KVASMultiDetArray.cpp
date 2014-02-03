@@ -243,7 +243,7 @@ KVRing *KVASMultiDetArray::GetRing(UInt_t layer, UInt_t ring_number) const
 
 //_________________________________________________________________________________
 
-TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz)
+TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bool_t closegeo)
 {
     // This will create an instance of TGeoManager (any previous existing geometry gGeoManager
     // will be automatically deleted) and initialise it with the full geometry of the current multidetector
@@ -261,6 +261,8 @@ TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Doubl
     // into which all the detectors of the array are placed. This should be big enough so that all detectors
     // fit in. The default values of 500 give a "world" which is a cube 1000cmx1000cmx1000cm (with sides
     // going from -500cm to +500cm on each axis).
+    //
+    // If closegeo=kFALSE we leave the geometry open for other structures to be added.
 
     if (!IsBuilt()) return NULL;
     SafeDelete(fGeoManager);
@@ -275,7 +277,7 @@ TGeoManager* KVASMultiDetArray::CreateGeoManager(Double_t dx, Double_t dy, Doubl
     	L->AddToGeometry();
     }
     delete fLayers;
-    fGeoManager->CloseGeometry();
+    if(closegeo) fGeoManager->CloseGeometry();
     return fGeoManager;
 }
 
@@ -377,10 +379,10 @@ void KVASMultiDetArray::AddToGroups(KVTelescope * kt1, KVTelescope * kt2)
         kvg->SetDimensions(kvg, kt1);     //adjust dimensions depending on kt1
     } else if (kt1->GetParentStructure("GROUP") != kt2->GetParentStructure("GROUP")) {     //both telescopes already in different groups
 #ifdef KV_DEBUG
-        cout << "Merging " << kt1->GetGroup()->
-        GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
-        cout << "because of " << kt1->GetName() << " and " << kt2->
-        GetName() << endl;
+//         cout << "Merging " << kt1->GetGroup()->
+//         GetNumber() << " and " << kt2->GetGroup()->GetNumber() << endl;
+//         cout << "because of " << kt1->GetName() << " and " << kt2->
+//         GetName() << endl;
 #endif
         MergeGroups((KVASGroup*)kt1->GetParentStructure("GROUP"), (KVASGroup*)kt2->GetParentStructure("GROUP"));
     }
@@ -431,15 +433,8 @@ KVNameValueList* KVASMultiDetArray::DetectParticle_KV(KVNucleus * part)
     //find group in array hit by particle
     KVASGroup *grp_tch = (KVASGroup*)GetGroupWithAngles(part->GetTheta(), part->GetPhi());
     if (grp_tch) {
-#ifdef KV_DEBUG
-        cout << "DetectParticle(): found hit group---->" << endl;
-        grp_tch->Print("angles");
-#endif
         //simulate detection of particle by this group
         KVNameValueList*nvl= grp_tch->DetectParticle(part);
-#ifdef KV_DEBUG
-        nvl->Print();
- #endif
        return nvl;
     }
     return 0;

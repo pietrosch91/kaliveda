@@ -23,6 +23,7 @@
 //#pragma link C++ class KVRegShared+;
 //#pragma link C++ class KVRBValAttribut+;
 #ifdef WITH_GRULIB
-#pragma link C++ class KVGRUNetClientGanilReader+;
+//#pragma link C++ class KVGRUNetClientGanilReader+;
+#pragma link C++ class KVGRUTapeGanilReader+;
 #endif
 #endif

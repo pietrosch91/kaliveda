@@ -188,7 +188,7 @@ KVTrieurBloc::KVTrieurBloc(Int_t nbcases, Char_t * nom):KVTrieur(nbcases,
 }
 
 //_____________________________________________________
-KVTrieurBloc::KVTrieurBloc(const KVTrieurBloc & a)
+KVTrieurBloc::KVTrieurBloc(const KVTrieurBloc & a) : KVTrieur()
 {
 // 
 // Contructeur par copie
@@ -299,7 +299,7 @@ void KVTrieurBloc::SetXmin(Int_t i, Double_t x)
 }
 
 //_____________________________________________________
-const Double_t KVTrieurBloc::GetXmin(Int_t i)
+Double_t KVTrieurBloc::GetXmin(Int_t i)
 {
 //
 // On retourne la vaelur de xmin
@@ -317,7 +317,7 @@ void KVTrieurBloc::SetXmax(Int_t i, Double_t x)
 }
 
 //_____________________________________________________
-const Double_t KVTrieurBloc::GetXmax(Int_t i)
+Double_t KVTrieurBloc::GetXmax(Int_t i)
 {
 //
 // On retourne la vaelur de xmin

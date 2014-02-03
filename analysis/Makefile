@@ -52,13 +52,21 @@ TMPFLAGS := $(filter-out -O2,$(CXXFLAGS))
 CXXFLAGS = $(TMPFLAGS)
 endif
 
+OPT = -O
+OPT2 = -O2 
+OPT3 = -O3 
+TMPFLAGS := $(filter-out $(OPT2),$(CXXFLAGS))
+CXXFLAGS_NOOPT = $(filter-out $(OPT),$(TMPFLAGS))
+
 #debugging/profiling/memchecking on linux machine
 ifeq ($(PLATFORM),linux)
 ifeq ($(debug),yes)
-CXXFLAGS += -g
-LDFLAGS += -g
-TMPFLAGS := $(filter-out -O2,$(CXXFLAGS))
-CXXFLAGS = $(TMPFLAGS)
+CXXFLAGS_NOOPT += -g
+CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT)
+LDFLAGS := $(ROOTLDFLAGS) -g $(OPT)
+else
+CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT3)
+LDFLAGS := $(ROOTLDFLAGS) $(OPT3)
 endif
 ifeq ($(memcheck),yes)
 CXXFLAGS += -g -fno-inline

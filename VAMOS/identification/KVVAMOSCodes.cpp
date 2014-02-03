@@ -4,6 +4,7 @@
 #include "KVVAMOSCodes.h"
 #include "TString.h"
 #include "TObjString.h"
+#include "TObjArray.h"
 using namespace std;
 
 ClassImp(KVVAMOSCodes)
@@ -597,7 +598,7 @@ UChar_t KVVAMOSCodes::GetTCodeIndex(){
 }
 //________________________________________________________________
 
-void KVVAMOSCodes::SetFPCodeFromIndex(UChar_t idx){
+void KVVAMOSCodes::SetFPCodeFromIndex(Int_t idx){
 	//Set Focal plan Position reconstruction code - the argument
 	//given is the index of the codes. Call the static method 
 	//KVVAMOSCodes::ShowAvailbleFPCodes() to have the correspondence 
@@ -608,7 +609,7 @@ void KVVAMOSCodes::SetFPCodeFromIndex(UChar_t idx){
 }
 //________________________________________________________________
 
-void KVVAMOSCodes::SetTCodeFromIndex(UChar_t idx){
+void KVVAMOSCodes::SetTCodeFromIndex(Int_t idx){
 	//Set Time of Flight code - the argument
 	//given is the index of the codes. Call the static method 
 	//KVVAMOSCodes::ShowAvailbleTCodes() to have the correspondence 

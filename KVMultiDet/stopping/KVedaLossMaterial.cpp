@@ -104,8 +104,7 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
          Float_t e1, e2;
          sscanf(line, "Z = %d,%d     %f < E/A  <  %f MeV", &z1,
                 &z2, &e1, &e2);
-         char* tmp;
-         tmp = fgets(line, 132, fp);
+         fgets(line, 132, fp);
          for (int i = z1; i <= z2; i++) {
             fEmin[i - 1] = e1;
             fEmax[i - 1] = e2;
@@ -178,8 +177,7 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
          fEmax[count]=TMath::Min(TMath::Max(original_emax,emax),1000.);
          //if(fEmax[count]!=original_emax) Info("ReadRangeTable", "Max. incident E for Z=%d  ===>  E/A = %f", count+1, fEmax[count]);
       }
-      char* tmp;
-      tmp = fgets(line, 132, fp);
+      fgets(line, 132, fp);
    }
 
    return kTRUE;
@@ -254,7 +252,7 @@ Double_t KVedaLossMaterial::DeltaEFunc(Double_t* E, Double_t*)
       */
 }
 
-Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t* Mypar)
+Double_t KVedaLossMaterial::EResFunc(Double_t* E, Double_t*)
 {
    // Function parameterising the residual energy of charged particles in this material.
    // The incident energy E[0] is given in MeV.

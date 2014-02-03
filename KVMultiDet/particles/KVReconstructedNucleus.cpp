@@ -63,9 +63,8 @@ KVReconstructedNucleus::KVReconstructedNucleus()
     init();
 }
 
-KVReconstructedNucleus::
-KVReconstructedNucleus(const KVReconstructedNucleus &
-                       obj)
+KVReconstructedNucleus::KVReconstructedNucleus(const KVReconstructedNucleus &obj)
+    : KVNucleus()
 {
     //copy ctor
     init();
@@ -324,6 +323,7 @@ void KVReconstructedNucleus::Identify()
         KVIDTelescope *idt;
         TIter next(idt_list);
         Int_t idnumber = 1;
+        Int_t n_success_id = 0;//nnumber of successful identifications
         while ((idt = (KVIDTelescope *) next())) {
             KVIdentificationResult *IDR=GetIdentificationResult(idnumber++);
 
@@ -332,11 +332,14 @@ void KVReconstructedNucleus::Identify()
 
                     IDR->IDattempted = kTRUE;
                     idt->Identify( IDR );
+
+                    if(IDR->IDOK) n_success_id++;
                 }
                 else
                     IDR->IDattempted = kFALSE;
 
-                if((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK)){
+                if(n_success_id<1 &&
+                        ((!IDR->IDattempted) || (IDR->IDattempted && !IDR->IDOK))){
                     // the particle is less identifiable than initially thought
                     // we may have to wait for secondary identification
                     Int_t nseg = GetNSegDet();

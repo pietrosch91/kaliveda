@@ -150,7 +150,7 @@ KVTarget::KVTarget(const Char_t * material, const Double_t thick)
 
 //________________________________________________________________________
 //
-KVTarget::KVTarget(const KVTarget & obj)
+KVTarget::KVTarget(const KVTarget & obj) : KVMaterial()
 {
    //Copy ctor
    init();

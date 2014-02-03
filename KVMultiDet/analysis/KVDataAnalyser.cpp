@@ -203,6 +203,7 @@ void KVDataAnalyser::Reset()
    fSubmit = kFALSE;
    fUserClassIsOK = kFALSE;
    fUserClass = "";
+   fUserClassOptions = "";
    nbEventToRead = -1;
    fBatchSystem = 0;
    fChoseRunMode = kFALSE;
@@ -1146,8 +1147,7 @@ void KVDataAnalyser::SetUserClass(const Char_t * kvs, Bool_t check)
 
    fUserClass = kvs;
    if(check){
-      fUserClassIsOK=kFALSE;
-      CheckIfUserClassIsValid();
+      fUserClassIsOK=CheckIfUserClassIsValid();
    } else {
       fUserClassIsOK = kTRUE;
    }
@@ -1180,6 +1180,7 @@ void KVDataAnalyser::WriteBatchEnvFile(const Char_t* jobname, Bool_t save)
                   GetUserClass());
          }
       }
+      fBatchEnv->SetValue("UserClassOptions",fUserClassOptions);
       fBatchEnv->SetValue("UserClassImp", fUserClassImp);
       fBatchEnv->SetValue("UserClassDec",fUserClassDec);
    }
@@ -1267,11 +1268,12 @@ Bool_t KVDataAnalyser::ReadBatchEnvFile(const Char_t* filename)
 
    //User files
    if(fTask->WithUserClass()){
-      fUserClass = fBatchEnv->GetValue("UserClass","");
-      if(fUserClass == ""){
-         Error("ReadBatchEnvFile", "Name of user class not given");
-         return ok;
-      }
+       fUserClass = fBatchEnv->GetValue("UserClass","");
+       if(fUserClass == ""){
+          Error("ReadBatchEnvFile", "Name of user class not given");
+          return ok;
+       }
+       fUserClassOptions = fBatchEnv->GetValue("UserClassOptions","");
       fUserClassImp = fBatchEnv->GetValue("UserClassImp","");
       if(fUserClassImp == ""){
          Error("ReadBatchEnvFile", "Name of user class implementation file not given");
@@ -1341,7 +1343,10 @@ void KVDataAnalyser::SubmitTask()
    the_analyser->SetNbEventToRead(GetNbEventToRead());
    the_analyser->SetUserIncludes(fIncludes.Data());
    the_analyser->SetUserLibraries(fLibraries.Data());
-   if(fTask->WithUserClass()) the_analyser->SetUserClass(GetUserClass(), kFALSE);
+   if(fTask->WithUserClass()) {
+       the_analyser->SetUserClass(GetUserClass(), kFALSE);
+       the_analyser->SetUserClassOptions(fUserClassOptions);
+   }
    else if(strcmp(fTask->GetUserBaseClass(), "")) the_analyser->SetUserClass(fTask->GetUserBaseClass(), kFALSE);
    if(!BatchMode()){
       //when not in batch mode i.e. when submitting a task, we ask the user to supply

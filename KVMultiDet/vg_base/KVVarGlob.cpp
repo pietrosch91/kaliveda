@@ -179,7 +179,7 @@ KVVarGlob::KVVarGlob(Char_t * nom):KVBase(nom)
 }
 
 //_________________________________________________________________
-KVVarGlob::KVVarGlob(const KVVarGlob & a)
+KVVarGlob::KVVarGlob(const KVVarGlob & a) : KVBase()
 {
 // Contructeur par copie
 

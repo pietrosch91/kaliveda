@@ -441,7 +441,7 @@ Int_t KVMultiDetArray::FilteredEventCoherencyAnalysis(Int_t round, KVReconstruct
                          recon_nuc->SetIsIdentified();
                          recon_nuc->SetIsCalibrated();
                          recon_nuc->SetZMeasured();
-                         if(idtelstop->HasMassID()) recon_nuc->SetAMeasured();
+                         recon_nuc->SetAMeasured();
                          break;
                      }
                      else{
@@ -722,7 +722,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                         }
                         else {
                             part->AddGroup("DETECTED");
-                            det_stat->SetValue("DETECTED","");
+                            det_stat->SetValue("DETECTED","OK");
                             fHitGroups->AddGroup( last_det->GetGroup() );
 
                             if (lidtel->GetEntries()>0){
@@ -940,7 +940,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
 
                 recon_nuc = (KVReconstructedNucleus*)rec_event->AddParticle();
                 recon_nuc->Reconstruct(last_det);
-                recon_nuc->SetZ(part->GetZ());
+                recon_nuc->SetZandA(part->GetZ(),part->GetA());
 
                 if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                     KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
@@ -952,8 +952,6 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                                 && !idt->CheckTheoreticalIdentificationThreshold((KVNucleus*)part->GetFrame(detection_frame))) part->AddGroup("INCOMPLETE");
                         if(!part->BelongsToGroup("INCOMPLETE")) {
                             recon_nuc->SetIDCode(idt->GetIDCode());
-                            //recon_nuc->SetZMeasured();
-                            //if(idt->HasMassID()) recon_nuc->SetAMeasured();
                         }
                         else {
                             recon_nuc->SetIDCode(idt->GetZminCode());

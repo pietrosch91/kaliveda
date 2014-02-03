@@ -9,6 +9,8 @@
 #include "TROOT.h"
 #include "Riostream.h"
 
+#include "KVUniqueNameList.h"
+
 using namespace std;
 
 ClassImp(KVDMS)
@@ -83,7 +85,7 @@ Bool_t KVDMS::IsContainer(TString&line) const
    return (line.BeginsWith("C-"));
 }
 
-TList *KVDMS::GetFullListing(const Char_t* directory)
+KVUniqueNameList *KVDMS::GetFullListing(const Char_t* directory)
 {
 	// Create and fill TList with info (name, size, modification date)
 	// on all files & containers in current directory
@@ -97,7 +99,7 @@ TList *KVDMS::GetFullListing(const Char_t* directory)
 	}
 	
 	TObjArray *toks = fout.Tokenize("\n");
-	TList* list=new TList;
+	KVUniqueNameList* list=new KVUniqueNameList(kTRUE);
 	list->SetOwner(kTRUE);
 	list->SetName(((TObjString*)(*toks)[0])->String().Remove(TString::kBoth,' ').Data());
 	for(int i=1; i<toks->GetEntries(); i++){

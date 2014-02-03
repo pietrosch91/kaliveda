@@ -19,4 +19,6 @@
 #ifdef WITH_GRULIB
 #pragma link C++ class KVINDRAOnlineDataAnalyser+;
 #endif
+#pragma link C++ class KVDataPatch_INDRA_camp5_PHDcorrection+;
+#pragma link C++ class KVDataPatch_CorrectEtalonModuleIDCode+;
 #endif

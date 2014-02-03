@@ -67,7 +67,7 @@ KVMultAv::KVMultAv(Char_t * nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVMultAv::KVMultAv(const KVMultAv & a)
+KVMultAv::KVMultAv(const KVMultAv & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

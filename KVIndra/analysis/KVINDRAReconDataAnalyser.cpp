@@ -136,6 +136,12 @@ void KVINDRAReconDataAnalyser::SubmitTask()
       option.Form("DataSelector=%s", fDataSelector.Data());
       cout << "Data Selector : " << fDataSelector.Data() << endl;
    }
+
+   // Add any user-defined options
+   if(GetUserClassOptions()!=""){
+       option += ",";
+       option += GetUserClassOptions();
+   }
    
    fSelector = (KVSelector*)GetInstanceOfUserClass();
    
@@ -314,16 +320,24 @@ void KVINDRAReconDataAnalyser::preInitRun()
 {
 	// Called by currently-processed KVSelector when a new file in the TChain is opened.
 	// We call gIndra->SetParameters for the current run.
+    // We connect the acquisition parameter objects to the branches of the raw data tree.
+    // Infos on currently read file/tree are printed.
+    // Any required data patches ("rustines") are initialized.
 	
 	Int_t run = GetRunNumberFromFileName( theChain->GetCurrentFile()->GetName() );
 	gIndra->SetParameters(run);
 	ConnectRawDataTree();
 	PrintTreeInfos();
+    fRustines.InitializePatchList(GetDataSet()->GetName(),GetDataType(),run,GetDataSeries(),
+                                  GetDataReleaseNumber(),theChain->GetCurrentFile()->GetStreamerInfoCache());
+    fRustines.Print();
 }
 
 void KVINDRAReconDataAnalyser::preAnalysis()
 {
 	// Read and set raw data for the current reconstructed event
+    // Any required data patches ("rustines") are applied.
+
 	if(!theRawData) return;
 	// all recon events are numbered 1, 2, ... : therefore entry number is N-1
 	Long64_t rawEntry = fSelector->GetEventNumber() - 1;
@@ -335,6 +349,10 @@ void KVINDRAReconDataAnalyser::preAnalysis()
 		KVACQParam* par = gIndra->GetACQParam((*parList)[ParNum[i]]->GetName());
 		if(par) {par->SetData(ParVal[i]);}
 	}
+
+    // as rustines often depend on a knowledge of the original raw data,
+    // we apply them after it has been read in
+    if(fRustines.HasActivePatches()) fRustines.Apply(fSelector->GetEvent());
 }
 
 void KVINDRAReconDataAnalyser::ConnectRawDataTree()

@@ -29,7 +29,7 @@ KVWidget *KVWidgetList::GetWidget(Long_t id)
    return 0;
 }
 
-void KVWidgetList::Print(Option_t * opt) const
+void KVWidgetList::PrintWidgets() const
 {
    TIter next((KVList *) this);
    KVBase *widg;

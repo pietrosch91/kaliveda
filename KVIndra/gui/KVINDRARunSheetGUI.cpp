@@ -506,8 +506,6 @@ void KVINDRARunSheetGUI::FillListOfRuns()
             fFirstRun = ((KVINDRADBRun*)fRunList->GetFirstInList())->GetNumber();
             fLastRun = ((KVINDRADBRun*)fRunList->GetLastInList())->GetNumber();
 		}
-		TIter next(gIndraDB->GetRuns());
-		KVDBRun* run;
    }
 }
 

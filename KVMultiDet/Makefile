@@ -12,7 +12,7 @@ ETC_DATA = data
 ETC_DATA += $(shell ls factory/*Template.[c,h]*)
 
 #list of sources that are not yet ready to be compiled
-NOT_READY := daq_cec/KVReg*.cpp gui/KVDetectorBrowser.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
+NOT_READY := daq_cec/KVGRUNetClientGanilReader.cpp daq_cec/KVReg*.cpp gui/KVDetectorBrowser.cpp gui/KVBrowserWidget.cpp gui/KVLayerBrowser.cpp gui/KVMultiDetBrowser.cpp gui/KVRingBrowser.cpp gui/KVBrowserNameDialog.cpp
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += daq_cec/GT*.cpp analysis/KVGANILDataReader.cpp analysis/KVRawDataAnalyser.cpp
 endif
@@ -28,7 +28,7 @@ endif
 ifeq ($(WITH_GRU_LIB),yes)
 KV_INC_EXTRAS += -I$(GRU_DIR)/include -DWITH_GRULIB -DNET_LIB
 else
-NOT_READY += daq_cec/KVGRUNetClientGanilReader.cpp
+NOT_READY += daq_cec/KVGRUTapeGanilReader.cpp
 endif
 ifeq ($(WITH_RANGE_YANEZ),yes)
 KV_INC_EXTRAS += -I$(RANGE_YANEZ_DIR)/include -DWITH_RANGE_YANEZ
@@ -85,7 +85,7 @@ RLIBMAPDEPS += $(XRDPOSIX)
 endif
 endif
 ifeq ($(WITH_GRU_LIB),yes)
-LINK_LIB += -L$(GRU_DIR)/linux -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
+LINK_LIB += -L$(GRU_DIR)/lib -lGRU -L$(ROOTSYS)/lib -lXMLIO -lSpectrum
 endif
 ifeq ($(WITH_RANGE_YANEZ),yes)
 LINK_LIB += -L$(RANGE_YANEZ_DIR)/lib -lrange

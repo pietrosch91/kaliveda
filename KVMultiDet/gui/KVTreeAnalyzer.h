@@ -130,8 +130,12 @@ class KVTreeAnalyzer : public TNamed
 
    TTree* fTree;//! the analyzed TTree
    KVUniqueNameList fSelections;// list of TEntryList user selections
+
+   TString fSaveAnalysisFileName;//!
+   Bool_t  fAnalysisModifiedSinceLastSave;//!
+
    /* leaves */
-   TGMainFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
+   TGGroupFrame *fMain_leaflist;//! GUI for access to TTree leaves and aliases
    KVListView* G_leaflist;//! GUI list of TTree leaves and aliases
    TGLabel* G_leaf_expr;//!
    TGPictureButton *G_leaf_draw;//!
@@ -160,28 +164,42 @@ class KVTreeAnalyzer : public TNamed
    /* histos */
    TGMainFrame *fMain_histolist;//! GUI for handling histograms
    TGPopupMenu *fMenuFile;//!
+   TGPopupMenu *fMenuSelections;//!
+   TGPopupMenu *fSelCombMenu;//!
    enum {
    		MH_OPEN_FILE,
-   		MH_SAVE_FILE,
-   		MH_QUIT
+       MH_SAVE_FILE,
+       MH_SAVE,
+        MH_QUIT,
+       MH_APPLY_ANALYSIS,
+       SEL_COMB_AND,
+       SEL_COMB_OR,
+       SEL_UPDATE,
+       SEL_DELETE
    };
    void HistoFileMenu_Open();
    void HistoFileMenu_Save();
    TGLayoutHints *fMenuBarItemLayout;//!
    TGMenuBar *fMenuBar;//!
    KVListView* G_histolist;//! GUI list of histograms
-   TGTextButton* G_histo_del;//!
+   TGPictureButton* G_histo_del;//!
    TGCheckButton* G_histo_same;//!
    TGCheckButton* G_histo_app_sel;//!
    TGCheckButton* G_histo_log;//!
    TGCheckButton* G_histo_new_can;//!
    TGCheckButton* G_histo_norm;//!
+   TGCheckButton* G_histo_stats;//!
+   TGCheckButton* G_histo_autosave;//!
    Bool_t fDrawSame;//! =kTRUE: draw histograms in same plot
    Int_t fSameColorIndex;//!
    Bool_t fDrawLog;//! =kTRUE: draw histograms with log-Y (1-D) or log-Z (2-D) scale
    Bool_t fApplySelection;//! =kTRUE: apply current selection to existing histogram
    Bool_t fNewCanvas;//! =kTRUE: draw each histogram in a new canvas
    Bool_t fNormHisto;//! =kTRUE: generate normalised histograms
+   Bool_t fStatsHisto;//! =kTRUE: display histo stats box
+   Bool_t fAutoSaveHisto;//! =kTRUE: on draw, generate image file of current displayed histo
+   TString fAutoSaveDir;//! directory for autosaving histos
+   TString fAutoSaveType;//! filetype for autosaving histos
    TList* fSelectedHistos;//!
    TGTextButton* G_make_ip_scale;//!
    TGTextButton* G_fit1;//!
@@ -201,14 +219,10 @@ class KVTreeAnalyzer : public TNamed
    KVGausGumDistribution *GausGum3;//!
    
    /* selections */
-   TGMainFrame *fMain_selectionlist;//! GUI for handling selections
+   TGGroupFrame *fMain_selectionlist;//! GUI for handling selections
    KVListView* G_selectionlist;//! GUI list of TEntryList selections
    TGStatusBar* G_selection_status;//! status bar in selections GUI
    TGTextEntry* G_selection_text;//!
-   TGTextButton* G_selection_but;//!
-   TGTextButton* G_selection_but_or;//!
-   TGTextButton* G_update_but;//!
-   TGTextButton* G_delete_but;//!
    TList* fSelectedSelections;//!
    
    KVList fHistolist;//list of generated histograms
@@ -232,6 +246,9 @@ class KVTreeAnalyzer : public TNamed
    
    void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel);
    void FillLeafList();
+
+   void AnalysisSaveCheck();
+   void SetAnalysisModifiedSinceLastSave(Bool_t);
    
    public:
    KVTreeAnalyzer(Bool_t nogui=kTRUE);
@@ -262,7 +279,7 @@ class KVTreeAnalyzer : public TNamed
    void CombineSelectionsOr();
    void DeleteSelections();
    void SelectionChanged();
-   void SetAlias(const Char_t* name, const Char_t* expr){ fAliasList.Add(new TNamed(name,expr));}
+   void SetAlias(const Char_t* name, const Char_t* expr);
    void GenerateAlias();
    void ShowSelections() {fSelections.ls();}
    void ShowVariables() {fTree->GetListOfLeaves()->ls();}
@@ -286,6 +303,8 @@ class KVTreeAnalyzer : public TNamed
    void SetUserBinning(Bool_t ub){fUserBinning = ub;}
    void SetUserWeight(Bool_t uw){fUserWeight = uw;}
 
+   void SetAutoSaveHisto(Bool_t yes=kTRUE){fAutoSaveHisto=yes; if(yes) SetUpHistoAutoSave();}
+   void SetStatsHisto(Bool_t yes=kTRUE){fStatsHisto=yes;}
    void SetNormHisto(Bool_t yes=kTRUE){fNormHisto=yes;}
    void SetNewCanvas(Bool_t yes=kTRUE){fNewCanvas=yes;}
    void SetDrawSame(Bool_t yes=kTRUE){fSameColorIndex=0;fDrawSame=yes;}
@@ -324,9 +343,20 @@ class KVTreeAnalyzer : public TNamed
    void DefineUserBinningD(Int_t NxD, Int_t NyD, Int_t ordered);// *MENU* *ARGS={NxD=>fNxD,NyD=>fNyD,ordered=>fOrderedDalitz}
    void DefineWeight(const Char_t* Weight);// *MENU* *ARGS={Weight=>fWeight}
    
+   void SetUpHistoAutoSave();
    
-   void HandleHistoFileMenu(Int_t); 
+   void HandleHistoFileMenu(Int_t);
+   void HandleSelectionsMenu(Int_t);
+   void AutoSaveHisto(TH1* h);
+
+   // For applying existing analysis to new data
+   void GenerateAllSelections(TCollection*);
+   void GenerateAllHistograms(TCollection*);
+   void HistoFileMenu_Apply();
+   void ReapplyAnyFile(const Char_t *filepath);
+
    ClassDef(KVTreeAnalyzer,3)//KVTreeAnalyzer
+   void SetTreeFileName(TTree* t);
 };
 //................  global variable
 R__EXTERN  KVTreeAnalyzer*gTreeAnalyzer;

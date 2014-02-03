@@ -110,7 +110,7 @@ KVZVtot::KVZVtot(Char_t * nom, const Char_t * frm):KVPtot(nom, frm)
 }
 
 //_________________________________________________________________
-KVZVtot::KVZVtot(const KVZVtot & a)
+KVZVtot::KVZVtot(const KVZVtot & a) : KVPtot()
 {
 // 
 // Contructeur par Copy

@@ -154,7 +154,7 @@ friend class KVIDGridEditorCanvas;
    
    void SetEditable(TPaveLabel* label);
 //   void SelectLines(TPaveLabel* label);
-   void SelectLines(char* label);
+   void SelectLines(const Char_t *label);
    
    void NewLine ();						//'Line'
    void NewCut  ();						//'Cut'

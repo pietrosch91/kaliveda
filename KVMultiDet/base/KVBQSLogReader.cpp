@@ -3,6 +3,7 @@
 
 #include "KVBQSLogReader.h"
 #include "TObjString.h"
+#include "TObjArray.h"
 
 ClassImp(KVBQSLogReader)
 

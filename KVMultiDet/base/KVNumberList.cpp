@@ -80,7 +80,7 @@ KVNumberList::KVNumberList():fString()
 
 //____________________________________________________________________________________________//
 
-KVNumberList::KVNumberList(const KVNumberList & orig)
+KVNumberList::KVNumberList(const KVNumberList & orig) : TObject()
 {
    //Copy constructor
    init_numberlist();

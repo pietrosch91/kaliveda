@@ -5,7 +5,7 @@
 
 #include "TString.h"
 #include "RVersion.h"
-#include "TObjArray.h"
+class TObjArray;
 #include "KVConfig.h"
 
 /*
@@ -43,9 +43,7 @@ class KVString:public TString
    KVString(const KVString & s):TString((const TString&)s) { init(); }
    KVString(Double_t value, Double_t error);
 
-   virtual ~ KVString() {
-   	if (kObjArr) delete kObjArr;
-        }
+   virtual ~ KVString();
 
 #ifdef __WITHOUT_TSTRING_TOKENIZE
    TObjArray *Tokenize(const TString & delim) const;

@@ -125,7 +125,7 @@ KVTenseur3::KVTenseur3(Char_t * nom):KVBase(nom)
 }
 
 //_________________________________________________________________
-KVTenseur3::KVTenseur3(const KVTenseur3 & t)
+KVTenseur3::KVTenseur3(const KVTenseur3 & t) : KVBase()
 {
 //
 // Createur par Copy

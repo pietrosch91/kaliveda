@@ -108,7 +108,7 @@ KVDataAnalysisTask::KVDataAnalysisTask()
    fBaseIsPlugin = kFALSE;
 }
 
-KVDataAnalysisTask::KVDataAnalysisTask(const KVDataAnalysisTask & obj)
+KVDataAnalysisTask::KVDataAnalysisTask(const KVDataAnalysisTask & obj) : KVBase()
 {
    //Copy ctor
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
@@ -142,7 +142,7 @@ KVDataAnalysisTask::~KVDataAnalysisTask()
 {
 }
 
-void KVDataAnalysisTask::ls(Option_t * opt) const
+void KVDataAnalysisTask::ls(Option_t *) const
 {
    //Print analysis task information
    cout << "KVDataAnalysisTask : ";

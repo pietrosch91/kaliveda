@@ -157,7 +157,7 @@ void KVSpiderIdentificator::CalculateTheta()
 
 
 
-bool KVSpiderIdentificator::CheckPath(char* path_)
+bool KVSpiderIdentificator::CheckPath(const Char_t* path_)
 {
   if(!gSystem->OpenDirectory(path_)) gSystem->MakeDirectory(path_);
   return true;
@@ -775,7 +775,7 @@ void KVSpiderIdentificator::Draw(Option_t* opt_)
 }
 
 
-void KVSpiderIdentificator::SaveAsPdf(Option_t* opt_, char* path_)
+void KVSpiderIdentificator::SaveAsPdf(Option_t* opt_, const Char_t *path_)
 {
   Draw(opt_);
   TCanvas* cc = (TCanvas*) gROOT->FindObject(_htot->GetName());

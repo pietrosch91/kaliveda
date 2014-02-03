@@ -127,7 +127,8 @@ void KVINDRADstToRootTransfert::ProcessRun()
 	ifstream f_in("list_of_files");
 	KVString line="";
 	
-	Int_t nfiles,nfortran,necrit,rn_verif;
+    Int_t nfiles,necrit,rn_verif;
+    nfiles=necrit=rn_verif=0;
 	TObjArray* toks=0;
 	while (f_in.good()){
 		line.ReadLine(f_in);
@@ -136,7 +137,6 @@ void KVINDRADstToRootTransfert::ProcessRun()
 			Int_t val = ((TObjString* )toks->At(1))->GetString().Atoi();
 		
 			if (line.BeginsWith("file_number=")) 			nfiles=val;
-			else if (line.BeginsWith("read_evts="))		nfortran=val;
 			else if (line.BeginsWith("write_evts=")) 		necrit=val;
 			else if (line.BeginsWith("run_number="))		rn_verif=val;
 			else {}
@@ -853,6 +853,7 @@ void KVINDRADstToRootTransfert::lire_evt(ifstream &f_in,KVINDRAReconEvent *evt)
 				cout << "BAD:  event#" << num_ev << " z="<<z<<" a="<<a<<" / Non-numeric value read for de_mylar. Set de_mylar=0" << endl;
 				cout << "(read: " << buff.Data() << ")" << endl;
 			}
+            de_mylar*=1.0;//just to avoid "variable set but not used" warning
 			
 //  		f_in >> de1;
 			buff.ReadLine(f_in);

@@ -181,7 +181,7 @@ KVTrieurLin::KVTrieurLin(Int_t nbcases, Char_t * nom):KVTrieur(nbcases, nom)
 }
 
 //_____________________________________________________
-KVTrieurLin::KVTrieurLin(const KVTrieurLin & a)
+KVTrieurLin::KVTrieurLin(const KVTrieurLin & a) : KVTrieur()
 {
 // 
 // Contructeur par copie

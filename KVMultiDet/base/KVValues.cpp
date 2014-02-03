@@ -113,7 +113,7 @@ KVValues::~KVValues()
 
 
 //___________________________________________________________________________________________
-void	KVValues::Clear(Option_t* option)
+void	KVValues::Clear(Option_t* )
 {
 
 	Reset();
@@ -127,7 +127,7 @@ void	KVValues::Clear(Option_t* option)
 }
 
 //___________________________________________________________________________________________
-void	KVValues::Print(Option_t* option) const
+void	KVValues::Print(Option_t* ) const
 {
 	//Info("Print","%s : %d values computed",GetName(),kval_tot);
 	printf("KVValues::Print_NVL\n%s : %d values computed\n",GetName(),kval_tot);
@@ -224,18 +224,15 @@ KVNumberList* KVValues::TransformExpression(KVString &expr)
 	Int_t nouvert=0,nferme=0;
 	Int_t posouvert=0,posferme=0;
 	Int_t nvar=0;
-	Bool_t ouvert=kFALSE;
 
 	Int_t nsize = clone.Length();
 	for (Int_t ii=0;ii<=nsize;ii+=1){
 		if ( expression[ii]==O[0] ) {
 			nouvert+=1;
-			ouvert=kTRUE;
 			posouvert=ii;
 		}
 		else if ( expression[ii]==F[0] ) {
 			nferme+=1;
-			ouvert=kFALSE;
 			posferme=ii;
 			KVString st(clone(posouvert+1,posferme-posouvert-1));
 			if (st.IsDigit()){

@@ -30,7 +30,7 @@ class KVNDTManager : public KVList
 	KVNuclData* GetData(Int_t zz, Int_t aa, const Char_t* name) const;
 	Bool_t IsMeasured(Int_t zz, Int_t aa, const Char_t* name) const;
 	const Char_t* GetUnit(Int_t zz, Int_t aa, const Char_t* name) const;
-	void Print(Option_t* option = "") const;
+    void PrintTables() const;
 	
    ClassDef(KVNDTManager,1)//Allow to navigate between different tables of nuclear data
 };

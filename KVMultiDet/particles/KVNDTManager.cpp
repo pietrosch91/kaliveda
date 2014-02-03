@@ -105,7 +105,7 @@ const Char_t* KVNDTManager::GetUnit(Int_t zz, Int_t aa, const Char_t* name) cons
 
 
 
-void KVNDTManager::Print(Option_t* option)const
+void KVNDTManager::PrintTables()const
 {
 	printf("--------\n");
 	Info("Print","%d Available nuclear data tables",GetEntries());

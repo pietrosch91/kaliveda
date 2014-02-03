@@ -12,6 +12,8 @@ $Date: 2007/05/31 09:59:22 $
 
 #include <KVDataRepository.h>
 
+class KVUniqueNameList;
+
 class KVRemoteDataRepository:public KVDataRepository {
  protected:
    virtual KVDataSetManager * NewDataSetManager();
@@ -44,7 +46,7 @@ class KVRemoteDataRepository:public KVDataRepository {
                                      const Char_t * filename);
    virtual void MakeSubdirectory(KVDataSet* ds,
                                  const Char_t * datatype = "");
-   virtual TList *GetDirectoryListing(KVDataSet* ds,
+   virtual KVUniqueNameList *GetDirectoryListing(KVDataSet* ds,
                                        const Char_t * datatype = "");
    virtual void DeleteFile(KVDataSet* ds,
                            const Char_t * datatype,

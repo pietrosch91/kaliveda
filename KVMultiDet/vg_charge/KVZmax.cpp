@@ -81,7 +81,7 @@ KVZmax::KVZmax(Char_t * nom):KVVarGlob1(nom)
 }
 
 //_________________________________________________________________
-KVZmax::KVZmax(const KVZmax & a)
+KVZmax::KVZmax(const KVZmax & a) : KVVarGlob1()
 {
 // 
 // Contructeur par Copy

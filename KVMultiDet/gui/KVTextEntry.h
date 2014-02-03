@@ -31,7 +31,7 @@ class KVTextEntry : public TGTextEntry
    {};
    virtual ~KVTextEntry(){};
 
-   virtual  void        SetText(const char *text);                               //*MENU*
+   virtual  void        SetText(const char *text, Bool_t /*emit*/ = kTRUE);                               //*MENU*
    virtual  void        SetMaxLength(Int_t maxlen);                              //*MENU*
    virtual  void        Insert(const char *);
 

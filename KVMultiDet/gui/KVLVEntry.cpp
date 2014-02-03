@@ -140,7 +140,7 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
 	// For columns with fBoolean[i]=kTRUE (set from KVLVColumnData::SetIsBoolean)
 
     KVLVContainer *cnt = (KVLVContainer*)GetParent();
-	if(fBGColor == -1 || cnt->IsBeingSorted()){
+    if((int)fBGColor == -1 || cnt->IsBeingSorted()){
 		fBGColor = fgBGColor;
 		if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
 		else

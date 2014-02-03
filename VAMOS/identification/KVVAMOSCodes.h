@@ -115,8 +115,8 @@ class KVVAMOSCodes : public KVINDRACodes
 		UChar_t  GetTCodeIndex(UShort_t);
 		UChar_t  GetFPCodeIndex();
 		UChar_t  GetTCodeIndex();
-		void     SetFPCodeFromIndex(UChar_t);
-		void     SetTCodeFromIndex(UChar_t);
+        void     SetFPCodeFromIndex(Int_t);
+        void     SetTCodeFromIndex(Int_t);
 
    		void SetFPMask(UInt_t codes) {
       		fFPMask = codes;

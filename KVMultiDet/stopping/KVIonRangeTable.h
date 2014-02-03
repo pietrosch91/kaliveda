@@ -15,6 +15,10 @@ class TVector3;
 
 class KVIonRangeTable : public KVBase {
 
+protected:
+    virtual KVIonRangeTableMaterial* GetMaterialWithPointer(TGeoMaterial*);
+    virtual KVIonRangeTableMaterial* GetMaterialWithNameOrType(const Char_t* material)=0;
+
 public:
    enum SolType {
       kEmax,
@@ -79,9 +83,8 @@ public:
    virtual Double_t GetAtomicMass(const Char_t*);
 
    // Returns pointer to material of given name or type.
-   virtual KVIonRangeTableMaterial* GetMaterial(const Char_t* material)=0;
-
-   virtual KVIonRangeTableMaterial* GetMaterial(TGeoMaterial*);
+   KVIonRangeTableMaterial* GetMaterial(const Char_t* material);
+   KVIonRangeTableMaterial* GetMaterial(TGeoMaterial*);
 
    // Return kTRUE if material is in range tables
    virtual Bool_t IsMaterialKnown(const Char_t*);

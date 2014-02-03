@@ -66,7 +66,7 @@ public:
     void SetNbinsByZ(Int_t binByZ){fBinsByZ=binByZ;}
 
     void SetAList(const char* Alist);
-    void Draw(Option_t* opt_ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");}
+    void Draw(Option_t* /*opt_*/ = ""){if(fLines)fLines->Execute("Draw","\"PN\"");}
     void ProcessIdentification(Int_t zmin=-1, Int_t zmax=-1);
 
     void Increment(Float_t x)  // *SIGNAL*

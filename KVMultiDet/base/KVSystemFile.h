@@ -15,10 +15,8 @@ class KVSystemFile : public TSystemFile
 	
    public:
    KVSystemFile();
-   KVSystemFile (const KVSystemFile&) ;
    KVSystemFile (const Char_t* filename, const Char_t* dirname);
    virtual ~KVSystemFile();
-   void Copy (TObject&) const;
    
    void ls(Option_t* option = "") const;
    

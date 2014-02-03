@@ -499,7 +499,16 @@ void KVBreakUp::TreatePartition()
 		delete partition;
 	}
 }
-	
+
+
+//_______________________________________________________
+KVEvent* KVBreakUp::GetCurrentEvent()
+{
+
+	return current_event;
+
+}
+
 //_______________________________________________________
 void KVBreakUp::BreakNtimes(Int_t times)
 {
@@ -765,9 +774,13 @@ void KVBreakUp::SaveHistos(KVString filename,KVString suff,Option_t* option)
 }
 
 //_______________________________________________________
-void KVBreakUp::Print(Option_t* option) const
+void KVBreakUp::PrintConfig() const
 {
-	//Comme c'est écrit
+    // Comme c'est écrit
+    // Why not "Print(Option_t*)" ?
+    //   - because TCollection has several 'virtual' Print methods which
+    //     are overloaded (i.e. have different arguments): BAD!
+
 	Info("Print","Configuration for the break up");
 	printf(" Ztot=%d - Mtot=%d - Zmin=%d\n",GetZtot(),GetMtot(),GetZmin());
 	printf(" Charge to be distributed %d - Biggest possible charge %d\n",nbre_nuc,Zmin+nbre_nuc);
