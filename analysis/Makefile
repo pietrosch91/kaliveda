@@ -11,7 +11,30 @@
 #                                                                        #
 ###########################################
 
+ifeq (,$(wildcard $(ROOT_MAKEFILE_PATH)/Makefile.arch))
+SrcSuf        = cxx
+ObjSuf        = o
+ExeSuf        =
+DllSuf        = so
+OutPutOpt     = -o # keep whitespace after "-o"
+RC           := root-config
+ROOTCFLAGS   := $(shell $(RC) --cflags)
+ROOTLDFLAGS  := $(shell $(RC) --ldflags)
+ROOTLIBS     := $(shell $(RC) --libs)
+ROOTGLIBS    := $(shell $(RC) --glibs)
+OPT2          = -O2
+CXX           = g++
+CXXFLAGS      = $(OPT2) -Wall -fPIC
+LD            = g++
+LDFLAGS       = $(OPT2)
+SOFLAGS       = -shared
+CXXFLAGS     += $(ROOTCFLAGS)
+LDFLAGS      += $(ROOTLDFLAGS)
+LIBS          = $(ROOTLIBS) $(SYSLIBS)
+GLIBS         = $(ROOTGLIBS) $(SYSLIBS)
+else
 include $(ROOT_MAKEFILE_PATH)/Makefile.arch
+endif
 
 #set the option of the cp command
 ifeq ($(PLATFORM),linux)
