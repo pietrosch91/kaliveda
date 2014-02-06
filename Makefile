@@ -142,11 +142,8 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis html html_ccali byebye distclean
-
+.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis
 all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
-
-doc : html byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -214,9 +211,6 @@ analysis : .init
 	
 VAMOS : .init
 	cd VAMOS && $(MAKE)
-
-html :
-	cd html && $(MAKE) install_html debug=$(debug)
 		
 cleangantape :
 	cd GanTape && rm -rf i386-linux_*
@@ -233,7 +227,6 @@ ifeq ($(ROOTGANILTAPE),yes)
 endif
 	cd VAMOS && $(MAKE) clean
 	cd analysis && $(MAKE) clean
-	cd html && $(MAKE) clean
 
 distclean : clean
 	-rm -f $(KVINSTALLDIR)/KVFiles/*/DataBase.root
@@ -252,7 +245,6 @@ install :
 	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
-	-cp html/examples/*.C html/examples/*.cpp html/examples/*.h $(KVINSTALLDIR)/examples/
 ifeq ($(SITE),CCIN2P3)
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/available_runs.campagne1.raw $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.raw
 	-ln -s $(THRONG_DIR)/KaliVeda/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst $(KVINSTALLDIR)/KVFiles/INDRA_camp1/ccali.available_runs.campagne1.dst
@@ -317,13 +309,11 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
-	tar -czf html-$(VERSION_NUMBER).tgz html
 	-mkdir $(KV_DIST)
 	-cp libKV*.tgz $(KV_DIST)/
 	-cp fitltg-0.1/fitltg-0.1.tar.gz $(KV_DIST)/
 	-cp libVAMOS-$(VERSION_NUMBER).tgz $(KV_DIST)/
 	-cp analysis*.tgz $(KV_DIST)/
-	-cp html*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
 	-cp -r tools $(KV_DIST)/
 	-cp -r GanTape $(KV_DIST)/
@@ -335,7 +325,6 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	-rm -Rf $(KV_DIST)
 	-rm -Rf lib*.tgz
 	-rm -f analysis-$(VERSION_NUMBER).tgz
-	-rm -f html-$(VERSION_NUMBER).tgz
 	
 unpack :
 	@echo Unpacking compressed archives
@@ -344,13 +333,11 @@ unpack :
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
-	-tar zxf html-$(VERSION_NUMBER).tgz
 	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
-	-rm html-$(VERSION_NUMBER).tgz
 	
 config :
 	@echo "--------------------------------------------------------------------------------"
