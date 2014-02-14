@@ -131,7 +131,13 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     nuc->SetZAandE(1,1,1);
     Double_t theta,phi;
     Int_t count=0;
-    fGroupNumber=0;
+
+    // note that ImportGeometry can be called for a KVMultiDetArray
+    // which already contains detectors, groups and id telescopes
+    fGroupNumber=fArray->GetStructureTypeList("GROUP")->GetEntries();
+    Int_t ndets0 = fArray->GetDetectors()->GetEntries();
+    Int_t idtels0 = fArray->GetListOfIDTelescopes()->GetEntries();
+
     for(theta=ThetaMin; theta<=ThetaMax; theta+=dTheta){
         for(phi=PhiMin; phi<=PhiMax; phi+=dPhi){
                 nuc->SetTheta(theta);
@@ -142,6 +148,12 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
                 count++;
         }
     }
+
+    // make sure detector nodes are correct
+    TIter next(fArray->GetDetectors());
+    KVDetector*d;
+    while( (d=(KVDetector*)next()) ) d->GetNode()->RehashLists();
+
     if(fCreateArray){
         fArray->SetGeometry(GetGeometry());
         KVGeoNavigator* nav = fArray->GetNavigator();
@@ -150,16 +162,17 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
             KVNamedParameter* fmt = fStrucNameFmt.GetParameter(i);
             nav->SetStructureNameFormat(fmt->GetName(), fmt->GetString());
         }
+        nav->SetNameCorrespondanceList(fDetStrucNameCorrespList);
         fArray->CalculateDetectorSegmentationIndex();
     }
     Info("ImportGeometry",
          "Tested %d directions - Theta=[%f,%f:%f] Phi=[%f,%f:%f]",count,ThetaMin,ThetaMax,dTheta,PhiMin,PhiMax,dPhi);
     Info("ImportGeometry",
-         "Imported %d detectors into array", fArray->GetDetectors()->GetEntries());
+         "Imported %d detectors into array", fArray->GetDetectors()->GetEntries()-ndets0);
     if(fCreateArray){
         fArray->CreateIDTelescopesInGroups();
         Info("ImportGeometry",
-             "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries());
+             "Created %d identification telescopes in array", fArray->GetListOfIDTelescopes()->GetEntries()-idtels0);
     }
 }
 
