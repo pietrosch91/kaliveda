@@ -160,3 +160,15 @@ void KVRangeTableGeoNavigator::ParticleEntersNewVolume(KVNucleus *part)
     }
 }
 
+void KVRangeTableGeoNavigator::PropagateParticle(KVNucleus *part, TVector3 *TheOrigin)
+{
+    // Slight modification of KVGeoNavigator::PropagateParticle:
+    //   if particle hits a DEADZONE, set its energy to zero
+
+    KVGeoNavigator::PropagateParticle(part,TheOrigin);
+    if(part->GetParameters()->HasParameter("DEADZONE")){
+        //Info("PropagateParticle","stopped in DEADZONE:%s",part->GetParameters()->GetStringValue("DEADZONE"));
+        part->SetEnergy(0);
+    }
+}
+
