@@ -189,6 +189,10 @@ void KVASMultiDetArray::MakeListOfDetectors()
             }
         }
     }
+    // rehash detector node lists due to change of names of all detectors
+    TIter nextD(GetDetectors());
+    while((k4 = (KVDetector*)nextD())) k4->GetNode()->RehashLists();
+
 #ifdef KV_DEBUG
     Info("MakeListOfDetectors", "Success");
 #endif
