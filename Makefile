@@ -125,6 +125,7 @@ endif
 
 export KV_BUILD_DATE = $(shell date +%F)
 export KV_BUILD_TIME = $(shell date +%T)
+export KV_ROOT_VERSION = $(shell root-config --version)
 DATE_RECORD_FILE = $(KV_BUILD_DATE).date
 ROOT_VERSION_TAG = .root_v$(ROOT_VERSION_CODE)
 export KV_CONFIG__H = KVConfig.h
@@ -169,7 +170,8 @@ KVVersion.h : VERSION $(DATE_RECORD_FILE)
 	echo '#define KV_BUILD_TIME "$(KV_BUILD_TIME)"' >> $@;\
 	echo '#define KV_BUILD_USER "$(USER)"' >> $@;\
 	echo '#define KV_SOURCE_DIR "$(KVPROJ_ROOT_ABS)"' >> $@;\
-	echo '#define KV_MAKEFLAGS "$(MAKEFLAGS)"' >> $@
+	echo '#define KV_MAKEFLAGS "$(MAKEFLAGS)"' >> $@;\
+	echo '#define KV_ROOT_VERSION "$(KV_ROOT_VERSION)"' >> $@
 
 $(DATE_RECORD_FILE) :
 	@if test ! -f $@; then \
