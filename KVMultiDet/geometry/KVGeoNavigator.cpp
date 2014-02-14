@@ -87,6 +87,8 @@ void KVGeoNavigator::FormatStructureName(const Char_t *type, Int_t number, KVStr
     // to SetStructureNameFormat(const Char_t *, const Char_t *), we use it to
     // format the name in the TString.
     // If no format was given, we use by default "[type]_[number]"
+    // If SetNameCorrespondanceList(const Char_t *) was used, we use it to translate
+    // any names resulting from this formatting to their final value.
 
     name="";
     if(fStrucNameFmt.HasParameter(type)){
@@ -118,6 +120,9 @@ void KVGeoNavigator::FormatStructureName(const Char_t *type, Int_t number, KVStr
     }
     else
         name.Form("%s_%d",type,number);
+    TString tmp;
+    GetNameCorrespondance(name.Data(),tmp);
+    name=tmp;
 }
 
 void KVGeoNavigator::FormatDetectorName(const Char_t *basename, KVString &name)
@@ -128,6 +133,8 @@ void KVGeoNavigator::FormatDetectorName(const Char_t *basename, KVString &name)
     // If no format was given we prefix the names of the parent structures
     // to the basename in order to generate the full name of the detector:
     //    [struc1-name]_[struc2-name]_..._[detector-basename]
+    // If SetNameCorrespondanceList(const Char_t *) was used, we use it to translate
+    // any names resulting from this formatting to their final value.
 
     name = "";
     if(!fCurStrucNumber){
@@ -211,6 +218,9 @@ void KVGeoNavigator::FormatDetectorName(const Char_t *basename, KVString &name)
             }
         }
     }
+    TString tmp;
+    GetNameCorrespondance(name.Data(),tmp);
+    name=tmp;
 }
 
 KVGeoNavigator::KVGeoNavigator(TGeoManager *g)
@@ -218,12 +228,14 @@ KVGeoNavigator::KVGeoNavigator(TGeoManager *g)
 {
     // Constructor. Call with pointer to geometry.
     fGeometry = g;
+    fDetStrucNameCorrespList = 0;
 }
 
 KVGeoNavigator::~KVGeoNavigator()
 {
     // Destructor
     fCurrentStructures.Delete();
+    SafeDelete(fDetStrucNameCorrespList);
 }
 
 void KVGeoNavigator::SetStructureNameFormat(const Char_t *type, const Char_t *fmt)
@@ -240,6 +252,68 @@ void KVGeoNavigator::SetStructureNameFormat(const Char_t *type, const Char_t *fm
     //    $number$       - will be replaced by the structure number
     //    $number%[fmt]$ - will be replaced by the structure number using given format
     fStrucNameFmt.SetValue(type,fmt);
+}
+
+void KVGeoNavigator::SetNameCorrespondanceList(const Char_t *listfile)
+{
+    // Allows to provide a list of "translations" for naming structures/detectors
+    // "listfile" must be a file in 'TEnv' format, e.g.
+    //
+    // SI_06_1_A1: SI_0601
+    // SI_06_1_A2: SI_0602
+    // SI_06_1_B1: SI_0701
+    // SI_06_1_B2: SI_0702
+    // SI_06_2_A1: SI_0603
+    // SI_06_2_A2: SI_0604
+    // SI_06_2_B1: SI_0703
+    //
+    // The name before ':' is the name of the detector or structure as deduced
+    // from the geometry, including any formatting due to SetStructureNameFormat
+    // or SetDetectorNameFormat.
+    // The name after ':' is the name that will be used 'externally', e.g. by a
+    // KVMultiDetArray created from the geometry using KVGeoImport.
+    //
+    // Several lists can be combined by calling this method several times.
+    //
+    // "listfile" can be an absolute path name; if not, we look for it in
+    // $KVROOT/KVFiles/data, or in $HOME, or (finally) in $PWD.
+
+    TString fullpath;
+    if(!SearchKVFile(listfile, fullpath, "data")){
+        Warning("SetNameCorrespondanceList","File %s not found", listfile);
+        return;
+    }
+    if(!fDetStrucNameCorrespList) fDetStrucNameCorrespList = new TEnv;
+    fDetStrucNameCorrespList->ReadFile(fullpath, kEnvUser);
+}
+
+void KVGeoNavigator::SetNameCorrespondanceList(const TEnv *list)
+{
+    // copy TEnv of name correspondances
+    SafeDelete(fDetStrucNameCorrespList);
+    if(list) fDetStrucNameCorrespList = (TEnv*)list->Clone();
+}
+
+Bool_t KVGeoNavigator::GetNameCorrespondance(const Char_t *name, TString &tran)
+{
+    // IF name correspondance lists have been set with SetNameCorrespondanceList(const Char_t*),
+    // look up new name for 'name'. If found, returns kTRUE and 'tran' is the
+    // 'translated' name, otherwise returns kFALSE and tran=name.
+
+    //Info("GetNameCorrespondance","Looking for %s...", name);
+    if(fDetStrucNameCorrespList){
+        tran = fDetStrucNameCorrespList->GetValue(name,"");
+        if(tran==""){
+            tran=name;
+            //Info("GetNameCorrespondance","...not found");
+            return kFALSE;
+        }
+        //Info("GetNameCorrespondance","...found %s", tran.Data());
+        return kTRUE;
+    }
+    //Info("GetNameCorrespondance","...not found");
+    tran=name;
+    return kFALSE;
 }
 
 void KVGeoNavigator::PropagateEvent(KVEvent *TheEvent, TVector3 *TheOrigin)
@@ -355,7 +429,8 @@ void KVGeoNavigator::ExtractDetectorNameFromPath(KVString &detname)
     // The default names for structures are taken from the node name by stripping off
     // the "STRUCT_" prefix. It is assumed that the remaining string is of the form
     //    "[structure type]_[structure number]"
-    // This is the name that will be used by default for the structure.
+    // (the structure number is always taken after the last occurence of '_' in the
+    // node name). This is the name that will be used by default for the structure.
     // However, this format can be change by calling method
     //    SetStructureNameFormat("[structure type]", "[format]")
     // where format can contain any of the following tokens:
@@ -402,9 +477,10 @@ void KVGeoNavigator::ExtractDetectorNameFromPath(KVString &detname)
             // structure element. strip off "STRUCT_" and extract type and number of structure.
             KVString struc_name(elem(7,elem.Length()-7));
             KVGeoStrucElement* gel = (KVGeoStrucElement*)fCurrentStructures.ConstructedAt(fCurStrucNumber++);
-            struc_name.Begin("_");
-            KVString type = struc_name.Next();
-            Int_t number = struc_name.Next().Atoi();
+            Ssiz_t last_ = struc_name.Last('_'); // find last '_' in structure name
+            TString type = struc_name(0,last_);
+            TString nums = struc_name(last_+1,struc_name.Length()-last_-1);
+            Int_t number = nums.Atoi();
             KVString name;
             FormatStructureName(type,number,name);
             gel->SetNameTitle(name, type);
@@ -464,7 +540,10 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
         fExitPoint.SetXYZ(XX,YY,ZZ);
 
         TString vn = GetCurrentVolume()->GetName();
-        if(vn.BeginsWith("DEADZONE")) break;
+        if(vn.BeginsWith("DEADZONE")) {
+            part->GetParameters()->SetValue("DEADZONE",Form("%s/%s",GetCurrentVolume()->GetName(),GetCurrentNode()->GetName()));
+            break;
+        }
 
         ParticleEntersNewVolume(part);
 
