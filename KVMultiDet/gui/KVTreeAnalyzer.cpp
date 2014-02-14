@@ -239,7 +239,6 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    name.Form("h%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
    GenerateHistoTitle(histotitle, expr, selection);
-   
    if((!nY)&&(fUserBinning))
      {
        ResetMethodCalled();
@@ -288,7 +287,18 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    name.Form("Ih%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
    GenerateHistoTitle(histotitle, expr, selection);
-   histo.Form(">>%s(%d,%f,%f)", name.Data(), (Xmax-Xmin)+1, Xmin-0.5, Xmax+0.5);
+
+   if(fUserBinning)
+     {
+       ResetMethodCalled();
+       Bool_t ok = KVBase::OpenContextMenu("DefineUserBinning1F", this, "DefineUserBinning");
+       if(!ok) return 0;
+       // cancel was pressed ?
+       if(MethodNotCalled()) return 0;
+     }
+
+   histo.Form(">>%s(%d,%f,%f)", name.Data(), (fUserBinning ? fNxF :(Xmax-Xmin)+1),
+              (fUserBinning ? fXminF : Xmin-0.5), (fUserBinning ?  fXmaxF: Xmax+0.5));
    drawexp += histo;
    fTree->Draw(drawexp, selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
@@ -1633,6 +1643,7 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
                expr=tmp.Data();
             }
             histo = MakeIntHisto(expr, "", xmin, xmax);
+            if(!histo) return;
             histo->GetXaxis()->SetTitle(leaf->GetName());
          }
          else
