@@ -607,7 +607,7 @@ void KVINDRA::LinkToCodeurs()
 	KVFileReader flist;
 	TString fp;
 	if (!KVBase::SearchKVFile(gDataSet->GetDataSetEnv("INDRADB.Codeurs",""), fp, gDataSet->GetName())){
-		Error("LinkToCodeurs","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.Codeurs",""));
+        Warning("LinkToCodeurs","Fichier %s, inconnu au bataillon",gDataSet->GetDataSetEnv("INDRADB.Codeurs",""));
 		return;
 	}
 	
@@ -780,20 +780,22 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bo
     // If closegeo=kFALSE we leave the geometry open for other structures to be added.
 
    if (!IsBuilt()) return NULL;
-   INDRAGeometryBuilder igb;
-   // build multidetector, but not the target. energy losses in target are handled
-   // by KVASMultiDetArray::DetectEvent
-   SetGeometry(igb.Build(kFALSE,closegeo));
-   // This is just for the etalon detectors!
-   // They are in structures like:
-   //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
-   // We need the name to be like "SILI_10"
-   GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+	
+   if(!gGeoManager){
+       INDRAGeometryBuilder igb;
+       // build multidetector, but not the target. energy losses in target are handled
+       // by KVASMultiDetArray::DetectEvent
+       SetGeometry(igb.Build(kFALSE,closegeo));
+   }
+   else
+	   SetGeometry(gGeoManager);
+		
+   GetNavigator()->SetNameCorrespondanceList("INDRA.names");
 
    // set up shape & matrix pointers in detectors
    Info("CreateGeoManager", "Scanning geometry shapes and matrices...");
    KVGeoImport gimp(fGeoManager, KVMaterial::GetRangeTable(), this, kFALSE);
-   gimp.SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+   gimp.SetNameCorrespondanceList("INDRA.names");
    KVEvent* evt = new KVEvent();
    KVNucleus* nuc = evt->AddParticle();
    nuc->SetZAandE(1,1,1);
@@ -807,6 +809,7 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bo
        gimp.PropagateEvent(evt);
        nrootgeo+=(det->GetShape()&&det->GetMatrix());
    }
+   delete evt;
    Info("CreateGeoManager", "ROOT geometry initialised for %d/%d detectors", nrootgeo, GetDetectors()->GetEntries());
    return fGeoManager;
 }
@@ -821,11 +824,7 @@ void KVINDRA::SetROOTGeometry(Bool_t on)
         else {
             // ROOT geometry already exists, we need to set up the navigator
             KVASMultiDetArray::SetROOTGeometry(on);
-            // This is just for the etalon detectors!
-            // They are in structures like:
-            //    TOP_1/STRUC_TELESCOPE_10/DET_SILI_1
-            // We need the name to be like "SILI_10"
-            GetNavigator()->SetDetectorNameFormat("$det:name%.4s$_$struc:TELESCOPE:number$");
+            GetNavigator()->SetNameCorrespondanceList("INDRA.names");
         }
     }
     else
