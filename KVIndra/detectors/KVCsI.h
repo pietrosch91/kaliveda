@@ -58,7 +58,7 @@ class KVCsI:public KVINDRADetector {
 
  public:
     KVCsI();
-    KVCsI(Float_t thick, Float_t thickAl=0. /* um */);
+    KVCsI(Float_t thick, Float_t thickAl=0 /* um */);
     virtual ~ KVCsI();
 
     void SetAlThickness(Float_t thickAl /* um */);

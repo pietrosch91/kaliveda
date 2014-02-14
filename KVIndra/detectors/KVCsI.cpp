@@ -78,10 +78,11 @@ KVCsI::KVCsI(Float_t thick, Float_t thickAl):KVINDRADetector("CsI", thick)
     //Set type of detector to "CSI"
     //By default 'thick'=0
 
-    KVMaterial *mat = new KVMaterial("Al",thickAl*KVUnits::um);
-    fAbsorbers->AddFirst(mat);
-    SetActiveLayer(1);
-
+    if(thickAl>0.0){
+        KVMaterial *mat = new KVMaterial("Al",thickAl*KVUnits::um);
+        fAbsorbers->AddFirst(mat);
+        SetActiveLayer(1);
+    }
     SetType("CSI");
     init();
 }
