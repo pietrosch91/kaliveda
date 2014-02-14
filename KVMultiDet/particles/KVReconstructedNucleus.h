@@ -173,10 +173,26 @@ public:
 		  else fIDTelName = "";
     };
 
-    virtual void SetIDCode(UShort_t ) {
-    };
-    virtual void SetECode(UChar_t ) {
-    };
+    virtual void SetIDCode(UShort_t s) {
+        // Set value of parameter "IDCODE"
+        GetParameters()->SetValue("IDCODE",(Int_t)s);
+    }
+    virtual Int_t GetIDCode() const
+    {
+        // Return value of parameter "IDCODE"
+        // If no value set, returns -1
+        return GetParameters()->GetIntValue("IDCODE");
+    }
+    virtual void SetECode(UChar_t s) {
+        // Set value of parameter "ECODE"
+        GetParameters()->SetValue("ECODE",(Int_t)s);
+    }
+    virtual Int_t GetECode() const
+    {
+        // Return value of parameter "ECODE"
+        // If no value set, returns -1
+        return GetParameters()->GetIntValue("ECODE");
+    }
 
     void SetIsIdentified()
     {

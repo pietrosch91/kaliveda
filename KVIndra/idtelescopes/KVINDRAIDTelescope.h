@@ -37,6 +37,7 @@ class KVINDRAIDTelescope:public KVIDTelescope, public KVIDSubCodeManager {
       SetNbits(n_bits);
       SetMSB(most_significant_bit);
    };
+   virtual void SetIDCode(KVReconstructedNucleus*, UShort_t);
 
    ClassDef(KVINDRAIDTelescope, 1)   //A delta-E - E identification telescope in INDRA
 

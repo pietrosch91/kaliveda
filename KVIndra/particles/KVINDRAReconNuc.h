@@ -202,8 +202,27 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    KVINDRACodes & GetCodes() {
       return fCodes;
    }
-   inline virtual void SetIDCode(UShort_t code_mask);
-   inline virtual void SetECode(UChar_t code_mask);
+   virtual void SetIDCode(UShort_t code_mask)
+   {
+      // Sets code for identification
+      GetCodes().SetIDCode(code_mask);
+   }
+
+   virtual void SetECode(UChar_t code_mask)
+   {
+      //Sets code for energy calibration
+      GetCodes().SetECode(code_mask);
+   }
+   virtual Int_t GetIDCode() const
+   {
+       // Returns value of VEDA ID code
+       return const_cast<KVINDRAReconNuc*>(this)->GetCodes().GetVedaIDCode();
+   }
+   virtual Int_t GetECode() const
+   {
+       // Return value of VEDA E code
+       return const_cast<KVINDRAReconNuc*>(this)->GetCodes().GetVedaECode();
+   }
 
    Int_t GetIDSubCode(const Char_t * id_tel_type = "") const;
    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type = "") const;
@@ -215,21 +234,5 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
 
    ClassDef(KVINDRAReconNuc, 12) //Nucleus identified by INDRA array
 };
-
-//____________________________________________________________________________________________//
-
-inline void KVINDRAReconNuc::SetIDCode(UShort_t code_mask)
-{
-   //Sets code for identification
-   GetCodes().SetIDCode(code_mask);
-}
-
-//____________________________________________________________________________________________//
-
-inline void KVINDRAReconNuc::SetECode(UChar_t code_mask)
-{
-   //Sets code for energy calibration
-   GetCodes().SetECode(code_mask);
-}
 
 #endif
