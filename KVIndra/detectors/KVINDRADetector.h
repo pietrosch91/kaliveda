@@ -36,6 +36,12 @@ public:
         return (KVINDRATelescope*)GetParentStructure("TELESCOPE");
     }
 
+    virtual void SetSegment(UShort_t )
+    {
+        // Overrides KVDetector method.
+        // 'Segmentation' of INDRA detectors is defined in ctor of dedicated
+        // detector classes
+    }
 
     const Char_t *GetArrayName();
     virtual UInt_t GetRingNumber() const {

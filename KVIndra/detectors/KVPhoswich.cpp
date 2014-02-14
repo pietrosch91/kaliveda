@@ -36,7 +36,7 @@ KVPhoswich::KVPhoswich()
 {
    //Default ctor
 
-   SetSegment(2);
+   fSegment=2;
 }
 
 //______________________________________________________________________________
@@ -52,7 +52,7 @@ KVPhoswich::KVPhoswich(Float_t thick):KVINDRADetector("NE102",0.05)
    KVMaterial *ne115 = new KVMaterial("NE102", 25);
    AddAbsorber(ne115);
 
-   SetSegment(2);
+   fSegment=2;
    SetType("PHOS");
 }
 

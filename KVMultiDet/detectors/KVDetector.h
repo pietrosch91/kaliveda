@@ -244,7 +244,7 @@ public:
     };
 
     inline UShort_t GetSegment() const;
-    inline void SetSegment(UShort_t s);
+    inline virtual void SetSegment(UShort_t s);
     Bool_t IsAnalysed() {
         return TestBit(kIsAnalysed);
     };
