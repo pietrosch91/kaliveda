@@ -141,11 +141,9 @@ TList *KVGroup::GetAlignedDetectors(KVDetector * det, UChar_t dir)
            Warning("GetAlignedDetectors",
                    "No unique solution. There are %d detectors in front of %s.",
                    infront->GetEntries(), det->GetName());
-		   delete tmp;
-           return 0;
+           infront->ls();
        }
-       else
-           det = (KVDetector*)infront->First();
+       det = (KVDetector*)infront->First();
    }
 
    if (dir == kForwards) {
