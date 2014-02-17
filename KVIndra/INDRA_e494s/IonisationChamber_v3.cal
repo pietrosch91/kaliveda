@@ -14,6 +14,7 @@ ECHI_A_6:  -56.918  0.91974 0.00612168 1.
 ECHI_A_7:  -39.064  0.73183 0.00794171 1.
 
 # Pedestal of each 'E' acquisition parameter
+RUNS: 2-615
 TYPE: Pedestal
 FUNCTION:
 
