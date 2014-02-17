@@ -351,12 +351,6 @@ Int_t KVSpectroDetector::Compare(const TObject* obj) const{
 }
 //________________________________________________________________
 
-void KVSpectroDetector::DetectParticle(KVNucleus *, TVector3 * norm){
-	// To be implemented. See the same method in KVDetector
-	Warning("DetectParticle","To be implemented");
-}
-//________________________________________________________________
-
 KVList *KVSpectroDetector::GetFiredACQParamList(Option_t *opt){
 	// Returns a list with all the fired acquisiton parameters of
 	// this detector. The option is set to the method KVACQParam::Fired;
