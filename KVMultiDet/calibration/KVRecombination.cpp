@@ -154,7 +154,7 @@ TF1* KVRecombination::GetParlogPHDFunction(Int_t Z, Int_t A){
 
     if(!fParlog) {
         fParlog = new TF1(Form("ParlogPHD:%s", GetDetector()->GetName()),
-            	this, &KVRecombination::PHDParlog, 0., 1.e+04, 1, "KVRecombination", "PHDParlog");
+            	this, &KVRecombination::PHDParlog, 0., 1.e+04, 2, "KVRecombination", "PHDParlog");
         fParlog->SetNpx(500);
     }
     fParlog->SetParameter(0,Z);
