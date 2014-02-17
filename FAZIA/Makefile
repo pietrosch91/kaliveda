@@ -4,11 +4,12 @@
 PROJ_NAME = FAZIA
 
 #MODULES = daq_cec analysis base reconstruction identification detectors geometry db events particles calibration idtelescopes
-MODULES = analysis
+MODULES = analysis fazia
 #EXTRA_HEADERS = analysis/Defines.h
 
-MANIP_DIRS = LNS_2011
+MANIP_DIRS = LNS_2011 INDRAFAZIA
 #ETC_DATA = $(shell ls factory/*Template.[c,h]*)
+ETC_DATA = data
 
 #NOT_ROOTCINT := analysis/Defines.h
 
@@ -25,7 +26,7 @@ endif
 include ../Makefile.general
 
 
-#required for use of TGeo* classes in KVMaterial, KVDetector, etc.
+#required for use of TGeo* classes in FAZIABlock
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom
 RLIBMAPDEPS += libGeom.so
 
