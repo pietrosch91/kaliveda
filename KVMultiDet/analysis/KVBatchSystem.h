@@ -14,7 +14,6 @@ $Date: 2008/04/03 07:35:45 $
 #include "KVNumberList.h"
 #include "KVString.h"
 #include "KVBase.h"
-#include "TSystem.h"
 
 class KVDataAnalyser;
 class TEnv;
@@ -61,7 +60,8 @@ class KVBatchSystem : public KVBase {
    };
 
    virtual void SetDefaultJobOptions(const Char_t * opt) {
-      fDefOpt.Form(opt,gSystem->GetGroupInfo()->fGroup.Data());
+      //fDefOpt.Form(opt,gSystem->GetGroupInfo()->fGroup.Data());
+      fDefOpt = opt;
    };
    virtual const Char_t *GetDefaultJobOptions() const {
       return fDefOpt.Data();

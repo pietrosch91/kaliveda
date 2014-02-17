@@ -1,0 +1,26 @@
+# Specific environment configuration file for KaliVeda on CCIN2P3 machines (FAZIA)
+
+DataRepository: ccali_fazia
+ccali_fazia.DataRepository.Type: irods
+ccali_fazia.DataRepository.RootDir:       /fazia
+ccali_fazia.DataRepository.ReadProtocol:     root
+ccali_fazia.DataRepository.CacheAvailable: yes
+ccali_fazia.DataRepository.MaxCacheTime: 86400
+ccali_fazia.DataRepository.CanWrite: NO
+ccali_fazia.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+ccali_fazia.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/fazia
+
++BatchSystem:    GE
+GE.BatchSystem.Title:   Use Grid Engine batch system
+GE.BatchSystem.DefaultJobOptions:   -P P_fazia -o $PWD -j yes -l os='sl6',xrootd=1,irods=1 -V -N #JobName#
+GE.BatchSystem.JobSubCmd:   qsub
+GE.BatchSystem.JobScript:   $KVROOT/bin/KVA
+GE.BatchSystem.DefaultJobTime:   4000
+GE.BatchSystem.DefaultJobMemory:  256M
+GE.BatchSystem.DefaultJobDisk:   100M
++Plugin.KVBatchSystem:    GE    KV_CCIN2P3_GE     KVMultiDet    "KV_CCIN2P3_GE(const Char_t*)"
+# Modify this variable in order to submit N runs per job in parallel batch mode
+#GE.BatchSystem.RunsPerJob:    1
+
+Default.BatchSystem:   GE
+
