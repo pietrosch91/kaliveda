@@ -143,8 +143,8 @@ BZR_INFOS =
 BZR_LAST_REVISION =
 endif
 
-.PHONY : changelog MultiDet Indra gan_tape VAMOS clean cleangantape unpack install analysis
-all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) install analysis byebye
+.PHONY : changelog MultiDet Indra gan_tape VAMOS FAZIA clean cleangantape unpack install analysis
+all : fitltg-0.1/configure .init $(KV_CONFIG__H) KVVersion.h $(BZR_INFOS) ltgfit $(RGTAPE) MultiDet Indra $(INDRAVAMOS) FAZIA install analysis byebye
 
 export GANTAPE_INC = $(KVPROJ_ROOT_ABS)/GanTape/include
 
@@ -213,7 +213,10 @@ analysis : .init
 	
 VAMOS : .init
 	cd VAMOS && $(MAKE)
-		
+
+FAZIA : .init
+	cd FAZIA && $(MAKE)
+
 cleangantape :
 	cd GanTape && rm -rf i386-linux_*
 	
@@ -228,6 +231,7 @@ ifeq ($(ROOTGANILTAPE),yes)
 	cd GanTape && rm -rf i386-linux_*
 endif
 	cd VAMOS && $(MAKE) clean
+	cd FAZIA && $(MAKE) clean
 	cd analysis && $(MAKE) clean
 
 distclean : clean
@@ -244,6 +248,7 @@ install :
 	cd KVMultiDet && $(MAKE) install
 	cd KVIndra && $(MAKE) install
 	cd VAMOS && $(MAKE) install
+	cd FAZIA && $(MAKE) install
 	cd etc/proof && $(MAKE)
 	-cp tools/.nedit $(KVINSTALLDIR)/tools/
 	-cp tools/* $(KVINSTALLDIR)/tools/
@@ -299,10 +304,12 @@ endif
 	cd KVIndra && $(MAKE) uninstall
 	cd KVIndra && $(MAKE) uninstall-indra2root
 	cd VAMOS && $(MAKE) uninstall
+	cd FAZIA && $(MAKE) uninstall
 	cd analysis && $(MAKE) uninstall
 	cd KVMultiDet && $(MAKE) removemoduledirs
 	cd KVIndra && $(MAKE) removemoduledirs
 	cd VAMOS && $(MAKE) removemoduledirs
+	cd FAZIA && $(MAKE) removemoduledirs
 	-rm -rf $(KVINSTALLDIR)/KVFiles
 		
 dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
@@ -310,11 +317,13 @@ dist : fitltg-0.1/configure .init clean $(BZR_INFOS)
 	tar -czf libKVMultiDet-$(VERSION_NUMBER).tgz KVMultiDet
 	tar -czf libKVIndra-$(VERSION_NUMBER).tgz KVIndra
 	tar -czf libVAMOS-$(VERSION_NUMBER).tgz VAMOS
+	tar -czf libFAZIA-$(VERSION_NUMBER).tgz FAZIA
 	tar -czf analysis-$(VERSION_NUMBER).tgz analysis
 	-mkdir $(KV_DIST)
 	-cp libKV*.tgz $(KV_DIST)/
 	-cp fitltg-0.1/fitltg-0.1.tar.gz $(KV_DIST)/
 	-cp libVAMOS-$(VERSION_NUMBER).tgz $(KV_DIST)/
+	-cp libFAZIA-$(VERSION_NUMBER).tgz $(KV_DIST)/
 	-cp analysis*.tgz $(KV_DIST)/
 	-cp -r etc $(KV_DIST)/
 	-cp -r tools $(KV_DIST)/
@@ -334,11 +343,13 @@ unpack :
 	-tar zxf libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-tar zxf libKVIndra-$(VERSION_NUMBER).tgz 
 	-tar zxf libVAMOS-$(VERSION_NUMBER).tgz
+	-tar zxf libFAZIA-$(VERSION_NUMBER).tgz
 	-tar zxf analysis-$(VERSION_NUMBER).tgz
 	-rm fitltg-0.1.tar.gz
 	-rm libKVMultiDet-$(VERSION_NUMBER).tgz 
 	-rm libKVIndra-$(VERSION_NUMBER).tgz 
 	-rm libVAMOS-$(VERSION_NUMBER).tgz
+	-rm libFAZIA-$(VERSION_NUMBER).tgz
 	-rm analysis-$(VERSION_NUMBER).tgz
 	
 config :

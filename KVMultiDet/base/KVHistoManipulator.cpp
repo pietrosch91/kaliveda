@@ -81,8 +81,8 @@ Int_t KVHistoManipulator::CutStatBin(TH1* hh,Int_t stat_min,Int_t stat_max){
 	Int_t nb_raz=0;
 	Bool_t raz=kFALSE;
 	if (hh->InheritsFrom("TH2")){
-		
-		for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1){
+
+      for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1){
 			for (Int_t ny=1;ny<=hh->GetNbinsY();ny+=1) {
 				raz=kFALSE;
 				if (stat_min!=-1 && hh->GetBinContent(nx,ny)<stat_min) raz=kTRUE;
@@ -93,7 +93,6 @@ Int_t KVHistoManipulator::CutStatBin(TH1* hh,Int_t stat_min,Int_t stat_max){
 	}
 	else if (hh->InheritsFrom("TProfile")){
 		TProfile *prof = (TProfile *)hh;
-		
 		for (Int_t nx=1;nx<=prof->GetNbinsX();nx+=1){
 			raz=kFALSE;
 			if (stat_min!=-1 && prof->GetBinEntries(nx)<stat_min) raz=kTRUE;
@@ -102,7 +101,6 @@ Int_t KVHistoManipulator::CutStatBin(TH1* hh,Int_t stat_min,Int_t stat_max){
 		}	 
 	}
 	else if (hh->InheritsFrom("TH1")){
-		
 		for (Int_t nx=1;nx<=hh->GetNbinsX();nx+=1){
 			raz=kFALSE;
 			if (stat_min!=-1 && hh->GetBinContent(nx)<stat_min) raz=kTRUE;

@@ -1015,7 +1015,7 @@ void KVDataAnalysisLauncher::SetTaskList(Char_t *dataset)
   
   GetDataAnalyser()->SetDataSet(gDataSet);
   //no systems defined for dataset ?
-  noSystems=(!gIndraDB->GetSystems()->GetSize());
+  noSystems=(!gIndraDB || !gIndraDB->GetSystems()->GetSize());
   if(noSystems) lvSystems->RemoveAll();
   
   Int_t i=0;
