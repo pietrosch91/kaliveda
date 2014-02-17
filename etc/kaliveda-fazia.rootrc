@@ -1,0 +1,70 @@
+# fichier d initialisation pour la lecture des dataset FAZIA
+#
+
++DataSet:   LNL_2007
+LNL_2007.DataSet.Title:    FAZIA test at LNL (2007)
+LNL_2007.DataSet.RepositoryDir:   LNL_2007
+LNL_2007.DataSet.RunFileName.raw:    run_%04d.root
+LNL_2007.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+LNL_2007.ReconstructedEventClassName:   KVINDRAReconEvent
+LNL_2007.DataSet.RunFileClass.raw:    TFile
+
++DataSet:   LNS_2009
+LNS_2009.DataSet.Title:    FAZIA test at LNS (2009)
+LNS_2009.DataSet.RepositoryDir:   LNS_2009
+LNS_2009.DataSet.RunFileName.raw:    run_%04d.root
+LNS_2009.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+LNS_2009.ReconstructedEventClassName:   KVINDRAReconEvent
+LNS_2009.DataSet.RunFileClass.raw:    TFile
+
++DataSet:   GANIL_2010
+GANIL_2010.DataSet.Title:    FAZIA test at GANIL (2010)
+GANIL_2010.DataSet.RepositoryDir:   GANIL_2010
+GANIL_2010.DataSet.RunFileName.raw:    run_%04d.root
+GANIL_2010.RawAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+GANIL_2010.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+GANIL_2010.ReconstructedEventClassName:   KVINDRAReconEvent
+GANIL_2010.DataSet.RunFileClass.raw:    TFile
+
++DataSet:   LNS_2011
+LNS_2011.DataSet.Title:    FAZIA test at LNS (2011)
+LNS_2011.DataSet.RepositoryDir:   LNS_2011
+LNS_2011.DataSet.RunFileName.raw:    run_%04d.root
+LNS_2011.DataSet.RunFileClass.raw:    TFile
+
++DataAnalysisTask:     RawFaziaAnalysis
+RawFaziaAnalysis.DataAnalysisTask.Title:     Analysis of raw FAZIA data
+RawFaziaAnalysis.DataAnalysisTask.Prereq:     raw
+RawFaziaAnalysis.DataAnalysisTask.Analyser:     FAZIARawDataAnalyser
+RawFaziaAnalysis.DataAnalysisTask.UserClass:     yes
+RawFaziaAnalysis.DataAnalysisTask.UserClass.Base:     FAZIARawDataReader/TSelector
++Plugin.KVDataAnalyser:   FAZIARawDataAnalyser   KVFAZIARawDataAnalyser       FAZIA "KVFAZIARawDataAnalyser()"
++Plugin.TSelector:  FAZIARawDataReader    KVFAZIARawDataReader_LNS_2011      FAZIA    "KVFAZIARawDataReader_LNS_2011()"
+
+
++DataSet:   LNS_2012
+LNS_2012.DataSet.Title:    FAZIA test at LNS (2012)
+LNS_2012.DataSet.RepositoryDir:   LNS_2012
+LNS_2012.DataSet.RunFileName.raw:    run_%04d.root
+LNS_2012.RawAnalysis.DataAnalysisTask.UserClass.Base:     INDRARawDataAnalyser
+LNS_2012.ReconstructedEventClassName:   KVINDRAReconEvent
+LNS_2012.DataSet.RunFileClass.raw:    TFile
+
+DataRepository: ccali_fazia
+ccali_fazia.DataRepository.Type: irods
+ccali_fazia.DataRepository.RootDir:       /fazia
+ccali_fazia.DataRepository.ReadProtocol:     root
+ccali_fazia.DataRepository.CacheAvailable: yes
+ccali_fazia.DataRepository.MaxCacheTime: 86400
+ccali_fazia.DataRepository.CanWrite: NO
+ccali_fazia.DataRepository.XRDServer:      ccxroot.in2p3.fr:1999
+ccali_fazia.DataRepository.XRDRootDir:       /hpss/in2p3.fr/group/fazia
+
+GE.BatchSystem.DefaultJobOptions:   -P P_fazia -o $PWD -j yes -l os='sl6',xrootd=1,irods=1 -V -N #JobName#
+
++Plugin.KVDataBase:    LNL_2007    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2009    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    GANIL_2010    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2011    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
++Plugin.KVDataBase:    LNS_2012    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
+
