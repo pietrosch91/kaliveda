@@ -2288,7 +2288,7 @@ void KVTreeAnalyzer::GenerateAllHistograms(TCollection *list)
     KVHistogram* obj;
     TH1* hist;
     while( (obj = (KVHistogram*)nextHist()) ){
-        if(obj->IsType("Hist")){
+        if(!obj->IsType("TCutG")){
             hist = obj->GetHisto();
             TString exp = obj->GetExpression();
             TString sel = obj->GetSelection();
