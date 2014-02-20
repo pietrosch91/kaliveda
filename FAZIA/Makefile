@@ -3,28 +3,21 @@
 
 PROJ_NAME = FAZIA
 
-#MODULES = daq_cec analysis base reconstruction identification detectors geometry db events particles calibration idtelescopes
-MODULES = analysis fazia
-#EXTRA_HEADERS = analysis/Defines.h
+MODULES = analysis fazia idtelescopes
 
 MANIP_DIRS = LNS_2011 INDRAFAZIA
-#ETC_DATA = $(shell ls factory/*Template.[c,h]*)
-ETC_DATA = data
 
-#NOT_ROOTCINT := analysis/Defines.h
+ETC_DATA = data
 
 ifeq ($(ROOTGANILTAPE),yes)
 KV_INC_EXTRAS := -DROOTGANILTAPE -I$(GANTAPE_INC) -D__unix -D__linux -fbounds-check
 endif
-
-#NOT_READY := geometry/KVFocalPlanVamos.cpp
 
 ifeq ($(ROOTGANILTAPE),no)
 NOT_READY += daq_cec/*.cpp analysis/KVIVRawDataReconstructor.cpp analysis/KVIVRawDataAnalyser.cpp
 endif
 
 include ../Makefile.general
-
 
 #required for use of TGeo* classes in FAZIABlock
 LINK_LIB += -L$(ROOTSYS)/lib -lGeom

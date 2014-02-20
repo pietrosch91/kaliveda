@@ -8,10 +8,12 @@ INDRAFAZIA.ReconstructedEventClassName:	KVReconstructedEvent
 +Plugin.KVDataBase:   INDRAFAZIA    KVINDRADB     KVIndra    "KVINDRADB(const Char_t*)"
 +Plugin.KVUpDater:    INDRAFAZIA    KVINDRAUpDater	  KVIndra	"KVINDRAUpDater()"
 
++Plugin.KVIDTelescope:    ^Si1$     KVFAZIAIDSi1PSA    FAZIA    "KVFAZIAIDSi1PSA()"
+
 # FAZIA Geometry used by KVINDRAFAZIA
 INDRAFAZIA.GeoType:  		 compact
-INDRAFAZIA.DistanceFAZIA:   100.0
-INDRAFAZIA.ThetaMinCompactGeo: 0.5
+INDRAFAZIA.DistanceFAZIA:   80.0
+INDRAFAZIA.ThetaMinCompactGeo: 2.0
 
 
 +DataSet:   LNL_2007

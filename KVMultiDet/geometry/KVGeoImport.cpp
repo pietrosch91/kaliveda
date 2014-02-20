@@ -83,6 +83,7 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
 
     KVDetector* detector = GetCurrentDetector();
     if(!detector) return;
+	 Bool_t group_inconsistency = kFALSE;
     if(fCreateArray){
         if(!fCurrentGroup){
             if(detector->GetGroup()) {
@@ -102,16 +103,18 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
                 fCurrentGroup->Add(detector);
             }
             else {
-                if(det_group!=fCurrentGroup)
-                    Warning("ParticleEntersNewVolume",
-                            "Detector %s : already belongs to %s, now seems to be in %s",
-                            detector->GetName(), det_group->GetName(),
-                            fCurrentGroup->GetName());
+                if(det_group!=fCurrentGroup){
+//                     Warning("ParticleEntersNewVolume",
+//                             "Detector %s : already belongs to %s, now seems to be in %s",
+//                             detector->GetName(), det_group->GetName(),
+//                             fCurrentGroup->GetName());
+						  group_inconsistency = kTRUE;
+					 }
             }
         }
     }
     detector->GetNode()->SetName(detector->GetName());
-    if(fLastDetector && detector!=fLastDetector) {
+    if(fLastDetector && detector!=fLastDetector && !group_inconsistency) {
         fLastDetector->GetNode()->AddBehind(detector);
         detector->GetNode()->AddInFront(fLastDetector);
     }
@@ -252,6 +255,10 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     // 6.) The name of the KVDetector object created and added to the array will be taken
     //     from the unique full path of the node corresponding to the geometrical positioning
     //     of the detector, see KVGeoNavigator::ExtractDetectorNameFromPath
+    //
+    // 7.) The 'type' of the detector will be set to the name of the material
+    //     in the detector's active layer i.e. if active layer material name is "Si",
+    //     detector type will be 'Si'
 
 
     KVDetector* d = new KVDetector;
@@ -265,6 +272,9 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     }
     else
         AddLayer(d, det_vol);
+    TString type = d->GetActiveLayer()->GetName();
+    //type.ToUpper();
+    d->SetType( type );
     return d;
 }
 

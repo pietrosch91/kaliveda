@@ -61,7 +61,26 @@ void KVINDRAFAZIA::Build()
    KVGeoImport imp(gGeoManager, KVMaterial::GetRangeTable(), this);
    imp.SetNameCorrespondanceList("FAZIA.names");
    imp.SetNameCorrespondanceList("INDRA.names");
-   imp.ImportGeometry(0.5, 5, 0., 0, 15);
+	// the following parameters are optimized for a 12-block compact
+	// geometry placed at 80cm with rings 1-5 of INDRA removed.
+	// make sure that the expected number of detectors get imported!
+   imp.ImportGeometry(0.25, 1, 2., 0, 14);
+}
+
+void KVINDRAFAZIA::GetIDTelescopes(KVDetector *de, KVDetector *e, TCollection *idtels)
+{
+    // Add some ID telescopes for FAZIA array
+
+    KVINDRA::GetIDTelescopes(de,e,idtels);
+
+    TString dename = de->GetName();
+    if(dename.BeginsWith("SI1")){
+        TString uri="Si1";
+        KVIDTelescope* idt;
+        if ((idt = KVIDTelescope::MakeIDTelescope(uri.Data()))){
+            set_up_single_stage_telescope(de,idtels,idt,uri);
+        }
+    }
 }
 
 void KVINDRAFAZIA::BuildFAZIACompact()
