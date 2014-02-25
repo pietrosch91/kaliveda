@@ -935,9 +935,13 @@ KVDetector *KVDetector::MakeDetector(const Char_t * name, Float_t thickness)
    //Static function which will create an instance of the KVDetector-derived class
    //corresponding to 'name'
    //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
-	//[name_of_dataset].detector_type or detector_type
-	//first we check if there is a special plugin for the DataSet
-	//if not we take the default one
+   //   [name_of_dataset].detector_type
+   //   detector_type
+   // To use the dataset-dependent plugin, call this method with
+   //  name = "[name_of_dataset].detector_type"
+   // If not, the default plugin will be used
+   //first we check if there is a special plugin for the DataSet
+   //if not we take the default one
    //
    //'thickness' is passed as argument to the constructor for the detector plugin
 
