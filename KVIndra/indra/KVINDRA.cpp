@@ -241,7 +241,7 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
         detector.Begin("()");
         KVString dettype = detector.Next();
         Double_t detthick = detector.Next().Atof();
-        KVDetector* det = KVDetector::MakeDetector(dettype,detthick);
+        KVDetector* det = KVDetector::MakeDetector(Form("%s.%s",fDataSet.Data(),dettype.Data()),detthick);
         kvt->Add(det);
         Double_t depth = fStrucInfos.GetValue(Form("INDRA.Telescope.%s.Depth.%s",name.Data(),dettype.Data()), 0.);
         kvt->SetDepth(idet,depth);
