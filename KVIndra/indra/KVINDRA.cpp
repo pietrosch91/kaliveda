@@ -137,12 +137,13 @@ void KVINDRA::BuildGeometry()
    // if no dataset-specific file found
 
     TString path = Form("indra-struct.%s.env", fDataSet.Data() );
-    SearchKVFile(path.Data(),path,"data");
-    if(path==""){
+    TString path2;
+    SearchKVFile(path.Data(),path2,"data");
+    if(path2==""){
        path = "indra-struct.env";
-       SearchKVFile(path.Data(),path,"data");
+       SearchKVFile(path.Data(),path2,"data");
     }
-    fStrucInfos.ReadFile(path, kEnvAll);
+    fStrucInfos.ReadFile(path2, kEnvAll);
     
     SetName(fStrucInfos.GetValue("INDRA.Name", ""));
     SetTitle(fStrucInfos.GetValue("INDRA.Title", ""));
