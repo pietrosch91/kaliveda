@@ -1,5 +1,4 @@
 # Time TSED2_HF in (ns)
-# PRELIMINARY t0= 267.458 ns!!!!
 # TAC: 200 ns/channel
 RUNS: 41-85
 TYPE: channel->ns
@@ -13,11 +12,28 @@ TSED2_HF: 0. -0.022823 -5.6213e-07 6.5741e-11 -4.1364e-15 1.3266e-19 -1.7054e-24
 # Time T0 (in ns) for TSED2_HF
 TYPE: T0_HF
 FUNCTION:
+
 RUNS: 41-46 
-SED2: 267.458
-#corrected by M-F 16/04/13
-RUNS: 80-615
-SED2: 449.16
+SED2: 268.12
+
+#calculated by GA 20/02/14
+RUNS: 80-85
+SED2: 457.33
+
+RUNS: 86-115
+SED2: 467.77
+
+RUNS: 116-126
+SED2: 563.65
+
+RUNS: 127-145
+SED2: 469.10
+
+RUNS: 150-159
+SED2: 468.65
+
+RUNS: 200-206 217-222
+SED2: 562.20
 
 
 #Time Pedestals (in canal) 31/01/14
