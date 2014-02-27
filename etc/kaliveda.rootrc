@@ -267,5 +267,5 @@ KVTreeAnalyzer.Normalize:      off
 
 # Controls auto-update option and refresh interval (in seconds) for KVBatchSystemGUI
 KVBatchSystemGUI.AutoUpdate:       yes
-KVBatchSystemGUI.RefreshInterval:    30
+KVBatchSystemGUI.RefreshInterval:    90
 
