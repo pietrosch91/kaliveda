@@ -8,12 +8,12 @@
 #include "TVector3.h"
 #include "TClonesArray.h"
 #include <KVNameValueList.h>
+#include <TGeoMatrix.h>
 class KVNucleus;
 class KVEvent;
 class TGeoManager;
 class TGeoVolume;
 class TGeoNode;
-class TGeoHMatrix;
 class TEnv;
 
 class KVGeoNavigator : public KVBase
@@ -23,7 +23,7 @@ private:
     TGeoVolume* fCurrentVolume;//current volume
     TGeoNode* fCurrentNode;//current node
     TGeoNode* fCurrentDetectorNode;//node for current detector
-    TGeoHMatrix* fCurrentMatrix;//current global transformation matrix
+    TGeoHMatrix fCurrentMatrix;//current global transformation matrix
     TString fCurrentPath;//current full path to physical node
     TClonesArray fCurrentStructures;//list of current structures deduced from path
     Int_t fCurStrucNumber;//number of current parent structures
@@ -57,7 +57,7 @@ public:
     TGeoManager* GetGeometry() const { return fGeometry; }
     TGeoVolume* GetCurrentVolume() const { return fCurrentVolume; }
     TGeoNode* GetCurrentNode() const { return fCurrentNode; }
-    TGeoHMatrix* GetCurrentMatrix() const;
+    const TGeoHMatrix* GetCurrentMatrix() const;
     Double_t GetStepSize() const { return fStepSize; }
     const TVector3& GetEntryPoint() const { return fEntryPoint; }
     const TVector3& GetExitPoint() const { return fExitPoint; }

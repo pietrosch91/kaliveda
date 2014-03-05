@@ -349,10 +349,10 @@ void KVGeoNavigator::ParticleEntersNewVolume(KVNucleus*)
     AbstractMethod("ParticleEntersNewVolume");
 }
 
-TGeoHMatrix *KVGeoNavigator::GetCurrentMatrix() const
+const TGeoHMatrix *KVGeoNavigator::GetCurrentMatrix() const
 {
-    // Returns pointer to current global transformation matrix
-    return fCurrentMatrix;
+    // Returns pointer to internal copy of current global transformation matrix
+    return &fCurrentMatrix;
 }
 
 TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(KVString &detector_name, Bool_t& multilayer)
@@ -365,6 +365,10 @@ TGeoVolume *KVGeoNavigator::GetCurrentDetectorNameAndVolume(KVString &detector_n
     // For a multilayer detector, GetCurrentVolume() returns the volume for the current layer.
     //
     // See ExtractDetectorNameFromPath(KVString&) for details on detector name formatting.
+
+//    Info("GetCurrentDetectorNameAndVolume","now i am in %s on node %s with path %s and matrix:",
+//         fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
+//    fCurrentMatrix.Print();
 
     multilayer=kFALSE;
     fCurrentDetectorNode=0;
@@ -513,7 +517,7 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
     fCurrentVolume = fGeometry->GetCurrentVolume();
     fCurrentNode = fGeometry->GetCurrentNode();
     fMotherNode = fGeometry->GetMother();
-    fCurrentMatrix = fGeometry->GetCurrentMatrix();
+    fCurrentMatrix = *(fGeometry->GetCurrentMatrix());
     fCurrentPath = fGeometry->GetPath();
     // move along trajectory until we hit a new volume
     fGeometry->FindNextBoundaryAndStep();
@@ -530,6 +534,10 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
     // reset user flag for stopping propagation of particle
     SetStopPropagation(kFALSE);
 
+//    Info("PropagateParticle","Beginning: i am in %s on node %s with path %s, and matrix:",
+//         fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
+//    fCurrentMatrix.Print();
+
     // track particle until we leave the geometry or until fStopPropagation
     // becomes kTRUE
     while (!fGeometry->IsOutside()) {
@@ -545,6 +553,10 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
             break;
         }
 
+//        Info("PropagateParticle","just before ParticleEntersNewVolume\nnow i am in %s on node %s with path %s and matrix:",
+//             fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
+//        fCurrentMatrix.Print();
+
         ParticleEntersNewVolume(part);
 
         if(StopPropagation()) break;
@@ -552,8 +564,12 @@ void KVGeoNavigator::PropagateParticle(KVNucleus*part, TVector3 *TheOrigin)
         fCurrentVolume = newVol;
         fCurrentNode = newNod;
         fMotherNode = newMom;
-        fCurrentMatrix = newMatx;
+        fCurrentMatrix = *newMatx;
         fCurrentPath = newPath;
+
+//        Info("PropagateParticle","after ParticleEntersNewVolume\nnow i am in %s on node %s with path %s and matrix:",
+//             fCurrentVolume->GetName(),fCurrentNode->GetName(),fCurrentPath.Data());
+//        fCurrentMatrix.Print();
 
         // move on to next volume crossed by trajectory
         fGeometry->FindNextBoundaryAndStep();
