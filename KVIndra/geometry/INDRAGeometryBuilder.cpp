@@ -397,7 +397,15 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
       }
 
    for (; i <= Ndets; i++) {
-      if (!skipDetector) PlaceFrame(phi,i);
+      if (!skipDetector) {
+			  PlaceFrame(phi,i);
+		     if(((ring>9&&ring<13) && i==1)||(ring>12&&i==2)) {
+					  fEtalonTheta[ring-10] = fFrameCentre.Theta()*TMath::RadToDeg();
+					  fEtalonPhi[ring-10] = phi;
+					  fEtalonTheta[ring-9] = fFrameCentre.Theta()*TMath::RadToDeg();
+					  fEtalonPhi[ring-9] = phi;
+			  }
+	    }
       phi += deltaPhi;
    }
 
@@ -733,26 +741,59 @@ void INDRAGeometryBuilder::BuildEtalonVolumes()
 void INDRAGeometryBuilder::MakeEtalon(int RING)
 {
    // Build and add etalon telescope for ring
-Double_t theta[] = {51.075000,63.340000,79.435000,100.685000,118.235000,133.905000,149.790000,166.435000};
-Double_t phi[] = {37.500000,37.500000,37.500000,90.000000,78.750000,78.750000,90.000000,90.000000};
-Double_t dist[] = {17.4005,17.4005,17.4005,16.7005,16.7005,16.7005,17.4005,17.4005,};
+    //Double_t theta[] = {51.075000,63.340000,79.435000,100.685000,118.235000,133.905000,149.790000,166.435000};
+    //Double_t phi[] = {37.500000,37.500000,37.500000,90.000000,78.750000,78.750000,90.000000,90.000000};
+	Double_t dist[] = {17.4005,17.4005,17.4005,16.7005,16.7005,16.7005,17.4005,17.4005,};
 
-if(!fEtalonVol) BuildEtalonVolumes();
-
-TGeoTranslation trans;
-trans.SetDz(dist[RING-10]);
-TGeoRotation rot1,rot2;
-TGeoHMatrix h;
-TGeoHMatrix* ph=0;
-
-   rot2.SetAngles(phi[RING-10]+90., theta[RING-10], 0.);
-   rot1.SetAngles(-1.*phi[RING-10], 0., 0.);
-   if(RING==13){
-      TGeoTranslation p(4.5,0,0);
-      h = p * rot2 * trans * rot1;
-   }
-   else
-      h = rot2 * trans * rot1;
+	if(!fEtalonVol) BuildEtalonVolumes();
+	
+	cout << "Etalons " << RING << " : " << fEtalonTheta[RING-10] << "  " << fEtalonPhi[RING-10] << endl;
+	TGeoTranslation trans;
+	trans.SetDz(dist[RING-10]);
+	TGeoRotation rot1,rot2;
+	TGeoHMatrix h;
+	TGeoHMatrix* ph=0;
+	
+//    rot2.SetAngles(phi[RING-10]+90., theta[RING-10], 0.);
+//    rot1.SetAngles(-1.*phi[RING-10], 0., 0.);
+   rot2.SetAngles(fEtalonPhi[RING-10]+90., fEtalonTheta[RING-10], 0.);
+   rot1.SetAngles(-1.*fEtalonPhi[RING-10], 0., 0.);
+//    if(RING==13){
+//       TGeoTranslation p(4.5,0,0);
+//       h = p * rot2 * trans * rot1;
+//    }
+    if(RING==10){
+      TGeoTranslation p(1.5,2.5,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else if(RING==11){
+      TGeoTranslation p(1.5,-1.5,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else if(RING==12){
+      TGeoTranslation p(1.5,0,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else if(RING==13){
+      TGeoTranslation p(-4,-0.5,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else if(RING==14){
+      TGeoTranslation p(-1.7,1.75,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else if(RING==15){
+      TGeoTranslation p(-1.7,-3,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else if(RING==16){
+      TGeoTranslation p(0,2.5,0);
+      h = rot2 * trans * p * rot1;
+	 }
+    else {
+      TGeoTranslation p(0,-2.25,0);
+      h = rot2 * trans * p * rot1;
+	 }
    ph = new TGeoHMatrix(h);
    gGeoManager->GetTopVolume()->AddNode(fEtalonVol,RING,ph);
 }   

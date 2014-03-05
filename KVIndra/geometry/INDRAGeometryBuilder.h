@@ -38,6 +38,8 @@ class INDRAGeometryBuilder : public KVBase {
    Double_t fRingCentreDistance;
    TGeoTranslation* fDetectorPosition;
    TGeoVolumeAssembly* fEtalonVol;
+	Double_t fEtalonTheta[10];
+	Double_t fEtalonPhi[10];
    void CorrectCoordinates(Double_t*, Double_t&, Double_t&);
 
 public:
