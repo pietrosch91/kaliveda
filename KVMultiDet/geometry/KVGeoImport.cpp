@@ -114,7 +114,7 @@ void KVGeoImport::ParticleEntersNewVolume(KVNucleus *)
         }
     }
     detector->GetNode()->SetName(detector->GetName());
-    if(fLastDetector && detector!=fLastDetector && !group_inconsistency) {
+	 if(fLastDetector && detector!=fLastDetector && !group_inconsistency) {
         fLastDetector->GetNode()->AddBehind(detector);
         detector->GetNode()->AddInFront(fLastDetector);
     }
@@ -156,6 +156,8 @@ void KVGeoImport::ImportGeometry(Double_t dTheta, Double_t dPhi,
     TIter next(fArray->GetDetectors());
     KVDetector*d;
     while( (d=(KVDetector*)next()) ) d->GetNode()->RehashLists();
+    // set up all detector node trajectories
+    //fArray->CalculateGeoNodeTrajectories();
 
     if(fCreateArray){
         fArray->SetGeometry(GetGeometry());
@@ -200,34 +202,73 @@ KVDetector* KVGeoImport::GetCurrentDetector()
     KVDetector* det = fArray->GetDetector(detector_name);
     if(!fCreateArray){
         if(det){
-            // link existing detector matrix and shape
-            det->SetMatrix(GetCurrentMatrix());
-            det->SetShape((TGeoBBox*)detector_volume->GetShape());
+            // set matrix & shape for entrance window if not done yet
+            if(!det->GetEntranceWindowMatrix()){
+                det->SetEntranceWindowMatrix(GetCurrentMatrix());
+                det->SetEntranceWindowShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            }
+            TString vol_name(GetCurrentVolume()->GetName());
+            if(!multilay || vol_name.BeginsWith("ACTIVE_")){
+                // set matrix & shape for active layer
+                det->SetActiveLayerMatrix(GetCurrentMatrix());
+                det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+            }
         }
     }
-    else if(!det) {
-        det = BuildDetector(detector_name, detector_volume);
-        if(det) {
-            det->SetMatrix(GetCurrentMatrix());
-            det->SetShape((TGeoBBox*)detector_volume->GetShape());
-            fArray->Add(det);
-            Int_t nstruc = CurrentStructures().GetEntries();
-            if(nstruc){
-                // Build and add geometry structure elements
-                KVGeoStrucElement* ELEM = fArray;
-                for(register int i=0;i<nstruc;i++){
-                    KVGeoStrucElement* elem = (KVGeoStrucElement*)CurrentStructures()[i];
-                    KVGeoStrucElement* nextELEM = ELEM->GetStructure(elem->GetName());
-                    if(!nextELEM){
-                        // make new structure
-                        nextELEM = new KVGeoStrucElement(elem->GetName(), elem->GetType());
-                        nextELEM->SetNumber(elem->GetNumber());
-                        ELEM->Add(nextELEM);
-                    }
-                    ELEM=nextELEM;
+    else
+    {
+        if(!det) {
+            det = BuildDetector(detector_name, detector_volume);
+            if(det) {
+                // Setting the entrance window shape and matrix
+                // ============================================
+                // for consistency, the matrix and shape MUST correspond
+                // i.e. we cannot have the matrix corresponding to the entrance window
+                // of a multilayer detector and the shape corresponding to the
+                // whole detector (all layers) - otherwise, calculation of points
+                // on detector entrance window will be false!
+//                Info("GetCurrentDetector","Setting EW matrix to current matrix:");
+//                GetCurrentMatrix()->Print();
+                det->SetEntranceWindowMatrix(GetCurrentMatrix());
+                det->SetEntranceWindowShape((TGeoBBox*)GetCurrentVolume()->GetShape());
+                TString vol_name(GetCurrentVolume()->GetName());
+                if(!multilay || vol_name.BeginsWith("ACTIVE_")){
+                    // first layer of detector (or only layer) is also active layer
+//                    Info("GetCurrentDetector","and also setting active layer matrix to current matrix:");
+//                    GetCurrentMatrix()->Print();
+                    det->SetActiveLayerMatrix(GetCurrentMatrix());
+                    det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
                 }
-                // add detector to last structure
-                ELEM->Add(det);
+                fArray->Add(det);
+                Int_t nstruc = CurrentStructures().GetEntries();
+                if(nstruc){
+                    // Build and add geometry structure elements
+                    KVGeoStrucElement* ELEM = fArray;
+                    for(register int i=0;i<nstruc;i++){
+                        KVGeoStrucElement* elem = (KVGeoStrucElement*)CurrentStructures()[i];
+                        KVGeoStrucElement* nextELEM = ELEM->GetStructure(elem->GetName());
+                        if(!nextELEM){
+                            // make new structure
+                            nextELEM = new KVGeoStrucElement(elem->GetName(), elem->GetType());
+                            nextELEM->SetNumber(elem->GetNumber());
+                            ELEM->Add(nextELEM);
+                        }
+                        ELEM=nextELEM;
+                    }
+                    // add detector to last structure
+                    ELEM->Add(det);
+                }
+            }
+        }
+        else
+        {
+            // Detector already built, are we now in its active layer ?
+            TString vol_name(GetCurrentVolume()->GetName());
+            if(!multilay || vol_name.BeginsWith("ACTIVE_")){
+//                Info("GetCurrentDetector","Setting active layer matrix to current matrix:");
+//                GetCurrentMatrix()->Print();
+                det->SetActiveLayerMatrix(GetCurrentMatrix());
+                det->SetActiveLayerShape((TGeoBBox*)GetCurrentVolume()->GetShape());
             }
         }
     }
@@ -260,6 +301,7 @@ KVDetector *KVGeoImport::BuildDetector(TString det_name, TGeoVolume* det_vol)
     //     in the detector's active layer i.e. if active layer material name is "Si",
     //     detector type will be 'Si'
 
+//    Info("BuildDetector","%s",det_name.Data());
 
     KVDetector* d = new KVDetector;
     d->SetName(det_name);

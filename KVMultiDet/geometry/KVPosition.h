@@ -116,12 +116,12 @@ public:
 
     /* ROOT Geometry */
     Bool_t ROOTGeo() const;
-    void SetMatrix(TGeoHMatrix*);
+    void SetMatrix(const TGeoHMatrix*);
     void SetShape(TGeoBBox*);
     TGeoHMatrix* GetMatrix() const;
     TGeoBBox* GetShape() const;
-    TVector3 GetRandomPointOnEntranceWindow() const;
-    TVector3 GetCentreOfEntranceWindow() const;
+    TVector3 GetRandomPoint() const;
+    TVector3 GetCentre() const;
 
     ClassDef(KVPosition, 1)//Class handling geometry of detectors in a multidetector array
 };

@@ -242,7 +242,7 @@ TVector3 KVPosition::GetRandomDirection(Option_t * t)
 
     if(ROOTGeo()){
         // * ROOT Geometry *
-        TVector3 r = GetRandomPointOnEntranceWindow();
+        TVector3 r = GetRandomPoint();
         return r.Unit();
     }
 
@@ -271,7 +271,7 @@ void KVPosition::GetRandomAngles(Double_t &th,Double_t &ph, Option_t * t)
 
     if(ROOTGeo()){
         // * ROOT Geometry *
-        TVector3 r = GetRandomPointOnEntranceWindow();
+        TVector3 r = GetRandomPoint();
         th = r.Theta()/dtor;
         ph = r.Phi()/dtor;
         if(ph<0) ph+=360.;
@@ -567,7 +567,7 @@ TRotation KVPosition::GetRandomIsotropicRotation()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void KVPosition::SetMatrix(TGeoHMatrix *m)
+void KVPosition::SetMatrix(const TGeoHMatrix *m)
 {
     // * ROOT Geometry *
     // Set the global transformation matrix for this detector
@@ -578,7 +578,7 @@ void KVPosition::SetMatrix(TGeoHMatrix *m)
     if(fMatrix) delete fMatrix;
     fMatrix = new TGeoHMatrix(*m);
     if(ROOTGeo()){
-        TVector3 centre = GetCentreOfEntranceWindow();
+        TVector3 centre = GetCentre();
         SetTheta(centre.Theta()*TMath::RadToDeg());
         SetPhi(centre.Phi()*TMath::RadToDeg());
         SetDistance(centre.Mag());
@@ -596,7 +596,7 @@ void KVPosition::SetShape(TGeoBBox *b)
     // the distance from the target.
     fShape = b;
     if(ROOTGeo()){
-        TVector3 centre = GetCentreOfEntranceWindow();
+        TVector3 centre = GetCentre();
         SetTheta(centre.Theta()*TMath::RadToDeg());
         SetPhi(centre.Phi()*TMath::RadToDeg());
         SetDistance(centre.Mag());
@@ -619,7 +619,7 @@ TGeoBBox *KVPosition::GetShape() const
     return fShape;
 }
 
-TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
+TVector3 KVPosition::GetRandomPoint() const
 {
     // * ROOT Geometry *
     // Generate a vector in the world (laboratory) frame from the origin
@@ -652,9 +652,9 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
     for(int i=0;i<3;i++) points[i]+=origin[i];
     Bool_t ok2 = GetShape()->Contains(points);
     if(!ok1){
-        ::Error("KVPosition::GetRandomPointOnEntranceWindow",
+        ::Error("KVPosition::GetRandomPoint",
                 "TGeoBBox::GetPointsOnFacet returns kFALSE for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
-        return GetCentreOfEntranceWindow();
+        return GetCentre();
     }
     Int_t np=0;
     if(!ok2){
@@ -670,9 +670,9 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
           np++;
        }
        if(!ok2){
-        ::Error("KVPosition::GetRandomPointOnEntranceWindow",
+        ::Error("KVPosition::GetRandomPoint",
                 "Cannot generate points for shape %s. Returning coordinates of centre.", GetShape()->ClassName());
-        return GetCentreOfEntranceWindow();
+        return GetCentre();
        }
     }
     Double_t* npoint = points+3*np;
@@ -681,7 +681,7 @@ TVector3 KVPosition::GetRandomPointOnEntranceWindow() const
     return TVector3(master);
 }
 
-TVector3 KVPosition::GetCentreOfEntranceWindow() const
+TVector3 KVPosition::GetCentre() const
 {
     // * ROOT Geometry *
     // Generate a vector in the world (laboratory) frame from the origin
@@ -692,7 +692,7 @@ TVector3 KVPosition::GetCentreOfEntranceWindow() const
     // placed at -dZ.
 
     if(!ROOTGeo()){
-        ::Error("KVPosition::GetCentreOfEntranceWindow",
+        ::Error("KVPosition::GetCentreOfSurface",
                 "ROOT Geometry has not been initialised");
         return TVector3();
     }

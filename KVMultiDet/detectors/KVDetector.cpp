@@ -19,6 +19,7 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
+//#include <KVGeoDNTrajectory.h>
 
 using namespace std;
 
@@ -64,6 +65,34 @@ end_html
 //      alpha.GetEnergy();                      //residual energy of particle
 //      det.Clear();                            //reset detector ready for a new detection
 //
+//
+/*
+begin_html
+<h4>Important note on detector positions, angles, solid angle, distances etc.</h4>
+end_html
+*/
+// The following methods inherited from KVPosition are here used to refer to the
+// ACTIVE LAYER of the detector:
+//
+//  TVector3 GetRandomDirection(Option_t * t = "isotropic");
+//  void GetRandomAngles(Double_t &th, Double_t &ph, Option_t * t = "isotropic");
+//  TVector3 GetDirection();
+//  Double_t GetTheta() const;
+//  Double_t GetSinTheta() const;
+//  Double_t GetCosTheta() const;
+//  Double_t GetPhi();
+//  Double_t GetDistance() const;
+//  Double_t GetSolidAngle(void);
+//  TVector3 GetRandomPoint() const;
+//  TVector3 GetCentre() const;
+//
+// If you want the equivalent informations or functions for the ENTRANCE WINDOW
+// of the detector, use
+//
+//  TVector3 GetRandomPointOnEntranceWindow() const;
+//  TVector3 GetCentreOfEntranceWindow() const;
+//  const KVPosition& GetEntranceWindow() const;
+
 
 Int_t KVDetector::fDetCounter = 0;
 
@@ -1677,4 +1706,88 @@ KVGeoStrucElement* KVDetector::GetParentStructure(const Char_t* type, const Char
     else
         el = (KVGeoStrucElement*)fParentStrucList.FindObjectByType(type);
     return el;
+}
+
+/* KVGeoDNTrajectory* KVDetector::GetTrajectoryForReconstruction()
+{
+    // Return pointer to trajectory to be used for reconstruction of a
+    // particle stopping in this detector.
+    // If only one trajectory going forwards from this detector exists,
+    // it is returned by default.
+    // If there are more than one possible trajectories, a choice is made:
+    //  - we choose the trajectory with the least 'unfired' detectors
+
+    if(!GetNode()->GetNTraj()) return 0x0;
+    Int_t ntrajfor = GetNode()->GetNTrajForwards();
+    if(ntrajfor>1){
+        KVGeoDNTrajectory* tr = GetNode()->GetForwardTrajectoryWithLeastUnfiredDetectors();
+        if(!tr) tr = GetNode()->GetForwardTrajectoryWithMostFiredDetectors();
+        return tr;
+    }
+    else if(ntrajfor==1){
+        return (KVGeoDNTrajectory*)GetNode()->GetForwardTrajectories()->First();
+    }
+    return (KVGeoDNTrajectory*)GetNode()->GetTrajectories()->First();
+}
+ */
+void KVDetector::SetActiveLayerMatrix(const TGeoHMatrix *m)
+{
+    // Set ROOT geometry global matrix transformation to coordinate frame of active layer volume
+    SetMatrix(m);
+}
+
+void KVDetector::SetActiveLayerShape(TGeoBBox *s)
+{
+    // Set ROOT geometry shape of active layer volume
+    SetShape(s);
+}
+
+TGeoHMatrix *KVDetector::GetActiveLayerMatrix() const
+{
+    // Get ROOT geometry global matrix transformation to coordinate frame of active layer volume
+    return GetMatrix();
+}
+
+TGeoBBox *KVDetector::GetActiveLayerShape() const
+{
+    // Get ROOT geometry shape of active layer volume
+    return GetShape();
+}
+
+void KVDetector::SetEntranceWindowMatrix(const TGeoHMatrix *m)
+{
+    // Set ROOT geometry global matrix transformation to coordinate frame of entrance window
+    fEWPosition.SetMatrix(m);
+}
+
+void KVDetector::SetEntranceWindowShape(TGeoBBox *s)
+{
+    // Set ROOT geometry shape of entrance window
+    fEWPosition.SetShape(s);
+}
+
+TGeoHMatrix *KVDetector::GetEntranceWindowMatrix() const
+{
+    // Get ROOT geometry global matrix transformation to coordinate frame of entrance window
+    return fEWPosition.GetMatrix();
+}
+
+TGeoBBox *KVDetector::GetEntranceWindowShape() const
+{
+    // Get ROOT geometry shape of entrance window
+    return fEWPosition.GetShape();
+}
+
+TVector3 KVDetector::GetRandomPointOnEntranceWindow() const
+{
+    // Return vector from origin to a random point on the entrance window.
+    // Use GetRandomPoint() if you want a random point on the active layer.
+    return fEWPosition.GetRandomPoint();
+}
+
+TVector3 KVDetector::GetCentreOfEntranceWindow() const
+{
+    // Return vector position of centre of entrance window.
+    // Use GetCentre() if you want the centre of the active layer.
+    return fEWPosition.GetCentre();
 }
