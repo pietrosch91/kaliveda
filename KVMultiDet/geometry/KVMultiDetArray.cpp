@@ -793,6 +793,14 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
             KVIDTelescope* theIDT=0;
             TIter nextIDT(lidtel);
             while( (theIDT = (KVIDTelescope*)nextIDT())){
+                // make sure particle passed through telescope's detectors
+                Int_t ndet = theIDT->GetSize();
+                Int_t ntouche = 0;
+                for(int i=1;i<=ndet;i++){
+                    if(nvl && nvl->HasParameter(Form("%s",theIDT->GetDetector(i)->GetName())))
+                        ntouche++;
+                }
+                if(ntouche<ndet) continue;
                 if(fFilterType==kFilterType_Geo || theIDT->CanIdentify(part->GetZ(), part->GetA())){
                     part->GetParameters()->SetValue("IDENTIFYING TELESCOPE", theIDT->GetName());
                     break;
@@ -2116,3 +2124,24 @@ void KVMultiDetArray::CalculateDetectorSegmentationIndex()
         else d->SetSegment(1);
     }
 }
+
+/* void KVMultiDetArray::CalculateGeoNodeTrajectories()
+{
+	// Loop over all detectors of array
+	// For each detector with no detectors behind it (i.e. furthest from target)
+	// we call KVGeoDetectorNode::BuildTrajectoriesForwards
+	// in order to create all possible particle trajectories through detectors
+	// used in particle reconstruction
+    // Detectors for which trajectories are already defined are skipped
+	
+	TIter next(GetDetectors());
+	KVDetector* d;
+	while ( (d = (KVDetector*)next()) ){
+	
+        if(!d->GetNode()->GetNDetsBehind() && !d->GetNode()->GetTrajectories()){
+			TList trajs;
+			d->GetNode()->BuildTrajectoriesForwards(&trajs);
+		}
+	}
+}
+ */
