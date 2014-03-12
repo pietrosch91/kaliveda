@@ -72,6 +72,7 @@ public:
 
    ClassDef(INDRAGeometryBuilder, 0) //Build INDRA geometry from Huguet CAO infos
    void BuildEtalonVolumes();
+	Bool_t CheckDetectorPresent(TString detname);
 };
 
 #endif

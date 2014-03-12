@@ -290,9 +290,26 @@ void INDRAGeometryBuilder::PlaceDetector()
 }
 //________________________________________________________________
 
+Bool_t INDRAGeometryBuilder::CheckDetectorPresent(TString detname)
+{
+      KVDetector* thisdetector = gIndra->GetDetector(detname);
+      if (!thisdetector || !thisdetector->IsPresent()) {
+         //Info("CheckDetectorPresent", "%s is absent", detname.Data());
+			return kFALSE;
+      }
+		if(!fLayers){
+			// get info on detector structure from first detector which is present on ring
+         fLayers = thisdetector->GetListOfAbsorbers();
+         fActiveLayer = 1 + thisdetector->GetListOfAbsorbers()->IndexOf(thisdetector->GetActiveLayer());
+         fTotalThickness = thisdetector->GetTotalThicknessInCM();
+		}
+		return kTRUE;
+}
+
 //void INDRAGeometryBuilder::MakeRing(TGeoVolume* MOTHER, const Char_t* det, int ring)
 void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
 {
+
    if (!strcmp(det, "PHOS"))
       fDetName.Form("%s_01", det);
    else
@@ -303,7 +320,6 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
    Int_t innerMod = fInnerModmin;
    Int_t outerMod = fOuterModmin;
    int i = 1;
-   int ModStep = fModmax / Ndets;
 
    cout << fDetName.Data()  << "  " << fInnerCentre.Mag() << "  " <<
         0.5 * (fInnerFront[0].Theta() + fInnerFront[3].Theta())*TMath::RadToDeg() << "  " <<
@@ -311,101 +327,161 @@ void INDRAGeometryBuilder::MakeRing(const Char_t* det, int ring)
         0.5 * (fInnerFront[2].Phi() + fInnerFront[3].Phi())*TMath::RadToDeg() << "  " <<
         0.5 * (fInnerFront[0].Phi() + fInnerFront[1].Phi())*TMath::RadToDeg() << endl;
 
-      if (!strcmp(det, "PHOS"))
-         fDetName.Form("%s_%02d", det, ModStep * (i - 1) + 1);
-      else
-         fDetName.Form("%s_%02d%02d", det, ring, ModStep * (i - 1) + 1);
+// check presence of all detectors of ring
+	Int_t npresent=0;
+	Int_t ntotal=0;
+	fLayers = 0;//will force CheckDetectorPresent() to get infos from first detector present
+   for (i=1; i <= Ndets; i++) {
+      		if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      		else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
 
-      // check detector is present
-      KVDetector* thisdetector = gIndra->GetDetector(fDetName.Data());
-      bool skipDetector = kFALSE;
-      if (!thisdetector || !thisdetector->IsPresent()) {
-         Info("MakeRing", "%s is absent", fDetName.Data());
-         skipDetector = kTRUE;
-      }
-
-      if (!skipDetector) {
-         fLayers = thisdetector->GetListOfAbsorbers();
-         fActiveLayer = 1 + thisdetector->GetListOfAbsorbers()->IndexOf(thisdetector->GetActiveLayer());
-         fTotalThickness = thisdetector->GetTotalThicknessInCM();
-      }
-      /* build and add frame */
-      if (!skipDetector) MakeFrame(det,ring);
-      // fRingCentreDistance = fFrameCentre.
-      // make pads in inner ring
-
-      if (!skipDetector) {
-         //MakeDetector(det, fInnerRing, innerMod, fInnerFront, fInnerCentre);
-          MakeDetector("A1", fInnerFront, fInnerCentre);
-         PlaceDetector();
-      }
       innerMod += fInnerDmod;
 
       if (fInnerPads == 3) {
-         if (!skipDetector) {
-             //MakeDetector(det, fInnerRing, innerMod, fOuterFront, fOuterCentre);
-             MakeDetector("A2", fOuterFront, fOuterCentre);
-            PlaceDetector();
-         }
+      		if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      		else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
          innerMod += fInnerDmod;
-         if (!skipDetector) {
+      		if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      		else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+         innerMod += fInnerDmod;
+      } else {
+         if (fInnerPads == 2) {
+      			if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      			else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+            innerMod += fInnerDmod;
+         }
+         if (fOuterPads) {
+      			if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, outerMod);
+      			else fDetName.Form("%s_%02d%02d", det, fOuterRing, outerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+            outerMod += fOuterDmod;
+            if (fOuterPads == 2) {
+      				if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, outerMod);
+      				else fDetName.Form("%s_%02d%02d", det, fOuterRing, outerMod);
+					ntotal++;
+					npresent+=(Int_t)CheckDetectorPresent(fDetName);
+               outerMod += fOuterDmod;
+            }
+         }
+		}
+	}
+	if(!npresent) {
+		Info("MakeRing", "Detector type %s  ring number %d : ABSENT", det, ring);
+		return;
+	}
+	Info("MakeRing", "Detector type %s  ring number %d : %d/%d detectors present", det, ring, npresent, ntotal);
+	
+	i=1;
+      /* build and add frame */
+      MakeFrame(det,ring);
+
+      // make pads in inner ring
+      MakeDetector("A1", fInnerFront, fInnerCentre);
+      PlaceDetector();
+      if (fInnerPads == 3) {
+         MakeDetector("A2", fOuterFront, fOuterCentre);
+         PlaceDetector();
+         TVector3 reflex[4];
+         ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
+         TVector3 refcent;
+         CalculateCentre(reflex, refcent);
+         MakeDetector("A3", reflex, refcent);
+         PlaceDetector();
+      } else {
+         if (fInnerPads == 2) {
             TVector3 reflex[4];
             ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
             TVector3 refcent;
             CalculateCentre(reflex, refcent);
-            //MakeDetector(det, fInnerRing, innerMod, reflex, refcent);
-            MakeDetector("A3", reflex, refcent);
+            MakeDetector("A2", reflex, refcent);
             PlaceDetector();
          }
-         innerMod += fInnerDmod;
-      } else {
-         if (fInnerPads == 2) {
-            if (!skipDetector) {
-               TVector3 reflex[4];
-               ReflectPad(fInnerFront, fFrameCentre.Phi(), reflex);
-               TVector3 refcent;
-               CalculateCentre(reflex, refcent);
-               //MakeDetector(det, fInnerRing, innerMod, reflex, refcent);
-               MakeDetector("A2", reflex, refcent);
-               PlaceDetector();
-            }
-            innerMod += fInnerDmod;
-         }
-
          if (fOuterPads) {
             // make pads in outer ring
-            if (!skipDetector) {
-                //MakeDetector(det, fOuterRing, outerMod, fOuterFront, fOuterCentre);
-                MakeDetector("B1", fOuterFront, fOuterCentre);
-               PlaceDetector();
-            }
-            outerMod += fOuterDmod;
-
+            MakeDetector("B1", fOuterFront, fOuterCentre);
+            PlaceDetector();
             if (fOuterPads == 2) {
-               if (!skipDetector) {
-                  TVector3 reflex[4];
-                  ReflectPad(fOuterFront, fFrameCentre.Phi(), reflex);
-                  TVector3 refcent;
-                  CalculateCentre(reflex, refcent);
-                  //MakeDetector(det, fOuterRing, outerMod, reflex, refcent);
-                  MakeDetector("B2", reflex, refcent);
-                  PlaceDetector();
-               }
-               outerMod += fOuterDmod;
+               TVector3 reflex[4];
+               ReflectPad(fOuterFront, fFrameCentre.Phi(), reflex);
+               TVector3 refcent;
+               CalculateCentre(reflex, refcent);
+               MakeDetector("B2", reflex, refcent);
+               PlaceDetector();
             }
          }
       }
 
-   for (; i <= Ndets; i++) {
-      if (!skipDetector) {
-			  PlaceFrame(phi,i);
-		     if(((ring>9&&ring<13) && i==1)||(ring>12&&i==2)) {
-					  fEtalonTheta[ring-10] = fFrameCentre.Theta()*TMath::RadToDeg();
-					  fEtalonPhi[ring-10] = phi;
-					  fEtalonTheta[ring-9] = fFrameCentre.Theta()*TMath::RadToDeg();
-					  fEtalonPhi[ring-9] = phi;
-			  }
-	    }
+   innerMod = fInnerModmin;
+   outerMod = fOuterModmin;
+	
+   for (i=1; i <= Ndets; i++) {
+	
+		// check absence of whole block
+		ntotal=0;
+		npresent=0;
+       if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+       else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+		 ntotal++;
+		 npresent+=(Int_t)CheckDetectorPresent(fDetName);
+
+      innerMod += fInnerDmod;
+
+      if (fInnerPads == 3) {
+      		if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      		else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+         innerMod += fInnerDmod;
+      		if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      		else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+         innerMod += fInnerDmod;
+      } else {
+         if (fInnerPads == 2) {
+      			if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, innerMod);
+      			else fDetName.Form("%s_%02d%02d", det, fInnerRing, innerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+            innerMod += fInnerDmod;
+         }
+         if (fOuterPads) {
+      			if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, outerMod);
+      			else fDetName.Form("%s_%02d%02d", det, fOuterRing, outerMod);
+				ntotal++;
+				npresent+=(Int_t)CheckDetectorPresent(fDetName);
+            outerMod += fOuterDmod;
+            if (fOuterPads == 2) {
+      				if (!strcmp(det, "PHOS")) fDetName.Form("%s_%02d", det, outerMod);
+      				else fDetName.Form("%s_%02d%02d", det, fOuterRing, outerMod);
+					ntotal++;
+					npresent+=(Int_t)CheckDetectorPresent(fDetName);
+               outerMod += fOuterDmod;
+            }
+         }
+		}
+		if(!npresent) Info("MakeRing", "\tBlock %d: ABSENT", i);
+		else if(npresent<ntotal){
+		     Info("MakeRing", "\tBlock %d: %d/%d detectors present", i, npresent,ntotal);
+			  Info("MakeRing", "\tCASE NOT TREATED. ALL DETECTORS PRESENT.");
+	   }
+		if(npresent) PlaceFrame(phi,i);
+		
+		if(((ring>9&&ring<13) && i==1)||(ring>12&&i==2)) {
+		   	fEtalonTheta[ring-10] = fFrameCentre.Theta()*TMath::RadToDeg();
+		   	fEtalonPhi[ring-10] = phi;
+		   	fEtalonTheta[ring-9] = fFrameCentre.Theta()*TMath::RadToDeg();
+		   	fEtalonPhi[ring-9] = phi;
+		}
       phi += deltaPhi;
    }
 
