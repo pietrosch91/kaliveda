@@ -770,7 +770,7 @@ Double_t KVNucleus::GetExtraChargeRadius(Int_t z, Int_t a,Int_t rct) const
 	// required nucleus.	
 	
 	CheckZAndA(z,a);
-	Double_t R;
+	Double_t R = 0;
 	Double_t A = Double_t(a);
    
 	Double_t rLD=0.9542; //for kLDModel
@@ -984,7 +984,7 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
    KVNucleus CN(ztot,atot);
 	
 	Double_t etot = lhs.E() + rhs.E();
-   TVector3 ptot = lhs.Vect() + rhs.Vect();
+   TVector3 ptot = lhs.GetMomentum() + rhs.GetMomentum();
     //Calcul de la masse du noyau compose
     //celle ci inclut une eventuelle energie d'excitation
 	
@@ -998,7 +998,8 @@ KVNucleus KVNucleus::operator+(const KVNucleus & rhs)
 		//	Info("operator+","Bilan energetique defavorable, il manque %lf MeV\n",Excn);
  	}
 	
-	CN.SetVect(ptot);
+	//CN.SetVect(ptot);
+	CN.SetMomentum(ptot);
 	CN.SetExcitEnergy(Excn);
 	
 	return CN;
@@ -1043,7 +1044,8 @@ KVNucleus KVNucleus::operator-(const KVNucleus & rhs)
 			//	Info("operator-","Bilan energetique defavorable, il manque %lf MeV\n",Exres);
  		}
 		
-		RES.SetVect(pres);
+		//RES.SetVect(pres);
+		RES.SetMomentum(pres);
 		RES.SetExcitEnergy(Exres);
 	
 		return RES;

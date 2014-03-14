@@ -685,8 +685,8 @@ Double_t KV2Body::ELabVsThetaLab(Double_t* x, Double_t* par)
     Double_t e1,e2;
     Int_t nsol = GetELab((Int_t)par[0],x[0],(Int_t)par[0],e1,e2);
     if(!nsol) return 0;
-    if(nsol>1) Warning("ELabVsThetaLab", "Two energies are possible for %f deg. : %f and %f",
-                       x[0],e1,e2);
+    //if(nsol>1) Warning("ELabVsThetaLab", "Two energies are possible for %f deg. : %f and %f",
+    //                   x[0],e1,e2);
     return e1;
 }
 
