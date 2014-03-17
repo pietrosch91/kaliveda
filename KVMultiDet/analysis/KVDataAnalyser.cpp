@@ -1406,6 +1406,85 @@ const Char_t* KVDataAnalyser::SystemBatchName()
    return fSystem->GetBatchName();
 }
 
+const Char_t *KVDataAnalyser::GetLaunchDirectory() const
+{
+    // Returns full path to job submission directory for batch jobs.
+    // Returns current working directory for non-batch jobs.
+
+    if(!BatchMode() || !fBatchEnv) return gSystem->WorkingDirectory();
+    return fBatchEnv->GetValue("LaunchDirectory", gSystem->WorkingDirectory());
+}
+
+const Char_t *KVDataAnalyser::GetBatchStatusFileName() const
+{
+    // Returns full path to file used to store status of running batch jobs
+
+    if(!BatchMode() || !fBatchEnv) return "";
+
+    static TString filename="";
+    TString statfile;
+    statfile.Form("%s.status", gBatchSystem->GetJobName());
+
+    TString launchDir = GetLaunchDirectory();
+    AssignAndDelete(filename, gSystem->ConcatFileName(launchDir.Data(), statfile.Data()));
+    return filename;
+}
+
+void KVDataAnalyser::UpdateBatchStatusFile(Int_t totev, Int_t evread, TString disk) const
+{
+    // Update infos in batch status file
+
+    if(!BatchMode() || !fBatchEnv) return;
+
+    TEnv stats(GetBatchStatusFileName());
+    stats.SetValue("TotalEvents", totev);
+    stats.SetValue("EventsRead", evread);
+    disk.Remove(TString::kTrailing, '\t');
+    disk.Remove(TString::kTrailing, ' ');
+    disk.Remove(TString::kTrailing, '\t');
+    stats.SetValue("DiskUsed", disk.Data());
+    stats.SaveLevel(kEnvLocal);
+}
+
+void KVDataAnalyser::DeleteBatchStatusFile() const
+{
+    // Delete batch status file (and backup - '.bak') for batch job
+
+    if(!BatchMode() || !fBatchEnv) return;
+    TString stats = GetBatchStatusFileName();
+    gSystem->Unlink(stats);
+    stats+=".bak";
+    gSystem->Unlink(stats);
+}
+
+Bool_t KVDataAnalyser::CheckStatusUpdateInterval(Int_t nevents) const
+{
+    // Returns kTRUE if the number of events coincides with the interval
+    // set for status updates for the current data analysis task
+    return (!(nevents%fTask->GetStatusUpdateInterval() ) && nevents);
+}
+
+void KVDataAnalyser::DoStatusUpdate(Int_t nevents) const
+{
+    // Print infos on events treated, disk usage, memory usage
+    // Update status file for batch jobs
+
+    cout << " +++ " << nevents << " events processed +++ " << endl;
+    ProcInfo_t pid;
+    if(gSystem->GetProcInfo(&pid)==0){
+       TString du = gSystem->GetFromPipe("du -hs");
+       TObjArray* toks = du.Tokenize("\t");
+       TString disk = ((TObjString*)toks->At(0))->String();
+       delete toks;
+       cout <<"     ------------- Process infos -------------" << endl;
+       printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
+          pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
+       // update batch status file with
+       // the number of events to read, number of events read, and disk used
+       UpdateBatchStatusFile((Int_t)GetTotalEntriesToRead(),nevents,disk);
+    }
+}
+
 //__________________________________________________________________________________//
 
 void KVDataAnalyser::ChooseRunningMode()

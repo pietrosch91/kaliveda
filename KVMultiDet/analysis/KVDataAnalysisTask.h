@@ -27,7 +27,8 @@ class KVDataAnalysisTask:public KVBase {
    Bool_t   fBaseIsPlugin;     //true if base class for user analysis is in a plugin library
    KVString fPluginURI;        //uri of the plugin library containing user base class
    KVString fPluginBase;       //known base class extended by plugin library
-	KVString fExtraAClicIncludes;  //to be added to AClic include paths before compilation
+   KVString fExtraAClicIncludes;  //to be added to AClic include paths before compilation
+   Int_t    fStatusUpdateInterval;//interval (number of events) after which batch job progress and status are updated
 
    virtual void SetParametersForDataSet( KVDataSet* );
 
@@ -58,6 +59,8 @@ class KVDataAnalysisTask:public KVBase {
    virtual const Char_t* GetUserBaseClass() const { return fBaseClass; };
    virtual void SetWithUserClass(Bool_t w=kTRUE) { fUserClass = w; };
    virtual Bool_t WithUserClass() const { return fUserClass; };
+    virtual void SetStatusUpdateInterval(Int_t n) { fStatusUpdateInterval=n; }
+    virtual Int_t GetStatusUpdateInterval() const { return fStatusUpdateInterval; }
 
    virtual Bool_t CheckUserBaseClassIsLoaded();
 

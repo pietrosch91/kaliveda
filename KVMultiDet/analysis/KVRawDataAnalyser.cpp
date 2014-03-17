@@ -94,32 +94,9 @@ void KVRawDataAnalyser::ProcessRun()
 
        fDetEv->Clear();
 
-		if(!((fEventNumber)%10000)) {
-         cout<< " ++++ " << fEventNumber << " events read ++++ " << endl;
-         ProcInfo_t pid;
-         if(gSystem->GetProcInfo(&pid)==0){
-            TString du = gSystem->GetFromPipe("du -hs");
-            TObjArray* toks = du.Tokenize(" .");
-            TString disk = ((TObjString*)toks->At(0))->String();
-            delete toks;
-            cout <<"     ------------- Process infos -------------" << endl;
-            printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
-               pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
-         // write in TEnv file in $HOME with name [jobname].status
-         // the number of events to read, number of events read, and disk used
-         if(gBatchSystem){
-            TEnv stats(Form("%s.status", gBatchSystem->GetJobName()));
-            stats.SetValue("TotalEvents", (Int_t)GetTotalEntriesToRead());
-            stats.SetValue("EventsRead", (Int_t)fEventNumber);
-            disk.Remove(TString::kTrailing, '\t');
-            disk.Remove(TString::kTrailing, ' ');
-            disk.Remove(TString::kTrailing, '\t');
-            stats.SetValue("DiskUsed", disk.Data());
-            stats.SaveLevel(kEnvUser);
-         }
-         }
-      }
-		fEventNumber+=1;
+       if(CheckStatusUpdateInterval(fEventNumber)) DoStatusUpdate(fEventNumber);
+
+       fEventNumber+=1;
    }
 
     delete fDetEv;

@@ -102,6 +102,14 @@ class KVDataAnalyser : public TObject {
    virtual Bool_t RunningInLaunchDirectory();
    virtual const Char_t* SystemBatchName();
 
+    const Char_t* GetLaunchDirectory() const;
+    const Char_t* GetBatchStatusFileName() const;
+    void UpdateBatchStatusFile(Int_t totev, Int_t evread, TString disk) const;
+    void DeleteBatchStatusFile() const;
+    virtual Long64_t GetTotalEntriesToRead() const { return 0; }
+    Bool_t CheckStatusUpdateInterval(Int_t nevents) const;
+    void DoStatusUpdate(Int_t nevents) const;
+
    virtual KVDataAnalysisTask *GetAnalysisTask() {
       return fTask;
    }

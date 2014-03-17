@@ -106,6 +106,7 @@ KVDataAnalysisTask::KVDataAnalysisTask()
    //Default ctor.
    fUserClass = kFALSE;
    fBaseIsPlugin = kFALSE;
+   fStatusUpdateInterval = 1000;
 }
 
 KVDataAnalysisTask::KVDataAnalysisTask(const KVDataAnalysisTask & obj) : KVBase()
@@ -136,6 +137,7 @@ void KVDataAnalysisTask::Copy(TObject & obj)
    ((KVDataAnalysisTask &) obj).fPluginBase = fPluginBase;
    ((KVDataAnalysisTask &) obj).fPluginURI = fPluginURI;
    ((KVDataAnalysisTask &) obj).fExtraAClicIncludes = fExtraAClicIncludes;
+   ((KVDataAnalysisTask &) obj).fStatusUpdateInterval = fStatusUpdateInterval;
 }
 
 KVDataAnalysisTask::~KVDataAnalysisTask()
@@ -227,6 +229,8 @@ void KVDataAnalysisTask::SetParametersForDataSet( KVDataSet* dataset )
    if( envar != "" ) SetPrereq(envar);
    envar = dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.UserClass.ExtraACliCIncludes", GetName()));
    if( envar != "" ) fExtraAClicIncludes=envar;
+   Int_t nev = (Int_t)dataset->GetDataSetEnv(Form("%s.DataAnalysisTask.StatusUpdateInterval", GetName()), 0.0);
+   if( nev>0 ) fStatusUpdateInterval=nev;
 }
 
 Bool_t KVDataAnalysisTask::CheckUserBaseClassIsLoaded()

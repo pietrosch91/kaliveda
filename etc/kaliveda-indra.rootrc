@@ -112,6 +112,7 @@ INDRA_e613.ReconstructedEventClassName:   KVINDRAReconEvent
 Reconstruction.DataAnalysisTask.Title:     Event reconstruction from raw data (raw->recon)
 Reconstruction.DataAnalysisTask.Prereq:     raw
 Reconstruction.DataAnalysisTask.Analyser:     INDRARawDataRecon
+Reconstruction.DataAnalysisTask.StatusUpdateInterval:     20000
 
 # The following variable controls the way that particles are reconstructed from raw data
 # In the detector in which the particle stops, we require KVDetector::Fired( "option" )
@@ -227,6 +228,7 @@ ReconIdent.DataAnalysisTask.Prereq:     recon
 ReconIdent.DataAnalysisTask.Analyser:     INDRAReconData
 ReconIdent.DataAnalysisTask.UserClass:     no
 ReconIdent.DataAnalysisTask.UserClass.Base:     INDRAReconIdent/TSelector
+ReconIdent.DataAnalysisTask.StatusUpdateInterval:     5000
 
 # By default the file containing identified events will be written in the same data repository
 # as the recon data file from which it is created.
@@ -245,6 +247,7 @@ IdentRoot.DataAnalysisTask.Prereq:     ident
 IdentRoot.DataAnalysisTask.Analyser:     INDRAReconData
 IdentRoot.DataAnalysisTask.UserClass:     no
 IdentRoot.DataAnalysisTask.UserClass.Base:     INDRAIdentRoot/TSelector
+IdentRoot.DataAnalysisTask.StatusUpdateInterval:     10000
 
 +DataAnalysisTask:     ReconRoot
 ReconRoot.DataAnalysisTask.Title:     Generation of fully-identified and calibrated data (recon->root)
@@ -252,6 +255,7 @@ ReconRoot.DataAnalysisTask.Prereq:     recon
 ReconRoot.DataAnalysisTask.Analyser:     INDRAReconData
 ReconRoot.DataAnalysisTask.UserClass:     no
 ReconRoot.DataAnalysisTask.UserClass.Base:     INDRAReconRoot/TSelector
+ReconRoot.DataAnalysisTask.StatusUpdateInterval:     5000
 
 +DataAnalysisTask:     ReconAnalysis
 ReconAnalysis.DataAnalysisTask.Title:     Analysis of reconstructed events (recon)
@@ -259,6 +263,7 @@ ReconAnalysis.DataAnalysisTask.Prereq:     recon
 ReconAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 ReconAnalysis.DataAnalysisTask.UserClass:     yes
 ReconAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+ReconAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 +DataAnalysisTask:     GeneAnalysis
 GeneAnalysis.DataAnalysisTask.Title:     Analysis of gene data (recon)
@@ -273,6 +278,7 @@ IdentAnalysis.DataAnalysisTask.Prereq:     ident
 IdentAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 IdentAnalysis.DataAnalysisTask.UserClass:     yes
 IdentAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+IdentAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 +DataAnalysisTask:     RootAnalysis
 RootAnalysis.DataAnalysisTask.Title:     Analysis of fully calibrated data (root)
@@ -280,6 +286,7 @@ RootAnalysis.DataAnalysisTask.Prereq:     root
 RootAnalysis.DataAnalysisTask.Analyser:     INDRAReconData
 RootAnalysis.DataAnalysisTask.UserClass:     yes
 RootAnalysis.DataAnalysisTask.UserClass.Base:     INDRASelector/TSelector
+RootAnalysis.DataAnalysisTask.StatusUpdateInterval:     20000
 
 #+DataAnalysisTask:     DSTtoROOT
 #DSTtoROOT.DataAnalysisTask.Title:     Conversion of DST to KaliVeda format (dst->root)

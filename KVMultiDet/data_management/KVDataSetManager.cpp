@@ -196,6 +196,7 @@ Bool_t KVDataSetManager::ReadTaskList()
          dat->SetDataAnalyser( gEnv->GetValue( Form("%s.DataAnalysisTask.Analyser", name.Data()), "KVDataAnalyser") );
          dat->SetWithUserClass( gEnv->GetValue( Form("%s.DataAnalysisTask.UserClass", name.Data()), kFALSE) );
          dat->SetUserBaseClass( gEnv->GetValue( Form("%s.DataAnalysisTask.UserClass.Base", name.Data()), "") );
+         dat->SetStatusUpdateInterval( gEnv->GetValue( Form("%s.DataAnalysisTask.StatusUpdateInterval", name.Data()), 1000) );
          fTasks.Add(dat);
 
    }

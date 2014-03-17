@@ -191,13 +191,8 @@ void KVSelector::Init(TTree * tree)
 {
        if(fChain) return;//Init has already been called
 
-       if(gBatchSystem){//delete any status file from previous job with same name from $HOME directory
-          TString stats = Form("$(HOME)/%s.status", gBatchSystem->GetJobName());
-          gSystem->ExpandPathName(stats);
-          gSystem->Unlink(stats);
-          stats+=".bak";
-          gSystem->Unlink(stats);
-       }
+    //delete any status file from previous job with same name from launch directory
+    gDataAnalyser->DeleteBatchStatusFile();
 
     if(!tree) return;
        
@@ -349,31 +344,7 @@ Bool_t KVSelector::Process(Long64_t entry)      //for ROOT versions > 4.00/08
 
    fTreeEntry = entry;
 
-   if (!(totentry % 5000) && totentry){
-      cout << " +++ " << totentry << " events processed +++ " << endl;
-      ProcInfo_t pid;
-      if(gSystem->GetProcInfo(&pid)==0){
-         TString du = gSystem->GetFromPipe("du -hs");
-         TObjArray* toks = du.Tokenize("\t");
-         TString disk = ((TObjString*)toks->At(0))->String();
-         delete toks;
-         cout <<"     ------------- Process infos -------------" << endl;
-         printf(" CpuUser = %f s.     VirtMem = %f MB      DiskUsed = %s\n",
-            pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
-         // write in TEnv file in $HOME with name [jobname].status
-         // the number of events to read, number of events read, and disk used
-         if(gBatchSystem){
-            TEnv stats(Form("%s.status", gBatchSystem->GetJobName()));
-            stats.SetValue("TotalEvents", (Int_t)((KVINDRAReconDataAnalyser*)gDataAnalyser)->GetTotalEntriesToRead());
-            stats.SetValue("EventsRead", totentry);
-            disk.Remove(TString::kTrailing, '\t');
-            disk.Remove(TString::kTrailing, ' ');
-            disk.Remove(TString::kTrailing, '\t');
-            stats.SetValue("DiskUsed", disk.Data());
-            stats.SaveLevel(kEnvUser);
-         }
-      }
-   }   
+   if(gDataAnalyser->CheckStatusUpdateInterval(totentry)) gDataAnalyser->DoStatusUpdate(totentry);
    
    // read event
    fChain->GetTree()->GetEntry(fTreeEntry);
@@ -483,13 +454,8 @@ void KVSelector::Terminate()
    EndAnalysis();               //user end of analysis routine
 	gDataAnalyser->postEndAnalysis();
 
-    if(gBatchSystem){//delete job status file from $HOME directory
-       TString stats = Form("$(HOME)/%s.status", gBatchSystem->GetJobName());
-       gSystem->ExpandPathName(stats);
-       gSystem->Unlink(stats);
-       stats+=".bak";
-       gSystem->Unlink(stats);
-    }
+    //delete job status file from $HOME directory
+    gDataAnalyser->DeleteBatchStatusFile();
 }
 
 void KVSelector::Make(const Char_t * kvsname)
