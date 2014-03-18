@@ -235,7 +235,7 @@ KVDataSet::~KVDataSet()
    fTasks.Delete();
 }
 
-KVMultiDetArray *KVDataSet::BuildMultiDetector() const
+KVMultiDetArray *KVDataSet::BuildMultiDetector(Int_t run) const
 {
    //Create & build an instance of the multidetector class needed for this dataset using static
    //method KVMultiDetArray::MakeMultiDetector(const Char_t*).
@@ -243,7 +243,7 @@ KVMultiDetArray *KVDataSet::BuildMultiDetector() const
    //The name of the dataset must correspond to the name of one of the Plugin.KVMultiDetArray
    //plugins defined in the $KVROOT/KVFiles/.kvrootrc configuration file
 
-   return KVMultiDetArray::MakeMultiDetector(GetName());
+   return KVMultiDetArray::MakeMultiDetector(GetName(),run);
 }
 
 KVAvailableRunsFile *KVDataSet::GetAvailableRunsFile(const Char_t * type)

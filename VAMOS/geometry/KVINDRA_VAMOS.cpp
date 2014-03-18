@@ -68,7 +68,7 @@ KVINDRA_VAMOS::~KVINDRA_VAMOS()
 }
 //________________________________________________________________
 
-void KVINDRA_VAMOS::Build(){
+void KVINDRA_VAMOS::Build(Int_t run){
 	// Overrides KVMultiDetArray::Build in order to set the name of the
 	// couple INDRA+VAMOS. Set up the geometry of INDRA and VAMOS,
 	// associate the acquistion parameters with detectors, etc...

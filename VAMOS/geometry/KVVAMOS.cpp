@@ -657,7 +657,7 @@ Bool_t KVVAMOS::AddCalibrator(KVCalibrator *cal, Bool_t owner){
 }
 //________________________________________________________________
 
-void KVVAMOS::Build(){
+void KVVAMOS::Build(Int_t run){
 	// Build the VAMOS spectrometer: detectors, geometry, identification
 	// telescopes, acquisition parameters and calibrators. 
 	//

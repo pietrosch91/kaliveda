@@ -115,10 +115,10 @@ void KVINDRAFNL::BuildGeometry()
 
 //_________________________________________________________________________________
 
-void KVINDRAFNL::Build()
+void KVINDRAFNL::Build(Int_t run)
 {
    //Construct KVINDRAFNL
-   KVINDRA4::Build();
+   KVINDRA4::Build(run);
 
    GetRing("CHIO", 4)->RemoveTelescope("CI_0423");
    GetRing("SI-CSI", 4)->RemoveTelescope("CSI_0423");

@@ -33,7 +33,7 @@ class KVINDRAFNL:public KVINDRA4 {
     KVINDRAFNL();
     virtual ~ KVINDRAFNL();
 
-   virtual void Build();
+   virtual void Build(Int_t run=-1);
 
    KVINDRADetector *GetDetectorByType(UInt_t cou, UInt_t mod,
                                  UInt_t type) const;

@@ -99,7 +99,7 @@ class KVINDRA:public KVASMultiDetArray {
     KVINDRA();
     virtual ~ KVINDRA();
 
-   virtual void Build();
+   virtual void Build(Int_t run=-1);
    virtual Bool_t ArePHDSet() const { return fPHDSet; };
    virtual void PHDSet(Bool_t yes=kTRUE) { fPHDSet=yes; };
    virtual void UpdateArray();

@@ -110,7 +110,7 @@ class KVDataSet:public KVBase {
       	return fDatatypes.Contains(_dt);
    };
 
-   virtual KVMultiDetArray *BuildMultiDetector() const;
+   virtual KVMultiDetArray *BuildMultiDetector(Int_t run=-1) const;
 
 
    virtual KVUpDater *GetUpDater();

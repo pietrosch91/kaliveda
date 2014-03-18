@@ -76,7 +76,7 @@ class KVVAMOS : public KVMultiDetArray
 
    		        void     AddACQParam  ( KVACQParam* par, Bool_t owner );
    		        Bool_t   AddCalibrator( KVCalibrator *cal, Bool_t owner = kFALSE );
-   		virtual void     Build();
+   		virtual void     Build(Int_t run=-1);
    		virtual void     Clear( Option_t *opt = "" );
    		        void     Copy ( TObject & ) const;
    		        void     FocalToTarget( const Double_t *focal, Double_t *target );

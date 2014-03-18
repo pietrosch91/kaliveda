@@ -136,7 +136,8 @@ void KVINDRA::BuildGeometry()
    //                 or $KVROOT/KVFiles/data/indra_struct.env
    // if no dataset-specific file found
 
-    TString path = Form("indra-struct.%s.env", fDataSet.Data() );
+
+	 TString path = Form("indra-struct.%s.env", fDataSet.Data() );
     TString path2;
     SearchKVFile(path.Data(),path2,"data");
     if(path2==""){
@@ -145,6 +146,29 @@ void KVINDRA::BuildGeometry()
     }
     fStrucInfos.ReadFile(path2, kEnvAll);
     
+	 KVString lruns = fStrucInfos.GetValue("AddOnForRuns","");
+	 //test if additional geometrical specification exists 
+	 if (lruns!=""){
+	 	lruns.Begin(",");
+		while (!lruns.End())
+		{
+	 		KVString sruns = lruns.Next(); 
+			KVNumberList nlr(sruns.Data());
+	 		//the current run needs specific geometry
+			if (nlr.Contains(fCurrentRun)){
+				path = fStrucInfos.GetValue(sruns.Data(),"");
+				Info("BuildGeometry","Additional geometry for run=%d in file #%s#",fCurrentRun,path.Data());
+				SearchKVFile(path.Data(),path2,"data");
+				if(path2==""){
+       			Warning("BuildGeometry","fichier %s inconnu",path.Data());
+				}
+				else{
+					fStrucInfos.ReadFile(path2, kEnvChange);	
+				}
+			}
+	 	}
+	 }
+	 
     SetName(fStrucInfos.GetValue("INDRA.Name", ""));
     SetTitle(fStrucInfos.GetValue("INDRA.Title", ""));
 
@@ -254,14 +278,16 @@ KVINDRATelescope* KVINDRA::BuildTelescope(const Char_t* prefix, Int_t module)
 
 //_________________________________________________________________________________________
 
-void KVINDRA::Build()
+void KVINDRA::Build(Int_t run)
 {
     // Overrides KVASMultiDetArray::Build
     // Correspondance between CsI detectors and pin lasers is set up if known.
     // GG to PG conversion factors for Si and ChIo are set if known.
     //Correspondance between Si and ChIo detectors and nunmber of the QDC is made
-
-    BuildGeometry();
+	 if (run!=-1){
+			fCurrentRun = run;
+	 }
+	 BuildGeometry();
 
     MakeListOfDetectors();
 
@@ -281,6 +307,11 @@ void KVINDRA::Build()
     SetPinLasersForCsI();
     SetGGtoPGConversionFactors();
     LinkToCodeurs();
+	 
+	 if (run!=-1){
+	 	gIndra->SetParameters(run);
+	 }
+	 
 }
 
 void KVINDRA::SetArrayACQParams()

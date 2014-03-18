@@ -427,10 +427,13 @@ void KVINDRAUpDater::SetVoltEnergyChIoSiParameters(KVDBRun * kvrun)
     while ((kvps = (KVDBParameterSet *) next_ps()))      // boucle sur les parametres
     {
         kvd = gIndra->GetDetector(kvps->GetName());
-        if (!kvd)
-            Warning("SetVoltEnergyParameters(UInt_t)",
+        if (!kvd){
+            /*
+				Warning("SetVoltEnergyParameters(UInt_t)",
                     "Dectector %s not found !", kvps->GetName());
-        else                      // detector found
+        		*/
+		  }
+		  else                      // detector found
         {
             kvc = kvd->GetCalibrator(kvps->GetName(), kvps->GetTitle());
             if (!kvc)

@@ -142,7 +142,7 @@ KVMultiDetArray::~KVMultiDetArray()
 
     SafeDelete(fGeoManager);
     SafeDelete(fNavigator);
-
+    
     // Detectors belong to multidetector array. Our responsibility to delete.
     fDetectors.Delete();
 }
@@ -150,8 +150,11 @@ KVMultiDetArray::~KVMultiDetArray()
 
 //_______________________________________________________________________________________
 
-void KVMultiDetArray::Build()
+void KVMultiDetArray::Build(Int_t run)
 {
+
+
+
 }
 
 //_______________________________________________________________________________________
@@ -1505,7 +1508,7 @@ void KVMultiDetArray::SetPedestals(const Char_t * filename)
 
 //_________________________________________________________________________________
 
-KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
+KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name,Int_t run)
 {
     //Static function which will create and 'Build' the multidetector object corresponding to 'name'
     //These are defined as 'Plugin' objects in the file $KVROOT/KVFiles/.kvrootrc :
@@ -1517,6 +1520,18 @@ KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
     //Dataset name is stored in fDataSet
 
     //check and load plugin library
+	 
+	 if (run!=-1){
+	 	if (gMultiDetArray) { 
+	 		printf("MakeMultiDetector - gMultiDetArray existe deja on l efface\n");
+	 		delete gMultiDetArray;
+	 		gMultiDetArray = 0;
+			if (gIDGridManager){
+				delete gIDGridManager;
+				gIDGridManager = 0;
+			}
+	 	}
+	}	
     TPluginHandler *ph;
     if (!(ph = LoadPlugin("KVMultiDetArray", name)))
         return 0;
@@ -1526,7 +1541,8 @@ KVMultiDetArray *KVMultiDetArray::MakeMultiDetector(const Char_t * name)
 
     mda->fDataSet = name;
     //call Build() method
-    mda->Build();
+    //printf("isbuild %d\n",mda->IsBuilt());
+	 mda->Build(run);
     return mda;
 }
 
