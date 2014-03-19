@@ -1029,16 +1029,33 @@ void KVINDRAReconNuc::CalibrateRings1To9()
     //    kECode2 = small warning, for example if energy loss in a detector is calculated
     //    kECode15 = bad, calibration is no good
 	// The contributions from ChIo, Si, and CsI are stored in member variables fEChIo, fESi, fECsI
-	// If the contribution is calculated rather than measured, it is stored as a negative value
+    // If the contribution is calculated rather than measured (see below), it is stored as a negative value.
+    // NOTE: in no case do we ever calculate an energy for uncalibrated detector using measured energy
+    //       loss in the detector placed in front (i.e. calculate ECsI from deSi, or calculate ESi
+    //       from deChIo) as this gives wildly varying (mostly false) results.
     //
-    // For nuclei stopping in CsI: if the CsI detector is uncalibrated, we use the calibrated energy
-    //     of the silicon detector (eventually including correction for PHD) in order to calculate
-    //     the CsI contribution. Particle will have code kECode2 and GetEnergyCsI() returns <0.
-    //     We only do this if the silicon energy loss is coherent with the identifications etc.,
-    //     no pile-up suspected in silicon
-    
-		fECsI=fESi=fEChIo=0;
-        Bool_t si_de_deja_fait = kFALSE;
+    // For gammas (IDCODE=0): no calibration performed, energy will be zero, ECODE=kECode0
+    // For neutrons (IDCODE=1): if CsI is calibrated, we use the CsI light response to calculate
+    //                          the equivalent energy for a proton.
+    // For particles stopping in the CsI detector (IDCODE=2 or 3):
+    //    - for "8Be" we use half the CsI light output to calculate 4He kinetic energy which is then doubled
+    //      (we assume two 4He of identical energy), and ECODE=kECode2 (calculated)
+    //    - if no calibration exists for the CsI, we cannot calibrate the particle (ECODE=kECode0)
+    //    - if calibrated CsI energy is bizarre (<=0), we cannot calibrate the particle (ECODE=kECode15)
+    //    - if the Silicon detector is not calibrated, or if coherency analysis indicates a pile-up
+    //      in the silicon or other inconsistency, the Silicon energy is calculated from the calibrated
+    //      CsI energy (ECODE=kECode2)
+    //    - if the Ionisation Chamber is not calibrated, or if coherency analysis indicates a pile-up
+    //      in the ChIo or other inconsistency, this contribution is calculated using the total
+    //      cumulated energy measured in the CsI and/or Silicon detectors (ECODE=kECode2)
+    //
+    // For particles stopping in the Silicon detector (IDCODE=3, 4 or 5):
+    //    - if no calibration exists for the Silicon, we cannot calibrate the particle (ECODE=kECode0)
+    //    - if the Ionisation Chamber is not calibrated, or if coherency analysis indicates a pile-up
+    //      in the ChIo or other inconsistency, this contribution is calculated using the total
+    //      cumulated energy measured in the CsI and/or Silicon detectors (ECODE=kECode2)
+
+    fECsI=fESi=fEChIo=0;
 		
     if(GetCodes().TestIDCode(kIDCode_Gamma)){
         // no calibration for gammas
@@ -1051,14 +1068,23 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         // use energy of CsI calculated using the Z & A of the CsI identification
         // to calculate the energy deposited by the neutron
         KVNucleus tmp(IDcsi->Z, IDcsi->A);
-		 fECsI = GetCsI()->GetCorrectedEnergy(&tmp, -1., kFALSE );
-        SetEnergy( fECsI );
-        SetECode(kECode2); // not a real energy measure
+        if(GetCsI() && GetCsI()->IsCalibrated()) {
+            fECsI = GetCsI()->GetCorrectedEnergy(&tmp, -1., kFALSE );
+            SetEnergy( fECsI );
+            SetECode(kECode2); // not a real energy measure
+        }
+        else
+        {
+            SetEnergy(0);
+            SetECode(kECode0); // no calibration performed
+        }
         return;
     }
 
     SetECode(kECode1);
+
     Bool_t stopped_in_silicon=kTRUE;
+
     if(GetCsI()){
         stopped_in_silicon=kFALSE;
         if(GetCsI()->IsCalibrated()){
@@ -1076,36 +1102,12 @@ void KVINDRAReconNuc::CalibrateRings1To9()
         }
         else
         {
-            /* USE SILICON DE TO CALCULATE CSI ENERGY */
-            if(GetSi() && GetSi()->IsCalibrated() && !fPileup && fCoherent){
-                if( GetCodes().TestIDCode(kIDCode_CsI) && GetZ()==4 && GetA()==8 ){
-                	//Info("CalibrateRings1To9","Traitement des 8Be sans calibration CsI");
-                  // Beryllium-8 = 2 alpha particles of same energy
-                	// We halve the total light output of the CsI to calculate the energy of 1 alpha
-                	Double_t half_de = GetSi()->GetEnergy()*0.5;
-                	KVNucleus tmp(2,4);
-                	fECsI = -2.* TMath::Abs(GetSi()->GetEResFromDeltaE(tmp.GetZ(),tmp.GetA(),half_de));
-                  si_de_deja_fait = kTRUE; // don't recalculate silicon energy
-                	SetECode(kECode2);
-            	}
-                else{
-                
-                fESi = GetSi()->GetCorrectedEnergy(this);// total energy loss in silicon including correction of PHD in transmission
-                if( fESi <= 0.0 ){
-                   // can't do anything...
-                   SetECode(kECode15);// bad - no Si energy, no CsI energy
-                   return;
-                }
-                //calculate & set energy loss in CsI
-                fECsI = -TMath::Abs(GetSi()->GetEResFromDeltaE(GetZ(),GetA()));
-                si_de_deja_fait = kTRUE; // don't recalculate silicon energy
-                SetECode(kECode2);
-                }
-            }
+            SetECode(kECode0);// no CsI - no calibration performed
+            return;
         }
-        if(!si_de_deja_fait && (fECsI<=0)){
-           //Info("Calib", "ECsI = %f",fECsI);
-            SetECode(kECode15);// bad - no CsI energy
+        if(fECsI<=0){
+            //Info("Calib", "ECsI = %f",fECsI);
+            SetECode(kECode15);// problem with CsI energy - no calibration
             return;
         }
     }
@@ -1115,75 +1117,92 @@ void KVINDRAReconNuc::CalibrateRings1To9()
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
     // if fCoherent = kFALSE, the Silicon energy is too small to be consistent with the CsI identification,
     //     therefore we have to estimate the silicon energy for this particle using the CsI energy
-        if(!si_de_deja_fait){
-            if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
-                // all is apparently well
-                Bool_t si_transmission=kTRUE;
-                if(stopped_in_silicon){
-                    si_transmission=kFALSE;
+
+        if(!fPileup && fCoherent && GetSi()->IsCalibrated()){
+            // all is apparently well. use full energy deposited in silicon.
+            Bool_t si_transmission=kTRUE;
+            if(stopped_in_silicon){
+                si_transmission=kFALSE;
+            }
+            else
+            {
+                GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
+            }
+            fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
+            if(fESi<=0) {
+                //Info("calib", "esi=%f",fESi);
+                SetECode(kECode15);// bad - no Si energy
+                return;
+            }
+        }
+        else
+        {
+            if(!stopped_in_silicon){
+                // calculate silicon energy from residual energy in CsI
+                Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fECsI));
+                GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
+                fESi = GetSi()->GetCorrectedEnergy(this,e0);
+                if(fESi<=0){
+                    // bad energy calculation
+                    SetECode(kECode15);
+                    return;
                 }
                 else
                 {
-                    GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
-                }
-                fESi = GetSi()->GetCorrectedEnergy(this,-1.,si_transmission);
-                if(fESi<=0) {
-                    //Info("calib", "esi=%f",fESi);
-                    SetECode(kECode15);// bad - no Si energy
-                    return;
+                    // calculated energy: negative
+                    fESi = -TMath::Abs(fESi);
+                    SetECode(kECode2);
                 }
             }
             else
             {
-                Double_t e0 = GetSi()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fECsI));
-                // calculated energy: negative
-                GetSi()->SetEResAfterDetector(TMath::Abs(fECsI));
-                fESi = GetSi()->GetCorrectedEnergy(this,e0);
-                fESi = -TMath::Abs(fESi);
-                SetECode(kECode2);
+                // cannot calibrate particle stopping in silicon in this case
+                SetECode(kECode0);
+                return;
             }
         }
-    }
-    else{
-    	stopped_in_silicon = kFALSE;
+
     }
     if(GetChIo()){
     /* CHIO ENERGY CONTRIBUTION */
     // if fUseFullChIoEnergyForCalib = kFALSE, we have to estimate the ChIo energy for this particle
         if(fUseFullChIoEnergyForCalib && GetChIo()->IsCalibrated()){
-            //all is apparently well
-            if (stopped_in_silicon && !GetSi()->IsCalibrated() ){
-            	fEChIo = GetChIo()->GetCorrectedEnergy(this);
-            	if (GetCodes().TestIDCode( kIDCode4 ))
-               	fESi = GetChIo()->GetEResFromDeltaE(GetZ(),GetA(),-1,KVMaterial::kEmax);
-               else if (GetCodes().TestIDCode( kIDCode5 ))
-               	fESi = GetChIo()->GetEResFromDeltaE(GetZ(),GetA(),-1,KVMaterial::kEmin);
-               else
-               	Info("CalibrateRings1To9","Test IDCode dans le cas de Si non calibre : Cas non gere");   
+            // all is apparently well
+            if(!StoppedInChIo()){
+                GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
+                fEChIo = GetChIo()->GetCorrectedEnergy(this);
             }
-            else {
-               GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
-            	fEChIo = GetChIo()->GetCorrectedEnergy(this);
-        		}
+            else
+            {
+                // particle stopped in chio, not in transmission
+                fEChIo = GetChIo()->GetCorrectedEnergy(this, -1., kFALSE);
+            }
+            if(fEChIo<0.){
+                // bad energy calculation
+                SetECode(kECode15);
+                return;
+            }
         }
         else
         {
-            if ( stopped_in_silicon && !GetSi()->IsCalibrated() ){
-            	//Pile Up dans la ChIo sans possibilite de deduire l energie a partir du Si
-               //
-               SetECode(kECode15);
+            if(!StoppedInChIo()){
+                // calculate chio contribution from energy in csi and/or si
+                Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+TMath::Abs(fECsI));
+				// calculated energy: negative
+                GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
+                fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
+                fEChIo = -TMath::Abs(fEChIo);
+                SetECode(kECode2);
             }
-            else{
-            	Double_t e0 = GetChIo()->GetDeltaEFromERes(GetZ(),GetA(),TMath::Abs(fESi)+TMath::Abs(fECsI));
-					// calculated energy: negative
-            	GetChIo()->SetEResAfterDetector(TMath::Abs(fESi)+TMath::Abs(fECsI));
-            	fEChIo = GetChIo()->GetCorrectedEnergy(this,e0);
-            	fEChIo = -TMath::Abs(fEChIo);
-            	SetECode(kECode2);
-        		}	
+            else
+            {
+                // cannot calibrate
+                SetECode(kECode0);
+                return;
+            }
         }
     }
-		SetEnergy( TMath::Abs(fECsI) + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
+     SetEnergy( TMath::Abs(fECsI) + TMath::Abs(fESi) + TMath::Abs(fEChIo) );
 }
 
 //_________________________________________________________________________________
