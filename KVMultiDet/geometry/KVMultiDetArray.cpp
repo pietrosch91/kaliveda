@@ -531,6 +531,7 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
     //
     //    KVMultiDetArray::kFilterType_Full               full simulation of detection of particles by the array. the calibration parameters
     //                                                                           for the chosen run (call to gMultiDetArray->SetParameters(...)) are inverted in order
+    //                                                                           to calculate pseudo-raw data from the calculated energy losses. the resulting pseudo-raw
     //
     // SIMULATED EVENT PARAMETERS
     // ==========================
@@ -539,7 +540,14 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
     // reconstructed event, therefore these informations can be accessed from the reconstructed
     // event using the method
     //     rec_event->GetParameters()
-    //                                                                           to calculate pseudo-raw data from the calculated energy losses. the resulting pseudo-raw
+    //
+    // SIMULATED PARTICLE PARAMETERS
+    // ==========================
+    // For filter types KVMultiDetArray::kFilterType_Geo and KVMultiDetArray::kFilterType_GeoThresh,
+    // for which there is a 1-to-1 correspondance between simulated and reconstructed particles,
+    // we copy the list of parameters associated to each input particle into the output particle.
+    // Note that this list contains full informations on the detection of each particle
+    // (see Users Guide chapter on Filtering)
 
 
     if (!event) {
@@ -884,6 +892,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                 recon_nuc->Reconstruct(last_det);
                 recon_nuc->SetZandA(part->GetZ(),part->GetA());
                 recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
+                // copy parameter list
+                part->GetParameters()->Copy( *(recon_nuc->GetParameters()) );
                 if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                     KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
                     if(idt){
@@ -955,6 +965,8 @@ void KVMultiDetArray::DetectEvent(KVEvent * event,KVReconstructedEvent* rec_even
                 recon_nuc->Reconstruct(last_det);
                 recon_nuc->SetZandA(part->GetZ(),part->GetA());
                 recon_nuc->SetE(part->GetFrame(detection_frame)->GetE());
+                // copy parameter list
+                part->GetParameters()->Copy( *(recon_nuc->GetParameters()) );
 
                 if(part->GetParameters()->HasParameter("IDENTIFYING TELESCOPE")){
                     KVIDTelescope* idt = GetIDTelescope(part->GetParameters()->GetStringValue("IDENTIFYING TELESCOPE"));
