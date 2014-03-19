@@ -533,11 +533,45 @@ void KVINDRAUpDater::SetLitEnergyCsIParameters(KVDBRun * kvrun)
     // Setting Light- Energy CsI calibration parameters for Z=1
     KVRList *param_list = kvrun->GetLinks("Light-Energy CsI Z=1");
 
-    if (!param_list)
+    if (param_list && param_list->GetSize())
     {
-        return;
+
+   	KVDetector *kvd;
+   	KVDBParameterSet *kvps;
+   	KVCalibrator *kvc;
+   	TIter next_ps(param_list);
+   	TString str;
+
+   	while ((kvps = (KVDBParameterSet *) next_ps())) 	  // boucle sur les parametres
+   	{
+   		 str = kvps->GetName();
+   		 kvd = gIndra->GetDetector(str.Data());
+   		 if (!kvd)
+   			  Warning("SetLitEnergyCsIParameters(UInt_t)",
+   						 "Dectector %s not found !", str.Data());
+   		 else 							// detector found
+   		 {
+   			  kvc = kvd->GetCalibrator(kvps->GetTitle());
+   			  if (!kvc)
+   			  {
+   					Warning("SetLitEnergyCsIParameters(UInt_t)",
+   							  "Calibrator %s %s not found ! - it will be created",
+   							  kvps->GetName(), kvps->GetTitle());
+   					kvd->SetCalibrators();
+   					kvc = kvd->GetCalibrator(kvps->GetTitle());
+   			  }
+   			  for (Int_t i = 0; i < kvc->GetNumberParams(); i++)
+   			  {
+   					kvc->SetParameter(i, kvps->GetParameter(i));
+   					kvc->SetStatus(kTRUE);  	 // calibrator ready
+   			  }
+   		 } 								//detector found
+   	}  								  //boucle sur les parameters
     }
-    if (!param_list->GetSize())
+    // Setting Light- Energy CsI calibration parameters for Z>1
+    param_list = kvrun->GetLinks("Light-Energy CsI Z>1");
+
+    if (!param_list || !param_list->GetSize())
     {
         return;
     }
@@ -545,46 +579,7 @@ void KVINDRAUpDater::SetLitEnergyCsIParameters(KVDBRun * kvrun)
     KVDetector *kvd;
     KVDBParameterSet *kvps;
     KVCalibrator *kvc;
-    TIter next_ps(param_list);
     TString str;
-
-    while ((kvps = (KVDBParameterSet *) next_ps()))      // boucle sur les parametres
-    {
-        str = kvps->GetName();
-        kvd = gIndra->GetDetector(str.Data());
-        if (!kvd)
-            Warning("SetLitEnergyCsIParameters(UInt_t)",
-                    "Dectector %s not found !", str.Data());
-        else                      // detector found
-        {
-            kvc = kvd->GetCalibrator(kvps->GetTitle());
-            if (!kvc)
-            {
-                Warning("SetLitEnergyCsIParameters(UInt_t)",
-                        "Calibrator %s %s not found ! - it will be created",
-                        kvps->GetName(), kvps->GetTitle());
-                kvd->SetCalibrators();
-                kvc = kvd->GetCalibrator(kvps->GetTitle());
-            }
-            for (Int_t i = 0; i < kvc->GetNumberParams(); i++)
-            {
-                kvc->SetParameter(i, kvps->GetParameter(i));
-                kvc->SetStatus(kTRUE);      // calibrator ready
-            }
-        }                         //detector found
-    }                            //boucle sur les parameters
-
-    // Setting Light- Energy CsI calibration parameters for Z>1
-    param_list = kvrun->GetLinks("Light-Energy CsI Z>1");
-
-    if (!param_list)
-    {
-        return;
-    }
-    if (!param_list->GetSize())
-    {
-        return;
-    }
 
     TIter next_ps2(param_list);
     while ((kvps = (KVDBParameterSet *) next_ps2()))      // boucle sur les parametres
