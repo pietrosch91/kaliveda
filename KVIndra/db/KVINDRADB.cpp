@@ -1722,16 +1722,16 @@ void KVINDRADB::ReadLightEnergyCsI(const Char_t* zrange, KVDBTable* table)
    KVDBParameterSet *parset;
    TList *par_list = new TList();
 
-   Float_t a2, a1, a3, a4, chi2;    // calibration parameters
-   Int_t ring, mod, npoints;
+   Float_t a2, a1, a3, a4;    // calibration parameters
+   Int_t ring, mod;
 
    while (fin.good()) {         //reading the file
       sline.ReadLine(fin);
       if (fin.good()) {
          if (!sline.BeginsWith("#")) {  //skip comments
             if (sscanf
-                (sline.Data(), "%d %d %f %f %f %f %f %d", &ring, &mod, &a1,
-                 &a2, &a3, &a4, &chi2, &npoints) != 8) {
+                (sline.Data(), "%d %d %f %f %f %f", &ring, &mod, &a1,
+                 &a2, &a3, &a4) != 6) {
                Warning("ReadLightEnergyCsI()",
                        "Bad format in line :\n%s\nUnable to read parameters",
                        sline.Data());
