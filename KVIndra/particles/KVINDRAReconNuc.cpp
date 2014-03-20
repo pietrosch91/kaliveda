@@ -1426,21 +1426,3 @@ const Char_t *KVINDRAReconNuc::GetIDSubCodeString(const Char_t *
     }
     return idtel->GetIDSubCodeString(code);
 }
-
-//______________________________________________________________________________
-
-
-void KVINDRAReconNuc::Streamer(TBuffer &R__b)
-{
-   // Stream an object of class KVINDRAReconNuc.
-   // Set flag for correcting bad id-code & calibration for particles stopping in CsI
-   // member of etalon modules (v1.8.11)
-
-   UInt_t R__s, R__c;
-   if (R__b.IsReading()) {
-      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
-      R__b.ReadClassBuffer(KVINDRAReconNuc::Class(),this,R__v,R__s,R__c);
-   } else {
-      R__b.WriteClassBuffer(KVINDRAReconNuc::Class(),this);
-   }
-}

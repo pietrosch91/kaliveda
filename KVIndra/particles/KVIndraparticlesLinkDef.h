@@ -2,5 +2,5 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ class KVINDRAReconNuc-;
+#pragma link C++ class KVINDRAReconNuc+;
 #endif
