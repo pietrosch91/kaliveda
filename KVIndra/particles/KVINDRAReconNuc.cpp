@@ -830,12 +830,16 @@ Bool_t KVINDRAReconNuc::CoherencyEtalons(KVIdentificationResult &theID)
             }
             return kTRUE;
         }
-    }
-    else if(StoppedInSi75()){
-        if(haveChIoSi75){
+        else if(haveChIoSi75){
             theID = *IDcisi75;
             return kTRUE;
         }
+    }
+    else if(StoppedInSi75()){   // MFR march 2014 SiLi is not the real stopping detector
+        if(haveChIoSi75){
+            theID = *IDcisi75;
+            return kTRUE;
+        }                       // end MFR march 2014
     }
 
     return kFALSE;
