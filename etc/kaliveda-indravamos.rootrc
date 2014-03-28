@@ -201,8 +201,10 @@ INDRA_e503.ActiveIdentifications:       CSI SI-CSI CI-SI CI-CSI VAMOS.CHI-SI VAM
 INDRA_e494s.ActiveIdentifications:      CI-SI CI-CSI SI-CSI CSI CI-SI75 SI75-SILI SILI-CSI VAMOS.CHI-SI
 
 #================================ Plugins for detectors
-+Plugin.KVDetector:    VAMOS_e503.CSI             KVCsIVamos     VAMOS     "KVCsIVamos(Float_t)"
-+Plugin.KVDetector:    VAMOS_e503.SI             KVSiliconVamos     VAMOS     "KVSiliconVamos(Float_t)"
++Plugin.KVDetector:    VAMOS_e503.CSI        KVCsIVamos        VAMOS     "KVCsIVamos(Float_t)"
++Plugin.KVDetector:    VAMOS_e503.SI         KVSiliconVamos    VAMOS     "KVSiliconVamos(Float_t)"
++Plugin.KVDetector:    INDRA_e494s.SI75      KVSi75_e494s      KVIndra   "KVSi75_e494s(Float_t)"
++Plugin.KVDetector:    INDRA_e494s.SILI      KVSiLi_e494s      KVIndra   "KVSiLi_e494s(Float_t)"
 
 # Mass Formula used in KVVAMOSReconNuc to deduce A from Z nuclei
 KVVAMOSReconNuc.MassFormula:        2
