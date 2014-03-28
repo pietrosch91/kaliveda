@@ -5,7 +5,8 @@
 # We expect it to work reasonably at least for light charged particles
 # Paola, 17/08/2012, added rings 10-12 calibration
 # MFR fevrier 2013 add camp5 calibrations for rings 13-17
-# !!!! TO BE  MODIFIED AFTER CHECK !!!!!!
+# new values for rings 13-17 using elastic 12C (Tomasz Twarog sept. 2013)
+# last comment line changed march 3 2014.
 #
 # Parameters for Z=1 particles, rings 1-17.
 #+-------------------------------------------------------------+
