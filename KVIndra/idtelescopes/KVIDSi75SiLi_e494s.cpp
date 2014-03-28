@@ -1,7 +1,10 @@
 //Created by KVClassFactory on Fri Nov  2 14:11:36 2012
 //Author: Guilain ADEMARD
+//// modified Feb. 20 2014 Marie-France Rivet
 
 #include "KVIDSi75SiLi_e494s.h"
+#include "KVACQParam.h"
+
 
 ClassImp(KVIDSi75SiLi_e494s)
 
@@ -51,11 +54,12 @@ Double_t KVIDSi75SiLi_e494s::GetIDMapX(Option_t * opt)
 	// associated with the Si75-SiLi identification telescope.
 	// The X-coordinate is the SiLi current low gain coder data minus the
 	// low gain pedestal correction (see KVACQParam::GetDeltaPedestal()).
-	// If the high gain coder data is less than 3900 the the low gain value
+	// If the high gain coder data is less than 3900 the  low gain value
 	// is calculated from the current high gain coder data minus the high
 	// gain pedestal correction (see KVINDRADetector::GetPGfromGG()).
-	
-    return GetIDMapXY(fSiLi , opt);
+
+  
+  return GetIDMapXY(fSiLi , opt);
 }
 
 //__________________________________________________________________________//
@@ -66,7 +70,7 @@ Double_t KVIDSi75SiLi_e494s::GetIDMapY(Option_t * opt)
 	// associated with the Si75-SiLi identification telescope.
 	// The Y-coordinate is the Si75 current low gain coder data minus the
 	// low gain pedestal correction (see KVACQParam::GetDeltaPedestal()).
-	// If the high gain coder data is less than 3900 the the low gain value
+	// If the high gain coder data is less than 3900 the low gain value
 	// is calculated from the current high gain coder data minus the high
 	// gain pedestal correction (see KVINDRADetector::GetPGfromGG()).
 
@@ -98,6 +102,8 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
     //is deduced from Z using the default mass formula of class KVNucleus.
     //
     // Note that optional arguments (x,y) for testing identification are not used.
+	// We use the presence of the MT to check that SiLi is really stopping. 
+	// MFR march 2014
 
  	Double_t X = ( x<0. ? GetIDMapX() : x );
  	Double_t Y = ( y<0. ? GetIDMapY() : y );
@@ -117,11 +123,18 @@ Bool_t KVIDSi75SiLi_e494s::Identify(KVIdentificationResult* IDR, Double_t x, Dou
     // set general ID code
     IDR->IDcode = fIDCode;
 
-    const Bool_t inRange = (0.<X) &&  (X<4090.) &&  (0.<Y) &&  (Y<4090.);
+    KVACQParam* pmt = (KVACQParam*)fSiLi->GetACQParam("T");  // MFR
+    Short_t MTSiLi = pmt->GetCoderData();                    // MFR
+
+//    const Bool_t inRange = (0.<X) &&  (X<4090.) &&  (0.<Y) &&  (Y<4090.);
+    const Bool_t inRange = (0.<X) &&  (X<4090.) &&  (0.<Y) &&  (Y<4090.) && (MTSiLi>0); // MFR   
 
     if(inRange) Z = IdentZ(this, funLTG_Z, "", "");
-    else return kFALSE;
-
+    else {   
+      IDR->IDOK = kFALSE;                 // MFR
+      return kFALSE;
+    }
+  
     //use KVTGIDManager::GetStatus value for IdentZ as identification subcode
     IDR->IDquality = GetStatus();
 
