@@ -27,7 +27,6 @@ class KVVAMOSReconNuc : public KVReconstructedNucleus
 		Float_t               *fDetE;           //!array with the corrected energy lost in each detector of fDetList
 
 		virtual void CalibrateFromDetList();
-		virtual void CalibrateFromTracking();
 		virtual void MakeDetectorList();
 		virtual Bool_t SetCorrectedFlightDistanceAndTime( Double_t tof,  KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );
 		virtual Bool_t SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetector *stop=NULL );

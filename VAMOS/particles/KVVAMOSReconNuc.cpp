@@ -108,8 +108,7 @@ void KVVAMOSReconNuc::Calibrate(){
 
 	//	Info("Calibrate","IN");
 
-	if( 1 ) CalibrateFromDetList();
-	else    CalibrateFromTracking();
+	CalibrateFromDetList();
 
     if ( IsCalibrated() && GetEnergy()>0 ){
 
@@ -181,10 +180,10 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 	Bool_t stopdetOK = kTRUE;
 	KVVAMOSDetector *stopdet = (KVVAMOSDetector *)GetStoppingDetector();
 	KVVAMOSDetector *det     = NULL;
-	TIter next( GetDetectorList() );
+	TIter next_det( GetDetectorList() );
 	if( !fDetE ) fDetE = new Float_t[ GetDetectorList()->GetEntries() ];
 	Int_t idx = -1;
-	while( (det = (KVVAMOSDetector *)next()) ){
+	while( (det = (KVVAMOSDetector *)next_det()) ){
 		fDetE[++idx] = 0.;
 		if( !stopdetOK ) continue;
 		// transmission=kFALSE if particle stop in det
@@ -197,9 +196,33 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
  			SetECode( kECode0 );
 			SetIsUncalibrated();
 			stopdetOK = kFALSE;
-//			Info("CalibrateFromDetList","Stopping detector not calibrated");
-			return;
+			continue;
 		}
+
+        // modify thicknesses of all layers according to orientation,
+        // and store original thicknesses in array. Effective thickness
+        // is previously calculated in the method 'Propagate' and stored 
+        // in the list 'fParameters' 
+    	Double_t* thickness;
+        thickness = new Double_t[det->GetListOfAbsorbers()->GetEntries()];
+      	KVMaterial *abs; Int_t i=0;
+      	TIter next_abs( det->GetListOfAbsorbers() );
+      	TIter next_par( GetParameters()->GetList() );
+		TString parname, absname;
+      	while ((abs = (KVMaterial *) next_abs())) {
+            thickness[i++] = abs->GetThickness();
+			absname = abs->GetAbsGeoVolume()->GetName();
+			if( absname.BeginsWith("DET_") ) parname.Form("STEP:%s",det->GetName()); 
+			else parname.Form("STEP:%s/%s",det->GetName(),absname.Data()); 
+			KVNamedParameter *par = NULL;
+			while( (par = (KVNamedParameter *)next_par()) ){
+            	if( !strncmp(parname.Data(),par->GetName(), parname.Sizeof()-1) ){
+ 			   		abs->SetThickness( par->GetDouble() );
+//					Info("CalibrateFromDetList","thickness of absorber %s has been changed: %f --> %f", parname.Data(), thickness[i-1], par->GetDouble());
+					break;
+				}
+			}
+      	}
 
 		// Detector is calibrated and hit by only one particle
 		if( Edet > 0 &&  det->GetNHits() == 1  ){
@@ -214,7 +237,7 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 				Int_t z=z0, a=a0;
 				Bool_t isOK = kFALSE;
 
-				Warning("CalibrateFromDetList","MeasuredDE>MaxDE in %s, Z= %d, A=%d, MeasuredDE= %f MeV, MaxDE %f MeV",det->GetName(), z0, a0, Edet,det->GetMaxDeltaE( z0, a0 ));
+//				Warning("CalibrateFromDetList","MeasuredDE>MaxDE in %s, Z= %d, A=%d, MeasuredDE= %f MeV, MaxDE %f MeV",det->GetName(), z0, a0, Edet,det->GetMaxDeltaE( z0, a0 ));
 
 				while( !isOK && (z-GetZ()<=10) ){
 					//increase Z
@@ -222,9 +245,9 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 					//modify A only if it is not measured
 					if( !IsAMeasured() ) a = GetAFromZ( z, (Char_t)GetMassFormula() );
 					isOK  = ( Edet <= det->GetMaxDeltaE( z, a ) );
-					Info("CalibrateFromDetList","changing Z= %d, A=%d, MeasuredDE= %f MeV, MaxDE %f MeV", z, a, Edet,det->GetMaxDeltaE( z, a ));
+//					Info("CalibrateFromDetList","changing Z= %d, A=%d, MeasuredDE= %f MeV, MaxDE %f MeV", z, a, Edet,det->GetMaxDeltaE( z, a ));
 				}
-				Info("CalibrateFromDetList","MeasuredDE<MaxDE in %s by changing Z: %d->%d, A: %d->%d \n",det->GetName(), z0 ,z, a0 ,a);
+//				Info("CalibrateFromDetList","MeasuredDE<MaxDE in %s by changing Z: %d->%d, A: %d->%d \n",det->GetName(), z0 ,z, a0 ,a);
 				SetZandA( z, a );
 				Edet  = det->GetCorrectedEnergy( this, -1, transmission );
 				// we back to initial values of Z and A
@@ -234,40 +257,43 @@ void KVVAMOSReconNuc::CalibrateFromDetList(){
 			Etot += Edet;
 			fDetE[idx] = Edet;
 //			Info("CalibrateFromDetList","Corrected DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
-			continue;
 		}
-
 		// Detector is uncalibrated/unfired/multihit. Calculate energy loss.
         // calculate energy of particle before detector from energy after 
         // detector
+		else{
 
-		Edet = det->GetDeltaEFromERes( GetZ(), GetA(), Etot);
-        if( Edet< 0.0 ) Edet = 0.0;
+			Edet = det->GetDeltaEFromERes( GetZ(), GetA(), Etot);
+        	if( Edet< 0.0 ) Edet = 0.0;
 
-		if( det->GetNHits() > 1 ){
-            if(!( det->Fired() && det->IsECalibrated()) )
-                det->SetEnergyLoss(Edet + det->GetEnergy());// sum up calculated energy losses in uncalibrated detector
-//			Info("CalibrateFromDetList","MultiHit in %s", det->GetName());
-        }
-        else if( !det->Fired() || !det->IsECalibrated() )
-            det->SetEnergyLoss( Edet );
+			if( det->GetNHits() > 1 ){
+            	if(!( det->Fired() && det->IsECalibrated()) )
+                	det->SetEnergyLoss(Edet + det->GetEnergy());// sum up calculated energy losses in uncalibrated detector
+				//			Info("CalibrateFromDetList","MultiHit in %s", det->GetName());
+        	}
+        	else if( !det->Fired() || !det->IsECalibrated() )
+            	det->SetEnergyLoss( Edet );
 
-        det->SetEResAfterDetector( Etot );
-        Edet  = det->GetCorrectedEnergy( this, Edet, transmission);
-        Etot += Edet;
-		fDetE[idx] = Edet;
-		if( det->IsUsedToMeasure("E") ) SetECode( kECode2 );
-//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
+        	det->SetEResAfterDetector( Etot );
+        	Edet  = det->GetCorrectedEnergy( this, Edet, transmission);
+        	Etot += Edet;
+			fDetE[idx] = Edet;
+			if( det->IsUsedToMeasure("E") ) SetECode( kECode2 );
+			//		Info("CalibrateFromDetList","Calculated DeltaE= %f in %s, idx= %d", Edet, det->GetName(), idx);
+		}
+		
+        // reset thicknesses of absorbers
+      	i=0;
+      	next_abs.Reset();
+      	while ((abs = (KVMaterial *) next_abs())) {
+            abs->SetThickness(thickness[i++]);
+      	}
+      	delete [] thickness;
 	}
 	SetEnergy( Etot );
 }
 //________________________________________________________________
 		
-void KVVAMOSReconNuc::CalibrateFromTracking(){
-	Warning("CalibrateFromTracking","TO BE IMPLEMENTED");
-}
-//________________________________________________________________
-
 void KVVAMOSReconNuc::Clear(Option_t * t){
 	//Reset nucleus' properties
 	
