@@ -10,10 +10,13 @@ class KVVAMOSReconNuc;
 class KVIonRangeTable;
 
 enum ECalib{ 
-	kNoCalib  = 0,
- 	kECalib   = BIT(0),
-	kTCalib   = BIT(1),
- 	kFullCalib = kECalib | kTCalib
+	kNoCalib    = 0,                         // no calibration
+ 	kECalib     = BIT(0),                    // E calib. for active absorbers
+ 	kFullECalib = kECalib | BIT(1),          // E calib. for all absorbers 
+	kTCalib     = BIT(2),                    // T calib. for active absorbers
+ 	kFullTCalib = kTCalib | BIT(3),          // T calib. for all absorbers
+ 	kETCalib    = kECalib | kTCalib,         // T and E calib. for active absorbers
+ 	kFullCalib  = kFullECalib | kFullTCalib  // T and E calib for all absorbers
 };
 
 
@@ -23,7 +26,7 @@ class KVVAMOSReconGeoNavigator : public KVGeoNavigator
 	protected:
 
 		Bool_t fDoNothing;// true if nothing has to be done when nucleus enters in new volume
-		ECalib fCalib; // 0: No calib., 1: E calib., 2: T calib., 3: full calib.
+		ECalib fCalib; // option to select infos to be stored
 		TVector3 fOrigine;// Origine of the initial propagation i.e. coord. intersection point of the trajectory and the focal plane
 		TVector3 fFOrigine;// Origine of the forward propagation i.e. coord. of a point before the first detector at the focal plane
 		Double_t fE; // Energy of the propagated nucleus

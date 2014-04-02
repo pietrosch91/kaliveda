@@ -157,11 +157,6 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 		// (1: behind; -1: in front of) with respect to the focal plane.
 		Double_t Delta = TMath::Sign( 1., Z ) * TMath::Sqrt( X*X + Y*Y + Z*Z );
 
-        nuc->GetParameters()->SetValue(Form("STEP:%s",absorber_name.Data()), GetStepSize());
-        if( is_active )	nuc->GetParameters()->SetValue(Form("DPATH:%s",dname.Data()), Delta);
-
-
-
 		if( (fCalib & kECalib) || (fCalib & kTCalib) ){
 			if( fE>1e-3 ){
 
@@ -173,6 +168,7 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 					fTOF += tof;
         			//nuc->GetParameters()->SetValue(Form("TOF:%s",absorber_name.Data()), fTOF);
         			if( is_active )	nuc->GetParameters()->SetValue(Form("TOF:%s",dname.Data()), fTOF);
+					else if( (fCalib & kFullTCalib) == kFullTCalib ) nuc->GetParameters()->SetValue(Form("TOF:%s",absorber_name.Data()), fTOF);
 				}
 
 				Double_t DE = irmat->GetLinearDeltaEOfIon(
@@ -186,9 +182,17 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 
         		nuc->SetEnergy(fE);
 
-        		if( fCalib & kECalib ) nuc->GetParameters()->SetValue(Form("DE:%s",absorber_name.Data()), DE);
+        		if( fCalib & kECalib ){
+ 					if( is_active )	nuc->GetParameters()->SetValue(Form("DE:%s",dname.Data()), DE);
+					else if( (fCalib & kFullECalib) == kFullECalib ) nuc->GetParameters()->SetValue(Form("DE:%s",absorber_name.Data()), DE);
+				}
 			}
     	}
+
+        if( is_active )	nuc->GetParameters()->SetValue(Form("DPATH:%s",dname.Data()), Delta);
+		else if( (fCalib & kFullTCalib) == kFullTCalib ) nuc->GetParameters()->SetValue(Form("DPATH:%s",absorber_name.Data()), Delta);
+        nuc->GetParameters()->SetValue(Form("STEP:%s",absorber_name.Data()), GetStepSize());
+
 	}
 }
 //________________________________________________________________
@@ -210,7 +214,7 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 
 	//If this is the first absorber that the particle crosses, we set a "reminder" of its
     //initial energy
-    if (!nuc->GetPInitial()) nuc->SetE0();
+    nuc->SetE0();
 	fE =  nuc->GetEnergy();
 
 	// For gGeoManager the origin is the target point.
@@ -280,13 +284,16 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 				Double_t tof = path/nuc->GetVelocity().Mag();
 				fStartPath += path;
 				fTOF += tof;
- 				nuc->GetParameters()->SetValue(Form("TOF:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fTOF);
+				if( (fCalib & kFullTCalib) == kFullTCalib ){
+ 					nuc->GetParameters()->SetValue(Form("TOF:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fTOF);
+ 					nuc->GetParameters()->SetValue(Form("DPATH:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fStartPath);
+				}
 			}
 
 			DE = gVamos->GetStripFoil()->GetELostByParticle( nuc, &norm );
 			fE -= DE;
 			nuc->SetEnergy( fE );
-			if( fCalib & kECalib ) nuc->GetParameters()->SetValue(Form("DE:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),DE);
+			if( (fCalib & kFullECalib) == kFullECalib ) nuc->GetParameters()->SetValue(Form("DE:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),DE);
 		}
 	}
 
@@ -320,4 +327,5 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 
 	//set the initial momentum/energy  to the nucleus
 	nuc->ResetEnergy();
+
 }
