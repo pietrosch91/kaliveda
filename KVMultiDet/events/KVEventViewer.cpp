@@ -26,6 +26,11 @@ ClassImp(KVEventViewer)
 // The second (optional) argument allows to choose which reference frame to use (frame must already
 // have been defined for the KVEvent using KVEvent::SetFrame).
 //
+// For each nucleus of the event, a spherical cluster of protons and neutrons will be displayed,
+// using the default colors for these particles (see constructor and related methods).
+// One or more nuclei of each event can be "highlighted" (i.e. given different colors for their
+// neutrons and protons) according to the value given to method SetHighlightMode.
+//
 // You can use KVEventViewer::DrawNextEvent() to display, one after the other, a set of events stored in a TTree or in a text file.
 // With a TTree:
 //
@@ -66,6 +71,8 @@ KVEventViewer::KVEventViewer(Int_t protoncolor, Int_t neutroncolor, Int_t highli
    fRefresh = 0;
    fSeed = 863167;
    fXYMode = kFALSE;
+   fMomentumSpace = kFALSE;
+   fScaleFactor=1.;
 
    fSavePicture=kFALSE;
    textInput=kFALSE;
@@ -87,7 +94,7 @@ void KVEventViewer::DrawNucleus(KVNucleus* nucleus, const Char_t *frame)
    Int_t N=nucleus->GetN();
    Int_t Z=nucleus->GetZ();
    
-   TVector3 V=nucleus->GetFrame(frame)->GetV();
+   TVector3 V=(fMomentumSpace ? nucleus->GetFrame(frame)->GetMomentum() : nucleus->GetFrame(frame)->GetV());
 
    Bool_t Highlight = SetHighlight(nucleus);
 
@@ -96,10 +103,10 @@ void KVEventViewer::DrawNucleus(KVNucleus* nucleus, const Char_t *frame)
       if(Z==0) ball = geom->MakeSphere("n",  Nuc,  0., free_nucleon_radius); 
       else if(Z==1) ball = geom->MakeSphere("p",  Nuc,  0., free_nucleon_radius); 
       int color;
-      if(Z==0) color=fneutron_color;
-      else if(Z==1) color=fproton_color;
+      if(Z==0) color=(Highlight?fNeutron_color:fneutron_color);
+      else if(Z==1) color=(Highlight?fProton_color:fproton_color);
       ball->SetLineColor(color);
-      top->AddNode(ball, ivol++, new TGeoTranslation(V.X(),V.Y(),V.Z()));
+      top->AddNode(ball, ivol++, new TGeoTranslation(fScaleFactor*V.X(),fScaleFactor*V.Y(),fScaleFactor*V.Z()));
       return;
    }
    
@@ -111,7 +118,7 @@ void KVEventViewer::DrawNucleus(KVNucleus* nucleus, const Char_t *frame)
       double rvec = pow(gRandom->Uniform(0.,sph_rad),.33333);
       double x,y,z;
       gRandom->Sphere(x,y,z,rvec);
-      top->AddNode(ball, ivol++, new TGeoTranslation(V.X()+x,V.Y()+y,V.Z()+z));
+      top->AddNode(ball, ivol++, new TGeoTranslation(fScaleFactor*V.X()+x,fScaleFactor*V.Y()+y,fScaleFactor*V.Z()+z));
    }
    for(int i=0;i<Z;i++){
       TGeoVolume * ball = geom->MakeSphere("p",  Nuc,  0., nucleon_radius); 
@@ -119,7 +126,7 @@ void KVEventViewer::DrawNucleus(KVNucleus* nucleus, const Char_t *frame)
       double rvec = pow(gRandom->Uniform(0.,sph_rad),.33333);
       double x,y,z;
       gRandom->Sphere(x,y,z,rvec);
-      top->AddNode(ball, ivol++, new TGeoTranslation(V.X()+x,V.Y()+y,V.Z()+z));
+      top->AddNode(ball, ivol++, new TGeoTranslation(fScaleFactor*V.X()+x,fScaleFactor*V.Y()+y,fScaleFactor*V.Z()+z));
    }
 }
 
@@ -138,15 +145,18 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    Nuc     = new TGeoMedium("Nuc", 1, matNuc);
    Box     = new TGeoMedium("Box", 1, matBox);
    
-   top = geom->MakeBox("WORLD", EmptySpace, 30,30,30); 
+   top = geom->MakeBox("WORLD", EmptySpace, 30,30,30);
    geom->SetTopVolume(top);
-   
-   // Find biggest velocity & biggest fragment
+
+   // Find biggest velocity/momentum & biggest fragment
    maxV=0;
    maxZ=0;
    KVNucleus* nuc;
+   if(fMomentumSpace) fScaleFactor=1.e-2;
+   else fScaleFactor=1.;
    while ( (nuc = event->GetNextParticle("ok")) ) {
-      Double_t v = nuc->GetFrame(frame)->GetV().Mag();
+       Double_t v = fScaleFactor*(fMomentumSpace ? nuc->GetFrame(frame)->GetMomentum().Mag() :
+                                      nuc->GetFrame(frame)->GetV().Mag());
       if(v>maxV) maxV=v;
       if(nuc->GetZ()>maxZ) maxZ=nuc->GetZ();
    }
@@ -154,7 +164,7 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    maxV*=0.5;
    if(fMaxVelocity>0) maxV = fMaxVelocity;
    
-   TGeoVolume * box  = geom->MakeSphere("box",  Box,  0.99*maxV, maxV); 
+   TGeoVolume * box  = geom->MakeSphere("box",  Box,  0.99*maxV, maxV);
    box->SetLineColor(kBlack);
    box->SetTransparency(100);
    top->AddNode(box, 1000);
@@ -286,5 +296,6 @@ Bool_t KVEventViewer::SetHighlight(KVNucleus *n)
     // Decide whether or not to highlight this nucleus in the event display
 
     if(fHighlightMode==kHighlightZmax && n->GetZ()==maxZ) return kTRUE;
+    else if(fHighlightMode==kHighlightParameter && n->GetParameters()->IsValue("EventViewer.Highlight",1)) return kTRUE;
     return kFALSE;
 }
