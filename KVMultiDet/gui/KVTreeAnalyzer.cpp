@@ -313,6 +313,15 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    }
    return h;
 }
+
+TH1 *KVTreeAnalyzer::GetHistogram(const Char_t *name) const
+{
+    // Return histogram with given name
+
+    KVHistogram* h = (KVHistogram*)fHistolist.FindObject(name);
+    if(h->IsType("Histo")) return h->GetHisto();
+    return NULL;
+}
    
 Bool_t KVTreeAnalyzer::MakeSelection(const Char_t* selection)
 {

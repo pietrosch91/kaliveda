@@ -11,6 +11,7 @@
 #include <KVSpIdGUI.h>
 #include <KVZAFinderDialog.h>
 #include "KVTreeAnalyzer.h"
+#include <KVHistogram.h>
 
 using namespace std;
 
@@ -476,11 +477,12 @@ TString KVIDGridEditor::ListOfHistogramInMemory()
 
   if(gTreeAnalyzer)
   {
+      // Get all 2-D histograms from current KVTreeAnalyzer instance
       TIter nexthist(gTreeAnalyzer->GetHistoList());
-      TObject* obj = 0;
-      while((obj=nexthist()))
+      KVHistogram* obj = 0;
+      while((obj=(KVHistogram*)nexthist()))
       {
-          if(obj->InheritsFrom("TH2")) HistosNames += Form(" %s", ((TH2*)obj)->GetName());
+          if(obj->IsType("Histo") && obj->GetHisto()->InheritsFrom("TH2")) HistosNames += Form(" %s", obj->GetName());
       }
   }
   if(HistosNames.Contains("gIDGridEditorDefaultHistogram")) HistosNames.ReplaceAll("gIDGridEditorDefaultHistogram","");
@@ -566,7 +568,7 @@ void KVIDGridEditor::SetHisto(TH2* hh)
       TheHistoChoice = 0;
       if((TheHistoChoice=(TH2*)gFile->Get(Answer.Data()))) TheHisto = TheHistoChoice;
       else if((TheHistoChoice=(TH2*)gFile->FindObjectAnyFile(Answer.Data()))) TheHisto = TheHistoChoice;
-      else if(gTreeAnalyzer&&(TheHistoChoice=(TH2*)gTreeAnalyzer->GetHistoList()->FindObject(Answer.Data()))) TheHisto = TheHistoChoice;
+      else if(gTreeAnalyzer&&(TheHistoChoice=(TH2*)gTreeAnalyzer->GetHistogram(Answer.Data()))) TheHisto = TheHistoChoice;
       else Answer = "Dummy";
       }
          

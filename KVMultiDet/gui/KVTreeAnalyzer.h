@@ -124,6 +124,8 @@
 #include "KVGumbelDistribution.h"
 #include "KVGausGumDistribution.h"
 
+class KVHistogram;
+
 class KVTreeAnalyzer : public TNamed
 {
 
@@ -263,6 +265,7 @@ class KVTreeAnalyzer : public TNamed
    TH1* RemakeHisto(TH1* h, const Char_t* expr);
    TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax);
    const KVList* GetHistoList() const { return &fHistolist; }
+   TH1 *GetHistogram(const Char_t* name) const;
    TList* GetHistosByData(const Char_t* expr);
    TList* GetHistosBySelection(const Char_t* expr);
    TH1* GetHisto(const Char_t* expr, const Char_t* selection);
