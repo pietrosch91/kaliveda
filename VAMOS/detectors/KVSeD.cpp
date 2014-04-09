@@ -122,6 +122,34 @@ const Char_t* KVSeD::GetArrayName(){
 }
 //________________________________________________________________
 
+Double_t KVSeD::GetCalibT(const Char_t *type){
+	// Calculates calibrated time in ns of type 'type' (SED1_HF, SED2_HF,
+	// SED1_SED2, ...) for coder values.
+	// Returns 0 if calibration not ready or time ACQ parameter not fired.
+	// (we require that the acquisition parameter has a value
+   	// greater than the current pedestal value).
+   	//
+   	// The returned value 'T' is:
+   	//   T = Tns + T0 + corrT0
+   	// where 'Tns' is the first-converted time in ns, 'T0' is the zero-time and
+   	// 'corrT0' is a correction of 'T0'. For the moment the correction is
+   	// performed from the raw Xf-position measured in this SeD ( see method
+   	// GetXfCorrectorOfT0(...) ).
+
+	// standard calibrated time: Tns + T0
+	Double_t t = KVVAMOSDetector::GetCalibT( type );
+
+	// correction of T0 as a function of Xf (raw value)
+	KVFunctionCal *xfcorr = GetXfCorrectorOfT0( type );
+	if( xfcorr && xfcorr->GetStatus() ){
+		Double_t xraw = GetRawPosition( 'X' );
+		if( xraw > 0 ) t += xfcorr->Compute( xraw );
+	}
+
+	return t;
+}
+//________________________________________________________________
+
 const Char_t *KVSeD::GetTBaseName() const{
 	// Base name of the time of flight parameters used to be compatible
 	// GANIL acquisition parameters
@@ -283,6 +311,15 @@ TH1F *KVSeD::GetQHisto(Char_t dir){
 }
 //________________________________________________________________
 
+KVFunctionCal *KVSeD::GetXfCorrectorOfT0( const Char_t *type ){
+// Returns the corrector (KVFunctionCal) used to correct the constant T0 (in ns)
+// for a given time of flight of type 'type' (SED1_H, SED2_HF, SED1_SED2, ...)
+// as a function of the raw Xf-position  mesured by this SeD.
+
+	return (KVFunctionCal *)GetCalibrator( Form("Xf-correction of T0 T%s", type) );
+}
+//________________________________________________________________
+
 void KVSeD::Initialize(){
 	// Initialize the data members. Called by KVVAMOS::Initialize().
 	ResetCalculatedData();
@@ -377,13 +414,42 @@ void KVSeD::SetCalibrators(){
 	// The calibrators are KVFunctionCal (see KVVAMOSDetector::SetCalibrators())
 	// except for the position calibration (position->cm) where a 
 	// KVSeDPositionCal object is used.
+	//
+	// Etra calibrators are set to correct the zero-time T0 of times of flight
+	// mesured with this detector. These corrections depends on the raw X-position
+	// measured by this detector.
 
+	// set standard calibrators and T0 parameters
 	KVVAMOSDetector::SetCalibrators();
+
+	// set calibrator for position calibration
 	KVSeDPositionCal *c = new KVSeDPositionCal(this);
 	c->SetUniqueID( CalculateUniqueID( c ) );
 	if(!AddCalibrator(c)) delete c;
 	else fPosCalib = c;
 
+	
+	// loop over Time ACQ-parameters associated to this detector
+	// to build Xf-corrector of T0
+	TIter nextpar( fTlist );
+	KVACQParam *par   = NULL;
+	Double_t    maxch = 130.;       // Xf correction (128 strips) 
+	TString  calibtype("ERROR");
+
+	while((par = (KVACQParam *)nextpar())){
+ 		calibtype = "Xf-correction of T0";
+		calibtype.Append(" ");
+		calibtype.Append(par->GetName());
+
+		TF1 *func        = new TF1(calibtype.Data(),"pol1",0.,maxch);
+		KVFunctionCal *c = new KVFunctionCal(this, func);
+		c->SetType( calibtype.Data() );
+		c->SetLabel( par->GetLabel() );
+		c->SetNumber( par->GetNumber() );
+		c->SetUniqueID( par->GetUniqueID() );
+		c->SetStatus( kFALSE );
+		if(!AddCalibrator(c)) delete c;
+	}
 }
 //________________________________________________________________
 

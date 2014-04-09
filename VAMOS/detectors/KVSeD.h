@@ -46,6 +46,7 @@ class KVSeD : public KVVAMOSDetector
    		virtual Float_t CalculateQThreshold(Char_t dir);
    		virtual void  Clear(Option_t *option = "" );
    		virtual const Char_t* GetArrayName();
+   		virtual Double_t GetCalibT(const Char_t *type);
    		virtual const Char_t *GetTBaseName() const;
    		virtual UChar_t GetPosition(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0);
    		virtual void    GetDeltaXYZf(Double_t *XYZf, Char_t dir = 0, Int_t idx = 0);
@@ -57,6 +58,7 @@ class KVSeD : public KVVAMOSDetector
    		virtual TH1F *GetCleanQHisto(Char_t dir = 'X');
    		virtual TH1F *GetQrawHisto(Char_t dir = 'X');
    		virtual TH1F *GetQHisto(Char_t dir = 'X');
+		virtual KVFunctionCal *GetXfCorrectorOfT0( const Char_t *type );
    		virtual void Initialize();
    		virtual Bool_t PositionIsOK();
    		virtual void ResetCalculatedData();

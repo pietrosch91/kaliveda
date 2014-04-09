@@ -194,7 +194,7 @@ void KVVAMOSDetector::SetCalibrators(){
 		calibtype.Append(" ");
 		calibtype.Append(par->GetName());
 
-		TF1 *func        = new TF1(par->GetName(),"pol1",0.,maxch);
+		TF1 *func        = new TF1(calibtype.Data(),"pol1",0.,maxch);
 		KVFunctionCal *c = new KVFunctionCal(this, func);
 		c->SetType( calibtype.Data() );
 		c->SetLabel( par->GetLabel() );

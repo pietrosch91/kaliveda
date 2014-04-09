@@ -507,7 +507,7 @@ void KVVAMOS::SetCalibrators(){
 		calibtype.Append(" ");
 		calibtype.Append( par->GetName() );
 
-		func = new TF1(par->GetName(),"pol1",0., 16384.);
+		func = new TF1(calibtype.Data(),"pol1",0., 16384.);
 		c = new KVFunctionCal(func);
 		c->SetType( calibtype.Data() );
 		c->SetLabel( par->GetLabel() );

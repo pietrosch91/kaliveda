@@ -9,19 +9,44 @@ TSED2_HF: 0. -0.0091292 -2.24852e-07 2.62964e-11 -1.65456e-15 5.3064e-20 -6.8216
 RUNS: 86-615
 TSED2_HF: 0. -0.022823 -5.6213e-07 6.5741e-11 -4.1364e-15 1.3266e-19 -1.7054e-24
 
+
 # Time T0 (in ns) for TSED2_HF
+#calculated by GA 08/04/14
 TYPE: T0_HF
 FUNCTION:
+ 
+RUNS: 41-46
+SED2: 268.07
 
-RUNS: 41-46 
-SED2: 268.12
-
-#calculated by GA 20/02/14
 RUNS: 80-85
-SED2: 457.33
+SED2: 459.3
 
-RUNS: 86-222
-SED2: 467.77
+RUNS: 86-94
+SED2: 467.4
+
+RUNS: 95-106
+SED2: 468.4
+
+RUNS: 107-126
+SED2: 465.0
+
+RUNS: 127-145
+SED2: 469.62
+
+RUNS: 150-159
+SED2: 468.56
+# we set the same T0 that the one of the previous runs because the method used
+# to extract T0 does not work for runs with Theta_Vamos > 0
+RUNS: 200-206 217-222
+SED2: 468.56
+
+# Xf-correction of T0 (in ns) for TSED2_HF
+RUNS: 41-46 80-145 150-159 200-206 217-222
+TYPE: Xf-correction of T0
+FUNCTION: pol2*(x<43)+pol2(3)*(43<=x<86)+pol2(6)*(86<=x)
+TSED2_HF: 4.99133e+00 -7.98438e-02 -2.14583e-04 \
+         -4.04534e+00  1.20424e-01 -9.15395e-04 \
+         -1.11803e+01  1.60229e-01 -4.19719e-04                       
 
 #Time Pedestals (in canal) 31/01/14
 RUNS: 2-615

@@ -11,21 +11,43 @@ RUNS: 86-615
 TSED1_HF: 0. -0.0228124 -6.1362e-07 7.8048e-11 -5.3772e-15 1.9088e-19 -2.759e-24
 
 
-
 # Time T0 (in ns) for TSED1_HF
+#calculated by GA 08/04/14
 TYPE: T0_HF
 FUNCTION:
 
-RUNS: 41-46 
-SED1: 279.638
+RUNS: 41-46
+SED1: 279.79
 
-#calculated by GA 20/02/14
 RUNS: 80-85
-SED1: 373.28
+SED1: 376.14
 
-RUNS: 86-222
-SED1: 576.29
+RUNS: 86-94
+SED1: 577.62
 
+RUNS: 95-106
+SED1: 578.65
+
+RUNS: 107-126
+SED1: 575.29
+
+RUNS: 127-145
+SED1: 579.84
+
+RUNS: 150-159
+SED1: 578.99
+# we set the same T0 that the one of the previous runs because the method used
+# to extract T0 does not work for runs with Theta_Vamos > 0
+RUNS: 200-206 217-222
+SED1: 578.99
+
+# Xf-correction of T0 (in ns) for TSED1_HF
+RUNS: 41-46 80-145 150-159 200-206 217-222
+TYPE: Xf-correction of T0
+FUNCTION: pol4*(x<50)+pol2(5)*(50<=x<86)+pol2(8)*(86<=x)
+TSED1_HF: 3.17192e+01 -3.16869e+00  1.33752e-01 -2.53854e-03 1.75741e-05 \
+         -6.23112e+00  1.92088e-01 -1.46014e-03 \
+         -1.49344e+01  2.65906e-01 -1.02575e-03
 
 # Time TSED1_SED2 in (ns): 5 parameters
 RUNS: 2-615
@@ -39,14 +61,36 @@ TYPE: T0
 FUNCTION:
 
 RUNS: 41-46
-SED1: "SED1_SED2" -61.36
+SED1: "SED1_SED2" -61.23
 
 RUNS: 80-85
-SED1: "SED1_SED2" -61.43
+SED1: "SED1_SED2" -61.44
 
-RUNS: 86-222
-SED1: "SED1_SED2" -59.23
+RUNS: 86-94
+SED1: "SED1_SED2" -59.33
 
+RUNS: 95-106
+SED1: "SED1_SED2" -59.03
+
+RUNS: 107-126
+SED1: "SED1_SED2" -58.90
+
+RUNS: 127-145
+SED1: "SED1_SED2" -60.20
+
+RUNS: 150-159
+SED1: "SED1_SED2" -59.43
+
+RUNS: 200-206 217-222
+SED1: "SED1_SED2" -59.43
+
+# Xf-correction of T0 (in ns) for TSED1_SED2
+RUNS: 41-46 80-145 150-159 200-206 217-222
+TYPE: Xf-correction of T0
+FUNCTION: pol4*(x<43)+pol4(5)*(43<=x<88)+pol4(10)*(88<=x)
+TSED1_SED2: 3.49235e+01 -3.12698e+00  1.05683e-01 -1.69116e-03  1.11451e-05 \
+           -2.81244e+01  2.21183e+00 -5.91035e-02  6.58524e-04 -2.63431e-06 \
+           -1.30389e+02  3.08870e+00 -5.26381e-03 -3.26259e-04  2.03036e-06
 
 #Time Pedestals (in canal) 31/01/14 
 RUNS: 2-615
