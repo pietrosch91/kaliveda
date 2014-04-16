@@ -247,7 +247,7 @@ void KVGVList::MakeBranches(TTree* tree)
             for(int i=0; i<ob->GetNumberOfBranches(); i++){
                // replace any nasty mathematical symbols which could pose problems
                // in names of TTree leaves/branches
-               TString sane_name( ((KVVarGlob*)ob)->GetValueName(i) );
+               TString sane_name( ob->GetValueName(i) );
                sane_name.ReplaceAll("*", "star");
                if(ob->GetValueType(i)=='I')
                {
@@ -292,17 +292,20 @@ void KVGVList::FillBranches()
    int FLT_index=0;
 	TIter next(this); KVVarGlob*ob;
    while ((ob = (KVVarGlob*)next())) {
-            
-      if(ob->GetNumberOfValues()>1){
-      	// multi-valued variable
-        for(int j=0; j<ob->GetNumberOfValues(); j++){
-            if(ob->GetValueType(j)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue(j);
-            else fBranchVar[ FLT_index++ ] = ob->GetValue(j);
-      	}
+      if(ob->GetNumberOfBranches()){//skip variables for which KVVarGlob::SetMaxNumBranches(0) was called
+
+         if(ob->GetNumberOfValues()>1){
+            // multi-valued variable
+            for(int j=0; j<ob->GetNumberOfBranches(); j++){
+               if(ob->GetValueType(j)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue(j);
+               else fBranchVar[ FLT_index++ ] = ob->GetValue(j);
+            }
+         }
+         else{
+            if(ob->GetValueType(0)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue();
+            else fBranchVar[ FLT_index++ ] = ob->GetValue();
+         }
+
       }
-      else{
-          if(ob->GetValueType(0)=='I') fIBranchVar[ INT_index++ ] = (Int_t)ob->GetValue();
-          else fBranchVar[ FLT_index++ ] = ob->GetValue();
-        }
    }
 }
