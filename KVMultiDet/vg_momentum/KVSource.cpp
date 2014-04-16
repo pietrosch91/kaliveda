@@ -31,6 +31,7 @@ ClassImp(KVSource)
 //   4		  Vx			x component of velocity
 //   5 	 	  Vy			y component of velocity
 //   6		  Theta		polar angle relative to the beam
+//   7		  Mult		number of nuclei added to source
 //
 // These quantities can be obtained either by name:
 //
@@ -60,6 +61,8 @@ void KVSource::init_KVSource(void)
  SetNameIndex("Vx",4);
  SetNameIndex("Vy",5);
  SetNameIndex("Theta",6);
+ SetNameIndex("Mult",7);
+	fMult=0;
 	}
 
  
@@ -117,7 +120,7 @@ void KVSource::Init(void)
 // methode d'initialisation des
 // variables internes
  	fSource.Clear();
- 
+	fMult=0;
  }		
 				
 //_________________________________________________________________
@@ -126,6 +129,7 @@ void KVSource::Reset(void)
 // Remise a zero avant le
 // traitement d'un evenement
  	fSource.Clear();
+	fMult=0;
  }		
 				
 //_________________________________________________________________
@@ -136,6 +140,7 @@ void KVSource::Fill(KVNucleus *c)
 
 	 fSource+=(*((KVNucleus*)c->GetFrame(fFrame)));
 	 c->AddGroup(GetName());
+	 fMult++;
 }		
 				
 //_________________________________________________________________
@@ -160,9 +165,10 @@ Double_t *KVSource::GetValuePtr(void)
 // 4	  Vx
 // 5	  Vy
 // 6	  Theta
+// 7	  Mult
 //
 //
- for(Int_t i=0;i<7;i++)
+ for(Int_t i=0;i<8;i++)
   {
   fVal[i]=GetValue(i);
   }
@@ -185,6 +191,7 @@ Double_t KVSource::getvalue_int(Int_t i)
 // 4	  Vx
 // 5	  Vy
 // 6	  Theta
+// 7	  Mult
 //
 //
  Double_t rval=0;
@@ -211,6 +218,9 @@ Double_t KVSource::getvalue_int(Int_t i)
   case 6: rval=fSource.GetTheta();
   	  break;
 
+  case 7: rval=fMult;
+  	  break;
+
   default : rval=0.;
             break;
   }
@@ -220,9 +230,9 @@ Double_t KVSource::getvalue_int(Int_t i)
 Char_t KVSource::GetValueType(Int_t i) const
 {
 	// Returns 'D' for all floating-point values,
-	// returns 'I' for source Z and A
+	// returns 'I' for source Z and A and Mult
 	static Char_t val_type = 'I';
-	if(i>0&&i<3) return val_type;
+	if((i>0&&i<3)||(i==7)) return val_type;
 	return KVVarGlob::GetValueType(i);
 }
 				

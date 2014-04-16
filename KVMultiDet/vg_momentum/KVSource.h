@@ -21,8 +21,8 @@ class KVSource:public KVVarGlob
 // Champ proteges:
         private:
 	KVNucleus fSource;
-	Double_t fVal[7];//! used by GetValuePtr
-
+	Double_t fVal[8];//! used by GetValuePtr
+	Int_t fMult;//! source multiplicity
 	
 // Methodes
 	protected:
