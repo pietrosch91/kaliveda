@@ -202,11 +202,17 @@ class KVVarGlob:public KVBase {
    
    virtual Int_t GetNumberOfValues() const
    {
-        // Returns number of values associated with global variable.
-        // This is the number of indices defined using SetNameIndex method,
-        // unless SetMaxNumBranches has been called with a different
+        // Returns number of values associated with this global variable.
+        // This is the number of indices defined using SetNameIndex method.
+       return nameList.GetNPar();
+   };
+   virtual Int_t GetNumberOfBranches() const
+   {
+       // Returns number of branches to create for this global variable (see KVGVList::MakeBranches).
+       // This is the same as GetNumberOfValues() unless SetMaxNumBranches has been called with a different
        // (smaller) value.
-       return (fMaxNumBranches ? fMaxNumBranches : nameList.GetNPar());
+       // Note that if SetMaxNumBranches(0) is called, no branch will be created for this variable.
+       return (fMaxNumBranches>-1 ? fMaxNumBranches : GetNumberOfValues());
    };
    const Char_t* GetValueName(Int_t i) const
    {
@@ -230,10 +236,13 @@ class KVVarGlob:public KVBase {
    void SetMaxNumBranches(Int_t n)
    {
        // Used for automatic TTree branch creation for multi-valued variables
+       // (see KVGVList::MakeBranches).
        // Normally a branch will be created for each of the N values declared
        // in the SetNameIndex method, but if this method is called before
        // analysis begins with n<N, only the first n branches will be used.
-       fMaxNumBranches=n;
+       // Note that if SetMaxNumBranches(0) is called, no branch will
+       // be created for this variable.
+       fMaxNumBranches=(n < GetNumberOfValues() ? n : -1);
    }
 
    ClassDef(KVVarGlob, 5)      // Base class for global variables

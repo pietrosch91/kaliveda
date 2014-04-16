@@ -178,7 +178,10 @@ void KVVGSum::Init()
    Info("Init", "Called for %s", GetName());
    
    //SET MODE OF OPERATION
-   if( GetOptionString("mode") == "mult" ) SetBit(kMult);
+   if( GetOptionString("mode") == "mult" ) {
+       SetBit(kMult);
+       fValueType='I';// integer type for automatic TTree branch
+   }
    else if( GetOptionString("mode") == "sum" ) SetBit(kSum);
    else if( GetOptionString("mode") == "mean" ) SetBit(kMean);
    else SetBit(kSum); //sum by default if unknown mode given
@@ -186,7 +189,7 @@ void KVVGSum::Init()
    Info("Init", "mode=%s", GetOptionString("mode").Data());
    
    //SET UP METHOD CALL
-   fClass = gROOT->GetClass( "KVNucleus" );
+   fClass = TClass::GetClass( "KVNucleus" );
    fMethod=0;
    if( IsOptionGiven("method") ){
       if( IsOptionGiven("args") )
@@ -195,9 +198,11 @@ void KVVGSum::Init()
          fMethod = new TMethodCall(fClass, GetOptionString("method").Data(), "");
       Info("Init", "Method = %s Params = %s", fMethod->GetMethodName(),
             fMethod->GetParams());
+      // if we are summing an integer quantity, make automatic TTree branch with integer type
+      if(fMethod->ReturnType()==TMethodCall::kLong && TestBit(kSum)) fValueType='I';
       //check if method is defined for KVParticle
       //if not, we cannot use c->GetFrame()->Method()
-      TClass*cl_par=gROOT->GetClass("KVParticle");
+      TClass*cl_par=TClass::GetClass("KVParticle");
       if( !cl_par->GetMethodAllAny( GetOptionString("method").Data() ) ) SetBit( kNoFrame );
    }
    if(TestBit(kNoFrame)) Info("Init", "Quantity is frame-independent");   
