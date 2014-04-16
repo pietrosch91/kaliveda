@@ -21,6 +21,7 @@
 #include "TEnv.h"
 #include "TColor.h"
 #include <KVHistogram.h>
+#include <TChain.h>
 using namespace std;
 
 ClassImp(KVTreeAnalyzer)
@@ -845,8 +846,18 @@ void KVTreeAnalyzer::AddCut(TCutG* c)
 
 void KVTreeAnalyzer::SetTreeFileName(TTree* t)
 {
-    fTreeFileName = t->GetCurrentFile()->GetName();
-    fSaveAnalysisFileName.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
+   // For a single TTree, we store the name of the file in order to reload the TTree
+   // if analysis is saved and subsequently reopened. This file name is used as the
+   // basis for the default analysis backup filename.
+   // If t is a TChain, we use the name of the first file in the TChain's list.
+   // This means that if the analysis is saved and subsequently reopened, we will
+   // only reconnect the TTree in the first file, not the entire dataset.
+
+   if(t->InheritsFrom("TChain"))
+      fTreeFileName = ((TChain*)t)->GetListOfFiles()->First()->GetTitle();
+   else
+      fTreeFileName = t->GetCurrentFile()->GetName();
+   fSaveAnalysisFileName.Form("Analysis_%s", gSystem->BaseName(fTreeFileName.Data()));
 }
 
 void KVTreeAnalyzer::SetTree(TTree* t)

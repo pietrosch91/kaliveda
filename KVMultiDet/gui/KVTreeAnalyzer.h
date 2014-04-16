@@ -130,7 +130,7 @@ class KVTreeAnalyzer : public TNamed
 {
 
 
-   TTree* fTree;//! the analyzed TTree
+   TTree* fTree;//! the analyzed TTree or TChain
    KVUniqueNameList fSelections;// list of TEntryList user selections
 
    TString fSaveAnalysisFileName;//!
