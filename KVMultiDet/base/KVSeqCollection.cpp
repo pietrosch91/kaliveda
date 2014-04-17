@@ -95,11 +95,24 @@ if(tlist) tlist->Sort();
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
+Long64_t KVSeqCollection::fSCCounter = 0;
+
+void KVSeqCollection::init()
+{
+    // Default initialisation called by ctors
+    // Make sure all lists have individual names to ensure rapid look-up
+    // in gROOT->GetListOfCleanups() which is a THashList
+
+    SetName(Form("KVSeqCollection_%lld",fSCCounter));
+    fSCCounter++;
+}
+
 KVSeqCollection::KVSeqCollection()
 {
     // Default constructor
     fCollection=0;
     ResetBit(kSignals);
+    init();
 }
 
 KVSeqCollection::KVSeqCollection(const KVSeqCollection& col)
@@ -110,6 +123,8 @@ KVSeqCollection::KVSeqCollection(const KVSeqCollection& col)
 
     fCollection=col.NewCollectionLikeThisOne();
     col.Copy(*this);
+    init();
+    fCollection->SetName(GetName());
 }
 
 KVSeqCollection::KVSeqCollection(const Char_t* collection_classname)
@@ -121,6 +136,8 @@ KVSeqCollection::KVSeqCollection(const Char_t* collection_classname)
     SetCollection(collection_classname);
     if (!fCollection) MakeZombie();
     ResetBit(kSignals);
+    init();
+    fCollection->SetName(GetName());
 }
 
 void KVSeqCollection::SetCollection(const Char_t* class_name)
@@ -142,6 +159,11 @@ void KVSeqCollection::SetCollection(const Char_t* class_name)
         return;
     }
     fCollection = (TSeqCollection*)cl->New();
+    // if name of KVSeqCollection has already been set (i.e. if this is not
+    // being called by one of the constructors), we set the name of the
+    // embedded TSeqCollection object
+    if(strcmp(GetName(),"KVSeqCollection"))
+        fCollection->SetName(GetName());
 }
 
 KVSeqCollection::~KVSeqCollection()
@@ -217,11 +239,13 @@ void KVSeqCollection::Clear(Option_t *option)
     // (i.e. Clear() will in fact delete all the objects) we first remove this list
     // from the list of cleanups in order to avoid recursive deletes
 
-   Bool_t cleaner=(IsCleanup() && IsOwner());
-   if(cleaner) SetCleanup(kFALSE);
-    fCollection->Clear(option);
+   Bool_t cleaner=kFALSE;
+	if(IsCleanup()) {
+		if(IsOwner()) {cleaner=kTRUE;SetCleanup(kFALSE);}
+	}
+   fCollection->Clear(option);
    if(cleaner) SetCleanup();
-    Changed();
+   Changed();
 }
 
 void KVSeqCollection::Delete(Option_t *option)
@@ -230,11 +254,13 @@ void KVSeqCollection::Delete(Option_t *option)
     // If the cleanup mechanism is in use we first remove this list
     // from the list of cleanups in order to avoid recursive deletes
 
-    Bool_t cleaner=IsCleanup();
-   if(cleaner) SetCleanup(kFALSE);
-    fCollection->Delete(option);
+   Bool_t cleaner=kFALSE;
+	if(IsCleanup()) {
+		if(IsOwner()) {cleaner=kTRUE;SetCleanup(kFALSE);}
+	}
+   fCollection->Delete(option);
    if(cleaner) SetCleanup();
-    Changed();
+   Changed();
 }
 
 TObject** KVSeqCollection::GetObjectRef(const TObject *obj) const
@@ -836,5 +862,4 @@ void KVSeqCollection::Streamer(TBuffer &R__b)
       else R__b << fCollection;
       R__b.SetByteCount(R__c, kTRUE);
    }
-}
-
+}	 

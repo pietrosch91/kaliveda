@@ -19,6 +19,9 @@ class KVSeqCollection : public TSeqCollection
         kCleanup = BIT(16) // set when objects in list are in ROOT cleanup list
     };
 
+    static Long64_t fSCCounter; // counter used to give unique names to all lists
+    void init();
+
 protected:
     TSeqCollection* fCollection;//Pointer to embedded ROOT collection
 
@@ -232,7 +235,7 @@ public:
     {
     	return fCollection;
     };
-
+	 
     ClassDef(KVSeqCollection,2)//KaliVeda extensions to ROOT collections
 };
 

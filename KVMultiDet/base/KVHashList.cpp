@@ -40,6 +40,7 @@ KVHashList::KVHashList(Int_t capacity, Int_t rehash)
    // must be Rehashed
 
    fCollection = new THashList(capacity, rehash);
+	fCollection->SetName(GetName());
 }
 
 KVHashList::~KVHashList()
