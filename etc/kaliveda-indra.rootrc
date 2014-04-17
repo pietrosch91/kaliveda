@@ -547,7 +547,7 @@ INDRA_e475s.IdentificationParameterFile.CSI:          IDGridManager_E475s_CSI_RL
 INDRA_e475s.IdentificationParameterFile.SI-CSI:       IDGridManager_E475s_SI_CSI.dat
 INDRA_e475s.IdentificationParameterFile.CI-CSI:       IDGridManager_E475s_CI_CSI.dat
 ################################################
-INDRA_e613.IdentificationParameterFile.CI-SI:        CI_SI_e613.dat
+INDRA_e613.IdentificationParameterFile.CI-SI:        ChIo_Si_MeVMeV_e613.dat
 INDRA_e613.IdentificationParameterFile.CSI:          CSI_R_L_e613.dat
 INDRA_e613.IdentificationParameterFile.SI-CSI:       SI_CSI_e613.dat
 ################################################
