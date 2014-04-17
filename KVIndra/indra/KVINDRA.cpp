@@ -854,6 +854,9 @@ TGeoManager* KVINDRA::CreateGeoManager(Double_t dx, Double_t dy, Double_t dz, Bo
                 if(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix()) break;
             }
         }
+        if(!(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix())){
+           Info("CreateGeoManager","Volume checking failed for : %s", det->GetName());
+        }
         // check etalon trajectories
         if(det->GetActiveLayerShape()&&det->GetActiveLayerMatrix()
                 &&(det->IsCalled("CSI_1002")||det->IsCalled("CSI_1102")
