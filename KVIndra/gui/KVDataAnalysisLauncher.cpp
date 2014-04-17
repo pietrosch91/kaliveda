@@ -1327,7 +1327,7 @@ else if(strcmp(task->GetUserBaseClass(), "")){
  datan->Run();
  
  //if no batch system GUI window is already open, open it
-  if(IsBatch() && !KVBatchSystemGUI::IsOpen()) new KVBatchSystemGUI;
+  //if(IsBatch() && !KVBatchSystemGUI::IsOpen()) new KVBatchSystemGUI;
   
  gSystem->SetIncludePath(oriIncludePath.Data());
 }
