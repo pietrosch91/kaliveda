@@ -1467,7 +1467,7 @@ Bool_t KVDataAnalyser::CheckStatusUpdateInterval(Int_t nevents) const
 void KVDataAnalyser::DoStatusUpdate(Int_t nevents) const
 {
     // Print infos on events treated, disk usage, memory usage
-    // Update status file for batch jobs
+    // DEACTIVATED ==> Update status file for batch jobs <==
 
     cout << " +++ " << nevents << " events processed +++ " << endl;
     ProcInfo_t pid;
@@ -1481,7 +1481,7 @@ void KVDataAnalyser::DoStatusUpdate(Int_t nevents) const
           pid.fCpuUser, pid.fMemVirtual/1024., disk.Data());
        // update batch status file with
        // the number of events to read, number of events read, and disk used
-       UpdateBatchStatusFile((Int_t)GetTotalEntriesToRead(),nevents,disk);
+       //UpdateBatchStatusFile((Int_t)GetTotalEntriesToRead(),nevents,disk);
     }
 }
 
