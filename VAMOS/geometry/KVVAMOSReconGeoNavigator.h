@@ -34,6 +34,8 @@ class KVVAMOSReconGeoNavigator : public KVGeoNavigator
 		Double_t fTOF; // total time of flight
  		KVIonRangeTable* fRangeTable;
 
+		Double_t CalculateLinearDeltaT( Double_t vi, Double_t vf, Double_t step ) const;
+
 	public:
 
       	KVVAMOSReconGeoNavigator(TGeoManager*, KVIonRangeTable*);

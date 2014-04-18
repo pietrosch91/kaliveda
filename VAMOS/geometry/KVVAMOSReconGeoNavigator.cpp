@@ -160,27 +160,38 @@ void KVVAMOSReconGeoNavigator::ParticleEntersNewVolume(KVNucleus *nuc)
 		if( (fCalib & kECalib) || (fCalib & kTCalib) ){
 			if( fE>1e-3 ){
 
-				//from current start point to current point 
-				if( fCalib & kTCalib ){
-					Double_t path = Delta - fStartPath;
-					Double_t tof = path/nuc->GetVelocity().Mag();
-					fStartPath = Delta;
-					fTOF += tof;
-        			//nuc->GetParameters()->SetValue(Form("TOF:%s",absorber_name.Data()), fTOF);
-        			if( is_active )	nuc->GetParameters()->SetValue(Form("TOF:%s",dname.Data()), fTOF);
-					else if( (fCalib & kFullTCalib) == kFullTCalib ) nuc->GetParameters()->SetValue(Form("TOF:%s",absorber_name.Data()), fTOF);
-				}
+				// velocity before material
+				Double_t Vi = nuc->GetVelocity().Mag();
 
+				// energy lost in the material
 				Double_t DE = irmat->GetLinearDeltaEOfIon(
                     	nuc->GetZ(), nuc->GetA(), fE, GetStepSize(), 0.,
                     	material->GetTemperature(),
                     	material->GetPressure());
         		fE -= DE;
+        		nuc->SetEnergy(fE);
 
 				//set flag to say that particle has been slowed down
         		nuc->SetIsDetected();
 
-        		nuc->SetEnergy(fE);
+				// velocity after material
+				Double_t Vf = nuc->GetVelocity().Mag();
+
+				if( fCalib & kTCalib ){
+					//from current start point to the entrance point
+					fTOF += (Delta - fStartPath)/Vi;
+					fStartPath = Delta;
+
+        			//nuc->GetParameters()->SetValue(Form("TOF:%s",absorber_name.Data()), fTOF);
+        			if( is_active )	nuc->GetParameters()->SetValue(Form("TOF:%s",dname.Data()), fTOF);
+					else if( (fCalib & kFullTCalib) == kFullTCalib ) nuc->GetParameters()->SetValue(Form("TOF:%s",absorber_name.Data()), fTOF);
+
+
+					// from the entrance to the exit of the material
+					Double_t step = GetStepSize();
+					fTOF += CalculateLinearDeltaT( Vi, Vf, step );
+					fStartPath += step;
+				}
 
         		if( fCalib & kECalib ){
  					if( is_active )	nuc->GetParameters()->SetValue(Form("DE:%s",dname.Data()), DE);
@@ -263,7 +274,7 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 		Double_t nz = nuc->GetMomentum().Unit().Z();
 		fTOF = 0.;
 
-		//target 
+		//target, we assume that the nucleus is not slow down in the target
 		if( (fE>1e-3) && gMultiDetArray->GetTarget() ){
 			gMultiDetArray->GetTarget()->SetIncoming(kFALSE);
         	gMultiDetArray->GetTarget()->SetOutgoing(kTRUE);
@@ -278,21 +289,34 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 		//stripping foil
 		if( (fE>1e-3) && gVamos->GetStripFoil() ){
 
-			//target to stripping foil
-			if( fCalib & kTCalib ){
-				Double_t path = gVamos->GetStripFoilPosition()/TMath::Max(nz,1.e-03);
-				Double_t tof = path/nuc->GetVelocity().Mag();
-				fStartPath += path;
-				fTOF += tof;
-				if( (fCalib & kFullTCalib) == kFullTCalib ){
- 					nuc->GetParameters()->SetValue(Form("TOF:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fTOF);
- 					nuc->GetParameters()->SetValue(Form("DPATH:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fStartPath);
-				}
-			}
+			// velocity before stripping foil
+			Double_t Vi = nuc->GetVelocity().Mag();
 
 			DE = gVamos->GetStripFoil()->GetELostByParticle( nuc, &norm );
 			fE -= DE;
 			nuc->SetEnergy( fE );
+
+			// velocity after stripping foil
+			Double_t Vf = nuc->GetVelocity().Mag();
+
+			//target to stripping foil
+			if( fCalib & kTCalib ){
+				Double_t path = gVamos->GetStripFoilPosition()/TMath::Max(nz,1.e-03);
+				fTOF += path/Vi;
+				fStartPath += path;
+
+				if( (fCalib & kFullTCalib) == kFullTCalib ){
+ 					nuc->GetParameters()->SetValue(Form("TOF:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fTOF);
+ 					nuc->GetParameters()->SetValue(Form("DPATH:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),fStartPath);
+				}
+
+				// from the entrance to the exit of the stripping foil
+				Double_t step = gVamos->GetStripFoil()->GetThickness()/TMath::Max(nz,1.e-03);
+				fTOF += CalculateLinearDeltaT( Vi, Vf, step );
+				fStartPath += step;
+        		nuc->GetParameters()->SetValue(Form("STEP:%s",gVamos->GetStripFoil()->GetName()), step);
+			}
+
 			if( (fCalib & kFullECalib) == kFullECalib ) nuc->GetParameters()->SetValue(Form("DE:STRIPFOIL_%s",gVamos->GetStripFoil()->GetName()),DE);
 		}
 	}
@@ -328,4 +352,25 @@ void KVVAMOSReconGeoNavigator::PropagateNucleus(KVVAMOSReconNuc *nuc, ECalib cal
 	//set the initial momentum/energy  to the nucleus
 	nuc->ResetEnergy();
 
+}
+//________________________________________________________________
+
+Double_t KVVAMOSReconGeoNavigator::CalculateLinearDeltaT( Double_t vi, Double_t vf, Double_t step ) const{
+	// Calculates the time spent for crossing a material for a given step.
+	// We assume that the velocity evolves linearly from the initial velocity 'vi'
+	// to the final velocity 'vf' reached after a distance 'step' i.e.
+	//      v(x) = a x + b = dx/dt    for x between 0 and step
+	//      where
+	//      a = (vf-vi)/step     and  b = vi
+	//
+	// Finally, the returned value is   DeltaT = [ln(a*step+b)-ln(b)]/a
+	//
+
+	if( (step <=0) || (vi<= 0) ) return 0.;
+	if( vi == vf ) return step/vi;
+
+	Double_t a = (vf-vi)/step;
+	Double_t b = vi;
+
+	return ( TMath::Log( a*step+b) -TMath::Log(b) )/a;
 }
