@@ -193,7 +193,11 @@ KVParticleCondition& KVParticleCondition::operator=(const Char_t* sel)
 KVParticleCondition KVParticleCondition::operator&&(const KVParticleCondition &obj)
 {
    //Perform boolean AND between the two selection conditions
+   //If SetParticleClassName has been called for either of the two conditions,
+   //it will be called for the resulting condition with the same value
    KVParticleCondition tmp(fCondition_brackets + " && " + obj.fCondition_brackets);
+   if(fClassName!="") tmp.SetParticleClassName(fClassName);
+   else if(obj.fClassName!="") tmp.SetParticleClassName(obj.fClassName);
    return tmp;
 }
 
@@ -202,7 +206,11 @@ KVParticleCondition KVParticleCondition::operator&&(const KVParticleCondition &o
 KVParticleCondition KVParticleCondition::operator||(const KVParticleCondition &obj)
 {
    //Perform boolean OR between the two selection conditions
+   //If SetParticleClassName has been called for either of the two conditions,
+   //it will be called for the resulting condition with the same value
    KVParticleCondition tmp(fCondition_brackets + " || " + obj.fCondition_brackets);
+   if(fClassName!="") tmp.SetParticleClassName(fClassName);
+   else if(obj.fClassName!="") tmp.SetParticleClassName(obj.fClassName);
    return tmp;
 }
 
