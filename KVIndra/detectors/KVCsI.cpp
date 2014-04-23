@@ -505,6 +505,28 @@ Double_t KVCsI::GetLightFromEnergy(Int_t Z, Int_t A, Double_t E)
 
 //__________________________________________________________________________________________//
 
+Double_t KVCsI::GetEnergyFromLight(Int_t Z, Int_t A, Double_t lum)
+{
+   //Calculate energy from a given Z and A and light output (lum)
+	//Returns -1 in case of problems (no calibration available)
+	//This method assumes that the particle is stopped in CsI
+	
+   KVLightEnergyCsI* calib = 0;
+
+   if( Z==1 && fCalZ1 ) calib = fCalZ1;
+   else calib = fCal;
+
+   if( calib && calib->GetStatus() ){
+      calib->SetZ(Z);
+      calib->SetA(A);
+      Double_t E = calib->Compute(lum);
+		return E;
+   }
+   return -1.;
+}
+
+//__________________________________________________________________________________________//
+
 void KVCsI::DeduceACQParameters(Int_t zz,Int_t aa)
 {
 
