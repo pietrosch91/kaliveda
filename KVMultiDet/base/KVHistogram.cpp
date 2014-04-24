@@ -86,8 +86,13 @@ void KVHistogram::ParseExpressionString(const Char_t* exp, KVString& varX, KVStr
 	         KVString& varZ)
 {
    // Parse expression strings "VARZ:VARY:VARX" or "VARY:VARX" or "VARX"
-	
-    KVString tmp(exp);
+   // We also treat the case where a weight is present, such as "VARY:VARX [WEIGHT]"
+
+   KVString tmp1(exp);
+   tmp1.Begin("[");
+
+    KVString tmp = tmp1.Next();
+    tmp.Remove(TString::kBoth,' ');
     Int_t nvar = tmp.CountChar(':');
     tmp.Begin(":");
 	varX=varY=varZ="";

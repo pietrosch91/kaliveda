@@ -264,26 +264,34 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
        // cancel was pressed ?
        if(MethodNotCalled()) return 0;
      }
-   if(fUserWeight)
-     {
-       ResetMethodCalled();
-       Bool_t ok = KVBase::OpenContextMenu("DefineWeight", this);
-       if(!ok) return 0;
-       // cancel was pressed ?
-       if(MethodNotCalled()) return 0;
-     }
+//   if(fUserWeight)
+//     {
+//       ResetMethodCalled();
+//       Bool_t ok = KVBase::OpenContextMenu("DefineWeight", this);
+//       if(!ok) return 0;
+//       // cancel was pressed ?
+//       if(MethodNotCalled()) return 0;
+//     }
 
+   TString Selection;
+   if(fUserWeight){
+      if(strcmp(selection,"")) Selection.Form("(%s)&&(%s)",selection,fWeight.Data());
+      else Selection = fWeight.Data();
+   }
+   else
+      Selection = selection;
    if(nY) histo.Form(">>%s(%d,0.,0.,%d,0.,0.)", name.Data(), nX, nY);
    else histo.Form(">>%s(%d,%lf,%lf)", name.Data(), (fUserBinning ? fNxF : nX), (fUserBinning ? fXminF : 0.), (fUserBinning ?  fXmaxF: 0));
    
    if(!fProfileHisto) drawexp += histo;
-   if(fProfileHisto) fTree->Draw(Form("%s>>%s",drawexp.Data(), name.Data()), selection, "prof,goff");
-   else  fTree->Draw(drawexp, selection, "goff");
+   if(fProfileHisto) fTree->Draw(Form("%s>>%s",drawexp.Data(), name.Data()), Selection, "prof,goff");
+   else  fTree->Draw(drawexp, Selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
-   AddHisto(h);
+   if(fUserWeight) AddHisto(h, fWeight);
+   else AddHisto(h);
    fHistoNumber++;
    if(fNormHisto && !fProfileHisto){
       h->Sumw2();
@@ -317,12 +325,20 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    histo.Form(">>%s(%d,%f,%f)", name.Data(), (fUserBinning ? fNxF :(Xmax-Xmin)+1),
               (fUserBinning ? fXminF : Xmin-0.5), (fUserBinning ?  fXmaxF: Xmax+0.5));
    drawexp += histo;
-   fTree->Draw(drawexp, selection, "goff");
+   TString Selection;
+   if(fUserWeight){
+      if(strcmp(selection,"")) Selection.Form("(%s)&&(%s)",selection,fWeight.Data());
+      else Selection = fWeight.Data();
+   }
+   else
+      Selection = selection;
+   fTree->Draw(drawexp, Selection, "goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
-   AddHisto(h);
+   if(fUserWeight) AddHisto(h, fWeight);
+   else AddHisto(h);
    fHistoNumber++;
    if(fNormHisto){
       h->Sumw2();
@@ -755,12 +771,13 @@ void KVTreeAnalyzer::OpenGUI()
    //G_histolist->SetDataColumns(1);
    //G_histolist->SetDataColumn(0, "Data", "GetTitle", kTextLeft);
    G_histolist = new KVListView(KVHistogram::Class(), histo_group, hWidth, hHeight);
-   G_histolist->SetDataColumns(5);
+   G_histolist->SetDataColumns(6);
    G_histolist->SetDataColumn(0, "Name", "", kTextLeft);
-   G_histolist->SetDataColumn(1, "VarY", "", kTextLeft);
-   G_histolist->SetDataColumn(2, "VarX", "", kTextLeft);
-   G_histolist->SetDataColumn(3, "Selection", "", kTextLeft);
-   G_histolist->SetDataColumn(4, "Weight", "", kTextLeft);
+   G_histolist->SetDataColumn(1, "VarX", "", kTextCenterX);
+   G_histolist->SetDataColumn(2, "VarY", "", kTextCenterX);
+   G_histolist->SetDataColumn(3, "VarZ", "", kTextCenterX);
+   G_histolist->SetDataColumn(4, "Selection", "", kTextCenterX);
+   G_histolist->SetDataColumn(5, "Weight", "", kTextCenterX);
    G_histolist->ActivateSortButtons();
    G_histolist->SetMaxColumnSize(30);
    G_histolist->SetUseObjLabelAsRealClass();//to have icons & context menus of TH* & TCutG classes, not KVHistogram
@@ -1670,7 +1687,16 @@ void KVTreeAnalyzer::DrawAsDalitz()
 void KVTreeAnalyzer::DrawLeaf(TObject* obj)
 {
    // Method called when user double-clicks a leaf/alias in list
-   
+
+   if(fUserWeight)
+     {
+       ResetMethodCalled();
+       Bool_t ok = KVBase::OpenContextMenu("DefineWeight", this);
+       if(!ok) return;
+       // cancel was pressed ?
+       if(MethodNotCalled()) return;
+     }
+
    TH1* histo = 0;
    if(obj->InheritsFrom("TLeaf")){
       TLeaf* leaf = dynamic_cast<TLeaf*>(obj);
