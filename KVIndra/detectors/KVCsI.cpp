@@ -89,7 +89,13 @@ KVCsI::KVCsI(Float_t thick, Float_t thickAl):KVINDRADetector("CsI", thick)
 
 void KVCsI::SetAlThickness(Float_t thickAl /* um */)
 {
- GetAbsorber(0)->SetThickness(thickAl*KVUnits::um);
+KVMaterial* mat = 0;
+  if(!(mat = GetAbsorber("Al"))){
+      mat = new KVMaterial("Al",thickAl*KVUnits::um);
+      fAbsorbers->AddFirst(mat);
+      SetActiveLayer(1);
+  }
+  else mat->SetThickness(thickAl*KVUnits::um);
 }
 
 //____________________________________________________________________________________________
