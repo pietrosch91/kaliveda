@@ -11,33 +11,35 @@
 
 class KVHistogram : public KVBase
 {
-	protected:
-	TH1* fHisto;//pointer to histogram
-    TCutG* fCut;//pointer to cut
-	KVNameValueList fParams;//histogram parameters
+   protected:
+   TH1* fHisto;//pointer to histogram
+   TCutG* fCut;//pointer to cut
+   KVNameValueList fParams;//histogram parameters
 
    public:
-    KVHistogram(TH1* h=0);
-    KVHistogram(TCutG* cut);
+   KVHistogram(TH1* h=0, const Char_t* w="");
+   KVHistogram(TCutG* cut);
    virtual ~KVHistogram();
-	
+
    static void ParseHistoTitle(const Char_t* title, KVString& exp, KVString& sel);
    static void ParseExpressionString(const Char_t *exp, KVString& varX, KVString& varY,
-             KVString& varZ);
-	
+                                     KVString& varZ);
+
    TH1* GetHisto() const { return fHisto; }
    TCutG* GetCut() const { return fCut; }
    const Char_t* GetExpression() const;
    const Char_t* GetHistoTitle() const;
    const Char_t* GetVarX() const;
-    const Char_t* GetVarY() const;
-	const Char_t* GetVarZ() const;
-	const Char_t* GetSelection() const;
+   const Char_t* GetVarY() const;
+   const Char_t* GetVarZ() const;
+   const Char_t* GetSelection() const;
+   const Char_t* GetWeight() const;
+   void SetWeight(const Char_t*);
 
-    void ls(Option_t *option = "") const;
+   void ls(Option_t *option = "") const;
 
-    TObject* GetObject();
-	
+   TObject* GetObject();
+
    ClassDef(KVHistogram,1)//Wrapper for histograms used by KVTreeAnalyzer
 };
 

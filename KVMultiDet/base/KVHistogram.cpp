@@ -15,24 +15,26 @@ ClassImp(KVHistogram)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVHistogram::KVHistogram(TH1* h)
+KVHistogram::KVHistogram(TH1* h, const Char_t* w)
 {
    // Default constructor
-	fHisto = h;
-    fCut = 0;
-	if(h){
-		KVString exp,sel,x,y,z;
-		ParseHistoTitle(h->GetTitle(),exp,sel);
-		ParseExpressionString(exp,x,y,z);
-		fParams.SetValue("VARX",x);
-		fParams.SetValue("VARY",y);
-		fParams.SetValue("VARZ",z);
-		fParams.SetValue("SELECTION",sel);
-        fParams.SetValue("EXPRESSION",exp);
-        SetType("Histo");
-        SetName(h->GetName());
-        SetLabel(h->ClassName());
-    }
+   fHisto = h;
+   fCut = 0;
+   fParams.SetValue("WEIGHT","1");
+   if(h){
+      KVString exp,sel,x,y,z;
+      if(strcmp(w,"")) fParams.SetValue("WEIGHT", w);
+      ParseHistoTitle(h->GetTitle(),exp,sel);
+      ParseExpressionString(exp,x,y,z);
+      fParams.SetValue("VARX",x);
+      fParams.SetValue("VARY",y);
+      fParams.SetValue("VARZ",z);
+      fParams.SetValue("SELECTION",sel);
+      fParams.SetValue("EXPRESSION",exp);
+      SetType("Histo");
+      SetName(h->GetName());
+      SetLabel(h->ClassName());
+   }
 }
 
 KVHistogram::KVHistogram(TCutG *cut)
@@ -46,6 +48,7 @@ KVHistogram::KVHistogram(TCutG *cut)
     fParams.SetValue("VARZ","");
     fParams.SetValue("SELECTION","");
     fParams.SetValue("EXPRESSION", "");
+    fParams.SetValue("WEIGHT","1");
     SetName(cut->GetName());
     SetLabel(cut->ClassName());
 }
@@ -107,7 +110,19 @@ const Char_t* KVHistogram::GetVarZ() const
 }
 const Char_t* KVHistogram::GetSelection() const
 {
-    return fParams.GetStringValue("SELECTION");
+   return fParams.GetStringValue("SELECTION");
+}
+
+const Char_t*KVHistogram::GetWeight() const
+{
+   // Return weighting used for filling histogram
+   return fParams.GetStringValue("WEIGHT");
+}
+
+void KVHistogram::SetWeight(const Char_t* weight)
+{
+   // Set weighting factor used to fill histogram
+   fParams.SetValue("WEIGHT", weight);
 }
 
 void KVHistogram::ls(Option_t *option) const

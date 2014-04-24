@@ -196,26 +196,42 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
    // (i.e. they use TTree leaves and/or alias names)
    // If there is already an active selection (TEntryList set on TTree)
    // then the corresponding selection expression will also be included in the title.
-   //
    // The format of the resulting title string is one of the following:
    //
    //    "expr1[:expr2]"
    //    "expr1[:expr2] {selection}"
    //    "expr1[:expr2] {active selection}"
    //    "expr1[:expr2] {(active selection) && (selection)}"
+   //
+   // If histogram is weighted (fUserWeight=kTRUE), the weight is added such as:
+   //
+   //    "expr1:expr2 [weight] {active selection}"
 
    
    TString _selection(selection);
    TString _elist;
    if(fTree->GetEntryList()) _elist = fTree->GetEntryList()->GetTitle();
-   if(_selection!="" && _elist!="")
-      title.Form("%s {(%s) && (%s)}", expr, _elist.Data(), selection);
-   else if(_selection!="")
-      title.Form("%s {%s}", expr, selection);
-   else if(_elist!="")
-      title.Form("%s {%s}", expr, _elist.Data());
+   if(fUserWeight){
+      if(_selection!="" && _elist!="")
+         title.Form("%s [%s] {(%s) && (%s)}", expr, fWeight.Data(), _elist.Data(), selection);
+      else if(_selection!="")
+         title.Form("%s [%s] {%s}", expr, fWeight.Data(), selection);
+      else if(_elist!="")
+         title.Form("%s [%s] {%s}", expr, fWeight.Data(), _elist.Data());
+      else
+         title.Form("%s [%s]", expr, fWeight.Data());
+   }
    else
-      title.Form("%s", expr);
+   {
+      if(_selection!="" && _elist!="")
+         title.Form("%s {(%s) && (%s)}", expr, _elist.Data(), selection);
+      else if(_selection!="")
+         title.Form("%s {%s}", expr, selection);
+      else if(_elist!="")
+         title.Form("%s {%s}", expr, _elist.Data());
+      else
+         title.Form("%s", expr);
+   }
 }
 
 TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY)
@@ -739,13 +755,12 @@ void KVTreeAnalyzer::OpenGUI()
    //G_histolist->SetDataColumns(1);
    //G_histolist->SetDataColumn(0, "Data", "GetTitle", kTextLeft);
    G_histolist = new KVListView(KVHistogram::Class(), histo_group, hWidth, hHeight);
-   G_histolist->SetDataColumns(6);
-   G_histolist->SetDataColumn(0, "Name", "GetHistoTitle", kTextLeft);
-   G_histolist->SetDataColumn(1, "VarX", "", kTextLeft);
-   G_histolist->SetDataColumn(2, "VarY", "", kTextLeft);
-   G_histolist->SetDataColumn(3, "VarZ", "", kTextLeft);
-   G_histolist->SetDataColumn(4, "Selection", "", kTextLeft);
-   G_histolist->SetDataColumn(5, "Type", "GetLabel", kTextLeft);
+   G_histolist->SetDataColumns(5);
+   G_histolist->SetDataColumn(0, "Name", "", kTextLeft);
+   G_histolist->SetDataColumn(1, "VarY", "", kTextLeft);
+   G_histolist->SetDataColumn(2, "VarX", "", kTextLeft);
+   G_histolist->SetDataColumn(3, "Selection", "", kTextLeft);
+   G_histolist->SetDataColumn(4, "Weight", "", kTextLeft);
    G_histolist->ActivateSortButtons();
    G_histolist->SetMaxColumnSize(30);
    G_histolist->SetUseObjLabelAsRealClass();//to have icons & context menus of TH* & TCutG classes, not KVHistogram
@@ -821,7 +836,18 @@ void KVTreeAnalyzer::AddHisto(TH1*h)
    
     SetAnalysisModifiedSinceLastSave(kTRUE);//new histogram needs saving
     fHistolist.Add( new KVHistogram(h) );
-   G_histolist->Display(&fHistolist);
+    G_histolist->Display(&fHistolist);
+}
+
+void KVTreeAnalyzer::AddHisto(TH1*h, const Char_t* weight)
+{
+   // Adds weighted histogram to internal list of user histograms
+   // and updates GUI display
+
+    SetAnalysisModifiedSinceLastSave(kTRUE);//new histogram needs saving
+    fHistolist.Add( new KVHistogram(h,weight) );
+    G_histolist->Display(&fHistolist);
+
 }
    
 void KVTreeAnalyzer::AddSelection(TEntryList*e)
@@ -1497,14 +1523,15 @@ void KVTreeAnalyzer::DrawLeafExpr()
    TString ww = "";
    if(fUserWeight) ww += fWeight;
    if(!fProfileHisto) fTree->Draw(drawexp, ww.Data(), "goff");
-   else  fTree->Draw(drawexp, "", "prof,goff");
+   else  fTree->Draw(drawexp, ww.Data(), "prof,goff");
    TH1* h = (TH1*)gDirectory->Get(name);
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
    if(h->InheritsFrom("TH1")) h->GetXaxis()->SetTitle(fXLeaf->GetTitle());
    if(h->InheritsFrom("TH2")||h->InheritsFrom("TProfile")) h->GetYaxis()->SetTitle(fYLeaf->GetTitle());
-   AddHisto(h);
+   if(fUserWeight) AddHisto(h,fWeight);
+   else AddHisto(h);
    fHistoNumber++;
    DrawHisto(h);
 }

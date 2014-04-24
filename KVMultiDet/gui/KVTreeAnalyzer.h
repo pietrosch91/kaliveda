@@ -242,6 +242,7 @@ class KVTreeAnalyzer : public TNamed
    Bool_t MethodNotCalled() { return !fMethodCalled; }
 
    void AddHisto(TH1*);
+   void AddHisto(TH1*,const Char_t* weight);
    void AddCut(TCutG*);
    void AddSelection(TEntryList*);
    void ReconnectTree();
