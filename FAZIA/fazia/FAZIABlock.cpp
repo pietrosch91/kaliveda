@@ -8,6 +8,7 @@
 #include "TGeoManager.h"
 #include "TGeoMedium.h"
 #include "TGeoVolume.h"
+#include "TGeoMatrix.h"
 
 ClassImp(FAZIABlock)
 
