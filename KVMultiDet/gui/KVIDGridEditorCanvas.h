@@ -24,8 +24,9 @@ class KVIDGridEditorCanvas : public KVCanvas
 //   KeyHandler       *fKeyHandler;         // handler for arrow keys
    
    protected:
-   Bool_t HandleKey(Event_t *event);
-   
+//   Bool_t HandleKey(Event_t *event){return kTRUE;}
+   virtual Bool_t HandleKey(Int_t px, Int_t py);
+
    public:
    KVIDGridEditorCanvas();
    KVIDGridEditorCanvas(const char* name, const char* title, Int_t ww, Int_t wh);//:KVCanvas(name,title,ww,wh);

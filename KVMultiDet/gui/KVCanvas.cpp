@@ -37,20 +37,20 @@ Pan: hold down mouse wheel (centre button) and move
 <!-- */
 // --> END_HTML
 // KEYBOARD SHORTCUTS:
-//<crtl> e   show editor
-//<crtl> f   start fit panel (TH1)
-//<crtl> g   set/unset grid on X and Y axes
-//<crtl> i   show shortcuts infos
-//<crtl> l   set/unset log scale on Y axis (TH1) or Z axis (TH2)
-//<crtl> n   normalize drawn histogram to its integral
-//<crtl> p x   draw profile X (TH2)
-//<crtl> p y   draw profile Y (TH2)
-//<crtl> s   save canvas as
-//<crtl> u   update canvas
-//<crtl> v   set/unset 'vener' mode (TH2)
-//<crtl> w   set/unset 'Age Of Empire' mode (TH2)
-//<crtl> +   set minimum +1 (TH2)
-//<crtl> -   set minimum -1 (TH2)
+//<ctrl> e   show editor
+//<ctrl> f   start fit panel (TH1)
+//<ctrl> g   set/unset grid on X and Y axes
+//<ctrl> i   show shortcuts infos
+//<ctrl> l   set/unset log scale on Y axis (TH1) or Z axis (TH2)
+//<ctrl> n   normalize drawn histogram to its integral
+//<ctrl> p x   draw profile X (TH2)
+//<ctrl> p y   draw profile Y (TH2)
+//<ctrl> s   save canvas as
+//<ctrl> u   update canvas
+//<ctrl> v   set/unset 'vener' mode (TH2)
+//<ctrl> w   set/unset 'Age Of Empire' mode (TH2)
+//<ctrl> +   set minimum +1 (TH2)
+//<ctrl> -   set minimum -1 (TH2)
 //      F9   set/unset log scale on X axis
 //     F10   set/unset log scale on X axis
 //     F11   set/unset log scale on X axis
@@ -70,6 +70,7 @@ KVCanvas::KVCanvas():TCanvas()
     fDisabledClasses = "";
     fFreezed = kFALSE;
     fPPressed = kFALSE;
+    fJPressed = kFALSE;
     InitInfos();
 
     // Default constructor
@@ -92,6 +93,7 @@ KVCanvas::KVCanvas(const char* name, const char* title, Int_t ww, Int_t wh, Bool
     fDisabledClasses = "";
     fFreezed = kFALSE;
     fPPressed = kFALSE;
+    fJPressed = kFALSE;
     InitInfos();
 }
 
@@ -106,6 +108,7 @@ KVCanvas::KVCanvas(const char* name, Int_t ww, Int_t wh, Int_t winid):TCanvas(na
     fDisabledClasses = "";
     fFreezed = kFALSE;
     fPPressed = kFALSE;
+    fJPressed = kFALSE;
     InitInfos();
 }
 
@@ -592,7 +595,7 @@ void KVCanvas::HandleInput(EEventType event, Int_t px, Int_t py)
         // we will only use its coordinate system
         fSelected->ExecuteEvent(event, px, py);
 
-        HandleKeyAt(px,py);
+        HandleKey(px,py);
         RunAutoExec();
 
         break;
@@ -744,7 +747,7 @@ void KVCanvas::DynamicZoom(Int_t Sign, Int_t px, Int_t py)
 }
 
 //________________________________________________________________
-Bool_t KVCanvas::HandleKeyAt(Int_t , Int_t py)
+Bool_t KVCanvas::HandleKey(Int_t , Int_t py)
 {
     // Handle keys
 
@@ -862,6 +865,11 @@ Bool_t KVCanvas::HandleKeyAt(Int_t , Int_t py)
         ShowShortcutsInfos();
         break;
 
+    case kKey_j:
+        fJPressed =kTRUE;
+        return kTRUE;
+        break;
+
     case kKey_l:
         if(fSelected->InheritsFrom("TH2"))         SetLogz(!fLogz);
         else if(fSelected->InheritsFrom("TH1"))    SetLogy(!fLogy);
@@ -930,7 +938,8 @@ Bool_t KVCanvas::HandleKeyAt(Int_t , Int_t py)
 
     case kKey_x:
         if(fPPressed&&fSelected->InheritsFrom("TH2")) ProfileX((TH2*)fSelected);
-        if(!fPPressed)
+        if(fJPressed&&fSelected->InheritsFrom("TH2")) ProjectionX((TH2*)fSelected);
+        if(!fPPressed&&!fJPressed)
         {
             gCopyObject = fSelected;
             GetListOfPrimitives()->Remove(gCopyObject);
@@ -941,6 +950,7 @@ Bool_t KVCanvas::HandleKeyAt(Int_t , Int_t py)
 
     case kKey_y:
         if(fPPressed&&fSelected->InheritsFrom("TH2")) ProfileY((TH2*)fSelected);
+        if(fJPressed&&fSelected->InheritsFrom("TH2")) ProjectionY((TH2*)fSelected);
         break;
 
     case kKey_Left:
@@ -1014,9 +1024,11 @@ Bool_t KVCanvas::HandleKeyAt(Int_t , Int_t py)
 
     default:
         fPPressed = kFALSE;
+        fJPressed = kFALSE;
         return kTRUE;
     }
     fPPressed = kFALSE;
+    fJPressed = kFALSE;
     return kTRUE;
 }
 
@@ -1070,23 +1082,25 @@ void KVCanvas::InitInfos()
     fEnabledShortcuts = 1;
     fSavedAs = "";
 
-    AddShortcutsInfo("<crtl> c","copy the object under cursor");
-    AddShortcutsInfo("<crtl> d","undraw the object under cursor (object not deleted)");
-    AddShortcutsInfo("<crtl> e","show editor");
-    AddShortcutsInfo("<crtl> f","start fit panel (TH1)");
-    AddShortcutsInfo("<crtl> g","set/unset grid on X and Y axes");
-    AddShortcutsInfo("<crtl> i","show shortcuts infos");
-    AddShortcutsInfo("<crtl> l","set/unset log scale on Y axis (TH1) or Z axis (TH2)");
-    AddShortcutsInfo("<crtl> n","normalize drawn histogram to its integral");
-    AddShortcutsInfo("<crtl> p x","draw profile X (TH2)");
-    AddShortcutsInfo("<crtl> p y","draw profile Y (TH2)");
-    AddShortcutsInfo("<crtl> s","save canvas as");
-    AddShortcutsInfo("<crtl> u","update canvas");
-    AddShortcutsInfo("<crtl> v","paste");
-    AddShortcutsInfo("<crtl> w","set/unset 'Age Of Empire' mode (TH2)");
-    AddShortcutsInfo("<crtl> x","cut the object under cursor");
-    AddShortcutsInfo("<crtl> +","set minimum +1 (TH2)");
-    AddShortcutsInfo("<crtl> -","set minimum -1 (TH2)");
+    AddShortcutsInfo("<ctrl> c","copy the object under cursor");
+    AddShortcutsInfo("<ctrl> d","undraw the object under cursor (object not deleted)");
+    AddShortcutsInfo("<ctrl> e","show editor");
+    AddShortcutsInfo("<ctrl> f","start fit panel (TH1)");
+    AddShortcutsInfo("<ctrl> g","set/unset grid on X and Y axes");
+    AddShortcutsInfo("<ctrl> i","show shortcuts infos");
+    AddShortcutsInfo("<ctrl> j x","draw projection X (TH2)");
+    AddShortcutsInfo("<ctrl> j y","draw projection Y (TH2)");
+    AddShortcutsInfo("<ctrl> l","set/unset log scale on Y axis (TH1) or Z axis (TH2)");
+    AddShortcutsInfo("<ctrl> n","normalize histogram");
+    AddShortcutsInfo("<ctrl> p x","draw profile X (TH2)");
+    AddShortcutsInfo("<ctrl> p y","draw profile Y (TH2)");
+    AddShortcutsInfo("<ctrl> s","save canvas as");
+    AddShortcutsInfo("<ctrl> u","update canvas");
+    AddShortcutsInfo("<ctrl> v","paste");
+    AddShortcutsInfo("<ctrl> w","set/unset 'Age Of Empire' mode (TH2)");
+    AddShortcutsInfo("<ctrl> x","cut the object under cursor");
+    AddShortcutsInfo("<ctrl> +","set minimum +1 (TH2)");
+    AddShortcutsInfo("<ctrl> -","set minimum -1 (TH2)");
     AddShortcutsInfo("F9","set/unset log scale on X axis");
     AddShortcutsInfo("F10","set/unset log scale on Y axis");
     AddShortcutsInfo("F11","set/unset log scale on Z axis");
@@ -1201,13 +1215,89 @@ Bool_t KVCanvas::ExpandFunctionRange()
            ((TF1*)obj)->SetRange(hh->GetXaxis()->GetXmin(),hh->GetXaxis()->GetXmax());
             up = kTRUE;
     }
-
     return up;
 }
 
 void KVCanvas::SetEnabledShortcuts(Int_t value)
 {
     fEnabledShortcuts = value;
+}
+
+void KVCanvas::ProjectionX(TH2 *hh)
+{
+    TString pname = Form("%s_px",hh->GetName());
+    Int_t ip = 1;
+    while(gROOT->FindObject(pname.Data()))
+    {
+        pname = Form("%s_px%d",hh->GetName(),ip);
+        ip++;
+    }
+
+    TH1* px = hh->ProjectionX(pname.Data());
+    if(!px) return;
+    Double_t minY = (hh->GetYaxis()->GetXmin());
+    Double_t maxY = (hh->GetYaxis()->GetXmax());
+    Double_t dY = (maxY - minY)*0.8;
+
+    Double_t maxH = px->GetBinContent(px->GetMaximumBin());
+
+    TGraph* gg = 0;
+    if((gg=(TGraph*)gROOT->FindObject(Form("%s_gjx",hh->GetName())))) gg->Delete();
+
+    gg = new TGraph;
+    for(int i=0; i<px->GetNbinsX();i++)
+    {
+        gg->SetPoint(i,px->GetBinCenter(i),minY+px->GetBinContent(i)*dY/maxH);
+    }
+
+    gg->SetName(Form("%s_gjx",hh->GetName()));
+    gg->SetTitle(Form("%s_gjx",hh->GetName()));
+    gg->SetLineColor(kBlack);
+    gg->SetMarkerColor(kBlack);
+    gg->SetMarkerStyle(8);
+    gg->Draw("PL");
+
+    Modified();
+    Update();
+}
+
+void KVCanvas::ProjectionY(TH2 *hh)
+{
+    TString pname = Form("%s_py",hh->GetName());
+    Int_t ip = 1;
+
+    while(gROOT->FindObject(pname.Data()))
+    {
+        pname = Form("%s_py%d",hh->GetName(),ip);
+        ip++;
+    }
+
+    TH1* py = hh->ProjectionY(pname.Data());
+    if(!py) return;
+    Double_t minY = (hh->GetXaxis()->GetXmin());
+    Double_t maxY = (hh->GetXaxis()->GetXmax());
+    Double_t dY = (maxY - minY)*0.8;
+
+    Double_t maxH = py->GetBinContent(py->GetMaximumBin());
+
+    TGraph* gg = 0;
+    if((gg=(TGraph*)gROOT->FindObject(Form("%s_gjy",hh->GetName())))) gg->Delete();
+
+    gg = new TGraph;
+    for(int i=0; i<py->GetNbinsX();i++)
+    {
+        gg->SetPoint(i,minY+py->GetBinContent(i)*dY/maxH,py->GetBinCenter(i));
+    }
+
+    gg->SetName(Form("%s_gjy",hh->GetName()));
+    gg->SetTitle(Form("%s_gjy",hh->GetName()));
+    gg->SetLineColor(kBlack);
+    gg->SetMarkerColor(kBlack);
+    gg->SetMarkerStyle(8);
+    gg->Draw("PL");
+
+    Modified();
+    Update();
 }
 
 

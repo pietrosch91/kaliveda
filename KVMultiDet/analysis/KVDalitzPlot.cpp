@@ -113,7 +113,7 @@ void  KVDalitzPlot::Draw(Option_t*)
 {
     GetXaxis()->SetNdivisions(506);
     GetXaxis()->SetLabelFont(42);
-    GetXaxis()->SetLabelSize(0.035);
+    GetXaxis()->SetLabelSize(0.0);
     GetXaxis()->SetTitleSize(0.035);
     GetXaxis()->SetTickLength(0);
     GetXaxis()->SetTitleFont(42);
@@ -122,7 +122,7 @@ void  KVDalitzPlot::Draw(Option_t*)
 
     GetYaxis()->SetNdivisions(506);
     GetYaxis()->SetLabelFont(42);
-    GetYaxis()->SetLabelSize(0.035);
+    GetYaxis()->SetLabelSize(0.0);
     GetYaxis()->SetTitleSize(0.035);
     GetYaxis()->SetTickLength(0);
     GetYaxis()->SetTitleFont(42);

@@ -367,8 +367,8 @@ void KVSpiderLine::Draw(Option_t* opt_)
   if(opt.Contains("L"))
     {     
     _line->SetMarkerColor(kRed);
-    _line->SetMarkerSize(0.5);
-    _line->SetMarkerStyle(21);
+    _line->SetMarkerSize(1.3);
+    _line->SetMarkerStyle(20);
     _line->SetLineWidth(2);
     _line->SetLineColor(kRed);    
     if(_line->GetN()<=1) _line->Draw(Form("P%s",com.Data()));
