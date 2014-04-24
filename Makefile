@@ -385,3 +385,12 @@ byebye :
 #	  BASENAME=`basename $h`; \
 #	  test -r $BASENAME || ln -s $h $BASENAME; \
 #	done
+
+qtcreator:
+# fill kaliveda.files with all source files under bzr control
+# fill kaliveda.includes with output of root-config --incdir and all
+#   directories under bzr control
+	bzr ls -R -V -k file | \egrep '\.h$$|\.cpp$$|\.c$$|\.cxx$$|\.C$$|Makefile' > kaliveda.files
+	echo `root-config --incdir` > kaliveda.includes
+	echo '.' >> kaliveda.includes
+	bzr ls -R -V -k directory >> kaliveda.includes
