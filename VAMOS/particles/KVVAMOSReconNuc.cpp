@@ -778,9 +778,11 @@ void KVVAMOSReconNuc::SetFlightDistanceAndTime(){
 		isT_HF = !strcmp("HF",par->GetLabel());
 		
 		next_det.Reset();
+		stop = NULL;
+		// look for start and stop detectors
 		while( (det = (KVVAMOSDetector *)next_det()) ){
 
-			// for HF time we only need the stast detector
+			// for HF time we only need the start detector
 			if( isT_HF ){
 			 	if( det->IsStartForT( t_type ) && (calibT = det->GetCalibT( t_type ))>0 ){
 					ok = kTRUE;
