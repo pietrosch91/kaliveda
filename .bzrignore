@@ -64,3 +64,4 @@ kaliveda.includes
 *.user
 *.asc
 ar-lib
+.root-headers
