@@ -309,7 +309,38 @@ Int_t KVCalorimetry::GetNameIndex(const Char_t * name)
 const Char_t* KVCalorimetry::GetValueName(Int_t ii) const
 {
   	// Returns name of value associated with index 'i',
-  	return nvl_ing->GetNameAt(ii);
+   return nvl_ing->GetNameAt(ii);
+}
+
+Char_t KVCalorimetry::GetValueType(Int_t i) const
+{
+   // Returns type of value depending on name:
+   //   Zsum I
+   //   Asum I
+   //   Eksum D
+   //   Qsum D
+   //   Msum I
+   //   Aneu I
+   //   Qneu D
+   //   Mneu I
+   //   Qini D
+   //   Temp D
+   //   Exci D
+   //   Ekneu D
+   //   Zpart I
+   //   Apart I
+   //   Ekpart D
+   //   Qpart D
+   //   Mpart I
+   //   Zfrag I
+   //   Afrag I
+   //   Ekfrag D
+   //   Qfrag D
+   //   Mfrag I
+
+   TString name = GetValueName(i);
+   if(name.BeginsWith("E")||name.BeginsWith("Q")||name.BeginsWith("T")) return 'D';
+   else return 'I';
 };
 
 //_________________________________________________________________
@@ -632,30 +663,30 @@ void KVCalorimetry::SumUp()
 //________________________________________________________________
 Bool_t 	KVCalorimetry::Calculate(void)
 {
-	//Réalisation de la calorimétrie
-	//Calcul de l'énergie d'excitation, température (optionnel), de l'énergie moyenne des neutrons (optionnel)
-	//appel de SumUp() 
-	//Cette méthore retourne kTRUE si tout s'est bien passée, kFALSE si il y a un problème dans la résolution
+   //Réalisation de la calorimétrie
+   //Calcul de l'énergie d'excitation, température (optionnel), de l'énergie moyenne des neutrons (optionnel)
+   //appel de SumUp()
+   //Cette méthore retourne kTRUE si tout s'est bien passée, kFALSE si il y a un problème dans la résolution
    //du polynome d'ordre 2
-   // 
-	// Deux modes de calcul:
-	//------------------
-	// - mode normal (par defaut)
-	// Résolution de l'équation
-	// Exci + Qini  = \Sigma Ek + \Sigma Q 
-	//		-> Exci = \Sigma Ek + \Sigma Q - Qini
-	// 
-	// Optionnel :
-	// le calcul de la température peut être également fait si la méthode DeduceTemperature(Double_t LevelDensityParameter) a été appelée
-	// elle est obtenue via la formule : Exci = Asum/[LevelDensityParameter] * T*T
-	//  
-	// - mode avec prise en compte des neutrons libres, actif si la métode
-	// IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter)
-	// Résolution de l'équation (polynome deuxième degrée en T (température) )
-	// Asum/[LevelDensityParameter] * T*T + Qi - \Sigma Ek - [NeutronMeanEnergyFactor]*Mn*T - \Sigma Q = 0
-	// on y obtient directement la température
-	// 
-	
+   //
+   // Deux modes de calcul:
+   //------------------
+   // - mode normal (par defaut)
+   // Résolution de l'équation
+   // Exci + Qini  = \Sigma Ek + \Sigma Q
+   //		-> Exci = \Sigma Ek + \Sigma Q - Qini
+   //
+   // Optionnel :
+   // le calcul de la température peut être également fait si la méthode DeduceTemperature(Double_t LevelDensityParameter) a été appelée
+   // elle est obtenue via la formule : Exci = Asum/[LevelDensityParameter] * T*T
+   //
+   // - mode avec prise en compte des neutrons libres, actif si la métode
+   // IncludeFreeNeutrons(Double_t AsurZ,Double_t NeutronMeanEnergyFactor,Double_t LevelDensityParameter)
+   // Résolution de l'équation (polynome deuxième degrée en T (température) )
+   // Asum/[LevelDensityParameter] * T*T + Qi - \Sigma Ek - [NeutronMeanEnergyFactor]*Mn*T - \Sigma Q = 0
+   // on y obtient directement la température
+   //
+
 	//Info("Calculate","Debut");
 	
 	if (!kIsModified) return kTRUE;

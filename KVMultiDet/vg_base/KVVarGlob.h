@@ -214,7 +214,7 @@ class KVVarGlob:public KVBase {
        // Note that if SetMaxNumBranches(0) is called, no branch will be created for this variable.
        return (fMaxNumBranches>-1 ? fMaxNumBranches : GetNumberOfValues());
    };
-   const Char_t* GetValueName(Int_t i) const
+   virtual const Char_t* GetValueName(Int_t i) const
    {
     // Returns name of value associated with index 'i',
     // as defined by using SetNameIndex method.

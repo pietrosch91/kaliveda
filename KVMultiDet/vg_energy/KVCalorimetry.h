@@ -74,7 +74,8 @@ class KVCalorimetry:public KVVarGlob
 	Bool_t HasParameter(KVString name);
 	Int_t GetNameIndex(const Char_t * name);
 	const Char_t* GetValueName(Int_t i) const;
-	Double_t* GetValuePtr(void);
+        virtual Char_t GetValueType(Int_t) const;
+        Double_t* GetValuePtr(void);
 	
 	void UseChargeDiff(Int_t FragmentMinimumCharge,Double_t ParticleFactor);
 	void DeduceTemperature(Double_t LevelDensityParameter);
