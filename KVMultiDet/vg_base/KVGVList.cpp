@@ -9,6 +9,8 @@
 #include "Riostream.h"
 #include "KVGVList.h"
 
+#include <KVEvent.h>
+
 ClassImp(KVGVList)
 //////////////////////////////////////////////////////////////////////////////////
 //    List of global variables
@@ -164,6 +166,44 @@ void KVGVList::FillN(KVEvent* r)
       vg->FillN(r);
       lnk = lnk->Next();
    }
+}
+
+void KVGVList::CalculateGlobalVariables(KVEvent* e)
+{
+   // This method will calculate all global variables defined in the list for the event 'e'.
+   // - all 1-body variables will be calculated in a single loop over the particles;
+   // - all 2-body variables will be calculated in a single loop over particle pairs;
+   // - all N-body variables will be calculated
+
+   // 1st step: Reset global variables
+   Reset();
+
+   //2nd step: loop over accepted particles
+   //          and fill global variables
+   KVNucleus *n1 = 0;
+   // calculate 1-body variables
+   if( Has1BodyVariables() ){
+      while ((n1 = e->GetNextParticle("ok"))) {
+         Fill(n1);
+      }
+   }
+   KVNucleus *n2 = 0;
+   // calculate 2-body variables
+   // we use every pair of particles (including identical pairs) in the event
+   if( Has2BodyVariables() ){
+      Int_t N = e->GetMult();
+      for( int i1 = 1; i1 <= N ; i1++ ){
+         for( int i2 = 1 ; i2 <= N ; i2++ ){
+            n1 = e->GetParticle(i1);
+            n2 = e->GetParticle(i2);
+            if( n1->IsOK() && n2->IsOK() )
+               Fill2(n1,n2);
+         }
+      }
+   }
+   // calculate N-body variables
+   if( HasNBodyVariables() ) FillN( e );
+
 }
 
 //_________________________________________________________________

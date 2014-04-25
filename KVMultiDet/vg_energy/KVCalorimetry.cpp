@@ -385,6 +385,8 @@ void KVCalorimetry::SetAsurZ(Double_t value){
 //________________________________________________________________
 void KVCalorimetry::SetNeutronMeanEnergyFactor(Double_t value){
 	// protected method, set the value of NeutronMeanEnergyFactor parameter
+   // value = 1.0 : surface emission
+   // value = 1.5 : volume emission
 	SetParameter("NeutronMeanEnergyFactor",value);
 }
 
