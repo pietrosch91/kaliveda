@@ -72,6 +72,7 @@ void KVGVList::init_KVGVList(void)
 
    KVList::SetOwner(kFALSE);
    fNbBranch = 0;
+   fNbIBranch = 0;
 }
 
 //_________________________________________________________________
@@ -283,7 +284,7 @@ void KVGVList::FillBranches()
    // in the branches ready for TTree::Fill to be called (note that Fill() is not
    // called in this method: you should do it after this).
    
-   if( !fNbBranch ) return; // MakeBranches has not been called
+   if( !fNbBranch && !fNbIBranch ) return; // MakeBranches has not been called
    
    int INT_index=0;
    int FLT_index=0;
