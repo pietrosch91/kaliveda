@@ -210,6 +210,7 @@ inline void KVVAMOS::SetAngle ( Double_t angle ){
 		fRotation->RotateY( angle ); 
 	}
 	GeoModified();
+	UpdateGeometry();
 }
 
 
