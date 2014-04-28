@@ -17,11 +17,11 @@ class KVHistogram : public KVBase
    KVNameValueList fParams;//histogram parameters
 
    public:
-   KVHistogram(TH1* h=0, const Char_t* w="");
+   KVHistogram(TH1* h=0);
    KVHistogram(TCutG* cut);
    virtual ~KVHistogram();
 
-   static void ParseHistoTitle(const Char_t* title, KVString& exp, KVString& sel);
+   static void ParseHistoTitle(const Char_t* title, KVString& exp, KVString& sel, KVString& weight);
    static void ParseExpressionString(const Char_t *exp, KVString& varX, KVString& varY,
                                      KVString& varZ);
 
@@ -39,6 +39,7 @@ class KVHistogram : public KVBase
    void ls(Option_t *option = "") const;
 
    TObject* GetObject();
+   void ParseExpressionAndSelection();
 
    ClassDef(KVHistogram,1)//Wrapper for histograms used by KVTreeAnalyzer
 };

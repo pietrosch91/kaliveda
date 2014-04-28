@@ -10,27 +10,35 @@ ClassImp(KVHistogram)
 // BEGIN_HTML <!--
 /* -->
 <h2>KVHistogram</h2>
-<h4>Wrapper for histograms used by KVTreeAnalyzer</h4>
+<h4>Wrapper for histograms and graphical cuts used by KVTreeAnalyzer</h4>
 <!-- */
 // --> END_HTML
+// GetType()
+//   - returns either "Histo" or "Cut"
 ////////////////////////////////////////////////////////////////////////////////
 
-KVHistogram::KVHistogram(TH1* h, const Char_t* w)
+void KVHistogram::ParseExpressionAndSelection()
+{
+   if(!fHisto) return;
+   KVString exp,sel,weight,x,y,z;
+   ParseHistoTitle(fHisto->GetTitle(),exp,sel,weight);
+   ParseExpressionString(exp,x,y,z);
+   fParams.SetValue("VARX",x);
+   fParams.SetValue("VARY",y);
+   fParams.SetValue("VARZ",z);
+   fParams.SetValue("SELECTION",sel);
+   fParams.SetValue("EXPRESSION",exp);
+   fParams.SetValue("WEIGHT", weight);
+}
+
+KVHistogram::KVHistogram(TH1* h)
 {
    // Default constructor
    fHisto = h;
    fCut = 0;
    fParams.SetValue("WEIGHT","1");
    if(h){
-      KVString exp,sel,x,y,z;
-      if(strcmp(w,"")) fParams.SetValue("WEIGHT", w);
-      ParseHistoTitle(h->GetTitle(),exp,sel);
-      ParseExpressionString(exp,x,y,z);
-      fParams.SetValue("VARX",x);
-      fParams.SetValue("VARY",y);
-      fParams.SetValue("VARZ",z);
-      fParams.SetValue("SELECTION",sel);
-      fParams.SetValue("EXPRESSION",exp);
+      ParseExpressionAndSelection();
       SetType("Histo");
       SetName(h->GetName());
       SetLabel(h->ClassName());
@@ -59,13 +67,14 @@ KVHistogram::~KVHistogram()
     SafeDelete(fHisto);
 }
 
-void KVHistogram::ParseHistoTitle(const Char_t* title, KVString& exp, KVString& sel)
+void KVHistogram::ParseHistoTitle(const Char_t* title, KVString& exp, KVString& sel, KVString& weight)
 {
-   // Take histo title "VAREXP { SELECTION }"
-   // and separate the two components
+   // Take histo title "VAREXP [WEIGHT] { SELECTION }"
+   // and separate the three components
    
    exp="";
    sel="";
+   weight="1";
    TString tmp(title);
    Int_t ss = tmp.Index("{");
    if(ss>0){
@@ -80,18 +89,23 @@ void KVHistogram::ParseHistoTitle(const Char_t* title, KVString& exp, KVString& 
       exp = tmp;
       exp.Remove(TString::kBoth,' ');      
    }
+   // get weight from expression string if any
+   KVString tmp1(exp);
+   tmp1.Begin(" ");
+   exp = tmp1.Next();
+   if(!tmp1.End()) {
+      weight = tmp1.Next();
+      weight.Remove(TString::kBoth,'[');
+      weight.Remove(TString::kBoth,']');
+   }
 }
    
 void KVHistogram::ParseExpressionString(const Char_t* exp, KVString& varX, KVString& varY,
 	         KVString& varZ)
 {
    // Parse expression strings "VARZ:VARY:VARX" or "VARY:VARX" or "VARX"
-   // We also treat the case where a weight is present, such as "VARY:VARX [WEIGHT]"
 
-   KVString tmp1(exp);
-   tmp1.Begin("[");
-
-    KVString tmp = tmp1.Next();
+   KVString tmp(exp);
     tmp.Remove(TString::kBoth,' ');
     Int_t nvar = tmp.CountChar(':');
     tmp.Begin(":");

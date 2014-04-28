@@ -188,7 +188,7 @@ void KVTreeAnalyzer::Copy (TObject& obj) const
    CastedObj.SetAnalysisModifiedSinceLastSave(fAnalysisModifiedSinceLastSave);
 }
 
-void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, const Char_t* selection)
+void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, const Char_t* selection, const Char_t* weight)
 {
    // PRIVATE utility method
    // Encodes the histogram title for the desired expression and an optional selection.
@@ -203,7 +203,7 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
    //    "expr1[:expr2] {active selection}"
    //    "expr1[:expr2] {(active selection) && (selection)}"
    //
-   // If histogram is weighted (fUserWeight=kTRUE), the weight is added such as:
+   // If histogram is weighted, the weight is added such as:
    //
    //    "expr1:expr2 [weight] {active selection}"
 
@@ -211,15 +211,15 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
    TString _selection(selection);
    TString _elist;
    if(fTree->GetEntryList()) _elist = fTree->GetEntryList()->GetTitle();
-   if(fUserWeight){
+   if(strcmp(weight,"")){
       if(_selection!="" && _elist!="")
-         title.Form("%s [%s] {(%s) && (%s)}", expr, fWeight.Data(), _elist.Data(), selection);
+         title.Form("%s [%s] {(%s) && (%s)}", expr, weight, _elist.Data(), selection);
       else if(_selection!="")
-         title.Form("%s [%s] {%s}", expr, fWeight.Data(), selection);
+         title.Form("%s [%s] {%s}", expr, weight, selection);
       else if(_elist!="")
-         title.Form("%s [%s] {%s}", expr, fWeight.Data(), _elist.Data());
+         title.Form("%s [%s] {%s}", expr, weight, _elist.Data());
       else
-         title.Form("%s [%s]", expr, fWeight.Data());
+         title.Form("%s [%s]", expr, weight);
    }
    else
    {
@@ -234,7 +234,7 @@ void KVTreeAnalyzer::GenerateHistoTitle(TString& title, const Char_t* expr, cons
    }
 }
 
-TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY)
+TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY, const Char_t* weight)
 {
    // Create and fill a new histogram with the desired expression (expr="expr1[:expr2]" etc.)
    // with the given selection (selection="" if no selection required).
@@ -255,7 +255,8 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    TString name;
    name.Form("h%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
-   GenerateHistoTitle(histotitle, expr, selection);
+   if(strcmp(weight,"")) GenerateHistoTitle(histotitle, expr, selection, weight);
+   else GenerateHistoTitle(histotitle, expr, selection);
    if((!nY)&&(fUserBinning))
      {
        ResetMethodCalled();
@@ -264,19 +265,11 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
        // cancel was pressed ?
        if(MethodNotCalled()) return 0;
      }
-//   if(fUserWeight)
-//     {
-//       ResetMethodCalled();
-//       Bool_t ok = KVBase::OpenContextMenu("DefineWeight", this);
-//       if(!ok) return 0;
-//       // cancel was pressed ?
-//       if(MethodNotCalled()) return 0;
-//     }
 
    TString Selection;
-   if(fUserWeight){
-      if(strcmp(selection,"")) Selection.Form("(%s)&&(%s)",selection,fWeight.Data());
-      else Selection = fWeight.Data();
+   if(strcmp(weight,"")){
+      if(strcmp(selection,"")) Selection.Form("(%s)&&(%s)",selection,weight);
+      else Selection = weight;
    }
    else
       Selection = selection;
@@ -290,8 +283,7 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
-   if(fUserWeight) AddHisto(h, fWeight);
-   else AddHisto(h);
+   AddHisto(h);
    fHistoNumber++;
    if(fNormHisto && !fProfileHisto){
       h->Sumw2();
@@ -300,7 +292,7 @@ TH1* KVTreeAnalyzer::MakeHisto(const Char_t* expr, const Char_t* selection, Int_
    return h;
 }
 
-TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax)
+TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax, const Char_t* weight)
 {
    // Like MakeHisto but only used for 1-D spectra of integer variables.
    // The number of bins is Xmax-Xmin+1 and bins are defined over [x-0.5,x+0.5]
@@ -311,7 +303,8 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    TString name;
    name.Form("Ih%d",fHistoNumber);
    TString drawexp(expr), histo, histotitle;
-   GenerateHistoTitle(histotitle, expr, selection);
+   if(strcmp(weight,"")) GenerateHistoTitle(histotitle, expr, selection, weight);
+   else GenerateHistoTitle(histotitle, expr, selection);
 
    if(fUserBinning)
      {
@@ -326,9 +319,9 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
               (fUserBinning ? fXminF : Xmin-0.5), (fUserBinning ?  fXmaxF: Xmax+0.5));
    drawexp += histo;
    TString Selection;
-   if(fUserWeight){
-      if(strcmp(selection,"")) Selection.Form("(%s)&&(%s)",selection,fWeight.Data());
-      else Selection = fWeight.Data();
+   if(strcmp(weight,"")){
+      if(strcmp(selection,"")) Selection.Form("(%s)&&(%s)",selection,weight);
+      else Selection = weight;
    }
    else
       Selection = selection;
@@ -337,8 +330,8 @@ TH1* KVTreeAnalyzer::MakeIntHisto(const Char_t* expr, const Char_t* selection, I
    h->SetTitle(histotitle);
    if(h->InheritsFrom("TH2")) h->SetOption("col");
    h->SetDirectory(0);
-   if(fUserWeight) AddHisto(h, fWeight);
-   else AddHisto(h);
+
+   AddHisto(h);
    fHistoNumber++;
    if(fNormHisto){
       h->Sumw2();
@@ -855,17 +848,6 @@ void KVTreeAnalyzer::AddHisto(TH1*h)
     fHistolist.Add( new KVHistogram(h) );
     G_histolist->Display(&fHistolist);
 }
-
-void KVTreeAnalyzer::AddHisto(TH1*h, const Char_t* weight)
-{
-   // Adds weighted histogram to internal list of user histograms
-   // and updates GUI display
-
-    SetAnalysisModifiedSinceLastSave(kTRUE);//new histogram needs saving
-    fHistolist.Add( new KVHistogram(h,weight) );
-    G_histolist->Display(&fHistolist);
-
-}
    
 void KVTreeAnalyzer::AddSelection(TEntryList*e)
 {
@@ -1085,21 +1067,24 @@ void KVTreeAnalyzer::DrawHisto(TObject* obj, Bool_t gen)
       }
    }
    
-   KVString exp,sel;
+   KVString exp,sel,weight;
    if(kvhisto) {
        exp= kvhisto->GetExpression();
        sel = kvhisto->GetSelection();
+       weight = kvhisto->GetWeight();
    }
    else
    {
-       KVHistogram::ParseHistoTitle(histo->GetTitle(),exp,sel);
+       KVHistogram::ParseHistoTitle(histo->GetTitle(),exp,sel,weight);
    }
-   
+
+   if(weight=="1") weight="";
+
    // if 'reapply selection' is activated and if the current active selection
    // is not the same as that used to generate the histogram, we generate a new
    // histogram displaying the same variables but with the current selection.
    if(!IsCurrentSelection(sel) && fApplySelection){
-       histo = RemakeHisto(histo,exp);
+       histo = RemakeHisto(histo,exp,weight);
        if(!histo) return;
    }
    
@@ -1168,14 +1153,14 @@ Bool_t KVTreeAnalyzer::IsCurrentSelection(const Char_t* sel)
    return (test_sel == tree_sel);
 }
    
-TH1* KVTreeAnalyzer::RemakeHisto(TH1* h, const Char_t* expr)
+TH1* KVTreeAnalyzer::RemakeHisto(TH1* h, const Char_t* expr, const Char_t* weight)
 {
    // Remake an existing histogram of data 'expr' using the current active selection
    // If such a histogram already exists, we just return its address.
    // We try to have the same binning in the new as in the original histogram.
    
    TString htit;
-   GenerateHistoTitle(htit,expr,"");
+   GenerateHistoTitle(htit,expr,"", weight);
    KVHistogram* kvhisto = (KVHistogram*)fHistolist.FindObjectWithMethod(htit,"GetHistoTitle");
    TH1* histo = 0;
    if(kvhisto) histo = kvhisto->GetHisto();
@@ -1185,22 +1170,22 @@ TH1* KVTreeAnalyzer::RemakeHisto(TH1* h, const Char_t* expr)
    if(hname.BeginsWith("I")){
       Int_t xmin = h->GetXaxis()->GetXmin()+0.5;
       Int_t xmax = h->GetXaxis()->GetXmax()-0.5;
-      cout << "Remake histo with xmin = " << xmin << "  xmax = " << xmax << endl;
-      h = MakeIntHisto(expr, "", xmin, xmax);
+      //cout << "Remake histo with xmin = " << xmin << "  xmax = " << xmax << endl;
+      h = MakeIntHisto(expr, "", xmin, xmax, weight);
       return h;
    }
    nx = h->GetNbinsX();
    if(h->InheritsFrom("TH2")) ny = h->GetNbinsY();
-   cout << "Remake histo with nx = " << nx << "  ny = " << ny << endl;
+   //cout << "Remake histo with nx = " << nx << "  ny = " << ny << endl;
    if(h->InheritsFrom("TProfile")){
        // make a new profile histogram
        Bool_t oldProfileState = fProfileHisto;
        fProfileHisto = kTRUE;
-       h = MakeHisto(expr, "", nx, ny);
+       h = MakeHisto(expr, "", nx, ny, weight);
        fProfileHisto = oldProfileState;
    }
    else
-     h = MakeHisto(expr, "", nx, ny);
+     h = MakeHisto(expr, "", nx, ny, weight);
    return h;
 }
 
@@ -1533,9 +1518,13 @@ void KVTreeAnalyzer::DrawLeafExpr()
    TString name;
    name.Form("h%d",fHistoNumber);
    TString drawexp(fLeafExpr), histo, histotitle;
-   GenerateHistoTitle(histotitle, fLeafExpr, "");
+   if(fUserWeight) GenerateHistoTitle(histotitle, fLeafExpr, "", fWeight);
+   else GenerateHistoTitle(histotitle, fLeafExpr, "");
    if(!fProfileHisto) histo.Form(">>%s(%d,%f,%f,%d,%f,%f)", name.Data(), nx,xmin,xmax,ny,ymin,ymax);
-   else histo.Form(">>%s", name.Data());
+   else {
+      if(fUserBinning) histo.Form(">>%s(%d,%f,%f)", name.Data(),nx,xmin,xmax);
+      else histo.Form(">>%s", name.Data());
+   }
    drawexp += histo;
    TString ww = "";
    if(fUserWeight) ww += fWeight;
@@ -1547,8 +1536,8 @@ void KVTreeAnalyzer::DrawLeafExpr()
    h->SetDirectory(0);
    if(h->InheritsFrom("TH1")) h->GetXaxis()->SetTitle(fXLeaf->GetTitle());
    if(h->InheritsFrom("TH2")||h->InheritsFrom("TProfile")) h->GetYaxis()->SetTitle(fYLeaf->GetTitle());
-   if(fUserWeight) AddHisto(h,fWeight);
-   else AddHisto(h);
+
+   AddHisto(h);
    fHistoNumber++;
    DrawHisto(h);
 }
@@ -1704,7 +1693,8 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
       TString type = leaf->GetTypeName();
       // check histo not already in list
        TString htit;
-       GenerateHistoTitle(htit,expr,"");
+       if(fUserWeight) GenerateHistoTitle(htit,expr,"", fWeight);
+       else GenerateHistoTitle(htit,expr,"");
        KVHistogram* kvhisto = (KVHistogram*)fHistolist.FindObjectWithMethod(htit,"GetHistoTitle");
        if(kvhisto) histo = kvhisto->GetHisto();
       if(!histo){
@@ -1715,13 +1705,13 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
                TString tmp; tmp.Form("int(%s)",expr.Data());
                expr=tmp.Data();
             }
-            histo = MakeIntHisto(expr, "", xmin, xmax);
+            histo = MakeIntHisto(expr, "", xmin, xmax, (fUserWeight ? fWeight.Data() : ""));
             if(!histo) return;
             histo->GetXaxis()->SetTitle(leaf->GetName());
          }
          else
          {
-            histo = MakeHisto(expr, "", 500);
+            histo = MakeHisto(expr, "", 500, 0, (fUserWeight ? fWeight.Data() : ""));
             histo->GetXaxis()->SetTitle(leaf->GetName());
          }
          if(!histo) return;
@@ -1737,10 +1727,10 @@ void KVTreeAnalyzer::DrawLeaf(TObject* obj)
       TString expr = obj->GetTitle();
       // check histo not already in list
        TString htit;
-       GenerateHistoTitle(htit,expr,"");
+       GenerateHistoTitle(htit,expr,"",(fUserWeight ? fWeight.Data() : ""));
        KVHistogram* kvhisto = (KVHistogram*)fHistolist.FindObjectWithMethod(htit,"GetHistoTitle");
        if(kvhisto) histo = kvhisto->GetHisto();
-      if(!histo) histo = MakeHisto(expr, "", 500);
+      if(!histo) histo = MakeHisto(expr, "", 500, 0, (fUserWeight ? fWeight.Data() : ""));
       if(!histo) return;
       histo->GetXaxis()->SetTitle(obj->GetTitle());
 //       if(fNewCanvas)  {KVCanvas*c=new KVCanvas; c->SetTitle(histo->GetTitle());}
@@ -1793,8 +1783,8 @@ void KVTreeAnalyzer::GenerateIPSelection()
    TString bmax = G_make_ip_selection->GetText();
    Double_t Bmax = bmax.Atof();
    TGString histotit = G_ip_histo->GetText();
-   KVString ipvar,ipsel;
-   KVHistogram::ParseHistoTitle(histotit.Data(),ipvar,ipsel);
+   KVString ipvar,ipsel,ipweight;
+   KVHistogram::ParseHistoTitle(histotit.Data(),ipvar,ipsel,ipweight);
    Double_t varCut = ipscale->GetObservable(Bmax);
    TString selection;
    selection.Form("%s>%f", ipvar.Data(), varCut);
@@ -2361,14 +2351,16 @@ void KVTreeAnalyzer::GenerateAllHistograms(TCollection *list)
     KVHistogram* obj;
     TH1* hist;
     while( (obj = (KVHistogram*)nextHist()) ){
-        if(!obj->IsType("TCutG")){
+        if(!obj->IsType("Cut")){
             hist = obj->GetHisto();
             TString exp = obj->GetExpression();
             TString sel = obj->GetSelection();
+            TString weight = obj->GetWeight();
+            if(weight=="1") weight="";
             // set selection
             Info("GenerateAllHistograms","Generating histogram: %s", hist->GetTitle());
             SetSelection(sel);
-            RemakeHisto(hist,exp);
+            RemakeHisto(hist,exp,weight);
         }
     }
 }
@@ -2379,6 +2371,7 @@ void KVTreeAnalyzer::Streamer(TBuffer &R__b)
     // For versions < 4, fHistolist contained TH* or TCutG objects:
     // we convert to a list of KVHistogram objects.
     // Flag will be set to say analysis needs saving.
+   // Reparse all histogram expressions and selections in case they were not saved correctly.
 
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
@@ -2407,6 +2400,13 @@ void KVTreeAnalyzer::Streamer(TBuffer &R__b)
               fHistolist.ls();
               SetAnalysisModifiedSinceLastSave(kTRUE);
           }
+      }
+      if(fHistolist.GetEntries()){
+         TIter next(&fHistolist);
+         KVHistogram* h;
+         while( (h=(KVHistogram*)next()) ){
+            if(h->IsType("Histo")) h->ParseExpressionAndSelection();
+         }
       }
    } else {
       R__b.WriteClassBuffer(KVTreeAnalyzer::Class(),this);

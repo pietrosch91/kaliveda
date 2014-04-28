@@ -242,12 +242,11 @@ class KVTreeAnalyzer : public TNamed
    Bool_t MethodNotCalled() { return !fMethodCalled; }
 
    void AddHisto(TH1*);
-   void AddHisto(TH1*,const Char_t* weight);
    void AddCut(TCutG*);
    void AddSelection(TEntryList*);
    void ReconnectTree();
    
-   void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel);
+   void GenerateHistoTitle(TString& title, const Char_t* exp, const Char_t* sel, const Char_t* weight="");
    void FillLeafList();
 
    void AnalysisSaveCheck();
@@ -262,9 +261,9 @@ class KVTreeAnalyzer : public TNamed
    
    void SetTree(TTree*t);
    void OpenGUI();
-   TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0);
-   TH1* RemakeHisto(TH1* h, const Char_t* expr);
-   TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax);
+   TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0, const Char_t* weight="");
+   TH1* RemakeHisto(TH1* h, const Char_t* expr, const Char_t* weight="");
+   TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax, const Char_t* weight="");
    const KVList* GetHistoList() const { return &fHistolist; }
    TH1 *GetHistogram(const Char_t* name) const;
    TList* GetHistosByData(const Char_t* expr);
