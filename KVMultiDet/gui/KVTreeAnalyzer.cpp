@@ -2263,6 +2263,9 @@ void KVTreeAnalyzer::ReapplyAnyFile(const Char_t* filepath)
        applyAnal->OpenAnyFile(filepath);
        applyAnal->GenerateAllSelections(&fSelections);
        applyAnal->GenerateAllHistograms(&fHistolist);
+       // make sure no selection is left active without being displayed
+       applyAnal->fTree->SetEntryList(0);
+       applyAnal->G_selection_status->SetText("CURRENT SELECTION:",0);
        // generate and add user aliases to leaflist
        if(fAliasList.GetEntries()){
           TIter next(&fAliasList);
