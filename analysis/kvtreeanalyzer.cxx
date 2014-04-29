@@ -1,11 +1,11 @@
 #include <KVTreeAnalyzer.h>
-#include <TApplication.h>
+#include "TRint.h"
 
 int main(int argc, char **argv)
 {
-   //without this, the plugins don't work for user classes
-   TApplication *myapp=new TApplication("myapp",&argc,argv);
+   TRint *myapp=new TRint("kvtreeanalyzer",&argc,argv,NULL,0);
    new KVTreeAnalyzer(kFALSE);
+   myapp->Run();
    delete myapp;
    return 0;
 }
