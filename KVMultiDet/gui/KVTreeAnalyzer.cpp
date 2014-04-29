@@ -21,6 +21,7 @@
 #include "TEnv.h"
 #include "TColor.h"
 #include <KVHistogram.h>
+#include <KVList.h>
 #include <TChain.h>
 using namespace std;
 
@@ -2262,6 +2263,15 @@ void KVTreeAnalyzer::ReapplyAnyFile(const Char_t* filepath)
        applyAnal->OpenAnyFile(filepath);
        applyAnal->GenerateAllSelections(&fSelections);
        applyAnal->GenerateAllHistograms(&fHistolist);
+       // generate and add user aliases to leaflist
+       if(fAliasList.GetEntries()){
+          TIter next(&fAliasList);
+          TObject* o;
+          while( (o=next()) ){
+             applyAnal->G_alias_text->SetText(o->GetTitle(),kFALSE);
+             applyAnal->GenerateAlias();
+          }
+       }
    }
 }
 
