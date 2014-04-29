@@ -400,3 +400,15 @@ qtcreator:
 	for h in $$HEADERLIST; do \
 		cp -u `root-config --incdir`/$$h .root-headers/; \
 	done
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' */*/*.cpp | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' analysis/*.c* | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done
+	@HEADERLIST=`\grep '#include [",<][R,T].*\.h[",>]' */*/*.C | awk '{print $$2}' | sed 's/["<]//' | sed 's/[">]//' | sort | uniq`; \
+	for h in $$HEADERLIST; do \
+		cp -u `root-config --incdir`/$$h .root-headers/; \
+	done
