@@ -189,6 +189,7 @@ public:
         return fCollection->FindObject(name);
     };
     virtual TObject *FindObjectByType(const Char_t *) const;
+    virtual TObject *FindObjectByTitle(const Char_t *) const;
     TObject *FindObjectByClass(const Char_t *) const;
     TObject *FindObjectByClass(const TClass *) const;
     virtual TObject *FindObjectByLabel(const Char_t *) const;

@@ -324,6 +324,20 @@ TObject* KVSeqCollection::FindObjectByType(const Char_t* type) const
     return 0;
 }
 
+TObject*KVSeqCollection::FindObjectByTitle(const Char_t* title) const
+{
+   // Will return object with given title (value of TObject::GetTitle() method).
+
+   TIter next(fCollection);
+   TObject *obj;
+   while ( (obj = next()) )
+   {
+           if ( !strcmp(obj->GetTitle(),title) )
+               return obj;
+   }
+   return 0;
+}
+
 TObject* KVSeqCollection::FindObjectByClass(const TClass* cl) const
 {
     // Return (first) object in embedded list with given class.
