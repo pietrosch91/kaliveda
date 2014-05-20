@@ -171,7 +171,7 @@ void ReconstructionSeDv::Calculate(void)
 		  //for(j[8]=j[7];j[8]<5;j[8]++)
 		    //for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]; //*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Brhot += Coef[0][i] *Vecp;
 		Thetat += Coef[1][i] *Vecp;
 		Patht += Coef[3][i] *Vecp;
@@ -195,7 +195,7 @@ void ReconstructionSeDv::Calculate(void)
 		  //for(j[8]=j[7];j[8]<5;j[8]++)
 		    //for(j[9]=j[8];j[9]<5;j[9]++)
 	      {
-		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
+		Vecp = Vec[j[0]]*Vec[j[1]]*Vec[j[2]]*Vec[j[3]]*Vec[j[4]]*Vec[j[5]]*Vec[j[6]]; //*Vec[j[7]]*Vec[j[8]]*Vec[j[9]];
 		Phit += Coef[2][i] *Vecp;
 		/*Brhot_y += Coef[0][i] *Vecp;
 		Thetat_y += Coef[1][i] *Vecp;
