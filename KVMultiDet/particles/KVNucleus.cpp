@@ -911,12 +911,13 @@ KVNumberList KVNucleus::GetKnownARange(Int_t zz, Double_t tmin) const
 {
 
 	if (zz==-1) zz=GetZ();	
-	KVNumberList nla; nla.SetMinMax(zz,4*zz);
+	KVNumberList nla; 
+	nla.SetMinMax(TMath::Max(zz,1),4*TMath::Max(zz,1));
 	KVNumberList nlb;
 	nla.Begin();
 	while (!nla.End()){
 		Int_t aa = nla.Next();
-                if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
+		if (IsKnown(zz,aa)&&(GetLifeTime(zz,aa)>=tmin)) nlb.Add(aa);
 	}
 	return nlb;
 }
