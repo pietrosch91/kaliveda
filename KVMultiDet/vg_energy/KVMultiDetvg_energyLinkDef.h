@@ -8,5 +8,6 @@
 #pragma link C++ class KVEtrans;
 #pragma link C++ class KVEtransLCP;
 #pragma link C++ class KVEkin;
+#pragma link C++ class KVCaloBase;
 #pragma link C++ class KVCalorimetry;
 #endif
