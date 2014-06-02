@@ -844,9 +844,9 @@ void KVParticle::SetMomentum(Double_t px, Double_t py, Double_t pz,
       SetVectM(pvec, M());
    } else {
       if (strcmp("cart", opt) && strcmp("cartesian", opt)) {
-         Warning("SetMomentum(Float_t,Float_t,Float_t,Option_t*)",
+         Warning("SetMomentum(Double_t,Double_t,Double_t,Option_t*)",
                  "Unkown coordinate system\n known system are :\n\t\"cartesian\" or \"cart\" (default)\n\t\"spherical\" or \"spher\"");
-         Warning("SetMomentum(Float_t,Float_t,Float_t,Option_t*)",
+         Warning("SetMomentum(Double_t,Double_t,Double_t,Option_t*)",
                  "default used.");
       }
       TVector3 pvec(px, py, pz);

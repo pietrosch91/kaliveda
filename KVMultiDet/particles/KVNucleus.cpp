@@ -318,7 +318,7 @@ KVNucleus::KVNucleus(const Char_t * symbol)
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(Int_t z, Float_t t, TVector3 & p)
+KVNucleus::KVNucleus(Int_t z, Double_t t, TVector3 & p)
 {
 
 //Create nucleus with given Z, kinetic energy t and direction p
@@ -630,6 +630,22 @@ void  KVNucleus::CheckZAndA(Int_t &z, Int_t&a) const
    if (z == -1)	z = GetZ();
    if (a == -1)	a = GetA();
 
+}
+
+//________________________________________________________________________________________
+void KVNucleus::SetExcitEnergy(Double_t ex)
+{
+	//The excitation energy is added to the mass (M=M+e) and total energy (E=E+e)
+	//No modification of the kinetic energy (Ek=E-M)
+	//linear momentum p is modified
+	
+	Double_t etot = E()-fExx;
+	
+	Double_t newp = TMath::Sqrt(GetKE()*(etot+GetMassGS()+2.*ex));
+	TVector3 unit = GetMomentum().Unit();
+	unit *= newp;
+	SetXYZM(unit.X(), unit.Y(), unit.Z(), GetMassGS()+ex);
+	fExx = ex;
 }
 
 //________________________________________________________________________________________
