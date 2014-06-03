@@ -990,11 +990,14 @@ Bool_t KVVAMOSReconNuc::SetFlightDistance( KVVAMOSDetector *start, KVVAMOSDetect
 
 	if( fFlightDist > 0. ) return kTRUE;
 
+	static Int_t n=0;
+	if( (n <10) || (n%100==0)){
 	TString warn;
 	if( stop ) warn.Form("detectors %s and %s",start->GetName(), stop->GetName());
 	else  warn.Form("target point and detector %s",start->GetName());
-	Warning("SetFlightDistance","Impossible to set flight distance between %s; FPCode%d (%s)",warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
-	cout<<endl;
+	Warning("SetFlightDistance","Warn %d: Impossible to set flight distance between %s; FPCode%d (%s)",n,warn.Data(),GetCodes().GetFPCodeIndex(), GetCodes().GetFPStatus());
+	}
+	n++;
 
 	return kFALSE;
 }
