@@ -12,7 +12,7 @@ TSED1_HF: 0. -0.0228124 -6.1362e-07 7.8048e-11 -5.3772e-15 1.9088e-19 -2.759e-24
 
 
 # Time T0 (in ns) for TSED1_HF
-#calculated by GA 08/04/14
+# 40Ar+60Ni, calculated by GA 08/04/14
 TYPE: T0_HF
 FUNCTION:
 
@@ -36,10 +36,21 @@ SED1: 579.84
 
 RUNS: 150-159
 SED1: 578.99
-# we set the same T0 that the one of the previous runs because the method used
-# to extract T0 does not work for runs with Theta_Vamos > 0
+
 RUNS: 200-206 217-222
 SED1: 578.99
+
+# 40Ar+64Ni, calculated by GA 20/05/14
+RUNS: 160-199 207-210 223-231
+SED1: 578.99
+
+# 34Ar+58Ni, calculated by GA 20/05/14
+RUNS: 282-334
+SED1: 417.3
+
+# 36Ar+58,60Ni, calculated by GA 20/05/14
+RUNS: 337-532
+SED1: 408.2
 
 # Xf-correction of T0 (in ns) for TSED1_HF
 RUNS: 41-46 80-145 150-159 200-206 217-222

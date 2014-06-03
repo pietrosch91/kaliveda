@@ -35,10 +35,21 @@ SED2: 469.62
 
 RUNS: 150-159
 SED2: 468.56
-# we set the same T0 that the one of the previous runs because the method used
-# to extract T0 does not work for runs with Theta_Vamos > 0
+
 RUNS: 200-206 217-222
 SED2: 468.56
+
+# 40Ar+64Ni, calculated by GA 20/05/14
+RUNS: 160-199 207-210 223-231
+SED2: 468.56
+
+# 34Ar+58Ni, calculated by GA 20/05/14
+RUNS: 282-334
+SED2: 403.3
+
+# 36Ar+58,60Ni, calculated by GA 20/05/14
+RUNS: 337-532
+SED2: 394.9
 
 # Xf-correction of T0 (in ns) for TSED2_HF
 RUNS: 41-46 80-145 150-159 200-206 217-222
