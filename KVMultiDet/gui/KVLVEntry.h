@@ -18,6 +18,7 @@ class KVLVEntry : public TGLVEntry
 
 	protected:
     Bool_t fEditMode;
+   Bool_t fColoured;//=kTRUE if object has an associated color
 			
 	static Pixel_t fgBGColor;// current background color for items
 	static Pixel_t fgGreyPixel;// light grey color used to distinguish adjacent list items

@@ -9,6 +9,7 @@ $Date: 2009/04/28 09:11:29 $
 
 #include "KVLVEntry.h"
 #include "TInterpreter.h"
+#include "TMethodCall.h"
 #include "TGPicture.h"
 #include "TGResourcePool.h"
 #include "TGTextEntry.h"
@@ -108,6 +109,40 @@ KVLVEntry::KVLVEntry(TObject* obj, const KVLVContainer *cnt,
 		gInterpreter->Execute(obj, obj->IsA(), "Connect",
 				Form("\"Modified()\",\"KVLVEntry\",(KVLVEntry*)%ld,\"Refresh()\"", (ULong_t)this));
     }
+    
+    fColoured=kFALSE;
+    // objects of classes with a method "const Char_t* GetLVEntryColour()" will be displayed with
+    // the background colour returned by this method (either in hexadecimal format, i.e. "#f0f0f0"
+    // or by name, i.e. "pink")
+    if( obj->IsA()->GetMethodAllAny("GetLVEntryColour") ){
+       
+            TMethodCall mt;
+            mt.InitWithPrototype(obj->IsA(), "GetLVEntryColour","");
+            if (mt.IsValid())
+            {
+                if (mt.ReturnType()==TMethodCall::kString)
+                {
+                    Char_t *ret;
+                    mt.Execute(obj,"",&ret);
+		               if( fClient->GetColorByName(ret, fBGColor) ){
+                        fColoured=kTRUE;
+                     }
+                     else
+                     {
+                        Warning("KVLVEntry", "Unknown color %s requested for entry", ret);
+                     }
+                 }
+                 else
+                 {
+                    Warning("KVLVEntry", "Object of class %s has GetLVEntryColour() method with wrong return type",
+                          obj->ClassName());
+                 }
+             }
+             else
+             {
+                Warning("KVLVEntry", "GetLVEntryColour() method not valid for class %s", obj->ClassName());
+             }
+    }
 }
 
 KVLVEntry::KVLVEntry(TObject *obj, const Char_t *objclass, const KVLVContainer *cnt, UInt_t ncols, KVLVColumnData **coldata)
@@ -181,15 +216,19 @@ void KVLVEntry::DrawCopy(Handle_t id, Int_t x, Int_t y)
 	// This is a line for line copy of TGLVEntry::DrawCopy from ROOT v5.22/00,
 	// but we alternate the background colour between white and light grey, in
 	// order to make the list easier to read.
-	// For columns with fBoolean[i]=kTRUE (set from KVLVColumnData::SetIsBoolean)
+	// 
+   // If fColoured=kTRUE (i.e. if entry has a valid GetLVEntryColor method
+   // which returns a recognised color), the requested background color is used
 
     KVLVContainer *cnt = (KVLVContainer*)GetParent();
-    if((int)fBGColor == -1 || cnt->IsBeingSorted()){
-		fBGColor = fgBGColor;
-		if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
-		else
-			fgBGColor = fgWhitePixel;
-	}
+    if(!fColoured){
+      if((int)fBGColor == -1 || cnt->IsBeingSorted()){
+		   fBGColor = fgBGColor;
+		   if( fgBGColor == fgWhitePixel ) fgBGColor = fgGreyPixel;
+		   else
+			   fgBGColor = fgWhitePixel;
+	   }
+   }
 	
    Int_t ix, iy, lx, ly;
    Int_t max_ascent, max_descent;
