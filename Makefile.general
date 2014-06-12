@@ -165,11 +165,12 @@ dictionaries:
 	done
 
 rootlibmap :
+ifeq ($(shell expr $(ROOT_VERSION_CODE) \< $(ROOT_v5_99_00)),1)
 	@cat */*LinkDef.h > tmpLinkDef.h
 	@rlibmap -f -r $(MY_ROOTMAP) -l $(LIB_SO) -d $(RLIBMAPDEPS) -c tmpLinkDef.h
 	@-cp $(MY_ROOTMAP) $(KVINSTALLDIR)/lib/
-ifeq ($(shell expr $(ROOT_VERSION_CODE) \> $(ROOT_v5_99_00)),1)
-# for ROOT v5.99+ we have to copy all the *.pcm (Cling?) files into $KVROOT/lib
+else
+# for ROOT v6 we don't know how to make rootmap, we have to copy all the *.pcm files into $KVROOT/lib
 	@-cp *.pcm $(KVINSTALLDIR)/lib/
 endif
 
