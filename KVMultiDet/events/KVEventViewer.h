@@ -96,7 +96,8 @@ class KVEventViewer : public KVBase
 
    void DrawNucleus(KVNucleus*, const Char_t* frame="");
    void DrawEvent(KVEvent*, const Char_t *frame="");
-   
+   void DrawEvent(KVEvent*, const Char_t *frame="") const;
+
    void SetInput(TBranch* eventbranch);
    void SetInput(const char* filename);
 

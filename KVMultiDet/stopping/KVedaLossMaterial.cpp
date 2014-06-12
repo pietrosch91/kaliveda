@@ -73,10 +73,10 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
    } else {
       if(!strncmp(line,"COMPOUND",8)){
       	// material is compound. read composition for TGeoMixture.
-      	fgets(line, 132, fp);
+      	if(fgets(line, 132, fp)){}
       	int nel = atoi(line);  // read number of elements
       	for(int el=0; el<nel; el++){
-      		fgets(line, 132, fp);
+      		if(fgets(line, 132, fp)){}
       		int z,a,w;
       		sscanf(line, "%d %d %d", &z, &a, &w);
       		AddCompoundElement(z,a,w);
@@ -84,10 +84,10 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
       }
       else if(!strncmp(line,"MIXTURE",7)){
       	// material is mixture. read composition for TGeoMixture.
-      	fgets(line, 132, fp);
+      	if(fgets(line, 132, fp)){}
       	int nel = atoi(line);  // read number of elements
       	for(int el=0; el<nel; el++){
-      		fgets(line, 132, fp);
+      		if(fgets(line, 132, fp)){}
       		int z,a,nat; float w;
       		sscanf(line, "%d %d %d %f", &z, &a, &nat, &w);
       		AddMixtureElement(z,a,nat,w);
@@ -104,7 +104,7 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
          Float_t e1, e2;
          sscanf(line, "Z = %d,%d     %f < E/A  <  %f MeV", &z1,
                 &z2, &e1, &e2);
-         fgets(line, 132, fp);
+         if(fgets(line, 132, fp)){}
          for (int i = z1; i <= z2; i++) {
             fEmin[i - 1] = e1;
             fEmax[i - 1] = e2;
@@ -177,7 +177,7 @@ Bool_t KVedaLossMaterial::ReadRangeTable(FILE* fp)
          fEmax[count]=TMath::Min(TMath::Max(original_emax,emax),1000.);
          //if(fEmax[count]!=original_emax) Info("ReadRangeTable", "Max. incident E for Z=%d  ===>  E/A = %f", count+1, fEmax[count]);
       }
-      fgets(line, 132, fp);
+      if(fgets(line, 132, fp)){}
    }
 
    return kTRUE;

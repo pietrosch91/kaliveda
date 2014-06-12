@@ -99,10 +99,10 @@ void KVEventViewer::DrawNucleus(KVNucleus* nucleus, const Char_t *frame)
    Bool_t Highlight = SetHighlight(nucleus);
 
    if(nucleus->GetA()==1){
-      TGeoVolume * ball;
+      TGeoVolume * ball=0;
       if(Z==0) ball = geom->MakeSphere("n",  Nuc,  0., free_nucleon_radius); 
       else if(Z==1) ball = geom->MakeSphere("p",  Nuc,  0., free_nucleon_radius); 
-      int color;
+      int color=0;
       if(Z==0) color=(Highlight?fNeutron_color:fneutron_color);
       else if(Z==1) color=(Highlight?fProton_color:fproton_color);
       ball->SetLineColor(color);
@@ -201,6 +201,11 @@ void KVEventViewer::DrawEvent(KVEvent* event, const Char_t* frame)
    else view->SetOrthoCamera(TGLViewer::kCameraOrthoZOY,0.9,0,0,TMath::Pi()/8.,TMath::Pi()/8.);
 //   if(fSavePicture) view->SavePicture(Form("Event%d.gif",event->GetNumber()));
    if(fSavePicture) view->SavePicture(Form("Event-%d.png",event->GetNumber()));
+}
+
+void KVEventViewer::DrawEvent(KVEvent*event, const Char_t* frame) const
+{
+   const_cast<KVEventViewer*>(this)->DrawEvent(event,frame);
 }
 
 void KVEventViewer::SetInput(TBranch *eventbranch)
