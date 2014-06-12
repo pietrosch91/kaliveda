@@ -10,22 +10,22 @@
 class KVIDGChIoSi_e494s : public KVIDGChIoSi
 {
 
-	private:
-		KVIDLine *fChIoSeuil;    // ChIo threshold line
-
-		void init();
+ private:
+   KVIDLine *fChIoSeuil;    // ChIo threshold line
+   
+   void init();
 	
-   public:
+ public:
 
-	enum{
-			k_BelowSeuilChIo = KVIDGChIoSi::k_RightOfEmaxSi+1 // point to ID was below of "ChIo threshold" line
-		};
+   enum{
+      k_BelowSeuilChIo = KVIDGChIoSi::k_RightOfEmaxSi+1 // point to ID was below of "ChIo threshold" line
+   };
 
 
    KVIDGChIoSi_e494s();
    virtual ~KVIDGChIoSi_e494s();
 
-
+   virtual Bool_t IsIdentifiable(Double_t x, Double_t y) const;
    virtual void Identify(Double_t x, Double_t y, KVIdentificationResult *) const;
    virtual void Initialize();
 
