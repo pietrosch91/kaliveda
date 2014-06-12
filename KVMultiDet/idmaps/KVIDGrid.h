@@ -202,22 +202,22 @@ public:
         // inc_index=-1 will scan index-1, index-2, ...
         // Returns pointer to line (or 0x0 if not found) and 'index' contains index of this line (or -1 if no line found)
 
-        register int i=index+inc_index;
+        Int_t ii=index+inc_index;
         Int_t nlines = GetNumberOfIdentifiers();
         KVIDLine* l=0;
-        while ( (i > -1 && i < nlines) )
+        while ( (ii > -1 && ii < nlines) )
         {
-            l = (KVIDLine*)GetIdentifierAt(i);
+            l = (KVIDLine*)GetIdentifierAt(ii);
             if ( l->IsBetweenEndPoints(x,y,axis) ) break;
-            i+=inc_index;
+            ii+=inc_index;
         }
-        if (i<0 || i>=nlines)
+        if (ii<0 || ii>=nlines)
         {
             // no line found
             index=-1;
             return 0;
         }
-        index = i;
+        index = ii;
         return l;
     };
 

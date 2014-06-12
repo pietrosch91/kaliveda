@@ -159,7 +159,7 @@ Double_t KVTGIDFunctions::fede(Double_t * x, Double_t * par)
 	ih   = (Int_t)par[1];
 	ZorA = (Int_t)par[2];
 	
-   Double_t A, Z;
+   Double_t A=1, Z=1;
 	if(ZorA==0){
 		// A given as function argument, Z is parameter
 		A = x[0]; Z = par[3];

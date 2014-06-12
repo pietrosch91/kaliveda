@@ -242,7 +242,7 @@ void KVDetector::DetectParticle(KVNucleus * kvp, TVector3 * norm)
    if (!kvp->GetPInitial())
       kvp->SetE0();
 
-    Double_t* thickness;
+    Double_t* thickness=0;
     if(norm){
         // modify thicknesses of all layers according to orientation,
         // and store original thicknesses in array
@@ -290,7 +290,7 @@ Double_t KVDetector::GetELostByParticle(KVNucleus * kvp, TVector3 * norm)
    //In this case the effective thicknesses of the detector's absorbers 'seen' by the particle
    //depending on its direction of motion is used for the calculation.
 
-	Double_t* thickness;
+	Double_t* thickness=0;
 	if(norm){
 		// modify thicknesses of all layers according to orientation,
 		// and store original thicknesses in array

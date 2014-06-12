@@ -148,7 +148,7 @@ void KVHistogram::ls(Option_t *option) const
 {
     TROOT::IndentLevel();
     TROOT::IncreaseDirLevel();
-    cout << "KVHistogram::" << GetName() << " " << GetLabel();
+    std::cout << "KVHistogram::" << GetName() << " " << GetLabel();
 //    cout << " X:" << GetVarX();
 //    if(IsType("Cut")){
 //        cout << " Y:" << GetVarY();
@@ -159,9 +159,9 @@ void KVHistogram::ls(Option_t *option) const
 //        if(strcmp(GetVarZ(),"")) cout << " Z:" << GetVarZ();
 //        if(strcmp(GetSelection(),"")) cout << " [" << GetSelection() << "]";
 //    }
-    if(GetHisto()) cout << " : " << GetHisto()->GetTitle();
-    else cout << " : " << GetCut()->GetName();
-    cout << endl;
+    if(GetHisto()) std::cout << " : " << GetHisto()->GetTitle();
+    else std::cout << " : " << GetCut()->GetName();
+    std::cout << std::endl;
     TROOT::DecreaseDirLevel();
 }
 

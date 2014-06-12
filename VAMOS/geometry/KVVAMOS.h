@@ -10,6 +10,8 @@
 #include "KVHashList.h"
 #include "TGeoMatrix.h"
 
+using namespace std;
+
 class KVACQParam;
 class KVVAMOSDetector;
 class TGeoVolume;

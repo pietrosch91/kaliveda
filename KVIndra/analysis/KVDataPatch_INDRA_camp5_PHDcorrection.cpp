@@ -64,9 +64,9 @@ void KVDataPatch_INDRA_camp5_PHDcorrection::ApplyToParticle(KVNucleus *n)
 
 void KVDataPatch_INDRA_camp5_PHDcorrection::PrintPatchInfo() const
 {
-    cout << "Particle-level patch applied to all runs of INDRA 5th campaign 'root'" << endl;
-    cout << "data written with KaliVeda version <1.8.10 and KVINDRAReconNuc class" << endl;
-    cout << "version < 11."<<endl;
-    cout << "Patch is applied to all identified & calibrated nuclei with Z>10 on rings 1-9." << endl;
-    cout << "The particle energy is recalibrated."<<endl;
+    std::cout << "Particle-level patch applied to all runs of INDRA 5th campaign 'root'" << std::endl;
+    std::cout << "data written with KaliVeda version <1.8.10 and KVINDRAReconNuc class" << std::endl;
+    std::cout << "version < 11."<<std::endl;
+    std::cout << "Patch is applied to all identified & calibrated nuclei with Z>10 on rings 1-9." << std::endl;
+    std::cout << "The particle energy is recalibrated."<<std::endl;
 }

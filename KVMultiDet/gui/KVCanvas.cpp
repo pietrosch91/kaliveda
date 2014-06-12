@@ -1062,14 +1062,14 @@ void KVCanvas::AddShortcutsInfo(const char *cut, const char *desc)
 
 void KVCanvas::ShowShortcutsInfos()
 {
-    cout << endl << endl;
+    std::cout << std::endl << std::endl;
     TNamed* info = 0;
     TIter it(&fShortCuts);
     while((info=(TNamed*)it()))
     {
-        cout << Form("%20s",info->GetName()) << "   " << info->GetTitle() << endl;
+        std::cout << Form("%20s",info->GetName()) << "   " << info->GetTitle() << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
 }
 
 void KVCanvas::SetVenerMode(Int_t value)
