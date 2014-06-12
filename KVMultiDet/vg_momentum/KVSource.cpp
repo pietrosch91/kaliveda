@@ -78,7 +78,7 @@ KVSource::KVSource(void):KVVarGlob()
 	}
 	
 //_________________________________________________________________
-KVSource::KVSource(Char_t *nom):KVVarGlob(nom)
+KVSource::KVSource(const Char_t* nom):KVVarGlob(nom)
 	{
 //
 // Constructeur avec un nom

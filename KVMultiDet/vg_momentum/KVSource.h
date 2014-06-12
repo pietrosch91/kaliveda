@@ -33,7 +33,7 @@ class KVSource:public KVVarGlob
 
 	public:
 	KVSource(void);			// constructeur par defaut
-	KVSource(Char_t *nom);
+        KVSource(const Char_t *nom);
 	KVSource(const KVSource &a);	// constructeur par Copy
 	
 	virtual ~KVSource(void);		// destructeur

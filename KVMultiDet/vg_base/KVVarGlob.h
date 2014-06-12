@@ -91,7 +91,7 @@ class KVVarGlob:public KVBase {
 	
  public:
     KVVarGlob(void);            // constructeur par defaut
-    KVVarGlob(Char_t * nom);
+    KVVarGlob(const Char_t* nom);
     KVVarGlob(const KVVarGlob & a);     // constructeur par Copy
 
     virtual ~ KVVarGlob(void);  // destructeur

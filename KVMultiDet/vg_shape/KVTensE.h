@@ -17,8 +17,8 @@ class KVTensE : public KVTensP
 
    public:
    KVTensE(){};
-   KVTensE(Char_t * nom):KVTensP(nom){};
-   KVTensE(Char_t * nom, const Char_t * frame):KVTensP(nom,frame){};
+   KVTensE(const Char_t * nom):KVTensP(nom){};
+   KVTensE(const Char_t * nom, const Char_t * frame):KVTensP(nom,frame){};
    virtual ~KVTensE(){};
    void Fill(KVNucleus * c);
 

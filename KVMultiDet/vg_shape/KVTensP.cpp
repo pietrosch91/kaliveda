@@ -112,7 +112,7 @@ KVTensP::KVTensP(void):KVVarGlob()
 }
 
 //_________________________________________________________________
-KVTensP::KVTensP(Char_t * nom):KVVarGlob(nom)
+KVTensP::KVTensP(const Char_t * nom):KVVarGlob(nom)
 {
 //
 // Constructeur avec un nom
@@ -124,7 +124,7 @@ KVTensP::KVTensP(Char_t * nom):KVVarGlob(nom)
 }
 
 //_________________________________________________________________
-KVTensP::KVTensP(Char_t * nom, const Char_t * frame):KVVarGlob(nom)
+KVTensP::KVTensP(const Char_t * nom, const Char_t * frame):KVVarGlob(nom)
 {
    //Set name of object, and name of frame for calculation of tensor
 

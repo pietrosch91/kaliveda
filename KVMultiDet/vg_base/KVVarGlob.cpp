@@ -167,7 +167,7 @@ KVVarGlob::KVVarGlob(void):KVBase()
 }
 
 //_________________________________________________________________
-KVVarGlob::KVVarGlob(Char_t * nom):KVBase(nom)
+KVVarGlob::KVVarGlob(const Char_t * nom):KVBase(nom)
 {
 //
 // Constructeur avec un nom
