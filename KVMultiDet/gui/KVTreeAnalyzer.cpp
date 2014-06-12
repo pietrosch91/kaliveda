@@ -61,64 +61,27 @@ Int_t my_color_array[] = {
    
 KVTreeAnalyzer *gTreeAnalyzer = 0x0;
 
-KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
-   : TNamed("KVTreeAnalyzer", "KVTreeAnalyzer"), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
+KVList* KVTreeAnalyzer::fgAnalyzerList = new KVList(0);
+
+void KVTreeAnalyzer::init()
 {
-   // Default constructor - used when loading from a file.
-   // The 'nogui' option (default=kTRUE) controls whether or not to
-   // launch the graphical interface
-   
-    gTreeAnalyzer = this;
+   // Default initialization
+
+   gTreeAnalyzer = this;
+   fgAnalyzerList->Add(this);
+   fDeletedByGUIClose=kFALSE;
 
    KVBase::InitEnvironment();
    fMain_histolist=0;
    fMain_leaflist=0;
    fMain_selectionlist=0;
    fMenuFile=0;
-   fDrawSame = fApplySelection = fProfileHisto = kFALSE;
-   fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
-   fUserBinning = gEnv->GetValue("KVTreeAnalyzer.UserBinning", kFALSE);
-   fUserWeight =  gEnv->GetValue("KVTreeAnalyzer.UserWeight", kFALSE);
-   fNewCanvas = gEnv->GetValue("KVTreeAnalyzer.NewCanvas", kFALSE);
-   fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
-   fStatsHisto = gEnv->GetValue("KVTreeAnalyzer.Stats", kFALSE);
-   fAutoSaveHisto = kFALSE;
-   fSameColorIndex=0;
-   fSelectedSelections=0;
-   fSelectedLeaves=0;
-   fSelectedHistos=0;
-   ipscale=0;
-      GDfirst=new KVGumbelDistribution("Gum1",1);
-      GDsecond=new KVGumbelDistribution("Gum2",2);
-      GDthird=new KVGumbelDistribution("Gum3",3);
-      GausGum1=new KVGausGumDistribution("GausGum1",1);
-      GausGum2=new KVGausGumDistribution("GausGum2",2);
-      GausGum3=new KVGausGumDistribution("GausGum3",3);
-      fNoGui=nogui;
-//    fNx = fNy = 0;
-//    fXmin = fXmax = fYmin = fYmax = 0.;
-//    fWeight = "";
+   if(fTree){
+      fTreeName = fTree->GetName();
+      SetTreeFileName(fTree);
+   }
    SetAnalysisModifiedSinceLastSave(kFALSE);
-      OpenGUI();
-}
-
-
-KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
-   : TNamed("KVTreeAnalyzer", t->GetTitle()), fTree(t), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1)
-{
-   // Initialize analyzer for a given TTree.
-   // If 'nogui' option (default=kFALSE) is kTRUE we do not launch the graphical interface.
-   
-    gTreeAnalyzer = this;
-
-    KVBase::InitEnvironment();
-   fMain_histolist=0;
-   fMain_leaflist=0;
-   fMain_selectionlist=0;
-   fMenuFile=0;
-   fTreeName = t->GetName();
-   SetTreeFileName(t);
-   SetAnalysisModifiedSinceLastSave(kFALSE);
+   fAnalysisSaveDir=".";
 
    fDrawSame = fApplySelection = fProfileHisto  = kFALSE;
    fDrawLog = gEnv->GetValue("KVTreeAnalyzer.LogScale", kFALSE);
@@ -128,29 +91,49 @@ KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
    fNormHisto = gEnv->GetValue("KVTreeAnalyzer.Normalize", kFALSE);
    fStatsHisto = gEnv->GetValue("KVTreeAnalyzer.Stats", kFALSE);
    fAutoSaveHisto = kFALSE;
-   fNoGui=nogui;
-   OpenGUI();
    fSameColorIndex=0;
    fSelectedSelections=0;
    fSelectedLeaves=0;
    fSelectedHistos=0;
    ipscale=0;
-      GDfirst=new KVGumbelDistribution("Gum1",1);
-      GDsecond=new KVGumbelDistribution("Gum2",2);
-      GDthird=new KVGumbelDistribution("Gum3",3);
-      GausGum1=new KVGausGumDistribution("GausGum1",1);
-      GausGum2=new KVGausGumDistribution("GausGum2",2);
-      GausGum3=new KVGausGumDistribution("GausGum3",3);
-      
+   GDfirst=new KVGumbelDistribution("Gum1",1);
+   GDsecond=new KVGumbelDistribution("Gum2",2);
+   GDthird=new KVGumbelDistribution("Gum3",3);
+   GausGum1=new KVGausGumDistribution("GausGum1",1);
+   GausGum2=new KVGausGumDistribution("GausGum2",2);
+   GausGum3=new KVGausGumDistribution("GausGum3",3);
+
    fNx = fNy = 500;
    fXmin = fXmax = fYmin = fYmax = -1.;
    fWeight = "1./(abs(vper))";
-   
+
    fNxF = 200;
    fXminF = fXmaxF = -1.;
-   
+
    fNxD = fNyD = 120;
    fOrderedDalitz = 0;
+}
+
+KVTreeAnalyzer::KVTreeAnalyzer(Bool_t nogui)
+   : TNamed("KVTreeAnalyzer", "KVTreeAnalyzer"), fTree(0), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1), fNoGui(nogui)
+{
+   // Default constructor - used when loading from a file.
+   // The 'nogui' option (default=kTRUE) controls whether or not to
+   // launch the graphical interface
+
+   init();
+   OpenGUI();
+}
+
+
+KVTreeAnalyzer::KVTreeAnalyzer(TTree*t,Bool_t nogui)
+   : TNamed("KVTreeAnalyzer", t->GetTitle()), fTree(t), fSelections(kTRUE), fHistoNumber(1), fSelectionNumber(1), fAliasNumber(1), fNoGui(nogui)
+{
+   // Initialize analyzer for a given TTree.
+   // If 'nogui' option (default=kFALSE) is kTRUE we do not launch the graphical interface.
+   
+   init();
+   OpenGUI();
 }
 
 KVTreeAnalyzer::~KVTreeAnalyzer()
@@ -159,10 +142,9 @@ KVTreeAnalyzer::~KVTreeAnalyzer()
    SafeDelete(fSelectedSelections);
    SafeDelete(fSelectedHistos);
    SafeDelete(ipscale);
-   SafeDelete(fMain_histolist);
-   SafeDelete(fMain_leaflist);
-   SafeDelete(fMain_selectionlist);
+   if(!fDeletedByGUIClose) SafeDelete(fMain_histolist);
    if(gTreeAnalyzer==this) gTreeAnalyzer=0x0;
+   fgAnalyzerList->Remove(this);
 }
 
 //________________________________________________________________
@@ -451,7 +433,7 @@ void KVTreeAnalyzer::AnalysisSaveCheck()
 
     if(fNoGui){
         // text-only interface
-        cout << "Analysis has been modified. Save before continuing? [y] : " << flush;
+        cout << "Analysis " << GetTitle() << " has been modified. Save before continuing? [y] : " << flush;
         char reply;
         cin.get(reply);
         cout << endl;
@@ -464,7 +446,8 @@ void KVTreeAnalyzer::AnalysisSaveCheck()
     }
     else{
         Int_t ret_code;
-        new TGMsgBox(gClient->GetDefaultRoot(), fMain_histolist, "Save Analysis ?",
+        if(fMain_histolist) fMain_histolist->RaiseWindow();
+        new TGMsgBox(gClient->GetDefaultRoot(), (fMain_histolist?fMain_histolist:gClient->GetDefaultRoot()), GetTitle(),
                      "Analysis has been modified. Save before continuing?", kMBIconStop,
                      kMBYes|kMBNo, &ret_code);
         if(ret_code==kMBNo) return;
@@ -517,6 +500,9 @@ void KVTreeAnalyzer::OpenGUI()
        fMain_histolist->SetWindowName(Form("%s (%s)", fTree->GetTitle(), fTreeFileName.Data()));
    fMain_histolist->SetIconName("TreeAnalyzer");
    fMain_histolist->SetIconPixmap("root_s.xpm");
+
+   fMain_histolist->SetCleanup(kDeepCleanup);
+
    UInt_t hWidth = 400, hHeight = 400;
 
              /* menus */
@@ -524,6 +510,8 @@ void KVTreeAnalyzer::OpenGUI()
    fMenuFile->AddEntry("Open...", MH_OPEN_FILE);
    fMenuFile->AddEntry("Save analysis", MH_SAVE);
    fMenuFile->AddEntry("Save as...", MH_SAVE_FILE);
+   fMenuFile->AddEntry("Close", MH_CLOSE);
+   fMenuFile->AddSeparator();
    fMenuFile->AddEntry("Apply analysis...", MH_APPLY_ANALYSIS);
    SetAnalysisModifiedSinceLastSave(fAnalysisModifiedSinceLastSave);
    fMenuFile->AddSeparator();
@@ -842,9 +830,17 @@ void KVTreeAnalyzer::OpenGUI()
    fMain_histolist->Resize(hWidth,hHeight);
    /********* end of HISTOGRAMS *************/
 
+   fMain_histolist->Connect("CloseWindow()", "KVTreeAnalyzer", this, "GUIClosed()");
+}
 
+void KVTreeAnalyzer::GUIClosed()
+{
+   // Called when graphical window is closed
 
-}  
+   AnalysisSaveCheck();
+   fDeletedByGUIClose=kTRUE;
+   TTimer::SingleShot(150, "KVTreeAnalyzer", this, "DeleteThis()");
+}
    
 void KVTreeAnalyzer::AddHisto(TH1*h)
 {
@@ -908,9 +904,9 @@ void KVTreeAnalyzer::ReconnectTree()
    // informations on the file name and TTree name
    
    if(fTree) fTree->GetCurrentFile()->Close();
-   cout << "treefilename=" << fTreeFileName << endl;
-   cout << "workdir='"<<gSystem->WorkingDirectory()<<"'" << endl;
-   cout << "relpath='" << fRelativePathToAnalysisFile <<"'"<< endl;
+   //cout << "treefilename=" << fTreeFileName << endl;
+   //cout << "workdir='"<<gSystem->WorkingDirectory()<<"'" << endl;
+   //cout << "relpath='" << fRelativePathToAnalysisFile <<"'"<< endl;
    TFile*f;
    // if fRelativePathToAnalysisFile!="." and if fTreeFileName is not an absolute path,
    // we guess the Tree file is in the same directory as the analysis file
@@ -964,6 +960,7 @@ void KVTreeAnalyzer::ReadFromFile(TFile* f)
    delete f;
    anal->Copy(*this);
    delete anal;
+   gTreeAnalyzer=this;
    ReconnectTree();
    G_selectionlist->Display(&fSelections);
    G_histolist->Display(&fHistolist);
@@ -1846,6 +1843,7 @@ TEntryList*KVTreeAnalyzer::GetSelection(const Char_t* selection)
 
 void KVTreeAnalyzer::Save()
 {
+   Info("Save", "Saving analysis %s in file %s", GetTitle(), fSaveAnalysisFileName.Data());
    SaveAs(fSaveAnalysisFileName);
    SetAnalysisModifiedSinceLastSave(kFALSE);
 }
@@ -2040,14 +2038,19 @@ TList* KVTreeAnalyzer::GetHistosBySelection(const Char_t* expr)
    return hlist;
 }
    
-TH1* KVTreeAnalyzer::GetHisto(const Char_t* expr, const Char_t* selection)
+TH1* KVTreeAnalyzer::GetHisto(const Char_t* expr, const Char_t* selection, const Char_t* weight)
 {
    TIter next(&fHistolist);
 
    KVHistogram* h;
    while( (h=(KVHistogram*)next()) ){
 
-       if(h->IsType("Histo") && !strcmp(h->GetExpression(),expr) && !strcmp(h->GetSelection(),selection)) return h->GetHisto();
+       if(h->IsType("Histo") && !strcmp(h->GetExpression(),expr) && !strcmp(h->GetSelection(),selection)) {
+          if(strcmp(weight,"")){
+             if(!strcmp(h->GetWeight(),weight)) return h->GetHisto();
+          }
+          else return h->GetHisto();
+       }
    }
    return 0;
 }
@@ -2160,17 +2163,32 @@ void KVTreeAnalyzer::HandleHistoFileMenu(Int_t id)
       case MH_OPEN_FILE:
          HistoFileMenu_Open();
          break;
-   case MH_APPLY_ANALYSIS:
-       HistoFileMenu_Apply();
-       break;
-   case MH_SAVE_FILE:
-      HistoFileMenu_Save();
-      break;
-   case MH_SAVE:
-      Save();
-      break;
+      case MH_APPLY_ANALYSIS:
+         HistoFileMenu_Apply();
+         break;
+      case MH_SAVE_FILE:
+         HistoFileMenu_Save();
+         break;
+      case MH_SAVE:
+         Save();
+         break;
+      case MH_CLOSE:
+         delete fMain_histolist;
+         GUIClosed();
+         break;
       case MH_QUIT:
-       AnalysisSaveCheck();
+         // check all analyzers need saving
+         while(fgAnalyzerList->GetEntries()>1){
+            TIter next(fgAnalyzerList);
+            KVTreeAnalyzer* tan;
+            do {
+               tan = (KVTreeAnalyzer*)next();
+            }
+            while( tan==this );
+            tan->AnalysisSaveCheck();
+            delete tan;
+         }
+         AnalysisSaveCheck();
          gROOT->ProcessLine(".q");
          break;
          
@@ -2209,13 +2227,14 @@ void KVTreeAnalyzer::HistoFileMenu_Open()
       "ROOT files", "*.root",
       0, 0
    };
-   AnalysisSaveCheck();
    TGFileInfo fi;
    fi.fFileTypes = filetypes;
    fi.fIniDir = StrDup(dir);
    new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDOpen, &fi);
    if (fi.fFilename) {
-      OpenAnyFile(fi.fFilename);
+      KVTreeAnalyzer* newAnal = this;
+      if(fTree) newAnal=new KVTreeAnalyzer(kFALSE);
+      newAnal->OpenAnyFile(fi.fFilename);
    }
    dir = fi.fIniDir;
 }
@@ -2238,14 +2257,13 @@ void KVTreeAnalyzer::HistoFileMenu_Apply()
 
 void KVTreeAnalyzer::HistoFileMenu_Save()
 {
-   static TString dir(".");
    const char *filetypes[] = {
       "ROOT files", "*.root",
       0, 0
    };
    TGFileInfo fi;
    fi.fFileTypes = filetypes;
-   fi.fIniDir = StrDup(dir);
+   fi.fIniDir = StrDup(fAnalysisSaveDir);
    fi.fFilename = StrDup(fSaveAnalysisFileName);
    new TGFileDialog(gClient->GetDefaultRoot(), fMain_histolist, kFDSave, &fi);
    if (fi.fFilename) {
@@ -2257,7 +2275,7 @@ void KVTreeAnalyzer::HistoFileMenu_Save()
       fSaveAnalysisFileName = filenam;
       Save();
    }
-   dir = fi.fIniDir;
+   fAnalysisSaveDir = fi.fIniDir;
 }
 
 void KVTreeAnalyzer::OpenAnyFile(const Char_t* filepath)

@@ -128,7 +128,10 @@ class KVHistogram;
 
 class KVTreeAnalyzer : public TNamed
 {
+   static KVList* fgAnalyzerList;//! static list of all analyzers in memory
 
+   void init();
+   Bool_t fDeletedByGUIClose;//!
 
    TTree* fTree;//! the analyzed TTree or TChain
    KVUniqueNameList fSelections;// list of TEntryList user selections
@@ -171,7 +174,8 @@ class KVTreeAnalyzer : public TNamed
    enum {
    		MH_OPEN_FILE,
        MH_SAVE_FILE,
-       MH_SAVE,
+      MH_SAVE,
+      MH_CLOSE,
         MH_QUIT,
        MH_APPLY_ANALYSIS,
        SEL_COMB_AND,
@@ -246,6 +250,8 @@ class KVTreeAnalyzer : public TNamed
    TString fRelativePathToAnalysisFile;//!
    void SetRelativePathToAnalysisFile(const Char_t* p) { fRelativePathToAnalysisFile=p; }
 
+   TString fAnalysisSaveDir;//!
+
    void ResetMethodCalled() { fMethodCalled=kFALSE; }
    Bool_t MethodNotCalled() { return !fMethodCalled; }
 
@@ -264,11 +270,13 @@ class KVTreeAnalyzer : public TNamed
    KVTreeAnalyzer(Bool_t nogui=kTRUE);
    KVTreeAnalyzer(TTree*,Bool_t nogui=kFALSE);
    virtual ~KVTreeAnalyzer();
+   void DeleteThis() { delete this; }
    
    void Copy(TObject& obj) const;
    
    void SetTree(TTree*t);
    void OpenGUI();
+   void GUIClosed();
    TH1* MakeHisto(const Char_t* expr, const Char_t* selection, Int_t nX, Int_t nY = 0, const Char_t* weight="");
    TH1* RemakeHisto(TH1* h, const Char_t* expr, const Char_t* weight="");
    TH1* MakeIntHisto(const Char_t* expr, const Char_t* selection, Int_t Xmin, Int_t Xmax, const Char_t* weight="");
@@ -276,7 +284,7 @@ class KVTreeAnalyzer : public TNamed
    TH1 *GetHistogram(const Char_t* name) const;
    TList* GetHistosByData(const Char_t* expr);
    TList* GetHistosBySelection(const Char_t* expr);
-   TH1* GetHisto(const Char_t* expr, const Char_t* selection);
+   TH1* GetHisto(const Char_t* expr, const Char_t* selection, const Char_t* weight="");
    KVHistogram* GetHistoByTitle(const Char_t* title);
    void DeleteHisto(const Char_t* expr, const Char_t* selection, const Char_t* weight);
    void DeleteSelectedHisto();
@@ -371,6 +379,9 @@ class KVTreeAnalyzer : public TNamed
    void HistoFileMenu_Apply();
    void ReapplyAnyFile(const Char_t *filepath);
    void SetTreeFileName(TTree* t);
+
+   static KVList* GetListOfAnalyzers() { return fgAnalyzerList; }
+   static KVTreeAnalyzer* GetAnalyzer(const Char_t* title) { return (KVTreeAnalyzer*)fgAnalyzerList->FindObjectByTitle(title); }
 
    ClassDef(KVTreeAnalyzer,4)//KVTreeAnalyzer
 };
