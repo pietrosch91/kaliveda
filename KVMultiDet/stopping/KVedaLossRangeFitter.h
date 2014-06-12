@@ -34,7 +34,7 @@ protected:
    TGraph* GenerateVEDALOSSRangeTable(Int_t Z);
    Int_t FitRangeTable(TGraph*);
    
-   void DoFits(Int_t Zmin=1, Int_t Zmax=100);
+   void DoFits(TString output_file, Int_t Zmin=1, Int_t Zmax=100);
    void PrintFitParameters(Int_t, std::ostream&);
    void PrintFitHeader(std::ostream &);
 

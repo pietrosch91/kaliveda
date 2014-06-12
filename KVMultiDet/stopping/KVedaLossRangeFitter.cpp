@@ -130,13 +130,16 @@ Int_t KVedaLossRangeFitter::FitRangeTable(TGraph* R)
    return (Int_t)R->Fit(fRangeFunction, "WQ");
 }
    
-void KVedaLossRangeFitter::DoFits(Int_t Zmin, Int_t Zmax)
+void KVedaLossRangeFitter::DoFits(TString output_file, Int_t Zmin, Int_t Zmax)
 {
    // Perform fits to range tables for elements from Zmin to Zmax
    TGraph*g = 0;
    TGraph*v = 0;
    new TCanvas;
-   PrintFitHeader(cout);
+	
+	ofstream results(output_file.Data());
+	
+   PrintFitHeader(results);
    for(int Z=Zmin; Z<=Zmax; Z++){
       gPad->Clear();
       SetInitialParameters(Z);
@@ -153,10 +156,11 @@ void KVedaLossRangeFitter::DoFits(Int_t Zmin, Int_t Zmax)
       }
       else
          printf("PROBLEM (%d)\n", fitStatus);
-      PrintFitParameters(Z, cout);
+      PrintFitParameters(Z, results);
       gPad->Modified();gPad->Update();
       gSystem->Sleep(500);
    }
+	results.close();
 }
 
 void KVedaLossRangeFitter::PrintFitParameters(Int_t Z, ostream& output)
