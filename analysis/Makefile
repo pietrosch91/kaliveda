@@ -162,7 +162,7 @@ endif
 KVGUIS = KaliVedaGUI.cpp
 KVGUIO = KaliVedaGUI.$(ObjSuf)
 KVGUI  = KaliVedaGUI$(ExeSuf)
-KVGUI_LIBS = $(LIBKVINDRA) -L$(ROOTSYS)/lib -lGui
+KVGUI_LIBS = $(LIBKVINDRA) $(LIBKVMULTIDET) -L$(ROOTSYS)/lib -lGui
 ifeq ($(MAKE_GANTAPE_XRD),yes)
 KVGUI_LIBS += $(XRDPOSIX)
 endif

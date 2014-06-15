@@ -23,6 +23,7 @@ tmpLinkDef.h
 ./analysis/analyse_logs
 ./analysis/delete_logs
 ./analysis/kvdatanalyser
+./analysis/kvtreeanalyzer
 ./analysis/update_runlist
 ./html/ClassCategories_*.html
 ./html/Examples.html
@@ -30,6 +31,7 @@ tmpLinkDef.h
 .root_*
 changelog_*.txt
 ./fitltg-0.1/Makefile
+./fitltg-0.1/compile
 ./fitltg-0.1/aclocal.m4
 ./fitltg-0.1/autom4te.cache
 ./fitltg-0.1/config.guess
