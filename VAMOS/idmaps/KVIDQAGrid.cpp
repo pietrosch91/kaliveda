@@ -322,7 +322,7 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 
 	Int_t idx, idx_inf, idx_sup;
 	Double_t dist, dist_inf, dist_sup;
-	KVIDLine *line = const_cast<KVIDQAGrid*>(this)->FindNearestEmbracingIDLine(x,y,"above","x", idx, idx_inf, idx_sup, dist, dist_inf, dist_sup);
+	KVIDLine *line = const_cast<KVIDQAGrid*>(this)->FindNearestIDLineFast(x,y,"above", idx, idx_inf, idx_sup, dist, dist_inf, dist_sup);
 	KVIDQALine *closest_line = NULL;
 
 	if ( !line || !line->InheritsFrom(KVIDQALine::Class()) ){
@@ -341,6 +341,16 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
  		line = (KVIDLine*)GetIdentifierAt(idx_sup);
 		KVIDQALine *sup_line = ( line && line->InheritsFrom( KVIDQALine::Class()) ? (KVIDQALine *)line : NULL );
 
+		// WARNING: the method KVIDQAGrid::FindNearestIDLineFast always find
+		// 2 nearest lines even for point below (above) the first (last) line. 
+		// we have to remove the second found line for these points
+
+		if( (closest_line == GetIdentifiers()->First()) && closest_line->WhereAmI(x,y,"below") )
+			sup_line = NULL;
+		else if( closest_line == GetIdentifiers()->Last() && closest_line->WhereAmI(x,y,"above") )
+			inf_line = NULL;
+
+
 		Double_t Q      = 0.;
 		Double_t deltaQ = 0.;
 
@@ -356,7 +366,7 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 			// (i.e. closest_line is the sup_line)
 			if( closest_line == sup_line ) deltaQ *= -1.;
 
-			if( dist > closest_line->GetWidth() ){
+			if( dist > closest_line->GetWidth()/2. ){
 				if( deltaQ>0)
         			const_cast < KVIDQAGrid * >(this)->fICode = kICODE1; // "slight ambiguity of Q, which could be larger"
 				else
@@ -364,29 +374,32 @@ void KVIDQAGrid::Identify(Double_t x, Double_t y, KVIdentificationResult* idr) c
 
 			}
 			else const_cast < KVIDQAGrid * >(this)->fICode = kICODE0; // ok
+
+			if(deltaQ>0.5)	Info("Identify","deltaQ= %f, Qclosest= %d, Qinf= %d, Qsup= %d, icode= %d, X= %f, Y= %f", deltaQ, closest_line->GetQ(), inf_line->GetQ(), sup_line->GetQ(), fICode, x, y);
 		}
 		// case where only 1 embracing line is found. 
 		// in this case, the distance between the point and the line
 		// has to be lower than the line width
 		else{
-			if( dist > closest_line->GetWidth() ){
+			if( dist > closest_line->GetWidth()/2. ){
 				// the distance from the closest line is to high
 
-				if( closest_line == sup_line )
+				if( closest_line == inf_line )
 					const_cast < KVIDQAGrid * >(this)->fICode = kICODE6; // "(x,y) is below first line in grid"
 				else
 					const_cast < KVIDQAGrid * >(this)->fICode = kICODE7; // "(x,y) is above last line in grid"
 			}
 			else{
-				deltaQ = dist/(2.*closest_line->GetWidth());
+				deltaQ = dist/closest_line->GetWidth();
 				if( closest_line == sup_line ) deltaQ *= -1.;
         		const_cast < KVIDQAGrid * >(this)->fICode = kICODE3; // "slight ambiguity of Q, which could be larger or smaller"
 			}
+			if(deltaQ>0.5) Info("Identify","deltaQ= %f, Qclosest= %d, icode= %d, X= %f, Y= %f", deltaQ,  closest_line->GetQ(), fICode, x, y);
 		}
 
 		Q = closest_line->GetQ() + deltaQ;
     	idr->Z   = closest_line->GetQ();
-    	idr->PID = Q;
+   		idr->PID = Q;
 	}
 
 
@@ -428,27 +441,27 @@ void KVIDQAGrid::Initialize(){
 }
 //________________________________________________________________
 
-void KVIDQAGrid::MakeQvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amax){
+void KVIDQAGrid::MakeQvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amin, Int_t Amax){
 	// Generate Q-A/Q grid.
     // 1 line per Q (charge state) is generated from Qmin to Qmax.
     // 'Amax' is the maximal mass number expected in the 2D matrix.
     // For each line, one point is set at each mass.
 
-	MakeYvsAoQGrid("Q", Qmin, Qmax, Amax);
+	MakeYvsAoQGrid("Q", Qmin, Qmax, Amin, Amax);
 }
 //________________________________________________________________
 
-void KVIDQAGrid::MakeAvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amax){
+void KVIDQAGrid::MakeAvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amin, Int_t Amax){
 	// Generate A-A/Q grid.
     // 1 line per Q (charge state) is generated from Qmin to Qmax.
     // 'Amax' is the maximal mass number expected in the 2D matrix.
     // For each line, one point is set at each mass.
 
-	MakeYvsAoQGrid("A", Qmin, Qmax, Amax);
+	MakeYvsAoQGrid("A", Qmin, Qmax, Amin, Amax);
 }
 //________________________________________________________________
 
-void KVIDQAGrid::MakeYvsAoQGrid(const Char_t *Y, Int_t Qmin, Int_t Qmax, Int_t Amax){
+void KVIDQAGrid::MakeYvsAoQGrid(const Char_t *Y, Int_t Qmin, Int_t Qmax, Int_t Amin, Int_t Amax){
 	// Generate Y-A/Q grid where Y can be "A" or "Q".
 	// 1 line per Q is generated from Qmin to Qmax.
 	// 'Amax' is the maximal mass number expected in the 2D matrix.
@@ -459,8 +472,6 @@ void KVIDQAGrid::MakeYvsAoQGrid(const Char_t *Y, Int_t Qmin, Int_t Qmax, Int_t A
 	Double_t y_scale = GetYScaleFactor();
 	//clear old lines from grid (and scaling parameters)
 	Clear();
-
-	Int_t Amin = 2*Qmin;
 
 	Int_t q, a;
 	Int_t *y;

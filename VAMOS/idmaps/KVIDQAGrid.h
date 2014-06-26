@@ -46,7 +46,7 @@ class KVIDQAGrid : public KVIDGrid
         return (fICode<kICODE4);
     };
 
-    virtual void MakeYvsAoQGrid(const Char_t *Y, Int_t Qmin, Int_t Qmax, Int_t Amax);
+    virtual void MakeYvsAoQGrid(const Char_t *Y, Int_t Qmin, Int_t Qmax, Int_t Amin, Int_t Amax);
 
    	public:
 
@@ -92,8 +92,8 @@ class KVIDQAGrid : public KVIDGrid
 
     virtual void Identify(Double_t x, Double_t y, KVIdentificationResult*) const;
 
-    virtual void MakeQvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amax);//*MENU*
-    virtual void MakeAvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amax);//*MENU*
+    virtual void MakeQvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amin, Int_t Amax);//*MENU*
+    virtual void MakeAvsAoQGrid(Int_t Qmin, Int_t Qmax, Int_t Amin, Int_t Amax);//*MENU*
 
     KVIDGraph* MakeSubsetGraph(Int_t Qmin, Int_t Qmax, const Char_t* /*graph_class*/="");//*MENU*
     KVIDGraph* MakeSubsetGraph(TList*, TClass* /*graph_class*/=0);
