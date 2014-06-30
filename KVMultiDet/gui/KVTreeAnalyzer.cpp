@@ -908,9 +908,15 @@ void KVTreeAnalyzer::ReconnectTree()
    //cout << "workdir='"<<gSystem->WorkingDirectory()<<"'" << endl;
    //cout << "relpath='" << fRelativePathToAnalysisFile <<"'"<< endl;
    TFile*f;
-   // if fRelativePathToAnalysisFile!="." and if fTreeFileName is not an absolute path,
-   // we guess the Tree file is in the same directory as the analysis file
-   if((fRelativePathToAnalysisFile!="." && fRelativePathToAnalysisFile!="") && !gSystem->IsAbsoluteFileName(fTreeFileName)){
+   if(gSystem->IsAbsoluteFileName(fTreeFileName) && gSystem->AccessPathName(fTreeFileName)){
+      // absolute path to TTree file doesn't work, try in working directory
+      TString tmp;
+      AssignAndDelete(tmp, gSystem->ConcatFileName(gSystem->WorkingDirectory(), gSystem->BaseName(fTreeFileName)));
+      f = TFile::Open(tmp);
+   }
+   else if((fRelativePathToAnalysisFile!="." && fRelativePathToAnalysisFile!="") && !gSystem->IsAbsoluteFileName(fTreeFileName)){
+      // if fRelativePathToAnalysisFile!="." and if fTreeFileName is not an absolute path,
+      // we guess the Tree file is in the same directory as the analysis file
       TString tmp;
       AssignAndDelete(tmp, gSystem->ConcatFileName(fRelativePathToAnalysisFile,fTreeFileName));
       cout << tmp << endl;
