@@ -32,6 +32,7 @@ GLIBS         = $(ROOTGLIBS) $(SYSLIBS)
 else
 include $(ROOT_MAKEFILE_PATH)/Makefile.arch
 endif
+LDFLAGS += -Wl,--no-as-needed -Wl,--no-undefined
 
 SrcSuf	= cpp
 
@@ -115,19 +116,19 @@ ifeq ($(PLATFORM),linux)
 ifeq ($(debug),yes)
 CXXFLAGS_NOOPT += -g
 CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT)
-LDFLAGS := $(ROOTLDFLAGS) -g $(OPT)
+LDFLAGS := $(ROOTLDFLAGS) -g $(OPT) -Wl,--no-as-needed -Wl,--no-undefined
 else
 CXXFLAGS := $(CXXFLAGS_NOOPT) $(OPT3)
-LDFLAGS := $(ROOTLDFLAGS) $(OPT3)
+LDFLAGS := $(ROOTLDFLAGS) $(OPT3) -Wl,--no-as-needed -Wl,--no-undefined
 endif
 ifeq ($(memcheck),yes)
 CXXFLAGS_NOOPTS += -g -fno-inline
 CXXFLAGS := $(CXXFLAGS_NOOPT)
-LDFLAGS += -g -fno-inline
+LDFLAGS += -g -fno-inline -Wl,--no-as-needed -Wl,--no-undefined
 endif
 ifeq ($(profile),yes)
 CXXFLAGS += -g -pg
-LDFLAGS += -g -pg
+LDFLAGS += -g -pg -Wl,--no-as-needed -Wl,--no-undefined
 endif
 endif
 
