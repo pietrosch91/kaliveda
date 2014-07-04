@@ -64,14 +64,14 @@ KVLauncherGUI::~KVLauncherGUI()
 }
 
 //________________________________________________________________
-void KVLauncherGUI::AddButton(const char* name, const char* method, TObject* obj)
+TGTextButton* KVLauncherGUI::AddButton(const char* name, const char* method, TObject* obj)
 {
     if(!obj) obj = this;
     const char* classname = ClassName();
     if(obj->Class()->GetListOfAllPublicMethods()->FindObject(method))
     {
         Error("AddAction","%s is not a public method of %s",method,classname);
-        return;
+        return NULL;
     }
 
     ULong_t ucolor;
@@ -85,6 +85,8 @@ void KVLauncherGUI::AddButton(const char* name, const char* method, TObject* obj
 
     AddFrame(fButton, new TGLayoutHints(kLHintsRight|kLHintsExpandX, 10, 10, 5, 5));
     fButtonList.AddLast(fButton);
+
+    return fButton;
 }
 
 //________________________________________________________________
