@@ -125,6 +125,26 @@ void KVINDRA_VAMOS::Clear(Option_t *opt ){
 }
 //________________________________________________________________
 
+KVNameValueList* KVINDRA_VAMOS::DetectParticle(KVNucleus * part){
+    // Simulate detection of a charged particle by the array (INDRA+VAMOS).
+    // The actual method called depends on the value of fROOTGeometry:
+    //   fROOTGeometry=kTRUE:  calls DetectParticle_TGEO, particle propagation performed using
+    //                         TGeo description of array and algorithms from ROOT TGeo package.
+    //                         For the moment, this case is not implemented (TO BE DONE)
+    //   fROOTGeometry=kFALSE:  only calls DetectParticle_KV of gIndra (INDRA), uses simple KaliVeda geometry
+    //                          to simulate propagation of particle.
+    //                          No propagation of the particle into VAMOS is simulated.
+    
+    if( IsROOTGeometry() ){
+	   	return DetectParticle_TGEO(part);
+	}
+	else{
+		gIndra->SetROOTGeometry( kFALSE );
+		return gIndra->DetectParticle(part);
+	}
+};
+//________________________________________________________________
+
 void KVINDRA_VAMOS::GetDetectorEvent(KVDetectorEvent* detev, KVSeqCollection* fired_params){
 
 	// This method is obsolete. To have access to the detector events of INDRA
