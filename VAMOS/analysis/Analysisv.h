@@ -29,6 +29,7 @@ class Analysisv
   TFile *outTree;
   TTree *outT;
   
+  Analysisv(){};
   Analysisv(LogFile* Log){
      L=Log;
      totalEntries = 0;

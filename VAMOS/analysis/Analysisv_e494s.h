@@ -60,7 +60,8 @@ class Analysisv_e494s : public Analysisv
   void SetTel3(KVDetector *csi)      { csi   = csi;   };
   void SetFileCut(TList *list)       { list  = list;  };
   void SetFileCutChioSi(TList *list2){ list2 = list2; };
-  
+  void SetFileCutSiTof(TList* list3) { list3 = list3; };     
+
   void SetTarget(KVTarget *tgt)    { tgt     = tgt;     };
   void SetDC1(KVDetector *dcv1)    { dcv1    = dcv1;    };
   void SetSed(KVMaterial *sed)     { sed     = sed;     };
