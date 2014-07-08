@@ -108,6 +108,10 @@ virtual void SetBrhoRef(Float_t brho){
 	if( Id ) Id->SetBrhoRef( brho );
 };     
 
+virtual void SetCurrentRun( Int_t run ){
+	if( Si ) Si->SetOffsetRelativisteRun( run );
+}
+
 
   ClassDef(Analysisv_e503,0)//VAMOS calibration for e503
 

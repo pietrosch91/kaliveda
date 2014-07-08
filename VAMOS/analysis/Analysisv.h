@@ -69,7 +69,8 @@ class Analysisv
 
   virtual void SetAngleVamos(Float_t angle)=0;     
   virtual void SetBrhoRef(Float_t brho)=0;     
-     
+  virtual void SetCurrentRun( Int_t run )=0;
+
   ClassDef(Analysisv,0)
 
 };

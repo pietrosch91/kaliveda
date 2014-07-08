@@ -77,6 +77,9 @@ void KVIVReconIdent_e503::InitRun(void)
    fAnalyseV->OpenInputTree(fChain->GetTree());
    fAnalyseV->inAttach();
    
+   // set current run number
+   fAnalyseV->SetCurrentRun( gMultiDetArray->GetCurrentRunNumber() );
+
    //Set Brho_ref and angle of VAMOS
    fAnalyseV->SetBrhoRef( gVamos->GetBrhoRef() );
    fAnalyseV->SetAngleVamos( gVamos->GetAngle() );
@@ -108,7 +111,6 @@ Bool_t KVIVReconIdent_e503::Analysis(void)
 
 
 // Ident/Reconstruction of VAMOS data 
-   if( GetCurrentRun()->GetSystem()->IsCollision() ){
    fAnalyseV->Treat();   		
    fIdentTree->Fill();
    fAnalyseV->FillHistograms();
@@ -116,8 +118,7 @@ Bool_t KVIVReconIdent_e503::Analysis(void)
     //fLogV->Log<<"___________________________________________"<<endl;
     //fLogV->Log<<"___________________________________________"<<endl;
       
-   }
-       return kTRUE;
+   return kTRUE;
 }
 
 //_____________________________________

@@ -75,6 +75,7 @@ class Analysisv_e494s : public Analysisv
   void SetAngleVamos(Float_t angle){ angle = angle; };     
   void SetBrhoRef(Float_t brho)    { brho  = brho;  };     
      
+  virtual void SetCurrentRun( Int_t run ){ run = run; };
 
   ClassDef(Analysisv_e494s,0)//VAMOS calibration for E494S
 
