@@ -29,7 +29,7 @@ void KVIVReconIdent::InitAnalysis(void){
 	SetBit( kVAMOSdata | kINDRAdata );
 	Info("InitAnalysis","Analysing data of %s",dt.Data());
 	if( !dt.Contains("indra") ) ResetBit( kINDRAdata );
-	if( !dt.Contains("vamos") ) ResetBit( kVAMOSdata );
+	if( !dt.Contains("vamos") || (fBranchName!="KVIVReconEvent") ) ResetBit( kVAMOSdata );
 
 	if( TestBit(kINDRAdata ) ) cout<<"INDRA"<<endl;
 	if( TestBit(kVAMOSdata ) ) cout<<"VAMOS"<<endl;
