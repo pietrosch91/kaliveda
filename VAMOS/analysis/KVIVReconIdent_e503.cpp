@@ -107,8 +107,8 @@ Bool_t KVIVReconIdent_e503::Analysis(void)
    	}
 
 
-// Ident/Reconstruction of VAMOS data
-   
+// Ident/Reconstruction of VAMOS data 
+   if( GetCurrentRun()->GetSystem()->IsCollision() ){
    fAnalyseV->Treat();   		
    fIdentTree->Fill();
    fAnalyseV->FillHistograms();
@@ -116,6 +116,7 @@ Bool_t KVIVReconIdent_e503::Analysis(void)
     //fLogV->Log<<"___________________________________________"<<endl;
     //fLogV->Log<<"___________________________________________"<<endl;
       
+   }
        return kTRUE;
 }
 
