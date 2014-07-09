@@ -503,6 +503,16 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
 {
    // Read all name-value pairs in the TEnv format file and store in list.
    // Clears any previously stored values.
+   //
+   // values are read as strings from the TEnv and we use
+   // TString::IsDigit, TString::IsFloat to decide whether to store
+   // them as integers, floats, or strings.
+   //
+   // Special case:
+   //   if the parameter name contains the string NumberList
+   //   then we store the value string as is, as in this case
+   //   it is assumed to be the string representation of a
+   //   KVNumberList (easily confused with floating point numbers)
    
    Clear();
    TEnv env_file;
@@ -518,6 +528,7 @@ void KVNameValueList::ReadEnvFile(const Char_t* filename)
       TString parname(nv_pair->GetName());
       if(parname=="KVNameValueList.Name") SetName(nv_pair->GetValue());
       else if(parname=="KVNameValueList.Title") SetTitle(nv_pair->GetValue());
+      else if(parname.Contains("NumberList")) SetValue(parname,nv_pair->GetValue());
       else
       {
          TString parval(nv_pair->GetValue());
