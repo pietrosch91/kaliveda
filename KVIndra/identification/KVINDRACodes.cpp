@@ -36,21 +36,7 @@ ClassImp(KVINDRACodes)
 //
 //Obviously, the third method is to be preferred (it is immediately clear what the instruction means)!!
 //
-//IDENTIFICATION SUBCODES
-//
-//The status of each identification routine is stored in the KVIDSubCode fIDSubCodes.
-//This is a 16-bit number which is initially set to "1111111111111111".
-//Access to and interpretation of these subcodes is via KVINDRAReconNuc::GetIDSubCode,
-//KVINDRAReconNuc::GetIDSubCodeString.
-//
-//The structure of fIDSubcodes (reminiscent of code_part tableau in veda_6.incl) is
-//
-//   BITS 15-12    BITS 11-8     BITS 7-4     BITS 3-0
-//+-------------+-------------+------------+------------+
-//|  ChIo-Si    |  Si-CsI     |  ChIo-CsI  |  CsI R-L   |
-//|  ChIo-Si75  |  SiLi-CsI   |  Si75-SiLi |  Phoswich  |
-//|             |             |            |            |
-//+-------------+-------------+------------+------------+
+
 Char_t KVINDRACodes::fCodeGenIdent[14][120] = {
    "gamma",
    "neutron (seulement couronnes 2 a 9)",

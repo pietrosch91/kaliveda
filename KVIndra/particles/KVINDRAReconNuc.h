@@ -54,13 +54,14 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
    Bool_t fIncludeEtalonsInCalibration;//for etalon modules:particle passed through Si75/SiLi
 
 	void CheckCsIEnergy();
-   
+
+        //************** obsolete methods
+        Int_t GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode & code) const;
+         const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,KVIDSubCode & code) const;
+         //************** obsolete methods
+
  public:
 
-   Int_t GetIDSubCode(const Char_t * id_tel_type,
-                       KVIDSubCode & code) const;
-    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,
-                                     KVIDSubCode & code) const;
 	Bool_t AreSiCsICoherent() const
 	{
 		// RINGS 1-9

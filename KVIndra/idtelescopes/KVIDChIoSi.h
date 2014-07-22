@@ -44,7 +44,6 @@ protected:
 
    virtual void Initialize();
 
-   const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
    virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
    {
        // Used for filtering simulations

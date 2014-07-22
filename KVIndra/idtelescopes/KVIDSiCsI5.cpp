@@ -345,32 +345,6 @@ Double_t KVIDSiCsI5::GetPedestalY(Option_t * opt)
 }
 
 
-//____________________________________________________________________________________
-
-const Char_t *KVIDSiCsI5::GetIDSubCodeString(KVIDSubCode & concat) const
-{
-   //Returns string explaining subcodes for this telescope
-
-   static TString messages[] = {
-      "ok in GG",
-      "no Z identification available - last grid tried GG",
-      "point outside of range of possible Z identification in GG",
-      "ok in PG1",
-      "no Z identification available - last grid tried PG1",
-      "point outside of range of possible Z identification in PG1",
-      "ok in PG2",
-      "no Z identification available - last grid tried PG2",
-      "point outside of range of possible Z identification in PG2",
-      "Z ok, A identification tried but not available",
-      "Z ok, A identification tried but point to identify outside of identification range of function",
-      "Z ok, A identification tried but IdentA called with Z<1",
-      "Z ok, A identification tried but IdentA called with Z larger than max Z defined for KVTGIDZA isotopic identification object"
-   };
-   Int_t code = GetIDSubCode(concat);
-   if (code == -1)
-      return SubCodeNotSet();
-   return messages[code];
-}
 
 //____________________________________________________________________________________
 

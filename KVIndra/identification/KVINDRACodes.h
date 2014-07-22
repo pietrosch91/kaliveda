@@ -13,8 +13,8 @@ class KVINDRACodes:public KVINDRACodeMask {
 friend class KVINDRAReconNuc;
 
  private:
-	void SetIsotopeResolve(Bool_t stat = kTRUE);
-   Bool_t GetIsotopeResolve();
+        void SetIsotopeResolve(Bool_t stat = kTRUE);   //obsolete
+   Bool_t GetIsotopeResolve();   //obsolete
 
    static Char_t fCodeGenIdent[14][120];
    static Char_t fCodeGenCalib[8][120];
@@ -23,7 +23,10 @@ friend class KVINDRAReconNuc;
    static UShort_t fIDBits[16];
    static UChar_t fEBits[16];
 
-   KVIDSubCode fIDSubCodes;     //contains all subcodes returned by different identification telescopes
+   KVIDSubCode fIDSubCodes;     //obsolete
+   inline KVIDSubCode & GetSubCodes() { //obsolete
+      return fIDSubCodes;
+   };
 
  public:
    
@@ -51,9 +54,6 @@ friend class KVINDRAReconNuc;
    void SetIDCode(UShort_t);
    void SetECode(UChar_t);
 
-   inline KVIDSubCode & GetSubCodes() {
-      return fIDSubCodes;
-   };
 
    void Clear(Option_t * opt = "");
 

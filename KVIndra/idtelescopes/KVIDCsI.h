@@ -38,8 +38,6 @@ class KVIDCsI:public KVINDRAIDTelescope {
    Double_t GetIDMapX(Option_t * opt = "");
    Double_t GetIDMapY(Option_t * opt = "");
 
-   const Char_t *GetIDSubCodeString(KVIDSubCode & concat) const;
-
    virtual void Initialize();
    virtual Bool_t CanIdentify(Int_t Z, Int_t /*A*/)
    {

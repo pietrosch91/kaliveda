@@ -112,34 +112,6 @@ Double_t KVIDChIoSi::GetIDMapY(Option_t *)
 
 //____________________________________________________________________________________
 
-const Char_t *KVIDChIoSi::GetIDSubCodeString(KVIDSubCode & concat) const
-{
-    //Returns string explaining subcodes for this telescope
-
-    static TString messages[] =
-    {
-        "OK",
-        "slight ambiguity of Z, which could be larger",
-        "slight ambiguity of Z, which could be smaller",
-        "slight ambiguity of Z, which could be larger or smaller",
-        "point is in between two lines of different Z, too far from either to be considered well-identified",
-        "point is in between two lines of different Z, too far from either to be considered well-identified",
-        "(x,y) is below first line in grid",
-        "(x,y) is above last line in grid",
-        " no identification: (x,y) out of range covered by grid",
-        "warning: point to identify below punch-through line",
-        "point to identify left of Si threshold line (bruit/arret ChIo?)",
-        "point to identify below Bragg curve. Z given is a Zmin",
-        "point to identify has E_Si > Emax_Si i.e. codeur is saturated. Unidentifiable"
-    };
-    Int_t code = GetIDSubCode(concat);
-    if (code == -1)
-        return SubCodeNotSet();
-    return messages[code];
-}
-
-//____________________________________________________________________________________
-
 void KVIDChIoSi::Initialize()
 {
     // Initialisation of telescope before identification.
