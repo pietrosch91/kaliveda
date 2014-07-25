@@ -670,3 +670,42 @@ TObject *KVEvent::ConstructedAt(Int_t idx, Option_t *clear_options)
    return (fParticles->GetClass()) ? static_cast<TObject*>(fParticles->GetClass()->New(obj)) : 0;
 }
 #endif
+	
+void KVEvent::FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz)
+{
+	// "Translate" this event into a simple array form
+	// mult will be set to number of nuclei in event
+	// (vx,vy,vz) velocity components in cm/ns
+
+	mult = GetMult();
+	KVNucleus* nuc;
+	Int_t i=0;
+	while( (nuc = GetNextParticle()) ){
+		Z[i] = nuc->GetZ();
+		A[i] = nuc->GetA();
+		vx[i] = nuc->GetVelocity().X();
+		vy[i] = nuc->GetVelocity().Y();
+		vz[i] = nuc->GetVelocity().Z();
+		i++;
+	}
+} 
+	
+void KVEvent::FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi)
+{
+	// "Translate" this event into a simple array form
+	// mult will be set to number of nuclei in event
+	// E = kinetic energy in MeV
+	// Theta,Phi in degrees
+
+	mult = GetMult();
+	KVNucleus* nuc;
+	Int_t i=0;
+	while( (nuc = GetNextParticle()) ){
+		Z[i] = nuc->GetZ();
+		A[i] = nuc->GetA();
+		E[i] = nuc->GetEnergy();
+		Theta[i] = nuc->GetTheta();
+		Phi[i] = nuc->GetPhi();
+		i++;
+	}
+} 

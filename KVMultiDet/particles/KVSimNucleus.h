@@ -19,6 +19,10 @@ class KVSimNucleus : public KVNucleus
 	public:
 	
 	KVSimNucleus();
+   KVSimNucleus(Int_t z, Int_t a = 0, Double_t ekin = 0);
+   KVSimNucleus(Int_t z, Double_t t, TVector3& p);
+   KVSimNucleus(Int_t z, Int_t a, TVector3 p);
+   KVSimNucleus(const Char_t* sym);
 	virtual ~KVSimNucleus();
 	
 	void Copy(TObject& obj) const;

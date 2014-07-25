@@ -94,6 +94,9 @@ class KVEvent:public KVBase {
                  TRotation & rot);
    void SetFrame(const Char_t * newframe, const Char_t * oldframe,
                  const TVector3 & boost, TRotation & rot, Bool_t beta = kFALSE);
+	
+	virtual void FillArraysV(Int_t& mult, Int_t* Z, Int_t* A, Double_t* vx, Double_t* vy, Double_t* vz); 
+	virtual void FillArraysEThetaPhi(Int_t& mult, Int_t* Z, Int_t* A, Double_t* E, Double_t* Theta, Double_t* Phi); 
 
    ClassDef(KVEvent, 4)         //Base class for all types of multiparticle event
 };
