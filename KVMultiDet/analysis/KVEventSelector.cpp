@@ -531,7 +531,7 @@ void KVEventSelector::FillTH3(TH3* h3, Double_t one, Double_t two, Double_t thre
 
 //____________________________________________________________________________
 
-void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option)
+void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option, Bool_t onlyfilled)
 {
     // Write in file all histograms declared with AddHisto(TH1*)
     // This method works with PROOF.
@@ -543,6 +543,9 @@ void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option)
     //  - if yes write in it
     //  - if not, create it with the corresponding option, write in it
     // and close it just after
+	 //
+	 // onlyfilled flag allow to write all (onlyfilled=kFALSE, default) 
+	 // or only histograms (onlyfilled=kTRUE) those have been filled
 
 	TString histo_file_name="";
     if (!strcmp(filename,""))
@@ -566,7 +569,14 @@ void KVEventSelector::SaveHistos(const Char_t* filename, Option_t* option)
 	TObject* obj=0;
 	while ( (obj = next()) ){
 		if (obj->InheritsFrom("TH1")){
-			obj->Write();
+			if (onlyfilled){
+				if ( ((TH1* )obj)->GetEntries()>0 ){
+					obj->Write();
+				}
+			}
+			else{
+				obj->Write();
+			}		
 		}
 	}	
 	if (justopened)

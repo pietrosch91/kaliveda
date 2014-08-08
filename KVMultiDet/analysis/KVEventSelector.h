@@ -204,7 +204,7 @@ public:
 	TH1* GetHisto(const Char_t* name) const;
    TTree* GetTree(const Char_t* name) const;
 
-   virtual void SaveHistos(const Char_t* filename ="", Option_t* option = "recreate");
+   virtual void SaveHistos(const Char_t* filename ="", Option_t* option = "recreate", Bool_t onlyfilled=kFALSE);
 
    virtual void SetOpt(const Char_t* option, const Char_t* value);   
    virtual Bool_t IsOptGiven(const Char_t* option);
