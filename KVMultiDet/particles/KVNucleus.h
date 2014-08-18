@@ -83,7 +83,8 @@ class KVNucleus:public KVParticle {
     KVNucleus(Int_t z, Int_t a = 0, Double_t ekin = 0);
     KVNucleus(Int_t z, Double_t t, TVector3 & p);
     KVNucleus(Int_t z, Int_t a, TVector3 p);
-    KVNucleus(const Char_t *);
+    //KVNucleus(const Char_t *);
+    KVNucleus(const Char_t *,Double_t EperA=0);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(3,4,0)
    virtual void Copy(TObject &) const;

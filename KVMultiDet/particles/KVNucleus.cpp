@@ -309,12 +309,14 @@ KVNucleus::KVNucleus(Int_t z, Int_t a, Double_t ekin)
 }
 
 //___________________________________________________________________________________________
-KVNucleus::KVNucleus(const Char_t * symbol)
+KVNucleus::KVNucleus(const Char_t * symbol,Double_t EperA)
 {
    //Create a nucleus defined by symbol e.g. "12C", "34Mg", "42Si" etc. etc.
+	//the second argument is the kinetic energy per nucleon (E/A) in MeV/A unit
 
    init();
    Set(symbol);
+	SetKE(EperA*GetA());
 }
 
 //___________________________________________________________________________________________
