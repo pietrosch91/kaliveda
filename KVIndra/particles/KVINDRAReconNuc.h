@@ -51,14 +51,32 @@ class KVINDRAReconNuc:public KVReconstructedNucleus {
     Bool_t fPileupChIo;//apparent pileup in ChIo, revealed by inconsistency between CsI & ChIo-CsI identifications
     Bool_t fPileupSiLi;//apparent pileup in SiLi, revealed by inconsistency between CsI & Si75-SiLi identifications
     Bool_t fPileupSi75;//apparent pileup in Si75, revealed by inconsistency between CsI/SiLi-CsI & ChIo-Si75 identifications
-   Bool_t fIncludeEtalonsInCalibration;//for etalon modules:particle passed through Si75/SiLi
+    Bool_t fIncludeEtalonsInCalibration;//for etalon modules:particle passed through Si75/SiLi
 
-	void CheckCsIEnergy();
+    void CheckCsIEnergy();
 
-        //************** obsolete methods
-        Int_t GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode & code) const;
-         const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,KVIDSubCode & code) const;
-         //************** obsolete methods
+    //************** obsolete methods
+    Int_t GetIDSubCode(const Char_t * id_tel_type,KVIDSubCode & code) const;
+    const Char_t *GetIDSubCodeString(const Char_t * id_tel_type,KVIDSubCode & code) const;
+    //************** obsolete methods
+
+    void SetBadCalibrationStatus()
+    {
+       SetECode(kECode15);
+       SetEnergy(-1.0);
+    }
+    void SetNoCalibrationStatus()
+    {
+       SetECode(kECode0);
+       SetEnergy(0.0);
+    }
+    void DoNeutronCalibration();
+    void DoBeryllium8Calibration();
+    void DoGammaCalibration();
+    Bool_t CalculateSiliconDEFromResidualEnergy();
+    void CalculateSiLiDEFromResidualEnergy(Double_t ERES);
+    void CalculateSi75DEFromResidualEnergy(Double_t ERES);
+    void CalculateChIoDEFromResidualEnergy(Double_t ERES);
 
  public:
 
