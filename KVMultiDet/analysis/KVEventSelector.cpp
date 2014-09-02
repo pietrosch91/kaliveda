@@ -188,25 +188,27 @@ Bool_t KVEventSelector::Process(Long64_t entry)
       }
    }
    GetEntry(entry);
-   SetAnalysisFrame();//let user define any necessary reference frames
    fEventsRead++;
+	if (GetEvent())
+	{
+		SetAnalysisFrame();//let user define any necessary reference frames
+   	KVNucleus* part = 0;
+   	//apply particle selection criteria
+   	if (fPartCond) {
+      	part = 0;
+      	while ((part = GetEvent()->GetNextParticle("ok"))) {
+      	   part->SetIsOK(fPartCond->Test(part));
+      	}
+   	}
 
-   KVNucleus* part = 0;
-   //apply particle selection criteria
-   if (fPartCond) {
-      part = 0;
-      while ((part = GetEvent()->GetNextParticle("ok"))) {
-         part->SetIsOK(fPartCond->Test(part));
-      }
-   }
-
-   // initialise global variables at first event
-   if (fFirstEvent && gvlist) {
-      gvlist->Init();
-      fFirstEvent = kFALSE;
-   }
-   RecalculateGlobalVariables();
-
+   	// initialise global variables at first event
+   	if (fFirstEvent && gvlist) {
+   	   gvlist->Init();
+   	   fFirstEvent = kFALSE;
+   	}
+   	RecalculateGlobalVariables();
+	}
+	
    Bool_t ok_anal = kTRUE;
    ok_anal = Analysis();     //user analysis
 
