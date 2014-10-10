@@ -14,20 +14,27 @@ ClassImp(KVIDQALine)
 // --> END_HTML
 ////////////////////////////////////////////////////////////////////////////////
 
-KVIDQALine::KVIDQALine()
-{
+KVIDQALine::KVIDQALine(){
    // Default constructor
+	init();
 }
-
-KVIDQALine::~KVIDQALine()
-{
-   // Destructor
-}
-
 //________________________________________________________________
 
-void KVIDQALine::Copy(TObject& obj) const
-{
+KVIDQALine::~KVIDQALine(){
+   // Destructor
+}
+//________________________________________________________________
+
+void KVIDQALine::init(){
+	// Initialization, used by constructors.
+
+	fMarkers = new KVList;
+	fMarkers->SetCleanup();
+
+}
+//________________________________________________________________
+
+void KVIDQALine::Copy(TObject& obj) const{
    // This method copies the current state of 'this' object into 'obj'
    // You should add here any member variables, for example:
    //    (supposing a member variable KVIDQALine::fToto)
@@ -36,6 +43,7 @@ void KVIDQALine::Copy(TObject& obj) const
    //    CastedObj.SetToto( GetToto() );
 
    KVIDZALine::Copy(obj);
-   //KVIDQALine& CastedObj = (KVIDQALine&)obj;
+   KVIDQALine& CastedObj = (KVIDQALine&)obj;
+   fMarkers->Copy((TObject &) (*CastedObj.GetMarkers()));
 }
 

@@ -4,4 +4,5 @@
 #pragma link off all functions;
 #pragma link C++ class KVIDQAGrid+;
 #pragma link C++ class KVIDQALine+;
+#pragma link C++ class KVIDQAMarker+;
 #endif
