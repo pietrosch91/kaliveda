@@ -124,11 +124,14 @@ void KVTarArchive::DeleteDirectory(const Char_t *dirpath)
 				DeleteDirectory(fil->GetTitle());
 			}
 		}
-		else
-			fil->Delete();
+		else{
+			if(gSystem->Unlink(Form("%s/%s",fil->GetTitle(),fil->GetName()))==-1){
+				Info("DeleteDirectory","Cannot delete file %s in %s", fil->GetName(), fil->GetTitle());
+			}
+		}
 	}
 	delete files;
-	gSystem->cd(pwd.Data());//change back to working directory after hidden 'cd' in GetListOfFiles
+	gSystem->cd(pwd.Data());//change back to working directory
 	// delete directory
 	if(gSystem->Unlink( dirpath )==0)
 		Info("DeleteDirectory", "Directory %s deleted", dirpath);
