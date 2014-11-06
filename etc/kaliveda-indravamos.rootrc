@@ -130,7 +130,6 @@ INDRA_e494s.INDRADB.ChIoSiVoltMeVCalib:            e494s_Volt2MeV.dat
 # Plugins for different datasets
 # Each dataset has an associated database of informations on runs, calibration parameters, etc.
 +Plugin.KVDataBase:    INDRA_e503    KVIVDB            VAMOS    "KVIVDB(const Char_t*)"
-+Plugin.KVDataBase:    VAMOS_e503    KVINDRADB_e503     KVIndra    "KVINDRADB_e503(const Char_t*)"
 +Plugin.KVDataBase:    INDRA_e494s    KVIVDB            VAMOS    "KVIVDB(const Char_t*)"
 
 #================================ Plugins for different datasets

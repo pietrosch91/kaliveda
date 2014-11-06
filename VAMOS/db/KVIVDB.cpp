@@ -1,8 +1,5 @@
 //Created by KVClassFactory on Mon Sep 17 17:49:41 2012
 //Author: Ademard Guilain
-// Updated by A. Chbihi on 20/08/2009
-// In addition to set the VAMOS scalers in the data base using ReadVamosScalers ()  method
-
 
 #include "KVIVDB.h"
 #include "KVDBParameterSet.h"
@@ -53,7 +50,6 @@ void KVIVDB::Build ()
 
    	KVINDRADB::Build();
    	ReadPedestalCorrection();
-   	ReadVamosScalers();
 	ReadVamosCalibrations();
 }
 //________________________________________________________________
@@ -431,64 +427,4 @@ void KVIVDB::ReadVamosCalibrations(){
 		inf2.close();
 	}
 	inf.close();
-}
-//________________________________________________________________
-
-void KVIVDB::ReadVamosScalers () 
-{
-    ifstream fin;
-
-    if( !OpenCalibFile("VamosScaler", fin) ){
-        Warning("ReadVamosScalers", "VAMOS scalers file not found : %s",
-				GetCalibFileName("VamosScaler"));
-        return;
-   	}
-   	Info("ReadVamosScalers", "Reading in Vamos Scaler file : %s",
-			GetCalibFileName("VamosScaler"));
-
-   	Float_t  NormScaler = 0;
-   	Float_t DT=0;
-   	Float_t NormVamos = 0;
-	TString sline; 
-   	Int_t irun=0;
-   	Int_t ScalerValue;
-   	Char_t Crunnumber[40];
-   	Char_t str[30];
- 	while (fin.good()) {         //reading the file
-      	sline.ReadLine(fin);
-      	if (!fin.eof()) {          //fin du fichier
-		   	if (sline.Sizeof() > 1 && !sline.BeginsWith("#") ){
-            	if (sline.BeginsWith("ScalersOfRunNumber")){
-               		sscanf(sline.Data(), "%30s %d ", Crunnumber, &irun); 
-               		KVINDRADBRun * idb = GetRun(irun);
-			   		if (idb){
-               			for (Int_t i =0;i<5;i++) {       //retrouve dans les 4 prochaines lignes NormVamos,normSca etDT
-					   		sline.ReadLine(fin);
-
-					   		if (sline.BeginsWith("NormVamos")){
-						   		sscanf(sline.Data(), "%20s %f ", str, &NormVamos);
-                    			idb->Set(str,NormVamos);
-					   		} 
-					   		if(sline.BeginsWith("NormScalers")){
-						   		sscanf(sline.Data(), "%20s %f ", str, &NormScaler);
-                     			idb->Set(str,NormScaler);
-					   		} 
-					   		if(sline.BeginsWith("DT")){
-						   		sscanf(sline.Data(), "%20s %f ", str, &DT);
-                     			idb->Set(str,DT);
-					   		} 
-
-               			}
-						for (Int_t i = 0;i<40;i++){
-							sline.ReadLine(fin);
-							sscanf(sline.Data(), "%s %d ", str, &ScalerValue);
-                  			idb->SetScaler(str,ScalerValue);
-						}
-
-			   		}
-             	}
-			}   
-		} 
-	}			
-   	fin.close();         
 }

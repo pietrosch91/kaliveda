@@ -1,5 +1,5 @@
 //Created by KVClassFactory on Mon Sep 17 17:49:41 2012
-//Author: Dijon Aurore
+//Author: Ademard Guilain
 
 #ifndef __KVIVDB_H
 #define __KVIVDB_H
@@ -18,7 +18,6 @@ class KVIVDB : public KVINDRADB
    		virtual void   ReadPedestalList () ;
    		virtual Bool_t ReadVamosCalibFile(ifstream &ifile);
    		virtual void   ReadVamosCalibrations();
-   		virtual void   ReadVamosScalers () ;
 
 
    		void init();
