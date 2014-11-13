@@ -28,7 +28,7 @@ class KVLVColumnData
 	TString			fName; 		// name used on button at top of column
 	TString			fMethod; 	// method used to retrieve data from objects
 	TMethodCall 	*fMethCall; // method call object
-	Int_t 			fRetType;	// return type of data retrieval method
+        Int_t 			fRetType;	// return type of data retrieval method
 	TString			result;		// string used to store object data
 	Bool_t			fDate;		// kTRUE if column contains TDatime date & time info
 	KVDatime::EKVDateFormat  fFmt; 		// format for presenting date & time
@@ -37,7 +37,7 @@ class KVLVColumnData
     TString         fDataFormat;// format for displaying data
 
 	enum {
-		kDatimeRef = TMethodCall::kNone+1,
+                kDatimeRef = (Int_t)TMethodCall::kNone+1,
 		kDatimeInt
 	};
 	Int_t Compare_date(TObject* o1, TObject* o2);
@@ -55,14 +55,14 @@ class KVLVColumnData
 			std::cout << "Error in <KVLVColumnData::KVLVColumnData> : method " << fMethod.Data()
 				<< " is not valid" << std::endl;
 		}
-		fRetType = fMethCall->ReturnType();
+                fRetType = (Int_t)fMethCall->ReturnType();
         fDataFormat = "";
         switch(fRetType){
-            case TMethodCall::kLong :
+            case (Int_t)TMethodCall::kLong :
             fDataFormat="%ld";
             break;
 
-            case TMethodCall::kDouble :
+            case (Int_t)TMethodCall::kDouble :
             fDataFormat="%lf";
             break;
 

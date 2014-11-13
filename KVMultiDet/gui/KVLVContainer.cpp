@@ -86,16 +86,16 @@ const Char_t* KVLVColumnData::GetDataString(TObject* obj)
 	KVDatime dtret;
 	switch(fRetType){
 
-		case TMethodCall::kString :
+                case (Int_t)TMethodCall::kString :
 			GetData(obj,result);
 			break;
 
-		case TMethodCall::kLong :
+                case (Int_t)TMethodCall::kLong :
 	   	GetData(obj,lret);
         result.Form(fDataFormat, lret);
 			break;
 
-		case TMethodCall::kDouble :
+                case (Int_t)TMethodCall::kDouble :
 	   	GetData(obj,dret);
         result.Form(fDataFormat, dret);
 			break;
@@ -107,8 +107,8 @@ const Char_t* KVLVColumnData::GetDataString(TObject* obj)
 			break;
 
 		default:
-			cout << "Error in <KVLVColumnData::GetData> : this type is not supported "
-	   		<< fMethCall->ReturnType() << endl;
+                        std::cout << "Error in <KVLVColumnData::GetData> : this type is not supported "
+                        << (Int_t)fMethCall->ReturnType() << std::endl;
 			break;
 	}
 	return result.Data();
@@ -182,15 +182,15 @@ Int_t KVLVColumnData::Compare(TObject* ob1, TObject* ob2)
 
     switch(fRetType){
 
-    case TMethodCall::kString :
+    case (Int_t)TMethodCall::kString :
         return Compare_string(ob1,ob2);
         break;
 
-    case TMethodCall::kLong :
+    case (Int_t)TMethodCall::kLong :
         return Compare_long(ob1,ob2);
         break;
 
-    case TMethodCall::kDouble :
+    case (Int_t)TMethodCall::kDouble :
         return Compare_double(ob1,ob2);
         break;
 
@@ -200,8 +200,8 @@ Int_t KVLVColumnData::Compare(TObject* ob1, TObject* ob2)
         break;
 
     default:
-        cout << "Error in <KVLVColumnData::Compare> : this type is not supported "
-             << fMethCall->ReturnType() << endl;
+        std::cout << "Error in <KVLVColumnData::Compare> : this type is not supported "
+             << (Int_t)fMethCall->ReturnType() << std::endl;
         break;
     }
     return 0;
