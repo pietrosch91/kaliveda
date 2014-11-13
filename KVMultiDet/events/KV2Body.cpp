@@ -120,8 +120,37 @@ KV2Body::KV2Body():fNuclei(4, 1)
    init();
 }
 
-KV2Body::KV2Body(KVNucleus * proj, KVNucleus * cib, KVNucleus * proj_out, Double_t Ediss):fNuclei(4,
-        1)
+KV2Body::KV2Body(const Char_t* systemname) : fNuclei(4,1)
+{
+	//Set up calculation defining entrance channel following
+   //this prescription  : 
+	//[Projectile_Symbol]+[Target_Symbol]@[Incident_Energy]MeV/A
+   // Example :
+   //	129Xe+119Sn@50.0MeV/A
+	//	U+U@5MeV/A
+	// Ta+Zn
+		init();
+   	KVString sener="";
+   	Double_t  ee=0;
+      KVString syst(systemname);
+      syst.ReplaceAll(" ","");
+      KVString scouple(syst);
+      
+      if (syst.Contains("@")){
+      	syst.Begin("@");
+         scouple = syst.Next();
+         sener = syst.Next();
+      }
+      if (sener!=""){
+      	sener.ReplaceAll("MeV/A",""); 
+         ee = sener.Atof();
+      }
+      scouple.Begin("+");
+      fNuclei[1] = new KVNucleus(scouple.Next(),ee);
+		fNuclei[2] = new KVNucleus(scouple.Next());
+}
+
+KV2Body::KV2Body(KVNucleus * proj, KVNucleus * cib, KVNucleus * proj_out, Double_t Ediss):fNuclei(4,1)
 {
    //Set up calculation defining entrance channel (projectile & target nuclei or
    //single decaying nucleus), exit channel (if necessary, the remaining nucleus of the

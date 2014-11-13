@@ -78,6 +78,7 @@ class KV2Body:public TObject {
 
    void init();
     KV2Body();
+    KV2Body(const Char_t* systemname);
     KV2Body(KVNucleus * proj, KVNucleus * cib = 0, KVNucleus * proj_out =
             0, Double_t Ediss = 0.0);
     virtual ~ KV2Body();
