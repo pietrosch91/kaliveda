@@ -711,7 +711,7 @@ void KVSeqCollection::_GetSubListWithMethod(KVSeqCollection* outputList, TCollec
                     mt.Execute(ob,"",ret);
                     if (ret==RV.Atof()) outputList->Add(ob);
                 }
-                else cout << "this type is not supported " << mt.ReturnType() << endl;
+                else std::cout << "this type is not supported " << (int)mt.ReturnType() << std::endl;
             }
         }
     }
