@@ -252,7 +252,6 @@ inline Bool_t KVIDLine::WhereAmI(Double_t px, Double_t py, Option_t * opt)
 	Int_t i_stop      = fNpoints-1;
 	Int_t prev_i_stop = 0;
 	Bool_t same_sign = TMath::Sign(1., XX[i_start]-xx) == TMath::Sign(1., XX[i_stop]-xx);
-	cout<<endl;
 	while( (i_start<i_stop-1) || same_sign){
 
 		if( same_sign && (prev_i_stop==0) )	break;
